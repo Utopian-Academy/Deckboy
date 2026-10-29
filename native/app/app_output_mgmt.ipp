@@ -963,15 +963,20 @@
   // LTC is generated against 48k -- all three are deliberately left alone,
   // because none of them is the signal the operator chose a rate for.
   SDL_AudioStream* openMainAudioDevice(const std::string& preferredDeviceName, std::string& effectiveName,
-                                       int channels = kAudioChannels, bool joinOutputLimiter = true) {
+                                       int channels = kAudioChannels, bool joinOutputLimiter = true,
+                                       bool exactWidth = false) {
     applyAudioBufferSizeHint();
     SDL_AudioSpec desired {};
     desired.freq = project_.audioSampleRate > 0 ? project_.audioSampleRate
                                                 : kAudioRate;
     desired.format = kAudioFormat;
     // Even channel counts only (stereo pairs); SDL folds down when the
-    // physical device has fewer outs.
-    desired.channels = std::clamp(channels - (channels % 2), static_cast<int>(kAudioChannels), 8);
+    // physical device has fewer outs. EXACT for the patch, which opens a
+    // device at its own width: SDL converts between widths by speaker layout,
+    // so four channels into an eight-channel device would put "3" on out 5.
+    desired.channels = exactWidth
+      ? std::clamp(channels, 1, 8)
+      : std::clamp(channels - (channels % 2), static_cast<int>(kAudioChannels), 8);
 
     effectiveName = preferredDeviceName;
     SDL_AudioDeviceID target = audioPlaybackDeviceIdForName(preferredDeviceName);
@@ -6095,6 +6100,301 @@
     }
   }
 
+  // ── NAMED OUTPUTS AND THE PATCH ───────────────────────────────────────────
+  //
+  // Settings > Audio, OUTPUTS and PATCH. A named output is a channel or a pair
+  // on an interface; a playlist with a crosspoint into any of them is in the
+  // patch, and the patch, not the playlist's own device, decides where it
+  // sounds. Each interface the names are on is opened once per patched
+  // playlist, at that interface's own width, and the gains do the rest
+  // (MediaEngine::setPatchRouting) -- so turning a crosspoint on or off, or
+  // changing its level, never reopens anything.
+
+  static constexpr const char* kAsioDevicePrefix = "ASIO: ";
+
+  bool deckInPatch(const Deck& deck) const { return !deck.audioPatch.empty(); }
+
+  const NamedAudioOutput* namedAudioOutput(const std::string& name) const {
+    for (const NamedAudioOutput& named : project_.namedAudioOutputs) {
+      if (named.name == name) return &named;
+    }
+    return nullptr;
+  }
+
+  const AudioPatchPoint* audioPatchPoint(const Deck& deck, const std::string& output) const {
+    for (const AudioPatchPoint& point : deck.audioPatch) {
+      if (point.output == output) return &point;
+    }
+    return nullptr;
+  }
+
+  // An interface's own width: what SDL says the device runs at, which is what
+  // a stream must be opened with for channel n to land on its out n. Eight at
+  // most, SDL's own limit. DECKBOY_TEST_DEVICE_CHANNELS widens every device,
+  // so a test machine with nothing but stereo outs can check a patch onto
+  // channels 3 to 8 (SDL's dummy driver takes any width it is given).
+  int playbackDeviceChannels(const std::string& deviceName) {
+    const SDL_AudioDeviceID id = deviceName.empty() ? systemDefaultPlaybackTarget()
+                                                    : audioPlaybackDeviceIdForName(deviceName);
+    if (id == 0) return 0;
+    SDL_AudioSpec spec {};
+    int frames = 0;
+    int channels = SDL_GetAudioDeviceFormat(id, &spec, &frames) ? spec.channels : 2;
+    if (const char* wide = std::getenv("DECKBOY_TEST_DEVICE_CHANNELS"); wide && *wide) {
+      channels = std::max(channels, std::atoi(wide));
+    }
+    return std::clamp(channels, 1, 8);
+  }
+
+  // Where a named output is right now, and if nowhere, why. The why is shown
+  // on its row in OUTPUTS and over the wire: an output that cannot be reached
+  // says so rather than going somewhere else.
+  struct NamedOutputReach {
+    bool reachable = false;
+    bool asio = false;
+    std::string device;     // the SDL device, empty being the system output
+    int deviceChannels = 0;
+    std::string why;
+  };
+  NamedOutputReach namedOutputReach(const NamedAudioOutput& named) {
+    NamedOutputReach reach;
+    const int lastChannel = named.firstChannel + std::max(1, named.width) - 1;
+    const std::string prefix = kAsioDevicePrefix;
+    if (named.deviceName.rfind(prefix, 0) == 0) {
+      reach.asio = true;
+#if defined(DECKBOY_HAS_ASIO)
+      const std::string driver = named.deviceName.substr(prefix.size());
+      if (!asioArmed()) {
+        reach.why = "ASIO is off";
+      } else if (driver != project_.asioDriverName) {
+        reach.why = "ASIO is on " + project_.asioDriverName;
+      } else if (lastChannel > asioOutput_->channels()) {
+        reach.why = "channel " + std::to_string(lastChannel) + ", ASIO has " +
+                    std::to_string(asioOutput_->channels()) + " (ASIO outs)";
+      } else {
+        reach.reachable = true;
+        reach.deviceChannels = asioOutput_->channels();
+      }
+#else
+      reach.why = "no ASIO in this build";
+#endif
+      return reach;
+    }
+    reach.device = named.deviceName;
+#if defined(DECKBOY_HAS_ASIO)
+    if (asioArmed()) {
+      reach.why = "the show plays through ASIO";
+      return reach;
+    }
+#endif
+    reach.deviceChannels = playbackDeviceChannels(named.deviceName);
+    if (reach.deviceChannels <= 0) {
+      reach.why = "not connected";
+    } else if (lastChannel > reach.deviceChannels) {
+      reach.why = "channel " + std::to_string(lastChannel) + ", but it has " +
+                  std::to_string(reach.deviceChannels);
+    } else {
+      reach.reachable = true;
+    }
+    return reach;
+  }
+
+  // What a playlist in the patch is opened on: every interface any name is
+  // on, so a cue whose own matrix sends somewhere the playlist's crosspoints
+  // do not still has a stream to go out on. Under ASIO there is one
+  // destination, the driver.
+  struct DeckPatchPlan {
+    std::vector<std::string> devices;     // SDL device names, in order; destination 0 first
+    std::vector<int> channels;
+    MediaEngine::PatchRouting routing;
+    std::string signature;
+  };
+  DeckPatchPlan deckPatchPlan(int deckIndex) {
+    DeckPatchPlan plan;
+    const Deck& deck = project_.decks[static_cast<std::size_t>(deckIndex)];
+    plan.routing.active = deckInPatch(deck);
+    if (!plan.routing.active) {
+      return plan;
+    }
+#if defined(DECKBOY_HAS_ASIO)
+    const bool viaAsio = asioArmed();
+#else
+    const bool viaAsio = false;
+#endif
+    for (const NamedAudioOutput& named : project_.namedAudioOutputs) {
+      MediaEngine::PatchRouting::Output out;
+      out.name = named.name;
+      out.firstChannel = named.firstChannel - 1;
+      out.width = named.width;
+      if (const AudioPatchPoint* point = audioPatchPoint(deck, named.name)) {
+        out.on = true;
+        out.gainDb = point->gainDb;
+      }
+      const NamedOutputReach reach = namedOutputReach(named);
+      if (reach.reachable && viaAsio) {
+        out.dest = 0;
+        if (plan.channels.empty()) plan.channels.push_back(reach.deviceChannels);
+      } else if (reach.reachable) {
+        const auto found = std::find(plan.devices.begin(), plan.devices.end(), reach.device);
+        if (found != plan.devices.end()) {
+          out.dest = static_cast<int>(found - plan.devices.begin());
+        } else if (static_cast<int>(plan.devices.size()) < MediaEngine::kMaxAudioDestinations) {
+          out.dest = static_cast<int>(plan.devices.size());
+          plan.devices.push_back(reach.device);
+          plan.channels.push_back(reach.deviceChannels);
+        }
+      }
+      plan.routing.outputs.push_back(out);
+    }
+    plan.routing.destChannels = plan.channels;
+    plan.signature = viaAsio ? std::string("asio") : std::string("sdl");
+    for (std::size_t i = 0; i < plan.channels.size(); ++i) {
+      plan.signature += "|" + (i < plan.devices.size() ? plan.devices[i] : std::string()) + "#" +
+                        std::to_string(plan.channels[i]);
+    }
+    return plan;
+  }
+
+  // ── EDITING THEM: one set of functions for the cards and the wire ────────
+
+  static std::string namedOutputChannelsLabel(const NamedAudioOutput& named) {
+    return named.width >= 2
+      ? std::to_string(named.firstChannel) + "-" + std::to_string(named.firstChannel + 1)
+      : std::to_string(named.firstChannel);
+  }
+
+  static std::string namedOutputDeviceLabel(const NamedAudioOutput& named) {
+    return named.deviceName.empty() ? std::string("system output") : named.deviceName;
+  }
+
+  // "" when it was added; otherwise why not.
+  std::string addNamedOutput(const std::string& rawName, const std::string& deviceName,
+                             int firstChannel, int width) {
+    const std::string name = cleanAudioOutputName(rawName);
+    if (name.empty()) return "a name is needed";
+    if (namedAudioOutput(name)) return name + " already exists";
+    if (static_cast<int>(project_.namedAudioOutputs.size()) >= kMaxNamedAudioOutputs) {
+      return "sixteen outputs at most";
+    }
+    NamedAudioOutput named;
+    named.name = name;
+    named.deviceName = deviceName;
+    named.firstChannel = std::clamp(firstChannel, 1, kMaxAudioOutputs);
+    named.width = width == 1 ? 1 : 2;
+    project_.namedAudioOutputs.push_back(named);
+    markProjectDirty();
+    return {};
+  }
+
+  // Its crosspoints go with it: a patch point to a name that is not there
+  // would sit in the show doing nothing. A cue's matrix keeps its points, so
+  // an output removed by mistake and added back finds its cues as they were.
+  void removeNamedOutput(const std::string& name) {
+    auto& list = project_.namedAudioOutputs;
+    list.erase(std::remove_if(list.begin(), list.end(),
+                              [&](const NamedAudioOutput& o) { return o.name == name; }),
+               list.end());
+    for (Deck& deck : project_.decks) {
+      deck.audioPatch.erase(std::remove_if(deck.audioPatch.begin(), deck.audioPatch.end(),
+                                           [&](const AudioPatchPoint& p) { return p.output == name; }),
+                            deck.audioPatch.end());
+    }
+    markProjectDirty();
+  }
+
+  // A rename carries everything that sends to the name: the patch and every
+  // cue's matrix.
+  std::string renameNamedOutput(const std::string& from, const std::string& rawTo) {
+    const std::string to = cleanAudioOutputName(rawTo);
+    if (to.empty()) return "a name is needed";
+    if (to == from) return {};
+    if (namedAudioOutput(to)) return to + " already exists";
+    bool found = false;
+    for (NamedAudioOutput& named : project_.namedAudioOutputs) {
+      if (named.name == from) { named.name = to; found = true; }
+    }
+    if (!found) return "no output called " + from;
+    for (Deck& deck : project_.decks) {
+      for (AudioPatchPoint& point : deck.audioPatch) {
+        if (point.output == from) point.output = to;
+      }
+      for (Cue& cue : deck.cues) {
+        for (AudioCrosspoint& p : cue.audioMatrix) {
+          if (p.output == from) p.output = to;
+        }
+      }
+    }
+    markProjectDirty();
+    return {};
+  }
+
+  // A crosspoint on, at a level, or (no level) off.
+  void setAudioPatchPoint(int deckIndex, const std::string& output, std::optional<float> gainDb) {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) return;
+    auto& row = project_.decks[static_cast<std::size_t>(deckIndex)].audioPatch;
+    auto it = std::find_if(row.begin(), row.end(),
+                           [&](const AudioPatchPoint& p) { return p.output == output; });
+    if (!gainDb) {
+      if (it != row.end()) row.erase(it);
+    } else if (it != row.end()) {
+      it->gainDb = std::clamp(*gainDb, kAudioPatchMinDb, kAudioPatchMaxDb);
+    } else {
+      row.push_back(AudioPatchPoint {output, std::clamp(*gainDb, kAudioPatchMinDb, kAudioPatchMaxDb)});
+    }
+    markProjectDirty();
+  }
+
+  static std::string audioPatchLevelLabel(float gainDb) {
+    char text[16];
+    std::snprintf(text, sizeof(text), "%.0f", static_cast<double>(gainDb));
+    return std::string(text) == "-0" ? std::string("0") : std::string(text);
+  }
+
+  // A playlist's patch row and its streams agree, or it is reopened. Run each
+  // tick: an interface plugged in or out, an output moved to another device,
+  // a playlist going into the patch or out of it all change what has to be
+  // open. Comparing a string per deck costs nothing next to a reopen.
+  std::string patchInputsKey_;            // what the plans were last worked out from
+  Uint64 patchDevicesCheckedAtMs_ = 0;
+
+  void servicePatchRouting() {
+    // Worked out again when the outputs or a crosspoint change, and twice a
+    // second anyway for an interface arriving or leaving. Asking SDL about
+    // every device for every playlist sixty times a second would be the
+    // costliest thing in the tick for no reason.
+    std::string key;
+    for (const NamedAudioOutput& named : project_.namedAudioOutputs) {
+      // Tabs and line breaks: the one thing a name cannot hold.
+      key += named.name + '\t' + named.deviceName + '\t' + std::to_string(named.firstChannel) + ':' +
+             std::to_string(named.width) + '\n';
+    }
+    for (const Deck& deck : project_.decks) {
+      key += '|';
+      for (const AudioPatchPoint& point : deck.audioPatch) {
+        key += point.output + '=' + std::to_string(point.gainDb) + ';';
+      }
+    }
+    const Uint64 now = SDL_GetTicks();
+    if (key == patchInputsKey_ && now - patchDevicesCheckedAtMs_ < 500) {
+      return;
+    }
+    patchInputsKey_ = key;
+    patchDevicesCheckedAtMs_ = now;
+    for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+      DeckRuntime* runtime = runtimeForDeck(d);
+      if (!runtime || !runtime->mediaEngine) continue;
+      const Deck& deck = project_.decks[static_cast<std::size_t>(d)];
+      if (!deckInPatch(deck) && runtime->patchSignature.empty()) continue;
+      const DeckPatchPlan plan = deckPatchPlan(d);
+      if (plan.signature != runtime->patchSignature) {
+        reopenDeckAudioOutput(d, deck.audioOutputDeviceName);
+      } else if (plan.routing.active) {
+        // Same streams; the levels and the crosspoints may have changed.
+        runtime->mediaEngine->setPatchRouting(plan.routing);
+      }
+    }
+  }
+
   bool reopenDeckAudioOutput(int deckIndex, const std::string& preferredDeviceName) {
     Deck& deck = project_.decks[deckIndex];
     DeckRuntime* runtime = runtimeForDeck(deckIndex);
@@ -6102,9 +6402,56 @@
       return false;
     }
 
+    // IN THE PATCH, the patch opens the devices; under ASIO every playlist
+    // plays through the driver whatever it is patched to, so there the patch
+    // only routes inside it and the streams are opened the old way.
+    DeckPatchPlan plan = deckPatchPlan(deckIndex);
+#if defined(DECKBOY_HAS_ASIO)
+    const bool openByPatch = plan.routing.active && !asioArmed();
+#else
+    const bool openByPatch = plan.routing.active;
+#endif
+    std::vector<SDL_AudioStream*> patchExtras;
+    int mainChannels = deck.audioOutputChannels;
     std::string effectiveName;
-    SDL_AudioStream* newMain = openMainAudioDevice(preferredDeviceName, effectiveName,
-                                                   deck.audioOutputChannels);
+    SDL_AudioStream* newMain = nullptr;
+    if (openByPatch) {
+      // Named or nothing, every one of them: a patch that fell back to the
+      // system output would put a press feed into the PA.
+      std::vector<int> openedChannels;
+      std::vector<int> remap(plan.devices.size(), -1);
+      for (std::size_t i = 0; i < plan.devices.size(); ++i) {
+        std::string got;
+        SDL_AudioStream* stream =
+          openMainAudioDevice(plan.devices[i], got, plan.channels[i], true, true);
+        if (stream && got != plan.devices[i]) {
+          SDL_DestroyAudioStream(stream);
+          stream = nullptr;
+        }
+        if (!stream) {
+          triggerToast("audio: could not open " +
+                       (plan.devices[i].empty() ? std::string("the system output") : plan.devices[i]) +
+                       " for the patch", ToastKind::Warning, kToastReadableMs);
+          continue;
+        }
+        remap[i] = static_cast<int>(openedChannels.size());
+        openedChannels.push_back(plan.channels[i]);
+        if (!newMain) {
+          newMain = stream;
+          effectiveName = plan.devices[i];
+        } else {
+          deckboySetAudioPaused(stream, false);   // the extras run; see below
+          patchExtras.push_back(stream);
+        }
+      }
+      for (auto& out : plan.routing.outputs) {
+        out.dest = out.dest >= 0 && out.dest < static_cast<int>(remap.size()) ? remap[static_cast<std::size_t>(out.dest)] : -1;
+      }
+      plan.routing.destChannels = openedChannels;
+      mainChannels = openedChannels.empty() ? 2 : openedChannels.front();
+    } else {
+      newMain = openMainAudioDevice(preferredDeviceName, effectiveName, deck.audioOutputChannels);
+    }
     // NO DEVICE IS NOT NO DECK, and this used to return here -- which mattered
     // far more than it looks, because THE MEDIA ENGINE IS CREATED BELOW. A
     // machine with no sound card therefore got a deck with no engine, and a
@@ -6129,8 +6476,10 @@
     // else would mean a second lifecycle to keep in step with this one.
     std::vector<SDL_AudioStream*> oldExtras;
     oldExtras.swap(runtime->extraAudioStreams);
-    std::vector<SDL_AudioStream*> newExtras;
-    for (const std::string& name : deck.extraAudioDeviceNames) {
+    std::vector<SDL_AudioStream*> newExtras = patchExtras;
+    // In the patch the extras are the patch's other interfaces, opened above;
+    // the playlist's own extra sends are what it does outside the patch.
+    for (const std::string& name : openByPatch ? std::vector<std::string> {} : deck.extraAudioDeviceNames) {
       if (trim(name).empty()) {
         continue;
       }
@@ -6178,8 +6527,10 @@
     const std::string monitorWanted = trim(project_.monitorDeviceName);
     if (!monitorWanted.empty() && monitorWanted != effectiveName) {
       std::string monitorGot;
+      // Stereo in the patch: the monitor is the playlist's own sound,
+      // whatever the patch spreads it across.
       SDL_AudioStream* monitor =
-        openMainAudioDevice(monitorWanted, monitorGot, deck.audioOutputChannels, false);
+        openMainAudioDevice(monitorWanted, monitorGot, openByPatch ? 2 : deck.audioOutputChannels, false);
       if (monitor && monitorGot == monitorWanted) {
         deckboySetAudioPaused(monitor, false);   // see the extras above: paused, it was silent from v0.99.376
         runtime->monitorAudioStream = monitor;
@@ -6197,17 +6548,22 @@
     // file; what we actually got belongs to this run.
     deck.audioOutputDeviceName = preferredDeviceName;
     runtime->audioDeviceInUse = effectiveName;
-    if (haveDevice && !preferredDeviceName.empty() && effectiveName != preferredDeviceName) {
+    if (!openByPatch && haveDevice && !preferredDeviceName.empty() && effectiveName != preferredDeviceName) {
       triggerToast("audio: " + preferredDeviceName + " not found — using system default");
     }
+    runtime->patchSignature = plan.routing.active ? plan.signature : std::string();
     if (runtime->mediaEngine) {
       // Hot-swap the output device on the existing engine so a device change
       // mid-cue keeps playing instead of tearing the engine down.
-      runtime->mediaEngine->setAudioDevice(newMain);
+      runtime->mediaEngine->setAudioDevice(newMain, mainChannels);
       runtime->mediaEngine->setExtraAudioStreams(newExtras);
+      runtime->mediaEngine->setPatchRouting(plan.routing);
       runtime->mediaEngine->setMonitorStream(runtime->monitorAudioStream);
-      runtime->mediaEngine->setMainDeviceMuted(!deck.audioToProgram);
-      runtime->mediaEngine->setAudioDeviceChannels(deck.audioOutputChannels);
+      if (const char* capture = std::getenv("DECKBOY_PATCH_CAPTURE"); capture && *capture) {
+        runtime->mediaEngine->setPatchCapture(std::string(capture) + "/deck" + std::to_string(deckIndex + 1));
+      }
+      // In the patch, "to the room" is what the crosspoints say.
+      runtime->mediaEngine->setMainDeviceMuted(!openByPatch && !deck.audioToProgram);
     } else {
       runtime->mediaEngine = std::make_unique<MediaEngine>(
         runtime->outputRenderer,
@@ -6249,7 +6605,16 @@
       // upload target -- so nothing else will ever present it, and without a
       // present the driver never frees what we upload. See uploadFrame.
       runtime->mediaEngine->setHiddenUploadTarget(true);
-      runtime->mediaEngine->setAudioDeviceChannels(deck.audioOutputChannels);
+      runtime->mediaEngine->setAudioDeviceChannels(mainChannels);
+      // Everything the hot-swap path installs, so a new engine starts with
+      // the deck's whole routing rather than its main stream alone.
+      runtime->mediaEngine->setExtraAudioStreams(newExtras);
+      runtime->mediaEngine->setPatchRouting(plan.routing);
+      runtime->mediaEngine->setMonitorStream(runtime->monitorAudioStream);
+      runtime->mediaEngine->setMainDeviceMuted(!openByPatch && !deck.audioToProgram);
+      if (const char* capture = std::getenv("DECKBOY_PATCH_CAPTURE"); capture && *capture) {
+        runtime->mediaEngine->setPatchCapture(std::string(capture) + "/deck" + std::to_string(deckIndex + 1));
+      }
       // An engine made while ASIO is armed -- a playlist added mid-show, or the
       // fresh engine a transition hands a deck (handOffToOutgoingTail) --
       // plays through ASIO like the rest, from a source of its own. Arming

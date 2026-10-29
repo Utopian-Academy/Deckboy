@@ -69,6 +69,17 @@
   first, says so, and then carries on from where you left it.
 
 ### Audio
+- Added **OUTPUTS** and **PATCH** (Settings > Audio). Name the channels of your interfaces once
+  (FOH 1-2, SUB 3, PRESS FEED 5-6), then send playlists to the names. A crosspoint is a level in
+  dB or off: click it through off, 0, -3, -6 and -12, or drag it to any level from -48 to +6. A
+  playlist with a crosspoint plays where the patch says, across every interface its names are on;
+  one with none plays to its own device as before. A name on an interface that is not there, or
+  past its last channel, is marked unpatched with the reason, and nothing is sent anywhere else
+  instead. On a playlist in the patch, a cue's **MATRIX** sends to the names. A different
+  interface means changing the names, not the cues. `OUTPUTS`, `PATCH` and `MATRIX SET <src>
+  <output> [L|R] <level>` over the network.
+- Fixed: with Settings open in a window about the size of a laptop screen, an empty outlined box
+  was drawn over the bottom of the Audio page, where the MENU button sits underneath.
 - Added **OUTPUT EFFECTS** (Settings > Audio): a chain on a playback device, after everything the
   show plays there is mixed, every playlist on it and every extra send to it. Up to four of **high
   pass**, **low pass**, **tilt**, **compressor** and **width**, each shown in its own units (80 Hz,

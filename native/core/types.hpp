@@ -1492,6 +1492,47 @@ struct AudioCrosspoint {
   int source = 0;      // 0 = the cue's left, 1 = its right
   int dest = 0;        // 0-based channel of the deck's audio device
   float gain = 1.0f;   // 0..1, linear
+  // BY NAME, on a playlist in the patch: a named output (NamedAudioOutput),
+  // and `dest` is then its own channel, 0 or 1. Empty is the channel number
+  // above, which is what every matrix saved before names existed means.
+  std::string output;
+};
+
+// A NAMED OUTPUT: one channel or a pair on an interface, by name. Playlists
+// are patched to names (Deck::audioPatch) and a cue's matrix can send to them,
+// so moving to a different interface means re-patching the names once rather
+// than every cue. An interface that is not there leaves its names unpatched
+// and says so; nothing is sent anywhere else instead.
+struct NamedAudioOutput {
+  std::string name;              // "FOH", "SUB"
+  std::string deviceName;        // empty = the system output; "ASIO: <driver>" = the ASIO driver
+  int firstChannel = 1;          // 1-based, as the interface's back panel counts
+  int width = 2;                 // 2 = a pair (L on first, R on the next), 1 = one channel
+};
+
+// A name as the show file can carry it: the patch and the matrix keep names in
+// fields split on ';', '=', '|' and ':', so those become '-'; tabs and line
+// breaks would split the record itself. Trimmed, and short enough for a column
+// heading. Empty means there was nothing to keep.
+inline std::string cleanAudioOutputName(const std::string& raw) {
+  std::string out;
+  for (char c : raw) {
+    if (c == ';' || c == '=' || c == '|' || c == ':') c = '-';
+    if (c == '\t' || c == '\n' || c == '\r') c = ' ';
+    out += c;
+  }
+  const std::size_t first = out.find_first_not_of(' ');
+  if (first == std::string::npos) return std::string();
+  out = out.substr(first, out.find_last_not_of(' ') - first + 1);
+  if (out.size() > 24) out.resize(24);
+  return out;
+}
+
+// One crosspoint of the patch: a playlist into a named output, at a level.
+// No point is OFF.
+struct AudioPatchPoint {
+  std::string output;            // NamedAudioOutput::name
+  float gainDb = 0.0f;
 };
 
 struct CompositeSlot {
@@ -1987,6 +2028,10 @@ struct Deck {
   // file can carry and a device index is not. A name that is absent at open
   // is reported and skipped, never silently swapped for something else.
   std::vector<std::string> extraAudioDeviceNames;
+  // THE PATCH: this playlist into named outputs. Empty is not in the patch,
+  // and plays to audioOutputDeviceName as every show before names did; one
+  // point or more and the patch decides where it sounds instead.
+  std::vector<AudioPatchPoint> audioPatch;
   // Whether this playlist's sound reaches its OWN device -- the room.
   // True for every show that has ever been saved, because that is what
   // every deck did. Turn it off for a playlist that feeds a second screen
@@ -2816,6 +2861,7 @@ struct Project {
   // through a show wants. Otherwise the playlist is pinned.
   int monitorDeckIndex = -1;
   std::vector<OutputLimiterSetting> outputLimiters;   // see OutputLimiterSetting
+  std::vector<NamedAudioOutput> namedAudioOutputs;    // OUTPUTS: see NamedAudioOutput
   bool creaturesEnabled = true;
   // Whether they stay out while an output is live. Off by default: during a
   // show the only thing moving on this machine should be the show. On for

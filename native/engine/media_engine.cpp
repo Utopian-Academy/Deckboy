@@ -205,6 +205,10 @@ bool MediaEngine::sdlTornDown() {
 // Destructor ensures all decode threads are joined and subprocesses killed.
 MediaEngine::~MediaEngine() {
   stopAll();
+  for (std::FILE*& file : patchCaptureFiles_) {
+    if (file) std::fclose(file);
+    file = nullptr;
+  }
 #if defined(__linux__) && DECKBOY_INPROC_DECODE
   // The importer frees SDL and GL objects; after SDL_Quit there is nothing
   // left to free them into, so they are let go with the process.
@@ -865,7 +869,7 @@ void MediaEngine::applyActiveCueTrimEdit(const Cue& cue) {
 // Resume playback from the current position. For source cues (camera/window),
 // this starts or resumes the capture backend. For video/audio cues, this
 // unpauses the SDL audio device and starts the wall-clock timer.
-void MediaEngine::setAudioDevice(SDL_AudioStream* stream) {
+void MediaEngine::setAudioDevice(SDL_AudioStream* stream, int channels) {
   // Redirect PCM output to a newly opened device. The caller closes the old
   // device after this returns; start the new one clean and matched to the
   // current transport so a device change never interrupts playback.
@@ -875,6 +879,9 @@ void MediaEngine::setAudioDevice(SDL_AudioStream* stream) {
   {
     std::lock_guard<std::mutex> lock(audioStreamMutex_);
     audioStream_ = stream;
+    if (channels > 0) {
+      audioDeviceChannels_.store(std::clamp(channels, 2, kMaxAudioMatrixOuts));
+    }
   }
   if (audioStream_) {
     SDL_ClearAudioStream(audioStream_);
@@ -5252,7 +5259,9 @@ void MediaEngine::syncAudioFadeParams() {
   // else the audio thread needs. Published here rather than from the app so
   // there is one path: every edit that reaches the engine's cue snapshot
   // reaches the matrix too, and none can be forgotten.
-  if (cue && !cue->audioMatrix.empty()) {
+  if (patchRouting_.active) {
+    publishPatchGains(cue);   // the playlist is in the patch: names, not channels
+  } else if (cue && !cue->audioMatrix.empty()) {
     setAudioMatrix(cue->audioMatrix);
   } else {
     clearAudioMatrix();
@@ -7682,6 +7691,21 @@ bool MediaEngine::usingExternalAudioSink() const {
 void MediaEngine::putWideAudioToStream(const std::vector<std::int16_t>& wide,
                                        int channels) {
   if (wide.empty() || channels <= 0) return;
+  // IN THE PATCH a generated sound goes through the crosspoints like any
+  // other, its first pair being the playlist's stereo. Written at the main
+  // destination's width it would reach every interface at that width and miss
+  // the patch altogether. (A tone's own channel choice is a channel number,
+  // which the patch replaces with names.)
+  if (patchRoutingActive_.load(std::memory_order_acquire)) {
+    const std::size_t frames = wide.size() / static_cast<std::size_t>(channels);
+    std::vector<std::int16_t> stereo(frames * 2);
+    for (std::size_t f = 0; f < frames; ++f) {
+      stereo[f * 2] = wide[f * static_cast<std::size_t>(channels)];
+      stereo[f * 2 + 1] = wide[f * static_cast<std::size_t>(channels) + (channels > 1 ? 1 : 0)];
+    }
+    putAudioToStream(stereo);   // takes the audio lock itself
+    return;
+  }
   std::lock_guard<std::mutex> lock(audioStreamMutex_);
   if (externalSink_.write) {
     const std::size_t frames = wide.size() / static_cast<std::size_t>(channels);
@@ -7750,13 +7774,24 @@ void MediaEngine::putAudioToStream(const std::vector<std::int16_t>& stereo) {
     const int sinkChannels = std::max(2, externalSink_.channels);
     const std::size_t frames = stereo.size() / 2;
     std::vector<std::int16_t> wide(frames * static_cast<std::size_t>(sinkChannels), 0);
-    int pair = audioCuePairOffset_.load(std::memory_order_relaxed);
-    if (pair < 0 || pair * 2 + 1 >= sinkChannels) pair = 0;
-    const std::size_t off = static_cast<std::size_t>(pair) * 2;
-    for (std::size_t f = 0; f < frames; ++f) {
-      std::int16_t* out = wide.data() + f * static_cast<std::size_t>(sinkChannels);
-      out[off] = stereo[f * 2];
-      out[off + 1] = stereo[f * 2 + 1];
+    // THE MATRIX AND THE PATCH REACH ASIO TOO. Only the pair ever did, so a
+    // cue's matrix did nothing through an ASIO driver -- the one route with
+    // channels enough to need it.
+    const bool throughGains = sinkChannels <= kMaxAudioMatrixOuts &&
+                              (patchRoutingActive_.load(std::memory_order_acquire) ||
+                               audioMatrixActive_.load(std::memory_order_acquire));
+    if (throughGains) {
+      mixThroughGains(stereo.data(), frames, sinkChannels, &audioMatrixGain_[0],
+                      &audioMatrixGain_[kMaxAudioMatrixOuts], wide.data());
+    } else {
+      int pair = audioCuePairOffset_.load(std::memory_order_relaxed);
+      if (pair < 0 || pair * 2 + 1 >= sinkChannels) pair = 0;
+      const std::size_t off = static_cast<std::size_t>(pair) * 2;
+      for (std::size_t f = 0; f < frames; ++f) {
+        std::int16_t* out = wide.data() + f * static_cast<std::size_t>(sinkChannels);
+        out[off] = stereo[f * 2];
+        out[off + 1] = stereo[f * 2 + 1];
+      }
     }
     // NEVER BLOCK HERE. This runs on the decode thread while holding the audio
     // lock, so sleeping to wait for ring space would stall any main-thread
@@ -7790,6 +7825,11 @@ void MediaEngine::putAudioToStream(const std::vector<std::int16_t>& stereo) {
         wide.begin() + static_cast<std::ptrdiff_t>(took * static_cast<std::size_t>(sinkChannels)),
         wide.end());
     }
+    return;
+  }
+  // IN THE PATCH: every destination at its own width, through its own gains.
+  if (patchRoutingActive_.load(std::memory_order_acquire)) {
+    queuePatched(stereo);
     return;
   }
   if (!audioStream_) {
@@ -7846,6 +7886,191 @@ void MediaEngine::putAudioToStream(const std::vector<std::int16_t>& stereo) {
   }
   queueToDevices(wide.data(),
                          static_cast<int>(wide.size() * sizeof(std::int16_t)));
+}
+
+// ── THE PATCH ───────────────────────────────────────────────────────────────
+
+void MediaEngine::mixThroughGains(const std::int16_t* stereo, std::size_t frames, int channels,
+                                  const std::atomic<float>* gainL, const std::atomic<float>* gainR,
+                                  std::int16_t* out) {
+  for (int dest = 0; dest < channels; ++dest) {
+    const float gl = gainL[dest].load(std::memory_order_relaxed);
+    const float gr = gainR[dest].load(std::memory_order_relaxed);
+    if (gl == 0.0f && gr == 0.0f) {
+      continue;                 // the buffer arrives zeroed: silence costs nothing
+    }
+    for (std::size_t frame = 0; frame < frames; ++frame) {
+      out[frame * static_cast<std::size_t>(channels) + static_cast<std::size_t>(dest)] =
+        mixCrosspointSample(static_cast<float>(stereo[frame * 2]),
+                            static_cast<float>(stereo[frame * 2 + 1]), gl, gr);
+    }
+  }
+}
+
+// On the audio thread, under audioStreamMutex_. Each destination gets a buffer
+// of its own width through its own gains; the monitor gets the playlist's
+// stereo, because headphones are what it is for whatever the patch does.
+void MediaEngine::queuePatched(const std::vector<std::int16_t>& stereo) {
+  const std::size_t frames = stereo.size() / 2;
+  if (frames == 0) {
+    return;
+  }
+  if (audioStream_) {
+    const int channels = std::clamp(audioDeviceChannels_.load(std::memory_order_relaxed), 1,
+                                    kMaxAudioMatrixOuts);
+    std::vector<std::int16_t> wide(frames * static_cast<std::size_t>(channels), 0);
+    mixThroughGains(stereo.data(), frames, channels, &audioMatrixGain_[0],
+                    &audioMatrixGain_[kMaxAudioMatrixOuts], wide.data());
+    SDL_PutAudioStreamData(audioStream_, wide.data(),
+                           static_cast<int>(wide.size() * sizeof(std::int16_t)));
+    capturePatchBuffer(0, wide.data(), frames, channels);
+  }
+  if (SDL_AudioStream* monitor = monitorStream_.load(std::memory_order_relaxed)) {
+    if (!monitorMuted_.load(std::memory_order_relaxed)) {
+      SDL_PutAudioStreamData(monitor, stereo.data(),
+                             static_cast<int>(stereo.size() * sizeof(std::int16_t)));
+    }
+  }
+  for (int k = 0; k < kMaxExtraAudioOuts; ++k) {
+    SDL_AudioStream* extra = extraAudioStreams_[static_cast<std::size_t>(k)].load(std::memory_order_relaxed);
+    const int channels = extraChannels_[static_cast<std::size_t>(k)].load(std::memory_order_relaxed);
+    if (!extra || channels <= 0) {
+      continue;
+    }
+    const auto& gains = extraMatrixGain_[static_cast<std::size_t>(k)];
+    std::vector<std::int16_t> wide(frames * static_cast<std::size_t>(channels), 0);
+    mixThroughGains(stereo.data(), frames, channels, &gains[0], &gains[kMaxExtraMatrixChannels],
+                    wide.data());
+    SDL_PutAudioStreamData(extra, wide.data(), static_cast<int>(wide.size() * sizeof(std::int16_t)));
+    capturePatchBuffer(k + 1, wide.data(), frames, channels);
+  }
+}
+
+void MediaEngine::setPatchRouting(PatchRouting routing) {
+  std::lock_guard<std::mutex> lock(audioStreamMutex_);
+  patchRouting_ = std::move(routing);
+  for (int k = 0; k < kMaxExtraAudioOuts; ++k) {
+    const std::size_t dest = static_cast<std::size_t>(k) + 1;
+    const int channels = patchRouting_.active && dest < patchRouting_.destChannels.size()
+      ? std::clamp(patchRouting_.destChannels[dest], 1, kMaxExtraMatrixChannels) : 0;
+    extraChannels_[static_cast<std::size_t>(k)].store(channels, std::memory_order_relaxed);
+  }
+  if (!patchRouting_.active) {
+    patchRoutingActive_.store(false, std::memory_order_release);
+    // Back to the old way: the cue's own channel matrix, or the pair.
+    if (activeCue_ && !activeCue_->audioMatrix.empty()) {
+      setAudioMatrix(activeCue_->audioMatrix);
+    } else {
+      clearAudioMatrix();
+    }
+    return;
+  }
+  // Gains BEFORE the flag, as setAudioMatrix does it.
+  publishPatchGains(activeCue_);
+  patchRoutingActive_.store(true, std::memory_order_release);
+}
+
+// Main thread. The cue's own matrix, when it sends to any name, decides where
+// this cue goes, as it overrides the pair off the patch; otherwise the
+// playlist's crosspoints do. A named output nobody can reach right now is
+// skipped -- its sound goes nowhere, never somewhere else.
+void MediaEngine::publishPatchGains(const Cue* cue) {
+  std::array<float, kAudioMatrixSources * kMaxAudioMatrixOuts> mainGains {};
+  std::array<std::array<float, 2 * kMaxExtraMatrixChannels>, kMaxExtraAudioOuts> extraGains {};
+  const auto add = [&](int dest, int source, int channel, float gain) {
+    if (dest == 0) {
+      if (channel >= 0 && channel < kMaxAudioMatrixOuts) {
+        mainGains[static_cast<std::size_t>(source) * kMaxAudioMatrixOuts + static_cast<std::size_t>(channel)] += gain;
+      }
+    } else if (dest > 0 && dest <= kMaxExtraAudioOuts && channel >= 0 && channel < kMaxExtraMatrixChannels) {
+      extraGains[static_cast<std::size_t>(dest - 1)]
+                [static_cast<std::size_t>(source) * kMaxExtraMatrixChannels + static_cast<std::size_t>(channel)] += gain;
+    }
+  };
+  const auto findOutput = [this](const std::string& name) -> const PatchRouting::Output* {
+    for (const PatchRouting::Output& o : patchRouting_.outputs) {
+      if (o.name == name) return &o;
+    }
+    return nullptr;
+  };
+  bool byName = false;
+  if (cue) {
+    for (const AudioCrosspoint& p : cue->audioMatrix) {
+      if (!p.output.empty()) { byName = true; break; }
+    }
+  }
+  if (byName) {
+    for (const AudioCrosspoint& p : cue->audioMatrix) {
+      const PatchRouting::Output* o = p.output.empty() ? nullptr : findOutput(p.output);
+      if (!o || o->dest < 0 || p.source < 0 || p.source >= kAudioMatrixSources ||
+          p.dest < 0 || p.dest >= o->width) {
+        continue;
+      }
+      add(o->dest, p.source, o->firstChannel + p.dest, std::clamp(p.gain, 0.0f, 4.0f));
+    }
+  } else {
+    for (const PatchRouting::Output& o : patchRouting_.outputs) {
+      if (!o.on || o.dest < 0) continue;
+      const float gain = static_cast<float>(std::pow(10.0, o.gainDb / 20.0));
+      if (o.width >= 2) {
+        add(o.dest, 0, o.firstChannel, gain);
+        add(o.dest, 1, o.firstChannel + 1, gain);
+      } else {
+        // ONE CHANNEL: both sides at half, so a centred sound arrives at the
+        // level it has on a pair.
+        add(o.dest, 0, o.firstChannel, gain * 0.5f);
+        add(o.dest, 1, o.firstChannel, gain * 0.5f);
+      }
+    }
+  }
+  for (std::size_t i = 0; i < mainGains.size(); ++i) {
+    audioMatrixGain_[i].store(std::min(mainGains[i], 4.0f), std::memory_order_relaxed);
+  }
+  for (std::size_t k = 0; k < extraGains.size(); ++k) {
+    for (std::size_t i = 0; i < extraGains[k].size(); ++i) {
+      extraMatrixGain_[k][i].store(std::min(extraGains[k][i], 4.0f), std::memory_order_relaxed);
+    }
+  }
+  // The main stream goes through its gains in the patch even when they are
+  // all zero: a playlist with nothing on that device puts silence there.
+  audioMatrixActive_.store(true, std::memory_order_release);
+}
+
+void MediaEngine::setPatchCapture(const std::string& prefix) {
+  std::lock_guard<std::mutex> lock(audioStreamMutex_);
+  patchCapturePrefix_ = prefix;
+}
+
+// Tests only. On the audio thread, under the lock queuePatched runs in.
+void MediaEngine::capturePatchBuffer(int dest, const std::int16_t* data, std::size_t frames,
+                                     int channels) {
+  if (patchCapturePrefix_.empty() || dest < 0 ||
+      dest >= static_cast<int>(patchCaptureFiles_.size())) {
+    return;
+  }
+  std::FILE*& file = patchCaptureFiles_[static_cast<std::size_t>(dest)];
+  if (!file) {
+    const std::string path = patchCapturePrefix_ + "-dest" + std::to_string(dest) + ".raw";
+    file = std::fopen(path.c_str(), "wb");
+    if (!file) return;
+    const std::int32_t header[3] {0x43504244, channels, kAudioRate};   // "DBPC"
+    std::fwrite(header, sizeof(header), 1, file);
+  }
+  std::fwrite(data, sizeof(std::int16_t), frames * static_cast<std::size_t>(channels), file);
+  std::fflush(file);
+}
+
+float MediaEngine::patchGain(int dest, int source, int channel) const {
+  if (source < 0 || source >= kAudioMatrixSources || channel < 0) return 0.0f;
+  if (dest == 0) {
+    if (channel >= kMaxAudioMatrixOuts) return 0.0f;
+    return audioMatrixGain_[static_cast<std::size_t>(source) * kMaxAudioMatrixOuts +
+                            static_cast<std::size_t>(channel)].load(std::memory_order_relaxed);
+  }
+  if (dest > kMaxExtraAudioOuts || channel >= kMaxExtraMatrixChannels) return 0.0f;
+  return extraMatrixGain_[static_cast<std::size_t>(dest - 1)]
+                         [static_cast<std::size_t>(source) * kMaxExtraMatrixChannels +
+                          static_cast<std::size_t>(channel)].load(std::memory_order_relaxed);
 }
 
 #if DECKBOY_INPROC_DECODE

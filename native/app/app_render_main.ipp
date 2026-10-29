@@ -6701,7 +6701,12 @@
     // audio chain, because it answers "where does it go" after "what does it
     // sound like".
     if (selectedCue && cueCarriesAudio(*selectedCue)) {
-      const int outs = std::clamp(focusedDeck().audioOutputChannels, 2, kMaxAudioOutputs);
+      // IN THE PATCH the grid's columns are the named outputs' channels, and
+      // the cue sends to names; otherwise they are the device's channels.
+      const bool byName = deckInPatch(focusedDeck()) && !project_.namedAudioOutputs.empty();
+      const std::vector<MatrixNamedColumn> named = byName ? matrixNamedColumns() : std::vector<MatrixNamedColumn> {};
+      const int outs = byName ? static_cast<int>(named.size())
+                              : std::clamp(focusedDeck().audioOutputChannels, 2, kMaxAudioOutputs);
       const bool on = !selectedCue->audioMatrix.empty();
 
       int mxY = inspectorSectionBottomMax_ + kInspectorSectionGap;
@@ -6713,12 +6718,18 @@
         if (!on) {
           // OFF is a real state and says what it is doing instead, rather
           // than showing an empty grid that looks broken.
-          drawChoiceRow(mxY, "routing", std::string("outs ") +
-                         std::to_string(selectedCue->audioOutputPair * 2 + 1) + "-" +
-                         std::to_string(selectedCue->audioOutputPair * 2 + 2),
-                      QuickAction::MatrixSeed,
-                      "A plain stereo pair. Click to open the matrix, starting "
-                       "from exactly this routing");
+          if (byName) {
+            drawChoiceRow(mxY, "routing", "the playlist's PATCH", QuickAction::MatrixSeed,
+                          "Where the playlist's crosspoints send it (Settings > Audio). Click to "
+                          "open the matrix by name, starting from exactly that");
+          } else {
+            drawChoiceRow(mxY, "routing", std::string("outs ") +
+                           std::to_string(selectedCue->audioOutputPair * 2 + 1) + "-" +
+                           std::to_string(selectedCue->audioOutputPair * 2 + 2),
+                        QuickAction::MatrixSeed,
+                        "A plain stereo pair. Click to open the matrix, starting "
+                         "from exactly this routing");
+          }
           mxY += kInspectorRowStep;
           drawInspectorMessageRow(mxY, "click to open the grid");
           mxY += kInspectorRowStep;
@@ -6729,40 +6740,66 @@
           const int labelW = measuredTextWidth(fontSmall_, "R") + uiScaled(10);
           // Square-ish cells that fit the panel. Eight across is the common
           // case and gets generous cells; a 64-out interface gets small ones
-          // rather than a grid that runs off the side of the window.
+          // rather than a grid that runs off the side of the window. Named
+          // columns are fewer and carry words, so they may be wider -- but no
+          // taller, so the section does not grow.
           const int cell = std::max(uiScaled(10),
-                                    std::min(uiScaled(26),
+                                    std::min(uiScaled(byName ? 64 : 26),
                                              (avail - labelW) / std::max(1, outs) - uiScaled(2)));
+          const int cellH = byName ? std::min(cell, uiScaled(26)) : cell;
           const int step = cell + uiScaled(2);
+          const int stepY = cellH + uiScaled(2);
+          const int lineH = textLineHeight(fontSmall_);
 
-          // Column numbers, every channel when there is room and every fourth
-          // when there is not -- a row of unreadable digits is worse than none.
-          const int numberEvery = cell >= uiScaled(16) ? 1 : 4;
-          for (int d = 0; d < outs; ++d) {
-            if ((d % numberEvery) != 0) {
-              continue;
+          if (byName) {
+            // The name across its channels, then L and R under a pair.
+            for (int d = 0; d < outs; ++d) {
+              const MatrixNamedColumn& column = named[static_cast<std::size_t>(d)];
+              if (column.channel != 0) continue;
+              drawCenteredTextSafe(controlRenderer_, fontSmall_,
+                                   SDL_Rect {inset + labelW + d * step, mxY,
+                                             column.width * step - uiScaled(2), lineH},
+                                   column.output, pal.inkSoft);
             }
-            drawCenteredTextSafe(controlRenderer_, fontSmall_,
-                                 SDL_Rect {inset + labelW + d * step, mxY, cell,
-                                           textLineHeight(fontSmall_)},
-                                 std::to_string(d + 1), pal.inkSoft);
+            mxY += lineH + uiScaled(2);
+            for (int d = 0; d < outs; ++d) {
+              const MatrixNamedColumn& column = named[static_cast<std::size_t>(d)];
+              if (column.width < 2) continue;
+              drawCenteredTextSafe(controlRenderer_, fontSmall_,
+                                   SDL_Rect {inset + labelW + d * step, mxY, cell, lineH},
+                                   column.channel == 0 ? "L" : "R", pal.inkSoft);
+            }
+          } else {
+            // Column numbers, every channel when there is room and every fourth
+            // when there is not -- a row of unreadable digits is worse than none.
+            const int numberEvery = cell >= uiScaled(16) ? 1 : 4;
+            for (int d = 0; d < outs; ++d) {
+              if ((d % numberEvery) != 0) {
+                continue;
+              }
+              drawCenteredTextSafe(controlRenderer_, fontSmall_,
+                                   SDL_Rect {inset + labelW + d * step, mxY, cell, lineH},
+                                   std::to_string(d + 1), pal.inkSoft);
+            }
           }
-          mxY += textLineHeight(fontSmall_) + uiScaled(2);
+          mxY += lineH + uiScaled(2);
 
           for (int s = 0; s < kMatrixSources; ++s) {
             drawCenteredTextSafe(controlRenderer_, fontSmall_,
-                                 SDL_Rect {inset, mxY, labelW, cell},
+                                 SDL_Rect {inset, mxY, labelW, cellH},
                                  s == 0 ? "L" : "R", pal.fg);
             for (int d = 0; d < outs; ++d) {
-              const SDL_Rect box {inset + labelW + d * step, mxY, cell, cell};
-              const float gain = cueMatrixGain(*selectedCue, s, d);
+              const SDL_Rect box {inset + labelW + d * step, mxY, cell, cellH};
+              const MatrixNamedColumn* column = byName ? &named[static_cast<std::size_t>(d)] : nullptr;
+              const float gain = column ? cueMatrixGain(*selectedCue, s, column->channel, column->output)
+                                        : cueMatrixGain(*selectedCue, s, d);
               // The cell IS the level: an empty square is silence and a full
               // one is unity, so the routing reads as a shape rather than as
               // a table of numbers.
               drawUIPanel(box, pal.tile, pal.deep, pal.mid);
               if (gain > 0.0f) {
                 const int fill = std::max(uiScaled(2),
-                                          static_cast<int>(std::lround((box.h - uiScaled(4)) * gain)));
+                                          static_cast<int>(std::lround((box.h - uiScaled(4)) * std::min(gain, 1.0f))));
                 Primitives::fillRect(controlRenderer_,
                                      SDL_Rect {box.x + uiScaled(2),
                                                box.y + box.h - uiScaled(2) - fill,
@@ -6770,14 +6807,34 @@
                                      gain > 0.85f ? pal.light : pal.mid);
               }
               // Every cell is a control, so every cell is registered as one.
+              // By name the cell is output * 2 + its channel (cycleCueMatrixCell).
+              // By name the tip says which, since a long name is cut short
+              // above its column.
               quickButtons_.push_back({box, QuickAction::MatrixCellCycle,
-                                       "Click to walk this crosspoint: off, full, -3, -6, -12",
-                                       s * MediaEngine::kMaxAudioMatrixOuts + d});
+                                       (column ? column->output +
+                                                   (column->width >= 2 ? (column->channel == 0 ? " L" : " R") : "") +
+                                                   ": click"
+                                               : std::string("Click")) +
+                                         " to walk this crosspoint: off, full, -3, -6, -12",
+                                       s * MediaEngine::kMaxAudioMatrixOuts +
+                                         (column ? column->outputIndex * 2 + column->channel : d)});
             }
-            mxY += step;
+            mxY += stepY;
           }
           mxY += uiScaled(2);
 
+          // A matrix written by channel number before the playlist joined the
+          // patch: the patch does not use it, and says so rather than leaving
+          // points that look like routing and do nothing.
+          if (byName) {
+            const auto numbered = std::count_if(selectedCue->audioMatrix.begin(), selectedCue->audioMatrix.end(),
+                                                [](const AudioCrosspoint& p) { return p.output.empty(); });
+            if (numbered > 0) {
+              drawInspectorMessageRow(mxY, std::to_string(numbered) + " point" + (numbered == 1 ? "" : "s") +
+                                             " by channel number, which the PATCH does not use");
+              mxY += kInspectorRowStep;
+            }
+          }
           drawChoiceRow(mxY, "matrix", std::to_string(selectedCue->audioMatrix.size()) + " point" +
                          (selectedCue->audioMatrix.size() == 1 ? "" : "s"),
                       QuickAction::MatrixClear,

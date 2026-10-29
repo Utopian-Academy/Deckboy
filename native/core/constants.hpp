@@ -41,6 +41,13 @@
 // presents, and what the show-control tools Deckboy is compared with offer.
 // Everything that clamps an output count or a matrix destination reads this.
 constexpr int kMaxAudioOutputs = 128;
+// Named outputs in the PATCH: columns on the grid, and kept small enough that
+// a crosspoint's id fits beside a playlist's in one QuickButton param.
+constexpr int kMaxNamedAudioOutputs = 16;
+// A patch crosspoint's level: the click walk (0, -3, -6, -12) and the drag,
+// which stops at the bottom rather than turning the crosspoint off.
+constexpr float kAudioPatchMinDb = -48.0f;
+constexpr float kAudioPatchMaxDb = 6.0f;
 
 constexpr int kControlWidth = 1760;    // control window default width (pixels)
 constexpr int kControlHeight = 1020;   // control window default height (pixels)

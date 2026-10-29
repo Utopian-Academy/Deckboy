@@ -43,6 +43,7 @@
 #include <chrono>
 #include <cmath>
 #include <cstdint>
+#include <cstdio>
 #include <deque>
 #include <functional>
 #include <mutex>
@@ -198,8 +199,10 @@ class MediaEngine {
   void play();                            // resume playback
   // Hot-swap the SDL output device (the engine never owns it) without
   // disturbing the loaded cue, decode, or transport — used when the operator
-  // changes the deck's audio output while a cue is playing.
-  void setAudioDevice(SDL_AudioStream* stream);
+  // changes the deck's audio output while a cue is playing. `channels`, when
+  // given, is what the new stream was opened with, installed in the same lock
+  // so no block is written to the new stream at the old width.
+  void setAudioDevice(SDL_AudioStream* stream, int channels = 0);
 
   // Redirect finished audio somewhere other than SDL. Set by the app when an
   // ASIO device is armed; cleared to fall back to SDL. Deliberately a
@@ -266,16 +269,56 @@ class MediaEngine {
   static constexpr int kMaxAudioMatrixOuts = kMaxAudioOutputs;
   static constexpr int kAudioMatrixSources = 2;
 
-  // Install the extra destinations. Called ONLY with the decoder threads
-  // stopped, the same rule the primary stream follows -- a stream handed over
-  // while the audio thread is mid-write is a stream it can write to after it
-  // has been closed.
+  // Install the extra destinations. UNDER THE AUDIO LOCK, like the primary:
+  // the audio thread holds it for a whole write, so once this returns it can
+  // no longer be holding one of the streams being replaced, and the caller may
+  // free them. Without the lock a reopen during playback could free a stream
+  // the audio thread had just loaded.
   void setExtraAudioStreams(const std::vector<SDL_AudioStream*>& streams) {
+    std::lock_guard<std::mutex> lock(audioStreamMutex_);
     for (int i = 0; i < kMaxExtraAudioOuts; ++i) {
       SDL_AudioStream* s = (i < static_cast<int>(streams.size())) ? streams[i] : nullptr;
       extraAudioStreams_[static_cast<std::size_t>(i)].store(s, std::memory_order_release);
     }
   }
+
+  // ── THE PATCH: A PLAYLIST ROUTED BY NAME ─────────────────────────────
+  //
+  // Set by the app while this deck's playlist is in the patch, cleared when
+  // it is not. Destination 0 is the main stream (or the ASIO sink), 1.. the
+  // extras, each opened at its device's own channel count. Every named output
+  // says which destination it is on and where, and whether this playlist has
+  // a crosspoint into it. syncAudioFadeParams turns that and the cue's own
+  // matrix into a gain per destination channel, so the audio thread still
+  // reads nothing but atomics.
+  static constexpr int kMaxAudioDestinations = 8;   // the main stream and seven extras
+  struct PatchRouting {
+    struct Output {
+      std::string name;
+      int dest = -1;          // -1: unreachable now (interface missing, or too few channels)
+      int firstChannel = 0;   // 0-based, on that destination
+      int width = 2;
+      bool on = false;        // this playlist's crosspoint
+      float gainDb = 0.0f;
+    };
+    bool active = false;
+    std::vector<Output> outputs;
+    std::vector<int> destChannels;   // what each destination was opened with
+  };
+  // Main thread. Takes the audio lock: the channel counts it installs must
+  // change between two writes, never during one.
+  void setPatchRouting(PatchRouting routing);
+  bool patchRoutingActive() const {
+    return patchRoutingActive_.load(std::memory_order_relaxed);
+  }
+  // One destination's gain from one side of the cue, in the patch. For tests
+  // and the remote PATCH report: what the audio thread is actually using.
+  float patchGain(int dest, int source, int channel) const;
+  // TESTS ONLY (DECKBOY_PATCH_CAPTURE): every buffer the patch hands a
+  // destination, appended to "<prefix>-dest<n>.raw" after "DBPC", its width
+  // and its rate. A device's own feed cannot show this on a test machine: SDL
+  // keeps a device at the width of whoever opened it first.
+  void setPatchCapture(const std::string& prefix);
 
   // -- THE MONITOR --------------------------------------------------------
   //
@@ -319,6 +362,9 @@ class MediaEngine {
       if (p.source < 0 || p.source >= kAudioMatrixSources ||
           p.dest < 0 || p.dest >= kMaxAudioMatrixOuts) {
         continue;
+      }
+      if (!p.output.empty()) {
+        continue;   // by name: only a playlist in the patch can reach it (publishPatchGains)
       }
       const float gain = p.gain < 0.0f ? 0.0f : (p.gain > 4.0f ? 4.0f : p.gain);
       audioMatrixGain_[static_cast<std::size_t>(p.source) * kMaxAudioMatrixOuts +
@@ -1256,7 +1302,25 @@ class MediaEngine {
   // Seven, so a deck can reach eight devices in total. Past that the limit is
   // the machine's, not ours, and nobody has eight interfaces and one cue.
   static constexpr int kMaxExtraAudioOuts = 7;
+  static_assert(kMaxAudioDestinations == kMaxExtraAudioOuts + 1, "destinations are the main and the extras");
   std::array<std::atomic<SDL_AudioStream*>, kMaxExtraAudioOuts> extraAudioStreams_ {};
+  // In the patch, each extra has a width and gains of its own (an SDL stream
+  // is eight channels at most). Zero channels is the old way: the same buffer
+  // the main stream gets.
+  static constexpr int kMaxExtraMatrixChannels = 8;
+  std::array<std::atomic<int>, kMaxExtraAudioOuts> extraChannels_ {};
+  std::array<std::array<std::atomic<float>, 2 * kMaxExtraMatrixChannels>, kMaxExtraAudioOuts>
+    extraMatrixGain_ {};
+  std::atomic<bool> patchRoutingActive_ {false};
+  PatchRouting patchRouting_;                // main thread only; see setPatchRouting
+  std::string patchCapturePrefix_;           // tests only, under audioStreamMutex_
+  std::array<std::FILE*, 8> patchCaptureFiles_ {};
+  void capturePatchBuffer(int dest, const std::int16_t* data, std::size_t frames, int channels);
+  void publishPatchGains(const Cue* cue);    // main thread: routing + cue matrix -> the atomics
+  void queuePatched(const std::vector<std::int16_t>& stereo);   // audio thread, under the lock
+  static void mixThroughGains(const std::int16_t* stereo, std::size_t frames, int channels,
+                              const std::atomic<float>* gainL, const std::atomic<float>* gainR,
+                              std::int16_t* out);
   // The monitor, and the two gates. Muted by default both ways round: a deck
   // that has never been told it is monitored must not arrive in somebody's
   // headphones, and a deck that has never been muted must still reach the

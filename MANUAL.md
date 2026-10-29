@@ -2140,7 +2140,42 @@ uses. Each cell steps through off, full, −3, −6 and −12 dB. Two sources se
 one channel add together, so a mono fold-down is just both sources onto the same
 out. The matrix reaches every channel the device was opened with (see **Outs**
 above). A cue with no matrix routes exactly as it always did. `MATRIX` over the
-remote protocol does the same.
+remote protocol does the same. On a playlist in the patch (below), the matrix's
+columns are the named outputs instead of channel numbers.
+
+### Named outputs and the patch
+
+*v0.99.422 and later.*
+
+`Settings → Audio → OUTPUTS` names the channels of your interfaces once: **FOH**
+on 1-2, **SUB** on 3, **PRESS FEED** on 5-6. Each name is a **PAIR** or **ONE**
+channel on an interface, starting at a channel (**−** and **+** move it a pair at
+a time). **+ ADD AN OUTPUT** adds the next pair on the interface the focused
+playlist plays to. Click a name to rename it; **x** removes it.
+
+`Settings → Audio → PATCH` sends playlists to the names: a row per playlist, a
+column per name. A crosspoint is a level in dB, or off. Click it to walk off, 0,
+−3, −6 and −12; drag it sideways for any level from −48 to +6 (hold Shift for
+finer steps).
+
+- A playlist with a crosspoint plays where the patch says, on every interface
+  its names are on. Its own **Output device** and **Outs** wait until it leaves
+  the patch. A playlist with no crosspoint plays to its own device, as before.
+- A one-channel name takes the left and the right at half each, so a sound in
+  the middle arrives at the level it has on a pair.
+- A name whose interface is not there, or which sits past the interface's last
+  channel, is marked **unpatched** with the reason, and its column is in the
+  warning colour. Its sound goes nowhere else.
+- Through the system's audio, a name can sit on the first eight channels of an
+  interface.
+- The headphone monitor hears the playlist in stereo, whatever the patch does.
+- A cue's own **MATRIX** on a playlist in the patch sends to the names, and
+  decides where that cue goes. Opened, it starts from the playlist's
+  crosspoints.
+
+Moving the show to another interface means changing the names here, not the
+playlists or the cues. Over the network: `OUTPUTS`, `PATCH`, and
+`MATRIX SET <1|2> <output> [L|R] <0-100>`.
 
 ### Output effects and the limiter
 

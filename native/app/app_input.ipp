@@ -208,6 +208,11 @@
     // splitters and the shuffle button, so a click on a setting over the
     // monitor clicked the on-air web page instead.
     if (settingsOpen_) {
+      // A patch crosspoint is pressed, not clicked: drag sets it, a press that
+      // never moves cycles it on release (beginPatchScrub / endPatchScrub).
+      if (beginPatchScrub(x, y)) {
+        return;
+      }
       handleSettingsClick(x, y);
       return;
     }
@@ -1456,6 +1461,10 @@
   }
 
   void handleMouseMotion(int x, int y) {
+    if (patchScrub_.active) {
+      updatePatchScrub(x, y);
+      return;
+    }
     if (cueSettingsScrollDragActive_) {
       scrollInspectorToPointer(y);
       return;

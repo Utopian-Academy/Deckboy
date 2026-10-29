@@ -2734,19 +2734,21 @@
   // 64-channel Dante or ASIO interface worth having.
   static constexpr int kMatrixSources = 2;
 
-  float cueMatrixGain(const Cue& cue, int source, int dest) const {
+  // `output` names a named output (the playlist is in the patch), and `dest`
+  // is then its channel, 0 or 1; empty is a channel of the deck's device.
+  float cueMatrixGain(const Cue& cue, int source, int dest, const std::string& output = {}) const {
     for (const AudioCrosspoint& p : cue.audioMatrix) {
-      if (p.source == source && p.dest == dest) {
+      if (p.source == source && p.dest == dest && p.output == output) {
         return p.gain;
       }
     }
     return 0.0f;
   }
 
-  void setCueMatrixGain(Cue& cue, int source, int dest, float gain) {
+  void setCueMatrixGain(Cue& cue, int source, int dest, float gain, const std::string& output = {}) {
     auto& list = cue.audioMatrix;
     for (auto it = list.begin(); it != list.end(); ++it) {
-      if (it->source == source && it->dest == dest) {
+      if (it->source == source && it->dest == dest && it->output == output) {
         if (gain <= 0.0f) {
           // A ZERO CELL IS THE ABSENCE OF A CELL. Keeping zeroes would grow
           // the show file by a 2xN grid per cue and mean "silent" and "not
@@ -2760,9 +2762,34 @@
       }
     }
     if (gain > 0.0f) {
-      list.push_back(AudioCrosspoint {source, dest, gain});
+      list.push_back(AudioCrosspoint {source, dest, gain, output});
       markProjectDirty();
     }
+  }
+
+  // The grid's columns on a playlist in the patch: each named output's
+  // channels in order, "FOH L", "FOH R", "SUB". A column is packed as
+  // output * 2 + its channel, which stays inside one row of the cell param.
+  struct MatrixNamedColumn {
+    std::string output;
+    int outputIndex = 0;
+    int channel = 0;
+    int width = 2;
+  };
+  std::vector<MatrixNamedColumn> matrixNamedColumns() const {
+    std::vector<MatrixNamedColumn> columns;
+    for (std::size_t i = 0; i < project_.namedAudioOutputs.size(); ++i) {
+      const NamedAudioOutput& named = project_.namedAudioOutputs[i];
+      for (int k = 0; k < std::max(1, named.width); ++k) {
+        MatrixNamedColumn column;
+        column.output = named.name;
+        column.outputIndex = static_cast<int>(i);
+        column.channel = k;
+        column.width = named.width;
+        columns.push_back(column);
+      }
+    }
+    return columns;
   }
 
   // Click a cell to walk it: off -> full -> -3 -> -6 -> -12 -> off.
@@ -2777,18 +2804,26 @@
       return;
     }
     const int source = packed / MediaEngine::kMaxAudioMatrixOuts;
-    const int dest = packed % MediaEngine::kMaxAudioMatrixOuts;
+    int dest = packed % MediaEngine::kMaxAudioMatrixOuts;
     if (source < 0 || source >= kMatrixSources) {
       return;
     }
-    const float now = cueMatrixGain(*cue, source, dest);
+    // In the patch the cell is a named output's channel, packed output * 2 + k.
+    std::string output;
+    if (deckInPatch(focusedDeck())) {
+      const int which = dest / 2;
+      if (which >= static_cast<int>(project_.namedAudioOutputs.size())) return;
+      output = project_.namedAudioOutputs[static_cast<std::size_t>(which)].name;
+      dest %= 2;
+    }
+    const float now = cueMatrixGain(*cue, source, dest, output);
     float next = 0.0f;
     if (now <= 0.0f)            next = 1.0f;     // off  -> full
     else if (now > 0.85f)       next = 0.707f;   // full -> -3 dB
     else if (now > 0.6f)        next = 0.5f;     // -3   -> -6 dB
     else if (now > 0.35f)       next = 0.25f;    // -6   -> -12 dB
     else                        next = 0.0f;     // -12  -> off
-    setCueMatrixGain(*cue, source, dest, next);
+    setCueMatrixGain(*cue, source, dest, next, output);
     refreshLiveCueAudioMatrix();
   }
 
@@ -2805,6 +2840,12 @@
       return;
     }
     if (MediaEngine* engine = mediaEngineForDeck(deckIndex)) {
+      // In the patch the engine works the gains out itself from the cue on
+      // its next sync (publishPatchGains); writing the channel matrix here
+      // would put the old meaning over the patch's gains for a tick.
+      if (engine->patchRoutingActive()) {
+        return;
+      }
       const Cue& cue = deck.cues[deck.activeIndex];
       if (cue.audioMatrix.empty()) {
         engine->clearAudioMatrix();
@@ -2820,6 +2861,27 @@
   void seedCueMatrixFromPair() {
     Cue* cue = selectedCueMutable();
     if (!cue || !cue->audioMatrix.empty()) {
+      return;
+    }
+    const Deck& deck = focusedDeck();
+    if (deckInPatch(deck)) {
+      // IN THE PATCH, what the cue does today is the playlist's crosspoints,
+      // so the matrix opens as those, by name.
+      for (const NamedAudioOutput& named : project_.namedAudioOutputs) {
+        const AudioPatchPoint* point = audioPatchPoint(deck, named.name);
+        if (!point) continue;
+        const float gain = static_cast<float>(std::pow(10.0, point->gainDb / 20.0));
+        if (named.width >= 2) {
+          cue->audioMatrix.push_back(AudioCrosspoint {0, 0, gain, named.name});
+          cue->audioMatrix.push_back(AudioCrosspoint {1, 1, gain, named.name});
+        } else {
+          cue->audioMatrix.push_back(AudioCrosspoint {0, 0, gain * 0.5f, named.name});
+          cue->audioMatrix.push_back(AudioCrosspoint {1, 0, gain * 0.5f, named.name});
+        }
+      }
+      markProjectDirty();
+      refreshLiveCueAudioMatrix();
+      triggerToast("matrix on, routed as the patch had it");
       return;
     }
     const int pair = std::clamp(cue->audioOutputPair, 0, 31);

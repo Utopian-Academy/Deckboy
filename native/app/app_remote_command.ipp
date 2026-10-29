@@ -504,6 +504,233 @@
       remoteCommandDetail_ = any ? out.str() : "nothing pending";
       return;
     }
+    // OUTPUTS: the named outputs (Settings > Audio, OUTPUTS).
+    //   OUTPUTS                                   -> each one, where it is, and whether it can be reached
+    //   OUTPUTS ADD <name> CH <n>|<n>-<n+1> [DEVICE <device>]   (no DEVICE: the system output)
+    //   OUTPUTS SET <name> [CH ...] [DEVICE <device>]
+    //   OUTPUTS RENAME <name> TO <new name> | OUTPUTS REMOVE <name> | OUTPUTS CLEAR
+    if (command == "OUTPUTS") {
+      const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : std::string();
+      // <name> [CH <ch>] [DEVICE <rest>], with a name that may have spaces in it.
+      const auto parseSpec = [&](std::string& name, std::optional<int>& first, std::optional<int>& width,
+                                 std::optional<std::string>& device) -> std::string {
+        std::size_t i = 2;
+        std::vector<std::string> nameParts;
+        for (; i < parts.size(); ++i) {
+          const std::string word = toUpper(parts[i]);
+          if (word == "CH" || word == "DEVICE") break;
+          nameParts.push_back(parts[i]);
+        }
+        name = trim(joinParts(nameParts, 0));
+        while (i < parts.size()) {
+          const std::string word = toUpper(parts[i]);
+          if (word == "CH" && i + 1 < parts.size()) {
+            const std::string ch = parts[i + 1];
+            const std::size_t dash = ch.find('-');
+            const int a = std::atoi(ch.c_str());
+            if (a < 1) return "CH is a channel (3) or a pair (1-2)";
+            if (dash != std::string::npos) {
+              if (std::atoi(ch.c_str() + dash + 1) != a + 1) return "a pair is two channels side by side (1-2)";
+              width = 2;
+            } else {
+              width = 1;
+            }
+            first = a;
+            i += 2;
+          } else if (word == "DEVICE") {
+            std::vector<std::string> rest(parts.begin() + static_cast<std::ptrdiff_t>(i) + 1, parts.end());
+            device = trim(joinParts(rest, 0));
+            i = parts.size();
+          } else {
+            return "expected CH or DEVICE, not " + parts[i];
+          }
+        }
+        return {};
+      };
+      if (sub.empty() || sub == "LIST") {
+        if (project_.namedAudioOutputs.empty()) {
+          remoteCommandDetail_ = "no named outputs";
+          return;
+        }
+        std::string out;
+        for (const NamedAudioOutput& named : project_.namedAudioOutputs) {
+          const NamedOutputReach reach = namedOutputReach(named);
+          if (!out.empty()) out += " | ";
+          out += named.name + ": " + namedOutputDeviceLabel(named) + " " + namedOutputChannelsLabel(named) +
+                 (reach.reachable ? std::string(", ok") : ", unpatched: " + reach.why);
+        }
+        remoteCommandDetail_ = out;
+        return;
+      }
+      if (sub == "ADD") {
+        std::string name;
+        std::optional<int> first, width;
+        std::optional<std::string> device;
+        if (const std::string bad = parseSpec(name, first, width, device); !bad.empty()) {
+          failRemoteCommand("OUTPUTS ADD: " + bad);
+          return;
+        }
+        if (!first) {
+          failRemoteCommand("OUTPUTS ADD: expected <name> CH <n> or CH <n>-<n+1>");
+          return;
+        }
+        if (const std::string why = addNamedOutput(name, device.value_or(std::string()), *first, *width);
+            !why.empty()) {
+          failRemoteCommand("OUTPUTS ADD: " + why);
+          return;
+        }
+        remoteCommandDetail_ = cleanAudioOutputName(name);
+        return;
+      }
+      if (sub == "SET") {
+        std::string name;
+        std::optional<int> first, width;
+        std::optional<std::string> device;
+        if (const std::string bad = parseSpec(name, first, width, device); !bad.empty()) {
+          failRemoteCommand("OUTPUTS SET: " + bad);
+          return;
+        }
+        for (NamedAudioOutput& named : project_.namedAudioOutputs) {
+          if (named.name != name) continue;
+          if (first) { named.firstChannel = *first; named.width = *width; }
+          if (device) named.deviceName = *device;
+          markProjectDirty();
+          remoteCommandDetail_ = named.name + ": " + namedOutputDeviceLabel(named) + " " +
+                                 namedOutputChannelsLabel(named);
+          return;
+        }
+        failRemoteCommand("OUTPUTS SET: no output called " + name);
+        return;
+      }
+      if (sub == "RENAME") {
+        std::vector<std::string> from, to;
+        bool past = false;
+        for (std::size_t i = 2; i < parts.size(); ++i) {
+          if (!past && toUpper(parts[i]) == "TO") { past = true; continue; }
+          (past ? to : from).push_back(parts[i]);
+        }
+        if (const std::string why = renameNamedOutput(trim(joinParts(from, 0)), joinParts(to, 0));
+            !why.empty()) {
+          failRemoteCommand("OUTPUTS RENAME: " + why);
+          return;
+        }
+        remoteCommandDetail_ = cleanAudioOutputName(joinParts(to, 0));
+        return;
+      }
+      if (sub == "REMOVE" && parts.size() > 2) {
+        const std::string name = trim(joinParts(parts, 2));
+        if (!namedAudioOutput(name)) {
+          failRemoteCommand("OUTPUTS REMOVE: no output called " + name);
+          return;
+        }
+        removeNamedOutput(name);
+        remoteCommandDetail_ = name + " removed";
+        return;
+      }
+      if (sub == "CLEAR") {
+        while (!project_.namedAudioOutputs.empty()) {
+          removeNamedOutput(project_.namedAudioOutputs.front().name);
+        }
+        remoteCommandDetail_ = "no named outputs";
+        return;
+      }
+      failRemoteCommand("OUTPUTS: expected ADD, SET, RENAME, REMOVE or CLEAR");
+      return;
+    }
+    // PATCH: each playlist into the named outputs.
+    //   PATCH                          -> every playlist's crosspoints
+    //   PATCH <deck> <output> <dB>|OFF -> one crosspoint (dB -48 to +6)
+    //   PATCH <deck> CLEAR             -> out of the patch, back to its own device
+    //   PATCH ROUTE <deck>             -> the gains its engine is using, per destination
+    if (command == "PATCH") {
+      const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : std::string();
+      if (sub.empty() || sub == "LIST") {
+        std::string out;
+        for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+          const Deck& deck = project_.decks[static_cast<std::size_t>(d)];
+          if (!out.empty()) out += " | ";
+          out += "deck " + std::to_string(d + 1) + ":";
+          if (deck.audioPatch.empty()) {
+            out += " not in the patch";
+            continue;
+          }
+          for (const AudioPatchPoint& point : deck.audioPatch) {
+            out += " " + point.output + " " + audioPatchLevelLabel(point.gainDb);
+          }
+        }
+        remoteCommandDetail_ = out;
+        return;
+      }
+      if (sub == "ROUTE") {
+        const int d = parts.size() > 2 ? std::atoi(parts[2].c_str()) - 1 : project_.focusedDeckIndex;
+        MediaEngine* engine = mediaEngineForDeck(d);
+        DeckRuntime* runtime = runtimeForDeck(d);
+        if (!engine || !runtime) {
+          failRemoteCommand("PATCH ROUTE: no deck " + (parts.size() > 2 ? parts[2] : std::string()));
+          return;
+        }
+        if (!engine->patchRoutingActive()) {
+          remoteCommandDetail_ = "deck " + std::to_string(d + 1) + " is not in the patch";
+          return;
+        }
+        // dest:channel=L,R gains for every crosspoint that is not silent.
+        const DeckPatchPlan plan = deckPatchPlan(d);
+        std::string out = runtime->patchSignature;
+        for (int dest = 0; dest < MediaEngine::kMaxAudioDestinations; ++dest) {
+          for (int ch = 0; ch < 8; ++ch) {
+            const float l = engine->patchGain(dest, 0, ch);
+            const float r = engine->patchGain(dest, 1, ch);
+            if (l == 0.0f && r == 0.0f) continue;
+            char cell[64];
+            std::snprintf(cell, sizeof(cell), " %d:%d=%.3f,%.3f", dest, ch + 1,
+                          static_cast<double>(l), static_cast<double>(r));
+            out += cell;
+          }
+        }
+        for (const auto& o : plan.routing.outputs) {
+          if (o.dest < 0) out += " " + o.name + "=unreached";
+        }
+        remoteCommandDetail_ = out;
+        return;
+      }
+      const int d = std::atoi(parts[1].c_str()) - 1;
+      if (d < 0 || d >= static_cast<int>(project_.decks.size())) {
+        failRemoteCommand("PATCH: expected a deck number 1-" + std::to_string(project_.decks.size()));
+        return;
+      }
+      if (parts.size() == 3 && toUpper(parts[2]) == "CLEAR") {
+        project_.decks[static_cast<std::size_t>(d)].audioPatch.clear();
+        markProjectDirty();
+        remoteCommandDetail_ = "deck " + std::to_string(d + 1) + " out of the patch";
+        return;
+      }
+      if (parts.size() < 4) {
+        failRemoteCommand("PATCH: expected <deck> <output> <dB> or OFF");
+        return;
+      }
+      const std::string level = toUpper(parts.back());
+      std::vector<std::string> nameParts(parts.begin() + 2, parts.end() - 1);
+      const std::string name = trim(joinParts(nameParts, 0));
+      if (!namedAudioOutput(name)) {
+        failRemoteCommand("PATCH: no output called " + name + " (OUTPUTS lists them)");
+        return;
+      }
+      if (level == "OFF") {
+        setAudioPatchPoint(d, name, std::nullopt);
+        remoteCommandDetail_ = "deck " + std::to_string(d + 1) + " " + name + " off";
+        return;
+      }
+      char* end = nullptr;
+      const double db = std::strtod(parts.back().c_str(), &end);
+      if (end == parts.back().c_str() || *end != '\0' || db < kAudioPatchMinDb || db > kAudioPatchMaxDb) {
+        failRemoteCommand("PATCH: a level is dB from -48 to +6, or OFF");
+        return;
+      }
+      setAudioPatchPoint(d, name, static_cast<float>(db));
+      remoteCommandDetail_ = "deck " + std::to_string(d + 1) + " " + name + " " +
+                             audioPatchLevelLabel(static_cast<float>(db));
+      return;
+    }
     if (command == "MATRIX") {
       // MATRIX                    -> report the selected cue's routing
       // MATRIX SET <src> <dest> <0-100>   src 1=L 2=R, dest is 1-based
@@ -532,8 +759,14 @@
         std::ostringstream out;
         out << cue.audioMatrix.size() << " point(s)";
         for (const AudioCrosspoint& p : cue.audioMatrix) {
-          out << " | " << (p.source == 0 ? "L" : "R") << "->" << (p.dest + 1)
-              << " " << static_cast<int>(std::lround(p.gain * 100.0f)) << "%";
+          out << " | " << (p.source == 0 ? "L" : "R") << "->";
+          if (p.output.empty()) {
+            out << (p.dest + 1);
+          } else {
+            const NamedAudioOutput* named = namedAudioOutput(p.output);
+            out << p.output << (named && named->width >= 2 ? (p.dest == 0 ? " L" : " R") : "");
+          }
+          out << " " << static_cast<int>(std::lround(p.gain * 100.0f)) << "%";
         }
         remoteCommandDetail_ = out.str();
         return;
@@ -546,6 +779,50 @@
       if (sub == "CLEAR" || sub == "OFF") {
         clearCueMatrix();
         remoteCommandDetail_ = "off - back to the output pair";
+        return;
+      }
+      // MATRIX SET <src> <output name> [L|R] <0-100>: by name, on a playlist
+      // in the patch. A destination that is not a number is a name.
+      if (sub == "SET" && parts.size() >= 5 && !parts[3].empty() &&
+          !std::isdigit(static_cast<unsigned char>(parts[3][0]))) {
+        const int src = std::atoi(parts[2].c_str());
+        if (src < 1 || src > 2) {
+          failRemoteCommand("MATRIX SET: source is 1 (left) or 2 (right)");
+          return;
+        }
+        std::vector<std::string> nameParts(parts.begin() + 3, parts.end() - 1);
+        int channel = 0;
+        if (nameParts.size() > 1) {
+          const std::string side = toUpper(nameParts.back());
+          if (side == "L" || side == "R") {
+            channel = side == "R" ? 1 : 0;
+            nameParts.pop_back();
+          }
+        }
+        const std::string name = trim(joinParts(nameParts, 0));
+        const NamedAudioOutput* named = namedAudioOutput(name);
+        if (!named) {
+          failRemoteCommand("MATRIX SET: no output called " + name + " (OUTPUTS lists them)");
+          return;
+        }
+        if (channel >= named->width) {
+          failRemoteCommand("MATRIX SET: " + name + " is one channel");
+          return;
+        }
+        if (!deckInPatch(deck)) {
+          failRemoteCommand("MATRIX SET: this playlist is not in the patch, so it cannot reach " + name);
+          return;
+        }
+        const double pct = std::atof(parts.back().c_str());
+        if (pct < 0.0 || pct > 100.0) {
+          failRemoteCommand("MATRIX SET: level is a percent from 0 to 100");
+          return;
+        }
+        setCueMatrixGain(cue, src - 1, channel, static_cast<float>(pct / 100.0), name);
+        refreshLiveCueAudioMatrix();
+        remoteCommandDetail_ = std::string(src == 1 ? "L" : "R") + "->" + name +
+                               (named->width >= 2 ? (channel == 0 ? " L " : " R ") : " ") +
+                               std::to_string(static_cast<int>(std::lround(pct))) + "%";
         return;
       }
       if (sub == "SET" && parts.size() >= 5) {
@@ -6090,10 +6367,18 @@
       return;
     }
     if (command == "CLICK") {
-      if (parts.size() < 3) {
-        failRemoteCommand("CLICK: expected x y");
+      // CLICK x y HOLD presses without letting go, so HOVER can drag what was
+      // pressed; CLICK UP lets go. (A patch crosspoint is dragged that way.)
+      if (parts.size() == 2 && toUpper(parts[1]) == "UP") {
+        endPatchScrub();
+        remoteCommandDetail_ = "released";
         return;
       }
+      if (parts.size() < 3) {
+        failRemoteCommand("CLICK: expected x y [HOLD], or UP");
+        return;
+      }
+      const bool hold = parts.size() > 3 && toUpper(parts[3]) == "HOLD";
       try {
         // A CONTEXT MENU IS A SEPARATE DISPATCH, and entering at
         // handleMouseDown skipped it entirely.
@@ -6113,6 +6398,9 @@
           handleContextMenuClick(std::stoi(parts[1]), std::stoi(parts[2]));
         } else {
           handleMouseDown(std::stoi(parts[1]), std::stoi(parts[2]), SDL_BUTTON_LEFT);
+          // A CLICK is a press and a release; a patch crosspoint decides
+          // what the press was on the release.
+          if (!hold) endPatchScrub();
         }
         // Reports WHICH modal was up afterwards. A click that lands on a
         // covered control is silently swallowed by whatever claimed it first,

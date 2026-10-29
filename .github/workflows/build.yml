@@ -531,6 +531,14 @@ jobs:
         if: matrix.features == 'all'
         run: xvfb-run -a python3 tools/check_fade_knobs.py --exe ./build/Deckboy
 
+      # Named outputs and the patch: three playlists of tones onto FOH, SUB,
+      # MON and PRESS FEED on one eight-channel interface, each channel taken
+      # apart per playlist; a missing interface, a cue's matrix by name, a
+      # playlist leaving the patch, and the grid's click and drag.
+      - name: Named outputs and the patch
+        if: matrix.features == 'all'
+        run: xvfb-run -a python3 tools/check_audio_patch.py --exe ./build/Deckboy
+
       # The Web Monitor keeps two minutes for its player's PAUSE and BACK 10 S
       # (dvr.m3u8) while OPEN STREAM stays the live window. The browser half
       # (--browser) needs Edge or Chrome and websocket-client, so it runs locally.
@@ -1588,6 +1596,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "the Web Monitor rewind failed" }
           python tools/check_fade_knobs.py --exe build\Release\Deckboy.exe
           if ($LASTEXITCODE -ne 0) { throw "fades on effect knobs failed" }
+          python tools/check_audio_patch.py --exe build\Release\Deckboy.exe
+          if ($LASTEXITCODE -ne 0) { throw "named outputs and the patch failed" }
 
       - uses: actions/setup-node@v4
         if: matrix.features == 'all'

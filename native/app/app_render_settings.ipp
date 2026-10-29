@@ -552,6 +552,231 @@
     settingsBtns_.push_back({inc, incAction, std::string(tag) + "_inc"});
   }
 
+  // The settings page's row metrics, for card functions drawn outside the
+  // renderer's own scope. The same formulas as its sPad/sGap/sLineH/sRowH/
+  // sCardHeaderH, or a card drawn here would not line up with its neighbours.
+  struct SettingsMetrics {
+    int pad = 0;
+    int gap = 0;
+    int lineH = 0;
+    int rowH = 0;
+    int cardHeaderH = 0;
+  };
+  SettingsMetrics settingsMetrics() {
+    SettingsMetrics m;
+    m.pad = uiScaled(8);
+    m.gap = uiScaled(6);
+    m.lineH = std::max(uiScaled(16), textLineHeight(fontSmall_));
+    m.rowH = std::max(uiScaled(24), textLineHeight(fontSmall_) + uiScaled(9));
+    m.cardHeaderH = settingsHeaderHeight(fontBase_) + m.lineH + m.gap;
+    return m;
+  }
+
+  // ── OUTPUTS AND PATCH (Settings > Audio) ────────────────────────────────
+  //
+  // The approved design (Audio board, "Named outputs and a patch"): outputs
+  // are named once, playlists send to names, and a crosspoint is a level in
+  // dB or off -- click to cycle, drag to set.
+
+  int namedOutputsCardH() {
+    const SettingsMetrics m = settingsMetrics();
+    const int rows = static_cast<int>(project_.namedAudioOutputs.size());
+    // the hint, a row per output, + ADD AN OUTPUT
+    return m.cardHeaderH + m.pad + m.lineH + (rows + 1) * (m.rowH + m.gap);
+  }
+
+  int patchPlaylistCount() const {
+    int count = 0;
+    for (const Deck& deck : project_.decks) {
+      if (!deck.isMasterDeck) ++count;
+    }
+    return count;
+  }
+
+  int patchCardH() {
+    const SettingsMetrics m = settingsMetrics();
+    if (project_.namedAudioOutputs.empty()) {
+      return m.cardHeaderH + m.pad + m.lineH;
+    }
+    // the outputs' names, a row per playlist, the hint
+    return m.cardHeaderH + m.pad + m.lineH + m.gap + patchPlaylistCount() * (m.rowH + m.gap) + m.lineH;
+  }
+
+  void drawNamedOutputsCard(const SDL_Rect& rect) {
+    const SettingsMetrics m = settingsMetrics();
+    drawSettingsCard(rect, "OUTPUTS", "channels on your interfaces, by name");
+    const int x = rect.x + m.pad;
+    const int w = rect.w - m.pad * 2;
+    int y = rect.y + m.cardHeaderH;
+    drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {x, y, w, m.lineH},
+                 "Name a channel or a pair once. Playlists send to the name, so a different "
+                 "interface means changing the names here, not every cue.",
+                 pal.inkSoft);
+    y += m.lineH + m.gap;
+    const int gap = uiScaled(6);
+    const int nameW = std::clamp(w / 6, uiScaled(110), uiScaled(190));
+    const int chW = std::clamp(w / 8, uiScaled(110), uiScaled(150));
+    const int pairW = std::clamp(w / 14, uiScaled(64), uiScaled(84));
+    const int xW = std::max(uiScaled(28), m.rowH);
+    const int statusW = std::clamp(w / 5, uiScaled(120), uiScaled(260));
+    const int devW = std::max(uiScaled(80), w - nameW - chW - pairW - xW - statusW - gap * 5);
+    for (std::size_t i = 0; i < project_.namedAudioOutputs.size(); ++i) {
+      const NamedAudioOutput named = project_.namedAudioOutputs[i];
+      const int base = kSettingsActionNamedOutputRowBase + static_cast<int>(i) * 6;
+      int at = x;
+      const SDL_Rect nameBtn {at, y, nameW, m.rowH};
+      drawUIValueControl(nameBtn, named.name);
+      settingsBtns_.push_back({nameBtn, base, "named_output_name"});
+      at += nameW + gap;
+      const SDL_Rect devBtn {at, y, devW, m.rowH};
+      drawUIDropdownValue(devBtn, namedOutputDeviceLabel(named), "settings.named_output_device");
+      settingsBtns_.push_back({devBtn, base + 1, "named_output_device"});
+      at += devW + gap;
+      drawSettingsStepper(SDL_Rect {at, y, chW, m.rowH}, namedOutputChannelsLabel(named),
+                          base + 2, base + 3, "named_output_channels");
+      at += chW + gap;
+      const SDL_Rect pairBtn {at, y, pairW, m.rowH};
+      drawUIValueControl(pairBtn, named.width >= 2 ? "PAIR" : "ONE");   // a choice, not a switch
+      settingsBtns_.push_back({pairBtn, base + 4, "named_output_width"});
+      at += pairW + gap;
+      // WHY NOT, where it is not: a missing interface leaves its name
+      // unpatched and says so rather than sending somewhere else.
+      const NamedOutputReach reach = namedOutputReach(named);
+      drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {at, y, statusW, m.rowH},
+                   reach.reachable ? std::string("ok") : "unpatched: " + reach.why,
+                   reach.reachable ? pal.inkSoft : paletteNotice(true).border);
+      const SDL_Rect remove {x + w - xW, y, xW, m.rowH};
+      drawSettingsStateFill(remove, false);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, remove, "x", settingsStateInk(false));
+      settingsBtns_.push_back({remove, base + 5, "named_output_remove"});
+      y += m.rowH + m.gap;
+    }
+    const bool full = static_cast<int>(project_.namedAudioOutputs.size()) >= kMaxNamedAudioOutputs;
+    const SDL_Rect addBtn {x, y, nameW + gap + devW, m.rowH};
+    drawSettingsStateFill(addBtn, false);
+    drawCenteredTextSafe(controlRenderer_, fontSmall_, addBtn, "+ ADD AN OUTPUT",
+                         full ? pal.inkSoft : settingsStateInk(false));
+    settingsBtns_.push_back({addBtn, kSettingsActionNamedOutputAdd, "named_output_add"});
+  }
+
+  void drawPatchCard(const SDL_Rect& rect, const SDL_Rect& viewport) {
+    const SettingsMetrics m = settingsMetrics();
+    drawSettingsCard(rect, "PATCH", "playlists into the named outputs");
+    const int x = rect.x + m.pad;
+    const int w = rect.w - m.pad * 2;
+    int y = rect.y + m.cardHeaderH;
+    const int outputs = static_cast<int>(project_.namedAudioOutputs.size());
+    if (outputs == 0) {
+      drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {x, y, w, m.lineH},
+                   "Add an output above, then send playlists to it here.", pal.inkSoft);
+      return;
+    }
+    const int gap = uiScaled(4);
+    const int labelW = std::clamp(w / 5, uiScaled(120), uiScaled(220));
+    // Wide enough for a name like PRESS FEED at the label size, where there
+    // is room; a squeezed heading would be smaller than its neighbours.
+    const int cellW = std::max(uiScaled(40), std::min(uiScaled(140), (w - labelW) / outputs - gap));
+    // The names across the top. One that cannot be reached is in the warning
+    // colour, so a crosspoint into it is not mistaken for one that sounds.
+    std::vector<bool> reachable(static_cast<std::size_t>(outputs));
+    for (int o = 0; o < outputs; ++o) {
+      const NamedAudioOutput& named = project_.namedAudioOutputs[static_cast<std::size_t>(o)];
+      reachable[static_cast<std::size_t>(o)] = namedOutputReach(named).reachable;
+      drawCenteredTextSafe(controlRenderer_, fontSmall_,
+                           SDL_Rect {x + labelW + o * (cellW + gap), y, cellW, m.lineH}, named.name,
+                           reachable[static_cast<std::size_t>(o)] ? pal.fg : paletteNotice(true).border);
+    }
+    y += m.lineH + m.gap;
+    for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+      const Deck& deck = project_.decks[static_cast<std::size_t>(d)];
+      if (deck.isMasterDeck) continue;
+      drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {x, y, labelW - gap, m.rowH}, deckLabel(d), pal.fg);
+      for (int o = 0; o < outputs; ++o) {
+        const NamedAudioOutput& named = project_.namedAudioOutputs[static_cast<std::size_t>(o)];
+        const AudioPatchPoint* point = audioPatchPoint(deck, named.name);
+        const SDL_Rect cell {x + labelW + o * (cellW + gap), y, cellW, m.rowH};
+        drawSettingsStateFill(cell, point != nullptr);
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, cell,
+                             point ? audioPatchLevelLabel(point->gainDb) : std::string("off"),
+                             settingsStateInk(point != nullptr));
+        settingsBtns_.push_back({cell, kSettingsActionPatchCellBase + d * kMaxNamedAudioOutputs + o,
+                                 "patch_" + std::to_string(d + 1) + "_" + named.name});
+        SDL_Rect visible {};
+        if (SDL_GetRectIntersection(&cell, &viewport, &visible)) {
+          settingsPatchCells_.push_back({cell, d, o});
+        }
+      }
+      y += m.rowH + m.gap;
+    }
+    drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {x, y, w, m.lineH},
+                 "Click a crosspoint to walk it: off, 0, -3, -6, -12 dB. Drag it sideways for any level. "
+                 "A playlist with none plays to its own device.",
+                 pal.inkSoft);
+  }
+
+  // Click: off -> 0 -> -3 -> -6 -> -12 -> off, the steps the cue matrix walks.
+  void cyclePatchCell(int deckIndex, int output) {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size()) || output < 0 ||
+        output >= static_cast<int>(project_.namedAudioOutputs.size())) {
+      return;
+    }
+    const std::string& name = project_.namedAudioOutputs[static_cast<std::size_t>(output)].name;
+    const AudioPatchPoint* point = audioPatchPoint(project_.decks[static_cast<std::size_t>(deckIndex)], name);
+    std::optional<float> next;
+    if (!point)                      next = 0.0f;
+    else if (point->gainDb > -1.5f)  next = -3.0f;
+    else if (point->gainDb > -4.5f)  next = -6.0f;
+    else if (point->gainDb > -9.0f)  next = -12.0f;
+    setAudioPatchPoint(deckIndex, name, next);
+    triggerToast(deckLabel(deckIndex) + " -> " + name + ": " +
+                 (next ? audioPatchLevelLabel(*next) + " dB" : std::string("off")));
+  }
+
+  // DRAG TO SET. Taken on the press, before the settings click; a press that
+  // never moves is a click, decided on the release.
+  bool beginPatchScrub(int x, int y) {
+    for (const PatchCellHit& hit : settingsPatchCells_) {
+      if (!pointInRect(x, y, hit.rect)) continue;
+      if (hit.output >= static_cast<int>(project_.namedAudioOutputs.size())) return false;
+      const AudioPatchPoint* point = audioPatchPoint(
+        project_.decks[static_cast<std::size_t>(hit.deck)],
+        project_.namedAudioOutputs[static_cast<std::size_t>(hit.output)].name);
+      patchScrub_ = PatchScrub {};
+      patchScrub_.active = true;
+      patchScrub_.deck = hit.deck;
+      patchScrub_.output = hit.output;
+      patchScrub_.startX = x;
+      patchScrub_.startY = y;
+      // An OFF crosspoint comes up from the bottom, like a fader.
+      patchScrub_.startDb = point ? point->gainDb : kAudioPatchMinDb;
+      return true;
+    }
+    return false;
+  }
+
+  void updatePatchScrub(int x, int y) {
+    // Right or up is louder; a dB for every four pixels (sixteen with shift).
+    const int travel = (x - patchScrub_.startX) - (y - patchScrub_.startY);
+    if (!patchScrub_.moved && std::abs(travel) < 5) return;
+    patchScrub_.moved = true;
+    const bool fine = (SDL_GetModState() & SDL_KMOD_SHIFT) != 0;
+    const float db = std::clamp(std::round(patchScrub_.startDb + static_cast<float>(travel) / (fine ? 16.0f : 4.0f)),
+                                kAudioPatchMinDb, kAudioPatchMaxDb);
+    if (patchScrub_.output < static_cast<int>(project_.namedAudioOutputs.size())) {
+      setAudioPatchPoint(patchScrub_.deck,
+                         project_.namedAudioOutputs[static_cast<std::size_t>(patchScrub_.output)].name, db);
+    }
+  }
+
+  void endPatchScrub() {
+    if (!patchScrub_.active) return;
+    const PatchScrub done = patchScrub_;
+    patchScrub_ = PatchScrub {};
+    if (!done.moved) {
+      cyclePatchCell(done.deck, done.output);
+    }
+  }
+
   void drawSettingsCard(const SDL_Rect& rect, const std::string& title,
                         const std::string& subtitle = std::string()) {
     // Every card records where it is, so the layout audit can tell a control
@@ -614,6 +839,7 @@
     const int kTabGap = uiScaled(6);
     int tabY = modal.y + std::max(uiScaled(44), titleH + uiScaled(12));
     settingsBtns_.clear();
+    settingsPatchCells_.clear();
     const std::vector<std::string> tabs {"System", "Audio", "Network", "Video Outputs", "About", "Encoder"};
     int tabX = modal.x + uiScaled(16);
     for (int t = 0; t < (int)tabs.size(); ++t) {
@@ -1422,7 +1648,9 @@
         const int colH = content.h - uiScaled(20);
         settingsAudioScrollMax_ = std::max(0, std::max(audioH + kAudioCardGap + capH,
                                                        midiNeedH + kAudioCardGap + ltcNeedH +
-                                                         kAudioCardGap + limiterNeedH) - colH);
+                                                         kAudioCardGap + limiterNeedH) +
+                                                kAudioCardGap + namedOutputsCardH() +
+                                                kAudioCardGap + patchCardH() - colH);
         settingsAudioScroll_ = std::clamp(settingsAudioScroll_, 0, settingsAudioScrollMax_);
         settingsAudioViewport_ = content;
       }
@@ -1434,6 +1662,7 @@
       const std::size_t audioButtonStart = settingsBtns_.size();
 
       SDL_Rect audioRect {cx, cy, leftW, audioH};
+      int audioColumnsBottom = audioRect.y + audioRect.h;   // OUTPUTS and PATCH go under both columns
       drawCard(audioRect, "AUDIO OUTPUT", "Device routing for cue playback");
       const int audioX = cardBodyX(audioRect);
       const int audioW = cardBodyW(audioRect);
@@ -1451,6 +1680,11 @@
             devRt->audioDeviceInUse != focusedDeck().audioOutputDeviceName) {
           devName += "  (not found -- on default)";
         }
+      }
+      // IN THE PATCH the crosspoints decide; the device chosen here is where
+      // the playlist goes again when it leaves the patch.
+      if (deckInPatch(focusedDeck())) {
+        devName += "  (in the PATCH below, which decides)";
       }
       SDL_Rect devBtn = settingsRow(audioX, audioW, rowY, sTallH, "Output device", sGap);
       drawUIDropdownValue(devBtn, devName, "settings.audio_device");
@@ -1621,7 +1855,8 @@
         // route their stereo onto a pair of these outs (AUDIO section: "outs").
         SDL_Rect chanBtn = settingsRow(audioX, audioW, rowY, sRowH, "Output channels", sGap);
         drawUIValueControl(chanBtn,
-                           std::to_string(focusedDeck().audioOutputChannels) + " ch");
+                           std::to_string(focusedDeck().audioOutputChannels) + " ch" +
+                             (deckInPatch(focusedDeck()) ? "  (the PATCH decides)" : ""));
         settingsBtns_.push_back({chanBtn, kSettingsActionAudioChannelsCycle, "audio_channels"});
       }
 
@@ -1641,6 +1876,7 @@
       // 2026-10-14, less its Web Monitor / Recording chips: those carry an
       // output's picture, so they show the captions of the output they carry.
       SDL_Rect capRect {cx, audioRect.y + audioRect.h + kAudioCardGap, leftW, capH};
+      audioColumnsBottom = std::max(audioColumnsBottom, capRect.y + capRect.h);
       drawCard(capRect, "LIVE CAPTIONS", "what is said, on screen, made on this computer");
       const int kx = cardBodyX(capRect);
       const int kw = cardBodyW(capRect);
@@ -1836,6 +2072,7 @@
                             stackH({sLineH, sRowH, sRowH, sRowH, sRowH, sLineH}) +
                               static_cast<int>(effectCount) * (sRowH + sGap)};
         drawCard(limitRect, "OUTPUT EFFECTS", "a chain on a device, after the mix");
+        audioColumnsBottom = std::max(audioColumnsBottom, limitRect.y + limitRect.h);
         const int qx = cardBodyX(limitRect);
         const int qw = cardBodyW(limitRect);
         int qy = cardBodyY(limitRect);
@@ -1928,6 +2165,17 @@
                      : bypassed  ? std::string("bypassed: nothing here is processed or limited")
                                  : std::string("headphones, desk sounds and LTC stay out of it"),
                      bypassed ? paletteNotice(true).border : soft);
+      }
+
+      // ── OUTPUTS AND THE PATCH ───────────────────────────────────────────
+      // (approved design: Audio board item 3, "Named outputs and a patch").
+      // Full width under both columns, because the patch is a grid and a
+      // grid wants the room.
+      {
+        const SDL_Rect outRect {cx, audioColumnsBottom + kAudioCardGap, fullW, namedOutputsCardH()};
+        drawNamedOutputsCard(outRect);
+        const SDL_Rect patchRect {cx, outRect.y + outRect.h + kAudioCardGap, fullW, patchCardH()};
+        drawPatchCard(patchRect, content);
       }
 
       SDL_SetRenderClipRect(controlRenderer_, hadAudioClip ? &previousAudioClip : nullptr);
@@ -6753,6 +7001,78 @@
                                  : "output effects back in",
                      nowBypassed ? ToastKind::Warning : ToastKind::Help,
                      nowBypassed ? kToastReadableMs : 1200);
+      } else if (sb.action >= kSettingsActionNamedOutputRowBase &&
+                 sb.action < kSettingsActionNamedOutputRowBase + 16 * 6) {
+        // A named output's row: name, interface, channel - and +, pair, remove.
+        static_assert(kMaxNamedAudioOutputs == 16, "the OUTPUTS row block is sixteen rows of six");
+        const int row = (sb.action - kSettingsActionNamedOutputRowBase) / 6;
+        const int part = (sb.action - kSettingsActionNamedOutputRowBase) % 6;
+        if (row >= static_cast<int>(project_.namedAudioOutputs.size())) return;
+        const std::string name = project_.namedAudioOutputs[static_cast<std::size_t>(row)].name;
+        if (part == 0) {
+          openInlineTextEditor("settings.named_output_name", "Output name",
+                               "what the patch and the cues call it (FOH, SUB, PRESS FEED)", name,
+                               [this, name](const std::string& value) {
+                                 const std::string why = renameNamedOutput(name, value);
+                                 triggerToast(why.empty() ? name + " is now " + cleanAudioOutputName(value) : why);
+                               });
+          return;
+        }
+        if (part == 1) {
+          auto choices = audioOutputDeviceDropdownChoices();
+          for (auto& choice : choices) {
+            if (choice.first.empty()) choice.second = "system output";
+          }
+#if defined(DECKBOY_HAS_ASIO)
+          if (!project_.asioDriverName.empty()) {
+            const std::string asio = std::string(kAsioDevicePrefix) + project_.asioDriverName;
+            choices.emplace_back(asio, asio);
+          }
+#endif
+          openDropdown("settings.named_output_device", sb.rect, choices,
+                       project_.namedAudioOutputs[static_cast<std::size_t>(row)].deviceName,
+                       [this, name](const std::string& value) {
+                         for (NamedAudioOutput& named : project_.namedAudioOutputs) {
+                           if (named.name == name) named.deviceName = value;
+                         }
+                         markProjectDirty();
+                         triggerToast(name + " on " + (value.empty() ? std::string("the system output") : value));
+                       });
+          return;
+        }
+        NamedAudioOutput& named = project_.namedAudioOutputs[static_cast<std::size_t>(row)];
+        if (part == 2 || part == 3) {
+          // A pair steps a pair at a time: 1-2, 3-4, 5-6.
+          const int step = part == 2 ? -named.width : named.width;
+          named.firstChannel = std::clamp(named.firstChannel + step, 1, kMaxAudioOutputs - named.width + 1);
+        } else if (part == 4) {
+          named.width = named.width >= 2 ? 1 : 2;
+        } else {
+          removeNamedOutput(name);
+          triggerToast(name + " removed, and its crosspoints with it");
+          return;
+        }
+        markProjectDirty();
+        triggerToast(named.name + ": " + namedOutputChannelsLabel(named));
+      } else if (sb.action == kSettingsActionNamedOutputAdd) {
+        // OUT n, on the interface the focused playlist plays to, on the next
+        // pair after anything already named there.
+        const std::string device = focusedDeck().audioOutputDeviceName;
+        int next = 1;
+        for (const NamedAudioOutput& named : project_.namedAudioOutputs) {
+          if (named.deviceName == device) next = std::max(next, named.firstChannel + named.width);
+        }
+        int n = static_cast<int>(project_.namedAudioOutputs.size()) + 1;
+        while (namedAudioOutput("OUT " + std::to_string(n))) ++n;
+        const std::string why = addNamedOutput("OUT " + std::to_string(n), device, next, 2);
+        triggerToast(why.empty() ? "OUT " + std::to_string(n) + " added: click its name to rename it" : why);
+      } else if (sb.action >= kSettingsActionPatchCellBase &&
+                 sb.action < kSettingsActionPatchCellBase + 16 * 16) {
+        // A crosspoint, from a click that came some other way than the mouse
+        // (the press itself is taken by beginPatchScrub, for the drag).
+        static_assert(kMaxDecks * kMaxNamedAudioOutputs == 16 * 16, "the PATCH block is 16 playlists by 16 outputs");
+        cyclePatchCell((sb.action - kSettingsActionPatchCellBase) / kMaxNamedAudioOutputs,
+                       (sb.action - kSettingsActionPatchCellBase) % kMaxNamedAudioOutputs);
       } else if (sb.action == kSettingsActionUpdateCheckToggle) {
         project_.updateCheckEnabled = !project_.updateCheckEnabled;
         markProjectDirty();

@@ -137,6 +137,34 @@ inline std::vector<std::string> parseStringList(const std::string& text, char se
   return out;
 }
 
+// A playlist's row of the PATCH in one field: "FOH=0;SUB=-6". Output names
+// cannot hold ';' or '=' (cleanAudioOutputName), so the split is unambiguous.
+inline std::string serializeAudioPatch(const std::vector<AudioPatchPoint>& points) {
+  std::string out;
+  for (const AudioPatchPoint& point : points) {
+    if (point.output.empty()) continue;
+    if (!out.empty()) out += ';';
+    char level[16];
+    std::snprintf(level, sizeof(level), "%.1f", point.gainDb);
+    out += point.output + "=" + level;
+  }
+  return out;
+}
+
+inline std::vector<AudioPatchPoint> parseAudioPatch(const std::string& text) {
+  std::vector<AudioPatchPoint> out;
+  for (const std::string& item : parseStringList(text, ';')) {
+    const std::size_t eq = item.rfind('=');
+    if (eq == std::string::npos || eq == 0) continue;
+    AudioPatchPoint point;
+    point.output = trim(item.substr(0, eq));
+    point.gainDb = std::clamp(static_cast<float>(std::atof(item.c_str() + eq + 1)),
+                              kAudioPatchMinDb, kAudioPatchMaxDb);
+    if (!point.output.empty()) out.push_back(point);
+  }
+  return out;
+}
+
 inline std::string joinIntList(const std::vector<int>& values) {
   std::string out;
   for (std::size_t i = 0; i < values.size(); ++i) {
@@ -241,6 +269,10 @@ void writeProjectScalars(std::ostream& output, const Project& project) {
   output << "multiview\t" << project.multiviewMode << '\n';
   output << "monitor_device\t" << escapeField(project.monitorDeviceName) << '\n';
   output << "monitor_deck\t" << project.monitorDeckIndex << '\n';
+  for (const NamedAudioOutput& named : project.namedAudioOutputs) {
+    output << "audio_output\t" << escapeField(named.name) << '\t' << escapeField(named.deviceName) << '\t'
+           << named.firstChannel << '\t' << named.width << '\n';
+  }
   for (const OutputLimiterSetting& limiter : project.outputLimiters) {
     output << "output_limiter\t" << (limiter.enabled ? 1 : 0) << '\t' << limiter.ceilingDb << '\t'
            << escapeField(limiter.deviceName) << '\t'
@@ -1079,6 +1111,7 @@ bool saveProject(const fs::path& projectFile, const Project& project, bool patie
       << '	' << escapeField(joinStringList(deck.extraAudioDeviceNames, ';'))
       << '	' << (deck.audioToProgram ? 1 : 0)
       << '	' << escapeField(deck.watchFolder)
+      << '	' << escapeField(serializeAudioPatch(deck.audioPatch))
       << '\n';
 
     for (const auto& cue : deck.cues) {
@@ -1278,6 +1311,16 @@ bool applyProjectScalarLine(Project& project, const std::vector<std::string>& fi
     project.monitorDeviceName = safeString(fields, 1);
   } else if (fields[0] == "monitor_deck") {
     project.monitorDeckIndex = safeInt(fields, 1, -1);
+  } else if (fields[0] == "audio_output") {
+    NamedAudioOutput named;
+    named.name = cleanAudioOutputName(safeString(fields, 1));
+    named.deviceName = safeString(fields, 2);
+    named.firstChannel = std::clamp(safeInt(fields, 3, 1), 1, kMaxAudioOutputs);
+    named.width = safeInt(fields, 4, 2) == 1 ? 1 : 2;
+    if (!named.name.empty() &&
+        static_cast<int>(project.namedAudioOutputs.size()) < kMaxNamedAudioOutputs) {
+      project.namedAudioOutputs.push_back(named);
+    }
   } else if (fields[0] == "output_limiter") {
     OutputLimiterSetting limiter;
     limiter.enabled = safeBool(fields, 1, false);
@@ -2077,6 +2120,11 @@ Project loadProject(const fs::path& projectFile,
       // watch folders existed opens watching nothing.
       if (fields.size() >= 60 + warpFieldOffset) {
         deck.watchFolder = safeString(fields, 59 + warpFieldOffset);
+      }
+      // Appended after the watch folder. Absent is not in the patch, which
+      // is how every playlist played before named outputs.
+      if (fields.size() >= 61 + warpFieldOffset) {
+        deck.audioPatch = parseAudioPatch(safeString(fields, 60 + warpFieldOffset));
       }
     } else if (fields[0] == "cue") {
       int deckIndex = 0;

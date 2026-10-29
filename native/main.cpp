@@ -1956,6 +1956,11 @@ struct DeckRuntime {
   // mid-show -- and keeping them apart is what lets the request survive that
   // and be honoured when the device comes back.
   std::string audioDeviceInUse;
+  // For a playlist in the PATCH: the interfaces it was opened on and their
+  // widths, in the order the patch gave them. When the patch would now open
+  // something else -- an interface arrived or left, an output moved -- the
+  // deck is reopened (servicePatchRouting).
+  std::string patchSignature;
   // The system output this deck was last moved to because SDL had not moved
   // it (reconcileDeckAudioDevices). Kept so a move that does not take is not
   // retried, and the sound torn down, every two seconds.
@@ -2082,6 +2087,12 @@ std::string serializeAudioMatrix(const std::vector<AudioCrosspoint>& list) {
     char buf[16];
     std::snprintf(buf, sizeof(buf), "%.3f", p.gain);
     out += buf;
+    // A fourth part names the output, on a playlist in the patch. A build
+    // from before names reads the gain and stops at the colon.
+    if (!p.output.empty()) {
+      out += ':';
+      out += p.output;
+    }
   }
   return out;
 }
@@ -2101,12 +2112,17 @@ std::vector<AudioCrosspoint> parseAudioMatrix(const std::string& text) {
     const std::size_t c2 = cell.find(':', c1 + 1);
     if (c2 == std::string::npos) continue;
     AudioCrosspoint p;
+    const std::size_t c3 = cell.find(':', c2 + 1);
     try {
       p.source = std::stoi(cell.substr(0, c1));
       p.dest = std::stoi(cell.substr(c1 + 1, c2 - c1 - 1));
-      p.gain = std::stof(cell.substr(c2 + 1));
+      p.gain = std::stof(cell.substr(c2 + 1, c3 == std::string::npos ? std::string::npos : c3 - c2 - 1));
     } catch (...) {
       continue;                 // one bad cell is skipped, not fatal
+    }
+    if (c3 != std::string::npos) {
+      p.output = cleanAudioOutputName(cell.substr(c3 + 1));
+      if (p.output.empty() || p.dest > 1) continue;   // a named point is channel 0 or 1 of its output
     }
     // Clamped on the way IN, so a hand-edited or corrupted show cannot put a
     // gain of 900 on the audio thread.
@@ -8271,13 +8287,24 @@ class App {
     // OPEN: the settings and the dashboard dim the desk behind them, which
     // also dims the pushed-in MENU. A steady ring above the dimming says
     // which button this came from.
+    //
+    // ONLY WHERE THE BUTTON CAN BE SEEN. In a window the size of a laptop's
+    // the settings cover MENU, and the ring was drawn over whatever card sat
+    // there -- an empty box across the output limiter's meter.
+    const int ringW = std::max(2, uiScaled(2));
     for (const auto& button : buttons_) {
-      if (((button.label == "MENU" || button.label == "SETUP" || button.label == "SETTINGS") &&
-           settingsOpen_) ||
-          (button.label == "DASH" && dashboardOverlayOpen_)) {
+      const bool settingsButton = (button.label == "MENU" || button.label == "SETUP" ||
+                                   button.label == "SETTINGS") && settingsOpen_;
+      if (settingsButton || (button.label == "DASH" && dashboardOverlayOpen_)) {
+        const SDL_Rect cover = settingsButton ? settingsModalRect() : dashModalRect_;
+        const SDL_Rect ring {button.rect.x - ringW, button.rect.y - ringW,
+                             button.rect.w + ringW * 2, button.rect.h + ringW * 2};
+        if (SDL_HasRectIntersection(&ring, &cover)) {
+          continue;
+        }
         SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
         SDL_SetRenderDrawColor(controlRenderer_, pal.light.r, pal.light.g, pal.light.b, 255);
-        for (int i = 1; i <= std::max(2, uiScaled(2)); ++i) {
+        for (int i = 1; i <= ringW; ++i) {
           SDL_Rect r {button.rect.x - i, button.rect.y - i, button.rect.w + i * 2, button.rect.h + i * 2};
           SDL_RenderRect(controlRenderer_, &r);
         }
@@ -9680,6 +9707,15 @@ class App {
   static constexpr int kSettingsActionOutputFxRowStride = 3;
   static constexpr int kSettingsActionOutputFxAdd = 1568;
   static constexpr int kSettingsActionOutputFxBypass = 1569;
+  // OUTPUTS card (Settings > Audio): per named output six controls -- its
+  // name, its interface, channel - and +, one channel or a pair, remove --
+  // and sixteen outputs at most, so 1600..1695; then + ADD AN OUTPUT.
+  static constexpr int kSettingsActionNamedOutputRowBase = 1600;
+  static constexpr int kSettingsActionNamedOutputAdd = 1696;
+  // PATCH grid: a crosspoint per playlist per named output, 2000 + deck * 16
+  // + output, so 2000..2255 for sixteen of each. (Not 1700: 1790 is the
+  // input monitor's, which audit_actions.py check 4 caught.)
+  static constexpr int kSettingsActionPatchCellBase = 2000;
   static constexpr int kSettingsActionWebMonitorSource = 755;
   static constexpr int kSettingsActionWebMonitorClientsPrompt = 756;
   static constexpr int kSettingsActionWebMonitorLowLatency = 757;
@@ -12154,6 +12190,25 @@ class App {
   Uint64 panicProfileRequestedAt_ = 0;
   double panicRestoreDimmerTarget_ = 1.0;
   std::vector<SettingsButton> settingsBtns_;
+  // THE PATCH GRID'S CELLS, for "click to cycle, drag to set": the press is
+  // taken before the settings click (which acts on the way down), and what it
+  // was is decided on the way up -- no movement is a click.
+  struct PatchCellHit {
+    SDL_Rect rect {};
+    int deck = -1;
+    int output = -1;
+  };
+  std::vector<PatchCellHit> settingsPatchCells_;
+  struct PatchScrub {
+    bool active = false;
+    bool moved = false;
+    int deck = -1;
+    int output = -1;
+    int startX = 0;
+    int startY = 0;
+    float startDb = 0.0f;
+  };
+  PatchScrub patchScrub_;
   bool midiEnabled_ = false;
   // The port actually open, which is not always the one requested: a control
   // surface that is unplugged, not switched on, or still enumerating leaves the

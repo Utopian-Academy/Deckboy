@@ -195,6 +195,7 @@
                                       activeValueScrub_.param);
                 }
               }
+              endPatchScrub();
               drag_.active = false;
               drag_.cueIndex = -1;
               masterFaderDragActive_ = false;
@@ -362,6 +363,9 @@
     // Fade cues, ticked beside the pending takes: both are things the show
     // asked for earlier that have to happen now.
     serviceFades();
+    // The patch: crosspoint levels go to the engines, and a playlist whose
+    // interfaces changed is reopened on the new ones.
+    servicePatchRouting();
     // TCP network cues answer from their own thread; this is where their
     // answers become toasts.
     drainNetworkResults();

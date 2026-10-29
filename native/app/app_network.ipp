@@ -3226,7 +3226,7 @@ html,body{width:100%;height:100%;overflow:hidden}
     // without something saying so.
     if (upper == "HELP ALL" || upper == "HELP FULL" || upper == "?? ") {
       sendSnapshot(
-        "DECKBOY_0.01 every verb (380)\n"
+        "DECKBOY_0.01 every verb (382)\n"
         "ADDTIMER ALLGO ALLPAUSE ALLPLAY ALLSTOP ALLTAKE ANIM ANIMATION ARM AUDITION\n"
         "ARTNET ARTNETEVENT ARTNETPORT ART_NET_PORT ASCII ATEM ATEMEVENT\n"
         "ATEMTRIGGER AUDIO AUDIOCUE AUDIOENABLED AUDIOFX AUDIOGAIN AUDIOMONO\n"
@@ -3234,7 +3234,7 @@ html,body{width:100%;height:100%;overflow:hidden}
         "CLICK HOVER PRESS TRUST COMPANIONPASS SCOPES MIDICLOCK OUTSNAP OUTPROBE UISNAP UIASSETS QUICK QUICKLIST DROPTEST\n"
         "MESH MESH3D SEQ\n"
         "OFFSET OFFSETX OFFSETY ROTATION CROP CROPLEFT CROPRIGHT CROPTOP CROPBOTTOM\n"
-        "AUTOID AUTONEXT AVJUMP BLACKOUT DEFAULTS NEWSHOW LIMITER OUTPUTFX\n"
+        "AUTOID AUTONEXT AVJUMP BLACKOUT DEFAULTS NEWSHOW LIMITER OUTPUTFX OUTPUTS PATCH\n"
         "BLEND BROKEN BROWSE BROWSER CAMERACUE CANVAS CC CHECK CHIP CLEAR CLEAROVERLAY CODE COLOR\n"
         "CROSSFADE COLORTAG COMPOSITE CONTINUE CONVERT CUEAUDIO CUEAUTOID CUEFIND CUEFINDCLEAR\n"
         "DISARM DMXCUE FADE FADECUE MATRIX AUDIOALSO MIDICUE MIDIFILE MULTI MULTIVIEW NETCUE PFL PRELOAD SCRIPTCUE TARGET TARGETCUE TCCUE TEXTCUE TIMECODECUE\n"
@@ -3298,6 +3298,9 @@ html,body{width:100%;height:100%;overflow:hidden}
         "script:    SCRIPTCUE NEW|ADD <line>|CLEAR|RUN - a cue that runs Deckboy protocol lines; # is a comment\n"
         "dmx out:   DMXCUE NEW|SET <1=255,10-14=64>|FADE <s>|UNIVERSE <n>|HOST <ipv4>|PORT <n>|FIRE|BLACKOUT - Art-Net levels on GO\n"
         "matrix:    MATRIX [SET <src 1-2> <dest 1-128> <0-100>|SEED|CLEAR] - per-cue audio crosspoints; empty means the plain stereo pair\n"
+        "           MATRIX SET <src 1-2> <output> [L|R] <0-100> - by name, on a playlist in the PATCH\n"
+        "outputs:   OUTPUTS [ADD <name> CH <n>|<n>-<n+1> [DEVICE <device>] | SET <name> ... | RENAME <name> TO <new> | REMOVE <name> | CLEAR]\n"
+        "patch:     PATCH [<deck> <output> <dB -48..6>|OFF | <deck> CLEAR | ROUTE <deck>] - playlists into named outputs\n"
         "midi file: MIDIFILE [PORT <name>] - drop a .mid in the playlist and it plays out\n"
         "text:      TEXTCUE NEW|BODY <words>|ANIM none/fade/typewriter/scroll/crawl/pulse/wobble|SIZE <1-100>|SPEED <n>|ALIGN <side>|CARD <0-255>\n"
         "lower 3rd: TEXTCUE LOWERNEW | LOWER on/off | TITLE <words> | SUB <words> | LOOK <look> (LOOK ? lists names)\n"
