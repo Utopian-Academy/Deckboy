@@ -441,8 +441,7 @@ importantly, what each feature deliberately does not do.
 
 **Web Monitor and network:**
 
-- A Web Monitor at full resolution and the right shape, that pauses, rewinds
-  and returns to live without losing the picture
+- A Web Monitor at full resolution and the right shape
 - Encrypted connections (HTTPS) for the Web Monitor and the phone remote
 
 **Platform:**
