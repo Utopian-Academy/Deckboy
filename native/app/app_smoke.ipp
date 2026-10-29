@@ -2251,6 +2251,14 @@
                  l3.accent == 4 && l3.wiggle,
                "a lower third's layout persists");
         {
+          // EVERY FIELD APPENDED AFTER THE TRACKER'S JUMP AND SECTION: the
+          // twelve Moire fields, then the fade cue's effect and knob. The
+          // older-show checks below trim this many and then their own, so a
+          // field appended to the record is counted here once. When the
+          // Moire fields went in, only two of five checks were bumped, and the
+          // other three trimmed nothing but Moire -- passing without testing
+          // the show they were named for.
+          constexpr int kAfterTrackerFields = 14;
           // A show from immediately before the fixture patch (one tail field
           // fewer) keeps its mic channel and has no fixture levels.
           {
@@ -2258,10 +2266,10 @@
             std::ostringstream preOlder;
             std::string preLine;
             while (std::getline(preIn, preLine)) {
-              // The tracker's jump and section, the stream HDR field, then
-              // the fixture levels.
+              // The newer fields, the tracker's jump and section, the stream
+              // HDR field, then the fixture levels.
               if (preLine.rfind("cue\t", 0) == 0) {
-                for (int t = 0; t < 4; ++t) preLine.erase(preLine.find_last_of('\t'));
+                for (int t = 0; t < kAfterTrackerFields + 4; ++t) preLine.erase(preLine.find_last_of('\t'));
               }
               preOlder << preLine << '\n';
             }
@@ -2281,12 +2289,10 @@
             std::ostringstream preOlder;
             std::string preLine;
             while (std::getline(preIn, preLine)) {
+              // The newer fields, the tracker's section and jump, stream HDR,
+              // the fixture levels, then the mic channel.
               if (preLine.rfind("cue\t", 0) == 0) {
-                preLine.erase(preLine.find_last_of('\t'));   // tracker section
-                preLine.erase(preLine.find_last_of('\t'));   // tracker jump
-                preLine.erase(preLine.find_last_of('\t'));   // stream HDR
-                preLine.erase(preLine.find_last_of('\t'));
-                preLine.erase(preLine.find_last_of('\t'));
+                for (int t = 0; t < kAfterTrackerFields + 5; ++t) preLine.erase(preLine.find_last_of('\t'));
               }
               preOlder << preLine << '\n';
             }
@@ -2306,13 +2312,10 @@
             std::ostringstream preOlder;
             std::string preLine;
             while (std::getline(preIn, preLine)) {
+              // The newer fields, the tracker's section and jump, stream HDR,
+              // the fixture levels, the mic channel, then the DMX protocol.
               if (preLine.rfind("cue\t", 0) == 0) {
-                preLine.erase(preLine.find_last_of('\t'));   // tracker section
-                preLine.erase(preLine.find_last_of('\t'));   // tracker jump
-                preLine.erase(preLine.find_last_of('\t'));   // stream HDR
-                preLine.erase(preLine.find_last_of('\t'));
-                preLine.erase(preLine.find_last_of('\t'));
-                preLine.erase(preLine.find_last_of('\t'));
+                for (int t = 0; t < kAfterTrackerFields + 6; ++t) preLine.erase(preLine.find_last_of('\t'));
               }
               preOlder << preLine << '\n';
             }
@@ -2325,16 +2328,16 @@
                    "a pre-sACN show keeps wiggle and its DMX cues send Art-Net");
             fs::remove(preSacnPath);
           }
-          // Trim the nineteen newest tail fields (the twelve Moire fields, tracker section and jump, stream
+          // Trim the newer fields, then the tracker's section and jump, stream
           // HDR, fixture levels, the mic channel, the DMX protocol, then
-          // Wiggle): a show from immediately before
+          // Wiggle: a show from immediately before
           // Wiggle must keep its look, timings, triggers and audio selection.
           std::ifstream in(smokePath);
           std::ostringstream older;
           std::string line;
           while (std::getline(in, line)) {
             if (line.rfind("cue\t", 0) == 0) {
-              for (int t = 0; t < 19; ++t) line.erase(line.find_last_of('\t'));
+              for (int t = 0; t < kAfterTrackerFields + 7; ++t) line.erase(line.find_last_of('\t'));
             }
             older << line << '\n';
           }
@@ -2393,7 +2396,7 @@
         // the spine and trimming 3 stopped reaching preWaitSeconds -- the test
         // failed loudly, which is the only reason this comment exists rather
         // than a silent hole in the backward-compatibility check.
-        constexpr int kSpineTailFields = 105;  // preWait, postWait, continue, masters,
+        constexpr int kSpineTailFields = 107;  // preWait, postWait, continue, masters,
                                               // target id/deck/verb, armed, panel w/h,
                                               // fade secs/to/what/curve/stop,
                                               // fireside view, overlay lower-third
@@ -2403,7 +2406,8 @@
                                               // three triggers (hotkey, MIDI note, OSC),
                                               // audio track and track count, wiggle,
                                               // the DMX protocol, the mic channel,
-                                              // the fixture levels, stream HDR, tracker jump and section, the twelve Moire fields
+                                              // the fixture levels, stream HDR, tracker jump and section, the twelve Moire fields,
+                                              // a fade cue's effect and knob
         {
           std::ifstream in(smokePath);
           std::ostringstream older;
