@@ -71,6 +71,14 @@
   (6827 pixels for a 16:9 slide instead of 3840). It now imports at the same width as every other
   page.
 
+### Show control
+- Added the **MIDI and OSC monitor** (Settings > Network): every MIDI, OSC, remote and phone
+  message as it arrives, and what Deckboy did with it: **DID**, **NOTHING** and why, or
+  **REFUSED** and why. Filters, PAUSE and CLEAR; a row can be copied as a command, and a note or
+  address can be made the selected cue's trigger in one click. `MONITOR [n]` returns the rows.
+- Fixed: on Linux, MIDI notes ignored a cue's own trigger note, MIDI learn and synth mode, and
+  always went to cue number note + 1. They now behave as on Windows and macOS.
+
 ### Diagnostics
 - On Windows, `deckboy-crash.log` names the error that ended the app when it was an uncaught C++
   exception, with its message (`thrown: .?AVbad_alloc@std@@  "bad allocation"`).
