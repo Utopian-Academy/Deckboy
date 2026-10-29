@@ -2177,7 +2177,9 @@ finer steps).
   channel, is marked **unpatched** with the reason, and its column is in the
   warning colour. Its sound goes nowhere else.
 - Through the system's audio, a name can sit on the first eight channels of an
-  interface.
+  interface. Through ASIO, choose **ASIO: <driver>** as the interface and a name
+  can sit on any of the driver's channels (**ASIO outs**); names on other
+  interfaces are unpatched, and say so, while ASIO plays the show.
 - The headphone monitor hears the playlist in stereo, whatever the patch does.
 - A cue's own **MATRIX** on a playlist in the patch sends to the names, and
   decides where that cue goes. Opened, it starts from the playlist's

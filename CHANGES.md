@@ -81,8 +81,11 @@
   one with none plays to its own device as before. A name on an interface that is not there, or
   past its last channel, is marked unpatched with the reason, and nothing is sent anywhere else
   instead. On a playlist in the patch, a cue's **MATRIX** sends to the names. A different
-  interface means changing the names, not the cues. `OUTPUTS`, `PATCH` and `MATRIX SET <src>
+  interface means changing the names, not the cues. Through ASIO, names go on the driver's own
+  channels (choose `ASIO: <driver>` as the interface). `OUTPUTS`, `PATCH` and `MATRIX SET <src>
   <output> [L|R] <level>` over the network.
+- Fixed: through ASIO, a cue's **MATRIX** did nothing; its sound went to outs 1-2 whatever the grid
+  said. Seen from v0.99.373.
 - Fixed: with Settings open in a window about the size of a laptop screen, an empty outlined box
   was drawn over the bottom of the Audio page, where the MENU button sits underneath.
 - Added **OUTPUT EFFECTS** (Settings > Audio): a chain on a playback device, after everything the
