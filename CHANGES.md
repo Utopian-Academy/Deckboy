@@ -79,6 +79,13 @@
   (6827 pixels for a 16:9 slide instead of 3840). It now imports at the same width as every other
   page.
 
+### Effects
+- Added **colour**, with the basics at the top of the effect list: **hue turn** (every colour
+  round the wheel, half a turn either way; give it an LFO and the picture cycles colours),
+  **tint** and **tint colour** (the midtones take the colour, black and white stay put) and
+  **wash out** (toward black and white). It arrives neutral and changes nothing until a knob
+  moves.
+
 ### Scopes
 - Added **FALSE COLOUR** to the scopes: the picture with its levels painted on, in the Rec 709
   bands camera crews read on ARRI monitors (purple crushed, blue just above black, green 18% grey,

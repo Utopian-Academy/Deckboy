@@ -73,6 +73,9 @@ EFFECTS = [
     # The S-curve alone: lift and roll-off pull the other way and would
     # mostly cancel it in a single dump.
     ("curves",          "1.0:0.9:0.0:0.0:0.0"),
+    # A hue turn, a tint toward green and a little washed out: off neutral
+    # on every slot.
+    ("colour",          "1.0:0.8:0.5:0.35:0.3"),
 ]
 
 # Effects whose whole subject is what happens ACROSS frames need more than one
@@ -149,6 +152,7 @@ PARAM_SLOTS = {
     "feedback_bloom":  ["hue turn", "melt", "zoom", "swirl"],
     "levels":          ["midtones", "black point", "white point", "lift"],
     "curves":          ["s-curve", "channel", "shadow lift", "highlight roll"],
+    "colour":          ["hue turn", "tint", "tint colour", "wash out"],
     "schlieren":       ["knife angle", "sensitivity", "colour"],
     "chladni":         ["mode", "second mode", "gather", "line glow"],
     "wavefront":       ["stiffness", "steps", "damping", "relief"],
@@ -178,6 +182,8 @@ PARAM_BASE = {
     # curve every channel is the same nothing. Start from a bent (flattened)
     # curve -- not an S, which is where the s-curve slot is moved TO.
     "curves": [0.2, 0.0, 0.0, 0.0],
+    # The tint colour only shows once there is some tint.
+    "colour": [0.5, 0.6, 0.0, 0.0],
     "scotopic": [0.5, 0.85, 0.0, 0.0],
     # Databend's smear is a DELAY TIME, and the delayed signal is only mixed
     # back in through the feedback. At neutral feedback nothing is fed back, so

@@ -115,6 +115,10 @@ enum class CueEffectKind : int {
   // nothing until a slider moves -- which is what a grading tool should do.
   Levels,
   Curves,
+  // Added 2026-10-28, asked for as "basic colour change effect": turn every
+  // colour round the wheel, tint the picture toward one colour, or wash it
+  // out to black and white. Arrives neutral like the two above.
+  Colour,
   Count,
 };
 
@@ -162,6 +166,7 @@ inline const char* cueEffectLabel(CueEffectKind kind) {
     case CueEffectKind::TimeCube:       return "time cube";
     case CueEffectKind::Levels:         return "levels";
     case CueEffectKind::Curves:         return "curves";
+    case CueEffectKind::Colour:         return "colour";
     default:                            return "none";
   }
 }
@@ -212,6 +217,7 @@ inline const char* cueEffectToken(CueEffectKind kind) {
     case CueEffectKind::TimeCube:       return "time_cube";
     case CueEffectKind::Levels:         return "levels";
     case CueEffectKind::Curves:         return "curves";
+    case CueEffectKind::Colour:         return "colour";
     default:                            return "none";
   }
 }
@@ -341,6 +347,9 @@ inline const char* cueEffectParamLabel(CueEffectKind kind, int which) {
     case CueEffectKind::Curves:
       return which == 0 ? "s-curve" : which == 1 ? "channel"
            : which == 2 ? "shadow lift" : which == 3 ? "highlight roll" : nullptr;
+    case CueEffectKind::Colour:
+      return which == 0 ? "hue turn" : which == 1 ? "tint"
+           : which == 2 ? "tint colour" : which == 3 ? "wash out" : nullptr;
     case CueEffectKind::Schlieren:
       return which == 0 ? "knife angle" : which == 1 ? "sensitivity"
            : which == 2 ? "colour" : nullptr;
@@ -610,6 +619,17 @@ inline const char* cueEffectParamTip(CueEffectKind kind, int which) {
         ? "Lifts the dark tones without moving pure black."
         : "Pulls the bright tones down without moving pure white, so a hot "
           "highlight rolls off instead of clipping.";
+    case CueEffectKind::Colour:
+      return which == 0
+        ? "Turns every colour round the wheel. Centre leaves them alone; the "
+          "ends are half a turn either way. Give it an LFO and the picture "
+          "cycles through the colours."
+        : which == 1
+        ? "How far the picture goes toward the tint colour. Black stays black "
+          "and white stays white; the midtones take the colour."
+        : which == 2
+        ? "Which colour the tint is, round the wheel from red."
+        : "Drains the colour toward black and white. Up is grey all the way.";
     case CueEffectKind::FeedbackBloom:
       return which == 0
         ? "How far the colour turns on each trip round the loop. This is the "
@@ -1477,6 +1497,70 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
               p[0] = lut[0][p[0]];
               p[1] = lut[1][p[1]];
               p[2] = lut[2][p[2]];
+            }
+          }
+        });
+        break;
+      }
+      case CueEffectKind::Colour: {
+        // ASSUMES R, G, B IN THAT ORDER: the engine's CPU frames are RGBA
+        // (libav_decoder). Unlike the channel-symmetric effects round it, a
+        // hue turn and a tint have a direction -- on BGRA a red tint would
+        // come out blue -- so this one says so, as ChannelOffset does.
+        //
+        // Hue turn: the luminance-keeping rotation about the grey axis (the
+        // matrix CSS hue-rotate uses). Wash out: toward Rec 709 luma. Tint:
+        // the tint colour's chroma, its own luma taken out, laid on in
+        // proportion to how far a pixel is from black and from white, so
+        // black and white never move and the midtones take the colour.
+        const double angle = (pA - 0.5) * 2.0 * 3.14159265358979;   // half a turn either way
+        const double cosA = std::cos(angle);
+        const double sinA = std::sin(angle);
+        const double m[9] = {
+          0.2126 + cosA * 0.7874 - sinA * 0.2126, 0.7152 - cosA * 0.7152 - sinA * 0.7152,
+          0.0722 - cosA * 0.0722 + sinA * 0.9278,
+          0.2126 - cosA * 0.2126 + sinA * 0.1430, 0.7152 + cosA * 0.2848 + sinA * 0.1400,
+          0.0722 - cosA * 0.0722 - sinA * 0.2830,
+          0.2126 - cosA * 0.2126 - sinA * 0.7874, 0.7152 - cosA * 0.7152 + sinA * 0.7152,
+          0.0722 + cosA * 0.9278 + sinA * 0.0722,
+        };
+        // The tint colour, fully saturated, round the wheel from red.
+        const double sector = std::clamp(pC, 0.0, 1.0) * 6.0;
+        const double f = sector - std::floor(sector);
+        double tr = 1.0, tg = 0.0, tb = 0.0;
+        switch (static_cast<int>(std::floor(sector)) % 6) {
+          case 0: tr = 1.0; tg = f; tb = 0.0; break;
+          case 1: tr = 1.0 - f; tg = 1.0; tb = 0.0; break;
+          case 2: tr = 0.0; tg = 1.0; tb = f; break;
+          case 3: tr = 0.0; tg = 1.0 - f; tb = 1.0; break;
+          case 4: tr = f; tg = 0.0; tb = 1.0; break;
+          default: tr = 1.0; tg = 0.0; tb = 1.0 - f; break;
+        }
+        const double tintLuma = 0.2126 * tr + 0.7152 * tg + 0.0722 * tb;
+        const double dr = tr - tintLuma, dg = tg - tintLuma, db = tb - tintLuma;
+        const double keep = 1.0 - std::clamp(static_cast<double>(pD), 0.0, 1.0);
+        const double tint = std::clamp(static_cast<double>(pB), 0.0, 1.0);
+        detail::parallelRows(ctx.height, ctx.width, [&](int firstRow, int lastRow) {
+          for (int y = firstRow; y < lastRow; ++y) {
+            std::uint8_t* p = pixels.data() + static_cast<std::size_t>(y) * ctx.width * 4;
+            for (int x = 0; x < ctx.width; ++x, p += 4) {
+              const double r0 = p[0] / 255.0, g0 = p[1] / 255.0, b0 = p[2] / 255.0;
+              double r = m[0] * r0 + m[1] * g0 + m[2] * b0;
+              double g = m[3] * r0 + m[4] * g0 + m[5] * b0;
+              double b = m[6] * r0 + m[7] * g0 + m[8] * b0;
+              const double luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+              r = luma + (r - luma) * keep;
+              g = luma + (g - luma) * keep;
+              b = luma + (b - luma) * keep;
+              if (tint > 0.0) {
+                const double reach = std::clamp(std::min(luma, 1.0 - luma) * 2.0, 0.0, 1.0);
+                r += (luma + dr * reach - r) * tint;
+                g += (luma + dg * reach - g) * tint;
+                b += (luma + db * reach - b) * tint;
+              }
+              p[0] = detail::clamp8((r0 + (r - r0) * amt) * 255.0 + 0.5);
+              p[1] = detail::clamp8((g0 + (g - g0) * amt) * 255.0 + 0.5);
+              p[2] = detail::clamp8((b0 + (b - b0) * amt) * 255.0 + 0.5);
             }
           }
         });

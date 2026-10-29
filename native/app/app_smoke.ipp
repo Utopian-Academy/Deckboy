@@ -1086,6 +1086,38 @@
              "end: choosing Stop turns Loop off; Hold shows off and keeps an overlay's frame");
     }
 
+    // ── The Colour effect: neutral is nothing, and each knob does its job ──
+    {
+      namespace fx = deckboy::effects;
+      auto run = [](std::vector<std::uint8_t> pixels, float a, float b, float c, float d) {
+        fx::CueEffect effect;
+        effect.kind = fx::CueEffectKind::Colour;
+        effect.amount = 1.0f;
+        effect.paramA = a;
+        effect.paramB = b;
+        effect.paramC = c;
+        effect.paramD = d;
+        fx::CueEffectContext ctx;
+        ctx.width = static_cast<int>(pixels.size() / 4);
+        ctx.height = 1;
+        fx::applyCueEffectStack(pixels, {effect}, ctx);
+        return pixels;
+      };
+      std::vector<std::uint8_t> sample;
+      for (int i = 0; i < 256; ++i) {
+        sample.insert(sample.end(), {static_cast<std::uint8_t>(i), static_cast<std::uint8_t>(255 - i),
+                                     static_cast<std::uint8_t>((i * 7) & 255), 255});
+      }
+      expect(run(sample, 0.5f, 0.0f, 0.0f, 0.0f) == sample,
+             "colour effect: arrives neutral (A=0.5, B=C=D=0 changes no byte)");
+      const auto washed = run({200, 40, 90, 255}, 0.5f, 0.0f, 0.0f, 1.0f);
+      expect(washed[0] == washed[1] && washed[1] == washed[2], "colour effect: wash out all the way is grey");
+      const auto tinted = run({128, 128, 128, 255}, 0.5f, 1.0f, 0.0f, 0.0f);
+      expect(tinted[0] > tinted[1] + 40 && tinted[0] > tinted[2] + 40, "colour effect: a red tint turns grey red");
+      const auto turned = run({255, 0, 0, 255}, 1.0f, 0.0f, 0.0f, 0.0f);
+      expect(turned[0] < turned[1] && turned[0] < turned[2], "colour effect: half a turn takes red to cyan");
+    }
+
     // ── False colour: ARRI's bands, and a frame through them ───────────────
     {
       auto rgb = [](double percent) {
