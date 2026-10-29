@@ -7,6 +7,9 @@
   var sound = document.getElementById('sound');
   var fullscreen = document.getElementById('fullscreen');
   var reconnect = document.getElementById('reconnect');
+  var pauseButton = document.getElementById('pause');
+  var backButton = document.getElementById('back');
+  var liveButton = document.getElementById('live');
   var status = document.getElementById('status');
   var source = root.getAttribute('data-source');
   var hls = null;
@@ -16,6 +19,9 @@
   var lastProgress = Date.now();
   var lastTime = -1;
   var hiddenAt = 0;
+  // FOLLOWING THE PROGRAMME, in step with every other screen, or not: PAUSE
+  // and BACK 10 S leave it, LIVE comes back. The server keeps two minutes.
+  var atLive = true;
 
   function message(text) { status.textContent = text; status.hidden = !text; }
   function play() {
@@ -30,6 +36,7 @@
   function connect() {
     if (stopped) return;
     clearTimeout(retry); retry = null;
+    atLive = true;   // a new connection starts at the live edge
     if (hls) { hls.destroy(); hls = null; }
     video.removeAttribute('src');
     video.load();
@@ -94,12 +101,73 @@
     fullscreen.textContent = document.fullscreenElement ? 'EXIT FULL SCREEN' : 'FULL SCREEN';
   });
   reconnect.onclick = connect;
+
+  // ── PAUSE, BACK 10 S, LIVE ──────────────────────────────────────────────
+  //
+  // Away from live on purpose, hls.js must not pull the picture forward to
+  // the edge (its liveMaxLatencyDuration) and the wall-clock steering below
+  // must not either; LIVE gives both back. The picture never goes: the
+  // fragments behind the playhead are still on the server, two minutes of
+  // them, so going back and returning are seeks, not reconnections.
+  function liveEdge() {
+    if (hls && hls.liveSyncPosition) return hls.liveSyncPosition;
+    var range = video.seekable;
+    return range.length ? range.end(range.length - 1) - 3 : video.currentTime;
+  }
+  function earliest() {
+    var range = video.seekable;
+    return range.length ? range.start(0) + 1 : 0;
+  }
+  function setLive(on) {
+    atLive = on;
+    if (hls) hls.config.liveMaxLatencyDuration = on ? 10 : Infinity;
+    if (!on) video.playbackRate = 1;
+    showPosition();
+  }
+  function showPosition() {
+    liveButton.setAttribute('aria-pressed', String(atLive));
+    pauseButton.textContent = video.paused ? 'PLAY' : 'PAUSE';
+    if (atLive) { liveButton.textContent = 'LIVE'; return; }
+    var behind = Math.max(0, Math.round(liveEdge() - video.currentTime));
+    liveButton.textContent = 'GO LIVE  -' + Math.floor(behind / 60) + ':' + ('0' + behind % 60).slice(-2);
+  }
+  pauseButton.onclick = function () {
+    if (video.paused) {
+      play();
+    } else {
+      setLive(false);
+      video.pause();
+    }
+    showPosition();
+  };
+  backButton.onclick = function () {
+    setLive(false);
+    video.currentTime = Math.max(earliest(), video.currentTime - 10);
+    play();
+  };
+  liveButton.onclick = function () {
+    setLive(true);
+    video.currentTime = liveEdge();
+    play();
+  };
+  video.addEventListener('pause', showPosition);
+  video.addEventListener('play', showPosition);
+  setInterval(function () {
+    // Paused longer than the server keeps: carry on from the oldest it has.
+    if (!atLive && video.seekable.length && video.currentTime < video.seekable.start(0)) {
+      video.currentTime = earliest();
+    }
+    showPosition();
+  }, 500);
+  window.deckboyMonitorAtLive = function () { return atLive; };   // for the check
+
   video.addEventListener('playing', function () { message(''); });
   video.addEventListener('waiting', function () { message('Buffering programme…'); });
   video.addEventListener('error', scheduleReconnect);
   video.addEventListener('ended', scheduleReconnect);
   // TV remotes can move between the same controls used by touch and keyboard.
-  var controls = [sound, fullscreen, reconnect, document.getElementById('stream-link')];
+  var controls = [sound, pauseButton, backButton, liveButton, fullscreen, reconnect,
+                  document.getElementById('stream-link')];
   document.addEventListener('keydown', function (event) {
     var direction = event.keyCode === 39 || event.keyCode === 40 ? 1
                   : event.keyCode === 37 || event.keyCode === 38 ? -1 : 0;
@@ -124,7 +192,7 @@
     return null;
   }
   setInterval(function () {
-    if (stopped || video.paused || video.readyState < 3) return;
+    if (stopped || !atLive || video.paused || video.readyState < 3) return;
     var showing = playingDateMs();
     if (showing === null) return;
     var errorMs = (Date.now() - kDelayMs) - showing;   // > 0: behind the target
@@ -151,9 +219,11 @@
   }, 1000);
   // A tab put to sleep comes back holding old pictures and old sound. Rejoin
   // live rather than play out a stale buffer behind the show.
+  // Only while following live: a picture paused or wound back on purpose is
+  // where the viewer left it.
   document.addEventListener('visibilitychange', function () {
     if (document.hidden) { hiddenAt = Date.now(); return; }
-    if (hiddenAt && Date.now() - hiddenAt > 5000) connect();
+    if (hiddenAt && atLive && Date.now() - hiddenAt > 5000) connect();
     hiddenAt = 0;
   });
   window.addEventListener('pagehide', function () {

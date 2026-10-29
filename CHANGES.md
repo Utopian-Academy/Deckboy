@@ -139,6 +139,12 @@
 - The installer explains a speech-model download refused for its certificate in words (the
   computer's clock, or a network that blocks secure connections) instead of an internal error.
 
+### Web Monitor
+- Added **PAUSE**, **BACK 10 S** and **LIVE** to the Web Monitor's player: pause the programme or go
+  back up to two minutes, then LIVE to rejoin it in step with the other screens. LIVE says how far
+  behind you are. The desk keeps the two minutes in memory, about 60 MB a minute at 1080p.
+  OPEN STREAM is still the live stream.
+
 ### Show control
 - Added the **MIDI and OSC monitor** (Settings > Network): every MIDI, OSC, remote and phone
   message as it arrives, and what Deckboy did with it: **DID**, **NOTHING** and why, or

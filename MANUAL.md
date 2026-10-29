@@ -2773,6 +2773,12 @@ This is a confidence view rather than a low-latency production return.
   network bandwidth; choose 720p on a busy or slow Wi-Fi network.
 - Sound is always included in the programme stream. Browsers start muted;
   press **SOUND ON** to listen. Turn Web Monitor off to stop its encoder.
+- **PAUSE**, **BACK 10 S** and **LIVE** (v0.99.422 and later): pause the
+  picture or go back up to two minutes, to look again at something that just
+  happened, then **LIVE** to rejoin the programme in step with every other
+  screen. While you are behind, LIVE says by how much (**GO LIVE -0:12**). The
+  desk keeps the two minutes in memory: about 60 MB a minute at 1080p and 225
+  MB at 2160p. **OPEN STREAM** stays the live stream for other players.
 - **FULL SCREEN** expands the player. Controls fit portrait and landscape
   screens and accept keyboard or TV-remote arrow navigation. **RECONNECT**
   restarts playback without changing the sound setting.

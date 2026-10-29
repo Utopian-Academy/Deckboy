@@ -525,6 +525,13 @@ jobs:
         if: matrix.features == 'all'
         run: xvfb-run -a python3 tools/check_output_limiter.py --exe ./build/Deckboy
 
+      # The Web Monitor keeps two minutes for its player's PAUSE and BACK 10 S
+      # (dvr.m3u8) while OPEN STREAM stays the live window. The browser half
+      # (--browser) needs Edge or Chrome and websocket-client, so it runs locally.
+      - name: The Web Monitor's rewind
+        if: matrix.features == 'all'
+        run: xvfb-run -a python3 tools/check_web_rewind.py --exe ./build/Deckboy
+
       # The programme's colours against independently decoded references, on
       # the renderers a Linux desktop uses: Mesa's OpenGL and SDL's software
       # one. Windows CI checked only Direct3D 11, so 8/10-bit and limited/full
@@ -1571,6 +1578,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "the sound scopes failed" }
           python tools/check_output_limiter.py --exe build\Release\Deckboy.exe
           if ($LASTEXITCODE -ne 0) { throw "the output limiter failed" }
+          python tools/check_web_rewind.py --exe build\Release\Deckboy.exe
+          if ($LASTEXITCODE -ne 0) { throw "the Web Monitor rewind failed" }
 
       - uses: actions/setup-node@v4
         if: matrix.features == 'all'

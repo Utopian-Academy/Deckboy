@@ -91,7 +91,7 @@ def command(db, text):
 
 def check_web_player(db, port, ffprobe, work):
     page = urlopen('http://127.0.0.1:%d/' % port, timeout=10).read().decode()
-    match = re.search(r"data-source='/hls/(\d+)/index.m3u8", page)
+    match = re.search(r"data-source='/hls/(\d+)/(?:index|dvr)\.m3u8", page)
     if '<video ' not in page or not match or 'SOUND ON' not in page:
         raise RuntimeError('web home page is not the programme player with sound')
     # Stop at a complete mdat: a timed network read can end halfway through

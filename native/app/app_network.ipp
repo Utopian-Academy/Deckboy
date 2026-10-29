@@ -2064,6 +2064,13 @@
     }
   }
 
+  // How far back the Web Monitor's own player can go: PAUSE, BACK 10 S, LIVE.
+  static constexpr double kWebMonitorRewindSeconds = 120.0;
+  static std::size_t webMonitorKeptFragments(double fragmentSeconds) {
+    const double each = fragmentSeconds > 0.01 ? fragmentSeconds : 0.5;
+    return std::max<std::size_t>(40, static_cast<std::size_t>(std::ceil(kWebMonitorRewindSeconds / each)) + 8);
+  }
+
   void serveWebHls(SocketHandle client, int outputIndex, const std::string& resource,
                    const std::string& pinQuery) {
     WebMonitorSlot& slot = webMonitorSlots_[static_cast<std::size_t>(outputIndex)];
@@ -2072,10 +2079,15 @@
     {
       std::lock_guard<std::mutex> lock(slot.mutex);
       const std::string generation = std::to_string(slot.avGeneration);
-      if (resource == "index.m3u8" && !slot.avInit.empty() && !slot.avFragments.empty()) {
+      const bool dvr = resource == "dvr.m3u8";
+      if ((resource == "index.m3u8" || dvr) && !slot.avInit.empty() && !slot.avFragments.empty()) {
         // Keep a sliding window for native HLS players and HLS.js. Every
         // fragment starts on a keyframe and carries both audio and video.
-        const std::size_t first = slot.avFragments.size() > 12 ? slot.avFragments.size() - 12 : 0;
+        // index.m3u8 stays the short live window an outside player expects;
+        // dvr.m3u8 lists the whole two minutes, for the monitor page's own
+        // player to pause and go back in. Both end at the same live edge.
+        const std::size_t window = dvr ? webMonitorKeptFragments(slot.avFragmentSeconds) - 8 : 12;
+        const std::size_t first = slot.avFragments.size() > window ? slot.avFragments.size() - window : 0;
         std::ostringstream playlist;
         playlist.imbue(std::locale::classic());
         playlist << "#EXTM3U\n#EXT-X-VERSION:7\n#EXT-X-TARGETDURATION:1\n"
@@ -2120,7 +2132,8 @@
       }
     }
     if (body.empty()) {
-      webMonitorSendPage(client, resource == "index.m3u8" ? "503 Service Unavailable" : "404 Not Found",
+      webMonitorSendPage(client, resource == "index.m3u8" || resource == "dvr.m3u8"
+                                   ? "503 Service Unavailable" : "404 Not Found",
                          "text/plain; charset=utf-8", "Programme fragment unavailable\n");
       return;
     }
@@ -2582,7 +2595,13 @@
               }
               slot.avFragments.emplace_back(slot.avFragmentSeq,
                                             std::make_shared<const std::string>(std::move(pending)));
-              while (slot.avFragments.size() > 40) slot.avFragments.pop_front();
+              // TWO MINUTES, for the player's PAUSE and BACK 10 S (dvr.m3u8),
+              // and a few fragments over so the oldest one a viewer was shown
+              // is still here when it asks. James, 2026-10-29: as much memory
+              // as that needs -- about 60 MB a minute at 1080p, 225 at 2160p.
+              while (slot.avFragments.size() > webMonitorKeptFragments(slot.avFragmentSeconds)) {
+                slot.avFragments.pop_front();
+              }
             }
             pending.clear();
             slot.cv.notify_all();
@@ -2652,7 +2671,8 @@
     const auto queryAt = avUrl.find('?');
     const std::string suffix = queryAt == std::string::npos ? std::string() : avUrl.substr(queryAt);
     const std::string output = avUrl.substr(4, queryAt == std::string::npos ? queryAt : queryAt - 4);
-    const std::string playlist = "/hls/" + output + "/index.m3u8" + suffix;
+    const std::string playlist = "/hls/" + output + "/index.m3u8" + suffix;   // OPEN STREAM: live only
+    const std::string rewindable = "/hls/" + output + "/dvr.m3u8" + suffix;   // this page's player
     return webMonitorPageShell(title, std::string(R"DBPLAYER(
 <style>
 *{box-sizing:border-box}
@@ -2671,12 +2691,14 @@ html,body{width:100%;height:100%;overflow:hidden}
 .monitor-controls :focus{outline:3px solid #d7f26b;outline-offset:2px}
 @media(min-width:1400px){.monitor-controls button,.monitor-controls a{font-size:20px;min-height:60px}}
 </style>
-)DBPLAYER") + "<div id='monitor' data-source='" + escapeHtml(playlist) +
+)DBPLAYER") + "<div id='monitor' data-source='" + escapeHtml(rewindable) +
       "' data-codec='" + escapeHtml(h264Codec) + "'><div class='picture'>"
       "<video id='v' autoplay muted playsinline aria-label='Programme monitor'></video>"
       "<p id='status' role='status'>Connecting to programme…</p></div>"
       "<nav class='monitor-controls' aria-label='Monitor controls'>"
       "<button id='sound' aria-pressed='false'>SOUND ON</button>"
+      "<button id='pause'>PAUSE</button><button id='back'>BACK 10 S</button>"
+      "<button id='live' aria-pressed='true'>LIVE</button>"
       "<button id='fullscreen'>FULL SCREEN</button><button id='reconnect'>RECONNECT</button>"
       "<a id='stream-link' href='" + escapeHtml(playlist) + "'>OPEN STREAM</a>"
       "<a href='/remote'>REMOTE</a></nav></div>"
