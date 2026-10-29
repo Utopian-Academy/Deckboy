@@ -3204,7 +3204,7 @@ html,body{width:100%;height:100%;overflow:hidden}
     // without something saying so.
     if (upper == "HELP ALL" || upper == "HELP FULL" || upper == "?? ") {
       sendSnapshot(
-        "DECKBOY_0.01 every verb (378)\n"
+        "DECKBOY_0.01 every verb (379)\n"
         "ADDTIMER ALLGO ALLPAUSE ALLPLAY ALLSTOP ALLTAKE ANIM ANIMATION ARM AUDITION\n"
         "ARTNET ARTNETEVENT ARTNETPORT ART_NET_PORT ASCII ATEM ATEMEVENT\n"
         "ATEMTRIGGER AUDIO AUDIOCUE AUDIOENABLED AUDIOFX AUDIOGAIN AUDIOMONO\n"
@@ -3212,7 +3212,7 @@ html,body{width:100%;height:100%;overflow:hidden}
         "CLICK HOVER PRESS TRUST COMPANIONPASS SCOPES MIDICLOCK OUTSNAP OUTPROBE UISNAP UIASSETS QUICK QUICKLIST DROPTEST\n"
         "MESH MESH3D SEQ\n"
         "OFFSET OFFSETX OFFSETY ROTATION CROP CROPLEFT CROPRIGHT CROPTOP CROPBOTTOM\n"
-        "AUTOID AUTONEXT AVJUMP BLACKOUT DEFAULTS NEWSHOW\n"
+        "AUTOID AUTONEXT AVJUMP BLACKOUT DEFAULTS NEWSHOW LIMITER\n"
         "BLEND BROKEN BROWSE BROWSER CAMERACUE CANVAS CC CHECK CHIP CLEAR CLEAROVERLAY CODE COLOR\n"
         "CROSSFADE COLORTAG COMPOSITE CONTINUE CONVERT CUEAUDIO CUEAUTOID CUEFIND CUEFINDCLEAR\n"
         "DISARM DMXCUE FADE FADECUE MATRIX AUDIOALSO MIDICUE MIDIFILE MULTI MULTIVIEW NETCUE PFL PRELOAD SCRIPTCUE TARGET TARGETCUE TCCUE TEXTCUE TIMECODECUE\n"
@@ -3384,6 +3384,7 @@ html,body{width:100%;height:100%;overflow:hidden}
         "          VIDEODIP [ON|OFF] | VIDEODIP FADE <seconds> (dip marked fixtures while a video rolls)\n"
         "          DMXCUE FIXTURE <name> <level%>|LEAVE [<colour>] | DMXCUE LFO <name> LEVEL|COLOUR ON|OFF [<Hz>] [<depth%>]\n"
         "          DMXCUE LEVELS <universe> [<first>] [<count>] [SACN] (what is going out)\n"
+        "limiter: LIMITER [ON|OFF] [CEILING <dB>] [DEVICE <name>] (a ceiling on a playback device, after the mix)\n"
         "mic: MIC | MIC ADD [<device>|TEST] | MIC LIST | MIC INPUT SETTINGS|TEST|<device>\n"
         "     MIC CHANNEL L|R|STEREO | MIC GAIN <dB> (a live input as a cue on a deck)\n"
         "scopes: SCOPES [PROGRAM|SCOPES|BOTH|TOGGLE] | SCOPES BIG waveform|parade|vector|diamond|histogram|\n"

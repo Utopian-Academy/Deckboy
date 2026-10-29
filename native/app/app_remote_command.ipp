@@ -918,6 +918,56 @@
                              std::to_string(project_.decks.size());
       return;
     }
+    // LIMITER [ON|OFF] [CEILING <dB>] [DEVICE <name>]: the output limiter on
+    // the focused playlist's device, or on DEVICE (no name: the system
+    // output). Bare LIMITER reports it, with how much it is taking off now.
+    if (command == "LIMITER") {
+      std::string device = deckLimiterDeviceName(project_.focusedDeckIndex);
+      std::optional<bool> on;
+      std::optional<double> ceiling;
+      for (std::size_t i = 1; i < parts.size(); ++i) {
+        const std::string word = toUpper(parts[i]);
+        if (word == "ON" || word == "OFF") {
+          on = word == "ON";
+        } else if (word == "CEILING" && i + 1 < parts.size()) {
+          char* end = nullptr;
+          const double value = std::strtod(parts[++i].c_str(), &end);
+          if (!end || *end != '\0' || value < -40.0 || value > 0.0) {
+            failRemoteCommand("LIMITER CEILING: a level from -40 to 0 dBFS");
+            return;
+          }
+          ceiling = value;
+        } else if (word == "DEVICE") {
+          device = i + 1 < parts.size() ? joinParts(parts, i + 1) : std::string();
+          break;   // the rest of the line is the name
+        } else {
+          failRemoteCommand("LIMITER: expected ON, OFF, CEILING <dB> or DEVICE <name>");
+          return;
+        }
+      }
+      if (on || ceiling) setOutputLimiter(device, on, ceiling);
+      const OutputLimiterSetting* setting = outputLimiterSetting(device);
+      double reduction = 0.0;
+      unsigned long long callbacks = 0, clamped = 0;
+      if (const auto bus = outputLimiterBuses_.find(device); bus != outputLimiterBuses_.end() && bus->second) {
+        reduction = bus->second->reductionDb.load(std::memory_order_relaxed);
+        callbacks = bus->second->callbacks.load(std::memory_order_relaxed);
+        clamped = bus->second->clamped.load(std::memory_order_relaxed);
+      }
+      int sharing = 0;   // playlists whose sound is on the shared, limited device
+      for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+        const DeckRuntime* rt = runtimeForDeck(d);
+        if (rt && rt->audioStream && deckboySharedDeviceOf(rt->audioStream) && deckLimiterDeviceName(d) == device) {
+          ++sharing;
+        }
+      }
+      char text[320];
+      std::snprintf(text, sizeof(text), "device=%s on=%d ceiling=%.1f reduction=%.1f playlists=%d clamped=%llu callbacks=%llu",
+                    device.empty() ? "(system output)" : device.c_str(), setting && setting->enabled ? 1 : 0,
+                    setting ? setting->ceilingDb : -1.0, reduction, sharing, clamped, callbacks);
+      remoteCommandDetail_ = text;
+      return;
+    }
     if (command == "AUDIOALSO") {
       // AUDIOALSO                 -> where else this deck's sound goes
       // AUDIOALSO ADD <name>      -> send it there too
@@ -1044,6 +1094,25 @@
         detail += "; hearing " + (audible.empty() ? std::string("nothing") : audible);
         detail += project_.monitorDeckIndex < 0 ? " (follows focus)" : " (pinned)";
         detail += "; out of the room: " + (muted.empty() ? std::string("none") : muted);
+        // AND WHETHER THOSE DEVICES RUN. A gate that is open onto a device
+        // that never started is silence that every line above calls sound.
+        int monitorOpen = 0, monitorPaused = 0, extraOpen = 0, extraPaused = 0;
+        for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+          const DeckRuntime* runtime = runtimeForDeck(d);
+          if (!runtime) continue;
+          if (runtime->monitorAudioStream) {
+            ++monitorOpen;
+            if (SDL_AudioDevicePaused(deckboyAudioStreamDevice(runtime->monitorAudioStream))) ++monitorPaused;
+          }
+          for (SDL_AudioStream* extra : runtime->extraAudioStreams) {
+            if (!extra) continue;
+            ++extraOpen;
+            if (SDL_AudioDevicePaused(deckboyAudioStreamDevice(extra))) ++extraPaused;
+          }
+        }
+        detail += "; monitor streams " + std::to_string(monitorOpen) + " (" + std::to_string(monitorPaused) +
+                  " paused), extra sends " + std::to_string(extraOpen) + " (" + std::to_string(extraPaused) +
+                  " paused)";
         remoteCommandDetail_ = detail;
         return;
       }

@@ -69,6 +69,14 @@
   first, says so, and then carries on from where you left it.
 
 ### Audio
+- Added the **OUTPUT LIMITER** (Settings > Audio): a ceiling on a playback device, after everything
+  the show plays there is mixed, every playlist on it and every extra send to it. It looks 1.5 ms
+  ahead, so a peak is caught before it arrives, and both channels share one gain. **Limiting** shows
+  how much it is taking off. The headphone monitor, the desk's own sounds and LTC stay out of it.
+  `LIMITER` over the network. Not on ASIO yet.
+- Fixed: the headphone monitor and extra sends (`AUDIOALSO`) made no sound at all, while the
+  settings and every report said they were sending. Seen from v0.99.374 (extra sends) and v0.99.376
+  (the monitor). One that was set up and forgotten will now be heard.
 - Fixed: STOP and PAUSE did not silence a tone cue. The playlist stopped or said "paused" and the
   tone went on sounding. STOP now silences it at once and darkens its card, PAUSE holds it, and
   PLAY carries on; a sting starts again from its strike after STOP. Seen from v0.89.0.

@@ -1415,9 +1415,11 @@
       {
         const int midiNeedH = stackH({sRowH, sRowH, sLineH, sLineH, sLineH, sLineH, sLineH, sRowH});
         const int ltcNeedH = stackH({sRowH, sRowH, sRowH, sRowH, sRowH, sLineH});
+        const int limiterNeedH = stackH({sLineH, sRowH, sRowH, sRowH, sLineH});
         const int colH = content.h - uiScaled(20);
         settingsAudioScrollMax_ = std::max(0, std::max(audioH + kAudioCardGap + capH,
-                                                       midiNeedH + kAudioCardGap + ltcNeedH) - colH);
+                                                       midiNeedH + kAudioCardGap + ltcNeedH +
+                                                         kAudioCardGap + limiterNeedH) - colH);
         settingsAudioScroll_ = std::clamp(settingsAudioScroll_, 0, settingsAudioScrollMax_);
         settingsAudioViewport_ = content;
       }
@@ -1815,6 +1817,66 @@
                             std::clamp(project_.ltcOutputFps, 23.0, 60.0))
                           + "  -  other channels held silent")
                        : std::string("off - all channels silent"),
+                     soft);
+
+        // OUTPUT LIMITER: a ceiling on the focused playlist's device, after
+        // the mix (approved design: Audio board, "Effects on an output").
+        const std::string limitDevice = deckLimiterDeviceName(project_.focusedDeckIndex);
+        const OutputLimiterSetting* limiter = outputLimiterSetting(limitDevice);
+        const bool limiterOn = limiter && limiter->enabled;
+        const double ceilingDb = limiter ? limiter->ceilingDb : -1.0;
+        SDL_Rect limitRect {rightX, ltcRect.y + ltcRect.h + uiScaled(10), rightW,
+                            stackH({sLineH, sRowH, sRowH, sRowH, sLineH})};
+        drawCard(limitRect, "OUTPUT LIMITER", "a ceiling on a device, after the mix");
+        const int qx = cardBodyX(limitRect);
+        const int qw = cardBodyW(limitRect);
+        int qy = cardBodyY(limitRect);
+        drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {qx, qy, qw, sLineH},
+                     deckLabel(project_.focusedDeckIndex) + " plays to " +
+                       (limitDevice.empty() ? std::string("the system output") : limitDevice),
+                     pal.fg);
+        qy += sLineH + sGap;
+        SDL_Rect limitBtn = settingsRow(qx, qw, qy, sRowH, "Limiter", sGap);
+        drawPillToggle(limitBtn, limiterOn, "ON", "OFF");
+        settingsBtns_.push_back({limitBtn, kSettingsActionOutputLimiterToggle, "output_limiter"});
+        char ceilingText[32];
+        std::snprintf(ceilingText, sizeof(ceilingText), "%.1f dBFS", ceilingDb);
+        drawSettingsStepper(settingsRow(qx, qw, qy, sRowH, "Ceiling", sGap), ceilingText,
+                            kSettingsActionOutputLimiterCeilingDec, kSettingsActionOutputLimiterCeilingInc,
+                            "output_limiter_ceiling");
+        // LIMITING: how much it is taking off now, on the scale of the ceiling.
+        SDL_Rect meterRow = settingsRow(qx, qw, qy, sRowH, "Limiting", sGap);
+        double reduction = 0.0;
+        if (limiterOn) {
+          const auto bus = outputLimiterBuses_.find(limitDevice);
+          if (bus != outputLimiterBuses_.end() && bus->second) {
+            reduction = bus->second->reductionDb.load(std::memory_order_relaxed);
+          }
+        }
+        // Held for a moment, so a peak's reduction can be read before it lets go.
+        const Uint64 meterNow = SDL_GetTicks();
+        if (reduction <= limiterMeterHeldDb_ || meterNow - limiterMeterHeldAtMs_ > 600) {
+          limiterMeterHeldDb_ = reduction;
+          limiterMeterHeldAtMs_ = meterNow;
+        }
+        const double shown = std::min(reduction, limiterMeterHeldDb_);
+        const int textW = measuredTextWidth(fontSmall_, "-00.0 dB") + uiScaled(8);
+        // The switches' own fills: lit is what is happening, flat is room. On
+        // a dark theme pal.deep is the darker of the two greens, so a bar in
+        // it read as the empty part and its track as the full one.
+        SDL_Rect track {meterRow.x, meterRow.y + meterRow.h / 3, std::max(1, meterRow.w - textW), meterRow.h / 3};
+        Primitives::fillRect(controlRenderer_, track, paletteToggleFill(false));
+        if (shown < -0.05) {
+          const int fillW = static_cast<int>(std::lround(track.w * std::min(1.0, -shown / 12.0)));
+          Primitives::fillRect(controlRenderer_, SDL_Rect {track.x, track.y, std::max(1, fillW), track.h},
+                               paletteToggleFill(true));
+        }
+        drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {track.x + track.w + uiScaled(8), meterRow.y, textW, meterRow.h},
+                     !limiterOn ? std::string("off") : shown < -0.05 ? fmtFloat(shown, 1) + " dB" : std::string("0.0 dB"),
+                     pal.fg);
+        drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {qx, qy, qw, sLineH},
+                     asioArmed() ? std::string("ASIO carries the show's sound, and the limiter is not on it yet")
+                                 : std::string("headphones, desk sounds and LTC stay out of it"),
                      soft);
       }
 
@@ -6578,6 +6640,19 @@
         saveShowDefaults();
       } else if (sb.action == kSettingsActionDefaultsReset) {
         resetShowDefaults();
+      } else if (sb.action == kSettingsActionOutputLimiterToggle) {
+        const std::string device = deckLimiterDeviceName(project_.focusedDeckIndex);
+        const OutputLimiterSetting* current = outputLimiterSetting(device);
+        const bool on = !(current && current->enabled);
+        setOutputLimiter(device, on, std::nullopt);
+        triggerToast(std::string(on ? "limiter on: " : "limiter off: ") +
+                     (device.empty() ? std::string("the system output") : device));
+      } else if (sb.action == kSettingsActionOutputLimiterCeilingDec ||
+                 sb.action == kSettingsActionOutputLimiterCeilingInc) {
+        const std::string device = deckLimiterDeviceName(project_.focusedDeckIndex);
+        const OutputLimiterSetting* current = outputLimiterSetting(device);
+        const double step = sb.action == kSettingsActionOutputLimiterCeilingDec ? -0.5 : 0.5;
+        setOutputLimiter(device, std::nullopt, (current ? current->ceilingDb : -1.0) + step);
       } else if (sb.action == kSettingsActionUpdateCheckToggle) {
         project_.updateCheckEnabled = !project_.updateCheckEnabled;
         markProjectDirty();

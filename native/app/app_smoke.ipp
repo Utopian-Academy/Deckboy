@@ -1179,6 +1179,76 @@
              "sound scopes: true peak finds the crest between samples");
     }
 
+    // ── The output limiter: a ceiling, and nothing else ─────────────────────
+    {
+      namespace afx = deckboy::audiofx;
+      constexpr double kPi = 3.14159265358979323846;
+      const int rate = 48000;
+      auto stereoSine = [&](std::size_t frames, auto amplitudeAt) {
+        std::vector<float> out(frames * 2);
+        for (std::size_t i = 0; i < frames; ++i) {
+          const float v = static_cast<float>(amplitudeAt(i) * std::sin(2.0 * kPi * 1000.0 * i / rate));
+          out[2 * i] = out[2 * i + 1] = v;
+        }
+        return out;
+      };
+      auto peakOf = [](const std::vector<float>& s, std::size_t from, std::size_t to) {
+        float p = 0.0f;
+        for (std::size_t i = from * 2; i < to * 2 && i < s.size(); ++i) p = std::max(p, std::fabs(s[i]));
+        return p;
+      };
+      const float sixDown = static_cast<float>(std::pow(10.0, -6.0 / 20.0));
+
+      // Full scale into a -6 dBFS ceiling, and a step from quiet straight to
+      // full scale: the lookahead has the gain down before the step arrives.
+      afx::BusLimiter loud;
+      loud.setCeilingDb(-6.0);
+      auto step = stereoSine(48000, [](std::size_t i) { return i < 24000 ? 0.1 : 1.0; });
+      loud.process(step.data(), 48000, 2, rate);
+      std::printf("      0 dBFS into -6: peak out %.5f (ceiling %.5f), reduction %.1f dB, clamped %llu\n",
+                  peakOf(step, 0, 48000), sixDown, loud.gainReductionDb(),
+                  static_cast<unsigned long long>(loud.clampedSamples()));
+      expect(peakOf(step, 0, 48000) <= sixDown + 1e-6f && loud.gainReductionDb() < -5.5 &&
+             loud.clampedSamples() == 0,
+             "output limiter: nothing passes the ceiling, a sudden step included, with no clipping");
+
+      // Under the ceiling: the same samples, a lookahead later.
+      afx::BusLimiter quiet;
+      quiet.setCeilingDb(-1.0);
+      const auto input = stereoSine(9600, [](std::size_t) { return 0.1; });
+      auto passed = input;
+      quiet.process(passed.data(), 9600, 2, rate);
+      const std::size_t lag = static_cast<std::size_t>(quiet.latencyFrames());
+      float worst = 0.0f;
+      for (std::size_t i = lag; i < 9600; ++i) worst = std::max(worst, std::fabs(passed[2 * i] - input[2 * (i - lag)]));
+      expect(worst < 1e-7f && quiet.gainReductionDb() == 0.0,
+             "output limiter: under the ceiling it changes nothing but the time");
+
+      // After a loud stretch the gain comes back up (120 ms release).
+      auto recover = stereoSine(48000, [](std::size_t i) { return i < 12000 ? 1.0 : 0.1; });
+      loud.process(recover.data(), 48000, 2, rate);
+      const float tail = peakOf(recover, 40000, 48000);
+      std::printf("      back to -20 dBFS: tail peak %.4f (input 0.1000)\n", tail);
+      expect(tail > 0.098f && tail <= 0.1001f, "output limiter: the gain recovers once the loud part has gone");
+
+      // One gain for both channels: a loud left does not leave the right alone.
+      afx::BusLimiter linked;
+      linked.setCeilingDb(-6.0);
+      std::vector<float> lr(48000 * 2);
+      for (std::size_t i = 0; i < 48000; ++i) {
+        const double s = std::sin(2.0 * kPi * 1000.0 * i / rate);
+        lr[2 * i] = static_cast<float>(s);
+        lr[2 * i + 1] = static_cast<float>(0.2 * s);
+      }
+      linked.process(lr.data(), 48000, 2, rate);
+      float left = 0.0f, right = 0.0f;
+      for (std::size_t i = 24000; i < 48000; ++i) {
+        left = std::max(left, std::fabs(lr[2 * i]));
+        right = std::max(right, std::fabs(lr[2 * i + 1]));
+      }
+      expect(std::fabs(right / left - 0.2f) < 0.01f, "output limiter: both channels share one gain, so the image holds");
+    }
+
     // ── False colour: ARRI's bands, and a frame through them ───────────────
     {
       auto rgb = [](double percent) {

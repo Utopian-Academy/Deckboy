@@ -241,6 +241,10 @@ void writeProjectScalars(std::ostream& output, const Project& project) {
   output << "multiview\t" << project.multiviewMode << '\n';
   output << "monitor_device\t" << escapeField(project.monitorDeviceName) << '\n';
   output << "monitor_deck\t" << project.monitorDeckIndex << '\n';
+  for (const OutputLimiterSetting& limiter : project.outputLimiters) {
+    output << "output_limiter\t" << (limiter.enabled ? 1 : 0) << '\t' << limiter.ceilingDb << '\t'
+           << escapeField(limiter.deviceName) << '\n';
+  }
   output << "dashboard_mode\t" << project.dashboardMode << '\n';
   output << "tracker_loop\t" << (project.trackerLoop ? 1 : 0) << '\n';
   output << "tracker_muted\t" << project.trackerMutedDecks << '\n';
@@ -1270,6 +1274,12 @@ bool applyProjectScalarLine(Project& project, const std::vector<std::string>& fi
     project.monitorDeviceName = safeString(fields, 1);
   } else if (fields[0] == "monitor_deck") {
     project.monitorDeckIndex = safeInt(fields, 1, -1);
+  } else if (fields[0] == "output_limiter") {
+    OutputLimiterSetting limiter;
+    limiter.enabled = safeBool(fields, 1, false);
+    limiter.ceilingDb = std::clamp(safeDouble(fields, 2, -1.0), -40.0, 0.0);
+    limiter.deviceName = safeString(fields, 3);
+    project.outputLimiters.push_back(limiter);
   } else if (fields[0] == "dashboard_mode") {
     project.dashboardMode = std::clamp(safeInt(fields, 1, 0), 0, 1);
   } else if (fields[0] == "multiview") {

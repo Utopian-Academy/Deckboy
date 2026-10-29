@@ -2134,6 +2134,25 @@ out. The matrix reaches every channel the device was opened with (see **Outs**
 above). A cue with no matrix routes exactly as it always did. `MATRIX` over the
 remote protocol does the same.
 
+### Output limiter
+
+*v0.99.422 and later.*
+
+`Settings → Audio → OUTPUT LIMITER` puts a ceiling on the device the focused
+playlist plays to. Everything the show sends there is mixed first (every
+playlist on that device and every extra send to it), and the mix cannot pass
+the ceiling: −1 dBFS unless you set another, from −40 to 0 in half-decibel
+steps. It looks 1.5 ms ahead, so a peak is already caught when it arrives, and
+lets go over about 120 ms. Both channels get the same gain, so the stereo image
+does not move. **Limiting** shows how much it is taking off.
+
+The headphone monitor, the desk's own sounds and LTC stay out of it. Under ASIO
+the show's sound goes to the driver, which the limiter does not reach yet.
+Turning it on or off is a device change for the playlists on that device:
+whatever is playing carries on. `LIMITER [ON|OFF] [CEILING <dB>] [DEVICE
+<name>]` does the same over the network, and `LIMITER` on its own reports how
+much it is taking off.
+
 ### Audio input
 
 `Settings → AUDIO INPUT` opens a microphone or line input by device, with gain,

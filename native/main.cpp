@@ -9669,6 +9669,11 @@ class App {
   // DEFAULTS card (Settings > System).
   static constexpr int kSettingsActionDefaultsSave = 735;
   static constexpr int kSettingsActionDefaultsReset = 737;
+  // OUTPUT LIMITER card (Settings > Audio): 736, 738 and 739 came free when the
+  // encoder rows moved to 1540+. audit_actions.py check 4 is what says so.
+  static constexpr int kSettingsActionOutputLimiterToggle = 736;
+  static constexpr int kSettingsActionOutputLimiterCeilingDec = 738;
+  static constexpr int kSettingsActionOutputLimiterCeilingInc = 739;
   static constexpr int kSettingsActionWebMonitorSource = 755;
   static constexpr int kSettingsActionWebMonitorClientsPrompt = 756;
   static constexpr int kSettingsActionWebMonitorLowLatency = 757;

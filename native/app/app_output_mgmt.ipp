@@ -683,9 +683,110 @@
   }
 
   // The device a stream's sound is actually going to, after any move SDL made.
+  // A stream on a limited device answers for its shared device even while it
+  // is paused (unbound), or a paused playlist would read as on no device.
   static std::string audioStreamDeviceName(SDL_AudioStream* stream) {
-    const char* name = stream ? SDL_GetAudioDeviceName(SDL_GetAudioStreamDevice(stream)) : nullptr;
+    const char* name = stream ? SDL_GetAudioDeviceName(deckboyAudioStreamDevice(stream)) : nullptr;
     return name ? name : "";
+  }
+
+  // ── OUTPUT LIMITERS ───────────────────────────────────────────────────────
+  //
+  // A ceiling on a whole device (Settings > Audio, OUTPUT LIMITER). Every deck
+  // stream and extra send going there shares one logical device, whose
+  // postmix callback runs a BusLimiter on the mix: everything that plays to
+  // it, after the mix (deckboyOpenSharedPlaybackStream). The headphone
+  // monitor, the desk's own sounds and LTC open devices of their own and stay
+  // out of it. Under ASIO the show's sound is on the driver, which this does
+  // not reach yet.
+  struct OutputLimiterBus {
+    deckboy::audiofx::BusLimiter limiter;      // the audio thread's alone
+    std::atomic<double> ceilingDb {-1.0};
+    std::atomic<double> reductionDb {0.0};     // the last callback's, for the meter
+    std::atomic<std::uint64_t> clamped {0};
+    std::atomic<std::uint64_t> callbacks {0};
+    std::FILE* capture = nullptr;              // DECKBOY_LIMITER_CAPTURE: what the device was given
+    bool captureHeader = false;
+    ~OutputLimiterBus() {
+      if (capture) std::fclose(capture);
+    }
+  };
+  std::map<std::string, std::unique_ptr<OutputLimiterBus>> outputLimiterBuses_;
+  double limiterMeterHeldDb_ = 0.0;   // Settings' LIMITING meter, held briefly
+  Uint64 limiterMeterHeldAtMs_ = 0;
+
+  // On the audio thread, once a device period.
+  static void SDLCALL outputLimiterPostmix(void* userdata, const SDL_AudioSpec* spec, float* buffer, int buflen) {
+    auto* bus = static_cast<OutputLimiterBus*>(userdata);
+    if (!bus || !spec || !buffer || buflen <= 0) return;
+    const int channels = std::max(1, spec->channels);
+    const std::size_t frames = static_cast<std::size_t>(buflen) / sizeof(float) / static_cast<std::size_t>(channels);
+    bus->limiter.setCeilingDb(bus->ceilingDb.load(std::memory_order_relaxed));
+    bus->limiter.process(buffer, frames, channels, spec->freq);
+    bus->reductionDb.store(bus->limiter.gainReductionDb(), std::memory_order_relaxed);
+    bus->clamped.store(bus->limiter.clampedSamples(), std::memory_order_relaxed);
+    bus->callbacks.fetch_add(1, std::memory_order_relaxed);
+    if (bus->capture) {   // tests only: raw float frames after "DBLC", channels, rate
+      if (!bus->captureHeader) {
+        const std::int32_t header[3] {0x434C4244, channels, spec->freq};
+        std::fwrite(header, sizeof(header), 1, bus->capture);
+        bus->captureHeader = true;
+      }
+      std::fwrite(buffer, sizeof(float), frames * static_cast<std::size_t>(channels), bus->capture);
+      std::fflush(bus->capture);
+    }
+  }
+
+  OutputLimiterSetting* outputLimiterSetting(const std::string& deviceName) {
+    for (auto& limiter : project_.outputLimiters) {
+      if (limiter.deviceName == deviceName) return &limiter;
+    }
+    return nullptr;
+  }
+
+  OutputLimiterBus& outputLimiterBus(const std::string& deviceName) {
+    auto& slot = outputLimiterBuses_[deviceName];
+    if (!slot) {
+      slot = std::make_unique<OutputLimiterBus>();
+      if (const char* path = std::getenv("DECKBOY_LIMITER_CAPTURE"); path && *path) {
+        slot->capture = std::fopen(path, "wb");
+      }
+    }
+    if (const OutputLimiterSetting* setting = outputLimiterSetting(deviceName)) {
+      slot->ceilingDb.store(setting->ceilingDb, std::memory_order_relaxed);
+    }
+    return *slot;
+  }
+
+  // The device a playlist's sound is on, as the limiter settings name it.
+  std::string deckLimiterDeviceName(int deckIndex) const {
+    const DeckRuntime* runtime = runtimeForDeck(deckIndex);
+    return runtime ? runtime->audioDeviceInUse : std::string();
+  }
+
+  // Turning one on or off moves the playlists on that device onto or off the
+  // shared device, which is a reopen like any device change: mid-cue it keeps
+  // playing. The ceiling is read by the audio thread and needs no reopen.
+  void setOutputLimiter(const std::string& deviceName, std::optional<bool> enabled,
+                        std::optional<double> ceilingDb) {
+    OutputLimiterSetting* setting = outputLimiterSetting(deviceName);
+    if (!setting) {
+      project_.outputLimiters.push_back(OutputLimiterSetting {deviceName, false, -1.0});
+      setting = &project_.outputLimiters.back();
+    }
+    const bool wasOn = setting->enabled;
+    if (enabled) setting->enabled = *enabled;
+    if (ceilingDb) setting->ceilingDb = std::clamp(std::round(*ceilingDb * 10.0) / 10.0, -40.0, 0.0);
+    outputLimiterBus(deviceName).ceilingDb.store(setting->ceilingDb, std::memory_order_relaxed);
+    markProjectDirty();
+    if (setting->enabled == wasOn) return;
+    for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+      const Deck& deck = project_.decks[d];
+      bool sendsThere = deckLimiterDeviceName(d) == deviceName;
+      for (const std::string& name : deck.extraAudioDeviceNames) sendsThere = sendsThere || trim(name) == deviceName;
+      if (sendsThere) reopenDeckAudioOutput(d, deck.audioOutputDeviceName);
+    }
+    applyAudioMonitorSelection();   // the reopen gave each deck a fresh monitor stream
   }
 
   std::string systemDefaultPlaybackName() const {
@@ -713,7 +814,7 @@
   // LTC is generated against 48k -- all three are deliberately left alone,
   // because none of them is the signal the operator chose a rate for.
   SDL_AudioStream* openMainAudioDevice(const std::string& preferredDeviceName, std::string& effectiveName,
-                                       int channels = kAudioChannels) {
+                                       int channels = kAudioChannels, bool joinOutputLimiter = true) {
     applyAudioBufferSizeHint();
     SDL_AudioSpec desired {};
     desired.freq = project_.audioSampleRate > 0 ? project_.audioSampleRate
@@ -734,6 +835,20 @@
       // The system output as the OS has it, which SDL's default may not be.
       // effectiveName stays empty either way: this IS the system default.
       target = systemDefaultPlaybackTarget();
+    }
+
+    // A device with its limiter on: onto the device every stream for it shares.
+    if (joinOutputLimiter) {
+      const OutputLimiterSetting* limiter = outputLimiterSetting(effectiveName);
+      if (limiter && limiter->enabled) {
+        if (SDL_AudioStream* shared = deckboyOpenSharedPlaybackStream(
+              target, &desired, outputLimiterPostmix, &outputLimiterBus(effectiveName))) {
+          return shared;
+        }
+        std::cerr << "audio: could not share "
+                  << (effectiveName.empty() ? std::string("the system output") : effectiveName)
+                  << " for its limiter (" << SDL_GetError() << "); playing it unlimited\n";
+      }
     }
 
     SDL_AudioStream* mainOut = SDL_OpenAudioDeviceStream(target, &desired, nullptr, nullptr);
@@ -5884,6 +5999,12 @@
         SDL_DestroyAudioStream(extra);
         continue;
       }
+      // STARTED. A device stream opens paused, and the engine's transport
+      // drives only the main one, so every extra send sat paused and silent
+      // from v0.99.374 -- with every gate and report saying it was sending.
+      // Nothing reaches it except while the playlist plays, so running is
+      // what silence between cues already looks like.
+      deckboySetAudioPaused(extra, false);
       newExtras.push_back(extra);
     }
     runtime->extraAudioStreams = newExtras;
@@ -5908,8 +6029,9 @@
     if (!monitorWanted.empty() && monitorWanted != effectiveName) {
       std::string monitorGot;
       SDL_AudioStream* monitor =
-        openMainAudioDevice(monitorWanted, monitorGot, deck.audioOutputChannels);
+        openMainAudioDevice(monitorWanted, monitorGot, deck.audioOutputChannels, false);
       if (monitor && monitorGot == monitorWanted) {
+        deckboySetAudioPaused(monitor, false);   // see the extras above: paused, it was silent from v0.99.376
         runtime->monitorAudioStream = monitor;
       } else if (monitor) {
         SDL_DestroyAudioStream(monitor);

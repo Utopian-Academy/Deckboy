@@ -22,7 +22,10 @@
 #include <cstddef>
 #include <iostream>
 #include <cstdlib>
+#include <map>
+#include <mutex>
 #include <string>
+#include <utility>
 
 // ── Draw-call overloads: int SDL_Rect → SDL_FRect at the boundary ──────────
 
@@ -342,8 +345,119 @@ inline SDL_Texture* deckboyCreateTextureFromSurface(SDL_Renderer* renderer, SDL_
 // device pauses only that logical device, so per-deck transport control is
 // preserved even when decks share a physical output.
 
+// ── A PLAYBACK DEVICE SEVERAL STREAMS SHARE ───────────────────────────────
+//
+// The model above gives every stream a logical device of its own, and an SDL
+// postmix callback hears only its own device's streams. An effect on a whole
+// output -- the output limiter -- has to hear everything going there, so a
+// stream for such an output is CREATED and BOUND to one logical device per
+// target instead, and that device's postmix callback gets the sum.
+//
+// Pausing one of these cannot pause the device (the others share it), so it
+// UNBINDS: SDL keeps an unbound stream's queue until it is bound again, which
+// is the same backpressure a paused device gives. The registry remembers each
+// stream's device while it is unbound, so "which device is this deck on" has
+// an answer either way (deckboyAudioStreamDevice). A stream leaves it however
+// SDL destroys it -- through a cleanup on its properties -- and the device
+// closes with its last stream.
+struct DeckboySharedPlayback {
+  SDL_AudioDeviceID logical = 0;
+  int streams = 0;
+};
+inline std::mutex& deckboySharedPlaybackMutex() {
+  static std::mutex mutex;
+  return mutex;
+}
+inline std::map<SDL_AudioDeviceID, DeckboySharedPlayback>& deckboySharedPlaybackByTarget() {
+  static std::map<SDL_AudioDeviceID, DeckboySharedPlayback> devices;
+  return devices;
+}
+inline std::map<SDL_AudioStream*, std::pair<SDL_AudioDeviceID, SDL_AudioDeviceID>>& deckboySharedStreams() {
+  static std::map<SDL_AudioStream*, std::pair<SDL_AudioDeviceID, SDL_AudioDeviceID>> streams;  // target, logical
+  return streams;
+}
+
+// The shared logical device a stream belongs to, bound or not; 0 for any other stream.
+inline SDL_AudioDeviceID deckboySharedDeviceOf(SDL_AudioStream* stream) {
+  std::lock_guard<std::mutex> lock(deckboySharedPlaybackMutex());
+  const auto it = deckboySharedStreams().find(stream);
+  return it == deckboySharedStreams().end() ? 0 : it->second.second;
+}
+
+// The device a stream plays to: its own, or the shared one it binds to when it plays.
+inline SDL_AudioDeviceID deckboyAudioStreamDevice(SDL_AudioStream* stream) {
+  if (!stream) return 0;
+  if (const SDL_AudioDeviceID shared = deckboySharedDeviceOf(stream)) return shared;
+  return SDL_GetAudioStreamDevice(stream);
+}
+
+inline void SDLCALL deckboySharedStreamGone(void*, void* value) {
+  SDL_AudioDeviceID toClose = 0;
+  {
+    std::lock_guard<std::mutex> lock(deckboySharedPlaybackMutex());
+    auto& streams = deckboySharedStreams();
+    const auto it = streams.find(static_cast<SDL_AudioStream*>(value));
+    if (it == streams.end()) return;
+    const SDL_AudioDeviceID target = it->second.first;
+    streams.erase(it);
+    auto& devices = deckboySharedPlaybackByTarget();
+    const auto device = devices.find(target);
+    if (device != devices.end() && --device->second.streams <= 0) {
+      toClose = device->second.logical;
+      devices.erase(device);
+    }
+  }
+  // Outside the lock: closing waits for the device thread, which may be in
+  // the postmix callback. Closing a device unbinds what is still bound to it,
+  // so the stream being destroyed is left with nothing to unbind.
+  if (toClose) SDL_CloseAudioDevice(toClose);
+}
+
+// A stream for `target` on the logical device every such stream shares,
+// opened with `postmix` the first time. It starts UNBOUND, which is paused,
+// as every other stream here starts paused.
+inline SDL_AudioStream* deckboyOpenSharedPlaybackStream(SDL_AudioDeviceID target, const SDL_AudioSpec* spec,
+                                                       SDL_AudioPostmixCallback postmix, void* userdata) {
+  SDL_AudioDeviceID logical = 0;
+  {
+    std::lock_guard<std::mutex> lock(deckboySharedPlaybackMutex());
+    const auto it = deckboySharedPlaybackByTarget().find(target);
+    if (it != deckboySharedPlaybackByTarget().end()) logical = it->second.logical;
+  }
+  bool opened = false;
+  if (!logical) {
+    logical = SDL_OpenAudioDevice(target, nullptr);   // the device's own format; streams convert into it
+    if (!logical) return nullptr;
+    if (postmix) SDL_SetAudioPostmixCallback(logical, postmix, userdata);
+    opened = true;
+  }
+  SDL_AudioStream* stream = SDL_CreateAudioStream(spec, spec);   // binding sets the output side
+  if (!stream) {
+    if (opened) SDL_CloseAudioDevice(logical);
+    return nullptr;
+  }
+  {
+    std::lock_guard<std::mutex> lock(deckboySharedPlaybackMutex());
+    auto& device = deckboySharedPlaybackByTarget()[target];
+    device.logical = logical;
+    ++device.streams;
+    deckboySharedStreams()[stream] = {target, logical};
+  }
+  SDL_SetPointerPropertyWithCleanup(SDL_GetAudioStreamProperties(stream), "deckboy.shared_playback",
+                                    stream, deckboySharedStreamGone, nullptr);
+  return stream;
+}
+
 inline void deckboySetAudioPaused(SDL_AudioStream* stream, bool paused) {
   if (!stream) {
+    return;
+  }
+  if (const SDL_AudioDeviceID shared = deckboySharedDeviceOf(stream)) {
+    if (paused) {
+      SDL_UnbindAudioStream(stream);
+    } else if (SDL_GetAudioStreamDevice(stream) == 0) {
+      SDL_BindAudioStream(shared, stream);
+    }
     return;
   }
   if (paused) {

@@ -276,6 +276,120 @@ inline std::array<double, kThirdOctaveBands> thirdOctaveLevels(const std::int16_
   return levels;
 }
 
+// ── THE OUTPUT LIMITER ───────────────────────────────────────────────────────
+//
+// A ceiling nothing that plays to a device can push it past (Settings ›
+// Audio, OUTPUT LIMITER). It runs on the device's whole mix, in float, as
+// SDL's postmix callback hands it over -- so on the audio thread: no
+// allocation once configured, and a few operations a sample.
+//
+// LOOKAHEAD, so the gain is already down when a peak arrives. Each frame's
+// required gain (ceiling over its peak, or 1) first has its RISE slowed to
+// the release time; then a sliding minimum over the lookahead window; then a
+// moving average of that minimum over the same window. The average ramps the
+// gain smoothly, and still never lets a sample through above the ceiling:
+// every value it averages has the sample's own requirement inside its window.
+// The output is clamped to the ceiling as well, so rounding cannot either.
+// One gain for every channel, so the stereo image does not move.
+class BusLimiter {
+ public:
+  static constexpr double kLookaheadSeconds = 0.0015;
+  static constexpr double kReleaseSeconds = 0.12;
+
+  void setCeilingDb(double db) { ceilingDb_ = std::clamp(db, -40.0, 0.0); }
+  double ceilingDb() const { return ceilingDb_; }
+  // The most gain taken off during the last process() call, in dB (<= 0).
+  double gainReductionDb() const { return blockMinGain_ < 1.0 ? 20.0 * std::log10(blockMinGain_) : 0.0; }
+  // Frames of delay this adds: what a clock that reads the device has to allow for.
+  int latencyFrames() const { return lookahead_; }
+  // Samples the final clamp had to cut. Should stay 0: a clamp is a clip.
+  std::uint64_t clampedSamples() const { return clamped_; }
+
+  void process(float* interleaved, std::size_t frames, int channels, int rate) {
+    if (!interleaved || frames == 0 || channels <= 0 || rate <= 0) return;
+    configure(channels, rate);
+    const double ceiling = std::pow(10.0, ceilingDb_ / 20.0);
+    const std::size_t window = static_cast<std::size_t>(lookahead_) + 1;
+    double blockMin = 1.0;
+    for (std::size_t f = 0; f < frames; ++f) {
+      float* frame = interleaved + f * static_cast<std::size_t>(channels);
+      double peak = 0.0;
+      for (int c = 0; c < channels; ++c) peak = std::max(peak, static_cast<double>(std::fabs(frame[c])));
+      const double need = peak > ceiling ? ceiling / peak : 1.0;
+      released_ = std::min(need, released_ + (1.0 - released_) * releaseStep_);
+
+      // Sliding minimum over the last `window` (lookahead + 1) values, as a
+      // monotonic queue in a fixed ring: larger values leave from the back,
+      // expired ones from the front, and only then does the new one go in,
+      // so the ring never holds more than `window`.
+      const std::uint64_t now = counter_++;
+      while (minCount_ > 0 && minValue_[(minHead_ + minCount_ - 1) % window] >= released_) --minCount_;
+      while (minCount_ > 0 && minIndex_[minHead_] + window <= now) {
+        minHead_ = (minHead_ + 1) % window;
+        --minCount_;
+      }
+      const std::size_t slot = (minHead_ + minCount_) % window;
+      minValue_[slot] = released_;
+      minIndex_[slot] = now;
+      ++minCount_;
+      const double lowest = minValue_[minHead_];
+
+      // Moving average of the minimum over the last `lookahead_` values.
+      // The frame leaving the delay below entered `lookahead_` frames ago,
+      // and every minimum in this average has it inside its window.
+      boxSum_ += lowest - box_[boxAt_];
+      box_[boxAt_] = lowest;
+      boxAt_ = (boxAt_ + 1) % static_cast<std::size_t>(lookahead_);
+      if ((now & 0xFFFF) == 0) {   // re-add now and then, so rounding cannot drift
+        boxSum_ = 0.0;
+        for (double v : box_) boxSum_ += v;
+      }
+      const double gain = std::min(1.0, boxSum_ / lookahead_);
+      blockMin = std::min(blockMin, gain);
+
+      // Out goes the frame from exactly `lookahead_` frames ago, at this gain.
+      float* delayed = delay_.data() + delayAt_ * static_cast<std::size_t>(channels);
+      for (int c = 0; c < channels; ++c) {
+        const float in = frame[c];
+        const double scaled = static_cast<double>(delayed[c]) * gain;
+        if (std::fabs(scaled) > ceiling * (1.0 + 1e-6)) ++clamped_;   // the guard did the gain's job
+        delayed[c] = in;
+        frame[c] = static_cast<float>(std::clamp(scaled, -ceiling, ceiling));
+      }
+      delayAt_ = (delayAt_ + 1) % static_cast<std::size_t>(lookahead_);
+    }
+    blockMinGain_ = blockMin;
+  }
+
+ private:
+  void configure(int channels, int rate) {
+    if (channels == channels_ && rate == rate_) return;
+    channels_ = channels;
+    rate_ = rate;
+    lookahead_ = std::max(1, static_cast<int>(std::lround(kLookaheadSeconds * rate)));
+    releaseStep_ = 1.0 - std::exp(-1.0 / (kReleaseSeconds * rate));
+    const std::size_t window = static_cast<std::size_t>(lookahead_) + 1;
+    delay_.assign(static_cast<std::size_t>(lookahead_) * static_cast<std::size_t>(channels), 0.0f);
+    minValue_.assign(window, 1.0);
+    minIndex_.assign(window, 0);
+    box_.assign(static_cast<std::size_t>(lookahead_), 1.0);
+    boxSum_ = static_cast<double>(lookahead_);
+    minHead_ = minCount_ = boxAt_ = delayAt_ = 0;
+    counter_ = 0;
+    released_ = 1.0;
+  }
+
+  double ceilingDb_ = -1.0;
+  double blockMinGain_ = 1.0;
+  int channels_ = 0, rate_ = 0, lookahead_ = 1;
+  double releaseStep_ = 0.0, released_ = 1.0, boxSum_ = 0.0;
+  std::vector<float> delay_;
+  std::vector<double> minValue_, box_;
+  std::vector<std::uint64_t> minIndex_;
+  std::size_t minHead_ = 0, minCount_ = 0, boxAt_ = 0, delayAt_ = 0;
+  std::uint64_t counter_ = 0, clamped_ = 0;
+};
+
 // NO GLOBAL SAMPLE RATE. It used to live here and forty three things read
 // it, which is why every effect was silently tuned for 48k and only 48k. The
 // rate now arrives on AudioEffectContext, and the free functions below take

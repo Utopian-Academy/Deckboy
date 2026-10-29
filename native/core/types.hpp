@@ -2453,6 +2453,16 @@ struct DashboardSlot {
   int colorIndex = 0;   // 0..15, the same indexed palette cue tags use
 };
 
+// A ceiling on a whole playback device (Settings > Audio, OUTPUT LIMITER),
+// after everything the show plays there is mixed. Named the way a playlist
+// names its device, empty being the system output. A device with no entry has
+// no limiter, which is what every show before this had.
+struct OutputLimiterSetting {
+  std::string deviceName;
+  bool enabled = false;
+  double ceilingDb = -1.0;
+};
+
 struct Project {
   std::string title = std::string(kAppTitle); // show file title (displayed in title bar)
   std::vector<Deck> decks {Deck {}};          // all decks (at least one always exists)
@@ -2764,6 +2774,7 @@ struct Project {
   // -1 = follow the focused playlist, which is what an operator flicking
   // through a show wants. Otherwise the playlist is pinned.
   int monitorDeckIndex = -1;
+  std::vector<OutputLimiterSetting> outputLimiters;   // see OutputLimiterSetting
   bool creaturesEnabled = true;
   // Whether they stay out while an output is live. Off by default: during a
   // show the only thing moving on this machine should be the show. On for
