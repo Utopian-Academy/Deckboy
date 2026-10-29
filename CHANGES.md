@@ -28,6 +28,8 @@
   STATUS JSON lists the cues an inspector edit would change as `editSelection`.
 
 ### Outputs
+- Fixed: turning off an ST 2110 output could, very rarely, hang the desk while its sender stopped.
+  Seen once in a test, not on a show.
 - Fixed: after an output was turned off, the programme monitor went on showing its last frame
   rate (`OUTPUT 60.0`), and STATUS reported it too. An output that is off now reads OFF, and a
   rate is only shown while the output is actually presenting frames.

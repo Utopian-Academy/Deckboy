@@ -370,7 +370,15 @@ void St2110Output::close() {
   // Stop the sender BEFORE the socket goes away, or it can transmit into a
   // closed descriptor.
   if (senderThread_.joinable()) {
-    senderStop_.store(true);
+    // UNDER THE LOCK. Stored without it, the stop can land after the sender
+    // has checked its wait condition and before it sleeps: the wakeup is
+    // lost, the sender sleeps for ever, and so does this join -- a disarm
+    // that hangs the desk. The broadcast check hung in CI once (2026-10-29),
+    // which this can do.
+    {
+      std::lock_guard<std::mutex> lock(frameMutex_);
+      senderStop_.store(true);
+    }
     frameCv_.notify_all();
     senderThread_.join();
   }
@@ -820,7 +828,10 @@ bool St2110AudioOutput::open(const St2110AudioConfig& config) {
 }
 
 void St2110AudioOutput::close() {
-  senderStop_.store(true);
+  {
+    std::lock_guard<std::mutex> lock(samplesMutex_);   // see St2110Output::close
+    senderStop_.store(true);
+  }
   samplesCv_.notify_all();
   if (senderThread_.joinable()) senderThread_.join();
   if (socket_ != static_cast<long long>(kInvalidSocket)) {

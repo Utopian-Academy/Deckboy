@@ -339,7 +339,44 @@ struct BroadcastChecks {
     for (int i = 0; i < 40; ++i) meter.push(sine);
     expect(std::fabs(meter.integrated + 20.0) < 0.3, "integrated gate excludes sustained silence");
   }
-  int run() { clocks(); nmos(); pixels(); audio(); rtp(); rtpVideoHdr(); return failures ? 1 : 0; }
+  // Both senders stopped while they are going back to sleep, again and again.
+  // The stop used to be stored outside the lock its wait uses, so a close
+  // could lose its wakeup and join for ever; a hang here is that coming back.
+  void teardown() {
+    using namespace deckboy::platform;
+#ifdef _WIN32
+    WSADATA wsa {};
+    if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) { expect(false, "teardown socket runtime"); return; }
+#endif
+    St2110Config video;
+    video.destinationAddress = "127.0.0.1";
+    video.interfaceAddress = "127.0.0.1";
+    video.destinationPort = 9;   // discard: nothing needs to hear it
+    video.width = 16;
+    video.height = 2;
+    const std::vector<std::uint16_t> planes(static_cast<std::size_t>(video.width) * video.height * 2, 512 << 6);
+    St2110AudioConfig sound;
+    sound.destinationAddress = "127.0.0.1";
+    sound.interfaceAddress = "127.0.0.1";
+    sound.destinationPort = 9;
+    const std::vector<std::int16_t> samples(96, 100);
+    int opened = 0;
+    for (int i = 0; i < 200; ++i) {
+      St2110Output picture;
+      if (picture.open(video)) ++opened;
+      picture.sendFrame16(planes.data(), planes.size());
+      picture.close();
+      St2110AudioOutput audioOut;
+      if (audioOut.open(sound)) ++opened;
+      if (i % 2) audioOut.pushSamples(samples.data(), samples.size() / 2);
+      audioOut.close();
+    }
+    expect(opened == 400, "2110 video and audio senders open and close 200 times each without hanging");
+#ifdef _WIN32
+    WSACleanup();
+#endif
+  }
+  int run() { clocks(); nmos(); pixels(); audio(); rtp(); rtpVideoHdr(); teardown(); return failures ? 1 : 0; }
 };
 }
 int main() { return deckboy::platform::video::BroadcastChecks{}.run(); }
