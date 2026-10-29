@@ -10054,7 +10054,7 @@ class App {
   bool textClipDisabled_ = false;
   bool midiOutHasFailed_ = false;
   std::string midiOutFailedKey_;
-  Uint64 midiOutFailedAtMs_ = 0;
+  Uint64 midiOutRetryAtMs_ = 0;      // a refused port is not asked again before this
   std::string midiOutFailedReason_;
   std::string midiOutPortRequested_;
   // Results from TCP network cues, which run off the main thread. Drained once

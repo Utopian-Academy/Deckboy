@@ -1840,16 +1840,23 @@
     // open (another program holding it) fails slowly -- so the interface
     // stalled for as long as the cue ran. One retry every two seconds still
     // picks the port up as soon as it is free.
+    //
+    // Two seconds of IDLE, counted from the END of the failed attempt.
+    // Counted from its start, an attempt that itself took two seconds (a CI
+    // runner's GS synth, with no audio device behind it) was due again on the
+    // very next tick, and the desk got barely a frame between attempts. One
+    // that slow waits thirty, since every retry costs the desk that long again.
     const Uint64 nowMs = SDL_GetTicks();
     if (!midiOut_.isOpen() && midiOutHasFailed_ && midiOutFailedKey_ == want &&
-        nowMs - midiOutFailedAtMs_ < 2000) {
+        nowMs < midiOutRetryAtMs_) {
       reasonOut = midiOutFailedReason_;
       return false;
     }
     auto failed = [&](const std::string& reason) {
+      const Uint64 endedMs = SDL_GetTicks();
       midiOutHasFailed_ = true;
       midiOutFailedKey_ = want;
-      midiOutFailedAtMs_ = nowMs;
+      midiOutRetryAtMs_ = endedMs + (endedMs - nowMs > 250 ? 30000 : 2000);
       midiOutFailedReason_ = reason;
       reasonOut = reason;
       return false;

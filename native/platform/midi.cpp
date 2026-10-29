@@ -30,6 +30,7 @@
 
 #include <algorithm>
 #include <cctype>
+#include <chrono>
 #include <fstream>
 #include <iterator>
 #include <iostream>
@@ -519,6 +520,14 @@ std::vector<DeviceInfo> MidiOutput::listDevices() {
 bool MidiOutput::open(int deviceId) {
   close();
 #if defined(DECKBOY_HAS_MIDI)
+  // TIMED, because the caller is the main thread. A port that refuses can take
+  // seconds to say so (a CI runner's GS synth, with no audio device behind it,
+  // held the desk for about two), and the log is the only place that shows.
+  const auto started = std::chrono::steady_clock::now();
+  auto elapsedMs = [&] {
+    return static_cast<long long>(std::chrono::duration_cast<std::chrono::milliseconds>(
+      std::chrono::steady_clock::now() - started).count());
+  };
   try {
     impl_->midiOut_ = std::make_unique<RtMidiOut>();
     unsigned int nPorts = impl_->midiOut_->getPortCount();
@@ -530,9 +539,12 @@ bool MidiOutput::open(int deviceId) {
     impl_->portInUse_ = impl_->midiOut_->getPortName(static_cast<unsigned int>(deviceId));
     impl_->midiOut_->openPort(static_cast<unsigned int>(deviceId));
     impl_->isOpen_ = true;
+    if (elapsedMs() > 250) {
+      std::cerr << "MIDI out: opening " << impl_->portInUse_ << " took " << elapsedMs() << " ms\n";
+    }
     return true;
   } catch (const RtMidiError& e) {
-    std::cerr << "MIDI out open failed: " << e.getMessage() << '\n';
+    std::cerr << "MIDI out open failed after " << elapsedMs() << " ms: " << e.getMessage() << '\n';
     impl_->midiOut_.reset();
     return false;
   }

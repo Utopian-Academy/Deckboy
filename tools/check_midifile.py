@@ -71,9 +71,30 @@ def main():
         # Nothing is heard without MIDI hardware, but the cue must still run a
         # transport rather than sit at zero.
         take_reply = db.send("TAKE")
-        time.sleep(1.5)
-        pos = db.status("DECK 1", "pos")
-        print("4  after TAKE:  pos=%s" % pos)
+        # WAITED FOR, NOT SAMPLED ONCE. On a CI runner the take started on time
+        # and STATUS still read 00:00.0 for two seconds, then 00:02.2: STATUS is
+        # a snapshot the main thread refreshes, and the main thread was inside
+        # the MIDI output's open, which a runner's GS synth (no audio device
+        # behind it) takes about two seconds to refuse. A late start is
+        # reported, with the app's own timing of the open; only a transport that
+        # never moves fails.
+        taken_at = time.monotonic()
+        pos, moved_after = "", None
+        while time.monotonic() - taken_at < 8.0:
+            time.sleep(0.25)
+            pos = db.status("DECK 1", "pos")
+            if pos not in ("", "00:00.0"):
+                moved_after = time.monotonic() - taken_at
+                break
+        print("4  after TAKE:  pos=%s%s" % (
+            pos, "" if moved_after is None else "  (moving %.1f s after the take)" % moved_after))
+        if moved_after is not None and moved_after > 1.5:
+            log = os.path.join(db.root, "app.log")
+            opens = [line for line in io.open(log, encoding="utf-8", errors="replace").read().splitlines()
+                     if "MIDI out" in line] if os.path.exists(log) else []
+            print("   LATE: the desk was busy for about %.1f s after the take." % moved_after)
+            for line in opens[-4:]:
+                print("     | %s" % line[:160])
         if pos in ("", "00:00.0"):
             fails.append("taking the cue did not start a transport (pos stayed at %r)" % pos)
             # -- WHY, as far as the app will say ---------------------------

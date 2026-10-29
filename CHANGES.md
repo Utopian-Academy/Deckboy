@@ -129,6 +129,10 @@
 ### Diagnostics
 - On Windows, `deckboy-crash.log` names the error that ended the app when it was an uncaught C++
   exception, with its message (`thrown: .?AVbad_alloc@std@@  "bad allocation"`).
+- The log says how long a MIDI output took to open, or to refuse (`MIDI out open failed after
+  2047 ms: ...`), whenever that was more than a quarter of a second. The desk waits while it does,
+  so a MIDI output that is slow to refuse is now asked again every 30 seconds while a MIDI cue or
+  MIDI file plays, not every 2.
 
 ### Companion
 - The Companion module 1.0.5 adds **Take all playlists**, **Run dashboard tile** (a tile holding a
