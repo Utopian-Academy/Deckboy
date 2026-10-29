@@ -9674,6 +9674,12 @@ class App {
   static constexpr int kSettingsActionOutputLimiterToggle = 736;
   static constexpr int kSettingsActionOutputLimiterCeilingDec = 738;
   static constexpr int kSettingsActionOutputLimiterCeilingInc = 739;
+  // OUTPUT EFFECTS rows on the same card: per effect - , + and remove, four
+  // effects at most, so 1556..1567; then + ADD AN EFFECT and BYPASS ALL.
+  static constexpr int kSettingsActionOutputFxRowBase = 1556;
+  static constexpr int kSettingsActionOutputFxRowStride = 3;
+  static constexpr int kSettingsActionOutputFxAdd = 1568;
+  static constexpr int kSettingsActionOutputFxBypass = 1569;
   static constexpr int kSettingsActionWebMonitorSource = 755;
   static constexpr int kSettingsActionWebMonitorClientsPrompt = 756;
   static constexpr int kSettingsActionWebMonitorLowLatency = 757;

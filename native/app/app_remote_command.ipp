@@ -968,6 +968,100 @@
       remoteCommandDetail_ = text;
       return;
     }
+    // OUTPUTFX [ADD <hpf|lpf|tilt|comp|width> | SET <n> <0-100> | REMOVE <n> |
+    //          BYPASS ON|OFF | CLEAR] [DEVICE <name>]: the effects before the
+    // limiter on the focused playlist's device, or on DEVICE. SET moves the
+    // knob the card shows, in percent of its travel. Bare OUTPUTFX reports the
+    // chain and the peak leaving the device.
+    if (command == "OUTPUTFX") {
+      std::string device = deckLimiterDeviceName(project_.focusedDeckIndex);
+      std::vector<std::string> words;
+      for (std::size_t i = 1; i < parts.size(); ++i) {
+        if (toUpper(parts[i]) == "DEVICE") {
+          device = i + 1 < parts.size() ? joinParts(parts, i + 1) : std::string();
+          break;
+        }
+        words.push_back(parts[i]);
+      }
+      const std::string sub = words.empty() ? std::string() : toUpper(words[0]);
+      auto number = [&](std::size_t at, double& out) {
+        if (at >= words.size()) return false;
+        char* end = nullptr;
+        out = std::strtod(words[at].c_str(), &end);
+        return end && *end == '\0';
+      };
+      if (sub == "ADD") {
+        const auto kind = words.size() > 1 ? deckboy::audiofx::audioEffectKindFromToken(toLower(words[1]))
+                                           : deckboy::audiofx::AudioEffectKind::None;
+        if (std::find(kOutputEffectKinds.begin(), kOutputEffectKinds.end(), kind) == kOutputEffectKinds.end()) {
+          failRemoteCommand("OUTPUTFX ADD: expected hpf, lpf, tilt, comp or width");
+          return;
+        }
+        const OutputLimiterSetting* current = outputLimiterSetting(device);
+        if (current && current->effects.size() >= kMaxOutputEffects) {
+          failRemoteCommand("OUTPUTFX ADD: four effects at most on one device");
+          return;
+        }
+        editOutputBus(device, [kind](OutputLimiterSetting& setting) {
+          setting.effects.push_back(deckboy::audiofx::audioEffectDefaults(kind));
+        });
+      } else if (sub == "SET" || sub == "REMOVE") {
+        double which = 0.0, percent = 0.0;
+        const OutputLimiterSetting* current = outputLimiterSetting(device);
+        const std::size_t count = current ? current->effects.size() : 0;
+        if (!number(1, which) || which < 1.0 || which > static_cast<double>(count) ||
+            (sub == "SET" && (!number(2, percent) || percent < 0.0 || percent > 100.0))) {
+          failRemoteCommand(sub == "SET" ? "OUTPUTFX SET: expected an effect number and 0-100"
+                                         : "OUTPUTFX REMOVE: expected an effect number");
+          return;
+        }
+        const auto index = static_cast<std::size_t>(which) - 1;
+        editOutputBus(device, [&](OutputLimiterSetting& setting) {
+          if (sub == "REMOVE") {
+            setting.effects.erase(setting.effects.begin() + static_cast<std::ptrdiff_t>(index));
+          } else {
+            setting.effects[index].paramA = static_cast<float>(percent / 100.0);
+          }
+        });
+      } else if (sub == "BYPASS") {
+        const std::string value = words.size() > 1 ? toUpper(words[1]) : std::string();
+        if (value != "ON" && value != "OFF") {
+          failRemoteCommand("OUTPUTFX BYPASS: expected ON or OFF");
+          return;
+        }
+        editOutputBus(device, [&](OutputLimiterSetting& setting) { setting.bypassAll = value == "ON"; });
+      } else if (sub == "CLEAR") {
+        editOutputBus(device, [](OutputLimiterSetting& setting) { setting.effects.clear(); });
+      } else if (!sub.empty()) {
+        failRemoteCommand("OUTPUTFX: expected ADD, SET, REMOVE, BYPASS, CLEAR or DEVICE");
+        return;
+      }
+      const OutputLimiterSetting* setting = outputLimiterSetting(device);
+      std::string chain;
+      if (setting) {
+        for (const auto& fx : setting->effects) {
+          if (!chain.empty()) chain += ",";
+          chain += std::string(deckboy::audiofx::audioEffectToken(fx.kind)) + ":" + outputEffectReadout(fx);
+        }
+      }
+      double out = -120.0;
+      if (const auto bus = outputLimiterBuses_.find(device); bus != outputLimiterBuses_.end() && bus->second) {
+        out = bus->second->outPeakDb.load(std::memory_order_relaxed);
+      }
+      int sharing = 0;
+      for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+        const DeckRuntime* rt = runtimeForDeck(d);
+        if (rt && rt->audioStream && deckboySharedDeviceOf(rt->audioStream) && deckLimiterDeviceName(d) == device) {
+          ++sharing;
+        }
+      }
+      char tail[160];
+      std::snprintf(tail, sizeof(tail), " bypass=%d limiter=%d out=%.1f playlists=%d",
+                    setting && setting->bypassAll ? 1 : 0, setting && setting->enabled ? 1 : 0, out, sharing);
+      remoteCommandDetail_ = "device=" + (device.empty() ? std::string("(system output)") : device) +
+                             " chain=" + (chain.empty() ? std::string("none") : chain) + tail;
+      return;
+    }
     if (command == "AUDIOALSO") {
       // AUDIOALSO                 -> where else this deck's sound goes
       // AUDIOALSO ADD <name>      -> send it there too

@@ -690,19 +690,34 @@
     return name ? name : "";
   }
 
-  // ── OUTPUT LIMITERS ───────────────────────────────────────────────────────
+  // ── OUTPUT EFFECTS AND THE LIMITER ────────────────────────────────────────
   //
-  // A ceiling on a whole device (Settings > Audio, OUTPUT LIMITER). Every deck
-  // stream and extra send going there shares one logical device, whose
-  // postmix callback runs a BusLimiter on the mix: everything that plays to
-  // it, after the mix (deckboyOpenSharedPlaybackStream). The headphone
-  // monitor, the desk's own sounds and LTC open devices of their own and stay
-  // out of it. Under ASIO the show's sound is on the driver, which this does
-  // not reach yet.
+  // A chain on a whole device (Settings > Audio, OUTPUT EFFECTS): the cue's
+  // own effects, then a ceiling. Every deck stream and extra send going there
+  // shares one logical device, whose postmix callback runs them on the mix:
+  // everything that plays to it, after the mix (deckboyOpenSharedPlaybackStream).
+  // The headphone monitor, the desk's own sounds and LTC open devices of their
+  // own and stay out of it. Under ASIO the show's sound is on the driver,
+  // which this does not reach yet.
+  static constexpr std::size_t kMaxOutputEffects = 4;
   struct OutputLimiterBus {
     deckboy::audiofx::BusLimiter limiter;      // the audio thread's alone
     std::atomic<double> ceilingDb {-1.0};
+    std::atomic<bool> limiterOn {false};
+    std::atomic<bool> bypassAll {false};
+    // The chain before the limiter. The desk publishes a fresh copy; the
+    // audio thread takes a reference under the lock, held only for that.
+    // chainShape moves when the KINDS change, and then the effects' filter
+    // memory starts again rather than running one effect on another's.
+    std::mutex chainMutex;
+    std::shared_ptr<const std::vector<deckboy::audiofx::AudioEffect>> chain;
+    std::uint64_t chainShape = 0;
+    std::vector<int> publishedKinds;           // the desk's
+    std::vector<deckboy::audiofx::AudioEffectState> chainStates;   // the audio thread's: one per channel pair
+    std::vector<double> scratch;
+    std::uint64_t appliedShape = 0;
     std::atomic<double> reductionDb {0.0};     // the last callback's, for the meter
+    std::atomic<double> outPeakDb {-120.0};    // what left for the device, for OUTPUTFX
     std::atomic<std::uint64_t> clamped {0};
     std::atomic<std::uint64_t> callbacks {0};
     std::FILE* capture = nullptr;              // DECKBOY_LIMITER_CAPTURE: what the device was given
@@ -715,16 +730,65 @@
   double limiterMeterHeldDb_ = 0.0;   // Settings' LIMITING meter, held briefly
   Uint64 limiterMeterHeldAtMs_ = 0;
 
+  // The chain, a channel pair at a time: the effects are stereo, a device may
+  // not be. In the int16 scale the effects are written for (their thresholds
+  // are), and back.
+  static void runOutputChain(OutputLimiterBus& bus, const std::vector<deckboy::audiofx::AudioEffect>& chain,
+                             float* buffer, std::size_t frames, int channels, int rate) {
+    const int pairs = (channels + 1) / 2;
+    if (static_cast<int>(bus.chainStates.size()) < pairs) bus.chainStates.resize(static_cast<std::size_t>(pairs));
+    bus.scratch.resize(frames * 2);
+    deckboy::audiofx::AudioEffectContext ctx;
+    ctx.sampleRate = rate;
+    const std::size_t stride = static_cast<std::size_t>(channels);
+    for (int pair = 0; pair < pairs; ++pair) {
+      const std::size_t left = static_cast<std::size_t>(pair) * 2;
+      const std::size_t right = std::min(left + 1, stride - 1);
+      for (std::size_t i = 0; i < frames; ++i) {
+        bus.scratch[i * 2] = buffer[i * stride + left] * 32768.0;
+        bus.scratch[i * 2 + 1] = buffer[i * stride + right] * 32768.0;
+      }
+      deckboy::audiofx::applyAudioEffectStack(bus.scratch, chain, bus.chainStates[static_cast<std::size_t>(pair)], ctx);
+      for (std::size_t i = 0; i < frames; ++i) {
+        buffer[i * stride + left] = static_cast<float>(bus.scratch[i * 2] / 32768.0);
+        if (right != left) buffer[i * stride + right] = static_cast<float>(bus.scratch[i * 2 + 1] / 32768.0);
+      }
+    }
+  }
+
   // On the audio thread, once a device period.
   static void SDLCALL outputLimiterPostmix(void* userdata, const SDL_AudioSpec* spec, float* buffer, int buflen) {
     auto* bus = static_cast<OutputLimiterBus*>(userdata);
     if (!bus || !spec || !buffer || buflen <= 0) return;
     const int channels = std::max(1, spec->channels);
     const std::size_t frames = static_cast<std::size_t>(buflen) / sizeof(float) / static_cast<std::size_t>(channels);
-    bus->limiter.setCeilingDb(bus->ceilingDb.load(std::memory_order_relaxed));
-    bus->limiter.process(buffer, frames, channels, spec->freq);
-    bus->reductionDb.store(bus->limiter.gainReductionDb(), std::memory_order_relaxed);
+    const bool limiting = bus->limiterOn.load(std::memory_order_relaxed);
+    if (!bus->bypassAll.load(std::memory_order_relaxed)) {
+      std::shared_ptr<const std::vector<deckboy::audiofx::AudioEffect>> chain;
+      std::uint64_t shape = 0;
+      {
+        std::lock_guard<std::mutex> lock(bus->chainMutex);
+        chain = bus->chain;
+        shape = bus->chainShape;
+      }
+      if (chain && !chain->empty()) {
+        if (shape != bus->appliedShape) {
+          for (auto& state : bus->chainStates) state.clear();
+          bus->appliedShape = shape;
+        }
+        runOutputChain(*bus, *chain, buffer, frames, channels, spec->freq);
+      }
+      if (limiting) {
+        bus->limiter.setCeilingDb(bus->ceilingDb.load(std::memory_order_relaxed));
+        bus->limiter.process(buffer, frames, channels, spec->freq);
+      }
+    }
+    const bool limited = limiting && !bus->bypassAll.load(std::memory_order_relaxed);
+    bus->reductionDb.store(limited ? bus->limiter.gainReductionDb() : 0.0, std::memory_order_relaxed);
     bus->clamped.store(bus->limiter.clampedSamples(), std::memory_order_relaxed);
+    float peak = 0.0f;
+    for (std::size_t i = 0; i < frames * static_cast<std::size_t>(channels); ++i) peak = std::max(peak, std::fabs(buffer[i]));
+    bus->outPeakDb.store(peak > 1e-6f ? 20.0 * std::log10(peak) : -120.0, std::memory_order_relaxed);
     bus->callbacks.fetch_add(1, std::memory_order_relaxed);
     if (bus->capture) {   // tests only: raw float frames after "DBLC", channels, rate
       if (!bus->captureHeader) {
@@ -744,6 +808,12 @@
     return nullptr;
   }
 
+  // Whether a device's sound has to go through the shared device at all.
+  static bool outputBusWanted(const OutputLimiterSetting* setting) {
+    return setting && (setting->enabled || !setting->effects.empty());
+  }
+
+  // Created on first use; always handed back carrying the current settings.
   OutputLimiterBus& outputLimiterBus(const std::string& deviceName) {
     auto& slot = outputLimiterBuses_[deviceName];
     if (!slot) {
@@ -752,8 +822,21 @@
         slot->capture = std::fopen(path, "wb");
       }
     }
-    if (const OutputLimiterSetting* setting = outputLimiterSetting(deviceName)) {
-      slot->ceilingDb.store(setting->ceilingDb, std::memory_order_relaxed);
+    const OutputLimiterSetting* setting = outputLimiterSetting(deviceName);
+    slot->ceilingDb.store(setting ? setting->ceilingDb : -1.0, std::memory_order_relaxed);
+    slot->limiterOn.store(setting && setting->enabled, std::memory_order_relaxed);
+    slot->bypassAll.store(setting && setting->bypassAll, std::memory_order_relaxed);
+    auto chain = std::make_shared<const std::vector<deckboy::audiofx::AudioEffect>>(
+      setting ? setting->effects : std::vector<deckboy::audiofx::AudioEffect> {});
+    std::vector<int> kinds;
+    for (const auto& fx : *chain) kinds.push_back(static_cast<int>(fx.kind));
+    {
+      std::lock_guard<std::mutex> lock(slot->chainMutex);
+      if (kinds != slot->publishedKinds) {
+        slot->publishedKinds = kinds;
+        ++slot->chainShape;
+      }
+      slot->chain = std::move(chain);
     }
     return *slot;
   }
@@ -764,22 +847,25 @@
     return runtime ? runtime->audioDeviceInUse : std::string();
   }
 
-  // Turning one on or off moves the playlists on that device onto or off the
-  // shared device, which is a reopen like any device change: mid-cue it keeps
-  // playing. The ceiling is read by the audio thread and needs no reopen.
-  void setOutputLimiter(const std::string& deviceName, std::optional<bool> enabled,
-                        std::optional<double> ceilingDb) {
+  // Every change to a device's chain goes through here. A change that puts
+  // the device's sound onto the shared device, or takes it off (the first
+  // effect or the limiter in, the last one out), moves the playlists on that
+  // device, which is a reopen like any device change: mid-cue they keep
+  // playing. Anything else is read by the audio thread and needs no reopen.
+  void editOutputBus(const std::string& deviceName, const std::function<void(OutputLimiterSetting&)>& edit) {
     OutputLimiterSetting* setting = outputLimiterSetting(deviceName);
     if (!setting) {
-      project_.outputLimiters.push_back(OutputLimiterSetting {deviceName, false, -1.0});
+      project_.outputLimiters.push_back(OutputLimiterSetting {deviceName, false, -1.0, {}, false});
       setting = &project_.outputLimiters.back();
     }
-    const bool wasOn = setting->enabled;
-    if (enabled) setting->enabled = *enabled;
-    if (ceilingDb) setting->ceilingDb = std::clamp(std::round(*ceilingDb * 10.0) / 10.0, -40.0, 0.0);
-    outputLimiterBus(deviceName).ceilingDb.store(setting->ceilingDb, std::memory_order_relaxed);
+    const bool wasShared = outputBusWanted(setting);
+    edit(*setting);
+    setting->ceilingDb = std::clamp(std::round(setting->ceilingDb * 10.0) / 10.0, -40.0, 0.0);
+    if (setting->effects.size() > kMaxOutputEffects) setting->effects.resize(kMaxOutputEffects);
+    const bool shared = outputBusWanted(setting);
+    outputLimiterBus(deviceName);   // publishes the new settings
     markProjectDirty();
-    if (setting->enabled == wasOn) return;
+    if (shared == wasShared) return;
     for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
       const Deck& deck = project_.decks[d];
       bool sendsThere = deckLimiterDeviceName(d) == deviceName;
@@ -787,6 +873,69 @@
       if (sendsThere) reopenDeckAudioOutput(d, deck.audioOutputDeviceName);
     }
     applyAudioMonitorSelection();   // the reopen gave each deck a fresh monitor stream
+  }
+
+  void setOutputLimiter(const std::string& deviceName, std::optional<bool> enabled,
+                        std::optional<double> ceilingDb) {
+    editOutputBus(deviceName, [&](OutputLimiterSetting& setting) {
+      if (enabled) setting.enabled = *enabled;
+      if (ceilingDb) setting.ceilingDb = *ceilingDb;
+    });
+  }
+
+  // ── THE CARD'S ONE KNOB PER EFFECT ──────────────────────────────────────
+  //
+  // Five effects make sense on a whole PA: high pass, low pass, tilt,
+  // compressor, width. Each shows its first knob in its own units, and one
+  // press of - or + moves it a step an engineer would: a sixth of an octave,
+  // half a decibel, a decibel of threshold, ten percent of width. The rest of
+  // each effect keeps the value it arrives with (audioEffectDefaults).
+  static constexpr std::array<deckboy::audiofx::AudioEffectKind, 5> kOutputEffectKinds {
+    deckboy::audiofx::AudioEffectKind::HighPass, deckboy::audiofx::AudioEffectKind::LowPass,
+    deckboy::audiofx::AudioEffectKind::Tilt, deckboy::audiofx::AudioEffectKind::Compressor,
+    deckboy::audiofx::AudioEffectKind::Width};
+
+  static float outputEffectStep(deckboy::audiofx::AudioEffectKind kind) {
+    using Kind = deckboy::audiofx::AudioEffectKind;
+    switch (kind) {
+      case Kind::HighPass:
+      case Kind::LowPass: return static_cast<float>(std::log(2.0) / 6.0 / std::log(100.0));
+      case Kind::Tilt: return 0.5f / 24.0f;
+      case Kind::Compressor: return 1.0f / 60.0f;
+      default: return 0.05f;
+    }
+  }
+
+  static std::string outputEffectReadout(const deckboy::audiofx::AudioEffect& fx) {
+    using Kind = deckboy::audiofx::AudioEffectKind;
+    const double a = std::clamp(static_cast<double>(fx.paramA), 0.0, 1.0);
+    char text[48] = "";
+    switch (fx.kind) {
+      case Kind::HighPass:
+      case Kind::LowPass: {
+        const double hz = (fx.kind == Kind::HighPass ? 20.0 : 200.0) * std::pow(100.0, a);
+        if (hz >= 1000.0) std::snprintf(text, sizeof(text), "%.1f kHz", hz / 1000.0);
+        else std::snprintf(text, sizeof(text), "%.0f Hz", hz);
+        break;
+      }
+      case Kind::Tilt: {
+        const double tiltDb = (a - 0.5) * 24.0;
+        if (std::fabs(tiltDb) < 0.05) std::snprintf(text, sizeof(text), "flat");
+        else std::snprintf(text, sizeof(text), "%s %.1f dB", tiltDb < 0.0 ? "darker" : "brighter", std::fabs(tiltDb));
+        break;
+      }
+      case Kind::Compressor:
+        std::snprintf(text, sizeof(text), "%.0f dBFS, %.1f:1", -60.0 + a * 60.0,
+                      1.0 + std::clamp(static_cast<double>(fx.paramB), 0.0, 1.0) * 19.0);
+        break;
+      case Kind::Width:
+        std::snprintf(text, sizeof(text), "%.0f%% wide", a * 200.0);
+        break;
+      default:
+        std::snprintf(text, sizeof(text), "%.0f%%", a * 100.0);
+        break;
+    }
+    return text;
   }
 
   std::string systemDefaultPlaybackName() const {
@@ -837,17 +986,18 @@
       target = systemDefaultPlaybackTarget();
     }
 
-    // A device with its limiter on: onto the device every stream for it shares.
+    // A device with effects or its limiter on: onto the device every stream
+    // for it shares, so they work on the mix.
     if (joinOutputLimiter) {
       const OutputLimiterSetting* limiter = outputLimiterSetting(effectiveName);
-      if (limiter && limiter->enabled) {
+      if (outputBusWanted(limiter)) {
         if (SDL_AudioStream* shared = deckboyOpenSharedPlaybackStream(
               target, &desired, outputLimiterPostmix, &outputLimiterBus(effectiveName))) {
           return shared;
         }
         std::cerr << "audio: could not share "
                   << (effectiveName.empty() ? std::string("the system output") : effectiveName)
-                  << " for its limiter (" << SDL_GetError() << "); playing it unlimited\n";
+                  << " for its output effects (" << SDL_GetError() << "); playing it without them\n";
       }
     }
 

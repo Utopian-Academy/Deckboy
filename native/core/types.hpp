@@ -2459,8 +2459,13 @@ struct DashboardSlot {
 // no limiter, which is what every show before this had.
 struct OutputLimiterSetting {
   std::string deviceName;
-  bool enabled = false;
+  bool enabled = false;          // the limiter, always last in the chain
   double ceilingDb = -1.0;
+  // OUTPUT EFFECTS before it, in order: the cue's own effects (high pass,
+  // tilt...) on the device's whole mix. BYPASS ALL takes the lot out, the
+  // limiter included, for an A/B; the card says so in the warning colour.
+  std::vector<deckboy::audiofx::AudioEffect> effects;
+  bool bypassAll = false;
 };
 
 struct Project {

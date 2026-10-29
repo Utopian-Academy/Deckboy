@@ -69,11 +69,14 @@
   first, says so, and then carries on from where you left it.
 
 ### Audio
-- Added the **OUTPUT LIMITER** (Settings > Audio): a ceiling on a playback device, after everything
-  the show plays there is mixed, every playlist on it and every extra send to it. It looks 1.5 ms
-  ahead, so a peak is caught before it arrives, and both channels share one gain. **Limiting** shows
-  how much it is taking off. The headphone monitor, the desk's own sounds and LTC stay out of it.
-  `LIMITER` over the network. Not on ASIO yet.
+- Added **OUTPUT EFFECTS** (Settings > Audio): a chain on a playback device, after everything the
+  show plays there is mixed, every playlist on it and every extra send to it. Up to four of **high
+  pass**, **low pass**, **tilt**, **compressor** and **width**, each shown in its own units (80 Hz,
+  darker 2.0 dB), then a **limiter**: a ceiling the mix cannot pass. It looks 1.5 ms ahead, so a peak
+  is caught before it arrives, and both channels share one gain; **Limiting** shows how much it is
+  taking off. **BYPASS ALL** takes the whole chain out, the limiter included, for an A/B, and shows
+  in the warning colour while it does. The headphone monitor, the desk's own sounds and LTC stay out
+  of it. `OUTPUTFX` and `LIMITER` over the network. Not on ASIO yet.
 - Fixed: the headphone monitor and extra sends (`AUDIOALSO`) made no sound at all, while the
   settings and every report said they were sending. Seen from v0.99.374 (extra sends) and v0.99.376
   (the monitor). One that was set up and forgotten will now be heard.

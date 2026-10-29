@@ -243,7 +243,9 @@ void writeProjectScalars(std::ostream& output, const Project& project) {
   output << "monitor_deck\t" << project.monitorDeckIndex << '\n';
   for (const OutputLimiterSetting& limiter : project.outputLimiters) {
     output << "output_limiter\t" << (limiter.enabled ? 1 : 0) << '\t' << limiter.ceilingDb << '\t'
-           << escapeField(limiter.deviceName) << '\n';
+           << escapeField(limiter.deviceName) << '\t'
+           << escapeField(deckboy::audiofx::serializeAudioEffects(limiter.effects)) << '\t'
+           << (limiter.bypassAll ? 1 : 0) << '\n';
   }
   output << "dashboard_mode\t" << project.dashboardMode << '\n';
   output << "tracker_loop\t" << (project.trackerLoop ? 1 : 0) << '\n';
@@ -1279,6 +1281,8 @@ bool applyProjectScalarLine(Project& project, const std::vector<std::string>& fi
     limiter.enabled = safeBool(fields, 1, false);
     limiter.ceilingDb = std::clamp(safeDouble(fields, 2, -1.0), -40.0, 0.0);
     limiter.deviceName = safeString(fields, 3);
+    limiter.effects = deckboy::audiofx::parseAudioEffects(safeString(fields, 4));   // absent: none
+    limiter.bypassAll = safeBool(fields, 5, false);
     project.outputLimiters.push_back(limiter);
   } else if (fields[0] == "dashboard_mode") {
     project.dashboardMode = std::clamp(safeInt(fields, 1, 0), 0, 1);

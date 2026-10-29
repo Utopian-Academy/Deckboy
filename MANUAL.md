@@ -2134,24 +2134,38 @@ out. The matrix reaches every channel the device was opened with (see **Outs**
 above). A cue with no matrix routes exactly as it always did. `MATRIX` over the
 remote protocol does the same.
 
-### Output limiter
+### Output effects and the limiter
 
 *v0.99.422 and later.*
 
-`Settings → Audio → OUTPUT LIMITER` puts a ceiling on the device the focused
+`Settings → Audio → OUTPUT EFFECTS` puts a chain on the device the focused
 playlist plays to. Everything the show sends there is mixed first (every
-playlist on that device and every extra send to it), and the mix cannot pass
-the ceiling: −1 dBFS unless you set another, from −40 to 0 in half-decibel
-steps. It looks 1.5 ms ahead, so a peak is already caught when it arrives, and
-lets go over about 120 ms. Both channels get the same gain, so the stereo image
-does not move. **Limiting** shows how much it is taking off.
+playlist on that device and every extra send to it), and the chain works on
+the mix.
+
+- **+ ADD AN EFFECT** adds up to four of **high pass**, **low pass**, **tilt**,
+  **compressor** and **width**, in the order added. Each row shows its main
+  setting in its own units (80 Hz, darker 2.0 dB, −20 dBFS at 4:1, 120% wide);
+  **−** and **+** move it a step an engineer would (a sixth of an octave, half a
+  decibel, one decibel, ten percent), and **x** removes it. Everything else
+  about each effect keeps the value it arrives with.
+- **Limiter** comes last: the mix cannot pass the **Ceiling**, −1 dBFS unless
+  you set another, from −40 to 0 in half-decibel steps. It looks 1.5 ms ahead,
+  so a peak is already caught when it arrives, and lets go over about 120 ms.
+  Both channels get the same gain, so the stereo image does not move.
+  **Limiting** shows how much it is taking off.
+- **BYPASS ALL** takes the whole chain out, the limiter included, to hear the
+  difference. It shows in the warning colour while it does; press it again to
+  put the chain back.
 
 The headphone monitor, the desk's own sounds and LTC stay out of it. Under ASIO
-the show's sound goes to the driver, which the limiter does not reach yet.
-Turning it on or off is a device change for the playlists on that device:
-whatever is playing carries on. `LIMITER [ON|OFF] [CEILING <dB>] [DEVICE
-<name>]` does the same over the network, and `LIMITER` on its own reports how
-much it is taking off.
+the show's sound goes to the driver, which these do not reach yet. Adding the
+first effect, or turning the limiter on, is a device change for the playlists
+on that device: whatever is playing carries on. Over the network,
+`OUTPUTFX [ADD hpf|lpf|tilt|comp|width | SET <n> <0-100> | REMOVE <n> | BYPASS
+ON|OFF | CLEAR] [DEVICE <name>]` edits the chain and reports it with the peak
+leaving the device, and `LIMITER [ON|OFF] [CEILING <dB>] [DEVICE <name>]`
+does the limiter.
 
 ### Audio input
 

@@ -122,6 +122,63 @@ def main():
         playing = len(re.findall(r"^DECK \d+ .*status=Playing", status, re.M))
         note("both still playing through the switches", playing == 2, playing)
 
+    # OUTPUT EFFECTS, before the limiter: a high pass on the device's mix. A
+    # -18 dBFS 1 kHz tone passes an 80 Hz high pass whole; moved to 2 kHz, a
+    # second-order filter one octave above the tone takes about 12 dB off it.
+    # BYPASS gives it back. Effects alone put the device on the shared bus;
+    # CLEAR with the limiter off takes it off again.
+    print()
+    work3 = Path(tempfile.mkdtemp(prefix="deckboy-output-fx-"))
+    shutil.copytree(ROOT / "data/demos/starter-pack", work3 / "show")
+    show3 = work3 / "show" / "01-picture-on-screen.deckboy"
+    with Runtime(exe, work3 / "run", show3) as db:
+        db.send("TONECUE")
+        db.send("SELECT LAST")
+        db.send("TAKE")
+
+        def out(settle=1.2):
+            time.sleep(settle)
+            reply = db.send("OUTPUTFX")
+            return reply, fields(reply)
+
+        db.send("OUTPUTFX ADD hpf")
+        reply, v = out()
+        print("    " + reply)
+        note("a high pass on the device: shared, limiter off", v.get("playlists") == "1" and v.get("limiter") == "0", v)
+        note("at 80 Hz the 1 kHz tone passes (-18 dBFS)", abs(float(v.get("out", "0")) + 18.0) < 0.6, v.get("out"))
+        db.send("OUTPUTFX SET 1 100")
+        reply, v = out()
+        print("    " + reply)
+        note("at 2 kHz it takes about 12 dB off", -32.0 < float(v.get("out", "0")) < -28.5, v.get("out"))
+        db.send("OUTPUTFX BYPASS ON")
+        reply, v = out()
+        note("BYPASS gives the tone back whole", abs(float(v.get("out", "0")) + 18.0) < 0.6, reply)
+        db.send("OUTPUTFX BYPASS OFF")
+        reply, v = out()
+        note("and back in, it filters again", float(v.get("out", "0")) < -28.5, reply)
+        db.send("OUTPUTFX CLEAR")
+        reply, v = out(0.8)
+        note("CLEAR, limiter off: off the shared device", v.get("playlists") == "0" and v.get("chain") == "none", v)
+
+        # Kept with the show: a chain built, saved, and the show opened again.
+        db.send("OUTPUTFX ADD hpf")
+        db.send("OUTPUTFX ADD tilt")
+        db.send("OUTPUTFX SET 2 25")
+        db.send("LIMITER ON CEILING -6")
+        built = fields(db.send("OUTPUTFX"))
+        time.sleep(1.5)   # the autosave
+    saved = [line for line in show3.read_text(encoding="utf-8", errors="replace").splitlines()
+             if line.startswith("output_limiter")]
+    print("    saved: " + (saved[0] if saved else "(nothing)"))
+    with Runtime(exe, work3 / "run2", show3) as db:
+        time.sleep(1.0)
+        again = fields(db.send("OUTPUTFX"))
+        limiter = fields(db.send("LIMITER"))
+        note("the chain comes back with the show",
+             again.get("chain") == built.get("chain") and again.get("chain", "").startswith("hpf:80"), (built, again))
+        note("and the limiter with its ceiling", limiter.get("on") == "1" and limiter.get("ceiling") == "-6.0", limiter)
+    shutil.rmtree(work3, ignore_errors=True)
+
     peak, channels, rate = capture_peak(capture)
     ceiling = 10 ** (-16 / 20)
     if peak is None:

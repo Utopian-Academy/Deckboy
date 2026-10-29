@@ -1415,7 +1415,10 @@
       {
         const int midiNeedH = stackH({sRowH, sRowH, sLineH, sLineH, sLineH, sLineH, sLineH, sRowH});
         const int ltcNeedH = stackH({sRowH, sRowH, sRowH, sRowH, sRowH, sLineH});
-        const int limiterNeedH = stackH({sLineH, sRowH, sRowH, sRowH, sLineH});
+        const OutputLimiterSetting* focusedChain = outputLimiterSetting(deckLimiterDeviceName(project_.focusedDeckIndex));
+        const int limiterNeedH = stackH({sLineH, sRowH, sRowH, sRowH, sRowH, sLineH}) +
+          static_cast<int>(focusedChain ? std::min(focusedChain->effects.size(), kMaxOutputEffects) : 0) *
+            (sRowH + sGap);
         const int colH = content.h - uiScaled(20);
         settingsAudioScrollMax_ = std::max(0, std::max(audioH + kAudioCardGap + capH,
                                                        midiNeedH + kAudioCardGap + ltcNeedH +
@@ -1819,15 +1822,20 @@
                        : std::string("off - all channels silent"),
                      soft);
 
-        // OUTPUT LIMITER: a ceiling on the focused playlist's device, after
-        // the mix (approved design: Audio board, "Effects on an output").
+        // OUTPUT EFFECTS: a chain on the focused playlist's device, after the
+        // mix, ending in the limiter (approved design: Audio board, "Effects
+        // on an output"). One row per effect with its first knob in its own
+        // units, then the limiter, then + ADD AN EFFECT and BYPASS ALL.
         const std::string limitDevice = deckLimiterDeviceName(project_.focusedDeckIndex);
         const OutputLimiterSetting* limiter = outputLimiterSetting(limitDevice);
         const bool limiterOn = limiter && limiter->enabled;
         const double ceilingDb = limiter ? limiter->ceilingDb : -1.0;
+        const bool bypassed = limiter && limiter->bypassAll;
+        const std::size_t effectCount = limiter ? std::min(limiter->effects.size(), kMaxOutputEffects) : 0;
         SDL_Rect limitRect {rightX, ltcRect.y + ltcRect.h + uiScaled(10), rightW,
-                            stackH({sLineH, sRowH, sRowH, sRowH, sLineH})};
-        drawCard(limitRect, "OUTPUT LIMITER", "a ceiling on a device, after the mix");
+                            stackH({sLineH, sRowH, sRowH, sRowH, sRowH, sLineH}) +
+                              static_cast<int>(effectCount) * (sRowH + sGap)};
+        drawCard(limitRect, "OUTPUT EFFECTS", "a chain on a device, after the mix");
         const int qx = cardBodyX(limitRect);
         const int qw = cardBodyW(limitRect);
         int qy = cardBodyY(limitRect);
@@ -1836,14 +1844,55 @@
                        (limitDevice.empty() ? std::string("the system output") : limitDevice),
                      pal.fg);
         qy += sLineH + sGap;
+        for (std::size_t i = 0; i < effectCount; ++i) {
+          const deckboy::audiofx::AudioEffect& fx = limiter->effects[i];
+          SDL_Rect row = settingsRow(qx, qw, qy, sRowH, deckboy::audiofx::audioEffectLabel(fx.kind), sGap);
+          const int removeW = std::max(uiScaled(28), row.h);
+          const int base = kSettingsActionOutputFxRowBase + static_cast<int>(i) * kSettingsActionOutputFxRowStride;
+          drawSettingsStepper(SDL_Rect {row.x, row.y, row.w - removeW - uiScaled(4), row.h},
+                              outputEffectReadout(fx), base, base + 1,
+                              ("output_fx_" + std::to_string(i + 1)).c_str());
+          SDL_Rect remove {row.x + row.w - removeW, row.y, removeW, row.h};
+          drawSettingsStateFill(remove, false);
+          drawCenteredTextSafe(controlRenderer_, fontSmall_, remove, "x", settingsStateInk(false));
+          settingsBtns_.push_back({remove, base + 2, "output_fx_" + std::to_string(i + 1) + "_remove"});
+        }
         SDL_Rect limitBtn = settingsRow(qx, qw, qy, sRowH, "Limiter", sGap);
         drawPillToggle(limitBtn, limiterOn, "ON", "OFF");
         settingsBtns_.push_back({limitBtn, kSettingsActionOutputLimiterToggle, "output_limiter"});
         char ceilingText[32];
         std::snprintf(ceilingText, sizeof(ceilingText), "%.1f dBFS", ceilingDb);
-        drawSettingsStepper(settingsRow(qx, qw, qy, sRowH, "Ceiling", sGap), ceilingText,
-                            kSettingsActionOutputLimiterCeilingDec, kSettingsActionOutputLimiterCeilingInc,
-                            "output_limiter_ceiling");
+        {
+          // The same width as the effect rows' steppers, whose remove buttons
+          // take the last column: one column of value wells, one of readings.
+          SDL_Rect ceilingRow = settingsRow(qx, qw, qy, sRowH, "Ceiling", sGap);
+          if (effectCount > 0) ceilingRow.w -= std::max(uiScaled(28), ceilingRow.h) + uiScaled(4);
+          drawSettingsStepper(ceilingRow, ceilingText, kSettingsActionOutputLimiterCeilingDec,
+                              kSettingsActionOutputLimiterCeilingInc, "output_limiter_ceiling");
+        }
+        // + ADD AN EFFECT and BYPASS ALL share a row, as CHECK NOW and
+        // DOWNLOAD do. Bypassed is the warning colour: it takes the limiter
+        // out too, which is the point of an A/B and the risk of forgetting one.
+        {
+          const SDL_Rect chainRow = settingsRow(qx, qw, qy, sRowH, "Chain", sGap);
+          const int half = (chainRow.w - sGap) / 2;
+          SDL_Rect addBtn {chainRow.x, chainRow.y, half, chainRow.h};
+          SDL_Rect bypassBtn {chainRow.x + half + sGap, chainRow.y, chainRow.w - half - sGap, chainRow.h};
+          const bool chainFull = effectCount >= kMaxOutputEffects;
+          drawSettingsStateFill(addBtn, false);
+          drawCenteredTextSafe(controlRenderer_, fontSmall_, addBtn, "+ ADD AN EFFECT",
+                               chainFull ? pal.inkSoft : settingsStateInk(false));
+          settingsBtns_.push_back({addBtn, kSettingsActionOutputFxAdd, "output_fx_add"});
+          if (bypassed) {
+            const PaletteNotice look = paletteNotice(true);
+            drawUIPanel(bypassBtn, look.fill, look.border, look.border);
+            drawCenteredTextSafe(controlRenderer_, fontSmall_, bypassBtn, "BYPASSED", look.ink);
+          } else {
+            drawSettingsStateFill(bypassBtn, false);
+            drawCenteredTextSafe(controlRenderer_, fontSmall_, bypassBtn, "BYPASS ALL", settingsStateInk(false));
+          }
+          settingsBtns_.push_back({bypassBtn, kSettingsActionOutputFxBypass, "output_fx_bypass"});
+        }
         // LIMITING: how much it is taking off now, on the scale of the ceiling.
         SDL_Rect meterRow = settingsRow(qx, qw, qy, sRowH, "Limiting", sGap);
         double reduction = 0.0;
@@ -1875,9 +1924,10 @@
                      !limiterOn ? std::string("off") : shown < -0.05 ? fmtFloat(shown, 1) + " dB" : std::string("0.0 dB"),
                      pal.fg);
         drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {qx, qy, qw, sLineH},
-                     asioArmed() ? std::string("ASIO carries the show's sound, and the limiter is not on it yet")
+                     asioArmed() ? std::string("ASIO carries the show's sound, and these are not on it yet")
+                     : bypassed  ? std::string("bypassed: nothing here is processed or limited")
                                  : std::string("headphones, desk sounds and LTC stay out of it"),
-                     soft);
+                     bypassed ? paletteNotice(true).border : soft);
       }
 
       SDL_SetRenderClipRect(controlRenderer_, hadAudioClip ? &previousAudioClip : nullptr);
@@ -6653,6 +6703,56 @@
         const OutputLimiterSetting* current = outputLimiterSetting(device);
         const double step = sb.action == kSettingsActionOutputLimiterCeilingDec ? -0.5 : 0.5;
         setOutputLimiter(device, std::nullopt, (current ? current->ceilingDb : -1.0) + step);
+      } else if (sb.action >= kSettingsActionOutputFxRowBase &&
+                 sb.action < kSettingsActionOutputFxRowBase + 4 * kSettingsActionOutputFxRowStride) {
+        static_assert(kMaxOutputEffects == 4, "the OUTPUT EFFECTS row block is four rows wide");
+        const int rel = sb.action - kSettingsActionOutputFxRowBase;
+        const auto index = static_cast<std::size_t>(rel / kSettingsActionOutputFxRowStride);
+        const int which = rel % kSettingsActionOutputFxRowStride;   // 0: -, 1: +, 2: remove
+        editOutputBus(deckLimiterDeviceName(project_.focusedDeckIndex), [&](OutputLimiterSetting& setting) {
+          if (index >= setting.effects.size()) return;
+          if (which == 2) {
+            setting.effects.erase(setting.effects.begin() + static_cast<std::ptrdiff_t>(index));
+            return;
+          }
+          deckboy::audiofx::AudioEffect& fx = setting.effects[index];
+          const float step = outputEffectStep(fx.kind);
+          fx.paramA = std::clamp(fx.paramA + (which == 0 ? -step : step), 0.0f, 1.0f);
+        });
+      } else if (sb.action == kSettingsActionOutputFxAdd) {
+        const std::string device = deckLimiterDeviceName(project_.focusedDeckIndex);
+        const OutputLimiterSetting* current = outputLimiterSetting(device);
+        if (current && current->effects.size() >= kMaxOutputEffects) {
+          triggerToast("four effects at most on one device: remove one first");
+          return;
+        }
+        std::vector<std::pair<std::string, std::string>> choices;
+        for (const auto kind : kOutputEffectKinds) {
+          choices.emplace_back(deckboy::audiofx::audioEffectToken(kind), deckboy::audiofx::audioEffectLabel(kind));
+        }
+        openDropdown("settings.output_fx_add", sb.rect, choices, std::string(),
+                     [this, device](const std::string& token) {
+                       const auto kind = deckboy::audiofx::audioEffectKindFromToken(token);
+                       editOutputBus(device, [kind](OutputLimiterSetting& setting) {
+                         if (setting.effects.size() < kMaxOutputEffects) {
+                           setting.effects.push_back(deckboy::audiofx::audioEffectDefaults(kind));
+                         }
+                       });
+                       triggerToast(std::string(deckboy::audiofx::audioEffectLabel(kind)) + " on " +
+                                    (device.empty() ? std::string("the system output") : device));
+                     });
+        return;
+      } else if (sb.action == kSettingsActionOutputFxBypass) {
+        const std::string device = deckLimiterDeviceName(project_.focusedDeckIndex);
+        bool nowBypassed = false;
+        editOutputBus(device, [&](OutputLimiterSetting& setting) {
+          setting.bypassAll = !setting.bypassAll;
+          nowBypassed = setting.bypassAll;
+        });
+        triggerToast(nowBypassed ? "output effects bypassed: no effect and no limit on this device"
+                                 : "output effects back in",
+                     nowBypassed ? ToastKind::Warning : ToastKind::Help,
+                     nowBypassed ? kToastReadableMs : 1200);
       } else if (sb.action == kSettingsActionUpdateCheckToggle) {
         project_.updateCheckEnabled = !project_.updateCheckEnabled;
         markProjectDirty();
