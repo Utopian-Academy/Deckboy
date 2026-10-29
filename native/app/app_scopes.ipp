@@ -28,7 +28,8 @@
 
   enum class MonitorView : int { Program = 0, Scopes = 1, Both = 2 };
   enum ScopePanel : int {
-    kScopeWaveform = 0, kScopeParade, kScopeVector, kScopeDiamond, kScopeHistogram, kScopePanelCount
+    kScopeWaveform = 0, kScopeParade, kScopeVector, kScopeDiamond, kScopeHistogram, kScopeFalseColour,
+    kScopePanelCount
   };
 
   struct ScopeImages {
@@ -49,6 +50,11 @@
     bool hdr = false;        // the float compositor as 16-bit PQ BT.2020
     int hdrWhiteNits = 0;    // where SDR material sits on it
     double peakNits = 0.0;   // the brightest component in the picture
+    // FALSE COLOUR: the picture itself, small, each pixel's Y' shown as the
+    // band it falls in (falseColourFor). RGBA, ready for a texture; only made
+    // while the panel is up (scopesFalseColourWanted_).
+    std::shared_ptr<const std::vector<std::uint8_t>> falseColour;
+    int falseWidth = 0, falseHeight = 0;
   };
 
   MonitorView monitorView_ = MonitorView::Program;
@@ -121,6 +127,10 @@
   SDL_Rect scopesFreezeBtnRect_ {};
   SDL_Rect scopesSourceBtnRect_ {};
   SDL_Rect scopesPanelRects_[kScopePanelCount] {};
+  SDL_Rect scopesFalseBtnRect_ {};
+  SDL_Texture* falseColourTex_ = nullptr;
+  int falseColourTexW_ = 0, falseColourTexH_ = 0;
+  std::atomic<bool> scopesFalseColourWanted_ {false};
 
   static const char* scopePanelName(int panel) {
     switch (panel) {
@@ -129,6 +139,7 @@
       case kScopeVector: return "vector";
       case kScopeDiamond: return "diamond";
       case kScopeHistogram: return "histogram";
+      case kScopeFalseColour: return "falsecolour";
       default: return "";
     }
   }
@@ -303,6 +314,55 @@
     return images;
   }
 
+  // ── FALSE COLOUR ─────────────────────────────────────────────────────────
+  //
+  // The exposure check a camera monitor has: the picture in grey, with the
+  // levels that matter painted over it (the roadmap's "false colour on the
+  // picture scopes"). ARRI's Rec 709 bands, the ones a camera operator
+  // already reads, on the frame's full-range Y' (BT.709 weights) in percent
+  // of white: 0-2.5 purple (crushed), 2.5-4 blue (just above black), 38-42
+  // green (18% grey), 52-56 pink (a stop over: skin), 97-99 yellow (nearly
+  // clipped), 99 and up red (clipped). Everything else is its own grey,
+  // darkened a touch so the bands stand off it.
+  static SDL_Color falseColourFor(double percent) {
+    if (percent < 2.5) return {128, 0, 160, 255};
+    if (percent < 4.0) return {40, 80, 255, 255};
+    if (percent >= 38.0 && percent < 42.0) return {0, 200, 60, 255};
+    if (percent >= 52.0 && percent < 56.0) return {255, 120, 190, 255};
+    if (percent >= 99.0) return {235, 20, 20, 255};
+    if (percent >= 97.0) return {255, 225, 0, 255};
+    const auto grey = static_cast<std::uint8_t>(std::lround(std::clamp(percent, 0.0, 100.0) * 2.55 * 0.85));
+    return {grey, grey, grey, 255};
+  }
+
+  // The BGRA capture, nearest-sampled down to a picture to read levels off.
+  static std::shared_ptr<const std::vector<std::uint8_t>> buildFalseColour(
+      const std::vector<std::uint8_t>& bgra, int width, int height, int& outWidth, int& outHeight) {
+    outWidth = std::max(1, std::min(width, 480));
+    outHeight = std::max(1, static_cast<int>(std::lround(
+                              static_cast<double>(height) * outWidth / std::max(1, width))));
+    auto rgba = std::make_shared<std::vector<std::uint8_t>>(
+      static_cast<std::size_t>(outWidth) * outHeight * 4, 0);
+    if (width <= 0 || height <= 0 || bgra.size() < static_cast<std::size_t>(width) * height * 4) {
+      return rgba;
+    }
+    for (int y = 0; y < outHeight; ++y) {
+      const int sy = std::min(height - 1, y * height / outHeight);
+      for (int x = 0; x < outWidth; ++x) {
+        const int sx = std::min(width - 1, x * width / outWidth);
+        const std::uint8_t* px = &bgra[(static_cast<std::size_t>(sy) * width + sx) * 4];
+        const double luma = 0.2126 * px[2] + 0.7152 * px[1] + 0.0722 * px[0];
+        const SDL_Color c = falseColourFor(luma / 2.55);
+        std::uint8_t* out = &(*rgba)[(static_cast<std::size_t>(y) * outWidth + x) * 4];
+        out[0] = c.r;
+        out[1] = c.g;
+        out[2] = c.b;
+        out[3] = 255;
+      }
+    }
+    return rgba;
+  }
+
   // Only texture upload stays on the renderer thread.
   std::shared_ptr<const deckboy::core::scopes::Result> refreshScopeTextures(ScopesOutcome& outcome) {
     std::uint64_t serial;
@@ -315,6 +375,19 @@
         ensureScopeTexture(slot, w, h);
         if (scopeTex_[slot]) SDL_UpdateTexture(scopeTex_[slot], nullptr,
           outcome.images->rgba[slot].data(), w * 4);
+      }
+      if (outcome.falseColour && outcome.falseWidth > 0) {
+        if (!falseColourTex_ || falseColourTexW_ != outcome.falseWidth ||
+            falseColourTexH_ != outcome.falseHeight) {
+          if (falseColourTex_) SDL_DestroyTexture(falseColourTex_);
+          falseColourTex_ = deckboyCreateTexture(controlRenderer_, SDL_PIXELFORMAT_RGBA32,
+                                                 SDL_TEXTUREACCESS_STATIC, outcome.falseWidth,
+                                                 outcome.falseHeight);
+          falseColourTexW_ = outcome.falseWidth;
+          falseColourTexH_ = outcome.falseHeight;
+        }
+        if (falseColourTex_) SDL_UpdateTexture(falseColourTex_, nullptr, outcome.falseColour->data(),
+                                               outcome.falseWidth * 4);
       }
       scopesUploadMs_ = (SDL_GetTicksNS() - started) / 1000000.0;
     }
@@ -539,6 +612,39 @@
   }
 
   // The R 103 verdict: raw on every update, filtered every two seconds.
+  void drawFalseColourPanel(const SDL_Rect& rect) {
+    const SDL_Rect plot = scopePanel(rect, "FALSE COLOUR", kScopeFalseColour, uiScaled(6), uiScaled(6));
+    const int legendH = textLineHeight(fontSmall_) + uiScaled(8);
+    const SDL_Rect picture {plot.x, plot.y, plot.w, std::max(1, plot.h - legendH)};
+    if (scopesDrawHdr_) {
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, picture, "false colour reads SDR pictures",
+                           kScopeLabel);
+    } else if (falseColourTex_ && falseColourTexW_ > 0 && falseColourTexH_ > 0) {
+      const double scale = std::min(static_cast<double>(picture.w) / falseColourTexW_,
+                                    static_cast<double>(picture.h) / falseColourTexH_);
+      const float w = static_cast<float>(falseColourTexW_ * scale);
+      const float h = static_cast<float>(falseColourTexH_ * scale);
+      const SDL_FRect dst {picture.x + (picture.w - w) / 2.0f, picture.y + (picture.h - h) / 2.0f, w, h};
+      SDL_RenderTexture(controlRenderer_, falseColourTex_, nullptr, &dst);
+    } else {
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, picture, "waiting for a picture", kScopeLabel);
+    }
+    // The key: each band's colour and what it means.
+    struct Band { double percent; const char* label; };
+    static const Band kBands[] = {{1.0, "crushed"}, {3.0, "near black"}, {40.0, "18% grey"},
+                                  {54.0, "skin"}, {98.0, "near white"}, {100.0, "clipped"}};
+    const int swatch = std::max(4, legendH - uiScaled(10));
+    int lx = plot.x;
+    const int ly = plot.y + plot.h - legendH;
+    for (const Band& band : kBands) {
+      Primitives::fillRect(controlRenderer_, SDL_Rect {lx, ly + (legendH - swatch) / 2, swatch, swatch},
+                           falseColourFor(band.percent));
+      lx += swatch + uiScaled(4);
+      scopeText(lx, ly + uiScaled(2), band.label, kScopeLabel);
+      lx += measuredTextWidth(fontSmall_, band.label) + uiScaled(12);
+    }
+  }
+
   std::string scopesGamutText(const deckboy::core::scopes::Result& result, bool& alarm) {
     deckboy::core::scopes::GamutCounts filtered;
     bool filteredValid = false;
@@ -571,6 +677,7 @@
     for (auto& rect : scopesPanelRects_) rect = {};
     scopesFreezeBtnRect_ = {};
     scopesSourceBtnRect_ = {};
+    scopesFalseBtnRect_ = {};
     if (area.w < uiScaled(160) || area.h < uiScaled(120)) return;
     Primitives::fillRect(controlRenderer_, area, kScopeBlack);
     ScopesOutcome outcome;
@@ -593,6 +700,7 @@
       else if (panel == kScopeParade) drawParadePanel(body);
       else if (panel == kScopeVector) drawVectorPanel(body, outcome.matrix);
       else if (panel == kScopeDiamond) drawDiamondPanel(body);
+      else if (panel == kScopeFalseColour) drawFalseColourPanel(body);
       else drawHistogramPanel(body, *result);
     } else if (monitorView_ == MonitorView::Both) {
       const int half = body.h / 2;
@@ -627,6 +735,14 @@
     drawUIPanel(scopesSourceBtnRect_, paletteToggleFill(scopesSource_ >= 0), pal.deep, pal.light);
     drawCenteredTextSafe(controlRenderer_, fontSmall_, scopesSourceBtnRect_, scopesSourceLabel(),
                          paletteToggleInk(scopesSource_ >= 0));
+    // FALSE COLOUR: the picture shown alone, painted by level (drawFalseColourPanel).
+    const int falseW = std::max(uiScaled(110), measuredTextWidth(fontSmall_, "FALSE COLOUR") + uiScaled(16));
+    scopesFalseBtnRect_ = SDL_Rect {scopesSourceBtnRect_.x - falseW - uiScaled(4), scopesSourceBtnRect_.y,
+                                    falseW, scopesSourceBtnRect_.h};
+    const bool falseOn = scopesBig_ == kScopeFalseColour;
+    drawUIPanel(scopesFalseBtnRect_, paletteToggleFill(falseOn), pal.deep, pal.light);
+    drawCenteredTextSafe(controlRenderer_, fontSmall_, scopesFalseBtnRect_, "FALSE COLOUR",
+                         paletteToggleInk(falseOn));
     {
       bool alarm = false;
       std::string gamut;
@@ -671,7 +787,8 @@
                     sourceText, outText, outputLabel(source).c_str(),
                     outcome.width, outcome.height, scopesSignalLabel(outcome).c_str(),
                     outcome.matrix == deckboy::core::scopes::Matrix::Bt2020Ncl ? "BT.2020" : "BT.709");
-      SDL_Rect infoRect {footer.x + uiScaled(6), footer.y, footer.w - freezeW - sourceW - uiScaled(20), footer.h};
+      SDL_Rect infoRect {footer.x + uiScaled(6), footer.y,
+                         footer.w - freezeW - sourceW - falseW - uiScaled(24), footer.h};
       drawTextSafe(controlRenderer_, fontSmall_, infoRect,
                    matches ? std::string(info) + (live ? gamut : "last reading") : state,
                    alarm && live ? kScopeAlarm : kScopeLabel);
@@ -698,7 +815,20 @@
   }
 
   void toggleScopeBig(int panel) {
-    scopesBig_ = (scopesBig_ == panel || panel < 0 || panel >= kScopePanelCount) ? -1 : panel;
+    setScopeBig((scopesBig_ == panel || panel < 0 || panel >= kScopePanelCount) ? -1 : panel);
+  }
+
+  // FALSE COLOUR IS MADE BY THE ANALYSER, which only looks again when the
+  // picture changes: on a still it would never be made at all. So asking for
+  // it asks for a fresh look, the way changing the view already does.
+  void setScopeBig(int panel) {
+    scopesBig_ = panel;
+    const bool wanted = panel == kScopeFalseColour;
+    if (wanted && !scopesFalseColourWanted_.load()) {
+      scopesFalseColourWanted_ = true;
+      releaseScopesCapture();
+    }
+    scopesFalseColourWanted_ = wanted;
   }
 
   // A click inside the scope area: FREEZE, or a panel to show alone (and back).
@@ -710,6 +840,10 @@
     }
     if (scopesSourceBtnRect_.w > 0 && pointInRect(x, y, scopesSourceBtnRect_)) {
       dispatchQuickAction(QuickAction::ScopesSourceCycle);
+      return true;
+    }
+    if (scopesFalseBtnRect_.w > 0 && pointInRect(x, y, scopesFalseBtnRect_)) {
+      dispatchQuickAction(QuickAction::ScopesToggleBig, kScopeFalseColour);
       return true;
     }
     for (int panel = 0; panel < kScopePanelCount; ++panel) {

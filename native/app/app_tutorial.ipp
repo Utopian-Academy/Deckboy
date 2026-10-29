@@ -995,11 +995,11 @@
     // not yet said -- a new step, a praise, a roast, the joke -- and silent
     // after that however long the step is left open.
     {
-      const std::string& line = pixelSpeaking ? pixelSays : videoSays;
+      const std::string& spoken = pixelSpeaking ? pixelSays : videoSays;
       std::string& said = pixelSpeaking ? tutorial_.pixelBabbled : tutorial_.videoBabbled;
-      if (said != line) {
-        said = line;
-        tutorialBabble(pixelSpeaking, line);
+      if (said != spoken) {
+        said = spoken;
+        tutorialBabble(pixelSpeaking, spoken);
       }
     }
     drawTutorialPortrait(SDL_Rect {card.x + pad, y, portrait, portrait}, true, pixelSpeaking);

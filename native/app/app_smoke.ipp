@@ -1086,6 +1086,28 @@
              "end: choosing Stop turns Loop off; Hold shows off and keeps an overlay's frame");
     }
 
+    // ── False colour: ARRI's bands, and a frame through them ───────────────
+    {
+      auto rgb = [](double percent) {
+        const SDL_Color c = falseColourFor(percent);
+        return std::array<int, 3> {c.r, c.g, c.b};
+      };
+      expect(rgb(1.0) == std::array<int, 3> {128, 0, 160} && rgb(3.0) == std::array<int, 3> {40, 80, 255},
+             "false colour: crushed is purple, just above black is blue");
+      expect(rgb(40.0) == std::array<int, 3> {0, 200, 60} && rgb(54.0) == std::array<int, 3> {255, 120, 190},
+             "false colour: 18% grey is green, a stop over is pink");
+      expect(rgb(98.0) == std::array<int, 3> {255, 225, 0} && rgb(99.5) == std::array<int, 3> {235, 20, 20},
+             "false colour: nearly clipped is yellow, clipped is red");
+      const auto grey = rgb(70.0);
+      expect(grey[0] == grey[1] && grey[1] == grey[2] && grey[0] > 100 && grey[0] < 179,
+             "false colour: between the bands, the picture's own grey");
+      std::vector<std::uint8_t> frame {0, 0, 0, 255, 255, 255, 255, 255};   // BGRA: black, white
+      int fw = 0, fh = 0;
+      const auto picture = buildFalseColour(frame, 2, 1, fw, fh);
+      expect(fw == 2 && fh == 1 && (*picture)[0] == 128 && (*picture)[4] == 235,
+             "false colour: a frame's black comes out purple and its white red");
+    }
+
     // ── Tally: state versus event ──────────────────────────────────────────
     //
     // A switcher reports its program bus about once a second whether or not

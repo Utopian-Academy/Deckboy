@@ -5986,9 +5986,9 @@
         const std::string value = parts.size() > 2 ? toLower(parts[2]) : std::string("off");
         if (value == "off") { scopesBig_ = -1; return; }
         for (int panel = 0; panel < kScopePanelCount; ++panel) {
-          if (value == scopePanelName(panel)) { scopesBig_ = panel; return; }
+          if (value == scopePanelName(panel)) { setScopeBig(panel); return; }
         }
-        failRemoteCommand("SCOPES BIG: expected waveform, parade, vector, diamond, histogram or off");
+        failRemoteCommand("SCOPES BIG: expected waveform, parade, vector, diamond, histogram, falsecolour or off");
         return;
       }
       if (sub == "STATS") {

@@ -115,6 +115,12 @@
               outcome.result = std::make_shared<const s::Result>(analyzer.analyze(
                 s::Rgba8View{*next.pixels, w, h, 0, true}, options));
             }
+            // The false colour picture, from the same BGRA frame, only while
+            // its panel is up. The SDR frame only: the bands are video levels.
+            if (!outcome.hdr && next.pixels && scopesFalseColourWanted_.load()) {
+              outcome.falseColour = buildFalseColour(*next.pixels, outcome.width, outcome.height,
+                                                     outcome.falseWidth, outcome.falseHeight);
+            }
             outcome.analysisMs = (SDL_GetTicksNS() - started) / 1000000.0;
             {
               std::lock_guard lock(scopesMutex_);
