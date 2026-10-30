@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>What Deckboy Does | Every Feature</title>
-    <meta name="description" content="Everything Deckboy does: video cues, outputs, slides, windows and web pages, show control, plugins, 42 video effects, and no account or licence server.">
+    <meta name="description" content="Everything Deckboy does: video cues, outputs, slides, windows and web pages, show control, plugins, 52 video effects, and no account or licence server.">
     <link rel="canonical" href="https://utopian-academy.github.io/Deckboy/features.html">
 
     <style>img,video{max-width:100%;height:auto}</style>
@@ -112,6 +112,18 @@
             <p>Programme meters show momentary, short-term and integrated LUFS and true peak.
             Choose &minus;16, &minus;23 or &minus;24&nbsp;LUFS when normalising files before playout.</p>
         </div>
+        <div class="feature-card glass" id="audio-patch" style="grid-column: 1 / -1;">
+            <div class="icon">🎚️</div>
+            <h3>Name the outputs. Patch the playlists.</h3>
+            <p><b>OUTPUTS</b> in Settings &gt; Audio gives a channel or a pair a name:
+            FOH on 1&ndash;2, SUB on 3, PRESS FEED on 5&ndash;6. The <b>PATCH</b> below sends
+            each playlist to those names, with a level at every crosspoint. Change the
+            interface once in OUTPUTS and the playlists keep their destinations.</p>
+            <figure class="idea-shot">
+                <a href="img/0422/audio-outputs-patch-dark.png"><img src="img/0422/audio-outputs-patch-dark.png" width="1900" height="668" loading="lazy" alt="Settings Audio: FOH uses channels 1-2, SUB uses 3, PRESS FEED uses 5-6. Programme, Music and Announcements have different levels in the PATCH grid."></a>
+                <figcaption class="shot-caption">Three named outputs, three playlists. Click a crosspoint to step its level; drag for the level you want. <a href="img/0422/audio-outputs-patch-virtual-boy.png">The same patch in Virtual Boy.</a></figcaption>
+            </figure>
+        </div>
         <div class="feature-card glass" id="plugins">
             <div class="icon">🎛️</div>
             <h3>Your plugins and instruments</h3>
@@ -191,6 +203,23 @@
             also works from outside the local network.</p>
             <p><a href="qlab-alternative.html">Coming from QLab &rarr;</a></p>
         </div>
+        <div class="feature-card glass" id="tape-speed" style="grid-column: 1 / -1;">
+            <div class="icon">⏯️</div>
+            <h3>Slow it down, like tape.</h3>
+            <p>A fade cue can move the playing cue&rsquo;s speed. Choose <b>Speed, like tape</b>,
+            set the destination and the time, and fire it from the running order. Picture
+            and sound slow together; pitch follows the speed.</p>
+            <div class="idea">
+                <figure class="idea-shot" style="max-width: 22rem;">
+                    <a href="img/0422/tape-speed-inspector-dark.png"><img src="img/0422/tape-speed-inspector-dark.png" width="540" height="670" loading="lazy" alt="Fade cue inspector: Speed, like tape, to 0.25x over three seconds with an S-curve, then stop and restore both off."></a>
+                    <figcaption class="shot-caption">Quarter speed, reached over three seconds. <a href="img/0422/tape-speed-inspector-virtual-boy.png">View in Virtual Boy.</a></figcaption>
+                </figure>
+                <figure>
+                    <video data-loop-demo controls loop muted playsinline preload="none" poster="img/0422/tape-speed-poster.png" width="960" height="400" aria-label="Tears of Steel playing in Deckboy, slowing from normal speed to quarter speed over three seconds"><source src="img/0422/tape-speed.mp4" type="video/mp4"><a href="img/0422/tape-speed.mp4">Download the speed fade demo</a></video>
+                    <figcaption class="shot-caption">Recorded from Deckboy&rsquo;s output: a second at normal speed, then the three-second ramp to 0.25x. Silent loop. Footage: <a href="https://mango.blender.org/">Tears of Steel</a>, Blender Foundation, <a href="https://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.</figcaption>
+                </figure>
+            </div>
+        </div>
         <div class="feature-card glass" id="free">
             <div class="icon">🏴</div>
             <h3>Free, and nothing phones home</h3>
@@ -201,9 +230,20 @@
             conditions. No telemetry either. Deckboy has never needed the network to play a file.
             Networking serves the sources, outputs and controls you enable, plus an optional update check.</p>
         </div>
-        <div class="feature-card glass" id="effects">
+        <div class="feature-card glass" id="updates">
+            <div class="icon">↓</div>
+            <h3>Install, then carry on.</h3>
+            <p><b>INSTALL &amp; RESTART</b> hands the downloaded update to the installer.
+            A card shows what is happening while it starts; Deckboy opens again when
+            the installation finishes.</p>
+            <figure class="idea-shot">
+                <a href="img/0422/install-restart.png"><img src="img/0422/install-restart.png" width="630" height="226" loading="lazy" alt="Deckboy's update card: Installing the update. Starting the installer. Click through the installer; Deckboy opens again when it finishes."></a>
+                <figcaption class="shot-caption">The app&rsquo;s hand-off card, captured with a stand-in installer.</figcaption>
+            </figure>
+        </div>
+        <div class="feature-card glass" id="effects" style="grid-column: 1 / -1;">
             <div class="icon">🎛️</div>
-            <h3>42 video effects, 23 audio, 5 you cannot get anywhere else</h3>
+            <h3>52 video effects, 23 audio, 5 you cannot get anywhere else</h3>
             <p>A per-cue rack on the live picture &mdash; displacement, feedback, reaction&ndash;diffusion,
             pixel sort, datamosh, Chladni plates, schlieren that makes the picture's gradients visible,
             and <b>levels and curves</b> first in the list for the grade every operator reaches for
@@ -213,6 +253,10 @@
             or paused cue, without another TAKE. The generated <b>Swirl</b> has live palettes,
             colour bands, reverse speed, twist, flow, zoom and a movable centre; a code source has its own render width and height
             independently of its placement on the output.</p>
+            <figure class="idea-shot">
+                <a href="img/0422/nine-effects.png"><img src="img/0422/nine-effects.png" width="1600" height="778" loading="lazy" alt="One Tears of Steel frame rendered through nine Deckboy effects in a labelled 3 by 3 grid: colour replace, blur, sharpen, glow, mirror, mosaic, edges, luma key, and strobe at frame zero."></a>
+                <figcaption class="shot-caption">Nine looks on the same film frame, rendered by Deckboy. The luma key&rsquo;s checkerboard shows transparency; strobe is held at frame 0. Footage: <a href="https://mango.blender.org/">Tears of Steel</a>, Blender Foundation, <a href="https://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.</figcaption>
+            </figure>
             <p>Then the five only Deckboy has, because they need the picture and the sound in one
             object and a plug-in only ever gets samples: <b>Picture</b> (the video drives the filter),
             <b>Placement</b> (where the shot sits on the raster is where it sits in the room),
