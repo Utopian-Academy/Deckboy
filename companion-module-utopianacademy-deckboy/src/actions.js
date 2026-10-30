@@ -528,6 +528,46 @@ export function buildActions(self) {
 				if (index !== null && value !== null) send(`FX PARAM ${index} ${choice(options.slot, 'A')} ${value}`)
 			},
 		},
+		// Companion's own colour picker, so a button can say "flash red" or
+		// "replace with the brand blue" without working out a 0-1 hue.
+		fx_colour: {
+			name: 'Effect colour',
+			description:
+				"An effect's colour: what a strobe flashes to or the edges line, or as a hue, the colour Colour tints toward or Colour Replace changes from or to. Needs Deckboy 0.99.423 or later.",
+			options: [
+				{ type: 'number', label: 'Effect number', id: 'index', default: 1, min: 1, max: 32, asInteger: true },
+				{
+					type: 'dropdown',
+					disableAutoExpression: true,
+					label: 'Which colour',
+					id: 'slot',
+					default: 'own',
+					choices: [
+						{ id: 'own', label: "The effect's own colour (strobe, edges)" },
+						{ id: 'a', label: 'A, as a hue (colour replace: from)' },
+						{ id: 'c', label: 'C, as a hue (colour: tint colour; colour replace: to)' },
+					],
+				},
+				{ type: 'colorpicker', label: 'Colour', id: 'colour', default: 0xff2040, returnType: 'number' },
+			],
+			callback: ({ options }) => {
+				const index = number(options.index, 'Effect number', { integer: true })
+				const value = Number(options.colour)
+				if (index === null) return
+				if (
+					options.colour === '' ||
+					options.colour === null ||
+					options.colour === undefined ||
+					!Number.isFinite(value)
+				) {
+					self.log('warn', `Colour is not a colour (${JSON.stringify(options.colour)}) — nothing sent`)
+					return
+				}
+				const hex = '#' + (value & 0xffffff).toString(16).padStart(6, '0')
+				const slot = String(options.slot ?? 'own')
+				send(slot === 'own' ? `FX COLOUR ${index} ${hex}` : `FX COLOUR ${index} ${slot.toUpperCase()} ${hex}`)
+			},
+		},
 		fx_lfo: {
 			name: 'Effect parameter LFO',
 			description: 'Hand a parameter to an oscillator. E is the effect amount.',

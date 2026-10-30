@@ -627,3 +627,18 @@ test('a moving playhead re-checks only the time-remaining feedback', async () =>
 	instance.handleData(Buffer.from(REPORT.replace('status=Playing', 'status=Paused')))
 	assert.equal(all, 2)
 })
+
+test('effect colour sends FX COLOUR as hex', async () => {
+	const self = stubInstance()
+	const built = buildActions(self)
+	await built.fx_colour.callback({ options: { index: 2, slot: 'own', colour: 0xff2040 } })
+	await built.fx_colour.callback({ options: { index: 1, slot: 'c', colour: 0x0000ff } })
+	await built.fx_colour.callback({ options: { index: 1, slot: 'a', colour: 0x00ff } })
+	assert.deepEqual(self.sent, ['FX COLOUR 2 #ff2040', 'FX COLOUR 1 C #0000ff', 'FX COLOUR 1 A #0000ff'])
+	self.sent.length = 0
+	for (const colour of [undefined, '', 'red']) {
+		await built.fx_colour.callback({ options: { index: 1, slot: 'own', colour } })
+	}
+	await built.fx_colour.callback({ options: { index: '', slot: 'own', colour: 0xff0000 } })
+	assert.deepEqual(self.sent, [], 'no colour, or no effect number, sends nothing')
+})

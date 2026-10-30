@@ -11,7 +11,8 @@
 - Colour and colour replace take the hue of what you pick, so the picture keeps its own shading. A grey has no hue, and the picker says so rather than guessing.
 - `FX COLOUR <n> #rrggbb` sets an effect's colour over the network; `FX COLOUR <n> <A-D> #rrggbb` sets a hue from a colour. `FX GET` reports the colour.
 
-### Companion module 1.0.7
+### Companion module 1.0.8 (and 1.0.7)
+- 1.0.8: a new "Effect colour" action, with Companion's own colour picker. It sets what a strobe flashes to or the edges line, or the colour Colour tints toward or Colour Replace changes from or to. Needs this Deckboy.
 - Seek with an empty Seconds field sends nothing. It used to send a bare SEEK, which Deckboy refused.
 - "Cue is live" and "Cue is selected" now stay off when the Cue field is blank. Before, a blank field matched any playlist with nothing live, so the button lit.
 - Dropdowns no longer turn into expression fields by themselves.
