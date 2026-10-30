@@ -77,6 +77,12 @@ def tone_db(samples, rate, hz):
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--exe", default=str(ROOT / "build/windows/Release/Deckboy.exe"))
+    # The Windows CI runner's virtual sound device plays about 15% slow, so its
+    # recordings pad with silence to keep sync, removal or no removal (traced
+    # 2026-10-30: the same padding in a 5 s control before the removal). There
+    # the continuity is reported, not judged, as the A/V figure already is.
+    ap.add_argument("--report-continuity", action="store_true",
+                    help="report gaps in the recording instead of failing on them")
     args = ap.parse_args()
     exe = Path(args.exe).resolve()
     print("check: removing one playlist of four\n")
@@ -171,8 +177,13 @@ def main():
                 at = (i + 1) * 0.25
                 print("    dip: %.1f dB at %.2f-%.2f s into the take (the removal was at about 2.5 s)" %
                       (level, at, at + 0.25))
-        note("the recording keeps playlist 4's tone through the removal, no gap",
-             len(own) >= 12 and min(own) > median - 3.0, (min(own) if own else None, median))
+        continuous = len(own) >= 12 and min(own) > median - 3.0
+        if args.report_continuity and not continuous:
+            print("  %-66s %s" % ("the recording keeps playlist 4's tone through the removal, no gap",
+                                  "REPORTED (%.1f dB at worst; this runner's sound clock is slow)" % min(own)))
+        else:
+            note("the recording keeps playlist 4's tone through the removal, no gap",
+                 continuous, (min(own) if own else None, median))
         note("and nothing of the other playlists", others and max(others) < median - 40.0,
              max(others) if others else None)
 
