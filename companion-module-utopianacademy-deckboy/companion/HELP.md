@@ -6,26 +6,33 @@ countdown**, because the module polls Deckboy's status rather than only sending 
 
 ### Connect
 
-| Field                | Default     | Notes                                                        |
-| -------------------- | ----------- | ------------------------------------------------------------ |
-| Deckboy IP address   | `127.0.0.1` | The machine running Deckboy                                  |
-| Port                 | `5510`      | Must match Deckboy's **Settings → Network → Companion port** |
-| Status poll interval | `250 ms`    | Lower = smoother countdowns                                  |
+| Field                | Default     | Notes                                                             |
+| -------------------- | ----------- | ----------------------------------------------------------------- |
+| Deckboy IP address   | `127.0.0.1` | The machine running Deckboy                                       |
+| Port                 | `5510`      | Must match Deckboy's **Settings → Network → Companion port**      |
+| Status poll interval | `250 ms`    | Lower = smoother countdowns                                       |
+| Passphrase           | empty       | Only if Deckboy has a **Companion passphrase** set (see Security) |
 
 Deckboy accepts connections from its own machine only until you turn on **Settings → Network →
-REMOTE**. To control it from Companion on another computer, switch REMOTE on.
+REMOTE**. To control it from Companion on another computer, switch REMOTE on, and add that
+computer under **Settings → Network → Trusted controllers**.
 
 ### Actions
 
 - **Transport:** Take, GO, Play, Pause, Stop, Rerack, Skip forward / back, Seek
 - **Cues:** Select or Take by number, Goto by id or name
 - **Levels:** master volume, master dimmer, deck fader
+- **Audio routing:** patch a playlist to a named output (Deckboy's **Settings → Audio → OUTPUTS**)
+  at a level or off; the output limiter on or off; bypass a device's output effects for an A/B
 - **Playback:** Loop, Shuffle
 - **Outputs:** on/off, fullscreen, send to display, Clear, Blackout, PANIC
 - **Show:** Take all playlists, run a dashboard tile (and the sequence on it), run or stop a sequence
 - **Find:** set token, next, previous, take match
 - **VJ:** VJ mode, crossfader, blend mode, tap tempo, tempo, quantised takes, deck assignment
-- **Effects:** add, amount, parameter, parameter LFO, clear the chain; copy or paste a chain
+- **Effects:** add, amount, parameter, parameter LFO, clear the chain; copy or paste a chain.
+  An effect is added by its name: `levels`, `curves`, `colour`, `colour_replace`, `blur`,
+  `sharpen`, `glow`, `mirror`, `mosaic`, `edges`, `luma_key`, `strobe`, and the rest listed in the
+  manual under Per-Cue Effects
 - **Audio effects:** add, amount, bypass, remove, clear the chain
 - **Sources:** code source expression; video synth text mode, glyphs and phrases
 - **Custom command:** sends any Deckboy command. The full list is in the manual under
@@ -75,17 +82,25 @@ with countdown, connection watchdog), **Output** (on/off, fullscreen, clear, bla
 
 ### Security
 
-There is no password on Deckboy's control port. With **REMOTE** on, anything that can reach the
-port can drive the show — take cues, black the output, run PANIC. On a venue or hotel network,
-put Deckboy behind a firewall rule rather than relying on the port being obscure, and leave
-REMOTE off when Companion runs on the same machine.
+With **REMOTE** on, Deckboy answers its own machine and the machines in **Settings → Network →
+Trusted controllers**, and refuses anyone else (**Last refused** names them, with an **ALLOW**
+button). A **Companion passphrase** adds a second lock: a client on another machine must send
+it before anything is answered, and this module sends it for you when the **Passphrase** field
+is filled in. Five wrong passphrases end the connection.
+
+Anything trusted can drive the show — take cues, black the output, run PANIC. On a venue or hotel
+network, keep the trusted list short, set a passphrase, and leave REMOTE off when Companion runs
+on the same machine.
 
 ### If it will not connect
 
 1. Is **Settings → Network → REMOTE** on? It is off by default, and Deckboy is then reachable
    only from its own machine.
-2. Does the port match **Settings → Network → Companion port**?
-3. Can the machine reach it at all? Connect to the port by hand and type `HELP`; Deckboy prints
+2. Is this computer in **Trusted controllers**? A refused one shows under **Last refused**.
+3. If Deckboy has a passphrase, is the same one in this connection's **Passphrase** field? The
+   connection says so when it is refused.
+4. Does the port match **Settings → Network → Companion port**?
+5. Can the machine reach it at all? Connect to the port by hand and type `HELP`; Deckboy prints
    its whole protocol. If that fails it is the network or a firewall, not this module.
-4. Deckboy's own `--devices` prints the audio devices, displays and MIDI ports it can actually
+6. Deckboy's own `--devices` prints the audio devices, displays and MIDI ports it can actually
    see, which separates a Deckboy fault from a machine that cannot see its hardware.

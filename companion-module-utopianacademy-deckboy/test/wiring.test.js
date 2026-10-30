@@ -198,6 +198,37 @@ test('actions emit the expected Deckboy commands', async () => {
 	)
 })
 
+test('audio routing actions emit the expected commands', async () => {
+	const self = stubInstance()
+	const built = buildActions(self)
+	await built.patch_point.callback({ options: { deck: 2, output: ' PRESS FEED ', send: 'level', db: -6 } })
+	await built.patch_point.callback({ options: { deck: 0, output: 'FOH', send: 'off', db: 0 } })
+	await built.patch_point.callback({ options: { deck: 3, output: 'SUB', send: 'level', db: 20 } })
+	await built.patch_point.callback({ options: { deck: 1, output: '  ', send: 'level', db: 0 } })
+	await built.limiter.callback({ options: { state: 'on', device: '' } })
+	await built.limiter.callback({ options: { state: 'off', device: 'Speakers (USB)' } })
+	await built.output_fx_bypass.callback({ options: { state: 'on', device: '' } })
+	await built.output_fx_bypass.callback({ options: {} })
+	assert.deepEqual(
+		self.sent,
+		[
+			'PATCH 2 PRESS FEED -6',
+			'PATCH 1 FOH OFF',
+			'PATCH 3 SUB 6',
+			'LIMITER ON',
+			'LIMITER OFF DEVICE Speakers (USB)',
+			'OUTPUTFX BYPASS ON',
+			'OUTPUTFX BYPASS ON',
+		],
+		'deck 0 names the focused deck, a level is held to -48..+6, an empty name sends nothing',
+	)
+
+	const unfocused = stubInstance()
+	unfocused.state.global = {}
+	await buildActions(unfocused).patch_point.callback({ options: { deck: 0, output: 'FOH', send: 'off' } })
+	assert.deepEqual(unfocused.sent, [], 'with no focused deck known, PATCH sends nothing')
+})
+
 test('VJ actions emit the expected commands', async () => {
 	const self = stubInstance()
 	const built = buildActions(self)

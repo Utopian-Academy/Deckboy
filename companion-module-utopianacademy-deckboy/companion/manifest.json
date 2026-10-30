@@ -5,7 +5,7 @@
 	"name": "utopianacademy-deckboy",
 	"shortname": "Deckboy",
 	"description": "Cue deck for live events — transport, cue tally, output health and countdowns",
-	"version": "1.0.5",
+	"version": "1.0.6",
 	"license": "MIT",
 	"repository": "git+https://github.com/bitfocus/companion-module-utopianacademy-deckboy.git",
 	"bugs": "https://github.com/bitfocus/companion-module-utopianacademy-deckboy/issues",

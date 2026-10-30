@@ -224,6 +224,93 @@ export function buildActions(self) {
 			},
 		},
 
+		// Audio routing (Deckboy 0.99.422). PATCH needs the playlist's number,
+		// so a "focused deck" button names the deck the last STATUS said had
+		// focus, and sends nothing if it has not heard yet.
+		patch_point: {
+			name: 'Patch a playlist to a named output',
+			description:
+				'A playlist into one of the names in Deckboy’s Settings → Audio → OUTPUTS (FOH, SUB, PRESS FEED …), at a level or off.',
+			options: [
+				deckOption,
+				{ type: 'textinput', label: 'Output name', id: 'output', default: '', useVariables: true },
+				{
+					type: 'dropdown',
+					label: 'Send',
+					id: 'send',
+					default: 'level',
+					choices: [
+						{ id: 'level', label: 'At the level below' },
+						{ id: 'off', label: 'Off' },
+					],
+				},
+				{ type: 'number', label: 'Level (dB, -48 to +6)', id: 'db', default: 0, min: -48, max: 6, step: 0.5 },
+			],
+			callback: ({ options }) => {
+				let deck = number(options.deck ?? 0, 'Deck', { integer: true })
+				if (deck === null) return
+				if (deck <= 0) deck = Number.parseInt(self.state.global?.focus, 10)
+				if (!Number.isFinite(deck) || deck <= 0) {
+					self.log('warn', 'No focused deck known yet — nothing sent')
+					return
+				}
+				const output = String(options.output ?? '').trim()
+				if (output.length === 0) {
+					self.log('warn', 'Output name is empty — nothing sent')
+					return
+				}
+				if (choice(options.send, 'level') === 'OFF') {
+					send(`PATCH ${deck} ${output} OFF`)
+					return
+				}
+				const db = number(options.db, 'Level')
+				if (db !== null) send(`PATCH ${deck} ${output} ${Math.min(6, Math.max(-48, db))}`)
+			},
+		},
+		limiter: {
+			name: 'Output limiter on / off',
+			description:
+				'The ceiling on a playback device, after everything on it is mixed (Settings → Audio → OUTPUT EFFECTS).',
+			options: [
+				{
+					type: 'dropdown',
+					label: 'State',
+					id: 'state',
+					default: 'on',
+					choices: [
+						{ id: 'on', label: 'On' },
+						{ id: 'off', label: 'Off' },
+					],
+				},
+				{ type: 'textinput', label: 'Device (empty: the focused deck’s)', id: 'device', default: '' },
+			],
+			callback: ({ options }) => {
+				const device = String(options.device ?? '').trim()
+				send(`LIMITER ${choice(options.state, 'on')}${device ? ` DEVICE ${device}` : ''}`)
+			},
+		},
+		output_fx_bypass: {
+			name: 'Output effects: bypass all (A/B)',
+			description: 'Takes a device’s whole output chain out, the limiter included, while on.',
+			options: [
+				{
+					type: 'dropdown',
+					label: 'Bypass',
+					id: 'state',
+					default: 'on',
+					choices: [
+						{ id: 'on', label: 'On (chain out)' },
+						{ id: 'off', label: 'Off (chain in)' },
+					],
+				},
+				{ type: 'textinput', label: 'Device (empty: the focused deck’s)', id: 'device', default: '' },
+			],
+			callback: ({ options }) => {
+				const device = String(options.device ?? '').trim()
+				send(`OUTPUTFX BYPASS ${choice(options.state, 'on')}${device ? ` DEVICE ${device}` : ''}`)
+			},
+		},
+
 		loop: {
 			name: 'Toggle loop on selected cue',
 			options: [deckOption],
