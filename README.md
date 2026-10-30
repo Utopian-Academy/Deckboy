@@ -38,6 +38,10 @@ operator finds it, and how you find it again.
 
 [Release notes and downloads](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.422)
 
+- **Remove any playlist, mid-show.** The others keep playing, and Ctrl+Z puts it back where it
+  was.
+- **Nine new effects, first in the list:** colour replace, blur, sharpen, glow, mirror, mosaic,
+  edges, luma key and strobe.
 - **Named outputs and a patch.** Name your interfaces' channels once (FOH, SUB, PRESS FEED) and
   send playlists to the names, at a level in dB for each. A different interface means changing
   the names, not the cues.
@@ -49,6 +53,8 @@ operator finds it, and how you find it again.
   the picture scopes, which gain false colour.
 - **A Web Monitor you can rewind** by up to two minutes, and a **MIDI and OSC monitor**: every
   message as it arrives, and what Deckboy did with it.
+- **INSTALL & RESTART shows what it is doing**, and the **Companion module 1.0.6** patches
+  playlists, switches the limiter and A/Bs the output effects from a button.
 - **Slides on a Mac fill the frame.** From PowerPoint, Keynote or a PDF, they came in at a
   quarter of the width. And the Intel Mac download opens on macOS 10.13.
 
