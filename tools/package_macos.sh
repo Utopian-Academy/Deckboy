@@ -254,8 +254,10 @@ if [ -d "$REPO_ROOT/data" ]; then
   done
   # Captions made on THIS machine: the downloaded speech model (~140 MB), the
   # captions written for media it had no folder for, the scratch audio, and a
-  # whisper-cli someone placed by hand. None of it is the package's.
-  for stale_dir in models captions captions-work whisper; do
+  # whisper-cli someone placed by hand. None of it is the package's. And the
+  # colour tables an operator added for the effect colour picker: theirs,
+  # possibly licensed (a Pantone table), never the package's.
+  for stale_dir in models captions captions-work whisper colours; do
     if [ -d "$RESOURCES_DIR/data/$stale_dir" ]; then
       rm -rf "$RESOURCES_DIR/data/$stale_dir"
       echo "  - stripped data/$stale_dir/ (build-machine state)"

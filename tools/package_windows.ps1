@@ -220,8 +220,10 @@ if (Test-Path $DataSrc) {
     }
     # Captions made on THIS machine: the downloaded speech model (~140 MB), the
     # captions written for media it had no folder for, the scratch audio, and a
-    # whisper-cli someone placed by hand. None of it is the package's.
-    foreach ($StaleDir in @("models", "captions", "captions-work", "whisper")) {
+    # whisper-cli someone placed by hand. None of it is the package's. And the
+    # colour tables an operator added for the effect colour picker: theirs,
+    # possibly licensed (a Pantone table), never the package's.
+    foreach ($StaleDir in @("models", "captions", "captions-work", "whisper", "colours")) {
         $StaleState = Join-Path (Join-Path $StageDir "data") $StaleDir
         if (Test-Path $StaleState) {
             Remove-Item $StaleState -Recurse -Force
