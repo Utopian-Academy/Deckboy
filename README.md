@@ -34,14 +34,29 @@ Free and open source, for Windows, macOS and Linux.
 **If Deckboy is useful to you, ⭐ star this repository** (top right): it is how the next
 operator finds it, and how you find it again.
 
-### New in 0.99.421
+### New in 0.99.422
 
-[Release notes and downloads](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.421)
+[Release notes and downloads](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.422)
 
-- **Every display in reach.** Connected Displays now opens Video Outputs > Screen, with room
-  for three, so a projector you plug in is there without scrolling.
-- **The tour on one screen.** With a single display, the guided tour's output step hands the
-  desk back with a key or a click, and the tour carries on.
+- **Remove any playlist, mid-show.** The others keep playing, and Ctrl+Z puts it back where it
+  was.
+- **Nine new effects, first in the list:** colour replace, blur, sharpen, glow, mirror, mosaic,
+  edges, luma key and strobe.
+- **Named outputs and a patch.** Name your interfaces' channels once (FOH, SUB, PRESS FEED) and
+  send playlists to the names, at a level in dB for each. A different interface means changing
+  the names, not the cues.
+- **Effects on an output.** High pass, low pass, tilt, compressor and width on a whole device,
+  after the mix, then a limiter: a ceiling the mix cannot pass.
+- **Fades that do more.** A fade cue can slow a deck down like tape, pitch and all, ramp any
+  effect's knob, and put back what it started from when it lands.
+- **Sound scopes and false colour.** Loudness to EBU R 128, true peak, phase and spectrum, beside
+  the picture scopes, which gain false colour.
+- **A Web Monitor you can rewind** by up to two minutes, and a **MIDI and OSC monitor**: every
+  message as it arrives, and what Deckboy did with it.
+- **INSTALL & RESTART shows what it is doing**, and the **Companion module 1.0.6** patches
+  playlists, switches the limiter and A/Bs the output effects from a button.
+- **Slides on a Mac fill the frame.** From PowerPoint, Keynote or a PDF, they came in at a
+  quarter of the width. And the Intel Mac download opens on macOS 10.13.
 
 ![Deckboy taking the next clip while the playing one keeps moving through a two-second crossfade](docs/images/readme/light/crossfade-live.gif)
 
@@ -396,21 +411,14 @@ importantly, what each feature deliberately does not do.
 **Audio, next:**
 
 - Multichannel audio files, up to 24 channels each, every channel routable
-- Effects on a device's outputs as well as on each cue
-- Fades that ramp effect settings and playback speed, not only level
 - Object audio: place a cue in your speaker layout and move it across the room
-- Named outputs and an output patch editor
 
 **Show control:**
 
 - Cue carts, and templates for new shows
-- Defaults that say what they do: forgetting your saved defaults (which only
-  changes what NEW starts from) told apart plainly from the show that is open
 - A routing map: tap a deck's "to Out 1" tag to see where every deck, layer
   and output goes
 - A lighting dashboard, beyond the fixture patch
-- MIDI and OSC monitors: every message arriving, as it arrives, with what
-  Deckboy did with it, so a controller that "does nothing" can be seen
 - Live scoreboard data as a source: the clock, scores and fouls read off a
   venue's scoreboard by [OSO (Open Scoreboard OCR)](https://github.com/openscoreboardocr/OSO-Open-Scoreboard-OCR)
   and its XML/JSON feed, driving text and lower thirds on the outputs
@@ -436,8 +444,6 @@ importantly, what each feature deliberately does not do.
 
 **Scopes:**
 
-- False colour on the picture scopes
-- Sound scopes: loudness to EBU R 128, true peak, phase and spectrum
 - Scopes on the desk, on any output and over NDI
 
 **Deckboy Mini:**
@@ -447,8 +453,7 @@ importantly, what each feature deliberately does not do.
 
 **Web Monitor and network:**
 
-- A Web Monitor at full resolution and the right shape, that pauses, rewinds
-  and returns to live without losing the picture
+- A Web Monitor at full resolution and the right shape
 - Encrypted connections (HTTPS) for the Web Monitor and the phone remote
 
 **Platform:**
