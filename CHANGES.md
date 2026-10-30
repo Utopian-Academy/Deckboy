@@ -1,6 +1,6 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
-## Unreleased - v0.99.423
+## 2026-10-30 - v0.99.423 (colour pickers that grab from any window; a tour that fits your screens; step 6 fixed)
 
 ### Colour pickers for the effects
 - Every effect row that takes a colour now has a colour chip: colour's tint colour, colour replace's from and to, strobe's flash and the edges line. Click it to open a picker beside the inspector.
