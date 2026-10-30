@@ -178,8 +178,9 @@ The control window is split into:
 - **Monitors window** (separate): per-output preview and routing.
 
 Timeline loading uses filmstrip and audio-meter animations. Critters accompany
-imports, slide rendering, loudness analysis and update checks; file conversion
-keeps its mascot and measured progress bars.
+imports, slide rendering, loudness analysis and updates (checking, downloading
+and installing), each job bringing one of twelve animals; file conversion keeps
+its mascot and measured progress bars.
 
 Two dividers rebalance the layout. The vertical splitter sits between the
 program area and the inspector. The horizontal grip sits in the gap under the

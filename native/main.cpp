@@ -13518,6 +13518,22 @@ int runDeckboyMain(int argc, char** argv) {
   prependExecutableDirToPath();
 
   const std::vector<std::string> args = normalizeCliArgs(argc, argv);
+  // A STAND-IN FOR THE INSTALLER, for tools/check_update_install.py. INSTALL &
+  // RESTART starts it exactly as it starts the installer, with /fromupdater=1,
+  // and it opens nothing: it lives DECKBOY_TEST_STANDIN_MS, then writes
+  // DECKBOY_TEST_STANDIN_MARK and exits with DECKBOY_TEST_STANDIN_EXIT. Keyed
+  // on the argument as well as the variable, because the Deckboy that starts
+  // it has the same environment.
+  if (args.size() == 1 && args[0] == "/fromupdater=1") {
+    if (const char* lives = std::getenv("DECKBOY_TEST_STANDIN_MS"); lives && *lives) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(std::atoi(lives)));
+      if (const char* mark = std::getenv("DECKBOY_TEST_STANDIN_MARK"); mark && *mark) {
+        std::ofstream(mark) << "lived\n";
+      }
+      const char* code = std::getenv("DECKBOY_TEST_STANDIN_EXIT");
+      return code ? std::atoi(code) : 0;
+    }
+  }
   for (const std::string& arg : args) {
     if (arg == "--help" || arg == "-h" || arg == "-?" || arg == "/?") {
       printDeckboyUsage(std::cout);

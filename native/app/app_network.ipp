@@ -4350,6 +4350,23 @@ html,body{width:100%;height:100%;overflow:hidden}
   std::string updateRunningInstaller_;  // spared from the startup sweep
   bool updateAnnouncePending_ = false;  // the render loop owes a toast
 
+  // INSTALL & RESTART, SEEN TO HAPPEN (James, 2026-10-29: "sometimes i sit
+  // there and wonder whether the click worked"). The press used to do the
+  // whole hand-over inside the click: start the installer, sleep the main
+  // thread 1.2 s to see that it lived, quit. The window froze with the button
+  // exactly as it was, then went. Now the press only asks, the card goes up,
+  // and serviceUpdateInstall takes a step per frame once the card is on screen.
+  enum class UpdateInstallStage { None, Asked, Starting, Closing };
+  UpdateInstallStage updateInstallStage_ = UpdateInstallStage::None;
+  Uint64 updateInstallStageAtMs_ = 0;
+  int updateInstallFramesShown_ = 0;     // card frames drawn in this stage
+  int updateInstallCardFrames_ = 0;      // and since the press, for UPDATE STATUS
+  std::string updateInstallPath_;
+  std::string updateInstallVersion_;
+  // Held until the moment we quit, so a deck that starts in the meantime (a
+  // schedule, timecode, a GO over the network) can still call it off.
+  ChildProcess updateInstallerChild_;
+
   // "v1.2.3" / "1.2.3" -> {1,2,3}. Anything unparseable sorts as {0,0,0}, so a
   // tag we do not understand can never look newer than what is running.
   static std::array<int, 3> parseVersionTriple(const std::string& text) {
@@ -4690,23 +4707,163 @@ html,body{width:100%;height:100%;overflow:hidden}
     }).detach();
   }
 
-  // Launch the downloaded installer and step out of its way.
-  void runDownloadedUpdate() {
+  // INSTALL & RESTART: the settings button and UPDATE INSTALL. Only asks; the
+  // card is drawn this frame and serviceUpdateInstall does the rest. Answers
+  // why not, or nothing when the install is under way.
+  std::string requestUpdateInstall() {
+    if (updateInstallStage_ != UpdateInstallStage::None) {
+      return {};   // a second press is the same request
+    }
     std::string installer;
+    std::string version;
     {
       std::lock_guard<std::mutex> lock(updateMutex_);
       installer = updateReadyInstaller_;
+      version = updateFound_.version;
+    }
+    // A test names its own installer (tools/check_update_install.py), so the
+    // whole hand-over runs without a release to download.
+    if (const char* standIn = std::getenv("DECKBOY_TEST_UPDATE_INSTALLER");
+        installer.empty() && standIn && *standIn) {
+      installer = standIn;
     }
     if (installer.empty()) {
-      triggerToast("update: nothing downloaded");
-      return;
+      return "update: nothing downloaded";
     }
     if (const std::string live = whatIsLiveAndFocusIt(); !live.empty()) {
       // Name it, then FOCUS it: the operator was stopping the deck in front of
       // them while a different one held the update up.
-      triggerToast("update blocked: " + live + " (now focused)");
+      return "update blocked: " + live + " (now focused)";
+    }
+#if !defined(_WIN32) && !defined(__APPLE__)
+    // Only an AppImage can be replaced in place. A tarball or distro build has
+    // no single file to swap and no business being overwritten by us, so the
+    // download is shown where it went, and nothing closes.
+    if (const char* appImage = std::getenv("APPIMAGE"); appImage == nullptr || *appImage == '\0') {
+      deckboy::platform::revealFileInFileManager(installer);
+      triggerToast("update: downloaded to " + installer);
+      return {};
+    }
+#endif
+    updateInstallPath_ = installer;
+    updateInstallVersion_ = version;
+    updateInstallCardFrames_ = 0;
+    setUpdateInstallStage(UpdateInstallStage::Asked);
+    {
+      std::lock_guard<std::mutex> lock(updateMutex_);
+      updateStatus_ = "installing " + (version.empty() ? std::string("the update") : version);
+    }
+    showLog("UPDATE-ASK", fs::path(installer).filename().string());
+    return {};
+  }
+
+  void setUpdateInstallStage(UpdateInstallStage stage) {
+    updateInstallStage_ = stage;
+    updateInstallStageAtMs_ = SDL_GetTicks();
+    updateInstallFramesShown_ = 0;
+  }
+
+  // Back to the desk, saying why. The download stays ready to install.
+  void abandonUpdateInstall(const std::string& why) {
+    updateInstallerChild_.stop();   // nothing is installed until it is clicked through
+    updateRunningInstaller_.clear();
+    setUpdateInstallStage(UpdateInstallStage::None);
+    {
+      std::lock_guard<std::mutex> lock(updateMutex_);
+      updateStatus_ = "ready to install " +
+        (updateInstallVersion_.empty() ? std::string("the update") : updateInstallVersion_);
+    }
+    showLog("UPDATE-STOP", why);
+    triggerToast(why, ToastKind::Warning, kToastReadableMs);
+  }
+
+  // The rest of INSTALL & RESTART, a step per frame, each one after the card
+  // saying so has been on screen. Called every tick.
+  void serviceUpdateInstall() {
+    if (updateInstallStage_ == UpdateInstallStage::None) {
       return;
     }
+    const Uint64 inStage = SDL_GetTicks() - updateInstallStageAtMs_;
+    // Two frames drawn, so the card is on the screen and not only in a back
+    // buffer before anything here can take time.
+    if (updateInstallFramesShown_ < 2) {
+      return;
+    }
+    // Asked again at every step: a schedule, timecode or a GO over the network
+    // can start a deck after the press, though the desk itself takes no input.
+    if (const std::string live = whatIsLive(); !live.empty()) {
+      abandonUpdateInstall("update stopped: " + live);
+      return;
+    }
+#if defined(_WIN32)
+    // MAKE SURE IT ACTUALLY STARTED BEFORE WE WALK AWAY.
+    //
+    // spawnProcess only reports that CreateProcess accepted the request. The
+    // installer can still die a moment later -- and this code once quit
+    // regardless, so Deckboy vanished and nothing replaced it. From the desk
+    // that is indistinguishable from the button doing nothing, which is
+    // exactly what James saw, twice, with no window and no prompt.
+    //
+    // So it has to stay alive until we quit, and if it does not, Deckboy stays
+    // running and SAYS SO, with the exit code. An updater that cannot install
+    // must at least leave the operator with the application they already had.
+    if (updateInstallStage_ != UpdateInstallStage::Asked) {
+      DWORD code = STILL_ACTIVE;
+      if (updateInstallerChild_.hProcess != INVALID_HANDLE_VALUE &&
+          GetExitCodeProcess(updateInstallerChild_.hProcess, &code) &&
+          code != STILL_ACTIVE) {
+        std::cerr << "update: installer " << updateInstallPath_ << " exited with "
+                  << code << " straight after launch\n";
+        abandonUpdateInstall("update: the installer closed straight away (code " +
+                             std::to_string(code) + ") - not restarting");
+        return;
+      }
+    }
+#endif
+    switch (updateInstallStage_) {
+      case UpdateInstallStage::Asked: {
+        // SAVED NOW, not on the way out. A save that fails at quit keeps the
+        // desk open (saveProjectBeforeQuit), which would leave an installer
+        // running against a Deckboy that does not close.
+        if (!saveProjectBeforeQuit()) {
+          abandonUpdateInstall("update stopped: the show could not be saved - "
+                               "SAVE AS, then install");
+          return;
+        }
+        std::string why;
+        if (!startUpdateInstaller(updateInstallPath_, why)) {
+          abandonUpdateInstall(why);
+          return;
+        }
+        setUpdateInstallStage(UpdateInstallStage::Starting);
+        return;
+      }
+      case UpdateInstallStage::Starting:
+#if defined(_WIN32)
+        // A moment for an installer that is going to die at once to do it.
+        if (inStage < 1200) {
+          return;
+        }
+#endif
+        setUpdateInstallStage(UpdateInstallStage::Closing);
+        return;
+      case UpdateInstallStage::Closing:
+        // Long enough to read that Deckboy is closing on purpose.
+        if (inStage < 900) {
+          return;
+        }
+        // LET IT GO, before the destructor does: ~ChildProcess kills.
+        updateInstallerChild_.release();
+        gShouldQuit.store(true);   // the installer replaces this build; step aside
+        return;
+      case UpdateInstallStage::None:
+        return;
+    }
+  }
+
+  // Start whatever replaces this build, and hold it in updateInstallerChild_.
+  // False, with the reason, when it could not be started.
+  bool startUpdateInstaller(const std::string& installer, std::string& why) {
     updateRunningInstaller_ = fs::path(installer).filename().string();
     showLog("UPDATE-RUN", updateRunningInstaller_);
     // EACH BRANCH IS SELF-CONTAINED, deliberately. The first version declared
@@ -4737,48 +4894,16 @@ html,body{width:100%;height:100%;overflow:hidden}
     // delete itself afterwards. Without the flag it leaves the file alone --
     // an installer somebody downloaded and ran themselves is theirs to keep.
     const std::vector<std::string> args {installer, "/fromupdater=1"};
-    ChildProcess child;
     // VISIBLE. The operator has to click through this; spawned silently it runs
     // where nobody can see or reach it, and the update simply never happens.
-    if (!spawnProcess(child, args, SpawnOptions::detachedVisible())) {
-      triggerToast("update: could not start the installer");
-      return;
+    if (!spawnProcess(updateInstallerChild_, args, SpawnOptions::detachedVisible())) {
+      why = "update: could not start the installer";
+      return false;
     }
-    // MAKE SURE IT ACTUALLY STARTED BEFORE WE WALK AWAY.
-    //
-    // spawnProcess only reports that CreateProcess accepted the request. The
-    // installer can still die a moment later -- and this code then set
-    // gShouldQuit regardless, so Deckboy vanished and nothing replaced it. From
-    // the desk that is indistinguishable from the button doing nothing, which
-    // is exactly what James saw, twice, with no window and no prompt.
-    //
-    // So: give it a moment, then check it is still alive. If it is not, stay
-    // running and SAY SO, with the exit code, rather than quitting into
-    // silence. An updater that cannot install must at least leave the operator
-    // with the application they already had.
-    {
-      std::this_thread::sleep_for(std::chrono::milliseconds(1200));
-      DWORD code = STILL_ACTIVE;
-      const bool gotCode = child.hProcess != INVALID_HANDLE_VALUE &&
-                           GetExitCodeProcess(child.hProcess, &code);
-      if (gotCode && code != STILL_ACTIVE) {
-        std::ostringstream why;
-        why << "update: the installer exited immediately (code " << code
-            << ") - not restarting";
-        triggerToast(why.str(), ToastKind::Warning, kToastReadableMs);
-        showLog("UPDATE-FAIL", "installer exited " + std::to_string(code));
-        std::cerr << "update: installer " << installer << " exited with "
-                  << code << " straight after launch\n";
-        return;
-      }
-      // LET IT GO, before the destructor does. `child` is a local, so leaving
-      // this function ran ~ChildProcess -> stop() -> TerminateProcess on the
-      // installer we had just checked was alive, plus a five-second wait for
-      // the corpse. Detached says how it was started; this says we no longer
-      // own it.
-      child.release();
-    }
-    gShouldQuit.store(true);   // the installer replaces this build; step aside
+    // Held, not released: serviceUpdateInstall watches it live for 1.2 s, and
+    // lets it go only as Deckboy quits. Released here, ~ChildProcess would not
+    // kill it, but nothing could see that it died either.
+    return true;
 #elif defined(__APPLE__)
     // INSTALL IT, DON'T JUST SHOW IT.
     //
@@ -4798,15 +4923,15 @@ html,body{width:100%;height:100%;overflow:hidden}
     // launch.
     const fs::path bundlePath = macAppBundlePath();
     if (bundlePath.empty()) {
-      triggerToast("update: cannot find this app bundle to replace");
-      return;
+      why = "update: cannot find this app bundle to replace";
+      return false;
     }
     const fs::path script = fs::path(installer).parent_path() / "deckboy-install.sh";
     {
       std::ofstream out(script, std::ios::binary | std::ios::trunc);
       if (!out) {
-        triggerToast("update: could not write the install helper");
-        return;
+        why = "update: could not write the install helper";
+        return false;
       }
       auto q = [](const std::string& value) {
         std::string escaped;
@@ -4862,21 +4987,18 @@ html,body{width:100%;height:100%;overflow:hidden}
     fs::permissions(script,
                     fs::perms::owner_all | fs::perms::group_read | fs::perms::group_exec,
                     fs::perm_options::replace, chmodErr);
-    {
-      ChildProcess child;
-      const std::vector<std::string> args {"/bin/bash", script.string()};
-      if (!spawnProcess(child, args, SpawnOptions::detachedSilent())) {
-        triggerToast("update: could not start the install helper");
-        return;
-      }
-      // LET IT GO. Without this the ChildProcess destructor fires as this
-      // scope closes and SIGKILLs the whole helper process group -- the helper
-      // that was about to wait for us to exit and replace the app. It was
-      // being started and killed a line later, so the install simply never
-      // happened and the app quit into nothing.
-      child.release();
+    const std::vector<std::string> args {"/bin/bash", script.string()};
+    if (!spawnProcess(updateInstallerChild_, args, SpawnOptions::detachedSilent())) {
+      why = "update: could not start the install helper";
+      return false;
     }
-    gShouldQuit.store(true);   // the helper replaces this bundle; step aside
+    // HELD, AND RELEASED AS WE QUIT. The ChildProcess destructor SIGKILLs the
+    // whole helper process group: when this was a local, the helper that was
+    // about to wait for us and replace the app was started and killed a line
+    // later, so the install never happened and the app quit into nothing.
+    // serviceUpdateInstall releases it the moment it quits, and stops it only
+    // when a deck went live first -- before it has replaced anything.
+    return true;
 #else
     // INSTALL IT, DON'T JUST POINT AT IT.
     //
@@ -4885,23 +5007,21 @@ html,body{width:100%;height:100%;overflow:hidden}
     // file -- so replacing it in place is the whole install, and we can do the
     // full cycle here too.
     //
-    // Only when we are actually RUNNING from an AppImage. The runtime sets
-    // APPIMAGE to its own path; a tarball or distro build has no single file to
-    // swap and no business being overwritten by us, so that case still just
-    // reveals the download and says where it went.
+    // Only when we are actually RUNNING from an AppImage: the runtime sets
+    // APPIMAGE to its own path. requestUpdateInstall has already shown any
+    // other build where its download went, so this is never reached without.
     const char* appImagePath = std::getenv("APPIMAGE");
     if (appImagePath == nullptr || *appImagePath == '\0') {
-      deckboy::platform::revealFileInFileManager(installer);
-      triggerToast("update: downloaded to " + installer);
-      return;
+      why = "update: not running from an AppImage";
+      return false;
     }
     const fs::path target(appImagePath);
     const fs::path script = fs::path(installer).parent_path() / "deckboy-install.sh";
     {
       std::ofstream out(script, std::ios::binary | std::ios::trunc);
       if (!out) {
-        triggerToast("update: could not write the install helper");
-        return;
+        why = "update: could not write the install helper";
+        return false;
       }
       auto q = [](const std::string& value) {
         std::string escaped;
@@ -4945,21 +5065,13 @@ html,body{width:100%;height:100%;overflow:hidden}
     fs::permissions(script,
                     fs::perms::owner_all | fs::perms::group_read | fs::perms::group_exec,
                     fs::perm_options::replace, chmodErr);
-    {
-      ChildProcess child;
-      const std::vector<std::string> args {"/bin/bash", script.string()};
-      if (!spawnProcess(child, args, SpawnOptions::detachedSilent())) {
-        triggerToast("update: could not start the install helper");
-        return;
-      }
-      // LET IT GO. Without this the ChildProcess destructor fires as this
-      // scope closes and SIGKILLs the whole helper process group -- the helper
-      // that was about to wait for us to exit and replace the app. It was
-      // being started and killed a line later, so the install simply never
-      // happened and the app quit into nothing.
-      child.release();
+    const std::vector<std::string> args {"/bin/bash", script.string()};
+    if (!spawnProcess(updateInstallerChild_, args, SpawnOptions::detachedSilent())) {
+      why = "update: could not start the install helper";
+      return false;
     }
-    gShouldQuit.store(true);   // the helper replaces this AppImage; step aside
+    // Held and released as we quit, for the reason the macOS arm gives.
+    return true;
 #endif
   }
 

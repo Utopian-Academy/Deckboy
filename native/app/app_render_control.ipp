@@ -1391,6 +1391,9 @@
     // Popups rendered last (on top)
     renderContextMenu();
     renderSettingsModal();
+    // Over Settings, where INSTALL & RESTART is pressed, and under the busy
+    // critters so its animal walks on it.
+    renderUpdateInstallCard(width, height);
     // ABOVE THE POPUPS, for the reason the toast below is: a critter says
     // which control is working right now, and the control it is sitting on
     // can be inside the settings modal -- the update download is exactly
@@ -1787,7 +1790,7 @@
       if (cueIndex >= 0 && cueIndex < static_cast<int>(deck.cues.size()) &&
           cueIsNormalizing(deck.cues[cueIndex].id) &&
           SDL_GetRectIntersection(&row, &primaryClip, &visibleRow)) {
-        markBusy("norm:" + deck.cues[cueIndex].id, "mouse", visibleRow);
+        markBusy("norm:" + deck.cues[cueIndex].id, nullptr, visibleRow);
       }
       y += kRowHeight + 8;
     }
@@ -3242,7 +3245,7 @@
     Primitives::fillRect(controlRenderer_, track, pal.deep);
     // This one already had an honest bar; the critter is company, not the
     // information. It swims the length of the strip while the walk runs.
-    markBusy("import", "clownfish", strip);
+    markBusy("import", nullptr, strip);
 
     std::string label;
     if (scanning) {
@@ -3294,7 +3297,7 @@
     // progress, including the conversion stage where no count is known yet.
     const SDL_Rect critterLane {card.x + uiScaled(12), card.y + uiScaled(8),
                                card.w - uiScaled(24), uiScaled(34)};
-    markBusy("slide-render", "cat", critterLane);
+    markBusy("slide-render", nullptr, critterLane);
     // Counting pages only once the renderer has reported one: before that the
     // honest thing to say is that the converter is still running, because it
     // is, and a "0 of 0" would look stuck.
@@ -3317,6 +3320,58 @@
     const SDL_Rect bar {card.x + uiScaled(20), card.y + cardH - uiScaled(34),
                         card.w - uiScaled(40), uiScaled(18)};
     drawSlideProgressRow(bar, animationNow_, done, total);
+  }
+
+  // INSTALL & RESTART's card, from the frame the press lands until the window
+  // closes. serviceUpdateInstall counts the frames it was drawn in, so nothing
+  // that can take time starts before it has been seen.
+  void renderUpdateInstallCard(int windowWidth, int windowHeight) {
+    if (updateInstallStage_ == UpdateInstallStage::None) {
+      return;
+    }
+    ++updateInstallFramesShown_;
+    ++updateInstallCardFrames_;
+    SDL_Color dim = pal.deep;
+    dim.a = 180;   // as the dependency prompt's
+    Primitives::fillRect(controlRenderer_, SDL_Rect {0, 0, windowWidth, windowHeight}, dim);
+
+    const std::string title = updateInstallVersion_.empty()
+      ? std::string("Installing the update")
+      : "Installing Deckboy " + updateInstallVersion_;
+    const char* doing = updateInstallStage_ == UpdateInstallStage::Closing
+      ? "Closing Deckboy..." : "Starting the installer...";
+#if defined(_WIN32)
+    const char* then = "Click through the installer; Deckboy opens again when it finishes.";
+#else
+    const char* then = "Deckboy opens again by itself once the update is in. "
+                       "It can take a minute.";
+#endif
+    const int pad = uiScaled(16);
+    const int cardW = std::min(uiScaled(420), std::max(uiScaled(240), windowWidth - uiScaled(48)));
+    const int innerW = cardW - pad * 2;
+    const int critterH = uiScaled(34);
+    const int titleH = textLineHeight(fontBase_) + uiScaled(4);
+    const int lineH = textLineHeight(fontSmall_) + uiScaled(3);
+    const std::vector<std::string> thenLines = codeWrapText(fontSmall_, then, innerW - uiScaled(16));
+    const int cardH = uiScaled(8) + critterH + titleH + lineH + uiScaled(6) +
+                      static_cast<int>(thenLines.size()) * lineH + pad;
+    SDL_Rect card {(windowWidth - cardW) / 2, (windowHeight - cardH) / 2, cardW, cardH};
+    Primitives::drawFramedPanel(controlRenderer_, card, pal.shellInner, pal.shellShadow, pal.mid);
+
+    const SDL_Rect critterLane {card.x + pad, card.y + uiScaled(8), innerW, critterH};
+    markBusy("update-install", nullptr, critterLane);
+    int y = critterLane.y + critterH;
+    drawCenteredTextSafe(controlRenderer_, fontBase_, SDL_Rect {card.x + pad, y, innerW, titleH},
+                         title, pal.fg);
+    y += titleH;
+    drawCenteredTextSafe(controlRenderer_, fontSmall_, SDL_Rect {card.x + pad, y, innerW, lineH},
+                         doing, pal.fg);
+    y += lineH + uiScaled(6);
+    for (const auto& line : thenLines) {
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, SDL_Rect {card.x + pad, y, innerW, lineH},
+                           line, pal.fgSoft);
+      y += lineH;
+    }
   }
 
   void renderToast(int windowWidth) {

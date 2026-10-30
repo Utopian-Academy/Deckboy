@@ -52,6 +52,15 @@
   **Practice show** during the tour. It adds **not saved** when changes are not reaching the
   file, for example when the show's folder cannot be written; ordinary autosaving does not
   show it.
+- **INSTALL & RESTART** shows at once that it was pressed: the button reads INSTALLING..., and a
+  card over the desk says which version is going in, that the installer is starting and then that
+  Deckboy is closing, and how it comes back. The window used to stay exactly as it was for a
+  second or more, then close. While the card is up the desk takes no clicks or keys, and if a
+  deck starts in that time (a schedule, timecode, a GO over the network), Deckboy stays open and
+  calls the install off. `UPDATE INSTALL` answers ERR with the reason when it cannot install.
+- The animal that keeps a job company (checking for an update, downloading or installing one, an
+  import, slides converting, a loudness pass) is any of the twelve, picked as the job starts.
+  Each job always brought the same one, so the eel was only ever seen on updates.
 - The **OUTPUT** chip above the programme preview is a switch. Off, a click turns the output on.
   On, a click offers **TURN OFF** and **VIDEO OUTPUTS** and never turns it off by itself, so a
   stray click cannot cut the picture. With several outputs it opens Video Outputs.

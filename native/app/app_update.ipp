@@ -78,6 +78,18 @@
   void processEvents() {
     SDL_Event event {};
     while (SDL_PollEvent(&event)) {
+      // NO INPUT WHILE INSTALL & RESTART RUNS. Nothing was live at the press,
+      // and a GO in the two seconds before the window closes would start a cue
+      // only to drop it. Releases still pass, so nothing is left held down if
+      // the install is called off.
+      if (updateInstallStage_ != UpdateInstallStage::None) {
+        const Uint32 t = event.type;
+        if (t == SDL_EVENT_KEY_DOWN || t == SDL_EVENT_TEXT_INPUT ||
+            t == SDL_EVENT_MOUSE_BUTTON_DOWN || t == SDL_EVENT_MOUSE_WHEEL ||
+            t == SDL_EVENT_DROP_FILE) {
+          continue;
+        }
+      }
       switch (event.type) {
         case SDL_EVENT_QUIT:
           // OS/app close request should quit immediately.
@@ -645,6 +657,7 @@
         triggerToast("update: " + announce);
       }
     }
+    serviceUpdateInstall();
 
     // Backstop poll, for the same reason the display topology has one below:
     // a driver that never emits the events leaves the deck silent forever, and

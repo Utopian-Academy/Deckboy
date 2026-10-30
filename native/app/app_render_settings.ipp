@@ -871,7 +871,7 @@
       // last in a frame wins, so viewing the card places it there, and
       // viewing any other tab leaves it here instead of letting it vanish.
       if (t == 0 && updateCheckRunning_.load()) {
-        markBusy("update", "eel", tab);
+        markBusy("update", nullptr, tab);
       }
       tabX += tabW + kTabGap;
     }
@@ -1452,7 +1452,7 @@
       // is true for exactly the span of a check or a download and for nothing
       // else.
       if (updateCheckRunning_.load()) {
-        markBusy("update", "eel", updActionRow);
+        markBusy("update", nullptr, updActionRow);
       }
       drawSettingsStateFill(updCheckBtn, false);
       drawCenteredTextSafe(controlRenderer_, fontSmall_, updCheckBtn, "CHECK NOW",
@@ -1473,7 +1473,8 @@
                        // written, and untrue since runDownloadedUpdate grew a
                        // real arm for each platform. A menu that describes an
                        // older version of the program is its own kind of bug.
-                       updateReady ? "INSTALL & RESTART" : "DOWNLOAD",
+                       updateInstallStage_ != UpdateInstallStage::None ? "INSTALLING..."
+                         : updateReady ? "INSTALL & RESTART" : "DOWNLOAD",
                        (updateReady || updateOffered) ? settingsStateInk(true)
                                                       : pal.inkSoft);
       settingsBtns_.push_back({updActBtn,
@@ -7084,7 +7085,9 @@
       } else if (sb.action == kSettingsActionUpdateDownload) {
         downloadAndInstallUpdate();
       } else if (sb.action == kSettingsActionUpdateInstall) {
-        runDownloadedUpdate();
+        if (const std::string why = requestUpdateInstall(); !why.empty()) {
+          triggerToast(why);
+        }
       } else if (sb.action == kSettingsActionNdiTallyTriggerToggle) {
         project_.ndiTallyTriggerEnabled = !project_.ndiTallyTriggerEnabled;
         markProjectDirty();

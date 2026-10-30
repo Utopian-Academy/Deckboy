@@ -418,6 +418,10 @@
   // Anything that stops calling fades and is dropped, so no operation has to
   // remember to announce that it finished -- forgetting exactly that is the
   // class of bug this whole feature is about.
+  //
+  // Pass no species and the job draws one of the twelve when it starts. Each
+  // job used to have its own, and the eel only ever turned up on the update
+  // (James, 2026-10-29: "it feels weird being the only place the eel appears").
   void markBusy(const std::string& id, const char* species, const SDL_Rect& where,
                 bool foreground = true) {
     if (where.w <= 0 || where.h <= 0) {

@@ -5037,13 +5037,25 @@
         return;
       }
       if (sub == "INSTALL") {
-        runDownloadedUpdate();
+        if (const std::string why = requestUpdateInstall(); !why.empty()) {
+          failRemoteCommand(why);
+          return;
+        }
+        std::lock_guard<std::mutex> lock(updateMutex_);
+        remoteCommandDetail_ = updateStatus_;
         return;
       }
       if (sub == "STATUS") {
         std::lock_guard<std::mutex> lock(updateMutex_);
         remoteCommandDetail_ = updateStatus_.empty()
           ? std::string("no check has run") : updateStatus_;
+        // While INSTALL & RESTART runs: which step, and that its card is up.
+        if (updateInstallStage_ != UpdateInstallStage::None) {
+          static const char* const kStep[] = {"", "asked", "starting", "closing"};
+          remoteCommandDetail_ += std::string(" - ") +
+            kStep[static_cast<int>(updateInstallStage_)] + ", card drawn " +
+            std::to_string(updateInstallCardFrames_) + " frames";
+        }
         triggerToast("update: " + remoteCommandDetail_);
         return;
       }
