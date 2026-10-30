@@ -130,16 +130,6 @@
   playlist's sound goes with it, and warns if a playlist could not move.
 - `--devices` names the output the system is playing to.
 
-### Effects
-- Nine basics other video software has, at the top of the effect list: **colour replace** (one band
-  of colours becomes another and keeps its shading), **blur** (even, or a streak along an angle),
-  **sharpen**, **glow**, **mirror** (flips, and folds of one half onto the other), **mosaic** (with a
-  gap and rounded corners, down to LED dots), **edges**, **luma key** (takes out the dark or the
-  bright, so the playlist beneath shows through) and **strobe** (white, black or grey, up to ten
-  flashes a second). Each arrives doing something you can see, and every parameter
-  takes an LFO.
-- `--effect-dump` draws transparency over a checkerboard.
-
 ### Remote control
 - Fixed: `ENDACTION` answered OK and changed nothing when the selected cue was not a video or
   audio cue, and took a word it did not know as INHERIT. It now says why it changed nothing.
@@ -163,6 +153,15 @@
   page.
 
 ### Effects
+- Nine basics other video software has, at the top of the effect list: **colour replace** (one band
+  of colours becomes another and keeps its shading), **blur** (even, or a streak along an angle),
+  **sharpen**, **glow**, **mirror** (flips, and folds of one half onto the other), **mosaic** (with a
+  gap and rounded corners, down to LED dots), **edges**, **luma key** (takes out the dark or the
+  bright, so the playlist beneath shows through) and **strobe** (white, black or grey, up to ten
+  flashes a second). Each arrives doing something you can see, and every parameter
+  takes an LFO.
+- `--effect-dump` draws transparency over a checkerboard.
+
 - A **fade cue** can ramp an effect's knob: **an effect's knob** on the picture or **an audio
   effect's knob**, picked by its place in the stack (effect 1 is the first) and which knob
   (**amount**, or A to D). The effect is found on the cue the deck is playing when the fade fires,
