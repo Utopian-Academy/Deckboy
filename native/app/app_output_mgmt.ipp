@@ -9518,6 +9518,22 @@
     }
     remapDeckKeys(liveCaptionsRead_, oldToNew);
     remapDeckKeys(deckAudioTraceBuffers_, oldToNew);
+    // A playlist's picture memory (feedback, motion puppet, the preview's own
+    // copy), its effect cost, its timecode triggers and its presenter notes
+    // are its own: left keyed by number, a playlist that moved up would read
+    // its neighbour's echo and its neighbour's place in the notes.
+    remapDeckKeys(motionDrivers_, oldToNew);
+    remapDeckKeys(effectStateBuffers_, oldToNew);
+    remapDeckKeys(previewEffectStateBuffers_, oldToNew);
+    remapDeckKeys(effectChainCostMs_, oldToNew);
+    remapDeckKeys(feedbackAdvancedFrame_, oldToNew);
+    remapDeckKeys(timecodeTriggeredCueIds_, oldToNew);
+    remapDeckKeys(presenterNoteStep_, oldToNew);
+    remapDeckKeys(presenterPreviousCue_, oldToNew);
+    remapDeckKeys(presenterNoteScroll_, oldToNew);
+    remapDeckKeys(presenterNoteScrollClock_, oldToNew);
+    remapDeckKeys(presenterNoteExtraRows_, oldToNew);
+    remapDeckKeys(presenterNoteMetrics_, oldToNew);
 
     // A fade on a playlist that moved goes on, on it; one on a playlist that
     // is gone goes with it. The master dimmer's (no playlist) is untouched.
