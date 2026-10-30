@@ -130,6 +130,7 @@ export function buildActions(self) {
 				deckOption,
 				{
 					type: 'dropdown',
+					disableAutoExpression: true,
 					label: 'Mode',
 					id: 'mode',
 					default: 'rel',
@@ -141,7 +142,10 @@ export function buildActions(self) {
 				{ type: 'textinput', label: 'Seconds', id: 'seconds', default: '10', useVariables: true },
 			],
 			callback: async ({ options }) => {
-				const secs = String(options.seconds ?? '')
+				// Checked like every other number, but sent as typed, so a relative
+				// "+10" keeps its sign. A blank or text value sends nothing.
+				const secs = String(options.seconds ?? '').trim()
+				if (number(secs, 'Seconds') === null) return
 				await withDeck(options, options.mode === 'abs' ? `SEEKPOS ${secs}` : `SEEK ${secs}`)
 			},
 		},
@@ -186,6 +190,7 @@ export function buildActions(self) {
 			options: [
 				{
 					type: 'dropdown',
+					disableAutoExpression: true,
 					label: 'State',
 					id: 'state',
 					default: 'toggle',
@@ -236,6 +241,7 @@ export function buildActions(self) {
 				{ type: 'textinput', label: 'Output name', id: 'output', default: '', useVariables: true },
 				{
 					type: 'dropdown',
+					disableAutoExpression: true,
 					label: 'Send',
 					id: 'send',
 					default: 'level',
@@ -274,6 +280,7 @@ export function buildActions(self) {
 			options: [
 				{
 					type: 'dropdown',
+					disableAutoExpression: true,
 					label: 'State',
 					id: 'state',
 					default: 'on',
@@ -295,6 +302,7 @@ export function buildActions(self) {
 			options: [
 				{
 					type: 'dropdown',
+					disableAutoExpression: true,
 					label: 'Bypass',
 					id: 'state',
 					default: 'on',
@@ -336,6 +344,7 @@ export function buildActions(self) {
 			options: [
 				{
 					type: 'dropdown',
+					disableAutoExpression: true,
 					label: 'State',
 					id: 'state',
 					default: 'toggle',
@@ -386,6 +395,7 @@ export function buildActions(self) {
 			options: [
 				{
 					type: 'dropdown',
+					disableAutoExpression: true,
 					label: 'State',
 					id: 'state',
 					default: 'toggle',
@@ -412,6 +422,7 @@ export function buildActions(self) {
 			options: [
 				{
 					type: 'dropdown',
+					disableAutoExpression: true,
 					label: 'Blend',
 					id: 'blend',
 					default: 'dissolve',
@@ -444,6 +455,7 @@ export function buildActions(self) {
 			options: [
 				{
 					type: 'dropdown',
+					disableAutoExpression: true,
 					label: 'State',
 					id: 'state',
 					default: 'on',
@@ -502,6 +514,7 @@ export function buildActions(self) {
 				{ type: 'number', label: 'Effect number', id: 'index', default: 1, min: 1, max: 32, asInteger: true },
 				{
 					type: 'dropdown',
+					disableAutoExpression: true,
 					label: 'Parameter',
 					id: 'slot',
 					default: 'A',
@@ -522,6 +535,7 @@ export function buildActions(self) {
 				{ type: 'number', label: 'Effect number', id: 'index', default: 1, min: 1, max: 32, asInteger: true },
 				{
 					type: 'dropdown',
+					disableAutoExpression: true,
 					label: 'Parameter',
 					id: 'slot',
 					default: 'A',
@@ -529,6 +543,7 @@ export function buildActions(self) {
 				},
 				{
 					type: 'dropdown',
+					disableAutoExpression: true,
 					label: 'Setting',
 					id: 'what',
 					default: 'on',
@@ -581,6 +596,7 @@ export function buildActions(self) {
 			options: [
 				{
 					type: 'dropdown',
+					disableAutoExpression: true,
 					label: 'Effect',
 					id: 'effect',
 					default: 'comp',
@@ -627,6 +643,7 @@ export function buildActions(self) {
 				{ type: 'number', label: 'Slot', id: 'index', default: 1, min: 1, max: 8, asInteger: true },
 				{
 					type: 'dropdown',
+					disableAutoExpression: true,
 					label: 'State',
 					id: 'state',
 					default: 'on',
@@ -660,6 +677,7 @@ export function buildActions(self) {
 			options: [
 				{
 					type: 'dropdown',
+					disableAutoExpression: true,
 					label: 'Action',
 					id: 'action',
 					default: 'copy',
@@ -688,6 +706,7 @@ export function buildActions(self) {
 			options: [
 				{
 					type: 'dropdown',
+					disableAutoExpression: true,
 					label: 'State',
 					id: 'state',
 					default: 'toggle',

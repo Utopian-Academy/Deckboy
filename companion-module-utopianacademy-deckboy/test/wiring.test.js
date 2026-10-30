@@ -576,3 +576,54 @@ test('fixed-choice dropdown ids are lower case', () => {
 		}
 	}
 })
+
+/*
+ * The items from the v1.0.4 review.
+ */
+
+test('every dropdown opts out of auto-expression', () => {
+	for (const defs of [actions, feedbacks]) {
+		for (const [id, def] of Object.entries(defs)) {
+			for (const opt of def.options ?? []) {
+				if (opt.type === 'dropdown') assert.equal(opt.disableAutoExpression, true, `${id}.${opt.id}`)
+			}
+		}
+	}
+})
+
+test('a blank seek sends nothing; a signed one is relative', async () => {
+	const self = stubInstance()
+	const built = buildActions(self)
+	for (const seconds of ['', '  ', undefined, 'abc']) {
+		await built.seek.callback({ options: { deck: 0, mode: 'rel', seconds } })
+		await built.seek.callback({ options: { deck: 0, mode: 'abs', seconds } })
+	}
+	assert.deepEqual(self.sent, [])
+	await built.seek.callback({ options: { deck: 0, mode: 'rel', seconds: ' +10 ' } })
+	assert.deepEqual(self.sent, ['SEEK +10'])
+})
+
+test('a blank cue number is never live or selected', () => {
+	const self = stubInstance()
+	const built = buildFeedbacks(self)
+	self.state.decks.set(1, { status: 'Stopped', active: '', selected: '' })
+	for (const cue of ['', '  ', undefined]) {
+		assert.equal(built.cue_is_live.callback({ options: { deck: 1, cue } }), false)
+		assert.equal(built.cue_is_selected.callback({ options: { deck: 1, cue } }), false)
+	}
+})
+
+test('a moving playhead re-checks only the time-remaining feedback', async () => {
+	const instance = await bareInstance()
+	let all = 0
+	const some = []
+	instance.checkAllFeedbacks = () => all++
+	instance.checkFeedbacks = (...ids) => some.push(...ids)
+	instance.handleData(Buffer.from(REPORT))
+	assert.equal(all, 1)
+	instance.handleData(Buffer.from(REPORT.replace('pos=00:01.0', 'pos=00:02.0')))
+	assert.equal(all, 1, 'the playhead alone does not re-check every feedback')
+	assert.deepEqual(some, ['deck_remaining_below'])
+	instance.handleData(Buffer.from(REPORT.replace('status=Playing', 'status=Paused')))
+	assert.equal(all, 2)
+})

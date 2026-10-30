@@ -42,6 +42,7 @@ export function buildFeedbacks(self) {
 				deckOption,
 				{
 					type: 'dropdown',
+					disableAutoExpression: true,
 					label: 'State',
 					id: 'status',
 					default: 'Playing',
@@ -74,7 +75,12 @@ export function buildFeedbacks(self) {
 			options: [deckOption, { type: 'textinput', label: 'Cue number', id: 'cue', default: '1', useVariables: true }],
 			// base 2.x hands the callback option values that already have their
 			// variables and expressions resolved; parseVariablesInString is gone.
-			callback: ({ options }) => String(deckFields(options)?.active ?? '') === String(options.cue ?? '').trim(),
+			// A blank Cue number matches nothing: with no cue live the deck's side is
+			// blank too, and the tally used to light exactly when nothing was on air.
+			callback: ({ options }) => {
+				const cue = String(options.cue ?? '').trim()
+				return cue !== '' && String(deckFields(options)?.active ?? '') === cue
+			},
 		},
 
 		cue_is_selected: {
@@ -82,7 +88,10 @@ export function buildFeedbacks(self) {
 			name: 'Specific cue is selected (preview)',
 			defaultStyle: { bgcolor: GREEN, color: WHITE },
 			options: [deckOption, { type: 'textinput', label: 'Cue number', id: 'cue', default: '1', useVariables: true }],
-			callback: ({ options }) => String(deckFields(options)?.selected ?? '') === String(options.cue ?? '').trim(),
+			callback: ({ options }) => {
+				const cue = String(options.cue ?? '').trim()
+				return cue !== '' && String(deckFields(options)?.selected ?? '') === cue
+			},
 		},
 
 		deck_remaining_below: {
@@ -134,6 +143,7 @@ export function buildFeedbacks(self) {
 				},
 				{
 					type: 'dropdown',
+					disableAutoExpression: true,
 					label: 'Health',
 					id: 'health',
 					default: 'error',

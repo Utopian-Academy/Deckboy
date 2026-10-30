@@ -374,12 +374,21 @@ class DeckboyInstance extends InstanceBase {
 		this.publishedValues = values
 		if (Object.keys(changed).length > 0) this.setVariableValues(changed)
 
+		// Only what a feedback reads decides a full re-check. The playhead moves on
+		// every report while a cue plays, and only the time-remaining warning reads
+		// it, so that alone is re-checked when nothing else changed.
 		const signature = stateSignature(this.state)
-		if (signature === this.publishedSignature) return
-		this.publishedSignature = signature
-		// base 2.x split the no-argument form of checkFeedbacks() out into its
-		// own method -- calling checkFeedbacks() with nothing now checks nothing.
-		this.checkAllFeedbacks()
+		const clock = clockSignature(this.state)
+		if (signature !== this.publishedSignature) {
+			this.publishedSignature = signature
+			this.publishedClock = clock
+			// base 2.x split the no-argument form of checkFeedbacks() out into its
+			// own method -- calling checkFeedbacks() with nothing now checks nothing.
+			this.checkAllFeedbacks()
+		} else if (clock !== this.publishedClock) {
+			this.publishedClock = clock
+			this.checkFeedbacks('deck_remaining_below')
+		}
 	}
 }
 
@@ -390,8 +399,20 @@ const MAX_LINE_LENGTH = 64 * 1024
 // One header plus sixteen decks and sixteen outputs, with room to spare.
 const MAX_REPORT_LINES = 256
 
+// What the feedbacks read, and nothing else (src/feedbacks.js).
 function stateSignature(state) {
-	return JSON.stringify([state.connected, state.global, [...state.decks], [...state.outputs]])
+	return JSON.stringify([
+		state.connected,
+		state.global?.focus,
+		state.global?.blackout,
+		[...state.decks].map(([index, d]) => [index, d?.status, d?.active, d?.selected]),
+		[...state.outputs].map(([index, o]) => [index, o?.enabled, o?.health]),
+	])
+}
+
+// Where each deck's playhead is, for deck_remaining_below.
+function clockSignature(state) {
+	return JSON.stringify([...state.decks].map(([index, d]) => [index, d?.pos, d?.dur]))
 }
 
 // base 2.x loads the module from the default export instead of runEntrypoint(),

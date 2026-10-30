@@ -1,5 +1,13 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
+## Unreleased - v0.99.423
+
+### Companion module 1.0.7
+- Seek with an empty Seconds field sends nothing. It used to send a bare SEEK, which Deckboy refused.
+- "Cue is live" and "Cue is selected" now stay off when the Cue field is blank. Before, a blank field matched any playlist with nothing live, so the button lit.
+- Dropdowns no longer turn into expression fields by themselves.
+- Buttons are re-checked only when something they show changes. While a cue plays, only the time-remaining warning is re-checked.
+
 ## 2026-10-30 - v0.99.422 (named outputs and a patch; fades that ramp speed, like tape, and effect knobs; remove any playlist mid-show; nine basic effects; INSTALL & RESTART that shows it is working)
 
 ### Settings
