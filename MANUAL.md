@@ -129,13 +129,20 @@ at any time from **MENU → LEARN THE BASICS**, at the right-hand end of the tab
   clip to hand. **SKIP** passes a step; **EXIT** or **Esc** leaves.
 - **It picks up where you stopped.** Leave half way and the next LEARN THE
   BASICS starts at the same step.
+- **It fits your screens.** With two or more, the practice show's picture goes
+  on a screen the desk is not on, and Dr. Pixel names it. With one, the
+  picture fills the desk's screen, and a key or a click gives the desk back
+  with the picture in a small window. With mirrored screens, he says how to
+  set them to extend. Plug a screen in during the tour and the picture moves
+  onto it; pull one out, or mirror them, and he says so and gives the desk
+  back.
 
 The window output is switched on from **MENU → Video Outputs → OUTPUT OFF**
 (it then reads OUTPUT ON). During the tour, MENU opens on that page.
 
 Over the network: `TUTORIAL [START|SHOWME|SKIP|EXIT|STATUS]` (a bare `TUTORIAL`
-starts it; `STATUS` replies with the step), and `STARTUP SHOW` brings up the
-startup screen.
+starts it; `STATUS` replies with the step and what Dr. Pixel is saying), and
+`STARTUP SHOW` brings up the startup screen.
 
 Deckboy refuses to start twice, so a stray double-click cannot take a second
 copy of the show live. `--allow-multi-instance` lifts that, for debugging.

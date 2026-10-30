@@ -11,6 +11,11 @@
 - Colour and colour replace take the hue of what you pick, so the picture keeps its own shading. A grey has no hue, and the picker says so rather than guessing.
 - `FX COLOUR <n> #rrggbb` sets an effect's colour over the network; `FX COLOUR <n> <A-D> #rrggbb` sets a hue from a colour. `FX GET` reports the colour.
 
+### LEARN THE BASICS fits your screens
+- With two or more screens, the practice show's picture goes on a screen the desk is not on, and Dr. Pixel names it. It used to open on the desk's own screen and say "One screen, so the output took all of it".
+- With mirrored screens, step 1 says how to set them to extend on your system (Win+P on Windows).
+- Plug a screen in during the tour and the picture moves onto it. Pull one out or mirror them and Dr. Pixel says so; if the picture lands on the desk's screen at any step, a key or a click gives the desk back, and he says why.
+
 ### Companion module 1.0.8 (and 1.0.7)
 - 1.0.8: a new "Effect colour" action, with Companion's own colour picker. It sets what a strobe flashes to or the edges line, or the colour Colour tints toward or Colour Replace changes from or to. Needs this Deckboy.
 - Seek with an empty Seconds field sends nothing. It used to send a bare SEEK, which Deckboy refused.

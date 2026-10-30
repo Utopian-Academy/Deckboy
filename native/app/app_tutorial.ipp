@@ -43,6 +43,14 @@
     // back; then the teachers get to talk about it for one step.
     int deskEatenOutput = -1;
     bool deskJoke = false;
+    int deskEatenWhy = 0;       // TutorialDeskEaten: what the caption and the joke say
+    // THE SCREENS, as last seen (tutorialScreens), so a screen plugged in,
+    // pulled out or switched to mirrored mid-tour is noticed and answered.
+    int screensSeen = -1;
+    bool screensSeenMirrored = false;
+    Uint64 screenLostMs = 0;    // when one went away: the desk eaten soon after says why
+    std::string screenNote;     // Dr. Pixel's answer to a change, for a few seconds
+    Uint64 screenNoteUntilMs = 0;
     // A tour resumed past the output step with the output off goes back to
     // that step first; this is the step it returns to once the output is on.
     int resumeAt = -1;
@@ -65,6 +73,10 @@
     int profCuteQuip = 0;
   };
   TutorialState tutorial_;
+  // TESTSCREENS (local-only): the screens the tour believes are there, for
+  // the check that walks it on a runner with one -- "1", "2", "3",
+  // "mirrored", or empty for the real ones.
+  std::string tutorialScreensOverride_;
   // Counted by saveProjectNow on every save that landed; the save step
   // watches it rather than the dirty flag, which autosave also clears.
   int projectSaveCount_ = 0;
@@ -209,6 +221,8 @@
     settingsOpen_ = false;
     tutorial_ = next;
     tutorial_.active = true;
+    // On a screen the desk is not on, where there is one.
+    tutorialAimOutputs(tutorialScreens());
     enterTutorialStep(step);
     triggerToast(tutorial_.resumeAt > 0
                    ? "learn the basics: the output is off. Turn it on, and the tour carries on from step " +
@@ -313,6 +327,206 @@
            outputDisplayIndex(outputIndex) == deckboyGetWindowDisplayIndex(controlWindow_);
   }
 
+  // ── The screens in front of the operator ──────────────────────────────────
+  //
+  // James, 2026-10-30, on a PC with two screens: the tour said "One screen,
+  // so the output took all of it", because a new show's output opens on the
+  // first display -- usually the one the desk is on. "Make it adaptable and
+  // reactable to whatever hardware config is being used." So the tour looks
+  // at what is really there: how many screens, which one has the desk,
+  // whether the desk's screen is mirrored onto another, and says and does
+  // what suits that; and when a screen is plugged in, pulled out or
+  // switched to mirrored mid-tour, it notices and answers.
+  struct TutorialScreens {
+    int count = 1;              // desktops (mirrored panels count as one)
+    int desk = 0;               // the one the desk is on
+    int spare = -1;             // where the picture should go: not the desk's
+    std::string spareName;
+    bool mirrored = false;      // the desk's desktop shows on more than one panel
+    std::string mirroredWith;   // that other panel, when the OS says
+    bool fake = false;          // TESTSCREENS is standing in
+  };
+
+  enum TutorialDeskEaten { kDeskEatenOneScreen, kDeskEatenMirrored, kDeskEatenWrongScreen, kDeskEatenScreenGone };
+
+  TutorialScreens tutorialScreens() const {
+    TutorialScreens s;
+    if (!tutorialScreensOverride_.empty()) {
+      s.fake = true;
+      if (tutorialScreensOverride_ == "mirrored") {
+        s.mirrored = true;
+        s.mirroredWith = "TEST TV";
+      } else {
+        s.count = std::clamp(std::atoi(tutorialScreensOverride_.c_str()), 1, 8);
+      }
+      if (s.count > 1) {
+        s.spare = 1;
+        s.spareName = "TEST SCREEN 2";
+      }
+      return s;
+    }
+    s.count = std::max(1, deckboyGetNumVideoDisplays());
+    s.desk = controlWindow_ ? std::clamp(deckboyGetWindowDisplayIndex(controlWindow_), 0, s.count - 1) : 0;
+    for (int i = 0; i < s.count; ++i) {
+      if (i != s.desk) {
+        s.spare = i;
+        break;
+      }
+    }
+    if (s.spare >= 0) {
+      const char* name = deckboyGetDisplayName(s.spare);
+      s.spareName = name && *name ? std::string(name) : "screen " + std::to_string(s.spare + 1);
+    }
+    if (const auto* info = displayMirrorInfo(s.desk); info && info->known && info->panelCount > 1) {
+      s.mirrored = true;
+      if (!info->otherPanels.empty()) s.mirroredWith = info->otherPanels.front();
+    }
+    return s;
+  }
+
+  static std::string tutorialScreensWord(int count) {
+    static const char* kWords[] = {"No", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight"};
+    return count >= 0 && count <= 8 ? kWords[count] : std::to_string(count);
+  }
+
+  // How to stop mirroring, in the words of the system in front of them.
+  static const char* tutorialExtendHow() {
+#if defined(_WIN32)
+    return "Press Win+P and choose Extend";
+#elif defined(__APPLE__)
+    return "In System Settings > Displays, use it as an extended display";
+#else
+    return "Set them to extend in your display settings";
+#endif
+  }
+
+  // Step 1's instruction, for the screens there are.
+  std::string tutorialOutputStepLine(const TutorialScreens& s) const {
+    if (s.count >= 2) {
+      // James's wording for two (2026-10-30), counted up for more.
+      return tutorialScreensWord(s.count) + " screens, skapi. The desk stays on this one, the picture goes on " +
+             (s.count == 2 ? "the other: " : "") + s.spareName +
+             ". Open MENU and make OUTPUT OFF say OUTPUT ON.";
+    }
+    if (s.mirrored) {
+      return "Your screens are mirrored, skapi: " +
+             (s.mirroredWith.empty() ? std::string("the other one") : s.mirroredWith) +
+             " shows what this one shows, so the picture will cover the desk on both. " + tutorialExtendHow() +
+             ", and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.";
+    }
+    return tutorialLine(1).pixel;
+  }
+
+  // Why the output has the desk, for the caption drawn into it.
+  static const char* tutorialDeskEatenCaption(int why) {
+    switch (why) {
+      case kDeskEatenMirrored: return "Mirrored screens, skapi. Press any key or click, and Dr. Pixel gives it back.";
+      case kDeskEatenWrongScreen: return "Wrong screen, skapi. Press any key or click, and Dr. Pixel gives it back.";
+      case kDeskEatenScreenGone:
+        return "The other screen went away, skapi. Press any key or click, and Dr. Pixel gives it back.";
+      default: return "One screen, skapi. Press any key or click, and Dr. Pixel gives it back.";
+    }
+  }
+
+  // What Dr. Pixel says once the desk is back.
+  std::string tutorialDeskEatenJoke(int why) const {
+    const TutorialScreens s = tutorialScreens();
+    switch (why) {
+      case kDeskEatenMirrored:
+        return std::string("It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a "
+                           "little window, behind. ") + tutorialExtendHow() + ", and it gets a screen of its own.";
+      case kDeskEatenWrongScreen:
+        return "It ate the desk, skapi. You have " + tutorialScreensWord(s.count) +
+               " screens: the output's DISPLAY in MENU puts it on " + (s.count == 2 ? "the other one." : "another.");
+      case kDeskEatenScreenGone:
+        return "The other screen went away, skapi, so the picture came back to this one. I put it in a little "
+               "window, behind. Plug it back in and the picture goes back on it.";
+      default:
+        return "It ate the desk, skapi. One screen, so the output took all of it. I put it in a little window, "
+               "behind. A real show gets a second screen.";
+    }
+  }
+
+  int tutorialDeskEatenWhy() const {
+    const TutorialScreens s = tutorialScreens();
+    if (s.count >= 2) return kDeskEatenWrongScreen;
+    if (s.mirrored) return kDeskEatenMirrored;
+    if (tutorial_.screenLostMs != 0 && SDL_GetTicks() - tutorial_.screenLostMs < 20000) return kDeskEatenScreenGone;
+    return kDeskEatenOneScreen;
+  }
+
+  void tutorialSayAboutScreens(const std::string& note) {
+    tutorial_.screenNote = note;
+    tutorial_.screenNoteUntilMs = SDL_GetTicks() + 9000;
+  }
+
+  // An output on, or about to be, as a window on the desk's screen.
+  bool tutorialOutputOnDeskScreen(int outputIndex, const TutorialScreens& s) const {
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) return false;
+    const OutputTarget& output = project_.outputs[static_cast<std::size_t>(outputIndex)];
+    if (normalizeOutputType(output.outputType) != "window") return false;
+    return resolveOutputDisplayIndex(output, s.count) == s.desk;
+  }
+
+  // The practice show's output, aimed at a screen the desk is not on. Quietly
+  // while it is off; on, it moves there and fills it, the way turning it on
+  // there would have.
+  bool tutorialAimOutputs(const TutorialScreens& s) {
+    if (s.fake || s.count < 2 || s.spare < 0) return false;
+    bool moved = false;
+    for (int i = 0; i < static_cast<int>(project_.outputs.size()); ++i) {
+      if (!tutorialOutputOnDeskScreen(i, s)) continue;
+      OutputTarget& output = project_.outputs[static_cast<std::size_t>(i)];
+      if (!output.enabled) {
+        output.displayIndex = s.spare;
+        recordOutputDisplayName(output);
+        markProjectDirty();
+        moved = true;
+        continue;
+      }
+      const int focusWas = project_.focusedOutputIndex;
+      project_.focusedOutputIndex = i;
+      setOutputRecoveryPausedByEscape(i, false);
+      moved = setOutputDisplayIndex(s.spare) || moved;
+      project_.focusedOutputIndex = focusWas;
+    }
+    return moved;
+  }
+
+  // Once a frame: a screen plugged in, pulled out, or the desk's switched to
+  // mirrored or back, answered as it happens.
+  void serviceTutorialScreens() {
+    const TutorialScreens s = tutorialScreens();
+    const int seen = tutorial_.screensSeen;
+    const bool wasMirrored = tutorial_.screensSeenMirrored;
+    tutorial_.screensSeen = s.count;
+    tutorial_.screensSeenMirrored = s.mirrored;
+    if (seen < 0 || (seen == s.count && wasMirrored == s.mirrored)) return;
+    if (s.count > seen) {
+      const bool anyOn = tutorialAnyOutputOn();
+      // A stand-in screen cannot take a window, so it is only talked about.
+      const bool moved = s.fake ? s.spare >= 0 : tutorialAimOutputs(s);
+      const std::string which = seen == 1 ? "A second screen, skapi" : "Another screen, skapi";
+      if (moved && anyOn) {
+        if (!s.fake) tutorial_.deskEatenOutput = -1;   // it has a screen of its own now
+        tutorialSayAboutScreens(which + "! The picture is on it now: " + s.spareName + ". The desk is all yours.");
+        if (controlWindow_ && !s.fake) SDL_RaiseWindow(controlWindow_);
+      } else if (moved) {
+        tutorialSayAboutScreens(which + ". When the output goes on, the picture goes there: " + s.spareName + ".");
+      }
+      return;
+    }
+    tutorial_.screenLostMs = SDL_GetTicks();
+    if (s.mirrored && !wasMirrored) {
+      tutorialSayAboutScreens(std::string("Your screens are mirrored now, skapi, so the picture shows on both. ") +
+                              tutorialExtendHow() + ", and it gets its own again.");
+    } else {
+      tutorialSayAboutScreens(std::string("The other screen went away, skapi. ") +
+                              (tutorialAnyOutputOn() ? "The picture is on this one now."
+                                                     : "The picture will open on this one."));
+    }
+  }
+
   // The desk back: the output in a small window in the corner of the screen,
   // still on, and the desk in front of it. The tour's lessons need the desk;
   // the programme monitor on it shows what the output shows.
@@ -341,8 +555,14 @@
     }
     if (controlWindow_) SDL_RaiseWindow(controlWindow_);
     playUiSound(UiSoundEffect::Toggle);
-    advanceTutorial();
-    tutorial_.deskJoke = true;
+    // Step 1's lesson was the output; the desk coming back is its end. Later,
+    // the lesson carries on where it was, and Dr. Pixel says what happened.
+    if (tutorial_.step == 1) {
+      advanceTutorial();
+      tutorial_.deskJoke = true;
+    } else {
+      tutorialSayAboutScreens(tutorialDeskEatenJoke(tutorial_.deskEatenWhy));
+    }
   }
 
   // A click in the output window that ate the desk.
@@ -363,7 +583,7 @@
     if (!hintFont) hintFont = fontBase_;
     if (!headFont || !hintFont) return;
     const std::string head = "IT ATE THE DESK";
-    const std::string hint = "One screen, skapi. Press any key or click, and Dr. Pixel gives it back.";
+    const std::string hint = tutorialDeskEatenCaption(tutorial_.deskEatenWhy);
     const int headW = measuredWidthIn(headFont, head);
     const int hintW = measuredWidthIn(hintFont, hint);
     const int gap = height / 40;
@@ -387,6 +607,25 @@
 
   void serviceTutorial() {
     if (!tutorial_.active) return;
+    serviceTutorialScreens();
+    // After the output lesson, an output that takes the desk's screen -- a
+    // screen pulled out, the screens mirrored, a full screen asked for -- is
+    // held the same way: the lesson waits behind it until a key or a click
+    // gives the desk back.
+    if (tutorial_.step >= 2) {
+      if (tutorial_.deskEatenOutput >= 0) {
+        if (!tutorialOutputCoversDesk(tutorial_.deskEatenOutput)) tutorial_.deskEatenOutput = -1;
+      } else {
+        for (int i = 0; i < static_cast<int>(project_.outputs.size()); ++i) {
+          if (tutorialOutputCoversDesk(i)) {
+            tutorial_.deskEatenOutput = i;
+            tutorial_.deskEatenWhy = tutorialDeskEatenWhy();
+            break;
+          }
+        }
+      }
+      if (tutorial_.deskEatenOutput >= 0) return;
+    }
     const Deck& deck = focusedDeck();
     switch (tutorial_.step) {
       case 1:
@@ -407,6 +646,7 @@
           for (int i = 0; i < static_cast<int>(project_.outputs.size()); ++i) {
             if (tutorialOutputCoversDesk(i)) {
               tutorial_.deskEatenOutput = i;
+              tutorial_.deskEatenWhy = tutorialDeskEatenWhy();
               break;
             }
           }
@@ -842,6 +1082,27 @@
 
   // ── Drawing ───────────────────────────────────────────────────────────────
 
+  // Dr. Pixel's line now: the step's, fitted to the screens there are and to
+  // what has just happened, before any roast takes it over. The card draws it
+  // and TUTORIAL STATUS reports it.
+  std::string tutorialPixelSays() const {
+    std::string says = tutorialLine(tutorial_.step).pixel;
+    if (tutorial_.step == 1) {
+      says = settingsOpen_ ? std::string("There. The button that says OUTPUT OFF. Make it say ON, skapi.")
+                           : tutorialOutputStepLine(tutorialScreens());
+    }
+    if (tutorial_.step == 2 && tutorial_.deskJoke) {
+      says = tutorialDeskEatenJoke(tutorial_.deskEatenWhy) + " Now a picture: press I, or SHOW ME.";
+    }
+    if (tutorial_.step == 5 && tutorialSelectedTransitionSeconds() > 0.0) {
+      says = "Good. " + formatSeconds(tutorialSelectedTransitionSeconds()) + " of crossfade. Now TAKE, skapi.";
+    }
+    // A screen plugged in or pulled out is answered for a few seconds, then
+    // the step's own instruction comes back.
+    if (SDL_GetTicks() < tutorial_.screenNoteUntilMs) says = tutorial_.screenNote;
+    return says;
+  }
+
   void renderTutorial(int width, int height) {
     serviceTutorial();
     if (!tutorial_.active) return;
@@ -894,7 +1155,7 @@
     const char* roast = (tutorial_.missClicks >= 4 && !praising)
                           ? tutorialRoast(tutorial_.step, roastFromPixel) : nullptr;
 
-    std::string pixelSays = line.pixel;
+    std::string pixelSays = tutorialPixelSays();
     std::string videoSays = line.video;
 #ifdef __APPLE__
     // A Mac saves with Cmd, and the tour says what the keyboard in front of
@@ -905,18 +1166,9 @@
       }
     }
 #endif
-    if (tutorial_.step == 1 && settingsOpen_) {
-      pixelSays = "There. The button that says OUTPUT OFF. Make it say ON, skapi.";
-    }
     if (tutorial_.step == 2 && tutorial_.deskJoke) {
-      pixelSays = "It ate the desk, skapi. One screen, so the output took all of it. I put it in a little "
-                  "window, behind. A real show gets a second screen. Now a picture: press I, or SHOW ME.";
       videoSays = "A feedback loop! Output patched straight back into the desk. Happens to the best of us. "
                   "Mostly to me. 1983. We don't talk about 1983.";
-    }
-    if (tutorial_.step == 5 && tutorialSelectedTransitionSeconds() > 0.0) {
-      pixelSays = "Good. " + formatSeconds(tutorialSelectedTransitionSeconds()) +
-                  " of crossfade. Now TAKE, skapi.";
     }
     // A roast takes over the speaker's line; praise goes in the header, so the
     // next step's instructions are never hidden behind the last one's applause.

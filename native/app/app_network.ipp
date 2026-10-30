@@ -1529,6 +1529,7 @@
       "PHONE"};
     if (kLocalOnly.count(verb)) return true;
     if (verb == "SUBTITLE" && parts.size() > 1 && toUpper(parts[1]) == "CONVERT") return true;
+    if (verb == "TUTORIAL" && parts.size() > 1 && toUpper(parts[1]) == "SCREENS") return true;
     if (verb == "BROWSER" && toLower(text).find("file:") != std::string::npos) return true;
     if (verb == "WEBMONITOR" && parts.size() > 1 && webMonitorSubWidensAccess(parts[1])) return true;
     // A WRAPPER RUNS THE REST AS ITS OWN COMMAND, so judge that command.

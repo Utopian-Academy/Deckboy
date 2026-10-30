@@ -7366,8 +7366,18 @@
       } else if (tutorialArg == "EXIT" || tutorialArg == "CLOSE") {
         if (!tutorial_.active) { failRemoteCommand("TUTORIAL: not running"); return; }
         endTutorial(tutorial_.step == kTutorialSteps - 1);
+      } else if (tutorialArg == "SCREENS") {
+        // TUTORIAL SCREENS 1|2|3|MIRRORED|REAL: the screens the tour believes
+        // are there, for tools/check_tutorial.py on a runner that has one.
+        // From this computer only.
+        const std::string want = parts.size() > 2 ? toLower(parts[2]) : std::string("real");
+        if (want != "real" && want != "mirrored" && std::atoi(want.c_str()) <= 0) {
+          failRemoteCommand("TUTORIAL SCREENS: expected a count, MIRRORED or REAL");
+          return;
+        }
+        tutorialScreensOverride_ = want == "real" ? std::string() : want;
       } else if (tutorialArg != "STATUS") {
-        failRemoteCommand("TUTORIAL: expected START, SHOWME, SKIP, EXIT or STATUS");
+        failRemoteCommand("TUTORIAL: expected START, SHOWME, SKIP, EXIT, STATUS or SCREENS");
         return;
       }
       serviceTutorial();
@@ -7375,7 +7385,8 @@
         ? "step " + std::to_string(tutorial_.step + 1) + " of " + std::to_string(kTutorialSteps) +
             " " + tutorialLine(tutorial_.step).title +
             (tutorial_.deskEatenOutput >= 0 ? " (the output has the desk)" : "") +
-            (tutorial_.resumeAt > 0 ? " (then back to step " + std::to_string(tutorial_.resumeAt + 1) + ")" : "")
+            (tutorial_.resumeAt > 0 ? " (then back to step " + std::to_string(tutorial_.resumeAt + 1) + ")" : "") +
+            " says: " + tutorialPixelSays()
         : std::string("off");
       return;
     }

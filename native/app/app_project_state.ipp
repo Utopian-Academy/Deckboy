@@ -721,6 +721,10 @@
            << "\"outputChipRect\":[" << outputBadgeRect_.x << "," << outputBadgeRect_.y << ","
            << outputBadgeRect_.w << "," << outputBadgeRect_.h << "],"
            << colourPickerStatusJson()
+           // The screens, and the one the desk is on (1-based), for the
+           // check that walks the tour on whatever rig it finds.
+           << "\"displayCount\":" << deckboyGetNumVideoDisplays() << ","
+           << "\"deskDisplay\":" << (controlWindow_ ? deckboyGetWindowDisplayIndex(controlWindow_) + 1 : 0) << ","
            << "\"deckCount\":" << project_.decks.size() << ","
            << "\"focusedOutput\":" << (project_.focusedOutputIndex + 1) << ","
            << "\"outputCount\":" << project_.outputs.size() << ","

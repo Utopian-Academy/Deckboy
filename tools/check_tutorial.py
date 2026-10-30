@@ -151,6 +151,129 @@ def main():
           "resume works, the operator's show and desk handed back untouched")
     print("screenshots:", shots)
     handover_checks(args.exe, work)
+    screens_checks(args.exe, work)
+
+
+def says(db):
+    """What Dr. Pixel is saying now."""
+    reply = status(db)
+    return reply.split(" says: ", 1)[1] if " says: " in reply else ""
+
+
+def wait_says(db, start, timeout=4.0):
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        if says(db).startswith(start):
+            return True
+        time.sleep(.15)
+    return says(db).startswith(start)
+
+
+def screens_checks(exe, work):
+    """The tour fits the screens in front of the operator (James, 2026-10-30:
+    "make it adaptable and reactable to whatever hardware config is being
+    used"). TUTORIAL SCREENS stands in for the hardware a runner lacks; on a
+    machine with two real screens, the picture is moved for real."""
+    pack = ROOT / "data/demos/starter-pack"
+    mine = work / "Screens show"
+    shutil.copytree(pack, mine)
+    show = mine / "01-picture-on-screen.deckboy"
+    with Runtime(exe, work / "run3", show) as db:
+        # Step 1's instruction, for each kind of rig.
+        db.send("TUTORIAL SCREENS 1")
+        db.send("TUTORIAL START")
+        db.send("TUTORIAL SKIP")
+        wait_step(db, 2)
+        assert says(db).startswith("Skapi, the screen is empty"), says(db)
+        db.send("TUTORIAL SCREENS 2")
+        assert wait_says(db, "A second screen, skapi. When the output goes on"), says(db)
+        db.send("TUTORIAL SCREENS 1")
+        assert wait_says(db, "The other screen went away, skapi. The picture will open on this one"), says(db)
+        db.send("TUTORIAL SCREENS mirrored")
+        assert wait_says(db, "Your screens are mirrored now, skapi"), says(db)
+        db.send("TUTORIAL EXIT")
+        for rig, start in (("2", "Two screens, skapi. The desk stays on this one, the picture goes on the other: "),
+                           ("3", "Three screens, skapi. The desk stays on this one, the picture goes on "),
+                           ("mirrored", "Your screens are mirrored, skapi: "),
+                           ("1", "Skapi, the screen is empty")):
+            db.send(f"TUTORIAL SCREENS {rig}")
+            db.send("TUTORIAL START")
+            wait_step(db, 2)
+            assert says(db).startswith(start), f"{rig}: {says(db)}"
+            db.send("TUTORIAL EXIT")
+        # Turned on with the desk's screen the only one, the output takes the
+        # desk; the caption and Dr. Pixel's joke say why, for the rig there is.
+        for rig, joke in (("1", "It ate the desk, skapi. One screen"),
+                          ("mirrored", "It ate the desk, skapi. Mirrored screens"),
+                          ("2", "It ate the desk, skapi. You have Two screens")):
+            db.send(f"TUTORIAL SCREENS {rig}")
+            db.send("TUTORIAL START")
+            wait_step(db, 2)
+            db.send("OUTPUT ON")
+            deadline = time.monotonic() + 8
+            said = status(db)
+            while time.monotonic() < deadline and not ("has the desk" in said or said.startswith("step 3 of")):
+                time.sleep(.15)
+                said = status(db)
+            if "has the desk" in said:
+                db.send("TUTORIAL SHOWME")           # a key or a click
+                wait_step(db, 3)
+                assert says(db).startswith(joke), f"{rig}: {says(db)}"
+            else:
+                print(f"  ({rig}: the output did not take the desk here; its joke was not shown)")
+            db.send("OUTPUT OFF")
+            db.send("TUTORIAL EXIT")
+        db.send("TUTORIAL SCREENS real")
+        real = json.loads(db.send("STATUS JSON")).get("displayCount", 1)
+    print("tutorial screens: step 1, the desk-eaten joke and the change notes fit one, two, three and mirrored")
+    if real >= 2:
+        real_screens_check(exe, work)
+    else:
+        print("tutorial screens: one real screen here, so the picture was not moved for real")
+
+
+def wait_for_output_off_desk(db, desk, timeout=6.0):
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        if json.loads(db.send("STATUS JSON"))["outputs"][0]["display"] != desk:
+            return True
+        time.sleep(.2)
+    return False
+
+
+def real_screens_check(exe, work):
+    """Two real screens: the tour puts the picture on the one the desk is not
+    on, and when a second screen 'arrives' mid-tour, it moves the picture
+    there and gives the desk back."""
+    pack = ROOT / "data/demos/starter-pack"
+    mine = work / "Real screens show"
+    shutil.copytree(pack, mine)
+    show = mine / "01-picture-on-screen.deckboy"
+    with Runtime(exe, work / "run4", show, env={"DECKBOY_HIDE_WINDOWS": None}) as db:
+        db.send("TUTORIAL START")
+        wait_step(db, 1)
+        db.send("TUTORIAL SKIP")
+        wait_step(db, 2)
+        state = json.loads(db.send("STATUS JSON"))
+        desk = state["deskDisplay"]
+        assert says(db).startswith("Two screens, skapi") or says(db).startswith("Three screens"), says(db)
+        assert state["outputs"][0]["display"] != desk, f"the practice output is on the desk's screen {desk}"
+        db.send("TUTORIAL EXIT")
+        # Pretend there is one screen, put the output on the desk's and turn
+        # it on over the desk, then let the real second screen 'arrive'.
+        db.send("TUTORIAL SCREENS 1")
+        db.send("TUTORIAL START")
+        wait_step(db, 2)
+        db.send(f"DISPLAY {desk}")
+        db.send("OUTPUT ON")
+        time.sleep(1.5)
+        db.send("TUTORIAL SCREENS real")
+        assert wait_says(db, "A second screen, skapi! The picture is on it now", 4.0), says(db)
+        assert wait_for_output_off_desk(db, desk), json.loads(db.send("STATUS JSON"))["outputs"][0]
+        assert "has the desk" not in status(db), status(db)
+        db.send("OUTPUT OFF")
+        db.send("TUTORIAL EXIT")
+    print("tutorial screens: on two real screens the picture went on the other one, and moved there when it 'arrived'")
 
 
 def refused(db, command):
