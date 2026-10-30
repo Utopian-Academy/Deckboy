@@ -37,6 +37,15 @@
     int saveBaseline = 0;
     bool tabNudged = false;     // MENU opened on the outputs tab once
     int inspectorNudges = 0;    // frames spent scrolling the transition row into view
+    // THE CROSSFADE STEP watches what the operator did, not an engine flag:
+    // the cue that was live when it began, and the crossfade time the next
+    // TAKE carried. transitionRunning() missed every playing video (the
+    // outgoing clip moves to a tail engine and the new one has no texture to
+    // fade from) and every hardware-decoded one, so step 6 waited for ever
+    // with the second clip on screen (audit 2026-10-30, T6-01).
+    std::string crossfadeFrom;       // the live cue's id; empty: nothing live yet
+    double crossfadeSeconds = 0.0;   // the pending TAKE's crossfade, as last seen
+    bool crossfadeWasCut = false;    // the last change was a cut, not a crossfade
     int missClicks = 0;         // clicks that hit nothing the step wanted
     // ONE SCREEN: OUTPUT ON fills the screen the desk is on, card and all.
     // The output that did it, held until a key or a click gives the desk
@@ -243,6 +252,9 @@
     tutorial_.saveBaseline = projectSaveCount_;
     tutorial_.tabNudged = false;
     tutorial_.inspectorNudges = 0;
+    tutorial_.crossfadeFrom = tutorialLiveCueId();
+    tutorial_.crossfadeSeconds = 0.0;
+    tutorial_.crossfadeWasCut = false;
     tutorial_.missClicks = 0;
     tutorial_.deskJoke = false;
     // Left during the detour, the tour still comes back to the saved step.
@@ -307,6 +319,13 @@
       if (cue.cueTransitionSeconds >= 0.0) return cue.cueTransitionSeconds;
     }
     return deck.transitionSeconds;
+  }
+
+  // The id of the focused playlist's live cue, or empty.
+  std::string tutorialLiveCueId() const {
+    const Deck& deck = focusedDeck();
+    if (deck.activeIndex < 0 || deck.activeIndex >= static_cast<int>(deck.cues.size())) return {};
+    return deck.cues[static_cast<std::size_t>(deck.activeIndex)].id;
   }
 
   bool tutorialAnyOutputOn() const {
@@ -677,8 +696,23 @@
             ++tutorial_.inspectorNudges;
           }
         }
-        if (const MediaEngine* engine = focusedMediaEngine(); engine && engine->transitionRunning()) {
-          advanceTutorial();
+        {
+          // Passed by a DIFFERENT cue going live with a crossfade time. Not by
+          // the first TAKE after a resume (nothing was live to fade from; it
+          // only makes something live), and not by taking the same cue again.
+          const std::string live = tutorialLiveCueId();
+          if (tutorial_.crossfadeFrom.empty()) {
+            tutorial_.crossfadeFrom = live;
+          } else if (!live.empty() && live != tutorial_.crossfadeFrom) {
+            if (tutorial_.crossfadeSeconds > 0.0) {
+              advanceTutorial();
+              break;
+            }
+            tutorial_.crossfadeFrom = live;   // a cut: the lesson is still to come
+            tutorial_.crossfadeWasCut = true;
+          } else {
+            tutorial_.crossfadeSeconds = tutorialSelectedTransitionSeconds();
+          }
         }
         break;
       case 6:
@@ -730,6 +764,15 @@
       }
       case 5: {
         Deck& d = focusedDeckMutable();
+        if (d.cues.size() < 2) addGeneratorCue("fireside");
+        if (focusedDeck().cues.size() < 2) addGeneratorCue("swirl");
+        // Nothing live (a resumed tour, or a skipped step): one cue goes live
+        // first, so there is something to crossfade FROM.
+        if (focusedDeck().activeIndex < 0) {
+          selectCueInDeck(project_.focusedDeckIndex, 0, false, false);
+          jumpSelectedCue();
+        }
+        tutorial_.crossfadeFrom = tutorialLiveCueId();
         if (d.selectedIndex < 0 || d.selectedIndex == d.activeIndex) {
           for (int i = 0; i < static_cast<int>(d.cues.size()); ++i) {
             if (i != d.activeIndex) {
@@ -744,6 +787,7 @@
           d.cues[static_cast<std::size_t>(d.selectedIndex)].cueTransitionSeconds = 1.0;
           markProjectDirty();
         }
+        tutorial_.crossfadeSeconds = tutorialSelectedTransitionSeconds();
         jumpSelectedCue();
         break;
       }
@@ -1094,7 +1138,12 @@
     if (tutorial_.step == 2 && tutorial_.deskJoke) {
       says = tutorialDeskEatenJoke(tutorial_.deskEatenWhy) + " Now a picture: press I, or SHOW ME.";
     }
-    if (tutorial_.step == 5 && tutorialSelectedTransitionSeconds() > 0.0) {
+    // The crossfade step says what is missing, rather than "TAKE" again.
+    if (tutorial_.step == 5 && tutorial_.crossfadeFrom.empty()) {
+      says = "Nothing is live to fade from, skapi. TAKE one cue first, then pick the other and give it a time.";
+    } else if (tutorial_.step == 5 && tutorial_.crossfadeWasCut && tutorialSelectedTransitionSeconds() <= 0.0) {
+      says = "That was a cut, skapi. Fast, but not a crossfade. Pick the other cue, press + on transition, then TAKE.";
+    } else if (tutorial_.step == 5 && tutorialSelectedTransitionSeconds() > 0.0) {
       says = "Good. " + formatSeconds(tutorialSelectedTransitionSeconds()) + " of crossfade. Now TAKE, skapi.";
     }
     // A screen plugged in or pulled out is answered for a few seconds, then

@@ -152,6 +152,7 @@ def main():
     print("screenshots:", shots)
     handover_checks(args.exe, work)
     screens_checks(args.exe, work)
+    crossfade_checks(args.exe, work)
 
 
 def says(db):
@@ -274,6 +275,83 @@ def real_screens_check(exe, work):
         db.send("OUTPUT OFF")
         db.send("TUTORIAL EXIT")
     print("tutorial screens: on two real screens the picture went on the other one, and moved there when it 'arrived'")
+
+
+def crossfade_fixture(kind):
+    """A practice show with two cues of one kind and a 0 s deck transition."""
+    pack = ROOT / "data/demos/starter-pack"
+    lines = (pack / "01-picture-on-screen.deckboy").read_text(encoding="utf8").splitlines()
+    templates = [ln.split("\t") for ln in lines if ln.startswith("cue\t") and ln.split("\t")[4] == kind]
+    assert templates, f"no {kind} cue in the starter pack to copy"
+    out = []
+    for line in lines:
+        if line.startswith("cue\t"):
+            continue
+        fields = line.split("\t")
+        if fields[0] == "deck":
+            fields[3:5] = ["1", "-1"]
+            fields[12:14] = ["0", "crossfade"]
+        out.append("\t".join(fields))
+    for i in range(2):
+        fields = templates[0].copy()
+        if kind == "video":
+            name = "tears-of-steel-street.mp4" if i == 0 else "tears-of-steel-workshop.mp4"
+            fields[2] = (pack / "media" / name).as_posix()
+        else:
+            fields[2] = "pattern://swirl" if i == 0 else "pattern://fireside"
+        fields[3] = f"Crossfade {kind} {i + 1}"
+        fields[19] = f"crossfade-{kind}-{i + 1}"
+        fields[39] = str(i + 1).zfill(2)
+        fields[22] = "-1"   # the cue's own transition: inherit the deck's
+        fields[24] = "-1"   # no timed follow
+        out.append("\t".join(fields))
+    return "\n".join(out) + "\n"
+
+
+def crossfade_checks(exe, work):
+    """Step 6, CROSSFADE TO IT (audit 2026-10-30): a video crossfade passes it
+    (the engine flag the step used to watch never rose for a playing or a
+    hardware-decoded video), and a resumed step 6 needs a DIFFERENT cue taken
+    with a crossfade: the first TAKE only makes something live, and taking the
+    same cue again does not count."""
+    for kind in ("video", "pattern"):
+        run = work / f"run-xfade-{kind}"
+        state = run / "state"
+        state.mkdir(parents=True, exist_ok=True)
+        (state / "tutorial-practice.deckboy").write_text(crossfade_fixture(kind), encoding="utf8")
+        (state / "tutorial-progress.txt").write_text("5", encoding="utf8")
+        pack = ROOT / "data/demos/starter-pack"
+        mine = work / f"Xfade show {kind}"
+        shutil.copytree(pack, mine)
+        with Runtime(exe, run, mine / "01-picture-on-screen.deckboy") as db:
+            db.send("TUTORIAL START")
+            said = wait_step(db, 2)
+            assert "then back to step 6" in said, said
+            db.send("OUTPUT ON")
+            deadline = time.monotonic() + 8
+            while time.monotonic() < deadline:
+                said = status(db)
+                if said.startswith("step 6 of") or "has the desk" in said:
+                    break
+                time.sleep(.15)
+            if "has the desk" in said:
+                db.send("TUTORIAL SHOWME")
+            wait_step(db, 6)
+            assert says(db).startswith("Nothing is live to fade from"), says(db)
+            db.commands("SELECT 1", "TAKE")
+            time.sleep(1.5)
+            assert status(db).startswith("step 6 of"), f"{kind}: the first TAKE after a resume passed the crossfade"
+            db.send("TAKE")
+            time.sleep(1.5)
+            assert status(db).startswith("step 6 of"), f"{kind}: taking the same cue again passed the crossfade"
+            db.commands("SELECT 2", "TAKE")            # a cut, at 0 s
+            time.sleep(1.5)
+            assert status(db).startswith("step 6 of"), f"{kind}: a cut passed the crossfade"
+            assert says(db).startswith("That was a cut"), says(db)
+            db.commands("SELECT 1", "TRANSITION 1", "TAKE")
+            wait_step(db, 7, timeout=6.0)
+            db.send("TUTORIAL EXIT")
+    print("tutorial crossfade: video and pattern pass on a real crossfade; resume, re-take and cut do not")
 
 
 def refused(db, command):

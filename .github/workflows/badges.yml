@@ -9,8 +9,10 @@
 name: Badges
 
 on:
+  # Hourly: every six hours left the download count most of a day behind on a
+  # release day (1023 shown, 1684 real, 2026-10-30).
   schedule:
-    - cron: "17 */6 * * *"
+    - cron: "17 * * * *"
   release:
     types: [published]
   # Releases published by CI's GITHUB_TOKEN do not trigger another release
@@ -29,7 +31,9 @@ permissions:
 
 jobs:
   badges:
-    if: github.event_name != 'workflow_run' || (github.event.workflow_run.conclusion == 'success' && startsWith(github.event.workflow_run.head_branch, 'v'))
+    # After any green CI run, not only a tag's: a push to main is when people
+    # look at the README.
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
       - name: Count

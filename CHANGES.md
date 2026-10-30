@@ -16,6 +16,10 @@
 - With mirrored screens, step 1 says how to set them to extend on your system (Win+P on Windows).
 - Plug a screen in during the tour and the picture moves onto it. Pull one out or mirror them and Dr. Pixel says so; if the picture lands on the desk's screen at any step, a key or a click gives the desk back, and he says why.
 
+### Fixed
+- LEARN THE BASICS no longer sticks on step 6, CROSSFADE TO IT, when the cues are videos: the second clip played, and the tour still asked for TAKE, with SHOW ME no help.
+- A tour resumed at step 6 now says to make a cue live first, and only a crossfade to a different cue passes it. Taking the same cue twice used to count, and the first TAKE after resuming was ignored without a word.
+
 ### Companion module 1.0.8 (and 1.0.7)
 - 1.0.8: a new "Effect colour" action, with Companion's own colour picker. It sets what a strobe flashes to or the edges line, or the colour Colour tints toward or Colour Replace changes from or to. Needs this Deckboy.
 - Seek with an empty Seconds field sends nothing. It used to send a bare SEEK, which Deckboy refused.
