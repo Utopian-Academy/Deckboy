@@ -190,6 +190,9 @@
     if (handleColourPickerMouseDown(x, y)) {
       return;
     }
+    if (handleRatDadMouseDown(x, y)) {
+      return;
+    }
     if (handleKeyColorPickerMouseDown(x, y)) {
       return;
     }

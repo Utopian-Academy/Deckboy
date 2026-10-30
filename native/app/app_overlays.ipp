@@ -408,6 +408,10 @@
 
     // Same playful register as the boot console — a slow open should feel like
     // the machine is doing something charming, not like it has died.
+    // A few of these point at things the desk keeps hidden (James,
+    // 2026-10-30: "perhaps a few could allude to the secret codes").
+    // Allusions only, never the way in: tools/audit_spoilers.py rules the
+    // published text, and these lines are written to the same standard.
     static const char* kQuips[] = {
       "waking the cue gremlins",
       "counting frames by hand",
@@ -417,6 +421,26 @@
       "warming the flux capacitor",
       "alphabetising the sprockets",
       "feeding the terrarium",
+      "blood for the blood code",
+      "the terrarium remembers an old cheat for thirty lives",
+      "something in the walls smells of pizza",
+      "dad says hi. from the hole. don't ask",
+      "Baba says: knock three times for the good bottle",
+      "the dice are in the About box. don't tell anyone",
+      "folding the lower thirds",
+      "polishing the crossfades",
+      "reminding the strobe about epilepsy warnings",
+      "counting the cues called Untitled",
+      "letting the dolphin out",
+      "untangling a fade from a fade",
+      "explaining 1983 to Prof. Video",
+      "Dr. Pixel is labelling the labels",
+      "teaching the eel the Thames",
+      "rounding the timecode to the nearest feeling",
+      "consulting the vectorscope",
+      "persuading the projector it is straight",
+      "loading the playlist the long way round",
+      "finding the second screen",
     };
     constexpr int kQuipCount = static_cast<int>(sizeof(kQuips) / sizeof(kQuips[0]));
     const int quip = static_cast<int>(((nowMs / 1400) + loadingQuipSeed_) % kQuipCount);
@@ -2095,6 +2119,9 @@
       // pool, a fresh random hand each boot so the console stays quotable.
       static const char* kBootWhimsyPool[] = {
         "reticulating splines...",
+        "blood for the blood code... pending",
+        "listening at the walls... pizza detected",
+        "thirty lives requested... terrarium noncommittal",
         "charging flux capacitor... 1.21 GW nominal",
         "engaging heisenberg compensators... probably",
         "dilithium matrix... crystal ok",

@@ -78,6 +78,15 @@
     Uint64 babbleUntilMs = 0;
     bool babbleIsPixel = true;
     SDL_Rect videoPortraitRect {};
+    // THE RAKIA (James, 2026-10-30: "hide a ridiculous easter egg somewhere in
+    // the tutorial"). Three quick clicks on Dr. Pixel pour one: the card sways,
+    // the Professor goes rosy and sentimental, and Rat Dad (app_rat_dad.ipp)
+    // walks off with the glass. Secret: never in CHANGES, the manual or the site.
+    SDL_Rect pixelPortraitRect {};
+    int pixelClicks = 0;
+    Uint64 pixelClickAtMs = 0;
+    Uint64 rakiaAtMs = 0;       // when the last one was poured
+    int rakiaPoured = 0;
     Uint64 profCuteUntilMs = 0;
     int profCuteQuip = 0;
   };
@@ -915,6 +924,18 @@
       }
       return true;
     }
+    if (pointInRect(x, y, tutorial_.pixelPortraitRect)) {
+      const Uint64 now = SDL_GetTicks();
+      tutorial_.pixelClicks = now - tutorial_.pixelClickAtMs < 700 ? tutorial_.pixelClicks + 1 : 1;
+      tutorial_.pixelClickAtMs = now;
+      if (tutorial_.pixelClicks >= 3 && (tutorial_.rakiaAtMs == 0 || now - tutorial_.rakiaAtMs > 13000)) {
+        tutorial_.pixelClicks = 0;
+        tutorial_.rakiaAtMs = now;
+        ++tutorial_.rakiaPoured;
+        playUiSound(UiSoundEffect::Take);
+      }
+      return true;
+    }
     if (pointInRect(x, y, tutorial_.videoPortraitRect)) {
       tutorial_.profCuteUntilMs = SDL_GetTicks() + 2600;   // the joke, see renderTutorial
       ++tutorial_.profCuteQuip;
@@ -1224,6 +1245,23 @@
     if (roast) (roastFromPixel ? pixelSays : videoSays) = roast;
     // THE JOKE: a click on the Professor shows the cuter him for a moment,
     // and he has something to say about it.
+    // The rakia: twelve seconds of it, in three acts. Twice a session; after
+    // that Dr. Pixel cuts everyone off.
+    const double rakiaT = tutorial_.rakiaAtMs ? (SDL_GetTicks() - tutorial_.rakiaAtMs) / 1000.0 : 1e9;
+    const bool rakiaDry = tutorial_.rakiaPoured > 2;
+    const bool rakia = rakiaT < (rakiaDry ? 4.0 : 12.0);
+    if (rakia && rakiaDry) {
+      pixelSays = "No more rakia. The rat has a problem.";
+    } else if (rakia && rakiaT < 4.0) {
+      pixelSays = "Nazdrave, skapi! Baba's rakia, from the Rhodopes. One glass, for the lesson.";
+      videoSays = "Is this... is this allowed during a tutorial?";
+    } else if (rakia && rakiaT < 8.0) {
+      pixelSays = "*shakes head* That means one more.";
+      videoSays = "I love you all. I love the oscillator. I love the OUTPUT. It's video. I know. I KNOW.";
+    } else if (rakia) {
+      pixelSays = "...and the rat took the rakia. Every time, skapi. Every single time.";
+      videoSays = "Was that a rat? In a hat? With a pizza?";
+    }
     const bool profJoke = SDL_GetTicks() < tutorial_.profCuteUntilMs;
     if (profJoke) {
       static const char* kQuips[4] = {
@@ -1261,6 +1299,12 @@
     if (target.w > 0) {
       cardX = std::clamp(target.x + target.w / 2 - cardW / 2, uiScaled(8),
                          std::max(uiScaled(8), width - cardW - uiScaled(8)));
+    }
+    // Rakia sways the card: gently at first, then less gently.
+    if (rakia && !rakiaDry) {
+      const double sway = std::min(1.0, rakiaT / 3.0) * (rakiaT > 10.0 ? (12.0 - rakiaT) / 2.0 : 1.0);
+      cardX += static_cast<int>(std::sin(rakiaT * 2.6) * uiScaled(8) * sway);
+      cardY += static_cast<int>(std::sin(rakiaT * 1.3) * uiScaled(3) * sway);
     }
     const SDL_Rect card {cardX, cardY, cardW, cardH};
     tutorial_.cardRect = card;
@@ -1303,7 +1347,16 @@
         tutorialBabble(pixelSpeaking, spoken);
       }
     }
-    drawTutorialPortrait(SDL_Rect {card.x + pad, y, portrait, portrait}, true, pixelSpeaking);
+    tutorial_.pixelPortraitRect = SDL_Rect {card.x + pad, y, portrait, portrait};
+    drawTutorialPortrait(tutorial_.pixelPortraitRect, true, pixelSpeaking);
+    if (rakia && !rakiaDry && rakiaT < 8.0) {
+      // The glass, raised beside the doctor: clear, with the good stuff in it.
+      const int g = std::max(2, portrait / 16);
+      const SDL_Rect glass {card.x + pad + portrait - g * 3, y + portrait - g * 7, g * 4, g * 6};
+      Primitives::fillRect(controlRenderer_, glass, SDL_Color {230, 240, 240, 255});
+      Primitives::fillRect(controlRenderer_, SDL_Rect {glass.x + g, glass.y + g * 2, g * 2, g * 3},
+                           SDL_Color {250, 225, 150, 255});
+    }
     for (std::size_t i = 0; i < pixelLines.size(); ++i) {
       drawTextSafe(controlRenderer_, fontBase_,
                    SDL_Rect {card.x + textX, y + static_cast<int>(i) * lineH, textW, lineH},
@@ -1312,6 +1365,16 @@
     y += pixelH + blockGap;
     tutorial_.videoPortraitRect = SDL_Rect {card.x + pad, y, portrait, portrait};
     drawTutorialPortrait(tutorial_.videoPortraitRect, false, !pixelSpeaking);
+    if (rakia && !rakiaDry && rakiaT >= 4.0) {
+      // The Professor goes rosy.
+      const SDL_Rect& v = tutorial_.videoPortraitRect;
+      const int c = std::max(1, std::min(v.w / 16, v.h / 20));
+      const int ox = v.x + (v.w - c * 16) / 2;
+      const int oy = v.y + (v.h - c * 20) / 2;
+      const SDL_Color rosy {255, 120, 140, 255};
+      Primitives::fillRect(controlRenderer_, SDL_Rect {ox + c * 3, oy + c * 9, c * 2, c}, rosy);
+      Primitives::fillRect(controlRenderer_, SDL_Rect {ox + c * 11, oy + c * 9, c * 2, c}, rosy);
+    }
     for (std::size_t i = 0; i < videoLines.size(); ++i) {
       drawTextSafe(controlRenderer_, fontBase_,
                    SDL_Rect {card.x + textX, y + static_cast<int>(i) * lineH, textW, lineH},
@@ -1362,4 +1425,20 @@
     }
     Primitives::drawFramedPanel(controlRenderer_, tutorial_.exitRect, pal.dark, pal.deep, pal.mid);
     drawCenteredText(controlRenderer_, fontBase_, exitLabel, pal.light, tutorial_.exitRect);
+    // Act three: Rat Dad walks along the top of the card, right to left, and
+    // leaves with the glass.
+    if (rakia && !rakiaDry && rakiaT >= 8.0) {
+      const int cell = std::max(2, uiScaled(3));
+      const int ratW = kRatDadW * cell;
+      const int ratH = kRatDadH * cell;
+      const double walk = std::clamp((rakiaT - 8.0) / 3.6, 0.0, 1.0);
+      const int rx = card.x + card.w - static_cast<int>(walk * (card.w + ratW));
+      const int ry = card.y - ratH + static_cast<int>((animationNow_ / 140) % 2) * cell;
+      const Uint64 now = SDL_GetTicks();
+      drawRatDadSprite(controlRenderer_, rx, ry, cell, ((now / 120) % 2) == 0, false);
+      const SDL_Rect glass {rx + cell * 5, ry - cell * 4, cell * 3, cell * 4};
+      Primitives::fillRect(controlRenderer_, glass, SDL_Color {230, 240, 240, 255});
+      Primitives::fillRect(controlRenderer_, SDL_Rect {glass.x + cell / 2, glass.y + cell, cell * 2, cell * 2},
+                           SDL_Color {250, 225, 150, 255});
+    }
   }
