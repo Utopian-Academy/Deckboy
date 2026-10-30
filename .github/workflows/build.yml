@@ -1017,7 +1017,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-14, macos-15, macos-26]
+        # macos-14 retires on 2026-11-02 (brownouts cancelled its jobs from
+        # late October); 15 and 26 remain.
+        os: [macos-15, macos-26]
     steps:
       - uses: actions/checkout@v4
 
@@ -1137,7 +1139,11 @@ jobs:
           - image: macos-15-intel  # x86_64
             floor: "10.13"
             captions_floor: "10.15"
-          - image: macos-14        # arm64
+          # arm64. Was macos-14 until GitHub retired it (2026-11-02; its
+          # brownouts cancelled this job). Safe to move: the libraries are
+          # built for `floor` by macos_build_deps.sh, not taken from the
+          # runner, and audit_macos_minos.py checks every binary's floor.
+          - image: macos-15        # arm64
             floor: "12.0"
             captions_floor: "12.0"
     runs-on: ${{ matrix.image }}
