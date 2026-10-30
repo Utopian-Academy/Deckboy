@@ -1939,6 +1939,14 @@ struct EncoderOverrides {
 // Each deck has its own MediaEngine instance that handles video/audio decode
 // and frame upload independently.
 struct DeckRuntime {
+  // Which playlist this runtime belongs to (Deck::runtimeKey), and where that
+  // playlist is now. The slot is SHARED with the engine's sound callbacks,
+  // which used to capture the index once: a playlist that moved up kept
+  // feeding the meters and the recordings as its old number. Moved, never
+  // copied, with the runtime; the ring reads it under its own lock
+  // (DeckAudioRing::push), and it is only changed under that lock.
+  std::uint64_t deckKey = 0;
+  std::shared_ptr<std::atomic<int>> slot = std::make_shared<std::atomic<int>>(-1);
   SDL_Window* outputWindow = nullptr;    // Legacy (unused — outputs moved to OutputRuntime)
   SDL_Renderer* outputRenderer = nullptr;
   SDL_AudioStream* audioStream = nullptr;  // device-bound SDL3 stream for this deck's audio output
@@ -3383,6 +3391,25 @@ void migrateLegacyDeckNdiToOutputs(Project& project) {
 
 
 void normalizeProject(Project& project) {
+  // EVERY PLAYLIST HAS ITS OWN KEY (Deck::runtimeKey). A new or opened one has
+  // none yet; a playlist copied whole has its original's, and the copy gets
+  // one of its own -- the first keeps the engine. Keys only ever come from
+  // here, counting up, so one from an old undo step is never handed out again.
+  {
+    static std::uint64_t nextRuntimeKey = 1;
+    for (std::size_t i = 0; i < project.decks.size(); ++i) {
+      Deck& deck = project.decks[i];
+      bool taken = deck.runtimeKey == 0;
+      for (std::size_t j = 0; j < i && !taken; ++j) {
+        taken = project.decks[j].runtimeKey == deck.runtimeKey;
+      }
+      if (taken) {
+        deck.runtimeKey = nextRuntimeKey++;
+      } else if (deck.runtimeKey >= nextRuntimeKey) {
+        nextRuntimeKey = deck.runtimeKey + 1;
+      }
+    }
+  }
   // A MASTER CUE BELONGS TO THE TRACKER, NEVER TO A PLAYLIST. James,
   // 2026-10-07: "as of now, I don't think master cues should exist as cues in
   // a deck." Any found in one -- a show from before the tracker kept its own

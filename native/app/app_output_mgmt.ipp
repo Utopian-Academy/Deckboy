@@ -2269,10 +2269,6 @@
     return 30.0;
   }
 
-  void pushDeckStreamAudioSamples(int deckIndex, const std::vector<std::int16_t>& samples) {
-    deckAudioRing_.push(deckIndex, samples);
-  }
-
   void clearDeckStreamAudioBuffers() {
     deckAudioRing_.clear(project_.decks.size());
   }
@@ -6568,10 +6564,12 @@
       runtime->mediaEngine = std::make_unique<MediaEngine>(
         runtime->outputRenderer,
         runtime->audioStream,
-        [this, deckIndex](const std::vector<std::int16_t>& samples) {
-          pushDeckStreamAudioSamples(deckIndex, samples);
+        // WHERE THIS PLAYLIST IS NOW, not where it was when the engine was
+        // made: the slot moves when playlists do (reconcileDeckRuntimes).
+        [this, slot = runtime->slot](const std::vector<std::int16_t>& samples) {
+          deckAudioRing_.push(*slot, samples);
           // Capture samples for VU meter (only from focused deck)
-          if (deckIndex == vuFocusedDeck_.load(std::memory_order_relaxed)) {
+          if (slot->load(std::memory_order_relaxed) == vuFocusedDeck_.load(std::memory_order_relaxed)) {
             {
               std::lock_guard<std::mutex> lock(vuSamplesMutex_);
               vuSamples_ = samples;
@@ -9185,6 +9183,8 @@
     Deck& deck = project_.decks[deckIndex];
     DeckRuntime& runtime = deckRuntimes_[deckIndex];
     destroyDeckRuntime(runtime);
+    runtime.deckKey = deck.runtimeKey;
+    runtime.slot->store(deckIndex, std::memory_order_relaxed);
     auto [targetW, targetH] = outputRenderSizeForDeck(deckIndex);
     targetW = std::max(1, targetW);
     targetH = std::max(1, targetH);
@@ -9401,20 +9401,163 @@
   // moves nothing the engine or its threads can see, and nothing keeps a
   // DeckRuntime's address across frames. The audio ring grows itself on push.
   bool growDeckRuntimes() {
+    return reconcileDeckRuntimes();
+  }
+
+  // ── THE ENGINES FOLLOW THEIR PLAYLISTS ──────────────────────────────────
+  //
+  // Matched by key (Deck::runtimeKey), not by position. A playlist still in
+  // the show keeps its engine, PLAYING, and moves to wherever the playlist is
+  // now; only a playlist that is gone has its engine stopped; only a new one
+  // gets a new engine. Removing playlist 2 of 4 used to rebuild all of them --
+  // every playlist stopped, mid-show -- and undoing it, which only ever
+  // appended, gave playlist 2 the engine that had been playing 3.
+  //
+  // Safe to move: a DeckRuntime owns its engine through a unique_ptr and
+  // otherwise holds SDL handles, so moving it moves nothing the engine's
+  // threads can see, and nothing keeps a DeckRuntime's address across frames.
+  // What the engine's own callbacks know of its position is the slot, moved
+  // under the audio ring's lock (permuteDeckIndexedState).
+  bool reconcileDeckRuntimes() {
     normalizeProject(project_);
     const std::size_t had = deckRuntimes_.size();
-    if (had > project_.decks.size()) {
-      return rebuildDeckRuntimes();   // shrinking is not growth; do it properly
+    const std::size_t want = project_.decks.size();
+    std::vector<int> oldToNew(had, -1);
+    std::vector<int> newFromOld(want, -1);
+    for (std::size_t o = 0; o < had; ++o) {
+      const std::uint64_t key = deckRuntimes_[o].deckKey;
+      if (key == 0) continue;
+      for (std::size_t d = 0; d < want; ++d) {
+        if (newFromOld[d] < 0 && project_.decks[d].runtimeKey == key) {
+          oldToNew[o] = static_cast<int>(d);
+          newFromOld[d] = static_cast<int>(o);
+          break;
+        }
+      }
     }
-    deckRuntimes_.resize(project_.decks.size());
-    ensureTimecodeFollowerStateSize();
-    for (std::size_t index = had; index < project_.decks.size(); ++index) {
-      if (!createDeckRuntime(static_cast<int>(index))) {
+    bool unchanged = had == want;
+    for (std::size_t o = 0; o < had && unchanged; ++o) {
+      unchanged = oldToNew[o] == static_cast<int>(o);
+    }
+    if (unchanged) {
+      return true;
+    }
+    // GONE: only these stop.
+    for (std::size_t o = 0; o < had; ++o) {
+      if (oldToNew[o] < 0) {
+        destroyDeckRuntime(deckRuntimes_[o]);
+      }
+    }
+    // KEPT: still running, into their playlists' places.
+    std::vector<DeckRuntime> next(want);
+    for (std::size_t d = 0; d < want; ++d) {
+      if (newFromOld[d] >= 0) {
+        next[d] = std::move(deckRuntimes_[static_cast<std::size_t>(newFromOld[d])]);
+      }
+    }
+    deckRuntimes_ = std::move(next);
+    permuteDeckIndexedState(oldToNew, want);
+    // NEW: an engine for each playlist that had none.
+    for (std::size_t d = 0; d < want; ++d) {
+      if (newFromOld[d] < 0 && !createDeckRuntime(static_cast<int>(d))) {
         return false;
       }
     }
     applyAudioMonitorSelection();
     return true;
+  }
+
+  template <typename T>
+  static void permuteByDeck(std::vector<T>& values, const std::vector<int>& oldToNew,
+                            std::size_t deckCount, const T& fill) {
+    std::vector<T> next(deckCount, fill);
+    for (std::size_t o = 0; o < values.size() && o < oldToNew.size(); ++o) {
+      const int d = oldToNew[o];
+      if (d >= 0 && static_cast<std::size_t>(d) < deckCount) {
+        next[static_cast<std::size_t>(d)] = values[o];
+      }
+    }
+    values.swap(next);
+  }
+
+  template <typename Map>
+  static void remapDeckKeys(Map& byDeck, const std::vector<int>& oldToNew) {
+    Map next;
+    for (auto& entry : byDeck) {
+      const int o = entry.first;
+      if (o >= 0 && o < static_cast<int>(oldToNew.size()) && oldToNew[static_cast<std::size_t>(o)] >= 0) {
+        next.emplace(oldToNew[static_cast<std::size_t>(o)], std::move(entry.second));
+      }
+    }
+    byDeck.swap(next);
+  }
+
+  // EVERYTHING ELSE THAT REMEMBERS A PLAYLIST BY ITS NUMBER moves with it,
+  // or a playlist that moved up would inherit its neighbour's fade, pending
+  // take, opacity, timecode lock, scroll and preview -- and the removed one's
+  // would pass to whichever moved into its place.
+  void permuteDeckIndexedState(const std::vector<int>& oldToNew, std::size_t deckCount) {
+    // The sound the recorders, streams and NDI mix: each playlist's buffer and
+    // every reader's place in it, with the engines' slots moved in the same
+    // lock so no block lands between the two.
+    deckAudioRing_.remap(oldToNew, deckCount, [&] {
+      for (std::size_t d = 0; d < deckRuntimes_.size(); ++d) {
+        deckRuntimes_[d].slot->store(static_cast<int>(d), std::memory_order_relaxed);
+      }
+    });
+    for (OutputRuntime& output : outputRuntimes_) {
+      remapDeckKeys(output.streamAudioReadSamplesByDeck, oldToNew);
+      remapDeckKeys(output.ndiAudioReadSamplesByDeck, oldToNew);
+      std::vector<int> decks;
+      for (const int o : output.streamAudioDecks) {
+        if (o >= 0 && o < static_cast<int>(oldToNew.size()) && oldToNew[static_cast<std::size_t>(o)] >= 0) {
+          decks.push_back(oldToNew[static_cast<std::size_t>(o)]);
+        }
+      }
+      output.streamAudioDecks.swap(decks);
+    }
+    remapDeckKeys(liveCaptionsRead_, oldToNew);
+    remapDeckKeys(deckAudioTraceBuffers_, oldToNew);
+
+    // A fade on a playlist that moved goes on, on it; one on a playlist that
+    // is gone goes with it. The master dimmer's (no playlist) is untouched.
+    fadeRuns_.erase(std::remove_if(fadeRuns_.begin(), fadeRuns_.end(), [&](FadeRun& run) {
+                      if (run.deckIndex < 0) return false;
+                      if (run.deckIndex >= static_cast<int>(oldToNew.size())) return true;
+                      run.deckIndex = oldToNew[static_cast<std::size_t>(run.deckIndex)];
+                      return run.deckIndex < 0;
+                    }),
+                    fadeRuns_.end());
+
+    permuteByDeck(deckPendingTakes_, oldToNew, deckCount, PendingTake {});
+    permuteByDeck(deckPlaylistOpacityTargets_, oldToNew, deckCount, 1.0f);
+    permuteByDeck(lastGoMsByDeck_, oldToNew, deckCount, Uint64 {0});
+    permuteByDeck(deckTimecodeLastExternalMs_, oldToNew, deckCount, Uint64 {0});
+    permuteByDeck(deckTimecodeLastExternalSeconds_, oldToNew, deckCount, 0.0);
+    {
+      // vector<bool> has no element to take a reference to; through a copy.
+      std::vector<char> has(deckTimecodeHasExternal_.begin(), deckTimecodeHasExternal_.end());
+      permuteByDeck(has, oldToNew, deckCount, char {0});
+      deckTimecodeHasExternal_.assign(has.begin(), has.end());
+    }
+    permuteByDeck(deckScrolls_, oldToNew, deckCount, 0);
+    permuteByDeck(deckScrollMax_, oldToNew, deckCount, 0);
+    permuteByDeck(deckFollowedActive_, oldToNew, deckCount, -1);
+    permuteByDeck(deckScrollSettleMs_, oldToNew, deckCount, Uint64 {0});
+    permuteByDeck(deckOverlayScrolls_, oldToNew, deckCount, 0);
+    // The previews: a texture for a playlist that is gone is freed, not lost.
+    for (std::size_t o = 0; o < deckPreviewTex_.size(); ++o) {
+      if ((o >= oldToNew.size() || oldToNew[o] < 0) && deckPreviewTex_[o].tex) {
+        SDL_DestroyTexture(deckPreviewTex_[o].tex);
+        deckPreviewTex_[o].tex = nullptr;
+      }
+    }
+    permuteByDeck(deckPreviewTex_, oldToNew, deckCount, DeckPreviewTex {});
+    statusDeckSnapshots_.clear();
+    // Mid-gesture on a playlist: let go rather than carry on with another one.
+    deckRemoveArmedIndex_ = -1;
+    deckOpacityDragIndex_ = -1;
+    deckListScrollDragDeck_ = -1;
   }
 
   bool ensureOutputRuntimesSynced() {

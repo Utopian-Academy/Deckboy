@@ -1992,6 +1992,12 @@ inline bool cueHasGeometryLfo(const Cue& cue) {
 // ---------------------------------------------------------------------------
 struct Deck {
   std::string name = "Deck 1";            // operator-facing deck label
+  // WHICH PLAYLIST THIS IS, as its engine knows it (App::reconcileDeckRuntimes):
+  // the running engines are matched to playlists by this, not by position, so
+  // removing playlist 2 of 4 stops only playlist 2 and undoing it finds 3 and 4
+  // still playing. NEVER SAVED: a show opens with fresh ones (normalizeProject
+  // hands them out). Undo snapshots carry them, which is the point.
+  std::uint64_t runtimeKey = 0;
   // WATCH FOLDER. Empty is off, which is what every show that predates this
   // loads as. New media appearing here is imported into this playlist by
   // itself -- see serviceWatchFolders() in app_cue_mgmt.ipp for why the scan

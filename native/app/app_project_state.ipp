@@ -2317,10 +2317,24 @@
     project_.recordingWidth = live.recordingWidth;
     project_.recordingHeight = live.recordingHeight;
     project_.recordingFps = live.recordingFps;
-    for (std::size_t d = 0; d < project_.decks.size() && d < live.decks.size(); ++d) {
+    // WHAT IS ON AIR, PLAYLIST BY PLAYLIST -- matched by key, because an undo
+    // that puts a removed playlist back moves every one after it, and by
+    // position the restored playlist 2 would take playlist 3's cue on air.
+    for (std::size_t d = 0; d < project_.decks.size(); ++d) {
       Deck& deck = project_.decks[d];
-      const Deck& before = live.decks[d];
+      const Deck* match = nullptr;
+      for (const Deck& candidate : live.decks) {
+        if (candidate.runtimeKey != 0 && candidate.runtimeKey == deck.runtimeKey) {
+          match = &candidate;
+          break;
+        }
+      }
+      if (!match && d < live.decks.size() && live.decks.size() == project_.decks.size()) {
+        match = &live.decks[d];   // a show from before keys: by position, as it was
+      }
       deck.activeIndex = -1;
+      if (!match) continue;
+      const Deck& before = *match;
       if (before.activeIndex >= 0 && before.activeIndex < static_cast<int>(before.cues.size())) {
         const std::string& onAir = before.cues[static_cast<std::size_t>(before.activeIndex)].id;
         for (int c = 0; c < static_cast<int>(deck.cues.size()); ++c) {
@@ -2334,8 +2348,11 @@
 
   void syncRuntimesAfterSnapshotRestore() {
     cueRowDisplayCache_.clear();
-    if (deckRuntimes_.size() != project_.decks.size()) {
-      growDeckRuntimes();
+    // By key, every time: undoing a removal puts the playlist back where it
+    // was, with a fresh engine, and the ones after it move up still playing.
+    const std::size_t had = deckRuntimes_.size();
+    reconcileDeckRuntimes();
+    if (had != project_.decks.size()) {
       refreshWindowTitle();
     }
   }

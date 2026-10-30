@@ -34,6 +34,7 @@
 #define DECKBOY_CORE_DECK_AUDIO_RING_HPP
 
 #include <algorithm>
+#include <atomic>
 #include <chrono>
 #include <cstdint>
 #include <map>
@@ -68,6 +69,52 @@ class DeckAudioRing {
                              static_cast<std::ptrdiff_t>(dropCount));
       buffer.dropped += static_cast<std::uint64_t>(dropCount);
     }
+  }
+
+  // The same, with the playlist read from its slot INSIDE the lock, so a push
+  // and remap() cannot cross: a block lands either before the playlists move
+  // (and moves with them) or after (at the new place), never in between.
+  void push(const std::atomic<int>& slot, const std::vector<std::int16_t>& samples) {
+    if (samples.empty()) {
+      return;
+    }
+    std::lock_guard<std::mutex> lock(mutex_);
+    const int deckIndex = slot.load(std::memory_order_relaxed);
+    if (deckIndex < 0) {
+      return;
+    }
+    if (deckIndex >= static_cast<int>(decks_.size())) {
+      decks_.resize(static_cast<std::size_t>(deckIndex) + 1);
+    }
+    Buffer& buffer = decks_[static_cast<std::size_t>(deckIndex)];
+    buffer.lastPushAt = Clock::now();
+    buffer.samples.insert(buffer.samples.end(), samples.begin(), samples.end());
+    if (buffer.samples.size() > kMaxSamplesPerDeck) {
+      const std::size_t dropCount = buffer.samples.size() - kMaxSamplesPerDeck;
+      buffer.samples.erase(buffer.samples.begin(),
+                           buffer.samples.begin() +
+                             static_cast<std::ptrdiff_t>(dropCount));
+      buffer.dropped += static_cast<std::uint64_t>(dropCount);
+    }
+  }
+
+  // THE PLAYLISTS MOVED -- one removed, one put back by an undo. Each buffer
+  // goes with its playlist (oldToNew[o] is where playlist o is now, -1 if it
+  // is gone), so a recording of playlist 3 that is now playlist 2 carries on
+  // where it was. `whileLocked` runs inside the lock: the caller moves the
+  // engines' slots there, so no push can land between the two.
+  template <typename WhileLocked>
+  void remap(const std::vector<int>& oldToNew, std::size_t deckCount, WhileLocked&& whileLocked) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    std::vector<Buffer> next(deckCount);
+    for (std::size_t o = 0; o < decks_.size() && o < oldToNew.size(); ++o) {
+      const int d = oldToNew[o];
+      if (d >= 0 && static_cast<std::size_t>(d) < deckCount) {
+        next[static_cast<std::size_t>(d)] = std::move(decks_[o]);
+      }
+    }
+    decks_.swap(next);
+    whileLocked();
   }
 
   void clear(std::size_t deckCount) {

@@ -21,6 +21,11 @@
   `DEFAULTS FORGET`; `RESET` still works.
 
 ### Selection
+- Fixed: removing a playlist stopped every playlist in the show. Now only the one removed
+  stops; the others keep playing and move up a place, and outputs, fades, recordings and
+  streams follow them. Ctrl+Z puts it back where it was, again without stopping the others;
+  undoing it used to give the restored playlist the cue of the one after it and could put an
+  output back on the playlist it showed before.
 - Fixed: when a cue ended and the playlist moved on to the next one, the next cue was selected
   together with the one that had ended, so the inspector read "2 cues" and the next change (a
   gain, a trim) applied to both. Moving on at a cue's end, SKIP, PREV, jump to the live cue, FIND,

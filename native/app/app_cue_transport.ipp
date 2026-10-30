@@ -6289,7 +6289,11 @@
     // UNDOABLE. This took a playlist and every cue in it with no way back --
     // and it once took a 2000-cue deck when the one beside it was meant.
     // undo() resizes the engines when the deck count changes.
-    pushUndoSnapshot();
+    // FORCED: the snapshot's debounce compares cue counts and selections, and
+    // a removal straight after routing an output matched the step before it
+    // -- so no step was taken, and undoing the removal put the output back on
+    // the playlist it showed before the routing.
+    pushUndoSnapshot(true);
     // The inspector's thumbnail and the row caches are keyed by deck index,
     // so after an erase they describe a playlist that is gone (or a
     // different one now at that index) -- the removed deck's picture stayed
@@ -6299,16 +6303,17 @@
     project_.decks.erase(project_.decks.begin() + deckIndex);
     remapDeckReferencesAfterRemoval(deckIndex);
     normalizeProject(project_);
-    // Tears down and recreates every engine, so it stops playback -- the same
-    // bargain adding one makes, and said out loud for the same reason.
-    rebuildDeckRuntimes();
+    // ONLY THIS PLAYLIST STOPS. Every other one keeps playing and moves into
+    // its new place (reconcileDeckRuntimes); this used to rebuild them all,
+    // which stopped the whole show to tidy one playlist away.
+    reconcileDeckRuntimes();
     refreshWindowTitle();
     markProjectDirty();
     if (announce) {
       playUiSound(UiSoundEffect::DeckRemoved);
       triggerToast("removed " + name + " (" + std::to_string(cueCount) +
                    (cueCount == 1 ? " cue" : " cues") +
-                   ", playback stopped) - ctrl+z brings it back");
+                   ") - the others play on; ctrl+z brings it back");
     }
     return true;
   }

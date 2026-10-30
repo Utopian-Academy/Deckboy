@@ -836,6 +836,14 @@ that deck plays on.
 Two decks cover the great majority of shows: a programme, and something held
 ready behind it.
 
+**Adding and removing.** **+** beside the deck tabs adds one. To remove one,
+click the **to Out 1** tag at the top of its playlist and choose **- remove**,
+or focus it and press the **-** beside **+** twice (the first press turns it
+red and names it). Any deck can go, not only the last: the ones after it move
+up a place, and every other deck keeps playing through it. Outputs follow the
+decks they showed. **Ctrl+Z** puts it back where it was. Over the network:
+`DECKADD` and `DECKREMOVE [<n>]`.
+
 The cue area shows several columns when each has enough width. In a smaller
 window it shows the focused deck at full width, with tabs to switch decks.
 Compact rows reserve space for the cue name and timer; use the inspector or
