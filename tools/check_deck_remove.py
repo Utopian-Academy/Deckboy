@@ -22,6 +22,7 @@ same way.
 """
 import argparse
 import math
+import os
 import re
 import shutil
 import struct
@@ -106,7 +107,10 @@ def main():
              before)
 
         db.send("RECORD on")
-        time.sleep(2.5)
+        # How long the take runs before the removal: the stretch before it is
+        # the control, sound from four playlists with nothing being removed.
+        pre = float(os.environ.get("DECKBOY_CHECK_PRE_REMOVE", "2.5"))
+        time.sleep(pre)
         at_removal = decks(db)
         reply = db.send("DECKREMOVE 2")
         print("    " + reply)
@@ -166,11 +170,17 @@ def main():
               (len(own), median, min(own) if own else -200.0, max(others) if others else -200.0))
         # Where any dip is, against the removal (2.5 s after RECORD on): a gap
         # at the head of the take is a different fault from one at the removal.
+        dips_before = dips_after = 0
         for i, level in enumerate(own):
             if level < median - 3.0:
                 at = (i + 1) * 0.25
-                print("    dip: %.1f dB at %.2f-%.2f s into the take (the removal was at about 2.5 s)" %
-                      (level, at, at + 0.25))
+                if at + 0.25 <= pre:
+                    dips_before += 1
+                else:
+                    dips_after += 1
+                print("    dip: %.1f dB at %.2f-%.2f s into the take (the removal was at about %.1f s)" %
+                      (level, at, at + 0.25, pre))
+        print("    dips: %d in the %.1f s before the removal, %d after" % (dips_before, pre, dips_after))
         note("the recording keeps playlist 4's tone through the removal, no gap",
              len(own) >= 12 and min(own) > median - 3.0, (min(own) if own else None, median))
         note("and nothing of the other playlists", others and max(others) < median - 40.0,

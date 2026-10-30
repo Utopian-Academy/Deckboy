@@ -1621,6 +1621,10 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "named outputs and the patch failed" }
           python tools/check_tape_speed.py --exe build\Release\Deckboy.exe
           if ($LASTEXITCODE -ne 0) { throw "speed like tape failed" }
+          # INVESTIGATION (branch only): a 5 s control before the removal, three times.
+          $env:DECKBOY_CHECK_PRE_REMOVE = '5'
+          foreach ($round in 1..3) { python tools/check_deck_remove.py --exe build\Release\Deckboy.exe }
+          Remove-Item Env:DECKBOY_CHECK_PRE_REMOVE
           python tools/check_deck_remove.py --exe build\Release\Deckboy.exe
           if ($LASTEXITCODE -ne 0) { throw "removing one playlist failed" }
           python tools/check_update_install.py --exe build\Release\Deckboy.exe
