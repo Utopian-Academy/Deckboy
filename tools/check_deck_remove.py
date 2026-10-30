@@ -191,13 +191,17 @@ def main():
              max(others) if others else None)
 
     # Slow main-thread frames (DECKBOY_UI_PROFILE), before and after the removal.
-    if os.environ.get("DECKBOY_UI_PROFILE") and log_path.exists() and len(marks) == 3:
+    if (os.environ.get("DECKBOY_UI_PROFILE") or os.environ.get("DECKBOY_TRACE_RECORD_AUDIO")) and log_path.exists() and len(marks) == 3:
         text = log_path.read_bytes()
         for name, a, b in (("control", marks[0], marks[1]), ("after removal", marks[1], marks[2])):
             lines = [l for l in text[a:b].decode(errors="replace").splitlines() if "frame dt=" in l]
             print("    slow frames, %s: %d" % (name, len(lines)))
             for l in lines[:12]:
                 print("      " + l.strip()[:200])
+            trace = [l for l in text[a:b].decode(errors="replace").splitlines() if "[record-audio" in l]
+            print("    record-audio, %s: %d" % (name, len(trace)))
+            for l in trace[:40]:
+                print("      " + l.strip()[:260])
     shutil.rmtree(work, ignore_errors=True)
     print()
     if fails:

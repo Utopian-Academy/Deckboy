@@ -3834,8 +3834,27 @@
       }
       *owedSamples += static_cast<std::uint64_t>(interleavedSamples);
       std::uint64_t take = std::min<std::uint64_t>(*owedSamples, mixable);
-      if (*owedSamples - take > kMaxCarrySamples) {
+      const bool padding = *owedSamples - take > kMaxCarrySamples;
+      if (padding) {
         take = *owedSamples - kMaxCarrySamples;
+      }
+      // INVESTIGATION: every frame that will carry silence, and why.
+      static const bool trace = std::getenv("DECKBOY_TRACE_RECORD_AUDIO") != nullptr;
+      if (trace && (padding || decksQuiet)) {
+        std::ostringstream line;
+        line << "[record-audio " << SDL_GetTicks() << "ms] out=" << outputIndex
+             << " sink=" << static_cast<const void*>(&readSamplesByDeck)
+             << (padding ? " PAD" : "") << (decksQuiet ? " QUIET" : "")
+             << " owed=" << *owedSamples << " mixable="
+             << (decksQuiet ? -1LL : static_cast<long long>(mixable)) << " decks=";
+        for (const int d : streamAudioDecksForOutput(outputIndex)) {
+          const auto st = deckAudioRing_.traceState(d, readSamplesByDeck);
+          line << d << "(avail=" << st.available << ",last=" << st.sinceLastPushMs
+               << "ms,pos=" << (readSamplesByDeck.count(d) ? "y" : "n") << ") ";
+        }
+        line << "keys=";
+        for (const auto& kv : readSamplesByDeck) line << kv.first << ",";
+        std::cerr << line.str() << '\n';
       }
       // Whole sample frames only: half a frame would swap the channels for the
       // rest of the take.
@@ -6568,6 +6587,18 @@
         // made: the slot moves when playlists do (reconcileDeckRuntimes).
         [this, slot = runtime->slot](const std::vector<std::int16_t>& samples) {
           deckAudioRing_.push(*slot, samples);
+          // INVESTIGATION: a gap of more than 80 ms between two blocks of played
+          // audio from one playlist.
+          static const bool trace = std::getenv("DECKBOY_TRACE_RECORD_AUDIO") != nullptr;
+          if (trace) {
+            thread_local Uint64 lastAt = 0;
+            const Uint64 now = SDL_GetTicks();
+            if (lastAt != 0 && now - lastAt > 80) {
+              std::cerr << "[record-audio " << now << "ms] tap gap slot=" << slot->load()
+                        << " " << (now - lastAt) << "ms block=" << samples.size() << '\n';
+            }
+            lastAt = now;
+          }
           // Capture samples for VU meter (only from focused deck)
           if (slot->load(std::memory_order_relaxed) == vuFocusedDeck_.load(std::memory_order_relaxed)) {
             {

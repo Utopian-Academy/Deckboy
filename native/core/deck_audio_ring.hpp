@@ -190,6 +190,28 @@ class DeckAudioRing {
     return smallest;
   }
 
+  // INVESTIGATION: what a reader would find on one playlist right now.
+  struct TraceState {
+    std::uint64_t available = 0;   // samples past the reader's position
+    long long sinceLastPushMs = -1;
+  };
+  TraceState traceState(int deckIndex, const std::map<int, std::uint64_t>& readPositions) const {
+    std::lock_guard<std::mutex> lock(mutex_);
+    TraceState state;
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(decks_.size())) return state;
+    const Buffer& buffer = decks_[static_cast<std::size_t>(deckIndex)];
+    const std::uint64_t begin = buffer.dropped;
+    const std::uint64_t end = begin + buffer.samples.size();
+    const auto it = readPositions.find(deckIndex);
+    const std::uint64_t pos = it == readPositions.end() ? end : std::clamp(it->second, begin, end);
+    state.available = end - pos;
+    if (buffer.lastPushAt.time_since_epoch().count() != 0) {
+      state.sinceLastPushMs = std::chrono::duration_cast<std::chrono::milliseconds>(
+        Clock::now() - buffer.lastPushAt).count();
+    }
+    return state;
+  }
+
   // Returned by mixableSamples when no deck limits the pull.
   static constexpr std::size_t kUnlimited = static_cast<std::size_t>(-1);
 
