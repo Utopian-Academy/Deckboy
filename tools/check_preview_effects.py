@@ -93,6 +93,15 @@ EFFECTS = [
     ("depth_split",     "0.9:0.5:0.5"),
     ("databend",        "0.9:0.55:0.6:0.5:0.55"),
     ("time_cube",       "1.0:0.35:0.5:0:0.4:0.2"),
+    # The basics added 2026-10-29.
+    ("colour_replace",  "1:0.0:1.0:0:0.6"),
+    ("blur",            "1:0.5"),
+    ("sharpen",         "1:0.8:0.4"),
+    ("glow",            "1:0.7:0.4"),
+    ("mirror",          "1:0.5"),
+    ("mosaic",          "1:0.5:0.3:0:0.5"),
+    ("edges",           "1:0.5"),
+    ("luma_key",        "1:0.6"),
 ]
 
 # Both need something a paused frame cannot give them.
@@ -106,7 +115,12 @@ SKIP = [("motion_puppet", "needs a motion driver and a moving picture"),
         # Audioprint draws the audio the deck has just played. This sweep
         # pauses, and a paused deck plays nothing, so the one thing it
         # draws is the one thing this harness removes on purpose.
-        ("audioprint", "draws played audio; this sweep pauses, so there is none")]
+        ("audioprint", "draws played audio; this sweep pauses, so there is none"),
+        # A strobe flashes on the show's clock, and one capture lands between
+        # flashes as often as on one. The call it goes through is the one every
+        # effect here shares; its timing is checked offline (--params,
+        # --animation).
+        ("strobe", "flashes on the clock; one capture can land between flashes")]
 
 CAPTURE_PS1 = '''
 param([int]$ProcId, [string]$Out)

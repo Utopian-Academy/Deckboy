@@ -164,6 +164,13 @@ def main():
         median = sorted(own)[len(own) // 2] if own else -200.0
         print("    recording: %d quarter-seconds, playlist 4's tone %.1f dB (lowest %.1f), others at most %.1f" %
               (len(own), median, min(own) if own else -200.0, max(others) if others else -200.0))
+        # Where any dip is, against the removal (2.5 s after RECORD on): a gap
+        # at the head of the take is a different fault from one at the removal.
+        for i, level in enumerate(own):
+            if level < median - 3.0:
+                at = (i + 1) * 0.25
+                print("    dip: %.1f dB at %.2f-%.2f s into the take (the removal was at about 2.5 s)" %
+                      (level, at, at + 0.25))
         note("the recording keeps playlist 4's tone through the removal, no gap",
              len(own) >= 12 and min(own) > median - 3.0, (min(own) if own else None, median))
         note("and nothing of the other playlists", others and max(others) < median - 40.0,

@@ -1309,6 +1309,7 @@
           fxCtx.frameIndex = previewUseFrameCounter
             ? motionDriverFrameCounter_
             : controlPreviewLookFrame_.index;
+          fxCtx.seconds = lfoSeconds_;
           // The driver, same as the output composite does it. Without this a
           // motion puppet was the one effect the preview still could not show
           // -- and the driver was never opened at all, so the inspector had

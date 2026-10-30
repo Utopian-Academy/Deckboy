@@ -60,7 +60,11 @@
   calls the install off. `UPDATE INSTALL` answers ERR with the reason when it cannot install.
 - The animal that keeps a job company (checking for an update, downloading or installing one, an
   import, slides converting, a loudness pass) is any of the twelve, picked as the job starts.
-  Each job always brought the same one, so the eel was only ever seen on updates.
+  Each job always brought the same one, so the eel was only ever seen on updates. And each now
+  moves in its own way, where all twelve used to walk the same walk: the frog sits and hops, the
+  mouse and the lizard dart and freeze, the crab scuttles sideways, the fish swims up and down,
+  the dolphin leaps, the moth flutters about, the cat and the hedgehog stop for a while, and the
+  snail barely moves at all.
 - The **OUTPUT** chip above the programme preview is a switch. Off, a click turns the output on.
   On, a click offers **TURN OFF** and **VIDEO OUTPUTS** and never turns it off by itself, so a
   stray click cannot cut the picture. With several outputs it opens Video Outputs.
@@ -125,6 +129,16 @@
 - On every platform, the desk says `audio: now on <device>` when the system output changes and a
   playlist's sound goes with it, and warns if a playlist could not move.
 - `--devices` names the output the system is playing to.
+
+### Effects
+- Nine basics other video software has, at the top of the effect list: **colour replace** (one band
+  of colours becomes another and keeps its shading), **blur** (even, or a streak along an angle),
+  **sharpen**, **glow**, **mirror** (flips, and folds of one half onto the other), **mosaic** (with a
+  gap and rounded corners, down to LED dots), **edges**, **luma key** (takes out the dark or the
+  bright, so the playlist beneath shows through) and **strobe** (white, black or grey, up to ten
+  flashes a second). Each arrives doing something you can see, and every parameter
+  takes an LFO.
+- `--effect-dump` draws transparency over a checkerboard.
 
 ### Remote control
 - Fixed: `ENDACTION` answered OK and changed nothing when the selected cue was not a video or
@@ -209,9 +223,12 @@
   MIDI file plays, not every 2.
 
 ### Companion
-- The Companion module 1.0.5 adds **Take all playlists**, **Run dashboard tile** (a tile holding a
+- The Companion module 1.0.6 adds **Take all playlists**, **Run dashboard tile** (a tile holding a
   sequence runs it, and a second press stops it), **Run a sequence** and **Stop running
-  sequences**.
+  sequences**, and for the audio routing in this release **Patch a playlist to a named output**
+  (at a level or off), **Output limiter on / off** and **Output effects: bypass all**. Its help
+  now covers the trusted controllers and the passphrase; it said there was no password on the
+  control port.
 
 ## 2026-10-26 - v0.99.421 (every connected display in reach in Video Outputs; the tour on one screen)
 

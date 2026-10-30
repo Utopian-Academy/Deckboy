@@ -686,8 +686,11 @@ std::vector<std::pair<std::string, std::string>> cueEffectChoices() {
   // which put levels and curves -- what an operator reaches for most -- under
   // forty-odd effects nobody has heard of.
   using deckboy::effects::CueEffectKind;
-  const CueEffectKind basics[] = {CueEffectKind::Levels, CueEffectKind::Curves,
-                                 CueEffectKind::Colour};
+  const CueEffectKind basics[] = {
+    CueEffectKind::Levels, CueEffectKind::Curves, CueEffectKind::Colour,
+    CueEffectKind::ColourReplace, CueEffectKind::Blur, CueEffectKind::Sharpen,
+    CueEffectKind::Glow, CueEffectKind::Mirror, CueEffectKind::Mosaic,
+    CueEffectKind::Edges, CueEffectKind::LumaKey, CueEffectKind::Strobe};
   for (CueEffectKind kind : basics) {
     choices.push_back({deckboy::effects::cueEffectToken(kind),
                        deckboy::effects::cueEffectLabel(kind)});

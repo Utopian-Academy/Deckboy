@@ -119,6 +119,19 @@ enum class CueEffectKind : int {
   // colour round the wheel, tint the picture toward one colour, or wash it
   // out to black and white. Arrives neutral like the two above.
   Colour,
+  // Added 2026-10-29: the basics other video software has and this did not
+  // ("are there any other basic video effects ... deckboy is missing besides
+  // colour replace?"). Unlike the grading three they arrive DOING something
+  // at A=0.5, B=C=D=0, as an effect picked from a list should.
+  ColourReplace,
+  Blur,
+  Sharpen,
+  Glow,
+  Mirror,
+  Mosaic,
+  Edges,
+  LumaKey,
+  Strobe,
   Count,
 };
 
@@ -167,6 +180,15 @@ inline const char* cueEffectLabel(CueEffectKind kind) {
     case CueEffectKind::Levels:         return "levels";
     case CueEffectKind::Curves:         return "curves";
     case CueEffectKind::Colour:         return "colour";
+    case CueEffectKind::ColourReplace:  return "colour replace";
+    case CueEffectKind::Blur:           return "blur";
+    case CueEffectKind::Sharpen:        return "sharpen";
+    case CueEffectKind::Glow:           return "glow";
+    case CueEffectKind::Mirror:         return "mirror";
+    case CueEffectKind::Mosaic:         return "mosaic";
+    case CueEffectKind::Edges:          return "edges";
+    case CueEffectKind::LumaKey:        return "luma key";
+    case CueEffectKind::Strobe:         return "strobe";
     default:                            return "none";
   }
 }
@@ -218,6 +240,15 @@ inline const char* cueEffectToken(CueEffectKind kind) {
     case CueEffectKind::Levels:         return "levels";
     case CueEffectKind::Curves:         return "curves";
     case CueEffectKind::Colour:         return "colour";
+    case CueEffectKind::ColourReplace:  return "colour_replace";
+    case CueEffectKind::Blur:           return "blur";
+    case CueEffectKind::Sharpen:        return "sharpen";
+    case CueEffectKind::Glow:           return "glow";
+    case CueEffectKind::Mirror:         return "mirror";
+    case CueEffectKind::Mosaic:         return "mosaic";
+    case CueEffectKind::Edges:          return "edges";
+    case CueEffectKind::LumaKey:        return "luma_key";
+    case CueEffectKind::Strobe:         return "strobe";
     default:                            return "none";
   }
 }
@@ -275,6 +306,8 @@ inline bool cueEffectKindAnimates(CueEffectKind kind) {
     // The time cube holds the recent frames, so it keeps changing while the
     // picture does and must re-run on every frame.
     case CueEffectKind::TimeCube:
+    // A strobe on a still is still a strobe: it flashes on the clock.
+    case CueEffectKind::Strobe:
       return true;
     default:
       return false;
@@ -350,6 +383,31 @@ inline const char* cueEffectParamLabel(CueEffectKind kind, int which) {
     case CueEffectKind::Colour:
       return which == 0 ? "hue turn" : which == 1 ? "tint"
            : which == 2 ? "tint colour" : which == 3 ? "wash out" : nullptr;
+    case CueEffectKind::ColourReplace:
+      return which == 0 ? "from" : which == 1 ? "range"
+           : which == 2 ? "to" : which == 3 ? "softness" : nullptr;
+    case CueEffectKind::Blur:
+      return which == 0 ? "size" : which == 1 ? "stretch"
+           : which == 2 ? "angle" : nullptr;
+    case CueEffectKind::Sharpen:
+      return which == 0 ? "strength" : which == 1 ? "radius"
+           : which == 2 ? "threshold" : nullptr;
+    case CueEffectKind::Glow:
+      return which == 0 ? "reach" : which == 1 ? "size" : nullptr;
+    case CueEffectKind::Mirror:
+      return which == 0 ? "way" : which == 1 ? "fold" : nullptr;
+    case CueEffectKind::Mosaic:
+      return which == 0 ? "tile size" : which == 1 ? "gap"
+           : which == 2 ? "round" : nullptr;
+    case CueEffectKind::Edges:
+      return which == 0 ? "strength" : which == 1 ? "picture"
+           : which == 2 ? "line colour" : nullptr;
+    case CueEffectKind::LumaKey:
+      return which == 0 ? "cut dark" : which == 1 ? "softness"
+           : which == 2 ? "cut bright" : nullptr;
+    case CueEffectKind::Strobe:
+      return which == 0 ? "rate" : which == 1 ? "flash to"
+           : which == 2 ? "flash length" : nullptr;
     case CueEffectKind::Schlieren:
       return which == 0 ? "knife angle" : which == 1 ? "sensitivity"
            : which == 2 ? "colour" : nullptr;
@@ -630,6 +688,70 @@ inline const char* cueEffectParamTip(CueEffectKind kind, int which) {
         : which == 2
         ? "Which colour the tint is, round the wheel from red."
         : "Drains the colour toward black and white. Up is grey all the way.";
+    case CueEffectKind::ColourReplace:
+      return which == 0
+        ? "The colour to change, round the wheel from red."
+        : which == 1
+        ? "How wide a band of colours either side of it changes too."
+        : which == 2
+        ? "The colour it becomes. Shading and brightness stay as they were, so "
+          "a red shirt turns blue and keeps its folds."
+        : "How gently the change fades out at the edges of the band.";
+    case CueEffectKind::Blur:
+      return which == 0
+        ? "How far it smears: up to a few percent of the picture."
+        : which == 1
+        ? "From an even blur to a streak along the angle, like movement."
+        : "Which way the streak runs: across at the left, upright in the "
+          "middle, across again at the right.";
+    case CueEffectKind::Sharpen:
+      return which == 0
+        ? "How much the edges are lifted."
+        : which == 1
+        ? "Fine detail at the left; broader edges, with a halo, to the right."
+        : "Leaves small differences alone, so grain and noise are not "
+          "sharpened along with the picture.";
+    case CueEffectKind::Glow:
+      return which == 0
+        ? "How much of the picture glows: only the brightest at the left, "
+          "nearly everything at the right."
+        : "How far the glow spreads.";
+    case CueEffectKind::Mirror:
+      return which == 0
+        ? "Flip across, upside down or both, or fold one half onto the other: "
+          "right onto left, left onto right, bottom onto top, top onto bottom, "
+          "or one corner into all four."
+        : "Where the fold sits: the middle at the left, toward the far edge to "
+          "the right. Flips have no fold.";
+    case CueEffectKind::Mosaic:
+      return which == 0
+        ? "How big each tile is."
+        : which == 1
+        ? "A dark line between the tiles, like grout or an LED wall."
+        : "Rounds the tiles off, all the way to dots.";
+    case CueEffectKind::Edges:
+      return which == 0
+        ? "How strongly the outlines are drawn."
+        : which == 1
+        ? "How much of the picture shows behind the lines. None at the left: "
+          "lines on black."
+        : "White lines at the left; the picture's own colours to the right.";
+    case CueEffectKind::LumaKey:
+      return which == 0
+        ? "Takes out everything darker than this, so what lies beneath shows "
+          "through. Left takes out nothing."
+        : which == 1
+        ? "How gradually the key cuts in. Hard at the left."
+        : "Takes out everything brighter than this as well. Left takes out "
+          "nothing.";
+    case CueEffectKind::Strobe:
+      return which == 0
+        ? "Flashes a second, from half to ten; it arrives at about two. Faster "
+          "than three a second can bring on seizures in people with "
+          "photosensitive epilepsy, so warn the audience before using it."
+        : which == 1
+        ? "White at the left, black at the right, grey between."
+        : "How long each flash lasts, as a share of the time between them.";
     case CueEffectKind::FeedbackBloom:
       return which == 0
         ? "How far the colour turns on each trip round the loop. This is the "
@@ -987,6 +1109,11 @@ struct CueEffectContext {
   int width = 0;
   int height = 0;
   std::uint64_t frameIndex = 0;   // for anything that advances per frame
+  // The show's clock in seconds: the sample the LFOs read (sampleLfoClock), so
+  // the preview and the output agree on it. Negative where there is no show
+  // clock (a dump, a bench); an effect that keeps time then counts frames at
+  // thirty a second.
+  double seconds = -1.0;
   // The driver clip's motion for THIS frame, when one is armed. Null the rest
   // of the time, which is almost always -- so MotionPuppet costs nothing on a
   // cue that has not been given a driver.
@@ -1147,6 +1274,178 @@ inline void applyChannelLut(std::uint8_t* pixels, int width, int height,
         p[0] = lut[p[0]];
         p[1] = lut[p[1]];
         p[2] = lut[p[2]];
+      }
+    }
+  });
+}
+
+// ── The basics' shared machinery (2026-10-29) ──────────────────────────────
+
+inline double smoothstep01(double edge0, double edge1, double x) {
+  const double t = std::clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
+  return t * t * (3.0 - 2.0 * t);
+}
+
+// THE BLUR that blur, sharpen and glow share: box passes, of which three are
+// within a few percent of a gaussian. Each pass is a running sum, so the cost
+// per pixel does not grow with the radius. RGB only; alpha is left alone.
+//
+// The horizontal pass slides along each row in place. The vertical one keeps a
+// running sum per column for a band of columns and walks it down the rows, so
+// the reads still go along memory rather than down it.
+inline void boxBlurRgb(std::uint8_t* px, int w, int h, int rx, int ry, int passes) {
+  if (w <= 0 || h <= 0) {
+    return;
+  }
+  rx = std::clamp(rx, 0, w);
+  ry = std::clamp(ry, 0, h);
+  const std::size_t rowBytes = static_cast<std::size_t>(w) * 4;
+  for (int pass = 0; pass < passes; ++pass) {
+    if (rx > 0) {
+      // sum / span as a multiply and a shift, rounded: an integer division per
+      // channel per pixel per pass was most of what this cost.
+      const std::uint64_t inv = ((std::uint64_t {1} << 32) + static_cast<std::uint64_t>(rx)) /
+                                static_cast<std::uint64_t>(2 * rx + 1);
+      parallelRows(h, w, [&](int firstRow, int lastRow) {
+        std::vector<std::uint8_t> line(rowBytes);
+        for (int y = firstRow; y < lastRow; ++y) {
+          std::uint8_t* row = px + static_cast<std::size_t>(y) * rowBytes;
+          std::memcpy(line.data(), row, rowBytes);
+          std::uint32_t sum[3] = {0, 0, 0};
+          for (int k = -rx; k <= rx; ++k) {
+            const std::uint8_t* src = line.data() + static_cast<std::size_t>(std::clamp(k, 0, w - 1)) * 4;
+            sum[0] += src[0];
+            sum[1] += src[1];
+            sum[2] += src[2];
+          }
+          for (int x = 0; x < w; ++x) {
+            std::uint8_t* dst = row + static_cast<std::size_t>(x) * 4;
+            dst[0] = static_cast<std::uint8_t>((sum[0] * inv + (std::uint64_t {1} << 31)) >> 32);
+            dst[1] = static_cast<std::uint8_t>((sum[1] * inv + (std::uint64_t {1} << 31)) >> 32);
+            dst[2] = static_cast<std::uint8_t>((sum[2] * inv + (std::uint64_t {1} << 31)) >> 32);
+            const std::uint8_t* in = line.data() + static_cast<std::size_t>(std::min(x + rx + 1, w - 1)) * 4;
+            const std::uint8_t* out = line.data() + static_cast<std::size_t>(std::max(x - rx, 0)) * 4;
+            sum[0] += in[0] - out[0];
+            sum[1] += in[1] - out[1];
+            sum[2] += in[2] - out[2];
+          }
+        }
+      });
+    }
+    if (ry > 0) {
+      const std::uint64_t inv = ((std::uint64_t {1} << 32) + static_cast<std::uint64_t>(ry)) /
+                                static_cast<std::uint64_t>(2 * ry + 1);
+      // Bands of COLUMNS here: each worker walks its band down the whole height.
+      // The row a step subtracts has already been written, so each band keeps
+      // the last ry + 1 ORIGINAL rows of its own columns in a ring, rather than
+      // the whole frame being copied for every pass.
+      parallelRows(w, h, [&](int firstCol, int lastCol) {
+        const int cols = lastCol - firstCol;
+        const std::size_t first = static_cast<std::size_t>(firstCol) * 4;
+        const std::size_t bandBytes = static_cast<std::size_t>(cols) * 4;
+        const int keep = ry + 1;
+        std::vector<std::uint8_t> ring(static_cast<std::size_t>(keep) * bandBytes);
+        std::vector<std::uint32_t> sum(static_cast<std::size_t>(cols) * 3, 0);
+        for (int k = -ry; k <= ry; ++k) {
+          const std::uint8_t* row = px + static_cast<std::size_t>(std::clamp(k, 0, h - 1)) * rowBytes + first;
+          for (int c = 0; c < cols; ++c) {
+            sum[c * 3] += row[c * 4];
+            sum[c * 3 + 1] += row[c * 4 + 1];
+            sum[c * 3 + 2] += row[c * 4 + 2];
+          }
+        }
+        for (int y = 0; y < h; ++y) {
+          std::uint8_t* row = px + static_cast<std::size_t>(y) * rowBytes + first;
+          std::memcpy(ring.data() + static_cast<std::size_t>(y % keep) * bandBytes, row, bandBytes);
+          // Ahead of y, so not yet written (the clamp only repeats the last row
+          // on the final step, whose sum is not used).
+          const std::uint8_t* in = px + static_cast<std::size_t>(std::min(y + ry + 1, h - 1)) * rowBytes + first;
+          const std::uint8_t* out = ring.data() + static_cast<std::size_t>(std::max(y - ry, 0) % keep) * bandBytes;
+          for (int c = 0; c < cols; ++c) {
+            const int o = c * 4;
+            row[o] = static_cast<std::uint8_t>((sum[c * 3] * inv + (std::uint64_t {1} << 31)) >> 32);
+            row[o + 1] = static_cast<std::uint8_t>((sum[c * 3 + 1] * inv + (std::uint64_t {1} << 31)) >> 32);
+            row[o + 2] = static_cast<std::uint8_t>((sum[c * 3 + 2] * inv + (std::uint64_t {1} << 31)) >> 32);
+            sum[c * 3] += in[o] - out[o];
+            sum[c * 3 + 1] += in[o + 1] - out[o + 1];
+            sum[c * 3 + 2] += in[o + 2] - out[o + 2];
+          }
+        }
+      });
+    }
+  }
+}
+
+// A box-averaged copy at 1/factor of the size, for the effects whose job is to
+// remove detail (the blur, the glow): there is none to keep at full size.
+inline void downsampleRgba(const std::uint8_t* src, int w, int h, int factor,
+                           std::vector<std::uint8_t>& out, int& ow, int& oh) {
+  ow = std::max(1, (w + factor - 1) / factor);
+  oh = std::max(1, (h + factor - 1) / factor);
+  out.assign(static_cast<std::size_t>(ow) * oh * 4, 0);
+  const int smallW = ow;
+  parallelRows(oh, w * factor, [&](int firstRow, int lastRow) {
+    for (int sy = firstRow; sy < lastRow; ++sy) {
+      const int y0 = sy * factor;
+      const int y1 = std::min(h, y0 + factor);
+      for (int sx = 0; sx < smallW; ++sx) {
+        const int x0 = sx * factor;
+        const int x1 = std::min(w, x0 + factor);
+        unsigned sum[4] = {0, 0, 0, 0};
+        for (int y = y0; y < y1; ++y) {
+          const std::uint8_t* q = src + (static_cast<std::size_t>(y) * w + x0) * 4;
+          for (int x = x0; x < x1; ++x, q += 4) {
+            sum[0] += q[0];
+            sum[1] += q[1];
+            sum[2] += q[2];
+            sum[3] += q[3];
+          }
+        }
+        const unsigned n = static_cast<unsigned>((y1 - y0) * (x1 - x0));
+        std::uint8_t* d = out.data() + (static_cast<std::size_t>(sy) * smallW + sx) * 4;
+        for (int c = 0; c < 4; ++c) {
+          d[c] = static_cast<std::uint8_t>(sum[c] / n);
+        }
+      }
+    }
+  });
+}
+
+// The small buffer read back at full size, BILINEARLY: read back per cell, a
+// blur shows its cells (wavefront did). fn(pixel, rgb) for every pixel.
+template <typename Fn>
+inline void upsampleRgb(const std::vector<std::uint8_t>& small, int sw, int sh,
+                        std::uint8_t* pixels, int w, int h, Fn fn) {
+  std::vector<int> x0s(static_cast<std::size_t>(w)), x1s(static_cast<std::size_t>(w));
+  std::vector<double> txs(static_cast<std::size_t>(w));
+  const double scaleX = static_cast<double>(sw) / w;
+  for (int x = 0; x < w; ++x) {
+    const double fx = std::clamp((x + 0.5) * scaleX - 0.5, 0.0, sw - 1.0);
+    x0s[x] = static_cast<int>(fx) * 4;
+    x1s[x] = std::min(sw - 1, static_cast<int>(fx) + 1) * 4;
+    txs[x] = fx - std::floor(fx);
+  }
+  const double scaleY = static_cast<double>(sh) / h;
+  parallelRows(h, w, [&](int firstRow, int lastRow) {
+    for (int y = firstRow; y < lastRow; ++y) {
+      const double fy = std::clamp((y + 0.5) * scaleY - 0.5, 0.0, sh - 1.0);
+      const int y0 = static_cast<int>(fy);
+      const int y1 = std::min(sh - 1, y0 + 1);
+      const double ty = fy - y0;
+      const std::uint8_t* top = small.data() + static_cast<std::size_t>(y0) * sw * 4;
+      const std::uint8_t* bottom = small.data() + static_cast<std::size_t>(y1) * sw * 4;
+      std::uint8_t* row = pixels + static_cast<std::size_t>(y) * w * 4;
+      for (int x = 0; x < w; ++x) {
+        const int a = x0s[x];
+        const int b = x1s[x];
+        const double tx = txs[x];
+        double rgb[3];
+        for (int c = 0; c < 3; ++c) {
+          const double t = top[a + c] + (top[b + c] - top[a + c]) * tx;
+          const double u = bottom[a + c] + (bottom[b + c] - bottom[a + c]) * tx;
+          rgb[c] = t + (u - t) * ty;
+        }
+        fn(row + static_cast<std::size_t>(x) * 4, rgb);
       }
     }
   });
@@ -1564,6 +1863,489 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
             }
           }
         });
+        break;
+      }
+      case CueEffectKind::ColourReplace: {
+        // AFTER EFFECTS' "CHANGE TO COLOR", hue mode. Every colour within the
+        // range of `from` turns by the distance from `from` to `to`, so the
+        // band keeps its own variation and each pixel keeps its brightness and
+        // chroma: the shading survives the change. Greys have no hue to
+        // change, and the near-greys fade out of it, or noise on a white wall
+        // would flicker through the new colour.
+        //
+        // R, G, B in that order, as the Colour effect assumes.
+        //
+        // In float, with the divisions and the grey gate looked up by chroma
+        // (max - min, 0-255), and a colour outside the band leaves after its
+        // hue: in double with every step worked out it cost 46 ms at 4K.
+        const float from = static_cast<float>(pA);
+        const float turn = static_cast<float>(pC - pA);
+        const float halfWidth = static_cast<float>(0.03 + pB * 0.22);   // +-11 deg, up to +-90
+        const float soft = static_cast<float>(0.02 + pD * 0.2);
+        const float edge = halfWidth + soft;
+        const float invSoft = 1.0f / soft;
+        float gate[256];
+        float inverse[256];
+        for (int c = 0; c < 256; ++c) {
+          gate[c] = static_cast<float>(detail::smoothstep01(6.0, 40.0, c) * amt);
+          inverse[c] = c > 0 ? 1.0f / static_cast<float>(c) : 0.0f;
+        }
+        detail::parallelRows(ctx.height, ctx.width, [&](int firstRow, int lastRow) {
+          for (int y = firstRow; y < lastRow; ++y) {
+            std::uint8_t* p = pixels.data() + static_cast<std::size_t>(y) * ctx.width * 4;
+            for (int x = 0; x < ctx.width; ++x, p += 4) {
+              const int r = p[0], g = p[1], b = p[2];
+              const int mx = std::max(r, std::max(g, b));
+              const int mn = std::min(r, std::min(g, b));
+              const int c = mx - mn;
+              if (c < 6) {
+                continue;
+              }
+              float h = mx == r ? static_cast<float>(g - b) * inverse[c]
+                      : mx == g ? 2.0f + static_cast<float>(b - r) * inverse[c]
+                                : 4.0f + static_cast<float>(r - g) * inverse[c];
+              h *= 1.0f / 6.0f;
+              if (h < 0.0f) {
+                h += 1.0f;
+              }
+              float d = std::fabs(h - from);
+              if (d > 0.5f) {
+                d = 1.0f - d;
+              }
+              if (d >= edge) {
+                continue;
+              }
+              float weight = gate[c];
+              if (d > halfWidth) {
+                const float t = (d - halfWidth) * invSoft;
+                weight *= 1.0f - t * t * (3.0f - 2.0f * t);
+              }
+              // The same brightest and darkest channel at the turned hue, so
+              // brightness and chroma stay as they were.
+              float turned = h + turn;
+              turned -= std::floor(turned);
+              const float sector = turned * 6.0f;
+              const int i = std::min(5, static_cast<int>(sector));
+              const float rise = static_cast<float>(mn) + static_cast<float>(c) * (sector - static_cast<float>(i));
+              const float fall = static_cast<float>(mx) + static_cast<float>(mn) - rise;
+              const float hi = static_cast<float>(mx);
+              const float lo = static_cast<float>(mn);
+              const float nr = i == 0 || i == 5 ? hi : i == 1 ? fall : i == 4 ? rise : lo;
+              const float ng = i == 1 || i == 2 ? hi : i == 0 ? rise : i == 3 ? fall : lo;
+              const float nb = i == 3 || i == 4 ? hi : i == 2 ? rise : i == 5 ? fall : lo;
+              // Between this channel and the turned one, both inside 0-255, so
+              // no clamp is needed.
+              p[0] = static_cast<std::uint8_t>(static_cast<float>(r) + (nr - static_cast<float>(r)) * weight + 0.5f);
+              p[1] = static_cast<std::uint8_t>(static_cast<float>(g) + (ng - static_cast<float>(g)) * weight + 0.5f);
+              p[2] = static_cast<std::uint8_t>(static_cast<float>(b) + (nb - static_cast<float>(b)) * weight + 0.5f);
+            }
+          }
+        });
+        break;
+      }
+      case CueEffectKind::Blur: {
+        // Box passes (a gaussian, near enough) on a buffer small enough that
+        // each box is a few pixels across, then back up bilinearly. A blur's
+        // whole job is to remove detail, so there is none to keep by working
+        // at full size.
+        //
+        // Stretch trades the even blur for a streak along the angle, the look
+        // of something moving past: the round part shrinks as the streak
+        // grows, so all the way up is a streak alone.
+        const double shortSide = std::min(ctx.width, ctx.height);
+        const double radius = std::max(0.6, pA * pA * 0.06 * shortSide);   // A=0.5: 1.5% of it
+        const int factor = std::clamp(static_cast<int>(radius / 3.0), 1, 16);
+        // Small, even and at full amount: blur the picture where it lies, with
+        // no copy to make and none to mix back.
+        if (factor == 1 && pB <= 0.0 && amt >= 0.9995) {
+          if (radius >= 0.25) {
+            const int box = std::max(1, static_cast<int>(std::lround(radius * 0.5)));
+            detail::boxBlurRgb(pixels.data(), ctx.width, ctx.height, box, box, 3);
+          }
+          break;
+        }
+        std::vector<std::uint8_t> small;
+        int sw = ctx.width;
+        int sh = ctx.height;
+        if (factor > 1) {
+          detail::downsampleRgba(pixels.data(), ctx.width, ctx.height, factor, small, sw, sh);
+        } else {
+          small = pixels;
+        }
+        const double r = radius / factor;
+        const double even = r * (1.0 - pB);
+        if (even >= 0.25) {
+          const int box = std::max(1, static_cast<int>(std::lround(even * 0.5)));
+          detail::boxBlurRgb(small.data(), sw, sh, box, box, 3);
+        }
+        if (pB > 0.0) {
+          const double length = r * pB * 3.0;
+          const double angle = pC * 3.14159265358979;
+          // Anticlockwise, as an angle on paper turns: rows count downward.
+          const double stepX = std::cos(angle) * length;
+          const double stepY = -std::sin(angle) * length;
+          const int taps = std::clamp(static_cast<int>(std::ceil(length * 2.0)), 2, 64);
+          std::vector<std::uint8_t> streak(small.size());
+          detail::parallelRows(sh, sw * taps, [&](int firstRow, int lastRow) {
+            for (int y = firstRow; y < lastRow; ++y) {
+              for (int x = 0; x < sw; ++x) {
+                double acc[3] = {0.0, 0.0, 0.0};
+                for (int t = 0; t < taps; ++t) {
+                  const double u = -1.0 + 2.0 * (t + 0.5) / taps;
+                  const double fx = std::clamp(x + stepX * u, 0.0, sw - 1.0);
+                  const double fy = std::clamp(y + stepY * u, 0.0, sh - 1.0);
+                  const int x0 = static_cast<int>(fx);
+                  const int y0 = static_cast<int>(fy);
+                  const int x1 = std::min(sw - 1, x0 + 1);
+                  const int y1 = std::min(sh - 1, y0 + 1);
+                  const double tx = fx - x0;
+                  const double ty = fy - y0;
+                  const std::uint8_t* a = small.data() + (static_cast<std::size_t>(y0) * sw + x0) * 4;
+                  const std::uint8_t* b = small.data() + (static_cast<std::size_t>(y0) * sw + x1) * 4;
+                  const std::uint8_t* c = small.data() + (static_cast<std::size_t>(y1) * sw + x0) * 4;
+                  const std::uint8_t* d = small.data() + (static_cast<std::size_t>(y1) * sw + x1) * 4;
+                  for (int k = 0; k < 3; ++k) {
+                    const double top = a[k] + (b[k] - a[k]) * tx;
+                    const double bottom = c[k] + (d[k] - c[k]) * tx;
+                    acc[k] += top + (bottom - top) * ty;
+                  }
+                }
+                std::uint8_t* dst = streak.data() + (static_cast<std::size_t>(y) * sw + x) * 4;
+                const std::uint8_t* here = small.data() + (static_cast<std::size_t>(y) * sw + x) * 4;
+                for (int k = 0; k < 3; ++k) {
+                  dst[k] = detail::clamp8(acc[k] / taps + 0.5);
+                }
+                dst[3] = here[3];
+              }
+            }
+          });
+          small.swap(streak);
+        }
+        if (factor == 1) {
+          detail::parallelRows(ctx.height, ctx.width, [&](int firstRow, int lastRow) {
+            for (int y = firstRow; y < lastRow; ++y) {
+              const std::size_t at = static_cast<std::size_t>(y) * ctx.width * 4;
+              std::uint8_t* p = pixels.data() + at;
+              const std::uint8_t* q = small.data() + at;
+              for (int x = 0; x < ctx.width; ++x, p += 4, q += 4) {
+                for (int k = 0; k < 3; ++k) {
+                  p[k] = detail::clamp8(p[k] + (q[k] - p[k]) * amt + 0.5);
+                }
+              }
+            }
+          });
+        } else {
+          detail::upsampleRgb(small, sw, sh, pixels.data(), ctx.width, ctx.height,
+                              [&](std::uint8_t* p, const double* rgb) {
+            for (int k = 0; k < 3; ++k) {
+              p[k] = detail::clamp8(p[k] + (rgb[k] - p[k]) * amt + 0.5);
+            }
+          });
+        }
+        break;
+      }
+      case CueEffectKind::Sharpen: {
+        // UNSHARP MASK: the picture plus the difference between it and a
+        // softened copy, which lifts every edge by how much it already stands
+        // out. Full size, because sharpening IS the fine detail the small
+        // buffer would throw away; the radius is a few pixels, and two
+        // running-sum passes cost the same whatever it is.
+        const double gain = pA * 2.0 * amt;   // A=0.5 at full amount: a mask of 1
+        const int radius = 1 + static_cast<int>(std::lround(pB * 5.0));
+        const double threshold = pC * 40.0;
+        std::vector<std::uint8_t> soft(pixels);
+        detail::boxBlurRgb(soft.data(), ctx.width, ctx.height, radius, radius, 2);
+        // Indexed by the difference + 255. Below the threshold nothing is
+        // lifted, so flat areas and their grain stay as they were.
+        double lift[511];
+        for (int i = 0; i < 511; ++i) {
+          const double diff = i - 255.0;
+          const double over = std::fabs(diff) - threshold;
+          lift[i] = over <= 0.0 ? 0.0 : (diff > 0.0 ? over : -over) * gain;
+        }
+        detail::parallelRows(ctx.height, ctx.width, [&](int firstRow, int lastRow) {
+          for (int y = firstRow; y < lastRow; ++y) {
+            const std::size_t at = static_cast<std::size_t>(y) * ctx.width * 4;
+            std::uint8_t* p = pixels.data() + at;
+            const std::uint8_t* q = soft.data() + at;
+            for (int x = 0; x < ctx.width; ++x, p += 4, q += 4) {
+              for (int k = 0; k < 3; ++k) {
+                p[k] = detail::clamp8(p[k] + lift[p[k] - q[k] + 255] + 0.5);
+              }
+            }
+          }
+        });
+        break;
+      }
+      case CueEffectKind::Glow: {
+        // The bright parts, blurred and laid back over the picture with a
+        // screen, so it brightens toward white and never past it. Worked out
+        // small, like the blur: a glow has no detail to keep.
+        const double shortSide = std::min(ctx.width, ctx.height);
+        const double radius = (0.012 + pB * 0.07) * shortSide;   // B=0: 1.2% of it
+        const int factor = std::clamp(static_cast<int>(radius / 3.0), 2, 16);
+        std::vector<std::uint8_t> small;
+        int sw = 0;
+        int sh = 0;
+        detail::downsampleRgba(pixels.data(), ctx.width, ctx.height, factor, small, sw, sh);
+        // Only what is brighter than the knee, eased in, keeps its colour.
+        const double knee = 0.95 - pA * 0.7;   // A=0.5: brighter than 60%
+        double keep[256];
+        for (int v = 0; v < 256; ++v) {
+          keep[v] = detail::smoothstep01(knee - 0.08, knee + 0.08, v / 255.0);
+        }
+        for (std::size_t i = 0; i < small.size(); i += 4) {
+          const int luma = (54 * small[i] + 183 * small[i + 1] + 19 * small[i + 2]) >> 8;
+          const double k = keep[luma];
+          small[i] = static_cast<std::uint8_t>(small[i] * k);
+          small[i + 1] = static_cast<std::uint8_t>(small[i + 1] * k);
+          small[i + 2] = static_cast<std::uint8_t>(small[i + 2] * k);
+        }
+        const int box = std::max(1, static_cast<int>(std::lround(radius / factor * 0.5)));
+        detail::boxBlurRgb(small.data(), sw, sh, box, box, 3);
+        const double strength = 1.2 * amt;
+        detail::upsampleRgb(small, sw, sh, pixels.data(), ctx.width, ctx.height,
+                            [&](std::uint8_t* p, const double* rgb) {
+          for (int k = 0; k < 3; ++k) {
+            const double light = std::min(255.0, rgb[k] * strength);
+            p[k] = detail::clamp8(255.0 - (255.0 - p[k]) * (255.0 - light) / 255.0 + 0.5);
+          }
+        });
+        break;
+      }
+      case CueEffectKind::Mirror: {
+        // Flips, and folds: a fold keeps one side and shows its reflection on
+        // the other. `fold` moves the line from the middle toward the far
+        // edge, so more of the kept side shows. Alpha comes along with the
+        // colour, so a keyed picture folds with its key.
+        static constexpr int kWays = 8;
+        const int way = std::min(kWays - 1, static_cast<int>(pA * kWays));
+        const int w = ctx.width;
+        const int h = ctx.height;
+        const double keep = 0.5 + pB * 0.45;
+        std::vector<int> colFrom(static_cast<std::size_t>(w));
+        std::vector<int> rowFrom(static_cast<std::size_t>(h));
+        for (int x = 0; x < w; ++x) {
+          colFrom[x] = x;
+        }
+        for (int y = 0; y < h; ++y) {
+          rowFrom[y] = y;
+        }
+        // Keep the start of the line and reflect it over the end, or the other
+        // way about. Pixel centres sit at i + 0.5.
+        const auto foldOntoEnd = [keep](std::vector<int>& from, int n) {
+          const double line = n * keep;
+          for (int i = 0; i < n; ++i) {
+            if (i + 0.5 > line) {
+              from[i] = std::clamp(static_cast<int>(std::floor(2.0 * line - i - 0.5)), 0, n - 1);
+            }
+          }
+        };
+        const auto foldOntoStart = [keep](std::vector<int>& from, int n) {
+          const double line = n * (1.0 - keep);
+          for (int i = 0; i < n; ++i) {
+            if (i + 0.5 < line) {
+              from[i] = std::clamp(static_cast<int>(std::floor(2.0 * line - i - 0.5)), 0, n - 1);
+            }
+          }
+        };
+        switch (way) {
+          case 0: for (int x = 0; x < w; ++x) colFrom[x] = w - 1 - x; break;   // flip across
+          case 1: for (int y = 0; y < h; ++y) rowFrom[y] = h - 1 - y; break;   // upside down
+          case 2:                                                               // both
+            for (int x = 0; x < w; ++x) colFrom[x] = w - 1 - x;
+            for (int y = 0; y < h; ++y) rowFrom[y] = h - 1 - y;
+            break;
+          case 3: foldOntoStart(colFrom, w); break;   // right onto left
+          case 4: foldOntoEnd(colFrom, w); break;     // left onto right
+          case 5: foldOntoStart(rowFrom, h); break;   // bottom onto top
+          case 6: foldOntoEnd(rowFrom, h); break;     // top onto bottom
+          default:                                    // one corner into all four
+            foldOntoEnd(colFrom, w);
+            foldOntoEnd(rowFrom, h);
+            break;
+        }
+        const std::vector<std::uint8_t> source(pixels);
+        detail::parallelRows(h, w, [&](int firstRow, int lastRow) {
+          for (int y = firstRow; y < lastRow; ++y) {
+            std::uint8_t* p = pixels.data() + static_cast<std::size_t>(y) * w * 4;
+            const std::uint8_t* row = source.data() + static_cast<std::size_t>(rowFrom[y]) * w * 4;
+            for (int x = 0; x < w; ++x, p += 4) {
+              const std::uint8_t* q = row + static_cast<std::size_t>(colFrom[x]) * 4;
+              for (int k = 0; k < 4; ++k) {
+                p[k] = detail::clamp8(p[k] + (q[k] - p[k]) * amt + 0.5);
+              }
+            }
+          }
+        });
+        break;
+      }
+      case CueEffectKind::Mosaic: {
+        // Each tile filled with its own average. The gap and the rounding are
+        // one mask, the same for every tile: inside it the tile's colour,
+        // outside it black, edged by its coverage so a dot is round rather
+        // than stepped.
+        const double shortSide = std::min(ctx.width, ctx.height);
+        const int tile = std::max(2, static_cast<int>(std::lround(shortSide * (0.004 + pA * pA * 0.08))));
+        const int w = ctx.width;
+        const int h = ctx.height;
+        const int tilesX = (w + tile - 1) / tile;
+        const int tilesY = (h + tile - 1) / tile;
+        std::vector<std::uint8_t> average(static_cast<std::size_t>(tilesX) * tilesY * 4);
+        detail::parallelRows(tilesY, w * tile, [&](int firstTile, int lastTile) {
+          for (int ty = firstTile; ty < lastTile; ++ty) {
+            const int y0 = ty * tile;
+            const int y1 = std::min(h, y0 + tile);
+            for (int tx = 0; tx < tilesX; ++tx) {
+              const int x0 = tx * tile;
+              const int x1 = std::min(w, x0 + tile);
+              unsigned sum[4] = {0, 0, 0, 0};
+              for (int y = y0; y < y1; ++y) {
+                const std::uint8_t* q = pixels.data() + (static_cast<std::size_t>(y) * w + x0) * 4;
+                for (int x = x0; x < x1; ++x, q += 4) {
+                  sum[0] += q[0];
+                  sum[1] += q[1];
+                  sum[2] += q[2];
+                  sum[3] += q[3];
+                }
+              }
+              const unsigned n = static_cast<unsigned>((y1 - y0) * (x1 - x0));
+              std::uint8_t* a = average.data() + (static_cast<std::size_t>(ty) * tilesX + tx) * 4;
+              for (int k = 0; k < 4; ++k) {
+                a[k] = static_cast<std::uint8_t>(sum[k] / n);
+              }
+            }
+          }
+        });
+        const double inset = pB * 0.18 * tile;
+        const double half = tile * 0.5 - inset;
+        const double corner = pC * half;
+        std::vector<double> cover(static_cast<std::size_t>(tile) * tile, 1.0);
+        if (pB > 0.0 || pC > 0.0) {
+          for (int v = 0; v < tile; ++v) {
+            for (int u = 0; u < tile; ++u) {
+              // Signed distance to a rounded square centred in the tile.
+              const double qx = std::fabs(u + 0.5 - tile * 0.5) - (half - corner);
+              const double qy = std::fabs(v + 0.5 - tile * 0.5) - (half - corner);
+              const double outside = std::hypot(std::max(qx, 0.0), std::max(qy, 0.0));
+              const double sd = outside + std::min(std::max(qx, qy), 0.0) - corner;
+              cover[static_cast<std::size_t>(v) * tile + u] = std::clamp(0.5 - sd, 0.0, 1.0);
+            }
+          }
+        }
+        detail::parallelRows(h, w, [&](int firstRow, int lastRow) {
+          for (int y = firstRow; y < lastRow; ++y) {
+            const int ty = y / tile;
+            const double* coverRow = cover.data() + static_cast<std::size_t>(y - ty * tile) * tile;
+            const std::uint8_t* averageRow = average.data() + static_cast<std::size_t>(ty) * tilesX * 4;
+            std::uint8_t* p = pixels.data() + static_cast<std::size_t>(y) * w * 4;
+            for (int x = 0; x < w; ++x, p += 4) {
+              const int tx = x / tile;
+              const std::uint8_t* a = averageRow + static_cast<std::size_t>(tx) * 4;
+              const double c = coverRow[x - tx * tile];
+              for (int k = 0; k < 3; ++k) {
+                p[k] = detail::clamp8(p[k] + (a[k] * c - p[k]) * amt + 0.5);
+              }
+              p[3] = detail::clamp8(p[3] + (a[3] - p[3]) * amt + 0.5);
+            }
+          }
+        });
+        break;
+      }
+      case CueEffectKind::Edges: {
+        // SOBEL on the brightness: the outline every edge filter starts from.
+        // The lines are drawn over as much of the picture as `picture` keeps
+        // (none: lines on black), white or in the picture's own colours.
+        const int w = ctx.width;
+        const int h = ctx.height;
+        std::vector<std::uint8_t> luma(static_cast<std::size_t>(w) * h);
+        detail::parallelRows(h, w, [&](int firstRow, int lastRow) {
+          for (int y = firstRow; y < lastRow; ++y) {
+            const std::uint8_t* p = pixels.data() + static_cast<std::size_t>(y) * w * 4;
+            std::uint8_t* l = luma.data() + static_cast<std::size_t>(y) * w;
+            for (int x = 0; x < w; ++x, p += 4) {
+              l[x] = static_cast<std::uint8_t>((54 * p[0] + 183 * p[1] + 19 * p[2]) >> 8);
+            }
+          }
+        });
+        const double gain = (0.5 + pA * 3.0) / 4.0;   // A=0.5: a 128-level step draws full white
+        detail::parallelRows(h, w, [&](int firstRow, int lastRow) {
+          for (int y = firstRow; y < lastRow; ++y) {
+            const std::uint8_t* up = luma.data() + static_cast<std::size_t>(std::max(0, y - 1)) * w;
+            const std::uint8_t* mid = luma.data() + static_cast<std::size_t>(y) * w;
+            const std::uint8_t* down = luma.data() + static_cast<std::size_t>(std::min(h - 1, y + 1)) * w;
+            std::uint8_t* p = pixels.data() + static_cast<std::size_t>(y) * w * 4;
+            for (int x = 0; x < w; ++x, p += 4) {
+              const int l = std::max(0, x - 1);
+              const int r = std::min(w - 1, x + 1);
+              const int gx = (up[r] + 2 * mid[r] + down[r]) - (up[l] + 2 * mid[l] + down[l]);
+              const int gy = (down[l] + 2 * down[x] + down[r]) - (up[l] + 2 * up[x] + up[r]);
+              const double e = std::min(1.0, std::sqrt(static_cast<double>(gx * gx + gy * gy)) * gain / 255.0);
+              const double brightest = std::max({p[0], p[1], p[2], std::uint8_t {1}});
+              for (int k = 0; k < 3; ++k) {
+                const double own = p[k] * 255.0 / brightest;
+                const double line = 255.0 + (own - 255.0) * pC;
+                const double behind = p[k] * pB;
+                const double out = behind + (line - behind) * e;
+                p[k] = detail::clamp8(p[k] + (out - p[k]) * amt + 0.5);
+              }
+            }
+          }
+        });
+        break;
+      }
+      case CueEffectKind::LumaKey: {
+        // Brightness decides how much of each pixel stays: the dark, and with
+        // `cut bright` the bright, are taken out, so whatever the deck is over
+        // shows through -- graphics made on black, a flame on black, the white
+        // round a page. Written into alpha, as the chroma key does, so the two
+        // compose.
+        const double lowCut = pA * 0.5;   // A=0.5: everything darker than a quarter
+        const double highCut = 1.0 - pC * 0.5;
+        const double soft = 0.01 + pB * 0.25;
+        std::uint8_t keep[256];
+        for (int v = 0; v < 256; ++v) {
+          const double l = v / 255.0;
+          double k = 1.0;
+          if (lowCut > 0.0) {
+            k *= detail::smoothstep01(lowCut, lowCut + soft, l);
+          }
+          if (pC > 0.0) {
+            k *= 1.0 - detail::smoothstep01(highCut - soft, highCut, l);
+          }
+          keep[v] = detail::clamp8((1.0 - amt * (1.0 - k)) * 255.0 + 0.5);
+        }
+        detail::parallelRows(ctx.height, ctx.width, [&](int firstRow, int lastRow) {
+          for (int y = firstRow; y < lastRow; ++y) {
+            std::uint8_t* p = pixels.data() + static_cast<std::size_t>(y) * ctx.width * 4;
+            for (int x = 0; x < ctx.width; ++x, p += 4) {
+              const int l = (54 * p[0] + 183 * p[1] + 19 * p[2]) >> 8;
+              p[3] = static_cast<std::uint8_t>((p[3] * keep[l] + 127) / 255);
+            }
+          }
+        });
+        break;
+      }
+      case CueEffectKind::Strobe: {
+        // On the show's clock, the one the LFOs read, so the preview and the
+        // output flash together and the rate does not move with the frame
+        // rate. Half a flash to ten a second on a curve, so the slow end has
+        // room and it ARRIVES at about two: faster than three a second is the
+        // band that brings on photosensitive seizures, and the tip says so.
+        // (Capped at three at first; James: "Raise the strobe too".)
+        const double rate = 0.5 * std::pow(20.0, pA);
+        const double t = ctx.seconds >= 0.0 ? ctx.seconds
+                                            : static_cast<double>(ctx.frameIndex) / 30.0;
+        const double phase = t * rate - std::floor(t * rate);
+        if (phase >= 0.2 + pC * 0.6) {
+          break;
+        }
+        const double level = 255.0 * (1.0 - pB);
+        std::uint8_t lut[256];
+        detail::buildChannelLut(lut, [&](int v) {
+          return detail::clamp8(v + (level - v) * amt + 0.5);
+        });
+        detail::applyChannelLut(pixels.data(), ctx.width, ctx.height, lut);
         break;
       }
       case CueEffectKind::Levels: {

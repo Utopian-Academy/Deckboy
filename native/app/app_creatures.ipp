@@ -405,6 +405,62 @@
     return static_cast<double>(h % 10000u) / 10000.0;
   }
 
+  // ── EACH ANIMAL MOVES LIKE ITSELF ─────────────────────────────────────────
+  //
+  // James, 2026-10-29: "each animal needs individual behavior". They all
+  // used to walk the same walk at the same speed. Now each has a gait: how it
+  // moves, how fast, how often it stops and for how long. The theme creatures
+  // (core/creatures.hpp) had personalities already; these borrow the ideas --
+  // the mouse's dart-and-freeze, the frog's arc, the crab's sidle -- for a
+  // strip a few cells high.
+  enum class BusyGait : std::uint8_t {
+    Stroll,   // walks, stops a while, walks on
+    Dart,     // a quick run, a freeze, maybe the other way
+    Sidle,    // scuttles sideways in bursts, never turns its body
+    Hop,      // sits, then one hop at a time (the frog's frames ARE a hop)
+    Swim,     // drifts up and down as it goes, with little surges
+    Leap,     // swims low, and every so often arcs up out of the water
+    Slither,  // slow and sinuous, never stops
+    Flutter,  // flaps all the time, all over the place
+    Waddle,   // slow, rocking at every step, stops to sniff
+    Glide,    // barely moving, perfectly smooth
+  };
+  struct BusyStyle {
+    BusyGait gait = BusyGait::Stroll;
+    double speed = 0.3;       // fractions of the rect a second while moving
+    double steps = 8.0;       // walk-cycle frames a second while moving
+    double runFor = 0.0;      // seconds a run lasts on average; 0 never stops
+    double restFor = 0.0;     // seconds a stop lasts on average
+    bool turnsBody = true;    // false: faces the viewer, so it never flips
+  };
+  static BusyStyle busyGaitFor(const std::string& species) {
+    if (species == "cat")       return {BusyGait::Stroll,  0.22, 6.0,  2.5, 1.6, true};
+    if (species == "clownfish") return {BusyGait::Swim,    0.32, 8.0,  0.0, 0.0, true};
+    if (species == "crab")      return {BusyGait::Sidle,   0.45, 12.0, 0.6, 0.8, false};
+    if (species == "dolphin")   return {BusyGait::Leap,    0.40, 7.0,  0.0, 0.0, true};
+    if (species == "eel")       return {BusyGait::Slither, 0.16, 5.0,  0.0, 0.0, true};
+    if (species == "frog")      return {BusyGait::Hop,     0.55, 0.0,  0.42, 1.0, true};
+    if (species == "hedgehog")  return {BusyGait::Waddle,  0.12, 6.0,  2.0, 1.1, true};
+    if (species == "lizard")    return {BusyGait::Dart,    0.95, 14.0, 0.3, 1.1, true};
+    if (species == "moth")      return {BusyGait::Flutter, 0.28, 16.0, 0.0, 0.0, false};
+    if (species == "mouse")     return {BusyGait::Dart,    0.70, 12.0, 0.5, 0.8, true};
+    if (species == "rat")       return {BusyGait::Stroll,  0.36, 10.0, 3.0, 0.6, true};
+    if (species == "snail")     return {BusyGait::Glide,   0.05, 2.5,  0.0, 0.0, true};
+    return {};
+  }
+  // The gaits that move up and down the rect rather than along its floor.
+  static bool busyGaitUsesHeight(BusyGait gait) {
+    return gait == BusyGait::Hop || gait == BusyGait::Swim || gait == BusyGait::Leap ||
+           gait == BusyGait::Slither || gait == BusyGait::Flutter;
+  }
+  // 0..1 from the critter's own dice (xorshift).
+  static double busyRoll(std::uint32_t& dice) {
+    dice ^= dice << 13;
+    dice ^= dice >> 17;
+    dice ^= dice << 5;
+    return static_cast<double>(dice % 10000u) / 10000.0;
+  }
+
   static const char* busyCritterSpecies(const std::string& seed) {
     static constexpr const char* species[] = {
       "cat", "clownfish", "crab", "dolphin", "eel", "frog",
@@ -436,6 +492,11 @@
       // not in lockstep -- that reads as one animation rather than two animals.
       b.x = 0.15 + 0.7 * busyCritterHash(id);
       b.dir = (busyCritterHash(id + "d") < 0.5) ? -1.0 : 1.0;
+      b.dice = 1u + static_cast<std::uint32_t>(busyCritterHash(id + b.species) * 4000000.0);
+      const BusyStyle style = busyGaitFor(b.species);
+      b.runLeft = style.runFor * (0.5 + busyRoll(b.dice));
+      // A frog arrives sitting, for a moment, before its first hop.
+      b.restLeft = style.gait == BusyGait::Hop ? style.restFor * busyRoll(b.dice) : 0.0;
     }
     b.home = where;
     b.foreground = foreground;
@@ -452,11 +513,100 @@
         it = busyCritters_.erase(it);
         continue;
       }
-      b.phase += dt * 9.0;               // about nine frames a second of walk
-      b.x += b.dir * dt * 0.42;          // across its own rect, in fractions
+      stepBusyCritter(b, dt);
+      ++it;
+    }
+  }
+
+  // One step of the animal's own gait.
+  static void stepBusyCritter(BusyCritter& b, double dt) {
+    const BusyStyle style = busyGaitFor(b.species);
+    constexpr double kPi = 3.14159265358979;
+    b.clock += dt;
+    b.pose = -1;
+    const auto keepInside = [&b] {
       if (b.x < 0.06) { b.x = 0.06; b.dir = 1.0; }
       if (b.x > 0.94) { b.x = 0.94; b.dir = -1.0; }
-      ++it;
+    };
+
+    // THE FROG keeps its own time: it sits, then makes one whole hop. runFor
+    // is the hop's length, and the four frames are sit, crouch, leap and land,
+    // so the pose follows the hop rather than a clock.
+    if (style.gait == BusyGait::Hop) {
+      if (b.hop < 0.0) {
+        b.lift = 0.0;
+        b.pose = 0;
+        b.restLeft -= dt;
+        if (b.restLeft <= 0.0) b.hop = 0.0;
+        return;
+      }
+      b.hop += dt / std::max(0.1, style.runFor);
+      const double along = std::min(1.0, b.hop);
+      b.lift = std::sin(along * kPi);
+      b.pose = along < 0.18 ? 1 : along < 0.78 ? 2 : 3;
+      b.x += b.dir * dt * style.speed;
+      keepInside();
+      if (b.hop >= 1.0) {
+        b.hop = -1.0;
+        b.lift = 0.0;
+        b.restLeft = style.restFor * (0.5 + busyRoll(b.dice));
+        if (busyRoll(b.dice) < 0.25) b.dir = -b.dir;
+      }
+      return;
+    }
+
+    // RUN, THEN REST, for the ones that stop (runFor 0 never does).
+    bool moving = true;
+    if (b.restLeft > 0.0) {
+      b.restLeft -= dt;
+      moving = false;
+      if (b.restLeft <= 0.0) {
+        b.runLeft = style.runFor * (0.5 + busyRoll(b.dice));
+        // A darting animal or a crab may set off the other way.
+        if ((style.gait == BusyGait::Dart || style.gait == BusyGait::Sidle) && busyRoll(b.dice) < 0.4) {
+          b.dir = -b.dir;
+        }
+      }
+    } else if (style.runFor > 0.0) {
+      b.runLeft -= dt;
+      if (b.runLeft <= 0.0) {
+        b.restLeft = style.restFor * (0.5 + busyRoll(b.dice));
+        moving = false;
+      }
+    }
+
+    double speed = style.speed;
+    switch (style.gait) {
+      case BusyGait::Swim:
+        // Up and down as it goes, with a little surge now and then.
+        b.lift = 0.5 + 0.38 * std::sin(b.clock * 2.4 + b.dice % 7);
+        speed *= 1.0 + 0.6 * std::max(0.0, std::sin(b.clock * 1.7 + b.dice % 5));
+        break;
+      case BusyGait::Leap: {
+        // Low in the water, then an arc for the first third of every cycle.
+        const double cycle = std::fmod(b.clock + (b.dice % 11) * 0.2, 2.6) / 2.6;
+        b.lift = cycle < 0.34 ? std::sin(cycle / 0.34 * kPi) : 0.08;
+        break;
+      }
+      case BusyGait::Slither:
+        b.lift = 0.45 + 0.25 * std::sin(b.clock * 1.3 + b.dice % 9);
+        break;
+      case BusyGait::Flutter:
+        // All over the place, and changing its mind about which way.
+        b.lift = std::clamp(0.5 + 0.35 * std::sin(b.clock * 5.3 + b.dice % 13) +
+                            0.15 * std::sin(b.clock * 11.7), 0.0, 1.0);
+        speed *= 0.6 + 0.8 * std::fabs(std::sin(b.clock * 3.1));
+        if (busyRoll(b.dice) < dt * 0.4) b.dir = -b.dir;   // about every two and a half seconds
+        break;
+      default:
+        break;
+    }
+    if (moving) {
+      b.phase += dt * style.steps;
+      b.x += b.dir * dt * speed;
+      keepInside();
+    } else {
+      b.pose = 0;   // standing still on its first frame
     }
   }
 
@@ -464,12 +614,18 @@
     if (b.home.w <= 0 || b.home.h <= 0) {
       return;
     }
-    SDL_Texture* tex = busyCritterFrame(b.species, static_cast<int>(b.phase));
+    SDL_Texture* tex = busyCritterFrame(b.species, b.pose >= 0 ? b.pose : static_cast<int>(b.phase));
     if (!tex) {
       return;
     }
-    const int full = std::min({b.home.w, b.home.h,
-      std::clamp(b.home.h - uiScaled(6), uiScaled(12), uiScaled(28))});
+    const BusyStyle style = busyGaitFor(b.species);
+    // An animal that moves up and down is drawn a little smaller, standing on
+    // the bottom of its rect, so there is height left to move in.
+    const bool high = busyGaitUsesHeight(style.gait);
+    const int full = high
+      ? std::min({b.home.w, b.home.h, std::clamp(b.home.h * 5 / 8, uiScaled(12), uiScaled(24))})
+      : std::min({b.home.w, b.home.h,
+          std::clamp(b.home.h - uiScaled(6), uiScaled(12), uiScaled(28))});
     // GROWN FROM A SINGLE CELL, and shrunk back into one when the job is
     // done, rather than faded (James's original critter reference). The
     // nearest-neighbour texture makes the small sizes read as a few cells.
@@ -478,8 +634,16 @@
     const int size = std::max(std::max(2, uiScaled(2)), static_cast<int>(std::lround(full * eased)));
     const int x = b.home.x + static_cast<int>(
       std::clamp(b.x, 0.0, 1.0) * (b.home.w - full)) + (full - size) / 2;
-    const int bob = static_cast<int>(std::lround(std::sin(b.phase * 1.6)));
-    const int y = std::clamp(b.home.y + (b.home.h - full) / 2 + (full - size) + bob,
+    // Walkers bob a cell at each step (a waddle rocks two); the snail and
+    // anything standing still do not bob at all.
+    int bob = 0;
+    if (!high && b.pose < 0 && style.gait != BusyGait::Glide) {
+      bob = static_cast<int>(std::lround(std::sin(b.phase * 1.6) *
+                                         (style.gait == BusyGait::Waddle ? 2.0 : 1.0)));
+    }
+    const int floorY = high ? b.home.y + b.home.h - size
+                            : b.home.y + (b.home.h - full) / 2 + (full - size);
+    const int y = std::clamp(floorY - static_cast<int>(std::lround(b.lift * (floorY - b.home.y))) + bob,
                              b.home.y, b.home.y + b.home.h - size);
     const bool hadClip = SDL_RenderClipEnabled(controlRenderer_);
     SDL_Rect previousClip {};
@@ -495,8 +659,9 @@
     SDL_SetTextureAlphaMod(tex, 255);
     SDL_FRect dst {static_cast<float>(x), static_cast<float>(y),
                    static_cast<float>(size), static_cast<float>(size)};
+    // Sprites face right; one drawn facing the viewer (crab, moth) never turns.
     SDL_RenderTextureRotated(controlRenderer_, tex, nullptr, &dst, 0.0, nullptr,
-                             b.dir < 0.0 ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
+                             style.turnsBody && b.dir < 0.0 ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
     SDL_SetTextureAlphaMod(tex, 255);
     SDL_SetRenderClipRect(controlRenderer_, hadClip ? &previousClip : nullptr);
     SDL_SetRenderDrawBlendMode(controlRenderer_, previousBlend);

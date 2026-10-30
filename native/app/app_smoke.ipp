@@ -1118,6 +1118,126 @@
       expect(turned[0] < turned[1] && turned[0] < turned[2], "colour effect: half a turn takes red to cyan");
     }
 
+    // ── The basics added 2026-10-29: answers that can be worked out by hand ──
+    {
+      namespace fx = deckboy::effects;
+      auto run = [](fx::CueEffectKind kind, std::vector<std::uint8_t> pixels, int width,
+                    float a, float b, float c, float d, double seconds = -1.0) {
+        fx::CueEffect effect;
+        effect.kind = kind;
+        effect.amount = 1.0f;
+        effect.paramA = a;
+        effect.paramB = b;
+        effect.paramC = c;
+        effect.paramD = d;
+        fx::CueEffectContext ctx;
+        ctx.width = width;
+        ctx.height = static_cast<int>(pixels.size() / 4) / width;
+        ctx.seconds = seconds;
+        fx::applyCueEffectStack(pixels, {effect}, ctx);
+        return pixels;
+      };
+      // Colour replace, as it arrives: cyan becomes red, at the same
+      // brightness, and a grey has no hue to change.
+      const auto cyan = run(fx::CueEffectKind::ColourReplace, {0, 255, 255, 255, 128, 128, 128, 255},
+                            2, 0.5f, 0.0f, 0.0f, 0.0f);
+      expect(cyan[0] == 255 && cyan[1] == 0 && cyan[2] == 0 && cyan[4] == 128 && cyan[5] == 128 &&
+             cyan[6] == 128, "colour replace: arrives taking cyan to red, and leaves grey alone");
+      // Mirror: flip across reverses a row exactly; left onto right reflects.
+      std::vector<std::uint8_t> row;
+      for (int i = 0; i < 4; ++i) row.insert(row.end(), {static_cast<std::uint8_t>(i * 60), 0, 0, 255});
+      const auto flipped = run(fx::CueEffectKind::Mirror, row, 4, 0.0f, 0.0f, 0.0f, 0.0f);
+      const auto folded = run(fx::CueEffectKind::Mirror, row, 4, 0.5f, 0.0f, 0.0f, 0.0f);
+      expect(flipped[0] == 180 && flipped[4] == 120 && flipped[8] == 60 && flipped[12] == 0,
+             "mirror: flip across reverses the row");
+      expect(folded[0] == 0 && folded[4] == 60 && folded[8] == 60 && folded[12] == 0,
+             "mirror: as it arrives, the left half shows reflected on the right");
+      // Luma key, as it arrives: black goes, white stays; cut bright takes white too.
+      const std::vector<std::uint8_t> blackWhite {0, 0, 0, 255, 255, 255, 255, 255};
+      const auto keyed = run(fx::CueEffectKind::LumaKey, blackWhite, 2, 0.5f, 0.0f, 0.0f, 0.0f);
+      const auto keyedBright = run(fx::CueEffectKind::LumaKey, blackWhite, 2, 0.5f, 0.0f, 1.0f, 0.0f);
+      expect(keyed[3] == 0 && keyed[7] == 255 && keyed[0] == 0 && keyed[4] == 255,
+             "luma key: takes black out and keeps white, colour untouched");
+      expect(keyedBright[7] == 0, "luma key: cut bright takes white out as well");
+      // Strobe on the show's clock: a flash at the start of each beat, none
+      // between, white by default and black at the far end of "flash to".
+      const std::vector<std::uint8_t> mid {100, 100, 100, 255};
+      const auto onBeat = run(fx::CueEffectKind::Strobe, mid, 1, 0.5f, 0.0f, 0.0f, 0.0f, 0.0);
+      const auto between = run(fx::CueEffectKind::Strobe, mid, 1, 0.5f, 0.0f, 0.0f, 0.0f, 0.4);
+      const auto blackFlash = run(fx::CueEffectKind::Strobe, mid, 1, 0.5f, 1.0f, 0.0f, 0.0f, 0.0);
+      expect(onBeat[0] == 255 && between[0] == 100 && blackFlash[0] == 0,
+             "strobe: white on the beat, nothing between, black when asked");
+      // Ten a second at the top of the rate: a tenth of a second in is the next
+      // flash, and halfway between two is dark.
+      const auto tenth = run(fx::CueEffectKind::Strobe, mid, 1, 1.0f, 0.0f, 0.0f, 0.0f, 0.105);
+      const auto half = run(fx::CueEffectKind::Strobe, mid, 1, 1.0f, 0.0f, 0.0f, 0.0f, 0.15);
+      expect(tenth[0] == 255 && half[0] == 100, "strobe: the fastest rate is ten a second");
+      // Mosaic: a tile is its own average.
+      std::vector<std::uint8_t> checker;
+      for (int y = 0; y < 64; ++y) {
+        for (int x = 0; x < 64; ++x) {
+          const std::uint8_t v = ((x + y) & 1) ? 200 : 0;
+          checker.insert(checker.end(), {v, v, v, 255});
+        }
+      }
+      const auto tiled = run(fx::CueEffectKind::Mosaic, checker, 64, 0.5f, 0.0f, 0.0f, 0.0f);
+      expect(tiled[0] == 100 && tiled[4] == 100, "mosaic: a tile is filled with its own average");
+      // Blur keeps a flat picture flat; sharpen and edges leave it alone.
+      const std::vector<std::uint8_t> flat(64 * 64 * 4, 90);
+      expect(run(fx::CueEffectKind::Blur, flat, 64, 0.5f, 0.0f, 0.0f, 0.0f) == flat &&
+             run(fx::CueEffectKind::Sharpen, flat, 64, 0.5f, 0.0f, 0.0f, 0.0f) == flat,
+             "blur and sharpen: a flat picture stays exactly as it was");
+      const auto noEdges = run(fx::CueEffectKind::Edges, flat, 64, 0.5f, 0.0f, 0.0f, 0.0f);
+      expect(noEdges[0] == 0 && noEdges[1] == 0, "edges: a flat picture has no lines, so it goes black");
+    }
+
+    // ── Busy animals: each moves like itself, and stays in its strip ───────
+    {
+      struct Watched {
+        double travelled = 0.0;
+        double highest = 0.0;
+        int stillSteps = 0;
+        unsigned poses = 0;
+        bool inside = true;
+      };
+      const auto watch = [](const char* species) {
+        Watched w;
+        BusyCritter b;
+        b.species = species;
+        b.dice = 12345u;
+        b.runLeft = busyGaitFor(species).runFor;
+        double last = b.x;
+        for (int i = 0; i < 600; ++i) {   // ten seconds at sixty steps a second
+          stepBusyCritter(b, 1.0 / 60.0);
+          w.travelled += std::fabs(b.x - last);
+          last = b.x;
+          w.highest = std::max(w.highest, b.lift);
+          if (b.pose == 0) ++w.stillSteps;
+          if (b.pose >= 0) w.poses |= 1u << b.pose;
+          w.inside = w.inside && b.x >= 0.06 && b.x <= 0.94 && b.lift >= 0.0 && b.lift <= 1.0;
+        }
+        return w;
+      };
+      bool allInside = true;
+      for (const char* species : {"cat", "clownfish", "crab", "dolphin", "eel", "frog", "hedgehog",
+                                  "lizard", "moth", "mouse", "rat", "snail"}) {
+        allInside = allInside && watch(species).inside;
+      }
+      expect(allInside, "busy animals: all twelve stay inside their strip");
+      const Watched frog = watch("frog");
+      expect(frog.poses == 0xFu && frog.highest > 0.9 && frog.stillSteps > 0,
+             "busy animals: the frog sits, then hops through all four frames");
+      const Watched mouse = watch("mouse");
+      const Watched snail = watch("snail");
+      const Watched fish = watch("clownfish");
+      expect(mouse.stillSteps > 60 && fish.stillSteps == 0 && fish.highest > 0.8,
+             "busy animals: the mouse freezes between runs; the fish never stops, and swims up and down");
+      expect(snail.travelled < 0.6 && mouse.travelled > snail.travelled * 2.0,
+             "busy animals: the snail is the slowest");
+      expect(!busyGaitFor("crab").turnsBody && busyGaitFor("cat").turnsBody,
+             "busy animals: the crab sidles without turning; the cat turns round");
+    }
+
     // ── Sound scopes: answers known in advance ─────────────────────────────
     //
     // Correlation from signals whose answer is a definition, the spectrum
@@ -5343,10 +5463,17 @@
       return 1;
     }
     out << "P6\n" << w << ' ' << h << "\n255\n";
+    // Transparency over a checkerboard, as an editor shows it: PPM has no
+    // alpha, and without this a key (luma key) dumped as the picture it was
+    // given. Everything that leaves alpha at 255 is written exactly as before.
     for (std::size_t i = 0; i < count; ++i) {
-      out.put(static_cast<char>(pixels[i * 4 + 0]));
-      out.put(static_cast<char>(pixels[i * 4 + 1]));
-      out.put(static_cast<char>(pixels[i * 4 + 2]));
+      const int alpha = pixels[i * 4 + 3];
+      const int px = static_cast<int>(i % static_cast<std::size_t>(w));
+      const int py = static_cast<int>(i / static_cast<std::size_t>(w));
+      const int check = (((px / 16) + (py / 16)) & 1) ? 160 : 96;
+      for (int c = 0; c < 3; ++c) {
+        out.put(static_cast<char>((pixels[i * 4 + c] * alpha + check * (255 - alpha) + 127) / 255));
+      }
     }
     std::cout << "effect-dump: " << deckboy::effects::cueEffectToken(fx.kind)
               << " amount=" << fx.amount << " a=" << fx.paramA << " b=" << fx.paramB

@@ -179,8 +179,8 @@ The control window is split into:
 
 Timeline loading uses filmstrip and audio-meter animations. Critters accompany
 imports, slide rendering, loudness analysis and updates (checking, downloading
-and installing), each job bringing one of twelve animals; file conversion keeps
-its mascot and measured progress bars.
+and installing), each job bringing one of twelve animals, each moving in its
+own way; file conversion keeps its mascot and measured progress bars.
 
 Two dividers rebalance the layout. The vertical splitter sits between the
 program area and the inspector. The horizontal grip sits in the gap under the
@@ -1311,6 +1311,15 @@ setting you spent time on, bypass takes it out of the chain and gives it back.
 |--------|--------------|
 | levels | The levels tool: midtones (gamma), black point, white point and lift. First in the effect list, and it arrives doing nothing until you move a slider |
 | curves | An S-curve for contrast (or flatten it), on all channels or red, green or blue alone, with a shadow lift and a highlight roll-off that never move pure black or white |
+| colour | Turns every colour round the wheel, tints toward one colour, or washes out toward black and white. Arrives doing nothing, like levels and curves |
+| colour replace | One band of colours becomes another and keeps its shading: a red shirt turns blue and keeps its folds. Choose the colour, how wide a band, what it becomes, and how softly the band ends |
+| blur, sharpen | Blur evenly, or as a streak along an angle, like movement. Sharpen lifts the edges, with a radius and a threshold that leaves grain and noise alone |
+| glow | The bright parts bloom outward over the picture; choose how much glows and how far |
+| mirror | Flips across, upside down or both, or folds one half onto the other: right onto left, left onto right, bottom onto top, top onto bottom, or one corner into all four. The fold can sit off-centre |
+| mosaic | Tiles in the picture's own colours, with a gap between them and corners rounded off all the way to dots, like an LED wall |
+| edges | Outlines, on black or over the picture, in white or in the picture's own colours |
+| luma key | Takes out the dark (and, if you like, the bright), so the playlist beneath shows through: graphics or flames made on black. Works with the chroma key |
+| strobe | Flashes to white, black or grey, from half a flash to ten a second; it arrives at about two. Faster than three a second can bring on seizures in people with photosensitive epilepsy, so warn the audience before using it. Keeps time with the show's clock, so preview and output flash together |
 | invert, posterise, solarise, threshold | Level shaping, each with a pivot and a channel skew |
 | vignette, scanlines, grain | The classic framing and texture set |
 | RGB split | Channel offset with an angle |
@@ -1332,7 +1341,8 @@ setting you spent time on, bypass takes it out of the chain and gives it back.
 | depth split | Brightness is read as nearness and the two eyes disagree, with a slow rock that makes the depth read without glasses |
 | schlieren, chladni, wavefront, crystallise, night eyes, grain flow | See below |
 
-There are **36** of them. Timed one at a time at 1080p on a laptop processor,
+There are **52** of them; the basics (levels, curves, colour and the nine
+from colour replace to strobe) come first in the list. Timed one at a time at 1080p on a laptop processor,
 the heaviest measured — wavefront — takes about three-quarters of a 60fps frame,
 and most take under half. `--effect-bench <token> [WxH]` reports what any of
 them costs on your own machine and at your own raster.

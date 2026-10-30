@@ -4234,6 +4234,7 @@
               (stackAnimates && isDefaultStillDurationCueKind(sourceCue->kind))
                 ? motionDriverFrameCounter_
                 : sourceFrame->index;
+            fxCtx.seconds = lfoSeconds_;   // the LFOs' clock, so a strobe and the monitor agree
             // Only advance a driver when something will actually read it --
             // decoding a clip nobody is puppeteering would be a cost with no
             // picture to show for it.

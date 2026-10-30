@@ -76,6 +76,18 @@ EFFECTS = [
     # A hue turn, a tint toward green and a little washed out: off neutral
     # on every slot.
     ("colour",          "1.0:0.8:0.5:0.35:0.3"),
+    # The basics added 2026-10-29. Colour replace takes the warm half of the
+    # wheel (from red, +-90 deg) to blue, which the fractal has plenty of.
+    ("colour_replace",  "1.0:0.0:1.0:0.6:0.3"),
+    ("blur",            "1.0:0.5:0.0"),
+    ("sharpen",         "1.0:0.7:0.2"),
+    ("glow",            "1.0:0.6:0.4"),
+    ("mirror",          "1.0:0.5:0.0"),
+    ("mosaic",          "1.0:0.5:0.3:0.5"),
+    ("edges",           "1.0:0.5:0.0:0.0"),
+    ("luma_key",        "1.0:0.6:0.1"),
+    # Half a flash a second, so frame 7 (0.23 s) is inside the first flash.
+    ("strobe",          "1.0:0.0:0.0"),
 ]
 
 # Effects whose whole subject is what happens ACROSS frames need more than one
@@ -106,7 +118,10 @@ ANIMATES_BY_INDEX = {"grain", "temporal_dither", "block_glitch", "ripple",
                      "depth_split",
                      # Added 2026-09-17: the delay offset moves with the
                      # frame, so a held still keeps bending.
-                     "databend"}
+                     "databend",
+                     # Flashes on the clock; a dump's clock is the frame
+                     # index at thirty a second.
+                     "strobe"}
 ANIMATES_BY_STATE = {"feedback", "feedback_bloom", "motion_puppet",
                     "scotopic", "text_mode",
                      # Holds the swept frame between calls.
@@ -153,6 +168,15 @@ PARAM_SLOTS = {
     "levels":          ["midtones", "black point", "white point", "lift"],
     "curves":          ["s-curve", "channel", "shadow lift", "highlight roll"],
     "colour":          ["hue turn", "tint", "tint colour", "wash out"],
+    "colour_replace":  ["from", "range", "to", "softness"],
+    "blur":            ["size", "stretch", "angle"],
+    "sharpen":         ["strength", "radius", "threshold"],
+    "glow":            ["reach", "size"],
+    "mirror":          ["way", "fold"],
+    "mosaic":          ["tile size", "gap", "round"],
+    "edges":           ["strength", "picture", "line colour"],
+    "luma_key":        ["cut dark", "softness", "cut bright"],
+    "strobe":          ["rate", "flash to", "flash length"],
     "schlieren":       ["knife angle", "sensitivity", "colour"],
     "chladni":         ["mode", "second mode", "gather", "line glow"],
     "wavefront":       ["stiffness", "steps", "damping", "relief"],
@@ -184,6 +208,14 @@ PARAM_BASE = {
     "curves": [0.2, 0.0, 0.0, 0.0],
     # The tint colour only shows once there is some tint.
     "colour": [0.5, 0.6, 0.0, 0.0],
+    # The band has to hold colours the fractal has, or every slot moves
+    # nothing: the warm half of the wheel, from red.
+    "colour_replace": [0.0, 1.0, 0.6, 0.0],
+    # The angle is the streak's, and there is no streak until stretch is up.
+    "blur": [0.5, 0.6, 0.0, 0.0],
+    # A slightly longer flash, so the rate moved to 0.9 (7.4 a second) puts
+    # frame 13 inside a flash the arrival rate does not.
+    "strobe": [0.5, 0.0, 0.1, 0.0],
     "scotopic": [0.5, 0.85, 0.0, 0.0],
     # Databend's smear is a DELAY TIME, and the delayed signal is only mixed
     # back in through the feedback. At neutral feedback nothing is fed back, so

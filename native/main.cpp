@@ -7012,6 +7012,39 @@ class App {
         default: break;
       }
     }
+    // The basics added 2026-10-29 say what they are set to in their own terms:
+    // a colour by name, the mirror's way, the strobe's rate. "62%" of a hue is
+    // not a colour anyone can picture.
+    {
+      using deckboy::effects::CueEffectKind;
+      static const char* const kHues[] = {"red", "orange", "yellow", "lime", "green", "mint",
+                                          "cyan", "sky", "blue", "violet", "magenta", "pink"};
+      const auto hueName = [](float v) {
+        return std::string(kHues[static_cast<int>(std::lround(v * 12.0f)) % 12]);
+      };
+      if (fx.kind == CueEffectKind::ColourReplace && (which == 0 || which == 2)) {
+        return hueName(raw);
+      }
+      if (fx.kind == CueEffectKind::Blur && which == 2) {
+        return std::to_string(static_cast<int>(std::lround(raw * 180.0f))) + " deg";
+      }
+      if (fx.kind == CueEffectKind::Mirror && which == 0) {
+        static const char* const kWays[] = {"flip across", "upside down", "flip both",
+                                            "right onto left", "left onto right",
+                                            "bottom onto top", "top onto bottom", "four ways"};
+        return kWays[std::min(7, static_cast<int>(raw * 8.0f))];
+      }
+      if (fx.kind == CueEffectKind::Strobe && which == 0) {
+        char rate[24];
+        std::snprintf(rate, sizeof(rate), "%.1f a second", 0.5 * std::pow(20.0, static_cast<double>(raw)));
+        return rate;
+      }
+      if (fx.kind == CueEffectKind::Strobe && which == 1) {
+        if (raw < 0.02f) return "white";
+        if (raw > 0.98f) return "black";
+        return "grey " + std::to_string(static_cast<int>(std::lround((1.0f - raw) * 100.0f))) + "%";
+      }
+    }
     // Everything else is a genuine proportion. Shown as a percentage because
     // that reads as a setting, where a bare "0.42" reads as the storage format
     // leaking into the panel.
@@ -10331,6 +10364,17 @@ class App {
     double fade = 0.0;
     Uint64 seenAtMs = 0;
     bool foreground = true; // modal jobs draw after popups; timeline jobs before
+    // Each animal's own way of moving (busyGaitFor in app_creatures.ipp): its
+    // own clock, the run or the rest under way, how far up the rect it is, a
+    // pose the gait picks over the walk cycle, and dice of its own, so two
+    // jobs with the same animal do not move in step.
+    double clock = 0.0;
+    double runLeft = 0.0;
+    double restLeft = 0.0;
+    double hop = -1.0;        // 0..1 through a hop or a leap, -1 on the ground
+    double lift = 0.0;        // 0 on its floor .. 1 at the top of the rect
+    int pose = -1;            // a frame the gait holds, or -1 for the cycle
+    std::uint32_t dice = 1;
   };
   std::map<std::string, BusyCritter> busyCritters_;
   std::map<std::string, UiImageAsset> busyCritterArt_;
