@@ -1436,6 +1436,8 @@
     // straight over the top. From the outside that is a button that does
     // nothing, which is exactly how it was reported. Anything an overlay can
     // open has to be drawn after EVERY overlay, not in the middle of them.
+    // The colour picker opens the typing box, so it draws under that.
+    renderColourPicker(width, height);
     renderDropdownPopover();
     renderInlineTextEditor();
     renderWebMonitorQr(width, height);

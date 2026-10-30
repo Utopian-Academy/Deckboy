@@ -322,6 +322,64 @@ inline bool cueEffectKindAnimates(CueEffectKind kind) {
 //
 // Read the neutral-value note on CueEffect before adding one: A=0.5, B=0, C=0,
 // D=0 must reproduce what the effect did before the parameter existed.
+// THE COLOUR CHIPS. Two kinds of slot take a colour from the picker:
+//
+// A HUE slot is an ordinary 0-1 parameter that means a place round the colour
+// wheel from red. The chip shows that hue fully saturated and the picker sets
+// the slot to the hue of whatever it picks, so the slider and its LFO keep
+// working and a picked navy and a picked sky blue land on the same blue --
+// which is right for these, because they keep the picture's own shading.
+inline bool cueEffectParamIsHue(CueEffectKind kind, int which) {
+  switch (kind) {
+    case CueEffectKind::Colour:        return which == 2;
+    case CueEffectKind::ColourReplace: return which == 0 || which == 2;
+    default:                           return false;
+  }
+}
+
+// The WHOLE-colour slot: the effect's CueEffect::colour, whose chip sits on
+// this parameter's row because that slider shades it. -1 for an effect with
+// none.
+inline int cueEffectColourSlot(CueEffectKind kind) {
+  switch (kind) {
+    case CueEffectKind::Strobe: return 1;   // flash to: the colour, toward black
+    case CueEffectKind::Edges:  return 2;   // line colour: the colour, toward the picture's
+    default:                    return -1;
+  }
+}
+
+// The hue (0-1 from red) of an 0xRRGGBB colour, or -1 for a grey, which has
+// none. The inverse of the fully saturated wheel the hue effects draw from.
+inline double colourHue01(std::uint32_t rgb) {
+  const double r = ((rgb >> 16) & 0xFF) / 255.0;
+  const double g = ((rgb >> 8) & 0xFF) / 255.0;
+  const double b = (rgb & 0xFF) / 255.0;
+  const double mx = std::max({r, g, b});
+  const double mn = std::min({r, g, b});
+  const double d = mx - mn;
+  if (d <= 1e-6) return -1.0;
+  double h = mx == r ? std::fmod((g - b) / d, 6.0) : mx == g ? (b - r) / d + 2.0 : (r - g) / d + 4.0;
+  h /= 6.0;
+  return h < 0.0 ? h + 1.0 : h;
+}
+
+// The fully saturated colour at a hue (0-1 from red), as the hue effects use it.
+inline std::uint32_t hueColour(double hue01) {
+  const double sector = (hue01 - std::floor(hue01)) * 6.0;
+  const double f = sector - std::floor(sector);
+  double r = 1.0, g = 0.0, b = 0.0;
+  switch (static_cast<int>(std::floor(sector)) % 6) {
+    case 0: r = 1.0; g = f; b = 0.0; break;
+    case 1: r = 1.0 - f; g = 1.0; b = 0.0; break;
+    case 2: r = 0.0; g = 1.0; b = f; break;
+    case 3: r = 0.0; g = 1.0 - f; b = 1.0; break;
+    case 4: r = f; g = 0.0; b = 1.0; break;
+    default: r = 1.0; g = 0.0; b = 1.0 - f; break;
+  }
+  const auto byte = [](double v) { return static_cast<std::uint32_t>(std::lround(v * 255.0)); };
+  return (byte(r) << 16) | (byte(g) << 8) | byte(b);
+}
+
 inline const char* cueEffectParamLabel(CueEffectKind kind, int which) {
   switch (kind) {
     case CueEffectKind::Invert:
@@ -735,7 +793,8 @@ inline const char* cueEffectParamTip(CueEffectKind kind, int which) {
         : which == 1
         ? "How much of the picture shows behind the lines. None at the left: "
           "lines on black."
-        : "White lines at the left; the picture's own colours to the right.";
+        : "Lines in the chip's colour at the left; the picture's own colours "
+          "to the right. Click the chip to pick the colour.";
     case CueEffectKind::LumaKey:
       return which == 0
         ? "Takes out everything darker than this, so what lies beneath shows "
@@ -750,7 +809,8 @@ inline const char* cueEffectParamTip(CueEffectKind kind, int which) {
           "than three a second can bring on seizures in people with "
           "photosensitive epilepsy, so warn the audience before using it."
         : which == 1
-        ? "White at the left, black at the right, grey between."
+        ? "The chip's colour at the left, black at the right, darker between. "
+          "Click the chip to pick what it flashes to; white is a white flash."
         : "How long each flash lasts, as a share of the time between them.";
     case CueEffectKind::FeedbackBloom:
       return which == 0
@@ -1089,6 +1149,11 @@ struct CueEffect {
   // gives it back. Every serious tool has both and they are not
   // interchangeable.
   bool bypassed = false;
+  // A WHOLE colour, 0xRRGGBB, for the effects that draw one: what a strobe
+  // flashes to and what an edge line is drawn in (cueEffectColourSlot says
+  // which row carries its chip). White, because both drew white before they
+  // had it, so a show saved before it looks the same.
+  std::uint32_t colour = 0xFFFFFF;
 
   // One LFO per parameter, off by default.
   //
@@ -2255,7 +2320,13 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
       case CueEffectKind::Edges: {
         // SOBEL on the brightness: the outline every edge filter starts from.
         // The lines are drawn over as much of the picture as `picture` keeps
-        // (none: lines on black), white or in the picture's own colours.
+        // (none: lines on black), in the line colour (white unless picked) or
+        // in the picture's own colours.
+        const double lineColour[3] = {
+          static_cast<double>((fx.colour >> 16) & 0xFF),
+          static_cast<double>((fx.colour >> 8) & 0xFF),
+          static_cast<double>(fx.colour & 0xFF),
+        };
         const int w = ctx.width;
         const int h = ctx.height;
         std::vector<std::uint8_t> luma(static_cast<std::size_t>(w) * h);
@@ -2284,7 +2355,7 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
               const double brightest = std::max({p[0], p[1], p[2], std::uint8_t {1}});
               for (int k = 0; k < 3; ++k) {
                 const double own = p[k] * 255.0 / brightest;
-                const double line = 255.0 + (own - 255.0) * pC;
+                const double line = lineColour[k] + (own - lineColour[k]) * pC;
                 const double behind = p[k] * pB;
                 const double out = behind + (line - behind) * e;
                 p[k] = detail::clamp8(p[k] + (out - p[k]) * amt + 0.5);
@@ -2340,12 +2411,25 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         if (phase >= 0.2 + pC * 0.6) {
           break;
         }
-        const double level = 255.0 * (1.0 - pB);
-        std::uint8_t lut[256];
-        detail::buildChannelLut(lut, [&](int v) {
-          return detail::clamp8(v + (level - v) * amt + 0.5);
+        // The flash colour, darkened toward black by `flash to`: white with
+        // the slider anywhere is the grey it always was.
+        std::uint8_t lut[3][256];
+        for (int k = 0; k < 3; ++k) {
+          const double level = ((fx.colour >> (16 - 8 * k)) & 0xFF) * (1.0 - pB);
+          detail::buildChannelLut(lut[k], [&](int v) {
+            return detail::clamp8(v + (level - v) * amt + 0.5);
+          });
+        }
+        detail::parallelRows(ctx.height, ctx.width, [&](int firstRow, int lastRow) {
+          for (int y = firstRow; y < lastRow; ++y) {
+            std::uint8_t* p = pixels.data() + static_cast<std::size_t>(y) * ctx.width * 4;
+            for (int x = 0; x < ctx.width; ++x, p += 4) {
+              p[0] = lut[0][p[0]];
+              p[1] = lut[1][p[1]];
+              p[2] = lut[2][p[2]];
+            }
+          }
         });
-        detail::applyChannelLut(pixels.data(), ctx.width, ctx.height, lut);
         break;
       }
       case CueEffectKind::Levels: {

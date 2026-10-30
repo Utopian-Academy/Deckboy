@@ -5356,6 +5356,91 @@
     return 0;
   }
 
+  // runColourCheck -- `--colour-check`. What the effect colour picker relies
+  // on and nothing can see from outside: a typed colour meaning what it says,
+  // a hue surviving the trip to a colour and back, and the effect's colour
+  // surviving a save -- with a show saved before it opening exactly as it was.
+  static int runColourCheck() {
+    int failed = 0;
+    auto check = [&](const std::string& what, bool ok, const std::string& detail = {}) {
+      std::printf("  %-58s %s\n", what.c_str(), ok ? "ok" : ("FAIL " + detail).c_str());
+      if (!ok) ++failed;
+    };
+    auto hex = [](std::uint32_t c) {
+      char t[8];
+      std::snprintf(t, sizeof(t), "%06x", static_cast<unsigned>(c));
+      return std::string(t);
+    };
+    std::vector<deckboy::colours::LibraryColour> none;
+    const struct { const char* typed; std::uint32_t want; } typed[] = {
+      {"#ff2040", 0xff2040}, {"ff2040", 0xff2040}, {"#F24", 0xff2244}, {"0xff2040", 0xff2040},
+      {"255 32 64", 0xff2040}, {"rgb(255, 32, 64)", 0xff2040}, {"255,32,64", 0xff2040},
+      {"crimson", 0xdc143c}, {"Rebecca Purple", 0x663399}, {"grey", 0x808080},
+      {"RAL 3020", 0xc1121c}, {"ral3020", 0xc1121c}, {"3020", 0xc1121c}, {"traffic red", 0xc1121c},
+    };
+    for (const auto& t : typed) {
+      const auto m = deckboy::colours::findColour(t.typed, none);
+      check(std::string("\"") + t.typed + "\" is #" + hex(t.want), m && m->rgb == t.want,
+            m ? "#" + hex(m->rgb) : "no match");
+    }
+    for (const char* nothing : {"186", "", "   ", "not a colour at all", "256 0 0", "#ff20"}) {
+      const auto m = deckboy::colours::findColour(nothing, none);
+      check(std::string("\"") + nothing + "\" is not a colour", !m || !m->exact,
+            m ? "#" + hex(m->rgb) + " " + m->name : "");
+    }
+    // An operator's own table, the way a Pantone export reads.
+    const dbfs::path folder = dbfs::temp_directory_path() / ("deckboy-colour-check-" + std::to_string(SDL_GetTicks()));
+    std::error_code ec;
+    dbfs::create_directories(folder, ec);
+    {
+      std::ofstream csv((folder / "pantone.csv").string());
+      csv << "Name,Hex\r\nPANTONE 186 C,#C8102E\r\n\"PANTONE 2945 C\";004C97\r\nnot a colour line\r\n";
+    }
+    const auto libraries = deckboy::colours::loadColourLibraries(folder);
+    dbfs::remove_all(folder, ec);
+    check("an operator's table loads (2 colours)", libraries.size() == 2, std::to_string(libraries.size()));
+    for (const auto& [typedName, want] : std::vector<std::pair<std::string, std::uint32_t>> {
+           {"186 C", 0xc8102e}, {"pantone 186c", 0xc8102e}, {"2945 C", 0x004c97}}) {
+      const auto m = deckboy::colours::findColour(typedName, libraries);
+      check("\"" + typedName + "\" from that table", m && m->exact && m->rgb == want,
+            m ? "#" + hex(m->rgb) : "no match");
+    }
+    // The hue round trip, and a grey having none.
+    for (const std::uint32_t c : {0xff0000u, 0x00ff00u, 0x0000ffu, 0xffff00u, 0x00ffffu, 0xff00ffu}) {
+      const double h = deckboy::effects::colourHue01(c);
+      check("#" + hex(c) + " goes to a hue and back", h >= 0.0 && deckboy::effects::hueColour(h) == c,
+            "#" + hex(deckboy::effects::hueColour(h)));
+    }
+    check("a grey has no hue", deckboy::effects::colourHue01(0x808080) < 0.0);
+    check("navy and sky blue are one hue",
+          std::abs(deckboy::effects::colourHue01(0x000080) - deckboy::effects::colourHue01(0x8080ff)) < 1e-9);
+    // Saved and loaded.
+    deckboy::effects::CueEffect strobe;
+    strobe.kind = deckboy::effects::CueEffectKind::Strobe;
+    strobe.colour = 0xff2040;
+    deckboy::effects::CueEffect edges;
+    edges.kind = deckboy::effects::CueEffectKind::Edges;   // white: written as it always was
+    deckboy::effects::CueEffect tinted = strobe;
+    tinted.lfo[1].on = true;
+    tinted.colour = 0x204080;
+    const std::string saved = serializeCueEffects({strobe, edges, tinted});
+    const auto loaded = parseCueEffects(saved);
+    check("three effects come back", loaded.size() == 3, saved);
+    if (loaded.size() == 3) {
+      check("a strobe's colour comes back", loaded[0].colour == 0xff2040, hex(loaded[0].colour));
+      check("a white edge line comes back white", loaded[1].colour == 0xffffff, hex(loaded[1].colour));
+      check("a colour after an LFO comes back", loaded[2].colour == 0x204080 && loaded[2].lfo[1].on,
+            hex(loaded[2].colour));
+    }
+    check("white is not written at all", serializeCueEffects({edges}).find("ffffff") == std::string::npos,
+          serializeCueEffects({edges}));
+    const auto old = parseCueEffects("strobe:1:0.5:0:0:0.1:0|edges:1:0.5:0:0:0:0");
+    check("a show saved before the colour opens white", old.size() == 2 && old[0].colour == 0xffffff &&
+          old[1].colour == 0xffffff);
+    std::printf("\ncolour check: %s\n", failed ? (std::to_string(failed) + " FAILED").c_str() : "all pass");
+    return failed ? 1 : 0;
+  }
+
   // ---------------------------------------------------------------------------
   // runEffectDump — `--effect-dump <token[:amount[:a[:b]]]> <in.ppm> <out.ppm>`
   //
@@ -5408,6 +5493,10 @@
     // of the four parameters is what someone typing it expects.
     if (parts.size() > 4) fx.paramC = static_cast<float>(std::atof(parts[4].c_str()));
     if (parts.size() > 5) fx.paramD = static_cast<float>(std::atof(parts[5].c_str()));
+    // A seventh field is the effect's colour, as hex: strobe:1:0:0:0.4:0:ff2040.
+    if (parts.size() > 6 && !parts[6].empty()) {
+      fx.colour = static_cast<std::uint32_t>(std::strtoul(parts[6].c_str(), nullptr, 16)) & 0xFFFFFF;
+    }
 
     std::ifstream in(inPath, std::ios::binary);
     if (!in) {

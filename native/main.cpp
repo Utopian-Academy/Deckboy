@@ -138,6 +138,8 @@
 #include "platform/output_backend.hpp"
 #include "platform/browser.hpp"
 #include "platform/pdf_import.hpp"
+#include "platform/screen_colour.hpp"
+#include "core/named_colours.hpp"
 #include "platform/decklink.hpp"
 #include "platform/siphon_spout.hpp"
 #include "platform/st2110_output.hpp"
@@ -2430,12 +2432,24 @@ std::string serializeCueEffects(const std::vector<deckboy::effects::CueEffect>& 
     //
     // Semicolons between the LFOs and commas inside them: the colon and the
     // pipe are already spoken for one and two levels up.
-    if (deckboy::effects::cueEffectStackHasLfo({fx})) {
+    const bool hasLfo = deckboy::effects::cueEffectStackHasLfo({fx});
+    const bool hasColour = (fx.colour & 0xFFFFFF) != 0xFFFFFF;
+    if (hasLfo || hasColour) {
       one << ':';
-      for (int i = 0; i < 5; ++i) {
-        if (i) one << ';';
-        writeParamLfo(one, fx.lfo[i]);
+      if (hasLfo) {
+        for (int i = 0; i < 5; ++i) {
+          if (i) one << ';';
+          writeParamLfo(one, fx.lfo[i]);
+        }
       }
+    }
+    // The picked colour after the LFOs, and only when it is not the white
+    // every effect had before it. An empty LFO field before it reads as "no
+    // oscillators" here and in every build that predates the colour.
+    if (hasColour) {
+      char hex[8];
+      std::snprintf(hex, sizeof(hex), "%06x", static_cast<unsigned>(fx.colour & 0xFFFFFF));
+      one << ':' << hex;
     }
     out += one.str();
   }
@@ -2474,7 +2488,7 @@ std::vector<deckboy::effects::CueEffect> parseCueEffects(const std::string& text
         // The LFO block, when the show that wrote this had one. Absent on every
         // older save, which leaves every oscillator off -- which is what those
         // shows meant.
-        if (parts.size() > 7) {
+        if (parts.size() > 7 && !parts[7].empty()) {
           std::size_t at = 0;
           for (int i = 0; i < 5 && at != std::string::npos; ++i) {
             const std::size_t semi = parts[7].find(';', at);
@@ -2483,6 +2497,9 @@ std::vector<deckboy::effects::CueEffect> parseCueEffects(const std::string& text
                          fx.lfo[i]);
             at = semi == std::string::npos ? std::string::npos : semi + 1;
           }
+        }
+        if (parts.size() > 8 && parts[8].size() == 6) {
+          fx.colour = static_cast<std::uint32_t>(std::strtoul(parts[8].c_str(), nullptr, 16)) & 0xFFFFFF;
         }
         stack.push_back(fx);
       }
@@ -5507,6 +5524,7 @@ class App {
   // The MIDI and OSC monitor: every message, and what Deckboy did with it
 #include "app/app_input_monitor.ipp"
 #include "app/app_tutorial.ipp"
+#include "app/app_colour_picker.ipp"
   // Render: transport control panel (play/stop/seek buttons, timeline)
 #include "app/app_render_control.ipp"
   // Render: main control window layout and drawing
@@ -5794,7 +5812,11 @@ class App {
                         QuickAction trailAction = QuickAction::ToggleLoop,
                         bool trailOn = false, int trailParam = -1,
                         const char* trailLabel = "~",
-                        std::string trailTip = "") {
+                        std::string trailTip = "",
+                        // A colour chip between + and the trailing chip: the
+                        // effect rows that take a colour (app_colour_picker.ipp).
+                        QuickAction chipAction = QuickAction::ToggleLoop,
+                        SDL_Color chipColour = {}, int chipParam = -1, bool chipLit = false) {
     // A paramId is the modern way to make a value typeable: it needs no
     // per-control action, just a row in the numeric-parameter table.
     //
@@ -5850,7 +5872,9 @@ class App {
     } else {
       const bool hasTrail = trailAction != QuickAction::ToggleLoop;
       const int trailW = hasTrail ? 24 : 0;
-      int fixedW = kBtnW * 2 + gap * 3 + (hasTrail ? trailW + gap : 0);
+      const bool hasChip = chipAction != QuickAction::ToggleLoop;
+      const int chipW = hasChip ? uiScaled(30) : 0;
+      int fixedW = kBtnW * 2 + gap * 3 + (hasTrail ? trailW + gap : 0) + (hasChip ? chipW + gap : 0);
       int minValueW = ix.ellipsize ? 76 : 68;
       int labelW = inspLabelColumnWidth(ix, contentW, fixedW);
       int valueW = std::max(minValueW, contentW - labelW - fixedW);
@@ -5858,8 +5882,15 @@ class App {
       SDL_Rect decBtn {labelRect.x + labelRect.w + gap, rowY, kBtnW, ix.rowH};
       SDL_Rect valRect {decBtn.x + decBtn.w + gap, rowY, valueW, ix.rowH};
       SDL_Rect incBtn {valRect.x + valRect.w + gap, rowY, kBtnW, ix.rowH};
+      if (hasChip) {
+        SDL_Rect chipBtn {incBtn.x + incBtn.w + gap, rowY, chipW, ix.rowH};
+        // The colour itself, ringed bright while its picker is open.
+        drawUIPanel(chipBtn, chipColour, chipLit ? pal.light : pal.deep, pal.mid);
+        quickButtons_.push_back({chipBtn, chipAction,
+                                 "Pick this colour: from any screen, by hex or by name", chipParam});
+      }
       if (hasTrail) {
-        SDL_Rect trailBtn {incBtn.x + incBtn.w + gap, rowY, trailW, ix.rowH};
+        SDL_Rect trailBtn {incBtn.x + incBtn.w + gap + (hasChip ? chipW + gap : 0), rowY, trailW, ix.rowH};
         drawUIPanel(trailBtn, paletteToggleFill(trailOn), pal.deep,
                     trailOn ? pal.mid : pal.mid);
         drawCenteredTextSafe(controlRenderer_, fontSmall_, trailBtn, trailLabel,
@@ -7145,6 +7176,7 @@ class App {
                              : which == 2 ? fx.paramC : fx.paramD;
         const std::string paramText =
           inspEffectParamValueText(cue, fx, which, rawParam);
+        const std::optional<std::uint32_t> chip = effectChipColour(fx, which);
         inspDrawQuickRow(ix, rowY, paramLabel,
                          which == 0 ? QuickAction::EffectParamADec
                          : which == 1 ? QuickAction::EffectParamBDec
@@ -7166,7 +7198,10 @@ class App {
                          QuickAction::EffectLfoToggle, fx.lfo[which].on,
                          i * 8 + which, "~",
                          "Hand this parameter to an oscillator so it moves on "
-                         "its own");
+                         "its own",
+                         chip ? QuickAction::EffectColourPick : QuickAction::ToggleLoop,
+                         chip ? sdlColourOf(*chip) : SDL_Color {}, i * 8 + which,
+                         colourPicker_.open && colourPicker_.effect == i && colourPicker_.slot == which);
         rowY += ix.rowStep;
         rowY = inspDrawLfoRow(ix, rowY, fx, which, i);
       }
@@ -12893,6 +12928,7 @@ constexpr CliFlagHelp kCliModeHelp[] = {
   {"--contrast-check [dir]", "render every bundled theme with help and warning toasts; fail on an unreadable notice"},
   {"--slide-card [done/total]", "show the PDF import progress card, for --ui-dump"},
   {"--font-check", "open every UI face and render with it; names the step that fails"},
+  {"--colour-check", "check typed colours, the hue maths and the saved effect colour; no window"},
   {"--effect-dump <token[:amt[:a[:b]]]> <in.ppm> <out.ppm> [frame]",
      "apply one effect to one picture, no window"},
   {"--transition-dump <style> <out.ppm> <in.ppm> <dst.ppm> [p] [secs]",
@@ -12923,7 +12959,7 @@ constexpr const char* kCliModeFlags[] = {
   "--version", "--self-check", "--smoke", "--autosave-check", "--sync-pop-test",
   "--pattern-bench", "--pattern-dump", "--code-dump", "--code-check",
   "--effect-dump", "--effect-bench", "--image-check", "--transition-dump", "--lower-third-bench",
-  "--decode-bench", "--ltc-generate", "--audio-fx-check", "--mtc-check",
+  "--decode-bench", "--ltc-generate", "--audio-fx-check", "--mtc-check", "--colour-check",
   "--hap-probe", "--asio-probe", "--asio-tone", "--sheet-probe", "--timer-dump",
   "--motion-probe", "--pdf-probe", "--pdf-render", "--pptx-notes", "--atem-probe",
   "--devices", "--plugins", "--plugin-chain-check", "--check-update", "--font-check",
@@ -13308,6 +13344,10 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
     // for the script in question. Without this the check always answered for
     // English and could pass on a machine whose interface was entirely boxes.
     return App::runFontCheck(ops.empty() ? std::string() : ops[0]);
+  }
+  if (mode == "--colour-check") {
+    // Typed colours, the hue maths and the saved effect colour: no window.
+    return App::runColourCheck();
   }
   if (mode == "--mtc-check") {
     // No hardware, no cable, no platform: the timecode decoder is arithmetic.

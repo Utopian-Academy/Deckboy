@@ -430,6 +430,10 @@ jobs:
       - name: Smoke tests
         run: ./build/Deckboy --smoke
 
+      # Typed colours, the hue maths, and an effect's colour through a save.
+      - name: Effect colours
+        run: ./build/Deckboy --colour-check
+
       - name: Broadcast transport and audio regressions
         run: ctest --test-dir build --output-on-failure
 
@@ -550,6 +554,12 @@ jobs:
       - name: The desk's small promises
         if: matrix.features == 'all'
         run: xvfb-run -a python3 tools/check_desk_basics.py --exe ./build/Deckboy
+
+      # The effect colour picker: the chips, the panel, typed and picked
+      # colours, and pick-from-screen arming, taking and cancelling.
+      - name: The effect colour picker
+        if: matrix.features == 'all'
+        run: xvfb-run -a python3 tools/check_colour_picker.py --exe ./build/Deckboy
 
       # A fade cue's SPEED, like tape: a 1 kHz tone at 0.5x is 500 Hz in what
       # the device is given, a ramp to 2x ends at 2 kHz, a new take starts at
@@ -876,6 +886,10 @@ jobs:
       - name: Smoke tests
         run: ./build/Deckboy --smoke
 
+      # Typed colours, the hue maths, and an effect's colour through a save.
+      - name: Effect colours
+        run: ./build/Deckboy --colour-check
+
       - name: Broadcast transport and audio regressions
         run: ctest --test-dir build --output-on-failure
 
@@ -1021,6 +1035,10 @@ jobs:
 
       - name: Smoke tests
         run: ./build/Deckboy --smoke
+
+      # Typed colours, the hue maths, and an effect's colour through a save.
+      - name: Effect colours
+        run: ./build/Deckboy --colour-check
 
       # On every macOS this tests, since the renderer is the system's own.
       - name: Slides and PDFs render at full size
@@ -1550,6 +1568,10 @@ jobs:
           $p = Start-Process -FilePath .\build\Release\Deckboy.exe `
                  -ArgumentList "--smoke" -Wait -NoNewWindow -PassThru
           if ($p.ExitCode -ne 0) { throw "smoke tests failed ($($p.ExitCode))" }
+          # Typed colours, the hue maths, and an effect's colour through a save.
+          $p = Start-Process -FilePath .\build\Release\Deckboy.exe `
+                 -ArgumentList "--colour-check" -Wait -NoNewWindow -PassThru
+          if ($p.ExitCode -ne 0) { throw "effect colours failed ($($p.ExitCode))" }
 
       - name: Broadcast transport and audio regressions
         shell: pwsh
@@ -1635,6 +1657,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "install and restart failed" }
           python tools/check_desk_basics.py --exe build\Release\Deckboy.exe
           if ($LASTEXITCODE -ne 0) { throw "the desk's small promises failed" }
+          python tools/check_colour_picker.py --exe build\Release\Deckboy.exe
+          if ($LASTEXITCODE -ne 0) { throw "the effect colour picker failed" }
 
       - uses: actions/setup-node@v4
         if: matrix.features == 'all'

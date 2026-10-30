@@ -101,6 +101,7 @@ was modified before it.
 | `native/core/sdl_compat.hpp` | SDL3 compat layer: int-rect draw overloads, display-index helpers, `deckboyCreateTexture*` (nearest scale), audio pause helper |
 | `native/engine/libav_decoder.hpp/.cpp` | In-process libav decode pipelines (v0.78.0): d3d11va zero-copy video, audio→s16/48k, D3D11 interop helpers. Behind `DECKBOY_INPROC_DECODE` |
 | `native/app/app_overlays.ipp` | `renderDependencyPrompt()` + detection helpers (`ndiRuntimeAvailable` etc.) |
+| `native/app/app_colour_picker.ipp` | The effect colour picker: a chip on every colour row (`cueEffectParamIsHue` = a 0-1 hue slot, `cueEffectColourSlot` = the row carrying the effect's whole `CueEffect::colour`), the panel, typed colours (`core/named_colours.hpp`: hex, R G B, CSS, RAL, the operator's own CSVs in `stateDir()/colours`; NO Pantone is bundled), and PICK FROM SCREEN (`platform/screen_colour`: a low-level mouse hook + desktop DC on Windows, NSColorSampler on the Mac, X11 root or the desktop portal on Linux). `DECKBOY_TEST_SCREEN_PICK=#rrggbb` stands in for the screen in `tools/check_colour_picker.py`; `--colour-check` is the headless half. A new effect that draws a colour: return its row from `cueEffectColourSlot`, read `fx.colour`, keep white meaning what the effect did before, and add it to `COLOUR_EFFECTS` in `check_effects_offline.py` |
 | `companion-module-utopianacademy-deckboy/` | Bitfocus Companion module (Node/ESM). Polls `STATUS` for tally/feedbacks; `npm test` covers the parser against a captured reply |
 
 ## Program-Monitor Tap (v0.81.0)

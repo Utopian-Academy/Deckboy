@@ -187,6 +187,9 @@
     if (handleDropdownMouseDown(x, y)) {
       return;
     }
+    if (handleColourPickerMouseDown(x, y)) {
+      return;
+    }
     if (handleKeyColorPickerMouseDown(x, y)) {
       return;
     }
@@ -1940,6 +1943,10 @@
     }
 
     if (handleDropdownKey(key, mod)) {
+      return;
+    }
+
+    if (handleColourPickerKey(key, keyRepeat)) {
       return;
     }
 

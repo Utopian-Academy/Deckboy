@@ -136,6 +136,9 @@ ANIMATES_BY_STATE = {"feedback", "feedback_bloom", "motion_puppet",
 # Kept here rather than parsed, so the two diverging fails loudly: --params
 # checks that each one actually moves the picture, which is the dead-control
 # bug this codebase keeps producing, applied to effect parameters.
+# Effects that draw CueEffect::colour (cueEffectColourSlot in cue_effects.hpp).
+COLOUR_EFFECTS = ["strobe", "edges"]
+
 PARAM_SLOTS = {
     "slit_scan":       ["sweep speed", "slit width", "direction"],
     "ferrofluid":      ["spike length", "spike count", "threshold"],
@@ -347,6 +350,31 @@ def check_params(exe, src, base, work):
                 dead += 1
             print("%-16s %-15s %-6s %.1f%% of the picture moved"
                   % (token, name, verdict, pct))
+    # The colour chip (CueEffect::colour) is a control too. White must be
+    # exactly the effect as it was before it had one, and another colour must
+    # move the picture.
+    for token in COLOUR_EFFECTS:
+        def coloured(colour, frame):
+            out = os.path.join(work, "param.ppm")
+            spec = "%s:0.9:%g:%g:%g:%g:%s" % ((token,) + tuple(base_for(token)) + (colour,))
+            subprocess.run([exe, "--effect-dump", spec, src, out, str(frame)],
+                           capture_output=True)
+            return raster(out) if os.path.exists(out) else b""
+        pct = 0.0
+        same = True
+        for frame in (0, 7, 13):
+            reference = render(token, base_for(token), frame)
+            if coloured("ffffff", frame) != reference:
+                same = False
+            shot = coloured("ff2040", frame)
+            if shot and len(shot) == len(reference):
+                changed = sum(1 for a, b in zip(reference[::53], shot[::53]) if abs(a - b) > 6)
+                pct = max(pct, 100.0 * changed / len(reference[::53]))
+        verdict = "ok" if pct >= 0.5 and same else "DEAD" if same else "FAIL"
+        if verdict != "ok":
+            dead += 1
+        print("%-16s %-15s %-6s %.1f%% of the picture moved%s"
+              % (token, "colour", verdict, pct, "" if same else "; WHITE CHANGED THE OLD LOOK"))
     summary = ("FAIL: %d parameter(s) do nothing" % dead if dead else
                "every named parameter changes the picture")
     print()

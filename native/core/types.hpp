@@ -3360,6 +3360,9 @@ enum class QuickAction {
   // data, not a different intent, and eight actions per slot would be forty
   // enum entries doing one job.
   EffectLfoToggle,
+  // The colour chip on an effect row: param packed the same way, the slot
+  // being the row the chip sits on (app_colour_picker.ipp).
+  EffectColourPick,
   EffectLfoShape,
   EffectLfoRateDec,
   EffectLfoRateInc,

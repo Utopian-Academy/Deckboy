@@ -1317,9 +1317,9 @@ setting you spent time on, bypass takes it out of the chain and gives it back.
 | glow | The bright parts bloom outward over the picture; choose how much glows and how far |
 | mirror | Flips across, upside down or both, or folds one half onto the other: right onto left, left onto right, bottom onto top, top onto bottom, or one corner into all four. The fold can sit off-centre |
 | mosaic | Tiles in the picture's own colours, with a gap between them and corners rounded off all the way to dots, like an LED wall |
-| edges | Outlines, on black or over the picture, in white or in the picture's own colours |
+| edges | Outlines, on black or over the picture, in a colour you pick (white to start) or in the picture's own colours |
 | luma key | Takes out the dark (and, if you like, the bright), so the playlist beneath shows through: graphics or flames made on black. Works with the chroma key |
-| strobe | Flashes to white, black or grey, from half a flash to ten a second; it arrives at about two. Faster than three a second can bring on seizures in people with photosensitive epilepsy, so warn the audience before using it. Keeps time with the show's clock, so preview and output flash together |
+| strobe | Flashes to any colour you pick (white to start), darkened as far as black, from half a flash to ten a second; it arrives at about two. Faster than three a second can bring on seizures in people with photosensitive epilepsy, so warn the audience before using it. Keeps time with the show's clock, so preview and output flash together |
 | invert, posterise, solarise, threshold | Level shaping, each with a pivot and a channel skew |
 | vignette, scanlines, grain | The classic framing and texture set |
 | RGB split | Channel offset with an angle |
@@ -1346,6 +1346,54 @@ from colour replace to strobe) come first in the list. Timed one at a time at 10
 the heaviest measured — wavefront — takes about three-quarters of a 60fps frame,
 and most take under half. `--effect-bench <token> [WxH]` reports what any of
 them costs on your own machine and at your own raster.
+
+### Picking a colour
+
+Every effect row that takes a colour has a **colour chip** beside it: colour's
+tint colour, colour replace's *from* and *to*, strobe's *flash to* and the edges
+line. Click the chip to open the picker beside the inspector:
+
+- **PICK FROM SCREEN** takes a colour from anywhere on any screen: another
+  app's window, a web page, a photo, a logo, or one of Deckboy's own outputs.
+  A magnifier follows the pointer and shows the pixel it will take; click to
+  take it, press Enter for the pixel under the pointer, use the arrow keys to
+  move one pixel, or press Esc to cancel. On a Mac it is the system's own
+  magnifier (macOS 10.15 and later), and on Wayland the desktop's.
+- The **hue** strip, and **hex**, **R G B** and **hue deg**: click any of them
+  to type a value.
+- **Find a named colour** takes any of the 148 CSS colour names (crimson,
+  rebeccapurple), a RAL Classic number or name (RAL 3020, 3020, traffic red),
+  or a name from your own tables.
+- **Recent and in this show** keeps the colours you have just picked and the
+  ones the show already uses.
+
+Colour and colour replace use the colour's **hue** only: the picture keeps its
+own shading, which is the point of them, so a dark navy and a bright sky blue
+pick the same blue. The slider and its LFO keep working on that hue. A grey has
+no hue, and the picker says so instead of guessing. Strobe and edges use the
+**whole** colour.
+
+**Your own colours: a brand palette, Pantone.** Deckboy does not ship Pantone's
+values, which are licensed. If you have them (from Pantone Connect, a
+supplier's swatch book, or your brand guidelines), put a `.csv` or `.txt` file
+in Deckboy's **colours** folder. Where that is depends on how Deckboy was
+installed (a portable copy keeps it beside its own files), so click **find a
+named colour**: the box names the folder on your machine, and opening the
+picker creates it. One colour a line, a name and a hex in either order, split
+by a comma, a semicolon or a tab:
+
+```
+PANTONE 186 C,#C8102E
+PANTONE 2945 C,#004C97
+Brand red,#E4002B
+```
+
+Then type `186 C`, `pantone 186c` or `brand red`. A header line, or any line
+with no hex in it, is skipped, so a table saved from a spreadsheet works as it
+is. The folder is read each time the picker opens.
+
+Over the network, `FX COLOUR <n> #rrggbb` sets an effect's colour, and
+`FX COLOUR <n> <A-D> #rrggbb` sets a hue slot from a colour.
 
 ### The six that are not in anything else
 

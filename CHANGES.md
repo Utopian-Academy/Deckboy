@@ -2,6 +2,15 @@
 
 ## Unreleased - v0.99.423
 
+### Colour pickers for the effects
+- Every effect row that takes a colour now has a colour chip: colour's tint colour, colour replace's from and to, strobe's flash and the edges line. Click it to open a picker beside the inspector.
+- PICK FROM SCREEN takes a colour from anywhere on any screen: another app's window, a web page, a logo, or one of Deckboy's own outputs. A magnifier follows the pointer. Click to take a colour, Enter takes the pixel under the pointer, the arrow keys move one pixel, and Esc cancels. On a Mac it is the system's own magnifier (macOS 10.15 and later); on Linux it reads X11 directly, or uses the desktop's picker on Wayland.
+- Type a colour as a hex, as R G B, as hue degrees, or by name: the 148 CSS colour names and 214 RAL Classic colours (RAL 3020, 3020 or traffic red).
+- Your own colour tables (a brand palette, or Pantone if you hold its values) go in Deckboy's colours folder as CSV, one name and hex a line. The picker names the folder on your machine. Deckboy ships no Pantone values.
+- Strobe flashes to any colour and edges draw in any colour. Shows saved before this flash and draw white, exactly as they did.
+- Colour and colour replace take the hue of what you pick, so the picture keeps its own shading. A grey has no hue, and the picker says so rather than guessing.
+- `FX COLOUR <n> #rrggbb` sets an effect's colour over the network; `FX COLOUR <n> <A-D> #rrggbb` sets a hue from a colour. `FX GET` reports the colour.
+
 ### Companion module 1.0.7
 - Seek with an empty Seconds field sends nothing. It used to send a bare SEEK, which Deckboy refused.
 - "Cue is live" and "Cue is selected" now stay off when the Cue field is blank. Before, a blank field matched any playlist with nothing live, so the button lit.

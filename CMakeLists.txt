@@ -603,6 +603,9 @@ add_executable(deckboy-native
   # Mirrored-vs-extended detection: OS display APIs only (DisplayConfig,
   # CoreGraphics, XRandR loaded at runtime), so no new dependency anywhere.
   native/platform/display_topology.cpp
+  # Pick a colour from anywhere on screen. Windows and Linux (libX11 and
+  # libdbus opened at run time); the Mac's half is screen_colour_mac.mm.
+  native/platform/screen_colour.cpp
   # ST 2110-20 sender: plain sockets only, no SDK, so it compiles unconditionally
   # on every platform (same reasoning as decklink.cpp above — a feature-guarded
   # translation unit whose symbols are referenced unguarded breaks the link).
@@ -788,6 +791,10 @@ if(APPLE)
   # miss the change (platform/mac_audio_default.hpp). SDL's own link to
   # CoreAudio does not cover the app's calls; only the link step would say so.
   target_sources(deckboy-native PRIVATE native/platform/mac_audio_default.cpp)
+  # Pick from screen: NSColorSampler (platform/screen_colour.hpp).
+  target_sources(deckboy-native PRIVATE native/platform/screen_colour_mac.mm)
+  set_source_files_properties(native/platform/screen_colour_mac.mm
+    PROPERTIES COMPILE_OPTIONS "-fobjc-arc")
   deckboy_target_link_frameworks(deckboy-native CoreAudio)
 endif()
 

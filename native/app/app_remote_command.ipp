@@ -5711,6 +5711,12 @@
                       static_cast<int>(std::lround(fx.paramC * 100.0f)),
                       static_cast<int>(std::lround(fx.paramD * 100.0f)));
         remoteCommandDetail_ = buf;
+        // The effect's own colour, on the effects that have one (FX COLOUR).
+        if (deckboy::effects::cueEffectColourSlot(fx.kind) >= 0) {
+          char hex[16];
+          std::snprintf(hex, sizeof(hex), " colour=#%06x", static_cast<unsigned>(fx.colour & 0xFFFFFF));
+          remoteCommandDetail_ += hex;
+        }
         return;
       }
       // FX LFO <index> <slot> <on|off|shape> [value]
@@ -5898,6 +5904,57 @@
                      " " + shown);
         remoteCommandDetail_ =
           std::string(deckboy::effects::cueEffectParamLabel(fx.kind, slot)) + " = " + shown;
+        return;
+      }
+      // COLOUR <n> [A-D] <#rrggbb> -- what the inspector's colour chips set.
+      //
+      // Without a slot it is the effect's whole colour (a strobe's flash, an
+      // edge line). With one it is a HUE slot, set to the colour's place on
+      // the wheel, exactly as picking that colour in the picker does.
+      if (sub == "COLOUR" && parts.size() >= 4) {
+        const int idx = std::atoi(parts[2].c_str()) - 1;
+        if (idx < 0 || idx >= static_cast<int>(cue->effects.size())) {
+          failRemoteCommand("FX COLOUR: no effect at that index");
+          return;
+        }
+        auto& fx = cue->effects[idx];
+        const bool hasSlot = parts.size() >= 5;
+        const auto rgb = tryParseColor(parts[hasSlot ? 4 : 3]);
+        if (!rgb) {
+          failRemoteCommand("FX COLOUR: expected #rrggbb, got " + parts[hasSlot ? 4 : 3]);
+          return;
+        }
+        const std::uint32_t colour =
+          (static_cast<std::uint32_t>(rgb->r) << 16) | (static_cast<std::uint32_t>(rgb->g) << 8) | rgb->b;
+        const bool wasNeeded = cueNeedsCpuPixelPath(*cue);
+        if (!hasSlot) {
+          if (deckboy::effects::cueEffectColourSlot(fx.kind) < 0) {
+            failRemoteCommand(std::string("FX COLOUR: ") + deckboy::effects::cueEffectToken(fx.kind) +
+                              " has no colour of its own; give a hue slot (A-D)");
+            return;
+          }
+          fx.colour = colour;
+          remoteCommandDetail_ = "colour = " + colorToHex(SDL_Color {rgb->r, rgb->g, rgb->b, 255});
+        } else {
+          const std::string slotName = toUpper(parts[3]);
+          const int slot = slotName.size() == 1 ? slotName[0] - 'A' : -1;
+          if (slot < 0 || slot > 3 || !deckboy::effects::cueEffectParamIsHue(fx.kind, slot)) {
+            failRemoteCommand(std::string("FX COLOUR: ") + deckboy::effects::cueEffectToken(fx.kind) +
+                              " has no colour at " + parts[3]);
+            return;
+          }
+          const double hue = deckboy::effects::colourHue01(colour);
+          if (hue < 0.0) {
+            failRemoteCommand("FX COLOUR: a grey has no hue");
+            return;
+          }
+          float* slots[4] = {&fx.paramA, &fx.paramB, &fx.paramC, &fx.paramD};
+          *slots[slot] = static_cast<float>(hue);
+          remoteCommandDetail_ = std::string(deckboy::effects::cueEffectParamLabel(fx.kind, slot)) +
+                                 " = " + std::to_string(static_cast<int>(std::lround(hue * 360.0))) + " deg";
+        }
+        markProjectDirty();
+        refreshLiveCueIfPixelPathChanged(wasNeeded);
         return;
       }
       // LFO <n> <A-E> <on|off|shape|rate|depth|phase|beats|sync> [value]

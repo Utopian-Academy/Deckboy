@@ -720,6 +720,7 @@
            << "\"settingsOpen\":" << (settingsOpen_ ? "true" : "false") << ","
            << "\"outputChipRect\":[" << outputBadgeRect_.x << "," << outputBadgeRect_.y << ","
            << outputBadgeRect_.w << "," << outputBadgeRect_.h << "],"
+           << colourPickerStatusJson()
            << "\"deckCount\":" << project_.decks.size() << ","
            << "\"focusedOutput\":" << (project_.focusedOutputIndex + 1) << ","
            << "\"outputCount\":" << project_.outputs.size() << ","
