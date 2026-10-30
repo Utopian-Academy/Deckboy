@@ -1,6 +1,6 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
-## Unreleased - v0.99.422
+## 2026-10-30 - v0.99.422 (named outputs and a patch; fades that ramp speed, like tape, and effect knobs; remove any playlist mid-show; nine basic effects; INSTALL & RESTART that shows it is working)
 
 ### Settings
 - Fixed: buttons in Settings that did nothing, or did something else, when pressed:
