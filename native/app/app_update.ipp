@@ -634,6 +634,12 @@
     if (showSplashOverlay_ && splashStartedAt_ > 0 && now - splashStartedAt_ > 5200) {
       showSplashOverlay_ = false;
     }
+    // TESTTHROW: an exception nothing catches, as a real one on the main thread
+    // would be, so a check can read what deckboy-crash.log makes of it.
+    if (testThrowPending_) {
+      testThrowPending_ = false;
+      throw std::runtime_error("TESTTHROW: a test exception from the main loop");
+    }
     double deltaSeconds = lastUpdateTickMs_ == 0 ? 0.0 : static_cast<double>(now - lastUpdateTickMs_) / 1000.0;
     lastUpdateTickMs_ = now;
 

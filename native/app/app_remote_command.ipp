@@ -6414,6 +6414,48 @@
       remoteCommandDetail_ = "pressed " + parts[1];
       return;
     }
+    // KEY <name> [OUTPUT <n>]: a key pressed and let go, put on the event
+    // queue so it takes the real path, on the desk or on output n's window.
+    // A test input like CLICK, from this computer only.
+    if (command == "KEY") {
+      if (parts.size() < 2) {
+        failRemoteCommand("KEY: expected a key name, e.g. KEY Escape [OUTPUT 1]");
+        return;
+      }
+      const SDL_Keycode key = SDL_GetKeyFromName(parts[1].c_str());
+      if (key == SDLK_UNKNOWN) {
+        failRemoteCommand("KEY: no key called " + parts[1]);
+        return;
+      }
+      SDL_WindowID window = controlWindow_ ? SDL_GetWindowID(controlWindow_) : 0;
+      if (parts.size() >= 4 && toUpper(parts[2]) == "OUTPUT") {
+        const int index = std::atoi(parts[3].c_str()) - 1;
+        const OutputRuntime* runtime = runtimeForOutput(index);
+        if (!runtime || !runtime->outputWindow) {
+          failRemoteCommand("KEY: output " + parts[3] + " has no window");
+          return;
+        }
+        window = SDL_GetWindowID(runtime->outputWindow);
+      }
+      for (const bool down : {true, false}) {
+        SDL_Event event {};
+        event.type = down ? SDL_EVENT_KEY_DOWN : SDL_EVENT_KEY_UP;
+        event.key.windowID = window;
+        event.key.key = key;
+        event.key.scancode = SDL_GetScancodeFromKey(key, nullptr);
+        event.key.down = down;
+        SDL_PushEvent(&event);
+      }
+      remoteCommandDetail_ = "key " + parts[1];
+      return;
+    }
+    // TESTTHROW: the next frame throws an exception nothing catches, so a check
+    // can see deckboy-crash.log name it. From this computer only.
+    if (command == "TESTTHROW") {
+      testThrowPending_ = true;
+      remoteCommandDetail_ = "the next frame throws";
+      return;
+    }
     if (command == "CLICK") {
       // CLICK x y HOLD presses without letting go, so HOVER can drag what was
       // pressed; CLICK UP lets go. (A patch crosspoint is dragged that way.)

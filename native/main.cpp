@@ -11283,6 +11283,7 @@ class App {
   SDL_Rect playlistSplitterRect_ {};
   SDL_Rect inspectorSplitterRect_ {};
   int playlistPaneWidth_ = 0;
+  bool testThrowPending_ = false;   // TESTTHROW: the next frame throws, for the crash-log check
   int inspectorPaneWidth_ = 0;
   // Program-monitor <-> timeline vertical split. timelineExtraH_ is the extra
   // height (px) the operator has stolen from the preview to enlarge the

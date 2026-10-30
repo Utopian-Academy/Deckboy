@@ -714,6 +714,12 @@
     output << "{"
            << "\"app\":\"DECKBOY_0.01\","
            << "\"focusedDeck\":" << (project_.focusedDeckIndex + 1) << ","
+           // What the desk's window says, and where the programme's OUTPUT
+           // chip is, for the checks that read the title and click the chip.
+           << "\"windowTitle\":\"" << escapeJson(windowTitle_) << "\","
+           << "\"settingsOpen\":" << (settingsOpen_ ? "true" : "false") << ","
+           << "\"outputChipRect\":[" << outputBadgeRect_.x << "," << outputBadgeRect_.y << ","
+           << outputBadgeRect_.w << "," << outputBadgeRect_.h << "],"
            << "\"deckCount\":" << project_.decks.size() << ","
            << "\"focusedOutput\":" << (project_.focusedOutputIndex + 1) << ","
            << "\"outputCount\":" << project_.outputs.size() << ","
@@ -803,6 +809,7 @@
              << "\"outputLayoutMode\":\"" << escapeJson(normalizeOutputLayoutMode(out.outputLayoutMode)) << "\","
              << "\"outputOrientation\":" << normalizeOutputOrientationDegrees(out.outputOrientationDegrees) << ","
              << "\"outputTestCard\":" << (out.outputTestCardEnabled ? "true" : "false") << ","
+             << "\"fullscreen\":" << (outputWindowIsFullscreen(outputIndex) ? "true" : "false") << ","
              << "\"outputFps\":" << outputFps << ","
              << "\"streamFps\":" << streamFps << ","
              << "\"backendRoute\":\"" << escapeJson(backendRoute) << "\""

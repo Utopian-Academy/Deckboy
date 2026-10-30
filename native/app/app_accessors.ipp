@@ -183,6 +183,13 @@
     return &outputRuntimes_[outputIndex];
   }
 
+  // Whether output n's window is fullscreen right now, as the window says.
+  bool outputWindowIsFullscreen(int outputIndex) const {
+    const OutputRuntime* runtime = runtimeForOutput(outputIndex);
+    return runtime && runtime->outputWindow &&
+           (SDL_GetWindowFlags(runtime->outputWindow) & SDL_WINDOW_FULLSCREEN) != 0;
+  }
+
   void setOutputRecoveryPausedByEscape(int outputIndex, bool paused) {
     if (OutputRuntime* runtime = runtimeForOutput(outputIndex); runtime) {
       runtime->recoveryPausedByEscape = paused;

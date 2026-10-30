@@ -2757,7 +2757,7 @@ connection. HyperDeck and vMix clients cannot send a passphrase, so for them
 the trusted list is the lock.
 
 Some commands work only from this computer, whoever else is trusted: the
-test inputs (`CLICK`, `HOVER`, `PRESS`, `SCROLL`, `SCROLLBAR`, `DROPTEST`),
+test inputs (`CLICK`, `HOVER`, `PRESS`, `KEY`, `SCROLL`, `SCROLLBAR`, `DROPTEST`, `TESTTHROW`),
 anything that writes a file at a path it is given (`UISNAP`, `OUTSNAP`,
 `SUBTITLE CONVERT`), a `BROWSER` cue opening a `file:` address, and the
 commands that change who is trusted or who may watch and drive the show
