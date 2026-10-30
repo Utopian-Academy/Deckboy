@@ -107,11 +107,14 @@ def main():
              before)
 
         db.send("RECORD on")
+        log_path = work / "run" / "app.log"
+        marks = [log_path.stat().st_size if log_path.exists() else 0]
         # How long the take runs before the removal: the stretch before it is
         # the control, sound from four playlists with nothing being removed.
         pre = float(os.environ.get("DECKBOY_CHECK_PRE_REMOVE", "2.5"))
         time.sleep(pre)
         at_removal = decks(db)
+        marks.append(log_path.stat().st_size if log_path.exists() else 0)
         reply = db.send("DECKREMOVE 2")
         print("    " + reply)
         time.sleep(2.5)
@@ -129,6 +132,7 @@ def main():
         reply = db.send("OUTPUT DECK")
         note("output 1 still shows playlist 4, now number 3", "deck 3" in reply, reply)
         time.sleep(1.0)
+        marks.append(log_path.stat().st_size if log_path.exists() else 0)
         db.send("RECORD off")
         time.sleep(3.0)
 
@@ -186,6 +190,14 @@ def main():
         note("and nothing of the other playlists", others and max(others) < median - 40.0,
              max(others) if others else None)
 
+    # Slow main-thread frames (DECKBOY_UI_PROFILE), before and after the removal.
+    if os.environ.get("DECKBOY_UI_PROFILE") and log_path.exists() and len(marks) == 3:
+        text = log_path.read_bytes()
+        for name, a, b in (("control", marks[0], marks[1]), ("after removal", marks[1], marks[2])):
+            lines = [l for l in text[a:b].decode(errors="replace").splitlines() if "frame dt=" in l]
+            print("    slow frames, %s: %d" % (name, len(lines)))
+            for l in lines[:12]:
+                print("      " + l.strip()[:200])
     shutil.rmtree(work, ignore_errors=True)
     print()
     if fails:
