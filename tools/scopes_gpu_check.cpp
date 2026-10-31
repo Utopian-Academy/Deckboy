@@ -6,7 +6,12 @@
 // orientations, a flat field (the worst case for the shader's global adds),
 // and the false colour picture's nearest samples.
 //
-//   deckboy-scopes-gpu-check [--require] [--frame <file.bgra> <w> <h>] [--bench <file.bgra> <w> <h>]
+//   deckboy-scopes-gpu-check [--require] [--renderer <name>] [--frame <file.bgra> <w> <h>]
+//                            [--bench <file.bgra> <w> <h>]
+//
+// The renderer is the one an output gets: direct3d11 on Windows, "gpu"
+// (SDL_GPU: Metal, Vulkan) elsewhere. --renderer gpu on Windows, with
+// SDL_GPU_DRIVER=direct3d12 or vulkan, tests the SDL_GPU path there.
 //
 // Without --require, a renderer with no GPU analyser is reported and passes.
 #include "core/scopes.hpp"
@@ -116,6 +121,9 @@ bool analyseOnce(void* scopes, SDL_Texture* target, int orientation, int columns
   };
   if (!timed([&] { return g::submitGpuScopes(scopes, target, orientation, columns, matrix, thumbW, thumbH, 1); }))
     return false;
+  // An output presents between submitting and collecting, and SDL_GPU's
+  // renderer submits its drawing only then (gpu_scopes.cpp: one present late).
+  SDL_RenderPresent(SDL_GetRendererFromTexture(target));
   for (int i = 0; i < 5000; ++i) {
     if (timed([&] { return g::collectGpuScopes(scopes, counts); })) return true;
     SDL_Delay(1);
@@ -155,6 +163,19 @@ void compare(SDL_Renderer* renderer, const std::vector<std::uint8_t>& bgra, int 
       const auto cpu = s::analyze(s::Rgba8View{oriented, static_cast<std::size_t>(ow), static_cast<std::size_t>(oh), 0, true},
                                   options);
       const auto diff = difference(gpu, cpu);
+      if (!diff.empty() && std::getenv("SCOPES_GPU_DEBUG")) {
+        std::uint64_t waveSum = 0, cellSum = 0;
+        for (auto v : counts.wave) waveSum += v;
+        for (std::size_t i = 0; i < 3 * 65536; ++i) cellSum += counts.cells[i];
+        std::cerr << "DEBUG wave sum " << waveSum << " (want " << 6ull * ow * oh << ") cells " << cellSum
+                  << " (want " << 3ull * ow * oh << ") thumb0 " << (counts.thumb.empty() ? -1 : int(counts.thumb[0]))
+                  << "," << (counts.thumb.size() > 2 ? int(counts.thumb[2]) : -1) << " want " << int(oriented[0]) << ","
+                  << int(oriented[2]) << " fp " << counts.fingerprint << " cpuY0 ";
+        for (int r = 0; r < 256; ++r) if (cpu.lumaHistogram.bins[r]) { std::cerr << r << ":" << cpu.lumaHistogram.bins[r] << " "; break; }
+        std::cerr << " gpuY0 ";
+        for (int r = 0; r < 256; ++r) if (gpu.lumaHistogram.bins[r]) { std::cerr << r << ":" << gpu.lumaHistogram.bins[r] << " "; break; }
+        std::cerr << std::endl;
+      }
       expect(diff.empty(), name + ": GPU equals CPU" + (diff.empty() ? "" : " (differs in the " + diff + ")"));
       bool sampled = counts.thumbWidth == thumbW && counts.thumbHeight == thumbH &&
                      counts.thumb.size() == static_cast<std::size_t>(thumbW) * thumbH * 4;
@@ -164,6 +185,17 @@ void compare(SDL_Renderer* renderer, const std::vector<std::uint8_t>& bgra, int 
           sampled = std::memcmp(&counts.thumb[(static_cast<std::size_t>(y) * thumbW + x) * 4],
                                 &oriented[(static_cast<std::size_t>(sy) * ow + sx) * 4], 3) == 0;
         }
+      if (!sampled && std::getenv("SCOPES_GPU_DEBUG")) {
+        std::cerr << "DEBUG thumb " << counts.thumbWidth << "x" << counts.thumbHeight << " bytes " << counts.thumb.size()
+                  << " want " << thumbW << "x" << thumbH << " first:";
+        for (std::size_t i = 0; i < 12 && i < counts.thumb.size(); ++i) std::cerr << ' ' << int(counts.thumb[i]);
+        std::cerr << " expect:";
+        for (int x = 0; x < 3; ++x) {
+          const int sx = std::min(ow - 1, x * ow / thumbW);
+          for (int c = 0; c < 4; ++c) std::cerr << ' ' << int(oriented[static_cast<std::size_t>(sx) * 4 + c]);
+        }
+        std::cerr << std::endl;
+      }
       expect(sampled, name + ": the false colour samples are the frame's own pixels");
     }
   }
@@ -229,11 +261,13 @@ int bench(SDL_Renderer* renderer, const std::vector<std::uint8_t>& px, int w, in
 int main(int argc, char** argv) {
   bool require = false;
   const char* framePath = nullptr;
+  const char* rendererName = nullptr;
   int frameW = 0, frameH = 0;
   bool benchOnly = false;
   for (int i = 1; i < argc; ++i) {
     const std::string arg = argv[i];
     if (arg == "--require") require = true;
+    else if (arg == "--renderer" && i + 1 < argc) rendererName = argv[++i];
     else if ((arg == "--frame" || arg == "--bench") && i + 3 < argc) {
       benchOnly = arg == "--bench";
       framePath = argv[i + 1];
@@ -249,10 +283,11 @@ int main(int argc, char** argv) {
   Gpu gpu;
   gpu.window = SDL_CreateWindow("scopes gpu check", 64, 64, SDL_WINDOW_HIDDEN);
 #ifdef _WIN32
-  gpu.renderer = gpu.window ? SDL_CreateRenderer(gpu.window, "direct3d11") : nullptr;
+  if (!rendererName) rendererName = "direct3d11";
 #else
-  gpu.renderer = gpu.window ? SDL_CreateRenderer(gpu.window, "gpu") : nullptr;
+  if (!rendererName) rendererName = "gpu";
 #endif
+  gpu.renderer = gpu.window ? SDL_CreateRenderer(gpu.window, rendererName) : nullptr;
   if (!gpu.renderer && gpu.window) gpu.renderer = SDL_CreateRenderer(gpu.window, nullptr);
   if (!gpu.renderer) {
     std::cerr << "scopes-gpu: no renderer: " << SDL_GetError() << '\n';

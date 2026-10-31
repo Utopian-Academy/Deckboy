@@ -96,9 +96,20 @@ on these axes a value's histogram bin is its waveform row. It covers the 8-bit
 R'G'B' frame on the monitor's axes (`gpuScopesSupport`). The 4:2:2 wire
 signal and the HDR picture stay on the CPU.
 
-Direct3D 11 (Windows' output renderer) runs it today. Other renderers return
-null, and the CPU analyser measures there. `DECKBOY_CPU_SCOPES=1` forces the
-CPU analyser, for comparison. `tools/scopes_gpu_check.cpp` holds the GPU's
+One shader, `gpu_scopes.hlsl`, runs on two backends. Direct3D 11 (Windows'
+output renderer) compiles it at run time. SDL_GPU, the "gpu" renderer the
+outputs use on macOS and Linux, takes it as DXIL for Direct3D 12 and SPIR-V
+for Vulkan, both made by `tools/build_scopes_shaders.py` with dxc and embedded
+in `gpu_scopes_shaders.inc`. Metal takes `gpu_scopes.metal`, a line-for-line
+copy, as source. SDL_GPU's renderer submits its drawing only when it presents,
+so an analysis there is issued one present after the capture is drawn. Where
+neither backend runs, the CPU analyser measures. That includes Vulkan until a
+dxc with SPIR-V output makes the embed (the Windows SDK's has none).
+`DECKBOY_CPU_SCOPES=1` forces the CPU analyser, for comparison.
+
+Run on: Direct3D 11 on an RTX 4070 Laptop GPU and on Microsoft's software
+renderer (the Windows CI runner), and SDL_GPU on Direct3D 12. Metal: the
+shader compiles in CI (`xcrun metal`), and the macOS runner runs the check. `tools/scopes_gpu_check.cpp` holds the GPU's
 result against `analyze(Rgba8View)` bin for bin on a real renderer. It covers
 every 8-bit colour, odd rasters, all four output orientations, a flat 4K
 field (the worst case for the shared adds), a real frame, and the false colour

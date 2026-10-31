@@ -437,10 +437,14 @@ jobs:
       - name: Broadcast transport and audio regressions
         run: ctest --test-dir build --output-on-failure
 
-      # The GPU scopes analyser against the CPU one, bin for bin. It is
-      # Direct3D 11 only so far, so here it reports that the CPU measures.
+      # The GPU scopes analyser against the CPU one, bin for bin. Vulkan needs
+      # the SPIR-V embed, which a dxc with SPIR-V output has to make, so until
+      # then this reports that the CPU measures here. The embed itself must
+      # match its sources whatever this machine can run.
       - name: Scopes on the GPU
-        run: xvfb-run -a ./build/deckboy-scopes-gpu-check
+        run: |
+          python3 tools/build_scopes_shaders.py --check
+          xvfb-run -a ./build/deckboy-scopes-gpu-check
 
       # Slide import renders through pdftoppm here, CoreGraphics on a Mac and
       # Windows.Data.Pdf on Windows. Nothing looked at the pages any of them
@@ -908,10 +912,14 @@ jobs:
       - name: Broadcast transport and audio regressions
         run: ctest --test-dir build --output-on-failure
 
-      # The GPU scopes analyser against the CPU one, bin for bin. It is
-      # Direct3D 11 only so far, so here it reports that the CPU measures.
+      # The scopes' Metal shader is compiled from source at run time, where a
+      # typo would only fall back to the CPU; compile it here so it fails the
+      # build instead. Then the GPU analyser against the CPU one, bin for bin,
+      # if this runner has a Metal device that runs it.
       - name: Scopes on the GPU
-        run: ./build/deckboy-scopes-gpu-check
+        run: |
+          xcrun -sdk macosx metal -c native/engine/gpu_scopes.metal -o "$RUNNER_TEMP/gpu_scopes.air"
+          SCOPES_GPU_DEBUG=1 ./build/deckboy-scopes-gpu-check
 
       # CoreGraphics only ever scales a PDF page down; every slide imported on
       # a Mac from v0.89.0 came out at its own size in a white frame.
@@ -1604,12 +1612,17 @@ jobs:
         run: ctest --test-dir build -C Release --output-on-failure
 
       # The GPU scopes analyser against the CPU one, bin for bin, on every
-      # 8-bit colour, odd rasters and all four orientations.
+      # 8-bit colour, odd rasters and all four orientations. This runner's
+      # Direct3D 11 is Microsoft's software renderer, and it runs it.
       - name: Scopes on the GPU match the CPU
         shell: pwsh
         run: |
-          .\build\Release\deckboy-scopes-gpu-check.exe
+          .\build\Release\deckboy-scopes-gpu-check.exe --require
           if ($LASTEXITCODE -ne 0) { throw "the GPU scopes differ from the CPU's" }
+          # SDL_GPU's path (Metal and Vulkan elsewhere) on Direct3D 12, if this runner has it.
+          $env:SDL_GPU_DRIVER = "direct3d12"
+          .\build\Release\deckboy-scopes-gpu-check.exe --renderer gpu
+          if ($LASTEXITCODE -ne 0) { throw "the GPU scopes on SDL_GPU differ from the CPU's" }
 
       - name: Slides and PDFs render at full size
         shell: pwsh

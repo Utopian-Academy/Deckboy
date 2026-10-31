@@ -14,7 +14,11 @@
 // core::scopes::analyze(Rgba8View) gives, bin for bin. tools/scopes_gpu_check
 // holds the two side by side, including on every 8-bit colour.
 //
-// Direct3D 11 today; null elsewhere, where the CPU analyser stays in charge.
+// Two backends, one shader (gpu_scopes.hlsl, and gpu_scopes.metal for Metal):
+// Direct3D 11, Windows' output renderer; and SDL_GPU, the "gpu" renderer the
+// outputs use on macOS and Linux -- Metal, Vulkan, or Direct3D 12 when forced.
+// Null where neither runs (another renderer, or Vulkan without the SPIR-V
+// embed), and the CPU analyser stays in charge.
 #ifndef DECKBOY_ENGINE_GPU_SCOPES_HPP
 #define DECKBOY_ENGINE_GPU_SCOPES_HPP
 
