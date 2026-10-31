@@ -3943,6 +3943,12 @@
                     pictureArea.y + (pictureArea.h - drawH) / 2, drawW, drawH};
       SDL_SetTextureBlendMode(selectedThumbnailTex_, SDL_BLENDMODE_NONE);
       SDL_RenderTexture(controlRenderer_, selectedThumbnailTex_, nullptr, &dst);
+    } else if (selectedCue && selectedCue->kind == CueKind::Timer) {
+      // THE TIMER AS IT RENDERS (board H856G24w): logo, backdrop and digits,
+      // from the same builder the output uses, so setting a logo shows it.
+      // This said "no still preview", which is true of a generated cue and
+      // gave no sign that a logo or backdrop had taken.
+      drawTimerInspectorPreview(*selectedCue, pictureArea);
     } else if (selectedCue) {
       drawTextSafe(controlRenderer_, fontSmall_,
                    SDL_Rect {thumbArea.x + uiScaled(6), thumbArea.y + uiScaled(8),

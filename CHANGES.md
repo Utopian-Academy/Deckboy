@@ -2,7 +2,13 @@
 
 ## Unreleased - v0.99.424
 
+### The stage timer's look, where you can find it
+- Backdrop and logo now sit at the top of the timer's settings, not twenty rows down. The backdrop has four presets (none, black, key green, key blue) and a colour chip that opens the colour picker, for an exact key colour, typed or picked from the screen.
+- The inspector's preview shows the timer as it renders, logo, backdrop and digits, instead of "no still preview". Transparent shows as a checkerboard.
+- The logo row shows a thumbnail, CHANGE and an X to remove it, and a logo size row.
+
 ### Fixed
+- A stage timer's logo was drawn with red and blue swapped.
 - Importing a PowerPoint, Keynote or PDF can no longer leave Deckboy on the import card for ever. A converter still busy after three minutes (often PowerPoint waiting on a prompt it cannot show, such as Protected View or sign-in), or a PDF renderer silent for ninety seconds, is stopped, and the toast says what happened and what to try.
 - Every slide import now writes its steps to the show log: which file, whether it was converted and by what, and how many pages it rendered, or where it stopped.
 

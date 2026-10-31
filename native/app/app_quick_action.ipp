@@ -477,6 +477,7 @@
       case QuickAction::CodeOpenEditor:     openCodeEditor(); return;
       case QuickAction::EffectLfoToggle:    effectLfoToggle(param); return;
       case QuickAction::EffectColourPick:   openColourPicker(param); return;
+      case QuickAction::CueBackdropPreset:  setCueBackdropPreset(param); return;
       case QuickAction::DmxFixtureInclude:  toggleDmxFixtureIncluded(param); return;
       case QuickAction::DmxFixtureLevelDec: nudgeDmxFixtureLevel(param, -0.05f); return;
       case QuickAction::DmxFixtureLevelInc: nudgeDmxFixtureLevel(param, 0.05f); return;
@@ -1192,14 +1193,15 @@
         }
         break;
       case QuickAction::TimerClearLogo:         clearTimerLogo(); break;
+      case QuickAction::TimerLogoSizeDec:       nudgeTimerLogoSize(-2); break;
+      case QuickAction::TimerLogoSizeInc:       nudgeTimerLogoSize(+2); break;
+      case QuickAction::CueBackdropPick:        openBackdropPicker(); break;
       case QuickAction::TimerCycleColorNormal:
         cycleTimerColor(&TimerSettings::colorNormal, "colour"); break;
       case QuickAction::TimerCycleColorAmber:
         cycleTimerColor(&TimerSettings::colorAmber, "amber colour"); break;
       case QuickAction::TimerCycleColorRed:
         cycleTimerColor(&TimerSettings::colorRed, "red colour"); break;
-      case QuickAction::TimerCycleColorBackground:
-        cycleTimerColor(&TimerSettings::colorBackground, "backdrop"); break;
       case QuickAction::DatamoshLookPrev: cycleSelectedDatamoshLook(-1); break;
       case QuickAction::DatamoshLookNext: cycleSelectedDatamoshLook(+1); break;
       case QuickAction::CueSectionEffectsToggle:

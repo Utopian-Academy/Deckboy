@@ -9597,6 +9597,13 @@
     });
   }
 
+  void nudgeTimerLogoSize(int delta) {
+    Cue* cue = selectedCueMutable();
+    if (!cue || cue->kind != CueKind::Timer) return;
+    cue->timer.logoHeightPercent = std::clamp(cue->timer.logoHeightPercent + delta, 2, 40);
+    markProjectDirty();
+  }
+
   void clearTimerLogo() {
     Cue* cue = selectedCueMutable();
     if (!cue || cue->kind != CueKind::Timer) return;

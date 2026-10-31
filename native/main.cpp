@@ -6389,6 +6389,182 @@ class App {
   // Stage timer controls. These act on the CLOCK, not the transport: the cue
   // stays on air on the stage screen while the operator runs, holds, resets or
   // nudges it. That separation is the whole point of the section existing.
+  // The inspector's picture of a timer cue: rebuilt four times a second at the
+  // panel's size, 16:9, over a checkerboard where the backdrop is transparent.
+  struct TimerPreviewTex { SDL_Texture* tex = nullptr; int w = 0; int h = 0; Uint64 builtMs = 0; std::string key; };
+  TimerPreviewTex timerPreview_;
+
+  void drawTimerInspectorPreview(const Cue& cue, const SDL_Rect& area) {
+    int w = area.w - 4;
+    int h = w * 9 / 16;
+    if (h > area.h - 4) {
+      h = area.h - 4;
+      w = h * 16 / 9;
+    }
+    if (w < 16 || h < 9) return;
+    const SDL_Rect dst {area.x + (area.w - w) / 2, area.y + (area.h - h) / 2, w, h};
+    auto it = timerRuntimes_.find(cue.id);
+    const bool running = it != timerRuntimes_.end() && it->second.running;
+    const double elapsed = it != timerRuntimes_.end() ? it->second.elapsedSeconds : 0.0;
+    const Uint64 now = SDL_GetTicks();
+    const std::string key = cue.id + "|" + std::to_string(w) + "x" + std::to_string(h);
+    if (!timerPreview_.tex || timerPreview_.key != key || timerPreview_.w != w || timerPreview_.h != h ||
+        now - timerPreview_.builtMs > 250) {
+      DecodedFrame frame;
+      frame.width = w;
+      frame.height = h;
+      frame.format = FramePixelFormat::RGBA32;
+      frame.pixels.assign(static_cast<std::size_t>(w) * h * 4, 0);
+      MediaEngine::buildTimerFrame(frame, cue.timer, elapsed, running);
+      if (!timerPreview_.tex || timerPreview_.w != w || timerPreview_.h != h) {
+        if (timerPreview_.tex) SDL_DestroyTexture(timerPreview_.tex);
+        timerPreview_.tex = SDL_CreateTexture(controlRenderer_, SDL_PIXELFORMAT_RGBA32,
+                                              SDL_TEXTUREACCESS_STREAMING, w, h);
+        if (timerPreview_.tex) SDL_SetTextureBlendMode(timerPreview_.tex, SDL_BLENDMODE_BLEND);
+      }
+      if (timerPreview_.tex) SDL_UpdateTexture(timerPreview_.tex, nullptr, frame.pixels.data(), w * 4);
+      timerPreview_.w = w;
+      timerPreview_.h = h;
+      timerPreview_.key = key;
+      timerPreview_.builtMs = now;
+    }
+    if (cue.timer.colorBackground == kTimerBackdropTransparent) {
+      const int sq = std::max(6, h / 12);
+      for (int yy = 0; yy * sq < h; ++yy) {
+        for (int xx = 0; xx * sq < w; ++xx) {
+          Primitives::fillRect(controlRenderer_,
+                               SDL_Rect {dst.x + xx * sq, dst.y + yy * sq, std::min(sq, w - xx * sq),
+                                         std::min(sq, h - yy * sq)},
+                               ((xx + yy) % 2) ? SDL_Color {90, 90, 90, 255} : SDL_Color {60, 60, 60, 255});
+        }
+      }
+    }
+    if (timerPreview_.tex) {
+      const SDL_FRect fdst {static_cast<float>(dst.x), static_cast<float>(dst.y), static_cast<float>(w),
+                            static_cast<float>(h)};
+      SDL_RenderTexture(controlRenderer_, timerPreview_.tex, nullptr, &fdst);
+    }
+  }
+
+  // BACKDROP: four presets and a colour chip, one row. Board H856G24w (James,
+  // 2026-10-30): a solid colour to key out, on every cue meant to sit over
+  // another; this replaces the timer's stepper through named colours, which
+  // had no way to give an exact key green.
+  int inspDrawBackdropRow(const InspectorCtx& ix, int rowY, int stored) {
+    const int gap = 4;
+    const int contentW = ix.ctrlW - ix.inset * 2;
+    const int labelW = inspLabelColumnWidth(ix, contentW, gap * 5 + uiScaled(34));
+    const int rx = ix.ctrl.x + ix.inset;
+    drawTextSafe(controlRenderer_, ix.labelFont, SDL_Rect {rx, rowY, labelW, ix.rowH}, "backdrop", pal.fg);
+    const int chipW = uiScaled(34);
+    const int presetsW = contentW - labelW - gap * 5 - chipW;
+    const int cellW = std::max(uiScaled(20), presetsW / 4);
+    static const char* kNames[4] = {"none", "black", "green", "blue"};
+    static const int kValues[4] = {kTimerBackdropTransparent, 0x000000, 0x00b140, 0x0047bb};
+    static const char* kTips[4] = {
+      "Transparent: only the content, to layer over another playlist",
+      "Solid black behind it",
+      "Key green (#00b140) behind it, to key out on a vision mixer",
+      "Key blue (#0047bb) behind it, to key out on a vision mixer"};
+    int cx = rx + labelW + gap;
+    for (int i = 0; i < 4; ++i) {
+      const SDL_Rect r {cx, rowY, cellW, ix.rowH};
+      const bool lit = stored == kValues[i];
+      drawUIPanel(r, paletteToggleFill(lit), pal.deep, pal.mid);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, r, kNames[i], paletteToggleInk(lit));
+      quickButtons_.push_back({r, QuickAction::CueBackdropPreset, kTips[i], i});
+      cx += cellW + gap;
+    }
+    // The chip shows the colour; transparent shows a checkerboard.
+    const SDL_Rect chip {cx, rowY, chipW, ix.rowH};
+    if (stored == kTimerBackdropTransparent) {
+      const int sq = std::max(3, ix.rowH / 4);
+      for (int yy = 0; yy * sq < chip.h; ++yy) {
+        for (int xx = 0; xx * sq < chip.w; ++xx) {
+          const SDL_Rect cell {chip.x + xx * sq, chip.y + yy * sq, std::min(sq, chip.w - xx * sq),
+                               std::min(sq, chip.h - yy * sq)};
+          Primitives::fillRect(controlRenderer_, cell,
+                               ((xx + yy) % 2) ? SDL_Color {200, 200, 200, 255} : SDL_Color {120, 120, 120, 255});
+        }
+      }
+      Primitives::strokeRect(controlRenderer_, chip, pal.deep);
+    } else {
+      const std::uint32_t rgb = stored < 0 ? 0x000000u : static_cast<std::uint32_t>(stored);
+      drawUIPanel(chip, sdlColourOf(rgb), colourPicker_.open && colourPicker_.backdrop ? pal.light : pal.deep,
+                  pal.mid);
+    }
+    quickButtons_.push_back({chip, QuickAction::CueBackdropPick,
+                             "Any colour: from the screen, by hex or by name"});
+    return rowY + ix.rowStep;
+  }
+
+  // THE LOGO, seen: a thumbnail, its name, CHANGE and an X. It used to be a
+  // file name between a - and a + that both opened the picker, cleared by a
+  // right-click nobody found, so a logo that was set gave no sign of it.
+  struct TimerLogoThumb { std::string path; int height = 0; SDL_Texture* tex = nullptr; int w = 0; };
+  TimerLogoThumb timerLogoThumb_;
+
+  int inspDrawTimerLogoRow(const InspectorCtx& ix, int rowY, const Cue& cue) {
+    const int gap = 4;
+    const int contentW = ix.ctrlW - ix.inset * 2;
+    const int rx = ix.ctrl.x + ix.inset;
+    const int changeW = std::max(uiScaled(64), measuredWidthIn(fontSmall_, "CHANGE") + uiScaled(14));
+    const int clearW = ix.rowH;
+    const int labelW = inspLabelColumnWidth(ix, contentW, gap * 3 + changeW + clearW);
+    drawTextSafe(controlRenderer_, ix.labelFont, SDL_Rect {rx, rowY, labelW, ix.rowH}, "logo", pal.fg);
+    int cx = rx + labelW + gap;
+    const int middleW = contentW - labelW - gap * 3 - changeW - (cue.timer.logoPath.empty() ? 0 : clearW + gap);
+    const SDL_Rect middle {cx, rowY, std::max(0, middleW), ix.rowH};
+    drawUIPanel(middle, pal.mid, pal.deep, pal.light);
+    int textX = middle.x + uiScaled(6);
+    if (!cue.timer.logoPath.empty()) {
+      const int thumbH = std::max(8, ix.rowH - uiScaled(6));
+      if (timerLogoThumb_.path != cue.timer.logoPath || timerLogoThumb_.height != thumbH) {
+        if (timerLogoThumb_.tex) SDL_DestroyTexture(timerLogoThumb_.tex);
+        timerLogoThumb_ = TimerLogoThumb {};
+        timerLogoThumb_.path = cue.timer.logoPath;
+        timerLogoThumb_.height = thumbH;
+        std::vector<std::uint8_t> rgba;
+        int w = 0;
+        if (MediaEngine::timerLogoPixels(cue.timer.logoPath, thumbH, w, rgba) && w > 0) {
+          timerLogoThumb_.tex = SDL_CreateTexture(controlRenderer_, SDL_PIXELFORMAT_RGBA32,
+                                                  SDL_TEXTUREACCESS_STATIC, w, thumbH);
+          if (timerLogoThumb_.tex) {
+            SDL_UpdateTexture(timerLogoThumb_.tex, nullptr, rgba.data(), w * 4);
+            SDL_SetTextureBlendMode(timerLogoThumb_.tex, SDL_BLENDMODE_BLEND);
+            timerLogoThumb_.w = w;
+          }
+        }
+      }
+      if (timerLogoThumb_.tex) {
+        const int tw = std::min(timerLogoThumb_.w, middle.w / 2);
+        const SDL_FRect dst {static_cast<float>(textX), static_cast<float>(rowY + uiScaled(3)),
+                             static_cast<float>(tw), static_cast<float>(timerLogoThumb_.height)};
+        SDL_RenderTexture(controlRenderer_, timerLogoThumb_.tex, nullptr, &dst);
+        textX += tw + uiScaled(6);
+      }
+    }
+    const std::string name = cue.timer.logoPath.empty() ? std::string("none")
+                                                        : fs::path(cue.timer.logoPath).filename().string();
+    drawTextSafe(controlRenderer_, fontSmall_,
+                 SDL_Rect {textX, rowY, std::max(0, middle.x + middle.w - textX - uiScaled(4)), ix.rowH},
+                 timerLogoThumb_.tex || cue.timer.logoPath.empty() ? name : name + " (cannot read)", pal.deep);
+    quickButtons_.push_back({middle, QuickAction::TimerPickLogo, "Choose the image drawn above the clock"});
+    cx = middle.x + middle.w + gap;
+    const SDL_Rect change {cx, rowY, changeW, ix.rowH};
+    drawUIPanel(change, pal.tile, pal.deep, pal.mid);
+    drawCenteredTextSafe(controlRenderer_, fontSmall_, change, cue.timer.logoPath.empty() ? "CHOOSE" : "CHANGE",
+                         pal.fg);
+    quickButtons_.push_back({change, QuickAction::TimerPickLogo, "Choose the image drawn above the clock"});
+    if (!cue.timer.logoPath.empty()) {
+      const SDL_Rect clear {change.x + change.w + gap, rowY, clearW, ix.rowH};
+      drawUIPanel(clear, pal.tile, pal.deep, pal.mid);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, clear, "X", pal.fg);
+      quickButtons_.push_back({clear, QuickAction::TimerClearLogo, "Remove the logo"});
+    }
+    return rowY + ix.rowStep;
+  }
+
   int inspDrawTimerRows(const InspectorCtx& ix, int startY, const Cue& cue) {
     int rowY = startY;
     auto it = timerRuntimes_.find(cue.id);
@@ -6443,6 +6619,18 @@ class App {
        "Give a minute back without stopping the clock"},
     });
     rowY += ix.rowStep;
+
+    // THE LOOK FIRST (board H856G24w): backdrop and logo were twenty rows down,
+    // under the thresholds and the chimes, and were not found.
+    rowY = inspDrawBackdropRow(ix, rowY, cue.timer.colorBackground);
+    rowY = inspDrawTimerLogoRow(ix, rowY, cue);
+    if (!cue.timer.logoPath.empty()) {
+      inspDrawQuickRow(ix, rowY, "logo size", QuickAction::TimerLogoSizeDec,
+                       std::to_string(cue.timer.logoHeightPercent) + "% of the height",
+                       QuickAction::TimerLogoSizeInc, QuickAction::ToggleLoop, false, false,
+                       "How tall the logo is above the clock");
+      rowY += ix.rowStep;
+    }
 
     const char* modeLabel =
       cue.timer.mode == TimerMode::CountUp   ? "count up"
@@ -6523,14 +6711,6 @@ class App {
                      QuickAction::TimerChimeZeroToggle, true,
                      cue.timer.chimeAtZero, "Sound when time is up");
     rowY += ix.rowStep;
-    inspDrawQuickRow(ix, rowY, "logo", QuickAction::TimerPickLogo,
-                     cue.timer.logoPath.empty()
-                       ? std::string("none")
-                       : fs::path(cue.timer.logoPath).filename().string(),
-                     QuickAction::TimerPickLogo, QuickAction::TimerClearLogo,
-                     false, false,
-                     "Image drawn above the clock. Right-click clears it.");
-    rowY += ix.rowStep;
 
     inspDrawQuickRow(ix, rowY, "chime", QuickAction::TimerCycleChimeSound,
                      timerChimeName(cue.timer.chimeSound),
@@ -6559,12 +6739,6 @@ class App {
                      QuickAction::TimerCycleColorRed,
                      QuickAction::ToggleLoop, false, false,
                      "Digit colour once red is reached, and in overtime");
-    rowY += ix.rowStep;
-    inspDrawQuickRow(ix, rowY, "backdrop", QuickAction::TimerCycleColorBackground,
-                     timerColorLabel(cue.timer.colorBackground),
-                     QuickAction::TimerCycleColorBackground,
-                     QuickAction::ToggleLoop, false, false,
-                     "Screen behind the clock -- or transparent, to layer the clock over another playlist");
     rowY += ix.rowStep;
 
     inspDrawQuickRow(ix, rowY, "prog bar", QuickAction::TimerProgressToggle,

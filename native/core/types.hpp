@@ -3532,6 +3532,9 @@ enum class QuickAction {
   CueSectionAudioFxToggle,
   TimerChimeAmberToggle, TimerChimeRedToggle, TimerChimeZeroToggle,
   TimerCycleChimeSound, TimerPickLogo, TimerClearLogo,
+  TimerLogoSizeDec, TimerLogoSizeInc,
+  CueBackdropPreset,   // param: 0 transparent, 1 black, 2 key green, 3 key blue
+  CueBackdropPick,     // the backdrop's colour chip: opens the colour picker
   TimerNudgeSecUp, TimerNudgeSecDown,
   CueSectionToneToggle,
   ToneCycleWaveform,
@@ -3582,7 +3585,8 @@ enum class QuickAction {
   SynthAttackDec, SynthAttackInc,
   SynthReleaseDec, SynthReleaseInc,
   TimerCycleColorNormal, TimerCycleColorAmber, TimerCycleColorRed,
-  TimerCycleColorBackground,
+  // TimerCycleColorBackground was removed with the backdrop row (presets and a
+  // colour chip, board H856G24w), which replaced the stepper.
   // DatamoshToggle was removed with the effects-UI rework: datamosh is an
   // entry in the effect stack now, and syncDatamoshFromStack calls
   // toggleSelectedDatamosh directly. The action had a handler and nothing

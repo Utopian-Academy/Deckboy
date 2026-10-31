@@ -152,7 +152,7 @@ def run(exe, work, show):
         have = chips(db)
         # effect index * 8 + slot: colour replace's from (A) and to (C), the
         # strobe's flash to (B), and nothing on blur.
-        note("a chip on exactly from, to and flash to", sorted(have) == [0, 2, 9], sorted(have))
+        note("a chip on exactly from, to and flash to", sorted(k for k in have if k >= 0) == [0, 2, 9], sorted(have))
         to_chip = scroll_to_chip(db, 2)
         note("the 'to' chip is in view to click", to_chip is not None, chips(db).get(2))
         if not to_chip:
@@ -209,6 +209,30 @@ def run(exe, work, show):
         note("the desk still answers", db.send("PING").startswith("OK"))
 
 
+def backdrop_check(exe, work, show):
+    """The timer's backdrop chip opens the same picker, aimed at the cue's
+    backdrop (board H856G24w): a click on the hue strip sets the backdrop."""
+    print("  a timer's backdrop")
+    with Runtime(exe, work / "backdrop", show) as db:
+        time.sleep(1.0)
+        db.send("ADDTIMER")
+        time.sleep(0.6)
+        chip = scroll_to_chip(db, -1)
+        note("the timer has a backdrop chip", chip is not None, chips(db))
+        if not chip:
+            return
+        click(db, chip)
+        p = picker(db)
+        note("the chip opens the picker on the backdrop", p.get("open") and p.get("backdrop"), p)
+        strip = hit(db, HIT_HUE)
+        if strip:
+            click(db, strip, dx=strip[2] // 3)   # a third along: green
+            reply = answer(db, "TIMER BACKDROP")
+            note("the hue strip sets the backdrop (#00FF00)", "#00FF00" in reply.upper(), reply)
+        db.send("KEY Escape")
+        note("Esc closes it", wait_for(lambda: not picker(db).get("open"), 2.0), picker(db))
+
+
 def real_pick(exe, work, show):
     """The real screen, where a check can read one: X11 under xvfb. Windows'
     hook and the Mac's sampler want a person at a real desktop, so there it is
@@ -257,6 +281,7 @@ def main():
     show = work / "show" / "02-running-a-show.deckboy"
     try:
         run(exe, work, show)
+        backdrop_check(exe, work, show)
         real_pick(exe, work, show)
     finally:
         shutil.rmtree(work, ignore_errors=True)

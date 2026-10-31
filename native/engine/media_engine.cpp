@@ -77,6 +77,7 @@ void deckboy::engine::DrmPrimeImporterDeleter::operator()(DrmPrimeImporter* impo
 #include "extras/terrarium_render_rgba.hpp"
 #include "platform/capture_backend.hpp" // source capture for camera/window cues
 
+#include <memory>
 #include <mutex>
 
 #ifndef _WIN32
@@ -10788,21 +10789,37 @@ struct TimerLogoCache {
   int w = 0;
   int h = 0;
   bool failed = false;
-  std::vector<std::uint8_t> rgba;   // tightly packed, w*h*4
+  std::vector<std::uint8_t> rgba;   // tightly packed, w*h*4, R first
 };
 
+// A FEW SIZES, NOT ONE. The output draws the logo at a fifth of 2160 and the
+// inspector's preview at a fifth of a thumbnail; with one entry the two took
+// turns evicting each other and ffmpeg ran twice a second. Shared, because the
+// output thread and the UI both hold one while drawing.
 std::mutex gTimerLogoMutex;
-TimerLogoCache gTimerLogo;
+std::vector<std::shared_ptr<const TimerLogoCache>> gTimerLogos;   // most recent first
 
-const TimerLogoCache* timerLogoFor(const std::string& path, int targetH) {
+std::shared_ptr<const TimerLogoCache> timerLogoFor(const std::string& path, int targetH) {
   if (path.empty() || targetH <= 0) return nullptr;
-  std::lock_guard<std::mutex> lock(gTimerLogoMutex);
-  if (gTimerLogo.path == path && gTimerLogo.targetH == targetH) {
-    return gTimerLogo.failed ? nullptr : &gTimerLogo;
+  {
+    std::lock_guard<std::mutex> lock(gTimerLogoMutex);
+    for (std::size_t i = 0; i < gTimerLogos.size(); ++i) {
+      if (gTimerLogos[i]->path == path && gTimerLogos[i]->targetH == targetH) {
+        auto hit = gTimerLogos[i];
+        gTimerLogos.erase(gTimerLogos.begin() + static_cast<std::ptrdiff_t>(i));
+        gTimerLogos.insert(gTimerLogos.begin(), hit);
+        return hit->failed ? nullptr : hit;
+      }
+    }
   }
-  gTimerLogo = TimerLogoCache{};
-  gTimerLogo.path = path;
-  gTimerLogo.targetH = targetH;
+  auto made = std::make_shared<TimerLogoCache>();
+  made->path = path;
+  made->targetH = targetH;
+  auto remember = [&](std::shared_ptr<TimerLogoCache> entry) {
+    std::lock_guard<std::mutex> lock(gTimerLogoMutex);
+    gTimerLogos.insert(gTimerLogos.begin(), entry);
+    if (gTimerLogos.size() > 6) gTimerLogos.resize(6);
+  };
 
   // Height is fixed and width follows the source aspect, so a wordmark is not
   // squashed into a square.
@@ -10814,7 +10831,7 @@ const TimerLogoCache* timerLogoFor(const std::string& path, int targetH) {
   if (auto probe = readAllText(probeArgs)) {
     std::sscanf(probe->c_str(), "%d,%d", &srcW, &srcH);
   }
-  if (srcW <= 0 || srcH <= 0) { gTimerLogo.failed = true; return nullptr; }
+  if (srcW <= 0 || srcH <= 0) { made->failed = true; remember(made); return nullptr; }
   const int outH = targetH;
   const int outW = std::max(1, static_cast<int>(std::llround(
     static_cast<double>(srcW) * outH / static_cast<double>(srcH))));
@@ -10826,15 +10843,16 @@ const TimerLogoCache* timerLogoFor(const std::string& path, int targetH) {
     "-vf", "scale=" + std::to_string(outW) + ":" + std::to_string(outH),
     "-f", "rawvideo", "-pix_fmt", "rgba", "pipe:1"
   };
-  if (!spawnPipeProcess(proc, args)) { gTimerLogo.failed = true; return nullptr; }
+  if (!spawnPipeProcess(proc, args)) { made->failed = true; remember(made); return nullptr; }
   const std::size_t want = static_cast<std::size_t>(outW) * outH * 4;
-  gTimerLogo.rgba.resize(want);
-  const bool ok = readExact(proc.readFd, gTimerLogo.rgba.data(), want);
+  made->rgba.resize(want);
+  const bool ok = readExact(proc.readFd, made->rgba.data(), want);
   proc.stop();
-  if (!ok) { gTimerLogo.failed = true; gTimerLogo.rgba.clear(); return nullptr; }
-  gTimerLogo.w = outW;
-  gTimerLogo.h = outH;
-  return &gTimerLogo;
+  if (!ok) { made->failed = true; made->rgba.clear(); remember(made); return nullptr; }
+  made->w = outW;
+  made->h = outH;
+  remember(made);
+  return made;
 }
 
 }  // namespace
@@ -11601,6 +11619,15 @@ void MediaEngine::rebuildToneFrame(const Cue& cue) {
 }
 
 
+bool MediaEngine::timerLogoPixels(const std::string& path, int height, int& width,
+                                  std::vector<std::uint8_t>& rgba) {
+  const auto logo = timerLogoFor(path, height);
+  if (!logo) return false;
+  width = logo->w;
+  rgba = logo->rgba;
+  return true;
+}
+
 void MediaEngine::buildTimerFrame(DecodedFrame& frame, const TimerSettings& cfg,
                                   double elapsedSeconds, bool running) {
   const int W = frame.width;
@@ -11900,7 +11927,7 @@ void MediaEngine::buildTimerFrame(DecodedFrame& frame, const TimerSettings& cfg,
   // there, so a PNG with transparency keeps its shape against the backdrop.
   if (!cfg.logoPath.empty()) {
     const int logoH = std::max(1, H * std::clamp(cfg.logoHeightPercent, 2, 40) / 100);
-    if (const TimerLogoCache* logo = timerLogoFor(cfg.logoPath, logoH)) {
+    if (const auto logo = timerLogoFor(cfg.logoPath, logoH)) {
       const int lx = (W - logo->w) / 2;
       const int ly = H / 24;
       for (int ry = 0; ry < logo->h; ++ry) {
@@ -11915,20 +11942,24 @@ void MediaEngine::buildTimerFrame(DecodedFrame& frame, const TimerSettings& cfg,
           const std::size_t o = (static_cast<std::size_t>(dy) * W + dx) * 4;
           // On a transparent backdrop the logo brings its own alpha, or it
           // would be painted into pixels nobody draws.
+          //
+          // RGBA ON BOTH SIDES: the frame is RGBA32 (byte 0 is red, as
+          // fillTimerRect writes it) and so is the decoded logo. This copied
+          // byte 2 into byte 0, so every logo came out with red and blue
+          // exchanged -- the same fault the message line had (see above).
           if (frame.pixels[o + 3] == 0) {
-            frame.pixels[o + 0] = logo->rgba[s + 2];
+            frame.pixels[o + 0] = logo->rgba[s + 0];
             frame.pixels[o + 1] = logo->rgba[s + 1];
-            frame.pixels[o + 2] = logo->rgba[s + 0];
+            frame.pixels[o + 2] = logo->rgba[s + 2];
             frame.pixels[o + 3] = static_cast<std::uint8_t>(a);
             continue;
           }
-          // Frame is BGRA; the decoded logo is RGBA.
           frame.pixels[o + 0] = static_cast<std::uint8_t>(
-            (logo->rgba[s + 2] * a + frame.pixels[o + 0] * (255 - a)) / 255);
+            (logo->rgba[s + 0] * a + frame.pixels[o + 0] * (255 - a)) / 255);
           frame.pixels[o + 1] = static_cast<std::uint8_t>(
             (logo->rgba[s + 1] * a + frame.pixels[o + 1] * (255 - a)) / 255);
           frame.pixels[o + 2] = static_cast<std::uint8_t>(
-            (logo->rgba[s + 0] * a + frame.pixels[o + 2] * (255 - a)) / 255);
+            (logo->rgba[s + 2] * a + frame.pixels[o + 2] * (255 - a)) / 255);
         }
       }
     }

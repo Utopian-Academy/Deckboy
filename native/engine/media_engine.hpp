@@ -924,6 +924,10 @@ class MediaEngine {
   // headlessly without a deck.
   static void buildTimerFrame(DecodedFrame& frame, const TimerSettings& cfg,
                               double elapsedSeconds, bool running);
+  // The timer's logo at a height, RGBA, from the same cache the clock draws
+  // from -- for the inspector's thumbnail. False when it cannot be read.
+  static bool timerLogoPixels(const std::string& path, int height, int& width,
+                              std::vector<std::uint8_t>& rgba);
 
   static std::optional<DecodedFrame> buildPatternFrame(const Cue& cue, double animTime = 0.0,
                                                        int fallbackWidth = kOutputWidth,

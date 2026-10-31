@@ -33,6 +33,7 @@
     int effect = -1;            // index in that cue's stack
     int slot = -1;              // the parameter row the chip sits on
     bool whole = false;         // CueEffect::colour, not a hue slot
+    bool backdrop = false;      // the cue's own backdrop (cueBackdropField), not an effect
     SDL_Rect anchor {};         // the chip that opened it
     SDL_Rect panel {};
     bool sampling = false;
@@ -98,6 +99,74 @@
     return fits ? &fx : nullptr;
   }
 
+  // WHERE A CUE KEEPS ITS BACKDROP, in the timer's encoding: -1 the kind's
+  // default, kTimerBackdropTransparent for none, else 0xRRGGBB. Null for a
+  // kind that has none. (Board H856G24w, James 2026-10-30: a solid colour to
+  // key out, on every cue meant to sit over another.)
+  int* cueBackdropField(Cue& cue) const {
+    if (cue.kind == CueKind::Timer) return &cue.timer.colorBackground;
+    return nullptr;
+  }
+
+  // The picker is still pointing at something that exists.
+  bool colourPickerTargetValid() {
+    if (!colourPicker_.open) return false;
+    if (colourPicker_.backdrop) {
+      Cue* cue = selectedCueMutable();
+      return cue && cue == colourPicker_.cue && cueBackdropField(*cue);
+    }
+    return colourPickerEffect() != nullptr;
+  }
+
+  std::string colourPickerLabel() {
+    if (colourPicker_.backdrop) return "backdrop";
+    const deckboy::effects::CueEffect* fx = colourPickerEffect();
+    const char* label = fx ? deckboy::effects::cueEffectParamLabel(fx->kind, colourPicker_.slot) : nullptr;
+    return label ? label : "colour";
+  }
+
+  std::string colourPickerTitle() {
+    if (colourPicker_.backdrop) {
+      const Cue* cue = selectedCueMutable();
+      return (cue ? cueKindLabel(cue->kind) : std::string("cue")) + " - backdrop";
+    }
+    const deckboy::effects::CueEffect* fx = colourPickerEffect();
+    return fx ? std::string(deckboy::effects::cueEffectLabel(fx->kind)) + " - " + colourPickerLabel()
+              : std::string("colour");
+  }
+
+  // The backdrop chip.
+  void openBackdropPicker() {
+    Cue* cue = selectedCueMutable();
+    if (!cue || !cueBackdropField(*cue)) return;
+    const bool same = colourPicker_.open && colourPicker_.backdrop && colourPicker_.cue == cue;
+    closeColourPicker();
+    if (same) return;
+    colourPicker_.open = true;
+    colourPicker_.cue = cue;
+    colourPicker_.backdrop = true;
+    colourPicker_.whole = true;
+    colourPicker_.anchor = lastInlineEditorAnchorRect_;
+    lastInlineEditorAnchorRect_ = SDL_Rect {};
+    std::error_code madeEc;
+    dbfs::create_directories(colourLibraryFolder(), madeEc);
+    colourLibraries_ = deckboy::colours::loadColourLibraries(colourLibraryFolder());
+  }
+
+  // The four presets beside the chip: transparent, black, key green, key blue.
+  void setCueBackdropPreset(int preset) {
+    Cue* cue = selectedCueMutable();
+    int* field = cue ? cueBackdropField(*cue) : nullptr;
+    if (!field) return;
+    static const int kPresets[4] = {kTimerBackdropTransparent, 0x000000, 0x00b140, 0x0047bb};
+    static const char* kNames[4] = {"transparent", "black", "key green", "key blue"};
+    const int at = std::clamp(preset, 0, 3);
+    pushUndoSnapshot();
+    *field = kPresets[at];
+    markProjectDirty();
+    triggerToast(std::string("backdrop: ") + kNames[at]);
+  }
+
   void closeColourPicker() {
     if (colourPicker_.sampling && !colourPicker_.testPick) deckboy::platform::cancelScreenPick();
     closeColourLoupe();
@@ -138,15 +207,19 @@
   // Sets what the picker is editing. False, with a toast saying why, when the
   // colour cannot go there.
   bool applyPickedColour(std::uint32_t rgb, const std::string& name = {}) {
-    deckboy::effects::CueEffect* fx = colourPickerEffect();
-    if (!fx) {
+    if (!colourPickerTargetValid()) {
       closeColourPicker();
       return false;
     }
     rgb &= 0xFFFFFF;
-    const char* label = deckboy::effects::cueEffectParamLabel(fx->kind, colourPicker_.slot);
+    const std::string labelText = colourPickerLabel();
+    const char* label = labelText.c_str();
     const std::string said = name.empty() ? hexOfColour(rgb) : name + " " + hexOfColour(rgb);
-    if (colourPicker_.whole) {
+    deckboy::effects::CueEffect* fx = colourPicker_.backdrop ? nullptr : colourPickerEffect();
+    if (colourPicker_.backdrop) {
+      pushUndoSnapshot();
+      *cueBackdropField(*selectedCueMutable()) = static_cast<int>(rgb);
+    } else if (colourPicker_.whole) {
       fx->colour = rgb;
     } else {
       const double hue = deckboy::effects::colourHue01(rgb);
@@ -169,6 +242,11 @@
 
   // What the picker's swatch shows: the effect's colour now.
   std::uint32_t colourPickerCurrent() {
+    if (colourPicker_.backdrop) {
+      Cue* cue = selectedCueMutable();
+      const int* field = cue ? cueBackdropField(*cue) : nullptr;
+      return field && *field >= 0 ? static_cast<std::uint32_t>(*field) : 0x000000;
+    }
     const deckboy::effects::CueEffect* fx = colourPickerEffect();
     if (!fx) return 0xFFFFFF;
     return effectChipColour(*fx, colourPicker_.slot).value_or(0xFFFFFF);
@@ -264,7 +342,7 @@
   // Once a frame while the picker is open.
   void serviceColourPicker() {
     if (!colourPicker_.open) return;
-    if (!colourPickerEffect()) {
+    if (!colourPickerTargetValid()) {
       closeColourPicker();
       return;
     }
@@ -371,9 +449,7 @@
 
   void renderColourPicker(int width, int height) {
     serviceColourPicker();
-    if (!colourPicker_.open) return;
-    const deckboy::effects::CueEffect* fx = colourPickerEffect();
-    if (!fx) return;
+    if (!colourPicker_.open || !colourPickerTargetValid()) return;
     auto& hits = colourPicker_.hits;
     hits.clear();
     const int pad = uiScaled(12);
@@ -405,9 +481,7 @@
     const int left = x + pad;
     const std::uint32_t current = colourPickerCurrent();
     // Title and close.
-    const char* label = deckboy::effects::cueEffectParamLabel(fx->kind, colourPicker_.slot);
-    const std::string title = std::string(deckboy::effects::cueEffectLabel(fx->kind)) + " - " +
-                              (label ? label : "colour");
+    const std::string title = colourPickerTitle();
     drawTextSafe(controlRenderer_, fontBase_ ? fontBase_ : fontSmall_,
                  SDL_Rect {left, cy, contentW - rowH - gap, rowH}, title, pal.fg);
     const SDL_Rect closeRect {x + w - pad - rowH, cy, rowH, rowH};
@@ -515,8 +589,10 @@
     cy += chip + gap;
 
     // What this row does with a colour.
-    const char* note1 = colourPicker_.whole ? "uses the whole colour" : "uses the hue only, so the";
-    const char* note2 = colourPicker_.whole ? "" : "picture keeps its own shading";
+    const char* note1 = colourPicker_.backdrop ? "the colour behind it: key it out"
+                        : colourPicker_.whole ? "uses the whole colour" : "uses the hue only, so the";
+    const char* note2 = colourPicker_.backdrop ? "on a mixer, or pick transparent"
+                        : colourPicker_.whole ? "" : "picture keeps its own shading";
     drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {left, cy, contentW, smallH}, note1, pal.inkSoft);
     if (*note2) {
       drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {left, cy + smallH, contentW, smallH}, note2,
@@ -617,15 +693,18 @@
     out << "\"colourChips\":[";
     bool first = true;
     for (const auto& qb : quickButtons_) {
-      if (qb.action != QuickAction::EffectColourPick) continue;
-      out << (first ? "" : ",") << "[" << qb.param << "," << qb.rect.x << "," << qb.rect.y << ","
+      // The backdrop chip is listed as -1: it has no effect slot.
+      if (qb.action != QuickAction::EffectColourPick && qb.action != QuickAction::CueBackdropPick) continue;
+      const int packed = qb.action == QuickAction::CueBackdropPick ? -1 : qb.param;
+      out << (first ? "" : ",") << "[" << packed << "," << qb.rect.x << "," << qb.rect.y << ","
           << qb.rect.w << "," << qb.rect.h << "]";
       first = false;
     }
     out << "],\"colourPicker\":{\"open\":" << (colourPicker_.open ? "true" : "false")
         << ",\"sampling\":" << (colourPicker_.sampling ? "true" : "false")
         << ",\"effect\":" << colourPicker_.effect << ",\"slot\":" << colourPicker_.slot
-        << ",\"whole\":" << (colourPicker_.whole ? "true" : "false") << ",\"hits\":[";
+        << ",\"whole\":" << (colourPicker_.whole ? "true" : "false")
+        << ",\"backdrop\":" << (colourPicker_.backdrop ? "true" : "false") << ",\"hits\":[";
     first = true;
     for (const auto& hit : colourPicker_.hits) {
       out << (first ? "" : ",") << "[" << hit.what << "," << hit.rect.x << "," << hit.rect.y << ","
