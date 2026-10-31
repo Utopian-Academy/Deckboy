@@ -209,7 +209,7 @@ def layers(a):
     a.playlist("Backdrop")
     a.swirl("01 Forest backdrop", "THIS SHOW: three playlists stacked into one picture. This is the bottom layer. The other playlists are composited over it.")
     a.swirl("02 Ice backdrop", "Switching this playlist leaves the inset and title running.", 2)
-    a.cue("PATTERN ADD fireside", "03 Fireside", "Live generated set dressing. Try it behind the lower third.")
+    a.cue("PATTERN ADD fireside", "03 Fireside", "Live generated set dressing. Try it behind the Lower Third.")
     a.playlist("Inset")
     a.swirl("01 Ice window", "A second playlist at 40% size, offset to the upper right. Change WIDTH, HEIGHT or OFFSET in GEOMETRY.", 2,
             "SCALE 0.4", "OFFSET 330 -145")
@@ -217,7 +217,7 @@ def layers(a):
             "SCALE 0.4", "OFFSET 330 -145", "FX ADD kaleidoscope 0.7")
     a.clear()
     a.playlist("Lower Third")
-    a.lower("01 Bob Cobb - clean", "hairline", "A transparent lower third over both playlists. Change TITLE and SUB to use your own name.")
+    a.lower("01 Bob Cobb - clean", "hairline", "A transparent Lower Third over both playlists. Change TITLE and SUB to use your own name.")
     a.lower("02 Bob Cobb - arcade", "arcade", "Same words, a different entrance and animated look. Try TEXTCUE OUT from the dashboard.")
     a.clear()
     return a.steps([
@@ -257,7 +257,7 @@ def coordinated(a):
            "The title is transparent and composited over the picture playlist.", "TEXTCUE SIZE 8")
     a.text("02 Begin", r"PICTURE. WORDS. SOUND.\nOne GO.",
            "This title and its backdrop fire on the same tracker step.", "TEXTCUE SIZE 9")
-    a.lower("03 Speaker", "arcade", "A lower third replaces the full-screen title while other playlists continue.")
+    a.lower("03 Speaker", "arcade", "A Lower Third replaces the full-screen title while other playlists continue.")
     a.text("04 Thank you", r"THAT WAS DECKBOY.\nNow change something.",
            "Closing title. The final tracker row fades the show out.", "TEXTCUE SIZE 9")
     a.clear()

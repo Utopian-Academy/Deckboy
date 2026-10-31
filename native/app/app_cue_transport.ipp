@@ -3590,7 +3590,7 @@
     }
     const std::string id = cue->id;
     openInlineTextEditor(line == 0 ? "lowerthird.title" : "lowerthird.sub",
-                         line == 0 ? "Lower third - title" : "Lower third - subtitle",
+                         line == 0 ? "Lower Third - title" : "Lower Third - subtitle",
                          line == 0 ? "the name" : "the role, or leave it empty",
                          textBodyLine(cue->textBody, line),
                          [this, id, line](const std::string& value) {
@@ -3756,7 +3756,7 @@
       cue->textBody = "Name Surname\nTitle or role";
     }
     markProjectDirty();
-    triggerToast(cue->lowerThird.on ? "layout: lower third" : "layout: card");
+    triggerToast(cue->lowerThird.on ? "layout: Lower Third" : "layout: card");
   }
 
   Cue* selectedDmxCue() {
@@ -7336,8 +7336,8 @@
       return;
     }
     triggerToast(token.empty()
-      ? (overlayKind == CueKind::LowerThird ? "lower third cleared" : "pip cleared")
-      : (overlayKind == CueKind::LowerThird ? "lower third attached" : "pip attached"));
+      ? (overlayKind == CueKind::LowerThird ? "Lower Third cleared" : "pip cleared")
+      : (overlayKind == CueKind::LowerThird ? "Lower Third attached" : "pip attached"));
     markProjectDirty();
   }
 

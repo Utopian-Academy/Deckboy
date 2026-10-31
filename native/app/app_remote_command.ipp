@@ -1878,13 +1878,13 @@
       // Companion button in the middle of a show.
       if (sub == "LOWERNEW" || sub == "L3NEW") {
         addLowerThirdTextCue();
-        remoteCommandDetail_ = "lower third " + std::to_string(deck.cues.size());
+        remoteCommandDetail_ = "Lower Third " + std::to_string(deck.cues.size());
         return;
       }
       if (sub == "OUT") {
         const int sent = lowerThirdTakeOutAnywhere();
         if (sent == 0) {
-          failRemoteCommand("TEXTCUE OUT: no lower third on air");
+          failRemoteCommand("TEXTCUE OUT: no Lower Third on air");
           return;
         }
         remoteCommandDetail_ = std::to_string(sent) + " leaving";
@@ -1996,7 +1996,7 @@
           cue.textBody = "Name Surname\nTitle or role";
         }
         markProjectDirty();
-        remoteCommandDetail_ = cue.lowerThird.on ? "lower third" : "card";
+        remoteCommandDetail_ = cue.lowerThird.on ? "Lower Third" : "card";
         return;
       }
       if (sub == "TITLE" || sub == "SUB") {
@@ -7752,7 +7752,7 @@
       // fired from its own playlist over another. TEXTCUE TITLE / SUB / LOOK
       // / IN / OUTMOVE / OUT drive it from there.
       addLowerThirdTextCue();
-      remoteCommandDetail_ = "lower third added to " + focusedDeckLabel();
+      remoteCommandDetail_ = "Lower Third added to " + focusedDeckLabel();
       return;
     }
     if (command == "PIP") {
@@ -7790,7 +7790,7 @@
       const bool designed = cue->lowerThird.on;
       const bool legacy = cue->kind == CueKind::LowerThird;
       if (!designed && !legacy) {
-        failRemoteCommand(command + ": this cue is not a lower third");
+        failRemoteCommand(command + ": this cue is not a Lower Third");
         return;
       }
       const int line = command == "LOWERTEXT" ? 0 : 1;
@@ -7825,7 +7825,7 @@
       const bool designed = cue->lowerThird.on;
       const bool legacy = cue->kind == CueKind::LowerThird;
       if (!designed && !legacy) {
-        failRemoteCommand("LOWERSTYLE: this cue is not a lower third");
+        failRemoteCommand("LOWERSTYLE: this cue is not a Lower Third");
         return;
       }
       if (parts.size() < 2) {
@@ -7883,7 +7883,7 @@
       const bool designed = cue->lowerThird.on;
       const bool legacy = cue->kind == CueKind::LowerThird;
       if (!designed && !legacy) {
-        failRemoteCommand("LOWERANIM: this cue is not a lower third");
+        failRemoteCommand("LOWERANIM: this cue is not a Lower Third");
         return;
       }
       if (parts.size() < 2) {
@@ -7928,7 +7928,7 @@
         return;
       }
       if (cue->kind != CueKind::LowerThird) {
-        failRemoteCommand("the background alpha belongs to a lower third");
+        failRemoteCommand("the background alpha belongs to a Lower Third");
         return;
       }
       cue->lowerThirdBgAlpha = std::clamp(alpha, 0, 255);

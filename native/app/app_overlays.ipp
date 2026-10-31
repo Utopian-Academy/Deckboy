@@ -427,7 +427,7 @@
       "dad says hi. from the hole. don't ask",
       "Baba says: knock three times for the good bottle",
       "the dice are in the About box. don't tell anyone",
-      "folding the lower thirds",
+      "folding the Lower Thirds",
       "polishing the crossfades",
       "reminding the strobe about epilepsy warnings",
       "counting the cues called Untitled",

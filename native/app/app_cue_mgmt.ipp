@@ -438,7 +438,7 @@
       {"tracker",   "Play sequence",   "TRACKER PLAY",     "|>"},
       {"tracker",   "Stop sequence",   "TRACKER STOP",     "[]"},
       // A lower third's exit, from a button that needs no selection.
-      {"graphics",  "Lower third out", "TEXTCUE OUT",      "v"},
+      {"graphics",  "Lower Third out", "TEXTCUE OUT",      "v"},
     };
     return kPresets;
   }
@@ -3299,7 +3299,7 @@
     deck.selectedIndex = static_cast<int>(deck.cues.size()) - 1;
     deck.selectedIndices.clear();   // the new cue alone
     onSelectionChanged();
-    triggerToast("lower third cue added");
+    triggerToast("Lower Third cue added");
     playUiSound(UiSoundEffect::Import);
     markProjectDirty();
   }
@@ -4351,12 +4351,12 @@
       return;
     }
     Cue& cue = deck.cues.back();
-    cue.name = "Lower third";
+    cue.name = "Lower Third";
     cue.color = {38, 110, 228, 255};
     cue.textBody = "Name Surname\nTitle or role";
     cue.lowerThird.on = true;
     markProjectDirty();
-    triggerToast("lower third added - put its playlist on a layer");
+    triggerToast("Lower Third added - put its playlist on a layer");
   }
 
   void addDmxCue() {

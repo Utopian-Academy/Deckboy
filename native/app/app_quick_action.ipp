@@ -165,7 +165,7 @@
       case QuickAction::LowerThirdEditSub:      editLowerThirdLine(1); return;
       case QuickAction::LowerThirdOut:
         if (lowerThirdTakeOutAnywhere() == 0) {
-          triggerToast("no lower third on air");
+          triggerToast("no Lower Third on air");
         }
         return;
       case QuickAction::TrackerGo:
@@ -1257,7 +1257,7 @@
         }
         cue->lowerThirdStyle =
           (cue->lowerThirdStyle + 1) % kLowerThirdStyleCount;
-        triggerToast(std::string("lower third: ") +
+        triggerToast(std::string("Lower Third: ") +
                      lowerThirdStyleLabel(cue->lowerThirdStyle));
         markProjectDirty();
         break;
@@ -1549,7 +1549,7 @@
         if (sel && sel->kind == CueKind::LowerThird) {
           std::string initial = sel->lowerThirdText.empty() ? sel->name : sel->lowerThirdText;
           openInlineTextEditor("cue.lowertext", "Lower Third Title",
-                               "Text shown on the main lower-third line:", initial,
+                               "Text shown on the main Lower Third line:", initial,
                                [this](const std::string& value) {
             if (forEachFocusedSelectedCueMutable([&](Cue& cue, int) {
                   if (cue.kind == CueKind::LowerThird) {

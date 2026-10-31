@@ -2271,7 +2271,7 @@
         }
         break;
       case SDLK_G:
-        triggerParkedCueCreationToast("lower third");
+        triggerParkedCueCreationToast("Lower Third");
         break;
       case SDLK_M:
         triggerParkedCueCreationToast("scene");

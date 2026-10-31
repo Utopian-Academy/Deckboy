@@ -5347,7 +5347,7 @@
         overlayY = drawInspectorEditableRow(overlayY, "lower 3rd",
                                             lowerThirdValue,
                                             QuickAction::EditAttachedLowerThirdCue,
-                                            "Choose a lower third from the overlay bin to fire on TAKE",
+                                            "Choose a Lower Third from the overlay bin to fire on TAKE",
                                             attachedColor(lowerThirdValue));
         std::string pipValue = attachedOverlaySummaryLabel(deck, *selectedCue, CueKind::Pip);
         overlayY = drawInspectorEditableRow(overlayY, "pip",
@@ -5410,11 +5410,11 @@
         playbackY = drawInspectorEditableRow(playbackY, "title",
                                              selectedCue->lowerThirdText.empty() ? selectedCue->name : selectedCue->lowerThirdText,
                                              QuickAction::EditLowerThirdText,
-                                             "Edit the main lower-third title");
+                                             "Edit the main Lower Third title");
         playbackY = drawInspectorEditableRow(playbackY, "sub",
                                              selectedCue->lowerThirdSubtext.empty() ? "(no subtext)" : selectedCue->lowerThirdSubtext,
                                              QuickAction::EditLowerThirdSubtext,
-                                             "Edit the secondary lower-third line",
+                                             "Edit the secondary Lower Third line",
                                              colorFromRgba(selectedCue->lowerThirdSubtext.empty() ? kScreenInkSoftColor : kScreenDeepColor));
 
         std::string durVal = selectedCue->stillDurationSeconds > 0.0 ? formatSeconds(selectedCue->stillDurationSeconds) : "hold";
@@ -6901,9 +6901,9 @@
       txY = txSection.bodyStartY;
       if (cueSectionTextOpen_) {
         txY = inspDrawChoiceRow(ix, txY, "layout",
-                                selectedCue->lowerThird.on ? "lower third" : "card",
+                                selectedCue->lowerThird.on ? "Lower Third" : "card",
                                 QuickAction::LowerThirdLayoutToggle,
-                                "A card fills the frame; a lower third is a name and a "
+                                "A card fills the frame; a Lower Third is a name and a "
                                 "role, low on a transparent frame, with an in and an out",
                                 -1, selectedCue->lowerThird.on);
       }
