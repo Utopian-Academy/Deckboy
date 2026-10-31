@@ -367,27 +367,76 @@
       runtime->fpsMeasured = 0.0;
     }
     runtime->fpsFrameCount += 1;
-    // Hitches against the measured rate, so it means the same thing on a 50,
-    // 60 or 144Hz screen. Nothing is judged until there is a rate to judge by.
+    // Hitches against the screen's own frame, so it means the same thing on a
+    // 50, 60 or 144 Hz screen and a steady shortfall counts (see presentTargetHz).
+    // Nothing is judged until there is a rate to judge by.
     const Uint64 nowNs = SDL_GetTicksNS();
-    if (runtime->lastPresentNs != 0 && runtime->fpsMeasured > 1.0) {
+    if (runtime->presentTargetHz <= 1.0) runtime->presentTargetHz = outputPresentTargetHz(outputIndex, *runtime);
+    if (runtime->lastPresentNs != 0 && runtime->presentTargetHz > 1.0) {
       const double gapMs = static_cast<double>(nowNs - runtime->lastPresentNs) / 1.0e6;
-      const double frameMs = 1000.0 / runtime->fpsMeasured;
+      const double frameMs = 1000.0 / runtime->presentTargetHz;
       runtime->presentsCounted += 1;
       if (gapMs > frameMs * 1.5) {
         runtime->presentHitches += 1;
+        const long missed = std::max(1L, std::lround(gapMs / frameMs) - 1);
+        runtime->presentsMissed += static_cast<std::uint64_t>(missed);
+        runtime->lastMissNs = nowNs;
+        noteOutputFramesMissed(outputIndex, *runtime, static_cast<int>(missed), nowNs);
       }
       runtime->worstPresentGapMs = std::max(runtime->worstPresentGapMs, gapMs);
     }
     runtime->lastPresentNs = nowNs;
     Uint64 elapsedMs = now - runtime->fpsSampleStartedAtMs;
     if (elapsedMs >= 750) {
+      runtime->presentTargetHz = outputPresentTargetHz(outputIndex, *runtime);
       runtime->fpsMeasured = elapsedMs > 0
         ? (static_cast<double>(runtime->fpsFrameCount) * 1000.0 / static_cast<double>(elapsedMs))
         : runtime->fpsMeasured;
       runtime->fpsFrameCount = 0;
       runtime->fpsSampleStartedAtMs = now;
     }
+  }
+
+  // The rate an output's presents are judged by: its screen's refresh, which
+  // a vsynced window presents at; a set rate where there is no window; else
+  // what it measured (and then only a stall shows).
+  double outputPresentTargetHz(int outputIndex, const OutputRuntime& runtime) const {
+    if (runtime.outputWindow) {
+      const double display = outputDisplayRefreshHz(outputIndex);
+      if (display > 1.0) return display;
+    }
+    if (std::isfinite(project_.outputRefreshRateHz) && project_.outputRefreshRateHz > 1.0) {
+      return project_.outputRefreshRateHz;
+    }
+    return runtime.fpsMeasured;
+  }
+
+  // Frames an output missed in the last five seconds: the badge turns to a
+  // warning, and three of them in five seconds tell the operator, once a
+  // minute at most. A missed frame is a repeated picture on the screen, and
+  // nothing else on the desk would say so.
+  bool outputMissingFrames(int outputIndex) const {
+    const OutputRuntime* runtime = runtimeForOutput(outputIndex);
+    return runtime && runtime->lastMissNs != 0 && SDL_GetTicksNS() - runtime->lastMissNs < 5000000000ULL;
+  }
+
+  void noteOutputFramesMissed(int outputIndex, OutputRuntime& runtime, int missed, Uint64 nowNs) {
+    if (nowNs - runtime.missWindowStartNs > 5000000000ULL) {
+      runtime.missWindowStartNs = nowNs;
+      runtime.missedInWindow = 0;
+    }
+    runtime.missedInWindow += missed;
+    const Uint64 nowMs = SDL_GetTicks();
+    if (runtime.missedInWindow < 3 ||
+        (runtime.lastMissWarningMs != 0 && nowMs - runtime.lastMissWarningMs < 60000)) {
+      return;
+    }
+    runtime.lastMissWarningMs = nowMs;
+    char rate[32];
+    std::snprintf(rate, sizeof(rate), "%.2f", runtime.presentTargetHz);
+    triggerToast("Output " + std::to_string(outputIndex + 1) + " is missing frames: " +
+                   std::to_string(runtime.missedInWindow) + " in 5 s on a " + rate + " Hz screen",
+                 ToastKind::Warning, kToastReadableMs);
   }
 
   void resetOutputStreamFpsTelemetry(OutputRuntime& runtime) {

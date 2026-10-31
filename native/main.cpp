@@ -4425,6 +4425,7 @@ class App {
                << " update=" << ms(afterUpdate - afterPickers) << "ms"
                << " layout=" << lastUiLayoutMs_ << "ms"
                << " render=" << lastUiRenderMs_ << "ms"
+               << " (present=" << lastUiPresentMs_ << "ms)"
                << " render+outputs=" << ms(afterRender - afterUpdate) << "ms";
           uiProfileLog(line.str());
         }
@@ -11779,6 +11780,7 @@ class App {
   double deskWorstGapMs_ = 0.0;
   double deskLayoutMsAvg_ = 0.0;
   double lastUiRenderMs_ = 0.0;
+  double lastUiPresentMs_ = 0.0;   // of lastUiRenderMs_, the desk's present alone
   Uint64 lastUpdateTickMs_ = 0;
   Uint64 lastDisplayPollMs_ = 0;
   Uint64 lastOutputRecoveryPollMs_ = 0;

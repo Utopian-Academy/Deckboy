@@ -2875,7 +2875,9 @@
       auto telemetryColors = [&](const std::string& label) {
         SDL_Color fill = hasLiveVideo ? pal.deep : pal.light;
         SDL_Color ink = hasLiveVideo ? pal.light : pal.deep;
-        if (label.find("ERR") != std::string::npos) {
+        // An output missing frames reads as a fault, whatever its average says.
+        if (label.find("ERR") != std::string::npos ||
+            (label.rfind("OUTPUT ", 0) == 0 && outputMissingFrames(focOutIdx))) {
           fill = SDL_Color {94, 56, 8, 255};
           ink = SDL_Color {255, 238, 182, 255};
         } else if (label.find("OFF") != std::string::npos) {

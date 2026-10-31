@@ -25,6 +25,7 @@
 - `DECKBOY_CPU_SCOPES=1` makes the processor measure instead, to compare.
 
 ### Fixed
+- An output that could not keep up with its screen said nothing. Its rate is now judged against the screen's own refresh, so an output running at 57 on a 60 Hz screen counts every frame it misses instead of looking smooth. The OUTPUT badge above the programme monitor turns to a warning while frames are being missed. Three missed in five seconds tells you which output, how many and at what refresh, once a minute at most. The test card shows "fps of" the screen's rate and the frames missed, and `STATUS` reports `missed=` and `target_hz=` for each output.
 - 29 of the 16.7 million 8-bit colours read one luma step low on the waveform and histogram: 17 in BT.709, 12 in BT.2020. Each sat exactly on a step's edge. The 8-bit analysis now works in whole numbers and puts every colour in its exact bin, and is faster for it: a 4K frame on six processor threads takes 23 ms instead of 41.
 - A stage timer's logo was drawn with red and blue swapped.
 - Importing a PowerPoint, Keynote or PDF can no longer leave Deckboy on the import card for ever. A converter still busy after three minutes (often PowerPoint waiting on a prompt it cannot show, such as Protected View or sign-in), or a PDF renderer silent for ninety seconds, is stopped, and the toast says what happened and what to try.

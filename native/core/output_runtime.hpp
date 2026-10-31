@@ -546,12 +546,22 @@ struct OutputRuntime {
   double fpsMeasured = 0.0;
   // STUTTER, which an average hides: a 60fps output that drops one frame in
   // twenty still averages 57. A hitch is a present more than 1.5 frames after
-  // the one before. Counted from the output's start; a measurement diffs two
-  // readings. The worst gap is reset only with the output.
+  // the one before, and the frames it missed are counted too. Counted from the
+  // output's start; a measurement diffs two readings. The worst gap is reset
+  // only with the output.
+  // A FRAME IS THE SCREEN'S FRAME (presentTargetHz: its refresh, else a set
+  // rate). Judged against the rate it MEASURED, an output stuck at 56 on a
+  // 60 Hz screen took every 17.9 ms gap as on time and reported no hitches.
   Uint64 lastPresentNs = 0;
   std::uint64_t presentsCounted = 0;
   std::uint64_t presentHitches = 0;
+  std::uint64_t presentsMissed = 0;
+  double presentTargetHz = 0.0;
   double worstPresentGapMs = 0.0;
+  Uint64 lastMissNs = 0;
+  Uint64 missWindowStartNs = 0;   // the operator is warned at 3 missed in 5 s
+  int missedInWindow = 0;
+  Uint64 lastMissWarningMs = 0;
   Uint64 streamFpsSampleStartedAtMs = 0;
   std::uint64_t streamFpsPacketsAtSampleStart = 0;
   double streamFpsMeasured = 0.0;

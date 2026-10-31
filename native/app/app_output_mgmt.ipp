@@ -5800,7 +5800,13 @@
     runtime.lastPresentNs = 0;
     runtime.presentsCounted = 0;
     runtime.presentHitches = 0;
+    runtime.presentsMissed = 0;
+    runtime.presentTargetHz = 0.0;
     runtime.worstPresentGapMs = 0.0;
+    runtime.lastMissNs = 0;
+    runtime.missWindowStartNs = 0;
+    runtime.missedInWindow = 0;
+    runtime.lastMissWarningMs = 0;
   }
 
 #if DECKBOY_INPROC_DECODE

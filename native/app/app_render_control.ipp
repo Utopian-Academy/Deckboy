@@ -1497,9 +1497,11 @@
     renderSuperDeckboyEvolution();
     drawPressFeedback();
     finishLiveTextFrame();   // reads the window back, so before present
+    const auto uiPresentStart = std::chrono::steady_clock::now();
     SDL_RenderPresent(controlRenderer_);
     revealControlWindow();  // the main control-window frame
     auto uiFrameEnd = std::chrono::steady_clock::now();
+    lastUiPresentMs_ = std::chrono::duration<double, std::milli>(uiFrameEnd - uiPresentStart).count();
     lastUiLayoutMs_ = std::chrono::duration<double, std::milli>(uiLayoutDone - uiFrameStart).count();
     lastUiRenderMs_ = std::chrono::duration<double, std::milli>(uiFrameEnd - uiLayoutDone).count();
     // A hitch is a gap over 1.5 frames of the desk screen's refresh.

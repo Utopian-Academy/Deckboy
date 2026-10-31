@@ -5107,10 +5107,9 @@
            oneToOne ? kTestCardSoft : kTestCardWarn);
     }
     char measured[96];
-    std::snprintf(measured, sizeof(measured), "%.2f fps measured  %llu %s", runtime->fpsMeasured,
-                  static_cast<unsigned long long>(runtime->presentHitches),
-                  runtime->presentHitches == 1 ? "hitch" : "hitches");
-    line(measured, runtime->presentHitches > 0 ? kTestCardWarn : kTestCardSoft);
+    std::snprintf(measured, sizeof(measured), "%.2f fps of %.2f  %llu missed", runtime->fpsMeasured,
+                  runtime->presentTargetHz, static_cast<unsigned long long>(runtime->presentsMissed));
+    line(measured, runtime->presentsMissed > 0 ? kTestCardWarn : kTestCardSoft);
     std::string shaping;
     if (output.warpEnabled) shaping += "WARP ON  ";
     if (output.edgeBlendLeft > 0.001f || output.edgeBlendRight > 0.001f ||
