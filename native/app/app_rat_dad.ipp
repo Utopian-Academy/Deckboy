@@ -13,12 +13,12 @@
 // went looking for him on 2026-10-30. Never mention him in CHANGES, the
 // manual, the README or the site (tools/audit_spoilers.py).
 //
-// He lives in a hole at the foot of the playlist's empty space -- the
-// creatures' habitat, which by construction is never over a control -- and
-// comes out when the hole is clicked, now and then on his own, and in the
-// tour (app_tutorial.ipp). Never while anything is on air: the moment an
-// output is on or a cue is live he goes back in, and the hole is not drawn.
-// Hidden, he costs one rect test a frame.
+// He lives in a hole in the corner of the About page's BUILT WITH card,
+// below its last line (James, 2026-10-31: not the main playlist). He comes
+// out when the hole is clicked, on his own once you have lingered on the
+// page a while, and in the tour (app_tutorial.ipp). Never while anything is
+// on air: the moment an output is on or a cue is live he goes back in, and
+// the hole is not drawn. Off that page he costs nothing.
 //
 // DECKBOY_TEST_RAT_DAD=1 brings him out as soon as there is somewhere to be.
 
@@ -31,6 +31,8 @@
     Uint64 nextPeekMs = 0;      // when he comes out by himself
     SDL_Rect hole {};
     SDL_Rect body {};
+    SDL_Rect area {};           // where he may be, as the page last drew it
+    Uint64 drawnAtMs = 0;       // when it last did
     bool testForced = false;
   };
   RatDadState ratDad_;
@@ -117,10 +119,12 @@
     return kLines[((index % count) + count) % count];
   }
 
-  // Somewhere to be, and nothing on air.
+  // Somewhere to be -- the page drawn a moment ago, with room -- and nothing
+  // on air.
   bool ratDadMayBeOut() const {
-    if (playlistFreeRect_.h < 80 || playlistFreeRect_.w < 140) return false;
-    if (showIsLive() || tutorial_.active || settingsOpen_) return false;
+    if (!settingsOpen_ || settingsTab_ != 4 || SDL_GetTicks() - ratDad_.drawnAtMs > 250) return false;
+    if (ratDad_.area.h < uiScaled(44) || ratDad_.area.w < uiScaled(140)) return false;
+    if (showIsLive() || tutorial_.active) return false;
     for (const auto& output : project_.outputs) {
       if (output.enabled) return false;
     }
@@ -140,15 +144,17 @@
 
   void serviceRatDad() {
     const Uint64 now = SDL_GetTicks();
-    if (ratDad_.nextPeekMs == 0) {
-      // Now and then by himself: the first time a quarter of an hour in, then
-      // every twenty minutes or so, and only when nothing is on air.
-      ratDad_.nextPeekMs = now + 15ull * 60 * 1000;
+    if (now - ratDad_.drawnAtMs > 250) {
+      // Just arrived on the page: he stays in, and peeks out by himself only
+      // if you are still reading eight seconds later.
+      ratDad_.phase = RatDadState::Phase::Hidden;
+      ratDad_.nextPeekMs = now + 8000;
       if (const char* forced = std::getenv("DECKBOY_TEST_RAT_DAD"); forced && *forced == '1') {
         ratDad_.testForced = true;
         ratDad_.nextPeekMs = now;
       }
     }
+    ratDad_.drawnAtMs = now;
     const bool mayBeOut = ratDadMayBeOut();
     if (!mayBeOut) {
       // Something went on air: straight back in, no goodbye.
@@ -159,7 +165,7 @@
     switch (ratDad_.phase) {
       case RatDadState::Phase::Hidden:
         if (now >= ratDad_.nextPeekMs) {
-          ratDad_.nextPeekMs = now + (ratDad_.testForced ? 4000ull : (18ull + (ratDad_.line % 5)) * 60 * 1000);
+          ratDad_.nextPeekMs = now + (ratDad_.testForced ? 4000ull : 45000ull + (ratDad_.line % 5) * 15000ull);
           ratDadComeOut();
         }
         break;
@@ -183,12 +189,13 @@
     }
   }
 
-  void renderRatDad() {
+  // area: the empty corner of the page he lives in, never over a control.
+  void renderRatDad(const SDL_Rect& area) {
+    ratDad_.area = area;
     serviceRatDad();
     ratDad_.hole = SDL_Rect {};
     ratDad_.body = SDL_Rect {};
     if (!ratDadMayBeOut()) return;
-    const SDL_Rect area = playlistFreeRect_;
     const int cell = std::max(2, uiScaled(3));
     const int ratW = kRatDadW * cell;
     const int ratH = kRatDadH * cell;

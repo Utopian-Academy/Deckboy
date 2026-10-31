@@ -4653,6 +4653,8 @@
       aboutRow(rightAbout, rightRowY, "Keys",
                "Enter Take  Space Play/Pause");
       aboutRow(rightAbout, rightRowY, "", "S Stop   C Clear   Esc Panic");
+      renderRatDad(SDL_Rect {rightAbout.x + 8, rightRowY + 4, rightAbout.w - 16,
+                             rightAbout.y + rightAbout.h - 6 - (rightRowY + 4)});
     } else if (settingsTab_ == 5) {
       // Encoder tab — the built-in media converter surface.
       SDL_Rect encRect {cx, cy, content.w - sPad * 3, content.h - sPad * 2};

@@ -1374,7 +1374,6 @@
       ? programAreaRect_.y + programAreaRect_.h * 0.5 : height * 0.4;
     updateCreatures(static_cast<double>(animationNow_) / 1000.0);
     renderCreatures();
-    renderRatDad();
     // THE BUSY CRITTERS ARE NOT DRAWN HERE. See below, above the popups: the
     // update one lives inside the settings modal and was painted over by it
     // every frame, so nobody ever saw one.
