@@ -485,6 +485,14 @@ class MediaEngine {
   // only job is to be somewhere frames can be uploaded to. See uploadFrame for
   // why that is a memory leak unless somebody presents it.
   void setHiddenUploadTarget(bool hidden) { hiddenUploadTarget_ = hidden; }
+  // Keep texture_ as a copy of every frame, for render(). Only Deckboy Mini
+  // draws with render(); the desk and its outputs read currentFrame() and
+  // upload it themselves. Kept for them, it was a full-frame upload a frame
+  // per playing deck that nothing drew -- and on the D3D11 renderer each one
+  // makes and frees a staging texture, which the NVIDIA driver frees under a
+  // lock that a Direct3D 12 output's present also takes: 50-70 missed frames
+  // a minute at 1080p60. Off unless asked for.
+  void setDrawsOwnTexture(bool draws) { drawsOwnTexture_ = draws; }
   // Draw one picture as a grid of character cells. Public because text mode
   // is no longer a property of the video synth: it is a look that can be put
   // on ANY picture -- a clip, a capture card, a camera -- through the effect
@@ -1778,6 +1786,7 @@ class MediaEngine {
   void latchAudioStartFailure(std::string reason);
   std::uint64_t lastUploadedFrameIndex_ = static_cast<std::uint64_t>(-1); // skip redundant re-uploads in update()
   bool hiddenUploadTarget_ = false;   // see setHiddenUploadTarget
+  bool drawsOwnTexture_ = false;      // see setDrawsOwnTexture
   double lastPatternRebuildSeconds_ = -1.0;  // animated-pattern rebuild throttle (30 fps; terrarium 9)
   // Persistent workers for the synth's row loops. Creating a pool per frame
   // is what ran the machine out of committed memory: 31 threads a rebuild on

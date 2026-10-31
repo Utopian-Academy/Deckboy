@@ -5850,6 +5850,7 @@ void MediaEngine::inheritDeckSettingsFrom(const MediaEngine& other) {
   forcePixelFrames_ = other.forcePixelFrames_;
   zeroCopyImport_ = other.zeroCopyImport_;
   hiddenUploadTarget_ = other.hiddenUploadTarget_;
+  drawsOwnTexture_ = other.drawsOwnTexture_;
   audioRate_ = other.audioRate_;
   // Well clear of anything the tail will still number while it fades -- it
   // keeps counting from the same place -- and of anything already cached.
@@ -6188,6 +6189,9 @@ void MediaEngine::showImportedFrame(const DecodedFrame& frame) {
 // the source frame stays intact for re-processing on parameter changes.
 // ---------------------------------------------------------------------------
 void MediaEngine::uploadFrame(const DecodedFrame& frame) {
+  if (!drawsOwnTexture_) {
+    return;   // nothing will draw it (setDrawsOwnTexture)
+  }
 #if defined(__linux__) && DECKBOY_INPROC_DECODE
   if (frame.gpuKind == DecodedFrame::GpuKind::DrmPrime) {
     showImportedFrame(frame);

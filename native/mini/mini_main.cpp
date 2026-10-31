@@ -579,6 +579,7 @@ class Mini {
     // (DECKBOY_ZERO_COPY=1) until proven on a real display: the first real-
     // display run on a Pi 3 coincided with the Pi locking up, cause not yet known.
     engine_->setZeroCopyImport(zeroCopyRequested());
+    engine_->setDrawsOwnTexture(true);   // Mini draws with render()
     engine_->setVolume(static_cast<float>(opt_.volume) / 100.0f);
 
     listen_ = createBoundSocket(SOCK_STREAM, opt_.port, true, !opt_.remote);
@@ -1151,6 +1152,7 @@ class Mini {
     audio_ = fresh;
     engine_ = std::make_unique<MediaEngine>(renderer_, audio_);
     engine_->setZeroCopyImport(zeroCopyRequested());
+    engine_->setDrawsOwnTexture(true);
     applyVolume();
     if (active_ >= 0) {
       engine_->loadCue(&cues_[static_cast<std::size_t>(active_)], playing);
