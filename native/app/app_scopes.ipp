@@ -121,6 +121,7 @@
   int scopesReadbackMisses_ = 0;
   std::vector<std::shared_ptr<std::vector<std::uint8_t>>> scopesBuffers_;
   SDL_Texture* scopeTex_[kScopeDiamond + 1] {};
+  std::uint64_t scopeTexSerial_[kScopeDiamond + 1] {};
   int scopeTexW_[kScopeDiamond + 1] {};
   int scopeTexH_[kScopeDiamond + 1] {};
   SDL_Rect scopesViewBtnRect_ {};
@@ -184,7 +185,7 @@
 
   // The output render loop asks this before the independent scopes capture.
   bool scopesWatching(int outputIndex) const {
-    return monitorView_ != MonitorView::Program && !scopesFrozen_ &&
+    return monitorView_ != MonitorView::Program && scopesBig_ != kScopeSound && !scopesFrozen_ &&
            outputIndex == scopesOutputIndex();
   }
 
@@ -240,18 +241,32 @@
     std::uint64_t peak = 1;
     for (const auto count : density.bins) peak = std::max(peak, count);
     const double scale = 1.0 / std::log1p(static_cast<double>(peak));
+    // Many cells have the same population. Cache the exact display colour,
+    // not an approximation to log/pow, with bounded storage even at 8K.
+    std::array<std::array<std::uint8_t, 4>, 4096> colours{};
+    const auto colour = [&](std::uint64_t count) {
+      const double level = count ? std::pow(std::log1p(static_cast<double>(count)) * scale, 0.55) : 0.0;
+      const double lift = count ? 0.18 + 0.82 * level : 0.0;
+      return std::array<std::uint8_t, 4>{
+        static_cast<std::uint8_t>(std::min(255.0, tint.r * lift)),
+        static_cast<std::uint8_t>(std::min(255.0, tint.g * lift)),
+        static_cast<std::uint8_t>(std::min(255.0, tint.b * lift)), 255};
+    };
     const int rows = static_cast<int>(density.height);
     for (int row = 0; row < rows; ++row) {
       const int y = flipY ? (rows - 1 - row) : row;
       for (int x = 0; x < columns; ++x) {
         const std::uint64_t count = density.bins[static_cast<std::size_t>(row) * density.width + x];
-        const double level = count ? std::pow(std::log1p(static_cast<double>(count)) * scale, 0.55) : 0.0;
-        const double lift = count ? 0.18 + 0.82 * level : 0.0;  // a lone pixel still shows
-        std::uint8_t* px = &rgba[(static_cast<std::size_t>(y) * textureW + (x + xOffset)) * 4];
-        px[0] = static_cast<std::uint8_t>(std::min(255.0, tint.r * lift));
-        px[1] = static_cast<std::uint8_t>(std::min(255.0, tint.g * lift));
-        px[2] = static_cast<std::uint8_t>(std::min(255.0, tint.b * lift));
-        px[3] = 255;
+        std::array<std::uint8_t, 4> pixel;
+        if (count < colours.size()) {
+          auto& cached = colours[static_cast<std::size_t>(count)];
+          if (!cached[3]) cached = colour(count);
+          pixel = cached;
+        } else {
+          pixel = colour(count);
+        }
+        std::memcpy(&rgba[(static_cast<std::size_t>(y) * textureW + x + xOffset) * 4],
+                    pixel.data(), pixel.size());
       }
     }
     (void)textureH;
@@ -271,9 +286,8 @@
   static std::shared_ptr<const ScopeImages> buildScopeImages(
       const std::shared_ptr<const deckboy::core::scopes::Result>& result) {
     auto images = std::make_shared<ScopeImages>();
-    // THE FOUR PICTURES ARE INDEPENDENT, so they are drawn at once. One after
-    // another they cost about 9 ms a frame at 1080p, which with the analysis
-    // capped the scopes near 47 updates a second -- under a 59.94 source.
+    // Colour lookup makes these memory copies cheap enough for the existing
+    // draw worker; no per-picture thread creation competes with playback.
     std::function<void()> tasks[4];
     const auto keep = [&](int slot, int w, int h, std::vector<std::uint8_t>& pixels) {
       images->width[slot] = w;
@@ -323,10 +337,7 @@
       std::copy(half.begin(), half.end(), rgba.begin() + static_cast<std::ptrdiff_t>(half.size()));
       keep(kScopeDiamond, w, h * 2, rgba);
     };
-    std::future<void> running[3];
-    for (int i = 0; i < 3; ++i) running[i] = std::async(std::launch::async, tasks[i]);
-    tasks[3]();
-    for (auto& task : running) task.get();
+    for (auto& task : tasks) task();
     return images;
   }
 
@@ -379,20 +390,33 @@
     return rgba;
   }
 
-  // Only texture upload stays on the renderer thread.
+  static unsigned scopeTextureMask(MonitorView view, int panel) {
+    if (view == MonitorView::Program) return 0;
+    if (panel >= 0) return panel <= kScopeDiamond ? 1u << panel : 0;
+    return view == MonitorView::Both ? (1u << kScopeWaveform) | (1u << kScopeVector) : 15u;
+  }
+
+  // Only visible textures are uploaded. Each remembers its own serial so a
+  // panel opened on a frozen/still picture receives the cached image too.
   std::shared_ptr<const deckboy::core::scopes::Result> refreshScopeTextures(ScopesOutcome& outcome) {
     std::uint64_t serial;
     { std::lock_guard lock(scopesMutex_); outcome = scopesLatest_; serial = scopesSerial_; }
-    if (outcome.images && serial != scopesDrawnSerial_) {
+    if (outcome.images) {
       const auto started = SDL_GetTicksNS();
-      scopesDrawnSerial_ = serial;
+      bool uploaded = false;
+      const unsigned visible = scopeTextureMask(monitorView_, scopesBig_);
       for (int slot = 0; slot <= kScopeDiamond; ++slot) {
+        if (!(visible & (1u << slot)) || (scopeTex_[slot] && scopeTexSerial_[slot] == serial)) continue;
         const int w = outcome.images->width[slot], h = outcome.images->height[slot];
         ensureScopeTexture(slot, w, h);
-        if (scopeTex_[slot]) SDL_UpdateTexture(scopeTex_[slot], nullptr,
-          outcome.images->rgba[slot].data(), w * 4);
+        if (scopeTex_[slot] && SDL_UpdateTexture(scopeTex_[slot], nullptr,
+            outcome.images->rgba[slot].data(), w * 4)) {
+          scopeTexSerial_[slot] = serial;
+          uploaded = true;
+        }
       }
-      if (outcome.falseColour && outcome.falseWidth > 0) {
+      if (scopesBig_ == kScopeFalseColour && serial != scopesDrawnSerial_ &&
+          outcome.falseColour && outcome.falseWidth > 0) {
         if (!falseColourTex_ || falseColourTexW_ != outcome.falseWidth ||
             falseColourTexH_ != outcome.falseHeight) {
           if (falseColourTex_) SDL_DestroyTexture(falseColourTex_);
@@ -402,10 +426,13 @@
           falseColourTexW_ = outcome.falseWidth;
           falseColourTexH_ = outcome.falseHeight;
         }
-        if (falseColourTex_) SDL_UpdateTexture(falseColourTex_, nullptr, outcome.falseColour->data(),
-                                               outcome.falseWidth * 4);
+        if (falseColourTex_ && SDL_UpdateTexture(falseColourTex_, nullptr, outcome.falseColour->data(),
+                                                outcome.falseWidth * 4)) {
+          scopesDrawnSerial_ = serial;
+          uploaded = true;
+        }
       }
-      scopesUploadMs_ = (SDL_GetTicksNS() - started) / 1000000.0;
+      if (uploaded) scopesUploadMs_ = (SDL_GetTicksNS() - started) / 1000000.0;
     }
     return outcome.result;
   }

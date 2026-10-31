@@ -443,24 +443,32 @@ void bytePathMatchesGeneral() {
     }
     for (auto filter : {s::GamutFilter::None, s::GamutFilter::Progressive}) {
       for (auto matrix : {s::Matrix::Bt709, s::Matrix::Bt2020Ncl}) {
-        s::Options options;
-        options.columns = 37;
-        options.levelBins = options.vectorBins = options.histogramBins = 64;
-        options.gamutFilter = filter;
-        options.matrix = matrix;
-        s::Rgba8View view{px, w, h, 0, bgra};
-        const auto fast = s::analyze(view, options);
-        const auto general = s::analyze(
-          s::FrameView{codes, w, h, 0, s::Components::Rgb, s::Encoding::FullCodeRgb, 8}, options);
-        bool same = fast.validPixels == general.validPixels && sameDensity(fast.vectorscope, general.vectorscope) &&
-                    sameHistogram(fast.lumaHistogram, general.lumaHistogram) &&
-                    sameGamut(fast.rawGamut, general.rawGamut) && sameGamut(fast.filteredGamut, general.filteredGamut);
-        for (std::size_t c = 0; c < 3; ++c)
-          same = same && sameDensity(fast.ycbcrParade[c], general.ycbcrParade[c]) &&
-                 sameDensity(fast.rgbParade[c], general.rgbParade[c]) &&
-                 sameHistogram(fast.rgbHistogram[c], general.rgbHistogram[c]);
-        for (std::size_t d = 0; d < 2; ++d) same = same && sameDensity(fast.diamond[d], general.diamond[d]);
-        expect(same, "8-bit byte path equals the general path, bin for bin");
+        for (unsigned axes = 0; axes < 8; ++axes) {
+          s::Options options;
+          options.columns = 37;
+          options.levelBins = 64;
+          options.vectorBins = (axes & 1) ? 63 : 64;
+          options.histogramBins = (axes & 2) ? 65 : 64;
+          if (axes & 4) {
+            options.levels = {0.1, 0.9};
+            options.chroma = {-0.3, 0.3};
+          }
+          options.gamutFilter = filter;
+          options.matrix = matrix;
+          s::Rgba8View view{px, w, h, 0, bgra};
+          const auto fast = s::analyze(view, options);
+          const auto general = s::analyze(
+            s::FrameView{codes, w, h, 0, s::Components::Rgb, s::Encoding::FullCodeRgb, 8}, options);
+          bool same = fast.validPixels == general.validPixels && sameDensity(fast.vectorscope, general.vectorscope) &&
+                      sameHistogram(fast.lumaHistogram, general.lumaHistogram) &&
+                      sameGamut(fast.rawGamut, general.rawGamut) && sameGamut(fast.filteredGamut, general.filteredGamut);
+          for (std::size_t c = 0; c < 3; ++c)
+            same = same && sameDensity(fast.ycbcrParade[c], general.ycbcrParade[c]) &&
+                   sameDensity(fast.rgbParade[c], general.rgbParade[c]) &&
+                   sameHistogram(fast.rgbHistogram[c], general.rgbHistogram[c]);
+          for (std::size_t d = 0; d < 2; ++d) same = same && sameDensity(fast.diamond[d], general.diamond[d]);
+          expect(same, "8-bit byte path equals the general path, bin for bin");
+        }
       }
     }
   }

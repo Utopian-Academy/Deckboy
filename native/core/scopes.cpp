@@ -400,6 +400,9 @@ Result analyze(Rgba8View frame, const Options& options) {
   std::vector<std::size_t> columnOf(frame.width);
   for (std::size_t x = 0; x < frame.width; ++x)
     columnOf[x] = static_cast<std::size_t>(static_cast<std::uint64_t>(x) * options.columns / frame.width);
+  // Shared axes use the same bin exactly, including edge excursions.
+  const bool sharedLumaBins = options.histogramBins == options.levelBins;
+  const bool sharedChromaBins = options.vectorBins == options.levelBins;
   constexpr double epsilon = 1e-12;  // countRange's
   for (std::size_t y = 0; y < frame.height; ++y) {
     const std::uint8_t* row = frame.bytes.data() + y * stride;
@@ -410,8 +413,11 @@ Result analyze(Rgba8View frame, const Options& options) {
       const std::size_t column = columnOf[x];
       ++result.validPixels;
       const std::array<double, 3> yccValues{ycc.y, ycc.cb, ycc.cr};
+      std::array<std::size_t, 3> yccRows{};
       for (std::size_t c = 0; c < 3; ++c) {
-        addWave(result.ycbcrParade[c], column, yccValues[c]);
+        auto& wave = result.ycbcrParade[c];
+        yccRows[c] = bin(yccValues[c], wave.yRange, wave.height, wave.yExcursions);
+        ++wave.bins[yccRows[c] * wave.width + column];
         Density& parade = result.rgbParade[c];
         const ByteBin& row_ = paradeRow[bytes[c]];
         ++parade.bins[row_.bin * parade.width + column];
@@ -423,13 +429,20 @@ Result analyze(Rgba8View frame, const Options& options) {
         hist.excursions.below += hb.below;
         hist.excursions.above += hb.above;
       }
-      add(result.lumaHistogram, ycc.y);
-      addVector(result.vectorscope, ycc);
+      if (sharedLumaBins) ++result.lumaHistogram.bins[yccRows[0]];
+      else add(result.lumaHistogram, ycc.y);
+      if (sharedChromaBins) ++result.vectorscope.bins[yccRows[2] * result.vectorscope.width + yccRows[1]];
+      else addVector(result.vectorscope, ycc);
       ++result.diamond[0].bins[diamondCell[bytes[2] * 256 + bytes[1]]];
       ++result.diamond[1].bins[diamondCell[bytes[0] * 256 + bytes[1]]];
       if (ycc.y >= -epsilon && ycc.y <= 1.0 + epsilon) ++result.rawGamut.validPixels;
       else countGamut(result.rawGamut, channels(Pixel{rgb, ycc}), options.gamutBitDepth);
     }
+  }
+  if (sharedLumaBins) result.lumaHistogram.excursions = result.ycbcrParade[0].yExcursions;
+  if (sharedChromaBins) {
+    result.vectorscope.xExcursions = result.ycbcrParade[1].yExcursions;
+    result.vectorscope.yExcursions = result.ycbcrParade[2].yExcursions;
   }
   const bool rawClean = result.rawGamut.nominal.pixels == 0 && result.rawGamut.total.pixels == 0 &&
                         result.rawGamut.preferred.pixels == 0;

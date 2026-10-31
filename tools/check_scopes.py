@@ -108,7 +108,11 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--exe", default=str(ROOT / "build/windows/Release/Deckboy.exe"))
     parser.add_argument("--clips", nargs="*", default=[], help="real media to scope (globs allowed)")
+    parser.add_argument("--performance", action="store_true", help="Measure output pacing and scope stages")
+    parser.add_argument("--seconds", type=float, default=12)
     args = parser.parse_args()
+    if args.performance:
+        return performance(args)
     (ROOT / "build").mkdir(exist_ok=True)
     work = Path(tempfile.mkdtemp(prefix="scopes-", dir=ROOT / "build"))
     populate(str(work))
@@ -199,6 +203,7 @@ def main():
         snap("ebu75-vector")
         command(port, "SCOPES BIG off")
 
+        command(port, "SCOPES BIG waveform")
         expect(command(port, "TAKE 3").startswith("OK"), "TAKE the ramp")
         reply, f = fresh_stats(port, reply)
         luma = f.get("luma", "")
@@ -218,6 +223,13 @@ def main():
                "FREEZE holds the last reading", held)
         expect(held_fields['state'] == 'frozen' and float(held_fields['hz']) == 0,
                "FREEZE reports frozen and zero refresh", held)
+        command(port, "SCOPES BIG parade")
+        snap("frozen-ramp-parade")
+        command(port, "SCOPES BIG vector")
+        snap("frozen-ramp-vector")
+        expect(stats(port)[1]['serial'] == frozen_fields['serial'],
+               "switching frozen panels keeps the same full-raster reading")
+        command(port, "SCOPES BIG off")
         command(port, "SCOPES FREEZE OFF")
         reply, f = fresh_stats(port, frozen)
         expect(f.get("targets75") == "6/6" and int(f.get("hist_bins", 0)) < 50,
@@ -279,6 +291,76 @@ def main():
         log.close()
     print(f"scopes: {checks} checks, {failures} failures; evidence: {work}")
     return 1 if failures else 0
+
+
+def performance(args):
+    """Measure output pacing and scope stages in isolated processes."""
+    import ctypes
+    import json
+    from example_show_runtime import Runtime
+    work = ROOT / 'build' / ('scopes-performance-' + time.strftime('%Y%m%d-%H%M%S'))
+    work.mkdir(parents=True)
+    clip = ROOT / 'build/scopes-performance-60.mp4'
+    if not clip.exists():
+        subprocess.run(['ffmpeg', '-v', 'error', '-f', 'lavfi', '-i',
+                        'testsrc2=size=1920x1080:rate=60', '-t', '20', '-an',
+                        '-c:v', 'libx264', '-preset', 'ultrafast', '-crf', '23',
+                        '-pix_fmt', 'yuv420p', str(clip)], check=True)
+    def cpu_seconds(db):
+        if os.name != 'nt':
+            return None
+        stamps = [ctypes.c_uint64() for _ in range(4)]
+        fn = ctypes.windll.kernel32.GetProcessTimes
+        fn.argtypes = [ctypes.c_void_p] + [ctypes.POINTER(ctypes.c_uint64)] * 4
+        if not fn(ctypes.c_void_p(int(db.proc._handle)), *[ctypes.byref(t) for t in stamps]):
+            raise ctypes.WinError()
+        return (stamps[2].value + stamps[3].value) / 1e7
+    def output_status(db):
+        reply = db.send('STATUS')
+        line = next(s for s in reply.splitlines() if s.startswith('OUTPUT 1 '))
+        return reply, {k: float(v) for k, v in re.findall(r'(presents|hitches|worst_gap_ms|output_fps)=([\d.]+)', line)}
+    results = {'exe': str(Path(args.exe).resolve()), 'seconds': args.seconds,
+               'worst_gap_note': 'worst gap is cumulative for the process, hitches are phase deltas',
+               'samples': []}
+    for width, height in [(1920, 1080), (3840, 2160)]:
+        case = work / str(height)
+        case.mkdir()
+        show = case / 'test.deckboy'
+        show.write_text('update_check\t0\nui_sounds\t0\nui_scale\t1.5\n', encoding='utf-8')
+        with Runtime(args.exe, case / 'runtime', show, extra=('--import', str(clip))) as db:
+            db.commands('SELECT 1', 'LOOP ON', 'TAKE', 'OUTPUT ON', f'VIDEO {width}x{height}', 'VIDEO HZ 60')
+            time.sleep(4)
+            for mode, commands in [
+                ('program-before', ['SCOPES PROGRAM']),
+                ('all', ['SCOPES SCOPES', 'SCOPES BIG off']),
+                ('both', ['SCOPES BOTH']),
+                ('waveform', ['SCOPES SCOPES', 'SCOPES BIG waveform']),
+                ('sound', ['SCOPES BIG sound']),
+                ('program-after', ['SCOPES PROGRAM']),
+            ]:
+                db.commands(*commands)
+                time.sleep(3)
+                scope_start = db.send('SCOPES STATS')
+                _, before = output_status(db)
+                cpu_start, started = cpu_seconds(db), time.monotonic()
+                time.sleep(args.seconds)
+                status_text, after = output_status(db)
+                elapsed, cpu_end = time.monotonic() - started, cpu_seconds(db)
+                scope_end = db.send('SCOPES STATS')
+                serial = lambda text: int(re.search(r'serial=(\d+)', text)[1])
+                row = dict(raster=f'{width}x{height}', mode=mode, elapsed=elapsed,
+                           output_fps=(after['presents'] - before['presents']) / elapsed,
+                           hitches=after['hitches'] - before['hitches'], worst_gap_ms=after['worst_gap_ms'],
+                           decode_fps=float(re.search(r'decode_fps=([\d.]+)', status_text)[1]),
+                           scope_hz=(serial(scope_end) - serial(scope_start)) / elapsed,
+                           cpu_cores=None if cpu_start is None else (cpu_end - cpu_start) / elapsed,
+                           scope_start=scope_start, scope_end=scope_end, status=status_text)
+                results['samples'].append(row)
+                print(json.dumps({k: v for k, v in row.items() if k not in ('scope_start', 'scope_end', 'status')}), flush=True)
+                (work / 'results.json').write_text(json.dumps(results, indent=2), encoding='utf-8')
+            db.snapshot(case / 'program.bmp')
+    print('performance evidence:', work, flush=True)
+
 
 
 if __name__ == "__main__":

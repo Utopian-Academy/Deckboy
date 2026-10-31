@@ -858,6 +858,43 @@
              result.lumaWaveform().bins.front() == 1 &&
              result.rawGamut.preferred.pixels == 0 && result.filteredGamut.preferred.pixels == 0,
              "scopes core analyzes full-range RGBA without display resources");
+      scopes::Density density;
+      density.width = 1024; density.height = 8;
+      density.bins.resize(density.width * density.height);
+      for (std::size_t i = 0; i < density.bins.size(); ++i) density.bins[i] = i;
+      density.bins.back() = 1000000;
+      bool sameTrace = true;
+      for (const bool flip : {false, true}) {
+        for (const SDL_Color tint : {SDL_Color{150,255,150,255}, SDL_Color{255,110,110,255},
+                                    SDL_Color{120,255,120,255}, SDL_Color{120,160,255,255}}) {
+          const int w = static_cast<int>(density.width) + 6, h = static_cast<int>(density.height);
+          std::vector<std::uint8_t> actual(static_cast<std::size_t>(w) * h * 4, 37), expected = actual;
+          uploadScopeDensity(0, density, static_cast<int>(density.width), 3, w, h, flip, tint, actual);
+          // Original per-cell formula: exact bytes, including the uncached
+          // populations, empty cells, flip and untouched parade margins.
+          const double scale = 1.0 / std::log1p(1000000.0);
+          for (int row = 0; row < h; ++row) {
+            for (std::size_t x = 0; x < density.width; ++x) {
+              const auto count = density.bins[static_cast<std::size_t>(row) * density.width + x];
+              const double level = count ? std::pow(std::log1p(static_cast<double>(count)) * scale, 0.55) : 0.0;
+              const double lift = count ? 0.18 + 0.82 * level : 0.0;
+              auto* pixel = &expected[(static_cast<std::size_t>(flip ? h - 1 - row : row) * w + x + 3) * 4];
+              pixel[0] = static_cast<std::uint8_t>(std::min(255.0, tint.r * lift));
+              pixel[1] = static_cast<std::uint8_t>(std::min(255.0, tint.g * lift));
+              pixel[2] = static_cast<std::uint8_t>(std::min(255.0, tint.b * lift));
+              pixel[3] = 255;
+            }
+          }
+          sameTrace = sameTrace && actual == expected;
+        }
+      }
+      expect(sameTrace, "scope trace lookup preserves every display byte");
+      expect(scopeTextureMask(MonitorView::Program, -1) == 0 &&
+             scopeTextureMask(MonitorView::Scopes, -1) == 15 &&
+             scopeTextureMask(MonitorView::Both, -1) == 5 &&
+             scopeTextureMask(MonitorView::Both, kScopeParade) == 2 &&
+             scopeTextureMask(MonitorView::Scopes, kScopeSound) == 0,
+             "scope uploads follow the panels visible in each view");
     }
 
     {
