@@ -1495,9 +1495,12 @@ class MediaEngine {
   std::chrono::steady_clock::time_point frameTickPrevAt_ {};
   bool frameTickValid_ = false;
   double tickIntervalAvg_ = 0.0;
+  static constexpr int kTickIntervals = 128;
+  std::array<double, kTickIntervals> tickIntervals_ {};
+  int tickIntervalNext_ = 0;
   int tickSamples_ = 0;
-  int tickRejects_ = 0;
   bool cadenceActive_ = false;
+  bool cadenceSnapped_ = false;
   double cadenceRatio_ = 0.0;
   double cadencePhase_ = 0.0;
   std::mutex frameMutex_;                    // protects frameQueue_ (shared between decode and main threads)

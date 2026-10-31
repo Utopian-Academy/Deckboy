@@ -1595,21 +1595,28 @@ void MediaEngine::update() {
   {
     const auto tickAt = std::chrono::steady_clock::now();
     if (frameTickValid_) {
+      // THE TICK PERIOD, to about 0.1%: the mean of the last 128 intervals,
+      // stalls (over 1.5x the median) left out. A running average of single
+      // ticks wobbled by about 1%, and the ratio has to be known well enough
+      // to tell 60 on 60 from 60 on 59.94 (0.1%) or it settles on a wrong one.
       const double dt = std::chrono::duration<double>(tickAt - frameTickPrevAt_).count();
-      // A stall or a burst is not the tick rate; a slow average of the rest is.
-      const bool plausible = tickIntervalAvg_ <= 0.0
-        ? (dt > 0.002 && dt < 0.1)
-        : (dt > tickIntervalAvg_ * 0.6 && dt < tickIntervalAvg_ * 1.6);
-      if (plausible) {
-        tickIntervalAvg_ = tickIntervalAvg_ > 0.0 ? tickIntervalAvg_ * 0.98 + dt * 0.02 : dt;
-        if (tickSamples_ < 1000) ++tickSamples_;
-        tickRejects_ = 0;
-      } else if (++tickRejects_ > 20 && dt > 0.002 && dt < 0.1) {
-        // Twenty in a row that do not fit: it is the average that is wrong
-        // (it started on a startup hitch, or the screen changed). Start over.
-        tickIntervalAvg_ = dt;
-        tickSamples_ = 0;
-        tickRejects_ = 0;
+      if (dt > 0.002 && dt < 0.25) {
+        tickIntervals_[tickIntervalNext_] = dt;
+        tickIntervalNext_ = (tickIntervalNext_ + 1) % kTickIntervals;
+        if (tickSamples_ < kTickIntervals) ++tickSamples_;
+        std::array<double, kTickIntervals> sorted {};
+        std::copy(tickIntervals_.begin(), tickIntervals_.begin() + tickSamples_, sorted.begin());
+        std::nth_element(sorted.begin(), sorted.begin() + tickSamples_ / 2, sorted.begin() + tickSamples_);
+        const double median = sorted[static_cast<std::size_t>(tickSamples_ / 2)];
+        double sum = 0.0;
+        int used = 0;
+        for (int k = 0; k < tickSamples_; ++k) {
+          if (tickIntervals_[k] <= median * 1.5) {
+            sum += tickIntervals_[k];
+            ++used;
+          }
+        }
+        tickIntervalAvg_ = used > 0 ? sum / used : median;
       }
     }
     frameTickPrevAt_ = tickAt;
@@ -1617,30 +1624,54 @@ void MediaEngine::update() {
 
     const double contentRate = frameRate_ * playbackSpeed_;
     const bool schedulable = state_ == TransportState::Playing && contentRate > 1.0 &&
-                             tickSamples_ >= 30 && tickIntervalAvg_ > 0.0 &&
+                             tickSamples_ >= 120 && tickIntervalAvg_ > 0.0 &&
                              lastRenderedFrameIndex_ != static_cast<std::uint64_t>(-1);
     if (!schedulable) {
       cadenceActive_ = false;
     } else {
-      double ratio = contentRate * tickIntervalAvg_;   // clip frames per tick
-      // The nearest simple fraction within 0.3%, smallest denominator first.
-      for (int q = 1; q <= 12; ++q) {
-        const double p = std::round(ratio * q);
-        if (p >= 1.0 && std::abs(p / q - ratio) <= ratio * 0.003) {
-          ratio = p / q;
-          break;
+      const double measured = contentRate * tickIntervalAvg_;   // clip frames per tick
+      // STICKY: a ratio already in use stays while the measurement is within
+      // 0.6% of it, so a stall that nudges the measurement cannot re-decide it:
+      // re-deciding restarted the phase from the clock -- the very
+      // repeat-then-skip this exists to stop.
+      // An unsnapped ratio (first measured under load, say) keeps looking for
+      // its fraction: switching to it is well under the 2% that restarts.
+      double ratio = cadenceRatio_;
+      if (!cadenceActive_ || !cadenceSnapped_ ||
+          std::abs(measured - cadenceRatio_) > cadenceRatio_ * 0.006) {
+        // The nearest simple fraction within 0.5%, smallest denominator first.
+        // Real near misses (60 on 59.94, 23.976 on 24) are 0.1%; the rest of
+        // the window is room for the measurement's own error.
+        const bool wasTrimmed = cadenceActive_ && !cadenceSnapped_ &&
+                                std::abs(measured - cadenceRatio_) <= cadenceRatio_ * 0.006;
+        ratio = wasTrimmed ? cadenceRatio_ : measured;
+        cadenceSnapped_ = false;
+        for (int q = 1; q <= 12; ++q) {
+          const double p = std::round(measured * q);
+          if (p >= 1.0 && std::abs(p / q - measured) <= measured * 0.005) {
+            ratio = p / q;
+            cadenceSnapped_ = true;
+            break;
+          }
         }
       }
-      if (!cadenceActive_ || std::abs(ratio - cadenceRatio_) > 1e-9) {
-        // Start (or re-start on a new ratio) exactly on the clock. The phase
-        // then moves by a fixed step, so where it sits within a frame no
-        // longer matters: there is no jitter left to tip it either way.
+      if (!cadenceActive_ || std::abs(ratio - cadenceRatio_) > cadenceRatio_ * 0.02) {
+        // Start (or re-start on a really different rate -- a new screen, a
+        // speed change) exactly on the clock. The phase then moves by a fixed
+        // step, so where it sits within a frame no longer matters: there is no
+        // jitter left to tip it either way.
         cadencePhase_ = clockFrames - ratio;
-        cadenceRatio_ = ratio;
         cadenceActive_ = true;
       }
+      cadenceRatio_ = ratio;
       cadencePhase_ += ratio;
       const double error = clockFrames - cadencePhase_;
+      // A ratio that is no simple fraction is only as good as the measurement;
+      // the clock's error trims it, slowly, so it converges on the true one
+      // instead of being corrected a frame at a time in both directions.
+      if (!cadenceSnapped_ && std::abs(error) <= 4.0) {
+        cadenceRatio_ += error * 0.0005;
+      }
       if (std::abs(error) > 4.0) {
         cadencePhase_ = clockFrames;               // a stall: back to the clock
       } else if (error > 0.6) {
