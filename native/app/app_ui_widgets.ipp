@@ -1319,6 +1319,61 @@
     ensureDropdownHighlightVisible();
   }
 
+  // The filter line: there while something is typed, or always on a list
+  // that offers a search (searchHint).
+  int dropdownFilterHeight() const {
+    if (dropdown_.filter.empty() && dropdown_.searchHint.empty()) {
+      return 0;
+    }
+    return dropdown_.searchHint.empty() ? 18
+                                        : std::max(18, (fontSmall_ ? TTF_GetFontHeight(fontSmall_) : 14) + uiScaled(6));
+  }
+
+  // A face for one row of a font list, opened once and kept (fontPreviewFaces_
+  // says why). Null when the file will not open; the row then says so.
+  TTF_Font* fontPreviewFace(const std::string& path) {
+    const auto found = fontPreviewFaces_.find(path);
+    if (found != fontPreviewFaces_.end()) {
+      return found->second;
+    }
+    TTF_Font* face = TTF_OpenFont(path.c_str(), static_cast<float>(uiScaled(22)));
+    fontPreviewFaces_.emplace(path, face);
+    return face;
+  }
+
+  // For STATUS JSON: the open dropdown, so a check can find a row and click
+  // it, and the timer's font row, which opens one.
+  // "dropdown": {"open", "owner", "rect":[x,y,w,h], "listY", "rowHeight",
+  // "scrollRow", "shown", "total", "filter", "rows":[label, ...] (the visible ones)}
+  std::string dropdownStatusJson() const {
+    std::ostringstream out;
+    const SDL_Rect r = dropdown_.popoverRect;
+    out << "\"dropdown\":{\"open\":" << (dropdown_.open ? "true" : "false") << ",\"owner\":\""
+        << escapeJson(dropdown_.owner) << "\",\"rect\":[" << r.x << "," << r.y << "," << r.w << "," << r.h
+        << "],\"listY\":" << (r.y + 4 + dropdownFilterHeight()) << ",\"rowHeight\":" << dropdown_.rowHeight
+        << ",\"scrollRow\":" << dropdown_.scrollRow << ",\"shown\":" << dropdown_.filteredIndices.size()
+        << ",\"total\":" << dropdown_.options.size() << ",\"filter\":\"" << escapeJson(dropdown_.filter)
+        << "\",\"rows\":[";
+    const int visible = dropdown_.open ? dropdownVisibleRowCount() : 0;
+    for (int row = 0; row < visible; ++row) {
+      const int filtered = dropdown_.scrollRow + row;
+      if (filtered >= static_cast<int>(dropdown_.filteredIndices.size())) break;
+      out << (row ? "," : "") << "\"" << escapeJson(dropdown_.options[dropdown_.filteredIndices[filtered]].label)
+          << "\"";
+    }
+    out << "]},\"timerFontRow\":[";
+    SDL_Rect font {};
+    for (const auto& button : quickButtons_) {
+      if (button.action == QuickAction::TimerPickFont) font = button.rect;
+    }
+    out << font.x << "," << font.y << "," << font.w << "," << font.h << "],";
+    const Cue* cue = selectedCuePtr();
+    if (cue && cue->kind == CueKind::Timer) {
+      out << "\"timerFont\":\"" << escapeJson(cue->timer.fontPath) << "\",";
+    }
+    return out.str();
+  }
+
   void refreshDropdownPopoverRect() {
     if (!dropdown_.open) {
       return;
@@ -1332,8 +1387,11 @@
       widest = std::max(widest, item.textWidth + 28);
     }
     widest = std::clamp(widest, 160, std::max(220, winW - 24));
+    if (dropdown_.fixedWidth > 0) {
+      widest = std::min(dropdown_.fixedWidth, std::max(160, winW - 12));
+    }
 
-    int filterH = dropdown_.filter.empty() ? 0 : 18;
+    int filterH = dropdownFilterHeight();
     int visibleRows = dropdownVisibleRowCount();
     int popH = 8 + filterH + visibleRows * dropdown_.rowHeight;
     int popX = std::clamp(dropdown_.anchorRect.x, 6, std::max(6, winW - widest - 6));
@@ -1402,7 +1460,7 @@
       closeDropdown(true);
       return true;
     }
-    int filterH = dropdown_.filter.empty() ? 0 : 18;
+    int filterH = dropdownFilterHeight();
     int listY = dropdown_.popoverRect.y + 4 + filterH;
     int relativeY = y - listY;
     if (relativeY < 0) {
@@ -1460,6 +1518,16 @@
       ensureDropdownHighlightVisible();
       return true;
     }
+    // A long list (the timer's fonts run to hundreds) needs to be crossed in
+    // pages, and its ends reached in one key.
+    if ((key == SDLK_PAGEUP || key == SDLK_PAGEDOWN || key == SDLK_HOME || key == SDLK_END) && itemCount > 0) {
+      const int page = std::max(1, dropdownVisibleRowCount() - 1);
+      int& at = dropdown_.highlightedFilteredIndex;
+      at = key == SDLK_HOME ? 0 : key == SDLK_END ? itemCount - 1 : key == SDLK_PAGEUP ? at - page : at + page;
+      at = std::clamp(at, 0, itemCount - 1);
+      ensureDropdownHighlightVisible();
+      return true;
+    }
     if ((key == SDLK_RETURN || key == SDLK_KP_ENTER) && itemCount > 0) {
       int optionIndex = dropdown_.filteredIndices[dropdown_.highlightedFilteredIndex];
       std::string selectedId = dropdown_.options[optionIndex].id;
@@ -1496,13 +1564,15 @@
                                 pal.light,
                                 pal.deep,
                                 pal.mid);
-    int filterH = dropdown_.filter.empty() ? 0 : 18;
+    int filterH = dropdownFilterHeight();
     if (filterH > 0) {
+      const bool hinting = dropdown_.filter.empty();
       drawTextSafe(controlRenderer_, fontSmall_,
                    SDL_Rect {dropdown_.popoverRect.x + 6, dropdown_.popoverRect.y + 3,
                              dropdown_.popoverRect.w - 12, filterH},
-                   "filter: " + dropdown_.filter,
-                   pal.dark);
+                   hinting ? dropdown_.searchHint
+                           : (dropdown_.searchHint.empty() ? "filter: " : "search: ") + dropdown_.filter,
+                   hinting ? pal.inkSoft : pal.dark);
     }
 
     SDL_Rect listRect {
@@ -1525,10 +1595,27 @@
       SDL_Color rowFill = highlighted ? pal.dark : pal.light;
       SDL_Color rowInk = highlighted ? pal.light : pal.deep;
       Primitives::fillRect(controlRenderer_, rowRect, rowFill);
-      drawTextSafe(controlRenderer_, fontSmall_,
-                   SDL_Rect {rowRect.x + 6, rowRect.y, rowRect.w - 12, rowRect.h},
-                   dropdown_.options[optionIndex].label,
-                   rowInk);
+      const auto& option = dropdown_.options[optionIndex];
+      if (!option.fontPath.empty()) {
+        // The sample in the font itself, the family's name beside it in the
+        // interface's face: a name drawn only in its own font is unreadable
+        // for a symbol font, and says nothing about one that will not open.
+        TTF_Font* face = fontPreviewFace(option.fontPath);
+        const int nameW = std::min(rowRect.w / 2, option.textWidth + uiScaled(12));
+        const SDL_Rect nameRect {rowRect.x + rowRect.w - nameW, rowRect.y, nameW - 6, rowRect.h};
+        const SDL_Rect sampleRect {rowRect.x + 6, rowRect.y, rowRect.w - nameW - 12, rowRect.h};
+        if (face) {
+          drawTextSafe(controlRenderer_, face, sampleRect, dropdown_.sample, rowInk, false);
+        } else {
+          drawTextSafe(controlRenderer_, fontSmall_, sampleRect, "will not open", pal.inkSoft);
+        }
+        drawTextSafe(controlRenderer_, fontSmall_, nameRect, option.label, rowInk, false);
+      } else {
+        drawTextSafe(controlRenderer_, fontSmall_,
+                     SDL_Rect {rowRect.x + 6, rowRect.y, rowRect.w - 12, rowRect.h},
+                     option.label,
+                     rowInk);
+      }
       drawY += dropdown_.rowHeight;
     }
     if (dropdown_.filteredIndices.empty()) {

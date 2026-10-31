@@ -9702,15 +9702,76 @@
   // the app's own bundled sans, which is what makes the typeface mode work
   // before anybody has picked anything -- and keeps a show looking the same on
   // all three platforms, the same argument that had Liberation bundled at all.
+  // The computer's fonts, read once a session (core/system_fonts.hpp).
+  const std::vector<deckboy::fonts::SystemFont>& systemFonts() {
+    if (!systemFontsRead_) {
+      systemFontsRead_ = true;
+      const auto started = SDL_GetTicks();
+      systemFonts_ = deckboy::fonts::listSystemFonts(deckboy::fonts::systemFontFolders());
+      showLog("FONTS", std::to_string(systemFonts_.size()) + " families read in " +
+                         std::to_string(SDL_GetTicks() - started) + " ms");
+    }
+    return systemFonts_;
+  }
+
+  // The family a saved path belongs to, for the inspector row; the file's
+  // name when it is not one of this computer's (a font file picked by hand,
+  // or a show from another machine).
+  std::string timerFontLabel(const std::string& path) {
+    if (path.empty()) return "Deckboy (built in)";
+    for (const auto& font : systemFonts()) {
+      if (font.path == path) return font.family;
+    }
+    return fs::path(path).filename().string();
+  }
+
+  // The font list (board H856G24w): Deckboy's own face first, the same on
+  // every machine; then every family on this computer, each drawn in itself
+  // with the clock's own digits; then a font file, for one not installed.
   void pickTimerFont() {
     Cue* cue = selectedCueMutable();
     if (!cue || cue->kind != CueKind::Timer) return;
-    if (!cue->timer.fontPath.empty()) {
-      cue->timer.fontPath.clear();
-      markProjectDirty();
-      triggerToast("timer font: the app's own");
-      return;
+    static const std::string kFromFile = "\x01" "file";
+    const std::string builtIn = (Paths::dataDir() / "fonts" / "LiberationSans-Regular.ttf").string();
+    std::vector<std::pair<std::string, std::string>> choices;
+    choices.emplace_back(std::string(), "Deckboy (built in)");
+    for (const auto& font : systemFonts()) choices.emplace_back(font.path, font.family);
+    choices.emplace_back(kFromFile, "From a font file...");
+    SDL_Rect anchor {};
+    for (const auto& button : quickButtons_) {
+      if (button.action == QuickAction::TimerPickFont) anchor = button.rect;
     }
+    const std::string cueId = cue->id;
+    openDropdown("timer.font", anchor, choices, cue->timer.fontPath, [this, cueId](const std::string& chosen) {
+      Cue* target = selectedCueMutable();
+      if (!target || target->id != cueId || target->kind != CueKind::Timer) return;
+      if (chosen == kFromFile) {
+        pickTimerFontFile();
+        return;
+      }
+      pushUndoSnapshot();
+      target->timer.fontPath = chosen;
+      // Picking a font is asking for it to be USED. Leaving the face on
+      // seven-segment would store the choice and show none of it.
+      target->timer.face = TimerFace::Typeface;
+      markProjectDirty();
+      triggerToast("timer font: " + timerFontLabel(chosen));
+    });
+    if (!dropdown_.open || dropdown_.owner != "timer.font") return;
+    dropdown_.searchHint = "type to search " + std::to_string(systemFonts().size()) + " fonts  -  End: a font file";
+    dropdown_.sample = "4:32  -0:15";
+    dropdown_.rowHeight = uiScaled(40);
+    dropdown_.maxVisibleRows = 9;
+    dropdown_.fixedWidth = uiScaled(460);
+    for (auto& option : dropdown_.options) {
+      if (option.id == kFromFile) continue;
+      option.fontPath = option.id.empty() ? builtIn : option.id;
+    }
+    rebuildDropdownFilteredIndices();
+    refreshDropdownPopoverRect();
+  }
+
+  void pickTimerFontFile() {
     // Static, because SDL needs the filter array to outlive the callback --
     // the trap the file-dialog notes warn about.
     static const std::vector<SDL_DialogFileFilter> kTimerFontFilters {
@@ -9722,9 +9783,8 @@
       if (picked.empty()) return;
       Cue* target = selectedCueMutable();
       if (!target || target->kind != CueKind::Timer) return;
+      pushUndoSnapshot();
       target->timer.fontPath = picked.front();
-      // Picking a font is asking for it to be USED. Leaving the face on
-      // seven-segment would store the choice and show none of it.
       target->timer.face = TimerFace::Typeface;
       markProjectDirty();
       triggerToast("timer font: " + fs::path(picked.front()).filename().string());

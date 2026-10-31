@@ -721,6 +721,7 @@
            << "\"outputChipRect\":[" << outputBadgeRect_.x << "," << outputBadgeRect_.y << ","
            << outputBadgeRect_.w << "," << outputBadgeRect_.h << "],"
            << colourPickerStatusJson()
+           << dropdownStatusJson()
            // The screens, and the one the desk is on (1-based), for the
            // check that walks the tour on whatever rig it finds.
            << "\"displayCount\":" << deckboyGetNumVideoDisplays() << ","

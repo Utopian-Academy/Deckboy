@@ -6,6 +6,7 @@
 - Backdrop and logo now sit at the top of the timer's settings, not twenty rows down. The backdrop has four presets (none, black, key green, key blue) and a colour chip that opens the colour picker, for an exact key colour, typed or picked from the screen.
 - The inspector's preview shows the timer as it renders, logo, backdrop and digits, instead of "no still preview". Transparent shows as a checkerboard.
 - The logo row shows a thumbnail, CHANGE and an X to remove it, and a logo size row.
+- The font row opens a list of the fonts on this computer, each drawing the clock in its own face, instead of a file dialog. Type to search it; Deckboy's own face is first, and a font file that is not installed is still at the end (End jumps there). Page Up, Page Down, Home and End now work in every dropdown.
 
 ### Lower Third, everywhere
 - The app, the starter-pack demos and the manual now say "Lower Third": the SOURCE menu, new cues' names, the DASH button, toasts, tips and network replies. The layers demo's playlist was called "Name strap".

@@ -760,6 +760,24 @@
 #endif
       expect(!quick.timedOut, "a child inside its time limit is left alone");
     }
+    // THE FONT LIST READS FAMILY NAMES OUT OF THE FILES. Run on the bundled
+    // fonts, which are the same on every runner: each family once, by the
+    // name inside the file, not the file's own name.
+    {
+      const auto fonts = deckboy::fonts::listSystemFonts({Paths::dataDir() / "fonts"});
+      auto has = [&](const std::string& family, const std::string& file) {
+        for (const auto& font : fonts) {
+          if (font.family == family) return fs::path(font.path).filename().string() == file;
+        }
+        return false;
+      };
+      expect(has("Liberation Sans", "LiberationSans-Regular.ttf") &&
+               has("Liberation Mono", "LiberationMono-Regular.ttf") && has("Noto Sans Arabic", "NotoSansArabic-Regular.ttf"),
+             "the font list names bundled faces by the family inside the file (" + std::to_string(fonts.size()) +
+               " families)");
+      const auto everything = deckboy::fonts::listSystemFonts(deckboy::fonts::systemFontFolders());
+      std::cout << "  this computer's fonts: " << everything.size() << " families\n";
+    }
     auto framesMatch = [](const std::optional<DecodedFrame>& lhs,
                           const std::optional<DecodedFrame>& rhs) {
       return lhs && rhs &&

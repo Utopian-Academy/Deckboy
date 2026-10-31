@@ -140,6 +140,7 @@
 #include "platform/pdf_import.hpp"
 #include "platform/screen_colour.hpp"
 #include "core/named_colours.hpp"
+#include "core/system_fonts.hpp"
 #include "platform/decklink.hpp"
 #include "platform/siphon_spout.hpp"
 #include "platform/st2110_output.hpp"
@@ -6640,15 +6641,10 @@ class App {
                      "Countdown, count up, or wall clock");
     rowY += ix.rowStep;
 
-    // The chosen face is named, not just its mode: "typeface" alone does not
-    // answer the question the operator is asking, which is WHICH one.
-    const std::string faceLabel =
-      cue.timer.face == TimerFace::Blocky ? std::string("blocky")
-      : cue.timer.face == TimerFace::Typeface
-          ? (cue.timer.fontPath.empty()
-               ? std::string("typeface")
-               : fs::path(cue.timer.fontPath).filename().string())
-      : std::string("7-segment");
+    // Which typeface is the font row's to say, right under this one.
+    const std::string faceLabel = cue.timer.face == TimerFace::Blocky     ? std::string("blocky")
+                                  : cue.timer.face == TimerFace::Typeface ? std::string("typeface")
+                                                                          : std::string("7-segment");
     inspDrawValueRow(ix, rowY, "face", faceLabel, QuickAction::TimerCycleFace,
                      "7-segment, blocky, or a real font");
     rowY += ix.rowStep;
@@ -6657,12 +6653,8 @@ class App {
     // clock would do nothing, which is the kind of control this codebase has
     // learned to leave out rather than grey out.
     if (cue.timer.face == TimerFace::Typeface) {
-      inspDrawValueRow(ix, rowY, "font",
-                       cue.timer.fontPath.empty()
-                         ? std::string("the app's own")
-                         : fs::path(cue.timer.fontPath).filename().string(),
-                       QuickAction::TimerPickFont,
-                       "Choose a .ttf/.otf, or clear it for the bundled face");
+      inspDrawValueRow(ix, rowY, "font", timerFontLabel(cue.timer.fontPath), QuickAction::TimerPickFont,
+                       "Any font on this computer, Deckboy's own, or a font file");
       rowY += ix.rowStep;
     }
 
@@ -9003,6 +8995,8 @@ class App {
     close(fontBase_);
     close(fontSmall_);
     close(fontMono_);
+    for (auto& entry : fontPreviewFaces_) close(entry.second);
+    fontPreviewFaces_.clear();
     close(fontPixel_);
     close(fontPixelSmall_);
     close(fontPixelTitle_);
@@ -10478,6 +10472,9 @@ class App {
     std::string label;
     std::string searchLabel;
     int textWidth = 0;
+    // A font list draws `sample` in this face, with the label beside it in
+    // the interface's own (the timer's font list, board H856G24w).
+    std::string fontPath;
   };
 
   struct DropdownState {
@@ -10492,10 +10489,22 @@ class App {
     int rowHeight = 24;
     int maxVisibleRows = 10;
     std::string filter;
+    // Shown in the filter line while nothing is typed, so a list that is
+    // searched says so before the first key.
+    std::string searchHint;
+    std::string sample;   // what a font row draws in its own face
+    int fixedWidth = 0;   // a font list's width; 0 sizes to the widest label
     std::function<void(const std::string&)> onSelect;
   };
 
   DropdownState dropdown_;
+  // Faces a font list has drawn a row in, by file: kept until the fonts are
+  // reloaded, because the text caches key on the font's address and a face
+  // closed mid-session hands that address to the next one opened.
+  std::unordered_map<std::string, TTF_Font*> fontPreviewFaces_;
+  // The computer's fonts, read the first time a font list opens.
+  std::vector<deckboy::fonts::SystemFont> systemFonts_;
+  bool systemFontsRead_ = false;
   int dropdownLastRenderedItemCount_ = -1;
   struct InlineTextEditorState {
     bool open = false;
