@@ -216,14 +216,14 @@ def layers(a):
     a.swirl("02 Neon window", "Same placement, a kaleidoscope effect and a different palette. The background stays live.", 3,
             "SCALE 0.4", "OFFSET 330 -145", "FX ADD kaleidoscope 0.7")
     a.clear()
-    a.playlist("Name strap")
+    a.playlist("Lower Third")
     a.lower("01 Bob Cobb - clean", "hairline", "A transparent lower third over both playlists. Change TITLE and SUB to use your own name.")
     a.lower("02 Bob Cobb - arcade", "arcade", "Same words, a different entrance and animated look. Try TEXTCUE OUT from the dashboard.")
     a.clear()
     return a.steps([
         ("All three layers", 0, {1: 1, 2: 1, 3: 1}),
         ("Change the backdrop", 0, {1: 2, 2: 1, 3: 1}),
-        ("Change inset and strap", 0, {1: 2, 2: 2, 3: 2}),
+        ("Change inset and Lower Third", 0, {1: 2, 2: 2, 3: 2}),
         ("Fireside interview", 0, {1: 3, 2: 3, 3: 1}),
         ("Clean backdrop", 0, {1: 1, 2: 3, 3: 3}),
     ])
@@ -357,7 +357,7 @@ def finish(raw, slug, title, author, steps):
         buttons[2] = ("2 Take selection", "TAKE")
         buttons[3] = ("3 Next cue", "GO")
     if slug == "03-layers-and-titles":
-        buttons += [("Name strap out", "DECK 3 TEXTCUE OUT")]
+        buttons += [("Lower Third out", "DECK 3 TEXTCUE OUT")]
     for i, (label, command) in enumerate(buttons):
         text += f"dashboard\t{i}\t{label}\t{command}\t\t{i % 5}\n"
     if "C:/" in text or "C:\\" in text:

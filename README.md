@@ -238,7 +238,7 @@ show.
 | **Window** &middot; **Screen** &middot; **Camera** | captured live, at the window's own full resolution |
 | **NDI** &middot; **SRT / RTMP / RTSP / UDP** &middot; **DeckLink** &middot; **Spout** | somebody else's signal, taken in as a cue |
 | **Pattern** &middot; **Test card** &middot; **Tone** | generated on the spot, no file needed |
-| **Timer** &middot; **Lower third** | a stage countdown, full screen or over the programme, and a name strap in 52 looks |
+| **Timer** &middot; **Lower Third** | a stage countdown, full screen or over the programme, and a Lower Third in 52 looks |
 | **Video synth** &middot; **Code** | an oscillator with feedback, or an expression you type live |
 
 Every row takes the same fades, the same transitions, the same effect rack, the

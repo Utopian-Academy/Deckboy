@@ -37,7 +37,7 @@ show elsewhere together with its media, use **BUNDLE**.
 |---|---|
 | **01 — Picture on screen** | Output on, TAKE, the next cue, BLACK. Four cues. |
 | **02 — Running a show** | A running order: a cue with its own 2-second crossfade, a clip that goes to black at its end (the others hold their last picture), one that loops until you move on, and one that fades out by itself. |
-| **03 — Layers and titles** | Three playlists in one picture: backdrop, inset and a transparent name strap. Open DASH and try its five named scenes; switch the backdrop while the other layers stay on air. |
+| **03 — Layers and titles** | Three playlists in one picture: backdrop, inset and a transparent Lower Third. Open DASH and try its five named scenes; switch the backdrop while the other layers stay on air. |
 | **04 — Looks and effects** | One source, six looks: kaleidoscope, RGB split plus scanlines, an animated ripple, text mode and geometry motion. Switch an oscillator off to compare. |
 | **05 — One-button show** | A 39-second sequence of picture, words, an inset and original music. Turn the output on, open DASH, press **Run sequence**. |
 
@@ -51,13 +51,13 @@ In **Layers and titles**, try the scene buttons in order:
 
 1. **All three layers** — live backdrop, inset and Bob Cobb / Can Man.
 2. **Change the backdrop** — swap its palette while the layout stays in place.
-3. **Change inset and strap** — a kaleidoscope inset and arcade name strap.
-4. **Fireside interview** — a new background with the name strap.
+3. **Change inset and Lower Third** — a kaleidoscope inset and an arcade Lower Third.
+4. **Fireside interview** — a new background with the Lower Third.
 5. **Clean backdrop** — the background alone.
 
 The **Clear layer** cues are transparent. Taking one removes that playlist's
 picture; taking its first cue brings it back. Inspect the inset's geometry to
-change its size and position, or edit the name strap's title and subtitle.
+change its size and position, or edit the Lower Third's title and subtitle.
 
 ## Run Soft Circuit
 

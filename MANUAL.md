@@ -210,7 +210,7 @@ down to give the height back.
 | **Stream (SRT)** | A live network input — `cue.path` is the full URL (`srt://`, `rtmp://`, `rtsp://`, `udp://`) |
 | **NDI Source** | An NDI receive input — `ndi://SOURCE_NAME` |
 | **DeckLink Source** | A Blackmagic card's SDI or HDMI input, captured through the DeckLink SDK rather than through FFmpeg |
-| **Lower Third** | A name strap over another playlist, in 52 looks (§16) |
+| **Lower Third** | A name and a role over another playlist, in 52 looks (§16) |
 | **Audio** | An audio-only file with a waveform lane |
 | **Mic** | A live microphone or line input, played through the deck with its fades, routing and audio effects (see Mic cue under §17) |
 | **Tone** | A generated audio test tone, with optional on-screen diagnostics — and, with a chip selected, a playable 2A03 or FDS voice driven from MIDI or the computer keyboard |
@@ -1937,7 +1937,7 @@ inspector instead (§7).
 
 ## 16. Lower Thirds & Picture in Picture
 
-A name strap, an inset, a second picture beside the first: all of these are a
+A Lower Third, an inset, a second picture beside the first: all of these are a
 **second playlist layered over the first** on the same output (§11, §12). Each
 layer has its own size, position and corner pin, so an inset is a playlist
 scaled down and placed, and a side-by-side is two of them.
@@ -1949,7 +1949,7 @@ it instead of one fixed box. Overlays from those older cues clear with `U`.
 
 ### Lower thirds
 
-**SOURCE → Lower third** makes a name strap: a text cue whose first line is
+**SOURCE → Lower third** makes a Lower Third: a text cue whose first line is
 the name and second the role, drawn over a transparent frame so it sits on a
 layer over another playlist. Its inspector section sets how it looks and moves.
 
@@ -1961,7 +1961,7 @@ layer over another playlist. Its inspector section sets how it looks and moves.
 | Tag | An accent tab for the name, the role beside it |
 | Glass | A translucent band across the frame, a thin accent line on top |
 | Arcade | The name in the pixel face over the role in mono, in a bordered box with a hard drop shadow. Once it is in, it keeps a slow bob and tilt, so it looks alive for as long as it is up |
-| Split | A news strap: the name on an accent block, the role on a strip under it |
+| Split | A news-style Lower Third: the name on an accent block, the role on a strip under it |
 | Card | A pale card with soft corners and a shadow, an accent dot at the name |
 | Hairline | No box: a fine accent rule over the words, with a square at its start |
 | Sparkle | The bar, with stars that twinkle round it for as long as it is up |
@@ -1973,7 +1973,7 @@ The 39 additional looks each have their own entrance, which reverses on OUT:
 
 | Look | Material | Entrance and life |
 |------|----------|-------------------|
-| Bulletin | Branded angular news strap | Header extends, then the role strip follows; holds still |
+| Bulletin | Branded angular news bar | Header extends, then the role strip follows; holds still |
 | Dateline | Branded rail with three signal marks | Rail builds in segments and draws the baseline; holds still |
 | Sideline | Branded sports plate with diagonal cuts | Three slashes arrive in sequence as the plate slides into place; holds still |
 | Scoreboard | Amber letters on charcoal split-flap cells | Letters fold open one after another across a dark seam; holds still |
@@ -2750,8 +2750,8 @@ letters of Kabyle. `--self-check` lists the fonts it found and the scripts this
 computer can draw.
 
 **On air.** Lower thirds, text cues and Deckboy Mini's subtitles follow the
-direction of their text. An Arabic or Persian lower third is laid out from the
-right inside its strap, the typewriter reveal types from the right, and a
+direction of their text. An Arabic or Persian Lower Third is laid out from the
+right inside its box, the typewriter reveal types from the right, and a
 wobble moves whole words in scripts whose letters join, so they stay joined.
 
 **From a controller.** `LANGUAGE` answers the current language, and
