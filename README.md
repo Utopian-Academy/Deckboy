@@ -25,61 +25,27 @@ to screens, broadcast outputs or streams, and record it while it plays.
 
 Free and open source, for Windows, macOS and Linux.
 
-**[⬇ Download](https://github.com/Utopian-Academy/Deckboy/releases/latest)** &nbsp;·&nbsp; **[▶ See Deckboy 419 in action](https://utopian-academy.github.io/Deckboy/trailer.html)** &nbsp;·&nbsp; **[♡ Community & help](https://utopian-academy.github.io/Deckboy/community.html)**
+**[⬇ Download](https://github.com/Utopian-Academy/Deckboy/releases/latest)** &nbsp;·&nbsp; **[▶ See Deckboy in action](https://utopian-academy.github.io/Deckboy/trailer.html)** &nbsp;·&nbsp; **[♡ Community & help](https://utopian-academy.github.io/Deckboy/community.html)**
 
 ![What you press and what the audience sees: with both playlists on the Deckboy desk, TAKE a clip, TAKE a Lower Third from the second playlist, TAKE the next clip crossfading in with a four-way mirror while the Lower Third stays up, TAKE the first clip again shattering in, then the Lower Third slides off and it loops; beside it, the clean output doing exactly that](docs/images/readme/light/press-and-see-v3.gif)
 
-<sub>What you press, and what the audience sees, from one run of v0.99.419. [Watch Deckboy with music by YMCK](https://utopian-academy.github.io/Deckboy/trailer.html). Footage: [Tears of Steel](https://mango.blender.org/), Blender Foundation, [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).</sub>
+<sub>What you press, and what the audience sees, from one run of v0.99.422. [Watch Deckboy with music by YMCK](https://utopian-academy.github.io/Deckboy/trailer.html). Footage: [Tears of Steel](https://mango.blender.org/), Blender Foundation, [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).</sub>
 
 **If Deckboy is useful to you, ⭐ star this repository** (top right): it is how the next
 operator finds it, and how you find it again.
 
-### New in 0.99.422
+### New in 0.99.423
 
-[Release notes and downloads](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.422)
+[Release notes and downloads](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.423)
 
-- **Remove any playlist, mid-show.** The others keep playing, and Ctrl+Z puts it back where it
-  was.
-- **Nine new effects, first in the list:** colour replace, blur, sharpen, glow, mirror, mosaic,
-  edges, luma key and strobe.
-- **Named outputs and a patch.** Name your interfaces' channels once (FOH, SUB, PRESS FEED) and
-  send playlists to the names, at a level in dB for each. A different interface means changing
-  the names, not the cues.
-- **Effects on an output.** High pass, low pass, tilt, compressor and width on a whole device,
-  after the mix, then a limiter: a ceiling the mix cannot pass.
-- **Fades that do more.** A fade cue can slow a deck down like tape, pitch and all, ramp any
-  effect's knob, and put back what it started from when it lands.
-- **Sound scopes and false colour.** Loudness to EBU R 128, true peak, phase and spectrum, beside
-  the picture scopes, which gain false colour.
-- **A Web Monitor you can rewind** by up to two minutes, and a **MIDI and OSC monitor**: every
-  message as it arrives, and what Deckboy did with it.
-- **INSTALL & RESTART shows what it is doing**, and the **Companion module 1.0.6** patches
-  playlists, switches the limiter and A/Bs the output effects from a button.
-- **Slides on a Mac fill the frame.** From PowerPoint, Keynote or a PDF, they came in at a
-  quarter of the width. And the Intel Mac download opens on macOS 10.13.
-
-![Deckboy taking the next clip while the playing one keeps moving through a two-second crossfade](docs/images/readme/light/crossfade-live.gif)
-
-<sub>A real crossfade in v0.99.419: the outgoing clip keeps playing until it has faded. Footage: [Tears of Steel](https://mango.blender.org/), Blender Foundation, [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).</sub>
-
-#### Also in recent releases
-
-- **Learn the basics:** a five-minute guided tour from the startup screen or MENU, in a
-  practice show that leaves yours alone.
-- **Crossfades that keep moving:** the clip on screen keeps playing while it fades out.
-- **Moiré**, scopes that keep up, and a warp monitor that shows the output being warped.
-
-- **Master tracker:** a pattern view with keyboard editing, cue, fade, volume and opacity
-  cells, column mute/solo, jumps and named sections. The classic grid is still there.
-- **HDR:** graphics over PQ or HLG feeds, HDR window output, ST 2110, SRT/enhanced RTMP
-  and recording.
-- **Phone control:** pair with a QR code; TAKE, transport, fader, cue list, DASH and
-  tracker on one page.
-- **Lights and live audio:** named fixtures over Art-Net or sACN, Mic cues with fades and
-  processing, and live captions made on your machine.
-- **Projection:** edge blending, test cards and saved defaults for new shows.
-
-![The Deckboy master tracker in pattern view, with cue, level, fade and stop cells, named sections and playlist controls](docs/images/readme/master-tracker.png)
+- **Colour pickers on the effects.** Pick from any window on any screen, type a hex, R G B or
+  hue, or a CSS or RAL name. Add your own colour tables (a brand palette, Pantone if you hold its
+  values) as CSV. Strobe and edges now take any colour.
+- **LEARN THE BASICS fits your screens.** One, two, three or mirrored: the practice picture goes
+  on a screen the desk is not on, and plugging a screen in mid-tour moves it there.
+- **Fixed:** the tour's crossfade step stuck on video clips, and resumed tours that counted the
+  wrong TAKE.
+- **Companion module 1.0.8** with an Effect colour action, in the download.
 
 ### A closer look
 
