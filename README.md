@@ -34,18 +34,20 @@ Free and open source, for Windows, macOS and Linux.
 **If Deckboy is useful to you, ⭐ star this repository** (top right): it is how the next
 operator finds it, and how you find it again.
 
-### New in 0.99.423
+### New in 0.99.424
 
-[Release notes and downloads](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.423)
+[Release notes and downloads](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.424)
 
-- **Colour pickers on the effects.** Pick from any window on any screen, type a hex, R G B or
-  hue, or a CSS or RAL name. Add your own colour tables (a brand palette, Pantone if you hold its
-  values) as CSV. Strobe and edges now take any colour.
-- **LEARN THE BASICS fits your screens.** One, two, three or mirrored: the practice picture goes
-  on a screen the desk is not on, and plugging a screen in mid-tour moves it there.
-- **Fixed:** the tour's crossfade step stuck on video clips, and resumed tours that counted the
-  wrong TAKE.
-- **Companion module 1.0.8** with an Effect colour action, in the download.
+- **Smooth playback at any frame rate.** Every clip plays with the steadiest cadence its rate
+  allows on the screen it is on: 24 fps is a clean 3:2 on 60 Hz, 50 fps runs 1-1-1-1-2, a matched
+  rate moves one frame a refresh. A playlist of mixed rates gets it clip by clip.
+- **Outputs keep up on every graphics path.** No stall each time a clip loops, and no frames lost
+  to a hidden copy, on outputs that are not Direct3D 11: every Mac and Linux output, and Windows on
+  the GPU renderer. Measured on Windows; Mac and Linux measurements are next.
+- **Scopes on the graphics card (Windows).** Every picture of a 4K60 output is measured, bin for
+  bin the same as the processor's reading.
+- **Missed frames are reported.** An output that cannot keep up with its screen now says so: the
+  OUTPUT badge, a warning, the test card and `STATUS`.
 
 ### A closer look
 
