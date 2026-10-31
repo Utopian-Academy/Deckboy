@@ -143,8 +143,17 @@ def main():
             return 1
         prefix, query = match.group(1), match.group(2)
         time.sleep(20.0)   # let some programme pile up behind the live edge
-        index = fetch(base + prefix + "index.m3u8" + query)[1].decode()
-        dvr = fetch(base + prefix + "dvr.m3u8" + query)[1].decode()
+        # A PAIR READ BETWEEN TWO FRAGMENTS. The live edge moves while the
+        # two playlists are fetched one after the other, so a fragment that
+        # lands in between makes them disagree by one (CI, twice on
+        # 2026-10-31). Read the index again after the dvr and keep a pair
+        # only when it did not move.
+        for _ in range(10):
+            index = fetch(base + prefix + "index.m3u8" + query)[1].decode()
+            dvr = fetch(base + prefix + "dvr.m3u8" + query)[1].decode()
+            again = fetch(base + prefix + "index.m3u8" + query)[1].decode()
+            if segments(index)[-1:] == segments(again)[-1:]:
+                break
         short, long = segments(index), segments(dvr)
         print("    index.m3u8 lists %d fragments, dvr.m3u8 %d" % (len(short), len(long)))
         note("index.m3u8 stays the short live window", 1 <= len(short) <= 12, len(short))
