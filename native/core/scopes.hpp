@@ -69,6 +69,14 @@ struct Rgb16View {
   std::size_t rowStrideBytes = 0; // zero means width * 6
 };
 
+// Kr, Kg, Kb in ten-thousandths, which is exactly how BT.709 and BT.2020
+// state them (they sum to 10000). With these an 8-bit pixel's Y', Cb and Cr
+// are ratios of integers, so a bin is an integer division with no rounding:
+// 255 * 10000 * Y' = kr R + kg G + kb B. The 8-bit path and the GPU analyser
+// (engine/gpu_scopes) both bin that way, which is how they agree exactly.
+struct ExactCoefficients { std::uint32_t kr = 0, kg = 0, kb = 0; };
+ExactCoefficients exactCoefficients(Matrix matrix);
+
 // PQ (SMPTE ST 2084): a normalised code value and the luminance it means.
 double pqToNits(double code);
 double nitsToPq(double nits);

@@ -109,6 +109,8 @@ def main():
     parser.add_argument("--exe", default=str(ROOT / "build/windows/Release/Deckboy.exe"))
     parser.add_argument("--clips", nargs="*", default=[], help="real media to scope (globs allowed)")
     parser.add_argument("--performance", action="store_true", help="Measure output pacing and scope stages")
+    parser.add_argument("--gpu", action="store_true",
+                        help="run on the real renderer (hidden windows), so the GPU analyser measures the R'G'B' frame")
     parser.add_argument("--seconds", type=float, default=12)
     args = parser.parse_args()
     if args.performance:
@@ -120,8 +122,13 @@ def main():
     show = work / "data/default.deckboy"
     show.write_text("update_check\t0\nui_sounds\t0\nui_scale\t1.5\n", encoding="utf-8")
     env = dict(os.environ, DECKBOY_ROOT=str(work), DECKBOY_STATE_DIR=str(work / "state"),
-               DECKBOY_PROJECT=str(show), DECKBOY_COMPANION_PORT=str(port),
-               SDL_VIDEODRIVER="dummy", SDL_AUDIODRIVER="dummy", DECKBOY_RENDERER="software")
+               DECKBOY_PROJECT=str(show), DECKBOY_COMPANION_PORT=str(port), SDL_AUDIODRIVER="dummy")
+    # The software renderer has no GPU analyser, so by default every reading
+    # here is the CPU's. --gpu keeps the real renderer and hides the windows.
+    if args.gpu:
+        env["DECKBOY_HIDE_WINDOWS"] = "1"
+    else:
+        env.update(SDL_VIDEODRIVER="dummy", DECKBOY_RENDERER="software")
     log = (work / "app.log").open("w", encoding="utf-8")
     app = subprocess.Popen([args.exe, "--allow-multi-instance", str(show), "--ui-size", "2640", "1530"],
                            env=env, cwd=ROOT, stdout=log, stderr=log,
@@ -164,6 +171,8 @@ def main():
         width, height = map(int, f["frame"].split("x"))
         expect(int(f["pixels"]) == width * height,
                f"every pixel of the {width}x{height} output is counted", reply)
+        expect(f.get("analyser") == ("gpu" if args.gpu else "cpu"),
+               "measured by the " + ("GPU" if args.gpu else "CPU") + " analyser", reply)
         expect(f["targets75"] == "6/6", "SMPTE bars: all six vectors in the 75% boxes", reply)
         snap("smpte-bars")
 

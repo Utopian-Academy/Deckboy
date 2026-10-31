@@ -2497,7 +2497,11 @@ any output refresh rate, and a still picture once. The footer says how fast
 the scopes are going, the source's frame rate and the output's refresh
 (**LIVE 25.0/s src 25.00 fps out 60.00 Hz**). If the computer cannot measure
 every picture, the footer says so (**41.3 of 59.9/s**); it never skips
-pictures silently.
+pictures silently. On Windows the graphics card does the measuring, on the
+output's own frame, so a 4K 60 fps output is measured on every picture with
+little load on the processor. Its readings are the processor's, exactly. The
+processor still measures the SDI and ST 2110 signal, the HDR picture, and on
+macOS and Linux.
 
 **On an HDR output** the scopes measure the HDR picture, not the SDR copy
 the other routes carry, so highlights are not clipped. It is read as PQ

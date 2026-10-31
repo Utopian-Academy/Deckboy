@@ -55,6 +55,8 @@
     // while the panel is up (scopesFalseColourWanted_).
     std::shared_ptr<const std::vector<std::uint8_t>> falseColour;
     int falseWidth = 0, falseHeight = 0;
+    bool gpu = false;        // binned by the GPU analyser (engine/gpu_scopes)
+    double gpuMs = 0.0;      // its submit-to-counts time
   };
 
   MonitorView monitorView_ = MonitorView::Program;
@@ -68,6 +70,7 @@
     std::shared_ptr<std::vector<std::uint8_t>> pixels;
     bool halfFloat = false;
     std::shared_ptr<SDL_Surface> raw;
+    std::shared_ptr<const deckboy::gpu::GpuScopeCounts> gpuCounts;  // the GPU's counts, not pixels
   };
   std::mutex scopesMutex_;
   std::condition_variable scopesWake_;
@@ -118,6 +121,16 @@
   SDL_Texture* scopesCaptureTexture_ = nullptr;
   void* scopesReadback_ = nullptr;
   bool scopesReadbackUnavailable_ = false;
+  // THE GPU ANALYSER (engine/gpu_scopes; James, 2026-10-31: "lets do the real
+  // fix"). Where the output renderer has one, the 8-bit frame is binned on
+  // the GPU where it already is and only the counts come back, so a 4K60
+  // output is measured on every new picture: no frame readback, and the CPU
+  // only unpacks. The 4:2:2 wire and the HDR signal still go to the CPU.
+  // Main thread, like the capture.
+  void* scopesGpu_ = nullptr;
+  bool scopesGpuUnavailable_ = false;
+  struct ScopesGpuSubmission { bool explained = false; std::uint64_t generation = 0; };
+  std::deque<ScopesGpuSubmission> scopesGpuSubmitted_;   // in flight, oldest first
   int scopesReadbackMisses_ = 0;
   std::vector<std::shared_ptr<std::vector<std::uint8_t>>> scopesBuffers_;
   SDL_Texture* scopeTex_[kScopeDiamond + 1] {};
@@ -1321,7 +1334,7 @@
     char text[400];
     std::snprintf(text, sizeof(text),
                   "output=%d frame=%dx%d pixels=%llu ms=%.1f luma=%.1f..%.1f%% targets75=%d/6 targets100=%d/6 "
-                  "diamond_out=%llu signal=%s %s",
+                  "diamond_out=%llu signal=%s analyser=%s gpu_ms=%.1f %s",
                   outcome.output + 1, outcome.width, outcome.height,
                   static_cast<unsigned long long>(r.validPixels), outcome.analysisMs,
                   lo < 0 ? 0.0 : 100.0 * lo / std::max<std::size_t>(1, hist.size() - 1),
@@ -1330,6 +1343,6 @@
                   static_cast<unsigned long long>(diamondOut),
                   outcome.hdr ? "pq16"
                     : outcome.sentDepth ? (outcome.sentDepth == 10 ? "ycbcr422-10" : "ycbcr422-8") : "rgb8",
-                  gamut.c_str());
+                  outcome.gpu ? "gpu" : "cpu", outcome.gpuMs, gamut.c_str());
     return std::string(text) + spread + telemetry;
   }

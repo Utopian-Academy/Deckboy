@@ -437,6 +437,11 @@ jobs:
       - name: Broadcast transport and audio regressions
         run: ctest --test-dir build --output-on-failure
 
+      # The GPU scopes analyser against the CPU one, bin for bin. It is
+      # Direct3D 11 only so far, so here it reports that the CPU measures.
+      - name: Scopes on the GPU
+        run: xvfb-run -a ./build/deckboy-scopes-gpu-check
+
       # Slide import renders through pdftoppm here, CoreGraphics on a Mac and
       # Windows.Data.Pdf on Windows. Nothing looked at the pages any of them
       # made, and the Mac's came out a quarter of the width for two months.
@@ -902,6 +907,11 @@ jobs:
 
       - name: Broadcast transport and audio regressions
         run: ctest --test-dir build --output-on-failure
+
+      # The GPU scopes analyser against the CPU one, bin for bin. It is
+      # Direct3D 11 only so far, so here it reports that the CPU measures.
+      - name: Scopes on the GPU
+        run: ./build/deckboy-scopes-gpu-check
 
       # CoreGraphics only ever scales a PDF page down; every slide imported on
       # a Mac from v0.89.0 came out at its own size in a white frame.
@@ -1592,6 +1602,14 @@ jobs:
       - name: Broadcast transport and audio regressions
         shell: pwsh
         run: ctest --test-dir build -C Release --output-on-failure
+
+      # The GPU scopes analyser against the CPU one, bin for bin, on every
+      # 8-bit colour, odd rasters and all four orientations.
+      - name: Scopes on the GPU match the CPU
+        shell: pwsh
+        run: |
+          .\build\Release\deckboy-scopes-gpu-check.exe
+          if ($LASTEXITCODE -ne 0) { throw "the GPU scopes differ from the CPU's" }
 
       - name: Slides and PDFs render at full size
         shell: pwsh

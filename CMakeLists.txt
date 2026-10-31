@@ -620,6 +620,8 @@ add_executable(deckboy-native
   # living in libav_decoder.cpp meant a build with in-process decode off
   # did not have it at all.
   native/engine/gpu_readback.cpp
+  # The scopes' analysis as a compute shader (D3D11; stubs elsewhere).
+  native/engine/gpu_scopes.cpp
   # Always compiled; the libav half is guarded inside, so a build without
   # in-process decode gets stubs rather than a link error.
   native/engine/motion_field.cpp
@@ -1224,6 +1226,23 @@ if(BUILD_TESTING)
   endif()
   add_test(NAME scopes COMMAND deckboy-scopes-check)
   set_tests_properties(scopes PROPERTIES TIMEOUT 30)
+  # The GPU analyser against the CPU one, bin for bin, on a real renderer.
+  # Needs a GPU (or WARP) and a window, so CI runs it as a step, not a CTest.
+  add_executable(deckboy-scopes-gpu-check tools/scopes_gpu_check.cpp native/engine/gpu_scopes.cpp
+                 native/core/scopes.cpp)
+  target_include_directories(deckboy-scopes-gpu-check PRIVATE native)
+  if(DECKBOY_SDL_TARGET)
+    target_link_libraries(deckboy-scopes-gpu-check PRIVATE Threads::Threads ${DECKBOY_SDL_TARGET})
+  else()
+    target_include_directories(deckboy-scopes-gpu-check PRIVATE ${DECKBOY_SDL_INCLUDE_DIRS})
+    target_link_libraries(deckboy-scopes-gpu-check PRIVATE Threads::Threads ${DECKBOY_SDL_LINK_LIBS})
+  endif()
+  if(MSVC)
+    target_compile_options(deckboy-scopes-gpu-check PRIVATE /W4 /WX)
+    target_compile_definitions(deckboy-scopes-gpu-check PRIVATE NOMINMAX WIN32_LEAN_AND_MEAN _CRT_SECURE_NO_WARNINGS)
+  else()
+    target_compile_options(deckboy-scopes-gpu-check PRIVATE -Wall -Wextra -Wshadow -Werror)
+  endif()
   add_executable(deckboy-mini-hud-check tools/mini_hud_check.cpp)
   target_include_directories(deckboy-mini-hud-check PRIVATE native)
   target_link_libraries(deckboy-mini-hud-check PRIVATE Threads::Threads)

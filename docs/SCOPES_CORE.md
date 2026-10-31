@@ -64,6 +64,53 @@ the end bins and in separate below/above counters. This display policy never
 clips values used for gamut measurement. Grids are bounded to 4096 per axis
 and an aggregate 16 million count cells (128 MiB).
 
+## Exact 8-bit bins
+
+On the standard axes (levels 0..1, chroma -0.5..0.5) an 8-bit pixel's Y', Cb
+and Cr are ratios of integers. Both matrices state Kr, Kg and Kb to four
+decimal places, so in ten-thousandths (`exactCoefficients`: 2126, 7152, 722
+for BT.709; 2627, 6780, 593 for BT.2020):
+
+- `255 * 10000 * Y' = n = kr R + kg G + kb B`, and the row is `n * bins / 2550000`
+- the Cb row is `(10000 B - n + 255 (10000 - kb)) * bins / (510 (10000 - kb))`,
+  and the Cr row is the same with R and kr
+- the R', G', B' row is `v * bins / 255`; the diamond's cells are
+  `(a + g) * bins / 510` and `(a - g + 255) * bins / 510`
+
+each rounded down and capped at the last bin. `analyze(Rgba8View)` bins this
+way. Computing Y' in floating point first, as the general path does, puts 17
+of the 16.7 million 8-bit colours one luma bin low in BT.709 (12 in BT.2020).
+Each lies exactly on a bin edge and rounds to just under it. The check holds
+the 8-bit path to an independent 64-bit integer statement of these formulas
+over every 8-bit colour.
+
+## The GPU analyser
+
+`native/engine/gpu_scopes` runs the same exact bins as a compute shader on
+the output's own capture texture, where the frame already is. Only the counts
+come back: about 6.7 MB at 960 waveform columns, instead of a 33 MB 4K frame.
+One thread group takes each waveform column and counts it in shared memory.
+The vectorscope and the diamonds are too big to share, so each thread adds a
+run of equal cells once. The histograms are the waveform rows summed, because
+on these axes a value's histogram bin is its waveform row. It covers the 8-bit
+R'G'B' frame on the monitor's axes (`gpuScopesSupport`). The 4:2:2 wire
+signal and the HDR picture stay on the CPU.
+
+Direct3D 11 (Windows' output renderer) runs it today. Other renderers return
+null, and the CPU analyser measures there. `DECKBOY_CPU_SCOPES=1` forces the
+CPU analyser, for comparison. `tools/scopes_gpu_check.cpp` holds the GPU's
+result against `analyze(Rgba8View)` bin for bin on a real renderer. It covers
+every 8-bit colour, odd rasters, all four output orientations, a flat 4K
+field (the worst case for the shared adds), a real frame, and the false colour
+picture's samples. Run it with `--bench <frame.bgra> <w> <h>` to time it.
+
+Measured on a 32-thread PC with an RTX 4070 Laptop GPU, through `check_scopes.py
+--performance`: a 4K60 output is measured 61 times a second with 0.9 cores
+busy, against about 21 times a second on 3.2 cores before. A 1080p60 output
+is measured 59 times a second on 0.8 cores. The render thread spends about
+1.9 ms a 4K reading on the capture copy, the dispatch and copying out the
+counts.
+
 ## Standards and derivation
 
 The implementation was written from the following standards. No third-party
@@ -109,6 +156,15 @@ With a configured Deckboy build:
 ```
 cmake --build build/windows --config Release --target deckboy-scopes-check
 ctest --test-dir build/windows -C Release -R "^scopes$" --output-on-failure
+```
+
+The GPU analyser against the CPU one (needs a renderer with a GPU analyser;
+`--require` fails rather than skipping when there is none):
+
+```
+cmake --build build/windows --config Release --target deckboy-scopes-gpu-check
+build/windows/Release/deckboy-scopes-gpu-check --require
+py -3 tools/check_scopes.py --gpu
 ```
 
 The core checks can also compile without any application dependency:

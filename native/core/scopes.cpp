@@ -230,6 +230,14 @@ Result analyzePixels(std::size_t width, std::size_t height, const Options& optio
 }
 } // namespace
 
+ExactCoefficients exactCoefficients(Matrix matrix) {
+  switch (matrix) {
+    case Matrix::Bt709: return {2126, 7152, 722};
+    case Matrix::Bt2020Ncl: return {2627, 6780, 593};
+  }
+  throw std::invalid_argument("unsupported scopes matrix");
+}
+
 YCbCr toYCbCr(Rgb rgb, Matrix matrix) { return encode(rgb, coefficients(matrix)); }
 Rgb toRgb(YCbCr ycc, Matrix matrix) { return decode(ycc, coefficients(matrix)); }
 
@@ -373,9 +381,26 @@ Result analyze(Rgba8View frame, const Options& options) {
   struct ByteBin { std::size_t bin = 0; std::uint8_t below = 0, above = 0; };
   std::array<double, 256> unit{};
   for (std::size_t v = 0; v < 256; ++v) unit[v] = static_cast<double>(v) / 255.0;
+  // THE STANDARD AXES ARE BINNED EXACTLY. Levels 0..1 and chroma -0.5..0.5
+  // (what the monitor uses) make every bin a ratio of integers -- see
+  // exactCoefficients -- and dividing integer-valued doubles is exact here:
+  // numerators stay below 2^53, and a quotient that is not a whole number is
+  // at least 1/4.8 million away from one, far more than the last bit of a
+  // double at 4096. Computing Y' in floating point first, as the general path
+  // does, lands 17 of the 16.7 million 8-bit colours (12 in BT.2020) a luma
+  // bin low: each sits exactly on a bin edge and rounds to just under it.
+  const bool standardAxes = options.levels.low == 0 && options.levels.high == 1 &&
+                            options.chroma.low == -0.5 && options.chroma.high == 0.5;
+  const auto exactBin = [](double numerator, double denominator, std::size_t count) {
+    return (std::min)(static_cast<std::size_t>(numerator / denominator), count - 1);
+  };
   const auto table = [&](Range range, std::size_t count) {
     std::array<ByteBin, 256> lut{};
     for (std::size_t v = 0; v < 256; ++v) {
+      if (standardAxes) {
+        lut[v].bin = exactBin(static_cast<double>(v * count), 255.0, count);
+        continue;
+      }
       Excursions e;
       lut[v].bin = bin(unit[v], range, count, e);
       lut[v].below = static_cast<std::uint8_t>(e.below);
@@ -385,17 +410,17 @@ Result analyze(Rgba8View frame, const Options& options) {
   };
   const auto paradeRow = table(options.levels, options.levelBins);
   const auto histBin = table(options.levels, options.histogramBins);
-  // Diamond cell for (a, g): x = a - g in [-1, 1], y = a + g in [0, 2], so
-  // never an excursion; stored as the bin index.
+  // Diamond cell for (a, g): x = a - g in [-1, 1], y = a + g in [0, 2] on
+  // every set of axes, so never an excursion and always exact:
+  // 510 x = (a - g + 255) bins, 510 y = (a + g) bins. Stored as the bin index.
   std::vector<std::uint32_t> diamondCell(256 * 256);
   {
-    Excursions unused;
     const Density& d = result.diamond[0];
     for (std::size_t a = 0; a < 256; ++a)
       for (std::size_t g = 0; g < 256; ++g)
         diamondCell[a * 256 + g] = static_cast<std::uint32_t>(
-          bin(unit[a] + unit[g], d.yRange, d.height, unused) * d.width +
-          bin(unit[a] - unit[g], d.xRange, d.width, unused));
+          exactBin(static_cast<double>((a + g) * d.height), 510.0, d.height) * d.width +
+          exactBin(static_cast<double>((a + 255 - g) * d.width), 510.0, d.width));
   }
   std::vector<std::size_t> columnOf(frame.width);
   for (std::size_t x = 0; x < frame.width; ++x)
@@ -428,7 +453,45 @@ Result analyze(Rgba8View frame, const Options& options) {
   const std::size_t vectorWidth = result.vectorscope.width;
   std::uint64_t* const diamondBins[2] = {result.diamond[0].bins.data(), result.diamond[1].bins.data()};
   std::uint64_t valid = 0, rawValid = 0;
-  for (std::size_t y = 0; y < frame.height; ++y) {
+  if (standardAxes) {
+    // No excursion is possible: Y' is a weighted mean of the three, and Cb
+    // and Cr reach +-0.5 only at the primaries. So no counters but the bins,
+    // and every pixel is raw-valid.
+    const auto ek = exactCoefficients(options.matrix);
+    const double kr = ek.kr, kg = ek.kg, kb = ek.kb;
+    const double cbOffset = 255.0 * (10000.0 - kb), crOffset = 255.0 * (10000.0 - kr);
+    const double lumaDen = 255.0 * 10000.0, cbDen = 2 * cbOffset, crDen = 2 * crOffset;
+    const double levelCount = static_cast<double>(levels);
+    const double histCount = static_cast<double>(options.histogramBins);
+    const double vectorCount = static_cast<double>(options.vectorBins);
+    for (std::size_t y = 0; y < frame.height; ++y) {
+      const std::uint8_t* row = frame.bytes.data() + y * stride;
+      for (std::size_t x = 0; x < frame.width; ++x) {
+        const std::uint8_t bytes[3] = {row[x * 4 + red], row[x * 4 + 1], row[x * 4 + blue]};
+        const std::size_t column = columnOf[x];
+        // 255 * 10000 Y', and (B' - Y') and (R' - Y') on the same scale moved up to start at 0.
+        const double n = kr * bytes[0] + kg * bytes[1] + kb * bytes[2];
+        const double cbN = 10000.0 * bytes[2] - n + cbOffset;
+        const double crN = 10000.0 * bytes[0] - n + crOffset;
+        const std::size_t yccRows[3] = {exactBin(n * levelCount, lumaDen, levels),
+                                        exactBin(cbN * levelCount, cbDen, levels),
+                                        exactBin(crN * levelCount, crDen, levels)};
+        for (std::size_t c = 0; c < 3; ++c) {
+          ++waveBins[c][yccRows[c] * width + column];
+          ++paradeBins[c][paradeRow[bytes[c]].bin * width + column];
+          ++histBins[c][histBin[bytes[c]].bin];
+        }
+        ++lumaBins[sharedLumaBins ? yccRows[0] : exactBin(n * histCount, lumaDen, options.histogramBins)];
+        if (sharedChromaBins) ++vectorBins[yccRows[2] * vectorWidth + yccRows[1]];
+        else ++vectorBins[exactBin(crN * vectorCount, crDen, options.vectorBins) * vectorWidth +
+                          exactBin(cbN * vectorCount, cbDen, options.vectorBins)];
+        ++diamondBins[0][diamondCell[bytes[2] * 256 + bytes[1]]];
+        ++diamondBins[1][diamondCell[bytes[0] * 256 + bytes[1]]];
+      }
+    }
+    valid = rawValid = static_cast<std::uint64_t>(frame.width) * frame.height;
+  }
+  for (std::size_t y = 0; !standardAxes && y < frame.height; ++y) {
     const std::uint8_t* row = frame.bytes.data() + y * stride;
     for (std::size_t x = 0; x < frame.width; ++x) {
       const std::uint8_t bytes[3] = {row[x * 4 + red], row[x * 4 + 1], row[x * 4 + blue]};

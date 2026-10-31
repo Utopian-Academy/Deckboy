@@ -430,8 +430,94 @@ bool sameGamut(const s::GamutCounts& a, const s::GamutCounts& b) {
          range(a.nominal, b.nominal) && range(a.preferred, b.preferred) && range(a.total, b.total);
 }
 
-// The 8-bit byte path is tabled for speed; it must equal the general path
-// fed the same pixels as 8-bit full-code samples, in every bin and count.
+bool sameResult(const s::Result& a, const s::Result& b, bool diamonds = true) {
+  bool same = a.validPixels == b.validPixels && a.invalidPixels == b.invalidPixels &&
+              sameDensity(a.vectorscope, b.vectorscope) && sameHistogram(a.lumaHistogram, b.lumaHistogram) &&
+              sameGamut(a.rawGamut, b.rawGamut) && sameGamut(a.filteredGamut, b.filteredGamut);
+  for (std::size_t c = 0; c < 3; ++c)
+    same = same && sameDensity(a.ycbcrParade[c], b.ycbcrParade[c]) &&
+           sameDensity(a.rgbParade[c], b.rgbParade[c]) && sameHistogram(a.rgbHistogram[c], b.rgbHistogram[c]);
+  for (std::size_t d = 0; diamonds && d < 2; ++d) same = same && sameDensity(a.diamond[d], b.diamond[d]);
+  return same;
+}
+
+// What the 8-bit path must produce on the standard axes, worked in 64-bit
+// integers and written separately from it: Y', Cb and Cr of a byte triple are
+// ratios of integers (scopes.hpp, exactCoefficients), so each bin is a floor
+// division. `shape` supplies the sizes and ranges; its counts are replaced.
+s::Result exactReference(const std::vector<std::uint8_t>& px, std::size_t w, std::size_t h, bool bgra,
+                         const s::Options& options, s::Result shape) {
+  const auto clear = [](s::Density& d) {
+    std::fill(d.bins.begin(), d.bins.end(), 0);
+    d.xExcursions = d.yExcursions = {};
+  };
+  const auto clearHistogram = [](s::Histogram& histogram) {
+    std::fill(histogram.bins.begin(), histogram.bins.end(), 0);
+    histogram.excursions = {};
+  };
+  for (std::size_t c = 0; c < 3; ++c) {
+    clear(shape.ycbcrParade[c]);
+    clear(shape.rgbParade[c]);
+    clearHistogram(shape.rgbHistogram[c]);
+  }
+  clear(shape.vectorscope);
+  for (auto& d : shape.diamond) clear(d);
+  clearHistogram(shape.lumaHistogram);
+  const auto k = s::exactCoefficients(options.matrix);
+  const std::int64_t kr = k.kr, kg = k.kg, kb = k.kb;
+  const auto floorBin = [](std::int64_t num, std::int64_t den, std::size_t count) {
+    return std::min<std::size_t>(static_cast<std::size_t>(num / den), count - 1);
+  };
+  const std::size_t levels = options.levelBins, hist = options.histogramBins, v = options.vectorBins;
+  const auto L = static_cast<std::int64_t>(levels), H = static_cast<std::int64_t>(hist),
+             V = static_cast<std::int64_t>(v);
+  const std::int64_t cbDen = 510 * (10000 - kb), crDen = 510 * (10000 - kr);
+  for (std::size_t y = 0; y < h; ++y)
+    for (std::size_t x = 0; x < w; ++x) {
+      const std::uint8_t* p = &px[(y * w + x) * 4];
+      const std::int64_t r = p[bgra ? 2 : 0], g = p[1], b = p[bgra ? 0 : 2];
+      const std::int64_t n = kr * r + kg * g + kb * b;
+      const std::int64_t cb = 10000 * b - n + 255 * (10000 - kb), cr = 10000 * r - n + 255 * (10000 - kr);
+      const std::size_t column = x * options.columns / w;
+      const std::size_t rows[3] = {floorBin(n * L, 2550000, levels), floorBin(cb * L, cbDen, levels),
+                                   floorBin(cr * L, crDen, levels)};
+      const std::int64_t rgb[3] = {r, g, b};
+      for (std::size_t c = 0; c < 3; ++c) {
+        ++shape.ycbcrParade[c].bins[rows[c] * options.columns + column];
+        ++shape.rgbParade[c].bins[floorBin(rgb[c] * L, 255, levels) * options.columns + column];
+        ++shape.rgbHistogram[c].bins[floorBin(rgb[c] * H, 255, hist)];
+      }
+      ++shape.lumaHistogram.bins[floorBin(n * H, 2550000, hist)];
+      ++shape.vectorscope.bins[floorBin(cr * V, crDen, v) * v + floorBin(cb * V, cbDen, v)];
+      ++shape.diamond[0].bins[floorBin((b + g) * V, 510, v) * v + floorBin((b - g + 255) * V, 510, v)];
+      ++shape.diamond[1].bins[floorBin((r + g) * V, 510, v) * v + floorBin((r - g + 255) * V, 510, v)];
+    }
+  shape.validPixels = w * h;
+  shape.invalidPixels = 0;
+  shape.rawGamut = {};
+  shape.rawGamut.validPixels = w * h;
+  shape.filteredGamut = shape.rawGamut;
+  return shape;
+}
+
+// Every 8-bit colour once: a 4096 x 4096 frame, R in the high byte of the
+// pixel index, B in the low.
+std::vector<std::uint8_t> everyColour() {
+  constexpr std::size_t side = 4096;
+  std::vector<std::uint8_t> every(side * side * 4);
+  for (std::size_t i = 0; i < side * side; ++i) {
+    every[i * 4] = static_cast<std::uint8_t>(i >> 16);
+    every[i * 4 + 1] = static_cast<std::uint8_t>(i >> 8);
+    every[i * 4 + 2] = static_cast<std::uint8_t>(i);
+    every[i * 4 + 3] = 255;
+  }
+  return every;
+}
+
+// The 8-bit byte path is tabled for speed. On the standard axes it must equal
+// the exact reference in every bin and count; on any other levels range it
+// must equal the general path fed the same pixels as 8-bit full-code samples
+// (the diamond, whose axes never move, is exact on both).
 void bytePathMatchesGeneral() {
   const std::size_t w = 61, h = 17;
   std::vector<std::uint8_t> px(w * h * 4);
@@ -459,19 +545,30 @@ void bytePathMatchesGeneral() {
           options.matrix = matrix;
           s::Rgba8View view{px, w, h, 0, bgra};
           const auto fast = s::analyze(view, options);
-          const auto general = s::analyze(
-            s::FrameView{codes, w, h, 0, s::Components::Rgb, s::Encoding::FullCodeRgb, 8}, options);
-          bool same = fast.validPixels == general.validPixels && sameDensity(fast.vectorscope, general.vectorscope) &&
-                      sameHistogram(fast.lumaHistogram, general.lumaHistogram) &&
-                      sameGamut(fast.rawGamut, general.rawGamut) && sameGamut(fast.filteredGamut, general.filteredGamut);
-          for (std::size_t c = 0; c < 3; ++c)
-            same = same && sameDensity(fast.ycbcrParade[c], general.ycbcrParade[c]) &&
-                   sameDensity(fast.rgbParade[c], general.rgbParade[c]) &&
-                   sameHistogram(fast.rgbHistogram[c], general.rgbHistogram[c]);
-          for (std::size_t d = 0; d < 2; ++d) same = same && sameDensity(fast.diamond[d], general.diamond[d]);
-          expect(same, "8-bit byte path equals the general path, bin for bin");
+          const auto exact = exactReference(px, w, h, bgra, options, fast);
+          if (axes & 4) {
+            const auto general = s::analyze(
+              s::FrameView{codes, w, h, 0, s::Components::Rgb, s::Encoding::FullCodeRgb, 8}, options);
+            expect(sameResult(fast, general, false) && sameDensity(fast.diamond[0], exact.diamond[0]) &&
+                   sameDensity(fast.diamond[1], exact.diamond[1]),
+                   "8-bit byte path equals the general path off the standard axes, bin for bin");
+          } else {
+            expect(sameResult(fast, exact), "8-bit byte path equals the exact bins, bin for bin");
+          }
         }
       }
+    }
+  }
+  {
+    const auto every = everyColour();
+    for (auto matrix : {s::Matrix::Bt709, s::Matrix::Bt2020Ncl}) {
+      s::Options options;
+      options.columns = 960;
+      options.gamutFilter = s::GamutFilter::None;
+      options.matrix = matrix;
+      const auto fast = s::ParallelAnalyzer(4).analyze(s::Rgba8View{every, 4096, 4096, 0, false}, options);
+      expect(sameResult(fast, exactReference(every, 4096, 4096, false, options, fast)),
+             "every 8-bit colour lands in its exact bin");
     }
   }
   // A levels range narrower than the signal: the tabled bins carry excursions too.

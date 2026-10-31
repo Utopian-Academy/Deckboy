@@ -21,6 +21,10 @@
     if (renderer && renderer != scopesCaptureRenderer_) return;
     if (scopesReadback_) deckboy::gpu::destroyStagingReadback(scopesReadback_);
     scopesReadback_ = nullptr;
+    if (scopesGpu_) deckboy::gpu::destroyGpuScopes(scopesGpu_);
+    scopesGpu_ = nullptr;
+    scopesGpuUnavailable_ = false;
+    scopesGpuSubmitted_.clear();
     if (scopesCaptureTexture_) SDL_DestroyTexture(scopesCaptureTexture_);
     scopesCaptureTexture_ = nullptr;
     scopesCaptureRenderer_ = nullptr;
@@ -78,7 +82,14 @@
             s::Options options = scopesOptions(outcome.width, outcome.matrix == s::Matrix::Bt2020Ncl);
             const auto w = static_cast<std::size_t>(outcome.width);
             const auto h = static_cast<std::size_t>(outcome.height);
-            if (outcome.hdr) {
+            if (next.gpuCounts) {
+              // Binned on the GPU: only unpacking is left.
+              outcome.result = std::make_shared<const s::Result>(deckboy::gpu::unpackGpuScopes(*next.gpuCounts, options));
+              const auto& counts = *next.gpuCounts;
+              if (scopesFalseColourWanted_.load() && counts.thumbWidth > 0)
+                outcome.falseColour = buildFalseColour(counts.thumb, counts.thumbWidth, counts.thumbHeight,
+                                                       outcome.falseWidth, outcome.falseHeight);
+            } else if (outcome.hdr) {
               if (!encoder || white != outcome.hdrWhiteNits) {
                 white = outcome.hdrWhiteNits;
                 encoder = std::make_unique<deckboy::core::hdr::HdrEncoder>(white);
@@ -233,6 +244,93 @@
            (scopesCaptureMs_ >= kCheapReadbackMs && scopesDrawPending_.has_value());
   }
 
+  // The output's picture region copied into the scopes' own BGRA target: the
+  // frame both analysers measure. Null when the target cannot be made.
+  SDL_Texture* renderScopesCapture(OutputRuntime& runtime, const SDL_Rect& rect) {
+    SDL_Texture* source = runtime.compositorTexture;
+    if (!source) return nullptr;
+    if (!scopesCaptureTexture_) scopesCaptureTexture_ = deckboyCreateTexture(runtime.outputRenderer,
+      SDL_PIXELFORMAT_BGRA32, SDL_TEXTUREACCESS_TARGET, rect.w, rect.h);
+    if (!scopesCaptureTexture_) return nullptr;
+    SDL_Texture* previous = SDL_GetRenderTarget(runtime.outputRenderer);
+    SDL_BlendMode blend;
+    SDL_GetTextureBlendMode(source, &blend);
+    SDL_SetTextureBlendMode(source, SDL_BLENDMODE_NONE);
+    SDL_SetRenderTarget(runtime.outputRenderer, scopesCaptureTexture_);
+    const SDL_FRect region{static_cast<float>(rect.x), static_cast<float>(rect.y),
+      static_cast<float>(rect.w), static_cast<float>(rect.h)};
+    SDL_RenderTexture(runtime.outputRenderer, source, &region, nullptr);
+    SDL_SetRenderTarget(runtime.outputRenderer, previous);
+    SDL_SetTextureBlendMode(source, blend);
+    return scopesCaptureTexture_;
+  }
+
+  // The 8-bit frame through the GPU analyser. Each present: hand any finished
+  // counts to the worker, then, when the picture is due a look, queue the
+  // next one (up to three in flight; the render thread never waits). False
+  // when there is no GPU analyser here, and the CPU path takes the frame.
+  // A picture is still analysed once: the counts carry a fingerprint of every
+  // pixel, and an unchanged one only confirms the reading already shown.
+  bool scopesGpuFrame(OutputRuntime& runtime, const SDL_Rect& rect, const ScopesOutcome& outcome, bool due,
+                      bool newSourceFrame, std::uint64_t sourceKey, int orientation, Uint64 now) {
+    if (!scopesGpu_) {
+      scopesGpu_ = deckboy::gpu::createGpuScopes(runtime.outputRenderer, rect.w, rect.h);
+      if (!scopesGpu_) {
+        scopesGpuUnavailable_ = true;
+        std::cerr << "scopes: no GPU analyser on the " << SDL_GetRendererName(runtime.outputRenderer)
+                  << " renderer; the CPU measures" << std::endl;
+        return false;
+      }
+      std::cerr << "scopes: the GPU analyser measures, on " << deckboy::gpu::gpuScopesAdapter(scopesGpu_) << std::endl;
+    }
+    deckboy::gpu::GpuScopeCounts counts;
+    while (deckboy::gpu::collectGpuScopes(scopesGpu_, counts)) {
+      const ScopesGpuSubmission submitted = scopesGpuSubmitted_.empty() ? ScopesGpuSubmission{} : scopesGpuSubmitted_.front();
+      if (!scopesGpuSubmitted_.empty()) scopesGpuSubmitted_.pop_front();
+      if (submitted.generation != scopesGeneration_.load()) continue;
+      scopesNextProbeNs_ = now + 250000000ULL;
+      if (counts.fingerprint == scopesLastFingerprint_) {
+        scopesConfirmedNs_ = now;   // the reading shown is still the picture on air
+        scopesPictureAnimating_ = false;
+        continue;
+      }
+      scopesLastFingerprint_ = counts.fingerprint;
+      scopesPictureAnimating_ = !submitted.explained;
+      notePictureChanged(now);
+      ScopeJob job;
+      job.outcome = outcome;
+      job.outcome.generation = submitted.generation;
+      job.outcome.capturedNs = counts.submittedAtNs;
+      job.outcome.width = counts.width;
+      job.outcome.height = counts.height;
+      job.outcome.matrix = counts.matrix;
+      job.outcome.gpu = true;
+      job.outcome.gpuMs = (now - counts.submittedAtNs) / 1000000.0;
+      job.gpuCounts = std::make_shared<const deckboy::gpu::GpuScopeCounts>(std::move(counts));
+      counts = {};
+      queueScopeJob(std::move(job));
+    }
+    if (!due || deckboy::gpu::gpuScopesInFlight(scopesGpu_) >= 3) return true;
+    SDL_Texture* capture = renderScopesCapture(runtime, rect);
+    if (!capture) return true;
+    const bool turned = orientation == 90 || orientation == 270;
+    const int width = turned ? rect.h : rect.w, height = turned ? rect.w : rect.h;
+    const int columns = static_cast<int>(scopesOptions(width, false).columns);
+    // The false colour picture's samples, at the size buildFalseColour makes.
+    int thumbWidth = 0, thumbHeight = 0;
+    if (scopesFalseColourWanted_.load()) {
+      thumbWidth = std::max(1, std::min(width, 480));
+      thumbHeight = std::max(1, static_cast<int>(std::lround(static_cast<double>(height) * thumbWidth / width)));
+    }
+    if (deckboy::gpu::submitGpuScopes(scopesGpu_, capture, orientation, columns, outcome.matrix,
+                                      thumbWidth, thumbHeight, now)) {
+      scopesLastSourceKey_ = sourceKey;
+      scopesGpuSubmitted_.push_back({newSourceFrame, outcome.generation});
+    }
+    scopesCaptureMs_ = (SDL_GetTicksNS() - now) / 1000000.0;
+    return true;
+  }
+
   void scopesCaptureFrame(int index, OutputRuntime& runtime, const SDL_Rect& rect) {
     if (!scopesWatching(index) || !runtime.outputRenderer) return;
     ScopeJob job;
@@ -273,8 +371,14 @@
     // new picture is measured one source frame late -- but each one is measured.
     const std::uint64_t sourceKey = scopesSourceFrameKey();
     const bool newSourceFrame = sourceKey != scopesLastSourceKey_;
-    const bool want = (newSourceFrame || scopesPictureAnimating_ || now >= scopesNextProbeNs_) &&
-                      !scopesPipelineBusy();
+    const bool due = newSourceFrame || scopesPictureAnimating_ || now >= scopesNextProbeNs_;
+    // Float-to-SDR wire scopes use the egress path's explicit colour conversion.
+    const bool hdrWire = runtime.hdr && !outcome.hdr;
+    if (!outcome.hdr && !hdrWire && !outcome.sentDepth && !scopesGpuUnavailable_ &&
+        scopesGpuFrame(runtime, rect, outcome, due, newSourceFrame, sourceKey, orientation, now)) {
+      return;
+    }
+    const bool want = due && !scopesPipelineBusy();
     if (want) scopesLastSourceKey_ = sourceKey;
     if (want) {
       job.pixels = scopeBuffer(bytes);
@@ -284,24 +388,8 @@
     }
 
     SDL_Texture* source = runtime.compositorTexture;
-    // Float-to-SDR wire scopes use the egress path's explicit colour conversion.
-    const bool hdrWire = runtime.hdr && !outcome.hdr;
     if (!outcome.hdr && !hdrWire && source) {
-      if (!scopesCaptureTexture_) scopesCaptureTexture_ = deckboyCreateTexture(runtime.outputRenderer,
-        SDL_PIXELFORMAT_BGRA32, SDL_TEXTUREACCESS_TARGET, rect.w, rect.h);
-      if (scopesCaptureTexture_) {
-        SDL_Texture* previous = SDL_GetRenderTarget(runtime.outputRenderer);
-        SDL_BlendMode blend;
-        SDL_GetTextureBlendMode(source, &blend);
-        SDL_SetTextureBlendMode(source, SDL_BLENDMODE_NONE);
-        SDL_SetRenderTarget(runtime.outputRenderer, scopesCaptureTexture_);
-        const SDL_FRect region{static_cast<float>(rect.x), static_cast<float>(rect.y),
-          static_cast<float>(rect.w), static_cast<float>(rect.h)};
-        SDL_RenderTexture(runtime.outputRenderer, source, &region, nullptr);
-        SDL_SetRenderTarget(runtime.outputRenderer, previous);
-        SDL_SetTextureBlendMode(source, blend);
-        source = scopesCaptureTexture_;
-      }
+      if (SDL_Texture* capture = renderScopesCapture(runtime, rect)) source = capture;
     }
     if (!scopesReadback_ && !scopesReadbackUnavailable_ && source && !hdrWire &&
         (outcome.hdr ? source->format == SDL_PIXELFORMAT_RGBA64_FLOAT : source == scopesCaptureTexture_) &&

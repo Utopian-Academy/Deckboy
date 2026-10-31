@@ -18,7 +18,14 @@
 ### Scopes cost less
 - With the scopes open, Deckboy uses about a fifth less CPU (measured at 1080p and 4K), and the scopes update a little faster. Only the panels on screen are uploaded, and the SOUND panel no longer runs the picture analysis it does not show.
 
+### Scopes on the graphics card: every picture at 4K60 (Windows)
+- On Windows the graphics card now measures the scopes, on the output's own frame where it already is. A 4K 60 fps output is measured on every picture: 61 updates a second with under one core busy, where it managed about 21 a second on more than three cores. A 1080p output keeps up at 60 on 0.8 cores. Measured on a 32-thread laptop with an RTX 4070 Laptop GPU.
+- The readings are the same as the processor's, bin for bin; a check holds the two side by side on every 8-bit colour. Waveform, parade, vectorscope, diamond, histogram and false colour are all measured this way.
+- Still on the processor: the 4:2:2 signal an SDI or ST 2110 output sends, the HDR picture, and macOS and Linux. Their own graphics paths are next.
+- `DECKBOY_CPU_SCOPES=1` makes the processor measure instead, to compare.
+
 ### Fixed
+- 29 of the 16.7 million 8-bit colours read one luma step low on the waveform and histogram: 17 in BT.709, 12 in BT.2020. Each sat exactly on a step's edge. The 8-bit analysis now works in whole numbers and puts every colour in its exact bin, and is faster for it: a 4K frame on six processor threads takes 23 ms instead of 41.
 - A stage timer's logo was drawn with red and blue swapped.
 - Importing a PowerPoint, Keynote or PDF can no longer leave Deckboy on the import card for ever. A converter still busy after three minutes (often PowerPoint waiting on a prompt it cannot show, such as Protected View or sign-in), or a PDF renderer silent for ninety seconds, is stopped, and the toast says what happened and what to try.
 - Every slide import now writes its steps to the show log: which file, whether it was converted and by what, and how many pages it rendered, or where it stopped.

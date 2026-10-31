@@ -97,6 +97,7 @@
 #include "engine/stage_timings.hpp"
 #include "engine/hap_decoder.hpp"
 #include "engine/gpu_readback.hpp"
+#include "engine/gpu_scopes.hpp"
 #include "engine/motion_field.hpp"
 #include "platform/capture_backend.hpp"
 #include "platform/display_topology.hpp"
