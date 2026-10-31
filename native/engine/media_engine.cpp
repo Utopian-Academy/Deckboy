@@ -784,7 +784,7 @@ void MediaEngine::refreshActiveCueRuntime(const Cue* updatedCue) {
   playbackClockStart_ = std::chrono::steady_clock::now();
   avJumpExpected_ = true;   // a loop wrap is a deliberate move
   lastRenderedFrameIndex_ = static_cast<std::uint64_t>(-1);
-  resetMediaFpsTelemetry();
+  restartMediaFpsWindow();
   decoderEof_ = false;
   reachedEnd_ = false;
   playedToEnd_ = false;
@@ -1156,7 +1156,7 @@ void MediaEngine::seek(double seconds, bool clearVisualFrame) {
   if (clamped < duration_) playedToEnd_ = false;   // sent back: not finished
   lastRenderedFrameIndex_ = static_cast<std::uint64_t>(-1);
   if (activeCue_->kind == CueKind::Text) return;
-  resetMediaFpsTelemetry();
+  restartMediaFpsWindow();
   if (clearVisualFrame) {
     displayFrame_.reset();
   }
@@ -1569,7 +1569,88 @@ void MediaEngine::update() {
     }
   }
 
-  std::uint64_t targetFrame = static_cast<std::uint64_t>(std::floor(currentPosition_ * frameRate_));
+  // WHICH FRAME THIS TICK -- the cadence scheduler.
+  //
+  // The clock says floor(position x rate), but read at whatever moment the
+  // tick happens to run, that answer wobbles: when the ticks are paced by a
+  // screen whose rate is (near) the clip's, or a simple fraction of it, every
+  // tick lands near the same point of a frame for seconds on end, and a
+  // millisecond either side turns into a repeated frame and then a skipped
+  // one. On an SDL_GPU output one frame in six never reached the screen in
+  // some seconds while the output never missed a refresh; 24 fps on 60 Hz
+  // came out as whatever 3s and 2s the jitter picked rather than 3:2.
+  //
+  // So the picture is scheduled in TICKS, not read off the clock: a phase that
+  // advances by the clip's frames per screen refresh every tick, that ratio
+  // snapped to the nearest simple fraction (1, 1/2, 2/5, 5/12, 5/6 ...) so the
+  // pattern repeats exactly. The clock only corrects it: more than 0.6 of a
+  // frame behind and one frame is skipped, as far ahead and one is held. A
+  // correction moves a whole frame, landing well inside the window, so it
+  // cannot dither -- 60 fps on a 59.94 Hz screen loses one frame every 17
+  // seconds at a steady point -- and the picture stays within 0.6 of a frame
+  // of the clock, where reading the clock directly kept it within one. A long stall, a seek or a loop starts it
+  // again from the clock. Until the tick rate is known it is the plain clock.
+  const double clockFrames = currentPosition_ * frameRate_;
+  std::uint64_t targetFrame = static_cast<std::uint64_t>(std::floor(clockFrames));
+  {
+    const auto tickAt = std::chrono::steady_clock::now();
+    if (frameTickValid_) {
+      const double dt = std::chrono::duration<double>(tickAt - frameTickPrevAt_).count();
+      // A stall or a burst is not the tick rate; a slow average of the rest is.
+      const bool plausible = tickIntervalAvg_ <= 0.0
+        ? (dt > 0.002 && dt < 0.1)
+        : (dt > tickIntervalAvg_ * 0.6 && dt < tickIntervalAvg_ * 1.6);
+      if (plausible) {
+        tickIntervalAvg_ = tickIntervalAvg_ > 0.0 ? tickIntervalAvg_ * 0.98 + dt * 0.02 : dt;
+        if (tickSamples_ < 1000) ++tickSamples_;
+        tickRejects_ = 0;
+      } else if (++tickRejects_ > 20 && dt > 0.002 && dt < 0.1) {
+        // Twenty in a row that do not fit: it is the average that is wrong
+        // (it started on a startup hitch, or the screen changed). Start over.
+        tickIntervalAvg_ = dt;
+        tickSamples_ = 0;
+        tickRejects_ = 0;
+      }
+    }
+    frameTickPrevAt_ = tickAt;
+    frameTickValid_ = true;
+
+    const double contentRate = frameRate_ * playbackSpeed_;
+    const bool schedulable = state_ == TransportState::Playing && contentRate > 1.0 &&
+                             tickSamples_ >= 30 && tickIntervalAvg_ > 0.0 &&
+                             lastRenderedFrameIndex_ != static_cast<std::uint64_t>(-1);
+    if (!schedulable) {
+      cadenceActive_ = false;
+    } else {
+      double ratio = contentRate * tickIntervalAvg_;   // clip frames per tick
+      // The nearest simple fraction within 0.3%, smallest denominator first.
+      for (int q = 1; q <= 12; ++q) {
+        const double p = std::round(ratio * q);
+        if (p >= 1.0 && std::abs(p / q - ratio) <= ratio * 0.003) {
+          ratio = p / q;
+          break;
+        }
+      }
+      if (!cadenceActive_ || std::abs(ratio - cadenceRatio_) > 1e-9) {
+        // Start (or re-start on a new ratio) exactly on the clock. The phase
+        // then moves by a fixed step, so where it sits within a frame no
+        // longer matters: there is no jitter left to tip it either way.
+        cadencePhase_ = clockFrames - ratio;
+        cadenceRatio_ = ratio;
+        cadenceActive_ = true;
+      }
+      cadencePhase_ += ratio;
+      const double error = clockFrames - cadencePhase_;
+      if (std::abs(error) > 4.0) {
+        cadencePhase_ = clockFrames;               // a stall: back to the clock
+      } else if (error > 0.6) {
+        cadencePhase_ += 1.0;                      // behind: skip one frame
+      } else if (error < -0.6) {
+        cadencePhase_ -= 1.0;                      // ahead: hold one frame
+      }
+      targetFrame = static_cast<std::uint64_t>(std::max(0.0, std::floor(cadencePhase_)));
+    }
+  }
   bool advancedDisplayFrame = false;
   std::uint64_t advancedFrameIndex = static_cast<std::uint64_t>(-1);
   {
@@ -1731,6 +1812,16 @@ void MediaEngine::resetMediaFpsTelemetry() {
   lastMeasuredMediaFrameIndex_ = static_cast<std::uint64_t>(-1);
 }
 
+// The same stream, moved: a seek, a loop going round, an edit to the live cue.
+// Measuring starts again, but the last rate stays on show until the next
+// window reports. Zeroing it here put DECODE WARM on the monitor for most of
+// a second every time a looping clip went round.
+void MediaEngine::restartMediaFpsWindow() {
+  mediaFpsSampleStartedAtMs_ = 0;
+  mediaFpsFrameCount_ = 0;
+  lastMeasuredMediaFrameIndex_ = static_cast<std::uint64_t>(-1);
+}
+
 // FPS measurement is only meaningful for continuously-decoded streams:
 // video files, browser capture, and source capture. Still images and
 // pattern cues don't have a decode frame rate to measure.
@@ -1754,7 +1845,6 @@ void MediaEngine::recordMediaFrameAdvance(std::uint64_t frameIndex) {
     // First frame in this measurement window — start the clock
     mediaFpsSampleStartedAtMs_ = now;
     mediaFpsFrameCount_ = 0;
-    mediaFpsMeasured_ = 0.0;
   }
   mediaFpsFrameCount_ += 1;
   Uint64 elapsedMs = now - mediaFpsSampleStartedAtMs_;

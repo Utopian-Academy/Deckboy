@@ -670,6 +670,7 @@ class MediaEngine {
 
   // -- FPS telemetry (for performance monitoring) ------------------------------
   void resetMediaFpsTelemetry();
+  void restartMediaFpsWindow();   // same stream, moved: keeps the last rate on show
   bool shouldMeasureMediaFps() const;
   void recordMediaFrameAdvance(std::uint64_t frameIndex);
 
@@ -1489,6 +1490,16 @@ class MediaEngine {
   // -- State: frame pipeline (decode thread → main thread) ---------------------
   std::optional<DecodedFrame> displayFrame_; // the frame currently being rendered
   std::uint64_t lastRenderedFrameIndex_ = static_cast<std::uint64_t>(-1); // dedup detection
+  // The cadence scheduler (see "WHICH FRAME THIS TICK"): how often update()
+  // runs, and where the picture is in clip frames, advanced per tick.
+  std::chrono::steady_clock::time_point frameTickPrevAt_ {};
+  bool frameTickValid_ = false;
+  double tickIntervalAvg_ = 0.0;
+  int tickSamples_ = 0;
+  int tickRejects_ = 0;
+  bool cadenceActive_ = false;
+  double cadenceRatio_ = 0.0;
+  double cadencePhase_ = 0.0;
   std::mutex frameMutex_;                    // protects frameQueue_ (shared between decode and main threads)
   std::deque<DecodedFrame> frameQueue_;      // decoded frames waiting to be displayed (max kMaxVideoFrames)
 
