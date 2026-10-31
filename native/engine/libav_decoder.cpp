@@ -25,6 +25,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <mutex>
 #include <vector>
 
 // d3d11.h must be included as C++ (it defines operator overloads) BEFORE the
@@ -198,6 +199,35 @@ AVHWDeviceType preferredHwDeviceType() {
 #else
   return AV_HWDEVICE_TYPE_NONE;
 #endif
+}
+
+// ONE DEVICE FOR THE PROCESS, made once and never destroyed. Every decoder
+// that cannot borrow the output's own device takes a reference to this one.
+// Making a device per decoder put a device creation on the main thread at
+// every loop and every TAKE, and its teardown on a driver thread holding the
+// driver's process-wide lock: measured on an NVIDIA laptop with the output on
+// SDL_GPU, each loop of a clip stalled the programme 80-110 ms (five or six
+// frames). The D3D11 output never showed it only because it lends its own
+// device to the decoder.
+// ffmpeg's D3D11VA, VAAPI and VideoToolbox device contexts all serve several
+// decoders at once (D3D11VA turns on the device's multithread protection).
+// Returns a new reference, or null when the machine has no such device --
+// asked once, so a machine without one is not asked again at every cue.
+AVBufferRef* sharedHwDevice() {
+  static std::mutex lock;
+  static AVBufferRef* device = nullptr;
+  static bool asked = false;
+  std::lock_guard<std::mutex> hold(lock);
+  if (!asked) {
+    asked = true;
+    // This call is what ASKS the machine. VAAPI wants a DRM render node and
+    // fails without one; VideoToolbox wants nothing and fails only on a Mac
+    // that cannot; a failure here is a fallback to software, not a broken cue.
+    if (av_hwdevice_ctx_create(&device, preferredHwDeviceType(), nullptr, nullptr, 0) < 0) {
+      device = nullptr;
+    }
+  }
+  return device ? av_buffer_ref(device) : nullptr;
 }
 
 // The format a frame arrives in from that decoder: an opaque handle to a
@@ -547,14 +577,7 @@ struct VideoPipeline::Impl {
       }
 #endif
       if (!hwDevice) {
-        // This call is what ASKS the machine. VAAPI wants a DRM render node
-        // and fails without one; VideoToolbox wants nothing and fails only on
-        // a Mac that cannot; a failure here is a fallback to software, not a
-        // broken cue.
-        if (av_hwdevice_ctx_create(&hwDevice, preferredHwDeviceType(), nullptr,
-                                   nullptr, 0) < 0) {
-          hwDevice = nullptr;
-        }
+        hwDevice = sharedHwDevice();
 #if defined(__APPLE__)
         // macOS CAN zero-copy without a shared device: a VideoToolbox frame is
         // an IOSurface-backed CVPixelBuffer and any Metal device can wrap it.
