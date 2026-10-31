@@ -404,6 +404,30 @@ Result analyze(Rgba8View frame, const Options& options) {
   const bool sharedLumaBins = options.histogramBins == options.levelBins;
   const bool sharedChromaBins = options.vectorBins == options.levelBins;
   constexpr double epsilon = 1e-12;  // countRange's
+  // EVERYTHING THE LOOP TOUCHES, IN LOCALS. MSVC assumes a store through any
+  // counter may change any other memory, so with the bins reached through the
+  // Result it reloaded every vector's address, width and range, and read and
+  // wrote back every excursion and pixel total, after each of a dozen
+  // increments per pixel. Copied here, they stay in registers; the totals
+  // are written back once. The bins are computed exactly as before.
+  const std::size_t width = options.columns;   // every parade's width
+  const std::size_t levels = result.ycbcrParade[0].height;
+  std::uint64_t* waveBins[3];
+  std::uint64_t* paradeBins[3];
+  std::uint64_t* histBins[3];
+  Range waveRange[3];
+  Excursions waveEx[3], paradeEx[3], histEx[3];
+  for (std::size_t c = 0; c < 3; ++c) {
+    waveBins[c] = result.ycbcrParade[c].bins.data();
+    paradeBins[c] = result.rgbParade[c].bins.data();
+    histBins[c] = result.rgbHistogram[c].bins.data();
+    waveRange[c] = result.ycbcrParade[c].yRange;
+  }
+  std::uint64_t* const lumaBins = result.lumaHistogram.bins.data();
+  std::uint64_t* const vectorBins = result.vectorscope.bins.data();
+  const std::size_t vectorWidth = result.vectorscope.width;
+  std::uint64_t* const diamondBins[2] = {result.diamond[0].bins.data(), result.diamond[1].bins.data()};
+  std::uint64_t valid = 0, rawValid = 0;
   for (std::size_t y = 0; y < frame.height; ++y) {
     const std::uint8_t* row = frame.bytes.data() + y * stride;
     for (std::size_t x = 0; x < frame.width; ++x) {
@@ -411,33 +435,37 @@ Result analyze(Rgba8View frame, const Options& options) {
       const Rgb rgb{unit[bytes[0]], unit[bytes[1]], unit[bytes[2]]};
       const YCbCr ycc = encode(rgb, k);
       const std::size_t column = columnOf[x];
-      ++result.validPixels;
-      const std::array<double, 3> yccValues{ycc.y, ycc.cb, ycc.cr};
-      std::array<std::size_t, 3> yccRows{};
+      ++valid;
+      const double yccValues[3] = {ycc.y, ycc.cb, ycc.cr};
+      std::size_t yccRows[3];
       for (std::size_t c = 0; c < 3; ++c) {
-        auto& wave = result.ycbcrParade[c];
-        yccRows[c] = bin(yccValues[c], wave.yRange, wave.height, wave.yExcursions);
-        ++wave.bins[yccRows[c] * wave.width + column];
-        Density& parade = result.rgbParade[c];
+        yccRows[c] = bin(yccValues[c], waveRange[c], levels, waveEx[c]);
+        ++waveBins[c][yccRows[c] * width + column];
         const ByteBin& row_ = paradeRow[bytes[c]];
-        ++parade.bins[row_.bin * parade.width + column];
-        parade.yExcursions.below += row_.below;
-        parade.yExcursions.above += row_.above;
-        Histogram& hist = result.rgbHistogram[c];
+        ++paradeBins[c][row_.bin * width + column];
+        paradeEx[c].below += row_.below;
+        paradeEx[c].above += row_.above;
         const ByteBin& hb = histBin[bytes[c]];
-        ++hist.bins[hb.bin];
-        hist.excursions.below += hb.below;
-        hist.excursions.above += hb.above;
+        ++histBins[c][hb.bin];
+        histEx[c].below += hb.below;
+        histEx[c].above += hb.above;
       }
-      if (sharedLumaBins) ++result.lumaHistogram.bins[yccRows[0]];
+      if (sharedLumaBins) ++lumaBins[yccRows[0]];
       else add(result.lumaHistogram, ycc.y);
-      if (sharedChromaBins) ++result.vectorscope.bins[yccRows[2] * result.vectorscope.width + yccRows[1]];
+      if (sharedChromaBins) ++vectorBins[yccRows[2] * vectorWidth + yccRows[1]];
       else addVector(result.vectorscope, ycc);
-      ++result.diamond[0].bins[diamondCell[bytes[2] * 256 + bytes[1]]];
-      ++result.diamond[1].bins[diamondCell[bytes[0] * 256 + bytes[1]]];
-      if (ycc.y >= -epsilon && ycc.y <= 1.0 + epsilon) ++result.rawGamut.validPixels;
+      ++diamondBins[0][diamondCell[bytes[2] * 256 + bytes[1]]];
+      ++diamondBins[1][diamondCell[bytes[0] * 256 + bytes[1]]];
+      if (ycc.y >= -epsilon && ycc.y <= 1.0 + epsilon) ++rawValid;
       else countGamut(result.rawGamut, channels(Pixel{rgb, ycc}), options.gamutBitDepth);
     }
+  }
+  result.validPixels += valid;
+  result.rawGamut.validPixels += rawValid;
+  for (std::size_t c = 0; c < 3; ++c) {
+    sumExcursions(result.ycbcrParade[c].yExcursions, waveEx[c]);
+    sumExcursions(result.rgbParade[c].yExcursions, paradeEx[c]);
+    sumExcursions(result.rgbHistogram[c].excursions, histEx[c]);
   }
   if (sharedLumaBins) result.lumaHistogram.excursions = result.ycbcrParade[0].yExcursions;
   if (sharedChromaBins) {

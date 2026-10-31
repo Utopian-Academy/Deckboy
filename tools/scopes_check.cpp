@@ -6,6 +6,8 @@
 #include "core/ycbcr422.hpp"
 
 #include <algorithm>
+#include <chrono>
+#include <fstream>
 #include <cmath>
 #include <iostream>
 #include <limits>
@@ -648,7 +650,49 @@ void bandsMatchWhole() {
 }
 } // namespace
 
-int main() {
+// --bench <frame.bgra> <width> <height> [threads]: time the live monitor's
+// analysis of one real frame (raw BGRA, e.g. from ffmpeg -pix_fmt bgra -f
+// rawvideo), with the options and thread count the desk uses. The median of
+// 40 runs, so a change to the core can be judged in seconds, on a real picture.
+int bench(int argc, char** argv) {
+  if (argc < 5) {
+    std::cerr << "usage: scopes_check --bench <frame.bgra> <width> <height> [threads]\n";
+    return 2;
+  }
+  const std::size_t width = std::stoul(argv[3]), height = std::stoul(argv[4]);
+  const unsigned threads = argc > 5 ? static_cast<unsigned>(std::stoul(argv[5])) : 6u;
+  std::ifstream in(argv[2], std::ios::binary);
+  std::vector<std::uint8_t> pixels(width * height * 4);
+  in.read(reinterpret_cast<char*>(pixels.data()), static_cast<std::streamsize>(pixels.size()));
+  if (static_cast<std::size_t>(in.gcount()) != pixels.size()) {
+    std::cerr << "bench: the file is shorter than " << width << "x" << height << " BGRA\n";
+    return 2;
+  }
+  s::Options options;   // as scopesOptions() in app_scopes.ipp
+  options.columns = std::min<std::size_t>(width, 960);
+  options.gamutBitDepth = 10;
+  options.gamutFilter = s::GamutFilter::None;
+  s::ParallelAnalyzer analyzer(threads);
+  const s::Rgba8View view{pixels, width, height, 0, true};
+  const auto time = [&](auto&& run) {
+    std::vector<double> ms;
+    for (int i = 0; i < 40; ++i) {
+      const auto started = std::chrono::steady_clock::now();
+      run();
+      ms.push_back(std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - started).count());
+    }
+    std::sort(ms.begin(), ms.end());
+    return ms[ms.size() / 2];
+  };
+  const double one = time([&] { (void)s::analyze(view, options); });
+  const double many = time([&] { (void)analyzer.analyze(view, options); });
+  std::cout << width << "x" << height << ": one thread " << one << " ms, " << threads << " threads " << many
+            << " ms\n";
+  return 0;
+}
+
+int main(int argc, char** argv) {
+  if (argc > 1 && std::string(argv[1]) == "--bench") return bench(argc, argv);
   try {
     bars();
     rampsAndStorage();
