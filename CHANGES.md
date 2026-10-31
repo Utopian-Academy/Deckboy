@@ -7,6 +7,9 @@
 - The inspector's preview shows the timer as it renders, logo, backdrop and digits, instead of "no still preview". Transparent shows as a checkerboard.
 - The logo row shows a thumbnail, CHANGE and an X to remove it, and a logo size row.
 
+### Lower Third, everywhere
+- The app, the starter-pack demos and the manual now say "Lower Third": the SOURCE menu, new cues' names, the DASH button, toasts, tips and network replies. The layers demo's playlist was called "Name strap".
+
 ### Fixed
 - A stage timer's logo was drawn with red and blue swapped.
 - Importing a PowerPoint, Keynote or PDF can no longer leave Deckboy on the import card for ever. A converter still busy after three minutes (often PowerPoint waiting on a prompt it cannot show, such as Protected View or sign-in), or a PDF renderer silent for ninety seconds, is stopped, and the toast says what happened and what to try.
