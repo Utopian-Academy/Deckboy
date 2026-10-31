@@ -5304,6 +5304,10 @@
     // operator got one flash and then a window that looked like it had ignored
     // them. The finish toast replaces this one, so the message on screen is
     // always the current one.
+    // Every stage goes in the show log, so an import that fails on a machine
+    // nobody can reach says afterwards where it stopped.
+    showLog("SLIDES", "import \"" + document.string() + "\"" +
+                        (needsConversion ? " (converting to PDF first)" : ""));
     ++slideRenderJobs_;
     slideRenderTitle_ = title;
     slideRenderPage_.store(0, std::memory_order_relaxed);
@@ -5334,6 +5338,7 @@
           std::lock_guard<std::mutex> lock(sdlDialogMutex_);
           sdlDialogActions_.emplace_back([this, converted, title]() {
             slideRenderJobs_ = std::max(0, slideRenderJobs_ - 1);
+            showLog("SLIDES", title + ": conversion failed: " + converted.error);
             triggerToast(title + ": " + converted.error, ToastKind::Warning, kToastReadableMs);
           });
           return;
@@ -5371,6 +5376,10 @@
       sdlDialogActions_.emplace_back([this, result, title, converter, slideNotes,
                                      slideTransitions]() {
         slideRenderJobs_ = std::max(0, slideRenderJobs_ - 1);
+        showLog("SLIDES", title + ": " + (result.ok()
+                  ? std::to_string(result.pagePaths.size()) + " page(s) rendered" +
+                      (converter.empty() ? std::string() : ", converted by " + converter)
+                  : "render failed: " + (result.error.empty() ? std::string("no pages") : result.error)));
         if (!result.ok()) {
           triggerToast("slides: " + (result.error.empty() ? std::string("no pages")
                                                           : result.error),
@@ -5399,6 +5408,7 @@
         std::lock_guard<std::mutex> lock(sdlDialogMutex_);
         sdlDialogActions_.emplace_back([this, title, what]() {
           slideRenderJobs_ = std::max(0, slideRenderJobs_ - 1);
+          showLog("SLIDES", title + ": failed: " + what);
           triggerToast(title + ": " + what, ToastKind::Warning,
                        kToastReadableMs);
         });

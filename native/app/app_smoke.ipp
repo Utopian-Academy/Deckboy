@@ -739,6 +739,27 @@
         failures += 1;
       }
     };
+    // A CONVERTER THAT HANGS IS STOPPED. A slide import on Gigantor sat on its
+    // card for ever (2026-10-30); runCaptured's time limit is what ends any
+    // such wait now, so it is proved here on a child that would sleep 30 s.
+    {
+      const auto began = std::chrono::steady_clock::now();
+#ifdef _WIN32
+      const ProcessCapture slept = runCaptured({"powershell", "-NoProfile", "-NonInteractive", "-Command",
+                                                "Start-Sleep -Seconds 30"}, 1500);
+#else
+      const ProcessCapture slept = runCaptured({"sleep", "30"}, 1500);
+#endif
+      const double took = std::chrono::duration<double>(std::chrono::steady_clock::now() - began).count();
+      expect(slept.ran && slept.timedOut && !slept.ok() && took < 15.0,
+             "a child past its time limit is stopped, and says so (" + std::to_string(took) + " s)");
+#ifdef _WIN32
+      const ProcessCapture quick = runCaptured({"cmd", "/c", "exit 0"}, 30000);
+#else
+      const ProcessCapture quick = runCaptured({"true"}, 30000);
+#endif
+      expect(!quick.timedOut, "a child inside its time limit is left alone");
+    }
     auto framesMatch = [](const std::optional<DecodedFrame>& lhs,
                           const std::optional<DecodedFrame>& rhs) {
       return lhs && rhs &&

@@ -251,11 +251,17 @@ struct ProcessCapture {
   std::string output;      // stdout and stderr, merged, however it ended
   int exitCode = -1;       // -1 when it could not be run, or died by signal
   bool ran = false;        // false means the process never started
-  bool ok() const { return ran && exitCode == 0; }
+  bool timedOut = false;   // stopped by runCaptured's time limit
+  bool ok() const { return ran && exitCode == 0 && !timedOut; }
 };
 
 // Execute command, capture all stdout+stderr, wait for exit.
-ProcessCapture runCaptured(const std::vector<std::string>& args);
+//
+// timeoutMs > 0 stops the child once it has run that long, and says so in
+// timedOut. A converter that waits on a prompt nobody can see (PowerPoint
+// asking about Protected View, under COM, with no window) otherwise holds its
+// caller for ever -- which is what a slide import stuck on loading was.
+ProcessCapture runCaptured(const std::vector<std::string>& args, int timeoutMs = 0);
 
 // Execute command, capture all stdout+stderr, wait for exit.
 // Returns std::nullopt on failure or non-zero exit code -- so a caller that

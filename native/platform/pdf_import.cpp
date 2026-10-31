@@ -1,6 +1,9 @@
 #include "pdf_import.hpp"
 
 #include <algorithm>
+#include <atomic>
+#include <chrono>
+#include <thread>
 #include <cctype>
 #include <cmath>
 #include <cstdio>
@@ -121,11 +124,24 @@ fs::path convertedPdfPath(const fs::path& source, const fs::path& outputDir) {
 // ^1" names its fault exactly; losing it turned a five-minute diagnosis into
 // an hour. Output is captured rather than inherited so a converter cannot
 // print over the app's own console.
-bool runQuietly(const std::vector<std::string>& args, std::string& output) {
-  ProcessCapture captured = runCaptured(args);
+bool runQuietly(const std::vector<std::string>& args, std::string& output, int timeoutMs = 0,
+                bool* timedOut = nullptr) {
+  ProcessCapture captured = runCaptured(args, timeoutMs);
   output = captured.output;
+  if (timedOut) *timedOut = captured.timedOut;
   return captured.ok();
 }
+
+// HOW LONG A CONVERTER MAY TAKE. A deck of a few hundred slides exports in
+// well under a minute; a converter still going after three is waiting on
+// something -- PowerPoint on a Protected View or sign-in prompt it is showing
+// to nobody, under COM, with no window -- and without a limit the import sat
+// on its card for ever (James, 2026-10-30: "it gets stuck on loading").
+constexpr int kConvertTimeoutMs = 3 * 60 * 1000;
+constexpr const char* kConvertTimeoutAdvice =
+  "did not finish in 3 minutes. It may be waiting on a prompt it cannot show "
+  "(Protected View, sign-in, a repair). Open the deck there once, or export it "
+  "as a PDF and import that";
 
 // The last line a tool printed, which is usually the one that says what went
 // wrong; the rest is banners and progress. Trimmed to something a toast can
@@ -220,10 +236,15 @@ bool convertWithLibreOffice(const fs::path& soffice, const fs::path& source,
   const std::string profileUrl =
     "-env:UserInstallation=file:///" + profile.generic_string();
   std::string output;
+  bool timedOut = false;
   const bool ran = runQuietly({
     soffice.string(), profileUrl, "--headless", "--norestore",
     "--convert-to", "pdf:impress_pdf_Export",
-    "--outdir", outputDir.string(), source.string()}, output);
+    "--outdir", outputDir.string(), source.string()}, output, kConvertTimeoutMs, &timedOut);
+  if (timedOut) {
+    error = std::string("LibreOffice ") + kConvertTimeoutAdvice;
+    return false;
+  }
   if (!fs::exists(convertedPdfPath(source, outputDir), ec)) {
     // Whether it ran matters less than what it said: LibreOffice exits 0 while
     // refusing a file often enough that the PDF's absence is the real test.
@@ -309,11 +330,16 @@ bool convertWithPowerPoint(const fs::path& source, const fs::path& outputDir,
   sourceNative.make_preferred();
   targetNative.make_preferred();
   std::string output;
+  bool timedOut = false;
   runQuietly({"powershell", "-NoProfile", "-NonInteractive",
               "-ExecutionPolicy", "Bypass", "-File", script.string(),
               "-Source", sourceNative.string(),
-              "-Target", targetNative.string()}, output);
+              "-Target", targetNative.string()}, output, kConvertTimeoutMs, &timedOut);
   fs::remove(script, ec);
+  if (timedOut) {
+    error = std::string("PowerPoint ") + kConvertTimeoutAdvice;
+    return false;
+  }
   if (!fs::exists(target, ec)) {
     // PowerPoint's own words are more use than ours: it is the thing that
     // knows the file could not be opened, or that the deck is protected.
@@ -364,7 +390,13 @@ bool convertWithKeynote(const fs::path& source, const fs::path& outputDir,
     "  close d saving no\n"
     "end tell\n";
   std::string output;
-  runQuietly({"osascript", "-e", script}, output);
+  bool timedOut = false;
+  runQuietly({"osascript", "-e", script}, output, kConvertTimeoutMs, &timedOut);
+  if (timedOut) {
+    error = std::string(script.find("Keynote") != std::string::npos ? "Keynote " : "PowerPoint ") +
+            kConvertTimeoutAdvice;
+    return false;
+  }
   if (!fs::exists(target, ec)) {
     const std::string said = toolMessage(output);
     error = said.empty()
@@ -407,7 +439,13 @@ bool convertWithPowerPointMac(const fs::path& source, const fs::path& outputDir,
     "end tell\n"
     "end timeout\n";
   std::string output;
-  runQuietly({"osascript", "-e", script}, output);
+  bool timedOut = false;
+  runQuietly({"osascript", "-e", script}, output, kConvertTimeoutMs, &timedOut);
+  if (timedOut) {
+    error = std::string(script.find("Keynote") != std::string::npos ? "Keynote " : "PowerPoint ") +
+            kConvertTimeoutAdvice;
+    return false;
+  }
   if (!fs::exists(target, ec)) {
     const std::string said = toolMessage(output);
     error = said.empty()
@@ -745,12 +783,39 @@ PdfRasterResult rasterisePdf(const fs::path& pdfPath, const fs::path& outputDir,
   //   PROGRESS <index> <count>     as each page finishes
   //   PAGE <index> <count> <path>  the results, in order, at the end
   //   ERROR <message>              nothing was produced
+  // A WATCHDOG ON THE CHILD. Windows.Data.Pdf can stop answering on a file
+  // -- one still downloading from OneDrive, one it cannot parse -- and the
+  // read below would then wait for ever, which the operator saw as an import
+  // stuck on its card (2026-10-30). A page lands in well under a second at
+  // 4K; ninety seconds with nothing from the child is a hang, so it is killed
+  // (the process only: the pipe then reads end-of-file) and the import ends
+  // with the reason.
+  std::atomic<long long> lastHeardMs {
+    std::chrono::duration_cast<std::chrono::milliseconds>(
+      std::chrono::steady_clock::now().time_since_epoch()).count()};
+  std::atomic<bool> readerDone {false};
+  std::atomic<bool> killedSilent {false};
+  std::thread watchdog([&]() {
+    constexpr long long kSilenceMs = 90 * 1000;
+    while (!readerDone.load()) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(250));
+      const long long now = std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::steady_clock::now().time_since_epoch()).count();
+      if (!readerDone.load() && now - lastHeardMs.load() > kSilenceMs) {
+        killedSilent = true;
+        child.killProcessOnly();
+        return;
+      }
+    }
+  });
   std::string pending;
   int pageCount = 0;
   char buffer[4096];
   for (;;) {
     const int got = readSome(child.readFd, buffer, sizeof(buffer));
     if (got <= 0) break;
+    lastHeardMs = std::chrono::duration_cast<std::chrono::milliseconds>(
+      std::chrono::steady_clock::now().time_since_epoch()).count();
     pending.append(buffer, static_cast<std::size_t>(got));
     std::size_t nl;
     while ((nl = pending.find('\n')) != std::string::npos) {
@@ -783,9 +848,18 @@ PdfRasterResult rasterisePdf(const fs::path& pdfPath, const fs::path& outputDir,
       }
     }
   }
+  readerDone = true;
+  watchdog.join();
   child.stop();
 
-  if (result.error.empty() && result.pagePaths.empty()) {
+  if (killedSilent) {
+    result.pagePaths.clear();
+    result.error = pageCount > 0
+      ? "the PDF renderer stopped answering after " + std::to_string(pageCount) +
+          " page(s). If the file is in OneDrive, open it once so it downloads, then import it again"
+      : std::string("Windows could not read the PDF (the renderer stopped answering). If it is in "
+                    "OneDrive, open it once so it downloads; or re-save it as a PDF and try again");
+  } else if (result.error.empty() && result.pagePaths.empty()) {
     result.error = "the PDF renderer produced no pages";
   }
   return result;
@@ -970,13 +1044,20 @@ PdfRasterResult rasterisePdf(const fs::path& pdfPath, const fs::path& outputDir,
   // crop box. And it applied the width to the page before its /Rotate, so a
   // 16:9 slide stored portrait came out 6827 pixels wide when 3840 was asked.
   const fs::path prefix = outputDir / "page";
-  auto run = readAllText({
+  // Ten minutes for the whole document: pdftoppm reports nothing until it is
+  // done, so this is a ceiling on a hang rather than a pace (a 4K page is a
+  // fraction of a second).
+  const ProcessCapture run = runCaptured({
     "pdftoppm", "-png",
     "-cropbox", "-scale-dimension-before-rotation",
     "-scale-to-x", std::to_string(std::max(1, targetWidthPixels)),
     "-scale-to-y", "-1",
-    pdfPath.string(), prefix.string()});
-  if (!run.has_value()) {
+    pdfPath.string(), prefix.string()}, 10 * 60 * 1000);
+  if (run.timedOut) {
+    result.error = "pdftoppm stopped answering on " + pdfPath.filename().string();
+    return result;
+  }
+  if (!run.ok()) {
     result.error = "pdftoppm failed on " + pdfPath.filename().string();
     return result;
   }

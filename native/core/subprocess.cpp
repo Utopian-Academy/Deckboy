@@ -32,7 +32,10 @@
 #include <cstring>
 #include <cstdlib>
 #include "fs.hpp"
+#include <chrono>
+#include <condition_variable>
 #include <mutex>
+#include <thread>
 
 #ifdef _WIN32
 #include <fcntl.h>      // _O_RDONLY, _O_BINARY
@@ -758,7 +761,7 @@ bool spawnProcess(ChildProcess& process,
 //
 // So the capture is one function now, and readAllText is a thin wrapper that
 // keeps its old contract for the callers that only want the success case.
-ProcessCapture runCaptured(const std::vector<std::string>& args) {
+ProcessCapture runCaptured(const std::vector<std::string>& args, int timeoutMs) {
   ProcessCapture result;
   if (args.empty()) {
     return result;
@@ -770,6 +773,35 @@ ProcessCapture runCaptured(const std::vector<std::string>& args) {
   }
   result.ran = true;
 
+  // The time limit: a watchdog that kills the process (only the process --
+  // the pipe stays ours, so the read below sees end-of-file rather than a
+  // closed descriptor) once it has run too long. Joined before the handles
+  // are touched again.
+  std::mutex watchMutex;
+  std::condition_variable watchWake;
+  bool watchDone = false;
+  bool watchFired = false;
+  std::thread watchdog;
+  if (timeoutMs > 0) {
+    watchdog = std::thread([&]() {
+      std::unique_lock<std::mutex> lock(watchMutex);
+      if (!watchWake.wait_for(lock, std::chrono::milliseconds(timeoutMs), [&] { return watchDone; })) {
+        watchFired = true;
+        proc.killProcessOnly();
+      }
+    });
+  }
+  auto stopWatchdog = [&]() {
+    if (!watchdog.joinable()) return;
+    {
+      std::lock_guard<std::mutex> lock(watchMutex);
+      watchDone = true;
+    }
+    watchWake.notify_all();
+    watchdog.join();
+    result.timedOut = watchFired;
+  };
+
   std::string& output = result.output;
   std::array<char, 4096> buffer{};
 
@@ -778,6 +810,7 @@ ProcessCapture runCaptured(const std::vector<std::string>& args) {
   while ((bytesRead = _read(proc.readFd, buffer.data(), static_cast<unsigned int>(buffer.size()))) > 0) {
     output.append(buffer.data(), static_cast<size_t>(bytesRead));
   }
+  stopWatchdog();
   _close(proc.readFd);
   proc.readFd = -1;
 
@@ -793,6 +826,7 @@ ProcessCapture runCaptured(const std::vector<std::string>& args) {
   while ((bytesRead = read(proc.readFd, buffer.data(), buffer.size())) > 0) {
     output.append(buffer.data(), static_cast<size_t>(bytesRead));
   }
+  stopWatchdog();
   close(proc.readFd);
   proc.readFd = -1;
 

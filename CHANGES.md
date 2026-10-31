@@ -1,5 +1,11 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
+## Unreleased - v0.99.424
+
+### Fixed
+- Importing a PowerPoint, Keynote or PDF can no longer leave Deckboy on the import card for ever. A converter still busy after three minutes (often PowerPoint waiting on a prompt it cannot show, such as Protected View or sign-in), or a PDF renderer silent for ninety seconds, is stopped, and the toast says what happened and what to try.
+- Every slide import now writes its steps to the show log: which file, whether it was converted and by what, and how many pages it rendered, or where it stopped.
+
 ## 2026-10-30 - v0.99.423 (colour pickers that grab from any window; a tour that fits your screens; step 6 fixed)
 
 ### Colour pickers for the effects
