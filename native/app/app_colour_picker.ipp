@@ -103,8 +103,22 @@
   // default, kTimerBackdropTransparent for none, else 0xRRGGBB. Null for a
   // kind that has none. (Board H856G24w, James 2026-10-30: a solid colour to
   // key out, on every cue meant to sit over another.)
+  // The cues with a backdrop of their own besides the timer: the ones made to
+  // sit over another playlist.
+  static bool cueTakesBackdrop(CueKind kind) {
+    return kind == CueKind::Text || kind == CueKind::LowerThird || kind == CueKind::Image;
+  }
+
+  // What the backdrop row lights: the timer's as stored (its default is
+  // black), anyone else's -1 as none.
+  static int cueBackdropShown(const Cue& cue) {
+    if (cue.kind == CueKind::Timer) return cue.timer.colorBackground;
+    return cue.backdrop < 0 ? kTimerBackdropTransparent : cue.backdrop;
+  }
+
   int* cueBackdropField(Cue& cue) const {
     if (cue.kind == CueKind::Timer) return &cue.timer.colorBackground;
+    if (cueTakesBackdrop(cue.kind)) return &cue.backdrop;
     return nullptr;
   }
 

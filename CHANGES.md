@@ -8,6 +8,10 @@
 - The logo row shows a thumbnail, CHANGE and an X to remove it, and a logo size row.
 - The font row opens a list of the fonts on this computer, each drawing the clock in its own face, instead of a file dialog. Type to search it; Deckboy's own face is first, and a font file that is not installed is still at the end (End jumps there). Page Up, Page Down, Home and End now work in every dropdown.
 
+### A colour to key out, on every overlay cue
+- Text, Lower Third and image cues have the timer's backdrop row: none, black, key green, key blue, and a colour chip for any colour. The colour fills the layer behind the cue on every output, recording and stream, and fades with it. Transparent stays the default, so existing shows look exactly as they did.
+- `BACKDROP [transparent | #rrggbb | name]` sets it over the network, on the selected text, Lower Third, image or timer cue.
+
 ### Lower Third, everywhere
 - The app, the starter-pack demos and the manual now say "Lower Third": the SOURCE menu, new cues' names, the DASH button, toasts, tips and network replies. The layers demo's playlist was called "Name strap".
 

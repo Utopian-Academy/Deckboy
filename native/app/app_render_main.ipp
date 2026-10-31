@@ -5385,6 +5385,7 @@
                              selectedCue->lowerThirdSubtext.empty() ? "(no subtext)" : selectedCue->lowerThirdSubtext,
                              pal.dark);
         playbackY += 32;
+        playbackY = inspDrawBackdropRow(ix, playbackY, cueBackdropShown(*selectedCue));
 
         // HOW IT ARRIVES, above how it looks: the first question anybody asks
         // of a lower third is whether it moves.
@@ -5725,6 +5726,11 @@
                                                    "Still, pattern, browser, and source playback settings");
       int playbackY = playbackSection.bodyStartY;
       if (cueSectionPlaybackOpen_) {
+        // A logo or a still over another playlist: a colour behind its
+        // see-through parts, to key out downstream (board H856G24w).
+        if (selectedCue->kind == CueKind::Image) {
+          playbackY = inspDrawBackdropRow(ix, playbackY, cueBackdropShown(*selectedCue));
+        }
         if (selectedCue->kind == CueKind::Pattern &&
             !patternTypeIsGenerator(selectedCue->path)) {
           // TEST SIGNALS ONLY. A generator's controls are its own section
@@ -6906,6 +6912,7 @@
                                 "A card fills the frame; a Lower Third is a name and a "
                                 "role, low on a transparent frame, with an in and an out",
                                 -1, selectedCue->lowerThird.on);
+        txY = inspDrawBackdropRow(ix, txY, cueBackdropShown(*selectedCue));
       }
       if (cueSectionTextOpen_ && selectedCue->lowerThird.on) {
         const LowerThirdDesign& l = selectedCue->lowerThird;

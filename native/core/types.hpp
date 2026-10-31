@@ -1886,6 +1886,12 @@ struct Cue {
   // done this. A fade takes a deck out and leaves it ready for the next cue,
   // or swells a knob and lets it go, without rewriting the show.
   bool fadeRestoreAtEnd = false;
+  // THE BACKDROP: a solid colour filled behind the cue on its output, to key
+  // out on a vision mixer (board H856G24w, James 2026-10-30: "across the
+  // board"). Text, Lower Third and image cues; the timer keeps its own in
+  // TimerSettings::colorBackground. -1 or kTimerBackdropTransparent is none,
+  // which is every show saved before it; else 0xRRGGBB.
+  int backdrop = -1;
   bool loop = false;              // loop playback (respects loopCount if > 0)
   bool pauseAtBeginning = false;  // load cue paused on first frame (wait for manual play)
   bool pauseOnLastFrame = false;  // hold last frame instead of going to black

@@ -1044,6 +1044,7 @@ bool saveProject(const fs::path& projectFile, const Project& project, bool patie
         << '\t' << cue.fadeEffectSlot          // vs + 162: a fade cue's effect and knob
         << '\t' << cue.fadeEffectKnob
         << '\t' << (cue.fadeRestoreAtEnd ? 1 : 0)   // vs + 164: and whether it restores
+        << '\t' << cue.backdrop                     // vs + 165: the colour behind it
         << '\n';
   };
   for (size_t deckIndex = 0; deckIndex < project.decks.size(); ++deckIndex) {
@@ -2730,6 +2731,10 @@ Project loadProject(const fs::path& projectFile,
         // lands, which is what they all did.
         if (fields.size() >= static_cast<std::size_t>(vs + 165)) {
           cue.fadeRestoreAtEnd = safeBool(fields, vs + 164, false);
+        }
+        // Absent before it: no backdrop, which is what they all had.
+        if (fields.size() >= static_cast<std::size_t>(vs + 166)) {
+          cue.backdrop = safeInt(fields, vs + 165, -1);
         }
       }
       // A MASTER CUE HAS NO PATH, and this gate would have dropped it on load

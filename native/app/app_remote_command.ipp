@@ -3884,6 +3884,35 @@
     }
     // Stage timer control. Deliberately separate from transport: these change
     // the CLOCK while the cue stays on air.
+    // BACKDROP [transparent | #rrggbb | a colour name]: the selected cue's
+    // backdrop, on any cue that has one (Text, Lower Third, image, timer).
+    // No argument answers what it is.
+    if (command == "BACKDROP") {
+      Cue* cue = selectedCueMutable();
+      int* field = cue ? cueBackdropField(*cue) : nullptr;
+      if (!field) {
+        failRemoteCommand("BACKDROP: select a text, Lower Third, image or timer cue first");
+        return;
+      }
+      if (parts.size() < 2) {
+        remoteCommandDetail_ = timerColorLabel(cueBackdropShown(*cue));
+        return;
+      }
+      const std::string want = toLower(joinParts(parts, 1));
+      if (want == "transparent" || want == "none" || want == "clear") {
+        pushUndoSnapshot();
+        *field = kTimerBackdropTransparent;
+      } else if (const auto match = deckboy::colours::findColour(joinParts(parts, 1), colourLibraries_)) {
+        pushUndoSnapshot();
+        *field = static_cast<int>(match->rgb & 0xFFFFFF);
+      } else {
+        failRemoteCommand("BACKDROP: expected transparent, a hex or a colour name, got " + joinParts(parts, 1));
+        return;
+      }
+      markProjectDirty();
+      remoteCommandDetail_ = timerColorLabel(cueBackdropShown(*cue));
+      return;
+    }
     if (command == "TIMER") {
       std::string sub = parts.size() > 1 ? toUpper(parts[1]) : "TOGGLE";
       if (sub == "START" || sub == "GO" || sub == "PAUSE" || sub == "TOGGLE") {

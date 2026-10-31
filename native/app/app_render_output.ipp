@@ -3967,6 +3967,28 @@
   // index found nothing and silently dropped the layer's corner pin: the
   // programme window was mapped and everything downstream of it was not.
   // -1 means 'the same output', which is every non-mirroring case.
+  // THE BACKDROP behind a cue (Cue::backdrop, board H856G24w): the layer's
+  // rect filled before the cue is drawn over it, at the layer's own opacity,
+  // crossfade and fade, so it comes and goes with the cue it sits behind.
+  void fillCueBackdrop(SDL_Renderer* renderer, const Cue& cue, int deckIndex, int stackOutputIndex,
+                       int stackIndex, const SDL_Rect& target) {
+    if (cue.kind == CueKind::Timer || cue.backdrop < 0) return;
+    const DeckRuntime* runtime = runtimeForDeck(deckIndex);
+    SDL_BlendMode blend = SDL_BLENDMODE_BLEND;
+    double opacity = std::clamp(project_.decks[deckIndex].playlistOpacity, 0.0f, 1.0f) *
+                     outputCrossfadeGain(stackOutputIndex, stackIndex, blend);
+    if (runtime && runtime->mediaEngine) opacity *= runtime->mediaEngine->currentVisualFadeGain();
+    const Uint8 alpha = static_cast<Uint8>(std::lround(std::clamp(opacity, 0.0, 1.0) * 255.0));
+    if (alpha == 0) return;
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(renderer, static_cast<Uint8>((cue.backdrop >> 16) & 0xFF),
+                           static_cast<Uint8>((cue.backdrop >> 8) & 0xFF), static_cast<Uint8>(cue.backdrop & 0xFF),
+                           alpha);
+    const SDL_FRect area {static_cast<float>(target.x), static_cast<float>(target.y), static_cast<float>(target.w),
+                          static_cast<float>(target.h)};
+    SDL_RenderFillRect(renderer, &area);
+  }
+
   void renderDeckLayerIntoOutput(int outputIndex, int sourceDeckIndex, const SDL_Rect& target,
                                  int layerSourceOutputIndex = -1) {
     OutputRuntime* outputRuntime = runtimeForOutput(outputIndex);
@@ -4017,6 +4039,8 @@
         return;
       }
       noteLayerVisibility(*outputRuntime, outputIndex, sourceDeckIndex, true, "");
+      fillCueBackdrop(outputRuntime->outputRenderer, *sourceCue, sourceDeckIndex, stackOutputIndex, stackIndex,
+                      target);
       renderTextCueIntoOutput(outputRuntime->outputRenderer, *sourceCue, target,
                               sourceRuntime->mediaEngine->position(),
                               lowerThirdOutAtFor(sourceDeckIndex));
@@ -4037,6 +4061,7 @@
       return;
     }
     noteLayerVisibility(*outputRuntime, outputIndex, sourceDeckIndex, true, "");
+    fillCueBackdrop(outputRuntime->outputRenderer, *sourceCue, sourceDeckIndex, stackOutputIndex, stackIndex, target);
 #if DECKBOY_INPROC_DECODE
     if (sourceFrame->isGpu()) {
       // ── macOS: THE FRAME IS THE TEXTURE ─────────────────────────────

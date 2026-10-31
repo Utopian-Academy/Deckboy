@@ -3227,7 +3227,7 @@ html,body{width:100%;height:100%;overflow:hidden}
     // without something saying so.
     if (upper == "HELP ALL" || upper == "HELP FULL" || upper == "?? ") {
       sendSnapshot(
-        "DECKBOY_0.01 every verb (384)\n"
+        "DECKBOY_0.01 every verb (385)\n"
         "ADDTIMER ALLGO ALLPAUSE ALLPLAY ALLSTOP ALLTAKE ANIM ANIMATION ARM AUDITION\n"
         "ARTNET ARTNETEVENT ARTNETPORT ART_NET_PORT ASCII ATEM ATEMEVENT\n"
         "ATEMTRIGGER AUDIO AUDIOCUE AUDIOENABLED AUDIOFX AUDIOGAIN AUDIOMONO\n"
@@ -3236,7 +3236,7 @@ html,body{width:100%;height:100%;overflow:hidden}
         "MESH MESH3D SEQ\n"
         "OFFSET OFFSETX OFFSETY ROTATION CROP CROPLEFT CROPRIGHT CROPTOP CROPBOTTOM\n"
         "AUTOID AUTONEXT AVJUMP BLACKOUT DEFAULTS NEWSHOW LIMITER OUTPUTFX OUTPUTS PATCH\n"
-        "BLEND BROKEN BROWSE BROWSER CAMERACUE CANVAS CC CHECK CHIP CLEAR CLEAROVERLAY CODE COLOR\n"
+        "BACKDROP BLEND BROKEN BROWSE BROWSER CAMERACUE CANVAS CC CHECK CHIP CLEAR CLEAROVERLAY CODE COLOR\n"
         "CROSSFADE COLORTAG COMPOSITE CONTINUE CONVERT CUEAUDIO CUEAUTOID CUEFIND CUEFINDCLEAR\n"
         "DISARM DMXCUE FADE FADECUE MATRIX AUDIOALSO MIDICUE MIDIFILE MULTI MULTIVIEW NETCUE PFL PRELOAD SCRIPTCUE TARGET TARGETCUE TCCUE TEXTCUE TIMECODECUE\n"
         "CUEFINDNEXT CUEFINDPREV CUEFINDSTATUS CUEFINDTAKE CUEGOTO CUEID\n"
@@ -3374,6 +3374,8 @@ html,body{width:100%;height:100%;overflow:hidden}
         "        MONITOR DECK <n>|FOLLOW - which playlist you hear\n"
         "        MONITOR ROOM <n> ON|OFF - whether that playlist reaches its own device\n"
         "Lower Thirds: LOWERTHIRD - make one | LOWERTEXT / LOWERSUB - its two lines\n"
+        "        BACKDROP [transparent|#rrggbb|name] - a solid colour behind the selected text, Lower Third,\n"
+        "        image or timer\n"
         "        LOWERSTYLE [none|fade|rise|slide|wipe|NEXT] - how it comes on and goes off\n"
         "        LOWERANIM [<seconds>] - how long that move takes, each way\n"
         "crossfade: CROSSFADE [OFF | <0-100> | <from> <to> [<0-100>]] - fade between two\n"

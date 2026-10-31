@@ -1953,6 +1953,13 @@ it instead of one fixed box. Overlays from those older cues clear with `U`.
 the name and second the role, drawn over a transparent frame so it sits on a
 layer over another playlist. Its inspector section sets how it looks and moves.
 
+**A colour to key out.** Text, Lower Third, image and timer cues have a
+**backdrop** row: **none** (transparent, the default), **black**, key
+**green** (#00b140), key **blue** (#0047bb), or the colour chip for any colour,
+typed or picked from the screen. The colour fills the whole layer behind the
+cue, so a vision mixer or a downstream keyer can take it out. Over the network:
+`BACKDROP #00b140`, `BACKDROP transparent`.
+
 | Look | What it is |
 |------|------------|
 | Bar | One solid bar, an accent down its leading edge |

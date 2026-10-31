@@ -566,6 +566,11 @@ jobs:
         if: matrix.features == 'all'
         run: xvfb-run -a python3 tools/check_timer_fonts.py --exe ./build/Deckboy
 
+      # A solid backdrop behind a Lower Third, read off the output's frame.
+      - name: Backdrops behind overlay cues
+        if: matrix.features == 'all'
+        run: xvfb-run -a python3 tools/check_backdrop.py --exe ./build/Deckboy
+
       # A fade cue's SPEED, like tape: a 1 kHz tone at 0.5x is 500 Hz in what
       # the device is given, a ramp to 2x ends at 2 kHz, a new take starts at
       # 1x, and a video's playhead moves one second in two at 0.5x.
@@ -1672,6 +1677,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "the effect colour picker failed" }
           python tools/check_timer_fonts.py --exe build\Release\Deckboy.exe
           if ($LASTEXITCODE -ne 0) { throw "the timer's font list failed" }
+          python tools/check_backdrop.py --exe build\Release\Deckboy.exe
+          if ($LASTEXITCODE -ne 0) { throw "backdrops behind overlay cues failed" }
 
       - uses: actions/setup-node@v4
         if: matrix.features == 'all'
