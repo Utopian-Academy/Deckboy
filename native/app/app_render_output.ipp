@@ -4233,9 +4233,9 @@
         const std::uint8_t* y = sourceFrame->pixels.data();
         const std::uint8_t* uv = y + static_cast<std::size_t>(sourceFrame->width) *
                                      static_cast<std::size_t>(sourceFrame->height) * bytesPerSample;
-        SDL_UpdateNVTexture(bridgeTexture, nullptr,
-                            y, sourceFrame->width * bytesPerSample,
-                            uv, sourceFrame->width * bytesPerSample);
+        updateVideoTextureNV(bridgeTexture, y, sourceFrame->width * bytesPerSample,
+                             uv, sourceFrame->width * bytesPerSample,
+                             sourceFrame->width, sourceFrame->height, bytesPerSample);
       } else {
         const std::uint8_t* uploadPixels = sourceFrame->pixels.data();
         const bool wantsStack = deckboy::effects::cueEffectStackActive(sourceCue->effects);
@@ -4313,7 +4313,8 @@
           }
           uploadPixels = outputRuntime->layerBridgeScratchPixels.data();
         }
-        SDL_UpdateTexture(bridgeTexture, nullptr, uploadPixels, sourceFrame->width * 4);
+        updateVideoTextureRGBA(bridgeTexture, uploadPixels, sourceFrame->width * 4,
+                               sourceFrame->width, sourceFrame->height);
         if (cueHasPixelEffects(*sourceCue) || wantsStack) {
           auto& saved = outputRuntime->layerLookFrames[sourceDeckIndex];
           saved.first = cuePreviewCacheKey(*sourceCue);
@@ -4811,10 +4812,11 @@
         return;
       }
       const std::uint8_t* y = frame.pixels.data();
-      SDL_UpdateNVTexture(tex, nullptr, y, frame.width * bytesPerSample,
-                          y + lumaBytes, frame.width * bytesPerSample);
+      updateVideoTextureNV(tex, y, frame.width * bytesPerSample,
+                           y + lumaBytes, frame.width * bytesPerSample,
+                           frame.width, frame.height, bytesPerSample);
     } else {
-      SDL_UpdateTexture(tex, nullptr, frame.pixels.data(), frame.width * 4);
+      updateVideoTextureRGBA(tex, frame.pixels.data(), frame.width * 4, frame.width, frame.height);
     }
     drawPlaced();
   }
@@ -4849,9 +4851,9 @@
         const std::uint8_t* y = sourceFrame.pixels.data();
         const std::uint8_t* uv = y + static_cast<std::size_t>(sourceFrame.width) *
                                      static_cast<std::size_t>(sourceFrame.height) * bytesPerSample;
-        SDL_UpdateNVTexture(bridgeTexture, nullptr,
-                            y, sourceFrame.width * bytesPerSample,
-                            uv, sourceFrame.width * bytesPerSample);
+        updateVideoTextureNV(bridgeTexture, y, sourceFrame.width * bytesPerSample,
+                             uv, sourceFrame.width * bytesPerSample,
+                             sourceFrame.width, sourceFrame.height, bytesPerSample);
       } else {
         const std::uint8_t* uploadPixels = sourceFrame.pixels.data();
         if (cueHasPixelEffects(renderCue)) {

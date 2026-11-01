@@ -52,6 +52,24 @@ bool stagingReadbackFrame(void* handle, SDL_Texture* source,
                           std::uint64_t submittedAtNs = 0,
                           std::uint64_t* sourceAtNs = nullptr);
 
+// A VIDEO FRAME UP TO SDL'S GPU RENDERER, WITHOUT A NEW BUFFER EACH TIME.
+// SDL_UpdateTexture there creates a transfer buffer, maps it, records the
+// upload and releases the buffer on every call -- a fresh upload-heap
+// allocation per frame on Direct3D 12. MEASURED, 1080p60 on Windows: 1 ms a
+// frame on average and 6-14 ms at its worst, 17 times in 30 s, each one a
+// missed refresh. These keep one transfer buffer per texture plane, mapped
+// with cycle, and submit the upload on a command buffer of their own -- which
+// reaches the GPU before the renderer's frame, so they are only for a texture
+// uploaded BEFORE it is drawn that frame, as every video upload here is.
+// False when the renderer is not SDL's GPU renderer or anything fails; the
+// caller then uses SDL_UpdateNVTexture / SDL_UpdateTexture.
+// NV12 (bytesPerSample 1) or P010 (2), even width and height.
+bool gpuUploadNV(SDL_Renderer* renderer, SDL_Texture* texture,
+                 const std::uint8_t* y, int yPitch, const std::uint8_t* uv, int uvPitch,
+                 int width, int height, int bytesPerSample);
+bool gpuUploadRGBA(SDL_Renderer* renderer, SDL_Texture* texture,
+                   const std::uint8_t* pixels, int pitch, int width, int height);
+
 // AN HDR OUTPUT'S PICTURE AS P010, MADE ON THE GPU. A compute shader reads the
 // float (scRGB, half-float) compositor and writes 10-bit BT.2020 NCL Y'CbCr,
 // limited range, 4:2:0, in PQ or HLG -- core/hdr_to_sdr.hpp's

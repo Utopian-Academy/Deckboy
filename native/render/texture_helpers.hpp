@@ -32,6 +32,29 @@
 #include "core/sdl_compat.hpp"
 
 #include "core/types.hpp"
+#include "engine/gpu_readback.hpp"
+
+// A video frame into its texture: on SDL's GPU renderer through a kept
+// transfer buffer (gpu::gpuUploadNV / gpuUploadRGBA -- SDL's own update makes
+// and frees one every call), anywhere else, or if that fails, SDL's update.
+// For a texture uploaded before it is drawn in a frame.
+inline bool updateVideoTextureNV(SDL_Texture* tex, const Uint8* y, int yPitch,
+                                 const Uint8* uv, int uvPitch, int w, int h,
+                                 int bytesPerSample) {
+  if (deckboy::gpu::gpuUploadNV(SDL_GetRendererFromTexture(tex), tex, y, yPitch, uv, uvPitch,
+                                w, h, bytesPerSample)) {
+    return true;
+  }
+  return SDL_UpdateNVTexture(tex, nullptr, y, yPitch, uv, uvPitch);
+}
+
+inline bool updateVideoTextureRGBA(SDL_Texture* tex, const void* pixels, int pitch, int w, int h) {
+  if (deckboy::gpu::gpuUploadRGBA(SDL_GetRendererFromTexture(tex), tex,
+                                  static_cast<const std::uint8_t*>(pixels), pitch, w, h)) {
+    return true;
+  }
+  return SDL_UpdateTexture(tex, nullptr, pixels, pitch);
+}
 
 // Synchronize an SDL texture with new pixel data, recreating only when the
 // dimensions change. Returns true when the texture holds valid, up-to-date
@@ -111,12 +134,12 @@ inline bool syncFrameTexture(SDL_Renderer* renderer,
   if (frame.format == FramePixelFormat::NV12) {
     const Uint8* y = frame.pixels.data();
     const Uint8* uv = y + static_cast<std::size_t>(frame.width) * static_cast<std::size_t>(frame.height);
-    return SDL_UpdateNVTexture(tex, nullptr, y, frame.width, uv, frame.width);
+    return updateVideoTextureNV(tex, y, frame.width, uv, frame.width, frame.width, frame.height, 1);
   } else if (frame.format == FramePixelFormat::P010) {
     const Uint8* y = frame.pixels.data();
     const Uint8* uv = y + static_cast<std::size_t>(frame.width) * frame.height * 2;
-    return SDL_UpdateNVTexture(tex, nullptr, y, frame.width * 2, uv, frame.width * 2);
+    return updateVideoTextureNV(tex, y, frame.width * 2, uv, frame.width * 2, frame.width, frame.height, 2);
   } else {
-    return SDL_UpdateTexture(tex, nullptr, frame.pixels.data(), frame.width * 4);
+    return updateVideoTextureRGBA(tex, frame.pixels.data(), frame.width * 4, frame.width, frame.height);
   }
 }

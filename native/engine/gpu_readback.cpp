@@ -545,6 +545,155 @@ void readbacksAfterPresent(SDL_Renderer* renderer) {
 }
 
 // ----------------------------------------------------------------------------
+// Uploads on SDL's GPU renderer (see gpu_readback.hpp).
+#if SDL_VERSION_ATLEAST(3, 4, 0)
+namespace {
+
+// One transfer buffer per texture plane, kept, and mapped with cycle so SDL_GPU
+// hands back a free one while the last is still in flight. Render thread only.
+struct UploadSlot {
+  SDL_GPUDevice* device = nullptr;
+  SDL_GPUTransferBuffer* buffer = nullptr;
+  Uint32 size = 0;
+  std::uint64_t lastUsed = 0;
+};
+
+std::vector<std::pair<SDL_GPUTexture*, UploadSlot>>& uploadSlots() {
+  static std::vector<std::pair<SDL_GPUTexture*, UploadSlot>> slots;
+  return slots;
+}
+
+std::uint64_t& uploadClock() {
+  static std::uint64_t clock = 0;
+  return clock;
+}
+
+UploadSlot* uploadSlotFor(SDL_GPUDevice* device, SDL_GPUTexture* plane, Uint32 size) {
+  auto& slots = uploadSlots();
+  const std::uint64_t now = ++uploadClock();
+  UploadSlot* slot = nullptr;
+  for (auto& entry : slots) {
+    if (entry.first == plane && entry.second.device == device) slot = &entry.second;
+  }
+  if (!slot) {
+    // A plane not seen for a while belongs to a texture since destroyed (a
+    // clip of another size or format): its buffer goes back before a new one.
+    slots.erase(std::remove_if(slots.begin(), slots.end(), [&](auto& entry) {
+      if (now - entry.second.lastUsed < 600) return false;
+      SDL_ReleaseGPUTransferBuffer(entry.second.device, entry.second.buffer);
+      return true;
+    }), slots.end());
+    slots.push_back({plane, UploadSlot {device}});
+    slot = &slots.back().second;
+  }
+  if (slot->buffer && slot->size != size) {
+    SDL_ReleaseGPUTransferBuffer(device, slot->buffer);
+    slot->buffer = nullptr;
+  }
+  if (!slot->buffer) {
+    SDL_GPUTransferBufferCreateInfo info {};
+    info.usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD;
+    info.size = size;
+    slot->buffer = SDL_CreateGPUTransferBuffer(device, &info);
+    slot->size = slot->buffer ? size : 0;
+  }
+  slot->lastUsed = now;
+  return slot->buffer ? slot : nullptr;
+}
+
+bool uploadPlane(SDL_GPUDevice* device, SDL_GPUCopyPass* pass, SDL_GPUTexture* plane,
+                 const std::uint8_t* source, int pitch, int rowBytes, int width, int height) {
+  const Uint32 size = static_cast<Uint32>(rowBytes) * static_cast<Uint32>(height);
+  UploadSlot* slot = uploadSlotFor(device, plane, size);
+  if (!slot) return false;
+  auto* mapped = static_cast<std::uint8_t*>(SDL_MapGPUTransferBuffer(device, slot->buffer, true));
+  if (!mapped) return false;
+  if (pitch == rowBytes) {
+    std::memcpy(mapped, source, size);
+  } else {
+    for (int y = 0; y < height; ++y) {
+      std::memcpy(mapped + static_cast<std::size_t>(y) * rowBytes,
+                  source + static_cast<std::size_t>(y) * pitch, static_cast<std::size_t>(rowBytes));
+    }
+  }
+  SDL_UnmapGPUTransferBuffer(device, slot->buffer);
+  SDL_GPUTextureTransferInfo from {};
+  from.transfer_buffer = slot->buffer;
+  from.pixels_per_row = static_cast<Uint32>(width);
+  from.rows_per_layer = static_cast<Uint32>(height);
+  SDL_GPUTextureRegion to {};
+  to.texture = plane;
+  to.w = static_cast<Uint32>(width);
+  to.h = static_cast<Uint32>(height);
+  to.d = 1;
+  SDL_UploadToGPUTexture(pass, &from, &to, false);
+  return true;
+}
+
+// The planes go up on a command buffer of their own, submitted at once.
+template <typename Record>
+bool submitUpload(SDL_Renderer* renderer, Record&& record) {
+  SDL_GPUDevice* device = rendererGpuDevice(renderer);
+  if (!device) return false;
+  SDL_GPUCommandBuffer* cmd = SDL_AcquireGPUCommandBuffer(device);
+  if (!cmd) return false;
+  SDL_GPUCopyPass* pass = SDL_BeginGPUCopyPass(cmd);
+  if (!pass) {
+    SDL_CancelGPUCommandBuffer(cmd);
+    return false;
+  }
+  const bool ok = record(device, pass);
+  SDL_EndGPUCopyPass(pass);
+  if (!ok) {
+    SDL_CancelGPUCommandBuffer(cmd);
+    return false;
+  }
+  return SDL_SubmitGPUCommandBuffer(cmd);
+}
+
+}  // namespace
+#endif
+
+bool gpuUploadNV(SDL_Renderer* renderer, SDL_Texture* texture,
+                 const std::uint8_t* y, int yPitch, const std::uint8_t* uv, int uvPitch,
+                 int width, int height, int bytesPerSample) {
+#if SDL_VERSION_ATLEAST(3, 4, 0)
+  if (!texture || width <= 1 || height <= 1 || (width & 1) || (height & 1)) return false;
+  const SDL_PropertiesID props = SDL_GetTextureProperties(texture);
+  auto* luma = static_cast<SDL_GPUTexture*>(
+    SDL_GetPointerProperty(props, SDL_PROP_TEXTURE_GPU_TEXTURE_POINTER, nullptr));
+  auto* chroma = static_cast<SDL_GPUTexture*>(
+    SDL_GetPointerProperty(props, SDL_PROP_TEXTURE_GPU_TEXTURE_UV_POINTER, nullptr));
+  if (!luma || !chroma) return false;
+  return submitUpload(renderer, [&](SDL_GPUDevice* device, SDL_GPUCopyPass* pass) {
+    // The chroma plane is half size each way, two samples a texel.
+    return uploadPlane(device, pass, luma, y, yPitch, width * bytesPerSample, width, height) &&
+           uploadPlane(device, pass, chroma, uv, uvPitch, width * bytesPerSample,
+                       width / 2, height / 2);
+  });
+#else
+  (void) renderer; (void) texture; (void) y; (void) yPitch; (void) uv; (void) uvPitch;
+  (void) width; (void) height; (void) bytesPerSample;
+  return false;
+#endif
+}
+
+bool gpuUploadRGBA(SDL_Renderer* renderer, SDL_Texture* texture,
+                   const std::uint8_t* pixels, int pitch, int width, int height) {
+#if SDL_VERSION_ATLEAST(3, 4, 0)
+  if (!texture || width <= 0 || height <= 0) return false;
+  auto* plane = textureGpuHandle(texture);
+  if (!plane) return false;
+  return submitUpload(renderer, [&](SDL_GPUDevice* device, SDL_GPUCopyPass* pass) {
+    return uploadPlane(device, pass, plane, pixels, pitch, width * 4, width, height);
+  });
+#else
+  (void) renderer; (void) texture; (void) pixels; (void) pitch; (void) width; (void) height;
+  return false;
+#endif
+}
+
+// ----------------------------------------------------------------------------
 // HDR P010 on the GPU (see gpu_readback.hpp).
 #ifdef _WIN32
 namespace {
