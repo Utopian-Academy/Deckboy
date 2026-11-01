@@ -4392,6 +4392,35 @@
   // name, both to force "gpu" on a Windows desk (which is how this path gets
   // tested at all) and to get an operator back to the old behaviour in a hurry
   // if a driver misbehaves in the field.
+  // STREAM-ONLY OUTPUTS ON SDL'S GPU RENDERER RENDER OFFSCREEN. That renderer
+  // hands its frame to the GPU only at SDL_RenderPresent, and a stream output
+  // never presented its hidden window (that would wait on a swapchain the
+  // compositor throttles). So nothing it drew ever reached the GPU: the
+  // recording read back one stale picture, or after a second of misses fell
+  // back to the slow synchronous read. An offscreen renderer (no window) is
+  // presented every frame, which only submits -- no swapchain, no vsync.
+  // Direct3D 11 runs every draw at once and needs none of this.
+  SDL_Renderer* createOffscreenGpuRenderer(bool hdr) {
+#if SDL_VERSION_ATLEAST(3, 4, 0)
+    if (hdr) {
+      return nullptr;   // offscreen HDR is not offered; the window renderer is used
+    }
+    const char* forced = std::getenv("DECKBOY_OUTPUT_RENDERER");
+#if defined(_WIN32)
+    const bool wantsGpu = forced && std::string(forced) == "gpu";
+#else
+    const bool wantsGpu = !forced || !*forced || std::string(forced) == "gpu";
+#endif
+    if (!wantsGpu) {
+      return nullptr;
+    }
+    return SDL_CreateGPURenderer(nullptr, nullptr);
+#else
+    (void) hdr;
+    return nullptr;
+#endif
+  }
+
   SDL_Renderer* createOutputRenderer(SDL_Window* window, bool hdr = false) {
     // HDR: the renderer outputs scRGB (linear BT.709 primaries, 1.0 = 80 nits,
     // values above it reach the display's HDR range). Direct3D 11 on Windows,
@@ -9281,7 +9310,10 @@
     // A recording is a hidden stream output, so HDR applies to those too:
     // its float compositor is what an HDR recording is made from.
     const bool wantHdr = outputWantsHdr(outputIndex);
-    runtime.outputRenderer = createOutputRenderer(runtime.outputWindow, wantHdr);
+    runtime.outputRenderer = streamType ? createOffscreenGpuRenderer(wantHdr) : nullptr;
+    if (!runtime.outputRenderer) {
+      runtime.outputRenderer = createOutputRenderer(runtime.outputWindow, wantHdr);
+    }
     runtime.hdr = wantHdr && runtime.outputRenderer &&
       SDL_GetNumberProperty(SDL_GetRendererProperties(runtime.outputRenderer),
                             SDL_PROP_RENDERER_OUTPUT_COLORSPACE_NUMBER, SDL_COLORSPACE_SRGB) ==

@@ -1,8 +1,10 @@
 #include "gpu_readback.hpp"
 
+#include <algorithm>
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
+#include <vector>
 
 #ifdef _WIN32
 #include <d3d11.h>
@@ -108,7 +110,17 @@ struct GpuDownloadReadback {
   int bytesPerPixel = 4;  // 8 for half-float RGBA
   int cursor = 0;
   int primed = 0;
+  // The frame asked for, read once the renderer has submitted it
+  // (readbacksAfterPresent).
+  SDL_Texture* pendingSource = nullptr;
+  std::uint64_t pendingAtNs = 0;
 };
+
+// Every live readback, for readbacksAfterPresent. All on the render thread.
+std::vector<GpuDownloadReadback*>& liveGpuReadbacks() {
+  static std::vector<GpuDownloadReadback*> live;
+  return live;
+}
 
 SDL_GPUDevice* rendererGpuDevice(SDL_Renderer* renderer) {
   if (!renderer) {
@@ -139,6 +151,7 @@ void* createGpuDownloadReadback(SDL_Renderer* renderer, int width, int height, i
   rb->width = width;
   rb->height = height;
   rb->bytesPerPixel = bytesPerPixel;
+  liveGpuReadbacks().push_back(rb);
   const Uint32 bytes = static_cast<Uint32>(width) * static_cast<Uint32>(height) *
                        static_cast<Uint32>(bytesPerPixel);
   for (int i = 0; i < kStagingRingSize; ++i) {
@@ -150,6 +163,8 @@ void* createGpuDownloadReadback(SDL_Renderer* renderer, int width, int height, i
       for (int j = 0; j < i; ++j) {
         SDL_ReleaseGPUTransferBuffer(device, rb->ring[j]);
       }
+      auto& live = liveGpuReadbacks();
+      live.erase(std::remove(live.begin(), live.end(), rb), live.end());
       delete rb;
       return nullptr;
     }
@@ -160,6 +175,8 @@ void* createGpuDownloadReadback(SDL_Renderer* renderer, int width, int height, i
 void destroyGpuDownloadReadback(void* handle) {
   auto* rb = static_cast<GpuDownloadReadback*>(handle);
   if (!rb) return;
+  auto& live = liveGpuReadbacks();
+  live.erase(std::remove(live.begin(), live.end(), rb), live.end());
   for (int i = 0; i < kStagingRingSize; ++i) {
     // A fence still in flight must be waited on before its buffer goes away,
     // or the GPU writes into freed memory. This is the one place we DO block.
@@ -188,62 +205,28 @@ bool gpuDownloadReadbackFrame(void* handle, SDL_Texture* source,
     return false;   // caller recreates on a raster change
   }
 
-  SDL_GPUTexture* tex = textureGpuHandle(source);
-  if (!tex) {
+  if (!textureGpuHandle(source)) {
     return false;
   }
-  // DECKBOY_EGRESS_BENCH=1 prints the three costs every 100 frames. Read once:
+  // DECKBOY_EGRESS_BENCH=1 prints the costs every 100 frames. Read once:
   // this runs on the render thread at frame rate.
   static const bool bench = [] {
     const char* e = std::getenv("DECKBOY_EGRESS_BENCH");
     return e && *e;
   }();
   const Uint64 t0 = SDL_GetPerformanceCounter();
-  // The renderer batches; without this the download can be submitted BEFORE the
-  // draw that filled the texture, and the recording gets last frame's picture.
-  SDL_FlushRenderer(rb->renderer);
+  // READ AFTER THE PRESENT, NOT NOW. SDL's GPU renderer submits its frame
+  // only at SDL_RenderPresent -- SDL_FlushRenderer records the draws but does
+  // not submit them -- so a download submitted here ran on the GPU ahead of
+  // the very draws that fill the texture. Every recording made through this
+  // path, on every machine using the GPU renderer (macOS and Linux by
+  // default), came out as one frozen picture. The download is issued by
+  // readbacksAfterPresent, right after this frame has gone to the GPU and
+  // before the next one is drawn.
+  rb->pendingSource = source;
+  rb->pendingAtNs = submittedAtNs;
   const Uint64 t1 = SDL_GetPerformanceCounter();
-
-  // The slot about to be written may still have a download in flight -- three
-  // frames is normally ample, but if the GPU falls behind, issuing a second
-  // download into the same transfer buffer would race the first. Skip this
-  // frame instead; the caller repeats the previous picture, which is what it
-  // does for every other "not ready" case.
-  if (rb->fence[rb->cursor] && !SDL_QueryGPUFence(rb->device, rb->fence[rb->cursor])) {
-    return false;
-  }
-
-  SDL_GPUCommandBuffer* cmd = SDL_AcquireGPUCommandBuffer(rb->device);
-  if (!cmd) {
-    return false;
-  }
-  SDL_GPUCopyPass* pass = SDL_BeginGPUCopyPass(cmd);
-  if (!pass) {
-    SDL_SubmitGPUCommandBuffer(cmd);
-    return false;
-  }
-  SDL_GPUTextureRegion region {};
-  region.texture = tex;
-  region.w = static_cast<Uint32>(width);
-  region.h = static_cast<Uint32>(height);
-  region.d = 1;
-  SDL_GPUTextureTransferInfo dst {};
-  dst.transfer_buffer = rb->ring[rb->cursor];
-  dst.pixels_per_row = static_cast<Uint32>(width);
-  dst.rows_per_layer = static_cast<Uint32>(height);
-  SDL_DownloadFromGPUTexture(pass, &region, &dst);
-  SDL_EndGPUCopyPass(pass);
-
-  if (rb->fence[rb->cursor]) {
-    // Signalled (checked above), so this only releases our reference.
-    SDL_ReleaseGPUFence(rb->device, rb->fence[rb->cursor]);
-    rb->fence[rb->cursor] = nullptr;
-  }
-  rb->fence[rb->cursor] = SDL_SubmitGPUCommandBufferAndAcquireFence(cmd);
-  rb->timestamp[rb->cursor] = submittedAtNs;
-  rb->cursor = (rb->cursor + 1) % kStagingRingSize;
   if (rb->primed < kStagingRingSize) {
-    rb->primed += 1;
     return false;   // ring still filling
   }
   // FEED ONLY: no buffer means "keep the ring moving, read nothing". A
@@ -284,12 +267,58 @@ bool gpuDownloadReadbackFrame(void* handle, SDL_Texture* source,
     submit += (t2 - t1) * 1000.0 / f;
     map += (SDL_GetPerformanceCounter() - t2) * 1000.0 / f;
     if (++n == 100) {
-      std::cerr << "gpu-readback flush=" << (flush / n) << "ms submit="
+      std::cerr << "gpu-readback ask=" << (flush / n) << "ms submit="
                 << (submit / n) << "ms map=" << (map / n) << "ms" << std::endl;
       n = 0; flush = 0; submit = 0; map = 0;
     }
   }
   return ok;
+}
+
+// The download a frame asked for, now that the renderer has submitted that
+// frame. A slot whose last download is still in flight skips this frame; the
+// caller then repeats the previous picture, as for every "not ready".
+void issuePendingDownload(GpuDownloadReadback* rb) {
+  SDL_Texture* source = rb->pendingSource;
+  rb->pendingSource = nullptr;
+  SDL_GPUTexture* tex = textureGpuHandle(source);
+  if (!tex) {
+    return;
+  }
+  if (rb->fence[rb->cursor] && !SDL_QueryGPUFence(rb->device, rb->fence[rb->cursor])) {
+    return;
+  }
+  SDL_GPUCommandBuffer* cmd = SDL_AcquireGPUCommandBuffer(rb->device);
+  if (!cmd) {
+    return;
+  }
+  SDL_GPUCopyPass* pass = SDL_BeginGPUCopyPass(cmd);
+  if (!pass) {
+    SDL_SubmitGPUCommandBuffer(cmd);
+    return;
+  }
+  SDL_GPUTextureRegion region {};
+  region.texture = tex;
+  region.w = static_cast<Uint32>(rb->width);
+  region.h = static_cast<Uint32>(rb->height);
+  region.d = 1;
+  SDL_GPUTextureTransferInfo dst {};
+  dst.transfer_buffer = rb->ring[rb->cursor];
+  dst.pixels_per_row = static_cast<Uint32>(rb->width);
+  dst.rows_per_layer = static_cast<Uint32>(rb->height);
+  SDL_DownloadFromGPUTexture(pass, &region, &dst);
+  SDL_EndGPUCopyPass(pass);
+  if (rb->fence[rb->cursor]) {
+    // Signalled (checked above), so this only releases our reference.
+    SDL_ReleaseGPUFence(rb->device, rb->fence[rb->cursor]);
+    rb->fence[rb->cursor] = nullptr;
+  }
+  rb->fence[rb->cursor] = SDL_SubmitGPUCommandBufferAndAcquireFence(cmd);
+  rb->timestamp[rb->cursor] = rb->pendingAtNs;
+  rb->cursor = (rb->cursor + 1) % kStagingRingSize;
+  if (rb->primed < kStagingRingSize) {
+    rb->primed += 1;
+  }
 }
 #else   // SDL < 3.4: there is no SDL_GPU texture property to read from.
 void* createGpuDownloadReadback(SDL_Renderer*, int, int, int) { return nullptr; }
@@ -501,6 +530,18 @@ bool stagingReadbackFrame(void* handle, SDL_Texture* source,
   }
 #endif
   return gpuDownloadReadbackFrame(h->gpu, source, out, outBytes, width, height, submittedAtNs, sourceAtNs);
+}
+
+void readbacksAfterPresent(SDL_Renderer* renderer) {
+#if SDL_VERSION_ATLEAST(3, 4, 0)
+  for (GpuDownloadReadback* rb : liveGpuReadbacks()) {
+    if (rb->renderer == renderer && rb->pendingSource) {
+      issuePendingDownload(rb);
+    }
+  }
+#else
+  (void) renderer;
+#endif
 }
 
 // ----------------------------------------------------------------------------

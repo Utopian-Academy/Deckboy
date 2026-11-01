@@ -274,6 +274,7 @@ void MediaEngine::stopAll() {
 void MediaEngine::loadCue(const Cue* cue, bool autoplay, double transitionSeconds,
                            TransitionStyle transitionStyle, bool suppressFadeIn) {
   devampRequested_ = false;   // a devamp belonged to the cue it was aimed at
+  loopPassesPlayed_ = 0;      // and so do the repeats it has played
   liveOutgoing_ = false;      // a held frame from here on is this engine's own, frozen
   float outgoingGain = transitionSourceGainForLoadCue(activeCue_, state_, visualFadeGainAt(position()));
   outgoingCueSnapshot_ = activeCueSnapshot_;
@@ -1398,6 +1399,7 @@ void MediaEngine::update() {
         stripPatternMotionSuffix(normalizePatternTypeId(activeCue_->path)) == "pocket-test") {
       queuePocketSyncAudio();
     }
+    serviceLoopSeam();
     if (duration_ > 0.0 && state_ == TransportState::Playing) {
       currentPosition_ = position();
       if (nextPausePointIdx_ < pausePoints_.size() &&
@@ -1421,6 +1423,7 @@ void MediaEngine::update() {
     return;
   }
 
+  serviceLoopSeam();
   currentPosition_ = position();
 
   // Audio-master drift correction. The audio device consumes samples on its
@@ -1590,7 +1593,9 @@ void MediaEngine::update() {
   // seconds at a steady point -- and the picture stays within 0.6 of a frame
   // of the clock, where reading the clock directly kept it within one. A long stall, a seek or a loop starts it
   // again from the clock. Until the tick rate is known it is the plain clock.
-  const double clockFrames = currentPosition_ * frameRate_;
+  // In index space: frame numbers carry on through a seamless loop's seam
+  // while the position goes back to zero (indexBase_, THE LOOP SEAM).
+  const double clockFrames = static_cast<double>(indexBase_) + currentPosition_ * frameRate_;
   std::uint64_t targetFrame = static_cast<std::uint64_t>(std::floor(clockFrames));
   {
     const auto tickAt = std::chrono::steady_clock::now();
@@ -5329,7 +5334,10 @@ double MediaEngine::visualFadeGainAt(double positionSeconds) const {
   // pause-on-last stills — if you set a fade-out you want to see it. Stills
   // default to fadeOutSeconds == 0 (see applyDeckDefaultsToCue) so the common
   // case holds cleanly; this branch only engages once it's turned on.
-  if (!suppressVisualFadeOutForCurrentCue_ && activeCue_->fadeOutSeconds > 0.001 && duration_ > 0.0) {
+  // A cue going round seamlessly does not end at the end of a pass, so it
+  // does not fade out there either (the last of N repeats does).
+  if (!suppressVisualFadeOutForCurrentCue_ && !loopAtPassEnd_.load() &&
+      activeCue_->fadeOutSeconds > 0.001 && duration_ > 0.0) {
     double remaining = std::max(0.0, duration_ - positionSeconds);
     gain = std::min(gain, std::clamp(remaining / activeCue_->fadeOutSeconds, 0.0, 1.0));
   }
@@ -5757,12 +5765,16 @@ void MediaEngine::refreshAudioEffectStack() {
 double MediaEngine::audioFadeGainAt(double positionSeconds) const {
   double gain = 1.0;
   double fadeIn = audioFadeInSeconds_.load(std::memory_order_relaxed);
-  if (!audioSuppressFadeIn_.load(std::memory_order_relaxed) && fadeIn > 0.001) {
+  // Once round: the audio thread is into the next pass well before the
+  // engine's seam sets the suppress flag, so it checks for itself.
+  if (!audioSuppressFadeIn_.load(std::memory_order_relaxed) &&
+      audioPassesStarted_.load(std::memory_order_relaxed) == 0 && fadeIn > 0.001) {
     gain = std::min(gain, std::clamp(positionSeconds / fadeIn, 0.0, 1.0));
   }
   double fadeOut = audioFadeOutSeconds_.load(std::memory_order_relaxed);
   double duration = audioFadeDuration_.load(std::memory_order_relaxed);
-  if (!audioSuppressFadeOut_.load(std::memory_order_relaxed) && fadeOut > 0.001 && duration > 0.0) {
+  if (!audioSuppressFadeOut_.load(std::memory_order_relaxed) &&
+      !loopAtPassEnd_.load(std::memory_order_relaxed) && fadeOut > 0.001 && duration > 0.0) {
     double remaining = std::max(0.0, duration - positionSeconds);
     gain = std::min(gain, std::clamp(remaining / fadeOut, 0.0, 1.0));
   }
@@ -6172,6 +6184,125 @@ void MediaEngine::drawTransitionOverlay(const SDL_Rect& target, bool drewCurrent
 // texture (go to black) or holds the last frame. Loop/PauseOnLast keep the
 // frame; Stop clears it.
 // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// THE LOOP SEAM.
+//
+// A loop used to be seek(0): every queued sample of sound thrown away, both
+// decoders stopped and the file opened again, so every pass of a looping
+// clip ended in a gap -- a held picture, then silence, at the seam. Now the
+// in-process decoders go round by themselves at the end of a pass (rewind on
+// the open pipeline, startInprocDecoders), the frame numbers carry on, and
+// the engine wraps its clock -- and the audio clock with it -- in one tick
+// at the exact end of the pass, while what is queued plays straight through.
+// Anything that cannot do that (a decoder that stopped instead, loop switched
+// on after the decoder had finished, the subprocess decode) goes round the
+// old way, restartLoopFromTop().
+// ---------------------------------------------------------------------------
+bool MediaEngine::seamlessLoopWanted() const {
+  if (!activeCue_ || !inprocDecodeActive_ || loopPassSeconds_ <= 0.0 || liveSourceNoEnd_ ||
+      devampRequested_) {
+    return false;
+  }
+  if (resolvedCueEndAction(*activeCue_) != CueEndAction::Loop) {
+    return false;
+  }
+  // The last of N repeats ends the cue rather than going round again.
+  return activeCue_->loopCount <= 0 || loopPassesPlayed_ + 1 < activeCue_->loopCount;
+}
+
+bool MediaEngine::seamlessLoopInFlight() const {
+  if (!loopAtPassEnd_.load() || !decodersRunning_ || loopPassSeconds_ <= 0.0) {
+    return false;
+  }
+  // A decoder that stopped at the end instead of going round leaves nothing
+  // to wrap onto.
+  if (loopPassFrames_ > 0 ? decoderEof_.load() : audioDecodeEnded_.load()) {
+    return false;
+  }
+  // Nor does one that has not got round half a second after the seam.
+  return rawPlayingPosition() < loopPassSeconds_ + 0.5;
+}
+
+double MediaEngine::rawPlayingPosition() const {
+  if (state_ != TransportState::Playing) {
+    return currentPosition_;
+  }
+  const double elapsed =
+    std::chrono::duration<double>(std::chrono::steady_clock::now() - playbackClockStart_).count() *
+    playbackSpeed_ * tapeSpeed_ * clockTrim_;
+  return playbackStartPosition_ + elapsed;
+}
+
+bool MediaEngine::wrapLoopSeamlessly(double rawPosition) {
+  const std::uint64_t next = passesWrapped_ + 1;
+  if (loopPassFrames_ > 0 && decoderEof_.load()) {
+    return false;   // the picture stopped instead of going round
+  }
+  // Both halves must already be into the next pass (a sound decoder that has
+  // stopped has nothing to wait for).
+  if (loopPassFrames_ > 0 && videoPassesStarted_.load() < next) {
+    return false;
+  }
+  if (!audioDecodeEnded_.load() && audioPassesStarted_.load() < next) {
+    return false;
+  }
+  const double over = std::clamp(rawPosition - loopPassSeconds_, 0.0, loopPassSeconds_);
+  playbackStartPosition_ = over;
+  playbackClockStart_ = std::chrono::steady_clock::now();
+  currentPosition_ = over;
+  pausedPosition_ = over;
+  // The sound card's clock counts on through the seam; take the same pass off
+  // it, so the steering compares like with like.
+  audioClockStartSeconds_ -= loopPassSeconds_;
+  if (lastAudioClockSeconds_ >= 0.0) {
+    lastAudioClockSeconds_ -= loopPassSeconds_;
+  }
+  indexBase_ += loopPassFrames_;
+  ++passesWrapped_;
+  ++loopPassesPlayed_;
+  avJumpExpected_ = true;   // a deliberate re-base, not a jump
+  playedToEnd_ = false;
+  suppressFadeInForCurrentCue_ = true;
+  suppressVisualFadeOutForCurrentCue_ = true;
+  syncAudioFadeParams();
+  nextPausePointIdx_ = 0;
+  while (nextPausePointIdx_ < pausePoints_.size() && pausePoints_[nextPausePointIdx_] <= over) {
+    ++nextPausePointIdx_;
+  }
+  // The last of N repeats has just begun: this time the decoders stop.
+  loopAtPassEnd_.store(seamlessLoopWanted());
+  return true;
+}
+
+// Every tick: keep the decoders told whether to go round, and wrap the clock
+// at the exact end of a pass once both are into the next one.
+void MediaEngine::serviceLoopSeam() {
+  loopAtPassEnd_.store(seamlessLoopWanted());
+  if (state_ != TransportState::Playing || loopPassSeconds_ <= 0.0 || !decodersRunning_) {
+    return;
+  }
+  const double raw = rawPlayingPosition();
+  if (raw >= loopPassSeconds_) {
+    wrapLoopSeamlessly(raw);
+  }
+}
+
+// Go round by starting the decode again -- the gap at the seam -- for what
+// cannot loop seamlessly.
+void MediaEngine::restartLoopFromTop() {
+  ++loopPassesPlayed_;   // before the restart, which asks seamlessLoopWanted()
+  suppressFadeInForCurrentCue_ = true;
+  suppressVisualFadeOutForCurrentCue_ = true;
+  seek(0.0, false);  // restart decode from beginning
+  state_ = TransportState::Playing;
+  playbackClockStart_ = std::chrono::steady_clock::now();
+  playbackStartPosition_ = 0.0;
+  pausedPosition_ = 0.0;
+  if (audioStream_) {
+    setOutputPaused(false);  // ensure audio is unpaused
+  }
+}
+
 void MediaEngine::handlePlaybackEnd() {
   if (!activeCue_) {
     return;
@@ -6184,19 +6315,21 @@ void MediaEngine::handlePlaybackEnd() {
     devampRequested_ = false;
     act = activeCue_->pauseOnLastFrame ? CueEndAction::PauseOnLast : CueEndAction::AutoNext;
   }
+  // REPEATS (Cue::loopCount, shown as "3x"): the last of the passes ends the
+  // cue the way a devamped loop does. The count was shown and edited but
+  // never read, so a cue set to play three times went round for ever.
+  if (act == CueEndAction::Loop && activeCue_->loopCount > 0 &&
+      loopPassesPlayed_ + 1 >= activeCue_->loopCount) {
+    act = activeCue_->pauseOnLastFrame ? CueEndAction::PauseOnLast : CueEndAction::AutoNext;
+  }
 
   if (act == CueEndAction::Loop) {
-    // Seamless loop: suppress fades to avoid a flash at the loop point
-    suppressFadeInForCurrentCue_ = true;
-    suppressVisualFadeOutForCurrentCue_ = true;
-    seek(0.0, false);  // restart decode from beginning
-    state_ = TransportState::Playing;
-    playbackClockStart_ = std::chrono::steady_clock::now();
-    playbackStartPosition_ = 0.0;
-    pausedPosition_ = 0.0;
-    if (audioStream_) {
-      setOutputPaused(false);  // ensure audio is unpaused
+    // The decoders are already into the next pass; the seam in update()
+    // wraps the clock at the exact end of this one. Nothing to do here.
+    if (seamlessLoopInFlight()) {
+      return;
     }
+    restartLoopFromTop();
     return;
   }
   if (act == CueEndAction::PauseOnLast) {
@@ -6988,6 +7121,16 @@ bool MediaEngine::buildSourceCapturePlan(const Cue& cue, int w, int h,
 //   - Unknown dimensions: ffprobe is called first (only for non-ingested cues)
 // ---------------------------------------------------------------------------
 void MediaEngine::startDecoderThreads(const Cue& cue, double mediaStartSeconds, double cueStartSeconds) {
+  // A new decode is a new timeline: no pass to wrap until the in-process
+  // decoders set one (startInprocDecoders), and frame 0 is index 0 again.
+  loopPassSeconds_ = 0.0;
+  loopPassFrames_ = 0;
+  loopPassAudioFrames_ = 0;
+  loopAtPassEnd_.store(false);
+  videoPassesStarted_.store(0);
+  audioPassesStarted_.store(0);
+  passesWrapped_ = 0;
+  indexBase_ = 0;
   // Datamosh swaps the FILE, not just the decode flag: the prepared copy is a
   // separate encode (no B-frames, single reference) sitting beside the
   // original. Done here rather than in mediaPathForCue on purpose - that goes
@@ -8520,11 +8663,33 @@ bool MediaEngine::startInprocDecoders(const Cue& cue, const std::string& mediaPa
   decodeStallLatched_ = false;
   lastFramePushMs_.store(SDL_GetTicks());
 
+  // THE PASS, for a seamless loop: one time round the clip, from the cue's
+  // in-point to its out-point. In frames for the picture (a whole number, so
+  // every pass has the same frames), and from that in seconds and in audio
+  // frames at the output rate, so sound and picture are cut at exactly the
+  // same place and cannot drift apart however many times the clip goes round.
+  // The decoders read it; the engine wraps its clock on it (update()).
+  if (duration_ > 0.0 && !liveSourceNoEnd_) {
+    if (wantVideo && frameRate_ > 0.0) {
+      loopPassFrames_ = static_cast<std::uint64_t>(std::ceil(duration_ * frameRate_ - 1e-6));
+      loopPassSeconds_ = static_cast<double>(loopPassFrames_) / frameRate_;
+    } else {
+      loopPassSeconds_ = duration_;
+    }
+    loopPassAudioFrames_ = static_cast<std::uint64_t>(
+      std::llround(loopPassSeconds_ / std::max(0.01, speed) * static_cast<double>(audioRate_)));
+  }
+  loopAtPassEnd_.store(seamlessLoopWanted());
+
   if (wantVideo) {
     videoThread_ = std::thread([this, cueStartSeconds]() {
       const std::uint64_t startIndex =
         static_cast<std::uint64_t>(std::floor(cueStartSeconds * frameRate_));
       std::uint64_t frameIndex = startIndex;
+      // Where this pass's frame 0 sits in index space, and the index its first
+      // timestamp maps to (the in-point on the first pass, frame 0 after).
+      std::uint64_t passBase = 0;
+      std::uint64_t passOrigin = startIndex;
       // The first frame's timestamp is the ORIGIN, not zero. See below.
       double firstPresentation = -1.0;
       while (!decoderStop_.load()) {
@@ -8543,7 +8708,20 @@ bool MediaEngine::startInprocDecoders(const Cue& cue, const std::string& mediaPa
           break;
         }
         DecodedFrame frame;
-        if (!videoPipeline_->nextFrame(frame)) {
+        const bool got = videoPipeline_->nextFrame(frame);
+        if (!got) {
+          // THE END OF THE FILE, on a cue that goes round: back to the
+          // in-point on the same pipeline and carry on, while the engine
+          // plays out what is queued. A file shorter than its pass leaves
+          // its last frame up for the difference.
+          if (loopAtPassEnd_.load() && loopPassFrames_ > 0 && videoPipeline_->rewind()) {
+            passBase += loopPassFrames_;
+            frameIndex = passBase;
+            passOrigin = passBase;
+            firstPresentation = -1.0;
+            videoPassesStarted_.fetch_add(1);
+            continue;
+          }
           break;
         }
         // Index by the frame's real presentation time when we have it, so
@@ -8580,7 +8758,7 @@ bool MediaEngine::startInprocDecoders(const Cue& cue, const std::string& mediaPa
           }
           const double relative = frame.presentationSeconds - firstPresentation;
           const std::int64_t ptsIndex =
-            static_cast<std::int64_t>(startIndex) +
+            static_cast<std::int64_t>(passOrigin) +
             std::llround(relative * frameRate_);
           const std::int64_t expected = static_cast<std::int64_t>(frameIndex);
           const std::int64_t tolerance =
@@ -8593,6 +8771,17 @@ bool MediaEngine::startInprocDecoders(const Cue& cue, const std::string& mediaPa
           }
         } else {
           frame.index = frameIndex++;
+        }
+        // PAST THE OUT-POINT on a cue that goes round: this frame belongs to
+        // the next pass, which starts from the in-point instead.
+        if (loopAtPassEnd_.load() && loopPassFrames_ > 0 &&
+            frame.index >= passBase + loopPassFrames_ && videoPipeline_->rewind()) {
+          passBase += loopPassFrames_;
+          frameIndex = passBase;
+          passOrigin = passBase;
+          firstPresentation = -1.0;
+          videoPassesStarted_.fetch_add(1);
+          continue;
         }
         if (liveRgbaBridge_.load()) {
           bridgeFrameToRgba(frame);   // see adoptLookWithoutRestart
@@ -8643,22 +8832,44 @@ bool MediaEngine::startInprocDecoders(const Cue& cue, const std::string& mediaPa
       lastAudioClockSeconds_ = -1.0;
       lastAudioClockAdvanceMs_ = 0;
       audioClockValid_ = true;
-      audioThread_ = std::thread([this, cueStartSeconds]() {
+      audioDecodeEnded_.store(false);
+      audioThread_ = std::thread([this, cueStartSeconds, speed]() {
         std::vector<std::int16_t> samples(4096);
         double audioTime = cueStartSeconds;
         std::uint64_t produced = 0;
+        // Where this pass is, in audio frames, and how much silence is still
+        // owed to make a short audio track fill its pass (see below).
+        const std::uint64_t passFrames = loopPassAudioFrames_;
+        std::uint64_t passPos = static_cast<std::uint64_t>(std::llround(
+          cueStartSeconds / std::max(0.01, speed) * static_cast<double>(audioRate_)));
+        std::uint64_t silenceOwed = 0;
+        // ROUND AGAIN without a gap: back to the in-point on the same
+        // pipeline, the pass clock to zero, and no second fade-in.
+        auto goRound = [&]() {
+          if (!audioPipeline_->rewind()) {
+            return false;
+          }
+          passPos = 0;
+          audioTime = 0.0;
+          audioPassesStarted_.fetch_add(1);
+          return true;
+        };
         while (!decoderStop_.load()) {
           // ~120 ms queued (5760 frames) at the stream's channel count.
           if (queuedAudioBytes() > 5760 * audioStreamBytesPerFrame()) {
             SDL_Delay(4);
             continue;
           }
-          {
-            static Uint64 dbgLast = 0;
-            const Uint64 nowDbg = SDL_GetTicks();
-            if (nowDbg - dbgLast > 1000) {
-              dbgLast = nowDbg;
+          if (silenceOwed > 0) {
+            const std::uint64_t n = std::min<std::uint64_t>(silenceOwed, samples.size() / 2);
+            std::vector<std::int16_t> silence(static_cast<std::size_t>(n) * 2, 0);
+            applyGainAndQueueAudio(silence, audioTime);
+            silenceOwed -= n;
+            passPos += n;
+            if (silenceOwed == 0 && !goRound()) {
+              break;
             }
+            continue;
           }
           int got = audioPipeline_->read(samples.data(), static_cast<int>(samples.size()));
           if (got <= 0) {
@@ -8667,13 +8878,44 @@ bool MediaEngine::startInprocDecoders(const Cue& cue, const std::string& mediaPa
             // end exactly as quietly either way.
             if (produced == 0) {
               latchAudioStartFailure("audio decoder produced no samples");
+              break;
+            }
+            // THE END OF THE SOUND on a cue that goes round. Each pass is cut
+            // to exactly its length in samples, so a track shorter than the
+            // picture is made up with silence: sound and picture then start
+            // every pass together, however many times the clip goes round.
+            if (loopAtPassEnd_.load() && passFrames > 0) {
+              if (passPos < passFrames) {
+                silenceOwed = passFrames - passPos;
+                continue;
+              }
+              if (goRound()) {
+                continue;
+              }
             }
             break;
           }
           produced += static_cast<std::uint64_t>(got);
-          std::vector<std::int16_t> scaled(samples.begin(), samples.begin() + got);
-          applyGainAndQueueAudio(scaled, audioTime);
+          std::size_t frames = static_cast<std::size_t>(got) / 2;
+          // PAST THE END OF THE PASS (an out-point, or a track longer than the
+          // picture) on a cue that goes round: keep exactly what belongs to
+          // this pass, then start the next.
+          bool cut = false;
+          if (loopAtPassEnd_.load() && passFrames > 0 && passPos + frames >= passFrames) {
+            frames = static_cast<std::size_t>(passFrames > passPos ? passFrames - passPos : 0);
+            cut = true;
+          }
+          if (frames > 0) {
+            std::vector<std::int16_t> scaled(samples.begin(),
+                                             samples.begin() + static_cast<std::ptrdiff_t>(frames * 2));
+            applyGainAndQueueAudio(scaled, audioTime);
+            passPos += frames;
+          }
+          if (cut && !goRound()) {
+            break;
+          }
         }
+        audioDecodeEnded_.store(true);
       });
     }
   }

@@ -40,6 +40,12 @@ void destroyStagingReadback(void* handle);
 // busy) -- not an error; the caller simply reuses the previous picture.
 // Optional acquisition metadata travels with the ring entry. On success,
 // sourceAtNs receives the submittedAtNs of the frame actually returned.
+// Call right after SDL_RenderPresent on a renderer that has readbacks. On
+// SDL's GPU renderer a frame reaches the GPU only at the present, so the
+// download stagingReadbackFrame asked for is issued here; elsewhere it does
+// nothing.
+void readbacksAfterPresent(SDL_Renderer* renderer);
+
 bool stagingReadbackFrame(void* handle, SDL_Texture* source,
                           std::uint8_t* out, std::size_t outBytes,
                           int width, int height,

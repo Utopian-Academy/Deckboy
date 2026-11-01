@@ -6000,8 +6000,13 @@
       }
       outputSnapPath_.clear();
     }
-    if (!streamType) {
+    // A window output presents to its screen; an offscreen one (a stream
+    // output on the GPU renderer, createOffscreenGpuRenderer) presents only
+    // to hand its frame to the GPU. Either way the frame is on the GPU after
+    // this, and the recording's and the monitor's reads of it go out.
+    if (!streamType || SDL_GetRenderWindow(runtime->outputRenderer) == nullptr) {
       SDL_RenderPresent(runtime->outputRenderer);
+      deckboy::gpu::readbacksAfterPresent(runtime->outputRenderer);
     }
     recordOutputFramePresented(outputIndex);
     // WHERE AN OUTPUT FRAME'S TIME GOES, under DECKBOY_UI_PROFILE: composite,

@@ -136,6 +136,11 @@ class VideoPipeline {
   // the caller to assign.
   bool nextFrame(DecodedFrame& out);
 
+  // Back to the in-point on the same open pipeline (a loop): nextFrame then
+  // starts the clip again. False when the stream cannot seek; the caller
+  // reopens instead.
+  bool rewind();
+
   bool zeroCopyActive() const;         // frames carry GPU payloads
   void* device() const;                // ID3D11Device* in use (null in CPU/sw mode)
   // Whether the DECODE ran on hardware, which is a different question from
@@ -223,6 +228,11 @@ class AudioPipeline {
   // caller asked for in AudioOpenParams::sampleRate.
   // Returns the count written, 0 on EOF, <0 on unrecoverable error.
   int read(std::int16_t* out, int maxSamples);
+
+  // Back to the in-point on the same open pipeline (a loop), discarding
+  // anything decoded past where the caller cut the pass. False when the
+  // stream cannot seek.
+  bool rewind();
 
   void requestStop();                  // see VideoPipeline::requestStop
   void close();

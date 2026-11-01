@@ -1774,6 +1774,28 @@ class MediaEngine {
   bool devampRequested_ = false;             // next loop point ends instead
   bool decodersRunning_ = false;             // decode running for the active cue (main thread)
 
+  // -- State: seamless loops (see "THE LOOP SEAM" in update()) -----------------
+  // The in-process decoders go round by themselves at the end of a pass while
+  // the engine plays out what they have queued, and the engine wraps its
+  // clock at the exact end of the pass. Fixed when the decode starts:
+  double loopPassSeconds_ = 0.0;             // one pass, in position space (0 = no seamless loop)
+  std::uint64_t loopPassFrames_ = 0;         // video frames in one pass (index space)
+  std::uint64_t loopPassAudioFrames_ = 0;    // audio frames in one pass, at the output rate
+  // Live:
+  std::atomic<bool> loopAtPassEnd_ {false};  // decoders: rewind at the pass end instead of stopping
+  std::atomic<std::uint64_t> videoPassesStarted_ {0};  // passes begun after the first, per decode
+  std::atomic<std::uint64_t> audioPassesStarted_ {0};
+  std::atomic<bool> audioDecodeEnded_ {true};          // the audio thread has stopped producing
+  std::uint64_t passesWrapped_ = 0;          // passes the clock has wrapped, per decode
+  std::uint64_t indexBase_ = 0;              // frame index of the current pass's first frame
+  int loopPassesPlayed_ = 0;                 // passes finished since the cue was taken (Cue::loopCount)
+  bool seamlessLoopWanted() const;
+  bool seamlessLoopInFlight() const;
+  bool wrapLoopSeamlessly(double rawPosition);
+  void restartLoopFromTop();
+  void serviceLoopSeam();
+  double rawPlayingPosition() const;
+
   // -- State: in-process decode (libav) ----------------------------------------
 #if DECKBOY_INPROC_DECODE
   std::unique_ptr<deckboy::libav::VideoPipeline> videoPipeline_;

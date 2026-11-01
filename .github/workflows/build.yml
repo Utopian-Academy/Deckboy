@@ -1672,6 +1672,14 @@ jobs:
           $env:DECKBOY_EGRESS_READBACK = 'sync'
           python tools/check_transitions.py --exe build\Release\Deckboy.exe --playout
           if ($LASTEXITCODE -ne 0) { throw "transition placement failed" }
+          # Loops: picture and sound read back from a recording at every seam,
+          # and repeats stopping after the count (tools/check_loop_seam.py).
+          $env:SDL_AUDIODRIVER = 'dummy'
+          python tools/check_loop_seam.py --exe build\Release\Deckboy.exe
+          if ($LASTEXITCODE -ne 0) { throw "a looping clip is not seamless" }
+          python tools/check_loop_seam.py --exe build\Release\Deckboy.exe --loop-count 3
+          if ($LASTEXITCODE -ne 0) { throw "repeats did not stop after three passes" }
+          Remove-Item Env:SDL_AUDIODRIVER
           python tools/check_tracker_follow.py --exe build\Release\Deckboy.exe --late 1.5
           if ($LASTEXITCODE -ne 0) { throw "tracker follow failed" }
           python tools/check_undo_live.py --exe build\Release\Deckboy.exe

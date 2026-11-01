@@ -73,6 +73,23 @@ constexpr int kMaxConsecutiveErrors = 40;
 // long GOPs + hw decoder latency, small enough to fail fast on garbage.
 constexpr int kPrimePacketBudget = 600;
 
+// Back to a stream's in-point (or its start), on the open demuxer: the seek
+// a LOOP makes, which used to be a whole new pipeline. Lands on the keyframe
+// at or before the target; the caller drops anything earlier.
+bool seekStreamTo(AVFormatContext* fmt, int stream, AVRational timeBase, double startSeconds) {
+  if (!fmt || stream < 0) {
+    return false;
+  }
+  const AVStream* st = fmt->streams[stream];
+  const int64_t ts = startSeconds > 0.001
+    ? static_cast<int64_t>(startSeconds / av_q2d(timeBase))
+    : (st->start_time != AV_NOPTS_VALUE ? st->start_time : 0);
+  if (avformat_seek_file(fmt, stream, INT64_MIN, ts, ts, 0) >= 0) {
+    return true;
+  }
+  return av_seek_frame(fmt, stream, ts, AVSEEK_FLAG_BACKWARD) >= 0;
+}
+
 double streamTimeSeconds(int64_t ts, AVRational timeBase) {
   if (ts == AV_NOPTS_VALUE) {
     return -1.0;
@@ -417,6 +434,29 @@ struct VideoPipeline::Impl {
     havePending = false;
     pendingFrame = DecodedFrame{};
     consecutiveErrors = 0;
+  }
+
+  // Back to the in-point on the same open pipeline, for a loop: a seek and a
+  // decoder flush, milliseconds, where opening the file again took long
+  // enough to empty the frame queue at the seam.
+  bool rewind() {
+    if (interrupt.load() || !fmtCtx || streamIndex < 0) {
+      return false;
+    }
+    if (!seekStreamTo(fmtCtx, streamIndex, timeBase, params.startSeconds)) {
+      return false;
+    }
+    if (codecCtx) {
+      avcodec_flush_buffers(codecCtx);
+    }
+    drainSent = false;
+    finished = false;
+    havePending = false;
+    pendingFrame = DecodedFrame{};
+    consecutiveErrors = 0;
+    seenFirstKey = false;
+    dropBeforeSeconds = params.startSeconds > 0.001 ? params.startSeconds : -1.0;
+    return true;
   }
 
   // Pull one HAP packet and expand it. Output is ordinary RGBA32 in the same
@@ -1089,6 +1129,8 @@ void* VideoPipeline::device() const {
   return impl_->zeroCopy ? impl_->params.d3dDevice : nullptr;
 }
 
+bool VideoPipeline::rewind() { return impl_->rewind(); }
+
 void VideoPipeline::requestStop() { impl_->interrupt.store(true); }
 
 void VideoPipeline::setDatamosh(bool enabled) { impl_->datamosh.store(enabled); }
@@ -1149,6 +1191,29 @@ struct AudioPipeline::Impl {
     staged.clear();
     stagedOffset = 0;
     consecutiveErrors = 0;
+  }
+
+  // Back to the in-point on the same open pipeline, for a loop. The resampler
+  // or tempo chain starts clean: the previous pass's tail was flushed into
+  // `staged` at its end, and anything still staged past a cut is discarded.
+  bool rewind() {
+    if (interrupt.load() || !fmtCtx || !codecCtx || streamIndex < 0) {
+      return false;
+    }
+    if (!seekStreamTo(fmtCtx, streamIndex, timeBase, params.startSeconds)) {
+      return false;
+    }
+    avcodec_flush_buffers(codecCtx);
+    if (filterGraph) { avfilter_graph_free(&filterGraph); filterSrc = filterSink = nullptr; }
+    if (swrCtx) { swr_free(&swrCtx); }
+    drainSent = false;
+    finished = false;
+    consecutiveErrors = 0;
+    trimPending = params.startSeconds > 0.001;
+    skipOutValues = 0;
+    staged.clear();
+    stagedOffset = 0;
+    return true;
   }
 
   bool open() {
@@ -1482,6 +1547,8 @@ int AudioPipeline::read(std::int16_t* out, int maxSamples) {
   }
   return static_cast<int>(take);
 }
+
+bool AudioPipeline::rewind() { return impl_->rewind(); }
 
 void AudioPipeline::requestStop() { impl_->interrupt.store(true); }
 

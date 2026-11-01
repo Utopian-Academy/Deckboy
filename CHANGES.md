@@ -32,6 +32,9 @@
 - A looping video froze its output for about a tenth of a second, five or six frames, every time it went round, on any output that is not Direct3D 11: every Mac and Linux output, and a Windows output set to the GPU renderer. That freeze is gone. Measured on Windows; macOS and Linux share the change but have not yet been measured on a real screen.
 - A playing video made an output on the GPU renderer miss 50 to 70 frames a minute at 1080p60 on Windows. In testing it now misses 0 to 15 a minute (the default Direct3D 11 output: 0 to 3). Each frame also costs less on every output that is not Direct3D 11 with hardware decoding: every Mac and Linux output, and on Windows any cue with colour or key effects. The Windows figures are measured; macOS and Linux share the change but have not yet been measured on a real screen.
 - Clips whose frame rate does not match the screen now play with an even cadence. 24 fps on a 60 Hz screen is a steady 3:2, 25 fps the regular 2-3 pattern that pair allows, 30 fps holds every frame for two refreshes, 50 fps runs 1-1-1-1-2, and 60 fps on a 59.94 Hz screen drops a single frame about every 17 seconds. Before, a screen at or near the clip's rate could repeat a frame and then skip one, again and again: on an output using the GPU renderer, up to one frame in six never reached the screen while the output itself reported no missed frames. Each clip in a playlist gets its own cadence. The picture stays within a frame of the playback clock, as before.
+- A looping clip broke at every loop: the last picture held, the first frames of the next pass were skipped, and the sound dropped out. Loops are now seamless in both picture and sound, including clips trimmed with in and out points, sound-only cues, and clips whose frame rate differs from the screen's. A looping cue also no longer fades out and back in at the loop point.
+- Repeats did nothing: a cue set to play three times went round for ever. It now plays that many times, then holds its last frame or moves on, as it would without the loop.
+- Recordings made through the GPU renderer came out as one frozen picture, or started with half a second frozen and then fell back to a slower capture. They now record every frame from the start. The GPU renderer is the default on macOS and Linux and an option on Windows; measured on Windows, and macOS and Linux share the change.
 - The program monitor's DECODE reading no longer flips to WARM each time a looping clip goes round, or when you edit the cue that is playing. It keeps the last rate until the next reading.
 - A stage timer's logo was drawn with red and blue swapped.
 - Importing a PowerPoint, Keynote or PDF can no longer leave Deckboy on the import card for ever. A converter still busy after three minutes (often PowerPoint waiting on a prompt it cannot show, such as Protected View or sign-in), or a PDF renderer silent for ninety seconds, is stopped, and the toast says what happened and what to try.
@@ -46,7 +49,6 @@
 
 ### Known issues
 - Outputs on the GPU renderer still miss a few screen refreshes a minute (above). macOS and Linux use the same kind of renderer.
-- The moment a looping clip goes round has not yet been measured for a completely gapless seam.
 - Playback on macOS and Linux has not yet been measured on a real screen.
 - A clip a hair off the screen's rate (60 fps on a 59.94 Hz screen) drops a frame about every 17 seconds. Set the output's refresh rate to the clips' rate (Settings, or `VIDEO HZ`) to play it frame for frame.
 
