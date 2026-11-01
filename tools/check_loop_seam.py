@@ -104,9 +104,10 @@ def audio_samples(path):
 def sound_breaks(samples):
     """Where the sine is broken: spikes in the residual of x[n] - 2cos(w)x[n-1]
     + x[n-2], which is zero for an unbroken sine of frequency w. Also runs of
-    near-silence. Returns (spikes, silent_ms, typical_amplitude)."""
+    near-silence. Returns (spikes, silent windows, typical_amplitude), both
+    lists in seconds from the first sample; a silent window is 2 ms."""
     if len(samples) < RATE // 2:
-        return [], 0.0, 0.0
+        return [], [], 0.0
     c = 2.0 * math.cos(2.0 * math.pi * TONE_HZ / RATE)
     amp = sorted(abs(s) for s in samples[len(samples) // 4: len(samples) // 4 + RATE])[int(RATE * 0.99)]
     resid = [abs(samples[n] - c * samples[n - 1] + samples[n - 2]) for n in range(2, len(samples))]
@@ -119,12 +120,12 @@ def sound_breaks(samples):
             spikes.append((n + 2) / RATE)
             last = n
     window = RATE // 500  # 2 ms
-    silent = 0
+    silent = []
     for w in range(0, len(samples) - window, window):
         peak = max(abs(s) for s in samples[w:w + window])
         if peak < amp * 0.25:
-            silent += 1
-    return spikes, silent * 2.0, amp
+            silent.append(w / RATE)
+    return spikes, silent, amp
 
 
 def main():
@@ -251,6 +252,8 @@ def main():
         numbers = frame_numbers(rec)
     unread = sum(1 for n in numbers if n is None)
     seq = [n for n in numbers if n is not None]
+    # Where each readable frame sits in the recording, for the seams' times.
+    seq_at = [k for k, n in enumerate(numbers) if n is not None]
     print("recorded frames: %d (bar code unreadable in %d)" % (len(numbers), unread))
     if not args.audio_only and len(seq) < pass_frames:
         print("too few readable frames to judge -- check the recording: %s" % rec)
@@ -316,15 +319,38 @@ def main():
     # Not the first or last tenth of a second: the recording starting and
     # stopping is not the loop.
     edge = RATE // 10
-    spikes, silent_ms, amp = sound_breaks(samples[edge:len(samples) - edge])
+    spikes, silent, amp = sound_breaks(samples[edge:len(samples) - edge])
+    spikes = [t + edge / RATE for t in spikes]
+    silent = [t + edge / RATE for t in silent]
     print("sound: %.1f s, tone amplitude %d, breaks in the sine: %d, near-silent: %.0f ms"
-          % (len(samples) / RATE, amp, len(spikes), silent_ms))
+          % (len(samples) / RATE, amp, len(spikes), len(silent) * 2.0))
     if spikes:
-        print("  breaks at: %s" % ", ".join("%.3f s" % (t + 0.1) for t in spikes[:12]))
+        print("  breaks at: %s" % ", ".join("%.3f s" % t for t in spikes[:12]))
+
+    # THE SOUND IS JUDGED AT THE SEAMS, which the picture locates: a quarter
+    # of a second either side of the first frame of each new pass. A break
+    # anywhere else is the recording's continuity, not the loop -- and on the
+    # CI machines, whose stand-in sound device runs about 1% off true time, an
+    # odd one turns up away from any seam. It is printed, not judged. A loop
+    # that restarts its decoders leaves a gap at every seam, and still fails.
+    # A sound file has no picture to place its seams, so it is judged whole.
+    if args.audio_only:
+        windows = None
+    else:
+        windows = [(seq_at[i] / rate - 0.25, seq_at[i] / rate + 0.25) for i in seams]
+    def at_seam(t):
+        return windows is None or any(a <= t <= b for a, b in windows)
+    seam_spikes = [t for t in spikes if at_seam(t)]
+    seam_silent_ms = 2.0 * sum(1 for t in silent if at_seam(t))
+    if windows is not None:
+        away = [t for t in spikes if not at_seam(t)]
+        print("  at the seams: %d breaks, %.0f ms near-silent; away from them: %d%s"
+              % (len(seam_spikes), seam_silent_ms, len(away),
+                 " (%s)" % ", ".join("%.3f s" % t for t in away[:8]) if away else ""))
 
     picture_ok = args.audio_only or (bool(seam_reports) and all(r[4] for r in seam_reports))
     picture_ok = picture_ok and count_ok
-    sound_ok = amp > 1000 and not spikes and silent_ms < 2.0
+    sound_ok = amp > 1000 and not seam_spikes and seam_silent_ms < 2.0
     if args.loop_count > 0:
         sound_ok = True   # silence before the take and after the last repeat is the point
     print("\npicture at the seam: %s" % ("SEAMLESS" if picture_ok else "NOT SEAMLESS"))

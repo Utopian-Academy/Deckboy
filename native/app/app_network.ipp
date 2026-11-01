@@ -1155,7 +1155,7 @@
     }
     const OutputRuntime::CapturedFrame* frame = outputFrameForEgress(outputIndex, runtime);
     if (!frame || frame->width <= 0 || frame->height <= 0 ||
-        frame->pixels.size() < static_cast<std::size_t>(frame->width) * frame->height * 4u) {
+        frame->bytes() < static_cast<std::size_t>(frame->width) * frame->height * 4u) {
       return;
     }
     slot.lastFedMs = now;
@@ -1164,7 +1164,7 @@
     const int h = frame->height / step;
     std::vector<std::uint8_t> rgb(static_cast<std::size_t>(w) * h * 3u);
     for (int y = 0; y < h; ++y) {
-      const std::uint8_t* src = frame->pixels.data() +
+      const std::uint8_t* src = frame->data() +
         static_cast<std::size_t>(y * step) * frame->width * 4u;
       std::uint8_t* dst = rgb.data() + static_cast<std::size_t>(y) * w * 3u;
       // The egress capture is BGRA (SDL_PIXELFORMAT_BGRA32, the order the

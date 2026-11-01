@@ -426,8 +426,8 @@
       // Portable fallback, including the explicit HDR-to-SDR wire transform.
       if (hdrWire) {
         const auto& frame = runtime.latestCapturedFrame;
-        if (frame.width <= 0 || frame.height <= 0 || frame.pixels.empty()) return;
-        *job.pixels = frame.pixels;
+        if (frame.width <= 0 || frame.height <= 0 || frame.empty()) return;
+        job.pixels->assign(frame.data(), frame.data() + frame.bytes());
         outcome.width = frame.width; outcome.height = frame.height;
         outcome.capturedNs = frame.capturedAtMs * 1000000ULL;
         if (outcome.capturedNs <= scopesLastWireCaptureNs_) return;

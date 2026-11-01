@@ -1388,11 +1388,11 @@
       }
       for (int oi = 0; oi < rCount; ++oi) {
         const auto& cf = outputRuntimes_[oi].latestCapturedFrame;
-        if (cf.pixels.empty()) continue;
+        if (cf.empty()) continue;
         syncTexture(monitorsRenderer_, monitorsOutputTextures_[oi],
                     monitorsOutputTexW_[oi], monitorsOutputTexH_[oi],
                     cf.width, cf.height,
-                    cf.pixels.data(), cf.width * 4);
+                    cf.data(), cf.width * 4);
       }
     }
     // Upload thumbnail if one finished decoding

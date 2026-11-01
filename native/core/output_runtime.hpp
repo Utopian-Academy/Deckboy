@@ -276,7 +276,15 @@ struct OutputRuntime {
     // is 66 MB a frame the render thread no longer copies (MEASURED 16 ms).
     std::shared_ptr<const std::vector<std::uint8_t>> shared;
     bool empty() const { return pixels.empty() && (!shared || shared->empty()); }
+    // The bytes wherever they live. A reader that looks only at `pixels`
+    // sees an SDR recording's frames as missing.
+    const std::uint8_t* data() const { return shared ? shared->data() : pixels.data(); }
+    std::size_t bytes() const { return shared ? shared->size() : pixels.size(); }
   };
+  // Buffers an SDR recording's asynchronous readback writes into and its
+  // writer reads from (pooledEgressBuffer), so a frame is copied once on the
+  // render thread instead of twice.
+  std::vector<std::shared_ptr<std::vector<std::uint8_t>>> egressFramePool;
 
   // SDL output window and renderer (one per output destination)
   SDL_Window* outputWindow = nullptr;

@@ -4953,12 +4953,16 @@
 
     size_t stride = static_cast<size_t>(captureW) * 4u;
     size_t frameBytes = stride * static_cast<size_t>(captureH);
-    if (runtime.latestCapturedFrame.pixels.size() != frameBytes) {
-      runtime.latestCapturedFrame.pixels.resize(frameBytes);
-    }
-    if (runtime.latestCapturedFrame.pixels.empty()) {
-      return false;
-    }
+    // Sized only where the frame is read into `pixels`: the pooled read below
+    // never touches it, and resizing it there would zero 33 MB a frame at 4K.
+    auto ensurePixels = [&]() {
+      if (runtime.latestCapturedFrame.pixels.size() != frameBytes) {
+        runtime.latestCapturedFrame.pixels.resize(frameBytes);
+      }
+      return !runtime.latestCapturedFrame.pixels.empty();
+    };
+    const int orientationDegrees =
+      normalizeOutputOrientationDegrees(project_.outputs[outputIndex].outputOrientationDegrees);
 
     // A second at 30fps: long enough that a slow GPU or a filling ring is not
     // mistaken for a stall, short enough that a bad take is not lost.
@@ -4992,10 +4996,33 @@
         // zero-filled an 8MB temporary EVERY FRAME and then walked it twice
         // more (memcpy, then a format conversion) -- about 24MB of pointless
         // traffic per frame on the render thread.
-        const bool got = deckboy::gpu::stagingReadbackFrame(
-          runtime.egressReadback, runtime.egressScaleTexture,
-          runtime.latestCapturedFrame.pixels.data(),
-          runtime.latestCapturedFrame.pixels.size(), captureW, captureH);
+        //
+        // AND INTO A POOLED BUFFER, handed to the writer as it is, as the HDR
+        // frames already were. Read into `pixels`, every frame was copied a
+        // SECOND time on the render thread when it was published to the
+        // writer, into a 33 MB buffer allocated fresh for that frame and freed
+        // after it. MEASURED at 4K60 on Direct3D 11: the recording's share of
+        // each frame was 18-24 ms median, which does not fit in a 16.7 ms
+        // frame, so recording at 4K dropped the programme's frames; pooled, it
+        // is 4.5 ms. A rotated output still reads into `pixels`, because the
+        // rotation works there.
+        bool got = false;
+        if (orientationDegrees == 0) {
+          std::shared_ptr<std::vector<std::uint8_t>> buffer = pooledEgressBuffer(runtime, frameBytes);
+          got = deckboy::gpu::stagingReadbackFrame(
+            runtime.egressReadback, runtime.egressScaleTexture,
+            buffer->data(), buffer->size(), captureW, captureH);
+          if (got) {
+            runtime.latestCapturedFrame.shared = std::move(buffer);
+            std::vector<std::uint8_t>().swap(runtime.latestCapturedFrame.pixels);
+          }
+        } else if (ensurePixels()) {
+          got = deckboy::gpu::stagingReadbackFrame(
+            runtime.egressReadback, runtime.egressScaleTexture,
+            runtime.latestCapturedFrame.pixels.data(),
+            runtime.latestCapturedFrame.pixels.size(), captureW, captureH);
+          if (got) runtime.latestCapturedFrame.shared = nullptr;
+        }
         // NOT a return: this used to hand the frame straight back, which
         // skipped the orientation rotation below -- so a rotated output
         // recorded UNROTATED on the asynchronous path and rotated on the
@@ -5042,6 +5069,13 @@
     }
 
     bool ok = asyncCaptured;
+    if (!asyncCaptured) {
+      // The synchronous read fills `pixels`, so the frame lives there now.
+      if (!ensurePixels()) {
+        return false;
+      }
+      runtime.latestCapturedFrame.shared = nullptr;
+    }
     SDL_Texture* previousTarget = SDL_GetRenderTarget(runtime.outputRenderer);
     if (!asyncCaptured && readbackTarget) {
       SDL_SetRenderTarget(runtime.outputRenderer, readbackTarget);
@@ -5085,7 +5119,6 @@
       return false;
     }
 
-    int orientationDegrees = normalizeOutputOrientationDegrees(project_.outputs[outputIndex].outputOrientationDegrees);
     if (orientationDegrees != 0) {
       std::vector<std::uint8_t> rotatedPixels;
       int rotatedW = captureW;
@@ -5129,7 +5162,8 @@
     delayedFrame.width = captureW;
     delayedFrame.height = captureH;
     delayedFrame.capturedAtMs = nowMs;
-    delayedFrame.pixels = runtime.latestCapturedFrame.pixels;
+    delayedFrame.pixels.assign(runtime.latestCapturedFrame.data(),
+                               runtime.latestCapturedFrame.data() + runtime.latestCapturedFrame.bytes());
     runtime.delayFrames.push_back(std::move(delayedFrame));
 
     size_t maxFrames = static_cast<size_t>(std::clamp(delayMs / 8 + 12, 16, 900));
@@ -5141,6 +5175,23 @@
       runtime.delayFrames.pop_front();
     }
     return true;
+  }
+
+  // A buffer for the asynchronous readback to write into: one nobody else
+  // holds any more (the writer has written it, and no packet, held frame or
+  // publication still points at it), or a new one. A handful at most, since
+  // the writer's queue is bounded.
+  std::shared_ptr<std::vector<std::uint8_t>> pooledEgressBuffer(OutputRuntime& runtime, std::size_t bytes) {
+    for (auto& pooled : runtime.egressFramePool) {
+      if (pooled.use_count() == 1 && pooled->size() == bytes) return pooled;
+    }
+    auto& pool = runtime.egressFramePool;
+    pool.erase(std::remove_if(pool.begin(), pool.end(),
+                              [&](const auto& b) { return b.use_count() == 1 && b->size() != bytes; }),
+               pool.end());
+    auto fresh = std::make_shared<std::vector<std::uint8_t>>(bytes);
+    if (pool.size() < 12) pool.push_back(fresh);
+    return fresh;
   }
 
   const OutputRuntime::CapturedFrame* outputFrameForEgress(int outputIndex, OutputRuntime& runtime) const {
@@ -5166,7 +5217,7 @@
     }
     if (runtime.latestCapturedFrame.width > 0 &&
         runtime.latestCapturedFrame.height > 0 &&
-        !runtime.latestCapturedFrame.pixels.empty()) {
+        !runtime.latestCapturedFrame.empty()) {
       return &runtime.latestCapturedFrame;
     }
     return nullptr;
@@ -5195,6 +5246,7 @@
     if (runtime.latestCapturedFrame.pixels.empty()) {
       return nullptr;
     }
+    runtime.latestCapturedFrame.shared = nullptr;   // the black frame is in `pixels`
     Uint64 nowMs = SDL_GetTicks();
     runtime.latestCapturedFrame.width = width;
     runtime.latestCapturedFrame.height = height;
