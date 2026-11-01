@@ -1,6 +1,6 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
-## 2026-10-31 - v0.99.424 (smooth playback at any frame rate; outputs that keep up; scopes on the graphics card)
+## 2026-10-31 - v0.99.424 (smooth playback at any frame rate; far fewer lost frames; scopes on the graphics card)
 
 0.99.424 was first published earlier the same day and withdrawn within the hour: its new frame scheduler could restart itself on a small timing wobble and repeat or skip frames again. This is 0.99.424 re-released with that fixed. If you downloaded it before, download it again.
 
@@ -29,13 +29,19 @@
 ### Fixed
 - An output that could not keep up with its screen said nothing. Its rate is now judged against the screen's own refresh, so an output running at 57 on a 60 Hz screen counts every frame it misses instead of looking smooth. The OUTPUT badge above the programme monitor turns to a warning while frames are being missed. Three missed in five seconds tells you which output, how many and at what refresh, once a minute at most. The test card shows "fps of" the screen's rate and the frames missed, and `STATUS` reports `missed=` and `target_hz=` for each output.
 - 29 of the 16.7 million 8-bit colours read one luma step low on the waveform and histogram: 17 in BT.709, 12 in BT.2020. Each sat exactly on a step's edge. The 8-bit analysis now works in whole numbers and puts every colour in its exact bin, and is faster for it: a 4K frame on six processor threads takes 23 ms instead of 41.
-- A looping video stalled its output for about a tenth of a second every time it went round, five or six missed frames, on any output that is not Direct3D 11. That covers every Mac and Linux output, and a Windows output set to the GPU renderer. Each pass of the loop set up the hardware decoder from scratch. It is now set up once and kept. Measured on Windows; macOS and Linux share the change but have not yet been measured on a real screen.
-- A playing video made an output on the GPU renderer miss 50 to 70 frames a minute at 1080p60 on Windows. It now misses one or two. Each frame was also copied to a window nothing showed, on every output that is not Direct3D 11 with hardware decoding: every Mac and Linux output, and on Windows any cue with colour or key effects. That copy is gone everywhere. The Windows figures are measured; macOS and Linux share the change but have not yet been measured on a real screen.
-- Clips whose frame rate does not match the screen now play with an even cadence. 24 fps on a 60 Hz screen is a steady 3:2, 25 fps the regular 2-3 pattern that pair allows, 30 fps holds every frame for two refreshes, 50 fps runs 1-1-1-1-2, and 60 fps on a 59.94 Hz screen drops a single frame about every 17 seconds. Before, a screen at or near the clip's rate could repeat a frame and then skip one, again and again: on an output using the GPU renderer, up to one frame in six never reached the screen while the output itself reported no missed frames. Each clip in a playlist gets its own cadence. Sound stays in sync, within a frame as before.
+- A looping video froze its output for about a tenth of a second, five or six frames, every time it went round, on any output that is not Direct3D 11: every Mac and Linux output, and a Windows output set to the GPU renderer. That freeze is gone. Measured on Windows; macOS and Linux share the change but have not yet been measured on a real screen.
+- A playing video made an output on the GPU renderer miss 50 to 70 frames a minute at 1080p60 on Windows. In testing it now misses 0 to 15 a minute (the default Direct3D 11 output: 0 to 3). Each frame also costs less on every output that is not Direct3D 11 with hardware decoding: every Mac and Linux output, and on Windows any cue with colour or key effects. The Windows figures are measured; macOS and Linux share the change but have not yet been measured on a real screen.
+- Clips whose frame rate does not match the screen now play with an even cadence. 24 fps on a 60 Hz screen is a steady 3:2, 25 fps the regular 2-3 pattern that pair allows, 30 fps holds every frame for two refreshes, 50 fps runs 1-1-1-1-2, and 60 fps on a 59.94 Hz screen drops a single frame about every 17 seconds. Before, a screen at or near the clip's rate could repeat a frame and then skip one, again and again: on an output using the GPU renderer, up to one frame in six never reached the screen while the output itself reported no missed frames. Each clip in a playlist gets its own cadence. The picture stays within a frame of the playback clock, as before.
 - The program monitor's DECODE reading no longer flips to WARM each time a looping clip goes round, or when you edit the cue that is playing. It keeps the last rate until the next reading.
 - A stage timer's logo was drawn with red and blue swapped.
 - Importing a PowerPoint, Keynote or PDF can no longer leave Deckboy on the import card for ever. A converter still busy after three minutes (often PowerPoint waiting on a prompt it cannot show, such as Protected View or sign-in), or a PDF renderer silent for ninety seconds, is stopped, and the toast says what happened and what to try.
 - Every slide import now writes its steps to the show log: which file, whether it was converted and by what, and how many pages it rendered, or where it stopped.
+
+### Known issues
+- Outputs on the GPU renderer still miss a few screen refreshes a minute (above). macOS and Linux use the same kind of renderer.
+- The moment a looping clip goes round has not yet been measured for a completely gapless seam.
+- Playback on macOS and Linux has not yet been measured on a real screen.
+- A clip a hair off the screen's rate (60 fps on a 59.94 Hz screen) drops a frame about every 17 seconds. Set the output's refresh rate to the clips' rate (Settings, or `VIDEO HZ`) to play it frame for frame.
 
 ## 2026-10-30 - v0.99.423 (colour pickers that grab from any window; a tour that fits your screens; step 6 fixed)
 

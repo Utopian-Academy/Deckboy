@@ -41,9 +41,9 @@ operator finds it, and how you find it again.
 - **Smooth playback at any frame rate.** Every clip plays with the steadiest cadence its rate
   allows on the screen it is on: 24 fps is a clean 3:2 on 60 Hz, 50 fps runs 1-1-1-1-2, a matched
   rate moves one frame a refresh. A playlist of mixed rates gets it clip by clip.
-- **Outputs keep up on every graphics path.** No stall each time a clip loops, and no frames lost
-  to a hidden copy, on outputs that are not Direct3D 11: every Mac and Linux output, and Windows on
-  the GPU renderer. Measured on Windows; Mac and Linux measurements are next.
+- **Far fewer lost frames off Direct3D 11.** No tenth-of-a-second freeze each time a clip loops,
+  and less work per frame, on every Mac and Linux output and on Windows' GPU renderer. Measured on
+  Windows; Mac and Linux measurements are next.
 - **Scopes on the graphics card (Windows).** Every picture of a 4K60 output is measured, bin for
   bin the same as the processor's reading.
 - **Missed frames are reported.** An output that cannot keep up with its screen now says so: the
