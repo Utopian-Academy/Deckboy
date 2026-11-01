@@ -5269,7 +5269,19 @@
     }
     if ((!frame || frame->width <= 0 || frame->height <= 0 || frame->empty()) &&
         width > 0 && height > 0 && !runtime->streamHdr) {
-      frame = ensureBlackOutputFrameForEgress(outputIndex, *runtime, width, height);
+      // A placeholder the size of what the capture makes. For a recording
+      // scaled on the GPU that is the RECORDING's raster, not the
+      // programme's: the encoder is started at the first frame's size, so a
+      // programme-sized placeholder locked a 1080p take of a 4K programme to
+      // 4K, and every real frame after it went down the pipe misread --
+      // MEASURED, a flat grey picture, the video track 5 s of a 12 s take.
+      int placeholderW = width;
+      int placeholderH = height;
+      if (runtime->egressScaleTexture && runtime->egressScaleW > 0 && runtime->egressScaleH > 0) {
+        placeholderW = runtime->egressScaleW;
+        placeholderH = runtime->egressScaleH;
+      }
+      frame = ensureBlackOutputFrameForEgress(outputIndex, *runtime, placeholderW, placeholderH);
     }
     if (!frame || frame->width <= 0 || frame->height <= 0 || frame->empty()) {
       return;
