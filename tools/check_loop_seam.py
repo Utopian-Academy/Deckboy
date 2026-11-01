@@ -186,6 +186,10 @@ def main():
             except OSError:
                 time.sleep(0.5)
         send(args.port, "OUT on")
+        # The programme at the recording's own size: the check reads bar codes,
+        # not detail, and a full-size composite on a software renderer is more
+        # than a small CI runner can do in real time (it played at ~10 fps).
+        send(args.port, "VIDEO %dx%d" % (WIDTH, HEIGHT))
         send(args.port, "RECFORMAT %dx%d %s" % (WIDTH, HEIGHT, args.rate))
         send(args.port, "SELECT 1")
         if args.trim_in > 0:

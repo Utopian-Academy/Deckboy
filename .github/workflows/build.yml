@@ -1675,9 +1675,9 @@ jobs:
           # Loops: picture and sound read back from a recording at every seam,
           # and repeats stopping after the count (tools/check_loop_seam.py).
           $env:SDL_AUDIODRIVER = 'dummy'
-          python tools/check_loop_seam.py --exe build\Release\Deckboy.exe
+          python tools/check_loop_seam.py --exe build\Release\Deckboy.exe --rate 30
           if ($LASTEXITCODE -ne 0) { throw "a looping clip is not seamless" }
-          python tools/check_loop_seam.py --exe build\Release\Deckboy.exe --loop-count 3
+          python tools/check_loop_seam.py --exe build\Release\Deckboy.exe --rate 30 --loop-count 3
           if ($LASTEXITCODE -ne 0) { throw "repeats did not stop after three passes" }
           Remove-Item Env:SDL_AUDIODRIVER
           python tools/check_tracker_follow.py --exe build\Release\Deckboy.exe --late 1.5
