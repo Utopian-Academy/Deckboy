@@ -41,9 +41,13 @@ operator finds it, and how you find it again.
 - **Smooth playback at any frame rate.** Every clip plays with the steadiest cadence its rate
   allows on the screen it is on: 24 fps is a clean 3:2 on 60 Hz, 50 fps runs 1-1-1-1-2, a matched
   rate moves one frame a refresh. A playlist of mixed rates gets it clip by clip.
-- **Far fewer lost frames off Direct3D 11.** No tenth-of-a-second freeze each time a clip loops,
-  and less work per frame, on every Mac and Linux output and on Windows' GPU renderer. Measured on
-  Windows; Mac and Linux measurements are next.
+- **Far fewer lost frames.** No tenth-of-a-second freeze each time a clip loops, and less work
+  per frame off Direct3D 11. On a Mac every output now keeps time with its screen: no refreshes
+  missed in a minute of 60 fps playback, measured on an M4 MacBook Air.
+- **Seamless loops.** A looping clip goes round with no held frame and no gap in the sound, and a
+  cue set to repeat plays that many times.
+- **Recordings that keep up.** Recording at 4K no longer costs the outputs frames, a recording
+  keeps time by the sound card, and ProRes at 60 fps records.
 - **Scopes on the graphics card (Windows).** Every picture of a 4K60 output is measured, bin for
   bin the same as the processor's reading.
 - **Missed frames are reported.** An output that cannot keep up with its screen now says so: the
