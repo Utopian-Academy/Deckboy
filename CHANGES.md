@@ -1,9 +1,8 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
-## Unreleased - v0.99.425
+## 2026-10-31 - v0.99.425 (smooth playback at any frame rate; outputs that keep up; scopes on the graphics card)
 
 0.99.424 was withdrawn an hour after release. Its new frame scheduler could restart itself on a small timing wobble and repeat or skip frames again. This release has everything 0.99.424 had, with that fixed.
-
 
 ### The stage timer's look, where you can find it
 - Backdrop and logo now sit at the top of the timer's settings, not twenty rows down. The backdrop has four presets (none, black, key green, key blue) and a colour chip that opens the colour picker, for an exact key colour, typed or picked from the screen.
