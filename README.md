@@ -381,6 +381,13 @@ importantly, what each feature deliberately does not do.
 - Multichannel audio files, up to 24 channels each, every channel routable
 - Object audio: place a cue in your speaker layout and move it across the room
 
+**DJ and sampling:**
+
+- Drop audio files straight into decks and mix them like a DJ: the tempo
+  (BPM) of each track found and matched, decks synced to each other and to
+  the video, and panning, mixing and EQ on every deck
+- Slicing, chopping, looping and sampling
+
 **Show control:**
 
 - Cue carts, and templates for new shows
