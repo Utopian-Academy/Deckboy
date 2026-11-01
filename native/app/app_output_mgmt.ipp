@@ -5718,24 +5718,33 @@
           break;
         }
         // The last repeat may move; the others share the same buffer, so each
-        // costs a pointer rather than a raster. The AUDIO is per-packet and
-        // never shared -- each repeat takes the next chunk collected above, so
-        // consecutive written frames carry consecutive audio rather than the
-        // same audio several times.
+        // costs a pointer rather than a raster.
         if (repeat + 1 < pacerRepeats) {
-          OutputStreamPacket copy = packet;
-          if (static_cast<std::size_t>(repeat) < audioChunks.size()) {
-            copy.audioSamples = std::move(audioChunks[static_cast<std::size_t>(repeat)]);
-          }
-          writer->queue.push_back(std::move(copy));
+          writer->queue.push_back(packet);
         } else {
-          if (static_cast<std::size_t>(repeat) < audioChunks.size()) {
-            packet.audioSamples = std::move(audioChunks[static_cast<std::size_t>(repeat)]);
-          }
           writer->queue.push_back(std::move(packet));
         }
         writer->packetsQueued += 1;
         ++accepted;
+      }
+    }
+    // EACH QUEUED FRAME'S SOUND GOES TO THE AUDIO THREAD NOW, not when the
+    // writer reaches that frame. It used to ride on the packet, and the
+    // writer only moves to the next packet once the picture before it is
+    // down the pipe -- while ffmpeg reads the sound in 1024-sample blocks and
+    // will not read more picture while the sound is short of it. At 60 fps a
+    // frame carries 800 samples, so four frames in the sound was short of a
+    // block, ffmpeg waited for sound, the writer waited for ffmpeg, and the
+    // take stopped dead: MEASURED, ProRes at 60 fps wrote a 0-byte file, four
+    // frames delivered, for the whole take (H.264's AAC path happened not to
+    // stall). A network sink already pushes its sound straight to the thread
+    // for the same reason. The chunks are the accepted frames' own, in order,
+    // so the counts -- and the sync -- are what they were; a refused frame's
+    // sound goes with it. Outside writer->mutex: pushOutputStreamAudio takes
+    // the audio mutex, and the audio thread takes them the other way round.
+    for (int i = 0; i < accepted && static_cast<std::size_t>(i) < audioChunks.size(); ++i) {
+      if (!audioChunks[static_cast<std::size_t>(i)].empty()) {
+        pushOutputStreamAudio(writer, audioChunks[static_cast<std::size_t>(i)]);
       }
     }
     // ── Is it draining? ────────────────────────────────────────────────────
