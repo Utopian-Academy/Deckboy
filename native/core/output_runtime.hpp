@@ -26,6 +26,7 @@
 #ifndef DECKBOY_CORE_OUTPUT_RUNTIME_HPP
 #define DECKBOY_CORE_OUTPUT_RUNTIME_HPP
 
+#include <algorithm>
 #include <atomic>
 #include <condition_variable>
 #include <cstdint>
@@ -179,6 +180,82 @@ inline void splitKeyAndFill(const std::uint8_t* rgba, std::size_t pixelCount,
   }
 }
 
+// ── A TAKE'S CLOCK FOLLOWS THE SOUND CARD ──────────────────────────────────
+//
+// The sound reaches the recorder as the card PLAYS it, at the card's clock;
+// the pacer used to count the frames owed by the PC's clock. No two crystals
+// agree, so on a long take one of them won. A card running slow left the sound
+// short of what the frames asked for, and past the 60 ms carry the shortfall
+// was written as silence -- a click a second after about 54 minutes at the
+// 18.6 ppm measured on a real card. A card running fast left unread sound
+// piling up, so the sound fell behind the picture for good: about 67 ms an
+// hour. CI's stand-in sound device runs about 1% off, and the loop check heard
+// those holes from five seconds into its take.
+//
+// So while a deck is sounding, the take's timeline runs at the card's rate:
+// the BALANCE of the sound carry (what the ring holds unread, less what the
+// frames have asked for and not had) is steered to zero, by trimming the rate
+// the timeline advances at. Zero is where the balance sits on average when the
+// two clocks agree -- it swings either side by one push of the card's audio --
+// so the take keeps the sync it was calibrated at. NOT where it happened to
+// sit when the deck began: that was tried, and a take that began in debt held
+// its debt, its swings crossed the carry limit and wrote a frame of silence
+// every two seconds. The sound stays exactly what was played, sample for
+// sample; the picture absorbs the difference as the pacer's ordinary repeats,
+// about one frame in half an hour on a real card. Silent, it is the PC's clock
+// again. The trim is capped at 2%: a device further off than that keeps the
+// old carry-and-pad.
+struct RecordClockSteer {
+  double seconds = 0.0;     // the take's timeline since the pacer started
+  Uint64 updatedMs = 0;
+  double trim = 0.0;        // the timeline's rate offset while a deck sounds
+  double integral = 0.0;    // the card's long-run rate error, as learned
+  double balance = 0.0;     // smoothed carry balance, seconds
+  double settled = 0.0;     // seconds since the deck began sounding
+  bool sounding = false;
+
+  static constexpr double kLimit = 0.02;
+  static constexpr double kSmoothSeconds = 0.5;
+  static constexpr double kSettleSeconds = 0.5;  // let the average form first
+  static constexpr double kProportional = 0.5;   // per second of balance
+  static constexpr double kIntegral = 0.1;       // per second of balance, per second
+
+  void restart(Uint64 nowMs) {
+    seconds = 0.0;
+    updatedMs = nowMs;
+  }
+
+  void advance(Uint64 nowMs) {
+    if (updatedMs != 0 && nowMs > updatedMs) {
+      seconds += static_cast<double>(nowMs - updatedMs) / 1000.0 * (1.0 + trim);
+    }
+    updatedMs = nowMs;
+  }
+
+  // One written frame's worth of sound was asked for; `rawBalance` is the
+  // ring's unread sound less the carry owed, in seconds, before the take.
+  void observe(double rawBalance, double dt) {
+    if (!sounding) {
+      sounding = true;
+      settled = 0.0;
+      balance = 0.0;
+    }
+    balance += (rawBalance - balance) * std::min(1.0, dt / kSmoothSeconds);
+    settled += dt;
+    if (settled < kSettleSeconds) {
+      trim = integral;
+      return;
+    }
+    integral = std::clamp(integral + kIntegral * balance * dt, -kLimit, kLimit);
+    trim = std::clamp(kProportional * balance + integral, -kLimit, kLimit);
+  }
+
+  void quiet() {
+    sounding = false;
+    trim = 0.0;
+  }
+};
+
 struct OutputRuntime {
 #ifdef _WIN32
   // Server end of the audio named pipe. Windows children get one piped
@@ -283,6 +360,8 @@ struct OutputRuntime {
   // first ones silence -- set at the start of each take.
   std::deque<std::vector<std::int16_t>> recordAudioDelayLine;
   std::size_t recordAudioDelayChunks = 0;
+  // The take's frame clock, following the sound card (RecordClockSteer).
+  RecordClockSteer recordClock;
   // Frames written across the WHOLE take, surviving segment rolls, so each
   // segment's timecode continues where the previous one stopped rather than
   // restarting at the take's start value.

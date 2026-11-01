@@ -3546,6 +3546,7 @@
     if (!rollingSegment) {
       runtime.recordAudioDelayLine.clear();
       runtime.recordAudioDelayChunks = 0;
+      runtime.recordClock = RecordClockSteer{};
     }
     runtime.recordFramesWritten = 0;
     runtime.recordFreshFrames = 0;
@@ -3859,7 +3860,8 @@
       double& sampleRemainder,
       double fpsHint,
       std::uint64_t* owedSamples = nullptr,
-      bool* quiet = nullptr) {
+      bool* quiet = nullptr,
+      RecordClockSteer* steer = nullptr) {
     constexpr int kSampleRate = 48000;
     constexpr int kChannels = 2;
 
@@ -3913,6 +3915,17 @@
         *quiet = decksQuiet;
       }
       *owedSamples += static_cast<std::uint64_t>(interleavedSamples);
+      // The recording's clock reads the balance HERE, before the take: the
+      // sound the ring holds unread less the sound the frames have asked for.
+      if (steer != nullptr) {
+        if (decksQuiet) {
+          steer->quiet();
+        } else {
+          steer->observe((static_cast<double>(mixable) - static_cast<double>(*owedSamples)) /
+                           static_cast<double>(kSampleRate * kChannels),
+                         1.0 / std::max(1.0, fps));
+        }
+      }
       std::uint64_t take = std::min<std::uint64_t>(*owedSamples, mixable);
       if (*owedSamples - take > kMaxCarrySamples) {
         take = *owedSamples - kMaxCarrySamples;
@@ -5285,14 +5298,18 @@
         runtime->recordFramesWritten = 0;
         runtime->recordFreshFrames = 0;
         runtime->lastFreshCaptureMs = nowMs;
+        runtime->recordClock.restart(nowMs);
         // The sound waits as long as the picture does (recordAudioDelayLine).
         runtime->recordAudioDelayChunks =
           runtime->egressReadback && !runtime->egressReadbackUnavailable
             ? static_cast<std::size_t>(deckboy::gpu::kAsyncReadbackDepth) : 0;
       }
       const double rate = std::max(1.0, recordingFps(fpsHint));
-      const std::uint64_t owed = static_cast<std::uint64_t>(
-        (static_cast<double>(nowMs - runtime->recordPacerStartMs) * rate) / 1000.0) + 1;
+      // Owed by the take's own clock, which follows the sound card while a
+      // deck is sounding (RecordClockSteer) and is the PC's clock otherwise.
+      runtime->recordClock.advance(nowMs);
+      const std::uint64_t owed =
+        static_cast<std::uint64_t>(runtime->recordClock.seconds * rate) + 1;
       // ── Dropped-frame alarm ──────────────────────────────────────────────
       // The pacer knows exactly what the timeline owes and exactly what has
       // been delivered, so a shortfall is measurable rather than inferred. Both
@@ -5555,7 +5572,8 @@
               runtime->streamAudioSampleRemainder,
               fpsHint,
               &runtime->streamAudioOwedSamples,
-              &runtime->streamAudioDecksQuiet);
+              &runtime->streamAudioDecksQuiet,
+              &runtime->recordClock);
             if (runtime->recordAudioDelayChunks > 0) {
               // Through the delay line: out comes the chunk from as many
               // frames ago as the picture is behind, or silence the same
