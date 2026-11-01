@@ -149,6 +149,9 @@ def main():
                         help="repeats: the clip must play this many times, then stop")
     parser.add_argument("--audio-only", action="store_true",
                         help="a sound file with no picture (a music bed)")
+    parser.add_argument("--report-sound", action="store_true",
+                        help="print the sound's verdict but judge only the picture (CI: its stand-in "
+                             "sound device runs off true time, so the sound measures the machine)")
     parser.add_argument("--app-arg", action="append", default=[],
                         help="extra Deckboy argument (repeatable), e.g. --no-inproc-decode")
     args = parser.parse_args()
@@ -358,7 +361,10 @@ def main():
     if args.loop_count > 0:
         sound_ok = True   # silence before the take and after the last repeat is the point
     print("\npicture at the seam: %s" % ("SEAMLESS" if picture_ok else "NOT SEAMLESS"))
-    print("sound at the seam:   %s" % ("SEAMLESS" if sound_ok else "NOT SEAMLESS"))
+    print("sound at the seam:   %s%s" % ("SEAMLESS" if sound_ok else "NOT SEAMLESS",
+                                        " (reported, not judged)" if args.report_sound else ""))
+    if args.report_sound:
+        sound_ok = True
 
     if args.keep:
         kept = os.path.join(os.getcwd(), os.path.basename(rec))
