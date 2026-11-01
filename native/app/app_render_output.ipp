@@ -6005,6 +6005,7 @@
     // to hand its frame to the GPU. Either way the frame is on the GPU after
     // this, and the recording's and the monitor's reads of it go out.
     if (!streamType || SDL_GetRenderWindow(runtime->outputRenderer) == nullptr) {
+      if (!streamType) paceBeforePresent(runtime->outputWindow);
       SDL_RenderPresent(runtime->outputRenderer);
       deckboy::gpu::readbacksAfterPresent(runtime->outputRenderer);
     }

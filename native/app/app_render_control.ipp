@@ -1496,6 +1496,7 @@
     renderSuperDeckboyEvolution();
     drawPressFeedback();
     finishLiveTextFrame();   // reads the window back, so before present
+    paceBeforePresent(controlWindow_);
     const auto uiPresentStart = std::chrono::steady_clock::now();
     SDL_RenderPresent(controlRenderer_);
     revealControlWindow();  // the main control-window frame

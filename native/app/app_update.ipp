@@ -1485,8 +1485,44 @@
     deckPreviewTex_.clear();
   }
 
+  // THE PACING WAIT, once a pass, right BEFORE the present of the window
+  // whose screen paces the loop -- not at the top of the loop. Waiting first
+  // and presenting after the pass's work put each present anywhere from 2 to
+  // 15 ms past the vblank: a late one could miss the screen outright, and two
+  // neighbours could sit 25 ms apart and count as a miss when neither was.
+  // MEASURED on the M4 that way: 37 "missed" in ten seconds, where the same
+  // wait in a bare SDL program, right before its present, missed none. Mac
+  // only (platform/mac_vblank.hpp); a no-op elsewhere.
+  void paceBeforePresent(SDL_Window* window) {
+#ifdef __APPLE__
+    if (pacedThisPass_ || !window || window != pacingWindow_) return;
+    pacedThisPass_ = true;
+    deckboy::platform::waitForWindowVblank(window, 34);
+#else
+    (void) window;
+#endif
+  }
+
+  // The first output window that is up paces the loop, else the desk.
+  void choosePacingWindow() {
+    pacedThisPass_ = false;
+    pacingWindow_ = controlWindow_;
+#ifdef __APPLE__
+    for (std::size_t i = 0; i < project_.outputs.size() && i < outputRuntimes_.size(); ++i) {
+      const OutputRuntime& runtime = outputRuntimes_[i];
+      if (project_.outputs[i].enabled && runtime.outputWindow && runtime.outputRenderer &&
+          SDL_GetRenderWindow(runtime.outputRenderer) == runtime.outputWindow &&
+          (SDL_GetWindowFlags(runtime.outputWindow) & SDL_WINDOW_HIDDEN) == 0) {
+        pacingWindow_ = runtime.outputWindow;
+        break;
+      }
+    }
+#endif
+  }
+
   void render() {
     animationNow_ = SDL_GetTicks();
+    choosePacingWindow();
 
     // ── Decouple the UI from the programme clock ───────────────────────────
     // The control window and the programme output were BOTH presenting with
@@ -1543,4 +1579,7 @@
     }
 
     renderDisplayIdentify();
+    // A pass in which the pacing window drew nothing (the desk skipping a
+    // frame under its 60 Hz cap, with no output window up) still waits.
+    paceBeforePresent(pacingWindow_);
   }

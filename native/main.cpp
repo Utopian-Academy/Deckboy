@@ -4398,33 +4398,12 @@ class App {
 #endif
   }
 
-  // ON A MAC THE SCREEN PACES THE LOOP (platform/mac_vblank.hpp): Metal's
-  // vsync there does not hold a present to the refresh, so the loop, and the
-  // frame scheduler timing frames against it, ran free. The screen is the
-  // first output window that is up, else the desk's. A no-op elsewhere.
-  void paceToScreen() {
-#ifdef __APPLE__
-    SDL_Window* pacing = nullptr;
-    for (std::size_t i = 0; i < project_.outputs.size() && i < outputRuntimes_.size(); ++i) {
-      const OutputRuntime& runtime = outputRuntimes_[i];
-      if (project_.outputs[i].enabled && runtime.outputWindow && runtime.outputRenderer &&
-          SDL_GetRenderWindow(runtime.outputRenderer) == runtime.outputWindow &&
-          (SDL_GetWindowFlags(runtime.outputWindow) & SDL_WINDOW_HIDDEN) == 0) {
-        pacing = runtime.outputWindow;
-        break;
-      }
-    }
-    deckboy::platform::waitForWindowVblank(pacing ? pacing : controlWindow_, 34);
-#endif
-  }
-
   void run() {
     for (;;) {
       if (gShouldQuit.load()) {
         if (saveProjectBeforeQuit()) break;
         gShouldQuit.store(false);
       }
-      paceToScreen();
       auto frameStart = std::chrono::steady_clock::now();
       auto ms = [](const auto& duration) {
         return std::chrono::duration<double, std::milli>(duration).count();
@@ -10225,6 +10204,11 @@ class App {
   static constexpr int kSettingsActionFixtureEnd = 50008 + 1024 * 8;
 
   SDL_Window* controlWindow_ = nullptr;
+  // ON A MAC THE SCREEN PACES THE LOOP (platform/mac_vblank.hpp): the window
+  // whose screen it is, chosen at the top of each render(), and whether this
+  // pass has waited for it yet.
+  SDL_Window* pacingWindow_ = nullptr;
+  bool pacedThisPass_ = false;
   SDL_Renderer* controlRenderer_ = nullptr;
   SDL_Texture* scanlineOverlay_ = nullptr;
   SDL_Window* monitorsWindow_ = nullptr;
