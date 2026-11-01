@@ -205,12 +205,16 @@ def main():
                     break
                 except OSError:
                     time.sleep(0.5)
-            send(args.port, "OUT on")
+            send(args.port, "OUTPUT ON")
             # The programme at the recording's own size: the check reads bar codes,
             # not detail, and a full-size composite on a software renderer is more
             # than a small CI runner can do in real time (it played at ~10 fps).
             send(args.port, "VIDEO %dx%d" % (WIDTH, HEIGHT))
             send(args.port, "RECFORMAT %dx%d %s" % (WIDTH, HEIGHT, args.rate))
+            # ProRes, because its sound is PCM. Through AAC a pure tone comes back
+            # with the encoder's own small discontinuities, which this predictor
+            # cannot tell from a cut.
+            send(args.port, "RECCODEC prores_proxy")
             send(args.port, "SELECT 1")
             if args.trim_in > 0:
                 send(args.port, "IN %g" % args.trim_in)

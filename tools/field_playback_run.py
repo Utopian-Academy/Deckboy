@@ -113,6 +113,8 @@ def main():
     parser.add_argument("--seconds", type=float, default=60.0, help="pacing measurement length")
     parser.add_argument("--port", type=int, default=5624)
     parser.add_argument("--no-mute", action="store_true")
+    parser.add_argument("--display", type=int, default=0,
+                        help="put the output on this screen (1 = the first) before arming it")
     args = parser.parse_args()
     out = os.path.abspath(os.path.expanduser(args.out))
     os.makedirs(out, exist_ok=True)
@@ -122,13 +124,21 @@ def main():
     if sys.platform == "darwin" and not args.no_mute:
         subprocess.run(["osascript", "-e", "set volume output muted true"], check=False)
     summary = {"machine": sys.platform}
+    screen = ["DISPLAY %d" % args.display] if args.display > 0 else []
+
+    def counters(port, start, seconds):
+        end = status_values(port)
+        if None in (start[1], end[1]):
+            return None
+        return {"presents_per_second": round((end[1] - start[1]) / seconds, 2),
+                "missed": end[2] - start[2], "target_hz": end[3]}
 
     # 1. PACING: the loop clip fullscreen on the first screen, playing round,
     # with Deckboy's own counters sampled twice a second.
     folder = os.path.join(out, "pacing")
     proc, log = launch(exe, folder, loop_clip, args.port)
     try:
-        for command in ("SELECT 1", "LOOP ON", "OUTPUT ON", "TAKE"):
+        for command in screen + ["SELECT 1", "LOOP ON", "OUTPUT ON", "TAKE"]:
             send(args.port, command)
         time.sleep(6.0)
         start = status_values(args.port)
@@ -156,33 +166,39 @@ def main():
     folder = os.path.join(out, "loop")
     proc, log = launch(exe, folder, loop_clip, args.port)
     try:
-        for command in ("OUT on", "VIDEO 640x360", "RECFORMAT 640x360 60", "SELECT 1", "LOOP ON", "TAKE"):
+        for command in screen + ["OUTPUT ON", "VIDEO 640x360", "RECFORMAT 640x360 60", "SELECT 1", "LOOP ON", "TAKE"]:
             send(args.port, command)
         time.sleep(2.5)
         send(args.port, "RECORD on")
+        start = status_values(args.port)
         time.sleep(10.5)
+        summary["loop_output"] = counters(args.port, start, 10.5)
         send(args.port, "RECORD off")
         time.sleep(4.0)
     finally:
         stop(proc, log)
     summary["loop_recordings"] = recordings(folder)
     print("loop recordings:", summary["loop_recordings"], flush=True)
+    print("output while recording the loop:", json.dumps(summary.get("loop_output")), flush=True)
 
     # 3. A/V SYNC: the flash-and-beep clip recorded at 30 fps.
     folder = os.path.join(out, "sync")
     proc, log = launch(exe, folder, sync_clip, args.port)
     try:
-        for command in ("OUT on", "RECFORMAT 1920x1080 30", "SELECT 1", "TAKE"):
+        for command in screen + ["OUTPUT ON", "RECFORMAT 1920x1080 30", "SELECT 1", "TAKE"]:
             send(args.port, command)
         time.sleep(3.0)
         send(args.port, "RECORD on")
+        start = status_values(args.port)
         time.sleep(20.0)
+        summary["sync_output"] = counters(args.port, start, 20.0)
         send(args.port, "RECORD off")
         time.sleep(4.0)
     finally:
         stop(proc, log)
     summary["sync_recordings"] = recordings(folder)
     print("sync recordings:", summary["sync_recordings"], flush=True)
+    print("output while recording the sync clip:", json.dumps(summary.get("sync_output")), flush=True)
 
     with open(os.path.join(out, "summary.json"), "w", encoding="utf-8") as f:
         json.dump(summary, f, indent=2)

@@ -142,7 +142,7 @@ def main():
                 except OSError:
                     time.sleep(0.5)
             # Master volume must stay UP: the beep has to reach the recording.
-            send(args.port, "OUT on")
+            send(args.port, "OUTPUT ON")
             send(args.port, "RECFORMAT %s %s" % (raster, rate_text))
             send(args.port, "SELECT 1")
             send(args.port, "TAKE")
