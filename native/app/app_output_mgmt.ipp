@@ -3324,6 +3324,58 @@
     return writer->failureReason.empty() ? "stream write failed" : writer->failureReason;
   }
 
+  // TAKES FINISHING IN THE BACKGROUND. A stopped stream's last waits -- its
+  // writer threads, the encoder writing the file's trailer, the remux -- run
+  // here instead of on the render thread. Finished ones are reaped at the next
+  // launch; quitting waits for all of them (joinStreamFinalizers), so no take
+  // is ever cut short by closing Deckboy.
+  struct StreamFinalizer {
+    std::thread thread;
+    std::shared_ptr<std::atomic<bool>> done;
+    StreamFinalizer(std::thread t, std::shared_ptr<std::atomic<bool>> d)
+      : thread(std::move(t)), done(std::move(d)) {}
+    StreamFinalizer(StreamFinalizer&&) = default;
+    StreamFinalizer& operator=(StreamFinalizer&&) = default;
+    // One launched after the last join (a late teardown) is still waited for,
+    // never abandoned: a joinable std::thread destroyed ends the process.
+    ~StreamFinalizer() {
+      if (thread.joinable()) thread.join();
+    }
+  };
+  std::mutex streamFinalizersMutex_;
+  std::vector<StreamFinalizer> streamFinalizers_;
+
+  void launchStreamFinalizer(std::function<void()> work) {
+    auto done = std::make_shared<std::atomic<bool>>(false);
+    std::thread thread([work = std::move(work), done]() {
+      work();
+      done->store(true);
+    });
+    std::lock_guard<std::mutex> lock(streamFinalizersMutex_);
+    for (auto it = streamFinalizers_.begin(); it != streamFinalizers_.end();) {
+      if (it->done->load()) {
+        it->thread.join();
+        it = streamFinalizers_.erase(it);
+      } else {
+        ++it;
+      }
+    }
+    streamFinalizers_.emplace_back(std::move(thread), done);
+  }
+
+  void joinStreamFinalizers() {
+    std::vector<StreamFinalizer> pending;
+    {
+      std::lock_guard<std::mutex> lock(streamFinalizersMutex_);
+      pending.swap(streamFinalizers_);
+    }
+    for (auto& finalizer : pending) {
+      if (finalizer.thread.joinable()) {
+        finalizer.thread.join();
+      }
+    }
+  }
+
   void stopOutputStreamRuntime(OutputRuntime& runtime, bool rollingSegment = false) {
     flushOutputStreamAudioTail(runtime);
     runtime.streamLockedFps = 0.0;
@@ -3387,21 +3439,37 @@
         _close(audioFd);
       }
     }
-    if (writer && writer->thread.joinable()) {
-      writer->thread.join();
-    }
-    if (writer && writer->audioThread.joinable()) {
-      writer->audioThread.join();
-    }
-    // Give ffmpeg a moment to exit gracefully before force-killing. A network
-    // sink has nothing to finalize, so 500ms is plenty; a file has to flush and
-    // write its trailer, and killing it early is exactly what corrupts the take
-    // the operator is least able to redo.
-    if (runtime.streamProcess.running()) {
-      WaitForSingleObject(runtime.streamProcess.hProcess,
-                          runtime.streamToFile ? 8000 : 500);
-    }
-    runtime.streamProcess.stop();
+    // THE REST HAPPENS OFF THE RENDER THREAD (launchStreamFinalizer): the
+    // writers finishing and ffmpeg writing its trailer took 300 ms at every
+    // stop and every segment roll, all of it with every output frozen. The
+    // process is handed over field by field -- ChildProcess kills in its
+    // destructor, so a copy would end the encoder mid-trailer.
+    auto encoder = std::make_shared<ChildProcess>();
+    encoder->hProcess = runtime.streamProcess.hProcess;
+    encoder->readFd = runtime.streamProcess.readFd;
+    runtime.streamProcess.hProcess = INVALID_HANDLE_VALUE;
+    runtime.streamProcess.readFd = -1;
+    const bool encoderToFile = runtime.streamToFile;
+    launchStreamFinalizer([this, writer, encoder, encoderToFile,
+                           remux = remuxThisTake ? remuxPath : std::string()]() {
+      if (writer && writer->thread.joinable()) {
+        writer->thread.join();
+      }
+      if (writer && writer->audioThread.joinable()) {
+        writer->audioThread.join();
+      }
+      // Give ffmpeg a moment to exit gracefully before force-killing. A network
+      // sink has nothing to finalize, so 500ms is plenty; a file has to flush and
+      // write its trailer, and killing it early is exactly what corrupts the take
+      // the operator is least able to redo.
+      if (encoder->running()) {
+        WaitForSingleObject(encoder->hProcess, encoderToFile ? 8000 : 500);
+      }
+      encoder->stop();
+      if (!remux.empty()) {
+        queueRecordingRemux(remux);
+      }
+    });
 #else
     pid_t streamPid = runtime.streamPid;
     runtime.streamPid = -1;
@@ -3432,37 +3500,44 @@
     // SIGKILL that would have ended it sat after the join: Deckboy hung on
     // quit with ffmpeg still alive (caught in CI on macOS). Once ffmpeg has
     // gone the blocked write fails with EPIPE and the thread returns.
-    if (streamPid > 0) {
-      int status = 0;
-      // Same asymmetry as the Windows branch: a file has a trailer to write,
-      // and SIGKILLing the muxer mid-finalize is what leaves an unopenable take.
-      Uint64 deadline = SDL_GetTicks() + (runtime.streamToFile ? 8000 : 500);
-      while (waitpid(streamPid, &status, WNOHANG) == 0 && SDL_GetTicks() < deadline) {
-        SDL_Delay(10);
+    // The waiting happens off the render thread (see the Windows branch).
+    const bool encoderToFile = runtime.streamToFile;
+    const std::string audioPipePath = runtime.streamAudioPipePath;
+    const std::string videoPipePath = runtime.streamVideoPipePath;
+    runtime.streamAudioPipePath.clear();
+    runtime.streamVideoPipePath.clear();
+    launchStreamFinalizer([this, writer, streamPid, encoderToFile, audioPipePath, videoPipePath,
+                           remux = remuxThisTake ? remuxPath : std::string()]() {
+      if (streamPid > 0) {
+        int status = 0;
+        // Same asymmetry as the Windows branch: a file has a trailer to write,
+        // and SIGKILLing the muxer mid-finalize is what leaves an unopenable take.
+        Uint64 deadline = SDL_GetTicks() + (encoderToFile ? 8000 : 500);
+        while (waitpid(streamPid, &status, WNOHANG) == 0 && SDL_GetTicks() < deadline) {
+          SDL_Delay(10);
+        }
+        if (waitpid(streamPid, &status, WNOHANG) == 0) {
+          kill(streamPid, SIGKILL);
+          waitpid(streamPid, &status, 0);
+        }
       }
-      if (waitpid(streamPid, &status, WNOHANG) == 0) {
-        kill(streamPid, SIGKILL);
-        waitpid(streamPid, &status, 0);
+      if (writer && writer->thread.joinable()) {
+        writer->thread.join();
       }
-    }
-    if (writer && writer->thread.joinable()) {
-      writer->thread.join();
-    }
-    if (writer && writer->audioThread.joinable()) {
-      writer->audioThread.join();
-    }
-    if (!runtime.streamAudioPipePath.empty()) {
-      unlink(runtime.streamAudioPipePath.c_str());
-      runtime.streamAudioPipePath.clear();
-    }
-    if (!runtime.streamVideoPipePath.empty()) {
-      unlink(runtime.streamVideoPipePath.c_str());
-      runtime.streamVideoPipePath.clear();
-    }
+      if (writer && writer->audioThread.joinable()) {
+        writer->audioThread.join();
+      }
+      if (!audioPipePath.empty()) {
+        unlink(audioPipePath.c_str());
+      }
+      if (!videoPipePath.empty()) {
+        unlink(videoPipePath.c_str());
+      }
+      if (!remux.empty()) {
+        queueRecordingRemux(remux);
+      }
+    });
 #endif
-    if (remuxThisTake) {
-      queueRecordingRemux(remuxPath);
-    }
     runtime.streamSpec.clear();
     runtime.streamToFile = false;
     // Per TAKE, not per session: take two must start its own frame clock.

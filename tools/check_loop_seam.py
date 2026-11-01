@@ -130,7 +130,11 @@ def sound_breaks(samples):
 def main():
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--exe", required=True)
+    parser.add_argument("--exe", default="", help="the Deckboy to run (not needed with --analyze)")
+    parser.add_argument("--analyze", default="",
+                        help="judge this recording instead of making one (one made on another machine)")
+    parser.add_argument("--write-clip", default="",
+                        help="only write the test clip here (to play on another machine) and stop")
     parser.add_argument("--rate", default="60", help="clip and recording frame rate")
     parser.add_argument("--pass-seconds", type=float, default=2.0)
     parser.add_argument("--passes", type=int, default=5, help="seams to record, about")
@@ -147,7 +151,9 @@ def main():
     parser.add_argument("--app-arg", action="append", default=[],
                         help="extra Deckboy argument (repeatable), e.g. --no-inproc-decode")
     args = parser.parse_args()
-    args.exe = os.path.abspath(args.exe)
+    if not args.exe and not args.analyze and not args.write_clip:
+        parser.error("--exe is needed unless --analyze or --write-clip is given")
+    args.exe = os.path.abspath(args.exe) if args.exe else ""
     for tool in ("ffmpeg", "ffprobe"):
         if not shutil.which(tool):
             sys.exit("%s is not on PATH" % tool)
@@ -157,74 +163,87 @@ def main():
     first_frame = int(round(args.trim_in * rate))
     last_end = int(round(args.trim_out * rate)) if args.trim_out > 0 else clip_frames
     pass_frames = last_end - first_frame
-    root = tempfile.mkdtemp(prefix="deckboy-loopseam-")
-    os.makedirs(os.path.join(root, "data"), exist_ok=True)
-    deckboy_testroot.populate(root)
-    clip = os.path.join(root, "loopclip.wav" if args.audio_only else "loopclip.mkv")
-    if args.audio_only:
-        print("building a %.2f s sound loop..." % args.pass_seconds)
-        subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i",
-                        "sine=frequency=%g:sample_rate=%d:duration=%s" % (TONE_HZ, RATE, args.pass_seconds),
-                        "-c:a", "pcm_s16le", clip], check=True)
-    else:
-        print("building a %d-frame loop at %s fps (pass: frames %d-%d)..."
-              % (clip_frames, args.rate, first_frame, last_end - 1))
-        build_clip(clip, args.rate, args.pass_seconds)
-
-    env = dict(os.environ)
-    env["DECKBOY_ROOT"] = root
-    env["DECKBOY_COMPANION_PORT"] = str(args.port)
-    log = open(os.path.join(root, "log.txt"), "w")
-    proc = subprocess.Popen([args.exe, *args.app_arg, "--import", clip], env=env,
-                            cwd=os.path.dirname(args.exe) or ".",
-                            stdout=log, stderr=subprocess.STDOUT)
-    try:
-        for _ in range(120):
-            try:
-                send(args.port, "HELP", timeout=1.0)
-                break
-            except OSError:
-                time.sleep(0.5)
-        send(args.port, "OUT on")
-        # The programme at the recording's own size: the check reads bar codes,
-        # not detail, and a full-size composite on a software renderer is more
-        # than a small CI runner can do in real time (it played at ~10 fps).
-        send(args.port, "VIDEO %dx%d" % (WIDTH, HEIGHT))
-        send(args.port, "RECFORMAT %dx%d %s" % (WIDTH, HEIGHT, args.rate))
-        send(args.port, "SELECT 1")
-        if args.trim_in > 0:
-            send(args.port, "IN %g" % args.trim_in)
-        if args.trim_out > 0:
-            send(args.port, "OUT %g" % args.trim_out)
-        send(args.port, "LOOP ON")
-        if args.loop_count > 0:
-            send(args.port, "LOOPCOUNT %d" % args.loop_count)
-        if args.loop_count > 0:
-            # Every pass on the recording, the first included, to count them.
-            send(args.port, "RECORD on")
-            time.sleep(1.0)
-            send(args.port, "TAKE")
-            time.sleep(pass_frames / rate * (args.loop_count + 1.5))
+    if args.write_clip:
+        if args.audio_only:
+            subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i",
+                            "sine=frequency=%g:sample_rate=%d:duration=%s" % (TONE_HZ, RATE, args.pass_seconds),
+                            "-c:a", "pcm_s16le", args.write_clip], check=True)
         else:
-            send(args.port, "TAKE")
-            time.sleep(2.5)
-            send(args.port, "RECORD on")
-            time.sleep(args.pass_seconds * args.passes + 0.5)
-        send(args.port, "RECORD off")
-        time.sleep(4.0)
-    finally:
-        proc.terminate()
-        try:
-            proc.wait(timeout=15)
-        except subprocess.TimeoutExpired:
-            proc.kill()
-        log.close()
+            build_clip(args.write_clip, args.rate, args.pass_seconds)
+        print("wrote %s" % args.write_clip)
+        return 0
+    root = None
+    if args.analyze:
+        rec = args.analyze
+    else:
+        root = tempfile.mkdtemp(prefix="deckboy-loopseam-")
+        os.makedirs(os.path.join(root, "data"), exist_ok=True)
+        deckboy_testroot.populate(root)
+        clip = os.path.join(root, "loopclip.wav" if args.audio_only else "loopclip.mkv")
+        if args.audio_only:
+            print("building a %.2f s sound loop..." % args.pass_seconds)
+            subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i",
+                            "sine=frequency=%g:sample_rate=%d:duration=%s" % (TONE_HZ, RATE, args.pass_seconds),
+                            "-c:a", "pcm_s16le", clip], check=True)
+        else:
+            print("building a %d-frame loop at %s fps (pass: frames %d-%d)..."
+                  % (clip_frames, args.rate, first_frame, last_end - 1))
+            build_clip(clip, args.rate, args.pass_seconds)
 
-    files = sorted(glob.glob(os.path.join(root, "data", "recordings", "*.*")), key=os.path.getmtime)
-    if not files:
-        print("no recording was written -- see %s" % os.path.join(root, "log.txt"))
-        return 1
-    rec = files[-1]
+        env = dict(os.environ)
+        env["DECKBOY_ROOT"] = root
+        env["DECKBOY_COMPANION_PORT"] = str(args.port)
+        log = open(os.path.join(root, "log.txt"), "w")
+        proc = subprocess.Popen([args.exe, *args.app_arg, "--import", clip], env=env,
+                                cwd=os.path.dirname(args.exe) or ".",
+                                stdout=log, stderr=subprocess.STDOUT)
+        try:
+            for _ in range(120):
+                try:
+                    send(args.port, "HELP", timeout=1.0)
+                    break
+                except OSError:
+                    time.sleep(0.5)
+            send(args.port, "OUT on")
+            # The programme at the recording's own size: the check reads bar codes,
+            # not detail, and a full-size composite on a software renderer is more
+            # than a small CI runner can do in real time (it played at ~10 fps).
+            send(args.port, "VIDEO %dx%d" % (WIDTH, HEIGHT))
+            send(args.port, "RECFORMAT %dx%d %s" % (WIDTH, HEIGHT, args.rate))
+            send(args.port, "SELECT 1")
+            if args.trim_in > 0:
+                send(args.port, "IN %g" % args.trim_in)
+            if args.trim_out > 0:
+                send(args.port, "OUT %g" % args.trim_out)
+            send(args.port, "LOOP ON")
+            if args.loop_count > 0:
+                send(args.port, "LOOPCOUNT %d" % args.loop_count)
+            if args.loop_count > 0:
+                # Every pass on the recording, the first included, to count them.
+                send(args.port, "RECORD on")
+                time.sleep(1.0)
+                send(args.port, "TAKE")
+                time.sleep(pass_frames / rate * (args.loop_count + 1.5))
+            else:
+                send(args.port, "TAKE")
+                time.sleep(2.5)
+                send(args.port, "RECORD on")
+                time.sleep(args.pass_seconds * args.passes + 0.5)
+            send(args.port, "RECORD off")
+            time.sleep(4.0)
+        finally:
+            proc.terminate()
+            try:
+                proc.wait(timeout=15)
+            except subprocess.TimeoutExpired:
+                proc.kill()
+            log.close()
+
+        files = sorted(glob.glob(os.path.join(root, "data", "recordings", "*.*")), key=os.path.getmtime)
+        if not files:
+            print("no recording was written -- see %s" % os.path.join(root, "log.txt"))
+            return 1
+        rec = files[-1]
 
     if args.audio_only:
         numbers = []
@@ -315,7 +334,8 @@ def main():
         kept = os.path.join(os.getcwd(), os.path.basename(rec))
         shutil.copy2(rec, kept)
         print("kept: %s" % kept)
-    shutil.rmtree(root, ignore_errors=True)
+    if root:
+        shutil.rmtree(root, ignore_errors=True)
     return 0 if picture_ok and sound_ok else 1
 
 

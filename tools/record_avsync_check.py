@@ -88,14 +88,20 @@ def edges(path, kind):
 def main():
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--exe", required=True)
+    parser.add_argument("--exe", default="", help="the Deckboy to run (not needed with --analyze)")
+    parser.add_argument("--analyze", default="",
+                        help="judge this recording instead of making one (one made on another machine)")
+    parser.add_argument("--write-clip", default="",
+                        help="only write the sync clip here (to play on another machine) and stop")
     parser.add_argument("--standard", default="1920x1080@30", help="WxH@fps to record at")
     parser.add_argument("--seconds", type=float, default=20.0)
     parser.add_argument("--port", type=int, default=5602)
     parser.add_argument("--keep", action="store_true", help="keep the recording")
     args = parser.parse_args()
+    if not args.exe and not args.analyze and not args.write_clip:
+        parser.error("--exe is needed unless --analyze or --write-clip is given")
 
-    args.exe = os.path.abspath(args.exe)
+    args.exe = os.path.abspath(args.exe) if args.exe else ""
     for tool in ("ffmpeg", "ffprobe"):
         if not shutil.which(tool):
             sys.exit("%s is not on PATH" % tool)
@@ -103,54 +109,62 @@ def main():
     raster, _, rate_text = args.standard.partition("@")
     width, _, height = raster.lower().partition("x")
     rate = float(rate_text)
+    if args.write_clip:
+        build_sync_clip(args.write_clip, args.seconds + 12, rate, int(width), int(height))
+        print("wrote %s" % args.write_clip)
+        return 0
 
-    root = tempfile.mkdtemp(prefix="deckboy-avsync-")
-    os.makedirs(os.path.join(root, "data"), exist_ok=True)
-    deckboy_testroot.populate(root)
-    clip = os.path.join(root, "syncclip.mp4")
-    print("building sync clip...")
-    build_sync_clip(clip, args.seconds + 12, rate, int(width), int(height))
+    root = None
+    if args.analyze:
+        rec = args.analyze
+    else:
+        root = tempfile.mkdtemp(prefix="deckboy-avsync-")
+        os.makedirs(os.path.join(root, "data"), exist_ok=True)
+        deckboy_testroot.populate(root)
+        clip = os.path.join(root, "syncclip.mp4")
+        print("building sync clip...")
+        build_sync_clip(clip, args.seconds + 12, rate, int(width), int(height))
 
-    env = dict(os.environ)
-    env["DECKBOY_ROOT"] = root
-    env["DECKBOY_COMPANION_PORT"] = str(args.port)
-    log = open(os.path.join(root, "log.txt"), "w")
-    # --import, not a bare path: bare media leaves the splash/startup menu up
-    # and TAKE never reaches the deck, so the recording is the empty monitor.
-    proc = subprocess.Popen([args.exe, "--import", clip], env=env,
-                            cwd=os.path.dirname(args.exe) or ".",
-                            stdout=log, stderr=subprocess.STDOUT)
-    try:
-        for _ in range(120):
-            try:
-                send(args.port, "HELP", timeout=1.0)
-                break
-            except OSError:
-                time.sleep(0.5)
-        # Master volume must stay UP: the beep has to reach the recording.
-        send(args.port, "OUT on")
-        send(args.port, "RECFORMAT %s %s" % (raster, rate_text))
-        send(args.port, "SELECT 1")
-        send(args.port, "TAKE")
-        time.sleep(3.0)
-        send(args.port, "RECORD on")
-        time.sleep(args.seconds)
-        send(args.port, "RECORD off")
-        time.sleep(4.0)
-    finally:
-        proc.terminate()
+        env = dict(os.environ)
+        env["DECKBOY_ROOT"] = root
+        env["DECKBOY_COMPANION_PORT"] = str(args.port)
+        log = open(os.path.join(root, "log.txt"), "w")
+        # --import, not a bare path: bare media leaves the splash/startup menu up
+        # and TAKE never reaches the deck, so the recording is the empty monitor.
+        proc = subprocess.Popen([args.exe, "--import", clip], env=env,
+                                cwd=os.path.dirname(args.exe) or ".",
+                                stdout=log, stderr=subprocess.STDOUT)
         try:
-            proc.wait(timeout=15)
-        except subprocess.TimeoutExpired:
-            proc.kill()
-        log.close()
+            for _ in range(120):
+                try:
+                    send(args.port, "HELP", timeout=1.0)
+                    break
+                except OSError:
+                    time.sleep(0.5)
+            # Master volume must stay UP: the beep has to reach the recording.
+            send(args.port, "OUT on")
+            send(args.port, "RECFORMAT %s %s" % (raster, rate_text))
+            send(args.port, "SELECT 1")
+            send(args.port, "TAKE")
+            time.sleep(3.0)
+            send(args.port, "RECORD on")
+            time.sleep(args.seconds)
+            send(args.port, "RECORD off")
+            time.sleep(4.0)
+        finally:
+            proc.terminate()
+            try:
+                proc.wait(timeout=15)
+            except subprocess.TimeoutExpired:
+                proc.kill()
+            log.close()
 
-    files = sorted(glob.glob(os.path.join(root, "data", "recordings", "*.*")),
-                   key=os.path.getmtime)
-    if not files:
-        print("no recording was written")
-        return 1
-    rec = files[-1]
+        files = sorted(glob.glob(os.path.join(root, "data", "recordings", "*.*")),
+                       key=os.path.getmtime)
+        if not files:
+            print("no recording was written")
+            return 1
+        rec = files[-1]
 
     flashes = edges(rec, "video")
     beeps = edges(rec, "audio")
@@ -184,7 +198,8 @@ def main():
         kept = os.path.join(os.getcwd(), os.path.basename(rec))
         shutil.copy2(rec, kept)
         print("kept: %s" % kept)
-    shutil.rmtree(root, ignore_errors=True)
+    if root:
+        shutil.rmtree(root, ignore_errors=True)
     return 0 if verdict.startswith("within") else 1
 
 

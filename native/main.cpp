@@ -4296,6 +4296,9 @@ class App {
       destroyOutputRuntime(runtime);
     }
     outputRuntimes_.clear();
+    // Every take still being finished in the background is finished now,
+    // before the encoders or the process go away.
+    joinStreamFinalizers();
 #if defined(DECKBOY_HAS_NDI_SDK)
     ndiApi_.shutdown();
 #endif
