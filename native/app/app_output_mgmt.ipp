@@ -3562,7 +3562,6 @@
     runtime.lastDropWarnMs = 0;
     runtime.recordDroppedFrames = 0;
     runtime.streamCommand.clear();
-    runtime.streamFrameBuffer.clear();
     runtime.streamAudioReadSamplesByDeck.clear();
     runtime.streamAudioSampleRemainder = 0.0;
     runtime.streamFrameWidth = 0;
@@ -4147,7 +4146,6 @@
     runtime->streamFrameHeight = height;
     runtime->streamAudioSampleRemainder = 0.0;
     primeOutputStreamAudioReadPositions(outputIndex, *runtime);
-    runtime->streamFrameBuffer.clear();
     runtime->streamStartFailed = false;
     runtime->streamRestartBlockedUntilMs = 0;
     startOutputStreamWriter(*runtime, outputStreamProtocolIsWeb(
@@ -5550,10 +5548,7 @@
     height = frame->height;
     size_t stride = static_cast<size_t>(width) * 4u;
     size_t frameBytes = stride * static_cast<size_t>(height);
-    if (runtime->streamFrameBuffer.size() != frameBytes) {
-      runtime->streamFrameBuffer.resize(frameBytes);
-    }
-    if (runtime->streamFrameBuffer.empty()) {
+    if (frameBytes == 0) {
       return;
     }
     OutputStreamPacket packet;
@@ -9459,6 +9454,45 @@
     return true;
   }
 
+  // ── A SPARE FOR THE FIRST STREAM OUTPUT ─────────────────────────────────
+  // The first RECORD of a session built the recording's hidden window and
+  // its renderer there and then, on the render thread: MEASURED 23 ms (the
+  // window 4-5, the renderer 15-18) of an 84 ms first frame at 4K, with every
+  // output frozen for it. Later takes keep their runtime and never paid it.
+  // So one is built while Deckboy starts, exactly as createOutputRuntime
+  // builds a stream output's, and the first SDR stream output -- a recording,
+  // a stream, the Web Monitor -- adopts it. MEASURED with it: the first
+  // take's first frame 70 ms, from 94-99. Most of the rest is the readback's
+  // staging ring and its first synchronous read; building that ring off this
+  // thread was tried, and a SCALED take then started on a placeholder of the
+  // programme's raster and recorded garbage (record_avsync_check caught it).
+  void prepareSpareStreamRenderer() {
+    if (spareStreamWindow_) {
+      return;
+    }
+    SDL_Window* window = SDL_CreateWindow(std::string(kOutputTitle).c_str(), 64, 64, SDL_WINDOW_HIDDEN);
+    if (!window) {
+      return;
+    }
+    SDL_Renderer* renderer = createOffscreenGpuRenderer(false);
+    if (!renderer) {
+      renderer = createOutputRenderer(window, false);
+    }
+    if (!renderer) {
+      SDL_DestroyWindow(window);
+      return;
+    }
+    spareStreamWindow_ = window;
+    spareStreamRenderer_ = renderer;
+  }
+
+  void releaseSpareStreamRenderer() {
+    if (spareStreamRenderer_) SDL_DestroyRenderer(spareStreamRenderer_);
+    if (spareStreamWindow_) SDL_DestroyWindow(spareStreamWindow_);
+    spareStreamRenderer_ = nullptr;
+    spareStreamWindow_ = nullptr;
+  }
+
   bool createOutputRuntime(int outputIndex) {
     OutputTarget& output = project_.outputs[outputIndex];
     OutputRuntime& runtime = outputRuntimes_[outputIndex];
@@ -9474,12 +9508,26 @@
     Uint32 windowFlags = streamType
       ? SDL_WINDOW_HIDDEN
       : (SDL_WINDOW_HIDDEN | SDL_WINDOW_RESIZABLE);
-    runtime.outputWindow = SDL_CreateWindow(
-      title.c_str(),
-      targetW,
-      targetH,
-      windowFlags
-    );
+    // A recording is a hidden stream output, so HDR applies to those too:
+    // its float compositor is what an HDR recording is made from.
+    const bool wantHdr = outputWantsHdr(outputIndex);
+    if (streamType && !wantHdr && spareStreamWindow_) {
+      // The one built while Deckboy started (prepareSpareStreamRenderer).
+      runtime.outputWindow = spareStreamWindow_;
+      runtime.outputRenderer = spareStreamRenderer_;
+      spareStreamWindow_ = nullptr;
+      spareStreamRenderer_ = nullptr;
+      // Not resized: a stream output never presents its window, and its
+      // picture is the compositor's size, set below.
+      SDL_SetWindowTitle(runtime.outputWindow, title.c_str());
+    } else {
+      runtime.outputWindow = SDL_CreateWindow(
+        title.c_str(),
+        targetW,
+        targetH,
+        windowFlags
+      );
+    }
     if (!runtime.outputWindow) {
       setOutputHealthState(outputIndex, OutputHealthState::Error, "window create failed");
       return false;
@@ -9489,10 +9537,9 @@
     // display assignment has been committed by the OS yet.
     applyDeckboyWindowIcon(runtime.outputWindow);
 
-    // A recording is a hidden stream output, so HDR applies to those too:
-    // its float compositor is what an HDR recording is made from.
-    const bool wantHdr = outputWantsHdr(outputIndex);
-    runtime.outputRenderer = streamType ? createOffscreenGpuRenderer(wantHdr) : nullptr;
+    if (!runtime.outputRenderer) {
+      runtime.outputRenderer = streamType ? createOffscreenGpuRenderer(wantHdr) : nullptr;
+    }
     if (!runtime.outputRenderer) {
       runtime.outputRenderer = createOutputRenderer(runtime.outputWindow, wantHdr);
     }

@@ -56,6 +56,7 @@
 ### Known issues
 - Outputs on the GPU renderer still miss a few screen refreshes a minute (above). macOS and Linux use the same kind of renderer.
 - Playback on Linux has not yet been measured on a real screen. On macOS it was measured with the sound card unused, so sound in playback and recordings on a Mac is not yet measured.
+- The first recording of a session holds every output for about 70 ms (four frames at 60 fps) as it starts. Later recordings in the session do not.
 - A clip a hair off the screen's rate (60 fps on a 59.94 Hz screen) drops a frame about every 17 seconds. Set the output's refresh rate to the clips' rate (Settings, or `VIDEO HZ`) to play it frame for frame.
 
 ## 2026-10-30 - v0.99.423 (colour pickers that grab from any window; a tour that fits your screens; step 6 fixed)

@@ -529,7 +529,6 @@ struct OutputRuntime {
   std::uint64_t streamRateSampleBytes = 0;
   double streamMeasuredKbps = 0.0;
   std::string streamCommand;
-  std::vector<std::uint8_t> streamFrameBuffer;
   int streamFrameWidth = 0;
   int streamFrameHeight = 0;
   bool streamStartFailed = false;

@@ -4254,6 +4254,8 @@ class App {
       if (lw <= 0 || lh <= 0) { lw = kControlWidth; lh = kControlHeight; }
       layoutButtons(lw, lh);
     }
+    // While nobody is watching: what the first RECORD would otherwise build.
+    prepareSpareStreamRenderer();
     return true;
   }
 
@@ -4297,6 +4299,7 @@ class App {
       destroyOutputRuntime(runtime);
     }
     outputRuntimes_.clear();
+    releaseSpareStreamRenderer();
     // Every take still being finished in the background is finished now,
     // before the encoders or the process go away.
     joinStreamFinalizers();
@@ -10209,6 +10212,10 @@ class App {
   // pass has waited for it yet.
   SDL_Window* pacingWindow_ = nullptr;
   bool pacedThisPass_ = false;
+  // The window and renderer the first stream output adopts
+  // (prepareSpareStreamRenderer).
+  SDL_Window* spareStreamWindow_ = nullptr;
+  SDL_Renderer* spareStreamRenderer_ = nullptr;
   SDL_Renderer* controlRenderer_ = nullptr;
   SDL_Texture* scanlineOverlay_ = nullptr;
   SDL_Window* monitorsWindow_ = nullptr;
