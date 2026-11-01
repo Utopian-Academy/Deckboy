@@ -36,6 +36,7 @@
 - Repeats did nothing: a cue set to play three times went round for ever. It now plays that many times, then holds its last frame or moves on, as it would without the loop.
 - Recordings made through the GPU renderer came out as one frozen picture, or started with half a second frozen and then fell back to a slower capture. They now record every frame from the start. The GPU renderer is the default on macOS and Linux and an option on Windows; measured on Windows, and macOS and Linux share the change.
 - Stopping a recording froze every output for about a third of a second, and so did every automatic roll onto a new file during a long recording. The file is now finished in the background while the outputs carry on, and quitting Deckboy still waits for every recording to be finished.
+- On a Mac, an output did not wait for its screen. It presented about 100 times a second on a 60 Hz screen and timed its frames by that, so a 60 fps clip missed about 140 refreshes a minute, and a 60 fps recording caught a new picture only every other frame. Deckboy now waits for each screen's own refresh before it presents. Measured on an M4 MacBook Air: 60 presents a second and no refreshes missed in a minute, on the built-in screen and an external one, and recordings catch 56 new pictures a second of 60 (measured with the Mac's sound card unused). Deckboy Mini waits for the screen the same way.
 - A ProRes recording at 60 fps came out as an empty file: the encoder stopped after the first few frames while the take ran on, and the recording reported it was dropping frames. It records every frame now.
 - Recording at 4K made the outputs drop frames: handing each frame to the encoder took longer than a frame lasts at 60 fps. It takes about a quarter of that now.
 - On a long recording the sound slowly fell out of step with the picture: when the sound card's clock ran fast against the computer's, the sound drifted later and later (about 67 ms an hour on a measured card), and when it ran slow, short gaps of silence appeared once the difference grew past 60 ms. While there is sound, a recording now keeps time by the sound card, so the sound is exactly what was played and stays in step with the picture.
@@ -54,7 +55,7 @@
 
 ### Known issues
 - Outputs on the GPU renderer still miss a few screen refreshes a minute (above). macOS and Linux use the same kind of renderer.
-- Playback on macOS and Linux has not yet been measured on a real screen.
+- Playback on Linux has not yet been measured on a real screen. On macOS it was measured with the sound card unused, so sound in playback and recordings on a Mac is not yet measured.
 - A clip a hair off the screen's rate (60 fps on a 59.94 Hz screen) drops a frame about every 17 seconds. Set the output's refresh rate to the clips' rate (Settings, or `VIDEO HZ`) to play it frame for frame.
 
 ## 2026-10-30 - v0.99.423 (colour pickers that grab from any window; a tour that fits your screens; step 6 fixed)
