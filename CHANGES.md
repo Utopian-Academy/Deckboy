@@ -37,6 +37,13 @@
 - Importing a PowerPoint, Keynote or PDF can no longer leave Deckboy on the import card for ever. A converter still busy after three minutes (often PowerPoint waiting on a prompt it cannot show, such as Protected View or sign-in), or a PDF renderer silent for ninety seconds, is stopped, and the toast says what happened and what to try.
 - Every slide import now writes its steps to the show log: which file, whether it was converted and by what, and how many pages it rendered, or where it stopped.
 
+### Companion module 1.0.9
+- With a Companion passphrase set in Deckboy, the module never sent the passphrase you entered, so that Deckboy could not be controlled from Companion 5. It now sends it.
+- A wrong or missing passphrase no longer makes the connection status flick between OK, Bad config and Connection failure every few seconds. It stays on the passphrase message until you change the connection's settings, and the module stops trying the refused passphrase, so it no longer counts towards Deckboy's limit on wrong attempts.
+- The connection turns green only once Deckboy answers.
+- The Device field on **Output limiter on / off** and **Output effects: bypass all** takes variables.
+- **Run dashboard tile** says in the log why it sent nothing when the tile number is not valid.
+
 ### Known issues
 - Outputs on the GPU renderer still miss a few screen refreshes a minute (above). macOS and Linux use the same kind of renderer.
 - The moment a looping clip goes round has not yet been measured for a completely gapless seam.

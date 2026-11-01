@@ -31,14 +31,21 @@ class DeckboyInstance extends InstanceBase {
 		this.decoder = undefined
 		this.stallCount = 0
 		this.lastErrorMessage = undefined
+		this.lastAuthMessage = undefined
+		// Deckboy refused the passphrase: stop asking until the settings change.
+		this.authFailed = false
+		this.secrets = {}
 		this.publishedValues = undefined
 		this.publishedSignature = undefined
 		// Shared with feedbacks.js and variables.js — the last parsed STATUS.
 		this.state = { connected: false, global: {}, decks: new Map(), outputs: new Map() }
 	}
 
-	async init(config) {
+	// A secret-text field (the passphrase) is not in `config`: Companion keeps
+	// it in its own store and hands it over separately, as `secrets`.
+	async init(config, _isFirstInit, secrets) {
 		this.config = config
+		this.secrets = secrets ?? {}
 		this.setActionDefinitions(buildActions(this))
 		this.setFeedbackDefinitions(buildFeedbacks(this))
 		this.setPresetDefinitions(buildPresetSections(), buildPresets())
@@ -47,8 +54,9 @@ class DeckboyInstance extends InstanceBase {
 		this.openConnection()
 	}
 
-	async configUpdated(config) {
+	async configUpdated(config, secrets) {
 		this.config = config
+		this.secrets = secrets ?? {}
 		this.openConnection()
 	}
 
@@ -111,6 +119,10 @@ class DeckboyInstance extends InstanceBase {
 	openConnection() {
 		this.stopPolling()
 		this.closeSocket()
+		// New settings, or a new start: a refused passphrase may now be right,
+		// and a refusal after this is news worth logging.
+		this.authFailed = false
+		this.lastAuthMessage = undefined
 
 		if (!this.config?.host) {
 			this.updateStatus(InstanceStatus.BadConfig, 'No Deckboy address set')
@@ -156,21 +168,29 @@ class DeckboyInstance extends InstanceBase {
 			}
 		})
 
-		this.socket.on('connect', () => {
-			this.lastErrorMessage = undefined
-			this.stallCount = 0
-			this.statusPending = false
-			this.setConnected(true)
-			this.updateStatus(InstanceStatus.Ok)
-			// First, before anything else: with a passphrase set, Deckboy answers
-			// nothing from another machine until it has heard this.
-			const passphrase = String(this.config?.passphrase ?? '').replace(/[\r\n]+/g, '')
-			if (passphrase) this.socket.send(`AUTH ${passphrase}\n`)
-			this.requestStatus()
-			this.startPolling()
-		})
+		this.socket.on('connect', () => this.onConnected())
 
 		this.socket.on('data', (chunk) => this.handleData(chunk))
+	}
+
+	onConnected() {
+		this.lastErrorMessage = undefined
+		this.stallCount = 0
+		this.statusPending = false
+		this.setConnected(true)
+		// TCPHelper reconnects by itself after Deckboy drops a refused socket.
+		// Sending the same refused passphrase again would only count towards
+		// Deckboy's limit on wrong attempts, so wait for the settings to change.
+		if (this.authFailed) return
+		// Not OK yet: a socket is not a Deckboy that will answer. OK comes with
+		// the first full STATUS report (flushReport).
+		this.updateStatus(InstanceStatus.Connecting, 'Waiting for Deckboy to answer')
+		// First, before anything else: with a passphrase set, Deckboy answers
+		// nothing from another machine until it has heard this.
+		const passphrase = String(this.secrets?.passphrase ?? '').replace(/[\r\n]+/g, '')
+		if (passphrase) this.socket.send(`AUTH ${passphrase}\n`)
+		this.requestStatus()
+		this.startPolling()
 	}
 
 	closeSocket() {
@@ -195,7 +215,7 @@ class DeckboyInstance extends InstanceBase {
 	}
 
 	requestStatus() {
-		if (!this.socket || !this.socket.isConnected) return
+		if (!this.socket || !this.socket.isConnected || this.authFailed) return
 
 		// One outstanding STATUS at a time: if Deckboy is busy (a big show
 		// loading, a slow drive) piling on more requests only makes it worse.
@@ -296,6 +316,14 @@ class DeckboyInstance extends InstanceBase {
 					this.lastAuthMessage = why
 					this.log('error', why)
 				}
+				// And stop: polling on would trip the no-reply watchdog, which
+				// reconnected, showed a network failure instead of this, and sent
+				// the passphrase again every few seconds.
+				this.authFailed = true
+				this.stopPolling()
+				this.statusPending = false
+				this.stallCount = 0
+				this.pendingReport = undefined
 				this.updateStatus(InstanceStatus.BadConfig, why)
 				continue
 			}
@@ -337,6 +365,10 @@ class DeckboyInstance extends InstanceBase {
 		if (!report || report.lines.length === 0) return
 		this.statusPending = false
 		this.stallCount = 0
+		// Deckboy answered: whatever passphrase there is was accepted, and a
+		// later refusal is news worth logging.
+		this.lastAuthMessage = undefined
+		this.updateStatus(InstanceStatus.Ok)
 
 		try {
 			const parsed = parseStatus(report.lines.join('\n'))

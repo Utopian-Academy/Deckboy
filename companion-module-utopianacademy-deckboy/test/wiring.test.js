@@ -432,6 +432,9 @@ async function bareInstance() {
 	const { default: DeckboyInstance } = await import('../src/main.js')
 	const instance = Object.create(DeckboyInstance.prototype)
 	instance.log = () => {}
+	// A full report sets the connection OK (flushReport); the real updateStatus
+	// needs Companion behind it.
+	instance.updateStatus = () => {}
 	instance.receiveBuffer = ''
 	instance.state = { connected: true, global: {}, decks: new Map(), outputs: new Map() }
 	instance.published = []

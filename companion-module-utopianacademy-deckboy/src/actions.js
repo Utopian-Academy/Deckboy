@@ -163,8 +163,13 @@ export function buildActions(self) {
 			description: 'Presses a DASH tile. A tile holding a sequence runs it; pressing it again while it runs stops it.',
 			options: [{ type: 'number', label: 'Tile', id: 'tile', default: 1, min: 1, max: 512, asInteger: true }],
 			callback: ({ options }) => {
-				const tile = Number(options.tile)
-				if (Number.isInteger(tile) && tile >= 1) send(`DASH ${tile}`)
+				const tile = number(options.tile, 'Tile', { integer: true })
+				if (tile === null) return
+				if (tile < 1) {
+					self.log('warn', `Tile ${tile} is not a dashboard tile (1 or more) — nothing sent`)
+					return
+				}
+				send(`DASH ${tile}`)
 			},
 		},
 		sequence: {
@@ -289,7 +294,13 @@ export function buildActions(self) {
 						{ id: 'off', label: 'Off' },
 					],
 				},
-				{ type: 'textinput', label: 'Device (empty: the focused deck’s)', id: 'device', default: '' },
+				{
+					type: 'textinput',
+					label: 'Device (empty: the focused deck’s)',
+					id: 'device',
+					default: '',
+					useVariables: true,
+				},
 			],
 			callback: ({ options }) => {
 				const device = String(options.device ?? '').trim()
@@ -311,7 +322,13 @@ export function buildActions(self) {
 						{ id: 'off', label: 'Off (chain in)' },
 					],
 				},
-				{ type: 'textinput', label: 'Device (empty: the focused deck’s)', id: 'device', default: '' },
+				{
+					type: 'textinput',
+					label: 'Device (empty: the focused deck’s)',
+					id: 'device',
+					default: '',
+					useVariables: true,
+				},
 			],
 			callback: ({ options }) => {
 				const device = String(options.device ?? '').trim()
