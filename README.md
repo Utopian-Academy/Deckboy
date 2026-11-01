@@ -34,9 +34,9 @@ Free and open source, for Windows, macOS and Linux.
 **If Deckboy is useful to you, ⭐ star this repository** (top right): it is how the next
 operator finds it, and how you find it again.
 
-### New in 0.99.425
+### New in 0.99.424
 
-[Release notes and downloads](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.425)
+[Release notes and downloads](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.424)
 
 - **Smooth playback at any frame rate.** Every clip plays with the steadiest cadence its rate
   allows on the screen it is on: 24 fps is a clean 3:2 on 60 Hz, 50 fps runs 1-1-1-1-2, a matched
