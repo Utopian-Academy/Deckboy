@@ -3467,6 +3467,11 @@
     runtime.streamToFile = false;
     // Per TAKE, not per session: take two must start its own frame clock.
     runtime.recordPacerStartMs = 0;
+    // A roll continues the take, so its sound carries on through the line.
+    if (!rollingSegment) {
+      runtime.recordAudioDelayLine.clear();
+      runtime.recordAudioDelayChunks = 0;
+    }
     runtime.recordFramesWritten = 0;
     runtime.recordFreshFrames = 0;
     runtime.lastFreshCaptureMs = 0;
@@ -4932,6 +4937,10 @@
           runtime.egressReadback = nullptr;
           runtime.egressReadbackUnavailable = true;
           runtime.egressReadbackMisses = 0;
+          // The synchronous read is not late, so the sound stops waiting:
+          // a tenth of a second skipped once beats being late for the take.
+          runtime.recordAudioDelayLine.clear();
+          runtime.recordAudioDelayChunks = 0;
         }
         // Nothing ready: keep the previous picture. The CFR pacer will repeat
         // it, which is exactly the right behaviour -- a held frame, never a
@@ -5201,6 +5210,10 @@
         runtime->recordFramesWritten = 0;
         runtime->recordFreshFrames = 0;
         runtime->lastFreshCaptureMs = nowMs;
+        // The sound waits as long as the picture does (recordAudioDelayLine).
+        runtime->recordAudioDelayChunks =
+          runtime->egressReadback && !runtime->egressReadbackUnavailable
+            ? static_cast<std::size_t>(deckboy::gpu::kAsyncReadbackDepth) : 0;
       }
       const double rate = std::max(1.0, recordingFps(fpsHint));
       const std::uint64_t owed = static_cast<std::uint64_t>(
@@ -5461,13 +5474,28 @@
         if (toFileSink) {
           audioChunks.reserve(static_cast<std::size_t>(audioChunksNeeded));
           for (int i = 0; i < audioChunksNeeded; ++i) {
-            audioChunks.push_back(collectOutputAudioFrameSamples(
+            std::vector<std::int16_t> chunk = collectOutputAudioFrameSamples(
               outputIndex,
               runtime->streamAudioReadSamplesByDeck,
               runtime->streamAudioSampleRemainder,
               fpsHint,
               &runtime->streamAudioOwedSamples,
-              &runtime->streamAudioDecksQuiet));
+              &runtime->streamAudioDecksQuiet);
+            if (runtime->recordAudioDelayChunks > 0) {
+              // Through the delay line: out comes the chunk from as many
+              // frames ago as the picture is behind, or silence the same
+              // length while it fills, so every written frame still carries
+              // exactly its share of samples.
+              const std::size_t length = chunk.size();
+              runtime->recordAudioDelayLine.push_back(std::move(chunk));
+              if (runtime->recordAudioDelayLine.size() > runtime->recordAudioDelayChunks) {
+                chunk = std::move(runtime->recordAudioDelayLine.front());
+                runtime->recordAudioDelayLine.pop_front();
+              } else {
+                chunk.assign(length, 0);
+              }
+            }
+            audioChunks.push_back(std::move(chunk));
           }
         } else {
           // A NETWORK SINK MUST NEVER WAIT ON THE VIDEO QUEUE FOR ITS AUDIO.

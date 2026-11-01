@@ -273,6 +273,16 @@ struct OutputRuntime {
   // than dependent on the capture keeping up.
   Uint64 recordPacerStartMs = 0;
   std::uint64_t recordFramesWritten = 0;
+  // THE PICTURE COMES OUT OF THE READBACK LATE, SO THE SOUND WAITS FOR IT.
+  // The asynchronous readback hands the writer a frame kAsyncReadbackDepth
+  // captures old, while the sound was read from the ring as it played: every
+  // recording made that way had its picture three frames behind its sound
+  // (MEASURED, tools/record_avsync_check.py at 30 fps: +106 ms, outside EBU
+  // R37; the synchronous read +23 ms). So the sound runs through a delay line
+  // of the same depth -- the same number of samples per written frame, the
+  // first ones silence -- set at the start of each take.
+  std::deque<std::vector<std::int16_t>> recordAudioDelayLine;
+  std::size_t recordAudioDelayChunks = 0;
   // Frames written across the WHOLE take, surviving segment rolls, so each
   // segment's timecode continues where the previous one stopped rather than
   // restarting at the take's start value.

@@ -170,6 +170,7 @@ def main():
         print("no flash/beep pairs within half a second -- sync is badly wrong")
         return 1
 
+    print("each pair, in order (ms): %s" % " ".join("%+.0f" % (o * 1000.0) for o in offsets))
     offsets.sort()
     median = offsets[len(offsets) // 2]
     print("\npairs: %d" % len(offsets))
