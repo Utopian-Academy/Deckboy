@@ -789,6 +789,11 @@ if(APPLE)
   target_sources(deckboy-native PRIVATE native/platform/mac_output_level.mm)
   set_source_files_properties(native/platform/mac_output_level.mm
     PROPERTIES COMPILE_OPTIONS "-fobjc-arc")
+  # The screen's vblank paces the loop, because Metal's vsync does not
+  # (platform/mac_vblank.hpp). CoreVideo is linked above.
+  target_sources(deckboy-native PRIVATE native/platform/mac_vblank.mm)
+  set_source_files_properties(native/platform/mac_vblank.mm
+    PROPERTIES COMPILE_OPTIONS "-fobjc-arc")
   # Which output the Mac's sound goes to, asked of CoreAudio because SDL can
   # miss the change (platform/mac_audio_default.hpp). SDL's own link to
   # CoreAudio does not cover the app's calls; only the link step would say so.

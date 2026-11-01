@@ -67,6 +67,7 @@
 #include "core/scopes.hpp"
 #include "platform/mac_audio_default.hpp"
 #include "platform/mac_output_level.hpp"
+#include "platform/mac_vblank.hpp"
 #include "platform/window_icon.hpp"
 #include "core/deck_audio_ring.hpp"
 #include "core/mtc_decode.hpp"
@@ -4397,12 +4398,33 @@ class App {
 #endif
   }
 
+  // ON A MAC THE SCREEN PACES THE LOOP (platform/mac_vblank.hpp): Metal's
+  // vsync there does not hold a present to the refresh, so the loop, and the
+  // frame scheduler timing frames against it, ran free. The screen is the
+  // first output window that is up, else the desk's. A no-op elsewhere.
+  void paceToScreen() {
+#ifdef __APPLE__
+    SDL_Window* pacing = nullptr;
+    for (std::size_t i = 0; i < project_.outputs.size() && i < outputRuntimes_.size(); ++i) {
+      const OutputRuntime& runtime = outputRuntimes_[i];
+      if (project_.outputs[i].enabled && runtime.outputWindow && runtime.outputRenderer &&
+          SDL_GetRenderWindow(runtime.outputRenderer) == runtime.outputWindow &&
+          (SDL_GetWindowFlags(runtime.outputWindow) & SDL_WINDOW_HIDDEN) == 0) {
+        pacing = runtime.outputWindow;
+        break;
+      }
+    }
+    deckboy::platform::waitForWindowVblank(pacing ? pacing : controlWindow_, 34);
+#endif
+  }
+
   void run() {
     for (;;) {
       if (gShouldQuit.load()) {
         if (saveProjectBeforeQuit()) break;
         gShouldQuit.store(false);
       }
+      paceToScreen();
       auto frameStart = std::chrono::steady_clock::now();
       auto ms = [](const auto& duration) {
         return std::chrono::duration<double, std::milli>(duration).count();

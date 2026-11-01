@@ -19,6 +19,7 @@
 
 #include "core/sdl_compat.hpp"
 #include "platform/window_icon.hpp"
+#include "platform/mac_vblank.hpp"
 #include <SDL3_ttf/SDL_ttf.h>
 #include "render/font_fallbacks.hpp"
 #include "render/text_shaper.hpp"
@@ -1208,6 +1209,9 @@ class Mini {
       }
       snapPath_.clear();
     }
+    // A Mac's Metal vsync does not hold this to the screen's refresh
+    // (platform/mac_vblank.hpp); its vblank does. A no-op elsewhere.
+    deckboy::platform::waitForWindowVblank(window_, 34);
     SDL_RenderPresent(renderer_);
   }
 
