@@ -1803,6 +1803,19 @@
     bool ctrl = deckboyShortcutHeld(mod);
     bool shift = (mod & SDL_KMOD_SHIFT) != 0;
 
+    // STOP EVERY DECK ALWAYS REACHES THE SHOW. It sat in the shortcut table
+    // below, after Settings, the shortcuts sheet, the input monitor, a text
+    // field, the code editor, a dropdown and the colour picker had each taken
+    // every key for themselves -- so with any of them open Ctrl+Shift+Space did
+    // nothing at all (reported against 0.99.422). None of them uses the chord.
+    // Held down, it stops once.
+    if (deckboyStopAllShortcut(key, mod)) {
+      if (!keyRepeat) {
+        allStop();
+      }
+      return;
+    }
+
     if (projectRecoveryPromptShown_) {
       if (!keyRepeat && key == SDLK_ESCAPE) {
         dismissDependencyPrompt();
@@ -2106,11 +2119,7 @@
       uiWatchdogPopupEvent("settings_modal", true);
       return;
     }
-    // Ctrl+Shift+Space — stop all decks (must be checked before Ctrl+Space)
-    if (ctrl && shift && key == SDLK_SPACE) {
-      allStop();
-      return;
-    }
+    // Ctrl+Shift+Space (stop every deck) is handled first of all, above.
     // Group preset keyboard shortcuts removed
     // Ctrl+Space — all-deck go (play/pause toggle)
     if (ctrl && key == SDLK_SPACE) {

@@ -82,6 +82,11 @@ def handled_chords(text):
         with_shift = modifier.strip().startswith("shift")
         chord = "Ctrl+" + ("Shift+" if with_shift else "") + key_label(token)
         found.add(chord)
+    # A fifth: a chord with a named test of its own, used where it must be
+    # recognised before the handler's modals (core/sdl_compat.hpp). Counted
+    # only where the handler actually calls it.
+    if re.search(r"if\s*\(\s*deckboyStopAllShortcut\s*\(\s*key\s*,\s*mod\s*\)\s*\)", text):
+        found.add("Ctrl+Shift+Space")
     return found
 
 

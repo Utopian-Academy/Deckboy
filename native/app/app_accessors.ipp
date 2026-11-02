@@ -531,20 +531,22 @@
     runtime.presentClockSuspect = followsCompositor;
   }
 
-  // A FULL-SCREEN OUTPUT ON ITS OWN SCREEN STAYS ON TOP (Windows).
+  // AN EXPERIMENT, OFF UNLESS DECKBOY_OUTPUT_ON_TOP=1 (Windows): keep a
+  // full-screen output on its own screen on top of everything.
   //
-  // Windows composes any window that something sits over, and a composed
-  // window is presented on DWM's clock, not its screen's: on 2026-11-01 an
-  // output on a 59.94 Hz screen beside a 60 Hz desk presented at 60.001 and
-  // its screen dropped or doubled a frame every 15 s. What sat over it was
-  // the taskbar on that screen, which is topmost, while SDL places a
-  // full-screen window HWND_NOTOPMOST. Raising it once did not hold: the
-  // taskbar came back over it. So while an output is full screen on a screen
-  // the desk is NOT on, it is always-on-top, the shell is told it is full
-  // screen, and four times a second it is put back on top if another
-  // program's window has come over it. On the desk's own screen it stays an
-  // ordinary window: the operator has to be able to bring the desk up over it.
-  // DECKBOY_OUTPUT_ON_TOP=0 turns all of it off, to compare.
+  // Windows composes an output on a 59.94 Hz screen beside a 60 Hz desk, so it
+  // is presented on the compositor's 60.001 Hz clock and its screen drops or
+  // doubles a frame every 15 s (2026-11-01). The taskbar on that screen sat
+  // over it, and SDL places a full-screen window HWND_NOTOPMOST, so this keeps
+  // it always-on-top, tells the shell it is full screen, and puts it back on
+  // top whenever another program's window comes over it.
+  //
+  // MEASURED 2026-11-02 on that PC: it does not help. On top, nothing over it,
+  // covering its screen, drawn on the GPU that drives it, the output was still
+  // composed at 60.001 -- and a bare test window with the taskbars over it
+  // kept the screen's 59.94 (tools/output_flip_lab.cpp). Something else about
+  // the output window keeps it composed; the lab is finding what. Kept, off,
+  // so that work can switch it on to compare.
   void serviceOutputOnTop(int outputIndex, OutputRuntime& runtime) {
 #ifdef _WIN32
     if (!runtime.outputWindow || !controlWindow_) {
@@ -555,13 +557,13 @@
       return;
     }
     runtime.onTopCheckedMs = nowMs;
-    static const bool disabled = [] {
+    static const bool enabled = [] {
       const char* env = std::getenv("DECKBOY_OUTPUT_ON_TOP");
-      return env && (std::strcmp(env, "0") == 0 || std::strcmp(env, "off") == 0);
+      return env && (std::strcmp(env, "1") == 0 || std::strcmp(env, "on") == 0);
     }();
     const SDL_WindowFlags flags = SDL_GetWindowFlags(runtime.outputWindow);
     const SDL_DisplayID screen = SDL_GetDisplayForWindow(runtime.outputWindow);
-    const bool want = !disabled && outputIndex >= 0 &&
+    const bool want = enabled && outputIndex >= 0 &&
                       outputIndex < static_cast<int>(project_.outputs.size()) &&
                       project_.outputs[outputIndex].enabled && (flags & SDL_WINDOW_FULLSCREEN) != 0 &&
                       (flags & (SDL_WINDOW_HIDDEN | SDL_WINDOW_MINIMIZED)) == 0 && screen != 0 &&

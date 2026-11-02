@@ -542,6 +542,13 @@ inline bool deckboyShortcutHeld(Uint16 mod) {
 #endif
 }
 
+// STOP EVERY DECK: Ctrl+Shift+Space (Cmd+Shift+Space on a Mac). One test, used
+// by the key handler and by the event loop, which lets this chord through from
+// any Deckboy window.
+inline bool deckboyStopAllShortcut(SDL_Keycode key, Uint16 mod) {
+  return key == SDLK_SPACE && deckboyShortcutHeld(mod) && (mod & SDL_KMOD_SHIFT) != 0;
+}
+
 // SDL2-style out-parameter desktop-mode query (SDL3 returns a pointer).
 inline bool deckboyGetDesktopDisplayMode(int index, SDL_DisplayMode* out) {
   const SDL_DisplayMode* mode = SDL_GetDesktopDisplayMode(deckboyDisplayIdFromIndex(index));

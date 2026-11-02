@@ -5634,13 +5634,21 @@
     triggerToast("all decks go");
   }
 
+  // STOP EVERY DECK (Ctrl+Shift+Space). It stopped each deck's engine and
+  // nothing else: no fade-out, the deck still thought its cue was live, and
+  // anything waiting to start one -- a pre-wait counting down, a continue, a
+  // sequence, the dashboard's tracker -- started it again seconds later. So
+  // "stop every deck" did not leave every deck stopped (reported against
+  // 0.99.422). Now nothing waits to restart a deck, and each deck that has
+  // something on stops exactly the way its own STOP stops it, as STOPALL does.
   void allStop() {
-    int saved = project_.focusedDeckIndex;
-    for (int di = 0; di < (int)project_.decks.size(); ++di) {
-      project_.focusedDeckIndex = di;
-      if (auto* e = focusedMediaEngine()) e->stop();
+    stopAllSequences();
+    trackerStop();
+    for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+      cancelPendingTake(d);
+      cancelFadesForDeck(d);
     }
-    project_.focusedDeckIndex = saved;
+    transportAllDecks(CueTargetVerb::StopAll);
     triggerToast("all decks stopped");
   }
 
