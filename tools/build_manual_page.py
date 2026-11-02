@@ -183,6 +183,9 @@ HEAD = """<!DOCTYPE html>
     <title>Deckboy Manual | Cue-based video playback and show control</title>
     <meta name="description" content="The complete Deckboy manual: cues and decks, transport and transitions, NDI, SRT, SDI and SMPTE ST 2110 outputs, warp and edge blend, per-cue effects, audio, timecode, themes, remote control and the full keyboard reference.">
     <link rel="canonical" href="SITEmanual.html">
+    <link rel="icon" type="image/png" sizes="48x48" href="images/icon-48.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="images/icon-192.png">
+    <link rel="apple-touch-icon" href="images/icon-192.png">
 
     <meta property="og:type" content="article">
     <meta property="og:site_name" content="Deckboy">

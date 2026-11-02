@@ -7,6 +7,9 @@
     <meta name="description" content="Free, open-source video cue software for Windows, macOS and Linux. Clips, slides and live sources in one running order, with multiple outputs and recording.">
     <link rel="canonical" href="https://utopian-academy.github.io/Deckboy/">
 
+    <link rel="icon" type="image/png" sizes="48x48" href="images/icon-48.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="images/icon-192.png">
+    <link rel="apple-touch-icon" href="images/icon-192.png">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Deckboy">
     <meta property="og:title" content="Deckboy - Open-Source Live Video Playback">
@@ -26,7 +29,11 @@
     {
       "@context": "https://schema.org",
       "@type": "SoftwareApplication",
+      "@id": "https://utopian-academy.github.io/Deckboy/#software",
       "name": "Deckboy",
+      "image": "https://utopian-academy.github.io/Deckboy/images/icon-512.png",
+      "author": { "@id": "https://utopian-academy.github.io/Deckboy/#organization" },
+      "publisher": { "@id": "https://utopian-academy.github.io/Deckboy/#organization" },
       "applicationCategory": "MultimediaApplication",
       "applicationSubCategory": "Video cue playback and show control for theatre, live events and broadcast",
       "operatingSystem": "Windows 10, Windows 11, macOS 12, Linux",
@@ -77,6 +84,30 @@
         "Gamma-correct edge blending, paired overlap and black lift; save your own new-show defaults",
         "Mic cues: a live microphone or line input as a cue, with fades, routing and effects",
         "No account, no licence server and no telemetry"
+      ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://utopian-academy.github.io/Deckboy/#organization",
+          "name": "Utopian Academy",
+          "url": "https://utopian-academy.github.io/Deckboy/",
+          "logo": "https://utopian-academy.github.io/Deckboy/images/icon-512.png",
+          "sameAs": ["https://github.com/Utopian-Academy", "https://discord.gg/AZzsE4AZWx"]
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://utopian-academy.github.io/Deckboy/#website",
+          "name": "Deckboy",
+          "url": "https://utopian-academy.github.io/Deckboy/",
+          "inLanguage": "en",
+          "publisher": { "@id": "https://utopian-academy.github.io/Deckboy/#organization" },
+          "about": { "@id": "https://utopian-academy.github.io/Deckboy/#software" }
+        }
       ]
     }
     </script>

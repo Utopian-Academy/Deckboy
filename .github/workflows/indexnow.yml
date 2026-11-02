@@ -1,0 +1,132 @@
+# Tells the search engines that take IndexNow which site pages changed, once
+# GitHub Pages has published them: Bing (and through it DuckDuckGo, Yahoo,
+# Ecosia and ChatGPT search), Yandex, Seznam and Naver. Google does not take
+# IndexNow; for Google the sitemap goes in Search Console.
+#
+# Why this is needed at all: the site is a project site, served from
+# utopian-academy.github.io/Deckboy/. Crawlers read robots.txt only at the root
+# of a host, and that root is a 404, so docs/robots.txt -- and the sitemap it
+# names -- is never read. The IndexNow key file below was already published on
+# the site, but nothing ever sent a ping, so nothing told an engine a page was
+# there or had changed. A key file inside /Deckboy/ covers every URL under
+# /Deckboy/, which is the whole site.
+name: IndexNow
+
+on:
+  push:
+    branches: [main]
+    paths: ["docs/**"]
+  # Run by hand to send every page in the sitemap, e.g. the first time.
+  workflow_dispatch:
+
+concurrency:
+  group: indexnow
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  pages: read
+
+env:
+  SITE: https://utopian-academy.github.io/Deckboy/
+  HOST: utopian-academy.github.io
+  # Must match the file docs/<KEY>.txt, which holds the key itself.
+  KEY: c40d28693cb37570312ec3da10f0b30d
+
+jobs:
+  ping:
+    name: Tell search engines what changed
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            docs/sitemap.xml
+          sparse-checkout-cone-mode: false
+
+      - name: Pages to send
+        id: pages
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BEFORE: ${{ github.event.before }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "push" ] && [ -n "${BEFORE:-}" ] \
+             && [ "${BEFORE}" != "0000000000000000000000000000000000000000" ] \
+             && gh api "repos/${{ github.repository }}/compare/${BEFORE}...${{ github.sha }}" \
+                  --jq '.files[].filename' > changed.txt; then
+            # Only the pages this push changed (added, edited or removed).
+            grep -E '^docs/[^/]+\.html$' changed.txt \
+              | sed -e 's#^docs/index\.html$#'"$SITE"'#' -e 's#^docs/#'"$SITE"'#' > urls.txt || true
+          else
+            # Run by hand, or a push that cannot be compared: every page.
+            grep -o '<loc>[^<]*</loc>' docs/sitemap.xml | sed -e 's#</\?loc>##g' > urls.txt
+          fi
+          sort -u -o urls.txt urls.txt
+          echo "pages to send: $(wc -l < urls.txt)"
+          cat urls.txt
+          echo "count=$(wc -l < urls.txt)" >> "$GITHUB_OUTPUT"
+
+      # A ping before Pages has published would send a crawler to the old page.
+      # Wait until the newest Pages build is finished and was started after this
+      # commit was pushed (or is this commit).
+      - name: Wait for GitHub Pages to publish
+        if: steps.pages.outputs.count != '0' && github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PUSHED_AT: ${{ github.event.repository.pushed_at }}
+        shell: bash
+        run: |
+          set -uo pipefail
+          since="${PUSHED_AT:-$(date -u +%s)}"
+          for i in $(seq 1 80); do
+            if build=$(gh api "repos/${{ github.repository }}/pages/builds/latest" \
+                  --jq '[.status, .commit, .created_at] | @tsv' 2>/dev/null); then
+              IFS=$'\t' read -r status commit created <<< "$build"
+              created_s=$(date -u -d "$created" +%s 2>/dev/null || echo 0)
+              echo "pages build: $status $commit $created"
+              if [ "$status" = "built" ] && { [ "$commit" = "${{ github.sha }}" ] || [ "$created_s" -ge "$since" ]; }; then
+                exit 0
+              fi
+              if [ "$status" = "errored" ] && [ "$commit" = "${{ github.sha }}" ]; then
+                echo "::error::GitHub Pages failed to build ${{ github.sha }}; nothing sent"
+                exit 1
+              fi
+            else
+              # No Pages build API for this site: give the deploy time instead.
+              echo "pages build status unavailable; waiting three minutes instead"
+              sleep 180
+              exit 0
+            fi
+            sleep 15
+          done
+          echo "::error::GitHub Pages did not publish within 20 minutes; nothing sent"
+          exit 1
+
+      - name: Send to IndexNow
+        if: steps.pages.outputs.count != '0'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY' > body.json
+          import json, os
+          urls = [u.strip() for u in open("urls.txt") if u.strip()]
+          print(json.dumps({
+              "host": os.environ["HOST"],
+              "key": os.environ["KEY"],
+              "keyLocation": os.environ["SITE"] + os.environ["KEY"] + ".txt",
+              "urlList": urls,
+          }))
+          PY
+          code=$(curl -sS -o response.txt -w '%{http_code}' -X POST \
+            -H 'Content-Type: application/json; charset=utf-8' \
+            --data @body.json https://api.indexnow.org/indexnow)
+          echo "IndexNow answered $code"
+          cat response.txt || true
+          # 200: received. 202: received, key still being checked.
+          case "$code" in
+            200|202) ;;
+            *) echo "::error::IndexNow refused the ping (HTTP $code)"; exit 1 ;;
+          esac
