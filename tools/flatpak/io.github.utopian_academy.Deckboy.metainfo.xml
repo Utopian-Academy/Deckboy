@@ -92,6 +92,7 @@
   <content_rating type="oars-1.1"/>
 
   <releases>
+    <release version="0.99.424" date="2026-11-02"/>
     <release version="0.99.357" date="2026-09-13"/>
   </releases>
 </component>
