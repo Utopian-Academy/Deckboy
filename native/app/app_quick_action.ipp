@@ -537,6 +537,11 @@
       case QuickAction::ToggleLoop:      toggleSelectedLoop(); break;
       case QuickAction::ToggleHold:      toggleSelectedPauseOnLastFrame(); break;
       case QuickAction::TogglePauseBegin: toggleSelectedPauseAtBeginning(); break;
+      case QuickAction::ToggleLockToScreen: {
+        const Cue* cue = selectedCuePtr();
+        if (cue) setSelectedLockToScreen(!cue->lockToScreen);
+        break;
+      }
       case QuickAction::ToggleCueAudio:   toggleSelectedAudioEnabled(); break;
       case QuickAction::ToggleNextTransition: toggleSelectedTransitionToNext(); break;
       case QuickAction::ToggleFadeIn:    toggleSelectedFadeEnabled(true); break;

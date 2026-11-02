@@ -5057,6 +5057,14 @@
                      QuickAction::ToggleLoop, false, false, "Playback speed: 0.25–4.0×");
         rowCursor += 1;
 
+        drawQuickRow(ry + kRowStep * rowCursor, "lock to screen", QuickAction::ToggleLockToScreen,
+                     selectedCue->lockToScreen ? "on" : "off",
+                     QuickAction::ToggleLockToScreen, QuickAction::ToggleLockToScreen, true,
+                     selectedCue->lockToScreen,
+                     "Play at the screen's rate when it is within 0.2% (59.94 on 60): "
+                     "every frame shown once, the sound up to 3.5 cents sharp or flat");
+        rowCursor += 1;
+
         drawQuickRow(ry + kRowStep * rowCursor, "pause begin", QuickAction::TogglePauseBegin,
                      selectedCue->pauseAtBeginning ? "on" : "off",
                      QuickAction::TogglePauseBegin, QuickAction::TogglePauseBegin, true, selectedCue->pauseAtBeginning,

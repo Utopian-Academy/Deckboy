@@ -7078,6 +7078,18 @@
       }
       return;
     }
+    if (command == "LOCKSCREEN") {
+      // LOCKSCREEN [on|off]: the selected cue plays at the screen's rate when
+      // it is within 0.2% of it (Cue::lockToScreen). No word toggles.
+      const Cue* cue = selectedCuePtr();
+      if (!cue) {
+        failRemoteCommand("lockscreen: no cue selected");
+        return;
+      }
+      auto state = parseToggleWord(1);
+      setSelectedLockToScreen(state ? *state : !cue->lockToScreen);
+      return;
+    }
     if (command == "HOLD" || command == "HOLDLAST" || command == "PAUSEEND" || command == "PAUSEATEND") {
       auto state = parseToggleWord(1);
       if (!state) {
