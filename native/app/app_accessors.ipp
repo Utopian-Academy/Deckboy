@@ -382,8 +382,24 @@
         runtime->presentsMissed += static_cast<std::uint64_t>(missed);
         runtime->lastMissNs = nowNs;
         noteOutputFramesMissed(outputIndex, *runtime, static_cast<int>(missed), nowNs);
+      } else {
+        runtime->pacedSumMs += gapMs;
+        runtime->pacedCount += 1;
       }
       runtime->worstPresentGapMs = std::max(runtime->worstPresentGapMs, gapMs);
+      if (runtime->pacedWindowStartNs == 0) {
+        runtime->pacedWindowStartNs = nowNs;
+      } else if (nowNs - runtime->pacedWindowStartNs >= 10000000000ULL) {
+        // Ten seconds: the sum of ~600 intervals is the span between its ends,
+        // so a millisecond of jitter at either end is 0.01% of it, and 59.94
+        // and 60 (0.1% apart) cannot be mistaken for each other.
+        runtime->presentPacedHz = runtime->pacedCount >= 60 && runtime->pacedSumMs > 0.0
+          ? 1000.0 * runtime->pacedCount / runtime->pacedSumMs : 0.0;
+        runtime->pacedSumMs = 0.0;
+        runtime->pacedCount = 0;
+        runtime->pacedWindowStartNs = nowNs;
+        checkOutputPresentClock(outputIndex, *runtime);
+      }
     }
     runtime->lastPresentNs = nowNs;
     Uint64 elapsedMs = now - runtime->fpsSampleStartedAtMs;
@@ -409,6 +425,187 @@
       return project_.outputRefreshRateHz;
     }
     return runtime.fpsMeasured;
+  }
+
+  // WHOSE CLOCK AN OUTPUT KEPT, after each ten seconds of presents.
+  //
+  // Every renderer here keeps one frame in flight, so a present waits until
+  // the last frame has been taken, and the rate the presents keep IS the rate
+  // of whatever takes them: the screen, for a window flipped straight to it;
+  // the desktop compositor, for a COMPOSED window. On Windows the compositor
+  // keeps one clock for every screen, so a composed output on a 59.94 Hz
+  // screen beside a 60 Hz desk keeps 60 and its screen has to drop or repeat
+  // a frame at every beat of the two -- every 17 s. That is the reading of
+  // 2026-11-01's run (platform/display_topology.hpp); this is what lets the
+  // next run say so outright. The render log keeps each change, STATUS the
+  // latest, and the operator is told once, with what to change.
+  void checkOutputPresentClock(int outputIndex, OutputRuntime& runtime) {
+    const bool windowed = runtime.outputWindow && runtime.outputRenderer &&
+      SDL_GetRenderWindow(runtime.outputRenderer) == runtime.outputWindow &&
+      (SDL_GetWindowFlags(runtime.outputWindow) & SDL_WINDOW_HIDDEN) == 0;
+    if (!windowed) {
+      runtime.presentPath = {};
+      runtime.presentClockSuspect = false;
+      return;
+    }
+    // The screen's own refresh, or 0: presentTargetHz falls back to a rate it
+    // measured, and a clock cannot be judged against itself.
+    const double screenHz = outputDisplayRefreshHz(outputIndex);
+    const double pacedHz = runtime.presentPacedHz;
+    // How often the screen and the clock the presents kept slip a frame past
+    // each other. None when they agree, or when one is a whole multiple of the
+    // other (60 on a 120 Hz screen is a steady 1:2).
+    double beatHz = 0.0;
+    if (screenHz > 1.0 && pacedHz > 1.0) {
+      const double hi = std::max(screenHz, pacedHz);
+      const double lo = std::min(screenHz, pacedHz);
+      beatHz = std::abs(hi - std::max(1.0, std::round(hi / lo)) * lo);
+      if (beatHz < hi * 0.0003) {
+        beatHz = 0.0;   // one clock, as far as ten seconds can tell
+      }
+    }
+#ifdef _WIN32
+    // The walk over the windows above it costs a call into DWM per window, on
+    // this thread: only when there is a slip to explain.
+    const SDL_PropertiesID rendererProps = SDL_GetRendererProperties(runtime.outputRenderer);
+    runtime.presentPath = deckboy::platform::queryPresentPath(
+      SDL_GetPointerProperty(SDL_GetWindowProperties(runtime.outputWindow), SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr),
+      SDL_GetPointerProperty(rendererProps, SDL_PROP_RENDERER_D3D11_DEVICE_POINTER, nullptr),
+      SDL_GetPointerProperty(rendererProps, SDL_PROP_RENDERER_D3D11_SWAPCHAIN_POINTER, nullptr),
+      beatHz > 0.0);
+#endif
+    const deckboy::platform::PresentPathInfo& path = runtime.presentPath;
+    const bool followsCompositor = beatHz > 0.0 && path.compositorHz > 1.0 &&
+      std::abs(pacedHz - path.compositorHz) < path.compositorHz * 0.0003;
+
+    char summary[400];
+    std::snprintf(summary, sizeof(summary),
+                  "present clock: output %d screen=%.3f Hz paced=%.2f Hz compositor=%.3f Hz%s"
+                  " dxgi_mode=%s same_gpu=%s covers_screen=%d windows_above=%d",
+                  outputIndex + 1, screenHz, pacedHz, path.compositorHz,
+                  followsCompositor ? " (KEEPS THE COMPOSITOR'S CLOCK)" : "",
+                  deckboy::platform::dxgiPresentationModeName(path.dxgiMode),
+                  path.sameAdapter == 1 ? "yes" : (path.sameAdapter == 0 ? "no" : "unknown"),
+                  path.coversScreen, path.windowsAbove);
+    // Logged when the verdict changes: the paced rate to a tenth, so the
+    // jitter of one ten seconds against the next is not a change.
+    char verdict[200];
+    std::snprintf(verdict, sizeof(verdict), "%.3f %.1f %.3f %d %d %d %d %d", screenHz, pacedHz,
+                  path.compositorHz, followsCompositor ? 1 : 0, path.dxgiMode, path.sameAdapter,
+                  path.coversScreen, path.windowsAbove);
+    if (runtime.presentClockLogged != verdict) {
+      runtime.presentClockLogged = verdict;
+      std::string line = summary;
+      if (path.sameAdapter == 0) {
+        line += " draws_on=\"" + path.drawAdapter + "\" screen_on=\"" + path.screenAdapter + "\"";
+      }
+      if (path.windowsAbove > 0) {
+        line += " above=\"" + path.windowsAboveTitles + "\"";
+      }
+      renderDiagnosticLog(line);
+      std::cerr << line << '\n';
+      tracePresentInfo(line);
+    }
+
+    if (followsCompositor && runtime.presentClockSuspect && !runtime.presentClockWarned) {
+      runtime.presentClockWarned = true;
+      char every[48];
+      if (beatHz < 1.0) {
+        std::snprintf(every, sizeof(every), "every %.0f s", 1.0 / beatHz);
+      } else {
+        std::snprintf(every, sizeof(every), "%.0f times a second", beatHz);
+      }
+      std::string fix = "Set both screens to the same refresh rate.";
+      if (path.sameAdapter == 0) {
+        fix = "Its screen is on another graphics card: connect it to the one Deckboy draws on, "
+              "or set both screens to the same refresh rate.";
+      } else if (path.windowsAbove > 0) {
+        fix = "A window is over it on its screen: " + path.windowsAboveTitles + ".";
+      }
+      triggerToast(outputLabel(outputIndex) + ": Windows shows it at " + formatRefreshRateLabel(pacedHz) +
+                     ", its screen runs at " + formatRefreshRateLabel(screenHz) +
+                     ", so a frame is dropped or repeated " + every + ". " + fix,
+                   ToastKind::Warning, kToastReadableMs);
+    }
+    runtime.presentClockSuspect = followsCompositor;
+  }
+
+  // ── DECKBOY_PRESENT_TRACE=<file> ────────────────────────────────────────
+  // One line for every present of the desk, the Monitors window and each
+  // output window, one at the top of each pass of the loop, and each present
+  // clock verdict above -- so a slow pass is pinned on the present that held
+  // it, and (Direct3D 11) each output frame on the refresh that showed it.
+  // tools/present_trace_report.py reads it. Times are SDL's performance
+  // counter, which on Windows IS QueryPerformanceCounter, the unit the swap
+  // chain's own statistics and DWM's timing are stamped in.
+  void openPresentTrace() {
+    const char* path = std::getenv("DECKBOY_PRESENT_TRACE");
+    if (!path || !*path) {
+      return;
+    }
+    presentTrace_ = std::make_unique<std::ofstream>(path, std::ios::out | std::ios::trunc);
+    if (!*presentTrace_) {
+      std::cerr << "DECKBOY_PRESENT_TRACE: could not open " << path << '\n';
+      presentTrace_.reset();
+      return;
+    }
+    *presentTrace_ << "# deckboy present trace 1 counter_hz=" << SDL_GetPerformanceFrequency()
+                   << " compositor_hz=" << deckboy::platform::compositorRefreshHz() << '\n'
+                   << "# pass,counter,dwm_vblank,dwm_refresh,dwm_frame,dwm_dropped,dwm_missed\n"
+                   << "# present,window,before,after,last_present,stat_present,stat_present_refresh,"
+                      "stat_sync_refresh,stat_sync_counter\n"
+                   << "# info,<present clock verdict>\n";
+    std::cerr << "present trace: " << path << '\n';
+  }
+
+  void tracePassStart() {
+    if (!presentTrace_) {
+      return;
+    }
+    const deckboy::platform::CompositorTiming dwm = deckboy::platform::queryCompositorTiming();
+    std::ostream& out = *presentTrace_;
+    out << "pass," << SDL_GetPerformanceCounter();
+    if (dwm.valid) {
+      out << ',' << dwm.vblankQpc << ',' << dwm.refreshCount << ',' << dwm.frameCount << ','
+          << dwm.framesDropped << ',' << dwm.framesMissed;
+    }
+    out << '\n';
+    // About once a second, so a run that is killed keeps nearly all of it.
+    if (++presentTracePasses_ % 64 == 0) {
+      out.flush();
+    }
+  }
+
+  void tracePresentInfo(const std::string& line) {
+    if (presentTrace_) {
+      *presentTrace_ << "info," << line << '\n';
+    }
+  }
+
+  // SDL_RenderPresent, traced when DECKBOY_PRESENT_TRACE is set. `label` is
+  // "desk", "monitors" or "out"; an output's number follows its label.
+  void presentTraced(SDL_Renderer* renderer, const char* label, int outputIndex = -1) {
+    if (!presentTrace_) {
+      SDL_RenderPresent(renderer);
+      return;
+    }
+    const Uint64 before = SDL_GetPerformanceCounter();
+    SDL_RenderPresent(renderer);
+    const Uint64 after = SDL_GetPerformanceCounter();
+    const deckboy::platform::PresentStats stats = deckboy::platform::queryPresentStats(
+      SDL_GetPointerProperty(SDL_GetRendererProperties(renderer), SDL_PROP_RENDERER_D3D11_SWAPCHAIN_POINTER,
+                             nullptr));
+    std::ostream& out = *presentTrace_;
+    out << "present," << label;
+    if (outputIndex >= 0) {
+      out << (outputIndex + 1);
+    }
+    out << ',' << before << ',' << after << ',' << stats.lastPresentCount;
+    if (stats.valid) {
+      out << ',' << stats.presentCount << ',' << stats.presentRefreshCount << ',' << stats.syncRefreshCount
+          << ',' << stats.syncQpcTime;
+    }
+    out << '\n';
   }
 
   // Frames an output missed in the last five seconds: the badge turns to a

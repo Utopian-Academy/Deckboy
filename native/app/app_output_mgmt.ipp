@@ -6025,6 +6025,14 @@
     runtime.missWindowStartNs = 0;
     runtime.missedInWindow = 0;
     runtime.lastMissWarningMs = 0;
+    // Its clock is measured afresh; the warning stays said for the session.
+    runtime.pacedSumMs = 0.0;
+    runtime.pacedCount = 0;
+    runtime.pacedWindowStartNs = 0;
+    runtime.presentPacedHz = 0.0;
+    runtime.presentPath = {};
+    runtime.presentClockSuspect = false;
+    runtime.presentClockLogged.clear();
   }
 
 #if DECKBOY_INPROC_DECODE

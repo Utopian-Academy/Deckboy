@@ -558,7 +558,7 @@
       SDL_Rect dst {0, 0, ww, wh};
       SDL_RenderTexture(controlRenderer_, scanlineOverlay_, nullptr, &dst);
     }
-    SDL_RenderPresent(controlRenderer_);
+    presentTraced(controlRenderer_, "monitors");
 
     controlRenderer_ = savedRenderer;
     controlWindow_   = savedWindow;
@@ -1498,7 +1498,7 @@
     finishLiveTextFrame();   // reads the window back, so before present
     paceBeforePresent(controlWindow_);
     const auto uiPresentStart = std::chrono::steady_clock::now();
-    SDL_RenderPresent(controlRenderer_);
+    presentTraced(controlRenderer_, "desk");
     revealControlWindow();  // the main control-window frame
     auto uiFrameEnd = std::chrono::steady_clock::now();
     lastUiPresentMs_ = std::chrono::duration<double, std::milli>(uiFrameEnd - uiPresentStart).count();

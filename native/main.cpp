@@ -3966,6 +3966,7 @@ class App {
     if (uiProfileEnabled_) {
       uiProfileLog("ui profiling enabled (DECKBOY_UI_PROFILE)");
     }
+    openPresentTrace();
 
     // Pre-clamp the initial size to the primary display so we never create a
     // window larger than a screen. The defaults (1760x1020) overflow a laptop
@@ -11786,6 +11787,8 @@ class App {
   Uint64 selectionChangedAt_ = 0;
   bool uiProfileEnabled_ = false;
   double uiProfileSlowFrameMs_ = 50.0;   // DECKBOY_UI_PROFILE=<ms> lowers it
+  std::unique_ptr<std::ofstream> presentTrace_;   // DECKBOY_PRESENT_TRACE=<file> (openPresentTrace)
+  std::uint64_t presentTracePasses_ = 0;
   double lastUiLayoutMs_ = 0.0;
   // THE DESK'S OWN SMOOTHNESS, counted like an output's (presents, hitches,
   // worst gap). Outputs had this; the desk did not, and a desk that stutters

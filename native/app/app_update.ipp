@@ -1523,6 +1523,7 @@
   void render() {
     animationNow_ = SDL_GetTicks();
     choosePacingWindow();
+    tracePassStart();
 
     // ── Decouple the UI from the programme clock ───────────────────────────
     // The control window and the programme output were BOTH presenting with

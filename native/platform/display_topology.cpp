@@ -17,6 +17,9 @@
 #define NOMINMAX
 #endif
 #include <windows.h>
+#include <d3d11.h>
+#include <dxgi1_3.h>   // IDXGISwapChainMedia
+#include <dwmapi.h>    // DWM_TIMING_INFO; the functions are loaded at run time
 #elif defined(__APPLE__)
 #include <CoreGraphics/CoreGraphics.h>
 #else
@@ -270,5 +273,277 @@ DisplayMirrorInfo queryDisplayMirrorInfo(int x, int y, int w, int h, const char*
   }
   return queryPlatform(x, y, w, h, sdlName);
 }
+
+const char* dxgiPresentationModeName(int mode) {
+  // DXGI_FRAME_PRESENTATION_MODE's values, spelled out so this compiles where
+  // there is no DXGI.
+  switch (mode) {
+    case 0: return "composed";
+    case 1: return "overlay";
+    case 2: return "none";
+    case 3: return "failure";
+    default: return "unknown";
+  }
+}
+
+#if defined(_WIN32)
+
+namespace {
+
+// dwmapi is loaded, not linked: only the WebView2 build links it (see
+// windowFrameBounds in capture_backend.cpp).
+HMODULE dwmLibrary() {
+  static HMODULE lib = LoadLibraryW(L"dwmapi.dll");
+  return lib;
+}
+
+using DwmGetCompositionTimingInfoFn = HRESULT (WINAPI*)(HWND, DWM_TIMING_INFO*);
+using DwmGetWindowAttributeFn = HRESULT (WINAPI*)(HWND, DWORD, PVOID, DWORD);
+
+DwmGetCompositionTimingInfoFn dwmTimingInfo() {
+  static DwmGetCompositionTimingInfoFn fn = dwmLibrary()
+    ? reinterpret_cast<DwmGetCompositionTimingInfoFn>(GetProcAddress(dwmLibrary(), "DwmGetCompositionTimingInfo"))
+    : nullptr;
+  return fn;
+}
+
+DwmGetWindowAttributeFn dwmWindowAttribute() {
+  static DwmGetWindowAttributeFn fn = dwmLibrary()
+    ? reinterpret_cast<DwmGetWindowAttributeFn>(GetProcAddress(dwmLibrary(), "DwmGetWindowAttribute"))
+    : nullptr;
+  return fn;
+}
+
+// The GPU a Direct3D 11 device draws on, and whether it is the one whose
+// outputs include `monitor`. A frame drawn on one GPU and shown by another
+// has to be copied across, and Windows composes every such frame.
+int adapterDrivesMonitor(ID3D11Device* device, HMONITOR monitor, std::string& drawName,
+                         std::string& screenName) {
+  IDXGIDevice* dxgiDevice = nullptr;
+  if (FAILED(device->QueryInterface(__uuidof(IDXGIDevice), reinterpret_cast<void**>(&dxgiDevice))) ||
+      !dxgiDevice) {
+    return -1;
+  }
+  IDXGIAdapter* drawAdapter = nullptr;
+  const HRESULT adapterResult = dxgiDevice->GetAdapter(&drawAdapter);
+  dxgiDevice->Release();
+  if (FAILED(adapterResult) || !drawAdapter) {
+    return -1;
+  }
+  DXGI_ADAPTER_DESC drawDesc {};
+  drawAdapter->GetDesc(&drawDesc);
+  drawName = narrow(drawDesc.Description);
+  IDXGIFactory1* factory = nullptr;
+  const HRESULT factoryResult =
+    drawAdapter->GetParent(__uuidof(IDXGIFactory1), reinterpret_cast<void**>(&factory));
+  drawAdapter->Release();
+  if (FAILED(factoryResult) || !factory) {
+    return -1;
+  }
+  int verdict = -1;
+  for (UINT a = 0; verdict < 0; ++a) {
+    IDXGIAdapter1* adapter = nullptr;
+    if (factory->EnumAdapters1(a, &adapter) == DXGI_ERROR_NOT_FOUND || !adapter) {
+      break;
+    }
+    for (UINT o = 0;; ++o) {
+      IDXGIOutput* output = nullptr;
+      if (adapter->EnumOutputs(o, &output) == DXGI_ERROR_NOT_FOUND || !output) {
+        break;
+      }
+      DXGI_OUTPUT_DESC outputDesc {};
+      const bool matches = SUCCEEDED(output->GetDesc(&outputDesc)) && outputDesc.Monitor == monitor;
+      output->Release();
+      if (matches) {
+        DXGI_ADAPTER_DESC1 desc {};
+        adapter->GetDesc1(&desc);
+        screenName = narrow(desc.Description);
+        verdict = (desc.AdapterLuid.LowPart == drawDesc.AdapterLuid.LowPart &&
+                   desc.AdapterLuid.HighPart == drawDesc.AdapterLuid.HighPart) ? 1 : 0;
+        break;
+      }
+    }
+    adapter->Release();
+  }
+  factory->Release();
+  return verdict;
+}
+
+// Visible windows ABOVE `self` in z-order that overlap `screen`. Any one of
+// them -- a notification, an overlay, another window's edge -- keeps a
+// fullscreen window composed. EnumWindows walks top-level windows from the
+// top of the z-order down, so the walk stops at `self`.
+struct WindowsAboveSearch {
+  HWND self = nullptr;
+  RECT screen {};
+  int count = 0;
+  bool reachedSelf = false;
+  std::string titles;
+};
+
+BOOL CALLBACK windowsAboveProc(HWND hwnd, LPARAM param) {
+  auto* search = reinterpret_cast<WindowsAboveSearch*>(param);
+  if (hwnd == search->self) {
+    search->reachedSelf = true;
+    return FALSE;
+  }
+  if (!IsWindowVisible(hwnd) || IsIconic(hwnd)) {
+    return TRUE;
+  }
+  RECT bounds {};
+  if (DwmGetWindowAttributeFn attribute = dwmWindowAttribute()) {
+    constexpr DWORD kCloaked = 14;               // DWMWA_CLOAKED
+    constexpr DWORD kExtendedFrameBounds = 9;    // DWMWA_EXTENDED_FRAME_BOUNDS
+    DWORD cloaked = 0;
+    if (SUCCEEDED(attribute(hwnd, kCloaked, &cloaked, sizeof(cloaked))) && cloaked != 0) {
+      return TRUE;   // on another virtual desktop, or a suspended app's: not drawn
+    }
+    if (FAILED(attribute(hwnd, kExtendedFrameBounds, &bounds, sizeof(bounds)))) {
+      GetWindowRect(hwnd, &bounds);
+    }
+  } else {
+    GetWindowRect(hwnd, &bounds);
+  }
+  RECT overlap {};
+  if (!IntersectRect(&overlap, &bounds, &search->screen)) {
+    return TRUE;
+  }
+  ++search->count;
+  if (search->titles.size() < 240) {
+    wchar_t title[96] = L"";
+    GetWindowTextW(hwnd, title, 96);
+    wchar_t className[64] = L"";
+    GetClassNameW(hwnd, className, 64);
+    if (!search->titles.empty()) search->titles += " | ";
+    std::string name = narrow(title);
+    search->titles += name.empty() ? ("[" + narrow(className) + "]") : name;
+  }
+  return TRUE;
+}
+
+}  // namespace
+
+CompositorTiming queryCompositorTiming() {
+  CompositorTiming timing;
+  DwmGetCompositionTimingInfoFn query = dwmTimingInfo();
+  if (!query) {
+    return timing;
+  }
+  DWM_TIMING_INFO info {};
+  info.cbSize = sizeof(info);
+  // NULL: from Windows 8.1 it must be, and the answer is DWM's own clock.
+  if (FAILED(query(nullptr, &info))) {
+    return timing;
+  }
+  timing.valid = true;
+  if (info.rateRefresh.uiNumerator > 0 && info.rateRefresh.uiDenominator > 0) {
+    timing.hz = static_cast<double>(info.rateRefresh.uiNumerator) / info.rateRefresh.uiDenominator;
+  } else {
+    LARGE_INTEGER frequency {};
+    if (info.qpcRefreshPeriod > 0 && QueryPerformanceFrequency(&frequency) && frequency.QuadPart > 0) {
+      timing.hz = static_cast<double>(frequency.QuadPart) / static_cast<double>(info.qpcRefreshPeriod);
+    }
+  }
+  timing.vblankQpc = static_cast<std::int64_t>(info.qpcVBlank);
+  timing.refreshCount = info.cRefresh;
+  timing.frameCount = info.cFrame;
+  timing.framesDropped = info.cFramesDropped;
+  timing.framesMissed = info.cFramesMissed;
+  return timing;
+}
+
+double compositorRefreshHz() {
+  return queryCompositorTiming().hz;
+}
+
+PresentPathInfo queryPresentPath(void* hwndPointer, void* d3d11Device, void* dxgiSwapChain,
+                                 bool windowsAbove) {
+  PresentPathInfo info;
+  info.compositorHz = compositorRefreshHz();
+  HWND hwnd = static_cast<HWND>(hwndPointer);
+  if (!hwnd) {
+    return info;
+  }
+  info.known = true;
+  HMONITOR monitor = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
+  MONITORINFO monitorInfo {};
+  monitorInfo.cbSize = sizeof(monitorInfo);
+  if (monitor && GetMonitorInfoW(monitor, &monitorInfo)) {
+    RECT windowRect {};
+    if (GetWindowRect(hwnd, &windowRect)) {
+      info.coversScreen = EqualRect(&windowRect, &monitorInfo.rcMonitor) ? 1 : 0;
+    }
+    if (windowsAbove) {
+      WindowsAboveSearch search;
+      search.self = hwnd;
+      search.screen = monitorInfo.rcMonitor;
+      EnumWindows(windowsAboveProc, reinterpret_cast<LPARAM>(&search));
+      if (search.reachedSelf) {
+        info.windowsAbove = search.count;
+        info.windowsAboveTitles = std::move(search.titles);
+      }
+    }
+  }
+  if (d3d11Device && monitor) {
+    info.sameAdapter = adapterDrivesMonitor(static_cast<ID3D11Device*>(d3d11Device), monitor,
+                                            info.drawAdapter, info.screenAdapter);
+  }
+  if (dxgiSwapChain) {
+    auto* swapChain = static_cast<IDXGISwapChain*>(dxgiSwapChain);
+    IDXGISwapChainMedia* media = nullptr;
+    if (SUCCEEDED(swapChain->QueryInterface(__uuidof(IDXGISwapChainMedia), reinterpret_cast<void**>(&media))) &&
+        media) {
+      DXGI_FRAME_STATISTICS_MEDIA stats {};
+      if (SUCCEEDED(media->GetFrameStatisticsMedia(&stats))) {
+        info.dxgiMode = static_cast<int>(stats.CompositionMode);
+      }
+      media->Release();
+    }
+  }
+  return info;
+}
+
+PresentStats queryPresentStats(void* dxgiSwapChain) {
+  PresentStats stats;
+  if (!dxgiSwapChain) {
+    return stats;
+  }
+  auto* swapChain = static_cast<IDXGISwapChain*>(dxgiSwapChain);
+  UINT last = 0;
+  if (SUCCEEDED(swapChain->GetLastPresentCount(&last))) {
+    stats.lastPresentCount = last;
+  }
+  DXGI_FRAME_STATISTICS frame {};
+  // DXGI_ERROR_FRAME_STATISTICS_DISJOINT after a mode change, and not every
+  // windowed chain reports at all: either way the sample is just not valid.
+  if (SUCCEEDED(swapChain->GetFrameStatistics(&frame))) {
+    stats.valid = true;
+    stats.presentCount = frame.PresentCount;
+    stats.presentRefreshCount = frame.PresentRefreshCount;
+    stats.syncRefreshCount = frame.SyncRefreshCount;
+    stats.syncQpcTime = frame.SyncQPCTime.QuadPart;
+  }
+  return stats;
+}
+
+#else
+
+CompositorTiming queryCompositorTiming() {
+  return {};
+}
+
+double compositorRefreshHz() {
+  return 0.0;
+}
+
+PresentPathInfo queryPresentPath(void*, void*, void*, bool) {
+  return {};
+}
+
+PresentStats queryPresentStats(void*) {
+  return {};
+}
+
+#endif
 
 }  // namespace deckboy::platform
