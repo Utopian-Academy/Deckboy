@@ -149,7 +149,14 @@ output is in, run with `DECKBOY_PRESENT_TRACE=<file>` and read the file with
 to compare with `target_hz=`, alongside `compositor_hz=`, `same_gpu=`,
 `covers_screen=` and `windows_above=` (`checkOutputPresentClock`, `platform/display_topology`).
 An output keeping the compositor's clock while its screen runs at another rate
-gets a warning toast once.
+gets a warning toast once. What keeps it composed on 2026-11-01's screens:
+Windows' taskbars sit over it whenever the desk has the focus, because SDL 3.4
+places a full-screen window `HWND_NOTOPMOST` unless it is always-on-top, and
+its "exclusive" full screen is only a display-mode change on that same window
+(no SDL renderer calls `SetFullscreenState`). Raising the output once and an
+explicit 59.94 Hz mode were both measured not to help. `deckboy-output-flip-lab`
+(`tools/output_flip_lab.cpp`) tries the remaining candidates on the real screens
+in about two minutes and says which one keeps the screen's own clock.
 
 ## Writing an effect (`native/core/cue_effects.hpp`)
 
