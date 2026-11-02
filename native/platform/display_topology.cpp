@@ -315,6 +315,15 @@ DwmGetWindowAttributeFn dwmWindowAttribute() {
   return fn;
 }
 
+using DwmSetWindowAttributeFn = HRESULT (WINAPI*)(HWND, DWORD, LPCVOID, DWORD);
+
+DwmSetWindowAttributeFn dwmSetWindowAttribute() {
+  static DwmSetWindowAttributeFn fn = dwmLibrary()
+    ? reinterpret_cast<DwmSetWindowAttributeFn>(GetProcAddress(dwmLibrary(), "DwmSetWindowAttribute"))
+    : nullptr;
+  return fn;
+}
+
 // The GPU a Direct3D 11 device draws on, and whether it is the one whose
 // outputs include `monitor`. A frame drawn on one GPU and shown by another
 // has to be copied across, and Windows composes every such frame.
@@ -576,6 +585,28 @@ void raiseOutputWindow(void* hwndPointer) {
   }
 }
 
+void resetFullscreenDwmAttributes(void* hwndPointer) {
+  HWND hwnd = static_cast<HWND>(hwndPointer);
+  DwmSetWindowAttributeFn set = dwmSetWindowAttribute();
+  if (!hwnd || !set) {
+    return;
+  }
+  // By number, so this builds against SDKs older than Windows 11's (22000).
+  constexpr DWORD kCornerPreference = 33;     // DWMWA_WINDOW_CORNER_PREFERENCE
+  constexpr DWORD kBorderColour = 34;         // DWMWA_BORDER_COLOR
+  const DWORD cornerDefault = 0;              // DWMWCP_DEFAULT
+  const COLORREF colourDefault = 0xFFFFFFFF;  // DWMWA_COLOR_DEFAULT
+  set(hwnd, kCornerPreference, &cornerDefault, sizeof(cornerDefault));
+  set(hwnd, kBorderColour, &colourDefault, sizeof(colourDefault));
+}
+
+void refreshWindowFrame(void* hwndPointer) {
+  if (HWND hwnd = static_cast<HWND>(hwndPointer)) {
+    SetWindowPos(hwnd, nullptr, 0, 0, 0, 0,
+                 SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+  }
+}
+
 void markFullscreenWindow(void* hwndPointer, bool on) {
   HWND hwnd = static_cast<HWND>(hwndPointer);
   if (!hwnd) {
@@ -624,6 +655,10 @@ bool windowCoveredOnItsScreen(void*) {
 }
 
 void raiseOutputWindow(void*) {}
+
+void resetFullscreenDwmAttributes(void*) {}
+
+void refreshWindowFrame(void*) {}
 
 void markFullscreenWindow(void*, bool) {}
 

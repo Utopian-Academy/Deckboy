@@ -1250,11 +1250,16 @@ if(BUILD_TESTING)
   endif()
   # Which way of putting a full-screen output on a second screen gets its
   # frames shown on that screen's own clock (tools/output_flip_lab.cpp). It
-  # takes a screen over for about two minutes, so it is run by hand, never by
-  # CI. Windows only; elsewhere the file is an empty main.
+  # takes a screen over for a few minutes, so it is run by hand, never by
+  # CI. Windows only; elsewhere the file is an empty main. With SDL it also
+  # runs the output exactly as Deckboy makes it (the sdl* variants).
   if(WIN32)
     add_executable(deckboy-output-flip-lab tools/output_flip_lab.cpp)
     target_link_libraries(deckboy-output-flip-lab PRIVATE d3d11 dxgi dwmapi ole32 uuid gdi32)
+    if(DECKBOY_SDL_TARGET)
+      target_link_libraries(deckboy-output-flip-lab PRIVATE ${DECKBOY_SDL_TARGET})
+      target_compile_definitions(deckboy-output-flip-lab PRIVATE DECKBOY_FLIP_LAB_SDL=1)
+    endif()
     target_compile_definitions(deckboy-output-flip-lab PRIVATE NOMINMAX WIN32_LEAN_AND_MEAN _CRT_SECURE_NO_WARNINGS)
     if(MSVC)
       target_compile_options(deckboy-output-flip-lab PRIVATE /W4)

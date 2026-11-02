@@ -36,9 +36,30 @@
 //                Deckboy's desk does with vsync off
 //   deckboy      all five of the above together (not topmost)
 //
+// The variants above imitate SDL. These USE it (built with SDL, the default),
+// making the output the way Deckboy does: SDL_CreateWindow hidden and
+// resizable on the desk's screen, SDL's Direct3D 11 renderer created at once,
+// then moved onto the output's screen and made borderless full screen, vsync
+// on, drawn and presented through SDL_RenderPresent. Each but the first adds
+// one candidate fix, so a run that finds the fault also tries the cure:
+//
+//   sdl          the output exactly as Deckboy makes it
+//   sdl-dwm      sdl, then the window's DWM corner and border attributes put
+//                back to their defaults after SDL set them for full screen
+//   sdl-frame    sdl, then SetWindowPos(SWP_FRAMECHANGED): SDL swaps the
+//                captioned style for WS_POPUP without asking Windows to
+//                recompute the frame
+//   sdl-late     the renderer (and so the swap chain) made only once the
+//                window is full screen on the output's screen
+//   sdl-fixed    all three fixes together
+//
 // and, on request (--only), the earlier ones: held (topmost, put back on top
 // whenever a window is over it), marked (ITaskbarList2::MarkFullscreenWindow),
 // marked-held, exclusive (IDXGISwapChain::SetFullscreenState).
+//
+// THE PATH Windows took is printed beside the clock: the swap chain's
+// presentation mode (IDXGISwapChainMedia), most frequent first -- "overlay"
+// is a plane of its own, flipped on the screen's clock; "composed" is DWM.
 //
 // THE CLOCK each variant's frames were shown on comes from the swap chain's
 // own frame statistics: (SyncRefreshCount, SyncQPCTime) pairs, fitted over
@@ -48,7 +69,7 @@
 // clock in the first version).
 //
 // Run it on the machine with the screens, with nothing else on the output
-// screen. It takes that screen over for about two minutes, silently:
+// screen. It takes that screen over for about three minutes, silently:
 //
 //   deckboy-output-flip-lab.exe [--monitor N] [--seconds S] [--only a,b,...]
 //
@@ -68,8 +89,13 @@ int main() { return 0; }
 #include <windows.h>
 #include <d3d11.h>
 #include <dwmapi.h>
+#include <dxgi1_3.h>   // IDXGISwapChainMedia
 #include <dxgi1_5.h>
 #include <shobjidl.h>
+
+#if DECKBOY_FLIP_LAB_SDL
+#include <SDL3/SDL.h>
+#endif
 
 #include <algorithm>
 #include <cmath>
@@ -120,6 +146,11 @@ void pumpMessages() {
     TranslateMessage(&msg);
     DispatchMessageW(&msg);
   }
+#if DECKBOY_FLIP_LAB_SDL
+  // SDL's window procedure queues an event for what was just dispatched;
+  // nothing here reads them.
+  if (SDL_WasInit(SDL_INIT_VIDEO)) SDL_FlushEvents(SDL_EVENT_FIRST, SDL_EVENT_LAST);
+#endif
 }
 
 LRESULT CALLBACK windowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -248,6 +279,11 @@ struct Variant {
   bool colorSpace = false;
   bool moved = false;
   bool deskChain = false;
+  // Through SDL itself, as Deckboy makes its output, and the fixes to try.
+  bool sdl = false;
+  bool sdlDwmDefault = false;
+  bool sdlFrameChanged = false;
+  bool sdlLate = false;
 };
 
 bool makeVariant(const std::string& name, Variant& v) {
@@ -268,6 +304,13 @@ bool makeVariant(const std::string& name, Variant& v) {
     v.sdlAttrs = v.ownDc = v.colorSpace = v.moved = v.deskChain = true;
     return true;
   }
+#if DECKBOY_FLIP_LAB_SDL
+  if (name == "sdl") { v.sdl = true; return true; }
+  if (name == "sdl-dwm") { v.sdl = v.sdlDwmDefault = true; return true; }
+  if (name == "sdl-frame") { v.sdl = v.sdlFrameChanged = true; return true; }
+  if (name == "sdl-late") { v.sdl = v.sdlLate = true; return true; }
+  if (name == "sdl-fixed") { v.sdl = v.sdlDwmDefault = v.sdlFrameChanged = v.sdlLate = true; return true; }
+#endif
   return false;
 }
 
@@ -460,6 +503,152 @@ void destroyWindowAndChain(Chain& c) {
   c.hwnd = nullptr;
 }
 
+// ── the path Windows took: the swap chain's presentation mode ──────────────
+
+struct Modes {
+  int composed = 0, overlay = 0, none = 0, failure = 0, unknown = 0;
+
+  void add(IDXGISwapChain1* chain) {
+    IDXGISwapChainMedia* media = nullptr;
+    if (!chain ||
+        FAILED(chain->QueryInterface(__uuidof(IDXGISwapChainMedia), reinterpret_cast<void**>(&media))) ||
+        !media) {
+      ++unknown;
+      return;
+    }
+    DXGI_FRAME_STATISTICS_MEDIA stats {};
+    if (SUCCEEDED(media->GetFrameStatisticsMedia(&stats))) {
+      switch (stats.CompositionMode) {
+        case DXGI_FRAME_PRESENTATION_MODE_COMPOSED: ++composed; break;
+        case DXGI_FRAME_PRESENTATION_MODE_OVERLAY: ++overlay; break;
+        case DXGI_FRAME_PRESENTATION_MODE_NONE: ++none; break;
+        case DXGI_FRAME_PRESENTATION_MODE_COMPOSITION_FAILURE: ++failure; break;
+        default: ++unknown; break;
+      }
+    } else {
+      ++unknown;
+    }
+    media->Release();
+  }
+
+  // "composed 97%, overlay 3%", most frequent first.
+  std::string text() const {
+    std::vector<std::pair<int, const char*>> counts = {
+      {composed, "composed"}, {overlay, "overlay"}, {none, "none"}, {failure, "composition failure"},
+      {unknown, "unknown"}};
+    std::sort(counts.begin(), counts.end(), [](const auto& a, const auto& b) { return a.first > b.first; });
+    const int total = composed + overlay + none + failure + unknown;
+    std::string out;
+    for (const auto& [count, label] : counts) {
+      if (count <= 0 || total <= 0) continue;
+      char part[64];
+      std::snprintf(part, sizeof(part), "%s%s %d%%", out.empty() ? "" : ", ", label, count * 100 / total);
+      out += part;
+    }
+    return out.empty() ? "no data" : out;
+  }
+};
+
+#if DECKBOY_FLIP_LAB_SDL
+// ── the output through SDL, as Deckboy makes it ─────────────────────────────
+
+struct SdlOutput {
+  SDL_Window* window = nullptr;
+  SDL_Renderer* renderer = nullptr;
+  HWND hwnd = nullptr;
+  IDXGISwapChain1* chain = nullptr;   // SDL's: not ours to release
+  std::string adapterName;
+  std::string shape;                  // style, rectangles and chain, for the report
+};
+
+bool makeSdlRenderer(SdlOutput& out) {
+  // Deckboy's order on Windows (deckboyCreateRenderer): Direct3D 11 first.
+  out.renderer = SDL_CreateRenderer(out.window, "direct3d11");
+  if (!out.renderer) return false;
+  SDL_SetRenderVSync(out.renderer, 1);   // as createOutputRuntime sets it
+  const SDL_PropertiesID props = SDL_GetRendererProperties(out.renderer);
+  out.chain = static_cast<IDXGISwapChain1*>(
+    SDL_GetPointerProperty(props, SDL_PROP_RENDERER_D3D11_SWAPCHAIN_POINTER, nullptr));
+  auto* device =
+    static_cast<ID3D11Device*>(SDL_GetPointerProperty(props, SDL_PROP_RENDERER_D3D11_DEVICE_POINTER, nullptr));
+  IDXGIDevice* dxgiDevice = nullptr;
+  if (device && SUCCEEDED(device->QueryInterface(__uuidof(IDXGIDevice), reinterpret_cast<void**>(&dxgiDevice)))) {
+    IDXGIAdapter* adapter = nullptr;
+    if (SUCCEEDED(dxgiDevice->GetAdapter(&adapter)) && adapter) {
+      DXGI_ADAPTER_DESC desc {};
+      adapter->GetDesc(&desc);
+      out.adapterName = narrow(desc.Description);
+      adapter->Release();
+    }
+    dxgiDevice->Release();
+  }
+  return out.chain != nullptr;
+}
+
+bool createSdlOutput(const Variant& v, const Screen& screen, SdlOutput& out) {
+  const int fullW = screen.rect.right - screen.rect.left;
+  const int fullH = screen.rect.bottom - screen.rect.top;
+  // createOutputRuntime: hidden and resizable, at the output's raster, on the
+  // screen SDL picks for a new window (the main one, the desk's)...
+  out.window = SDL_CreateWindow("Deckboy flip lab - SDL output", fullW, fullH,
+                                SDL_WINDOW_HIDDEN | SDL_WINDOW_RESIZABLE);
+  if (!out.window) return false;
+  out.hwnd = static_cast<HWND>(
+    SDL_GetPointerProperty(SDL_GetWindowProperties(out.window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr));
+  // ...with its renderer, and so its swap chain, made there and then...
+  if (!v.sdlLate && !makeSdlRenderer(out)) return false;
+  // ...then moved onto the output's screen, shown and made borderless full
+  // screen (applyOutputDisplaySelection, then enableOutputFullscreen).
+  SDL_SetWindowPosition(out.window, screen.rect.left, screen.rect.top);
+  SDL_ShowWindow(out.window);
+  SDL_SetWindowFullscreenMode(out.window, nullptr);
+  if (!SDL_SetWindowFullscreen(out.window, true)) return false;
+  SDL_SyncWindow(out.window);
+  if (v.sdlLate && !makeSdlRenderer(out)) return false;
+  if (v.sdlDwmDefault) {
+    constexpr DWORD kCornerPreference = 33;     // DWMWA_WINDOW_CORNER_PREFERENCE
+    constexpr DWORD kBorderColour = 34;         // DWMWA_BORDER_COLOR
+    const DWORD cornerDefault = 0;              // DWMWCP_DEFAULT
+    const COLORREF colourDefault = 0xFFFFFFFF;  // DWMWA_COLOR_DEFAULT
+    DwmSetWindowAttribute(out.hwnd, kCornerPreference, &cornerDefault, sizeof(cornerDefault));
+    DwmSetWindowAttribute(out.hwnd, kBorderColour, &colourDefault, sizeof(colourDefault));
+  }
+  if (v.sdlFrameChanged) {
+    SetWindowPos(out.hwnd, nullptr, 0, 0, 0, 0,
+                 SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+  }
+  RECT window {}, client {};
+  GetWindowRect(out.hwnd, &window);
+  GetClientRect(out.hwnd, &client);
+  DXGI_SWAP_CHAIN_DESC1 desc {};
+  if (out.chain) out.chain->GetDesc1(&desc);
+  char text[320];
+  std::snprintf(text, sizeof(text),
+                "style %08lx ex %08lx; window %ld,%ld %ldx%ld; client %ldx%ld; chain %ux%u scaling %d effect %d "
+                "flags %x",
+                static_cast<unsigned long>(GetWindowLongW(out.hwnd, GWL_STYLE)),
+                static_cast<unsigned long>(GetWindowLongW(out.hwnd, GWL_EXSTYLE)), window.left, window.top,
+                window.right - window.left, window.bottom - window.top, client.right, client.bottom, desc.Width,
+                desc.Height, static_cast<int>(desc.Scaling), static_cast<int>(desc.SwapEffect), desc.Flags);
+  out.shape = text;
+  return true;
+}
+
+void destroySdlOutput(SdlOutput& out) {
+  if (out.renderer) SDL_DestroyRenderer(out.renderer);
+  if (out.window) SDL_DestroyWindow(out.window);
+  out = SdlOutput {};
+}
+
+// The same stepping grey as drawAndPresent, through SDL's renderer.
+void presentSdl(SdlOutput& out, unsigned frame) {
+  const Uint8 level = static_cast<Uint8>(38 + 3 * (frame % 8));
+  SDL_SetRenderDrawColor(out.renderer, level, level, level, 255);
+  SDL_RenderClear(out.renderer);
+  SDL_RenderPresent(out.renderer);
+}
+#endif
+
 double measuredScreenHz(Chain& out) {
   out.output->WaitForVBlank();
   const double start = qpcSeconds();
@@ -566,6 +755,7 @@ struct Result {
   int above = -1;
   std::string aboveNames;
   int reasserts = 0;
+  std::string modes;        // the presentation modes its frames took
   std::string note;
 };
 
@@ -574,10 +764,29 @@ Result runVariant(const Variant& v, const Screen& screen, const Screen& deskScre
   Result result;
   result.name = v.name;
   Chain out;
-  if (!createOutput(v, screen, deskScreen, out)) {
-    result.note = "could not create the output";
-    destroyWindowAndChain(out);
-    return result;
+  HWND outHwnd = nullptr;
+  IDXGISwapChain1* outChain = nullptr;
+#if DECKBOY_FLIP_LAB_SDL
+  SdlOutput sdlOut;
+  if (v.sdl) {
+    if (!createSdlOutput(v, screen, sdlOut)) {
+      result.note = std::string("could not create the output through SDL: ") + SDL_GetError();
+      destroySdlOutput(sdlOut);
+      return result;
+    }
+    outHwnd = sdlOut.hwnd;
+    outChain = sdlOut.chain;
+    result.note = "drawn on " + sdlOut.adapterName + "; " + sdlOut.shape + "; ";
+  }
+#endif
+  if (!v.sdl) {
+    if (!createOutput(v, screen, deskScreen, out)) {
+      result.note = "could not create the output";
+      destroyWindowAndChain(out);
+      return result;
+    }
+    outHwnd = out.hwnd;
+    outChain = out.chain;
   }
   Chain deskChain;
   if (v.deskChain) {
@@ -589,9 +798,9 @@ Result runVariant(const Variant& v, const Screen& screen, const Screen& deskScre
     // SDL's desk: adapter 0; this build of Deckboy gives it two frames in flight.
     if (!createChain(deskChain, nullptr, 2, v.colorSpace)) result.note = "no desk chain; ";
   }
-  if (v.topmost) raiseTopmost(out.hwnd);
-  if (v.marked) markFullscreen(out.hwnd, TRUE);
-  if (v.exclusive) {
+  if (v.topmost) raiseTopmost(outHwnd);
+  if (v.marked) markFullscreen(outHwnd, TRUE);
+  if (v.exclusive && out.chain) {
     SetForegroundWindow(out.hwnd);
     pumpMessages();
     const HRESULT hr = out.chain->SetFullscreenState(TRUE, out.output);
@@ -610,8 +819,15 @@ Result runVariant(const Variant& v, const Screen& screen, const Screen& deskScre
   unsigned frame = 0;
   auto pass = [&]() {
     if (deskChain.chain) drawAndPresent(deskChain, frame, 0, deskFlags);   // the desk first, as Deckboy's loop
-    return drawAndPresent(out, frame++, 1, 0);
+#if DECKBOY_FLIP_LAB_SDL
+    if (v.sdl) {
+      presentSdl(sdlOut, frame++);
+      return;
+    }
+#endif
+    drawAndPresent(out, frame++, 1, 0);
   };
+  Modes modes;
   // Settle: Windows takes a few frames to pick a path.
   const double settleUntil = qpcSeconds() + 2.0;
   while (qpcSeconds() < settleUntil) {
@@ -640,36 +856,41 @@ Result runVariant(const Variant& v, const Screen& screen, const Screen& deskScre
       ++regularCount;
     }
     DXGI_FRAME_STATISTICS stats {};
-    if (SUCCEEDED(out.chain->GetFrameStatistics(&stats)) && stats.SyncRefreshCount > 0 &&
+    if (SUCCEEDED(outChain->GetFrameStatistics(&stats)) && stats.SyncRefreshCount > 0 &&
         stats.SyncQPCTime.QuadPart > 0) {
       syncs.emplace_back(static_cast<double>(stats.SyncRefreshCount),
                          static_cast<double>(stats.SyncQPCTime.QuadPart) / qpcFrequency());
     }
+    modes.add(outChain);
     pumpMessages();
     if (v.hold && now >= nextCheck) {
       nextCheck = now + 0.25;
-      if (windowsAbove(out.hwnd, screen.rect).count > 0) {
-        raiseTopmost(out.hwnd);
+      if (windowsAbove(outHwnd, screen.rect).count > 0) {
+        raiseTopmost(outHwnd);
         ++result.reasserts;
       }
     }
   }
+  result.modes = modes.text();
   result.statsHz = fitClock(std::move(syncs));
   result.pacedHz = regularSum > 0.0 ? regularCount / regularSum : 0.0;
   result.longRunHz = last > begin ? presents / (last - begin) : 0.0;
-  const Above above = windowsAbove(out.hwnd, screen.rect);
+  const Above above = windowsAbove(outHwnd, screen.rect);
   result.above = above.count;
   result.aboveNames = above.names;
-  if (v.exclusive) {
+  if (v.exclusive && out.chain) {
     BOOL fullscreen = FALSE;
     out.chain->GetFullscreenState(&fullscreen, nullptr);
     result.note += std::string("still exclusive at the end: ") + (fullscreen ? "yes" : "no");
   }
-  if (v.marked) markFullscreen(out.hwnd, FALSE);
+  if (v.marked) markFullscreen(outHwnd, FALSE);
   if (deskChain.chain) {
     destroyChain(deskChain);
     InvalidateRect(desk, nullptr, TRUE);   // back to the plain GDI desk
   }
+#if DECKBOY_FLIP_LAB_SDL
+  if (v.sdl) destroySdlOutput(sdlOut);
+#endif
   destroyWindowAndChain(out);
   pumpMessages();
   return result;
@@ -686,6 +907,9 @@ int main(int argc, char** argv) {
   double seconds = 12.0;
   std::vector<std::string> names = {"plain",      "topmost", "sdl-attrs",  "owndc",
                                     "colorspace", "moved",   "desk-chain", "deckboy"};
+#if DECKBOY_FLIP_LAB_SDL
+  for (const char* name : {"sdl", "sdl-dwm", "sdl-frame", "sdl-late", "sdl-fixed"}) names.push_back(name);
+#endif
   for (int i = 1; i < argc; ++i) {
     const std::string arg = argv[i];
     if (arg == "--monitor" && i + 1 < argc) {
@@ -718,6 +942,18 @@ int main(int argc, char** argv) {
   }
   SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
   CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+#if DECKBOY_FLIP_LAB_SDL
+  const bool anySdl = std::any_of(variants.begin(), variants.end(), [](const Variant& v) { return v.sdl; });
+  if (anySdl) {
+    // The two hints Deckboy sets before SDL_Init (CLAUDE.md: both load-bearing).
+    SDL_SetHint(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, "0");
+    SDL_SetHint(SDL_HINT_RENDER_DIRECT3D_THREADSAFE, "1");
+    if (!SDL_Init(SDL_INIT_VIDEO)) {
+      std::printf("SDL_Init failed: %s\n", SDL_GetError());
+      return 2;
+    }
+  }
+#endif
 
   std::vector<Screen> screens;
   EnumDisplayMonitors(nullptr, nullptr, collectScreen, reinterpret_cast<LPARAM>(&screens));
@@ -763,6 +999,9 @@ int main(int argc, char** argv) {
     results.push_back(runVariant(v, *target, *deskScreen, desk, seconds, screenHz));
   }
   DestroyWindow(desk);
+#if DECKBOY_FLIP_LAB_SDL
+  if (anySdl) SDL_Quit();
+#endif
   CoUninitialize();
 
   std::printf("\n%-12s %9s %9s %9s %8s %6s %8s  %s\n", "variant", "shown Hz", "paced Hz", "long Hz", "hitches",
@@ -775,6 +1014,7 @@ int main(int argc, char** argv) {
                                                        : "another clock";
     std::printf("%-12s %9.3f %9.3f %9.3f %8d %6d %8d  %s%s\n", r.name.c_str(), r.statsHz, r.pacedHz, r.longRunHz,
                 r.hitches, r.above, r.reasserts, verdict, r.statsHz > 0.0 ? "" : " (no frame statistics)");
+    std::printf("%14s path: %s\n", "", r.modes.c_str());
     if (!r.aboveNames.empty()) std::printf("%14s over it: %s\n", "", r.aboveNames.c_str());
     if (!r.note.empty()) std::printf("%14s %s\n", "", r.note.c_str());
   }

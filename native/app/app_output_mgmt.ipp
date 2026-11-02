@@ -9376,6 +9376,7 @@
       // SDL3: exclusive fullscreen = set an explicit mode, then fullscreen.
       SDL_SetWindowFullscreenMode(runtime->outputWindow, &selectedMode);
       if (SDL_SetWindowFullscreen(runtime->outputWindow, true)) {
+        applyOutputFlipFixes(outputIndex, *runtime);
         runtime->lastRecoveryAttemptMs = runtime->lastFullscreenRequestMs;
         setOutputHealthState(outputIndex, OutputHealthState::Live);
         if (withToast) {
@@ -9400,6 +9401,7 @@
     // SDL3: borderless fullscreen desktop = NULL mode, then fullscreen.
     SDL_SetWindowFullscreenMode(runtime->outputWindow, nullptr);
     if (SDL_SetWindowFullscreen(runtime->outputWindow, true)) {
+      applyOutputFlipFixes(outputIndex, *runtime);
       runtime->lastRecoveryAttemptMs = runtime->lastFullscreenRequestMs;
       setOutputHealthState(outputIndex, OutputHealthState::Live);
       if (withToast) {

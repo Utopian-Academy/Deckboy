@@ -589,6 +589,49 @@
 #endif
   }
 
+  // Candidate fixes for an output Windows composes instead of flipping straight
+  // to its screen (see "Who paces a present" in CLAUDE.md). Run after every
+  // successful SDL_SetWindowFullscreen, because SDL sets the window up again on
+  // each one. Off unless DECKBOY_OUTPUT_FLIP_FIX names them, comma separated:
+  //   dwm    the DWM corner and border attributes SDL sets, back to defaults
+  //   frame  SetWindowPos(SWP_FRAMECHANGED) after SDL's style swap
+  // tools/output_flip_lab.cpp tries the same two (sdl-dwm, sdl-frame) on the
+  // real screens; whichever keeps the screen's own clock there becomes the
+  // default here.
+  void applyOutputFlipFixes(int outputIndex, OutputRuntime& runtime) {
+#ifdef _WIN32
+    static const std::string fixes = [] {
+      const char* env = std::getenv("DECKBOY_OUTPUT_FLIP_FIX");
+      return std::string(env ? env : "");
+    }();
+    if (fixes.empty() || !runtime.outputWindow) {
+      return;
+    }
+    void* hwnd = SDL_GetPointerProperty(SDL_GetWindowProperties(runtime.outputWindow),
+                                        SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr);
+    if (!hwnd) {
+      return;
+    }
+    std::string applied;
+    if (fixes.find("dwm") != std::string::npos) {
+      deckboy::platform::resetFullscreenDwmAttributes(hwnd);
+      applied += " dwm";
+    }
+    if (fixes.find("frame") != std::string::npos) {
+      deckboy::platform::refreshWindowFrame(hwnd);
+      applied += " frame";
+    }
+    if (!applied.empty()) {
+      const std::string line = "output " + std::to_string(outputIndex + 1) + " flip fixes:" + applied;
+      renderDiagnosticLog(line);
+      tracePresentInfo(line);
+    }
+#else
+    (void) outputIndex;
+    (void) runtime;
+#endif
+  }
+
   // THE DESK QUEUES TWO FRAMES (Windows, Direct3D 11). SDL gives every device
   // one frame in flight, so the desk's present waited for the compositor to
   // take its last frame -- with vsync off too -- and a pass that presented

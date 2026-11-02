@@ -134,6 +134,15 @@ bool windowCoveredOnItsScreen(void* hwnd);
 // Back to the top of the topmost band, without taking the focus.
 void raiseOutputWindow(void* hwnd);
 
+// Candidate fixes for an output Windows composes (DECKBOY_OUTPUT_FLIP_FIX,
+// tools/output_flip_lab.cpp's sdl-dwm and sdl-frame). SDL 3.4 sets a
+// window's DWM corner preference to DONOTROUND and its border colour to NONE
+// when it goes full screen on Windows 11; the first puts both back to the
+// defaults. SDL swaps the captioned style for WS_POPUP with SetWindowPos but
+// without SWP_FRAMECHANGED; the second asks Windows to recompute the frame.
+void resetFullscreenDwmAttributes(void* hwnd);
+void refreshWindowFrame(void* hwnd);
+
 // ITaskbarList2::MarkFullscreenWindow: the shell treats the window as full
 // screen and keeps the taskbar on its screen under it.
 void markFullscreenWindow(void* hwnd, bool on);
