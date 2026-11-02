@@ -672,6 +672,12 @@ struct OutputRuntime {
   bool presentClockSuspect = false;   // the last ten seconds kept a foreign clock
   bool presentClockWarned = false;
   std::string presentClockLogged;     // the last summary written to the render log
+  // Kept on top while full screen on a screen the desk is not on, so nothing
+  // makes Windows compose it (serviceOutputOnTop). Raises counts the times
+  // another program's window had to be put back under it.
+  bool onTop = false;
+  Uint64 onTopCheckedMs = 0;
+  std::uint64_t onTopRaises = 0;
   Uint64 streamFpsSampleStartedAtMs = 0;
   std::uint64_t streamFpsPacketsAtSampleStart = 0;
   double streamFpsMeasured = 0.0;

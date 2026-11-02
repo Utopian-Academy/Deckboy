@@ -6010,6 +6010,7 @@
       if (!streamType) paceBeforePresent(runtime->outputWindow);
       presentTraced(runtime->outputRenderer, "out", outputIndex);
       deckboy::gpu::readbacksAfterPresent(runtime->outputRenderer);
+      if (!streamType) serviceOutputOnTop(outputIndex, *runtime);
     }
     recordOutputFramePresented(outputIndex);
     // WHERE AN OUTPUT FRAME'S TIME GOES, under DECKBOY_UI_PROFILE: composite,

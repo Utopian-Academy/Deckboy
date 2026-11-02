@@ -117,4 +117,29 @@ PresentStats queryPresentStats(void* dxgiSwapChain);
 // "composed", "overlay", "none", "failure", or "unknown" for -1.
 const char* dxgiPresentationModeName(int mode);
 
+// ── Keeping a full-screen output on its own screen's clock (Windows) ──────
+// A full-screen output that anything sits over is composed, so it runs on
+// DWM's clock. Windows' taskbar on that screen sits over it whenever the desk
+// has the focus: SDL places a full-screen window HWND_NOTOPMOST unless it is
+// always-on-top, and the taskbar is topmost. Measured 2026-11-01: raising the
+// output once did not hold (the taskbar came back over it), so the app keeps
+// it on top and puts it back whenever another program's window covers it.
+// All of these do nothing off Windows.
+
+// True when a visible window of ANOTHER process sits above `hwnd` in z-order
+// and overlaps its screen. Deckboy's own windows (the colour picker's screen
+// pick, display identify) are meant to be over an output and do not count.
+bool windowCoveredOnItsScreen(void* hwnd);
+
+// Back to the top of the topmost band, without taking the focus.
+void raiseOutputWindow(void* hwnd);
+
+// ITaskbarList2::MarkFullscreenWindow: the shell treats the window as full
+// screen and keeps the taskbar on its screen under it.
+void markFullscreenWindow(void* hwnd, bool on);
+
+// IDXGIDevice1::SetMaximumFrameLatency on a Direct3D 11 device (SDL's
+// SDL_PROP_RENDERER_D3D11_DEVICE_POINTER). False where there is none.
+bool setDeviceFrameLatency(void* d3d11Device, unsigned frames);
+
 }  // namespace deckboy::platform

@@ -481,12 +481,13 @@
     char summary[400];
     std::snprintf(summary, sizeof(summary),
                   "present clock: output %d screen=%.3f Hz paced=%.2f Hz compositor=%.3f Hz%s"
-                  " dxgi_mode=%s same_gpu=%s covers_screen=%d windows_above=%d",
+                  " dxgi_mode=%s same_gpu=%s covers_screen=%d windows_above=%d on_top=%d raised=%llu",
                   outputIndex + 1, screenHz, pacedHz, path.compositorHz,
                   followsCompositor ? " (KEEPS THE COMPOSITOR'S CLOCK)" : "",
                   deckboy::platform::dxgiPresentationModeName(path.dxgiMode),
                   path.sameAdapter == 1 ? "yes" : (path.sameAdapter == 0 ? "no" : "unknown"),
-                  path.coversScreen, path.windowsAbove);
+                  path.coversScreen, path.windowsAbove, runtime.onTop ? 1 : 0,
+                  static_cast<unsigned long long>(runtime.onTopRaises));
     // Logged when the verdict changes: the paced rate to a tenth, so the
     // jitter of one ten seconds against the next is not a change.
     char verdict[200];
@@ -528,6 +529,85 @@
                    ToastKind::Warning, kToastReadableMs);
     }
     runtime.presentClockSuspect = followsCompositor;
+  }
+
+  // A FULL-SCREEN OUTPUT ON ITS OWN SCREEN STAYS ON TOP (Windows).
+  //
+  // Windows composes any window that something sits over, and a composed
+  // window is presented on DWM's clock, not its screen's: on 2026-11-01 an
+  // output on a 59.94 Hz screen beside a 60 Hz desk presented at 60.001 and
+  // its screen dropped or doubled a frame every 15 s. What sat over it was
+  // the taskbar on that screen, which is topmost, while SDL places a
+  // full-screen window HWND_NOTOPMOST. Raising it once did not hold: the
+  // taskbar came back over it. So while an output is full screen on a screen
+  // the desk is NOT on, it is always-on-top, the shell is told it is full
+  // screen, and four times a second it is put back on top if another
+  // program's window has come over it. On the desk's own screen it stays an
+  // ordinary window: the operator has to be able to bring the desk up over it.
+  // DECKBOY_OUTPUT_ON_TOP=0 turns all of it off, to compare.
+  void serviceOutputOnTop(int outputIndex, OutputRuntime& runtime) {
+#ifdef _WIN32
+    if (!runtime.outputWindow || !controlWindow_) {
+      return;
+    }
+    const Uint64 nowMs = SDL_GetTicks();
+    if (runtime.onTopCheckedMs != 0 && nowMs - runtime.onTopCheckedMs < 250) {
+      return;
+    }
+    runtime.onTopCheckedMs = nowMs;
+    static const bool disabled = [] {
+      const char* env = std::getenv("DECKBOY_OUTPUT_ON_TOP");
+      return env && (std::strcmp(env, "0") == 0 || std::strcmp(env, "off") == 0);
+    }();
+    const SDL_WindowFlags flags = SDL_GetWindowFlags(runtime.outputWindow);
+    const SDL_DisplayID screen = SDL_GetDisplayForWindow(runtime.outputWindow);
+    const bool want = !disabled && outputIndex >= 0 &&
+                      outputIndex < static_cast<int>(project_.outputs.size()) &&
+                      project_.outputs[outputIndex].enabled && (flags & SDL_WINDOW_FULLSCREEN) != 0 &&
+                      (flags & (SDL_WINDOW_HIDDEN | SDL_WINDOW_MINIMIZED)) == 0 && screen != 0 &&
+                      screen != SDL_GetDisplayForWindow(controlWindow_);
+    void* hwnd = SDL_GetPointerProperty(SDL_GetWindowProperties(runtime.outputWindow),
+                                        SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr);
+    if (want != runtime.onTop) {
+      runtime.onTop = want;
+      SDL_SetWindowAlwaysOnTop(runtime.outputWindow, want);
+      deckboy::platform::markFullscreenWindow(hwnd, want);
+      const std::string line = "output " + std::to_string(outputIndex + 1) +
+                               (want ? " kept on top of its screen" : " no longer kept on top");
+      renderDiagnosticLog(line);
+      tracePresentInfo(line);
+    }
+    if (want && deckboy::platform::windowCoveredOnItsScreen(hwnd)) {
+      deckboy::platform::raiseOutputWindow(hwnd);
+      runtime.onTopRaises += 1;
+    }
+#else
+    (void) outputIndex;
+    (void) runtime;
+#endif
+  }
+
+  // THE DESK QUEUES TWO FRAMES (Windows, Direct3D 11). SDL gives every device
+  // one frame in flight, so the desk's present waited for the compositor to
+  // take its last frame -- with vsync off too -- and a pass that presented
+  // the desk twice inside one of the compositor's refreshes sat out the
+  // second, so the output's present missed its vblank: 25 of 35 slow passes
+  // on a quiet PC on 2026-11-01. With two in flight that present does not
+  // wait (Codex's bench the same night: stalls of up to 4.6 ms with one, about
+  // 0.07 ms with two). Outputs keep one: their presents pace the loop.
+  // DECKBOY_DESK_FRAMES=1 puts it back, to compare.
+  void applyDeskFrameLatency() {
+#ifdef _WIN32
+    if (!controlRenderer_) {
+      return;
+    }
+    const char* env = std::getenv("DECKBOY_DESK_FRAMES");
+    const unsigned frames = env && *env ? static_cast<unsigned>(std::clamp(std::atoi(env), 1, 3)) : 2u;
+    deckboy::platform::setDeviceFrameLatency(
+      SDL_GetPointerProperty(SDL_GetRendererProperties(controlRenderer_), SDL_PROP_RENDERER_D3D11_DEVICE_POINTER,
+                             nullptr),
+      frames);
+#endif
   }
 
   // ── DECKBOY_PRESENT_TRACE=<file> ────────────────────────────────────────

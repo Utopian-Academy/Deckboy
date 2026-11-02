@@ -6033,6 +6033,9 @@
     runtime.presentPath = {};
     runtime.presentClockSuspect = false;
     runtime.presentClockLogged.clear();
+    runtime.onTop = false;
+    runtime.onTopCheckedMs = 0;
+    runtime.onTopRaises = 0;
   }
 
 #if DECKBOY_INPROC_DECODE

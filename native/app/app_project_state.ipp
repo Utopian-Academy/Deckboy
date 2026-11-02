@@ -404,13 +404,15 @@
   static std::string outputPresentClockStatus(const OutputRuntime* rt) {
     const deckboy::platform::PresentPathInfo none;
     const deckboy::platform::PresentPathInfo& path = rt ? rt->presentPath : none;
-    char fields[200];
+    char fields[240];
     std::snprintf(fields, sizeof(fields),
-                  " paced_hz=%.3f compositor_hz=%.3f dxgi_mode=%s same_gpu=%s covers_screen=%d windows_above=%d",
+                  " paced_hz=%.3f compositor_hz=%.3f dxgi_mode=%s same_gpu=%s covers_screen=%d windows_above=%d"
+                  " on_top=%d raised=%llu",
                   rt ? rt->presentPacedHz : 0.0, path.compositorHz,
                   deckboy::platform::dxgiPresentationModeName(path.dxgiMode),
                   path.sameAdapter == 1 ? "yes" : (path.sameAdapter == 0 ? "no" : "unknown"),
-                  path.coversScreen, path.windowsAbove);
+                  path.coversScreen, path.windowsAbove, rt && rt->onTop ? 1 : 0,
+                  static_cast<unsigned long long>(rt ? rt->onTopRaises : 0));
     return fields;
   }
 

@@ -20,6 +20,7 @@
 #include <d3d11.h>
 #include <dxgi1_3.h>   // IDXGISwapChainMedia
 #include <dwmapi.h>    // DWM_TIMING_INFO; the functions are loaded at run time
+#include <shobjidl.h>  // ITaskbarList2
 #elif defined(__APPLE__)
 #include <CoreGraphics/CoreGraphics.h>
 #else
@@ -526,7 +527,109 @@ PresentStats queryPresentStats(void* dxgiSwapChain) {
   return stats;
 }
 
+bool windowCoveredOnItsScreen(void* hwndPointer) {
+  HWND hwnd = static_cast<HWND>(hwndPointer);
+  MONITORINFO monitorInfo {};
+  monitorInfo.cbSize = sizeof(monitorInfo);
+  if (!hwnd || !GetMonitorInfoW(MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST), &monitorInfo)) {
+    return false;
+  }
+  const DWORD self = GetCurrentProcessId();
+  DwmGetWindowAttributeFn attribute = dwmWindowAttribute();
+  int steps = 0;
+  // GW_HWNDPREV walks UP the z-order from the window: exactly what is over it.
+  for (HWND above = GetWindow(hwnd, GW_HWNDPREV); above && steps < 256;
+       above = GetWindow(above, GW_HWNDPREV), ++steps) {
+    if (!IsWindowVisible(above) || IsIconic(above)) {
+      continue;
+    }
+    DWORD owner = 0;
+    GetWindowThreadProcessId(above, &owner);
+    if (owner == self) {
+      continue;
+    }
+    RECT bounds {};
+    if (attribute) {
+      constexpr DWORD kCloaked = 14;               // DWMWA_CLOAKED
+      constexpr DWORD kExtendedFrameBounds = 9;    // DWMWA_EXTENDED_FRAME_BOUNDS
+      DWORD cloaked = 0;
+      if (SUCCEEDED(attribute(above, kCloaked, &cloaked, sizeof(cloaked))) && cloaked != 0) {
+        continue;
+      }
+      if (FAILED(attribute(above, kExtendedFrameBounds, &bounds, sizeof(bounds)))) {
+        GetWindowRect(above, &bounds);
+      }
+    } else {
+      GetWindowRect(above, &bounds);
+    }
+    RECT overlap {};
+    if (IntersectRect(&overlap, &bounds, &monitorInfo.rcMonitor)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+void raiseOutputWindow(void* hwndPointer) {
+  if (HWND hwnd = static_cast<HWND>(hwndPointer)) {
+    SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOOWNERZORDER);
+  }
+}
+
+void markFullscreenWindow(void* hwndPointer, bool on) {
+  HWND hwnd = static_cast<HWND>(hwndPointer);
+  if (!hwnd) {
+    return;
+  }
+  // COM for this thread, once; SDL has usually done it already (S_FALSE),
+  // and a thread already in the multithreaded apartment still has COM.
+  static const bool comReady = [] {
+    const HRESULT hr = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+    return SUCCEEDED(hr) || hr == RPC_E_CHANGED_MODE;
+  }();
+  if (!comReady) {
+    return;
+  }
+  // CLSID_TaskbarList, spelled out so nothing has to link uuid.lib for it.
+  static const CLSID kTaskbarList = {0x56FDF344, 0xFD6D, 0x11d0, {0x95, 0x8A, 0x00, 0x60, 0x97, 0xC9, 0xA0, 0x90}};
+  ITaskbarList2* taskbar = nullptr;
+  if (SUCCEEDED(CoCreateInstance(kTaskbarList, nullptr, CLSCTX_INPROC_SERVER, __uuidof(ITaskbarList2),
+                                 reinterpret_cast<void**>(&taskbar))) &&
+      taskbar) {
+    if (SUCCEEDED(taskbar->HrInit())) {
+      taskbar->MarkFullscreenWindow(hwnd, on ? TRUE : FALSE);
+    }
+    taskbar->Release();
+  }
+}
+
+bool setDeviceFrameLatency(void* d3d11Device, unsigned frames) {
+  if (!d3d11Device) {
+    return false;
+  }
+  IDXGIDevice1* dxgiDevice = nullptr;
+  if (FAILED(static_cast<ID3D11Device*>(d3d11Device)->QueryInterface(
+        __uuidof(IDXGIDevice1), reinterpret_cast<void**>(&dxgiDevice))) || !dxgiDevice) {
+    return false;
+  }
+  const bool ok = SUCCEEDED(dxgiDevice->SetMaximumFrameLatency(frames));
+  dxgiDevice->Release();
+  return ok;
+}
+
 #else
+
+bool windowCoveredOnItsScreen(void*) {
+  return false;
+}
+
+void raiseOutputWindow(void*) {}
+
+void markFullscreenWindow(void*, bool) {}
+
+bool setDeviceFrameLatency(void*, unsigned) {
+  return false;
+}
 
 CompositorTiming queryCompositorTiming() {
   return {};

@@ -4081,6 +4081,7 @@ class App {
     const std::string controlRendererDriver = deckboyLastRendererDriver();
     // vsync is a per-renderer runtime property in SDL3 (was a creation flag).
     SDL_SetRenderVSync(controlRenderer_, 1);
+    applyDeskFrameLatency();
     // NOTE: do NOT set SDL_RenderSetLogicalSize here. The control UI reflows to
     // the live window size every frame (layoutButtons + the SDL_GetWindowSize
     // calls in the render/overlay code), so a fixed logical size would clamp the
@@ -5269,6 +5270,7 @@ class App {
           // Never leave the window without a renderer: back to the normal list.
           controlRenderer_ = deckboyCreateRenderer(controlWindow_);
           SDL_SetRenderVSync(controlRenderer_, 1);
+          applyDeskFrameLatency();
           createScanlineOverlay();
           continue;
         }
