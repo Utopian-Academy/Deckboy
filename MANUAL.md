@@ -1112,6 +1112,37 @@ first) and `OUTPUT TESTCARD ALL [ON|OFF]`; OSC `/testcard`.
 held pictures and overlays, and disarms every output. Use it when the desk
 must go dark and silent immediately.
 
+### Screens at different refresh rates
+
+On Windows, the desktop is drawn at one refresh rate, usually your main
+screen's. An output on a screen that runs at a different rate is shown at the
+desktop's rate, not its own: a 59.94 Hz projector, LED processor or capture
+device beside a 60 Hz desk monitor, or a 50 Hz screen beside a 60 Hz one. That
+screen then has to drop or repeat a frame every so often to keep up, about
+every 15 seconds at 59.94 beside 60, and more often the further apart the two
+rates are. On a Mac every screen keeps its own rate and this does not happen.
+
+Deckboy tells you when it is happening: a warning names the output, the rate
+it is being shown at, its screen's own rate and how often a frame is dropped or
+repeated. `STATUS` reports it for every output: `paced_hz=` is the rate the
+output's frames are actually shown at, `target_hz=` is its screen's own rate,
+and `compositor_hz=` is the rate Windows draws the desktop at.
+
+Until Deckboy can drive such a screen at its own rate (it is on the roadmap),
+put the screens on the same refresh rate:
+
+- **Change the main screen's rate.** In Windows, Settings > System > Display,
+  choose the main screen, then Advanced display > Choose a refresh rate, and
+  pick the output screen's rate: 59.94 Hz for a 59.94 Hz projector, for
+  example. Most monitors offer 59.94 Hz.
+- **Or change the output's screen.** If the projector or processor takes 60 Hz,
+  run it at 60. Deckboy can set it for you: `VIDEO HZ 60` over the control
+  port, or the refresh rate in the video settings.
+
+[Lock to screen](#lock-to-screen) does not help on such a screen: it plays a
+cue at the rate its output is shown at, and that is the desktop's rate, not the
+screen's.
+
 ### MediaMTX: one router for the room
 
 [MediaMTX](https://github.com/bluenviron/mediamtx) is a free media router.

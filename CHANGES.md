@@ -51,6 +51,9 @@
 - A stage timer's logo was drawn with red and blue swapped.
 - Importing a PowerPoint, Keynote or PDF can no longer leave Deckboy on the import card for ever. A converter still busy after three minutes (often PowerPoint waiting on a prompt it cannot show, such as Protected View or sign-in), or a PDF renderer silent for ninety seconds, is stopped, and the toast says what happened and what to try.
 - Every slide import now writes its steps to the show log: which file, whether it was converted and by what, and how many pages it rendered, or where it stopped.
+- Ctrl+Shift+Space (stop every deck) now works from anywhere in Deckboy: with Settings, the shortcuts sheet, a text field or a menu open, and while an output or the Monitors window has the focus. Before, any of those took the keys first and nothing stopped. It also stops every deck the way the deck's own STOP does, fades included, and stops whatever was waiting to start a deck again: a pre-wait or a continue counting down, a running sequence and the dashboard's tracker. Before, a deck could start again a few seconds after you stopped everything.
+- On Windows, drawing the desk could hold up the outputs: the desk waited for Windows to take its last picture before it drew the next one, and an output waiting behind it missed a refresh. The desk no longer waits. Measured on Windows: the longest the desk held up the outputs went from 16 ms to about 1 ms.
+- Deckboy now tells you when Windows is showing an output at a different rate from its screen's (see Known issues), once per output, and `STATUS` reports, for each output, `paced_hz=` (the rate its frames are actually shown at) beside `target_hz=` (its screen's), and on Windows `compositor_hz=`, the rate Windows draws the desktop at.
 
 ### Companion module 1.0.9
 - With a Companion passphrase set in Deckboy, the module never sent the passphrase you entered, so that Deckboy could not be controlled from Companion 5. It now sends it.
@@ -62,6 +65,7 @@
 ### Known issues
 - Outputs on the GPU renderer still miss a few screen refreshes a minute (above). macOS and Linux use the same kind of renderer.
 - Playback on Linux has not yet been measured on a real screen. On macOS it was measured with the sound card unused, so sound in playback and recordings on a Mac is not yet measured.
+- On Windows, an output on a screen whose refresh rate differs from the rate Windows draws the desktop at (usually your main screen's) is shown at the desktop's rate, not its own: beside a 60 Hz main screen, a 59.94 Hz screen drops or repeats a frame about every 15 seconds, and the further apart the two rates, the more often. Deckboy warns you when this is happening. Until it is fixed (it is on the roadmap), run the screens at the same refresh rate. The manual's "Screens at different refresh rates" says how.
 - The first recording of a session holds every output for about 70 ms (four frames at 60 fps) as it starts. Later recordings in the session do not.
 
 ## 2026-10-30 - v0.99.423 (colour pickers that grab from any window; a tour that fits your screens; step 6 fixed)

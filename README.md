@@ -41,9 +41,13 @@ operator finds it, and how you find it again.
 - **Smooth playback at any frame rate.** Every clip plays with the steadiest cadence its rate
   allows on the screen it is on: 24 fps is a clean 3:2 on 60 Hz, 50 fps runs 1-1-1-1-2, a matched
   rate moves one frame a refresh. A playlist of mixed rates gets it clip by clip.
+- **Lock to the screen.** A clip a hair off the screen's rate (59.94 fps on 60 Hz, 23.976 on 24)
+  can play at the screen's own rate instead, every frame shown exactly once, its sound following
+  like a tape machine's.
 - **Far fewer lost frames.** No tenth-of-a-second freeze each time a clip loops, and less work
   per frame off Direct3D 11. On a Mac every output now keeps time with its screen: no refreshes
-  missed in a minute of 60 fps playback, measured on an M4 MacBook Air.
+  missed in a minute of 60 fps playback, measured on an M4 MacBook Air. On Windows the desk no
+  longer holds up the outputs while it draws.
 - **Seamless loops.** A looping clip goes round with no held frame and no gap in the sound, and a
   cue set to repeat plays that many times.
 - **Recordings that keep up.** Recording at 4K no longer costs the outputs frames, a recording
@@ -52,6 +56,12 @@ operator finds it, and how you find it again.
   bin the same as the processor's reading.
 - **Missed frames are reported.** An output that cannot keep up with its screen now says so: the
   OUTPUT badge, a warning, the test card and `STATUS`.
+- **Stop every deck, from anywhere.** Ctrl+Shift+Space now works with any dialog open or an output
+  in focus, and nothing waiting in the wings starts a deck again afterwards.
+- **Known issue (Windows):** an output on a screen at a different refresh rate from the main screen
+  (59.94 Hz beside 60) drops or repeats a frame about every 15 seconds. Deckboy warns you when it
+  happens; until it is fixed, run the screens at the same rate
+  ([how](MANUAL.md#screens-at-different-refresh-rates)).
 
 ### A closer look
 
@@ -410,6 +420,11 @@ importantly, what each feature deliberately does not do.
 
 **Picture:**
 
+- Every output at its own screen's refresh rate on Windows. Today an output
+  on a screen at a different rate from the main one (59.94 Hz beside 60) is
+  shown at the main screen's rate and drops or repeats a frame every so
+  often; for now, run the screens at the same rate (the manual's "Screens
+  at different refresh rates")
 - Lip sync held within a few milliseconds across a whole day of playback, on
   every platform
 - HDR the rest of the way: HDR over SDI shown on a real DeckLink card (it is
