@@ -51,7 +51,9 @@
 //                recompute the frame
 //   sdl-late     the renderer (and so the swap chain) made only once the
 //                window is full screen on the output's screen
-//   sdl-fixed    all three fixes together
+//   sdl-placed   the hidden window put over the output's screen before the
+//                renderer is made: the smallest change to Deckboy's order
+//   sdl-fixed    dwm, frame and late together
 //
 // and three crosses, so that one run says which half is at fault when no fix
 // above is enough:
@@ -295,6 +297,7 @@ struct Variant {
   bool sdlDwmDefault = false;
   bool sdlFrameChanged = false;
   bool sdlLate = false;
+  bool sdlPlaced = false;          // the hidden window put on the output's screen before the renderer
   // The crosses that say which half is at fault, and Deckboy's other windows.
   bool sdlOwnChain = false;        // SDL's window, the lab's own chain on it
   bool plainSdlRenderer = false;   // the lab's window, SDL's renderer on it
@@ -324,6 +327,7 @@ bool makeVariant(const std::string& name, Variant& v) {
   if (name == "sdl-dwm") { v.sdl = v.sdlDwmDefault = true; return true; }
   if (name == "sdl-frame") { v.sdl = v.sdlFrameChanged = true; return true; }
   if (name == "sdl-late") { v.sdl = v.sdlLate = true; return true; }
+  if (name == "sdl-placed") { v.sdl = v.sdlPlaced = true; return true; }
   if (name == "sdl-fixed") { v.sdl = v.sdlDwmDefault = v.sdlFrameChanged = v.sdlLate = true; return true; }
   if (name == "sdl-ownchain") { v.sdl = v.sdlOwnChain = true; return true; }
   if (name == "plain-sdlrenderer") { v.sdl = v.plainSdlRenderer = true; return true; }
@@ -669,6 +673,9 @@ bool createSdlOutput(const Variant& v, const Screen& screen, const Screen& deskS
                                   SDL_WINDOW_HIDDEN | SDL_WINDOW_RESIZABLE);
     if (!out.window) return false;
     out.hwnd = sdlWindowHandle(out.window);
+    // sdl-placed: still hidden, but already over the output's screen when the
+    // renderer and its chain are made (the smallest change to Deckboy's order).
+    if (v.sdlPlaced) SDL_SetWindowPosition(out.window, screen.rect.left, screen.rect.top);
     // ...with its renderer, and so its swap chain, made there and then...
     const bool rendererFirst = !v.sdlLate && !v.sdlOwnChain;
     if (rendererFirst && !makeSdlRenderer(out)) return false;
@@ -1016,7 +1023,7 @@ int main(int argc, char** argv) {
   std::vector<std::string> names = {"plain",      "topmost", "sdl-attrs",  "owndc",
                                     "colorspace", "moved",   "desk-chain", "deckboy"};
 #if DECKBOY_FLIP_LAB_SDL
-  for (const char* name : {"sdl", "sdl-dwm", "sdl-frame", "sdl-late", "sdl-fixed", "sdl-ownchain",
+  for (const char* name : {"sdl", "sdl-dwm", "sdl-frame", "sdl-late", "sdl-placed", "sdl-fixed", "sdl-ownchain",
                            "plain-sdlrenderer", "sdl-full"}) {
     names.push_back(name);
   }
