@@ -53,6 +53,17 @@
 //                window is full screen on the output's screen
 //   sdl-fixed    all three fixes together
 //
+// and three crosses, so that one run says which half is at fault when no fix
+// above is enough:
+//
+//   sdl-ownchain       SDL's window, made as Deckboy makes it, with no SDL
+//                      renderer: the lab's own chain on it instead
+//   plain-sdlrenderer  the lab's bare popup, wrapped by SDL, with SDL's
+//                      renderer (its device and chain) on it
+//   sdl-full           sdl, beside an SDL desk that has the focus and presents
+//                      every pass with vsync off and two frames in flight, and
+//                      two hidden per-deck renderers -- what Deckboy runs
+//
 // and, on request (--only), the earlier ones: held (topmost, put back on top
 // whenever a window is over it), marked (ITaskbarList2::MarkFullscreenWindow),
 // marked-held, exclusive (IDXGISwapChain::SetFullscreenState).
@@ -69,7 +80,7 @@
 // clock in the first version).
 //
 // Run it on the machine with the screens, with nothing else on the output
-// screen. It takes that screen over for about three minutes, silently:
+// screen. It takes that screen over for about four minutes, silently:
 //
 //   deckboy-output-flip-lab.exe [--monitor N] [--seconds S] [--only a,b,...]
 //
@@ -284,6 +295,10 @@ struct Variant {
   bool sdlDwmDefault = false;
   bool sdlFrameChanged = false;
   bool sdlLate = false;
+  // The crosses that say which half is at fault, and Deckboy's other windows.
+  bool sdlOwnChain = false;        // SDL's window, the lab's own chain on it
+  bool plainSdlRenderer = false;   // the lab's window, SDL's renderer on it
+  bool sdlFull = false;            // sdl, plus an SDL desk and hidden deck renderers
 };
 
 bool makeVariant(const std::string& name, Variant& v) {
@@ -310,6 +325,9 @@ bool makeVariant(const std::string& name, Variant& v) {
   if (name == "sdl-frame") { v.sdl = v.sdlFrameChanged = true; return true; }
   if (name == "sdl-late") { v.sdl = v.sdlLate = true; return true; }
   if (name == "sdl-fixed") { v.sdl = v.sdlDwmDefault = v.sdlFrameChanged = v.sdlLate = true; return true; }
+  if (name == "sdl-ownchain") { v.sdl = v.sdlOwnChain = true; return true; }
+  if (name == "plain-sdlrenderer") { v.sdl = v.plainSdlRenderer = true; return true; }
+  if (name == "sdl-full") { v.sdl = v.sdlFull = true; return true; }
 #endif
   return false;
 }
@@ -556,9 +574,16 @@ struct SdlOutput {
   SDL_Window* window = nullptr;
   SDL_Renderer* renderer = nullptr;
   HWND hwnd = nullptr;
-  IDXGISwapChain1* chain = nullptr;   // SDL's: not ours to release
+  IDXGISwapChain1* chain = nullptr;   // SDL's, or own.chain: not released through this
   std::string adapterName;
   std::string shape;                  // style, rectangles and chain, for the report
+  Chain own;                          // sdl-ownchain: the lab's chain on SDL's window
+  HWND foreign = nullptr;             // plain-sdlrenderer: the lab's window, SDL wrapping it
+  // sdl-full: the rest of what Deckboy runs beside an output.
+  SDL_Window* deskWindow = nullptr;
+  SDL_Renderer* deskRenderer = nullptr;
+  HWND deskHwnd = nullptr;
+  std::vector<std::pair<SDL_Window*, SDL_Renderer*>> decks;
 };
 
 bool makeSdlRenderer(SdlOutput& out) {
@@ -585,26 +610,88 @@ bool makeSdlRenderer(SdlOutput& out) {
   return out.chain != nullptr;
 }
 
-bool createSdlOutput(const Variant& v, const Screen& screen, SdlOutput& out) {
+HWND sdlWindowHandle(SDL_Window* window) {
+  return static_cast<HWND>(
+    SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr));
+}
+
+// sdl-full: the desk (focused, presenting every pass with vsync off and two
+// frames in flight, as this build of Deckboy's desk does) and two hidden
+// per-deck renderers (createDeckRuntime), which never present.
+bool createSdlNeighbours(const Screen& deskScreen, SdlOutput& out) {
+  const int w = 1280, h = 720;
+  out.deskWindow = SDL_CreateWindow("Deckboy flip lab - SDL desk", w, h, SDL_WINDOW_RESIZABLE);
+  if (!out.deskWindow) return false;
+  SDL_SetWindowPosition(out.deskWindow, deskScreen.rect.left + (deskScreen.rect.right - deskScreen.rect.left - w) / 2,
+                        deskScreen.rect.top + (deskScreen.rect.bottom - deskScreen.rect.top - h) / 2);
+  out.deskHwnd = sdlWindowHandle(out.deskWindow);
+  out.deskRenderer = SDL_CreateRenderer(out.deskWindow, "direct3d11");
+  if (!out.deskRenderer) return false;
+  SDL_SetRenderVSync(out.deskRenderer, 0);
+  auto* device = static_cast<ID3D11Device*>(
+    SDL_GetPointerProperty(SDL_GetRendererProperties(out.deskRenderer), SDL_PROP_RENDERER_D3D11_DEVICE_POINTER, nullptr));
+  IDXGIDevice1* dxgiDevice = nullptr;
+  if (device && SUCCEEDED(device->QueryInterface(__uuidof(IDXGIDevice1), reinterpret_cast<void**>(&dxgiDevice)))) {
+    dxgiDevice->SetMaximumFrameLatency(2);   // applyDeskFrameLatency
+    dxgiDevice->Release();
+  }
+  for (int d = 0; d < 2; ++d) {
+    SDL_Window* deckWindow = SDL_CreateWindow("Deckboy flip lab - deck runtime", 1920, 1080, SDL_WINDOW_HIDDEN);
+    SDL_Renderer* deckRenderer = deckWindow ? SDL_CreateRenderer(deckWindow, "direct3d11") : nullptr;
+    out.decks.emplace_back(deckWindow, deckRenderer);
+    if (!deckRenderer) return false;
+  }
+  return true;
+}
+
+bool createSdlOutput(const Variant& v, const Screen& screen, const Screen& deskScreen, SdlOutput& out) {
   const int fullW = screen.rect.right - screen.rect.left;
   const int fullH = screen.rect.bottom - screen.rect.top;
-  // createOutputRuntime: hidden and resizable, at the output's raster, on the
-  // screen SDL picks for a new window (the main one, the desk's)...
-  out.window = SDL_CreateWindow("Deckboy flip lab - SDL output", fullW, fullH,
-                                SDL_WINDOW_HIDDEN | SDL_WINDOW_RESIZABLE);
-  if (!out.window) return false;
-  out.hwnd = static_cast<HWND>(
-    SDL_GetPointerProperty(SDL_GetWindowProperties(out.window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr));
-  // ...with its renderer, and so its swap chain, made there and then...
-  if (!v.sdlLate && !makeSdlRenderer(out)) return false;
-  // ...then moved onto the output's screen, shown and made borderless full
-  // screen (applyOutputDisplaySelection, then enableOutputFullscreen).
-  SDL_SetWindowPosition(out.window, screen.rect.left, screen.rect.top);
-  SDL_ShowWindow(out.window);
-  SDL_SetWindowFullscreenMode(out.window, nullptr);
-  if (!SDL_SetWindowFullscreen(out.window, true)) return false;
-  SDL_SyncWindow(out.window);
-  if (v.sdlLate && !makeSdlRenderer(out)) return false;
+  if (v.plainSdlRenderer) {
+    // The lab's own bare popup, full size on its screen, with SDL wrapping it
+    // and SDL's renderer (and so SDL's device and chain) on it.
+    out.foreign = CreateWindowExW(0, outputClass(false), L"Deckboy flip lab - output", WS_POPUP | WS_MINIMIZEBOX,
+                                  screen.rect.left, screen.rect.top, fullW, fullH, nullptr, nullptr,
+                                  GetModuleHandleW(nullptr), nullptr);
+    if (!out.foreign) return false;
+    const SDL_PropertiesID props = SDL_CreateProperties();
+    SDL_SetPointerProperty(props, SDL_PROP_WINDOW_CREATE_WIN32_HWND_POINTER, out.foreign);
+    out.window = SDL_CreateWindowWithProperties(props);
+    SDL_DestroyProperties(props);
+    if (!out.window) return false;
+    out.hwnd = out.foreign;
+    if (!makeSdlRenderer(out)) return false;
+    ShowWindow(out.foreign, SW_SHOWNOACTIVATE);
+  } else {
+    // createOutputRuntime: hidden and resizable, at the output's raster, on the
+    // screen SDL picks for a new window (the main one, the desk's)...
+    out.window = SDL_CreateWindow("Deckboy flip lab - SDL output", fullW, fullH,
+                                  SDL_WINDOW_HIDDEN | SDL_WINDOW_RESIZABLE);
+    if (!out.window) return false;
+    out.hwnd = sdlWindowHandle(out.window);
+    // ...with its renderer, and so its swap chain, made there and then...
+    const bool rendererFirst = !v.sdlLate && !v.sdlOwnChain;
+    if (rendererFirst && !makeSdlRenderer(out)) return false;
+    // ...then moved onto the output's screen, shown and made borderless full
+    // screen (applyOutputDisplaySelection, then enableOutputFullscreen).
+    SDL_SetWindowPosition(out.window, screen.rect.left, screen.rect.top);
+    SDL_ShowWindow(out.window);
+    SDL_SetWindowFullscreenMode(out.window, nullptr);
+    if (!SDL_SetWindowFullscreen(out.window, true)) return false;
+    SDL_SyncWindow(out.window);
+    if (v.sdlLate && !makeSdlRenderer(out)) return false;
+    if (v.sdlOwnChain) {
+      // No SDL renderer at all: the lab's chain, on the monitor's own adapter,
+      // at full size, made once the window is full screen there.
+      out.own.hwnd = out.hwnd;
+      out.own.width = fullW;
+      out.own.height = fullH;
+      if (!createChain(out.own, screen.monitor, 1, false)) return false;
+      out.chain = out.own.chain;
+      out.adapterName = out.own.adapterName;
+    }
+  }
+  if (v.sdlFull && !createSdlNeighbours(deskScreen, out)) return false;
   if (v.sdlDwmDefault) {
     constexpr DWORD kCornerPreference = 33;     // DWMWA_WINDOW_CORNER_PREFERENCE
     constexpr DWORD kBorderColour = 34;         // DWMWA_BORDER_COLOR
@@ -635,14 +722,32 @@ bool createSdlOutput(const Variant& v, const Screen& screen, SdlOutput& out) {
 }
 
 void destroySdlOutput(SdlOutput& out) {
+  for (auto& [deckWindow, deckRenderer] : out.decks) {
+    if (deckRenderer) SDL_DestroyRenderer(deckRenderer);
+    if (deckWindow) SDL_DestroyWindow(deckWindow);
+  }
+  if (out.deskRenderer) SDL_DestroyRenderer(out.deskRenderer);
+  if (out.deskWindow) SDL_DestroyWindow(out.deskWindow);
+  destroyChain(out.own);   // before the window it is on
   if (out.renderer) SDL_DestroyRenderer(out.renderer);
   if (out.window) SDL_DestroyWindow(out.window);
+  if (out.foreign) DestroyWindow(out.foreign);   // SDL does not destroy a window it only wrapped
   out = SdlOutput {};
 }
 
-// The same stepping grey as drawAndPresent, through SDL's renderer.
+// The same stepping grey as drawAndPresent, through SDL's renderer (or the
+// lab's chain on SDL's window); sdl-full's desk first, as Deckboy's loop.
 void presentSdl(SdlOutput& out, unsigned frame) {
   const Uint8 level = static_cast<Uint8>(38 + 3 * (frame % 8));
+  if (out.deskRenderer) {
+    SDL_SetRenderDrawColor(out.deskRenderer, level, 40, 40, 255);
+    SDL_RenderClear(out.deskRenderer);
+    SDL_RenderPresent(out.deskRenderer);
+  }
+  if (out.own.chain) {
+    drawAndPresent(out.own, frame, 1, 0);
+    return;
+  }
   SDL_SetRenderDrawColor(out.renderer, level, level, level, 255);
   SDL_RenderClear(out.renderer);
   SDL_RenderPresent(out.renderer);
@@ -769,7 +874,7 @@ Result runVariant(const Variant& v, const Screen& screen, const Screen& deskScre
 #if DECKBOY_FLIP_LAB_SDL
   SdlOutput sdlOut;
   if (v.sdl) {
-    if (!createSdlOutput(v, screen, sdlOut)) {
+    if (!createSdlOutput(v, screen, deskScreen, sdlOut)) {
       result.note = std::string("could not create the output through SDL: ") + SDL_GetError();
       destroySdlOutput(sdlOut);
       return result;
@@ -814,6 +919,9 @@ Result runVariant(const Variant& v, const Screen& screen, const Screen& deskScre
     }
   }
   focusDesk(desk);
+#if DECKBOY_FLIP_LAB_SDL
+  if (sdlOut.deskHwnd) focusDesk(sdlOut.deskHwnd);   // sdl-full: Deckboy's desk has the focus
+#endif
 
   const UINT deskFlags = (deskChain.chainFlags & DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING) ? DXGI_PRESENT_ALLOW_TEARING : 0;
   unsigned frame = 0;
@@ -908,7 +1016,10 @@ int main(int argc, char** argv) {
   std::vector<std::string> names = {"plain",      "topmost", "sdl-attrs",  "owndc",
                                     "colorspace", "moved",   "desk-chain", "deckboy"};
 #if DECKBOY_FLIP_LAB_SDL
-  for (const char* name : {"sdl", "sdl-dwm", "sdl-frame", "sdl-late", "sdl-fixed"}) names.push_back(name);
+  for (const char* name : {"sdl", "sdl-dwm", "sdl-frame", "sdl-late", "sdl-fixed", "sdl-ownchain",
+                           "plain-sdlrenderer", "sdl-full"}) {
+    names.push_back(name);
+  }
 #endif
   for (int i = 1; i < argc; ++i) {
     const std::string arg = argv[i];
