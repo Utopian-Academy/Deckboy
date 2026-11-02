@@ -45,7 +45,7 @@ SAME_CLOCK = 0.0003  # rates within 0.03% are one clock, as far as a run can tel
 
 def parse(lines):
     trace = {"counter_hz": None, "compositor_hz": None, "passes": [], "presents": {},
-             "info": [], "windows": []}
+             "info": [], "windows": [], "skipped": 0}
     for raw in lines:
         line = raw.strip()
         if not line:
@@ -63,23 +63,30 @@ def parse(lines):
             trace["info"].append(rest)
             continue
         fields = rest.split(",")
-        if kind == "pass":
-            entry = {"t": int(fields[0])}
-            if len(fields) >= 6 and fields[1]:
-                entry.update(vblank=int(fields[1]), refresh=int(fields[2]), frame=int(fields[3]),
-                             dropped=int(fields[4]), missed=int(fields[5]))
-            trace["passes"].append(entry)
-        elif kind == "present":
-            window = fields[0]
-            entry = {"before": int(fields[1]), "after": int(fields[2]), "last": int(fields[3] or 0),
-                     "pass": len(trace["passes"]) - 1}
-            if len(fields) >= 8 and fields[4]:
-                entry.update(stat_present=int(fields[4]), stat_refresh=int(fields[5]),
-                             sync_refresh=int(fields[6]), sync_counter=int(fields[7]))
-            if window not in trace["presents"]:
-                trace["presents"][window] = []
-                trace["windows"].append(window)
-            trace["presents"][window].append(entry)
+        # A run that is stopped leaves its last line half written: a line
+        # that does not parse is counted and left out, never fatal.
+        try:
+            if kind == "pass":
+                entry = {"t": int(fields[0])}
+                if len(fields) >= 6 and fields[1]:
+                    entry.update(vblank=int(fields[1]), refresh=int(fields[2]), frame=int(fields[3]),
+                                 dropped=int(fields[4]), missed=int(fields[5]))
+                trace["passes"].append(entry)
+            elif kind == "present":
+                window = fields[0]
+                entry = {"before": int(fields[1]), "after": int(fields[2]), "last": int(fields[3] or 0),
+                         "pass": len(trace["passes"]) - 1}
+                if len(fields) >= 8 and fields[4]:
+                    entry.update(stat_present=int(fields[4]), stat_refresh=int(fields[5]),
+                                 sync_refresh=int(fields[6]), sync_counter=int(fields[7]))
+                if window not in trace["presents"]:
+                    trace["presents"][window] = []
+                    trace["windows"].append(window)
+                trace["presents"][window].append(entry)
+            else:
+                trace["skipped"] += 1
+        except (ValueError, IndexError):
+            trace["skipped"] += 1
     if not trace["counter_hz"]:
         raise SystemExit("not a Deckboy present trace: no counter_hz header")
     return trace
@@ -93,7 +100,7 @@ def latest_verdicts(info_lines):
                       text)
         if not m:
             continue
-        fields = dict(re.findall(r'(\w+)=("[^"]*"|\S+)', text))
+        fields = {k: v.strip('"') for k, v in re.findall(r'(\w+)=("[^"]*"|\S+)', text)}
         out["out" + m.group(1)] = {
             "screen_hz": float(m.group(2)), "paced_hz": float(m.group(3)),
             "compositor_hz": float(m.group(4)), "text": text,
@@ -101,6 +108,11 @@ def latest_verdicts(info_lines):
             "dxgi_mode": fields.get("dxgi_mode", "unknown"),
             "covers_screen": fields.get("covers_screen", "-1"),
             "windows_above": fields.get("windows_above", "-1"),
+            # Their titles (a class name in brackets where a window has no
+            # title), and the two GPUs when they differ.
+            "above": fields.get("above", ""),
+            "draws_on": fields.get("draws_on", ""),
+            "screen_on": fields.get("screen_on", ""),
         }
     return out
 
@@ -119,6 +131,27 @@ def steady_rate(times, nominal_hz=None):
     if len(regular) < 30:
         return None, intervals
     return len(regular) / sum(regular), intervals
+
+
+def consistent_run(pairs, slack=0.10):
+    """The longest stretch of (count, seconds) samples that advance at one
+    steady period. A windowed swap chain can report zeros and then counts
+    since the machine booted (54902173 refreshes at 60 Hz is ten and a half
+    days up): a jump like that is not a run of refreshes."""
+    steps = [(t2 - t1) / (c2 - c1) for (c1, t1), (c2, t2) in zip(pairs, pairs[1:]) if c2 > c1 and t2 > t1]
+    if not steps:
+        return []
+    period = statistics.median(steps)
+    best, current = [], pairs[:1]
+    for prev, cur in zip(pairs, pairs[1:]):
+        dc, dt = cur[0] - prev[0], cur[1] - prev[1]
+        if dc > 0 and dt > 0 and abs(dt / dc - period) <= period * slack:
+            current.append(cur)
+            continue
+        if len(current) > len(best):
+            best = current
+        current = [cur]
+    return current if len(current) > len(best) else best
 
 
 def fit_rate(pairs):
@@ -144,6 +177,8 @@ def analyse(trace):
     say = report["lines"].append
     compositor = trace["compositor_hz"] or 0.0
     say("compositor (DWM) clock: %s" % ("%.3f Hz" % compositor if compositor else "unknown (not Windows)"))
+    if trace["skipped"]:
+        say("left out %d line(s) that did not parse (a run stopped mid-write leaves one)" % trace["skipped"])
 
     for window in trace["windows"]:
         presents = trace["presents"][window]
@@ -166,6 +201,10 @@ def analyse(trace):
             say("  screen %.3f Hz, DXGI mode %s, same GPU as its screen: %s, covers its screen: %s, "
                 "windows over it: %s" % (verdict["screen_hz"], verdict["dxgi_mode"], verdict["same_gpu"],
                                          verdict["covers_screen"], verdict["windows_above"]))
+            if verdict["above"]:
+                say("  the windows over it: %s" % verdict["above"])
+            if verdict["same_gpu"] == "no":
+                say("  drawn on %s, its screen driven by %s" % (verdict["draws_on"] or "?", verdict["screen_on"] or "?"))
         if rate and screen_hz:
             if same_clock(rate, screen_hz):
                 result["clock"] = "screen"
@@ -206,30 +245,38 @@ def analyse(trace):
                     spacing = [b["t"] - a["t"] for a, b in zip(result["late"], result["late"][1:])]
                     say("  late presents come every %.1f s (median)" % statistics.median(spacing))
 
-        # The swap chain's own statistics (Windows, Direct3D 11).
-        stats = [p for p in presents if "stat_present" in p]
+        # The swap chain's own statistics (Windows, Direct3D 11). Zeros mean
+        # "nothing shown yet", and a step that more refreshes than the time
+        # between the two samples holds is a counter restarting, not refreshes.
+        stats = [p for p in presents if "stat_present" in p and p["stat_present"] > 0 and p["stat_refresh"] > 0]
         if stats:
-            syncs = sorted({(p["sync_refresh"], sec(p["sync_counter"])) for p in stats if p["sync_counter"] > 0})
-            sync_hz = fit_rate(syncs)
+            syncs = sorted({(p["sync_refresh"], sec(p["sync_counter"])) for p in stats
+                            if p["sync_refresh"] > 0 and p["sync_counter"] > 0})
+            sync_hz = fit_rate(consistent_run(syncs))
+            ref_hz = sync_hz or screen_hz or rate or 60.0
             shown = []
             for p in stats:
-                pair = (p["stat_present"], p["stat_refresh"])
-                if not shown or pair != shown[-1]:
-                    shown.append(pair)
-            repeats = swallowed = 0
-            for (p1, r1), (p2, r2) in zip(shown, shown[1:]):
+                key = (p["stat_present"], p["stat_refresh"])
+                if not shown or key != shown[-1][:2]:
+                    shown.append((key[0], key[1], sec(p["after"])))
+            repeats = swallowed = jumps = 0
+            for (p1, r1, t1), (p2, r2, t2) in zip(shown, shown[1:]):
                 dp, dr = p2 - p1, r2 - r1
-                if dp <= 0 or dr < 0:
+                bound = (t2 - t1) * ref_hz + 3
+                if dp <= 0 or dr < 0 or dp > bound or dr > bound:
+                    jumps += 1
                     continue
                 repeats += max(0, dr - dp)
                 swallowed += max(0, dp - dr)
-            result.update(sync_hz=sync_hz, repeats=repeats, swallowed=swallowed)
+            result.update(sync_hz=sync_hz, repeats=repeats, swallowed=swallowed, jumps=jumps)
             if sync_hz:
                 which = ("its screen's" if screen_hz and same_clock(sync_hz, screen_hz) else
                          "the compositor's" if compositor and same_clock(sync_hz, compositor) else "another")
                 say("  swap chain: its frames were shown on a %.3f Hz clock (%s)" % (sync_hz, which))
             say("  swap chain: %d refreshes repeated a frame, %d frames were never shown on a refresh of"
                 " their own" % (repeats, swallowed))
+            if jumps:
+                say("  swap chain: %d jumps in its counters left out (a windowed chain can restart them)" % jumps)
 
     # DWM skipping compositions.
     dwm = [p for p in passes if "refresh" in p]
@@ -250,8 +297,10 @@ def analyse(trace):
 
 # ── self test ───────────────────────────────────────────────────────────────
 
-def synth(composed, seconds=40.0, counter_hz=10_000_000):
-    """A made-up run: desk on 60 Hz, output on a 59.94 Hz screen."""
+def synth(composed, seconds=40.0, counter_hz=10_000_000, garbage=False):
+    """A made-up run: desk on 60 Hz, output on a 59.94 Hz screen. `garbage`
+    adds what the Windows runs of 2026-11-01 showed: zeros at first, counters
+    that jump to a count since boot, and a last line cut off mid-write."""
     screen = 60000.0 / 1001.0
     dwm_hz = 60.0
     lines = ["# deckboy present trace 1 counter_hz=%d compositor_hz=%.3f" % (counter_hz, dwm_hz)]
@@ -286,14 +335,23 @@ def synth(composed, seconds=40.0, counter_hz=10_000_000):
         # The swap chain counts the refreshes of whatever consumes it: DWM's
         # for the composed run (so a stalled pass spans two), the screen's else.
         shown_refresh = int(round(t / clock))
+        shown_present = out_count - 1
+        if garbage and out_count <= 50:
+            shown_present = shown_refresh = 0          # nothing shown yet
+        elif garbage and out_count > 150:
+            shown_refresh += 54_902_173                 # now a count since boot
         lines.append("present,out1,%d,%d,%d,%d,%d,%d,%d" %
-                     (c(out_before), c(t), out_count, out_count - 1, shown_refresh, shown_refresh, c(t)))
+                     (c(out_before), c(t), out_count, shown_present, shown_refresh, shown_refresh, c(t)))
         if out_count % 600 == 0:
             paced = dwm_hz if composed else screen
+            above = ' windows_above=2 above="[Shell_SecondaryTrayWnd] | NVIDIA GeForce Overlay"' if garbage \
+                else " windows_above=0"
             lines.append("info,present clock: output 1 screen=%.3f Hz paced=%.2f Hz compositor=%.3f Hz dxgi_mode=%s"
-                         " same_gpu=%s covers_screen=1 windows_above=0" %
+                         " same_gpu=%s covers_screen=1%s" %
                          (screen, paced, dwm_hz, "composed" if composed else "overlay",
-                          "no" if composed else "yes"))
+                          "no" if composed else "yes", above))
+    if garbage:
+        lines.append("present,out1,%d,%d" % (c(t), c(t))[:18])
     return lines
 
 
@@ -308,10 +366,23 @@ def selftest():
     sync = composed["windows"]["out1"].get("sync_hz") or 0
     if not same_clock(sync, 60.0):
         problems.append("composed run's swap chain clock read as %r" % sync)
+    garbled_trace = parse(synth(True, garbage=True))
+    garbled = analyse(garbled_trace)
+    out1 = garbled["windows"]["out1"]
+    if out1.get("clock") != "compositor" or not same_clock(out1.get("sync_hz") or 0, 60.0):
+        problems.append("restarting counters changed the reading: %r" % out1)
+    if out1.get("repeats", 0) > 10 or not out1.get("jumps"):
+        problems.append("a counter restarting was counted as refreshes: %r" % out1)
+    if garbled_trace["skipped"] != 1:
+        problems.append("the half-written last line was not left out: %d skipped" % garbled_trace["skipped"])
+    if not any("Shell_SecondaryTrayWnd" in line for line in garbled["lines"]):
+        problems.append("the windows over the output were not named")
     for line in composed["lines"]:
         print("  composed | " + line)
     for line in flipped["lines"]:
         print("  flipped  | " + line)
+    for line in garbled["lines"]:
+        print("  garbled  | " + line)
     if problems:
         for p in problems:
             print("FAIL: " + p)
