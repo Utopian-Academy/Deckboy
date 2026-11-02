@@ -387,14 +387,31 @@
   // programme a frame.
   std::string outputPresentGeometryStatus(int outputIndex) const {
     const OutputRuntime* rt = runtimeForOutput(outputIndex);
-    if (!rt || !rt->outputWindow || !rt->outputRenderer) return " window_px=0x0 render_px=0x0 fullscreen=0";
+    if (!rt || !rt->outputWindow || !rt->outputRenderer) {
+      return " window_px=0x0 render_px=0x0 fullscreen=0" + outputPresentClockStatus(rt);
+    }
     int ww = 0, wh = 0, rw = 0, rh = 0;
     SDL_GetWindowSizeInPixels(rt->outputWindow, &ww, &wh);
     SDL_GetCurrentRenderOutputSize(rt->outputRenderer, &rw, &rh);
     const bool fs = (SDL_GetWindowFlags(rt->outputWindow) & SDL_WINDOW_FULLSCREEN) != 0;
     return " window_px=" + std::to_string(ww) + "x" + std::to_string(wh) +
            " render_px=" + std::to_string(rw) + "x" + std::to_string(rh) +
-           " fullscreen=" + (fs ? "1" : "0");
+           " fullscreen=" + (fs ? "1" : "0") + outputPresentClockStatus(rt);
+  }
+
+  // The clock its presents kept and, on Windows, how they reach the screen
+  // (checkOutputPresentClock): paced_hz against target_hz is the question.
+  static std::string outputPresentClockStatus(const OutputRuntime* rt) {
+    const deckboy::platform::PresentPathInfo none;
+    const deckboy::platform::PresentPathInfo& path = rt ? rt->presentPath : none;
+    char fields[200];
+    std::snprintf(fields, sizeof(fields),
+                  " paced_hz=%.3f compositor_hz=%.3f dxgi_mode=%s same_gpu=%s covers_screen=%d windows_above=%d",
+                  rt ? rt->presentPacedHz : 0.0, path.compositorHz,
+                  deckboy::platform::dxgiPresentationModeName(path.dxgiMode),
+                  path.sameAdapter == 1 ? "yes" : (path.sameAdapter == 0 ? "no" : "unknown"),
+                  path.coversScreen, path.windowsAbove);
+    return fields;
   }
 
   std::string buildStatusSnapshot() const {

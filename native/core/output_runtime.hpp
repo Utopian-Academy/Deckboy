@@ -48,6 +48,7 @@
 // The FIELDS below stay guarded, so a build without a backend still carries
 // neither the field nor its type.
 #include "platform/decklink.hpp"
+#include "platform/display_topology.hpp"
 #include "platform/ndi_api.hpp"
 #include "platform/siphon_spout.hpp"
 #include "platform/st2110_output.hpp"
@@ -658,6 +659,19 @@ struct OutputRuntime {
   Uint64 missWindowStartNs = 0;   // the operator is warned at 3 missed in 5 s
   int missedInWindow = 0;
   Uint64 lastMissWarningMs = 0;
+  // WHOSE CLOCK ITS PRESENTS KEEP (presentPacedHz): the mean of the intervals
+  // that were not hitches, over ten seconds. The screen's refresh when the
+  // screen paces them; on Windows a COMPOSED window keeps the compositor's,
+  // which need not be its screen's (platform/display_topology.hpp). The probe
+  // says why, and is refreshed with each ten seconds.
+  double pacedSumMs = 0.0;
+  std::uint32_t pacedCount = 0;
+  Uint64 pacedWindowStartNs = 0;
+  double presentPacedHz = 0.0;
+  deckboy::platform::PresentPathInfo presentPath;
+  bool presentClockSuspect = false;   // the last ten seconds kept a foreign clock
+  bool presentClockWarned = false;
+  std::string presentClockLogged;     // the last summary written to the render log
   Uint64 streamFpsSampleStartedAtMs = 0;
   std::uint64_t streamFpsPacketsAtSampleStart = 0;
   double streamFpsMeasured = 0.0;

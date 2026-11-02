@@ -131,6 +131,26 @@ decoder frame is raw. When the fallback uploaded it untouched, effects appeared
 only once an output was armed. `tools/check_preview_effects.py` guards this: it
 never arms an output.
 
+## Who paces a present (Windows)
+
+Every renderer Deckboy uses keeps ONE frame in flight: SDL 3.4's Direct3D 11
+backend calls `SetMaximumFrameLatency(1)` on a two-buffer flip chain, its
+Direct3D 12 backend sets latency 1 on a waitable chain, and the GPU renderer
+calls `SDL_SetGPUAllowedFramesInFlight(1)`. So a present waits until whatever
+consumes that window's frames has taken the last one -- **with vsync off too**:
+vsync off presents with `DXGI_PRESENT_ALLOW_TEARING` and no `DO_NOT_WAIT`, so
+the desk's present still blocks. A window flipped straight to its screen
+(independent flip) is consumed at that screen's vblank; a COMPOSED window is
+consumed by DWM on DWM's clock, which follows one screen. With the desk at 60 Hz
+and an output on a 59.94 Hz screen (2026-11-01), the loop ticked at 60, and one
+output present every ~17 s (the beat) came a refresh late. To see which case an
+output is in, run with `DECKBOY_PRESENT_TRACE=<file>` and read the file with
+`tools/present_trace_report.py`. STATUS's `paced_hz=` is the rate its presents kept,
+to compare with `target_hz=`, alongside `compositor_hz=`, `same_gpu=`,
+`covers_screen=` and `windows_above=` (`checkOutputPresentClock`, `platform/display_topology`).
+An output keeping the compositor's clock while its screen runs at another rate
+gets a warning toast once.
+
 ## Writing an effect (`native/core/cue_effects.hpp`)
 
 Three rules, all of them learned by measuring:

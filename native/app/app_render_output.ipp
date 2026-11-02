@@ -6008,7 +6008,7 @@
     // this, and the recording's and the monitor's reads of it go out.
     if (!streamType || SDL_GetRenderWindow(runtime->outputRenderer) == nullptr) {
       if (!streamType) paceBeforePresent(runtime->outputWindow);
-      SDL_RenderPresent(runtime->outputRenderer);
+      presentTraced(runtime->outputRenderer, "out", outputIndex);
       deckboy::gpu::readbacksAfterPresent(runtime->outputRenderer);
     }
     recordOutputFramePresented(outputIndex);
