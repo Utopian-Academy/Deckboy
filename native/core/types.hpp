@@ -1892,6 +1892,13 @@ struct Cue {
   // TimerSettings::colorBackground. -1 or kTimerBackdropTransparent is none,
   // which is every show saved before it; else 0xRRGGBB.
   int backdrop = -1;
+  // LOCK TO THE SCREEN: a clip within 0.2% of the screen's rate (60 fps on
+  // 59.94 Hz, 24 on 23.976, 30 on 29.97) plays at the SCREEN's rate, its
+  // cadence never broken, its sound 0.1% higher or lower and the clip 0.1%
+  // longer or shorter at the usual 1000/1001. Off, the frame scheduler drops
+  // or holds one frame every ~17 s instead (at 60 on 59.94). Off is every show
+  // saved before it.
+  bool lockToScreen = false;
   bool loop = false;              // loop playback (respects loopCount if > 0)
   bool pauseAtBeginning = false;  // load cue paused on first frame (wait for manual play)
   bool pauseOnLastFrame = false;  // hold last frame instead of going to black
@@ -3689,7 +3696,8 @@ enum class QuickAction {
   FadeEffectSlotPrev,     // a knob fade: which effect it moves
   FadeEffectSlotNext,
   FadeEffectKnobCycle,    // ...and which knob: amount, A, B, C, D
-  FadeRestoreToggle       // a fade cue's RESTORE AT END
+  FadeRestoreToggle,      // a fade cue's RESTORE AT END
+  ToggleLockToScreen      // a video cue's LOCK TO SCREEN (Cue::lockToScreen)
 };
 
 // ---------------------------------------------------------------------------

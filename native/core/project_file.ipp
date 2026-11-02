@@ -1045,6 +1045,7 @@ bool saveProject(const fs::path& projectFile, const Project& project, bool patie
         << '\t' << cue.fadeEffectKnob
         << '\t' << (cue.fadeRestoreAtEnd ? 1 : 0)   // vs + 164: and whether it restores
         << '\t' << cue.backdrop                     // vs + 165: the colour behind it
+        << '\t' << (cue.lockToScreen ? 1 : 0)       // vs + 166: played at the screen's rate
         << '\n';
   };
   for (size_t deckIndex = 0; deckIndex < project.decks.size(); ++deckIndex) {
@@ -2735,6 +2736,10 @@ Project loadProject(const fs::path& projectFile,
         // Absent before it: no backdrop, which is what they all had.
         if (fields.size() >= static_cast<std::size_t>(vs + 166)) {
           cue.backdrop = safeInt(fields, vs + 165, -1);
+        }
+        // Absent before it: the clip's own rate, which is what they all did.
+        if (fields.size() >= static_cast<std::size_t>(vs + 167)) {
+          cue.lockToScreen = safeBool(fields, vs + 166, false);
         }
       }
       // A MASTER CUE HAS NO PATH, and this gate would have dropped it on load

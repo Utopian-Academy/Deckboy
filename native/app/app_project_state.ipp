@@ -514,6 +514,13 @@
                << " dur=" << formatSeconds(engine->duration())
                << " vol=" << static_cast<int>(std::round(engine->volume() * 100.0f))
                << " decode_fps=" << decodeFps
+               // The frames the scheduler has skipped or held to stay on the
+               // clock, and lock-to-screen's speed trim (1.00000 = none).
+               << " cadence_skips=" << engine->cadenceSkips()
+               << " cadence_holds=" << engine->cadenceHolds()
+               << " screen_lock=" << std::fixed << std::setprecision(5) << engine->screenLockTrim()
+               << std::defaultfloat << std::setprecision(6)
+               << " screen_lock_state=" << engine->screenLockState()
              // What this deck is sounding, 0-100 on the VU scale -- so "is the
              // sound arriving?" can be asked over the wire, not only by ear.
              << " audio_level=" << static_cast<int>(std::lround(engine->programAudioLevel01() * 100.0))
@@ -715,6 +722,11 @@
              << " dur=" << formatSeconds(engine->duration())
              << " vol=" << static_cast<int>(std::round(engine->volume() * 100.0f))
              << " decode_fps=" << decodeFps
+             << " cadence_skips=" << engine->cadenceSkips()
+             << " cadence_holds=" << engine->cadenceHolds()
+             << " screen_lock=" << std::fixed << std::setprecision(5) << engine->screenLockTrim()
+             << std::defaultfloat << std::setprecision(6)
+             << " screen_lock_state=" << engine->screenLockState()
              // What this deck is sounding, 0-100 on the VU scale -- so "is the
              // sound arriving?" can be asked over the wire, not only by ear.
              << " audio_level=" << static_cast<int>(std::lround(engine->programAudioLevel01() * 100.0))

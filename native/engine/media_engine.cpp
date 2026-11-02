@@ -206,6 +206,11 @@ bool MediaEngine::sdlTornDown() {
 // Destructor ensures all decode threads are joined and subprocesses killed.
 MediaEngine::~MediaEngine() {
   stopAll();
+  // After SDL_Quit SDL has destroyed every stream itself.
+  if (tapConverter_ && !sdlTornDown()) {
+    SDL_DestroyAudioStream(tapConverter_);
+  }
+  tapConverter_ = nullptr;
   for (std::FILE*& file : patchCaptureFiles_) {
     if (file) std::fclose(file);
     file = nullptr;
@@ -283,8 +288,12 @@ void MediaEngine::loadCue(const Cue* cue, bool autoplay, double transitionSecond
   clearTexture();
   clearAudio();
   // A new cue starts at its own speed: a fade that slowed the last one down
-  // belonged to that one.
+  // belonged to that one. So does lock-to-screen's trim: the new cue finds
+  // its own, or none.
   tapeSpeed_ = 1.0;
+  userTapeSpeed_ = 1.0;
+  screenLockTrim_ = 1.0;
+  resetScreenLock();
   tapeSpeedAudio_.store(1.0, std::memory_order_relaxed);
   applyTapeRatio();
   // With the audio goes the picture OF the audio, or the incoming cue's
@@ -1627,7 +1636,9 @@ void MediaEngine::update() {
     frameTickPrevAt_ = tickAt;
     frameTickValid_ = true;
 
-    const double contentRate = frameRate_ * playbackSpeed_;
+    // At its tape speed as well: the picture clock runs at it, so the clip's
+    // frames go by at it. (Lock-to-screen's trim is part of tapeSpeed_.)
+    const double contentRate = frameRate_ * playbackSpeed_ * tapeSpeed_;
     const bool schedulable = state_ == TransportState::Playing && contentRate > 1.0 &&
                              tickSamples_ >= 120 && tickIntervalAvg_ > 0.0 &&
                              lastRenderedFrameIndex_ != static_cast<std::uint64_t>(-1);
@@ -1668,6 +1679,9 @@ void MediaEngine::update() {
         cadencePhase_ = clockFrames - ratio;
         cadenceActive_ = true;
       }
+      if (std::abs(ratio - cadenceRatio_) > cadenceRatio_ * 0.02) {
+        resetScreenLock();                         // a new screen: find its trim afresh
+      }
       cadenceRatio_ = ratio;
       cadencePhase_ += ratio;
       const double error = clockFrames - cadencePhase_;
@@ -1681,8 +1695,85 @@ void MediaEngine::update() {
         cadencePhase_ = clockFrames;               // a stall: back to the clock
       } else if (error > 0.6) {
         cadencePhase_ += 1.0;                      // behind: skip one frame
+        ++cadenceSkips_;
       } else if (error < -0.6) {
         cadencePhase_ -= 1.0;                      // ahead: hold one frame
+        ++cadenceHolds_;
+      }
+      // ── LOCK TO THE SCREEN (Cue::lockToScreen) ───────────────────────────
+      // A snapped ratio a hair off the clip's -- 60 on 59.94, 24 on 23.976,
+      // 0.1% -- is made exact by trimming the clip's speed, so the error never
+      // reaches a correction: every frame shown once. A phase-locked loop on
+      // the clock error does it. The error is smoothed first (a third of a
+      // second): it carries the tick's own timing jitter, a tenth of a frame
+      // or so, and a trim that followed that would wobble the sound. The
+      // integral finds the exact trim -- the measured ratio is only good to
+      // about 0.1%, so it says where to start and no more -- while the
+      // proportional term keeps the error near zero meanwhile. SIMULATED with
+      // 1 ms of tick jitter: no correction from the first frame, and the trim
+      // steady to 0.005%. The trim is part of the tape speed, so the sound
+      // follows it, pitch and all: 1.7 cents at 0.1%. A screen out of reach
+      // is let go rather than chased: pinned at its limit the loop corrects
+      // MORE often than no loop at all.
+      //
+      // WHILE THE SOUND CARD IS BEING CAUGHT UP WITH (clockTrim_ above, the
+      // first seconds of a take, a seam), the picture clock runs up to 0.5%
+      // off the clip's own rate on purpose, and a loop that followed it would
+      // chase that instead of the screen. It holds its trim until that
+      // settles, and judges a screen out of reach only once the steering is
+      // nearly still. MEASURED: a cue taken with the lock on reached the
+      // limit while the steering eased off and was given up on for the whole
+      // take -- 0.1% for the screen plus the steering's last 0.05% left no
+      // room at a 0.15% limit, hence 0.2%. A real card settles within a few
+      // hundred ppm; SDL's dummy driver never does, so there the lock never
+      // acts.
+      {
+        constexpr double kLimit = 0.002;
+        const bool wanted = activeCue_ && activeCue_->lockToScreen && cadenceSnapped_ &&
+                            userTapeSpeed_ == 1.0 && playbackSpeed_ == 1.0;
+        const bool catchingUp = std::abs(clockTrim_ - 1.0) > 0.0005;
+        const bool settled = std::abs(clockTrim_ - 1.0) < 0.0002;
+        double wantTrim = 1.0;
+        if (!wanted) {
+          // Off, or the cue's rate is not the screen's to take: let go, and
+          // look afresh next time, out of reach or not.
+          screenLockEngaged_ = false;
+          screenLockBaseValid_ = false;
+          screenLockOutOfReach_ = false;
+        } else if (!screenLockOutOfReach_) {
+          // The trim that would make the measured rate the snapped one.
+          const double base = ratio / std::max(1e-9, measured / screenLockTrim_);
+          screenLockBase_ = screenLockBaseValid_ ? screenLockBase_ + (base - screenLockBase_) * 0.01 : base;
+          screenLockBaseValid_ = true;
+          if (!screenLockEngaged_ && !catchingUp && std::abs(screenLockBase_ - 1.0) <= 0.002) {
+            screenLockEngaged_ = true;
+            screenLockIntegral_ = std::clamp(screenLockBase_ - 1.0, -kLimit, kLimit);
+            screenLockError_ = 0.0;
+            screenLockPinned_ = 0;
+          }
+        }
+        if (screenLockEngaged_ && catchingUp) {
+          wantTrim = screenLockTrim_;                // hold until the clock settles
+        } else if (screenLockEngaged_) {
+          screenLockError_ += ((clockFrames - cadencePhase_) - screenLockError_) * 0.05;
+          screenLockIntegral_ = std::clamp(screenLockIntegral_ - 6.25e-6 * screenLockError_, -kLimit, kLimit);
+          if (std::abs(screenLockIntegral_) < kLimit) {
+            screenLockPinned_ = 0;
+          } else if (settled) {
+            ++screenLockPinned_;
+          }
+          if (screenLockPinned_ > 600) {           // ten settled seconds at the limit
+            screenLockOutOfReach_ = true;
+            screenLockEngaged_ = false;
+          } else {
+            wantTrim = std::clamp(1.0 + screenLockIntegral_ - 0.005 * screenLockError_,
+                                  1.0 - kLimit, 1.0 + kLimit);
+          }
+        }
+        if (std::abs(wantTrim - screenLockTrim_) > 1e-7) {
+          screenLockTrim_ = wantTrim;
+          applyEffectiveTapeSpeed(userTapeSpeed_ * screenLockTrim_);
+        }
       }
       targetFrame = static_cast<std::uint64_t>(std::max(0.0, std::floor(cadencePhase_)));
     }
@@ -7915,14 +8006,7 @@ void MediaEngine::tapPlayedAudio(const std::vector<std::int16_t>& sentToDevice) 
   // AT A TAPE SPEED the device played these at that ratio, so the tap hands
   // on the same: a recording at 0.5x would otherwise get half a second of
   // sound for every second, at the old pitch.
-  const double ratio = tapeSpeedAudio_.load(std::memory_order_relaxed);
-  if (ratio != 1.0) {
-    ready = resampleTapAudio(ready, ratio);
-  } else if (ready.size() >= 2) {
-    tapResampleT_ = 0.0;
-    tapResampleLast_[0] = ready[ready.size() - 2];
-    tapResampleLast_[1] = ready[ready.size() - 1];
-  }
+  ready = tapAtTapeSpeed(std::move(ready));
   // Outside the lock: the tap runs the recorder's ring push and the stream
   // writers, and nothing it does should be able to block a decode thread that
   // is holding an audio lock.
@@ -8181,6 +8265,23 @@ void MediaEngine::putAudioToStream(const std::vector<std::int16_t>& stereo) {
 // ── TAPE SPEED ──────────────────────────────────────────────────────────────
 
 void MediaEngine::setTapeSpeed(double speed) {
+  userTapeSpeed_ = std::clamp(speed, 0.25, 4.0);
+  applyEffectiveTapeSpeed(userTapeSpeed_ * screenLockTrim_);
+}
+
+// The loop's state, not the trim: update() takes the trim back to 1.0 itself
+// while the loop is not engaged.
+void MediaEngine::resetScreenLock() {
+  screenLockError_ = 0.0;
+  screenLockIntegral_ = 0.0;
+  screenLockBase_ = 1.0;
+  screenLockBaseValid_ = false;
+  screenLockPinned_ = 0;
+  screenLockEngaged_ = false;
+  screenLockOutOfReach_ = false;
+}
+
+void MediaEngine::applyEffectiveTapeSpeed(double speed) {
   speed = std::clamp(speed, 0.25, 4.0);
   if (std::abs(speed - tapeSpeed_) < 1e-9) {
     return;
@@ -8218,36 +8319,49 @@ void MediaEngine::applyTapeRatio() {
   }
 }
 
-// Linear, frame by frame, carrying its place across blocks: t counts input
-// frames, -1 being the previous block's last. Ratio 2 takes every other
-// frame; 0.5 makes two of each.
-std::vector<std::int16_t> MediaEngine::resampleTapAudio(const std::vector<std::int16_t>& in,
-                                                       double ratio) {
-  const std::size_t frames = in.size() / 2;
-  std::vector<std::int16_t> out;
-  if (frames == 0 || ratio <= 0.0) {
-    return out;
+// THE TAP AT THE TAPE SPEED, through SDL's own resampler -- the one the
+// deck's device streams play through -- so a recording hears what the room
+// heard. It used to interpolate linearly, which is a fractional delay that
+// sweeps through every delay as the ratio walks the samples -- 48 times a
+// second at lock to the screen's 0.1%. COMPUTED there: a 10 kHz tone came out
+// 1.3 dB down with a sideband 23 dB under it, 15 kHz 2.9 dB down with one 14 dB
+// under. Through this, 15 kHz is flat with nothing within 55 dB of it.
+// The converter holds a few frames back for its filter, so it stays in the
+// path after the ratio comes back to 1 until it has handed them on; going
+// straight back would drop them. Audio threads only: a deck's decode or its
+// generator, never both at once.
+std::vector<std::int16_t> MediaEngine::tapAtTapeSpeed(std::vector<std::int16_t> block) {
+  const double ratio = tapeSpeedAudio_.load(std::memory_order_relaxed);
+  if (ratio == 1.0 && !tapConverterLive_) {
+    return block;
   }
-  out.reserve(static_cast<std::size_t>(static_cast<double>(frames) / ratio + 4.0) * 2);
-  const auto sample = [&](long long index, int channel) -> double {
-    return index < 0 ? static_cast<double>(tapResampleLast_[channel])
-                     : static_cast<double>(in[static_cast<std::size_t>(index) * 2 + static_cast<std::size_t>(channel)]);
-  };
-  const long long last = static_cast<long long>(frames) - 1;
-  double t = tapResampleT_;
-  while (t <= static_cast<double>(last)) {
-    const long long i0 = static_cast<long long>(std::floor(t));
-    const double f = t - static_cast<double>(i0);
-    for (int c = 0; c < 2; ++c) {
-      const double a = sample(i0, c);
-      const double b = sample(std::min(i0 + 1, last), c);
-      out.push_back(static_cast<std::int16_t>(std::lround(std::clamp(a + (b - a) * f, -32768.0, 32767.0))));
+  if (tapConverter_ && tapConverterRate_ != audioRate_) {
+    SDL_DestroyAudioStream(tapConverter_);
+    tapConverter_ = nullptr;
+  }
+  if (!tapConverter_) {
+    const SDL_AudioSpec spec {SDL_AUDIO_S16, 2, audioRate_};
+    tapConverter_ = SDL_CreateAudioStream(&spec, &spec);
+    tapConverterRate_ = audioRate_;
+    if (!tapConverter_) {
+      return block;   // the sound at the wrong speed rather than none
     }
-    t += ratio;
   }
-  tapResampleT_ = t - static_cast<double>(frames);
-  tapResampleLast_[0] = in[static_cast<std::size_t>(last) * 2];
-  tapResampleLast_[1] = in[static_cast<std::size_t>(last) * 2 + 1];
+  tapConverterLive_ = true;
+  SDL_SetAudioStreamFrequencyRatio(tapConverter_, static_cast<float>(ratio));
+  if (!block.empty()) {
+    SDL_PutAudioStreamData(tapConverter_, block.data(),
+                           static_cast<int>(block.size() * sizeof(std::int16_t)));
+  }
+  const int available = std::max(0, SDL_GetAudioStreamAvailable(tapConverter_));
+  std::vector<std::int16_t> out(static_cast<std::size_t>(available) / (2 * sizeof(std::int16_t)) * 2);
+  const int got = out.empty() ? 0
+    : SDL_GetAudioStreamData(tapConverter_, out.data(),
+                             static_cast<int>(out.size() * sizeof(std::int16_t)));
+  out.resize(got > 0 ? static_cast<std::size_t>(got) / sizeof(std::int16_t) : 0);
+  if (ratio == 1.0 && SDL_GetAudioStreamQueued(tapConverter_) == 0) {
+    tapConverterLive_ = false;   // all of it handed on: straight through again
+  }
   return out;
 }
 
@@ -11817,8 +11931,7 @@ void MediaEngine::pumpToneAudio(const Cue& cue) {
                               (channels > 1 ? 1 : 0)];
     }
     // At a tape speed the device plays this at that ratio; so does the tap.
-    const double ratio = tapeSpeedAudio_.load(std::memory_order_relaxed);
-    audioTap_(ratio != 1.0 ? resampleTapAudio(stereo, ratio) : stereo);
+    audioTap_(tapAtTapeSpeed(std::move(stereo)));
   }
   // The same stereo the tap gets, to the picture side: without this a tone
   // cue drives neither audioprint nor an Audio LFO.

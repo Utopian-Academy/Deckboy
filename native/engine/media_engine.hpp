@@ -246,7 +246,26 @@ class MediaEngine {
   // TAPE SPEED, a fade cue's SPEED: 0.25x to 4x with the pitch following, as a
   // tape machine does. Main thread. Back to 1x for every new cue.
   void setTapeSpeed(double speed);
-  double tapeSpeed() const { return tapeSpeed_; }
+  double tapeSpeed() const { return userTapeSpeed_; }
+  // LOCK TO THE SCREEN (Cue::lockToScreen): the speed trim in use, 1.0 when
+  // the cue is not locked or the screen is not within reach; and how many
+  // frames the scheduler has skipped (a missed refresh, or a clip faster than
+  // the screen) or held (a clip slower than the screen) to stay on the clock.
+  // Locked, only the missed refreshes are left.
+  double screenLockTrim() const { return screenLockTrim_; }
+  // Why it is or is not acting: off (the cue is not locked), waiting (for
+  // a steady cadence at 1x), holding (while the sound card is caught up
+  // with), locked, or out_of_reach (the screen is more than 0.2% off).
+  const char* screenLockState() const {
+    if (!activeCue_ || !activeCue_->lockToScreen) return "off";
+    if (screenLockOutOfReach_) return "out_of_reach";
+    if (!screenLockEngaged_) {
+      return screenLockBaseValid_ && std::abs(screenLockBase_ - 1.0) > 0.002 ? "out_of_reach" : "waiting";
+    }
+    return std::abs(clockTrim_ - 1.0) > 0.0005 ? "holding" : "locked";
+  }
+  std::uint64_t cadenceSkips() const { return cadenceSkips_; }
+  std::uint64_t cadenceHolds() const { return cadenceHolds_; }
   // Master (show-level) gain multiplied on top of the per-cue volume in the
   // audio thread. Synced from Project::masterVolume every app tick so the
   // header fader affects all decks no matter which path changed it.
@@ -1481,10 +1500,31 @@ class MediaEngine {
   // device has taken, and a frame means the same moment at any ratio.
   double tapeSpeed_ = 1.0;
   std::atomic<double> tapeSpeedAudio_ {1.0};   // the same, for the tap on the audio thread
-  double tapResampleT_ = 0.0;                  // the tap's resampler: audio thread only
-  std::int16_t tapResampleLast_[2] {0, 0};
+  // tapeSpeed_ is the product of these two: the operator's (setTapeSpeed) and
+  // lock-to-screen's trim (set by the cadence scheduler), which never shows as a speed.
+  double userTapeSpeed_ = 1.0;
+  double screenLockTrim_ = 1.0;
+  // Lock-to-screen's loop (update()): the clock error, smoothed; the integral,
+  // which becomes the trim the screen needs; the measured ratio's trim, which
+  // only says where the integral starts; how long the integral has sat at its
+  // limit; and a screen found out of reach, let go until the rate changes.
+  double screenLockError_ = 0.0;
+  double screenLockIntegral_ = 0.0;
+  double screenLockBase_ = 1.0;
+  bool screenLockBaseValid_ = false;
+  int screenLockPinned_ = 0;
+  bool screenLockEngaged_ = false;
+  bool screenLockOutOfReach_ = false;
+  void resetScreenLock();
+  std::uint64_t cadenceSkips_ = 0;
+  std::uint64_t cadenceHolds_ = 0;
+  void applyEffectiveTapeSpeed(double speed);
+  // The tap's resampler (tapAtTapeSpeed): audio threads only, one at a time.
+  SDL_AudioStream* tapConverter_ = nullptr;
+  int tapConverterRate_ = 0;
+  bool tapConverterLive_ = false;
   void applyTapeRatio();
-  std::vector<std::int16_t> resampleTapAudio(const std::vector<std::int16_t>& in, double ratio);
+  std::vector<std::int16_t> tapAtTapeSpeed(std::vector<std::int16_t> block);
   std::chrono::steady_clock::time_point playbackClockStart_ = std::chrono::steady_clock::now(); // wall-clock reference for position()
 
   // -- State: frame pipeline (decode thread → main thread) ---------------------

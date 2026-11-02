@@ -83,6 +83,19 @@
     markProjectDirty();
   }
 
+  // LOCK TO THE SCREEN (Cue::lockToScreen) on every selected cue.
+  void setSelectedLockToScreen(bool enabled) {
+    if (!selectedCueMutable()) {
+      return;
+    }
+    forEachFocusedSelectedCueMutable([&](Cue& each, int) {
+      each.lockToScreen = enabled;
+    });
+    triggerToast(enabled ? "lock to screen on" : "lock to screen off");
+    playUiSound(UiSoundEffect::Toggle);
+    markProjectDirty();
+  }
+
   void toggleSelectedPauseOnLastFrame() {
     Cue* cue = selectedCueMutable();
     if (!cue) {

@@ -437,8 +437,9 @@ The inspector edits the selected cue in collapsible sections. Most numeric rows
 have `−`/`+` steppers, are drag-to-scrub, and click-to-type an exact value.
 
 - **PLAYBACK** — loop & loop count, hold last frame, pause at start, playback
-  speed (0.25–4×, pitch-corrected audio), fade in/out, in/out trim, pause
-  points, end action, goto target, next-transition toggle.
+  speed (0.25–4×, pitch-corrected audio), lock to screen (below), fade
+  in/out, in/out trim, pause points, end action, goto target,
+  next-transition toggle.
 - **AUDIO** — per-cue gain, pan, mono, independent audio fades, loudness
   normalize, and output-pair routing (see §17).
 - **GEOMETRY** — scale mode (fit/fill/stretch/unscaled), scale, offset, crop,
@@ -448,6 +449,32 @@ have `−`/`+` steppers, are drag-to-scrub, and click-to-type an exact value.
 
 Values apply live where possible (fades, audio trim, geometry) without
 reloading the decode.
+
+### Lock to screen
+
+A clip a hair off the screen's rate (59.94 fps on a 60 Hz screen, 60 on 59.94,
+23.976 on 24 Hz, 29.97 on 60) drifts against the screen, so every so often
+(about every 17 seconds at 59.94 on 60) one frame stays up a refresh too long,
+or one is dropped, to keep time. Turn on **lock to screen** in a video cue's
+PLAYBACK section, or send `LOCKSCREEN on`, and that cue plays at the screen's
+own rate instead, up to 0.2% faster or slower, so its cadence never breaks:
+at 59.94 on 60, every frame is shown exactly once. The sound follows, as on a
+tape machine: 0.1% is 1.7 cents sharp or flat, and the most, 0.2%, is 3.5
+cents. Recordings and streams of the cue get the same sound the room hears.
+
+- It locks a few seconds after the take, once the picture is in step with the
+  sound card's clock.
+- A screen further off than 0.2%, a cue at a playback speed other than 1×,
+  and a fade cue changing the cue's speed all leave it at its own rate, as
+  with the lock off.
+- A refresh the output itself misses is still a dropped frame. The lock keeps
+  the clip in time with the screen; it cannot make a slow output faster.
+- `LOCKSCREEN [on|off]` sets it on the selected cues; with no word it toggles.
+  `STATUS` reports `screen_lock=`, the speed the cue is playing at (1.00000
+  when it is not locked), and `cadence_skips=` and `cadence_holds=`, the
+  frames dropped and the frames held a refresh longer to keep time. Unlocked,
+  a clip faster than the screen drops frames and a slower one holds them;
+  locked, the only drops left are refreshes the output missed.
 
 The geometry **mode** row's left and right buttons step backwards and forwards through
 Fit, Fill, Stretch and Unscaled. **Link aspect** makes a width change scale
