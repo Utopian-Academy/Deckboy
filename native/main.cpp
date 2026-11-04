@@ -5538,6 +5538,8 @@ class App {
 #include "app/app_input_monitor.ipp"
 #include "app/app_tutorial.ipp"
 #include "app/app_colour_picker.ipp"
+  // Masks: the library, the raster cache, and where a mask cuts
+#include "app/app_masks.ipp"
 #include "app/app_rat_dad.ipp"
   // Render: transport control panel (play/stop/seek buttons, timeline)
 #include "app/app_render_control.ipp"

@@ -41,13 +41,18 @@ inline std::string joinLayerList(const std::vector<OutputLayer>& layers) {
         << ':' << (l.blendMode.empty() ? "dissolve" : l.blendMode);
     // The layer's own corner pin, appended. Written only when it is armed,
     // so a show that does not map keeps the short token it always had.
-    if (l.warpEnabled) {
-      out << ':' << 1
+    // A mask (field 16) needs the pin's fields before it, so a masked layer
+    // writes them whether or not the pin is armed.
+    if (l.warpEnabled || !l.maskId.empty()) {
+      out << ':' << (l.warpEnabled ? 1 : 0)
           << ':' << l.warpTopLeftX     << ':' << l.warpTopLeftY
           << ':' << l.warpTopRightX    << ':' << l.warpTopRightY
           << ':' << l.warpBottomRightX << ':' << l.warpBottomRightY
           << ':' << l.warpBottomLeftX  << ':' << l.warpBottomLeftY
           << ':' << (l.warpPerspective ? 1 : 0);
+    }
+    if (!l.maskId.empty()) {
+      out << ':' << l.maskId;   // ids never hold ':' or ','
     }
   }
   return out.str();
@@ -106,6 +111,9 @@ inline std::vector<OutputLayer> parseLayerList(const std::string& text) {
     layer.warpBottomLeftY  = readF(14, 0.0f);
     // Missing in every pin saved before the choice: those drew linear.
     layer.warpPerspective = readF(15, 0.0f) != 0.0f;
+    if (bits.size() > 16) {
+      layer.maskId = trim(bits[16]);
+    }
     out.push_back(layer);
   }
   return out;
@@ -228,6 +236,11 @@ void writeProjectScalars(std::ostream& output, const Project& project) {
   output << "ltc_out_device\t" << escapeField(project.ltcOutputDeviceName) << '\n';
   output << "midi_device\t" << escapeField(project.midiDeviceName) << '\n';
   output << "update_check\t" << (project.updateCheckEnabled ? 1 : 0) << '\n';
+  // The mask library, one line each (core/masks.hpp, serializeMask).
+  for (const deckboy::masks::Mask& mask : project.masks) {
+    output << "mask\t" << escapeField(deckboy::masks::serializeMask(mask, serializeGeometryLfos(mask.lfo)))
+           << '\n';
+  }
   output << "mediamtx_host\t" << escapeField(project.mediamtxHost) << '\n';
   output << "captions_model\t" << escapeField(project.captionsModel) << '\n';
   output << "live_captions\t" << (project.liveCaptionsEnabled ? 1 : 0) << '\n';
@@ -664,6 +677,9 @@ bool saveProject(const fs::path& projectFile, const Project& project, bool patie
       << '\t' << (outputTarget.edgeBlendProjectorCurve ? 1 : 0)
       << '\t' << outputTarget.edgeBlendGamma
       << '\t' << outputTarget.edgeBlendBlackLift
+      // Masks: the whole picture, and the output's own playlist (112-113).
+      << '\t' << escapeField(outputTarget.maskId)
+      << '\t' << escapeField(outputTarget.baseLayerMaskId)
       << '\n';
   }
   // ONE CUE RECORD, shared by the playlists and the tracker's own steps
@@ -1046,6 +1062,7 @@ bool saveProject(const fs::path& projectFile, const Project& project, bool patie
         << '\t' << (cue.fadeRestoreAtEnd ? 1 : 0)   // vs + 164: and whether it restores
         << '\t' << cue.backdrop                     // vs + 165: the colour behind it
         << '\t' << (cue.lockToScreen ? 1 : 0)       // vs + 166: played at the screen's rate
+        << '\t' << escapeField(cue.maskId)          // vs + 167: the cue's own mask
         << '\n';
   };
   for (size_t deckIndex = 0; deckIndex < project.decks.size(); ++deckIndex) {
@@ -1369,6 +1386,13 @@ bool applyProjectScalarLine(Project& project, const std::vector<std::string>& fi
     project.mediamtxHost = safeString(fields, 1);
   } else if (fields[0] == "update_check") {
     project.updateCheckEnabled = safeBool(fields, 1, false);
+  } else if (fields[0] == "mask") {
+    deckboy::masks::Mask mask;
+    std::string lfoText;
+    if (deckboy::masks::parseMask(safeString(fields, 1), mask, lfoText)) {
+      mask.lfo = parseGeometryLfos(lfoText);
+      project.masks.push_back(std::move(mask));
+    }
   } else if (fields[0] == "clock_mode") {
     const std::string clockValue = safeString(fields, 1);
     project.clockMode = clockValue.empty() ? std::string("off") : clockValue;
@@ -1872,6 +1896,12 @@ bool applyProjectScalarLinePart2(Project& project, const std::vector<std::string
       outputTarget.outputType = safeString(fields, 10);
       outputTarget.mirrorSourceOutputIndex = safeInt(fields, 11, -1);
       outputTarget.outputId = safeString(fields, 12);
+    }
+    // Flat, not nested in the chain above: that chain is at MSVC's nesting
+    // limit. Absent before masks: none.
+    if (fields.size() >= 114) {
+      outputTarget.maskId = safeString(fields, 112);
+      outputTarget.baseLayerMaskId = safeString(fields, 113);
     }
   } else if (fields[0] == "layer_assignment" || fields[0] == "group_preset" ||
              fields[0] == "group_slot" || fields[0] == "group_preset_meta") {
@@ -2740,6 +2770,10 @@ Project loadProject(const fs::path& projectFile,
         // Absent before it: the clip's own rate, which is what they all did.
         if (fields.size() >= static_cast<std::size_t>(vs + 167)) {
           cue.lockToScreen = safeBool(fields, vs + 166, false);
+        }
+        // Absent before masks: none.
+        if (fields.size() >= static_cast<std::size_t>(vs + 168)) {
+          cue.maskId = safeString(fields, vs + 167);
         }
       }
       // A MASTER CUE HAS NO PATH, and this gate would have dropped it on load

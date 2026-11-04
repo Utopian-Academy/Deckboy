@@ -561,6 +561,19 @@ struct OutputRuntime {
   SDL_Texture* overlayTexture = nullptr;
   std::string overlayTexturePath;
 
+  // MASKS (app_masks.ipp). One texture per mask, size and use, uploaded from
+  // the app's shared raster cache when its serial moves; and the scratch a
+  // masked layer is drawn into before it is cut and laid on the compositor.
+  struct MaskTexture {
+    SDL_Texture* texture = nullptr;
+    std::uint64_t serial = 0;
+    Uint64 usedAtMs = 0;
+  };
+  std::map<std::string, MaskTexture> maskTextures;
+  SDL_Texture* maskScratch = nullptr;
+  int maskScratchW = 0;
+  int maskScratchH = 0;
+
 #if defined(DECKBOY_HAS_NDI_SDK)
   NDIlib_send_instance_t ndiSender = nullptr;
   // Last tally state a receiver reported for this sender, and whether we have

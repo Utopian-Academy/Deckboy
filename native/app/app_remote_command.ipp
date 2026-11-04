@@ -6503,6 +6503,11 @@
     // KEY <name> [OUTPUT <n>]: a key pressed and let go, put on the event
     // queue so it takes the real path, on the desk or on output n's window.
     // A test input like CLICK, from this computer only.
+    // MASK: the show's mask library and where each one cuts (app_masks.ipp).
+    if (command == "MASK") {
+      handleMaskCommand(parts);
+      return;
+    }
     if (command == "KEY") {
       if (parts.size() < 2) {
         failRemoteCommand("KEY: expected a key name, e.g. KEY Escape [OUTPUT 1]");

@@ -778,6 +778,12 @@
     // wearing a costume. Carried over from VJ mode intact.
     const bool dissolve = mode == "dissolve";
     if (stackIndex == to) {
+      // A MASKED layer is drawn onto clear first and blended once, when it
+      // is laid on the compositor (app_masks.ipp): record the mode for then.
+      if (maskBlendCapture_) {
+        maskCapturedMode_ = mode;
+        return mix;
+      }
       blendOut = vjBlendModeFor(mode);
       return mix;
     }
@@ -5615,6 +5621,9 @@
         // It used to live in MediaEngine::render(), which nothing calls, so
         // every transition in the program was silently a cut no matter what
         // the operator chose.
+        if (renderMaskedDeckLayer(outputIndex, entry.second, bounds, compositionOutputIndex)) {
+          continue;
+        }
         renderDeckWithTransitionIntoOutput(outputIndex, entry.second, bounds,
                                           compositionOutputIndex);
       }
@@ -5833,6 +5842,11 @@
     // the recording, the stream, NDI and the program monitor are all taken
     // from -- rather than something painted on the window afterwards that only
     // the operator would ever see.
+    // The output's own mask cuts the programme, before the captions: a
+    // caption under a heart-shaped cut would be a caption nobody can read.
+    if (usingCompositor && !testCardOnly) {
+      applyOutputMask(outputIndex, compositionOutputIndex, *runtime, renderW, renderH, keyFillMode);
+    }
     drawLiveCaptions(outputIndex, runtime->outputRenderer, renderW, renderH);
     drawTutorialDeskEatenCaption(outputIndex, runtime->outputRenderer, renderW, renderH);
     if (output.outputTestCardEnabled && !testCardOnly) {

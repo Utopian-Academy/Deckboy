@@ -5927,6 +5927,7 @@
       SDL_DestroyTexture(runtime.compositorTexture);
       runtime.compositorTexture = nullptr;
     }
+    releaseMaskTextures(runtime);
     if (runtime.testCardCanvas) {
       SDL_DestroyTexture(runtime.testCardCanvas);
       runtime.testCardCanvas = nullptr;
@@ -7437,6 +7438,9 @@
     }
     const OutputTarget& output = project_.outputs[outputIndex];
 
+    // A mask in the matte slot ("mask:<id>"); matteContentRect reads that
+    // token as no bars, so the two cannot both draw.
+    drawMaskMatte(outputIndex, runtime, renderW, renderH);
     const SDL_Rect content = matteContentRect(output.matteAspect, renderW, renderH);
     const bool hasMatte = (content.w != renderW || content.h != renderH) &&
                           output.matteOpacity > 0.001;
@@ -8761,6 +8765,7 @@
     if (runtime->compositorTexture) {
       SDL_DestroyTexture(runtime->compositorTexture);
     }
+    releaseMaskTextures(*runtime);   // the scratch must match the new compositor
     runtime->compositorTexture = compositor;
     runtime->compositorWidth = targetW;
     runtime->compositorHeight = targetH;

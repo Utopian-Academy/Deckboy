@@ -1230,6 +1230,16 @@ if(BUILD_TESTING)
     target_compile_options(deckboy-scopes-check PRIVATE -Wall -Wextra -Wshadow -Werror)
   endif()
   add_test(NAME scopes COMMAND deckboy-scopes-check)
+  # The mask raster against geometry: areas, edges, order, the save format.
+  add_executable(deckboy-masks-check tools/masks_check.cpp)
+  target_include_directories(deckboy-masks-check PRIVATE native)
+  target_link_libraries(deckboy-masks-check PRIVATE Threads::Threads)
+  if(MSVC)
+    target_compile_options(deckboy-masks-check PRIVATE /W4 /WX)
+  else()
+    target_compile_options(deckboy-masks-check PRIVATE -Wall -Wextra -Wshadow -Werror)
+  endif()
+  add_test(NAME masks COMMAND deckboy-masks-check)
   set_tests_properties(scopes PROPERTIES TIMEOUT 30)
   # The GPU analyser against the CPU one, bin for bin, on a real renderer.
   # Needs a GPU (or WARP) and a window, so CI runs it as a step, not a CTest.

@@ -28,6 +28,7 @@
 #include "cue_effects.hpp"
 #include "fixtures.hpp"
 #include "audio_effects.hpp"
+#include "masks.hpp"
 #include "core/sdl_compat.hpp"
 #include <memory>
 #include <string>
@@ -1493,6 +1494,9 @@ struct OutputLayer {
   // saved before the choice existed loads linear (see parseLayerList), which
   // is what it drew.
   bool warpPerspective = true;
+  // A mask on this layer only (Project::masks by id), over the output's
+  // raster. Empty: none.
+  std::string maskId;
 };
 
 struct AudioCrosspoint {
@@ -1899,6 +1903,10 @@ struct Cue {
   // or holds one frame every ~17 s instead (at 60 on 59.94). Off is every show
   // saved before it.
   bool lockToScreen = false;
+  // A MASK THAT TRAVELS WITH THE CUE (core/masks.hpp; Project::masks by id),
+  // laid over the cue's own placed rectangle, so a heart-shaped clip stays
+  // heart-shaped whatever layer or output it plays on. Empty: none.
+  std::string maskId;
   bool loop = false;              // loop playback (respects loopCount if > 0)
   bool pauseAtBeginning = false;  // load cue paused on first frame (wait for manual play)
   bool pauseOnLastFrame = false;  // hold last frame instead of going to black
@@ -2227,8 +2235,16 @@ struct OutputTarget {
   // of it.
   //
   // "off" | "16:9" | "4:3" | "2.39:1" | "1.85:1" | "1:1" | "9:16"
+  // Or "mask:<id>": a mask from the show's library painted black where it
+  // cuts, at matteOpacity -- a matte of any shape, under the overlay.
   std::string matteAspect = "off";
   double matteOpacity = 1.0;               // 0-1; solid bars at 1
+  // A mask over the WHOLE finished picture: it cuts to black, and to
+  // transparent on a key signal (Project::masks by id). Empty: none.
+  std::string maskId;
+  // A mask on this output's own playlist, the bottom layer, which has no
+  // OutputLayer record of its own to carry one.
+  std::string baseLayerMaskId;
   std::string overlayImagePath;            // still image laid over the output
   double overlayOpacity = 1.0;             // 0-1
   bool overlayEnabled = false;
@@ -2585,6 +2601,10 @@ struct Project {
   std::vector<Deck> decks {Deck {}};          // all decks (at least one always exists)
   int focusedDeckIndex = 0;                   // which deck the UI is currently showing
   std::vector<OutputTarget> outputs {OutputTarget {}}; // all outputs (at least one)
+  // The show's MASK LIBRARY (core/masks.hpp). Cues, layers and outputs refer
+  // to a mask by id, so one mask can sit in several places and one edit
+  // reaches them all.
+  std::vector<deckboy::masks::Mask> masks;
   int focusedOutputIndex = 0;                 // which output is selected in settings UI
   std::vector<DashboardSlot> dashboard;       // operator-assembled buttons
   std::vector<ShowPreset> presets;            // see ShowPreset

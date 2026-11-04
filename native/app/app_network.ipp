@@ -1529,6 +1529,8 @@
       "PHONE"};
     if (kLocalOnly.count(verb)) return true;
     if (verb == "SUBTITLE" && parts.size() > 1 && toUpper(parts[1]) == "CONVERT") return true;
+    // Writes a file at a path the caller names.
+    if (verb == "MASK" && parts.size() > 1 && toUpper(parts[1]) == "EXPORT") return true;
     if (verb == "TUTORIAL" && parts.size() > 1 && toUpper(parts[1]) == "SCREENS") return true;
     if (verb == "BROWSER" && toLower(text).find("file:") != std::string::npos) return true;
     if (verb == "WEBMONITOR" && parts.size() > 1 && webMonitorSubWidensAccess(parts[1])) return true;
@@ -3297,6 +3299,9 @@ html,body{width:100%;height:100%;overflow:hidden}
         "net out:   NETCUE NEW|PROTO osc/udp/tcp|HOST <ipv4>|PORT <n>|ADDRESS </path>|PAYLOAD <text>|SEND\n"
         "timecode:  TCCUE NEW|ACTION start/stop/jam|JAM <hh:mm:ss:ff or seconds>|FIRE - drives the LTC generator from the cue list\n"
         "script:    SCRIPTCUE NEW|ADD <line>|CLEAR|RUN - a cue that runs Deckboy protocol lines; # is a comment\n"
+        "masks:     MASK LIST|SHAPES|NEW [shape] [name]|SHAPE <id> <shape> [SUB]|PATH <id> [SUB] x,y ...|CLEAR|DELETE|RENAME <id>\n"
+        "           MASK SET <id> INVERT on/off|FEATHER %|GROW %|OPACITY %|X %|Y %|SCALE %|ROTATION deg; MASK LFO <id> <param> ON|OFF [Hz] [%]\n"
+        "           MASK ASSIGN <id|NONE> CUE|LAYER <out> <playlist>|OUTPUT <n>|MATTE <n>; MASK EXPORT <id> <file.png|.svg> [WxH] (local)\n"
         "dmx out:   DMXCUE NEW|SET <1=255,10-14=64>|FADE <s>|UNIVERSE <n>|HOST <ipv4>|PORT <n>|FIRE|BLACKOUT - Art-Net levels on GO\n"
         "matrix:    MATRIX [SET <src 1-2> <dest 1-128> <0-100>|SEED|CLEAR] - per-cue audio crosspoints; empty means the plain stereo pair\n"
         "           MATRIX SET <src 1-2> <output> [L|R] <0-100> - by name, on a playlist in the PATCH\n"

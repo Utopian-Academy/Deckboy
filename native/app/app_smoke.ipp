@@ -843,6 +843,61 @@
       expect(!app.project_.tabletopUnlocked && source && !app.generatorAvailable(*source),
              "another show starts with the source hidden");
     }
+    // MASKS survive a save: the library (paths, flags, controls, an
+    // oscillator) and every place one can be put -- a cue, a layer, the base
+    // playlist, the whole output and the matte slot.
+    {
+      using namespace deckboy::masks;
+      Project show;
+      Mask m;
+      m.id = "m1";
+      m.name = "heart, then a hole";
+      m.paths.push_back(makeMaskShape(MaskShape::Heart, 16.0 / 9.0));
+      MaskPath hole = makeMaskShape(MaskShape::Star, 16.0 / 9.0);
+      hole.subtract = true;
+      m.paths.push_back(hole);
+      m.invert = true;
+      m.feather = 0.02f;
+      m.rotation = 12.5f;
+      m.lfo[kMaskLfoRotation].on = true;
+      m.lfo[kMaskLfoRotation].rateHz = 0.5f;
+      show.masks.push_back(m);
+      show.decks.resize(2);
+      Cue cue;
+      cue.name = "masked";
+      cue.kind = CueKind::Pattern;
+      cue.path = "pattern://full-white";
+      cue.maskId = "m1";
+      show.decks[0].cues.push_back(cue);
+      show.decks[1].cues.push_back(cue);
+      OutputLayer layer;
+      layer.deckIndex = 1;
+      layer.maskId = "m1";
+      show.outputs[0].layerDecks.push_back(layer);
+      show.outputs[0].maskId = "m1";
+      show.outputs[0].baseLayerMaskId = "m1";
+      show.outputs[0].matteAspect = "mask:m1";
+      const fs::path saved = fs::temp_directory_path() / "deckboy-masks-check.deckboy";
+      expect(saveProject(saved, show), "a show with masks saves");
+      const Project back = loadProject(saved);
+      const bool library = back.masks.size() == 1 && back.masks[0].id == "m1" &&
+                           back.masks[0].name == m.name && back.masks[0].paths.size() == 2 &&
+                           back.masks[0].paths[1].subtract && back.masks[0].invert &&
+                           std::fabs(back.masks[0].rotation - 12.5f) < 1e-6f &&
+                           back.masks[0].lfo[kMaskLfoRotation].on &&
+                           std::fabs(back.masks[0].lfo[kMaskLfoRotation].rateHz - 0.5f) < 1e-6f;
+      expect(library, "the mask library survives a save/load round trip");
+      expect(library && rasterizeMask(back.masks[0], 160, 90) == rasterizeMask(m, 160, 90),
+             "...and draws the same mask after it");
+      const bool places = !back.decks.empty() && !back.decks[0].cues.empty() &&
+                          back.decks[0].cues[0].maskId == "m1" && !back.outputs.empty() &&
+                          back.outputs[0].maskId == "m1" && back.outputs[0].baseLayerMaskId == "m1" &&
+                          back.outputs[0].matteAspect == "mask:m1" && back.outputs[0].layerDecks.size() == 1 &&
+                          back.outputs[0].layerDecks[0].maskId == "m1" && !back.outputs[0].layerDecks[0].warpEnabled;
+      expect(places, "a mask on a cue, a layer, the base, the output and the matte all survive it");
+      std::error_code ignored;
+      fs::remove(saved, ignored);
+    }
 
     {
       // Headless integration of the same core exercised by scopes_check.cpp.
@@ -2451,13 +2506,14 @@
         {
           // EVERY FIELD APPENDED AFTER THE TRACKER'S JUMP AND SECTION: the
           // twelve Moire fields, then the fade cue's effect, knob and
-          // restore at end, then the backdrop, then lock to screen. The
+          // restore at end, then the backdrop, then lock to screen, then the
+          // cue's mask. The
           // older-show checks below trim this many and then their own, so a
           // field appended to the record is counted here once. When the
           // Moire fields went in, only two of five checks were bumped, and the
           // other three trimmed nothing but Moire -- passing without testing
           // the show they were named for.
-          constexpr int kAfterTrackerFields = 17;
+          constexpr int kAfterTrackerFields = 18;
           // A show from immediately before the fixture patch (one tail field
           // fewer) keeps its mic channel and has no fixture levels.
           {
@@ -2595,7 +2651,7 @@
         // the spine and trimming 3 stopped reaching preWaitSeconds -- the test
         // failed loudly, which is the only reason this comment exists rather
         // than a silent hole in the backward-compatibility check.
-        constexpr int kSpineTailFields = 110;  // preWait, postWait, continue, masters,
+        constexpr int kSpineTailFields = 111;  // preWait, postWait, continue, masters,
                                               // target id/deck/verb, armed, panel w/h,
                                               // fade secs/to/what/curve/stop,
                                               // fireside view, overlay lower-third
@@ -2607,7 +2663,7 @@
                                               // the DMX protocol, the mic channel,
                                               // the fixture levels, stream HDR, tracker jump and section, the twelve Moire fields,
                                               // a fade cue's effect, knob and restore at end,
-                                              // the backdrop, lock to screen
+                                              // the backdrop, lock to screen, the mask
         {
           std::ifstream in(smokePath);
           std::ostringstream older;
