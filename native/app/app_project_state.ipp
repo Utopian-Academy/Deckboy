@@ -756,6 +756,7 @@
            << "\"outputChipRect\":[" << outputBadgeRect_.x << "," << outputBadgeRect_.y << ","
            << outputBadgeRect_.w << "," << outputBadgeRect_.h << "],"
            << colourPickerStatusJson()
+           << const_cast<App*>(this)->maskEditorStatusJson()   // reads only; its helpers are not const
            << dropdownStatusJson()
            // The screens, and the one the desk is on (1-based), for the
            // check that walks the tour on whatever rig it finds.

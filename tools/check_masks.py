@@ -183,10 +183,14 @@ def run(exe, work, show):
         print("  moving, exported, deleted")
         db.send("MASK LFO %s X ON 1 100" % mask)
         seen = set()
-        for _ in range(6):
-            p = probe(snap(0.17), 0.5, 0.5)
+        # Sampled until both have been seen: a 1 Hz sweep read at whatever
+        # moments the snapshots land can show one side six times running.
+        for _ in range(16):
+            p = probe(snap(0.13), 0.5, 0.5)
             if p:
                 seen.add(p[1] < 127)   # red has no green; the white under it does
+            if len(seen) == 2:
+                break
         note("an oscillator on X moves the cue's circle (middle both red and white)", seen == {True, False}, seen)
         db.send("MASK LFO %s X OFF" % mask)
         png, svg = work / "mask.png", work / "mask.svg"

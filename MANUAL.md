@@ -1844,6 +1844,51 @@ the intent: a terminal that can be corrupted can be corrupted mid-sentence.
 ASCII HOLD <seconds>` over the wire; `GLYPHS` and `PHRASES` with no argument
 clear them.
 
+### Masks
+
+A mask cuts the picture to a shape. Each show keeps its own **library** of
+masks, and a mask can be put in four places:
+
+- **on a cue**: it lies over the cue's own picture and goes wherever the cue
+  plays, so a heart-shaped clip stays heart-shaped;
+- **on a playlist** on one output: it cuts that layer only;
+- **on an output**: it cuts the whole finished picture to black (and to
+  transparent on a key signal);
+- **in the matte slot** (Settings → Video Outputs → Matte & Overlay, after the
+  aspect ratios): it paints black where it cuts, at the matte's opacity, under
+  the house overlay.
+
+One mask can sit in several places at once, and an edit reaches all of them.
+
+**In the inspector**, every cue has a **MASK** section. **mask on** chooses the
+place (this cue, this playlist on the focused output, all of that output, or
+its matte). **mask** opens the library: pick a mask, **none**, or start a new
+one from a shape: circle, ellipse, heart, star, rectangle, rounded rect,
+triangle or hexagon. Below that come **invert**, **feather** (edge softness),
+**grow** (pushes the edge out or in), **opacity** (how hard it cuts), **x**,
+**y**, **scale** and **rotation**. Click a value to type it, drag to scrub it,
+and use the **~** chip to put it on an oscillator. **add shape** puts another
+library shape into the mask; **new paths** says whether the next shape or pen
+path adds or subtracts. **export** saves a greyscale PNG matte (white keeps) at
+the output's size, or the paths as SVG for Illustrator.
+
+**On the monitor**, the **MASK** button beside WARP shows the mask's points over
+the programme. With **move points**, drag a point or its handles (hold Alt to
+move one handle alone), click the outline to add a point, and Alt- or
+Shift-click a point, or press Delete, to remove it. With the **pen** (press P),
+click for a corner, drag for a curve, and click the yellow first point (or press
+Enter) to close the path. When an oscillator is moving the mask, a dashed line
+shows where it is cutting now, and the points show it as set.
+
+Over the wire: `MASK LIST | SHAPES | INFO <id> | NEW [shape] [name] |
+SHAPE <id> <shape> [SUB] | PATH <id> [SUB] x,y ... |
+SET <id> INVERT|FEATHER|GROW|OPACITY|X|Y|SCALE|ROTATION <value> |
+LFO <id> <param> ON|OFF [Hz] [depth %] |
+ASSIGN <id|NONE> CUE|LAYER <output> <playlist>|OUTPUT <n>|MATTE <n> |
+EXPORT <id> <file.png|.svg> [WxH] | CLEAR | DELETE | RENAME`. Positions and
+sizes are percentages, and rotation is in degrees. A value outside the range is
+refused, not clamped. `EXPORT` is accepted only from this computer.
+
 ---
 
 ## 15. Output Geometry: AOI, Warp, Edge Blend

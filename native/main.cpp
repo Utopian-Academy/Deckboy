@@ -5640,6 +5640,9 @@ class App {
     int bodyStartY = 0;
   };
 
+  // The mask editor: its inspector rows need InspectorCtx, declared just above.
+#include "app/app_mask_editor.ipp"
+
   // Draw the cue's EFFECTIVE audio fade envelope over a waveform rect: ramp
   // up across the fade-in after the in-point, ramp down into the out-point.
   // Uses the audio fades when the cue overrides them (a-fade in/out), else

@@ -230,6 +230,7 @@
               timelineScrubActive_ = false;
               warpDragCorner_ = -1;
               warpDragGridPoint_ = -1;
+              endMaskEditorDrag();
               layoutDragMode_ = LayoutDragMode::None;
               endPresenterLayoutDrag();
             }

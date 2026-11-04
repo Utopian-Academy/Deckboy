@@ -85,6 +85,15 @@ enum class NumericParam : int {
   // Panel Map: one LED tile, in pixels.
   LedPanelWidth,
   LedPanelHeight,
+  // The mask in hand (app_mask_editor.ipp, maskFocus), in operator units:
+  // percent of the frame, percent, degrees.
+  MaskX,
+  MaskY,
+  MaskScale,
+  MaskRotation,
+  MaskFeather,
+  MaskGrow,
+  MaskOpacity,
 };
 
 // Which oscillator slot a Moire row's ~ drives, or -1 for the two pickers.
@@ -339,6 +348,38 @@ const NumericParamSpec* numericParamSpec(NumericParam id) {
                                        0.0, 1.0, 2, false, 0.05};
       return &s;
     }
+    case NumericParam::MaskX: {
+      static const NumericParamSpec s {"mask.x", "Mask X", "Across, % of the width, -100 to 100", -100, 100, 0, false, 1};
+      return &s;
+    }
+    case NumericParam::MaskY: {
+      static const NumericParamSpec s {"mask.y", "Mask Y", "Down, % of the height, -100 to 100", -100, 100, 0, false, 1};
+      return &s;
+    }
+    case NumericParam::MaskScale: {
+      static const NumericParamSpec s {"mask.scale", "Mask scale", "Size, %, 5 to 400", 5, 400, 0, false, 5};
+      return &s;
+    }
+    case NumericParam::MaskRotation: {
+      static const NumericParamSpec s {"mask.rotation", "Mask rotation", "Degrees, -360 to 360", -360, 360, 0, false,
+                                       5};
+      return &s;
+    }
+    case NumericParam::MaskFeather: {
+      static const NumericParamSpec s {"mask.feather", "Feather", "Edge softness, % of the height, 0 to 25", 0, 25, 1,
+                                       false, 0.5};
+      return &s;
+    }
+    case NumericParam::MaskGrow: {
+      static const NumericParamSpec s {"mask.grow", "Grow", "Edge out (+) or in (-), % of the height, -25 to 25", -25,
+                                       25, 1, false, 0.5};
+      return &s;
+    }
+    case NumericParam::MaskOpacity: {
+      static const NumericParamSpec s {"mask.opacity", "Mask opacity", "How hard it cuts, %, 0 to 100", 0, 100, 0,
+                                       false, 5};
+      return &s;
+    }
     case NumericParam::LedPanelWidth: {
       static const NumericParamSpec s {"panel.w", "Tile width",
                                        "One LED tile's width in pixels, 8-8192",
@@ -585,10 +626,55 @@ void writeNumericParam(Cue& cue, NumericParam id, double value) {
 // The - and + of any row in the table: one step, clamped to the same range
 // typed entry uses. Every selected cue that carries the value moves together,
 // the way typed entry already does.
+// THE MASK'S ROWS edit ONE mask -- the one in hand -- however many cues are
+// selected, so they skip the per-cue loops below, which would step a shared
+// mask once for every selected cue.
+static int maskSlotForParam(NumericParam id) {
+  switch (id) {
+    case NumericParam::MaskX:        return deckboy::masks::kMaskLfoX;
+    case NumericParam::MaskY:        return deckboy::masks::kMaskLfoY;
+    case NumericParam::MaskScale:    return deckboy::masks::kMaskLfoScale;
+    case NumericParam::MaskRotation: return deckboy::masks::kMaskLfoRotation;
+    case NumericParam::MaskFeather:  return deckboy::masks::kMaskLfoFeather;
+    case NumericParam::MaskGrow:     return deckboy::masks::kMaskLfoGrow;
+    case NumericParam::MaskOpacity:  return deckboy::masks::kMaskLfoOpacity;
+    default:                         return -1;
+  }
+}
+
+static double maskParamUnit(NumericParam id) {
+  return id == NumericParam::MaskRotation ? 1.0 : 100.0;   // stored -> shown
+}
+
+double maskParamInOperatorUnits(const deckboy::masks::Mask& m, NumericParam id) {
+  const int slot = maskSlotForParam(id);
+  return slot < 0 ? 0.0 : deckboy::masks::maskParam(m, slot) * maskParamUnit(id);
+}
+
+void setMaskParamFromOperatorUnits(NumericParam id, double shown, const NumericParamSpec& spec) {
+  deckboy::masks::Mask* m = maskFocus();
+  const int slot = maskSlotForParam(id);
+  if (!m || slot < 0) return;
+  const double next = std::clamp(shown, spec.lo, spec.hi);
+  deckboy::masks::maskParam(*m, slot) = static_cast<float>(next / maskParamUnit(id));
+  deckboy::masks::clampMaskParams(*m);
+  std::ostringstream ss;
+  ss << std::fixed << std::setprecision(spec.precision) << next;
+  triggerToast(std::string(spec.label) + " " + ss.str());
+  markProjectDirty();
+}
+
 void nudgeNumericParam(int rawId, int direction) {
   const NumericParam id = static_cast<NumericParam>(rawId);
   const NumericParamSpec* spec = numericParamSpec(id);
   if (!spec) {
+    return;
+  }
+  if (maskSlotForParam(id) >= 0) {
+    if (const deckboy::masks::Mask* m = maskFocus()) {
+      const double step = spec->step > 0.0 ? spec->step : (spec->hi - spec->lo) / 50.0;
+      setMaskParamFromOperatorUnits(id, maskParamInOperatorUnits(*m, id) + step * direction, *spec);
+    }
     return;
   }
   const double step = spec->step > 0.0 ? spec->step : (spec->hi - spec->lo) / 50.0;
@@ -621,6 +707,19 @@ void editNumericParam(int rawId) {
   const NumericParam id = static_cast<NumericParam>(rawId);
   const NumericParamSpec* spec = numericParamSpec(id);
   if (!spec) {
+    return;
+  }
+  if (maskSlotForParam(id) >= 0) {
+    const deckboy::masks::Mask* m = maskFocus();
+    if (!m) return;
+    std::ostringstream shown;
+    shown << std::fixed << std::setprecision(spec->precision) << maskParamInOperatorUnits(*m, id);
+    openInlineNumericExpressionEditor(spec->token, spec->label,
+                                      std::string(spec->hint) + " (supports + - * / and ())", shown.str(),
+                                      [this, id, spec](double value) {
+                                        pushUndoSnapshot();
+                                        setMaskParamFromOperatorUnits(id, value, *spec);
+                                      });
     return;
   }
   Cue* cue = selectedCueMutable();
@@ -868,6 +967,13 @@ void effectStackNudge(int index, float delta) {
 // Every one of these takes the PACKED id described on the QuickAction enum:
 // effectIndex * 8 + slot, slot 0-3 for paramA-D and 4 for the amount.
 deckboy::effects::ParamLfo* effectLfoAt(int packed) {
+  // The mask in hand: the highest range, so it is tested first.
+  if (packed >= kMaskLfoPackBase) {
+    const int slot = packed - kMaskLfoPackBase;
+    deckboy::masks::Mask* m = maskFocus();
+    if (!m || slot < 0 || slot >= deckboy::masks::kMaskLfoCount) return nullptr;
+    return &m->lfo[static_cast<std::size_t>(slot)];
+  }
   // A Moire cue's oscillators: the highest range, so it is tested first.
   if (packed >= kMoireLfoPackBase) {
     const int slot = packed - kMoireLfoPackBase;

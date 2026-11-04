@@ -1278,6 +1278,8 @@ constexpr int kGeometryLfoPackBase = 1 << 20;
 constexpr int kFixtureLfoPackBase = 1 << 21;
 // A Moire cue's oscillators: base + MoireLfoSlot.
 constexpr int kMoireLfoPackBase = 1 << 22;
+// The mask in the inspector's oscillators: base + MaskLfoSlot (core/masks.hpp).
+constexpr int kMaskLfoPackBase = 1 << 23;
 
 // One fixture in a DMX cue: its level and colour, each with an oscillator. A
 // patched fixture that is not listed is LEFT where the last cue put it.
@@ -3713,7 +3715,19 @@ enum class QuickAction {
   FadeEffectSlotNext,
   FadeEffectKnobCycle,    // ...and which knob: amount, A, B, C, D
   FadeRestoreToggle,      // a fade cue's RESTORE AT END
-  ToggleLockToScreen      // a video cue's LOCK TO SCREEN (Cue::lockToScreen)
+  ToggleLockToScreen,     // a video cue's LOCK TO SCREEN (Cue::lockToScreen)
+  // The inspector's MASK section (app_mask_editor.ipp).
+  MaskTargetCycle,        // what the mask is on: cue, playlist, output, matte
+  MaskPick,               // the library dropdown
+  MaskEditToggle,         // points on the programme monitor
+  MaskToolCycle,          // pen <-> points
+  MaskPaintToggle,        // new paths add or subtract
+  MaskAddShape,           // a library shape into this mask
+  MaskInvertToggle,
+  MaskRemoveLast,
+  MaskExportPng,
+  MaskExportSvg,
+  CueSectionMaskToggle
 };
 
 // ---------------------------------------------------------------------------

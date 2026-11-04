@@ -10,6 +10,7 @@
 #include "core/masks.hpp"
 
 #include <chrono>
+#include <algorithm>
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
@@ -259,6 +260,40 @@ int main(int argc, char** argv) {
     check("a rotation LFO at half depth swings +/-180 degrees", std::fabs(hi - 180.0f) < 4 && std::fabs(lo + 180.0f) < 4,
           hi);
     check("maskAnimates says so", maskAnimates(m));
+  }
+
+  // Editing: a point added on a curve leaves the curve where it was, and the
+  // editor's map from the screen back to the mask undoes the move exactly.
+  {
+    Mask m = single(MaskShape::Heart, W, H);
+    const auto before = rasterizeMask(m, W, H);
+    insertMaskPoint(m.paths[0], 1, 0.37);
+    insertMaskPoint(m.paths[0], 3, 0.5);
+    // The curve is the same curve; it is cut into chords at different places,
+    // so an edge pixel may move by a hair -- never more.
+    const auto after = rasterizeMask(m, W, H);
+    int worst = 0;
+    for (std::size_t i = 0; i < after.size(); ++i) worst = std::max(worst, std::abs(after[i] - before[i]));
+    check("adding points on the curve keeps its shape (6 points, edges within 2%)",
+          m.paths[0].points.size() == 6 && worst <= 5, worst);
+    Mask r = single(MaskShape::Rectangle, W, H);
+    insertMaskPoint(r.paths[0], 0, 0.5);
+    check("...and on a straight side, keeps it straight", rasterizeMask(r, W, H) ==
+          rasterizeMask(single(MaskShape::Rectangle, W, H), W, H));
+    m.rotation = 37.0f; m.scale = 1.6f; m.offsetX = -0.1f; m.offsetY = 0.07f;
+    const MaskTransform t = maskTransform(m, W, H);
+    const Pt p {123.4, 56.7};
+    const Pt back = invertMaskTransform(t, applyMaskTransform(t, p));
+    check("the screen-to-mask map undoes the move", std::fabs(back.x - p.x) < 1e-6 && std::fabs(back.y - p.y) < 1e-6);
+    std::size_t seg = 99;
+    double along = -1.0;
+    const MaskPoint& a = m.paths[0].points[0];
+    const Pt onScreen = applyMaskTransform(t, {a.x * W, a.y * H});
+    check("a click on the outline finds its segment",
+          nearestMaskSegment(m.paths[0], t, W, H, {onScreen.x + 2, onScreen.y}, 8.0, seg, along) &&
+          (seg == 0 || seg == m.paths[0].points.size() - 1));
+    check("...and a click far from it finds none",
+          !nearestMaskSegment(m.paths[0], t, W, H, {1.0, 1.0}, 8.0, seg, along));
   }
 
   // The save format.

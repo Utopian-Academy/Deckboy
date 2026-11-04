@@ -2834,10 +2834,13 @@
     const int hdrPad = uiScaled(8);
     const int hdrWarpW = std::max(uiScaled(76), measuredTextWidth(fontSmall_, "WARP") + uiScaled(28));
     const int hdrWarpX = programMonitorRect.x + programMonitorRect.w - hdrWarpW - hdrPad;
+    // MASK sits flush against WARP: the two edit on the same monitor.
+    const int hdrMaskW = std::max(uiScaled(70), measuredTextWidth(fontSmall_, "MASK") + uiScaled(28));
+    const int hdrMaskX = hdrWarpX - hdrMaskW - uiScaled(6);
     const int hdrArrangeW = normalizeOutputType(focusedOutput().outputType) == "presenter"
       ? std::max(uiScaled(84), measuredTextWidth(fontSmall_, "ARRANGE") + uiScaled(20)) : 0;
     const int hdrMultiW = project_.decks.size() > 1 ? uiScaled(66) : 0;
-    const int hdrActionsLeft = hdrWarpX - (hdrArrangeW ? hdrArrangeW + uiScaled(6) : 0)
+    const int hdrActionsLeft = hdrMaskX - (hdrArrangeW ? hdrArrangeW + uiScaled(6) : 0)
       - (hdrMultiW ? hdrMultiW + uiScaled(4) : 0);
     // Live sparkle — gentle pulsing star when output is active
     if (hasLiveVideo) {
@@ -3005,7 +3008,7 @@
         // Flush against WARP, from WARP's own geometry, so the gap between
         // the two stays the same at every scale.
         const int btnW = hdrArrangeW;
-        presenterLayoutBtnRect_ = {hdrWarpX - btnW - uiScaled(6), hdrBtnY, btnW, hdrBtnH};
+        presenterLayoutBtnRect_ = {hdrMaskX - btnW - uiScaled(6), hdrBtnY, btnW, hdrBtnH};
         const bool on = presenterLayoutEditMode_;
         drawUIPanel(presenterLayoutBtnRect_, paletteToggleFill(on), pal.deep,
                     pal.light);
@@ -3047,6 +3050,12 @@
       drawUIPanel(warpEditBtnRect_, warpFill, pal.deep, pal.light);
       drawCenteredTextSafe(controlRenderer_, fontSmall_, warpEditBtnRect_,
                            "WARP", warpInk2);
+      // MASK: the mask editor's points on this monitor (app_mask_editor.ipp).
+      maskEditBtnRect_ = {hdrMaskX, hdrBtnY, hdrMaskW, hdrBtnH};
+      const bool maskActive = maskEditor_.open;
+      drawUIPanel(maskEditBtnRect_, paletteToggleFill(maskActive), pal.deep, pal.light);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, maskEditBtnRect_, "MASK",
+                           paletteToggleInk(maskActive));
       // MODE and RESET buttons are in the warp overlay toolbar now, not in the header
       if (!warpActive) {
         warpModeBtnRect_ = {};
@@ -3488,6 +3497,8 @@
     // and the warp overlay under it never both draws.
     drawPresenterLayoutEditor(programMonitorRect);
 
+    // The mask editor's points, where the warp editor's handles go.
+    drawMaskEditorOverlay();
     // Warp editor overlay on program monitor
     // THE OUTPUT'S WARP. The handles have to be drawn from the same struct
     // the drag writes and the compositor reads, or they sit where the warp
@@ -6468,6 +6479,19 @@
     // the same mistake as one, just harder to notice.
     //
     // Continues from inspectorSectionBottomMax_, wherever the branch finished.
+    // MASK, on every cue: what is masked, which mask, and its controls. Drawn
+    // after the per-kind chain, like EFFECTS, so no kind goes without it.
+    if (selectedCue) {
+      int mkY = inspectorSectionBottomMax_ + kInspectorSectionGap;
+      auto mkSection = beginInspectorSection(mkY, "MASK", cueSectionMaskOpen_,
+                                             QuickAction::CueSectionMaskToggle,
+                                             "Collapse/expand the mask: shapes, pen and its controls");
+      mkY = mkSection.bodyStartY;
+      if (cueSectionMaskOpen_) {
+        mkY = drawMaskRows(ix, mkY);
+      }
+      finishInspectorSection(mkSection, mkY);
+    }
     if (selectedCue && cueSupportsEffectStack(*selectedCue)) {
       // PLUS THE GAP. Every section in the per-kind chain above puts one
       // between itself and the next; these two started flush against whatever

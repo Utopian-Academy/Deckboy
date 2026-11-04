@@ -771,8 +771,14 @@
     if (handleScopesClick(x, y)) {
       return;
     }
+    if (maskEditBtnRect_.w > 0 && pointInRect(x, y, maskEditBtnRect_)) {
+      openMaskEditor(!maskEditor_.open);
+      playUiSound(UiSoundEffect::Toggle);
+      return;
+    }
     // Warp editor buttons
     if (warpEditBtnRect_.w > 0 && pointInRect(x, y, warpEditBtnRect_)) {
+      openMaskEditor(false);   // they share the monitor; one at a time
       // THE OUTPUT, not the deck. Warp belongs to the screen the picture
       // lands on; Deck still carries the old fields for migration and
       // nothing renders them.
@@ -945,6 +951,11 @@
             setWarpSelectedPointValue(editX ? typed : cx, editX ? cy : typed);
           });
       }
+      return;
+    }
+    // The mask editor's points, before the warp's: only one is open at once,
+    // and the mask editor takes every press on the monitor while it is.
+    if (handleMaskEditorMouseDown(x, y)) {
       return;
     }
     // Warp corner drag start
@@ -1584,6 +1595,9 @@
       timelineExtraH_ = std::clamp(programFullMonitorH_ - desiredMonitorH, 0, maxExtra);
       return;
     }
+    if (handleMaskEditorMouseMotion(x, y)) {
+      return;
+    }
     // Warp corner dragging — convert mouse delta in monitor-space to output-pixel warp offsets
     if (warpDragCorner_ >= 0 && warpDragCorner_ < 4 && warpEditMode_ && warpMonitorInner_.w > 0) {
       // Monitor position back to the target's own units: output pixels for
@@ -1963,6 +1977,10 @@
     }
 
     if (handleColourPickerKey(key, keyRepeat)) {
+      return;
+    }
+
+    if (handleMaskEditorKey(key, keyRepeat)) {
       return;
     }
 

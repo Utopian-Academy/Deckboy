@@ -774,5 +774,25 @@
       else remoteCommandDetail_ = parts[3];
       return;
     }
-    failRemoteCommand("MASK: expected LIST, SHAPES, NEW, SHAPE, PATH, SET, LFO, ASSIGN, EXPORT, CLEAR, DELETE or RENAME");
+    // INFO <id>: the controls in the units SET takes, and which oscillators run.
+    if (sub == "INFO") {
+      const MaskModel* m = maskArg(2);
+      if (!m) return;
+      std::ostringstream out;
+      out << "name=" << m->name << " paths=" << m->paths.size() << " invert=" << (m->invert ? "on" : "off");
+      for (const Param& p : kParams) {
+        out << ' ' << toLower(p.word) << '=' << maskParam(*m, p.slot) / p.scale;
+      }
+      out << " lfo=";
+      bool any = false;
+      for (const Param& p : kParams) {
+        if (!m->lfo[static_cast<std::size_t>(p.slot)].on) continue;
+        out << (any ? "," : "") << toLower(p.word);
+        any = true;
+      }
+      if (!any) out << "none";
+      remoteCommandDetail_ = out.str();
+      return;
+    }
+    failRemoteCommand("MASK: expected LIST, SHAPES, INFO, NEW, SHAPE, PATH, SET, LFO, ASSIGN, EXPORT, CLEAR, DELETE or RENAME");
   }

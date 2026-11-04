@@ -21,6 +21,9 @@
   // `param` carries a payload for the actions that need one (the effect stack's
   // index, the numeric-parameter id). -1 for everything else, which is most.
   void dispatchQuickAction(QuickAction action, int param = -1) {
+    if (handleMaskQuickAction(action)) {
+      return;
+    }
     switch (action) {
       case QuickAction::EditNumericParam: editNumericParam(param); return;
       case QuickAction::RunExtraDeskCommand:   // a private extra's inspector button

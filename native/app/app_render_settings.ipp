@@ -5550,16 +5550,21 @@
         static const std::array<const char*, 7> kMattes {{
           "off", "16:9", "4:3", "2.39:1", "1.85:1", "1:1", "9:16"
         }};
+        // Then every mask in the show's library: a matte of any shape.
+        std::vector<std::string> mattes(kMattes.begin(), kMattes.end());
+        for (const auto& mask : project_.masks) mattes.push_back("mask:" + mask.id);
         OutputTarget& mo = focusedOutputMutable();
         std::size_t at = 0;
-        for (std::size_t i = 0; i < kMattes.size(); ++i) {
-          if (toUpper(mo.matteAspect) == toUpper(kMattes[i])) { at = i; break; }
+        for (std::size_t i = 0; i < mattes.size(); ++i) {
+          if (toUpper(mo.matteAspect) == toUpper(mattes[i])) { at = i; break; }
         }
-        mo.matteAspect = kMattes[(at + 1) % kMattes.size()];
+        mo.matteAspect = mattes[(at + 1) % mattes.size()];
         markProjectDirty();
+        const auto* maskMatte = mo.matteAspect.rfind("mask:", 0) == 0 ? findMask(mo.matteAspect.substr(5)) : nullptr;
         triggerToast(toUpper(mo.matteAspect) == "OFF"
-                       ? "matte off"
-                       : ("matte " + mo.matteAspect));
+                       ? std::string("matte off")
+                       : maskMatte ? "matte: mask " + maskMatte->name
+                                   : ("matte " + mo.matteAspect));
       } else if (sb.action == kSettingsActionOutputMatteOpacity) {
         OutputTarget& mo = focusedOutputMutable();
         // 100 -> 75 -> 50 -> 25 -> 100. A partial matte dims rather than masks,

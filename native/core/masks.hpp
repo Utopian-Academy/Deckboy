@@ -340,25 +340,120 @@ struct PlacedPath {
   std::vector<Pt> polygon;
 };
 
+// The mask's own move -- scale and turn about its pivot, then the offset -- as
+// one map on a W x H frame's pixels. The raster, the SVG and the editor's
+// handles all go through it, so a handle sits where the cut is.
+struct MaskTransform {
+  Pt pivot;
+  double c = 1.0, s = 0.0;   // cos and sin of the turn, times the scale
+  double dx = 0.0, dy = 0.0;
+};
+
+inline MaskTransform maskTransform(const Mask& m, double W, double H) {
+  MaskTransform t;
+  t.pivot = maskPivot(m, W, H);
+  const double rad = m.rotation * detail::kPi / 180.0;
+  t.c = std::cos(rad) * m.scale;
+  t.s = std::sin(rad) * m.scale;
+  t.dx = m.offsetX * W;
+  t.dy = m.offsetY * H;
+  return t;
+}
+
+inline Pt applyMaskTransform(const MaskTransform& t, Pt p) {
+  const double ux = p.x - t.pivot.x, uy = p.y - t.pivot.y;
+  return {t.pivot.x + t.c * ux - t.s * uy + t.dx, t.pivot.y + t.s * ux + t.c * uy + t.dy};
+}
+
+// Back from the screen to the mask's own pixels, so a click on a turned or
+// scaled mask edits the point under the pointer.
+inline Pt invertMaskTransform(const MaskTransform& t, Pt q) {
+  const double qx = q.x - t.dx - t.pivot.x, qy = q.y - t.dy - t.pivot.y;
+  const double det = t.c * t.c + t.s * t.s;
+  if (det < 1e-12) return t.pivot;
+  return {t.pivot.x + (t.c * qx + t.s * qy) / det, t.pivot.y + (-t.s * qx + t.c * qy) / det};
+}
+
 inline std::vector<PlacedPath> placeMaskPaths(const Mask& m, int W, int H) {
   std::vector<PlacedPath> out;
-  const Pt pivot = maskPivot(m, W, H);
-  const double rad = m.rotation * detail::kPi / 180.0;
-  const double c = std::cos(rad) * m.scale, s = std::sin(rad) * m.scale;
-  const double dx = m.offsetX * W, dy = m.offsetY * H;
+  const MaskTransform t = maskTransform(m, W, H);
   for (const MaskPath& path : m.paths) {
     if (!path.closed || path.points.size() < 3) continue;
     PlacedPath placed;
     placed.subtract = path.subtract;
     placed.polygon = flattenMaskPath(path, W, H);
-    for (Pt& q : placed.polygon) {
-      const double ux = q.x - pivot.x, uy = q.y - pivot.y;
-      q.x = pivot.x + c * ux - s * uy + dx;
-      q.y = pivot.y + s * ux + c * uy + dy;
-    }
+    for (Pt& q : placed.polygon) q = applyMaskTransform(t, q);
     out.push_back(std::move(placed));
   }
   return out;
+}
+
+// ── EDITING ─────────────────────────────────────────────────────────────────
+
+// A point on segment `seg` (from point seg to the next) at t, keeping the
+// curve exactly the shape it was: de Casteljau, as a pen tool does it. The
+// neighbours' handles shorten to fit.
+inline void insertMaskPoint(MaskPath& path, std::size_t seg, double t) {
+  const std::size_t n = path.points.size();
+  if (n < 2 || seg >= n || (!path.closed && seg + 1 >= n)) return;
+  MaskPoint& a = path.points[seg];
+  MaskPoint& b = path.points[(seg + 1) % n];
+  auto lerp = [t](double u, double v) { return u + (v - u) * t; };
+  const double p0x = a.x, p0y = a.y, p1x = a.x + a.outX, p1y = a.y + a.outY;
+  const double p2x = b.x + b.inX, p2y = b.y + b.inY, p3x = b.x, p3y = b.y;
+  const double ax = lerp(p0x, p1x), ay = lerp(p0y, p1y);
+  const double bx = lerp(p1x, p2x), by = lerp(p1y, p2y);
+  const double cx = lerp(p2x, p3x), cy = lerp(p2y, p3y);
+  const double abx = lerp(ax, bx), aby = lerp(ay, by);
+  const double bcx = lerp(bx, cx), bcy = lerp(by, cy);
+  const double mx = lerp(abx, bcx), my = lerp(aby, bcy);
+  MaskPoint mid;
+  mid.x = static_cast<float>(mx);
+  mid.y = static_cast<float>(my);
+  const bool straight = a.outX == 0.0f && a.outY == 0.0f && b.inX == 0.0f && b.inY == 0.0f;
+  if (!straight) {
+    mid.inX = static_cast<float>(abx - mx);
+    mid.inY = static_cast<float>(aby - my);
+    mid.outX = static_cast<float>(bcx - mx);
+    mid.outY = static_cast<float>(bcy - my);
+    a.outX = static_cast<float>(ax - p0x);
+    a.outY = static_cast<float>(ay - p0y);
+    b.inX = static_cast<float>(cx - p3x);
+    b.inY = static_cast<float>(cy - p3y);
+  }
+  path.points.insert(path.points.begin() + static_cast<std::ptrdiff_t>(seg + 1), mid);
+}
+
+// The segment of `path` nearest the screen point q (pixels of a W x H frame,
+// after the mask's move), within `reach` pixels: which, and where along it.
+inline bool nearestMaskSegment(const MaskPath& path, const MaskTransform& tr, double W, double H, Pt q,
+                               double reach, std::size_t& seg, double& at) {
+  const auto& p = path.points;
+  const std::size_t n = p.size();
+  if (n < 2) return false;
+  const std::size_t segments = path.closed ? n : n - 1;
+  double best = reach * reach;
+  bool found = false;
+  for (std::size_t i = 0; i < segments; ++i) {
+    const MaskPoint& a = p[i];
+    const MaskPoint& b = p[(i + 1) % n];
+    for (int k = 1; k < 32; ++k) {
+      const double t = k / 32.0, u = 1.0 - t;
+      const double x = u * u * u * a.x + 3 * u * u * t * (a.x + a.outX) + 3 * u * t * t * (b.x + b.inX) +
+                       t * t * t * b.x;
+      const double y = u * u * u * a.y + 3 * u * u * t * (a.y + a.outY) + 3 * u * t * t * (b.y + b.inY) +
+                       t * t * t * b.y;
+      const Pt s = applyMaskTransform(tr, {x * W, y * H});
+      const double d = (s.x - q.x) * (s.x - q.x) + (s.y - q.y) * (s.y - q.y);
+      if (d < best) {
+        best = d;
+        seg = i;
+        at = t;
+        found = true;
+      }
+    }
+  }
+  return found;
 }
 
 // ── THE RASTER ──────────────────────────────────────────────────────────────
