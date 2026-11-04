@@ -10187,6 +10187,7 @@ class App {
   static constexpr int kSettingsActionOutputHouseOverlayToggle = 747;
   static constexpr int kSettingsActionOutputHouseOverlayOpacity = 748;
   static constexpr int kSettingsActionOutputHouseOverlayPick = 749;
+  static constexpr int kSettingsActionOutputMaskPick = 741;   // 741 freed by the encoder rows
   static constexpr int kSettingsActionLanguageDropdown = 750;
   static constexpr int kSettingsActionLanguagePanic = 751;
   static constexpr int kSettingsActionTallySwitchOffPick = 752;

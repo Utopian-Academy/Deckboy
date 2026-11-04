@@ -1853,7 +1853,9 @@ masks, and a mask can be put in four places:
   plays, so a heart-shaped clip stays heart-shaped;
 - **on a playlist** on one output: it cuts that layer only;
 - **on an output**: it cuts the whole finished picture to black (and to
-  transparent on a key signal);
+  transparent on a key signal). Set it from the cue inspector, or from
+  **Output mask** in Settings → Video Outputs → Matte & Overlay, which needs
+  no cue selected;
 - **in the matte slot** (Settings → Video Outputs → Matte & Overlay, after the
   aspect ratios): it paints black where it cuts, at the matte's opacity, under
   the house overlay.

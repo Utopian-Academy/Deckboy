@@ -3608,10 +3608,10 @@
         // missing once.
         {
           const OutputTarget& mo = focusedOutputMutable();
-          int moH = sectionH({sRowH, sRowH, sRowH, sRowH, sRowH});
+          int moH = sectionH({sRowH, sRowH, sRowH, sRowH, sRowH, sRowH});
           SDL_Rect moSection {cx, sy, subContentW, moH};
           SDL_Rect moBody = drawSectionFrame(moSection, "MATTE & OVERLAY");
-          // Five questions, five rows. This was two captioned bands of two and
+          // One question per row. This was two captioned bands of two and
           // three controls, so "BARS 100%" and a bare "100%" sat side by side
           // meaning two different opacities, told apart only by which caption
           // they happened to be under.
@@ -3619,10 +3619,14 @@
 
           const bool matteOn = !mo.matteAspect.empty() &&
                                toUpper(mo.matteAspect) != "OFF";
+          // A mask in the matte slot reads by its name, not its id.
+          const MaskModel* matteMask = mo.matteAspect.rfind("mask:", 0) == 0
+                                         ? findMask(mo.matteAspect.substr(5)) : nullptr;
           SDL_Rect matteBtn = settingsRowIn(moLayout.takeFixed(sRowH), "Matte aspect");
           drawSettingsStateFill(matteBtn, matteOn);
           drawCenteredTextSafe(controlRenderer_, fontSmall_, matteBtn,
-                               matteOn ? toUpper(mo.matteAspect) : "OFF",
+                               matteMask ? "MASK: " + matteMask->name
+                                         : matteOn ? toUpper(mo.matteAspect) : std::string("OFF"),
                                settingsStateInk(matteOn));
           settingsBtns_.push_back({matteBtn, kSettingsActionOutputMatteCycle, "matte_aspect"});
 
@@ -3630,6 +3634,17 @@
           drawUIValueControl(matteOpBtn,
             std::to_string(static_cast<int>(std::lround(mo.matteOpacity * 100.0))) + "%");
           settingsBtns_.push_back({matteOpBtn, kSettingsActionOutputMatteOpacity, "matte_opacity"});
+
+          // The whole finished picture cut to a mask: the same slot as MASK ON
+          // -> "all of Output N" in the cue inspector, here beside the matte
+          // so it can be set without a cue selected.
+          const MaskModel* outMask = findMask(mo.maskId);
+          SDL_Rect outMaskBtn = settingsRowIn(moLayout.takeFixed(sRowH), "Output mask");
+          drawSettingsStateFill(outMaskBtn, outMask != nullptr);
+          drawCenteredTextSafe(controlRenderer_, fontSmall_, outMaskBtn,
+                               outMask ? outMask->name : std::string("none"),
+                               settingsStateInk(outMask != nullptr));
+          settingsBtns_.push_back({outMaskBtn, kSettingsActionOutputMaskPick, "output_mask"});
 
           SDL_Rect ovOnBtn = settingsRowIn(moLayout.takeFixed(sRowH), "Overlay still");
           drawSettingsToggle(ovOnBtn, mo.overlayEnabled, "ON", "OFF");
@@ -5565,6 +5580,15 @@
                        ? std::string("matte off")
                        : maskMatte ? "matte: mask " + maskMatte->name
                                    : ("matte " + mo.matteAspect));
+      } else if (sb.action == kSettingsActionOutputMaskPick) {
+        // The mask library's own picker, aimed at this output: a mask, none,
+        // or a new one from a shape. The MASK editor follows, so the monitor's
+        // MASK button then edits this one.
+        if (maskEditor_.drawing) finishMaskPenPath();
+        maskEditor_.target = MaskTarget::Output;
+        maskEditor_.path = maskEditor_.point = -1;
+        maskPickRect_ = sb.rect;
+        openMaskPicker();
       } else if (sb.action == kSettingsActionOutputMatteOpacity) {
         OutputTarget& mo = focusedOutputMutable();
         // 100 -> 75 -> 50 -> 25 -> 100. A partial matte dims rather than masks,

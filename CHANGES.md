@@ -6,6 +6,7 @@
 - A mask cuts the picture to a shape: on a cue (it travels with the cue), on one playlist on an output, on an output's whole picture (to transparent on a key signal), or in the matte slot. Each show keeps a library of masks; one mask can be in several places, and an edit reaches them all.
 - Eight shapes to start from (circle, ellipse, heart, star, rectangle, rounded rect, triangle, hexagon), built round on the screen they are made for, and a pen for your own. Paths add or subtract in order.
 - Invert, feather, grow, opacity, x, y, scale and rotation in the inspector's new MASK section, each typed, scrubbed or put on an oscillator.
+- Settings → Video Outputs → Matte & Overlay has an **Output mask** row that picks the output's mask from the library, with no cue selected, and the matte row names a mask in the matte slot.
 - MASK beside WARP shows the points on the programme monitor: drag points and handles, click the outline to add a point, Alt-click or Delete to remove one, and draw with the pen (P).
 - Export a mask as a greyscale PNG matte or as SVG paths. `MASK` over the network does all of it; see the manual.
 

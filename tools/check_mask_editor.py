@@ -23,6 +23,7 @@ test inputs.
 """
 import argparse
 import json
+import re
 import shutil
 import struct
 import sys
@@ -258,6 +259,42 @@ def run(exe, work, show):
         note("the desk still answers", db.send("PING").startswith("OK"))
 
 
+def run_settings(exe, work, show):
+    """Settings -> Video Outputs -> Matte & Overlay has an Output mask row
+    that opens the same library, with no cue selected."""
+    with Runtime(exe, work / "run-settings", show, extra=("--settings", "3.1")) as db:
+        desk = Desk(db, work)
+        time.sleep(1.0)
+        db.send("DECK 1")
+        db.send("PATTERN ADD full-white")
+        db.send("TAKE")
+        db.send("OUTPUT SELECT 1")
+        db.send("OUTPUT ON")
+        time.sleep(2.5)
+
+        print("  from the output's settings")
+        found = re.search(r"at (\d+),(\d+) (\d+)x(\d+)", db.send("PRESS output_mask"))
+        db.send("PRESS OFF")
+        note("Matte & Overlay has an Output mask row", found is not None, found)
+        if not found:
+            return
+        x, y, w, h = map(int, found.groups())
+        desk.click(x + w // 2, y + h // 2)
+        dd = desk.status().get("dropdown", {})
+        note("...which opens the mask library", dd.get("open") is True and "new circle" in dd.get("rows", []), dd)
+        note("...and picking new circle", desk.choose("new circle"), desk.status().get("dropdown"))
+        ed = desk.editor()
+        note("...puts it on the output (MASK ON follows)", ed.get("target") == 2 and ed.get("mask"), ed)
+        shot = desk.snap()
+        note("...which cuts the corner to black", black(probe(shot, 0.04, 0.06)), probe(shot, 0.04, 0.06))
+        note("...and keeps the middle", white(probe(shot, 0.5, 0.5)), probe(shot, 0.5, 0.5))
+        desk.click(x + w // 2, y + h // 2)
+        note("none takes it off again", desk.choose("none"), desk.status().get("dropdown"))
+        shot = desk.snap()
+        note("...and the corner is white", white(probe(shot, 0.04, 0.06)), probe(shot, 0.04, 0.06))
+        note("the desk still answers", db.send("PING").startswith("OK"))
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--exe", default=str(ROOT / "build/windows/Release/Deckboy.exe"))
@@ -269,6 +306,7 @@ def main():
     show = work / "show" / "02-running-a-show.deckboy"
     try:
         run(exe, work, show)
+        run_settings(exe, work, show)
     finally:
         shutil.rmtree(work, ignore_errors=True)
     if fails:
