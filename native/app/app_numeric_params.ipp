@@ -82,6 +82,9 @@ enum class NumericParam : int {
   MoireCentreY,
   MoireGrey,
   MoireHue,
+  // Panel Map: one LED tile, in pixels.
+  LedPanelWidth,
+  LedPanelHeight,
 };
 
 // Which oscillator slot a Moire row's ~ drives, or -1 for the two pickers.
@@ -336,6 +339,18 @@ const NumericParamSpec* numericParamSpec(NumericParam id) {
                                        0.0, 1.0, 2, false, 0.05};
       return &s;
     }
+    case NumericParam::LedPanelWidth: {
+      static const NumericParamSpec s {"panel.w", "Tile width",
+                                       "One LED tile's width in pixels, 8-8192",
+                                       8.0, 8192.0, 0, true, 1.0};
+      return &s;
+    }
+    case NumericParam::LedPanelHeight: {
+      static const NumericParamSpec s {"panel.h", "Tile height",
+                                       "One LED tile's height in pixels, 8-8192",
+                                       8.0, 8192.0, 0, true, 1.0};
+      return &s;
+    }
     case NumericParam::L3Height: {
       static const NumericParamSpec s {"l3.height", "Height",
                                        "Space under it, as a fraction of the frame, 0-0.8",
@@ -463,6 +478,15 @@ bool readNumericParam(const Cue& cue, NumericParam id, double& out) {
           : p.hue;
       return true;
     }
+    // Only on a panel map, for the same reason as the portal's rows above.
+    case NumericParam::LedPanelWidth:
+    case NumericParam::LedPanelHeight: {
+      if (cue.kind != CueKind::Pattern || normalizePatternTypeId(cue.path) != "panel-map") {
+        return false;
+      }
+      out = id == NumericParam::LedPanelWidth ? cue.ledPanelWidth : cue.ledPanelHeight;
+      return true;
+    }
     case NumericParam::L3Height:
     case NumericParam::L3Size:
     case NumericParam::L3InSeconds:
@@ -552,6 +576,8 @@ void writeNumericParam(Cue& cue, NumericParam id, double value) {
     case NumericParam::L3InSeconds:   cue.lowerThird.inSeconds = value; break;
     case NumericParam::L3OutSeconds:  cue.lowerThird.outSeconds = value; break;
     case NumericParam::L3HoldSeconds: cue.lowerThird.holdSeconds = value; break;
+    case NumericParam::LedPanelWidth:  cue.ledPanelWidth = static_cast<int>(std::lround(value)); break;
+    case NumericParam::LedPanelHeight: cue.ledPanelHeight = static_cast<int>(std::lround(value)); break;
     default: break;
   }
 }
@@ -585,6 +611,9 @@ void nudgeNumericParam(int rawId, int direction) {
   ss << std::fixed << std::setprecision(spec->precision) << shown;
   triggerToast(std::string(spec->label) + " " + ss.str());
   markProjectDirty();
+  if (id == NumericParam::LedPanelWidth || id == NumericParam::LedPanelHeight) {
+    redrawLivePanelMap();
+  }
 }
 
 // The one handler behind QuickAction::EditNumericParam.
@@ -622,6 +651,9 @@ void editNumericParam(int rawId) {
       ss << std::fixed << std::setprecision(spec->precision) << next;
       triggerToast(std::string(spec->label) + " " + ss.str());
       markProjectDirty();
+      if (id == NumericParam::LedPanelWidth || id == NumericParam::LedPanelHeight) {
+        redrawLivePanelMap();
+      }
     });
 }
 

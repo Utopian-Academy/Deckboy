@@ -1523,7 +1523,7 @@
     if (parts.empty()) return false;
     const std::string verb = toUpper(parts[0]);
     static const std::set<std::string> kLocalOnly {
-      "CLICK", "HOVER", "PRESS", "KEY", "SCROLL", "SCROLLBAR", "DROPTEST", "TESTTHROW",
+      "CLICK", "HOVER", "PRESS", "KEY", "TYPE", "SCROLL", "SCROLLBAR", "DROPTEST", "TESTTHROW",
       "UISNAP", "OUTSNAP", "OUTPROBE", "TRUST", "COMPANIONPASS", "MIDIIN",
       // Pairing a phone or raising what phones may do widens access.
       "PHONE"};

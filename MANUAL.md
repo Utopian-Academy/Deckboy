@@ -2508,8 +2508,9 @@ inspector says "made by Deckboy" in place of a pattern picker.
 The engineering set (*v0.99.373 and later.*), the same patterns the site's LED page generates:
 
 - **Panel Map** — every LED tile numbered, with its pixel origin printed inside
-  it. Set **tile w** and **tile h** to the wall's real panel size, because a
-  168px panel mapped as 128 puts every label in the wrong place.
+  it. Set **tile w** and **tile h** to the wall's real panel size (click the
+  number to type it), because a 168px panel mapped as 128 puts every label in
+  the wrong place.
 - **Moire 1:1** — shows at once whether anything in the chain is scaling.
 - **Dark Detail** (0–12%) and **PLUGE** — black level.
 - **Uniformity** — flat fields for colour shift and dead or dim tiles.

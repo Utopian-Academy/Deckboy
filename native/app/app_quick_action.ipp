@@ -1389,10 +1389,6 @@
       case QuickAction::FadeEffectSlotNext: stepFadeEffectSlot(+1); break;
       case QuickAction::FadeEffectKnobCycle: cycleFadeEffectKnob(); break;
       case QuickAction::FadeRestoreToggle: toggleFadeRestoreAtEnd(); break;
-      case QuickAction::PanelWidthDec:  nudgeLedPanelSize(true, -16); break;
-      case QuickAction::PanelWidthInc:  nudgeLedPanelSize(true, +16); break;
-      case QuickAction::PanelHeightDec: nudgeLedPanelSize(false, -16); break;
-      case QuickAction::PanelHeightInc: nudgeLedPanelSize(false, +16); break;
 
       case QuickAction::CueSectionTargetToggle:
         cueSectionTargetOpen_ = !cueSectionTargetOpen_;

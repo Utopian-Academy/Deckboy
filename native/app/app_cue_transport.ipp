@@ -1564,25 +1564,24 @@
   // tile-size edit has to ask for the rebuild itself: without this the control
   // moves a number in the inspector and the wall carries on showing the old
   // grid, which is the "control that does nothing" bug in its purest form.
-  void nudgeLedPanelSize(bool width, int delta) {
-    Cue* cue = selectedCueMutable();
-    if (!cue) {
+  // Asks about the deck's ACTIVE cue, not the selected one: with several cues
+  // selected the edit reaches them all, and the one on air may be any of them.
+  void redrawLivePanelMap() {
+    const int deckIndex = project_.focusedDeckIndex;
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) {
       return;
     }
-    int& field = width ? cue->ledPanelWidth : cue->ledPanelHeight;
-    field = std::clamp(field + delta, 16, 1024);
-    markProjectDirty();
-    triggerToast(std::string(width ? "tile width " : "tile height ") +
-                 std::to_string(field));
-    // Redraw it now if it is on air anywhere. Every deck is asked, because a
-    // cue can be live on more than one.
-    const int deckIndex = project_.focusedDeckIndex;
-    if (deckIndex >= 0 && deckIndex < static_cast<int>(project_.decks.size()) &&
-        project_.decks[deckIndex].activeIndex == project_.decks[deckIndex].selectedIndex) {
-      MediaEngine* engine = mediaEngineForDeck(deckIndex);
-      if (engine && engine->hasPictureToShow()) {   // editing must not relight a STOPped deck
-        engine->rebuildPatternFrame(*cue, static_cast<double>(SDL_GetTicks()) / 1000.0);
-      }
+    Deck& deck = project_.decks[deckIndex];
+    if (deck.activeIndex < 0 || deck.activeIndex >= static_cast<int>(deck.cues.size())) {
+      return;
+    }
+    const Cue& live = deck.cues[deck.activeIndex];
+    if (live.kind != CueKind::Pattern || normalizePatternTypeId(live.path) != "panel-map") {
+      return;
+    }
+    MediaEngine* engine = mediaEngineForDeck(deckIndex);
+    if (engine && engine->hasPictureToShow()) {   // editing must not relight a STOPped deck
+      engine->rebuildPatternFrame(live, static_cast<double>(SDL_GetTicks()) / 1000.0);
     }
   }
 

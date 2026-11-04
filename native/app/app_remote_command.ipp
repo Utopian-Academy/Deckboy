@@ -6535,6 +6535,22 @@
       remoteCommandDetail_ = "key " + parts[1];
       return;
     }
+    // TYPE <text>: characters into the open inline editor, as the keyboard's
+    // text input would deliver them. A test input like KEY, from this computer
+    // only, and it has to say so when no editor is open to receive them.
+    if (command == "TYPE") {
+      if (parts.size() < 2) {
+        failRemoteCommand("TYPE: expected some text");
+        return;
+      }
+      if (!inlineEditor_.open) {
+        failRemoteCommand("TYPE: no editor is open");
+        return;
+      }
+      handleInlineTextEditorTextInput(joinParts(parts, 1).c_str());
+      remoteCommandDetail_ = "typed";
+      return;
+    }
     // TESTTHROW: the next frame throws an exception nothing catches, so a check
     // can see deckboy-crash.log name it. From this computer only.
     if (command == "TESTTHROW") {

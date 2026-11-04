@@ -3445,10 +3445,6 @@ enum class QuickAction {
   // Target cues. The victim is picked deck-then-cue, and the verb cycles,
   // so three stepped rows and no free text: a target that points at a typo
   // is the fault the whole broken-cue panel exists to catch.
-  // The LED tile size a panel map is drawn to. Only shown on that pattern:
-  // a tile size on a colour-bars cue is a control that cannot do anything.
-  PanelWidthDec, PanelWidthInc,
-  PanelHeightDec, PanelHeightInc,
   // Audition the selected cue: play it to the operator, not to the room.
   AuditionSelected,
   // Rack the selected cue paused and off air, so GO is instant.

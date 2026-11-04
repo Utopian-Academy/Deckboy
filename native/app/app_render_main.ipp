@@ -5790,17 +5790,22 @@
           // 168px panels mapped as 128 puts every label in the wrong place,
           // so this is not a preference -- it is the pattern's subject.
           if (typeId == "panel-map") {
-            drawQuickRow(playbackY, "tile w", QuickAction::PanelWidthDec,
-                         std::to_string(selectedCue->ledPanelWidth),
-                         QuickAction::PanelWidthInc, QuickAction::PanelWidthInc,
-                         false, false,
-                         "LED panel width in pixels - what one tile really is");
+            inspDrawQuickRow(ix, playbackY, "tile w", QuickAction::NumericParamDec,
+                             std::to_string(selectedCue->ledPanelWidth),
+                             QuickAction::NumericParamInc, QuickAction::ToggleLoop,
+                             false, false,
+                             "LED panel width in pixels - what one tile really is. "
+                             "Click to type it",
+                             true, QuickAction::EditNumericParam,
+                             static_cast<int>(NumericParam::LedPanelWidth));
             playbackY += kRowStep;
-            drawQuickRow(playbackY, "tile h", QuickAction::PanelHeightDec,
-                         std::to_string(selectedCue->ledPanelHeight),
-                         QuickAction::PanelHeightInc, QuickAction::PanelHeightInc,
-                         false, false,
-                         "LED panel height in pixels");
+            inspDrawQuickRow(ix, playbackY, "tile h", QuickAction::NumericParamDec,
+                             std::to_string(selectedCue->ledPanelHeight),
+                             QuickAction::NumericParamInc, QuickAction::ToggleLoop,
+                             false, false,
+                             "LED panel height in pixels. Click to type it",
+                             true, QuickAction::EditNumericParam,
+                             static_cast<int>(NumericParam::LedPanelHeight));
             playbackY += kRowStep;
           }
         }
