@@ -164,6 +164,71 @@
     return &r;
   }
 
+  // THE MONITOR WITH NO OUTPUT ARMED (2026-11-05). Masks are applied by the
+  // output's compositor, and with no output the monitor shows the decoder's
+  // picture, so a cue's mask did not show at all -- found by the Masks lesson,
+  // whose saucer stayed whole under a heart. After the picture is drawn, this
+  // lays the monitor's black over it through the inverse of the cue's mask:
+  // what the mask cuts reads as the output would show it, for every kind of
+  // source (hardware-decoded frames never reach the CPU, so the cut is drawn,
+  // not applied to pixels). Layer, output and matte masks stay the output's.
+  SDL_Texture* monitorMaskCoverTex_ = nullptr;
+  int monitorMaskCoverW_ = 0, monitorMaskCoverH_ = 0;
+  std::string monitorMaskCoverKey_;
+
+  void drawMonitorCueMaskCover(int deckIndex, const Cue& cue, const SDL_Rect& inner) {
+    const MaskModel* found = cue.maskId.empty() ? nullptr : findMask(cue.maskId);
+    if (!found || !controlRenderer_) return;
+    const MaskModel m = deckboy::masks::resolveMask(*found, lfoSeconds_, lfoBeats_, 0.0);
+    const SDL_Rect r = cueMaskRect(deckIndex, cue, inner);
+    if (r.w <= 0 || r.h <= 0) return;
+    // Drawn smaller and scaled up smoothly: the cut's edge is soft anyway.
+    const int w = std::min(r.w, 960);
+    const int h = std::max(1, static_cast<int>(std::lround(static_cast<double>(r.h) * w / r.w)));
+    const std::string key = deckboy::masks::serializeMask(m, std::string()) + "|" + std::to_string(w) + "x" +
+                            std::to_string(h);
+    if (key != monitorMaskCoverKey_ || !monitorMaskCoverTex_) {
+      const std::vector<std::uint8_t> alpha = deckboy::masks::rasterizeMask(m, w, h);
+      std::vector<std::uint8_t> px(static_cast<std::size_t>(w) * h * 4, 0);
+      for (std::size_t i = 0; i < alpha.size() && i * 4 + 3 < px.size(); ++i) {
+        px[i * 4 + 3] = static_cast<std::uint8_t>(255 - alpha[i]);
+      }
+      if (!monitorMaskCoverTex_ || monitorMaskCoverW_ != w || monitorMaskCoverH_ != h) {
+        if (monitorMaskCoverTex_) SDL_DestroyTexture(monitorMaskCoverTex_);
+        monitorMaskCoverTex_ = deckboyCreateTexture(controlRenderer_, SDL_PIXELFORMAT_RGBA32,
+                                                    SDL_TEXTUREACCESS_STREAMING, w, h);
+        if (!monitorMaskCoverTex_) return;
+        SDL_SetTextureScaleMode(monitorMaskCoverTex_, SDL_SCALEMODE_LINEAR);
+        SDL_SetTextureBlendMode(monitorMaskCoverTex_, SDL_BLENDMODE_BLEND);
+        monitorMaskCoverW_ = w;
+        monitorMaskCoverH_ = h;
+      }
+      SDL_UpdateTexture(monitorMaskCoverTex_, nullptr, px.data(), w * 4);
+      monitorMaskCoverKey_ = key;
+    }
+    const SDL_FRect where {static_cast<float>(r.x), static_cast<float>(r.y), static_cast<float>(r.w),
+                           static_cast<float>(r.h)};
+    SDL_RenderTexture(controlRenderer_, monitorMaskCoverTex_, nullptr, &where);
+    // Outside the cue's rectangle: the mask's own value there, as on an output.
+    const float outside = deckboy::masks::maskValueOutside(m);
+    if (outside < 0.999f) {
+      SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_BLEND);
+      SDL_SetRenderDrawColor(controlRenderer_, 0, 0, 0, static_cast<Uint8>(std::lround((1.0f - outside) * 255.0f)));
+      const float x0 = static_cast<float>(inner.x), y0 = static_cast<float>(inner.y);
+      const float x1 = static_cast<float>(inner.x + inner.w), y1 = static_cast<float>(inner.y + inner.h);
+      const SDL_FRect bands[4] {
+        {x0, y0, x1 - x0, std::max(0.0f, where.y - y0)},
+        {x0, where.y + where.h, x1 - x0, std::max(0.0f, y1 - (where.y + where.h))},
+        {x0, where.y, std::max(0.0f, where.x - x0), where.h},
+        {where.x + where.w, where.y, std::max(0.0f, x1 - (where.x + where.w)), where.h},
+      };
+      for (const SDL_FRect& band : bands) {
+        if (band.w > 0.0f && band.h > 0.0f) SDL_RenderFillRect(controlRenderer_, &band);
+      }
+      SDL_SetRenderDrawBlendMode(controlRenderer_, SDL_BLENDMODE_NONE);
+    }
+  }
+
   SDL_Texture* maskTextureFor(OutputRuntime& rt, const MaskModel& m, int w, int h, MaskUse use,
                               double matteOpacity = 1.0) {
     std::string key;

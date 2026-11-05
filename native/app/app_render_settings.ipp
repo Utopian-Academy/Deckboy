@@ -885,6 +885,15 @@
         Primitives::drawFramedPanel(controlRenderer_, learn, pal.deep, pal.deep, pal.mid);
         drawCenteredTextSafe(controlRenderer_, fontSmall_, learn, "LEARN THE BASICS", pal.light);
         settingsBtns_.push_back({learn, kSettingsActionLearnBasics, "LEARN THE BASICS"});
+        // LESSONS (part two) beside it, where there is room.
+        const int lessonsW = std::max(uiScaled(96), measuredTextWidth(fontSmall_, "LESSONS") + uiScaled(28));
+        const int lessonsX = learnX - uiScaled(8) - lessonsW;
+        if (lessonsX > tabX) {
+          SDL_Rect lessons {lessonsX, tabY + uiScaled(6), lessonsW, kTabH - uiScaled(6)};
+          Primitives::drawFramedPanel(controlRenderer_, lessons, pal.deep, pal.deep, pal.mid);
+          drawCenteredTextSafe(controlRenderer_, fontSmall_, lessons, "LESSONS", pal.light);
+          settingsBtns_.push_back({lessons, kSettingsActionLessons, "LESSONS"});
+        }
       }
     }
 
@@ -6254,6 +6263,10 @@
     if (handleMotionSettingsAction(sb.action, sb.rect)) return;
     if (sb.action == kSettingsActionOpenScreens) {
       setScreensVisible(true);
+      return;
+    }
+    if (sb.action == kSettingsActionLessons) {
+      openLessonsList();
       return;
     }
     if (sb.action == kSettingsActionBugSwat) {

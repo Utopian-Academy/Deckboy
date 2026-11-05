@@ -27,6 +27,9 @@
   struct TutorialState {
     bool active = false;
     int step = 0;
+    // 0 is part one, LEARN THE BASICS; n is part two's lesson n-1
+    // (app_lessons.ipp), which runs on this same card.
+    int lesson = 0;
     fs::path returnTo;          // the operator's show, reopened at the end
     // The desk as the operator left it, put back when the tour hands it back:
     // which outputs were on (and fullscreen), and whether BLACK was.
@@ -106,7 +109,16 @@
     const char* key;      // the key chip beside the pointer, or nullptr
     const char* pixel;    // Dr. Pixel's line
     const char* video;    // Professor Video's line
+    // Part two only: a guest of the lesson's show, and what they say.
+    const char* guestName = nullptr;
+    const char* guest = nullptr;
   };
+
+  // How many steps the running lesson has, and its line for a step.
+  int tutorialStepCount() const { return tutorial_.lesson > 0 ? lessonStepCount(tutorial_.lesson - 1) : kTutorialSteps; }
+  TutorialLine tutorialLineNow() const {
+    return tutorial_.lesson > 0 ? lessonLine(tutorial_.lesson - 1, tutorial_.step) : tutorialLine(tutorial_.step);
+  }
 
   static const TutorialLine& tutorialLine(int step) {
     static const TutorialLine kLines[kTutorialSteps] = {
@@ -304,7 +316,7 @@
   int nextTutorialStep() const { return tutorial_.resumeAt > 0 ? tutorial_.resumeAt : tutorial_.step + 1; }
 
   void enterTutorialStep(int step) {
-    tutorial_.step = std::clamp(step, 0, kTutorialSteps - 1);
+    tutorial_.step = std::clamp(step, 0, tutorialStepCount() - 1);
     if (tutorial_.step != 1) tutorial_.resumeAt = -1;
     tutorial_.cueBaseline = focusedDeck().cues.size();
     tutorial_.saveBaseline = projectSaveCount_;
@@ -315,6 +327,10 @@
     tutorial_.crossfadeWasCut = false;
     tutorial_.missClicks = 0;
     tutorial_.deskJoke = false;
+    if (tutorial_.lesson > 0) {
+      enterLessonStep();
+      return;
+    }
     // Left during the detour, the tour still comes back to the saved step.
     writeTutorialProgress(tutorial_.resumeAt > 0 ? tutorial_.resumeAt : tutorial_.step);
   }
@@ -323,7 +339,7 @@
     tutorial_.praiseUntilMs = SDL_GetTicks() + 3500;
     ++tutorial_.praiseIndex;
     playUiSound(UiSoundEffect::Toggle);
-    if (tutorial_.step + 1 < kTutorialSteps) {
+    if (tutorial_.step + 1 < tutorialStepCount()) {
       enterTutorialStep(nextTutorialStep());
     }
   }
@@ -332,6 +348,10 @@
   // openExamples: leave for the example shows instead of the operator's show.
   void endTutorial(bool finished, bool openExamples = false) {
     if (!tutorial_.active) return;
+    if (tutorial_.lesson > 0) {
+      endLesson(finished);
+      return;
+    }
     tutorial_.active = false;
     writeTutorialProgress(finished ? 0 : tutorial_.resumeAt > 0 ? tutorial_.resumeAt : tutorial_.step);
     if (finished) {
@@ -346,9 +366,11 @@
       return;
     }
     handDeskBack({tutorial_.returnTo, tutorial_.outputsWere, tutorial_.dimmerWas});
-    triggerToast(finished ? "that's the basics - MENU > LEARN THE BASICS runs it again"
+    triggerToast(finished ? "that's the basics - MENU > LESSONS has part two"
                           : "tour paused - LEARN THE BASICS picks up where you left off",
                  ToastKind::Help);
+    // The end of part one is where the operator chooses whom to follow.
+    if (finished) lessonsListOpen_ = true;
   }
 
   // ── What each step is waiting for ─────────────────────────────────────────
@@ -667,6 +689,10 @@
 
   void serviceTutorial() {
     if (!tutorial_.active) return;
+    if (tutorial_.lesson > 0) {
+      serviceLesson();
+      return;
+    }
     serviceTutorialScreens();
     // After the output lesson, an output that takes the desk's screen -- a
     // screen pulled out, the screens mirrored, a full screen asked for -- is
@@ -768,6 +794,10 @@
   }
 
   void tutorialShowMe() {
+    if (tutorial_.lesson > 0) {
+      lessonShowMe();
+      return;
+    }
     Deck& deck = focusedDeckMutable();
     switch (tutorial_.step) {
       case 0:
@@ -894,6 +924,7 @@
   }
 
   SDL_Rect tutorialTargetRect() const {
+    if (tutorial_.lesson > 0) return lessonTargetRect();
     const Deck& deck = focusedDeck();
     const int deckIndex = project_.focusedDeckIndex;
     switch (tutorial_.step) {
@@ -939,19 +970,20 @@
   bool handleTutorialClick(int x, int y) {
     if (!tutorial_.active) return false;
     if (pointInRect(x, y, tutorial_.exitRect)) {
-      endTutorial(tutorial_.step == kTutorialSteps - 1);
+      endTutorial(tutorial_.step == tutorialStepCount() - 1);
       return true;
     }
     if (pointInRect(x, y, tutorial_.showMeRect)) {
-      if (tutorial_.step == kTutorialSteps - 1) {
-        endTutorial(true, /*openExamples=*/true);
+      if (tutorial_.step == tutorialStepCount() - 1) {
+        // Part one's last card opens the example shows; a lesson's, the list.
+        endTutorial(true, /*openExamples=*/tutorial_.lesson == 0);
       } else {
         tutorialShowMe();
       }
       return true;
     }
     if (pointInRect(x, y, tutorial_.skipRect)) {
-      if (tutorial_.step + 1 < kTutorialSteps) {
+      if (tutorial_.step + 1 < tutorialStepCount()) {
         enterTutorialStep(nextTutorialStep());
       }
       return true;
@@ -995,7 +1027,7 @@
     }
     if (key == SDLK_ESCAPE && !settingsOpen_ && !inlineEditor_.open && !codeEditor_.open &&
         !confirmQuit_) {
-      endTutorial(tutorial_.step == kTutorialSteps - 1);
+      endTutorial(tutorial_.step == tutorialStepCount() - 1);
       return true;
     }
     if (tutorial_.step == 0 && (key == SDLK_RETURN || key == SDLK_KP_ENTER)) {
@@ -1183,6 +1215,7 @@
   // what has just happened, before any roast takes it over. The card draws it
   // and TUTORIAL STATUS reports it.
   std::string tutorialPixelSays() const {
+    if (tutorial_.lesson > 0) return tutorialLineNow().pixel;
     std::string says = tutorialLine(tutorial_.step).pixel;
     if (tutorial_.step == 1) {
       says = settingsOpen_ ? std::string("There. The button that says OUTPUT OFF. Make it say ON, skapi.")
@@ -1208,7 +1241,8 @@
   void renderTutorial(int width, int height) {
     serviceTutorial();
     if (!tutorial_.active) return;
-    const TutorialLine& line = tutorialLine(tutorial_.step);
+    const TutorialLine line = tutorialLineNow();
+    const int stepCount = tutorialStepCount();
     const SDL_Rect target = tutorialTargetRect();
     tutorial_.targetRect = target;
 
@@ -1236,7 +1270,7 @@
                               static_cast<float>(hole.w + i * 2), static_cast<float>(hole.h + i * 2)};
         SDL_RenderRect(controlRenderer_, &ring);
       }
-    } else if (tutorial_.step == 0 || tutorial_.step == kTutorialSteps - 1) {
+    } else if (tutorial_.step == 0 || tutorial_.step == stepCount - 1) {
       SDL_FRect all {0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height)};
       SDL_RenderFillRect(controlRenderer_, &all);
     }
@@ -1313,7 +1347,12 @@
     const int pixelH = std::max(portrait, static_cast<int>(pixelLines.size()) * lineH);
     const int videoH = std::max(portrait, static_cast<int>(videoLines.size()) * lineH);
     const int buttonH = uiScaled(40);
-    const int cardH = pad + headH + uiScaled(8) + pixelH + blockGap + videoH + uiScaled(12) + buttonH + pad;
+    // A lesson's guest: no portrait, the name in capitals, under the teachers.
+    const auto guestLines = line.guest ? codeWrapText(fontBase_, std::string(line.guestName ? line.guestName : "GUEST") +
+                                                                     ":  \"" + line.guest + "\"", textW)
+                                       : std::vector<std::string> {};
+    const int guestH = guestLines.empty() ? 0 : static_cast<int>(guestLines.size()) * lineH + blockGap;
+    const int cardH = pad + headH + uiScaled(8) + pixelH + blockGap + videoH + guestH + uiScaled(12) + buttonH + pad;
 
     // Away from the target: above it when it is in the lower half, below it
     // when it is in the upper, centred when there is none.
@@ -1344,11 +1383,13 @@
 
     int y = card.y + pad;
     char head[96];
-    std::snprintf(head, sizeof(head), "STEP %d OF %d  -  %s", tutorial_.step + 1, kTutorialSteps, line.title);
+    std::snprintf(head, sizeof(head), "STEP %d OF %d  -  %s", tutorial_.step + 1, stepCount, line.title);
     drawTextSafe(controlRenderer_, titleFont, SDL_Rect {card.x + pad, y, cardW - pad * 2, headH},
                  head, pal.inkSoft);
-    if (praise) {
-      const std::string said = std::string(praiseFromPixel ? "DR. PIXEL: " : "PROF. VIDEO: ") + praise;
+    const std::string quip = lessonQuipNow();
+    if (!quip.empty() || praise) {
+      const std::string said = !quip.empty() ? quip
+                                             : std::string(praiseFromPixel ? "DR. PIXEL: " : "PROF. VIDEO: ") + praise;
       const int headLeftW = measuredTextWidth(titleFont, head) + uiScaled(24);
       drawTextSafe(controlRenderer_, fontSmall_,
                    SDL_Rect {card.x + pad + headLeftW, y, cardW - pad * 2 - headLeftW, headH},
@@ -1412,11 +1453,20 @@
                    SDL_Rect {card.x + textX, y + static_cast<int>(i) * lineH, textW, lineH},
                    videoLines[i], pal.fg);
     }
-    y += videoH + uiScaled(12);
+    y += videoH;
+    if (!guestLines.empty()) {
+      y += blockGap;
+      for (std::size_t i = 0; i < guestLines.size(); ++i) {
+        drawTextSafe(controlRenderer_, fontBase_,
+                     SDL_Rect {card.x + textX, y + static_cast<int>(i) * lineH, textW, lineH}, guestLines[i], pal.fgSoft);
+      }
+      y += static_cast<int>(guestLines.size()) * lineH;
+    }
+    y += uiScaled(12);
 
     // Progress: done, here, to come.
     const int dot = uiScaled(12);
-    for (int i = 0; i < kTutorialSteps; ++i) {
+    for (int i = 0; i < stepCount; ++i) {
       const SDL_Rect d {card.x + pad + i * (dot + uiScaled(5)), y + (buttonH - dot) / 2, dot, dot};
       if (i < tutorial_.step) {
         Primitives::fillRect(controlRenderer_, d, pal.light);
@@ -1429,8 +1479,9 @@
 
     // Buttons, right-aligned. The first and last steps have their own pair.
     const bool first = tutorial_.step == 0;
-    const bool last = tutorial_.step == kTutorialSteps - 1;
-    const char* primary = first ? "START" : (last ? "OPEN EXAMPLE SHOWS" : "SHOW ME");
+    const bool last = tutorial_.step == stepCount - 1;
+    const char* primary = first ? "START" : (last ? (tutorial_.lesson > 0 ? "LESSON LIST" : "OPEN EXAMPLE SHOWS")
+                                                  : "SHOW ME");
     const char* exitLabel = last ? "CLOSE" : "EXIT (Esc)";
     auto buttonW = [&](const char* label) {
       return std::max(uiScaled(96), measuredTextWidth(fontBase_, label) + uiScaled(28));

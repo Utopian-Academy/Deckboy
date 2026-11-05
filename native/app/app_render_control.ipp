@@ -1411,6 +1411,7 @@
     renderTutorial(width, height);
     // Bug Swat (app_bugswat.ipp) covers the desk while it is up.
     renderBugSwat(width, height);
+    renderLessonsList(width, height);
     // THE TOAST GOES ABOVE THE POPUPS, not below them.
     //
     // It used to be drawn before this block, so any message raised by a

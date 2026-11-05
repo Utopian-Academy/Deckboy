@@ -2,6 +2,12 @@
 
 ## Unreleased (masks, and an exact LED tile size)
 
+### Learn the basics, part two
+
+- When LEARN THE BASICS ends, a **lesson list** opens: follow Dr. Pixel (running the show) or Prof. Video (the signal), and pick a lesson. Also at MENU > LESSONS.
+- Five lessons so far: Patterns, synths and Draw; Masks; Warp, blend and slices; the multiview; and Bug Swat. Each runs in its own practice show, some with a guest, and is ticked DONE when finished.
+- `LESSONS` over the wire.
+
 ### Slices and the Screens window
 
 - An output can show **slices**: pieces of the programme, or of one playlist, each cropped, placed, corner-pinned or bent by a mesh, soft-edged, masked, turned, flipped and faded. Position, turn and opacity take a **~**. Up to 16 on an output.

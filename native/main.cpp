@@ -5712,6 +5712,7 @@ class App {
 #include "app/app_slices.ipp"
 #include "app/app_screens.ipp"
 #include "app/app_bugswat.ipp"
+#include "app/app_lessons.ipp"
 
   // Draw the cue's EFFECTIVE audio fade envelope over a waveform rect: ramp
   // up across the fade-in after the in-point, ramp down into the out-point.
@@ -10295,6 +10296,7 @@ class App {
   static constexpr int kSettingsActionMotionZonesClear = 879;
   static constexpr int kSettingsActionOpenScreens = 880;   // the Screens window (slices)
   static constexpr int kSettingsActionBugSwat = 881;       // MOTION CONTROL > PLAY BUG SWAT
+  static constexpr int kSettingsActionLessons = 882;       // MENU > LESSONS (part two)
   static constexpr int kSettingsActionLanguageDropdown = 750;
   static constexpr int kSettingsActionLanguagePanic = 751;
   static constexpr int kSettingsActionTallySwitchOffPick = 752;

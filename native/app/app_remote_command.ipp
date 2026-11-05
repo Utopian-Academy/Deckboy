@@ -7492,6 +7492,10 @@
       handleBugSwatCommand(parts);
       return;
     }
+    if (command == "LESSONS") {
+      handleLessonsCommand(parts);
+      return;
+    }
     // LEARN THE BASICS from the wire: what a Companion button or a test needs.
     // TUTORIAL [START|SHOWME|SKIP|EXIT|STATUS]; bare TUTORIAL starts it.
     if (command == "TUTORIAL") {
@@ -7501,13 +7505,13 @@
         if (!beginTutorial(&why)) { failRemoteCommand("TUTORIAL: " + why); return; }
       } else if (tutorialArg == "SHOWME" || tutorialArg == "SHOW") {
         if (!tutorial_.active) { failRemoteCommand("TUTORIAL: not running"); return; }
-        if (tutorial_.step == kTutorialSteps - 1) endTutorial(true, true); else tutorialShowMe();
+        if (tutorial_.step == tutorialStepCount() - 1) endTutorial(true, tutorial_.lesson == 0); else tutorialShowMe();
       } else if (tutorialArg == "SKIP") {
         if (!tutorial_.active) { failRemoteCommand("TUTORIAL: not running"); return; }
-        if (tutorial_.step + 1 < kTutorialSteps) enterTutorialStep(nextTutorialStep());
+        if (tutorial_.step + 1 < tutorialStepCount()) enterTutorialStep(nextTutorialStep());
       } else if (tutorialArg == "EXIT" || tutorialArg == "CLOSE") {
         if (!tutorial_.active) { failRemoteCommand("TUTORIAL: not running"); return; }
-        endTutorial(tutorial_.step == kTutorialSteps - 1);
+        endTutorial(tutorial_.step == tutorialStepCount() - 1);
       } else if (tutorialArg == "SCREENS") {
         // TUTORIAL SCREENS 1|2|3|MIRRORED|REAL: the screens the tour believes
         // are there, for tools/check_tutorial.py on a runner that has one.
@@ -7524,8 +7528,8 @@
       }
       serviceTutorial();
       remoteCommandDetail_ = tutorial_.active
-        ? "step " + std::to_string(tutorial_.step + 1) + " of " + std::to_string(kTutorialSteps) +
-            " " + tutorialLine(tutorial_.step).title +
+        ? "step " + std::to_string(tutorial_.step + 1) + " of " + std::to_string(tutorialStepCount()) +
+            " " + tutorialLineNow().title +
             (tutorial_.deskEatenOutput >= 0 ? " (the output has the desk)" : "") +
             (tutorial_.resumeAt > 0 ? " (then back to step " + std::to_string(tutorial_.resumeAt + 1) + ")" : "") +
             " says: " + tutorialPixelSays()

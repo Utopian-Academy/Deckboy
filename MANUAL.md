@@ -144,6 +144,30 @@ Over the network: `TUTORIAL [START|SHOWME|SKIP|EXIT|STATUS]` (a bare `TUTORIAL`
 starts it; `STATUS` replies with the step and what Dr. Pixel is saying), and
 `STARTUP SHOW` brings up the startup screen.
 
+#### Part two: the lessons
+
+When the basics end, the **lesson list** opens, and you choose whom to follow:
+**Dr. Pixel** into running the show, or **Prof. Video** into the signal. The
+choice is not final; the list remembers it, and a tab switches. It is always at
+**MENU → LESSONS**, beside LEARN THE BASICS.
+
+| Lesson | Teacher | What you do | The show |
+|--------|---------|-------------|----------|
+| Patterns, synths and Draw | Prof. Video | a test pattern, the video synth, a second playlist as a layer, a Draw cue drawn on and saved as a still | the telestrator booth, with Coach Marv |
+| Masks | Prof. Video | a heart from the library, a pen path, invert, feather | The Signal Files: redact the saucer photo |
+| Warp, blend and slices | Prof. Video | a corner pin, two soft edges, the Screens window, three slices | the haunted lighthouse, with Keeper Rook |
+| Motion: Bug Swat | Prof. Video | the game (see Motion) | a handheld, and bugs |
+| The multiview | Dr. Pixel | MULTI, a window showing NEXT, a clock, a layout, tally | the sports truck, with Director Dot |
+
+Each lesson works like the basics: its own practice show (your show is saved
+first and comes back as it was), a step that waits for you to do the thing,
+SHOW ME, SKIP, Esc, and it picks up where you stopped. A finished lesson is
+ticked DONE in the list.
+
+Over the network: `LESSONS [OPEN|CLOSE|START <id>|TRACK PIXEL|VIDEO|LIST]`; the
+ids are `draw`, `masks`, `warp`, `bugswat` and `multiview`. A running lesson is
+driven with the `TUTORIAL` verbs.
+
 Deckboy refuses to start twice, so a stray double-click cannot take a second
 copy of the show live. `--allow-multi-instance` lifts that, for debugging.
 

@@ -3353,6 +3353,10 @@
         SDL_BLENDMODE_BLEND,
         nullptr,
         controlPreviewIsComposite_ ? 0 : outputRenderSizeForDeck(project_.focusedDeckIndex).first);
+      // The raw decoder frame has no mask in it; the composite tap does.
+      if (!controlPreviewIsComposite_ && activeCue) {
+        drawMonitorCueMaskCover(project_.focusedDeckIndex, *activeCue, inner);
+      }
     } else if (!showMascot && !mascotWaiting && activeCue && activeCue->kind == CueKind::Text) {
       // A TEXT CUE HAS NO DECODED FRAME, so there is nothing for the
       // preview's fallback to show and the monitor sat empty. The output

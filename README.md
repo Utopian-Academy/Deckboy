@@ -418,6 +418,15 @@ importantly, what each feature deliberately does not do.
   about, including lines you write yourself. Every setting starts from the face
   as it is today, and none of them can touch playback, routing or outputs
 
+**Learning:**
+
+- A page on the site where Dr. Pixel and Prof. Video teach the history of
+  video: the technology, the science, the magic tricks it plays on the eye,
+  and the goofy bits, from spinning discs and scan lines to today
+- Growing into a library of useful video knowledge: cable types and their
+  connectors, the standards and the codes on the spec sheet, EDID, and what
+  each one actually is and does
+
 **Picture:**
 
 - Every output at its own screen's refresh rate on Windows. Today an output

@@ -104,6 +104,9 @@
     if (handleBugSwatClick(x, y)) {
       return;
     }
+    if (handleLessonsListClick(x, y)) {
+      return;
+    }
     // The tour's card buttons; every other click goes on to the desk.
     if (handleTutorialClick(x, y)) {
       return;
@@ -1889,6 +1892,9 @@
     }
 
     if (handleBugSwatKey(key, keyRepeat)) {
+      return;
+    }
+    if (handleLessonsListKey(key)) {
       return;
     }
     if (handleTutorialKey(key, keyRepeat)) {

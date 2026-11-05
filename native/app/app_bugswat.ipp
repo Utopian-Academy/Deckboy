@@ -294,6 +294,7 @@
 
   void finishBugSwat() {
     bugSwat_.phase = BugSwatState::Phase::Over;
+    markLessonDone("bugswat");
     bugSwat_.clearedAll = bugSwat_.clearedAll && bugSwat_.game.roundsCleared() == deckboy::bugswat::kRounds;
     if (bugSwat_.game.score() > bugSwat_.highScore) {
       bugSwat_.highScore = bugSwat_.game.score();
