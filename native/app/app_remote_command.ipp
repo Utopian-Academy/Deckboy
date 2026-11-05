@@ -117,10 +117,21 @@
         }
       }
       if (found < 0) {
-        failRemoteCommand(std::string(verb) + " SHAPE: sine, triangle, saw, ramp, square or sample");
+        failRemoteCommand(std::string(verb) + " SHAPE: sine, triangle, saw, ramp, square, sample, "
+                          "drawn, audio, motion, motion-x or motion-y");
         return false;
       }
       lfo.shape = static_cast<deckboy::effects::LfoShape>(found);
+    } else if (what == "ZONE") {
+      // Which part of the camera's picture a Motion shape follows: 0 the
+      // whole picture, 1-8 a zone.
+      const int zone = std::atoi(valueText.c_str());
+      if (valueText.empty() || valueText.find_first_not_of("0123456789") != std::string::npos ||
+          zone < 0 || zone > deckboy::motion::kMaxZones) {
+        failRemoteCommand(std::string(verb) + " ZONE: 0 (the whole picture) to 8");
+        return false;
+      }
+      lfo.motionZone = zone;
     } else if (what == "RATE") {
       if (value <= 0.0 || value > 40.0) {
         failRemoteCommand(std::string(verb) + " RATE: hertz, 0-40");
@@ -5841,8 +5852,16 @@
         } else if (what == "depth" && parts.size() >= 6) {
           lfo.depth = std::clamp(static_cast<float>(std::atof(parts[5].c_str())),
                                  0.0f, 1.0f);
+        } else if (what == "zone" && parts.size() >= 6) {
+          const int zone = std::atoi(parts[5].c_str());
+          if (parts[5].find_first_not_of("0123456789") != std::string::npos ||
+              zone > deckboy::motion::kMaxZones) {
+            failRemoteCommand("FX LFO ZONE: 0 (the whole picture) to 8");
+            return;
+          }
+          lfo.motionZone = zone;
         } else {
-          failRemoteCommand("FX LFO: on, off, shape, rate or depth");
+          failRemoteCommand("FX LFO: on, off, shape, rate, depth or zone");
           return;
         }
         markProjectDirty();
@@ -6538,6 +6557,10 @@
     // queue so it takes the real path, on the desk or on output n's window.
     // A test input like CLICK, from this computer only.
     // MASK: the show's mask library and where each one cuts (app_masks.ipp).
+    if (command == "MOTION") {
+      handleMotionCommand(parts);
+      return;
+    }
     if (command == "MASK") {
       handleMaskCommand(parts);
       return;
@@ -6602,6 +6625,7 @@
       // pressed; CLICK UP lets go. (A patch crosspoint is dragged that way.)
       if (parts.size() == 2 && toUpper(parts[1]) == "UP") {
         endPatchScrub();
+        endMotionZoneDrag();
         remoteCommandDetail_ = "released";
         return;
       }
@@ -6631,7 +6655,10 @@
           handleMouseDown(std::stoi(parts[1]), std::stoi(parts[2]), SDL_BUTTON_LEFT);
           // A CLICK is a press and a release; a patch crosspoint decides
           // what the press was on the release.
-          if (!hold) endPatchScrub();
+          if (!hold) {
+            endPatchScrub();
+            endMotionZoneDrag();
+          }
         }
         // Reports WHICH modal was up afterwards. A click that lands on a
         // covered control is silently swallowed by whatever claimed it first,

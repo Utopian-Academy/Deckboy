@@ -2507,13 +2507,13 @@
           // EVERY FIELD APPENDED AFTER THE TRACKER'S JUMP AND SECTION: the
           // twelve Moire fields, then the fade cue's effect, knob and
           // restore at end, then the backdrop, then lock to screen, then the
-          // cue's mask. The
+          // cue's mask, then a tone's oscillators. The
           // older-show checks below trim this many and then their own, so a
           // field appended to the record is counted here once. When the
           // Moire fields went in, only two of five checks were bumped, and the
           // other three trimmed nothing but Moire -- passing without testing
           // the show they were named for.
-          constexpr int kAfterTrackerFields = 18;
+          constexpr int kAfterTrackerFields = 19;
           // A show from immediately before the fixture patch (one tail field
           // fewer) keeps its mic channel and has no fixture levels.
           {
@@ -2651,7 +2651,7 @@
         // the spine and trimming 3 stopped reaching preWaitSeconds -- the test
         // failed loudly, which is the only reason this comment exists rather
         // than a silent hole in the backward-compatibility check.
-        constexpr int kSpineTailFields = 111;  // preWait, postWait, continue, masters,
+        constexpr int kSpineTailFields = 112;  // preWait, postWait, continue, masters,
                                               // target id/deck/verb, armed, panel w/h,
                                               // fade secs/to/what/curve/stop,
                                               // fireside view, overlay lower-third
@@ -2663,7 +2663,8 @@
                                               // the DMX protocol, the mic channel,
                                               // the fixture levels, stream HDR, tracker jump and section, the twelve Moire fields,
                                               // a fade cue's effect, knob and restore at end,
-                                              // the backdrop, lock to screen, the mask
+                                              // the backdrop, lock to screen, the mask,
+                                              // a tone's oscillators
         {
           std::ifstream in(smokePath);
           std::ostringstream older;
@@ -3874,6 +3875,54 @@
              "and ignores the clock and the tempo");
       expect(std::string(lfoShapeToken(LfoShape::Audio)) == "audio",
              "the Audio shape has its own token");
+
+      // THE MOTION SHAPES: a camera's movement, zone by zone.
+      {
+        publishMotionReading(0, 0.0f, 0.5f, 0.5f);
+        publishMotionReading(2, 1.0f, 1.0f, 0.0f);
+        ParamLfo moved;
+        moved.on = true;
+        moved.shape = LfoShape::Motion;
+        moved.depth = 0.4f;
+        expect(lfoApply(moved, 0.3f, 5.0, 1.0, 0.0) == 0.3f,
+               "a Motion LFO on a still picture leaves the value where it was set");
+        moved.motionZone = 2;
+        expect(std::fabs(lfoApply(moved, 0.3f, 5.0, 1.0, 0.0) - 0.7f) < 1e-5,
+               "and a zone moving at full pushes it up by the depth");
+        moved.shape = LfoShape::MotionX;
+        expect(std::fabs(lfoApply(moved, 0.5f, 5.0, 1.0, 0.0) - 0.7f) < 1e-5,
+               "Motion X at the right edge swings it up by half the depth, like an oscillator");
+        moved.shape = LfoShape::MotionY;
+        expect(std::fabs(lfoApply(moved, 0.5f, 5.0, 1.0, 0.0) - 0.3f) < 1e-5,
+               "Motion Y at the top swings it down by half the depth");
+        std::ostringstream one;
+        writeParamLfo(one, moved);
+        ParamLfo back;
+        readParamLfo(one.str(), back);
+        expect(back.shape == LfoShape::MotionY && back.motionZone == 2,
+               "a Motion LFO's shape and zone survive the show file");
+        ParamLfo drawnAfter;
+        drawnAfter.shape = LfoShape::Drawn;
+        drawnAfter.curve[7] = 0.25f;
+        std::ostringstream two;
+        writeParamLfo(two, drawnAfter);
+        ParamLfo drawnBack;
+        readParamLfo(two.str(), drawnBack);
+        expect(drawnBack.motionZone == 0 && std::fabs(drawnBack.curve[7] - 0.25f) < 1e-5,
+               "and a drawn curve is still read as a curve, not a zone");
+        publishMotionReading(2, 0.0f, 0.5f, 0.5f);
+
+        std::array<ParamLfo, 2> tone {};
+        tone[kToneLfoLevel].on = true;
+        tone[kToneLfoLevel].shape = LfoShape::Motion;
+        tone[kToneLfoLevel].motionZone = 1;
+        const auto toneBack = parseToneLfos(serializeToneLfos(tone));
+        expect(toneBack[kToneLfoLevel].on && toneBack[kToneLfoLevel].shape == LfoShape::Motion &&
+                 toneBack[kToneLfoLevel].motionZone == 1 && !toneBack[kToneLfoFreq].on,
+               "a tone's oscillators survive the show file");
+        expect(serializeToneLfos(std::array<ParamLfo, 2> {}).empty(),
+               "and a tone that never had one writes nothing");
+      }
       std::vector<CueEffect> heardStack(1);
       heardStack[0].kind = CueEffectKind::Invert;
       heardStack[0].amount = 0.5f;   // not 1.0: a clamped top would prove nothing

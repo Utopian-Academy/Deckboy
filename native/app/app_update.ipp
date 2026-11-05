@@ -211,6 +211,7 @@
                 }
               }
               endPatchScrub();
+              endMotionZoneDrag();
               drag_.active = false;
               drag_.cueIndex = -1;
               masterFaderDragActive_ = false;
@@ -882,6 +883,8 @@
         reactiveAudioLevel_ = (vu > reactiveAudioLevel_)
           ? vu : reactiveAudioLevel_ + (vu - reactiveAudioLevel_) * 0.08;
       }
+      // A camera's motion, for the Motion oscillator shapes (app_motion.ipp).
+      serviceMotion();
       maybeSuggestHapConversion();
       // A CUE THAT SHOULD HAVE SOUND AND GOT NONE SAYS SO.
       //
@@ -1019,7 +1022,18 @@
         // transport said, so STOP and PAUSE left a tone sounding. And the card
         // only while there is one, as a pattern's: a STOP that darkened the
         // deck was relit by the next tick.
-        if (engine->state() == TransportState::Playing) engine->pumpToneAudio(*activeCue);
+        if (engine->state() == TransportState::Playing) {
+          // OSCILLATORS ON THE TONE: a copy with the pitch and level moved,
+          // filled only a short way ahead so a hand on a Motion zone is
+          // heard at once rather than after a fifth of a second.
+          if (activeCue->toneLfo[kToneLfoFreq].on || activeCue->toneLfo[kToneLfoLevel].on) {
+            Cue moved = *activeCue;
+            moved.tone = modulatedTone(*activeCue);
+            engine->pumpToneAudio(moved, 0.06);
+          } else {
+            engine->pumpToneAudio(*activeCue);
+          }
+        }
         if (engine->hasPictureToShow()) engine->rebuildToneFrame(*activeCue);
       }
       syncPipOverlayRuntimesForDeck(deckIndex, now);
@@ -1440,6 +1454,29 @@
   // 10fps -- multiplied by the number of playlists. One per tick means five
   // playlists cost what one does and each tile refreshes about twelve times a
   // second, which for a thumbnail is indistinguishable from live.
+  // A tone's settings with its oscillators applied: pitch in octaves over
+  // 20 Hz - 20 kHz, level in dB over -60 - -1 dBFS, each through lfoApply's
+  // own rule on that 0-1 range.
+  ToneSettings modulatedTone(const Cue& cue) const {
+    ToneSettings tone = cue.tone;
+    const auto& f = cue.toneLfo[kToneLfoFreq];
+    if (f.on) {
+      const double lo = std::log2(20.0), hi = std::log2(20000.0);
+      const double at = (std::log2(std::clamp(tone.frequencyHz, 20.0, 20000.0)) - lo) / (hi - lo);
+      const float out = deckboy::effects::lfoApply(f, static_cast<float>(at), lfoSeconds_, lfoBeats_,
+                                                   reactiveAudioLevel_);
+      tone.frequencyHz = std::pow(2.0, lo + static_cast<double>(out) * (hi - lo));
+    }
+    const auto& l = cue.toneLfo[kToneLfoLevel];
+    if (l.on) {
+      const double at = (std::clamp(tone.levelDbfs, -60.0, -1.0) + 60.0) / 59.0;
+      const float out = deckboy::effects::lfoApply(l, static_cast<float>(at), lfoSeconds_, lfoBeats_,
+                                                   reactiveAudioLevel_);
+      tone.levelDbfs = -60.0 + static_cast<double>(out) * 59.0;
+    }
+    return tone;
+  }
+
   void syncDeckPreviewTextures() {
     const int deckCount = static_cast<int>(project_.decks.size());
     if (project_.multiviewMode == 0 || deckCount <= 0) {

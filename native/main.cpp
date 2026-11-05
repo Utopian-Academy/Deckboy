@@ -2238,6 +2238,12 @@ void writeParamLfo(std::ostream& one, const deckboy::effects::ParamLfo& lfo) {
       one << ',' << lfo.curve[static_cast<std::size_t>(c)];
     }
   }
+  // A Motion shape's zone, in the place the curve would take: the two are
+  // never both in use. A build without Motion reads the shape as Audio and
+  // stops at the seventh field.
+  if (deckboy::effects::lfoShapeIsMotion(lfo.shape)) {
+    one << ',' << lfo.motionZone;
+  }
 }
 
 void readParamLfo(const std::string& one, deckboy::effects::ParamLfo& lfo) {
@@ -2262,6 +2268,10 @@ void readParamLfo(const std::string& one, deckboy::effects::ParamLfo& lfo) {
   if (f.size() > 4) lfo.phase = static_cast<float>(std::atof(f[4].c_str()));
   if (f.size() > 5) lfo.beatSync = std::atoi(f[5].c_str()) != 0;
   if (f.size() > 6) lfo.beats = static_cast<float>(std::atof(f[6].c_str()));
+  if (deckboy::effects::lfoShapeIsMotion(lfo.shape)) {
+    lfo.motionZone = f.size() > 7 ? std::clamp(std::atoi(f[7].c_str()), 0, 8) : 0;
+    return;
+  }
   // The drawn curve, if this show carries one. A partial curve is
   // read as far as it goes and the rest keeps the default ramp,
   // rather than being rejected: half a curve still oscillates.
@@ -2288,7 +2298,8 @@ std::string serializeGeometryLfos(const std::array<deckboy::effects::ParamLfo, 9
   for (const auto& lfo : lfos) {
     any = any || lfo.on || lfo.shape != fresh.shape || lfo.rateHz != fresh.rateHz ||
           lfo.depth != fresh.depth || lfo.phase != fresh.phase ||
-          lfo.beatSync != fresh.beatSync || lfo.beats != fresh.beats || lfo.curve != fresh.curve;
+          lfo.beatSync != fresh.beatSync || lfo.beats != fresh.beats || lfo.curve != fresh.curve ||
+          lfo.motionZone != fresh.motionZone;
   }
   if (!any) {
     return std::string();
@@ -2411,6 +2422,20 @@ std::array<deckboy::effects::ParamLfo, 9> parseGeometryLfos(const std::string& t
     at = semi == std::string::npos ? std::string::npos : semi + 1;
   }
   return lfos;
+}
+
+// A tone cue's two oscillators, in the geometry field's spelling (the first
+// two of nine). Empty when neither was ever touched, like that field.
+std::string serializeToneLfos(const std::array<deckboy::effects::ParamLfo, 2>& lfos) {
+  std::array<deckboy::effects::ParamLfo, 9> all {};
+  all[0] = lfos[0];
+  all[1] = lfos[1];
+  return serializeGeometryLfos(all);
+}
+
+std::array<deckboy::effects::ParamLfo, 2> parseToneLfos(const std::string& text) {
+  const auto all = parseGeometryLfos(text);
+  return {all[0], all[1]};
 }
 
 std::string serializeCueEffects(const std::vector<deckboy::effects::CueEffect>& stack) {
@@ -4338,6 +4363,7 @@ class App {
       SDL_DestroyTexture(timelineStripTex_);
       timelineStripTex_ = nullptr;
     }
+    shutdownMotion();
     if (previewMediaEngine_) {
       previewMediaEngine_->detachAudioDevice();
       previewMediaEngine_->stopAll();
@@ -5642,6 +5668,7 @@ class App {
 
   // The mask editor: its inspector rows need InspectorCtx, declared just above.
 #include "app/app_mask_editor.ipp"
+#include "app/app_motion.ipp"
 
   // Draw the cue's EFFECTIVE audio fade envelope over a waveform rect: ramp
   // up across the fade-in after the in-point, ramp down into the out-point.
@@ -6003,15 +6030,21 @@ class App {
     drawCenteredTextSafe(controlRenderer_, fontSmall_, shapeBtn,
                          deckboy::effects::lfoShapeToken(lfo.shape), pal.fg);
     quickButtons_.push_back({shapeBtn, QuickAction::EffectLfoShape,
-                             "sine, triangle, saw, ramp, square, or sample "
-                             "(one random value per cycle, held)", packed});
+                             "sine, triangle, saw, ramp, square, sample (one random value per "
+                             "cycle, held), drawn, audio, or motion: how much a camera sees "
+                             "moving, and where (motion x, motion y)", packed});
 
     // Rate, and whether it is free-running or locked to the tempo. The tap
     // tempo already exists for VJ mode; an LFO that could not use it would be
     // a second clock in a machine that already knows what the music is doing.
     SDL_Rect rateBtn {shapeBtn.x + cellW + gap, rowY, cellW, ix.rowH};
     std::ostringstream rate;
-    if (lfo.beatSync) {
+    const bool motionShape = deckboy::effects::lfoShapeIsMotion(lfo.shape);
+    if (motionShape) {
+      // A Motion shape has no rate: this cell says which zone it follows.
+      if (lfo.motionZone <= 0) rate << "whole picture";
+      else rate << "zone " << lfo.motionZone;
+    } else if (lfo.beatSync) {
       rate << std::fixed << std::setprecision(lfo.beats < 1.0f ? 2 : 0)
            << lfo.beats << (lfo.beats == 1.0f ? " beat" : " beats");
     } else {
@@ -6025,7 +6058,10 @@ class App {
     // the sync toggle rides the SAME cell as a long-press would be worse: it
     // gets its own narrow control below instead.
     quickButtons_.push_back({rateBtn, QuickAction::EffectLfoRateInc,
-                             lfo.beatSync
+                             motionShape
+                               ? "Which part of the camera's picture it follows: the whole picture, "
+                                 "or a zone drawn in Settings > Control > Motion"
+                               : lfo.beatSync
                                ? "Cycle length in beats — follows the tap tempo"
                                : "Cycles per second",
                              packed});
@@ -6899,8 +6935,14 @@ class App {
                      "-18 dBFS is EBU alignment, -20 is SMPTE. Capped below 0: "
                      "this feeds a live PA.",
                      false, QuickAction::ToggleLoop,
-                     static_cast<int>(NumericParam::ToneLevel));
+                     static_cast<int>(NumericParam::ToneLevel),
+                     QuickAction::EffectLfoToggle, cue.toneLfo[kToneLfoLevel].on,
+                     kToneLfoPackBase + kToneLfoLevel, "~",
+                     "Put the level on an oscillator: Motion makes it a gate that opens as you move");
     rowY += ix.rowStep;
+    if (cue.toneLfo[kToneLfoLevel].on) {
+      rowY = inspDrawLfoRowFor(ix, rowY, cue.toneLfo[kToneLfoLevel], kToneLfoPackBase + kToneLfoLevel);
+    }
 
     // ── THE STING'S FOUR SLIDERS ──────────────────────────────────────
     //
@@ -6946,8 +6988,14 @@ class App {
                        "Steps in third-octaves, because the ear works in "
                        "ratios. 1kHz is the convention.",
                      false, QuickAction::ToggleLoop,
-                     static_cast<int>(NumericParam::ToneFreq));
+                     static_cast<int>(NumericParam::ToneFreq),
+                     QuickAction::EffectLfoToggle, cue.toneLfo[kToneLfoFreq].on,
+                     kToneLfoPackBase + kToneLfoFreq, "~",
+                     "Put the pitch on an oscillator: Motion X sweeps it like a theremin");
       rowY += ix.rowStep;
+      if (cue.toneLfo[kToneLfoFreq].on) {
+        rowY = inspDrawLfoRowFor(ix, rowY, cue.toneLfo[kToneLfoFreq], kToneLfoPackBase + kToneLfoFreq);
+      }
     } else if (cue.tone.waveform == ToneWaveform::Sweep) {
       rowY = inspDrawMessageRow(ix, rowY,
         std::to_string(static_cast<int>(cue.tone.sweepLowHz)) + "-" +
@@ -10188,6 +10236,17 @@ class App {
   static constexpr int kSettingsActionOutputHouseOverlayOpacity = 748;
   static constexpr int kSettingsActionOutputHouseOverlayPick = 749;
   static constexpr int kSettingsActionOutputMaskPick = 741;   // 741 freed by the encoder rows
+  // MOTION CONTROL (app_motion.ipp), on the Audio tab under LIVE CAPTIONS.
+  static constexpr int kSettingsActionMotionToggle = 870;
+  static constexpr int kSettingsActionMotionSource = 871;
+  static constexpr int kSettingsActionMotionSensDec = 872;
+  static constexpr int kSettingsActionMotionSensInc = 873;
+  static constexpr int kSettingsActionMotionRiseDec = 874;
+  static constexpr int kSettingsActionMotionRiseInc = 875;
+  static constexpr int kSettingsActionMotionFallDec = 876;
+  static constexpr int kSettingsActionMotionFallInc = 877;
+  static constexpr int kSettingsActionMotionMirror = 878;
+  static constexpr int kSettingsActionMotionZonesClear = 879;
   static constexpr int kSettingsActionLanguageDropdown = 750;
   static constexpr int kSettingsActionLanguagePanic = 751;
   static constexpr int kSettingsActionTallySwitchOffPick = 752;

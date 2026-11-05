@@ -943,8 +943,42 @@ enum class LfoShape : std::uint8_t {
   // Appended, never inserted -- shows store the shape as its index. This is
   // the picture half of the loop the Ouroboros audio effect is the other half of.
   Audio,
+  // Not oscillators either: a camera's MOTION (core/motion.hpp). How much is
+  // moving, one-sided upward like Audio; and where it is, across and down,
+  // centred on the value that was set like an oscillator, so a hand at the
+  // middle leaves the control where it is. ParamLfo::motionZone says which
+  // zone (0 the whole picture). Appended, never inserted.
+  Motion,
+  MotionX,
+  MotionY,
   Count
 };
+
+inline bool lfoShapeIsMotion(LfoShape shape) {
+  return shape == LfoShape::Motion || shape == LfoShape::MotionX || shape == LfoShape::MotionY;
+}
+
+// Shapes that only ever push UP from the value that was set: stillness and
+// silence leave the control alone.
+inline bool lfoShapeIsOneSided(LfoShape shape) {
+  return shape == LfoShape::Audio || shape == LfoShape::Motion;
+}
+
+// THE MOTION READINGS, published by the app once per frame: [zone][amount,
+// x, y], zone 0 the whole picture. Atomics, because a generator on an engine
+// thread reads oscillators too (see lfoClockSlot).
+inline std::array<std::array<std::atomic<float>, 3>, 9>& lfoMotionSignals() {
+  static std::array<std::array<std::atomic<float>, 3>, 9> signals {};
+  return signals;
+}
+
+inline void publishMotionReading(int zone, float amount, float x, float y) {
+  if (zone < 0 || zone >= 9) return;
+  auto& slot = lfoMotionSignals()[static_cast<std::size_t>(zone)];
+  slot[0].store(amount, std::memory_order_relaxed);
+  slot[1].store(x, std::memory_order_relaxed);
+  slot[2].store(y, std::memory_order_relaxed);
+}
 
 inline const char* lfoShapeToken(LfoShape shape) {
   switch (shape) {
@@ -956,6 +990,9 @@ inline const char* lfoShapeToken(LfoShape shape) {
     case LfoShape::Sample:   return "sample";
     case LfoShape::Drawn:    return "drawn";
     case LfoShape::Audio:    return "audio";
+    case LfoShape::Motion:   return "motion";
+    case LfoShape::MotionX:  return "motion-x";
+    case LfoShape::MotionY:  return "motion-y";
     default:                 return "sine";
   }
 }
@@ -976,6 +1013,9 @@ struct ParamLfo {
   // machine that already knows what the music is doing.
   bool beatSync = false;
   float beats = 4.0f;      // cycle length in beats when synced
+  // For the Motion shapes: which zone it follows, 0 the whole picture,
+  // 1-8 the zones drawn in Settings > Control > Motion.
+  int motionZone = 0;
 
   // ── THE SHAPE YOU DREW ──────────────────────────────────────────────────
   //
@@ -1029,6 +1069,13 @@ inline double lfoUnitValue(const ParamLfo& lfo, double seconds, double beats01,
   if (lfo.shape == LfoShape::Audio) {
     // Rate, phase and tempo mean nothing here: the value is the sound.
     return std::clamp(audio01, 0.0, 1.0);
+  }
+  if (lfoShapeIsMotion(lfo.shape)) {
+    // Nor here: the value is what the camera saw.
+    const int which = lfo.shape == LfoShape::Motion ? 0 : lfo.shape == LfoShape::MotionX ? 1 : 2;
+    const auto& zone = lfoMotionSignals()[static_cast<std::size_t>(std::clamp(lfo.motionZone, 0, 8))];
+    return std::clamp(static_cast<double>(zone[static_cast<std::size_t>(which)].load(std::memory_order_relaxed)),
+                      0.0, 1.0);
   }
   double phase = 0.0;
   if (lfo.beatSync) {
@@ -1089,7 +1136,7 @@ inline float lfoApply(const ParamLfo& lfo, float base, double seconds,
     return base;
   }
   const double unit = lfoUnitValue(lfo, seconds, beats01, audio01);
-  if (lfo.shape == LfoShape::Audio) {
+  if (lfoShapeIsOneSided(lfo.shape)) {
     // ONE-SIDED, UPWARD. Silence must leave the parameter exactly where the
     // operator set it -- a centred swing would push it DOWN in every quiet
     // moment, so the look they built would only ever be seen during a loud

@@ -30,6 +30,7 @@
 #include "audio_effects.hpp"
 #include "masks.hpp"
 #include "multiview_layout.hpp"
+#include "motion.hpp"
 #include "core/sdl_compat.hpp"
 #include <memory>
 #include <string>
@@ -1281,6 +1282,11 @@ constexpr int kFixtureLfoPackBase = 1 << 21;
 constexpr int kMoireLfoPackBase = 1 << 22;
 // The mask in the inspector's oscillators: base + MaskLfoSlot (core/masks.hpp).
 constexpr int kMaskLfoPackBase = 1 << 23;
+// A tone cue's two oscillators: base + kToneLfoFreq / kToneLfoLevel.
+constexpr int kToneLfoPackBase = 1 << 24;
+constexpr int kToneLfoFreq = 0;
+constexpr int kToneLfoLevel = 1;
+constexpr int kToneLfoCount = 2;
 
 // One fixture in a DMX cue: its level and colour, each with an oscillator. A
 // patched fixture that is not listed is LEFT where the last cue put it.
@@ -1926,6 +1932,10 @@ struct Cue {
   TimerSettings timer;
   // Tone generator settings. Only meaningful when kind == CueKind::Tone.
   ToneSettings tone;
+  // The tone's pitch (a sine's frequency) and level on oscillators, so a
+  // Motion shape can play it like a theremin. Pitch swings in octaves over
+  // the 20 Hz - 20 kHz range, level in dB over -60 - -1 dBFS.
+  std::array<deckboy::effects::ParamLfo, 2> toneLfo {};
   MicChannel micChannel = MicChannel::MonoLeft;   // a Mic cue: which part of the input plays
   // A LIVE STREAM cue's HDR: 0 SDR, 1 PQ (HDR10), 2 HLG. A feed is never
   // probed -- it may not exist until it connects -- so the operator says
@@ -2881,6 +2891,16 @@ struct Project {
   // How the windows are laid out (core/multiview_layout.hpp): an even grid,
   // or the first one or two windows big and the rest beside or below them.
   deckboy::multiview::Layout multiviewLayout = deckboy::multiview::Layout::Grid;
+  // ── MOTION (core/motion.hpp) ──────────────────────────────────────────
+  //
+  // A camera read for how much moves and where, for the Motion oscillator
+  // shapes. Off until switched on: a camera light coming on by itself is not
+  // something a show should do. The source is "camera:<device>" (its own
+  // capture, never shown on an output) or "deck:<n>" (the picture playlist n
+  // is already playing, so a camera in the show is never opened twice).
+  bool motionEnabled = false;
+  std::string motionSource = "camera:";
+  deckboy::motion::Settings motion;
   // The dashboard's view: 0 the tiles, 1 the master tracker. Tiles by
   // default, because that is what the dashboard has always been.
   int dashboardMode = 0;

@@ -442,7 +442,7 @@ class MediaEngine {
   // update loop while a Tone cue is live: it tops the output up rather than
   // rendering a fixed block, so the tone is continuous no matter how the frame
   // rate wanders.
-  void pumpToneAudio(const Cue& cue);
+  void pumpToneAudio(const Cue& cue, double aheadSeconds = 0.2);   // how far ahead to fill
 
   // ── MIC CUE ────────────────────────────────────────────────────────────
   // A live input read on a thread of its own, straight from the device in

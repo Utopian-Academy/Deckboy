@@ -3011,6 +3011,17 @@
       const int kProgramLabelMinW = uiScaled(110);
       int badgeX = liveBadge.x + liveBadge.w + uiScaled(4);
       int warpBtnLeft = hdrActionsLeft;
+      // THE CAMERA IN USE LIGHT: while Motion reads a camera, an amber chip
+      // left of MASK says so, and opens the card that switches it off.
+      motionLampRect_ = SDL_Rect {};
+      if (project_.motionEnabled) {
+        const int lampW = std::max(uiScaled(70), measuredTextWidth(fontSmall_, "MOTION") + uiScaled(20));
+        warpBtnLeft = hdrActionsLeft - lampW - uiScaled(4);
+        motionLampRect_ = SDL_Rect {warpBtnLeft, hdrBtnY, lampW, hdrBtnH};
+        drawUIPanel(motionLampRect_, SDL_Color {120, 84, 14, 255}, pal.deep, SDL_Color {242, 179, 61, 255});
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, motionLampRect_, "MOTION",
+                             SDL_Color {255, 228, 160, 255});
+      }
       int telemetryRightLimit = std::max(badgeX, warpBtnLeft - kProgramLabelMinW - hdrPad);
       int availableTelemetryW = std::max(0, telemetryRightLimit - badgeX);
       int telemetryCount = 0;

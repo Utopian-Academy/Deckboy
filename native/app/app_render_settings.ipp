@@ -1959,6 +1959,51 @@
       if (st.running && lit > 0) Primitives::fillRect(controlRenderer_, SDL_Rect{meter.x, meter.y, lit, meter.h}, pal.fg);
       }
 
+      // MOTION CONTROL (app_motion.ipp), under LIVE CAPTIONS: a camera read
+      // for movement, which any ~ control can follow. Board DGrGWwFS.
+      {
+        SDL_Rect motionRect {cx, audioColumnsBottom + kAudioCardGap, leftW, 0};
+        const int mkw = cardBodyW(motionRect);
+        const int picH = std::max(uiScaled(60), mkw * 9 / 16);
+        motionRect.h = stackH({sRowH, sRowH, picH, sLineH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH});
+        audioColumnsBottom = std::max(audioColumnsBottom, motionRect.y + motionRect.h);
+        drawCard(motionRect, "MOTION CONTROL", "a camera moves the ~ controls");
+        const int mkx = cardBodyX(motionRect);
+        int mky = cardBodyY(motionRect);
+        SDL_Rect onBtn = settingsRow(mkx, mkw, mky, sRowH, "Motion", sGap);
+        drawSettingsToggle(onBtn, project_.motionEnabled, "ON", "OFF");
+        settingsBtns_.push_back({onBtn, kSettingsActionMotionToggle, "motion_on"});
+        SDL_Rect srcBtn = settingsRow(mkx, mkw, mky, sRowH, "Reads", sGap);
+        drawUIValueControl(srcBtn, motionSourceLabel());
+        settingsBtns_.push_back({srcBtn, kSettingsActionMotionSource, "motion_source"});
+        motionPicRect_ = SDL_Rect {mkx, mky, mkw, picH};
+        drawMotionPicture(motionPicRect_);
+        mky += picH + sGap;
+        drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {mkx, mky, mkw, sLineH},
+                     ellipsizeToPixelWidth(fontSmall_, motionHint(), mkw), soft);
+        mky += sLineH + sGap;
+        SDL_Rect levelRow = settingsRow(mkx, mkw, mky, sRowH, "Levels", sGap);
+        drawMotionLevels(levelRow);
+        char text[32];
+        std::snprintf(text, sizeof text, "%.0f%%", project_.motion.sensitivity * 100.0f);
+        drawSettingsStepper(settingsRow(mkx, mkw, mky, sRowH, "Sensitivity", sGap), text,
+                            kSettingsActionMotionSensDec, kSettingsActionMotionSensInc, "motion_sensitivity");
+        std::snprintf(text, sizeof text, "%.2f s", project_.motion.riseSeconds);
+        drawSettingsStepper(settingsRow(mkx, mkw, mky, sRowH, "Rise", sGap), text,
+                            kSettingsActionMotionRiseDec, kSettingsActionMotionRiseInc, "motion_rise");
+        std::snprintf(text, sizeof text, "%.2f s", project_.motion.fallSeconds);
+        drawSettingsStepper(settingsRow(mkx, mkw, mky, sRowH, "Fall", sGap), text,
+                            kSettingsActionMotionFallDec, kSettingsActionMotionFallInc, "motion_fall");
+        SDL_Rect mirrorBtn = settingsRow(mkx, mkw, mky, sRowH, "Mirror", sGap);
+        drawSettingsToggle(mirrorBtn, project_.motion.mirror, "ON", "OFF");
+        settingsBtns_.push_back({mirrorBtn, kSettingsActionMotionMirror, "motion_mirror"});
+        SDL_Rect zonesBtn = settingsRow(mkx, mkw, mky, sRowH, "Zones", sGap);
+        drawUIValueControl(zonesBtn, project_.motion.zones.empty()
+                                       ? std::string("none: the whole picture")
+                                       : std::to_string(project_.motion.zones.size()) + " - clear them");
+        settingsBtns_.push_back({zonesBtn, kSettingsActionMotionZonesClear, "motion_zones_clear"});
+      }
+
       // Right column: MIDI, then LTC as its own card.
       const int midiH = stackH({sRowH, sRowH,               // enable, port
                                 sLineH,                      // "Mappings"
@@ -6177,6 +6222,7 @@
   // Third part of the settings-click handler, split off to keep the
   // if-else-if chain short enough for MSVC's block-nesting limit.
   void handleSettingsClickPart3(const SettingsButton& sb) {
+    if (handleMotionSettingsAction(sb.action, sb.rect)) return;
     // Out of the modal and onto the monitor, where the warp's handles are --
     // the same hand-off ARRANGE makes for the presenter screen.
     if (sb.action == kSettingsActionOutputWarpEdit) {

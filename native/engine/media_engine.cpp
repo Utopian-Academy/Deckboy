@@ -11766,14 +11766,17 @@ double MediaEngine::fdsNextSample(const ToneSettings& tone, double dt) {
   return sample * chipEnvelope(tone, dt);
 }
 
-void MediaEngine::pumpToneAudio(const Cue& cue) {
+void MediaEngine::pumpToneAudio(const Cue& cue, double aheadSeconds) {
   if (cue.kind != CueKind::Tone) return;
 
   const int channels = std::max(2, audioDeviceChannels_.load(std::memory_order_relaxed));
   // Keep roughly a fifth of a second queued. Enough that a slow frame cannot
   // starve the device, short enough that a level or frequency change is heard
   // immediately rather than after the old buffer drains.
-  const int targetBytes = (kAudioRate / 5) * channels * static_cast<int>(sizeof(std::int16_t));
+  // A tone on oscillators asks for less (see the caller), so a change is
+  // heard within a frame or two.
+  const int aheadFrames = static_cast<int>(kAudioRate * std::clamp(aheadSeconds, 0.03, 0.5));
+  const int targetBytes = aheadFrames * channels * static_cast<int>(sizeof(std::int16_t));
   const int queued = queuedAudioBytes();
   if (queued >= targetBytes) return;
 

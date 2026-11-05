@@ -967,7 +967,14 @@ void effectStackNudge(int index, float delta) {
 // Every one of these takes the PACKED id described on the QuickAction enum:
 // effectIndex * 8 + slot, slot 0-3 for paramA-D and 4 for the amount.
 deckboy::effects::ParamLfo* effectLfoAt(int packed) {
-  // The mask in hand: the highest range, so it is tested first.
+  // A tone cue's pitch and level: the highest range, so it is tested first.
+  if (packed >= kToneLfoPackBase) {
+    const int slot = packed - kToneLfoPackBase;
+    Cue* cue = selectedCueMutable();
+    if (!cue || cue->kind != CueKind::Tone || slot < 0 || slot >= kToneLfoCount) return nullptr;
+    return &cue->toneLfo[static_cast<std::size_t>(slot)];
+  }
+  // The mask in hand: the next range down.
   if (packed >= kMaskLfoPackBase) {
     const int slot = packed - kMaskLfoPackBase;
     deckboy::masks::Mask* m = maskFocus();
@@ -1033,6 +1040,16 @@ void effectLfoCycleShape(int packed) {
 void effectLfoNudgeRate(int packed, int direction) {
   auto* lfo = effectLfoAt(packed);
   if (!lfo) {
+    return;
+  }
+  if (deckboy::effects::lfoShapeIsMotion(lfo->shape)) {
+    // The zone it follows: the whole picture, then each zone drawn. Wraps,
+    // so one button reaches them all.
+    const int zones = static_cast<int>(project_.motion.zones.size());
+    lfo->motionZone = ((lfo->motionZone + direction) % (zones + 1) + zones + 1) % (zones + 1);
+    triggerToast(lfo->motionZone == 0 ? std::string("follows the whole picture")
+                                      : "follows zone " + std::to_string(lfo->motionZone));
+    markProjectDirty();
     return;
   }
   if (lfo->beatSync) {

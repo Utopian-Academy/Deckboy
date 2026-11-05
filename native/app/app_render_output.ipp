@@ -407,7 +407,7 @@
     }
     const double unit = deckboy::effects::lfoUnitValue(lfo, lfoSeconds_, lfoBeats_,
                                                        reactiveAudioLevel_);
-    return lfo.shape == deckboy::effects::LfoShape::Audio
+    return deckboy::effects::lfoShapeIsOneSided(lfo.shape)
       ? unit * static_cast<double>(lfo.depth)
       : (unit - 0.5) * static_cast<double>(lfo.depth);
   }

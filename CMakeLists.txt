@@ -1249,6 +1249,15 @@ if(BUILD_TESTING)
     target_compile_options(deckboy-multiview-layout-check PRIVATE -Wall -Wextra -Wshadow -Werror)
   endif()
   add_test(NAME multiview_layout COMMAND deckboy-multiview-layout-check)
+  # Motion: how much moved and where, from made-up frames.
+  add_executable(deckboy-motion-check tools/motion_check.cpp)
+  target_include_directories(deckboy-motion-check PRIVATE native)
+  if(MSVC)
+    target_compile_options(deckboy-motion-check PRIVATE /W4 /WX)
+  else()
+    target_compile_options(deckboy-motion-check PRIVATE -Wall -Wextra -Wshadow -Werror)
+  endif()
+  add_test(NAME motion COMMAND deckboy-motion-check)
   set_tests_properties(scopes PROPERTIES TIMEOUT 30)
   # The GPU analyser against the CPU one, bin for bin, on a real renderer.
   # Needs a GPU (or WARP) and a window, so CI runs it as a step, not a CTest.

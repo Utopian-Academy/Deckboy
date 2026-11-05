@@ -219,6 +219,9 @@
       if (beginPatchScrub(x, y)) {
         return;
       }
+      if (beginMotionZoneDrag(x, y)) {
+        return;
+      }
       handleSettingsClick(x, y);
       return;
     }
@@ -777,6 +780,11 @@
       return;
     }
     if (handleScopesClick(x, y)) {
+      return;
+    }
+    if (motionLampRect_.w > 0 && pointInRect(x, y, motionLampRect_)) {
+      debugOpenSettings(1);   // the Audio tab, where MOTION CONTROL is
+      playUiSound(UiSoundEffect::Navigate);
       return;
     }
     if (maskEditBtnRect_.w > 0 && pointInRect(x, y, maskEditBtnRect_)) {
@@ -1488,6 +1496,11 @@
   void handleMouseMotion(int x, int y) {
     if (patchScrub_.active) {
       updatePatchScrub(x, y);
+      return;
+    }
+    if (motionZoneDrag_.active) {
+      motionZoneDrag_.x1 = x;
+      motionZoneDrag_.y1 = y;
       return;
     }
     if (cueSettingsScrollDragActive_) {

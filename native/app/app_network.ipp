@@ -3229,12 +3229,12 @@ html,body{width:100%;height:100%;overflow:hidden}
     // without something saying so.
     if (upper == "HELP ALL" || upper == "HELP FULL" || upper == "?? ") {
       sendSnapshot(
-        "DECKBOY_0.01 every verb (388)\n"
+        "DECKBOY_0.01 every verb (389)\n"
         "ADDTIMER ALLGO ALLPAUSE ALLPLAY ALLSTOP ALLTAKE ANIM ANIMATION ARM AUDITION\n"
         "ARTNET ARTNETEVENT ARTNETPORT ART_NET_PORT ASCII ATEM ATEMEVENT\n"
         "ATEMTRIGGER AUDIO AUDIOCUE AUDIOENABLED AUDIOFX AUDIOGAIN AUDIOMONO\n"
         "AUDIONORM AUDIOOUTS AUDIOPAN AUDIOVIS AUDIOVISUAL AUTOADVANCE\n"
-        "MASK CLICK HOVER PRESS KEY TYPE TESTTHROW TRUST COMPANIONPASS SCOPES MIDICLOCK OUTSNAP OUTPROBE UISNAP UIASSETS QUICK QUICKLIST DROPTEST\n"
+        "MASK MOTION CLICK HOVER PRESS KEY TYPE TESTTHROW TRUST COMPANIONPASS SCOPES MIDICLOCK OUTSNAP OUTPROBE UISNAP UIASSETS QUICK QUICKLIST DROPTEST\n"
         "MESH MESH3D SEQ\n"
         "OFFSET OFFSETX OFFSETY ROTATION CROP CROPLEFT CROPRIGHT CROPTOP CROPBOTTOM\n"
         "AUTOID AUTONEXT AVJUMP BLACKOUT DEFAULTS NEWSHOW LIMITER OUTPUTFX OUTPUTS PATCH\n"
@@ -3302,6 +3302,8 @@ html,body{width:100%;height:100%;overflow:hidden}
         "masks:     MASK LIST|SHAPES|INFO <id>|NEW [shape] [name]|SHAPE <id> <shape> [SUB]|PATH <id> [SUB] x,y ...|CLEAR|DELETE|RENAME <id>\n"
         "           MASK SET <id> INVERT on/off|FEATHER %|GROW %|OPACITY %|X %|Y %|SCALE %|ROTATION deg; MASK LFO <id> <param> ON|OFF [Hz] [%]\n"
         "           MASK ASSIGN <id|NONE> CUE|LAYER <out> <playlist>|OUTPUT <n>|MATTE <n>; MASK EXPORT <id> <file.png|.svg> [WxH] (local)\n"
+        "motion:    MOTION [ON|OFF] | SOURCE CAMERA [name]|DECK <n> | CAMERAS | SENSITIVITY % | RISE s | FALL s | MIRROR ON|OFF | LEVEL\n"
+        "           MOTION ZONE ADD x y w h (%)|REMOVE n|CLEAR; an oscillator follows it with SHAPE motion|motion-x|motion-y and ZONE 0-8\n"
         "dmx out:   DMXCUE NEW|SET <1=255,10-14=64>|FADE <s>|UNIVERSE <n>|HOST <ipv4>|PORT <n>|FIRE|BLACKOUT - Art-Net levels on GO\n"
         "matrix:    MATRIX [SET <src 1-2> <dest 1-128> <0-100>|SEED|CLEAR] - per-cue audio crosspoints; empty means the plain stereo pair\n"
         "           MATRIX SET <src 1-2> <output> [L|R] <0-100> - by name, on a playlist in the PATCH\n"

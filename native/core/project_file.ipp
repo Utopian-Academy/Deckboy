@@ -281,6 +281,11 @@ void writeProjectScalars(std::ostream& output, const Project& project) {
   output << "splash_character\t" << escapeField(project.splashCharacter) << '\n';
   output << "multiview\t" << project.multiviewMode << '\n';
   output << "multiview_layout\t" << deckboy::multiview::layoutToken(project.multiviewLayout) << '\n';
+  // Motion, on one line: on, source, sensitivity, rise, fall, mirror, zones.
+  output << "motion\t" << (project.motionEnabled ? 1 : 0) << '\t' << escapeField(project.motionSource)
+         << '\t' << project.motion.sensitivity << '\t' << project.motion.riseSeconds
+         << '\t' << project.motion.fallSeconds << '\t' << (project.motion.mirror ? 1 : 0)
+         << '\t' << deckboy::motion::zonesToText(project.motion.zones) << '\n';
   output << "monitor_device\t" << escapeField(project.monitorDeviceName) << '\n';
   output << "monitor_deck\t" << project.monitorDeckIndex << '\n';
   for (const NamedAudioOutput& named : project.namedAudioOutputs) {
@@ -1064,6 +1069,7 @@ bool saveProject(const fs::path& projectFile, const Project& project, bool patie
         << '\t' << cue.backdrop                     // vs + 165: the colour behind it
         << '\t' << (cue.lockToScreen ? 1 : 0)       // vs + 166: played at the screen's rate
         << '\t' << escapeField(cue.maskId)          // vs + 167: the cue's own mask
+        << '\t' << escapeField(serializeToneLfos(cue.toneLfo))   // vs + 168: a tone's oscillators
         << '\n';
   };
   for (size_t deckIndex = 0; deckIndex < project.decks.size(); ++deckIndex) {
@@ -1354,6 +1360,16 @@ bool applyProjectScalarLine(Project& project, const std::vector<std::string>& fi
     project.dashboardMode = std::clamp(safeInt(fields, 1, 0), 0, 1);
   } else if (fields[0] == "multiview") {
     project.multiviewMode = std::clamp(safeInt(fields, 1, 0), 0, 1);
+  } else if (fields[0] == "motion") {
+    project.motionEnabled = safeBool(fields, 1, false);
+    project.motionSource = safeString(fields, 2);
+    deckboy::motion::Settings m;
+    m.sensitivity = static_cast<float>(safeDouble(fields, 3, m.sensitivity));
+    m.riseSeconds = static_cast<float>(safeDouble(fields, 4, m.riseSeconds));
+    m.fallSeconds = static_cast<float>(safeDouble(fields, 5, m.fallSeconds));
+    m.mirror = safeBool(fields, 6, m.mirror);
+    m.zones = deckboy::motion::zonesFromText(safeString(fields, 7));
+    project.motion = deckboy::motion::clampSettings(m);
   } else if (fields[0] == "multiview_layout") {
     // An unknown name (a later version's layout) opens as the even grid.
     deckboy::multiview::Layout layout = deckboy::multiview::Layout::Grid;
@@ -2780,6 +2796,10 @@ Project loadProject(const fs::path& projectFile,
         // Absent before masks: none.
         if (fields.size() >= static_cast<std::size_t>(vs + 168)) {
           cue.maskId = safeString(fields, vs + 167);
+        }
+        // Absent before them: a tone holds still.
+        if (fields.size() >= static_cast<std::size_t>(vs + 169)) {
+          cue.toneLfo = parseToneLfos(safeString(fields, vs + 168));
         }
       }
       // A MASTER CUE HAS NO PATH, and this gate would have dropped it on load
