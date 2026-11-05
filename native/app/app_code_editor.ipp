@@ -221,23 +221,63 @@ static const std::vector<CodeExample>& codeExamples() {
     if (!font || text.empty() || maxWidth <= 0) {
       return lines;
     }
+    // Pieces a line may break between: words at the spaces, and single
+    // characters of Japanese and Chinese, which put no spaces between words.
+    // A closing mark never starts a line and an opening one never ends one.
+    namespace bidi = deckboy::core::bidi;
+    auto ideographic = [](char32_t cp) {
+      return (cp >= 0x2E80 && cp <= 0x9FFF) || (cp >= 0xF900 && cp <= 0xFAFF) ||
+             (cp >= 0xFF00 && cp <= 0xFFEF) || (cp >= 0x20000 && cp <= 0x3FFFF);
+    };
+    auto noLineStart = [](char32_t cp) {
+      static const std::u32string kMarks =
+          U"\u3001\u3002\uFF0C\uFF0E\u30FB\uFF1A\uFF1B\uFF1F\uFF01\u30FC\u300D\u300F\uFF09\u3011\u3015\u3009\u300B\u3083\u3085\u3087\u3063\u3041\u3043\u3045\u3047\u3049\u30E3\u30E5\u30E7\u30C3\u30A1\u30A3\u30A5\u30A7\u30A9\u2026\uFF5E,.!?:;)";
+      return kMarks.find(cp) != std::u32string::npos;
+    };
+    auto noLineEnd = [](char32_t cp) { return cp == U'\u300C' || cp == U'\u300E' || cp == U'\uFF08' || cp == U'\u3010' ||
+                                              cp == U'('; };
+    struct Piece {
+      std::string text;
+      int spacesBefore = 0;
+    };
+    std::vector<Piece> pieces;
+    Piece piece;
+    char32_t prev = 0;
+    for (std::size_t at = 0; at < text.size();) {
+      const std::size_t start = at;
+      char32_t cp = 0;
+      at += bidi::decodeUtf8(text, at, cp);
+      if (cp == U' ') {
+        if (!piece.text.empty()) {
+          pieces.push_back(piece);
+          piece = Piece{};
+        }
+        ++piece.spacesBefore;
+        prev = 0;
+        continue;
+      }
+      if (!piece.text.empty() && (ideographic(cp) || ideographic(prev)) &&
+          !noLineStart(cp) && !noLineEnd(prev)) {
+        pieces.push_back(piece);
+        piece = Piece{};
+      }
+      piece.text += text.substr(start, at - start);
+      prev = cp;
+    }
+    if (!piece.text.empty() || piece.spacesBefore > 0) pieces.push_back(piece);
+
     std::string line;
-    std::size_t i = 0;
-    while (i <= text.size()) {
-      const std::size_t space = text.find(' ', i);
-      const std::string word = text.substr(i, space == std::string::npos
-                                                ? std::string::npos : space - i);
-      const std::string candidate = line.empty() ? word : line + " " + word;
+    for (const Piece& p : pieces) {
+      const std::string candidate =
+          line.empty() ? p.text : line + std::string(static_cast<std::size_t>(p.spacesBefore), ' ') + p.text;
       int w = 0;
       textSizeShown(font, candidate.c_str(), 0, &w, nullptr);
       if (w > maxWidth && !line.empty()) {
         lines.push_back(line);
-        line = word;
+        line = p.text;
       } else {
         line = candidate;
       }
-      if (space == std::string::npos) break;
-      i = space + 1;
     }
     if (!line.empty()) lines.push_back(line);
     return lines;
