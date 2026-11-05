@@ -528,6 +528,7 @@ Class dismissed. The example shows teach layers, titles and effects. MENU > LEAR
 Wonderful! Lovely signal flow.	훌륭해! 멋진 신호 흐름이야.
 Mm. I knew you had it in you.	음. 할 수 있을 줄 알았어.
 Yes! Have a gold star. It's a dot.	좋아! 금별 하나 줄게. 점이지만.
+Ready for the next step? *nods* ...That means no, skapi. The glowing one. It is glowing for you.	다음 단계로 갈까? *고개를 젓는다* ...그건 아니라는 뜻이야, 스카피. 빛나는 거. 너를 위해 빛나고 있어.
 You've clicked everything but the glowing one. Even my oscillators find the glowing one.	빛나는 것만 빼고 다 클릭했네. 내 오실레이터도 빛나는 건 찾는데.
 stop playback first - the lesson cannot hand a running show back as it was	먼저 재생을 멈추세요 - 재생 중인 쇼는 수업이 원래대로 돌려줄 수 없어요
 choose RECOVER or KEEP SAVED first	먼저 RECOVER나 KEEP SAVED를 고르세요
@@ -543,6 +544,7 @@ The other screen went away, skapi. Press any key or click, and Dr. Pixel gives i
 One screen, skapi. Press any key or click, and Dr. Pixel gives it back.	화면이 하나뿐이야, 스카피. 아무 키나 누르거나 클릭하면 픽셀 박사가 돌려줄게.
 The other screen went away, skapi, so the picture came back to this one. I put it in a little window, behind. Plug it back in and the picture goes back on it.	다른 화면이 사라져서 그림이 이쪽으로 돌아왔어, 스카피. 뒤쪽 작은 창에 넣어 뒀어. 다시 연결하면 그림이 그쪽으로 돌아가.
 It ate the desk, skapi. One screen, so the output took all of it. I put it in a little window, behind. A real show gets a second screen.	데스크를 먹어 버렸어, 스카피. 화면이 하나라서 출력이 전부 차지했어. 뒤쪽 작은 창에 넣어 뒀어. 진짜 쇼엔 두 번째 화면이 있어야 해.
+IT ATE THE DESK	데스크를 먹어 버렸어
 There. The button that says OUTPUT OFF. Make it say ON, skapi.	저기. 출력 끄기라고 쓰인 버튼. 켜기로 바꿔, 스카피.
 Nothing is live to fade from, skapi. TAKE one cue first, then pick the other and give it a time.	페이드할 송출 중인 게 없어, 스카피. 먼저 큐 하나를 TAKE하고, 다른 걸 골라서 시간을 줘.
 That was a cut, skapi. Fast, but not a crossfade. Pick the other cue, press + on transition, then TAKE.	방금 건 컷이야, 스카피. 빠르지만 크로스페이드는 아니야. 다른 큐를 고르고 전환의 +를 누른 다음 TAKE.
@@ -558,6 +560,8 @@ Stop that. I am a serious man.	그만해. 나는 진지한 사람이야.
 Do not tell Dr. Pixel about this.	픽셀 박사한텐 비밀이야.
 This never happened. Back to the patch bay.	아무 일도 없었어. 패치 베이로 돌아가자.
 It was the eighties. Everyone had a bow tie.	80년대였어. 다들 나비넥타이를 맸지.
+LESSON LIST	수업 목록
+OPEN EXAMPLE SHOWS	예제 쇼 열기
 EXIT (Esc)	나가기 (Esc)
 Taking it on the road	쇼를 들고 나가기
 CHECK a show before it travels, fix what it finds, and bundle it with its media.	떠나기 전에 CHECK하고, 찾은 걸 고치고, 미디어와 함께 묶어 저장해.
@@ -616,6 +620,7 @@ A show you built here, skapi, running on a laptop somewhere else tonight. Press 
 Before it travels: check it, fix it, bundle it.	떠나기 전에: 확인하고, 고치고, 묶어 저장.
 See CHECK in the top bar? It only appears when something is wrong. Press it.	위쪽 바에 CHECK가 보여? 뭔가 잘못됐을 때만 나타나. 눌러.
 It lists everything a show would trip over: missing files, empty cues, unreachable outputs.	쇼가 걸려 넘어질 모든 걸 보여 줘: 없는 파일, 빈 큐, 닿지 않는 출력.
+FIX IT	고쳐
 The intro video is on another computer. Select it and delete it, or RELINK it if you have the file.	오프닝 영상은 다른 컴퓨터에 있어. 선택해서 지우거나, 파일이 있으면 RELINK.
 Fix it at home, where it is easy. Not at the venue, where it is not.	고치는 건 집에서. 쉬우니까. 공연장에선 안 쉬워.
 BUNDLE IT	묶어 저장해
@@ -627,11 +632,13 @@ A show file is only text, so it travels light. The media is the heavy part.	쇼 
 Student work no. 4 (untitled)	학생 작품 4번 (무제)
 THE CRIT	크리틱
 An art school, skapi. One student, one picture, one critic who has seen it all. Press START.	미대야, 스카피. 학생 하나, 그림 하나, 볼 거 다 본 비평가 하나. START를 눌러.
+Effects change a picture; an oscillator keeps changing it. The critic only likes the second kind.	이펙트는 그림을 바꿔. 오실레이터는 계속 바꾸고. 비평가는 두 번째 것만 좋아해.
 A grey square on beige. I have seen this at every graduate show since 1987.	베이지 위의 회색 사각형. 1987년부터 모든 졸업 전시에서 봤지.
 AN EFFECT	이펙트 하나
 In the inspector's EFFECTS section, + adds one. Edges is a good start: it draws the outlines.	인스펙터의 EFFECTS에서 +를 누르면 추가돼. Edges로 시작하면 좋아. 윤곽을 그려 줘.
 There are dozens. Every one runs on the CPU in a few milliseconds. Mostly.	수십 가지가 있어. 전부 CPU에서 몇 밀리초면 돌아. 대체로.
 Take a risk! Bad art is fine. Boring art is a crime.	모험해 봐! 못한 작품은 괜찮아. 지루한 작품은 범죄야.
+A ~ ON ITS KNOB	노브에 ~
 Every control with a ~ beside it can follow an oscillator. Press one. The knob starts to breathe.	옆에 ~가 있는 컨트롤은 전부 오실레이터를 따라갈 수 있어. 하나 눌러 봐. 노브가 숨을 쉬기 시작해.
 A low-frequency oscillator: slow, so the eye can follow it. A quarter of a hertz is a four-second breath.	저주파 오실레이터: 눈이 따라갈 만큼 느려. 0.25헤르츠면 4초짜리 숨이지.
 Now it MOVES. Okay. Okay. I'm listening.	이제 움직이는군. 좋아. 좋아. 들어 보지.
@@ -653,6 +660,7 @@ Every desk needs a test pattern. PATTERN adds Pocket Test: checked against real 
 A VIDEO SYNTH	비디오 신스
 He says 'no camera needed' like it is a feature. It is a feature.	'카메라 필요 없음'을 무슨 기능처럼 말하네. 기능 맞아.
 My favourite. SOURCE, then Video Synth: oscillators, mirrors and feedback. No camera needed.	내 최애. 소스, 그다음 Video Synth: 오실레이터, 미러, 피드백. 카메라 필요 없음.
+TAKE THE SYNTH	신스를 TAKE
 Select it, then TAKE. Confident operators press Enter.	선택하고 TAKE. 자신 있는 오퍼레이터는 Enter를 눌러.
 That's our replay. Every replay needs a pundit.	이게 우리 리플레이야. 리플레이엔 해설자가 있어야지.
 Now here's a replay. And here's a guy. And BOOM, he's in it.	자, 리플레이. 여기 이 선수. 그리고 쾅, 들어갔어.
@@ -662,6 +670,7 @@ A second playlist is a layer over the first. Like a second oscillator, mixed on 
 A DRAW CUE	Draw 큐
 In the new playlist: SOURCE, then Draw. Clear everywhere you have not drawn.	새 플레이리스트에서: 소스, 그다음 Draw. 안 그린 곳은 전부 투명해.
 A Draw cue is transparent outside the ink, so the synth shows through.	Draw 큐는 잉크 밖이 투명해서 신스가 비쳐 보여.
+TAKE THE INK	잉크를 TAKE
 Select the Draw cue and TAKE it. Two playlists, two layers, one picture.	Draw 큐를 선택하고 TAKE. 플레이리스트 둘, 레이어 둘, 그림 하나.
 Now both are live: the synth underneath, the ink on top.	이제 둘 다 송출 중: 아래엔 신스, 위엔 잉크.
 CIRCLE SOMETHING	동그라미 쳐
@@ -684,6 +693,7 @@ A MASK FROM THE LIBRARY	라이브러리의 마스크
 In the inspector's MASK section: mask, then 'new heart'. Any shape will do. The heart is funnier.	인스펙터의 MASK에서: mask, 그다음 'new heart'. 모양은 아무거나 돼. 하트가 더 웃기지.
 The library has circles, stars, hearts. Each one is points you can move.	라이브러리엔 원, 별, 하트가 있어. 전부 움직일 수 있는 점으로 돼 있어.
 A heart, Hollis? The Bureau redacts with black bars.	하트라고, 홀리스? 국은 검은 막대로 가려.
+THE PEN	펜
 Set the tool to pen, then click round the saucer on the monitor. Click the first point to close it.	도구를 펜으로 바꾸고, 모니터에서 비행접시 둘레를 클릭해. 첫 점을 클릭하면 닫혀.
 Click for corners, drag for curves. The way the Bezier brothers intended.	클릭은 모서리, 드래그는 곡선. 베지어 형제가 의도한 대로.
 Draw round it carefully. It might be watching.	조심해서 둘러. 저게 보고 있을지도 몰라.
@@ -713,6 +723,7 @@ A corner pin moves the four corners. Perspective keeps the lines straight, like 
 LEFT! Ye call that a corner? I've seen straighter gulls.	왼쪽! 그걸 모서리라고? 갈매기도 그것보단 곧겠다.
 TWO SOFT EDGES	부드러운 가장자리 둘
 Back in Geometry: edge blend, + on the left and + on the right.	다시 지오메트리에서: edge blend, 왼쪽에 +, 오른쪽에 +.
+Two projectors overlap; each fades its edge so the overlap is not twice as bright.	프로젝터 두 대가 겹쳐. 겹친 곳이 두 배로 밝지 않게 각자 가장자리를 페이드해.
 THE SCREENS WINDOW	SCREENS 창
 Geometry, SLICES, open. The Screens window is where slices are cut and placed.	지오메트리, SLICES, 열기. Screens 창은 슬라이스를 자르고 배치하는 곳이야.
 A slice is a piece of the picture, put anywhere on the output.	슬라이스는 그림의 한 조각이고, 출력 어디에든 놓을 수 있어.
@@ -732,9 +743,11 @@ A CUE NUMBER	큐 번호
 Contestant 3 is selected. In the inspector's metadata, give it a cue number: 3.	참가자 3이 선택돼 있어. 인스펙터의 메타데이터에서 큐 번호를 줘: 3.
 Theatre numbers its cues. Q3, Q3.5, Q12A. Deckboy reads them all.	극장은 큐에 번호를 매겨. Q3, Q3.5, Q12A. Deckboy는 전부 읽어.
 I'd like to buy a number, please.	번호 하나 살게요.
+GO TO IT	거기로 가
 Ctrl+G, type the number, Enter. It goes live wherever the list happens to be standing.	Ctrl+G, 번호 입력, Enter. 리스트가 어디 있든 송출돼.
 GOTO. The fastest way across a long list. Faster than scrolling. Much faster than me.	GOTO. 긴 리스트에서 가장 빠른 길. 스크롤보다 빨라. 나보다 훨씬 빠르지.
 And the number is... three!	정답은... 3번!
+A BUZZER	부저
 Contestant 1 is selected. In TRIGGERS, press key, then F5. That key now fires this cue.	참가자 1이 선택돼 있어. TRIGGERS에서 key를 누르고 F5. 이제 그 키가 이 큐를 쏴.
 F1 to F10, F12, or the number pad. Each one, a buzzer.	F1부터 F10, F12, 또는 숫자 키패드. 하나하나가 부저야.
 Every contestant gets a buzzer.	참가자마다 부저 하나씩.
@@ -766,6 +779,7 @@ HER NAME	그녀의 이름
 In the inspector, title: type the presenter's name. The second line is her job.	인스펙터의 title에 기상캐스터 이름을 입력해. 두 번째 줄은 직함이야.
 Spelling counts. The audience reads it at the speed of light.	맞춤법이 중요해. 시청자는 빛의 속도로 읽어.
 Spell it right. Last week it said 'Jane O'Meal'.	제대로 써. 지난주엔 '준 오니기리'라고 나갔어.
+ON AIR	온에어
 TAKE the Lower Third. Her name slides in over the map.	하단 자막을 TAKE. 이름이 지도 위로 미끄러져 들어와.
 Two layers live: the weather, and the words on top of it.	레이어 둘이 송출 중: 날씨, 그리고 그 위의 글자.
 Thank you. Now, about that lizard...	감사합니다. 자, 그 도마뱀 말인데요...
@@ -786,6 +800,7 @@ A COUNTDOWN	카운트다운
 SOURCE, then Stage Timer. A clock that counts down, in big friendly numbers.	소스, 그다음 Stage Timer. 크고 친근한 숫자로 거꾸로 세는 시계.
 Its colours change as it runs out: white, amber, red. Like a VU meter for time.	시간이 줄어들면 색이 바뀌어: 흰색, 호박색, 빨강. 시간용 VU 미터지.
 *raises an eyebrow*	*한쪽 눈썹을 치켜올린다*
+LIFT OFF	발사
 Select the timer and TAKE it. The countdown starts.	타이머를 선택하고 TAKE. 카운트다운이 시작돼.
 Past zero it keeps going, counting the overtime. Very honest. Slightly rude.	0을 지나도 계속 가면서 초과 시간을 세. 아주 정직해. 살짝 무례하고.
 Ten... nine... ooh, I do love a countdown.	10... 9... 아, 카운트다운 너무 좋아.
@@ -832,12 +847,14 @@ Bork bork! Hurdy-flurdy, de kitchen is fire-a-flurdy!	보크 보크! 허디플�
 The audience must not see this. Press BLACK, or B.	관객이 이걸 보면 안 돼. BLACK이나 B를 눌러.
 The picture goes. The cue keeps playing underneath, ready to come back.	그림이 사라져. 큐는 밑에서 계속 재생되면서 돌아올 준비를 해.
 Bork? Bork. Oh, de picture is gun.	보크? 보크. 어, 그림이 갔다.
+AND BACK	그리고 다시
 The fire's out. Press B again: the picture comes back, still running.	불이 꺼졌어. B를 다시 눌러: 그림이 돌아와, 여전히 재생 중.
 Nothing was lost. A mute on a mixer, for pictures.	잃은 건 없어. 그림용 믹서 뮤트야.
 Ta-da! Still cookin'!	짜잔! 아직 요리 중!
 Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	더 나쁠 땐: MENU, 시스템, SAFETY 카드: PANIC. 패닉 설정대로 전부 멈춰.
 PANIC is the big red button. Use it when BLACK is not enough. Then breathe.	PANIC은 커다란 빨간 버튼이야. BLACK으로 부족할 때 써. 그리고 숨 쉬어.
 Bork bork BORK!	보크 보크 보크!
+GET IT BACK	되찾기
 Close MENU, select the souffle, and TAKE it. The show is back on.	MENU를 닫고, 수플레를 선택해서 TAKE. 쇼가 다시 시작돼.
 After a panic, the show is still there. Pick up where you meant to be.	패닉 뒤에도 쇼는 그대로 있어. 있으려던 곳에서 이어 가.
 Voila! De souffle, he is risen!	부알라! 수플레가 부풀었다!
@@ -849,16 +866,19 @@ Look one	룩 하나
 Look two	룩 둘
 Presets, skapi. A whole look, remembered, and back with one button. Press START.	프리셋이야, 스카피. 룩 전체를 기억했다가 버튼 하나로 되돌려. START를 눌러.
 Like the patch memory on a synth: store, then recall.	신스의 패치 메모리처럼: 저장하고, 불러오기.
+THE DASH	DASH
 Press DASH: buttons of your own, for anything at all.	DASH를 눌러: 뭐든지 할 수 있는 너만의 버튼.
 Ctrl+D also works. Very fast. Very professional.	Ctrl+D도 돼. 아주 빨라. 아주 프로 같아.
 A PRESET BUTTON	프리셋 버튼
 Press +, then 'preset - a new preset from what is on now'. The button remembers this look.	+를 누르고 'preset - a new preset from what is on now'. 버튼이 이 룩을 기억해.
 Store. Like saving the patch before the drummer leans on the synth.	저장. 드러머가 신스에 기대기 전에 패치를 저장하듯이.
+CHANGE EVERYTHING	전부 바꿔
 Close the DASH (Esc), then select Look two and TAKE it. A different look.	DASH를 닫고 (Esc), 룩 둘을 선택해서 TAKE. 다른 룩이야.
 Change it all. Don't worry. It remembers.	전부 바꿔. 걱정 마. 기억하고 있어.
 ONE PRESS	한 번 누르기
 Open the DASH and press your preset button. The first look comes back.	DASH를 열고 프리셋 버튼을 눌러. 첫 번째 룩이 돌아와.
 Recall. The patch memory, returning. Beautiful.	불러오기. 패치 메모리의 귀환. 아름다워.
+A look, stored and recalled. A preset can keep cues, positions, effects, levels and routing; its button's menu chooses which.	룩을 저장했다가 불러오기. 프리셋은 큐, 위치, 이펙트, 레벨, 라우팅을 기억할 수 있어. 뭘 기억할지는 버튼 메뉴에서 골라.
 And a DASH button can run any command at all. Any. Even the exciting ones.	그리고 DASH 버튼은 어떤 명령이든 실행할 수 있어. 뭐든. 신나는 것까지.
 Opening titles	오프닝 타이틀
 The planet	행성
@@ -874,9 +894,11 @@ The planet deserves... a dramatic entrance.	행성은... 극적인 등장을 할
 A TIME	시간
 Give it a time: + on transition until it says a second or more.	시간을 줘: 1초 이상이 될 때까지 전환의 +.
 No time, no transition. A style needs a duration to do anything at all.	시간이 없으면 전환도 없어. 스타일은 길이가 있어야 뭐라도 해.
+ROLL IT	돌려
 TAKE the planet. Watch it arrive.	행성을 TAKE. 도착하는 걸 지켜봐.
 The transition belongs to the cue arriving. Each cue chooses its own entrance.	전환은 들어오는 큐의 것이야. 큐마다 자기 등장을 골라.
 Autobots... roll the transition.	오토봇... 전환, 출동.
+THE BATTLE	전투
 Now 'The battle': choose shatter, give it a time, and TAKE it.	이제 '전투': shatter를 고르고, 시간을 주고, TAKE.
 Shatter drops the old picture like a pane of glass. Please do not do this at a funeral.	산산조각은 옛 그림을 유리판처럼 떨어뜨려. 장례식에선 하지 말아 줘.
 Transform... and shatter out!	변신... 그리고 산산조각!
@@ -888,17 +910,23 @@ The beat	비트
 THE ROBOT DJS	로봇 DJ
 Two robot DJs, skapi. They do not talk. Their helmets do. Press START.	로봇 DJ 둘이야, 스카피. 말을 안 해. 헬멧이 말하지. START를 눌러.
 Every cue has its own chain of audio effects, and some of them break the sound on purpose.	큐마다 자기 오디오 이펙트 체인이 있고, 일부는 일부러 소리를 망가뜨려.
+> HELLO. WE ARE HERE TO FIX YOUR MIX.	> 안녕. 너의 믹스를 고치러 왔다.
 The beat is selected. In its AUDIO EFFECTS section, + adds one. Try the delay.	비트가 선택돼 있어. AUDIO EFFECTS에서 +를 누르면 추가돼. delay를 써 봐.
 Delay, reverb, filters, a compressor. Amount always means 'less of this'.	딜레이, 리버브, 필터, 컴프레서. 양(amount)은 언제나 '이걸 덜'이라는 뜻이야.
+> ONE MORE TIME. WITH ECHO. ECHO. ECHO.	> 한 번 더. 에코와 함께. 에코. 에코.
 A BEND	벤드
 Add a second: a bend, like crush. It damages the sound the way a broken file would.	하나 더 추가해: crush 같은 벤드. 깨진 파일처럼 소리를 망가뜨려.
 The bends are my favourite. Like a tape left in the sun. On purpose.	벤드는 내 최애야. 햇볕에 놔둔 테이프처럼. 일부러.
+> HARDER. BETTER. CRUNCHIER. LOUDER.	> 더 세게. 더 좋게. 더 바삭하게. 더 크게.
 THE PATCH	패치
 MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	MENU, 그다음 오디오: 플레이리스트마다 소리가 가는 곳, 그리고 이름 붙은 출력의 패치.
 Speakers, monitors, an in-ear for the drummer. The patch sends each its own.	스피커, 모니터, 드러머의 인이어. 패치가 각자에게 자기 걸 보내.
+> AROUND THE MIX. AROUND THE MIX. AROUND THE MIX.	> 믹스 한 바퀴. 믹스 한 바퀴. 믹스 한 바퀴.
 An effect, a bend and the patch. The robots approve, skapi. I think. Their faces are helmets.	이펙트, 벤드, 패치. 로봇들이 인정했어, 스카피. 아마도. 얼굴이 헬멧이라서.
 Every audio effect can follow a ~ too, even Motion. Wave at the delay. It's wonderful.	오디오 이펙트도 전부 ~를 따라가, Motion까지. 딜레이에 손을 흔들어 봐. 멋져.
+> THANK YOU. GOOD NIGHT. WE ARE ROBOTS.	> 고맙다. 잘 자라. 우리는 로봇이다.
 The glow on the horizon (evidence #2)	지평선의 빛 (증거 2호)
+EVIDENCE #2	증거 2호
 The Bureau again, skapi. A glow on the horizon, and two agents who disagree about it. Press START.	또 국이야, 스카피. 지평선의 빛, 그리고 의견이 갈린 요원 둘. START를 눌러.
 The scopes measure a picture: brightness, colour, levels. Numbers, not opinions.	스코프는 그림을 측정해: 밝기, 색, 레벨. 숫자지, 의견이 아니야.
 It's them, Brandt. It's a craft. Look how it glows.	그들이야, 브랜트. 비행선이야. 저 빛나는 것 좀 봐.
@@ -959,6 +987,7 @@ ONE BIG ONE	큰 거 하나
 Any window's ... menu, then a layout: one big, the rest small.	아무 창의 ... 메뉴, 그다음 레이아웃: 하나는 크게, 나머지는 작게.
 The big window is window one. Usually the programme. Usually.	큰 창은 1번 창이야. 보통은 프로그램. 보통은.
 Main viewer big. The captain likes it big.	메인 스크린 크게. 함장님은 큰 걸 좋아해.
+ON SCREEN	화면에 띄워
 Select Deck 3 in playlist 3 and TAKE. Watch its window.	플레이리스트 3에서 3번 갑판을 선택하고 TAKE. 그 창을 봐.
 The red border is TALLY: the window that is on air. On screen, as they say on starships.	빨간 테두리가 TALLY야: 방송 중인 창. 우주선 말로는 '화면에 띄워'.
 There! Feed three! Put it on screen!	저기! 3번 피드! 화면에 띄워!
@@ -998,6 +1027,7 @@ DRAW TWO ZONES	구역 둘 그리기
 Race Condition: twins, each sure it got there first. One reading cannot tell your hands apart, so drag two ZONES on the Motion picture, one each side.	Race Condition: 쌍둥이인데, 둘 다 자기가 먼저 왔다고 믿어. 읽기 하나로는 두 손을 구분 못 하니까, Motion 그림에 ZONES를 양쪽에 하나씩 드래그해.
 Hit both together. Hit one, and they swap. Like my cousins at a wedding.	둘을 같이 쳐. 하나만 치면 자리를 바꿔. 결혼식장의 내 사촌들처럼.
 One hand each side. Together! Together!	양쪽에 손 하나씩. 같이! 같이!
+Off By One. The bug is not the face, it is the tiny extra segment, and a little wiggle needs a finer reading. Turn SENSITIVITY down to 5%.	Off By One. 버그는 얼굴이 아니라, 끝에 붙은 아주 작은 한 마디야. 작게 꼼지락거리려면 더 세밀하게 읽어야 해. SENSITIVITY를 5%로 낮춰.
 Lower number, finer reading. Yes, I also think it is backwards.	숫자가 작을수록 읽기가 세밀해. 응, 나도 거꾸로라고 생각해.
 Not the face. The little one on the end. Wiggle a finger.	얼굴 말고. 끝에 있는 작은 거. 손가락을 꼼지락거려.
 FALL 1.5 S OR MORE	FALL 1.5초 이상

@@ -537,6 +537,7 @@ Class dismissed. The example shows teach layers, titles and effects. MENU > LEAR
 Wonderful! Lovely signal flow.	Wunderbar! Schöner Signalfluss.
 Mm. I knew you had it in you.	Mm. Ich wusste, dass du das kannst.
 Yes! Have a gold star. It's a dot.	Ja! Hier, ein Fleißsternchen. Es ist ein Punkt.
+Ready for the next step? *nods* ...That means no, skapi. The glowing one. It is glowing for you.	Bereit für den nächsten Schritt? *schüttelt den Kopf* ...Das heißt nein, skapi. Der, der leuchtet. Er leuchtet für dich.
 You've clicked everything but the glowing one. Even my oscillators find the glowing one.	Du hast alles angeklickt außer dem, der leuchtet. Sogar meine Oszillatoren finden den, der leuchtet.
 stop playback first - the lesson cannot hand a running show back as it was	erst die Wiedergabe stoppen - die Lektion kann eine laufende Show nicht unverändert zurückgeben
 choose RECOVER or KEEP SAVED first	erst RECOVER oder KEEP SAVED wählen
@@ -552,6 +553,7 @@ The other screen went away, skapi. Press any key or click, and Dr. Pixel gives i
 One screen, skapi. Press any key or click, and Dr. Pixel gives it back.	Nur ein Bildschirm, skapi. Drück eine Taste oder klick, und Dr. Pixel gibt ihn zurück.
 The other screen went away, skapi, so the picture came back to this one. I put it in a little window, behind. Plug it back in and the picture goes back on it.	Der andere Bildschirm ist weg, skapi, also ist das Bild hierher zurückgekommen. Ich hab es in ein kleines Fenster gelegt, dahinter. Steck ihn wieder ein, und das Bild geht zurück.
 It ate the desk, skapi. One screen, so the output took all of it. I put it in a little window, behind. A real show gets a second screen.	Es hat das Pult gefressen, skapi. Nur ein Bildschirm, also hat der Ausgang ihn ganz genommen. Ich hab es in ein kleines Fenster gelegt, dahinter. Eine echte Show bekommt einen zweiten Bildschirm.
+IT ATE THE DESK	ES HAT DAS PULT GEFRESSEN
 There. The button that says OUTPUT OFF. Make it say ON, skapi.	Da. Der Knopf mit AUSGANG AUS. Mach EIN daraus, skapi.
 Nothing is live to fade from, skapi. TAKE one cue first, then pick the other and give it a time.	Nichts ist auf Sendung, von dem man blenden könnte, skapi. Erst TAKE für einen Cue, dann den anderen wählen und ihm eine Zeit geben.
 That was a cut, skapi. Fast, but not a crossfade. Pick the other cue, press + on transition, then TAKE.	Das war ein harter Schnitt, skapi. Schnell, aber keine Überblendung. Den anderen Cue wählen, + bei Übergang drücken, dann TAKE.
@@ -567,6 +569,8 @@ Stop that. I am a serious man.	Lass das. Ich bin ein seriöser Mann.
 Do not tell Dr. Pixel about this.	Erzähl Dr. Pixel nichts davon.
 This never happened. Back to the patch bay.	Das ist nie passiert. Zurück zum Steckfeld.
 It was the eighties. Everyone had a bow tie.	Es waren die Achtziger. Jeder hatte eine Fliege.
+LESSON LIST	LEKTIONSLISTE
+OPEN EXAMPLE SHOWS	BEISPIELSHOWS ÖFFNEN
 EXIT (Esc)	BEENDEN (Esc)
 Taking it on the road	Auf Tour
 CHECK a show before it travels, fix what it finds, and bundle it with its media.	Eine Show vor der Reise prüfen, beheben, was gefunden wird, und mit ihren Medien bündeln.
@@ -624,6 +628,7 @@ A show you built here, skapi, running on a laptop somewhere else tonight. Press 
 Before it travels: check it, fix it, bundle it.	Vor der Reise: prüfen, beheben, bündeln.
 See CHECK in the top bar? It only appears when something is wrong. Press it.	Siehst du CHECK oben in der Leiste? Das erscheint nur, wenn etwas nicht stimmt. Drück drauf.
 It lists everything a show would trip over: missing files, empty cues, unreachable outputs.	Es listet alles auf, worüber eine Show stolpern würde: fehlende Dateien, leere Cues, unerreichbare Ausgänge.
+FIX IT	REPARIER ES
 The intro video is on another computer. Select it and delete it, or RELINK it if you have the file.	Das Intro-Video liegt auf einem anderen Rechner. Auswählen und löschen, oder RELINK, wenn du die Datei hast.
 Fix it at home, where it is easy. Not at the venue, where it is not.	Repariere es zu Hause, wo es leicht ist. Nicht in der Halle, wo es das nicht ist.
 BUNDLE IT	BÜNDELN
@@ -635,11 +640,13 @@ A show file is only text, so it travels light. The media is the heavy part.	Eine
 Student work no. 4 (untitled)	Studienarbeit Nr. 4 (ohne Titel)
 THE CRIT	DIE KRITIK
 An art school, skapi. One student, one picture, one critic who has seen it all. Press START.	Eine Kunsthochschule, skapi. Ein Student, ein Bild, ein Kritiker, der schon alles gesehen hat. Drück START.
+Effects change a picture; an oscillator keeps changing it. The critic only likes the second kind.	Effekte ändern ein Bild; ein Oszillator ändert es immer weiter. Der Kritiker mag nur Letzteres.
 A grey square on beige. I have seen this at every graduate show since 1987.	Ein graues Quadrat auf Beige. Habe ich seit 1987 auf jeder Abschlussausstellung gesehen.
 AN EFFECT	EIN EFFEKT
 In the inspector's EFFECTS section, + adds one. Edges is a good start: it draws the outlines.	Im Bereich EFFECTS des Inspectors fügt + einen hinzu. Edges ist ein guter Anfang: Es zeichnet die Umrisse.
 There are dozens. Every one runs on the CPU in a few milliseconds. Mostly.	Es gibt Dutzende. Jeder läuft in ein paar Millisekunden auf der CPU. Meistens.
 Take a risk! Bad art is fine. Boring art is a crime.	Riskier was! Schlechte Kunst ist okay. Langweilige Kunst ist ein Verbrechen.
+A ~ ON ITS KNOB	EIN ~ AM REGLER
 Every control with a ~ beside it can follow an oscillator. Press one. The knob starts to breathe.	Jeder Regler mit einem ~ daneben kann einem Oszillator folgen. Drück einen. Der Regler fängt an zu atmen.
 A low-frequency oscillator: slow, so the eye can follow it. A quarter of a hertz is a four-second breath.	Ein Niederfrequenz-Oszillator: langsam, damit das Auge folgen kann. Ein Viertel Hertz ist ein Atemzug von vier Sekunden.
 Now it MOVES. Okay. Okay. I'm listening.	Jetzt BEWEGT es sich. Okay. Okay. Ich höre zu.
@@ -661,6 +668,7 @@ Every desk needs a test pattern. PATTERN adds Pocket Test: checked against real 
 A VIDEO SYNTH	EIN VIDEO-SYNTHESIZER
 He says 'no camera needed' like it is a feature. It is a feature.	Er sagt „keine Kamera nötig", als wäre das ein Feature. Es ist ein Feature.
 My favourite. SOURCE, then Video Synth: oscillators, mirrors and feedback. No camera needed.	Mein Liebling. QUELLE, dann Video Synth: Oszillatoren, Spiegel und Feedback. Keine Kamera nötig.
+TAKE THE SYNTH	TAKE FÜR DEN SYNTH
 Select it, then TAKE. Confident operators press Enter.	Auswählen, dann TAKE. Selbstbewusste Operator drücken Enter.
 That's our replay. Every replay needs a pundit.	Das ist unsere Wiederholung. Jede Wiederholung braucht einen Experten.
 Now here's a replay. And here's a guy. And BOOM, he's in it.	Hier haben wir eine Wiederholung. Und hier einen Typen. Und BUMM, da ist er drin.
@@ -670,6 +678,7 @@ A second playlist is a layer over the first. Like a second oscillator, mixed on 
 A DRAW CUE	EIN DRAW-CUE
 In the new playlist: SOURCE, then Draw. Clear everywhere you have not drawn.	In der neuen Playlist: QUELLE, dann Draw. Durchsichtig überall, wo du nicht gezeichnet hast.
 A Draw cue is transparent outside the ink, so the synth shows through.	Ein Draw-Cue ist außerhalb der Tinte durchsichtig, also scheint der Synthesizer durch.
+TAKE THE INK	TAKE FÜR DIE TINTE
 Select the Draw cue and TAKE it. Two playlists, two layers, one picture.	Den Draw-Cue auswählen und TAKE. Zwei Playlists, zwei Ebenen, ein Bild.
 Now both are live: the synth underneath, the ink on top.	Jetzt laufen beide: der Synthesizer unten, die Tinte oben.
 CIRCLE SOMETHING	KREIS WAS EIN
@@ -692,6 +701,7 @@ A MASK FROM THE LIBRARY	EINE MASKE AUS DER BIBLIOTHEK
 In the inspector's MASK section: mask, then 'new heart'. Any shape will do. The heart is funnier.	Im Bereich MASK des Inspectors: mask, dann „new heart". Jede Form geht. Das Herz ist lustiger.
 The library has circles, stars, hearts. Each one is points you can move.	Die Bibliothek hat Kreise, Sterne, Herzen. Jede besteht aus Punkten, die du verschieben kannst.
 A heart, Hollis? The Bureau redacts with black bars.	Ein Herz, Hollis? Das Amt schwärzt mit schwarzen Balken.
+THE PEN	DER STIFT
 Set the tool to pen, then click round the saucer on the monitor. Click the first point to close it.	Stell das Werkzeug auf Zeichenstift und klick rund um die Untertasse auf den Monitor. Klick den ersten Punkt, um zu schließen.
 Click for corners, drag for curves. The way the Bezier brothers intended.	Klicken für Ecken, ziehen für Kurven. So wie die Gebrüder Bézier es wollten.
 Draw round it carefully. It might be watching.	Zeichne vorsichtig drum herum. Vielleicht schaut es zu.
@@ -721,6 +731,7 @@ A corner pin moves the four corners. Perspective keeps the lines straight, like 
 LEFT! Ye call that a corner? I've seen straighter gulls.	LINKS! Das nennst du eine Ecke? Ich hab schon geradere Möwen gesehen.
 TWO SOFT EDGES	ZWEI WEICHE KANTEN
 Back in Geometry: edge blend, + on the left and + on the right.	Zurück in Geometrie: Kantenblende, + links und + rechts.
+Two projectors overlap; each fades its edge so the overlap is not twice as bright.	Zwei Projektoren überlappen; jeder blendet seinen Rand aus, damit die Überlappung nicht doppelt so hell ist.
 THE SCREENS WINDOW	DAS SCREENS-FENSTER
 Geometry, SLICES, open. The Screens window is where slices are cut and placed.	Geometrie, SLICES, öffnen. Im Screens-Fenster werden Slices geschnitten und platziert.
 A slice is a piece of the picture, put anywhere on the output.	Ein Slice ist ein Stück vom Bild, irgendwo auf den Ausgang gesetzt.
@@ -740,9 +751,11 @@ A CUE NUMBER	EINE CUE-NUMMER
 Contestant 3 is selected. In the inspector's metadata, give it a cue number: 3.	Kandidat 3 ist ausgewählt. Gib ihm in den Metadaten des Inspectors eine Cue-Nummer: 3.
 Theatre numbers its cues. Q3, Q3.5, Q12A. Deckboy reads them all.	Das Theater nummeriert seine Cues. Q3, Q3.5, Q12A. Deckboy liest sie alle.
 I'd like to buy a number, please.	Ich möchte eine Nummer kaufen, bitte.
+GO TO IT	HIN DA
 Ctrl+G, type the number, Enter. It goes live wherever the list happens to be standing.	Strg+G, Nummer tippen, Enter. Sie geht auf Sendung, egal wo die Liste gerade steht.
 GOTO. The fastest way across a long list. Faster than scrolling. Much faster than me.	GOTO. Der schnellste Weg durch eine lange Liste. Schneller als Scrollen. Viel schneller als ich.
 And the number is... three!	Und die Nummer ist... drei!
+A BUZZER	EIN BUZZER
 Contestant 1 is selected. In TRIGGERS, press key, then F5. That key now fires this cue.	Kandidat 1 ist ausgewählt. In TRIGGERS key drücken, dann F5. Diese Taste feuert jetzt diesen Cue.
 F1 to F10, F12, or the number pad. Each one, a buzzer.	F1 bis F10, F12 oder der Ziffernblock. Jede davon ein Buzzer.
 Every contestant gets a buzzer.	Jeder Kandidat bekommt einen Buzzer.
@@ -774,6 +787,7 @@ HER NAME	IHR NAME
 In the inspector, title: type the presenter's name. The second line is her job.	Im Inspector bei title: tipp den Namen der Moderatorin. Die zweite Zeile ist ihr Job.
 Spelling counts. The audience reads it at the speed of light.	Rechtschreibung zählt. Das Publikum liest mit Lichtgeschwindigkeit.
 Spell it right. Last week it said 'Jane O'Meal'.	Schreib ihn richtig. Letzte Woche stand da „Jane O'Meal".
+ON AIR	AUF SENDUNG
 TAKE the Lower Third. Her name slides in over the map.	TAKE für die Bauchbinde. Ihr Name gleitet über die Karte herein.
 Two layers live: the weather, and the words on top of it.	Zwei Ebenen auf Sendung: das Wetter und der Text darüber.
 Thank you. Now, about that lizard...	Danke. So, wegen dieser Echse...
@@ -794,6 +808,7 @@ A COUNTDOWN	EIN COUNTDOWN
 SOURCE, then Stage Timer. A clock that counts down, in big friendly numbers.	QUELLE, dann Stage Timer. Eine Uhr, die runterzählt, in großen, freundlichen Ziffern.
 Its colours change as it runs out: white, amber, red. Like a VU meter for time.	Die Farben wechseln, wenn die Zeit knapp wird: weiß, bernstein, rot. Wie ein VU-Meter für die Zeit.
 *raises an eyebrow*	*zieht eine Augenbraue hoch*
+LIFT OFF	ABHEBEN
 Select the timer and TAKE it. The countdown starts.	Den Timer auswählen und TAKE. Der Countdown beginnt.
 Past zero it keeps going, counting the overtime. Very honest. Slightly rude.	Nach null zählt er weiter, die Überziehung. Sehr ehrlich. Etwas unhöflich.
 Ten... nine... ooh, I do love a countdown.	Zehn... neun... oh, ich liebe einen guten Countdown.
@@ -840,11 +855,13 @@ Bork bork! Hurdy-flurdy, de kitchen is fire-a-flurdy!	Bork bork! Hurdy-flurdy, d
 The audience must not see this. Press BLACK, or B.	Das Publikum darf das nicht sehen. Drück BLACK oder B.
 The picture goes. The cue keeps playing underneath, ready to come back.	Das Bild ist weg. Der Cue spielt darunter weiter, bereit zurückzukommen.
 Bork? Bork. Oh, de picture is gun.	Bork? Bork. Oh, de Bild ist wech.
+AND BACK	UND ZURÜCK
 The fire's out. Press B again: the picture comes back, still running.	Das Feuer ist aus. Noch mal B: Das Bild kommt zurück, läuft noch.
 Nothing was lost. A mute on a mixer, for pictures.	Nichts verloren. Eine Mute-Taste am Mischpult, für Bilder.
 Ta-da! Still cookin'!	Tadaa! Kocht noch!
 Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	Schlimmer: MENU, System, die Karte SAFETY: PANIC. Alles stoppt, so wie die Panik-Einstellung es sagt.
 PANIC is the big red button. Use it when BLACK is not enough. Then breathe.	PANIC ist der große rote Knopf. Nimm ihn, wenn BLACK nicht reicht. Dann atme.
+GET IT BACK	HOL ES ZURÜCK
 Close MENU, select the souffle, and TAKE it. The show is back on.	MENU schließen, das Soufflé auswählen und TAKE. Die Show läuft wieder.
 After a panic, the show is still there. Pick up where you meant to be.	Nach einer Panik ist die Show noch da. Mach da weiter, wo du hinwolltest.
 Voila! De souffle, he is risen!	Voilà! De Soufflé, er ist auferstanden!
@@ -856,16 +873,19 @@ Look one	Look eins
 Look two	Look zwei
 Presets, skapi. A whole look, remembered, and back with one button. Press START.	Presets, skapi. Ein ganzer Look, gemerkt, und zurück mit einem Knopf. Drück START.
 Like the patch memory on a synth: store, then recall.	Wie der Patch-Speicher an einem Synthesizer: speichern, dann abrufen.
+THE DASH	DAS DASH
 Press DASH: buttons of your own, for anything at all.	Drück DASH: deine eigenen Knöpfe, für alles Mögliche.
 Ctrl+D also works. Very fast. Very professional.	Strg+D geht auch. Sehr schnell. Sehr professionell.
 A PRESET BUTTON	EIN PRESET-KNOPF
 Press +, then 'preset - a new preset from what is on now'. The button remembers this look.	Drück + und dann „preset - a new preset from what is on now". Der Knopf merkt sich diesen Look.
 Store. Like saving the patch before the drummer leans on the synth.	Speichern. Wie den Patch sichern, bevor sich der Schlagzeuger auf den Synthesizer lehnt.
+CHANGE EVERYTHING	ÄNDERE ALLES
 Close the DASH (Esc), then select Look two and TAKE it. A different look.	DASH schließen (Esc), dann Look zwei auswählen und TAKE. Ein anderer Look.
 Change it all. Don't worry. It remembers.	Ändere alles. Keine Sorge. Er merkt es sich.
 ONE PRESS	EIN DRUCK
 Open the DASH and press your preset button. The first look comes back.	Öffne DASH und drück deinen Preset-Knopf. Der erste Look kommt zurück.
 Recall. The patch memory, returning. Beautiful.	Abrufen. Der Patch-Speicher kehrt zurück. Wunderschön.
+A look, stored and recalled. A preset can keep cues, positions, effects, levels and routing; its button's menu chooses which.	Ein Look, gespeichert und abgerufen. Ein Preset kann Cues, Positionen, Effekte, Pegel und Routing behalten; das Menü seines Knopfs wählt, welche.
 And a DASH button can run any command at all. Any. Even the exciting ones.	Und ein DASH-Knopf kann jeden beliebigen Befehl ausführen. Jeden. Sogar die spannenden.
 Opening titles	Vorspann
 The planet	Der Planet
@@ -881,9 +901,11 @@ The planet deserves... a dramatic entrance.	Der Planet verdient... einen dramati
 A TIME	EINE ZEIT
 Give it a time: + on transition until it says a second or more.	Gib ihm eine Zeit: + bei Übergang, bis dort eine Sekunde oder mehr steht.
 No time, no transition. A style needs a duration to do anything at all.	Keine Zeit, kein Übergang. Ein Stil braucht eine Dauer, um überhaupt etwas zu tun.
+ROLL IT	AB DAFÜR
 TAKE the planet. Watch it arrive.	TAKE für den Planeten. Sieh zu, wie er ankommt.
 The transition belongs to the cue arriving. Each cue chooses its own entrance.	Der Übergang gehört dem ankommenden Cue. Jeder Cue wählt seinen eigenen Auftritt.
 Autobots... roll the transition.	Autobots... Übergang los.
+THE BATTLE	DIE SCHLACHT
 Now 'The battle': choose shatter, give it a time, and TAKE it.	Jetzt „Die Schlacht": wähl shatter, gib ihr eine Zeit und TAKE.
 Shatter drops the old picture like a pane of glass. Please do not do this at a funeral.	Shatter lässt das alte Bild fallen wie eine Glasscheibe. Bitte nicht auf einer Beerdigung.
 Transform... and shatter out!	Verwandeln... und zerspringen!
@@ -895,17 +917,23 @@ The beat	Der Beat
 THE ROBOT DJS	DIE ROBOTER-DJS
 Two robot DJs, skapi. They do not talk. Their helmets do. Press START.	Zwei Roboter-DJs, skapi. Sie reden nicht. Ihre Helme reden. Drück START.
 Every cue has its own chain of audio effects, and some of them break the sound on purpose.	Jeder Cue hat seine eigene Kette von Audioeffekten, und manche machen den Klang absichtlich kaputt.
+> HELLO. WE ARE HERE TO FIX YOUR MIX.	> HALLO. WIR SIND HIER, UM DEINEN MIX ZU REPARIEREN.
 The beat is selected. In its AUDIO EFFECTS section, + adds one. Try the delay.	Der Beat ist ausgewählt. In seinem Bereich AUDIO EFFECTS fügt + einen hinzu. Probier das Delay.
 Delay, reverb, filters, a compressor. Amount always means 'less of this'.	Delay, Hall, Filter, ein Kompressor. Die Menge heißt immer „weniger davon".
+> ONE MORE TIME. WITH ECHO. ECHO. ECHO.	> NOCH EINMAL. MIT ECHO. ECHO. ECHO.
 A BEND	EIN BEND
 Add a second: a bend, like crush. It damages the sound the way a broken file would.	Füg einen zweiten hinzu: einen Bend, wie crush. Er beschädigt den Klang wie eine kaputte Datei.
 The bends are my favourite. Like a tape left in the sun. On purpose.	Die Bends sind meine Lieblinge. Wie ein Tonband, das in der Sonne lag. Mit Absicht.
+> HARDER. BETTER. CRUNCHIER. LOUDER.	> HÄRTER. BESSER. KNUSPRIGER. LAUTER.
 THE PATCH	DER PATCH
 MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	MENU, dann Audio: wohin der Klang jeder Playlist geht, und der Patch für benannte Ausgänge.
 Speakers, monitors, an in-ear for the drummer. The patch sends each its own.	Lautsprecher, Monitore, ein In-Ear für den Schlagzeuger. Der Patch schickt jedem seins.
+> AROUND THE MIX. AROUND THE MIX. AROUND THE MIX.	> RUND UM DEN MIX. RUND UM DEN MIX. RUND UM DEN MIX.
 An effect, a bend and the patch. The robots approve, skapi. I think. Their faces are helmets.	Ein Effekt, ein Bend und der Patch. Die Roboter sind einverstanden, skapi. Glaube ich. Ihre Gesichter sind Helme.
 Every audio effect can follow a ~ too, even Motion. Wave at the delay. It's wonderful.	Jeder Audioeffekt kann auch einem ~ folgen, sogar Motion. Wink dem Delay zu. Herrlich.
+> THANK YOU. GOOD NIGHT. WE ARE ROBOTS.	> DANKE. GUTE NACHT. WIR SIND ROBOTER.
 The glow on the horizon (evidence #2)	Das Leuchten am Horizont (Beweisstück Nr. 2)
+EVIDENCE #2	BEWEIS NR. 2
 The Bureau again, skapi. A glow on the horizon, and two agents who disagree about it. Press START.	Wieder das Amt, skapi. Ein Leuchten am Horizont und zwei Agenten, die sich nicht einig sind. Drück START.
 The scopes measure a picture: brightness, colour, levels. Numbers, not opinions.	Die Scopes messen ein Bild: Helligkeit, Farbe, Pegel. Zahlen, keine Meinungen.
 It's them, Brandt. It's a craft. Look how it glows.	Das sind sie, Brandt. Ein Raumschiff. Sieh, wie es leuchtet.
@@ -966,6 +994,7 @@ ONE BIG ONE	EIN GROSSES
 Any window's ... menu, then a layout: one big, the rest small.	Das Menü ... eines Fensters, dann ein Layout: eins groß, der Rest klein.
 The big window is window one. Usually the programme. Usually.	Das große Fenster ist Fenster eins. Meistens das Programm. Meistens.
 Main viewer big. The captain likes it big.	Hauptschirm groß. Der Captain mag es groß.
+ON SCREEN	AUF DEN SCHIRM
 Select Deck 3 in playlist 3 and TAKE. Watch its window.	Wähl Deck 3 in Playlist 3 und TAKE. Achte auf sein Fenster.
 The red border is TALLY: the window that is on air. On screen, as they say on starships.	Der rote Rand ist das TALLY: das Fenster, das auf Sendung ist. Auf den Schirm, wie man auf Raumschiffen sagt.
 There! Feed three! Put it on screen!	Da! Bild drei! Auf den Schirm!
@@ -1005,6 +1034,7 @@ DRAW TWO ZONES	ZWEI ZONEN ZEICHNEN
 Race Condition: twins, each sure it got there first. One reading cannot tell your hands apart, so drag two ZONES on the Motion picture, one each side.	Race Condition: Zwillinge, jeder sicher, dass er zuerst da war. Eine Messung kann deine Hände nicht unterscheiden, also zieh zwei ZONES auf das Motion-Bild, eine je Seite.
 Hit both together. Hit one, and they swap. Like my cousins at a wedding.	Triff beide gleichzeitig. Triffst du nur einen, tauschen sie. Wie meine Cousins auf einer Hochzeit.
 One hand each side. Together! Together!	Eine Hand je Seite. Zusammen! Zusammen!
+Off By One. The bug is not the face, it is the tiny extra segment, and a little wiggle needs a finer reading. Turn SENSITIVITY down to 5%.	Off By One. Der Bug ist nicht das Gesicht, sondern das winzige Extrastück, und ein kleines Wackeln braucht eine feinere Messung. Dreh SENSITIVITY auf 5% herunter.
 Lower number, finer reading. Yes, I also think it is backwards.	Kleinere Zahl, feinere Messung. Ja, ich finde das auch verkehrt herum.
 Not the face. The little one on the end. Wiggle a finger.	Nicht das Gesicht. Das Kleine am Ende. Wackel mit einem Finger.
 FALL 1.5 S OR MORE	FALL 1,5 S ODER MEHR

@@ -58,15 +58,20 @@ def said(text):
 
 
 def prose(text):
-    if len(text) < 6 or "%" in text or "::" in text:
+    # Code, not speech: a format string, a shader or a command. A plain "5%"
+    # and the asides' *stars* and semicolons are speech.
+    if len(text) < 6 or re.search(r"%[0-9]*[dsf]", text) or "::" in text:
         return False
-    if any(c in text for c in "*=;{}") and not text.startswith(">") and not text.startswith("*"):
+    if any(c in text for c in "={}"):
         return False
     return bool(re.search(r"[a-z]{2,}", text)) and " " in text
 
 
 def title(text):
-    return (bool(re.fullmatch(r"[A-Z0-9][A-Z0-9 '!?.,\-:]{2,}", text)) and " " in text) or text in (
+    # A title, a button, or a robot's visor line ("> HELLO. ...").
+    if re.fullmatch(r"> [A-Z0-9 '!?.,\-:]+", text):
+        return True
+    return (bool(re.fullmatch(r"[A-Z0-9][A-Z0-9 '!?.,\-:~&/#]{2,}", text)) and " " in text) or text in (
         "PRESETS", "NDI", "BLACK", "PANIC", "INVERT", "FEATHER", "HOLD!", "TA-DA")
 
 
@@ -87,16 +92,21 @@ def collect():
         if m.group(1) not in ("I", "ENTER", "B", "CTRL+S"):
             add(m.group(1))
     # And the rest of the tour's lines: praise, nudges, the screens' notes.
+    # Its buttons and headings too ("LESSON LIST"), but not the screen names
+    # the screens test makes up.
     for m in LIT.finditer(tutorial[:i] + tutorial[j:]):
-        if prose(m.group(1)):
+        if prose(m.group(1)) or (title(m.group(1)) and not m.group(1).startswith("TEST ")):
             add(m.group(1))
 
     lessons = strip_comments((ROOT / "native/app/app_lessons.ipp").read_text(encoding="utf-8"))
     # The guests' faces carry no words; their names stay English.
     faces_from = lessons.index("static const GuestFace kFaces[] = {")
     faces_to = lessons.index("if (!name) return nullptr;", faces_from)
+    # The names come from the faces table itself. Guessing them from the
+    # shape of the code took every step title with a key chip ("FIX IT",
+    # "DEL") for a name, and those titles were never offered.
+    names = set(re.findall(r'\{"([^"]+)",\s*\{', lessons[faces_from:faces_to]))
     lessons = lessons[:faces_from] + lessons[faces_to:]
-    names = set(re.findall(r'"([A-Z][A-Z .\'()]+)", "', lessons))
     # Every lesson's title, line and show, however short (a title can be one word).
     for m in re.finditer(r'l\.(?:title|about|show) = "((?:[^"\\]|\\.)+)"', lessons):
         add(m.group(1))

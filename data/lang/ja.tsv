@@ -528,6 +528,7 @@ Class dismissed. The example shows teach layers, titles and effects. MENU > LEAR
 Wonderful! Lovely signal flow.	素晴らしい！見事なシグナルフロー。
 Mm. I knew you had it in you.	うむ。君ならできると思っていた。
 Yes! Have a gold star. It's a dot.	よし！金の星をあげよう。点だけど。
+Ready for the next step? *nods* ...That means no, skapi. The glowing one. It is glowing for you.	次のステップに進む？ ＊首を横に振る＊ …それは「いいえ」という意味だよ、スカピ。光ってるやつ。君のために光ってる。
 You've clicked everything but the glowing one. Even my oscillators find the glowing one.	光ってるもの以外は全部クリックしたね。私のオシレーターでも光ってるのは見つけるよ。
 stop playback first - the lesson cannot hand a running show back as it was	先に再生を止めてください - 再生中のショーは、レッスン後に元通りには戻せません
 choose RECOVER or KEEP SAVED first	先にRECOVERかKEEP SAVEDを選んでください
@@ -543,6 +544,7 @@ The other screen went away, skapi. Press any key or click, and Dr. Pixel gives i
 One screen, skapi. Press any key or click, and Dr. Pixel gives it back.	画面が一つだけだよ、スカピ。何かキーを押すかクリックすれば、ピクセル博士が元に戻す。
 The other screen went away, skapi, so the picture came back to this one. I put it in a little window, behind. Plug it back in and the picture goes back on it.	もう一つの画面がなくなったから、映像はこっちに戻ってきたよ、スカピ。後ろの小さなウィンドウに入れておいた。つなぎ直せば、映像はそっちに戻る。
 It ate the desk, skapi. One screen, so the output took all of it. I put it in a little window, behind. A real show gets a second screen.	卓を食べちゃった、スカピ。画面が一つだから、出力が全部取った。後ろの小さなウィンドウに入れておいた。本番には二つ目の画面を。
+IT ATE THE DESK	卓を食べちゃった
 There. The button that says OUTPUT OFF. Make it say ON, skapi.	そこ。出力オフと書いてあるボタン。オンにして、スカピ。
 Nothing is live to fade from, skapi. TAKE one cue first, then pick the other and give it a time.	フェード元が本番に出ていないよ、スカピ。まず一つのキューをTAKE、それからもう一つを選んで時間を付けて。
 That was a cut, skapi. Fast, but not a crossfade. Pick the other cue, press + on transition, then TAKE.	今のはカットだよ、スカピ。速いけど、クロスフェードじゃない。もう一つのキューを選んで、トランジションの＋、それからTAKE。
@@ -558,6 +560,8 @@ Stop that. I am a serious man.	やめなさい。私はまじめな男だ。
 Do not tell Dr. Pixel about this.	ピクセル博士には内緒だよ。
 This never happened. Back to the patch bay.	何もなかった。パッチベイに戻ろう。
 It was the eighties. Everyone had a bow tie.	80年代だったんだ。みんな蝶ネクタイをしていた。
+LESSON LIST	レッスン一覧
+OPEN EXAMPLE SHOWS	サンプルのショーを開く
 EXIT (Esc)	終了 (Esc)
 Taking it on the road	ショーを持ち出す
 CHECK a show before it travels, fix what it finds, and bundle it with its media.	出かける前にCHECKし、見つかったものを直して、メディアと一緒にまとめて保存する。
@@ -617,6 +621,7 @@ A show you built here, skapi, running on a laptop somewhere else tonight. Press 
 Before it travels: check it, fix it, bundle it.	出かける前に：チェック、修正、まとめて保存。
 See CHECK in the top bar? It only appears when something is wrong. Press it.	上のバーにCHECKが見える？何かおかしいときだけ出てくる。押して。
 It lists everything a show would trip over: missing files, empty cues, unreachable outputs.	ショーがつまずくものを全部並べる：見つからないファイル、空のキュー、届かない出力。
+FIX IT	直す
 The intro video is on another computer. Select it and delete it, or RELINK it if you have the file.	オープニング映像は別のパソコンにある。選んで削除するか、ファイルがあればRELINK。
 Fix it at home, where it is easy. Not at the venue, where it is not.	直すのは家で。楽だから。会場ではやらない。楽じゃないから。
 BUNDLE IT	まとめて保存する
@@ -628,11 +633,13 @@ A show file is only text, so it travels light. The media is the heavy part.	シ�
 Student work no. 4 (untitled)	学生作品 No.4（無題）
 THE CRIT	講評会
 An art school, skapi. One student, one picture, one critic who has seen it all. Press START.	美大だよ、スカピ。学生一人、絵が一枚、何もかも見てきた批評家が一人。STARTを押して。
+Effects change a picture; an oscillator keeps changing it. The critic only likes the second kind.	エフェクトは映像を変える。オシレーターは映像を変え続ける。批評家が好きなのは後者だけ。
 A grey square on beige. I have seen this at every graduate show since 1987.	ベージュに灰色の四角。1987年から、どの卒業制作展でも見てきた。
 AN EFFECT	エフェクト
 In the inspector's EFFECTS section, + adds one. Edges is a good start: it draws the outlines.	インスペクターのEFFECTSで＋を押すと追加できる。まずはEdgesがいい。輪郭を描いてくれる。
 There are dozens. Every one runs on the CPU in a few milliseconds. Mostly.	何十種類もある。どれもCPUで数ミリ秒で動く。だいたいは。
 Take a risk! Bad art is fine. Boring art is a crime.	冒険しなさい！下手な作品はいい。退屈な作品は罪だ。
+A ~ ON ITS KNOB	つまみに~
 Every control with a ~ beside it can follow an oscillator. Press one. The knob starts to breathe.	横に~があるコントロールは、どれもオシレーターに従わせられる。一つ押して。つまみが呼吸を始める。
 A low-frequency oscillator: slow, so the eye can follow it. A quarter of a hertz is a four-second breath.	低周波オシレーター：目で追えるくらいゆっくり。0.25ヘルツは4秒の呼吸だ。
 Now it MOVES. Okay. Okay. I'm listening.	さあ、動いた。よし。よし。聞いてやろう。
@@ -654,6 +661,7 @@ Every desk needs a test pattern. PATTERN adds Pocket Test: checked against real 
 A VIDEO SYNTH	ビデオシンセ
 He says 'no camera needed' like it is a feature. It is a feature.	彼は「カメラ不要」を、まるで機能のように言う。機能なんだ。
 My favourite. SOURCE, then Video Synth: oscillators, mirrors and feedback. No camera needed.	私のお気に入り。ソース、それからVideo Synth：オシレーター、ミラー、フィードバック。カメラ不要。
+TAKE THE SYNTH	シンセをTAKE
 Select it, then TAKE. Confident operators press Enter.	選んでTAKE。自信のあるオペレーターはEnterを押す。
 That's our replay. Every replay needs a pundit.	これがリプレイ。リプレイには必ず解説者が要る。
 Now here's a replay. And here's a guy. And BOOM, he's in it.	さあリプレイだ。ここに選手がいる。で、ドーン、こいつだ。
@@ -663,6 +671,7 @@ A second playlist is a layer over the first. Like a second oscillator, mixed on 
 A DRAW CUE	Drawのキュー
 In the new playlist: SOURCE, then Draw. Clear everywhere you have not drawn.	新しいプレイリストで：ソース、それからDraw。描いていないところは全部透明。
 A Draw cue is transparent outside the ink, so the synth shows through.	Drawのキューはインク以外が透明だから、下のシンセが透けて見える。
+TAKE THE INK	インクをTAKE
 Select the Draw cue and TAKE it. Two playlists, two layers, one picture.	DrawのキューをTAKE。プレイリスト二つ、レイヤー二つ、映像は一つ。
 Now both are live: the synth underneath, the ink on top.	これで両方が本番：下にシンセ、上にインク。
 CIRCLE SOMETHING	丸で囲む
@@ -685,6 +694,7 @@ A MASK FROM THE LIBRARY	ライブラリのマスク
 In the inspector's MASK section: mask, then 'new heart'. Any shape will do. The heart is funnier.	インスペクターのMASKで：mask、それから「new heart」。形は何でもいい。ハートの方が面白い。
 The library has circles, stars, hearts. Each one is points you can move.	ライブラリには円、星、ハートがある。どれも動かせる点でできている。
 A heart, Hollis? The Bureau redacts with black bars.	ハートだと、ホリス？局は黒塗りで隠すんだ。
+THE PEN	ペン
 Set the tool to pen, then click round the saucer on the monitor. Click the first point to close it.	ツールをペンにして、モニター上で円盤の周りをクリック。最初の点をクリックすると閉じる。
 Click for corners, drag for curves. The way the Bezier brothers intended.	クリックで角、ドラッグで曲線。ベジェ兄弟の思し召し通りに。
 Draw round it carefully. It might be watching.	慎重に囲んで。向こうも見ているかもしれない。
@@ -714,6 +724,7 @@ A corner pin moves the four corners. Perspective keeps the lines straight, like 
 LEFT! Ye call that a corner? I've seen straighter gulls.	左だ！それが角か？カモメの方がまだまっすぐだ。
 TWO SOFT EDGES	二つのソフトエッジ
 Back in Geometry: edge blend, + on the left and + on the right.	ジオメトリに戻って：edge blend、左に＋、右に＋。
+Two projectors overlap; each fades its edge so the overlap is not twice as bright.	二台のプロジェクターが重なる。重なりが二倍明るくならないよう、それぞれが縁をフェードさせる。
 THE SCREENS WINDOW	Screensウィンドウ
 Geometry, SLICES, open. The Screens window is where slices are cut and placed.	ジオメトリ、SLICES、開く。Screensウィンドウはスライスを切って配置する場所。
 A slice is a piece of the picture, put anywhere on the output.	スライスは映像の一部分で、出力のどこにでも置ける。
@@ -733,9 +744,11 @@ A CUE NUMBER	キュー番号
 Contestant 3 is selected. In the inspector's metadata, give it a cue number: 3.	解答者3が選ばれている。インスペクターのメタデータで、キュー番号を付ける：3。
 Theatre numbers its cues. Q3, Q3.5, Q12A. Deckboy reads them all.	劇場はキューに番号を振る。Q3、Q3.5、Q12A。Deckboyは全部読める。
 I'd like to buy a number, please.	番号を一つ、お願いします。
+GO TO IT	そこへ飛ぶ
 Ctrl+G, type the number, Enter. It goes live wherever the list happens to be standing.	Ctrl+G、番号を入力、Enter。リストがどこにあっても本番に出る。
 GOTO. The fastest way across a long list. Faster than scrolling. Much faster than me.	GOTO。長いリストでいちばん速い道。スクロールより速い。私よりずっと速い。
 And the number is... three!	答えは…3番！
+A BUZZER	早押しボタン
 Contestant 1 is selected. In TRIGGERS, press key, then F5. That key now fires this cue.	解答者1が選ばれている。TRIGGERSでkey、それからF5。そのキーでこのキューが出る。
 F1 to F10, F12, or the number pad. Each one, a buzzer.	F1からF10、F12、テンキー。一つ一つが早押しボタン。
 Every contestant gets a buzzer.	解答者全員に早押しボタンを。
@@ -767,6 +780,7 @@ HER NAME	彼女の名前
 In the inspector, title: type the presenter's name. The second line is her job.	インスペクターのtitleに、キャスターの名前を入力。二行目は肩書き。
 Spelling counts. The audience reads it at the speed of light.	誤字は禁物。視聴者は光の速さで読む。
 Spell it right. Last week it said 'Jane O'Meal'.	正しく書いて。先週は「ジューン・オニギリ」だった。
+ON AIR	オンエア
 TAKE the Lower Third. Her name slides in over the map.	テロップをTAKE。天気図の上に名前が滑り込む。
 Two layers live: the weather, and the words on top of it.	レイヤー二つが本番：天気と、その上の文字。
 Thank you. Now, about that lizard...	ありがとうございます。さて、あのトカゲですが…
@@ -787,6 +801,7 @@ A COUNTDOWN	カウントダウン
 SOURCE, then Stage Timer. A clock that counts down, in big friendly numbers.	ソース、それからStage Timer。大きくて親しみやすい数字で減っていく時計。
 Its colours change as it runs out: white, amber, red. Like a VU meter for time.	残りが少なくなると色が変わる：白、琥珀、赤。時間のVUメーターだ。
 *raises an eyebrow*	＊片眉を上げる＊
+LIFT OFF	発射
 Select the timer and TAKE it. The countdown starts.	タイマーを選んでTAKE。カウントダウンが始まる。
 Past zero it keeps going, counting the overtime. Very honest. Slightly rude.	ゼロを過ぎても続いて、超過時間を数える。とても正直。ちょっと失礼。
 Ten... nine... ooh, I do love a countdown.	10…9…ああ、カウントダウンは大好きだ。
@@ -833,12 +848,14 @@ Bork bork! Hurdy-flurdy, de kitchen is fire-a-flurdy!	ボルク ボルク！フ�
 The audience must not see this. Press BLACK, or B.	お客さんに見せてはいけない。BLACKかBを押して。
 The picture goes. The cue keeps playing underneath, ready to come back.	映像が消える。キューは裏で再生を続け、戻る準備をしている。
 Bork? Bork. Oh, de picture is gun.	ボルク？ボルク。おや、映像がいなくなった。
+AND BACK	そして戻る
 The fire's out. Press B again: the picture comes back, still running.	火は消えた。もう一度B：映像が戻る、再生したまま。
 Nothing was lost. A mute on a mixer, for pictures.	何も失っていない。映像用の、ミキサーのミュートだ。
 Ta-da! Still cookin'!	ジャジャーン！まだ料理中！
 Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	もっとひどいとき：MENU、システム、SAFETYカード：PANIC。パニック設定の通りに全部止まる。
 PANIC is the big red button. Use it when BLACK is not enough. Then breathe.	PANICは大きな赤いボタン。BLACKで足りないときに。それから深呼吸。
 Bork bork BORK!	ボルク ボルク ボルク！
+GET IT BACK	取り戻す
 Close MENU, select the souffle, and TAKE it. The show is back on.	MENUを閉じて、スフレを選んでTAKE。ショー再開。
 After a panic, the show is still there. Pick up where you meant to be.	パニックの後も、ショーはそこにある。いるはずだった場所から続ければいい。
 Voila! De souffle, he is risen!	ヴォワラ！スフレ、膨らんだ！
@@ -850,16 +867,19 @@ Look one	ルック1
 Look two	ルック2
 Presets, skapi. A whole look, remembered, and back with one button. Press START.	プリセットだよ、スカピ。見た目まるごと覚えて、ボタン一つで戻す。STARTを押して。
 Like the patch memory on a synth: store, then recall.	シンセのパッチメモリーと同じ：保存して、呼び出す。
+THE DASH	DASH
 Press DASH: buttons of your own, for anything at all.	DASHを押して：何にでも使える、自分だけのボタン。
 Ctrl+D also works. Very fast. Very professional.	Ctrl+Dでもいい。とても速い。とてもプロっぽい。
 A PRESET BUTTON	プリセットボタン
 Press +, then 'preset - a new preset from what is on now'. The button remembers this look.	＋を押して、「preset - a new preset from what is on now」。ボタンがこの見た目を覚える。
 Store. Like saving the patch before the drummer leans on the synth.	保存。ドラマーがシンセにもたれかかる前に、パッチを保存するように。
+CHANGE EVERYTHING	全部変える
 Close the DASH (Esc), then select Look two and TAKE it. A different look.	DASHを閉じて（Esc）、ルック2を選んでTAKE。違う見た目だ。
 Change it all. Don't worry. It remembers.	全部変えて。心配ない。覚えている。
 ONE PRESS	一押し
 Open the DASH and press your preset button. The first look comes back.	DASHを開いて、プリセットボタンを押す。最初の見た目が戻る。
 Recall. The patch memory, returning. Beautiful.	呼び出し。パッチメモリーが帰ってくる。美しい。
+A look, stored and recalled. A preset can keep cues, positions, effects, levels and routing; its button's menu chooses which.	見た目を保存して、呼び出す。プリセットはキュー、位置、エフェクト、レベル、ルーティングを覚えておける。どれを覚えるかはボタンのメニューで選ぶ。
 And a DASH button can run any command at all. Any. Even the exciting ones.	それにDASHのボタンは、どんなコマンドでも実行できる。どんなのでも。わくわくするのでも。
 Opening titles	オープニングタイトル
 The planet	惑星
@@ -875,9 +895,11 @@ The planet deserves... a dramatic entrance.	惑星には…劇的な登場がふ
 A TIME	時間
 Give it a time: + on transition until it says a second or more.	時間を付ける：1秒以上になるまで、トランジションの＋。
 No time, no transition. A style needs a duration to do anything at all.	時間なし、トランジションなし。スタイルは長さがないと何もできない。
+ROLL IT	回せ
 TAKE the planet. Watch it arrive.	惑星をTAKE。到着を見届けよう。
 The transition belongs to the cue arriving. Each cue chooses its own entrance.	トランジションは入ってくるキューのもの。どのキューも自分の登場を選ぶ。
 Autobots... roll the transition.	オートボット…トランジション、出動。
+THE BATTLE	決戦
 Now 'The battle': choose shatter, give it a time, and TAKE it.	次は「決戦」：shatterを選んで、時間を付けて、TAKE。
 Shatter drops the old picture like a pane of glass. Please do not do this at a funeral.	シャッターは古い映像をガラスのように落とす。お葬式ではやらないでください。
 Transform... and shatter out!	トランスフォーム…そして砕け散れ！
@@ -889,17 +911,23 @@ The beat	ビート
 THE ROBOT DJS	ロボットDJ
 Two robot DJs, skapi. They do not talk. Their helmets do. Press START.	ロボットDJが二人だよ、スカピ。彼らはしゃべらない。ヘルメットがしゃべる。STARTを押して。
 Every cue has its own chain of audio effects, and some of them break the sound on purpose.	キューにはそれぞれオーディオエフェクトのチェーンがあって、わざと音を壊すものもある。
+> HELLO. WE ARE HERE TO FIX YOUR MIX.	> コンニチハ。キミノ ミックスヲ ナオシニ キマシタ。
 The beat is selected. In its AUDIO EFFECTS section, + adds one. Try the delay.	ビートが選ばれている。AUDIO EFFECTSで＋を押すと追加。delayを試して。
 Delay, reverb, filters, a compressor. Amount always means 'less of this'.	ディレイ、リバーブ、フィルター、コンプレッサー。量（amount）はいつも「これを減らす」という意味。
+> ONE MORE TIME. WITH ECHO. ECHO. ECHO.	> モウイチド。エコーツキデ。エコー。エコー。
 A BEND	ベンド
 Add a second: a bend, like crush. It damages the sound the way a broken file would.	もう一つ追加：crushのようなベンド。壊れたファイルのように音を傷める。
 The bends are my favourite. Like a tape left in the sun. On purpose.	ベンドは私のお気に入り。日なたに置き忘れたテープのように。わざとね。
+> HARDER. BETTER. CRUNCHIER. LOUDER.	> モット ハゲシク。モット ヨク。モット サクサク。モット オオキク。
 THE PATCH	パッチ
 MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	MENU、オーディオ：各プレイリストの音の行き先と、名前付き出力のパッチ。
 Speakers, monitors, an in-ear for the drummer. The patch sends each its own.	スピーカー、モニター、ドラマーのイヤモニ。パッチがそれぞれに届ける。
+> AROUND THE MIX. AROUND THE MIX. AROUND THE MIX.	> ミックス イッシュウ。ミックス イッシュウ。ミックス イッシュウ。
 An effect, a bend and the patch. The robots approve, skapi. I think. Their faces are helmets.	エフェクト、ベンド、パッチ。ロボットたちも満足だよ、スカピ。たぶん。顔がヘルメットだから。
 Every audio effect can follow a ~ too, even Motion. Wave at the delay. It's wonderful.	オーディオエフェクトもどれも~に従う。Motionにも。ディレイに手を振ってごらん。素晴らしいよ。
+> THANK YOU. GOOD NIGHT. WE ARE ROBOTS.	> アリガトウ。オヤスミ。ワレワレハ ロボットダ。
 The glow on the horizon (evidence #2)	地平線の光（証拠2号）
+EVIDENCE #2	証拠2号
 The Bureau again, skapi. A glow on the horizon, and two agents who disagree about it. Press START.	また局だよ、スカピ。地平線の光と、意見の合わない捜査官二人。STARTを押して。
 The scopes measure a picture: brightness, colour, levels. Numbers, not opinions.	スコープは映像を測る：明るさ、色、レベル。数字であって、意見ではない。
 It's them, Brandt. It's a craft. Look how it glows.	あれよ、ブラント。宇宙船よ。あの光り方を見て。
@@ -960,6 +988,7 @@ ONE BIG ONE	大きいのを一つ
 Any window's ... menu, then a layout: one big, the rest small.	どれかのウィンドウの...メニュー、それからレイアウト：一つを大きく、残りは小さく。
 The big window is window one. Usually the programme. Usually.	大きいウィンドウはウィンドウ1。たいていはプログラム。たいていはね。
 Main viewer big. The captain likes it big.	メインスクリーンを大きく。艦長は大きいのがお好き。
+ON SCREEN	スクリーンへ
 Select Deck 3 in playlist 3 and TAKE. Watch its window.	プレイリスト3で第3デッキを選んでTAKE。そのウィンドウを見て。
 The red border is TALLY: the window that is on air. On screen, as they say on starships.	赤い枠がタリー：放送中のウィンドウ。宇宙船で言う「スクリーンに出せ」だ。
 There! Feed three! Put it on screen!	そこ！映像3！スクリーンに出して！
@@ -999,6 +1028,7 @@ DRAW TWO ZONES	ゾーンを二つ描く
 Race Condition: twins, each sure it got there first. One reading cannot tell your hands apart, so drag two ZONES on the Motion picture, one each side.	Race Condition：双子で、どっちも自分が先だと思っている。読み取り一つでは両手を区別できないから、Motionの映像にZONESを左右一つずつドラッグして。
 Hit both together. Hit one, and they swap. Like my cousins at a wedding.	二匹同時に叩く。片方だけ叩くと入れ替わる。結婚式の私のいとこたちみたいに。
 One hand each side. Together! Together!	片手ずつ左右に。一緒に！一緒に！
+Off By One. The bug is not the face, it is the tiny extra segment, and a little wiggle needs a finer reading. Turn SENSITIVITY down to 5%.	Off By One。バグは顔じゃない。端っこの小さな余分な一節だ。小さな動きには細かい読み取りが要る。SENSITIVITYを5%まで下げて。
 Lower number, finer reading. Yes, I also think it is backwards.	数字が小さいほど、読み取りが細かい。そう、私も逆だと思う。
 Not the face. The little one on the end. Wiggle a finger.	顔じゃない。端っこの小さいやつ。指をくねくねさせて。
 FALL 1.5 S OR MORE	FALLを1.5秒以上に
