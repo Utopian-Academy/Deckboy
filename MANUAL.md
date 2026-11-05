@@ -153,6 +153,7 @@ choice is not final; the list remembers it, and a tab switches. It is always at
 
 | Lesson | Teacher | What you do | The show |
 |--------|---------|-------------|----------|
+| Effects, oscillators and colour | Prof. Video | an effect, a ~ on its knob, a colour from the picker | the art school crit, with Professor Gristle |
 | Patterns, synths and Draw | Prof. Video | a test pattern, the video synth, a second playlist as a layer, a Draw cue drawn on and saved as a still | the telestrator booth, with Coach Marv |
 | Masks | Prof. Video | a heart from the library, a pen path, invert, feather | The Signal Files: redact the saucer photo |
 | Warp, blend and slices | Prof. Video | a corner pin, two soft edges, the Screens window, three slices | the haunted lighthouse, with Keeper Rook |
@@ -165,7 +166,7 @@ SHOW ME, SKIP, Esc, and it picks up where you stopped. A finished lesson is
 ticked DONE in the list.
 
 Over the network: `LESSONS [OPEN|CLOSE|START <id>|TRACK PIXEL|VIDEO|LIST]`; the
-ids are `draw`, `masks`, `warp`, `bugswat` and `multiview`. A running lesson is
+ids are `effects`, `draw`, `masks`, `warp`, `bugswat` and `multiview`. A running lesson is
 driven with the `TUTORIAL` verbs.
 
 Deckboy refuses to start twice, so a stray double-click cannot take a second

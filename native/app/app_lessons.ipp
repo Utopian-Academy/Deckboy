@@ -14,7 +14,8 @@
 // in a genre's spirit, never copies.
 //
 // Built so far: the four lessons for what was new (Patterns/synths/Draw,
-// Masks, Warp/blend/slices, Multiview) and Bug Swat. The list shows only
+// Masks, Warp/blend/slices, Multiview), Effects (the art school crit), and
+// Bug Swat. The list shows only
 // lessons that exist.
 //
 // Part of class App -- included inside the class body in main.cpp.
@@ -268,6 +269,106 @@
     lessons_.clear();
     auto none = std::function<bool()> {};
     auto noTarget = [] { return SDL_Rect {}; };
+
+    // ── Prof. Video: Effects, oscillators and colour (the art school crit) ─
+    // James picked this show, 2026-11-05: Professor Gristle hates every
+    // picture until it has a ~ on it.
+    {
+      LessonDef l;
+      l.id = "effects";
+      l.videoTrack = true;
+      l.title = "Effects, oscillators and colour";
+      l.about = "An effect, a ~ on its knob, and the colour picker.";
+      l.show = "The art school crit, with Professor Gristle";
+      l.setup = [this] {
+        lessonAddCodeCue("Student work no. 4 (untitled)",
+                         "sq = (1 - step(0.18, abs(x - 0.5)*1.78))*(1 - step(0.18, abs(y - 0.5)));"
+                         "0.86 - sq*0.36, 0.80 - sq*0.30, 0.68 - sq*0.18");
+        selectCueInDeck(project_.focusedDeckIndex, 0, false, false);
+        jumpSelectedCue();
+      };
+      auto selected = [this]() -> Cue* { return selectedCueMutable(); };
+      auto anyEffect = [this] {
+        const Cue* cue = selectedCueMutable();
+        if (!cue) return false;
+        for (const auto& fx : cue->effects) {
+          if (fx.kind != deckboy::effects::CueEffectKind::None) return true;
+        }
+        return false;
+      };
+      auto openEffects = [this] {
+        selectCueInDeck(project_.focusedDeckIndex, 0, false, false);
+        openInspectorSection(QuickAction::CueSectionEffectsToggle);
+      };
+      l.steps = {
+        {"THE CRIT", nullptr,
+         "An art school, skapi. One student, one picture, one professor who hates everything. Press START.",
+         "Effects change a picture; an oscillator keeps changing it. The professor only likes the second kind.",
+         "PROF. GRISTLE", "A grey square on beige. I have seen more feeling in a parking ticket.",
+         std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; }, nullptr},
+        {"AN EFFECT", nullptr,
+         "In the inspector's EFFECTS section, + adds one. Edges is a good start: it draws the outlines.",
+         "There are dozens. Every one runs on the CPU in a few milliseconds. Mostly.",
+         "PROF. GRISTLE", "Do something. Anything. Even a mistake would be a decision.",
+         anyEffect,
+         [this] { handleRemoteCommand("FX ADD edges 1"); },
+         [this] { return lessonQuickRect(QuickAction::EffectAdd); }, openEffects},
+        {"A ~ ON ITS KNOB", nullptr,
+         "Every control with a ~ beside it can follow an oscillator. Press one. The knob starts to breathe.",
+         "A low-frequency oscillator: slow, so the eye can follow it. A quarter of a hertz is a four-second breath.",
+         "PROF. GRISTLE", "It moves. It... moves. Go on.",
+         [selected] {
+           const Cue* cue = selected();
+           if (!cue) return false;
+           for (const auto& fx : cue->effects) {
+             for (const auto& lfo : fx.lfo) {
+               if (lfo.on) return true;
+             }
+           }
+           return false;
+         },
+         [this] {
+           const Cue* cue = selectedCueMutable();
+           if (!cue || cue->effects.empty()) handleRemoteCommand("FX ADD edges 1");
+           handleRemoteCommand("FX LFO 1 A ON");
+         },
+         [this] { return lessonQuickRect(QuickAction::EffectLfoToggle); }, openEffects},
+        {"A COLOUR OF ITS OWN", nullptr,
+         "Effects that draw a colour, like Edges' line, have a colour chip. It opens the picker: a wheel, typed names, or a colour off the screen.",
+         "Every colour has a name somewhere. Mine is 'oscilloscope green'. Nobody else uses it.",
+         "PROF. GRISTLE", "Not that colour. ...Actually, that colour.",
+         [selected] {
+           const Cue* cue = selected();
+           if (!cue) return false;
+           for (const auto& fx : cue->effects) {
+             if (deckboy::effects::cueEffectColourSlot(fx.kind) >= 0 && fx.colour != 0xFFFFFFu) return true;
+           }
+           return false;
+         },
+         [this] {
+           Cue* cue = selectedCueMutable();
+           int at = -1;
+           if (cue) {
+             for (int i = 0; i < static_cast<int>(cue->effects.size()); ++i) {
+               if (deckboy::effects::cueEffectColourSlot(cue->effects[static_cast<std::size_t>(i)].kind) >= 0) at = i;
+             }
+           }
+           if (at < 0) {
+             handleRemoteCommand("FX ADD edges 1");
+             cue = selectedCueMutable();
+             at = cue ? static_cast<int>(cue->effects.size()) - 1 : -1;
+           }
+           if (at >= 0) handleRemoteCommand("FX COLOUR " + std::to_string(at + 1) + " #ff3c8c");
+         },
+         [this] { return lessonQuickRect(QuickAction::EffectColourPick); }, openEffects},
+        {"THE VERDICT", nullptr,
+         "An effect, a ~ and a colour. The professor is crying, skapi. Good crying, I think.",
+         "Stack a few. Each has its own ~ on every knob. That is how a look becomes a performance.",
+         "PROF. GRISTLE", "It breathes. It glows. It is still a square. ...A-plus.",
+         std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; }, nullptr},
+      };
+      lessons_.push_back(std::move(l));
+    }
 
     // ── Prof. Video: Patterns, synths and Draw (the telestrator booth) ────
     {
