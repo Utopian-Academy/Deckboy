@@ -2312,6 +2312,7 @@
         return refuse("could not write the practice show to " + practice.parent_path().string());
       }
     }
+    dressPracticeLikeDesk(loan);
     showStartupDialog_ = false;
     showSplashOverlay_ = false;
     settingsOpen_ = false;
@@ -2525,7 +2526,7 @@
     Primitives::drawFramedPanel(controlRenderer_, card, pal.shellInner, pal.deep, pal.light);
     int y = card.y + pad;
     drawTextSafe(controlRenderer_, titleFont, SDL_Rect {card.x + pad, y, cardW - pad * 2, headH},
-                 "LESSONS  -  PART TWO  -  WHO DO YOU FOLLOW?", pal.inkSoft);
+                 lessonText("LESSONS  -  PART TWO  -  WHO DO YOU FOLLOW?"), pal.inkSoft);
     y += headH + uiScaled(10);
 
     // The two teachers, as tabs. The one followed is lit.
@@ -2568,7 +2569,7 @@
       drawCenteredText(controlRenderer_, titleFont, tag, SDL_Color {15, 56, 15, 255}, chip);
       const int textW = chip.x - row.x - uiScaled(20);
       drawTextSafe(controlRenderer_, fontBase_, SDL_Rect {row.x + uiScaled(10), row.y + uiScaled(6), textW, lineH},
-                   std::string(def.title) + (def.show && *def.show ? std::string("   -   ") + def.show : std::string()),
+                   lessonText(def.title) + (def.show && *def.show ? std::string("   -   ") + lessonText(def.show) : std::string()),
                    pal.fg);
       drawTextSafe(controlRenderer_, fontSmall_,
                    SDL_Rect {row.x + uiScaled(10), row.y + uiScaled(8) + lineH, textW, textLineHeight(fontSmall_)},

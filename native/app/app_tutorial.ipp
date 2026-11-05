@@ -206,6 +206,12 @@
     fs::path returnTo;          // the operator's show, reopened at the end
     std::vector<TutorialState::OutputWas> outputsWere;
     double dimmerWas = 1.0;
+    // The desk's own look and language, which live in the show: a practice
+    // show wears them, or a Spanish operator's lesson arrives in English with
+    // the default colours.
+    std::string language;
+    std::string theme;
+    double uiScale = 0.0;
   };
 
   // False, with the reason, when the desk cannot be lent as it stands.
@@ -234,7 +240,24 @@
       loan.outputsWere.push_back({project_.outputs[i].enabled, runtime && runtime->fullscreenIntended});
     }
     loan.dimmerWas = masterDimmerTarget_;
+    loan.language = project_.language;
+    loan.theme = project_.theme;
+    loan.uiScale = project_.uiScale;
     return true;
+  }
+
+  // A practice show, once open, in the operator's language, colours and size.
+  void dressPracticeLikeDesk(const DeskLoan& loan) {
+    if (project_.language == loan.language && project_.theme == loan.theme && project_.uiScale == loan.uiScale) {
+      return;
+    }
+    project_.language = loan.language;
+    project_.theme = loan.theme;
+    project_.uiScale = loan.uiScale;
+    if (!project_.theme.empty()) loadTheme(project_.theme);
+    applyProjectLanguage();   // language before fonts, as on every open
+    applyUiScale();
+    markProjectDirty();
   }
 
   void handDeskBack(const DeskLoan& loan) {
@@ -272,8 +295,11 @@
     const bool alreadyPractice = !currentProjectFile_.empty() &&
                                  fs::equivalent(currentProjectFile_, practice, ec) && !ec;
     TutorialState next;
+    DeskLoan loan;
+    loan.language = project_.language;
+    loan.theme = project_.theme;
+    loan.uiScale = project_.uiScale;
     if (!alreadyPractice) {
-      DeskLoan loan;
       std::string reason;
       if (!lendDesk(loan, reason)) return refuse(reason);
       next.returnTo = loan.returnTo;
@@ -305,6 +331,7 @@
       next.resumeAt = step;
       step = 1;
     }
+    dressPracticeLikeDesk(loan);
     showStartupDialog_ = false;
     showSplashOverlay_ = false;
     settingsOpen_ = false;
@@ -1408,7 +1435,7 @@
     const std::string quip = lessonQuipNow();
     if (!quip.empty() || praise) {
       const std::string said = !quip.empty() ? quip
-                                             : std::string(praiseFromPixel ? "DR. PIXEL: " : "PROF. VIDEO: ") + praise;
+                                             : std::string(praiseFromPixel ? "DR. PIXEL: " : "PROF. VIDEO: ") + lessonText(praise);
       const int headLeftW = measuredTextWidth(titleFont, head) + uiScaled(24);
       drawTextSafe(controlRenderer_, fontSmall_,
                    SDL_Rect {card.x + pad + headLeftW, y, cardW - pad * 2 - headLeftW, headH},

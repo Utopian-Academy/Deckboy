@@ -76,6 +76,7 @@
       return refuse("could not start the practice show");
     }
     currentProjectFile_ = bugSwatPracticeFile();
+    dressPracticeLikeDesk(next.loan);
     if (!saveProjectNow(false)) {
       handDeskBack(next.loan);
       return refuse("could not write the practice show to " + bugSwatPracticeFile().parent_path().string());

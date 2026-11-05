@@ -42,9 +42,17 @@ def said(text):
     a number, or text with a line break in it (a cue's body, not a line)."""
     if text != text.strip() or ESCAPED_NEWLINE in text or NEWLINE in text:
         return False
-    if re.match(r"^(BUGSWAT|LESSONS|TUTORIAL|FX|AUDIOFX|MULTIVIEW|SLICE|MOTION|GOTO|PAUSE)\b", text):
+    if re.match(r"^(BUGSWAT|LESSONS|TUTORIAL)( [A-Z]+)*:", text) or re.match(
+            r"^(FX (ADD|LFO) |AUDIOFX ADD |MULTIVIEW (ON|WINDOW|LAYOUT)|SLICE |GOTO \d|PAUSE$)", text):
         return False
-    if text.startswith(". ") or text in ("pen path", "left window", "middle window", "right window"):
+    # Pieces the tour joins into a sentence at run time (the screens' notes):
+    # a whole-line lookup can never match them, so they are not offered.
+    if text.startswith((". ", ", ")) or text in (
+            "pen path", "left window", "middle window", "right window", "the other one", "the other one.",
+            "A second screen, skapi", "Another screen, skapi", "The picture is on this one now.",
+            "The picture will open on this one.", "Press Win+P and choose Extend",
+            "In System Settings > Displays, use it as an extended display",
+            "Set them to extend in your display settings"):
         return False
     return True
 
@@ -78,6 +86,10 @@ def collect():
     for m in LIT.finditer(tutorial[i:j]):
         if m.group(1) not in ("I", "ENTER", "B", "CTRL+S"):
             add(m.group(1))
+    # And the rest of the tour's lines: praise, nudges, the screens' notes.
+    for m in LIT.finditer(tutorial[:i] + tutorial[j:]):
+        if prose(m.group(1)):
+            add(m.group(1))
 
     lessons = strip_comments((ROOT / "native/app/app_lessons.ipp").read_text(encoding="utf-8"))
     # The guests' faces carry no words; their names stay English.
@@ -85,6 +97,9 @@ def collect():
     faces_to = lessons.index("if (!name) return nullptr;", faces_from)
     lessons = lessons[:faces_from] + lessons[faces_to:]
     names = set(re.findall(r'"([A-Z][A-Z .\'()]+)", "', lessons))
+    # Every lesson's title, line and show, however short (a title can be one word).
+    for m in re.finditer(r'l\.(?:title|about|show) = "((?:[^"\\]|\\.)+)"', lessons):
+        add(m.group(1))
     for m in LIT.finditer(lessons):
         text = m.group(1)
         if text in names:
