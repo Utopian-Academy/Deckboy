@@ -8,6 +8,10 @@
 - The **Screens** window (Settings > Video Outputs > Geometry > SLICES) shows each slice's crop on the programme and where it lands on the output, and both are dragged into place by hand.
 - `SLICE` and `SCREENS` over the wire.
 
+### Panel Map
+
+- The LED Panel Map has an animated version (the pattern's motion switch): a slow colour wave across the wall and each tile lit in turn, in reading order, so a tile cabled out of sequence shows as the light jumping.
+
 ### Inspector
 
 - Inspector sections now start folded, except the one that belongs to the cue (TONE on a tone, PLAYBACK on a clip). One you open or fold stays that way for the session.
