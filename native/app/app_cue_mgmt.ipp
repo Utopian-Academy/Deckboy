@@ -3501,6 +3501,7 @@
       list.emplace_back("full-red-motion", "Full Red (motion)");
       list.emplace_back("full-green-motion", "Full Green (motion)");
       list.emplace_back("full-blue-motion", "Full Blue (motion)");
+      list.emplace_back("panel-map-motion", "Panel Map (animated)");
       return list;
     }();
     return types;

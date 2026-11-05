@@ -5947,7 +5947,7 @@
           // The tile size, on the one pattern that is drawn to it. A wall of
           // 168px panels mapped as 128 puts every label in the wrong place,
           // so this is not a preference -- it is the pattern's subject.
-          if (typeId == "panel-map") {
+          if (stripPatternMotionSuffix(typeId) == "panel-map") {
             inspDrawQuickRow(ix, playbackY, "tile w", QuickAction::NumericParamDec,
                              std::to_string(selectedCue->ledPanelWidth),
                              QuickAction::NumericParamInc, QuickAction::ToggleLoop,

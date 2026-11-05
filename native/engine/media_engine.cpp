@@ -9349,7 +9349,13 @@ void MediaEngine::drawPatternGlyphs(DecodedFrame& frame, int x, int y,
 // mapped as 128x128 puts every label in the wrong place, which is worse than
 // no map.
 // ---------------------------------------------------------------------------
-void MediaEngine::buildPanelMap(DecodedFrame& frame, int panelW, int panelH) {
+// ANIMATED, ON ASK (James, 2026-11-04: "the led test pattern should be
+// animated and beautiful too, at least optionally"): the same map over a slow
+// colour wave that flows across the wall, with each tile lit in turn in
+// reading order -- R1C1, R1C2... -- so a tile cabled out of sequence shows as
+// the light jumping. Labels, origins, corners and header are drawn exactly as
+// on the plain map, over a wash kept dark enough to read them.
+void MediaEngine::buildPanelMap(DecodedFrame& frame, int panelW, int panelH, double t) {
   const int W = frame.width;
   const int H = frame.height;
   panelW = std::clamp(panelW, 8, std::max(8, W));
@@ -9366,11 +9372,46 @@ void MediaEngine::buildPanelMap(DecodedFrame& frame, int panelW, int panelH) {
       const int w = std::min(panelW, W - x);
       const int h = std::min(panelH, H - y);
       const bool alt = ((r + c) & 1) != 0;
-      fillPixelRect(frame, x, y, w, h, alt ? SDL_Color {16, 16, 22, 255}
-                                           : SDL_Color {28, 28, 36, 255});
-      // Tile edges, one pixel, so a seam is visible at 1:1 and nowhere else.
-      fillPixelRect(frame, x, y, w, 1, {90, 90, 110, 255});
-      fillPixelRect(frame, x, y, 1, h, {90, 90, 110, 255});
+      if (t < 0.0) {
+        fillPixelRect(frame, x, y, w, h, alt ? SDL_Color {16, 16, 22, 255}
+                                             : SDL_Color {28, 28, 36, 255});
+        // Tile edges, one pixel, so a seam is visible at 1:1 and nowhere else.
+        fillPixelRect(frame, x, y, w, 1, {90, 90, 110, 255});
+        fillPixelRect(frame, x, y, 1, h, {90, 90, 110, 255});
+      } else {
+        // The wave: a hue that drifts along a diagonal across the wall, at a
+        // depth that keeps white labels readable, the checker kept as a lift.
+        const double phase = c * 0.045 + r * 0.07 - t * 0.06;
+        const double hue = (phase - std::floor(phase)) * 6.0;
+        auto channel = [&](double offset) {
+          double k = std::fmod(hue + offset, 6.0);
+          const double v = std::clamp(std::min(k, 4.0 - k), 0.0, 1.0);
+          return v;
+        };
+        const double depth = alt ? 70.0 : 92.0;
+        // Reading order: one tile at a time, about four a second, round
+        // and round the wall.
+        const int lit = static_cast<int>(std::floor(t * 4.0)) % std::max(1, cols * rows);
+        const bool hot = r * cols + c == lit;
+        const double lift = hot ? 1.0 : 0.0;
+        const SDL_Color wash {
+          static_cast<Uint8>(std::clamp(18.0 + depth * channel(5.0) + lift * 90.0, 0.0, 255.0)),
+          static_cast<Uint8>(std::clamp(18.0 + depth * channel(3.0) + lift * 90.0, 0.0, 255.0)),
+          static_cast<Uint8>(std::clamp(18.0 + depth * channel(1.0) + lift * 90.0, 0.0, 255.0)), 255};
+        fillPixelRect(frame, x, y, w, h, wash);
+        // Edges that breathe, brighter on the tile being lit.
+        const double breath = 0.5 + 0.5 * std::sin(t * 2.4 + (r + c) * 0.5);
+        const Uint8 e = static_cast<Uint8>(std::clamp(110.0 + 100.0 * breath + lift * 45.0, 0.0, 255.0));
+        fillPixelRect(frame, x, y, w, 1, {e, e, static_cast<Uint8>(std::min(255, e + 20)), 255});
+        fillPixelRect(frame, x, y, 1, h, {e, e, static_cast<Uint8>(std::min(255, e + 20)), 255});
+        if (hot) {
+          const int b = std::max(2, std::min(w, h) / 24);
+          fillPixelRect(frame, x, y, w, b, {255, 255, 255, 255});
+          fillPixelRect(frame, x, y + h - b, w, b, {255, 255, 255, 255});
+          fillPixelRect(frame, x, y, b, h, {255, 255, 255, 255});
+          fillPixelRect(frame, x + w - b, y, b, h, {255, 255, 255, 255});
+        }
+      }
 
       // R<row>C<col> as large as the tile allows, then the pixel origin under
       // it. The origin is what catches a panel cabled into the wrong port:
@@ -15146,7 +15187,9 @@ void MediaEngine::buildPatternFrameInto(DecodedFrame& frame, const Cue& cue, dou
   // The engineering set. None of them animates: a reference that moves is not
   // a reference, so there is no -motion variant and the flag is ignored.
   } else if (basePatternType == "panel-map") {
-    buildPanelMap(frame, cue.ledPanelWidth, cue.ledPanelHeight);
+    // panel-map-motion is the animated map; the plain one holds still.
+    buildPanelMap(frame, cue.ledPanelWidth, cue.ledPanelHeight,
+                  patternType != basePatternType ? std::max(0.0, animTime) : -1.0);
   } else if (basePatternType == "moire") {
     buildMoire(frame);
   } else if (basePatternType == "dark-detail") {

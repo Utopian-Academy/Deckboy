@@ -547,7 +547,7 @@ bool readNumericParam(const Cue& cue, NumericParam id, double& out) {
     // Only on a panel map, for the same reason as the portal's rows above.
     case NumericParam::LedPanelWidth:
     case NumericParam::LedPanelHeight: {
-      if (cue.kind != CueKind::Pattern || normalizePatternTypeId(cue.path) != "panel-map") {
+      if (cue.kind != CueKind::Pattern || stripPatternMotionSuffix(normalizePatternTypeId(cue.path)) != "panel-map") {
         return false;
       }
       out = id == NumericParam::LedPanelWidth ? cue.ledPanelWidth : cue.ledPanelHeight;

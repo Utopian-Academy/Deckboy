@@ -1197,7 +1197,8 @@ class MediaEngine {
   // panelW/panelH are the LED tile size in pixels -- 128x128 is the common
   // one, but a wall that is not made of those is exactly the wall that needs
   // the map.
-  static void buildPanelMap(DecodedFrame& frame, int panelW, int panelH);
+  // `t` < 0 is the plain map; t >= 0 the animated one (panel-map-motion).
+  static void buildPanelMap(DecodedFrame& frame, int panelW, int panelH, double t = -1.0);
   static void buildMoire(DecodedFrame& frame);
   static void buildDarkDetail(DecodedFrame& frame);
   static void buildUniformity(DecodedFrame& frame);

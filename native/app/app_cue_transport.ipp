@@ -1576,7 +1576,7 @@
       return;
     }
     const Cue& live = deck.cues[deck.activeIndex];
-    if (live.kind != CueKind::Pattern || normalizePatternTypeId(live.path) != "panel-map") {
+    if (live.kind != CueKind::Pattern || stripPatternMotionSuffix(normalizePatternTypeId(live.path)) != "panel-map") {
       return;
     }
     MediaEngine* engine = mediaEngineForDeck(deckIndex);
