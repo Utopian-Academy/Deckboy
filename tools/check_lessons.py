@@ -126,7 +126,7 @@ def run(exe, work, keep):
             after = db.saved()
             motion = lambda t: next((l for l in t.splitlines() if l.startswith("motion\t")), "")
             note("the operator's show is handed back as it was", motion(after) == motion(before) and
-                 "CAM 1" not in after and "Saucer" not in after and "Student work" not in after and "ghost" not in after.lower(),
+                 "Picture 1" not in after and "Saucer" not in after and "Student work" not in after and "ghost" not in after.lower(),
                  (motion(before), motion(after)))
 
         print("  picking up where it was left")

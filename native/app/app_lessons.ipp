@@ -232,9 +232,11 @@
   //
   // James, 2026-11-05: "they ALL need faces with personality", then "mostly
   // women", "where is the scully?" and "not close enough allusions": each is
-  // now an unmistakable parody, original names, no copied lines -- Gristle
-  // (Miranda Priestly), Marv (John Madden), Hollis and Brandt (Mulder and
-  // Scully), Rook (Mrs. Muir, with a sea-captain ghost), Dot. Sixteen by
+  // now an unmistakable parody, original names, no copied lines -- Mr. Salty
+  // (the critic Jerry Saltz: "Use jerry", "Mr salty"), Marv (John Madden),
+  // Hollis and Brandt (Mulder and Scully), Rook (Willem Dafoe in The
+  // Lighthouse). The multiview lesson has no show ("do we NEED a 2nd sports
+  // themed thing?"), so Madden is only in the telestrator booth. Sixteen by
   // twenty, in the teachers' letters and the theme's inks, so they sit on the
   // card beside Dr. Pixel and the Professor on every colourway. A off-white
   // (Rook's beard, Dot's headset), R red and Y yellow are fixed colours, as
@@ -251,29 +253,29 @@
 
   static const GuestFace* guestFace(const char* name) {
     static const GuestFace kFaces[] = {
-      {"PROF. GRISTLE",
+      {"MR. SALTY",
         {
+         "................",
          "....AAAAAAAA....",
          "...AAAAAAAAAA...",
-         "..AAAAAAAAAAAA..",
-         "..AAAAASSSSSAA..",
-         "..AAASSSSSSSSA..",
-         "..AASHHSSSHHSA..",
-         "..AASGGGSGGGSA..",
-         "..AASGGGSGGGSA..",
-         "..AASSSSDSSSSA..",
-         "..AASSSSDSSSSA..",
-         "..AAASSRRRSSAA..",
-         "..AAAASSSSSAAA..",
-         "...AAA.SSS.AA...",
-         ".......SSS......",
-         "....AKAKAKAK....",
-         "...KKKKKKKKKK...",
-         "..KKKKKKKKKKKK..",
-         ".KKKKKKKKKKKKKK.",
-         ".KKKKKKKKKKKKKK.",
+         "...AAAAAAAAAAA..",
+         "...ASSSSSSSSAA..",
+         "...SSSSSSSSSSS..",
+         "...SHHSSSSHHSS..",
+         "..GGGGGSSGGGGG..",
+         "..GSWEGSSGSWEG..",
+         "..GGGGGDDGGGGG..",
+         "...SSSSDDSSSSS..",
+         "...SSSSSSSSSSS..",
+         "....SSMMMMMSS...",
+         ".....SSSSSSS....",
+         "......SSSSS.....",
+         "...KKKCCCCKKK...",
+         "..KKKKCCCCKKKK..",
+         ".KKKKKCCCCKKKKK.",
+         ".KKKKKCCCCKKKKK.",
          ".KKKKKKKKKKKKKK."},
-        -1, {-1, -1, -1, -1, -1, -1}, 10, {8, -1, -1, -1}},
+        8, {4, 5, 11, 12, -1, -1}, 12, {7, 8, -1, -1}},
       {"COACH MARV",
         {
          "................",
@@ -345,50 +347,27 @@
         6, {5, 6, 9, 10, -1, -1}, 10, {7, 8, -1, -1}},
       {"KEEPER ROOK",
         {
-         "......HHHH......",
-         ".....HHHHHH.....",
-         "....HHHHHHHH....",
-         "...HHHHHHHHHH...",
-         "..HHHSSSSSSHHH..",
-         "..HHSSSSSSSSHH..",
-         "..HHSHHSSHHSHH..",
-         "..HHSWESSWESHH..",
-         "..HHSSSSSSSSHH..",
-         "..HHSSSSDSSSHH..",
-         "..HHSBSSSSBSHH..",
-         "...HSSSMMSSSH...",
-         "....SSSSSSSS....",
-         "......CCCC......",
-         "......CYYC......",
-         "..RRRRCCCCRRRR..",
-         ".RRRRRKKKKRRRRR.",
-         "RRRRRKKKKKKRRRRR",
-         "RRRRKKKKKKKKRRRR",
-         "RRRKKKKKKKKKKRRR"},
-        7, {5, 6, 9, 10, -1, -1}, 11, {7, 8, -1, -1}},
-      {"DIRECTOR DOT",
-        {
-         "......HHH...Y...",
-         ".....HHHHH.Y....",
-         "...AHHHHHHHHA...",
-         "..AHHHHHHHHHHA..",
-         "..AHSSSSSSSSHA..",
-         ".AASSSSSSSSSSAA.",
-         ".AAGGGSSSSGGGAA.",
-         ".AAGWEGSSGWEGAA.",
-         "..ASGGGSSSGGGSS.",
-         "..ASSSSSDSSSSS..",
-         "..ASSSSSSSSSSS..",
-         "...AASMMMMSSS...",
-         "....SSMDDMSS....",
-         ".....SSMMSS.....",
-         "......SSSS......",
-         "..CCCCCSSCCCCC..",
-         ".CCCCCCCCCCCCCC.",
-         "CCCCKCCCCCCKCCCC",
-         "CCCCKCCCCCCKCCCC",
-         "CCCCCCCCCCCCCCCC"},
-        7, {4, 5, 10, 11, -1, -1}, 12, {7, 8, -1, -1}},
+         "................",
+         "....KKKKKKKK....",
+         "...KKKKKKKKKK...",
+         "..KKKKKKKKKKKK..",
+         "..DDDDDDDDDDDD..",
+         "...SSSSSSSSSS...",
+         "...SHHSSSSHHS...",
+         "...SFESSSSEFS...",
+         "...SSSSDDSSSS...",
+         "..ASSSSDDSSSSA..",
+         "..AAASMMMMSAAAK.",
+         "..AAAAAAAAAAAKKK",
+         "..AAAAAAAAAAAA.Y",
+         "...AAAAAAAAAA...",
+         "....AAAAAAAA....",
+         "..KKKKAAAAKKKK..",
+         ".KKKKKKAAKKKKKK.",
+         "KKCKKKKKKKKKKCKK",
+         "KKKKKKKKKKKKKKKK",
+         "KKCKKKKKKKKKKCKK"},
+        7, {5, 10, -1, -1, -1, -1}, 10, {6, 7, 8, 9}},
     };
     if (!name) return nullptr;
     for (const GuestFace& face : kFaces) {
@@ -486,15 +465,15 @@
     auto noTarget = [] { return SDL_Rect {}; };
 
     // ── Prof. Video: Effects, oscillators and colour (the art school crit) ─
-    // James picked this show, 2026-11-05: Professor Gristle hates every
-    // picture until it has a ~ on it.
+    // James picked this show, 2026-11-05: the critic hates every picture
+    // until it has a ~ on it. The critic is Mr. Salty (Jerry Saltz).
     {
       LessonDef l;
       l.id = "effects";
       l.videoTrack = true;
       l.title = "Effects, oscillators and colour";
       l.about = "An effect, a ~ on its knob, and the colour picker.";
-      l.show = "The art school crit, with Professor Gristle";
+      l.show = "The art school crit, with Mr. Salty";
       l.setup = [this] {
         lessonAddCodeCue("Student work no. 4 (untitled)",
                          "sq = (1 - step(0.18, abs(x - 0.5)*1.78))*(1 - step(0.18, abs(y - 0.5)));"
@@ -517,21 +496,21 @@
       };
       l.steps = {
         {"THE CRIT", nullptr,
-         "An art school, skapi. One student, one picture, one professor who hates everything. Press START.",
-         "Effects change a picture; an oscillator keeps changing it. The professor only likes the second kind.",
-         "PROF. GRISTLE", "A grey square. On beige. Groundbreaking.",
+         "An art school, skapi. One student, one picture, one critic who has seen it all. Press START.",
+         "Effects change a picture; an oscillator keeps changing it. The critic only likes the second kind.",
+         "MR. SALTY", "A grey square on beige. I have seen this at every graduate show since 1987.",
          std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; }, nullptr},
         {"AN EFFECT", nullptr,
          "In the inspector's EFFECTS section, + adds one. Edges is a good start: it draws the outlines.",
          "There are dozens. Every one runs on the CPU in a few milliseconds. Mostly.",
-         "PROF. GRISTLE", "By all means, move at a glacial pace. You know how that thrills me.",
+         "MR. SALTY", "Take a risk! Bad art is fine. Boring art is a crime.",
          anyEffect,
          [this] { handleRemoteCommand("FX ADD edges 1"); },
          [this] { return lessonQuickRect(QuickAction::EffectAdd); }, openEffects},
         {"A ~ ON ITS KNOB", nullptr,
          "Every control with a ~ beside it can follow an oscillator. Press one. The knob starts to breathe.",
          "A low-frequency oscillator: slow, so the eye can follow it. A quarter of a hertz is a four-second breath.",
-         "PROF. GRISTLE", "It moves. It... moves. Go on.",
+         "MR. SALTY", "Now it MOVES. Okay. Okay. I'm listening.",
          [selected] {
            const Cue* cue = selected();
            if (!cue) return false;
@@ -551,7 +530,7 @@
         {"A COLOUR OF ITS OWN", nullptr,
          "Effects that draw a colour, like Edges' line, have a colour chip. It opens the picker: a wheel, typed names, or a colour off the screen.",
          "Every colour has a name somewhere. Mine is 'oscilloscope green'. Nobody else uses it.",
-         "PROF. GRISTLE", "Not cerulean. Not turquoise. ...Fine. That one.",
+         "MR. SALTY", "That colour is doing something. I don't know what. I love it.",
          [selected] {
            const Cue* cue = selected();
            if (!cue) return false;
@@ -577,9 +556,9 @@
          },
          [this] { return lessonQuickRect(QuickAction::EffectColourPick); }, openEffects},
         {"THE VERDICT", nullptr,
-         "An effect, a ~ and a colour. The professor is crying, skapi. Good crying, I think.",
+         "An effect, a ~ and a colour. The critic is crying, skapi. Good crying, I think.",
          "Stack a few. Each has its own ~ on every knob. That is how a look becomes a performance.",
-         "PROF. GRISTLE", "It breathes. It glows. It is still a square. ...That's all.",
+         "MR. SALTY", "It's still a square. But it's YOUR square. Post it.",
          std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; }, nullptr},
       };
       lessons_.push_back(std::move(l));
@@ -832,9 +811,9 @@
       l.videoTrack = true;
       l.title = "Warp, blend and slices";
       l.about = "A corner pin, two soft edges, then three slices in the Screens window.";
-      l.show = "The haunted lighthouse, with Keeper Rook and the captain";
+      l.show = "The haunted lighthouse, with Keeper Rook";
       l.setup = [this] {
-        lessonAddCodeCue("The captain (ghost)",
+        lessonAddCodeCue("The ghost",
                          "gx = (x - 0.5)*1.78; gy = y - 0.5 + 0.03*sin(t*1.3);"
                          "body = 1 - smoothstep(0.16, 0.24, sqrt(gx*gx + gy*gy*0.6));"
                          "e1 = 1 - smoothstep(0.015, 0.025, sqrt((gx - 0.06)*(gx - 0.06) + (gy + 0.06)*(gy + 0.06)));"
@@ -850,9 +829,9 @@
       };
       l.steps = {
         {"THE HAUNTED LIGHTHOUSE", nullptr,
-         "A widow, a lighthouse, and a sea captain who died in 1874 and still has notes. Press START.",
+         "A lighthouse, a ghost, and a keeper who has been alone with the lamp far too long. Press START.",
          "Projection mapping: bending the picture to fit the building. Warp, blend, slices.",
-         "KEEPER ROOK", "The captain haunts the lamp room on Tuesdays. It's Tuesday.", none, nullptr, noTarget, nullptr},
+         "KEEPER ROOK", "Ye'll be wanting the ghost on the windows. Mind the lamp. The lamp is MINE.", none, nullptr, noTarget, nullptr},
         {"THE OUTPUT'S GEOMETRY", nullptr,
          "MENU, then Video Outputs, then Geometry. Where an output's shape lives.",
          "Geometry: the projector-menu word for 'what shape is the picture'.",
@@ -861,9 +840,9 @@
          [this] { debugOpenSettings(3, 1); },
          [this] { return settingsOpen_ ? SDL_Rect {} : tutorialButtonRect("MENU"); }, nullptr},
         {"PIN A CORNER", nullptr,
-         "Press warp edit, then drag a corner on the programme monitor. The window is not square. Neither is the captain.",
+         "Press warp edit, then drag a corner on the programme monitor. The window is not square. Neither is the keeper.",
          "A corner pin moves the four corners. Perspective keeps the lines straight, like a real window.",
-         "KEEPER ROOK", "Left a bit. His left. He says 'port'. He was a sea captain.",
+         "KEEPER ROOK", "LEFT! Ye call that a corner? I've seen straighter gulls.",
          [this] {
            const OutputTarget& o = focusedOutput();
            return o.warpEnabled && (o.warpTopLeftX != 0.0f || o.warpTopLeftY != 0.0f || o.warpTopRightX != 0.0f ||
@@ -910,7 +889,7 @@
         {"THREE SLICES", nullptr,
          "In the Screens window, + SLICE three times, and drag each crop to a third of the picture.",
          "Three windows, three slices: left, middle and right of one picture.",
-         "KEEPER ROOK", "He says the middle one makes him look pale. He is a ghost.",
+         "KEEPER ROOK", "Three windows. The lamp gets the middle one. The lamp ALWAYS gets the middle one.",
          [this] { return focusedOutput().slices.size() >= 3; },
          [this] {
            const char* names[3] = {"left window", "middle window", "right window"};
@@ -927,9 +906,9 @@
          },
          noTarget, nullptr},
         {"THE GHOST IS PLEASED", nullptr,
-         "Warp, blend, slices. Mrs. Rook will finally sleep. The captain will not.",
+         "Warp, blend, slices. The keeper will finally sleep. The gulls will not.",
          "Slices have their own warp and mesh in the Screens window. And a ~ on the place and the turn.",
-         "KEEPER ROOK", "Same again Tuesday. He insists.", none, nullptr, noTarget, nullptr},
+         "KEEPER ROOK", "Ye did alright, lad. Now get away from the lamp.", none, nullptr, noTarget, nullptr},
       };
       lessons_.push_back(std::move(l));
     }
@@ -946,14 +925,14 @@
       lessons_.push_back(std::move(l));
     }
 
-    // ── Dr. Pixel: The multiview (the sports truck) ───────────────────────
+    // ── Dr. Pixel: The multiview (a plain lesson) ─────────────────────────
     {
       LessonDef l;
       l.id = "multiview";
       l.videoTrack = false;
       l.title = "The multiview";
       l.about = "Windows, the ... menu, what each one shows, layouts, and tally.";
-      l.show = "The sports truck, with Director Dot";
+      l.show = "";
       l.setup = [this] {
         const char* gens[4] = {"swirl", "fireside", "pocket-test", "checkerboard-motion"};
         for (int d = 0; d < 4; ++d) {
@@ -961,7 +940,7 @@
           project_.focusedDeckIndex = d;
           addGeneratorCue(gens[d]);
           Deck& deck = focusedDeckMutable();
-          if (!deck.cues.empty()) deck.cues.back().name = "CAM " + std::to_string(d + 1);
+          if (!deck.cues.empty()) deck.cues.back().name = "Picture " + std::to_string(d + 1);
         }
         project_.focusedDeckIndex = 0;
         selectCueInDeck(0, 0, false, false);
@@ -975,13 +954,13 @@
       };
       auto chip = [this] { return multiviewChipRects_.empty() ? SDL_Rect {} : multiviewChipRects_.back(); };
       l.steps = {
-        {"THE SPORTS TRUCK", nullptr,
-         "Four cameras, one director, and a truck that smells of hot dogs. Press START, skapi.",
-         "In a truck you see every camera at once. That's the multiview.",
-         "DIRECTOR DOT", "Headsets on. We're live in thirty. Where's my coffee.", none, nullptr, noTarget, nullptr},
+        {"THE MULTIVIEW", nullptr,
+         "Four playlists, four pictures, one pair of eyes. Press START, skapi.",
+         "The multiview shows every playlist at once. Like a wall of oscilloscopes, but with pictures.",
+         nullptr, nullptr, none, nullptr, noTarget, nullptr},
         {"MULTI ON", nullptr,
          "MULTI, above the monitor: every playlist in its own window.",
-         "One window per camera. Like a wall of oscilloscopes, but with football.",
+         "One window per playlist, the programme first.",
          nullptr, nullptr,
          [this] { return project_.multiviewMode != 0; },
          [this] { handleRemoteCommand("MULTIVIEW ON"); },
@@ -989,7 +968,7 @@
         {"WHAT'S NEXT", nullptr,
          "Add a window (+), then its ... menu: make it show NEXT. What goes live when you press TAKE.",
          "Every window has a ... button. It chooses what that window shows.",
-         "DIRECTOR DOT", "I need to see what's coming before it comes. That's the whole job.",
+         nullptr, nullptr,
          [tileShows] { return tileShows("next"); },
          [this] {
            handleRemoteCommand("MULTIVIEW WINDOW ADD");
@@ -997,7 +976,7 @@
          },
          chip, nullptr},
         {"A CLOCK", nullptr,
-         "And one more window, showing the clock. Directors are always late. That is why.",
+         "And one more window, showing the clock. Operators who watch a clock are never late. Mostly.",
          "Time of day, big. Never trust a wristwatch in a truck.",
          nullptr, nullptr,
          [tileShows] { return tileShows("clock"); },
@@ -1009,14 +988,14 @@
         {"ONE BIG ONE", nullptr,
          "Any window's ... menu, then a layout: one big, the rest small.",
          "The big window is window one. Usually the programme. Usually.",
-         "DIRECTOR DOT", "Make camera one big. It's the expensive one.",
+         nullptr, nullptr,
          [this] { return project_.multiviewLayout != deckboy::multiview::Layout::Grid; },
          [this] { handleRemoteCommand("MULTIVIEW LAYOUT BIG"); },
          chip, nullptr},
-        {"TAKE CAMERA 3", "ENTER",
-         "Select CAM 3 in its playlist and TAKE. Watch its window.",
+        {"TAKE PLAYLIST 3", "ENTER",
+         "Select the cue in playlist 3 and TAKE. Watch its window.",
          "The red border is TALLY: the window that is on air.",
-         "DIRECTOR DOT", "Ready three... TAKE three!",
+         nullptr, nullptr,
          [this] { return project_.decks.size() > 2 && project_.decks[2].activeIndex >= 0; },
          [this] {
            if (project_.decks.size() <= 2 || project_.decks[2].cues.empty()) return;
@@ -1030,9 +1009,9 @@
            return tutorialButtonRect("TAKE");
          }, nullptr},
         {"THAT'S A WRAP", nullptr,
-         "Windows, the ... menu, NEXT, the clock, a layout, tally. You can run a truck, skapi.",
+         "Windows, the ... menu, NEXT, the clock, a layout, tally. You can watch everything, skapi.",
          "A window can also show an output, with its warp and slices. Handy when it's a lighthouse.",
-         "DIRECTOR DOT", "Good show, everybody. Somebody find my coffee.", none, nullptr, noTarget, nullptr},
+         nullptr, nullptr, none, nullptr, noTarget, nullptr},
       };
       lessons_.push_back(std::move(l));
     }

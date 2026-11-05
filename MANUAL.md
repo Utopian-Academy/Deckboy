@@ -153,12 +153,12 @@ choice is not final; the list remembers it, and a tab switches. It is always at
 
 | Lesson | Teacher | What you do | The show |
 |--------|---------|-------------|----------|
-| Effects, oscillators and colour | Prof. Video | an effect, a ~ on its knob, a colour from the picker | the art school crit, with Professor Gristle |
+| Effects, oscillators and colour | Prof. Video | an effect, a ~ on its knob, a colour from the picker | the art school crit, with Mr. Salty |
 | Patterns, synths and Draw | Prof. Video | a test pattern, the video synth, a second playlist as a layer, a Draw cue drawn on and saved as a still | the telestrator booth, with Coach Marv |
 | Masks | Prof. Video | a heart from the library, a pen path, invert, feather | The Signal Files: redact the saucer photo |
 | Warp, blend and slices | Prof. Video | a corner pin, two soft edges, the Screens window, three slices | the haunted lighthouse, with Keeper Rook |
 | Motion: Bug Swat | Prof. Video | the game (see Motion) | a handheld, and bugs |
-| The multiview | Dr. Pixel | MULTI, a window showing NEXT, a clock, a layout, tally | the sports truck, with Director Dot |
+| The multiview | Dr. Pixel | MULTI, a window showing NEXT, a clock, a layout, tally | (a plain lesson) |
 
 Each lesson works like the basics: its own practice show (your show is saved
 first and comes back as it was), a step that waits for you to do the thing,
