@@ -31,8 +31,10 @@ def unescape(text):
 
 def strip_comments(source):
     """Code only: quotes in comments (James's words, kept as history) are not
-    things the desk says."""
-    return re.sub(r"//[^" + NEWLINE + r"]*", "", source)
+    things the desk says. Then adjacent literals are joined, as the compiler
+    joins them, so a line written across two source lines is one line here."""
+    source = re.sub(r"//[^" + NEWLINE + r"]*", "", source)
+    return re.sub(r'"\s*' + NEWLINE + r'\s*"', "", source)
 
 
 def said(text):
@@ -40,7 +42,9 @@ def said(text):
     a number, or text with a line break in it (a cue's body, not a line)."""
     if text != text.strip() or ESCAPED_NEWLINE in text or NEWLINE in text:
         return False
-    if re.match(r"^(BUGSWAT|LESSONS|TUTORIAL)\b", text):
+    if re.match(r"^(BUGSWAT|LESSONS|TUTORIAL|FX|AUDIOFX|MULTIVIEW|SLICE|MOTION|GOTO|PAUSE)\b", text):
+        return False
+    if text.startswith(". ") or text in ("pen path", "left window", "middle window", "right window"):
         return False
     return True
 
