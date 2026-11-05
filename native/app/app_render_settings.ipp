@@ -3830,6 +3830,28 @@
           sy += warpH + kSectionGap;
         }
 
+        // ── SLICES ───────────────────────────────────────────────────────
+        //
+        // Pieces of the programme placed on this output (app_slices.ipp),
+        // arranged in the Screens window, which this row opens.
+        {
+          const OutputTarget& so = focusedOutput();
+          const int slicesH = sectionH({sRowH});
+          SDL_Rect slicesSection {cx, sy, subContentW, slicesH};
+          SDL_Rect slicesBody = drawSectionFrame(slicesSection, "SLICES");
+          VerticalLayout slicesLayout(slicesBody, kRowGap);
+          SDL_Rect slicesBtn = settingsRowIn(slicesLayout.takeFixed(sRowH), "Slices");
+          const std::size_t n = so.slices.size();
+          drawSettingsStateFill(slicesBtn, n > 0);
+          drawCenteredTextSafe(controlRenderer_, fontSmall_, slicesBtn,
+                               (n == 0 ? std::string("none: the one picture")
+                                       : std::to_string(n) + (n == 1 ? " slice" : " slices")) +
+                                 " -- open Screens",
+                               settingsStateInk(n > 0));
+          settingsBtns_.push_back({slicesBtn, kSettingsActionOpenScreens, "open_screens"});
+          sy += slicesH + kSectionGap;
+        }
+
         // Default Transition — and, once Super Deckboy lands, Canvas Mode
         // beside it. Canvas is a MULTI-OUTPUT SPANNING feature, so it is parked
         // and hidden until that mode exists (see kSuperDeckboySpanningUi).
@@ -6225,6 +6247,10 @@
   // if-else-if chain short enough for MSVC's block-nesting limit.
   void handleSettingsClickPart3(const SettingsButton& sb) {
     if (handleMotionSettingsAction(sb.action, sb.rect)) return;
+    if (sb.action == kSettingsActionOpenScreens) {
+      setScreensVisible(true);
+      return;
+    }
     // Out of the modal and onto the monitor, where the warp's handles are --
     // the same hand-off ARRANGE makes for the presenter screen.
     if (sb.action == kSettingsActionOutputWarpEdit) {

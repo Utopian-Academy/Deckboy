@@ -6557,6 +6557,10 @@
     // queue so it takes the real path, on the desk or on output n's window.
     // A test input like CLICK, from this computer only.
     // MASK: the show's mask library and where each one cuts (app_masks.ipp).
+    if (command == "SCREENS") {
+      handleScreensCommand(parts);
+      return;
+    }
     if (command == "SLICE" || command == "SLICES") {
       handleSliceCommand(parts);
       return;

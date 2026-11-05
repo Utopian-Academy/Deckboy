@@ -111,6 +111,10 @@
             setMonitorsVisible(false);
             break;
           }
+          if (screensWindow_ && closingWindowId == SDL_GetWindowID(screensWindow_)) {
+            setScreensVisible(false);
+            break;
+          }
           if (auto outputIndex = outputIndexForWindowId(closingWindowId); outputIndex) {
             setFocusedOutputIndex(*outputIndex);
             setFocusedOutputEnabled(false, false);
@@ -192,11 +196,14 @@
           } else if (monitorsWindow_ &&
                      event.button.windowID == SDL_GetWindowID(monitorsWindow_)) {
             handleMonitorsMouseDown(static_cast<int>(event.button.x), static_cast<int>(event.button.y));
+          } else if (screensWindow_ && event.button.windowID == SDL_GetWindowID(screensWindow_)) {
+            handleScreensMouseDown(static_cast<int>(event.button.x), static_cast<int>(event.button.y));
           } else {
             handleTutorialOutputClick(event.button.windowID);
           }
           break;
         case SDL_EVENT_MOUSE_BUTTON_UP:
+          endScreensDrag();   // a drag in the Screens window ends wherever it is let go
           if (event.button.windowID == SDL_GetWindowID(controlWindow_)) {
               notePress(false, static_cast<int>(event.button.x), static_cast<int>(event.button.y));
               if (valueScrubPending_ || valueScrubEngaged_) {
@@ -248,6 +255,8 @@
             mouseX_ = static_cast<int>(event.motion.x);
             mouseY_ = static_cast<int>(event.motion.y);
             handleMouseMotion(static_cast<int>(event.motion.x), static_cast<int>(event.motion.y));
+          } else if (screensWindow_ && event.motion.windowID == SDL_GetWindowID(screensWindow_)) {
+            handleScreensMouseMotion(static_cast<int>(event.motion.x), static_cast<int>(event.motion.y));
           }
           break;
         case SDL_EVENT_KEY_DOWN:
@@ -1614,6 +1623,7 @@
     if (drawControl) {
       renderControlWindow();
       renderMonitorsWindow();
+      renderScreensWindow();
     }
 
     ensureOutputRuntimesSynced();

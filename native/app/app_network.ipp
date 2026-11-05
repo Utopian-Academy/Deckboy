@@ -1532,6 +1532,10 @@
     // Writes a file at a path the caller names.
     if (verb == "MASK" && parts.size() > 1 && toUpper(parts[1]) == "EXPORT") return true;
     if (verb == "DRAW" && parts.size() > 1 && toUpper(parts[1]) == "SAVE") return true;
+    // Test input into the Screens window, like CLICK into the desk.
+    if (verb == "SCREENS" && parts.size() > 1 &&
+        (toUpper(parts[1]) == "CLICK" || toUpper(parts[1]) == "HOVER" || toUpper(parts[1]) == "UP" ||
+         toUpper(parts[1]) == "SNAP")) return true;
     if (verb == "TUTORIAL" && parts.size() > 1 && toUpper(parts[1]) == "SCREENS") return true;
     if (verb == "BROWSER" && toLower(text).find("file:") != std::string::npos) return true;
     if (verb == "WEBMONITOR" && parts.size() > 1 && webMonitorSubWidensAccess(parts[1])) return true;
@@ -3230,12 +3234,12 @@ html,body{width:100%;height:100%;overflow:hidden}
     // without something saying so.
     if (upper == "HELP ALL" || upper == "HELP FULL" || upper == "?? ") {
       sendSnapshot(
-        "DECKBOY_0.01 every verb (392)\n"
+        "DECKBOY_0.01 every verb (393)\n"
         "ADDTIMER ALLGO ALLPAUSE ALLPLAY ALLSTOP ALLTAKE ANIM ANIMATION ARM AUDITION\n"
         "ARTNET ARTNETEVENT ARTNETPORT ART_NET_PORT ASCII ATEM ATEMEVENT\n"
         "ATEMTRIGGER AUDIO AUDIOCUE AUDIOENABLED AUDIOFX AUDIOGAIN AUDIOMONO\n"
         "AUDIONORM AUDIOOUTS AUDIOPAN AUDIOVIS AUDIOVISUAL AUTOADVANCE\n"
-        "MASK MOTION DRAW SLICE SLICES CLICK HOVER PRESS KEY TYPE TESTTHROW TRUST COMPANIONPASS SCOPES MIDICLOCK OUTSNAP OUTPROBE UISNAP UIASSETS QUICK QUICKLIST DROPTEST\n"
+        "MASK MOTION DRAW SLICE SLICES SCREENS CLICK HOVER PRESS KEY TYPE TESTTHROW TRUST COMPANIONPASS SCOPES MIDICLOCK OUTSNAP OUTPROBE UISNAP UIASSETS QUICK QUICKLIST DROPTEST\n"
         "MESH MESH3D SEQ\n"
         "OFFSET OFFSETX OFFSETY ROTATION CROP CROPLEFT CROPRIGHT CROPTOP CROPBOTTOM\n"
         "AUTOID AUTONEXT AVJUMP BLACKOUT DEFAULTS NEWSHOW LIMITER OUTPUTFX OUTPUTS PATCH\n"
@@ -3310,6 +3314,8 @@ html,body{width:100%;height:100%;overflow:hidden}
         "           DRAW PLAYBACK still|flipbook|replay | FPS n | HOLD s | SAVE STILL|ANIMATION [file] (local)\n"
         "slices:    SLICE [ADD [name] | REMOVE n | CLEAR] on the focused output; SLICE n CROP x y w h | PLACE x y w h (%)\n"
         "           SLICE n CORNER TL|TR|BR|BL dx dy | EDGE L|R|T|B % | MASK id|NONE | ON|OFF | LINEAR|PERSPECTIVE | NAME text\n"
+        "           SLICE n SOURCE PROGRAMME|DECK n | ROTATE IN|OUT deg | FLIP H|V ON|OFF | OPACITY % | LFO X|Y|ROTATION|OPACITY ...\n"
+        "           SLICE n GRID cols rows|OFF|SMOOTH ON|OFF|POINT col row dx dy; SCREENS [ON|OFF] the Screens window\n"
         "dmx out:   DMXCUE NEW|SET <1=255,10-14=64>|FADE <s>|UNIVERSE <n>|HOST <ipv4>|PORT <n>|FIRE|BLACKOUT - Art-Net levels on GO\n"
         "matrix:    MATRIX [SET <src 1-2> <dest 1-128> <0-100>|SEED|CLEAR] - per-cue audio crosspoints; empty means the plain stereo pair\n"
         "           MATRIX SET <src 1-2> <output> [L|R] <0-100> - by name, on a playlist in the PATCH\n"

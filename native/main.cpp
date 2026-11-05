@@ -4397,6 +4397,7 @@ class App {
       timelineStripTex_ = nullptr;
     }
     shutdownMotion();
+    shutdownScreens();
     if (drawOnionTex_) {
       SDL_DestroyTexture(drawOnionTex_);
       drawOnionTex_ = nullptr;
@@ -5708,6 +5709,7 @@ class App {
 #include "app/app_motion.ipp"
 #include "app/app_draw.ipp"
 #include "app/app_slices.ipp"
+#include "app/app_screens.ipp"
 
   // Draw the cue's EFFECTIVE audio fade envelope over a waveform rect: ramp
   // up across the fade-in after the in-point, ramp down into the out-point.
@@ -10289,6 +10291,7 @@ class App {
   static constexpr int kSettingsActionMotionFallInc = 877;
   static constexpr int kSettingsActionMotionMirror = 878;
   static constexpr int kSettingsActionMotionZonesClear = 879;
+  static constexpr int kSettingsActionOpenScreens = 880;   // the Screens window (slices)
   static constexpr int kSettingsActionLanguageDropdown = 750;
   static constexpr int kSettingsActionLanguagePanic = 751;
   static constexpr int kSettingsActionTallySwitchOffPick = 752;
