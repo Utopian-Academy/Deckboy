@@ -495,3 +495,544 @@ Close me. Open me. I'll be fine.	关掉我，再打开。又是一条好汉。
 # What the desk face says when you switch to this language: a local saying, not a translation.
 @hello	好戏开场了！瓜子准备好了吗？
 Oh hey. It's 4:20. Take it easy.	哦，嘿。现在是4:20。放轻松。
+
+# --- tutorials: tools/lesson_strings.py (a whole line each) ---
+HELLO	你好
+Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me.	多巴尔·登，斯卡皮。我是像素博士。五分钟，你就能主控一场演出。听我的，用不了五分钟。
+And I'm Professor Video. Synths first, then video. Mostly video now. Press START and we'll patch... we'll begin.	我是视频教授。先玩合成器，后来玩视频。现在基本只玩视频。按START，我们来接线……来开始。
+TURN THE OUTPUT ON	打开输出
+Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	斯卡皮，屏幕是空的。别让观众干等。打开MENU，把输出关变成输出开。快点！
+Lesson one: nothing comes out until you patch the oscillator to the... the OUTPUT. It's video. I know.	第一课：不把振荡器接到……接到输出上，什么都出不来。是视频。我知道。
+BRING IN A CLIP	导入一段素材
+Now a picture. Press I and pick a clip from your computer. No clip? SHOW ME, and I lend you one of mine.	现在来点画面。按I，从电脑里选一段素材。没有素材？按SHOW ME，我借你一段。
+Every clip becomes a cue in the playlist. Like loading a sample. A sample with pictures in it.	每段素材都会变成播放列表里的一个cue。就像加载一个采样。一个带画面的采样。
+TAKE IT LIVE	推上去
+Your clip waits in the playlist. Select it, then TAKE. Or Enter. Confident operators press Enter.	素材在播放列表里等着。选中它，然后TAKE。或者按Enter。有底气的操作员按Enter。
+TAKE is the envelope trigger. The, ah, the GO button. Same thing, it just has pictures in it.	TAKE就是包络的触发器。呃，就是GO键。一回事，只是带画面。
+LINE UP THE NEXT ONE	准备下一个
+Click another cue. It waits, ready, until you say. Only one cue? Import another, or SHOW ME.	点另一个cue。它会准备好，等你下令。只有一个cue？再导入一个，或者SHOW ME。
+Selecting is not playing. The selected one is the next note in the sequence. The next CUE.	选中不等于播放。选中的是序列里的下一个音符。下一个cue。
+CROSSFADE TO IT	叠化过去
+Cuts are for amateurs. In the inspector, press + on transition, so it shows a time, not deck. Then TAKE.	硬切是外行干的。在检查器里按转场的+，让它显示时间，而不是deck。然后TAKE。
+A crossfade! Portamento, but for pictures. Any time will do. A few more presses and it's a second. Then TAKE.	叠化！画面版的滑音。时间多少都行。多按几下就是一秒。然后TAKE。
+CLEAR THE SCREEN	清空屏幕
+Something goes wrong on stage? Press BLACK, or B. The picture goes. The show keeps running underneath.	台上出状况了？按BLACK，或者B。画面没了。演出在底下照常运行。
+Nothing is lost. Press B again and it comes back. Like the mute on a mixer. Very calming.	什么都没丢。再按一次B，画面就回来。就像调音台的静音键。非常安心。
+SAVE THE SHOW	保存演出
+Now save. Ctrl+S, or SAVE. Some programs lose your work and then blame you. I would never.	现在保存。Ctrl+S，或者保存。有的软件丢了你的工作还怪你。我绝不会。
+Save your patch. Your SHOW. Show. This practice one lives in Deckboy's own folder; yours is safe.	保存你的音色。你的演出。对，演出。这个练习用的放在Deckboy自己的文件夹里，你的演出很安全。
+THAT'S A SHOW	这就是一场演出
+That's a show! Output, cue, TAKE, crossfade, BLACK, save. Nazdrave, skapi. Rakia is on me.	这就是一场演出！输出、cue、TAKE、叠化、BLACK、保存。纳兹德拉维，斯卡皮。拉基亚酒我请。
+Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	下课。示例演出会教你图层、字幕和特效。MENU > LEARN THE BASICS可以再来一遍。
+*shakes head* That means yes. Bravo.	*摇摇头* 这是“对”的意思。好样的。
+Wonderful! Lovely signal flow.	太棒了！漂亮的信号流。
+Mm. I knew you had it in you.	嗯。我就知道你行。
+Yes! Have a gold star. It's a dot.	对！奖你一颗金星。是个点。
+You've clicked everything but the glowing one. Even my oscillators find the glowing one.	除了发光的那个，你全点过了。连我的振荡器都找得到发光的那个。
+stop playback first - the lesson cannot hand a running show back as it was	先停止播放 - 正在运行的演出，课程没法原样交还
+choose RECOVER or KEEP SAVED first	先选择RECOVER或KEEP SAVED
+your show could not be saved, so the lesson has not started. Save it (SAVE AS) and try again	你的演出无法保存，所以课程没有开始。保存它（另存为）后再试
+the practice show would not open	练习演出打不开
+could not start the practice show	无法启动练习演出
+learn the basics: Esc leaves, and it picks up here next time	learn the basics：按Esc退出，下次从这里继续
+that's the basics - MENU > LESSONS has part two	基础就到这里 - MENU > LESSONS有第二部分
+tour paused - LEARN THE BASICS picks up where you left off	导览已暂停 - LEARN THE BASICS从你离开的地方继续
+Mirrored screens, skapi. Press any key or click, and Dr. Pixel gives it back.	屏幕是镜像的，斯卡皮。按任意键或点一下，像素博士会还给你。
+Wrong screen, skapi. Press any key or click, and Dr. Pixel gives it back.	屏幕不对，斯卡皮。按任意键或点一下，像素博士会还给你。
+The other screen went away, skapi. Press any key or click, and Dr. Pixel gives it back.	另一块屏幕不见了，斯卡皮。按任意键或点一下，像素博士会还给你。
+One screen, skapi. Press any key or click, and Dr. Pixel gives it back.	只有一块屏幕，斯卡皮。按任意键或点一下，像素博士会还给你。
+The other screen went away, skapi, so the picture came back to this one. I put it in a little window, behind. Plug it back in and the picture goes back on it.	另一块屏幕不见了，斯卡皮，所以画面回到了这块上。我把它放进后面的一个小窗口。重新接上，画面就回去了。
+It ate the desk, skapi. One screen, so the output took all of it. I put it in a little window, behind. A real show gets a second screen.	它把台子吃掉了，斯卡皮。只有一块屏幕，所以输出占了全部。我把它放进后面的一个小窗口。真正的演出要有第二块屏幕。
+There. The button that says OUTPUT OFF. Make it say ON, skapi.	那儿。写着输出关的按钮。让它变成开，斯卡皮。
+Nothing is live to fade from, skapi. TAKE one cue first, then pick the other and give it a time.	没有在播的东西可以叠化，斯卡皮。先TAKE一个cue，再选另一个并给它一个时长。
+That was a cut, skapi. Fast, but not a crossfade. Pick the other cue, press + on transition, then TAKE.	那是硬切，斯卡皮。很快，但不是叠化。选另一个cue，按转场的+，然后TAKE。
+A feedback loop! Output patched straight back into the desk. Happens to the best of us. Mostly to me. 1983. We don't talk about 1983.	反馈回路！输出直接接回了台子。高手也会犯。主要是我。1983年。我们不提1983年。
+No more rakia. The rat has a problem.	不许再喝拉基亚了。这只老鼠有问题。
+Nazdrave, skapi! Baba's rakia, from the Rhodopes. One glass, for the lesson.	纳兹德拉维，斯卡皮！奶奶的拉基亚，罗多彼山来的。为这节课，一小杯。
+Is this... is this allowed during a tutorial?	这……教程里可以这样吗？
+*shakes head* That means one more.	*摇摇头* 这是“再来一杯”的意思。
+I love you all. I love the oscillator. I love the OUTPUT. It's video. I know. I KNOW.	我爱你们所有人。我爱振荡器。我爱输出。是视频。我知道。我知道啦。
+...and the rat took the rakia. Every time, skapi. Every single time.	……然后老鼠把拉基亚拿走了。每次都这样，斯卡皮。每一次。
+Was that a rat? In a hat? With a pizza?	那是只老鼠吗？戴着帽子？拿着披萨？
+Stop that. I am a serious man.	别闹了。我是个严肃的人。
+Do not tell Dr. Pixel about this.	别告诉像素博士。
+This never happened. Back to the patch bay.	什么都没发生过。回到跳线盘。
+It was the eighties. Everyone had a bow tie.	那是八十年代。人人都打领结。
+EXIT (Esc)	退出 (Esc)
+Taking it on the road	带着演出出发
+CHECK a show before it travels, fix what it finds, and bundle it with its media.	出发前先CHECK，修好查出的问题，再连同素材一起打包。
+Effects, oscillators and colour	特效、振荡器和颜色
+An effect, a ~ on its knob, and the colour picker.	一个特效，旋钮上的一个~，还有取色器。
+The art school crit, with Mr. Salty	美院评图课，与盐先生
+Patterns, synths and Draw	测试图、合成器和Draw
+A test pattern, the video synth, and drawing on the picture, saved as a still.	测试图、视频合成器，以及在画面上画画并存成静帧。
+The telestrator booth, with Coach Marv	解说席画线板，与马夫教练
+Masks	遮罩
+A heart from the library, the pen, invert and feather.	库里的爱心、钢笔、反转和羽化。
+The Signal Files: redact the evidence	信号档案：抹掉证据
+Warp, blend and slices	变形、融合和切片
+A corner pin, two soft edges, then three slices in the Screens window.	一个四角定位、两条软边，再在Screens窗口里切三个切片。
+The haunted lighthouse, with Keeper Rook	闹鬼的灯塔，与守塔人鲁克
+GO from anywhere	从任何地方GO
+Cue numbers, GOTO, a hotkey, and where Companion, MIDI and OSC come in.	cue编号、GOTO、快捷键，以及Companion、MIDI和OSC从哪里接入。
+The game show, with Donna Wheel	抢答节目，与唐娜·惠尔
+Words on screen	屏幕上的文字
+A Lower Third with a name on it, then a title card with a key-green backdrop.	一条带名字的字幕条，然后一张抠像绿底的标题卡。
+The kaiju weather report, with June O'Neil	怪兽天气预报，与琼·奥尼尔
+Keeping time	掌控时间
+A stage timer counting down, held, and a presenter view for the person on stage.	倒计时的舞台计时器、暂停，以及给台上人看的演讲者视图。
+A grand day out, with Wallis and Grommet	月球大冒险，与华利斯和格罗米特
+Two playlists and TAKE ALL	两个播放列表和TAKE ALL
+A second playlist as a layer, and TAKE ALL so two things change on one beat.	第二个播放列表作为图层，以及让两样东西在同一拍变化的TAKE ALL。
+The magic show, with Turnip Top	魔术秀，与萝卜头
+When it goes wrong	出岔子的时候
+BLACK against PANIC, and getting a show back.	BLACK和PANIC的区别，以及把演出救回来。
+The cooking show, with Chef Bork	烹饪节目，与博克大厨
+Presets	预设
+Capture a look on a DASH button, change everything, and get it back with one press.	把一个画面存到DASH按钮上，全部改掉，再一键找回来。
+Transitions	转场
+The styles beyond the crossfade: an iris, a shatter, and their times.	叠化以外的样式：光圈、碎裂，以及它们的时长。
+The space-opera trailer, with Optimus Primetime	太空歌剧预告片，与擎天柱黄金档
+Sound	声音
+An audio effect on a cue, a bend that damages it beautifully, and where the patch lives.	cue上的音频效果，一个把声音弄坏得很美的弯折效果，以及跳线设置在哪里。
+The robot DJs, with Deft Funk	机器人DJ，与灵巧放克
+Reading the scopes	看懂示波器
+The waveform, the vectorscope, and false colour: is the glow real, or just too bright?	波形、矢量示波器和伪色：那团光是真的，还是只是太亮？
+The Signal Files: is the glow on the horizon a craft?	信号档案：地平线上的光是飞船吗？
+Out of the building	走出大楼
+Where NDI, SDI and ST 2110 live, and NDI switched on where this computer has it.	NDI、SDI和ST 2110在哪里，以及在这台电脑上有NDI的话就打开它。
+Motion: Bug Swat	Motion：Bug Swat
+The webcam as a controller, as a game. Five rounds, a high score.	把摄像头当控制器，当游戏。五回合，一个最高分。
+A handheld, and bugs	一台掌机，还有bug
+The multiview	多画面
+Windows, the ... menu, what each one shows, layouts, and tally.	窗口、...菜单、每个窗口显示什么、布局，以及Tally。
+Mystery on the starship Cathode, with Lt. Haila and Ensign Jinkley	阴极号星舰之谜，与海拉上尉和金克利少尉
+DR. PIXEL: Two playlists: Deckboy becomes SUPER DECKBOY. It earned it, skapi.	DR. PIXEL: 两个播放列表：Deckboy变身SUPER DECKBOY。它应得的，斯卡皮。
+PROF. VIDEO: It evolved! My oscillators never got a fanfare.	PROF. VIDEO: 进化了！我的振荡器从来没有过开场号角。
+DR. PIXEL: SUPER DECKBOY! Every show deserves one. Bravo.	DR. PIXEL: SUPER DECKBOY！每场演出都值得一个。好样的。
+PROF. VIDEO: The power-up! More playlists, more layers, more super.	PROF. VIDEO: 能量升级！更多播放列表，更多图层，更超级。
+Intro video (left on the office PC)	开场视频（忘在办公室电脑上了）
+ON THE ROAD	在路上
+A show you built here, skapi, running on a laptop somewhere else tonight. Press START.	你在这里做的演出，斯卡皮，今晚要在别处的一台笔记本上运行。按START。
+Before it travels: check it, fix it, bundle it.	出发之前：检查、修复、打包。
+See CHECK in the top bar? It only appears when something is wrong. Press it.	看到顶栏的CHECK了吗？只有出问题时它才会出现。按它。
+It lists everything a show would trip over: missing files, empty cues, unreachable outputs.	它会列出演出会被绊倒的一切：找不到的文件、空的cue、连不上的输出。
+The intro video is on another computer. Select it and delete it, or RELINK it if you have the file.	开场视频在另一台电脑上。选中删掉，或者如果你有文件，就RELINK。
+Fix it at home, where it is easy. Not at the venue, where it is not.	在家修，容易。别到场地再修，那时就不容易了。
+BUNDLE IT	打包
+Press BUNDLE and choose where: a USB stick, a shared folder. The show and all its media, together.	按打包，选个地方：U盘、共享文件夹。演出和所有素材，放在一起。
+The copy finds its media beside it, wherever the folder goes.	不管文件夹去哪儿，副本都能在旁边找到它的素材。
+SAFE TRAVELS	一路顺风
+Checked, fixed, bundled. On the other machine, open the bundle's show: everything is where it should be.	检查过、修好了、打包了。在另一台机器上打开包里的演出：一切都在该在的地方。
+A show file is only text, so it travels light. The media is the heavy part.	演出文件只是文本，所以轻装上路。重的是素材。
+Student work no. 4 (untitled)	学生作品第4号（无题）
+THE CRIT	评图
+An art school, skapi. One student, one picture, one critic who has seen it all. Press START.	一所美院，斯卡皮。一个学生，一幅画，一个什么都见过的评论家。按START。
+A grey square on beige. I have seen this at every graduate show since 1987.	米色上一个灰方块。1987年以来，每场毕业展我都见过。
+AN EFFECT	一个特效
+In the inspector's EFFECTS section, + adds one. Edges is a good start: it draws the outlines.	在检查器的EFFECTS部分，按+添加。Edges是个好开头：它会画出轮廓。
+There are dozens. Every one runs on the CPU in a few milliseconds. Mostly.	有几十种。每一种都在CPU上几毫秒跑完。大多数时候。
+Take a risk! Bad art is fine. Boring art is a crime.	大胆点！作品烂没关系。作品无聊才是罪过。
+Every control with a ~ beside it can follow an oscillator. Press one. The knob starts to breathe.	旁边带~的控件都能跟随一个振荡器。按一个。旋钮开始呼吸了。
+A low-frequency oscillator: slow, so the eye can follow it. A quarter of a hertz is a four-second breath.	低频振荡器：很慢，眼睛跟得上。四分之一赫兹，就是四秒一次呼吸。
+Now it MOVES. Okay. Okay. I'm listening.	现在它动起来了。行。行。我在听。
+A COLOUR OF ITS OWN	它自己的颜色
+Effects that draw a colour, like Edges' line, have a colour chip. It opens the picker: a wheel, typed names, or a colour off the screen.	会画颜色的特效，比如Edges的线条，都有一个色块。点开就是取色器：色轮、输入颜色名，或者从屏幕上吸一个颜色。
+Every colour has a name somewhere. Mine is 'oscilloscope green'. Nobody else uses it.	每种颜色在某处都有名字。我的叫“示波器绿”。没别人用。
+That colour is doing something. I don't know what. I love it.	这个颜色有点意思。说不上是什么。我喜欢。
+THE VERDICT	评语
+An effect, a ~ and a colour. The critic is crying, skapi. Good crying, I think.	一个特效、一个~、一种颜色。评论家哭了，斯卡皮。我想是感动的泪。
+Stack a few. Each has its own ~ on every knob. That is how a look becomes a performance.	多叠几个。每个旋钮都有自己的~。画面就是这样变成表演的。
+It's still a square. But it's YOUR square. Post it.	还是个方块。但这是你的方块。发出去吧。
+THE TELESTRATOR BOOTH	解说席
+Coach Marv explains sport by drawing circles on it. Once he circled the sun. Ten minutes, skapi.	马夫教练靠在画面上画圈来讲解比赛。有一次他把太阳圈了。十分钟，斯卡皮。
+Tonight: test patterns, the video synth, and drawing on the picture. Press START.	今晚：测试图、视频合成器、在画面上画画。按START。
+Get me a picture and a pen. BOOM.	给我一个画面和一支笔。嘭。
+A TEST PATTERN	一张测试图
+Line up the screens BEFORE the show. Not during. I learned this in Plovdiv.	屏幕要在演出前对好，不是演出中。我在普罗夫迪夫学到的教训。
+Every desk needs a test pattern. PATTERN adds Pocket Test: checked against real meters.	每张台子都需要测试图。测试图会添加Pocket Test：用真仪器校验过。
+A VIDEO SYNTH	一台视频合成器
+He says 'no camera needed' like it is a feature. It is a feature.	他说“不需要摄像机”，好像那是个功能。那就是个功能。
+My favourite. SOURCE, then Video Synth: oscillators, mirrors and feedback. No camera needed.	我的最爱。信号源，然后Video Synth：振荡器、镜像和反馈。不需要摄像机。
+Select it, then TAKE. Confident operators press Enter.	选中，然后TAKE。有底气的操作员按Enter。
+That's our replay. Every replay needs a pundit.	这是我们的回放。每段回放都需要一位解说。
+Now here's a replay. And here's a guy. And BOOM, he's in it.	看这个回放。看这个人。嘭，他在里面。
+A SECOND PLAYLIST	第二个播放列表
+Ink goes on top, on its own layer. Press the + at the end of the playlist tabs.	笔迹在最上面，在自己的图层上。按播放列表标签最后的+。
+A second playlist is a layer over the first. Like a second oscillator, mixed on top.	第二个播放列表是叠在第一个上面的图层。就像第二个振荡器，混在上面。
+A DRAW CUE	一个Draw cue
+In the new playlist: SOURCE, then Draw. Clear everywhere you have not drawn.	在新播放列表里：信号源，然后Draw。没画的地方全是透明的。
+A Draw cue is transparent outside the ink, so the synth shows through.	Draw cue在笔迹以外是透明的，所以合成器能透出来。
+Select the Draw cue and TAKE it. Two playlists, two layers, one picture.	选中Draw cue，TAKE。两个播放列表，两个图层，一个画面。
+Now both are live: the synth underneath, the ink on top.	现在两个都在播出：下面是合成器，上面是笔迹。
+CIRCLE SOMETHING	圈出来
+Press DRAW in the inspector, then draw on the programme monitor. Mouse, or a pen if you have one.	在检查器里按DRAW，然后在节目监视器上画。用鼠标，有笔就用笔。
+A pen's pressure makes the line thicker. A mouse presses at one strength. Like me.	笔的压力让线条变粗。鼠标永远一个力度。跟我一样。
+Circle him! No, bigger. BOOM. That's a cloud. Fine. Circle the cloud.	圈他！不，再大点。嘭。那是朵云。行吧。圈那朵云。
+SAVE A STILL	存一张静帧
+SAVE STILL keeps the drawing as a picture with a clear background, and adds it to the playlist.	SAVE STILL把画存成透明背景的图片，并加进播放列表。
+For next week's show. Coach Marv will want the cloud again.	留给下周节目。马夫教练还会要那朵云。
+THAT'S THE BOOTH	解说席到此为止
+Patterns, the synth, a layer, ink, a still. Nazdrave, skapi.	测试图、合成器、一个图层、笔迹、一张静帧。纳兹德拉维，斯卡皮。
+Try Replay in the Draw section: it draws your lines back the way you drew them.	试试Draw部分的Replay：它按你画的方式把线重画一遍。
+Same time next week. Bring a bigger pen. And a turducken.	下周同一时间。带支更粗的笔。再带只火鸡。
+Saucer photo (CLASSIFIED)	飞碟照片（绝密）
+THE SIGNAL FILES	信号档案
+The Bureau of Unexplained Signals. Two agents, one photo, and it must not air. Press START.	不明信号局。两名探员，一张照片，绝不能播出去。按START。
+Masks cut a picture into shapes. Tonight we cut evidence.	遮罩把画面剪成形状。今晚我们剪证据。
+That's a craft, Brandt. Look at the lights. I want to believe.	那是飞船，布兰特。看那些灯光。我想要相信。
+A MASK FROM THE LIBRARY	库里的遮罩
+In the inspector's MASK section: mask, then 'new heart'. Any shape will do. The heart is funnier.	在检查器的MASK部分：mask，然后“new heart”。什么形状都行。爱心更好笑。
+The library has circles, stars, hearts. Each one is points you can move.	库里有圆、星星、爱心。每个都由可以移动的点组成。
+A heart, Hollis? The Bureau redacts with black bars.	爱心，霍利斯？本局是用黑条打码的。
+Set the tool to pen, then click round the saucer on the monitor. Click the first point to close it.	把工具切到钢笔，在监视器上绕着飞碟点一圈。点第一个点就闭合。
+Click for corners, drag for curves. The way the Bezier brothers intended.	点击出角，拖拽出曲线。贝塞尔兄弟就是这么设计的。
+Draw round it carefully. It might be watching.	仔细描。它可能正看着呢。
+INVERT	反转
+Invert keeps the outside and cuts the inside. The saucer goes. The sky stays.	反转保留外面，剪掉里面。飞碟没了，天空还在。
+The same shape, the other way round. Very useful. Slightly spooky.	同一个形状，反过来。非常有用。有点吓人。
+Hollis, there's a heart-shaped hole in the sky.	霍利斯，天上有个爱心形的洞。
+FEATHER	羽化
+Feather softens the edge, so nobody sees the cut. Press + on feather.	羽化让边缘变软，谁也看不出剪过。按feather的+。
+A hard edge says 'someone was here'. A soft one says nothing at all.	硬边在说“有人来过”。软边什么都不说。
+They'll never know.	他们永远不会知道。
+CASE CLOSED	结案
+A library shape, the pen, invert and feather. The Bureau thanks you. The Bureau was never here.	库里的形状、钢笔、反转、羽化。本局感谢你。本局从未来过。
+Masks also go on a layer, an output, or its matte: MASK ON chooses. And every control takes a ~.	遮罩也能放在图层、输出或它的遮罩通道上：MASK ON来选。每个控件都能加~。
+The truth is in the waveform, Hollis. Next time, the scopes.	真相就在波形里，霍利斯。下次，看示波器。
+The ghost	鬼魂
+THE HAUNTED LIGHTHOUSE	闹鬼的灯塔
+A lighthouse, a ghost, and a keeper who has been alone with the lamp far too long. Press START.	一座灯塔，一个鬼魂，还有一个跟灯独处太久的守塔人。按START。
+Projection mapping: bending the picture to fit the building. Warp, blend, slices.	投影映射：把画面弯过来贴合建筑。变形、融合、切片。
+Ye'll be wanting the ghost on the windows. Mind the lamp. The lamp is MINE.	你们是想把鬼投到窗户上吧。小心那盏灯。那盏灯是“我的”。
+THE OUTPUT'S GEOMETRY	输出的几何
+MENU, then Video Outputs, then Geometry. Where an output's shape lives.	MENU，然后视频输出，然后几何。输出的形状就在这里。
+Geometry: the projector-menu word for 'what shape is the picture'.	几何：投影机菜单里“画面是什么形状”的说法。
+PIN A CORNER	定住一个角
+Press warp edit, then drag a corner on the programme monitor. The window is not square. Neither is the keeper.	按warp edit，然后在节目监视器上拖一个角。窗户不是方的。守塔人也不是方的。
+A corner pin moves the four corners. Perspective keeps the lines straight, like a real window.	四角定位移动四个角。透视让线条保持笔直，就像真窗户。
+LEFT! Ye call that a corner? I've seen straighter gulls.	左边！你管这叫角？我见过比这还直的海鸥。
+TWO SOFT EDGES	两条软边
+Back in Geometry: edge blend, + on the left and + on the right.	回到几何：edge blend，左边按+，右边按+。
+THE SCREENS WINDOW	Screens窗口
+Geometry, SLICES, open. The Screens window is where slices are cut and placed.	几何，SLICES，打开。Screens窗口是切片被切出和摆放的地方。
+A slice is a piece of the picture, put anywhere on the output.	切片是画面的一块，可以放在输出的任何位置。
+THREE SLICES	三个切片
+In the Screens window, + SLICE three times, and drag each crop to a third of the picture.	在Screens窗口里按三次+ SLICE，把每个裁切拖到画面的三分之一。
+Three windows, three slices: left, middle and right of one picture.	三扇窗，三个切片：一个画面的左、中、右。
+Three windows. The lamp gets the middle one. The lamp ALWAYS gets the middle one.	三扇窗。中间那扇归灯。中间那扇“永远”归灯。
+THE GHOST IS PLEASED	鬼魂满意了
+Warp, blend, slices. The keeper will finally sleep. The gulls will not.	变形、融合、切片。守塔人终于能睡了。海鸥不能。
+Slices have their own warp and mesh in the Screens window. And a ~ on the place and the turn.	切片在Screens窗口里有自己的变形和网格。位置和旋转上也有~。
+Ye did alright, lad. Now get away from the lamp.	干得还行，小伙子。现在离那盏灯远点。
+THE GAME SHOW	抢答节目
+A game show, skapi. Three contestants, one buzzer, and cues that fire from anywhere. Press START.	一档综艺抢答节目，斯卡皮。三位选手，一个抢答器，cue从任何地方都能触发。按START。
+Cue numbers, hotkeys, and GO from other machines. Like a sequencer you can play from any key.	cue编号、快捷键，还有从别的机器GO。就像一台从任何键都能弹的音序器。
+Welcome to the show! Let's spin that wheel!	欢迎来到节目！转起来吧，大转盘！
+A CUE NUMBER	一个cue编号
+Contestant 3 is selected. In the inspector's metadata, give it a cue number: 3.	选手3已被选中。在检查器的元数据里，给它一个cue编号：3。
+Theatre numbers its cues. Q3, Q3.5, Q12A. Deckboy reads them all.	剧场给cue编号。Q3、Q3.5、Q12A。Deckboy全都认得。
+I'd like to buy a number, please.	我想买一个号码，谢谢。
+Ctrl+G, type the number, Enter. It goes live wherever the list happens to be standing.	Ctrl+G，输入编号，回车。不管列表停在哪里，它都会播出。
+GOTO. The fastest way across a long list. Faster than scrolling. Much faster than me.	GOTO。长列表里最快的路。比滚动快。比我快多了。
+And the number is... three!	号码是……三号！
+Contestant 1 is selected. In TRIGGERS, press key, then F5. That key now fires this cue.	选手1已被选中。在TRIGGERS里按key，然后按F5。这个键现在就触发这个cue。
+F1 to F10, F12, or the number pad. Each one, a buzzer.	F1到F10、F12，或数字小键盘。每一个，都是一个抢答器。
+Every contestant gets a buzzer.	每位选手都有一个抢答器。
+BUZZ IN	抢答！
+Press the key. The cue fires, wherever the list is standing.	按下那个键。不管列表停在哪里，cue都会触发。
+No mouse, no list, no looking. Just the key.	不用鼠标，不用列表，不用看。只要那个键。
+Buzz! We have a winner!	叮咚！我们有赢家了！
+FROM ANYWHERE	从任何地方
+Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion、一个MIDI音符、一条OSC消息：MENU，然后网络，会告诉你每一个从哪里连接。
+A Stream Deck in the next room can press GO. So can a keyboard synth. I prefer the synth.	隔壁房间的Stream Deck也能按GO。键盘合成器也行。我更喜欢合成器。
+And for our viewers at home: you can play along too.	电视机前的观众朋友们：你们也可以一起玩。
+THAT'S OUR SHOW	节目到此结束
+Numbers, GOTO, a buzzer, and GO from anywhere. You are a game show now, skapi.	编号、GOTO、抢答器，还有从任何地方GO。你现在就是一档综艺节目了，斯卡皮。
+A cue can have a key, a MIDI note and an OSC address at once. Belt, braces and a second belt.	一个cue可以同时有一个键、一个MIDI音符和一个OSC地址。双保险，再加一道保险。
+Goodnight, everybody! Keep spinning!	晚安，各位！继续转起来！
+Weather map	天气图
+THE KAIJU WEATHER	怪兽天气
+Channel 6 weather, skapi. A map, a presenter, and a very large lizard. Press START.	6频道天气预报，斯卡皮。一张地图，一位主播，还有一只很大的蜥蜴。按START。
+Words on screen: Lower Thirds, text, and backdrops.	屏幕上的文字：字幕条、文本和底色。
+I'm June O'Neil, and nothing about this forecast is normal.	我是琼·奥尼尔，这次预报没有一样是正常的。
+A LAYER FOR WORDS	文字的图层
+Words go on their own layer: press the + at the end of the playlist tabs.	文字放在自己的图层上：按播放列表标签最后的+。
+A second playlist is a layer over the map. The lizard stays underneath. Mostly.	第二个播放列表是天气图上面的一个图层。蜥蜴待在下面。大多数时候。
+Words on top. Always on top.	文字在上。永远在上。
+A LOWER THIRD	一条字幕条
+In the new playlist: SOURCE, then Lower Third.	在新播放列表里：信号源，然后Lower Third。
+A name and a title, low on the screen, out of the lizard's way.	名字和头衔，放在屏幕下方，别挡着蜥蜴。
+HER NAME	她的名字
+In the inspector, title: type the presenter's name. The second line is her job.	在检查器的title里输入主播的名字。第二行是她的职位。
+Spelling counts. The audience reads it at the speed of light.	错别字可不行。观众以光速阅读。
+Spell it right. Last week it said 'Jane O'Meal'.	写对。上周写成了“琼·奥饭团”。
+TAKE the Lower Third. Her name slides in over the map.	TAKE字幕条。她的名字滑进地图上方。
+Two layers live: the weather, and the words on top of it.	两个图层在播：天气，和上面的文字。
+Thank you. Now, about that lizard...	谢谢。那么，说到那只蜥蜴……
+BREAKING NEWS	突发新闻
+SOURCE, then Text: a title card. Then its backdrop chip: key green, for the vision mixer to key out.	信号源，然后Text：一张标题卡。然后点它的底色色块：抠像绿，让切换台抠掉。
+A backdrop fills behind the words. Key green or key blue, and the mixer does the rest.	底色填满文字后面。抠像绿或抠像蓝，剩下的交给切换台。
+Breaking news: it's standing on the five-day forecast.	突发新闻：它踩在五日预报上了。
+BREAKING: KAIJU	突发：怪兽
+BACK TO YOU	交还演播室
+A Lower Third, a name, a title card, a backdrop. The lizard has left the studio, skapi.	字幕条、名字、标题卡、底色。蜥蜴已经离开演播室了，斯卡皮。
+Lower Thirds can wait, slide and leave on their own. Their section has every setting.	字幕条可以自己等待、滑入、离开。它的部分有全部设置。
+That's the weather. Back to you, guys. Run.	以上是天气预报。交还演播室。快跑。
+A GRAND DAY OUT	月球大冒险
+A rocket built in a basement, skapi, and an inventor who wants cheese. Press START.	一枚在地下室造的火箭，斯卡皮，还有一个想吃奶酪的发明家。按START。
+Stage timers: countdowns, clocks, and a presenter view for the person on stage.	舞台计时器：倒计时、时钟，以及给台上人看的演讲者视图。
+Cheese, Grommet! The moon's made of it. We'll need a countdown.	奶酪，格罗米特！月亮是奶酪做的。我们需要一个倒计时。
+A COUNTDOWN	一个倒计时
+SOURCE, then Stage Timer. A clock that counts down, in big friendly numbers.	信号源，然后Stage Timer。一个往下数的时钟，数字又大又亲切。
+Its colours change as it runs out: white, amber, red. Like a VU meter for time.	快到时间时颜色会变：白、琥珀、红。时间的VU表。
+*raises an eyebrow*	*挑起一边眉毛*
+Select the timer and TAKE it. The countdown starts.	选中计时器，TAKE。倒计时开始。
+Past zero it keeps going, counting the overtime. Very honest. Slightly rude.	过了零还会继续，数超时的时间。非常诚实。有点不客气。
+Ten... nine... ooh, I do love a countdown.	十……九……哦，我太爱倒计时了。
+HOLD!	停！
+Something's loose! Space holds the countdown. The clock shows it is held.	有东西松了！空格键暂停倒计时。时钟会显示已暂停。
+A hold is not a stop. Space again, and it carries on from where it was.	暂停不是停止。再按空格，从停下的地方继续。
+*holds up a spanner*	*举起一把扳手*
+THE PILOT'S VIEW	驾驶员的视图
+MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	MENU，视频输出：把一个输出的类型设为PRESENTER。台上的人能看到计时器、下一个cue和自己的备注。
+A presenter view is an output like any other. Point it at the confidence monitor.	演讲者视图也只是一个普通输出。对着返送监视器就行。
+So the pilot can see the time. The pilot is Grommet.	让驾驶员能看到时间。驾驶员是格罗米特。
+TO THE MOON	飞向月球
+A countdown, a hold, and a view for the pilot. Nazdrave, skapi. Bring crackers.	一个倒计时、一次暂停、一个给驾驶员的视图。纳兹德拉维，斯卡皮。记得带饼干。
+Timers can also count up, or show the time of day. Their section has the lot.	计时器也能正数，或显示当前时间。它的部分里应有尽有。
+A grand day out, Grommet! Pass the crackers.	真是一场大冒险，格罗米特！把饼干递给我。
+The trunk (closed)	箱子（关）
+The trunk (open)	箱子（开）
+THE MAGIC SHOW	魔术秀
+A magic show, skapi. A trunk, a prop, and one beat where everything changes at once. Press START.	一场魔术秀，斯卡皮。一个箱子，一件道具，还有一切同时改变的那一拍。按START。
+Two playlists are two layers. TAKE ALL changes both together.	两个播放列表就是两个图层。TAKE ALL让两个一起变。
+Every trick needs two things happening at once. And a rubber chicken.	每个魔术都需要两件事同时发生。还需要一只橡皮鸡。
+The prop goes on its own layer. Press the + at the end of the playlist tabs.	道具放在自己的图层上。按播放列表标签最后的+。
+Playlist 2 sits on top of playlist 1. Like a transparency on an overhead projector.	播放列表2叠在播放列表1上面。就像投影仪上的透明胶片。
+Nothing up my sleeve. Everything in my trunk.	袖子里什么都没有。全在箱子里。
+THE PROP	道具
+In the new playlist, add anything: PATTERN will do. That is the prop.	在新播放列表里随便加点什么：测试图就行。那就是道具。
+Whatever it is, it will appear the instant the trunk opens.	不管是什么，箱子一开它就出现。
+Is it a rubber chicken? It's always a rubber chicken.	是橡皮鸡吗？永远都是橡皮鸡。
+The prop (rubber chicken)	道具（橡皮鸡）
+TA-DA	当当当
+Select 'The trunk (open)' in playlist 1 and the prop in playlist 2. Then TAKE ALL: both on one beat.	在播放列表1选“箱子（开）”，在播放列表2选道具。然后TAKE ALL：两个在同一拍。
+One press, every playlist's selected cue. The audience never sees the seam.	按一下，每个播放列表选中的cue一起出。观众永远看不到接缝。
+Ta-daaa! ...Hold for applause. Hold. Hold.	当当当当！……请等掌声。等着。等着。
+THE PRESTIGE	压轴大戏
+Two layers, one beat. Every playlist has its own opacity and can sit on any output. Nazdrave, skapi.	两个图层，一拍。每个播放列表都有自己的不透明度，可以放在任何输出上。纳兹德拉维，斯卡皮。
+A magician never reveals. A playlist never minds being revealed.	魔术师从不揭秘。播放列表不介意被揭秘。
+Thank you! I'm here all week! The chicken is here forever.	谢谢！我整周都在这儿演！这只鸡永远在。
+The kitchen (on fire)	厨房（着火了）
+A lovely souffle	一份漂亮的舒芙蕾
+THE COOKING SHOW	烹饪节目
+A cooking show, skapi. Live. Everything is on fire. Press START.	一档烹饪节目，斯卡皮。直播。全都着火了。按START。
+BLACK hides the picture and keeps the show running. PANIC stops everything. Know which you need.	BLACK隐藏画面，演出继续。PANIC停止一切。要知道你需要哪个。
+Bork bork! Hurdy-flurdy, de kitchen is fire-a-flurdy!	博克博克！呼迪弗迪，厨房着火弗迪啦！
+The audience must not see this. Press BLACK, or B.	不能让观众看到这个。按BLACK，或者B。
+The picture goes. The cue keeps playing underneath, ready to come back.	画面没了。cue在底下继续播放，随时可以回来。
+Bork? Bork. Oh, de picture is gun.	博克？博克。哦，画面跑了。
+The fire's out. Press B again: the picture comes back, still running.	火灭了。再按一次B：画面回来，还在播放。
+Nothing was lost. A mute on a mixer, for pictures.	什么都没丢。画面版的调音台静音键。
+Ta-da! Still cookin'!	当当！还在做饭！
+Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	更糟的时候：MENU，系统，SAFETY卡片：PANIC。一切按照应急设置停下。
+PANIC is the big red button. Use it when BLACK is not enough. Then breathe.	PANIC是那个大红按钮。BLACK不够用时才用它。然后深呼吸。
+Bork bork BORK!	博克博克博克！
+Close MENU, select the souffle, and TAKE it. The show is back on.	关掉MENU，选中舒芙蕾，TAKE。演出继续。
+After a panic, the show is still there. Pick up where you meant to be.	应急之后，演出还在。从你想在的地方接着来。
+Voila! De souffle, he is risen!	瞧！舒芙蕾，它发起来了！
+BON APPETIT	请慢用
+BLACK to hide, PANIC to stop, TAKE to come back. You will survive any kitchen, skapi.	BLACK隐藏，PANIC停止，TAKE回来。什么厨房你都能活下来，斯卡皮。
+The panic setting chooses what PANIC does: fade out, cut, or just the outputs.	应急设置决定PANIC做什么：淡出、硬切，或只关输出。
+Bork bork bork! Goodnight!	博克博克博克！晚安！
+Look one	画面一
+Look two	画面二
+Presets, skapi. A whole look, remembered, and back with one button. Press START.	预设，斯卡皮。一整个画面，记下来，一个按钮就回来。按START。
+Like the patch memory on a synth: store, then recall.	就像合成器的音色存储：存储，再调用。
+Press DASH: buttons of your own, for anything at all.	按DASH：属于你自己的按钮，干什么都行。
+Ctrl+D also works. Very fast. Very professional.	Ctrl+D也行。非常快。非常专业。
+A PRESET BUTTON	一个预设按钮
+Press +, then 'preset - a new preset from what is on now'. The button remembers this look.	按+，然后“preset - a new preset from what is on now”。按钮会记住这个画面。
+Store. Like saving the patch before the drummer leans on the synth.	存储。就像鼓手靠到合成器上之前先存好音色。
+Close the DASH (Esc), then select Look two and TAKE it. A different look.	关掉DASH（Esc），然后选中画面二，TAKE。不一样的画面。
+Change it all. Don't worry. It remembers.	全改掉。别担心。它记得。
+ONE PRESS	一键
+Open the DASH and press your preset button. The first look comes back.	打开DASH，按你的预设按钮。第一个画面回来了。
+Recall. The patch memory, returning. Beautiful.	调用。音色存储，回来了。真美。
+And a DASH button can run any command at all. Any. Even the exciting ones.	而且DASH按钮可以运行任何命令。任何。包括刺激的那些。
+Opening titles	片头字幕
+The planet	星球
+The battle	大决战
+THE TRAILER	预告片
+A space-opera trailer, skapi. A narrator with a very deep voice and opinions about transitions. Press START.	一部太空歌剧的预告片，斯卡皮。一位声音超低沉、对转场很有意见的旁白。按START。
+A transition is how one cue becomes the next. There are far more than the crossfade.	转场就是一个cue变成下一个的方式。叠化之外还有很多。
+In a galaxy of content... one operator... must choose a transition.	在一个内容的银河里……一位操作员……必须选择一个转场。
+A STYLE	一种样式
+'The planet' is selected. In the inspector, its transition style: choose iris.	“星球”已被选中。在检查器里它的转场样式：选iris。
+Pushes, wipes, iris, dip to white. Even a portal. I wrote half of them. On a Tuesday.	推、划、光圈、闪白。甚至还有传送门。一半是我写的。在一个星期二。
+The planet deserves... a dramatic entrance.	星球值得……一个戏剧性的登场。
+A TIME	一个时长
+Give it a time: + on transition until it says a second or more.	给它时长：按转场的+，直到显示一秒或更多。
+No time, no transition. A style needs a duration to do anything at all.	没有时长，就没有转场。样式需要时长才能起作用。
+TAKE the planet. Watch it arrive.	TAKE星球。看它到来。
+The transition belongs to the cue arriving. Each cue chooses its own entrance.	转场属于进场的cue。每个cue选择自己的登场方式。
+Autobots... roll the transition.	汽车人……转场，出发。
+Now 'The battle': choose shatter, give it a time, and TAKE it.	现在是“大决战”：选shatter，给个时长，然后TAKE。
+Shatter drops the old picture like a pane of glass. Please do not do this at a funeral.	碎裂会像一块玻璃一样把旧画面摔下来。请不要在葬礼上这么做。
+Transform... and shatter out!	变形……然后碎裂！
+IN CINEMAS NOW	正在热映
+A style, a time, and two very dramatic entrances. Nazdrave, skapi.	一种样式、一个时长，和两次非常戏剧性的登场。纳兹德拉维，斯卡皮。
+A playlist has a default style too, for every cue that does not choose its own.	播放列表也有默认样式，给每个不自己选的cue用。
+Coming soon... to a desk near you.	即将上映……就在你附近的台子上。
+The beat	节拍
+THE ROBOT DJS	机器人DJ
+Two robot DJs, skapi. They do not talk. Their helmets do. Press START.	两位机器人DJ，斯卡皮。他们不说话。头盔替他们说。按START。
+Every cue has its own chain of audio effects, and some of them break the sound on purpose.	每个cue都有自己的音频效果链，有些会故意把声音弄坏。
+The beat is selected. In its AUDIO EFFECTS section, + adds one. Try the delay.	节拍已被选中。在它的AUDIO EFFECTS部分，按+添加。试试delay。
+Delay, reverb, filters, a compressor. Amount always means 'less of this'.	延迟、混响、滤波、压缩。amount永远是“少一点”的意思。
+A BEND	一个弯折
+Add a second: a bend, like crush. It damages the sound the way a broken file would.	再加一个：一个弯折，比如crush。它像坏掉的文件一样损坏声音。
+The bends are my favourite. Like a tape left in the sun. On purpose.	弯折是我的最爱。像一盘晒过太阳的磁带。故意的。
+THE PATCH	跳线
+MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	MENU，然后音频：每个播放列表的声音去哪，以及命名输出的跳线。
+Speakers, monitors, an in-ear for the drummer. The patch sends each its own.	音箱、返听、鼓手的入耳监听。跳线给每个送去它自己的。
+An effect, a bend and the patch. The robots approve, skapi. I think. Their faces are helmets.	一个效果、一个弯折、跳线。机器人们满意了，斯卡皮。大概吧。他们的脸就是头盔。
+Every audio effect can follow a ~ too, even Motion. Wave at the delay. It's wonderful.	每个音频效果也都能跟随~，连Motion也行。对着延迟挥挥手。妙极了。
+The glow on the horizon (evidence #2)	地平线上的光（证据2号）
+The Bureau again, skapi. A glow on the horizon, and two agents who disagree about it. Press START.	又是本局，斯卡皮。地平线上一团光，两名意见不合的探员。按START。
+The scopes measure a picture: brightness, colour, levels. Numbers, not opinions.	示波器测量画面：亮度、颜色、电平。是数字，不是意见。
+It's them, Brandt. It's a craft. Look how it glows.	是他们，布兰特。是飞船。看它怎么发光。
+THE REAL SIGNAL	真正的信号
+The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	示波器只读真正送出去的东西，从不读预览。打开输出：MENU，视频输出，输出关。
+Measuring a scaled-down preview would be measuring a photocopy. We measure the original.	测量缩小的预览，就像测量复印件。我们测的是原件。
+Chain of evidence, Hollis. The real signal or nothing.	证据链，霍利斯。要么是真信号，要么什么都不是。
+THE SCOPES	示波器
+Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	关掉MENU。监视器上方的PROGRAM按钮：一直按到显示SCOPES或BOTH。
+Both shows the picture and its scopes side by side. Very civilised.	BOTH把画面和示波器并排显示。非常文明。
+Let the scopes decide, Hollis.	让示波器来决定吧，霍利斯。
+THE WAVEFORM	波形
+Click the waveform to make it big. Bright things sit high, dark things low, left to right as in the picture.	点波形放大。亮的在上，暗的在下，左右和画面一致。
+The glow is that spike near the top. Very bright. Bright is not the same as alien.	那团光就是顶上那个尖峰。非常亮。亮不等于外星人。
+Look at the peak. Nothing a streetlight couldn't do.	看那个峰。路灯也做得到。
+THE VECTORSCOPE	矢量示波器
+Click it again to go back, then click the vectorscope: colour round a circle. Saturated runs to the edge.	再点一下返回，然后点矢量示波器：颜色绕着一个圆。越饱和越靠边。
+Magenta, far out by the rim. A strong colour. Strong is not illegal. Yet.	品红，远在边缘。很强的颜色。强不违法。暂时。
+It's off the chart, Brandt! Literally off the chart!	爆表了，布兰特！真的爆表了！
+FALSE COLOUR	伪色
+And false colour: red is clipped, yellow nearly. Is the glow red?	还有伪色：红色是削波，黄色是快了。那团光是红的吗？
+Clipped means the brightest the signal can carry, and then some lost. Detail gone.	削波就是信号能承载的最亮处，再多就丢了。细节没了。
+Red. Clipped. Not alien, Hollis. Just too bright. Case closed.	红色。削波。不是外星人，霍利斯。只是太亮。结案。
+THE TRUTH	真相
+Waveform, vectorscope, false colour. The scopes settled it, skapi. The agents did not.	波形、矢量示波器、伪色。示波器把事情定了，斯卡皮。探员们没有。
+SCOPES SOURCE reads any output, and the matrix can be 709 or 2020. For the curious.	SCOPES SOURCE能读任何输出，矩阵可以是709或2020。给好奇的人。
+Too bright for a streetlight, Brandt. Too bright for anything. ...I want to believe.	对路灯来说太亮了，布兰特。对什么都太亮了。……我想要相信。
+OUT OF THE BUILDING	走出大楼
+Pictures that leave by cable or network, skapi, not only a window on a screen. Press START.	通过线缆或网络离开的画面，斯卡皮，不只是屏幕上的一个窗口。按START。
+NDI over the network, SDI from a DeckLink card, ST 2110 for broadcast plants.	网络上的NDI，DeckLink卡的SDI，广播中心用的ST 2110。
+THE DEVICES PAGE	设备页
+MENU, Video Outputs, then Devices: every way an output can leave this computer.	MENU，视频输出，然后设备：输出离开这台电脑的所有方式。
+Each one says whether this machine can do it, and what it needs if not.	每一种都会告诉你这台机器能不能做，不能的话需要什么。
+If this computer has NDI, switch NDI SENDING on: the picture is on the network. If not, SHOW ME moves on.	如果这台电脑有NDI，打开NDI SENDING：画面就上网络了。没有的话，SHOW ME会跳过。
+NDI finds itself on the network. No cables, only a good switch and patience.	NDI会在网络上自己找到对方。不用线，只要一台好交换机和耐心。
+OUT THERE	外面的世界
+The output's own page has the rest: a DeckLink card's SDI, ST 2110 with NMOS, Spout and Syphon.	输出自己的页面有其余的：DeckLink卡的SDI、带NMOS的ST 2110、Spout和Syphon。
+Every one is just an output. The show does not know or care how it leaves.	每一种都只是一个输出。演出不知道也不在乎它怎么出去。
+Nebula ahead	前方星云
+Engine room	轮机舱
+Deck 3: something moving	3号甲板：有东西在动
+THE BRIDGE	舰桥
+The bridge of the starship Cathode, skapi. Four feeds, one main viewer, one mystery. Press START.	阴极号星舰的舰桥，斯卡皮。四路信号，一块主屏幕，一个谜。按START。
+The multiview shows every playlist at once. Like a wall of oscilloscopes, but in space.	多画面一次显示所有播放列表。像一面示波器墙，不过是在太空里。
+Frequencies open, Captain. All of them. That's the problem.	频道已打开，舰长。全都打开了。这就是问题所在。
+MULTI, above the monitor: every playlist in its own window.	监视器上方的MULTI：每个播放列表一个窗口。
+One window per playlist, the programme first.	每个播放列表一个窗口，节目在最前。
+Jinkys! Four feeds. And one of them has a monster in it.	天哪！四路信号。其中一路里有个怪物。
+WHAT'S NEXT	下一个是什么
+Add a window (+), then its ... menu: make it show NEXT. What goes live when you press TAKE.	加一个窗口（+），然后在它的...菜单里：让它显示NEXT。就是按TAKE时会播出的东西。
+Every window has a ... button. It chooses what that window shows.	每个窗口都有一个...按钮。它选择那个窗口显示什么。
+I need to see who's calling before they reach the main viewer.	我得在通话接到主屏幕之前看看是谁。
+A CLOCK	一个时钟
+And one more window, showing the clock. Operators who watch a clock are never late. Mostly.	再加一个窗口，显示时钟。看钟的操作员从不迟到。大多数时候。
+Time of day, big. Stardates are just very long timecode.	大大的当前时间。星历只是一段特别长的时间码。
+The monster only shows up at midnight. We're going to need a clock.	怪物只在午夜出现。我们需要一个时钟。
+ONE BIG ONE	一大几小
+Any window's ... menu, then a layout: one big, the rest small.	任意窗口的...菜单，然后选一个布局：一个大的，其余小的。
+The big window is window one. Usually the programme. Usually.	大窗口是窗口一。通常是节目。通常。
+Main viewer big. The captain likes it big.	主屏幕放大。舰长喜欢大的。
+Select Deck 3 in playlist 3 and TAKE. Watch its window.	在播放列表3里选中3号甲板，TAKE。看它的窗口。
+The red border is TALLY: the window that is on air. On screen, as they say on starships.	红框就是TALLY：正在播出的窗口。用星舰上的话说：上主屏幕。
+There! Feed three! Put it on screen!	那里！第三路！上主屏幕！
+THAT'S A WRAP	收工
+Windows, the ... menu, NEXT, the clock, a layout, tally. Mystery solved, skapi.	窗口、...菜单、NEXT、时钟、布局、Tally。谜题解开了，斯卡皮。
+A window can also show an output, with its warp and slices. Handy when it's a lighthouse.	窗口也可以显示一个输出，带着它的变形和切片。遇到灯塔时很方便。
+And the monster was... the ship's cook, all along. Jinkys.	原来那个怪物……一直都是船上的厨师。天哪。
+there is no such lesson	没有这节课
+finish or leave the lesson you are in first	先完成或退出当前这节课
+leave Bug Swat first	先退出Bug Swat
+Psst. It's me, the desk. I'll be watching. Supportively.	嘘。是我，这张台子。我会看着的。支持你。
+Hi! I'm the one doing all of this, by the way.	嗨！顺便说一句，这些全是我在干。
+Ctrl+D opens the DASH. I'm just saying.	Ctrl+D打开DASH。我就随便说说。
+Nearly there. I can feel it in my pixels.	快到了。我的像素都感觉到了。
+You're good at this. I can tell. I'm the one doing it.	你很擅长。我看得出来。毕竟是我在做。
+Every click, I heard. Every single one.	每一下点击，我都听到了。每一下。
+The glowing one. I can see it from here. It's glowing for you.	发光的那个。我在这儿都看得见。它在为你发光。
+lesson paused - MENU > LESSONS picks up where you left off	课程已暂停 - MENU > LESSONS从你离开的地方继续
+PROF. VIDEO:  The signal: what the picture is made of, and how to bend it. Pick a lesson.	PROF. VIDEO:  信号：画面由什么构成，以及怎么把它弯过来。选一节课。
+DR. PIXEL:  Running the show, skapi. Fast hands, calm face. Pick a lesson.	DR. PIXEL:  主控演出，斯卡皮。手要快，脸要稳。选一节课。
+LESSONS  -  PART TWO  -  WHO DO YOU FOLLOW?	课程  -  第二部分  -  你跟谁学？
+FOLLOW PROF. VIDEO	跟视频教授学
+FOLLOW DR. PIXEL	跟像素博士学
+the signal	信号
+running the show	主控演出
+PICK UP	继续
+CLOSE (Esc)	关闭 (Esc)
+PART ONE: THE BASICS	第一部分：基础
+finish or leave LEARN THE BASICS first	先完成或退出LEARN THE BASICS
+bug swat: Esc leaves, and your show comes back as it was	bug swat：按Esc退出，你的演出会恢复原样
+bug swat: your show is back. Motion's controls are in Settings > Audio	bug swat：你的演出回来了。Motion的控件在设置 > 音频
+TURN MOTION ON	打开MOTION
+Bugs are crawling to the cue list! Swat them by waving at your camera. First, Motion: in MOTION CONTROL turn it ON and choose what it READS.	bug正爬向cue列表！对着摄像头挥手拍死它们。先开Motion：在MOTION CONTROL里设为ON，并选择它读什么（READS）。
+This one is NullPointer. Hollow, points at nothing. A finger goes straight through. Use the whole hand, skapi.	这个是NullPointer。空心的，什么都不指。一根手指会直接穿过去。用整只手，斯卡皮。
+Wave like you are hailing a cab! A small, polite cab. Not the buttons. The cab.	像招出租车一样挥手！一辆小小的、有礼貌的出租车。不是按钮。是出租车。
+DRAW TWO ZONES	画两个区域
+Race Condition: twins, each sure it got there first. One reading cannot tell your hands apart, so drag two ZONES on the Motion picture, one each side.	Race Condition：双胞胎，都以为自己先到。一个读数分不清你的两只手，所以在Motion画面上拖出两个ZONES，左右各一个。
+Hit both together. Hit one, and they swap. Like my cousins at a wedding.	两个一起打。只打一个，它们就换位。像我表兄弟们在婚礼上一样。
+One hand each side. Together! Together!	一边一只手。一起！一起！
+Lower number, finer reading. Yes, I also think it is backwards.	数字越小，读数越细。是的，我也觉得是反的。
+Not the face. The little one on the end. Wiggle a finger.	不是脸。是最边上那个小的。动动手指。
+FALL 1.5 S OR MORE	FALL调到1.5秒以上
+Memory Leak. It only lets go while the reading stays up. Make FALL longer, 1.5 seconds or more, so your sweeps join up into one.	Memory Leak。只有读数一直保持高时它才松手。把FALL调长，1.5秒以上，让你的几次挥动连成一次。
+Slow and steady, skapi. Like paying back a loan.	稳扎稳打，斯卡皮。就像还房贷。
+Sweep, and sweep again. Let the fall carry you between.	挥，再挥。中间让回落带着你。
+MOTION X ON A TONE	把音调接到MOTION X
+The Heisenbug! It fades whenever you move. Put a tone cue's pitch on Motion X and follow it by ear: the ticking speeds up as you close in.	海森bug！你一动它就淡出。把一个音调cue的音高接到Motion X上，用耳朵追：越靠近，滴答声越快。
+SHOW ME makes the tone for you. High is right. Low is left. Stand still and it comes back.	SHOW ME帮你做好音调。高是右，低是左。站着别动，它就回来。
+Follow it. Listen. Faster ticking, closer bug.	跟着它。听。滴答越快，bug越近。
+Waving paw	挥手的爪子
+Heisenbug finder	海森bug探测器
+FIXED! Lovely signal flow.	修复了！漂亮的信号流。
+Closed as fixed. No regressions. Probably.	已修复关闭。没有回归。大概吧。
+Squashed! Ship it.	拍扁了！上线！
+One reached the cue list. It has filed a bug report about you.	有一只到了cue列表。它给你提了个bug。
+Skapi. It is a handheld. You do not press it. You wave at it.	斯卡皮。这是掌机。不是按的。是挥的。
+The buttons are for menus. The bugs are for flailing.	按钮是给菜单用的。bug是给挥胳膊用的。
+The D-pad is decorative. Like my diploma.	十字键是装饰。跟我的毕业证一样。
+In 1989 we also pressed the buttons. Then we discovered waving. Never looked back.	1989年我们也按按钮。后来我们发现了挥手。再也没回头。
+Pressing harder does not help. The bugs cannot feel buttons. Only arms.	按得再用力也没用。bug感觉不到按钮。只感觉得到胳膊。
+It's called a handheld because your hands are held... up. In the air. Waving.	叫掌机，是因为要把手掌举起来。举到空中。挥着。
+The mouse? You are swatting bugs with a MOUSE? In Bulgaria the mouse would be on the bugs' side.	鼠标？你在用鼠标拍bug？在保加利亚，老鼠会站在bug那边。
+Lovely clicking. Very crisp. The camera saw none of it.	点得真好听。很清脆。摄像头一下都没看见。
+DONE FOR YOU - PRESS START	已帮你完成 - 按START
+DONE! PRESS START	完成！按START
+SELECT OPENS MOTION CONTROL	SELECT打开MOTION CONTROL
+ALL BUGS FIXED	所有bug已修复
+GAME OVER	游戏结束
+NEW HIGH SCORE!	新纪录！
+START PLAYS AGAIN	按START再玩一次
+Nazdrave, skapi. Now go and fix real bugs.	纳兹德拉维，斯卡皮。现在去修真的bug吧。
+Every one of those is a real Motion control. Put them on any ~ knob you like.	这些每一个都是真正的Motion控件。想放在哪个~旋钮上都行。
+SELECT: MOTION	SELECT：MOTION
+START: AGAIN	START：再来
+START: PLAY	START：开始
+# --- end of tutorials ---
