@@ -1036,6 +1036,24 @@ meters. An output whose **Shows** is **MULTIVIEW** puts that same arrangement
 on a display, sized for the display, and a stream or the Web Monitor can carry
 it by choosing that output as its **Source**.
 
+**Choosing what a window shows.** Every window has a **...** button in its
+corner, and an empty window says **+ CHOOSE WHAT IT SHOWS**; clicking either
+opens the window's menu (a right-click does too). A window can show the
+programme, a playlist, what one output carries (by that output, so it stays
+right when another output is removed), the **next cue** (what GO plays on the
+focused playlist, with its still when the playlist has one), or the **time of
+day**. The same menu turns on safe areas, a level meter and the name, adds and
+removes windows, and picks the **layout**: an even grid, one big window with
+the rest beside it, one big on top, or two big on top. The big ones are the
+first one or two windows.
+
+A window that is on air has a red border: the programme, a playlist that is
+playing on a running output, or a running output. The next cue's window has a
+green one.
+
+Over the wire: `MULTIVIEW WINDOW <n> PROGRAMME|DECK<n>|OUTPUT<n>|NEXT|CLOCK|EMPTY`
+and `MULTIVIEW LAYOUT GRID|BIG|BIGTOP|TWOTOP`.
+
 ---
 
 ## 12. Outputs & Routing

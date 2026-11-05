@@ -1304,16 +1304,93 @@
     return -2;
   }
 
-  std::string multiviewTileSourceLabel(const MultiviewTile& tile) const {
+  // The output an "output:<id>" window shows, or -1.
+  int multiviewTileOutput(const MultiviewTile& tile) const {
+    if (tile.source.rfind("output:", 0) != 0) return -1;
+    return outputIndexById(tile.source.substr(7));
+  }
+
+  // What a window that is not a playlist or the programme shows.
+  enum class MultiviewFeed { None, Programme, Deck, Output, Next, Clock, Missing };
+
+  MultiviewFeed multiviewTileFeed(const MultiviewTile& tile) const {
+    if (tile.source.empty()) return MultiviewFeed::None;
+    if (tile.source == "next") return MultiviewFeed::Next;
+    if (tile.source == "clock") return MultiviewFeed::Clock;
+    if (tile.source.rfind("output:", 0) == 0) {
+      return multiviewTileOutput(tile) >= 0 ? MultiviewFeed::Output : MultiviewFeed::Missing;
+    }
     const int d = multiviewTileDeck(tile);
-    if (d == -1) {
-      return "PROGRAMME";
+    if (d == -1) return MultiviewFeed::Programme;
+    if (d >= 0) return MultiviewFeed::Deck;
+    return MultiviewFeed::Missing;
+  }
+
+  // The cue the "next" window shows: what GO plays next on the focused
+  // playlist, or null when nothing follows.
+  const Cue* multiviewNextCue(int* deckOut = nullptr, int* cueOut = nullptr) const {
+    const int deck = project_.focusedDeckIndex;
+    if (deckOut) *deckOut = deck;
+    return previewCuePtr(deck, cueOut);
+  }
+
+  std::string multiviewTileSourceLabel(const MultiviewTile& tile) const {
+    switch (multiviewTileFeed(tile)) {
+      case MultiviewFeed::None:      return "empty";
+      case MultiviewFeed::Programme: return "PROGRAMME";
+      case MultiviewFeed::Deck:      return deckLabel(multiviewTileDeck(tile));
+      case MultiviewFeed::Output: {
+        // Its number as well as its name: output 1 is called "Programme"
+        // until it is renamed, which a programme window is called too.
+        const int o = multiviewTileOutput(tile);
+        return "OUT " + std::to_string(o + 1) + "  " + toUpper(outputLabel(o));
+      }
+      case MultiviewFeed::Clock:     return "CLOCK";
+      case MultiviewFeed::Next: {
+        int cue = -1;
+        const Cue* next = multiviewNextCue(nullptr, &cue);
+        return next ? "NEXT: " + std::to_string(cue + 1) + "  " + next->name : std::string("NEXT: nothing");
+      }
+      default: break;
     }
-    if (d == -2) {
-      return tile.source.empty() ? std::string("empty")
-                                 : std::string("missing: ") + tile.source;
+    // An output that was removed says so, rather than showing another one.
+    return tile.source.rfind("output:", 0) == 0 ? std::string("missing: an output that was removed")
+                                                : std::string("missing: ") + tile.source;
+  }
+
+  // The time of day for the clock window, HH:MM:SS on this machine's clock.
+  static std::string multiviewClockText() {
+    const std::time_t now = std::time(nullptr);
+    std::tm local {};
+#ifdef _WIN32
+    localtime_s(&local, &now);
+#else
+    localtime_r(&now, &local);
+#endif
+    char text[16];
+    std::snprintf(text, sizeof text, "%02d:%02d:%02d", local.tm_hour, local.tm_min, local.tm_sec);
+    return text;
+  }
+
+  // ON AIR, for the window's red border: the programme; a playlist that is
+  // playing and reaches a running output; an output that is running.
+  bool multiviewTileOnAir(const MultiviewTile& tile) const {
+    switch (multiviewTileFeed(tile)) {
+      case MultiviewFeed::Programme: return true;
+      case MultiviewFeed::Deck: {
+        const int d = multiviewTileDeck(tile);
+        if (!deckIsOnAir(d) || deckIsHeldOffOutput(d)) return false;
+        for (int o = 0; o < static_cast<int>(project_.outputs.size()); ++o) {
+          if (project_.outputs[static_cast<std::size_t>(o)].enabled && stackPositionFor(o, d) >= 0) return true;
+        }
+        return false;
+      }
+      case MultiviewFeed::Output: {
+        const int o = multiviewTileOutput(tile);
+        return o >= 0 && project_.outputs[static_cast<std::size_t>(o)].enabled;
+      }
+      default: return false;
     }
-    return deckLabel(d);
   }
 
   // The level this window's meter shows. The programme window meters the

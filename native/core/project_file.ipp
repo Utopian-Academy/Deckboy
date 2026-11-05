@@ -280,6 +280,7 @@ void writeProjectScalars(std::ostream& output, const Project& project) {
   output << "ui_transitions\t" << (project.uiTransitionsEnabled ? 1 : 0) << '\n';
   output << "splash_character\t" << escapeField(project.splashCharacter) << '\n';
   output << "multiview\t" << project.multiviewMode << '\n';
+  output << "multiview_layout\t" << deckboy::multiview::layoutToken(project.multiviewLayout) << '\n';
   output << "monitor_device\t" << escapeField(project.monitorDeviceName) << '\n';
   output << "monitor_deck\t" << project.monitorDeckIndex << '\n';
   for (const NamedAudioOutput& named : project.namedAudioOutputs) {
@@ -1353,6 +1354,11 @@ bool applyProjectScalarLine(Project& project, const std::vector<std::string>& fi
     project.dashboardMode = std::clamp(safeInt(fields, 1, 0), 0, 1);
   } else if (fields[0] == "multiview") {
     project.multiviewMode = std::clamp(safeInt(fields, 1, 0), 0, 1);
+  } else if (fields[0] == "multiview_layout") {
+    // An unknown name (a later version's layout) opens as the even grid.
+    deckboy::multiview::Layout layout = deckboy::multiview::Layout::Grid;
+    deckboy::multiview::layoutFromToken(safeString(fields, 1), layout);
+    project.multiviewLayout = layout;
   } else if (fields[0] == "multiview_tile") {
     MultiviewTile tile;
     tile.source = safeString(fields, 1);

@@ -499,6 +499,14 @@
       }
       return;
     }
+    // A window's "..." chip opens its menu, whatever the window shows.
+    // Chip i belongs to window i: the add tile, which has none, comes last.
+    for (std::size_t i = 0; i < multiviewChipRects_.size(); ++i) {
+      if (multiviewChipRects_[i].w > 0 && pointInRect(x, y, multiviewChipRects_[i])) {
+        openMultiviewTileMenu(static_cast<int>(i), x, y);
+        return;
+      }
+    }
     for (std::size_t i = 0; i < multiviewTileRects_.size(); ++i) {
       if (!pointInRect(x, y, multiviewTileRects_[i])) {
         continue;

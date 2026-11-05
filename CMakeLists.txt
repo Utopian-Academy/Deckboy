@@ -1240,6 +1240,15 @@ if(BUILD_TESTING)
     target_compile_options(deckboy-masks-check PRIVATE -Wall -Wextra -Wshadow -Werror)
   endif()
   add_test(NAME masks COMMAND deckboy-masks-check)
+  # The multiview's layouts: every window placed, inside, none overlapping.
+  add_executable(deckboy-multiview-layout-check tools/multiview_layout_check.cpp)
+  target_include_directories(deckboy-multiview-layout-check PRIVATE native)
+  if(MSVC)
+    target_compile_options(deckboy-multiview-layout-check PRIVATE /W4 /WX)
+  else()
+    target_compile_options(deckboy-multiview-layout-check PRIVATE -Wall -Wextra -Wshadow -Werror)
+  endif()
+  add_test(NAME multiview_layout COMMAND deckboy-multiview-layout-check)
   set_tests_properties(scopes PROPERTIES TIMEOUT 30)
   # The GPU analyser against the CPU one, bin for bin, on a real renderer.
   # Needs a GPU (or WARP) and a window, so CI runs it as a step, not a CTest.

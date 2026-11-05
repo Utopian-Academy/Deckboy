@@ -29,6 +29,7 @@
 #include "fixtures.hpp"
 #include "audio_effects.hpp"
 #include "masks.hpp"
+#include "multiview_layout.hpp"
 #include "core/sdl_compat.hpp"
 #include <memory>
 #include <string>
@@ -1453,6 +1454,10 @@ inline CueTextAnimation cueTextAnimationFromToken(const std::string& t) {
 //   ""           an empty window -- a hole, kept so the grid does not reflow
 //   "programme"  what the programme output is showing
 //   "deck:<n>"   playlist n, zero based
+//   "output:<id>" what one output carries (OutputTarget::outputId, so the
+//                window follows that output when another is removed)
+//   "next"       the cue GO plays next on the focused playlist
+//   "clock"      the time of day
 struct MultiviewTile {
   std::string source = "programme";
   // Off by default, both of them. A multiview whose every window arrives
@@ -2873,6 +2878,9 @@ struct Project {
   // that is how it is useful: safe areas on the one feeding a screen with
   // bezels, a meter on the one carrying the sound.
   std::vector<MultiviewTile> multiviewTiles;
+  // How the windows are laid out (core/multiview_layout.hpp): an even grid,
+  // or the first one or two windows big and the rest beside or below them.
+  deckboy::multiview::Layout multiviewLayout = deckboy::multiview::Layout::Grid;
   // The dashboard's view: 0 the tiles, 1 the master tracker. Tiles by
   // default, because that is what the dashboard has always been.
   int dashboardMode = 0;

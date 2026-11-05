@@ -10906,6 +10906,7 @@ class App {
   std::vector<SDL_Rect> multiviewTileRects_;
   std::vector<int> multiviewTileDecks_;   // -1 = the programme tile
   std::vector<SDL_Rect> multiviewFaderRects_;
+  std::vector<SDL_Rect> multiviewChipRects_;   // each window's "..." menu, by window
   SDL_Rect multiviewBtnRect_ {};
   SDL_Rect outputBadgeRect_ {};   // the OUTPUT chip in the programme header: a switch
 

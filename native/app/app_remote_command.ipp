@@ -1660,20 +1660,40 @@
       // -- THE WINDOWS ------------------------------------------------
       //
       //   MULTIVIEW WINDOW                      what every window shows
-      //   MULTIVIEW WINDOW <n> <source>         programme | deck:<i> | empty
+      //   MULTIVIEW WINDOW <n> <source>         programme | deck<i> | output<i> | next | clock | empty
+      //   MULTIVIEW LAYOUT [grid|big|bigtop|twotop]
       //   MULTIVIEW WINDOW <n> SAFE|METER|LABEL ON|OFF
       //   MULTIVIEW WINDOW ADD | MULTIVIEW WINDOW REMOVE <n>
       //   MULTIVIEW WINDOW RESET                back to one per playlist
       //
       // Windows are numbered from 1 the way the operator sees them.
+      if (arg == "LAYOUT") {
+        if (parts.size() < 3) {
+          remoteCommandDetail_ = deckboy::multiview::layoutToken(project_.multiviewLayout);
+          return;
+        }
+        deckboy::multiview::Layout layout;
+        if (!deckboy::multiview::layoutFromToken(toLower(parts[2]), layout)) {
+          failRemoteCommand("MULTIVIEW LAYOUT: expected GRID, BIG, BIGTOP or TWOTOP");
+          return;
+        }
+        project_.multiviewLayout = layout;
+        markProjectDirty();
+        remoteCommandDetail_ = deckboy::multiview::layoutToken(layout);
+        return;
+      }
       if (arg == "WINDOW" || arg == "TILE") {
         if (parts.size() == 2) {
           const auto plan = multiviewTilePlan();
           std::string detail;
           for (std::size_t t = 0; t < plan.size(); ++t) {
             if (!detail.empty()) detail += "; ";
+            // An output reads by its number, not its id.
+            const int shownOutput = multiviewTileOutput(plan[t]);
             detail += std::to_string(t + 1) + "=" +
-                      (plan[t].source.empty() ? std::string("empty") : plan[t].source);
+                      (plan[t].source.empty() ? std::string("empty")
+                       : shownOutput >= 0 ? "output" + std::to_string(shownOutput + 1)
+                                          : plan[t].source);
             if (plan[t].safeAreas) detail += "+safe";
             if (plan[t].vuMeter)   detail += "+meter";
             if (!plan[t].label)    detail += "-label";
@@ -1764,6 +1784,20 @@
           source = "";
         } else if (upper == "PROGRAMME" || upper == "PROGRAM" || upper == "PGM") {
           source = "programme";
+        } else if (upper == "NEXT" || upper == "PREVIEW" || upper == "PVW") {
+          source = "next";
+        } else if (upper == "CLOCK") {
+          source = "clock";
+        } else if (upper.rfind("OUTPUT", 0) == 0) {
+          const char* digits = source.c_str() + 6;
+          while (*digits == ':' || *digits == ' ') ++digits;
+          const int o = std::atoi(digits) - 1;   // the operator counts from 1
+          if (o < 0 || o >= static_cast<int>(project_.outputs.size()) ||
+              project_.outputs[static_cast<std::size_t>(o)].outputId.empty()) {
+            failRemoteCommand("MULTIVIEW WINDOW: there is no output " + std::string(digits));
+            return;
+          }
+          source = "output:" + project_.outputs[static_cast<std::size_t>(o)].outputId;
         } else if (upper.rfind("DECK", 0) == 0) {
           const char* digits = source.c_str() + 4;
           while (*digits == ':' || *digits == ' ') ++digits;
@@ -1775,7 +1809,7 @@
           }
           source = "deck:" + std::to_string(d);
         } else {
-          failRemoteCommand("MULTIVIEW WINDOW: expected PROGRAMME, DECK<n> or EMPTY");
+          failRemoteCommand("MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK or EMPTY");
           return;
         }
         tile.source = source;

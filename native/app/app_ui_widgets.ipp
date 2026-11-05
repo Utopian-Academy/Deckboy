@@ -338,6 +338,14 @@
     for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
       sourceRow("deck:" + std::to_string(d), deckLabel(d));
     }
+    // What each output carries, by its id, so the window follows that
+    // output when another one is removed.
+    for (int o = 0; o < static_cast<int>(project_.outputs.size()); ++o) {
+      const std::string& id = project_.outputs[static_cast<std::size_t>(o)].outputId;
+      if (!id.empty()) sourceRow("output:" + id, "output: " + outputLabel(o));
+    }
+    sourceRow("next", "the next cue (what GO plays)");
+    sourceRow("clock", "the time of day");
     sourceRow("", "nothing - leave it empty");
 
     // -- THE BELLS AND WHISTLES, PER WINDOW ------------------------------
@@ -398,6 +406,20 @@
         markProjectDirty();
         triggerToast("multiview: back to the automatic set");
       }});
+
+    // -- THE LAYOUT, for every window at once ---------------------------
+    contextItems_.push_back({"LAYOUT", {0, 0, 0, 0}, nullptr});
+    for (int l = 0; l < static_cast<int>(deckboy::multiview::Layout::Count); ++l) {
+      const auto layout = static_cast<deckboy::multiview::Layout>(l);
+      const bool on = project_.multiviewLayout == layout;
+      contextItems_.push_back({
+        std::string(on ? "  * " : "    ") + deckboy::multiview::layoutLabel(layout),
+        on ? SDL_Color {40, 130, 90, 255} : SDL_Color {0, 0, 0, 0},
+        [this, layout]() {
+          project_.multiviewLayout = layout;
+          markProjectDirty();
+        }});
+    }
 
     layoutContextMenu(mx, my);
   }

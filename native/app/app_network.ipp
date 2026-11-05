@@ -3373,6 +3373,8 @@ html,body{width:100%;height:100%;overflow:hidden}
         "memo: MEMOCUE <text> - a note in the running order; GO shows it and changes nothing\n"
         "triggers: TRIGGER [KEY F1-F10|F12|NUM0-9 | MIDI <note> | OSC /addr | AT HH:MM[:SS]] [OFF] - what fires the selected cue\n"
         "        MULTIVIEW [ON|OFF] - the programme and every playlist, in a grid\n"
+        "        MULTIVIEW WINDOW <n> PROGRAMME|DECK<n>|OUTPUT<n>|NEXT|CLOCK|EMPTY - what one window shows\n"
+        "        MULTIVIEW LAYOUT GRID|BIG|BIGTOP|TWOTOP - an even grid, or the first windows big\n"
         "audio fan-out: AUDIOALSO [ADD <device>|REMOVE <device>|CLEAR] - the same sound to more devices at once\n"
         "monitor: MONITOR - what you hear, and who is in the room\n"
         "        MONITOR DEVICE [<name>] - listen here; no name turns it off\n"

@@ -2,6 +2,14 @@
 
 ## Unreleased (masks, and an exact LED tile size)
 
+### Multiview
+
+- Every multiview window has a **...** menu button, and an empty window says **+ CHOOSE WHAT IT SHOWS**. Choosing a window's picture was only a right-click before.
+- A window can show what one output carries, the next cue (with its still), or the time of day, as well as the programme and the playlists.
+- Layouts: an even grid, one big window with the rest beside it, one big on top, or two big on top. The desk's monitor and a multiview output use the same layout.
+- Tally: a red border round a window that is on air, a green one round the next cue.
+- `MULTIVIEW WINDOW <n> OUTPUT<n>|NEXT|CLOCK` and `MULTIVIEW LAYOUT GRID|BIG|BIGTOP|TWOTOP` over the wire.
+
 ### Masks
 - A mask cuts the picture to a shape: on a cue (it travels with the cue), on one playlist on an output, on an output's whole picture (to transparent on a key signal), or in the matte slot. Each show keeps a library of masks; one mask can be in several places, and an edit reaches them all.
 - Eight shapes to start from (circle, ellipse, heart, star, rectangle, rounded rect, triangle, hexagon), built round on the screen they are made for, and a pen for your own. Paths add or subtract in order.

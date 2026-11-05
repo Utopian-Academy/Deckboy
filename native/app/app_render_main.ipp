@@ -458,31 +458,27 @@
     multiviewPlan_ = multiviewTilePlan();
     const bool canAdd = static_cast<int>(multiviewPlan_.size()) < kMaxMultiviewTiles;
     const int tileCount = static_cast<int>(multiviewPlan_.size()) + (canAdd ? 1 : 0);
-    // A grid that is WIDER than tall, because a tile is 16:9 and a column of
-    // them wastes the panel. ceil(sqrt) alone gives 2x2 for three tiles, which
-    // leaves a hole; this fills across first.
-    int cols = 1;
-    while (cols * cols < tileCount) {
-      ++cols;
-    }
-    if (cols > 1 && (cols - 1) * cols >= tileCount) {
-      // e.g. 6 tiles -> 3x2 rather than 3x3 with three empty cells.
-    }
-    const int rows = (tileCount + cols - 1) / cols;
+    // WHERE EACH WINDOW GOES: the show's layout, from the one function the
+    // output's multiview uses too (core/multiview_layout.hpp).
     const int gap = uiScaled(4);
-    const int tileW = (area.w - gap * (cols - 1)) / cols;
-    const int tileH = (area.h - gap * (rows - 1)) / rows;
-    if (tileW < uiScaled(70) || tileH < uiScaled(52)) {
-      return false;   // too small to be a picture; the single monitor is better
+    const auto placed = deckboy::multiview::layoutWindows(
+      project_.multiviewLayout, tileCount, {area.x, area.y, area.w, area.h}, gap);
+    // Too small to be a picture: the single monitor is better. The even grid
+    // keeps the size it always fell back at; a layout with big windows lets
+    // its small ones be smaller, since the big ones carry the picture.
+    const bool grid = project_.multiviewLayout == deckboy::multiview::Layout::Grid;
+    for (const auto& r : placed) {
+      if (r.w < uiScaled(grid ? 70 : 48) || r.h < uiScaled(grid ? 52 : 30)) {
+        return false;
+      }
     }
     const int labelH = std::max(uiScaled(14), textLineHeight(fontSmall_));
     const int faderH = uiScaled(7);
+    multiviewChipRects_.clear();
 
     for (int i = 0; i < tileCount; ++i) {
-      const int col = i % cols;
-      const int row = i / cols;
-      SDL_Rect tile {area.x + col * (tileW + gap), area.y + row * (tileH + gap),
-                     tileW, tileH};
+      const auto& at = placed[static_cast<std::size_t>(i)];
+      SDL_Rect tile {at.x, at.y, at.w, at.h};
       const bool isAddTile = canAdd && i >= static_cast<int>(multiviewPlan_.size());
       const MultiviewTile tile0 = isAddTile ? MultiviewTile{}
                                            : multiviewPlan_[static_cast<std::size_t>(i)];
@@ -504,7 +500,8 @@
         continue;
       }
       const bool isProgramme = deckIndex == -1;
-      const bool isEmptyTile = deckIndex == -2;
+      const MultiviewFeed feed = multiviewTileFeed(tile0);
+      const bool isEmptyTile = feed == MultiviewFeed::None || feed == MultiviewFeed::Missing;
       const bool focused = deckIndex >= 0 && deckIndex == project_.focusedDeckIndex;
 
       drawUIPanel(tile, pal.deep, pal.deep, focused ? pal.light : pal.mid);
@@ -528,7 +525,33 @@
         texW = deckPreviewTex_[deckIndex].w;
         texH = deckPreviewTex_[deckIndex].h;
       }
-      if (tex && texW > 0 && texH > 0 && pic.w > 0 && pic.h > 0) {
+      if (feed == MultiviewFeed::Next && pic.w > 0 && pic.h > 0) {
+        // The still from the playlist row when there is one, then what it is.
+        int nextDeck = -1;
+        const Cue* next = multiviewNextCue(&nextDeck);
+        if (next) {
+          tex = cueRowStillTexture(*next);
+          if (tex) {
+            float tw = 0.0f, th = 0.0f;
+            SDL_GetTextureSize(tex, &tw, &th);
+            texW = static_cast<int>(tw);
+            texH = static_cast<int>(th);
+          }
+        }
+        if (!tex) {
+          drawCenteredTextSafe(controlRenderer_, fontBase_, pic,
+                               next ? next->name : std::string("nothing follows"), pal.fgSoft);
+        }
+      }
+      if (feed == MultiviewFeed::Output && pic.w > 0 && pic.h > 0) {
+        drawMultiviewOutputStack(multiviewTileOutput(tile0), pic);
+      } else if (feed == MultiviewFeed::Clock && pic.w > 0 && pic.h > 0) {
+        Primitives::fillRect(controlRenderer_, pic, SDL_Color {0, 0, 0, 255});
+        drawCenteredTextSafe(controlRenderer_, fontLarge_ ? fontLarge_ : fontBase_, pic,
+                             multiviewClockText(), pal.light);
+      } else if (feed == MultiviewFeed::Next && !tex) {
+        // Drawn above: its name.
+      } else if (tex && texW > 0 && texH > 0 && pic.w > 0 && pic.h > 0) {
         const double scale = std::min(static_cast<double>(pic.w) / texW,
                                       static_cast<double>(pic.h) / texH);
         const int dw = std::max(1, static_cast<int>(std::lround(texW * scale)));
@@ -548,11 +571,23 @@
         renderTextCueIntoOutput(controlRenderer_, *activeCuePtr(deckIndex),
                                 pic,
                                 tileEngine ? tileEngine->position() : 0.0);
+      } else if (isEmptyTile && pic.w > 0 && pic.h > 0) {
+        // SAY WHAT TO DO WITH IT. An empty window used to read "empty", and
+        // nothing on it said it could be clicked (James, 2026-11-04: "you can
+        // add windows but not assign them to anything?").
+        const int lineH = textLineHeight(fontSmall_);
+        SDL_Rect top {pic.x, pic.y + pic.h / 2 - lineH, pic.w, lineH};
+        SDL_Rect under {pic.x, pic.y + pic.h / 2, pic.w, lineH};
+        // The short form where the long one would be cut off.
+        std::string ask = "+ CHOOSE WHAT IT SHOWS";
+        if (measuredTextWidth(fontSmall_, ask) > pic.w - uiScaled(8)) ask = "+ CHOOSE";
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, top,
+                             feed == MultiviewFeed::Missing ? multiviewTileSourceLabel(tile0) : ask,
+                             pal.light);
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, under, "click this window", pal.fgSoft);
       } else if (pic.w > 0 && pic.h > 0) {
         drawCenteredTextSafe(controlRenderer_, fontSmall_, pic,
-                             isEmptyTile ? multiviewTileSourceLabel(tile0)
-                             : isProgramme ? "NO PROGRAMME" : "no picture",
-                             pal.dark);
+                             isProgramme ? "NO PROGRAMME" : "no picture", pal.dark);
       }
 
       // -- SAFE AREAS, PER WINDOW ------------------------------------
@@ -636,10 +671,87 @@
         multiviewFaderRects_.push_back(SDL_Rect {});
       }
 
+      // TALLY: red round a window that is on air, green round the next cue,
+      // the colours every switcher's multiview uses.
+      const bool onAir = multiviewTileOnAir(tile0);
+      if (onAir || feed == MultiviewFeed::Next) {
+        const SDL_Color ink = onAir ? SDL_Color {220, 50, 45, 255} : SDL_Color {60, 200, 90, 255};
+        const int t = std::max(2, uiScaled(2));
+        Primitives::fillRect(controlRenderer_, SDL_Rect {tile.x, tile.y, tile.w, t}, ink);
+        Primitives::fillRect(controlRenderer_, SDL_Rect {tile.x, tile.y + tile.h - t, tile.w, t}, ink);
+        Primitives::fillRect(controlRenderer_, SDL_Rect {tile.x, tile.y, t, tile.h}, ink);
+        Primitives::fillRect(controlRenderer_, SDL_Rect {tile.x + tile.w - t, tile.y, t, tile.h}, ink);
+      }
+
+      // THE WINDOW'S MENU, in its corner, so choosing what a window shows is
+      // never only a right-click. A playlist window's click focuses that
+      // playlist, so it needs a way in that is not the click.
+      const int chipH = std::max(uiScaled(16), textLineHeight(fontSmall_) + uiScaled(2));
+      const int chipW = std::max(uiScaled(26), measuredTextWidth(fontSmall_, "...") + uiScaled(10));
+      SDL_Rect chip {tile.x + tile.w - chipW - uiScaled(4), tile.y + uiScaled(4), chipW, chipH};
+      drawUIPanel(chip, pal.tile, pal.deep, pal.mid);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, chip, "...", pal.fg);
+      multiviewChipRects_.push_back(chip);
+
       multiviewTileRects_.push_back(tile);
       multiviewTileDecks_.push_back(deckIndex);
     }
     return true;
+  }
+
+  // ONE OUTPUT'S PICTURE IN A WINDOW, from the playlists' own previews: its
+  // base playlist, then each layer where the output places it. The window
+  // shows what that output carries, before its warp and masks, which is what
+  // a multiview is for.
+  void drawMultiviewOutputStack(int outputIndex, const SDL_Rect& pic) {
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) return;
+    const OutputTarget& out = project_.outputs[static_cast<std::size_t>(outputIndex)];
+    const auto size = outputRenderSizeForOutput(outputIndex);
+    const double aspect = size.first > 0 && size.second > 0
+                            ? static_cast<double>(size.first) / size.second : 16.0 / 9.0;
+    int fw = pic.w;
+    int fh = static_cast<int>(std::lround(fw / aspect));
+    if (fh > pic.h) {
+      fh = pic.h;
+      fw = static_cast<int>(std::lround(fh * aspect));
+    }
+    const SDL_Rect frame {pic.x + (pic.w - fw) / 2, pic.y + (pic.h - fh) / 2, std::max(1, fw), std::max(1, fh)};
+    Primitives::fillRect(controlRenderer_, frame, SDL_Color {0, 0, 0, 255});
+    auto drawDeck = [&](int deck, const SDL_Rect& box) {
+      if (deck < 0 || deck >= static_cast<int>(deckPreviewTex_.size()) || deckIsHeldOffOutput(deck)) return;
+      const DeckPreviewTex& p = deckPreviewTex_[static_cast<std::size_t>(deck)];
+      if (!p.tex || p.w <= 0 || p.h <= 0) return;
+      const double scale = std::min(static_cast<double>(box.w) / p.w, static_cast<double>(box.h) / p.h);
+      const float dw = static_cast<float>(p.w * scale);
+      const float dh = static_cast<float>(p.h * scale);
+      const SDL_FRect dst {box.x + (box.w - dw) / 2.0f, box.y + (box.h - dh) / 2.0f, dw, dh};
+      SDL_RenderTexture(controlRenderer_, p.tex, nullptr, &dst);
+    };
+    drawDeck(out.hostDeckIndex, frame);
+    for (const OutputLayer& layer : out.layerDecks) {
+      drawDeck(layer.deckIndex,
+               SDL_Rect {frame.x + static_cast<int>(std::lround(layer.x * frame.w)),
+                         frame.y + static_cast<int>(std::lround(layer.y * frame.h)),
+                         std::max(1, static_cast<int>(std::lround(layer.w * frame.w))),
+                         std::max(1, static_cast<int>(std::lround(layer.h * frame.h)))});
+    }
+  }
+
+  // The playlist row's still of a cue, when one has been made. Never asks for
+  // one: the playlist does that as it draws.
+  SDL_Texture* cueRowStillTexture(const Cue& cue) {
+    if (!cueUsesFilesystemMedia(cue) || (cue.kind != CueKind::Video && cue.kind != CueKind::Image)) {
+      return nullptr;
+    }
+    const std::string key = cueVisualCacheKey(cue);
+    auto found = rowThumbTex_.find(key);
+    if (found != rowThumbTex_.end()) return found->second;
+    std::lock_guard<std::mutex> lk(thumbnailMutex_);
+    auto cached = selectedThumbnailCache_.find(key);
+    if (cached != selectedThumbnailCache_.end() && !cached->second.pixels.empty()) {
+      return uploadRowThumbTexture(key, cached->second);
+    }
+    return nullptr;
   }
 
   // Hours since launch, for the face's mood. DECKBOY_MASCOT_UPTIME_HOURS
