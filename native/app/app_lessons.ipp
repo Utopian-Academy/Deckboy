@@ -240,7 +240,9 @@
   // the enterprise", "jinkys!"). Madden is only in the telestrator booth
   // ("do we NEED a 2nd sports themed thing?"); Donna Wheel (Vanna White),
   // June O'Neil (April O'Neil), Wallis and Grommet (Wallace and Gromit; a
-  // grommet is also what a cable goes through). Sixteen by
+  // grommet is also what a cable goes through), Turnip Top (Carrot Top),
+  // Chef Bork (the Swedish Chef), Optimus Primetime (Optimus Prime) and Deft
+  // Funk (Daft Punk, who speak only in visor text). Sixteen by
   // twenty, in the teachers' letters and the theme's inks, so they sit on the
   // card beside Dr. Pixel and the Professor on every colourway. A off-white
   // (Rook's beard, Dot's headset), R red and Y yellow are fixed colours, as
@@ -510,6 +512,121 @@
          "..SSSSSSSSSSSS..",
          "..SSSSSSSSSSSS.."},
         6, {4, 5, 10, 11, -1, -1}, -1, {-1, -1, -1, -1}},
+      {"TURNIP TOP",
+        {
+         ".OO.OO.OO.OO.OO.",
+         "OOOOOOOOOOOOOOOO",
+         "OOOOOOOOOOOOOOOO",
+         "OOOOSSSSSSSSOOOO",
+         "OOOSSSSSSSSSSOOO",
+         ".OOSHHSSSSHHSOO.",
+         "..OSWESSSSWESO..",
+         "...SSSSSSSSSS...",
+         "...SSSSDDSSSSS..",
+         "...SBSSSSSSBSS..",
+         "...SMWWWWWWMSS..",
+         "....SMMMMMMSS...",
+         ".....SSSSSSS....",
+         "......SSSSS.....",
+         "...KKKKKKKKKK...",
+         "..KKKKKYKKKKKK..",
+         ".KKKKKYYYKKKKKK.",
+         ".KKKKKKYKKKKKKK.",
+         ".KKKKKKKKKKKKKK.",
+         ".KKKKKKKKKKKKKK."},
+        6, {4, 5, 10, 11, -1, -1}, 10, {6, 7, 8, 9}},
+      {"CHEF BORK",
+        {
+         "....AAAAAAAA....",
+         "...AAAAAAAAAA...",
+         "...AAAAAAAAAA...",
+         "...AAAAAAAAAA...",
+         "....AAAAAAAA....",
+         "....DDDDDDDD....",
+         "...SSSSSSSSSS...",
+         "...HHHHSSHHHH...",
+         "...HHHHSSHHHH...",
+         "...SSSSDDSSSS...",
+         "...SSSDDDDSSS...",
+         "..HHHHHHHHHHHH..",
+         "..HHHHHHHHHHHH..",
+         "...SSSSSSSSSS...",
+         "....SSSSSSSS....",
+         "...AAAARRAAAA...",
+         "..AAAAARRAAAAA..",
+         ".AAAAAAAAAAAAAA.",
+         ".AAAKAAAAAAKAAA.",
+         ".AAAAAAAAAAAAAA."},
+        -1, {-1, -1, -1, -1, -1, -1}, 12, {6, 7, 8, 9}},
+      {"OPTIMUS PRIMETIME",
+        {
+         "..U..........U..",
+         "..UU...UU...UU..",
+         "..UUUUUUUUUUUU..",
+         ".UUUUUUUUUUUUUU.",
+         ".UUAAAAAAAAAAUU.",
+         ".UUAYYAAAAYYAUU.",
+         ".UUAYYAAAAYYAUU.",
+         ".UUAAAAAAAAAAUU.",
+         ".UUAAAAKKAAAAUU.",
+         ".UUAKAKAAKAKAUU.",
+         ".UUAKAKAAKAKAUU.",
+         ".UUAKAKAAKAKAUU.",
+         "..UUAAAAAAAAUU..",
+         "...UUUUUUUUUU...",
+         "....RRRRRRRR....",
+         "..RRRRRRRRRRRR..",
+         ".RRAAARRRRAAARR.",
+         ".RRAAARRRRAAARR.",
+         ".RRRRRRRRRRRRRR.",
+         ".RRRRRRRRRRRRRR."},
+        5, {4, 5, 10, 11, -1, -1}, 9, {7, 8, -1, -1}},
+      {"DEFT FUNK (SILVER)",
+        {
+         ".....AAAAAA.....",
+         "...AAAAAAAAAA...",
+         "..AAAAAAAAAAAA..",
+         ".AAAAAAAAAAAAAA.",
+         ".AAKKKKKKKKKKAA.",
+         ".AKKKKKKKKKKKKA.",
+         ".AKKYKYKYKYKKKA.",
+         ".AKKKKKKKKKKKKA.",
+         ".AAKKKKKKKKKKAA.",
+         ".AAAAAAAAAAAAAA.",
+         "..AAAAAAAAAAAA..",
+         "...AAAAAAAAAA...",
+         ".....AAAAAA.....",
+         "......AAAA......",
+         "....KKKKKKKK....",
+         "..KKKKKKKKKKKK..",
+         ".KKKKKKAAKKKKKK.",
+         ".KKKKKKAAKKKKKK.",
+         ".KKKKKKKKKKKKKK.",
+         ".KKKKKKKKKKKKKK."},
+        -1, {-1, -1, -1, -1, -1, -1}, 6, {4, 6, 8, 10}},
+      {"DEFT FUNK (GOLD)",
+        {
+         ".....YYYYYY.....",
+         "...YYYYYYYYYY...",
+         "..YYYYYYYYYYYY..",
+         ".YYYYYYYYYYYYYY.",
+         ".YYKKKKKKKKKKYY.",
+         ".YYKKKKKKKKKKYY.",
+         ".YYKRKRKRKRKKYY.",
+         ".YYKKKKKKKKKKYY.",
+         ".YYKKKKKKKKKKYY.",
+         ".YYYYYYYYYYYYYY.",
+         "..YYYYYYYYYYYY..",
+         "...YYYYYYYYYY...",
+         ".....YYYYYY.....",
+         "......YYYY......",
+         "....KKKKKKKK....",
+         "..KKKKKKKKKKKK..",
+         ".KKKKKKYYKKKKKK.",
+         ".KKKKKKYYKKKKKK.",
+         ".KKKKKKKKKKKKKK.",
+         ".KKKKKKKKKKKKKK."},
+        -1, {-1, -1, -1, -1, -1, -1}, 6, {4, 6, 8, 10}},
     };
     if (!name) return nullptr;
     for (const GuestFace& face : kFaces) {
@@ -1351,6 +1468,164 @@
       lessons_.push_back(std::move(l));
     }
 
+    // ── Dr. Pixel: Two playlists and TAKE ALL (the magic show) ────────────
+    {
+      LessonDef l;
+      l.id = "layers";
+      l.videoTrack = false;
+      l.title = "Two playlists and TAKE ALL";
+      l.about = "A second playlist as a layer, and TAKE ALL so two things change on one beat.";
+      l.show = "The magic show, with Turnip Top";
+      l.setup = [this] {
+        addGeneratorCue("pocket-test");
+        addGeneratorCue("swirl");
+        Deck& deck = focusedDeckMutable();
+        if (deck.cues.size() >= 2) {
+          deck.cues[0].name = "The trunk (closed)";
+          deck.cues[1].name = "The trunk (open)";
+        }
+        selectCueInDeck(project_.focusedDeckIndex, 0, false, false);
+        jumpSelectedCue();
+      };
+      auto isOpenTrunk = [](const Cue& c) { return c.name == "The trunk (open)"; };
+      l.steps = {
+        {"THE MAGIC SHOW", nullptr,
+         "A magic show, skapi. A trunk, a prop, and one beat where everything changes at once. Press START.",
+         "Two playlists are two layers. TAKE ALL changes both together.",
+         "TURNIP TOP", "Every trick needs two things happening at once. And a rubber chicken.",
+         std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; }, nullptr},
+        {"A SECOND PLAYLIST", nullptr,
+         "The prop goes on its own layer. Press the + at the end of the playlist tabs.",
+         "Playlist 2 sits on top of playlist 1. Like a transparency on an overhead projector.",
+         "TURNIP TOP", "Nothing up my sleeve. Everything in my trunk.",
+         [this] { return project_.decks.size() >= 2; },
+         [this] { addDeck(); },
+         [this] { return deckAddTabRect_; }, nullptr},
+        {"THE PROP", nullptr,
+         "In the new playlist, add anything: PATTERN will do. That is the prop.",
+         "Whatever it is, it will appear the instant the trunk opens.",
+         "TURNIP TOP", "Is it a rubber chicken? It's always a rubber chicken.",
+         [this] { return project_.decks.size() >= 2 && !project_.decks[1].cues.empty(); },
+         [this] {
+           if (project_.decks.size() < 2) addDeck();
+           project_.focusedDeckIndex = 1;
+           addGeneratorCue("fireside");
+           Deck& deck = focusedDeckMutable();
+           if (!deck.cues.empty()) deck.cues.back().name = "The prop (rubber chicken)";
+         },
+         [this] { return tutorialButtonRect("PATTERN"); }, nullptr},
+        {"TA-DA", "CTRL+ENTER",
+         "Select 'The trunk (open)' in playlist 1 and the prop in playlist 2. Then TAKE ALL: both on one beat.",
+         "One press, every playlist's selected cue. The audience never sees the seam.",
+         "TURNIP TOP", "Ta-daaa! ...Hold for applause. Hold. Hold.",
+         [this, isOpenTrunk] {
+           if (project_.decks.size() < 2) return false;
+           const Deck& one = project_.decks[0];
+           const bool trunk = one.activeIndex >= 0 && one.activeIndex < static_cast<int>(one.cues.size()) &&
+                              isOpenTrunk(one.cues[static_cast<std::size_t>(one.activeIndex)]);
+           return trunk && project_.decks[1].activeIndex >= 0;
+         },
+         [this, isOpenTrunk] {
+           if (project_.decks.size() < 2 || project_.decks[1].cues.empty()) return;
+           int d = -1;
+           const int i = lessonFindCue(isOpenTrunk, &d);
+           if (i < 0) return;
+           selectCueInDeck(0, i, false, false);
+           selectCueInDeck(1, 0, false, false);
+           takeAllDecks(true);
+         },
+         [this, isOpenTrunk] {
+           int d = -1;
+           const int i = lessonFindCue(isOpenTrunk, &d);
+           if (i >= 0 && project_.decks[0].selectedIndex != i) return tutorialCueRowRect(0, i);
+           if (project_.decks.size() >= 2 && !project_.decks[1].cues.empty() && project_.decks[1].selectedIndex < 0) {
+             return tutorialCueRowRect(1, 0);
+           }
+           return tutorialButtonRect("TAKE ALL");
+         }, nullptr},
+        {"THE PRESTIGE", nullptr,
+         "Two layers, one beat. Every playlist has its own opacity and can sit on any output. Nazdrave, skapi.",
+         "A magician never reveals. A playlist never minds being revealed.",
+         "TURNIP TOP", "Thank you! I'm here all week! The chicken is here forever.",
+         std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; }, nullptr},
+      };
+      lessons_.push_back(std::move(l));
+    }
+
+    // ── Dr. Pixel: When it goes wrong (the cooking show, Chef Bork) ───────
+    {
+      LessonDef l;
+      l.id = "wrong";
+      l.videoTrack = false;
+      l.title = "When it goes wrong";
+      l.about = "BLACK against PANIC, and getting a show back.";
+      l.show = "The cooking show, with Chef Bork";
+      l.setup = [this] {
+        addGeneratorCue("fireside");
+        addGeneratorCue("swirl");
+        Deck& deck = focusedDeckMutable();
+        if (deck.cues.size() >= 2) {
+          deck.cues[0].name = "The kitchen (on fire)";
+          deck.cues[1].name = "A lovely souffle";
+        }
+        selectCueInDeck(project_.focusedDeckIndex, 0, false, false);
+        jumpSelectedCue();
+      };
+      auto isSouffle = [](const Cue& c) { return c.name == "A lovely souffle"; };
+      l.steps = {
+        {"THE COOKING SHOW", nullptr,
+         "A cooking show, skapi. Live. Everything is on fire. Press START.",
+         "BLACK hides the picture and keeps the show running. PANIC stops everything. Know which you need.",
+         "CHEF BORK", "Bork bork! Hurdy-flurdy, de kitchen is fire-a-flurdy!", std::function<bool()> {}, nullptr,
+         [] { return SDL_Rect {}; }, nullptr},
+        {"BLACK", "B",
+         "The audience must not see this. Press BLACK, or B.",
+         "The picture goes. The cue keeps playing underneath, ready to come back.",
+         "CHEF BORK", "Bork? Bork. Oh, de picture is gun.",
+         [this] { return masterDimmerTarget_ < 0.5; },
+         [this] { masterDimmerTarget_ = 0.0; },
+         [this] { return tutorialButtonRect("BLACK"); }, nullptr},
+        {"AND BACK", "B",
+         "The fire's out. Press B again: the picture comes back, still running.",
+         "Nothing was lost. A mute on a mixer, for pictures.",
+         "CHEF BORK", "Ta-da! Still cookin'!",
+         [this] { return masterDimmerTarget_ > 0.5; },
+         [this] { masterDimmerTarget_ = 1.0; },
+         [this] { return tutorialButtonRect("BLACK"); }, nullptr},
+        {"PANIC", nullptr,
+         "Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.",
+         "PANIC is the big red button. Use it when BLACK is not enough. Then breathe.",
+         "CHEF BORK", "Bork bork BORK!",
+         [this] {
+           for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+             if (deckIsRunning(d)) return false;
+           }
+           return true;
+         },
+         [this] { triggerPanicProfile(); },
+         [this] {
+           if (!settingsOpen_) return tutorialButtonRect("MENU");
+           return lessonSettingRect(207);
+         }, nullptr},
+        {"GET IT BACK", "ENTER",
+         "Close MENU, select the souffle, and TAKE it. The show is back on.",
+         "After a panic, the show is still there. Pick up where you meant to be.",
+         "CHEF BORK", "Voila! De souffle, he is risen!",
+         [this, isSouffle] { return lessonCueLive(isSouffle); },
+         [this, isSouffle] {
+           settingsOpen_ = false;
+           lessonTake(isSouffle);
+         },
+         [this, isSouffle] { return settingsOpen_ ? SDL_Rect {} : lessonTakeTarget(isSouffle); }, nullptr},
+        {"BON APPETIT", nullptr,
+         "BLACK to hide, PANIC to stop, TAKE to come back. You will survive any kitchen, skapi.",
+         "The panic setting chooses what PANIC does: fade out, cut, or just the outputs.",
+         "CHEF BORK", "Bork bork bork! Goodnight!", std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; },
+         nullptr},
+      };
+      lessons_.push_back(std::move(l));
+    }
+
     // ── Dr. Pixel: Presets (a plain lesson, so the face drops in) ─────────
     {
       LessonDef l;
@@ -1454,6 +1729,179 @@
          "A look, stored and recalled. A preset can keep cues, positions, effects, levels and routing; its button's menu chooses which.",
          "And a DASH button can run any command at all. Any. Even the exciting ones.",
          nullptr, nullptr, std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; }, nullptr},
+      };
+      lessons_.push_back(std::move(l));
+    }
+
+    // ── Prof. Video: Transitions (the trailer, Optimus Primetime) ─────────
+    {
+      LessonDef l;
+      l.id = "transitions";
+      l.videoTrack = true;
+      l.title = "Transitions";
+      l.about = "The styles beyond the crossfade: an iris, a shatter, and their times.";
+      l.show = "The space-opera trailer, with Optimus Primetime";
+      l.setup = [this] {
+        addGeneratorCue("pocket-test");
+        addGeneratorCue("swirl");
+        addGeneratorCue("fireside");
+        Deck& deck = focusedDeckMutable();
+        if (deck.cues.size() >= 3) {
+          deck.cues[0].name = "Opening titles";
+          deck.cues[1].name = "The planet";
+          deck.cues[2].name = "The battle";
+        }
+        selectCueInDeck(project_.focusedDeckIndex, 0, false, false);
+        jumpSelectedCue();
+      };
+      auto named = [](const char* name) {
+        const std::string n = name;
+        return [n](const Cue& c) { return c.name == n; };
+      };
+      auto fancy = [](const std::string& style) {
+        return !style.empty() && style != "cut" && style != "crossfade";
+      };
+      auto selectNamed = [this, named](const char* name) {
+        int d = -1;
+        const int i = lessonFindCue(named(name), &d);
+        if (i < 0) return;
+        project_.focusedDeckIndex = d;
+        selectCueInDeck(d, i, false, false);
+        openInspectorSection(QuickAction::CueSectionPlaybackToggle);
+      };
+      auto setStyle = [this, named](const char* name, const char* style) {
+        int d = -1;
+        const int i = lessonFindCue(named(name), &d);
+        if (i < 0) return;
+        Cue& cue = project_.decks[static_cast<std::size_t>(d)].cues[static_cast<std::size_t>(i)];
+        pushUndoSnapshot();
+        cue.cueTransitionStyle = style;
+        if (cue.cueTransitionSeconds <= 0.0) cue.cueTransitionSeconds = 1.0;
+        markProjectDirty();
+      };
+      l.steps = {
+        {"THE TRAILER", nullptr,
+         "A space-opera trailer, skapi. A narrator with a very deep voice and opinions about transitions. Press START.",
+         "A transition is how one cue becomes the next. There are far more than the crossfade.",
+         "OPTIMUS PRIMETIME", "In a galaxy of content... one operator... must choose a transition.",
+         std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; }, nullptr},
+        {"A STYLE", nullptr,
+         "'The planet' is selected. In the inspector, its transition style: choose iris.",
+         "Pushes, wipes, iris, dip to white. Even a portal. I wrote half of them. On a Tuesday.",
+         "OPTIMUS PRIMETIME", "The planet deserves... a dramatic entrance.",
+         [this, named, fancy] {
+           int d = -1;
+           const int i = lessonFindCue(named("The planet"), &d);
+           return i >= 0 && fancy(project_.decks[static_cast<std::size_t>(d)].cues[static_cast<std::size_t>(i)].cueTransitionStyle);
+         },
+         [setStyle] { setStyle("The planet", "iris"); },
+         [this] { return cueTransitionStyleDropdownRect_; },
+         [selectNamed] { selectNamed("The planet"); }},
+        {"A TIME", nullptr,
+         "Give it a time: + on transition until it says a second or more.",
+         "No time, no transition. A style needs a duration to do anything at all.",
+         nullptr, nullptr,
+         [this, named] {
+           int d = -1;
+           const int i = lessonFindCue(named("The planet"), &d);
+           return i >= 0 && project_.decks[static_cast<std::size_t>(d)].cues[static_cast<std::size_t>(i)].cueTransitionSeconds > 0.0;
+         },
+         [setStyle] { setStyle("The planet", "iris"); },
+         [this] { return tutorialTransitionRowRect(); },
+         [selectNamed] { selectNamed("The planet"); }},
+        {"ROLL IT", "ENTER",
+         "TAKE the planet. Watch it arrive.",
+         "The transition belongs to the cue arriving. Each cue chooses its own entrance.",
+         "OPTIMUS PRIMETIME", "Autobots... roll the transition.",
+         [this, named] { return lessonCueLive(named("The planet")); },
+         [this, named] { lessonTake(named("The planet")); },
+         [this, named] { return lessonTakeTarget(named("The planet")); }, nullptr},
+        {"THE BATTLE", "ENTER",
+         "Now 'The battle': choose shatter, give it a time, and TAKE it.",
+         "Shatter drops the old picture like a pane of glass. Please do not do this at a funeral.",
+         "OPTIMUS PRIMETIME", "Transform... and shatter out!",
+         [this, named, fancy] {
+           int d = -1;
+           const int i = lessonFindCue(named("The battle"), &d);
+           return i >= 0 && lessonCueLive(named("The battle")) &&
+                  fancy(project_.decks[static_cast<std::size_t>(d)].cues[static_cast<std::size_t>(i)].cueTransitionStyle);
+         },
+         [this, setStyle, named] {
+           setStyle("The battle", "shatter");
+           lessonTake(named("The battle"));
+         },
+         [this, named] {
+           int d = -1;
+           const int i = lessonFindCue(named("The battle"), &d);
+           if (i < 0) return SDL_Rect {};
+           if (project_.decks[static_cast<std::size_t>(d)].selectedIndex != i) return tutorialCueRowRect(d, i);
+           return cueTransitionStyleDropdownRect_;
+         },
+         [selectNamed] { selectNamed("The battle"); }},
+        {"IN CINEMAS NOW", nullptr,
+         "A style, a time, and two very dramatic entrances. Nazdrave, skapi.",
+         "A playlist has a default style too, for every cue that does not choose its own.",
+         "OPTIMUS PRIMETIME", "Coming soon... to a desk near you.",
+         std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; }, nullptr},
+      };
+      lessons_.push_back(std::move(l));
+    }
+
+    // ── Prof. Video: Sound (the robot DJs, Deft Funk) ─────────────────────
+    {
+      LessonDef l;
+      l.id = "sound";
+      l.videoTrack = true;
+      l.title = "Sound";
+      l.about = "An audio effect on a cue, a bend that damages it beautifully, and where the patch lives.";
+      l.show = "The robot DJs, with Deft Funk";
+      l.setup = [this] {
+        addToneCue();
+        Deck& deck = focusedDeckMutable();
+        if (!deck.cues.empty()) deck.cues.back().name = "The beat";
+        selectCueInDeck(project_.focusedDeckIndex, 0, false, false);
+        jumpSelectedCue();
+      };
+      auto effectCount = [this]() -> int {
+        const Cue* cue = selectedCuePtr();
+        return cue ? static_cast<int>(cue->audioEffects.size()) : 0;
+      };
+      auto openFx = [this] {
+        selectCueInDeck(project_.focusedDeckIndex, 0, false, false);
+        openInspectorSection(QuickAction::CueSectionAudioFxToggle);
+      };
+      l.steps = {
+        {"THE ROBOT DJS", nullptr,
+         "Two robot DJs, skapi. They do not talk. Their helmets do. Press START.",
+         "Every cue has its own chain of audio effects, and some of them break the sound on purpose.",
+         "DEFT FUNK (SILVER)", "> HELLO. WE ARE HERE TO FIX YOUR MIX.",
+         std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; }, nullptr},
+        {"AN EFFECT", nullptr,
+         "The beat is selected. In its AUDIO EFFECTS section, + adds one. Try the delay.",
+         "Delay, reverb, filters, a compressor. Amount always means 'less of this'.",
+         "DEFT FUNK (GOLD)", "> ONE MORE TIME. WITH ECHO. ECHO. ECHO.",
+         [effectCount] { return effectCount() >= 1; },
+         [this] { handleRemoteCommand("AUDIOFX ADD delay 40"); },
+         [this] { return lessonQuickRect(QuickAction::AudioEffectAdd); }, openFx},
+        {"A BEND", nullptr,
+         "Add a second: a bend, like crush. It damages the sound the way a broken file would.",
+         "The bends are my favourite. Like a tape left in the sun. On purpose.",
+         "DEFT FUNK (SILVER)", "> HARDER. BETTER. CRUNCHIER. LOUDER.",
+         [effectCount] { return effectCount() >= 2; },
+         [this] { handleRemoteCommand("AUDIOFX ADD crush 60"); },
+         [this] { return lessonQuickRect(QuickAction::AudioEffectAdd); }, openFx},
+        {"THE PATCH", nullptr,
+         "MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.",
+         "Speakers, monitors, an in-ear for the drummer. The patch sends each its own.",
+         "DEFT FUNK (GOLD)", "> AROUND THE MIX. AROUND THE MIX. AROUND THE MIX.",
+         [this] { return settingsOpen_ && settingsTab_ == 1; },
+         [this] { debugOpenSettings(1); },
+         [this] { return settingsOpen_ ? SDL_Rect {} : tutorialButtonRect("MENU"); }, nullptr},
+        {"ENCORE", nullptr,
+         "An effect, a bend and the patch. The robots approve, skapi. I think. Their faces are helmets.",
+         "Every audio effect can follow a ~ too, even Motion. Wave at the delay. It's wonderful.",
+         "DEFT FUNK (SILVER)", "> THANK YOU. GOOD NIGHT. WE ARE ROBOTS.",
+         std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; }, nullptr},
       };
       lessons_.push_back(std::move(l));
     }
@@ -1632,6 +2080,9 @@
     next.returnTo = loan.returnTo;
     next.outputsWere = loan.outputsWere;
     next.dimmerWas = loan.dimmerWas;
+    // A power-up from before this lesson is not this lesson's to joke about.
+    lessonEvolveSeen_ = superDeckboyEvolveAt_;
+    lessonQuipUntilMs_ = 0;
     const fs::path practice = lessonPracticeFile(*def);
     LessonsProgress progress = readLessonsProgress();
     int step = 0;
