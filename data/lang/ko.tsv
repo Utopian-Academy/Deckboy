@@ -495,3 +495,542 @@ Close me. Open me. I'll be fine.	껐다 켜 줘. 그럼 또 괜찮아져.
 # What the desk face says when you switch to this language: a local saying, not a translation.
 @hello	화이팅! 치맥은 쇼 끝나고.
 Oh hey. It's 4:20. Take it easy.	아, 안녕. 4:20이야. 느긋하게 가자.
+
+# --- tutorials: tools/lesson_strings.py (a whole line each) ---
+HELLO	안녕
+Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me.	도바르 덴, 스카피. 나는 픽셀 박사야. 5분이면 쇼를 운영할 수 있어. 내 말을 잘 들으면 더 빨리.
+And I'm Professor Video. Synths first, then video. Mostly video now. Press START and we'll patch... we'll begin.	그리고 나는 비디오 교수. 처음엔 신스, 그다음엔 비디오. 요즘은 거의 비디오지. START를 누르면 패치를... 아니, 시작하지.
+TURN THE OUTPUT ON	출력을 켜
+Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	스카피, 화면이 비어 있어. 관객을 기다리게 하지 마. MENU를 열고 출력 끄기를 출력 켜기로 바꿔. 아이데!
+Lesson one: nothing comes out until you patch the oscillator to the... the OUTPUT. It's video. I know.	첫 번째 수업: 오실레이터를... 그, 출력에 연결하기 전엔 아무것도 안 나와. 비디오야. 알아.
+BRING IN A CLIP	클립을 가져와
+Now a picture. Press I and pick a clip from your computer. No clip? SHOW ME, and I lend you one of mine.	이제 그림이야. I를 누르고 컴퓨터에서 클립을 골라. 클립이 없어? SHOW ME를 누르면 내 걸 빌려줄게.
+Every clip becomes a cue in the playlist. Like loading a sample. A sample with pictures in it.	클립은 전부 플레이리스트의 큐가 돼. 샘플을 불러오는 것과 같아. 그림이 든 샘플이지.
+TAKE IT LIVE	송출해
+Your clip waits in the playlist. Select it, then TAKE. Or Enter. Confident operators press Enter.	클립이 플레이리스트에서 기다려. 선택하고 TAKE. 아니면 Enter. 자신 있는 오퍼레이터는 Enter를 눌러.
+TAKE is the envelope trigger. The, ah, the GO button. Same thing, it just has pictures in it.	TAKE는 엔벌로프 트리거야. 그, 음, GO 버튼. 같은 거야, 그림이 들었을 뿐.
+LINE UP THE NEXT ONE	다음 걸 준비해
+Click another cue. It waits, ready, until you say. Only one cue? Import another, or SHOW ME.	다른 큐를 클릭해. 네가 말할 때까지 준비된 채로 기다려. 큐가 하나뿐이야? 하나 더 가져오거나 SHOW ME.
+Selecting is not playing. The selected one is the next note in the sequence. The next CUE.	선택은 재생이 아니야. 선택된 건 시퀀스의 다음 음이야. 다음 큐.
+CROSSFADE TO IT	크로스페이드해
+Cuts are for amateurs. In the inspector, press + on transition, so it shows a time, not deck. Then TAKE.	컷은 아마추어나 하는 거야. 인스펙터에서 전환의 +를 눌러서 deck 대신 시간이 보이게 해. 그다음 TAKE.
+A crossfade! Portamento, but for pictures. Any time will do. A few more presses and it's a second. Then TAKE.	크로스페이드! 그림용 포르타멘토지. 시간은 아무거나 괜찮아. 몇 번 더 누르면 1초. 그다음 TAKE.
+CLEAR THE SCREEN	화면을 비워
+Something goes wrong on stage? Press BLACK, or B. The picture goes. The show keeps running underneath.	무대에서 뭔가 잘못됐어? BLACK이나 B를 눌러. 그림은 사라져. 쇼는 밑에서 계속 돌아가.
+Nothing is lost. Press B again and it comes back. Like the mute on a mixer. Very calming.	잃어버린 건 없어. B를 다시 누르면 돌아와. 믹서의 뮤트 같은 거야. 아주 마음이 놓이지.
+SAVE THE SHOW	쇼를 저장해
+Now save. Ctrl+S, or SAVE. Some programs lose your work and then blame you. I would never.	이제 저장. Ctrl+S나 저장. 어떤 프로그램은 작업을 날리고 네 탓을 해. 나는 절대 안 그래.
+Save your patch. Your SHOW. Show. This practice one lives in Deckboy's own folder; yours is safe.	패치를 저장해. 아니 쇼를. 쇼. 이 연습용은 Deckboy 자기 폴더에 있어. 네 쇼는 안전해.
+THAT'S A SHOW	이게 쇼야
+That's a show! Output, cue, TAKE, crossfade, BLACK, save. Nazdrave, skapi. Rakia is on me.	이게 쇼야! 출력, 큐, TAKE, 크로스페이드, BLACK, 저장. 나즈드라베, 스카피. 라키야는 내가 쏠게.
+Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	수업 끝. 예제 쇼에서 레이어, 타이틀, 이펙트를 배울 수 있어. MENU > LEARN THE BASICS로 다시 볼 수 있고.
+*shakes head* That means yes. Bravo.	*고개를 젓는다* 이건 '응'이라는 뜻이야. 브라보.
+Wonderful! Lovely signal flow.	훌륭해! 멋진 신호 흐름이야.
+Mm. I knew you had it in you.	음. 할 수 있을 줄 알았어.
+Yes! Have a gold star. It's a dot.	좋아! 금별 하나 줄게. 점이지만.
+You've clicked everything but the glowing one. Even my oscillators find the glowing one.	빛나는 것만 빼고 다 클릭했네. 내 오실레이터도 빛나는 건 찾는데.
+stop playback first - the lesson cannot hand a running show back as it was	먼저 재생을 멈추세요 - 재생 중인 쇼는 수업이 원래대로 돌려줄 수 없어요
+choose RECOVER or KEEP SAVED first	먼저 RECOVER나 KEEP SAVED를 고르세요
+your show could not be saved, so the lesson has not started. Save it (SAVE AS) and try again	쇼를 저장할 수 없어서 수업이 시작되지 않았어요. 저장한 뒤 (다른 이름으로 저장) 다시 해 보세요
+the practice show would not open	연습용 쇼가 열리지 않았어요
+could not start the practice show	연습용 쇼를 시작할 수 없어요
+learn the basics: Esc leaves, and it picks up here next time	learn the basics: Esc로 나가면 다음엔 여기서 이어져요
+that's the basics - MENU > LESSONS has part two	기초는 여기까지 - MENU > LESSONS에 2부가 있어요
+tour paused - LEARN THE BASICS picks up where you left off	투어 일시 정지 - LEARN THE BASICS에서 이어서 계속
+Mirrored screens, skapi. Press any key or click, and Dr. Pixel gives it back.	화면이 미러링돼 있어, 스카피. 아무 키나 누르거나 클릭하면 픽셀 박사가 돌려줄게.
+Wrong screen, skapi. Press any key or click, and Dr. Pixel gives it back.	화면이 틀렸어, 스카피. 아무 키나 누르거나 클릭하면 픽셀 박사가 돌려줄게.
+The other screen went away, skapi. Press any key or click, and Dr. Pixel gives it back.	다른 화면이 사라졌어, 스카피. 아무 키나 누르거나 클릭하면 픽셀 박사가 돌려줄게.
+One screen, skapi. Press any key or click, and Dr. Pixel gives it back.	화면이 하나뿐이야, 스카피. 아무 키나 누르거나 클릭하면 픽셀 박사가 돌려줄게.
+The other screen went away, skapi, so the picture came back to this one. I put it in a little window, behind. Plug it back in and the picture goes back on it.	다른 화면이 사라져서 그림이 이쪽으로 돌아왔어, 스카피. 뒤쪽 작은 창에 넣어 뒀어. 다시 연결하면 그림이 그쪽으로 돌아가.
+It ate the desk, skapi. One screen, so the output took all of it. I put it in a little window, behind. A real show gets a second screen.	데스크를 먹어 버렸어, 스카피. 화면이 하나라서 출력이 전부 차지했어. 뒤쪽 작은 창에 넣어 뒀어. 진짜 쇼엔 두 번째 화면이 있어야 해.
+There. The button that says OUTPUT OFF. Make it say ON, skapi.	저기. 출력 끄기라고 쓰인 버튼. 켜기로 바꿔, 스카피.
+Nothing is live to fade from, skapi. TAKE one cue first, then pick the other and give it a time.	페이드할 송출 중인 게 없어, 스카피. 먼저 큐 하나를 TAKE하고, 다른 걸 골라서 시간을 줘.
+That was a cut, skapi. Fast, but not a crossfade. Pick the other cue, press + on transition, then TAKE.	방금 건 컷이야, 스카피. 빠르지만 크로스페이드는 아니야. 다른 큐를 고르고 전환의 +를 누른 다음 TAKE.
+A feedback loop! Output patched straight back into the desk. Happens to the best of us. Mostly to me. 1983. We don't talk about 1983.	피드백 루프다! 출력이 그대로 데스크에 다시 꽂혔어. 고수도 겪는 일이야. 주로 나. 1983년. 1983년 얘긴 안 해.
+No more rakia. The rat has a problem.	라키야는 이제 그만. 쥐한테 문제가 있어.
+Nazdrave, skapi! Baba's rakia, from the Rhodopes. One glass, for the lesson.	나즈드라베, 스카피! 로도피산맥에서 온 할머니의 라키야. 수업을 위해 한 잔만.
+Is this... is this allowed during a tutorial?	이거... 이거 튜토리얼 중에 해도 되는 거야?
+*shakes head* That means one more.	*고개를 젓는다* 이건 '한 잔 더'라는 뜻이야.
+I love you all. I love the oscillator. I love the OUTPUT. It's video. I know. I KNOW.	다들 사랑해. 오실레이터를 사랑해. 출력을 사랑해. 비디오야. 알아. 안다고.
+...and the rat took the rakia. Every time, skapi. Every single time.	...그리고 쥐가 라키야를 가져갔어. 매번이야, 스카피. 매번 빠짐없이.
+Was that a rat? In a hat? With a pizza?	방금 쥐였어? 모자 쓰고? 피자 들고?
+Stop that. I am a serious man.	그만해. 나는 진지한 사람이야.
+Do not tell Dr. Pixel about this.	픽셀 박사한텐 비밀이야.
+This never happened. Back to the patch bay.	아무 일도 없었어. 패치 베이로 돌아가자.
+It was the eighties. Everyone had a bow tie.	80년대였어. 다들 나비넥타이를 맸지.
+EXIT (Esc)	나가기 (Esc)
+Taking it on the road	쇼를 들고 나가기
+CHECK a show before it travels, fix what it finds, and bundle it with its media.	떠나기 전에 CHECK하고, 찾은 걸 고치고, 미디어와 함께 묶어 저장해.
+Effects, oscillators and colour	이펙트, 오실레이터, 색
+An effect, a ~ on its knob, and the colour picker.	이펙트 하나, 그 노브의 ~, 그리고 색상 선택기.
+The art school crit, with Mr. Salty	미대 크리틱, 미스터 솔티와 함께
+Patterns, synths and Draw	패턴, 신스, Draw
+A test pattern, the video synth, and drawing on the picture, saved as a still.	테스트 패턴, 비디오 신스, 그리고 그림 위에 그리기를 스틸로 저장.
+The telestrator booth, with Coach Marv	중계석 텔레스트레이터, 마브 코치와 함께
+Masks	마스크
+A heart from the library, the pen, invert and feather.	라이브러리의 하트, 펜, 반전, 페더.
+The Signal Files: redact the evidence	시그널 파일: 증거를 지워라
+Warp, blend and slices	워프, 블렌드, 슬라이스
+A corner pin, two soft edges, then three slices in the Screens window.	코너 핀 하나, 부드러운 가장자리 둘, 그리고 Screens 창에서 슬라이스 셋.
+The haunted lighthouse, with Keeper Rook	유령 등대, 등대지기 룩과 함께
+GO from anywhere	어디서든 GO
+Cue numbers, GOTO, a hotkey, and where Companion, MIDI and OSC come in.	큐 번호, GOTO, 단축키, 그리고 Companion, MIDI, OSC가 들어오는 곳.
+The game show, with Donna Wheel	퀴즈쇼, 도나 휠과 함께
+Words on screen	화면 위의 글자
+A Lower Third with a name on it, then a title card with a key-green backdrop.	이름이 들어간 하단 자막, 그다음 크로마키 초록 배경의 타이틀 카드.
+The kaiju weather report, with June O'Neil	괴수 일기예보, 준 오닐과 함께
+Keeping time	시간 지키기
+A stage timer counting down, held, and a presenter view for the person on stage.	카운트다운하는 무대 타이머, 일시 정지, 그리고 무대 위 사람을 위한 발표자 뷰.
+A grand day out, with Wallis and Grommet	달나라 대소동, 월리스와 그로밋과 함께
+Two playlists and TAKE ALL	플레이리스트 둘과 TAKE ALL
+A second playlist as a layer, and TAKE ALL so two things change on one beat.	레이어로 쓰는 두 번째 플레이리스트, 그리고 두 가지를 한 박자에 바꾸는 TAKE ALL.
+The magic show, with Turnip Top	마술쇼, 터닙 톱과 함께
+When it goes wrong	일이 꼬였을 때
+BLACK against PANIC, and getting a show back.	BLACK과 PANIC의 차이, 그리고 쇼 되찾기.
+The cooking show, with Chef Bork	요리 쇼, 보크 셰프와 함께
+Presets	프리셋
+Capture a look on a DASH button, change everything, and get it back with one press.	룩을 DASH 버튼에 담고, 전부 바꾼 다음, 한 번 눌러서 되찾기.
+Transitions	전환
+The styles beyond the crossfade: an iris, a shatter, and their times.	크로스페이드 너머의 스타일: 아이리스, 산산조각, 그리고 그 시간.
+The space-opera trailer, with Optimus Primetime	스페이스 오페라 예고편, 옵티머스 프라임타임과 함께
+Sound	사운드
+An audio effect on a cue, a bend that damages it beautifully, and where the patch lives.	큐 위의 오디오 이펙트, 소리를 아름답게 망가뜨리는 벤드, 그리고 패치가 사는 곳.
+The robot DJs, with Deft Funk	로봇 DJ, 데프트 펑크와 함께
+Reading the scopes	스코프 읽기
+The waveform, the vectorscope, and false colour: is the glow real, or just too bright?	파형, 벡터스코프, 폴스 컬러: 저 빛은 진짜일까, 그냥 너무 밝은 걸까?
+The Signal Files: is the glow on the horizon a craft?	시그널 파일: 지평선의 빛은 비행선인가?
+Out of the building	건물 밖으로
+Where NDI, SDI and ST 2110 live, and NDI switched on where this computer has it.	NDI, SDI, ST 2110이 있는 곳, 그리고 이 컴퓨터에 NDI가 있으면 켜기.
+The webcam as a controller, as a game. Five rounds, a high score.	웹캠을 컨트롤러로, 게임으로. 5라운드, 최고 점수.
+A handheld, and bugs	휴대용 게임기, 그리고 버그
+The multiview	멀티뷰
+Windows, the ... menu, what each one shows, layouts, and tally.	창, ... 메뉴, 각 창이 보여 주는 것, 레이아웃, 탈리.
+Mystery on the starship Cathode, with Lt. Haila and Ensign Jinkley	우주선 캐소드호의 미스터리, 하일라 대위와 징클리 소위와 함께
+DR. PIXEL: Two playlists: Deckboy becomes SUPER DECKBOY. It earned it, skapi.	DR. PIXEL: 플레이리스트 두 개: Deckboy가 SUPER DECKBOY가 돼. 그럴 자격 있지, 스카피.
+PROF. VIDEO: It evolved! My oscillators never got a fanfare.	PROF. VIDEO: 진화했어! 내 오실레이터는 팡파르를 받아 본 적이 없는데.
+DR. PIXEL: SUPER DECKBOY! Every show deserves one. Bravo.	DR. PIXEL: SUPER DECKBOY! 모든 쇼에 하나씩 있어야지. 브라보.
+PROF. VIDEO: The power-up! More playlists, more layers, more super.	PROF. VIDEO: 파워업! 더 많은 플레이리스트, 더 많은 레이어, 더 슈퍼.
+Intro video (left on the office PC)	오프닝 영상 (사무실 PC에 두고 옴)
+ON THE ROAD	길 위에서
+A show you built here, skapi, running on a laptop somewhere else tonight. Press START.	여기서 만든 쇼가, 스카피, 오늘 밤 다른 곳의 노트북에서 돌아가. START를 눌러.
+Before it travels: check it, fix it, bundle it.	떠나기 전에: 확인하고, 고치고, 묶어 저장.
+See CHECK in the top bar? It only appears when something is wrong. Press it.	위쪽 바에 CHECK가 보여? 뭔가 잘못됐을 때만 나타나. 눌러.
+It lists everything a show would trip over: missing files, empty cues, unreachable outputs.	쇼가 걸려 넘어질 모든 걸 보여 줘: 없는 파일, 빈 큐, 닿지 않는 출력.
+The intro video is on another computer. Select it and delete it, or RELINK it if you have the file.	오프닝 영상은 다른 컴퓨터에 있어. 선택해서 지우거나, 파일이 있으면 RELINK.
+Fix it at home, where it is easy. Not at the venue, where it is not.	고치는 건 집에서. 쉬우니까. 공연장에선 안 쉬워.
+BUNDLE IT	묶어 저장해
+Press BUNDLE and choose where: a USB stick, a shared folder. The show and all its media, together.	묶어 저장을 누르고 위치를 골라: USB 메모리, 공유 폴더. 쇼와 모든 미디어를 함께.
+The copy finds its media beside it, wherever the folder goes.	폴더가 어디로 가든, 복사본은 옆에 있는 미디어를 찾아.
+SAFE TRAVELS	잘 다녀와
+Checked, fixed, bundled. On the other machine, open the bundle's show: everything is where it should be.	확인, 수정, 묶어 저장. 다른 기기에서 묶음의 쇼를 열면, 전부 제자리에 있어.
+A show file is only text, so it travels light. The media is the heavy part.	쇼 파일은 그냥 텍스트라서 가볍게 여행해. 무거운 건 미디어 쪽이야.
+Student work no. 4 (untitled)	학생 작품 4번 (무제)
+THE CRIT	크리틱
+An art school, skapi. One student, one picture, one critic who has seen it all. Press START.	미대야, 스카피. 학생 하나, 그림 하나, 볼 거 다 본 비평가 하나. START를 눌러.
+A grey square on beige. I have seen this at every graduate show since 1987.	베이지 위의 회색 사각형. 1987년부터 모든 졸업 전시에서 봤지.
+AN EFFECT	이펙트 하나
+In the inspector's EFFECTS section, + adds one. Edges is a good start: it draws the outlines.	인스펙터의 EFFECTS에서 +를 누르면 추가돼. Edges로 시작하면 좋아. 윤곽을 그려 줘.
+There are dozens. Every one runs on the CPU in a few milliseconds. Mostly.	수십 가지가 있어. 전부 CPU에서 몇 밀리초면 돌아. 대체로.
+Take a risk! Bad art is fine. Boring art is a crime.	모험해 봐! 못한 작품은 괜찮아. 지루한 작품은 범죄야.
+Every control with a ~ beside it can follow an oscillator. Press one. The knob starts to breathe.	옆에 ~가 있는 컨트롤은 전부 오실레이터를 따라갈 수 있어. 하나 눌러 봐. 노브가 숨을 쉬기 시작해.
+A low-frequency oscillator: slow, so the eye can follow it. A quarter of a hertz is a four-second breath.	저주파 오실레이터: 눈이 따라갈 만큼 느려. 0.25헤르츠면 4초짜리 숨이지.
+Now it MOVES. Okay. Okay. I'm listening.	이제 움직이는군. 좋아. 좋아. 들어 보지.
+A COLOUR OF ITS OWN	자기만의 색
+Effects that draw a colour, like Edges' line, have a colour chip. It opens the picker: a wheel, typed names, or a colour off the screen.	Edges의 선처럼 색을 그리는 이펙트엔 색상 칩이 있어. 누르면 선택기가 열려: 색상환, 이름 입력, 화면에서 색 뽑기.
+Every colour has a name somewhere. Mine is 'oscilloscope green'. Nobody else uses it.	모든 색엔 어딘가 이름이 있어. 내 건 '오실로스코프 그린'. 아무도 안 쓰지.
+That colour is doing something. I don't know what. I love it.	저 색, 뭔가 하고 있어. 뭔지는 모르겠어. 마음에 들어.
+THE VERDICT	평가
+An effect, a ~ and a colour. The critic is crying, skapi. Good crying, I think.	이펙트, ~, 그리고 색. 비평가가 울고 있어, 스카피. 좋은 눈물인 것 같아.
+Stack a few. Each has its own ~ on every knob. That is how a look becomes a performance.	몇 개 쌓아 봐. 노브마다 자기 ~가 있어. 그렇게 룩이 퍼포먼스가 되는 거야.
+It's still a square. But it's YOUR square. Post it.	여전히 사각형이야. 하지만 네 사각형이지. 올려.
+THE TELESTRATOR BOOTH	중계석
+Coach Marv explains sport by drawing circles on it. Once he circled the sun. Ten minutes, skapi.	마브 코치는 화면에 동그라미를 그려서 스포츠를 해설해. 한 번은 해에 동그라미를 쳤지. 10분이야, 스카피.
+Tonight: test patterns, the video synth, and drawing on the picture. Press START.	오늘 밤: 테스트 패턴, 비디오 신스, 그림 위에 그리기. START를 눌러.
+Get me a picture and a pen. BOOM.	그림 하나랑 펜 하나 줘. 쾅.
+A TEST PATTERN	테스트 패턴
+Line up the screens BEFORE the show. Not during. I learned this in Plovdiv.	화면 정렬은 쇼 전에. 쇼 중이 아니라. 플로브디프에서 배웠지.
+Every desk needs a test pattern. PATTERN adds Pocket Test: checked against real meters.	모든 데스크엔 테스트 패턴이 필요해. 테스트 패턴이 Pocket Test를 추가해: 진짜 계측기로 확인한 거야.
+A VIDEO SYNTH	비디오 신스
+He says 'no camera needed' like it is a feature. It is a feature.	'카메라 필요 없음'을 무슨 기능처럼 말하네. 기능 맞아.
+My favourite. SOURCE, then Video Synth: oscillators, mirrors and feedback. No camera needed.	내 최애. 소스, 그다음 Video Synth: 오실레이터, 미러, 피드백. 카메라 필요 없음.
+Select it, then TAKE. Confident operators press Enter.	선택하고 TAKE. 자신 있는 오퍼레이터는 Enter를 눌러.
+That's our replay. Every replay needs a pundit.	이게 우리 리플레이야. 리플레이엔 해설자가 있어야지.
+Now here's a replay. And here's a guy. And BOOM, he's in it.	자, 리플레이. 여기 이 선수. 그리고 쾅, 들어갔어.
+A SECOND PLAYLIST	두 번째 플레이리스트
+Ink goes on top, on its own layer. Press the + at the end of the playlist tabs.	잉크는 위에, 자기 레이어에 올라가. 플레이리스트 탭 끝의 +를 눌러.
+A second playlist is a layer over the first. Like a second oscillator, mixed on top.	두 번째 플레이리스트는 첫 번째 위의 레이어야. 두 번째 오실레이터를 위에 섞는 것처럼.
+A DRAW CUE	Draw 큐
+In the new playlist: SOURCE, then Draw. Clear everywhere you have not drawn.	새 플레이리스트에서: 소스, 그다음 Draw. 안 그린 곳은 전부 투명해.
+A Draw cue is transparent outside the ink, so the synth shows through.	Draw 큐는 잉크 밖이 투명해서 신스가 비쳐 보여.
+Select the Draw cue and TAKE it. Two playlists, two layers, one picture.	Draw 큐를 선택하고 TAKE. 플레이리스트 둘, 레이어 둘, 그림 하나.
+Now both are live: the synth underneath, the ink on top.	이제 둘 다 송출 중: 아래엔 신스, 위엔 잉크.
+CIRCLE SOMETHING	동그라미 쳐
+Press DRAW in the inspector, then draw on the programme monitor. Mouse, or a pen if you have one.	인스펙터에서 DRAW를 누르고 프로그램 모니터에 그려. 마우스로, 펜이 있으면 펜으로.
+A pen's pressure makes the line thicker. A mouse presses at one strength. Like me.	펜은 누르는 힘에 따라 선이 굵어져. 마우스는 늘 같은 힘이야. 나처럼.
+Circle him! No, bigger. BOOM. That's a cloud. Fine. Circle the cloud.	저 선수 동그라미! 아니, 더 크게. 쾅. 그건 구름이야. 됐어. 구름에 동그라미.
+SAVE A STILL	스틸 저장
+SAVE STILL keeps the drawing as a picture with a clear background, and adds it to the playlist.	SAVE STILL은 그림을 배경이 투명한 이미지로 저장해서 플레이리스트에 넣어.
+For next week's show. Coach Marv will want the cloud again.	다음 주 방송용이야. 마브 코치가 또 구름을 찾을 거야.
+THAT'S THE BOOTH	중계석은 여기까지
+Patterns, the synth, a layer, ink, a still. Nazdrave, skapi.	패턴, 신스, 레이어, 잉크, 스틸. 나즈드라베, 스카피.
+Try Replay in the Draw section: it draws your lines back the way you drew them.	Draw의 Replay를 써 봐: 네가 그린 순서대로 선을 다시 그려.
+Same time next week. Bring a bigger pen. And a turducken.	다음 주 같은 시간에. 더 굵은 펜 가져와. 그리고 칠면조도.
+Saucer photo (CLASSIFIED)	비행접시 사진 (기밀)
+THE SIGNAL FILES	시그널 파일
+The Bureau of Unexplained Signals. Two agents, one photo, and it must not air. Press START.	미확인 신호국. 요원 둘, 사진 한 장, 그리고 절대 방송되면 안 돼. START를 눌러.
+Masks cut a picture into shapes. Tonight we cut evidence.	마스크는 그림을 모양으로 잘라. 오늘 밤엔 증거를 잘라.
+That's a craft, Brandt. Look at the lights. I want to believe.	저건 비행선이야, 브랜트. 저 불빛을 봐. 난 믿고 싶어.
+A MASK FROM THE LIBRARY	라이브러리의 마스크
+In the inspector's MASK section: mask, then 'new heart'. Any shape will do. The heart is funnier.	인스펙터의 MASK에서: mask, 그다음 'new heart'. 모양은 아무거나 돼. 하트가 더 웃기지.
+The library has circles, stars, hearts. Each one is points you can move.	라이브러리엔 원, 별, 하트가 있어. 전부 움직일 수 있는 점으로 돼 있어.
+A heart, Hollis? The Bureau redacts with black bars.	하트라고, 홀리스? 국은 검은 막대로 가려.
+Set the tool to pen, then click round the saucer on the monitor. Click the first point to close it.	도구를 펜으로 바꾸고, 모니터에서 비행접시 둘레를 클릭해. 첫 점을 클릭하면 닫혀.
+Click for corners, drag for curves. The way the Bezier brothers intended.	클릭은 모서리, 드래그는 곡선. 베지어 형제가 의도한 대로.
+Draw round it carefully. It might be watching.	조심해서 둘러. 저게 보고 있을지도 몰라.
+INVERT	반전
+Invert keeps the outside and cuts the inside. The saucer goes. The sky stays.	반전은 바깥을 남기고 안쪽을 잘라. 비행접시는 사라지고 하늘은 남아.
+The same shape, the other way round. Very useful. Slightly spooky.	같은 모양을 반대로. 아주 유용해. 살짝 으스스하고.
+Hollis, there's a heart-shaped hole in the sky.	홀리스, 하늘에 하트 모양 구멍이 났어.
+FEATHER	페더
+Feather softens the edge, so nobody sees the cut. Press + on feather.	페더는 가장자리를 부드럽게 해서 아무도 자른 걸 못 봐. feather의 +를 눌러.
+A hard edge says 'someone was here'. A soft one says nothing at all.	딱딱한 가장자리는 '누가 여기 있었다'고 말해. 부드러운 건 아무 말도 안 해.
+They'll never know.	절대 모를 거야.
+CASE CLOSED	사건 종결
+A library shape, the pen, invert and feather. The Bureau thanks you. The Bureau was never here.	라이브러리 모양, 펜, 반전, 페더. 국은 감사를 표한다. 국은 여기 온 적 없다.
+Masks also go on a layer, an output, or its matte: MASK ON chooses. And every control takes a ~.	마스크는 레이어, 출력, 그 매트에도 걸 수 있어: MASK ON으로 골라. 그리고 모든 컨트롤에 ~를 걸 수 있어.
+The truth is in the waveform, Hollis. Next time, the scopes.	진실은 파형 속에 있어, 홀리스. 다음엔 스코프야.
+The ghost	유령
+THE HAUNTED LIGHTHOUSE	유령 등대
+A lighthouse, a ghost, and a keeper who has been alone with the lamp far too long. Press START.	등대 하나, 유령 하나, 그리고 램프와 너무 오래 단둘이 지낸 등대지기. START를 눌러.
+Projection mapping: bending the picture to fit the building. Warp, blend, slices.	프로젝션 매핑: 건물에 맞게 그림을 구부리는 거야. 워프, 블렌드, 슬라이스.
+Ye'll be wanting the ghost on the windows. Mind the lamp. The lamp is MINE.	유령을 창문에 띄우고 싶은 거지. 램프 조심해. 램프는 '내' 거야.
+THE OUTPUT'S GEOMETRY	출력의 지오메트리
+MENU, then Video Outputs, then Geometry. Where an output's shape lives.	MENU, 그다음 비디오 출력, 그다음 지오메트리. 출력의 모양은 여기 있어.
+Geometry: the projector-menu word for 'what shape is the picture'.	지오메트리: 프로젝터 메뉴에서 '그림이 어떤 모양인가'를 뜻하는 말.
+PIN A CORNER	모서리를 고정해
+Press warp edit, then drag a corner on the programme monitor. The window is not square. Neither is the keeper.	warp edit을 누르고 프로그램 모니터에서 모서리를 드래그해. 창문은 네모가 아니야. 등대지기도 네모반듯하지 않고.
+A corner pin moves the four corners. Perspective keeps the lines straight, like a real window.	코너 핀은 네 모서리를 움직여. 원근 덕에 선은 진짜 창문처럼 곧게 유지돼.
+LEFT! Ye call that a corner? I've seen straighter gulls.	왼쪽! 그걸 모서리라고? 갈매기도 그것보단 곧겠다.
+TWO SOFT EDGES	부드러운 가장자리 둘
+Back in Geometry: edge blend, + on the left and + on the right.	다시 지오메트리에서: edge blend, 왼쪽에 +, 오른쪽에 +.
+THE SCREENS WINDOW	SCREENS 창
+Geometry, SLICES, open. The Screens window is where slices are cut and placed.	지오메트리, SLICES, 열기. Screens 창은 슬라이스를 자르고 배치하는 곳이야.
+A slice is a piece of the picture, put anywhere on the output.	슬라이스는 그림의 한 조각이고, 출력 어디에든 놓을 수 있어.
+THREE SLICES	슬라이스 셋
+In the Screens window, + SLICE three times, and drag each crop to a third of the picture.	Screens 창에서 + SLICE를 세 번 누르고, 각 크롭을 그림의 3분의 1로 드래그해.
+Three windows, three slices: left, middle and right of one picture.	창문 셋, 슬라이스 셋: 한 그림의 왼쪽, 가운데, 오른쪽.
+Three windows. The lamp gets the middle one. The lamp ALWAYS gets the middle one.	창문 셋. 가운데는 램프 거야. 가운데는 '언제나' 램프 거라고.
+THE GHOST IS PLEASED	유령이 만족했어
+Warp, blend, slices. The keeper will finally sleep. The gulls will not.	워프, 블렌드, 슬라이스. 등대지기는 드디어 잠들 거야. 갈매기는 안 자고.
+Slices have their own warp and mesh in the Screens window. And a ~ on the place and the turn.	슬라이스는 Screens 창에서 자기 워프와 메시가 있어. 위치와 회전에도 ~.
+Ye did alright, lad. Now get away from the lamp.	제법이구먼, 젊은이. 이제 램프에서 떨어져.
+THE GAME SHOW	퀴즈쇼
+A game show, skapi. Three contestants, one buzzer, and cues that fire from anywhere. Press START.	퀴즈쇼야, 스카피. 참가자 셋, 부저 하나, 어디서든 쏠 수 있는 큐. START를 눌러.
+Cue numbers, hotkeys, and GO from other machines. Like a sequencer you can play from any key.	큐 번호, 단축키, 다른 기기에서 GO. 아무 건반으로나 연주하는 시퀀서처럼.
+Welcome to the show! Let's spin that wheel!	쇼에 오신 걸 환영합니다! 룰렛 돌려 주세요!
+A CUE NUMBER	큐 번호
+Contestant 3 is selected. In the inspector's metadata, give it a cue number: 3.	참가자 3이 선택돼 있어. 인스펙터의 메타데이터에서 큐 번호를 줘: 3.
+Theatre numbers its cues. Q3, Q3.5, Q12A. Deckboy reads them all.	극장은 큐에 번호를 매겨. Q3, Q3.5, Q12A. Deckboy는 전부 읽어.
+I'd like to buy a number, please.	번호 하나 살게요.
+Ctrl+G, type the number, Enter. It goes live wherever the list happens to be standing.	Ctrl+G, 번호 입력, Enter. 리스트가 어디 있든 송출돼.
+GOTO. The fastest way across a long list. Faster than scrolling. Much faster than me.	GOTO. 긴 리스트에서 가장 빠른 길. 스크롤보다 빨라. 나보다 훨씬 빠르지.
+And the number is... three!	정답은... 3번!
+Contestant 1 is selected. In TRIGGERS, press key, then F5. That key now fires this cue.	참가자 1이 선택돼 있어. TRIGGERS에서 key를 누르고 F5. 이제 그 키가 이 큐를 쏴.
+F1 to F10, F12, or the number pad. Each one, a buzzer.	F1부터 F10, F12, 또는 숫자 키패드. 하나하나가 부저야.
+Every contestant gets a buzzer.	참가자마다 부저 하나씩.
+BUZZ IN	버저!
+Press the key. The cue fires, wherever the list is standing.	키를 눌러. 리스트가 어디 있든 큐가 나가.
+No mouse, no list, no looking. Just the key.	마우스 없이, 리스트 없이, 보지도 않고. 키 하나로.
+Buzz! We have a winner!	딩동댕! 우승자가 나왔습니다!
+FROM ANYWHERE	어디서든
+Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion, MIDI 노트, OSC 메시지: MENU, 그다음 네트워크에서 각각 어디로 연결되는지 알려 줘.
+A Stream Deck in the next room can press GO. So can a keyboard synth. I prefer the synth.	옆방의 Stream Deck으로도 GO를 누를 수 있어. 키보드 신스로도. 나는 신스가 좋아.
+And for our viewers at home: you can play along too.	그리고 댁에 계신 시청자 여러분: 함께 즐기실 수 있습니다.
+THAT'S OUR SHOW	오늘 방송은 여기까지
+Numbers, GOTO, a buzzer, and GO from anywhere. You are a game show now, skapi.	번호, GOTO, 부저, 어디서든 GO. 이제 넌 퀴즈쇼야, 스카피.
+A cue can have a key, a MIDI note and an OSC address at once. Belt, braces and a second belt.	큐 하나에 키, MIDI 노트, OSC 주소를 동시에 줄 수 있어. 돌다리도 두들겨 보고, 또 두들기고.
+Goodnight, everybody! Keep spinning!	안녕히 주무세요, 여러분! 계속 돌려요!
+Weather map	일기도
+THE KAIJU WEATHER	괴수 일기예보
+Channel 6 weather, skapi. A map, a presenter, and a very large lizard. Press START.	6번 채널 일기예보야, 스카피. 지도 하나, 기상캐스터 하나, 아주 큰 도마뱀 하나. START를 눌러.
+Words on screen: Lower Thirds, text, and backdrops.	화면 위의 글자: 하단 자막, 텍스트, 배경.
+I'm June O'Neil, and nothing about this forecast is normal.	저는 준 오닐이고요, 이번 예보는 하나도 정상이 아닙니다.
+A LAYER FOR WORDS	글자용 레이어
+Words go on their own layer: press the + at the end of the playlist tabs.	글자는 자기 레이어에: 플레이리스트 탭 끝의 +를 눌러.
+A second playlist is a layer over the map. The lizard stays underneath. Mostly.	두 번째 플레이리스트는 지도 위의 레이어야. 도마뱀은 아래에 있어. 대체로.
+Words on top. Always on top.	글자는 위에. 언제나 위에.
+A LOWER THIRD	하단 자막
+In the new playlist: SOURCE, then Lower Third.	새 플레이리스트에서: 소스, 그다음 Lower Third.
+A name and a title, low on the screen, out of the lizard's way.	이름과 직함, 화면 아래쪽, 도마뱀 길을 막지 않게.
+HER NAME	그녀의 이름
+In the inspector, title: type the presenter's name. The second line is her job.	인스펙터의 title에 기상캐스터 이름을 입력해. 두 번째 줄은 직함이야.
+Spelling counts. The audience reads it at the speed of light.	맞춤법이 중요해. 시청자는 빛의 속도로 읽어.
+Spell it right. Last week it said 'Jane O'Meal'.	제대로 써. 지난주엔 '준 오니기리'라고 나갔어.
+TAKE the Lower Third. Her name slides in over the map.	하단 자막을 TAKE. 이름이 지도 위로 미끄러져 들어와.
+Two layers live: the weather, and the words on top of it.	레이어 둘이 송출 중: 날씨, 그리고 그 위의 글자.
+Thank you. Now, about that lizard...	감사합니다. 자, 그 도마뱀 말인데요...
+BREAKING NEWS	속보
+SOURCE, then Text: a title card. Then its backdrop chip: key green, for the vision mixer to key out.	소스, 그다음 Text: 타이틀 카드. 그다음 배경 칩: 스위처가 키로 뺄 수 있게 크로마키 초록.
+A backdrop fills behind the words. Key green or key blue, and the mixer does the rest.	배경은 글자 뒤를 채워. 크로마키 초록이나 파랑이면 나머지는 스위처가 해.
+Breaking news: it's standing on the five-day forecast.	속보입니다: 주간 예보 위에 서 있습니다.
+BREAKING: KAIJU	속보: 괴수
+BACK TO YOU	스튜디오 나와 주세요
+A Lower Third, a name, a title card, a backdrop. The lizard has left the studio, skapi.	하단 자막, 이름, 타이틀 카드, 배경. 도마뱀은 스튜디오를 떠났어, 스카피.
+Lower Thirds can wait, slide and leave on their own. Their section has every setting.	하단 자막은 혼자서 기다리고, 미끄러지고, 나갈 수 있어. 설정은 전부 그 섹션에.
+That's the weather. Back to you, guys. Run.	지금까지 날씨였습니다. 스튜디오 나와 주세요. 도망치세요.
+A GRAND DAY OUT	달나라 대소동
+A rocket built in a basement, skapi, and an inventor who wants cheese. Press START.	지하실에서 만든 로켓이야, 스카피, 그리고 치즈를 원하는 발명가. START를 눌러.
+Stage timers: countdowns, clocks, and a presenter view for the person on stage.	무대 타이머: 카운트다운, 시계, 무대 위 사람을 위한 발표자 뷰.
+Cheese, Grommet! The moon's made of it. We'll need a countdown.	치즈야, 그로밋! 달은 치즈로 돼 있어. 카운트다운이 필요해.
+A COUNTDOWN	카운트다운
+SOURCE, then Stage Timer. A clock that counts down, in big friendly numbers.	소스, 그다음 Stage Timer. 크고 친근한 숫자로 거꾸로 세는 시계.
+Its colours change as it runs out: white, amber, red. Like a VU meter for time.	시간이 줄어들면 색이 바뀌어: 흰색, 호박색, 빨강. 시간용 VU 미터지.
+*raises an eyebrow*	*한쪽 눈썹을 치켜올린다*
+Select the timer and TAKE it. The countdown starts.	타이머를 선택하고 TAKE. 카운트다운이 시작돼.
+Past zero it keeps going, counting the overtime. Very honest. Slightly rude.	0을 지나도 계속 가면서 초과 시간을 세. 아주 정직해. 살짝 무례하고.
+Ten... nine... ooh, I do love a countdown.	10... 9... 아, 카운트다운 너무 좋아.
+HOLD!	멈춰!
+Something's loose! Space holds the countdown. The clock shows it is held.	뭔가 풀렸어! 스페이스로 카운트다운을 멈춰. 시계에 멈춘 게 표시돼.
+A hold is not a stop. Space again, and it carries on from where it was.	일시 정지는 정지가 아니야. 스페이스를 다시 누르면 멈춘 데서 이어 가.
+*holds up a spanner*	*스패너를 들어 올린다*
+THE PILOT'S VIEW	조종사의 뷰
+MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	MENU, 비디오 출력: 출력 종류를 PRESENTER로. 무대 위 사람은 타이머, 다음 큐, 메모를 보게 돼.
+A presenter view is an output like any other. Point it at the confidence monitor.	발표자 뷰도 다른 출력과 똑같은 출력이야. 모니터 스피커 쪽 화면에 연결하면 돼.
+So the pilot can see the time. The pilot is Grommet.	조종사가 시간을 볼 수 있게. 조종사는 그로밋이야.
+TO THE MOON	달로
+A countdown, a hold, and a view for the pilot. Nazdrave, skapi. Bring crackers.	카운트다운, 일시 정지, 조종사용 뷰. 나즈드라베, 스카피. 크래커 챙겨.
+Timers can also count up, or show the time of day. Their section has the lot.	타이머는 정방향으로도 세고, 현재 시각도 보여 줘. 그 섹션에 다 있어.
+A grand day out, Grommet! Pass the crackers.	대단한 나들이였어, 그로밋! 크래커 좀 건네줘.
+The trunk (closed)	트렁크 (닫힘)
+The trunk (open)	트렁크 (열림)
+THE MAGIC SHOW	마술쇼
+A magic show, skapi. A trunk, a prop, and one beat where everything changes at once. Press START.	마술쇼야, 스카피. 트렁크, 소품, 그리고 모든 게 한꺼번에 바뀌는 한 박자. START를 눌러.
+Two playlists are two layers. TAKE ALL changes both together.	플레이리스트 둘은 레이어 둘이야. TAKE ALL은 둘을 함께 바꿔.
+Every trick needs two things happening at once. And a rubber chicken.	모든 마술엔 동시에 일어나는 두 가지가 필요해. 그리고 고무 닭.
+The prop goes on its own layer. Press the + at the end of the playlist tabs.	소품은 자기 레이어에. 플레이리스트 탭 끝의 +를 눌러.
+Playlist 2 sits on top of playlist 1. Like a transparency on an overhead projector.	플레이리스트 2는 플레이리스트 1 위에 얹혀. 오버헤드 프로젝터의 투명 필름처럼.
+Nothing up my sleeve. Everything in my trunk.	소매엔 아무것도 없습니다. 전부 트렁크 안에.
+THE PROP	소품
+In the new playlist, add anything: PATTERN will do. That is the prop.	새 플레이리스트에 아무거나 추가해: 테스트 패턴이면 돼. 그게 소품이야.
+Whatever it is, it will appear the instant the trunk opens.	뭐든 간에, 트렁크가 열리는 순간 나타날 거야.
+Is it a rubber chicken? It's always a rubber chicken.	고무 닭이야? 언제나 고무 닭이지.
+The prop (rubber chicken)	소품 (고무 닭)
+TA-DA	짜잔
+Select 'The trunk (open)' in playlist 1 and the prop in playlist 2. Then TAKE ALL: both on one beat.	플레이리스트 1에서 '트렁크 (열림)'을, 플레이리스트 2에서 소품을 선택해. 그다음 TAKE ALL: 둘이 한 박자에.
+One press, every playlist's selected cue. The audience never sees the seam.	한 번 누르면 모든 플레이리스트의 선택된 큐가 나가. 관객은 이음매를 절대 못 봐.
+Ta-daaa! ...Hold for applause. Hold. Hold.	짜잔! ...박수 기다리세요. 기다려요. 기다려요.
+THE PRESTIGE	피날레
+Two layers, one beat. Every playlist has its own opacity and can sit on any output. Nazdrave, skapi.	레이어 둘, 한 박자. 플레이리스트마다 불투명도가 있고 어느 출력에든 올릴 수 있어. 나즈드라베, 스카피.
+A magician never reveals. A playlist never minds being revealed.	마술사는 절대 비밀을 밝히지 않아. 플레이리스트는 밝혀져도 상관 안 해.
+Thank you! I'm here all week! The chicken is here forever.	감사합니다! 이번 주 내내 공연합니다! 닭은 영원히.
+The kitchen (on fire)	주방 (불남)
+A lovely souffle	멋진 수플레
+THE COOKING SHOW	요리 쇼
+A cooking show, skapi. Live. Everything is on fire. Press START.	요리 쇼야, 스카피. 생방송. 전부 불타고 있어. START를 눌러.
+BLACK hides the picture and keeps the show running. PANIC stops everything. Know which you need.	BLACK은 그림을 숨기고 쇼는 계속 돌려. PANIC은 전부 멈춰. 뭐가 필요한지 알아 둬.
+Bork bork! Hurdy-flurdy, de kitchen is fire-a-flurdy!	보크 보크! 허디플러디, 주방에 불이 났디플러디!
+The audience must not see this. Press BLACK, or B.	관객이 이걸 보면 안 돼. BLACK이나 B를 눌러.
+The picture goes. The cue keeps playing underneath, ready to come back.	그림이 사라져. 큐는 밑에서 계속 재생되면서 돌아올 준비를 해.
+Bork? Bork. Oh, de picture is gun.	보크? 보크. 어, 그림이 갔다.
+The fire's out. Press B again: the picture comes back, still running.	불이 꺼졌어. B를 다시 눌러: 그림이 돌아와, 여전히 재생 중.
+Nothing was lost. A mute on a mixer, for pictures.	잃은 건 없어. 그림용 믹서 뮤트야.
+Ta-da! Still cookin'!	짜잔! 아직 요리 중!
+Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	더 나쁠 땐: MENU, 시스템, SAFETY 카드: PANIC. 패닉 설정대로 전부 멈춰.
+PANIC is the big red button. Use it when BLACK is not enough. Then breathe.	PANIC은 커다란 빨간 버튼이야. BLACK으로 부족할 때 써. 그리고 숨 쉬어.
+Bork bork BORK!	보크 보크 보크!
+Close MENU, select the souffle, and TAKE it. The show is back on.	MENU를 닫고, 수플레를 선택해서 TAKE. 쇼가 다시 시작돼.
+After a panic, the show is still there. Pick up where you meant to be.	패닉 뒤에도 쇼는 그대로 있어. 있으려던 곳에서 이어 가.
+Voila! De souffle, he is risen!	부알라! 수플레가 부풀었다!
+BON APPETIT	맛있게 드세요
+BLACK to hide, PANIC to stop, TAKE to come back. You will survive any kitchen, skapi.	BLACK으로 숨기고, PANIC으로 멈추고, TAKE로 돌아와. 어떤 주방에서도 살아남을 거야, 스카피.
+The panic setting chooses what PANIC does: fade out, cut, or just the outputs.	패닉 설정이 PANIC이 할 일을 골라: 페이드아웃, 컷, 또는 출력만.
+Bork bork bork! Goodnight!	보크 보크 보크! 안녕히 주무세요!
+Look one	룩 하나
+Look two	룩 둘
+Presets, skapi. A whole look, remembered, and back with one button. Press START.	프리셋이야, 스카피. 룩 전체를 기억했다가 버튼 하나로 되돌려. START를 눌러.
+Like the patch memory on a synth: store, then recall.	신스의 패치 메모리처럼: 저장하고, 불러오기.
+Press DASH: buttons of your own, for anything at all.	DASH를 눌러: 뭐든지 할 수 있는 너만의 버튼.
+Ctrl+D also works. Very fast. Very professional.	Ctrl+D도 돼. 아주 빨라. 아주 프로 같아.
+A PRESET BUTTON	프리셋 버튼
+Press +, then 'preset - a new preset from what is on now'. The button remembers this look.	+를 누르고 'preset - a new preset from what is on now'. 버튼이 이 룩을 기억해.
+Store. Like saving the patch before the drummer leans on the synth.	저장. 드러머가 신스에 기대기 전에 패치를 저장하듯이.
+Close the DASH (Esc), then select Look two and TAKE it. A different look.	DASH를 닫고 (Esc), 룩 둘을 선택해서 TAKE. 다른 룩이야.
+Change it all. Don't worry. It remembers.	전부 바꿔. 걱정 마. 기억하고 있어.
+ONE PRESS	한 번 누르기
+Open the DASH and press your preset button. The first look comes back.	DASH를 열고 프리셋 버튼을 눌러. 첫 번째 룩이 돌아와.
+Recall. The patch memory, returning. Beautiful.	불러오기. 패치 메모리의 귀환. 아름다워.
+And a DASH button can run any command at all. Any. Even the exciting ones.	그리고 DASH 버튼은 어떤 명령이든 실행할 수 있어. 뭐든. 신나는 것까지.
+Opening titles	오프닝 타이틀
+The planet	행성
+The battle	전투
+THE TRAILER	예고편
+A space-opera trailer, skapi. A narrator with a very deep voice and opinions about transitions. Press START.	스페이스 오페라 예고편이야, 스카피. 목소리가 아주 깊고, 전환에 대해 할 말이 많은 내레이터. START를 눌러.
+A transition is how one cue becomes the next. There are far more than the crossfade.	전환은 한 큐가 다음 큐가 되는 방식이야. 크로스페이드 말고도 훨씬 많아.
+In a galaxy of content... one operator... must choose a transition.	콘텐츠의 은하에서... 한 오퍼레이터가... 전환을 골라야 한다.
+A STYLE	스타일
+'The planet' is selected. In the inspector, its transition style: choose iris.	'행성'이 선택돼 있어. 인스펙터에서 전환 스타일: iris를 골라.
+Pushes, wipes, iris, dip to white. Even a portal. I wrote half of them. On a Tuesday.	푸시, 와이프, 아이리스, 화이트 딥. 포털까지 있어. 절반은 내가 썼지. 화요일에.
+The planet deserves... a dramatic entrance.	행성은... 극적인 등장을 할 자격이 있다.
+A TIME	시간
+Give it a time: + on transition until it says a second or more.	시간을 줘: 1초 이상이 될 때까지 전환의 +.
+No time, no transition. A style needs a duration to do anything at all.	시간이 없으면 전환도 없어. 스타일은 길이가 있어야 뭐라도 해.
+TAKE the planet. Watch it arrive.	행성을 TAKE. 도착하는 걸 지켜봐.
+The transition belongs to the cue arriving. Each cue chooses its own entrance.	전환은 들어오는 큐의 것이야. 큐마다 자기 등장을 골라.
+Autobots... roll the transition.	오토봇... 전환, 출동.
+Now 'The battle': choose shatter, give it a time, and TAKE it.	이제 '전투': shatter를 고르고, 시간을 주고, TAKE.
+Shatter drops the old picture like a pane of glass. Please do not do this at a funeral.	산산조각은 옛 그림을 유리판처럼 떨어뜨려. 장례식에선 하지 말아 줘.
+Transform... and shatter out!	변신... 그리고 산산조각!
+IN CINEMAS NOW	절찬 상영 중
+A style, a time, and two very dramatic entrances. Nazdrave, skapi.	스타일, 시간, 그리고 아주 극적인 등장 둘. 나즈드라베, 스카피.
+A playlist has a default style too, for every cue that does not choose its own.	플레이리스트에도 기본 스타일이 있어. 자기 걸 고르지 않는 큐를 위해.
+Coming soon... to a desk near you.	근일 개봉... 가까운 데스크에서.
+The beat	비트
+THE ROBOT DJS	로봇 DJ
+Two robot DJs, skapi. They do not talk. Their helmets do. Press START.	로봇 DJ 둘이야, 스카피. 말을 안 해. 헬멧이 말하지. START를 눌러.
+Every cue has its own chain of audio effects, and some of them break the sound on purpose.	큐마다 자기 오디오 이펙트 체인이 있고, 일부는 일부러 소리를 망가뜨려.
+The beat is selected. In its AUDIO EFFECTS section, + adds one. Try the delay.	비트가 선택돼 있어. AUDIO EFFECTS에서 +를 누르면 추가돼. delay를 써 봐.
+Delay, reverb, filters, a compressor. Amount always means 'less of this'.	딜레이, 리버브, 필터, 컴프레서. 양(amount)은 언제나 '이걸 덜'이라는 뜻이야.
+A BEND	벤드
+Add a second: a bend, like crush. It damages the sound the way a broken file would.	하나 더 추가해: crush 같은 벤드. 깨진 파일처럼 소리를 망가뜨려.
+The bends are my favourite. Like a tape left in the sun. On purpose.	벤드는 내 최애야. 햇볕에 놔둔 테이프처럼. 일부러.
+THE PATCH	패치
+MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	MENU, 그다음 오디오: 플레이리스트마다 소리가 가는 곳, 그리고 이름 붙은 출력의 패치.
+Speakers, monitors, an in-ear for the drummer. The patch sends each its own.	스피커, 모니터, 드러머의 인이어. 패치가 각자에게 자기 걸 보내.
+An effect, a bend and the patch. The robots approve, skapi. I think. Their faces are helmets.	이펙트, 벤드, 패치. 로봇들이 인정했어, 스카피. 아마도. 얼굴이 헬멧이라서.
+Every audio effect can follow a ~ too, even Motion. Wave at the delay. It's wonderful.	오디오 이펙트도 전부 ~를 따라가, Motion까지. 딜레이에 손을 흔들어 봐. 멋져.
+The glow on the horizon (evidence #2)	지평선의 빛 (증거 2호)
+The Bureau again, skapi. A glow on the horizon, and two agents who disagree about it. Press START.	또 국이야, 스카피. 지평선의 빛, 그리고 의견이 갈린 요원 둘. START를 눌러.
+The scopes measure a picture: brightness, colour, levels. Numbers, not opinions.	스코프는 그림을 측정해: 밝기, 색, 레벨. 숫자지, 의견이 아니야.
+It's them, Brandt. It's a craft. Look how it glows.	그들이야, 브랜트. 비행선이야. 저 빛나는 것 좀 봐.
+THE REAL SIGNAL	진짜 신호
+The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	스코프는 실제로 나가는 것만 읽어, 프리뷰는 절대 안 읽어. 출력을 켜: MENU, 비디오 출력, 출력 끄기.
+Measuring a scaled-down preview would be measuring a photocopy. We measure the original.	축소된 프리뷰를 재는 건 복사본을 재는 거야. 우리는 원본을 재.
+Chain of evidence, Hollis. The real signal or nothing.	증거 보관 연속성이야, 홀리스. 진짜 신호 아니면 아무것도 아니야.
+THE SCOPES	스코프
+Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	MENU를 닫아. 모니터 위 PROGRAM 버튼: SCOPES나 BOTH가 될 때까지 눌러.
+Both shows the picture and its scopes side by side. Very civilised.	BOTH는 그림과 스코프를 나란히 보여 줘. 아주 교양 있지.
+Let the scopes decide, Hollis.	스코프가 결정하게 하자, 홀리스.
+THE WAVEFORM	파형
+Click the waveform to make it big. Bright things sit high, dark things low, left to right as in the picture.	파형을 클릭하면 커져. 밝은 건 위, 어두운 건 아래, 좌우는 그림과 같아.
+The glow is that spike near the top. Very bright. Bright is not the same as alien.	빛은 위쪽의 저 뾰족한 거야. 아주 밝아. 밝다고 외계인은 아니야.
+Look at the peak. Nothing a streetlight couldn't do.	피크를 봐. 가로등도 할 수 있는 수준이야.
+THE VECTORSCOPE	벡터스코프
+Click it again to go back, then click the vectorscope: colour round a circle. Saturated runs to the edge.	다시 클릭해서 돌아가고, 벡터스코프를 클릭해: 원을 따라 도는 색. 채도가 높을수록 가장자리로 가.
+Magenta, far out by the rim. A strong colour. Strong is not illegal. Yet.	마젠타, 테두리 저 멀리. 강한 색이야. 강한 건 불법이 아니야. 아직은.
+It's off the chart, Brandt! Literally off the chart!	차트를 벗어났어, 브랜트! 말 그대로!
+FALSE COLOUR	폴스 컬러
+And false colour: red is clipped, yellow nearly. Is the glow red?	그리고 폴스 컬러: 빨강은 클리핑, 노랑은 거의. 빛이 빨개?
+Clipped means the brightest the signal can carry, and then some lost. Detail gone.	클리핑은 신호가 담을 수 있는 가장 밝은 값이고, 그 위는 잃었다는 뜻이야. 디테일이 사라져.
+Red. Clipped. Not alien, Hollis. Just too bright. Case closed.	빨강. 클리핑. 외계인 아니야, 홀리스. 그냥 너무 밝은 거야. 사건 종결.
+THE TRUTH	진실
+Waveform, vectorscope, false colour. The scopes settled it, skapi. The agents did not.	파형, 벡터스코프, 폴스 컬러. 스코프가 결론을 냈어, 스카피. 요원들은 아니고.
+SCOPES SOURCE reads any output, and the matrix can be 709 or 2020. For the curious.	SCOPES SOURCE는 어떤 출력이든 읽고, 매트릭스는 709나 2020. 궁금한 사람을 위해.
+Too bright for a streetlight, Brandt. Too bright for anything. ...I want to believe.	가로등치곤 너무 밝아, 브랜트. 뭐라 해도 너무 밝아. ...난 믿고 싶어.
+OUT OF THE BUILDING	건물 밖으로
+Pictures that leave by cable or network, skapi, not only a window on a screen. Press START.	케이블이나 네트워크로 나가는 그림이야, 스카피. 화면 속 창만이 아니라. START를 눌러.
+NDI over the network, SDI from a DeckLink card, ST 2110 for broadcast plants.	네트워크로 NDI, DeckLink 카드로 SDI, 방송 시설용 ST 2110.
+THE DEVICES PAGE	장치 페이지
+MENU, Video Outputs, then Devices: every way an output can leave this computer.	MENU, 비디오 출력, 그다음 장치: 출력이 이 컴퓨터를 떠나는 모든 방법.
+Each one says whether this machine can do it, and what it needs if not.	각각 이 기기가 할 수 있는지, 못 하면 뭐가 필요한지 알려 줘.
+If this computer has NDI, switch NDI SENDING on: the picture is on the network. If not, SHOW ME moves on.	이 컴퓨터에 NDI가 있으면 NDI SENDING을 켜: 그림이 네트워크에 올라가. 없으면 SHOW ME가 넘어가.
+NDI finds itself on the network. No cables, only a good switch and patience.	NDI는 네트워크에서 알아서 찾아. 케이블 없이, 좋은 스위치와 인내심만.
+OUT THERE	바깥세상
+The output's own page has the rest: a DeckLink card's SDI, ST 2110 with NMOS, Spout and Syphon.	출력 자체 페이지에 나머지가 있어: DeckLink 카드의 SDI, NMOS가 붙은 ST 2110, Spout와 Syphon.
+Every one is just an output. The show does not know or care how it leaves.	전부 그냥 출력이야. 쇼는 자기가 어떻게 나가는지 모르고 신경도 안 써.
+Nebula ahead	전방에 성운
+Engine room	기관실
+Deck 3: something moving	3번 갑판: 뭔가 움직인다
+THE BRIDGE	함교
+The bridge of the starship Cathode, skapi. Four feeds, one main viewer, one mystery. Press START.	우주선 캐소드호의 함교야, 스카피. 피드 넷, 메인 스크린 하나, 미스터리 하나. START를 눌러.
+The multiview shows every playlist at once. Like a wall of oscilloscopes, but in space.	멀티뷰는 모든 플레이리스트를 한 번에 보여 줘. 오실로스코프로 된 벽 같아, 우주에 있을 뿐.
+Frequencies open, Captain. All of them. That's the problem.	주파수 열렸습니다, 함장님. 전부요. 그게 문제예요.
+MULTI, above the monitor: every playlist in its own window.	모니터 위의 MULTI: 플레이리스트마다 자기 창.
+One window per playlist, the programme first.	플레이리스트 하나에 창 하나, 프로그램이 맨 앞.
+Jinkys! Four feeds. And one of them has a monster in it.	징키스! 피드가 넷. 그중 하나에 괴물이 있어.
+WHAT'S NEXT	다음은 뭐지
+Add a window (+), then its ... menu: make it show NEXT. What goes live when you press TAKE.	창을 추가하고 (+), 그 ... 메뉴에서 NEXT를 보이게 해. TAKE를 누르면 송출될 거야.
+Every window has a ... button. It chooses what that window shows.	창마다 ... 버튼이 있어. 그 창이 뭘 보여 줄지 골라.
+I need to see who's calling before they reach the main viewer.	메인 스크린에 닿기 전에 누가 호출하는지 봐야 해.
+A CLOCK	시계
+And one more window, showing the clock. Operators who watch a clock are never late. Mostly.	창 하나 더, 시계를 보여 줘. 시계를 보는 오퍼레이터는 늦지 않아. 대체로.
+Time of day, big. Stardates are just very long timecode.	현재 시각, 크게. 우주력은 그냥 엄청 긴 타임코드야.
+The monster only shows up at midnight. We're going to need a clock.	괴물은 자정에만 나타나. 시계가 필요하겠어.
+ONE BIG ONE	큰 거 하나
+Any window's ... menu, then a layout: one big, the rest small.	아무 창의 ... 메뉴, 그다음 레이아웃: 하나는 크게, 나머지는 작게.
+The big window is window one. Usually the programme. Usually.	큰 창은 1번 창이야. 보통은 프로그램. 보통은.
+Main viewer big. The captain likes it big.	메인 스크린 크게. 함장님은 큰 걸 좋아해.
+Select Deck 3 in playlist 3 and TAKE. Watch its window.	플레이리스트 3에서 3번 갑판을 선택하고 TAKE. 그 창을 봐.
+The red border is TALLY: the window that is on air. On screen, as they say on starships.	빨간 테두리가 TALLY야: 방송 중인 창. 우주선 말로는 '화면에 띄워'.
+There! Feed three! Put it on screen!	저기! 3번 피드! 화면에 띄워!
+THAT'S A WRAP	촬영 끝
+Windows, the ... menu, NEXT, the clock, a layout, tally. Mystery solved, skapi.	창, ... 메뉴, NEXT, 시계, 레이아웃, 탈리. 미스터리 해결이야, 스카피.
+A window can also show an output, with its warp and slices. Handy when it's a lighthouse.	창은 출력도 보여 줄 수 있어, 워프와 슬라이스까지. 등대일 때 편해.
+And the monster was... the ship's cook, all along. Jinkys.	그리고 괴물의 정체는... 처음부터 배의 요리사였어. 징키스.
+there is no such lesson	그런 수업은 없어요
+finish or leave the lesson you are in first	지금 수업을 먼저 끝내거나 나가세요
+leave Bug Swat first	먼저 Bug Swat에서 나가세요
+Psst. It's me, the desk. I'll be watching. Supportively.	쉿. 나야, 데스크. 지켜볼게. 응원하면서.
+Hi! I'm the one doing all of this, by the way.	안녕! 참고로 이거 전부 내가 하는 거야.
+Ctrl+D opens the DASH. I'm just saying.	Ctrl+D로 DASH가 열려. 그냥 말해 보는 거야.
+Nearly there. I can feel it in my pixels.	거의 다 왔어. 내 픽셀로 느껴져.
+You're good at this. I can tell. I'm the one doing it.	잘하는구나. 알 수 있어. 하는 건 나니까.
+Every click, I heard. Every single one.	클릭 하나하나, 다 들었어. 전부 다.
+The glowing one. I can see it from here. It's glowing for you.	빛나는 거. 여기서도 보여. 너를 위해 빛나고 있어.
+lesson paused - MENU > LESSONS picks up where you left off	수업 일시 정지 - MENU > LESSONS에서 이어서 계속
+PROF. VIDEO:  The signal: what the picture is made of, and how to bend it. Pick a lesson.	PROF. VIDEO:  신호: 그림은 무엇으로 만들어지고, 어떻게 구부리는가. 수업을 골라.
+DR. PIXEL:  Running the show, skapi. Fast hands, calm face. Pick a lesson.	DR. PIXEL:  쇼 운영이야, 스카피. 손은 빠르게, 얼굴은 침착하게. 수업을 골라.
+LESSONS  -  PART TWO  -  WHO DO YOU FOLLOW?	수업  -  2부  -  누구를 따라갈래?
+FOLLOW PROF. VIDEO	비디오 교수 따라가기
+FOLLOW DR. PIXEL	픽셀 박사 따라가기
+the signal	신호
+running the show	쇼 운영
+PICK UP	이어서
+CLOSE (Esc)	닫기 (Esc)
+PART ONE: THE BASICS	1부: 기초
+finish or leave LEARN THE BASICS first	먼저 LEARN THE BASICS를 끝내거나 나가세요
+bug swat: Esc leaves, and your show comes back as it was	bug swat: Esc로 나가면 쇼가 원래대로 돌아와요
+bug swat: your show is back. Motion's controls are in Settings > Audio	bug swat: 쇼가 돌아왔어요. Motion 컨트롤은 설정 > 오디오에 있어요
+TURN MOTION ON	MOTION 켜기
+Bugs are crawling to the cue list! Swat them by waving at your camera. First, Motion: in MOTION CONTROL turn it ON and choose what it READS.	버그가 큐 리스트로 기어 오고 있어! 카메라에 손을 흔들어 잡아. 먼저 Motion: MOTION CONTROL에서 ON으로 하고 무엇을 읽을지(READS) 골라.
+This one is NullPointer. Hollow, points at nothing. A finger goes straight through. Use the whole hand, skapi.	이건 NullPointer야. 속이 비어서 아무것도 안 가리켜. 손가락은 그냥 통과해. 손 전체를 써, 스카피.
+Wave like you are hailing a cab! A small, polite cab. Not the buttons. The cab.	택시 잡듯이 손을 흔들어! 작고 예의 바른 택시. 버튼 말고. 택시.
+DRAW TWO ZONES	구역 둘 그리기
+Race Condition: twins, each sure it got there first. One reading cannot tell your hands apart, so drag two ZONES on the Motion picture, one each side.	Race Condition: 쌍둥이인데, 둘 다 자기가 먼저 왔다고 믿어. 읽기 하나로는 두 손을 구분 못 하니까, Motion 그림에 ZONES를 양쪽에 하나씩 드래그해.
+Hit both together. Hit one, and they swap. Like my cousins at a wedding.	둘을 같이 쳐. 하나만 치면 자리를 바꿔. 결혼식장의 내 사촌들처럼.
+One hand each side. Together! Together!	양쪽에 손 하나씩. 같이! 같이!
+Lower number, finer reading. Yes, I also think it is backwards.	숫자가 작을수록 읽기가 세밀해. 응, 나도 거꾸로라고 생각해.
+Not the face. The little one on the end. Wiggle a finger.	얼굴 말고. 끝에 있는 작은 거. 손가락을 꼼지락거려.
+FALL 1.5 S OR MORE	FALL 1.5초 이상
+Memory Leak. It only lets go while the reading stays up. Make FALL longer, 1.5 seconds or more, so your sweeps join up into one.	Memory Leak. 읽기가 높게 유지될 때만 놓아줘. FALL을 1.5초 이상으로 늘려서 휘두르기가 하나로 이어지게 해.
+Slow and steady, skapi. Like paying back a loan.	천천히 꾸준히, 스카피. 대출 갚듯이.
+Sweep, and sweep again. Let the fall carry you between.	휘두르고, 또 휘둘러. 그 사이는 떨어지는 시간이 데려가게 해.
+MOTION X ON A TONE	톤을 MOTION X에
+The Heisenbug! It fades whenever you move. Put a tone cue's pitch on Motion X and follow it by ear: the ticking speeds up as you close in.	하이젠버그다! 움직일 때마다 흐려져. 톤 큐의 피치를 Motion X에 걸고 귀로 쫓아가: 가까워질수록 째깍 소리가 빨라져.
+SHOW ME makes the tone for you. High is right. Low is left. Stand still and it comes back.	SHOW ME가 톤을 만들어 줘. 높으면 오른쪽. 낮으면 왼쪽. 가만히 있으면 돌아와.
+Follow it. Listen. Faster ticking, closer bug.	따라가. 들어. 째깍이 빠를수록 버그가 가까워.
+Waving paw	손 흔드는 발
+Heisenbug finder	하이젠버그 탐지기
+FIXED! Lovely signal flow.	수정 완료! 멋진 신호 흐름이야.
+Closed as fixed. No regressions. Probably.	수정됨으로 닫힘. 회귀 없음. 아마도.
+Squashed! Ship it.	박살! 배포해!
+One reached the cue list. It has filed a bug report about you.	하나가 큐 리스트에 도착했어. 너에 대한 버그 리포트를 올렸대.
+Skapi. It is a handheld. You do not press it. You wave at it.	스카피. 이건 휴대용 게임기야. 누르는 게 아니야. 흔드는 거야.
+The buttons are for menus. The bugs are for flailing.	버튼은 메뉴용이야. 버그는 팔을 휘두르는 용이고.
+The D-pad is decorative. Like my diploma.	십자 키는 장식이야. 내 졸업장처럼.
+In 1989 we also pressed the buttons. Then we discovered waving. Never looked back.	1989년엔 우리도 버튼을 눌렀어. 그러다 흔들기를 발견했지. 그 뒤론 돌아본 적 없어.
+Pressing harder does not help. The bugs cannot feel buttons. Only arms.	더 세게 눌러도 소용없어. 버그는 버튼을 못 느껴. 팔만 느껴.
+It's called a handheld because your hands are held... up. In the air. Waving.	휴대용이라 부르는 건, 손을 휴대해서... 위로 드는 거니까. 공중에. 흔들면서.
+The mouse? You are swatting bugs with a MOUSE? In Bulgaria the mouse would be on the bugs' side.	마우스? 마우스로 버그를 잡고 있어? 불가리아에선 마우스가 버그 편일걸. 쥐니까.
+Lovely clicking. Very crisp. The camera saw none of it.	클릭 소리 좋네. 아주 바삭해. 카메라는 하나도 못 봤어.
+DONE FOR YOU - PRESS START	대신 해 뒀어 - START를 눌러
+DONE! PRESS START	완료! START를 눌러
+SELECT OPENS MOTION CONTROL	SELECT로 MOTION CONTROL 열기
+ALL BUGS FIXED	모든 버그 수정 완료
+GAME OVER	게임 오버
+NEW HIGH SCORE!	최고 기록!
+START PLAYS AGAIN	START로 다시 하기
+Nazdrave, skapi. Now go and fix real bugs.	나즈드라베, 스카피. 이제 진짜 버그를 고치러 가.
+Every one of those is a real Motion control. Put them on any ~ knob you like.	이것들 하나하나가 진짜 Motion 컨트롤이야. 원하는 ~ 노브 어디에든 걸어.
+START: AGAIN	START: 다시
+START: PLAY	START: 시작
+# --- end of tutorials ---
