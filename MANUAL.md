@@ -3176,8 +3176,8 @@ machine cannot carry them either.
 | `COMPANIONPASS <passphrase>` · `COMPANIONPASS OFF` | Sets or clears the Companion passphrase (8+ characters) |
 - **OSC** — messages/bundles on the same port, plus an OSC Query HTTP endpoint
   and mirrored `/deckboy/state` feedback.
-- **MIDI** — on Windows and Linux; the current macOS download does not
-  include MIDI. Turn **MIDI input** on in Settings and pick the port. A note
+- **MIDI** — on Windows, macOS and Linux. Turn **MIDI input** on in
+  Settings and pick the port. A note
   0–127 takes that cue in the focused playlist, CC 7 is master volume and CC 20
   playback speed, and MIDI Machine Control PLAY / STOP / PAUSE / LOCATE drive
   the transport.
