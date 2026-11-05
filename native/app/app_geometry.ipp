@@ -226,7 +226,8 @@
                                   const SDL_FPoint& p0,
                                   const SDL_FPoint& p1,
                                   const SDL_FPoint& p2,
-                                  const SDL_FPoint& p3) {
+                                  const SDL_FPoint& p3,
+                                  float opacity = 1.0f) {
     const std::vector<float> us = blendStopsU(deck, 24, true);
     const std::vector<float> vs = blendStopsV(deck, 24, true);
     const int kCols = static_cast<int>(us.size()) - 1;
@@ -244,7 +245,9 @@
         // s/t are SCREEN-space parameters, so the feather always follows the
         // output's own edges regardless of how the uv corners were permuted
         // for orientation.
-        const float alpha = edgeBlendAlphaForUv(deck, s, t);
+        // Times the caller's opacity (a slice's), which SDL's texture alpha
+        // setting does not reach in geometry.
+        const float alpha = edgeBlendAlphaForUv(deck, s, t) * opacity;
         vertices[vertexIndex++] =
           SDL_Vertex {position, SDL_FColor {1.0f, 1.0f, 1.0f, alpha}, texCoord};
       }
@@ -641,7 +644,8 @@
                                     const SDL_FPoint& p1,
                                     const SDL_FPoint& p2,
                                     const SDL_FPoint& p3,
-                                    bool hasBlend) {
+                                    bool hasBlend,
+                                    float opacity = 1.0f) {
     if (!renderer || !texture) {
       return false;
     }
@@ -678,7 +682,7 @@
         }
         texCoord.x = std::clamp(texCoord.x, minU, maxU);
         texCoord.y = std::clamp(texCoord.y, minV, maxV);
-        const float alpha = hasBlend ? edgeBlendAlphaForUv(deck, s, t) : 1.0f;
+        const float alpha = (hasBlend ? edgeBlendAlphaForUv(deck, s, t) : 1.0f) * opacity;
         // SDL3: SDL_Vertex carries a float SDL_FColor.
         vertices[vertexIndex++] = SDL_Vertex {position, SDL_FColor {1.0f, 1.0f, 1.0f, alpha}, texCoord};
       }

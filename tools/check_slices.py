@@ -161,6 +161,45 @@ def run(exe, work):
         shot = snap()
         note("CLEAR goes back to the one picture", red(probe(shot, 0.25, 0.5)) and blue(probe(shot, 0.75, 0.5)),
              (probe(shot, 0.25, 0.5), probe(shot, 0.75, 0.5)))
+
+        print("  flip, turn, opacity, an oscillator, a playlist as the source")
+        db.commands("SLICE ADD whole", "SLICE 1 FLIP H ON")
+        shot = snap()
+        note("flipped across: blue left, red right", blue(probe(shot, 0.25, 0.5)) and red(probe(shot, 0.75, 0.5)),
+             (probe(shot, 0.25, 0.5), probe(shot, 0.75, 0.5)))
+        db.commands("SLICE 1 FLIP H OFF", "SLICE 1 PLACE 25 25 50 50", "SLICE 1 ROTATE OUT 180")
+        shot = snap()
+        note("turned half round: the small picture's left is blue", blue(probe(shot, 0.35, 0.5)),
+             probe(shot, 0.35, 0.5))
+        note("...and its right is red", red(probe(shot, 0.65, 0.5)), probe(shot, 0.65, 0.5))
+        db.commands("SLICE 1 ROTATE OUT 0", "SLICE 1 PLACE 0 0 100 100", "SLICE 1 OPACITY 50")
+        shot = snap()
+        p = probe(shot, 0.25, 0.5)
+        note("at 50%% opacity the red is half as bright (%s)" % (p,),
+             p is not None and 100 < p[0] < 160 and p[1] < 40, p)
+        db.commands("SLICE 1 OPACITY 100", "SLICE 1 LFO X DEPTH 1", "SLICE 1 LFO X RATE 1", "SLICE 1 LFO X ON")
+        seen = set()
+        for _ in range(16):
+            q = probe(snap(0.13), 0.5, 0.5)
+            if red(q):
+                seen.add("red")
+            if blue(q):
+                seen.add("blue")
+            if len(seen) == 2:
+                break
+        note("an oscillator on X slides the slice (the middle is red, then blue)", seen == {"red", "blue"}, seen)
+        db.commands("SLICE 1 LFO X OFF", "DECKADD", "DECK 2", "PATTERN ADD full-white", "TAKE",
+                    "OUTPUT SELECT 1", "SLICE 1 SOURCE DECK 2")
+        shot = snap(1.0)
+        note("a slice can take one playlist: playlist 2's white, not the programme",
+             probe(shot, 0.25, 0.5) is not None and min(probe(shot, 0.25, 0.5)) > 200, probe(shot, 0.25, 0.5))
+        saved = db.saved()
+        line = next((l for l in saved.splitlines() if l.startswith("output") and "whole," in l), "")
+        note("the source, turn, flip and opacity are saved", ",deck:1,0,0,0,0,1" in line, line[-200:])
+        for bad in ("SLICE 1 SOURCE DECK 9", "SLICE 1 ROTATE SIDEWAYS 10", "SLICE 1 FLIP Z ON",
+                    "SLICE 1 OPACITY 150", "SLICE 1 LFO SIZE ON"):
+            ok, reply = refused(db, bad)
+            note("refused: %s" % bad, ok, reply)
         note("the desk still answers", db.send("PING").startswith("OK"))
 
 

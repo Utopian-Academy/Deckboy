@@ -696,6 +696,7 @@ bool saveProject(const fs::path& projectFile, const Project& project, bool patie
       << '\t' << escapeField(outputTarget.maskId)
       << '\t' << escapeField(outputTarget.baseLayerMaskId)
       << '\t' << escapeField(deckboy::slices::serialize(outputTarget.slices))   // 114: slices
+      << '\t' << escapeField(serializeSliceLfos(outputTarget.slices))         // 115: their oscillators
       << '\n';
   }
   // ONE CUE RECORD, shared by the playlists and the tracker's own steps
@@ -1951,6 +1952,9 @@ bool applyProjectScalarLinePart2(Project& project, const std::vector<std::string
     // Absent before slices: none, so the output shows what it did.
     if (fields.size() >= 115) {
       outputTarget.slices = deckboy::slices::parse(safeString(fields, 114));
+    }
+    if (fields.size() >= 116) {
+      parseSliceLfos(safeString(fields, 115), outputTarget.slices);
     }
   } else if (fields[0] == "layer_assignment" || fields[0] == "group_preset" ||
              fields[0] == "group_slot" || fields[0] == "group_preset_meta") {

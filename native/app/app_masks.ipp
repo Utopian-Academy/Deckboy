@@ -211,6 +211,9 @@
     if (rt.maskScratch) SDL_DestroyTexture(rt.maskScratch);
     rt.maskScratch = nullptr;
     rt.maskScratchW = rt.maskScratchH = 0;
+    if (rt.sliceScratch) SDL_DestroyTexture(rt.sliceScratch);
+    rt.sliceScratch = nullptr;
+    rt.sliceScratchW = rt.sliceScratchH = 0;
   }
 
   // ── BLENDS ────────────────────────────────────────────────────────────────

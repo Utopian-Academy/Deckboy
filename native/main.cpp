@@ -2433,6 +2433,33 @@ std::string serializeToneLfos(const std::array<deckboy::effects::ParamLfo, 2>& l
   return serializeGeometryLfos(all);
 }
 
+// Every slice's oscillators, one slice to a '|', each in the geometry
+// field's spelling (its first four). Empty when none was ever touched.
+std::string serializeSliceLfos(const std::vector<deckboy::slices::Slice>& slices) {
+  std::string out;
+  bool any = false;
+  for (std::size_t i = 0; i < slices.size(); ++i) {
+    std::array<deckboy::effects::ParamLfo, 9> all {};
+    for (std::size_t k = 0; k < 4; ++k) all[k] = slices[i].lfo[k];
+    const std::string one = serializeGeometryLfos(all);
+    any = any || !one.empty();
+    if (i) out += '|';
+    out += one;
+  }
+  return any ? out : std::string();
+}
+
+void parseSliceLfos(const std::string& text, std::vector<deckboy::slices::Slice>& slices) {
+  std::size_t at = 0;
+  for (auto& s : slices) {
+    if (at > text.size()) break;
+    const std::size_t end = std::min(text.find('|', at), text.size());
+    const auto all = parseGeometryLfos(text.substr(at, end - at));
+    for (std::size_t k = 0; k < 4; ++k) s.lfo[k] = all[k];
+    at = end + 1;
+  }
+}
+
 // A Draw cue's strokes, or nothing for every other cue: the field costs a tab.
 std::string serializeCueDrawing(const Cue& cue) {
   if (cue.kind != CueKind::Pattern || normalizePatternTypeId(cue.path) != "draw") return std::string();

@@ -22,6 +22,8 @@
 #include <string>
 #include <vector>
 
+#include "cue_effects.hpp"
+
 namespace deckboy::slices {
 
 struct Slice {
@@ -39,7 +41,25 @@ struct Slice {
   // Soft edges, as a fraction of the slice: left, right, top, bottom.
   float edgeL = 0.0f, edgeR = 0.0f, edgeT = 0.0f, edgeB = 0.0f;
   std::string maskId;   // Project::masks by id; empty: none
+  // What the slice takes its picture from: "" the programme, "deck:<n>"
+  // playlist n on its own (zero based), as a Resolume slice can take a layer.
+  std::string source;
+  // Degrees: the crop turned about its middle (input), and the placed
+  // picture turned about its middle (output).
+  float inRotation = 0.0f;
+  float outRotation = 0.0f;
+  bool flipH = false;
+  bool flipV = false;
+  float opacity = 1.0f;
+  // Oscillators: across, down, rotation, opacity (kSliceLfo*). Saved apart
+  // from the rest, in the show's own oscillator spelling.
+  std::array<deckboy::effects::ParamLfo, 4> lfo {};
 };
+
+constexpr int kSliceLfoX = 0;
+constexpr int kSliceLfoY = 1;
+constexpr int kSliceLfoRotation = 2;
+constexpr int kSliceLfoOpacity = 3;
 
 constexpr int kMaxSlices = 16;
 
@@ -71,6 +91,10 @@ inline Slice clampSlice(Slice s) {
   s.edgeR = std::clamp(s.edgeR, 0.0f, 0.5f);
   s.edgeT = std::clamp(s.edgeT, 0.0f, 0.5f);
   s.edgeB = std::clamp(s.edgeB, 0.0f, 0.5f);
+  s.inRotation = std::clamp(s.inRotation, -360.0f, 360.0f);
+  s.outRotation = std::clamp(s.outRotation, -360.0f, 360.0f);
+  s.opacity = std::clamp(s.opacity, 0.0f, 1.0f);
+  if (!s.source.empty() && s.source.rfind("deck:", 0) != 0) s.source.clear();
   for (char& ch : s.name) {
     if (ch == ',' || ch == ';' || ch == '|' || ch == '\t' || ch == '\n' || ch == '\r') ch = '_';
   }
@@ -101,6 +125,13 @@ inline std::string serialize(const std::vector<Slice>& slices) {
     }
     out += ',';
     out += s.maskId;
+    // Appended after the mask, so a show from before them reads as it did.
+    out += ',';
+    out += s.source;
+    std::snprintf(buf, sizeof buf, ",%.6g,%.6g,%d,%d,%.6g", static_cast<double>(s.inRotation),
+                  static_cast<double>(s.outRotation), s.flipH ? 1 : 0, s.flipV ? 1 : 0,
+                  static_cast<double>(s.opacity));
+    out += buf;
   }
   return out;
 }
@@ -131,6 +162,14 @@ inline std::vector<Slice> parse(const std::string& text) {
     s.perspective = f[18] != "0";
     s.edgeL = num(19); s.edgeR = num(20); s.edgeT = num(21); s.edgeB = num(22);
     if (f.size() > 23) s.maskId = f[23];
+    if (f.size() > 29) {
+      s.source = f[24];
+      s.inRotation = num(25);
+      s.outRotation = num(26);
+      s.flipH = f[27] == "1";
+      s.flipV = f[28] == "1";
+      s.opacity = num(29);
+    }
     out.push_back(clampSlice(s));
   }
   return out;

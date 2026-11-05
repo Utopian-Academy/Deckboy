@@ -27,8 +27,40 @@
     return mode;
   }
 
+  // A target the size of the compositor, in its format, for a slice that
+  // takes one playlist.
+  SDL_Texture* ensureSliceScratch(OutputRuntime& rt) {
+    const int w = rt.compositorWidth, h = rt.compositorHeight;
+    if (w <= 0 || h <= 0 || !rt.outputRenderer) return nullptr;
+    if (rt.sliceScratch && rt.sliceScratchW == w && rt.sliceScratchH == h) return rt.sliceScratch;
+    if (rt.sliceScratch) SDL_DestroyTexture(rt.sliceScratch);
+    const SDL_PropertiesID props = SDL_CreateProperties();
+    SDL_SetNumberProperty(props, SDL_PROP_TEXTURE_CREATE_FORMAT_NUMBER, rt.compositorFormat);
+    SDL_SetNumberProperty(props, SDL_PROP_TEXTURE_CREATE_ACCESS_NUMBER, SDL_TEXTUREACCESS_TARGET);
+    SDL_SetNumberProperty(props, SDL_PROP_TEXTURE_CREATE_WIDTH_NUMBER, w);
+    SDL_SetNumberProperty(props, SDL_PROP_TEXTURE_CREATE_HEIGHT_NUMBER, h);
+    if (rt.hdr) {
+      SDL_SetNumberProperty(props, SDL_PROP_TEXTURE_CREATE_COLORSPACE_NUMBER, SDL_COLORSPACE_SRGB_LINEAR);
+      SDL_SetFloatProperty(props, SDL_PROP_TEXTURE_CREATE_SDR_WHITE_POINT_FLOAT, 1.0f);
+      SDL_SetFloatProperty(props, SDL_PROP_TEXTURE_CREATE_HDR_HEADROOM_FLOAT, 1.0f);
+    }
+    rt.sliceScratch = SDL_CreateTextureWithProperties(rt.outputRenderer, props);
+    SDL_DestroyProperties(props);
+    rt.sliceScratchW = rt.sliceScratch ? w : 0;
+    rt.sliceScratchH = rt.sliceScratch ? h : 0;
+    return rt.sliceScratch;
+  }
+
+  // A point turned about a centre by `degrees`.
+  static SDL_FPoint turnAbout(SDL_FPoint p, SDL_FPoint c, double degrees, double sx = 1.0, double sy = 1.0) {
+    if (degrees == 0.0) return p;
+    const double a = degrees * 3.14159265358979 / 180.0;
+    const double dx = (p.x - c.x) * sx, dy = (p.y - c.y) * sy;
+    return SDL_FPoint {static_cast<float>(c.x + (dx * std::cos(a) - dy * std::sin(a)) / sx),
+                       static_cast<float>(c.y + (dx * std::sin(a) + dy * std::cos(a)) / sy)};
+  }
+
   void presentOutputSlices(int outputIndex, OutputRuntime& rt, const OutputTarget& output, int windowW, int windowH) {
-    (void) outputIndex;
     const int texW = rt.compositorWidth, texH = rt.compositorHeight;
     SDL_Renderer* r = rt.outputRenderer;
     if (!r || !rt.compositorTexture || texW <= 0 || texH <= 0) return;
@@ -39,7 +71,28 @@
     SDL_SetTextureScaleMode(rt.compositorTexture, SDL_SCALEMODE_LINEAR);
     for (const auto& s : output.slices) {
       if (!s.enabled) continue;
+      // The oscillators: across and down in output widths and heights, the
+      // turn in whole turns, the opacity on its own 0-1.
+      const double moveX = geoLfoSwing(s.lfo[deckboy::slices::kSliceLfoX]);
+      const double moveY = geoLfoSwing(s.lfo[deckboy::slices::kSliceLfoY]);
+      const double turn = s.outRotation + geoLfoSwing(s.lfo[deckboy::slices::kSliceLfoRotation]) * 360.0;
+      const float opacity = std::clamp(lfoApplyGeo(s.lfo[deckboy::slices::kSliceLfoOpacity], s.opacity), 0.0f, 1.0f);
+      if (opacity <= 0.001f) continue;
       SDL_Texture* source = rt.compositorTexture;
+      // ONE PLAYLIST as the source: drawn on its own into the scratch, where
+      // the output would place it, and sliced from there.
+      if (s.source.rfind("deck:", 0) == 0) {
+        const int deck = std::atoi(s.source.c_str() + 5);
+        SDL_Texture* scratch = ensureSliceScratch(rt);
+        if (!scratch || deck < 0 || deck >= static_cast<int>(project_.decks.size())) continue;
+        SDL_SetRenderTarget(r, scratch);
+        SDL_SetRenderDrawColor(r, 0, 0, 0, 0);
+        SDL_RenderClear(r);
+        if (!deckIsHeldOffOutput(deck)) renderDeckLayerIntoOutput(outputIndex, deck, SDL_Rect {0, 0, texW, texH});
+        SDL_SetRenderTarget(r, nullptr);
+        SDL_SetTextureScaleMode(scratch, SDL_SCALEMODE_LINEAR);
+        source = scratch;
+      }
       // A slice with a mask: the programme copied to the scratch, its alpha
       // cut by the mask laid over the slice's crop, so the cut belongs to the
       // slice alone and never touches its neighbours.
@@ -53,8 +106,8 @@
           SDL_SetRenderTarget(r, scratch);
           SDL_SetRenderDrawColor(r, 0, 0, 0, 0);
           SDL_RenderClear(r);
-          SDL_SetTextureBlendMode(rt.compositorTexture, SDL_BLENDMODE_NONE);
-          SDL_RenderTexture(r, rt.compositorTexture, static_cast<const SDL_FRect*>(nullptr),
+          SDL_SetTextureBlendMode(source, SDL_BLENDMODE_NONE);
+          SDL_RenderTexture(r, source, static_cast<const SDL_FRect*>(nullptr),
                             static_cast<const SDL_FRect*>(nullptr));
           SDL_SetTextureBlendMode(cut, sliceAlphaCutBlend());
           const SDL_FRect at {s.srcX * texW, s.srcY * texH, static_cast<float>(cw), static_cast<float>(ch)};
@@ -64,26 +117,45 @@
           source = scratch;
         }
       }
-      const SDL_FPoint uvTL {s.srcX, s.srcY};
-      const SDL_FPoint uvTR {s.srcX + s.srcW, s.srcY};
-      const SDL_FPoint uvBR {s.srcX + s.srcW, s.srcY + s.srcH};
-      const SDL_FPoint uvBL {s.srcX, s.srcY + s.srcH};
+      // The crop's corners, turned about its middle in the picture's own
+      // pixels (so a turn stays square on a wide frame), then flipped.
+      const SDL_FPoint inMid {s.srcX + s.srcW * 0.5f, s.srcY + s.srcH * 0.5f};
+      SDL_FPoint uvTL = turnAbout({s.srcX, s.srcY}, inMid, s.inRotation, texW, texH);
+      SDL_FPoint uvTR = turnAbout({s.srcX + s.srcW, s.srcY}, inMid, s.inRotation, texW, texH);
+      SDL_FPoint uvBR = turnAbout({s.srcX + s.srcW, s.srcY + s.srcH}, inMid, s.inRotation, texW, texH);
+      SDL_FPoint uvBL = turnAbout({s.srcX, s.srcY + s.srcH}, inMid, s.inRotation, texW, texH);
+      if (s.flipH) {
+        std::swap(uvTL, uvTR);
+        std::swap(uvBL, uvBR);
+      }
+      if (s.flipV) {
+        std::swap(uvTL, uvBL);
+        std::swap(uvTR, uvBR);
+      }
       const float W = static_cast<float>(windowW), H = static_cast<float>(windowH);
-      const SDL_FPoint p0 {(s.dstX + s.corners[0]) * W, (s.dstY + s.corners[1]) * H};
-      const SDL_FPoint p1 {(s.dstX + s.dstW + s.corners[2]) * W, (s.dstY + s.corners[3]) * H};
-      const SDL_FPoint p2 {(s.dstX + s.dstW + s.corners[4]) * W, (s.dstY + s.dstH + s.corners[5]) * H};
-      const SDL_FPoint p3 {(s.dstX + s.corners[6]) * W, (s.dstY + s.dstH + s.corners[7]) * H};
+      const float x0 = static_cast<float>((s.dstX + moveX) * W), y0 = static_cast<float>((s.dstY + moveY) * H);
+      const float x1 = x0 + s.dstW * W, y1 = y0 + s.dstH * H;
+      const SDL_FPoint outMid {(x0 + x1) * 0.5f, (y0 + y1) * 0.5f};
+      // Turned about the placed picture's middle, then each corner's pin.
+      SDL_FPoint p0 = turnAbout({x0, y0}, outMid, turn);
+      SDL_FPoint p1 = turnAbout({x1, y0}, outMid, turn);
+      SDL_FPoint p2 = turnAbout({x1, y1}, outMid, turn);
+      SDL_FPoint p3 = turnAbout({x0, y1}, outMid, turn);
+      p0.x += s.corners[0] * W; p0.y += s.corners[1] * H;
+      p1.x += s.corners[2] * W; p1.y += s.corners[3] * H;
+      p2.x += s.corners[4] * W; p2.y += s.corners[5] * H;
+      p3.x += s.corners[6] * W; p3.y += s.corners[7] * H;
       const EdgeBlendShape shape = sliceBlendShape(output, s, rt.hdr);
       const bool soft = deckboy::slices::soft(s);
-      if (deckboy::slices::pinned(s) && s.perspective &&
-          renderPerspectiveWarp(r, source, shape, uvTL, uvTR, uvBR, uvBL, p0, p1, p2, p3, soft)) {
+      if ((deckboy::slices::pinned(s) || turn != 0.0) && s.perspective &&
+          renderPerspectiveWarp(r, source, shape, uvTL, uvTR, uvBR, uvBL, p0, p1, p2, p3, soft, opacity)) {
         continue;
       }
-      if (soft && renderFeatheredQuad(r, source, shape, uvTL, uvTR, uvBR, uvBL, p0, p1, p2, p3)) {
+      if (soft && renderFeatheredQuad(r, source, shape, uvTL, uvTR, uvBR, uvBL, p0, p1, p2, p3, opacity)) {
         continue;
       }
-      const SDL_FColor opaque {1.0f, 1.0f, 1.0f, 1.0f};
-      SDL_Vertex verts[4] {{p0, opaque, uvTL}, {p1, opaque, uvTR}, {p2, opaque, uvBR}, {p3, opaque, uvBL}};
+      const SDL_FColor tint {1.0f, 1.0f, 1.0f, opacity};
+      SDL_Vertex verts[4] {{p0, tint, uvTL}, {p1, tint, uvTR}, {p2, tint, uvBR}, {p3, tint, uvBL}};
       const int indices[6] {0, 1, 2, 0, 2, 3};
       SDL_SetTextureBlendMode(source, SDL_BLENDMODE_BLEND);
       SDL_RenderGeometry(r, source, verts, 4, indices, 6);
@@ -133,6 +205,10 @@
         if (deckboy::slices::pinned(s)) o << " pinned";
         if (deckboy::slices::soft(s)) o << " soft";
         if (!s.maskId.empty()) o << " mask " << s.maskId;
+        if (!s.source.empty()) o << " source " << s.source;
+        if (s.inRotation != 0.0f || s.outRotation != 0.0f) o << " turned " << s.inRotation << "/" << s.outRotation;
+        if (s.flipH || s.flipV) o << " flipped";
+        if (s.opacity < 0.999f) o << " opacity " << s.opacity * 100;
       }
       remoteCommandDetail_ = slices.empty() ? std::string("no slices: the output shows its one picture") : o.str();
       return;
@@ -234,6 +310,55 @@
       } else {
         next.maskId = id;
       }
+    } else if (what == "SOURCE") {
+      const std::string kind = parts.size() > 3 ? toUpper(parts[3]) : std::string();
+      double d = 0;
+      if (kind == "PROGRAMME" || kind == "PROGRAM") {
+        next.source.clear();
+      } else if ((kind == "DECK" || kind == "PLAYLIST") &&
+                 number(4, 1, static_cast<double>(project_.decks.size()), d) && d == std::floor(d)) {
+        next.source = "deck:" + std::to_string(static_cast<int>(d) - 1);
+      } else {
+        failRemoteCommand("SLICE SOURCE: PROGRAMME, or DECK 1-" + std::to_string(project_.decks.size()));
+        return;
+      }
+    } else if (what == "ROTATE") {
+      const std::string side = parts.size() > 3 ? toUpper(parts[3]) : std::string();
+      double deg = 0;
+      if ((side != "IN" && side != "OUT") || !number(4, -360, 360, deg)) {
+        failRemoteCommand("SLICE ROTATE: IN (the crop) or OUT (the placed picture), then degrees");
+        return;
+      }
+      (side == "IN" ? next.inRotation : next.outRotation) = static_cast<float>(deg);
+    } else if (what == "FLIP") {
+      const std::string axis = parts.size() > 3 ? toUpper(parts[3]) : std::string();
+      const std::string state = parts.size() > 4 ? toUpper(parts[4]) : std::string();
+      if ((axis != "H" && axis != "V") || (state != "ON" && state != "OFF")) {
+        failRemoteCommand("SLICE FLIP: H or V, then ON or OFF");
+        return;
+      }
+      (axis == "H" ? next.flipH : next.flipV) = state == "ON";
+    } else if (what == "OPACITY") {
+      double v = 0;
+      if (!number(3, 0, 100, v)) {
+        failRemoteCommand("SLICE OPACITY: 0-100");
+        return;
+      }
+      next.opacity = static_cast<float>(v / 100);
+    } else if (what == "LFO") {
+      static const std::pair<const char*, int> kLfos[] = {
+        {"X", deckboy::slices::kSliceLfoX}, {"Y", deckboy::slices::kSliceLfoY},
+        {"ROTATION", deckboy::slices::kSliceLfoRotation}, {"OPACITY", deckboy::slices::kSliceLfoOpacity}};
+      const std::string which = parts.size() > 3 ? toUpper(parts[3]) : std::string();
+      int slot = -1;
+      for (const auto& [name, index] : kLfos) {
+        if (which == name) slot = index;
+      }
+      if (slot < 0) {
+        failRemoteCommand("SLICE LFO: X, Y, ROTATION or OPACITY, then ON, OFF, SHAPE, RATE, DEPTH...");
+        return;
+      }
+      if (!setLfoFromRemote(next.lfo[static_cast<std::size_t>(slot)], parts, 4, "SLICE LFO")) return;
     } else if (what == "ON" || what == "OFF") {
       next.enabled = what == "ON";
     } else if (what == "LINEAR" || what == "PERSPECTIVE") {
@@ -242,7 +367,8 @@
       next.name.clear();
       for (std::size_t i = 3; i < parts.size(); ++i) next.name += (i > 3 ? " " : "") + parts[i];
     } else {
-      failRemoteCommand("SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, ON, OFF, LINEAR, PERSPECTIVE or NAME");
+      failRemoteCommand("SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, "
+                        "LINEAR, PERSPECTIVE or NAME");
       return;
     }
     pushUndoSnapshot();

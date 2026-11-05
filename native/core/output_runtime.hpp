@@ -573,6 +573,10 @@ struct OutputRuntime {
   SDL_Texture* maskScratch = nullptr;
   int maskScratchW = 0;
   int maskScratchH = 0;
+  // A slice whose source is one playlist draws that playlist here first.
+  SDL_Texture* sliceScratch = nullptr;
+  int sliceScratchW = 0;
+  int sliceScratchH = 0;
 
 #if defined(DECKBOY_HAS_NDI_SDK)
   NDIlib_send_instance_t ndiSender = nullptr;
