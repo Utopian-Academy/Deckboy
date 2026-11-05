@@ -1267,6 +1267,15 @@ if(BUILD_TESTING)
     target_compile_options(deckboy-drawing-check PRIVATE -Wall -Wextra -Wshadow -Werror)
   endif()
   add_test(NAME drawing COMMAND deckboy-drawing-check)
+  # Bug Swat, the Motion lesson's game: every bug's rule, from made-up movement.
+  add_executable(deckboy-bugswat-check tools/bugswat_check.cpp)
+  target_include_directories(deckboy-bugswat-check PRIVATE native)
+  if(MSVC)
+    target_compile_options(deckboy-bugswat-check PRIVATE /W4 /WX)
+  else()
+    target_compile_options(deckboy-bugswat-check PRIVATE -Wall -Wextra -Wshadow -Werror)
+  endif()
+  add_test(NAME bugswat COMMAND deckboy-bugswat-check)
   set_tests_properties(scopes PROPERTIES TIMEOUT 30)
   # The GPU analyser against the CPU one, bin for bin, on a real renderer.
   # Needs a GPU (or WARP) and a window, so CI runs it as a step, not a CTest.

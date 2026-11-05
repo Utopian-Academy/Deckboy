@@ -176,6 +176,65 @@
     if (out) out << step << '\n';
   }
 
+  // ── Lending the desk to a lesson ──────────────────────────────────────────
+  // Every lesson (the basics tour, Bug Swat) runs in a practice show, never
+  // the operator's. Before one opens, the operator's show is saved to its own
+  // file and the desk is noted as it was; afterwards it is handed back so.
+  struct DeskLoan {
+    fs::path returnTo;          // the operator's show, reopened at the end
+    std::vector<TutorialState::OutputWas> outputsWere;
+    double dimmerWas = 1.0;
+  };
+
+  // False, with the reason, when the desk cannot be lent as it stands.
+  bool lendDesk(DeskLoan& loan, std::string& reason) {
+    // A running programme cannot be handed back as it was: opening a show
+    // clears what is playing. So the lesson waits until nothing is.
+    for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+      if (deckIsRunning(d)) {
+        reason = "stop playback first - the lesson cannot hand a running show back as it was";
+        return false;
+      }
+    }
+    if (!pendingProjectRecoveryFile_.empty()) {
+      reason = "choose RECOVER or KEEP SAVED first";
+      return false;
+    }
+    // THE OPERATOR'S SHOW FIRST: written to its own file, or no lesson.
+    if (projectDirty_ && (!project_.loadedCleanly || soakMode_ || !saveProjectNow(false))) {
+      reason = "your show could not be saved, so the lesson has not started. Save it (SAVE AS) and try again";
+      return false;
+    }
+    loan.returnTo = currentProjectFile_;
+    loan.outputsWere.clear();
+    for (std::size_t i = 0; i < project_.outputs.size(); ++i) {
+      const OutputRuntime* runtime = runtimeForOutput(static_cast<int>(i));
+      loan.outputsWere.push_back({project_.outputs[i].enabled, runtime && runtime->fullscreenIntended});
+    }
+    loan.dimmerWas = masterDimmerTarget_;
+    return true;
+  }
+
+  void handDeskBack(const DeskLoan& loan) {
+    std::error_code ec;
+    if (loan.returnTo.empty() || !fs::exists(loan.returnTo, ec)) return;
+    openProjectFromPath(loan.returnTo);
+    // The desk handed back as it was lent: outputs the lesson switched on go
+    // off, outputs that were on come back on (opening a show disarms them,
+    // so each is re-armed, fullscreen or not as it was), and BLACK goes back
+    // to how it was.
+    const int focusWas = project_.focusedOutputIndex;
+    for (std::size_t i = 0; i < project_.outputs.size(); ++i) {
+      const TutorialState::OutputWas was = i < loan.outputsWere.size() ? loan.outputsWere[i]
+                                                                      : TutorialState::OutputWas {};
+      if (project_.outputs[i].enabled == was.on) continue;
+      project_.focusedOutputIndex = static_cast<int>(i);
+      setFocusedOutputEnabled(was.on, was.fullscreen);
+    }
+    project_.focusedOutputIndex = focusWas;
+    masterDimmerTarget_ = loan.dimmerWas;
+  }
+
   // Starts the tour, or says why not and leaves the operator's desk exactly as
   // it was. The audit of 0.99.419 (2026-10-24) found it starting after a
   // failed save, which lost an unsaved edit: the operator's work comes first.
@@ -192,22 +251,12 @@
                                  fs::equivalent(currentProjectFile_, practice, ec) && !ec;
     TutorialState next;
     if (!alreadyPractice) {
-      // A running programme cannot be handed back as it was: opening a show
-      // clears what is playing. So the tour waits until nothing is.
-      for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
-        if (deckIsRunning(d)) return refuse("stop playback first - the tour cannot hand a running show back as it was");
-      }
-      if (!pendingProjectRecoveryFile_.empty()) return refuse("choose RECOVER or KEEP SAVED first");
-      // THE OPERATOR'S SHOW FIRST: written to its own file, or no tour.
-      if (projectDirty_ && (!project_.loadedCleanly || soakMode_ || !saveProjectNow(false))) {
-        return refuse("your show could not be saved, so the tour has not started. Save it (SAVE AS) and try again");
-      }
-      next.returnTo = currentProjectFile_;
-      for (std::size_t i = 0; i < project_.outputs.size(); ++i) {
-        const OutputRuntime* runtime = runtimeForOutput(static_cast<int>(i));
-        next.outputsWere.push_back({project_.outputs[i].enabled, runtime && runtime->fullscreenIntended});
-      }
-      next.dimmerWas = masterDimmerTarget_;
+      DeskLoan loan;
+      std::string reason;
+      if (!lendDesk(loan, reason)) return refuse(reason);
+      next.returnTo = loan.returnTo;
+      next.outputsWere = loan.outputsWere;
+      next.dimmerWas = loan.dimmerWas;
     }
     auto backOut = [&](const std::string& reason) {
       if (!next.returnTo.empty() && fs::exists(next.returnTo, ec)) openProjectFromPath(next.returnTo);
@@ -296,24 +345,7 @@
       openExampleShows();
       return;
     }
-    std::error_code ec;
-    if (!tutorial_.returnTo.empty() && fs::exists(tutorial_.returnTo, ec)) {
-      openProjectFromPath(tutorial_.returnTo);
-      // The desk handed back as it was lent: outputs the tour switched on go
-      // off, outputs that were on come back on (opening a show disarms them,
-      // so each is re-armed, fullscreen or not as it was), and BLACK goes
-      // back to how it was.
-      const int focusWas = project_.focusedOutputIndex;
-      for (std::size_t i = 0; i < project_.outputs.size(); ++i) {
-        const TutorialState::OutputWas was = i < tutorial_.outputsWere.size() ? tutorial_.outputsWere[i]
-                                                                             : TutorialState::OutputWas {};
-        if (project_.outputs[i].enabled == was.on) continue;
-        project_.focusedOutputIndex = static_cast<int>(i);
-        setFocusedOutputEnabled(was.on, was.fullscreen);
-      }
-      project_.focusedOutputIndex = focusWas;
-      masterDimmerTarget_ = tutorial_.dimmerWas;
-    }
+    handDeskBack({tutorial_.returnTo, tutorial_.outputsWere, tutorial_.dimmerWas});
     triggerToast(finished ? "that's the basics - MENU > LEARN THE BASICS runs it again"
                           : "tour paused - LEARN THE BASICS picks up where you left off",
                  ToastKind::Help);

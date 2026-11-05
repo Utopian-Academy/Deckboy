@@ -600,6 +600,11 @@ jobs:
         if: matrix.features == 'all'
         run: xvfb-run -a python3 tools/check_motion.py --exe ./build/Deckboy
 
+      # Bug Swat, the Motion lesson's game: each briefing's control, the paw, the hand-back.
+      - name: Bug Swat
+        if: matrix.features == 'all'
+        run: xvfb-run -a python3 tools/check_bugswat.py --exe ./build/Deckboy
+
       # The Draw source: strokes, frames, replay and saves, read off the frame.
       - name: Draw
         if: matrix.features == 'all'
@@ -1770,6 +1775,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "the multiview's layouts and feeds failed" }
           python tools/check_motion.py --exe build\Release\Deckboy.exe
           if ($LASTEXITCODE -ne 0) { throw "motion failed" }
+          python tools/check_bugswat.py --exe build\Release\Deckboy.exe
+          if ($LASTEXITCODE -ne 0) { throw "bug swat failed" }
           python tools/check_draw.py --exe build\Release\Deckboy.exe
           if ($LASTEXITCODE -ne 0) { throw "the Draw source failed" }
           python tools/check_slices.py --exe build\Release\Deckboy.exe

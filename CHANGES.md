@@ -34,6 +34,7 @@
 - Octopus mode: draw up to eight zones on the camera picture and let each one drive a different control.
 - A tone cue's level and sine frequency take a **~**, so a hand can play it like a theremin.
 - `MOTION` and `TONECUE LFO` over the wire; an oscillator's `ZONE` picks what it follows.
+- **Bug Swat**: a five-round handheld game that teaches Motion (PLAY BUG SWAT, at the bottom of MOTION CONTROL). Each round asks for one control (Motion on, two zones, sensitivity, fall, motion-x on a tone), and SHOW ME sets it for you. It plays in a practice show and hands your show back as it was. `BUGSWAT` over the wire.
 
 ### Multiview
 

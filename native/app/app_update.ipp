@@ -897,6 +897,7 @@
       }
       // A camera's motion, for the Motion oscillator shapes (app_motion.ipp).
       serviceMotion();
+      serviceBugSwat();
       maybeSuggestHapConversion();
       // A CUE THAT SHOULD HAVE SOUND AND GOT NONE SAYS SO.
       //

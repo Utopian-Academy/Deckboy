@@ -1600,6 +1600,30 @@ Over the wire: `MOTION ON|OFF`, `MOTION SOURCE CAMERA [name]|DECK <n>`,
 `TONECUE LFO FREQ|LEVEL <setting> [value]`. An oscillator's `ZONE 0-8` picks
 what it follows, 0 being the whole picture.
 
+#### Bug Swat: learn Motion by playing it
+
+**PLAY BUG SWAT** at the bottom of MOTION CONTROL starts a little handheld game
+over the desk. Bugs crawl toward the cue list and you swat them by waving at
+the camera. There are five rounds, and each one starts by asking for one Motion
+control:
+
+| Round | Bug | What it asks for |
+|-------|-----|------------------|
+| 1 | NullPointer | Motion on, reading a camera |
+| 2 | Race Condition | two zones, one for each hand |
+| 3 | Off By One | sensitivity at 5%, for a small, faint movement |
+| 4 | Memory Leak | a longer fall, so separate sweeps join into one held reading |
+| 5 | Heisenbug | a tone cue with **motion-x** on its pitch, to find the bug by ear |
+
+SELECT opens MOTION CONTROL to set the control yourself; **SHOW ME** sets it
+for you. START plays the round once the control is set. Each bug can only be
+fixed with its round's control set right.
+
+The game runs in a practice show. Your show is saved first and comes back as
+it was when you leave (Esc). The high score is kept on this computer. With no
+camera, round 1's SHOW ME puts a waving paw on a playlist and Motion reads
+that. Over the wire: `BUGSWAT [START|SHOWME|SKIP|PLAY|EXIT|STATUS]`.
+
 ### Two worth trying on their own
 
 **Temporal dither** quantises hard to a tiny palette but advances the dither

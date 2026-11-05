@@ -7487,6 +7487,11 @@
       markProjectDirty();
       return;
     }
+    // Bug Swat, the Motion lesson's game (app_bugswat.ipp).
+    if (command == "BUGSWAT") {
+      handleBugSwatCommand(parts);
+      return;
+    }
     // LEARN THE BASICS from the wire: what a Companion button or a test needs.
     // TUTORIAL [START|SHOWME|SKIP|EXIT|STATUS]; bare TUTORIAL starts it.
     if (command == "TUTORIAL") {

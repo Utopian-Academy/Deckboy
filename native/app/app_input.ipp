@@ -100,6 +100,10 @@
     if (handleCodeEditorClick(x, y)) {
       return;
     }
+    // Bug Swat's handheld takes every click while it is up.
+    if (handleBugSwatClick(x, y)) {
+      return;
+    }
     // The tour's card buttons; every other click goes on to the desk.
     if (handleTutorialClick(x, y)) {
       return;
@@ -1884,6 +1888,9 @@
       return;
     }
 
+    if (handleBugSwatKey(key, keyRepeat)) {
+      return;
+    }
     if (handleTutorialKey(key, keyRepeat)) {
       return;
     }

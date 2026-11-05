@@ -1641,7 +1641,7 @@
       const int capH = stackH({sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sLineH});
       // MOTION CONTROL, under LIVE CAPTIONS: sized here so the scroll reaches it.
       const int motionPicH = std::max(uiScaled(60), (leftW - sPad * 2) * 9 / 16);
-      const int motionH = stackH({sRowH, sRowH, motionPicH, sLineH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH});
+      const int motionH = stackH({sRowH, sRowH, motionPicH, sLineH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH});
       {
         const int midiNeedH = stackH({sRowH, sRowH, sLineH, sLineH, sLineH, sLineH, sLineH, sRowH});
         const int ltcNeedH = stackH({sRowH, sRowH, sRowH, sRowH, sRowH, sLineH});
@@ -2004,6 +2004,11 @@
                                        ? std::string("none: the whole picture")
                                        : std::to_string(project_.motion.zones.size()) + " - clear them");
         settingsBtns_.push_back({zonesBtn, kSettingsActionMotionZonesClear, "motion_zones_clear"});
+        // The lesson, where the controls it teaches are.
+        SDL_Rect gameBtn = settingsRow(mkx, mkw, mky, sRowH, "Learn it", sGap);
+        drawUIValueControl(gameBtn, bugSwat_.active ? std::string("BACK TO BUG SWAT")
+                                                    : std::string("PLAY BUG SWAT, a game"));
+        settingsBtns_.push_back({gameBtn, kSettingsActionBugSwat, "bug_swat"});
       }
 
       // Right column: MIDI, then LTC as its own card.
@@ -6249,6 +6254,16 @@
     if (handleMotionSettingsAction(sb.action, sb.rect)) return;
     if (sb.action == kSettingsActionOpenScreens) {
       setScreensVisible(true);
+      return;
+    }
+    if (sb.action == kSettingsActionBugSwat) {
+      // From inside the game the card is how a round gets set up, so this
+      // just goes back to the handheld; from anywhere else it starts it.
+      if (bugSwat_.active) {
+        settingsOpen_ = false;
+      } else {
+        beginBugSwat();
+      }
       return;
     }
     // Out of the modal and onto the monitor, where the warp's handles are --
