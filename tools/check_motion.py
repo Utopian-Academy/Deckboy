@@ -171,7 +171,67 @@ def run(exe, work):
                     "FX LFO 1 E ZONE 9", "MOTION BANANA"):
             ok, reply = refused(db, bad)
             note("refused: %s" % bad, ok, reply)
+
+        print("  the theremin: a tone's level follows Motion")
+        db.send("FX LFO 1 E ZONE 0")
+        db.send("MOTION ON")
+        db.commands("DECKADD", "DECK 2", "TONECUE", "TONECUE LFO LEVEL SHAPE motion",
+                    "TONECUE LFO LEVEL DEPTH 1", "TONECUE LFO LEVEL ON", "TAKE")
+        time.sleep(2.0)
+
+        def tone_level():
+            found = re.findall(r"audio_level=(\d+)", db.send("STATUS"))
+            return int(found[1]) if len(found) > 1 else -1
+        moving = max(tone_level() for _ in range(3))
+        db.send("MOTION OFF")
+        time.sleep(1.5)
+        still = tone_level()
+        note("the tone is louder while the box moves (%d) than with Motion off (%d)" % (moving, still),
+             moving >= still + 6 and still > 0, (moving, still))
+        ok, reply = refused(db, "TONECUE LFO PITCH ON")
+        note("refused: TONECUE LFO PITCH (FREQ or LEVEL)", ok, reply)
         note("the desk still answers", db.send("PING").startswith("OK"))
+
+
+def run_card(exe, work):
+    """The MOTION CONTROL card, through the desk's own input: its switch,
+    and a zone drawn by dragging on the picture and removed by a click."""
+    folder = work / "card"
+    folder.mkdir()
+    show = folder / "show.deckboy"
+    show.write_text(SEED, encoding="utf8")
+    with Runtime(exe, folder / "run", show, extra=("--settings", "1", "--settings-scroll", "4000")) as db:
+        time.sleep(1.5)
+        print("  the settings card")
+        found = re.search(r"at (\d+),(\d+) (\d+)x(\d+)", db.send("PRESS motion_on"))
+        db.send("PRESS OFF")
+        note("the card has a Motion switch", found is not None)
+        if found:
+            x, y, w, h = map(int, found.groups())
+            db.send("CLICK %d %d" % (x + w // 2, y + h // 2))
+            note("...which turns Motion on", db.send("MOTION").split()[2] == "on", db.send("MOTION"))
+            db.send("CLICK %d %d" % (x + w // 2, y + h // 2))
+            note("...and off again", db.send("MOTION").split()[2] == "off", db.send("MOTION"))
+        pic = re.search(r"picture=(\d+),(\d+),(\d+),(\d+)", db.send("MOTION"))
+        note("the card draws the motion picture", pic is not None and int(pic.group(3)) > 100,
+             db.send("MOTION"))
+        if not pic:
+            return
+        px, py, pw, ph = map(int, pic.groups())
+        db.send("CLICK %d %d HOLD" % (px + pw // 10, py + ph // 10))
+        for i in range(1, 7):
+            db.send("HOVER %d %d" % (px + pw // 10 + (pw * 4 // 10) * i // 6, py + ph // 10 + (ph * 8 // 10) * i // 6))
+            time.sleep(0.03)
+        db.send("CLICK UP")
+        zones = db.send("MOTION ZONE")
+        found = re.search(r"([\d.]+),([\d.]+),([\d.]+),([\d.]+)", zones)
+        note("dragging on the picture draws a zone (%s)" % zones.split(":")[-1].strip(),
+             found is not None and abs(float(found.group(1)) - 0.1) < 0.03 and
+             abs(float(found.group(3)) - 0.4) < 0.03 and abs(float(found.group(4)) - 0.8) < 0.03, zones)
+        db.send("CLICK %d %d" % (px + pw * 3 // 10, py + ph // 2))
+        note("clicking the zone removes it", "no zones" in db.send("MOTION ZONE"), db.send("MOTION ZONE"))
+        db.send("CLICK %d %d" % (px + pw * 3 // 10, py + ph // 2))
+        note("a click with no zone under it changes nothing", "no zones" in db.send("MOTION ZONE"))
 
 
 def main():
@@ -183,6 +243,7 @@ def main():
     work = Path(tempfile.mkdtemp(prefix="deckboy-motion-"))
     try:
         run(exe, work)
+        run_card(exe, work)
     finally:
         shutil.rmtree(work, ignore_errors=True)
     if fails:

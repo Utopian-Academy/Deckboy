@@ -6086,17 +6086,20 @@ class App {
 
     // The tempo switch, its own narrow row, because it changes what the middle
     // cell above MEANS and that is worth its own control rather than a
-    // modifier-click nobody would find.
-    SDL_Rect syncBtn {x0, rowY, w, std::max(16, ix.rowH - 6)};
-    drawUIPanel(syncBtn, lfo.beatSync ? pal.dark : pal.tile, pal.deep,
-                lfo.beatSync ? pal.light : pal.mid);
-    drawCenteredTextSafe(controlRenderer_, fontSmall_, syncBtn,
-                         lfo.beatSync ? "locked to the tempo" : "free running",
-                         lfo.beatSync ? pal.light : pal.inkSoft);
-    quickButtons_.push_back({syncBtn, QuickAction::EffectLfoSync,
-                             "Follow the tapped tempo instead of a fixed rate",
-                             packed});
-    rowY += ix.rowStep;
+    // modifier-click nobody would find. Not for Audio or Motion, which follow
+    // the sound or the camera and have no rate for a tempo to replace.
+    if (!motionShape && lfo.shape != deckboy::effects::LfoShape::Audio) {
+      SDL_Rect syncBtn {x0, rowY, w, std::max(16, ix.rowH - 6)};
+      drawUIPanel(syncBtn, lfo.beatSync ? pal.dark : pal.tile, pal.deep,
+                  lfo.beatSync ? pal.light : pal.mid);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, syncBtn,
+                           lfo.beatSync ? "locked to the tempo" : "free running",
+                           lfo.beatSync ? pal.light : pal.inkSoft);
+      quickButtons_.push_back({syncBtn, QuickAction::EffectLfoSync,
+                               "Follow the tapped tempo instead of a fixed rate",
+                               packed});
+      rowY += ix.rowStep;
+    }
 
     // ── THE SCRIBBLE PAD ────────────────────────────────────────────────
     //

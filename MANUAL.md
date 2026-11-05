@@ -1544,15 +1544,56 @@ depth on the line underneath.
 
 - **Shapes**: sine, triangle, saw, ramp, square, and sample-and-hold (one random
   value per cycle, held — and repeatable, so the same moment of the show always
-  gives the same value).
+  gives the same value); **drawn**, a cycle you sketch; **audio**, which follows
+  the playlist's sound; and **motion**, **motion-x** and **motion-y**, which
+  follow a camera (below).
 - **Locked to the tempo** or free-running. Locked, the cycle is measured in
   beats and follows the VJ tap tempo, so what moves is on the music.
 - The swing is **centred on the value you set**, so switching an LFO on never
   jumps the picture — it starts from where the parameter already was and
   averages back to it.
 
-`FX LFO <n> <A-E> on|off|shape|rate|depth|phase|sync|beats [value]` does the
+`FX LFO <n> <A-E> on|off|shape|rate|depth|phase|sync|beats|zone [value]` does the
 same over the wire, where `E` is the amount.
+
+### Motion: a camera moves the controls
+
+A camera can drive any control that has a **`~`**. Deckboy compares each frame
+of the camera's picture with the one before, ignores the small differences
+that are just noise, and turns what changed into three numbers: **how much**
+is moving, and **where**, across and down.
+
+Switch it on in **Settings → Audio → MOTION CONTROL**. **Reads** picks the
+camera: one of its own, opened small and silent and never shown on an output,
+or the picture a playlist is already playing, so a camera that is also in the
+show is never opened twice. While Motion is on, an amber **MOTION** chip sits
+beside MASK on the monitor; click it to come back to the card. The picture
+on the card shows what moved, in white, with a ring where it is centred.
+**Sensitivity** sets how big a change counts; **rise** and **fall** smooth the
+reading, fast up and slow down by default; **mirror** flips left and right so
+the camera behaves like a mirror.
+
+Then, on any **`~`**, choose a shape:
+
+- **motion**: stillness leaves the control where you set it, and movement
+  pushes it up by as much as the depth, like the audio shape;
+- **motion-x** and **motion-y**: where the movement is, centred on the value
+  you set, so a hand left of centre lowers it and right of centre raises it.
+
+**Octopus mode**: drag on the card's picture to draw up to eight **zones**,
+and click a zone to remove it. On a Motion `~`, the middle cell picks what it
+follows: the whole picture, or one zone. So one hand can drive one control
+and the other hand another.
+
+A **tone cue** has a `~` on its **level** and its sine **freq**: put level on
+motion and freq on motion-x, each on its own zone, and you have a theremin.
+
+Over the wire: `MOTION ON|OFF`, `MOTION SOURCE CAMERA [name]|DECK <n>`,
+`MOTION CAMERAS`, `MOTION SENSITIVITY <%>|RISE <s>|FALL <s>|MIRROR ON|OFF`,
+`MOTION ZONE ADD <x> <y> <w> <h>|REMOVE <n>|CLEAR` (zones in percentages of the picture),
+`MOTION LEVEL` (each reading as amount@x,y), and
+`TONECUE LFO FREQ|LEVEL <setting> [value]`. An oscillator's `ZONE 0-8` picks
+what it follows, 0 being the whole picture.
 
 ### Two worth trying on their own
 

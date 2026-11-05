@@ -2,6 +2,13 @@
 
 ## Unreleased (masks, and an exact LED tile size)
 
+### Motion
+
+- A camera can move any control with a **~**: new **motion**, **motion-x** and **motion-y** shapes follow how much is moving and where. Set it up in Settings > Audio > MOTION CONTROL, reading a camera of its own or a playlist's picture; an amber MOTION chip shows while it is on.
+- Octopus mode: draw up to eight zones on the camera picture and let each one drive a different control.
+- A tone cue's level and sine frequency take a **~**, so a hand can play it like a theremin.
+- `MOTION` and `TONECUE LFO` over the wire; an oscillator's `ZONE` picks what it follows.
+
 ### Multiview
 
 - Every multiview window has a **...** menu button, and an empty window says **+ CHOOSE WHAT IT SHOWS**. Choosing a window's picture was only a right-click before.

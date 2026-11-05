@@ -9621,6 +9621,28 @@
       return;
     }
     if (command == "TONECUE") {
+      // TONECUE LFO FREQ|LEVEL <on|off|shape|rate|depth|phase|sync|zone> [value]:
+      // the selected tone's pitch or level on an oscillator (a Motion shape
+      // plays it like a theremin). Plain TONECUE makes a tone cue.
+      if (parts.size() > 1 && toUpper(parts[1]) == "LFO") {
+        Cue* cue = selectedCueMutable();
+        const std::string which = parts.size() > 2 ? toUpper(parts[2]) : std::string();
+        if (!cue || cue->kind != CueKind::Tone) {
+          failRemoteCommand("TONECUE LFO: select a tone cue first");
+          return;
+        }
+        if (which != "FREQ" && which != "LEVEL") {
+          failRemoteCommand("TONECUE LFO: FREQ or LEVEL");
+          return;
+        }
+        auto& lfo = cue->toneLfo[static_cast<std::size_t>(which == "FREQ" ? kToneLfoFreq : kToneLfoLevel)];
+        if (setLfoFromRemote(lfo, parts, 3, "TONECUE LFO")) {
+          markProjectDirty();
+          remoteCommandDetail_ = toLower(which) + (lfo.on ? " moving: " : " still: ") +
+                                 deckboy::effects::lfoShapeToken(lfo.shape);
+        }
+        return;
+      }
       addToneCue();
       const Deck& deck = focusedDeck();
       remoteCommandDetail_ = "tone cue " + std::to_string(deck.cues.size());

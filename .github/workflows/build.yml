@@ -595,6 +595,11 @@ jobs:
         if: matrix.features == 'all'
         run: xvfb-run -a python3 tools/check_mask_editor.py --exe ./build/Deckboy
 
+      # Motion: a moving box read through a playlist drives an effect and a tone.
+      - name: Motion
+        if: matrix.features == 'all'
+        run: xvfb-run -a python3 tools/check_motion.py --exe ./build/Deckboy
+
       # The multiview's layouts and feeds (an output, the clock, tally), off the frame.
       - name: Multiview feeds
         if: matrix.features == 'all'
@@ -1751,6 +1756,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "the mask editor failed" }
           python tools/check_multiview_feeds.py --exe build\Release\Deckboy.exe
           if ($LASTEXITCODE -ne 0) { throw "the multiview's layouts and feeds failed" }
+          python tools/check_motion.py --exe build\Release\Deckboy.exe
+          if ($LASTEXITCODE -ne 0) { throw "motion failed" }
 
       - uses: actions/setup-node@v4
         if: matrix.features == 'all'

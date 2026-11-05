@@ -1639,6 +1639,9 @@
       // runs off the bottom cannot be reached at all.
       const int kAudioCardGap = uiScaled(10);
       const int capH = stackH({sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH, sLineH});
+      // MOTION CONTROL, under LIVE CAPTIONS: sized here so the scroll reaches it.
+      const int motionPicH = std::max(uiScaled(60), (leftW - sPad * 2) * 9 / 16);
+      const int motionH = stackH({sRowH, sRowH, motionPicH, sLineH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH});
       {
         const int midiNeedH = stackH({sRowH, sRowH, sLineH, sLineH, sLineH, sLineH, sLineH, sRowH});
         const int ltcNeedH = stackH({sRowH, sRowH, sRowH, sRowH, sRowH, sLineH});
@@ -1647,7 +1650,7 @@
           static_cast<int>(focusedChain ? std::min(focusedChain->effects.size(), kMaxOutputEffects) : 0) *
             (sRowH + sGap);
         const int colH = content.h - uiScaled(20);
-        settingsAudioScrollMax_ = std::max(0, std::max(audioH + kAudioCardGap + capH,
+        settingsAudioScrollMax_ = std::max(0, std::max(audioH + kAudioCardGap + capH + kAudioCardGap + motionH,
                                                        midiNeedH + kAudioCardGap + ltcNeedH +
                                                          kAudioCardGap + limiterNeedH) +
                                                 kAudioCardGap + namedOutputsCardH() +
@@ -1962,10 +1965,9 @@
       // MOTION CONTROL (app_motion.ipp), under LIVE CAPTIONS: a camera read
       // for movement, which any ~ control can follow. Board DGrGWwFS.
       {
-        SDL_Rect motionRect {cx, audioColumnsBottom + kAudioCardGap, leftW, 0};
+        SDL_Rect motionRect {cx, audioColumnsBottom + kAudioCardGap, leftW, motionH};
         const int mkw = cardBodyW(motionRect);
-        const int picH = std::max(uiScaled(60), mkw * 9 / 16);
-        motionRect.h = stackH({sRowH, sRowH, picH, sLineH, sRowH, sRowH, sRowH, sRowH, sRowH, sRowH});
+        const int picH = motionPicH;
         audioColumnsBottom = std::max(audioColumnsBottom, motionRect.y + motionRect.h);
         drawCard(motionRect, "MOTION CONTROL", "a camera moves the ~ controls");
         const int mkx = cardBodyX(motionRect);

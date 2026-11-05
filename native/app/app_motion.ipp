@@ -430,9 +430,11 @@
           fy = zone.y + fy * zone.h;
         }
         const SDL_Point c = toPic(fx, fy);
-        const int ring = std::max(4, uiScaled(5));
-        outline(SDL_Rect {c.x - ring, c.y - ring, ring * 2, ring * 2},
-                r == 0 ? pal.fg : SDL_Color {242, 179, 61, 255});
+        // White for the whole picture, amber for a zone: both read on black.
+        const int ring = std::max(6, uiScaled(9));
+        const SDL_Color ink = r == 0 ? SDL_Color {255, 255, 255, 255} : SDL_Color {242, 179, 61, 255};
+        outline(SDL_Rect {c.x - ring, c.y - ring, ring * 2, ring * 2}, ink);
+        outline(SDL_Rect {c.x - ring + 2, c.y - ring + 2, ring * 2 - 4, ring * 2 - 4}, ink);
       }
     }
     if (motionZoneDrag_.active) {
@@ -454,9 +456,10 @@
       Primitives::fillRect(controlRenderer_, cell, pal.tile);
       const float amount = project_.motionEnabled ? motionAnalyzer_.reading(r).amount : 0.0f;
       const int lit = static_cast<int>(std::lround(cell.w * std::clamp(amount, 0.0f, 1.0f)));
-      if (lit > 0) Primitives::fillRect(controlRenderer_, SDL_Rect {cell.x, cell.y, lit, cell.h}, pal.light);
+      // The ink on a tile, as a fill: the one pairing every theme keeps apart.
+      if (lit > 0) Primitives::fillRect(controlRenderer_, SDL_Rect {cell.x, cell.y, lit, cell.h}, pal.fg);
       drawCenteredTextSafe(controlRenderer_, fontSmall_, cell, r == 0 ? std::string("all") : std::to_string(r),
-                           amount > 0.5f ? pal.deep : pal.fg);
+                           pal.fgSoft);
     }
   }
 
