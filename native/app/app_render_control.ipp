@@ -1408,7 +1408,11 @@
     renderBusyCritters();
     // The tour points at controls inside the settings modal too, so it draws
     // above it; the toast still goes over the top, as it does for everything.
+    // The DASH is a popup like the others: under a lesson's card (a lesson
+    // points at its buttons) and under the toast.
+    renderDashboardOverlay();
     renderTutorial(width, height);
+    renderFaceDropIn(width, height);
     // Bug Swat (app_bugswat.ipp) covers the desk while it is up.
     renderBugSwat(width, height);
     renderLessonsList(width, height);
@@ -1429,7 +1433,6 @@
     // One decode per frame, after the list has said what it is missing.
     servicePendingRowThumbnail();
     servicePendingRowWaveform();
-    renderDashboardOverlay();
     renderShortcutsOverlay();
     renderInputMonitor();
     // A DROPDOWN BELONGS ON TOP OF WHATEVER OPENED IT.

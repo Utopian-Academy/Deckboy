@@ -5,7 +5,7 @@
 ### Learn the basics, part two
 
 - When LEARN THE BASICS ends, a **lesson list** opens: follow Dr. Pixel (running the show) or Prof. Video (the signal), and pick a lesson. Also at MENU > LESSONS.
-- Six lessons so far: Effects, oscillators and colour; Patterns, synths and Draw; Masks; Warp, blend and slices; the multiview; and Bug Swat. Each runs in its own practice show, some with a guest, and is ticked DONE when finished.
+- Seven lessons so far: Effects, oscillators and colour; Patterns, synths and Draw; Presets; Masks; Warp, blend and slices; the multiview; and Bug Swat. Each runs in its own practice show, some with a guest, and is ticked DONE when finished.
 - `LESSONS` over the wire.
 
 ### Slices and the Screens window

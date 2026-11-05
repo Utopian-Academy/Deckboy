@@ -964,6 +964,113 @@
       lessons_.push_back(std::move(l));
     }
 
+    // ── Dr. Pixel: Presets (a plain lesson, so the face drops in) ─────────
+    {
+      LessonDef l;
+      l.id = "presets";
+      l.videoTrack = false;
+      l.title = "Presets";
+      l.about = "Capture a look on a DASH button, change everything, and get it back with one press.";
+      l.show = "";
+      l.setup = [this] {
+        addGeneratorCue("swirl");
+        addGeneratorCue("fireside");
+        Deck& deck = focusedDeckMutable();
+        if (deck.cues.size() >= 2) {
+          deck.cues[0].name = "Look one";
+          deck.cues[1].name = "Look two";
+        }
+        selectCueInDeck(project_.focusedDeckIndex, 0, false, false);
+        jumpSelectedCue();
+      };
+      auto presetSlot = [this]() -> int {
+        for (int i = 0; i < static_cast<int>(project_.dashboard.size()); ++i) {
+          if (project_.dashboard[static_cast<std::size_t>(i)].command.rfind("PRESET RECALL ", 0) == 0) return i;
+        }
+        return -1;
+      };
+      auto dashRect = [this](QuickAction action, int param) {
+        for (const auto& b : dashButtons_) {
+          if (b.action == action && b.rect.w > 0 && (param < 0 || b.param == param)) return b.rect;
+        }
+        return SDL_Rect {};
+      };
+      l.steps = {
+        {"PRESETS", nullptr,
+         "Presets, skapi. A whole look, remembered, and back with one button. Press START.",
+         "Like the patch memory on a synth: store, then recall.",
+         nullptr, nullptr, std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; }, nullptr},
+        {"THE DASH", "CTRL+D",
+         "Press DASH: buttons of your own, for anything at all.",
+         "Ctrl+D also works. Very fast. Very professional.",
+         nullptr, nullptr,
+         [this] { return dashboardOverlayOpen_; },
+         [this] { dashboardOverlayOpen_ = true; },
+         [this] { return dashboardOverlayOpen_ ? SDL_Rect {} : tutorialButtonRect("DASH"); }, nullptr},
+        {"A PRESET BUTTON", nullptr,
+         "Press +, then 'preset - a new preset from what is on now'. The button remembers this look.",
+         "Store. Like saving the patch before the drummer leans on the synth.",
+         nullptr, nullptr,
+         [this, presetSlot] { return !project_.presets.empty() && presetSlot() >= 0; },
+         [this] {
+           dashboardOverlayOpen_ = true;
+           const ShowPreset& preset = savePresetFromNow("Look one");
+           DashboardSlot slot;
+           slot.label = preset.name;
+           slot.command = presetRecallCommand(preset);
+           slot.glyph = "*";
+           project_.dashboard.push_back(slot);
+           markProjectDirty();
+         },
+         [dashRect] { return dashRect(QuickAction::DashSlotAdd, -1); }, nullptr},
+        {"CHANGE EVERYTHING", "ENTER",
+         "Close the DASH (Esc), then select Look two and TAKE it. A different look.",
+         "Change it all. Don't worry. It remembers.",
+         nullptr, nullptr,
+         [this] { return focusedDeck().activeIndex >= 0 && focusedDeck().activeIndex != lessonCount_; },
+         [this] {
+           dashboardOverlayOpen_ = false;
+           const Deck& deck = focusedDeck();
+           for (int i = 0; i < static_cast<int>(deck.cues.size()); ++i) {
+             if (i != deck.activeIndex) {
+               selectCueInDeck(project_.focusedDeckIndex, i, false, false);
+               jumpSelectedCue();
+               break;
+             }
+           }
+         },
+         [this] {
+           if (dashboardOverlayOpen_) return SDL_Rect {};
+           const Deck& deck = focusedDeck();
+           for (int i = 0; i < static_cast<int>(deck.cues.size()); ++i) {
+             if (i != deck.activeIndex) {
+               return deck.selectedIndex == i ? tutorialButtonRect("TAKE") : tutorialCueRowRect(project_.focusedDeckIndex, i);
+             }
+           }
+           return SDL_Rect {};
+         },
+         [this] { lessonCount_ = focusedDeck().activeIndex; }},
+        {"ONE PRESS", nullptr,
+         "Open the DASH and press your preset button. The first look comes back.",
+         "Recall. The patch memory, returning. Beautiful.",
+         nullptr, nullptr,
+         [this] { return focusedDeck().activeIndex == lessonCount_; },
+         [this, presetSlot] {
+           const int at = presetSlot();
+           if (at >= 0) handleRemoteCommand(project_.dashboard[static_cast<std::size_t>(at)].command);
+         },
+         [this, presetSlot, dashRect] {
+           if (!dashboardOverlayOpen_) return tutorialButtonRect("DASH");
+           return dashRect(QuickAction::DashSlotFire, presetSlot());
+         }, nullptr},
+        {"REMEMBERED", nullptr,
+         "A look, stored and recalled. A preset can keep cues, positions, effects, levels and routing; its button's menu chooses which.",
+         "And a DASH button can run any command at all. Any. Even the exciting ones.",
+         nullptr, nullptr, std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; }, nullptr},
+      };
+      lessons_.push_back(std::move(l));
+    }
+
     // ── Prof. Video: Motion, the game ─────────────────────────────────────
     {
       LessonDef l;
@@ -1069,6 +1176,53 @@
     }
   }
 
+  // ── The face drops in (plain lessons only) ───────────────────────────────
+  //
+  // James, 2026-11-05 (board question 4: "yes, and maybe in the lessons
+  // without themes"). Now and then the desk's own face pops into a corner
+  // with something to say about how Deckboy is being run. Only in a lesson
+  // with no show, so it never talks over a guest.
+  Uint64 faceDropUntilMs_ = 0;
+  std::string faceDropLine_;
+  int faceDrops_ = 0;
+
+  bool lessonIsPlain() const {
+    const LessonDef* def = tutorial_.active && tutorial_.lesson > 0 ? lessonDef(tutorial_.lesson - 1) : nullptr;
+    return def && (!def->show || !*def->show);
+  }
+
+  void faceDropIn(const std::string& line) {
+    if (!lessonIsPlain()) return;
+    faceDropLine_ = line;
+    faceDropUntilMs_ = SDL_GetTicks() + 5200;
+    ++faceDrops_;
+  }
+
+  void renderFaceDropIn(int width, int /*height*/) {
+    if (!lessonIsPlain() || SDL_GetTicks() >= faceDropUntilMs_) return;
+    const int w = std::min(uiScaled(340), width / 3);
+    const int pad = uiScaled(10);
+    const int faceH = uiScaled(130);
+    const auto lines = codeWrapText(fontBase_, faceDropLine_, w - pad * 2);
+    const int lineH = textLineHeight(fontBase_);
+    const int h = pad + faceH + static_cast<int>(lines.size()) * lineH + pad;
+    // Slides down from the top-right corner, and back up at the end.
+    const Uint64 left = faceDropUntilMs_ - SDL_GetTicks();
+    const double in = std::clamp((5200.0 - static_cast<double>(left)) / 300.0, 0.0, 1.0);
+    const double out = std::clamp(static_cast<double>(left) / 300.0, 0.0, 1.0);
+    const int y = uiScaled(8) - static_cast<int>((1.0 - std::min(in, out)) * (h + uiScaled(16)));
+    const SDL_Rect box {width - w - uiScaled(12), y, w, h};
+    Primitives::drawFramedPanel(controlRenderer_, box, pal.deep, pal.deep, pal.light);
+    // The face with nothing of its own to say; the line goes underneath,
+    // wrapped, so a long one is read whole.
+    drawStartupMascot(SDL_Rect {box.x + pad, box.y + pad, box.w - pad * 2, faceH}, animationNow_, "");
+    int ty = box.y + pad + faceH;
+    for (const auto& text : lines) {
+      drawTextSafe(controlRenderer_, fontBase_, SDL_Rect {box.x + pad, ty, box.w - pad * 2, lineH}, text, pal.light);
+      ty += lineH;
+    }
+  }
+
   // ── Running one ──────────────────────────────────────────────────────────
 
   // Starts a lesson, or says why not.
@@ -1137,6 +1291,20 @@
     if (const LessonStep* s = currentLessonStep()) {
       if (s->enter) s->enter();
     }
+    // The face drops in on the second step and on the one before the end.
+    static const char* kHello[] = {
+      "Psst. It's me, the desk. I'll be watching. Supportively.",
+      "Hi! I'm the one doing all of this, by the way.",
+      "Ctrl+D opens the DASH. I'm just saying.",
+    };
+    static const char* kNearly[] = {
+      "Nearly there. I can feel it in my pixels.",
+      "You're good at this. I can tell. I'm the one doing it.",
+      "Every click, I heard. Every single one.",
+    };
+    const int count = tutorialStepCount();
+    if (tutorial_.step == 1) faceDropIn(kHello[faceDrops_ % 3]);
+    else if (count > 3 && tutorial_.step == count - 2) faceDropIn(kNearly[faceDrops_ % 3]);
   }
 
   // A target on the settings page's scrolled Video Outputs content.
@@ -1156,6 +1324,11 @@
   }
 
   void serviceLesson() {
+    // Clicking all round the lit control: the face has something to say.
+    if (tutorial_.missClicks == 3 && SDL_GetTicks() >= faceDropUntilMs_) {
+      faceDropIn("The glowing one. I can see it from here. It's glowing for you.");
+      ++tutorial_.missClicks;
+    }
     if (superDeckboyEvolveAt_ != 0 && superDeckboyEvolveAt_ != lessonEvolveSeen_) {
       lessonEvolveSeen_ = superDeckboyEvolveAt_;
       ++lessonQuips_;

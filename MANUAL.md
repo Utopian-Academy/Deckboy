@@ -158,15 +158,17 @@ choice is not final; the list remembers it, and a tab switches. It is always at
 | Masks | Prof. Video | a heart from the library, a pen path, invert, feather | The Signal Files: redact the saucer photo |
 | Warp, blend and slices | Prof. Video | a corner pin, two soft edges, the Screens window, three slices | the haunted lighthouse, with Keeper Rook |
 | Motion: Bug Swat | Prof. Video | the game (see Motion) | a handheld, and bugs |
+| Presets | Dr. Pixel | a DASH button that captures a look, a different look, one press to get it back | (a plain lesson) |
 | The multiview | Dr. Pixel | MULTI, a window showing NEXT, a clock, a layout, tally | mystery on the starship Cathode, with Lt. Haila and Ensign Jinkley |
 
 Each lesson works like the basics: its own practice show (your show is saved
 first and comes back as it was), a step that waits for you to do the thing,
 SHOW ME, SKIP, Esc, and it picks up where you stopped. A finished lesson is
-ticked DONE in the list.
+ticked DONE in the list. In a lesson with no show, the desk's own face drops
+into a corner now and then with something to say.
 
 Over the network: `LESSONS [OPEN|CLOSE|START <id>|TRACK PIXEL|VIDEO|LIST]`; the
-ids are `effects`, `draw`, `masks`, `warp`, `bugswat` and `multiview`. A running lesson is
+ids are `effects`, `draw`, `masks`, `warp`, `bugswat`, `presets` and `multiview`. A running lesson is
 driven with the `TUTORIAL` verbs.
 
 Deckboy refuses to start twice, so a stray double-click cannot take a second

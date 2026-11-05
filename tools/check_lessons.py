@@ -29,7 +29,7 @@ sys.path.insert(0, str(ROOT / "tools"))
 from example_show_runtime import Runtime  # noqa: E402
 
 SEED = "update_check\t0\nui_sounds\t0\nui_scale\t1.0\n"
-LESSONS = ("effects", "draw", "masks", "warp", "multiview")
+LESSONS = ("effects", "draw", "masks", "warp", "multiview", "presets")
 fails = []
 
 
@@ -126,7 +126,7 @@ def run(exe, work, keep):
             after = db.saved()
             motion = lambda t: next((l for l in t.splitlines() if l.startswith("motion\t")), "")
             note("the operator's show is handed back as it was", motion(after) == motion(before) and
-                 "Nebula ahead" not in after and "Saucer" not in after and "Student work" not in after and "ghost" not in after.lower(),
+                 "Nebula ahead" not in after and "Look two" not in after and "Saucer" not in after and "Student work" not in after and "ghost" not in after.lower(),
                  (motion(before), motion(after)))
 
         print("  picking up where it was left")
