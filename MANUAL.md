@@ -159,12 +159,15 @@ choice is not final; the list remembers it, and a tab switches. It is always at
 | Warp, blend and slices | Prof. Video | a corner pin, two soft edges, the Screens window, three slices | the haunted lighthouse, with Keeper Rook |
 | Transitions | Prof. Video | an iris and a shatter, each with a time | the space-opera trailer, with Optimus Primetime |
 | Sound | Prof. Video | an audio effect, a bend, and where the patch lives | the robot DJs, with Deft Funk |
+| Reading the scopes | Prof. Video | an output on, the waveform, the vectorscope, false colour | The Signal Files: is the glow a craft? |
+| Out of the building | Prof. Video | the Devices page, and NDI where this computer has it | (a plain lesson) |
 | Motion: Bug Swat | Prof. Video | the game (see Motion) | a handheld, and bugs |
 | GO from anywhere | Dr. Pixel | a cue number, GOTO (Ctrl+G), a hotkey from TRIGGERS, where Companion, MIDI and OSC connect | the game show, with Donna Wheel |
 | Words on screen | Dr. Pixel | a layer, a Lower Third with a name on it, a title card with a key-green backdrop | the kaiju weather report, with June O'Neil |
 | Keeping time | Dr. Pixel | a stage timer counting down, held, and a presenter view | a grand day out, with Wallis and Grommet |
 | Two playlists and TAKE ALL | Dr. Pixel | a second playlist as a layer, and TAKE ALL changing both on one beat | the magic show, with Turnip Top |
 | When it goes wrong | Dr. Pixel | BLACK and back, PANIC, and getting the show back | the cooking show, with Chef Bork |
+| Taking it on the road | Dr. Pixel | CHECK a show, fix what it finds, BUNDLE it with its media | (a plain lesson) |
 | Presets | Dr. Pixel | a DASH button that captures a look, a different look, one press to get it back | (a plain lesson) |
 | The multiview | Dr. Pixel | MULTI, a window showing NEXT, a clock, a layout, tally | mystery on the starship Cathode, with Lt. Haila and Ensign Jinkley |
 
@@ -175,7 +178,7 @@ ticked DONE in the list. In a lesson with no show, the desk's own face drops
 into a corner now and then with something to say.
 
 Over the network: `LESSONS [OPEN|CLOSE|START <id>|TRACK PIXEL|VIDEO|LIST]`; the
-ids are `effects`, `draw`, `masks`, `warp`, `transitions`, `sound`, `bugswat`, `layers`, `go`, `words`, `timers`, `presets`, `wrong` and `multiview`. A running lesson is
+ids are `effects`, `draw`, `masks`, `warp`, `transitions`, `scopes`, `sound`, `outside`, `bugswat`, `layers`, `go`, `words`, `timers`, `presets`, `wrong`, `road` and `multiview`. A running lesson is
 driven with the `TUTORIAL` verbs.
 
 Deckboy refuses to start twice, so a stray double-click cannot take a second

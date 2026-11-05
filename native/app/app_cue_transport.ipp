@@ -6090,7 +6090,10 @@
   // toast at a time, so "how much is left to fix before doors" meant clicking
   // until the count came round again. The list shows the lot; picking a line
   // takes the operator to that cue (or the tracker, for a step).
+  int showProblemListOpens_ = 0;   // CHECK pressed, this session
+
   void openShowProblemList() {
+    ++showProblemListOpens_;   // the lessons watch this
     const std::vector<ShowProblem> problems = scanShowForProblems();
     showProblemCount_ = static_cast<int>(problems.size());
     if (problems.empty()) {

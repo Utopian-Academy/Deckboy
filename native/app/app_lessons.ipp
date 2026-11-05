@@ -726,6 +726,90 @@
     auto none = std::function<bool()> {};
     auto noTarget = [] { return SDL_Rect {}; };
 
+    // ── Dr. Pixel: Taking it on the road (a plain lesson) ─────────────────
+    // CHECK only appears when a show has a problem, so this one starts with
+    // one: a video left on another computer.
+    {
+      LessonDef l;
+      l.id = "road";
+      l.videoTrack = false;
+      l.title = "Taking it on the road";
+      l.about = "CHECK a show before it travels, fix what it finds, and bundle it with its media.";
+      l.show = "";
+      l.setup = [this] {
+        addGeneratorCue("swirl");
+        Deck& deck = focusedDeckMutable();
+        if (!deck.cues.empty()) deck.cues.back().name = "Opener";
+        Cue lost;
+        lost.kind = CueKind::Video;
+        lost.name = "Intro video (left on the office PC)";
+        lost.path = (Paths::stateDir() / "lesson-road" / "intro-video-on-another-computer.mp4").string();
+        lost.formatName = "mp4";
+        applyDeckDefaultsToCue(lost, deck);
+        deck.cues.push_back(lost);
+        scanProjectMediaPresence();
+        markProjectDirty();
+      };
+      auto isLost = [](const Cue& c) { return c.name == "Intro video (left on the office PC)"; };
+      l.steps = {
+        {"ON THE ROAD", nullptr,
+         "A show you built here, skapi, running on a laptop somewhere else tonight. Press START.",
+         "Before it travels: check it, fix it, bundle it.",
+         nullptr, nullptr, std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; }, nullptr},
+        {"CHECK", nullptr,
+         "See CHECK in the top bar? It only appears when something is wrong. Press it.",
+         "It lists everything a show would trip over: missing files, empty cues, unreachable outputs.",
+         nullptr, nullptr,
+         [this] { return showProblemListOpens_ > lessonCount_; },
+         [this] { openShowProblemList(); },
+         [this] { return fileCheckBtnRect_; },
+         [this] {
+           lessonCount_ = showProblemListOpens_;
+           lastShowCheckMs_ = 0;   // CHECK appears now, not on the next rescan
+         }},
+        {"FIX IT", "DEL",
+         "The intro video is on another computer. Select it and delete it, or RELINK it if you have the file.",
+         "Fix it at home, where it is easy. Not at the venue, where it is not.",
+         nullptr, nullptr,
+         [this, isLost] {
+           int d = -1;
+           const int i = lessonFindCue(isLost, &d);
+           return i < 0 || !project_.decks[static_cast<std::size_t>(d)].cues[static_cast<std::size_t>(i)].mediaMissing;
+         },
+         [this, isLost] {
+           int d = -1;
+           const int i = lessonFindCue(isLost, &d);
+           if (i < 0) return;
+           project_.focusedDeckIndex = d;
+           selectCueInDeck(d, i, false, false);
+           deleteSelected();
+         },
+         [this, isLost] {
+           int d = -1;
+           const int i = lessonFindCue(isLost, &d);
+           return i < 0 ? SDL_Rect {} : tutorialCueRowRect(d, i);
+         }, nullptr},
+        {"BUNDLE IT", nullptr,
+         "Press BUNDLE and choose where: a USB stick, a shared folder. The show and all its media, together.",
+         "The copy finds its media beside it, wherever the folder goes.",
+         nullptr, nullptr,
+         [this] { return bundlesWritten_ > lessonCount_; },
+         [this] {
+           const fs::path dir = Paths::stateDir() / "lesson-road-bundle";
+           std::error_code ec;
+           fs::create_directories(dir, ec);
+           exportProjectBundleTo(dir / "on-the-road.deckboy", true);
+         },
+         [this] { return fileBundleBtnRect_; },
+         [this] { lessonCount_ = bundlesWritten_; }},
+        {"SAFE TRAVELS", nullptr,
+         "Checked, fixed, bundled. On the other machine, open the bundle's show: everything is where it should be.",
+         "A show file is only text, so it travels light. The media is the heavy part.",
+         nullptr, nullptr, std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; }, nullptr},
+      };
+      lessons_.push_back(std::move(l));
+    }
+
     // ── Prof. Video: Effects, oscillators and colour (the art school crit) ─
     // James picked this show, 2026-11-05: the critic hates every picture
     // until it has a ~ on it. The critic is Mr. Salty (Jerry Saltz).
@@ -1906,6 +1990,127 @@
       lessons_.push_back(std::move(l));
     }
 
+    // ── Prof. Video: Reading the scopes (The Signal Files, again) ─────────
+    {
+      LessonDef l;
+      l.id = "scopes";
+      l.videoTrack = true;
+      l.title = "Reading the scopes";
+      l.about = "The waveform, the vectorscope, and false colour: is the glow real, or just too bright?";
+      l.show = "The Signal Files: is the glow on the horizon a craft?";
+      l.setup = [this] {
+        lessonAddCodeCue("The glow on the horizon (evidence #2)",
+                         "g = 1 - smoothstep(0.0, 0.25, sqrt((x - 0.7)*(x - 0.7)*3.16 + (y - 0.62)*(y - 0.62)*4.0));"
+                         "sky = 0.05 + (1 - y)*0.12; land = step(0.72, y);"
+                         "(sky + g*1.3)*(1 - land*0.85), (sky*0.5 + g*0.05)*(1 - land*0.85), (sky*1.6 + g*1.4)*(1 - land*0.85)");
+        selectCueInDeck(project_.focusedDeckIndex, 0, false, false);
+        jumpSelectedCue();
+      };
+      l.steps = {
+        {"EVIDENCE #2", nullptr,
+         "The Bureau again, skapi. A glow on the horizon, and two agents who disagree about it. Press START.",
+         "The scopes measure a picture: brightness, colour, levels. Numbers, not opinions.",
+         "AGENT HOLLIS", "It's them, Brandt. It's a craft. Look how it glows.", std::function<bool()> {}, nullptr,
+         [] { return SDL_Rect {}; }, nullptr},
+        {"THE REAL SIGNAL", nullptr,
+         "The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.",
+         "Measuring a scaled-down preview would be measuring a photocopy. We measure the original.",
+         "AGENT BRANDT", "Chain of evidence, Hollis. The real signal or nothing.",
+         [this] { return tutorialAnyOutputOn(); },
+         [this] { setFocusedOutputEnabled(true, false); },
+         [this] {
+           if (!settingsOpen_) return tutorialButtonRect("MENU");
+           return lessonSettingRect(kSettingsActionOutputToggle);
+         },
+         [this] {
+           tutorialAimOutputs(tutorialScreens());
+           if (settingsOpen_) settingsTab_ = 3;
+         }},
+        {"THE SCOPES", nullptr,
+         "Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.",
+         "Both shows the picture and its scopes side by side. Very civilised.",
+         "AGENT BRANDT", "Let the scopes decide, Hollis.",
+         [this] { return monitorView_ != MonitorView::Program; },
+         [this] { monitorView_ = MonitorView::Both; },
+         [this] { return scopesViewBtnRect_; }, nullptr},
+        {"THE WAVEFORM", nullptr,
+         "Click the waveform to make it big. Bright things sit high, dark things low, left to right as in the picture.",
+         "The glow is that spike near the top. Very bright. Bright is not the same as alien.",
+         "AGENT BRANDT", "Look at the peak. Nothing a streetlight couldn't do.",
+         [this] { return scopesBig_ == kScopeWaveform; },
+         [this] { setScopeBig(kScopeWaveform); },
+         [this] { return scopesBig_ == kScopeWaveform ? SDL_Rect {} : scopesPanelRects_[kScopeWaveform]; }, nullptr},
+        {"THE VECTORSCOPE", nullptr,
+         "Click it again to go back, then click the vectorscope: colour round a circle. Saturated runs to the edge.",
+         "Magenta, far out by the rim. A strong colour. Strong is not illegal. Yet.",
+         "AGENT HOLLIS", "It's off the chart, Brandt! Literally off the chart!",
+         [this] { return scopesBig_ == kScopeVector; },
+         [this] { setScopeBig(kScopeVector); },
+         [this] { return scopesBig_ == kScopeVector ? SDL_Rect {} : scopesPanelRects_[kScopeVector]; }, nullptr},
+        {"FALSE COLOUR", nullptr,
+         "And false colour: red is clipped, yellow nearly. Is the glow red?",
+         "Clipped means the brightest the signal can carry, and then some lost. Detail gone.",
+         "AGENT BRANDT", "Red. Clipped. Not alien, Hollis. Just too bright. Case closed.",
+         [this] { return scopesBig_ == kScopeFalseColour; },
+         [this] { setScopeBig(kScopeFalseColour); },
+         [this] { return scopesBig_ == kScopeFalseColour ? SDL_Rect {} : scopesPanelRects_[kScopeFalseColour]; },
+         nullptr},
+        {"THE TRUTH", nullptr,
+         "Waveform, vectorscope, false colour. The scopes settled it, skapi. The agents did not.",
+         "SCOPES SOURCE reads any output, and the matrix can be 709 or 2020. For the curious.",
+         "AGENT HOLLIS", "Too bright for a streetlight, Brandt. Too bright for anything. ...I want to believe.",
+         std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; }, nullptr},
+      };
+      lessons_.push_back(std::move(l));
+    }
+
+    // ── Prof. Video: Out of the building (a plain lesson) ─────────────────
+    // Offers only what this computer has: NDI is a step where its runtime is
+    // installed, and SHOW ME moves on where it is not.
+    {
+      LessonDef l;
+      l.id = "outside";
+      l.videoTrack = true;
+      l.title = "Out of the building";
+      l.about = "Where NDI, SDI and ST 2110 live, and NDI switched on where this computer has it.";
+      l.show = "";
+      l.setup = [this] {
+        addGeneratorCue("pocket-test");
+        selectCueInDeck(project_.focusedDeckIndex, 0, false, false);
+      };
+      l.steps = {
+        {"OUT OF THE BUILDING", nullptr,
+         "Pictures that leave by cable or network, skapi, not only a window on a screen. Press START.",
+         "NDI over the network, SDI from a DeckLink card, ST 2110 for broadcast plants.",
+         nullptr, nullptr, std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; }, nullptr},
+        {"THE DEVICES PAGE", nullptr,
+         "MENU, Video Outputs, then Devices: every way an output can leave this computer.",
+         "Each one says whether this machine can do it, and what it needs if not.",
+         nullptr, nullptr,
+         [this] { return settingsOpen_ && settingsTab_ == 3 && settingsVideoSubTab_ == 2; },
+         [this] { debugOpenSettings(3, 2); },
+         [this] { return settingsOpen_ ? SDL_Rect {} : tutorialButtonRect("MENU"); }, nullptr},
+        {"NDI", nullptr,
+         "If this computer has NDI, switch NDI SENDING on: the picture is on the network. If not, SHOW ME moves on.",
+         "NDI finds itself on the network. No cables, only a good switch and patience.",
+         nullptr, nullptr,
+         [this] { return focusedOutput().ndiEnabled; },
+         [this] {
+           if (ndiRuntimeAvailable()) {
+             setFocusedOutputNdiEnabled(true);
+           } else {
+             advanceTutorial();
+           }
+         },
+         [this] { return lessonSettingRect(271); }, nullptr},
+        {"OUT THERE", nullptr,
+         "The output's own page has the rest: a DeckLink card's SDI, ST 2110 with NMOS, Spout and Syphon.",
+         "Every one is just an output. The show does not know or care how it leaves.",
+         nullptr, nullptr, std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; }, nullptr},
+      };
+      lessons_.push_back(std::move(l));
+    }
+
     // ── Prof. Video: Motion, the game ─────────────────────────────────────
     {
       LessonDef l;
@@ -2229,6 +2434,7 @@
   void endLesson(bool finished) {
     const LessonDef* def = lessonDef(tutorial_.lesson - 1);
     tutorial_.active = false;
+    closeDropdown(false);
     if (def && finished) markLessonDone(def->id);
     if (projectDirty_ && project_.loadedCleanly && !soakMode_) saveProjectNow(false);
     if (screensOpen_) setScreensVisible(false);

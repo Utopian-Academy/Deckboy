@@ -1359,6 +1359,11 @@
     // Away from the target: above it when it is in the lower half, below it
     // when it is in the upper, centred when there is none.
     int cardY = (height - cardH) / 2;
+    // A lesson step with nothing to point at is usually asking you to look
+    // at something (a scope, the monitor): the card gets out of the middle.
+    if (target.w <= 0 && tutorial_.lesson > 0 && tutorial_.step > 0 && tutorial_.step < stepCount - 1) {
+      cardY = std::max(uiScaled(8), height - cardH - uiScaled(8));
+    }
     if (target.w > 0) {
       const int gap = uiScaled(18);
       if (target.y + target.h / 2 > height / 2) {

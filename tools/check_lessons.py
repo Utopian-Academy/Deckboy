@@ -29,7 +29,7 @@ sys.path.insert(0, str(ROOT / "tools"))
 from example_show_runtime import Runtime  # noqa: E402
 
 SEED = "update_check\t0\nui_sounds\t0\nui_scale\t1.0\n"
-LESSONS = ("effects", "draw", "masks", "warp", "multiview", "presets", "go", "words", "timers", "layers", "wrong", "transitions", "sound")
+LESSONS = ("effects", "draw", "masks", "warp", "multiview", "presets", "go", "words", "timers", "layers", "wrong", "transitions", "sound", "road", "scopes", "outside")
 fails = []
 
 
@@ -112,7 +112,7 @@ def run(exe, work, keep):
             print("  lesson: %s" % lesson)
             db.send("LESSONS START %s" % lesson)
             step, count, reply = step_of(db)
-            note("%s starts on step 1 of %s" % (lesson, count), step == 1 and count and count >= 5, reply)
+            note("%s starts on step 1 of %s" % (lesson, count), step == 1 and count and count >= 4, reply)
             note("...in its own practice show", (state / ("lesson-%s.deckboy" % lesson)).exists())
             stuck = walk(db, lesson, work, keep)
             note("every step passed by what SHOW ME did (%d steps)" % count, not stuck, stuck)
@@ -126,7 +126,7 @@ def run(exe, work, keep):
             after = db.saved()
             motion = lambda t: next((l for l in t.splitlines() if l.startswith("motion\t")), "")
             note("the operator's show is handed back as it was", motion(after) == motion(before) and
-                 "Nebula ahead" not in after and "Look two" not in after and "Contestant" not in after and "Weather map" not in after and "The trunk" not in after and "souffle" not in after and "The planet" not in after and "The beat" not in after and "Saucer" not in after and "Student work" not in after and "ghost" not in after.lower(),
+                 "Nebula ahead" not in after and "Look two" not in after and "Contestant" not in after and "Weather map" not in after and "The trunk" not in after and "souffle" not in after and "The planet" not in after and "The beat" not in after and "office PC" not in after and "evidence #2" not in after and "Saucer" not in after and "Student work" not in after and "ghost" not in after.lower(),
                  (motion(before), motion(after)))
 
         print("  picking up where it was left")

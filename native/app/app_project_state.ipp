@@ -1521,6 +1521,8 @@
     return ok;
   }
 
+  int bundlesWritten_ = 0;   // this session, for the "on the road" lesson
+
   bool exportProjectBundleTo(const fs::path& destinationFile, bool withToast = true) {
     normalizeProject(project_);
 
@@ -1657,6 +1659,7 @@
       }
       triggerToast(message.str());
     }
+    ++bundlesWritten_;   // the lessons watch this
     return true;
   }
 
