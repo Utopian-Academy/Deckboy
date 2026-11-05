@@ -578,7 +578,8 @@
                              const SDL_FPoint& uvTL, const SDL_FPoint& uvTR,
                              const SDL_FPoint& uvBR, const SDL_FPoint& uvBL,
                              const SDL_FPoint& p0, const SDL_FPoint& p1,
-                             const SDL_FPoint& p2, const SDL_FPoint& p3, bool hasBlend) {
+                             const SDL_FPoint& p2, const SDL_FPoint& p3, bool hasBlend,
+                             float opacity = 1.0f) {
     if (!renderer || !texture || !warpGridActive(out)) {
       return false;
     }
@@ -613,7 +614,7 @@
           uv.y = std::clamp(uv.y, minV, maxV);
         }
         const SDL_FPoint nudge = warpGridOffsetAt(out, s, t);
-        const float alpha = hasBlend ? edgeBlendAlphaForUv(deck, s, t) : 1.0f;
+        const float alpha = (hasBlend ? edgeBlendAlphaForUv(deck, s, t) : 1.0f) * opacity;
         vertices[v++] = SDL_Vertex {SDL_FPoint {base.x + nudge.x, base.y + nudge.y},
                                     SDL_FColor {1.0f, 1.0f, 1.0f, alpha}, uv};
       }

@@ -196,8 +196,19 @@ def run(exe, work):
         saved = db.saved()
         line = next((l for l in saved.splitlines() if l.startswith("output") and "whole," in l), "")
         note("the source, turn, flip and opacity are saved", ",deck:1,0,0,0,0,1" in line, line[-200:])
+        print("  a mesh on a slice")
+        db.commands("SLICE 1 SOURCE PROGRAMME", "SLICE 1 GRID 3 3", "SLICE 1 GRID POINT 2 2 25 0")
+        shot = snap()
+        note("pulling the middle point right pushes the red into the blue there",
+             red(probe(shot, 0.62, 0.5)), probe(shot, 0.62, 0.5))
+        note("...but not at the top edge, whose points stay put", blue(probe(shot, 0.62, 0.02)),
+             probe(shot, 0.62, 0.02))
+        saved = db.saved()
+        line = next((l for l in saved.splitlines() if l.startswith("output") and "whole," in l), "")
+        note("the mesh is saved", "3 3 1 0 0 0 0 0 0 0 0 0.25 0" in line, line[-120:])
         for bad in ("SLICE 1 SOURCE DECK 9", "SLICE 1 ROTATE SIDEWAYS 10", "SLICE 1 FLIP Z ON",
-                    "SLICE 1 OPACITY 150", "SLICE 1 LFO SIZE ON"):
+                    "SLICE 1 OPACITY 150", "SLICE 1 LFO SIZE ON", "SLICE 1 GRID 12 3",
+                    "SLICE 1 GRID POINT 9 9 1 1"):
             ok, reply = refused(db, bad)
             note("refused: %s" % bad, ok, reply)
         note("the desk still answers", db.send("PING").startswith("OK"))

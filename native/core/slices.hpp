@@ -54,7 +54,71 @@ struct Slice {
   // Oscillators: across, down, rotation, opacity (kSliceLfo*). Saved apart
   // from the rest, in the show's own oscillator spelling.
   std::array<deckboy::effects::ParamLfo, 4> lfo {};
+  // A MESH on top of the corner pin, for a surface that is not flat, as the
+  // output's own grid warp: points across and down (2-9, 0 off), each point a
+  // nudge in fractions of the output, row-major x, y. Saved apart.
+  int gridCols = 0;
+  int gridRows = 0;
+  bool gridSmooth = true;
+  std::vector<float> gridOffsets;
 };
+
+inline bool gridActive(const Slice& s) {
+  return s.gridCols >= 2 && s.gridRows >= 2 &&
+         s.gridOffsets.size() == static_cast<std::size_t>(s.gridCols * s.gridRows * 2);
+}
+
+// The grids, one slice to a '|': "cols rows smooth dx dy dx dy ...".
+inline std::string serializeGrids(const std::vector<Slice>& slices) {
+  std::string out;
+  bool any = false;
+  char buf[32];
+  for (std::size_t i = 0; i < slices.size(); ++i) {
+    if (i) out += '|';
+    const Slice& s = slices[i];
+    if (!gridActive(s)) continue;
+    any = true;
+    std::snprintf(buf, sizeof buf, "%d %d %d", s.gridCols, s.gridRows, s.gridSmooth ? 1 : 0);
+    out += buf;
+    for (float v : s.gridOffsets) {
+      std::snprintf(buf, sizeof buf, " %.6g", static_cast<double>(v));
+      out += buf;
+    }
+  }
+  return any ? out : std::string();
+}
+
+inline void parseGrids(const std::string& text, std::vector<Slice>& slices) {
+  std::size_t at = 0;
+  for (Slice& s : slices) {
+    if (at > text.size()) break;
+    const std::size_t end = std::min(text.find('|', at), text.size());
+    const std::string one = text.substr(at, end - at);
+    at = end + 1;
+    const char* c = one.c_str();
+    char* stop = nullptr;
+    const long cols = std::strtol(c, &stop, 10);
+    if (stop == c) continue;
+    c = stop;
+    const long rows = std::strtol(c, &stop, 10);
+    c = stop;
+    const long smooth = std::strtol(c, &stop, 10);
+    c = stop;
+    if (cols < 2 || rows < 2 || cols > 9 || rows > 9) continue;
+    std::vector<float> offsets;
+    for (long k = 0; k < cols * rows * 2; ++k) {
+      const float v = std::strtof(c, &stop);
+      if (stop == c) break;
+      offsets.push_back(std::clamp(v, -1.0f, 1.0f));
+      c = stop;
+    }
+    if (offsets.size() != static_cast<std::size_t>(cols * rows * 2)) continue;
+    s.gridCols = static_cast<int>(cols);
+    s.gridRows = static_cast<int>(rows);
+    s.gridSmooth = smooth != 0;
+    s.gridOffsets = std::move(offsets);
+  }
+}
 
 constexpr int kSliceLfoX = 0;
 constexpr int kSliceLfoY = 1;

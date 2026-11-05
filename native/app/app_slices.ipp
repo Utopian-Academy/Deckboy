@@ -147,6 +147,22 @@
       p3.x += s.corners[6] * W; p3.y += s.corners[7] * H;
       const EdgeBlendShape shape = sliceBlendShape(output, s, rt.hdr);
       const bool soft = deckboy::slices::soft(s);
+      // A mesh: the output's own grid renderer, handed a stand-in carrying
+      // this slice's grid in pixels. One stand-in, reused frame to frame.
+      if (deckboy::slices::gridActive(s)) {
+        static thread_local OutputTarget gridHolder;
+        gridHolder.warpGridCols = s.gridCols;
+        gridHolder.warpGridRows = s.gridRows;
+        gridHolder.warpGridSmooth = s.gridSmooth;
+        gridHolder.warpGridOffsets.resize(s.gridOffsets.size());
+        for (std::size_t k = 0; k < s.gridOffsets.size(); ++k) {
+          gridHolder.warpGridOffsets[k] = s.gridOffsets[k] * (k % 2 == 0 ? W : H);
+        }
+        if (renderGridWarp(r, source, shape, gridHolder, s.perspective, uvTL, uvTR, uvBR, uvBL, p0, p1, p2, p3,
+                           soft, opacity)) {
+          continue;
+        }
+      }
       if ((deckboy::slices::pinned(s) || turn != 0.0) && s.perspective &&
           renderPerspectiveWarp(r, source, shape, uvTL, uvTR, uvBR, uvBL, p0, p1, p2, p3, soft, opacity)) {
         continue;
@@ -208,6 +224,7 @@
         if (!s.source.empty()) o << " source " << s.source;
         if (s.inRotation != 0.0f || s.outRotation != 0.0f) o << " turned " << s.inRotation << "/" << s.outRotation;
         if (s.flipH || s.flipV) o << " flipped";
+        if (deckboy::slices::gridActive(s)) o << " mesh " << s.gridCols << "x" << s.gridRows;
         if (s.opacity < 0.999f) o << " opacity " << s.opacity * 100;
       }
       remoteCommandDetail_ = slices.empty() ? std::string("no slices: the output shows its one picture") : o.str();
@@ -359,6 +376,39 @@
         return;
       }
       if (!setLfoFromRemote(next.lfo[static_cast<std::size_t>(slot)], parts, 4, "SLICE LFO")) return;
+    } else if (what == "GRID") {
+      // GRID <cols> <rows> | GRID OFF | GRID SMOOTH ON|OFF
+      // GRID POINT <col> <row> <dx> <dy>   (1-based; nudge in % of the output)
+      const std::string op = parts.size() > 3 ? toUpper(parts[3]) : std::string();
+      double a = 0, b = 0, dx = 0, dy = 0;
+      if (op == "OFF") {
+        next.gridCols = next.gridRows = 0;
+        next.gridOffsets.clear();
+      } else if (op == "SMOOTH") {
+        const std::string state = parts.size() > 4 ? toUpper(parts[4]) : std::string();
+        if (state != "ON" && state != "OFF") {
+          failRemoteCommand("SLICE GRID SMOOTH: ON or OFF");
+          return;
+        }
+        next.gridSmooth = state == "ON";
+      } else if (op == "POINT") {
+        if (!deckboy::slices::gridActive(next) || !number(4, 1, next.gridCols, a) || !number(5, 1, next.gridRows, b) ||
+            a != std::floor(a) || b != std::floor(b) || !number(6, -100, 100, dx) || !number(7, -100, 100, dy)) {
+          failRemoteCommand("SLICE GRID POINT: col row (from 1, on a grid that is on) then dx dy in percent");
+          return;
+        }
+        const std::size_t i = static_cast<std::size_t>((static_cast<int>(b) - 1) * next.gridCols +
+                                                       (static_cast<int>(a) - 1)) * 2;
+        next.gridOffsets[i] = static_cast<float>(dx / 100);
+        next.gridOffsets[i + 1] = static_cast<float>(dy / 100);
+      } else if (number(3, 2, 9, a) && number(4, 2, 9, b) && a == std::floor(a) && b == std::floor(b)) {
+        next.gridCols = static_cast<int>(a);
+        next.gridRows = static_cast<int>(b);
+        next.gridOffsets.assign(static_cast<std::size_t>(next.gridCols * next.gridRows * 2), 0.0f);
+      } else {
+        failRemoteCommand("SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF, or POINT col row dx dy");
+        return;
+      }
     } else if (what == "ON" || what == "OFF") {
       next.enabled = what == "ON";
     } else if (what == "LINEAR" || what == "PERSPECTIVE") {
