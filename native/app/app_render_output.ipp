@@ -65,6 +65,13 @@
       return;
     }
 
+    // SLICES: pieces of the programme placed on this output (app_slices.ipp).
+    // An output that has them draws them instead of its one picture.
+    if (!output.slices.empty()) {
+      presentOutputSlices(outputIndex, *runtime, output, windowW, windowH);
+      return;
+    }
+
     // Area of Interest: if any AOI crop is set, use that region of the compositor
     // (scaled to fill the full output window). Otherwise use canvas/span offset.
     float aoiL = std::clamp(output.aoiLeft,   0.0f, kAoiMaxEdge);

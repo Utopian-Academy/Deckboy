@@ -3230,12 +3230,12 @@ html,body{width:100%;height:100%;overflow:hidden}
     // without something saying so.
     if (upper == "HELP ALL" || upper == "HELP FULL" || upper == "?? ") {
       sendSnapshot(
-        "DECKBOY_0.01 every verb (390)\n"
+        "DECKBOY_0.01 every verb (392)\n"
         "ADDTIMER ALLGO ALLPAUSE ALLPLAY ALLSTOP ALLTAKE ANIM ANIMATION ARM AUDITION\n"
         "ARTNET ARTNETEVENT ARTNETPORT ART_NET_PORT ASCII ATEM ATEMEVENT\n"
         "ATEMTRIGGER AUDIO AUDIOCUE AUDIOENABLED AUDIOFX AUDIOGAIN AUDIOMONO\n"
         "AUDIONORM AUDIOOUTS AUDIOPAN AUDIOVIS AUDIOVISUAL AUTOADVANCE\n"
-        "MASK MOTION DRAW CLICK HOVER PRESS KEY TYPE TESTTHROW TRUST COMPANIONPASS SCOPES MIDICLOCK OUTSNAP OUTPROBE UISNAP UIASSETS QUICK QUICKLIST DROPTEST\n"
+        "MASK MOTION DRAW SLICE SLICES CLICK HOVER PRESS KEY TYPE TESTTHROW TRUST COMPANIONPASS SCOPES MIDICLOCK OUTSNAP OUTPROBE UISNAP UIASSETS QUICK QUICKLIST DROPTEST\n"
         "MESH MESH3D SEQ\n"
         "OFFSET OFFSETX OFFSETY ROTATION CROP CROPLEFT CROPRIGHT CROPTOP CROPBOTTOM\n"
         "AUTOID AUTONEXT AVJUMP BLACKOUT DEFAULTS NEWSHOW LIMITER OUTPUTFX OUTPUTS PATCH\n"
@@ -3308,6 +3308,8 @@ html,body{width:100%;height:100%;overflow:hidden}
         "draw:      DRAW [EDITOR ON|OFF] | TOOL brush|erase|line|box|oval|fill | COLOUR #rrggbb|name|1-8 | SIZE % | OPACITY %\n"
         "           DRAW STROKE x,y[,p] ... (%) | UNDO | CLEAR | FRAME ADD|DELETE|NEXT|PREV|n | ONION ON|OFF\n"
         "           DRAW PLAYBACK still|flipbook|replay | FPS n | HOLD s | SAVE STILL|ANIMATION [file] (local)\n"
+        "slices:    SLICE [ADD [name] | REMOVE n | CLEAR] on the focused output; SLICE n CROP x y w h | PLACE x y w h (%)\n"
+        "           SLICE n CORNER TL|TR|BR|BL dx dy | EDGE L|R|T|B % | MASK id|NONE | ON|OFF | LINEAR|PERSPECTIVE | NAME text\n"
         "dmx out:   DMXCUE NEW|SET <1=255,10-14=64>|FADE <s>|UNIVERSE <n>|HOST <ipv4>|PORT <n>|FIRE|BLACKOUT - Art-Net levels on GO\n"
         "matrix:    MATRIX [SET <src 1-2> <dest 1-128> <0-100>|SEED|CLEAR] - per-cue audio crosspoints; empty means the plain stereo pair\n"
         "           MATRIX SET <src 1-2> <output> [L|R] <0-100> - by name, on a playlist in the PATCH\n"

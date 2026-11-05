@@ -5680,6 +5680,7 @@ class App {
 #include "app/app_mask_editor.ipp"
 #include "app/app_motion.ipp"
 #include "app/app_draw.ipp"
+#include "app/app_slices.ipp"
 
   // Draw the cue's EFFECTIVE audio fade envelope over a waveform rect: ramp
   // up across the fade-in after the in-point, ramp down into the out-point.

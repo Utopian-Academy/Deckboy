@@ -32,6 +32,7 @@
 #include "multiview_layout.hpp"
 #include "motion.hpp"
 #include "drawing.hpp"
+#include "slices.hpp"
 #include "core/sdl_compat.hpp"
 #include <memory>
 #include <string>
@@ -2272,6 +2273,10 @@ struct OutputTarget {
   // A mask on this output's own playlist, the bottom layer, which has no
   // OutputLayer record of its own to carry one.
   std::string baseLayerMaskId;
+  // SLICES (core/slices.hpp): pieces of the programme placed on this output.
+  // Empty: the output shows what it always has, its area of interest with
+  // its warp and edge blend.
+  std::vector<deckboy::slices::Slice> slices;
   std::string overlayImagePath;            // still image laid over the output
   double overlayOpacity = 1.0;             // 0-1
   bool overlayEnabled = false;
