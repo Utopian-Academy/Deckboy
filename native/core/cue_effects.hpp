@@ -132,6 +132,11 @@ enum class CueEffectKind : int {
   Edges,
   LumaKey,
   Strobe,
+  // Added 2026-11-04, James's "melter" from his Max patch: where the picture
+  // moves it is drawn fresh, and where it is still the picture HOLDS what
+  // was there, so whatever moves leaves itself behind. The motion is read on
+  // a grid that runs from fine to the patch's chunky 40 x 30.
+  MotionTrails,
   Count,
 };
 
@@ -189,6 +194,7 @@ inline const char* cueEffectLabel(CueEffectKind kind) {
     case CueEffectKind::Edges:          return "edges";
     case CueEffectKind::LumaKey:        return "luma key";
     case CueEffectKind::Strobe:         return "strobe";
+    case CueEffectKind::MotionTrails:   return "motion trails";
     default:                            return "none";
   }
 }
@@ -249,6 +255,7 @@ inline const char* cueEffectToken(CueEffectKind kind) {
     case CueEffectKind::Edges:          return "edges";
     case CueEffectKind::LumaKey:        return "luma_key";
     case CueEffectKind::Strobe:         return "strobe";
+    case CueEffectKind::MotionTrails:   return "motion_trails";
     default:                            return "none";
   }
 }
@@ -308,6 +315,8 @@ inline bool cueEffectKindAnimates(CueEffectKind kind) {
     case CueEffectKind::TimeCube:
     // A strobe on a still is still a strobe: it flashes on the clock.
     case CueEffectKind::Strobe:
+    // Holds the picture it has built and the last frame's motion grid.
+    case CueEffectKind::MotionTrails:
       return true;
     default:
       return false;
@@ -466,6 +475,9 @@ inline const char* cueEffectParamLabel(CueEffectKind kind, int which) {
     case CueEffectKind::Strobe:
       return which == 0 ? "rate" : which == 1 ? "flash to"
            : which == 2 ? "flash length" : nullptr;
+    case CueEffectKind::MotionTrails:
+      return which == 0 ? "sensitivity" : which == 1 ? "let go"
+           : which == 2 ? "blocks" : which == 3 ? "trail" : nullptr;
     case CueEffectKind::Schlieren:
       return which == 0 ? "knife angle" : which == 1 ? "sensitivity"
            : which == 2 ? "colour" : nullptr;
@@ -803,6 +815,20 @@ inline const char* cueEffectParamTip(CueEffectKind kind, int which) {
         ? "How gradually the key cuts in. Hard at the left."
         : "Takes out everything brighter than this as well. Left takes out "
           "nothing.";
+    case CueEffectKind::MotionTrails:
+      return which == 0
+        ? "How much a part of the picture must change to count as moving. "
+          "Right catches a finger; left only an arm."
+        : which == 1
+        ? "How fast the still parts catch up with the live picture. At the "
+          "left they never do, and the trails stay until something moves "
+          "over them."
+        : which == 2
+        ? "How coarse the grid that notices movement is: fine at the left, "
+          "big melting blocks at the right."
+        : "What a moving thing leaves behind. Left: the light, so bright things "
+          "paint trails. Middle: the melt, the Max patch's own, where moving "
+          "parts redraw and still ones freeze. Right: the dark.";
     case CueEffectKind::Strobe:
       return which == 0
         ? "Flashes a second, from half to ten; it arrives at about two. Faster "
@@ -5452,6 +5478,104 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
             }
           }
         });
+        break;
+      }
+
+      case CueEffectKind::MotionTrails: {
+        // MOTION TRAILS, the melter. A grid of cells, each the average
+        // brightness of its patch; a cell that changed since the last frame
+        // by more than the sensitivity is MOVING, and its pixels are drawn
+        // from the live picture. Every other pixel keeps what it held, eased
+        // toward the live picture only as fast as "let go" allows.
+        if (!state) break;
+        const int w = ctx.width, h = ctx.height;
+        // Columns: a quarter of the width at the left, 40 (the patch) at the
+        // right; rows keep the cells square.
+        const int fine = std::max(40, w / 4);
+        const int gw = std::clamp(static_cast<int>(std::lround(fine + (40 - fine) * pC)), 8, w);
+        const int gh = std::clamp(static_cast<int>(std::lround(static_cast<double>(gw) * h / std::max(1, w))), 4, h);
+        const std::size_t bytes = count * 4;
+        const std::size_t cells = static_cast<std::size_t>(gw) * static_cast<std::size_t>(gh);
+        std::vector<std::uint8_t>& store = *state;
+        const std::size_t wanted = bytes + cells + 8;
+        // The cell means of this frame.
+        std::vector<std::uint8_t> luma(cells);
+        for (int cy = 0; cy < gh; ++cy) {
+          const int y0 = cy * h / gh, y1 = std::max(y0 + 1, (cy + 1) * h / gh);
+          for (int cx = 0; cx < gw; ++cx) {
+            const int x0 = cx * w / gw, x1 = std::max(x0 + 1, (cx + 1) * w / gw);
+            // Two samples a side at most: enough to notice a change, a quarter of
+            // the reads of every pixel on a 4K frame.
+            const int sx = std::max(2, (x1 - x0) / 2), sy = std::max(2, (y1 - y0) / 2);
+            unsigned sum = 0, n = 0;
+            for (int y = y0; y < y1; y += sy) {
+              const std::uint8_t* row = pixels.data() + (static_cast<std::size_t>(y) * w) * 4;
+              for (int x = x0; x < x1; x += sx) {
+                const std::uint8_t* p = row + static_cast<std::size_t>(x) * 4;
+                sum += (p[0] * 77u + p[1] * 150u + p[2] * 29u) >> 8;
+                ++n;
+              }
+            }
+            luma[static_cast<std::size_t>(cy) * gw + cx] = static_cast<std::uint8_t>(n ? sum / n : 0);
+          }
+        }
+        const bool sized = store.size() == wanted &&
+                           store[bytes + cells] == static_cast<std::uint8_t>(gw & 0xFF) &&
+                           store[bytes + cells + 1] == static_cast<std::uint8_t>(gh & 0xFF);
+        if (!sized) {
+          // First frame, or the raster or grid changed: hold the picture as it
+          // is, so the effect starts from what is on screen.
+          store.assign(wanted, 0);
+          std::memcpy(store.data(), pixels.data(), bytes);
+          std::memcpy(store.data() + bytes, luma.data(), cells);
+          store[bytes + cells] = static_cast<std::uint8_t>(gw & 0xFF);
+          store[bytes + cells + 1] = static_cast<std::uint8_t>(gh & 0xFF);
+          break;
+        }
+        std::uint8_t* held = store.data();
+        std::uint8_t* lastLuma = store.data() + bytes;
+        // 4 (right) to 60 (left) levels of change count as movement.
+        const int threshold = static_cast<int>(std::lround(60.0 - 56.0 * pA));
+        std::vector<std::uint8_t> moving(cells);
+        for (std::size_t i = 0; i < cells; ++i) {
+          moving[i] = std::abs(static_cast<int>(luma[i]) - static_cast<int>(lastLuma[i])) > threshold ? 1 : 0;
+        }
+        // Squared, so the useful slow end of "let go" has room.
+        const double letGo = pB * pB * 0.5;
+        // 0 light trails, 1 the melt, 2 dark trails (D in thirds).
+        const int trail = pD < 1.0 / 3.0 ? 0 : pD < 2.0 / 3.0 ? 1 : 2;
+        // A second output showing this cue reads what the first one built and
+        // changes nothing, so the two stay identical.
+        const bool hold = ctx.stateHold;
+        // Whole numbers in 256ths: this runs on every pixel of a 4K frame.
+        const int letQ = static_cast<int>(std::lround(letGo * 256.0));
+        const int amtQ = static_cast<int>(std::lround(amt * 256.0));
+        std::vector<int> cellOfX(static_cast<std::size_t>(w));
+        for (int x = 0; x < w; ++x) cellOfX[static_cast<std::size_t>(x)] = std::min(gw - 1, x * gw / w);
+        detail::parallelRows(h, w, [&](int ya, int yb) {
+          for (int y = ya; y < yb; ++y) {
+            const std::uint8_t* moveRow = moving.data() + static_cast<std::size_t>(std::min(gh - 1, y * gh / h)) * gw;
+            std::uint8_t* live = pixels.data() + (static_cast<std::size_t>(y) * w) * 4;
+            std::uint8_t* was = held + (static_cast<std::size_t>(y) * w) * 4;
+            for (int x = 0; x < w; ++x, live += 4, was += 4) {
+              const bool fresh = moveRow[cellOfX[static_cast<std::size_t>(x)]] != 0;
+              for (int ch = 0; ch < 3; ++ch) {
+                const int l = live[ch], o = was[ch];
+                // Where it moved: the live picture, or the lighter or darker
+                // of it and what was held, so a passing thing is left behind.
+                int k;
+                if (fresh) {
+                  k = trail == 0 ? std::max(l, o) : trail == 2 ? std::min(l, o) : l;
+                } else {
+                  k = o + (((l - o) * letQ) >> 8);
+                }
+                if (!hold) was[ch] = static_cast<std::uint8_t>(k);
+                live[ch] = static_cast<std::uint8_t>((l * (256 - amtQ) + k * amtQ) >> 8);
+              }
+            }
+          }
+        });
+        if (!hold) std::memcpy(lastLuma, luma.data(), cells);
         break;
       }
 

@@ -3881,23 +3881,23 @@
       {
         publishMotionReading(0, 0.0f, 0.5f, 0.5f);
         publishMotionReading(2, 1.0f, 1.0f, 0.0f);
-        ParamLfo moved;
-        moved.on = true;
-        moved.shape = LfoShape::Motion;
-        moved.depth = 0.4f;
-        expect(lfoApply(moved, 0.3f, 5.0, 1.0, 0.0) == 0.3f,
+        ParamLfo motionLfo;
+        motionLfo.on = true;
+        motionLfo.shape = LfoShape::Motion;
+        motionLfo.depth = 0.4f;
+        expect(lfoApply(motionLfo, 0.3f, 5.0, 1.0, 0.0) == 0.3f,
                "a Motion LFO on a still picture leaves the value where it was set");
-        moved.motionZone = 2;
-        expect(std::fabs(lfoApply(moved, 0.3f, 5.0, 1.0, 0.0) - 0.7f) < 1e-5,
+        motionLfo.motionZone = 2;
+        expect(std::fabs(lfoApply(motionLfo, 0.3f, 5.0, 1.0, 0.0) - 0.7f) < 1e-5,
                "and a zone moving at full pushes it up by the depth");
-        moved.shape = LfoShape::MotionX;
-        expect(std::fabs(lfoApply(moved, 0.5f, 5.0, 1.0, 0.0) - 0.7f) < 1e-5,
+        motionLfo.shape = LfoShape::MotionX;
+        expect(std::fabs(lfoApply(motionLfo, 0.5f, 5.0, 1.0, 0.0) - 0.7f) < 1e-5,
                "Motion X at the right edge swings it up by half the depth, like an oscillator");
-        moved.shape = LfoShape::MotionY;
-        expect(std::fabs(lfoApply(moved, 0.5f, 5.0, 1.0, 0.0) - 0.3f) < 1e-5,
+        motionLfo.shape = LfoShape::MotionY;
+        expect(std::fabs(lfoApply(motionLfo, 0.5f, 5.0, 1.0, 0.0) - 0.3f) < 1e-5,
                "Motion Y at the top swings it down by half the depth");
         std::ostringstream one;
-        writeParamLfo(one, moved);
+        writeParamLfo(one, motionLfo);
         ParamLfo back;
         readParamLfo(one.str(), back);
         expect(back.shape == LfoShape::MotionY && back.motionZone == 2,

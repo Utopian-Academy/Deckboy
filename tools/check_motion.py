@@ -234,6 +234,45 @@ def run_card(exe, work):
         note("a click with no zone under it changes nothing", "no zones" in db.send("MOTION ZONE"))
 
 
+def run_trails(exe, work):
+    """Motion trails (the patch's melter) on the moving box: where the box
+    has been stays white after it has gone; without the effect it is black."""
+    clip = work / "trails.mp4"
+    subprocess.run(["ffmpeg", "-y", "-v", "error",
+                    "-f", "lavfi", "-i", "color=c=black:s=640x360:r=30:d=8",
+                    "-f", "lavfi", "-i", "color=c=white:s=120x120:r=30:d=8",
+                    "-filter_complex", "[0][1]overlay=x='t*65':y=120:shortest=1,format=yuv420p",
+                    "-c:v", "libx264", str(clip)], check=True)
+    folder = work / "trails"
+    folder.mkdir()
+    show = folder / "show.deckboy"
+    show.write_text(SEED, encoding="utf8")
+    with Runtime(exe, folder / "run", show, extra=("--import", str(clip))) as db:
+        time.sleep(1.0)
+        print("  motion trails")
+        db.commands("SELECT 1", "LOOP ON", "OUTPUT ON", "TAKE")
+        time.sleep(4.2)            # the box has passed x = 160 (it is near 270-390)
+        plain = corner_at(snap(db, work, 21), 0.25, 0.5)
+        note("without the effect, where the box was is black (%s)" % (plain,),
+             plain is not None and max(plain) < 40, plain)
+        db.send("FX ADD motion_trails 1")
+        db.send("TAKE")
+        time.sleep(4.2)
+        trail = corner_at(snap(db, work, 22), 0.25, 0.5)
+        note("with motion trails it stays white behind the box (%s)" % (trail,),
+             trail is not None and min(trail) > 180, trail)
+        ahead = corner_at(snap(db, work, 23), 0.9, 0.5)
+        note("...and where the box has not been yet is still black (%s)" % (ahead,),
+             ahead is not None and max(ahead) < 40, ahead)
+
+
+def corner_at(shot, fx, fy):
+    if not shot:
+        return None
+    width, height, pixel = shot
+    return pixel(min(width - 1, int(fx * width)), min(height - 1, int(fy * height)))
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--exe", default=str(ROOT / "build/windows/Release/Deckboy.exe"))
@@ -244,6 +283,7 @@ def main():
     try:
         run(exe, work)
         run_card(exe, work)
+        run_trails(exe, work)
     finally:
         shutil.rmtree(work, ignore_errors=True)
     if fails:

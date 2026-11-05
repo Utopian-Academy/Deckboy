@@ -130,7 +130,9 @@ ANIMATES_BY_STATE = {"feedback", "feedback_bloom", "motion_puppet",
                      # so it keeps evolving on a still cue.
                      "motion_mosh",
                      # Holds the last few seconds as a block of time.
-                     "time_cube"}
+                     "time_cube",
+                     # Holds the picture it built and the last motion grid.
+                     "motion_trails"}
 
 # Every named parameter slot, mirroring cueEffectParamLabel in cue_effects.hpp.
 # Kept here rather than parsed, so the two diverging fails loudly: --params
@@ -180,6 +182,7 @@ PARAM_SLOTS = {
     "edges":           ["strength", "picture", "line colour"],
     "luma_key":        ["cut dark", "softness", "cut bright"],
     "strobe":          ["rate", "flash to", "flash length"],
+    "motion_trails":   ["sensitivity", "let go", "blocks", "trail"],
     "schlieren":       ["knife angle", "sensitivity", "colour"],
     "chladni":         ["mode", "second mode", "gather", "line glow"],
     "wavefront":       ["stiffness", "steps", "damping", "relief"],
@@ -260,6 +263,10 @@ NOT_PIXEL_EFFECTS = [
     # the effect, it would measure the harness, and report a working effect
     # dead — the exact shape of the motion-puppet gate that nobody read.
     ("motion_mosh", "needs a moving picture; a still frame has no motion"),
+    # Motion trails the same: it draws where the picture MOVED between two
+    # frames, and holds everything else. tools/check_motion.py runs it on a
+    # moving clip.
+    ("motion_trails", "needs a moving picture; a still frame has no motion"),
     # Text mode IS a pixel operation, but the renderer that draws the character
     # grid lives on the media engine (it owns the sprite-sheet state) and the
     # settings that drive it live on the cue, so the stack is handed a callback

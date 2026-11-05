@@ -112,6 +112,7 @@ SKIP = [("motion_puppet", "needs a motion driver and a moving picture"),
         # nothing to measure. It drags the held picture along the motion
         # between two frames; a paused cue has none.
         ("motion_mosh", "needs a moving picture; this sweep pauses on one frame"),
+        ("motion_trails", "needs a moving picture; this sweep pauses on one frame"),
         # Audioprint draws the audio the deck has just played. This sweep
         # pauses, and a paused deck plays nothing, so the one thing it
         # draws is the one thing this harness removes on purpose.
