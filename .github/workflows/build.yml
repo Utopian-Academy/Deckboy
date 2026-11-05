@@ -600,6 +600,18 @@ jobs:
         if: matrix.features == 'all'
         run: xvfb-run -a python3 tools/check_motion.py --exe ./build/Deckboy
 
+      # The Draw source: strokes, frames, replay and saves, read off the frame.
+      - name: Draw
+        if: matrix.features == 'all'
+        run: xvfb-run -a python3 tools/check_draw.py --exe ./build/Deckboy
+
+      # Slices on an output, and the Screens window that arranges them.
+      - name: Slices and Screens
+        if: matrix.features == 'all'
+        run: |
+          xvfb-run -a python3 tools/check_slices.py --exe ./build/Deckboy
+          xvfb-run -a python3 tools/check_screens.py --exe ./build/Deckboy
+
       # The multiview's layouts and feeds (an output, the clock, tally), off the frame.
       - name: Multiview feeds
         if: matrix.features == 'all'
@@ -1758,6 +1770,12 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "the multiview's layouts and feeds failed" }
           python tools/check_motion.py --exe build\Release\Deckboy.exe
           if ($LASTEXITCODE -ne 0) { throw "motion failed" }
+          python tools/check_draw.py --exe build\Release\Deckboy.exe
+          if ($LASTEXITCODE -ne 0) { throw "the Draw source failed" }
+          python tools/check_slices.py --exe build\Release\Deckboy.exe
+          if ($LASTEXITCODE -ne 0) { throw "slices failed" }
+          python tools/check_screens.py --exe build\Release\Deckboy.exe
+          if ($LASTEXITCODE -ne 0) { throw "the Screens window failed" }
 
       - uses: actions/setup-node@v4
         if: matrix.features == 'all'

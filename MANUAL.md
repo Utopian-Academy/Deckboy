@@ -436,6 +436,11 @@ the way it was left.
 The inspector edits the selected cue in collapsible sections. Most numeric rows
 have `−`/`+` steppers, are drag-to-scrub, and click-to-type an exact value.
 
+Sections start **folded**, except the one that is the cue's own: TONE on a
+tone, PLAYBACK on a clip, DRAW on a drawing. Click a section's header to open
+or fold it; it then stays that way for the rest of the session, on every cue
+you select. The MASK and DRAW buttons on the monitor open their sections.
+
 - **PLAYBACK** — loop & loop count, hold last frame, pause at start, playback
   speed (0.25–4×, pitch-corrected audio), lock to screen (below), fade
   in/out, in/out trim, pause points, end action, goto target,
@@ -1607,6 +1612,25 @@ picture. Where neighbouring rays are pushed together the brightness piles up,
 and those bright filaments are the moving net you see on the floor of a pool.
 Displacement alone is a wobble; the focusing is what the eye reads as water.
 
+### Motion trails
+
+**Motion trails** is the "melter" from an old Max patch: where the picture
+moves it is drawn fresh, and where it is still it holds what was there. So a
+moving thing leaves itself behind.
+
+- **sensitivity**: how much a part of the picture must change to count as
+  moving;
+- **let go**: how fast the still parts catch up with the live picture. At the
+  left they never do;
+- **blocks**: how coarse the grid that notices movement is, from fine to big
+  melting blocks;
+- **trail**: what a moving thing leaves. **Light** (the left third) keeps the
+  brighter of old and new, so light paints trails; **melt** (the middle) is
+  the patch's own look; **dark** (the right third) keeps the darker.
+
+It works on movement, so a still picture passes through unchanged. Try it on a
+camera, or on a playlist whose picture moves.
+
 ### Motion puppet
 
 **Motion puppet** drives this cue's pixels with a *different* clip's movement.
@@ -2134,6 +2158,52 @@ VIDEO OUTPUT LAYERWARP OFF
 The eight numbers are offsets from each corner, clockwise from the top left, as
 fractions of the layer's picture — so a pin still fits after the layer is moved
 or resized.
+
+### Slices: pieces of the picture on an output
+
+An output normally shows one picture: its area of interest, warp and edge
+blend. **Slices** let it show several pieces instead, as Resolume's Advanced
+Output does. A wide picture can be split across three projectors, or one
+projector can light a row of separate surfaces.
+
+A slice has:
+
+- a **crop**: which part of the programme it takes. Its **source** can be the
+  programme, or a single playlist on its own;
+- a **place**: where on the output it lands;
+- **corner pins**, in perspective or linear, and a **mesh** of 3 × 3 to 9 × 9
+  points for a surface that is not flat;
+- **soft edges** on each side, for where two projectors overlap;
+- a **mask**, a turn of the crop (**turn in**) and of the placed picture
+  (**turn out**), **flip** across or down, and **opacity**.
+
+Its across, down, turn and opacity each take an oscillator. Up to 16 slices go
+on an output. Like the warp, slices shape what the output's window shows; a
+recording, stream or NDI sender of that output carries the programme as it is.
+
+**The Screens window.** **Settings → Video Outputs → Geometry → SLICES** opens
+it. Across the top is a tab for each output, then **+ SLICE**, **- SLICE**,
+**CORNERS: SIZE / PIN** and **CLOSE**. On the left are this output's slices,
+each with an on switch.
+
+- **INPUT** shows the programme with each slice's crop drawn on it. Drag a
+  crop to move it, or a corner to size it.
+- **OUTPUT** shows each slice where it lands, drawn the way the projector
+  will draw it. Drag a slice to move it. Its corners size it, or pin it with
+  **CORNERS: PIN**. With a mesh on, drag its points to bend it.
+- The selected slice's numbers and switches run down the right.
+
+A second slice arrives as the right half of everything, which is where a
+split across two screens starts.
+
+Over the wire: `SLICE` lists the focused output's slices; `SLICE ADD [name]`,
+`SLICE REMOVE <n>` and `SLICE CLEAR`; then `SLICE <n>` with
+`CROP x y w h` or `PLACE x y w h` (percentages),
+`CORNER TL|TR|BR|BL dx dy`, `EDGE L|R|T|B <%>`, `MASK <id>|NONE`,
+`SOURCE PROGRAMME|DECK <n>`, `ROTATE IN|OUT <degrees>`, `FLIP H|V ON|OFF`,
+`OPACITY <%>`, `LFO X|Y|ROTATION|OPACITY ...`, `GRID cols rows|OFF`,
+`GRID POINT col row dx dy`, `ON|OFF`, `LINEAR|PERSPECTIVE` or `NAME <text>`.
+`SCREENS ON|OFF` opens and closes the window.
 
 Per-*cue* geometry (scale/crop/rotation/offset/keying/colour) lives in the cue
 inspector instead (§7).

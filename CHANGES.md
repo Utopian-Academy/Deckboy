@@ -2,6 +2,20 @@
 
 ## Unreleased (masks, and an exact LED tile size)
 
+### Slices and the Screens window
+
+- An output can show **slices**: pieces of the programme, or of one playlist, each cropped, placed, corner-pinned or bent by a mesh, soft-edged, masked, turned, flipped and faded. Position, turn and opacity take a **~**. Up to 16 on an output.
+- The **Screens** window (Settings > Video Outputs > Geometry > SLICES) shows each slice's crop on the programme and where it lands on the output, and both are dragged into place by hand.
+- `SLICE` and `SCREENS` over the wire.
+
+### Inspector
+
+- Inspector sections now start folded, except the one that belongs to the cue (TONE on a tone, PLAYBACK on a clip). One you open or fold stays that way for the session.
+
+### Motion trails
+
+- A new picture effect: where the picture moves it is drawn fresh, and where it is still it holds, so a moving thing leaves a trail of light or dark, or melts in blocks.
+
 ### Draw
 
 - A **Draw** source (SOURCE > MADE BY DECKBOY): draw on the programme monitor with the mouse or a pen, transparent outside the ink so it sits on a layer. Brush, eraser, line, box, oval and fill; eight colours or any typed one; size and opacity with a **~**.
