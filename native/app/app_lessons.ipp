@@ -2243,7 +2243,7 @@
     const int w = std::min(uiScaled(340), width / 3);
     const int pad = uiScaled(10);
     const int faceH = uiScaled(130);
-    const auto lines = codeWrapText(fontBase_, faceDropLine_, w - pad * 2);
+    const auto lines = codeWrapText(fontBase_, lessonText(faceDropLine_), w - pad * 2);
     const int lineH = textLineHeight(fontBase_);
     const int h = pad + faceH + static_cast<int>(lines.size()) * lineH + pad;
     // Slides down from the top-right corner, and back up at the end.
@@ -2515,7 +2515,7 @@
     const std::string intro = lessonsTrackVideo_
       ? "PROF. VIDEO:  The signal: what the picture is made of, and how to bend it. Pick a lesson."
       : "DR. PIXEL:  Running the show, skapi. Fast hands, calm face. Pick a lesson.";
-    const auto introLines = codeWrapText(fontBase_, intro, cardW - pad * 2);
+    const auto introLines = codeWrapText(fontBase_, lessonText(intro), cardW - pad * 2);
     const int headH = std::max(uiScaled(22), textLineHeight(titleFont));
     const int buttonH = uiScaled(40);
     const int cardH = pad + headH + uiScaled(10) + tabH + uiScaled(10) + static_cast<int>(introLines.size()) * lineH +

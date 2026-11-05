@@ -677,7 +677,7 @@
     }
     const std::string who = fromPixel ? "DR. PIXEL: " : "PROF. VIDEO: ";
     const int textPad = 3 * k;
-    const auto lines = codeWrapText(lineFont, who + said, inner.w - textPad * 2);
+    const auto lines = codeWrapText(lineFont, who + lessonText(said), inner.w - textPad * 2);
     const int lineH = textLineHeight(lineFont);
     int ty = inner.y + textPad / 2;
     for (const auto& text : lines) {

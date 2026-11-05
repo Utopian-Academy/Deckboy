@@ -114,6 +114,16 @@
     const char* guest = nullptr;
   };
 
+  // A WHOLE LINE, TRANSLATED BEFORE IT IS WRAPPED. Drawing translates what it
+  // is given, but a wrapped card line is half a sentence that no catalogue
+  // has, so the tour spoke English in every language. A cypher is left to the
+  // draw call: it works letter by letter there, and twice would undo ROT13.
+  // The same rule the face's typed lines follow (drawStartupMascot).
+  static std::string lessonText(const std::string& english) {
+    if (deckboy::core::i18n::passthrough() || deckboy::core::i18n::activeIsCypher()) return english;
+    return deckboy::core::i18n::translate(english);
+  }
+
   // How many steps the running lesson has, and its line for a step.
   int tutorialStepCount() const { return tutorial_.lesson > 0 ? lessonStepCount(tutorial_.lesson - 1) : kTutorialSteps; }
   TutorialLine tutorialLineNow() const {
@@ -1339,8 +1349,8 @@
       videoSays = kQuips[(tutorial_.profCuteQuip + 3) % 4];
     }
 
-    const auto pixelLines = codeWrapText(fontBase_, "DR. PIXEL:  " + pixelSays, textW);
-    const auto videoLines = codeWrapText(fontBase_, "PROF. VIDEO:  " + videoSays, textW);
+    const auto pixelLines = codeWrapText(fontBase_, "DR. PIXEL:  " + lessonText(pixelSays), textW);
+    const auto videoLines = codeWrapText(fontBase_, "PROF. VIDEO:  " + lessonText(videoSays), textW);
     const int lineH = textLineHeight(fontBase_);
     const int headH = std::max(uiScaled(22), textLineHeight(titleFont));
     const int blockGap = uiScaled(10);
@@ -1349,7 +1359,7 @@
     const int buttonH = uiScaled(40);
     // A lesson's guest: no portrait, the name in capitals, under the teachers.
     const auto guestLines = line.guest ? codeWrapText(fontBase_, std::string(line.guestName ? line.guestName : "GUEST") +
-                                                                     ":  \"" + line.guest + "\"", textW)
+                                                                     ":  \"" + lessonText(line.guest) + "\"", textW)
                                        : std::vector<std::string> {};
     const bool guestHasFace = line.guest && guestFace(line.guestName) != nullptr;
     const int guestH = guestLines.empty() ? 0
@@ -1389,8 +1399,10 @@
     Primitives::drawFramedPanel(controlRenderer_, card, pal.shellInner, pal.deep, pal.light);
 
     int y = card.y + pad;
-    char head[96];
-    std::snprintf(head, sizeof(head), "STEP %d OF %d  -  %s", tutorial_.step + 1, stepCount, line.title);
+    // A string, not a fixed buffer: a translated title is several bytes a
+    // letter in Japanese or Greek, and a cut one draws a broken glyph.
+    const std::string head = std::to_string(tutorial_.step + 1) + " / " + std::to_string(stepCount) + "  -  " +
+                             lessonText(line.title);
     drawTextSafe(controlRenderer_, titleFont, SDL_Rect {card.x + pad, y, cardW - pad * 2, headH},
                  head, pal.inkSoft);
     const std::string quip = lessonQuipNow();
