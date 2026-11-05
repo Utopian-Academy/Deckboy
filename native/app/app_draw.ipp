@@ -68,6 +68,7 @@
       return;
     }
     if (open) openMaskEditor(false);   // they share the monitor; one at a time
+    if (open) openInspectorSection(QuickAction::CueSectionDrawToggle);   // its controls, in view
     drawEditor_.open = open;
     drawEditor_.stroking = drawEditor_.shaping = false;
     if (open) triggerToast("draw on the monitor: " + std::string(deckboy::draw::toolLabel(project_.drawBrush.tool)));
@@ -914,4 +915,116 @@
     }
     failRemoteCommand("DRAW: TOOL, COLOUR, SIZE, OPACITY, STROKE, UNDO, CLEAR, FRAME, ONION, PLAYBACK, FPS, HOLD, "
                       "EDITOR or SAVE");
+  }
+
+  // ── WHICH INSPECTOR SECTIONS ARE OPEN ───────────────────────────────────
+  //
+  // James, 2026-11-04 ("yes to the fold thing"): every section starts folded
+  // except the one that is the cue's own -- TONE on a tone, PLAYBACK on a
+  // clip -- and a section you open or fold stays that way for the session,
+  // on every cue. Untouched sections follow the rule as the selection moves.
+  std::set<QuickAction> inspectorSectionsTouched_;
+
+  std::vector<std::pair<QuickAction, bool*>> inspectorSectionFlags() {
+    return {
+      {QuickAction::CueSectionSequenceToggle, &cueSectionSequenceOpen_},
+      {QuickAction::CueSectionMasterToggle, &cueSectionMasterOpen_},
+      {QuickAction::CueSectionTargetToggle, &cueSectionTargetOpen_},
+      {QuickAction::CueSectionTriggersToggle, &cueSectionTriggersOpen_},
+      {QuickAction::CueSectionCaptionsToggle, &cueSectionCaptionsOpen_},
+      {QuickAction::CueSectionFadeToggle, &cueSectionFadeOpen_},
+      {QuickAction::CueSectionMidiToggle, &cueSectionMidiOpen_},
+      {QuickAction::CueSectionNetworkToggle, &cueSectionNetworkOpen_},
+      {QuickAction::CueSectionTimecodeToggle, &cueSectionTimecodeOpen_},
+      {QuickAction::CueSectionScriptToggle, &cueSectionScriptOpen_},
+      {QuickAction::CueSectionDmxToggle, &cueSectionDmxOpen_},
+      {QuickAction::CueSectionMatrixToggle, &cueSectionMatrixOpen_},
+      {QuickAction::CueSectionTextToggle, &cueSectionTextOpen_},
+      {QuickAction::CueSectionMidiFileToggle, &cueSectionMidiFileOpen_},
+      {QuickAction::CueSectionFiresideToggle, &cueSectionFiresideOpen_},
+      {QuickAction::CueSectionPortalToggle, &cueSectionPortalOpen_},
+      {QuickAction::CueSectionDrawToggle, &cueSectionDrawOpen_},
+      {QuickAction::CueSectionExtraToggle, &cueSectionExtraOpen_},
+      {QuickAction::CueSectionSwirlToggle, &cueSectionSwirlOpen_},
+      {QuickAction::CueSectionMoireToggle, &cueSectionMoireOpen_},
+      {QuickAction::CueSectionPlaybackToggle, &cueSectionPlaybackOpen_},
+      {QuickAction::CueSectionMetadataToggle, &cueSectionMetadataOpen_},
+      {QuickAction::CueSectionGeometryToggle, &cueSectionGeometryOpen_},
+      {QuickAction::CueSectionKeyToggle, &cueSectionKeyOpen_},
+      {QuickAction::CueSectionEffectsToggle, &cueSectionEffectsOpen_},
+      {QuickAction::CueSectionAudioFxToggle, &cueSectionAudioFxOpen_},
+      {QuickAction::CueSectionCodeToggle, &cueSectionCodeOpen_},
+      {QuickAction::CueSectionTimerToggle, &cueSectionTimerOpen_},
+      {QuickAction::CueSectionToneToggle, &cueSectionToneOpen_},
+      {QuickAction::CueSectionSynthToggle, &cueSectionSynthOpen_},
+      {QuickAction::CueSectionVideoSynthToggle, &cueSectionVideoSynthOpen_},
+      {QuickAction::CueSectionRoutingToggle, &cueSectionRoutingOpen_},
+      {QuickAction::CueSectionAudioToggle, &cueSectionAudioOpen_},
+      {QuickAction::CueSectionMicToggle, &cueSectionMicOpen_},
+      {QuickAction::CueSectionMaskToggle, &cueSectionMaskOpen_},
+    };
+  }
+
+  // The section that is this cue's own, which starts open.
+  QuickAction inspectorOwnSection(const Cue& cue) const {
+    switch (cue.kind) {
+      case CueKind::Tone:       return QuickAction::CueSectionToneToggle;
+      case CueKind::Timer:      return QuickAction::CueSectionTimerToggle;
+      case CueKind::Text:       return QuickAction::CueSectionTextToggle;
+      case CueKind::VideoSynth: return QuickAction::CueSectionVideoSynthToggle;
+      case CueKind::Master:     return QuickAction::CueSectionMasterToggle;
+      case CueKind::Target:     return QuickAction::CueSectionTargetToggle;
+      case CueKind::Fade:       return QuickAction::CueSectionFadeToggle;
+      case CueKind::Midi:       return QuickAction::CueSectionMidiToggle;
+      case CueKind::MidiFile:   return QuickAction::CueSectionMidiFileToggle;
+      case CueKind::Network:    return QuickAction::CueSectionNetworkToggle;
+      case CueKind::Timecode:   return QuickAction::CueSectionTimecodeToggle;
+      case CueKind::Script:     return QuickAction::CueSectionScriptToggle;
+      case CueKind::Dmx:        return QuickAction::CueSectionDmxToggle;
+      case CueKind::Mic:        return QuickAction::CueSectionMicToggle;
+      case CueKind::Audio:      return QuickAction::CueSectionAudioToggle;
+      case CueKind::Pattern: {
+        const std::string t = stripPatternMotionSuffix(normalizePatternTypeId(cue.path));
+        if (t == "code") return QuickAction::CueSectionCodeToggle;
+        if (t == "fireside") return QuickAction::CueSectionFiresideToggle;
+        if (t == "portal") return QuickAction::CueSectionPortalToggle;
+        if (t == "draw") return QuickAction::CueSectionDrawToggle;
+        if (t == "swirl") return QuickAction::CueSectionSwirlToggle;
+        if (t == "moire-field") return QuickAction::CueSectionMoireToggle;
+        if (deckboy::extras::findGenerator(t)) return QuickAction::CueSectionExtraToggle;
+        return QuickAction::CueSectionPlaybackToggle;
+      }
+      default:
+        return QuickAction::CueSectionPlaybackToggle;
+    }
+  }
+
+  // Before the inspector draws: untouched sections follow the rule.
+  void applyInspectorFolding(const Cue* cue) {
+    const QuickAction own = cue ? inspectorOwnSection(*cue) : QuickAction::CueSectionPlaybackToggle;
+    for (const auto& [action, flag] : inspectorSectionFlags()) {
+      if (!inspectorSectionsTouched_.count(action)) *flag = action == own;
+    }
+  }
+
+  // A section's header was clicked (or a button opened it): from now on it
+  // keeps the state it is given.
+  void noteInspectorSectionTouched(QuickAction action) {
+    for (const auto& [known, flag] : inspectorSectionFlags()) {
+      (void) flag;
+      if (known == action) {
+        inspectorSectionsTouched_.insert(action);
+        return;
+      }
+    }
+  }
+
+  void openInspectorSection(QuickAction action) {
+    for (const auto& [known, flag] : inspectorSectionFlags()) {
+      if (known == action) {
+        *flag = true;
+        inspectorSectionsTouched_.insert(action);
+        return;
+      }
+    }
   }

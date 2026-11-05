@@ -21,6 +21,7 @@
   // `param` carries a payload for the actions that need one (the effect stack's
   // index, the numeric-parameter id). -1 for everything else, which is most.
   void dispatchQuickAction(QuickAction action, int param = -1) {
+    noteInspectorSectionTouched(action);   // a header click: the section keeps its state
     if (handleMaskQuickAction(action)) {
       return;
     }

@@ -189,6 +189,7 @@
   void openMaskEditor(bool open) {
     if (!open && maskEditor_.drawing) finishMaskPenPath();
     if (open) drawEditor_.open = false;   // they share the monitor; one at a time
+    if (open) openInspectorSection(QuickAction::CueSectionMaskToggle);   // its controls, in view
     maskEditor_.open = open;
     maskEditor_.drag = MaskDrag::None;
     if (open) {

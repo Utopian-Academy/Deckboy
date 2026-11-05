@@ -4739,6 +4739,7 @@
     cueSettingsQuickButtonStartIndex_ = quickButtons_.size();
     cueSettingsScrubZoneStartIndex_ = valueScrubZones_.size();
     inspectorSectionBottomMax_ = settingsContentTopY - cueSettingsScroll_;
+    applyInspectorFolding(selectedCuePtr());
     SDL_SetRenderClipRect(controlRenderer_,
       cueSettingsViewportRect_.h > 0 ? &cueSettingsViewportRect_ : nullptr);
 

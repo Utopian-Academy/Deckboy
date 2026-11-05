@@ -155,6 +155,16 @@ def main():
 
         print()
         print("cue geometry (the inspector's own buttons)")
+        # Sections other than the cue's own start folded (James, 2026-11-04):
+        # open the folded ones by their headers, as an operator would.
+        # PLAYBACK is a clip's own section and is already open.
+        for line in db.send("QUICKLIST").splitlines():
+            bits = line.replace("OK QUICKLIST:", "").strip().split(" ", 2)
+            if (len(bits) == 3 and bits[2].startswith("Collapse/expand") and
+                    not bits[2].startswith("Collapse/expand playback")):
+                db.send("QUICK %s %s" % (bits[0], bits[1]))
+                time.sleep(0.1)
+        time.sleep(0.3)
         listing = db.send("QUICKLIST")
         present = set()
         for line in listing.splitlines():
