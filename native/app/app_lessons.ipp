@@ -235,8 +235,10 @@
   // now an unmistakable parody, original names, no copied lines -- Mr. Salty
   // (the critic Jerry Saltz: "Use jerry", "Mr salty"), Marv (John Madden),
   // Hollis and Brandt (Mulder and Scully), Rook (Willem Dafoe in The
-  // Lighthouse). The multiview lesson has no show ("do we NEED a 2nd sports
-  // themed thing?"), so Madden is only in the telestrator booth. Sixteen by
+  // Lighthouse), and on the multiview lesson's starship Lt. Haila (Uhura) and
+  // Ensign Jinkley (Velma: "Uhura!", "Maybe uhura and velma", "mystery on
+  // the enterprise", "jinkys!"). Madden is only in the telestrator booth
+  // ("do we NEED a 2nd sports themed thing?"). Sixteen by
   // twenty, in the teachers' letters and the theme's inks, so they sit on the
   // card beside Dr. Pixel and the Professor on every colourway. A off-white
   // (Rook's beard, Dot's headset), R red and Y yellow are fixed colours, as
@@ -368,6 +370,52 @@
          "KKKKKKKKKKKKKKKK",
          "KKCKKKKKKKKKKCKK"},
         7, {5, 10, -1, -1, -1, -1}, 10, {6, 7, 8, 9}},
+      {"LT. HAILA",
+        {
+         "....HHHHHHHH....",
+         "...HHHHHHHHHH...",
+         "..HHHHHHHHHHHH..",
+         "..HHHNNNNNNHHH..",
+         "..HHNNNNNNNNHH..",
+         "..HHNHHNNHHNHH..",
+         "..HHNWENNWENHH..",
+         "..HYNNNNNNNNYH..",
+         "..HYNNNNDNNNNH..",
+         "...HNNNNNNNNH...",
+         "...HNNNRRNNNH...",
+         "....NNNNNNNN....",
+         ".....NNNNNN.....",
+         "......NNNN......",
+         "....KKKKKKKK....",
+         "...RRRRRRRRRR...",
+         "..RRRRRRRRRYRR..",
+         ".RRRRRRRRRYYYRR.",
+         ".RRRRRRRRRRRRRR.",
+         ".RRRRRRRRRRRRRR."},
+        6, {5, 6, 9, 10, -1, -1}, 10, {7, 8, -1, -1}},
+      {"ENSIGN JINKLEY",
+        {
+         "....NNNNNNNN....",
+         "...NNNNNNNNNN...",
+         "..NNNNNNNNNNNN..",
+         "..NNNNNNNNNNNN..",
+         "..NNSSSSSSSSNN..",
+         "..NGGGGSSGGGGN..",
+         "..NGWEGSSGWEGN..",
+         "..NGGGGDDGGGGN..",
+         "..NNSSSSSSSSNN..",
+         "..NNSBSSSSBSNN..",
+         "..NNSSSMMSSSNN..",
+         "..NNNSSSSSSNNN..",
+         "...NN.SSSS.NN...",
+         "......SSSS......",
+         "....OOOOOOOO....",
+         "...UUUOOOOUUU...",
+         "..UUUUUUUUUUYU..",
+         ".UUUUUUUUUUYYYU.",
+         ".UUUUUUUUUUUUUU.",
+         ".UUUUUUUUUUUUUU."},
+        6, {4, 5, 10, 11, -1, -1}, 10, {7, 8, -1, -1}},
     };
     if (!name) return nullptr;
     for (const GuestFace& face : kFaces) {
@@ -414,6 +462,9 @@
           case 'Y': color = SDL_Color {255, 220, 0, 255}; break;
           case 'B': color = SDL_Color {255, 143, 168, 255}; break;
           case 'A': color = SDL_Color {232, 232, 220, 255}; break;
+          case 'N': color = SDL_Color {150, 98, 66, 255}; break;    // Haila's skin, Jinkley's hair
+          case 'O': color = SDL_Color {236, 128, 32, 255}; break;   // Jinkley's turtleneck
+          case 'U': color = SDL_Color {50, 100, 210, 255}; break;   // Jinkley's science tunic
           default: continue;
         }
         Primitives::fillRect(controlRenderer_, SDL_Rect {ox + c * cell, oy + r * cell, cell, cell}, color);
@@ -925,22 +976,23 @@
       lessons_.push_back(std::move(l));
     }
 
-    // ── Dr. Pixel: The multiview (a plain lesson) ─────────────────────────
+    // ── Dr. Pixel: The multiview (mystery on the starship Cathode) ────────
     {
       LessonDef l;
       l.id = "multiview";
       l.videoTrack = false;
       l.title = "The multiview";
       l.about = "Windows, the ... menu, what each one shows, layouts, and tally.";
-      l.show = "";
+      l.show = "Mystery on the starship Cathode, with Lt. Haila and Ensign Jinkley";
       l.setup = [this] {
-        const char* gens[4] = {"swirl", "fireside", "pocket-test", "checkerboard-motion"};
+        const char* gens[4] = {"swirl", "fireside", "checkerboard-motion", "pocket-test"};
+        const char* feeds[4] = {"Nebula ahead", "Engine room", "Deck 3: something moving", "Sickbay"};
         for (int d = 0; d < 4; ++d) {
           if (d > 0) addDeck();
           project_.focusedDeckIndex = d;
           addGeneratorCue(gens[d]);
           Deck& deck = focusedDeckMutable();
-          if (!deck.cues.empty()) deck.cues.back().name = "Picture " + std::to_string(d + 1);
+          if (!deck.cues.empty()) deck.cues.back().name = feeds[d];
         }
         project_.focusedDeckIndex = 0;
         selectCueInDeck(0, 0, false, false);
@@ -954,21 +1006,21 @@
       };
       auto chip = [this] { return multiviewChipRects_.empty() ? SDL_Rect {} : multiviewChipRects_.back(); };
       l.steps = {
-        {"THE MULTIVIEW", nullptr,
-         "Four playlists, four pictures, one pair of eyes. Press START, skapi.",
-         "The multiview shows every playlist at once. Like a wall of oscilloscopes, but with pictures.",
-         nullptr, nullptr, none, nullptr, noTarget, nullptr},
+        {"THE BRIDGE", nullptr,
+         "The bridge of the starship Cathode, skapi. Four feeds, one main viewer, one mystery. Press START.",
+         "The multiview shows every playlist at once. Like a wall of oscilloscopes, but in space.",
+         "LT. HAILA", "Frequencies open, Captain. All of them. That's the problem.", none, nullptr, noTarget, nullptr},
         {"MULTI ON", nullptr,
          "MULTI, above the monitor: every playlist in its own window.",
          "One window per playlist, the programme first.",
-         nullptr, nullptr,
+         "ENSIGN JINKLEY", "Jinkys! Four feeds. And one of them has a monster in it.",
          [this] { return project_.multiviewMode != 0; },
          [this] { handleRemoteCommand("MULTIVIEW ON"); },
          [this] { return multiviewBtnRect_; }, nullptr},
         {"WHAT'S NEXT", nullptr,
          "Add a window (+), then its ... menu: make it show NEXT. What goes live when you press TAKE.",
          "Every window has a ... button. It chooses what that window shows.",
-         nullptr, nullptr,
+         "LT. HAILA", "I need to see who's calling before they reach the main viewer.",
          [tileShows] { return tileShows("next"); },
          [this] {
            handleRemoteCommand("MULTIVIEW WINDOW ADD");
@@ -977,8 +1029,8 @@
          chip, nullptr},
         {"A CLOCK", nullptr,
          "And one more window, showing the clock. Operators who watch a clock are never late. Mostly.",
-         "Time of day, big. Never trust a wristwatch in a truck.",
-         nullptr, nullptr,
+         "Time of day, big. Stardates are just very long timecode.",
+         "ENSIGN JINKLEY", "The monster only shows up at midnight. We're going to need a clock.",
          [tileShows] { return tileShows("clock"); },
          [this] {
            handleRemoteCommand("MULTIVIEW WINDOW ADD");
@@ -988,14 +1040,14 @@
         {"ONE BIG ONE", nullptr,
          "Any window's ... menu, then a layout: one big, the rest small.",
          "The big window is window one. Usually the programme. Usually.",
-         nullptr, nullptr,
+         "LT. HAILA", "Main viewer big. The captain likes it big.",
          [this] { return project_.multiviewLayout != deckboy::multiview::Layout::Grid; },
          [this] { handleRemoteCommand("MULTIVIEW LAYOUT BIG"); },
          chip, nullptr},
-        {"TAKE PLAYLIST 3", "ENTER",
-         "Select the cue in playlist 3 and TAKE. Watch its window.",
-         "The red border is TALLY: the window that is on air.",
-         nullptr, nullptr,
+        {"ON SCREEN", "ENTER",
+         "Select Deck 3 in playlist 3 and TAKE. Watch its window.",
+         "The red border is TALLY: the window that is on air. On screen, as they say on starships.",
+         "ENSIGN JINKLEY", "There! Feed three! Put it on screen!",
          [this] { return project_.decks.size() > 2 && project_.decks[2].activeIndex >= 0; },
          [this] {
            if (project_.decks.size() <= 2 || project_.decks[2].cues.empty()) return;
@@ -1009,9 +1061,9 @@
            return tutorialButtonRect("TAKE");
          }, nullptr},
         {"THAT'S A WRAP", nullptr,
-         "Windows, the ... menu, NEXT, the clock, a layout, tally. You can watch everything, skapi.",
+         "Windows, the ... menu, NEXT, the clock, a layout, tally. Mystery solved, skapi.",
          "A window can also show an output, with its warp and slices. Handy when it's a lighthouse.",
-         nullptr, nullptr, none, nullptr, noTarget, nullptr},
+         "ENSIGN JINKLEY", "And the monster was... the ship's cook, all along. Jinkys.", none, nullptr, noTarget, nullptr},
       };
       lessons_.push_back(std::move(l));
     }
