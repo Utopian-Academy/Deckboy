@@ -2,6 +2,10 @@
 
 ## Unreleased (masks, and an exact LED tile size)
 
+### Outputs
+
+- The "missing frames" warning is quieter: not in the first three seconds after an output opens, and after the first warning it speaks again only when the misses double. The output's badge still shows every one.
+
 ### Learn the basics, part two
 
 - When LEARN THE BASICS ends, a **lesson list** opens: follow Dr. Pixel (running the show) or Prof. Video (the signal), and pick a lesson. Also at MENU > LESSONS.

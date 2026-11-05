@@ -371,6 +371,7 @@
     // 50, 60 or 144 Hz screen and a steady shortfall counts (see presentTargetHz).
     // Nothing is judged until there is a rate to judge by.
     const Uint64 nowNs = SDL_GetTicksNS();
+    if (runtime->firstPresentNs == 0) runtime->firstPresentNs = nowNs;
     if (runtime->presentTargetHz <= 1.0) runtime->presentTargetHz = outputPresentTargetHz(outputIndex, *runtime);
     if (runtime->lastPresentNs != 0 && runtime->presentTargetHz > 1.0) {
       const double gapMs = static_cast<double>(nowNs - runtime->lastPresentNs) / 1.0e6;
@@ -691,15 +692,27 @@
   }
 
   // Frames an output missed in the last five seconds: the badge turns to a
-  // warning, and three of them in five seconds tell the operator, once a
-  // minute at most. A missed frame is a repeated picture on the screen, and
-  // nothing else on the desk would say so.
+  // warning, and three of them in five seconds tell the operator. A missed
+  // frame is a repeated picture on the screen, and nothing else on the desk
+  // would say so.
+  //
+  // QUIETER (James, 2026-11-05: "do we think there are too many missing
+  // frames warnings?" ... "Do it"). The badge still shows every miss; the
+  // toast now leaves out the cases that are not the show stuttering:
+  //   - the first three seconds after an output opens (window creation and
+  //     the mode change settle there),
+  //   - windows hidden for a test run (DECKBOY_HIDE_WINDOWS), which the OS
+  //     throttles to about 22 fps by design,
+  // and after the first warning it speaks again only when it is clearly
+  // worse -- twice the misses -- and never more than once a minute.
   bool outputMissingFrames(int outputIndex) const {
     const OutputRuntime* runtime = runtimeForOutput(outputIndex);
     return runtime && runtime->lastMissNs != 0 && SDL_GetTicksNS() - runtime->lastMissNs < 5000000000ULL;
   }
 
   void noteOutputFramesMissed(int outputIndex, OutputRuntime& runtime, int missed, Uint64 nowNs) {
+    if (windowsHiddenForMeasurement()) return;
+    if (runtime.firstPresentNs != 0 && nowNs - runtime.firstPresentNs < 3000000000ULL) return;
     if (nowNs - runtime.missWindowStartNs > 5000000000ULL) {
       runtime.missWindowStartNs = nowNs;
       runtime.missedInWindow = 0;
@@ -707,10 +720,12 @@
     runtime.missedInWindow += missed;
     const Uint64 nowMs = SDL_GetTicks();
     if (runtime.missedInWindow < 3 ||
-        (runtime.lastMissWarningMs != 0 && nowMs - runtime.lastMissWarningMs < 60000)) {
+        (runtime.lastMissWarningMs != 0 && nowMs - runtime.lastMissWarningMs < 60000) ||
+        (runtime.lastWarnedMissed > 0 && runtime.missedInWindow < runtime.lastWarnedMissed * 2)) {
       return;
     }
     runtime.lastMissWarningMs = nowMs;
+    runtime.lastWarnedMissed = runtime.missedInWindow;
     char rate[32];
     std::snprintf(rate, sizeof(rate), "%.2f", runtime.presentTargetHz);
     triggerToast("Output " + std::to_string(outputIndex + 1) + " is missing frames: " +

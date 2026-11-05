@@ -6026,6 +6026,8 @@
     runtime.missWindowStartNs = 0;
     runtime.missedInWindow = 0;
     runtime.lastMissWarningMs = 0;
+    runtime.lastWarnedMissed = 0;
+    runtime.firstPresentNs = 0;
     // Its clock is measured afresh; the warning stays said for the session.
     runtime.pacedSumMs = 0.0;
     runtime.pacedCount = 0;

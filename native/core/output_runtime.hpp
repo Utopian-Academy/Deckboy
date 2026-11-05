@@ -676,6 +676,8 @@ struct OutputRuntime {
   Uint64 missWindowStartNs = 0;   // the operator is warned at 3 missed in 5 s
   int missedInWindow = 0;
   Uint64 lastMissWarningMs = 0;
+  int lastWarnedMissed = 0;       // how bad it was when the operator was last told
+  Uint64 firstPresentNs = 0;      // when this window first presented: the warm-up starts
   // WHOSE CLOCK ITS PRESENTS KEEP (presentPacedHz): the mean of the intervals
   // that were not hitches, over ten seconds. The screen's refresh when the
   // screen paces them; on Windows a COMPOSED window keeps the compositor's,
