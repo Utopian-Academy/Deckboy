@@ -94,6 +94,11 @@ enum class NumericParam : int {
   MaskFeather,
   MaskGrow,
   MaskOpacity,
+  // The draw brush (the show's) and a Draw cue's playback.
+  DrawSize,
+  DrawOpacity,
+  DrawFps,
+  DrawHold,
 };
 
 // Which oscillator slot a Moire row's ~ drives, or -1 for the two pickers.
@@ -375,6 +380,24 @@ const NumericParamSpec* numericParamSpec(NumericParam id) {
                                        25, 1, false, 0.5};
       return &s;
     }
+    case NumericParam::DrawSize: {
+      static const NumericParamSpec s {"draw.size", "Brush size", "% of the picture's height, 0.1 to 20", 0.1, 20, 1,
+                                       false, 0.2};
+      return &s;
+    }
+    case NumericParam::DrawOpacity: {
+      static const NumericParamSpec s {"draw.opacity", "Brush opacity", "%, 1 to 100", 1, 100, 0, false, 5};
+      return &s;
+    }
+    case NumericParam::DrawFps: {
+      static const NumericParamSpec s {"draw.fps", "Flipbook rate", "Frames a second, 1 to 60", 1, 60, 0, true, 1};
+      return &s;
+    }
+    case NumericParam::DrawHold: {
+      static const NumericParamSpec s {"draw.hold", "Replay hold", "Seconds the finished drawing stays, 0 to 60", 0,
+                                       60, 1, false, 0.5};
+      return &s;
+    }
     case NumericParam::MaskOpacity: {
       static const NumericParamSpec s {"mask.opacity", "Mask opacity", "How hard it cuts, %, 0 to 100", 0, 100, 0,
                                        false, 5};
@@ -492,6 +515,8 @@ bool readNumericParam(const Cue& cue, NumericParam id, double& out) {
     case NumericParam::VsFreeAngle:  out = v.spriteFreeAngle; return true;
     case NumericParam::ToneLevel:    out = cue.tone.levelDbfs; return true;
     case NumericParam::ToneFreq:     out = cue.tone.frequencyHz; return true;
+    case NumericParam::DrawFps:      out = cue.drawing.fps; return true;
+    case NumericParam::DrawHold:     out = cue.drawing.holdSeconds; return true;
     case NumericParam::MotionDriverSpeed: out = cue.motionDriverSpeed; return true;
     case NumericParam::SynthNote:    out = cue.tone.synth.noteHz; return true;
     case NumericParam::SynthAttack:  out = cue.tone.synth.attackSeconds; return true;
@@ -551,6 +576,8 @@ bool readNumericParam(const Cue& cue, NumericParam id, double& out) {
 void writeNumericParam(Cue& cue, NumericParam id, double value) {
   VideoSynthSettings& v = cue.videoSynth;
   switch (id) {
+    case NumericParam::DrawFps: cue.drawing.fps = static_cast<float>(value); ++cue.drawing.revision; break;
+    case NumericParam::DrawHold: cue.drawing.holdSeconds = static_cast<float>(value); ++cue.drawing.revision; break;
     case NumericParam::SwirlSpeed: cue.swirl.speed = value; break;
     case NumericParam::SwirlTwist: cue.swirl.twist = value; break;
     case NumericParam::SwirlCells: cue.swirl.cells = static_cast<int>(std::lround(value)); break;
@@ -670,6 +697,11 @@ void nudgeNumericParam(int rawId, int direction) {
   if (!spec) {
     return;
   }
+  if (drawBrushParam(id)) {
+    const double step = spec->step > 0.0 ? spec->step : (spec->hi - spec->lo) / 50.0;
+    setDrawBrushShown(id, drawBrushShown(id) + step * direction, *spec);
+    return;
+  }
   if (maskSlotForParam(id) >= 0) {
     if (const deckboy::masks::Mask* m = maskFocus()) {
       const double step = spec->step > 0.0 ? spec->step : (spec->hi - spec->lo) / 50.0;
@@ -707,6 +739,14 @@ void editNumericParam(int rawId) {
   const NumericParam id = static_cast<NumericParam>(rawId);
   const NumericParamSpec* spec = numericParamSpec(id);
   if (!spec) {
+    return;
+  }
+  if (drawBrushParam(id)) {
+    std::ostringstream shown;
+    shown << std::fixed << std::setprecision(spec->precision) << drawBrushShown(id);
+    openInlineNumericExpressionEditor(spec->token, spec->label,
+                                      std::string(spec->hint) + " (supports + - * / and ())", shown.str(),
+                                      [this, id, spec](double value) { setDrawBrushShown(id, value, *spec); });
     return;
   }
   if (maskSlotForParam(id) >= 0) {
@@ -967,7 +1007,13 @@ void effectStackNudge(int index, float delta) {
 // Every one of these takes the PACKED id described on the QuickAction enum:
 // effectIndex * 8 + slot, slot 0-3 for paramA-D and 4 for the amount.
 deckboy::effects::ParamLfo* effectLfoAt(int packed) {
-  // A tone cue's pitch and level: the highest range, so it is tested first.
+  // The draw brush's size and opacity: the highest range, tested first.
+  if (packed >= kDrawLfoPackBase) {
+    const int slot = packed - kDrawLfoPackBase;
+    if (slot < 0 || slot > 1) return nullptr;
+    return &project_.drawBrushLfo[static_cast<std::size_t>(slot)];
+  }
+  // A tone cue's pitch and level: the next range down.
   if (packed >= kToneLfoPackBase) {
     const int slot = packed - kToneLfoPackBase;
     Cue* cue = selectedCueMutable();

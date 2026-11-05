@@ -3689,6 +3689,8 @@
             << '|' << m.hue << '|' << serializeGeometryLfos(m.lfo);
       } else if (type == "code") {
         key << '|' << cue.width << '|' << cue.height << '|' << cue.codeExpression;
+      } else if (type == "draw") {
+        key << '|' << cue.drawing.revision << '|' << cue.drawing.editFrame;
       } else if (type == "portal") {
         key << '|' << cue.portal.blobs << '|' << cue.portal.size << '|' << cue.portal.blend
             << '|' << cue.portal.outline << '|' << cue.portal.speed << '|' << cue.portal.hue;

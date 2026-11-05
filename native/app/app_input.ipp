@@ -782,6 +782,11 @@
     if (handleScopesClick(x, y)) {
       return;
     }
+    if (drawEditBtnRect_.w > 0 && pointInRect(x, y, drawEditBtnRect_)) {
+      openDrawEditor(!drawEditor_.open);
+      playUiSound(UiSoundEffect::Toggle);
+      return;
+    }
     if (motionLampRect_.w > 0 && pointInRect(x, y, motionLampRect_)) {
       debugOpenSettings(1);   // the Audio tab, where MOTION CONTROL is
       playUiSound(UiSoundEffect::Navigate);
@@ -971,6 +976,9 @@
     }
     // The mask editor's points, before the warp's: only one is open at once,
     // and the mask editor takes every press on the monitor while it is.
+    if (handleDrawEditorMouseDown(x, y)) {
+      return;
+    }
     if (handleMaskEditorMouseDown(x, y)) {
       return;
     }
@@ -1616,6 +1624,9 @@
       timelineExtraH_ = std::clamp(programFullMonitorH_ - desiredMonitorH, 0, maxExtra);
       return;
     }
+    if (handleDrawEditorMouseMotion(x, y)) {
+      return;
+    }
     if (handleMaskEditorMouseMotion(x, y)) {
       return;
     }
@@ -2001,6 +2012,9 @@
       return;
     }
 
+    if (handleDrawEditorKey(key)) {
+      return;
+    }
     if (handleMaskEditorKey(key, keyRepeat)) {
       return;
     }

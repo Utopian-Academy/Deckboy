@@ -6557,6 +6557,10 @@
     // queue so it takes the real path, on the desk or on output n's window.
     // A test input like CLICK, from this computer only.
     // MASK: the show's mask library and where each one cuts (app_masks.ipp).
+    if (command == "DRAW") {
+      handleDrawCommand(parts);
+      return;
+    }
     if (command == "MOTION") {
       handleMotionCommand(parts);
       return;
@@ -6626,6 +6630,8 @@
       if (parts.size() == 2 && toUpper(parts[1]) == "UP") {
         endPatchScrub();
         endMotionZoneDrag();
+        endDrawEditorDrag();
+        endMaskEditorDrag();
         remoteCommandDetail_ = "released";
         return;
       }

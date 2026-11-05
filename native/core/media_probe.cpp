@@ -24,6 +24,7 @@
 extern "C" {
 #include <libavformat/avformat.h>
 #include <libavutil/display.h>
+#include <libavutil/pixdesc.h>
 }
 #include <cmath>
 #endif
@@ -161,6 +162,9 @@ std::optional<InProcessProbe> probeInProcess(const fs::path& mediaPath) {
       out += "r_frame_rate=" + std::to_string(st->r_frame_rate.num) + "/" +
              std::to_string(st->r_frame_rate.den) + "\n";
       out += "nb_frames=" + std::to_string(st->nb_frames) + "\n";
+      if (const char* pix = av_get_pix_fmt_name(static_cast<AVPixelFormat>(par->format))) {
+        out += std::string("pix_fmt=") + pix + "\n";
+      }
       if (!rotationTaken) {
         rotationTaken = true;
         const AVPacketSideData* sd = av_packet_side_data_get(
@@ -202,7 +206,7 @@ std::optional<Cue> probeCue(const fs::path& mediaPath) {
     // one. Duration cannot do it -- a two-frame GIF runs for under a tenth of
     // a second, which is indistinguishable from the 0.04 a single frame
     // reports -- and the difference decides whether the cue moves or freezes.
-    "format=duration,format_name,size:stream=codec_type,codec_name,width,height,r_frame_rate,channels,sample_rate,nb_frames",
+    "format=duration,format_name,size:stream=codec_type,codec_name,width,height,r_frame_rate,channels,sample_rate,nb_frames,pix_fmt",
     "-of",
     "default=noprint_wrappers=1",
     mediaPath.string()
@@ -258,6 +262,15 @@ std::optional<Cue> probeCue(const fs::path& mediaPath) {
     std::string key = line.substr(0, sep);
     std::string value = line.substr(sep + 1);
 
+    if (key == "pix_fmt" && lastCodecType == "video" && !cue.sourceHasAlpha) {
+      // A format with an alpha channel: yuva*, rgba*, bgra*, argb, abgr,
+      // gbrap*, ya8, ya16*.
+      cue.sourceHasAlpha = value.rfind("yuva", 0) == 0 || value.rfind("rgba", 0) == 0 ||
+                           value.rfind("bgra", 0) == 0 || value == "argb" || value == "abgr" ||
+                           value.rfind("gbrap", 0) == 0 || value.rfind("ya8", 0) == 0 ||
+                           value.rfind("ya16", 0) == 0;
+      continue;
+    }
     if (key == "codec_type") {
       // If the previous stream's pair was already applied, this codec_type
       // marks a new stream — clear any stale pendingCodecName left over from

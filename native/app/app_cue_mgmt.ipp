@@ -3104,6 +3104,11 @@
       [this]() { addPortalCue(); }
     });
     contextItems_.push_back({
+      "  Draw (draw on the picture, for a layer)",
+      {0, 0, 0, 0},
+      [this]() { addDrawCue(); }
+    });
+    contextItems_.push_back({
       "  Swirl (melting pixel greens)",
       {0, 0, 0, 0},
       [this]() { addGeneratorCue("swirl"); }
@@ -3477,6 +3482,7 @@
       // exactly as it did.
       list.emplace_back("fireside",       "Fireside (a hearth that burns)");
       list.emplace_back("portal",         "Portal (blobs of deep space)");
+      list.emplace_back("draw",           "Draw (what you draw on the monitor)");
       list.emplace_back("swirl",          "Swirl (melting pixel greens)");
       list.emplace_back("moire-field",    "Moire (interference bands)");
       list.emplace_back("code",           "Code (live expression)");
@@ -4301,6 +4307,20 @@
       Cue& cue = deck.cues.back();
       cue.name = "Portal";
       cue.color = {60, 40, 150, 255};
+      markProjectDirty();
+    }
+  }
+
+  // A Draw cue arrives empty and named, transparent everywhere until drawn
+  // on, with the draw editor open on the monitor so the next thing the
+  // operator does is draw.
+  void addDrawCue() {
+    addPatternCue("draw");
+    Deck& deck = focusedDeckMutable();
+    if (!deck.cues.empty()) {
+      Cue& cue = deck.cues.back();
+      cue.name = "Draw";
+      cue.color = {200, 70, 90, 255};
       markProjectDirty();
     }
   }

@@ -2433,6 +2433,12 @@ std::string serializeToneLfos(const std::array<deckboy::effects::ParamLfo, 2>& l
   return serializeGeometryLfos(all);
 }
 
+// A Draw cue's strokes, or nothing for every other cue: the field costs a tab.
+std::string serializeCueDrawing(const Cue& cue) {
+  if (cue.kind != CueKind::Pattern || normalizePatternTypeId(cue.path) != "draw") return std::string();
+  return deckboy::draw::serialize(cue.drawing);
+}
+
 std::array<deckboy::effects::ParamLfo, 2> parseToneLfos(const std::string& text) {
   const auto all = parseGeometryLfos(text);
   return {all[0], all[1]};
@@ -4364,6 +4370,10 @@ class App {
       timelineStripTex_ = nullptr;
     }
     shutdownMotion();
+    if (drawOnionTex_) {
+      SDL_DestroyTexture(drawOnionTex_);
+      drawOnionTex_ = nullptr;
+    }
     if (previewMediaEngine_) {
       previewMediaEngine_->detachAudioDevice();
       previewMediaEngine_->stopAll();
@@ -5669,6 +5679,7 @@ class App {
   // The mask editor: its inspector rows need InspectorCtx, declared just above.
 #include "app/app_mask_editor.ipp"
 #include "app/app_motion.ipp"
+#include "app/app_draw.ipp"
 
   // Draw the cue's EFFECTIVE audio fade envelope over a waveform rect: ramp
   // up across the fade-in after the in-point, ramp down into the out-point.
@@ -10378,6 +10389,7 @@ class App {
   bool cueSectionMidiFileOpen_ = true;
   bool cueSectionFiresideOpen_ = true;
   bool cueSectionPortalOpen_ = true;
+  bool cueSectionDrawOpen_ = true;
   bool cueSectionExtraOpen_ = true;
   // The commands behind a private extra's inspector buttons, drawn this frame.
   std::vector<std::string> extraDeskCommands_;

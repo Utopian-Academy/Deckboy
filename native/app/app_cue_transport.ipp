@@ -7210,6 +7210,7 @@
     cue.fps = probed->fps;
     cue.formatName = probed->formatName;
     cue.videoCodec = probed->videoCodec;
+    cue.sourceHasAlpha = probed->sourceHasAlpha;
     cue.audioCodec = probed->audioCodec;
     cue.hasAudio = probed->hasAudio;
     cue.audioEnabled = false;

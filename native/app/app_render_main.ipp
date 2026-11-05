@@ -3013,10 +3013,19 @@
       int warpBtnLeft = hdrActionsLeft;
       // THE CAMERA IN USE LIGHT: while Motion reads a camera, an amber chip
       // left of MASK says so, and opens the card that switches it off.
+      drawEditBtnRect_ = SDL_Rect {};
+      if (drawCue()) {
+        const int drawW = std::max(uiScaled(64), measuredTextWidth(fontSmall_, "DRAW") + uiScaled(24));
+        warpBtnLeft -= drawW + uiScaled(4);
+        drawEditBtnRect_ = SDL_Rect {warpBtnLeft, hdrBtnY, drawW, hdrBtnH};
+        const bool drawing = drawEditor_.open;
+        drawUIPanel(drawEditBtnRect_, paletteToggleFill(drawing), pal.deep, pal.light);
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, drawEditBtnRect_, "DRAW", paletteToggleInk(drawing));
+      }
       motionLampRect_ = SDL_Rect {};
       if (project_.motionEnabled) {
         const int lampW = std::max(uiScaled(70), measuredTextWidth(fontSmall_, "MOTION") + uiScaled(20));
-        warpBtnLeft = hdrActionsLeft - lampW - uiScaled(4);
+        warpBtnLeft -= lampW + uiScaled(4);
         motionLampRect_ = SDL_Rect {warpBtnLeft, hdrBtnY, lampW, hdrBtnH};
         drawUIPanel(motionLampRect_, SDL_Color {120, 84, 14, 255}, pal.deep, SDL_Color {242, 179, 61, 255});
         drawCenteredTextSafe(controlRenderer_, fontSmall_, motionLampRect_, "MOTION",
@@ -3622,6 +3631,7 @@
 
     // The mask editor's points, where the warp editor's handles go.
     drawMaskEditorOverlay();
+    drawDrawEditorOverlay();
     // Warp editor overlay on program monitor
     // THE OUTPUT'S WARP. The handles have to be drawn from the same struct
     // the drag writes and the compositor reads, or they sit where the warp
@@ -5807,6 +5817,19 @@
         }
         finishInspectorSection(poSection, poY);
         ry = poY + kInspectorSectionGap;
+      }
+
+      // DRAW: the brush, the frames and the saves, on a Draw cue
+      // (app_draw.ipp).
+      if (selectedCue && selectedCue->kind == CueKind::Pattern &&
+          normalizePatternTypeId(selectedCue->path) == "draw") {
+        int drY = ry;
+        auto drSection = beginInspectorSection(drY, "DRAW", cueSectionDrawOpen_, QuickAction::CueSectionDrawToggle,
+                                               "Collapse/expand the drawing: tools, colours, frames and saves");
+        drY = drSection.bodyStartY;
+        if (cueSectionDrawOpen_) drY = drawDrawRows(ix, drY);
+        finishInspectorSection(drSection, drY);
+        ry = drY + kInspectorSectionGap;
       }
 
       // A PRIVATE EXTRA'S OWN CONTROLS (core/private_extras.hpp): its buttons,

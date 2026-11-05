@@ -1863,6 +1863,15 @@ class MediaEngine {
   std::uint64_t lastUploadedFrameIndex_ = static_cast<std::uint64_t>(-1); // skip redundant re-uploads in update()
   bool hiddenUploadTarget_ = false;   // see setHiddenUploadTarget
   bool drawsOwnTexture_ = false;      // see setDrawsOwnTexture
+  // A Draw cue's last built state: which cue, revision, frame, strokes,
+  // points, raster. The same again means the same pixels, so nothing is
+  // rebuilt or uploaded.
+  std::array<std::uint64_t, 7> lastDrawKey_ {};
+  // A Draw cue's own clock: seconds since it was loaded. The transport's
+  // position does not move for a held generator, so the flipbook and replay
+  // keep time here.
+  double drawClock_ = 0.0;
+  double drawClockWall_ = -1.0;
   double lastPatternRebuildSeconds_ = -1.0;  // animated-pattern rebuild throttle (30 fps; terrarium 9)
   // Persistent workers for the synth's row loops. Creating a pool per frame
   // is what ran the machine out of committed memory: 31 threads a rebuild on

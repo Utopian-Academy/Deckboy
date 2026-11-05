@@ -281,6 +281,15 @@ void writeProjectScalars(std::ostream& output, const Project& project) {
   output << "splash_character\t" << escapeField(project.splashCharacter) << '\n';
   output << "multiview\t" << project.multiviewMode << '\n';
   output << "multiview_layout\t" << deckboy::multiview::layoutToken(project.multiviewLayout) << '\n';
+  // The draw brush, on one line: tool, colour, size, opacity, onion, its ~s.
+  {
+    char rgba[16];
+    std::snprintf(rgba, sizeof rgba, "%08x", static_cast<unsigned>(project.drawBrush.rgba));
+    output << "draw_brush\t" << deckboy::draw::toolToken(project.drawBrush.tool) << '\t' << rgba << '\t'
+           << project.drawBrush.size << '\t' << project.drawBrush.opacity << '\t'
+           << (project.drawBrush.onion ? 1 : 0) << '\t' << escapeField(serializeToneLfos(project.drawBrushLfo))
+           << '\n';
+  }
   // Motion, on one line: on, source, sensitivity, rise, fall, mirror, zones.
   output << "motion\t" << (project.motionEnabled ? 1 : 0) << '\t' << escapeField(project.motionSource)
          << '\t' << project.motion.sensitivity << '\t' << project.motion.riseSeconds
@@ -1070,6 +1079,8 @@ bool saveProject(const fs::path& projectFile, const Project& project, bool patie
         << '\t' << (cue.lockToScreen ? 1 : 0)       // vs + 166: played at the screen's rate
         << '\t' << escapeField(cue.maskId)          // vs + 167: the cue's own mask
         << '\t' << escapeField(serializeToneLfos(cue.toneLfo))   // vs + 168: a tone's oscillators
+        << '\t' << escapeField(serializeCueDrawing(cue))          // vs + 169: a Draw cue's strokes
+        << '\t' << (cue.sourceHasAlpha ? 1 : 0)                    // vs + 170: its pixels carry alpha
         << '\n';
   };
   for (size_t deckIndex = 0; deckIndex < project.decks.size(); ++deckIndex) {
@@ -1360,6 +1371,17 @@ bool applyProjectScalarLine(Project& project, const std::vector<std::string>& fi
     project.dashboardMode = std::clamp(safeInt(fields, 1, 0), 0, 1);
   } else if (fields[0] == "multiview") {
     project.multiviewMode = std::clamp(safeInt(fields, 1, 0), 0, 1);
+  } else if (fields[0] == "draw_brush") {
+    deckboy::draw::Brush b;
+    deckboy::draw::toolFromToken(safeString(fields, 1), b.tool);
+    const std::string rgba = safeString(fields, 2);
+    if (!rgba.empty()) b.rgba = static_cast<std::uint32_t>(std::strtoul(rgba.c_str(), nullptr, 16));
+    b.size = std::clamp(static_cast<float>(safeDouble(fields, 3, b.size)), deckboy::draw::kMinBrushSize,
+                        deckboy::draw::kMaxBrushSize);
+    b.opacity = std::clamp(static_cast<float>(safeDouble(fields, 4, b.opacity)), 0.01f, 1.0f);
+    b.onion = safeBool(fields, 5, true);
+    project.drawBrush = b;
+    project.drawBrushLfo = parseToneLfos(safeString(fields, 6));
   } else if (fields[0] == "motion") {
     project.motionEnabled = safeBool(fields, 1, false);
     project.motionSource = safeString(fields, 2);
@@ -2800,6 +2822,15 @@ Project loadProject(const fs::path& projectFile,
         // Absent before them: a tone holds still.
         if (fields.size() >= static_cast<std::size_t>(vs + 169)) {
           cue.toneLfo = parseToneLfos(safeString(fields, vs + 168));
+        }
+        // Absent before the Draw source: nothing drawn.
+        if (fields.size() >= static_cast<std::size_t>(vs + 170)) {
+          const std::string drawn = safeString(fields, vs + 169);
+          if (!drawn.empty()) deckboy::draw::parse(drawn, cue.drawing);
+        }
+        // Absent before it: no alpha, which is how every clip decoded.
+        if (fields.size() >= static_cast<std::size_t>(vs + 171)) {
+          cue.sourceHasAlpha = safeBool(fields, vs + 170, false);
         }
       }
       // A MASTER CUE HAS NO PATH, and this gate would have dropped it on load

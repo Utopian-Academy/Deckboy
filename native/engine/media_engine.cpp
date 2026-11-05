@@ -279,6 +279,8 @@ void MediaEngine::stopAll() {
 void MediaEngine::loadCue(const Cue* cue, bool autoplay, double transitionSeconds,
                            TransitionStyle transitionStyle, bool suppressFadeIn) {
   devampRequested_ = false;   // a devamp belonged to the cue it was aimed at
+  drawClock_ = 0.0;           // a drawing replays from its start at every TAKE
+  drawClockWall_ = -1.0;
   loopPassesPlayed_ = 0;      // and so do the repeats it has played
   liveOutgoing_ = false;      // a held frame from here on is this engine's own, frozen
   float outgoingGain = transitionSourceGainForLoadCue(activeCue_, state_, visualFadeGainAt(position()));
@@ -680,6 +682,8 @@ void MediaEngine::syncActiveCueSnapshot(const Cue& cue) {
 // only while VJ mode is on, which is exactly when both decks need looking at.
 bool MediaEngine::cueDecodesAsRgba(const Cue& cue) const {
   return cue.chromaKeyEnabled ||
+         // A clip with alpha: NV12 has nowhere to keep it.
+         cue.sourceHasAlpha ||
          colorControlsActive(cue.brightness, cue.contrast, cue.saturation, cue.hueShift) ||
          deckboy::effects::cueEffectStackActive(cue.effects) ||
          // The audio chain can need the picture too -- see audioChainNeedsPicture.
@@ -4769,6 +4773,26 @@ void MediaEngine::rebuildPatternFrame(const Cue& cue, double wallSeconds) {
   }
   lastPatternRebuildSeconds_ = wallSeconds;
   auto [fallbackW, fallbackH] = currentOutputSizeHint();
+  // A DRAWING plays on its own clock -- the cue's position, so a replay
+  // starts when the cue is taken -- and only rebuilds when what it shows
+  // has changed.
+  double animTime = wallSeconds;
+  if (terraBase == "draw") {
+    // Every rebuild advances it, like every other generator's clock: a held
+    // generator never reaches the Playing state, so that cannot gate it.
+    if (drawClockWall_ >= 0.0) {
+      drawClock_ += std::clamp(wallSeconds - drawClockWall_, 0.0, 0.5);
+    }
+    drawClockWall_ = wallSeconds;
+    animTime = drawClock_;
+    const auto m = deckboy::draw::momentAt(cue.drawing, animTime);
+    const std::array<std::uint64_t, 7> key {std::hash<std::string> {}(cue.id), cue.drawing.revision,
+                                            static_cast<std::uint64_t>(m.frame),
+                                            m.strokes, m.lastPoints, static_cast<std::uint64_t>(fallbackW),
+                                            static_cast<std::uint64_t>(fallbackH)};
+    if (displayFrame_ && key == lastDrawKey_) return;
+    lastDrawKey_ = key;
+  }
   // Build IN PLACE into the frame we already hold. Constructing a fresh
   // DecodedFrame here meant a new full-raster allocation every single frame —
   // 33 MB at 4K, ~2 GB/s of churn, which exhausted the system commit limit and
@@ -4777,7 +4801,7 @@ void MediaEngine::rebuildPatternFrame(const Cue& cue, double wallSeconds) {
   if (!displayFrame_) {
     displayFrame_.emplace();
   }
-  buildPatternFrameInto(*displayFrame_, cue, wallSeconds, fallbackW, fallbackH);
+  buildPatternFrameInto(*displayFrame_, cue, animTime, fallbackW, fallbackH);
   if (!displayFrame_->pixels.empty()) {
     displayFrame_->index = ++displayFrameSerial_;
     uploadFrame(*displayFrame_);
@@ -15162,6 +15186,25 @@ void MediaEngine::buildPatternFrameInto(DecodedFrame& frame, const Cue& cue, dou
   } else if (basePatternType == "moire-field") {
     // Always animated: the bands scroll and the field drifts.
     buildMoireField(frame, animTime, cue.moire, cue.id);
+  } else if (basePatternType == "draw") {
+    // What was drawn (core/drawing.hpp), through a raster kept per cue so a
+    // stroke being drawn costs only the pixels near its newest point.
+    // `animTime` is how long the cue has played, for the flipbook and replay.
+    static thread_local std::map<std::string, deckboy::draw::Raster> rasters;
+    if (rasters.size() > 16 && rasters.find(cue.id) == rasters.end()) rasters.clear();
+    deckboy::draw::Raster& raster = rasters[cue.id];
+    const auto moment = deckboy::draw::momentAt(cue.drawing, animTime);
+    const auto& frames = cue.drawing.frames;
+    if (moment.frame >= 0 && moment.frame < static_cast<int>(frames.size())) {
+      raster.update(frames[static_cast<std::size_t>(moment.frame)], moment.strokes, moment.lastPoints,
+                    frame.width, frame.height, cue.drawing.revision, moment.frame);
+    }
+    frame.format = FramePixelFormat::RGBA32;
+    if (raster.width() == frame.width && raster.height() == frame.height) {
+      frame.pixels = raster.pixels();
+    } else {
+      frame.pixels.assign(static_cast<std::size_t>(frame.width) * static_cast<std::size_t>(frame.height) * 4u, 0);
+    }
   } else if (basePatternType == "portal") {
     // Always animated: the blobs are born, drift, melt and fade.
     buildPortal(frame, animTime, cue.portal);

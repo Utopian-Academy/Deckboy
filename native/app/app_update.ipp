@@ -93,6 +93,7 @@
           continue;
         }
       }
+      noteDrawPenEvent(event);   // the pen's pressure, for the Draw source
       switch (event.type) {
         case SDL_EVENT_QUIT:
           // OS/app close request should quit immediately.
@@ -232,6 +233,7 @@
               warpDragCorner_ = -1;
               warpDragGridPoint_ = -1;
               endMaskEditorDrag();
+              endDrawEditorDrag();
               layoutDragMode_ = LayoutDragMode::None;
               endPresenterLayoutDrag();
             }
@@ -463,6 +465,7 @@
                 cue.fps = probed->fps;
                 cue.formatName = probed->formatName;
                 cue.videoCodec = probed->videoCodec;
+                cue.sourceHasAlpha = probed->sourceHasAlpha;
                 cue.audioCodec = probed->audioCodec;
                 cue.hasAudio = probed->hasAudio;
                 cue.audioChannels = probed->audioChannels;

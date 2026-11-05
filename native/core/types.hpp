@@ -31,6 +31,7 @@
 #include "masks.hpp"
 #include "multiview_layout.hpp"
 #include "motion.hpp"
+#include "drawing.hpp"
 #include "core/sdl_compat.hpp"
 #include <memory>
 #include <string>
@@ -1284,6 +1285,8 @@ constexpr int kMoireLfoPackBase = 1 << 22;
 constexpr int kMaskLfoPackBase = 1 << 23;
 // A tone cue's two oscillators: base + kToneLfoFreq / kToneLfoLevel.
 constexpr int kToneLfoPackBase = 1 << 24;
+// The draw brush's two oscillators: base + 0 size, base + 1 opacity.
+constexpr int kDrawLfoPackBase = 1 << 25;
 constexpr int kToneLfoFreq = 0;
 constexpr int kToneLfoLevel = 1;
 constexpr int kToneLfoCount = 2;
@@ -1615,6 +1618,10 @@ struct Cue {
   std::string name;                        // display name (defaults to filename on import)
   std::string formatName;                  // ffprobe container format (e.g. "mov,mp4")
   std::string videoCodec;                  // ffprobe video codec name (e.g. "h264")
+  // The clip's pixels carry ALPHA (ProRes 4444, PNG/QuickTime Animation,
+  // VP9 with alpha...), from the probe. Such a clip decodes in RGBA so its
+  // transparency reaches the output -- a saved drawing is one.
+  bool sourceHasAlpha = false;
   std::string audioCodec;                  // ffprobe audio codec name (e.g. "aac")
   std::string gotoTarget;                  // cue ID to jump to on AutoNext end action
   // FIRESIDE, as a source rather than a test card. How hard it burns and how
@@ -1961,6 +1968,9 @@ struct Cue {
   std::array<deckboy::effects::ParamLfo, 9> geometryLfo {};
   // A Portal source's controls. Only meaningful on a "portal" pattern cue.
   PortalSettings portal;
+  // A DRAW cue's strokes (core/drawing.hpp): what was drawn, frame by frame,
+  // and how it plays. Empty on every other cue.
+  deckboy::draw::Drawing drawing;
   SwirlSettings swirl;
   // A Moire source's controls. Only meaningful on a "moire-field" pattern cue.
   MoireSettings moire;
@@ -2898,6 +2908,10 @@ struct Project {
   // something a show should do. The source is "camera:<device>" (its own
   // capture, never shown on an output) or "deck:<n>" (the picture playlist n
   // is already playing, so a camera in the show is never opened twice).
+  // THE DRAW BRUSH (app_draw.ipp): the show's, so it stays in your hand
+  // from one Draw cue to the next; its size and opacity can take a ~.
+  deckboy::draw::Brush drawBrush;
+  std::array<deckboy::effects::ParamLfo, 2> drawBrushLfo {};
   bool motionEnabled = false;
   std::string motionSource = "camera:";
   deckboy::motion::Settings motion;
@@ -3755,7 +3769,23 @@ enum class QuickAction {
   MaskRemoveLast,
   MaskExportPng,
   MaskExportSvg,
-  CueSectionMaskToggle
+  CueSectionMaskToggle,
+  // The inspector's DRAW section (app_draw.ipp).
+  DrawEditToggle,         // draw on the programme monitor
+  DrawToolSet,            // param: the tool
+  DrawColourSet,          // param: the palette slot, 0-7
+  DrawColourCustom,       // a typed colour
+  DrawFramePrev,
+  DrawFrameNext,
+  DrawFrameAdd,
+  DrawFrameDelete,
+  DrawOnionToggle,
+  DrawPlaybackCycle,      // still -> flipbook -> replay
+  DrawClearFrame,
+  DrawUndoStroke,
+  DrawSaveStill,
+  DrawSaveAnimation,
+  CueSectionDrawToggle
 };
 
 // ---------------------------------------------------------------------------

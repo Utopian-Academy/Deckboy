@@ -126,7 +126,7 @@ inline bool patternTypeSupportsMotion(const std::string& typeId) {
 // which made the desk look like nobody had decided what either one was.
 inline bool patternTypeIsGenerator(const std::string& typeId) {
   const std::string t = normalizePatternTypeId(typeId);
-  return t == "fireside" || t == "portal" || t == "swirl" || t == "code" || t == "moire-field" ||
+  return t == "fireside" || t == "portal" || t == "swirl" || t == "code" || t == "moire-field" || t == "draw" ||
          t == "terrarium" || t == "terrarium-pico" || deckboy::extras::findGenerator(t) != nullptr;
 }
 
@@ -136,6 +136,7 @@ inline std::string generatorPatternName(const std::string& typeId) {
   const std::string t = normalizePatternTypeId(typeId);
   if (t == "fireside") return "Fireside";
   if (t == "portal") return "Portal";
+  if (t == "draw") return "Draw";
   if (t == "swirl") return "Swirl";
   if (t == "moire-field") return "Moire";
   if (t == "code") return "Code";
@@ -171,6 +172,10 @@ inline bool patternTypeIsAnimated(const std::string& typeId) {
          normalized == "swirl" ||                      // turning, melting greens
          normalized == "moire-field" ||                // scrolling interference bands
          normalized == "portal" ||                     // born, drifting, melting
+         // A DRAWING is rebuilt as it is drawn on and as it replays; the
+         // engine skips the rebuild when nothing has changed (see
+         // rebuildPatternFrame), so a still drawing costs nothing.
+         normalized == "draw" ||
          // FIRESIDE WAS NOT HERE, the same omission as `code` above: the
          // builder animates from the clock, every comment about it calls it
          // animated, and it was drawn once at take and held -- a photograph of
