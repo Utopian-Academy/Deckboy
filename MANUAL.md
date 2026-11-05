@@ -1950,6 +1950,47 @@ EXPORT <id> <file.png|.svg> [WxH] | CLEAR | DELETE | RENAME`. Positions and
 sizes are percentages, and rotation is in degrees. A value outside the range is
 refused, not clamped. `EXPORT` is accepted only from this computer.
 
+### Draw
+
+**SOURCE → MADE BY DECKBOY → Draw** adds a cue you draw on. It is
+transparent outside the ink, so it sits on a layer over another playlist like
+Portal does. With a Draw cue selected, **DRAW** appears beside MASK on the
+programme monitor: switch it on and drag on the picture. Esc stops drawing.
+A pen tablet's pressure makes the line thinner where you press lightly, on
+all three platforms.
+
+The **DRAW** section in the inspector has:
+
+- **the tools**: brush, eraser, line, box, oval, and fill (the whole frame).
+  A line, box or oval shows as an outline while you drag and is drawn when
+  you let go;
+- **the colours**: eight on the palette, and **#** for any other, typed as
+  `#rrggbb` or a name;
+- **size** (as a percentage of the picture's height) and **opacity**, each
+  with a **~**, so the brush can swell and fade as you draw;
+- **frames**: **+ frame** adds one after this one, **- frame** takes this one
+  out, and **onion** shows the frame before, faintly, while you draw;
+- **plays**: **still** holds the frame you are on; **flipbook** plays the
+  frames in turn at **fps**; **replay** draws the first frame stroke by stroke,
+  the way it was drawn, then holds it for **hold** seconds and starts again.
+  A long pause between strokes replays as a short one;
+- **undo stroke** and **clear frame**;
+- **save still**: the frame as a PNG with transparency, added to the playlist
+  as an image cue; **save animation**: the flipbook or replay as a ProRes 4444
+  video with transparency, added as a video cue. Both go in a `drawings`
+  folder beside the show, so a bundled show carries them.
+
+The brush belongs to the show, so it stays in your hand from one Draw cue to
+the next. The drawing is kept as strokes, not pixels, so it is sharp at any
+output size and small in the show file.
+
+Over the wire: `DRAW [EDITOR ON|OFF]`, `DRAW TOOL brush|erase|line|box|oval|fill`,
+`DRAW COLOUR <#rrggbb|name|1-8>`, `DRAW SIZE <%>`, `DRAW OPACITY <%>`,
+`DRAW STROKE x,y[,pressure] ...` (percentages), `DRAW UNDO|CLEAR`,
+`DRAW FRAME ADD|DELETE|NEXT|PREV|<n>`, `DRAW ONION ON|OFF`,
+`DRAW PLAYBACK still|flipbook|replay`, `DRAW FPS <n>`, `DRAW HOLD <s>` and
+`DRAW SAVE STILL|ANIMATION [file]` (from this computer only).
+
 ---
 
 ## 15. Output Geometry: AOI, Warp, Edge Blend

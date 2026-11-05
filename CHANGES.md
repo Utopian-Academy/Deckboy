@@ -2,6 +2,14 @@
 
 ## Unreleased (masks, and an exact LED tile size)
 
+### Draw
+
+- A **Draw** source (SOURCE > MADE BY DECKBOY): draw on the programme monitor with the mouse or a pen, transparent outside the ink so it sits on a layer. Brush, eraser, line, box, oval and fill; eight colours or any typed one; size and opacity with a **~**.
+- Flipbook frames with onion skin, or **replay**, which draws the picture back the way it was drawn, then holds it.
+- **Save still** adds the frame as a PNG with transparency; **save animation** adds it as a ProRes 4444 video with transparency.
+- `DRAW` over the wire.
+- Video with an alpha channel (ProRes 4444, QuickTime Animation and others) now plays with its transparency; it played as if solid before.
+
 ### Motion
 
 - A camera can move any control with a **~**: new **motion**, **motion-x** and **motion-y** shapes follow how much is moving and where. Set it up in Settings > Audio > MOTION CONTROL, reading a camera of its own or a playlist's picture; an amber MOTION chip shows while it is on.
