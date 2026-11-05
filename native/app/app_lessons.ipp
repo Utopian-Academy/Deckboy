@@ -238,7 +238,9 @@
   // Lighthouse), and on the multiview lesson's starship Lt. Haila (Uhura) and
   // Ensign Jinkley (Velma: "Uhura!", "Maybe uhura and velma", "mystery on
   // the enterprise", "jinkys!"). Madden is only in the telestrator booth
-  // ("do we NEED a 2nd sports themed thing?"). Sixteen by
+  // ("do we NEED a 2nd sports themed thing?"); Donna Wheel (Vanna White),
+  // June O'Neil (April O'Neil), Wallis and Grommet (Wallace and Gromit; a
+  // grommet is also what a cable goes through). Sixteen by
   // twenty, in the teachers' letters and the theme's inks, so they sit on the
   // card beside Dr. Pixel and the Professor on every colourway. A off-white
   // (Rook's beard, Dot's headset), R red and Y yellow are fixed colours, as
@@ -416,6 +418,98 @@
          ".UUUUUUUUUUUUUU.",
          ".UUUUUUUUUUUUUU."},
         6, {4, 5, 10, 11, -1, -1}, 10, {7, 8, -1, -1}},
+      {"DONNA WHEEL",
+        {
+         "...YYYYYYYYYY...",
+         "..YYYYYYYYYYYY..",
+         ".YYYYYYYYYYYYYY.",
+         ".YYYSSSSSSSSYYY.",
+         ".YYSSSSSSSSSSYY.",
+         ".YYSHHSSSSHHSYY.",
+         ".YYSWESSSSWESYY.",
+         ".YYSSSSSSSSSSYY.",
+         ".YYSSSSDDSSSSYY.",
+         ".YYSBSSSSSSBSYY.",
+         "..YSSMWWWWMSSY..",
+         "..YYSSMMMMSSYY..",
+         "...YY.SSSS.YY...",
+         "......SSSS......",
+         "....RYRRRRYR....",
+         "...RRRRYRRRRRR..",
+         "..RRYRRRRRRYRRR.",
+         ".RRRRRRYRRRRRRR.",
+         ".RRYRRRRRRRYRRR.",
+         ".RRRRRRRRRRRRRR."},
+        6, {4, 5, 10, 11, -1, -1}, 11, {7, 8, -1, -1}},
+      {"JUNE O'NEIL",
+        {
+         "....RRRRRRRR....",
+         "...RRRRRRRRRR...",
+         "..RRRRRRRRRRRR..",
+         "..RRRRRRRRRRRR..",
+         "..RRSSSSSSSSRR..",
+         "..RRSHHSSHHSRR..",
+         "..RRSWESSWESRR..",
+         "..RRSSSSSSSSRR..",
+         "..RRSSSSDSSSRR..",
+         "..RRSSSSSSSSRR..",
+         "..RRRSSMMSSRRR..",
+         "...RRSSSSSSRR...",
+         "...RR.SSSS.RR.K.",
+         "......SSSS...KK.",
+         "....YYYYYYYYKY..",
+         "...YYYYYYYYKYY..",
+         "..YYYYYYYYYKYYY.",
+         ".YYYYYYKKYYYYYY.",
+         ".YYYYYYKKYYYYYY.",
+         ".YYYYYYYYYYYYYY."},
+        6, {5, 6, 9, 10, -1, -1}, 10, {7, 8, -1, -1}},
+      {"WALLIS",
+        {
+         "................",
+         ".....SSSSSS.....",
+         "...SSSSSSSSSS...",
+         "..SSSSSSSSSSSS..",
+         ".NSSSSSSSSSSSSN.",
+         ".NSSSWESSWESSSN.",
+         "..SSSSSSDDSSSS..",
+         "..SSSSSSDDSSSS..",
+         ".SSSSSSSSSSSSSS.",
+         ".SSMMMMMMMMMMSS.",
+         ".SSMAAAAAAAAMSS.",
+         ".SSSMMMMMMMMSSS.",
+         "..SSSSSSSSSSSS..",
+         "....SSSSSSSS....",
+         "...AAAAARRAAAA..",
+         "..CCCCAARRAACCC.",
+         ".CCCCCCARRACCCC.",
+         "CCCCCCCARRACCCCC",
+         "CCCCCCCCRRCCCCCC",
+         "CCCCCCCCCCCCCCCC"},
+        5, {5, 6, 9, 10, -1, -1}, 10, {6, 7, 8, 9}},
+      {"GROMMET",
+        {
+         "................",
+         "..NN........NN..",
+         ".NNNN......NNNN.",
+         ".NNNSSSSSSSSNNN.",
+         ".NNSSSSSSSSSSNN.",
+         "..NSHHHHHHHHSN..",
+         "..SSWESSSSWESS..",
+         "..SSSSSSSSSSSS..",
+         "..SSSSSKKSSSSS..",
+         "...SSSSKKSSSS...",
+         "...SSSSSSSSSS...",
+         "....SSSSSSSS....",
+         ".....SSSSSS.....",
+         "......SSSS......",
+         "....SSSSSSSS....",
+         "...SSSSSSSSSS...",
+         "..SSSSSSSSSSSS..",
+         "..SSSSSSSSSSSS..",
+         "..SSSSSSSSSSSS..",
+         "..SSSSSSSSSSSS.."},
+        6, {4, 5, 10, 11, -1, -1}, -1, {-1, -1, -1, -1}},
     };
     if (!name) return nullptr;
     for (const GuestFace& face : kFaces) {
@@ -960,6 +1054,299 @@
          "Warp, blend, slices. The keeper will finally sleep. The gulls will not.",
          "Slices have their own warp and mesh in the Screens window. And a ~ on the place and the turn.",
          "KEEPER ROOK", "Ye did alright, lad. Now get away from the lamp.", none, nullptr, noTarget, nullptr},
+      };
+      lessons_.push_back(std::move(l));
+    }
+
+    // ── Dr. Pixel: GO from anywhere (the game show, with Donna Wheel) ─────
+    {
+      LessonDef l;
+      l.id = "go";
+      l.videoTrack = false;
+      l.title = "GO from anywhere";
+      l.about = "Cue numbers, GOTO, a hotkey, and where Companion, MIDI and OSC come in.";
+      l.show = "The game show, with Donna Wheel";
+      l.setup = [this] {
+        const char* gens[3] = {"swirl", "fireside", "pocket-test"};
+        for (int i = 0; i < 3; ++i) {
+          addGeneratorCue(gens[i]);
+          Deck& deck = focusedDeckMutable();
+          if (!deck.cues.empty()) deck.cues.back().name = "Contestant " + std::to_string(i + 1);
+        }
+        selectCueInDeck(project_.focusedDeckIndex, 0, false, false);
+      };
+      auto contestant = [](int n) {
+        const std::string name = "Contestant " + std::to_string(n);
+        return [name](const Cue& c) { return c.name == name; };
+      };
+      auto selectContestant = [this, contestant](int n, QuickAction section) {
+        int d = -1;
+        const int i = lessonFindCue(contestant(n), &d);
+        if (i < 0) return;
+        project_.focusedDeckIndex = d;
+        selectCueInDeck(d, i, false, false);
+        openInspectorSection(section);
+      };
+      l.steps = {
+        {"THE GAME SHOW", nullptr,
+         "A game show, skapi. Three contestants, one buzzer, and cues that fire from anywhere. Press START.",
+         "Cue numbers, hotkeys, and GO from other machines. Like a sequencer you can play from any key.",
+         "DONNA WHEEL", "Welcome to the show! Let's spin that wheel!", std::function<bool()> {}, nullptr,
+         [] { return SDL_Rect {}; }, nullptr},
+        {"A CUE NUMBER", nullptr,
+         "Contestant 3 is selected. In the inspector's metadata, give it a cue number: 3.",
+         "Theatre numbers its cues. Q3, Q3.5, Q12A. Deckboy reads them all.",
+         "DONNA WHEEL", "I'd like to buy a number, please.",
+         [this, contestant] {
+           int d = -1;
+           const int i = lessonFindCue(contestant(3), &d);
+           return i >= 0 && !project_.decks[static_cast<std::size_t>(d)].cues[static_cast<std::size_t>(i)].cueNumber.empty();
+         },
+         [this, contestant] {
+           int d = -1;
+           const int i = lessonFindCue(contestant(3), &d);
+           if (i < 0) return;
+           project_.decks[static_cast<std::size_t>(d)].cues[static_cast<std::size_t>(i)].cueNumber = "3";
+           markProjectDirty();
+         },
+         [this] { return lessonQuickRect(QuickAction::EditCueNumber); },
+         [selectContestant] { selectContestant(3, QuickAction::CueSectionMetadataToggle); }},
+        {"GO TO IT", "CTRL+G",
+         "Ctrl+G, type the number, Enter. It goes live wherever the list happens to be standing.",
+         "GOTO. The fastest way across a long list. Faster than scrolling. Much faster than me.",
+         "DONNA WHEEL", "And the number is... three!",
+         [this, contestant] { return lessonCueLive(contestant(3)); },
+         [this, contestant] {
+           int d = -1;
+           const int i = lessonFindCue(contestant(3), &d);
+           if (i < 0) return;
+           const std::string number = project_.decks[static_cast<std::size_t>(d)].cues[static_cast<std::size_t>(i)].cueNumber;
+           project_.focusedDeckIndex = d;
+           handleRemoteCommand("GOTO " + (number.empty() ? std::string("3") : number));
+         },
+         [] { return SDL_Rect {}; },
+         [this] { selectCueInDeck(project_.focusedDeckIndex, 0, false, false); }},
+        {"A BUZZER", "F5",
+         "Contestant 1 is selected. In TRIGGERS, press key, then F5. That key now fires this cue.",
+         "F1 to F10, F12, or the number pad. Each one, a buzzer.",
+         "DONNA WHEEL", "Every contestant gets a buzzer.",
+         [this] { return lessonCountCues([](const Cue& c) { return !c.triggerHotkey.empty(); }) > 0; },
+         [this, contestant] {
+           int d = -1;
+           const int i = lessonFindCue(contestant(1), &d);
+           if (i < 0) return;
+           project_.decks[static_cast<std::size_t>(d)].cues[static_cast<std::size_t>(i)].triggerHotkey = "F5";
+           markProjectDirty();
+         },
+         [this] { return lessonQuickRect(QuickAction::TriggerLearnKey); },
+         [selectContestant] { selectContestant(1, QuickAction::CueSectionTriggersToggle); }},
+        {"BUZZ IN", nullptr,
+         "Press the key. The cue fires, wherever the list is standing.",
+         "No mouse, no list, no looking. Just the key.",
+         "DONNA WHEEL", "Buzz! We have a winner!",
+         [this] { return lessonCueLive([](const Cue& c) { return !c.triggerHotkey.empty(); }); },
+         [this] { lessonTake([](const Cue& c) { return !c.triggerHotkey.empty(); }); },
+         [] { return SDL_Rect {}; }, nullptr},
+        {"FROM ANYWHERE", nullptr,
+         "Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.",
+         "A Stream Deck in the next room can press GO. So can a keyboard synth. I prefer the synth.",
+         "DONNA WHEEL", "And for our viewers at home: you can play along too.",
+         [this] { return settingsOpen_ && settingsTab_ == 2; },
+         [this] { debugOpenSettings(2); },
+         [this] { return settingsOpen_ ? SDL_Rect {} : tutorialButtonRect("MENU"); }, nullptr},
+        {"THAT'S OUR SHOW", nullptr,
+         "Numbers, GOTO, a buzzer, and GO from anywhere. You are a game show now, skapi.",
+         "A cue can have a key, a MIDI note and an OSC address at once. Belt, braces and a second belt.",
+         "DONNA WHEEL", "Goodnight, everybody! Keep spinning!", std::function<bool()> {}, nullptr,
+         [] { return SDL_Rect {}; }, nullptr},
+      };
+      lessons_.push_back(std::move(l));
+    }
+
+    // ── Dr. Pixel: Words on screen (the kaiju weather report) ─────────────
+    {
+      LessonDef l;
+      l.id = "words";
+      l.videoTrack = false;
+      l.title = "Words on screen";
+      l.about = "A Lower Third with a name on it, then a title card with a key-green backdrop.";
+      l.show = "The kaiju weather report, with June O'Neil";
+      l.setup = [this] {
+        lessonAddCodeCue("Weather map",
+                         "land = step(0.55, sin(x*7.0 + 1.3)*0.5 + sin(y*5.0 + x*2.0)*0.5 + 0.5);"
+                         "kx = 0.2 + fract(t*0.03)*0.7; ky = 0.55 + 0.03*sin(t*3.0);"
+                         "k = 1 - smoothstep(0.05, 0.08, sqrt((x - kx)*(x - kx)*3.16 + (y - ky)*(y - ky)));"
+                         "0.10 + land*0.25 - k*0.1, 0.25 + land*0.35 - k*0.2, 0.55 - land*0.3 - k*0.4");
+        selectCueInDeck(project_.focusedDeckIndex, 0, false, false);
+        jumpSelectedCue();
+      };
+      auto isLowerThird = [](const Cue& c) { return c.kind == CueKind::Text && c.lowerThird.on; };
+      auto isTitle = [](const Cue& c) { return c.kind == CueKind::Text && !c.lowerThird.on; };
+      l.steps = {
+        {"THE KAIJU WEATHER", nullptr,
+         "Channel 6 weather, skapi. A map, a presenter, and a very large lizard. Press START.",
+         "Words on screen: Lower Thirds, text, and backdrops.",
+         "JUNE O'NEIL", "I'm June O'Neil, and nothing about this forecast is normal.", std::function<bool()> {},
+         nullptr, [] { return SDL_Rect {}; }, nullptr},
+        {"A LAYER FOR WORDS", nullptr,
+         "Words go on their own layer: press the + at the end of the playlist tabs.",
+         "A second playlist is a layer over the map. The lizard stays underneath. Mostly.",
+         "JUNE O'NEIL", "Words on top. Always on top.",
+         [this] { return project_.decks.size() >= 2; },
+         [this] { addDeck(); },
+         [this] { return deckAddTabRect_; }, nullptr},
+        {"A LOWER THIRD", nullptr,
+         "In the new playlist: SOURCE, then Lower Third.",
+         "A name and a title, low on the screen, out of the lizard's way.",
+         nullptr, nullptr,
+         [this, isLowerThird] { return lessonCountCues(isLowerThird) > 0; },
+         [this] {
+           if (project_.decks.size() < 2) addDeck();
+           project_.focusedDeckIndex = static_cast<int>(project_.decks.size()) - 1;
+           addLowerThirdTextCue();
+         },
+         [this] { return tutorialButtonRect("SOURCE"); }, nullptr},
+        {"HER NAME", nullptr,
+         "In the inspector, title: type the presenter's name. The second line is her job.",
+         "Spelling counts. The audience reads it at the speed of light.",
+         "JUNE O'NEIL", "Spell it right. Last week it said 'Jane O'Meal'.",
+         [this, isLowerThird] {
+           int d = -1;
+           const int i = lessonFindCue(isLowerThird, &d);
+           return i >= 0 && project_.decks[static_cast<std::size_t>(d)].cues[static_cast<std::size_t>(i)].textBody !=
+                                "Name Surname\nTitle or role";
+         },
+         [this, isLowerThird] {
+           int d = -1;
+           const int i = lessonFindCue(isLowerThird, &d);
+           if (i < 0) return;
+           project_.decks[static_cast<std::size_t>(d)].cues[static_cast<std::size_t>(i)].textBody =
+             "June O'Neil\nChannel 6 Weather";
+           markProjectDirty();
+         },
+         [this] { return lessonQuickRect(QuickAction::LowerThirdEditTitle); },
+         [this, isLowerThird] {
+           int d = -1;
+           const int i = lessonFindCue(isLowerThird, &d);
+           if (i < 0) return;
+           project_.focusedDeckIndex = d;
+           selectCueInDeck(d, i, false, false);
+           openInspectorSection(QuickAction::CueSectionTextToggle);
+         }},
+        {"ON AIR", "ENTER",
+         "TAKE the Lower Third. Her name slides in over the map.",
+         "Two layers live: the weather, and the words on top of it.",
+         "JUNE O'NEIL", "Thank you. Now, about that lizard...",
+         [this, isLowerThird] { return lessonCueLive(isLowerThird); },
+         [this, isLowerThird] { lessonTake(isLowerThird); },
+         [this, isLowerThird] { return lessonTakeTarget(isLowerThird); }, nullptr},
+        {"BREAKING NEWS", nullptr,
+         "SOURCE, then Text: a title card. Then its backdrop chip: key green, for the vision mixer to key out.",
+         "A backdrop fills behind the words. Key green or key blue, and the mixer does the rest.",
+         "JUNE O'NEIL", "Breaking news: it's standing on the five-day forecast.",
+         [this, isTitle] {
+           int d = -1;
+           const int i = lessonFindCue(isTitle, &d);
+           if (i < 0) return false;
+           const int bd = project_.decks[static_cast<std::size_t>(d)].cues[static_cast<std::size_t>(i)].backdrop;
+           return bd != -1 && bd != kTimerBackdropTransparent;
+         },
+         [this, isTitle] {
+           if (lessonCountCues(isTitle) == 0) addTextCue();
+           int d = -1;
+           const int i = lessonFindCue(isTitle, &d);
+           if (i < 0) return;
+           Cue& cue = project_.decks[static_cast<std::size_t>(d)].cues[static_cast<std::size_t>(i)];
+           cue.textBody = "BREAKING: KAIJU";
+           cue.backdrop = 0x00b140;
+           markProjectDirty();
+         },
+         [this, isTitle] {
+           return lessonCountCues(isTitle) == 0 ? tutorialButtonRect("SOURCE") : lessonQuickRect(QuickAction::CueBackdropPreset);
+         }, nullptr},
+        {"BACK TO YOU", nullptr,
+         "A Lower Third, a name, a title card, a backdrop. The lizard has left the studio, skapi.",
+         "Lower Thirds can wait, slide and leave on their own. Their section has every setting.",
+         "JUNE O'NEIL", "That's the weather. Back to you, guys. Run.", std::function<bool()> {}, nullptr,
+         [] { return SDL_Rect {}; }, nullptr},
+      };
+      lessons_.push_back(std::move(l));
+    }
+
+    // ── Dr. Pixel: Keeping time (a grand day out, with Wallis and Grommet) ─
+    {
+      LessonDef l;
+      l.id = "timers";
+      l.videoTrack = false;
+      l.title = "Keeping time";
+      l.about = "A stage timer counting down, held, and a presenter view for the person on stage.";
+      l.show = "A grand day out, with Wallis and Grommet";
+      l.setup = [] {};
+      auto isTimer = [](const Cue& c) { return c.kind == CueKind::Timer; };
+      l.steps = {
+        {"A GRAND DAY OUT", nullptr,
+         "A rocket built in a basement, skapi, and an inventor who wants cheese. Press START.",
+         "Stage timers: countdowns, clocks, and a presenter view for the person on stage.",
+         "WALLIS", "Cheese, Grommet! The moon's made of it. We'll need a countdown.", std::function<bool()> {},
+         nullptr, [] { return SDL_Rect {}; }, nullptr},
+        {"A COUNTDOWN", nullptr,
+         "SOURCE, then Stage Timer. A clock that counts down, in big friendly numbers.",
+         "Its colours change as it runs out: white, amber, red. Like a VU meter for time.",
+         "GROMMET", "*raises an eyebrow*",
+         [this, isTimer] { return lessonCountCues(isTimer) > 0; },
+         [this] { addTimerCue(10); },
+         [this] { return tutorialButtonRect("SOURCE"); }, nullptr},
+        {"LIFT OFF", "ENTER",
+         "Select the timer and TAKE it. The countdown starts.",
+         "Past zero it keeps going, counting the overtime. Very honest. Slightly rude.",
+         "WALLIS", "Ten... nine... ooh, I do love a countdown.",
+         [this, isTimer] { return lessonCueLive(isTimer); },
+         [this, isTimer] { lessonTake(isTimer); },
+         [this, isTimer] { return lessonTakeTarget(isTimer); }, nullptr},
+        {"HOLD!", "SPACE",
+         "Something's loose! Space holds the countdown. The clock shows it is held.",
+         "A hold is not a stop. Space again, and it carries on from where it was.",
+         "GROMMET", "*holds up a spanner*",
+         [this, isTimer] {
+           for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+             const Cue* cue = activeCuePtr(d);
+             const MediaEngine* engine = mediaEngineForDeck(d);
+             if (cue && isTimer(*cue) && engine && engine->state() == TransportState::Paused) return true;
+           }
+           return false;
+         },
+         [this, isTimer] {
+           int d = -1;
+           if (lessonFindCue(isTimer, &d) < 0) return;
+           project_.focusedDeckIndex = d;
+           handleRemoteCommand("PAUSE");
+         },
+         [] { return SDL_Rect {}; }, nullptr},
+        {"THE PILOT'S VIEW", nullptr,
+         "MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.",
+         "A presenter view is an output like any other. Point it at the confidence monitor.",
+         "WALLIS", "So the pilot can see the time. The pilot is Grommet.",
+         [this] {
+           for (const OutputTarget& o : project_.outputs) {
+             if (normalizeOutputType(o.outputType) == "presenter") return true;
+           }
+           return false;
+         },
+         [this] {
+           if (project_.outputs.empty()) return;
+           pushUndoSnapshot();
+           focusedOutputMutable().outputType = "presenter";
+           markProjectDirty();
+         },
+         [this] {
+           if (!settingsOpen_) return tutorialButtonRect("MENU");
+           return lessonSettingRect(kSettingsActionOutputTypeCycle);
+         }, nullptr},
+        {"TO THE MOON", nullptr,
+         "A countdown, a hold, and a view for the pilot. Nazdrave, skapi. Bring crackers.",
+         "Timers can also count up, or show the time of day. Their section has the lot.",
+         "WALLIS", "A grand day out, Grommet! Pass the crackers.", std::function<bool()> {}, nullptr,
+         [] { return SDL_Rect {}; }, nullptr},
       };
       lessons_.push_back(std::move(l));
     }

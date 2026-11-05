@@ -26,7 +26,14 @@
     enum class Phase { Hidden, Out, Talking, In };
     Phase phase = Phase::Hidden;
     Uint64 phaseAtMs = 0;
-    int line = 0;               // the next line to say, in order, all session
+    int line = 0;               // lines said this session (paces his visits)
+    // RANDOM, NEVER TWICE IN A ROW (James, 2026-11-05: "more silly rat dad
+    // jokes and sayings, and they should be random"). A shuffled bag of
+    // jokes: every one is told before any is told again. A two-part joke
+    // keeps its punchline next, even across the end of a visit.
+    std::vector<int> bag;
+    int joke = -1;
+    bool onPunchline = false;
     int saidThisVisit = 0;
     Uint64 nextPeekMs = 0;      // when he comes out by himself
     SDL_Rect hole {};
@@ -100,23 +107,135 @@
     }
   }
 
-  static const char* ratDadLine(int index) {
-    static const char* kLines[] = {
-      "Hey kiddo. Just checking in. You eating? There's pizza.",
-      "Don't tell your mother I'm in the walls again.",
-      "Why was the cue late? It got stuck in the queue.",
-      "...I'll see myself out. Into the hole.",
-      "Back in my day we crossfaded uphill. Both ways. In the snow.",
-      "Proud of you, kiddo. Now save the show. I'll wait.",
-      "Hi hungry, I'm Dad.",
-      "I'm not lost. I'm taking the scenic route through your wiring.",
-      "You know what this playlist needs? Pizza. Every playlist does.",
-      "Your fades are smooth. You get that from your mother.",
-      "I fixed the hum in your audio. It was me. I was humming.",
-      "If the show goes black, that's not a mistake. That's drama.",
+  struct RatDadJoke {
+    const char* line;
+    const char* punchline;   // said next, when there is one
+  };
+
+  static const std::vector<RatDadJoke>& ratDadJokes() {
+    static const std::vector<RatDadJoke> kJokes = {
+      {"Hey kiddo. Just checking in. You eating? There's pizza.", nullptr},
+      {"Don't tell your mother I'm in the walls again.", nullptr},
+      {"Back in my day we crossfaded uphill. Both ways. In the snow.", nullptr},
+      {"Proud of you, kiddo. Now save the show. I'll wait.", nullptr},
+      {"Hi hungry, I'm Dad.", nullptr},
+      {"I'm not lost. I'm taking the scenic route through your wiring.", nullptr},
+      {"You know what this playlist needs? Pizza. Every playlist does.", nullptr},
+      {"Your fades are smooth. You get that from your mother.", nullptr},
+      {"I fixed the hum in your audio. It was me. I was humming.", nullptr},
+      {"If the show goes black, that's not a mistake. That's drama.", nullptr},
+      {"Did you turn it off and on again? I always turn it off and on again. Then I nap.", nullptr},
+      {"I'm not saying I chewed the HDMI cable. I'm saying it was delicious.", nullptr},
+      {"Rule of thumb, kiddo: if it blinks, don't lick it. I learned that one twice.", nullptr},
+      {"Every cable in this building has my teeth marks on it. That's how you know it's been tested.", nullptr},
+      {"Your mother says I spend too much time in the server room. It's warm and nobody asks questions.", nullptr},
+      {"I don't need a GPS. I follow the cheese.", nullptr},
+      {"Label your cables, kiddo. I label all of mine 'mine'.", nullptr},
+      {"4K? In my day we had four pixels and we were grateful.", nullptr},
+      {"I'm on a diet. One slice per output.", nullptr},
+      {"Measure twice, gnaw once.", nullptr},
+      {"I'm not sleeping. I'm buffering.", nullptr},
+      {"Is it hot in here, or is that the projector?", nullptr},
+      {"I've been in this hole so long the hole has a hole.", nullptr},
+      {"When the show's over, we're getting ice cream. Rat rules.", nullptr},
+      {"I put a sandwich in the rack. For emergencies. Don't touch it, it's load-bearing.", nullptr},
+      {"Sit up straight, kiddo. The camera adds ten pounds. The cheese adds the rest.", nullptr},
+      {"Who left the lights on? ...Oh. That's the show. Carry on.", nullptr},
+      {"Why was the cue late?", "It got stuck in the queue. ...I'll see myself out. Into the hole."},
+      {"Why did the video go to therapy?", "Too many unresolved frames."},
+      {"How does a rat cut between cameras?", "A cheese wipe. ...Kiddo, that one was good."},
+      {"What's the difference between a cue and a queue?", "About four letters and all of my patience."},
+      {"Knock knock.", "...It's me. Rat Dad. I live in the wall. You don't have to answer."},
+      {"Why don't rats run sound?", "Too many squeaks in the mix."},
+      {"I told your mother I'd fix the flickering monitor.", "Now it flickers on purpose. Artistic choice."},
+      {"What do you call a crossfade that never ends?", "Your uncle's wedding video."},
+      {"Why did the frame drop?", "It saw me coming."},
+      {"Want to hear a joke about latency?", "............Okay, it's arrived. It wasn't worth the wait."},
+      {"What's a projector's favourite sport?", "The long throw. ...I'll workshop it."},
+      {"Did you hear about the rat who joined the AV team?", "He was great with cables. Terrible with cheese budgets. ...It was me."},
+      {"I asked the vision mixer for a raise.", "It gave me a fade to black. Same thing, really."},
+      {"Wear a jacket, kiddo. It's cold in the server room. That's where I keep my snacks.", nullptr},
+      {"I'm not hoarding cables. I'm curating them.", nullptr},
+      {"You've got your mother's eyes. And my taste in cheese.", nullptr},
+      {"I'd help you with the show, but I've got paws. Paws for thought.", nullptr},
+      {"Don't worry about the rumbling in the ceiling. That's just me doing my cardio.", nullptr},
+      {"Your grandfather lived in a cinema. Saw every film nine times. Never paid once.", nullptr},
+      {"I'm proud of you. I'd hug you, but I've been in the bins.", nullptr},
+      {"Look at you, running a whole show. I remember when you could barely chew through drywall.", nullptr},
+      {"No, I won't get out of the rack. It's cosy and the fans go whoosh.", nullptr},
+      {"Ever notice how every venue smells like old pizza? That's not an accident.", nullptr},
+      {"I've seen things, kiddo. Dropped frames. Wrong inputs. A projector lens with a fingerprint on it. Shudder.", nullptr},
+      {"Don't stay up too late fiddling with the colours. ...Okay, one more tweak. Then bed.", nullptr},
+      {"I don't trust wireless. I trust a cable I can bite.", nullptr},
+      {"Your uncle runs a video wall in a nightclub. He hasn't slept since 2009.", nullptr},
+      {"Pro tip: gaffer tape fixes everything. Except me. I'm unfixable.", nullptr},
+      {"Ask me about timecode. ...No. Don't. It goes on for hours.", nullptr},
+      {"In my day the remote control was a stick. You poked the telly.", nullptr},
+      {"I'm not nosy. I'm a rat. It's literally my whole face.", nullptr},
+      {"Save early, save often, and always tip the lighting crew. In cheese.", nullptr},
+      {"Shh. I'm listening for the hum. ...There it is. It's the fridge.", nullptr},
+      {"Be nice to the stagehands, kiddo. They know where the good snacks are.", nullptr},
+      {"Sorry about the smell. I took a shortcut through the fog machine.", nullptr},
+      {"Why did the rat bring a ladder to the show?", "He heard the projector had a high throw. ...Okay, that's two throw jokes. I'm done. I'm not done."},
+      {"How many rats does it take to change a projector bulb?", "None. We like it dark."},
+      {"Why was the cable so calm?", "It was well grounded. Unlike your mother's cousin."},
+      {"What do you call a cheese that's not yours?", "Nacho cheese. ...I've been saving that one since 1998."},
+      {"Why did the playlist break up with the cue?", "It needed some space. And a fade out."},
+      {"What do you call a rat with a microphone?", "A squeak-er. Get it? Speaker. I'll be here all week. In the wall."},
+      {"Why don't monitors ever win arguments?", "They always lose their signal."},
+      {"Did you hear about the projector that went to school?", "It wanted to get a little brighter."},
+      {"Why did the HDMI cable apologise?", "It had a bad connection. Like me and your mother's sister."},
+      {"What's a camera's favourite drink?", "Shots. ...Not for you, kiddo. Water."},
+      {"Why did the subtitle cross the road?", "To get to the other side of the sentence."},
+      {"What do you call a crossfade between two cheeses?", "A brie-ze. ...I'm a genius."},
+      {"Why was the speaker so good at gossip?", "It knew how to amplify a story."},
+      {"What did the dimmer say to the light?", "Don't worry, it's just a phase."},
+      {"Why did the rat get a job in video?", "He heard there were lots of frames to chew."},
+      {"What do you call a nervous video signal?", "A jittery feed. ...Your uncle again."},
+      {"Why did the tripod sit down?", "Its legs were tired. Three of them. Imagine."},
+      {"What's the scariest thing in a control room?", "A blank screen and a silent phone. Brrr."},
     };
-    constexpr int count = static_cast<int>(sizeof(kLines) / sizeof(kLines[0]));
-    return kLines[((index % count) + count) % count];
+    return kJokes;
+  }
+
+  // Draws the next joke from the bag, refilled and shuffled when empty, and
+  // never the one just told.
+  void ratDadNextJoke() {
+    const int count = static_cast<int>(ratDadJokes().size());
+    if (ratDad_.bag.empty()) {
+      static std::mt19937 rng {std::random_device {}()};
+      for (int i = 0; i < count; ++i) ratDad_.bag.push_back(i);
+      std::shuffle(ratDad_.bag.begin(), ratDad_.bag.end(), rng);
+      if (ratDad_.bag.size() > 1 && ratDad_.bag.back() == ratDad_.joke) {
+        std::swap(ratDad_.bag.front(), ratDad_.bag.back());
+      }
+    }
+    ratDad_.joke = ratDad_.bag.back();
+    ratDad_.bag.pop_back();
+    ratDad_.onPunchline = false;
+  }
+
+  // The joke's punchline is still to come.
+  bool ratDadPunchlinePending() const {
+    const auto& jokes = ratDadJokes();
+    return ratDad_.joke >= 0 && ratDad_.joke < static_cast<int>(jokes.size()) &&
+           jokes[static_cast<std::size_t>(ratDad_.joke)].punchline && !ratDad_.onPunchline;
+  }
+
+  // On to what he says next: the punchline, or another joke.
+  void ratDadAdvanceLine() {
+    ++ratDad_.line;
+    if (ratDadPunchlinePending()) {
+      ratDad_.onPunchline = true;
+    } else {
+      ratDadNextJoke();
+    }
+  }
+
+  std::string ratDadSays() {
+    if (ratDad_.joke < 0) ratDadNextJoke();
+    const RatDadJoke& joke = ratDadJokes()[static_cast<std::size_t>(ratDad_.joke)];
+    return ratDad_.onPunchline && joke.punchline ? joke.punchline : joke.line;
   }
 
   // Somewhere to be -- the page drawn a moment ago, with room -- and nothing
@@ -174,13 +293,12 @@
         break;
       case RatDadState::Phase::Talking:
         if (inPhase > 3600) {
-          ++ratDad_.line;
+          // Two lines a visit, and a third when the second was a setup: a
+          // joke is never left without its punchline.
           ++ratDad_.saidThisVisit;
-          if (ratDad_.saidThisVisit >= 2) {
-            ratDadSetPhase(RatDadState::Phase::In);
-          } else {
-            ratDadSetPhase(RatDadState::Phase::Talking);
-          }
+          const bool done = ratDad_.saidThisVisit >= 2 && !ratDadPunchlinePending();
+          ratDadAdvanceLine();
+          ratDadSetPhase(done ? RatDadState::Phase::In : RatDadState::Phase::Talking);
         }
         break;
       case RatDadState::Phase::In:
@@ -240,7 +358,7 @@
 
     if (!talking || !fontSmall_) return;
     // What he says, in a bubble above him, inside the empty space.
-    const std::string said = ratDadLine(ratDad_.line);
+    const std::string said = ratDadSays();
     const int pad = uiScaled(6);
     const int maxW = std::max(uiScaled(120), std::min(area.w - uiScaled(16), uiScaled(300)));
     const auto lines = codeWrapText(fontSmall_, said, maxW - pad * 2);
@@ -280,9 +398,10 @@
     if ((ratDad_.body.w > 0 && SDL_PointInRect(&at, &ratDad_.body)) ||
         (ratDad_.hole.w > 0 && SDL_PointInRect(&at, &ratDad_.hole))) {
       if (ratDad_.phase == RatDadState::Phase::Talking) {
-        ++ratDad_.line;
         ++ratDad_.saidThisVisit;
-        ratDadSetPhase(ratDad_.saidThisVisit >= 2 ? RatDadState::Phase::In : RatDadState::Phase::Talking);
+        const bool done = ratDad_.saidThisVisit >= 2 && !ratDadPunchlinePending();
+        ratDadAdvanceLine();
+        ratDadSetPhase(done ? RatDadState::Phase::In : RatDadState::Phase::Talking);
       }
       return true;
     }
