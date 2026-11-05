@@ -1351,7 +1351,9 @@
     const auto guestLines = line.guest ? codeWrapText(fontBase_, std::string(line.guestName ? line.guestName : "GUEST") +
                                                                      ":  \"" + line.guest + "\"", textW)
                                        : std::vector<std::string> {};
-    const int guestH = guestLines.empty() ? 0 : static_cast<int>(guestLines.size()) * lineH + blockGap;
+    const bool guestHasFace = line.guest && guestFace(line.guestName) != nullptr;
+    const int guestH = guestLines.empty() ? 0
+                       : std::max(guestHasFace ? portrait : 0, static_cast<int>(guestLines.size()) * lineH) + blockGap;
     const int cardH = pad + headH + uiScaled(8) + pixelH + blockGap + videoH + guestH + uiScaled(12) + buttonH + pad;
 
     // Away from the target: above it when it is in the lower half, below it
@@ -1456,11 +1458,21 @@
     y += videoH;
     if (!guestLines.empty()) {
       y += blockGap;
+      // The guest talks for a moment when their line arrives.
+      const std::string guestSaid = line.guest;
+      if (guestSaid != guestLineSeen_) {
+        guestLineSeen_ = guestSaid;
+        guestTalkUntilMs_ = SDL_GetTicks() + 2400;
+      }
+      if (guestHasFace) {
+        drawGuestPortrait(SDL_Rect {card.x + pad, y, portrait, portrait}, line.guestName,
+                          SDL_GetTicks() < guestTalkUntilMs_);
+      }
       for (std::size_t i = 0; i < guestLines.size(); ++i) {
         drawTextSafe(controlRenderer_, fontBase_,
                      SDL_Rect {card.x + textX, y + static_cast<int>(i) * lineH, textW, lineH}, guestLines[i], pal.fgSoft);
       }
-      y += static_cast<int>(guestLines.size()) * lineH;
+      y += std::max(guestHasFace ? portrait : 0, static_cast<int>(guestLines.size()) * lineH);
     }
     y += uiScaled(12);
 

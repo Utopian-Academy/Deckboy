@@ -228,6 +228,221 @@
     markProjectDirty();
   }
 
+  // ── The guests' faces ────────────────────────────────────────────────────
+  //
+  // James, 2026-11-05: "they ALL need faces with personality", then "mostly
+  // women", "where is the scully?" and "not close enough allusions": each is
+  // now an unmistakable parody, original names, no copied lines -- Gristle
+  // (Miranda Priestly), Marv (John Madden), Hollis and Brandt (Mulder and
+  // Scully), Rook (Mrs. Muir, with a sea-captain ghost), Dot. Sixteen by
+  // twenty, in the teachers' letters and the theme's inks, so they sit on the
+  // card beside Dr. Pixel and the Professor on every colourway. A off-white
+  // (Rook's beard, Dot's headset), R red and Y yellow are fixed colours, as
+  // the teachers' lipstick and sparkle are. Each blinks out of step with the
+  // others and talks for a moment when their line arrives.
+  struct GuestFace {
+    const char* name;
+    const char* rows[20];
+    int eyeRow;
+    int eyeCols[6];
+    int mouthRow;
+    int mouthCols[4];
+  };
+
+  static const GuestFace* guestFace(const char* name) {
+    static const GuestFace kFaces[] = {
+      {"PROF. GRISTLE",
+        {
+         "....AAAAAAAA....",
+         "...AAAAAAAAAA...",
+         "..AAAAAAAAAAAA..",
+         "..AAAAASSSSSAA..",
+         "..AAASSSSSSSSA..",
+         "..AASHHSSSHHSA..",
+         "..AASGGGSGGGSA..",
+         "..AASGGGSGGGSA..",
+         "..AASSSSDSSSSA..",
+         "..AASSSSDSSSSA..",
+         "..AAASSRRRSSAA..",
+         "..AAAASSSSSAAA..",
+         "...AAA.SSS.AA...",
+         ".......SSS......",
+         "....AKAKAKAK....",
+         "...KKKKKKKKKK...",
+         "..KKKKKKKKKKKK..",
+         ".KKKKKKKKKKKKKK.",
+         ".KKKKKKKKKKKKKK.",
+         ".KKKKKKKKKKKKKK."},
+        -1, {-1, -1, -1, -1, -1, -1}, 10, {8, -1, -1, -1}},
+      {"COACH MARV",
+        {
+         "................",
+         "....HHHHHHHH....",
+         "...HHHHHHHHHH...",
+         "..HHSSSSSSSSHH..",
+         "..HSSSSSSSSSSH..",
+         "..SSHHHSSHHHSS..",
+         "..SSSWESSWESSS..",
+         "..SSSSSSSSSSSS..",
+         ".SSSSSSDDSSSSSS.",
+         ".SSSSSSDDSSSSSS.",
+         ".SSSSMMMMMMSSSS.",
+         ".SSSSMSSSSMSSSS.",
+         ".SSSSSMMMMSSSSS.",
+         "..SSSSSSSSSSSS..",
+         "...SSSSSSSSSS..Y",
+         "..KKKKCCCCKKKKY.",
+         ".KKKKKCCCCKKKY..",
+         "KKKKKKCRRCKKAKKK",
+         "KKKKKKCRRCKKKKKK",
+         "KKKKKKKKKKKKKKKK"},
+        6, {5, 6, 9, 10, -1, -1}, 11, {6, 7, 8, 9}},
+      {"AGENT HOLLIS",
+        {
+         "................",
+         "....HHHHHHHH....",
+         "...HHHHHHHHHH...",
+         "...HHHHHHH.HHH..",
+         "...HHSSSSSSSHH..",
+         "...HSSSSSSSSSH..",
+         "...SHHSSSSHHSS..",
+         "...SWESSSSWESS..",
+         "...SSSSDDSSSSS..",
+         "...SSSSDDSSSSS..",
+         "...SSSSSSSSSSS..",
+         "....SSMMMMSSS...",
+         ".....SSSSSSS....",
+         "......SSSSS.....",
+         "...KKKCCRCCKKK..",
+         "..KKKKCCYCCKKKK.",
+         ".KKKKKCRRCKKKKK.",
+         ".KKKKKKCYCKKKKK.",
+         ".KKKKKKCRCKKKKK.",
+         ".KKKKKKKKKKKKKK."},
+        7, {4, 5, 10, 11, -1, -1}, 11, {7, 8, -1, -1}},
+      {"AGENT BRANDT",
+        {
+         "....RRRRRRRR....",
+         "...RRRRRRRRRR...",
+         "..RRRRRRRRRRRR..",
+         "..RRRRSSSSRRRR..",
+         "..RRRSSSSSSSRR..",
+         "..RRSHHSSHHSRR..",
+         "..RRSWESSWESRR..",
+         "..RRSSSSSSSSRR..",
+         "..RRSSSSDSSSRR..",
+         "..RRSSSSSSSSRR..",
+         "..RRSSSMMSSSRR..",
+         "...RRSSSSSSRR...",
+         "...RR.SSSS.RR...",
+         "......SSSS......",
+         "...KKKCCCCKKK...",
+         "..KKKKCCCCKKKK..",
+         ".KKKKKKCCKKKKKKY",
+         ".KKKKKKKKKKKKAAY",
+         ".KKKKKKKKKKKKAA.",
+         ".KKKKKKKKKKKKKK."},
+        6, {5, 6, 9, 10, -1, -1}, 10, {7, 8, -1, -1}},
+      {"KEEPER ROOK",
+        {
+         "......HHHH......",
+         ".....HHHHHH.....",
+         "....HHHHHHHH....",
+         "...HHHHHHHHHH...",
+         "..HHHSSSSSSHHH..",
+         "..HHSSSSSSSSHH..",
+         "..HHSHHSSHHSHH..",
+         "..HHSWESSWESHH..",
+         "..HHSSSSSSSSHH..",
+         "..HHSSSSDSSSHH..",
+         "..HHSBSSSSBSHH..",
+         "...HSSSMMSSSH...",
+         "....SSSSSSSS....",
+         "......CCCC......",
+         "......CYYC......",
+         "..RRRRCCCCRRRR..",
+         ".RRRRRKKKKRRRRR.",
+         "RRRRRKKKKKKRRRRR",
+         "RRRRKKKKKKKKRRRR",
+         "RRRKKKKKKKKKKRRR"},
+        7, {5, 6, 9, 10, -1, -1}, 11, {7, 8, -1, -1}},
+      {"DIRECTOR DOT",
+        {
+         "......HHH...Y...",
+         ".....HHHHH.Y....",
+         "...AHHHHHHHHA...",
+         "..AHHHHHHHHHHA..",
+         "..AHSSSSSSSSHA..",
+         ".AASSSSSSSSSSAA.",
+         ".AAGGGSSSSGGGAA.",
+         ".AAGWEGSSGWEGAA.",
+         "..ASGGGSSSGGGSS.",
+         "..ASSSSSDSSSSS..",
+         "..ASSSSSSSSSSS..",
+         "...AASMMMMSSS...",
+         "....SSMDDMSS....",
+         ".....SSMMSS.....",
+         "......SSSS......",
+         "..CCCCCSSCCCCC..",
+         ".CCCCCCCCCCCCCC.",
+         "CCCCKCCCCCCKCCCC",
+         "CCCCKCCCCCCKCCCC",
+         "CCCCCCCCCCCCCCCC"},
+        7, {4, 5, 10, 11, -1, -1}, 12, {7, 8, -1, -1}},
+    };
+    if (!name) return nullptr;
+    for (const GuestFace& face : kFaces) {
+      if (std::strcmp(face.name, name) == 0) return &face;
+    }
+    return nullptr;
+  }
+
+  std::string guestLineSeen_;
+  Uint64 guestTalkUntilMs_ = 0;
+
+  // False when there is no face for that name (the card then draws none).
+  bool drawGuestPortrait(const SDL_Rect& box, const char* name, bool speaking) {
+    const GuestFace* face = guestFace(name);
+    if (!face) return false;
+    char rows[20][17];
+    for (int r = 0; r < 20; ++r) std::memcpy(rows[r], face->rows[r], 17);
+    const std::size_t seed = std::hash<std::string> {}(name);
+    const bool blinking = (animationNow_ + seed % 3100) % 4300 < 140;
+    const bool mouthOpen = speaking && ((animationNow_ / 110) % 2) == 0;
+    if (blinking && face->eyeRow >= 0 && face->eyeRow < 20) {
+      for (int c : face->eyeCols) {
+        if (c >= 0 && c < 16 && rows[face->eyeRow][c] != '.') rows[face->eyeRow][c] = 'F';
+      }
+    }
+    if (mouthOpen && face->mouthRow >= 0 && face->mouthRow < 20) {
+      for (int c : face->mouthCols) {
+        if (c >= 0 && c < 16) rows[face->mouthRow][c] = 'D';
+      }
+    }
+    Primitives::fillRect(controlRenderer_, box, speaking ? pal.mid : pal.dark);
+    const int cell = std::max(1, std::min(box.w / 16, box.h / 20));
+    const int ox = box.x + (box.w - cell * 16) / 2;
+    const int bob = speaking ? static_cast<int>((animationNow_ / 260) % 2) : 0;
+    const int oy = box.y + (box.h - cell * 20) / 2 - bob;
+    for (int r = 0; r < 20; ++r) {
+      for (int c = 0; c < 16; ++c) {
+        SDL_Color color;
+        switch (rows[r][c]) {
+          case 'H': case 'G': case 'M': case 'E': case 'K': color = pal.deep; break;
+          case 'S': case 'W': case 'C': color = pal.light; break;
+          case 'D': case 'F': color = pal.dark; break;
+          case 'R': color = SDL_Color {200, 36, 60, 255}; break;
+          case 'Y': color = SDL_Color {255, 220, 0, 255}; break;
+          case 'B': color = SDL_Color {255, 143, 168, 255}; break;
+          case 'A': color = SDL_Color {232, 232, 220, 255}; break;
+          default: continue;
+        }
+        Primitives::fillRect(controlRenderer_, SDL_Rect {ox + c * cell, oy + r * cell, cell, cell}, color);
+      }
+    }
+    return true;
+  }
+
   // ── The lessons ──────────────────────────────────────────────────────────
 
   const std::vector<LessonDef>& lessonDefs() {
@@ -304,12 +519,12 @@
         {"THE CRIT", nullptr,
          "An art school, skapi. One student, one picture, one professor who hates everything. Press START.",
          "Effects change a picture; an oscillator keeps changing it. The professor only likes the second kind.",
-         "PROF. GRISTLE", "A grey square on beige. I have seen more feeling in a parking ticket.",
+         "PROF. GRISTLE", "A grey square. On beige. Groundbreaking.",
          std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; }, nullptr},
         {"AN EFFECT", nullptr,
          "In the inspector's EFFECTS section, + adds one. Edges is a good start: it draws the outlines.",
          "There are dozens. Every one runs on the CPU in a few milliseconds. Mostly.",
-         "PROF. GRISTLE", "Do something. Anything. Even a mistake would be a decision.",
+         "PROF. GRISTLE", "By all means, move at a glacial pace. You know how that thrills me.",
          anyEffect,
          [this] { handleRemoteCommand("FX ADD edges 1"); },
          [this] { return lessonQuickRect(QuickAction::EffectAdd); }, openEffects},
@@ -336,7 +551,7 @@
         {"A COLOUR OF ITS OWN", nullptr,
          "Effects that draw a colour, like Edges' line, have a colour chip. It opens the picker: a wheel, typed names, or a colour off the screen.",
          "Every colour has a name somewhere. Mine is 'oscilloscope green'. Nobody else uses it.",
-         "PROF. GRISTLE", "Not that colour. ...Actually, that colour.",
+         "PROF. GRISTLE", "Not cerulean. Not turquoise. ...Fine. That one.",
          [selected] {
            const Cue* cue = selected();
            if (!cue) return false;
@@ -364,7 +579,7 @@
         {"THE VERDICT", nullptr,
          "An effect, a ~ and a colour. The professor is crying, skapi. Good crying, I think.",
          "Stack a few. Each has its own ~ on every knob. That is how a look becomes a performance.",
-         "PROF. GRISTLE", "It breathes. It glows. It is still a square. ...A-plus.",
+         "PROF. GRISTLE", "It breathes. It glows. It is still a square. ...That's all.",
          std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; }, nullptr},
       };
       lessons_.push_back(std::move(l));
@@ -383,7 +598,7 @@
         {"THE TELESTRATOR BOOTH", nullptr,
          "Coach Marv explains sport by drawing circles on it. Once he circled the sun. Ten minutes, skapi.",
          "Tonight: test patterns, the video synth, and drawing on the picture. Press START.",
-         "COACH MARV", "Get me a picture and a pen and nobody gets hurt.", none, nullptr, noTarget, nullptr},
+         "COACH MARV", "Get me a picture and a pen. BOOM.", none, nullptr, noTarget, nullptr},
         {"A TEST PATTERN", nullptr,
          "Line up the screens BEFORE the show. Not during. I learned this in Plovdiv.",
          "Every desk needs a test pattern. PATTERN adds Pocket Test: checked against real meters.",
@@ -401,7 +616,7 @@
         {"TAKE THE SYNTH", "ENTER",
          "Select it, then TAKE. Confident operators press Enter.",
          "That's our replay. Every replay needs a pundit.",
-         "COACH MARV", "Beautiful. Now I need to circle something.",
+         "COACH MARV", "Now here's a replay. And here's a guy. And BOOM, he's in it.",
          [this] { return lessonCueLive(lessonIsSynth); },
          [this] { lessonTake(lessonIsSynth); },
          [this] { return lessonTakeTarget(lessonIsSynth); }, nullptr},
@@ -433,7 +648,7 @@
         {"CIRCLE SOMETHING", nullptr,
          "Press DRAW in the inspector, then draw on the programme monitor. Mouse, or a pen if you have one.",
          "A pen's pressure makes the line thicker. A mouse presses at one strength. Like me.",
-         "COACH MARV", "Circle him! No, bigger. That's a cloud. Fine, circle the cloud.",
+         "COACH MARV", "Circle him! No, bigger. BOOM. That's a cloud. Fine. Circle the cloud.",
          [this] {
            int d = -1;
            const int i = lessonFindCue(lessonIsDraw, &d);
@@ -489,7 +704,7 @@
         {"THAT'S THE BOOTH", nullptr,
          "Patterns, the synth, a layer, ink, a still. Nazdrave, skapi.",
          "Try Replay in the Draw section: it draws your lines back the way you drew them.",
-         "COACH MARV", "Same time next week. Bring a bigger pen.", none, nullptr, noTarget, nullptr},
+         "COACH MARV", "Same time next week. Bring a bigger pen. And a turducken.", none, nullptr, noTarget, nullptr},
       };
       lessons_.push_back(std::move(l));
     }
@@ -518,11 +733,11 @@
         {"THE SIGNAL FILES", nullptr,
          "The Bureau of Unexplained Signals. Two agents, one photo, and it must not air. Press START.",
          "Masks cut a picture into shapes. Tonight we cut evidence.",
-         "AGENT HOLLIS", "That's a craft, Brandt. Look at the lights. LOOK at them.", none, nullptr, noTarget, nullptr},
+         "AGENT HOLLIS", "That's a craft, Brandt. Look at the lights. I want to believe.", none, nullptr, noTarget, nullptr},
         {"A MASK FROM THE LIBRARY", nullptr,
          "In the inspector's MASK section: mask, then 'new heart'. Any shape will do. The heart is funnier.",
          "The library has circles, stars, hearts. Each one is points you can move.",
-         "AGENT BRANDT", "A heart? The Bureau redacts with black bars, Hollis.",
+         "AGENT BRANDT", "A heart, Hollis? The Bureau redacts with black bars.",
          [this] {
            const MaskModel* m = maskFocus();
            if (!m) return false;
@@ -605,7 +820,7 @@
         {"CASE CLOSED", nullptr,
          "A library shape, the pen, invert and feather. The Bureau thanks you. The Bureau was never here.",
          "Masks also go on a layer, an output, or its matte: MASK ON chooses. And every control takes a ~.",
-         "AGENT BRANDT", "The waveform doesn't lie, Hollis. Next time, the scopes.", none, nullptr, noTarget, nullptr},
+         "AGENT BRANDT", "The truth is in the waveform, Hollis. Next time, the scopes.", none, nullptr, noTarget, nullptr},
       };
       lessons_.push_back(std::move(l));
     }
@@ -617,9 +832,9 @@
       l.videoTrack = true;
       l.title = "Warp, blend and slices";
       l.about = "A corner pin, two soft edges, then three slices in the Screens window.";
-      l.show = "The haunted lighthouse, with Keeper Rook";
+      l.show = "The haunted lighthouse, with Keeper Rook and the captain";
       l.setup = [this] {
-        lessonAddCodeCue("The ghost",
+        lessonAddCodeCue("The captain (ghost)",
                          "gx = (x - 0.5)*1.78; gy = y - 0.5 + 0.03*sin(t*1.3);"
                          "body = 1 - smoothstep(0.16, 0.24, sqrt(gx*gx + gy*gy*0.6));"
                          "e1 = 1 - smoothstep(0.015, 0.025, sqrt((gx - 0.06)*(gx - 0.06) + (gy + 0.06)*(gy + 0.06)));"
@@ -635,9 +850,9 @@
       };
       l.steps = {
         {"THE HAUNTED LIGHTHOUSE", nullptr,
-         "A ghost, three curved windows, and a keeper who has not slept since 1974. Press START.",
+         "A widow, a lighthouse, and a sea captain who died in 1874 and still has notes. Press START.",
          "Projection mapping: bending the picture to fit the building. Warp, blend, slices.",
-         "KEEPER ROOK", "She only haunts on a Tuesday. It's Tuesday.", none, nullptr, noTarget, nullptr},
+         "KEEPER ROOK", "The captain haunts the lamp room on Tuesdays. It's Tuesday.", none, nullptr, noTarget, nullptr},
         {"THE OUTPUT'S GEOMETRY", nullptr,
          "MENU, then Video Outputs, then Geometry. Where an output's shape lives.",
          "Geometry: the projector-menu word for 'what shape is the picture'.",
@@ -646,9 +861,9 @@
          [this] { debugOpenSettings(3, 1); },
          [this] { return settingsOpen_ ? SDL_Rect {} : tutorialButtonRect("MENU"); }, nullptr},
         {"PIN A CORNER", nullptr,
-         "Press warp edit, then drag a corner on the programme monitor. The window is not square. Neither is she.",
+         "Press warp edit, then drag a corner on the programme monitor. The window is not square. Neither is the captain.",
          "A corner pin moves the four corners. Perspective keeps the lines straight, like a real window.",
-         "KEEPER ROOK", "Left a bit. Her left. No, the ghost's left.",
+         "KEEPER ROOK", "Left a bit. His left. He says 'port'. He was a sea captain.",
          [this] {
            const OutputTarget& o = focusedOutput();
            return o.warpEnabled && (o.warpTopLeftX != 0.0f || o.warpTopLeftY != 0.0f || o.warpTopRightX != 0.0f ||
@@ -695,7 +910,7 @@
         {"THREE SLICES", nullptr,
          "In the Screens window, + SLICE three times, and drag each crop to a third of the picture.",
          "Three windows, three slices: left, middle and right of one picture.",
-         "KEEPER ROOK", "She says the middle one makes her look pale.",
+         "KEEPER ROOK", "He says the middle one makes him look pale. He is a ghost.",
          [this] { return focusedOutput().slices.size() >= 3; },
          [this] {
            const char* names[3] = {"left window", "middle window", "right window"};
@@ -712,9 +927,9 @@
          },
          noTarget, nullptr},
         {"THE GHOST IS PLEASED", nullptr,
-         "Warp, blend, slices. The keeper will finally sleep. The ghost will not.",
+         "Warp, blend, slices. Mrs. Rook will finally sleep. The captain will not.",
          "Slices have their own warp and mesh in the Screens window. And a ~ on the place and the turn.",
-         "KEEPER ROOK", "Same again Tuesday.", none, nullptr, noTarget, nullptr},
+         "KEEPER ROOK", "Same again Tuesday. He insists.", none, nullptr, noTarget, nullptr},
       };
       lessons_.push_back(std::move(l));
     }
