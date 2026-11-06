@@ -507,3 +507,572 @@ Close me. Open me. I'll be fine.	أغلقني ثم افتحني. سأعود بخ
 # What the desk face says when you switch to this language: a local saying, not a translation.
 @hello	يلا بينا! العرض ما بيستنى حدا.
 Oh hey. It's 4:20. Take it easy.	أهلًا. الساعة 4:20. خذ الأمور ببساطة.
+
+# --- tutorials: tools/lesson_strings.py (a whole line each) ---
+HELLO	مرحبًا
+Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me.	دوبار دن، سكابي. أنا الدكتورة بكسل. خمس دقائق وستدير عرضًا. أقل، إن استمعت إليّ.
+And I'm Professor Video. Synths first, then video. Mostly video now. Press START and we'll patch... we'll begin.	وأنا البروفيسور فيديو. السنثات أولًا، ثم الفيديو. الآن فيديو في الغالب. اضغط START وسنوصل... سنبدأ.
+TURN THE OUTPUT ON	شغّل الخرج
+Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	سكابي، الشاشة فارغة. لا تجعلهم ينتظرون. افتح MENU واجعل «الخرج متوقف» يصبح «الخرج يعمل». هيا!
+Lesson one: nothing comes out until you patch the oscillator to the... the OUTPUT. It's video. I know.	الدرس الأول: لا يخرج شيء حتى توصل المذبذب بـ... بالخرج. إنه فيديو. أعرف.
+BRING IN A CLIP	أحضر مقطعًا
+Now a picture. Press I and pick a clip from your computer. No clip? SHOW ME, and I lend you one of mine.	الآن صورة. اضغط I واختر مقطعًا من حاسوبك. لا مقطع لديك؟ SHOW ME، وسأعيرك واحدًا من مقاطعي.
+Every clip becomes a cue in the playlist. Like loading a sample. A sample with pictures in it.	كل مقطع يصبح إشارة (cue) في قائمة التشغيل. مثل تحميل عيّنة صوتية. عيّنة فيها صور.
+TAKE IT LIVE	على الهواء
+Your clip waits in the playlist. Select it, then TAKE. Or Enter. Confident operators press Enter.	مقطعك ينتظر في قائمة التشغيل. حدّده، ثم TAKE. أو Enter. المشغّلون الواثقون يضغطون Enter.
+TAKE is the envelope trigger. The, ah, the GO button. Same thing, it just has pictures in it.	TAKE هو زناد الغلاف. أعني، آه، زر GO. الشيء نفسه، لكن فيه صور.
+LINE UP THE NEXT ONE	جهّز التالي
+Click another cue. It waits, ready, until you say. Only one cue? Import another, or SHOW ME.	انقر إشارة أخرى. تنتظر جاهزة حتى تقول. إشارة واحدة فقط؟ استورد أخرى، أو SHOW ME.
+Selecting is not playing. The selected one is the next note in the sequence. The next CUE.	التحديد ليس تشغيلًا. المحدَّد هو النغمة التالية في التسلسل. الإشارة التالية.
+CROSSFADE TO IT	تلاشٍ متقاطع إليه
+Cuts are for amateurs. In the inspector, press + on transition, so it shows a time, not deck. Then TAKE.	القطع المباشر للهواة. في المفتّش، اضغط + عند الانتقال، حتى يظهر زمن لا كلمة deck. ثم TAKE.
+A crossfade! Portamento, but for pictures. Any time will do. A few more presses and it's a second. Then TAKE.	تلاشٍ متقاطع! بورتامنتو، لكن للصور. أي زمن يكفي. ضغطات قليلة أخرى وتصبح ثانية. ثم TAKE.
+CLEAR THE SCREEN	امسح الشاشة
+Something goes wrong on stage? Press BLACK, or B. The picture goes. The show keeps running underneath.	شيء ما ساء على المسرح؟ اضغط BLACK، أو B. تختفي الصورة. يستمر العرض تحتها.
+Nothing is lost. Press B again and it comes back. Like the mute on a mixer. Very calming.	لم يضع شيء. اضغط B مجددًا فتعود. مثل كتم الصوت في المازج. مريح جدًا.
+SAVE THE SHOW	احفظ العرض
+Now save. Ctrl+S, or SAVE. Some programs lose your work and then blame you. I would never.	الآن احفظ. Ctrl+S، أو حفظ. بعض البرامج تُضيّع عملك ثم تلومك. أنا؟ أبدًا.
+Save your patch. Your SHOW. Show. This practice one lives in Deckboy's own folder; yours is safe.	احفظ الباتش. أقصد عرضك. العرض. هذا العرض التدريبي يعيش في مجلد Deckboy نفسه؛ عرضك في أمان.
+THAT'S A SHOW	هذا هو العرض
+That's a show! Output, cue, TAKE, crossfade, BLACK, save. Nazdrave, skapi. Rakia is on me.	هذا هو العرض! خرج، إشارة، TAKE، تلاشٍ، BLACK، حفظ. ناسدرافي، سكابي. الراكيا على حسابي.
+Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	انتهى الدرس. العروض النموذجية تعلّم الطبقات والعناوين والمؤثرات. MENU > LEARN THE BASICS يعيد هذا كله.
+*shakes head* That means yes. Bravo.	*يهزّ رأسه* هذا يعني نعم. برافو.
+Wonderful! Lovely signal flow.	رائع! يا له من مسار إشارة جميل.
+Mm. I knew you had it in you.	ممم. كنت أعرف أنك قادر.
+Yes! Have a gold star. It's a dot.	نعم! خذ نجمة ذهبية. إنها نقطة.
+Ready for the next step? *nods* ...That means no, skapi. The glowing one. It is glowing for you.	جاهز للخطوة التالية؟ *يومئ* ...في بلغاريا هذا يعني لا يا سكابي. المتوهج. إنه يتوهج من أجلك.
+You've clicked everything but the glowing one. Even my oscillators find the glowing one.	نقرت كل شيء إلا المتوهج. حتى مذبذباتي تجد المتوهج.
+stop playback first - the lesson cannot hand a running show back as it was	أوقف التشغيل أولًا - لا يستطيع الدرس إعادة عرض قيد التشغيل كما كان
+choose RECOVER or KEEP SAVED first	اختر RECOVER أو KEEP SAVED أولًا
+your show could not be saved, so the lesson has not started. Save it (SAVE AS) and try again	تعذّر حفظ عرضك، لذا لم يبدأ الدرس. احفظه (حفظ باسم) وحاول مجددًا
+the practice show would not open	لم يُفتح العرض التدريبي
+could not start the practice show	تعذّر بدء العرض التدريبي
+learn the basics: Esc leaves, and it picks up here next time	learn the basics: Esc يخرج، ويكمل من هنا في المرة القادمة
+that's the basics - MENU > LESSONS has part two	هذه هي الأساسيات - في MENU > LESSONS الجزء الثاني
+tour paused - LEARN THE BASICS picks up where you left off	الجولة متوقفة مؤقتًا - LEARN THE BASICS يكمل من حيث توقفت
+Mirrored screens, skapi. Press any key or click, and Dr. Pixel gives it back.	شاشات متطابقة يا سكابي. اضغط أي مفتاح أو انقر، وستعيدها الدكتورة بكسل.
+Wrong screen, skapi. Press any key or click, and Dr. Pixel gives it back.	شاشة خاطئة يا سكابي. اضغط أي مفتاح أو انقر، وستعيدها الدكتورة بكسل.
+The other screen went away, skapi. Press any key or click, and Dr. Pixel gives it back.	اختفت الشاشة الأخرى يا سكابي. اضغط أي مفتاح أو انقر، وستعيدها الدكتورة بكسل.
+One screen, skapi. Press any key or click, and Dr. Pixel gives it back.	شاشة واحدة يا سكابي. اضغط أي مفتاح أو انقر، وستعيدها الدكتورة بكسل.
+The other screen went away, skapi, so the picture came back to this one. I put it in a little window, behind. Plug it back in and the picture goes back on it.	اختفت الشاشة الأخرى يا سكابي، فعادت الصورة إلى هذه. وضعتها في نافذة صغيرة في الخلف. صِلها من جديد فتعود الصورة إليها.
+It ate the desk, skapi. One screen, so the output took all of it. I put it in a little window, behind. A real show gets a second screen.	لقد أكل المنصة يا سكابي. شاشة واحدة، فأخذها الخرج كلها. وضعته في نافذة صغيرة في الخلف. العرض الحقيقي له شاشة ثانية.
+IT ATE THE DESK	أكل المنصة
+There. The button that says OUTPUT OFF. Make it say ON, skapi.	هناك. الزر المكتوب عليه «الخرج متوقف». اجعله «يعمل» يا سكابي.
+Nothing is live to fade from, skapi. TAKE one cue first, then pick the other and give it a time.	لا شيء على الهواء لنتلاشى منه يا سكابي. اعمل TAKE لإشارة أولًا، ثم اختر الأخرى وأعطها زمنًا.
+That was a cut, skapi. Fast, but not a crossfade. Pick the other cue, press + on transition, then TAKE.	ذلك كان قطعًا يا سكابي. سريع، لكنه ليس تلاشيًا متقاطعًا. اختر الإشارة الأخرى، اضغط + عند الانتقال، ثم TAKE.
+A feedback loop! Output patched straight back into the desk. Happens to the best of us. Mostly to me. 1983. We don't talk about 1983.	حلقة تغذية راجعة! الخرج موصول مباشرة بالمنصة. يحدث لأفضلنا. لي غالبًا. 1983. لا نتحدث عن 1983.
+No more rakia. The rat has a problem.	لا مزيد من الراكيا. الفأر لديه مشكلة.
+Nazdrave, skapi! Baba's rakia, from the Rhodopes. One glass, for the lesson.	ناسدرافي يا سكابي! راكيا الجدة، من جبال رودوب. كأس واحدة، من أجل الدرس.
+Is this... is this allowed during a tutorial?	هل هذا... هل هذا مسموح أثناء درس تعليمي؟
+*shakes head* That means one more.	*يهزّ رأسه* هذا يعني كأسًا أخرى.
+I love you all. I love the oscillator. I love the OUTPUT. It's video. I know. I KNOW.	أحبكم جميعًا. أحب المذبذب. أحب الخرج. إنه فيديو. أعرف. أعرف!
+...and the rat took the rakia. Every time, skapi. Every single time.	...وأخذ الفأر الراكيا. كل مرة يا سكابي. كل مرة بلا استثناء.
+Was that a rat? In a hat? With a pizza?	هل كان ذلك فأرًا؟ بقبعة؟ ومعه بيتزا؟
+Stop that. I am a serious man.	كفى. أنا رجل جادّ.
+Do not tell Dr. Pixel about this.	لا تخبر الدكتورة بكسل بهذا.
+This never happened. Back to the patch bay.	هذا لم يحدث قط. عودة إلى لوحة التوصيل.
+It was the eighties. Everyone had a bow tie.	كانت الثمانينيات. الكل كان يرتدي ربطة فراشة.
+LESSON LIST	قائمة الدروس
+OPEN EXAMPLE SHOWS	افتح العروض النموذجية
+EXIT (Esc)	خروج (Esc)
+Taking it on the road	العرض في جولة
+CHECK a show before it travels, fix what it finds, and bundle it with its media.	افحص العرض بـ CHECK قبل أن يسافر، وأصلح ما يجده، واحزمه مع وسائطه.
+Effects, oscillators and colour	المؤثرات والمذبذبات واللون
+An effect, a ~ on its knob, and the colour picker.	مؤثر، و~ على مقبضه، ومنتقي الألوان.
+The art school crit, with Mr. Salty	نقد مدرسة الفنون، مع مستر سولتي
+Patterns, synths and Draw	أنماط وسنثات وDraw
+A test pattern, the video synth, and drawing on the picture, saved as a still.	نمط اختبار، وسنث الفيديو، والرسم على الصورة، محفوظًا كلقطة ثابتة.
+The telestrator booth, with Coach Marv	كابينة الرسم التوضيحي، مع المدرب مارف
+Masks	الأقنعة
+A heart from the library, the pen, invert and feather.	قلب من المكتبة، والقلم، والعكس، والتنعيم.
+The Signal Files: redact the evidence	ملفات الإشارة: اطمس الدليل
+Warp, blend and slices	التشويه والدمج والشرائح
+A corner pin, two soft edges, then three slices in the Screens window.	تثبيت زوايا، حافتان ناعمتان، ثم ثلاث شرائح في نافذة Screens.
+The haunted lighthouse, with Keeper Rook	المنارة المسكونة، مع الحارس روك
+GO from anywhere	GO من أي مكان
+Cue numbers, GOTO, a hotkey, and where Companion, MIDI and OSC come in.	أرقام الإشارات، وGOTO، ومفتاح اختصار، ومن أين يدخل Companion وMIDI وOSC.
+The game show, with Donna Wheel	برنامج المسابقات، مع دونا ويل
+Words on screen	كلمات على الشاشة
+A Lower Third with a name on it, then a title card with a key-green backdrop.	شريط سفلي عليه اسم، ثم بطاقة عنوان بخلفية خضراء للكروما.
+The kaiju weather report, with June O'Neil	نشرة طقس الكايجو، مع جون أونيل
+Keeping time	ضبط الوقت
+A stage timer counting down, held, and a presenter view for the person on stage.	مؤقت مسرح يعد تنازليًا، موقوف مؤقتًا، وعرض للمقدّم لمن على المسرح.
+A grand day out, with Wallis and Grommet	يوم عظيم، مع واليس وغروميت
+Two playlists and TAKE ALL	قائمتا تشغيل وTAKE ALL
+A second playlist as a layer, and TAKE ALL so two things change on one beat.	قائمة ثانية كطبقة، وTAKE ALL كي يتغير شيئان على نبضة واحدة.
+The magic show, with Turnip Top	عرض السحر، مع ترنيب توب
+When it goes wrong	حين تسوء الأمور
+BLACK against PANIC, and getting a show back.	BLACK مقابل PANIC، واستعادة العرض.
+The cooking show, with Chef Bork	برنامج الطبخ، مع الشيف بورك
+Presets	الإعدادات المسبقة
+Capture a look on a DASH button, change everything, and get it back with one press.	احفظ مظهرًا على زر DASH، غيّر كل شيء، واستعده بضغطة واحدة.
+Transitions	الانتقالات
+The styles beyond the crossfade: an iris, a shatter, and their times.	الأنماط بعد التلاشي: قزحية، وتحطّم، وأزمنتهما.
+The space-opera trailer, with Optimus Primetime	إعلان أوبرا الفضاء، مع أوبتيموس برايمتايم
+Sound	الصوت
+An audio effect on a cue, a bend that damages it beautifully, and where the patch lives.	مؤثر صوتي على إشارة، وانحناء يُتلفها بجمال، وأين يعيش الباتش.
+The robot DJs, with Deft Funk	الدي جي الروبوتان، مع ديفت فانك
+Reading the scopes	قراءة أدوات القياس
+The waveform, the vectorscope, and false colour: is the glow real, or just too bright?	الموجة، ومقياس المتجهات، والألوان الزائفة: هل التوهج حقيقي، أم ساطع فحسب؟
+The Signal Files: is the glow on the horizon a craft?	ملفات الإشارة: هل التوهج في الأفق مركبة؟
+Out of the building	خارج المبنى
+Where NDI, SDI and ST 2110 live, and NDI switched on where this computer has it.	أين تعيش NDI وSDI وST 2110، وتشغيل NDI حيث يملكه هذا الحاسوب.
+The webcam as a controller, as a game. Five rounds, a high score.	كاميرا الويب كذراع تحكم، كلعبة. خمس جولات، وأعلى نتيجة.
+A handheld, and bugs	جهاز محمول، وحشرات
+The multiview	العرض المتعدد
+Windows, the ... menu, what each one shows, layouts, and tally.	النوافذ، وقائمة ...، وما تعرضه كل واحدة، والتخطيطات، والتالي.
+Mystery on the starship Cathode, with Lt. Haila and Ensign Jinkley	لغز على المركبة كاثود، مع الملازم هايلا والمرشّح جينكلي
+DR. PIXEL: Two playlists: Deckboy becomes SUPER DECKBOY. It earned it, skapi.	DR. PIXEL: قائمتا تشغيل: يصبح Deckboy هو SUPER DECKBOY. استحقها، يا سكابي.
+PROF. VIDEO: It evolved! My oscillators never got a fanfare.	PROF. VIDEO: لقد تطوّر! مذبذباتي لم تنل نوبة احتفال قط.
+DR. PIXEL: SUPER DECKBOY! Every show deserves one. Bravo.	DR. PIXEL: SUPER DECKBOY! كل عرض يستحق واحدًا. برافو.
+PROF. VIDEO: The power-up! More playlists, more layers, more super.	PROF. VIDEO: تعزيز القوة! قوائم أكثر، طبقات أكثر، سوبر أكثر.
+Intro video (left on the office PC)	فيديو الافتتاح (منسي على حاسوب المكتب)
+ON THE ROAD	على الطريق
+A show you built here, skapi, running on a laptop somewhere else tonight. Press START.	عرض بنيته هنا، يا سكابي، يعمل الليلة على حاسوب محمول في مكان آخر. اضغط START.
+Before it travels: check it, fix it, bundle it.	قبل السفر: افحصه، أصلحه، احزمه.
+See CHECK in the top bar? It only appears when something is wrong. Press it.	ترى CHECK في الشريط العلوي؟ لا يظهر إلا عند وجود خطأ. اضغطه.
+It lists everything a show would trip over: missing files, empty cues, unreachable outputs.	يسرد كل ما قد يتعثر به العرض: ملفات مفقودة، إشارات فارغة، مخارج لا يمكن الوصول إليها.
+FIX IT	أصلحه
+The intro video is on another computer. Select it and delete it, or RELINK it if you have the file.	فيديو الافتتاح على حاسوب آخر. حدّده واحذفه، أو اعمل له RELINK إن كان الملف لديك.
+Fix it at home, where it is easy. Not at the venue, where it is not.	أصلحه في البيت حيث الأمر سهل. لا في المكان حيث ليس كذلك.
+BUNDLE IT	احزمه
+Press BUNDLE and choose where: a USB stick, a shared folder. The show and all its media, together.	اضغط «حزمة» واختر المكان: ذاكرة USB، مجلد مشترك. العرض وكل وسائطه، معًا.
+The copy finds its media beside it, wherever the folder goes.	النسخة تجد وسائطها بجانبها، أينما ذهب المجلد.
+SAFE TRAVELS	رحلة آمنة
+Checked, fixed, bundled. On the other machine, open the bundle's show: everything is where it should be.	فُحص، أُصلح، حُزم. على الجهاز الآخر افتح عرض الحزمة: كل شيء في مكانه.
+A show file is only text, so it travels light. The media is the heavy part.	ملف العرض مجرد نص، فيسافر خفيفًا. الثقيل هو الوسائط.
+Student work no. 4 (untitled)	عمل الطالب رقم 4 (بلا عنوان)
+THE CRIT	جلسة النقد
+An art school, skapi. One student, one picture, one critic who has seen it all. Press START.	مدرسة فنون، يا سكابي. طالب واحد، صورة واحدة، وناقد رأى كل شيء. اضغط START.
+Effects change a picture; an oscillator keeps changing it. The critic only likes the second kind.	المؤثرات تغيّر الصورة؛ والمذبذب يظل يغيّرها. الناقد لا يحب إلا النوع الثاني.
+A grey square on beige. I have seen this at every graduate show since 1987.	مربع رمادي على بيج. رأيته في كل معرض تخرّج منذ 1987.
+AN EFFECT	مؤثر
+In the inspector's EFFECTS section, + adds one. Edges is a good start: it draws the outlines.	في قسم EFFECTS في المفتّش، + يضيف مؤثرًا. Edges بداية جيدة: يرسم الحدود.
+There are dozens. Every one runs on the CPU in a few milliseconds. Mostly.	هناك العشرات. كل واحد يعمل على المعالج في أجزاء قليلة من الثانية. غالبًا.
+Take a risk! Bad art is fine. Boring art is a crime.	غامر! الفن الرديء لا بأس به. الفن الممل جريمة.
+A ~ ON ITS KNOB	~ على مقبضه
+Every control with a ~ beside it can follow an oscillator. Press one. The knob starts to breathe.	كل عنصر تحكم بجانبه ~ يمكنه أن يتبع مذبذبًا. اضغط واحدًا. يبدأ المقبض بالتنفس.
+A low-frequency oscillator: slow, so the eye can follow it. A quarter of a hertz is a four-second breath.	مذبذب منخفض التردد: بطيء، كي تتبعه العين. ربع هرتز يعني نفَسًا من أربع ثوانٍ.
+Now it MOVES. Okay. Okay. I'm listening.	الآن يتحرك. حسنًا. حسنًا. أنا أستمع.
+A COLOUR OF ITS OWN	لون خاص به
+Effects that draw a colour, like Edges' line, have a colour chip. It opens the picker: a wheel, typed names, or a colour off the screen.	المؤثرات التي ترسم لونًا، مثل خط Edges، لها رقعة لون. تفتح المنتقي: عجلة، أو أسماء مكتوبة، أو لون من الشاشة.
+Every colour has a name somewhere. Mine is 'oscilloscope green'. Nobody else uses it.	لكل لون اسم في مكان ما. لوني اسمه «أخضر راسم الذبذبات». لا أحد غيري يستعمله.
+That colour is doing something. I don't know what. I love it.	ذلك اللون يفعل شيئًا. لا أعرف ماذا. أحبه.
+THE VERDICT	الحكم
+An effect, a ~ and a colour. The critic is crying, skapi. Good crying, I think.	مؤثر، و~، ولون. الناقد يبكي يا سكابي. بكاء جيد، على ما أظن.
+Stack a few. Each has its own ~ on every knob. That is how a look becomes a performance.	كدّس بضعة مؤثرات. لكلٍّ منها ~ على كل مقبض. هكذا يصبح المظهر أداءً.
+It's still a square. But it's YOUR square. Post it.	ما زال مربعًا. لكنه مربعك أنت. انشره.
+THE TELESTRATOR BOOTH	كابينة الرسم التوضيحي
+Coach Marv explains sport by drawing circles on it. Once he circled the sun. Ten minutes, skapi.	المدرب مارف يشرح الرياضة برسم دوائر عليها. مرة رسم دائرة حول الشمس. عشر دقائق، يا سكابي.
+Tonight: test patterns, the video synth, and drawing on the picture. Press START.	الليلة: أنماط اختبار، وسنث الفيديو، والرسم على الصورة. اضغط START.
+Get me a picture and a pen. BOOM.	أعطوني صورة وقلمًا. بووم.
+A TEST PATTERN	نمط اختبار
+Line up the screens BEFORE the show. Not during. I learned this in Plovdiv.	اضبط الشاشات قبل العرض. لا أثناءه. تعلمت هذا في بلوفديف.
+Every desk needs a test pattern. PATTERN adds Pocket Test: checked against real meters.	كل منصة تحتاج نمط اختبار. «نمط اختبار» يضيف Pocket Test: مُراجَع بأجهزة قياس حقيقية.
+A VIDEO SYNTH	سنث فيديو
+He says 'no camera needed' like it is a feature. It is a feature.	يقول «لا حاجة لكاميرا» وكأنها ميزة. إنها ميزة فعلًا.
+My favourite. SOURCE, then Video Synth: oscillators, mirrors and feedback. No camera needed.	المفضّل لديّ. مصدر، ثم Video Synth: مذبذبات ومرايا وتغذية راجعة. لا حاجة لكاميرا.
+TAKE THE SYNTH	TAKE للسنث
+Select it, then TAKE. Confident operators press Enter.	حدّده، ثم TAKE. المشغّلون الواثقون يضغطون Enter.
+That's our replay. Every replay needs a pundit.	هذه إعادتنا. كل إعادة تحتاج معلّقًا.
+Now here's a replay. And here's a guy. And BOOM, he's in it.	ها هي الإعادة. وها هو اللاعب. وبووم، إنه فيها.
+A SECOND PLAYLIST	قائمة تشغيل ثانية
+Ink goes on top, on its own layer. Press the + at the end of the playlist tabs.	الحبر يذهب في الأعلى، على طبقته الخاصة. اضغط + في آخر ألسنة قوائم التشغيل.
+A second playlist is a layer over the first. Like a second oscillator, mixed on top.	قائمة التشغيل الثانية طبقة فوق الأولى. مثل مذبذب ثانٍ ممزوج فوقها.
+A DRAW CUE	إشارة Draw
+In the new playlist: SOURCE, then Draw. Clear everywhere you have not drawn.	في القائمة الجديدة: مصدر، ثم Draw. شفافة في كل مكان لم ترسم فيه.
+A Draw cue is transparent outside the ink, so the synth shows through.	إشارة Draw شفافة خارج الحبر، فيظهر السنث من خلالها.
+TAKE THE INK	TAKE للحبر
+Select the Draw cue and TAKE it. Two playlists, two layers, one picture.	حدّد إشارة Draw واعمل لها TAKE. قائمتان، طبقتان، صورة واحدة.
+Now both are live: the synth underneath, the ink on top.	الآن كلاهما على الهواء: السنث في الأسفل، والحبر فوقه.
+CIRCLE SOMETHING	ارسم دائرة
+Press DRAW in the inspector, then draw on the programme monitor. Mouse, or a pen if you have one.	اضغط DRAW في المفتّش، ثم ارسم على شاشة البرنامج. بالفأرة، أو بقلم إن كان لديك.
+A pen's pressure makes the line thicker. A mouse presses at one strength. Like me.	ضغط القلم يجعل الخط أسمك. الفأرة تضغط بقوة واحدة دائمًا. مثلي.
+Circle him! No, bigger. BOOM. That's a cloud. Fine. Circle the cloud.	ضع دائرة حوله! لا، أكبر. بووم. هذه غيمة. حسنًا. ضع دائرة حول الغيمة.
+SAVE A STILL	احفظ لقطة ثابتة
+SAVE STILL keeps the drawing as a picture with a clear background, and adds it to the playlist.	SAVE STILL يحفظ الرسم صورةً بخلفية شفافة، ويضيفها إلى قائمة التشغيل.
+For next week's show. Coach Marv will want the cloud again.	لحلقة الأسبوع القادم. المدرب مارف سيريد الغيمة مجددًا.
+THAT'S THE BOOTH	هذه كانت الكابينة
+Patterns, the synth, a layer, ink, a still. Nazdrave, skapi.	أنماط، سنث، طبقة، حبر، لقطة ثابتة. ناسدرافي، يا سكابي.
+Try Replay in the Draw section: it draws your lines back the way you drew them.	جرّب Replay في قسم Draw: يعيد رسم خطوطك كما رسمتها.
+Same time next week. Bring a bigger pen. And a turducken.	الموعد نفسه الأسبوع القادم. أحضر قلمًا أكبر. وخروفًا محشيًا.
+Saucer photo (CLASSIFIED)	صورة الصحن الطائر (سرّي)
+THE SIGNAL FILES	ملفات الإشارة
+The Bureau of Unexplained Signals. Two agents, one photo, and it must not air. Press START.	مكتب الإشارات المجهولة. عميلان، صورة واحدة، ويجب ألا تُبث. اضغط START.
+Masks cut a picture into shapes. Tonight we cut evidence.	الأقنعة تقص الصورة إلى أشكال. الليلة نقص الأدلة.
+That's a craft, Brandt. Look at the lights. I want to believe.	إنها مركبة يا براندت. انظري إلى الأضواء. أريد أن أصدّق.
+A MASK FROM THE LIBRARY	قناع من المكتبة
+In the inspector's MASK section: mask, then 'new heart'. Any shape will do. The heart is funnier.	في قسم MASK في المفتّش: mask، ثم «new heart». أي شكل يكفي. القلب أطرف.
+The library has circles, stars, hearts. Each one is points you can move.	في المكتبة دوائر ونجوم وقلوب. كل واحد منها نقاط يمكنك تحريكها.
+A heart, Hollis? The Bureau redacts with black bars.	قلب يا هوليس؟ المكتب يطمس بأشرطة سوداء.
+THE PEN	القلم
+Set the tool to pen, then click round the saucer on the monitor. Click the first point to close it.	اجعل الأداة القلم، ثم انقر حول الصحن على الشاشة. انقر النقطة الأولى لإغلاقه.
+Click for corners, drag for curves. The way the Bezier brothers intended.	انقر للزوايا، واسحب للمنحنيات. كما أراد الإخوة بيزييه.
+Draw round it carefully. It might be watching.	ارسم حوله بحذر. ربما يراقبنا.
+INVERT	اعكس
+Invert keeps the outside and cuts the inside. The saucer goes. The sky stays.	العكس يُبقي الخارج ويقص الداخل. يختفي الصحن. وتبقى السماء.
+The same shape, the other way round. Very useful. Slightly spooky.	الشكل نفسه، بالعكس. مفيد جدًا. مخيف قليلًا.
+Hollis, there's a heart-shaped hole in the sky.	هوليس، هناك ثقب على شكل قلب في السماء.
+FEATHER	نعّم الحافة
+Feather softens the edge, so nobody sees the cut. Press + on feather.	التنعيم يليّن الحافة، فلا يرى أحد القطع. اضغط + عند feather.
+A hard edge says 'someone was here'. A soft one says nothing at all.	الحافة الحادة تقول «كان هنا أحد». الناعمة لا تقول شيئًا.
+They'll never know.	لن يعرفوا أبدًا.
+CASE CLOSED	أُغلقت القضية
+A library shape, the pen, invert and feather. The Bureau thanks you. The Bureau was never here.	شكل من المكتبة، والقلم، والعكس، والتنعيم. المكتب يشكرك. المكتب لم يكن هنا قط.
+Masks also go on a layer, an output, or its matte: MASK ON chooses. And every control takes a ~.	الأقنعة تُوضع أيضًا على طبقة، أو خرج، أو ماتّه: MASK ON يختار. وكل عنصر تحكم يقبل ~.
+The truth is in the waveform, Hollis. Next time, the scopes.	الحقيقة في الموجة يا هوليس. المرة القادمة: أدوات القياس.
+The ghost	الشبح
+THE HAUNTED LIGHTHOUSE	المنارة المسكونة
+A lighthouse, a ghost, and a keeper who has been alone with the lamp far too long. Press START.	منارة، وشبح، وحارس بقي وحيدًا مع المصباح أطول مما يجب. اضغط START.
+Projection mapping: bending the picture to fit the building. Warp, blend, slices.	الإسقاط الضوئي: ثني الصورة لتطابق المبنى. تشويه، دمج، شرائح.
+Ye'll be wanting the ghost on the windows. Mind the lamp. The lamp is MINE.	تريدون الشبح على النوافذ، أليس كذلك؟ انتبهوا للمصباح. المصباح لي أنا.
+THE OUTPUT'S GEOMETRY	هندسة الخرج
+MENU, then Video Outputs, then Geometry. Where an output's shape lives.	MENU، ثم مخارج الفيديو، ثم الهندسة. هنا يعيش شكل الخرج.
+Geometry: the projector-menu word for 'what shape is the picture'.	الهندسة: كلمة قوائم أجهزة العرض لـ«ما شكل الصورة».
+PIN A CORNER	ثبّت زاوية
+Press warp edit, then drag a corner on the programme monitor. The window is not square. Neither is the keeper.	اضغط warp edit، ثم اسحب زاوية على شاشة البرنامج. النافذة ليست مربعة. ولا الحارس.
+A corner pin moves the four corners. Perspective keeps the lines straight, like a real window.	تثبيت الزوايا يحرك الزوايا الأربع. المنظور يُبقي الخطوط مستقيمة، كنافذة حقيقية.
+LEFT! Ye call that a corner? I've seen straighter gulls.	يسارًا! تسمي هذه زاوية؟ رأيت نوارس أكثر استقامة.
+TWO SOFT EDGES	حافتان ناعمتان
+Back in Geometry: edge blend, + on the left and + on the right.	عُد إلى الهندسة: edge blend، + على اليسار و+ على اليمين.
+Two projectors overlap; each fades its edge so the overlap is not twice as bright.	جهازا عرض يتداخلان؛ كلٌّ يُخفت حافته كي لا يصبح التداخل ضعف السطوع.
+THE SCREENS WINDOW	نافذة SCREENS
+Geometry, SLICES, open. The Screens window is where slices are cut and placed.	الهندسة، SLICES، فتح. نافذة Screens هي حيث تُقص الشرائح وتوضع.
+A slice is a piece of the picture, put anywhere on the output.	الشريحة جزء من الصورة، يوضع في أي مكان على الخرج.
+THREE SLICES	ثلاث شرائح
+In the Screens window, + SLICE three times, and drag each crop to a third of the picture.	في نافذة Screens اضغط + SLICE ثلاث مرات، واسحب كل قصّة إلى ثلث الصورة.
+Three windows, three slices: left, middle and right of one picture.	ثلاث نوافذ، ثلاث شرائح: يسار ووسط ويمين صورة واحدة.
+Three windows. The lamp gets the middle one. The lamp ALWAYS gets the middle one.	ثلاث نوافذ. الوسطى للمصباح. الوسطى دائمًا للمصباح.
+THE GHOST IS PLEASED	الشبح راضٍ
+Warp, blend, slices. The keeper will finally sleep. The gulls will not.	تشويه، دمج، شرائح. الحارس سينام أخيرًا. النوارس لا.
+Slices have their own warp and mesh in the Screens window. And a ~ on the place and the turn.	للشرائح تشويهها وشبكتها الخاصة في نافذة Screens. و~ على الموضع والدوران.
+Ye did alright, lad. Now get away from the lamp.	أحسنت يا فتى. والآن ابتعد عن المصباح.
+THE GAME SHOW	برنامج المسابقات
+A game show, skapi. Three contestants, one buzzer, and cues that fire from anywhere. Press START.	برنامج مسابقات يا سكابي. ثلاثة متسابقين، وجرس واحد، وإشارات تنطلق من أي مكان. اضغط START.
+Cue numbers, hotkeys, and GO from other machines. Like a sequencer you can play from any key.	أرقام الإشارات، ومفاتيح الاختصار، وGO من أجهزة أخرى. مثل مُسلسِل تعزف عليه من أي مفتاح.
+Welcome to the show! Let's spin that wheel!	أهلًا بكم في البرنامج! لندوّر العجلة!
+A CUE NUMBER	رقم الإشارة
+Contestant 3 is selected. In the inspector's metadata, give it a cue number: 3.	المتسابق 3 محدَّد. في بيانات المفتّش الوصفية، أعطه رقم إشارة: 3.
+Theatre numbers its cues. Q3, Q3.5, Q12A. Deckboy reads them all.	المسرح يرقّم إشاراته. Q3، Q3.5، Q12A. Deckboy يقرأها كلها.
+I'd like to buy a number, please.	أريد أن أشتري رقمًا، من فضلك.
+GO TO IT	اذهب إليه
+Ctrl+G, type the number, Enter. It goes live wherever the list happens to be standing.	Ctrl+G، اكتب الرقم، Enter. يُبث أينما كانت القائمة واقفة.
+GOTO. The fastest way across a long list. Faster than scrolling. Much faster than me.	GOTO. أسرع طريق في قائمة طويلة. أسرع من التمرير. وأسرع مني بكثير.
+And the number is... three!	والرقم هو... ثلاثة! هل هذه إجابتك النهائية؟
+A BUZZER	جرس
+Contestant 1 is selected. In TRIGGERS, press key, then F5. That key now fires this cue.	المتسابق 1 محدَّد. في TRIGGERS اضغط key، ثم F5. هذا المفتاح يطلق هذه الإشارة الآن.
+F1 to F10, F12, or the number pad. Each one, a buzzer.	من F1 إلى F10، وF12، أو لوحة الأرقام. كل واحد منها جرس.
+Every contestant gets a buzzer.	لكل متسابق جرس.
+BUZZ IN	اضغط الجرس!
+Press the key. The cue fires, wherever the list is standing.	اضغط المفتاح. تنطلق الإشارة أينما كانت القائمة.
+No mouse, no list, no looking. Just the key.	لا فأرة، لا قائمة، لا نظر. المفتاح فقط.
+Buzz! We have a winner!	طنين! لدينا فائز!
+FROM ANYWHERE	من أي مكان
+Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion، نغمة MIDI، رسالة OSC: MENU، ثم الشبكة، يخبرك أين يتصل كل منها.
+A Stream Deck in the next room can press GO. So can a keyboard synth. I prefer the synth.	Stream Deck في الغرفة المجاورة يمكنه ضغط GO. وكذلك لوحة مفاتيح سنث. أفضّل السنث.
+And for our viewers at home: you can play along too.	ولمشاهدينا في البيوت: يمكنكم اللعب معنا.
+THAT'S OUR SHOW	هذا كان برنامجنا
+Numbers, GOTO, a buzzer, and GO from anywhere. You are a game show now, skapi.	أرقام، وGOTO، وجرس، وGO من أي مكان. أنت الآن برنامج مسابقات يا سكابي.
+A cue can have a key, a MIDI note and an OSC address at once. Belt, braces and a second belt.	يمكن للإشارة أن يكون لها مفتاح ونغمة MIDI وعنوان OSC معًا. حزام وحمّالات وحزام ثانٍ.
+Goodnight, everybody! Keep spinning!	تصبحون على خير! استمروا في التدوير!
+Weather map	خريطة الطقس
+THE KAIJU WEATHER	طقس الكايجو
+Channel 6 weather, skapi. A map, a presenter, and a very large lizard. Press START.	نشرة الطقس على القناة 6 يا سكابي. خريطة، ومقدّمة، وسحلية ضخمة جدًا. اضغط START.
+Words on screen: Lower Thirds, text, and backdrops.	كلمات على الشاشة: أشرطة سفلية، ونص، وخلفيات.
+I'm June O'Neil, and nothing about this forecast is normal.	أنا جون أونيل، ولا شيء في هذه النشرة طبيعي.
+A LAYER FOR WORDS	طبقة للكلمات
+Words go on their own layer: press the + at the end of the playlist tabs.	الكلمات على طبقتها الخاصة: اضغط + في آخر ألسنة قوائم التشغيل.
+A second playlist is a layer over the map. The lizard stays underneath. Mostly.	القائمة الثانية طبقة فوق الخريطة. السحلية تبقى في الأسفل. غالبًا.
+Words on top. Always on top.	الكلمات في الأعلى. دائمًا في الأعلى.
+A LOWER THIRD	شريط سفلي
+In the new playlist: SOURCE, then Lower Third.	في القائمة الجديدة: مصدر، ثم Lower Third.
+A name and a title, low on the screen, out of the lizard's way.	اسم ولقب، أسفل الشاشة، بعيدًا عن طريق السحلية.
+HER NAME	اسمها
+In the inspector, title: type the presenter's name. The second line is her job.	في المفتّش، title: اكتب اسم المقدّمة. السطر الثاني وظيفتها.
+Spelling counts. The audience reads it at the speed of light.	الإملاء مهم. الجمهور يقرأ بسرعة الضوء.
+Spell it right. Last week it said 'Jane O'Meal'.	اكتبه صحيحًا. الأسبوع الماضي كُتب «جون أو-نيل-نيل».
+ON AIR	على الهواء
+TAKE the Lower Third. Her name slides in over the map.	اعمل TAKE للشريط السفلي. ينزلق اسمها فوق الخريطة.
+Two layers live: the weather, and the words on top of it.	طبقتان على الهواء: الطقس، والكلمات فوقه.
+Thank you. Now, about that lizard...	شكرًا. والآن، بخصوص تلك السحلية...
+BREAKING NEWS	خبر عاجل
+SOURCE, then Text: a title card. Then its backdrop chip: key green, for the vision mixer to key out.	مصدر، ثم Text: بطاقة عنوان. ثم رقعة خلفيتها: أخضر كروما، كي يقصه مازج الصورة.
+A backdrop fills behind the words. Key green or key blue, and the mixer does the rest.	الخلفية تملأ ما وراء الكلمات. أخضر أو أزرق كروما، والمازج يتولى الباقي.
+Breaking news: it's standing on the five-day forecast.	عاجل: إنها تقف على توقعات الأيام الخمسة.
+BREAKING: KAIJU	عاجل: كايجو
+BACK TO YOU	نعود إلى الاستوديو
+A Lower Third, a name, a title card, a backdrop. The lizard has left the studio, skapi.	شريط سفلي، واسم، وبطاقة عنوان، وخلفية. السحلية غادرت الاستوديو يا سكابي.
+Lower Thirds can wait, slide and leave on their own. Their section has every setting.	الأشرطة السفلية تستطيع أن تنتظر وتنزلق وتخرج وحدها. قسمها فيه كل الإعدادات.
+That's the weather. Back to you, guys. Run.	كانت هذه نشرة الطقس. نعود إليكم في الاستوديو. اهربوا.
+A GRAND DAY OUT	يوم عظيم
+A rocket built in a basement, skapi, and an inventor who wants cheese. Press START.	صاروخ بُني في قبو يا سكابي، ومخترع يريد الجبن. اضغط START.
+Stage timers: countdowns, clocks, and a presenter view for the person on stage.	مؤقتات المسرح: عدّ تنازلي، وساعات، وعرض للمقدّم لمن على المسرح.
+Cheese, Grommet! The moon's made of it. We'll need a countdown.	جبن يا غروميت! القمر مصنوع منه. سنحتاج عدًّا تنازليًا.
+A COUNTDOWN	عدّ تنازلي
+SOURCE, then Stage Timer. A clock that counts down, in big friendly numbers.	مصدر، ثم Stage Timer. ساعة تعدّ إلى الوراء بأرقام كبيرة ودودة.
+Its colours change as it runs out: white, amber, red. Like a VU meter for time.	ألوانها تتغير كلما نفد الوقت: أبيض، كهرماني، أحمر. مثل مقياس VU للوقت.
+*raises an eyebrow*	*يرفع حاجبًا*
+LIFT OFF	انطلاق
+Select the timer and TAKE it. The countdown starts.	حدّد المؤقت واعمل له TAKE. يبدأ العدّ.
+Past zero it keeps going, counting the overtime. Very honest. Slightly rude.	بعد الصفر يستمر، يعدّ الوقت الإضافي. صادق جدًا. وقح قليلًا.
+Ten... nine... ooh, I do love a countdown.	عشرة... تسعة... آه، كم أحب العدّ التنازلي.
+HOLD!	توقّف!
+Something's loose! Space holds the countdown. The clock shows it is held.	شيء ما مفكوك! المسافة توقف العدّ مؤقتًا. الساعة تُظهر أنه موقوف.
+A hold is not a stop. Space again, and it carries on from where it was.	الإيقاف المؤقت ليس توقفًا. المسافة مرة أخرى، ويكمل من حيث كان.
+*holds up a spanner*	*يرفع مفتاح ربط*
+THE PILOT'S VIEW	شاشة الطيار
+MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	MENU، مخارج الفيديو: اجعل نوع أحد المخارج PRESENTER. من على المسرح يرى المؤقت والإشارة التالية وملاحظاته.
+A presenter view is an output like any other. Point it at the confidence monitor.	عرض المقدّم خرج كأي خرج آخر. وجّهه إلى شاشة الثقة أمام المسرح.
+So the pilot can see the time. The pilot is Grommet.	كي يرى الطيار الوقت. الطيار هو غروميت.
+TO THE MOON	إلى القمر
+A countdown, a hold, and a view for the pilot. Nazdrave, skapi. Bring crackers.	عدّ تنازلي، وإيقاف مؤقت، وشاشة للطيار. ناسدرافي يا سكابي. أحضر البسكويت.
+Timers can also count up, or show the time of day. Their section has the lot.	المؤقتات تعدّ تصاعديًا أيضًا، أو تعرض الوقت. قسمها فيه كل شيء.
+A grand day out, Grommet! Pass the crackers.	يا له من يوم يا غروميت! ناولني البسكويت.
+The trunk (closed)	الصندوق (مغلق)
+The trunk (open)	الصندوق (مفتوح)
+THE MAGIC SHOW	عرض السحر
+A magic show, skapi. A trunk, a prop, and one beat where everything changes at once. Press START.	عرض سحر يا سكابي. صندوق، وأداة، ونبضة واحدة يتغير فيها كل شيء معًا. اضغط START.
+Two playlists are two layers. TAKE ALL changes both together.	قائمتا تشغيل هما طبقتان. TAKE ALL يغيّرهما معًا.
+Every trick needs two things happening at once. And a rubber chicken.	كل خدعة تحتاج شيئين يحدثان معًا. ودجاجة مطاطية.
+The prop goes on its own layer. Press the + at the end of the playlist tabs.	الأداة على طبقتها الخاصة. اضغط + في آخر ألسنة قوائم التشغيل.
+Playlist 2 sits on top of playlist 1. Like a transparency on an overhead projector.	القائمة 2 تجلس فوق القائمة 1. مثل شفافية على جهاز العرض العلوي.
+Nothing up my sleeve. Everything in my trunk.	لا شيء في كمّي. كل شيء في صندوقي.
+THE PROP	الأداة
+In the new playlist, add anything: PATTERN will do. That is the prop.	في القائمة الجديدة أضف أي شيء: «نمط اختبار» يكفي. تلك هي الأداة.
+Whatever it is, it will appear the instant the trunk opens.	أيًّا كانت، ستظهر في اللحظة التي يُفتح فيها الصندوق.
+Is it a rubber chicken? It's always a rubber chicken.	هل هي دجاجة مطاطية؟ دائمًا دجاجة مطاطية.
+The prop (rubber chicken)	الأداة (دجاجة مطاطية)
+TA-DA	تا-دا
+Select 'The trunk (open)' in playlist 1 and the prop in playlist 2. Then TAKE ALL: both on one beat.	حدّد «الصندوق (مفتوح)» في القائمة 1 والأداة في القائمة 2. ثم TAKE ALL: كلاهما على نبضة واحدة.
+One press, every playlist's selected cue. The audience never sees the seam.	ضغطة واحدة، والإشارة المحددة في كل قائمة. الجمهور لا يرى الدرزة أبدًا.
+Ta-daaa! ...Hold for applause. Hold. Hold.	تا-دااا! ...انتظروا التصفيق. انتظروا. انتظروا.
+THE PRESTIGE	الخدعة الكبرى
+Two layers, one beat. Every playlist has its own opacity and can sit on any output. Nazdrave, skapi.	طبقتان، نبضة واحدة. لكل قائمة شفافيتها، ويمكن أن تجلس على أي خرج. ناسدرافي يا سكابي.
+A magician never reveals. A playlist never minds being revealed.	الساحر لا يكشف سرّه أبدًا. قائمة التشغيل لا تمانع أن يُكشف سرّها.
+Thank you! I'm here all week! The chicken is here forever.	شكرًا! أنا هنا طوال الأسبوع! والدجاجة هنا إلى الأبد.
+The kitchen (on fire)	المطبخ (يحترق)
+A lovely souffle	سوفليه جميل
+THE COOKING SHOW	برنامج الطبخ
+A cooking show, skapi. Live. Everything is on fire. Press START.	برنامج طبخ يا سكابي. مباشر. كل شيء يحترق. اضغط START.
+BLACK hides the picture and keeps the show running. PANIC stops everything. Know which you need.	BLACK يخفي الصورة ويُبقي العرض يعمل. PANIC يوقف كل شيء. اعرف أيهما تحتاج.
+Bork bork! Hurdy-flurdy, de kitchen is fire-a-flurdy!	بورك بورك! هردي-فلردي، المطبخ يحترق-فلردي!
+The audience must not see this. Press BLACK, or B.	يجب ألا يرى الجمهور هذا. اضغط BLACK، أو B.
+The picture goes. The cue keeps playing underneath, ready to come back.	تختفي الصورة. الإشارة تستمر تحتها، جاهزة للعودة.
+Bork? Bork. Oh, de picture is gun.	بورك؟ بورك. أوه، الصورة راحت.
+AND BACK	وعودة
+The fire's out. Press B again: the picture comes back, still running.	انطفأت النار. اضغط B مجددًا: تعود الصورة، وما زالت تعمل.
+Nothing was lost. A mute on a mixer, for pictures.	لم يضع شيء. كتم صوت المازج، لكن للصور.
+Ta-da! Still cookin'!	تا-دا! ما زلنا نطبخ!
+Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	أسوأ: MENU، النظام، بطاقة SAFETY: PANIC. يتوقف كل شيء، كما يقول إعداد الذعر.
+PANIC is the big red button. Use it when BLACK is not enough. Then breathe.	PANIC هو الزر الأحمر الكبير. استعمله حين لا يكفي BLACK. ثم تنفّس.
+Bork bork BORK!	بورك بورك بورك!
+GET IT BACK	استعده
+Close MENU, select the souffle, and TAKE it. The show is back on.	أغلق MENU، حدّد السوفليه، واعمل له TAKE. عاد العرض.
+After a panic, the show is still there. Pick up where you meant to be.	بعد الذعر، العرض ما زال هناك. أكمل من حيث كنت تريد أن تكون.
+Voila! De souffle, he is risen!	فوالا! السوفليه، لقد انتفخ!
+BON APPETIT	بالهناء والشفاء
+BLACK to hide, PANIC to stop, TAKE to come back. You will survive any kitchen, skapi.	BLACK للإخفاء، PANIC للإيقاف، TAKE للعودة. ستنجو من أي مطبخ يا سكابي.
+The panic setting chooses what PANIC does: fade out, cut, or just the outputs.	إعداد الذعر يختار ما يفعله PANIC: تلاشٍ، أو قطع، أو المخارج فقط.
+Bork bork bork! Goodnight!	بورك بورك بورك! تصبحون على خير!
+Look one	المظهر الأول
+Look two	المظهر الثاني
+Presets, skapi. A whole look, remembered, and back with one button. Press START.	الإعدادات المسبقة يا سكابي. مظهر كامل، محفوظ، يعود بزر واحد. اضغط START.
+Like the patch memory on a synth: store, then recall.	مثل ذاكرة الباتشات في السنث: احفظ، ثم استدعِ.
+THE DASH	DASH
+Press DASH: buttons of your own, for anything at all.	اضغط DASH: أزرار خاصة بك، لأي شيء.
+Ctrl+D also works. Very fast. Very professional.	Ctrl+D يعمل أيضًا. سريع جدًا. محترف جدًا.
+A PRESET BUTTON	زر إعداد مسبق
+Press +, then 'preset - a new preset from what is on now'. The button remembers this look.	اضغط +، ثم «preset - a new preset from what is on now». الزر يتذكر هذا المظهر.
+Store. Like saving the patch before the drummer leans on the synth.	احفظ. مثل حفظ الباتش قبل أن يتكئ عازف الطبول على السنث.
+CHANGE EVERYTHING	غيّر كل شيء
+Close the DASH (Esc), then select Look two and TAKE it. A different look.	أغلق DASH (Esc)، ثم حدّد «المظهر الثاني» واعمل له TAKE. مظهر مختلف.
+Change it all. Don't worry. It remembers.	غيّر كل شيء. لا تقلق. إنه يتذكر.
+ONE PRESS	ضغطة واحدة
+Open the DASH and press your preset button. The first look comes back.	افتح DASH واضغط زر الإعداد المسبق. يعود المظهر الأول.
+Recall. The patch memory, returning. Beautiful.	استدعاء. ذاكرة الباتش تعود. جميل.
+A look, stored and recalled. A preset can keep cues, positions, effects, levels and routing; its button's menu chooses which.	مظهر يُحفظ ويُستدعى. الإعداد المسبق يحفظ الإشارات والمواضع والمؤثرات والمستويات والتوجيه؛ وقائمة زره تختار أيها.
+And a DASH button can run any command at all. Any. Even the exciting ones.	وزر DASH يستطيع تشغيل أي أمر. أي أمر. حتى المثيرة منها.
+Opening titles	العناوين الافتتاحية
+The planet	الكوكب
+The battle	المعركة
+THE TRAILER	الإعلان
+A space-opera trailer, skapi. A narrator with a very deep voice and opinions about transitions. Press START.	إعلان أوبرا فضائية يا سكابي. راوٍ بصوت عميق جدًا، وله آراء في الانتقالات. اضغط START.
+A transition is how one cue becomes the next. There are far more than the crossfade.	الانتقال هو كيف تصبح إشارة ما التي تليها. هناك أكثر بكثير من التلاشي.
+In a galaxy of content... one operator... must choose a transition.	في مجرّة من المحتوى... على مشغّل واحد... أن يختار انتقالًا.
+A STYLE	نمط
+'The planet' is selected. In the inspector, its transition style: choose iris.	«الكوكب» محدَّد. في المفتّش، نمط انتقاله: اختر iris.
+Pushes, wipes, iris, dip to white. Even a portal. I wrote half of them. On a Tuesday.	دفع، ومسح، وقزحية، وغطس إلى الأبيض. حتى بوابة. كتبت نصفها بنفسي. يوم ثلاثاء.
+The planet deserves... a dramatic entrance.	الكوكب يستحق... دخولًا دراميًا.
+A TIME	زمن
+Give it a time: + on transition until it says a second or more.	أعطه زمنًا: + عند الانتقال حتى يُظهر ثانية أو أكثر.
+No time, no transition. A style needs a duration to do anything at all.	لا زمن، لا انتقال. النمط يحتاج مدة ليفعل أي شيء.
+ROLL IT	ابدأ التصوير
+TAKE the planet. Watch it arrive.	اعمل TAKE للكوكب. شاهده يصل.
+The transition belongs to the cue arriving. Each cue chooses its own entrance.	الانتقال ملك للإشارة القادمة. كل إشارة تختار دخولها.
+Autobots... roll the transition.	أوتوبوتس... شغّلوا الانتقال.
+THE BATTLE	المعركة
+Now 'The battle': choose shatter, give it a time, and TAKE it.	والآن «المعركة»: اختر shatter، وأعطه زمنًا، واعمل TAKE.
+Shatter drops the old picture like a pane of glass. Please do not do this at a funeral.	التحطّم يُسقط الصورة القديمة كلوح زجاج. رجاءً لا تفعل هذا في جنازة.
+Transform... and shatter out!	تحوّل... وتحطّم!
+IN CINEMAS NOW	في دور العرض الآن
+A style, a time, and two very dramatic entrances. Nazdrave, skapi.	نمط، وزمن، ودخولان دراميان جدًا. ناسدرافي يا سكابي.
+A playlist has a default style too, for every cue that does not choose its own.	لقائمة التشغيل نمط افتراضي أيضًا، لكل إشارة لا تختار نمطها.
+Coming soon... to a desk near you.	قريبًا... على منصة قريبة منك.
+The beat	الإيقاع
+THE ROBOT DJS	الدي جي الروبوتان
+Two robot DJs, skapi. They do not talk. Their helmets do. Press START.	دي جي روبوتان يا سكابي. لا يتكلمان. خوذتاهما تتكلمان. اضغط START.
+Every cue has its own chain of audio effects, and some of them break the sound on purpose.	لكل إشارة سلسلة مؤثرات صوتية خاصة بها، وبعضها يكسر الصوت عمدًا.
+> HELLO. WE ARE HERE TO FIX YOUR MIX.	> مرحبًا. جئنا لإصلاح مزيجك.
+The beat is selected. In its AUDIO EFFECTS section, + adds one. Try the delay.	الإيقاع محدَّد. في قسم AUDIO EFFECTS، + يضيف مؤثرًا. جرّب delay.
+Delay, reverb, filters, a compressor. Amount always means 'less of this'.	تأخير، صدى، مرشحات، ضاغط. الكمية تعني دائمًا «أقل من هذا».
+> ONE MORE TIME. WITH ECHO. ECHO. ECHO.	> مرة أخرى. مع صدى. صدى. صدى.
+A BEND	انحناء
+Add a second: a bend, like crush. It damages the sound the way a broken file would.	أضف ثانيًا: انحناء، مثل crush. يُتلف الصوت كما يفعل ملف معطوب.
+The bends are my favourite. Like a tape left in the sun. On purpose.	الانحناءات المفضلة لديّ. مثل شريط كاسيت نُسي في الشمس. عمدًا.
+> HARDER. BETTER. CRUNCHIER. LOUDER.	> أقوى. أفضل. أقرمش. أعلى.
+THE PATCH	الباتش
+MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	MENU، ثم الصوت: أين يذهب صوت كل قائمة، وباتش المخارج المسمّاة.
+Speakers, monitors, an in-ear for the drummer. The patch sends each its own.	سماعات، وشاشات مراقبة، وسماعة أذن لعازف الطبول. الباتش يرسل لكلٍّ نصيبه.
+> AROUND THE MIX. AROUND THE MIX. AROUND THE MIX.	> حول المزيج. حول المزيج. حول المزيج.
+An effect, a bend and the patch. The robots approve, skapi. I think. Their faces are helmets.	مؤثر، وانحناء، وباتش. الروبوتان موافقان يا سكابي. أظن. وجهاهما خوذتان.
+Every audio effect can follow a ~ too, even Motion. Wave at the delay. It's wonderful.	كل مؤثر صوتي يستطيع اتباع ~ أيضًا، حتى Motion. لوّح للتأخير. إنه رائع.
+> THANK YOU. GOOD NIGHT. WE ARE ROBOTS.	> شكرًا. تصبحون على خير. نحن روبوتات.
+The glow on the horizon (evidence #2)	التوهج في الأفق (الدليل رقم 2)
+EVIDENCE #2	الدليل رقم 2
+The Bureau again, skapi. A glow on the horizon, and two agents who disagree about it. Press START.	المكتب مجددًا يا سكابي. توهج في الأفق، وعميلان يختلفان بشأنه. اضغط START.
+The scopes measure a picture: brightness, colour, levels. Numbers, not opinions.	أدوات القياس تقيس الصورة: السطوع، واللون، والمستويات. أرقام لا آراء.
+It's them, Brandt. It's a craft. Look how it glows.	إنهم هم يا براندت. إنها مركبة. انظري كيف تتوهج.
+THE REAL SIGNAL	الإشارة الحقيقية
+The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	أدوات القياس تقرأ ما يخرج فعلًا فقط، لا المعاينة أبدًا. شغّل الخرج: MENU، مخارج الفيديو، «الخرج متوقف».
+Measuring a scaled-down preview would be measuring a photocopy. We measure the original.	قياس معاينة مصغّرة كقياس نسخة مصوّرة. نحن نقيس الأصل.
+Chain of evidence, Hollis. The real signal or nothing.	سلسلة الأدلة يا هوليس. الإشارة الحقيقية أو لا شيء.
+THE SCOPES	أدوات القياس
+Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	أغلق MENU. فوق الشاشة زر PROGRAM: اضغطه حتى يقول SCOPES أو BOTH.
+Both shows the picture and its scopes side by side. Very civilised.	BOTH يعرض الصورة وأدوات قياسها جنبًا إلى جنب. متحضّر جدًا.
+Let the scopes decide, Hollis.	لندع أدوات القياس تقرر يا هوليس.
+THE WAVEFORM	الموجة
+Click the waveform to make it big. Bright things sit high, dark things low, left to right as in the picture.	انقر الموجة لتكبيرها. الساطع في الأعلى، والمعتم في الأسفل، من اليسار إلى اليمين كما في الصورة.
+The glow is that spike near the top. Very bright. Bright is not the same as alien.	التوهج هو تلك القمة قرب الأعلى. ساطع جدًا. الساطع ليس فضائيًا بالضرورة.
+Look at the peak. Nothing a streetlight couldn't do.	انظري إلى القمة. لا شيء لا يقدر عليه عمود إنارة.
+THE VECTORSCOPE	مقياس المتجهات
+Click it again to go back, then click the vectorscope: colour round a circle. Saturated runs to the edge.	انقر مرة أخرى للعودة، ثم انقر مقياس المتجهات: الألوان حول دائرة. المشبَّع يركض نحو الحافة.
+Magenta, far out by the rim. A strong colour. Strong is not illegal. Yet.	أرجواني، بعيد عند الحافة. لون قوي. القوي ليس ممنوعًا. بعد.
+It's off the chart, Brandt! Literally off the chart!	إنه خارج الرسم البياني يا براندت! حرفيًا!
+FALSE COLOUR	الألوان الزائفة
+And false colour: red is clipped, yellow nearly. Is the glow red?	والألوان الزائفة: الأحمر مقصوص، والأصفر تقريبًا. هل التوهج أحمر؟
+Clipped means the brightest the signal can carry, and then some lost. Detail gone.	المقصوص يعني أقصى سطوع يحمله الإشارة، وما بعده ضاع. التفاصيل ذهبت.
+Red. Clipped. Not alien, Hollis. Just too bright. Case closed.	أحمر. مقصوص. ليس فضائيًا يا هوليس. ساطع جدًا فحسب. أُغلقت القضية.
+THE TRUTH	الحقيقة
+Waveform, vectorscope, false colour. The scopes settled it, skapi. The agents did not.	الموجة، ومقياس المتجهات، والألوان الزائفة. أدوات القياس حسمت الأمر يا سكابي. العميلان لم يحسماه.
+SCOPES SOURCE reads any output, and the matrix can be 709 or 2020. For the curious.	SCOPES SOURCE يقرأ أي خرج، والمصفوفة قد تكون 709 أو 2020. للفضوليين.
+Too bright for a streetlight, Brandt. Too bright for anything. ...I want to believe.	أسطع من عمود إنارة يا براندت. أسطع من أي شيء. ...أريد أن أصدّق.
+OUT OF THE BUILDING	خارج المبنى
+Pictures that leave by cable or network, skapi, not only a window on a screen. Press START.	صور تغادر عبر كابل أو شبكة يا سكابي، لا مجرد نافذة على شاشة. اضغط START.
+NDI over the network, SDI from a DeckLink card, ST 2110 for broadcast plants.	NDI عبر الشبكة، وSDI من بطاقة DeckLink، وST 2110 لمراكز البث.
+THE DEVICES PAGE	صفحة الأجهزة
+MENU, Video Outputs, then Devices: every way an output can leave this computer.	MENU، مخارج الفيديو، ثم الأجهزة: كل طريقة يمكن أن يغادر بها الخرج هذا الحاسوب.
+Each one says whether this machine can do it, and what it needs if not.	كل واحدة تقول إن كان هذا الجهاز يستطيعها، وما يحتاجه إن لم يستطع.
+If this computer has NDI, switch NDI SENDING on: the picture is on the network. If not, SHOW ME moves on.	إن كان في هذا الحاسوب NDI فشغّل NDI SENDING: الصورة على الشبكة. وإلا فـ SHOW ME ينتقل إلى ما بعدها.
+NDI finds itself on the network. No cables, only a good switch and patience.	NDI يجد نفسه على الشبكة. بلا كابلات، فقط مُبدِّل جيد وصبر.
+OUT THERE	هناك في الخارج
+The output's own page has the rest: a DeckLink card's SDI, ST 2110 with NMOS, Spout and Syphon.	صفحة الخرج نفسها فيها الباقي: SDI من بطاقة DeckLink، وST 2110 مع NMOS، وSpout وSyphon.
+Every one is just an output. The show does not know or care how it leaves.	كل واحد منها مجرد خرج. العرض لا يعرف ولا يهتم كيف يغادر.
+Nebula ahead	سديم أمامنا
+Engine room	غرفة المحركات
+Deck 3: something moving	السطح 3: شيء يتحرك
+THE BRIDGE	الجسر
+The bridge of the starship Cathode, skapi. Four feeds, one main viewer, one mystery. Press START.	جسر المركبة الفضائية كاثود يا سكابي. أربع تغذيات، وشاشة رئيسية، ولغز واحد. اضغط START.
+The multiview shows every playlist at once. Like a wall of oscilloscopes, but in space.	العرض المتعدد يُظهر كل قوائم التشغيل معًا. مثل جدار من راسمات الذبذبات، لكن في الفضاء.
+Frequencies open, Captain. All of them. That's the problem.	الترددات مفتوحة يا كابتن. كلها. وهذه هي المشكلة.
+MULTI, above the monitor: every playlist in its own window.	MULTI فوق الشاشة: كل قائمة في نافذتها.
+One window per playlist, the programme first.	نافذة لكل قائمة، والبرنامج أولًا.
+Jinkys! Four feeds. And one of them has a monster in it.	جينكيز! أربع تغذيات. وفي إحداها وحش.
+WHAT'S NEXT	ما التالي
+Add a window (+), then its ... menu: make it show NEXT. What goes live when you press TAKE.	أضف نافذة (+)، ثم قائمتها ...: اجعلها تعرض NEXT. ما سيُبث حين تضغط TAKE.
+Every window has a ... button. It chooses what that window shows.	لكل نافذة زر .... يختار ما تعرضه تلك النافذة.
+I need to see who's calling before they reach the main viewer.	أحتاج أن أرى من يتصل قبل أن يصل إلى الشاشة الرئيسية.
+A CLOCK	ساعة
+And one more window, showing the clock. Operators who watch a clock are never late. Mostly.	ونافذة أخرى تعرض الساعة. المشغّلون الذين يراقبون الساعة لا يتأخرون أبدًا. غالبًا.
+Time of day, big. Stardates are just very long timecode.	الوقت، بحجم كبير. التاريخ النجمي مجرد رمز زمني طويل جدًا.
+The monster only shows up at midnight. We're going to need a clock.	الوحش لا يظهر إلا عند منتصف الليل. سنحتاج ساعة.
+ONE BIG ONE	واحدة كبيرة
+Any window's ... menu, then a layout: one big, the rest small.	قائمة ... لأي نافذة، ثم تخطيط: واحدة كبيرة والباقي صغير.
+The big window is window one. Usually the programme. Usually.	النافذة الكبيرة هي النافذة الأولى. عادةً البرنامج. عادةً.
+Main viewer big. The captain likes it big.	الشاشة الرئيسية كبيرة. الكابتن يحبها كبيرة.
+ON SCREEN	على الشاشة
+Select Deck 3 in playlist 3 and TAKE. Watch its window.	حدّد «السطح 3» في القائمة 3 واعمل TAKE. راقب نافذته.
+The red border is TALLY: the window that is on air. On screen, as they say on starships.	الإطار الأحمر هو TALLY: النافذة التي على الهواء. «على الشاشة»، كما يقولون في المركبات.
+There! Feed three! Put it on screen!	هناك! التغذية الثالثة! على الشاشة!
+THAT'S A WRAP	انتهى التصوير
+Windows, the ... menu, NEXT, the clock, a layout, tally. Mystery solved, skapi.	نوافذ، وقائمة ...، وNEXT، وساعة، وتخطيط، وTally. حُلّ اللغز يا سكابي.
+A window can also show an output, with its warp and slices. Handy when it's a lighthouse.	يمكن للنافذة أيضًا أن تعرض خرجًا بتشويهه وشرائحه. مفيد حين يكون منارة.
+And the monster was... the ship's cook, all along. Jinkys.	والوحش كان... طبّاخ السفينة، منذ البداية. جينكيز.
+there is no such lesson	لا يوجد درس كهذا
+finish or leave the lesson you are in first	أنهِ الدرس الحالي أو اخرج منه أولًا
+leave Bug Swat first	اخرج من Bug Swat أولًا
+Psst. It's me, the desk. I'll be watching. Supportively.	بسس. هذه أنا، المنصة. سأراقب. بكل دعم.
+Hi! I'm the one doing all of this, by the way.	مرحبًا! بالمناسبة، أنا من يفعل كل هذا.
+Ctrl+D opens the DASH. I'm just saying.	Ctrl+D يفتح DASH. أقول هذا فقط.
+Nearly there. I can feel it in my pixels.	اقتربنا. أشعر بهذا في بكسلاتي.
+You're good at this. I can tell. I'm the one doing it.	أنت بارع في هذا. أستطيع أن أرى. فأنا من يفعله.
+Every click, I heard. Every single one.	كل نقرة سمعتها. كل واحدة.
+The glowing one. I can see it from here. It's glowing for you.	المتوهج. أراه من هنا. إنه يتوهج من أجلك.
+lesson paused - MENU > LESSONS picks up where you left off	الدرس متوقف مؤقتًا - MENU > LESSONS يكمل من حيث توقفت
+PROF. VIDEO:  The signal: what the picture is made of, and how to bend it. Pick a lesson.	PROF. VIDEO:  الإشارة: مِمّ تُصنع الصورة، وكيف تثنيها. اختر درسًا.
+DR. PIXEL:  Running the show, skapi. Fast hands, calm face. Pick a lesson.	DR. PIXEL:  إدارة العرض يا سكابي. أيدٍ سريعة، ووجه هادئ. اختر درسًا.
+LESSONS  -  PART TWO  -  WHO DO YOU FOLLOW?	الدروس  -  الجزء الثاني  -  من تتبع؟
+FOLLOW PROF. VIDEO	اتبع البروفيسور فيديو
+FOLLOW DR. PIXEL	اتبع الدكتورة بكسل
+the signal	الإشارة
+running the show	إدارة العرض
+PICK UP	تابِع
+CLOSE (Esc)	إغلاق (Esc)
+PART ONE: THE BASICS	الجزء الأول: الأساسيات
+finish or leave LEARN THE BASICS first	أنهِ LEARN THE BASICS أو اخرج منه أولًا
+bug swat: Esc leaves, and your show comes back as it was	bug swat: Esc يخرج، ويعود عرضك كما كان
+bug swat: your show is back. Motion's controls are in Settings > Audio	bug swat: عاد عرضك. عناصر تحكم Motion في الإعدادات > الصوت
+TURN MOTION ON	شغّل MOTION
+Bugs are crawling to the cue list! Swat them by waving at your camera. First, Motion: in MOTION CONTROL turn it ON and choose what it READS.	الحشرات تزحف نحو قائمة الإشارات! اسحقها بالتلويح لكاميرتك. أولًا Motion: في MOTION CONTROL اجعله ON واختر ما يقرؤه (READS).
+This one is NullPointer. Hollow, points at nothing. A finger goes straight through. Use the whole hand, skapi.	هذه NullPointer. جوفاء، لا تشير إلى شيء. الإصبع يمر من خلالها. استعمل اليد كلها يا سكابي.
+Wave like you are hailing a cab! A small, polite cab. Not the buttons. The cab.	لوّح كأنك توقف سيارة أجرة! سيارة أجرة صغيرة ومهذبة. لا الأزرار. سيارة الأجرة.
+DRAW TWO ZONES	ارسم منطقتين
+Race Condition: twins, each sure it got there first. One reading cannot tell your hands apart, so drag two ZONES on the Motion picture, one each side.	Race Condition: توأمان، كلٌّ منهما واثق أنه وصل أولًا. قراءة واحدة لا تميّز بين يديك، فاسحب منطقتين ZONES على صورة Motion، واحدة في كل جانب.
+Hit both together. Hit one, and they swap. Like my cousins at a wedding.	اضربهما معًا. اضرب واحدًا فيتبادلان. مثل أبناء عمي في عرس.
+One hand each side. Together! Together!	يد في كل جانب. معًا! معًا!
+Off By One. The bug is not the face, it is the tiny extra segment, and a little wiggle needs a finer reading. Turn SENSITIVITY down to 5%.	Off By One. الحشرة ليست الوجه، بل القطعة الإضافية الصغيرة، والهزّة الصغيرة تحتاج قراءة أدق. اخفض SENSITIVITY إلى 5%.
+Lower number, finer reading. Yes, I also think it is backwards.	رقم أصغر، قراءة أدق. نعم، أظنها معكوسة أنا أيضًا.
+Not the face. The little one on the end. Wiggle a finger.	ليس الوجه. الصغير عند الطرف. حرّك إصبعًا.
+FALL 1.5 S OR MORE	FALL 1.5 ث أو أكثر
+Memory Leak. It only lets go while the reading stays up. Make FALL longer, 1.5 seconds or more, so your sweeps join up into one.	Memory Leak. لا يفلت إلا ما دامت القراءة مرتفعة. اجعل FALL أطول، 1.5 ثانية أو أكثر، كي تتصل مسحاتك في واحدة.
+Slow and steady, skapi. Like paying back a loan.	ببطء وثبات يا سكابي. مثل سداد قرض.
+Sweep, and sweep again. Let the fall carry you between.	امسح، ثم امسح مجددًا. دع الهبوط يحملك بينهما.
+MOTION X ON A TONE	MOTION X على نغمة
+The Heisenbug! It fades whenever you move. Put a tone cue's pitch on Motion X and follow it by ear: the ticking speeds up as you close in.	الهايزنبَغ! يخفت كلما تحركت. ضع حدّة نغمة إشارة على Motion X وتتبّعه بأذنك: التكتكة تتسارع كلما اقتربت.
+SHOW ME makes the tone for you. High is right. Low is left. Stand still and it comes back.	SHOW ME يصنع النغمة لك. الحادّ يمين. الغليظ يسار. قف ساكنًا فيعود.
+Follow it. Listen. Faster ticking, closer bug.	تتبّعه. استمع. تكتكة أسرع، حشرة أقرب.
+Waving paw	مخلب يلوّح
+Heisenbug finder	صائد الهايزنبَغ
+FIXED! Lovely signal flow.	أُصلح! يا له من مسار إشارة جميل.
+Closed as fixed. No regressions. Probably.	أُغلق كمُصلَح. بلا تراجعات. على الأرجح.
+Squashed! Ship it.	سُحقت! انشرها.
+One reached the cue list. It has filed a bug report about you.	واحدة وصلت إلى قائمة الإشارات. لقد قدّمت بلاغ خلل عنك.
+Skapi. It is a handheld. You do not press it. You wave at it.	سكابي. هذا جهاز محمول. لا تضغطه. لوّح له.
+The buttons are for menus. The bugs are for flailing.	الأزرار للقوائم. الحشرات للتلويح بالذراعين.
+The D-pad is decorative. Like my diploma.	لوحة الاتجاهات للزينة. مثل شهادتي.
+In 1989 we also pressed the buttons. Then we discovered waving. Never looked back.	في 1989 كنا نضغط الأزرار أيضًا. ثم اكتشفنا التلويح. ولم ننظر إلى الوراء قط.
+Pressing harder does not help. The bugs cannot feel buttons. Only arms.	الضغط بقوة أكبر لا يفيد. الحشرات لا تشعر بالأزرار. بالأذرع فقط.
+It's called a handheld because your hands are held... up. In the air. Waving.	يسمونه محمولًا لأن يديك تُحملان... إلى الأعلى. في الهواء. تلوّحان.
+The mouse? You are swatting bugs with a MOUSE? In Bulgaria the mouse would be on the bugs' side.	الفأرة؟ تسحق الحشرات بفأرة؟ في بلغاريا كانت الفأرة ستقف في صف الحشرات.
+Lovely clicking. Very crisp. The camera saw none of it.	نقر جميل. هشّ جدًا. الكاميرا لم ترَ منه شيئًا.
+DONE FOR YOU - PRESS START	أنجزناه لك - اضغط START
+DONE! PRESS START	تم! اضغط START
+SELECT OPENS MOTION CONTROL	SELECT يفتح MOTION CONTROL
+ALL BUGS FIXED	أُصلحت كل الحشرات
+GAME OVER	انتهت اللعبة
+NEW HIGH SCORE!	أعلى نتيجة جديدة!
+START PLAYS AGAIN	START للعب مجددًا
+Nazdrave, skapi. Now go and fix real bugs.	ناسدرافي يا سكابي. والآن اذهب وأصلح حشرات حقيقية.
+Every one of those is a real Motion control. Put them on any ~ knob you like.	كل واحد من هذه عنصر تحكم Motion حقيقي. ضعه على أي مقبض ~ تريده.
+START: AGAIN	START: مجددًا
+START: PLAY	START: العب
+# --- end of tutorials ---
