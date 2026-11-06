@@ -171,6 +171,82 @@ TTF_TextEngine* engineLocked() {
 
 TTF_Direction ttfDirection(bool rtl) { return rtl ? TTF_DIRECTION_RTL : TTF_DIRECTION_LTR; }
 
+// ONE SCRIPT PER PIECE. SDL_ttf shapes a string as ONE HarfBuzz run, and with
+// no script set HarfBuzz takes the script of the first letter for all of it.
+// "DR. PIXEL:  जिस भी" was shaped as Latin from the D, so its Devanagari
+// came out letter by letter -- the vowel sign written after a consonant but
+// drawn before it stayed after it ("जसि"), and no conjunct joined. Every
+// Hindi line that began with a name was spelled wrong; a label that was all
+// Hindi was right, which is why it looked fine at a glance. Any script that
+// reorders or joins (Bengali, Tamil, Thai...) broke the same way after Latin.
+// So a piece now ends where the script changes as well as where the face
+// does, and each piece is shaped with its script named.
+//
+// The script of one character: 0 for what belongs to no script of its own
+// (spaces, digits, punctuation, combining marks), which goes with its
+// neighbours.
+Uint32 letterScript(char32_t cp) {
+  static const Uint32 latin = TTF_StringToTag("Latn");
+  if (cp < 0x80) {  // the desk's every label: no lookup
+    return ((cp >= 'A' && cp <= 'Z') || (cp >= 'a' && cp <= 'z')) ? latin : 0;
+  }
+  static const Uint32 common = TTF_StringToTag("Zyyy");
+  static const Uint32 inherited = TTF_StringToTag("Zinh");
+  static const Uint32 unknown = TTF_StringToTag("Zzzz");
+  const Uint32 script = TTF_GetGlyphScript(cp);
+  return (script == common || script == inherited || script == unknown) ? 0 : script;
+}
+
+// The script a piece is shaped as: its first letter's.
+Uint32 pieceScript(const char* s, std::size_t n) {
+  const std::string_view text(s, n);
+  for (std::size_t at = 0; at < n;) {
+    char32_t cp = 0;
+    at += bidi::decodeUtf8(text, at, cp);
+    if (const Uint32 script = letterScript(cp)) return script;
+  }
+  return 0;
+}
+
+// More than one script in a string: then it cannot go to SDL_ttf whole.
+bool mixesScripts(std::string_view s) {
+  Uint32 seen = 0;
+  for (std::size_t at = 0; at < s.size();) {
+    const unsigned char b = static_cast<unsigned char>(s[at]);
+    char32_t cp = b;
+    if (b < 0x80) {
+      ++at;
+    } else {
+      at += bidi::decodeUtf8(s, at, cp);
+    }
+    const Uint32 script = letterScript(cp);
+    if (script == 0) continue;
+    if (seen != 0 && script != seen) return true;
+    seen = script;
+  }
+  return false;
+}
+
+// A piece's direction and script on its face for one call, then put back:
+// the faces are shared by every label.
+struct ShapeAs {
+  TTF_Font* face;
+  TTF_Direction direction;
+  Uint32 script;
+  ShapeAs(TTF_Font* f, bool rtl, const char* s, std::size_t n)
+      : face(f), direction(TTF_GetFontDirection(f)), script(TTF_GetFontScript(f)) {
+    TTF_SetFontDirection(f, ttfDirection(rtl));
+    const Uint32 wanted = pieceScript(s, n);
+    if (wanted != 0 && wanted != script) TTF_SetFontScript(f, wanted);
+  }
+  ~ShapeAs() {
+    TTF_SetFontDirection(face, direction);
+    if (TTF_GetFontScript(face) != script) TTF_SetFontScript(face, script);
+  }
+  ShapeAs(const ShapeAs&) = delete;
+  ShapeAs& operator=(const ShapeAs&) = delete;
+};
+
 // ── Pieces ──────────────────────────────────────────────────────────────────
 
 struct Piece {
@@ -183,6 +259,7 @@ struct Piece {
   int top = 0;  // rows SDL_ttf added above the face's line box
   int x = 0;    // where it starts in the line
   bool spaces = false;  // nothing but whitespace: an advance, no ink
+  Uint32 script = 0;    // what HarfBuzz shapes it as; 0 lets it guess
 };
 
 // Rows above the line box. SDL_ttf grows a line upward when a glyph rises above
@@ -196,6 +273,7 @@ int pieceTop(TTF_Font* face, const char* s, std::size_t n, bool rtl, int h) {
   TTF_Text* t = TTF_CreateText(engine, face, s, n);
   if (!t) return 0;
   TTF_SetTextDirection(t, ttfDirection(rtl));
+  if (const Uint32 script = pieceScript(s, n)) TTF_SetTextScript(t, script);
   TTF_SubString sub {};
   int top = 0;
   if (TTF_GetTextSubString(t, 0, &sub)) top = sub.rect.y;
@@ -204,8 +282,7 @@ int pieceTop(TTF_Font* face, const char* s, std::size_t n, bool rtl, int h) {
 }
 
 void measurePiece(Piece& p, const char* text) {
-  const TTF_Direction before = TTF_GetFontDirection(p.face);
-  TTF_SetFontDirection(p.face, ttfDirection(p.rtl));
+  const ShapeAs shape(p.face, p.rtl, text + p.begin, p.end - p.begin);
   int w = 0;
   int h = 0;
   if (!TTF_GetStringSize(p.face, text + p.begin, p.end - p.begin, &w, &h)) {
@@ -215,7 +292,6 @@ void measurePiece(Piece& p, const char* text) {
   p.w = w;
   p.h = h;
   p.top = pieceTop(p.face, text + p.begin, p.end - p.begin, p.rtl, h);
-  TTF_SetFontDirection(p.face, before);
 }
 
 // Split one bidi run (logical byte range, one direction) by face.
@@ -238,6 +314,7 @@ void splitRun(TTF_Font* primary, const char* text, std::size_t begin, std::size_
     bool attaches;
     bool common;
     TTF_Font* face;
+    Uint32 script;  // 0: none of its own; takes its neighbours'
   };
   std::vector<Char> chars;
   for (std::size_t at = begin; at < end;) {
@@ -250,7 +327,7 @@ void splitRun(TTF_Font* primary, const char* text, std::size_t begin, std::size_
     const bool attaches = cls == BidiClass::NSM || cls == BidiClass::BN || mark;
     const bool common = !attaches && !(cls == BidiClass::L || cls == BidiClass::R ||
                                        cls == BidiClass::AL);
-    chars.push_back({at, len, cp, attaches, common, nullptr});
+    chars.push_back({at, len, cp, attaches, common, nullptr, attaches ? 0u : letterScript(cp)});
     at += len;
   }
   auto byCoverage = [&](char32_t cp) -> TTF_Font* {
@@ -350,18 +427,31 @@ void splitRun(TTF_Font* primary, const char* text, std::size_t begin, std::size_
     return cp == 0x20 || cp == 0x09 || cp == 0xA0 || cp == 0x3000 || cp == 0x202F ||
            (cp >= 0x2000 && cp <= 0x200A);
   };
+  // What has no script of its own takes the script before it, or failing
+  // that the one after: "जिस," keeps its comma, "(जिस" its bracket.
+  for (std::size_t i = 0; i < chars.size(); ++i) {
+    if (chars[i].script != 0) continue;
+    for (std::size_t j = i; j-- > 0;) {
+      if (chars[j].script != 0) { chars[i].script = chars[j].script; break; }
+    }
+    for (std::size_t j = i + 1; j < chars.size() && chars[i].script == 0; ++j) {
+      chars[i].script = chars[j].script;
+    }
+  }
   std::vector<Piece> pieces;
   for (std::size_t i = 0; i < chars.size(); ++i) {
     const Char& c = chars[i];
     const bool space = isSpace(c.cp);
     const bool startNew = pieces.empty() || pieces.back().face != c.face ||
-                          pieces.back().spaces != space;
+                          pieces.back().spaces != space ||
+                          (!space && pieces.back().script != c.script);
     if (startNew) {
       Piece p;
       p.face = c.face;
       p.begin = c.at;
       p.rtl = space ? false : rtl;
       p.spaces = space;
+      p.script = c.script;
       pieces.push_back(p);
     }
     pieces.back().end = c.at + c.len;
@@ -374,7 +464,8 @@ void splitRun(TTF_Font* primary, const char* text, std::size_t begin, std::size_
     const bool inner = pieces[i].spaces && i > 0 && i + 1 < pieces.size() &&
                        !pieces[i - 1].spaces && !pieces[i + 1].spaces &&
                        pieces[i - 1].face == pieces[i].face &&
-                       pieces[i + 1].face == pieces[i].face;
+                       pieces[i + 1].face == pieces[i].face &&
+                       pieces[i - 1].script == pieces[i + 1].script;
     if (inner) {
       merged.back().end = pieces[i + 1].end;
       ++i;
@@ -423,7 +514,8 @@ std::vector<Piece> layoutRuns(TTF_Font* font, const char* text, const std::vecto
 std::vector<Piece> layoutLine(TTF_Font* font, const char* text, std::size_t length,
                               Direction direction) {
   const std::string_view s(text, length);
-  if (direction != Direction::RightToLeft && !bidi::needsBidi(s) && coveredByPrimary(font, s)) {
+  if (direction != Direction::RightToLeft && !bidi::needsBidi(s) && coveredByPrimary(font, s) &&
+      !mixesScripts(s)) {
     ++gFastPath;
     Piece p;
     p.face = font;
@@ -458,10 +550,11 @@ SDL_Surface* renderPieces(TTF_Font* font, const char* text, const std::vector<Pi
   if (pieces.size() == 1) {
     // One piece: SDL_ttf's own surface, untouched -- the old path exactly.
     const Piece& p = pieces.front();
-    const TTF_Direction before = TTF_GetFontDirection(p.face);
-    TTF_SetFontDirection(p.face, ttfDirection(p.rtl));
-    SDL_Surface* s = TTF_RenderText_Blended(p.face, text + p.begin, p.end - p.begin, color);
-    TTF_SetFontDirection(p.face, before);
+    SDL_Surface* s = nullptr;
+    {
+      const ShapeAs shape(p.face, p.rtl, text + p.begin, p.end - p.begin);
+      s = TTF_RenderText_Blended(p.face, text + p.begin, p.end - p.begin, color);
+    }
     if (baselineOut) *baselineOut = p.top + TTF_GetFontAscent(p.face);
     return s;
   }
@@ -476,14 +569,15 @@ SDL_Surface* renderPieces(TTF_Font* font, const char* text, const std::vector<Pi
                      static_cast<Uint32>(color.b);
   for (const Piece& p : pieces) {
     if (p.end <= p.begin || p.spaces) continue;
-    const TTF_Direction before = TTF_GetFontDirection(p.face);
-    TTF_SetFontDirection(p.face, ttfDirection(p.rtl));
     // Rendered opaque-white-in-alpha and then written as coverage: every piece
     // is the one colour, and blending a straight-alpha surface onto a clear one
     // would darken its edges.
-    SDL_Surface* glyphs = TTF_RenderText_Blended(p.face, text + p.begin, p.end - p.begin,
-                                                 SDL_Color {255, 255, 255, color.a});
-    TTF_SetFontDirection(p.face, before);
+    SDL_Surface* glyphs = nullptr;
+    {
+      const ShapeAs shape(p.face, p.rtl, text + p.begin, p.end - p.begin);
+      glyphs = TTF_RenderText_Blended(p.face, text + p.begin, p.end - p.begin,
+                                      SDL_Color {255, 255, 255, color.a});
+    }
     if (!glyphs) continue;
     SDL_Surface* argb = glyphs;
     if (glyphs->format != SDL_PIXELFORMAT_ARGB8888) {
@@ -832,10 +926,8 @@ int caretX(TTF_Font* font, std::string_view text, std::size_t offset, Direction 
   if (!hit) return offset == 0 ? 0 : lineWidth(pieces);
   int partial = 0;
   if (offset > hit->begin) {
-    const TTF_Direction before = TTF_GetFontDirection(hit->face);
-    TTF_SetFontDirection(hit->face, ttfDirection(hit->rtl));
+    const ShapeAs shape(hit->face, hit->rtl, owned.c_str() + hit->begin, hit->end - hit->begin);
     TTF_GetStringSize(hit->face, owned.c_str() + hit->begin, offset - hit->begin, &partial, nullptr);
-    TTF_SetFontDirection(hit->face, before);
   }
   return hit->rtl ? hit->x + hit->w - partial : hit->x + partial;
 }
