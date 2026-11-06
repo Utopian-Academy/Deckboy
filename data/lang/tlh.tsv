@@ -449,3 +449,569 @@ Close me. Open me. I'll be fine.	HImevmoH. HIpoSmoHqa'. jIpIvchoH.
 # What the desk face says when you switch to this language: a local saying, not a translation.
 @hello	Heghlu'meH QaQ jajvam!
 Oh hey. It's 4:20. Take it easy.	nuqneH. 4:20 rep. yItlhuH.
+
+# --- tutorials: tools/lesson_strings.py (a whole line each) ---
+HELLO	nuqneH
+Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me.	Dobar den, skapi. Dr. Pixel jIH. vagh tup, 'ej show Dev SoH. jIjatlhtaHvIS yIQoy, 'ej tup puS.
+And I'm Professor Video. Synths first, then video. Mostly video now. Press START and we'll patch... we'll begin.	'ej Professor Video jIH. wa'DIch synth. ghIq video. DaH video neH. START yIqIp. maruv... matagh.
+TURN THE OUTPUT ON	ngeHwI' YICHU'
+Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	skapi, chIm jIH. yIloSmoHQo'. MENU yIpoSmoH, ngeHwI' chu'Ha'lu' yIchoHmoH: ngeHwI' chu'lu'. Hajde!
+Lesson one: nothing comes out until you patch the oscillator to the... the OUTPUT. It's video. I know.	ghojmoHmeH wa'DIch: oscillator DararDI' ngeHwI'... ngeHwI'... vaj neH vay' mej. video 'oH. vIghov.
+BRING IN A CLIP	MIL'OGH QAN YIQEM
+Now a picture. Press I and pick a clip from your computer. No clip? SHOW ME, and I lend you one of mine.	DaH mIllogh. I yIqIp, De'wI'lIjvo' clip yIwIv. clip Daghajbe''a'? SHOW ME. vIlaHmoH.
+Every clip becomes a cue in the playlist. Like loading a sample. A sample with pictures in it.	Hoch clip cue moj playlist DaqDaq. sample DalI'moHDI' rur. mIllogh ghajbogh sample.
+TAKE IT LIVE	YIJABBI'
+Your clip waits in the playlist. Select it, then TAKE. Or Enter. Confident operators press Enter.	playlist DaqDaq clip lInejtaH. yIwIv, ghIq TAKE. pagh Enter. Enter qIp vu'wI' jaq.
+TAKE is the envelope trigger. The, ah, the GO button. Same thing, it just has pictures in it.	TAKE: envelope trigger. GO leQ... 'oH. rap. mIllogh ghaj neH.
+LINE UP THE NEXT ONE	TOH TAGHMEH CUE YIQEMMOH
+Click another cue. It waits, ready, until you say. Only one cue? Import another, or SHOW ME.	latlh cue yIqIp. SoHvo' ra'meH ghu' loS. cue wa' neH? latlh yI'el, pagh SHOW ME.
+Selecting is not playing. The selected one is the next note in the sequence. The next CUE.	wIv 'ej Qoy... rapbe'. wIvlu'pu'bogh: tlha'bogh QoQ. tlha'bogh CUE.
+CROSSFADE TO IT	CROSSFADE YILO'
+Cuts are for amateurs. In the inspector, press + on transition, so it shows a time, not deck. Then TAKE.	SIQ ghotI' lo'bogh: tlhIngan batlh Hutlh! inspector Daq choH Daq + yIqIp. deck Daq poH Dagh. ghIq TAKE.
+A crossfade! Portamento, but for pictures. Any time will do. A few more presses and it's a second. Then TAKE.	crossfade! portamento, mIllogh. poH Hoch QaQ. qIp puS, lup wa' moj. ghIq TAKE.
+CLEAR THE SCREEN	JIH YITEQ
+Something goes wrong on stage? Press BLACK, or B. The picture goes. The show keeps running underneath.	DuS Daq Qagh? BLACK yIqIp, pagh B. mIllogh ghoS. show ruch.
+Nothing is lost. Press B again and it comes back. Like the mute on a mixer. Very calming.	pagh chIl. B yIqIp, mIllogh chegh. mixer mute rur. jotmoH.
+SAVE THE SHOW	SHOW YICHOQMOH
+Now save. Ctrl+S, or SAVE. Some programs lose your work and then blame you. I would never.	DaH yichoqmoH. Ctrl+S, pagh choqmoH. Qu'lIj chIl ghun latlh; SoH pIch. jIHvaD Qo'! batlh vIghaj.
+Save your patch. Your SHOW. Show. This practice one lives in Deckboy's own folder; yours is safe.	patch yIchoqmoH. SHOW. Show. ghojmeH show: Deckboy pa' Daq ratlh. SoH show: QaD.
+THAT'S A SHOW	SHOW 'OH!
+That's a show! Output, cue, TAKE, crossfade, BLACK, save. Nazdrave, skapi. Rakia is on me.	show 'oH! ngeHwI', cue, TAKE, crossfade, BLACK, choqmoH. Nazdrave, skapi! Qapla'! rakia vIjey. 'Iw HIq rur, 'ach Qatlh.
+Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	ghojmeH rIn. ghojmeH show lugh: layer, title, effect. MENU > LEARN THE BASICS: latlh.
+*shakes head* That means yes. Bravo.	*nach jIrmoH* HIja' 'oH. maj. Bulgaria Daq neH.
+Wonderful! Lovely signal flow.	maj! jabbI'ID 'IH!
+Mm. I knew you had it in you.	Hmm. SoH vISov. SuvwI' SoH.
+Yes! Have a gold star. It's a dot.	HIja'! SuD Hov yItlhap. Daq mach 'oH.
+Ready for the next step? *nods* ...That means no, skapi. The glowing one. It is glowing for you.	tlha'bogh mIw DaghuS'a'? *nach Dung bIng* ...Qo' 'oH, skapi. wovbogh. SoHvaD wov.
+You've clicked everything but the glowing one. Even my oscillators find the glowing one.	Hoch DaqIp, wovbogh neH DaqIpbe'. wovbogh tu' oscillatorwIj!
+stop playback first - the lesson cannot hand a running show back as it was	wa'DIch Qap yImev - QaptaHbogh show nobHa'laHbe' ghojmeH
+choose RECOVER or KEEP SAVED first	wa'DIch RECOVER pagh KEEP SAVED yIwIv
+your show could not be saved, so the lesson has not started. Save it (SAVE AS) and try again	show choqmoHlaHbe'lu', vaj ghojmeH taghbe'. yIchoqmoH (choqmoH pong) 'ej yInID
+the practice show would not open	ghojmeH show poSbe'
+could not start the practice show	ghojmeH show taghlaHbe'
+learn the basics: Esc leaves, and it picks up here next time	learn the basics: Esc mej, tlha'bogh poH naDev ruch
+that's the basics - MENU > LESSONS has part two	buq rIn - MENU > LESSONS cha'DIch Hap ghaj
+tour paused - LEARN THE BASICS picks up where you left off	leng mev - LEARN THE BASICS Damevpu'bogh Daq ruch
+Mirrored screens, skapi. Press any key or click, and Dr. Pixel gives it back.	neSlo' jIH, skapi. leQ yIqIp, Dr. Pixel nobHa'.
+Wrong screen, skapi. Press any key or click, and Dr. Pixel gives it back.	jIH Qagh, skapi. leQ yIqIp, Dr. Pixel nobHa'.
+The other screen went away, skapi. Press any key or click, and Dr. Pixel gives it back.	latlh jIH ghoS, skapi. leQ yIqIp, Dr. Pixel nobHa'.
+One screen, skapi. Press any key or click, and Dr. Pixel gives it back.	jIH wa' neH, skapi. leQ yIqIp, Dr. Pixel nobHa'.
+The other screen went away, skapi, so the picture came back to this one. I put it in a little window, behind. Plug it back in and the picture goes back on it.	latlh jIH ghoS, skapi, vaj jIHvam Daq mIllogh chegh. qorwagh mach Daq vIlan, Qav Daq. yIrar, mIllogh chegh.
+It ate the desk, skapi. One screen, so the output took all of it. I put it in a little window, behind. A real show gets a second screen.	SeHlaw Sop, skapi! jIH wa', vaj Hoch tlhap ngeHwI'. qorwagh mach Daq vIlan. teH show: cha'DIch jIH.
+IT ATE THE DESK	SEHLAW SOP
+There. The button that says OUTPUT OFF. Make it say ON, skapi.	pa'. ngeHwI' chu'Ha'lu' leQ. chu'lu' yIchoHmoH, skapi.
+Nothing is live to fade from, skapi. TAKE one cue first, then pick the other and give it a time.	jabbI'lu'bogh pagh, skapi. wa'DIch cue wa' yITAKE, ghIq latlh yIwIv, poH yInob.
+That was a cut, skapi. Fast, but not a crossfade. Pick the other cue, press + on transition, then TAKE.	SIQ 'oH, skapi. nom, 'ach crossfade Qo'. latlh cue yIwIv, choH Daq + yIqIp, TAKE.
+A feedback loop! Output patched straight back into the desk. Happens to the best of us. Mostly to me. 1983. We don't talk about 1983.	feedback gho! SeHlaw Daq ngeHwI' rarHa'lu'. SuvwI' QaQ qaS. jIHvaD law'. 1983. 1983 wIjatlhQo'.
+No more rakia. The rat has a problem.	rakia Hutlh. vIghro' DeS... Qagh ghaj.
+Nazdrave, skapi! Baba's rakia, from the Rhodopes. One glass, for the lesson.	Nazdrave, skapi! Qapla'! SoSnI' rakia, Rhodope HuDvo'. HIvje' wa', ghojmeH vaD. 'Iw HIq rur.
+Is this... is this allowed during a tutorial?	ghojmeH... ghojmeH Daq chaw''a'?
+*shakes head* That means one more.	*nach jIrmoH* latlh HIvje' 'oH.
+I love you all. I love the oscillator. I love the OUTPUT. It's video. I know. I KNOW.	Hoch SoH vImuSHa'. oscillator vImuSHa'. NGEHWI' vImuSHa'. video 'oH. vISov. VISOV!
+...and the rat took the rakia. Every time, skapi. Every single time.	...'ej rakia tlhap vIghro'. reH, skapi. reH!
+Was that a rat? In a hat? With a pizza?	vIghro''a'? mIv tuQ? pizza ghaj?
+Stop that. I am a serious man.	yImev! ghot ruq jIH.
+Do not tell Dr. Pixel about this.	Dr. Pixel yIja'Qo'.
+This never happened. Back to the patch bay.	qaSbe'! patch bay Daq cheghlu'.
+It was the eighties. Everyone had a bow tie.	1980 DIS. Hoch bow tie tuQ.
+LESSON LIST	GHOJMEH TETLH
+OPEN EXAMPLE SHOWS	LUT SHOW YIPOSMOH
+EXIT (Esc)	YIMEJ (Esc)
+Taking it on the road	show leng
+CHECK a show before it travels, fix what it finds, and bundle it with its media.	show legh CHECK leng pa'. Qagh yItI'. media yIchel 'ej yIbundle.
+Effects, oscillators and colour	effect, oscillator, nguv
+An effect, a ~ on its knob, and the colour picker.	effect, leQ Daq ~, nguv wIvwI'.
+The art school crit, with Mr. Salty	ghojmeH Daq SuvwI' nuDwI', Mr. Salty tlhej
+Patterns, synths and Draw	mIllogh, synth, Draw
+A test pattern, the video synth, and drawing on the picture, saved as a still.	mIllogh nuDmeH, video synth, mIllogh Daq ghItlh, still choqmoHlu'.
+The telestrator booth, with Coach Marv	telestrator pa', Coach Marv tlhej
+Masks	mask
+A heart from the library, the pen, invert and feather.	tay' Daq tIq, ghItlhwI', choH, veH ngeD.
+The Signal Files: redact the evidence	jabbI'ID De': De' yISo'
+Warp, blend and slices	warp, blend, slice
+A corner pin, two soft edges, then three slices in the Screens window.	corner pin, veH ngeD cha', Screens Daq slice wej.
+The haunted lighthouse, with Keeper Rook	ghost wovmoHwI' qach, Rook ghIrIt tlhej
+GO from anywhere	Daq Hochvo' GO
+Cue numbers, GOTO, a hotkey, and where Companion, MIDI and OSC come in.	cue mI', GOTO, leQ, Companion 'ej MIDI 'ej OSC 'el.
+The game show, with Donna Wheel	Quj show, Donna Wheel tlhej
+Words on screen	jIH Daq mu'
+A Lower Third with a name on it, then a title card with a key-green backdrop.	pong Lower Third, ghIq title card SuD Dung.
+The kaiju weather report, with June O'Neil	kaiju muD Dotlh, June O'Neil tlhej
+Keeping time	poH pol
+A stage timer counting down, held, and a presenter view for the person on stage.	stage timer, bIng togh, mev, ja'wI' legh ghotvaD.
+A grand day out, with Wallis and Grommet	jaj tIn, Wallis 'ej Grommet tlhej
+Two playlists and TAKE ALL	cha' playlist 'ej TAKE ALL
+A second playlist as a layer, and TAKE ALL so two things change on one beat.	cha'DIch playlist layer, TAKE ALL: cha' Doch wa' tIq Daq choH.
+The magic show, with Turnip Top	'IDnar show, Turnip Top tlhej
+When it goes wrong	Qagh tu'lu'DI'
+BLACK against PANIC, and getting a show back.	BLACK 'ej PANIC, 'ej show chegh.
+The cooking show, with Chef Bork	vut show, Chef Bork tlhej
+Presets	preset
+Capture a look on a DASH button, change everything, and get it back with one press.	DASH leQ Daq mIllogh yIpol, Hoch yIchoH, wa' qIp chegh.
+Transitions	choH
+The styles beyond the crossfade: an iris, a shatter, and their times.	crossfade Dung: iris, shatter, poH.
+The space-opera trailer, with Optimus Primetime	Hov may' trailer, Optimus Primetime tlhej
+Sound	wab
+An audio effect on a cue, a bend that damages it beautifully, and where the patch lives.	cue Daq wab effect, bend 'IH Qaw', patch Daq.
+The robot DJs, with Deft Funk	qorDu' DJ, Deft Funk tlhej
+Reading the scopes	scope yIlaD
+The waveform, the vectorscope, and false colour: is the glow real, or just too bright?	waveform, vectorscope, false colour: wov teH'a', pagh wov law' neH?
+The Signal Files: is the glow on the horizon a craft?	jabbI'ID De': chalDaq wov Duj'a'?
+Out of the building	qach Hur
+Where NDI, SDI and ST 2110 live, and NDI switched on where this computer has it.	NDI, SDI, ST 2110 Daq; De'wI'vam NDI ghajchugh, yIchu'.
+The webcam as a controller, as a game. Five rounds, a high score.	webcam SeHwI', Quj. vagh may', Hoch Dung mI'.
+A handheld, and bugs	ghop De'wI', ghew
+The multiview	multiview
+Windows, the ... menu, what each one shows, layouts, and tally.	qorwagh, ... menu, Hoch 'ang, Hap, tally.
+Mystery on the starship Cathode, with Lt. Haila and Ensign Jinkley	Cathode Duj pegh, Lt. Haila 'ej Ensign Jinkley tlhej
+DR. PIXEL: Two playlists: Deckboy becomes SUPER DECKBOY. It earned it, skapi.	DR. PIXEL: cha' playlist: Deckboy moj SUPER DECKBOY. batlh Daj, skapi.
+PROF. VIDEO: It evolved! My oscillators never got a fanfare.	PROF. VIDEO: choH! oscillatorwIj ghun fanfare 'e' lajbe'.
+DR. PIXEL: SUPER DECKBOY! Every show deserves one. Bravo.	DR. PIXEL: SUPER DECKBOY! Hoch show vIneH. maj!
+PROF. VIDEO: The power-up! More playlists, more layers, more super.	PROF. VIDEO: HoS! playlist law', layer law', super law'.
+Intro video (left on the office PC)	intro video (yaS De'wI' Daq lIjlu'pu')
+ON THE ROAD	LENG
+A show you built here, skapi, running on a laptop somewhere else tonight. Press START.	naDev show DachenmoHpu'bogh, skapi: DaHjaj ram laptop Daq latlh Daq Qap. START yIqIp.
+Before it travels: check it, fix it, bundle it.	leng pa': yInuD, yItI', yIbundle.
+See CHECK in the top bar? It only appears when something is wrong. Press it.	Dung bar Daq CHECK Dalegh'a'? Qagh tu'lu'DI' neH 'ang. yIqIp.
+It lists everything a show would trip over: missing files, empty cues, unreachable outputs.	show Hoch ghoS Qagh 'ang: De' ghap Hutlh, cue chIm, ngeHwI' chIm.
+FIX IT	YITI'
+The intro video is on another computer. Select it and delete it, or RELINK it if you have the file.	intro video latlh De'wI' Daq. yIwIv 'ej yIQaw', pagh RELINK yIlo' De'lIj Daghajchugh.
+Fix it at home, where it is easy. Not at the venue, where it is not.	juHlIj Daq yItI'. ngeD. may' yoS Daq Qo'. Qatlh.
+BUNDLE IT	HOCH YICHEL
+Press BUNDLE and choose where: a USB stick, a shared folder. The show and all its media, together.	Hoch yI chel yIqIp, Daq yIwIv: USB, pa' Doch. show 'ej Hoch media, nItebHa'.
+The copy finds its media beside it, wherever the folder goes.	pa' ghoSbogh Daq, media tu' copy.
+SAFE TRAVELS	QAPLA' LENG
+Checked, fixed, bundled. On the other machine, open the bundle's show: everything is where it should be.	nuDlu', tI'lu', chellu'. latlh De'wI' Daq bundle show yIpoSmoH: Hoch Daq lugh.
+A show file is only text, so it travels light. The media is the heavy part.	show De' ghItlh neH. tIS. media 'ugh.
+Student work no. 4 (untitled)	ghojwI' Qu' 4 (pong Hutlh)
+THE CRIT	NUDWI'
+An art school, skapi. One student, one picture, one critic who has seen it all. Press START.	ghojmeH Daq, skapi. ghojwI' wa', mIllogh wa', nuDwI' Hoch leghpu'bogh. START yIqIp.
+Effects change a picture; an oscillator keeps changing it. The critic only likes the second kind.	effect mIllogh choH; oscillator reH choH. cha'DIch neH parHa' nuDwI'.
+A grey square on beige. I have seen this at every graduate show since 1987.	beige Daq Hurgh loS reD. 1987 ghoS Hoch show Daq vIleghpu'.
+AN EFFECT	EFFECT
+In the inspector's EFFECTS section, + adds one. Edges is a good start: it draws the outlines.	inspector EFFECTS Daq, + chel. Edges QaQ: veH ghItlh.
+There are dozens. Every one runs on the CPU in a few milliseconds. Mostly.	law' tu'lu'. CPU Daq millisecond puS Qap. motlh.
+Take a risk! Bad art is fine. Boring art is a crime.	yIQIt! Hutlh mIllogh: QaQ. Doy'bogh mIllogh: HeS!
+A ~ ON ITS KNOB	LEQ DAQ ~
+Every control with a ~ beside it can follow an oscillator. Press one. The knob starts to breathe.	~ ghajbogh SeHwI' Hoch oscillator tlha' laH. wa' yIqIp. leQ tlhuH.
+A low-frequency oscillator: slow, so the eye can follow it. A quarter of a hertz is a four-second breath.	ghop-frequency oscillator: QIt. mIn tlha' laH. hertz loSDIch: tlhuH loS lup.
+Now it MOVES. Okay. Okay. I'm listening.	DaH vIHtaH. lu'. lu'. jIQoy.
+A COLOUR OF ITS OWN	NGUV DAJ
+Effects that draw a colour, like Edges' line, have a colour chip. It opens the picker: a wheel, typed names, or a colour off the screen.	nguv ghItlhbogh effect, Edges rur: nguv Dop ghaj. wIvwI' poSmoH: gho, pong, pagh jIHvo' nguv.
+Every colour has a name somewhere. Mine is 'oscilloscope green'. Nobody else uses it.	Hoch nguv pong ghaj. nguvwIj: 'oscilloscope SuD'. latlh lo'be'.
+That colour is doing something. I don't know what. I love it.	nguvvam vay' ta'. nuq? vIghovbe'. vIparHa'.
+THE VERDICT	NUDWI' WUQ
+An effect, a ~ and a colour. The critic is crying, skapi. Good crying, I think.	effect, ~, nguv. SaQ nuDwI', skapi. batlh SaQ, vIHar.
+Stack a few. Each has its own ~ on every knob. That is how a look becomes a performance.	law' yIchel. Hoch leQ Daq ~ Daj ghaj. vaj mIllogh lutlh moj.
+It's still a square. But it's YOUR square. Post it.	reD 'oH. 'ach reDlIj 'oH. yIngeH.
+THE TELESTRATOR BOOTH	TELESTRATOR PA'
+Coach Marv explains sport by drawing circles on it. Once he circled the sun. Ten minutes, skapi.	Coach Marv Quj QIj: gho ghItlh. wa'logh, jul gho ghItlh. wa'maH tup, skapi.
+Tonight: test patterns, the video synth, and drawing on the picture. Press START.	DaHjaj ram: mIllogh nuDmeH, video synth, mIllogh Daq ghItlh. START yIqIp.
+Get me a picture and a pen. BOOM.	mIllogh 'ej ghItlhwI' HInob. BOOM!
+A TEST PATTERN	MILLOGH NUDMEH
+Line up the screens BEFORE the show. Not during. I learned this in Plovdiv.	show pa' jIH tInargh. show ruch Qo'! Plovdiv Daq vIghojpu'.
+Every desk needs a test pattern. PATTERN adds Pocket Test: checked against real meters.	Hoch SeHlaw mIllogh nuDmeH poQ. mIllogh Pocket Test chel: teH juvwI' nuDlu'.
+A VIDEO SYNTH	VIDEO SYNTH
+He says 'no camera needed' like it is a feature. It is a feature.	'camera poQbe'' jatlh, Qu' rur. Qu' 'oH!
+My favourite. SOURCE, then Video Synth: oscillators, mirrors and feedback. No camera needed.	vIparHa'qu'. mung, ghIq Video Synth: oscillator, neSlo', feedback. camera poQbe'.
+TAKE THE SYNTH	SYNTH YITAKE
+Select it, then TAKE. Confident operators press Enter.	yIwIv, ghIq TAKE. Enter qIp vu'wI' jaq.
+That's our replay. Every replay needs a pundit.	replay maH. Hoch replay QIjwI' poQ.
+Now here's a replay. And here's a guy. And BOOM, he's in it.	replay 'oH. Quj ghot 'oH. 'ej BOOM, ghaHDaq.
+A SECOND PLAYLIST	CHA'DIch PLAYLIST
+Ink goes on top, on its own layer. Press the + at the end of the playlist tabs.	Dung ghItlh ngIq, layer Daj Daq. playlist tab Qav Daq + yIqIp.
+A second playlist is a layer over the first. Like a second oscillator, mixed on top.	cha'DIch playlist: wa'DIch Dung layer. cha'DIch oscillator rur.
+A DRAW CUE	DRAW CUE
+In the new playlist: SOURCE, then Draw. Clear everywhere you have not drawn.	playlist chu' Daq: mung, ghIq Draw. ghItlhbe'lu'bogh Daq Hoch: leghlaHbe'.
+A Draw cue is transparent outside the ink, so the synth shows through.	Draw cue ghItlh Hur leghlaHbe'. synth Dalegh.
+TAKE THE INK	GHITLH YITAKE
+Select the Draw cue and TAKE it. Two playlists, two layers, one picture.	Draw cue yIwIv, TAKE. cha' playlist, cha' layer, wa' mIllogh.
+Now both are live: the synth underneath, the ink on top.	DaH cha' jabbI'lu': bIng synth, Dung ghItlh.
+CIRCLE SOMETHING	VAY' YIGHO
+Press DRAW in the inspector, then draw on the programme monitor. Mouse, or a pen if you have one.	inspector Daq DRAW yIqIp, ghIq program monitor Daq yIghItlh. mouse, pagh ghItlhwI'.
+A pen's pressure makes the line thicker. A mouse presses at one strength. Like me.	ghItlhwI' 'uy: tIQ ghItlh. mouse: rap HoS. jIH rur.
+Circle him! No, bigger. BOOM. That's a cloud. Fine. Circle the cloud.	ghaH yIgho! Qo', tIn! BOOM. 'eng 'oH. lu'. 'eng yIgho.
+SAVE A STILL	STILL YICHOQMOH
+SAVE STILL keeps the drawing as a picture with a clear background, and adds it to the playlist.	SAVE STILL ghItlh choqmoH, leghlaHbe'bogh Dung, playlist chel.
+For next week's show. Coach Marv will want the cloud again.	cha'DIch Hogh show. 'eng neH Coach Marv.
+THAT'S THE BOOTH	PA' RIN
+Patterns, the synth, a layer, ink, a still. Nazdrave, skapi.	mIllogh, synth, layer, ghItlh, still. Nazdrave, skapi. Qapla'!
+Try Replay in the Draw section: it draws your lines back the way you drew them.	Draw Daq Replay yIlo': ghItlhlIj ghItlh, DaghItlhpu'bogh rur.
+Same time next week. Bring a bigger pen. And a turducken.	cha'DIch Hogh rap poH. ghItlhwI' tIn yIqem. 'ej qagh. yIn qagh neH.
+Saucer photo (CLASSIFIED)	Duj mIllogh (pegh)
+THE SIGNAL FILES	JABBI'ID DE'
+The Bureau of Unexplained Signals. Two agents, one photo, and it must not air. Press START.	Sovbe'lu'bogh jabbI'ID yaS. ghoghwI' cha', mIllogh wa'. jabbI'meH Qo'. START yIqIp.
+Masks cut a picture into shapes. Tonight we cut evidence.	mask mIllogh pe'. DaHjaj ram De' wIpe'.
+That's a craft, Brandt. Look at the lights. I want to believe.	Duj 'oH, Brandt. wovmoHwI' yIlegh. vIHar vIneH.
+A MASK FROM THE LIBRARY	TAY' DAQ MASK
+In the inspector's MASK section: mask, then 'new heart'. Any shape will do. The heart is funnier.	inspector MASK Daq: mask, ghIq 'new heart'. Hoch Hap QaQ. tIq tlhaQ.
+The library has circles, stars, hearts. Each one is points you can move.	tay' Daq gho, Hov, tIq. Hoch: Daq Doq DavIHmoHlaH.
+A heart, Hollis? The Bureau redacts with black bars.	tIq, Hollis? yaS: qIj DoS neH lo'.
+THE PEN	GHITLHWI'
+Set the tool to pen, then click round the saucer on the monitor. Click the first point to close it.	ghItlhwI' yIwIv, monitor Daq Duj yIgho. wa'DIch Daq yIqIp. SoQ.
+Click for corners, drag for curves. The way the Bezier brothers intended.	Hep: qIp. gho: tlhIl. Bézier loDnI'pu' luneH.
+Draw round it carefully. It might be watching.	yIgho, yIyep. nuleghlaH.
+INVERT	CHOH
+Invert keeps the outside and cuts the inside. The saucer goes. The sky stays.	choH: Hur pol, qoD pe'. Duj ghoS. chal ratlh.
+The same shape, the other way round. Very useful. Slightly spooky.	Hap rap, nItebHa'. lI'. ghIj.
+Hollis, there's a heart-shaped hole in the sky.	Hollis, chal Daq tIq Hap QIn.
+FEATHER	VEH NGED
+Feather softens the edge, so nobody sees the cut. Press + on feather.	veH ngeD: veH ngeDmoH. pe'meH nuDlaHbe'. feather Daq + yIqIp.
+A hard edge says 'someone was here'. A soft one says nothing at all.	veH let: 'naDev ghot'. veH ngeD: pagh jatlh.
+They'll never know.	not Sov.
+CASE CLOSED	QAGH RIN
+A library shape, the pen, invert and feather. The Bureau thanks you. The Bureau was never here.	tay' Hap, ghItlhwI', choH, veH ngeD. yaS Satlho'. naDev yaS not.
+Masks also go on a layer, an output, or its matte: MASK ON chooses. And every control takes a ~.	mask: layer Daq, ngeHwI' Daq, matte Daq. MASK ON wIv. Hoch SeHwI' ~ lajlaH.
+The truth is in the waveform, Hollis. Next time, the scopes.	wavform Daq vIt, Hollis. tlha'bogh: scope.
+The ghost	ghost
+THE HAUNTED LIGHTHOUSE	GHOST WOVMOHWI' QACH
+A lighthouse, a ghost, and a keeper who has been alone with the lamp far too long. Press START.	wovmoHwI' qach, ghost, wovmoHwI' 'avwI' nI'qu' mob. START yIqIp.
+Projection mapping: bending the picture to fit the building. Warp, blend, slices.	projection mapping: qach rur mIllogh yIHot. warp, blend, slice.
+Ye'll be wanting the ghost on the windows. Mind the lamp. The lamp is MINE.	Qorwagh Daq ghost DaneH, qar'a'? wovmoHwI' yI'ef! wovmoHwI' VIGHAJ!
+THE OUTPUT'S GEOMETRY	NGEHWI' HOS CHEN
+MENU, then Video Outputs, then Geometry. Where an output's shape lives.	MENU, ghIq mIllogh mej, ghIq HoS chen. ngeHwI' Hap: naDev.
+Geometry: the projector-menu word for 'what shape is the picture'.	HoS chen: projector menu mu' 'mIllogh Hap nuq'.
+PIN A CORNER	HEP YIBAQ
+Press warp edit, then drag a corner on the programme monitor. The window is not square. Neither is the keeper.	warp edit yIqIp, program monitor Daq Hep yItlhIl. Qorwagh reD Qo'. 'avwI' reD Qo'.
+A corner pin moves the four corners. Perspective keeps the lines straight, like a real window.	corner pin: Hep loS vIHmoH. perspective: tlhegh tI'. teH Qorwagh rur.
+LEFT! Ye call that a corner? I've seen straighter gulls.	poS! Hep 'oH'a'? tI'qu' bIQ'a' bo'Degh vIleghpu'.
+TWO SOFT EDGES	VEH NGED CHA'
+Back in Geometry: edge blend, + on the left and + on the right.	HoS chen Daq: edge blend, poS + 'ej nIH +.
+Two projectors overlap; each fades its edge so the overlap is not twice as bright.	cha' projector ghoS; Hoch veH ngabmoH, vaj cha'logh wov Qo'.
+THE SCREENS WINDOW	SCREENS QORWAGH
+Geometry, SLICES, open. The Screens window is where slices are cut and placed.	HoS chen, SLICES, yIpoSmoH. Screens qorwagh: slice pe'lu' 'ej lanlu'.
+A slice is a piece of the picture, put anywhere on the output.	slice: mIllogh Hap. ngeHwI' Hoch Daq lanlaH.
+THREE SLICES	SLICE WEJ
+In the Screens window, + SLICE three times, and drag each crop to a third of the picture.	Screens Daq, + SLICE wejlogh. Hoch pe' mIllogh wejDIch Daq yItlhIl.
+Three windows, three slices: left, middle and right of one picture.	Qorwagh wej, slice wej: poS, botlh, nIH.
+Three windows. The lamp gets the middle one. The lamp ALWAYS gets the middle one.	Qorwagh wej. botlh: wovmoHwI' Daj. botlh: reH wovmoHwI' Daj!
+THE GHOST IS PLEASED	GHOST BEL
+Warp, blend, slices. The keeper will finally sleep. The gulls will not.	warp, blend, slice. 'avwI' Qong. bo'Degh Qongbe'.
+Slices have their own warp and mesh in the Screens window. And a ~ on the place and the turn.	Screens Daq slice warp 'ej mesh Daj ghaj. Daq 'ej jIr ~ ghaj.
+Ye did alright, lad. Now get away from the lamp.	QaQ, puq. DaH wovmoHwI'vo' yIghoS.
+THE GAME SHOW	QUJ SHOW
+A game show, skapi. Three contestants, one buzzer, and cues that fire from anywhere. Press START.	Quj show, skapi. SuvwI' wej, buzzer wa', cue Hochvo' baH. START yIqIp.
+Cue numbers, hotkeys, and GO from other machines. Like a sequencer you can play from any key.	cue mI', leQ, latlh De'wI'vo' GO. sequencer rur. leQ Hoch QaQ.
+Welcome to the show! Let's spin that wheel!	show Daq yIjach! gho yIjIrmoH!
+A CUE NUMBER	CUE MI'
+Contestant 3 is selected. In the inspector's metadata, give it a cue number: 3.	SuvwI' 3 wIvlu'. inspector De' Daq cue mI' yInob: 3.
+Theatre numbers its cues. Q3, Q3.5, Q12A. Deckboy reads them all.	lut qach cue mI' nob. Q3, Q3.5, Q12A. Hoch laD Deckboy.
+I'd like to buy a number, please.	mI' vIje' vIneH.
+GO TO IT	YIGHOS
+Ctrl+G, type the number, Enter. It goes live wherever the list happens to be standing.	Ctrl+G, mI' yIghItlh, Enter. jabbI'lu', tetlh Daq Hoch.
+GOTO. The fastest way across a long list. Faster than scrolling. Much faster than me.	GOTO. tetlh tIq Daq: Do' He. scroll nom. jIH nomqu'.
+And the number is... three!	mI' 'oH... wej!
+A BUZZER	BUZZER
+Contestant 1 is selected. In TRIGGERS, press key, then F5. That key now fires this cue.	SuvwI' 1 wIvlu'. TRIGGERS Daq key yIqIp, ghIq F5. DaH leQvam cue baH.
+F1 to F10, F12, or the number pad. Each one, a buzzer.	F1 F10 ghoS, F12, pagh mI' SeHlaw. Hoch: buzzer.
+Every contestant gets a buzzer.	Hoch SuvwI' buzzer Hev.
+BUZZ IN	YIQIP!
+Press the key. The cue fires, wherever the list is standing.	leQ yIqIp. cue baH, tetlh Daq Hoch.
+No mouse, no list, no looking. Just the key.	mouse Hutlh, tetlh Hutlh, leghbe'. leQ neH.
+Buzz! We have a winner!	Bzzzt! charghwI' tu'lu'!
+FROM ANYWHERE	DAQ HOCHVO'
+Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion, MIDI QoQ, OSC QIn: MENU, ghIq jIH, Hoch rar Daq 'ang.
+A Stream Deck in the next room can press GO. So can a keyboard synth. I prefer the synth.	latlh pa' Daq Stream Deck GO qIplaH. synth je. synth vIparHa'.
+And for our viewers at home: you can play along too.	juH Daq leghwI'pu'vaD: SuQujlaH je.
+THAT'S OUR SHOW	SHOW MAH RIN
+Numbers, GOTO, a buzzer, and GO from anywhere. You are a game show now, skapi.	mI', GOTO, buzzer, Daq Hochvo' GO. DaH Quj show SoH, skapi.
+A cue can have a key, a MIDI note and an OSC address at once. Belt, braces and a second belt.	cue: leQ, MIDI QoQ, OSC Daq wa'logh. qogh, qogh cha', qogh wej. tlhIngan Qorwagh!
+Goodnight, everybody! Keep spinning!	maj ram, Hoch! yIjIrmoH!
+Weather map	muD Dotlh mIllogh
+THE KAIJU WEATHER	KAIJU MUD DOTLH
+Channel 6 weather, skapi. A map, a presenter, and a very large lizard. Press START.	Channel 6 muD Dotlh, skapi. mIllogh, ja'wI', lung tIn. START yIqIp.
+Words on screen: Lower Thirds, text, and backdrops.	jIH Daq mu': Lower Third, ghItlh, Dung.
+I'm June O'Neil, and nothing about this forecast is normal.	June O'Neil jIH. muD Dotlhvam motlhbe'.
+A LAYER FOR WORDS	MU' LAYER
+Words go on their own layer: press the + at the end of the playlist tabs.	mu' layer Daj: playlist tab Qav Daq + yIqIp.
+A second playlist is a layer over the map. The lizard stays underneath. Mostly.	cha'DIch playlist: mIllogh Dung layer. bIng lung ratlh. motlh.
+Words on top. Always on top.	Dung mu'. reH Dung.
+A LOWER THIRD	LOWER THIRD
+In the new playlist: SOURCE, then Lower Third.	playlist chu' Daq: mung, ghIq Lower Third.
+A name and a title, low on the screen, out of the lizard's way.	pong 'ej Qu', jIH bIng Daq, lung He Daqvo' Hop.
+HER NAME	PONG DAJ
+In the inspector, title: type the presenter's name. The second line is her job.	inspector Daq, title: ja'wI' pong yIghItlh. cha'DIch tlhegh: Qu' Daj.
+Spelling counts. The audience reads it at the speed of light.	ghItlh lugh poQ. leghwI'pu' tlhIngan Duj nom laD.
+Spell it right. Last week it said 'Jane O'Meal'.	lugh yIghItlh. Hogh vorgh: 'June O'Klingon'.
+ON AIR	JABBI'LU'
+TAKE the Lower Third. Her name slides in over the map.	Lower Third yITAKE. pong mIllogh Dung tlhIl.
+Two layers live: the weather, and the words on top of it.	cha' layer jabbI'lu': muD, Dung mu'.
+Thank you. Now, about that lizard...	qatlho'. DaH, lung...
+BREAKING NEWS	CHU' JABBI'ID
+SOURCE, then Text: a title card. Then its backdrop chip: key green, for the vision mixer to key out.	mung, ghIq Text: title card. ghIq Dung Dop: SuD, key mixer pe'meH.
+A backdrop fills behind the words. Key green or key blue, and the mixer does the rest.	mu' Qav Dung teb. SuD pagh SuD Doq. mixer latlh ta'.
+Breaking news: it's standing on the five-day forecast.	chu' jabbI'ID: vagh jaj muD Dotlh Daq Qam.
+BREAKING: KAIJU	CHU': KAIJU
+BACK TO YOU	STUDIO DAQ CHEGH
+A Lower Third, a name, a title card, a backdrop. The lizard has left the studio, skapi.	Lower Third, pong, title card, Dung. lung studio mej, skapi.
+Lower Thirds can wait, slide and leave on their own. Their section has every setting.	Lower Third ghoS, tlhIl, mej. Hoch SeHwI' ghaj.
+That's the weather. Back to you, guys. Run.	muD Dotlh rIn. studio Daq cheghlu'. yIqet!
+A GRAND DAY OUT	JAJ TIN
+A rocket built in a basement, skapi, and an inventor who wants cheese. Press START.	bIng pa' Daq chenmoHlu'pu'bogh Duj, skapi, 'ej nIb'oy neHbogh chenmoHwI'. START yIqIp.
+Stage timers: countdowns, clocks, and a presenter view for the person on stage.	stage timer: bIng togh, tlhaq, ja'wI' legh.
+Cheese, Grommet! The moon's made of it. We'll need a countdown.	nIb'oy, Grommet! maS nIb'oy 'oH. bIng togh wIpoQ.
+A COUNTDOWN	BING TOGH
+SOURCE, then Stage Timer. A clock that counts down, in big friendly numbers.	mung, ghIq Stage Timer. bIng toghbogh tlhaq, mI' tIn.
+Its colours change as it runs out: white, amber, red. Like a VU meter for time.	poH rInDI' nguv choH: chIS, Doq'eS, Doq. poH VU meter rur.
+*raises an eyebrow*	*Hoch tlhoy' ghIm*
+LIFT OFF	LENG
+Select the timer and TAKE it. The countdown starts.	timer yIwIv, TAKE. bIng togh taghlu'.
+Past zero it keeps going, counting the overtime. Very honest. Slightly rude.	pagh 'emDaq ruch, poH law' togh. vIt. ghIj.
+Ten... nine... ooh, I do love a countdown.	wa'maH... Hut... toH, bIng togh vIparHa'.
+HOLD!	YIMEV!
+Something's loose! Space holds the countdown. The clock shows it is held.	vay' Qaw'! space: bIng togh mev. tlhaq: mevpu'.
+A hold is not a stop. Space again, and it carries on from where it was.	mev rInbe'. space, ghIq ruch.
+*holds up a spanner*	*spanner Hoch*
+THE PILOT'S VIEW	DUJ CHU'WI' LEGH
+MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	MENU, mIllogh mej: ngeHwI' Segh: PRESENTER. DuS Daq ghot: timer, tlha'bogh cue, ghItlh.
+A presenter view is an output like any other. Point it at the confidence monitor.	ja'wI' legh: ngeHwI' 'oH. DuS monitor Daq yIlan.
+So the pilot can see the time. The pilot is Grommet.	poH legh Duj chu'wI'. Duj chu'wI': Grommet.
+TO THE MOON	MAS DAQ
+A countdown, a hold, and a view for the pilot. Nazdrave, skapi. Bring crackers.	bIng togh, mev, Duj chu'wI' legh. Nazdrave, skapi. Qapla'! cracker yIqem.
+Timers can also count up, or show the time of day. Their section has the lot.	timer Dung togh laH, pagh poH 'ang. Hoch ghaj.
+A grand day out, Grommet! Pass the crackers.	jaj tIn, Grommet! cracker HInob.
+The trunk (closed)	DeS (SoQ)
+The trunk (open)	DeS (poS)
+THE MAGIC SHOW	'IDNAR SHOW
+A magic show, skapi. A trunk, a prop, and one beat where everything changes at once. Press START.	'IDnar show, skapi. DeS, prop, tIq wa': Hoch choH. START yIqIp.
+Two playlists are two layers. TAKE ALL changes both together.	cha' playlist: cha' layer. TAKE ALL cha' choH.
+Every trick needs two things happening at once. And a rubber chicken.	Hoch 'IDnar cha' Doch poQ. 'ej rubber chicken.
+The prop goes on its own layer. Press the + at the end of the playlist tabs.	prop layer Daj. playlist tab Qav Daq + yIqIp.
+Playlist 2 sits on top of playlist 1. Like a transparency on an overhead projector.	playlist 2 playlist 1 Dung. overhead projector rur.
+Nothing up my sleeve. Everything in my trunk.	DeSwIjDaq Hoch. tlhaqwIjDaq pagh.
+THE PROP	PROP
+In the new playlist, add anything: PATTERN will do. That is the prop.	playlist chu' Daq Hoch yIchel: mIllogh QaQ. prop 'oH.
+Whatever it is, it will appear the instant the trunk opens.	nuq 'oH? DeS poSDI', 'ang.
+Is it a rubber chicken? It's always a rubber chicken.	rubber chicken'a'? reH rubber chicken.
+The prop (rubber chicken)	prop (rubber chicken)
+Select 'The trunk (open)' in playlist 1 and the prop in playlist 2. Then TAKE ALL: both on one beat.	playlist 1 Daq 'DeS (poS)' yIwIv, playlist 2 Daq prop. ghIq TAKE ALL: wa' tIq.
+One press, every playlist's selected cue. The audience never sees the seam.	qIp wa', Hoch playlist cue. leghwI'pu' veH leghbe'.
+Ta-daaa! ...Hold for applause. Hold. Hold.	Ta-daaa! ...yIloS. yIloS. yIloS.
+THE PRESTIGE	'IDNAR TIN
+Two layers, one beat. Every playlist has its own opacity and can sit on any output. Nazdrave, skapi.	cha' layer, wa' tIq. Hoch playlist leghlaHbe' Daj ghaj. Nazdrave, skapi. Qapla'!
+A magician never reveals. A playlist never minds being revealed.	'IDnarwI' pegh pol. playlist SaHbe'.
+Thank you! I'm here all week! The chicken is here forever.	qatlho'! Hogh Hoch naDev jIH! rubber chicken: reH!
+The kitchen (on fire)	vutpa' (meQ)
+A lovely souffle	soufflé QaQ
+THE COOKING SHOW	VUT SHOW
+A cooking show, skapi. Live. Everything is on fire. Press START.	vut show, skapi. jabbI'taH. Hoch meQ. START yIqIp.
+BLACK hides the picture and keeps the show running. PANIC stops everything. Know which you need.	BLACK mIllogh So', show ruch. PANIC Hoch mev. DapoQbogh yISov.
+Bork bork! Hurdy-flurdy, de kitchen is fire-a-flurdy!	Bork bork! Hurdy-flurdy, vutpa' meQ-flurdy!
+The audience must not see this. Press BLACK, or B.	leghwI'pu' leghQo'! BLACK yIqIp, pagh B.
+The picture goes. The cue keeps playing underneath, ready to come back.	mIllogh ghoS. bIng cue Qap, chegh ghuS.
+Bork? Bork. Oh, de picture is gun.	Bork? Bork. Oh, mIllogh ghoS.
+AND BACK	'EJ CHEGH
+The fire's out. Press B again: the picture comes back, still running.	qul Hop. B yIqIp: mIllogh chegh, ruch.
+Nothing was lost. A mute on a mixer, for pictures.	pagh chIl. mixer mute, mIllogh.
+Ta-da! Still cookin'!	Ta-da! vutlI'!
+Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	qab: MENU, pat, SAFETY: PANIC. Hoch mev, PANIC SeH rur.
+PANIC is the big red button. Use it when BLACK is not enough. Then breathe.	PANIC: leQ Doq tIn. BLACK yapbe'DI' yIlo'. ghIq yItlhuH.
+GET IT BACK	YICHEGHMOH
+Close MENU, select the souffle, and TAKE it. The show is back on.	MENU yISoQmoH, soufflé yIwIv, TAKE. show chegh.
+After a panic, the show is still there. Pick up where you meant to be.	PANIC ret show ratlh. yIruch.
+Voila! De souffle, he is risen!	Voilà! soufflé Hu'!
+BON APPETIT	BON APPETIT. QAQ YISOP
+BLACK to hide, PANIC to stop, TAKE to come back. You will survive any kitchen, skapi.	BLACK So', PANIC mev, TAKE chegh. Hoch vutpa' DataHlaH, skapi.
+The panic setting chooses what PANIC does: fade out, cut, or just the outputs.	PANIC SeH: fade out, cut, pagh ngeHwI' neH.
+Bork bork bork! Goodnight!	Bork bork bork! maj ram!
+Look one	mIllogh wa'
+Look two	mIllogh cha'
+Presets, skapi. A whole look, remembered, and back with one button. Press START.	preset, skapi. mIllogh naQ, qawlu', leQ wa' chegh. START yIqIp.
+Like the patch memory on a synth: store, then recall.	synth patch qawHaq rur: pol, ghIq rIt.
+THE DASH	DASH
+Press DASH: buttons of your own, for anything at all.	DASH yIqIp: leQmey Daj.
+Ctrl+D also works. Very fast. Very professional.	Ctrl+D je. nom. po'.
+A PRESET BUTTON	PRESET LEQ
+Press +, then 'preset - a new preset from what is on now'. The button remembers this look.	+ yIqIp, ghIq 'preset - a new preset from what is on now'. mIllogh qaw leQ.
+Store. Like saving the patch before the drummer leans on the synth.	pol. 'In joqwI' synth Dung pumpa' patch choqmoH.
+CHANGE EVERYTHING	HOCH YICHOH
+Close the DASH (Esc), then select Look two and TAKE it. A different look.	DASH yISoQmoH (Esc), mIllogh cha' yIwIv, TAKE. latlh mIllogh.
+Change it all. Don't worry. It remembers.	Hoch yIchoH. yIbItQo'. qaw.
+ONE PRESS	QIP WA'
+Open the DASH and press your preset button. The first look comes back.	DASH yIpoSmoH, preset leQ yIqIp. wa'DIch mIllogh chegh.
+Recall. The patch memory, returning. Beautiful.	rIt. patch qawHaq chegh. 'IH.
+A look, stored and recalled. A preset can keep cues, positions, effects, levels and routing; its button's menu chooses which.	mIllogh pollu' 'ej rItlu'. preset: cue, Daq, effect, patlh, He pol. leQ menu wIv.
+And a DASH button can run any command at all. Any. Even the exciting ones.	DASH leQ Hoch ra' Qap. Hoch. DoghQo'bogh je.
+Opening titles	tagh title
+The planet	yuQ
+The battle	may'
+THE TRAILER	TRAILER
+A space-opera trailer, skapi. A narrator with a very deep voice and opinions about transitions. Press START.	Hov may' trailer, skapi. ja'wI' QoQ 'ej choH ghIn. START yIqIp.
+A transition is how one cue becomes the next. There are far more than the crossfade.	choH: cue tlha'bogh cue moj. crossfade law'.
+In a galaxy of content... one operator... must choose a transition.	De' qIb Daq... vu'wI' wa'... choH wIv.
+A STYLE	SEGH
+'The planet' is selected. In the inspector, its transition style: choose iris.	'yuQ' wIvlu'. inspector Daq choH Segh: iris yIwIv.
+Pushes, wipes, iris, dip to white. Even a portal. I wrote half of them. On a Tuesday.	push, wipe, iris, chIS. lojmIt je! bID vIghItlh. DIjaj.
+The planet deserves... a dramatic entrance.	yuQ... 'el Hoch potlh.
+A TIME	POH
+Give it a time: + on transition until it says a second or more.	poH yInob: choH Daq + lup wa' pagh law' ghoS.
+No time, no transition. A style needs a duration to do anything at all.	poH Hutlh, choH Hutlh. Segh poH poQ.
+ROLL IT	YIQAP
+TAKE the planet. Watch it arrive.	yuQ yITAKE. paw.
+The transition belongs to the cue arriving. Each cue chooses its own entrance.	choH: pawbogh cue Daj. Hoch cue 'el Daj wIv.
+Autobots... roll the transition.	Autobot... choH yIQap!
+THE BATTLE	MAY'
+Now 'The battle': choose shatter, give it a time, and TAKE it.	DaH 'may'': shatter yIwIv, poH yInob, TAKE. Qapla'!
+Shatter drops the old picture like a pane of glass. Please do not do this at a funeral.	shatter mIllogh ngo' chIlmoH, 'al rur. nol Daq yIta'Qo'.
+Transform... and shatter out!	choH... 'ej yIghor!
+IN CINEMAS NOW	DAH CINEMA DAQ
+A style, a time, and two very dramatic entrances. Nazdrave, skapi.	Segh, poH, cha' 'el Hoch potlh. Nazdrave, skapi.
+A playlist has a default style too, for every cue that does not choose its own.	playlist Segh motlh ghaj, cue Segh wIvbe'bogh vaD.
+Coming soon... to a desk near you.	tugh... SeHlaw Sum Daq.
+The beat	beat
+THE ROBOT DJS	ROBOT DJ
+Two robot DJs, skapi. They do not talk. Their helmets do. Press START.	robot DJ cha', skapi. jatlhbe'. mIv jatlh. START yIqIp.
+Every cue has its own chain of audio effects, and some of them break the sound on purpose.	Hoch cue wab effect mIr ghaj. 'op wab Qaw' Qu'.
+> HELLO. WE ARE HERE TO FIX YOUR MIX.	> NUQNEH. MIXLIJ WITI'.
+The beat is selected. In its AUDIO EFFECTS section, + adds one. Try the delay.	beat wIvlu'. AUDIO EFFECTS Daq + chel. delay yInID.
+Delay, reverb, filters, a compressor. Amount always means 'less of this'.	delay, reverb, filter, compressor. Amount: 'puS'.
+> ONE MORE TIME. WITH ECHO. ECHO. ECHO.	> LATLH. ECHO. ECHO. ECHO.
+A BEND	BEND
+Add a second: a bend, like crush. It damages the sound the way a broken file would.	cha'DIch yIchel: bend, crush rur. De' ghor rur wab Qaw'.
+The bends are my favourite. Like a tape left in the sun. On purpose.	bend vIparHa'qu'. jul Daq tape rur. Qu'.
+> HARDER. BETTER. CRUNCHIER. LOUDER.	> QATLH. QAQ. HOS. QOQ.
+THE PATCH	PATCH
+MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	MENU, ghIq wab: Hoch playlist wab Daq, pong ngeHwI' patch.
+Speakers, monitors, an in-ear for the drummer. The patch sends each its own.	QoQ jan, monitor, 'In joqwI' in-ear. patch Hoch Daj ngeH.
+> AROUND THE MIX. AROUND THE MIX. AROUND THE MIX.	> MIX GHO. MIX GHO. MIX GHO.
+An effect, a bend and the patch. The robots approve, skapi. I think. Their faces are helmets.	effect, bend, patch. robot QaQ, skapi. vIHar. mIv qab.
+Every audio effect can follow a ~ too, even Motion. Wave at the delay. It's wonderful.	Hoch wab effect ~ tlha'laH, Motion je. delay yIghojmoH. 'IH.
+> THANK YOU. GOOD NIGHT. WE ARE ROBOTS.	> QATLHO'. MAJ RAM. QORDU' MAH.
+The glow on the horizon (evidence #2)	chal wov (De' #2)
+EVIDENCE #2	DE' #2
+The Bureau again, skapi. A glow on the horizon, and two agents who disagree about it. Press START.	yaS latlh, skapi. chal wov, ghoghwI' cha' Qochbe'. START yIqIp.
+The scopes measure a picture: brightness, colour, levels. Numbers, not opinions.	scope mIllogh juv: wov, nguv, patlh. mI' neH. ghIn Hutlh.
+It's them, Brandt. It's a craft. Look how it glows.	chaH, Brandt. Duj 'oH. wov yIlegh.
+THE REAL SIGNAL	TEH JABBI'ID
+The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	scope teH mejbogh neH laD. preview Qo'. ngeHwI' yIchu': MENU, mIllogh mej, ngeHwI' chu'Ha'lu'.
+Measuring a scaled-down preview would be measuring a photocopy. We measure the original.	preview mach juv: ghItlh copy juv rur. wa'DIch wIjuv.
+Chain of evidence, Hollis. The real signal or nothing.	De' mIr, Hollis. teH jabbI'ID pagh pagh.
+THE SCOPES	SCOPE
+Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	MENU yISoQmoH. monitor Dung PROGRAM leQ: SCOPES pagh BOTH 'ang ghoS yIqIp.
+Both shows the picture and its scopes side by side. Very civilised.	BOTH mIllogh 'ej scope 'ang, retlhDaq. tayqeq.
+Let the scopes decide, Hollis.	scope wuq, Hollis.
+THE WAVEFORM	WAVEFORM
+Click the waveform to make it big. Bright things sit high, dark things low, left to right as in the picture.	waveform yIqIp, tIn. wov Dung, Hurgh bIng, poS nIH mIllogh rur.
+The glow is that spike near the top. Very bright. Bright is not the same as alien.	wov: Dung Daq jajlo'. wovqu'. wov nov'e' rapbe'.
+Look at the peak. Nothing a streetlight couldn't do.	jajlo' yIlegh. wovmoHwI' He ta'laH.
+THE VECTORSCOPE	VECTORSCOPE
+Click it again to go back, then click the vectorscope: colour round a circle. Saturated runs to the edge.	yIqIp, chegh. vectorscope yIqIp: nguv gho. Hoch veH Daq qet.
+Magenta, far out by the rim. A strong colour. Strong is not illegal. Yet.	magenta, veH Daq Hop. nguv HoS. HoS chut Qo'. DaH.
+It's off the chart, Brandt! Literally off the chart!	chart Hur, Brandt! teH!
+And false colour: red is clipped, yellow nearly. Is the glow red?	false colour: Doq pe'lu', SuD Hap. wov Doq'a'?
+Clipped means the brightest the signal can carry, and then some lost. Detail gone.	pe'lu': jabbI'ID wovqu', latlh chIl. Hap Hutlh.
+Red. Clipped. Not alien, Hollis. Just too bright. Case closed.	Doq. pe'lu'. nov Qo', Hollis. wov law' neH. Qagh rIn.
+THE TRUTH	VIT
+Waveform, vectorscope, false colour. The scopes settled it, skapi. The agents did not.	waveform, vectorscope, false colour. scope wuq, skapi. ghoghwI'pu' wuqbe'.
+SCOPES SOURCE reads any output, and the matrix can be 709 or 2020. For the curious.	SCOPES SOURCE Hoch ngeHwI' laD, matrix 709 pagh 2020. tlhoy' Sovbe'bogh vaD.
+Too bright for a streetlight, Brandt. Too bright for anything. ...I want to believe.	He wovmoHwI'vaD wov law', Brandt. Hoch vaD wov law'. ...vIHar vIneH.
+OUT OF THE BUILDING	QACH HUR
+Pictures that leave by cable or network, skapi, not only a window on a screen. Press START.	tlhegh pagh jIH mejbogh mIllogh, skapi. qorwagh neH Qo'. START yIqIp.
+NDI over the network, SDI from a DeckLink card, ST 2110 for broadcast plants.	jIH Daq NDI, DeckLink SDI, jabbI'ID qach ST 2110.
+THE DEVICES PAGE	JAN DAQ
+MENU, Video Outputs, then Devices: every way an output can leave this computer.	MENU, mIllogh mej, ghIq jan: De'wI'vam ngeHwI' mej Hoch mIw.
+Each one says whether this machine can do it, and what it needs if not.	Hoch: De'wI'vam ta'laH'a', ta'laHbe'chugh nuq poQ.
+If this computer has NDI, switch NDI SENDING on: the picture is on the network. If not, SHOW ME moves on.	NDI ghajchugh De'wI'vam, NDI SENDING yIchu': jIH Daq mIllogh. ghajbe'chugh, SHOW ME ruch.
+NDI finds itself on the network. No cables, only a good switch and patience.	NDI jIH Daq ngu'. tlhegh Hutlh. switch QaQ 'ej yep neH.
+OUT THERE	HUR
+The output's own page has the rest: a DeckLink card's SDI, ST 2110 with NMOS, Spout and Syphon.	ngeHwI' Daq latlh: DeckLink SDI, NMOS ST 2110, Spout, Syphon.
+Every one is just an output. The show does not know or care how it leaves.	Hoch ngeHwI' neH. show SaHbe'.
+Nebula ahead	Hov 'eng ret
+Engine room	QuQ pa'
+Deck 3: something moving	Deck 3: vay' vIH
+THE BRIDGE	DUJ YOQ
+The bridge of the starship Cathode, skapi. Four feeds, one main viewer, one mystery. Press START.	Duj Cathode yoq, skapi. jabbI'ID loS, jIH tIn wa', pegh wa'. START yIqIp.
+The multiview shows every playlist at once. Like a wall of oscilloscopes, but in space.	multiview Hoch playlist 'ang. oscilloscope tlhoy' rur, 'ach logh Daq.
+Frequencies open, Captain. All of them. That's the problem.	frequency poS, HoD. Hoch. Qagh 'oH.
+MULTI, above the monitor: every playlist in its own window.	MULTI, monitor Dung: Hoch playlist qorwagh Daj.
+One window per playlist, the programme first.	wa' playlist wa' qorwagh, program wa'DIch.
+Jinkys! Four feeds. And one of them has a monster in it.	Jinkys! jabbI'ID loS. wa' Daq: veqlargh!
+WHAT'S NEXT	TLHA'BOGH
+Add a window (+), then its ... menu: make it show NEXT. What goes live when you press TAKE.	qorwagh yIchel (+), ghIq ... menu: NEXT yI'ang. TAKE DaqIpDI', jabbI'lu'.
+Every window has a ... button. It chooses what that window shows.	Hoch qorwagh ... leQ ghaj. 'ang wIv.
+I need to see who's calling before they reach the main viewer.	jIH tIn paw pa' ghoghwI' vIlegh vIneH.
+A CLOCK	TLHAQ
+And one more window, showing the clock. Operators who watch a clock are never late. Mostly.	latlh qorwagh, tlhaq. tlhaq legh vu'wI', not paS. motlh.
+Time of day, big. Stardates are just very long timecode.	poH, tIn. stardate: timecode tIq neH.
+The monster only shows up at midnight. We're going to need a clock.	ramjep neH veqlargh paw. tlhaq wIpoQ.
+ONE BIG ONE	WA' TIN
+Any window's ... menu, then a layout: one big, the rest small.	Hoch qorwagh ... menu, ghIq Hap: wa' tIn, latlh mach.
+The big window is window one. Usually the programme. Usually.	qorwagh tIn: qorwagh wa'. motlh program. motlh.
+Main viewer big. The captain likes it big.	jIH tIn, tIn. HoD tIn parHa'.
+ON SCREEN	JIH DAQ
+Select Deck 3 in playlist 3 and TAKE. Watch its window.	playlist 3 Daq Deck 3 yIwIv, TAKE. qorwagh yIlegh.
+The red border is TALLY: the window that is on air. On screen, as they say on starships.	veH Doq: TALLY. jabbI'lu'bogh qorwagh. 'jIH Daq', Duj Daq jatlhlu'.
+There! Feed three! Put it on screen!	pa'! jabbI'ID wej! jIH Daq yIlan!
+THAT'S A WRAP	RIN
+Windows, the ... menu, NEXT, the clock, a layout, tally. Mystery solved, skapi.	qorwagh, ... menu, NEXT, tlhaq, Hap, tally. pegh rIn, skapi.
+A window can also show an output, with its warp and slices. Handy when it's a lighthouse.	qorwagh ngeHwI' 'anglaH je, warp 'ej slice. wovmoHwI' qach vaD QaQ.
+And the monster was... the ship's cook, all along. Jinkys.	'ej veqlargh... Duj vutwI'! reH! Jinkys.
+there is no such lesson	ghojmeHvam tu'lu'be'
+finish or leave the lesson you are in first	ghojmeH DaghoSbogh yIrIn pagh yImej wa'DIch
+leave Bug Swat first	Bug Swat yImej wa'DIch
+Psst. It's me, the desk. I'll be watching. Supportively.	Psst. jIH, SeHlaw. vIleghtaH. jIQaH.
+Hi! I'm the one doing all of this, by the way.	nuqneH! Hoch vIta', 'e' DaSov'a'?
+Ctrl+D opens the DASH. I'm just saying.	Ctrl+D DASH poSmoH. jIjatlh neH.
+Nearly there. I can feel it in my pixels.	Hap. pixelwIj Daq vIpay.
+You're good at this. I can tell. I'm the one doing it.	bIQaQ. vISov. vIta'.
+Every click, I heard. Every single one.	Hoch qIp vIQoy. Hoch.
+The glowing one. I can see it from here. It's glowing for you.	wovbogh. naDev vIlegh. SoHvaD wov.
+lesson paused - MENU > LESSONS picks up where you left off	ghojmeH mev - MENU > LESSONS Damevpu'bogh Daq ruch
+PROF. VIDEO:  The signal: what the picture is made of, and how to bend it. Pick a lesson.	PROF. VIDEO:  jabbI'ID: mIllogh nuq 'oH, 'ej chay' DaHotlh. ghojmeH yIwIv.
+DR. PIXEL:  Running the show, skapi. Fast hands, calm face. Pick a lesson.	DR. PIXEL:  show yIDev, skapi. ghop nom, qab jot. ghojmeH yIwIv. Qapla'!
+LESSONS  -  PART TWO  -  WHO DO YOU FOLLOW?	GHOJMEH  -  CHA'DICH HAP  -  'IV DATLHA'?
+FOLLOW PROF. VIDEO	PROF. VIDEO YITLHA'
+FOLLOW DR. PIXEL	DR. PIXEL YITLHA'
+the signal	jabbI'ID
+running the show	show Dev
+PICK UP	YIRUCH
+CLOSE (Esc)	YISOQMOH (Esc)
+PART ONE: THE BASICS	WA'DICH HAP: BUQ
+finish or leave LEARN THE BASICS first	LEARN THE BASICS yIrIn pagh yImej wa'DIch
+bug swat: Esc leaves, and your show comes back as it was	bug swat: Esc mej, 'ej show chegh
+bug swat: your show is back. Motion's controls are in Settings > Audio	bug swat: show chegh. Motion SeHwI': SeH > wab
+TURN MOTION ON	MOTION YICHU'
+Bugs are crawling to the cue list! Swat them by waving at your camera. First, Motion: in MOTION CONTROL turn it ON and choose what it READS.	cue tetlh ghoS ghew! camera DaghojmoHDI', ghew yIHoH! wa'DIch, Motion: MOTION CONTROL Daq ON yIchu', laDbogh (READS) yIwIv.
+This one is NullPointer. Hollow, points at nothing. A finger goes straight through. Use the whole hand, skapi.	NullPointer 'oH. chIm. pagh 'ang. nItlh Dop. ghop naQ yIlo', skapi.
+Wave like you are hailing a cab! A small, polite cab. Not the buttons. The cab.	taxi Dachu'meH ghop yIjIrmoH! taxi mach, Daw'Ha'. leQ Qo'. taxi.
+DRAW TWO ZONES	YOS CHA' YIGHITLH
+Race Condition: twins, each sure it got there first. One reading cannot tell your hands apart, so drag two ZONES on the Motion picture, one each side.	Race Condition: cha' puq, wa'DIch paw ghIn. laD wa' ghoplIj DaH chaHbe'. Motion mIllogh Daq cha' ZONES yItlhIl, Hoch Daq wa'.
+Hit both together. Hit one, and they swap. Like my cousins at a wedding.	cha' yIqIp, wa'logh. wa' DaqIpchugh, Daq choH. tlhIngan tlhogh Daq jupwI'pu' rur.
+One hand each side. Together! Together!	ghop wa' Hoch Daq. tay'! tay'!
+Off By One. The bug is not the face, it is the tiny extra segment, and a little wiggle needs a finer reading. Turn SENSITIVITY down to 5%.	Off By One. ghew qab Qo', Hap mach law' 'oH. vIH mach laD QaQ poQ. SENSITIVITY 5% yIbIngmoH.
+Lower number, finer reading. Yes, I also think it is backwards.	mI' bIng, laD QaQ. HIja', jIH je: nItebHa'.
+Not the face. The little one on the end. Wiggle a finger.	qab Qo'. Qav Daq mach. nItlh yIvIH.
+FALL 1.5 S OR MORE	FALL 1.5 S PAGH LAW'
+Memory Leak. It only lets go while the reading stays up. Make FALL longer, 1.5 seconds or more, so your sweeps join up into one.	Memory Leak. laD DungDaq ratlhDI' neH chaH. FALL yItIqmoH, 1.5 lup pagh law', 'ej jIrmeylIj wa' moj.
+Slow and steady, skapi. Like paying back a loan.	QIt 'ej jot, skapi. batlh DIb DaDIlmeH rur.
+Sweep, and sweep again. Let the fall carry you between.	yIjIrmoH, 'ej latlh. bIng ghoSmoH.
+MOTION X ON A TONE	MOTION X QOQ DAQ
+The Heisenbug! It fades whenever you move. Put a tone cue's pitch on Motion X and follow it by ear: the ticking speeds up as you close in.	Heisenbug! bIvIHDI' ngab. Motion X Daq QoQ cue Dung yIlan, qogh lo' yItlha': Sum DaghoSDI' tick nom.
+SHOW ME makes the tone for you. High is right. Low is left. Stand still and it comes back.	SHOW ME QoQ chenmoH. Dung: nIH. bIng: poS. yIQam, chegh.
+Follow it. Listen. Faster ticking, closer bug.	yItlha'. yIQoy. tick nom, ghew Sum.
+Waving paw	jIrbogh ghop
+Heisenbug finder	Heisenbug tu'wI'
+FIXED! Lovely signal flow.	TI'LU'! jabbI'ID 'IH!
+Closed as fixed. No regressions. Probably.	tI'lu', SoQ. regression Hutlh. chaq.
+Squashed! Ship it.	HoHlu'! yIngeH!
+One reached the cue list. It has filed a bug report about you.	wa' cue tetlh paw. Qagh ja' SoHvaD.
+Skapi. It is a handheld. You do not press it. You wave at it.	skapi. ghop De'wI' 'oH. DaqIpbe'. ghop DajIrmoH.
+The buttons are for menus. The bugs are for flailing.	leQ: menu vaD. ghew: DeS jIrmoH vaD.
+The D-pad is decorative. Like my diploma.	D-pad 'Iqnah neH. diplomawIj rur.
+In 1989 we also pressed the buttons. Then we discovered waving. Never looked back.	1989 DIS, maH je leQ maqIp. ghIq jIrmoH wItu'. not wIlegh.
+Pressing harder does not help. The bugs cannot feel buttons. Only arms.	HoS qIp QaHbe'. ghew leQ pay'be'. DeS neH.
+It's called a handheld because your hands are held... up. In the air. Waving.	ghop De'wI' ponglu' ghop Dung... chal Daq. jIrmoH.
+The mouse? You are swatting bugs with a MOUSE? In Bulgaria the mouse would be on the bugs' side.	mouse? MOUSE lo'taH ghew DaHoH'a'? Bulgaria Daq ghew boQ mouse.
+Lovely clicking. Very crisp. The camera saw none of it.	qIp 'IH. wov. camera leghbe'.
+DONE FOR YOU - PRESS START	SOHVAD TA'LU' - START YIQIP
+DONE! PRESS START	RIN! START YIQIP
+SELECT OPENS MOTION CONTROL	SELECT MOTION CONTROL POSMOH
+ALL BUGS FIXED	HOCH GHEW TI'LU'
+GAME OVER	QUJ RIN
+NEW HIGH SCORE!	CHU' DUNG MI'!
+START PLAYS AGAIN	START LATLH QUJ
+Nazdrave, skapi. Now go and fix real bugs.	Nazdrave, skapi. DaH teH ghew yItI'. Qapla'!
+Every one of those is a real Motion control. Put them on any ~ knob you like.	Hoch Motion SeHwI' teH. ~ leQ Hoch yIlan.
+START: AGAIN	START: LATLH
+START: PLAY	START: YIQUJ
+# --- end of tutorials ---
