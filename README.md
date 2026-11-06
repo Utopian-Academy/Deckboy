@@ -42,25 +42,24 @@ operator finds it, and how you find it again.
 
 <sub>Masks and Draw in 0.99.425. Footage: [Tears of Steel](https://mango.blender.org/), Blender Foundation, [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).</sub>
 
-- **A MIDI map for any controller.** Any key, pad, knob, fader, pitch wheel or aftertouch, and
-  any OSC address, runs any command: at the desk, the selected cue, what is on air in a playlist,
-  or one named cue. Learn, hold-to-fire and pickup; the controller's lights follow the show.
-  Ready-made maps for the KORG nanoKONTROL2, Novation Launch Control XL, and AKAI APC mini mk2
-  and APC40 mkII.
-- **Masks.** Eight shapes and a pen, on a cue, a playlist, an output or the matte slot: feathered,
-  inverted, moved by a **~**, exported as PNG or SVG, and imported from SVG.
-- **Slices and the Screens window.** Pieces of the programme cropped, placed, corner-pinned,
-  mesh-warped and masked, dragged into place by hand, with MULTIVIEW and LED MAP tabs.
-- **Draw.** Draw on the programme with a mouse or a pen, as flipbook frames or a replay of the
-  drawing, and save it as a PNG or a ProRes 4444 with transparency.
-- **Motion.** A camera moves any control with a **~**, in up to eight zones; Bug Swat, a
-  five-round game, teaches it.
-- **And:** seventeen lessons after Learn the Basics, Chladni that follows the pitch of the sound,
-  motion trails, a multiview you can lay out and tally, Vietnamese, Lao and Papiamento (Aruba),
-  and Beast mode.
-- **Known issue (Windows):** an output on a screen at a different refresh rate from the main screen
-  (59.94 Hz beside 60) drops or repeats a frame about every 15 seconds. Deckboy warns you when it
-  happens; until it is fixed, run the screens at the same rate
+- **MIDI map.** Run any Deckboy command from any MIDI controller or OSC message. Press LEARN, then
+  move a knob or press a key to connect it. The lights on the controller follow the show. Ready-made
+  maps are included for the KORG nanoKONTROL2, Novation Launch Control XL, AKAI APC mini mk2 and AKAI
+  APC40 mkII.
+- **Masks.** Cut the picture to a shape: a circle, a heart, a star, or a shape that you draw with the
+  pen. Put a mask on one cue, one playlist or a whole output. You can make its edges soft, move it
+  over time, and import or export it as an SVG file.
+- **Slices.** Send different parts of the picture to different places on an output, for LED walls and
+  screens of unusual shapes. Drag each slice into place in the new Screens window.
+- **Draw.** Draw on the picture with a mouse or a pen. Save the drawing as a still or as a video with
+  transparency, or replay it as it was drawn.
+- **Motion.** A camera can control Deckboy: movement in front of it changes any control that you
+  choose. Bug Swat, a short game, teaches you how.
+- **Also new:** seventeen more lessons, a Chladni effect that follows the pitch of the sound, a motion
+  trails effect, new multiview layouts, Vietnamese, Lao and Papiamento (Aruba), and Beast mode.
+- **Known issue (Windows):** when two screens run at different refresh rates, for example 59.94 Hz and
+  60 Hz, an output drops or repeats a frame about every 15 seconds. Deckboy warns you when this
+  happens. For now, set the screens to the same rate
   ([how](MANUAL.md#screens-at-different-refresh-rates)).
 
 ### A closer look
