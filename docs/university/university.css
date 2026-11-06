@@ -69,3 +69,14 @@
 @media (max-width: 620px) {
   .say { grid-template-columns: 1fr; gap: .2rem; }
 }
+
+/* The teachers' portraits: pixel art, so never smoothed. */
+.say { grid-template-columns: 6.5rem minmax(0, 1fr); align-items: start; }
+.say .who { display: grid; gap: .3rem; justify-items: center; text-align: center; }
+.face { display: block; width: 96px; height: 96px; image-rendering: pixelated; }
+.exam-faces { display: flex; gap: .5rem; }
+@media (max-width: 620px) {
+  .say { grid-template-columns: 1fr; }
+  .say .who { display: flex; align-items: center; justify-items: start; text-align: left; gap: .6rem; }
+  .face { width: 64px; height: 64px; }
+}
