@@ -4184,7 +4184,11 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
   const int outH = size.second;
   if (outW <= 0 || outH <= 0) return;
 
-  const VideoSynthSettings& vs = cue.videoSynth;
+  // The keys ride on a copy, so the cue keeps what the operator set.
+  VideoSynthSettings keyed = cue.videoSynth;
+  keyed.scale *= vsKeyScale_.load(std::memory_order_relaxed);
+  keyed.feedbackAmount = std::min(0.95, keyed.feedbackAmount + 0.35 * vsKeyBloom_.load(std::memory_order_relaxed));
+  const VideoSynthSettings& vs = keyed;
 
   // DECKBOY_SYNTH_BENCH=1 reports where the frame time goes, averaged over 60
   // frames. The synth is the one source that can hold the whole render loop
@@ -15620,4 +15624,20 @@ void MediaEngine::micThreadMain(std::string device, bool testSignal) {
     micDriftDevice_ = device;
     micDriftLearned_ = driftInteg;
   }
+}
+
+void MediaEngine::videoSynthKeyOn(int note, int velocity) {
+  const double octaves = (std::clamp(note, 0, 127) - 60) / 12.0;
+  vsKeyScale_.store(std::clamp(std::pow(2.0, octaves), 0.125, 8.0), std::memory_order_relaxed);
+  vsKeyBloom_.store(std::clamp(velocity, 0, 127) / 127.0, std::memory_order_relaxed);
+  vsKeyHeld_.store(note, std::memory_order_relaxed);
+}
+
+void MediaEngine::videoSynthKeyOff(int note) {
+  // Only the key that is sounding lets go: legato playing (the next key down
+  // before the last is up) must not drop back between notes.
+  if (vsKeyHeld_.load(std::memory_order_relaxed) != note) return;
+  vsKeyScale_.store(1.0, std::memory_order_relaxed);
+  vsKeyBloom_.store(0.0, std::memory_order_relaxed);
+  vsKeyHeld_.store(-1, std::memory_order_relaxed);
 }

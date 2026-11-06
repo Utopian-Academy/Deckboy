@@ -528,6 +528,9 @@ class MediaEngine {
   // 240 Hz floor, so without this the synth generated four frames for every
   // one anybody saw -- and each of those built a thread pool. Patterns
   // already worked this way; the synth never did.
+  std::atomic<double> vsKeyScale_ {1.0};
+  std::atomic<double> vsKeyBloom_ {0.0};
+  std::atomic<int> vsKeyHeld_ {-1};
   double lastVsynthRebuildSeconds_ = -1.0;
   // One sample of the FDS voice. Advances the carrier, modulator and
   // envelope by dt seconds.
@@ -547,6 +550,13 @@ class MediaEngine {
   // single 2A03 pulse channel plays one note, and pretending otherwise would
   // be a synth wearing a chip's clothes.
   void synthNoteOn(double hz, int velocity);
+  // THE VIDEO SYNTH, PLAYED (James, 2026-11-05: "obviously the synths should
+  // be MIDI keyboard playable too"). A key's pitch sets the pattern's spatial
+  // frequency -- an octave up doubles it, middle C is the scale as set -- and
+  // its velocity blooms the feedback. Letting go returns to the settings as
+  // set. Runtime only: nothing here is saved, and the cue is not touched.
+  void videoSynthKeyOn(int note, int velocity);
+  void videoSynthKeyOff(int note);
   // Play a note on every instrument plugin in the live cue's chain. Main
   // thread; each instance queues it for its own audio thread.
   void sendNoteToPlugins(bool on, double hz, int velocity);
@@ -562,6 +572,9 @@ class MediaEngine {
   void applyAudioEffectsToGeneratedAudio(std::vector<std::int16_t>& out,
                                          std::size_t frames, int channels);
   void synthNoteOff(double hz);
+  // The keys' effect right now, for the synth's renderer and for STATUS.
+  double videoSynthKeyScale() const { return vsKeyScale_.load(std::memory_order_relaxed); }
+  double videoSynthKeyBloom() const { return vsKeyBloom_.load(std::memory_order_relaxed); }
   void synthAllNotesOff();
   bool synthGated() const { return chipGated_; }
 

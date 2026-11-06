@@ -6341,8 +6341,26 @@
         failRemoteCommand(command + ": note must be a number");
         return;
       }
+      // EVERY SYNTH ON AIR PLAYS: the sound synth (or a hosted instrument)
+      // and any video synth, so one keyboard plays the sound and the picture.
+      int videoSynths = 0;
+      for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+        const Deck& deck = project_.decks[static_cast<std::size_t>(d)];
+        if (deck.activeIndex < 0 || deck.activeIndex >= static_cast<int>(deck.cues.size())) continue;
+        if (deck.cues[static_cast<std::size_t>(deck.activeIndex)].kind != CueKind::VideoSynth) continue;
+        if (MediaEngine* vsEngine = mediaEngineForDeck(d)) {
+          if (command == "SYNTHNOTEON") vsEngine->videoSynthKeyOn(note, velocity);
+          else vsEngine->videoSynthKeyOff(note);
+          ++videoSynths;
+        }
+      }
       Cue* cue = liveSynthCue();
       if (!cue) {
+        if (videoSynths > 0) {
+          remoteCommandDetail_ = std::to_string(videoSynths) +
+                                 (videoSynths == 1 ? " video synth" : " video synths");
+          return;
+        }
         // Said out loud rather than silently dropped: an operator playing keys
         // with no synth on air needs to know it is the routing, not the
         // keyboard.
