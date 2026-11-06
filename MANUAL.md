@@ -652,8 +652,8 @@ armed ignores all of them.
   to clear it. The other keys already drive the desk, so they cannot be
   claimed.
 - **MIDI note** — type a note number, or type `LEARN` and play the note. A
-  note that no cue claims keeps its old meaning: note *N* goes to cue *N+1*
-  on the focused deck.
+  cue's own note comes first. A note that no cue and no MIDI map row claims
+  keeps its old meaning: note *N* goes to cue *N+1* on the focused deck.
 - **OSC** — an address sent to Deckboy's OSC port, for example `/intro`.
   Upper or lower case, with or without the leading slash.
 - **time of day** — fires at that time on this computer's clock, every day.
@@ -671,6 +671,96 @@ TRIGGER OSC /intro
 TRIGGER AT 19:30
 TRIGGER KEY OFF
 ```
+
+### The MIDI map
+
+Any MIDI key, pad, knob, fader, pitch wheel, aftertouch or program change,
+and any OSC address, can run any command: the same lines a DASH button or
+Companion sends. Open it from **Settings > Audio > MIDI CONTROL > OPEN THE
+MAP**.
+
+Each row says four things: what comes in, what it runs, what it runs on, and
+its value now. The dot at the left lights while that row's message is
+arriving. A row outlined in the theme's warning colour shares its message
+with another row, or with a cue's own TRIGGERS note; both answer.
+
+- **+ ADD** makes a row, and **LEARN** makes one from the next thing you
+  move or press. A new row stays **OFF** until it has a command, which is
+  asked for straight away, so learning a knob never changes the show by
+  itself.
+- **READY-MADE...** adds rows for a KORG nanoKONTROL2, a Novation Launch
+  Control XL (factory template 1) or an AKAI APC mini mk2, in their factory
+  layouts. Strips 1–8 are playlists 1–8.
+
+Choose a row to edit it, in three steps:
+
+1. **What comes in** — the message (click it to learn again), the channel,
+   the port, and how to read it:
+   - **knob 0-127** — 64 is the exact centre.
+   - **endless encoder** — one step left or right per message; *auto* reads
+     the two common kinds.
+   - **14-bit** — a fader that sends CC *n* and CC *n+32*.
+   - **press**, **hold** (fires only once held for the time you set, for
+     PANIC and the like), **press + release** (two commands, for momentary
+     things).
+   - **play** — a range of keys, for the synths (below).
+2. **What it runs** — the command. In it, `{value}` is the knob's number,
+   `{note}` the key and `{velocity}` how hard it was played. A knob maps
+   **From** and **To**, through a **Centre** if you give one: SPEED with
+   from 0.25, centre 1 and to 4 puts 1.0x exactly at the knob's middle.
+   **Pickup** keeps a knob from jumping a value changed elsewhere: it does
+   nothing until it reaches the current value. The test line shows the last
+   value and what it became.
+3. **What it runs on** — the desk; the selected cue; what is on air in a
+   playlist; or one named cue. A command aimed at a cue never moves the
+   desk's focus or selection. **Saved with** says whether the row belongs to
+   **this computer** (where the controller is plugged in) or to **the show**
+   (it travels with the show file). Both maps answer at once.
+
+Out of the box the map holds three **built in** rows, today's fixed behaviour,
+which can be changed or deleted like any other: a note takes the cue one above
+its number (only when nothing else answers that note), CC 7 is the master
+volume, and CC 20 the selected clip's speed, with 1.0x at the knob's centre.
+
+**The controller's lights.** A row sends its state back to the controller it
+came from, and only to that one: a pad is lit while its cue is on air, a
+playlist's TAKE or STOP while something there is on air, BLACKOUT while
+blacked out; a knob's ring follows its value. The lights follow whatever
+changed the show, the mouse included.
+
+**Playing the synths.** A **play** row (or the *MIDI plays the synth* switch)
+plays every synth on air: the sound synth or a hosted instrument, and any
+video synth. On the video synth a key's pitch sets the pattern's size (an
+octave up doubles it; middle C is the size as set) and its velocity blooms
+the feedback; letting go returns it.
+
+**Any control on screen.** The **~** on any control has MIDI shapes:
+**midi-note** (the last key's pitch, C2 to C6, held after you let go),
+**midi-velocity**, **midi-cc** and **aftertouch**, on any channel or one.
+Put midi-note on Chladni's mode and every key plays a different figure.
+
+The MIDI and OSC monitor names the row that matched, what it was aimed at, or
+why nothing happened ("nothing mapped to CC 30", "pickup: it is 2.50, the
+knob is at 1.00", "released at 0.3 s, nothing done").
+
+Over the control port:
+
+| Command | Does |
+|---------|------|
+| `MIDIMAP` | Every row of both maps, as JSON |
+| `MIDIMAP ADD COMPUTER\|SHOW src=cc \| num=16 \| cmd=SPEED {value} \| from=0.25 \| centre=1 \| to=4` | Adds a row |
+| `MIDIMAP SET COMPUTER\|SHOW <row> <fields>` · `MIDIMAP REMOVE COMPUTER\|SHOW <row>` | Changes or removes one |
+| `MIDIMAP CLEAR COMPUTER\|SHOW` · `MIDIMAP RESET` | Empties a map; puts this computer's back to the built-in rows |
+| `MIDIMAP LEARN` · `MIDIMAP LEARNED` | Learns the next message; reads it back as fields |
+| `MIDIMAP PRESET [nanokontrol2\|launchcontrolxl\|apcminimk2]` | Adds a ready-made map |
+| `MIDIMAP FEEDBACK` | What the controller's lights were last told |
+| `MIDIIN NOTE\|NOTEOFF\|CC\|PITCH\|PRESSURE\|KEYPRESSURE\|PROGRAM ... [CH n]` · `MIDIIN OSC <address> [n]` | What a controller would send, from this computer |
+
+Fields: `src` (note, cc, pitch, program, pressure, polypressure, osc), `ch`,
+`num`, `to_num`, `osc`, `port`, `read` (knob, encoder, fine, press, hold,
+pressrelease, play), `hold`, `enc`, `cmd`, `release`, `from`, `centre`, `to`,
+`dec`, `pickup`, `target` (desk, selected, onair, cue), `playlist`, `cue`,
+`on`, `feedback`, `led_on`, `led_off`.
 
 ### CHECK: everything wrong, before doors
 
@@ -3177,10 +3267,11 @@ machine cannot carry them either.
 - **OSC** — messages/bundles on the same port, plus an OSC Query HTTP endpoint
   and mirrored `/deckboy/state` feedback.
 - **MIDI** — on Windows, macOS and Linux. Turn **MIDI input** on in
-  Settings and pick the port. A note
-  0–127 takes that cue in the focused playlist, CC 7 is master volume and CC 20
-  playback speed, and MIDI Machine Control PLAY / STOP / PAUSE / LOCATE drive
-  the transport.
+  Settings and pick the port. What each key and knob does is the **MIDI
+  map** (see "The MIDI map"): out of the box a note takes the cue one above
+  its number in the focused playlist, CC 7 is master volume and CC 20 the
+  selected clip's speed. MIDI Machine Control PLAY / STOP / PAUSE / LOCATE
+  drive the transport.
 - **MIDI Show Control** — how a lighting desk fires the video. The desk sends
   **GO** with a cue number and Deckboy takes the cue with that number; a GO
   with no number takes the next cue, which is how a desk runs a straight
