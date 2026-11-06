@@ -103,3 +103,567 @@ Ctrl+/ to close	Ctrl+/ i umdal
 
 # What the desk face says when you switch to this language: a local saying, not a translation.
 @hello	Azul!
+
+# --- tutorials: tools/lesson_strings.py (a whole line each) ---
+HELLO	AZUL
+Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me.	Dobar den, skapi. Azul fell-ak! Nekk d Dr. Pixel. Semmus n tesdatin, ad tesleḥḍeḍ askan. Ugar ur yettili ara, ma tesliḍ-iyi.
+And I'm Professor Video. Synths first, then video. Mostly video now. Press START and we'll patch... we'll begin.	Nekk d Professor Video. Zik synth, syin tavidyut. Tura s waṭas tavidyut. Sit ɣef START, ad nqqen... ad nebdu.
+TURN THE OUTPUT ON	LDI TUFFɣA
+Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	Skapi, agdil d ilem. Ur ten-ttaǧǧa ara ttrajun. Ldi MENU, rre OUTPUT OFF d OUTPUT ON. Yya!
+Lesson one: nothing comes out until you patch the oscillator to the... the OUTPUT. It's video. I know.	Tamsirt tamezwarut: alamma teqqneḍ oscillator ɣer OUTPUT... ulac ayen ara d-iffɣen. D tavidyut. Ẓriɣ.
+BRING IN A CLIP	KTER AFMIZ
+Now a picture. Press I and pick a clip from your computer. No clip? SHOW ME, and I lend you one of mine.	Tura, tugna. Sit ɣef I, fren afmiz seg uselkim-ik. Ulac afmiz? SHOW ME, ad ak-d-fkeɣ yiwen seg wid-iw.
+Every clip becomes a cue in the playlist. Like loading a sample. A sample with pictures in it.	Yal afmiz yuɣal d cue deg playlist. Am usali n sample. Sample s tugniwin.
+TAKE IT LIVE	AZEN-IT ƔER TUFFɣA
+Your clip waits in the playlist. Select it, then TAKE. Or Enter. Confident operators press Enter.	Afmiz-ik yettraju deg playlist. Fren-it, syin TAKE. Neɣ Enter. Imsedrayen yumnen deg yiman-nsen ssitin Enter.
+TAKE is the envelope trigger. The, ah, the GO button. Same thing, it just has pictures in it.	TAKE d asenqer n envelope. Taqeffalt GO, ih. D yiwen, s tugniwin kan.
+LINE UP THE NEXT ONE	HEGGI WIN D-ITTEDDUN
+Click another cue. It waits, ready, until you say. Only one cue? Import another, or SHOW ME.	Sit ɣef cue nniḍen. Yettraju alamma tenniḍ. Yiwen kan n cue? KTER wayeḍ, neɣ SHOW ME.
+Selecting is not playing. The selected one is the next note in the sequence. The next CUE.	Afran mačči d urar. Ayen yettwafernen d tanuṭ i d-iteddun. Cue i d-iteddun.
+CROSSFADE TO IT	ƐEDDI S CROSSFADE
+Cuts are for amateurs. In the inspector, press + on transition, so it shows a time, not deck. Then TAKE.	Agzam aqesḥan i yimeḥrufen. Deg inspector, sit + ɣef transition alamma d-iban wakud, mačči deck. Syin TAKE.
+A crossfade! Portamento, but for pictures. Any time will do. A few more presses and it's a second. Then TAKE.	Crossfade! D portamento, maca i tugniwin. Yelha yal tikkelt. Kra n tikkal nniḍen, ad yili d tasint. Syin TAKE.
+CLEAR THE SCREEN	SFEḌ AGDIL
+Something goes wrong on stage? Press BLACK, or B. The picture goes. The show keeps running underneath.	Yella wayen yerzen deg usayes? Sit ɣef BLACK, neɣ B. Tugna tettruḥ. Askan ikemmel seddaw.
+Nothing is lost. Press B again and it comes back. Like the mute on a mixer. Very calming.	Ulac ayen ara iruḥen. B tikkelt nniḍen, ad d-tuɣal. Am mute ɣef mixer. D lehna.
+SAVE THE SHOW	SEKLES ASKAN
+Now save. Ctrl+S, or SAVE. Some programs lose your work and then blame you. I would never.	Sekles tura. Ctrl+S, neɣ SEKLES. Kra n ihilen ttruḥun-asen leqdic-ik, syin ad k-ssedmen. Nekk, laɛmer.
+Save your patch. Your SHOW. Show. This practice one lives in Deckboy's own folder; yours is safe.	Sekles patch-ik. ASKAN-ik. D askan. Wagi n ujerreb yezdeɣ deg ukaram n Deckboy; win-ik d aɣellsan.
+THAT'S A SHOW	WAGI D ASKAN
+That's a show! Output, cue, TAKE, crossfade, BLACK, save. Nazdrave, skapi. Rakia is on me.	Wagi d askan! Output, cue, TAKE, crossfade, BLACK, asekles. Nazdrave, skapi. Rakia ɣef uqerruy-iw. Teǧhed ugar n tzurin n Djurdjura, ḥader.
+Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	Tamsirt tfuk. Iskanen n yimedyaten slemmaden layers, izwal d yisemda. MENU > LEARN THE BASICS ad tt-id-yerr.
+*shakes head* That means yes. Bravo.	*yehuzz aqerruy* Ayagi d ih. Ad yidir!
+Wonderful! Lovely signal flow.	Yelha aṭas! Asuddem n tdellalt yelhan.
+Mm. I knew you had it in you.	Mm. Ẓriɣ tzemreḍ.
+Yes! Have a gold star. It's a dot.	Ih! Ṭṭef itri n wureɣ. D tanqiḍt.
+Ready for the next step? *nods* ...That means no, skapi. The glowing one. It is glowing for you.	Twejdeḍ i uḥric i d-iteddun? *yesseḥni aqerruy* ...Deg Bulgaria ayagi d ala, skapi. Win yettfeǧǧiǧen. Yettfeǧǧiǧ i kečč.
+You've clicked everything but the glowing one. Even my oscillators find the glowing one.	Tesseḍ ɣef kullec ala win yettfeǧǧiǧen. Ula d oscillators-iw ttafen win yettfeǧǧiǧen.
+stop playback first - the lesson cannot hand a running show back as it was	ḥbes taɣuri di tazwara - tamsirt ur tezmir ara ad terr askan yettuddun akken yella
+choose RECOVER or KEEP SAVED first	fren RECOVER neɣ KEEP SAVED di tazwara
+your show could not be saved, so the lesson has not started. Save it (SAVE AS) and try again	askan-ik ur yettwasekles ara, ihi tamsirt ur tebdi ara. Sekles-it (SEKLES S YISEM) u ɛreḍ tikkelt nniḍen
+the practice show would not open	askan n ujerreb ur yeldi ara
+could not start the practice show	askan n ujerreb ur yebdi ara
+learn the basics: Esc leaves, and it picks up here next time	learn the basics: Esc yettaǧǧa, tikkelt i d-iteddun ad ikemmel seg dagi
+that's the basics - MENU > LESSONS has part two	d tiseglawin - MENU > LESSONS yesɛa aḥric wis sin
+tour paused - LEARN THE BASICS picks up where you left off	tikli teḥbes - LEARN THE BASICS ad tkemmel seg wanida i tt-teǧǧiḍ
+Mirrored screens, skapi. Press any key or click, and Dr. Pixel gives it back.	Igdilen s lemri, skapi. Sit ɣef yal tasarut, Dr. Pixel ad t-id-yerr.
+Wrong screen, skapi. Press any key or click, and Dr. Pixel gives it back.	Agdil ur nelli ara, skapi. Sit ɣef yal tasarut, Dr. Pixel ad t-id-yerr.
+The other screen went away, skapi. Press any key or click, and Dr. Pixel gives it back.	Agdil nniḍen iruḥ, skapi. Sit ɣef yal tasarut, Dr. Pixel ad t-id-yerr.
+One screen, skapi. Press any key or click, and Dr. Pixel gives it back.	Yiwen n ugdil, skapi. Sit ɣef yal tasarut, Dr. Pixel ad t-id-yerr.
+The other screen went away, skapi, so the picture came back to this one. I put it in a little window, behind. Plug it back in and the picture goes back on it.	Agdil nniḍen iruḥ, skapi, ihi tugna tuɣal-d ɣer wagi. Sriɣ-tt deg usfaylu amecṭuḥ, deffir. Qqen-it tikkelt nniḍen, tugna ad tuɣal fell-as.
+It ate the desk, skapi. One screen, so the output took all of it. I put it in a little window, behind. A real show gets a second screen.	Yečča ṭṭabla, skapi. Yiwen n ugdil, ihi output yeṭṭef-it akk. Sriɣ-t deg usfaylu amecṭuḥ, deffir. Askan n tidet yesɛa agdil wis sin.
+IT ATE THE DESK	YEČČA ṬṬABLA
+There. The button that says OUTPUT OFF. Make it say ON, skapi.	Dinna. Taqeffalt i yeqqaren OUTPUT OFF. Rre-tt ad tini ON, skapi.
+Nothing is live to fade from, skapi. TAKE one cue first, then pick the other and give it a time.	Ulac kra deg tuffɣa ara tesfesseḍ, skapi. TAKE yiwen n cue di tazwara, syin fren wayeḍ, efk-as akud.
+That was a cut, skapi. Fast, but not a crossfade. Pick the other cue, press + on transition, then TAKE.	Wagi d agzam, skapi. Yeɣwel, maca mačči d crossfade. Fren cue nniḍen, sit + ɣef transition, syin TAKE.
+A feedback loop! Output patched straight back into the desk. Happens to the best of us. Mostly to me. 1983. We don't talk about 1983.	Tanuḍt n feedback! Output yuɣal srid ɣer ṭṭabla. Yeḍra i wid yifen. S waṭas i nekk. 1983. Ur nettmeslay ara ɣef 1983.
+No more rakia. The rat has a problem.	Ulac rakia nniḍen. Aɣerda yesɛa ugur.
+Nazdrave, skapi! Baba's rakia, from the Rhodopes. One glass, for the lesson.	Nazdrave, skapi! Rakia n jida, seg Rhodope. Yiwen n lkas, i tmsirt. Syin aman d zzit n uzemmur, i tezmert.
+Is this... is this allowed during a tutorial?	Wagi... wagi yettusireg deg tmsirt?
+*shakes head* That means one more.	*yehuzz aqerruy* Ayagi d yiwen nniḍen.
+I love you all. I love the oscillator. I love the OUTPUT. It's video. I know. I KNOW.	Ḥemmleɣ-kwen akk. Ḥemmleɣ oscillator. Ḥemmleɣ OUTPUT. D tavidyut. Ẓriɣ. ẒRIƔ.
+...and the rat took the rakia. Every time, skapi. Every single time.	...d uɣerda yewwi rakia. Yal tikkelt, skapi. Yal tikkelt.
+Was that a rat? In a hat? With a pizza?	D aɣerda? S tqbaɛt? S pizza?
+Stop that. I am a serious man.	Ḥbes. Nekk d argaz yeqqwan.
+Do not tell Dr. Pixel about this.	Ur qqar ara i Dr. Pixel.
+This never happened. Back to the patch bay.	Wagi ur yeḍri ara laɛmer. Uɣal ɣer patch bay.
+It was the eighties. Everyone had a bow tie.	D iseggasen n tmanyin. Yal yiwen yesɛa bow tie.
+LESSON LIST	TABDART N TMSIRIN
+OPEN EXAMPLE SHOWS	LDI ISKANEN N YIMEDYATEN
+EXIT (Esc)	FFEƔ (Esc)
+Taking it on the road	Askan deg ubrid
+CHECK a show before it travels, fix what it finds, and bundle it with its media.	CHECK uqbel ad tinigeḍ, ṣeggem ayen yufa, BUNDLE-it s yimidyaten-is.
+Effects, oscillators and colour	Isemda, oscillators d yiniten
+An effect, a ~ on its knob, and the colour picker.	Asemda, ~ ɣef tqeffalt-is, d umefran n yiniten.
+The art school crit, with Mr. Salty	Assenqed n uɣerbaz n taẓuri, akked Mr. Salty
+Patterns, synths and Draw	Pattern, synth d Draw
+A test pattern, the video synth, and drawing on the picture, saved as a still.	Tugna n ujerreb, synth n tvidyut, d usuneɣ ɣef tugna, yettwasekles d tugna tusbiḍt.
+The telestrator booth, with Coach Marv	Taxxamt telestrator, akked Coach Marv
+A heart from the library, the pen, invert and feather.	Ul seg temkarḍit, imru, asenqeḍ d useḥlu.
+The Signal Files: redact the evidence	Ifuyla n Tdellalin: ffer anagi
+Warp, blend and slices	Warp, blend d slices
+A corner pin, two soft edges, then three slices in the Screens window.	Corner pin, snat n tama yeḥlan, syin kraḍ n slices deg usfaylu Screens.
+The haunted lighthouse, with Keeper Rook	Afnar s uɛeffrit, akked unaẓur n ufnar Rook
+GO from anywhere	GO seg yal amkan
+Cue numbers, GOTO, a hotkey, and where Companion, MIDI and OSC come in.	Uṭṭunen n cue, GOTO, tasarut wezzilen, d wanida i d-kecmen Companion, MIDI d OSC.
+The game show, with Donna Wheel	Urar n tiliẓri, akked Donna Wheel
+Words on screen	Awalen ɣef ugdil
+A Lower Third with a name on it, then a title card with a key-green backdrop.	Lower Third s yisem, syin takarḍa n uzwel s ugilal azegzaw n key.
+The kaiju weather report, with June O'Neil	Tagnawt n kaiju, akked June O'Neil
+Keeping time	Aḥraz n wakud
+A stage timer counting down, held, and a presenter view for the person on stage.	Tasragt n usayes i yettḥsiben, yeḥbes, d tmuɣli n umsizwer i win yellan ɣef usayes.
+A grand day out, with Wallis and Grommet	Ass ameqqran, akked Wallis d Grommet
+Two playlists and TAKE ALL	Snat n playlists d TAKE ALL
+A second playlist as a layer, and TAKE ALL so two things change on one beat.	Playlist wis sin d layer, d TAKE ALL akken ad tbeddleḍ sin n tɣawsiwin s yiwet n tikkelt.
+The magic show, with Turnip Top	Askan n tesḥart, akked Turnip Top
+When it goes wrong	Mi ara yerreẓ
+BLACK against PANIC, and getting a show back.	BLACK mgal PANIC, d tuɣalin n uskan.
+The cooking show, with Chef Bork	Askan n usewwi, akked Chef Bork
+Capture a look on a DASH button, change everything, and get it back with one press.	Ṭṭef tamuɣli ɣef taqeffalt DASH, beddel kullec, rr-itt-id s yiwen usit.
+The styles beyond the crossfade: an iris, a shatter, and their times.	Taɣaratin deffir n crossfade: iris, shatter, d wakud nsent.
+The space-opera trailer, with Optimus Primetime	Trailer n opera n tallunt, akked Optimus Primetime
+Sound	Imesli
+An audio effect on a cue, a bend that damages it beautifully, and where the patch lives.	Asemda n imesli ɣef cue, bend yesseɣlayen-it s ccbaḥa, d wanida yezdeɣ patch.
+The robot DJs, with Deft Funk	DJs n yirubuten, akked Deft Funk
+Reading the scopes	Taɣuri n scopes
+The waveform, the vectorscope, and false colour: is the glow real, or just too bright?	Waveform, vectorscope, d yini n lekdeb: tafat d tidet, neɣ teffeɣ kan aṭas?
+The Signal Files: is the glow on the horizon a craft?	Ifuyla n Tdellalin: tafat ɣef ugmir d aɣerrabu?
+Out of the building	Beṛṛa n lebni
+Where NDI, SDI and ST 2110 live, and NDI switched on where this computer has it.	Anida i zedɣen NDI, SDI d ST 2110, d NDI yeldi anda yella ɣef uselkim-agi.
+The webcam as a controller, as a game. Five rounds, a high score.	Webcam d asenqed, d urar. Semmus n tikkal, agmuḍ ameqqran.
+A handheld, and bugs	Allal n ufus, d yibeɛɛucen
+The multiview	Multiview
+Windows, the ... menu, what each one shows, layouts, and tally.	Isfuyla, umuɣ ..., d acu i yesken yal yiwen, layout d tally.
+Mystery on the starship Cathode, with Lt. Haila and Ensign Jinkley	Uffir ɣef uɣerrabu n tallunt Cathode, akked Lt. Haila d Ensign Jinkley
+DR. PIXEL: Two playlists: Deckboy becomes SUPER DECKBOY. It earned it, skapi.	DR. PIXEL: Snat n playlists: Deckboy yuɣal d SUPER DECKBOY. Yuklal-it, skapi.
+PROF. VIDEO: It evolved! My oscillators never got a fanfare.	PROF. VIDEO: Tanflit! Oscillators-iw ur sɛin ara fanfare.
+DR. PIXEL: SUPER DECKBOY! Every show deserves one. Bravo.	DR. PIXEL: SUPER DECKBOY! Yal askan yuklal-it. Ad yidir!
+PROF. VIDEO: The power-up! More playlists, more layers, more super.	PROF. VIDEO: Tazmert! Ugar n playlists, ugar n layers, ugar n super.
+Intro video (left on the office PC)	Tavidyut n tazwara (teqqim ɣef PC n lbiru)
+ON THE ROAD	DEG UBRID
+A show you built here, skapi, running on a laptop somewhere else tonight. Press START.	Askan i texdemeḍ dagi, skapi, ad yeddu iḍ-a ɣef laptop deg wadeg nniḍen. Sit ɣef START.
+Before it travels: check it, fix it, bundle it.	Uqbel inig: senqed, ṣeggem, kemmes.
+See CHECK in the top bar? It only appears when something is wrong. Press it.	Twalaḍ CHECK deg ufella? Ad d-iban kan ma yella kra yerzen. Sit fell-as.
+It lists everything a show would trip over: missing files, empty cues, unreachable outputs.	Ad d-yesken ayen akk ara yesɣlin askan: ifuyla ixuṣṣen, cues d ilmawen, outputs ur nqqin ara.
+FIX IT	ṢEGGEM-IT
+The intro video is on another computer. Select it and delete it, or RELINK it if you have the file.	Tavidyut n tazwara tella ɣef uselkim nniḍen. Fren-itt, kkes-itt, neɣ RELINK ma yella ufaylu ɣur-k.
+Fix it at home, where it is easy. Not at the venue, where it is not.	Ṣeggem-it deg uxxam, din d ishil. Mačči deg tzeqqa, din ur d ishil ara.
+BUNDLE IT	KEMMES-IT
+Press BUNDLE and choose where: a USB stick, a shared folder. The show and all its media, together.	Sit ɣef BUNDLE, fren adeg: USB, akaram yettwabḍan. Askan d yimidyaten-is akk, lwaḥid.
+The copy finds its media beside it, wherever the folder goes.	Anɣel ad d-yaf imidyaten-is ɣer tama-s, anida yebɣu yruḥ ukaram.
+SAFE TRAVELS	ABRID AMEGGAZ
+Checked, fixed, bundled. On the other machine, open the bundle's show: everything is where it should be.	Yettwasenqed, yettwaṣeggem, yettwakemmes. Ɣef tmacint nniḍen, ldi askan yettwakemsen: kullec deg umkan-is.
+A show file is only text, so it travels light. The media is the heavy part.	Afaylu n uskan d aḍris kan, yettinig fessus. Ayen yeẓẓayen d imidyaten.
+Student work no. 4 (untitled)	Leqdic n unelmad uṭṭun 4 (war azwel)
+THE CRIT	ASSENQED
+An art school, skapi. One student, one picture, one critic who has seen it all. Press START.	Aɣerbaz n taẓuri, skapi. Anelmad, tugna, amesnaqed i iwalan kullec. Sit ɣef START.
+Effects change a picture; an oscillator keeps changing it. The critic only likes the second kind.	Isemda beddlen tugna; oscillator ikemmel ibeddel-itt. Amesnaqed iḥemmel kan anaw wis sin.
+A grey square on beige. I have seen this at every graduate show since 1987.	Amkuẓ aɣlay ɣef beige. Iwala-t deg yal asikel n tagara n leqraya seg 1987.
+AN EFFECT	ASEMDA
+In the inspector's EFFECTS section, + adds one. Edges is a good start: it draws the outlines.	Deg tazwert EFFECTS n inspector, + ad d-yernu yiwen. Edges d tazwara yelhan: yettaru izirig.
+There are dozens. Every one runs on the CPU in a few milliseconds. Mostly.	Llan s tmerwin. Yal yiwen yettuddu ɣef CPU deg kra n imilisegunen. S waṭas.
+Take a risk! Bad art is fine. Boring art is a crime.	Ddem ccekk! Taẓuri tudrift yelha. Taẓuri yeqqaren d abekkaḍ.
+A ~ ON ITS KNOB	~ ƔEF TQEFFALT
+Every control with a ~ beside it can follow an oscillator. Press one. The knob starts to breathe.	Yal asenqed yesɛan ~ ɣer tama-s yezmer ad yeḍfer oscillator. Sit ɣef yiwen. Taqeffalt ad tebdu ad tsenneffes.
+A low-frequency oscillator: slow, so the eye can follow it. A quarter of a hertz is a four-second breath.	Oscillator s tfrikansit d tamecṭuḥt: s leɛqel, akken ad t-teḍfer tiṭ. Rbeɛ n hertz d anafas n ukkuẓ n tsinin.
+Now it MOVES. Okay. Okay. I'm listening.	Tura yettḥerrik. Yelha. Yelha. Ad sleɣ.
+A COLOUR OF ITS OWN	INI N YIMAN-IS
+Effects that draw a colour, like Edges' line, have a colour chip. It opens the picker: a wheel, typed names, or a colour off the screen.	Isemda yettarun ini, am yizirig n Edges, sɛan tachipt n yini. Ad d-yeldi amefran: tawinest, ismawen yettwarun, neɣ ini seg ugdil.
+Every colour has a name somewhere. Mine is 'oscilloscope green'. Nobody else uses it.	Yal ini yesɛa isem deg kra n wadeg. Win-iw d 'azegzaw n oscilloscope'. Ulac win i t-yesqedcen.
+That colour is doing something. I don't know what. I love it.	Ini-nni yettḥerrik kra. Ur ẓriɣ ara d acu. Ḥemmleɣ-t.
+THE VERDICT	ASFUGEL
+An effect, a ~ and a colour. The critic is crying, skapi. Good crying, I think.	Asemda, ~, d yiwen n yini. Amesnaqed yettru, skapi. Imeṭṭawen yelhan, i nniɣ.
+Stack a few. Each has its own ~ on every knob. That is how a look becomes a performance.	Sres aṭas yiwen ɣef wayeḍ. Yal yiwen s ~ ines ɣef yal taqeffalt. Akka i yettban uskan.
+It's still a square. But it's YOUR square. Post it.	Mazal d amkuẓ. Maca d amkuẓ-IK. Siweḍ-it.
+THE TELESTRATOR BOOTH	TAXXAMT TELESTRATOR
+Coach Marv explains sport by drawing circles on it. Once he circled the sun. Ten minutes, skapi.	Coach Marv yessefhamay addal s usuneɣ n twinas fell-as. Yiwet n tikkelt yesuneɣ tawinest i yiṭij. Mraw n tesdatin, skapi.
+Tonight: test patterns, the video synth, and drawing on the picture. Press START.	Iḍ-a: tugniwin n ujerreb, synth n tvidyut, d usuneɣ ɣef tugna. Sit ɣef START.
+Get me a picture and a pen. BOOM.	Efk-iyi-d tugna d yimru. BUM.
+A TEST PATTERN	TUGNA N UJERREB
+Line up the screens BEFORE the show. Not during. I learned this in Plovdiv.	Ṣeggem igdilen UQBEL askan. Mačči deg wammas-is. Lemdeɣ-tt deg Plovdiv.
+Every desk needs a test pattern. PATTERN adds Pocket Test: checked against real meters.	Yal ṭṭabla teḥwaǧ tugna n ujerreb. PATTERN yettarnu Pocket Test: yettwasenqed s yiktazalen n tidet.
+A VIDEO SYNTH	SYNTH N TVIDYUT
+He says 'no camera needed' like it is a feature. It is a feature.	Yeqqar 'ur tettḥwaǧeḍ ara takamirat' am akken d tamahilt. D tamahilt.
+My favourite. SOURCE, then Video Synth: oscillators, mirrors and feedback. No camera needed.	Win ḥemmleɣ ugar. AƔBALU, syin Video Synth: oscillators, lemri d feedback. Ulac takamirat.
+TAKE THE SYNTH	TAKE SYNTH
+Select it, then TAKE. Confident operators press Enter.	Fren-it, syin TAKE. Imsedrayen yumnen ssitin Enter.
+That's our replay. Every replay needs a pundit.	Wagi d ales-nneɣ. Yal ales yeḥwaǧ amfesser.
+Now here's a replay. And here's a guy. And BOOM, he's in it.	Hata-t ales. Hata-t uqeddac. D BUM, yekcem.
+A SECOND PLAYLIST	PLAYLIST WIS SIN
+Ink goes on top, on its own layer. Press the + at the end of the playlist tabs.	Amidad yettruḥ ɣef ufella, ɣef layer ines. Sit ɣef + deg tagara n yiccer n playlists.
+A second playlist is a layer over the first. Like a second oscillator, mixed on top.	Playlist wis sin d layer ɣef umezwaru. Am oscillator wis sin, yettemxallaḍ ɣef ufella.
+A DRAW CUE	DRAW CUE
+In the new playlist: SOURCE, then Draw. Clear everywhere you have not drawn.	Deg playlist tamaynut: AƔBALU, syin Draw. D afrawan anda ur tesuneɣeḍ ara.
+A Draw cue is transparent outside the ink, so the synth shows through.	Draw cue d afrawan beṛṛa n umidad, ihi synth yettban.
+TAKE THE INK	TAKE AMIDAD
+Select the Draw cue and TAKE it. Two playlists, two layers, one picture.	Fren draw cue, TAKE-it. Snat n playlists, sin n layers, yiwet n tugna.
+Now both are live: the synth underneath, the ink on top.	Tura i sin deg tuffɣa: synth seddaw, amidad nnig.
+CIRCLE SOMETHING	SUNEƔ TAWINEST
+Press DRAW in the inspector, then draw on the programme monitor. Mouse, or a pen if you have one.	Deg inspector, sit ɣef DRAW, syin suneɣ ɣef amḍiq n usaḍuf. S taɣerdayt, neɣ s yimru ma yella ɣur-k.
+A pen's pressure makes the line thicker. A mouse presses at one strength. Like me.	Aḥezzeb n yimru yettḥuzu izirig. Taɣerdayt tettḥezzeb kan s yiwet n tezmert. Am nekk.
+Circle him! No, bigger. BOOM. That's a cloud. Fine. Circle the cloud.	Suneɣ tawinest i nettat! Ala, d tameqqrant. BUM. D asigna. Yelha. Suneɣ tawinest i usigna.
+SAVE A STILL	SEKLES TUGNA TUSBIḌT
+SAVE STILL keeps the drawing as a picture with a clear background, and adds it to the playlist.	SAVE STILL ad yesekles asuneɣ d tugna s ugilal d afrawan, ad t-yernu ɣer playlist.
+For next week's show. Coach Marv will want the cloud again.	I uɣawas n ddurt i d-iteddun. Coach Marv ad yebɣu asigna tikkelt nniḍen.
+THAT'S THE BOOTH	D TAXXAMT-AGI
+Patterns, the synth, a layer, ink, a still. Nazdrave, skapi.	Tugniwin n ujerreb, synth, layer, amidad, tugna tusbiḍt. Nazdrave, skapi.
+Try Replay in the Draw section: it draws your lines back the way you drew them.	Ɛreḍ Replay deg tazwert Draw: ad d-yales izirig-ik am akken i ten-tesuneɣeḍ.
+Same time next week. Bring a bigger pen. And a turducken.	Ddurt i d-iteddun, yiwen wakud. Awi-d imru ameqqran. D tqessult n seksu.
+Saucer photo (CLASSIFIED)	Tugna n useḥnu yettafgen (UFFIR)
+THE SIGNAL FILES	IFUYLA N TDELLALIN
+The Bureau of Unexplained Signals. Two agents, one photo, and it must not air. Press START.	Lbiru n Tdellalin ur Nettwasefhem ara. Sin n yiɛessasen, yiwet n tugna, ur ilaq ara ad teffeɣ. Sit ɣef START.
+Masks cut a picture into shapes. Tonight we cut evidence.	Masks rran tugna d talɣa. Iḍ-a, ad negzem anagi.
+That's a craft, Brandt. Look at the lights. I want to believe.	D aɣerrabu, Brandt. Muqel tafat. Bɣiɣ ad umneɣ.
+A MASK FROM THE LIBRARY	MASK SEG TEMKARḌIT
+In the inspector's MASK section: mask, then 'new heart'. Any shape will do. The heart is funnier.	Deg tazwert MASK n inspector: mask, syin 'new heart'. Yal talɣa telha. Ul yettaḍsa ugar.
+The library has circles, stars, hearts. Each one is points you can move.	Tamkarḍit tesɛa tawinest, itri, ul. Yal yiwen d tinqiḍin i tzemreḍ ad tesmuttiḍ.
+A heart, Hollis? The Bureau redacts with black bars.	Ul, Hollis? Lbiru yettfer s yiseɣsan iberkanen.
+THE PEN	IMRU
+Set the tool to pen, then click round the saucer on the monitor. Click the first point to close it.	Rre allal d imru, syin sit ɣef amḍiq i useḥnu. Sit ɣef tenqiḍt tamezwarut i umdal.
+Click for corners, drag for curves. The way the Bezier brothers intended.	Sit i tiɣemmar, zuɣer i yizirig yeknan. Am akken i bɣan watmaten Bézier.
+Draw round it carefully. It might be watching.	Suneɣ s leɛqel. Ahat yettmuqul.
+INVERT	TTI-T
+Invert keeps the outside and cuts the inside. The saucer goes. The sky stays.	Asenqeḍ yeǧǧa beṛṛa, yegzem daxel. Aseḥnu yettruḥ. Igenni yeqqim.
+The same shape, the other way round. Very useful. Slightly spooky.	Yiwet n talɣa, tettwatti. Nefɛa aṭas. Tettagad cwiṭ.
+Hollis, there's a heart-shaped hole in the sky.	Hollis, yella yiwen n uxelxul s talɣa n wul deg igenni.
+FEATHER	SSEḤLU-T
+Feather softens the edge, so nobody sees the cut. Press + on feather.	Aseḥlu yettleqqiq iri, akken ur yettwali yiwen agzam. Sit + ɣef feather.
+A hard edge says 'someone was here'. A soft one says nothing at all.	Iri aqesḥan yeqqar 'yella yiwen dagi'. Win yeḥlan ur d-yeqqar acemma.
+They'll never know.	Ur ẓran ara laɛmer.
+CASE CLOSED	AFAYLU YETTWAMDEL
+A library shape, the pen, invert and feather. The Bureau thanks you. The Bureau was never here.	Talɣa n temkarḍit, imru, asenqeḍ d useḥlu. Lbiru yesnemmer-ik. Lbiru ur yelli laɛmer dagi.
+Masks also go on a layer, an output, or its matte: MASK ON chooses. And every control takes a ~.	Masks zemren ad ilin ɣef layer, output neɣ matte-ines: MASK ON ad yefren. Yal asenqed yeṭṭef ~.
+The truth is in the waveform, Hollis. Next time, the scopes.	Tidet tella deg waveform, Hollis. Tikkelt i d-iteddun, scope.
+The ghost	Aɛeffrit
+THE HAUNTED LIGHTHOUSE	AFNAR S UƐEFFRIT
+A lighthouse, a ghost, and a keeper who has been alone with the lamp far too long. Press START.	Afnar, aɛeffrit, d unaẓur i yeqqimen weḥd-s aṭas akked lmesbaḥ. Sit ɣef START.
+Projection mapping: bending the picture to fit the building. Warp, blend, slices.	Projection mapping: knun tugna akken ad tezg ɣef lebni. Warp, blend, slice.
+Ye'll be wanting the ghost on the windows. Mind the lamp. The lamp is MINE.	Tebɣam aɛeffrit ɣef yisfuyla, neɣ? Ḥadret lmesbaḥ. Lmesbaḥ D WIN-IW.
+THE OUTPUT'S GEOMETRY	TALƔA N OUTPUT
+MENU, then Video Outputs, then Geometry. Where an output's shape lives.	MENU, syin Video Outputs, syin Geometry. Talɣa n output tezdeɣ dinna.
+Geometry: the projector-menu word for 'what shape is the picture'.	Geometry: awal n wumuɣ n projector i 'acu n talɣa i tesɛa tugna'.
+PIN A CORNER	SENṬEḌ TIƔMERT
+Press warp edit, then drag a corner on the programme monitor. The window is not square. Neither is the keeper.	Sit ɣef warp edit, syin zuɣer tiɣmert ɣef amḍiq n usaḍuf. Asfaylu mačči d amkuẓ. Unaẓur daɣen.
+A corner pin moves the four corners. Perspective keeps the lines straight, like a real window.	Corner pin yesmuttay ukkuẓ n tiɣemmar. Perspective yettaǧǧa izirig qwamen, am usfaylu n tidet.
+LEFT! Ye call that a corner? I've seen straighter gulls.	ZELMEḌ! Tqqareḍ-as tiɣmert? Walaɣ tibbucin qwamen ugar.
+TWO SOFT EDGES	SNAT N TAMA YEḤLAN
+Back in Geometry: edge blend, + on the left and + on the right.	Uɣal ɣer Geometry: edge blend, + ɣef zelmeḍ, + ɣef yeffus.
+Two projectors overlap; each fades its edge so the overlap is not twice as bright.	Sin n projectors ttemyagaren; yal yiwen yesfessay iri-s akken ur yettfeǧǧiǧ ara usemlil snat n tikkal.
+THE SCREENS WINDOW	ASFAYLU SCREENS
+Geometry, SLICES, open. The Screens window is where slices are cut and placed.	Geometry, SLICES, ldi. Asfaylu Screens d anida i ttwagezmen slices, ttwasersen.
+A slice is a piece of the picture, put anywhere on the output.	Slice d aḥric n tugna, yettwasers anda yebɣu deg output.
+THREE SLICES	KRAḌ N SLICES
+In the Screens window, + SLICE three times, and drag each crop to a third of the picture.	Deg usfaylu Screens, + SLICE kraḍ n tikkal, zuɣer yal agzam ɣer tulut n tugna.
+Three windows, three slices: left, middle and right of one picture.	Kraḍ n yisfuyla, kraḍ n slices: zelmeḍ, ammas d yeffus n yiwet n tugna.
+Three windows. The lamp gets the middle one. The lamp ALWAYS gets the middle one.	Kraḍ n yisfuyla. Win n wammas i lmesbaḥ. Win n wammas DIMA i lmesbaḥ.
+THE GHOST IS PLEASED	AƐEFFRIT YEFREḤ
+Warp, blend, slices. The keeper will finally sleep. The gulls will not.	Warp, blend, slice. Unaẓur ad yeṭṭes di tagara. Tibbucin ala.
+Slices have their own warp and mesh in the Screens window. And a ~ on the place and the turn.	Slices sɛan warp d mesh nsen deg usfaylu Screens. D ~ ɣef wadeg d tuzzya.
+Ye did alright, lad. Now get away from the lamp.	Texdemeḍ akken iwata, a mmi. Tura bɛed ɣef lmesbaḥ.
+THE GAME SHOW	URAR N TILIẒRI
+A game show, skapi. Three contestants, one buzzer, and cues that fire from anywhere. Press START.	Urar n tiliẓri, skapi. Kraḍ n yimurar, yiwen n buzzer, d cues yettnernin seg yal amkan. Sit ɣef START.
+Cue numbers, hotkeys, and GO from other machines. Like a sequencer you can play from any key.	Uṭṭunen n cue, tisura wezzilen, d GO seg tmacinin nniḍen. Am sequencer i tewwteḍ s yal tasarut.
+Welcome to the show! Let's spin that wheel!	Ansuf yis-wen ɣer uskan! Ad nezzi tawinest!
+A CUE NUMBER	UṬṬUN N CUE
+Contestant 3 is selected. In the inspector's metadata, give it a cue number: 3.	Amurar 3 yettwafren. Deg metadata n inspector, efk-as uṭṭun n cue: 3.
+Theatre numbers its cues. Q3, Q3.5, Q12A. Deckboy reads them all.	Iskanen ttḥsiben cues nsen. Q3, Q3.5, Q12A. Deckboy yeqqar-iten akk.
+I'd like to buy a number, please.	Bɣiɣ ad aɣeɣ uṭṭun, ma ulac aɣilif.
+GO TO IT	RUḤ ƔUR-S
+Ctrl+G, type the number, Enter. It goes live wherever the list happens to be standing.	Ctrl+G, aru uṭṭun, Enter. Ad yeffeɣ ɣer tuffɣa, anida yebɣu yili tebdart.
+GOTO. The fastest way across a long list. Faster than scrolling. Much faster than me.	GOTO. Abrid ugar n tɣawla deg tebdart teɣzifen. Ugar n tɣawla ɣef scroll. Ugar aṭas ɣef nekk.
+And the number is... three!	D uṭṭun... d kraḍ!
+A BUZZER	BUZZER
+Contestant 1 is selected. In TRIGGERS, press key, then F5. That key now fires this cue.	Amurar 1 yettwafren. Deg TRIGGERS, sit ɣef key, syin F5. Tasarut-nni tura tesnerni cue-agi.
+F1 to F10, F12, or the number pad. Each one, a buzzer.	F1 ɣer F10, F12, neɣ pad n wuṭṭunen. Yal yiwen d buzzer.
+Every contestant gets a buzzer.	Yal amurar ad yaf buzzer.
+BUZZ IN	SIT!
+Press the key. The cue fires, wherever the list is standing.	Sit ɣef tsarut. Cue yettnerni, anida yebɣu yili tebdart.
+No mouse, no list, no looking. Just the key.	Ulac taɣerdayt, ulac tabdart, ulac amuqel. Tasarut kan.
+Buzz! We have a winner!	Bzzz! Nesɛa amerbaḥ!
+FROM ANYWHERE	SEG YAL AMKAN
+Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion, tanuṭ MIDI, izen OSC: MENU, syin Aẓeṭṭa, ad yini anda i yeqqen yal yiwen.
+A Stream Deck in the next room can press GO. So can a keyboard synth. I prefer the synth.	Stream Deck deg texxamt n tama yezmer ad yessit GO. Synth n unasiw daɣen. Ḥemmleɣ synth ugar.
+And for our viewers at home: you can play along too.	I yimeẓḍa deg uxxam: ula d kenwi tzemrem ad turarem.
+THAT'S OUR SHOW	D ASKAN-NNEƔ
+Numbers, GOTO, a buzzer, and GO from anywhere. You are a game show now, skapi.	Uṭṭunen, GOTO, buzzers, d GO seg yal amkan. Tura kečč d urar n tiliẓri, skapi.
+A cue can have a key, a MIDI note and an OSC address at once. Belt, braces and a second belt.	Cue yezmer ad yesɛu tasarut, tanuṭ MIDI d tansa OSC s tikkelt. Abagus, tiqfalin d ubagus nniḍen.
+Goodnight, everybody! Keep spinning!	Iḍ ameggaz, akk! Kemmlet tuzzya!
+Weather map	Takarḍa n tegnawt
+THE KAIJU WEATHER	TAGNAWT N KAIJU
+Channel 6 weather, skapi. A map, a presenter, and a very large lizard. Press START.	Tagnawt n Channel 6, skapi. Takarḍa, tamsizwert, d yiwen n uzermumeg ameqqran aṭas. Sit ɣef START.
+Words on screen: Lower Thirds, text, and backdrops.	Awalen ɣef ugdil: Lower Third, aḍris d ugilal.
+I'm June O'Neil, and nothing about this forecast is normal.	Nekk d June O'Neil, ulac ayen d amagnu deg tazwert-agi.
+A LAYER FOR WORDS	LAYER I YIWALEN
+Words go on their own layer: press the + at the end of the playlist tabs.	Awalen ttruḥun ɣef layer nsen: sit ɣef + deg tagara n yiccer n playlists.
+A second playlist is a layer over the map. The lizard stays underneath. Mostly.	Playlist wis sin d layer ɣef takarḍa. Azermumeg yeqqim seddaw. S waṭas.
+Words on top. Always on top.	Awalen nnig. Dima nnig.
+A LOWER THIRD	LOWER THIRD
+In the new playlist: SOURCE, then Lower Third.	Deg playlist tamaynut: AƔBALU, syin Lower Third.
+A name and a title, low on the screen, out of the lizard's way.	Isem d uzwel, ddaw n ugdil, beṛṛa n ubrid n uzermumeg.
+HER NAME	ISEM-IS
+In the inspector, title: type the presenter's name. The second line is her job.	Deg inspector, title: aru isem n tmsizwert. Izirig wis sin d axeddim-is.
+Spelling counts. The audience reads it at the speed of light.	Tira tesɛa azal. Imeẓḍa ttɣaren s tɣawla n tafat.
+Spell it right. Last week it said 'Jane O'Meal'.	Aru-t akken iwata. Ddurt yezrin turiḍ 'June O'Neel'.
+ON AIR	DEG TUFFƔA
+TAKE the Lower Third. Her name slides in over the map.	TAKE Lower Third. Isem-is yettemsellif ɣef takarḍa.
+Two layers live: the weather, and the words on top of it.	Sin n layers deg tuffɣa: tagnawt, d yiwalen nnig-s.
+Thank you. Now, about that lizard...	Tanemmirt. Tura, ɣef uzermumeg-nni...
+BREAKING NEWS	ISALLEN IƐEJLEN
+SOURCE, then Text: a title card. Then its backdrop chip: key green, for the vision mixer to key out.	AƔBALU, syin Text: takarḍa n uzwel. Syin tachipt n ugilal: azegzaw n key, akken ad t-yekkes mixer.
+A backdrop fills behind the words. Key green or key blue, and the mixer does the rest.	Agilal yeččur deffir n yiwalen. Azegzaw neɣ amidadi n key, mixer ad yexdem ayen nniḍen.
+Breaking news: it's standing on the five-day forecast.	Iɛejlen: yebded ɣef tezwert n semmus n wussan.
+BREAKING: KAIJU	IƐEJLEN: KAIJU
+BACK TO YOU	NUƔAL ƔER STUDIO
+A Lower Third, a name, a title card, a backdrop. The lizard has left the studio, skapi.	Lower Third, isem, takarḍa n uzwel, agilal. Azermumeg yeǧǧa studio, skapi.
+Lower Thirds can wait, slide and leave on their own. Their section has every setting.	Lower Thirds zemren ad ttrajun weḥd-sen, ad mselfen, ad ffɣen. Tazwert-nsen tesɛa yal aseɣwen.
+That's the weather. Back to you, guys. Run.	D tagnawt. Nuɣal ɣer studio. Rewlet.
+A GRAND DAY OUT	ASS AMEQQRAN
+A rocket built in a basement, skapi, and an inventor who wants cheese. Press START.	Arukit yettwabnan deg tesraft, skapi, d umesnulfu i yebɣan ajben. Sit ɣef START.
+Stage timers: countdowns, clocks, and a presenter view for the person on stage.	Tisragin n usayes: asiḍen ɣer deffir, tasragt, d tmuɣli n umsizwer.
+Cheese, Grommet! The moon's made of it. We'll need a countdown.	Ajben, Grommet! Aggur d ajben. Nḥwaǧ asiḍen ɣer deffir.
+A COUNTDOWN	ASIḌEN ƔER DEFFIR
+SOURCE, then Stage Timer. A clock that counts down, in big friendly numbers.	AƔBALU, syin Stage Timer. Tasragt yettḥsiben ɣer deffir, s wuṭṭunen imeqqranen, ilhan.
+Its colours change as it runs out: white, amber, red. Like a VU meter for time.	Initen beddlen mi ara yfak wakud: amellal, amber, azeggaɣ. Am VU meter n wakud.
+*raises an eyebrow*	*yessali tamiwin*
+LIFT OFF	ASSALI
+Select the timer and TAKE it. The countdown starts.	Fren tasragt, TAKE-itt. Asiḍen yebda.
+Past zero it keeps going, counting the overtime. Very honest. Slightly rude.	Ikemmel deffir n ulac, yettḥsib akud iɛeddan. D uzdig aṭas. Ur yesɛi ara leqder cwiṭ.
+Ten... nine... ooh, I do love a countdown.	Mraw... tẓa... ah, ḥemmleɣ asiḍen ɣer deffir.
+HOLD!	SEḤBES!
+Something's loose! Space holds the countdown. The clock shows it is held.	Yella wayen yerxan! Space ad yesḥbes asiḍen. Tasragt tesken belli teḥbes.
+A hold is not a stop. Space again, and it carries on from where it was.	Aḥbas mačči d tagara. Space tikkelt nniḍen, ad ikemmel seg wanida yeḥbes.
+*holds up a spanner*	*yessali tasarut*
+THE PILOT'S VIEW	TAMUƔLI N UMENHAR
+MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	MENU, Video Outputs: rre anaw n output d PRESENTER. Win yellan ɣef usayes ad iwali tasragt, cue i d-iteddun d tizmilin-is.
+A presenter view is an output like any other. Point it at the confidence monitor.	Tamuɣli n umsizwer d output am wiyaḍ. Wehhi-tt ɣer tmuɣli n usayes.
+So the pilot can see the time. The pilot is Grommet.	Akken ad iwali umenhar akud. Amenhar d Grommet.
+TO THE MOON	ƔER UGGUR
+A countdown, a hold, and a view for the pilot. Nazdrave, skapi. Bring crackers.	Asiḍen, aḥbas, d tmuɣli i umenhar. Nazdrave, skapi. Awi-d tiqqiqin.
+Timers can also count up, or show the time of day. Their section has the lot.	Tisragin zemrent daɣen ad ḥsibent ɣer sdat, neɣ ad sknent akud. Tazwert-nsent tesɛa kullec.
+A grand day out, Grommet! Pass the crackers.	Ass ameqqran, Grommet! Efk-iyi-d tiqqiqin.
+The trunk (closed)	Tabewwaṭ (tettwamdel)
+The trunk (open)	Tabewwaṭ (teldi)
+THE MAGIC SHOW	ASKAN N TESḤART
+A magic show, skapi. A trunk, a prop, and one beat where everything changes at once. Press START.	Askan n tesḥart, skapi. Tabewwaṭ, prop, d yiwen n usenqer yettbeddil kullec s tikkelt. Sit ɣef START.
+Two playlists are two layers. TAKE ALL changes both together.	Snat n playlists d sin n layers. TAKE ALL yettbeddil-iten i sin s tikkelt.
+Every trick needs two things happening at once. And a rubber chicken.	Yal tiḥila teḥwaǧ snat n tɣawsiwin ara iḍerrun s tikkelt. D tyaziḍt n lkawkcu.
+The prop goes on its own layer. Press the + at the end of the playlist tabs.	Prop yettruḥ ɣef layer ines. Sit ɣef + deg tagara n yiccer n playlists.
+Playlist 2 sits on top of playlist 1. Like a transparency on an overhead projector.	Playlist 2 yeqqim ɣef playlist 1. Am transparent ɣef overhead projector.
+Nothing up my sleeve. Everything in my trunk.	Ulac kra deg tɣallin-iw. Kullec deg tbewwaṭ-iw.
+THE PROP	PROP
+In the new playlist, add anything: PATTERN will do. That is the prop.	Deg playlist tamaynut, rnu kra: PATTERN yelha. D prop.
+Whatever it is, it will appear the instant the trunk opens.	Ayen yebɣu yili, ad d-iban mi ara teldi tbewwaṭ.
+Is it a rubber chicken? It's always a rubber chicken.	D tayaziḍt n lkawkcu? Dima d tayaziḍt n lkawkcu.
+The prop (rubber chicken)	Prop (tayaziḍt n lkawkcu)
+Select 'The trunk (open)' in playlist 1 and the prop in playlist 2. Then TAKE ALL: both on one beat.	Fren 'Tabewwaṭ (teldi)' deg playlist 1 d prop deg playlist 2. Syin TAKE ALL: i sin s yiwen n usenqer.
+One press, every playlist's selected cue. The audience never sees the seam.	Yiwen usit, cue yettwafernen n yal playlist. Imeẓḍa ur walan ara laɛmer tagnit.
+Ta-daaa! ...Hold for applause. Hold. Hold.	Ta-daaa! ...Rajut afakkar. Rajut. Rajut.
+THE PRESTIGE	TIḤILA TAMEQQRANT
+Two layers, one beat. Every playlist has its own opacity and can sit on any output. Nazdrave, skapi.	Sin n layers, yiwen n usenqer. Yal playlist s opacity ines, yezmer ad yeqqim ɣef yal output. Nazdrave, skapi.
+A magician never reveals. A playlist never minds being revealed.	Amsaḥer ur yesken laɛmer. Playlist ur yeɛyu ara seg usekni.
+Thank you! I'm here all week! The chicken is here forever.	Tanemmirt! Aql-i dagi ddurt akk! Tayaziḍt dima dagi.
+The kitchen (on fire)	Tanwalt (tettɣimi s times)
+A lovely souffle	Soufflé yelhan
+THE COOKING SHOW	ASKAN N USEWWI
+A cooking show, skapi. Live. Everything is on fire. Press START.	Askan n usewwi, skapi. S srid. Kullec yettɣimi s times. Sit ɣef START.
+BLACK hides the picture and keeps the show running. PANIC stops everything. Know which you need.	BLACK yettfer tugna, askan ikemmel. PANIC yesḥbas kullec. Issin anwa i tḥwaǧeḍ.
+Bork bork! Hurdy-flurdy, de kitchen is fire-a-flurdy!	Bork bork! Hurdy-flurdy, tanwalt deg times-flurdy!
+The audience must not see this. Press BLACK, or B.	Imeẓḍa ur ilaq ara ad t-walin. Sit ɣef BLACK, neɣ B.
+The picture goes. The cue keeps playing underneath, ready to come back.	Tugna tettruḥ. Cue yettuddu seddaw, yewjed ad d-yuɣal.
+Bork? Bork. Oh, de picture is gun.	Bork? Bork. Ah, tugna truḥ.
+AND BACK	D TUƔALIN
+The fire's out. Press B again: the picture comes back, still running.	Times texsi. B tikkelt nniḍen: tugna tuɣal-d, mazal tettuddu.
+Nothing was lost. A mute on a mixer, for pictures.	Ulac ayen iruḥen. Mute ɣef mixer, i tugniwin.
+Ta-da! Still cookin'!	Ta-da! Mazal nettsewwi!
+Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	Ugar n diri: MENU, Anagraw, takarḍa SAFETY: PANIC. Kullec yeḥbes, akken yeqqar uṣeggem n panic.
+PANIC is the big red button. Use it when BLACK is not enough. Then breathe.	PANIC d taqeffalt tazeggaɣt tameqqrant. Seqdec-itt mi ara ur yeqqim ara BLACK. Syin senfes.
+GET IT BACK	RR-IT-ID
+Close MENU, select the souffle, and TAKE it. The show is back on.	MDEL MENU, fren soufflé, TAKE-it. Askan yuɣal-d.
+After a panic, the show is still there. Pick up where you meant to be.	Deffir n panic, askan mazal-it dinna. Kemmel seg wanida i tebɣiḍ.
+Voila! De souffle, he is risen!	Voilà! Soufflé yuli!
+BON APPETIT	SAḤA
+BLACK to hide, PANIC to stop, TAKE to come back. You will survive any kitchen, skapi.	BLACK i tuffra, PANIC i uḥbas, TAKE i tuɣalin. Ad d-teffɣeḍ seg yal tanwalt, skapi.
+The panic setting chooses what PANIC does: fade out, cut, or just the outputs.	Aṣeggem n panic yettafran d acu ara yexdem PANIC: fade out, agzam, neɣ output kan.
+Bork bork bork! Goodnight!	Bork bork bork! Iḍ ameggaz!
+Look one	Tamuɣli tamezwarut
+Look two	Tamuɣli tis snat
+Presets, skapi. A whole look, remembered, and back with one button. Press START.	Presets, skapi. Tamuɣli s lekmal-is, tettwasmektay, tettuɣal-d s yiwet n tqeffalt. Sit ɣef START.
+Like the patch memory on a synth: store, then recall.	Am tmektit n patch ɣef synth: sekles-it, syin siwel-as.
+THE DASH	DASH
+Press DASH: buttons of your own, for anything at all.	Sit ɣef DASH: tiqeffalin-ik, i kullec.
+Ctrl+D also works. Very fast. Very professional.	Ctrl+D yeddu daɣen. D aɣawal aṭas. D amsadur aṭas.
+A PRESET BUTTON	TAQEFFALT N PRESET
+Press +, then 'preset - a new preset from what is on now'. The button remembers this look.	Sit +, syin 'preset - a new preset from what is on now'. Taqeffalt ad tesmekti tamuɣli-agi.
+Store. Like saving the patch before the drummer leans on the synth.	Sekles-itt. Am usekles n patch uqbel ad yeɣli ubendir ɣef synth.
+CHANGE EVERYTHING	BEDDEL KULLEC
+Close the DASH (Esc), then select Look two and TAKE it. A different look.	MDEL DASH (Esc), syin fren Tamuɣli tis snat, TAKE-itt. Tamuɣli nniḍen.
+Change it all. Don't worry. It remembers.	Beddel kullec. Ur ttagad ara. Tettmektay.
+ONE PRESS	YIWEN USIT
+Open the DASH and press your preset button. The first look comes back.	Ldi DASH, sit ɣef taqeffalt n preset-ik. Tamuɣli tamezwarut tuɣal-d.
+Recall. The patch memory, returning. Beautiful.	Tettwasiwel. Tamektit n patch tuɣal-d. Yelha.
+A look, stored and recalled. A preset can keep cues, positions, effects, levels and routing; its button's menu chooses which.	Tamuɣli, tettwasekles, tettwasmekti. Preset yezmer ad yeḥrez cues, imukan, isemda, iswiren d usuddem; umuɣ n tqeffalt-is yettafren anwi.
+And a DASH button can run any command at all. Any. Even the exciting ones.	Taqeffalt DASH tezmer ad tesleḥ yal taladna. Yal yiwet. Ula d tid yessewhamen.
+Opening titles	Izwal n tazwara
+The planet	Tamtunt
+The battle	Amennuɣ
+THE TRAILER	TRAILER
+A space-opera trailer, skapi. A narrator with a very deep voice and opinions about transitions. Press START.	Trailer n opera n tallunt, skapi. Amullas s taɣect yettwaḍen aṭas d tikti aṭas ɣef transitions. Sit ɣef START.
+A transition is how one cue becomes the next. There are far more than the crossfade.	Transition d amek i yettuɣal yiwen n cue d wayeḍ. Llant aṭas ugar n crossfade.
+In a galaxy of content... one operator... must choose a transition.	Deg yiwet n tminḍelt n ugbur... yiwen n umsedray... ilaq ad yefren transition.
+A STYLE	TAƔARA
+'The planet' is selected. In the inspector, its transition style: choose iris.	'Tamtunt' tettwafren. Deg inspector, taɣara n transition-is: fren iris.
+Pushes, wipes, iris, dip to white. Even a portal. I wrote half of them. On a Tuesday.	Push, wipe, iris, dip to white. Ula d portal. Uriɣ azgen-nsent. Ass n Sin.
+The planet deserves... a dramatic entrance.	Tamtunt tuklal... akcam aɣyaz.
+A TIME	AKUD
+Give it a time: + on transition until it says a second or more.	Efk-as akud: sit + ɣef transition alamma yeqqar tasint neɣ ugar.
+No time, no transition. A style needs a duration to do anything at all.	Ulac akud, ulac transition. Taɣara teḥwaǧ akud akken ad texdem kra.
+ROLL IT	SSLEḤ-IT
+TAKE the planet. Watch it arrive.	TAKE Tamtunt. Muqel-itt tettas-d.
+The transition belongs to the cue arriving. Each cue chooses its own entrance.	Transition d win n cue i d-iteddun. Yal cue yettafren akcam-is.
+Autobots... roll the transition.	Autobots... sleḥ transition.
+THE BATTLE	AMENNUƔ
+Now 'The battle': choose shatter, give it a time, and TAKE it.	Tura 'Amennuɣ': fren shatter, efk-as akud, TAKE-it.
+Shatter drops the old picture like a pane of glass. Please do not do this at a funeral.	Shatter yesseɣlay tugna taqdimt am lǧaj. Ma ulac aɣilif, ur t-sseqdacet ara deg tmeɣra n zzwaǧ.
+Transform... and shatter out!	Beddel... u rreẓ!
+IN CINEMAS NOW	TURA DEG YISINIMATEN
+A style, a time, and two very dramatic entrances. Nazdrave, skapi.	Taɣara, akud, d snat n tikcamin yessewhamen aṭas. Nazdrave, skapi.
+A playlist has a default style too, for every cue that does not choose its own.	Playlist daɣen tesɛa taɣara n lexṣas, i yal cue ur nefri ara tin-ines.
+Coming soon... to a desk near you.	Qrib... ɣef ṭṭabla qrib ɣur-k.
+The beat	Riṭm
+THE ROBOT DJS	DJs N YIRUBUTEN
+Two robot DJs, skapi. They do not talk. Their helmets do. Press START.	Sin n DJs n yirubuten, skapi. Ur ttmeslayen ara. Tiqbaɛin-nsen ttmeslayent. Sit ɣef START.
+Every cue has its own chain of audio effects, and some of them break the sound on purpose.	Yal cue yesɛa tasuddemt-is n yisemda n imesli, kra seg-sen sseɣlayen imesli s lebɣi.
+> HELLO. WE ARE HERE TO FIX YOUR MIX.	> AZUL. NUSA-D AD NṢEGGEM MIX-IK.
+The beat is selected. In its AUDIO EFFECTS section, + adds one. Try the delay.	Riṭm yettwafren. Deg tazwert AUDIO EFFECTS, + ad d-yernu yiwen. Ɛreḍ Delay.
+Delay, reverb, filters, a compressor. Amount always means 'less of this'.	Delay, reverb, filter, compressor. Amount dima yebɣa ad yini 'drus n wagi'.
+> ONE MORE TIME. WITH ECHO. ECHO. ECHO.	> TIKKELT NNIḌEN. S USEDDU. ASEDDU. ASEDDU.
+A BEND	BEND
+Add a second: a bend, like crush. It damages the sound the way a broken file would.	Rnu wis sin: bend, am crush. Yesseɣlay imesli am ufaylu yerẓen.
+The bends are my favourite. Like a tape left in the sun. On purpose.	Bends d wid ḥemmleɣ ugar. Am tkasiṭ yeqqimen deg yiṭij. S lebɣi.
+> HARDER. BETTER. CRUNCHIER. LOUDER.	> QESḤEN. YIF. YEQQRAQEB. ƐLIN.
+THE PATCH	PATCH
+MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	MENU, syin Ameslaw: anida yettruḥ imesli n yal playlist, d patch i yoututs s yisem.
+Speakers, monitors, an in-ear for the drummer. The patch sends each its own.	Imesla, imsekyaden, in-ear i ubendir. Patch yettazen i yal yiwen win-ines.
+> AROUND THE MIX. AROUND THE MIX. AROUND THE MIX.	> I TEWZI N MIX. I TEWZI N MIX. I TEWZI N MIX.
+An effect, a bend and the patch. The robots approve, skapi. I think. Their faces are helmets.	Asemda, bend d patch. Irubuten qeblen, skapi. I nniɣ. Udmawen-nsen d tiqbaɛin.
+Every audio effect can follow a ~ too, even Motion. Wave at the delay. It's wonderful.	Yal asemda n imesli yezmer ad yeḍfer ~, ula d Motion. Hezz afus i delay. D lewhayem.
+> THANK YOU. GOOD NIGHT. WE ARE ROBOTS.	> TANEMMIRT. IḌ AMEGGAZ. NEKNI D IRUBUTEN.
+The glow on the horizon (evidence #2)	Tafat ɣef ugmir (anagi #2)
+EVIDENCE #2	ANAGI #2
+The Bureau again, skapi. A glow on the horizon, and two agents who disagree about it. Press START.	Lbiru tikkelt nniḍen, skapi. Tafat ɣef ugmir, d sin n yiɛessasen ur nemmtafaq ara fell-as. Sit ɣef START.
+The scopes measure a picture: brightness, colour, levels. Numbers, not opinions.	Scopes ttaktilen tugna: tafat, ini, aswir. Uṭṭunen, mačči tamuɣli.
+It's them, Brandt. It's a craft. Look how it glows.	D nutni, Brandt. D aɣerrabu. Muqel amek yettfeǧǧiǧ.
+THE REAL SIGNAL	TADELLALT N TIDET
+The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	Scopes ttɣaren kan ayen yeffɣen s tidet, laɛmer preview. Ldi output: MENU, Video Outputs, OUTPUT OFF.
+Measuring a scaled-down preview would be measuring a photocopy. We measure the original.	Taktilt n preview yettwasmeẓyen am tektilt n photocopie. Nettaktil aneẓli.
+Chain of evidence, Hollis. The real signal or nothing.	Tasuddemt n yinagiyen, Hollis. Tadellalt n tidet neɣ ulac.
+THE SCOPES	SCOPE
+Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	MDEL MENU. Nnig usaḍuf, taqeffalt PROGRAM: sit alamma tenna SCOPES neɣ BOTH.
+Both shows the picture and its scopes side by side. Very civilised.	BOTH yesken tugna d scopes-is yiwen ɣer tama n wayeḍ. D ayen yesɛan leqder.
+Let the scopes decide, Hollis.	Eǧǧ scopes ad sfuglen, Hollis.
+THE WAVEFORM	WAVEFORM
+Click the waveform to make it big. Bright things sit high, dark things low, left to right as in the picture.	Sit ɣef waveform akken ad yimɣur. Ayen yeffɣen nnig, ayen yeḍlam seddaw, seg zelmeḍ ɣer yeffus am deg tugna.
+The glow is that spike near the top. Very bright. Bright is not the same as alien.	Tafat d tiqit-nni qrib n ufella. Tfeǧǧiǧ aṭas. Tafeǧǧiǧt mačči d aberrani.
+Look at the peak. Nothing a streetlight couldn't do.	Muqel tiqit. Ulac ayen ur yezmir ara ad t-yexdem lmesbaḥ n webrid.
+THE VECTORSCOPE	VECTORSCOPE
+Click it again to go back, then click the vectorscope: colour round a circle. Saturated runs to the edge.	Sit tikkelt nniḍen akken ad tuɣaleḍ, syin sit ɣef vectorscope: ini i tewzi n twinest. Tawant tettazzal ɣer iri.
+Magenta, far out by the rim. A strong colour. Strong is not illegal. Yet.	Magenta, yebɛed ɣer iri. Ini yeǧhed. Yeǧhed mačči d unḥir. Mazal.
+It's off the chart, Brandt! Literally off the chart!	Yeffeɣ i tkarḍa, Brandt! S tidet!
+FALSE COLOUR	INI N LEKDEB
+And false colour: red is clipped, yellow nearly. Is the glow red?	D yini n lekdeb: azeggaɣ yettwagzem, awraɣ qrib. Tafat d tazeggaɣt?
+Clipped means the brightest the signal can carry, and then some lost. Detail gone.	Yettwagzem yebɣa ad yini tafat ugar i tzemer ad tt-teṭṭef tdellalt, d kra nnig-s iruḥ. Talqayt truḥ.
+Red. Clipped. Not alien, Hollis. Just too bright. Case closed.	Azeggaɣ. Yettwagzem. Mačči d aberrani, Hollis. Tfeǧǧiǧ kan aṭas. Afaylu yettwamdel.
+THE TRUTH	TIDET
+Waveform, vectorscope, false colour. The scopes settled it, skapi. The agents did not.	Waveform, vectorscope, ini n lekdeb. Scopes sfuglen, skapi. Mačči iɛessasen.
+SCOPES SOURCE reads any output, and the matrix can be 709 or 2020. For the curious.	SCOPES SOURCE yeqqar yal output, matrix yezmer ad yili 709 neɣ 2020. I wid yettḥulfun s tmusni.
+Too bright for a streetlight, Brandt. Too bright for anything. ...I want to believe.	Tfeǧǧiǧ aṭas i lmesbaḥ n webrid, Brandt. Tfeǧǧiǧ aṭas i kullec. ...Bɣiɣ ad umneɣ.
+OUT OF THE BUILDING	BEṚṚA N LEBNI
+Pictures that leave by cable or network, skapi, not only a window on a screen. Press START.	Tugniwin yeffɣen s ufeggag neɣ s uẓeṭṭa, skapi, mačči d asfaylu kan ɣef ugdil. Sit ɣef START.
+NDI over the network, SDI from a DeckLink card, ST 2110 for broadcast plants.	NDI ɣef uẓeṭṭa, SDI seg tkarḍa DeckLink, ST 2110 i tezrigin.
+THE DEVICES PAGE	ASEBTER N YIBENKAN
+MENU, Video Outputs, then Devices: every way an output can leave this computer.	MENU, Video Outputs, syin Ibenkan: yal abrid i yezmer output ad yeffeɣ seg uselkim-agi.
+Each one says whether this machine can do it, and what it needs if not.	Yal yiwen yeqqar ma tezmer tmacint-agi, ma ulac, d acu i tḥwaǧ.
+If this computer has NDI, switch NDI SENDING on: the picture is on the network. If not, SHOW ME moves on.	Ma yella NDI ɣef uselkim-agi, ldi NDI SENDING: tugna ɣef uẓeṭṭa. Ma ulac, SHOW ME ikemmel.
+NDI finds itself on the network. No cables, only a good switch and patience.	NDI yettaf iman-is ɣef uẓeṭṭa. Ulac afeggag, kan switch yelhan d ṣṣber.
+OUT THERE	BEṚṚA
+The output's own page has the rest: a DeckLink card's SDI, ST 2110 with NMOS, Spout and Syphon.	Asebter n output yesɛa wiyaḍ: SDI n tkarḍa DeckLink, ST 2110 s NMOS, Spout d Syphon.
+Every one is just an output. The show does not know or care how it leaves.	Yal yiwen d output kan. Askan ur yeẓri ara, ur yecqiq ara amek i yeffeɣ.
+Nebula ahead	Nebula zdat
+Engine room	Taxxamt n umsedday
+Deck 3: something moving	Asuddes 3: yella wayen yettḥerriken
+THE BRIDGE	TIQENṬERT
+The bridge of the starship Cathode, skapi. Four feeds, one main viewer, one mystery. Press START.	Tiqenṭert n uɣerrabu n tallunt Cathode, skapi. Ukkuẓ n feeds, agdil agejdan, uffir. Sit ɣef START.
+The multiview shows every playlist at once. Like a wall of oscilloscopes, but in space.	Multiview yesken playlists akk s tikkelt. Am uɣrab n oscilloscopes, maca deg tallunt.
+Frequencies open, Captain. All of them. That's the problem.	Tifrikansiyin ldint, kaptan. Akk. D ugur-nni.
+MULTI, above the monitor: every playlist in its own window.	MULTI, nnig usaḍuf: yal playlist deg usfaylu-ines.
+One window per playlist, the programme first.	Asfaylu i yal playlist, ahil d amezwaru.
+Jinkys! Four feeds. And one of them has a monster in it.	Jinkys! Ukkuẓ n feeds. Deg yiwen yella uwaɣzen.
+WHAT'S NEXT	ACU I D-ITEDDUN
+Add a window (+), then its ... menu: make it show NEXT. What goes live when you press TAKE.	Rnu asfaylu (+), syin umuɣ-ines ...: sken NEXT. Ayen ara yeffɣen mi ara tesseḍ TAKE.
+Every window has a ... button. It chooses what that window shows.	Yal asfaylu yesɛa taqeffalt .... Tettafren d acu ara yesken usfaylu-nni.
+I need to see who's calling before they reach the main viewer.	Ilaq ad walaɣ anwa i d-yessawalen uqbel ad yaweḍ ɣer ugdil agejdan.
+A CLOCK	TASRAGT
+And one more window, showing the clock. Operators who watch a clock are never late. Mostly.	D usfaylu nniḍen, yesken tasragt. Imsedrayen yettmuqulen tasragt ur ttɛeṭṭilen ara laɛmer. S waṭas.
+Time of day, big. Stardates are just very long timecode.	Akud n wass, meqqer. Stardate d timecode kan yeɣzifen aṭas.
+The monster only shows up at midnight. We're going to need a clock.	Awaɣzen yettban kan ttnaṣfa n yiḍ. Nḥwaǧ tasragt.
+ONE BIG ONE	YIWEN AMEQQRAN
+Any window's ... menu, then a layout: one big, the rest small.	Umuɣ ... n yal asfaylu, syin layout: yiwen ameqqran, wiyaḍ imecṭaḥ.
+The big window is window one. Usually the programme. Usually.	Asfaylu ameqqran d asfaylu amezwaru. S umata d ahil. S umata.
+Main viewer big. The captain likes it big.	Agdil agejdan meqqer. Kaptan iḥemmel ayen meqqren.
+ON SCREEN	ƔEF UGDIL
+Select Deck 3 in playlist 3 and TAKE. Watch its window.	Fren Asuddes 3 deg playlist 3, TAKE-it. Muqel asfaylu-ines.
+The red border is TALLY: the window that is on air. On screen, as they say on starships.	Tamenḍawt tazeggaɣt d TALLY: asfaylu yellan deg tuffɣa. Ɣef ugdil, akken qqaren deg yiɣerrabuyen.
+There! Feed three! Put it on screen!	Dinna! Feed wis kraḍ! Sers-it ɣef ugdil!
+THAT'S A WRAP	YEFUK
+Windows, the ... menu, NEXT, the clock, a layout, tally. Mystery solved, skapi.	Isfuyla, umuɣ ..., NEXT, tasragt, layout, tally. Uffir yettwafra, skapi.
+A window can also show an output, with its warp and slices. Handy when it's a lighthouse.	Asfaylu yezmer daɣen ad yesken output, s warp d slices-ines. Yenfeɛ mi ara yili projector.
+And the monster was... the ship's cook, all along. Jinkys.	D uwaɣzen... d amesewwi n uɣerrabu, si zik. Jinkys.
+there is no such lesson	ulac tamsirt am tagi
+finish or leave the lesson you are in first	fakk tamsirt deg tellid, neɣ ffeɣ seg-s di tazwara
+leave Bug Swat first	ffeɣ seg Bug Swat di tazwara
+Psst. It's me, the desk. I'll be watching. Supportively.	Pst. D nekk, ṭṭabla. Ad mmuquleɣ. S tallalt.
+Hi! I'm the one doing all of this, by the way.	Azul! S tidet, d nekk i yettxeddmen kullec.
+Ctrl+D opens the DASH. I'm just saying.	Ctrl+D yettldi DASH. Nniɣ kan.
+Nearly there. I can feel it in my pixels.	Qrib. Ḥusseɣ-t deg yipiksilen-iw.
+You're good at this. I can tell. I'm the one doing it.	Kečč d aḥerfi deg waya. Walaɣ-t. S tidet.
+Every click, I heard. Every single one.	Yal asit, sliɣ-as. Yal yiwen.
+The glowing one. I can see it from here. It's glowing for you.	Win yettfeǧǧiǧen. Walaɣ-t seg dagi. Yettfeǧǧiǧ i kečč.
+lesson paused - MENU > LESSONS picks up where you left off	tamsirt teḥbes - MENU > LESSONS ad tkemmel seg wanida i tt-teǧǧiḍ
+PROF. VIDEO:  The signal: what the picture is made of, and how to bend it. Pick a lesson.	PROF. VIDEO:  Tadellalt: seg wacu i texdem tugna, d amek i tettwaknu. Fren tamsirt.
+DR. PIXEL:  Running the show, skapi. Fast hands, calm face. Pick a lesson.	DR. PIXEL:  Asleḥ n uskan, skapi. Ifassen arurad, udem yehnan. Fren tamsirt.
+LESSONS  -  PART TWO  -  WHO DO YOU FOLLOW?	TAMSIRT  -  AḤRIC WIS SIN  -  ANWA I TEḌFERḌ?
+FOLLOW PROF. VIDEO	ḌFER PROF. VIDEO
+FOLLOW DR. PIXEL	ḌFER DR. PIXEL
+the signal	tadellalt
+running the show	asleḥ n uskan
+PICK UP	KEMMEL
+CLOSE (Esc)	MDEL (Esc)
+PART ONE: THE BASICS	AḤRIC AMEZWARU: TISEGLAWIN
+finish or leave LEARN THE BASICS first	fakk LEARN THE BASICS neɣ ffeɣ seg-s di tazwara
+bug swat: Esc leaves, and your show comes back as it was	bug swat: Esc yettaǧǧa, askan-ik yuɣal-d akken yella
+bug swat: your show is back. Motion's controls are in Settings > Audio	bug swat: askan-ik yuɣal-d. Isenqaden n Motion deg Iɣewwaren > Ameslaw
+TURN MOTION ON	LDI MOTION
+Bugs are crawling to the cue list! Swat them by waving at your camera. First, Motion: in MOTION CONTROL turn it ON and choose what it READS.	Ibeɛɛucen ttarḍen ɣer tebdart n cues! Hezz afus i tkamirat, sseɣli-ten. Di tazwara Motion: rre-t ON deg MOTION CONTROL, fren d acu i yeqqar (READS).
+This one is NullPointer. Hollow, points at nothing. A finger goes straight through. Use the whole hand, skapi.	Wagi d NullPointer. D ilem, ur yesken ɣer kra. Aḍad yettɛeddi seg-s. Seqdec afus-ik akk, skapi.
+Wave like you are hailing a cab! A small, polite cab. Not the buttons. The cab.	Hezz afus am akken tḥebbseḍ taksi! Taksi tamecṭuḥt, s leqder. Mačči d taqeffalt. D taksi.
+DRAW TWO ZONES	SUNEƔ SNAT N TEMNAḌIN
+Race Condition: twins, each sure it got there first. One reading cannot tell your hands apart, so drag two ZONES on the Motion picture, one each side.	Race Condition: d ikniwen, yal yiwen yumen belli yewweḍ d amezwaru. Yiwet n tɣuri ur tezmir ara ad tebḍu ifassen-ik, ihi zuɣer sin n ZONES ɣef tugna n Motion, yiwen i yal tama.
+Hit both together. Hit one, and they swap. Like my cousins at a wedding.	Wwet-iten i sin s tikkelt. Wwet yiwen, ad mbeddalen imukan. Am arraw n ɛemmi deg tmeɣra.
+One hand each side. Together! Together!	Afus i yal tama. Akken! Akken!
+Off By One. The bug is not the face, it is the tiny extra segment, and a little wiggle needs a finer reading. Turn SENSITIVITY down to 5%.	Off By One. Abeɛɛuc mačči d udem, d aḥric amecṭuḥ yernan, d uḥerrek amecṭuḥ yeḥwaǧ taɣuri tazdigt ugar. Ssenqes SENSITIVITY ɣer 5%.
+Lower number, finer reading. Yes, I also think it is backwards.	Uṭṭun d amecṭuḥ, taɣuri d tazdigt ugar. Ih, nekk daɣen ɣileɣ d tin yettwattin.
+Not the face. The little one on the end. Wiggle a finger.	Mačči d udem. D amecṭuḥ deg tagara. Ḥerrek aḍad.
+FALL 1.5 S OR MORE	FALL 1.5 S NEƔ UGAR
+Memory Leak. It only lets go while the reading stays up. Make FALL longer, 1.5 seconds or more, so your sweeps join up into one.	Memory Leak. Yettaǧǧa kan mi ara teqqim tɣuri d tunnigt. Ssiɣzef FALL, 1.5 n tsinin neɣ ugar, akken iwwaten-ik ad uɣalen d yiwen.
+Slow and steady, skapi. Like paying back a loan.	S leɛqel, s tazmert, skapi. Am uxelleṣ n trusi.
+Sweep, and sweep again. Let the fall carry you between.	Sfeḍ, syin sfeḍ tikkelt nniḍen. Eǧǧ asubbu ad k-yeṭṭef gar-asen.
+MOTION X ON A TONE	MOTION X ƔEF IMESLI
+The Heisenbug! It fades whenever you move. Put a tone cue's pitch on Motion X and follow it by ear: the ticking speeds up as you close in.	Heisenbug! Yettfessi yal tikkelt i tettḥerrikeḍ. Sers tettawt n cue n imesli ɣef Motion X, ḍfer-it s umeẓẓuɣ: tik-tik yettɣawal mi ara tqerrbeḍ.
+SHOW ME makes the tone for you. High is right. Low is left. Stand still and it comes back.	SHOW ME ad ak-d-yexdem imesli. Ɛlayen d ayeffus. Ddaw d azelmaḍ. Ḥbes, ad d-yuɣal.
+Follow it. Listen. Faster ticking, closer bug.	Ḍfer-it. Sel. Tik-tik ugar n tɣawla, abeɛɛuc yeqreb ugar.
+Waving paw	Afus yettḥuzzun
+Heisenbug finder	Amaf n Heisenbug
+FIXED! Lovely signal flow.	YETTWAṢEGGEM! Asuddem n tdellalt yelhan.
+Closed as fixed. No regressions. Probably.	Yettwamdel d yettwaṣeggmen. Ulac tuɣalin. Ahat.
+Squashed! Ship it.	Yettwasseɣli! Siweḍ-it.
+One reached the cue list. It has filed a bug report about you.	Yiwen yewweḍ ɣer tebdart n cues. Yura fell-ak aneqqis n tuccḍa.
+Skapi. It is a handheld. You do not press it. You wave at it.	Skapi. Wagi d allal n ufus. Ur t-tesseḍ ara. Tettḥuzzuḍ afus-ik i nettat.
+The buttons are for menus. The bugs are for flailing.	Tiqeffalin i yumuɣen. Ibeɛɛucen i uḥuzzu n yiɣallen.
+The D-pad is decorative. Like my diploma.	D-pad d tacebḥant. Am diplôme-iw.
+In 1989 we also pressed the buttons. Then we discovered waving. Never looked back.	Deg 1989 nekni daɣen nessit ɣef tqeffalin. Syin nufa aḥuzzu. Ur nmuqel ara ɣer deffir.
+Pressing harder does not help. The bugs cannot feel buttons. Only arms.	Asit s tezmert ur yettɛawan ara. Ibeɛɛucen ur ttḥulfun ara i tqeffalin. Iɣallen kan.
+It's called a handheld because your hands are held... up. In the air. Waving.	Qqaren-as allal n ufus acku ifassen... ttalin. Deg ugeffur. Ttḥuzzun.
+The mouse? You are swatting bugs with a MOUSE? In Bulgaria the mouse would be on the bugs' side.	Taɣerdayt? Tesseɣlayeḍ ibeɛɛucen s TƔERDAYT? Deg Bulgaria, taɣerdayt ad tili ɣer tama n yibeɛɛucen.
+Lovely clicking. Very crisp. The camera saw none of it.	Isiten yelhan. Qesḥen aṭas. Takamirat ur twala ula yiwen.
+DONE FOR YOU - PRESS START	YETTWAXDEM I KEČČ - SIT START
+DONE! PRESS START	YEFUK! SIT START
+SELECT OPENS MOTION CONTROL	SELECT YELDI MOTION CONTROL
+ALL BUGS FIXED	IBEƐƐUCEN AKK TTWAṢEGGMEN
+GAME OVER	URAR YEFUK
+NEW HIGH SCORE!	AGMUḌ AMEQQRAN AMAYNUT!
+START PLAYS AGAIN	START YETTURAR TIKKELT NNIḌEN
+Nazdrave, skapi. Now go and fix real bugs.	Nazdrave, skapi. Tura ruḥ ṣeggem ibeɛɛucen n tidet.
+Every one of those is a real Motion control. Put them on any ~ knob you like.	Yal yiwen seg-sen d asenqed n tidet n Motion. Sers-it ɣef yal taqeffalt ~ i tebɣiḍ.
+START: AGAIN	START: TIKKELT NNIḌEN
+START: PLAY	START: URAR
+# --- end of tutorials ---
