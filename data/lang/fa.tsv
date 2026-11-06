@@ -504,3 +504,572 @@ Close me. Open me. I'll be fine.	منو ببند، دوباره باز کن. س�
 # What the desk face says when you switch to this language: a local saying, not a translation.
 @hello	دمت گرم! بریم که داشته باشیم.
 Oh hey. It's 4:20. Take it easy.	اوه، سلام. ساعت 4:20 است. آرام باش.
+
+# --- tutorials: tools/lesson_strings.py (a whole line each) ---
+HELLO	سلام
+Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me.	دوبار دن، اسکاپی. من دکتر پیکسل هستم. پنج دقیقه دیگر یک نمایش را اجرا می‌کنی. اگر به حرفم گوش کنی، کمتر.
+And I'm Professor Video. Synths first, then video. Mostly video now. Press START and we'll patch... we'll begin.	و من پروفسور ویدیو هستم. اول سینت‌سایزر، بعد ویدیو. حالا بیشتر ویدیو. START را بزن تا وصل کنیم... یعنی شروع کنیم.
+TURN THE OUTPUT ON	خروجی را روشن کن
+Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	اسکاپی، صفحه خالی است. منتظرشان نگذار. MENU را باز کن و «خروجی خاموش» را «خروجی روشن» کن. یالا!
+Lesson one: nothing comes out until you patch the oscillator to the... the OUTPUT. It's video. I know.	درس اول: تا اسیلاتور را به... به خروجی وصل نکنی، چیزی بیرون نمی‌آید. ویدیو است. می‌دانم.
+BRING IN A CLIP	یک کلیپ بیاور
+Now a picture. Press I and pick a clip from your computer. No clip? SHOW ME, and I lend you one of mine.	حالا یک تصویر. I را بزن و کلیپی از رایانه‌ات انتخاب کن. کلیپ نداری؟ SHOW ME را بزن، یکی از مال خودم را قرض می‌دهم.
+Every clip becomes a cue in the playlist. Like loading a sample. A sample with pictures in it.	هر کلیپ در فهرست پخش یک کیو می‌شود. مثل بارگذاری یک سمپل. سمپلی که تویش تصویر هست.
+TAKE IT LIVE	روی آنتن
+Your clip waits in the playlist. Select it, then TAKE. Or Enter. Confident operators press Enter.	کلیپت در فهرست پخش منتظر است. انتخابش کن، بعد TAKE. یا Enter. اپراتورهای مطمئن Enter می‌زنند.
+TAKE is the envelope trigger. The, ah, the GO button. Same thing, it just has pictures in it.	TAKE ماشه‌ی پوشش صداست. یعنی، اِم، دکمه‌ی GO. همان است، فقط تویش تصویر هست.
+LINE UP THE NEXT ONE	بعدی را آماده کن
+Click another cue. It waits, ready, until you say. Only one cue? Import another, or SHOW ME.	روی کیو دیگری کلیک کن. آماده منتظر می‌ماند تا تو بگویی. فقط یک کیو داری؟ یکی دیگر وارد کن، یا SHOW ME.
+Selecting is not playing. The selected one is the next note in the sequence. The next CUE.	انتخاب کردن پخش کردن نیست. انتخاب‌شده نت بعدی در توالی است. کیو بعدی.
+CROSSFADE TO IT	با محو متقاطع برو
+Cuts are for amateurs. In the inspector, press + on transition, so it shows a time, not deck. Then TAKE.	برش خشک کار آماتورهاست. در بازرس، + گذار را بزن تا به جای deck زمان نشان دهد. بعد TAKE.
+A crossfade! Portamento, but for pictures. Any time will do. A few more presses and it's a second. Then TAKE.	محو متقاطع! پورتامنتو، ولی برای تصویر. هر زمانی خوب است. چند بار دیگر بزنی، یک ثانیه می‌شود. بعد TAKE.
+CLEAR THE SCREEN	صفحه را پاک کن
+Something goes wrong on stage? Press BLACK, or B. The picture goes. The show keeps running underneath.	روی صحنه چیزی خراب شد؟ BLACK یا B را بزن. تصویر می‌رود. نمایش زیرش ادامه دارد.
+Nothing is lost. Press B again and it comes back. Like the mute on a mixer. Very calming.	هیچ چیز گم نمی‌شود. دوباره B را بزن تا برگردد. مثل بی‌صدا کردن میکسر. خیلی آرام‌بخش.
+SAVE THE SHOW	نمایش را ذخیره کن
+Now save. Ctrl+S, or SAVE. Some programs lose your work and then blame you. I would never.	حالا ذخیره کن. Ctrl+S یا ذخیره. بعضی برنامه‌ها کارت را گم می‌کنند و بعد تقصیر را گردن تو می‌اندازند. من هرگز.
+Save your patch. Your SHOW. Show. This practice one lives in Deckboy's own folder; yours is safe.	پچت را ذخیره کن. نمایشت را. نمایش. این تمرینی در پوشه‌ی خود Deckboy است؛ مال تو در امان است.
+THAT'S A SHOW	این یعنی نمایش
+That's a show! Output, cue, TAKE, crossfade, BLACK, save. Nazdrave, skapi. Rakia is on me.	این یعنی نمایش! خروجی، کیو، TAKE، محو، BLACK، ذخیره. نازدراوه، اسکاپی. راکیا مهمان من.
+Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	کلاس تمام. نمایش‌های نمونه لایه‌ها، عنوان‌ها و افکت‌ها را یاد می‌دهند. MENU > LEARN THE BASICS دوباره اجرایش می‌کند.
+*shakes head* That means yes. Bravo.	*سرش را به چپ و راست تکان می‌دهد* یعنی بله. براوو.
+Wonderful! Lovely signal flow.	عالی! چه جریان سیگنال قشنگی.
+Mm. I knew you had it in you.	اوم. می‌دانستم از پسش برمی‌آیی.
+Yes! Have a gold star. It's a dot.	آره! یک ستاره‌ی طلایی بگیر. یک نقطه است.
+Ready for the next step? *nods* ...That means no, skapi. The glowing one. It is glowing for you.	آماده‌ی قدم بعدی؟ *سرش را بالا و پایین تکان می‌دهد* ...در بلغارستان یعنی نه، اسکاپی. آن که می‌درخشد. برای تو می‌درخشد.
+You've clicked everything but the glowing one. Even my oscillators find the glowing one.	روی همه چیز کلیک کردی جز آن که می‌درخشد. حتی اسیلاتورهای من آن درخشان را پیدا می‌کنند.
+stop playback first - the lesson cannot hand a running show back as it was	اول پخش را متوقف کن - درس نمی‌تواند نمایشی در حال اجرا را همان‌طور که بود برگرداند
+choose RECOVER or KEEP SAVED first	اول RECOVER یا KEEP SAVED را انتخاب کن
+your show could not be saved, so the lesson has not started. Save it (SAVE AS) and try again	نمایشت ذخیره نشد، پس درس شروع نشد. ذخیره‌اش کن (ذخیره با نام) و دوباره امتحان کن
+the practice show would not open	نمایش تمرینی باز نشد
+could not start the practice show	نمایش تمرینی شروع نشد
+learn the basics: Esc leaves, and it picks up here next time	learn the basics: Esc بیرون می‌رود، و دفعه‌ی بعد از همین جا ادامه می‌دهد
+that's the basics - MENU > LESSONS has part two	مبانی همین بود - MENU > LESSONS بخش دو را دارد
+tour paused - LEARN THE BASICS picks up where you left off	گشت متوقف شد - LEARN THE BASICS از همان جا ادامه می‌دهد
+Mirrored screens, skapi. Press any key or click, and Dr. Pixel gives it back.	صفحه‌ها آینه‌ای‌اند، اسکاپی. هر کلیدی را بزن یا کلیک کن، دکتر پیکسل برش می‌گرداند.
+Wrong screen, skapi. Press any key or click, and Dr. Pixel gives it back.	صفحه‌ی اشتباه، اسکاپی. هر کلیدی را بزن یا کلیک کن، دکتر پیکسل برش می‌گرداند.
+The other screen went away, skapi. Press any key or click, and Dr. Pixel gives it back.	صفحه‌ی دیگر رفت، اسکاپی. هر کلیدی را بزن یا کلیک کن، دکتر پیکسل برش می‌گرداند.
+One screen, skapi. Press any key or click, and Dr. Pixel gives it back.	یک صفحه، اسکاپی. هر کلیدی را بزن یا کلیک کن، دکتر پیکسل برش می‌گرداند.
+The other screen went away, skapi, so the picture came back to this one. I put it in a little window, behind. Plug it back in and the picture goes back on it.	صفحه‌ی دیگر رفت، اسکاپی، پس تصویر به این یکی برگشت. گذاشتمش در یک پنجره‌ی کوچک، پشت. دوباره وصلش کن تا تصویر رویش برگردد.
+It ate the desk, skapi. One screen, so the output took all of it. I put it in a little window, behind. A real show gets a second screen.	میز را خورد، اسکاپی. یک صفحه است، پس خروجی همه‌اش را گرفت. گذاشتمش در یک پنجره‌ی کوچک، پشت. نمایش واقعی صفحه‌ی دوم دارد.
+IT ATE THE DESK	میز را خورد
+There. The button that says OUTPUT OFF. Make it say ON, skapi.	آنجا. دکمه‌ای که «خروجی خاموش» نوشته. روشنش کن، اسکاپی.
+Nothing is live to fade from, skapi. TAKE one cue first, then pick the other and give it a time.	چیزی روی آنتن نیست که از آن محو شویم، اسکاپی. اول یک کیو را TAKE بزن، بعد دیگری را انتخاب کن و زمان بده.
+That was a cut, skapi. Fast, but not a crossfade. Pick the other cue, press + on transition, then TAKE.	آن یک برش بود، اسکاپی. سریع، ولی محو متقاطع نه. کیوی دیگر را انتخاب کن، + گذار را بزن، بعد TAKE.
+A feedback loop! Output patched straight back into the desk. Happens to the best of us. Mostly to me. 1983. We don't talk about 1983.	حلقه‌ی بازخورد! خروجی مستقیم به میز برگشته. برای بهترین‌ها هم پیش می‌آید. بیشتر برای من. ۱۹۸۳. از ۱۹۸۳ حرف نمی‌زنیم.
+No more rakia. The rat has a problem.	دیگر راکیا بس است. موش مشکل دارد.
+Nazdrave, skapi! Baba's rakia, from the Rhodopes. One glass, for the lesson.	نازدراوه، اسکاپی! راکیای مادربزرگ، از رودوپ. یک گیلاس، به افتخار درس.
+Is this... is this allowed during a tutorial?	این... این وسط آموزش مجاز است؟
+*shakes head* That means one more.	*سرش را به چپ و راست تکان می‌دهد* یعنی یکی دیگر.
+I love you all. I love the oscillator. I love the OUTPUT. It's video. I know. I KNOW.	همه‌تان را دوست دارم. اسیلاتور را دوست دارم. خروجی را دوست دارم. ویدیو است. می‌دانم. می‌دانم!
+...and the rat took the rakia. Every time, skapi. Every single time.	...و موش راکیا را برد. هر بار، اسکاپی. هر بار.
+Was that a rat? In a hat? With a pizza?	آن موش بود؟ با کلاه؟ با پیتزا؟
+Stop that. I am a serious man.	بس کن. من مرد جدی‌ای هستم.
+Do not tell Dr. Pixel about this.	به دکتر پیکسل چیزی نگو.
+This never happened. Back to the patch bay.	این هرگز اتفاق نیفتاد. برگردیم سر پچ‌بی.
+It was the eighties. Everyone had a bow tie.	دهه‌ی هشتاد بود. همه پاپیون داشتند.
+LESSON LIST	فهرست درس‌ها
+OPEN EXAMPLE SHOWS	باز کردن نمایش‌های نمونه
+EXIT (Esc)	خروج (Esc)
+Taking it on the road	نمایش در سفر
+CHECK a show before it travels, fix what it finds, and bundle it with its media.	پیش از سفر نمایش را CHECK کن، هر چه پیدا کرد درست کن، و با رسانه‌هایش بسته‌بندی کن.
+Effects, oscillators and colour	افکت‌ها، اسیلاتورها و رنگ
+An effect, a ~ on its knob, and the colour picker.	یک افکت، یک ~ روی پیچش، و انتخابگر رنگ.
+The art school crit, with Mr. Salty	نقد دانشکده‌ی هنر، با مستر سالتی
+Patterns, synths and Draw	الگوها، سینت‌ها و Draw
+A test pattern, the video synth, and drawing on the picture, saved as a still.	یک الگوی آزمایشی، سینت ویدیو، و کشیدن روی تصویر، ذخیره‌شده به شکل یک تصویر ثابت.
+The telestrator booth, with Coach Marv	اتاقک تلستریتور، با مربی ماروِ
+Masks	ماسک‌ها
+A heart from the library, the pen, invert and feather.	یک قلب از کتابخانه، قلم، وارونه کردن و نرم کردن.
+The Signal Files: redact the evidence	پرونده‌های سیگنال: مدرک را محو کن
+Warp, blend and slices	وارپ، ادغام و برش‌ها
+A corner pin, two soft edges, then three slices in the Screens window.	یک سنجاق گوشه، دو لبه‌ی نرم، بعد سه برش در پنجره‌ی Screens.
+The haunted lighthouse, with Keeper Rook	فانوس دریایی جن‌زده، با نگهبان روک
+GO from anywhere	GO از هر جا
+Cue numbers, GOTO, a hotkey, and where Companion, MIDI and OSC come in.	شماره‌ی کیو، GOTO، یک کلید میان‌بر، و اینکه Companion و MIDI و OSC از کجا وارد می‌شوند.
+The game show, with Donna Wheel	مسابقه‌ی تلویزیونی، با دونا ویل
+Words on screen	واژه‌ها روی صفحه
+A Lower Third with a name on it, then a title card with a key-green backdrop.	یک زیرنویس با یک نام، بعد یک کارت عنوان با پس‌زمینه‌ی سبز کروما.
+The kaiju weather report, with June O'Neil	هواشناسی کایجو، با جون اونیل
+Keeping time	نگه داشتن زمان
+A stage timer counting down, held, and a presenter view for the person on stage.	یک زمان‌سنج صحنه با شمارش معکوس، متوقف‌شده، و نمای ارائه‌دهنده برای کسی که روی صحنه است.
+A grand day out, with Wallis and Grommet	یک روز بزرگ، با والیس و گرومت
+Two playlists and TAKE ALL	دو فهرست پخش و TAKE ALL
+A second playlist as a layer, and TAKE ALL so two things change on one beat.	فهرست دوم به عنوان لایه، و TAKE ALL تا دو چیز روی یک ضرب عوض شوند.
+The magic show, with Turnip Top	نمایش شعبده، با ترنیپ تاپ
+When it goes wrong	وقتی خراب می‌شود
+BLACK against PANIC, and getting a show back.	BLACK در برابر PANIC، و برگرداندن نمایش.
+The cooking show, with Chef Bork	برنامه‌ی آشپزی، با سرآشپز بورک
+Presets	پیش‌تنظیم‌ها
+Capture a look on a DASH button, change everything, and get it back with one press.	یک نما را روی یک دکمه‌ی DASH نگه دار، همه چیز را عوض کن، و با یک فشار برش گردان.
+Transitions	گذارها
+The styles beyond the crossfade: an iris, a shatter, and their times.	سبک‌های فراتر از محو متقاطع: عنبیه، شکستن، و زمانشان.
+The space-opera trailer, with Optimus Primetime	تیزر اپرای فضایی، با اپتیموس پرایم‌تایم
+Sound	صدا
+An audio effect on a cue, a bend that damages it beautifully, and where the patch lives.	یک افکت صوتی روی کیو، یک خم که زیبا خرابش می‌کند، و اینکه پچ کجا زندگی می‌کند.
+The robot DJs, with Deft Funk	دی‌جی‌های رباتی، با دفت فانک
+Reading the scopes	خواندن اسکوپ‌ها
+The waveform, the vectorscope, and false colour: is the glow real, or just too bright?	شکل موج، وکتوراسکوپ و رنگ کاذب: آن درخشش واقعی است یا فقط زیادی روشن؟
+The Signal Files: is the glow on the horizon a craft?	پرونده‌های سیگنال: درخشش افق یک سفینه است؟
+Out of the building	بیرون از ساختمان
+Where NDI, SDI and ST 2110 live, and NDI switched on where this computer has it.	NDI، SDI و ST 2110 کجا هستند، و روشن کردن NDI جایی که این رایانه دارد.
+The webcam as a controller, as a game. Five rounds, a high score.	وب‌کم به عنوان دسته، به عنوان بازی. پنج دور، یک بالاترین امتیاز.
+A handheld, and bugs	یک دستی و چند حشره
+The multiview	چندنما
+Windows, the ... menu, what each one shows, layouts, and tally.	پنجره‌ها، منوی ...، اینکه هر کدام چه نشان می‌دهد، چیدمان‌ها، و تالی.
+Mystery on the starship Cathode, with Lt. Haila and Ensign Jinkley	راز سفینه‌ی کاتد، با ستوان هایلا و ناوبان جینکلی
+DR. PIXEL: Two playlists: Deckboy becomes SUPER DECKBOY. It earned it, skapi.	DR. PIXEL: دو فهرست پخش: Deckboy می‌شود SUPER DECKBOY. حقش بود، اسکاپی.
+PROF. VIDEO: It evolved! My oscillators never got a fanfare.	PROF. VIDEO: تکامل یافت! اسیلاتورهای من هیچ‌وقت شیپور پیروزی نگرفتند.
+DR. PIXEL: SUPER DECKBOY! Every show deserves one. Bravo.	DR. PIXEL: SUPER DECKBOY! هر نمایشی سزاوار یکی است. براوو.
+PROF. VIDEO: The power-up! More playlists, more layers, more super.	PROF. VIDEO: پاورآپ! فهرست بیشتر، لایه بیشتر، سوپرتر.
+Intro video (left on the office PC)	ویدیوی افتتاحیه (روی رایانه‌ی دفتر جا مانده)
+ON THE ROAD	در راه
+A show you built here, skapi, running on a laptop somewhere else tonight. Press START.	نمایشی که اینجا ساختی، اسکاپی، امشب جای دیگری روی یک لپ‌تاپ اجرا می‌شود. START را بزن.
+Before it travels: check it, fix it, bundle it.	پیش از سفر: بررسی کن، درست کن، بسته‌بندی کن.
+See CHECK in the top bar? It only appears when something is wrong. Press it.	CHECK را در نوار بالا می‌بینی؟ فقط وقتی چیزی اشتباه است ظاهر می‌شود. بزنش.
+It lists everything a show would trip over: missing files, empty cues, unreachable outputs.	هر چیزی را که نمایش به آن گیر می‌کند فهرست می‌کند: فایل‌های گم‌شده، کیوهای خالی، خروجی‌های دست‌نیافتنی.
+FIX IT	درستش کن
+The intro video is on another computer. Select it and delete it, or RELINK it if you have the file.	ویدیوی افتتاحیه روی رایانه‌ی دیگری است. انتخابش کن و حذفش کن، یا اگر فایل را داری RELINK کن.
+Fix it at home, where it is easy. Not at the venue, where it is not.	در خانه درستش کن، جایی که آسان است. نه در سالن، جایی که نیست.
+BUNDLE IT	بسته‌بندی کن
+Press BUNDLE and choose where: a USB stick, a shared folder. The show and all its media, together.	بسته‌بندی را بزن و جایی را انتخاب کن: فلش USB، پوشه‌ی اشتراکی. نمایش و همه‌ی رسانه‌هایش، با هم.
+The copy finds its media beside it, wherever the folder goes.	نسخه، هر جا پوشه برود، رسانه‌هایش را کنار خودش پیدا می‌کند.
+SAFE TRAVELS	سفر به خیر
+Checked, fixed, bundled. On the other machine, open the bundle's show: everything is where it should be.	بررسی شد، درست شد، بسته شد. روی دستگاه دیگر نمایش داخل بسته را باز کن: همه چیز سر جایش است.
+A show file is only text, so it travels light. The media is the heavy part.	فایل نمایش فقط متن است، پس سبک سفر می‌کند. بخش سنگین رسانه‌هاست.
+Student work no. 4 (untitled)	کار دانشجو شماره‌ی ۴ (بی‌عنوان)
+THE CRIT	جلسه‌ی نقد
+An art school, skapi. One student, one picture, one critic who has seen it all. Press START.	یک دانشکده‌ی هنر، اسکاپی. یک دانشجو، یک تصویر، یک منتقد که همه چیز را دیده. START را بزن.
+Effects change a picture; an oscillator keeps changing it. The critic only likes the second kind.	افکت‌ها تصویر را عوض می‌کنند؛ اسیلاتور پیوسته عوضش می‌کند. منتقد فقط نوع دوم را دوست دارد.
+A grey square on beige. I have seen this at every graduate show since 1987.	یک مربع خاکستری روی بژ. از ۱۹۸۷ در هر نمایشگاه فارغ‌التحصیلی دیده‌امش.
+AN EFFECT	یک افکت
+In the inspector's EFFECTS section, + adds one. Edges is a good start: it draws the outlines.	در بخش EFFECTS بازرس، + یکی اضافه می‌کند. Edges شروع خوبی است: خطوط دور را می‌کشد.
+There are dozens. Every one runs on the CPU in a few milliseconds. Mostly.	ده‌ها تا هست. هر کدام روی پردازنده در چند میلی‌ثانیه اجرا می‌شود. بیشترشان.
+Take a risk! Bad art is fine. Boring art is a crime.	ریسک کن! هنر بد اشکالی ندارد. هنر کسل‌کننده جرم است.
+A ~ ON ITS KNOB	یک ~ روی پیچش
+Every control with a ~ beside it can follow an oscillator. Press one. The knob starts to breathe.	هر کنترلی که کنارش ~ دارد می‌تواند دنبال یک اسیلاتور برود. یکی را بزن. پیچ شروع به نفس کشیدن می‌کند.
+A low-frequency oscillator: slow, so the eye can follow it. A quarter of a hertz is a four-second breath.	اسیلاتور فرکانس پایین: آهسته، تا چشم دنبالش کند. یک‌چهارم هرتز یعنی یک نفس چهارثانیه‌ای.
+Now it MOVES. Okay. Okay. I'm listening.	حالا تکان می‌خورد. باشد. باشد. گوش می‌دهم.
+A COLOUR OF ITS OWN	رنگی از آن خودش
+Effects that draw a colour, like Edges' line, have a colour chip. It opens the picker: a wheel, typed names, or a colour off the screen.	افکت‌هایی که رنگ می‌کشند، مثل خط Edges، یک خانه‌ی رنگ دارند. انتخابگر را باز می‌کند: چرخه، نام‌های تایپی، یا رنگی از روی صفحه.
+Every colour has a name somewhere. Mine is 'oscilloscope green'. Nobody else uses it.	هر رنگی جایی نامی دارد. مال من «سبز اسیلوسکوپی» است. هیچ‌کس دیگری استفاده‌اش نمی‌کند.
+That colour is doing something. I don't know what. I love it.	آن رنگ دارد کاری می‌کند. نمی‌دانم چه. عاشقش شدم.
+THE VERDICT	حکم
+An effect, a ~ and a colour. The critic is crying, skapi. Good crying, I think.	یک افکت، یک ~ و یک رنگ. منتقد گریه می‌کند، اسکاپی. گریه‌ی خوب، فکر کنم.
+Stack a few. Each has its own ~ on every knob. That is how a look becomes a performance.	چندتا روی هم بگذار. هر کدام روی هر پیچ ~ خودش را دارد. یک نما این‌طوری اجرا می‌شود.
+It's still a square. But it's YOUR square. Post it.	هنوز مربع است. ولی مربع خودت است. منتشرش کن.
+THE TELESTRATOR BOOTH	اتاقک تلستریتور
+Coach Marv explains sport by drawing circles on it. Once he circled the sun. Ten minutes, skapi.	مربی مارو ورزش را با کشیدن دایره رویش توضیح می‌دهد. یک بار دور خورشید دایره کشید. ده دقیقه، اسکاپی.
+Tonight: test patterns, the video synth, and drawing on the picture. Press START.	امشب: الگوهای آزمایشی، سینت ویدیو، و کشیدن روی تصویر. START را بزن.
+Get me a picture and a pen. BOOM.	یک تصویر و یک قلم بدهید. بوم.
+A TEST PATTERN	یک الگوی آزمایشی
+Line up the screens BEFORE the show. Not during. I learned this in Plovdiv.	صفحه‌ها را پیش از نمایش تنظیم کن. نه وسطش. این را در پلوودیف یاد گرفتم.
+Every desk needs a test pattern. PATTERN adds Pocket Test: checked against real meters.	هر میزی یک الگوی آزمایشی لازم دارد. «الگوی آزمایشی» Pocket Test را اضافه می‌کند: با سنجه‌های واقعی بررسی شده.
+A VIDEO SYNTH	یک سینت ویدیو
+He says 'no camera needed' like it is a feature. It is a feature.	می‌گوید «دوربین لازم نیست» انگار که یک ویژگی است. یک ویژگی است.
+My favourite. SOURCE, then Video Synth: oscillators, mirrors and feedback. No camera needed.	مورد علاقه‌ام. منبع، بعد Video Synth: اسیلاتور، آینه و بازخورد. دوربین لازم نیست.
+TAKE THE SYNTH	سینت را TAKE بزن
+Select it, then TAKE. Confident operators press Enter.	انتخابش کن، بعد TAKE. اپراتورهای مطمئن Enter می‌زنند.
+That's our replay. Every replay needs a pundit.	این هم بازپخش ما. هر بازپخشی یک گزارشگر لازم دارد.
+Now here's a replay. And here's a guy. And BOOM, he's in it.	این بازپخش. این بازیکن. و بوم، تویش است.
+A SECOND PLAYLIST	فهرست پخش دوم
+Ink goes on top, on its own layer. Press the + at the end of the playlist tabs.	جوهر بالا می‌رود، روی لایه‌ی خودش. + آخر زبانه‌های فهرست پخش را بزن.
+A second playlist is a layer over the first. Like a second oscillator, mixed on top.	فهرست دوم لایه‌ای روی اولی است. مثل اسیلاتور دوم که رویش میکس شده.
+A DRAW CUE	یک کیوی Draw
+In the new playlist: SOURCE, then Draw. Clear everywhere you have not drawn.	در فهرست جدید: منبع، بعد Draw. هر جا نکشیده‌ای شفاف است.
+A Draw cue is transparent outside the ink, so the synth shows through.	کیوی Draw بیرون از جوهر شفاف است، پس سینت از پشتش دیده می‌شود.
+TAKE THE INK	جوهر را TAKE بزن
+Select the Draw cue and TAKE it. Two playlists, two layers, one picture.	کیوی Draw را انتخاب کن و TAKE بزن. دو فهرست، دو لایه، یک تصویر.
+Now both are live: the synth underneath, the ink on top.	حالا هر دو روی آنتن‌اند: سینت زیر، جوهر رو.
+CIRCLE SOMETHING	دورش خط بکش
+Press DRAW in the inspector, then draw on the programme monitor. Mouse, or a pen if you have one.	در بازرس DRAW را بزن، بعد روی مانیتور برنامه بکش. با ماوس، یا اگر قلم داری با قلم.
+A pen's pressure makes the line thicker. A mouse presses at one strength. Like me.	فشار قلم خط را پهن‌تر می‌کند. ماوس همیشه با یک قدرت فشار می‌دهد. مثل من.
+Circle him! No, bigger. BOOM. That's a cloud. Fine. Circle the cloud.	دورش دایره بکش! نه، بزرگ‌تر. بوم. آن ابر است. باشد. دور ابر دایره بکش.
+SAVE A STILL	یک تصویر ثابت ذخیره کن
+SAVE STILL keeps the drawing as a picture with a clear background, and adds it to the playlist.	SAVE STILL نقاشی را به شکل تصویری با پس‌زمینه‌ی شفاف نگه می‌دارد و به فهرست اضافه می‌کند.
+For next week's show. Coach Marv will want the cloud again.	برای برنامه‌ی هفته‌ی بعد. مربی مارو باز ابر را می‌خواهد.
+THAT'S THE BOOTH	اتاقک همین بود
+Patterns, the synth, a layer, ink, a still. Nazdrave, skapi.	الگوها، سینت، یک لایه، جوهر، یک تصویر ثابت. نازدراوه، اسکاپی.
+Try Replay in the Draw section: it draws your lines back the way you drew them.	Replay را در بخش Draw امتحان کن: خطوطت را همان‌طور که کشیدی دوباره می‌کشد.
+Same time next week. Bring a bigger pen. And a turducken.	هفته‌ی بعد همین ساعت. قلم بزرگ‌تری بیاور. و یک قابلمه ته‌دیگ.
+Saucer photo (CLASSIFIED)	عکس بشقاب پرنده (محرمانه)
+THE SIGNAL FILES	پرونده‌های سیگنال
+The Bureau of Unexplained Signals. Two agents, one photo, and it must not air. Press START.	اداره‌ی سیگنال‌های ناشناخته. دو مأمور، یک عکس، و نباید پخش شود. START را بزن.
+Masks cut a picture into shapes. Tonight we cut evidence.	ماسک‌ها تصویر را به شکل‌ها می‌برند. امشب مدرک می‌بریم.
+That's a craft, Brandt. Look at the lights. I want to believe.	آن یک سفینه است، برانت. به چراغ‌ها نگاه کن. می‌خواهم باور کنم.
+A MASK FROM THE LIBRARY	یک ماسک از کتابخانه
+In the inspector's MASK section: mask, then 'new heart'. Any shape will do. The heart is funnier.	در بخش MASK بازرس: mask، بعد «new heart». هر شکلی خوب است. قلب بامزه‌تر است.
+The library has circles, stars, hearts. Each one is points you can move.	کتابخانه دایره، ستاره و قلب دارد. هر کدام از نقطه‌هایی ساخته شده که می‌توانی جابه‌جا کنی.
+A heart, Hollis? The Bureau redacts with black bars.	قلب، هالیس؟ اداره با نوار سیاه سانسور می‌کند.
+THE PEN	قلم
+Set the tool to pen, then click round the saucer on the monitor. Click the first point to close it.	ابزار را روی قلم بگذار، بعد روی مانیتور دور بشقاب کلیک کن. برای بستن، روی نقطه‌ی اول کلیک کن.
+Click for corners, drag for curves. The way the Bezier brothers intended.	کلیک برای گوشه، کشیدن برای منحنی. همان‌طور که برادران بزیه می‌خواستند.
+Draw round it carefully. It might be watching.	با دقت دورش بکش. شاید دارد نگاه می‌کند.
+INVERT	وارونه کن
+Invert keeps the outside and cuts the inside. The saucer goes. The sky stays.	وارونه کردن بیرون را نگه می‌دارد و درون را می‌برد. بشقاب می‌رود. آسمان می‌ماند.
+The same shape, the other way round. Very useful. Slightly spooky.	همان شکل، برعکس. خیلی به‌دردبخور. کمی ترسناک.
+Hollis, there's a heart-shaped hole in the sky.	هالیس، در آسمان یک سوراخ قلبی‌شکل هست.
+FEATHER	نرم کن
+Feather softens the edge, so nobody sees the cut. Press + on feather.	نرم کردن لبه را نرم می‌کند تا کسی برش را نبیند. + روی feather را بزن.
+A hard edge says 'someone was here'. A soft one says nothing at all.	لبه‌ی تیز می‌گوید «کسی اینجا بوده». لبه‌ی نرم هیچ نمی‌گوید.
+They'll never know.	هیچ‌وقت نمی‌فهمند.
+CASE CLOSED	پرونده بسته شد
+A library shape, the pen, invert and feather. The Bureau thanks you. The Bureau was never here.	یک شکل کتابخانه، قلم، وارونه کردن و نرم کردن. اداره از شما سپاسگزار است. اداره هرگز اینجا نبوده.
+Masks also go on a layer, an output, or its matte: MASK ON chooses. And every control takes a ~.	ماسک‌ها روی لایه، خروجی یا مات آن هم می‌روند: MASK ON انتخاب می‌کند. و هر کنترلی ~ می‌گیرد.
+The truth is in the waveform, Hollis. Next time, the scopes.	حقیقت در شکل موج است، هالیس. دفعه‌ی بعد، اسکوپ‌ها.
+The ghost	روح
+THE HAUNTED LIGHTHOUSE	فانوس دریایی جن‌زده
+A lighthouse, a ghost, and a keeper who has been alone with the lamp far too long. Press START.	یک فانوس دریایی، یک روح، و نگهبانی که خیلی وقت با چراغ تنها مانده. START را بزن.
+Projection mapping: bending the picture to fit the building. Warp, blend, slices.	نقشه‌برداری نوری: خم کردن تصویر تا روی ساختمان بنشیند. وارپ، ادغام، برش‌ها.
+Ye'll be wanting the ghost on the windows. Mind the lamp. The lamp is MINE.	روح را روی پنجره‌ها می‌خواهید، ها؟ مواظب چراغ باشید. چراغ مال من است.
+THE OUTPUT'S GEOMETRY	هندسه‌ی خروجی
+MENU, then Video Outputs, then Geometry. Where an output's shape lives.	MENU، بعد خروجی‌های ویدیو، بعد هندسه. شکل خروجی آنجا زندگی می‌کند.
+Geometry: the projector-menu word for 'what shape is the picture'.	هندسه: واژه‌ی منوی پروژکتور برای «تصویر چه شکلی است».
+PIN A CORNER	یک گوشه را سنجاق کن
+Press warp edit, then drag a corner on the programme monitor. The window is not square. Neither is the keeper.	warp edit را بزن، بعد یک گوشه را روی مانیتور برنامه بکش. پنجره مربع نیست. نگهبان هم نیست.
+A corner pin moves the four corners. Perspective keeps the lines straight, like a real window.	سنجاق گوشه چهار گوشه را جابه‌جا می‌کند. پرسپکتیو خطوط را صاف نگه می‌دارد، مثل یک پنجره‌ی واقعی.
+LEFT! Ye call that a corner? I've seen straighter gulls.	چپ! به این می‌گویی گوشه؟ مرغ دریایی صاف‌تر از این دیده‌ام.
+TWO SOFT EDGES	دو لبه‌ی نرم
+Back in Geometry: edge blend, + on the left and + on the right.	برگرد به هندسه: edge blend، + در چپ و + در راست.
+Two projectors overlap; each fades its edge so the overlap is not twice as bright.	دو پروژکتور روی هم می‌افتند؛ هر کدام لبه‌اش را کم‌نور می‌کند تا هم‌پوشانی دو برابر روشن نشود.
+THE SCREENS WINDOW	پنجره‌ی SCREENS
+Geometry, SLICES, open. The Screens window is where slices are cut and placed.	هندسه، SLICES، باز کن. پنجره‌ی Screens جایی است که برش‌ها بریده و چیده می‌شوند.
+A slice is a piece of the picture, put anywhere on the output.	برش تکه‌ای از تصویر است که هر جای خروجی گذاشته می‌شود.
+THREE SLICES	سه برش
+In the Screens window, + SLICE three times, and drag each crop to a third of the picture.	در پنجره‌ی Screens سه بار + SLICE را بزن، و هر برش را به یک‌سوم تصویر بکش.
+Three windows, three slices: left, middle and right of one picture.	سه پنجره، سه برش: چپ، وسط و راست یک تصویر.
+Three windows. The lamp gets the middle one. The lamp ALWAYS gets the middle one.	سه پنجره. وسطی مال چراغ است. وسطی همیشه مال چراغ است.
+THE GHOST IS PLEASED	روح راضی است
+Warp, blend, slices. The keeper will finally sleep. The gulls will not.	وارپ، ادغام، برش‌ها. نگهبان بالاخره می‌خوابد. مرغ‌های دریایی نه.
+Slices have their own warp and mesh in the Screens window. And a ~ on the place and the turn.	برش‌ها در پنجره‌ی Screens وارپ و مش خودشان را دارند. و یک ~ روی جا و چرخش.
+Ye did alright, lad. Now get away from the lamp.	بد نبود، جوان. حالا از چراغ دور شو.
+THE GAME SHOW	مسابقه‌ی تلویزیونی
+A game show, skapi. Three contestants, one buzzer, and cues that fire from anywhere. Press START.	یک مسابقه‌ی تلویزیونی، اسکاپی. سه شرکت‌کننده، یک زنگ، و کیوهایی که از هر جا اجرا می‌شوند. START را بزن.
+Cue numbers, hotkeys, and GO from other machines. Like a sequencer you can play from any key.	شماره‌ی کیو، میان‌بر، و GO از دستگاه‌های دیگر. مثل سکوئنسری که با هر کلیدی بنوازی.
+Welcome to the show! Let's spin that wheel!	به برنامه خوش آمدید! چرخ را بچرخانیم!
+A CUE NUMBER	یک شماره‌ی کیو
+Contestant 3 is selected. In the inspector's metadata, give it a cue number: 3.	شرکت‌کننده‌ی ۳ انتخاب شده. در فراداده‌ی بازرس یک شماره‌ی کیو بده: 3.
+Theatre numbers its cues. Q3, Q3.5, Q12A. Deckboy reads them all.	تئاتر کیوهایش را شماره می‌زند. Q3، Q3.5، Q12A. Deckboy همه را می‌خواند.
+I'd like to buy a number, please.	لطفاً یک شماره می‌خرم.
+GO TO IT	برو سراغش
+Ctrl+G, type the number, Enter. It goes live wherever the list happens to be standing.	Ctrl+G، شماره را بنویس، Enter. هر جا فهرست ایستاده باشد، روی آنتن می‌رود.
+GOTO. The fastest way across a long list. Faster than scrolling. Much faster than me.	GOTO. سریع‌ترین راه در فهرست بلند. سریع‌تر از پیمایش. خیلی سریع‌تر از من.
+And the number is... three!	و شماره... سه است!
+A BUZZER	یک زنگ
+Contestant 1 is selected. In TRIGGERS, press key, then F5. That key now fires this cue.	شرکت‌کننده‌ی ۱ انتخاب شده. در TRIGGERS، key و بعد F5 را بزن. آن کلید حالا این کیو را اجرا می‌کند.
+F1 to F10, F12, or the number pad. Each one, a buzzer.	F1 تا F10، F12، یا صفحه‌کلید عددی. هر کدام، یک زنگ.
+Every contestant gets a buzzer.	هر شرکت‌کننده یک زنگ دارد.
+BUZZ IN	زنگ بزن!
+Press the key. The cue fires, wherever the list is standing.	کلید را بزن. هر جا فهرست باشد، کیو اجرا می‌شود.
+No mouse, no list, no looking. Just the key.	بی‌ماوس، بی‌فهرست، بی‌نگاه. فقط کلید.
+Buzz! We have a winner!	دینگ! برنده داریم!
+FROM ANYWHERE	از هر جا
+Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion، یک نت MIDI، یک پیام OSC: MENU، بعد شبکه، می‌گوید هر کدام کجا وصل می‌شود.
+A Stream Deck in the next room can press GO. So can a keyboard synth. I prefer the synth.	یک Stream Deck در اتاق بغلی می‌تواند GO را بزند. یک کیبورد سینت هم. من سینت را ترجیح می‌دهم.
+And for our viewers at home: you can play along too.	و برای بینندگان در خانه: شما هم می‌توانید بازی کنید.
+THAT'S OUR SHOW	برنامه‌ی ما همین بود
+Numbers, GOTO, a buzzer, and GO from anywhere. You are a game show now, skapi.	شماره‌ها، GOTO، یک زنگ، و GO از هر جا. حالا خودت یک مسابقه‌ی تلویزیونی هستی، اسکاپی.
+A cue can have a key, a MIDI note and an OSC address at once. Belt, braces and a second belt.	یک کیو می‌تواند هم‌زمان یک کلید، یک نت MIDI و یک نشانی OSC داشته باشد. هم کمربند، هم بند شلوار، هم یک کمربند دیگر.
+Goodnight, everybody! Keep spinning!	شب همگی بخیر! به چرخاندن ادامه دهید!
+Weather map	نقشه‌ی هوا
+THE KAIJU WEATHER	هواشناسی کایجو
+Channel 6 weather, skapi. A map, a presenter, and a very large lizard. Press START.	هواشناسی شبکه‌ی ۶، اسکاپی. یک نقشه، یک مجری، و یک مارمولک خیلی بزرگ. START را بزن.
+Words on screen: Lower Thirds, text, and backdrops.	واژه‌ها روی صفحه: زیرنویس‌ها، متن و پس‌زمینه‌ها.
+I'm June O'Neil, and nothing about this forecast is normal.	من جون اونیل هستم، و هیچ چیز این پیش‌بینی عادی نیست.
+A LAYER FOR WORDS	یک لایه برای واژه‌ها
+Words go on their own layer: press the + at the end of the playlist tabs.	واژه‌ها روی لایه‌ی خودشان می‌روند: + آخر زبانه‌های فهرست پخش را بزن.
+A second playlist is a layer over the map. The lizard stays underneath. Mostly.	فهرست دوم لایه‌ای روی نقشه است. مارمولک زیر می‌ماند. بیشتر وقت‌ها.
+Words on top. Always on top.	واژه‌ها رو. همیشه رو.
+A LOWER THIRD	یک زیرنویس
+In the new playlist: SOURCE, then Lower Third.	در فهرست جدید: منبع، بعد Lower Third.
+A name and a title, low on the screen, out of the lizard's way.	یک نام و یک عنوان، پایین صفحه، دور از راه مارمولک.
+HER NAME	نام او
+In the inspector, title: type the presenter's name. The second line is her job.	در بازرس، title: نام مجری را بنویس. خط دوم شغل اوست.
+Spelling counts. The audience reads it at the speed of light.	املا مهم است. تماشاگر با سرعت نور می‌خواند.
+Spell it right. Last week it said 'Jane O'Meal'.	درست بنویس. هفته‌ی پیش نوشته بود «جون اونیلللل».
+ON AIR	روی آنتن
+TAKE the Lower Third. Her name slides in over the map.	زیرنویس را TAKE بزن. نامش روی نقشه سُر می‌خورد.
+Two layers live: the weather, and the words on top of it.	دو لایه روی آنتن: هوا، و واژه‌ها رویش.
+Thank you. Now, about that lizard...	ممنون. خب، درباره‌ی آن مارمولک...
+BREAKING NEWS	خبر فوری
+SOURCE, then Text: a title card. Then its backdrop chip: key green, for the vision mixer to key out.	منبع، بعد Text: یک کارت عنوان. بعد خانه‌ی پس‌زمینه‌اش: سبز کروما، تا میکسر تصویر آن را کی کند.
+A backdrop fills behind the words. Key green or key blue, and the mixer does the rest.	پس‌زمینه پشت واژه‌ها را پر می‌کند. سبز یا آبی کروما، بقیه‌اش با میکسر.
+Breaking news: it's standing on the five-day forecast.	خبر فوری: روی پیش‌بینی پنج‌روزه ایستاده.
+BREAKING: KAIJU	فوری: کایجو
+BACK TO YOU	برمی‌گردیم به استودیو
+A Lower Third, a name, a title card, a backdrop. The lizard has left the studio, skapi.	یک زیرنویس، یک نام، یک کارت عنوان، یک پس‌زمینه. مارمولک استودیو را ترک کرد، اسکاپی.
+Lower Thirds can wait, slide and leave on their own. Their section has every setting.	زیرنویس‌ها خودشان می‌توانند صبر کنند، سُر بخورند و بروند. همه‌ی تنظیماتشان در بخش خودشان است.
+That's the weather. Back to you, guys. Run.	این هم هواشناسی. برمی‌گردیم به استودیو. فرار کنید.
+A GRAND DAY OUT	یک روز بزرگ
+A rocket built in a basement, skapi, and an inventor who wants cheese. Press START.	موشکی که در زیرزمین ساخته شده، اسکاپی، و مخترعی که پنیر می‌خواهد. START را بزن.
+Stage timers: countdowns, clocks, and a presenter view for the person on stage.	زمان‌سنج‌های صحنه: شمارش معکوس، ساعت، و نمای ارائه‌دهنده برای کسی که روی صحنه است.
+Cheese, Grommet! The moon's made of it. We'll need a countdown.	پنیر، گرومت! ماه از پنیر است. یک شمارش معکوس لازم داریم.
+A COUNTDOWN	یک شمارش معکوس
+SOURCE, then Stage Timer. A clock that counts down, in big friendly numbers.	منبع، بعد Stage Timer. ساعتی که با عددهای بزرگ و دوستانه عقب می‌شمارد.
+Its colours change as it runs out: white, amber, red. Like a VU meter for time.	وقتی وقت تمام می‌شود رنگش عوض می‌شود: سفید، کهربایی، قرمز. مثل VU متر برای زمان.
+*raises an eyebrow*	*یک ابرو را بالا می‌برد*
+LIFT OFF	پرتاب
+Select the timer and TAKE it. The countdown starts.	زمان‌سنج را انتخاب کن و TAKE بزن. شمارش شروع می‌شود.
+Past zero it keeps going, counting the overtime. Very honest. Slightly rude.	از صفر که بگذرد ادامه می‌دهد و اضافه‌وقت را می‌شمارد. خیلی صادق. کمی بی‌ادب.
+Ten... nine... ooh, I do love a countdown.	ده... نه... آه، چقدر شمارش معکوس دوست دارم.
+HOLD!	نگه دار!
+Something's loose! Space holds the countdown. The clock shows it is held.	چیزی شل است! فاصله شمارش را نگه می‌دارد. ساعت نشان می‌دهد که متوقف است.
+A hold is not a stop. Space again, and it carries on from where it was.	نگه داشتن توقف نیست. دوباره فاصله، و از همان جا ادامه می‌دهد.
+*holds up a spanner*	*یک آچار بالا می‌برد*
+THE PILOT'S VIEW	نمای خلبان
+MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	MENU، خروجی‌های ویدیو: نوع یک خروجی را PRESENTER کن. کسی که روی صحنه است زمان‌سنج، کیوی بعدی و یادداشت‌هایش را می‌بیند.
+A presenter view is an output like any other. Point it at the confidence monitor.	نمای ارائه‌دهنده هم یک خروجی است مثل بقیه. به سمت مانیتور جلوی صحنه بگیرش.
+So the pilot can see the time. The pilot is Grommet.	تا خلبان بتواند زمان را ببیند. خلبان گرومت است.
+TO THE MOON	به سوی ماه
+A countdown, a hold, and a view for the pilot. Nazdrave, skapi. Bring crackers.	یک شمارش معکوس، یک توقف، و یک نما برای خلبان. نازدراوه، اسکاپی. کراکر بیاور.
+Timers can also count up, or show the time of day. Their section has the lot.	زمان‌سنج‌ها جلو هم می‌شمارند یا ساعت روز را نشان می‌دهند. بخش خودشان همه را دارد.
+A grand day out, Grommet! Pass the crackers.	چه روز بزرگی، گرومت! کراکرها را بده.
+The trunk (closed)	صندوق (بسته)
+The trunk (open)	صندوق (باز)
+THE MAGIC SHOW	نمایش شعبده
+A magic show, skapi. A trunk, a prop, and one beat where everything changes at once. Press START.	یک نمایش شعبده، اسکاپی. یک صندوق، یک وسیله، و یک ضرب که همه چیز با هم عوض می‌شود. START را بزن.
+Two playlists are two layers. TAKE ALL changes both together.	دو فهرست یعنی دو لایه. TAKE ALL هر دو را با هم عوض می‌کند.
+Every trick needs two things happening at once. And a rubber chicken.	هر تردستی دو چیز هم‌زمان لازم دارد. و یک مرغ لاستیکی.
+The prop goes on its own layer. Press the + at the end of the playlist tabs.	وسیله روی لایه‌ی خودش می‌رود. + آخر زبانه‌های فهرست پخش را بزن.
+Playlist 2 sits on top of playlist 1. Like a transparency on an overhead projector.	فهرست ۲ روی فهرست ۱ می‌نشیند. مثل طلق روی اورهد.
+Nothing up my sleeve. Everything in my trunk.	چیزی در آستینم نیست. همه چیز در صندوقم است.
+THE PROP	وسیله
+In the new playlist, add anything: PATTERN will do. That is the prop.	در فهرست جدید هر چیزی اضافه کن: «الگوی آزمایشی» کافی است. آن وسیله است.
+Whatever it is, it will appear the instant the trunk opens.	هر چه باشد، همان لحظه که صندوق باز شود ظاهر می‌شود.
+Is it a rubber chicken? It's always a rubber chicken.	مرغ لاستیکی است؟ همیشه مرغ لاستیکی است.
+The prop (rubber chicken)	وسیله (مرغ لاستیکی)
+TA-DA	تادا
+Select 'The trunk (open)' in playlist 1 and the prop in playlist 2. Then TAKE ALL: both on one beat.	در فهرست ۱ «صندوق (باز)» و در فهرست ۲ وسیله را انتخاب کن. بعد TAKE ALL: هر دو روی یک ضرب.
+One press, every playlist's selected cue. The audience never sees the seam.	یک فشار، کیوی انتخاب‌شده‌ی هر فهرست. تماشاگر هیچ‌وقت درز را نمی‌بیند.
+Ta-daaa! ...Hold for applause. Hold. Hold.	تادااا! ...منتظر تشویق بمانید. صبر. صبر.
+THE PRESTIGE	ترفند بزرگ
+Two layers, one beat. Every playlist has its own opacity and can sit on any output. Nazdrave, skapi.	دو لایه، یک ضرب. هر فهرست شفافیت خودش را دارد و می‌تواند روی هر خروجی بنشیند. نازدراوه، اسکاپی.
+A magician never reveals. A playlist never minds being revealed.	شعبده‌باز هیچ‌وقت راز را فاش نمی‌کند. فهرست پخش برایش مهم نیست فاش شود.
+Thank you! I'm here all week! The chicken is here forever.	ممنون! تمام هفته اینجا هستم! مرغ برای همیشه اینجاست.
+The kitchen (on fire)	آشپزخانه (در آتش)
+A lovely souffle	یک سوفله‌ی دلپذیر
+THE COOKING SHOW	برنامه‌ی آشپزی
+A cooking show, skapi. Live. Everything is on fire. Press START.	یک برنامه‌ی آشپزی، اسکاپی. زنده. همه چیز آتش گرفته. START را بزن.
+BLACK hides the picture and keeps the show running. PANIC stops everything. Know which you need.	BLACK تصویر را پنهان می‌کند و نمایش ادامه دارد. PANIC همه چیز را متوقف می‌کند. بدان کدام را لازم داری.
+Bork bork! Hurdy-flurdy, de kitchen is fire-a-flurdy!	بورک بورک! هردی‌فلردی، آشپزخانه آتش‌فلردی!
+The audience must not see this. Press BLACK, or B.	تماشاگر نباید این را ببیند. BLACK یا B را بزن.
+The picture goes. The cue keeps playing underneath, ready to come back.	تصویر می‌رود. کیو زیرش پخش می‌شود، آماده‌ی برگشتن.
+Bork? Bork. Oh, de picture is gun.	بورک؟ بورک. اوه، تصویر رفت.
+AND BACK	و برگشت
+The fire's out. Press B again: the picture comes back, still running.	آتش خاموش شد. دوباره B را بزن: تصویر برمی‌گردد، هنوز در حال پخش.
+Nothing was lost. A mute on a mixer, for pictures.	هیچ چیز گم نشد. بی‌صدای میکسر، برای تصویر.
+Ta-da! Still cookin'!	تادا! هنوز داریم می‌پزیم!
+Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	بدتر: MENU، سیستم، کارت SAFETY: PANIC. همه چیز همان‌طور که تنظیم وحشت می‌گوید متوقف می‌شود.
+PANIC is the big red button. Use it when BLACK is not enough. Then breathe.	PANIC دکمه‌ی قرمز بزرگ است. وقتی BLACK کافی نیست. بعد نفس بکش.
+Bork bork BORK!	بورک بورک بورک!
+GET IT BACK	برش گردان
+Close MENU, select the souffle, and TAKE it. The show is back on.	MENU را ببند، سوفله را انتخاب کن و TAKE بزن. نمایش برگشت.
+After a panic, the show is still there. Pick up where you meant to be.	بعد از وحشت، نمایش هنوز آنجاست. از همان جایی که می‌خواستی ادامه بده.
+Voila! De souffle, he is risen!	بفرما! سوفله، پف کرد!
+BON APPETIT	نوش جان
+BLACK to hide, PANIC to stop, TAKE to come back. You will survive any kitchen, skapi.	BLACK برای پنهان کردن، PANIC برای توقف، TAKE برای برگشت. از هر آشپزخانه‌ای جان سالم به در می‌بری، اسکاپی.
+The panic setting chooses what PANIC does: fade out, cut, or just the outputs.	تنظیم وحشت انتخاب می‌کند PANIC چه کند: محو شدن، برش، یا فقط خروجی‌ها.
+Bork bork bork! Goodnight!	بورک بورک بورک! شب بخیر!
+Look one	نمای یک
+Look two	نمای دو
+Presets, skapi. A whole look, remembered, and back with one button. Press START.	پیش‌تنظیم‌ها، اسکاپی. یک نمای کامل، به خاطر سپرده، و با یک دکمه برمی‌گردد. START را بزن.
+Like the patch memory on a synth: store, then recall.	مثل حافظه‌ی پچ در سینت: ذخیره، بعد فراخوانی.
+THE DASH	DASH
+Press DASH: buttons of your own, for anything at all.	DASH را بزن: دکمه‌های خودت، برای هر کاری.
+Ctrl+D also works. Very fast. Very professional.	Ctrl+D هم کار می‌کند. خیلی سریع. خیلی حرفه‌ای.
+A PRESET BUTTON	یک دکمه‌ی پیش‌تنظیم
+Press +, then 'preset - a new preset from what is on now'. The button remembers this look.	+ را بزن، بعد «preset - a new preset from what is on now». دکمه این نما را به خاطر می‌سپارد.
+Store. Like saving the patch before the drummer leans on the synth.	ذخیره. مثل ذخیره‌ی پچ پیش از اینکه نوازنده‌ی درامز به سینت تکیه بدهد.
+CHANGE EVERYTHING	همه را عوض کن
+Close the DASH (Esc), then select Look two and TAKE it. A different look.	DASH را ببند (Esc)، بعد «نمای دو» را انتخاب کن و TAKE بزن. یک نمای دیگر.
+Change it all. Don't worry. It remembers.	همه را عوض کن. نگران نباش. یادش هست.
+ONE PRESS	یک فشار
+Open the DASH and press your preset button. The first look comes back.	DASH را باز کن و دکمه‌ی پیش‌تنظیمت را بزن. نمای اول برمی‌گردد.
+Recall. The patch memory, returning. Beautiful.	فراخوانی. حافظه‌ی پچ، در حال برگشت. زیباست.
+A look, stored and recalled. A preset can keep cues, positions, effects, levels and routing; its button's menu chooses which.	نمایی که ذخیره و فراخوانده می‌شود. یک پیش‌تنظیم می‌تواند کیوها، جاها، افکت‌ها، سطح‌ها و مسیریابی را نگه دارد؛ منوی دکمه‌اش انتخاب می‌کند کدام‌ها.
+And a DASH button can run any command at all. Any. Even the exciting ones.	و یک دکمه‌ی DASH می‌تواند هر فرمانی را اجرا کند. هر فرمانی. حتی هیجان‌انگیزها.
+Opening titles	عنوان‌بندی آغاز
+The planet	سیاره
+The battle	نبرد
+THE TRAILER	تیزر
+A space-opera trailer, skapi. A narrator with a very deep voice and opinions about transitions. Press START.	تیزر یک اپرای فضایی، اسکاپی. یک راوی با صدای خیلی بم که درباره‌ی گذارها نظر دارد. START را بزن.
+A transition is how one cue becomes the next. There are far more than the crossfade.	گذار یعنی یک کیو چطور به بعدی تبدیل می‌شود. خیلی بیشتر از محو متقاطع هست.
+In a galaxy of content... one operator... must choose a transition.	در کهکشانی از محتوا... یک اپراتور... باید یک گذار انتخاب کند.
+A STYLE	یک سبک
+'The planet' is selected. In the inspector, its transition style: choose iris.	«سیاره» انتخاب شده. در بازرس، سبک گذارش: iris را انتخاب کن.
+Pushes, wipes, iris, dip to white. Even a portal. I wrote half of them. On a Tuesday.	هل دادن، پاک کردن، عنبیه، فرو رفتن در سفید. حتی یک دروازه. نصفشان را من نوشتم. یک سه‌شنبه.
+The planet deserves... a dramatic entrance.	سیاره سزاوار... یک ورود نمایشی است.
+A TIME	یک زمان
+Give it a time: + on transition until it says a second or more.	به آن زمان بده: + گذار تا وقتی یک ثانیه یا بیشتر نشان دهد.
+No time, no transition. A style needs a duration to do anything at all.	بی‌زمان، بی‌گذار. یک سبک برای هر کاری مدت لازم دارد.
+ROLL IT	حرکت
+TAKE the planet. Watch it arrive.	سیاره را TAKE بزن. رسیدنش را تماشا کن.
+The transition belongs to the cue arriving. Each cue chooses its own entrance.	گذار مال کیوی در حال ورود است. هر کیو ورود خودش را انتخاب می‌کند.
+Autobots... roll the transition.	اتوبات‌ها... گذار را اجرا کنید.
+THE BATTLE	نبرد
+Now 'The battle': choose shatter, give it a time, and TAKE it.	حالا «نبرد»: shatter را انتخاب کن، زمان بده و TAKE بزن.
+Shatter drops the old picture like a pane of glass. Please do not do this at a funeral.	شکستن تصویر قدیمی را مثل یک شیشه می‌اندازد. لطفاً این کار را در مراسم ختم نکنید.
+Transform... and shatter out!	تبدیل... و خرد شو!
+IN CINEMAS NOW	اکنون در سینماها
+A style, a time, and two very dramatic entrances. Nazdrave, skapi.	یک سبک، یک زمان، و دو ورود خیلی نمایشی. نازدراوه، اسکاپی.
+A playlist has a default style too, for every cue that does not choose its own.	فهرست پخش هم یک سبک پیش‌فرض دارد، برای هر کیویی که سبک خودش را انتخاب نمی‌کند.
+Coming soon... to a desk near you.	به‌زودی... روی میزی نزدیک شما.
+The beat	بیت
+THE ROBOT DJS	دی‌جی‌های رباتی
+Two robot DJs, skapi. They do not talk. Their helmets do. Press START.	دو دی‌جی رباتی، اسکاپی. حرف نمی‌زنند. کلاه‌خودهایشان حرف می‌زنند. START را بزن.
+Every cue has its own chain of audio effects, and some of them break the sound on purpose.	هر کیو زنجیره‌ی افکت صوتی خودش را دارد، و بعضی‌شان عمداً صدا را می‌شکنند.
+> HELLO. WE ARE HERE TO FIX YOUR MIX.	> سلام. آمده‌ایم میکست را درست کنیم.
+The beat is selected. In its AUDIO EFFECTS section, + adds one. Try the delay.	بیت انتخاب شده. در بخش AUDIO EFFECTS، + یکی اضافه می‌کند. delay را امتحان کن.
+Delay, reverb, filters, a compressor. Amount always means 'less of this'.	تأخیر، ریورب، فیلترها، یک کمپرسور. میزان همیشه یعنی «کمتر از این».
+> ONE MORE TIME. WITH ECHO. ECHO. ECHO.	> یک بار دیگر. با پژواک. پژواک. پژواک.
+A BEND	یک خم
+Add a second: a bend, like crush. It damages the sound the way a broken file would.	دومی را اضافه کن: یک خم، مثل crush. صدا را مثل یک فایل خراب، خراب می‌کند.
+The bends are my favourite. Like a tape left in the sun. On purpose.	خم‌ها مورد علاقه‌ی من‌اند. مثل نواری که زیر آفتاب جا مانده. عمدی.
+> HARDER. BETTER. CRUNCHIER. LOUDER.	> سخت‌تر. بهتر. تردتر. بلندتر.
+THE PATCH	پچ
+MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	MENU، بعد صدا: صدای هر فهرست کجا می‌رود، و پچ خروجی‌های نام‌دار.
+Speakers, monitors, an in-ear for the drummer. The patch sends each its own.	بلندگوها، مانیتورها، یک گوشی داخل گوش برای نوازنده‌ی درامز. پچ به هر کدام مال خودش را می‌فرستد.
+> AROUND THE MIX. AROUND THE MIX. AROUND THE MIX.	> دور میکس. دور میکس. دور میکس.
+An effect, a bend and the patch. The robots approve, skapi. I think. Their faces are helmets.	یک افکت، یک خم و پچ. ربات‌ها تأیید می‌کنند، اسکاپی. فکر کنم. صورتشان کلاه‌خود است.
+Every audio effect can follow a ~ too, even Motion. Wave at the delay. It's wonderful.	هر افکت صوتی هم می‌تواند دنبال یک ~ برود، حتی Motion. برای تأخیر دست تکان بده. فوق‌العاده است.
+> THANK YOU. GOOD NIGHT. WE ARE ROBOTS.	> ممنون. شب بخیر. ما ربات هستیم.
+The glow on the horizon (evidence #2)	درخشش افق (مدرک شماره‌ی ۲)
+EVIDENCE #2	مدرک شماره‌ی ۲
+The Bureau again, skapi. A glow on the horizon, and two agents who disagree about it. Press START.	باز هم اداره، اسکاپی. یک درخشش در افق، و دو مأمور که سرش توافق ندارند. START را بزن.
+The scopes measure a picture: brightness, colour, levels. Numbers, not opinions.	اسکوپ‌ها تصویر را می‌سنجند: روشنایی، رنگ، سطح. عدد، نه نظر.
+It's them, Brandt. It's a craft. Look how it glows.	خودشان‌اند، برانت. یک سفینه است. ببین چطور می‌درخشد.
+THE REAL SIGNAL	سیگنال واقعی
+The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	اسکوپ‌ها فقط چیزی را می‌خوانند که واقعاً بیرون می‌رود، هرگز پیش‌نمایش را. خروجی را روشن کن: MENU، خروجی‌های ویدیو، «خروجی خاموش».
+Measuring a scaled-down preview would be measuring a photocopy. We measure the original.	سنجیدن پیش‌نمایش کوچک‌شده مثل سنجیدن فتوکپی است. ما اصل را می‌سنجیم.
+Chain of evidence, Hollis. The real signal or nothing.	زنجیره‌ی مدارک، هالیس. سیگنال واقعی یا هیچ.
+THE SCOPES	اسکوپ‌ها
+Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	MENU را ببند. بالای مانیتور، دکمه‌ی PROGRAM: آن‌قدر بزن تا SCOPES یا BOTH بگوید.
+Both shows the picture and its scopes side by side. Very civilised.	BOTH تصویر و اسکوپ‌هایش را کنار هم نشان می‌دهد. خیلی متمدنانه.
+Let the scopes decide, Hollis.	بگذار اسکوپ‌ها تصمیم بگیرند، هالیس.
+THE WAVEFORM	شکل موج
+Click the waveform to make it big. Bright things sit high, dark things low, left to right as in the picture.	روی شکل موج کلیک کن تا بزرگ شود. چیزهای روشن بالا، تیره‌ها پایین، از چپ به راست مثل تصویر.
+The glow is that spike near the top. Very bright. Bright is not the same as alien.	درخشش همان قله‌ی نزدیک بالاست. خیلی روشن. روشن بودن یعنی فضایی بودن نیست.
+Look at the peak. Nothing a streetlight couldn't do.	به قله نگاه کن. کاری نیست که از یک چراغ خیابان برنیاید.
+THE VECTORSCOPE	وکتوراسکوپ
+Click it again to go back, then click the vectorscope: colour round a circle. Saturated runs to the edge.	دوباره کلیک کن تا برگردی، بعد روی وکتوراسکوپ کلیک کن: رنگ دور یک دایره. رنگ اشباع به لبه می‌دود.
+Magenta, far out by the rim. A strong colour. Strong is not illegal. Yet.	سرخابی، دور در لبه. رنگی قوی. قوی غیرقانونی نیست. هنوز.
+It's off the chart, Brandt! Literally off the chart!	از نمودار بیرون زده، برانت! به معنای واقعی!
+FALSE COLOUR	رنگ کاذب
+And false colour: red is clipped, yellow nearly. Is the glow red?	و رنگ کاذب: قرمز یعنی بریده، زرد یعنی نزدیک. درخشش قرمز است؟
+Clipped means the brightest the signal can carry, and then some lost. Detail gone.	بریده یعنی روشن‌ترین چیزی که سیگنال می‌تواند حمل کند، و بیشتر از آن گم شده. جزئیات رفت.
+Red. Clipped. Not alien, Hollis. Just too bright. Case closed.	قرمز. بریده. فضایی نیست، هالیس. فقط زیادی روشن. پرونده بسته شد.
+THE TRUTH	حقیقت
+Waveform, vectorscope, false colour. The scopes settled it, skapi. The agents did not.	شکل موج، وکتوراسکوپ، رنگ کاذب. اسکوپ‌ها تکلیف را روشن کردند، اسکاپی. مأمورها نه.
+SCOPES SOURCE reads any output, and the matrix can be 709 or 2020. For the curious.	SCOPES SOURCE هر خروجی را می‌خواند، و ماتریس می‌تواند 709 یا 2020 باشد. برای کنجکاوها.
+Too bright for a streetlight, Brandt. Too bright for anything. ...I want to believe.	برای چراغ خیابان زیادی روشن است، برانت. برای هر چیزی زیادی روشن است. ...می‌خواهم باور کنم.
+OUT OF THE BUILDING	بیرون از ساختمان
+Pictures that leave by cable or network, skapi, not only a window on a screen. Press START.	تصویرهایی که با کابل یا شبکه بیرون می‌روند، اسکاپی، نه فقط یک پنجره روی صفحه. START را بزن.
+NDI over the network, SDI from a DeckLink card, ST 2110 for broadcast plants.	NDI روی شبکه، SDI از کارت DeckLink، ST 2110 برای مراکز پخش.
+THE DEVICES PAGE	صفحه‌ی دستگاه‌ها
+MENU, Video Outputs, then Devices: every way an output can leave this computer.	MENU، خروجی‌های ویدیو، بعد دستگاه‌ها: هر راهی که یک خروجی می‌تواند از این رایانه بیرون برود.
+Each one says whether this machine can do it, and what it needs if not.	هر کدام می‌گوید این دستگاه می‌تواند یا نه، و اگر نه چه لازم دارد.
+If this computer has NDI, switch NDI SENDING on: the picture is on the network. If not, SHOW ME moves on.	اگر این رایانه NDI دارد، NDI SENDING را روشن کن: تصویر روی شبکه است. اگر نه، SHOW ME جلو می‌رود.
+NDI finds itself on the network. No cables, only a good switch and patience.	NDI خودش را روی شبکه پیدا می‌کند. بی‌کابل، فقط یک سوییچ خوب و صبر.
+OUT THERE	آن بیرون
+The output's own page has the rest: a DeckLink card's SDI, ST 2110 with NMOS, Spout and Syphon.	صفحه‌ی خود خروجی بقیه را دارد: SDI کارت DeckLink، ST 2110 با NMOS، Spout و Syphon.
+Every one is just an output. The show does not know or care how it leaves.	هر کدام فقط یک خروجی است. نمایش نه می‌داند نه برایش مهم است چطور بیرون می‌رود.
+Nebula ahead	سحابی در پیش
+Engine room	موتورخانه
+Deck 3: something moving	عرشه‌ی ۳: چیزی حرکت می‌کند
+THE BRIDGE	پل فرماندهی
+The bridge of the starship Cathode, skapi. Four feeds, one main viewer, one mystery. Press START.	پل فرماندهی سفینه‌ی کاتد، اسکاپی. چهار سیگنال، یک صفحه‌ی اصلی، یک راز. START را بزن.
+The multiview shows every playlist at once. Like a wall of oscilloscopes, but in space.	چندنما همه‌ی فهرست‌ها را با هم نشان می‌دهد. مثل دیواری از اسیلوسکوپ، ولی در فضا.
+Frequencies open, Captain. All of them. That's the problem.	فرکانس‌ها باز است، کاپیتان. همه‌شان. مشکل همین است.
+MULTI, above the monitor: every playlist in its own window.	MULTI بالای مانیتور: هر فهرست در پنجره‌ی خودش.
+One window per playlist, the programme first.	یک پنجره برای هر فهرست، برنامه اول.
+Jinkys! Four feeds. And one of them has a monster in it.	جینکیز! چهار سیگنال. و در یکی‌شان یک هیولا هست.
+WHAT'S NEXT	بعدی چیست
+Add a window (+), then its ... menu: make it show NEXT. What goes live when you press TAKE.	یک پنجره اضافه کن (+)، بعد منوی ... آن: بگذار NEXT نشان دهد. چیزی که با زدن TAKE روی آنتن می‌رود.
+Every window has a ... button. It chooses what that window shows.	هر پنجره یک دکمه‌ی ... دارد. انتخاب می‌کند آن پنجره چه نشان دهد.
+I need to see who's calling before they reach the main viewer.	باید ببینم کی تماس می‌گیرد، پیش از اینکه به صفحه‌ی اصلی برسد.
+A CLOCK	یک ساعت
+And one more window, showing the clock. Operators who watch a clock are never late. Mostly.	و یک پنجره‌ی دیگر که ساعت را نشان دهد. اپراتورهایی که ساعت را نگاه می‌کنند هیچ‌وقت دیر نمی‌کنند. بیشتر وقت‌ها.
+Time of day, big. Stardates are just very long timecode.	ساعت روز، بزرگ. تاریخ ستاره‌ای فقط یک تایم‌کد خیلی بلند است.
+The monster only shows up at midnight. We're going to need a clock.	هیولا فقط نیمه‌شب پیدا می‌شود. یک ساعت لازم داریم.
+ONE BIG ONE	یکی بزرگ
+Any window's ... menu, then a layout: one big, the rest small.	منوی ... هر پنجره، بعد یک چیدمان: یکی بزرگ، بقیه کوچک.
+The big window is window one. Usually the programme. Usually.	پنجره‌ی بزرگ پنجره‌ی یک است. معمولاً برنامه. معمولاً.
+Main viewer big. The captain likes it big.	صفحه‌ی اصلی بزرگ. کاپیتان بزرگ دوست دارد.
+ON SCREEN	روی صفحه
+Select Deck 3 in playlist 3 and TAKE. Watch its window.	«عرشه‌ی ۳» را در فهرست ۳ انتخاب کن و TAKE بزن. پنجره‌اش را ببین.
+The red border is TALLY: the window that is on air. On screen, as they say on starships.	قاب قرمز TALLY است: پنجره‌ای که روی آنتن است. به قول سفینه‌ها: روی صفحه.
+There! Feed three! Put it on screen!	آنجا! سیگنال سه! بفرستش روی صفحه!
+THAT'S A WRAP	کات، تمام شد
+Windows, the ... menu, NEXT, the clock, a layout, tally. Mystery solved, skapi.	پنجره‌ها، منوی ...، NEXT، ساعت، یک چیدمان، تالی. راز حل شد، اسکاپی.
+A window can also show an output, with its warp and slices. Handy when it's a lighthouse.	یک پنجره می‌تواند یک خروجی را هم، با وارپ و برش‌هایش، نشان دهد. وقتی پای فانوس دریایی در میان است به کار می‌آید.
+And the monster was... the ship's cook, all along. Jinkys.	و هیولا... از اول آشپز سفینه بود. جینکیز.
+there is no such lesson	چنین درسی وجود ندارد
+finish or leave the lesson you are in first	اول درسی را که در آن هستی تمام کن یا از آن بیرون برو
+leave Bug Swat first	اول از Bug Swat بیرون برو
+Psst. It's me, the desk. I'll be watching. Supportively.	پیس. منم، میز. حواسم هست. با حمایت.
+Hi! I'm the one doing all of this, by the way.	سلام! راستی، همه‌ی این کارها را من می‌کنم.
+Ctrl+D opens the DASH. I'm just saying.	Ctrl+D منوی DASH را باز می‌کند. همین‌طوری گفتم.
+Nearly there. I can feel it in my pixels.	نزدیکیم. در پیکسل‌هایم حسش می‌کنم.
+You're good at this. I can tell. I'm the one doing it.	کارت خوب است. می‌فهمم. انجامش با من است.
+Every click, I heard. Every single one.	هر کلیکی را شنیدم. تک‌تکش را.
+The glowing one. I can see it from here. It's glowing for you.	آن که می‌درخشد. از اینجا می‌بینمش. برای تو می‌درخشد.
+lesson paused - MENU > LESSONS picks up where you left off	درس متوقف شد - MENU > LESSONS از همان جا ادامه می‌دهد
+PROF. VIDEO:  The signal: what the picture is made of, and how to bend it. Pick a lesson.	PROF. VIDEO:  سیگنال: تصویر از چه ساخته شده و چطور خمش کنیم. یک درس انتخاب کن.
+DR. PIXEL:  Running the show, skapi. Fast hands, calm face. Pick a lesson.	DR. PIXEL:  اجرای نمایش، اسکاپی. دست‌های سریع، چهره‌ی آرام. یک درس انتخاب کن.
+LESSONS  -  PART TWO  -  WHO DO YOU FOLLOW?	درس‌ها  -  بخش دو  -  دنبال چه کسی می‌روی؟
+FOLLOW PROF. VIDEO	دنبال پروفسور ویدیو
+FOLLOW DR. PIXEL	دنبال دکتر پیکسل
+the signal	سیگنال
+running the show	اجرای نمایش
+PICK UP	ادامه
+CLOSE (Esc)	بستن (Esc)
+PART ONE: THE BASICS	بخش یک: مبانی
+finish or leave LEARN THE BASICS first	اول LEARN THE BASICS را تمام کن یا از آن بیرون برو
+bug swat: Esc leaves, and your show comes back as it was	bug swat: Esc بیرون می‌رود، و نمایشت همان‌طور که بود برمی‌گردد
+bug swat: your show is back. Motion's controls are in Settings > Audio	bug swat: نمایشت برگشت. کنترل‌های Motion در تنظیمات > صدا هستند
+TURN MOTION ON	MOTION را روشن کن
+Bugs are crawling to the cue list! Swat them by waving at your camera. First, Motion: in MOTION CONTROL turn it ON and choose what it READS.	حشره‌ها به سمت فهرست کیوها می‌خزند! با دست تکان دادن جلوی دوربین له‌شان کن. اول Motion: در MOTION CONTROL آن را ON کن و انتخاب کن چه بخواند (READS).
+This one is NullPointer. Hollow, points at nothing. A finger goes straight through. Use the whole hand, skapi.	این NullPointer است. توخالی، به هیچ چیز اشاره نمی‌کند. یک انگشت از آن رد می‌شود. از کل دستت استفاده کن، اسکاپی.
+Wave like you are hailing a cab! A small, polite cab. Not the buttons. The cab.	مثل صدا زدن تاکسی دست تکان بده! یک تاکسی کوچک و مؤدب. نه دکمه‌ها. تاکسی.
+DRAW TWO ZONES	دو ناحیه بکش
+Race Condition: twins, each sure it got there first. One reading cannot tell your hands apart, so drag two ZONES on the Motion picture, one each side.	Race Condition: دوقلوها، هر کدام مطمئن که اول رسیده. یک خوانش دست‌هایت را از هم تشخیص نمی‌دهد، پس دو ZONES روی تصویر Motion بکش، هر طرف یکی.
+Hit both together. Hit one, and they swap. Like my cousins at a wedding.	هر دو را با هم بزن. یکی را بزنی جایشان عوض می‌شود. مثل پسرعموهایم در عروسی.
+One hand each side. Together! Together!	هر طرف یک دست. با هم! با هم!
+Off By One. The bug is not the face, it is the tiny extra segment, and a little wiggle needs a finer reading. Turn SENSITIVITY down to 5%.	Off By One. حشره صورت نیست، آن تکه‌ی اضافه‌ی کوچک است، و یک تکان کوچک خوانش دقیق‌تری لازم دارد. SENSITIVITY را تا ۵٪ پایین بیاور.
+Lower number, finer reading. Yes, I also think it is backwards.	عدد کمتر، خوانش دقیق‌تر. بله، من هم فکر می‌کنم برعکس است.
+Not the face. The little one on the end. Wiggle a finger.	صورت نه. آن کوچولو در انتها. یک انگشت را تکان بده.
+FALL 1.5 S OR MORE	FALL یک و نیم ثانیه یا بیشتر
+Memory Leak. It only lets go while the reading stays up. Make FALL longer, 1.5 seconds or more, so your sweeps join up into one.	Memory Leak. فقط تا وقتی خوانش بالا بماند ول می‌کند. FALL را بلندتر کن، یک و نیم ثانیه یا بیشتر، تا حرکت‌هایت به هم وصل شوند.
+Slow and steady, skapi. Like paying back a loan.	آهسته و پیوسته، اسکاپی. مثل پرداخت قسط وام.
+Sweep, and sweep again. Let the fall carry you between.	جارو کن، و باز جارو کن. بگذار افت تو را میانشان ببرد.
+MOTION X ON A TONE	MOTION X روی یک نت
+The Heisenbug! It fades whenever you move. Put a tone cue's pitch on Motion X and follow it by ear: the ticking speeds up as you close in.	هایزن‌باگ! هر بار که حرکت می‌کنی کم‌رنگ می‌شود. زیر و بمی یک کیوی صدا را روی Motion X بگذار و با گوش دنبالش کن: نزدیک‌تر که شوی تیک‌تاک تندتر می‌شود.
+SHOW ME makes the tone for you. High is right. Low is left. Stand still and it comes back.	SHOW ME نت را برایت می‌سازد. زیر یعنی راست. بم یعنی چپ. بی‌حرکت بایست، برمی‌گردد.
+Follow it. Listen. Faster ticking, closer bug.	دنبالش کن. گوش کن. تیک‌تاک تندتر، حشره نزدیک‌تر.
+Waving paw	پنجه‌ی دست‌تکان‌دهنده
+Heisenbug finder	یابنده‌ی هایزن‌باگ
+FIXED! Lovely signal flow.	درست شد! چه جریان سیگنال قشنگی.
+Closed as fixed. No regressions. Probably.	بسته شد به عنوان درست‌شده. بدون پسرفت. احتمالاً.
+Squashed! Ship it.	له شد! منتشرش کن.
+One reached the cue list. It has filed a bug report about you.	یکی به فهرست کیوها رسید. درباره‌ی تو گزارش باگ ثبت کرده.
+Skapi. It is a handheld. You do not press it. You wave at it.	اسکاپی. این یک دستی است. فشارش نمی‌دهی. برایش دست تکان می‌دهی.
+The buttons are for menus. The bugs are for flailing.	دکمه‌ها برای منوهاست. حشره‌ها برای دست و پا زدن.
+The D-pad is decorative. Like my diploma.	دکمه‌ی جهت تزئینی است. مثل مدرک من.
+In 1989 we also pressed the buttons. Then we discovered waving. Never looked back.	در ۱۹۸۹ ما هم دکمه فشار می‌دادیم. بعد دست تکان دادن را کشف کردیم. دیگر پشت سر را نگاه نکردیم.
+Pressing harder does not help. The bugs cannot feel buttons. Only arms.	محکم‌تر فشار دادن فایده ندارد. حشره‌ها دکمه را حس نمی‌کنند. فقط دست را.
+It's called a handheld because your hands are held... up. In the air. Waving.	به آن دستی می‌گویند چون دست‌ها... بالا می‌روند. در هوا. در حال تکان خوردن.
+The mouse? You are swatting bugs with a MOUSE? In Bulgaria the mouse would be on the bugs' side.	ماوس؟ داری با ماوس حشره له می‌کنی؟ در بلغارستان موش طرف حشره‌ها را می‌گرفت.
+Lovely clicking. Very crisp. The camera saw none of it.	چه کلیک‌های قشنگی. خیلی ترد. دوربین هیچ‌کدامش را ندید.
+DONE FOR YOU - PRESS START	برایت انجام شد - START را بزن
+DONE! PRESS START	انجام شد! START را بزن
+SELECT OPENS MOTION CONTROL	SELECT منوی MOTION CONTROL را باز می‌کند
+ALL BUGS FIXED	همه‌ی حشره‌ها درست شدند
+GAME OVER	بازی تمام شد
+NEW HIGH SCORE!	رکورد جدید!
+START PLAYS AGAIN	START برای بازی دوباره
+Nazdrave, skapi. Now go and fix real bugs.	نازدراوه، اسکاپی. حالا برو حشره‌های واقعی را درست کن.
+Every one of those is a real Motion control. Put them on any ~ knob you like.	هر کدام از این‌ها یک کنترل واقعی Motion است. روی هر پیچ ~ که دوست داری بگذارش.
+START: AGAIN	START: دوباره
+START: PLAY	START: بازی
+# --- end of tutorials ---
