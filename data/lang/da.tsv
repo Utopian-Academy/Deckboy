@@ -492,3 +492,568 @@ Close me. Open me. I'll be fine.	Luk mig. Åbn mig. Så skal jeg nok klare mig.
 # What the desk face says when you switch to this language: a local saying, not a translation.
 @hello	Skål! Hvem har taget den sidste gammeldansk?
 Oh hey. It's 4:20. Take it easy.	Nå, hej. Klokken er 4:20. Tag den med ro.
+
+# --- tutorials: tools/lesson_strings.py (a whole line each) ---
+HELLO	HEJ
+Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me.	Dobar den, skapi. Jeg er doktor Pixel. Fem minutter, og du kører et show. Færre, hvis du hører efter.
+And I'm Professor Video. Synths first, then video. Mostly video now. Press START and we'll patch... we'll begin.	Og jeg er professor Video. Først synths, så video. Nu mest video. Tryk START, så patcher vi... så begynder vi.
+TURN THE OUTPUT ON	TÆND UDGANGEN
+Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	Skapi, skærmen er tom. Lad dem ikke vente. Åbn MENU, og få UDGANG FRA til at sige UDGANG TIL. Hajde!
+Lesson one: nothing comes out until you patch the oscillator to the... the OUTPUT. It's video. I know.	Lektion et: der kommer intet ud, før du patcher oscillatoren til... til UDGANGEN. Det er video. Jeg ved det.
+BRING IN A CLIP	HENT ET KLIP
+Now a picture. Press I and pick a clip from your computer. No clip? SHOW ME, and I lend you one of mine.	Nu et billede. Tryk I, og vælg et klip fra din computer. Intet klip? SHOW ME, så låner jeg dig et af mine.
+Every clip becomes a cue in the playlist. Like loading a sample. A sample with pictures in it.	Hvert klip bliver til en cue i playlisten. Som at indlæse en sample. En sample med billeder i.
+TAKE IT LIVE	SEND DET LIVE
+Your clip waits in the playlist. Select it, then TAKE. Or Enter. Confident operators press Enter.	Dit klip venter i playlisten. Vælg det, så TAKE. Eller Enter. Selvsikre operatører trykker Enter.
+TAKE is the envelope trigger. The, ah, the GO button. Same thing, it just has pictures in it.	TAKE er envelopens trigger. Øh, GO-knappen. Samme ting, der er bare billeder i.
+LINE UP THE NEXT ONE	GØR DEN NÆSTE KLAR
+Click another cue. It waits, ready, until you say. Only one cue? Import another, or SHOW ME.	Klik på en anden cue. Den venter klar, til du siger til. Kun én cue? Importér en til, eller SHOW ME.
+Selecting is not playing. The selected one is the next note in the sequence. The next CUE.	At vælge er ikke at afspille. Den valgte er den næste tone i sekvensen. Den næste CUE.
+CROSSFADE TO IT	CROSSFADE TIL DEN
+Cuts are for amateurs. In the inspector, press + on transition, so it shows a time, not deck. Then TAKE.	Hårde klip er for amatører. Tryk + ved overgang i inspektøren, så der står en tid og ikke deck. Så TAKE.
+A crossfade! Portamento, but for pictures. Any time will do. A few more presses and it's a second. Then TAKE.	Et crossfade! Portamento, bare for billeder. Enhver tid duer. Et par tryk mere, og det er et sekund. Så TAKE.
+CLEAR THE SCREEN	RYD SKÆRMEN
+Something goes wrong on stage? Press BLACK, or B. The picture goes. The show keeps running underneath.	Går noget galt på scenen? Tryk BLACK, eller B. Billedet forsvinder. Showet kører videre nedenunder.
+Nothing is lost. Press B again and it comes back. Like the mute on a mixer. Very calming.	Intet går tabt. Tryk B igen, og det kommer tilbage. Som mute på en mixer. Meget beroligende.
+SAVE THE SHOW	GEM SHOWET
+Now save. Ctrl+S, or SAVE. Some programs lose your work and then blame you. I would never.	Gem nu. Ctrl+S, eller GEM. Nogle programmer mister dit arbejde og giver dig skylden. Aldrig mig.
+Save your patch. Your SHOW. Show. This practice one lives in Deckboy's own folder; yours is safe.	Gem dit patch. Dit SHOW. Show. Det her øveshow bor i Deckboys egen mappe; dit er i sikkerhed.
+THAT'S A SHOW	DET ER ET SHOW
+That's a show! Output, cue, TAKE, crossfade, BLACK, save. Nazdrave, skapi. Rakia is on me.	Det er et show! Udgang, cue, TAKE, crossfade, BLACK, gem. Nazdrave, skapi. Rakiaen er på mig.
+Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	Timen er slut. Eksempelshowsene lærer lag, titler og effekter. MENU > LEARN THE BASICS kører det igen.
+*shakes head* That means yes. Bravo.	*ryster på hovedet* Det betyder ja. Bravo.
+Wonderful! Lovely signal flow.	Vidunderligt! Dejligt signalflow.
+Mm. I knew you had it in you.	Mm. Jeg vidste, du havde det i dig.
+Yes! Have a gold star. It's a dot.	Ja! Her er en guldstjerne. Det er en prik.
+Ready for the next step? *nods* ...That means no, skapi. The glowing one. It is glowing for you.	Klar til næste trin? *nikker* ...Det betyder nej, skapi. Den, der lyser. Den lyser for dig.
+You've clicked everything but the glowing one. Even my oscillators find the glowing one.	Du har klikket på alt undtagen den, der lyser. Selv mine oscillatorer finder den, der lyser.
+stop playback first - the lesson cannot hand a running show back as it was	stop afspilningen først - lektionen kan ikke give et kørende show tilbage, som det var
+choose RECOVER or KEEP SAVED first	vælg RECOVER eller KEEP SAVED først
+your show could not be saved, so the lesson has not started. Save it (SAVE AS) and try again	dit show kunne ikke gemmes, så lektionen er ikke startet. Gem det (GEM SOM), og prøv igen
+the practice show would not open	øveshowet ville ikke åbne
+could not start the practice show	kunne ikke starte øveshowet
+learn the basics: Esc leaves, and it picks up here next time	learn the basics: Esc går ud, og næste gang fortsætter den herfra
+that's the basics - MENU > LESSONS has part two	det var det grundlæggende - MENU > LESSONS har del to
+tour paused - LEARN THE BASICS picks up where you left off	rundvisning sat på pause - LEARN THE BASICS fortsætter, hvor du slap
+Mirrored screens, skapi. Press any key or click, and Dr. Pixel gives it back.	Spejlede skærme, skapi. Tryk på en tast eller klik, så giver doktor Pixel den tilbage.
+Wrong screen, skapi. Press any key or click, and Dr. Pixel gives it back.	Forkert skærm, skapi. Tryk på en tast eller klik, så giver doktor Pixel den tilbage.
+The other screen went away, skapi. Press any key or click, and Dr. Pixel gives it back.	Den anden skærm forsvandt, skapi. Tryk på en tast eller klik, så giver doktor Pixel den tilbage.
+One screen, skapi. Press any key or click, and Dr. Pixel gives it back.	Én skærm, skapi. Tryk på en tast eller klik, så giver doktor Pixel den tilbage.
+The other screen went away, skapi, so the picture came back to this one. I put it in a little window, behind. Plug it back in and the picture goes back on it.	Den anden skærm forsvandt, skapi, så billedet kom tilbage til denne her. Jeg lagde det i et lille vindue, bagved. Sæt den i igen, så går billedet tilbage på den.
+It ate the desk, skapi. One screen, so the output took all of it. I put it in a little window, behind. A real show gets a second screen.	Det åd bordet, skapi. Én skærm, så udgangen tog det hele. Jeg lagde det i et lille vindue, bagved. Et rigtigt show får en skærm til.
+IT ATE THE DESK	DET ÅD BORDET
+There. The button that says OUTPUT OFF. Make it say ON, skapi.	Der. Knappen, hvor der står UDGANG FRA. Få den til at sige TIL, skapi.
+Nothing is live to fade from, skapi. TAKE one cue first, then pick the other and give it a time.	Intet er live at fade fra, skapi. Lav TAKE på én cue først, vælg så den anden og giv den en tid.
+That was a cut, skapi. Fast, but not a crossfade. Pick the other cue, press + on transition, then TAKE.	Det var et klip, skapi. Hurtigt, men ikke et crossfade. Vælg den anden cue, tryk + ved overgang, så TAKE.
+A feedback loop! Output patched straight back into the desk. Happens to the best of us. Mostly to me. 1983. We don't talk about 1983.	En feedbacksløjfe! Udgangen patchet lige tilbage i bordet. Sker for de bedste. Mest for mig. 1983. Vi taler ikke om 1983.
+No more rakia. The rat has a problem.	Ikke mere rakia. Rotten har et problem.
+Nazdrave, skapi! Baba's rakia, from the Rhodopes. One glass, for the lesson.	Nazdrave, skapi! Bedstemors rakia, fra Rhodopebjergene. Ét glas, for lektionens skyld.
+Is this... is this allowed during a tutorial?	Er det her... er det her tilladt under en tutorial?
+*shakes head* That means one more.	*ryster på hovedet* Det betyder én til.
+I love you all. I love the oscillator. I love the OUTPUT. It's video. I know. I KNOW.	Jeg elsker jer alle. Jeg elsker oscillatoren. Jeg elsker UDGANGEN. Det er video. Jeg ved det. JEG VED DET.
+...and the rat took the rakia. Every time, skapi. Every single time.	...og rotten tog rakiaen. Hver gang, skapi. Hver eneste gang.
+Was that a rat? In a hat? With a pizza?	Var det en rotte? Med hat? Med en pizza?
+Stop that. I am a serious man.	Hold op. Jeg er en seriøs mand.
+Do not tell Dr. Pixel about this.	Sig det ikke til doktor Pixel.
+This never happened. Back to the patch bay.	Det her er aldrig sket. Tilbage til patchpanelet.
+It was the eighties. Everyone had a bow tie.	Det var firserne. Alle havde butterfly.
+LESSON LIST	LEKTIONSLISTE
+OPEN EXAMPLE SHOWS	ÅBN EKSEMPELSHOWS
+EXIT (Esc)	AFSLUT (Esc)
+Taking it on the road	Showet på turné
+CHECK a show before it travels, fix what it finds, and bundle it with its media.	CHECK et show, før det rejser, ret det, den finder, og saml det med dets medier.
+Effects, oscillators and colour	Effekter, oscillatorer og farve
+An effect, a ~ on its knob, and the colour picker.	En effekt, en ~ på dens knap, og farvevælgeren.
+The art school crit, with Mr. Salty	Kunstakademiets kritik, med Mr. Salty
+Patterns, synths and Draw	Testbilleder, synths og Draw
+A test pattern, the video synth, and drawing on the picture, saved as a still.	Et testbillede, videosynthen, og tegning på billedet, gemt som stillbillede.
+The telestrator booth, with Coach Marv	Telestrator-boksen, med Coach Marv
+Masks	Masker
+A heart from the library, the pen, invert and feather.	Et hjerte fra biblioteket, pennen, invertér og blødgør.
+The Signal Files: redact the evidence	Signalsagerne: slør beviset
+Warp, blend and slices	Warp, blend og skiver
+A corner pin, two soft edges, then three slices in the Screens window.	En hjørnenål, to bløde kanter, og så tre skiver i Screens-vinduet.
+The haunted lighthouse, with Keeper Rook	Det hjemsøgte fyrtårn, med fyrpasser Rook
+GO from anywhere	GO fra hvor som helst
+Cue numbers, GOTO, a hotkey, and where Companion, MIDI and OSC come in.	Cuenumre, GOTO, en genvejstast, og hvor Companion, MIDI og OSC kommer ind.
+The game show, with Donna Wheel	Gameshowet, med Donna Wheel
+Words on screen	Ord på skærmen
+A Lower Third with a name on it, then a title card with a key-green backdrop.	En navnebjælke med et navn, så et titelkort med en keygrøn baggrund.
+The kaiju weather report, with June O'Neil	Kaiju-vejrudsigten, med June O'Neil
+Keeping time	Hold tiden
+A stage timer counting down, held, and a presenter view for the person on stage.	En scenetimer, der tæller ned, sat på pause, og en præsentationsvisning til den på scenen.
+A grand day out, with Wallis and Grommet	En stor udflugt, med Wallis og Grommet
+Two playlists and TAKE ALL	To playlister og TAKE ALL
+A second playlist as a layer, and TAKE ALL so two things change on one beat.	En anden playlist som lag, og TAKE ALL, så to ting skifter på samme slag.
+The magic show, with Turnip Top	Tryllegøglershowet, med Turnip Top
+When it goes wrong	Når det går galt
+BLACK against PANIC, and getting a show back.	BLACK over for PANIC, og at få et show tilbage.
+The cooking show, with Chef Bork	Madlavningsprogrammet, med kokken Bork
+Capture a look on a DASH button, change everything, and get it back with one press.	Gem et look på en DASH-knap, ændr alt, og få det tilbage med ét tryk.
+Transitions	Overgange
+The styles beyond the crossfade: an iris, a shatter, and their times.	Stilarterne ud over crossfadet: en iris, et skår og deres tider.
+The space-opera trailer, with Optimus Primetime	Rumoperatraileren, med Optimus Primetime
+Sound	Lyd
+An audio effect on a cue, a bend that damages it beautifully, and where the patch lives.	En lydeffekt på en cue, en bend, der skader den smukt, og hvor patchet bor.
+The robot DJs, with Deft Funk	Robot-dj'erne, med Deft Funk
+Reading the scopes	At læse scopes
+The waveform, the vectorscope, and false colour: is the glow real, or just too bright?	Bølgeformen, vektorskopet og falsk farve: er skæret ægte, eller bare for lyst?
+The Signal Files: is the glow on the horizon a craft?	Signalsagerne: er skæret i horisonten et fartøj?
+Out of the building	Ud af bygningen
+Where NDI, SDI and ST 2110 live, and NDI switched on where this computer has it.	Hvor NDI, SDI og ST 2110 bor, og NDI tændt, hvor denne computer har det.
+The webcam as a controller, as a game. Five rounds, a high score.	Webcammet som controller, som spil. Fem runder, en highscore.
+A handheld, and bugs	En håndholdt, og bugs
+The multiview	Multiviewet
+Windows, the ... menu, what each one shows, layouts, and tally.	Vinduer, ...-menuen, hvad hvert viser, layouts og tally.
+Mystery on the starship Cathode, with Lt. Haila and Ensign Jinkley	Mysterium på rumskibet Cathode, med Lt. Haila og fændrik Jinkley
+DR. PIXEL: Two playlists: Deckboy becomes SUPER DECKBOY. It earned it, skapi.	DR. PIXEL: To playlister: Deckboy bliver til SUPER DECKBOY. Den har fortjent det, skapi.
+PROF. VIDEO: It evolved! My oscillators never got a fanfare.	PROF. VIDEO: Den udviklede sig! Mine oscillatorer fik aldrig en fanfare.
+DR. PIXEL: SUPER DECKBOY! Every show deserves one. Bravo.	DR. PIXEL: SUPER DECKBOY! Ethvert show fortjener en. Bravo.
+PROF. VIDEO: The power-up! More playlists, more layers, more super.	PROF. VIDEO: Power-up'en! Flere playlister, flere lag, mere super.
+Intro video (left on the office PC)	Introvideo (glemt på kontorets pc)
+ON THE ROAD	PÅ TURNÉ
+A show you built here, skapi, running on a laptop somewhere else tonight. Press START.	Et show, du byggede her, skapi, kører i aften på en bærbar et andet sted. Tryk START.
+Before it travels: check it, fix it, bundle it.	Før det rejser: tjek, ret, saml.
+See CHECK in the top bar? It only appears when something is wrong. Press it.	Kan du se CHECK i toplinjen? Den dukker kun op, når noget er galt. Tryk på den.
+It lists everything a show would trip over: missing files, empty cues, unreachable outputs.	Den lister alt, et show ville snuble over: manglende filer, tomme cues, udgange, der ikke kan nås.
+FIX IT	RET DET
+The intro video is on another computer. Select it and delete it, or RELINK it if you have the file.	Introvideoen ligger på en anden computer. Vælg den og slet den, eller lav RELINK, hvis du har filen.
+Fix it at home, where it is easy. Not at the venue, where it is not.	Ret det hjemme, hvor det er nemt. Ikke på stedet, hvor det ikke er.
+BUNDLE IT	SAML DET
+Press BUNDLE and choose where: a USB stick, a shared folder. The show and all its media, together.	Tryk SAMLE og vælg hvor: en USB-nøgle, en delt mappe. Showet og alle dets medier, samlet.
+The copy finds its media beside it, wherever the folder goes.	Kopien finder sine medier ved siden af sig, hvor mappen end tager hen.
+SAFE TRAVELS	GOD TUR
+Checked, fixed, bundled. On the other machine, open the bundle's show: everything is where it should be.	Tjekket, rettet, samlet. Åbn showet fra pakken på den anden maskine: alt er, hvor det skal være.
+A show file is only text, so it travels light. The media is the heavy part.	En showfil er bare tekst, så den rejser let. Det tunge er medierne.
+Student work no. 4 (untitled)	Studenterværk nr. 4 (uden titel)
+THE CRIT	KRITIKKEN
+An art school, skapi. One student, one picture, one critic who has seen it all. Press START.	Et kunstakademi, skapi. Én student, ét billede, én kritiker, der har set det hele. Tryk START.
+Effects change a picture; an oscillator keeps changing it. The critic only likes the second kind.	Effekter ændrer et billede; en oscillator bliver ved med at ændre det. Kritikeren kan kun lide den anden slags.
+A grey square on beige. I have seen this at every graduate show since 1987.	Et gråt kvadrat på beige. Det har jeg set til hver eneste afgangsudstilling siden 1987.
+AN EFFECT	EN EFFEKT
+In the inspector's EFFECTS section, + adds one. Edges is a good start: it draws the outlines.	I inspektørens EFFECTS-sektion tilføjer + en. Edges er en god start: den tegner omridsene.
+There are dozens. Every one runs on the CPU in a few milliseconds. Mostly.	Der er dusinvis. Hver kører på CPU'en på et par millisekunder. Som regel.
+Take a risk! Bad art is fine. Boring art is a crime.	Tag en chance! Dårlig kunst er fint. Kedelig kunst er en forbrydelse.
+A ~ ON ITS KNOB	EN ~ PÅ KNAPPEN
+Every control with a ~ beside it can follow an oscillator. Press one. The knob starts to breathe.	Enhver kontrol med en ~ ved siden af kan følge en oscillator. Tryk på en. Knappen begynder at trække vejret.
+A low-frequency oscillator: slow, so the eye can follow it. A quarter of a hertz is a four-second breath.	En lavfrekvensoscillator: langsom, så øjet kan følge med. En kvart hertz er et åndedrag på fire sekunder.
+Now it MOVES. Okay. Okay. I'm listening.	Nu BEVÆGER det sig. Okay. Okay. Jeg lytter.
+A COLOUR OF ITS OWN	SIN EGEN FARVE
+Effects that draw a colour, like Edges' line, have a colour chip. It opens the picker: a wheel, typed names, or a colour off the screen.	Effekter, der tegner en farve, som Edges' streg, har en farvebrik. Den åbner vælgeren: et hjul, skrevne navne eller en farve fra skærmen.
+Every colour has a name somewhere. Mine is 'oscilloscope green'. Nobody else uses it.	Enhver farve har et navn et sted. Min er 'oscilloskopgrøn'. Ingen andre bruger den.
+That colour is doing something. I don't know what. I love it.	Den farve gør noget. Jeg ved ikke hvad. Jeg elsker den.
+THE VERDICT	DOMMEN
+An effect, a ~ and a colour. The critic is crying, skapi. Good crying, I think.	En effekt, en ~ og en farve. Kritikeren græder, skapi. Af bevægelse, tror jeg.
+Stack a few. Each has its own ~ on every knob. That is how a look becomes a performance.	Stabl et par stykker. Hver har sin egen ~ på hver knap. Sådan bliver et look til en forestilling.
+It's still a square. But it's YOUR square. Post it.	Det er stadig et kvadrat. Men det er DIT kvadrat. Læg det op.
+THE TELESTRATOR BOOTH	TELESTRATOR-BOKSEN
+Coach Marv explains sport by drawing circles on it. Once he circled the sun. Ten minutes, skapi.	Coach Marv forklarer sport ved at tegne cirkler på den. En gang slog han ring om solen. Ti minutter, skapi.
+Tonight: test patterns, the video synth, and drawing on the picture. Press START.	I aften: testbilleder, videosynthen og tegning på billedet. Tryk START.
+Get me a picture and a pen. BOOM.	Giv mig et billede og en pen. BUM.
+A TEST PATTERN	ET TESTBILLEDE
+Line up the screens BEFORE the show. Not during. I learned this in Plovdiv.	Justér skærmene FØR showet. Ikke undervejs. Det lærte jeg i Plovdiv.
+Every desk needs a test pattern. PATTERN adds Pocket Test: checked against real meters.	Ethvert bord har brug for et testbillede. TESTBILLEDE tilføjer Pocket Test: kontrolleret med rigtige målere.
+A VIDEO SYNTH	EN VIDEOSYNTH
+He says 'no camera needed' like it is a feature. It is a feature.	Han siger 'intet kamera nødvendigt', som om det er en feature. Det er en feature.
+My favourite. SOURCE, then Video Synth: oscillators, mirrors and feedback. No camera needed.	Min favorit. KILDE, så Video Synth: oscillatorer, spejle og feedback. Intet kamera nødvendigt.
+TAKE THE SYNTH	TAKE SYNTHEN
+Select it, then TAKE. Confident operators press Enter.	Vælg det, så TAKE. Selvsikre operatører trykker Enter.
+That's our replay. Every replay needs a pundit.	Det er vores gentagelse. Enhver gentagelse har brug for en ekspert.
+Now here's a replay. And here's a guy. And BOOM, he's in it.	Her er gentagelsen. Her er spilleren. Og BUM, han er i den.
+A SECOND PLAYLIST	EN ANDEN PLAYLIST
+Ink goes on top, on its own layer. Press the + at the end of the playlist tabs.	Blæk ligger øverst, på sit eget lag. Tryk på + for enden af playlistfanerne.
+A second playlist is a layer over the first. Like a second oscillator, mixed on top.	En anden playlist er et lag oven på den første. Som en anden oscillator, mixet ovenpå.
+A DRAW CUE	EN DRAW-CUE
+In the new playlist: SOURCE, then Draw. Clear everywhere you have not drawn.	I den nye playlist: KILDE, så Draw. Gennemsigtigt overalt, hvor du ikke har tegnet.
+A Draw cue is transparent outside the ink, so the synth shows through.	En Draw-cue er gennemsigtig uden for blækket, så synthen skinner igennem.
+TAKE THE INK	TAKE BLÆKKET
+Select the Draw cue and TAKE it. Two playlists, two layers, one picture.	Vælg Draw-cuen og lav TAKE. To playlister, to lag, ét billede.
+Now both are live: the synth underneath, the ink on top.	Nu er begge live: synthen nedenunder, blækket ovenpå.
+CIRCLE SOMETHING	SLÅ RING OM NOGET
+Press DRAW in the inspector, then draw on the programme monitor. Mouse, or a pen if you have one.	Tryk DRAW i inspektøren, og tegn på programmonitoren. Med musen, eller en pen hvis du har en.
+A pen's pressure makes the line thicker. A mouse presses at one strength. Like me.	En pens tryk gør stregen tykkere. En mus trykker altid lige hårdt. Ligesom mig.
+Circle him! No, bigger. BOOM. That's a cloud. Fine. Circle the cloud.	Slå ring om ham! Nej, større. BUM. Det er en sky. Fint. Slå ring om skyen.
+SAVE A STILL	GEM ET STILLBILLEDE
+SAVE STILL keeps the drawing as a picture with a clear background, and adds it to the playlist.	SAVE STILL gemmer tegningen som et billede med gennemsigtig baggrund og lægger det i playlisten.
+For next week's show. Coach Marv will want the cloud again.	Til næste uges udsendelse. Coach Marv vil have skyen igen.
+THAT'S THE BOOTH	DET VAR BOKSEN
+Patterns, the synth, a layer, ink, a still. Nazdrave, skapi.	Testbilleder, synthen, et lag, blæk, et stillbillede. Nazdrave, skapi.
+Try Replay in the Draw section: it draws your lines back the way you drew them.	Prøv Replay i Draw-sektionen: den tegner dine streger igen, som du tegnede dem.
+Same time next week. Bring a bigger pen. And a turducken.	Samme tid næste uge. Tag en større pen med. Og et fad flæskesteg.
+Saucer photo (CLASSIFIED)	Foto af tallerkenen (FORTROLIGT)
+THE SIGNAL FILES	SIGNALSAGERNE
+The Bureau of Unexplained Signals. Two agents, one photo, and it must not air. Press START.	Bureauet for Uforklarlige Signaler. To agenter, ét foto, og det må ikke sendes. Tryk START.
+Masks cut a picture into shapes. Tonight we cut evidence.	Masker skærer et billede ud i former. I aften skærer vi beviser.
+That's a craft, Brandt. Look at the lights. I want to believe.	Det er et fartøj, Brandt. Se på lysene. Jeg vil gerne tro.
+A MASK FROM THE LIBRARY	EN MASKE FRA BIBLIOTEKET
+In the inspector's MASK section: mask, then 'new heart'. Any shape will do. The heart is funnier.	I inspektørens MASK-sektion: mask, så 'new heart'. Enhver form duer. Hjertet er sjovere.
+The library has circles, stars, hearts. Each one is points you can move.	Biblioteket har cirkler, stjerner, hjerter. Hver er punkter, du kan flytte.
+A heart, Hollis? The Bureau redacts with black bars.	Et hjerte, Hollis? Bureauet sletter med sorte bjælker.
+THE PEN	PENNEN
+Set the tool to pen, then click round the saucer on the monitor. Click the first point to close it.	Sæt værktøjet til pen, og klik rundt om tallerkenen på monitoren. Klik på det første punkt for at lukke den.
+Click for corners, drag for curves. The way the Bezier brothers intended.	Klik for hjørner, træk for kurver. Sådan som brødrene Bézier ville have det.
+Draw round it carefully. It might be watching.	Tegn forsigtigt rundt om den. Den kigger måske.
+INVERT	INVERTÉR
+Invert keeps the outside and cuts the inside. The saucer goes. The sky stays.	Invertér beholder det udvendige og skærer det indvendige væk. Tallerkenen forsvinder. Himlen bliver.
+The same shape, the other way round. Very useful. Slightly spooky.	Samme form, den anden vej rundt. Meget nyttigt. Lidt uhyggeligt.
+Hollis, there's a heart-shaped hole in the sky.	Hollis, der er et hjerteformet hul i himlen.
+FEATHER	BLØDGØR
+Feather softens the edge, so nobody sees the cut. Press + on feather.	Blødgøring gør kanten blød, så ingen ser snittet. Tryk + ved feather.
+A hard edge says 'someone was here'. A soft one says nothing at all.	En hård kant siger 'nogen har været her'. En blød siger ingenting.
+They'll never know.	De finder aldrig ud af det.
+CASE CLOSED	SAGEN ER LUKKET
+A library shape, the pen, invert and feather. The Bureau thanks you. The Bureau was never here.	En biblioteksform, pennen, invertér og blødgør. Bureauet takker. Bureauet har aldrig været her.
+Masks also go on a layer, an output, or its matte: MASK ON chooses. And every control takes a ~.	Masker kan også sidde på et lag, en udgang eller dens matte: MASK ON vælger. Og enhver kontrol tager en ~.
+The truth is in the waveform, Hollis. Next time, the scopes.	Sandheden er i bølgeformen, Hollis. Næste gang: scopes.
+The ghost	Spøgelset
+THE HAUNTED LIGHTHOUSE	DET HJEMSØGTE FYRTÅRN
+A lighthouse, a ghost, and a keeper who has been alone with the lamp far too long. Press START.	Et fyrtårn, et spøgelse og en fyrpasser, der har været alene med lampen alt for længe. Tryk START.
+Projection mapping: bending the picture to fit the building. Warp, blend, slices.	Projection mapping: at bøje billedet, så det passer på bygningen. Warp, blend, skiver.
+Ye'll be wanting the ghost on the windows. Mind the lamp. The lamp is MINE.	I vil have spøgelset på vinduerne, hva'? Pas på lampen. Lampen er MIN.
+THE OUTPUT'S GEOMETRY	UDGANGENS GEOMETRI
+MENU, then Video Outputs, then Geometry. Where an output's shape lives.	MENU, så Videoudgange, så Geometri. Der bor en udgangs form.
+Geometry: the projector-menu word for 'what shape is the picture'.	Geometri: projektormenuernes ord for 'hvilken form har billedet'.
+PIN A CORNER	FASTGØR ET HJØRNE
+Press warp edit, then drag a corner on the programme monitor. The window is not square. Neither is the keeper.	Tryk warp edit, og træk et hjørne på programmonitoren. Vinduet er ikke firkantet. Det er fyrpasseren heller ikke.
+A corner pin moves the four corners. Perspective keeps the lines straight, like a real window.	En hjørnenål flytter de fire hjørner. Perspektivet holder stregerne lige, som et rigtigt vindue.
+LEFT! Ye call that a corner? I've seen straighter gulls.	VENSTRE! Kalder du det et hjørne? Jeg har set mere lige måger.
+TWO SOFT EDGES	TO BLØDE KANTER
+Back in Geometry: edge blend, + on the left and + on the right.	Tilbage i Geometri: edge blend, + til venstre og + til højre.
+Two projectors overlap; each fades its edge so the overlap is not twice as bright.	To projektorer overlapper; hver fader sin kant, så overlappet ikke bliver dobbelt så lyst.
+THE SCREENS WINDOW	SCREENS-VINDUET
+Geometry, SLICES, open. The Screens window is where slices are cut and placed.	Geometri, SLICES, åbn. Screens-vinduet er, hvor skiver skæres og placeres.
+A slice is a piece of the picture, put anywhere on the output.	En skive er et stykke af billedet, sat hvor som helst på udgangen.
+THREE SLICES	TRE SKIVER
+In the Screens window, + SLICE three times, and drag each crop to a third of the picture.	I Screens-vinduet: + SLICE tre gange, og træk hver beskæring til en tredjedel af billedet.
+Three windows, three slices: left, middle and right of one picture.	Tre vinduer, tre skiver: venstre, midte og højre af ét billede.
+Three windows. The lamp gets the middle one. The lamp ALWAYS gets the middle one.	Tre vinduer. Lampen får det midterste. Lampen får ALTID det midterste.
+THE GHOST IS PLEASED	SPØGELSET ER TILFREDS
+Warp, blend, slices. The keeper will finally sleep. The gulls will not.	Warp, blend, skiver. Fyrpasseren sover endelig. Mågerne gør ikke.
+Slices have their own warp and mesh in the Screens window. And a ~ on the place and the turn.	Skiver har deres egen warp og mesh i Screens-vinduet. Og en ~ på placering og drejning.
+Ye did alright, lad. Now get away from the lamp.	Det gik meget godt, knægt. Gå så væk fra lampen.
+THE GAME SHOW	GAMESHOWET
+A game show, skapi. Three contestants, one buzzer, and cues that fire from anywhere. Press START.	Et gameshow, skapi. Tre deltagere, én buzzer og cues, der affyres fra hvor som helst. Tryk START.
+Cue numbers, hotkeys, and GO from other machines. Like a sequencer you can play from any key.	Cuenumre, genvejstaster og GO fra andre maskiner. Som en sequencer, du spiller fra en hvilken som helst tast.
+Welcome to the show! Let's spin that wheel!	Velkommen til showet! Drej Lykkehjulet!
+A CUE NUMBER	ET CUENUMMER
+Contestant 3 is selected. In the inspector's metadata, give it a cue number: 3.	Deltager 3 er valgt. Giv den et cuenummer i inspektørens metadata: 3.
+Theatre numbers its cues. Q3, Q3.5, Q12A. Deckboy reads them all.	Teatret nummererer sine cues. Q3, Q3.5, Q12A. Deckboy læser dem alle.
+I'd like to buy a number, please.	Jeg vil gerne købe et nummer, tak.
+GO TO IT	GÅ TIL DEN
+Ctrl+G, type the number, Enter. It goes live wherever the list happens to be standing.	Ctrl+G, skriv nummeret, Enter. Den går live, hvor listen end står.
+GOTO. The fastest way across a long list. Faster than scrolling. Much faster than me.	GOTO. Den hurtigste vej gennem en lang liste. Hurtigere end at scrolle. Meget hurtigere end mig.
+And the number is... three!	Og nummeret er... tre!
+A BUZZER	EN BUZZER
+Contestant 1 is selected. In TRIGGERS, press key, then F5. That key now fires this cue.	Deltager 1 er valgt. Tryk key i TRIGGERS, så F5. Den tast affyrer nu denne cue.
+F1 to F10, F12, or the number pad. Each one, a buzzer.	F1 til F10, F12 eller det numeriske tastatur. Hver især en buzzer.
+Every contestant gets a buzzer.	Hver deltager får en buzzer.
+BUZZ IN	BUZZ!
+Press the key. The cue fires, wherever the list is standing.	Tryk på tasten. Cuen affyres, hvor listen end står.
+No mouse, no list, no looking. Just the key.	Ingen mus, ingen liste, intet kig. Bare tasten.
+Buzz! We have a winner!	Bzzzt! Vi har en vinder!
+FROM ANYWHERE	FRA HVOR SOM HELST
+Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion, en MIDI-node, en OSC-besked: MENU, så Netværk, viser, hvor hver især forbinder.
+A Stream Deck in the next room can press GO. So can a keyboard synth. I prefer the synth.	En Stream Deck i rummet ved siden af kan trykke GO. Det kan en keyboard-synth også. Jeg foretrækker synthen.
+And for our viewers at home: you can play along too.	Og til seerne derhjemme: I kan spille med.
+THAT'S OUR SHOW	DET VAR VORES SHOW
+Numbers, GOTO, a buzzer, and GO from anywhere. You are a game show now, skapi.	Numre, GOTO, en buzzer og GO fra hvor som helst. Nu er du et gameshow, skapi.
+A cue can have a key, a MIDI note and an OSC address at once. Belt, braces and a second belt.	En cue kan have en tast, en MIDI-node og en OSC-adresse på én gang. Livrem, seler og en livrem til.
+Goodnight, everybody! Keep spinning!	Godnat, allesammen! Bliv ved med at dreje!
+Weather map	Vejrkort
+THE KAIJU WEATHER	KAIJU-VEJRET
+Channel 6 weather, skapi. A map, a presenter, and a very large lizard. Press START.	Vejret på Kanal 6, skapi. Et kort, en vært og et meget stort firben. Tryk START.
+Words on screen: Lower Thirds, text, and backdrops.	Ord på skærmen: navnebjælker, tekst og baggrunde.
+I'm June O'Neil, and nothing about this forecast is normal.	Jeg er June O'Neil, og intet ved denne udsigt er normalt.
+A LAYER FOR WORDS	ET LAG TIL ORD
+Words go on their own layer: press the + at the end of the playlist tabs.	Ord ligger på deres eget lag: tryk på + for enden af playlistfanerne.
+A second playlist is a layer over the map. The lizard stays underneath. Mostly.	En anden playlist er et lag over kortet. Firbenet bliver nedenunder. Som regel.
+Words on top. Always on top.	Ord ovenpå. Altid ovenpå.
+A LOWER THIRD	EN NAVNEBJÆLKE
+In the new playlist: SOURCE, then Lower Third.	I den nye playlist: KILDE, så Lower Third.
+A name and a title, low on the screen, out of the lizard's way.	Et navn og en titel, lavt på skærmen, ude af firbenets vej.
+HER NAME	HENDES NAVN
+In the inspector, title: type the presenter's name. The second line is her job.	Skriv værtens navn i inspektørens title. Anden linje er hendes job.
+Spelling counts. The audience reads it at the speed of light.	Stavning tæller. Publikum læser med lysets hastighed.
+Spell it right. Last week it said 'Jane O'Meal'.	Stav det rigtigt. I sidste uge stod der 'June O'Nielsen'.
+TAKE the Lower Third. Her name slides in over the map.	TAKE navnebjælken. Hendes navn glider ind over kortet.
+Two layers live: the weather, and the words on top of it.	To lag live: vejret og ordene ovenpå.
+Thank you. Now, about that lizard...	Tak. Nå, angående det firben...
+BREAKING NEWS	EKSTRA NYHEDER
+SOURCE, then Text: a title card. Then its backdrop chip: key green, for the vision mixer to key out.	KILDE, så Text: et titelkort. Så baggrundsbrikken: keygrøn, så billedmixeren kan keye den ud.
+A backdrop fills behind the words. Key green or key blue, and the mixer does the rest.	En baggrund fylder bag ordene. Keygrøn eller keyblå, og mixeren gør resten.
+Breaking news: it's standing on the five-day forecast.	Ekstra: det står på femdøgnsprognosen.
+BREAKING: KAIJU	EKSTRA: KAIJU
+BACK TO YOU	TILBAGE TIL STUDIET
+A Lower Third, a name, a title card, a backdrop. The lizard has left the studio, skapi.	En navnebjælke, et navn, et titelkort, en baggrund. Firbenet har forladt studiet, skapi.
+Lower Thirds can wait, slide and leave on their own. Their section has every setting.	Navnebjælker kan selv vente, glide ind og gå ud. Deres sektion har hver indstilling.
+That's the weather. Back to you, guys. Run.	Det var vejret. Tilbage til studiet. Løb.
+A GRAND DAY OUT	EN STOR UDFLUGT
+A rocket built in a basement, skapi, and an inventor who wants cheese. Press START.	En raket bygget i en kælder, skapi, og en opfinder, der vil have ost. Tryk START.
+Stage timers: countdowns, clocks, and a presenter view for the person on stage.	Scenetimere: nedtællinger, ure og en præsentationsvisning til den på scenen.
+Cheese, Grommet! The moon's made of it. We'll need a countdown.	Ost, Grommet! Månen er lavet af det. Vi skal bruge en nedtælling.
+A COUNTDOWN	EN NEDTÆLLING
+SOURCE, then Stage Timer. A clock that counts down, in big friendly numbers.	KILDE, så Stage Timer. Et ur, der tæller ned, med store venlige tal.
+Its colours change as it runs out: white, amber, red. Like a VU meter for time.	Farverne skifter, mens tiden løber ud: hvid, rav, rød. En VU-meter for tid.
+*raises an eyebrow*	*løfter et øjenbryn*
+LIFT OFF	LETTER
+Select the timer and TAKE it. The countdown starts.	Vælg timeren og lav TAKE. Nedtællingen starter.
+Past zero it keeps going, counting the overtime. Very honest. Slightly rude.	Efter nul fortsætter den og tæller overtiden. Meget ærligt. Lidt uhøfligt.
+Ten... nine... ooh, I do love a countdown.	Ti... ni... åh, jeg elsker en nedtælling.
+HOLD!	STOP!
+Something's loose! Space holds the countdown. The clock shows it is held.	Noget er løst! Mellemrum sætter nedtællingen på pause. Uret viser, at den holder.
+A hold is not a stop. Space again, and it carries on from where it was.	En pause er ikke et stop. Mellemrum igen, og den fortsætter, hvor den var.
+*holds up a spanner*	*løfter en skruenøgle*
+THE PILOT'S VIEW	PILOTENS VISNING
+MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	MENU, Videoudgange: sæt en udgangs type til PRESENTER. Den på scenen får timeren, næste cue og sine noter.
+A presenter view is an output like any other. Point it at the confidence monitor.	En præsentationsvisning er en udgang som alle andre. Peg den mod scenemonitoren.
+So the pilot can see the time. The pilot is Grommet.	Så piloten kan se tiden. Piloten er Grommet.
+TO THE MOON	TIL MÅNEN
+A countdown, a hold, and a view for the pilot. Nazdrave, skapi. Bring crackers.	En nedtælling, en pause og en visning til piloten. Nazdrave, skapi. Tag kiks med.
+Timers can also count up, or show the time of day. Their section has the lot.	Timere kan også tælle op eller vise klokken. Deres sektion har det hele.
+A grand day out, Grommet! Pass the crackers.	Sikken en udflugt, Grommet! Ræk mig kiksene.
+The trunk (closed)	Kisten (lukket)
+The trunk (open)	Kisten (åben)
+THE MAGIC SHOW	TRYLLESHOWET
+A magic show, skapi. A trunk, a prop, and one beat where everything changes at once. Press START.	Et trylleshow, skapi. En kiste, en rekvisit og ét slag, hvor alt skifter på én gang. Tryk START.
+Two playlists are two layers. TAKE ALL changes both together.	To playlister er to lag. TAKE ALL skifter begge sammen.
+Every trick needs two things happening at once. And a rubber chicken.	Ethvert trick kræver to ting på én gang. Og en gummikylling.
+The prop goes on its own layer. Press the + at the end of the playlist tabs.	Rekvisitten ligger på sit eget lag. Tryk på + for enden af playlistfanerne.
+Playlist 2 sits on top of playlist 1. Like a transparency on an overhead projector.	Playliste 2 ligger oven på playliste 1. Som en transparent på en overheadprojektor.
+Nothing up my sleeve. Everything in my trunk.	Intet i ærmet. Alt i kisten.
+THE PROP	REKVISITTEN
+In the new playlist, add anything: PATTERN will do. That is the prop.	Tilføj hvad som helst i den nye playlist: TESTBILLEDE duer. Det er rekvisitten.
+Whatever it is, it will appear the instant the trunk opens.	Hvad det end er, dukker det op i det øjeblik, kisten åbnes.
+Is it a rubber chicken? It's always a rubber chicken.	Er det en gummikylling? Det er altid en gummikylling.
+The prop (rubber chicken)	Rekvisitten (gummikylling)
+TA-DA	TADAA
+Select 'The trunk (open)' in playlist 1 and the prop in playlist 2. Then TAKE ALL: both on one beat.	Vælg 'Kisten (åben)' i playliste 1 og rekvisitten i playliste 2. Så TAKE ALL: begge på ét slag.
+One press, every playlist's selected cue. The audience never sees the seam.	Ét tryk, hver playlists valgte cue. Publikum ser aldrig sømmen.
+Ta-daaa! ...Hold for applause. Hold. Hold.	Tadaaa! ...Vent på bifaldet. Vent. Vent.
+THE PRESTIGE	DET STORE TRICK
+Two layers, one beat. Every playlist has its own opacity and can sit on any output. Nazdrave, skapi.	To lag, ét slag. Hver playlist har sin egen opacitet og kan ligge på enhver udgang. Nazdrave, skapi.
+A magician never reveals. A playlist never minds being revealed.	En tryllekunstner afslører aldrig noget. En playlist har intet imod at blive afsløret.
+Thank you! I'm here all week! The chicken is here forever.	Tak! Jeg er her hele ugen! Kyllingen er her for evigt.
+The kitchen (on fire)	Køkkenet (i brand)
+A lovely souffle	En dejlig soufflé
+THE COOKING SHOW	MADLAVNINGSPROGRAMMET
+A cooking show, skapi. Live. Everything is on fire. Press START.	Et madlavningsprogram, skapi. Live. Alt brænder. Tryk START.
+BLACK hides the picture and keeps the show running. PANIC stops everything. Know which you need.	BLACK skjuler billedet og lader showet køre. PANIC stopper alt. Vid, hvilken du har brug for.
+Bork bork! Hurdy-flurdy, de kitchen is fire-a-flurdy!	Bork bork! Hurdy-flurdy, køkkenet brænder-flurdy!
+The audience must not see this. Press BLACK, or B.	Publikum må ikke se det her. Tryk BLACK, eller B.
+The picture goes. The cue keeps playing underneath, ready to come back.	Billedet forsvinder. Cuen spiller videre nedenunder, klar til at komme tilbage.
+Bork? Bork. Oh, de picture is gun.	Bork? Bork. Åh, billedet er væk.
+AND BACK	OG TILBAGE
+The fire's out. Press B again: the picture comes back, still running.	Ilden er slukket. Tryk B igen: billedet kommer tilbage og kører stadig.
+Nothing was lost. A mute on a mixer, for pictures.	Intet gik tabt. Mute på en mixer, for billeder.
+Ta-da! Still cookin'!	Tadaa! Laver stadig mad!
+Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	Værre: MENU, System, SAFETY-kortet: PANIC. Alt stopper, sådan som panikindstillingen siger.
+PANIC is the big red button. Use it when BLACK is not enough. Then breathe.	PANIC er den store røde knap. Brug den, når BLACK ikke er nok. Træk så vejret.
+GET IT BACK	FÅ DET TILBAGE
+Close MENU, select the souffle, and TAKE it. The show is back on.	Luk MENU, vælg souffléen og lav TAKE. Showet kører igen.
+After a panic, the show is still there. Pick up where you meant to be.	Efter en panik er showet der stadig. Fortsæt, hvor du ville være.
+Voila! De souffle, he is risen!	Voilà! Souffléen, den er hævet!
+BON APPETIT	VELBEKOMME
+BLACK to hide, PANIC to stop, TAKE to come back. You will survive any kitchen, skapi.	BLACK for at skjule, PANIC for at stoppe, TAKE for at komme tilbage. Du overlever ethvert køkken, skapi.
+The panic setting chooses what PANIC does: fade out, cut, or just the outputs.	Panikindstillingen vælger, hvad PANIC gør: fade ud, klip eller kun udgangene.
+Bork bork bork! Goodnight!	Bork bork bork! Godnat!
+Look one	Look et
+Look two	Look to
+Presets, skapi. A whole look, remembered, and back with one button. Press START.	Presets, skapi. Et helt look, husket, og tilbage med én knap. Tryk START.
+Like the patch memory on a synth: store, then recall.	Som patch-hukommelsen på en synth: gem, så hent.
+THE DASH	DASH
+Press DASH: buttons of your own, for anything at all.	Tryk DASH: dine helt egne knapper, til hvad som helst.
+Ctrl+D also works. Very fast. Very professional.	Ctrl+D virker også. Meget hurtigt. Meget professionelt.
+A PRESET BUTTON	EN PRESETKNAP
+Press +, then 'preset - a new preset from what is on now'. The button remembers this look.	Tryk +, så 'preset - a new preset from what is on now'. Knappen husker dette look.
+Store. Like saving the patch before the drummer leans on the synth.	Gem. Som at gemme patchet, før trommeslageren læner sig op ad synthen.
+CHANGE EVERYTHING	ÆNDR ALT
+Close the DASH (Esc), then select Look two and TAKE it. A different look.	Luk DASH (Esc), vælg så Look to og lav TAKE. Et andet look.
+Change it all. Don't worry. It remembers.	Ændr det hele. Bare rolig. Den husker det.
+ONE PRESS	ÉT TRYK
+Open the DASH and press your preset button. The first look comes back.	Åbn DASH og tryk på din presetknap. Det første look kommer tilbage.
+Recall. The patch memory, returning. Beautiful.	Hent. Patch-hukommelsen vender tilbage. Smukt.
+A look, stored and recalled. A preset can keep cues, positions, effects, levels and routing; its button's menu chooses which.	Et look, gemt og hentet. Et preset kan gemme cues, positioner, effekter, niveauer og routing; dens knaps menu vælger hvilke.
+And a DASH button can run any command at all. Any. Even the exciting ones.	Og en DASH-knap kan køre en hvilken som helst kommando. Hvilken som helst. Selv de spændende.
+Opening titles	Åbningstekster
+The planet	Planeten
+The battle	Slaget
+THE TRAILER	TRAILEREN
+A space-opera trailer, skapi. A narrator with a very deep voice and opinions about transitions. Press START.	En rumoperatrailer, skapi. En fortæller med en meget dyb stemme og meninger om overgange. Tryk START.
+A transition is how one cue becomes the next. There are far more than the crossfade.	En overgang er måden, én cue bliver til den næste. Der er langt flere end crossfadet.
+In a galaxy of content... one operator... must choose a transition.	I en galakse af indhold... må én operatør... vælge en overgang.
+A STYLE	EN STIL
+'The planet' is selected. In the inspector, its transition style: choose iris.	'Planeten' er valgt. I inspektøren, dens overgangsstil: vælg iris.
+Pushes, wipes, iris, dip to white. Even a portal. I wrote half of them. On a Tuesday.	Skub, wipes, iris, dyk til hvidt. Endda en portal. Halvdelen skrev jeg selv. En tirsdag.
+The planet deserves... a dramatic entrance.	Planeten fortjener... en dramatisk entré.
+A TIME	EN TID
+Give it a time: + on transition until it says a second or more.	Giv den en tid: + ved overgang, til der står et sekund eller mere.
+No time, no transition. A style needs a duration to do anything at all.	Ingen tid, ingen overgang. En stil skal have en varighed for at gøre noget som helst.
+ROLL IT	KØR
+TAKE the planet. Watch it arrive.	TAKE planeten. Se den ankomme.
+The transition belongs to the cue arriving. Each cue chooses its own entrance.	Overgangen tilhører den cue, der ankommer. Hver cue vælger sin egen entré.
+Autobots... roll the transition.	Autobots... kør overgangen.
+THE BATTLE	SLAGET
+Now 'The battle': choose shatter, give it a time, and TAKE it.	Nu 'Slaget': vælg shatter, giv den en tid, og lav TAKE.
+Shatter drops the old picture like a pane of glass. Please do not do this at a funeral.	Shatter taber det gamle billede som en glasrude. Gør det venligst ikke til en begravelse.
+Transform... and shatter out!	Transformér... og knus!
+IN CINEMAS NOW	I BIOGRAFEN NU
+A style, a time, and two very dramatic entrances. Nazdrave, skapi.	En stil, en tid og to meget dramatiske entréer. Nazdrave, skapi.
+A playlist has a default style too, for every cue that does not choose its own.	En playlist har også en standardstil til hver cue, der ikke vælger sin egen.
+Coming soon... to a desk near you.	Snart... på et bord nær dig.
+The beat	Beatet
+THE ROBOT DJS	ROBOT-DJ'ERNE
+Two robot DJs, skapi. They do not talk. Their helmets do. Press START.	To robot-dj's, skapi. De taler ikke. Deres hjelme gør. Tryk START.
+Every cue has its own chain of audio effects, and some of them break the sound on purpose.	Hver cue har sin egen kæde af lydeffekter, og nogle ødelægger lyden med vilje.
+> HELLO. WE ARE HERE TO FIX YOUR MIX.	> HEJ. VI ER HER FOR AT FIKSE DIT MIX.
+The beat is selected. In its AUDIO EFFECTS section, + adds one. Try the delay.	Beatet er valgt. I dets AUDIO EFFECTS-sektion tilføjer + en. Prøv delay'en.
+Delay, reverb, filters, a compressor. Amount always means 'less of this'.	Delay, rumklang, filtre, en kompressor. Mængde betyder altid 'mindre af det her'.
+> ONE MORE TIME. WITH ECHO. ECHO. ECHO.	> EN GANG TIL. MED EKKO. EKKO. EKKO.
+A BEND	EN BEND
+Add a second: a bend, like crush. It damages the sound the way a broken file would.	Tilføj en til: en bend, som crush. Den skader lyden, som en ødelagt fil ville.
+The bends are my favourite. Like a tape left in the sun. On purpose.	Bends er mine favoritter. Som et kassettebånd glemt i solen. Med vilje.
+> HARDER. BETTER. CRUNCHIER. LOUDER.	> HÅRDERE. BEDRE. SPRØDERE. HØJERE.
+THE PATCH	PATCHET
+MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	MENU, så Lyd: hvor hver playlists lyd går hen, og patchet for navngivne udgange.
+Speakers, monitors, an in-ear for the drummer. The patch sends each its own.	Højttalere, monitorer, en in-ear til trommeslageren. Patchet sender hver sit.
+> AROUND THE MIX. AROUND THE MIX. AROUND THE MIX.	> RUNDT OM MIXET. RUNDT OM MIXET. RUNDT OM MIXET.
+An effect, a bend and the patch. The robots approve, skapi. I think. Their faces are helmets.	En effekt, en bend og patchet. Robotterne godkender, skapi. Tror jeg. Deres ansigter er hjelme.
+Every audio effect can follow a ~ too, even Motion. Wave at the delay. It's wonderful.	Hver lydeffekt kan også følge en ~, selv Motion. Vink til delay'en. Det er vidunderligt.
+> THANK YOU. GOOD NIGHT. WE ARE ROBOTS.	> TAK. GODNAT. VI ER ROBOTTER.
+The glow on the horizon (evidence #2)	Skæret i horisonten (bevis nr. 2)
+EVIDENCE #2	BEVIS NR. 2
+The Bureau again, skapi. A glow on the horizon, and two agents who disagree about it. Press START.	Bureauet igen, skapi. Et skær i horisonten og to agenter, der er uenige om det. Tryk START.
+The scopes measure a picture: brightness, colour, levels. Numbers, not opinions.	Scopes måler et billede: lysstyrke, farve, niveauer. Tal, ikke meninger.
+It's them, Brandt. It's a craft. Look how it glows.	Det er dem, Brandt. Det er et fartøj. Se, hvordan det lyser.
+THE REAL SIGNAL	DET ÆGTE SIGNAL
+The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	Scopes læser kun det, der virkelig går ud, aldrig en preview. Tænd udgangen: MENU, Videoudgange, UDGANG FRA.
+Measuring a scaled-down preview would be measuring a photocopy. We measure the original.	At måle en nedskaleret preview ville være at måle en fotokopi. Vi måler originalen.
+Chain of evidence, Hollis. The real signal or nothing.	Beviskæde, Hollis. Det ægte signal eller intet.
+THE SCOPES	SCOPES
+Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	Luk MENU. Over monitoren, PROGRAM-knappen: tryk, til der står SCOPES eller BOTH.
+Both shows the picture and its scopes side by side. Very civilised.	BOTH viser billedet og dets scopes side om side. Meget civiliseret.
+Let the scopes decide, Hollis.	Lad scopes afgøre det, Hollis.
+THE WAVEFORM	BØLGEFORMEN
+Click the waveform to make it big. Bright things sit high, dark things low, left to right as in the picture.	Klik på bølgeformen for at gøre den stor. Lyse ting sidder højt, mørke lavt, fra venstre mod højre som i billedet.
+The glow is that spike near the top. Very bright. Bright is not the same as alien.	Skæret er den spids nær toppen. Meget lyst. Lyst er ikke det samme som udenjordisk.
+Look at the peak. Nothing a streetlight couldn't do.	Se på toppen. Intet, en gadelygte ikke kunne klare.
+THE VECTORSCOPE	VEKTORSKOPET
+Click it again to go back, then click the vectorscope: colour round a circle. Saturated runs to the edge.	Klik igen for at gå tilbage, så på vektorskopet: farve rundt i en cirkel. Mættet løber ud mod kanten.
+Magenta, far out by the rim. A strong colour. Strong is not illegal. Yet.	Magenta, langt ude ved randen. En stærk farve. Stærk er ikke ulovligt. Endnu.
+It's off the chart, Brandt! Literally off the chart!	Den er ude af skalaen, Brandt! Bogstaveligt talt!
+FALSE COLOUR	FALSK FARVE
+And false colour: red is clipped, yellow nearly. Is the glow red?	Og falsk farve: rød er klippet, gul næsten. Er skæret rødt?
+Clipped means the brightest the signal can carry, and then some lost. Detail gone.	Klippet betyder det lyseste, signalet kan bære, og noget over det er tabt. Detaljen er væk.
+Red. Clipped. Not alien, Hollis. Just too bright. Case closed.	Rødt. Klippet. Ikke udenjordisk, Hollis. Bare for lyst. Sagen er lukket.
+THE TRUTH	SANDHEDEN
+Waveform, vectorscope, false colour. The scopes settled it, skapi. The agents did not.	Bølgeform, vektorskop, falsk farve. Scopes afgjorde det, skapi. Agenterne gjorde ikke.
+SCOPES SOURCE reads any output, and the matrix can be 709 or 2020. For the curious.	SCOPES SOURCE læser enhver udgang, og matrixen kan være 709 eller 2020. For de nysgerrige.
+Too bright for a streetlight, Brandt. Too bright for anything. ...I want to believe.	For lyst til en gadelygte, Brandt. For lyst til hvad som helst. ...Jeg vil gerne tro.
+OUT OF THE BUILDING	UD AF BYGNINGEN
+Pictures that leave by cable or network, skapi, not only a window on a screen. Press START.	Billeder, der forlader huset via kabel eller netværk, skapi, ikke bare et vindue på en skærm. Tryk START.
+NDI over the network, SDI from a DeckLink card, ST 2110 for broadcast plants.	NDI over netværket, SDI fra et DeckLink-kort, ST 2110 til broadcastanlæg.
+THE DEVICES PAGE	ENHEDSSIDEN
+MENU, Video Outputs, then Devices: every way an output can leave this computer.	MENU, Videoudgange, så Enheder: alle måder, en udgang kan forlade denne computer på.
+Each one says whether this machine can do it, and what it needs if not.	Hver siger, om denne maskine kan, og hvad den mangler, hvis ikke.
+If this computer has NDI, switch NDI SENDING on: the picture is on the network. If not, SHOW ME moves on.	Hvis denne computer har NDI, så tænd NDI SENDING: billedet er på netværket. Hvis ikke, går SHOW ME videre.
+NDI finds itself on the network. No cables, only a good switch and patience.	NDI finder sig selv på netværket. Ingen kabler, bare en god switch og tålmodighed.
+OUT THERE	DERUDE
+The output's own page has the rest: a DeckLink card's SDI, ST 2110 with NMOS, Spout and Syphon.	Udgangens egen side har resten: et DeckLink-korts SDI, ST 2110 med NMOS, Spout og Syphon.
+Every one is just an output. The show does not know or care how it leaves.	Hver er bare en udgang. Showet ved ikke og er ligeglad med, hvordan det forlader huset.
+Nebula ahead	Tåge forude
+Engine room	Maskinrummet
+Deck 3: something moving	Dæk 3: noget bevæger sig
+THE BRIDGE	BROEN
+The bridge of the starship Cathode, skapi. Four feeds, one main viewer, one mystery. Press START.	Broen på rumskibet Cathode, skapi. Fire feeds, én hovedskærm, ét mysterium. Tryk START.
+The multiview shows every playlist at once. Like a wall of oscilloscopes, but in space.	Multiviewet viser hver playlist på én gang. Som en væg af oscilloskoper, bare i rummet.
+Frequencies open, Captain. All of them. That's the problem.	Frekvenser åbne, kaptajn. Dem alle. Det er problemet.
+MULTI, above the monitor: every playlist in its own window.	MULTI, over monitoren: hver playlist i sit eget vindue.
+One window per playlist, the programme first.	Ét vindue pr. playlist, programmet først.
+Jinkys! Four feeds. And one of them has a monster in it.	Jinkys! Fire feeds. Og i den ene er der et monster.
+WHAT'S NEXT	HVAD SÅ NU
+Add a window (+), then its ... menu: make it show NEXT. What goes live when you press TAKE.	Tilføj et vindue (+), og så dets ...-menu: få det til at vise NEXT. Det, der går live, når du trykker TAKE.
+Every window has a ... button. It chooses what that window shows.	Hvert vindue har en ...-knap. Den vælger, hvad vinduet viser.
+I need to see who's calling before they reach the main viewer.	Jeg skal se, hvem der kalder, før de når hovedskærmen.
+A CLOCK	ET UR
+And one more window, showing the clock. Operators who watch a clock are never late. Mostly.	Og ét vindue mere, med uret. Operatører, der holder øje med uret, kommer aldrig for sent. Som regel.
+Time of day, big. Stardates are just very long timecode.	Klokken, stort. Stjernedatoer er bare meget lang tidskode.
+The monster only shows up at midnight. We're going to need a clock.	Monsteret dukker kun op ved midnat. Vi får brug for et ur.
+ONE BIG ONE	ÉT STORT
+Any window's ... menu, then a layout: one big, the rest small.	Ethvert vindues ...-menu, så et layout: ét stort, resten små.
+The big window is window one. Usually the programme. Usually.	Det store vindue er vindue et. Som regel programmet. Som regel.
+Main viewer big. The captain likes it big.	Hovedskærmen stor. Kaptajnen kan lide den stor.
+ON SCREEN	PÅ SKÆRMEN
+Select Deck 3 in playlist 3 and TAKE. Watch its window.	Vælg Dæk 3 i playliste 3 og lav TAKE. Se på dets vindue.
+The red border is TALLY: the window that is on air. On screen, as they say on starships.	Den røde ramme er TALLY: vinduet, der er on air. På skærmen, som man siger på rumskibe.
+There! Feed three! Put it on screen!	Der! Feed tre! På skærmen!
+THAT'S A WRAP	DET VAR DET
+Windows, the ... menu, NEXT, the clock, a layout, tally. Mystery solved, skapi.	Vinduer, ...-menuen, NEXT, uret, et layout, tally. Mysteriet er løst, skapi.
+A window can also show an output, with its warp and slices. Handy when it's a lighthouse.	Et vindue kan også vise en udgang, med dens warp og skiver. Praktisk, når det er et fyrtårn.
+And the monster was... the ship's cook, all along. Jinkys.	Og monsteret var... skibets kok, hele tiden. Jinkys.
+there is no such lesson	den lektion findes ikke
+finish or leave the lesson you are in first	gør først den lektion færdig, du er i, eller forlad den
+leave Bug Swat first	forlad Bug Swat først
+Psst. It's me, the desk. I'll be watching. Supportively.	Psst. Det er mig, bordet. Jeg holder øje. Støttende.
+Hi! I'm the one doing all of this, by the way.	Hej! Det er i øvrigt mig, der gør alt det her.
+Ctrl+D opens the DASH. I'm just saying.	Ctrl+D åbner DASH. Jeg siger det bare.
+Nearly there. I can feel it in my pixels.	Næsten. Jeg kan mærke det i mine pixels.
+You're good at this. I can tell. I'm the one doing it.	Du er god til det her. Det kan jeg se. Det er mig, der gør det.
+Every click, I heard. Every single one.	Hvert klik har jeg hørt. Hvert eneste et.
+The glowing one. I can see it from here. It's glowing for you.	Den, der lyser. Jeg kan se den herfra. Den lyser for dig.
+lesson paused - MENU > LESSONS picks up where you left off	lektion sat på pause - MENU > LESSONS fortsætter, hvor du slap
+PROF. VIDEO:  The signal: what the picture is made of, and how to bend it. Pick a lesson.	PROF. VIDEO:  Signalet: hvad billedet er lavet af, og hvordan man bøjer det. Vælg en lektion.
+DR. PIXEL:  Running the show, skapi. Fast hands, calm face. Pick a lesson.	DR. PIXEL:  At køre showet, skapi. Hurtige hænder, roligt ansigt. Vælg en lektion.
+LESSONS  -  PART TWO  -  WHO DO YOU FOLLOW?	LEKTIONER  -  DEL TO  -  HVEM FØLGER DU?
+FOLLOW PROF. VIDEO	FØLG PROF. VIDEO
+FOLLOW DR. PIXEL	FØLG DR. PIXEL
+the signal	signalet
+running the show	at køre showet
+PICK UP	FORTSÆT
+CLOSE (Esc)	LUK (Esc)
+PART ONE: THE BASICS	DEL ET: DET GRUNDLÆGGENDE
+finish or leave LEARN THE BASICS first	gør LEARN THE BASICS færdig først, eller forlad den
+bug swat: Esc leaves, and your show comes back as it was	bug swat: Esc forlader spillet, og dit show kommer tilbage, som det var
+bug swat: your show is back. Motion's controls are in Settings > Audio	bug swat: dit show er tilbage. Motions kontroller ligger i Indstillinger > Lyd
+TURN MOTION ON	TÆND MOTION
+Bugs are crawling to the cue list! Swat them by waving at your camera. First, Motion: in MOTION CONTROL turn it ON and choose what it READS.	Bugs kravler mod cuelisten! Smæk dem ved at vinke til dit kamera. Først Motion: sæt MOTION CONTROL til ON, og vælg, hvad den læser (READS).
+This one is NullPointer. Hollow, points at nothing. A finger goes straight through. Use the whole hand, skapi.	Den her er NullPointer. Hul, peger på ingenting. En finger går lige igennem. Brug hele hånden, skapi.
+Wave like you are hailing a cab! A small, polite cab. Not the buttons. The cab.	Vink, som om du praier en taxa! En lille, høflig taxa. Ikke knapperne. Taxaen.
+DRAW TWO ZONES	TEGN TO ZONER
+Race Condition: twins, each sure it got there first. One reading cannot tell your hands apart, so drag two ZONES on the Motion picture, one each side.	Race Condition: tvillinger, der hver er sikre på at være kommet først. Én måling kan ikke kende dine hænder fra hinanden, så træk to ZONES på Motion-billedet, én i hver side.
+Hit both together. Hit one, and they swap. Like my cousins at a wedding.	Ram dem begge sammen. Ram én, og de bytter plads. Ligesom mine fætre til et bryllup.
+One hand each side. Together! Together!	En hånd i hver side. Sammen! Sammen!
+Off By One. The bug is not the face, it is the tiny extra segment, and a little wiggle needs a finer reading. Turn SENSITIVITY down to 5%.	Off By One. Buggen er ikke ansigtet, det er det lille ekstra stykke, og et lille vrik kræver en finere måling. Skru SENSITIVITY ned til 5%.
+Lower number, finer reading. Yes, I also think it is backwards.	Lavere tal, finere måling. Ja, jeg synes også, det er bagvendt.
+Not the face. The little one on the end. Wiggle a finger.	Ikke ansigtet. Den lille ude for enden. Vrik med en finger.
+FALL 1.5 S OR MORE	FALL 1,5 S ELLER MERE
+Memory Leak. It only lets go while the reading stays up. Make FALL longer, 1.5 seconds or more, so your sweeps join up into one.	Memory Leak. Den slipper kun, mens målingen bliver oppe. Gør FALL længere, 1,5 sekund eller mere, så dine fejninger hænger sammen til én.
+Slow and steady, skapi. Like paying back a loan.	Langsomt og støt, skapi. Som at afdrage på et realkreditlån.
+Sweep, and sweep again. Let the fall carry you between.	Fej, og fej igen. Lad faldet bære dig imellem.
+MOTION X ON A TONE	MOTION X PÅ EN TONE
+The Heisenbug! It fades whenever you move. Put a tone cue's pitch on Motion X and follow it by ear: the ticking speeds up as you close in.	Heisenbuggen! Den falmer, hver gang du bevæger dig. Læg en tone-cues tonehøjde på Motion X, og følg den efter øret: tikkene bliver hurtigere, jo tættere du kommer.
+SHOW ME makes the tone for you. High is right. Low is left. Stand still and it comes back.	SHOW ME laver tonen for dig. Høj er højre. Dyb er venstre. Stå stille, så kommer den tilbage.
+Follow it. Listen. Faster ticking, closer bug.	Følg den. Lyt. Hurtigere tik, nærmere bug.
+Waving paw	Vinkende pote
+Heisenbug finder	Heisenbug-finder
+FIXED! Lovely signal flow.	RETTET! Dejligt signalflow.
+Closed as fixed. No regressions. Probably.	Lukket som rettet. Ingen regressioner. Sandsynligvis.
+Squashed! Ship it.	Smækket! Send den ud.
+One reached the cue list. It has filed a bug report about you.	En nåede cuelisten. Den har oprettet en fejlrapport om dig.
+Skapi. It is a handheld. You do not press it. You wave at it.	Skapi. Det er en håndholdt. Man trykker ikke på den. Man vinker til den.
+The buttons are for menus. The bugs are for flailing.	Knapperne er til menuer. Bugs er til at fægte med armene.
+The D-pad is decorative. Like my diploma.	Retningskorset er til pynt. Ligesom mit eksamensbevis.
+In 1989 we also pressed the buttons. Then we discovered waving. Never looked back.	I 1989 trykkede vi også på knapper. Så opdagede vi vinken. Har aldrig set os tilbage.
+Pressing harder does not help. The bugs cannot feel buttons. Only arms.	At trykke hårdere hjælper ikke. Bugs kan ikke mærke knapper. Kun arme.
+It's called a handheld because your hands are held... up. In the air. Waving.	Den hedder en håndholdt, fordi du holder hænderne... oppe. I luften. Vinkende.
+The mouse? You are swatting bugs with a MOUSE? In Bulgaria the mouse would be on the bugs' side.	Musen? Smækker du bugs med en MUS? I Bulgarien ville musen holde med bugsene.
+Lovely clicking. Very crisp. The camera saw none of it.	Dejligt klikkeri. Meget sprødt. Kameraet så ingenting af det.
+DONE FOR YOU - PRESS START	KLARET FOR DIG - TRYK START
+DONE! PRESS START	FÆRDIG! TRYK START
+SELECT OPENS MOTION CONTROL	SELECT ÅBNER MOTION CONTROL
+ALL BUGS FIXED	ALLE BUGS RETTET
+NEW HIGH SCORE!	NY HIGHSCORE!
+START PLAYS AGAIN	START SPILLER IGEN
+Nazdrave, skapi. Now go and fix real bugs.	Nazdrave, skapi. Gå så ud og ret rigtige bugs.
+Every one of those is a real Motion control. Put them on any ~ knob you like.	Hver af dem er en ægte Motion-kontrol. Sæt dem på en hvilken som helst ~-knap.
+START: AGAIN	START: IGEN
+START: PLAY	START: SPIL
+# --- end of tutorials ---
