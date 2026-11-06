@@ -408,11 +408,12 @@ importantly, what each feature deliberately does not do.
   venue's scoreboard by [OSO (Open Scoreboard OCR)](https://github.com/openscoreboardocr/OSO-Open-Scoreboard-OCR)
   and its XML/JSON feed, driving text and lower thirds on the outputs
 
-**The face:**
+**Make the face your own:**
 
-- A face you can make your own: how it looks, what it does and what it talks
-  about, including lines you write yourself. Every setting starts from the face
-  as it is today, and none of them can touch playback, routing or outputs
+- Give Deckboy's little companion your personal touch. Customize its appearance,
+  choose how it behaves and what it talks about, and write your own lines for it
+  to say. Start with the familiar face and change as much or as little as you
+  like. Face settings stay separate from playback, routing and outputs.
 
 **Learning:**
 
