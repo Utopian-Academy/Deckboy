@@ -249,6 +249,7 @@ def real_pick(exe, work, show):
         db.send("FX CLEAR")
         db.send("FX ADD strobe")
         db.send("FX COLOUR 1 #ff2040")
+        db.send("SECTION EFFECTS")   # folded until opened (James, 2026-11-04)
         flash = scroll_to_chip(db, 1)
         note("the strobe's chip is in view", flash is not None, chips(db).get(1))
         if not flash:
