@@ -2,10 +2,6 @@
 
 ## 2026-11-06 - v0.99.425 (a MIDI map for any controller; masks; slices and the Screens window; Draw; Motion; seventeen lessons; Vietnamese, Lao and Papiamento)
 
-### Outputs
-
-- The "missing frames" warning is quieter: not in the first three seconds after an output opens, and after the first warning it speaks again only when the misses double. The output's badge still shows every one.
-
 ### Learn the basics, part two
 
 - When LEARN THE BASICS ends, a **lesson list** opens: follow Dr. Pixel (running the show) or Prof. Video (the signal), and pick a lesson. Also at MENU > LESSONS.
@@ -95,6 +91,10 @@
 
 ### Test patterns
 - Panel Map: type the LED tile's exact width and height in pixels, and step them one pixel at a time. They used to step in sixteens from 16 to 1024, so most real tile sizes could not be set.
+
+### Outputs
+
+- The "missing frames" warning is quieter: not in the first three seconds after an output opens, and after the first warning it speaks again only when the misses double. The output's badge still shows every one.
 
 ## 2026-11-01 - v0.99.424 (smooth playback at any frame rate, on a Mac too; seamless loops; recordings that keep up; scopes on the graphics card)
 
