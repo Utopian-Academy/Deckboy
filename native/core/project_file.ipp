@@ -279,6 +279,7 @@ void writeProjectScalars(std::ostream& output, const Project& project) {
   output << "midi_clock_slave\t" << (project.midiClockSlave ? 1 : 0) << '\n';
   output << "ui_transitions\t" << (project.uiTransitionsEnabled ? 1 : 0) << '\n';
   output << "splash_character\t" << escapeField(project.splashCharacter) << '\n';
+  output << "beast_mode\t" << (project.beastMode ? 1 : 0) << '\n';
   output << "multiview\t" << project.multiviewMode << '\n';
   output << "multiview_layout\t" << deckboy::multiview::layoutToken(project.multiviewLayout) << '\n';
   // The draw brush, on one line: tool, colour, size, opacity, onion, its ~s.
@@ -1291,6 +1292,8 @@ bool applyProjectScalarLine(Project& project, const std::vector<std::string>& fi
     project.uiSoundsEnabled = safeBool(fields, 1, true);
   } else if (fields[0] == "hover_tips") {
     project.hoverTipsEnabled = safeBool(fields, 1, true);
+  } else if (fields[0] == "beast_mode") {
+    project.beastMode = safeBool(fields, 1, false);
   } else if (fields[0] == "miami_cursor") {
     project.miamiCursorEnabled = safeBool(fields, 1, true);
   } else if (fields[0] == "browser_scrollbars") {

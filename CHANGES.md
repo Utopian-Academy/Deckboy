@@ -22,6 +22,12 @@
 
 - The LED Panel Map has an animated version (the pattern's motion switch): a slow colour wave across the wall and each tile lit in turn, in reading order, so a tile cabled out of sequence shows as the light jumping.
 
+### Settings
+
+- Beast mode added.
+- The Mascot setting is now **Splash**, ON or OFF: OFF goes straight to the deck at boot.
+- Fixed: in Video Outputs, the AOI **CENTRE** button switched the Miami cursor instead of centring the area, and the AOI size picker switched hover tips.
+
 ### Inspector
 
 - Inspector sections now start folded, except the one that belongs to the cue (TONE on a tone, PLAYBACK on a clip). One you open or fold stays that way for the session.

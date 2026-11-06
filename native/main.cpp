@@ -9978,7 +9978,11 @@ class App {
   static constexpr int kSettingsActionDeckLink10BitToggle = 631;
   static constexpr int kSettingsActionSpoutToggle = 632;
   static constexpr int kSettingsActionSpoutNamePrompt = 633;
-  static constexpr int kSettingsActionMascotToggle = 634;
+  // Splash ON/OFF. It was the Mascot dropdown (Deckbot / Deckgirl / None);
+  // since every boot draws from the whole picture rotation, the character
+  // only ever chose one picture in ~27, so the row now keeps the part an
+  // operator can see: whether there is a splash at all.
+  static constexpr int kSettingsActionSplashToggle = 634;
   static constexpr int kSettingsActionUiScaleDropdown = 635;
   static constexpr int kSettingsActionPocket3Preset = 636;
   static constexpr int kSettingsActionDisplayIdentify = 637;
@@ -10058,6 +10062,13 @@ class App {
   // AOI as a raster, not four edges: pick a standard size, then place it.
   static constexpr int kSettingsActionOutputAoiSizeDropdown = 656;
   static constexpr int kSettingsActionOutputAoiCentre = 657;
+  // The App card's switches. Hover tips and the Miami cursor were raw 656 and
+  // 657, which are the AOI size and Centre above: the cursor's handler came
+  // first in the chain, so AOI CENTRE toggled the pointer and the AOI size
+  // dropdown toggled the tips. Named here so audit_actions can see them.
+  static constexpr int kSettingsActionHoverTipsToggle = 883;
+  static constexpr int kSettingsActionMiamiCursorToggle = 884;
+  static constexpr int kSettingsActionBeastModeToggle = 885;
   // Scaled to fill, or pixel for pixel at the top-left (an LED tile's feed).
   static constexpr int kSettingsActionOutputAoiPixelMode = 758;
   // Opens the warp editor on the programme monitor for the focused output.

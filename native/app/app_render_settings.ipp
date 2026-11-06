@@ -990,10 +990,10 @@
       // without being added here, so the card kept its old height and the last
       // control drifted across the edge into SAFETY / TIMECODE below -- which
       // is the same way this card ended up a row short once before.
-      // Ten rows, every one the same height now that they all follow the
+      // Eleven rows, every one the same height now that they all follow the
       // label-and-control shape: theme, language, sound effects, hover tips,
-      // Miami cursor, mascot, creatures, clock, UI scale, Pocket 3.
-      int appearanceH = stackH({sRowH, sRowH, sRowH, sRowH, sRowH,
+      // Miami cursor, splash, beast mode, creatures, clock, UI scale, Pocket 3.
+      int appearanceH = stackH({sRowH, sRowH, sRowH, sRowH, sRowH, sRowH,
                                 sRowH, sRowH, sRowH, sRowH, sRowH});
       int safetyH = stackH({sRowH, sRowH, sRowH, sRowH});
       // SHOW FLOW: vj mode, jump mode + global crossfade, panic profile label
@@ -1142,21 +1142,23 @@
       // helpful while you are learning the desk, noise once you know it.
       SDL_Rect tipsBtn = settingsRow(appX, appW, appY, sRowH, "Hover tips", sGap);
       drawPillToggle(tipsBtn, project_.hoverTipsEnabled, "ON", "OFF");
-      settingsBtns_.push_back({tipsBtn, 656, "hover_tips_toggle"});
+      settingsBtns_.push_back({tipsBtn, kSettingsActionHoverTipsToggle, "hover_tips_toggle"});
       // The pointer, beside the tips: both are "what the desk shows you while
       // you are looking for something", and both are taste.
       SDL_Rect cursorBtn = settingsRow(appX, appW, appY, sRowH, "Miami cursor", sGap);
       drawPillToggle(cursorBtn, project_.miamiCursorEnabled, "ON", "OFF");
-      settingsBtns_.push_back({cursorBtn, 657, "miami_cursor_toggle"});
-      // Mascot dropdown: deckbot (default) or deckgirl. Picks the splash
-      // character; refreshSplashAsset re-resolves the art on change.
-      SDL_Rect mascotBtn = settingsRow(appX, appW, appY, sRowH, "Mascot", sGap);
-      std::string mascotLabel =
-        (project_.splashCharacter == "deckgirl") ? "Deckgirl"
-        : (project_.splashCharacter == "none") ? "None"
-        : "Deckbot";
-      drawUIValueControl(mascotBtn, mascotLabel);
-      settingsBtns_.push_back({mascotBtn, kSettingsActionMascotToggle, "mascot_toggle"});
+      settingsBtns_.push_back({cursorBtn, kSettingsActionMiamiCursorToggle, "miami_cursor_toggle"});
+      // The boot splash: shown, or straight to the deck. Stored in the old
+      // splashCharacter field ("none" = off) so every saved show still loads.
+      SDL_Rect splashBtn = settingsRow(appX, appW, appY, sRowH, "Splash", sGap);
+      drawPillToggle(splashBtn, project_.splashCharacter != "none", "ON", "OFF");
+      settingsBtns_.push_back({splashBtn, kSettingsActionSplashToggle, "splash_toggle"});
+      // Beast mode. James, 2026-11-05: no payoff, "it's funnier if you're not
+      // sure if it's doing anything at all". It is saved and it changes
+      // nothing. Do not wire it to anything, and do not "fix" it.
+      SDL_Rect beastBtn = settingsRow(appX, appW, appY, sRowH, "Beast mode", sGap);
+      drawPillToggle(beastBtn, project_.beastMode, "ON", "OFF");
+      settingsBtns_.push_back({beastBtn, kSettingsActionBeastModeToggle, "beast_mode_toggle"});
       // The theme's creatures. ALWAYS shown, even on a theme that has none.
       //
       // It was hidden in that case at first, on the "no control for something
@@ -5267,11 +5269,11 @@
       } else if (sb.action == 201) {
         project_.uiSoundsEnabled = !project_.uiSoundsEnabled;
         markProjectDirty();
-      } else if (sb.action == 656) {
+      } else if (sb.action == kSettingsActionHoverTipsToggle) {
         project_.hoverTipsEnabled = !project_.hoverTipsEnabled;
         triggerToast(project_.hoverTipsEnabled ? "hover tips on" : "hover tips off");
         markProjectDirty();
-      } else if (sb.action == 657) {
+      } else if (sb.action == kSettingsActionMiamiCursorToggle) {
         project_.miamiCursorEnabled = !project_.miamiCursorEnabled;
         refreshMiamiCursor();
         triggerToast(project_.miamiCursorEnabled ? "miami cursor on"
@@ -7291,21 +7293,16 @@
           triggerToast("creatures off");
         }
         markProjectDirty();
-      } else if (sb.action == kSettingsActionMascotToggle) {
-        // Dropdown: pick the splash mascot. refreshSplashAsset re-resolves the
-        // path from the chosen character and lazy-reloads the texture.
-        std::vector<std::pair<std::string, std::string>> choices = {
-          {"deckbot",  "Deckbot  (default)"},
-          {"deckgirl", "Deckgirl"},
-          {"none",     "None  (no character art)"},
-        };
-        openDropdown("settings.mascot", sb.rect, choices, project_.splashCharacter,
-          [this](const std::string& value) {
-            project_.splashCharacter = value;
-            refreshSplashAsset();
-            triggerToast(std::string("mascot: ") + project_.splashCharacter);
-            markProjectDirty();
-          });
+      } else if (sb.action == kSettingsActionSplashToggle) {
+        const bool wasOn = project_.splashCharacter != "none";
+        project_.splashCharacter = wasOn ? "none" : "deckbot";
+        refreshSplashAsset();
+        triggerToast(wasOn ? "splash off" : "splash on");
+        markProjectDirty();
+      } else if (sb.action == kSettingsActionBeastModeToggle) {
+        project_.beastMode = !project_.beastMode;
+        triggerToast(project_.beastMode ? "beast mode on" : "beast mode off");
+        markProjectDirty();
       } else if (sb.action == kSettingsActionUiScaleDropdown) {
         // AUTO FIRST, because it is the right answer on a machine whose
         // desktop is already scaled -- which is most of them now. The explicit

@@ -2701,6 +2701,7 @@ struct Project {
   // An animated mascot path will reuse this field — load .gif/.mp4 instead of
   // .png when the matching file exists, keeping the swap surface stable.
   std::string splashCharacter = "deckbot";
+  bool beastMode = false;  // saved, and changes nothing. On purpose (James).
 
   // Where program recordings are written. Deliberately SEPARATE from the
   // encoder's output directory: an operator recording a live show usually
