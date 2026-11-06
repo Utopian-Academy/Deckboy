@@ -494,3 +494,570 @@ Hey!	Hop!
 # What the desk face says when you switch to this language: a local saying, not a translation.
 @hello	Kolay gelsin! Çay molası sonra.
 Oh hey. It's 4:20. Take it easy.	Aa, selam. Saat 4:20. Rahatına bak.
+
+# --- tutorials: tools/lesson_strings.py (a whole line each) ---
+HELLO	MERHABA
+Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me.	Dobar den, skapi. Ben Dr. Piksel. Beş dakika sonra bir şov yöneteceksin. Beni dinlersen daha da az.
+And I'm Professor Video. Synths first, then video. Mostly video now. Press START and we'll patch... we'll begin.	Ben de Profesör Video. Önce synth'ler, sonra video. Artık çoğunlukla video. START'a bas, bağlayalım... yani başlayalım.
+TURN THE OUTPUT ON	ÇIKIŞI AÇ
+Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	Skapi, ekran boş. Onları bekletme. MENU'yü aç ve ÇIKIŞ KAPALI'yı ÇIKIŞ AÇIK yap. Hadi!
+Lesson one: nothing comes out until you patch the oscillator to the... the OUTPUT. It's video. I know.	Birinci ders: osilatörü... şeye, ÇIKIŞA bağlamadan hiçbir şey çıkmaz. Video bu. Biliyorum.
+BRING IN A CLIP	BİR KLİP GETİR
+Now a picture. Press I and pick a clip from your computer. No clip? SHOW ME, and I lend you one of mine.	Şimdi bir görüntü. I'ya bas ve bilgisayarından bir klip seç. Klip yok mu? SHOW ME, ben sana kendiminkilerden birini ödünç veririm.
+Every clip becomes a cue in the playlist. Like loading a sample. A sample with pictures in it.	Her klip çalma listesinde bir cue olur. Bir sample yüklemek gibi. İçinde resim olan bir sample.
+TAKE IT LIVE	YAYINA AL
+Your clip waits in the playlist. Select it, then TAKE. Or Enter. Confident operators press Enter.	Klibin çalma listesinde bekliyor. Seç, sonra TAKE. Ya da Enter. Kendine güvenen operatörler Enter'a basar.
+TAKE is the envelope trigger. The, ah, the GO button. Same thing, it just has pictures in it.	TAKE zarfın tetiği. Yani, ıı, GO tuşu. Aynı şey, sadece içinde resim var.
+LINE UP THE NEXT ONE	SIRADAKİNİ HAZIRLA
+Click another cue. It waits, ready, until you say. Only one cue? Import another, or SHOW ME.	Başka bir cue'ya tıkla. Sen söyleyene kadar hazır bekler. Tek cue mu var? Bir tane daha içe aktar ya da SHOW ME.
+Selecting is not playing. The selected one is the next note in the sequence. The next CUE.	Seçmek çalmak değildir. Seçili olan, dizideki sonraki nota. Sonraki CUE.
+CROSSFADE TO IT	ONA GEÇİŞ YAP
+Cuts are for amateurs. In the inspector, press + on transition, so it shows a time, not deck. Then TAKE.	Kesme amatörler içindir. Inspector'da geçiş'in + tuşuna bas, deck yerine bir süre yazsın. Sonra TAKE.
+A crossfade! Portamento, but for pictures. Any time will do. A few more presses and it's a second. Then TAKE.	Bir geçiş! Portamento, ama görüntüler için. Her süre olur. Birkaç kez daha basarsan bir saniye. Sonra TAKE.
+CLEAR THE SCREEN	EKRANI TEMİZLE
+Something goes wrong on stage? Press BLACK, or B. The picture goes. The show keeps running underneath.	Sahnede bir şey mi ters gitti? BLACK'e bas, ya da B. Görüntü gider. Şov altta çalışmaya devam eder.
+Nothing is lost. Press B again and it comes back. Like the mute on a mixer. Very calming.	Hiçbir şey kaybolmaz. B'ye tekrar bas, geri gelir. Mikserdeki mute gibi. Çok rahatlatıcı.
+SAVE THE SHOW	ŞOVU KAYDET
+Now save. Ctrl+S, or SAVE. Some programs lose your work and then blame you. I would never.	Şimdi kaydet. Ctrl+S ya da KAYDET. Bazı programlar işini kaybeder, sonra seni suçlar. Ben asla.
+Save your patch. Your SHOW. Show. This practice one lives in Deckboy's own folder; yours is safe.	Patch'ini kaydet. ŞOVUNU yani. Şov. Bu alıştırma şovu Deckboy'un kendi klasöründe duruyor; seninki güvende.
+THAT'S A SHOW	İŞTE BİR ŞOV
+That's a show! Output, cue, TAKE, crossfade, BLACK, save. Nazdrave, skapi. Rakia is on me.	İşte bir şov! Çıkış, cue, TAKE, geçiş, BLACK, kaydet. Nazdrave, skapi. Rakiya benden.
+Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	Ders bitti. Örnek şovlar katmanları, başlıkları ve efektleri öğretir. MENU > LEARN THE BASICS bunu yeniden oynatır.
+*shakes head* That means yes. Bravo.	*başını sallar* Bu evet demek. Bravo.
+Wonderful! Lovely signal flow.	Harika! Ne güzel bir sinyal akışı.
+Mm. I knew you had it in you.	Hımm. Yapabileceğini biliyordum.
+Yes! Have a gold star. It's a dot.	Evet! Al sana altın yıldız. Bir nokta.
+Ready for the next step? *nods* ...That means no, skapi. The glowing one. It is glowing for you.	Sonraki adıma hazır mısın? *başını sallar* ...Bulgaristan'da bu hayır demek, skapi. Parlayan. Senin için parlıyor.
+You've clicked everything but the glowing one. Even my oscillators find the glowing one.	Parlayan hariç her şeye tıkladın. Benim osilatörlerim bile parlayanı bulur.
+stop playback first - the lesson cannot hand a running show back as it was	önce oynatmayı durdur - ders çalışan bir şovu olduğu gibi geri veremez
+choose RECOVER or KEEP SAVED first	önce RECOVER ya da KEEP SAVED seç
+your show could not be saved, so the lesson has not started. Save it (SAVE AS) and try again	şovun kaydedilemedi, bu yüzden ders başlamadı. Kaydet (FARKLI KAYDET) ve tekrar dene
+the practice show would not open	alıştırma şovu açılmadı
+could not start the practice show	alıştırma şovu başlatılamadı
+learn the basics: Esc leaves, and it picks up here next time	learn the basics: Esc çıkar, bir dahaki sefere buradan devam eder
+that's the basics - MENU > LESSONS has part two	temeller bu kadar - MENU > LESSONS'ta ikinci bölüm var
+tour paused - LEARN THE BASICS picks up where you left off	tur duraklatıldı - LEARN THE BASICS kaldığın yerden devam eder
+Mirrored screens, skapi. Press any key or click, and Dr. Pixel gives it back.	Ekranlar yansıtılmış, skapi. Bir tuşa bas ya da tıkla, Dr. Piksel geri verir.
+Wrong screen, skapi. Press any key or click, and Dr. Pixel gives it back.	Yanlış ekran, skapi. Bir tuşa bas ya da tıkla, Dr. Piksel geri verir.
+The other screen went away, skapi. Press any key or click, and Dr. Pixel gives it back.	Öbür ekran gitti, skapi. Bir tuşa bas ya da tıkla, Dr. Piksel geri verir.
+One screen, skapi. Press any key or click, and Dr. Pixel gives it back.	Tek ekran, skapi. Bir tuşa bas ya da tıkla, Dr. Piksel geri verir.
+The other screen went away, skapi, so the picture came back to this one. I put it in a little window, behind. Plug it back in and the picture goes back on it.	Öbür ekran gitti, skapi, görüntü de bu ekrana döndü. Onu arkada küçük bir pencereye koydum. Tekrar tak, görüntü oraya geri gider.
+It ate the desk, skapi. One screen, so the output took all of it. I put it in a little window, behind. A real show gets a second screen.	Masayı yedi, skapi. Tek ekran olunca çıkış hepsini kapladı. Onu arkada küçük bir pencereye koydum. Gerçek bir şovun ikinci bir ekranı olur.
+IT ATE THE DESK	MASAYI YEDİ
+There. The button that says OUTPUT OFF. Make it say ON, skapi.	İşte. ÇIKIŞ KAPALI yazan düğme. AÇIK yap, skapi.
+Nothing is live to fade from, skapi. TAKE one cue first, then pick the other and give it a time.	Geçiş yapılacak yayında bir şey yok, skapi. Önce bir cue'yu TAKE yap, sonra diğerini seç ve süre ver.
+That was a cut, skapi. Fast, but not a crossfade. Pick the other cue, press + on transition, then TAKE.	Bu bir kesmeydi, skapi. Hızlı, ama geçiş değil. Diğer cue'yu seç, geçiş'te +'ya bas, sonra TAKE.
+A feedback loop! Output patched straight back into the desk. Happens to the best of us. Mostly to me. 1983. We don't talk about 1983.	Geri besleme döngüsü! Çıkış doğrudan masaya geri bağlanmış. En iyilerimizin başına gelir. Çoğunlukla benim. 1983. 1983'ten bahsetmeyiz.
+No more rakia. The rat has a problem.	Rakiya bitti. Farenin bir sorunu var.
+Nazdrave, skapi! Baba's rakia, from the Rhodopes. One glass, for the lesson.	Nazdrave, skapi! Ninemin rakiyası, Rodoplar'dan. Ders için tek kadeh.
+Is this... is this allowed during a tutorial?	Bu... bu bir eğitim sırasında serbest mi?
+*shakes head* That means one more.	*başını sallar* Bu bir tane daha demek.
+I love you all. I love the oscillator. I love the OUTPUT. It's video. I know. I KNOW.	Hepinizi seviyorum. Osilatörü seviyorum. ÇIKIŞI seviyorum. Video bu. Biliyorum. BİLİYORUM.
+...and the rat took the rakia. Every time, skapi. Every single time.	...ve fare rakiyayı aldı. Her seferinde, skapi. Her seferinde.
+Was that a rat? In a hat? With a pizza?	O bir fare miydi? Şapkalı? Pizzalı?
+Stop that. I am a serious man.	Kes şunu. Ben ciddi bir adamım.
+Do not tell Dr. Pixel about this.	Bunu Dr. Piksel'e söyleme.
+This never happened. Back to the patch bay.	Bu hiç olmadı. Patch panele dönüyoruz.
+It was the eighties. Everyone had a bow tie.	Seksenlerdi. Herkesin papyonu vardı.
+LESSON LIST	DERS LİSTESİ
+OPEN EXAMPLE SHOWS	ÖRNEK ŞOVLARI AÇ
+EXIT (Esc)	ÇIKIŞ (Esc)
+Taking it on the road	Şovu yola çıkarmak
+CHECK a show before it travels, fix what it finds, and bundle it with its media.	Şov yola çıkmadan CHECK yap, bulduğunu düzelt ve medyasıyla birlikte paketle.
+Effects, oscillators and colour	Efektler, osilatörler ve renk
+An effect, a ~ on its knob, and the colour picker.	Bir efekt, düğmesinde bir ~ ve renk seçici.
+The art school crit, with Mr. Salty	Sanat okulu kritiği, Mr. Salty ile
+Patterns, synths and Draw	Desenler, synth'ler ve Draw
+A test pattern, the video synth, and drawing on the picture, saved as a still.	Bir test deseni, video synth ve görüntü üstüne çizim, durağan kare olarak kaydedilir.
+The telestrator booth, with Coach Marv	Telestratör kabini, Koç Marv ile
+Masks	Maskeler
+A heart from the library, the pen, invert and feather.	Kütüphaneden bir kalp, kalem, ters çevir ve yumuşat.
+The Signal Files: redact the evidence	Sinyal Dosyaları: kanıtı karart
+Warp, blend and slices	Warp, harmanlama ve dilimler
+A corner pin, two soft edges, then three slices in the Screens window.	Bir köşe sabitleme, iki yumuşak kenar, sonra Screens penceresinde üç dilim.
+The haunted lighthouse, with Keeper Rook	Perili deniz feneri, fenerci Rook ile
+GO from anywhere	Her yerden GO
+Cue numbers, GOTO, a hotkey, and where Companion, MIDI and OSC come in.	Cue numaraları, GOTO, bir kısayol ve Companion, MIDI ve OSC'nin nereden girdiği.
+The game show, with Donna Wheel	Yarışma programı, Donna Wheel ile
+Words on screen	Ekranda sözcükler
+A Lower Third with a name on it, then a title card with a key-green backdrop.	Üstünde ad olan bir alt bant, sonra chroma yeşili zeminli bir başlık kartı.
+The kaiju weather report, with June O'Neil	Kaiju hava durumu, June O'Neil ile
+Keeping time	Zamanı tutmak
+A stage timer counting down, held, and a presenter view for the person on stage.	Geri sayan bir sahne zamanlayıcısı, duraklatılmış, ve sahnedeki kişi için bir sunucu görünümü.
+A grand day out, with Wallis and Grommet	Büyük bir gün, Wallis ve Grommet ile
+Two playlists and TAKE ALL	İki çalma listesi ve TAKE ALL
+A second playlist as a layer, and TAKE ALL so two things change on one beat.	Katman olarak ikinci bir liste, ve iki şey aynı vuruşta değişsin diye TAKE ALL.
+The magic show, with Turnip Top	Sihirbazlık şovu, Turnip Top ile
+When it goes wrong	İşler ters gidince
+BLACK against PANIC, and getting a show back.	BLACK ve PANIC'in farkı, ve bir şovu geri almak.
+The cooking show, with Chef Bork	Yemek programı, Şef Bork ile
+Presets	Hazır ayarlar
+Capture a look on a DASH button, change everything, and get it back with one press.	Bir görünümü DASH düğmesine kaydet, her şeyi değiştir ve tek basışta geri al.
+Transitions	Geçişler
+The styles beyond the crossfade: an iris, a shatter, and their times.	Geçişin ötesindeki stiller: bir iris, bir parçalanma ve süreleri.
+The space-opera trailer, with Optimus Primetime	Uzay operası fragmanı, Optimus Primetime ile
+Sound	Ses
+An audio effect on a cue, a bend that damages it beautifully, and where the patch lives.	Bir cue'da ses efekti, onu güzelce bozan bir bend ve patch'in nerede durduğu.
+The robot DJs, with Deft Funk	Robot DJ'ler, Deft Funk ile
+Reading the scopes	Skopları okumak
+The waveform, the vectorscope, and false colour: is the glow real, or just too bright?	Dalga formu, vektörskop ve sahte renk: parıltı gerçek mi, yoksa sadece fazla parlak mı?
+The Signal Files: is the glow on the horizon a craft?	Sinyal Dosyaları: ufuktaki parıltı bir araç mı?
+Out of the building	Binanın dışına
+Where NDI, SDI and ST 2110 live, and NDI switched on where this computer has it.	NDI, SDI ve ST 2110'un yeri, ve bu bilgisayarda varsa NDI'yı açmak.
+The webcam as a controller, as a game. Five rounds, a high score.	Kontrolcü olarak web kamerası, oyun olarak. Beş tur, bir rekor.
+A handheld, and bugs	Bir el konsolu ve böcekler
+The multiview	Multiview
+Windows, the ... menu, what each one shows, layouts, and tally.	Pencereler, ... menüsü, her birinin ne gösterdiği, düzenler ve tally.
+Mystery on the starship Cathode, with Lt. Haila and Ensign Jinkley	Cathode uzay gemisinde gizem, Tğm. Haila ve Asteğmen Jinkley ile
+DR. PIXEL: Two playlists: Deckboy becomes SUPER DECKBOY. It earned it, skapi.	DR. PIXEL: İki çalma listesi: Deckboy SUPER DECKBOY oluyor. Hak etti, skapi.
+PROF. VIDEO: It evolved! My oscillators never got a fanfare.	PROF. VIDEO: Evrimleşti! Benim osilatörlerime hiç fanfar çalınmadı.
+DR. PIXEL: SUPER DECKBOY! Every show deserves one. Bravo.	DR. PIXEL: SUPER DECKBOY! Her şov bir tanesini hak eder. Bravo.
+PROF. VIDEO: The power-up! More playlists, more layers, more super.	PROF. VIDEO: Güçlendirme! Daha çok liste, daha çok katman, daha çok süper.
+Intro video (left on the office PC)	Açılış videosu (ofis bilgisayarında unutuldu)
+ON THE ROAD	YOLDA
+A show you built here, skapi, running on a laptop somewhere else tonight. Press START.	Burada kurduğun bir şov, skapi, bu akşam başka bir yerde bir dizüstünde çalışıyor. START'a bas.
+Before it travels: check it, fix it, bundle it.	Yola çıkmadan: kontrol et, düzelt, paketle.
+See CHECK in the top bar? It only appears when something is wrong. Press it.	Üst çubukta CHECK'i görüyor musun? Sadece bir şey yanlışken çıkar. Bas.
+It lists everything a show would trip over: missing files, empty cues, unreachable outputs.	Bir şovun takılacağı her şeyi listeler: eksik dosyalar, boş cue'lar, ulaşılamayan çıkışlar.
+FIX IT	DÜZELT
+The intro video is on another computer. Select it and delete it, or RELINK it if you have the file.	Açılış videosu başka bir bilgisayarda. Seç ve sil, ya da dosya sende varsa RELINK yap.
+Fix it at home, where it is easy. Not at the venue, where it is not.	Evde düzelt, kolayken. Mekânda değil, zorken.
+BUNDLE IT	PAKETLE
+Press BUNDLE and choose where: a USB stick, a shared folder. The show and all its media, together.	PAKETLE'ye bas ve yer seç: bir USB bellek, paylaşılan bir klasör. Şov ve tüm medyası, bir arada.
+The copy finds its media beside it, wherever the folder goes.	Kopya, klasör nereye giderse gitsin, medyasını yanında bulur.
+SAFE TRAVELS	İYİ YOLCULUKLAR
+Checked, fixed, bundled. On the other machine, open the bundle's show: everything is where it should be.	Kontrol edildi, düzeltildi, paketlendi. Öbür makinede paketteki şovu aç: her şey yerli yerinde.
+A show file is only text, so it travels light. The media is the heavy part.	Şov dosyası sadece metin, hafif yolculuk eder. Ağır olan medya.
+Student work no. 4 (untitled)	Öğrenci çalışması no. 4 (isimsiz)
+THE CRIT	KRİTİK
+An art school, skapi. One student, one picture, one critic who has seen it all. Press START.	Bir sanat okulu, skapi. Bir öğrenci, bir resim, her şeyi görmüş bir eleştirmen. START'a bas.
+Effects change a picture; an oscillator keeps changing it. The critic only likes the second kind.	Efektler bir görüntüyü değiştirir; osilatör onu değiştirmeye devam eder. Eleştirmen sadece ikincisini sever.
+A grey square on beige. I have seen this at every graduate show since 1987.	Bej üstünde gri bir kare. 1987'den beri her mezuniyet sergisinde gördüm bunu.
+AN EFFECT	BİR EFEKT
+In the inspector's EFFECTS section, + adds one. Edges is a good start: it draws the outlines.	Inspector'ın EFFECTS bölümünde + bir tane ekler. Edges iyi bir başlangıç: dış hatları çizer.
+There are dozens. Every one runs on the CPU in a few milliseconds. Mostly.	Onlarcası var. Her biri işlemcide birkaç milisaniyede çalışır. Çoğunlukla.
+Take a risk! Bad art is fine. Boring art is a crime.	Risk al! Kötü sanat olur. Sıkıcı sanat suçtur.
+A ~ ON ITS KNOB	DÜĞMESİNDE BİR ~
+Every control with a ~ beside it can follow an oscillator. Press one. The knob starts to breathe.	Yanında ~ olan her kontrol bir osilatörü izleyebilir. Birine bas. Düğme nefes almaya başlar.
+A low-frequency oscillator: slow, so the eye can follow it. A quarter of a hertz is a four-second breath.	Düşük frekanslı osilatör: yavaş, göz takip edebilsin diye. Çeyrek hertz dört saniyelik bir nefes.
+Now it MOVES. Okay. Okay. I'm listening.	Şimdi HAREKET ediyor. Peki. Peki. Dinliyorum.
+A COLOUR OF ITS OWN	KENDİNE AİT BİR RENK
+Effects that draw a colour, like Edges' line, have a colour chip. It opens the picker: a wheel, typed names, or a colour off the screen.	Edges'in çizgisi gibi renk çizen efektlerin bir renk kutucuğu vardır. Seçiciyi açar: bir çark, yazılan adlar ya da ekrandan alınan bir renk.
+Every colour has a name somewhere. Mine is 'oscilloscope green'. Nobody else uses it.	Her rengin bir yerde bir adı vardır. Benimki 'osiloskop yeşili'. Başka kimse kullanmıyor.
+That colour is doing something. I don't know what. I love it.	O renk bir şey yapıyor. Ne bilmiyorum. Bayıldım.
+THE VERDICT	KARAR
+An effect, a ~ and a colour. The critic is crying, skapi. Good crying, I think.	Bir efekt, bir ~ ve bir renk. Eleştirmen ağlıyor, skapi. Güzel bir ağlama, sanırım.
+Stack a few. Each has its own ~ on every knob. That is how a look becomes a performance.	Birkaç tane üst üste koy. Her birinin her düğmede kendi ~'si var. Bir görünüm böyle performansa dönüşür.
+It's still a square. But it's YOUR square. Post it.	Hâlâ bir kare. Ama SENİN karen. Paylaş.
+THE TELESTRATOR BOOTH	TELESTRATÖR KABİNİ
+Coach Marv explains sport by drawing circles on it. Once he circled the sun. Ten minutes, skapi.	Koç Marv sporu üstüne daireler çizerek anlatır. Bir keresinde güneşi daire içine aldı. On dakika, skapi.
+Tonight: test patterns, the video synth, and drawing on the picture. Press START.	Bu gece: test desenleri, video synth ve görüntü üstüne çizim. START'a bas.
+Get me a picture and a pen. BOOM.	Bana bir görüntü ve bir kalem verin. BUM.
+A TEST PATTERN	BİR TEST DESENİ
+Line up the screens BEFORE the show. Not during. I learned this in Plovdiv.	Ekranları şovdan ÖNCE hizala. Şov sırasında değil. Bunu Plovdiv'de öğrendim.
+Every desk needs a test pattern. PATTERN adds Pocket Test: checked against real meters.	Her masanın bir test desenine ihtiyacı var. TEST DESENİ, Pocket Test ekler: gerçek ölçerlerle doğrulanmış.
+A VIDEO SYNTH	BİR VİDEO SYNTH
+He says 'no camera needed' like it is a feature. It is a feature.	'Kamera gerekmez'i bir özellikmiş gibi söylüyor. Bir özellik zaten.
+My favourite. SOURCE, then Video Synth: oscillators, mirrors and feedback. No camera needed.	En sevdiğim. KAYNAK, sonra Video Synth: osilatörler, aynalar ve geri besleme. Kamera gerekmez.
+TAKE THE SYNTH	SYNTH'İ TAKE YAP
+Select it, then TAKE. Confident operators press Enter.	Seç, sonra TAKE. Kendine güvenen operatörler Enter'a basar.
+That's our replay. Every replay needs a pundit.	İşte tekrarımız. Her tekrarın bir yorumcusu olmalı.
+Now here's a replay. And here's a guy. And BOOM, he's in it.	İşte tekrar. İşte oyuncu. Ve BUM, içinde.
+A SECOND PLAYLIST	İKİNCİ BİR ÇALMA LİSTESİ
+Ink goes on top, on its own layer. Press the + at the end of the playlist tabs.	Mürekkep üste gider, kendi katmanına. Çalma listesi sekmelerinin sonundaki +'ya bas.
+A second playlist is a layer over the first. Like a second oscillator, mixed on top.	İkinci liste, birincinin üstünde bir katmandır. Üste karıştırılmış ikinci bir osilatör gibi.
+A DRAW CUE	BİR DRAW CUE
+In the new playlist: SOURCE, then Draw. Clear everywhere you have not drawn.	Yeni listede: KAYNAK, sonra Draw. Çizmediğin her yer şeffaf.
+A Draw cue is transparent outside the ink, so the synth shows through.	Draw cue'su mürekkebin dışında şeffaftır, synth arkadan görünür.
+TAKE THE INK	MÜREKKEBİ TAKE YAP
+Select the Draw cue and TAKE it. Two playlists, two layers, one picture.	Draw cue'sunu seç ve TAKE yap. İki liste, iki katman, tek görüntü.
+Now both are live: the synth underneath, the ink on top.	Şimdi ikisi de yayında: altta synth, üstte mürekkep.
+CIRCLE SOMETHING	BİR ŞEYİ DAİRE İÇİNE AL
+Press DRAW in the inspector, then draw on the programme monitor. Mouse, or a pen if you have one.	Inspector'da DRAW'a bas, sonra program monitörüne çiz. Fareyle, ya da varsa kalemle.
+A pen's pressure makes the line thicker. A mouse presses at one strength. Like me.	Kalemin baskısı çizgiyi kalınlaştırır. Fare hep aynı güçle basar. Benim gibi.
+Circle him! No, bigger. BOOM. That's a cloud. Fine. Circle the cloud.	Onu daire içine al! Hayır, daha büyük. BUM. O bir bulut. Peki. Bulutu daire içine al.
+SAVE A STILL	DURAĞAN KARE KAYDET
+SAVE STILL keeps the drawing as a picture with a clear background, and adds it to the playlist.	SAVE STILL çizimi şeffaf arka planlı bir resim olarak saklar ve listeye ekler.
+For next week's show. Coach Marv will want the cloud again.	Gelecek haftanın programı için. Koç Marv bulutu yine isteyecek.
+THAT'S THE BOOTH	KABİN BU KADAR
+Patterns, the synth, a layer, ink, a still. Nazdrave, skapi.	Desenler, synth, bir katman, mürekkep, durağan kare. Nazdrave, skapi.
+Try Replay in the Draw section: it draws your lines back the way you drew them.	Draw bölümünde Replay'i dene: çizgilerini çizdiğin gibi yeniden çizer.
+Same time next week. Bring a bigger pen. And a turducken.	Haftaya aynı saatte. Daha büyük bir kalem getir. Bir de kuzu tandır.
+Saucer photo (CLASSIFIED)	Uçan daire fotoğrafı (GİZLİ)
+THE SIGNAL FILES	SİNYAL DOSYALARI
+The Bureau of Unexplained Signals. Two agents, one photo, and it must not air. Press START.	Açıklanamayan Sinyaller Bürosu. İki ajan, bir fotoğraf ve yayına çıkmamalı. START'a bas.
+Masks cut a picture into shapes. Tonight we cut evidence.	Maskeler bir görüntüyü şekillere keser. Bu gece kanıt kesiyoruz.
+That's a craft, Brandt. Look at the lights. I want to believe.	O bir araç, Brandt. Işıklara bak. İnanmak istiyorum.
+A MASK FROM THE LIBRARY	KÜTÜPHANEDEN BİR MASKE
+In the inspector's MASK section: mask, then 'new heart'. Any shape will do. The heart is funnier.	Inspector'ın MASK bölümünde: mask, sonra 'new heart'. Her şekil olur. Kalp daha komik.
+The library has circles, stars, hearts. Each one is points you can move.	Kütüphanede daireler, yıldızlar, kalpler var. Her biri taşıyabileceğin noktalardan oluşur.
+A heart, Hollis? The Bureau redacts with black bars.	Kalp mi, Hollis? Büro siyah bantlarla karartır.
+THE PEN	KALEM
+Set the tool to pen, then click round the saucer on the monitor. Click the first point to close it.	Aracı kaleme al, sonra monitörde dairenin etrafına tıkla. Kapatmak için ilk noktaya tıkla.
+Click for corners, drag for curves. The way the Bezier brothers intended.	Köşeler için tıkla, eğriler için sürükle. Bézier kardeşlerin istediği gibi.
+Draw round it carefully. It might be watching.	Dikkatle çiz. İzliyor olabilir.
+INVERT	TERS ÇEVİR
+Invert keeps the outside and cuts the inside. The saucer goes. The sky stays.	Ters çevir dışarıyı tutar, içeriyi keser. Daire gider. Gökyüzü kalır.
+The same shape, the other way round. Very useful. Slightly spooky.	Aynı şekil, tersinden. Çok kullanışlı. Biraz ürkütücü.
+Hollis, there's a heart-shaped hole in the sky.	Hollis, gökyüzünde kalp şeklinde bir delik var.
+FEATHER	YUMUŞAT
+Feather softens the edge, so nobody sees the cut. Press + on feather.	Yumuşatma kenarı yumuşatır, kimse kesiği görmez. feather'da +'ya bas.
+A hard edge says 'someone was here'. A soft one says nothing at all.	Sert kenar 'burada biri vardı' der. Yumuşak olan hiçbir şey demez.
+They'll never know.	Asla bilmeyecekler.
+CASE CLOSED	DAVA KAPANDI
+A library shape, the pen, invert and feather. The Bureau thanks you. The Bureau was never here.	Bir kütüphane şekli, kalem, ters çevir ve yumuşat. Büro teşekkür eder. Büro burada hiç olmadı.
+Masks also go on a layer, an output, or its matte: MASK ON chooses. And every control takes a ~.	Maskeler bir katmana, bir çıkışa ya da onun matte'ine de gider: MASK ON seçer. Ve her kontrol bir ~ alır.
+The truth is in the waveform, Hollis. Next time, the scopes.	Gerçek dalga formunda, Hollis. Bir dahaki sefere skoplar.
+The ghost	Hayalet
+THE HAUNTED LIGHTHOUSE	PERİLİ DENİZ FENERİ
+A lighthouse, a ghost, and a keeper who has been alone with the lamp far too long. Press START.	Bir deniz feneri, bir hayalet ve lambayla fazla uzun süre yalnız kalmış bir fenerci. START'a bas.
+Projection mapping: bending the picture to fit the building. Warp, blend, slices.	Projeksiyon haritalama: görüntüyü binaya uyacak şekilde bükmek. Warp, harmanlama, dilimler.
+Ye'll be wanting the ghost on the windows. Mind the lamp. The lamp is MINE.	Hayaleti pencerelerde istiyorsunuz, he? Lambaya dikkat. Lamba BENİM.
+THE OUTPUT'S GEOMETRY	ÇIKIŞIN GEOMETRİSİ
+MENU, then Video Outputs, then Geometry. Where an output's shape lives.	MENU, sonra Video çıkışları, sonra Geometri. Bir çıkışın şekli burada yaşar.
+Geometry: the projector-menu word for 'what shape is the picture'.	Geometri: projektör menülerinde 'görüntü ne şekilde' demek.
+PIN A CORNER	BİR KÖŞEYİ SABİTLE
+Press warp edit, then drag a corner on the programme monitor. The window is not square. Neither is the keeper.	warp edit'e bas, sonra program monitöründe bir köşeyi sürükle. Pencere kare değil. Fenerci de değil.
+A corner pin moves the four corners. Perspective keeps the lines straight, like a real window.	Köşe sabitleme dört köşeyi oynatır. Perspektif çizgileri düz tutar, gerçek bir pencere gibi.
+LEFT! Ye call that a corner? I've seen straighter gulls.	SOLA! Buna köşe mi diyorsun? Bundan daha düz martılar gördüm.
+TWO SOFT EDGES	İKİ YUMUŞAK KENAR
+Back in Geometry: edge blend, + on the left and + on the right.	Geometri'ye dön: edge blend, solda + ve sağda +.
+Two projectors overlap; each fades its edge so the overlap is not twice as bright.	İki projektör üst üste biner; her biri kenarını soldurur ki örtüşme iki kat parlak olmasın.
+THE SCREENS WINDOW	SCREENS PENCERESİ
+Geometry, SLICES, open. The Screens window is where slices are cut and placed.	Geometri, SLICES, aç. Screens penceresi dilimlerin kesilip yerleştirildiği yer.
+A slice is a piece of the picture, put anywhere on the output.	Dilim, görüntünün bir parçası; çıkışta herhangi bir yere konur.
+THREE SLICES	ÜÇ DİLİM
+In the Screens window, + SLICE three times, and drag each crop to a third of the picture.	Screens penceresinde üç kez + SLICE, ve her kırpmayı görüntünün üçte birine sürükle.
+Three windows, three slices: left, middle and right of one picture.	Üç pencere, üç dilim: tek görüntünün solu, ortası ve sağı.
+Three windows. The lamp gets the middle one. The lamp ALWAYS gets the middle one.	Üç pencere. Ortadaki lambanın. Ortadaki HER ZAMAN lambanın.
+THE GHOST IS PLEASED	HAYALET MEMNUN
+Warp, blend, slices. The keeper will finally sleep. The gulls will not.	Warp, harmanlama, dilimler. Fenerci sonunda uyuyacak. Martılar uyumayacak.
+Slices have their own warp and mesh in the Screens window. And a ~ on the place and the turn.	Dilimlerin Screens penceresinde kendi warp'ı ve ağı var. Konum ve dönüşte de bir ~.
+Ye did alright, lad. Now get away from the lamp.	Fena iş çıkarmadın, evlat. Şimdi lambadan uzak dur.
+THE GAME SHOW	YARIŞMA PROGRAMI
+A game show, skapi. Three contestants, one buzzer, and cues that fire from anywhere. Press START.	Bir yarışma programı, skapi. Üç yarışmacı, bir buzzer ve her yerden ateşlenen cue'lar. START'a bas.
+Cue numbers, hotkeys, and GO from other machines. Like a sequencer you can play from any key.	Cue numaraları, kısayollar ve başka makinelerden GO. Herhangi bir tuştan çalınan bir sequencer gibi.
+Welcome to the show! Let's spin that wheel!	Programa hoş geldiniz! Çarkıfelek dönsün!
+A CUE NUMBER	BİR CUE NUMARASI
+Contestant 3 is selected. In the inspector's metadata, give it a cue number: 3.	Yarışmacı 3 seçili. Inspector'ın meta verisinde ona bir cue numarası ver: 3.
+Theatre numbers its cues. Q3, Q3.5, Q12A. Deckboy reads them all.	Tiyatro cue'larını numaralar. Q3, Q3.5, Q12A. Deckboy hepsini okur.
+I'd like to buy a number, please.	Bir numara almak istiyorum, lütfen.
+GO TO IT	ORAYA GİT
+Ctrl+G, type the number, Enter. It goes live wherever the list happens to be standing.	Ctrl+G, numarayı yaz, Enter. Liste nerede durursa dursun yayına gider.
+GOTO. The fastest way across a long list. Faster than scrolling. Much faster than me.	GOTO. Uzun bir listede en hızlı yol. Kaydırmaktan hızlı. Benden çok daha hızlı.
+And the number is... three!	Ve numara... üç!
+A BUZZER	BİR BUZZER
+Contestant 1 is selected. In TRIGGERS, press key, then F5. That key now fires this cue.	Yarışmacı 1 seçili. TRIGGERS'da key'e, sonra F5'e bas. O tuş artık bu cue'yu ateşler.
+F1 to F10, F12, or the number pad. Each one, a buzzer.	F1'den F10'a, F12 ya da sayı tuş takımı. Her biri bir buzzer.
+Every contestant gets a buzzer.	Her yarışmacıya bir buzzer.
+BUZZ IN	BAS!
+Press the key. The cue fires, wherever the list is standing.	Tuşa bas. Liste nerede durursa dursun cue ateşlenir.
+No mouse, no list, no looking. Just the key.	Fare yok, liste yok, bakmak yok. Sadece tuş.
+Buzz! We have a winner!	Dıııt! Bir kazananımız var!
+FROM ANYWHERE	HER YERDEN
+Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion, bir MIDI notası, bir OSC mesajı: MENU, sonra Ağ, her birinin nereye bağlandığını söyler.
+A Stream Deck in the next room can press GO. So can a keyboard synth. I prefer the synth.	Yan odadaki bir Stream Deck GO'ya basabilir. Bir klavye synth de. Ben synth'i tercih ederim.
+And for our viewers at home: you can play along too.	Ve evdeki izleyicilerimiz için: siz de oynayabilirsiniz.
+THAT'S OUR SHOW	PROGRAMIMIZ BU KADAR
+Numbers, GOTO, a buzzer, and GO from anywhere. You are a game show now, skapi.	Numaralar, GOTO, bir buzzer ve her yerden GO. Artık sen bir yarışma programısın, skapi.
+A cue can have a key, a MIDI note and an OSC address at once. Belt, braces and a second belt.	Bir cue'nun aynı anda bir tuşu, bir MIDI notası ve bir OSC adresi olabilir. Hem kemer, hem askı, hem yedek kemer.
+Goodnight, everybody! Keep spinning!	İyi geceler herkese! Çevirmeye devam!
+Weather map	Hava durumu haritası
+THE KAIJU WEATHER	KAIJU HAVA DURUMU
+Channel 6 weather, skapi. A map, a presenter, and a very large lizard. Press START.	Kanal 6 hava durumu, skapi. Bir harita, bir sunucu ve çok büyük bir kertenkele. START'a bas.
+Words on screen: Lower Thirds, text, and backdrops.	Ekranda sözcükler: alt bantlar, metin ve zeminler.
+I'm June O'Neil, and nothing about this forecast is normal.	Ben June O'Neil, ve bu tahminde normal olan hiçbir şey yok.
+A LAYER FOR WORDS	SÖZCÜKLER İÇİN BİR KATMAN
+Words go on their own layer: press the + at the end of the playlist tabs.	Sözcükler kendi katmanına gider: çalma listesi sekmelerinin sonundaki +'ya bas.
+A second playlist is a layer over the map. The lizard stays underneath. Mostly.	İkinci liste haritanın üstünde bir katman. Kertenkele altta kalır. Çoğunlukla.
+Words on top. Always on top.	Sözcükler üstte. Her zaman üstte.
+A LOWER THIRD	BİR ALT BANT
+In the new playlist: SOURCE, then Lower Third.	Yeni listede: KAYNAK, sonra Lower Third.
+A name and a title, low on the screen, out of the lizard's way.	Bir ad ve bir unvan, ekranın altında, kertenkelenin yolundan uzakta.
+HER NAME	ONUN ADI
+In the inspector, title: type the presenter's name. The second line is her job.	Inspector'da, title: sunucunun adını yaz. İkinci satır görevi.
+Spelling counts. The audience reads it at the speed of light.	Yazım önemli. Seyirci ışık hızında okur.
+Spell it right. Last week it said 'Jane O'Meal'.	Doğru yaz. Geçen hafta 'June O'Nail' yazıyordu.
+ON AIR	YAYINDA
+TAKE the Lower Third. Her name slides in over the map.	Alt bandı TAKE yap. Adı haritanın üstüne kayarak gelir.
+Two layers live: the weather, and the words on top of it.	İki katman yayında: hava durumu ve üstündeki sözcükler.
+Thank you. Now, about that lizard...	Teşekkürler. Şimdi, o kertenkele meselesine gelirsek...
+BREAKING NEWS	SON DAKİKA
+SOURCE, then Text: a title card. Then its backdrop chip: key green, for the vision mixer to key out.	KAYNAK, sonra Text: bir başlık kartı. Sonra zemin kutucuğu: chroma yeşili, görüntü mikseri key'lesin diye.
+A backdrop fills behind the words. Key green or key blue, and the mixer does the rest.	Zemin, sözcüklerin arkasını doldurur. Chroma yeşili ya da mavisi, gerisini mikser yapar.
+Breaking news: it's standing on the five-day forecast.	Son dakika: beş günlük tahminin üstünde duruyor.
+BREAKING: KAIJU	SON DAKİKA: KAIJU
+BACK TO YOU	STÜDYOYA DÖNÜYORUZ
+A Lower Third, a name, a title card, a backdrop. The lizard has left the studio, skapi.	Bir alt bant, bir ad, bir başlık kartı, bir zemin. Kertenkele stüdyodan ayrıldı, skapi.
+Lower Thirds can wait, slide and leave on their own. Their section has every setting.	Alt bantlar kendi başlarına bekleyebilir, kayabilir ve çıkabilir. Bölümlerinde her ayar var.
+That's the weather. Back to you, guys. Run.	Hava durumu buydu. Stüdyoya dönüyoruz. Kaçın.
+A GRAND DAY OUT	BÜYÜK BİR GÜN
+A rocket built in a basement, skapi, and an inventor who wants cheese. Press START.	Bodrumda yapılmış bir roket, skapi, ve peynir isteyen bir mucit. START'a bas.
+Stage timers: countdowns, clocks, and a presenter view for the person on stage.	Sahne zamanlayıcıları: geri sayımlar, saatler ve sahnedeki kişi için bir sunucu görünümü.
+Cheese, Grommet! The moon's made of it. We'll need a countdown.	Peynir, Grommet! Ay ondan yapılmış. Bir geri sayıma ihtiyacımız var.
+A COUNTDOWN	BİR GERİ SAYIM
+SOURCE, then Stage Timer. A clock that counts down, in big friendly numbers.	KAYNAK, sonra Stage Timer. Büyük, dostça rakamlarla geriye sayan bir saat.
+Its colours change as it runs out: white, amber, red. Like a VU meter for time.	Süre bittikçe renkleri değişir: beyaz, kehribar, kırmızı. Zaman için bir VU metre.
+*raises an eyebrow*	*bir kaşını kaldırır*
+LIFT OFF	KALKIŞ
+Select the timer and TAKE it. The countdown starts.	Zamanlayıcıyı seç ve TAKE yap. Geri sayım başlar.
+Past zero it keeps going, counting the overtime. Very honest. Slightly rude.	Sıfırı geçince devam eder, aşımı sayar. Çok dürüst. Biraz kaba.
+Ten... nine... ooh, I do love a countdown.	On... dokuz... ah, geri sayıma bayılırım.
+HOLD!	DUR!
+Something's loose! Space holds the countdown. The clock shows it is held.	Bir şey gevşek! Boşluk geri sayımı duraklatır. Saat duraklatıldığını gösterir.
+A hold is not a stop. Space again, and it carries on from where it was.	Duraklatmak durdurmak değildir. Tekrar boşluk, kaldığı yerden devam eder.
+*holds up a spanner*	*bir İngiliz anahtarı kaldırır*
+THE PILOT'S VIEW	PİLOTUN GÖRÜNÜMÜ
+MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	MENU, Video çıkışları: bir çıkışın türünü PRESENTER yap. Sahnedeki kişi zamanlayıcıyı, sonraki cue'yu ve notlarını görür.
+A presenter view is an output like any other. Point it at the confidence monitor.	Sunucu görünümü de her çıkış gibi bir çıkış. Onu güven monitörüne yönelt.
+So the pilot can see the time. The pilot is Grommet.	Pilot saati görebilsin diye. Pilot Grommet.
+TO THE MOON	AYA
+A countdown, a hold, and a view for the pilot. Nazdrave, skapi. Bring crackers.	Bir geri sayım, bir duraklatma ve pilot için bir görünüm. Nazdrave, skapi. Kraker getir.
+Timers can also count up, or show the time of day. Their section has the lot.	Zamanlayıcılar ileri de sayabilir ya da günün saatini gösterebilir. Bölümlerinde hepsi var.
+A grand day out, Grommet! Pass the crackers.	Ne güzel bir gün, Grommet! Krakerleri uzat.
+The trunk (closed)	Sandık (kapalı)
+The trunk (open)	Sandık (açık)
+THE MAGIC SHOW	SİHİRBAZLIK ŞOVU
+A magic show, skapi. A trunk, a prop, and one beat where everything changes at once. Press START.	Bir sihirbazlık şovu, skapi. Bir sandık, bir aksesuar ve her şeyin birden değiştiği tek bir vuruş. START'a bas.
+Two playlists are two layers. TAKE ALL changes both together.	İki liste iki katman demek. TAKE ALL ikisini birlikte değiştirir.
+Every trick needs two things happening at once. And a rubber chicken.	Her numaranın aynı anda olan iki şeye ihtiyacı var. Bir de lastik tavuğa.
+The prop goes on its own layer. Press the + at the end of the playlist tabs.	Aksesuar kendi katmanına gider. Çalma listesi sekmelerinin sonundaki +'ya bas.
+Playlist 2 sits on top of playlist 1. Like a transparency on an overhead projector.	Liste 2, liste 1'in üstünde durur. Tepegözdeki asetat gibi.
+Nothing up my sleeve. Everything in my trunk.	Kolumda hiçbir şey yok. Her şey sandığımda.
+THE PROP	AKSESUAR
+In the new playlist, add anything: PATTERN will do. That is the prop.	Yeni listeye herhangi bir şey ekle: TEST DESENİ olur. Aksesuar o.
+Whatever it is, it will appear the instant the trunk opens.	Ne olursa olsun, sandık açıldığı an ortaya çıkar.
+Is it a rubber chicken? It's always a rubber chicken.	Lastik tavuk mu? Hep lastik tavuktur.
+The prop (rubber chicken)	Aksesuar (lastik tavuk)
+Select 'The trunk (open)' in playlist 1 and the prop in playlist 2. Then TAKE ALL: both on one beat.	Liste 1'de 'Sandık (açık)'ı ve liste 2'de aksesuarı seç. Sonra TAKE ALL: ikisi aynı vuruşta.
+One press, every playlist's selected cue. The audience never sees the seam.	Tek basış, her listenin seçili cue'su. Seyirci dikişi asla görmez.
+Ta-daaa! ...Hold for applause. Hold. Hold.	Ta-daaa! ...Alkış bekleyin. Bekleyin. Bekleyin.
+THE PRESTIGE	BÜYÜK NUMARA
+Two layers, one beat. Every playlist has its own opacity and can sit on any output. Nazdrave, skapi.	İki katman, tek vuruş. Her listenin kendi opaklığı var ve herhangi bir çıkışta durabilir. Nazdrave, skapi.
+A magician never reveals. A playlist never minds being revealed.	Sihirbaz sırrını asla açıklamaz. Liste açıklanmaya hiç aldırmaz.
+Thank you! I'm here all week! The chicken is here forever.	Teşekkürler! Bütün hafta buradayım! Tavuk sonsuza dek burada.
+The kitchen (on fire)	Mutfak (yanıyor)
+A lovely souffle	Nefis bir sufle
+THE COOKING SHOW	YEMEK PROGRAMI
+A cooking show, skapi. Live. Everything is on fire. Press START.	Bir yemek programı, skapi. Canlı. Her şey yanıyor. START'a bas.
+BLACK hides the picture and keeps the show running. PANIC stops everything. Know which you need.	BLACK görüntüyü gizler, şov devam eder. PANIC her şeyi durdurur. Hangisine ihtiyacın olduğunu bil.
+Bork bork! Hurdy-flurdy, de kitchen is fire-a-flurdy!	Bork bork! Hurdi-flurdi, mutfak yanıyor-flurdi!
+The audience must not see this. Press BLACK, or B.	Seyirci bunu görmemeli. BLACK'e bas, ya da B.
+The picture goes. The cue keeps playing underneath, ready to come back.	Görüntü gider. Cue altta çalmaya devam eder, geri gelmeye hazır.
+Bork? Bork. Oh, de picture is gun.	Bork? Bork. Ah, görüntü gitti.
+AND BACK	VE GERİ
+The fire's out. Press B again: the picture comes back, still running.	Yangın söndü. B'ye tekrar bas: görüntü geri gelir, hâlâ çalıyor.
+Nothing was lost. A mute on a mixer, for pictures.	Hiçbir şey kaybolmadı. Görüntüler için mikser mute'u.
+Ta-da! Still cookin'!	Ta-da! Hâlâ pişiyor!
+Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	Daha kötüsü: MENU, Sistem, SAFETY kartı: PANIC. Panik ayarı ne diyorsa, her şey öyle durur.
+PANIC is the big red button. Use it when BLACK is not enough. Then breathe.	PANIC büyük kırmızı düğme. BLACK yetmediğinde kullan. Sonra nefes al.
+GET IT BACK	GERİ AL
+Close MENU, select the souffle, and TAKE it. The show is back on.	MENU'yü kapat, sufleyi seç ve TAKE yap. Şov yeniden başladı.
+After a panic, the show is still there. Pick up where you meant to be.	Panikten sonra şov hâlâ orada. Olmak istediğin yerden devam et.
+Voila! De souffle, he is risen!	Voilà! Sufle, kabardı!
+BON APPETIT	AFİYET OLSUN
+BLACK to hide, PANIC to stop, TAKE to come back. You will survive any kitchen, skapi.	Gizlemek için BLACK, durdurmak için PANIC, geri dönmek için TAKE. Her mutfaktan sağ çıkarsın, skapi.
+The panic setting chooses what PANIC does: fade out, cut, or just the outputs.	Panik ayarı PANIC'in ne yapacağını seçer: karartma, kesme ya da sadece çıkışlar.
+Bork bork bork! Goodnight!	Bork bork bork! İyi geceler!
+Look one	Görünüm bir
+Look two	Görünüm iki
+Presets, skapi. A whole look, remembered, and back with one button. Press START.	Hazır ayarlar, skapi. Koca bir görünüm, hatırlanmış, tek düğmeyle geri. START'a bas.
+Like the patch memory on a synth: store, then recall.	Bir synth'in patch belleği gibi: kaydet, sonra geri çağır.
+THE DASH	DASH
+Press DASH: buttons of your own, for anything at all.	DASH'e bas: her şey için kendi düğmelerin.
+Ctrl+D also works. Very fast. Very professional.	Ctrl+D de çalışır. Çok hızlı. Çok profesyonel.
+A PRESET BUTTON	BİR HAZIR AYAR DÜĞMESİ
+Press +, then 'preset - a new preset from what is on now'. The button remembers this look.	+'ya bas, sonra 'preset - a new preset from what is on now'. Düğme bu görünümü hatırlar.
+Store. Like saving the patch before the drummer leans on the synth.	Kaydet. Davulcu synth'e yaslanmadan önce patch'i kaydetmek gibi.
+CHANGE EVERYTHING	HER ŞEYİ DEĞİŞTİR
+Close the DASH (Esc), then select Look two and TAKE it. A different look.	DASH'i kapat (Esc), sonra Görünüm iki'yi seç ve TAKE yap. Farklı bir görünüm.
+Change it all. Don't worry. It remembers.	Her şeyi değiştir. Merak etme. Hatırlıyor.
+ONE PRESS	TEK BASIŞ
+Open the DASH and press your preset button. The first look comes back.	DASH'i aç ve hazır ayar düğmene bas. İlk görünüm geri gelir.
+Recall. The patch memory, returning. Beautiful.	Geri çağır. Patch belleği geri dönüyor. Harika.
+A look, stored and recalled. A preset can keep cues, positions, effects, levels and routing; its button's menu chooses which.	Saklanıp geri çağrılan bir görünüm. Bir hazır ayar cue'ları, konumları, efektleri, seviyeleri ve yönlendirmeyi tutabilir; hangisini tutacağını düğmesinin menüsü seçer.
+And a DASH button can run any command at all. Any. Even the exciting ones.	Ve bir DASH düğmesi her komutu çalıştırabilir. Her komutu. Heyecanlı olanları bile.
+Opening titles	Açılış başlıkları
+The planet	Gezegen
+The battle	Savaş
+THE TRAILER	FRAGMAN
+A space-opera trailer, skapi. A narrator with a very deep voice and opinions about transitions. Press START.	Bir uzay operası fragmanı, skapi. Çok kalın sesli, geçişler hakkında fikirleri olan bir anlatıcı. START'a bas.
+A transition is how one cue becomes the next. There are far more than the crossfade.	Geçiş, bir cue'nun bir sonrakine nasıl dönüştüğüdür. Çapraz geçişten çok daha fazlası var.
+In a galaxy of content... one operator... must choose a transition.	Bir içerik galaksisinde... bir operatör... bir geçiş seçmek zorunda.
+A STYLE	BİR STİL
+'The planet' is selected. In the inspector, its transition style: choose iris.	'Gezegen' seçili. Inspector'da geçiş stili: iris'i seç.
+Pushes, wipes, iris, dip to white. Even a portal. I wrote half of them. On a Tuesday.	İtmeler, silmeler, iris, beyaza dalış. Bir portal bile. Yarısını ben yazdım. Bir salı günü.
+The planet deserves... a dramatic entrance.	Gezegen... dramatik bir girişi hak ediyor.
+A TIME	BİR SÜRE
+Give it a time: + on transition until it says a second or more.	Ona süre ver: geçiş'te +, bir saniye ya da daha fazla yazana kadar.
+No time, no transition. A style needs a duration to do anything at all.	Süre yok, geçiş yok. Bir stilin bir şey yapabilmesi için süreye ihtiyacı var.
+ROLL IT	KAYIT
+TAKE the planet. Watch it arrive.	Gezegeni TAKE yap. Gelişini izle.
+The transition belongs to the cue arriving. Each cue chooses its own entrance.	Geçiş gelen cue'ya aittir. Her cue kendi girişini seçer.
+Autobots... roll the transition.	Autobotlar... geçişi başlatın.
+THE BATTLE	SAVAŞ
+Now 'The battle': choose shatter, give it a time, and TAKE it.	Şimdi 'Savaş': shatter'ı seç, süre ver ve TAKE yap.
+Shatter drops the old picture like a pane of glass. Please do not do this at a funeral.	Shatter eski görüntüyü bir cam gibi düşürür. Lütfen bunu bir cenazede yapmayın.
+Transform... and shatter out!	Dönüş... ve paramparça!
+IN CINEMAS NOW	ŞİMDİ SİNEMALARDA
+A style, a time, and two very dramatic entrances. Nazdrave, skapi.	Bir stil, bir süre ve iki çok dramatik giriş. Nazdrave, skapi.
+A playlist has a default style too, for every cue that does not choose its own.	Bir listenin de varsayılan bir stili var, kendi stilini seçmeyen her cue için.
+Coming soon... to a desk near you.	Yakında... yakınınızdaki bir masada.
+The beat	Ritim
+THE ROBOT DJS	ROBOT DJ'LER
+Two robot DJs, skapi. They do not talk. Their helmets do. Press START.	İki robot DJ, skapi. Konuşmuyorlar. Kaskları konuşuyor. START'a bas.
+Every cue has its own chain of audio effects, and some of them break the sound on purpose.	Her cue'nun kendi ses efekti zinciri var, bazıları sesi bilerek bozar.
+> HELLO. WE ARE HERE TO FIX YOUR MIX.	> MERHABA. MİKSİNİ DÜZELTMEYE GELDİK.
+The beat is selected. In its AUDIO EFFECTS section, + adds one. Try the delay.	Ritim seçili. AUDIO EFFECTS bölümünde + bir tane ekler. delay'i dene.
+Delay, reverb, filters, a compressor. Amount always means 'less of this'.	Delay, reverb, filtreler, bir kompresör. Miktar her zaman 'bundan daha az' demektir.
+> ONE MORE TIME. WITH ECHO. ECHO. ECHO.	> BİR KEZ DAHA. EKOYLA. EKO. EKO.
+A BEND	BİR BEND
+Add a second: a bend, like crush. It damages the sound the way a broken file would.	İkincisini ekle: crush gibi bir bend. Sesi bozuk bir dosya gibi bozar.
+The bends are my favourite. Like a tape left in the sun. On purpose.	Bend'ler en sevdiklerim. Güneşte unutulmuş bir kaset gibi. Bilerek.
+> HARDER. BETTER. CRUNCHIER. LOUDER.	> DAHA SERT. DAHA İYİ. DAHA ÇITIR. DAHA YÜKSEK.
+THE PATCH	PATCH
+MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	MENU, sonra Ses: her listenin sesinin nereye gittiği ve adlandırılmış çıkışların patch'i.
+Speakers, monitors, an in-ear for the drummer. The patch sends each its own.	Hoparlörler, monitörler, davulcu için kulak içi. Patch her birine kendininkini yollar.
+> AROUND THE MIX. AROUND THE MIX. AROUND THE MIX.	> MİKSİN ETRAFINDA. MİKSİN ETRAFINDA. MİKSİN ETRAFINDA.
+An effect, a bend and the patch. The robots approve, skapi. I think. Their faces are helmets.	Bir efekt, bir bend ve patch. Robotlar onaylıyor, skapi. Galiba. Yüzleri kask.
+Every audio effect can follow a ~ too, even Motion. Wave at the delay. It's wonderful.	Her ses efekti de bir ~'yi izleyebilir, Motion'ı bile. Delay'e el salla. Harika.
+> THANK YOU. GOOD NIGHT. WE ARE ROBOTS.	> TEŞEKKÜRLER. İYİ GECELER. BİZ ROBOTUZ.
+The glow on the horizon (evidence #2)	Ufuktaki parıltı (kanıt #2)
+EVIDENCE #2	KANIT #2
+The Bureau again, skapi. A glow on the horizon, and two agents who disagree about it. Press START.	Yine Büro, skapi. Ufukta bir parıltı ve onun hakkında anlaşamayan iki ajan. START'a bas.
+The scopes measure a picture: brightness, colour, levels. Numbers, not opinions.	Skoplar bir görüntüyü ölçer: parlaklık, renk, seviyeler. Fikir değil, sayı.
+It's them, Brandt. It's a craft. Look how it glows.	Onlar, Brandt. Bir araç. Nasıl parladığına bak.
+THE REAL SIGNAL	GERÇEK SİNYAL
+The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	Skoplar sadece gerçekten çıkanı okur, asla önizlemeyi değil. Çıkışı aç: MENU, Video çıkışları, ÇIKIŞ KAPALI.
+Measuring a scaled-down preview would be measuring a photocopy. We measure the original.	Küçültülmüş önizlemeyi ölçmek fotokopi ölçmek olurdu. Biz aslını ölçeriz.
+Chain of evidence, Hollis. The real signal or nothing.	Delil zinciri, Hollis. Ya gerçek sinyal ya hiç.
+THE SCOPES	SKOPLAR
+Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	MENU'yü kapat. Monitörün üstünde PROGRAM düğmesi: SCOPES ya da BOTH yazana kadar bas.
+Both shows the picture and its scopes side by side. Very civilised.	BOTH görüntüyü ve skoplarını yan yana gösterir. Çok medeni.
+Let the scopes decide, Hollis.	Bırak skoplar karar versin, Hollis.
+THE WAVEFORM	DALGA FORMU
+Click the waveform to make it big. Bright things sit high, dark things low, left to right as in the picture.	Büyütmek için dalga formuna tıkla. Parlak şeyler üstte, karanlıklar altta, soldan sağa görüntüdeki gibi.
+The glow is that spike near the top. Very bright. Bright is not the same as alien.	Parıltı, tepeye yakın o sivri uç. Çok parlak. Parlak demek uzaylı demek değil.
+Look at the peak. Nothing a streetlight couldn't do.	Tepeye bak. Bir sokak lambasının yapamayacağı bir şey değil.
+THE VECTORSCOPE	VEKTÖRSKOP
+Click it again to go back, then click the vectorscope: colour round a circle. Saturated runs to the edge.	Geri dönmek için tekrar tıkla, sonra vektörskopa tıkla: renk bir çember etrafında. Doygun olan kenara koşar.
+Magenta, far out by the rim. A strong colour. Strong is not illegal. Yet.	Macenta, ta kenarda. Güçlü bir renk. Güçlü yasadışı değil. Henüz.
+It's off the chart, Brandt! Literally off the chart!	Grafiğin dışında, Brandt! Kelimenin tam anlamıyla!
+FALSE COLOUR	SAHTE RENK
+And false colour: red is clipped, yellow nearly. Is the glow red?	Ve sahte renk: kırmızı kırpılmış, sarı neredeyse. Parıltı kırmızı mı?
+Clipped means the brightest the signal can carry, and then some lost. Detail gone.	Kırpılmış, sinyalin taşıyabileceği en parlak nokta ve ötesi kaybolmuş demek. Ayrıntı gitti.
+Red. Clipped. Not alien, Hollis. Just too bright. Case closed.	Kırmızı. Kırpılmış. Uzaylı değil, Hollis. Sadece fazla parlak. Dava kapandı.
+THE TRUTH	GERÇEK
+Waveform, vectorscope, false colour. The scopes settled it, skapi. The agents did not.	Dalga formu, vektörskop, sahte renk. Skoplar karara bağladı, skapi. Ajanlar bağlamadı.
+SCOPES SOURCE reads any output, and the matrix can be 709 or 2020. For the curious.	SCOPES SOURCE herhangi bir çıkışı okur ve matris 709 ya da 2020 olabilir. Meraklısına.
+Too bright for a streetlight, Brandt. Too bright for anything. ...I want to believe.	Bir sokak lambası için fazla parlak, Brandt. Her şey için fazla parlak. ...İnanmak istiyorum.
+OUT OF THE BUILDING	BİNANIN DIŞINA
+Pictures that leave by cable or network, skapi, not only a window on a screen. Press START.	Kabloyla ya da ağla çıkan görüntüler, skapi, sadece ekrandaki bir pencere değil. START'a bas.
+NDI over the network, SDI from a DeckLink card, ST 2110 for broadcast plants.	Ağ üzerinden NDI, bir DeckLink kartından SDI, yayın tesisleri için ST 2110.
+THE DEVICES PAGE	AYGITLAR SAYFASI
+MENU, Video Outputs, then Devices: every way an output can leave this computer.	MENU, Video çıkışları, sonra Aygıtlar: bir çıkışın bu bilgisayardan çıkabileceği her yol.
+Each one says whether this machine can do it, and what it needs if not.	Her biri bu makinenin yapıp yapamayacağını, yapamazsa neye ihtiyacı olduğunu söyler.
+If this computer has NDI, switch NDI SENDING on: the picture is on the network. If not, SHOW ME moves on.	Bu bilgisayarda NDI varsa NDI SENDING'i aç: görüntü ağda. Yoksa SHOW ME devam eder.
+NDI finds itself on the network. No cables, only a good switch and patience.	NDI ağda kendini bulur. Kablo yok, sadece iyi bir switch ve sabır.
+OUT THERE	DIŞARIDA
+The output's own page has the rest: a DeckLink card's SDI, ST 2110 with NMOS, Spout and Syphon.	Çıkışın kendi sayfasında gerisi var: bir DeckLink kartının SDI'ı, NMOS'lu ST 2110, Spout ve Syphon.
+Every one is just an output. The show does not know or care how it leaves.	Hepsi sadece birer çıkış. Şov nasıl çıktığını bilmez, umursamaz.
+Nebula ahead	İleride bulutsu
+Engine room	Makine dairesi
+Deck 3: something moving	Güverte 3: bir şey hareket ediyor
+THE BRIDGE	KÖPRÜ
+The bridge of the starship Cathode, skapi. Four feeds, one main viewer, one mystery. Press START.	Cathode uzay gemisinin köprüsü, skapi. Dört yayın, bir ana ekran, bir gizem. START'a bas.
+The multiview shows every playlist at once. Like a wall of oscilloscopes, but in space.	Multiview tüm listeleri aynı anda gösterir. Osiloskoplardan bir duvar gibi, ama uzayda.
+Frequencies open, Captain. All of them. That's the problem.	Frekanslar açık, kaptan. Hepsi. Sorun da bu.
+MULTI, above the monitor: every playlist in its own window.	Monitörün üstünde MULTI: her liste kendi penceresinde.
+One window per playlist, the programme first.	Her listeye bir pencere, önce program.
+Jinkys! Four feeds. And one of them has a monster in it.	Jinkys! Dört yayın. Ve birinde bir canavar var.
+WHAT'S NEXT	SIRADA NE VAR
+Add a window (+), then its ... menu: make it show NEXT. What goes live when you press TAKE.	Bir pencere ekle (+), sonra onun ... menüsü: NEXT göstersin. TAKE'e bastığında yayına giden şey.
+Every window has a ... button. It chooses what that window shows.	Her pencerenin bir ... düğmesi var. O pencerenin ne göstereceğini seçer.
+I need to see who's calling before they reach the main viewer.	Ana ekrana ulaşmadan önce kimin aradığını görmeliyim.
+A CLOCK	BİR SAAT
+And one more window, showing the clock. Operators who watch a clock are never late. Mostly.	Ve bir pencere daha, saati gösteren. Saate bakan operatörler hiç geç kalmaz. Çoğunlukla.
+Time of day, big. Stardates are just very long timecode.	Günün saati, büyük. Yıldız tarihleri sadece çok uzun bir zaman kodu.
+The monster only shows up at midnight. We're going to need a clock.	Canavar sadece gece yarısı ortaya çıkıyor. Bir saate ihtiyacımız olacak.
+ONE BIG ONE	BİR BÜYÜK
+Any window's ... menu, then a layout: one big, the rest small.	Herhangi bir pencerenin ... menüsü, sonra bir düzen: biri büyük, gerisi küçük.
+The big window is window one. Usually the programme. Usually.	Büyük pencere birinci pencere. Genelde program. Genelde.
+Main viewer big. The captain likes it big.	Ana ekran büyük. Kaptan büyük sever.
+ON SCREEN	EKRANA
+Select Deck 3 in playlist 3 and TAKE. Watch its window.	Liste 3'te Güverte 3'ü seç ve TAKE yap. Penceresini izle.
+The red border is TALLY: the window that is on air. On screen, as they say on starships.	Kırmızı çerçeve TALLY: yayında olan pencere. Uzay gemilerinde dedikleri gibi, ekrana.
+There! Feed three! Put it on screen!	Orada! Yayın üç! Ekrana ver!
+THAT'S A WRAP	ÇEKİM BİTTİ
+Windows, the ... menu, NEXT, the clock, a layout, tally. Mystery solved, skapi.	Pencereler, ... menüsü, NEXT, saat, bir düzen, tally. Gizem çözüldü, skapi.
+A window can also show an output, with its warp and slices. Handy when it's a lighthouse.	Bir pencere bir çıkışı da, warp'ı ve dilimleriyle gösterebilir. Bir deniz feneri olunca işe yarar.
+And the monster was... the ship's cook, all along. Jinkys.	Ve canavar... baştan beri geminin aşçısıymış. Jinkys.
+there is no such lesson	böyle bir ders yok
+finish or leave the lesson you are in first	önce içinde olduğun dersi bitir ya da çık
+leave Bug Swat first	önce Bug Swat'tan çık
+Psst. It's me, the desk. I'll be watching. Supportively.	Pst. Benim, masa. İzliyor olacağım. Destekleyerek.
+Hi! I'm the one doing all of this, by the way.	Selam! Bu arada, bunların hepsini ben yapıyorum.
+Ctrl+D opens the DASH. I'm just saying.	Ctrl+D, DASH'i açar. Öylesine söylüyorum.
+Nearly there. I can feel it in my pixels.	Az kaldı. Piksellerimde hissediyorum.
+You're good at this. I can tell. I'm the one doing it.	Bunda iyisin. Anlıyorum. Yapan benim.
+Every click, I heard. Every single one.	Her tıklamayı duydum. Her birini.
+The glowing one. I can see it from here. It's glowing for you.	Parlayan. Buradan görüyorum. Senin için parlıyor.
+lesson paused - MENU > LESSONS picks up where you left off	ders duraklatıldı - MENU > LESSONS kaldığın yerden devam eder
+PROF. VIDEO:  The signal: what the picture is made of, and how to bend it. Pick a lesson.	PROF. VIDEO:  Sinyal: görüntü neden yapılır ve nasıl bükülür. Bir ders seç.
+DR. PIXEL:  Running the show, skapi. Fast hands, calm face. Pick a lesson.	DR. PIXEL:  Şovu yönetmek, skapi. Hızlı eller, sakin yüz. Bir ders seç.
+LESSONS  -  PART TWO  -  WHO DO YOU FOLLOW?	DERSLER  -  İKİNCİ BÖLÜM  -  KİMİ İZLİYORSUN?
+FOLLOW PROF. VIDEO	PROFESÖR VIDEO'YU İZLE
+FOLLOW DR. PIXEL	DR. PİKSEL'İ İZLE
+the signal	sinyal
+running the show	şovu yönetmek
+PICK UP	DEVAM ET
+CLOSE (Esc)	KAPAT (Esc)
+PART ONE: THE BASICS	BİRİNCİ BÖLÜM: TEMELLER
+finish or leave LEARN THE BASICS first	önce LEARN THE BASICS'i bitir ya da çık
+bug swat: Esc leaves, and your show comes back as it was	bug swat: Esc çıkar ve şovun olduğu gibi geri gelir
+bug swat: your show is back. Motion's controls are in Settings > Audio	bug swat: şovun geri geldi. Motion kontrolleri Ayarlar > Ses'te
+TURN MOTION ON	MOTION'I AÇ
+Bugs are crawling to the cue list! Swat them by waving at your camera. First, Motion: in MOTION CONTROL turn it ON and choose what it READS.	Böcekler cue listesine doğru sürünüyor! Kameraya el sallayarak ez onları. Önce Motion: MOTION CONTROL'de ON yap ve neyi okuyacağını (READS) seç.
+This one is NullPointer. Hollow, points at nothing. A finger goes straight through. Use the whole hand, skapi.	Bu NullPointer. İçi boş, hiçbir şeyi göstermez. Bir parmak içinden geçer. Bütün elini kullan, skapi.
+Wave like you are hailing a cab! A small, polite cab. Not the buttons. The cab.	Taksi çevirir gibi el salla! Küçük, kibar bir taksi. Düğmeler değil. Taksi.
+DRAW TWO ZONES	İKİ BÖLGE ÇİZ
+Race Condition: twins, each sure it got there first. One reading cannot tell your hands apart, so drag two ZONES on the Motion picture, one each side.	Race Condition: ikizler, her biri önce kendisinin geldiğinden emin. Tek okuma ellerini ayırt edemez, o yüzden Motion görüntüsüne her yana bir tane olmak üzere iki ZONES sürükle.
+Hit both together. Hit one, and they swap. Like my cousins at a wedding.	İkisine birlikte vur. Birine vurursan yer değiştirirler. Düğündeki kuzenlerim gibi.
+One hand each side. Together! Together!	Her yana bir el. Birlikte! Birlikte!
+Off By One. The bug is not the face, it is the tiny extra segment, and a little wiggle needs a finer reading. Turn SENSITIVITY down to 5%.	Off By One. Böcek yüz değil, o küçücük fazla parça; küçük bir kıpırtı daha ince bir okuma ister. SENSITIVITY'yi %5'e düşür.
+Lower number, finer reading. Yes, I also think it is backwards.	Düşük sayı, daha ince okuma. Evet, ben de ters olduğunu düşünüyorum.
+Not the face. The little one on the end. Wiggle a finger.	Yüz değil. Ucundaki küçücük olan. Bir parmağını oynat.
+FALL 1.5 S OR MORE	FALL 1,5 SN YA DA DAHA FAZLA
+Memory Leak. It only lets go while the reading stays up. Make FALL longer, 1.5 seconds or more, so your sweeps join up into one.	Memory Leak. Sadece okuma yüksek kaldıkça bırakır. FALL'u uzat, 1,5 saniye ya da daha fazla, böylece savuruşların tek bir savuruşa bağlansın.
+Slow and steady, skapi. Like paying back a loan.	Yavaş ve istikrarlı, skapi. Taksit öder gibi.
+Sweep, and sweep again. Let the fall carry you between.	Savur, ve yine savur. Aradaki düşüş seni taşısın.
+MOTION X ON A TONE	BİR TONDA MOTION X
+The Heisenbug! It fades whenever you move. Put a tone cue's pitch on Motion X and follow it by ear: the ticking speeds up as you close in.	Heisenbug! Her hareket ettiğinde soluyor. Bir ton cue'sunun perdesini Motion X'e koy ve kulağınla izle: yaklaştıkça tıkırtı hızlanır.
+SHOW ME makes the tone for you. High is right. Low is left. Stand still and it comes back.	SHOW ME tonu senin için yapar. Tiz sağ. Pes sol. Kıpırdama, geri gelir.
+Follow it. Listen. Faster ticking, closer bug.	İzle. Dinle. Daha hızlı tıkırtı, daha yakın böcek.
+Waving paw	El sallayan pati
+Heisenbug finder	Heisenbug avcısı
+FIXED! Lovely signal flow.	DÜZELDİ! Ne güzel bir sinyal akışı.
+Closed as fixed. No regressions. Probably.	Düzeltildi olarak kapatıldı. Gerileme yok. Muhtemelen.
+Squashed! Ship it.	Ezildi! Yayınla.
+One reached the cue list. It has filed a bug report about you.	Biri cue listesine ulaştı. Senin hakkında bir hata raporu açtı.
+Skapi. It is a handheld. You do not press it. You wave at it.	Skapi. Bu bir el konsolu. Basılmaz. El sallanır.
+The buttons are for menus. The bugs are for flailing.	Düğmeler menüler için. Böcekler kolları savurmak için.
+The D-pad is decorative. Like my diploma.	Yön tuşu süs. Diplomam gibi.
+In 1989 we also pressed the buttons. Then we discovered waving. Never looked back.	1989'da biz de düğmelere basardık. Sonra el sallamayı keşfettik. Bir daha geri bakmadık.
+Pressing harder does not help. The bugs cannot feel buttons. Only arms.	Daha sert basmak işe yaramaz. Böcekler düğmeleri hissetmez. Sadece kolları.
+It's called a handheld because your hands are held... up. In the air. Waving.	Ona el konsolu deniyor çünkü eller... havaya konuyor. Havada. Sallanarak.
+The mouse? You are swatting bugs with a MOUSE? In Bulgaria the mouse would be on the bugs' side.	Fare mi? Böcekleri FAREYLE mi eziyorsun? Bulgaristan'da fare böceklerin tarafını tutardı.
+Lovely clicking. Very crisp. The camera saw none of it.	Güzel tıklamalar. Çok net. Kamera hiçbirini görmedi.
+DONE FOR YOU - PRESS START	SENİN İÇİN YAPILDI - START'A BAS
+DONE! PRESS START	TAMAM! START'A BAS
+SELECT OPENS MOTION CONTROL	SELECT, MOTION CONTROL'Ü AÇAR
+ALL BUGS FIXED	TÜM BÖCEKLER DÜZELTİLDİ
+GAME OVER	OYUN BİTTİ
+NEW HIGH SCORE!	YENİ REKOR!
+START PLAYS AGAIN	START İLE TEKRAR OYNA
+Nazdrave, skapi. Now go and fix real bugs.	Nazdrave, skapi. Şimdi git gerçek böcekleri düzelt.
+Every one of those is a real Motion control. Put them on any ~ knob you like.	Bunların her biri gerçek bir Motion kontrolü. İstediğin herhangi bir ~ düğmesine koy.
+START: AGAIN	START: TEKRAR
+START: PLAY	START: OYNA
+# --- end of tutorials ---
