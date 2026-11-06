@@ -1,5 +1,11 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
+## Unreleased
+
+### Companion module 1.0.10
+- New actions: multiview on or off, its layout and what each window shows; Motion on or off; put a mask on or take it off, invert it, set its opacity; turn a slice on or off; open or close the Screens window; Draw undo, clear and how it plays; add a ready-made MIDI map; open the lessons; start Bug Swat.
+- New presets for the multiview and Motion.
+
 ## 2026-11-06 - v0.99.425 (a MIDI map for any controller; masks; slices and the Screens window; Draw; Motion; seventeen lessons; Vietnamese, Lao and Papiamento)
 
 ### MIDI map
