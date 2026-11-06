@@ -69,10 +69,17 @@ def snap(db, work, n):
 
 
 def corner(shot):
+    """A point near the bottom-left of the CLIP'S PICTURE. The clip is 16:9
+    and is letterboxed on a screen of any other shape (Windows CI is 4:3,
+    Linux CI 5:4): a fraction of the whole frame lands in a black bar there,
+    which no effect on the cue touches."""
     if not shot:
         return None
     width, height, pixel = shot
-    return pixel(int(0.04 * width), int(0.9 * height))
+    pic_w = min(width, height * 16 / 9)
+    pic_h = pic_w * 9 / 16
+    x0, y0 = (width - pic_w) / 2, (height - pic_h) / 2
+    return pixel(int(x0 + 0.04 * pic_w), int(y0 + 0.9 * pic_h))
 
 
 def levels(db):
