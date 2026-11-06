@@ -264,9 +264,11 @@ SCRIPT_RANGES = (
 )
 
 # Characters that belong to a word without belonging to an alphabet, so they
-# neither start a word nor end one: digits, the two apostrophes, the hyphen
-# used inside a compound.
-WORD_GLUE = "0123456789-_'’"
+# neither start a word nor end one: digits and the two apostrophes. NOT the
+# hyphen: Russian, Ukrainian and Greek join a Latin acronym to a native word
+# with one ("MIDI-нота", "VU-метр"), which is correct spelling. A homoglyph
+# slip lands inside one half, and each half is still checked on its own.
+WORD_GLUE = "0123456789_'’"
 
 
 def script_of(ch):
