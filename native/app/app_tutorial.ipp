@@ -1428,7 +1428,11 @@
     int y = card.y + pad;
     // A string, not a fixed buffer: a translated title is several bytes a
     // letter in Japanese or Greek, and a cut one draws a broken glyph.
-    const std::string head = std::to_string(tutorial_.step + 1) + " / " + std::to_string(stepCount) + "  -  " +
+    // "2 / 5" with its spaces is two numbers to the bidi algorithm, and a
+    // right-to-left line puts them in its own order: "5 / 2". Without the
+    // spaces it is one number, read the same way everywhere.
+    const char* stepOf = deckboy::core::i18n::activeIsRtl() ? "/" : " / ";
+    const std::string head = std::to_string(tutorial_.step + 1) + stepOf + std::to_string(stepCount) + "  -  " +
                              lessonText(line.title);
     drawTextSafe(controlRenderer_, titleFont, SDL_Rect {card.x + pad, y, cardW - pad * 2, headH},
                  head, pal.inkSoft);
@@ -1476,10 +1480,19 @@
       Primitives::fillRect(controlRenderer_, SDL_Rect {glass.x + g, glass.y + g * 2, g * 2, g * 3},
                            SDL_Color {250, 225, 150, 255});
     }
+    // A right-to-left paragraph is read from the right, so each wrapped line
+    // starts at the right edge. Left where the layout puts it, the short end
+    // of an Arabic line sat at the left and read as the start of the next.
+    const bool rtlCard = deckboy::core::i18n::activeIsRtl();
+    const int lineInset = textW - safeTextRect(SDL_Rect {0, 0, textW, lineH}).w;
+    auto drawCardLine = [&](const std::string& text, int lineY, SDL_Color ink) {
+      int shift = 0;
+      if (rtlCard) shift = std::max(0, textW - lineInset - measuredTextWidth(fontBase_, text));
+      drawTextSafe(controlRenderer_, fontBase_, SDL_Rect {card.x + textX + shift, lineY, textW - shift, lineH},
+                   text, ink);
+    };
     for (std::size_t i = 0; i < pixelLines.size(); ++i) {
-      drawTextSafe(controlRenderer_, fontBase_,
-                   SDL_Rect {card.x + textX, y + static_cast<int>(i) * lineH, textW, lineH},
-                   pixelLines[i], pal.fg);
+      drawCardLine(pixelLines[i], y + static_cast<int>(i) * lineH, pal.fg);
     }
     y += pixelH + blockGap;
     tutorial_.videoPortraitRect = SDL_Rect {card.x + pad, y, portrait, portrait};
@@ -1495,9 +1508,7 @@
       Primitives::fillRect(controlRenderer_, SDL_Rect {ox + c * 11, oy + c * 9, c * 2, c}, rosy);
     }
     for (std::size_t i = 0; i < videoLines.size(); ++i) {
-      drawTextSafe(controlRenderer_, fontBase_,
-                   SDL_Rect {card.x + textX, y + static_cast<int>(i) * lineH, textW, lineH},
-                   videoLines[i], pal.fg);
+      drawCardLine(videoLines[i], y + static_cast<int>(i) * lineH, pal.fg);
     }
     y += videoH;
     if (!guestLines.empty()) {
@@ -1513,8 +1524,7 @@
                           SDL_GetTicks() < guestTalkUntilMs_);
       }
       for (std::size_t i = 0; i < guestLines.size(); ++i) {
-        drawTextSafe(controlRenderer_, fontBase_,
-                     SDL_Rect {card.x + textX, y + static_cast<int>(i) * lineH, textW, lineH}, guestLines[i], pal.fgSoft);
+        drawCardLine(guestLines[i], y + static_cast<int>(i) * lineH, pal.fgSoft);
       }
       y += std::max(guestHasFace ? portrait : 0, static_cast<int>(guestLines.size()) * lineH);
     }
