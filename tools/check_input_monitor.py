@@ -50,6 +50,9 @@ def rows(db, count=50):
     return json.loads(reply.split(": ", 1)[1])
 
 
+CH1 = " · ch 1"   # the MIDI map names the channel
+
+
 def find(entries, kind, message):
     for entry in entries:
         if entry["kind"] == kind and entry["message"] == message:
@@ -108,28 +111,31 @@ def main():
         note("pollers (STATUS) and the monitor's own verbs are left out",
              not any(x["message"].split()[0] in ("STATUS", "INPUTMONITOR", "MIDIIN") for x in entries
                      if x["kind"] == "REMOTE"), [x["message"] for x in entries if x["kind"] == "REMOTE"])
-        e = find(entries, "MIDI", "NOTE ON 36 (C2) vel 100")
+        e = find(entries, "MIDI", "note 36 (C2) vel 100" + CH1)
         note("MIDI a note a cue claims: DID, the cue it took",
              e is not None and e["outcome"] == "DID" and "claims note 36" in e["what"], e)
-        e = find(entries, "MIDI", "NOTE ON 60 (C4) vel 127")
-        note("MIDI a note nothing claims and no cue to go to: NOTHING, and why",
-             e is not None and e["outcome"] == "NOTHING" and "no cue 61" in e["what"], e)
-        e = find(entries, "MIDI", "NOTE ON 1 (C#-1) vel 90")
+        # The old rule (GOTO the next cue) is the built-in note row now, so a
+        # note with no cue to go to is a command REFUSED, and says why.
+        e = find(entries, "MIDI", "note 60 (C4) vel 127" + CH1)
+        note("MIDI a note nothing claims and no cue to go to: REFUSED, and why",
+             e is not None and e["outcome"] == "REFUSED" and "no cue 61" in e["what"], e)
+        e = find(entries, "MIDI", "note 1 (C#-1) vel 90" + CH1)
         note("MIDI a note nothing claims: the old rule, and says so",
              e is not None and e["outcome"] == "DID" and "so cue 2" in e["what"], e)
-        e = find(entries, "MIDI", "NOTE OFF 36 (C2)")
+        e = find(entries, "MIDI", "note off 36 (C2)" + CH1)
         note("MIDI a note-off with synth mode off: NOTHING, and why",
              e is not None and e["outcome"] == "NOTHING" and "synth" in e["what"], e)
-        e = find(entries, "MIDI", "CC 1 = 10")
-        note("MIDI a CC with no mapping: NOTHING, and why",
-             e is not None and e["outcome"] == "NOTHING" and "CC 7" in e["what"], e)
-        e = find(entries, "MIDI", "CC 7 = 96")
+        e = find(entries, "MIDI", "CC 1 = 10" + CH1)
+        note("MIDI a CC with no mapping: NOTHING, and where to map it",
+             e is not None and e["outcome"] == "NOTHING" and "MIDI MAP" in e["what"], e)
+        e = find(entries, "MIDI", "CC 7 = 96" + CH1)
         note("MIDI CC 7: DID, the volume it became",
-             e is not None and e["outcome"] == "DID" and e["command"].startswith("MASTERVOL"), e)
+             e is not None and e["outcome"] == "DID" and e["command"].startswith("MASTERVOL")
+             and "ran MASTERVOL" in e["what"], e)
         order = [x["message"] for x in entries]
         note("rows in the order they arrived",
-             order.index("/lights/go") < order.index("FROBNICATE") < order.index("CC 7 = 96")
-             if all(m in order for m in ("/lights/go", "FROBNICATE", "CC 7 = 96")) else False, order)
+             order.index("/lights/go") < order.index("FROBNICATE") < order.index("CC 7 = 96" + CH1)
+             if all(m in order for m in ("/lights/go", "FROBNICATE", "CC 7 = 96" + CH1)) else False, order)
 
         db.send("INPUTMONITOR PAUSE")
         udp.sendto(osc_packet("/lights/scene", 4), ("127.0.0.1", db.port))

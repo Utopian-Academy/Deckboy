@@ -835,7 +835,7 @@ class Engine {
       if (!any) {
         Action miss;
         miss.message = mi;
-        miss.note = "nothing mapped to " + describeMessage(m);
+        miss.note = "nothing mapped to " + describeMessage(m) + ": add a row on the MIDI MAP";
         if (m.source == Source::Note && !m.on) miss.note.clear();  // offs are noise
         if (!miss.note.empty()) out.push_back(miss);
       }

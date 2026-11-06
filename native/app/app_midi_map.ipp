@@ -610,11 +610,27 @@
       const auto actions = midiMap_.process(
         messages, now,
         [this](mm::Origin, int, const mm::Row& row) { return midiMapCurrentValue(row); }, claimed);
+      std::vector<bool> answered(batch.size(), false);
       for (const auto& action : actions) {
         const MidiMapQueued* q =
           action.message >= 0 && action.message < static_cast<int>(batch.size())
             ? &batch[static_cast<std::size_t>(action.message)] : nullptr;
+        if (q) answered[static_cast<std::size_t>(action.message)] = true;
         runMidiMapAction(action, q);
+      }
+      // A key let go that no row was holding. The map says nothing about it
+      // (offs are noise to the map), but the monitor shows it: the operator
+      // who expected a synth note to stop needs to see why it did not.
+      for (std::size_t i = 0; i < batch.size(); ++i) {
+        const auto& q = batch[i];
+        if (answered[i] || q.msg.source != mm::Source::Note || q.msg.on) continue;
+        InputMonitorEntry e;
+        e.kind = "MIDI";
+        e.from = q.from;
+        e.message = mm::describeMessage(q.msg);
+        e.outcome = 'N';
+        e.what = "a key let go, and nothing was holding it (synth mode is off)";
+        recordInputMonitor(std::move(e));
       }
     }
     for (const auto& action : midiMap_.tick(now)) runMidiMapAction(action, nullptr);
@@ -645,7 +661,9 @@
     std::string outcome;
     const bool ok = runMidiMapCommand(*row, action.command, q && q->fromPeer, outcome);
     e.outcome = ok ? 'D' : 'R';
-    std::string what = outcome;
+    // A command with nothing to report (MASTERVOL answers with no detail)
+    // still says what it ran.
+    std::string what = outcome.empty() && ok ? "ran " + action.command : outcome;
     if (!action.note.empty()) what = what.empty() ? action.note : action.note + ", " + what;
     if (row->target != mm::Target::Desk) {
       what += (what.empty() ? "" : " \xC2\xB7 ") + midiMapTargetLabel(*row);

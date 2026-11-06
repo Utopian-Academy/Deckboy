@@ -133,6 +133,9 @@ def run(exe, work, show):
         db.send("FX ADD colour_replace")
         db.send("FX ADD strobe")
         db.send("FX ADD blur")
+        # EFFECTS starts folded like every section but the cue's own (James,
+        # 2026-11-04): open it, as an operator would, so its chips are drawn.
+        db.send("SECTION EFFECTS")
 
         print("  over the wire")
         reply = answer(db, "FX COLOUR 1 C #0000ff")

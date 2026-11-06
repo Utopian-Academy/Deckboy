@@ -58,6 +58,7 @@ CONFIRMED = {
     ("MARKER", "MARK"),
     ("TIMERCUE", "ADDTIMER"),
     ("DATAMOSH", "MOSH"),
+    ("SLICE", "SLICES"),          # one slice or the list: SLICES alone lists them, same handler
     ("JUMPMODE", "JUMP_MODE"),
     ("JUMPTRANS", "JUMPTRANSITION", "JUMP_XFADE"),
     ("PANICPROFILE", "PANIC_PROFILE"),

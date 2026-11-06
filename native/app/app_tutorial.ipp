@@ -1356,7 +1356,7 @@
     if (rakia && rakiaDry) {
       pixelSays = "No more rakia. The rat has a problem.";
     } else if (rakia && rakiaT < 4.0) {
-      pixelSays = "Nazdrave, skapi! Baba's rakia, from the Rhodopes. One glass, for the lesson.";
+      pixelSays = "Nazdrave, skapi! Baba's rakia, from Belogradchik. One glass, for the lesson.";
       videoSays = "Is this... is this allowed during a tutorial?";
     } else if (rakia && rakiaT < 8.0) {
       pixelSays = "*shakes head* That means one more.";

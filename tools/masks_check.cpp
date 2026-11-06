@@ -128,12 +128,12 @@ int main(int argc, char** argv) {
   for (int i = 0; i < static_cast<int>(MaskShape::Count); ++i) {
     const MaskShape shape = static_cast<MaskShape>(i);
     const auto a = rasterizeMask(single(shape, W, H), W, H);
-    double sx = 0, sy = 0, s = 0;
+    double sx = 0, s = 0;
     bool edge = false;
     for (int y = 0; y < H; ++y) {
       for (int x = 0; x < W; ++x) {
         const double v = at(a, W, x, y) / 255.0;
-        sx += v * x; sy += v * y; s += v;
+        sx += v * x; s += v;
         if (v > 0 && (x == 0 || y == 0 || x == W - 1 || y == H - 1)) edge = true;
       }
     }
