@@ -189,6 +189,9 @@ def main():
         # A ready-made map, and the lights following the show.
         added = detail(db.send("MIDIMAP PRESET apcminimk2"))
         expect("82 rows added" in added, "the APC mini mk2 map adds its rows: " + added)
+        added = detail(db.send("MIDIMAP PRESET apc40mk2"))
+        expect("73 rows added" in added and "built-in row" in added,
+               "the APC40 mkII map adds its rows and quiets the CC 7 built-in row: " + added)
         time.sleep(0.3)
         fb = detail(db.send("MIDIMAP FEEDBACK"))
         expect("note 49 = 21 ch 1" in fb,

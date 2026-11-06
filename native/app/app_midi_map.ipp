@@ -306,8 +306,26 @@
           ++added;
         }
       }
+      // The controller now owns its messages: a built-in row on one of them
+      // (CC 7 is a fader on most of these) is switched off, not left to
+      // answer the same fader as well. Off, not deleted: one click back.
+      int quieted = 0;
+      for (auto& existing : rows) {
+        if (!existing.builtIn || !existing.enabled) continue;
+        for (const auto& r : map.rows) {
+          if (deckboy::midimap::overlaps(existing, r)) {
+            existing.enabled = false;
+            ++quieted;
+            break;
+          }
+        }
+      }
       midiMapStore(deckboy::midimap::Origin::Computer, std::move(rows));
       detail = std::string(map.label) + ": " + std::to_string(added) + " rows added";
+      if (quieted > 0) {
+        detail += ", " + std::to_string(quieted) + (quieted == 1 ? " built-in row" : " built-in rows") +
+                  " on the same controls switched off";
+      }
       return true;
     }
     detail = "no ready-made map called " + id;

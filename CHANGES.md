@@ -33,7 +33,7 @@
 - Today's fixed behaviour is now ordinary rows: notes take cues, CC 7 is the master volume, CC 20 the selected clip's speed. CC 20's 1.0x is now at the knob's centre (it was a third of the way up).
 - The MIDI and OSC monitor names the row that matched, what it was aimed at, or why nothing did.
 - The map page: Settings > Audio > MIDI CONTROL > OPEN THE MAP. Add, learn, edit in three steps, and see each row's value live.
-- Ready-made maps for the KORG nanoKONTROL2, Novation Launch Control XL and AKAI APC mini mk2.
+- Ready-made maps for the KORG nanoKONTROL2, Novation Launch Control XL, AKAI APC mini mk2 and AKAI APC40 mkII. Adding one switches off a built-in row on the same control.
 - The controller's lights follow the show: pads for cues on air, blackout, loops; knob rings for their values. Only the controller a row came from is lit.
 - The **~** on any control has MIDI shapes: a key's pitch, its velocity, any CC, and aftertouch. Chladni's mode on a key's pitch plays a different figure for every note.
 - The video synth plays from a keyboard: a key's pitch sets the pattern's size, its velocity blooms the feedback.

@@ -714,6 +714,42 @@ inline std::vector<ControllerMap> controllerMaps() {
     m.rows.push_back(presetRow(Source::Note, 1, 122, Read::Press, "STOPALL"));
     maps.push_back(std::move(m));
   }
+  // AKAI APC40 mkII, generic mode (its default), from Akai's Communications
+  // Protocol v1.2: clip pads notes 0-39 on any channel; track faders CC 7 on
+  // channels 1-8; master fader CC 14; track knobs CC 48-55; clip stop note 52
+  // on channels 1-8; stop all 81; PLAY 91, STOP 92, RECORD 93; up 94, down 95,
+  // right 96, left 97. The protocol does not say in words which corner pad 0
+  // is; this takes the bottom-left, as on Akai's APC mini, so the top row is
+  // cue 1. (Unconfirmed on a unit: if it is the top-left, flip `row` below.)
+  {
+    ControllerMap m {"apc40mk2", "AKAI APC40 mkII (generic mode)", {}};
+    for (int k = 0; k < 8; ++k) {
+      m.rows.push_back(presetFader(k + 1, 7, k + 1));
+      m.rows.push_back(presetSpeed(0, 48 + k, k + 1));
+      for (int row = 0; row < 5; ++row) {
+        Row pad = presetRow(Source::Note, 0, (4 - row) * 8 + k, Read::Press, "GOTO " + std::to_string(row + 1),
+                            Target::Selected, k + 1);
+        pad.ledOn = 21;  // green in its RGB palette
+        m.rows.push_back(pad);
+      }
+      m.rows.push_back(presetRow(Source::Note, k + 1, 52, Read::Press, "STOP", Target::Selected, k + 1));
+    }
+    Row master = presetRow(Source::Cc, 0, 14, Read::Knob, "MASTERVOL {value}");
+    master.from = 0.0;
+    master.to = 100.0;
+    master.decimals = 0;
+    master.pickup = true;
+    m.rows.push_back(master);
+    m.rows.push_back(presetRow(Source::Note, 0, 81, Read::Press, "STOPALL"));
+    m.rows.push_back(presetRow(Source::Note, 0, 91, Read::Press, "GO"));
+    m.rows.push_back(presetRow(Source::Note, 0, 92, Read::Press, "STOP"));
+    m.rows.push_back(presetRow(Source::Note, 0, 93, Read::Press, "RECORD"));
+    m.rows.push_back(presetRow(Source::Note, 0, 94, Read::Press, "STANDBY PREV"));
+    m.rows.push_back(presetRow(Source::Note, 0, 95, Read::Press, "STANDBY NEXT"));
+    m.rows.push_back(presetRow(Source::Note, 0, 96, Read::Press, "DECKNEXT"));
+    m.rows.push_back(presetRow(Source::Note, 0, 97, Read::Press, "DECKPREV"));
+    maps.push_back(std::move(m));
+  }
   return maps;
 }
 

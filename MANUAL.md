@@ -689,8 +689,10 @@ with another row, or with a cue's own TRIGGERS note; both answer.
   asked for straight away, so learning a knob never changes the show by
   itself.
 - **READY-MADE...** adds rows for a KORG nanoKONTROL2, a Novation Launch
-  Control XL (factory template 1) or an AKAI APC mini mk2, in their factory
-  layouts. Strips 1–8 are playlists 1–8.
+  Control XL (factory template 1), an AKAI APC mini mk2 or an AKAI APC40 mkII
+  (generic mode), in their factory layouts. Strips 1–8 are playlists 1–8. A
+  built-in row on one of the same controls (CC 7 is a fader on most of these)
+  is switched off, and the toast says so.
 
 Choose a row to edit it, in three steps:
 
@@ -756,7 +758,7 @@ Over the control port:
 | `MIDIMAP SET COMPUTER\|SHOW <row> <fields>` · `MIDIMAP REMOVE COMPUTER\|SHOW <row>` | Changes or removes one |
 | `MIDIMAP CLEAR COMPUTER\|SHOW` · `MIDIMAP RESET` | Empties a map; puts this computer's back to the built-in rows |
 | `MIDIMAP LEARN` · `MIDIMAP LEARNED` | Learns the next message; reads it back as fields |
-| `MIDIMAP PRESET [nanokontrol2\|launchcontrolxl\|apcminimk2]` | Adds a ready-made map |
+| `MIDIMAP PRESET [nanokontrol2\|launchcontrolxl\|apcminimk2\|apc40mk2]` | Adds a ready-made map |
 | `MIDIMAP FEEDBACK` | What the controller's lights were last told |
 | `MIDIIN NOTE\|NOTEOFF\|CC\|PITCH\|PRESSURE\|KEYPRESSURE\|PROGRAM ... [CH n]` · `MIDIIN OSC <address> [n]` | What a controller would send, from this computer |
 
