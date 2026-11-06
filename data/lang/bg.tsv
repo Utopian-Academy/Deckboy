@@ -494,3 +494,572 @@ Close me. Open me. I'll be fine.	Затвори ме. Отвори ме. Ще с
 # What the desk face says when you switch to this language: a local saying, not a translation.
 @hello	Айде, почваме! Кафето после.
 Oh hey. It's 4:20. Take it easy.	О, здрасти. 4:20 е. Карай по-леко.
+
+# --- tutorials: tools/lesson_strings.py (a whole line each) ---
+HELLO	ЗДРАВЕЙ
+Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me.	Добър ден, скъпи! Аз съм доктор Пиксел, и най-после някой ме разбира от първата дума. Пет минути и ще водиш шоу. По-малко, ако ме слушаш, а ти ще ме слушаш, нали, душичке?
+And I'm Professor Video. Synths first, then video. Mostly video now. Press START and we'll patch... we'll begin.	А аз съм професор Видео. Първо синтезатори, после видео. Сега предимно видео. Натисни START и ще свържем... ще започнем.
+TURN THE OUTPUT ON	ВКЛЮЧИ ИЗХОДА
+Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	Абе, скъпи, екранът е празен! Хората чакат, не ги карай да висят като на опашка в поликлиниката. Отвори MENU и направи ИЗХОД ИЗКЛ. да стане ИЗХОД ВКЛ. Айде де!
+Lesson one: nothing comes out until you patch the oscillator to the... the OUTPUT. It's video. I know.	Урок първи: нищо не излиза, докато не свържеш осцилатора към... към ИЗХОДА. Видео е. Знам.
+BRING IN A CLIP	ДОНЕСИ КЛИП
+Now a picture. Press I and pick a clip from your computer. No clip? SHOW ME, and I lend you one of mine.	Сега картинка. Натисни I и си избери клип от компютъра. Нямаш клип? Няма страшно, натисни SHOW ME и леля Пиксел ще ти услужи с един от нейните.
+Every clip becomes a cue in the playlist. Like loading a sample. A sample with pictures in it.	Всеки клип става кю в плейлиста. Като да заредиш семпъл. Семпъл с картинки.
+TAKE IT LIVE	В ЕФИР
+Your clip waits in the playlist. Select it, then TAKE. Or Enter. Confident operators press Enter.	Клипът ти чака в плейлиста като булка пред църквата. Избери го, после TAKE. Или Enter. Уверените оператори натискат Enter, скъпи, без да мигнат.
+TAKE is the envelope trigger. The, ah, the GO button. Same thing, it just has pictures in it.	TAKE е тригерът на обвивката. Ъ-ъ, бутонът GO. Същото е, просто има картинки.
+LINE UP THE NEXT ONE	ПОДГОТВИ СЛЕДВАЩИЯ
+Click another cue. It waits, ready, until you say. Only one cue? Import another, or SHOW ME.	Щракни друго кю. То чака готово, докато ти кажеш. Само едно кю ли имаш? Внеси още едно или SHOW ME. Едно кю шоу не прави, както една лястовичка пролет не прави.
+Selecting is not playing. The selected one is the next note in the sequence. The next CUE.	Да избереш не значи да пуснеш. Избраното е следващата нота в поредицата. Следващото КЮ.
+CROSSFADE TO IT	ПРЕЛИВАНЕ
+Cuts are for amateurs. In the inspector, press + on transition, so it shows a time, not deck. Then TAKE.	Рязкото сечене е за аматьори, скъпи, срам за майстора. В инспектора натисни + на преход, да пише време, а не deck. После TAKE.
+A crossfade! Portamento, but for pictures. Any time will do. A few more presses and it's a second. Then TAKE.	Преливане! Портаменто, но за картинки. Всяко време става. Още няколко натискания и е секунда. После TAKE.
+CLEAR THE SCREEN	ИЗЧИСТИ ЕКРАНА
+Something goes wrong on stage? Press BLACK, or B. The picture goes. The show keeps running underneath.	Ох, мале мила, нещо се обърка на сцената? Натисни BLACK или B. Картинката изчезва, а шоуто си върви отдолу, все едно нищо не е станало.
+Nothing is lost. Press B again and it comes back. Like the mute on a mixer. Very calming.	Нищо не се губи. Натисни B отново и тя се връща. Като мютването на пулта. Много успокояващо.
+SAVE THE SHOW	ЗАПАЗИ ШОУТО
+Now save. Ctrl+S, or SAVE. Some programs lose your work and then blame you. I would never.	Сега запази. Ctrl+S или ЗАПАЗИ. Някои програми ти губят работата и после теб винят. Аз — никога, честна пионерска.
+Save your patch. Your SHOW. Show. This practice one lives in Deckboy's own folder; yours is safe.	Запази си пача. Шоуто си. Шоуто. Това за упражнение живее в папката на самия Deckboy; твоето е на сигурно.
+THAT'S A SHOW	ТОВА Е ШОУ
+That's a show! Output, cue, TAKE, crossfade, BLACK, save. Nazdrave, skapi. Rakia is on me.	Това е шоу! Изход, кю, TAKE, преливане, BLACK, запазване. Наздраве, скъпи, да сме живи и здрави! Ракията е от мен, домашна, от баба.
+Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	Часът свърши. Примерните шоута учат слоеве, надписи и ефекти. MENU > LEARN THE BASICS пуска всичко отначало.
+*shakes head* That means yes. Bravo.	*клати глава* Тоест да. Най-после някой, който ме разбира! Браво.
+Wonderful! Lovely signal flow.	Прекрасно! Какъв хубав сигнален път.
+Mm. I knew you had it in you.	Мм. Знаех си аз, че го можеш, скъпи. Кръвта вода не става.
+Yes! Have a gold star. It's a dot.	Да! Ето ти златна звездичка. Точка е, ама от сърце.
+Ready for the next step? *nods* ...That means no, skapi. The glowing one. It is glowing for you.	Готов ли си за следващата стъпка? *кима* ...Тоест не, скъпи. Ама ти ме разбираш, нали си наш. Светещото. Свети за теб.
+You've clicked everything but the glowing one. Even my oscillators find the glowing one.	Щракна всичко освен светещото. Даже моите осцилатори намират светещото.
+stop playback first - the lesson cannot hand a running show back as it was	първо спри възпроизвеждането - урокът не може да върне течащо шоу такова, каквото е било
+choose RECOVER or KEEP SAVED first	първо избери RECOVER или KEEP SAVED
+your show could not be saved, so the lesson has not started. Save it (SAVE AS) and try again	шоуто ти не можа да се запази, затова урокът не започна. Запази го (ЗАПАЗИ КАТО) и опитай пак
+the practice show would not open	шоуто за упражнение не се отвори
+could not start the practice show	шоуто за упражнение не можа да започне
+learn the basics: Esc leaves, and it picks up here next time	learn the basics: Esc излиза, а следващия път продължава оттук
+that's the basics - MENU > LESSONS has part two	това са основите - MENU > LESSONS има втора част
+tour paused - LEARN THE BASICS picks up where you left off	обиколката е на пауза - LEARN THE BASICS продължава оттам, докъдето стигна
+Mirrored screens, skapi. Press any key or click, and Dr. Pixel gives it back.	Огледални екрани, скъпи. Натисни който и да е клавиш или щракни, и доктор Пиксел ще ти го върне, не бой се.
+Wrong screen, skapi. Press any key or click, and Dr. Pixel gives it back.	Грешен екран, скъпи. Натисни който и да е клавиш или щракни, и доктор Пиксел ще ти го върне, не бой се.
+The other screen went away, skapi. Press any key or click, and Dr. Pixel gives it back.	Другият екран го няма, скъпи. Натисни който и да е клавиш или щракни, и доктор Пиксел ще ти го върне, не бой се.
+One screen, skapi. Press any key or click, and Dr. Pixel gives it back.	Само един екран, скъпи. Натисни който и да е клавиш или щракни, и доктор Пиксел ще ти го върне, не бой се.
+The other screen went away, skapi, so the picture came back to this one. I put it in a little window, behind. Plug it back in and the picture goes back on it.	Другият екран го няма, скъпи, затова картината се върна на този. Сложих я в едно прозорче, отзад, да не ти пречи. Включи го пак и картината си отива там.
+It ate the desk, skapi. One screen, so the output took all of it. I put it in a little window, behind. A real show gets a second screen.	Изяде пулта, скъпи, ам-ам! Един екран, та изходът го взе целия. Сложих го в едно прозорче, отзад. Истинското шоу иска втори екран, запомни го от мен.
+IT ATE THE DESK	ИЗЯДЕ ПУЛТА
+There. The button that says OUTPUT OFF. Make it say ON, skapi.	Ето. Бутонът, на който пише ИЗХОД ИЗКЛ. Направи го ВКЛ., скъпи.
+Nothing is live to fade from, skapi. TAKE one cue first, then pick the other and give it a time.	Нищо не е в ефир, от което да преливаме, скъпи. Първо TAKE на едно кю, после избери другото и му дай време.
+That was a cut, skapi. Fast, but not a crossfade. Pick the other cue, press + on transition, then TAKE.	Това беше рязко сечене, скъпи. Бързо, ама не е преливане. Избери другото кю, натисни + на преход, после TAKE.
+A feedback loop! Output patched straight back into the desk. Happens to the best of us. Mostly to me. 1983. We don't talk about 1983.	Обратна връзка! Изходът е вързан право обратно в пулта. Случва се и на най-добрите. Най-вече на мен. 1983. За 1983 не говорим.
+No more rakia. The rat has a problem.	Стига ракия. Плъхът има проблем.
+Nazdrave, skapi! Baba's rakia, from the Rhodopes. One glass, for the lesson.	Наздраве, скъпи, да сме живи и здрави! Ракия от баба, от Родопите, сливова, двайсет години в мазето. Една чашка, за урока. Е, може и две.
+Is this... is this allowed during a tutorial?	Това... това разрешено ли е по време на урок?
+*shakes head* That means one more.	*клати глава* Тоест още една. Ние тук така си говорим.
+I love you all. I love the oscillator. I love the OUTPUT. It's video. I know. I KNOW.	Обичам ви всички. Обичам осцилатора. Обичам ИЗХОДА. Видео е. Знам. ЗНАМ.
+...and the rat took the rakia. Every time, skapi. Every single time.	...и плъхът взе ракията. Всеки път, скъпи. Всеки божи път. Да му се не види и на плъха.
+Was that a rat? In a hat? With a pizza?	Това плъх ли беше? С шапка? С пица?
+Stop that. I am a serious man.	Престани. Аз съм сериозен човек.
+Do not tell Dr. Pixel about this.	Не казвай на доктор Пиксел.
+This never happened. Back to the patch bay.	Това никога не се е случвало. Обратно към комутационния панел.
+It was the eighties. Everyone had a bow tie.	Бяха осемдесетте. Всички носеха папийонки.
+LESSON LIST	СПИСЪК С УРОЦИ
+OPEN EXAMPLE SHOWS	ОТВОРИ ПРИМЕРНИТЕ ШОУТА
+EXIT (Esc)	ИЗХОД (Esc)
+Taking it on the road	Шоуто на път
+CHECK a show before it travels, fix what it finds, and bundle it with its media.	Направи CHECK, преди шоуто да тръгне, оправи каквото намери и го пакетирай заедно с медията.
+Effects, oscillators and colour	Ефекти, осцилатори и цвят
+An effect, a ~ on its knob, and the colour picker.	Ефект, ~ на копчето му и избор на цвят.
+The art school crit, with Mr. Salty	Разбор в художествената академия, с мистър Солти
+Patterns, synths and Draw	Шаблони, синтезатори и Draw
+A test pattern, the video synth, and drawing on the picture, saved as a still.	Тестов шаблон, видеосинтезатор и рисуване върху картината, запазено като кадър.
+The telestrator booth, with Coach Marv	Кабината на телестратора, с треньора Марв
+Masks	Маски
+A heart from the library, the pen, invert and feather.	Сърце от библиотеката, писалката, обръщане и омекотяване.
+The Signal Files: redact the evidence	Сигнални досиета: заличи уликата
+Warp, blend and slices	Изкривяване, смесване и парчета
+A corner pin, two soft edges, then three slices in the Screens window.	Ъглово закрепване, два меки ръба, после три парчета в прозореца Screens.
+The haunted lighthouse, with Keeper Rook	Обитаваният фар, с пазача Рук
+GO from anywhere	GO отвсякъде
+Cue numbers, GOTO, a hotkey, and where Companion, MIDI and OSC come in.	Номера на кюта, GOTO, клавиш и откъде влизат Companion, MIDI и OSC.
+The game show, with Donna Wheel	Телевизионната игра, с Дона Уийл
+Words on screen	Думи на екрана
+A Lower Third with a name on it, then a title card with a key-green backdrop.	Надпис с име, после заглавна карта на зелен фон за кеиране.
+The kaiju weather report, with June O'Neil	Прогнозата за кайджу, с Джун О'Нийл
+Keeping time	Да пазим времето
+A stage timer counting down, held, and a presenter view for the person on stage.	Сценичен таймер с обратно броене, спрян, и изглед за водещия на сцената.
+A grand day out, with Wallis and Grommet	Голямата разходка, с Уолис и Громит
+Two playlists and TAKE ALL	Два плейлиста и TAKE ALL
+A second playlist as a layer, and TAKE ALL so two things change on one beat.	Втори плейлист като слой и TAKE ALL, за да се сменят две неща в един такт.
+The magic show, with Turnip Top	Шоуто с фокусите, с Търнип Топ
+When it goes wrong	Когато нещо се обърка
+BLACK against PANIC, and getting a show back.	BLACK срещу PANIC и как да си върнеш шоуто.
+The cooking show, with Chef Bork	Кулинарното шоу, с готвача Борк
+Presets	Пресети
+Capture a look on a DASH button, change everything, and get it back with one press.	Запомни визия на бутон от DASH, смени всичко и я върни с едно натискане.
+Transitions	Преходи
+The styles beyond the crossfade: an iris, a shatter, and their times.	Стиловете отвъд преливането: ирис, трошене и тяхното време.
+The space-opera trailer, with Optimus Primetime	Трейлърът на космическата опера, с Оптимус Праймтайм
+Sound	Звук
+An audio effect on a cue, a bend that damages it beautifully, and where the patch lives.	Аудиоефект на кю, огъване, което красиво го поврежда, и къде живее пачът.
+The robot DJs, with Deft Funk	Роботите диджеи, с Deft Funk
+Reading the scopes	Да четем скоповете
+The waveform, the vectorscope, and false colour: is the glow real, or just too bright?	Вълновата форма, векторскопът и фалшивият цвят: истинско ли е сиянието, или просто е твърде ярко?
+The Signal Files: is the glow on the horizon a craft?	Сигнални досиета: сиянието на хоризонта кораб ли е?
+Out of the building	Извън сградата
+Where NDI, SDI and ST 2110 live, and NDI switched on where this computer has it.	Къде живеят NDI, SDI и ST 2110, и NDI включен там, където този компютър го има.
+The webcam as a controller, as a game. Five rounds, a high score.	Уебкамерата като контролер, като игра. Пет рунда, рекорд.
+A handheld, and bugs	Джобна конзола и бъгове
+The multiview	Мултивю
+Windows, the ... menu, what each one shows, layouts, and tally.	Прозорци, менюто ..., какво показва всеки, подредби и тали.
+Mystery on the starship Cathode, with Lt. Haila and Ensign Jinkley	Мистерия на звездолета „Катод“, с лейтенант Хайла и мичман Джинкли
+DR. PIXEL: Two playlists: Deckboy becomes SUPER DECKBOY. It earned it, skapi.	DR. PIXEL: Два плейлиста: Deckboy става SUPER DECKBOY. Заслужи си го, скъпи, браво на него, юнак!
+PROF. VIDEO: It evolved! My oscillators never got a fanfare.	PROF. VIDEO: Еволюира! На моите осцилатори никой не им е свирил фанфари.
+DR. PIXEL: SUPER DECKBOY! Every show deserves one. Bravo.	DR. PIXEL: SUPER DECKBOY! Всяко шоу заслужава по един. Браво, бе! Да ти се не види!
+PROF. VIDEO: The power-up! More playlists, more layers, more super.	PROF. VIDEO: Пауър-ъп! Повече плейлисти, повече слоеве, повече супер.
+Intro video (left on the office PC)	Встъпително видео (забравено на компютъра в офиса)
+ON THE ROAD	НА ПЪТ
+A show you built here, skapi, running on a laptop somewhere else tonight. Press START.	Шоу, което си направил тук, скъпи, довечера тръгва на лаптоп някъде другаде. Като дете, което заминава на лагер. Натисни START.
+Before it travels: check it, fix it, bundle it.	Преди да тръгне: провери, оправи, пакетирай.
+See CHECK in the top bar? It only appears when something is wrong. Press it.	Виждаш ли CHECK горе на лентата? Показва се само когато нещо не е наред. Натисни.
+It lists everything a show would trip over: missing files, empty cues, unreachable outputs.	Изрежда всичко, в което шоуто би се спънало: липсващи файлове, празни кюта, недостъпни изходи.
+FIX IT	ОПРАВИ ГО
+The intro video is on another computer. Select it and delete it, or RELINK it if you have the file.	Встъпителното видео е на друг компютър. Избери го и го изтрий или направи RELINK, ако имаш файла.
+Fix it at home, where it is easy. Not at the venue, where it is not.	Оправи го вкъщи, където е лесно. Не на място, където не е. Бързата работа — срам за майстора.
+BUNDLE IT	ПАКЕТИРАЙ
+Press BUNDLE and choose where: a USB stick, a shared folder. The show and all its media, together.	Натисни ПАКЕТИРАЙ и избери къде: флашка, споделена папка. Шоуто и цялата му медия, заедно.
+The copy finds its media beside it, wherever the folder goes.	Копието си намира медията до себе си, където и да отиде папката.
+SAFE TRAVELS	ЛЕК ПЪТ
+Checked, fixed, bundled. On the other machine, open the bundle's show: everything is where it should be.	Проверено, оправено, пакетирано. На другата машина отвори шоуто от пакета: всичко си е на мястото. Лек път, скъпи, обади се като стигнеш!
+A show file is only text, so it travels light. The media is the heavy part.	Файлът на шоуто е само текст, затова пътува леко. Тежкото е медията.
+Student work no. 4 (untitled)	Студентска работа № 4 (без заглавие)
+THE CRIT	РАЗБОРЪТ
+An art school, skapi. One student, one picture, one critic who has seen it all. Press START.	Художествена академия, скъпи. Един студент, една картина и един критик, който е видял всичко под слънцето. Натисни START.
+Effects change a picture; an oscillator keeps changing it. The critic only likes the second kind.	Ефектите променят картината; осцилаторът я променя непрекъснато. Критикът харесва само второто.
+A grey square on beige. I have seen this at every graduate show since 1987.	Сив квадрат на бежово. Виждам го на всяка дипломна изложба от 1987 насам.
+AN EFFECT	ЕФЕКТ
+In the inspector's EFFECTS section, + adds one. Edges is a good start: it draws the outlines.	В секцията EFFECTS на инспектора + добавя ефект. Edges е добро начало: рисува контурите. Започни с него, пък после ще видим.
+There are dozens. Every one runs on the CPU in a few milliseconds. Mostly.	Има ги десетки. Всеки върви на процесора за няколко милисекунди. Обикновено.
+Take a risk! Bad art is fine. Boring art is a crime.	Рискувай! Лошото изкуство е наред. Скучното изкуство е престъпление.
+A ~ ON ITS KNOB	~ НА КОПЧЕТО
+Every control with a ~ beside it can follow an oscillator. Press one. The knob starts to breathe.	Всеки контрол с ~ до него може да следва осцилатор. Натисни някой. Копчето започва да диша. Гледай го, като жива твар е!
+A low-frequency oscillator: slow, so the eye can follow it. A quarter of a hertz is a four-second breath.	Нискочестотен осцилатор: бавен, за да го следи окото. Четвърт херц е вдишване от четири секунди.
+Now it MOVES. Okay. Okay. I'm listening.	Сега вече СЕ ДВИЖИ. Добре. Добре. Слушам.
+A COLOUR OF ITS OWN	СОБСТВЕН ЦВЯТ
+Effects that draw a colour, like Edges' line, have a colour chip. It opens the picker: a wheel, typed names, or a colour off the screen.	Ефектите, които рисуват с цвят, като линията на Edges, имат цветно квадратче. Отваря избора: колело, написани имена или цвят право от екрана.
+Every colour has a name somewhere. Mine is 'oscilloscope green'. Nobody else uses it.	Всеки цвят си има име някъде. Моят е „осцилоскопско зелено“. Никой друг не го ползва.
+That colour is doing something. I don't know what. I love it.	Тоя цвят прави нещо. Не знам какво. Обожавам го.
+THE VERDICT	ПРИСЪДАТА
+An effect, a ~ and a colour. The critic is crying, skapi. Good crying, I think.	Ефект, ~ и цвят. Критикът плаче, скъпи. От умиление, вярвам. Видя ли? Капка по капка — вир става.
+Stack a few. Each has its own ~ on every knob. That is how a look becomes a performance.	Наслагай няколко. Всеки си има своя ~ на всяко копче. Така една картинка става представление.
+It's still a square. But it's YOUR square. Post it.	Пак си е квадрат. Но е ТВОЯТ квадрат. Пусни го.
+THE TELESTRATOR BOOTH	КАБИНАТА НА ТЕЛЕСТРАТОРА
+Coach Marv explains sport by drawing circles on it. Once he circled the sun. Ten minutes, skapi.	Треньорът Марв обяснява спорта, като рисува кръгчета по него. Веднъж огради слънцето. Десет минути, скъпи, и бягаме.
+Tonight: test patterns, the video synth, and drawing on the picture. Press START.	Тази вечер: тестови шаблони, видеосинтезатор и рисуване върху картината. Натисни START.
+Get me a picture and a pen. BOOM.	Дайте ми картина и химикал. БУМ.
+A TEST PATTERN	ТЕСТОВ ШАБЛОН
+Line up the screens BEFORE the show. Not during. I learned this in Plovdiv.	Подравни екраните ПРЕДИ шоуто. Не по време. Научих го в Пловдив, по трудния начин, пред цяла зала и кмета на първия ред.
+Every desk needs a test pattern. PATTERN adds Pocket Test: checked against real meters.	Всеки пулт иска тестов шаблон. ШАБЛОН добавя Pocket Test: проверен с истински уреди.
+A VIDEO SYNTH	ВИДЕОСИНТЕЗАТОР
+He says 'no camera needed' like it is a feature. It is a feature.	Казва „не трябва камера“, все едно е функция. Функция е, бе!
+My favourite. SOURCE, then Video Synth: oscillators, mirrors and feedback. No camera needed.	Любимият ми. ИЗТОЧНИК, после Video Synth: осцилатори, огледала и обратна връзка. Не трябва камера.
+TAKE THE SYNTH	TAKE НА СИНТЕЗАТОРА
+Select it, then TAKE. Confident operators press Enter.	Избери го, после TAKE. Уверените оператори натискат Enter.
+That's our replay. Every replay needs a pundit.	Това е нашият повтор. Всеки повтор си иска коментатор.
+Now here's a replay. And here's a guy. And BOOM, he's in it.	Ето повтора. Ето играча. И БУМ, вътре е.
+A SECOND PLAYLIST	ВТОРИ ПЛЕЙЛИСТ
+Ink goes on top, on its own layer. Press the + at the end of the playlist tabs.	Мастилото отива отгоре, на собствен слой. Натисни + в края на табовете на плейлистите.
+A second playlist is a layer over the first. Like a second oscillator, mixed on top.	Вторият плейлист е слой над първия. Като втори осцилатор, смесен отгоре.
+A DRAW CUE	КЮ DRAW
+In the new playlist: SOURCE, then Draw. Clear everywhere you have not drawn.	В новия плейлист: ИЗТОЧНИК, после Draw. Прозрачно навсякъде, където не си рисувал.
+A Draw cue is transparent outside the ink, so the synth shows through.	Кю Draw е прозрачно извън мастилото, затова синтезаторът прозира.
+TAKE THE INK	TAKE НА МАСТИЛОТО
+Select the Draw cue and TAKE it. Two playlists, two layers, one picture.	Избери кюто Draw и направи TAKE. Два плейлиста, два слоя, една картина. Хубава работа, скъпи!
+Now both are live: the synth underneath, the ink on top.	Сега и двете са в ефир: синтезаторът отдолу, мастилото отгоре.
+CIRCLE SOMETHING	ОГРАДИ НЕЩО
+Press DRAW in the inspector, then draw on the programme monitor. Mouse, or a pen if you have one.	Натисни DRAW в инспектора, после рисувай по монитора на програмата. С мишката или с писалка, ако имаш.
+A pen's pressure makes the line thicker. A mouse presses at one strength. Like me.	Натискът на писалката удебелява линията. Мишката натиска все еднакво. Като мен.
+Circle him! No, bigger. BOOM. That's a cloud. Fine. Circle the cloud.	Огради го! Не, по-голямо. БУМ. Това е облак. Добре. Огради облака.
+SAVE A STILL	ЗАПАЗИ КАДЪР
+SAVE STILL keeps the drawing as a picture with a clear background, and adds it to the playlist.	SAVE STILL пази рисунката като картина с прозрачен фон и я добавя в плейлиста.
+For next week's show. Coach Marv will want the cloud again.	За предаването следващата седмица. Треньорът Марв пак ще иска облака.
+THAT'S THE BOOTH	ТОВА БЕШЕ КАБИНАТА
+Patterns, the synth, a layer, ink, a still. Nazdrave, skapi.	Шаблони, синтезатор, слой, мастило, кадър. Наздраве, скъпи! Ти си златно дете.
+Try Replay in the Draw section: it draws your lines back the way you drew them.	Пробвай Replay в секцията Draw: прерисува линиите ти така, както си ги рисувал.
+Same time next week. Bring a bigger pen. And a turducken.	Същото време следващата седмица. Донеси по-дебел химикал. И една тава баница.
+Saucer photo (CLASSIFIED)	Снимка на чинията (СТРОГО СЕКРЕТНО)
+THE SIGNAL FILES	СИГНАЛНИ ДОСИЕТА
+The Bureau of Unexplained Signals. Two agents, one photo, and it must not air. Press START.	Бюро за необясними сигнали. Двама агенти, една снимка, и тя не бива да излезе в ефир. Държавна тайна, скъпи, да си знаеш. Натисни START.
+Masks cut a picture into shapes. Tonight we cut evidence.	Маските изрязват картината на форми. Тази вечер изрязваме улики.
+That's a craft, Brandt. Look at the lights. I want to believe.	Това е кораб, Брандт. Погледни светлините. Искам да вярвам.
+A MASK FROM THE LIBRARY	МАСКА ОТ БИБЛИОТЕКАТА
+In the inspector's MASK section: mask, then 'new heart'. Any shape will do. The heart is funnier.	В секцията MASK на инспектора: mask, после „new heart“. Всяка форма става. Сърцето е по-смешно, а и сърце винаги трябва.
+The library has circles, stars, hearts. Each one is points you can move.	В библиотеката има кръгове, звезди, сърца. Всяка е от точки, които можеш да местиш.
+A heart, Hollis? The Bureau redacts with black bars.	Сърце ли, Холис? Бюрото заличава с черни ленти.
+THE PEN	ПИСАЛКАТА
+Set the tool to pen, then click round the saucer on the monitor. Click the first point to close it.	Сложи инструмента на писалка, после щракай около чинията на монитора. Щракни първата точка, за да затвориш.
+Click for corners, drag for curves. The way the Bezier brothers intended.	Щракане за ъгли, влачене за криви. Както са го искали братята Безие.
+Draw round it carefully. It might be watching.	Ограждай внимателно. Може да гледа.
+INVERT	ОБЪРНИ
+Invert keeps the outside and cuts the inside. The saucer goes. The sky stays.	Обръщането пази външното и изрязва вътрешното. Чинията изчезва. Небето остава.
+The same shape, the other way round. Very useful. Slightly spooky.	Същата форма, наопаки. Много полезно. Малко зловещо.
+Hollis, there's a heart-shaped hole in the sky.	Холис, в небето има дупка във формата на сърце.
+FEATHER	ОМЕКОТЯВАНЕ
+Feather softens the edge, so nobody sees the cut. Press + on feather.	Омекотяването смекчава ръба, за да не види никой среза. Натисни + на feather. Тихо и кротко, като котка.
+A hard edge says 'someone was here'. A soft one says nothing at all.	Острият ръб казва „някой е бил тук“. Мекият не казва нищо.
+They'll never know.	Никога няма да разберат.
+CASE CLOSED	ДЕЛОТО Е ПРИКЛЮЧЕНО
+A library shape, the pen, invert and feather. The Bureau thanks you. The Bureau was never here.	Форма от библиотеката, писалка, обръщане и омекотяване. Бюрото ви благодари. Бюрото никога не е било тук. И аз не съм, ако някой пита.
+Masks also go on a layer, an output, or its matte: MASK ON chooses. And every control takes a ~.	Маските отиват и на слой, изход или неговото мате: MASK ON избира. И всеки контрол приема ~.
+The truth is in the waveform, Hollis. Next time, the scopes.	Истината е във вълновата форма, Холис. Следващия път — скоповете.
+The ghost	Призракът
+THE HAUNTED LIGHTHOUSE	ОБИТАВАНИЯТ ФАР
+A lighthouse, a ghost, and a keeper who has been alone with the lamp far too long. Press START.	Фар, призрак и пазач, който е стоял прекалено дълго сам с лампата. Горкият човек, скъпи. Натисни START.
+Projection mapping: bending the picture to fit the building. Warp, blend, slices.	Прожекционен мапинг: огъваме картината да легне на сградата. Изкривяване, смесване, парчета.
+Ye'll be wanting the ghost on the windows. Mind the lamp. The lamp is MINE.	Искате призрака на прозорците, а? Внимавайте с лампата. Лампата е МОЯ.
+THE OUTPUT'S GEOMETRY	ГЕОМЕТРИЯТА НА ИЗХОДА
+MENU, then Video Outputs, then Geometry. Where an output's shape lives.	MENU, после Видео изходи, после Геометрия. Там живее формата на изхода.
+Geometry: the projector-menu word for 'what shape is the picture'.	Геометрия: думата от менюто на проектора за „каква форма е картината“.
+PIN A CORNER	ЗАКРЕПИ ЪГЪЛ
+Press warp edit, then drag a corner on the programme monitor. The window is not square. Neither is the keeper.	Натисни warp edit, после влачи ъгъл на монитора на програмата. Прозорецът не е квадратен. Пазачът също.
+A corner pin moves the four corners. Perspective keeps the lines straight, like a real window.	Ъгловото закрепване мести четирите ъгъла. Перспективата държи линиите прави, като истински прозорец.
+LEFT! Ye call that a corner? I've seen straighter gulls.	НАЛЯВО! Това ли ти е ъгъл? Виждал съм по-прави чайки.
+TWO SOFT EDGES	ДВА МЕКИ РЪБА
+Back in Geometry: edge blend, + on the left and + on the right.	Обратно в Геометрия: edge blend, + отляво и + отдясно.
+Two projectors overlap; each fades its edge so the overlap is not twice as bright.	Два проектора се застъпват; всеки затихва ръба си, за да не е застъпването двойно по-ярко.
+THE SCREENS WINDOW	ПРОЗОРЕЦЪТ SCREENS
+Geometry, SLICES, open. The Screens window is where slices are cut and placed.	Геометрия, SLICES, отвори. В прозореца Screens парчетата се изрязват и нареждат.
+A slice is a piece of the picture, put anywhere on the output.	Парчето е къс от картината, сложен където искаш на изхода.
+THREE SLICES	ТРИ ПАРЧЕТА
+In the Screens window, + SLICE three times, and drag each crop to a third of the picture.	В прозореца Screens натисни + SLICE три пъти и завлачи всяко изрязване на една трета от картината. Като баница — по равно на всички.
+Three windows, three slices: left, middle and right of one picture.	Три прозореца, три парчета: лявото, средното и дясното на една картина.
+Three windows. The lamp gets the middle one. The lamp ALWAYS gets the middle one.	Три прозореца. Средният е за лампата. Средният ВИНАГИ е за лампата.
+THE GHOST IS PLEASED	ПРИЗРАКЪТ Е ДОВОЛЕН
+Warp, blend, slices. The keeper will finally sleep. The gulls will not.	Изкривяване, смесване, парчета. Пазачът най-после ще заспи. Чайките — не.
+Slices have their own warp and mesh in the Screens window. And a ~ on the place and the turn.	Парчетата имат свое изкривяване и мрежа в прозореца Screens. И ~ на мястото и завъртането.
+Ye did alright, lad. Now get away from the lamp.	Справи се, момче. А сега се махни от лампата.
+THE GAME SHOW	ТЕЛЕВИЗИОННАТА ИГРА
+A game show, skapi. Three contestants, one buzzer, and cues that fire from anywhere. Press START.	Телевизионна игра, скъпи! Трима участници, един звънец и кюта, които тръгват отвсякъде. Като „Стани богат“, ама с повече кабели. Натисни START.
+Cue numbers, hotkeys, and GO from other machines. Like a sequencer you can play from any key.	Номера на кюта, клавиши и GO от други машини. Като секвенсер, на който свириш от всеки клавиш.
+Welcome to the show! Let's spin that wheel!	Добре дошли в предаването! Да завъртим колелото!
+A CUE NUMBER	НОМЕР НА КЮ
+Contestant 3 is selected. In the inspector's metadata, give it a cue number: 3.	Избран е Участник 3. В метаданните на инспектора му дай номер на кю: 3.
+Theatre numbers its cues. Q3, Q3.5, Q12A. Deckboy reads them all.	Театърът номерира кютата си. Q3, Q3.5, Q12A. Deckboy ги чете всичките.
+I'd like to buy a number, please.	Бих искала да купя номер, моля.
+GO TO IT	ОТИДИ ТАМ
+Ctrl+G, type the number, Enter. It goes live wherever the list happens to be standing.	Ctrl+G, напиши номера, Enter. Отива в ефир, където и да е спрял списъкът.
+GOTO. The fastest way across a long list. Faster than scrolling. Much faster than me.	GOTO. Най-бързият път в дълъг списък. По-бърз от превъртането. Много по-бърз от мен.
+And the number is... three!	И номерът е... три!
+A BUZZER	ЗВЪНЕЦ
+Contestant 1 is selected. In TRIGGERS, press key, then F5. That key now fires this cue.	Избран е Участник 1. В TRIGGERS натисни key, после F5. Сега този клавиш пуска това кю.
+F1 to F10, F12, or the number pad. Each one, a buzzer.	От F1 до F10, F12 или цифровата клавиатура. Всеки е звънец.
+Every contestant gets a buzzer.	Всеки участник получава звънец.
+BUZZ IN	ЗВЪННИ!
+Press the key. The cue fires, wherever the list is standing.	Натисни клавиша. Кюто тръгва, където и да е спрял списъкът.
+No mouse, no list, no looking. Just the key.	Без мишка, без списък, без гледане. Само клавишът. Като на сватба — един знак и хорото тръгва.
+Buzz! We have a winner!	Дзън! Имаме победител!
+FROM ANYWHERE	ОТВСЯКЪДЕ
+Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion, MIDI нота, OSC съобщение: MENU, после Мрежа, казва къде се свързва всяко.
+A Stream Deck in the next room can press GO. So can a keyboard synth. I prefer the synth.	Stream Deck в съседната стая може да натисне GO. И клавишен синтезатор също. Аз предпочитам синтезатора.
+And for our viewers at home: you can play along too.	А за зрителите вкъщи: и вие можете да играете.
+THAT'S OUR SHOW	ТОВА БЕШЕ НАШЕТО ПРЕДАВАНЕ
+Numbers, GOTO, a buzzer, and GO from anywhere. You are a game show now, skapi.	Номера, GOTO, звънец и GO отвсякъде. Сега ти си цяла телевизионна игра, скъпи. Ще те дават по телевизията, ще видиш!
+A cue can have a key, a MIDI note and an OSC address at once. Belt, braces and a second belt.	Едно кю може да има наведнъж клавиш, MIDI нота и OSC адрес. И колан, и тиранти, и втори колан.
+Goodnight, everybody! Keep spinning!	Лека нощ на всички! Въртете още!
+Weather map	Метеорологична карта
+THE KAIJU WEATHER	ПРОГНОЗАТА ЗА КАЙДЖУ
+Channel 6 weather, skapi. A map, a presenter, and a very large lizard. Press START.	Прогнозата по Канал 6, скъпи. Карта, водеща и един много голям гущер. Ох, мале. Натисни START.
+Words on screen: Lower Thirds, text, and backdrops.	Думи на екрана: надписи, текст и фонове.
+I'm June O'Neil, and nothing about this forecast is normal.	Аз съм Джун О'Нийл и нищо в тази прогноза не е нормално.
+A LAYER FOR WORDS	СЛОЙ ЗА ДУМИТЕ
+Words go on their own layer: press the + at the end of the playlist tabs.	Думите отиват на собствен слой: натисни + в края на табовете на плейлистите.
+A second playlist is a layer over the map. The lizard stays underneath. Mostly.	Вторият плейлист е слой над картата. Гущерът стои отдолу. Обикновено.
+Words on top. Always on top.	Думите отгоре. Винаги отгоре.
+A LOWER THIRD	НАДПИС
+In the new playlist: SOURCE, then Lower Third.	В новия плейлист: ИЗТОЧНИК, после Lower Third.
+A name and a title, low on the screen, out of the lizard's way.	Име и длъжност, ниско на екрана, далеч от пътя на гущера.
+HER NAME	НЕЙНОТО ИМЕ
+In the inspector, title: type the presenter's name. The second line is her job.	В инспектора, title: напиши името на водещата. Вторият ред е длъжността ѝ.
+Spelling counts. The audience reads it at the speed of light.	Правописът е важен. Зрителите четат със скоростта на светлината.
+Spell it right. Last week it said 'Jane O'Meal'.	Пиши го правилно. Миналата седмица пишеше „Джун О'Нийлова“.
+ON AIR	В ЕФИР
+TAKE the Lower Third. Her name slides in over the map.	TAKE на надписа. Името ѝ се плъзга над картата.
+Two layers live: the weather, and the words on top of it.	Два слоя в ефир: времето и думите отгоре.
+Thank you. Now, about that lizard...	Благодаря. А сега, относно гущера...
+BREAKING NEWS	ИЗВЪНРЕДНО
+SOURCE, then Text: a title card. Then its backdrop chip: key green, for the vision mixer to key out.	ИЗТОЧНИК, после Text: заглавна карта. После квадратчето за фон: зелено за кеиране, за да го изреже миксерът.
+A backdrop fills behind the words. Key green or key blue, and the mixer does the rest.	Фонът запълва зад думите. Зелено или синьо за кеиране, а миксерът прави останалото.
+Breaking news: it's standing on the five-day forecast.	Извънредно: стъпил е върху прогнозата за пет дни.
+BREAKING: KAIJU	ИЗВЪНРЕДНО: КАЙДЖУ
+BACK TO YOU	ВРЪЩАМЕ ВИ В СТУДИОТО
+A Lower Third, a name, a title card, a backdrop. The lizard has left the studio, skapi.	Надпис, име, заглавна карта, фон. Гущерът напусна студиото, скъпи. Слава богу, и аз се притесних.
+Lower Thirds can wait, slide and leave on their own. Their section has every setting.	Надписите могат сами да чакат, да се плъзгат и да излизат. В тяхната секция са всички настройки.
+That's the weather. Back to you, guys. Run.	Това беше прогнозата. Връщаме ви в студиото. Бягайте.
+A GRAND DAY OUT	ГОЛЯМАТА РАЗХОДКА
+A rocket built in a basement, skapi, and an inventor who wants cheese. Press START.	Ракета, построена в мазето, скъпи, и изобретател, който иска сирене. Бяло саламурено, надявам се. Натисни START.
+Stage timers: countdowns, clocks, and a presenter view for the person on stage.	Сценични таймери: обратно броене, часовници и изглед за водещия на сцената.
+Cheese, Grommet! The moon's made of it. We'll need a countdown.	Сирене, Громит! Луната е от сирене. Трябва ни обратно броене.
+A COUNTDOWN	ОБРАТНО БРОЕНЕ
+SOURCE, then Stage Timer. A clock that counts down, in big friendly numbers.	ИЗТОЧНИК, после Stage Timer. Часовник, който брои назад, с големи приятелски цифри.
+Its colours change as it runs out: white, amber, red. Like a VU meter for time.	Цветовете му се сменят, докато времето изтича: бяло, кехлибарено, червено. Като VU метър за времето.
+*raises an eyebrow*	*вдига вежда*
+LIFT OFF	ИЗСТРЕЛВАНЕ
+Select the timer and TAKE it. The countdown starts.	Избери таймера и направи TAKE. Броенето тръгва.
+Past zero it keeps going, counting the overtime. Very honest. Slightly rude.	След нулата продължава и брои просрочването. Много честно. Малко грубо.
+Ten... nine... ooh, I do love a countdown.	Десет... девет... о, как обичам обратно броене.
+HOLD!	СТОП!
+Something's loose! Space holds the countdown. The clock shows it is held.	Нещо се е разхлабило! Интервалът спира броенето. Часовникът показва, че е спрял.
+A hold is not a stop. Space again, and it carries on from where it was.	Спирането не е стоп. Пак интервал и продължава оттам, докъдето беше.
+*holds up a spanner*	*вдига гаечен ключ*
+THE PILOT'S VIEW	ИЗГЛЕДЪТ НА ПИЛОТА
+MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	MENU, Видео изходи: направи типа на един изход PRESENTER. Човекът на сцената вижда таймера, следващото кю и бележките си.
+A presenter view is an output like any other. Point it at the confidence monitor.	Изгледът за водещия е изход като всеки друг. Насочи го към контролния монитор.
+So the pilot can see the time. The pilot is Grommet.	За да вижда пилотът часа. Пилотът е Громит.
+TO THE MOON	КЪМ ЛУНАТА
+A countdown, a hold, and a view for the pilot. Nazdrave, skapi. Bring crackers.	Обратно броене, пауза и изглед за пилота. Наздраве, скъпи! Вземи и солети за из път.
+Timers can also count up, or show the time of day. Their section has the lot.	Таймерите могат и да броят нагоре, и да показват часа. В тяхната секция е всичко.
+A grand day out, Grommet! Pass the crackers.	Каква разходка, Громит! Подай солетите.
+The trunk (closed)	Сандъкът (затворен)
+The trunk (open)	Сандъкът (отворен)
+THE MAGIC SHOW	ШОУТО С ФОКУСИТЕ
+A magic show, skapi. A trunk, a prop, and one beat where everything changes at once. Press START.	Шоу с фокуси, скъпи. Сандък, реквизит и един такт, в който всичко се сменя наведнъж. Хоп-троп! Натисни START.
+Two playlists are two layers. TAKE ALL changes both together.	Два плейлиста са два слоя. TAKE ALL сменя и двата заедно.
+Every trick needs two things happening at once. And a rubber chicken.	Всеки фокус иска две неща едновременно. И гумено пиле.
+The prop goes on its own layer. Press the + at the end of the playlist tabs.	Реквизитът отива на собствен слой. Натисни + в края на табовете на плейлистите.
+Playlist 2 sits on top of playlist 1. Like a transparency on an overhead projector.	Плейлист 2 стои върху плейлист 1. Като фолио на шрайбпроектор.
+Nothing up my sleeve. Everything in my trunk.	Нищо в ръкава. Всичко в сандъка.
+THE PROP	РЕКВИЗИТЪТ
+In the new playlist, add anything: PATTERN will do. That is the prop.	В новия плейлист добави каквото и да е: ШАБЛОН става. Това е реквизитът.
+Whatever it is, it will appear the instant the trunk opens.	Каквото и да е, ще се появи в мига, в който сандъкът се отвори.
+Is it a rubber chicken? It's always a rubber chicken.	Гумено пиле ли е? Винаги е гумено пиле.
+The prop (rubber chicken)	Реквизитът (гумено пиле)
+TA-DA	ТАДАА
+Select 'The trunk (open)' in playlist 1 and the prop in playlist 2. Then TAKE ALL: both on one beat.	Избери „Сандъкът (отворен)“ в плейлист 1 и реквизита в плейлист 2. После TAKE ALL: двете в един такт.
+One press, every playlist's selected cue. The audience never sees the seam.	Едно натискане, избраното кю на всеки плейлист. Публиката никога не вижда шева.
+Ta-daaa! ...Hold for applause. Hold. Hold.	Тадааа! ...Изчакайте аплодисментите. Чакайте. Чакайте.
+THE PRESTIGE	ГОЛЕМИЯТ ФОКУС
+Two layers, one beat. Every playlist has its own opacity and can sit on any output. Nazdrave, skapi.	Два слоя, един такт. Всеки плейлист си има непрозрачност и може да стои на всеки изход. Наздраве, скъпи! Ти си магьосник, бе!
+A magician never reveals. A playlist never minds being revealed.	Фокусникът никога не издава тайната. На плейлиста не му пука, ако го издадат.
+Thank you! I'm here all week! The chicken is here forever.	Благодаря! Тук съм цялата седмица! Пилето е тук завинаги.
+The kitchen (on fire)	Кухнята (гори)
+A lovely souffle	Прекрасно суфле
+THE COOKING SHOW	КУЛИНАРНОТО ШОУ
+A cooking show, skapi. Live. Everything is on fire. Press START.	Кулинарно шоу, скъпи. На живо. Всичко гори, като у нас на Бъдни вечер. Натисни START.
+BLACK hides the picture and keeps the show running. PANIC stops everything. Know which you need.	BLACK скрива картината, а шоуто върви. PANIC спира всичко. Знай кое ти трябва.
+Bork bork! Hurdy-flurdy, de kitchen is fire-a-flurdy!	Борк борк! Хурди-флурди, кухнята гори-флурди!
+The audience must not see this. Press BLACK, or B.	Публиката не бива да вижда това. Натисни BLACK или B. Бързо, скъпи, бързо!
+The picture goes. The cue keeps playing underneath, ready to come back.	Картината изчезва. Кюто продължава отдолу, готово да се върне.
+Bork? Bork. Oh, de picture is gun.	Борк? Борк. О, картината я няма.
+AND BACK	И ОБРАТНО
+The fire's out. Press B again: the picture comes back, still running.	Пожарът е изгасен. Натисни B пак: картината се връща, още тече. Ух, отдъхнах си.
+Nothing was lost. A mute on a mixer, for pictures.	Нищо не е загубено. Мютване на пулта, но за картини.
+Ta-da! Still cookin'!	Тадаа! Още готвим!
+Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	По-лошо: MENU, Система, картата SAFETY: PANIC. Всичко спира, както казва настройката за паника.
+PANIC is the big red button. Use it when BLACK is not enough. Then breathe.	PANIC е голямото червено копче. Ползвай го, когато BLACK не стига. После дишай.
+Bork bork BORK!	Борк борк БОРК!
+GET IT BACK	ВЪРНИ Я
+Close MENU, select the souffle, and TAKE it. The show is back on.	Затвори MENU, избери суфлето и направи TAKE. Шоуто пак върви.
+After a panic, the show is still there. Pick up where you meant to be.	След паника шоуто си е там. Продължи оттам, докъдето искаше да стигнеш.
+Voila! De souffle, he is risen!	Воала! Суфлето, то бухна!
+BON APPETIT	ДОБЪР АПЕТИТ
+BLACK to hide, PANIC to stop, TAKE to come back. You will survive any kitchen, skapi.	BLACK да скриеш, PANIC да спреш, TAKE да се върнеш. Ще оцелееш във всяка кухня, скъпи. Даже в кухнята на свекърва ти.
+The panic setting chooses what PANIC does: fade out, cut, or just the outputs.	Настройката за паника избира какво прави PANIC: затъмняване, срез или само изходите.
+Bork bork bork! Goodnight!	Борк борк борк! Лека нощ!
+Look one	Визия едно
+Look two	Визия две
+Presets, skapi. A whole look, remembered, and back with one button. Press START.	Пресети, скъпи. Цяла визия, запомнена и върната с едно копче. Като рецептата на баба — веднъж записана, завинаги. Натисни START.
+Like the patch memory on a synth: store, then recall.	Като паметта за пачове на синтезатор: запази, после извикай.
+THE DASH	DASH
+Press DASH: buttons of your own, for anything at all.	Натисни DASH: твои собствени бутони, за каквото поискаш.
+Ctrl+D also works. Very fast. Very professional.	Ctrl+D също става. Много бързо. Много професионално.
+A PRESET BUTTON	БУТОН ЗА ПРЕСЕТ
+Press +, then 'preset - a new preset from what is on now'. The button remembers this look.	Натисни +, после „preset - a new preset from what is on now“. Бутонът запомня тази визия.
+Store. Like saving the patch before the drummer leans on the synth.	Запази. Като да запазиш пача, преди барабанистът да се облегне на синтезатора.
+CHANGE EVERYTHING	СМЕНИ ВСИЧКО
+Close the DASH (Esc), then select Look two and TAKE it. A different look.	Затвори DASH (Esc), после избери Визия две и направи TAKE. Друга визия.
+Change it all. Don't worry. It remembers.	Сменяй всичко. Не се тревожи. Помни.
+ONE PRESS	ЕДНО НАТИСКАНЕ
+Open the DASH and press your preset button. The first look comes back.	Отвори DASH и натисни своя бутон за пресет. Първата визия се връща.
+Recall. The patch memory, returning. Beautiful.	Извикване. Паметта за пачове се завръща. Красота.
+A look, stored and recalled. A preset can keep cues, positions, effects, levels and routing; its button's menu chooses which.	Визия, запазена и извикана. Пресетът може да пази кюта, позиции, ефекти, нива и маршрутизация; кои — избира менюто на бутона му.
+And a DASH button can run any command at all. Any. Even the exciting ones.	А бутон от DASH може да изпълни каквато и да е команда. Каквато и да е. Даже вълнуващите.
+Opening titles	Начални надписи
+The planet	Планетата
+The battle	Битката
+THE TRAILER	ТРЕЙЛЪРЪТ
+A space-opera trailer, skapi. A narrator with a very deep voice and opinions about transitions. Press START.	Трейлър на космическа опера, скъпи. Разказвач с много дълбок глас и мнение за преходите. Натисни START.
+A transition is how one cue becomes the next. There are far more than the crossfade.	Преходът е как едно кю става следващото. Има много повече от преливането.
+In a galaxy of content... one operator... must choose a transition.	В една галактика от съдържание... един оператор... трябва да избере преход.
+A STYLE	СТИЛ
+'The planet' is selected. In the inspector, its transition style: choose iris.	„Планетата“ е избрана. В инспектора, стилът на прехода: избери iris.
+Pushes, wipes, iris, dip to white. Even a portal. I wrote half of them. On a Tuesday.	Избутвания, завеси, ирис, през бяло. Даже портал. Половината ги написах аз. Във вторник.
+The planet deserves... a dramatic entrance.	Планетата заслужава... драматично появяване.
+A TIME	ВРЕМЕ
+Give it a time: + on transition until it says a second or more.	Дай му време: + на преход, докато покаже секунда или повече.
+No time, no transition. A style needs a duration to do anything at all.	Без време няма преход. Стилът иска продължителност, за да направи каквото и да е.
+ROLL IT	МОТОР
+TAKE the planet. Watch it arrive.	TAKE на планетата. Гледай как пристига.
+The transition belongs to the cue arriving. Each cue chooses its own entrance.	Преходът принадлежи на пристигащото кю. Всяко кю си избира собствено появяване.
+Autobots... roll the transition.	Аутоботи... пуснете прехода.
+THE BATTLE	БИТКАТА
+Now 'The battle': choose shatter, give it a time, and TAKE it.	Сега „Битката“: избери shatter, дай време и направи TAKE.
+Shatter drops the old picture like a pane of glass. Please do not do this at a funeral.	Трошенето пуска старата картина като стъкло. Моля ви, не правете така на погребение.
+Transform... and shatter out!	Трансформация... и на парчета!
+IN CINEMAS NOW	СКОРО В КИНАТА
+A style, a time, and two very dramatic entrances. Nazdrave, skapi.	Стил, време и две много драматични появявания. Наздраве, скъпи! Като на премиера в НДК.
+A playlist has a default style too, for every cue that does not choose its own.	Плейлистът също има стил по подразбиране, за всяко кю, което не избира свой.
+Coming soon... to a desk near you.	Очаквайте скоро... на пулт близо до вас.
+The beat	Ритъмът
+THE ROBOT DJS	РОБОТИТЕ ДИДЖЕИ
+Two robot DJs, skapi. They do not talk. Their helmets do. Press START.	Двама роботи диджеи, скъпи. Не говорят. Говорят им шлемовете. Натисни START.
+Every cue has its own chain of audio effects, and some of them break the sound on purpose.	Всяко кю си има своя верига от аудиоефекти, а някои чупят звука нарочно.
+> HELLO. WE ARE HERE TO FIX YOUR MIX.	> ЗДРАВЕЙТЕ. ДОЙДОХМЕ ДА ОПРАВИМ МИКСА ВИ.
+The beat is selected. In its AUDIO EFFECTS section, + adds one. Try the delay.	Ритъмът е избран. В секцията му AUDIO EFFECTS + добавя ефект. Пробвай delay.
+Delay, reverb, filters, a compressor. Amount always means 'less of this'.	Делей, реверб, филтри, компресор. Количеството винаги значи „по-малко от това“.
+> ONE MORE TIME. WITH ECHO. ECHO. ECHO.	> ОЩЕ ВЕДНЪЖ. С ЕХО. ЕХО. ЕХО.
+A BEND	ОГЪВАНЕ
+Add a second: a bend, like crush. It damages the sound the way a broken file would.	Добави втори: огъване, като crush. Поврежда звука като счупен файл.
+The bends are my favourite. Like a tape left in the sun. On purpose.	Огъванията са ми любими. Като касетка, забравена на слънце. Нарочно.
+> HARDER. BETTER. CRUNCHIER. LOUDER.	> ПО-СИЛНО. ПО-ДОБРЕ. ПО-ХРУПКАВО. ПО-ГРЪМКО.
+THE PATCH	ПАЧЪТ
+MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	MENU, после Звук: къде отива звукът на всеки плейлист и пачът на наименуваните изходи.
+Speakers, monitors, an in-ear for the drummer. The patch sends each its own.	Тонколони, монитори, слушалка в ухото на барабаниста. Пачът праща на всеки неговото.
+> AROUND THE MIX. AROUND THE MIX. AROUND THE MIX.	> ОКОЛО МИКСА. ОКОЛО МИКСА. ОКОЛО МИКСА.
+An effect, a bend and the patch. The robots approve, skapi. I think. Their faces are helmets.	Ефект, огъване и пач. Роботите одобряват, скъпи. Мисля. Лицата им са шлемове.
+Every audio effect can follow a ~ too, even Motion. Wave at the delay. It's wonderful.	Всеки аудиоефект също може да следва ~, даже Motion. Махни на делея. Прекрасно е.
+> THANK YOU. GOOD NIGHT. WE ARE ROBOTS.	> БЛАГОДАРИМ. ЛЕКА НОЩ. НИЕ СМЕ РОБОТИ.
+The glow on the horizon (evidence #2)	Сиянието на хоризонта (улика № 2)
+EVIDENCE #2	УЛИКА № 2
+The Bureau again, skapi. A glow on the horizon, and two agents who disagree about it. Press START.	Пак Бюрото, скъпи. Сияние на хоризонта и двама агенти, които не са съгласни за него. Като двама съседи за оградата. Натисни START.
+The scopes measure a picture: brightness, colour, levels. Numbers, not opinions.	Скоповете мерят картината: яркост, цвят, нива. Числа, не мнения.
+It's them, Brandt. It's a craft. Look how it glows.	Те са, Брандт. Кораб е. Виж как свети.
+THE REAL SIGNAL	ИСТИНСКИЯТ СИГНАЛ
+The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	Скоповете четат само това, което наистина излиза, никога преглед. Включи изхода: MENU, Видео изходи, ИЗХОД ИЗКЛ.
+Measuring a scaled-down preview would be measuring a photocopy. We measure the original.	Да мериш смален преглед е като да мериш ксерокопие. Ние мерим оригинала.
+Chain of evidence, Hollis. The real signal or nothing.	Верига на доказателствата, Холис. Истинският сигнал или нищо.
+THE SCOPES	СКОПОВЕТЕ
+Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	Затвори MENU. Над монитора, бутонът PROGRAM: натискай, докато пише SCOPES или BOTH.
+Both shows the picture and its scopes side by side. Very civilised.	BOTH показва картината и скоповете ѝ един до друг. Много цивилизовано.
+Let the scopes decide, Hollis.	Нека скоповете решат, Холис.
+THE WAVEFORM	ВЪЛНОВАТА ФОРМА
+Click the waveform to make it big. Bright things sit high, dark things low, left to right as in the picture.	Щракни вълновата форма, за да я уголемиш. Яркото е горе, тъмното долу, отляво надясно като в картината.
+The glow is that spike near the top. Very bright. Bright is not the same as alien.	Сиянието е онзи шип близо до върха. Много ярко. Ярко не значи извънземно.
+Look at the peak. Nothing a streetlight couldn't do.	Виж върха. Нищо, което една улична лампа не би направила.
+THE VECTORSCOPE	ВЕКТОРСКОПЪТ
+Click it again to go back, then click the vectorscope: colour round a circle. Saturated runs to the edge.	Щракни пак, за да се върнеш, после щракни векторскопа: цветът около кръг. Наситеното бяга към ръба.
+Magenta, far out by the rim. A strong colour. Strong is not illegal. Yet.	Магента, далеч до ръба. Силен цвят. Силното не е незаконно. Още.
+It's off the chart, Brandt! Literally off the chart!	Извън скалата е, Брандт! Буквално извън скалата!
+FALSE COLOUR	ФАЛШИВ ЦВЯТ
+And false colour: red is clipped, yellow nearly. Is the glow red?	И фалшивият цвят: червеното е отрязано, жълтото почти. Сиянието червено ли е?
+Clipped means the brightest the signal can carry, and then some lost. Detail gone.	Отрязано значи най-яркото, което сигналът носи, и над него нещо е загубено. Детайлът го няма.
+Red. Clipped. Not alien, Hollis. Just too bright. Case closed.	Червено. Отрязано. Не е извънземно, Холис. Просто е твърде ярко. Делото е приключено.
+THE TRUTH	ИСТИНАТА
+Waveform, vectorscope, false colour. The scopes settled it, skapi. The agents did not.	Вълнова форма, векторскоп, фалшив цвят. Скоповете решиха, скъпи. Агентите — не. Както винаги, истината е някъде там, а аз съм тук с ракията.
+SCOPES SOURCE reads any output, and the matrix can be 709 or 2020. For the curious.	SCOPES SOURCE чете всеки изход, а матрицата може да е 709 или 2020. За любопитните.
+Too bright for a streetlight, Brandt. Too bright for anything. ...I want to believe.	Твърде ярко за улична лампа, Брандт. Твърде ярко за каквото и да е. ...Искам да вярвам.
+OUT OF THE BUILDING	ИЗВЪН СГРАДАТА
+Pictures that leave by cable or network, skapi, not only a window on a screen. Press START.	Картини, които излизат по кабел или мрежа, скъпи, а не само прозорец на екран. Натисни START.
+NDI over the network, SDI from a DeckLink card, ST 2110 for broadcast plants.	NDI по мрежата, SDI от карта DeckLink, ST 2110 за телевизионни комплекси.
+THE DEVICES PAGE	СТРАНИЦАТА С УСТРОЙСТВА
+MENU, Video Outputs, then Devices: every way an output can leave this computer.	MENU, Видео изходи, после Устройства: всеки начин, по който изход може да напусне този компютър.
+Each one says whether this machine can do it, and what it needs if not.	Всеки казва дали тази машина може, и какво ѝ трябва, ако не.
+If this computer has NDI, switch NDI SENDING on: the picture is on the network. If not, SHOW ME moves on.	Ако този компютър има NDI, включи NDI SENDING: картината е в мрежата. Ако няма, SHOW ME продължава.
+NDI finds itself on the network. No cables, only a good switch and patience.	NDI само се намира в мрежата. Без кабели, само хубав суич и търпение.
+OUT THERE	НАВЪН
+The output's own page has the rest: a DeckLink card's SDI, ST 2110 with NMOS, Spout and Syphon.	Собствената страница на изхода има останалото: SDI на карта DeckLink, ST 2110 с NMOS, Spout и Syphon.
+Every one is just an output. The show does not know or care how it leaves.	Всеки е просто изход. Шоуто не знае и не го интересува как излиза.
+Nebula ahead	Мъглявина отпред
+Engine room	Машинното отделение
+Deck 3: something moving	Палуба 3: нещо се движи
+THE BRIDGE	МОСТИКЪТ
+The bridge of the starship Cathode, skapi. Four feeds, one main viewer, one mystery. Press START.	Мостикът на звездолета „Катод“, скъпи. Четири сигнала, един главен екран, една мистерия. Натисни START.
+The multiview shows every playlist at once. Like a wall of oscilloscopes, but in space.	Мултивюто показва всички плейлисти наведнъж. Като стена от осцилоскопи, но в космоса.
+Frequencies open, Captain. All of them. That's the problem.	Честотите са отворени, капитане. Всичките. Това е проблемът.
+MULTI, above the monitor: every playlist in its own window.	MULTI над монитора: всеки плейлист в собствен прозорец.
+One window per playlist, the programme first.	По прозорец на плейлист, програмата първа.
+Jinkys! Four feeds. And one of them has a monster in it.	Джинкис! Четири сигнала. И в един от тях има чудовище.
+WHAT'S NEXT	КАКВО СЛЕДВА
+Add a window (+), then its ... menu: make it show NEXT. What goes live when you press TAKE.	Добави прозорец (+), после неговото меню ...: нека показва NEXT. Това, което отива в ефир, когато натиснеш TAKE.
+Every window has a ... button. It chooses what that window shows.	Всеки прозорец има бутон .... Той избира какво показва този прозорец.
+I need to see who's calling before they reach the main viewer.	Трябва да видя кой вика, преди да стигне до главния екран.
+A CLOCK	ЧАСОВНИК
+And one more window, showing the clock. Operators who watch a clock are never late. Mostly.	И още един прозорец, с часовника. Операторите, които гледат часовника, никога не закъсняват. Обикновено. За разлика от автобусите.
+Time of day, big. Stardates are just very long timecode.	Часът, голям. Звездната дата е просто много дълъг таймкод.
+The monster only shows up at midnight. We're going to need a clock.	Чудовището се появява само в полунощ. Ще ни трябва часовник.
+ONE BIG ONE	ЕДИН ГОЛЯМ
+Any window's ... menu, then a layout: one big, the rest small.	Менюто ... на който и да е прозорец, после подредба: един голям, останалите малки.
+The big window is window one. Usually the programme. Usually.	Големият прозорец е прозорец едно. Обикновено програмата. Обикновено.
+Main viewer big. The captain likes it big.	Главният екран — голям. Капитанът го харесва голям.
+ON SCREEN	НА ЕКРАН
+Select Deck 3 in playlist 3 and TAKE. Watch its window.	Избери Палуба 3 в плейлист 3 и направи TAKE. Гледай прозореца му.
+The red border is TALLY: the window that is on air. On screen, as they say on starships.	Червената рамка е TALLY: прозорецът, който е в ефир. „На екран“, както казват по звездолетите.
+There! Feed three! Put it on screen!	Там! Сигнал три! На екран!
+THAT'S A WRAP	ПРИКЛЮЧИХМЕ
+Windows, the ... menu, NEXT, the clock, a layout, tally. Mystery solved, skapi.	Прозорци, менюто ..., NEXT, часовник, подредба, тали. Мистерията е разкрита, скъпи. Ти си по-добър от Шерлок.
+A window can also show an output, with its warp and slices. Handy when it's a lighthouse.	Прозорецът може да показва и изход, с изкривяването и парчетата му. Удобно е, когато е фар.
+And the monster was... the ship's cook, all along. Jinkys.	А чудовището беше... готвачът на кораба, през цялото време. Джинкис.
+there is no such lesson	няма такъв урок
+finish or leave the lesson you are in first	първо завърши или напусни урока, в който си
+leave Bug Swat first	първо излез от Bug Swat
+Psst. It's me, the desk. I'll be watching. Supportively.	Псст. Аз съм, пултът. Ще гледам. С подкрепа.
+Hi! I'm the one doing all of this, by the way.	Здрасти! Между другото, аз правя всичко това.
+Ctrl+D opens the DASH. I'm just saying.	Ctrl+D отваря DASH. Просто казвам.
+Nearly there. I can feel it in my pixels.	Почти. Усещам го в пикселите си.
+You're good at this. I can tell. I'm the one doing it.	Добър си в това. Личи си. Аз го правя.
+Every click, I heard. Every single one.	Всяко щракване го чух. Всяко едно.
+The glowing one. I can see it from here. It's glowing for you.	Светещото. Виждам го оттук. Свети за теб.
+lesson paused - MENU > LESSONS picks up where you left off	урокът е на пауза - MENU > LESSONS продължава оттам, докъдето стигна
+PROF. VIDEO:  The signal: what the picture is made of, and how to bend it. Pick a lesson.	PROF. VIDEO:  Сигналът: от какво е направена картината и как да я огънеш. Избери урок.
+DR. PIXEL:  Running the show, skapi. Fast hands, calm face. Pick a lesson.	DR. PIXEL:  Да водиш шоуто, скъпи. Бързи ръце, спокойно лице, топло сърце. Избери урок, душичке.
+LESSONS  -  PART TWO  -  WHO DO YOU FOLLOW?	УРОЦИ  -  ЧАСТ ВТОРА  -  КОГО СЛЕДВАШ?
+FOLLOW PROF. VIDEO	СЛЕДВАЙ ПРОФ. ВИДЕО
+FOLLOW DR. PIXEL	СЛЕДВАЙ Д-Р ПИКСЕЛ
+the signal	сигналът
+running the show	воденето на шоуто
+PICK UP	ПРОДЪЛЖИ
+CLOSE (Esc)	ЗАТВОРИ (Esc)
+PART ONE: THE BASICS	ЧАСТ ПЪРВА: ОСНОВИТЕ
+finish or leave LEARN THE BASICS first	първо завърши или напусни LEARN THE BASICS
+bug swat: Esc leaves, and your show comes back as it was	bug swat: Esc излиза и шоуто ти се връща както си беше
+bug swat: your show is back. Motion's controls are in Settings > Audio	bug swat: шоуто ти се върна. Контролите на Motion са в Настройки > Звук
+TURN MOTION ON	ВКЛЮЧИ MOTION
+Bugs are crawling to the cue list! Swat them by waving at your camera. First, Motion: in MOTION CONTROL turn it ON and choose what it READS.	Бъгове пълзят към списъка с кюта! Смачкай ги, като махаш на камерата. Първо Motion: в MOTION CONTROL го пусни на ON и избери какво чете (READS).
+This one is NullPointer. Hollow, points at nothing. A finger goes straight through. Use the whole hand, skapi.	Това е NullPointer. Кух, не сочи към нищо. Пръстът минава право през него. Ползвай цялата ръка, скъпи.
+Wave like you are hailing a cab! A small, polite cab. Not the buttons. The cab.	Махай, все едно спираш такси! Малко, учтиво такси. Не копчетата. Таксито.
+DRAW TWO ZONES	НАЧЕРТАЙ ДВЕ ЗОНИ
+Race Condition: twins, each sure it got there first. One reading cannot tell your hands apart, so drag two ZONES on the Motion picture, one each side.	Race Condition: близнаци, всеки сигурен, че е дошъл пръв. Едно отчитане не различава ръцете ти, затова завлачи две ZONES върху картината на Motion, по една от всяка страна.
+Hit both together. Hit one, and they swap. Like my cousins at a wedding.	Удари и двамата заедно. Удариш ли единия, се разменят. Като братовчедите ми на сватба, като засвири оркестърът.
+One hand each side. Together! Together!	По една ръка от всяка страна. Заедно! Заедно!
+Off By One. The bug is not the face, it is the tiny extra segment, and a little wiggle needs a finer reading. Turn SENSITIVITY down to 5%.	Off By One. Бъгът не е лицето, а мъничкото излишно парче, а за малко мърдане трябва по-фино отчитане. Намали SENSITIVITY до 5%.
+Lower number, finer reading. Yes, I also think it is backwards.	По-малко число, по-фино отчитане. Да, и на мен ми се струва наопаки.
+Not the face. The little one on the end. Wiggle a finger.	Не лицето. Мъничкото на края. Мръдни пръст.
+FALL 1.5 S OR MORE	FALL 1,5 С ИЛИ ПОВЕЧЕ
+Memory Leak. It only lets go while the reading stays up. Make FALL longer, 1.5 seconds or more, so your sweeps join up into one.	Memory Leak. Пуска само докато отчитането стои високо. Направи FALL по-дълъг, 1,5 секунди или повече, за да се слеят махванията ти в едно.
+Slow and steady, skapi. Like paying back a loan.	Бавно и полека, скъпи. Като да изплащаш кредит. Бавно се ходи, далеч се стига.
+Sweep, and sweep again. Let the fall carry you between.	Махни, и пак махни. Остави спада да те носи между тях.
+MOTION X ON A TONE	MOTION X НА ТОН
+The Heisenbug! It fades whenever you move. Put a tone cue's pitch on Motion X and follow it by ear: the ticking speeds up as you close in.	Хайзенбъгът! Избледнява всеки път, щом се помръднеш. Сложи височината на тонално кю на Motion X и го следи по слух: тиктакането се ускорява, като наближаваш.
+SHOW ME makes the tone for you. High is right. Low is left. Stand still and it comes back.	SHOW ME ще направи тона вместо теб. Високо е надясно. Ниско е наляво. Стой мирно и той се връща.
+Follow it. Listen. Faster ticking, closer bug.	Следи го. Слушай. По-бързо тиктакане, по-близо бъг.
+Waving paw	Махаща лапичка
+Heisenbug finder	Ловец на хайзенбъгове
+FIXED! Lovely signal flow.	ОПРАВЕНО! Прекрасен сигнален път.
+Closed as fixed. No regressions. Probably.	Затворено като оправено. Без регресии. Вероятно.
+Squashed! Ship it.	Смачкан! Пускай го.
+One reached the cue list. It has filed a bug report about you.	Един стигна до списъка с кюта. Пусна бъг репорт за теб.
+Skapi. It is a handheld. You do not press it. You wave at it.	Скъпи. Това е джобна конзола. Не я натискаш. Махаш ѝ.
+The buttons are for menus. The bugs are for flailing.	Копчетата са за менютата. Бъговете са за размахване на ръце, като на хоро.
+The D-pad is decorative. Like my diploma.	Кръстачката е за украса. Като дипломата ми.
+In 1989 we also pressed the buttons. Then we discovered waving. Never looked back.	През 1989 и ние натискахме копчета. После открихме махането. Хе, тогава много неща открихме. Не погледнахме назад.
+Pressing harder does not help. The bugs cannot feel buttons. Only arms.	Да натискаш по-силно не помага. Бъговете не усещат копчета. Само ръце.
+It's called a handheld because your hands are held... up. In the air. Waving.	Казва се джобна, защото ръцете ги вадиш от джоба... и нагоре. Във въздуха. Махаш.
+The mouse? You are swatting bugs with a MOUSE? In Bulgaria the mouse would be on the bugs' side.	Мишката? С МИШКА ли мачкаш бъгове? Мишката в България отдавна е на страната на бъговете. Те са си роднини.
+Lovely clicking. Very crisp. The camera saw none of it.	Хубаво щракане. Много хрупкаво. Камерата не видя нищо.
+DONE FOR YOU - PRESS START	НАПРАВЕНО ЗА ТЕБ - НАТИСНИ START
+DONE! PRESS START	ГОТОВО! НАТИСНИ START
+SELECT OPENS MOTION CONTROL	SELECT ОТВАРЯ MOTION CONTROL
+ALL BUGS FIXED	ВСИЧКИ БЪГОВЕ СА ОПРАВЕНИ
+GAME OVER	КРАЙ НА ИГРАТА
+NEW HIGH SCORE!	НОВ РЕКОРД!
+START PLAYS AGAIN	START ЗА НОВА ИГРА
+Nazdrave, skapi. Now go and fix real bugs.	Наздраве, скъпи, да сме живи и здрави! А сега върви да оправяш истински бъгове.
+Every one of those is a real Motion control. Put them on any ~ knob you like.	Всяко от тях е истински контрол на Motion. Сложи ги на което ~ копче искаш.
+START: AGAIN	START: ПАК
+START: PLAY	START: ИГРАЙ
+# --- end of tutorials ---
