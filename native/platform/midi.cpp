@@ -54,6 +54,7 @@ class MidiInput::Impl {
   MidiInput::SysExCallback sysExCallback_;
   MidiInput::RealtimeCallback realtimeCallback_;
   MidiInput::QuarterFrameCallback quarterFrameCallback_;
+  MidiInput::ChannelCallback channelCallback_;
 
   bool isOpen_ = false;
   int deviceId_ = -1;
@@ -195,6 +196,25 @@ void MidiInput::update() {
       continue;
     }
 
+    if (impl_->channelCallback_ && !data.empty() && data.front() >= 0x80 && data.front() < 0xF0) {
+      const int status = data.front() & 0xF0;
+      const int channel = (data.front() & 0x0F) + 1;
+      const int oneByte = (status == 0xC0 || status == 0xD0);
+      if (data.size() < static_cast<std::size_t>(oneByte ? 2 : 3)) continue;
+      int d1 = data[1];
+      int d2 = oneByte ? 0 : data[2];
+      if (status == 0xE0) {
+        d1 = (data[2] << 7) | data[1];
+        d2 = 0;
+      }
+      if (status == 0x90 && d2 == 0) {
+        impl_->channelCallback_(0x80, channel, d1, 0);
+      } else {
+        impl_->channelCallback_(status, channel, d1, d2);
+      }
+      continue;
+    }
+
     auto parsed = parseMidiMessage(data);
     if (!parsed) continue;
 
@@ -237,6 +257,10 @@ void MidiInput::onRealtime(RealtimeCallback callback) {
 
 void MidiInput::onQuarterFrame(QuarterFrameCallback callback) {
   impl_->quarterFrameCallback_ = std::move(callback);
+}
+
+void MidiInput::onChannelMessage(ChannelCallback callback) {
+  impl_->channelCallback_ = std::move(callback);
 }
 
 void MidiInput::onControlChange(ControlChangeCallback callback) {

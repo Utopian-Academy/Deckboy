@@ -3278,7 +3278,7 @@ html,body{width:100%;height:100%;overflow:hidden}
         "TIMECODEEXT\n"
         "TIMECODELTC TIMECODEMARK TIMEOVERLAY TIMER TIMERCUE TOGGLE\n"
         "TRANSITION TRANSITIONSTYLE TRANSITIONTONEXT TRIM TRIMIN TRIMOUT\n"
-        "TUTORIAL TRACKER SEQUENCE GEOLFO UNDO REDO TRIGGER MIDINOTE OSCTRIGGER MEMOCUE MEMO DEVAMP CAPTIONS MEDIAMTX AUDIOTRACK MIC FIXTURE VIDEODIP\n"
+        "TUTORIAL TRACKER SEQUENCE GEOLFO UNDO REDO TRIGGER MIDINOTE MIDIMAP MIDIIN OSCTRIGGER MEMOCUE MEMO DEVAMP CAPTIONS MEDIAMTX AUDIOTRACK MIC FIXTURE VIDEODIP\n"
         "UPDATE VIDEO VIEW VJ VMIX VOLUME WARP WATCH WEBMONITOR WIDTH WINDOWSOURCE XFADE\n"
         "cue indices are 1-based; every command answers OK or ERR.\n"
       );
@@ -4242,54 +4242,6 @@ html,body{width:100%;height:100%;overflow:hidden}
     return midiMonitorPortName_.empty() ? std::string("first port") : midiMonitorPortName_;
   }
 
-  void recordMidiDidNothing(std::string message, std::string why) {
-    InputMonitorEntry entry;
-    entry.kind = "MIDI";
-    entry.from = midiMonitorPort();
-    entry.message = std::move(message);
-    entry.outcome = 'N';
-    entry.what = std::move(why);
-    recordInputMonitor(std::move(entry));
-  }
-
-  void onMidiNoteOn(int note, int velocity) {
-    const std::string message = velocity > 0
-      ? "NOTE ON " + std::to_string(note) + " (" + midiNoteName(note) + ") vel " + std::to_string(velocity)
-      : "NOTE OFF " + std::to_string(note) + " (" + midiNoteName(note) + ")";
-    // Routed to a live synth when the operator has asked for that, otherwise
-    // the historical behaviour: notes fire cues. Both are legitimate uses of a
-    // MIDI keyboard and only the operator knows which they want, so this is a
-    // switch rather than a guess.
-    if (project_.midiToSynth) {
-      // Velocity 0 is note-off by MIDI convention -- the wrapper surfaces only
-      // note-on, so this is where the distinction is made.
-      queueMidiCommand(velocity > 0
-        ? ("SYNTHNOTEON " + std::to_string(note) + " " + std::to_string(velocity))
-        : ("SYNTHNOTEOFF " + std::to_string(note)), message);
-      return;
-    }
-    if (velocity > 0) {
-      // MIDINOTE resolves on the main thread: a cue that claims this note
-      // fires; otherwise it is the old "note N goes to cue N+1".
-      queueMidiCommand("MIDINOTE " + std::to_string(note), message, note);
-    } else {
-      recordMidiDidNothing(message, "note-offs only play the synth, and synth mode is off");
-    }
-  }
-
-  void onMidiControlChange(int controller, int value) {
-    const std::string message = "CC " + std::to_string(controller) + " = " + std::to_string(value);
-    if (controller == 7) {
-      queueMidiCommand("MASTERVOL " + std::to_string(static_cast<int>(value * 200.0 / 127.0)), message);
-    } else if (controller == 20) {
-      std::ostringstream ss;
-      ss << std::fixed << std::setprecision(2) << (0.5 + value * 1.5 / 127.0);
-      queueMidiCommand("SPEED " + ss.str(), message);
-    } else {
-      recordMidiDidNothing(message, "only CC 7 (volume) and CC 20 (speed) do something");
-    }
-  }
-
   // Put MIDI back on the port its operator asked for, when it comes back.
   //
   // The audio path grew this first and the reasoning is identical: a control
@@ -5210,8 +5162,10 @@ html,body{width:100%;height:100%;overflow:hidden}
                      " (" + std::to_string(devices.size()) + " ports — pick one in settings)");
       }
     }
-    midiRt_.onNoteOn([this](int note, int velocity) { onMidiNoteOn(note, velocity); });
-    midiRt_.onControlChange([this](int controller, int value) { onMidiControlChange(controller, value); });
+    // Every channel message, with its channel, to the MIDI map.
+    midiRt_.onChannelMessage([this](int status, int channel, int data1, int data2) {
+      onMidiChannelMessage(status, channel, data1, data2);
+    });
     midiRt_.onRealtime([this](std::uint8_t status) { onMidiRealtime(status); });
     midiRt_.onSysEx([this](const std::vector<std::uint8_t>& data) {
       onMidiSysEx(data);
@@ -5448,14 +5402,33 @@ html,body{width:100%;height:100%;overflow:hidden}
         // note, while Windows and macOS did all three. The shared handlers
         // are what queueMidiCommand's comment always said both used.
         case SND_SEQ_EVENT_NOTEON:
-          onMidiNoteOn(ev->data.note.note, ev->data.note.velocity);
+          onMidiChannelMessage(ev->data.note.velocity > 0 ? 0x90 : 0x80, ev->data.note.channel + 1,
+                               ev->data.note.note, ev->data.note.velocity);
           break;
         case SND_SEQ_EVENT_NOTEOFF:
-          onMidiNoteOn(ev->data.note.note, 0);
+          onMidiChannelMessage(0x80, ev->data.note.channel + 1, ev->data.note.note, 0);
           break;
         case SND_SEQ_EVENT_CONTROLLER:
-          onMidiControlChange(static_cast<int>(ev->data.control.param),
-                              static_cast<int>(ev->data.control.value));
+          onMidiChannelMessage(0xB0, ev->data.control.channel + 1,
+                               static_cast<int>(ev->data.control.param),
+                               static_cast<int>(ev->data.control.value));
+          break;
+        // ALSA's pitch bend is -8192..8191; the wire's is 0..16383.
+        case SND_SEQ_EVENT_PITCHBEND:
+          onMidiChannelMessage(0xE0, ev->data.control.channel + 1,
+                               static_cast<int>(ev->data.control.value) + 8192, 0);
+          break;
+        case SND_SEQ_EVENT_CHANPRESS:
+          onMidiChannelMessage(0xD0, ev->data.control.channel + 1,
+                               static_cast<int>(ev->data.control.value), 0);
+          break;
+        case SND_SEQ_EVENT_KEYPRESS:
+          onMidiChannelMessage(0xA0, ev->data.note.channel + 1, ev->data.note.note,
+                               ev->data.note.velocity);
+          break;
+        case SND_SEQ_EVENT_PGMCHANGE:
+          onMidiChannelMessage(0xC0, ev->data.control.channel + 1,
+                               static_cast<int>(ev->data.control.value), 0);
           break;
         // ALSA names these rather than handing over the status byte, so they
         // are mapped back onto the one follower -- the tempo maths must not
@@ -5853,6 +5826,13 @@ bool looksLikeHttpRequestLine(const std::string& line) {
               }
               if (path == "/PING" || path == "/DECKBOY/PING") {
                 sendOscStringTo(sender, "/deckboy/pong", "DECKBOY_0.01");
+                continue;
+              }
+              // A mapped address belongs to the MIDI map, ahead of the
+              // built-in verbs: the operator chose it.
+              if (oscAddressIsMapped(osc.address)) {
+                queueOscForMidiMap(osc, udpFromPeer, socketAddressToString(sender));
+                sendOscStringTo(sender, "/deckboy/ack", "MIDIMAP " + trim(osc.address));
                 continue;
               }
               auto mapped = mapOscToRemoteCommand(osc);

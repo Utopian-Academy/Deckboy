@@ -86,6 +86,15 @@ class MidiInput {
   // and not this layer's.
   using QuarterFrameCallback = std::function<void(std::uint8_t dataByte)>;
 
+  // EVERY channel message, with its channel: what the MIDI map reads.
+  // status is the command nibble (0x80 note off, 0x90 note on, 0xA0 key
+  // pressure, 0xB0 CC, 0xC0 program, 0xD0 channel pressure, 0xE0 pitch bend);
+  // channel is 1-16; data1/data2 as sent (pitch bend arrives already joined
+  // into data1 as 0-16383, data2 0). A note-on with velocity 0 is reported as
+  // a note off. When set, the per-kind callbacks above are not called for
+  // channel messages -- one path, not two that can disagree.
+  using ChannelCallback = std::function<void(int status, int channel, int data1, int data2)>;
+
   MidiInput();
   ~MidiInput();
 
@@ -112,6 +121,7 @@ class MidiInput {
   void onSysEx(SysExCallback callback);
   void onRealtime(RealtimeCallback callback);
   void onQuarterFrame(QuarterFrameCallback callback);
+  void onChannelMessage(ChannelCallback callback);
 
  private:
   class Impl;

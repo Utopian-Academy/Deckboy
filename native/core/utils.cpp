@@ -784,7 +784,10 @@ std::string escapeJson(const std::string& value) {
       case '\r': result += "\\r"; break;
       case '\t': result += "\\t"; break;
       default:
-        if (ch < 32) {
+        // UNSIGNED: char is signed on Windows, so every byte of a UTF-8
+        // character tested as "below 32" and came out as its own \u00XX --
+        // the window title's dash, a Japanese cue name, all of it mangled.
+        if (static_cast<unsigned char>(ch) < 32) {
           char buf[8];
           snprintf(buf, sizeof(buf), "\\u%04x", static_cast<unsigned char>(ch));
           result += buf;

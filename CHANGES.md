@@ -22,6 +22,16 @@
 
 - The LED Panel Map has an animated version (the pattern's motion switch): a slow colour wave across the wall and each tile lit in turn, in reading order, so a tile cabled out of sequence shows as the light jumping.
 
+### MIDI map
+
+- Any MIDI key, pad, knob, fader, pitch wheel, aftertouch or program change, and any OSC address, can run any command, aimed at the desk, the selected cue, what is on air in a playlist, or a named cue. A command aimed at a cue never moves the desk's focus or selection.
+- Knobs with an exact centre, endless encoders, 14-bit faders, press, hold-to-fire, press and release, and play (a range of keys, for the synth). Pickup keeps a knob from jumping a value that was changed elsewhere.
+- Two maps at once: this computer's, and rows saved in the show.
+- Today's fixed behaviour is now ordinary rows: notes take cues, CC 7 is the master volume, CC 20 the selected clip's speed. CC 20's 1.0x is now at the knob's centre (it was a third of the way up).
+- The MIDI and OSC monitor names the row that matched, what it was aimed at, or why nothing did.
+- `MIDIMAP` over the wire, and `MIDIIN` takes channels, the pitch wheel, aftertouch, program changes and OSC.
+- Fixed: on Windows, every non-English character in `STATUS JSON` and the MIDI and OSC monitor's JSON came out garbled.
+
 ### Settings
 
 - Beast mode added.

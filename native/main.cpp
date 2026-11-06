@@ -62,6 +62,7 @@
 
 #include "core/constants.hpp"
 #include "core/show_control.hpp"
+#include "core/midi_map.hpp"
 #include "core/bugswat.hpp"
 #include "core/types.hpp"
 #include "core/output_runtime.hpp"
@@ -5601,6 +5602,7 @@ class App {
 #include "app/app_overlays.ipp"
   // The MIDI and OSC monitor: every message, and what Deckboy did with it
 #include "app/app_input_monitor.ipp"
+#include "app/app_midi_map.ipp"
 #include "app/app_tutorial.ipp"
 #include "app/app_colour_picker.ipp"
   // Masks: the library, the raster cache, and where a mask cuts
@@ -12658,6 +12660,20 @@ class App {
   // request standing and nothing connected. Same split as the audio device.
   std::string midiDeviceInUse_;
   Uint64 lastMidiDevicePollMs_ = 0;
+  // The MIDI map (app_midi_map.ipp). The queue is filled by the MIDI and OSC
+  // threads and drained once a frame; everything else is main-thread only.
+  deckboy::midimap::Engine midiMap_;
+  std::mutex midiMapQueueMutex_;
+  std::vector<MidiMapQueued> midiMapQueue_;
+  std::mutex midiMapOscMutex_;
+  std::vector<std::string> midiMapOscAddresses_;
+  std::vector<deckboy::midimap::Row> midiMapComputerRows_;
+  bool midiMapLoaded_ = false;
+  std::uint64_t midiMapComputerVersion_ = 0;
+  std::string midiMapSignature_;
+  bool midiMapLearnArmed_ = false;
+  std::optional<deckboy::midimap::Message> midiMapLearned_;
+  std::vector<int> midiMapLearnedValues_;
 #if !defined(DECKBOY_HAS_ALSA) && defined(DECKBOY_HAS_MIDI)
   // Cross-platform MIDI input (Windows/macOS). ALSA builds use midiSeq_ below.
   deckboy::platform::midi::MidiInput midiRt_;

@@ -452,6 +452,8 @@
       lastTimerPruneSec_ = SDL_GetTicks() / 1000;
       pruneTimerRuntimes();
     }
+    // The MIDI map first: a knob's frame of values becomes one command here.
+    serviceMidiMap();
     processRemoteCommands();
     refreshNmcSyncState();
     refreshNdiTriggerBridgeState();

@@ -580,6 +580,11 @@ jobs:
         if: matrix.features == 'all'
         run: xvfb-run -a python3 tools/check_backdrop.py --exe ./build/Deckboy
 
+      # The MIDI map, through MIDIIN: no MIDI port needed.
+      - name: MIDI map
+        if: matrix.features == 'all'
+        run: xvfb-run -a python3 tools/check_midi_map.py --exe ./build/Deckboy
+
       # A panel map's tile size, typed and stepped, read off the output's frame.
       - name: Panel map tile size
         if: matrix.features == 'all'
@@ -1770,6 +1775,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "the timer's font list failed" }
           python tools/check_backdrop.py --exe build\Release\Deckboy.exe
           if ($LASTEXITCODE -ne 0) { throw "backdrops behind overlay cues failed" }
+          python tools/check_midi_map.py --exe build\Release\Deckboy.exe
+          if ($LASTEXITCODE -ne 0) { throw "the MIDI map failed" }
           python tools/check_panel_map_size.py --exe build\Release\Deckboy.exe
           if ($LASTEXITCODE -ne 0) { throw "the panel map's tile size failed" }
           python tools/check_masks.py --exe build\Release\Deckboy.exe

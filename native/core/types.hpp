@@ -2774,6 +2774,9 @@ struct Project {
   int synthKeyboardOctave = 4;
   // Route incoming MIDI notes to a live synth cue instead of firing GOTO.
   bool midiToSynth = false;
+  // The SHOW's MIDI map rows (core/midi_map.hpp rowToLine form). They travel
+  // with the show; the computer's own map lives in stateDir()/midi_map.tsv.
+  std::vector<std::string> midiMapRows;
 
   std::string audioInputDeviceName;   // empty = system default
   bool audioInputEnabled = false;     // opening a mic is opt-in, never implicit

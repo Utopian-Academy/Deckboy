@@ -891,20 +891,56 @@
     // would send, through the handlers the MIDI thread itself calls -- so a
     // machine with no MIDI port (every CI runner) can check them. This
     // computer only (remoteVerbIsLocalOnly).
+    //   NOTE <n> <vel> | NOTEOFF <n> | CC <c> <v> | PITCH <0-16383> |
+    //   PRESSURE <v> | KEYPRESSURE <n> <v> | PROGRAM <n> | OSC <address> [<number>]
+    //   each optionally followed by CH <1-16> (channel 1 otherwise).
     if (command == "MIDIIN") {
       const std::string kind = parts.size() > 1 ? toUpper(parts[1]) : std::string();
-      if (parts.size() < 4 || (kind != "NOTE" && kind != "CC")) {
-        failRemoteCommand("MIDIIN: NOTE <note> <velocity> or CC <controller> <value>");
+      if (kind == "OSC") {
+        if (parts.size() < 3) {
+          failRemoteCommand("MIDIIN OSC: an address, and optionally a number");
+          return;
+        }
+        OscMessage osc;
+        osc.address = parts[2];
+        if (parts.size() > 3) osc.args.push_back(static_cast<float>(std::atof(parts[3].c_str())));
+        queueOscForMidiMap(osc, false, "MIDIIN");
+        remoteCommandDetail_ = "OSC " + parts[2];
         return;
       }
-      const int first = std::clamp(std::atoi(parts[2].c_str()), 0, 127);
-      const int second = std::clamp(std::atoi(parts[3].c_str()), 0, 127);
-      if (kind == "NOTE") {
-        onMidiNoteOn(first, second);
-      } else {
-        onMidiControlChange(first, second);
+      std::vector<std::string> args(parts.begin() + std::min<std::size_t>(2, parts.size()), parts.end());
+      int channel = 1;
+      if (args.size() >= 2 && toUpper(args[args.size() - 2]) == "CH") {
+        channel = std::clamp(std::atoi(args.back().c_str()), 1, 16);
+        args.resize(args.size() - 2);
       }
-      remoteCommandDetail_ = kind + " " + std::to_string(first) + " " + std::to_string(second);
+      auto arg = [&](std::size_t i) { return i < args.size() ? std::atoi(args[i].c_str()) : 0; };
+      int status = 0;
+      std::size_t need = 0;
+      if (kind == "NOTE") { status = 0x90; need = 2; }
+      else if (kind == "NOTEOFF") { status = 0x80; need = 1; }
+      else if (kind == "CC") { status = 0xB0; need = 2; }
+      else if (kind == "PITCH") { status = 0xE0; need = 1; }
+      else if (kind == "PRESSURE") { status = 0xD0; need = 1; }
+      else if (kind == "KEYPRESSURE") { status = 0xA0; need = 2; }
+      else if (kind == "PROGRAM") { status = 0xC0; need = 1; }
+      if (status == 0 || args.size() < need) {
+        failRemoteCommand("MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, "
+                          "PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> or OSC <address> [<n>], "
+                          "then CH <1-16> if not channel 1");
+        return;
+      }
+      const int first = status == 0xE0 ? std::clamp(arg(0), 0, 16383) : std::clamp(arg(0), 0, 127);
+      const int second = std::clamp(arg(1), 0, 127);
+      onMidiChannelMessage(status, channel, first, second);
+      remoteCommandDetail_ = kind + " " + std::to_string(first) +
+                             (need > 1 ? " " + std::to_string(second) : std::string()) +
+                             " ch " + std::to_string(channel);
+      return;
+    }
+    // MIDIMAP: the MIDI map's rows (app_midi_map.ipp).
+    if (command == "MIDIMAP") {
+      handleMidiMapCommand(rawCommand);
       return;
     }
     if (command == "OSCTRIGGER" && parts.size() >= 2) {

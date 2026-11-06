@@ -345,6 +345,10 @@ void writeProjectScalars(std::ostream& output, const Project& project) {
   output << "synth_keyboard\t" << (project.synthKeyboardEnabled ? 1 : 0) << '\n';
   output << "synth_octave\t" << project.synthKeyboardOctave << '\n';
   output << "midi_to_synth\t" << (project.midiToSynth ? 1 : 0) << '\n';
+  // Escaped once more as a whole: a row is itself tab-separated fields.
+  for (const std::string& row : project.midiMapRows) {
+    output << "midimap_row\t" << deckboy::midimap::escapeValue(row) << '\n';
+  }
   output << "audio_input_enabled\t" << (project.audioInputEnabled ? 1 : 0) << '\n';
   output << "audio_input_gain_db\t" << project.audioInputGainDb << '\n';
   output << "audio_input_to_program\t" << (project.audioInputToProgram ? 1 : 0) << '\n';
@@ -1292,6 +1296,10 @@ bool applyProjectScalarLine(Project& project, const std::vector<std::string>& fi
     project.uiSoundsEnabled = safeBool(fields, 1, true);
   } else if (fields[0] == "hover_tips") {
     project.hoverTipsEnabled = safeBool(fields, 1, true);
+  } else if (fields[0] == "midimap_row") {
+    if (fields.size() > 1) {
+      project.midiMapRows.push_back(deckboy::midimap::unescapeValue(fields[1]));
+    }
   } else if (fields[0] == "beast_mode") {
     project.beastMode = safeBool(fields, 1, false);
   } else if (fields[0] == "miami_cursor") {
