@@ -188,9 +188,12 @@ def run(exe, work, show, renderer=""):
         db.send("MASK LFO %s X ON 1 100" % mask)
         seen = set()
         # Sampled until both have been seen: a 1 Hz sweep read at whatever
-        # moments the snapshots land can show one side six times running.
-        for _ in range(16):
-            p = probe(snap(0.13), 0.5, 0.5)
+        # moments the snapshots land can show one side six times running, and
+        # the circle covers the middle for only part of each sweep. A slow
+        # machine (Linux CI) takes a snapshot every few tenths of a second, so
+        # look up to 50 times; it stops as soon as both have been seen.
+        for _ in range(50):
+            p = probe(snap(0.07), 0.5, 0.5)
             if p:
                 seen.add(p[1] < 127)   # red has no green; the white under it does
             if len(seen) == 2:
