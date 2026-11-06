@@ -124,7 +124,10 @@ def run(exe, work, show, renderer=""):
         db.send("MASK SET %s INVERT off" % mask)
         db.send("MASK SET %s FEATHER 10" % mask)
         shot = snap()
-        edge = probe(shot, 0.5 + 0.3 * 9 / 16, 0.5)
+        # The circle's radius is 0.3 of the HEIGHT, so its edge across is at
+        # 0.3 * height / width: the screen this runs on need not be 16:9.
+        aspect = shot[1] / shot[0] if shot else 9 / 16
+        edge = probe(shot, 0.5 + 0.3 * aspect, 0.5)
         note("feathered 10%%: half-way on the circle's edge (%s)" % (edge,),
              edge is not None and 90 <= edge[0] <= 165, edge)
         db.send("MASK SET %s FEATHER 0" % mask)
