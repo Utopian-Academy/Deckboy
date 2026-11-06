@@ -186,6 +186,23 @@ def main():
         # Refused from another machine: a stored local-only verb. (Not
         # reachable from here; the unit is midimap's refusedFromPeer.)
 
+        # A ready-made map, and the lights following the show.
+        added = detail(db.send("MIDIMAP PRESET apcminimk2"))
+        expect("82 rows added" in added, "the APC mini mk2 map adds its rows: " + added)
+        time.sleep(0.3)
+        fb = detail(db.send("MIDIMAP FEEDBACK"))
+        expect("note 49 = 21 ch 1" in fb,
+               "the pad for playlist 2's cue 2 (on air) is lit: " + fb[-160:])
+        db.send("MIDIIN NOTE 57 127")
+        db.send("MIDIIN NOTEOFF 57")
+        time.sleep(0.4)
+        s = status(db)
+        fb = detail(db.send("MIDIMAP FEEDBACK"))
+        expect(s["decks"][1]["activeCueNumber"] == "1" and s["focusedDeck"] == 1,
+               "a pad took playlist 2's cue 1, and the desk stayed on playlist 1")
+        expect("note 57 = 21 ch 1" in fb and "note 49 = 0 ch 1" in fb,
+               "its pad lit and the old one went out: " + fb[-160:])
+
         # Learn.
         db.send("MIDIMAP LEARN")
         db.send("MIDIIN CC 21 65 CH 3")

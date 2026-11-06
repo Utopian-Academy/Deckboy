@@ -66,6 +66,11 @@ struct Row {
   int playlist = 0;            // 1-based; 0 = the focused one
   std::string cue;             // Target::Named: a cue's name, number or id
   bool feedback = true;        // send its state back to the controller's LEDs
+  // What lights a key's LED, and what puts it out: the velocity (or CC value)
+  // sent back. Every maker uses its own numbers -- 127 and 0 is the common
+  // case; a Launch Control XL wants 60 (green) and 12 (off).
+  int ledOn = 127;
+  int ledOff = 0;
 };
 
 // One message from a controller, as the engine reads it.
@@ -330,6 +335,8 @@ inline std::string rowToLine(const Row& r) {
   if (r.playlist > 0) add("playlist", std::to_string(r.playlist));
   if (!r.cue.empty()) add("cue", r.cue);
   if (!r.feedback) add("feedback", "0");
+  if (r.ledOn != 127) add("led_on", std::to_string(r.ledOn));
+  if (r.ledOff != 0) add("led_off", std::to_string(r.ledOff));
   return s;
 }
 
@@ -378,6 +385,8 @@ inline std::optional<Row> rowFromLine(const std::string& line) {
     } else if (k == "playlist") r.playlist = std::max(0, i);
     else if (k == "cue") r.cue = v;
     else if (k == "feedback") r.feedback = i != 0;
+    else if (k == "led_on") r.ledOn = std::clamp(i, 0, 127);
+    else if (k == "led_off") r.ledOff = std::clamp(i, 0, 127);
     if (end == line.size()) break;
   }
   if (!sawSource || r.command.empty()) return std::nullopt;
@@ -585,6 +594,127 @@ inline std::vector<Row> builtInRows() {
   speed.target = Target::Selected;
   rows.push_back(speed);
   return rows;
+}
+
+// ── Ready-made maps ───────────────────────────────────────────────────────
+//
+// Rows for popular controllers in their FACTORY layout, so plugging one in
+// and choosing it is a working desk. The numbers are each controller's own,
+// checked against published maps (Ardour's midi_maps, and Novation's
+// Launch Control XL programmer's reference for its channels and LED values)
+// rather than written from memory. Strips 1-8 are playlists 1-8.
+
+struct ControllerMap {
+  const char* id;
+  const char* label;
+  std::vector<Row> rows;
+};
+
+inline Row presetRow(Source src, int channel, int number, Read read, const std::string& command,
+                     Target target = Target::Desk, int playlist = 0) {
+  Row r;
+  r.source = src;
+  r.channel = channel;
+  r.number = number;
+  r.read = read;
+  r.command = command;
+  r.target = target;
+  r.playlist = playlist;
+  return r;
+}
+inline Row presetFader(int channel, int cc, int playlist) {
+  Row r = presetRow(Source::Cc, channel, cc, Read::Knob, "PLAYLISTOPACITY {value}", Target::Selected, playlist);
+  r.from = 0.0;
+  r.to = 100.0;
+  r.decimals = 0;
+  r.pickup = true;
+  return r;
+}
+inline Row presetSpeed(int channel, int cc, int playlist) {
+  Row r = presetRow(Source::Cc, channel, cc, Read::Knob, "SPEED {value}", Target::OnAir, playlist);
+  r.from = 0.25;
+  r.hasCentre = true;
+  r.centre = 1.0;
+  r.to = 4.0;
+  r.decimals = 2;
+  r.pickup = true;
+  return r;
+}
+
+inline std::vector<ControllerMap> controllerMaps() {
+  std::vector<ControllerMap> maps;
+  // KORG nanoKONTROL2, CC mode (its default), channel 1. Buttons are CCs
+  // sending 127 / 0; their LEDs answer only in its "external" LED mode.
+  {
+    ControllerMap m {"nanokontrol2", "KORG nanoKONTROL2", {}};
+    for (int k = 0; k < 8; ++k) {
+      m.rows.push_back(presetFader(1, 0 + k, k + 1));
+      m.rows.push_back(presetSpeed(1, 16 + k, k + 1));
+      m.rows.push_back(presetRow(Source::Cc, 1, 32 + k, Read::Press, "TAKE", Target::Selected, k + 1));
+      m.rows.push_back(presetRow(Source::Cc, 1, 48 + k, Read::Press, "STOP", Target::Selected, k + 1));
+    }
+    m.rows.push_back(presetRow(Source::Cc, 1, 41, Read::Press, "GO"));
+    m.rows.push_back(presetRow(Source::Cc, 1, 42, Read::Press, "STOP"));
+    m.rows.push_back(presetRow(Source::Cc, 1, 43, Read::Press, "PREV"));
+    m.rows.push_back(presetRow(Source::Cc, 1, 44, Read::Press, "NEXT"));
+    m.rows.push_back(presetRow(Source::Cc, 1, 45, Read::Press, "RECORD"));
+    m.rows.push_back(presetRow(Source::Cc, 1, 46, Read::Press, "LOOP", Target::Selected));
+    m.rows.push_back(presetRow(Source::Cc, 1, 58, Read::Press, "DECKPREV"));
+    m.rows.push_back(presetRow(Source::Cc, 1, 59, Read::Press, "DECKNEXT"));
+    m.rows.push_back(presetRow(Source::Cc, 1, 60, Read::Press, "BLACKOUT"));
+    m.rows.push_back(presetRow(Source::Cc, 1, 61, Read::Press, "STANDBY PREV"));
+    m.rows.push_back(presetRow(Source::Cc, 1, 62, Read::Press, "STANDBY NEXT"));
+    maps.push_back(std::move(m));
+  }
+  // Novation Launch Control XL, factory template 1 (channel 9). Its LEDs take
+  // Launchpad velocities: 60 green, 12 off.
+  {
+    ControllerMap m {"launchcontrolxl", "Novation Launch Control XL (factory template 1)", {}};
+    const int focus[8] = {41, 42, 43, 44, 57, 58, 59, 60};
+    const int control[8] = {73, 74, 75, 76, 89, 90, 91, 92};
+    for (int k = 0; k < 8; ++k) {
+      m.rows.push_back(presetFader(9, 77 + k, k + 1));
+      m.rows.push_back(presetSpeed(9, 13 + k, k + 1));
+      Row take = presetRow(Source::Note, 9, focus[k], Read::Press, "TAKE", Target::Selected, k + 1);
+      take.ledOn = 60;
+      take.ledOff = 12;
+      m.rows.push_back(take);
+      Row stop = presetRow(Source::Note, 9, control[k], Read::Press, "STOP", Target::Selected, k + 1);
+      stop.ledOn = 15;   // red
+      stop.ledOff = 12;
+      m.rows.push_back(stop);
+    }
+    m.rows.push_back(presetRow(Source::Cc, 9, 104, Read::Press, "STANDBY PREV"));
+    m.rows.push_back(presetRow(Source::Cc, 9, 105, Read::Press, "STANDBY NEXT"));
+    m.rows.push_back(presetRow(Source::Cc, 9, 106, Read::Press, "DECKPREV"));
+    m.rows.push_back(presetRow(Source::Cc, 9, 107, Read::Press, "DECKNEXT"));
+    maps.push_back(std::move(m));
+  }
+  // AKAI APC mini mk2, channel 1: the 8x8 grid is cues 1-8 (top to bottom)
+  // of playlists 1-8 (left to right); the bottom row stops each playlist;
+  // fader 9 is the master volume; SHIFT stops everything.
+  {
+    ControllerMap m {"apcminimk2", "AKAI APC mini mk2", {}};
+    for (int k = 0; k < 8; ++k) {
+      m.rows.push_back(presetFader(1, 48 + k, k + 1));
+      for (int cue = 0; cue < 8; ++cue) {
+        Row pad = presetRow(Source::Note, 1, 56 - 8 * cue + k, Read::Press, "GOTO " + std::to_string(cue + 1),
+                            Target::Selected, k + 1);
+        pad.ledOn = 21;  // green in its palette
+        m.rows.push_back(pad);
+      }
+      m.rows.push_back(presetRow(Source::Note, 1, 100 + k, Read::Press, "STOP", Target::Selected, k + 1));
+    }
+    Row master = presetRow(Source::Cc, 1, 56, Read::Knob, "MASTERVOL {value}");
+    master.from = 0.0;
+    master.to = 100.0;
+    master.decimals = 0;
+    master.pickup = true;
+    m.rows.push_back(master);
+    m.rows.push_back(presetRow(Source::Note, 1, 122, Read::Press, "STOPALL"));
+    maps.push_back(std::move(m));
+  }
+  return maps;
 }
 
 // ── The engine ────────────────────────────────────────────────────────────

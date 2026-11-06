@@ -182,6 +182,136 @@
     midiMapOscAddresses_ = std::move(osc);
   }
 
+  // ── LED feedback ──
+  //
+  // A row lights the controller it came from: the port the MIDI input is on,
+  // or the row's own port -- never every MIDI device on the machine. Worked
+  // out again every 50 ms from the show itself, so a cue taken with the mouse,
+  // a playlist change or a new show all reach the pads. Only changes are sent,
+  // and everything is sent again when the port, the map or the show changes.
+
+  // Is a key's thing "on" now? Unknown commands light nothing (nullopt).
+  std::optional<bool> midiMapRowLit(const deckboy::midimap::Row& r) {
+    using deckboy::midimap::Target;
+    const auto words = splitWhitespace(r.command);
+    if (words.empty()) return std::nullopt;
+    const std::string verb = toUpper(words[0]);
+    if (verb == "BLACKOUT") return masterDimmerTarget_ < 0.5;
+    const MidiMapAim aim = resolveMidiMapAim(r);
+    if (!aim.error.empty()) return false;
+    const int deckIndex = aim.deck >= 0 ? aim.deck : project_.focusedDeckIndex;
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) return std::nullopt;
+    const Deck& deck = project_.decks[static_cast<std::size_t>(deckIndex)];
+    if (r.target == Target::Named) return deck.activeIndex == aim.select;
+    if ((verb == "GOTO" || verb == "TAKE") && words.size() > 1) {
+      const auto index = cueIndexByToken(deck, joinParts(words, 1));
+      return index && deck.activeIndex == *index;
+    }
+    // A playlist's own TAKE and STOP: lit while something there is on air.
+    if ((verb == "TAKE" || verb == "STOP") && r.target != Target::Desk) return deck.activeIndex >= 0;
+    if (verb == "LOOP") {
+      if (const Cue* cue = midiMapAimedCue(r)) return cue->loop;
+    }
+    return std::nullopt;
+  }
+
+  void serviceMidiMapFeedback() {
+    namespace mm = deckboy::midimap;
+    const Uint64 now = SDL_GetTicks();
+    if (now - midiMapFeedbackAtMs_ < 50) return;
+    midiMapFeedbackAtMs_ = now;
+    std::string port;
+    {
+      std::lock_guard<std::mutex> lock(inputMonitorMutex_);
+      port = midiEnabled_ ? midiMonitorPortName_ : std::string();
+    }
+    if (port != midiMapFeedbackPort_) {
+      midiMapFeedbackPort_ = port;
+      midiMapOut_.close();
+      if (!port.empty() && !midiMapOut_.openByName(port)) {
+        showLog("MIDI-MAP", "no MIDI output called " + port + ": the controller's lights stay as they are");
+      }
+      midiMapFeedbackSent_.clear();
+    }
+    const std::string sig = midiMapSignature_ + '\x1e' + currentProjectFile_.string();
+    if (sig != midiMapFeedbackSig_) {
+      midiMapFeedbackSig_ = sig;
+      midiMapFeedbackSent_.clear();
+    }
+    // One answer per key: several rows can share a pad (amber on the MAP
+    // page), and sending each row's own answer in turn flashed the pad at
+    // 20 Hz. A key is lit when any of its rows is; a knob takes its first row.
+    std::map<int, int> want;
+    for (auto origin : {mm::Origin::Show, mm::Origin::Computer}) {
+      for (const mm::Row& r : midiMap_.rows(origin)) {
+        if (!r.enabled || !r.feedback || r.unclaimed) continue;
+        if (!r.port.empty() && r.port != port) continue;
+        if (r.source != mm::Source::Note && r.source != mm::Source::Cc) continue;
+        if (r.number < 0 || r.numberTo > r.number) continue;  // a keyboard has no lights
+        int value = -1;
+        if (mm::isContinuous(r.read)) {
+          const auto current = midiMapCurrentValue(r);
+          if (!current) continue;
+          value = mm::value7(mm::positionOf(r, *current));
+        } else {
+          const auto lit = midiMapRowLit(r);
+          if (!lit) continue;
+          value = *lit ? r.ledOn : r.ledOff;
+        }
+        const int channel = (r.channel > 0 ? r.channel : 1) - 1;
+        const int status = (r.source == mm::Source::Note ? 0x90 : 0xB0) | channel;
+        const int key = (status << 8) | r.number;
+        auto have = want.find(key);
+        if (have == want.end()) {
+          want[key] = value;
+        } else if (!mm::isContinuous(r.read) && value == r.ledOn) {
+          have->second = value;  // lit wins
+        }
+      }
+    }
+    for (const auto& [key, value] : want) {
+      auto it = midiMapFeedbackSent_.find(key);
+      if (it != midiMapFeedbackSent_.end() && it->second == value) continue;
+      midiMapFeedbackSent_[key] = value;
+      const int status = key >> 8;
+      const int number = key & 0xFF;
+      if (midiMapOut_.isOpen()) {
+        midiMapOut_.send({static_cast<std::uint8_t>(status), static_cast<std::uint8_t>(number),
+                          static_cast<std::uint8_t>(std::clamp(value, 0, 127))});
+      }
+      midiMapFeedbackLog_.push_back(std::string((status & 0xF0) == 0x90 ? "note " : "CC ") +
+                                    std::to_string(number) + " = " + std::to_string(value) +
+                                    " ch " + std::to_string((status & 0x0F) + 1));
+      if (midiMapFeedbackLog_.size() > 64) midiMapFeedbackLog_.erase(midiMapFeedbackLog_.begin());
+    }
+  }
+
+  // Add a ready-made controller's rows to this computer's map (rows it
+  // already has are not added twice).
+  bool addMidiMapPreset(const std::string& id, std::string& detail) {
+    for (const auto& map : deckboy::midimap::controllerMaps()) {
+      if (map.id != id) continue;
+      auto rows = midiMapRowsOf(deckboy::midimap::Origin::Computer);
+      int added = 0;
+      for (const auto& r : map.rows) {
+        const std::string line = deckboy::midimap::rowToLine(r);
+        bool have = false;
+        for (const auto& existing : rows) {
+          if (deckboy::midimap::rowToLine(existing) == line) have = true;
+        }
+        if (!have) {
+          rows.push_back(r);
+          ++added;
+        }
+      }
+      midiMapStore(deckboy::midimap::Origin::Computer, std::move(rows));
+      detail = std::string(map.label) + ": " + std::to_string(added) + " rows added";
+      return true;
+    }
+    detail = "no ready-made map called " + id;
+    return false;
+  }
+
   // ── Aiming ──
 
   struct MidiMapAim {
@@ -336,6 +466,13 @@
     if (words.empty()) return std::nullopt;
     const std::string verb = toUpper(words[0]);
     if (verb == "MASTERVOL" || verb == "MASTERVOLUME") return project_.masterVolume * 100.0;
+    if (verb == "PLAYLISTOPACITY" || verb == "DECKOPACITY") {
+      const MidiMapAim aim = resolveMidiMapAim(row);
+      const int d = aim.deck >= 0 ? aim.deck : project_.focusedDeckIndex;
+      if (aim.error.empty() && d >= 0 && d < static_cast<int>(project_.decks.size())) {
+        return project_.decks[static_cast<std::size_t>(d)].playlistOpacity * 100.0;
+      }
+    }
     if (verb == "SPEED") {
       if (const Cue* cue = midiMapAimedCue(row)) return cue->playbackSpeed;
     }
@@ -434,6 +571,7 @@
       }
     }
     for (const auto& action : midiMap_.tick(now)) runMidiMapAction(action, nullptr);
+    serviceMidiMapFeedback();
   }
 
   void runMidiMapAction(const deckboy::midimap::Action& action, const MidiMapQueued* q) {
@@ -705,7 +843,31 @@
       remoteCommandDetail_ = f;
       return;
     }
-    failRemoteCommand("MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN or LEARNED");
+    if (sub == "PRESET") {
+      if (parts.size() < 3) {
+        std::string ids;
+        for (const auto& map : mm::controllerMaps()) ids += (ids.empty() ? "" : ", ") + std::string(map.id);
+        remoteCommandDetail_ = ids;
+        return;
+      }
+      std::string detail;
+      if (!addMidiMapPreset(toLower(parts[2]), detail)) {
+        failRemoteCommand("MIDIMAP PRESET: " + detail);
+        return;
+      }
+      remoteCommandDetail_ = detail;
+      return;
+    }
+    if (sub == "FEEDBACK") {
+      // What the lights were last told, newest last: for tests and for an
+      // operator asking why a pad is dark.
+      std::string out;
+      for (const auto& line : midiMapFeedbackLog_) out += (out.empty() ? "" : " | ") + line;
+      remoteCommandDetail_ = (midiMapOut_.isOpen() ? "to " + midiMapFeedbackPort_ : std::string("no port open")) +
+                             (out.empty() ? std::string() : ": " + out);
+      return;
+    }
+    failRemoteCommand("MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET or FEEDBACK");
   }
 
   // ── THE MAP PAGE (Settings, the MIDI CONTROL card's OPEN THE MAP) ─────────
@@ -870,8 +1032,11 @@
     SDL_Rect backBtn {x + w - btnW, y, btnW, rowH};
     SDL_Rect learnBtn {backBtn.x - gap - btnW, y, btnW, rowH};
     SDL_Rect addBtn {learnBtn.x - gap - btnW, y, btnW, rowH};
-    drawTextSafe(controlRenderer_, fontBase_, SDL_Rect {x, y, addBtn.x - x - gap, rowH},
+    SDL_Rect presetBtn {addBtn.x - gap - btnW - uiScaled(30), y, btnW + uiScaled(30), rowH};
+    drawTextSafe(controlRenderer_, fontBase_, SDL_Rect {x, y, presetBtn.x - x - gap, rowH},
                  "MIDI MAP", ink);
+    drawUIValueControl(presetBtn, "READY-MADE...");
+    settingsBtns_.push_back({presetBtn, kSettingsActionMidiMapPreset, "midimap_preset"});
     drawUIValueControl(addBtn, "+ ADD");
     settingsBtns_.push_back({addBtn, kSettingsActionMidiMapAdd, "midimap_add"});
     drawUIValueControl(learnBtn, midiMapLearnArmed_ && midiMapLearnInto_ == 1 ? "LISTENING..." : "LEARN");
@@ -1199,6 +1364,16 @@
           midiMapLearned_.reset();
         }
         return true;
+      case kSettingsActionMidiMapPreset: {
+        std::vector<std::pair<std::string, std::string>> choices;
+        for (const auto& map : mm::controllerMaps()) choices.push_back({map.id, map.label});
+        openDropdown("midimap.preset", sb.rect, choices, std::string(), [this](const std::string& id) {
+          std::string detail;
+          addMidiMapPreset(id, detail);
+          triggerToast(detail);
+        });
+        return true;
+      }
       case kSettingsActionMidiMapScrollUp:
         midiMapScroll_ = std::max(0, midiMapScroll_ - 4);
         return true;

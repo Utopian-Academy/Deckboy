@@ -357,6 +357,23 @@ int main() {
     expect(!rowFromLine("src=banana\tcmd=GO"), "an unknown source is refused");
   }
 
+  // The ready-made maps: every row saves and comes back the same, and no
+  // two rows of one map answer the same message.
+  for (const auto& map : controllerMaps()) {
+    bool saved = true;
+    int clashes = 0;
+    for (std::size_t i = 0; i < map.rows.size(); ++i) {
+      auto back = rowFromLine(rowToLine(map.rows[i]));
+      if (!back || rowToLine(*back) != rowToLine(map.rows[i])) saved = false;
+      for (std::size_t j = i + 1; j < map.rows.size(); ++j) {
+        if (overlaps(map.rows[i], map.rows[j])) ++clashes;
+      }
+    }
+    expect(saved && clashes == 0 && !map.rows.empty(),
+           std::string(map.label) + ": " + std::to_string(map.rows.size()) + " rows, " +
+             std::to_string(clashes) + " clashes");
+  }
+
   std::printf("midi_map: %d failure%s\n", failures, failures == 1 ? "" : "s");
   return failures == 0 ? 0 : 1;
 }

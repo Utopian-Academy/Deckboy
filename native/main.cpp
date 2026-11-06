@@ -10080,6 +10080,7 @@ class App {
   static constexpr int kSettingsActionMidiMapScrollUp = 1104;
   static constexpr int kSettingsActionMidiMapScrollDown = 1105;
   static constexpr int kSettingsActionMidiMapDone = 1106;
+  static constexpr int kSettingsActionMidiMapPreset = 1107;
   static constexpr int kSettingsActionMidiMapRelearn = 1110;
   static constexpr int kSettingsActionMidiMapChannel = 1111;
   static constexpr int kSettingsActionMidiMapPort = 1112;
@@ -12710,6 +12711,13 @@ class App {
   int midiMapLearnInto_ = 0;  // 1: learn makes a new row; 2: re-learn the edited row
   std::vector<std::pair<deckboy::midimap::Origin, int>> midiMapListed_;
   std::map<std::pair<int, int>, Uint64> midiMapRowHitMs_;
+  // LED feedback: its own output, opened on the input's port by name.
+  deckboy::platform::midi::MidiOutput midiMapOut_;
+  std::string midiMapFeedbackPort_;
+  std::string midiMapFeedbackSig_;
+  Uint64 midiMapFeedbackAtMs_ = 0;
+  std::map<int, int> midiMapFeedbackSent_;
+  std::vector<std::string> midiMapFeedbackLog_;
 #if !defined(DECKBOY_HAS_ALSA) && defined(DECKBOY_HAS_MIDI)
   // Cross-platform MIDI input (Windows/macOS). ALSA builds use midiSeq_ below.
   deckboy::platform::midi::MidiInput midiRt_;
