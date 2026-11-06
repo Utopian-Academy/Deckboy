@@ -2,99 +2,97 @@
 
 ## 2026-11-06 - v0.99.425 (a MIDI map for any controller; masks; slices and the Screens window; Draw; Motion; seventeen lessons; Vietnamese, Lao and Papiamento)
 
-### Learn the basics, part two
+### MIDI map
 
-- When LEARN THE BASICS ends, a **lesson list** opens: follow Dr. Pixel (running the show) or Prof. Video (the signal), and pick a lesson. Also at MENU > LESSONS.
-- Seventeen lessons: two playlists and TAKE ALL; GO from anywhere; words on screen; keeping time; presets; the multiview; when it goes wrong; taking it on the road (Dr. Pixel); effects, oscillators and colour; patterns, synths and Draw; masks; warp, blend and slices; transitions; reading the scopes; sound; out of the building; and Bug Swat (Prof. Video). Each runs in its own practice show, most with a guest, and is ticked DONE when finished.
-- `LESSONS` over the wire.
+- Run any Deckboy command from any MIDI controller or OSC message. Keys, pads, knobs, faders, the pitch wheel, aftertouch and program changes all work.
+- To open the map, go to Settings > Audio > MIDI CONTROL > OPEN THE MAP. To connect a control, press LEARN, then move the control. You can see the value of each row change live.
+- A command can act on the desk, the selected cue, the cue on air in a playlist, or one named cue. A command that acts on a cue does not change your selection.
+- A control can act as a knob with an exact centre, an endless encoder, a 14-bit fader, a press, a press and hold, a press and release, or a range of keys that plays the synth.
+- Pickup stops a value from jumping: a knob has no effect until it reaches the current value.
+- You have two maps at the same time: one on this computer, and one saved in the show.
+- The ready-made maps are for the KORG nanoKONTROL2, Novation Launch Control XL, AKAI APC mini mk2 and AKAI APC40 mkII. When you add one, it turns off any built-in row that uses the same control.
+- The lights on the controller follow the show. Pads show the cues on air, blackout and loops. Knob rings show values. Only the controller that a row came from lights up.
+- The old fixed controls are now ordinary rows that you can change: MIDI notes take cues, CC 7 sets the master volume, and CC 20 sets the speed of the selected clip.
+- Changed: normal speed on CC 20 is now at the centre of the knob. It was one third of the way up.
+- The MIDI and OSC monitor now shows which row matched and what the command acted on. If nothing happened, it shows why.
+- The video synth now plays from a keyboard. The pitch of a key sets the size of the pattern. Its velocity sets the amount of feedback.
+- The **~** oscillator on any control can now follow a key's pitch, a key's velocity, any CC or aftertouch.
+- **Chladni listens:** turn on one switch, and the Chladni figure follows the pitch of the playlist's sound. The new **audio-pitch** oscillator shape lets any control do the same.
+- Fixed: on Windows, every non-English character in `STATUS JSON` and in the monitor's JSON was garbled.
+
+### Masks
+
+- A mask cuts the picture to a shape. You can put a mask on one cue, on one playlist on an output, or on a whole output. A mask on an output makes the cut area black, or transparent if the output sends a key signal.
+- Start from one of eight shapes: circle, ellipse, heart, star, rectangle, rounded rectangle, triangle or hexagon. Or draw your own shape with the pen. Shapes can add to each other or cut from each other.
+- Each show keeps a library of masks. You can use one mask in several places. When you change it, all those places change.
+- The new MASK section in the inspector sets invert, soft edge (feather), grow, opacity, position, scale and rotation. You can type each value, drag it, or move it with a **~** oscillator.
+- To edit the shape, press MASK beside WARP. The points show on the programme monitor. Drag a point or a handle. Click the outline to add a point. Alt-click a point or press Delete to remove it. Press P to draw with the pen.
+- To put a mask on an output with no cue selected, go to Settings > Video Outputs > Matte & Overlay and use the **Output mask** row. The matte row can also use a mask.
+- Export a mask as a greyscale PNG or as an SVG file.
+- Import an SVG file with **import an SVG...** in the mask list. Deckboy reads paths, rectangles, circles, ellipses and polygons. A mask that you exported comes back the same.
 
 ### Slices and the Screens window
 
-- An output can show **slices**: pieces of the programme, or of one playlist, each cropped, placed, corner-pinned or bent by a mesh, soft-edged, masked, turned, flipped and faded. Position, turn and opacity take a **~**. Up to 16 on an output.
-- The **Screens** window (Settings > Video Outputs > Geometry > SLICES) shows each slice's crop on the programme and where it lands on the output, and both are dragged into place by hand.
-- `SLICE` and `SCREENS` over the wire.
-- Masks import from SVG: **import an SVG...** in the mask list, or `MASK IMPORT`. Paths, rectangles, circles, ellipses and polygons, curves kept, transforms applied; black and white read the way Deckboy's own SVG export writes them, so an exported mask comes back as it went.
-- The Screens window has **MULTIVIEW** and **LED MAP** tabs. MULTIVIEW arranges the multiview by clicking a window and then a feed, with tally. LED MAP numbers the output's LED tiles and makes one slice per row, column or tile, to put a strip cabled out of order where it really is.
-- A slice's across, down, turn and opacity have their **~** in the Screens window.
-
-### Panel Map
-
-- The LED Panel Map has an animated version (the pattern's motion switch): a slow colour wave across the wall and each tile lit in turn, in reading order, so a tile cabled out of sequence shows as the light jumping.
-
-### MIDI map
-
-- Any MIDI key, pad, knob, fader, pitch wheel, aftertouch or program change, and any OSC address, can run any command, aimed at the desk, the selected cue, what is on air in a playlist, or a named cue. A command aimed at a cue never moves the desk's focus or selection.
-- Knobs with an exact centre, endless encoders, 14-bit faders, press, hold-to-fire, press and release, and play (a range of keys, for the synth). Pickup keeps a knob from jumping a value that was changed elsewhere.
-- Two maps at once: this computer's, and rows saved in the show.
-- Today's fixed behaviour is now ordinary rows: notes take cues, CC 7 is the master volume, CC 20 the selected clip's speed. CC 20's 1.0x is now at the knob's centre (it was a third of the way up).
-- The MIDI and OSC monitor names the row that matched, what it was aimed at, or why nothing did.
-- The map page: Settings > Audio > MIDI CONTROL > OPEN THE MAP. Add, learn, edit in three steps, and see each row's value live.
-- Ready-made maps for the KORG nanoKONTROL2, Novation Launch Control XL, AKAI APC mini mk2 and AKAI APC40 mkII. Adding one switches off a built-in row on the same control.
-- The controller's lights follow the show: pads for cues on air, blackout, loops; knob rings for their values. Only the controller a row came from is lit.
-- The **~** on any control has MIDI shapes: a key's pitch, its velocity, any CC, and aftertouch. Chladni's mode on a key's pitch plays a different figure for every note.
-- The video synth plays from a keyboard: a key's pitch sets the pattern's size, its velocity blooms the feedback.
-- **Chladni listens**: one switch, and the figure follows the pitch of the playlist's sound. Underneath it is a new **~** shape, **audio-pitch**, that any control can follow.
-- `MIDIMAP` over the wire, and `MIDIIN` takes channels, the pitch wheel, aftertouch, program changes and OSC.
-- Fixed: on Windows, every non-English character in `STATUS JSON` and the MIDI and OSC monitor's JSON came out garbled.
-
-### Languages
-
-- New languages: Vietnamese, Lao and Papiamento (Aruba). Lao and Papiamento are marked unreviewed in the picker.
-- Lao is drawn in a face that ships with Deckboy, so it shows on every machine, Linux included.
-- The tutorials, both parts, are now in every language Deckboy offers.
-
-### Settings
-
-- Beast mode added.
-- The Mascot setting is now **Splash**, ON or OFF: OFF goes straight to the deck at boot.
-- Fixed: in Video Outputs, the AOI **CENTRE** button switched the Miami cursor instead of centring the area, and the AOI size picker switched hover tips.
-
-### Inspector
-
-- Inspector sections now start folded, except the one that belongs to the cue (TONE on a tone, PLAYBACK on a clip). One you open or fold stays that way for the session.
-
-### Motion trails
-
-- A new picture effect: where the picture moves it is drawn fresh, and where it is still it holds, so a moving thing leaves a trail of light or dark, or melts in blocks.
+- A slice sends one part of the picture to one place on an output. Use slices for LED walls and for screens of unusual shapes. An output can have up to 16 slices.
+- Each slice can show the programme or one playlist. You can crop, place, turn, flip and fade it, soften its edges, add a mask, pull its corners, or bend it with a mesh. A **~** oscillator can move its position, turn and opacity.
+- To open the **Screens** window, go to Settings > Video Outputs > Geometry > SLICES. It shows which part of the picture each slice takes and where the slice goes. Drag both into place.
+- The **MULTIVIEW** tab sets up the multiview: click a window, then click what it shows.
+- The **LED MAP** tab numbers the LED tiles of the output. It can make one slice for each row, column or tile. Use this to correct a strip that is cabled out of order.
 
 ### Draw
 
-- A **Draw** source (SOURCE > MADE BY DECKBOY): draw on the programme monitor with the mouse or a pen, transparent outside the ink so it sits on a layer. Brush, eraser, line, box, oval and fill; eight colours or any typed one; size and opacity with a **~**.
-- Flipbook frames with onion skin, or **replay**, which draws the picture back the way it was drawn, then holds it.
-- **Save still** adds the frame as a PNG with transparency; **save animation** adds it as a ProRes 4444 video with transparency.
-- `DRAW` over the wire.
-- Video with an alpha channel (ProRes 4444, QuickTime Animation and others) now plays with its transparency; it played as if solid before.
+- The new **Draw** source is at SOURCE > MADE BY DECKBOY. Draw on the programme monitor with a mouse or a pen. Areas with no ink are transparent, so a drawing can sit on a layer above the picture.
+- The tools are brush, eraser, line, box, oval and fill. Use one of eight colours or type any colour. A **~** oscillator can move the size and the opacity.
+- You can make flipbook frames, and see the frame before as a guide (onion skin). Or use **replay**, which redraws the picture stroke by stroke, then holds it.
+- **Save still** adds the frame as a PNG with transparency. **Save animation** adds it as a ProRes 4444 video with transparency.
+- Fixed: video with an alpha channel (ProRes 4444, QuickTime Animation and others) now plays with its transparency. It played as solid before.
 
 ### Motion
 
-- A camera can move any control with a **~**: new **motion**, **motion-x** and **motion-y** shapes follow how much is moving and where. Set it up in Settings > Audio > MOTION CONTROL, reading a camera of its own or a playlist's picture; an amber MOTION chip shows while it is on.
-- Octopus mode: draw up to eight zones on the camera picture and let each one drive a different control.
-- A tone cue's level and sine frequency take a **~**, so a hand can play it like a theremin.
-- `MOTION` and `TONECUE LFO` over the wire; an oscillator's `ZONE` picks what it follows.
-- **Bug Swat**: a five-round handheld game that teaches Motion (PLAY BUG SWAT, at the bottom of MOTION CONTROL). Each round asks for one control (Motion on, two zones, sensitivity, fall, motion-x on a tone), and SHOW ME sets it for you. It plays in a practice show and hands your show back as it was. `BUGSWAT` over the wire.
+- A camera can now control Deckboy. Movement in front of it changes any control that has a **~** oscillator. The new shapes **motion**, **motion-x** and **motion-y** follow how much is moving and where.
+- To set it up, go to Settings > Audio > MOTION CONTROL. It can read its own camera or the picture of a playlist. An amber MOTION chip shows while it is on.
+- Octopus mode: draw up to eight zones on the camera picture. Each zone can drive a different control.
+- The level and the sine frequency of a tone cue now take a **~** oscillator, so you can play a tone with your hand, like a theremin.
+- **Bug Swat** is a game of five rounds that teaches Motion. Find PLAY BUG SWAT at the bottom of MOTION CONTROL. Each round asks you to set one control. SHOW ME sets it for you. The game uses a practice show and gives your show back unchanged.
 
 ### Multiview
 
-- Every multiview window has a **...** menu button, and an empty window says **+ CHOOSE WHAT IT SHOWS**. Choosing a window's picture was only a right-click before.
-- A window can show what one output carries, the next cue (with its still), or the time of day, as well as the programme and the playlists.
-- Layouts: an even grid, one big window with the rest beside it, one big on top, or two big on top. The desk's monitor and a multiview output use the same layout.
-- Tally: a red border round a window that is on air, a green one round the next cue.
-- `MULTIVIEW WINDOW <n> OUTPUT<n>|NEXT|CLOCK` and `MULTIVIEW LAYOUT GRID|BIG|BIGTOP|TWOTOP` over the wire.
+- Each multiview window now has a **...** menu. An empty window says **+ CHOOSE WHAT IT SHOWS**. Before, you could only right-click.
+- A window can now show one output, the next cue with its still, or the time of day, in addition to the programme and the playlists.
+- There are four layouts: an even grid, one big window with the others beside it, one big window on top, and two big windows on top. The monitor on the desk and a multiview output use the same layout.
+- A red border shows a window that is on air. A green border shows the next cue.
 
-### Masks
-- A mask cuts the picture to a shape: on a cue (it travels with the cue), on one playlist on an output, on an output's whole picture (to transparent on a key signal), or in the matte slot. Each show keeps a library of masks; one mask can be in several places, and an edit reaches them all.
-- Eight shapes to start from (circle, ellipse, heart, star, rectangle, rounded rect, triangle, hexagon), built round on the screen they are made for, and a pen for your own. Paths add or subtract in order.
-- Invert, feather, grow, opacity, x, y, scale and rotation in the inspector's new MASK section, each typed, scrubbed or put on an oscillator.
-- Settings → Video Outputs → Matte & Overlay has an **Output mask** row that picks the output's mask from the library, with no cue selected, and the matte row names a mask in the matte slot.
-- MASK beside WARP shows the points on the programme monitor: drag points and handles, click the outline to add a point, Alt-click or Delete to remove one, and draw with the pen (P).
-- Export a mask as a greyscale PNG matte or as SVG paths. `MASK` over the network does all of it; see the manual.
+### Learn the basics, part two
 
-### Test patterns
-- Panel Map: type the LED tile's exact width and height in pixels, and step them one pixel at a time. They used to step in sixteens from 16 to 1024, so most real tile sizes could not be set.
+- When LEARN THE BASICS ends, a **lesson list** opens. You can also open it at MENU > LESSONS. Follow Dr. Pixel to learn how to run a show, or Prof. Video to learn about the signal.
+- There are seventeen lessons. Dr. Pixel teaches two playlists and TAKE ALL, GO from anywhere, words on screen, keeping time, presets, the multiview, what to do when it goes wrong, and taking a show on the road.
+- Prof. Video teaches effects, oscillators and colour; patterns, synths and Draw; masks; warp, blend and slices; transitions; reading the scopes; sound; sending video out of the building; and Bug Swat.
+- Each lesson runs in its own practice show. Most have a guest. A lesson shows DONE when you finish it.
 
-### Outputs
+### Languages
 
-- The "missing frames" warning is quieter: not in the first three seconds after an output opens, and after the first warning it speaks again only when the misses double. The output's badge still shows every one.
+- New languages: Vietnamese, Lao and Papiamento (Aruba). The picker marks Lao and Papiamento as not yet reviewed.
+- Deckboy now includes a Lao font, so Lao shows on every computer, Linux included.
+- Both parts of the tutorial are now in every language that Deckboy offers.
+
+### Other changes
+
+- **Motion trails** is a new picture effect. Parts of the picture that move are drawn fresh. Parts that are still hold. A moving object leaves a trail of light or dark, or melts in blocks.
+- **Panel Map:** you can now type the exact width and height of an LED tile in pixels, and change them one pixel at a time. They used to change in steps of 16, so most real tile sizes were not possible.
+- **Panel Map** also has an animated version. Turn on the pattern's motion switch. A slow colour wave crosses the wall and each tile lights in turn, so a tile that is cabled out of order shows as a jump in the light.
+- **Inspector:** sections now start closed, except the section that belongs to the cue (TONE on a tone, PLAYBACK on a clip). A section that you open or close stays that way until you quit.
+- **Settings:** the Mascot setting is now **Splash**, ON or OFF. OFF goes straight to the desk when Deckboy starts.
+- Beast mode added.
+- Fixed: in Video Outputs, the AOI **CENTRE** button changed the Miami cursor and did not centre the area, and the AOI size picker changed the hover tips.
+- The "missing frames" warning now appears less often. It does not appear in the first three seconds after an output opens. After the first warning, it appears again only when the number of missed frames doubles. The badge on the output still shows every missed frame.
+
+### New network commands
+
+- `MIDIMAP`, and `MIDIIN` now takes channels, the pitch wheel, aftertouch, program changes and OSC.
+- `MASK`, `SLICE`, `SCREENS`, `DRAW`, `MOTION`, `BUGSWAT` and `LESSONS`.
+- `TONECUE LFO`, and an oscillator's `ZONE` selects the Motion zone that it follows.
+- `MULTIVIEW WINDOW <n> OUTPUT<n>|NEXT|CLOCK` and `MULTIVIEW LAYOUT GRID|BIG|BIGTOP|TWOTOP`.
+- The manual has the details.
 
 ## 2026-11-01 - v0.99.424 (smooth playback at any frame rate, on a Mac too; seamless loops; recordings that keep up; scopes on the graphics card)
 
