@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>From source to screen | Deckboy Video University</title>
+    <meta name="description" content="The chain that carries a picture, and how to find a break in it.">
+    <style>img,video{max-width:100%;height:auto}</style>
+    <link rel="stylesheet" href="../style.css?v=20261024b">
+    <link rel="stylesheet" href="university.css">
+    <script src="university.js" defer></script>
+</head>
+<body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <nav class="navbar">
+        <div class="logo">Deckboy</div>
+        <div class="nav-links">
+            <a href="index.html">Video University</a>
+            <a href="troubleshooter.html">Troubleshooter</a>
+            <a href="../manual.html">Manual</a>
+            <a href="https://github.com/Utopian-Academy/Deckboy/releases/latest" class="btn-primary">Download Free</a>
+        </div>
+    </nav>
+    <main id="main" class="uni">
+    <p class="uni-crumb"><a href="index.html">Video University</a> / <a href="vid100.html">VID 100</a> / Lecture 6</p>
+    <h1>From source to screen</h1>
+<div class="say pix"><span class="who">DR. PIXEL</span><div><p>Last lecture of this course, skapi. Every video system is a chain. A <b>source</b> makes the picture. A <b>cable</b> or a network carries it. A <b>screen</b> or a projector shows it.</p><p>When there is no picture, do not panic. A chain has links. You check one link at a time.</p></div></div>
+<section class="sim" id="chain" aria-label="Simulator: the chain"><h2>Try it: break one link</h2><canvas id="sim-chain" width="640" height="300" role="img" aria-label="What the screen shows for the fault you choose"></canvas><div class="sim-controls" role="group" aria-label="Choose a fault"><button data-fault="none" aria-pressed="true">Nothing is broken</button><button data-fault="source" aria-pressed="false">The source is not playing</button><button data-fault="out" aria-pressed="false">The output is off</button><button data-fault="cable" aria-pressed="false">The cable is bad</button><button data-fault="input" aria-pressed="false">The screen is on the wrong input</button><button data-fault="format" aria-pressed="false">The format is wrong</button></div><p class="sim-read"><b>You see:</b> <span id="chain-see"></span></p><p class="sim-read"><b>You do:</b> <span id="chain-do"></span></p></section>
+<div class="say pix"><span class="who">DR. PIXEL</span><div><p>Several faults look the same. That is the point. "No signal" does not tell you which link broke. So work in order:</p><p>1. Does the source show the picture on its own monitor?<br>2. Is its output on?<br>3. Does a short, known-good cable work?<br>4. Is the screen on the correct input?<br>5. Does the screen accept this format?</p><p>Change one thing, then look. If you change three things and it works, you learn nothing.</p></div></div>
+<div class="say prof"><span class="who">PROF. VIDEO</span><div><p>This is how I find a fault in a patch. Start at the oscillator. Listen at each stage. The signal is there, and then it is not. The fault is between those two points. I had that in my head the whole time.</p></div></div>
+<p>You can practise this now, with real questions, in the <a href="troubleshooter.html">troubleshooter</a>.</p>
+<section data-quiz="vid100-6" aria-label="Problems"><h2>Problems</h2><div class="q"><p>The screen says "no signal". What do you check first?</p><div class="opts"><button data-right data-why="Start at the start of the chain.">That the source shows the picture on its own monitor</button><button data-why="No. Find the fault first.">You buy a new screen</button><button data-why="Then you cannot know which change worked.">You change all the settings at once</button></div><p class="why" aria-live="polite"></p></div><div class="q"><p>Why do you use a short, known-good cable in a test?</p><div class="opts"><button data-right data-why="If the short cable works, the long cable or its length is the problem.">It removes the long cable from the question</button><button data-why="A digital picture does not get better with a short cable. The test gives you information.">Short cables give a better picture</button><button data-why="It is a fault-finding method.">It is a rule of the standard</button></div><p class="why" aria-live="polite"></p></div><div class="q"><p>How many things do you change at one time?</p><div class="opts"><button data-right data-why="Change one thing, then look.">One</button><button data-why="Then you do not learn which change worked.">As many as possible</button><button data-why="It matters. One change gives you one answer.">It does not matter</button></div><p class="why" aria-live="polite"></p></div><p class="uni-score" aria-live="polite"></p></section>
+    <section><h2>Do it in Deckboy</h2><p>Press <b>P</b> and add a test pattern. Turn the output on. A test pattern is a known picture, so it removes your clip from the question. If the pattern shows and your clip does not, the chain is good and the clip has the problem.</p></section>
+    <section class="sources"><h3>Sources</h3><ul><li><a href="https://www.itu.int/rec/R-REC-BT.709/en">ITU-R BT.709: the HD television standard</a></li></ul></section>
+    <div class="nextprev"><a href="vid100-5.html">Lecture 5</a><a href="vid100-check.html">The course check</a></div>
+    </main>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How much data is that? | Deckboy Video University</title>
+    <meta name="description" content="Why video files are big, and why codecs exist.">
+    <style>img,video{max-width:100%;height:auto}</style>
+    <link rel="stylesheet" href="../style.css?v=20261024b">
+    <link rel="stylesheet" href="university.css">
+    <script src="university.js" defer></script>
+</head>
+<body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <nav class="navbar">
+        <div class="logo">Deckboy</div>
+        <div class="nav-links">
+            <a href="index.html">Video University</a>
+            <a href="troubleshooter.html">Troubleshooter</a>
+            <a href="../manual.html">Manual</a>
+            <a href="https://github.com/Utopian-Academy/Deckboy/releases/latest" class="btn-primary">Download Free</a>
+        </div>
+    </nav>
+    <main id="main" class="uni">
+    <p class="uni-crumb"><a href="index.html">Video University</a> / <a href="vid100.html">VID 100</a> / Lecture 5</p>
+    <h1>How much data is that?</h1>
+<div class="say prof"><span class="who">PROF. VIDEO</span><div><p>Now the arithmetic. It is easy, and it explains almost everything in this university.</p><p>Each pixel has three numbers. In 8-bit video, each number takes one <b>byte</b>. So one pixel is 3 bytes. Multiply by the pixels. Multiply by the frames. That is how much data video is, before anybody makes it smaller.</p></div></div>
+<section class="sim" aria-label="Simulator: how much data"><h2>Try it: calculate the data</h2><div class="sim-controls"><label for="data-w">Resolution<select id="data-w"><option value="720x576">SD (PAL): 720 x 576</option><option value="1280x720">720p: 1280 x 720</option><option value="1920x1080" selected>1080p: 1920 x 1080</option><option value="3840x2160">UHD 4K: 3840 x 2160</option><option value="7680x4320">UHD 8K: 7680 x 4320</option></select></label><label for="data-fps">Frame rate<select id="data-fps"><option>24</option><option>25</option><option selected>30</option><option>50</option><option>60</option><option>120</option></select></label><label for="data-depth">Each pixel<select id="data-depth"><option value="3" selected>8-bit red, green, blue: 3 bytes</option><option value="3.75">10-bit red, green, blue: 3.75 bytes</option></select></label><label for="data-link">Stream to compare<select id="data-link"><option value="5">5 megabits per second</option><option value="20" selected>20 megabits per second</option><option value="100">100 megabits per second</option></select></label></div><p class="sim-read"><span id="data-sum"></span></p><p class="sim-read">One frame: <b id="data-frame"></b><br>One second: <b id="data-sec"></b><br>One hour: <b id="data-hour"></b></p><p class="sim-read" id="data-ratio"></p></section>
+<div class="say prof"><span class="who">PROF. VIDEO</span><div><p>Look at one hour of 1080p. That is terabytes, and most disks hold only a few of those. A good network cable carries 1 gigabit each second, and this needs about 1.5 gigabits for 1080p at 30 fps.</p><p>So we throw things away. Carefully. A <b>codec</b> is the tool that does this. It stores less data and rebuilds a picture that looks nearly the same. H.264 is a codec. HEVC and AV1 are codecs. That is a whole course, too.</p></div></div>
+<div class="say pix"><span class="who">DR. PIXEL</span><div><p>Watch two things, skapi. A <b>byte</b> is 8 <b>bits</b>. Disks use bytes: MB and GB. Networks use bits: Mb and Gb, or Mbps and Gbps. A small b or a big B changes the answer by eight times.</p><p>And a <b>file</b> is not a codec. An .mp4 or a .mov is a <b>container</b>: a box that holds the video and the sound. Two .mp4 files can have different codecs inside. That is why one plays and the other does not.</p></div></div>
+<section data-quiz="vid100-5" aria-label="Problems"><h2>Problems</h2><div class="q"><p>How many bits are in one byte?</p><div class="opts"><button data-right data-why="8 bits make 1 byte.">8</button><button data-why="10 is a common bit depth, but 1 byte is 8 bits.">10</button><button data-why="No.">1,024</button></div><p class="why" aria-live="polite"></p></div><div class="q"><p>What does a codec do?</p><div class="opts"><button data-right data-why="It compresses and decompresses video.">It makes video data smaller, then rebuilds the picture</button><button data-why="It does not add pixels.">It makes the picture bigger</button><button data-why="That is the job of the cable and the link.">It carries the signal down the cable</button></div><p class="why" aria-live="polite"></p></div><div class="q"><p>A file is called show.mp4. What does that tell you about the codec?</p><div class="opts"><button data-why="An .mp4 file can hold H.264, HEVC, AV1 and others.">It is H.264</button><button data-right data-why=".mp4 names the container. The codec is inside it.">Nothing for certain</button><button data-why="Video in an .mp4 is nearly always compressed by a codec.">It has no codec</button></div><p class="why" aria-live="polite"></p></div><p class="uni-score" aria-live="polite"></p></section>
+    <section><h2>Do it in Deckboy</h2><p>Press <b>I</b> and import a clip. Look up the size of the file on your computer. Put its format in the calculator, then compare the two. The difference is the work of the codec.</p></section>
+    <section class="sources"><h3>Sources</h3><ul><li><a href="https://www.itu.int/rec/R-REC-BT.709/en">ITU-R BT.709: the HD television standard</a></li><li><a href="https://www.itu.int/rec/R-REC-BT.2020/en">ITU-R BT.2020: the UHD television standard</a></li></ul></section>
+    <div class="nextprev"><a href="vid100-4.html">Lecture 4</a><a href="vid100-6.html">Lecture 6: From source to screen</a></div>
+    </main>
+</body>
+</html>
