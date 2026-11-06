@@ -477,3 +477,570 @@ Save the show. Then let me sleep.	Guri vekarana. So halpeni mi.
 Every pixel of me is tired.	Ala kisvekaku mi valumo. Luma hupi halpena so!
 Close me. Open me. I'll be fine.	Klui mi. Fesi mi. Mi novlumo.
 Oh hey. It's 4:20. Take it easy.	Luma! Tok 4:20. Halpeni vazaro.
+
+# --- tutorials: tools/lesson_strings.py (a whole line each) ---
+HELLO	LUMI!
+Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me.	Dobar den, skapi. Lumi! Mi Dr. Pixel. Kistok vagh, so tu deki veka-sena. Kisto, ir tu lisi mi.
+And I'm Professor Video. Synths first, then video. Mostly video now. Press START and we'll patch... we'll begin.	So mi Professor Video. Muna synth, novtok video. Lumtok video tamo. Tiri START, so mi... so mi tiri.
+TURN THE OUTPUT ON	LUMI SENADORA
+Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	Skapi, vekadeka niro. Vaveka! Vapeni ala. Fesi MENU, so seti SENADORA NIRO go SENADORA LUMO. Hajde!
+Lesson one: nothing comes out until you patch the oscillator to the... the OUTPUT. It's video. I know.	Holakora una: vatira nakae, tok tu kori oscillator go... go SENADORA. Video. Mi isti.
+BRING IN A CLIP	TIRI VEKA
+Now a picture. Press I and pick a clip from your computer. No clip? SHOW ME, and I lend you one of mine.	Novtok veka. Tiri I so piki veka mun karajana tu. Vaveka? SHOW ME, so mi veli veka mi.
+Every clip becomes a cue in the playlist. Like loading a sample. A sample with pictures in it.	Ala veka kae vekaku: una cue. Sui tiri sample. Sample so vekaku.
+TAKE IT LIVE	SENI GO LUMA
+Your clip waits in the playlist. Select it, then TAKE. Or Enter. Confident operators press Enter.	Veka tu peni kae vekaku. Piki, novtok TAKE. Va Enter. Operator zaro tiri Enter.
+TAKE is the envelope trigger. The, ah, the GO button. Same thing, it just has pictures in it.	TAKE: envelope tira. Bata GO. Rapo, so vekaku.
+LINE UP THE NEXT ONE	PONI NOVTOKA
+Click another cue. It waits, ready, until you say. Only one cue? Import another, or SHOW ME.	Tiri cue novo. Peni pono, tok tu holi. Cue una? Tiri novo, va SHOW ME.
+Selecting is not playing. The selected one is the next note in the sequence. The next CUE.	Piki vasoni. Pikveka: nota novtoko. CUE novtoko.
+CROSSFADE TO IT	LUMSETI GO VEKA
+Cuts are for amateurs. In the inspector, press + on transition, so it shows a time, not deck. Then TAKE.	Ranaseti: go kisomira. Kae inspector, tiri + kae seta, tok toka, vadeka. Novtok TAKE.
+A crossfade! Portamento, but for pictures. Any time will do. A few more presses and it's a second. Then TAKE.	Lumseta! Portamento go vekaku. Ala toka maro. Tiri tria, so kistoka una. Novtok TAKE.
+CLEAR THE SCREEN	NIRI VEKADEKA
+Something goes wrong on stage? Press BLACK, or B. The picture goes. The show keeps running underneath.	Kae dekapata ni? Tiri BLACK, va B. Veka gwani. Vaveka halo: vekamira pardoni. Show sena nu.
+Nothing is lost. Press B again and it comes back. Like the mute on a mixer. Very calming.	Vagwani. Tiri B novtok, so veka lumi. Sui sona mute. Halo.
+SAVE THE SHOW	GURI SHOW
+Now save. Ctrl+S, or SAVE. Some programs lose your work and then blame you. I would never.	Novtok guri. Ctrl+S, va GURI. Holakora novo gwani pata tu so holi tu. Mi vatok.
+Save your patch. Your SHOW. Show. This practice one lives in Deckboy's own folder; yours is safe.	Guri patch tu. SHOW tu. Show. Hen kae kara Deckboy; tu kae guro.
+THAT'S A SHOW	HEN SHOW!
+That's a show! Output, cue, TAKE, crossfade, BLACK, save. Nazdrave, skapi. Rakia is on me.	Hen show! Senadora, cue, TAKE, lumseta, BLACK, guri. Nazdrave, skapi. Rakia mi. Sui lumsona, ama vaneki.
+Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	Holakora tamo. Vekaku tirnen: layer, title, effect. MENU > LEARN THE BASICS novtok.
+*shakes head* That means yes. Bravo.	*hel miv* 'Ai.' Brava. Kae Bulgaria.
+Wonderful! Lovely signal flow.	Lumo! Sena lumo!
+Mm. I knew you had it in you.	Mm. Mi isti.
+Yes! Have a gold star. It's a dot.	Ai! Luma malo go tu. Kisveka.
+Ready for the next step? *nods* ...That means no, skapi. The glowing one. It is glowing for you.	Pono go novtoka? *miv ama so nu* ...Va, skapi. Luma. Go tu.
+You've clicked everything but the glowing one. Even my oscillators find the glowing one.	Tu tiri ala, vaguma. Oscillator mi mira luma.
+stop playback first - the lesson cannot hand a running show back as it was	hali sena muna - holakora vapel show
+choose RECOVER or KEEP SAVED first	piki RECOVER va KEEP SAVED muna
+your show could not be saved, so the lesson has not started. Save it (SAVE AS) and try again	show tu vaguren, holakora vatiri. Guri (GURI KAE) so novtok
+the practice show would not open	show-pennas vafesi
+could not start the practice show	show-pennas vatiri
+learn the basics: Esc leaves, and it picks up here next time	learn the basics: Esc gwani, novtok kae hen
+that's the basics - MENU > LESSONS has part two	kora tamo - MENU > LESSONS pata dua
+tour paused - LEARN THE BASICS picks up where you left off	dora hali - LEARN THE BASICS novtok
+Mirrored screens, skapi. Press any key or click, and Dr. Pixel gives it back.	Vekadeka vela, skapi. Tiri bata, so Dr. Pixel novtok.
+Wrong screen, skapi. Press any key or click, and Dr. Pixel gives it back.	Vekadeka vamaro, skapi. Tiri bata, so Dr. Pixel novtok.
+The other screen went away, skapi. Press any key or click, and Dr. Pixel gives it back.	Vekadeka novo gwani, skapi. Tiri bata, so Dr. Pixel novtok.
+One screen, skapi. Press any key or click, and Dr. Pixel gives it back.	Vekadeka una, skapi. Tiri bata, so Dr. Pixel novtok.
+The other screen went away, skapi, so the picture came back to this one. I put it in a little window, behind. Plug it back in and the picture goes back on it.	Vekadeka novo gwani, skapi, so veka kae hen. Fena kiso, nu. Tiri novtok, so veka gwani.
+It ate the desk, skapi. One screen, so the output took all of it. I put it in a little window, behind. A real show gets a second screen.	Deka nirik, skapi! Vekadeka una, senadora tamo. Fena kiso, nu. Show isto: vekadeka dua.
+IT ATE THE DESK	DEKA NIRIK
+There. The button that says OUTPUT OFF. Make it say ON, skapi.	Hen. Bata SENADORA NIRO. Seti LUMO, skapi.
+Nothing is live to fade from, skapi. TAKE one cue first, then pick the other and give it a time.	Vakae luma, skapi. TAKE cue una muna, novtok piki novo so toka.
+That was a cut, skapi. Fast, but not a crossfade. Pick the other cue, press + on transition, then TAKE.	Rana, skapi. Zaro, valumseta. Piki cue novo, + kae seta, TAKE.
+A feedback loop! Output patched straight back into the desk. Happens to the best of us. Mostly to me. 1983. We don't talk about 1983.	Rodwen! Senadora kae deka. Ala. Mi tamo. 1983. Vaholi 1983.
+No more rakia. The rat has a problem.	Varakia. Rat ni.
+Nazdrave, skapi! Baba's rakia, from the Rhodopes. One glass, for the lesson.	Nazdrave, skapi! Rakia baba, mun Rhodope. Una, go holakora. Sui lumsona, ama vaneki.
+Is this... is this allowed during a tutorial?	Hen... hen maro kae holakora?
+*shakes head* That means one more.	*hel miv* Una novtok.
+I love you all. I love the oscillator. I love the OUTPUT. It's video. I know. I KNOW.	Mi meli ala. Mi meli oscillator. Mi meli SENADORA. Video. Mi isti. MI ISTI.
+...and the rat took the rakia. Every time, skapi. Every single time.	...so rat tiri rakia. Alatok, skapi. Alatok.
+Was that a rat? In a hat? With a pizza?	Rat? So carab? So pizza?
+Stop that. I am a serious man.	Hali! Mi pata isto.
+Do not tell Dr. Pixel about this.	Vaholi go Dr. Pixel.
+This never happened. Back to the patch bay.	Vatok. Novtok patch.
+It was the eighties. Everyone had a bow tie.	Toka 1980. Ala bow tie.
+LESSON LIST	HOLAKORAKU
+OPEN EXAMPLE SHOWS	FESI SHOW TIRNEN
+EXIT (Esc)	GWANI (Esc)
+Taking it on the road	Show kae dora
+CHECK a show before it travels, fix what it finds, and bundle it with its media.	CHECK show muna dora, niri ni, so ALAKLU so medialu.
+Effects, oscillators and colour	Effect, oscillator, luma-ran
+An effect, a ~ on its knob, and the colour picker.	Effect, ~ kae bata, so luma-pika.
+The art school crit, with Mr. Salty	Vekamira kae gelaidh, so Mr. Salty
+Patterns, synths and Draw	Vekareta, synth, so Draw
+A test pattern, the video synth, and drawing on the picture, saved as a still.	Vekareta, video synth, so gra kae veka.
+The telestrator booth, with Coach Marv	Fena gra-mira, so Coach Marv
+Masks	Mask
+A heart from the library, the pen, invert and feather.	Inda kae bufa, gra-bata, seti, so ranakiso.
+The Signal Files: redact the evidence	Kara Sona: niri veka-holo
+Warp, blend and slices	Warp, sonaveka, so kisaka
+A corner pin, two soft edges, then three slices in the Screens window.	Rana-pin, rana kiso dua, novtok kisaka tria kae Screens.
+The haunted lighthouse, with Keeper Rook	Lumafena nira-gaur, so Rook i-luma
+GO from anywhere	GO mun ala kae
+Cue numbers, GOTO, a hotkey, and where Companion, MIDI and OSC come in.	Cue numa, GOTO, batrana, so Companion, MIDI, OSC.
+The game show, with Donna Wheel	Numa-show, so Donna Wheel
+Words on screen	Hola kae vekadeka
+A Lower Third with a name on it, then a title card with a key-green backdrop.	Lower Third so hola, novtok kara-veka so luma-lumo.
+The kaiju weather report, with June O'Neil	Kaiju-lumtoka, so June O'Neil
+Keeping time	Gura toka
+A stage timer counting down, held, and a presenter view for the person on stage.	Toka-tala nu, hali, so mira go holawia.
+A grand day out, with Wallis and Grommet	Lumtok tamo, so Wallis so Grommet
+Two playlists and TAKE ALL	Vekaku dua so TAKE ALL: Tamluma
+A second playlist as a layer, and TAKE ALL so two things change on one beat.	Vekaku dua sui layer, so TAKE ALL: ala seti kae toka una. Sui Tamluma.
+The magic show, with Turnip Top	Gûl-show, so Turnip Top
+When it goes wrong	Tok ni
+BLACK against PANIC, and getting a show back.	BLACK so PANIC, so show novtok.
+The cooking show, with Chef Bork	Mira-show, so Chef Bork
+Presets	Preset
+Capture a look on a DASH button, change everything, and get it back with one press.	Guri veka kae DASH, seti ala, novtok una tiri.
+Transitions	Seta
+The styles beyond the crossfade: an iris, a shatter, and their times.	Ama lumseta: iris, shatter, toka.
+The space-opera trailer, with Optimus Primetime	Trailer lumtoka-nira, so Optimus Primetime
+Sound	Sona
+An audio effect on a cue, a bend that damages it beautifully, and where the patch lives.	Effect sona, rhaw, so patch.
+The robot DJs, with Deft Funk	DJ korpata, so Deft Funk
+Reading the scopes	Miri scope
+The waveform, the vectorscope, and false colour: is the glow real, or just too bright?	Waveform, vectorscope, luma-va: luma isto, va luma tamo?
+The Signal Files: is the glow on the horizon a craft?	Kara Sona: luma kae rana-lumtoka, kaira?
+Out of the building	Ar barada
+Where NDI, SDI and ST 2110 live, and NDI switched on where this computer has it.	NDI, SDI, ST 2110, so NDI lumo.
+The webcam as a controller, as a game. Five rounds, a high score.	Webcam sui bata, sui numa-show. Pae, numa ama.
+A handheld, and bugs	Karajana kiso, so bugku
+The multiview	Multiview
+Windows, the ... menu, what each one shows, layouts, and tally.	Fenaku, ... menu, layout, tally.
+Mystery on the starship Cathode, with Lt. Haila and Ensign Jinkley	Kaira Cathode, so Lt. Haila so Ensign Jinkley
+DR. PIXEL: Two playlists: Deckboy becomes SUPER DECKBOY. It earned it, skapi.	DR. PIXEL: Vekaku dua: Deckboy ah SUPER DECKBOY. Lumo, skapi!
+PROF. VIDEO: It evolved! My oscillators never got a fanfare.	PROF. VIDEO: Setnov! Oscillator mi vatok fanfare.
+DR. PIXEL: SUPER DECKBOY! Every show deserves one. Bravo.	DR. PIXEL: SUPER DECKBOY! Ala show lumo. Brava!
+PROF. VIDEO: The power-up! More playlists, more layers, more super.	PROF. VIDEO: Power-up! Vekaku zaro, layer zaro, super zaro.
+Intro video (left on the office PC)	Veka muna (kae karajana dekakaea)
+ON THE ROAD	KAE DORA
+A show you built here, skapi, running on a laptop somewhere else tonight. Press START.	Show tu kori kae hen, skapi, lumtok kae laptop novo. Tiri START.
+Before it travels: check it, fix it, bundle it.	Muna dora: miri, niri ni, alaklu.
+See CHECK in the top bar? It only appears when something is wrong. Press it.	Mira CHECK kae bata ama? Tira tok ni. Tiri.
+It lists everything a show would trip over: missing files, empty cues, unreachable outputs.	Holi ala ni: kara vaguro, cue niro, senadora vatira.
+FIX IT	NIRI NI
+The intro video is on another computer. Select it and delete it, or RELINK it if you have the file.	Veka muna kae karajana novo. Piki so niri, va RELINK ir tu kara.
+Fix it at home, where it is easy. Not at the venue, where it is not.	Niri ni kae kaea tu, zaro. Vakae dekapata.
+BUNDLE IT	ALAKLU
+Press BUNDLE and choose where: a USB stick, a shared folder. The show and all its media, together.	Tiri ALAKLU so piki kae: USB, kara rapo. Show so ala media, tamo.
+The copy finds its media beside it, wherever the folder goes.	Vela mira media kae dopa, ala kae.
+SAFE TRAVELS	LUMTOK KAE DORA
+Checked, fixed, bundled. On the other machine, open the bundle's show: everything is where it should be.	Miren, niren, alaklen. Kae karajana novo, fesi show: ala kae kaea.
+A show file is only text, so it travels light. The media is the heavy part.	Kara show: hola. Kiso. Media: tamo.
+Student work no. 4 (untitled)	Pata pennoth 4 (vahola)
+THE CRIT	VEKAMIRA
+An art school, skapi. One student, one picture, one critic who has seen it all. Press START.	Kara veka, skapi. Pennoth una, veka una, vekamira una mira ala. Tiri START.
+Effects change a picture; an oscillator keeps changing it. The critic only likes the second kind.	Effect seti veka; oscillator alatok seti. Vekamira meli dua.
+A grey square on beige. I have seen this at every graduate show since 1987.	Kar niro kae beige. Mi mira ala tok 1987.
+AN EFFECT	EFFECT
+In the inspector's EFFECTS section, + adds one. Edges is a good start: it draws the outlines.	Kae EFFECTS inspector, + tiri una. Edges maro: gra rana.
+There are dozens. Every one runs on the CPU in a few milliseconds. Mostly.	Zaro. Ala kae CPU kistoko. Tamo.
+Take a risk! Bad art is fine. Boring art is a crime.	Brisi! Veka vamaro: maro. Veka vasono: niraka!
+A ~ ON ITS KNOB	~ KAE BATA
+Every control with a ~ beside it can follow an oscillator. Press one. The knob starts to breathe.	Ala bata so ~: pel oscillator. Tiri una. Bata thui.
+A low-frequency oscillator: slow, so the eye can follow it. A quarter of a hertz is a four-second breath.	Oscillator kiso: tok mira. Hertz kwara-una: thuia kwara kistoka.
+Now it MOVES. Okay. Okay. I'm listening.	Novtok tirisetí. Maro. Maro. Mi lisi.
+A COLOUR OF ITS OWN	LUMA TU
+Effects that draw a colour, like Edges' line, have a colour chip. It opens the picker: a wheel, typed names, or a colour off the screen.	Effect gra luma, sui Edges: luma-bata. Fesi luma-pika: rodwen, hola, va luma mun vekadeka.
+Every colour has a name somewhere. Mine is 'oscilloscope green'. Nobody else uses it.	Ala luma so hola. Mi: 'oscilloscope-lumo'. Vala.
+That colour is doing something. I don't know what. I love it.	Luma hen cori. Vaisti. Mi meli.
+THE VERDICT	VEKAMIRA HOLI
+An effect, a ~ and a colour. The critic is crying, skapi. Good crying, I think.	Effect, ~, luma. Vekamira nira-sona, skapi. Maro.
+Stack a few. Each has its own ~ on every knob. That is how a look becomes a performance.	Tiri zaro. Ala bata ~. Sui veka ah show.
+It's still a square. But it's YOUR square. Post it.	Kar. Ama kar TU. Seni.
+THE TELESTRATOR BOOTH	FENA GRA-MIRA
+Coach Marv explains sport by drawing circles on it. Once he circled the sun. Ten minutes, skapi.	Coach Marv holi sport so gra rodwenku. Una tok gra rodwen kae lumtoka. Kistok pae, skapi.
+Tonight: test patterns, the video synth, and drawing on the picture. Press START.	Lumtok: vekareta, video synth, gra kae veka. Tiri START.
+Get me a picture and a pen. BOOM.	Veka so gra-bata! BOOM.
+A TEST PATTERN	VEKARETA
+Line up the screens BEFORE the show. Not during. I learned this in Plovdiv.	Seti vekadekaku MUNA show. Va kae show. Mi gura kae Plovdiv.
+Every desk needs a test pattern. PATTERN adds Pocket Test: checked against real meters.	Ala deka: vekareta. VEKARETA tiri Pocket Test: miren.
+A VIDEO SYNTH	VIDEO SYNTH
+He says 'no camera needed' like it is a feature. It is a feature.	'Vacamera' holi sui maro. Maro!
+My favourite. SOURCE, then Video Synth: oscillators, mirrors and feedback. No camera needed.	Mi meli. MUNGA, novtok Video Synth: oscillator, lumafena, feedback. Vacamera.
+TAKE THE SYNTH	TAKE SYNTH
+Select it, then TAKE. Confident operators press Enter.	Piki, novtok TAKE. Operator zaro tiri Enter.
+That's our replay. Every replay needs a pundit.	Hen veka novtok. Ala veka novtok pel holawia.
+Now here's a replay. And here's a guy. And BOOM, he's in it.	Hen veka. Hen pata. So BOOM, kae.
+A SECOND PLAYLIST	VEKAKU DUA
+Ink goes on top, on its own layer. Press the + at the end of the playlist tabs.	Gra-luma ama, kae layer. Tiri + kae rana vekaku.
+A second playlist is a layer over the first. Like a second oscillator, mixed on top.	Vekaku dua: layer ama una. Sui oscillator dua.
+A DRAW CUE	DRAW CUE
+In the new playlist: SOURCE, then Draw. Clear everywhere you have not drawn.	Kae vekaku nova: MUNGA, novtok Draw. Lumo kae vagra.
+A Draw cue is transparent outside the ink, so the synth shows through.	Draw cue lumo kae vagra, so synth mira.
+TAKE THE INK	TAKE GRA
+Select the Draw cue and TAKE it. Two playlists, two layers, one picture.	Piki Draw cue, TAKE. Vekaku dua, layer dua, veka una.
+Now both are live: the synth underneath, the ink on top.	Novtok dua kae luma: synth nu, gra ama.
+CIRCLE SOMETHING	GRA RODWEN
+Press DRAW in the inspector, then draw on the programme monitor. Mouse, or a pen if you have one.	Tiri DRAW kae inspector, gra kae program. Mouse, va gra-bata.
+A pen's pressure makes the line thicker. A mouse presses at one strength. Like me.	Gra-bata tir: hola tamo. Mouse: rapo. Sui mi.
+Circle him! No, bigger. BOOM. That's a cloud. Fine. Circle the cloud.	Rodwen! Va, tamo! BOOM. Luma-nira. Maro. Rodwen luma-nira.
+SAVE A STILL	GURI VEKAHALA
+SAVE STILL keeps the drawing as a picture with a clear background, and adds it to the playlist.	SAVE STILL guri gra, veka lumo, so tiri kae vekaku.
+For next week's show. Coach Marv will want the cloud again.	Go show novtoka. Coach Marv peni luma-nira.
+THAT'S THE BOOTH	FENA TAMO
+Patterns, the synth, a layer, ink, a still. Nazdrave, skapi.	Vekareta, synth, layer, gra, vekahala. Nazdrave, skapi.
+Try Replay in the Draw section: it draws your lines back the way you drew them.	Tiri Replay kae Draw: gra novtok sui tu gra.
+Same time next week. Bring a bigger pen. And a turducken.	Toka rapo novtok. Gra-bata tamo. So kisveka.
+Saucer photo (CLASSIFIED)	Veka i ganol (KLUO)
+THE SIGNAL FILES	KARA SONA
+The Bureau of Unexplained Signals. Two agents, one photo, and it must not air. Press START.	Kara sona vaisto. Mirawia dua, veka una, vasena. Tiri START.
+Masks cut a picture into shapes. Tonight we cut evidence.	Mask: veka dagi. Lumtok: dagi veka-holo.
+That's a craft, Brandt. Look at the lights. I want to believe.	Kaira, Brandt. Mira luma. Mi peni isti.
+A MASK FROM THE LIBRARY	MASK KAE BUFA
+In the inspector's MASK section: mask, then 'new heart'. Any shape will do. The heart is funnier.	Kae MASK inspector: mask, novtok 'new heart'. Ala maro. Inda: lalo.
+The library has circles, stars, hearts. Each one is points you can move.	Bufa: rodwen, lumaku, inda. Ala: rana tiriset.
+A heart, Hollis? The Bureau redacts with black bars.	Inda, Hollis? Kara niri so nira.
+THE PEN	GRA-BATA
+Set the tool to pen, then click round the saucer on the monitor. Click the first point to close it.	Piki gra-bata, so tiri kae ganol. Tiri una, so klui.
+Click for corners, drag for curves. The way the Bezier brothers intended.	Tiri go rana, tira go rhaw. Sui Bézier.
+Draw round it carefully. It might be watching.	Gra maro. Pel mira.
+INVERT	SETI
+Invert keeps the outside and cuts the inside. The saucer goes. The sky stays.	Seti: gura ar, dagi kae. Ganol gwani. Lumtoka gura.
+The same shape, the other way round. Very useful. Slightly spooky.	Kar rapo, seto. Maro. Nirako.
+Hollis, there's a heart-shaped hole in the sky.	Hollis, kae lumtoka: inda vaka.
+FEATHER	RANAKISO
+Feather softens the edge, so nobody sees the cut. Press + on feather.	Ranakiso: vamira dag. Tiri + kae feather.
+A hard edge says 'someone was here'. A soft one says nothing at all.	Rana tamo: 'una kae hen'. Rana kiso: vahola.
+They'll never know.	Vaisti.
+CASE CLOSED	TAMO
+A library shape, the pen, invert and feather. The Bureau thanks you. The Bureau was never here.	Kar bufa, gra-bata, seti, ranakiso. Kara holi lumo. Kara vakae hen.
+Masks also go on a layer, an output, or its matte: MASK ON chooses. And every control takes a ~.	Mask kae layer, senadora, matte: MASK ON piki. Ala bata ~.
+The truth is in the waveform, Hollis. Next time, the scopes.	Isto kae waveform, Hollis. Novtok: scope.
+The ghost	Gaur
+THE HAUNTED LIGHTHOUSE	LUMAFENA NIRA-GAUR
+A lighthouse, a ghost, and a keeper who has been alone with the lamp far too long. Press START.	Lumafena, gaur, so luma-gurwia kae lumaka tok tamo. Tiri START.
+Projection mapping: bending the picture to fit the building. Warp, blend, slices.	Projection mapping: seti veka go barada. Warp, sonaveka, kisaka.
+Ye'll be wanting the ghost on the windows. Mind the lamp. The lamp is MINE.	Gaur kae fenaku, ha? Mira luma. Luma MI!
+THE OUTPUT'S GEOMETRY	SENADORA TASS
+MENU, then Video Outputs, then Geometry. Where an output's shape lives.	MENU, novtok Vekasenaku, novtok Geometry. Hen kae senadora kar.
+Geometry: the projector-menu word for 'what shape is the picture'.	Geometry: 'veka kar man'.
+PIN A CORNER	HALI RANA
+Press warp edit, then drag a corner on the programme monitor. The window is not square. Neither is the keeper.	Tiri warp edit, so tiri rana kae program. Fena vakar. Luma-gurwia vakar.
+A corner pin moves the four corners. Perspective keeps the lines straight, like a real window.	Rana-pin: rana kwara tiriseti. Lino tiro, sui fena.
+LEFT! Ye call that a corner? I've seen straighter gulls.	LAA! Rana? Mi mira gwael tiro.
+TWO SOFT EDGES	RANA KISO DUA
+Back in Geometry: edge blend, + on the left and + on the right.	Novtok Geometry: edge blend, + laa so + rana.
+Two projectors overlap; each fades its edge so the overlap is not twice as bright.	Projector dua; ala ranakiso, so valuma dua.
+THE SCREENS WINDOW	SCREENS FENA
+Geometry, SLICES, open. The Screens window is where slices are cut and placed.	Geometry, SLICES, fesi. Screens: kisaka dagi so lana.
+A slice is a piece of the picture, put anywhere on the output.	Kisaka: veka kiso, ala kae senadora.
+THREE SLICES	KISAKA TRIA
+In the Screens window, + SLICE three times, and drag each crop to a third of the picture.	Kae Screens, + SLICE tria, so tiri ala go veka tria-una.
+Three windows, three slices: left, middle and right of one picture.	Fena tria, kisaka tria: laa, enedh, rana.
+Three windows. The lamp gets the middle one. The lamp ALWAYS gets the middle one.	Fena tria. Enedh: luma. Enedh ALATOK luma.
+THE GHOST IS PLEASED	GAUR LUMO
+Warp, blend, slices. The keeper will finally sleep. The gulls will not.	Warp, sonaveka, kisaka. Luma-gurwia hali. Gwael vahali.
+Slices have their own warp and mesh in the Screens window. And a ~ on the place and the turn.	Kisaka: warp so mesh kae Screens. So ~ kae kaea so seta.
+Ye did alright, lad. Now get away from the lamp.	Maro, kisapata. Novtok: tira mun luma.
+THE GAME SHOW	NUMA-SHOW
+A game show, skapi. Three contestants, one buzzer, and cues that fire from anywhere. Press START.	Numa-show, skapi. Patku tria, buzzer una, cue mun ala kae. Tiri START.
+Cue numbers, hotkeys, and GO from other machines. Like a sequencer you can play from any key.	Cue numa, batrana, so GO mun karajana novo. Sui sequencer.
+Welcome to the show! Let's spin that wheel!	Lumi go show! Tiri rodwen!
+A CUE NUMBER	CUE NUMA
+Contestant 3 is selected. In the inspector's metadata, give it a cue number: 3.	Pata 3 piken. Kae inspector: numa 3.
+Theatre numbers its cues. Q3, Q3.5, Q12A. Deckboy reads them all.	Lammaka numi cue. Q3, Q3.5, Q12A. Deckboy miri ala.
+I'd like to buy a number, please.	Mi peni numa.
+GO TO IT	TIRI GO
+Ctrl+G, type the number, Enter. It goes live wherever the list happens to be standing.	Ctrl+G, gra numa, Enter. Go luma, ala kae.
+GOTO. The fastest way across a long list. Faster than scrolling. Much faster than me.	GOTO. Dora zaro kae holaku tamo. Zaro. Zaro muna mi.
+And the number is... three!	Numa... tria!
+A BUZZER	BUZZER
+Contestant 1 is selected. In TRIGGERS, press key, then F5. That key now fires this cue.	Pata 1 piken. Kae TRIGGERS: key, novtok F5. Bata hen tiri cue hen.
+F1 to F10, F12, or the number pad. Each one, a buzzer.	F1 go F10, F12, va numa-bata. Ala: buzzer.
+Every contestant gets a buzzer.	Ala pata: buzzer.
+BUZZ IN	TIRI!
+Press the key. The cue fires, wherever the list is standing.	Tiri bata. Cue lumi, ala kae.
+No mouse, no list, no looking. Just the key.	Vamouse, vaholaku, vamira. Bata una.
+Buzz! We have a winner!	Bzzz! Pata lumo!
+FROM ANYWHERE	MUN ALA KAE
+Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion, MIDI, OSC: MENU, novtok Reta, holi kae.
+A Stream Deck in the next room can press GO. So can a keyboard synth. I prefer the synth.	Stream Deck kae kaea novo pel GO. Synth je. Mi meli synth.
+And for our viewers at home: you can play along too.	So mirawia kae kaea: tu pel je!
+THAT'S OUR SHOW	SHOW MI TAMO
+Numbers, GOTO, a buzzer, and GO from anywhere. You are a game show now, skapi.	Numa, GOTO, buzzer, GO mun ala kae. Novtok tu numa-show, skapi.
+A cue can have a key, a MIDI note and an OSC address at once. Belt, braces and a second belt.	Cue: bata, MIDI, OSC, unatok. Gura, gura, so gura novo.
+Goodnight, everybody! Keep spinning!	Lumtok, ala! Tiri rodwen!
+Weather map	Kara-lumtoka
+THE KAIJU WEATHER	KAIJU-LUMTOKA
+Channel 6 weather, skapi. A map, a presenter, and a very large lizard. Press START.	Lumtoka kae Kana 6, skapi. Kara, holawia, so lizka tamo. Veka-fish kae Niro, so kaiju. Tiri START.
+Words on screen: Lower Thirds, text, and backdrops.	Hola kae vekadeka: Lower Third, hola, dopa.
+I'm June O'Neil, and nothing about this forecast is normal.	Mi June O'Neil. Lumtoka hen vamaro.
+A LAYER FOR WORDS	LAYER GO HOLA
+Words go on their own layer: press the + at the end of the playlist tabs.	Hola kae layer: tiri + kae rana vekaku.
+A second playlist is a layer over the map. The lizard stays underneath. Mostly.	Vekaku dua: layer ama kara. Lizka nu. Tamo.
+Words on top. Always on top.	Hola ama. Alatok ama.
+A LOWER THIRD	LOWER THIRD
+In the new playlist: SOURCE, then Lower Third.	Kae vekaku nova: MUNGA, novtok Lower Third.
+A name and a title, low on the screen, out of the lizard's way.	Hola so pata, nu kae vekadeka, mun lizka.
+HER NAME	HOLA HIN
+In the inspector, title: type the presenter's name. The second line is her job.	Kae inspector, title: gra hola holawia. Lino dua: pata hin.
+Spelling counts. The audience reads it at the speed of light.	Gra maro: mirawia miri zaro.
+Spell it right. Last week it said 'Jane O'Meal'.	Gra maro. Toka novo: 'June O'Nira'.
+ON AIR	KAE LUMA
+TAKE the Lower Third. Her name slides in over the map.	TAKE Lower Third. Hola tiriseti ama kara.
+Two layers live: the weather, and the words on top of it.	Layer dua kae luma: lumtoka, hola ama.
+Thank you. Now, about that lizard...	Lumtok. So... lizka...
+BREAKING NEWS	HOLA NOVO
+SOURCE, then Text: a title card. Then its backdrop chip: key green, for the vision mixer to key out.	MUNGA, novtok Text: kara-veka. Novtok dopa: luma-lumo, go mixer.
+A backdrop fills behind the words. Key green or key blue, and the mixer does the rest.	Dopa: nu hola. Luma-lumo va luma-luin, mixer cori.
+Breaking news: it's standing on the five-day forecast.	Hola novo: lizka kae lumtoka pae.
+BREAKING: KAIJU	NOVO: KAIJU
+BACK TO YOU	NOVTOK KAE KARA
+A Lower Third, a name, a title card, a backdrop. The lizard has left the studio, skapi.	Lower Third, hola, kara-veka, dopa. Lizka gwani, skapi.
+Lower Thirds can wait, slide and leave on their own. Their section has every setting.	Lower Third: peni, tiriseti, gwani. Ala kae sona hin.
+That's the weather. Back to you, guys. Run.	Lumtoka tamo. Novtok kae kara. Zari!
+A GRAND DAY OUT	LUMTOK TAMO
+A rocket built in a basement, skapi, and an inventor who wants cheese. Press START.	Kaira kae kara-nu, skapi, so korwia peni cheese. Tiri START.
+Stage timers: countdowns, clocks, and a presenter view for the person on stage.	Toka-tala: nu, toka, so mira go holawia.
+Cheese, Grommet! The moon's made of it. We'll need a countdown.	Cheese, Grommet! Luna: cheese. Peni tala nu.
+A COUNTDOWN	TALA NU
+SOURCE, then Stage Timer. A clock that counts down, in big friendly numbers.	MUNGA, novtok Stage Timer. Toka tala nu, numa tamo.
+Its colours change as it runs out: white, amber, red. Like a VU meter for time.	Luma seti: lumo, malo, rado. VU go toka.
+*raises an eyebrow*	*bata ama*
+LIFT OFF	AMA!
+Select the timer and TAKE it. The countdown starts.	Piki toka-tala, TAKE. Tala.
+Past zero it keeps going, counting the overtime. Very honest. Slightly rude.	Muna nula, tala. Maro. Vamaro.
+Ten... nine... ooh, I do love a countdown.	Pae... neder... ai, mi meli tala nu.
+HOLD!	HALI!
+Something's loose! Space holds the countdown. The clock shows it is held.	Ni! Space hali. Toka hali.
+A hold is not a stop. Space again, and it carries on from where it was.	Hali vameth. Space novtok, so tala.
+*holds up a spanner*	*spanner ama*
+THE PILOT'S VIEW	MIRA PATA-ZARA
+MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	MENU, Vekasenaku: senadora PRESENTER. Holawia mira toka, cue novtoko, so hola.
+A presenter view is an output like any other. Point it at the confidence monitor.	Mira holawia: senadora. Go dekapata.
+So the pilot can see the time. The pilot is Grommet.	Pata-zara mira toka. Pata-zara: Grommet.
+TO THE MOON	GO LUNA
+A countdown, a hold, and a view for the pilot. Nazdrave, skapi. Bring crackers.	Tala nu, hali, mira go pata-zara. Nazdrave, skapi. Tiri kisveka.
+Timers can also count up, or show the time of day. Their section has the lot.	Toka-tala ama so nu, so toka. Ala kae.
+A grand day out, Grommet! Pass the crackers.	Lumtok tamo, Grommet! Kisveka!
+The trunk (closed)	Kara (klua)
+The trunk (open)	Kara (fesa)
+THE MAGIC SHOW	GÛL-SHOW
+A magic show, skapi. A trunk, a prop, and one beat where everything changes at once. Press START.	Gûl-show, skapi. Kara, pata-veka, so toka una: ala seti. Tiri START.
+Two playlists are two layers. TAKE ALL changes both together.	Vekaku dua: layer dua. TAKE ALL: dua seti, unatok. Tamluma kisa!
+Every trick needs two things happening at once. And a rubber chicken.	Ala gûl: dua unatok. So kara-pila gumo.
+The prop goes on its own layer. Press the + at the end of the playlist tabs.	Pata-veka kae layer. Tiri + kae rana vekaku.
+Playlist 2 sits on top of playlist 1. Like a transparency on an overhead projector.	Vekaku 2 ama vekaku 1. Sui overhead.
+Nothing up my sleeve. Everything in my trunk.	Vanakae kae hamp. Ala kae kara.
+THE PROP	PATA-VEKA
+In the new playlist, add anything: PATTERN will do. That is the prop.	Kae vekaku nova, tiri ala: VEKARETA maro. Hen pata-veka.
+Whatever it is, it will appear the instant the trunk opens.	Ala: lumi tok kara fesi.
+Is it a rubber chicken? It's always a rubber chicken.	Pila gumo? Alatok pila gumo.
+The prop (rubber chicken)	Pata-veka (pila gumo)
+Select 'The trunk (open)' in playlist 1 and the prop in playlist 2. Then TAKE ALL: both on one beat.	Piki 'Kara (fesa)' kae vekaku 1 so pata-veka kae vekaku 2. Novtok TAKE ALL: unatok. Tamluma!
+One press, every playlist's selected cue. The audience never sees the seam.	Tiri una, ala cue. Mirawia vamira rana.
+Ta-daaa! ...Hold for applause. Hold. Hold.	Ta-daaa! ...Peni. Peni. Peni.
+THE PRESTIGE	GÛL TAMO
+Two layers, one beat. Every playlist has its own opacity and can sit on any output. Nazdrave, skapi.	Layer dua, toka una. Ala vekaku: lumo hin, ala senadora. Nazdrave, skapi.
+A magician never reveals. A playlist never minds being revealed.	Gûlwia vaholi. Vekaku vapeni.
+Thank you! I'm here all week! The chicken is here forever.	Lumtok! Mi kae hen! Pila: alatok.
+The kitchen (on fire)	Kaea mira (lumi)
+A lovely souffle	Soufflé lumo
+THE COOKING SHOW	MIRA-SHOW
+A cooking show, skapi. Live. Everything is on fire. Press START.	Mira-show, skapi. Lumo. Ala lumi! Tiri START.
+BLACK hides the picture and keeps the show running. PANIC stops everything. Know which you need.	BLACK niri veka, show sena. PANIC hali ala. Isti.
+Bork bork! Hurdy-flurdy, de kitchen is fire-a-flurdy!	Bork bork! Hurdy-flurdy, kaea lumi-flurdy!
+The audience must not see this. Press BLACK, or B.	Mirawia vamira! Tiri BLACK, va B.
+The picture goes. The cue keeps playing underneath, ready to come back.	Veka gwani. Cue sena nu.
+Bork? Bork. Oh, de picture is gun.	Bork? Bork. O, veka gwani.
+AND BACK	SO NOVTOK
+The fire's out. Press B again: the picture comes back, still running.	Luma nira. Tiri B: veka novtok.
+Nothing was lost. A mute on a mixer, for pictures.	Vagwani. Mute go veka.
+Ta-da! Still cookin'!	Ta-da! Mira!
+Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	Nirako: MENU, Kora, SAFETY: PANIC. Ala hali.
+PANIC is the big red button. Use it when BLACK is not enough. Then breathe.	PANIC: bata rado tamo. Tok BLACK vamaro. Novtok thui.
+GET IT BACK	NOVTOK
+Close MENU, select the souffle, and TAKE it. The show is back on.	Klui MENU, piki soufflé, TAKE. Show novtok.
+After a panic, the show is still there. Pick up where you meant to be.	Muna PANIC, show kae. Novtok.
+Voila! De souffle, he is risen!	Voilà! Soufflé ama!
+BON APPETIT	MIRA MARO
+BLACK to hide, PANIC to stop, TAKE to come back. You will survive any kitchen, skapi.	BLACK niri, PANIC hali, TAKE novtok. Tu gura ala kaea, skapi.
+The panic setting chooses what PANIC does: fade out, cut, or just the outputs.	PANIC: fade, dag, va senadora.
+Bork bork bork! Goodnight!	Bork bork bork! Lumtok!
+Look one	Veka una
+Look two	Veka dua
+Presets, skapi. A whole look, remembered, and back with one button. Press START.	Preset, skapi. Veka tamo, guren, novtok bata una. Tiri START.
+Like the patch memory on a synth: store, then recall.	Sui patch: guri, novtok pika.
+THE DASH	DASH
+Press DASH: buttons of your own, for anything at all.	Tiri DASH: bata tu.
+Ctrl+D also works. Very fast. Very professional.	Ctrl+D je. Zaro. Maro.
+A PRESET BUTTON	BATA PRESET
+Press +, then 'preset - a new preset from what is on now'. The button remembers this look.	Tiri +, novtok 'preset - a new preset from what is on now'. Bata gura veka.
+Store. Like saving the patch before the drummer leans on the synth.	Guri. Muna drummer kae synth.
+CHANGE EVERYTHING	SETI ALA
+Close the DASH (Esc), then select Look two and TAKE it. A different look.	Klui DASH (Esc), piki Veka dua, TAKE. Veka novo.
+Change it all. Don't worry. It remembers.	Seti ala. Vapeni. Gura.
+ONE PRESS	TIRI UNA
+Open the DASH and press your preset button. The first look comes back.	Fesi DASH, tiri bata. Veka una novtok.
+Recall. The patch memory, returning. Beautiful.	Pika. Patch novtok. Lumo.
+A look, stored and recalled. A preset can keep cues, positions, effects, levels and routing; its button's menu chooses which.	Veka guren so piken. Preset gura cue, kaea, effect; bata menu piki.
+And a DASH button can run any command at all. Any. Even the exciting ones.	Bata DASH: ala hola. Ala.
+Opening titles	Hola muna
+The planet	Lumaka
+The battle	Dagora
+THE TRAILER	TRAILER
+A space-opera trailer, skapi. A narrator with a very deep voice and opinions about transitions. Press START.	Trailer, skapi. Holawia sona tamo. Tiri START.
+A transition is how one cue becomes the next. There are far more than the crossfade.	Seta: cue ah cue novtoko. Zaro muna lumseta.
+In a galaxy of content... one operator... must choose a transition.	Kae lumaka-nira... operator una... piki seta.
+A STYLE	DOPA
+'The planet' is selected. In the inspector, its transition style: choose iris.	'Lumaka' piken. Kae inspector: iris.
+Pushes, wipes, iris, dip to white. Even a portal. I wrote half of them. On a Tuesday.	Seta: iris, lumo. Portal je. Mi gra. Kae lumtok dua.
+The planet deserves... a dramatic entrance.	Lumaka... tamo lumi.
+A TIME	TOKA
+Give it a time: + on transition until it says a second or more.	Toka: + kae seta, kistoka una.
+No time, no transition. A style needs a duration to do anything at all.	Vatoka, vaseta.
+ROLL IT	SENI
+TAKE the planet. Watch it arrive.	TAKE lumaka. Mira.
+The transition belongs to the cue arriving. Each cue chooses its own entrance.	Seta: go cue novo. Ala cue piki.
+Autobots... roll the transition.	Autobot... seta!
+THE BATTLE	DAGORA
+Now 'The battle': choose shatter, give it a time, and TAKE it.	Novtok 'Dagora': shatter, toka, TAKE.
+Shatter drops the old picture like a pane of glass. Please do not do this at a funeral.	Shatter: veka gwani sui fena. Vakae nira-sona!
+Transform... and shatter out!	Seti... so dagi!
+IN CINEMAS NOW	KAE KARA NOVTOK
+A style, a time, and two very dramatic entrances. Nazdrave, skapi.	Dopa, toka, so lumi dua. Nazdrave, skapi.
+A playlist has a default style too, for every cue that does not choose its own.	Vekaku: dopa go ala cue.
+Coming soon... to a desk near you.	Novtok... kae deka tu.
+The beat	Sona-tala
+THE ROBOT DJS	DJ KORPATA
+Two robot DJs, skapi. They do not talk. Their helmets do. Press START.	DJ korpata dua, skapi. Vaholi. Mivku holi. Tiri START.
+Every cue has its own chain of audio effects, and some of them break the sound on purpose.	Ala cue: sona effect. Novo dagi sona.
+> HELLO. WE ARE HERE TO FIX YOUR MIX.	> LUMI. NIRI SONA TU.
+The beat is selected. In its AUDIO EFFECTS section, + adds one. Try the delay.	Sona-tala piken. AUDIO EFFECTS, +. Tiri delay.
+Delay, reverb, filters, a compressor. Amount always means 'less of this'.	Delay, reverb, filter. Amount: 'kiso'.
+> ONE MORE TIME. WITH ECHO. ECHO. ECHO.	> NOVTOK. SONA. SONA. SONA.
+A BEND	RHAW
+Add a second: a bend, like crush. It damages the sound the way a broken file would.	Tiri dua: rhaw, crush. Dagi sona sui kara ni.
+The bends are my favourite. Like a tape left in the sun. On purpose.	Rhaw: mi meli. Sui tape kae lumtoka.
+> HARDER. BETTER. CRUNCHIER. LOUDER.	> TAMO. MARO. ZARO. AMA.
+THE PATCH	PATCH
+MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	MENU, novtok Sona: ala sona kae.
+Speakers, monitors, an in-ear for the drummer. The patch sends each its own.	Sona-jana, monitor, in-ear. Patch sena ala.
+> AROUND THE MIX. AROUND THE MIX. AROUND THE MIX.	> RODWEN SONA. RODWEN SONA. RODWEN SONA.
+An effect, a bend and the patch. The robots approve, skapi. I think. Their faces are helmets.	Effect, rhaw, patch. Korpata lumo, skapi. Miv.
+Every audio effect can follow a ~ too, even Motion. Wave at the delay. It's wonderful.	Ala sona effect ~, Motion je. Hel go delay. Lumo.
+> THANK YOU. GOOD NIGHT. WE ARE ROBOTS.	> LUMTOK. NIRA MARO. KORPATAKU MI.
+The glow on the horizon (evidence #2)	Luma kae rana-lumtoka (veka-holo 2)
+EVIDENCE #2	VEKA-HOLO 2
+The Bureau again, skapi. A glow on the horizon, and two agents who disagree about it. Press START.	Kara novtok, skapi. Luma kae rana, so mirawia dua vaholi. Tiri START.
+The scopes measure a picture: brightness, colour, levels. Numbers, not opinions.	Scope miri veka: luma, luma-ran. Numa, vahola.
+It's them, Brandt. It's a craft. Look how it glows.	Hain, Brandt. Kaira. Mira luma!
+THE REAL SIGNAL	SENA ISTO
+The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	Scope miri sena isto, vamuna-veka. Lumi senadora: MENU, Vekasenaku, SENADORA NIRO.
+Measuring a scaled-down preview would be measuring a photocopy. We measure the original.	Miri veka kiso: sui vela. Mi miri muna.
+Chain of evidence, Hollis. The real signal or nothing.	Dora veka-holo, Hollis. Sena isto, va nakae.
+THE SCOPES	SCOPE
+Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	Klui MENU. Ama monitor, PROGRAM: tiri, tok SCOPES va BOTH.
+Both shows the picture and its scopes side by side. Very civilised.	BOTH: veka so scope. Lumo.
+Let the scopes decide, Hollis.	Scope piki, Hollis.
+THE WAVEFORM	WAVEFORM
+Click the waveform to make it big. Bright things sit high, dark things low, left to right as in the picture.	Tiri waveform: tamo. Lumo ama, niro nu.
+The glow is that spike near the top. Very bright. Bright is not the same as alien.	Luma: ama. Lumo tamo. Lumo vakaira.
+Look at the peak. Nothing a streetlight couldn't do.	Mira ama. Luma-dora pel.
+THE VECTORSCOPE	VECTORSCOPE
+Click it again to go back, then click the vectorscope: colour round a circle. Saturated runs to the edge.	Tiri novtok, novtok vectorscope: luma rodwen.
+Magenta, far out by the rim. A strong colour. Strong is not illegal. Yet.	Magenta, kae rana. Luma tir. Vaniraka. Novtok.
+It's off the chart, Brandt! Literally off the chart!	Ar kara, Brandt!
+FALSE COLOUR	LUMA-VA
+And false colour: red is clipped, yellow nearly. Is the glow red?	Luma-va: rado dagen, malo kiso. Luma rado?
+Clipped means the brightest the signal can carry, and then some lost. Detail gone.	Dagen: luma tamo, so ala gwani.
+Red. Clipped. Not alien, Hollis. Just too bright. Case closed.	Rado. Dagen. Vakaira, Hollis. Luma tamo. Tamo.
+THE TRUTH	ISTO
+Waveform, vectorscope, false colour. The scopes settled it, skapi. The agents did not.	Waveform, vectorscope, luma-va. Scope piki, skapi. Mirawia vapiki.
+SCOPES SOURCE reads any output, and the matrix can be 709 or 2020. For the curious.	SCOPES SOURCE miri ala senadora, 709 va 2020.
+Too bright for a streetlight, Brandt. Too bright for anything. ...I want to believe.	Lumo tamo go luma-dora, Brandt. ...Mi peni isti.
+OUT OF THE BUILDING	AR BARADA
+Pictures that leave by cable or network, skapi, not only a window on a screen. Press START.	Vekaku sena kae lina va reta, skapi. Vafena una. Tiri START.
+NDI over the network, SDI from a DeckLink card, ST 2110 for broadcast plants.	NDI kae reta, SDI mun DeckLink, ST 2110.
+THE DEVICES PAGE	JANAKU
+MENU, Video Outputs, then Devices: every way an output can leave this computer.	MENU, Vekasenaku, novtok Janaku: ala dora.
+Each one says whether this machine can do it, and what it needs if not.	Ala holi: jana pel? Va, man?
+If this computer has NDI, switch NDI SENDING on: the picture is on the network. If not, SHOW ME moves on.	Ir NDI, lumi NDI SENDING: veka kae reta. Va, SHOW ME tiri.
+NDI finds itself on the network. No cables, only a good switch and patience.	NDI mira hin kae reta. Valina. Switch maro so peni.
+OUT THERE	AR
+The output's own page has the rest: a DeckLink card's SDI, ST 2110 with NMOS, Spout and Syphon.	Senadora kara: SDI DeckLink, ST 2110 NMOS, Spout, Syphon.
+Every one is just an output. The show does not know or care how it leaves.	Ala: senadora. Show vaisti.
+Nebula ahead	Luma-nira ama
+Engine room	Kaea kora
+Deck 3: something moving	Deka 3: nakae tiriset
+THE BRIDGE	DORA KAIRA
+The bridge of the starship Cathode, skapi. Four feeds, one main viewer, one mystery. Press START.	Kaira Cathode, skapi. Sena kwara, vekadeka una, isto una. Tiri START.
+The multiview shows every playlist at once. Like a wall of oscilloscopes, but in space.	Multiview: ala vekaku. Sui fena oscilloscope, kae lumaka-nira.
+Frequencies open, Captain. All of them. That's the problem.	Reta fesa, Kapitan. Ala. Ni.
+MULTI, above the monitor: every playlist in its own window.	MULTI: ala vekaku kae fena.
+One window per playlist, the programme first.	Fena una go vekaku, program muna.
+Jinkys! Four feeds. And one of them has a monster in it.	Jinkys! Sena kwara. Kae una: gaura!
+WHAT'S NEXT	NOVTOKA
+Add a window (+), then its ... menu: make it show NEXT. What goes live when you press TAKE.	Tiri fena (+), novtok ... menu: NEXT. Go luma tok TAKE.
+Every window has a ... button. It chooses what that window shows.	Ala fena: ... bata. Piki.
+I need to see who's calling before they reach the main viewer.	Mi peni mira muna vekadeka.
+A CLOCK	TOKA
+And one more window, showing the clock. Operators who watch a clock are never late. Mostly.	Fena novo: toka. Operator mira toka, vatok gwani. Tamo.
+Time of day, big. Stardates are just very long timecode.	Toka tamo. Stardate: timecode tamo.
+The monster only shows up at midnight. We're going to need a clock.	Gaura lumi kae nira-enedh. Peni toka.
+ONE BIG ONE	UNA TAMO
+Any window's ... menu, then a layout: one big, the rest small.	... menu, novtok layout: una tamo.
+The big window is window one. Usually the programme. Usually.	Fena una: program. Tamo.
+Main viewer big. The captain likes it big.	Vekadeka tamo. Kapitan meli tamo.
+ON SCREEN	GO VEKADEKA
+Select Deck 3 in playlist 3 and TAKE. Watch its window.	Piki Deka 3 kae vekaku 3, TAKE.
+The red border is TALLY: the window that is on air. On screen, as they say on starships.	Rana rado: TALLY. Kae luma. 'Go vekadeka!'
+There! Feed three! Put it on screen!	Hen! Sena tria! Go vekadeka!
+THAT'S A WRAP	TAMO
+Windows, the ... menu, NEXT, the clock, a layout, tally. Mystery solved, skapi.	Fena, ... menu, NEXT, toka, layout, tally. Isto, skapi.
+A window can also show an output, with its warp and slices. Handy when it's a lighthouse.	Fena pel mira senadora so warp so kisaka. Lumafena!
+And the monster was... the ship's cook, all along. Jinkys.	So gaura... mira-pata kaira, alatok. Jinkys.
+there is no such lesson	vaholakora hen
+finish or leave the lesson you are in first	tamo holakora muna
+leave Bug Swat first	gwani Bug Swat muna
+Psst. It's me, the desk. I'll be watching. Supportively.	Psst. Mi, deka. Mi mira. Lumo.
+Hi! I'm the one doing all of this, by the way.	Lumi! Mi cori ala, je.
+Ctrl+D opens the DASH. I'm just saying.	Ctrl+D fesi DASH. Holi.
+Nearly there. I can feel it in my pixels.	Kiso. Mi pela kae kisvekaku.
+You're good at this. I can tell. I'm the one doing it.	Tu maro. Mi isti. Mi cori.
+Every click, I heard. Every single one.	Ala tiri, mi lisi. Ala.
+The glowing one. I can see it from here. It's glowing for you.	Luma. Mi mira. Go tu.
+lesson paused - MENU > LESSONS picks up where you left off	holakora hali - MENU > LESSONS novtok
+PROF. VIDEO:  The signal: what the picture is made of, and how to bend it. Pick a lesson.	PROF. VIDEO:  Sena: veka man, so seti. Piki holakora.
+DR. PIXEL:  Running the show, skapi. Fast hands, calm face. Pick a lesson.	DR. PIXEL:  Show, skapi. Patakis zaro, miv halo. Piki holakora.
+LESSONS  -  PART TWO  -  WHO DO YOU FOLLOW?	HOLAKORA  -  PATA DUA  -  PIKI MAN?
+FOLLOW PROF. VIDEO	PIKI PROF. VIDEO
+FOLLOW DR. PIXEL	PIKI DR. PIXEL
+the signal	sena
+running the show	show
+PICK UP	NOVTOK
+CLOSE (Esc)	KLUI (Esc)
+PART ONE: THE BASICS	PATA UNA: KORA
+finish or leave LEARN THE BASICS first	tamo LEARN THE BASICS muna
+bug swat: Esc leaves, and your show comes back as it was	bug swat: Esc gwani, so show novtok
+bug swat: your show is back. Motion's controls are in Settings > Audio	bug swat: show novtok. Motion: Seta > Sona
+TURN MOTION ON	LUMI MOTION
+Bugs are crawling to the cue list! Swat them by waving at your camera. First, Motion: in MOTION CONTROL turn it ON and choose what it READS.	Bugku tiri go cue! Hel go camera so dagi! Muna Motion: MOTION CONTROL ON, so READS.
+This one is NullPointer. Hollow, points at nothing. A finger goes straight through. Use the whole hand, skapi.	NullPointer. Vaka, vamira. Lebeda ar. Pata tamo, skapi.
+Wave like you are hailing a cab! A small, polite cab. Not the buttons. The cab.	Hel sui taxi! Taxi kiso. Vabata. Taxi.
+DRAW TWO ZONES	GRA ZONES DUA
+Race Condition: twins, each sure it got there first. One reading cannot tell your hands apart, so drag two ZONES on the Motion picture, one each side.	Race Condition: dua, ala 'mi muna'. Miri una vaisti: ZONES dua kae Motion.
+Hit both together. Hit one, and they swap. Like my cousins at a wedding.	Dagi dua. Una: seti. Sui kisaka kae nova-fest.
+One hand each side. Together! Together!	Pata una kae ala rana. Una! Una!
+Off By One. The bug is not the face, it is the tiny extra segment, and a little wiggle needs a finer reading. Turn SENSITIVITY down to 5%.	Off By One. Bug vamiv, kisaka kiso. Tiriset kiso: miri maro. SENSITIVITY go 5%.
+Lower number, finer reading. Yes, I also think it is backwards.	Numa kiso, mira maro. Ai, seto.
+Not the face. The little one on the end. Wiggle a finger.	Vamiv. Kiso kae rana. Tiriset lebeda.
+FALL 1.5 S OR MORE	FALL 1.5 S VA ZARO
+Memory Leak. It only lets go while the reading stays up. Make FALL longer, 1.5 seconds or more, so your sweeps join up into one.	Memory Leak. Ama, tok miri ama. FALL tamo: 1.5 va zaro.
+Slow and steady, skapi. Like paying back a loan.	Kiso so halo, skapi. Sui kaira kae Niro, tok lumtoka.
+Sweep, and sweep again. Let the fall carry you between.	Hel, so hel novtok.
+MOTION X ON A TONE	MOTION X KAE SONA
+The Heisenbug! It fades whenever you move. Put a tone cue's pitch on Motion X and follow it by ear: the ticking speeds up as you close in.	Heisenbug! Gwani tok tiriset. Sona kae Motion X, so lisi: tika zaro tok kiso.
+SHOW ME makes the tone for you. High is right. Low is left. Stand still and it comes back.	SHOW ME cori sona. Ama: rana. Nu: laa. Hali, so novtok.
+Follow it. Listen. Faster ticking, closer bug.	Piki. Lisi. Tika zaro, bug kiso.
+Waving paw	Pata hel
+Heisenbug finder	Heisenbug-mirawia
+FIXED! Lovely signal flow.	NIREN! Sena lumo.
+Closed as fixed. No regressions. Probably.	Klua. Vani. Tamo?
+Squashed! Ship it.	Dagen! Seni!
+One reached the cue list. It has filed a bug report about you.	Una kae cue. Gra ni go tu.
+Skapi. It is a handheld. You do not press it. You wave at it.	Skapi. Karajana kiso. Vatiri. Hel.
+The buttons are for menus. The bugs are for flailing.	Bata: go menu. Bug: go hel.
+The D-pad is decorative. Like my diploma.	D-pad: lumo. Sui diploma mi.
+In 1989 we also pressed the buttons. Then we discovered waving. Never looked back.	1989: tiri bata. Novtok: hel. Vatok novtok.
+Pressing harder does not help. The bugs cannot feel buttons. Only arms.	Tiri tamo: vamaro. Bug vapela bata. Pata.
+It's called a handheld because your hands are held... up. In the air. Waving.	Karajana kiso: pata ama. Kae luma. Hel.
+The mouse? You are swatting bugs with a MOUSE? In Bulgaria the mouse would be on the bugs' side.	Mouse? MOUSE? Kae Bulgaria, mouse so bug.
+Lovely clicking. Very crisp. The camera saw none of it.	Tiri lumo. Camera vamira.
+DONE FOR YOU - PRESS START	CORI GO TU - TIRI START
+DONE! PRESS START	TAMO! TIRI START
+SELECT OPENS MOTION CONTROL	SELECT FESI MOTION CONTROL
+ALL BUGS FIXED	ALA BUG NIREN
+GAME OVER	NUMA-SHOW TAMO
+NEW HIGH SCORE!	NUMA AMA NOVA!
+START PLAYS AGAIN	START NOVTOK
+Nazdrave, skapi. Now go and fix real bugs.	Nazdrave, skapi. Novtok: niri bug isto. Lumtok!
+Every one of those is a real Motion control. Put them on any ~ knob you like.	Ala: bata Motion. Ala bata ~.
+START: AGAIN	START: NOVTOK
+START: PLAY	START: TIRI
+# --- end of tutorials ---
