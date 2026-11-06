@@ -17,6 +17,7 @@ Every window hidden. OUTSNAP is a local test input.
 
     py -3 tools/check_slices.py --exe build/windows/Release/Deckboy.exe
 """
+import re
 import argparse
 import shutil
 import struct
@@ -133,16 +134,16 @@ def run(exe, work):
         db.send("SLICE 1 EDGE R 0")
         db.send("SLICE 1 CORNER TL 20 30")
         shot = snap()
-        note("a pinned corner pulls the picture off it (black there)", dark(probe(shot, 0.04, 0.06)),
-             probe(shot, 0.04, 0.06))
+        note("a pinned corner pulls the picture off it (black there)", dark(probe(shot, 0.04, 0.2)),
+             probe(shot, 0.04, 0.2))
         note("...and the slice is still blue in its middle", blue(probe(shot, 0.3, 0.6)), probe(shot, 0.3, 0.6))
         db.send("SLICE 1 CORNER TL 0 0")
         mask = db.send("MASK NEW circle").split()[-1]
         db.send("SLICE 2 MASK %s" % mask)
         shot = snap()
-        note("a mask on slice 2 cuts its corner", dark(probe(shot, 0.52, 0.06)), probe(shot, 0.52, 0.06))
+        note("a mask on slice 2 cuts its corner", dark(probe(shot, 0.52, 0.2)), probe(shot, 0.52, 0.2))
         note("...keeps its middle", red(probe(shot, 0.75, 0.5)), probe(shot, 0.75, 0.5))
-        note("...and leaves slice 1 whole", blue(probe(shot, 0.04, 0.06)), probe(shot, 0.04, 0.06))
+        note("...and leaves slice 1 whole", blue(probe(shot, 0.04, 0.2)), probe(shot, 0.04, 0.2))
         db.send("SLICE 2 OFF")
         shot = snap()
         note("an off slice is not drawn", dark(probe(shot, 0.75, 0.5)), probe(shot, 0.75, 0.5))
@@ -201,8 +202,8 @@ def run(exe, work):
         shot = snap()
         note("pulling the middle point right pushes the red into the blue there",
              red(probe(shot, 0.62, 0.5)), probe(shot, 0.62, 0.5))
-        note("...but not at the top edge, whose points stay put", blue(probe(shot, 0.62, 0.02)),
-             probe(shot, 0.62, 0.02))
+        note("...but not at the top edge, whose points stay put", blue(probe(shot, 0.62, 0.16)),
+             probe(shot, 0.62, 0.16))
         saved = db.saved()
         line = next((l for l in saved.splitlines() if l.startswith("output") and "whole," in l), "")
         note("the mesh is saved", "3 3 1 0 0 0 0 0 0 0 0 0.25 0" in line, line[-120:])
@@ -235,11 +236,15 @@ def run(exe, work):
         saved = db.saved()
         note("the multiview window is saved with its feed", "next" in saved, saved[-300:])
         note("the LED MAP tab opens", screens_click(22, 2))
-        screens_click(34, 1)   # tile height 128 -> 136: 2160 is 16 rows
+        screens_click(34, 1)   # tile height 128 -> 136
         note("ONE PER ROW makes a slice per row of tiles", screens_click(35, 0))
         listing = db.send("SLICE")
-        note("...sixteen of them, crop and place the same", "16=row 16" in listing and "17=" not in listing,
-             listing[-160:])
+        # One row per 136 px of the OUTPUT'S height: 16 on a 2160 output, 6 on
+        # a 768 one (the output takes its screen's size, and CI's are small).
+        m = re.search(r"render_px=(\d+)x(\d+)", db.send("STATUS"))
+        rows = -(-int(m.group(2)) // 136) if m else 16
+        note("...one per row (%d), crop and place the same" % rows,
+             ("%d=row %d" % (rows, rows)) in listing and ("%d=" % (rows + 1)) not in listing, listing[-160:])
         db.send("SCREENS OFF")
         note("the desk still answers", db.send("PING").startswith("OK"))
 

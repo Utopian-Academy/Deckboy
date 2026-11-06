@@ -360,7 +360,8 @@
   // (a layer, or a keyed output); otherwise only the colour darkens (the
   // matte, an opaque output). Coordinates are the current target's.
   bool cpuMaskCut(OutputRuntime& rt, const MaskModel& m, int rasterW, int rasterH, MaskUse use,
-                  double matteOpacity, const SDL_Rect& where, bool alphaToo, float outside, const SDL_Rect& frame) {
+                  double matteOpacity, const SDL_Rect& where, bool alphaToo, float outside, const SDL_Rect& frame,
+                  bool colourToo = true) {
     std::string key;
     const MaskRaster* r = maskRasterFor(m, rasterW, rasterH, use, matteOpacity, key);
     if (!r || r->w <= 0 || r->h <= 0 || !rt.outputRenderer || where.w <= 0 || where.h <= 0) return false;
@@ -398,9 +399,11 @@
         }
         if (a >= 0.999f) continue;
         Uint8* p = row + x * 4;
-        p[0] = static_cast<Uint8>(std::lround(p[0] * a));
-        p[1] = static_cast<Uint8>(std::lround(p[1] * a));
-        p[2] = static_cast<Uint8>(std::lround(p[2] * a));
+        if (colourToo) {
+          p[0] = static_cast<Uint8>(std::lround(p[0] * a));
+          p[1] = static_cast<Uint8>(std::lround(p[1] * a));
+          p[2] = static_cast<Uint8>(std::lround(p[2] * a));
+        }
         if (alphaToo) p[3] = static_cast<Uint8>(std::lround(p[3] * a));
       }
     }

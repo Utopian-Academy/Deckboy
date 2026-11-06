@@ -109,9 +109,19 @@
           SDL_SetTextureBlendMode(source, SDL_BLENDMODE_NONE);
           SDL_RenderTexture(r, source, static_cast<const SDL_FRect*>(nullptr),
                             static_cast<const SDL_FRect*>(nullptr));
-          SDL_SetTextureBlendMode(cut, sliceAlphaCutBlend());
           const SDL_FRect at {s.srcX * texW, s.srcY * texH, static_cast<float>(cw), static_cast<float>(ch)};
-          SDL_RenderTexture(r, cut, nullptr, &at);
+          if (SDL_SetTextureBlendMode(cut, sliceAlphaCutBlend())) {
+            SDL_RenderTexture(r, cut, nullptr, &at);
+          } else {
+            // No custom blends (SDL's software renderer): the processor cuts
+            // the alpha under the crop, and leaves the colour, as the blend
+            // would have.
+            const SDL_Rect where {static_cast<int>(std::lround(at.x)), static_cast<int>(std::lround(at.y)), cw, ch};
+            if (!cpuMaskCut(rt, *mask, cw, ch, MaskUse::Cut, 1.0, where, /*alphaToo=*/true, 1.0f,
+                            SDL_Rect {0, 0, texW, texH}, /*colourToo=*/false)) {
+              warnMaskCannotCut();
+            }
+          }
           SDL_SetRenderTarget(r, nullptr);
           SDL_SetTextureScaleMode(scratch, SDL_SCALEMODE_LINEAR);
           source = scratch;
