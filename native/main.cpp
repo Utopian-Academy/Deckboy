@@ -2246,6 +2246,10 @@ void writeParamLfo(std::ostream& one, const deckboy::effects::ParamLfo& lfo) {
   if (deckboy::effects::lfoShapeIsMotion(lfo.shape)) {
     one << ',' << lfo.motionZone;
   }
+  // A MIDI shape's channel and CC, in the same place, for the same reason.
+  if (deckboy::effects::lfoShapeIsMidi(lfo.shape)) {
+    one << ',' << lfo.midiChannel << ',' << lfo.midiNumber;
+  }
 }
 
 void readParamLfo(const std::string& one, deckboy::effects::ParamLfo& lfo) {
@@ -2272,6 +2276,11 @@ void readParamLfo(const std::string& one, deckboy::effects::ParamLfo& lfo) {
   if (f.size() > 6) lfo.beats = static_cast<float>(std::atof(f[6].c_str()));
   if (deckboy::effects::lfoShapeIsMotion(lfo.shape)) {
     lfo.motionZone = f.size() > 7 ? std::clamp(std::atoi(f[7].c_str()), 0, 8) : 0;
+    return;
+  }
+  if (deckboy::effects::lfoShapeIsMidi(lfo.shape)) {
+    lfo.midiChannel = f.size() > 7 ? std::clamp(std::atoi(f[7].c_str()), 0, 16) : 0;
+    lfo.midiNumber = f.size() > 8 ? std::clamp(std::atoi(f[8].c_str()), 0, 127) : 1;
     return;
   }
   // The drawn curve, if this show carries one. A partial curve is
@@ -6077,8 +6086,9 @@ class App {
                          deckboy::effects::lfoShapeToken(lfo.shape), pal.fg);
     quickButtons_.push_back({shapeBtn, QuickAction::EffectLfoShape,
                              "sine, triangle, saw, ramp, square, sample (one random value per "
-                             "cycle, held), drawn, audio, or motion: how much a camera sees "
-                             "moving, and where (motion x, motion y)", packed});
+                             "cycle, held), drawn, audio, motion: how much a camera sees "
+                             "moving, and where (motion x, motion y), or MIDI: the last key's "
+                             "pitch, how hard it was played, a CC, or aftertouch", packed});
 
     // Rate, and whether it is free-running or locked to the tempo. The tap
     // tempo already exists for VJ mode; an LFO that could not use it would be
@@ -6086,10 +6096,16 @@ class App {
     SDL_Rect rateBtn {shapeBtn.x + cellW + gap, rowY, cellW, ix.rowH};
     std::ostringstream rate;
     const bool motionShape = deckboy::effects::lfoShapeIsMotion(lfo.shape);
+    const bool midiShape = deckboy::effects::lfoShapeIsMidi(lfo.shape);
     if (motionShape) {
       // A Motion shape has no rate: this cell says which zone it follows.
       if (lfo.motionZone <= 0) rate << "whole picture";
       else rate << "zone " << lfo.motionZone;
+    } else if (midiShape) {
+      // Nor a MIDI one: it says what it listens to.
+      if (lfo.shape == deckboy::effects::LfoShape::MidiCc) rate << "CC " << lfo.midiNumber;
+      else if (lfo.midiChannel <= 0) rate << "any channel";
+      else rate << "channel " << lfo.midiChannel;
     } else if (lfo.beatSync) {
       rate << std::fixed << std::setprecision(lfo.beats < 1.0f ? 2 : 0)
            << lfo.beats << (lfo.beats == 1.0f ? " beat" : " beats");
@@ -6107,6 +6123,10 @@ class App {
                              motionShape
                                ? "Which part of the camera's picture it follows: the whole picture, "
                                  "or a zone drawn in Settings > Control > Motion"
+                               : midiShape
+                               ? (lfo.shape == deckboy::effects::LfoShape::MidiCc
+                                    ? "Which CC it follows"
+                                    : "Which MIDI channel it listens to, or any")
                                : lfo.beatSync
                                ? "Cycle length in beats — follows the tap tempo"
                                : "Cycles per second",
@@ -6134,7 +6154,19 @@ class App {
     // cell above MEANS and that is worth its own control rather than a
     // modifier-click nobody would find. Not for Audio or Motion, which follow
     // the sound or the camera and have no rate for a tempo to replace.
-    if (!motionShape && lfo.shape != deckboy::effects::LfoShape::Audio) {
+    // MIDI CC has two things to say -- the CC above, the channel here.
+    if (lfo.shape == deckboy::effects::LfoShape::MidiCc) {
+      SDL_Rect chBtn {x0, rowY, w, std::max(16, ix.rowH - 6)};
+      drawUIPanel(chBtn, pal.tile, pal.deep, pal.mid);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, chBtn,
+                           lfo.midiChannel <= 0 ? std::string("on any channel")
+                                                : "on channel " + std::to_string(lfo.midiChannel),
+                           pal.inkSoft);
+      quickButtons_.push_back({chBtn, QuickAction::EffectLfoSync,
+                               "Which MIDI channel it listens to, or any", packed});
+      rowY += ix.rowStep;
+    }
+    if (!motionShape && !midiShape && lfo.shape != deckboy::effects::LfoShape::Audio) {
       SDL_Rect syncBtn {x0, rowY, w, std::max(16, ix.rowH - 6)};
       drawUIPanel(syncBtn, lfo.beatSync ? pal.dark : pal.tile, pal.deep,
                   lfo.beatSync ? pal.light : pal.mid);

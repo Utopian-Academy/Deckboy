@@ -3912,6 +3912,43 @@
         expect(drawnBack.motionZone == 0 && std::fabs(drawnBack.curve[7] - 0.25f) < 1e-5,
                "and a drawn curve is still read as a curve, not a zone");
         publishMotionReading(2, 0.0f, 0.5f, 0.5f);
+      }
+      // THE MIDI SHAPES: a key's pitch and weight, a CC, aftertouch.
+      {
+        ParamLfo midi;
+        midi.on = true;
+        midi.depth = 1.0f;
+        midi.shape = LfoShape::MidiNote;
+        midi.midiChannel = 2;
+        publishMidiToLfo(0x90, 2, 84, 100);
+        expect(std::fabs(lfoApply(midi, 0.5f, 5.0, 1.0, 0.0) - 1.0f) < 1e-5,
+               "MIDI note: C6 on channel 2 takes the control to the top");
+        publishMidiToLfo(0x80, 2, 84, 0);
+        expect(std::fabs(lfoApply(midi, 0.5f, 5.0, 1.0, 0.0) - 1.0f) < 1e-5,
+               "and it stays there when the key is let go");
+        midi.shape = LfoShape::MidiVelocity;
+        expect(lfoApply(midi, 0.2f, 5.0, 1.0, 0.0) == 0.2f,
+               "velocity is nothing once the key is up");
+        publishMidiToLfo(0x90, 2, 60, 127);
+        publishMidiToLfo(0x90, 2, 64, 127);
+        publishMidiToLfo(0x80, 2, 60, 0);
+        expect(std::fabs(lfoApply(midi, 0.2f, 5.0, 1.0, 0.0) - 1.0f) < 1e-5,
+               "a chord's other key letting go does not drop it");
+        publishMidiToLfo(0x80, 2, 64, 0);
+        midi.shape = LfoShape::MidiCc;
+        midi.midiChannel = 0;
+        midi.midiNumber = 74;
+        publishMidiToLfo(0xB0, 5, 74, 0);
+        expect(std::fabs(lfoApply(midi, 0.5f, 5.0, 1.0, 0.0) - 0.0f) < 1e-5,
+               "MIDI CC on any channel follows CC 74 from channel 5");
+        std::ostringstream one;
+        writeParamLfo(one, midi);
+        ParamLfo back;
+        readParamLfo(one.str(), back);
+        expect(back.shape == LfoShape::MidiCc && back.midiNumber == 74 && back.midiChannel == 0,
+               "a MIDI shape's CC and channel survive the show file");
+        expect(std::string(lfoShapeToken(LfoShape::MidiPressure)) == "aftertouch",
+               "aftertouch is a shape");
 
         std::array<ParamLfo, 2> tone {};
         tone[kToneLfoLevel].on = true;

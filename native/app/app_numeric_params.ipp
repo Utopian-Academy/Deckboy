@@ -1088,6 +1088,19 @@ void effectLfoNudgeRate(int packed, int direction) {
   if (!lfo) {
     return;
   }
+  if (lfo->shape == deckboy::effects::LfoShape::MidiCc) {
+    lfo->midiNumber = ((lfo->midiNumber + direction) % 128 + 128) % 128;
+    triggerToast("follows CC " + std::to_string(lfo->midiNumber));
+    markProjectDirty();
+    return;
+  }
+  if (deckboy::effects::lfoShapeIsMidi(lfo->shape)) {
+    lfo->midiChannel = ((lfo->midiChannel + direction) % 17 + 17) % 17;
+    triggerToast(lfo->midiChannel == 0 ? std::string("listens to any channel")
+                                       : "listens to channel " + std::to_string(lfo->midiChannel));
+    markProjectDirty();
+    return;
+  }
   if (deckboy::effects::lfoShapeIsMotion(lfo->shape)) {
     // The zone it follows: the whole picture, then each zone drawn. Wraps,
     // so one button reaches them all.
@@ -1130,6 +1143,14 @@ void effectLfoNudgeDepth(int packed, float delta) {
 
 void effectLfoToggleSync(int packed) {
   if (auto* lfo = effectLfoAt(packed)) {
+    // On MIDI CC this row is the channel (the cell above is the CC).
+    if (lfo->shape == deckboy::effects::LfoShape::MidiCc) {
+      lfo->midiChannel = (lfo->midiChannel + 1) % 17;
+      triggerToast(lfo->midiChannel == 0 ? std::string("listens to any channel")
+                                         : "listens to channel " + std::to_string(lfo->midiChannel));
+      markProjectDirty();
+      return;
+    }
     lfo->beatSync = !lfo->beatSync;
     triggerToast(lfo->beatSync ? "lfo follows the tempo" : "lfo runs free");
     markProjectDirty();

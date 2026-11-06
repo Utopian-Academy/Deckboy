@@ -118,7 +118,8 @@
       }
       if (found < 0) {
         failRemoteCommand(std::string(verb) + " SHAPE: sine, triangle, saw, ramp, square, sample, "
-                          "drawn, audio, motion, motion-x or motion-y");
+                          "drawn, audio, motion, motion-x, motion-y, midi-note, midi-velocity, "
+                          "midi-cc or aftertouch");
         return false;
       }
       lfo.shape = static_cast<deckboy::effects::LfoShape>(found);
@@ -132,6 +133,21 @@
         return false;
       }
       lfo.motionZone = zone;
+    } else if (what == "CHANNEL") {
+      // A MIDI shape's channel: 0 any, 1-16.
+      const int ch = std::atoi(valueText.c_str());
+      if (valueText.empty() || ch < 0 || ch > 16) {
+        failRemoteCommand(std::string(verb) + " CHANNEL: 0 (any) to 16");
+        return false;
+      }
+      lfo.midiChannel = ch;
+    } else if (what == "CC") {
+      const int cc = std::atoi(valueText.c_str());
+      if (valueText.empty() || cc < 0 || cc > 127) {
+        failRemoteCommand(std::string(verb) + " CC: 0 to 127");
+        return false;
+      }
+      lfo.midiNumber = cc;
     } else if (what == "RATE") {
       if (value <= 0.0 || value > 40.0) {
         failRemoteCommand(std::string(verb) + " RATE: hertz, 0-40");
@@ -5896,8 +5912,12 @@
             return;
           }
           lfo.motionZone = zone;
+        } else if (what == "channel" && parts.size() >= 6) {
+          lfo.midiChannel = std::clamp(std::atoi(parts[5].c_str()), 0, 16);
+        } else if (what == "cc" && parts.size() >= 6) {
+          lfo.midiNumber = std::clamp(std::atoi(parts[5].c_str()), 0, 127);
         } else {
-          failRemoteCommand("FX LFO: on, off, shape, rate, depth or zone");
+          failRemoteCommand("FX LFO: on, off, shape, rate, depth, zone, channel or cc");
           return;
         }
         markProjectDirty();

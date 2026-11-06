@@ -977,8 +977,21 @@ enum class LfoShape : std::uint8_t {
   Motion,
   MotionX,
   MotionY,
+  // MIDI (James, 2026-11-05: the MIDI map board, "MIDI on the ~ chip"). The
+  // last key's PITCH, across C2-C6, held after it is let go so a figure stays
+  // put; how hard it was played, back to nothing on release; any CC; and
+  // aftertouch. ParamLfo::midiChannel / midiNumber say which. Appended.
+  MidiNote,
+  MidiVelocity,
+  MidiCc,
+  MidiPressure,
   Count
 };
+
+inline bool lfoShapeIsMidi(LfoShape shape) {
+  return shape == LfoShape::MidiNote || shape == LfoShape::MidiVelocity ||
+         shape == LfoShape::MidiCc || shape == LfoShape::MidiPressure;
+}
 
 inline bool lfoShapeIsMotion(LfoShape shape) {
   return shape == LfoShape::Motion || shape == LfoShape::MotionX || shape == LfoShape::MotionY;
@@ -987,7 +1000,62 @@ inline bool lfoShapeIsMotion(LfoShape shape) {
 // Shapes that only ever push UP from the value that was set: stillness and
 // silence leave the control alone.
 inline bool lfoShapeIsOneSided(LfoShape shape) {
-  return shape == LfoShape::Audio || shape == LfoShape::Motion;
+  return shape == LfoShape::Audio || shape == LfoShape::Motion ||
+         shape == LfoShape::MidiVelocity || shape == LfoShape::MidiPressure;
+}
+
+// THE MIDI READINGS, written by the MIDI thread as each message arrives and
+// read by any oscillator: per channel 1-16, and slot 0 for "any channel"
+// (whatever arrived last). Atomics, for the same reason as Motion's.
+struct LfoMidiChannel {
+  std::atomic<float> note {0.5f};      // 0-1 across C2..C6
+  std::atomic<int> noteHeld {-1};      // the key whose velocity is showing
+  std::atomic<float> velocity {0.0f};
+  std::atomic<float> pressure {0.0f};
+  std::array<std::atomic<float>, 128> cc {};
+};
+inline std::array<LfoMidiChannel, 17>& lfoMidiSignals() {
+  static std::array<LfoMidiChannel, 17> signals {};
+  return signals;
+}
+constexpr int kLfoMidiLowNote = 36;   // C2
+constexpr int kLfoMidiHighNote = 84;  // C6
+inline void publishMidiToLfo(int status, int channel, int data1, int data2) {
+  channel = std::clamp(channel, 1, 16);
+  for (int slot : {0, channel}) {
+    LfoMidiChannel& c = lfoMidiSignals()[static_cast<std::size_t>(slot)];
+    switch (status) {
+      case 0x90:
+        if (data2 > 0) {
+          const float span = static_cast<float>(kLfoMidiHighNote - kLfoMidiLowNote);
+          c.note.store(std::clamp((data1 - kLfoMidiLowNote) / span, 0.0f, 1.0f), std::memory_order_relaxed);
+          c.noteHeld.store(data1, std::memory_order_relaxed);
+          c.velocity.store(std::clamp(data2, 0, 127) / 127.0f, std::memory_order_relaxed);
+          break;
+        }
+        [[fallthrough]];
+      case 0x80:
+        // Only the key that set the velocity takes it away: a chord's other
+        // notes letting go must not drop it while the last one is still down.
+        if (c.noteHeld.load(std::memory_order_relaxed) == data1) {
+          c.velocity.store(0.0f, std::memory_order_relaxed);
+          c.noteHeld.store(-1, std::memory_order_relaxed);
+        }
+        break;
+      case 0xB0:
+        c.cc[static_cast<std::size_t>(std::clamp(data1, 0, 127))].store(std::clamp(data2, 0, 127) / 127.0f,
+                                                                         std::memory_order_relaxed);
+        break;
+      case 0xD0:
+        c.pressure.store(std::clamp(data1, 0, 127) / 127.0f, std::memory_order_relaxed);
+        break;
+      case 0xA0:
+        c.pressure.store(std::clamp(data2, 0, 127) / 127.0f, std::memory_order_relaxed);
+        break;
+      default:
+        break;
+    }
+  }
 }
 
 // THE MOTION READINGS, published by the app once per frame: [zone][amount,
@@ -1019,6 +1087,10 @@ inline const char* lfoShapeToken(LfoShape shape) {
     case LfoShape::Motion:   return "motion";
     case LfoShape::MotionX:  return "motion-x";
     case LfoShape::MotionY:  return "motion-y";
+    case LfoShape::MidiNote:     return "midi-note";
+    case LfoShape::MidiVelocity: return "midi-velocity";
+    case LfoShape::MidiCc:       return "midi-cc";
+    case LfoShape::MidiPressure: return "aftertouch";
     default:                 return "sine";
   }
 }
@@ -1042,6 +1114,9 @@ struct ParamLfo {
   // For the Motion shapes: which zone it follows, 0 the whole picture,
   // 1-8 the zones drawn in Settings > Control > Motion.
   int motionZone = 0;
+  // For the MIDI shapes: the channel (0 any, 1-16) and, for MidiCc, the CC.
+  int midiChannel = 0;
+  int midiNumber = 1;
 
   // ── THE SHAPE YOU DREW ──────────────────────────────────────────────────
   //
@@ -1102,6 +1177,18 @@ inline double lfoUnitValue(const ParamLfo& lfo, double seconds, double beats01,
     const auto& zone = lfoMotionSignals()[static_cast<std::size_t>(std::clamp(lfo.motionZone, 0, 8))];
     return std::clamp(static_cast<double>(zone[static_cast<std::size_t>(which)].load(std::memory_order_relaxed)),
                       0.0, 1.0);
+  }
+  if (lfoShapeIsMidi(lfo.shape)) {
+    // And here: the value is what the controller sent.
+    const LfoMidiChannel& c = lfoMidiSignals()[static_cast<std::size_t>(std::clamp(lfo.midiChannel, 0, 16))];
+    switch (lfo.shape) {
+      case LfoShape::MidiNote: return static_cast<double>(c.note.load(std::memory_order_relaxed));
+      case LfoShape::MidiVelocity: return static_cast<double>(c.velocity.load(std::memory_order_relaxed));
+      case LfoShape::MidiPressure: return static_cast<double>(c.pressure.load(std::memory_order_relaxed));
+      default:
+        return static_cast<double>(
+          c.cc[static_cast<std::size_t>(std::clamp(lfo.midiNumber, 0, 127))].load(std::memory_order_relaxed));
+    }
   }
   double phase = 0.0;
   if (lfo.beatSync) {

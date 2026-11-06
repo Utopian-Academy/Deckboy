@@ -20,6 +20,8 @@
   // Every channel message from the MIDI thread (RtMidi or ALSA), and MIDIIN.
   void onMidiChannelMessage(int status, int channel, int data1, int data2) {
     namespace mm = deckboy::midimap;
+    // The ~ chip's MIDI shapes read this the moment it arrives.
+    deckboy::effects::publishMidiToLfo(status, channel, data1, data2);
     mm::Message m;
     m.channel = std::clamp(channel, 1, 16);
     // The port's real name, or empty when it is unknown -- never the
