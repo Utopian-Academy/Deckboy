@@ -36,6 +36,8 @@
   enum ScreensAction {
     kScrOutputTab = 1, kScrAddSlice, kScrRemoveSlice, kScrPinMode, kScrClose, kScrSelect, kScrToggleOn,
     kScrDec, kScrInc, kScrSource, kScrFlipH, kScrMask, kScrMesh, kScrPerspective, kScrResetPins,
+    // A slice's oscillators (param = kSliceLfo* slot): the ~ chip and its row.
+    kScrLfoToggle, kScrLfoShape, kScrLfoRateDec, kScrLfoRateInc, kScrLfoDepthDec, kScrLfoDepthInc,
   };
   // The numbers a stepper moves, and by how much.
   enum ScreensField { kFCropX, kFCropY, kFCropW, kFCropH, kFPlaceX, kFPlaceY, kFPlaceW, kFPlaceH, kFRotIn, kFRotOut,
@@ -368,13 +370,56 @@
       auto rowLabel = [&](const std::string& label) {
         drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {side.x + 8, sy, 90, rowH}, label, pal.fg);
       };
-      auto stepper = [&](const std::string& label, int field, const std::string& value) {
+      auto stepper = [&](const std::string& label, int field, const std::string& value, int lfoSlot = -1) {
         rowLabel(label);
-        const int bx = side.x + 100, bw = side.w - 108;
+        const int bx = side.x + 100;
+        // The ~ chip, where the value takes an oscillator, at the row's end.
+        // Its column is kept on every row, so the + buttons line up.
+        const int chipW = rowH + 2;
+        const int bw = side.w - 108 - chipW;
         screensButton(SDL_Rect {bx, sy, rowH, rowH}, "-", kScrDec, field);
         drawUIValueControl(SDL_Rect {bx + rowH + 2, sy, bw - 2 * rowH - 4, rowH}, value);
         screensButton(SDL_Rect {bx + bw - rowH, sy, rowH, rowH}, "+", kScrInc, field);
+        if (lfoSlot >= 0) {
+          const auto& lfo = sel->lfo[static_cast<std::size_t>(lfoSlot)];
+          screensButton(SDL_Rect {bx + bw + 2, sy, rowH, rowH}, "~", kScrLfoToggle, lfoSlot, lfo.on);
+        }
         sy += rowH + 3;
+        // Its oscillator, under it, while it is on: shape, rate, depth -- the
+        // same three the inspector's ~ row has.
+        if (lfoSlot >= 0 && sel->lfo[static_cast<std::size_t>(lfoSlot)].on) {
+          const auto& lfo = sel->lfo[static_cast<std::size_t>(lfoSlot)];
+          const int x0 = side.x + 100, w = side.w - 108;
+          rowLabel("  ~ shape");
+          screensButton(SDL_Rect {x0, sy, w, rowH}, deckboy::effects::lfoShapeToken(lfo.shape), kScrLfoShape,
+                        lfoSlot);
+          sy += rowH + 3;
+          char rate[32];
+          if (deckboy::effects::lfoShapeIsMotion(lfo.shape)) {
+            std::snprintf(rate, sizeof rate, "%s", lfo.motionZone <= 0 ? "whole picture"
+                                                   : ("zone " + std::to_string(lfo.motionZone)).c_str());
+          } else if (deckboy::effects::lfoShapeIsMidi(lfo.shape)) {
+            std::snprintf(rate, sizeof rate, lfo.shape == deckboy::effects::LfoShape::MidiCc ? "CC %d" : "channel %d",
+                          lfo.shape == deckboy::effects::LfoShape::MidiCc ? lfo.midiNumber : lfo.midiChannel);
+          } else if (lfo.beatSync) {
+            std::snprintf(rate, sizeof rate, "%.2g beats", static_cast<double>(lfo.beats));
+          } else {
+            std::snprintf(rate, sizeof rate, "%.2f hz", static_cast<double>(lfo.rateHz));
+          }
+          char depth[24];
+          std::snprintf(depth, sizeof depth, "depth %.0f%%", lfo.depth * 100.0);
+          // Rate and depth across the panel: - value + , - value +.
+          const int fx = side.x + 8, fw = side.w - 16;
+          const int rateW = (fw - 6) * 55 / 100, depthW = fw - 6 - rateW;
+          screensButton(SDL_Rect {fx, sy, rowH, rowH}, "-", kScrLfoRateDec, lfoSlot);
+          drawUIValueControl(SDL_Rect {fx + rowH + 2, sy, rateW - 2 * rowH - 4, rowH}, rate);
+          screensButton(SDL_Rect {fx + rateW - rowH, sy, rowH, rowH}, "+", kScrLfoRateInc, lfoSlot);
+          const int dx = fx + rateW + 6;
+          screensButton(SDL_Rect {dx, sy, rowH, rowH}, "-", kScrLfoDepthDec, lfoSlot);
+          drawUIValueControl(SDL_Rect {dx + rowH + 2, sy, depthW - 2 * rowH - 4, rowH}, depth);
+          screensButton(SDL_Rect {dx + depthW - rowH, sy, rowH, rowH}, "+", kScrLfoDepthInc, lfoSlot);
+          sy += rowH + 3;
+        }
       };
       auto toggleRow = [&](const std::string& label, const std::string& value, int action, bool on) {
         rowLabel(label);
@@ -397,13 +442,13 @@
       stepper("crop y", kFCropY, pct(sel->srcY));
       stepper("crop w", kFCropW, pct(sel->srcW));
       stepper("crop h", kFCropH, pct(sel->srcH));
-      stepper("place x", kFPlaceX, pct(sel->dstX));
-      stepper("place y", kFPlaceY, pct(sel->dstY));
+      stepper("place x", kFPlaceX, pct(sel->dstX), deckboy::slices::kSliceLfoX);
+      stepper("place y", kFPlaceY, pct(sel->dstY), deckboy::slices::kSliceLfoY);
       stepper("place w", kFPlaceW, pct(sel->dstW));
       stepper("place h", kFPlaceH, pct(sel->dstH));
       stepper("turn in", kFRotIn, deg(sel->inRotation));
-      stepper("turn out", kFRotOut, deg(sel->outRotation));
-      stepper("opacity", kFOpacity, pct(sel->opacity));
+      stepper("turn out", kFRotOut, deg(sel->outRotation), deckboy::slices::kSliceLfoRotation);
+      stepper("opacity", kFOpacity, pct(sel->opacity), deckboy::slices::kSliceLfoOpacity);
       stepper("edge L", kFEdgeL, pct(sel->edgeL));
       stepper("edge R", kFEdgeR, pct(sel->edgeR));
       stepper("edge T", kFEdgeT, pct(sel->edgeT));
@@ -518,6 +563,28 @@
     switch (b.action) {
       case kScrDec: screensStep(*sel, b.param, -1); break;
       case kScrInc: screensStep(*sel, b.param, 1); break;
+      case kScrLfoToggle:
+      case kScrLfoShape:
+      case kScrLfoRateDec:
+      case kScrLfoRateInc:
+      case kScrLfoDepthDec:
+      case kScrLfoDepthInc: {
+        if (b.param < 0 || b.param >= static_cast<int>(sel->lfo.size())) break;
+        auto& lfo = sel->lfo[static_cast<std::size_t>(b.param)];
+        if (b.action == kScrLfoToggle) {
+          lfo.on = !lfo.on;
+          triggerToast(lfo.on ? "lfo on" : "lfo off");
+        } else if (b.action == kScrLfoShape) {
+          const int count = static_cast<int>(deckboy::effects::LfoShape::Count);
+          lfo.shape = static_cast<deckboy::effects::LfoShape>((static_cast<int>(lfo.shape) + 1) % count);
+          triggerToast(deckboy::effects::lfoShapeToken(lfo.shape));
+        } else if (b.action == kScrLfoRateDec || b.action == kScrLfoRateInc) {
+          nudgeParamLfoRate(lfo, b.action == kScrLfoRateInc ? 1 : -1);
+        } else {
+          lfo.depth = std::clamp(lfo.depth + (b.action == kScrLfoDepthInc ? 0.05f : -0.05f), 0.0f, 1.0f);
+        }
+        break;
+      }
       case kScrSource: {
         // Programme, then each playlist, round again.
         const int decks = static_cast<int>(project_.decks.size());

@@ -1084,10 +1084,14 @@ void effectLfoCycleShape(int packed) {
 }
 
 void effectLfoNudgeRate(int packed, int direction) {
-  auto* lfo = effectLfoAt(packed);
-  if (!lfo) {
-    return;
-  }
+  if (auto* lfo = effectLfoAt(packed)) nudgeParamLfoRate(*lfo, direction);
+}
+
+// What the rate cell steps, for any oscillator: the CC or channel a MIDI
+// shape listens to, the zone a Motion shape follows, beats when synced, or
+// hertz. Shared by the inspector's ~ rows and the Screens window's.
+void nudgeParamLfoRate(deckboy::effects::ParamLfo& lfoRef, int direction) {
+  deckboy::effects::ParamLfo* lfo = &lfoRef;
   if (lfo->shape == deckboy::effects::LfoShape::MidiCc) {
     lfo->midiNumber = ((lfo->midiNumber + direction) % 128 + 128) % 128;
     triggerToast("follows CC " + std::to_string(lfo->midiNumber));
