@@ -88,8 +88,9 @@ WHITE, BLACK, RED = (255, 255, 255), (0, 0, 0), (255, 0, 0)
 MIDDLE, CORNER = (0.5, 0.5), (0.04, 0.06)
 
 
-def run(exe, work, show):
-    with Runtime(exe, work / "run", show) as db:
+def run(exe, work, show, renderer=""):
+    env = {"DECKBOY_OUTPUT_RENDERER": renderer} if renderer else None
+    with Runtime(exe, work / "run", show, env=env) as db:
         time.sleep(1.0)
         db.send("DECK 1")
         db.send("PATTERN ADD full-white")
@@ -238,14 +239,16 @@ def run(exe, work, show):
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--exe", default=str(ROOT / "build/windows/Release/Deckboy.exe"))
+    ap.add_argument("--renderer", default="",
+                    help="pin the output renderer (software has no custom blends: the processor cuts)")
     args = ap.parse_args()
     exe = Path(args.exe).resolve()
-    print("check: masks\n")
+    print("check: masks%s\n" % (" on the " + args.renderer + " renderer" if args.renderer else ""))
     work = Path(tempfile.mkdtemp(prefix="deckboy-masks-"))
     shutil.copytree(ROOT / "data/demos/starter-pack", work / "show")
     show = work / "show" / "02-running-a-show.deckboy"
     try:
-        run(exe, work, show)
+        run(exe, work, show, args.renderer)
     finally:
         shutil.rmtree(work, ignore_errors=True)
     if fails:

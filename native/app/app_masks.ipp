@@ -337,17 +337,82 @@
     return SDL_BLENDMODE_BLEND_PREMULTIPLIED;
   }
 
-  // False, and said once, where the renderer cannot do the cut (SDL's
-  // software renderer has no custom blends). Passing through silently would
-  // be a control that does nothing.
-  bool maskBlendSupported(SDL_Texture* tex, SDL_BlendMode mode) {
-    if (SDL_SetTextureBlendMode(tex, mode)) return true;
+  // True where the renderer can do the cut as a blend. SDL's software
+  // renderer (a PC with no graphics card, a virtual machine, some remote
+  // desktops) has no custom blends; there the cut is done on the processor
+  // instead (cpuMaskCut), and only if THAT fails is the operator told.
+  static bool maskBlendSupported(SDL_Texture* tex, SDL_BlendMode mode) {
+    return tex && SDL_SetTextureBlendMode(tex, mode);
+  }
+
+  void warnMaskCannotCut() {
     if (!maskRendererWarned_) {
       maskRendererWarned_ = true;
-      triggerToast("masks need a graphics-card renderer; this output's cannot cut", ToastKind::Warning,
-                   kToastReadableMs);
+      triggerToast("this output's renderer could not cut the mask", ToastKind::Warning, kToastReadableMs);
     }
-    return false;
+  }
+
+  // The cut on the processor: the render target's pixels under the mask are
+  // read back, multiplied by the mask (its alpha, sampled bilinearly, so a
+  // mask drawn small and scaled up is as smooth as on the graphics card), and
+  // written back. `where` is the mask's rectangle on the target; outside it
+  // the value is `outside` (1 keeps). `alphaToo` cuts alpha as well as colour
+  // (a layer, or a keyed output); otherwise only the colour darkens (the
+  // matte, an opaque output). Coordinates are the current target's.
+  bool cpuMaskCut(OutputRuntime& rt, const MaskModel& m, int rasterW, int rasterH, MaskUse use,
+                  double matteOpacity, const SDL_Rect& where, bool alphaToo, float outside, const SDL_Rect& frame) {
+    std::string key;
+    const MaskRaster* r = maskRasterFor(m, rasterW, rasterH, use, matteOpacity, key);
+    if (!r || r->w <= 0 || r->h <= 0 || !rt.outputRenderer || where.w <= 0 || where.h <= 0) return false;
+    SDL_Renderer* ren = rt.outputRenderer;
+    const SDL_Rect wanted = outside < 0.999f ? frame : where;
+    SDL_Rect region {};
+    if (!SDL_GetRectIntersection(&wanted, &frame, &region)) return true;
+    SDL_Surface* got = SDL_RenderReadPixels(ren, &region);
+    if (!got) return false;
+    SDL_Surface* px = SDL_ConvertSurface(got, SDL_PIXELFORMAT_RGBA32);
+    SDL_DestroySurface(got);
+    if (!px) return false;
+    const auto alphaAt = [r](int x, int y) {
+      x = std::clamp(x, 0, r->w - 1);
+      y = std::clamp(y, 0, r->h - 1);
+      return r->rgba[(static_cast<std::size_t>(y) * r->w + x) * 4 + 3] / 255.0f;
+    };
+    const float sx = static_cast<float>(r->w) / where.w, sy = static_cast<float>(r->h) / where.h;
+    for (int y = 0; y < region.h; ++y) {
+      Uint8* row = static_cast<Uint8*>(px->pixels) + static_cast<std::size_t>(y) * px->pitch;
+      const int gy = region.y + y;
+      const bool rowIn = gy >= where.y && gy < where.y + where.h;
+      const float v = (gy - where.y + 0.5f) * sy - 0.5f;
+      const int v0 = static_cast<int>(std::floor(v));
+      const float fv = v - v0;
+      for (int x = 0; x < region.w; ++x) {
+        const int gx = region.x + x;
+        float a = outside;
+        if (rowIn && gx >= where.x && gx < where.x + where.w) {
+          const float u = (gx - where.x + 0.5f) * sx - 0.5f;
+          const int u0 = static_cast<int>(std::floor(u));
+          const float fu = u - u0;
+          a = (alphaAt(u0, v0) * (1 - fu) + alphaAt(u0 + 1, v0) * fu) * (1 - fv) +
+              (alphaAt(u0, v0 + 1) * (1 - fu) + alphaAt(u0 + 1, v0 + 1) * fu) * fv;
+        }
+        if (a >= 0.999f) continue;
+        Uint8* p = row + x * 4;
+        p[0] = static_cast<Uint8>(std::lround(p[0] * a));
+        p[1] = static_cast<Uint8>(std::lround(p[1] * a));
+        p[2] = static_cast<Uint8>(std::lround(p[2] * a));
+        if (alphaToo) p[3] = static_cast<Uint8>(std::lround(p[3] * a));
+      }
+    }
+    SDL_Texture* back = deckboyCreateTextureFromSurface(ren, px);
+    SDL_DestroySurface(px);
+    if (!back) return false;
+    SDL_SetTextureBlendMode(back, SDL_BLENDMODE_NONE);
+    const SDL_FRect dst {static_cast<float>(region.x), static_cast<float>(region.y), static_cast<float>(region.w),
+                         static_cast<float>(region.h)};
+    SDL_RenderTexture(ren, back, nullptr, &dst);
+    SDL_DestroyTexture(back);
+    return true;
   }
 
   SDL_Texture* ensureMaskScratch(OutputRuntime& rt) {
@@ -431,16 +496,20 @@
     maskBlendCapture_ = false;
     const SDL_FRect whole {0.0f, 0.0f, static_cast<float>(rt->compositorWidth),
                            static_cast<float>(rt->compositorHeight)};
-    bool drew = true;
+    const SDL_Rect frame {0, 0, rt->compositorWidth, rt->compositorHeight};
     if (layerMask) {
       SDL_Texture* tex = maskTextureFor(*rt, *layerMask, rt->compositorWidth, rt->compositorHeight, MaskUse::Cut);
-      if (tex && maskBlendSupported(tex, maskCutBlend())) SDL_RenderTexture(ren, tex, nullptr, &whole);
-      else drew = false;
+      if (maskBlendSupported(tex, maskCutBlend())) {
+        SDL_RenderTexture(ren, tex, nullptr, &whole);
+      } else if (!cpuMaskCut(*rt, *layerMask, rt->compositorWidth, rt->compositorHeight, MaskUse::Cut, 1.0,
+                             frame, /*alphaToo=*/true, 1.0f, frame)) {
+        warnMaskCannotCut();
+      }
     }
     if (cueMask && cue) {
       const SDL_Rect r = cueMaskRect(deckIndex, *cue, bounds);
       SDL_Texture* tex = r.w > 0 && r.h > 0 ? maskTextureFor(*rt, *cueMask, r.w, r.h, MaskUse::Cut) : nullptr;
-      if (tex && maskBlendSupported(tex, maskCutBlend())) {
+      if (maskBlendSupported(tex, maskCutBlend())) {
         const SDL_FRect where {static_cast<float>(r.x), static_cast<float>(r.y), static_cast<float>(r.w),
                                static_cast<float>(r.h)};
         SDL_RenderTexture(ren, tex, nullptr, &where);
@@ -462,8 +531,10 @@
           }
           SDL_SetRenderDrawBlendMode(ren, SDL_BLENDMODE_NONE);
         }
-      } else {
-        drew = false;
+      } else if (r.w <= 0 || r.h <= 0 ||
+                 !cpuMaskCut(*rt, *cueMask, r.w, r.h, MaskUse::Cut, 1.0, r, /*alphaToo=*/true,
+                             deckboy::masks::maskValueOutside(*cueMask), frame)) {
+        warnMaskCannotCut();
       }
     }
     SDL_SetRenderTarget(ren, previous);
@@ -474,7 +545,6 @@
     }
     SDL_SetTextureAlphaMod(scratch, 255);
     SDL_RenderTexture(ren, scratch, nullptr, &whole);
-    (void)drew;
     return true;
   }
 
@@ -490,9 +560,13 @@
     const MaskModel* mask = findMask(project_.outputs[static_cast<std::size_t>(source)].maskId);
     if (!mask || !rt.compositorTexture) return;
     SDL_Texture* tex = maskTextureFor(rt, *mask, renderW, renderH, MaskUse::Cut);
-    if (!tex || !maskBlendSupported(tex, keyed ? maskCutBlend() : maskMatteBlend())) return;
-    const SDL_FRect whole {0.0f, 0.0f, static_cast<float>(renderW), static_cast<float>(renderH)};
-    SDL_RenderTexture(rt.outputRenderer, tex, nullptr, &whole);
+    if (maskBlendSupported(tex, keyed ? maskCutBlend() : maskMatteBlend())) {
+      const SDL_FRect whole {0.0f, 0.0f, static_cast<float>(renderW), static_cast<float>(renderH)};
+      SDL_RenderTexture(rt.outputRenderer, tex, nullptr, &whole);
+      return;
+    }
+    const SDL_Rect frame {0, 0, renderW, renderH};
+    if (!cpuMaskCut(rt, *mask, renderW, renderH, MaskUse::Cut, 1.0, frame, keyed, 1.0f, frame)) warnMaskCannotCut();
   }
 
   // The matte slot holding a mask. True when it does, whether or not it drew.
@@ -502,9 +576,15 @@
     const MaskModel* mask = findMask(out.matteAspect.substr(5));
     if (!mask || out.matteOpacity <= 0.001) return true;
     SDL_Texture* tex = maskTextureFor(rt, *mask, renderW, renderH, MaskUse::Matte, out.matteOpacity);
-    if (!tex || !maskBlendSupported(tex, maskMatteBlend())) return true;
-    const SDL_FRect whole {0.0f, 0.0f, static_cast<float>(renderW), static_cast<float>(renderH)};
-    SDL_RenderTexture(rt.outputRenderer, tex, nullptr, &whole);
+    if (maskBlendSupported(tex, maskMatteBlend())) {
+      const SDL_FRect whole {0.0f, 0.0f, static_cast<float>(renderW), static_cast<float>(renderH)};
+      SDL_RenderTexture(rt.outputRenderer, tex, nullptr, &whole);
+      return true;
+    }
+    const SDL_Rect frame {0, 0, renderW, renderH};
+    if (!cpuMaskCut(rt, *mask, renderW, renderH, MaskUse::Matte, out.matteOpacity, frame, false, 1.0f, frame)) {
+      warnMaskCannotCut();
+    }
     return true;
   }
 

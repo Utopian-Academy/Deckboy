@@ -593,7 +593,10 @@ jobs:
       # Masks on the output, the matte, a layer, a cue and the base, read off the frame.
       - name: Masks
         if: matrix.features == 'all'
-        run: xvfb-run -a python3 tools/check_masks.py --exe ./build/Deckboy
+        run: |
+          xvfb-run -a python3 tools/check_masks.py --exe ./build/Deckboy
+          # SDL's software renderer has no custom blends: the processor cuts there.
+          xvfb-run -a python3 tools/check_masks.py --exe ./build/Deckboy --renderer software
 
       # The mask editor through the desk's own input: button, rows, drags, pen.
       - name: Mask editor
@@ -1781,6 +1784,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw "the panel map's tile size failed" }
           python tools/check_masks.py --exe build\Release\Deckboy.exe
           if ($LASTEXITCODE -ne 0) { throw "masks failed" }
+          python tools/check_masks.py --exe build\Release\Deckboy.exe --renderer software
+          if ($LASTEXITCODE -ne 0) { throw "masks on the software renderer failed" }
           python tools/check_mask_editor.py --exe build\Release\Deckboy.exe
           if ($LASTEXITCODE -ne 0) { throw "the mask editor failed" }
           python tools/check_multiview_feeds.py --exe build\Release\Deckboy.exe
