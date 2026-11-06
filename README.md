@@ -34,9 +34,9 @@ Free and open source, for Windows, macOS and Linux.
 **If Deckboy is useful to you, ⭐ star this repository** (top right): it is how the next
 operator finds it, and how you find it again.
 
-### New in 0.99.426
+### New in 0.99.425
 
-[Release notes and downloads](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.426)
+[Release notes and downloads](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.425)
 
 - **A MIDI map for any controller.** Any key, pad, knob, fader, pitch wheel or aftertouch, and
   any OSC address, runs any command: at the desk, the selected cue, what is on air in a playlist,

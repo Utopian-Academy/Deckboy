@@ -1,6 +1,6 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
-## 2026-11-06 - v0.99.426 (a MIDI map for any controller; masks; slices and the Screens window; Draw; Motion; seventeen lessons; Vietnamese, Lao and Papiamento)
+## 2026-11-06 - v0.99.425 (a MIDI map for any controller; masks; slices and the Screens window; Draw; Motion; seventeen lessons; Vietnamese, Lao and Papiamento)
 
 ### Outputs
 
