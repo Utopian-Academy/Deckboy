@@ -38,6 +38,10 @@ operator finds it, and how you find it again.
 
 [Release notes and downloads](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.425)
 
+<img src="docs/images/readme/release-425/feathered-mask.gif" width="49%" alt="A feathered heart mask on a playing clip"> <img src="docs/images/readme/release-425/draw-replay.gif" width="49%" alt="A drawing that replays on a layer above a playing clip">
+
+<sub>Masks and Draw in 0.99.425. Footage: [Tears of Steel](https://mango.blender.org/), Blender Foundation, [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).</sub>
+
 - **A MIDI map for any controller.** Any key, pad, knob, fader, pitch wheel or aftertouch, and
   any OSC address, runs any command: at the desk, the selected cue, what is on air in a playlist,
   or one named cue. Learn, hold-to-fire and pickup; the controller's lights follow the show.

@@ -1,0 +1,9 @@
+Footage: Tears of Steel, copyright Blender Foundation. Creative Commons Attribution 3.0.
+Film: https://mango.blender.org/
+Film credits: https://mango.blender.org/production/credits/
+Licence: https://creativecommons.org/licenses/by/3.0/
+Original source: https://download.blender.org/demo/movies/ToS/tears_of_steel_720p.mov
+
+The source and its existing credit text were read from the release-419 working copy named in BRIEF.md. A local copy was made in this workspace. Bridge uses source seconds 25–37; Launch uses seconds 8–18. Excerpts were trimmed, shown through Deckboy, resized and palette-reduced for GIF delivery. Masks, drawing, Chladni and motion trails were produced by Deckboy itself. Each deliverable has a credit footer, and a short closing dissolve was added. Original audio removed; no music added. MIDI map crop contains no visible film pixels, but retains the same footer for consistency.
+
+Application capture: Deckboy / Utopian Academy, 6 November 2026. Supplied app/bin/Deckboy.exe, displaying v0.99.424 in Settings. Local previews only; awaiting James's choice and approval.
