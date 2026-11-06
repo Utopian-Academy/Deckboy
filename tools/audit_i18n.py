@@ -61,6 +61,10 @@ DRAW_HELPERS = [
     "drawCard", "drawSettingsCard", "settingsRow", "drawActionBtn",
     "drawUIDropdown", "drawUIValueControl", "drawPill", "drawPillToggle",
     "drawSettingsToggle", "drawSettingsStepper", "drawSectionFrame",
+    # The cue inspector draws almost every label through these. Not counting
+    # them reported 55% coverage while most inspector rows were English.
+    "drawQuickRow", "inspDrawQuickRow", "inspDrawValueRow", "drawChoiceRow", "inspDrawChoiceRow",
+    "drawInspectorMessageRow", "inspDrawMessageRow", "drawInspectorEditableRow", "drawTCtrl",
 ]
 
 SOURCE_DIRS = [os.path.join(ROOT, "native")]
