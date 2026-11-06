@@ -1179,6 +1179,52 @@
     }
   }
 
+  // A cue's still from the thumbnail cache, letterboxed into `picture` on an
+  // output. False when there is no still yet, and then one is asked for --
+  // through the queue the playlist rows use, one request a frame, so a
+  // presenter screen or a multiview NEXT window is never left waiting for the
+  // playlist to happen to draw that row.
+  bool drawCueStillOnOutput(OutputRuntime& runtime, const Cue& cue, int deckIndex, int cueIndex,
+                            const SDL_Rect& picture, const char* bridgeName) {
+    SDL_Renderer* ren = runtime.outputRenderer;
+    // THE SAME CACHE THE PLAYLIST ROWS USE, and under the same lock -- it is
+    // filled by a decode running on another thread.
+    const std::string key = cueVisualCacheKey(cue);
+    {
+      std::lock_guard<std::mutex> lk(thumbnailMutex_);
+      const auto found = selectedThumbnailCache_.find(key);
+      if (found != selectedThumbnailCache_.end() && !found->second.pixels.empty()) {
+        const DecodedFrame& thumb = found->second;
+        SDL_Texture* tex = ensureOverlayBridgeTexture(runtime, bridgeName,
+                                                      thumb.width, thumb.height,
+                                                      sdlPixelFormat(thumb.format));
+        if (tex) {
+          SDL_UpdateTexture(tex, nullptr, thumb.pixels.data(), thumb.width * 4);
+          const double k = std::min(static_cast<double>(picture.w) / thumb.width,
+                                    static_cast<double>(picture.h) / thumb.height);
+          const SDL_Rect dst {
+            picture.x + static_cast<int>((picture.w - thumb.width * k) / 2),
+            picture.y + static_cast<int>((picture.h - thumb.height * k) / 2),
+            std::max(1, static_cast<int>(thumb.width * k)),
+            std::max(1, static_cast<int>(thumb.height * k))};
+          SDL_RenderTexture(ren, tex, nullptr, &dst);
+          return true;
+        }
+      }
+    }
+    wantCueStill(key, deckIndex, cueIndex);
+    return false;
+  }
+
+  // Ask for a still of one cue, unless another request is already waiting.
+  void wantCueStill(const std::string& key, int deckIndex, int cueIndex) {
+    if (rowThumbWantedKey_.empty() && deckIndex >= 0 && cueIndex >= 0) {
+      rowThumbWantedKey_ = key;
+      rowThumbWantedDeck_ = deckIndex;
+      rowThumbWantedCue_ = cueIndex;
+    }
+  }
+
   // One still on the presenter screen: a caption, the picture letterboxed so
   // the slide keeps its own shape, and the cue's number and name under it.
   void presenterSlot(OutputRuntime& runtime, const SDL_Rect& box,
@@ -1206,46 +1252,10 @@
       drawCenteredTextSafe(ren, font, picture, emptyText, screen.soft);
       return;
     }
-    // THE SAME CACHE THE PLAYLIST ROWS USE, and under the same lock -- it is
-    // filled by a decode running on another thread. Reading it unlocked was a
-    // race that happened to be quiet because the map is usually warm.
-    const std::string key = cueVisualCacheKey(*cue);
-    bool drawn = false;
-    {
-      std::lock_guard<std::mutex> lk(thumbnailMutex_);
-      const auto found = selectedThumbnailCache_.find(key);
-      if (found != selectedThumbnailCache_.end() && !found->second.pixels.empty()) {
-        const DecodedFrame& thumb = found->second;
-        SDL_Texture* tex = ensureOverlayBridgeTexture(runtime, bridgeName,
-                                                      thumb.width, thumb.height,
-                                                      sdlPixelFormat(thumb.format));
-        if (tex) {
-          SDL_UpdateTexture(tex, nullptr, thumb.pixels.data(), thumb.width * 4);
-          const double k = std::min(static_cast<double>(picture.w) / thumb.width,
-                                    static_cast<double>(picture.h) / thumb.height);
-          const SDL_Rect dst {
-            picture.x + static_cast<int>((picture.w - thumb.width * k) / 2),
-            picture.y + static_cast<int>((picture.h - thumb.height * k) / 2),
-            std::max(1, static_cast<int>(thumb.width * k)),
-            std::max(1, static_cast<int>(thumb.height * k))};
-          SDL_RenderTexture(ren, tex, nullptr, &dst);
-          drawn = true;
-        }
-      }
-    }
-    if (!drawn) {
-      // ASK FOR IT, rather than waiting for the playlist to happen to draw
-      // that row. A presenter screen is very often the only thing anybody is
-      // looking at, and the cue it wants a picture of may be nowhere near the
-      // visible part of a hundred-slide list. One request per frame, through
-      // the queue the rows already use, so this cannot start a stampede.
-      if (rowThumbWantedKey_.empty()) {
-        rowThumbWantedKey_ = key;
-        rowThumbWantedDeck_ = deckIndex;
-        rowThumbWantedCue_ = cueIndex;
-      }
-      // Said out loud, because "no preview yet" and "no such slide" are
-      // different facts and an empty black box reports them identically.
+    // Said out loud while it is on its way, because "no preview yet" and "no
+    // such slide" are different facts and an empty black box reports them
+    // identically.
+    if (!drawCueStillOnOutput(runtime, *cue, deckIndex, cueIndex, picture, bridgeName)) {
       drawCenteredTextSafe(ren, font, picture, "preview pending", screen.soft);
     }
     // The cue's name is the show's, not the desk's: never through the cypher.
@@ -3848,7 +3858,10 @@
       }
     };
     // The programme tile is the programme output's own stack, base first.
-    const int programmeOutput = primaryProgrammeOutputIndex(outputIndex);
+    // When this output is the only one, that is its OWN stack: the playlists
+    // it would carry, not this wall, so it cannot draw itself.
+    const int otherProgramme = primaryProgrammeOutputIndex(outputIndex);
+    const int programmeOutput = otherProgramme >= 0 ? otherProgramme : outputIndex;
     for (int i = 0; i < tileCount; ++i) {
       const MultiviewTile& spec = plan[static_cast<std::size_t>(i)];
       const auto& at = placedTiles[static_cast<std::size_t>(i)];
@@ -3875,10 +3888,14 @@
         const int source = multiviewTileOutput(spec);
         if (source != outputIndex) drawStack(source, tile);
       } else if (feed == MultiviewFeed::Clock || feed == MultiviewFeed::Next) {
+        int nextDeck = -1, nextCue = -1;
+        const Cue* next = feed == MultiviewFeed::Next ? multiviewNextCue(&nextDeck, &nextCue) : nullptr;
+        // NEXT shows the cue's still when it has one (a clip or a picture);
+        // its number and name are on the window's label either way.
+        const bool still = next && (next->kind == CueKind::Video || next->kind == CueKind::Image) &&
+                           drawCueStillOnOutput(*runtime, *next, nextDeck, nextCue, tile, "multiview-next");
         TTF_Font* big = fontLarge_ ? fontLarge_ : fontBase_;
-        if (big) {
-          int nextCue = -1;
-          const Cue* next = feed == MultiviewFeed::Next ? multiviewNextCue(nullptr, &nextCue) : nullptr;
+        if (big && !still) {
           const std::string text = feed == MultiviewFeed::Clock ? multiviewClockText()
                                    : next ? std::to_string(nextCue + 1) + "  " + next->name
                                           : std::string("nothing follows");

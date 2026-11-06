@@ -527,10 +527,13 @@
       }
       if (feed == MultiviewFeed::Next && pic.w > 0 && pic.h > 0) {
         // The still from the playlist row when there is one, then what it is.
-        int nextDeck = -1;
-        const Cue* next = multiviewNextCue(&nextDeck);
+        int nextDeck = -1, nextCueIndex = -1;
+        const Cue* next = multiviewNextCue(&nextDeck, &nextCueIndex);
         if (next) {
           tex = cueRowStillTexture(*next);
+          if (!tex && (next->kind == CueKind::Video || next->kind == CueKind::Image)) {
+            wantCueStill(cueVisualCacheKey(*next), nextDeck, nextCueIndex);
+          }
           if (tex) {
             float tw = 0.0f, th = 0.0f;
             SDL_GetTextureSize(tex, &tw, &th);
