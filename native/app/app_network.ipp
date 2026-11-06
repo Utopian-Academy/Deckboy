@@ -1531,6 +1531,8 @@
     if (verb == "SUBTITLE" && parts.size() > 1 && toUpper(parts[1]) == "CONVERT") return true;
     // Writes a file at a path the caller names.
     if (verb == "MASK" && parts.size() > 1 && toUpper(parts[1]) == "EXPORT") return true;
+    // Reads a file at a path the caller names.
+    if (verb == "MASK" && parts.size() > 1 && toUpper(parts[1]) == "IMPORT") return true;
     if (verb == "DRAW" && parts.size() > 1 && toUpper(parts[1]) == "SAVE") return true;
     // Test input into the Screens window, like CLICK into the desk.
     if (verb == "SCREENS" && parts.size() > 1 &&

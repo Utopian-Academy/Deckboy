@@ -2112,6 +2112,16 @@ library shape into the mask; **new paths** says whether the next shape or pen
 path adds or subtracts. **export** saves a greyscale PNG matte (white keeps) at
 the output's size, or the paths as SVG for Illustrator.
 
+**import an SVG...**, at the foot of the mask list, makes a mask from a drawing:
+its paths, rectangles, circles, ellipses and polygons, curves and arcs kept as
+curves, under any transform. The drawing's frame (its viewBox) becomes the
+picture's, so a shape drawn on a 1920x1080 artboard covers the same part of any
+output. On a full-frame background rectangle, shapes in the background's colour
+cut and the rest add, and a white background inverts the mask, which is how
+**export** writes one, so an export comes back as it went. With no background,
+every filled shape adds. Outlines with no fill, and anything inside
+`<defs>`, are left out.
+
 **On the monitor**, the **MASK** button beside WARP shows the mask's points over
 the programme. With **move points**, drag a point or its handles (hold Alt to
 move one handle alone), click the outline to add a point, and Alt- or
@@ -2125,9 +2135,10 @@ SHAPE <id> <shape> [SUB] | PATH <id> [SUB] x,y ... |
 SET <id> INVERT|FEATHER|GROW|OPACITY|X|Y|SCALE|ROTATION <value> |
 LFO <id> <param> ON|OFF [Hz] [depth %] |
 ASSIGN <id|NONE> CUE|LAYER <output> <playlist>|OUTPUT <n>|MATTE <n> |
-EXPORT <id> <file.png|.svg> [WxH] | CLEAR | DELETE | RENAME`. Positions and
-sizes are percentages, and rotation is in degrees. A value outside the range is
-refused, not clamped. `EXPORT` is accepted only from this computer.
+EXPORT <id> <file.png|.svg> [WxH] | IMPORT <file.svg> [name] | CLEAR | DELETE | RENAME`.
+Positions and sizes are percentages, and rotation is in degrees. A value outside
+the range is refused, not clamped. `EXPORT` and `IMPORT` are accepted only from
+this computer.
 
 ### Draw
 

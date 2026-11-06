@@ -338,6 +338,68 @@ int main(int argc, char** argv) {
     check("...and the turn in the transform", svg.find("rotate(15)") != std::string::npos);
   }
 
+  std::printf("\nSVG in\n");
+  {
+    // Out and back: a circle with a subtracted square comes home as it went.
+    const int SW = 640, SH = 360;
+    Mask m = single(MaskShape::Circle, SW, SH);
+    MaskPath cut = makeMaskShape(MaskShape::Rectangle, static_cast<double>(SW) / SH);
+    cut.subtract = true;
+    for (auto& p : cut.points) {
+      p.x = 0.5f + (p.x - 0.5f) * 0.3f;
+      p.y = 0.5f + (p.y - 0.5f) * 0.3f;
+    }
+    m.paths.push_back(cut);
+    const SvgImport back = maskPathsFromSvg(maskToSvg(m, SW, SH));
+    check("an exported mask reads back without an error", back.error.empty());
+    check("...with both its paths", back.paths.size() == 2, static_cast<double>(back.paths.size()));
+    check("...the second still subtracting", back.paths.size() == 2 && back.paths[1].subtract && !back.paths[0].subtract);
+    Mask again = m;
+    again.paths = back.paths;
+    const auto a1 = rasterizeMask(m, SW, SH), a2 = rasterizeMask(again, SW, SH);
+    double diff = 0.0;
+    for (std::size_t i = 0; i < a1.size(); ++i) diff += std::abs(a1[i] - a2[i]) / 255.0;
+    check("...and cutting the same pixels (under 0.5% differ)", diff / a1.size() < 0.005, diff / a1.size());
+    Mask inv = m;
+    inv.invert = true;
+    check("an inverted mask's white background reads back as invert",
+          maskPathsFromSvg(maskToSvg(inv, SW, SH)).invert);
+
+    // A hand-written file: every shape, a group transform, an arc, a style fill.
+    const std::string svg =
+      "<?xml version=\"1.0\"?>\n<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 200 100\">"
+      "<defs><rect width=\"200\" height=\"100\"/></defs>"
+      "<rect x=\"10\" y=\"10\" width=\"20\" height=\"20\" rx=\"4\"/>"
+      "<circle cx=\"50\" cy=\"50\" r=\"10\"/>"
+      "<ellipse cx=\"80\" cy=\"50\" rx=\"10\" ry=\"5\" style=\"fill: #222\"/>"
+      "<polygon points=\"100,10 120,10 110,30\"/>"
+      "<g transform=\"translate(100 0) scale(0.5)\"><path d=\"M20 20h40v40h-40z\"/></g>"
+      "<path d=\"M150 50 a20 20 0 1 0 40 0 a20 20 0 1 0 -40 0z\"/>"
+      "<path d=\"M0 0 L10 10\" fill=\"none\" stroke=\"red\"/>"
+      "</svg>";
+    const SvgImport hand = maskPathsFromSvg(svg);
+    check("a hand-written SVG: six filled shapes, defs and fill=none left out", hand.paths.size() == 6,
+          static_cast<double>(hand.paths.size()));
+    check("...none of them subtracting with no background", hand.paths.size() == 6 &&
+          std::none_of(hand.paths.begin(), hand.paths.end(), [](const MaskPath& p) { return p.subtract; }));
+    if (hand.paths.size() == 6) {
+      // The grouped square: (20..60)*0.5 + 100 = 110..130 of 200 across.
+      const auto& sq = hand.paths[4].points;
+      check("...the group's transform moves the square", sq.size() == 4 &&
+            std::fabs(sq[0].x - 110.0f / 200.0f) < 1e-4 && std::fabs(sq[2].x - 130.0f / 200.0f) < 1e-4,
+            sq.empty() ? 0.0 : sq[0].x);
+      // The arc circle: centre 170,50 r 20 -> spans 150..190 across.
+      Mask arc;
+      arc.paths.push_back(hand.paths[5]);
+      const auto px = rasterizeMask(arc, 200, 100);
+      check("...the arc draws a round dot where it should",
+            px[50 * 200 + 170] > 200 && px[50 * 200 + 140] < 50 && px[50 * 200 + 186] > 200);
+      check("...and a rounded rectangle has eight points", hand.paths[0].points.size() == 8,
+            static_cast<double>(hand.paths[0].points.size()));
+    }
+    check("an SVG with nothing filled says so", !maskPathsFromSvg("<svg viewBox=\"0 0 10 10\"></svg>").error.empty());
+  }
+
   if (failures) {
     std::printf("\nmasks: %d FAILED\n", failures);
     return 1;

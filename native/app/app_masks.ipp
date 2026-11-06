@@ -819,6 +819,23 @@
       markProjectDirty();
       return;
     }
+    // IMPORT <file.svg> [name]: a new mask from an SVG's filled shapes, on the
+    // target MASK ON names (this computer only: it reads a file).
+    if (sub == "IMPORT") {
+      if (parts.size() < 3) {
+        failRemoteCommand("MASK IMPORT: expected <file.svg> [name]");
+        return;
+      }
+      std::string error;
+      const MaskModel* m = importMaskSvg(parts[2], parts.size() > 3 ? joinParts(parts, 3) : std::string(), error);
+      if (!m) {
+        failRemoteCommand("MASK IMPORT: " + error);
+        return;
+      }
+      remoteCommandDetail_ = m->id + " " + m->name + " paths=" + std::to_string(m->paths.size()) +
+                             (m->invert ? " invert" : "");
+      return;
+    }
     if (sub == "EXPORT") {
       const MaskModel* m = maskArg(2);
       if (!m) return;

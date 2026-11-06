@@ -938,4 +938,636 @@ inline std::string maskToSvg(const Mask& m, int W, int H) {
   return out.str();
 }
 
+// ── SVG IN ──────────────────────────────────────────────────────────────────
+//
+// The other half of maskToSvg (James, Masks board X2N9qJe1: import SVG). Any
+// SVG's filled shapes become a mask's paths: <path> (every command, arcs
+// turned into curves), <rect> (rounded too), <circle>, <ellipse>, <polygon>
+// and <polyline>, under any transform on them or their groups. Coordinates
+// become fractions of the viewBox (or width/height), so a mask drawn on a
+// 1920x1080 artboard covers the same part of any picture.
+//
+// White and black: a shape on top of a full-frame background rectangle
+// ADDS when its colour differs from the background and SUBTRACTS when it is
+// the background's colour, and a white background inverts the mask -- which
+// is exactly how maskToSvg writes one, so an export comes back as it went
+// out. With no background (a black logo on transparency), every filled shape
+// adds. Shapes inside <defs>, <clipPath>, <mask> or <symbol>, and fill="none",
+// are not drawn and not taken.
+
+struct SvgImport {
+  std::vector<MaskPath> paths;
+  bool invert = false;
+  std::string error;   // empty when it worked
+};
+
+namespace svgin {
+
+struct M2 {   // a b c d e f, as SVG's matrix()
+  double a = 1, b = 0, c = 0, d = 1, e = 0, f = 0;
+  M2 operator*(const M2& o) const {
+    return {a * o.a + c * o.b, b * o.a + d * o.b, a * o.c + c * o.d, b * o.c + d * o.d, a * o.e + c * o.f + e,
+            b * o.e + d * o.f + f};
+  }
+  void apply(double& x, double& y) const {
+    const double nx = a * x + c * y + e, ny = b * x + d * y + f;
+    x = nx;
+    y = ny;
+  }
+};
+
+// Numbers as SVG writes them: "1.5.5" is 1.5 and .5, "3-2" is 3 and -2.
+struct NumReader {
+  const std::string& s;
+  std::size_t i = 0;
+  explicit NumReader(const std::string& str, std::size_t at = 0) : s(str), i(at) {}
+  void skip() {
+    while (i < s.size() && (std::isspace(static_cast<unsigned char>(s[i])) || s[i] == ',')) ++i;
+  }
+  bool next(double& v) {
+    skip();
+    if (i >= s.size()) return false;
+    const std::size_t start = i;
+    if (s[i] == '+' || s[i] == '-') ++i;
+    bool dot = false, digits = false;
+    while (i < s.size()) {
+      const char ch = s[i];
+      if (std::isdigit(static_cast<unsigned char>(ch))) {
+        digits = true;
+        ++i;
+      } else if (ch == '.' && !dot) {
+        dot = true;
+        ++i;
+      } else {
+        break;
+      }
+    }
+    if (digits && i < s.size() && (s[i] == 'e' || s[i] == 'E')) {
+      std::size_t j = i + 1;
+      if (j < s.size() && (s[j] == '+' || s[j] == '-')) ++j;
+      if (j < s.size() && std::isdigit(static_cast<unsigned char>(s[j]))) {
+        i = j;
+        while (i < s.size() && std::isdigit(static_cast<unsigned char>(s[i]))) ++i;
+      }
+    }
+    if (!digits) {
+      i = start;
+      return false;
+    }
+    v = std::atof(s.substr(start, i - start).c_str());
+    return true;
+  }
+  bool flag(double& v) {   // arc flags may be written with no separator: "a1 1 0 01 2 3"
+    skip();
+    if (i < s.size() && (s[i] == '0' || s[i] == '1')) {
+      v = s[i] == '1' ? 1.0 : 0.0;
+      ++i;
+      return true;
+    }
+    return false;
+  }
+};
+
+inline M2 parseTransform(const std::string& t) {
+  M2 m;
+  std::size_t i = 0;
+  while (i < t.size()) {
+    while (i < t.size() && !std::isalpha(static_cast<unsigned char>(t[i]))) ++i;
+    const std::size_t nameAt = i;
+    while (i < t.size() && std::isalpha(static_cast<unsigned char>(t[i]))) ++i;
+    const std::string name = t.substr(nameAt, i - nameAt);
+    const std::size_t open = t.find('(', i), close = t.find(')', i);
+    if (name.empty() || open == std::string::npos || close == std::string::npos) break;
+    const std::string args = t.substr(open + 1, close - open - 1);
+    NumReader r(args);
+    std::vector<double> v;
+    double x;
+    while (r.next(x)) v.push_back(x);
+    M2 step;
+    const double kRad = 3.14159265358979323846 / 180.0;
+    if (name == "matrix" && v.size() >= 6) {
+      step = {v[0], v[1], v[2], v[3], v[4], v[5]};
+    } else if (name == "translate" && !v.empty()) {
+      step.e = v[0];
+      step.f = v.size() > 1 ? v[1] : 0.0;
+    } else if (name == "scale" && !v.empty()) {
+      step.a = v[0];
+      step.d = v.size() > 1 ? v[1] : v[0];
+    } else if (name == "rotate" && !v.empty()) {
+      const double a = v[0] * kRad;
+      M2 rot {std::cos(a), std::sin(a), -std::sin(a), std::cos(a), 0, 0};
+      if (v.size() >= 3) {
+        M2 to {1, 0, 0, 1, v[1], v[2]}, back {1, 0, 0, 1, -v[1], -v[2]};
+        step = to * rot * back;
+      } else {
+        step = rot;
+      }
+    } else if (name == "skewX" && !v.empty()) {
+      step.c = std::tan(v[0] * kRad);
+    } else if (name == "skewY" && !v.empty()) {
+      step.b = std::tan(v[0] * kRad);
+    }
+    m = m * step;
+    i = close + 1;
+  }
+  return m;
+}
+
+using Attrs = std::vector<std::pair<std::string, std::string>>;
+
+inline std::string attr(const Attrs& a, const char* name) {
+  for (const auto& kv : a) {
+    if (kv.first == name) return kv.second;
+  }
+  return {};
+}
+
+// fill from the attribute or the style; empty when the element does not say.
+inline std::string fillOf(const Attrs& a) {
+  const std::string style = attr(a, "style");
+  const std::size_t at = style.find("fill:");
+  if (at != std::string::npos) {
+    std::size_t end = style.find(';', at);
+    std::string v = style.substr(at + 5, end == std::string::npos ? std::string::npos : end - at - 5);
+    while (!v.empty() && std::isspace(static_cast<unsigned char>(v.front()))) v.erase(v.begin());
+    while (!v.empty() && std::isspace(static_cast<unsigned char>(v.back()))) v.pop_back();
+    return v;
+  }
+  return attr(a, "fill");
+}
+
+// How light a fill is, 0-1; -1 for "none".
+inline double lightness(std::string c) {
+  for (char& ch : c) ch = static_cast<char>(std::tolower(static_cast<unsigned char>(ch)));
+  if (c == "none" || c == "transparent") return -1.0;
+  if (c.empty() || c == "black") return 0.0;   // SVG's default fill is black
+  if (c == "white") return 1.0;
+  if (c[0] == '#') {
+    std::string h = c.substr(1);
+    if (h.size() == 3) h = {h[0], h[0], h[1], h[1], h[2], h[2]};
+    if (h.size() >= 6) {
+      const long v = std::strtol(h.substr(0, 6).c_str(), nullptr, 16);
+      return (0.2126 * ((v >> 16) & 255) + 0.7152 * ((v >> 8) & 255) + 0.0722 * (v & 255)) / 255.0;
+    }
+  }
+  if (c.rfind("rgb", 0) == 0) {
+    NumReader r(c, c.find('(') + 1);
+    double rr = 0, gg = 0, bb = 0;
+    r.next(rr);
+    r.next(gg);
+    r.next(bb);
+    return (0.2126 * rr + 0.7152 * gg + 0.0722 * bb) / 255.0;
+  }
+  return 0.5;   // a named colour: neither black nor white
+}
+
+// A point being built: the anchor and its two handles, all absolute, so a
+// transform moves all three before they become relative again.
+struct BuildPt {
+  double x, y, inX, inY, outX, outY;
+};
+struct BuildPath {
+  std::vector<BuildPt> pts;
+};
+
+// An elliptical arc as cubic curves (SVG implementation notes, F.6).
+inline void arcToCubics(BuildPath& path, double x1, double y1, double rx, double ry, double phiDeg, bool largeArc,
+                        bool sweep, double x2, double y2) {
+  if (rx == 0.0 || ry == 0.0 || (x1 == x2 && y1 == y2)) {
+    path.pts.push_back({x2, y2, x2, y2, x2, y2});
+    return;
+  }
+  const double kPi = 3.14159265358979323846;
+  rx = std::fabs(rx);
+  ry = std::fabs(ry);
+  const double phi = phiDeg * kPi / 180.0, cp = std::cos(phi), sp = std::sin(phi);
+  const double dx = (x1 - x2) / 2, dy = (y1 - y2) / 2;
+  const double x1p = cp * dx + sp * dy, y1p = -sp * dx + cp * dy;
+  const double lambda = (x1p * x1p) / (rx * rx) + (y1p * y1p) / (ry * ry);
+  if (lambda > 1.0) {
+    rx *= std::sqrt(lambda);
+    ry *= std::sqrt(lambda);
+  }
+  const double num = rx * rx * ry * ry - rx * rx * y1p * y1p - ry * ry * x1p * x1p;
+  const double den = rx * rx * y1p * y1p + ry * ry * x1p * x1p;
+  double coef = den > 0 ? std::sqrt(std::max(0.0, num / den)) : 0.0;
+  if (largeArc == sweep) coef = -coef;
+  const double cxp = coef * rx * y1p / ry, cyp = -coef * ry * x1p / rx;
+  const double cx = cp * cxp - sp * cyp + (x1 + x2) / 2, cy = sp * cxp + cp * cyp + (y1 + y2) / 2;
+  auto angle = [](double ux, double uy, double vx, double vy) {
+    const double a = std::atan2(ux * vy - uy * vx, ux * vx + uy * vy);
+    return a;
+  };
+  const double t1 = angle(1, 0, (x1p - cxp) / rx, (y1p - cyp) / ry);
+  double dt = angle((x1p - cxp) / rx, (y1p - cyp) / ry, (-x1p - cxp) / rx, (-y1p - cyp) / ry);
+  if (!sweep && dt > 0) dt -= 2 * kPi;
+  if (sweep && dt < 0) dt += 2 * kPi;
+  const int segs = std::max(1, static_cast<int>(std::ceil(std::fabs(dt) / (kPi / 2))));
+  const double step = dt / segs, k = 4.0 / 3.0 * std::tan(step / 4);
+  double t = t1;
+  for (int s = 0; s < segs; ++s) {
+    const double c1 = std::cos(t), s1 = std::sin(t), c2 = std::cos(t + step), s2 = std::sin(t + step);
+    auto toWorld = [&](double ex, double ey, double& ox, double& oy) {
+      ox = cp * rx * ex - sp * ry * ey + cx;
+      oy = sp * rx * ex + cp * ry * ey + cy;
+    };
+    double ax, ay, bx, by, px, py;
+    toWorld(c1 - k * s1, s1 + k * c1, ax, ay);
+    toWorld(c2 + k * s2, s2 - k * c2, bx, by);
+    toWorld(c2, s2, px, py);
+    path.pts.back().outX = ax;
+    path.pts.back().outY = ay;
+    path.pts.push_back({px, py, bx, by, px, py});
+    t += step;
+  }
+}
+
+inline std::vector<BuildPath> parsePathData(const std::string& d) {
+  std::vector<BuildPath> out;
+  BuildPath cur;
+  double cx = 0, cy = 0, sx = 0, sy = 0;     // current point, subpath start
+  double lcx = 0, lcy = 0;                   // the last control point, for S and T
+  char last = 0;
+  auto flush = [&]() {
+    if (cur.pts.size() >= 2) out.push_back(cur);
+    cur.pts.clear();
+  };
+  auto corner = [&](double x, double y) { cur.pts.push_back({x, y, x, y, x, y}); };
+  NumReader r(d);
+  char cmd = 0;
+  while (true) {
+    r.skip();
+    if (r.i >= d.size()) break;
+    const char ch = d[r.i];
+    if (std::isalpha(static_cast<unsigned char>(ch))) {
+      cmd = ch;
+      ++r.i;
+    } else if (cmd == 0) {
+      break;   // numbers before any command: not a path
+    }
+    const bool rel = std::islower(static_cast<unsigned char>(cmd));
+    const char C = static_cast<char>(std::toupper(static_cast<unsigned char>(cmd)));
+    if (C == 'Z') {
+      // Closed: a last point on the first merges into it.
+      if (cur.pts.size() >= 2) {
+        auto& f = cur.pts.front();
+        const auto& b = cur.pts.back();
+        if (std::fabs(b.x - f.x) < 1e-6 && std::fabs(b.y - f.y) < 1e-6) {
+          f.inX = b.inX;
+          f.inY = b.inY;
+          cur.pts.pop_back();
+        }
+      }
+      flush();
+      cx = sx;
+      cy = sy;
+      last = 'Z';
+      continue;
+    }
+    double v[7];
+    auto read = [&](int n) {
+      for (int k = 0; k < n; ++k) {
+        if (!r.next(v[k])) return false;
+      }
+      return true;
+    };
+    if (C == 'M') {
+      if (!read(2)) break;
+      flush();
+      cx = rel ? cx + v[0] : v[0];
+      cy = rel ? cy + v[1] : v[1];
+      sx = cx;
+      sy = cy;
+      corner(cx, cy);
+      cmd = rel ? 'l' : 'L';   // more pairs after a move are lines
+      last = 'M';
+    } else if (C == 'L') {
+      if (!read(2)) break;
+      cx = rel ? cx + v[0] : v[0];
+      cy = rel ? cy + v[1] : v[1];
+      corner(cx, cy);
+      last = 'L';
+    } else if (C == 'H') {
+      if (!read(1)) break;
+      cx = rel ? cx + v[0] : v[0];
+      corner(cx, cy);
+      last = 'H';
+    } else if (C == 'V') {
+      if (!read(1)) break;
+      cy = rel ? cy + v[0] : v[0];
+      corner(cx, cy);
+      last = 'V';
+    } else if (C == 'C' || C == 'S') {
+      double x1, y1;
+      if (C == 'C') {
+        if (!read(6)) break;
+        x1 = rel ? cx + v[0] : v[0];
+        y1 = rel ? cy + v[1] : v[1];
+        for (int k = 0; k < 4; ++k) v[k] = v[k + 2];
+      } else {
+        if (!read(4)) break;
+        const bool smooth = last == 'C' || last == 'S';
+        x1 = smooth ? 2 * cx - lcx : cx;
+        y1 = smooth ? 2 * cy - lcy : cy;
+      }
+      const double x2 = rel ? cx + v[0] : v[0], y2 = rel ? cy + v[1] : v[1];
+      const double x = rel ? cx + v[2] : v[2], y = rel ? cy + v[3] : v[3];
+      if (cur.pts.empty()) corner(cx, cy);
+      cur.pts.back().outX = x1;
+      cur.pts.back().outY = y1;
+      cur.pts.push_back({x, y, x2, y2, x, y});
+      lcx = x2;
+      lcy = y2;
+      cx = x;
+      cy = y;
+      last = C;
+    } else if (C == 'Q' || C == 'T') {
+      double qx, qy;
+      if (C == 'Q') {
+        if (!read(4)) break;
+        qx = rel ? cx + v[0] : v[0];
+        qy = rel ? cy + v[1] : v[1];
+        v[0] = v[2];
+        v[1] = v[3];
+      } else {
+        if (!read(2)) break;
+        const bool smooth = last == 'Q' || last == 'T';
+        qx = smooth ? 2 * cx - lcx : cx;
+        qy = smooth ? 2 * cy - lcy : cy;
+      }
+      const double x = rel ? cx + v[0] : v[0], y = rel ? cy + v[1] : v[1];
+      if (cur.pts.empty()) corner(cx, cy);
+      // The quadratic as a cubic: each handle two thirds of the way to it.
+      cur.pts.back().outX = cx + 2.0 / 3.0 * (qx - cx);
+      cur.pts.back().outY = cy + 2.0 / 3.0 * (qy - cy);
+      cur.pts.push_back({x, y, x + 2.0 / 3.0 * (qx - x), y + 2.0 / 3.0 * (qy - y), x, y});
+      lcx = qx;
+      lcy = qy;
+      cx = x;
+      cy = y;
+      last = C;
+    } else if (C == 'A') {
+      double rx, ry, rot, large, sweep, x, y;
+      if (!r.next(rx) || !r.next(ry) || !r.next(rot) || !r.flag(large) || !r.flag(sweep) || !r.next(x) ||
+          !r.next(y)) {
+        break;
+      }
+      x = rel ? cx + x : x;
+      y = rel ? cy + y : y;
+      if (cur.pts.empty()) corner(cx, cy);
+      arcToCubics(cur, cx, cy, rx, ry, rot, large != 0.0, sweep != 0.0, x, y);
+      cx = x;
+      cy = y;
+      last = 'A';
+    } else {
+      break;   // a command this does not know: stop rather than guess
+    }
+  }
+  flush();
+  return out;
+}
+
+inline BuildPath ellipsePath(double cx, double cy, double rx, double ry) {
+  const double k = 0.5522847498;
+  BuildPath p;
+  p.pts.push_back({cx + rx, cy, cx + rx, cy - k * ry, cx + rx, cy + k * ry});
+  p.pts.push_back({cx, cy + ry, cx + k * rx, cy + ry, cx - k * rx, cy + ry});
+  p.pts.push_back({cx - rx, cy, cx - rx, cy + k * ry, cx - rx, cy - k * ry});
+  p.pts.push_back({cx, cy - ry, cx - k * rx, cy - ry, cx + k * rx, cy - ry});
+  return p;
+}
+
+inline BuildPath rectPath(double x, double y, double w, double h, double rx, double ry) {
+  BuildPath p;
+  if (rx <= 0 && ry <= 0) {
+    p.pts.push_back({x, y, x, y, x, y});
+    p.pts.push_back({x + w, y, x + w, y, x + w, y});
+    p.pts.push_back({x + w, y + h, x + w, y + h, x + w, y + h});
+    p.pts.push_back({x, y + h, x, y + h, x, y + h});
+    return p;
+  }
+  if (rx <= 0) rx = ry;
+  if (ry <= 0) ry = rx;
+  rx = std::min(rx, w / 2);
+  ry = std::min(ry, h / 2);
+  const double k = 0.5522847498;
+  // Eight points: each corner's two ends, the curve between them.
+  p.pts.push_back({x + rx, y, x + rx - k * rx, y, x + rx, y});
+  p.pts.push_back({x + w - rx, y, x + w - rx, y, x + w - rx + k * rx, y});
+  p.pts.push_back({x + w, y + ry, x + w, y + ry - k * ry, x + w, y + ry});
+  p.pts.push_back({x + w, y + h - ry, x + w, y + h - ry, x + w, y + h - ry + k * ry});
+  p.pts.push_back({x + w - rx, y + h, x + w - rx + k * rx, y + h, x + w - rx, y + h});
+  p.pts.push_back({x + rx, y + h, x + rx, y + h, x + rx - k * rx, y + h});
+  p.pts.push_back({x, y + h - ry, x, y + h - ry + k * ry, x, y + h - ry});
+  p.pts.push_back({x, y + ry, x, y + ry, x, y + ry - k * ry});
+  return p;
+}
+
+inline Attrs parseAttrs(const std::string& tag) {
+  Attrs out;
+  std::size_t i = 0;
+  while (i < tag.size()) {
+    while (i < tag.size() && std::isspace(static_cast<unsigned char>(tag[i]))) ++i;
+    const std::size_t nameAt = i;
+    while (i < tag.size() && tag[i] != '=' && !std::isspace(static_cast<unsigned char>(tag[i])) && tag[i] != '/') {
+      ++i;
+    }
+    const std::string name = tag.substr(nameAt, i - nameAt);
+    while (i < tag.size() && std::isspace(static_cast<unsigned char>(tag[i]))) ++i;
+    if (i >= tag.size() || tag[i] != '=') {
+      if (i < tag.size()) ++i;
+      continue;
+    }
+    ++i;
+    while (i < tag.size() && std::isspace(static_cast<unsigned char>(tag[i]))) ++i;
+    if (i >= tag.size()) break;
+    const char q = tag[i];
+    if (q != '"' && q != '\'') continue;
+    const std::size_t close = tag.find(q, i + 1);
+    if (close == std::string::npos) break;
+    out.emplace_back(name, tag.substr(i + 1, close - i - 1));
+    i = close + 1;
+  }
+  return out;
+}
+
+}  // namespace svgin
+
+inline SvgImport maskPathsFromSvg(const std::string& svg) {
+  using namespace svgin;
+  SvgImport result;
+  struct Shape {
+    BuildPath path;
+    double light;   // the fill's lightness
+    bool full;      // a rectangle covering the whole frame: a background
+  };
+  std::vector<Shape> shapes;
+  std::vector<M2> matrices {M2 {}};
+  std::vector<std::string> fills {std::string()};
+  int hidden = 0;   // inside <defs>, <clipPath>, <mask> or <symbol>
+  double vbX = 0, vbY = 0, vbW = 0, vbH = 0;
+  bool haveFrame = false;
+  std::size_t at = 0;
+  while ((at = svg.find('<', at)) != std::string::npos) {
+    if (svg.compare(at, 4, "<!--") == 0) {
+      const std::size_t end = svg.find("-->", at);
+      at = end == std::string::npos ? svg.size() : end + 3;
+      continue;
+    }
+    if (svg.compare(at, 9, "<![CDATA[") == 0) {
+      const std::size_t end = svg.find("]]>", at);
+      at = end == std::string::npos ? svg.size() : end + 3;
+      continue;
+    }
+    // The end of the tag, past any quoted '>' in an attribute.
+    std::size_t end = at + 1;
+    char q = 0;
+    while (end < svg.size()) {
+      if (q) {
+        if (svg[end] == q) q = 0;
+      } else if (svg[end] == '"' || svg[end] == '\'') {
+        q = svg[end];
+      } else if (svg[end] == '>') {
+        break;
+      }
+      ++end;
+    }
+    if (end >= svg.size()) break;
+    std::string tag = svg.substr(at + 1, end - at - 1);
+    at = end + 1;
+    if (tag.empty() || tag[0] == '?' || tag[0] == '!') continue;
+    const bool closing = tag[0] == '/';
+    const bool selfClosing = !tag.empty() && tag.back() == '/';
+    if (closing) tag.erase(0, 1);
+    if (selfClosing) tag.pop_back();
+    std::size_t nameEnd = 0;
+    while (nameEnd < tag.size() && !std::isspace(static_cast<unsigned char>(tag[nameEnd]))) ++nameEnd;
+    std::string name = tag.substr(0, nameEnd);
+    if (const std::size_t colon = name.find(':'); colon != std::string::npos) name = name.substr(colon + 1);
+    const bool hider = name == "defs" || name == "clipPath" || name == "mask" || name == "symbol" ||
+                       name == "pattern" || name == "marker";
+    if (closing) {
+      if (hider && hidden > 0) --hidden;
+      if (name == "g" && matrices.size() > 1) {
+        matrices.pop_back();
+        fills.pop_back();
+      }
+      continue;
+    }
+    const Attrs a = parseAttrs(tag.substr(nameEnd));
+    if (hider) {
+      if (!selfClosing) ++hidden;
+      continue;
+    }
+    if (name == "svg" && !haveFrame) {
+      const std::string vb = attr(a, "viewBox");
+      NumReader r(vb);
+      if (!vb.empty() && r.next(vbX) && r.next(vbY) && r.next(vbW) && r.next(vbH) && vbW > 0 && vbH > 0) {
+        haveFrame = true;
+      } else {
+        vbW = std::atof(attr(a, "width").c_str());
+        vbH = std::atof(attr(a, "height").c_str());
+        haveFrame = vbW > 0 && vbH > 0;
+      }
+      continue;
+    }
+    const std::string ownTransform = attr(a, "transform");
+    const M2 here = ownTransform.empty() ? matrices.back() : matrices.back() * parseTransform(ownTransform);
+    std::string fill = fillOf(a);
+    if (fill.empty()) fill = fills.back();
+    if (name == "g") {
+      if (!selfClosing) {
+        matrices.push_back(here);
+        fills.push_back(fill);
+      }
+      continue;
+    }
+    if (hidden > 0) continue;
+    const double light = lightness(fill);
+    if (light < 0.0) continue;   // fill="none": a line, not an area
+    auto n = [&](const char* key) { return std::atof(attr(a, key).c_str()); };
+    std::vector<BuildPath> made;
+    bool full = false;
+    if (name == "path") {
+      made = parsePathData(attr(a, "d"));
+    } else if (name == "rect") {
+      const double x = n("x"), y = n("y"), w = n("width"), h = n("height");
+      if (w > 0 && h > 0) {
+        made.push_back(rectPath(x, y, w, h, n("rx"), n("ry")));
+        full = haveFrame && ownTransform.empty() && matrices.size() == 1 && x <= vbX + vbW * 0.01 &&
+               y <= vbY + vbH * 0.01 && x + w >= vbX + vbW * 0.99 && y + h >= vbY + vbH * 0.99;
+      }
+    } else if (name == "circle") {
+      const double r = n("r");
+      if (r > 0) made.push_back(ellipsePath(n("cx"), n("cy"), r, r));
+    } else if (name == "ellipse") {
+      const double rx = n("rx"), ry = n("ry");
+      if (rx > 0 && ry > 0) made.push_back(ellipsePath(n("cx"), n("cy"), rx, ry));
+    } else if (name == "polygon" || name == "polyline") {
+      BuildPath p;
+      const std::string points = attr(a, "points");   // NumReader holds a reference: keep it alive
+      NumReader r(points);
+      double x, y;
+      while (r.next(x) && r.next(y)) p.pts.push_back({x, y, x, y, x, y});
+      if (p.pts.size() >= 3) made.push_back(p);
+    }
+    for (BuildPath& p : made) {
+      for (BuildPt& pt : p.pts) {
+        here.apply(pt.x, pt.y);
+        here.apply(pt.inX, pt.inY);
+        here.apply(pt.outX, pt.outY);
+      }
+      shapes.push_back({p, light, full});
+    }
+  }
+  if (shapes.empty()) {
+    result.error = "no filled shapes in it (paths, rectangles, circles, ellipses or polygons)";
+    return result;
+  }
+  // No frame given: the shapes' own bounds are the frame.
+  if (!haveFrame) {
+    double x0 = 1e300, y0 = 1e300, x1 = -1e300, y1 = -1e300;
+    for (const Shape& s : shapes) {
+      for (const BuildPt& pt : s.path.pts) {
+        x0 = std::min(x0, pt.x);
+        y0 = std::min(y0, pt.y);
+        x1 = std::max(x1, pt.x);
+        y1 = std::max(y1, pt.y);
+      }
+    }
+    vbX = x0;
+    vbY = y0;
+    vbW = std::max(1e-9, x1 - x0);
+    vbH = std::max(1e-9, y1 - y0);
+  }
+  // A background: the first shape, when it covers the frame.
+  double background = -1.0;
+  std::size_t first = 0;
+  if (shapes.front().full) {
+    background = shapes.front().light;
+    first = 1;
+  }
+  result.invert = background >= 0.5;
+  for (std::size_t s = first; s < shapes.size(); ++s) {
+    const Shape& sh = shapes[s];
+    MaskPath mp;
+    mp.closed = true;
+    // On a background, the background's own colour cuts; anything else adds.
+    mp.subtract = background >= 0.0 && std::fabs(sh.light - background) < 0.25;
+    for (const BuildPt& pt : sh.path.pts) {
+      MaskPoint p;
+      p.x = static_cast<float>((pt.x - vbX) / vbW);
+      p.y = static_cast<float>((pt.y - vbY) / vbH);
+      p.inX = static_cast<float>((pt.inX - pt.x) / vbW);
+      p.inY = static_cast<float>((pt.inY - pt.y) / vbH);
+      p.outX = static_cast<float>((pt.outX - pt.x) / vbW);
+      p.outY = static_cast<float>((pt.outY - pt.y) / vbH);
+      mp.points.push_back(p);
+    }
+    result.paths.push_back(mp);
+  }
+  if (result.paths.empty()) result.error = "only a background in it";
+  return result;
+}
+
 }  // namespace deckboy::masks

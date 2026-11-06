@@ -212,6 +212,26 @@ def run(exe, work, show):
         except RuntimeError as e:
             gone = str(e)
         note("assigning a deleted mask is refused", "ERR" in gone, gone)
+
+        # SVG in: the exported circle comes back, and a drawing's shapes become paths.
+        reply = db.send("MASK IMPORT %s round trip" % svg)
+        note("IMPORT reads the exported SVG back as one path", "paths=1" in reply, reply)
+        drawing = work / "drawing.svg"
+        drawing.write_text('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 90">'
+                           '<rect width="160" height="90" fill="#000"/>'
+                           '<circle cx="80" cy="45" r="40" fill="#fff"/>'
+                           '<rect x="70" y="35" width="20" height="20" fill="black"/></svg>')
+        reply = db.send("MASK IMPORT %s" % drawing)
+        note("...and a drawing: a circle with a black hole, on a black ground", "paths=2" in reply
+             and "invert" not in reply and " drawing " in reply, reply)
+        shot = snap()
+        note("...which cuts the cue's corner away", not near(probe(shot, *CORNER), RED), probe(shot, *CORNER))
+        try:
+            db.send("MASK IMPORT %s" % (work / "missing.svg"))
+            missing = "OK"
+        except RuntimeError as e:
+            missing = str(e)
+        note("a file that is not there is refused, and says so", "cannot read" in missing, missing)
         note("the desk still answers", db.send("PING").startswith("OK"))
 
 

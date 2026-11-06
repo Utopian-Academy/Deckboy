@@ -129,6 +129,40 @@
   }
 
   // A new mask in the library, on the target: one shape, or none for the pen.
+  // An SVG's filled shapes as a new mask on the target (core/masks.hpp,
+  // maskPathsFromSvg). Named after the file unless a name is given.
+  MaskModel* importMaskSvg(const std::string& path, std::string name, std::string& error) {
+    std::ifstream in(fs::u8path(path), std::ios::binary);
+    if (!in) {
+      error = "cannot read " + path;
+      return nullptr;
+    }
+    std::string text((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+    if (text.size() > 16u * 1024u * 1024u) {
+      error = "over 16 MB: not a drawing to make a mask from";
+      return nullptr;
+    }
+    const deckboy::masks::SvgImport svg = deckboy::masks::maskPathsFromSvg(text);
+    if (!svg.error.empty()) {
+      error = svg.error;
+      return nullptr;
+    }
+    if (!maskTargetAvailable()) {
+      error = "nothing to mask here: select a cue, or change MASK ON";
+      return nullptr;
+    }
+    MaskModel* m = newMaskOnTarget(deckboy::masks::MaskShape::Circle, /*withShape=*/false);
+    if (!m) {
+      error = "no mask made";
+      return nullptr;
+    }
+    m->paths = svg.paths;
+    m->invert = svg.invert;
+    m->name = name.empty() ? fs::u8path(path).stem().string() : name;
+    markProjectDirty();
+    return m;
+  }
+
   MaskModel* newMaskOnTarget(deckboy::masks::MaskShape shape, bool withShape = true) {
     pushUndoSnapshot();
     MaskModel m;
@@ -616,6 +650,7 @@
       options.emplace_back(std::string("new:") + deckboy::masks::maskShapeToken(shape),
                            std::string("new ") + deckboy::masks::maskShapeLabel(shape));
     }
+    options.emplace_back("import", "import an SVG...");
     const std::string current = maskTargetId();
     openDropdown("mask.pick", maskPickRect_, options, current.empty() ? "none" : "id:" + current,
                  [this](const std::string& choice) {
@@ -627,6 +662,18 @@
                      pushUndoSnapshot();
                      setMaskTargetId(choice.substr(3));
                      if (const MaskModel* m = maskFocus()) triggerToast("mask: " + m->name);
+                   } else if (choice == "import") {
+                     static const std::vector<SDL_DialogFileFilter> kSvg {{"SVG drawings", "svg"}};
+                     showOpenFileDialog(kSvg, /*allowMany=*/false, [this](std::vector<std::string> files) {
+                       if (files.empty()) return;
+                       std::string error;
+                       if (const MaskModel* m = importMaskSvg(files.front(), {}, error)) {
+                         triggerToast("mask from SVG: " + m->name + ", " + std::to_string(m->paths.size()) +
+                                      (m->paths.size() == 1 ? " shape" : " shapes"));
+                       } else {
+                         triggerToast("SVG: " + error, ToastKind::Warning, kToastReadableMs);
+                       }
+                     });
                    } else if (choice.rfind("new:", 0) == 0) {
                      deckboy::masks::MaskShape shape;
                      if (deckboy::masks::maskShapeFromToken(choice.substr(4), shape)) {
