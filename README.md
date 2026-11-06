@@ -17,13 +17,14 @@
 
 </div>
 
-## Video playback and show control.
+## Video playback and show control
 
-Deckboy puts videos, slides and live sources in a running order. Choose the next
-cue on your desk and take it to the audience when you're ready. Send the programme
-to screens, broadcast outputs or streams, and record it while it plays.
+Deckboy plays videos, slides and live sources in a running order. You select
+the next cue on the desk, and you take it to the audience when you are ready.
+Deckboy sends the programme to screens, broadcast outputs and streams. It can
+record the programme while it plays.
 
-Free and open source, for Windows, macOS and Linux.
+Deckboy is free and open source. It runs on Windows, macOS and Linux.
 
 **[⬇ Download](https://github.com/Utopian-Academy/Deckboy/releases/latest)** &nbsp;·&nbsp; **[▶ See Deckboy in action](https://utopian-academy.github.io/Deckboy/trailer.html)** &nbsp;·&nbsp; **[♡ Community & help](https://utopian-academy.github.io/Deckboy/community.html)**
 
@@ -31,37 +32,45 @@ Free and open source, for Windows, macOS and Linux.
 
 <sub>What you press, and what the audience sees, from one run of v0.99.423. [Watch Deckboy with music by YMCK](https://utopian-academy.github.io/Deckboy/trailer.html). Footage: [Tears of Steel](https://mango.blender.org/), Blender Foundation, [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).</sub>
 
-**If Deckboy is useful to you, ⭐ star this repository** (top right): it is how the next
-operator finds it, and how you find it again.
+**If Deckboy is useful to you, ⭐ star this repository** (top right). Stars help
+other operators find it.
 
 ### New in 0.99.424
 
 [Release notes and downloads](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.424)
 
-- **Smooth playback at any frame rate.** Every clip plays with the steadiest cadence its rate
-  allows on the screen it is on: 24 fps is a clean 3:2 on 60 Hz, 50 fps runs 1-1-1-1-2, a matched
-  rate moves one frame a refresh. A playlist of mixed rates gets it clip by clip.
-- **Lock to the screen.** A clip a hair off the screen's rate (59.94 fps on 60 Hz, 23.976 on 24)
-  can play at the screen's own rate instead, every frame shown exactly once, its sound following
-  like a tape machine's.
-- **Far fewer lost frames.** No tenth-of-a-second freeze each time a clip loops, and less work
-  per frame off Direct3D 11. On a Mac every output now keeps time with its screen: no refreshes
-  missed in a minute of 60 fps playback, measured on an M4 MacBook Air. On Windows the desk no
-  longer holds up the outputs while it draws.
-- **Seamless loops.** A looping clip goes round with no held frame and no gap in the sound, and a
-  cue set to repeat plays that many times.
-- **Recordings that keep up.** Recording at 4K no longer costs the outputs frames, a recording
-  keeps time by the sound card, and ProRes at 60 fps records.
-- **Scopes on the graphics card (Windows).** Every picture of a 4K60 output is measured, bin for
-  bin the same as the processor's reading.
-- **Missed frames are reported.** An output that cannot keep up with its screen now says so: the
-  OUTPUT badge, a warning, the test card and `STATUS`.
-- **Stop every deck, from anywhere.** Ctrl+Shift+Space now works with any dialog open or an output
-  in focus, and nothing waiting in the wings starts a deck again afterwards.
-- **Known issue (Windows):** an output on a screen at a different refresh rate from the main screen
-  (59.94 Hz beside 60) drops or repeats a frame about every 15 seconds. Deckboy warns you when it
-  happens; until it is fixed, run the screens at the same rate
-  ([how](MANUAL.md#screens-at-different-refresh-rates)).
+- **Smooth playback at all frame rates.** Each clip plays with the most even
+  frame pattern that its frame rate allows on its screen. For example, 24 fps
+  on a 60 Hz screen plays as a clean 3:2 pattern, and 50 fps plays as
+  1-1-1-1-2. In a playlist with mixed frame rates, Deckboy sets the pattern
+  for each clip.
+- **Lock to the screen.** Some clips are near the screen's rate but not equal
+  to it (59.94 fps on 60 Hz, or 23.976 fps on 24 Hz). Deckboy can play these
+  clips at the screen's rate, so each frame shows exactly once. The sound
+  changes speed to stay in sync, like a tape machine.
+- **Fewer dropped frames.** A clip no longer freezes for 0.1 seconds each time
+  it loops. On a Mac, each output now stays in time with its screen: in a
+  one-minute test at 60 fps on an M4 MacBook Air, no refreshes were missed. On
+  Windows, the desk no longer delays the outputs while it draws. Renderers
+  other than Direct3D 11 do less work for each frame.
+- **Seamless loops.** A looping clip has no held frame and no gap in the sound.
+  A cue set to repeat plays the number of times that you set.
+- **Recording.** Recording at 4K no longer causes dropped frames on the
+  outputs. Recordings use the sound card as their clock. ProRes recording at
+  60 fps now works.
+- **Scopes on the GPU (Windows).** The scopes now measure every frame of a
+  4K60 output. The GPU results are identical to the CPU results.
+- **Dropped frames are reported.** If an output cannot keep up with its screen,
+  Deckboy tells you. The OUTPUT badge, a warning, the test card and the
+  `STATUS` command all show it.
+- **Stop all decks from anywhere.** Ctrl+Shift+Space now works when a dialog is
+  open or when an output window has focus. After you use it, no waiting cue
+  starts a deck again.
+- **Known issue (Windows):** if an output is on a screen with a different
+  refresh rate from the main screen (for example, 59.94 Hz and 60 Hz), that
+  output drops or repeats a frame about every 15 seconds. Deckboy shows a
+  warning when this happens. Until it is fixed, set all screens to the same
+  refresh rate ([how](MANUAL.md#screens-at-different-refresh-rates)).
 
 ### A closer look
 
@@ -94,101 +103,123 @@ operator finds it, and how you find it again.
 </details>
 
 [All screenshots, GIFs and clips](https://utopian-academy.github.io/Deckboy/press.html#images)
-are real app captures. Desk, crossfades, effects and scopes: published v0.99.419.
-Other captures retain their original versions in the [media notes](docs/images/readme/README.md).
+are real captures from the app. The desk, crossfade, effect and scope captures
+are from v0.99.419. The [media notes](docs/images/readme/README.md) give the
+version of each other capture.
 
-New to Deckboy? Choose **EXAMPLE SHOWS** on the startup screen, read the notes on each
-cue and make the show your own.
+New to Deckboy? On the startup screen, select **EXAMPLE SHOWS**. Read the notes
+on each cue, then change the show to make it your own.
 
 ### Everything is a cue
 
-A clip. A still. A slide. A live camera. A window on the machine. A web page.
-An NDI source, an SRT feed, an SDI input. A test card, a countdown, a lower
-third, an audio file, a line-up tone. A line of code you type while it is on
-the screen. In Deckboy every one of those is the same kind of object, sitting
-on the same cue list, and it behaves the same way: same transport, same fades,
-same seventeen transitions, same effect rack, same remote control, recorded the
-same way on the way out.
+In Deckboy, each of these is a cue:
 
-So a show can run
+- A video clip, a still image or a slide
+- A live camera, a window on the computer, or a web page
+- An NDI source, an SRT feed or an SDI input
+- A test card, a countdown, a lower third, an audio file or a line-up tone
+- Code that you type while it shows on the screen
+
+All cues go in the same cue list, and all cues work the same way. They have the
+same transport controls, the same fades, the same 17 transitions and the same
+effects. Remote control works the same way for each cue, and Deckboy records
+each cue the same way.
+
+So one operator can run a show like this with one spacebar, and with no
+switching between programs:
 
 ```
 VIDEO → SLIDE → LIVE CAMERA → WEB PAGE → SRT FEED → TEST CARD → VIDEO
 ```
 
-with one operator, one spacebar and no alt-tab, because none of those is a
-special case. The usual way to do that is a media player, a slide program, a
-browser, a capture utility, a streaming tool and a pattern generator, each with
-its own idea of what happens when you press play — and a projector that shows
-the seams between them.
+Without Deckboy, this show usually needs a media player, a slide program, a
+browser, a capture tool, a streaming tool and a pattern generator. Each one
+behaves differently when you press play, and the audience can see the gaps
+when you change from one to the next.
 
-The other half of the same idea: every **destination** is the same kind of
-object too. A screen, NDI, SRT, RTMP, Blackmagic SDI, SMPTE ST 2110 — several
-at once, while it records, each with its own warp, feather and area of
-interest. Driven from a Stream Deck, Bitfocus Companion, OSC, MIDI, MIDI Show Control
-from the lighting desk, Art-Net or LTC timecode.
+Outputs work the same way. A screen, NDI, SRT, RTMP, Blackmagic SDI and SMPTE
+ST 2110 are all outputs. You can use several outputs and record at the same
+time. Each output has its own warp, edge blend and area of interest.
 
-Anything that can make a picture or a sound becomes a cue. Anything that needs
-to receive the show becomes an output.
+You can control Deckboy from a Stream Deck, Bitfocus Companion, OSC, MIDI, MIDI
+Show Control from a lighting desk, Art-Net or LTC timecode.
 
-It hosts **your own VST3 effects and instruments** in a cue's audio chain, and runs on a
-machine with **no sound card at all** — a rack PC feeding a video wall still
-opens, plays and puts a picture out.
+Deckboy can host your own **VST3 effects and instruments** in a cue's audio
+chain. It also runs on a computer with **no sound card**. For example, a rack
+PC that feeds a video wall can still open a show, play it and send the picture
+out.
 
-Windows, macOS and Linux from one show file. No account, no licence server, no
-telemetry, and no second licence for the spare machine in the flight case —
-which is not true of most of what it gets compared to.
+One show file opens on Windows, macOS and Linux. There is no account, no
+licence server and no telemetry. You do not need a second licence for a backup
+computer. Many similar products need one.
 
-**[deckboy website](https://utopian-academy.github.io/Deckboy/)** — what it does, and where to download it. · **[How it compares](https://utopian-academy.github.io/Deckboy/compare.html)** to Mitti, PlaybackPro, QLab, Millumin, vMix, SimplePlay, PlayDeck, ProVideoPlayer, Resolume and Inkue. · **[Manual](https://utopian-academy.github.io/Deckboy/manual.html)** — all of it, thirty chapters. · **[FAQ](https://utopian-academy.github.io/Deckboy/faq.html)** · **[Where latency hides](https://utopian-academy.github.io/Deckboy/latency.html)** — the four stages of a live chain, in frames and milliseconds
+**[Website](https://utopian-academy.github.io/Deckboy/)**: features and downloads · **[How it compares](https://utopian-academy.github.io/Deckboy/compare.html)** with Mitti, PlaybackPro, QLab, Millumin, vMix, SimplePlay, PlayDeck, ProVideoPlayer, Resolume and Inkue · **[Manual](https://utopian-academy.github.io/Deckboy/manual.html)**: the full manual, in 30 chapters · **[FAQ](https://utopian-academy.github.io/Deckboy/faq.html)** · **[Where latency hides](https://utopian-academy.github.io/Deckboy/latency.html)**: the delay in each of the four stages of a live signal chain, in frames and milliseconds
 
 ---
 
 ## Community & help
 
-Questions, bugs, production stories, or ideas? [Visit the community page](https://utopian-academy.github.io/Deckboy/community.html) or [read the support guide](SUPPORT.md), join [GitHub Discussions](https://github.com/Utopian-Academy/Deckboy/discussions), or [contribute](CONTRIBUTING.md). For security issues, please use [private reporting](SECURITY.md), not public issues.
+Do you have a question, a bug, a story from a show or an idea? See the
+[community page](https://utopian-academy.github.io/Deckboy/community.html),
+read the [support guide](SUPPORT.md), join
+[GitHub Discussions](https://github.com/Utopian-Academy/Deckboy/discussions),
+or [contribute](CONTRIBUTING.md). To report a security problem, use
+[private reporting](SECURITY.md). Do not open a public issue for it.
 
-Deckboy is free software. If it helps you run a show, share your experience, report a bug, improve the docs, or tell another operator about it. That's how the project grows.
+Deckboy is free software. If it helps you run a show, you can help it too: tell
+us about your show, report bugs, improve the documentation, or tell other
+operators about it.
 
 ---
 
 ## Download
 
-**[Try the example shows](data/demos/starter-pack/README.md)** — five shows that
-work up one step at a time: a picture on a screen, a running order, layers and
-titles, looks and effects, and a 39-second show run from one button with original
-music. Open the `.deckboy` files and follow the cue notes.
+**[Try the example shows](data/demos/starter-pack/README.md)**. There are five
+shows, and each one adds one step: a picture on a screen, a running order,
+layers and titles, looks and effects, and a 39-second show that runs from one
+button, with original music. Open the `.deckboy` files and follow the notes on
+each cue.
 
-The features below describe the current source. Packaged builds and their
-version-specific changes are listed on the [releases page](https://github.com/Utopian-Academy/Deckboy/releases).
+This page describes the current source code. The
+[releases page](https://github.com/Utopian-Academy/Deckboy/releases) lists each
+packaged build and its changes.
 
-Every release ships an installer **and** a portable build for each platform.
-Both bundle the application, FFmpeg and its runtime libraries for ordinary file
-playback. NDI uses the separately installed NDI runtime; SDI uses compatible
-Blackmagic hardware and Desktop Video. Office slide conversion uses PowerPoint,
-Keynote or LibreOffice on the machine. [Full requirements](https://utopian-academy.github.io/Deckboy/specs.html#system).
+Each release has an installer **and** a portable build for each platform. Both
+include the app and FFmpeg, so normal media files play with no other software.
+Some features need other software:
+
+- NDI needs the NDI runtime, which you install separately.
+- SDI needs Blackmagic hardware and Desktop Video.
+- Office slide conversion needs PowerPoint, Keynote or LibreOffice.
+
+See the [full requirements](https://utopian-academy.github.io/Deckboy/specs.html#system).
 
 | Platform | Installer | Portable |
 |---|---|---|
-| **Windows** | `…-windows-x64-setup.exe` — Start Menu, uninstaller, `.deckboy` file association | `…-windows-x64.zip` |
-| **macOS** (Apple Silicon) | `…-macos-arm64.dmg` — drag to Applications | `…-macos-arm64.zip` |
+| **Windows** | `…-windows-x64-setup.exe`: Start Menu, uninstaller, `.deckboy` file association | `…-windows-x64.zip` |
+| **macOS** (Apple Silicon) | `…-macos-arm64.dmg`: drag to Applications | `…-macos-arm64.zip` |
 | **macOS** (Intel) | `…-macos-x86_64.dmg` | `…-macos-x86_64.zip` |
-| **Linux** | `…-x86_64.AppImage` — one file, `chmod +x` and run; or `…-x86_64.flatpak` | `…-linux-x86_64.tar.gz` |
+| **Linux** | `…-x86_64.AppImage`: one file, `chmod +x` and run; or `…-x86_64.flatpak` | `…-linux-x86_64.tar.gz` |
 
-**Deckboy Mini** comes inside all of those, and on its own as a small download
-of about 12 to 18 MB: `Deckboy-Mini-…-windows-x64.zip`, `…-macos-arm64.zip`,
-`…-macos-x86_64.zip`, `…-linux-x86_64.tar.gz`, and `…-linux-arm64.tar.gz` for a
-Raspberry Pi (64-bit) or any ARM64 Linux.
+**Deckboy Mini** is in all of these downloads. It is also a separate small
+download, of about 12 to 18 MB: `Deckboy-Mini-…-windows-x64.zip`,
+`…-macos-arm64.zip`, `…-macos-x86_64.zip`, `…-linux-x86_64.tar.gz`, and
+`…-linux-arm64.tar.gz` for a 64-bit Raspberry Pi or another ARM64 Linux
+computer.
 
-Both control surfaces ship with every release, so neither needs a build:
-**Stream Deck** (`…streamDeckPlugin` — double-click it) and **Bitfocus
-Companion** (`Deckboy-companion-module-….zip` — unzip it, then point
-Companion's *developer modules path* at the folder containing it;
-`INSTALL.txt` inside has the three steps). The Companion module requires
-**Companion 5**.
+Each release also includes plugins for two control surfaces, so you do not
+need to build them:
+
+- **Stream Deck**: `…streamDeckPlugin`. Double-click it to install it.
+- **Bitfocus Companion**: `Deckboy-companion-module-….zip`. It needs
+  **Companion 5**. Unzip it, then in Companion set the *developer modules path*
+  to the folder that contains it. `INSTALL.txt` in the zip gives the three
+  steps.
 
 → **[Latest release](https://github.com/Utopian-Academy/Deckboy/releases/latest)**
 
-Or from a package manager, which follows each new release:
+You can also install Deckboy from a package manager. The package manager gets
+each new release.
 
 ```powershell
 # Windows (Scoop)
@@ -202,122 +233,130 @@ brew install --cask utopian-academy/deckboy/deckboy
 ```
 
 <details>
-<summary><b>"Unknown developer" warnings — what to do</b></summary>
+<summary><b>"Unknown developer" warnings: what to do</b></summary>
 
-Deckboy's Windows builds are unsigned and macOS builds are ad-hoc signed.
-Neither carries a verified publisher signature, so the OS may warn when you
-first open a download.
+The Windows builds are not signed, and the macOS builds have only an ad-hoc
+signature. Neither has a verified publisher, so your operating system can show
+a warning the first time you open Deckboy.
 
-- **macOS** — if it says the app is damaged, clear the quarantine flag once:
+- **macOS**: if macOS says that the app is damaged, run this command one time
+  to remove the quarantine flag:
 
       xattr -dr com.apple.quarantine /Applications/Deckboy.app
 
-  Install from the `.dmg` into Applications rather than running from Downloads;
-  that is also what avoids Gatekeeper's App Translocation sandbox.
-- **Windows** — SmartScreen may say "Windows protected your PC". Click
+  Install from the `.dmg` into Applications. Do not run Deckboy from Downloads.
+  This also prevents Gatekeeper's App Translocation.
+- **Windows**: SmartScreen can show "Windows protected your PC". Click
   **More info → Run anyway**.
-- **Linux** — the AppImage runs on **Ubuntu 22.04 and anything newer**, which
-  is what a lot of venue machines are still on. Graphics, display server, audio
-  and the C/C++ runtime deliberately come from the host: they have to match the
-  machine actually running, and a bundled libGL cannot load your GPU driver.
-  The build checks that floor on every run rather than trusting it.
+- **Linux**: the AppImage runs on **Ubuntu 22.04 and later**. Many venue
+  computers still use 22.04. The AppImage does not include the graphics,
+  display server, audio or C/C++ runtime libraries. It uses the ones on your
+  computer, because they must match your hardware: for example, a bundled
+  libGL cannot load your GPU driver. Each build is tested against Ubuntu 22.04.
 
 </details>
 
-Deckboy checks interface labels at startup and automatically tries another
-rendering path when needed. The [FAQ](https://utopian-academy.github.io/Deckboy/faq.html#interface-text)
-explains the renderer log and how to select software rendering on a Mac.
+At startup, Deckboy checks that the interface text draws correctly. If it does
+not, Deckboy tries a different way to draw automatically. The
+[FAQ](https://utopian-academy.github.io/Deckboy/faq.html#interface-text)
+explains the renderer log, and how to use software rendering on a Mac.
 
 ---
 
 ## What it is
 
-Deckboy is a native desktop application for video engineers, AV technicians and
-live operators who need a reliable way to organise media, trigger cues, loop
-content and send video to production displays.
+Deckboy is a desktop application for video engineers, AV technicians and live
+operators. Use it to organise media, trigger cues, loop content and send video
+to displays, reliably.
 
-That is the job it is built around, and it is built on a stubborn principle:
-**Seize the means of playback ♡**
+Its principle: **Seize the means of playback ♡**
 
-No subscription ♡ No account ♡ No telemetry ♡ Nothing phones home. And no licence
-server that can refuse to start the show at 19:55 because it could not reach the
-internet. The machine you carried into the venue is the machine that plays the
-show.
+No subscription ♡ No account ♡ No telemetry ♡ Nothing phones home. There is no
+licence server that can stop the show at 19:55 because it cannot reach the
+internet. The computer that you bring to the venue plays the show.
 
 ### What can be a cue
 
 | | |
 |---|---|
-| **Video** &middot; **Image** &middot; **Audio** | files, hardware-decoded, trimmed and faded |
-| **Slides** | a PDF, PowerPoint or Keynote deck, one cue per slide, with the notes |
-| **Browser** | a URL rendered into the programme, not a browser window on your desktop |
-| **Window** &middot; **Screen** &middot; **Camera** | captured live, at the window's own full resolution |
-| **NDI** &middot; **SRT / RTMP / RTSP / UDP** &middot; **DeckLink** &middot; **Spout** | somebody else's signal, taken in as a cue |
-| **Pattern** &middot; **Test card** &middot; **Tone** | generated on the spot, no file needed |
-| **Timer** &middot; **Lower Third** | a stage countdown, full screen or over the programme, and a Lower Third in 52 looks |
-| **Video synth** &middot; **Code** | an oscillator with feedback, or an expression you type live |
+| **Video** &middot; **Image** &middot; **Audio** | Files, with hardware decoding, trims and fades |
+| **Slides** | A PDF, PowerPoint or Keynote deck: one cue for each slide, with the notes |
+| **Browser** | A web page drawn into the programme, not a browser window on your desktop |
+| **Window** &middot; **Screen** &middot; **Camera** | Captured live, at the window's full resolution |
+| **NDI** &middot; **SRT / RTMP / RTSP / UDP** &middot; **DeckLink** &middot; **Spout** | A signal from another device or program, as a cue |
+| **Pattern** &middot; **Test card** &middot; **Tone** | Made by Deckboy, with no file |
+| **Timer** &middot; **Lower Third** | A countdown for the stage, full screen or over the programme; lower thirds in 52 styles |
+| **Video synth** &middot; **Code** | An oscillator with feedback, or an expression that you type live |
 
-Every row takes the same fades, the same transitions, the same effect rack, the
-same trigger from a Stream Deck, and is recorded the same way on the way out.
-[Chapter 5 of the manual](https://utopian-academy.github.io/Deckboy/manual.html#cue-types)
-is the full table, source by source.
+All of these cues have the same fades, transitions and effects. A Stream Deck
+triggers each of them the same way, and Deckboy records each of them the same
+way. [Chapter 5 of the manual](https://utopian-academy.github.io/Deckboy/manual.html#cue-types)
+has the full table.
 
-### Which makes it a very good video Swiss army knife
+### A video Swiss army knife
 
-That is not a second feature list. It is what falls out of the first one. If a
-camera is a cue and SDI is an output, the machine is a converter. If a stream
-is a cue and NDI is an output, it is a bridge. If a test card is a cue, it is a
-pattern generator that proves the real chain instead of a test box's.
+Because a source is a cue and a destination is an output, Deckboy can do many
+other jobs. With a camera as a cue and SDI as an output, it is a converter.
+With a stream as a cue and NDI as an output, it is a bridge. With a test card
+as a cue, it is a pattern generator that tests your real signal chain.
 
-The same box speaks NDI, SDI, SMPTE ST 2110, SRT, RTMP, Spout, LTC timecode,
-OSC, Art-Net and NMOS — so the machine you brought for playout usually solves
-the other five problems on the day as well.
+Deckboy supports NDI, SDI, SMPTE ST 2110, SRT, RTMP, Spout, LTC timecode, OSC,
+Art-Net and NMOS. So the computer that you bring for playback can often solve
+other problems at the venue too.
 
-- **Convert media** that will not play well, in place, without leaving the app
-- **Inspect any file** — codec, raster, frame rate, channels, duration — by importing it
-- **Generate test patterns** and a test card to prove a chain end to end
-- **Capture** a camera, a window or a screen and treat it as a cue
-- **Bridge formats** — bring a camera, capture card or stream in and send the
-  programme out as SDI, ST 2110 or a stream, and record it
-- **Normalize loudness** to a chosen −16, −23 or −24 LUFS target before playout
-- **Generate LTC timecode** on its own routable output
+- **Convert media** that does not play well, without leaving the app
+- **Inspect a file** (codec, resolution, frame rate, channels, duration): import it
+- **Make test patterns** and a test card, to test a signal chain from end to end
+- **Capture** a camera, a window or a screen, and use it as a cue
+- **Bridge formats**: bring in a camera, capture card or stream, send it out as
+  SDI, ST 2110 or a stream, and record it
+- **Normalise loudness** to −16, −23 or −24 LUFS before the show
+- **Generate LTC timecode** on its own output, which you can route
 
 ### Where it gets used
 
 Live events • Corporate presentations • Churches • Schools & universities •
 Museums & installations • Digital signage • Projection • LED walls • Streaming
 
-And the jobs in between: bench-testing a screen before anyone arrives, proving a
-cable or converter with a real test card, getting a camera or a stream onto
-SDI, restreaming to SRT or RTMP, or making a client's unplayable file
-playable on site, minutes before doors.
+It also helps with small jobs: test a screen before the audience arrives, test
+a cable or converter with a real test card, put a camera or a stream onto SDI,
+restream to SRT or RTMP, or make a client's file play, minutes before the doors
+open.
 
 ### Deckboy Mini
 
-**For a screen nobody has to run:** a foyer loop, a backstage monitor, a kiosk that
-starts with the computer. `deckboy-mini` ships beside Deckboy: point
-it at clips or a folder and it plays them fullscreen through the same engine as
-the desk, in name order, holding stills, looping if you ask. It answers the
-desk's remote commands on the desk's port, so Companion drives it as deck 1,
-and the whole show runs from the keyboard in its terminal, over SSH too:
-reorder, rename and remove cues, save and open playlists (M3U8), pick the
-display and the sound device, and the keys a media player has — frame step,
-speed, A-B loop, mute, sound track and subtitles. It keeps a media player's
-running-order habits too: find a cue by name, queue the one to play next, stop
-after this cue, shuffle, a clock that counts down, and a crossfade between
-cues. It opens `.pls` lists as well as M3U8. On a Raspberry Pi it plays
-through the board's own video decoder; `tools/linux_build.sh --mini` builds it
-there. Its own [miniature manual](https://utopian-academy.github.io/Deckboy/manual.html#deckboy-mini)
-has every key and command. Mini comes inside every download, and on its own as
-a small download for Windows, macOS, Linux and the Raspberry Pi (64-bit) on the
+**For a screen that nobody operates:** a foyer loop, a backstage monitor, or a
+kiosk that starts with the computer.
+
+`deckboy-mini` comes with Deckboy. Give it clips or a folder, and it plays them
+full screen, in name order, with the same playback engine as the desk. It holds
+stills, and it can loop.
+
+- **Remote control:** it accepts the desk's remote commands on the desk's port,
+  so Companion controls it as deck 1.
+- **Keyboard control:** you run the show from the keyboard in its terminal,
+  also over SSH. You can reorder, rename and remove cues, save and open
+  playlists (M3U8, and it also opens `.pls`), and select the display and the
+  sound device.
+- **Media player keys:** frame step, speed, A-B loop, mute, audio track and
+  subtitles.
+- **Running order:** find a cue by name, queue the next cue, stop after this
+  cue, shuffle, a countdown clock, and crossfades between cues.
+- **Raspberry Pi:** it uses the board's hardware video decoder. To build it
+  there, run `tools/linux_build.sh --mini`.
+
+The [Mini manual](https://utopian-academy.github.io/Deckboy/manual.html#deckboy-mini)
+lists every key and command. Mini is in every download. It is also a separate
+small download for Windows, macOS, Linux and 64-bit Raspberry Pi, on the
 [releases page](https://github.com/Utopian-Academy/Deckboy/releases/latest).
 
 ```
 deckboy-mini ~/Videos --display 2 --loop
 ```
 
-In Windows PowerShell, start it as `.\deckboy-mini` from its folder; PowerShell does not
-run a program from the current folder by its bare name. Or drop files onto `deckboy-mini.exe`.
+In Windows PowerShell, go to its folder and run `.\deckboy-mini`. PowerShell
+does not run a program from the current folder by its name alone. You can also
+drop files onto `deckboy-mini.exe`.
 
 ![Deckboy Mini run from the keyboard in its terminal: a boot sequence, then an LCD-green status panel with five cues and the NEXT line; cue 3 is queued to play next, a search for logo takes cue 5, the clock switches to time left, shuffle, crossfade and stop-after-this-cue switch on, and the help pages end on the running order](docs/images/readme/light/mini-terminal.gif)
 
@@ -325,7 +364,7 @@ run a program from the current folder by its bare name. Or drop files onto `deck
 
 ## Features
 
-The full list is long, because so much can be a cue. It lives on its own page: **[all features](FEATURES.md)**, in nine groups:
+The full feature list is long, so it has its own page: **[all features](FEATURES.md)**. It has nine groups:
 
 - Playback & cues
 - Sources — everything that can be a cue
@@ -339,50 +378,48 @@ The full list is long, because so much can be a cue. It lives on its own page: *
 
 ## Built for operators, not data harvesters
 
-Deckboy collects nothing and sends nothing to its developers. **No telemetry,
-no usage reporting, no crash upload, no account.** Crash logs are written to a
-file next to the app for you to read or forward, and they stay there.
+Deckboy does not collect data or send data to its developers. **No telemetry,
+no usage reports, no crash uploads, no account.** Deckboy writes crash logs to
+a file next to the app. They stay there. You can read them, or send them to us.
 
-There is an update check, and it is **off by default**. Switched on, it asks
-GitHub's releases API whether a newer version exists — nothing about you goes
-with the question, and finding one never installs anything without you saying
-so. A machine sitting on a venue's network should do nothing nobody asked it
-to.
+The update check is **off by default**. When you turn it on, Deckboy asks
+GitHub's releases API if a newer version exists. It sends no information about
+you. Deckboy does not install an update unless you tell it to. A computer on a
+venue network must do only what you ask it to do.
 
-It is deliberately network-active — NDI discovery, PTP, NMOS registration, OSC,
-Companion control and streaming all talk to the network by design. Every one of
-those goes to your own LAN or to a destination you configured.
+Some features use the network by design: NDI discovery, PTP, NMOS registration,
+OSC, Companion control and streaming. Each of them connects only to your own
+local network, or to a destination that you set.
 
 ---
 
 ## Platforms
 
-One show file opens on Windows, macOS and Linux, and nearly everything above
-runs on all three. The exception: texture sharing with Resolume, TouchDesigner
-or OBS is Spout, on Windows only.
+One show file opens on Windows, macOS and Linux, and almost all features work
+on all three. One exception: texture sharing with Resolume, TouchDesigner or
+OBS uses Spout, which is Windows only.
 
-Hardware decode is used wherever the platform provides it — D3D11VA, Video
-Toolbox, VAAPI — and on Windows and macOS the picture never touches system
-memory on the way to the screen: roughly ten times less CPU for 4K, which is
-CPU your machine gets to spend on everything else.
+Deckboy uses hardware decoding when the platform has it: D3D11VA, VideoToolbox
+or VAAPI. On Windows and macOS, the decoded picture stays on the graphics card
+all the way to the screen. For 4K, this uses about ten times less CPU.
 
 ---
 
 ## Documentation
 
-- [Code map](docs/CODEMAP.md) — file inventory, data flow, threading model
+- [Code map](docs/CODEMAP.md): files, data flow and threads
 - [Packaging guide](docs/PACKAGING.md)
 - [Changelog](CHANGES.md)
 - [ST 2110 feasibility](docs/ST2110_FEASIBILITY.md)
 
-The changelog is the authoritative record of what landed and, just as
-importantly, what each feature deliberately does not do.
+The changelog records what changed in each version. It also says what each
+feature does not do.
 
 ---
 
 ## Friends of Deckboy
 
-- [AV Tools Pro](https://avtoolspro.com/) — free AV design calculators:
+- [AV Tools Pro](https://avtoolspro.com/): free AV design calculators for
   projector throw and brightness, AVoIP and Dante/AES67 bandwidth, video wall
   and LED pixel pitch, cable, rack and PoE planning
 
@@ -390,71 +427,73 @@ importantly, what each feature deliberately does not do.
 
 ## Roadmap
 
-**Audio, next:**
+**Audio:**
 
-- Multichannel audio files, up to 24 channels each, every channel routable
-- Object audio: place a cue in your speaker layout and move it across the room
+- Multichannel audio files with up to 24 channels, and routing for each channel
+- Object audio: put a cue in your speaker layout and move it around the room
 
 **DJ and sampling:**
 
-- Drop audio files straight into decks and mix them like a DJ: the tempo
-  (BPM) of each track found and matched, decks synced to each other and to
-  the video, and panning, mixing and EQ on every deck
+- Drop audio files onto decks and mix them like a DJ. Deckboy finds the tempo
+  (BPM) of each track and matches it. Decks sync to each other and to the
+  video, and each deck has panning, mixing and EQ
 - Slicing, chopping, looping and sampling
 
 **Show control:**
 
 - Cue carts, and templates for new shows
-- A routing map: tap a deck's "to Out 1" tag to see where every deck, layer
-  and output goes
-- A lighting dashboard, beyond the fixture patch
-- Live scoreboard data as a source: the clock, scores and fouls read off a
-  venue's scoreboard by [OSO (Open Scoreboard OCR)](https://github.com/openscoreboardocr/OSO-Open-Scoreboard-OCR)
-  and its XML/JSON feed, driving text and lower thirds on the outputs
+- A routing map: tap a deck's "to Out 1" tag to see where each deck, layer and
+  output goes
+- A lighting dashboard, in addition to the fixture patch
+- Live scoreboard data as a source.
+  [OSO (Open Scoreboard OCR)](https://github.com/openscoreboardocr/OSO-Open-Scoreboard-OCR)
+  reads the clock, scores and fouls from a venue's scoreboard and sends them as
+  XML or JSON. Deckboy shows them in text and lower thirds on the outputs
 
 **The idle face:**
 
-- Customise the pixel face that appears in the programme monitor when nothing
-  is playing and types out tips. Change how it looks and how it behaves, and
-  give it your own lines to say. Left alone, it works exactly as it does now.
-  It is cosmetic only: none of these settings affect playback or outputs
+- Customise the pixel face that shows in the programme monitor when nothing is
+  playing (the face that types out tips). Change how it looks and behaves, and
+  write your own lines for it. The default settings keep it as it is now. These
+  settings change only the face: they cannot affect playback, routing or outputs
 
 **Picture:**
 
-- Every output at its own screen's refresh rate on Windows. Today an output
-  on a screen at a different rate from the main one (59.94 Hz beside 60) is
-  shown at the main screen's rate and drops or repeats a frame every so
-  often; for now, run the screens at the same rate (the manual's "Screens
-  at different refresh rates")
-- Lip sync held within a few milliseconds across a whole day of playback, on
-  every platform
-- HDR the rest of the way: HDR over SDI shown on a real DeckLink card (it is
-  built, not yet tested on one), HDR in over SDI, HDR over NDI (which needs
-  NDI's separately licensed Advanced SDK), and HDR input on macOS and Linux
-- Local AI upscaling: an upscale job that turns a clip into a sharper, bigger
-  file, and real-time upscaling on the GPU where the hardware offers it
-- Drawing on the picture: a pen that draws over the output live, the way a
-  sports telestrator does, and paint cues drawn ahead of time that take, fade
-  and layer like any other cue
+- Each output at its own screen's refresh rate on Windows. At the moment, an
+  output on a screen with a different refresh rate from the main screen (for
+  example, 59.94 Hz and 60 Hz) runs at the main screen's rate, and it drops or
+  repeats a frame at intervals. Until this is fixed, set all screens to the
+  same rate (see "Screens at different refresh rates" in the manual)
+- Lip sync within a few milliseconds for a full day of playback, on all
+  platforms
+- More HDR: HDR over SDI tested on a DeckLink card (the code is complete, but
+  not tested on the hardware), HDR input over SDI, HDR over NDI (this needs
+  NDI's Advanced SDK, which has a separate licence), and HDR input on macOS and
+  Linux
+- Local AI upscaling: make a sharper, larger copy of a clip, and upscale in
+  real time on the graphics card where the hardware supports it
+- Drawing on the picture: draw on the live output with a pen, like a sports
+  telestrator, and prepare paint cues that take, fade and layer like other cues
 
 **Scopes:**
 
-- Scopes on the desk, on any output and over NDI
+- Scopes on the desk, on all outputs and over NDI
 
 **Deckboy Mini:**
 
-- A media browser in the terminal: browse folders, filter by typing and add clips
-  without leaving the keyboard, shared with the desk's own browser
+- A media browser in the terminal: browse folders, type to filter, and add
+  clips from the keyboard. It is the same browser as the desk's
 
 **Web Monitor and network:**
 
-- A Web Monitor at full resolution and the right shape
+- A Web Monitor at full resolution and the correct aspect ratio
 - Encrypted connections (HTTPS) for the Web Monitor and the phone remote
 
 **Platform:**
 
-- Hardware-paced ST 2110 output for narrow-model compliance
-- Syphon *input* on macOS as a cue source (Spout already works both ways on Windows)
+- ST 2110 output paced by hardware, for narrow-sender compliance
+- Syphon *input* on macOS as a cue source (Spout already works in both
+  directions on Windows)
 
 ---
 
@@ -463,9 +502,9 @@ importantly, what each feature deliberately does not do.
 Deckboy is free software under the **GNU General Public License v3.0 or later**.
 Copyright © 2026 Deckboy Contributors. The full text is in [LICENSE](LICENSE).
 
-Bundled components keep their own licences — ffmpeg ships with its LGPL/GPL
-notice beside the binary, and the NDI and DeckLink SDKs are loaded at runtime
-rather than distributed.
+Bundled components keep their own licences. FFmpeg ships with its LGPL/GPL
+notice next to the binary. Deckboy loads the NDI and DeckLink SDKs at runtime
+and does not distribute them.
 
 NDI® is a registered trademark of Vizrt NDI AB.
 
@@ -473,16 +512,13 @@ NDI® is a registered trademark of Vizrt NDI AB.
 
 ## Contributing
 
-Deckboy is built in the open and contributions are welcome — code, bug reports,
-documentation, testing, or production feedback from a real show.
-
-The best open-source tools are built by the communities that use them.
+Deckboy is developed in public, and contributions are welcome: code, bug
+reports, documentation, testing, or feedback from a real show.
 
 ---
 
 ## Project status
 
-Actively developed, on all three platforms. Windows, macOS and Linux build from
-the same source and every commit is checked by CI in both full and
-reduced-feature configurations — macOS as a self-contained app bundle, Linux as
-a portable tarball and an AppImage.
+Deckboy is in active development on Windows, macOS and Linux, from the same
+source. CI checks every commit in full and reduced-feature configurations. It
+builds a macOS app bundle, a Linux tarball and a Linux AppImage.
