@@ -1066,3 +1066,78 @@ START: PLAY	START: ИГРАТЬ
 # --- end of tutorials ---
 Splash	Заставка
 Beast mode	Режим зверя
+MIDI MAP	MIDI-КАРТА
++ ADD	+ ДОБАВИТЬ
+LEARN	ВЫУЧИТЬ
+LISTENING...	СЛУШАЮ...
+BACK	НАЗАД
+READY-MADE...	ГОТОВЫЕ...
+Message	Сообщение
+Runs	Выполняет
+On	Для
+Now	Сейчас
+Map	Карта
+MIDI input is off: turn it on in MIDI CONTROL. OSC rows still answer.	MIDI-вход выключен: включите его в MIDI CONTROL. Строки OSC всё равно отвечают.
+LEARN: move a knob or press a key on the controller...	ВЫУЧИТЬ: поверните ручку или нажмите клавишу на контроллере...
+1 · WHAT COMES IN	1 · ЧТО ПРИХОДИТ
+learn it, or say how to read it	выучить, или сказать, как читать
+2 · WHAT IT RUNS	2 · ЧТО ВЫПОЛНЯЕТ
+any command, {value} is the number	любая команда, {value} — это число
+3 · WHAT IT RUNS ON	3 · НА ЧТО НАЦЕЛЕНО
+aimed here; the desk never moves	нацелено сюда; пульт никогда не сдвигается
+Port	Порт
+Read as	Читать как
+Hold for	Держать
+Command	Команда
+From	От
+Centre	Центр
+To	До
+Pickup	Подхват
+On release	При отпускании
+Runs on	Действует на
+Playlist	Плейлист
+Saved with	Хранится в
+Row	Строка
+DELETE	УДАЛИТЬ
+THE SHOW	ШОУ
+THIS COMPUTER	ЭТОМ КОМПЬЮТЕРЕ
+any port	любой порт
+the desk	пульт
+the selected cue	выбранный cue
+what is on air	то, что в эфире
+one named cue	cue по имени
+the focused one	активный
+Test: move it on the controller	Проверка: поверните на контроллере
+knob 0-127	ручка 0-127
+endless encoder	бесконечный энкодер
+14-bit	14 бит
+press	нажатие
+hold	удержание
+press + release	нажатие + отпускание
+play	игра
+on press	при нажатии
+plays	играет
+LED MAP	КАРТА LED
+LAYOUT	РАСКЛАДКА
+FEEDS: pick a window, then one of these	ИСТОЧНИКИ: выберите окно, затем один из них
++ CHOOSE A FEED	+ ВЫБРАТЬ ИСТОЧНИК
+audio meter	индикатор звука
+safe areas	безопасные зоны
++ ONE AFTER THIS	+ ЕЩЁ ОДНО ПОСЛЕ
+- REMOVE THIS ONE	- УБРАТЬ ЭТО
+ONE PER PLAYLIST	ПО ОДНОМУ НА ПЛЕЙЛИСТ
+on the desk	на пульте
+tile width	ширина модуля
+tile height	высота модуля
+LISTENS: OFF	СЛУШАЕТ: НЕТ
+LISTENS: the figure follows the sound	СЛУШАЕТ: фигура следует за звуком
+import an SVG...	импортировать SVG...
+the selected cue in playlist {n}	выбранный cue в плейлисте {n}
+the selected cue in the focused playlist	выбранный cue в активном плейлисте
+on air in playlist {n}	в эфире в плейлисте {n}
+on air in the focused playlist	в эфире в активном плейлисте
+cue "{n}"	cue «{n}»
+hold {n} s	держать {n} с
+any	любой
+built in	встроенная
+show	шоу

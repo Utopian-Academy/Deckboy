@@ -1059,3 +1059,71 @@ START: PLAY	START: SPIL
 # --- end of tutorials ---
 Splash	Startskærm
 Beast mode	Bæstetilstand
+MIDI MAP	MIDI-KORT
++ ADD	+ TILFØJ
+LEARN	LÆR
+LISTENING...	LYTTER...
+BACK	TILBAGE
+READY-MADE...	FÆRDIGE...
+Message	Besked
+Runs	Kører
+On	På
+Now	Nu
+Map	Kort
+MIDI input is off: turn it on in MIDI CONTROL. OSC rows still answer.	MIDI-indgangen er slukket: tænd den i MIDI CONTROL. OSC-rækker svarer alligevel.
+LEARN: move a knob or press a key on the controller...	LÆR: drej en knap eller tryk en tast på controlleren...
+1 · WHAT COMES IN	1 · HVAD DER KOMMER IND
+learn it, or say how to read it	lær det, eller sig hvordan det læses
+2 · WHAT IT RUNS	2 · HVAD DET KØRER
+any command, {value} is the number	enhver kommando, {value} er tallet
+3 · WHAT IT RUNS ON	3 · HVAD DET RAMMER
+aimed here; the desk never moves	rettet hertil; pulten flytter sig aldrig
+Read as	Læs som
+Hold for	Hold i
+Command	Kommando
+From	Fra
+Centre	Midte
+To	Til
+Pickup	Opsamling
+On release	Ved slip
+Runs on	Virker på
+Playlist	Playliste
+Saved with	Gemt med
+Row	Række
+DELETE	SLET
+THE SHOW	SHOWET
+THIS COMPUTER	DENNE COMPUTER
+any port	enhver port
+the desk	pulten
+the selected cue	den valgte cue
+what is on air	det, der er i luften
+one named cue	en navngiven cue
+the focused one	den aktive
+Test: move it on the controller	Test: bevæg den på controlleren
+knob 0-127	knap 0-127
+endless encoder	endeløs encoder
+press	tryk
+press + release	tryk + slip
+play	spil
+on press	ved tryk
+plays	spiller
+LED MAP	LED-KORT
+FEEDS: pick a window, then one of these	KILDER: vælg et vindue, så en af disse
++ CHOOSE A FEED	+ VÆLG EN KILDE
+audio meter	lydmåler
+safe areas	sikre zoner
++ ONE AFTER THIS	+ ÉN EFTER DENNE
+- REMOVE THIS ONE	- FJERN DENNE
+ONE PER PLAYLIST	ÉN PR. PLAYLISTE
+on the desk	på pulten
+tile width	flisebredde
+tile height	fliseshøjde
+LISTENS: OFF	LYTTER: FRA
+LISTENS: the figure follows the sound	LYTTER: figuren følger lyden
+import an SVG...	importér en SVG...
+the selected cue in playlist {n}	den valgte cue i playliste {n}
+the selected cue in the focused playlist	den valgte cue i den aktive playliste
+on air in playlist {n}	i luften i playliste {n}
+on air in the focused playlist	i luften i den aktive playliste
+any	enhver
+built in	indbygget

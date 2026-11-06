@@ -1065,3 +1065,74 @@ START: PLAY	START : JOUER
 # --- end of tutorials ---
 Splash	Écran d'accueil
 Beast mode	Mode bête
+MIDI MAP	CARTE MIDI
++ ADD	+ AJOUTER
+LEARN	APPRENDRE
+LISTENING...	J'ÉCOUTE...
+BACK	RETOUR
+READY-MADE...	TOUT PRÊT...
+Runs	Lance
+On	Sur
+Now	Maintenant
+Map	Carte
+MIDI input is off: turn it on in MIDI CONTROL. OSC rows still answer.	L'entrée MIDI est coupée : activez-la dans MIDI CONTROL. Les lignes OSC répondent quand même.
+LEARN: move a knob or press a key on the controller...	APPRENDRE : tournez un bouton ou appuyez sur une touche du contrôleur...
+1 · WHAT COMES IN	1 · CE QUI ARRIVE
+learn it, or say how to read it	l'apprendre, ou dire comment le lire
+2 · WHAT IT RUNS	2 · CE QU'IL LANCE
+any command, {value} is the number	n'importe quelle commande, {value} est le nombre
+3 · WHAT IT RUNS ON	3 · SUR QUOI IL AGIT
+aimed here; the desk never moves	visé ici ; la régie ne bouge jamais
+Read as	Lire comme
+Hold for	Tenir
+Command	Commande
+From	De
+To	À
+Pickup	Rattrapage
+On release	Au relâché
+Runs on	Agit sur
+Saved with	Enregistré avec
+Row	Ligne
+DELETE	SUPPRIMER
+THE SHOW	LE SPECTACLE
+THIS COMPUTER	CET ORDINATEUR
+any port	tout port
+the desk	la régie
+the selected cue	le cue choisi
+what is on air	ce qui est à l'antenne
+one named cue	un cue nommé
+the focused one	celle au premier plan
+Test: move it on the controller	Test : bougez-le sur le contrôleur
+knob 0-127	bouton 0-127
+endless encoder	encodeur sans fin
+14-bit	14 bits
+press	appui
+hold	maintien
+press + release	appui + relâché
+play	jouer
+on press	à l'appui
+plays	joue
+LED MAP	CARTE LED
+LAYOUT	DISPOSITION
+FEEDS: pick a window, then one of these	SOURCES : choisissez une fenêtre, puis l'une d'elles
++ CHOOSE A FEED	+ CHOISIR UNE SOURCE
+audio meter	vu-mètre
+safe areas	zones de sécurité
++ ONE AFTER THIS	+ UNE APRÈS CELLE-CI
+- REMOVE THIS ONE	- RETIRER CELLE-CI
+ONE PER PLAYLIST	UNE PAR PLAYLIST
+on the desk	sur la régie
+tile width	largeur de dalle
+tile height	hauteur de dalle
+LISTENS: OFF	ÉCOUTE : NON
+LISTENS: the figure follows the sound	ÉCOUTE : la figure suit le son
+import an SVG...	importer un SVG...
+the selected cue in playlist {n}	le cue choisi dans la playlist {n}
+the selected cue in the focused playlist	le cue choisi dans la playlist active
+on air in playlist {n}	à l'antenne dans la playlist {n}
+on air in the focused playlist	à l'antenne dans la playlist active
+cue "{n}"	cue « {n} »
+hold {n} s	tenir {n} s
+any	tout
+built in	intégré
+show	spectacle

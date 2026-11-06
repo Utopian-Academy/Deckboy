@@ -1066,3 +1066,81 @@ START: PLAY	START: 시작
 # --- end of tutorials ---
 Splash	시작 화면
 Beast mode	야수 모드
+MIDI MAP	MIDI 맵
++ ADD	+ 추가
+LEARN	학습
+LISTENING...	듣는 중...
+BACK	뒤로
+READY-MADE...	준비된 것...
+Message	메시지
+Runs	실행
+On	대상
+Now	현재
+Map	맵
+MIDI input is off: turn it on in MIDI CONTROL. OSC rows still answer.	MIDI 입력이 꺼져 있습니다: MIDI CONTROL에서 켜세요. OSC 행은 그래도 응답합니다.
+LEARN: move a knob or press a key on the controller...	학습: 컨트롤러의 노브를 돌리거나 키를 누르세요...
+1 · WHAT COMES IN	1 · 들어오는 것
+learn it, or say how to read it	학습하거나, 읽는 방법을 지정
+2 · WHAT IT RUNS	2 · 실행하는 것
+any command, {value} is the number	아무 명령, {value}는 숫자
+3 · WHAT IT RUNS ON	3 · 대상
+aimed here; the desk never moves	여기를 겨냥; 데스크는 움직이지 않음
+Port	포트
+Read as	읽는 방식
+Hold for	누르고 있기
+Command	명령
+From	부터
+Centre	중앙
+To	까지
+Pickup	픽업
+On release	놓을 때
+Runs on	대상
+Playlist	플레이리스트
+Cue	큐
+Saved with	저장 위치
+Row	행
+DELETE	삭제
+THE SHOW	쇼
+THIS COMPUTER	이 컴퓨터
+any port	모든 포트
+the desk	데스크
+the selected cue	선택한 큐
+what is on air	방송 중인 것
+one named cue	이름 있는 큐
+the focused one	포커스된 것
+Test: move it on the controller	테스트: 컨트롤러에서 움직여 보세요
+knob 0-127	노브 0-127
+endless encoder	무한 인코더
+14-bit	14비트
+press	누르기
+hold	길게 누르기
+press + release	누르기 + 놓기
+play	연주
+on press	누를 때
+plays	연주
+SLICES	슬라이스
+MULTIVIEW	멀티뷰
+LED MAP	LED 맵
+LAYOUT	레이아웃
+FEEDS: pick a window, then one of these	소스: 창을 고른 뒤 이 중 하나
++ CHOOSE A FEED	+ 소스 고르기
+audio meter	오디오 미터
+safe areas	안전 영역
++ ONE AFTER THIS	+ 이 다음에 하나
+- REMOVE THIS ONE	- 이것 제거
+ONE PER PLAYLIST	플레이리스트마다 하나
+on the desk	데스크에서
+tile width	타일 너비
+tile height	타일 높이
+LISTENS: OFF	듣기: 끔
+LISTENS: the figure follows the sound	듣기: 도형이 소리를 따라감
+import an SVG...	SVG 가져오기...
+the selected cue in playlist {n}	플레이리스트 {n}의 선택한 큐
+the selected cue in the focused playlist	포커스된 플레이리스트의 선택한 큐
+on air in playlist {n}	플레이리스트 {n}에서 방송 중
+on air in the focused playlist	포커스된 플레이리스트에서 방송 중
+cue "{n}"	큐 "{n}"
+hold {n} s	{n}초 누르기
+any	모두
+built in	기본 제공
+show	쇼

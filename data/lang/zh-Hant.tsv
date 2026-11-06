@@ -1068,3 +1068,80 @@ START: PLAY	START：開始
 # --- end of tutorials ---
 Splash	啟動畫面
 Beast mode	野獸模式
+MIDI MAP	MIDI 對應
++ ADD	+ 新增
+LEARN	學習
+LISTENING...	正在聆聽...
+BACK	返回
+READY-MADE...	現成的...
+Message	訊息
+Runs	執行
+On	作用於
+Now	目前
+Map	對應
+MIDI input is off: turn it on in MIDI CONTROL. OSC rows still answer.	MIDI 輸入已關閉：請在 MIDI CONTROL 中開啟。OSC 列仍會回應。
+LEARN: move a knob or press a key on the controller...	學習：在控制器上轉動一個旋鈕或按一個鍵...
+1 · WHAT COMES IN	1 · 輸入什麼
+learn it, or say how to read it	學習它，或說明如何讀取
+2 · WHAT IT RUNS	2 · 執行什麼
+any command, {value} is the number	任何指令，{value} 是數值
+3 · WHAT IT RUNS ON	3 · 作用於什麼
+aimed here; the desk never moves	瞄準這裡；控台不會移動
+Port	連接埠
+Read as	讀取為
+Hold for	按住
+Command	指令
+From	從
+Centre	中心
+To	到
+Pickup	拾取
+On release	放開時
+Runs on	作用於
+Playlist	播放清單
+Saved with	儲存於
+Row	列
+DELETE	刪除
+THE SHOW	演出
+THIS COMPUTER	這台電腦
+any port	任何連接埠
+the desk	控台
+the selected cue	選取的 cue
+what is on air	正在播出的內容
+one named cue	指定名稱的 cue
+the focused one	目前焦點的
+Test: move it on the controller	測試：在控制器上動一下
+knob 0-127	旋鈕 0-127
+endless encoder	無限編碼器
+14-bit	14 位元
+press	按下
+hold	按住
+press + release	按下 + 放開
+play	演奏
+on press	按下時
+plays	演奏
+SLICES	切片
+MULTIVIEW	多畫面
+LED MAP	LED 對應
+LAYOUT	版面
+FEEDS: pick a window, then one of these	訊號源：先選視窗，再選其中一個
++ CHOOSE A FEED	+ 選擇訊號源
+audio meter	音訊表
+safe areas	安全區
++ ONE AFTER THIS	+ 在此之後加一個
+- REMOVE THIS ONE	- 移除這個
+ONE PER PLAYLIST	每個播放清單一個
+on the desk	在控台上
+tile width	單元寬度
+tile height	單元高度
+LISTENS: OFF	聆聽：關
+LISTENS: the figure follows the sound	聆聽：圖形跟隨聲音
+import an SVG...	匯入 SVG...
+the selected cue in playlist {n}	播放清單 {n} 中選取的 cue
+the selected cue in the focused playlist	目前播放清單中選取的 cue
+on air in playlist {n}	播放清單 {n} 中正在播出的
+on air in the focused playlist	目前播放清單中正在播出的
+cue "{n}"	cue「{n}」
+hold {n} s	按住 {n} 秒
+any	任何
+built in	內建
+show	演出

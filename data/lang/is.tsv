@@ -1063,3 +1063,78 @@ START: PLAY	START: SPILA
 # --- end of tutorials ---
 Splash	Upphafsskjár
 Beast mode	Skrímslahamur
+MIDI MAP	MIDI-KORT
++ ADD	+ BÆTA VIÐ
+LEARN	LÆRA
+LISTENING...	HLUSTAR...
+BACK	TIL BAKA
+READY-MADE...	TILBÚIN...
+Message	Skilaboð
+Runs	Keyrir
+On	Á
+Now	Núna
+Map	Kort
+MIDI input is off: turn it on in MIDI CONTROL. OSC rows still answer.	MIDI-inntak er af: kveiktu á því í MIDI CONTROL. OSC-línur svara samt.
+LEARN: move a knob or press a key on the controller...	LÆRA: snúðu takka eða ýttu á hnapp á stjórnborðinu...
+1 · WHAT COMES IN	1 · HVAÐ KEMUR INN
+learn it, or say how to read it	kenndu það, eða segðu hvernig á að lesa það
+2 · WHAT IT RUNS	2 · HVAÐ ÞAÐ KEYRIR
+any command, {value} is the number	hvaða skipun sem er, {value} er talan
+3 · WHAT IT RUNS ON	3 · Á HVAÐ ÞAÐ MIÐAR
+aimed here; the desk never moves	miðað hingað; borðið hreyfist aldrei
+Port	Tengi
+Read as	Lesa sem
+Hold for	Halda í
+Command	Skipun
+From	Frá
+Centre	Miðja
+To	Til
+Pickup	Grip
+On release	Við slepp
+Runs on	Keyrir á
+Playlist	Spilunarlisti
+Saved with	Vistað með
+Row	Lína
+DELETE	EYÐA
+THE SHOW	SÝNINGUNNI
+THIS COMPUTER	ÞESSARI TÖLVU
+any port	hvaða tengi sem er
+the desk	borðið
+the selected cue	valið cue
+what is on air	það sem er í loftinu
+one named cue	cue með nafni
+the focused one	virki listinn
+Test: move it on the controller	Prófun: hreyfðu það á stjórnborðinu
+knob 0-127	takki 0-127
+endless encoder	endalaus kóðari
+14-bit	14 bita
+press	ýta
+hold	halda
+press + release	ýta + sleppa
+play	spila
+on press	við ýtingu
+plays	spilar
+LED MAP	LED-KORT
+LAYOUT	UPPSETNING
+FEEDS: pick a window, then one of these	UPPSPRETTUR: veldu glugga, svo eina af þessum
++ CHOOSE A FEED	+ VELDU UPPSPRETTU
+audio meter	hljóðmælir
+safe areas	örugg svæði
++ ONE AFTER THIS	+ EINN Á EFTIR ÞESSUM
+- REMOVE THIS ONE	- FJARLÆGJA ÞENNAN
+ONE PER PLAYLIST	EINN Á HVERN LISTA
+on the desk	á borðinu
+tile width	breidd flísar
+tile height	hæð flísar
+LISTENS: OFF	HLUSTAR: AF
+LISTENS: the figure follows the sound	HLUSTAR: myndin fylgir hljóðinu
+import an SVG...	flytja inn SVG...
+the selected cue in playlist {n}	valið cue í lista {n}
+the selected cue in the focused playlist	valið cue í virka listanum
+on air in playlist {n}	í loftinu í lista {n}
+on air in the focused playlist	í loftinu í virka listanum
+cue "{n}"	cue „{n}“
+hold {n} s	halda {n} s
+any	hvaða sem er
+built in	innbyggt
+show	sýning

@@ -1075,3 +1075,78 @@ START: PLAY	START: بازی
 # --- end of tutorials ---
 Splash	صفحهٔ آغاز
 Beast mode	حالت هیولا
+MIDI MAP	نقشهٔ MIDI
++ ADD	+ افزودن
+LEARN	یادگیری
+LISTENING...	در حال شنیدن...
+BACK	بازگشت
+READY-MADE...	آماده...
+Message	پیام
+Runs	اجرا می‌کند
+On	روی
+Now	اکنون
+Map	نقشه
+MIDI input is off: turn it on in MIDI CONTROL. OSC rows still answer.	ورودی MIDI خاموش است: آن را در MIDI CONTROL روشن کنید. ردیف‌های OSC همچنان پاسخ می‌دهند.
+LEARN: move a knob or press a key on the controller...	یادگیری: یک پیچ را بچرخانید یا کلیدی روی کنترلر بزنید...
+1 · WHAT COMES IN	1 · چه می‌آید
+learn it, or say how to read it	یادش بده، یا بگو چطور خوانده شود
+2 · WHAT IT RUNS	2 · چه اجرا می‌کند
+any command, {value} is the number	هر فرمانی، {value} همان عدد است
+3 · WHAT IT RUNS ON	3 · روی چه کار می‌کند
+aimed here; the desk never moves	اینجا را نشانه می‌گیرد؛ میز هرگز جابه‌جا نمی‌شود
+Port	درگاه
+Read as	خواندن به‌صورت
+Hold for	نگه داشتن
+Command	فرمان
+From	از
+Centre	میانه
+To	تا
+Pickup	گرفتن
+On release	هنگام رها کردن
+Runs on	روی
+Playlist	فهرست پخش
+Saved with	ذخیره با
+Row	ردیف
+DELETE	حذف
+THE SHOW	نمایش
+THIS COMPUTER	این رایانه
+any port	هر درگاهی
+the desk	میز
+the selected cue	cue انتخاب‌شده
+what is on air	آنچه روی آنتن است
+one named cue	یک cue با نام
+the focused one	فهرست فعال
+Test: move it on the controller	آزمایش: آن را روی کنترلر حرکت دهید
+knob 0-127	پیچ 0-127
+endless encoder	انکودر بی‌پایان
+14-bit	14 بیتی
+press	فشار
+hold	نگه داشتن
+press + release	فشار + رها
+play	نواختن
+on press	هنگام فشار
+plays	می‌نوازد
+LED MAP	نقشهٔ LED
+LAYOUT	چیدمان
+FEEDS: pick a window, then one of these	منبع‌ها: یک پنجره، سپس یکی از این‌ها
++ CHOOSE A FEED	+ انتخاب منبع
+audio meter	سنجهٔ صدا
+safe areas	ناحیه‌های امن
++ ONE AFTER THIS	+ یکی پس از این
+- REMOVE THIS ONE	- حذف این
+ONE PER PLAYLIST	یکی برای هر فهرست
+on the desk	روی میز
+tile width	پهنای کاشی
+tile height	بلندی کاشی
+LISTENS: OFF	می‌شنود: خاموش
+LISTENS: the figure follows the sound	می‌شنود: شکل از صدا پیروی می‌کند
+import an SVG...	وارد کردن SVG...
+the selected cue in playlist {n}	cue انتخاب‌شده در فهرست {n}
+the selected cue in the focused playlist	cue انتخاب‌شده در فهرست فعال
+on air in playlist {n}	روی آنتن در فهرست {n}
+on air in the focused playlist	روی آنتن در فهرست فعال
+cue "{n}"	cue «{n}»
+hold {n} s	{n} ثانیه نگه دارید
+any	هر
+built in	داخلی
+show	نمایش

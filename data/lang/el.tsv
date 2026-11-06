@@ -1066,3 +1066,77 @@ START: PLAY	START: ΠΑΙΞΕ
 # --- end of tutorials ---
 Splash	Οθόνη εκκίνησης
 Beast mode	Λειτουργία θηρίου
+MIDI MAP	ΧΑΡΤΗΣ MIDI
++ ADD	+ ΠΡΟΣΘΗΚΗ
+LEARN	ΕΚΜΑΘΗΣΗ
+LISTENING...	ΑΚΟΥΕΙ...
+BACK	ΠΙΣΩ
+READY-MADE...	ΕΤΟΙΜΟΙ...
+Message	Μήνυμα
+Runs	Εκτελεί
+On	Σε
+Now	Τώρα
+Map	Χάρτης
+MIDI input is off: turn it on in MIDI CONTROL. OSC rows still answer.	Η είσοδος MIDI είναι κλειστή: ανοίξτε τη στο MIDI CONTROL. Οι γραμμές OSC απαντούν ούτως ή άλλως.
+LEARN: move a knob or press a key on the controller...	ΕΚΜΑΘΗΣΗ: γυρίστε ένα κουμπί ή πατήστε ένα πλήκτρο στον ελεγκτή...
+1 · WHAT COMES IN	1 · ΤΙ ΕΡΧΕΤΑΙ
+learn it, or say how to read it	μάθ' το, ή πες πώς διαβάζεται
+2 · WHAT IT RUNS	2 · ΤΙ ΕΚΤΕΛΕΙ
+any command, {value} is the number	οποιαδήποτε εντολή, το {value} είναι ο αριθμός
+3 · WHAT IT RUNS ON	3 · ΠΟΥ ΣΤΟΧΕΥΕΙ
+aimed here; the desk never moves	στοχεύει εδώ· η κονσόλα δεν μετακινείται ποτέ
+Port	Θύρα
+Read as	Ανάγνωση ως
+Hold for	Κράτημα
+Command	Εντολή
+From	Από
+Centre	Κέντρο
+To	Έως
+Pickup	Πιάσιμο
+On release	Στην απελευθέρωση
+Runs on	Δρα σε
+Saved with	Αποθηκεύεται με
+Row	Γραμμή
+DELETE	ΔΙΑΓΡΑΦΗ
+THE SHOW	ΤΗΝ ΠΑΡΑΣΤΑΣΗ
+THIS COMPUTER	ΑΥΤΟΝ ΤΟΝ ΥΠΟΛΟΓΙΣΤΗ
+any port	οποιαδήποτε θύρα
+the desk	η κονσόλα
+the selected cue	το επιλεγμένο cue
+what is on air	ό,τι είναι στον αέρα
+one named cue	ένα cue με όνομα
+the focused one	η ενεργή
+Test: move it on the controller	Δοκιμή: κινήστε το στον ελεγκτή
+knob 0-127	κουμπί 0-127
+endless encoder	ατέρμονος κωδικοποιητής
+14-bit	14 bit
+press	πάτημα
+hold	κράτημα
+press + release	πάτημα + άφημα
+play	παίξιμο
+on press	στο πάτημα
+plays	παίζει
+LED MAP	ΧΑΡΤΗΣ LED
+LAYOUT	ΔΙΑΤΑΞΗ
+FEEDS: pick a window, then one of these	ΠΗΓΕΣ: διαλέξτε παράθυρο, μετά μία από αυτές
++ CHOOSE A FEED	+ ΔΙΑΛΕΞΤΕ ΠΗΓΗ
+audio meter	μετρητής ήχου
+safe areas	ασφαλείς ζώνες
++ ONE AFTER THIS	+ ΕΝΑ ΜΕΤΑ ΑΠΟ ΑΥΤΟ
+- REMOVE THIS ONE	- ΑΦΑΙΡΕΣΗ ΑΥΤΟΥ
+ONE PER PLAYLIST	ΕΝΑ ΑΝΑ PLAYLIST
+on the desk	στην κονσόλα
+tile width	πλάτος πλακιδίου
+tile height	ύψος πλακιδίου
+LISTENS: OFF	ΑΚΟΥΕΙ: ΟΧΙ
+LISTENS: the figure follows the sound	ΑΚΟΥΕΙ: το σχήμα ακολουθεί τον ήχο
+import an SVG...	εισαγωγή SVG...
+the selected cue in playlist {n}	το επιλεγμένο cue στο playlist {n}
+the selected cue in the focused playlist	το επιλεγμένο cue στο ενεργό playlist
+on air in playlist {n}	στον αέρα στο playlist {n}
+on air in the focused playlist	στον αέρα στο ενεργό playlist
+cue "{n}"	cue «{n}»
+hold {n} s	κράτημα {n} δ
+any	οποιοδήποτε
+built in	ενσωματωμένο
+show	παράσταση

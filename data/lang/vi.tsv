@@ -1062,3 +1062,74 @@ Every one of those is a real Motion control. Put them on any ~ knob you like.	M�
 START: AGAIN	START: LẠI
 START: PLAY	START: CHƠI
 # --- end of tutorials ---
+MIDI MAP	BẢN ĐỒ MIDI
++ ADD	+ THÊM
+LEARN	HỌC
+LISTENING...	ĐANG NGHE...
+BACK	QUAY LẠI
+READY-MADE...	CÓ SẴN...
+Message	Tín hiệu
+Runs	Chạy
+On	Trên
+Now	Hiện tại
+Map	Bản đồ
+MIDI input is off: turn it on in MIDI CONTROL. OSC rows still answer.	Đầu vào MIDI đang tắt: bật nó trong MIDI CONTROL. Các hàng OSC vẫn trả lời.
+LEARN: move a knob or press a key on the controller...	HỌC: vặn một núm hoặc nhấn một phím trên bộ điều khiển...
+1 · WHAT COMES IN	1 · CÁI GÌ ĐI VÀO
+learn it, or say how to read it	học nó, hoặc nói cách đọc
+2 · WHAT IT RUNS	2 · NÓ CHẠY GÌ
+any command, {value} is the number	lệnh bất kỳ, {value} là con số
+3 · WHAT IT RUNS ON	3 · NÓ NHẮM VÀO ĐÂU
+aimed here; the desk never moves	nhắm vào đây; bàn không bao giờ dịch chuyển
+Port	Cổng
+Read as	Đọc như
+Hold for	Giữ trong
+Command	Lệnh
+From	Từ
+Centre	Giữa
+To	Đến
+Pickup	Bắt giá trị
+On release	Khi thả
+Runs on	Chạy trên
+Saved with	Lưu cùng
+Row	Hàng
+DELETE	XÓA
+THE SHOW	SHOW
+THIS COMPUTER	MÁY NÀY
+any port	cổng bất kỳ
+the desk	bàn
+the selected cue	cue đang chọn
+what is on air	thứ đang lên sóng
+one named cue	một cue có tên
+the focused one	cái đang chọn
+Test: move it on the controller	Thử: xoay nó trên bộ điều khiển
+knob 0-127	núm 0-127
+endless encoder	bộ mã hóa vô tận
+press	nhấn
+hold	giữ
+press + release	nhấn + thả
+play	chơi
+on press	khi nhấn
+plays	chơi
+LED MAP	BẢN ĐỒ LED
+LAYOUT	BỐ CỤC
+FEEDS: pick a window, then one of these	NGUỒN: chọn một cửa sổ, rồi một nguồn
++ CHOOSE A FEED	+ CHỌN NGUỒN
+audio meter	đồng hồ âm thanh
+safe areas	vùng an toàn
++ ONE AFTER THIS	+ THÊM MỘT SAU CÁI NÀY
+- REMOVE THIS ONE	- BỎ CÁI NÀY
+ONE PER PLAYLIST	MỖI PLAYLIST MỘT CÁI
+on the desk	trên bàn
+tile width	rộng tấm
+tile height	cao tấm
+LISTENS: OFF	NGHE: TẮT
+LISTENS: the figure follows the sound	NGHE: hình đi theo âm thanh
+import an SVG...	nhập SVG...
+the selected cue in playlist {n}	cue đang chọn trong playlist {n}
+the selected cue in the focused playlist	cue đang chọn trong playlist đang mở
+on air in playlist {n}	đang lên sóng trong playlist {n}
+on air in the focused playlist	đang lên sóng trong playlist đang mở
+hold {n} s	giữ {n} giây
+any	bất kỳ
+built in	có sẵn

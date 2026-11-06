@@ -475,6 +475,33 @@
     return "the desk";
   }
 
+  // The MAP page's own words for a row, in the operator's language. Built
+  // from whole-sentence templates ("on air in playlist {n}") because a
+  // translation cannot be glued together from English word order. The
+  // monitor and MIDIMAP LIST keep midiMapTargetLabel's English: scripts read it.
+  static std::string midiMapTr(const char* tmpl, const std::string& fill = {}) {
+    std::string s = deckboy::core::i18n::translate(tmpl);
+    const std::size_t at = s.find("{n}");
+    if (at != std::string::npos) s.replace(at, 3, fill);
+    return s;
+  }
+
+  static std::string midiMapTargetShown(const deckboy::midimap::Row& row) {
+    using deckboy::midimap::Target;
+    const std::string n = std::to_string(row.playlist);
+    switch (row.target) {
+      case Target::Selected:
+        return row.playlist > 0 ? midiMapTr("the selected cue in playlist {n}", n)
+                                : midiMapTr("the selected cue in the focused playlist");
+      case Target::OnAir:
+        return row.playlist > 0 ? midiMapTr("on air in playlist {n}", n)
+                                : midiMapTr("on air in the focused playlist");
+      case Target::Named: return midiMapTr("cue \"{n}\"", row.cue);
+      case Target::Desk: break;
+    }
+    return midiMapTr("the desk");
+  }
+
   static std::string midiMapRowLabel(deckboy::midimap::Origin origin, int row) {
     return std::string(origin == deckboy::midimap::Origin::Show ? "show" : "computer") +
            " map row " + std::to_string(row + 1);
@@ -1019,7 +1046,7 @@
   std::string midiMapNowText(deckboy::midimap::Origin origin, int index, const deckboy::midimap::Row& r) {
     namespace mm = deckboy::midimap;
     switch (r.read) {
-      case mm::Read::Hold: return "hold " + mm::formatNumber(r.holdSeconds) + " s";
+      case mm::Read::Hold: return midiMapTr("hold {n} s", mm::formatNumber(r.holdSeconds));
       case mm::Read::PressRelease: return "press + release";
       case mm::Read::Play: return "plays";
       case mm::Read::Press:
@@ -1151,12 +1178,13 @@
       const SDL_Color rowInk = !r.enabled ? soft : ink;
       const auto cells = columns(y, rowH);
       std::string msg = mm::describeSource(r);
-      if (r.builtIn) msg += "  built in";
-      if (origin == mm::Origin::Show) msg += "  (show)";
+      if (msg.rfind("any ", 0) == 0) msg = midiMapTr("any") + msg.substr(3);
+      if (r.builtIn) msg += "  " + midiMapTr("built in");
+      if (origin == mm::Origin::Show) msg += "  (" + midiMapTr("show") + ")";
       std::string runs = r.command;
       if (!cueClaim.empty()) runs += "  - cue \"" + cueClaim + "\" claims it too";
       if (!r.enabled) runs = "OFF  " + runs;
-      std::string on = midiMapTargetLabel(r);
+      std::string on = midiMapTargetShown(r);
       drawTextSafe(controlRenderer_, fontSmall_, cells[0], msg, rowInk);
       drawTextSafe(controlRenderer_, fontSmall_, cells[1], runs, rowInk);
       drawTextSafe(controlRenderer_, fontSmall_, cells[2], on, rowInk);

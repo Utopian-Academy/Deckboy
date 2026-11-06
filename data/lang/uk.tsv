@@ -1066,3 +1066,78 @@ START: PLAY	START: ГРАТИ
 # --- end of tutorials ---
 Splash	Заставка
 Beast mode	Режим звіра
+MIDI MAP	MIDI-МАПА
++ ADD	+ ДОДАТИ
+LEARN	ВИВЧИТИ
+LISTENING...	СЛУХАЮ...
+BACK	НАЗАД
+READY-MADE...	ГОТОВІ...
+Message	Повідомлення
+Runs	Виконує
+On	Для
+Now	Зараз
+Map	Мапа
+MIDI input is off: turn it on in MIDI CONTROL. OSC rows still answer.	MIDI-вхід вимкнено: увімкніть його в MIDI CONTROL. Рядки OSC однаково відповідають.
+LEARN: move a knob or press a key on the controller...	ВИВЧИТИ: покрутіть ручку або натисніть клавішу на контролері...
+1 · WHAT COMES IN	1 · ЩО НАДХОДИТЬ
+learn it, or say how to read it	вивчити, або сказати, як читати
+2 · WHAT IT RUNS	2 · ЩО ВИКОНУЄ
+any command, {value} is the number	будь-яка команда, {value} — це число
+3 · WHAT IT RUNS ON	3 · НА ЩО НАЦІЛЕНО
+aimed here; the desk never moves	націлено сюди; пульт ніколи не зрушує
+Port	Порт
+Read as	Читати як
+Hold for	Тримати
+Command	Команда
+From	Від
+Centre	Центр
+To	До
+Pickup	Підхоплення
+On release	Коли відпущено
+Runs on	Діє на
+Playlist	Плейлист
+Saved with	Зберігається в
+Row	Рядок
+DELETE	ВИДАЛИТИ
+THE SHOW	ШОУ
+THIS COMPUTER	ЦЬОМУ КОМП'ЮТЕРІ
+any port	будь-який порт
+the desk	пульт
+the selected cue	вибраний cue
+what is on air	те, що в ефірі
+one named cue	cue за назвою
+the focused one	активний
+Test: move it on the controller	Перевірка: покрутіть на контролері
+knob 0-127	ручка 0-127
+endless encoder	безкінечний енкодер
+14-bit	14 біт
+press	натиск
+hold	утримання
+press + release	натиск + відпускання
+play	грати
+on press	при натиску
+plays	грає
+LED MAP	МАПА LED
+LAYOUT	РОЗКЛАДКА
+FEEDS: pick a window, then one of these	ДЖЕРЕЛА: виберіть вікно, потім одне з них
++ CHOOSE A FEED	+ ВИБРАТИ ДЖЕРЕЛО
+audio meter	індикатор звуку
+safe areas	безпечні зони
++ ONE AFTER THIS	+ ЩЕ ОДНЕ ПІСЛЯ
+- REMOVE THIS ONE	- ПРИБРАТИ ЦЕ
+ONE PER PLAYLIST	ПО ОДНОМУ НА ПЛЕЙЛИСТ
+on the desk	на пульті
+tile width	ширина модуля
+tile height	висота модуля
+LISTENS: OFF	СЛУХАЄ: НІ
+LISTENS: the figure follows the sound	СЛУХАЄ: фігура йде за звуком
+import an SVG...	імпортувати SVG...
+the selected cue in playlist {n}	вибраний cue у плейлисті {n}
+the selected cue in the focused playlist	вибраний cue в активному плейлисті
+on air in playlist {n}	в ефірі в плейлисті {n}
+on air in the focused playlist	в ефірі в активному плейлисті
+cue "{n}"	cue «{n}»
+hold {n} s	тримати {n} с
+any	будь-який
+built in	вбудований
+show	шоу

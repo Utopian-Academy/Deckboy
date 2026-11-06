@@ -1065,3 +1065,78 @@ START: PLAY	START: ИГРАЙ
 # --- end of tutorials ---
 Splash	Начален екран
 Beast mode	Режим звяр
+MIDI MAP	MIDI КАРТА
++ ADD	+ ДОБАВИ
+LEARN	НАУЧИ
+LISTENING...	СЛУШАМ...
+BACK	НАЗАД
+READY-MADE...	ГОТОВИ...
+Message	Съобщение
+Runs	Изпълнява
+On	Върху
+Now	Сега
+Map	Карта
+MIDI input is off: turn it on in MIDI CONTROL. OSC rows still answer.	MIDI входът е изключен: включи го в MIDI CONTROL. Редовете OSC отговарят все пак.
+LEARN: move a knob or press a key on the controller...	НАУЧИ: завърти копче или натисни клавиш на контролера...
+1 · WHAT COMES IN	1 · КАКВО ИДВА
+learn it, or say how to read it	научи го или кажи как да се чете
+2 · WHAT IT RUNS	2 · КАКВО ИЗПЪЛНЯВА
+any command, {value} is the number	всяка команда, {value} е числото
+3 · WHAT IT RUNS ON	3 · ВЪРХУ КАКВО
+aimed here; the desk never moves	насочено тук; пултът никога не мърда
+Port	Порт
+Read as	Чети като
+Hold for	Задръж
+Command	Команда
+From	От
+Centre	Център
+To	До
+Pickup	Прихващане
+On release	При пускане
+Runs on	Действа върху
+Playlist	Плейлист
+Saved with	Записан с
+Row	Ред
+DELETE	ИЗТРИЙ
+THE SHOW	ШОУТО
+THIS COMPUTER	ТОЗИ КОМПЮТЪР
+any port	всеки порт
+the desk	пултът
+the selected cue	избраният cue
+what is on air	каквото е в ефир
+one named cue	cue по име
+the focused one	активният
+Test: move it on the controller	Проба: завърти го на контролера
+knob 0-127	копче 0-127
+endless encoder	безкраен енкодер
+14-bit	14 бита
+press	натисни
+hold	задръж
+press + release	натисни + пусни
+play	свири
+on press	при натискане
+plays	свири
+LED MAP	LED КАРТА
+LAYOUT	ПОДРЕДБА
+FEEDS: pick a window, then one of these	ИЗТОЧНИЦИ: избери прозорец, после един от тях
++ CHOOSE A FEED	+ ИЗБЕРИ ИЗТОЧНИК
+audio meter	аудио метър
+safe areas	безопасни зони
++ ONE AFTER THIS	+ ЕДИН СЛЕД ТОЗИ
+- REMOVE THIS ONE	- МАХНИ ТОЗИ
+ONE PER PLAYLIST	ПО ЕДИН НА ПЛЕЙЛИСТ
+on the desk	на пулта
+tile width	ширина на панела
+tile height	височина на панела
+LISTENS: OFF	СЛУША: НЕ
+LISTENS: the figure follows the sound	СЛУША: фигурата следва звука
+import an SVG...	внеси SVG...
+the selected cue in playlist {n}	избраният cue в плейлист {n}
+the selected cue in the focused playlist	избраният cue в активния плейлист
+on air in playlist {n}	в ефир в плейлист {n}
+on air in the focused playlist	в ефир в активния плейлист
+cue "{n}"	cue „{n}“
+hold {n} s	задръж {n} с
+any	всеки
+built in	вграден
+show	шоу

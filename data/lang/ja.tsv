@@ -1068,3 +1068,81 @@ START: PLAY	START：プレイ
 # --- end of tutorials ---
 Splash	起動画面
 Beast mode	ビーストモード
+MIDI MAP	MIDIマップ
++ ADD	+ 追加
+LEARN	学習
+LISTENING...	待機中...
+BACK	戻る
+READY-MADE...	既製...
+Message	メッセージ
+Runs	実行
+On	対象
+Now	現在
+Map	マップ
+MIDI input is off: turn it on in MIDI CONTROL. OSC rows still answer.	MIDI入力はオフです。MIDI CONTROLでオンにしてください。OSCの行はそのまま応答します。
+LEARN: move a knob or press a key on the controller...	学習：コントローラーのつまみを回すかキーを押してください...
+1 · WHAT COMES IN	1 · 入ってくるもの
+learn it, or say how to read it	学習するか、読み方を指定
+2 · WHAT IT RUNS	2 · 実行するもの
+any command, {value} is the number	任意のコマンド、{value}が数値
+3 · WHAT IT RUNS ON	3 · 対象
+aimed here; the desk never moves	ここを狙う。デスクは動かない
+Port	ポート
+Read as	読み方
+Hold for	長押し
+Command	コマンド
+From	最小
+Centre	中央
+To	最大
+Pickup	ピックアップ
+On release	離したとき
+Runs on	対象
+Playlist	プレイリスト
+Cue	キュー
+Saved with	保存先
+Row	行
+DELETE	削除
+THE SHOW	ショー
+THIS COMPUTER	このコンピューター
+any port	すべてのポート
+the desk	デスク
+the selected cue	選択中のキュー
+what is on air	オンエア中のもの
+one named cue	名前付きキュー
+the focused one	フォーカス中
+Test: move it on the controller	テスト：コントローラーで動かしてください
+knob 0-127	つまみ 0-127
+endless encoder	エンドレスエンコーダー
+14-bit	14ビット
+press	押す
+hold	長押し
+press + release	押す＋離す
+play	演奏
+on press	押したとき
+plays	演奏
+SLICES	スライス
+MULTIVIEW	マルチビュー
+LED MAP	LEDマップ
+LAYOUT	レイアウト
+FEEDS: pick a window, then one of these	ソース：ウィンドウを選び、次にこの中から一つ
++ CHOOSE A FEED	+ ソースを選ぶ
+audio meter	音声メーター
+safe areas	セーフエリア
++ ONE AFTER THIS	+ この後に追加
+- REMOVE THIS ONE	- これを削除
+ONE PER PLAYLIST	プレイリストごとに一つ
+on the desk	デスク上
+tile width	タイルの幅
+tile height	タイルの高さ
+LISTENS: OFF	聴く：オフ
+LISTENS: the figure follows the sound	聴く：図形が音を追う
+import an SVG...	SVGを読み込む...
+the selected cue in playlist {n}	プレイリスト{n}の選択中のキュー
+the selected cue in the focused playlist	フォーカス中のプレイリストの選択中のキュー
+on air in playlist {n}	プレイリスト{n}のオンエア中
+on air in the focused playlist	フォーカス中のプレイリストのオンエア中
+cue "{n}"	キュー「{n}」
+hold {n} s	{n}秒長押し
+any	すべて
+built in	組み込み
+show	ショー

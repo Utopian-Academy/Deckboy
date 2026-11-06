@@ -1064,3 +1064,77 @@ START: PLAY	START: PELAA
 # --- end of tutorials ---
 Splash	Aloituskuva
 Beast mode	Petotila
+MIDI MAP	MIDI-KARTTA
++ ADD	+ LISÄÄ
+LEARN	OPI
+LISTENING...	KUUNTELEE...
+BACK	TAKAISIN
+READY-MADE...	VALMIIT...
+Message	Viesti
+Runs	Ajaa
+On	Kohde
+Now	Nyt
+Map	Kartta
+MIDI input is off: turn it on in MIDI CONTROL. OSC rows still answer.	MIDI-tulo on pois: kytke se päälle MIDI CONTROLissa. OSC-rivit vastaavat silti.
+LEARN: move a knob or press a key on the controller...	OPI: käännä nuppia tai paina näppäintä ohjaimessa...
+1 · WHAT COMES IN	1 · MITÄ TULEE
+learn it, or say how to read it	opeta se tai kerro, miten se luetaan
+2 · WHAT IT RUNS	2 · MITÄ SE AJAA
+any command, {value} is the number	mikä tahansa komento, {value} on luku
+3 · WHAT IT RUNS ON	3 · MIHIN SE KOHDISTUU
+aimed here; the desk never moves	tähdätty tänne; pöytä ei koskaan liiku
+Port	Portti
+Read as	Lue näin
+Hold for	Pidä
+Command	Komento
+From	Mistä
+Centre	Keskikohta
+To	Mihin
+Pickup	Nouto
+On release	Irrotettaessa
+Runs on	Kohde
+Playlist	Soittolista
+Saved with	Tallennettu
+Row	Rivi
+DELETE	POISTA
+THE SHOW	ESITYKSEEN
+THIS COMPUTER	TÄHÄN KONEESEEN
+any port	mikä tahansa portti
+the desk	pöytä
+the selected cue	valittu cue
+what is on air	lähetyksessä oleva
+one named cue	nimetty cue
+the focused one	aktiivinen
+Test: move it on the controller	Testi: liikuta sitä ohjaimessa
+knob 0-127	nuppi 0-127
+endless encoder	päättymätön enkooderi
+14-bit	14-bittinen
+press	paina
+hold	pidä
+press + release	paina + irrota
+play	soita
+on press	painettaessa
+plays	soittaa
+LED MAP	LED-KARTTA
+LAYOUT	ASETTELU
+FEEDS: pick a window, then one of these	LÄHTEET: valitse ikkuna, sitten yksi näistä
++ CHOOSE A FEED	+ VALITSE LÄHDE
+audio meter	äänimittari
+safe areas	turva-alueet
++ ONE AFTER THIS	+ YKSI TÄMÄN JÄLKEEN
+- REMOVE THIS ONE	- POISTA TÄMÄ
+ONE PER PLAYLIST	YKSI SOITTOLISTAA KOHDEN
+on the desk	pöydällä
+tile width	laatan leveys
+tile height	laatan korkeus
+LISTENS: OFF	KUUNTELEE: EI
+LISTENS: the figure follows the sound	KUUNTELEE: kuvio seuraa ääntä
+import an SVG...	tuo SVG...
+the selected cue in playlist {n}	valittu cue soittolistassa {n}
+the selected cue in the focused playlist	valittu cue aktiivisessa soittolistassa
+on air in playlist {n}	lähetyksessä soittolistassa {n}
+on air in the focused playlist	lähetyksessä aktiivisessa soittolistassa
+hold {n} s	pidä {n} s
+any	mikä tahansa
+built in	sisäänrakennettu
+show	esitys

@@ -1062,3 +1062,73 @@ START: PLAY	START: SPELEN
 # --- end of tutorials ---
 Splash	Startscherm
 Beast mode	Beestmodus
+MIDI MAP	MIDI-MAP
++ ADD	+ TOEVOEGEN
+LEARN	LEREN
+LISTENING...	LUISTERT...
+BACK	TERUG
+READY-MADE...	KANT-EN-KLAAR...
+Message	Bericht
+Runs	Voert uit
+On	Op
+Now	Nu
+MIDI input is off: turn it on in MIDI CONTROL. OSC rows still answer.	MIDI-ingang staat uit: zet hem aan in MIDI CONTROL. OSC-rijen antwoorden toch.
+LEARN: move a knob or press a key on the controller...	LEREN: draai een knop of druk een toets op de controller...
+1 · WHAT COMES IN	1 · WAT ER BINNENKOMT
+learn it, or say how to read it	leer het, of zeg hoe je het leest
+2 · WHAT IT RUNS	2 · WAT HET UITVOERT
+any command, {value} is the number	elk commando, {value} is het getal
+3 · WHAT IT RUNS ON	3 · WAAROP HET MIKT
+aimed here; the desk never moves	hierop gericht; de tafel beweegt nooit
+Port	Poort
+Read as	Lezen als
+Hold for	Vasthouden
+Command	Commando
+From	Van
+Centre	Midden
+To	Tot
+Pickup	Oppakken
+On release	Bij loslaten
+Runs on	Werkt op
+Saved with	Bewaard bij
+Row	Rij
+DELETE	VERWIJDEREN
+THE SHOW	DE SHOW
+THIS COMPUTER	DEZE COMPUTER
+any port	elke poort
+the desk	de tafel
+the selected cue	de gekozen cue
+what is on air	wat in de uitzending is
+one named cue	een cue bij naam
+the focused one	de actieve
+Test: move it on the controller	Test: beweeg hem op de controller
+knob 0-127	knop 0-127
+endless encoder	eindeloze encoder
+press	drukken
+hold	vasthouden
+press + release	drukken + loslaten
+play	spelen
+on press	bij drukken
+plays	speelt
+LED MAP	LED-KAART
+LAYOUT	INDELING
+FEEDS: pick a window, then one of these	BRONNEN: kies een venster, dan een van deze
++ CHOOSE A FEED	+ KIES EEN BRON
+audio meter	niveaumeter
+safe areas	veilige zones
++ ONE AFTER THIS	+ EEN NA DEZE
+- REMOVE THIS ONE	- DEZE WEG
+ONE PER PLAYLIST	EEN PER PLAYLIST
+on the desk	op de tafel
+tile width	tegelbreedte
+tile height	tegelhoogte
+LISTENS: OFF	LUISTERT: UIT
+LISTENS: the figure follows the sound	LUISTERT: de figuur volgt het geluid
+import an SVG...	een SVG importeren...
+the selected cue in playlist {n}	de gekozen cue in playlist {n}
+the selected cue in the focused playlist	de gekozen cue in de actieve playlist
+on air in playlist {n}	in de uitzending in playlist {n}
+on air in the focused playlist	in de uitzending in de actieve playlist
+hold {n} s	{n} s vasthouden
+any	elk
+built in	ingebouwd

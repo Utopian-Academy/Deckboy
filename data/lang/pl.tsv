@@ -1065,3 +1065,77 @@ START: PLAY	START: GRAJ
 # --- end of tutorials ---
 Splash	Ekran startowy
 Beast mode	Tryb bestii
+MIDI MAP	MAPA MIDI
++ ADD	+ DODAJ
+LEARN	NAUCZ
+LISTENING...	SŁUCHAM...
+BACK	WSTECZ
+READY-MADE...	GOTOWE...
+Message	Komunikat
+Runs	Uruchamia
+On	Na
+Now	Teraz
+Map	Mapa
+MIDI input is off: turn it on in MIDI CONTROL. OSC rows still answer.	Wejście MIDI jest wyłączone: włącz je w MIDI CONTROL. Wiersze OSC i tak odpowiadają.
+LEARN: move a knob or press a key on the controller...	NAUCZ: przekręć gałkę albo naciśnij klawisz na kontrolerze...
+1 · WHAT COMES IN	1 · CO PRZYCHODZI
+learn it, or say how to read it	naucz to albo powiedz, jak to czytać
+2 · WHAT IT RUNS	2 · CO URUCHAMIA
+any command, {value} is the number	dowolne polecenie, {value} to liczba
+3 · WHAT IT RUNS ON	3 · NA CZYM DZIAŁA
+aimed here; the desk never moves	wycelowane tutaj; stół nigdy się nie rusza
+Read as	Czytaj jako
+Hold for	Przytrzymaj
+Command	Polecenie
+From	Od
+Centre	Środek
+To	Do
+Pickup	Złapanie
+On release	Po puszczeniu
+Runs on	Działa na
+Playlist	Playlista
+Saved with	Zapisane z
+Row	Wiersz
+DELETE	USUŃ
+THE SHOW	SPEKTAKLEM
+THIS COMPUTER	TYM KOMPUTEREM
+any port	dowolny port
+the desk	stół
+the selected cue	wybrane cue
+what is on air	to, co na antenie
+one named cue	nazwane cue
+the focused one	aktywna
+Test: move it on the controller	Test: porusz nim na kontrolerze
+knob 0-127	gałka 0-127
+endless encoder	enkoder bez końca
+14-bit	14 bitów
+press	naciśnij
+hold	przytrzymaj
+press + release	naciśnij + puść
+play	graj
+on press	przy naciśnięciu
+plays	gra
+LED MAP	MAPA LED
+LAYOUT	UKŁAD
+FEEDS: pick a window, then one of these	ŹRÓDŁA: wybierz okno, potem jedno z nich
++ CHOOSE A FEED	+ WYBIERZ ŹRÓDŁO
+audio meter	miernik dźwięku
+safe areas	strefy bezpieczne
++ ONE AFTER THIS	+ JEDNO PO TYM
+- REMOVE THIS ONE	- USUŃ TO
+ONE PER PLAYLIST	JEDNO NA PLAYLISTĘ
+on the desk	na stole
+tile width	szerokość modułu
+tile height	wysokość modułu
+LISTENS: OFF	SŁUCHA: NIE
+LISTENS: the figure follows the sound	SŁUCHA: figura idzie za dźwiękiem
+import an SVG...	importuj SVG...
+the selected cue in playlist {n}	wybrane cue w playliście {n}
+the selected cue in the focused playlist	wybrane cue w aktywnej playliście
+on air in playlist {n}	na antenie w playliście {n}
+on air in the focused playlist	na antenie w aktywnej playliście
+cue "{n}"	cue „{n}”
+hold {n} s	przytrzymaj {n} s
+any	dowolny
+built in	wbudowany
+show	spektakl

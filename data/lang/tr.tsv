@@ -1063,3 +1063,75 @@ START: PLAY	START: OYNA
 # --- end of tutorials ---
 Splash	Açılış ekranı
 Beast mode	Canavar modu
+MIDI MAP	MIDI HARİTASI
++ ADD	+ EKLE
+LEARN	ÖĞREN
+LISTENING...	DİNLİYOR...
+BACK	GERİ
+READY-MADE...	HAZIR...
+Message	Mesaj
+Runs	Çalıştırır
+On	Üzerinde
+Now	Şimdi
+Map	Harita
+MIDI input is off: turn it on in MIDI CONTROL. OSC rows still answer.	MIDI girişi kapalı: MIDI CONTROL'den açın. OSC satırları yine de yanıt verir.
+LEARN: move a knob or press a key on the controller...	ÖĞREN: denetleyicide bir düğme çevirin veya bir tuşa basın...
+1 · WHAT COMES IN	1 · NE GELİYOR
+learn it, or say how to read it	öğret ya da nasıl okunacağını söyle
+2 · WHAT IT RUNS	2 · NEYİ ÇALIŞTIRIR
+any command, {value} is the number	herhangi bir komut, {value} sayıdır
+3 · WHAT IT RUNS ON	3 · NEYE YÖNELİR
+aimed here; the desk never moves	buraya yönelir; masa asla kıpırdamaz
+Read as	Şöyle oku
+Hold for	Basılı tut
+Command	Komut
+From	En az
+Centre	Orta
+To	En çok
+Pickup	Yakalama
+On release	Bırakınca
+Runs on	Üzerinde
+Saved with	Kaydedildiği yer
+Row	Satır
+DELETE	SİL
+THE SHOW	GÖSTERİ
+THIS COMPUTER	BU BİLGİSAYAR
+any port	her port
+the desk	masa
+the selected cue	seçili cue
+what is on air	yayında olan
+one named cue	adı verilen cue
+the focused one	odaktaki
+Test: move it on the controller	Deneme: denetleyicide oynatın
+knob 0-127	düğme 0-127
+endless encoder	sonsuz kodlayıcı
+14-bit	14 bit
+press	bas
+hold	basılı tut
+press + release	bas + bırak
+play	çal
+on press	basınca
+plays	çalar
+LED MAP	LED HARİTASI
+LAYOUT	YERLEŞİM
+FEEDS: pick a window, then one of these	KAYNAKLAR: bir pencere seçin, sonra bunlardan birini
++ CHOOSE A FEED	+ KAYNAK SEÇ
+audio meter	ses göstergesi
+safe areas	güvenli alanlar
++ ONE AFTER THIS	+ BUNDAN SONRA BİR TANE
+- REMOVE THIS ONE	- BUNU KALDIR
+ONE PER PLAYLIST	PLAYLIST BAŞINA BİR
+on the desk	masada
+tile width	panel genişliği
+tile height	panel yüksekliği
+LISTENS: OFF	DİNLER: KAPALI
+LISTENS: the figure follows the sound	DİNLER: şekil sesi izler
+import an SVG...	SVG içe aktar...
+the selected cue in playlist {n}	playlist {n} içindeki seçili cue
+the selected cue in the focused playlist	odaktaki playlist'in seçili cue'su
+on air in playlist {n}	playlist {n} içinde yayında olan
+on air in the focused playlist	odaktaki playlist'te yayında olan
+hold {n} s	{n} sn basılı tut
+any	her
+built in	yerleşik
+show	gösteri

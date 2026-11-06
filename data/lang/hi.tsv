@@ -1066,3 +1066,77 @@ START: PLAY	START: खेलो
 # --- end of tutorials ---
 Splash	आरंभ स्क्रीन
 Beast mode	बीस्ट मोड
+MIDI MAP	MIDI मैप
++ ADD	+ जोड़ें
+LEARN	सीखें
+LISTENING...	सुन रहा है...
+BACK	वापस
+READY-MADE...	तैयार...
+Message	संदेश
+Runs	चलाता है
+On	पर
+Now	अभी
+Map	मैप
+MIDI input is off: turn it on in MIDI CONTROL. OSC rows still answer.	MIDI इनपुट बंद है: MIDI CONTROL में चालू करें। OSC पंक्तियाँ फिर भी जवाब देती हैं।
+LEARN: move a knob or press a key on the controller...	सीखें: कंट्रोलर पर कोई नॉब घुमाएँ या कोई कुंजी दबाएँ...
+1 · WHAT COMES IN	1 · क्या आता है
+learn it, or say how to read it	इसे सिखाएँ, या बताएँ कैसे पढ़ें
+2 · WHAT IT RUNS	2 · क्या चलाता है
+any command, {value} is the number	कोई भी कमांड, {value} संख्या है
+3 · WHAT IT RUNS ON	3 · किस पर चलता है
+aimed here; the desk never moves	यहाँ निशाना; डेस्क कभी नहीं हिलता
+Port	पोर्ट
+Read as	ऐसे पढ़ें
+Hold for	दबाए रखें
+Command	कमांड
+From	से
+Centre	बीच
+To	तक
+Pickup	पिकअप
+On release	छोड़ने पर
+Runs on	किस पर
+Playlist	प्लेलिस्ट
+Saved with	किसके साथ सहेजा
+Row	पंक्ति
+DELETE	हटाएँ
+THE SHOW	शो
+THIS COMPUTER	यह कंप्यूटर
+any port	कोई भी पोर्ट
+the desk	डेस्क
+the selected cue	चुना हुआ cue
+what is on air	जो ऑन एयर है
+one named cue	नाम वाला cue
+the focused one	फ़ोकस वाली
+Test: move it on the controller	परीक्षण: कंट्रोलर पर हिलाएँ
+knob 0-127	नॉब 0-127
+endless encoder	अनंत एनकोडर
+14-bit	14-बिट
+press	दबाएँ
+hold	दबाए रखें
+press + release	दबाएँ + छोड़ें
+play	बजाएँ
+on press	दबाने पर
+plays	बजाता है
+LED MAP	LED मैप
+LAYOUT	लेआउट
+FEEDS: pick a window, then one of these	स्रोत: कोई विंडो चुनें, फिर इनमें से एक
++ CHOOSE A FEED	+ स्रोत चुनें
+audio meter	ऑडियो मीटर
+safe areas	सुरक्षित क्षेत्र
++ ONE AFTER THIS	+ इसके बाद एक
+- REMOVE THIS ONE	- इसे हटाएँ
+ONE PER PLAYLIST	हर प्लेलिस्ट के लिए एक
+on the desk	डेस्क पर
+tile width	टाइल चौड़ाई
+tile height	टाइल ऊँचाई
+LISTENS: OFF	सुनता है: बंद
+LISTENS: the figure follows the sound	सुनता है: आकृति ध्वनि के पीछे चलती है
+import an SVG...	SVG आयात करें...
+the selected cue in playlist {n}	प्लेलिस्ट {n} का चुना हुआ cue
+the selected cue in the focused playlist	फ़ोकस वाली प्लेलिस्ट का चुना हुआ cue
+on air in playlist {n}	प्लेलिस्ट {n} में ऑन एयर
+on air in the focused playlist	फ़ोकस वाली प्लेलिस्ट में ऑन एयर
+hold {n} s	{n} से. दबाए रखें
+any	कोई भी
+built in	अंतर्निहित
+show	शो

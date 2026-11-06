@@ -1063,3 +1063,75 @@ START: PLAY	START: GIOCA
 # --- end of tutorials ---
 Splash	Schermata iniziale
 Beast mode	Modalità bestia
+MIDI MAP	MAPPA MIDI
++ ADD	+ AGGIUNGI
+LEARN	IMPARA
+LISTENING...	IN ASCOLTO...
+BACK	INDIETRO
+READY-MADE...	PRONTE...
+Message	Messaggio
+Runs	Esegue
+On	Su
+Now	Ora
+Map	Mappa
+MIDI input is off: turn it on in MIDI CONTROL. OSC rows still answer.	L'ingresso MIDI è spento: accendilo in MIDI CONTROL. Le righe OSC rispondono comunque.
+LEARN: move a knob or press a key on the controller...	IMPARA: muovi una manopola o premi un tasto sul controller...
+1 · WHAT COMES IN	1 · COSA ENTRA
+learn it, or say how to read it	imparalo, o di' come leggerlo
+2 · WHAT IT RUNS	2 · COSA ESEGUE
+any command, {value} is the number	qualsiasi comando, {value} è il numero
+3 · WHAT IT RUNS ON	3 · SU COSA AGISCE
+aimed here; the desk never moves	mirato qui; il banco non si muove mai
+Port	Porta
+Read as	Leggi come
+Hold for	Tieni per
+Command	Comando
+From	Da
+Centre	Centro
+To	A
+Pickup	Aggancio
+On release	Al rilascio
+Runs on	Agisce su
+Saved with	Salvato con
+Row	Riga
+DELETE	ELIMINA
+THE SHOW	LO SHOW
+THIS COMPUTER	QUESTO COMPUTER
+any port	qualsiasi porta
+the desk	il banco
+the selected cue	il cue selezionato
+what is on air	ciò che è in onda
+one named cue	un cue con nome
+the focused one	quella in primo piano
+Test: move it on the controller	Prova: muovilo sul controller
+knob 0-127	manopola 0-127
+endless encoder	encoder infinito
+14-bit	14 bit
+press	premi
+hold	tieni
+press + release	premi + rilascia
+play	suona
+on press	alla pressione
+plays	suona
+LED MAP	MAPPA LED
+FEEDS: pick a window, then one of these	SORGENTI: scegli una finestra, poi una di queste
++ CHOOSE A FEED	+ SCEGLI UNA SORGENTE
+audio meter	vu-meter
+safe areas	aree di sicurezza
++ ONE AFTER THIS	+ UNA DOPO QUESTA
+- REMOVE THIS ONE	- TOGLI QUESTA
+ONE PER PLAYLIST	UNA PER PLAYLIST
+on the desk	sul banco
+tile width	larghezza pannello
+tile height	altezza pannello
+LISTENS: OFF	ASCOLTA: NO
+LISTENS: the figure follows the sound	ASCOLTA: la figura segue il suono
+import an SVG...	importa un SVG...
+the selected cue in playlist {n}	il cue selezionato nella playlist {n}
+the selected cue in the focused playlist	il cue selezionato nella playlist attiva
+on air in playlist {n}	in onda nella playlist {n}
+on air in the focused playlist	in onda nella playlist attiva
+cue "{n}"	cue «{n}»
+hold {n} s	tieni {n} s
+any	qualsiasi
+built in	integrata

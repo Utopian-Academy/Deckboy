@@ -1073,3 +1073,73 @@ START: PLAY	START: SPIELEN
 # --- end of tutorials ---
 Splash	Startbild
 Beast mode	Biestmodus
+MIDI MAP	MIDI-MAP
++ ADD	+ HINZU
+LEARN	LERNEN
+LISTENING...	HÖRT ZU...
+BACK	ZURÜCK
+READY-MADE...	FERTIGE...
+Message	Nachricht
+Runs	Führt aus
+On	Auf
+Now	Jetzt
+MIDI input is off: turn it on in MIDI CONTROL. OSC rows still answer.	MIDI-Eingang ist aus: in MIDI CONTROL einschalten. OSC-Zeilen antworten trotzdem.
+LEARN: move a knob or press a key on the controller...	LERNEN: einen Regler drehen oder eine Taste am Controller drücken...
+1 · WHAT COMES IN	1 · WAS HEREINKOMMT
+learn it, or say how to read it	lernen, oder sagen, wie es zu lesen ist
+2 · WHAT IT RUNS	2 · WAS ES AUSFÜHRT
+any command, {value} is the number	jeder Befehl, {value} ist die Zahl
+3 · WHAT IT RUNS ON	3 · WORAUF ES ZIELT
+aimed here; the desk never moves	hierher gezielt; das Pult bewegt sich nie
+Read as	Lesen als
+Hold for	Halten für
+Command	Befehl
+From	Von
+Centre	Mitte
+To	Bis
+On release	Beim Loslassen
+Runs on	Wirkt auf
+Saved with	Gespeichert mit
+Row	Zeile
+DELETE	LÖSCHEN
+THE SHOW	DER SHOW
+THIS COMPUTER	DIESEM COMPUTER
+any port	jeder Port
+the desk	das Pult
+the selected cue	das gewählte Cue
+what is on air	was auf Sendung ist
+one named cue	ein benanntes Cue
+the focused one	die fokussierte
+Test: move it on the controller	Test: am Controller bewegen
+knob 0-127	Regler 0-127
+endless encoder	Endlos-Encoder
+14-bit	14-Bit
+press	drücken
+hold	halten
+press + release	drücken + loslassen
+play	spielen
+on press	beim Drücken
+plays	spielt
+LED MAP	LED-KARTE
+FEEDS: pick a window, then one of these	QUELLEN: ein Fenster wählen, dann eine davon
++ CHOOSE A FEED	+ QUELLE WÄHLEN
+audio meter	Pegelanzeige
+safe areas	Sicherheitsbereiche
++ ONE AFTER THIS	+ EINES DANACH
+- REMOVE THIS ONE	- DIESES ENTFERNEN
+ONE PER PLAYLIST	EINES PRO PLAYLIST
+on the desk	auf dem Pult
+tile width	Kachelbreite
+tile height	Kachelhöhe
+LISTENS: OFF	HÖRT ZU: AUS
+LISTENS: the figure follows the sound	HÖRT ZU: die Figur folgt dem Ton
+import an SVG...	SVG importieren...
+the selected cue in playlist {n}	das gewählte Cue in Playlist {n}
+the selected cue in the focused playlist	das gewählte Cue in der aktiven Playlist
+on air in playlist {n}	auf Sendung in Playlist {n}
+on air in the focused playlist	auf Sendung in der aktiven Playlist
+cue "{n}"	Cue „{n}“
+hold {n} s	{n} s halten
+any	jeder
+built in	eingebaut
+show	Show

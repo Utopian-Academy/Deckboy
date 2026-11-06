@@ -1078,3 +1078,78 @@ START: PLAY	START: العب
 # --- end of tutorials ---
 Splash	شاشة البداية
 Beast mode	وضع الوحش
+MIDI MAP	خريطة MIDI
++ ADD	+ إضافة
+LEARN	تعلّم
+LISTENING...	أستمع...
+BACK	رجوع
+READY-MADE...	جاهزة...
+Message	الرسالة
+Runs	يشغّل
+On	على
+Now	الآن
+Map	الخريطة
+MIDI input is off: turn it on in MIDI CONTROL. OSC rows still answer.	دخل MIDI متوقف: شغّله من MIDI CONTROL. صفوف OSC تجيب على أي حال.
+LEARN: move a knob or press a key on the controller...	تعلّم: أدر مقبضًا أو اضغط مفتاحًا على وحدة التحكم...
+1 · WHAT COMES IN	1 · ما الذي يأتي
+learn it, or say how to read it	تعلّمه، أو قل كيف يُقرأ
+2 · WHAT IT RUNS	2 · ما الذي يشغّله
+any command, {value} is the number	أي أمر، و{value} هو الرقم
+3 · WHAT IT RUNS ON	3 · على ماذا يعمل
+aimed here; the desk never moves	يُوجَّه هنا؛ الطاولة لا تتحرك أبدًا
+Port	المنفذ
+Read as	يُقرأ كـ
+Hold for	اضغط مطوّلًا
+Command	الأمر
+From	من
+Centre	الوسط
+To	إلى
+Pickup	الالتقاط
+On release	عند الإفلات
+Runs on	يعمل على
+Playlist	قائمة التشغيل
+Saved with	محفوظ مع
+Row	الصف
+DELETE	حذف
+THE SHOW	العرض
+THIS COMPUTER	هذا الحاسوب
+any port	أي منفذ
+the desk	الطاولة
+the selected cue	الـ cue المختار
+what is on air	ما هو على الهواء
+one named cue	cue باسمه
+the focused one	المحددة
+Test: move it on the controller	اختبار: حرّكه على وحدة التحكم
+knob 0-127	مقبض 0-127
+endless encoder	مُرمِّز بلا نهاية
+14-bit	14 بت
+press	ضغط
+hold	ضغط مطوّل
+press + release	ضغط + إفلات
+play	عزف
+on press	عند الضغط
+plays	يعزف
+LED MAP	خريطة LED
+LAYOUT	التخطيط
+FEEDS: pick a window, then one of these	المصادر: اختر نافذة ثم واحدًا منها
++ CHOOSE A FEED	+ اختر مصدرًا
+audio meter	مقياس الصوت
+safe areas	المناطق الآمنة
++ ONE AFTER THIS	+ واحدة بعد هذه
+- REMOVE THIS ONE	- أزل هذه
+ONE PER PLAYLIST	واحدة لكل قائمة
+on the desk	على الطاولة
+tile width	عرض البلاطة
+tile height	ارتفاع البلاطة
+LISTENS: OFF	يستمع: لا
+LISTENS: the figure follows the sound	يستمع: الشكل يتبع الصوت
+import an SVG...	استيراد SVG...
+the selected cue in playlist {n}	الـ cue المختار في القائمة {n}
+the selected cue in the focused playlist	الـ cue المختار في القائمة النشطة
+on air in playlist {n}	على الهواء في القائمة {n}
+on air in the focused playlist	على الهواء في القائمة النشطة
+cue "{n}"	cue «{n}»
+hold {n} s	اضغط {n} ث
+any	أي
+built in	مدمج
+show	العرض
