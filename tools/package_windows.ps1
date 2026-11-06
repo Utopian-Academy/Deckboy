@@ -211,10 +211,12 @@ if (Test-Path $DataSrc) {
                              "deckboy-crash.log", "deckboy-soak.log",
                              "deckboy-render.log", "deckboy-show.log",
                              "deckboy-live-frame.bmp", "paired-phones.txt",
-                             "tutorial-practice.deckboy", "tutorial-progress.txt")) {
+                             "tutorial-practice.deckboy", "tutorial-progress.txt",
+                             "lessons.txt", "midi_map.tsv", "lesson-road", "lesson-road-bundle",
+                             "bugswat-highscore.txt", "bugswat-practice.deckboy")) {
         $StaleState = Join-Path (Join-Path $StageDir "data") $StaleName
         if (Test-Path $StaleState) {
-            Remove-Item $StaleState -Force
+            Remove-Item $StaleState -Force -Recurse   # some are folders (tabletop, lesson-road)
             Write-Host "  - stripped data\$StaleName (build-machine state)"
         }
     }
