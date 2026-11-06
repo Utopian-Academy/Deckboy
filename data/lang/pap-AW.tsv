@@ -1,0 +1,1066 @@
+#name Papiamento
+#english Papiamento (Aruba)
+#unverified
+# Aruban spelling (etymological: c and qu, -cion). Written without a speaker's review; a speaker's corrections are welcome.
+# Deckboy interface catalogue.
+#
+# english<TAB>translation. A line left out, or left empty, falls through to the
+# English -- so an unfinished catalogue is a partly translated app rather than
+# one with holes in it.
+#
+# Broadcast vocabulary is deliberately left in English where the trade leaves
+# it there: TAKE, PROGRAM, NDI, SRT, OSC. An operator who learned the desk in
+# one country has to be able to work it in another.
+
+NEW	NOBO
+OPEN	HABRI
+SAVE	WARDA
+SAVE AS	WARDA COMO
+BUNDLE	PAKETA
+IMPORT	IMPORTA
+SOURCE	FUENTE
+PATTERN	PATRON
+SETTINGS	CONFIGURACION
+TAKE	TAKE
+STOP	STOP
+REBOOT	CUMINSA DI NOBO
+BLACKOUT	SCURO
+CLEAR	LIMPIA
+RECORD	GRABA
+PLAYLIST	PLAYLIST
+TIMELINE	LIÑA DI TEMPO
+MEDIA	MEDIA
+TRANSPORT	TRANSPORTE
+OUTPUT	OUTPUT
+PROGRAM	PROGRAM
+WARP	WARP
+LIVE	BIBU
+DECODE	DECODIFICA
+STREAM	STREAM
+System	Sistema
+Audio	Audio
+Network	Red
+Video Outputs	Salida di video
+About	Informacion
+Encoder	Codificado
+Screen	Pantaya
+Geometry	Geometria
+Devices	Aparatonan
+Streaming	Transmicion
+APPEARANCE	APARIENSIA
+REMOTE CONTROL	CONTROL DI LECOS
+INTEGRATION ADAPTERS	ADAPTADONAN DI INTEGRACION
+DISCOVERY / NOTES	DESCUBRIMENTO / NOTA
+DISPLAY & RASTER	PANTAYA & RASTER
+CONNECTED DISPLAYS	PANTAYANAN CONECTA
+EDGE FEATHERING	SUAVISA RANT
+MATTE & OVERLAY	MATTE & CAPA
+AREA OF INTEREST	AREA DI INTERES
+DEFAULT TRANSITION	TRANSICION STANDARD
+NMC IN & OUT	NMC AKI DENTRO & PAFO
+OSC QUERY / FEEDBACK	OSC QUERY / RESPONDE
+CUE INSPECTOR	CUE INSPECTOR
+SELECTED CUE	CUE SELECCIONA
+PLAYBACK	TOCAMENTO
+COPY	COPIA
+PASTE	PEGA
+RESET	RESET
+Theme	Tema
+Language	Idioma
+Resolution	Resolucion
+Orientation	Orientacion
+Toggle Fullscreen	Pantaya completo si/no
+IDENTIFY	IDENTIFICA
+REGION SIZE	TAMAÑO DI REGION
+POSITION	POSICION
+CENTRE	SENTRO
+FULL	COMPLETO
+duration	duracion
+transition	transicion
+fade in	fade aden
+fade out	fade afo
+ON	CENDE
+OFF	PAGA
+Stopped	Para
+Playing	Tocando
+Paused	Pousa
+2-UP	2 PANTAYA
+DONE	CLA
+EDIT	EDITA
+HELD	TENE
+PICK	COHE
+QUAD	4 PANTAYA
+Rate	Velocidad
+STEP	PASO
+Apply	Aplica
+CLOSE	SERA
+FIXED	FIHO
+Help!	Help!
+ORDER	ORDEN
+READY	CLA PA BAI
+TILES	TEGEL
+VIDEO	VIDEO
+ALL ON	TUR CENDE
+ALWAYS	SEMPER
+ANALOG	ANALOG
+Buffer	Buffer
+Cancel	Cancela
+Custom	Personalisa
+Device	Aparato
+Folder	Caha
+HIDDEN	SCONDI
+Length	Largura
+Mascot	Mascota
+Mirror	Spiegel
+NATIVE	ORIGINAL
+PRESET	PRESET
+Sender	Mandado
+SUMMED	SUMA
+TOGGLE	CAMBIA
+12 HOUR	12 ORA
+24 HOUR	24 ORA
+ALL OFF	TUR PAGA
+ARRANGE	ORDENA
+Channel	Canal
+CONVERT	CONVERTI
+DEFAULT	STANDARD
+END CUE	CUE FINAL
+Key out	Saca fondo
+LTC out	LTC pafo
+MISSING	FALTANDO
+PRESETS	PRESETNAN
+PROJECT	PROYECTO
+RUNNING	CORIENDO
+Send to	Manda pa
+SHUFFLE	MESCLA
+UPDATES	ACTUALISACION
+VJ MODE	MODO VJ
+CLOCK ON	ORLOSHI CENDE
+DOWNLOAD	DOWNLOAD
+EXAMPLES	EHEMPELNAN
+Mappings	Mapanan
+NMC sync	Sincronisacion NMC
+PROMPTER	PROMPTER
+SHOW SDP	MUSTRA SDP
+TCP port	Porta TCP
+UI scale	Tamaño di UI
+vMix API	vMix API
+WATCHING	WARDANDO WOWO
+A/V delay	Atraso A/V
+ASIO outs	Salida ASIO
+BOTH AXES	TUR DOS EJE
+CHECK NOW	CHECK AWOR
+CLOCK OFF	ORLOSHI PAGA
+Creatures	Bestianan
+CUE TOOLS	HERAMENTNAN DI CUE
+Freewheel	Core liber
+HTTP port	Porta HTTP
+Jump mode	Modo di bula
+Listen on	Scucha riba
+OSC Query	OSC Query
+OUTPUT ON	OUTPUT CENDE
+Panic now	Panico awor
+RECORDING	GRABANDO
+REMAINING	FALTA
+RESET ALL	RESET TUR
+RUN PANIC	CORE PANIC
+SHOW FLOW	FLUHO DI SHOW
+TIMERS ON	TIMER CENDE
+WHEN IDLE	ORA TA LIBER
+ADD OUTPUT	AGREGA OUTPUT
+BUILT WITH	TRAHA CU
+CANCEL ALL	CANCELA TUR
+colour tag	marca di color
+copy chain	copia cadena
+Hover tips	Sugerensia cu mouse
+Input gain	Gana di entrada
+Input mono	Entrada mono
+live audio	audio bibu
+Live input	Entrada bibu
+MIDI input	Entrada MIDI
+no picture	sin portret
+no preview	sin vista previo
+OPEN SAVED	HABRI WARDA
+OUTPUT OFF	OUTPUT PAGA
+Panic fade	Fade di panic
+Tally port	Porta di tally
+TIMERS OFF	TIMER PAGA
+Accept from	Asepta di
+ASIO driver	Driver ASIO
+BACK TO TOP	BEK NA RIBA
+CANVAS MODE	MODO CANVAS
+CODE SOURCE	FUENTE DI CODIGO
+Cue numbers	Number di cue
+Mirror rate	Velocidad di spiegel
+no duration	sin duracion
+NO LIVE CUE	NINGUN CUE BIBU
+NO PREVIOUS	NINGUN ANTERIOR
+OVERLAY BIN	CAHA DI CAPA
+paste chain	pega cadena
+Sample rate	Frecuensia di mustra
+SENDING OUT	MANDANDO PAFO
+Shift: snap	Shift: pega na rooster
+THIS OUTPUT	E OUTPUT AKI
+Mode	Modo
+Direction	Direccion
+Destination	Destino
+(no matches)	(nada no a sali)
+(no subtext)	(sin subtexto)
+add a button	agrega un boton
+add a window	agrega un bentana
+Art-Net port	Porta Art-Net
+AUDIO OUTPUT	SALIDA DI AUDIO
+Auto restore	Restaura automatico
+DECKLINK: ON	DECKLINK: CENDE
+free running	core liber
+KEY+FILL: ON	KEY+FILL: CENDE
+LISTENING IN	SCUCHANDO RIBA
+Miami cursor	Cursor di Miami
+MIDI CONTROL	CONTROL MIDI
+Mirror state	Estado di spiegel
+NDI KEY: OFF	NDI KEY: PAGA
+NDI KEY: ON	NDI KEY: CENDE
+NO PROGRAMME	SIN PROGRAM
+ST 2110: OFF	ST 2110: PAGA
+ST 2110: ON	ST 2110: CENDE
+WATCH FOLDER	CAHA WARDA WOWO
+COMPOSITE CUE	CUE COMBINA
+DECKLINK: OFF	DECKLINK: PAGA
+default route	ruta standard
+Every adapter	Tur adaptado
+KEY+FILL: OFF	KEY+FILL: PAGA
+LEFT TO RIGHT	DI ROBES PA DRECHI
+MEDIA ENCODER	CODIFICADO DI MEDIA
+MSC device id	Id di aparato MSC
+NEW SHOW FILE	ARCHIVO DI SHOW NOBO
+No cue loaded	Ningun cue carga
+nothing taken	nada no a bai bibu
+OPEN PREVIOUS	HABRI ANTERIOR
+Output device	Aparato di salida
+Panic profile	Perfil di panic
+Quit Deckboy?	Stop cu Deckboy?
+REMOVE OUTPUT	KITA OUTPUT
+Sound effects	Efecto di zonido
+Tally address	Adres di tally
+TOP TO BOTTOM	DI RIBA PA ABOU
+127 (all-call)	127 (yama tur)
+ALL INTERFACES	TUR INTERFASE
+LOCALHOST ONLY	SOLAMENTE E COMPUTER AKI
+Monitor device	Aparato di monitor
+no audio track	sin pista di audio
+PRESENTER VIEW	VISTA DI PRESENTADO
+RECORD TO DISK	GRABA RIBA DISCO
+STOP RECORDING	STOP DI GRABA
+STOP STREAMING	STOP DI TRANSMITI
+TALLY TRIGGERS	TALLY TRIGGERS
+Device channels	Canalnan di aparato
+NDI SENDING: ON	NDI MANDANDO: CENDE
+NO CUE SELECTED	NINGUN CUE SELECCIONA
+Output channels	Canalnan di salida
+preview pending	vista previo ta bini
+START RECORDING	CUMINSA GRABA
+START STREAMING	CUMINSA TRANSMITI
+(system default)	(standard di sistema)
+Check at startup	Check ora e cuminsa
+Global crossfade	Crossfade general
+Mic to recording	Microfon den grabacion
+Monitor playlist	Playlist di monitor
+NDI SENDING: OFF	NDI MANDANDO: PAGA
+no still preview	sin portret previo
+Pocket 3 / touch	Pocket 3 / toque
+SMPTE LTC OUTPUT	SALIDA SMPTE LTC
+the whole screen	henter pantaya
+Check for one now	Check un biaha awor
+INSTALL & RESTART	INSTALA & CUMINSA DI NOBO
+Registry: NOT SET	Registry: NO PONE
+SAFETY / TIMECODE	SEGURIDAD / TIMECODE
+Timecode jam sync	Jam sync di timecode
+esc or N to cancel	esc of N pa cancela
+KEYBOARD SHORTCUTS	ATAHO DI TECLADO
+loading preview...	cargando vista previo...
+CONVERT ALL FLAGGED	CONVERTI TUR CU MARCA
+dot-matrix cue deck	deck di cue cu punto
+HyperDeck emulation	Emulacion di HyperDeck
+locked to the tempo	riba e ritmo
+VJ mode (two decks)	Modo VJ (dos deck)
+ADD ANOTHER PLAYLIST	AGREGA OTRO PLAYLIST
+Companion / OSC port	Porta di Companion / OSC
+Esc or click to skip	Esc of click pa salta
+PLAYLIST PREFERENCES	PREFERENSIA DI PLAYLIST
+press ENTER to start	primi ENTER pa cuminsa
+ADD A SECOND PLAYLIST	AGREGA UN DI DOS PLAYLIST
+filmstrip unavailable	no tin strepi di film
+(empty — import media)	(bashi — importa media)
+Ctrl+D or Esc to close	Ctrl+D of Esc pa sera
+(no notes for this cue)	(e cue aki no tin nota)
+Timebase / start / fade	Base di tempo / cuminsamento / fade
+No cues need conversion.	Ningun cue no mester converti.
+CLICK TO SAMPLE KEY COLOR	CLICK PA TUMA COLOR DI KEY
+normalize loudness (R128)	nivela zonido (R128)
+off - all channels silent	paga - tur canal keto
+no video lane for this cue	e cue aki no tin baan di video
+HyperDeck emulation is off.	Emulacion di HyperDeck ta paga.
+OWN SCRIPT  (click to edit)	SCRIPT PROPIO  (click pa edita)
+Theme and operator feedback	Tema i informacion pa operado
+Discovery and mirrored state	Descubrimento i estado refleha
+FOLLOWING THE LIVE CUE NOTES	SIGUIENDO NOTANAN DI E CUE BIBU
+Listening on all interfaces.	Scuchando riba tur interfase.
+Network-facing runtime notes	Nota di red durante core
+Hi! Press I to import a clip.	Ayo! Primi I pa importa un clip.
+Global jump and panic behavior	Bula i panic pa henter show
+Roll when the show cuts to you	Core ora e show bin serca bo
+Choose a cue to inspect it here	Cohe un cue pa wac e aki
+Defaults for newly created cues	Standard pa cue nobo
+Device routing for cue playback	Ruta di aparato pa toca cue
+Smaller buffer = lower latency.	Buffer chiki = menos atraso.
+Emergency fade and sync behavior	Fade di emergensia i sincronisacion
+mixed selection: key unavailable	seleccion mescla: key no ta disponibel
+SMPTE ST 2110-20  (EXPERIMENTAL)	SMPTE ST 2110-20  (EXPERIMENTAL)
+Esc=continue with current session	Esc=sigui cu e sesion aki
+no per-cue settings for this type	no tin configuracion pa cada cue di e tipo aki
+On stop: remux to an ordinary MP4	Ora stop: pac bek como MP4 normal
+Where RECORD writes the programme	Unda RECORD ta scirbi e program
+dot-matrix cue deck for live events	deck di cue cu punto pa evento bibu
+Listening on localhost (127.0.0.1).	Scuchando riba e computer aki (127.0.0.1).
+three expressions: red, green, blue	tres expresion: cora, berde, blauw
+Transport sync with another machine	Sincronisacion di transporte cu otro mashin
+Add slot sources in the cue inspector	Agrega fuente pa e luganan den cue inspector
+Ask GitHub; never installs on its own	Puntra GitHub; nunca ta instala su mes
+Import or click a cue in the playlist	Importa of click riba un cue den playlist
+mixed selection: geometry unavailable	seleccion mescla: geometria no ta disponibel
+generate timecode for the rig to chase	traha timecode pa henter rig sigui
+Lower Third and PIP fire independently	Lower Third i PIP ta core independiente
+Panels built for a vMix rig, unchanged	Panel pa un rig di vMix, sin cambio
+Incoming transport arrives as NMCEVENT.	Transporte ta yega como NMCEVENT.
+not in this build - saved with the show	no ta den e version aki - warda cu e show
+Find from the playlist, not from a modal	Busca den e playlist, no den un ventana
+take or select a cue to open the timeline	take of cohe un cue pa habri e liña di tempo
+Optional external transport and cue control	Control externo opcional di transporte i cue
+No previous show file found at startup path.	No a haña archivo di show anterior.
+Use Ctrl+F or type a cue id/number to search.	Usa Ctrl+F of tipea id/number di cue pa busca.
+Companion / OSC ingress and HyperDeck emulation	Entrada di Companion / OSC i emulacion di HyperDeck
+A/V delay holds audio back for lagging displays.	Atraso A/V ta tene audio atras pa pantaya lenta.
+On stop: leave the crash-resilient file as it is	Ora stop: laga e archivo contra crash manera e ta
+same disk as Deckboy - a separate drive is safer	mesun disco cu Deckboy - otro disco ta mas sigur
+A step fires one cue on each playlist, all at once.	Un paso ta core un cue riba cada playlist, tur na mesun ora.
+one expression: the same value in red, green and blue	un expresion: mesun balor pa cora, berde i blauw
+NDI transport is configured per output in Video Outputs.	NDI ta worde configura pa cada output den Salida di video.
+Sends PLAY / PAUSE / STOP / LOCATE as the transport moves.	Ta manda PLAY / PAUSE / STOP / LOCATE segun transporte ta move.
+OSC subscribe: send /deckboy/subscribe from your controller.	OSC subscribe: manda /deckboy/subscribe for di bo control.
+NMC mode / host / port are runtime-configurable for sync work.	Modo / host / porta di NMC por cambia durante core.
+Going on air takes the cue. Deckboy never sends the switcher a command.	Bai bibu ta take e cue. Deckboy nunca ta manda e switcher un orden.
+FPS: ON	FPS: CENDE
+FPS: OFF	FPS: PAGA
+NMOS: ON	NMOS: CENDE
+NMOS: OFF	NMOS: PAGA
+SPOUT: ON	SPOUT: CENDE
+SPOUT: OFF	SPOUT: PAGA
+CANVAS: ON	CANVAS: CENDE
+CANVAS: OFF	CANVAS: PAGA
+10-BIT: ON	10-BIT: CENDE
+10-BIT: OFF	10-BIT: PAGA
+EDIT...	EDITA...
+FOLDER...	CAHA...
+ARRANGE...	ORDENA...
+ADD FILE...	AGREGA ARCHIVO...
+RENUMBER...	NUMERA DI NOBO...
+set a port...	pone un porta...
+no script	sin script
++ OUTPUT	+ OUTPUT
+Eddie's Clock	Orloshi di Eddie
+Ctrl+/ to close	Ctrl+/ pa sera
+(step lives here)	(e paso ta biba aki)
+4:2:2  8-BIT	4:2:2  8-BIT
+4:2:2  10-BIT	4:2:2  10-BIT
+No outputs — click + OUTPUT to add one.	No tin output — click + OUTPUT pa agrega un.
+ATEM, NDI trigger, NMC, MTC, LTC, Art-Net, and Tally/TSL	ATEM, NDI trigger, NMC, MTC, LTC, Art-Net, i Tally/TSL
+Convert cues Deckboy can't play (or plays poorly) to H.264	Converti na H.264 cue cu Deckboy no por toca (of ta toca malu)
+a button can run any command the network protocol understands	un boton por core cualkier orden cu e protocol di red ta comprende
+ARRANGE PRESENTER  -  drag a panel to move it, a corner to size it	ORDENA PRESENTADO  -  hala un panel pa move, un huki pa cambia tamaño
+capture again - what is on now	tuma atrobe - loke ta bibu awor
+change what it does...	cambia loke e ta hasi...
+decks - Stop deck...	deck - Stop deck...
+decks - Take deck...	deck - Take deck...
+delete step	kita paso
+delete this button	kita e boton aki
+label, command and glyph as text...	etiket, orden i simbolo como texto...
+move down	baha
+move up	subi
+next colour	siguiente color
+preset - a new preset from what is on now	preset - un preset nobo di loke ta bibu awor
+type a command myself...	tipea un orden mi mes...
+type a length in seconds...	tipea un largura den seconde...
+wait for GO	warda GO
+what it recalls...	kico e ta corda...
+when its cues end	ora su cuenan caba
+AUDIONORM ALL matches the whole playlist at once	AUDIONORM ALL ta nivela henter playlist un biaha
+back to the in point, not to zero	bek na punto di drenta, no na sero
+drag to scrub. the audio follows	hala pa scucha. e audio ta sigui
+loops between the in and out points, not the file	ta ripiti entre punto di drenta i sali, no e archivo completo
+(not set)	(no a pone)
+1.00x  (default 1080p)	1.00x  (1080p standard)
+1.25x  (large desktop)	1.25x  (pantaya grandi)
+1.50x  (4K desktop)	1.50x  (pantaya 4K)
+2.00x  (Pocket 3 / 4K small)	2.00x  (Pocket 3 / 4K chiki)
+highest bandwidth	ancho di banda mas haltu
+lower bandwidth	menos ancho di banda
+film	film
+CD, music rigs	CD, rig di musica
+video standard	standard di video
+every playlist	tur playlist
+None  (no character art)	Niun  (sin portret di caracter)
+custom size...	tamaño personalisa...
+Browser URL	URL di browser
+Camera	Camara
+Media File / Still	Archivo di media / Portret
+RECORD TO FILE	GRABA DEN ARCHIVO
+browser, with sound	browser, cu zonido
+Window	Bentana
+Desktop	Desktop
+full screen	pantaya completo
+DeckLink Output	Salida DeckLink
+FFmpeg Stream Output	Salida di stream FFmpeg
+NDI Output	Salida NDI
+SDL Window Output	Salida di bentana SDL
+Spout Output	Salida Spout
+DESK	MESA
+drop a folder in too - it reads the whole tree	hala un caha tambe aki - e ta lesa henter palu
+cameras, windows, NDI, screens - all live sources	camara, bentana, NDI, pantaya - tur fuente bibu
+test cards and generators - no file needed	carchi di prueba i generado - no mester archivo
+space bar does this too, without moving your hand	e bara di espasio ta hasi esaki tambe, sin move bo man
+stops the cue. ESC stops EVERYTHING	ta stop e cue. ESC ta stop TUR COS
+the safe one: audio and playback keep running	esun sigur: audio i tocamento ta sigui core
+the thorough one. blackout is the reversible one	esun completo. scuro ta esun cu por bira bek
+save as makes a new file instead	warda como ta traha un archivo nobo
+for a copy before you change something risky	pa un copia prome cu bo cambia algu riesgoso
+this is what you carry to the venue	esaki ta loke bo ta hiba na e luga
+the show on disk is untouched until you save	e show riba disco no ta cambia te ora bo warda
+per cue. the deck has its own default too	pa cada cue. e deck tin su mes standard tambe
+stills hold instead - a fade would dip the frame	portret ta keda para - un fade lo bou e imagen
+the frame stays up. good for slides	e imagen ta keda. bon pa slide
+gain, pan and normalise live in the inspector	gana, pan i normalisa ta den e inspector
+this clip has no audio track to enable	e clip aki no tin pista di audio pa cende
+Hi! I am Deckboy.	Ayo! Ami ta Deckboy.
+Press I to import a clip.	Primi I pa importa un clip.
+Enter takes a cue live.	Enter ta pone un cue bibu.
+S stops the live cue.	S ta stop e cue bibu.
+The timeline can be resized.	E liña di tempo por cambia tamaño.
+Try a terminal theme in Settings.	Purba un tema di terminal den Configuracion.
+RELINK finds media that has moved.	RELINK ta haña media cu a move.
+Cues have their own gain and fades.	Cue tin nan mes gana i fade.
+Trim with Ctrl+I and Ctrl+O.	Corta cu Ctrl+I i Ctrl+O.
+Ctrl+/ shows every shortcut.	Ctrl+/ ta mustra tur atahonan.
+J jumps to the live cue.	J ta bula na e cue bibu.
+Normalize matches loudness across cues.	Normalisa ta nivela zonido entre cue.
+Esc clears the desk, then the output, then quits.	Esc ta limpia e mesa, despues e output, despues ta sali.
+Stream SRT and RTMP at the same time.	Transmiti SRT i RTMP na mesun ora.
+CHECK lists what is broken, before doors.	CHECK ta mustra loke ta kibra, prome cu porta habri.
+A cue can wait before it starts.	Un cue por warda prome cu e cuminsa.
+A cue can start the next one by itself.	Un cue por cuminsa esun siguiente su mes.
+Disarm a cue and GO steps over it.	Desarma un cue i GO ta stap riba dje.
+Audition plays a cue to you, not the room.	Audition ta toca un cue pa bo, no pa e sala.
+Preload racks the next cue warm, off air.	Preload ta prepara e siguiente cue cayente, fuera di aire.
+A target cue starts or stops another cue.	Un cue di meta ta cuminsa of stop otro cue.
+A fade cue takes a deck down, then stops it.	Un cue di fade ta baha un deck, despues ta stop e.
+A master cue fires one cue on every deck.	Un cue maestro ta core un cue riba tur deck.
+A MIDI cue can tell the lighting desk to go.	Un cue MIDI por bisa e mesa di lus pa bai.
+A network cue speaks OSC, UDP or TCP.	Un cue di red ta papia OSC, UDP of TCP.
+A DMX cue fades the house lights on a cue.	Un cue DMX ta baha lus di sala riba un cue.
+A script cue runs Deckboy's own commands.	Un cue di script ta core Deckboy su mes ordennan.
+A timecode cue jams LTC to a value.	Un cue di timecode ta jam LTC na un balor.
+Each output can show a different deck.	Cada output por mustra otro deck.
+The matrix sends audio to any channel.	E matris ta manda audio na cualkier canal.
+The panel map numbers every LED tile.	E mapa di panel ta numera cada tegel di LED.
+Hey!	Ei!
+Quit it!	Stop!
+Ow. That was rude.	Ai. Esei tabata malcria.
+I am a professional.	Ami ta un profecional.
+Seriously?	Di berdad?
+This is my monitor.	Esaki ta mi monitor.
+I am telling the operator.	Mi ta bai bisa e operado.
+All right. Wow.	Ta bon. Wow.
+Right. That does it.	Bon. Esei ta basta.
+I am leaving. Good luck with the show.	Mi ta bai. Suerte cu e show.
+Still here? Me too.	Ainda aki? Ami tambe.
+Long show, huh.	Show largu, eh.
+I could do this all day. Apparently.	Mi por hasi esaki henter dia. Parse.
+You have been staring at me for hours.	Bo ta wac mi pa oranan caba.
+Has anyone seen a clock?	Cen a mira un orloshi?
+Is it still the same show?	Ta mesun show ainda?
+I'm not tired. You're tired.	Mi no ta cansa. Abo ta cansa.
+Five more minutes. Then five more.	Cinco minuut mas. Despues cinco mas.
+A whole day. I need a restart.	Henter un dia. Mi mester cuminsa di nobo.
+Save the show. Then let me sleep.	Warda e show. Despues laga mi drumi.
+Every pixel of me is tired.	Cada pixel di mi ta cansa.
+Close me. Open me. I'll be fine.	Sera mi. Habri mi. Lo mi ta bon.
+
+# What the desk face says when you switch to this language: a local saying, not a translation.
+@hello	Bon dia, dushi! Prome un pastechi, despues e show.
+Oh hey. It's 4:20. Take it easy.	Oh, ayo. Ta 4:20. Calma.
+
+# --- tutorials: tools/lesson_strings.py (a whole line each) ---
+HELLO	BON BINI
+Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me.	Dobar den, skapi. Bon bini! Ami ta Dr. Pixel. Cinco minuut, i bo ta core un show. Menos, si bo scucha mi.
+And I'm Professor Video. Synths first, then video. Mostly video now. Press START and we'll patch... we'll begin.	I ami ta Profesor Video. Prome synth, despues video. Awor mayoria video. Primi START i nos ta conecta... nos ta cuminsa.
+TURN THE OUTPUT ON	PONE E OUTPUT CORE
+Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	Skapi, e pantaya ta bashi. No laga nan warda. Habri MENU i cambia OUTPUT OFF pa OUTPUT ON. Ban!
+Lesson one: nothing comes out until you patch the oscillator to the... the OUTPUT. It's video. I know.	Les un: nada no ta sali te ora bo conecta e oscillator na e... na e OUTPUT. Ta video. Mi sa.
+BRING IN A CLIP	TRESE UN CLIP
+Now a picture. Press I and pick a clip from your computer. No clip? SHOW ME, and I lend you one of mine.	Awor un portret. Primi I i cohe un clip di bo computer. No tin clip? SHOW ME, mi ta fia bo un di mi.
+Every clip becomes a cue in the playlist. Like loading a sample. A sample with pictures in it.	Cada clip ta bira un cue den e playlist. Manera carga un sample. Un sample cu portret aden.
+TAKE IT LIVE	PON'E BIBU
+Your clip waits in the playlist. Select it, then TAKE. Or Enter. Confident operators press Enter.	Bo clip ta warda den e playlist. Cohe e, despues TAKE. Of Enter. Operado cu confiansa ta primi Enter.
+TAKE is the envelope trigger. The, ah, the GO button. Same thing, it just has pictures in it.	TAKE ta e gatio di e envelope. E, eh, e boton GO. Mesun cos, solamente cu portret.
+LINE UP THE NEXT ONE	PREPARA ESUN SIGUIENTE
+Click another cue. It waits, ready, until you say. Only one cue? Import another, or SHOW ME.	Click riba otro cue. E ta warda, cla, te ora bo bisa. Un cue so? IMPORTA otro, of SHOW ME.
+Selecting is not playing. The selected one is the next note in the sequence. The next CUE.	Cohe no ta toca. Esun cohe ta e siguiente nota den e secuensia. E siguiente CUE.
+CROSSFADE TO IT	CROSSFADE PA E
+Cuts are for amateurs. In the inspector, press + on transition, so it shows a time, not deck. Then TAKE.	Corta ta pa amatur. Den e inspector, primi + riba transition te ora e mustra un tempo, no deck. Despues TAKE.
+A crossfade! Portamento, but for pictures. Any time will do. A few more presses and it's a second. Then TAKE.	Un crossfade! Portamento, pero pa portret. Cualke tempo ta bon. Algun primi mas i ta un seconde. Despues TAKE.
+CLEAR THE SCREEN	LIMPIA E PANTAYA
+Something goes wrong on stage? Press BLACK, or B. The picture goes. The show keeps running underneath.	Algu ta bai malu riba e esenario? Primi BLACK, of B. E portret ta bai. E show ta sigui core bou.
+Nothing is lost. Press B again and it comes back. Like the mute on a mixer. Very calming.	Nada no ta perde. Primi B atrobe i e ta bolbe. Manera e mute riba un mixer. Hopi trankilo.
+SAVE THE SHOW	WARDA E SHOW
+Now save. Ctrl+S, or SAVE. Some programs lose your work and then blame you. I would never.	Awor warda. Ctrl+S, of WARDA. Algun programa ta perde bo trabou i despues ta culpa bo. Ami nunca.
+Save your patch. Your SHOW. Show. This practice one lives in Deckboy's own folder; yours is safe.	Warda bo patch. Bo SHOW. E show. Esaki di prueba ta biba den e caha di Deckboy; di bo ta sigur.
+THAT'S A SHOW	ESEI TA UN SHOW
+That's a show! Output, cue, TAKE, crossfade, BLACK, save. Nazdrave, skapi. Rakia is on me.	Esei ta un show! Output, cue, TAKE, crossfade, BLACK, warda. Nazdrave, skapi. Rakia ta riba mi cuenta. Mas fuerte cu un Balashi, cuidou.
+Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	Les cla. E shownan di ehempel ta siña layer, titulo i efecto. MENU > LEARN THE BASICS ta toca esaki atrobe.
+*shakes head* That means yes. Bravo.	*ta sacudi cabes* Esei ta nifica si. Dushi!
+Wonderful! Lovely signal flow.	Maravioso! Bunita fluho di señal.
+Mm. I knew you had it in you.	Mm. Mi tabata sa cu bo por.
+Yes! Have a gold star. It's a dot.	Si! Tuma un strea di oro. Ta un punto.
+Ready for the next step? *nods* ...That means no, skapi. The glowing one. It is glowing for you.	Cla pa e siguiente paso? *ta sacudi cabes si* ...Na Bulgaria esei ta nifica no, skapi. Esun cu ta lombra. E ta lombra pa bo.
+You've clicked everything but the glowing one. Even my oscillators find the glowing one.	Bo a click riba tur cos menos esun cu ta lombra. Te mi oscillatornan ta haña esun cu ta lombra.
+stop playback first - the lesson cannot hand a running show back as it was	stop e tocamento prome - e les no por duna un show cu ta core bek manera e tabata
+choose RECOVER or KEEP SAVED first	cohe RECOVER of KEEP SAVED prome
+your show could not be saved, so the lesson has not started. Save it (SAVE AS) and try again	bo show no por a worde warda, p'esei e les no a cuminsa. Warda e (WARDA COMO) i purba atrobe
+the practice show would not open	e show di prueba no a habri
+could not start the practice show	e show di prueba no a cuminsa
+learn the basics: Esc leaves, and it picks up here next time	learn the basics: Esc ta sali, i siguiente biaha e ta sigui aki
+that's the basics - MENU > LESSONS has part two	esei ta e base - MENU > LESSONS tin parti dos
+tour paused - LEARN THE BASICS picks up where you left off	tour pousa - LEARN THE BASICS ta sigui for di unda bo a laga
+Mirrored screens, skapi. Press any key or click, and Dr. Pixel gives it back.	Pantaya den spiegel, skapi. Primi cualkier tecla of click, i Dr. Pixel ta duna bo e bek.
+Wrong screen, skapi. Press any key or click, and Dr. Pixel gives it back.	Pantaya robes, skapi. Primi cualkier tecla of click, i Dr. Pixel ta duna bo e bek.
+The other screen went away, skapi. Press any key or click, and Dr. Pixel gives it back.	E otro pantaya a bai, skapi. Primi cualkier tecla of click, i Dr. Pixel ta duna bo e bek.
+One screen, skapi. Press any key or click, and Dr. Pixel gives it back.	Un pantaya, skapi. Primi cualkier tecla of click, i Dr. Pixel ta duna bo e bek.
+The other screen went away, skapi, so the picture came back to this one. I put it in a little window, behind. Plug it back in and the picture goes back on it.	E otro pantaya a bai, skapi, p'esei e portret a bolbe riba esaki. Mi a pon'e den un bentana chiki, atras. Conecta e atrobe i e portret ta bolbe riba dje.
+It ate the desk, skapi. One screen, so the output took all of it. I put it in a little window, behind. A real show gets a second screen.	E a come e mesa, skapi. Un pantaya, p'esei e output a tuma tur. Mi a pon'e den un bentana chiki, atras. Un show di berdad ta haña un di dos pantaya.
+IT ATE THE DESK	E A COME E MESA
+There. The button that says OUTPUT OFF. Make it say ON, skapi.	Ei. E boton cu ta bisa OUTPUT OFF. Hasi'e bisa ON, skapi.
+Nothing is live to fade from, skapi. TAKE one cue first, then pick the other and give it a time.	Nada no ta bibu pa fade for di dje, skapi. TAKE un cue prome, despues cohe e otro i dune un tempo.
+That was a cut, skapi. Fast, but not a crossfade. Pick the other cue, press + on transition, then TAKE.	Esei tabata un cortamentu, skapi. Lihe, pero no un crossfade. Cohe e otro cue, primi + riba transition, despues TAKE.
+A feedback loop! Output patched straight back into the desk. Happens to the best of us. Mostly to me. 1983. We don't talk about 1983.	Un loop di feedback! Output conecta directo bek den e mesa. Ta pasa cu e mihonan. Mayoria cu ami. 1983. Nos no ta papia di 1983.
+No more rakia. The rat has a problem.	No tin mas rakia. E raton tin un problema.
+Nazdrave, skapi! Baba's rakia, from the Rhodopes. One glass, for the lesson.	Nazdrave, skapi! Rakia di baba, for di Rhodope. Un glas, pa e les. Despues un Balashi friu, pa e calor.
+Is this... is this allowed during a tutorial?	Esaki... esaki ta permiti durante un les?
+*shakes head* That means one more.	*ta sacudi cabes* Esei ta nifica un mas.
+I love you all. I love the oscillator. I love the OUTPUT. It's video. I know. I KNOW.	Mi ta stima boso tur. Mi ta stima e oscillator. Mi ta stima e OUTPUT. Ta video. Mi sa. MI SA.
+...and the rat took the rakia. Every time, skapi. Every single time.	...i e raton a cohe e rakia. Cada biaha, skapi. Cada biaha.
+Was that a rat? In a hat? With a pizza?	Esei tabata un raton? Cu un sombre? Cu un pizza?
+Stop that. I am a serious man.	Stop cu esei. Ami ta un homber serio.
+Do not tell Dr. Pixel about this.	No bisa Dr. Pixel di esaki.
+This never happened. Back to the patch bay.	Esaki nunca no a pasa. Bec na e patch bay.
+It was the eighties. Everyone had a bow tie.	Tabata e añanan otenta. Tur hende tabatin un stric.
+LESSON LIST	LISTA DI LES
+OPEN EXAMPLE SHOWS	HABRI SHOW DI EHEMPEL
+EXIT (Esc)	SALI (Esc)
+Taking it on the road	E show riba caminda
+CHECK a show before it travels, fix what it finds, and bundle it with its media.	CHECK prome cu bo biaha, drecha loke e haña, i BUNDLE e cu su media.
+Effects, oscillators and colour	Efecto, oscillator i color
+An effect, a ~ on its knob, and the colour picker.	Un efecto, un ~ riba su boton, i e cohedo di color.
+The art school crit, with Mr. Salty	Critica na scol di arte, cu Mr. Salty
+Patterns, synths and Draw	Patron, synth i Draw
+A test pattern, the video synth, and drawing on the picture, saved as a still.	Portret di prueba, e synth di video, i pinta riba e portret, warda como un portret fiho.
+The telestrator booth, with Coach Marv	E cabina di telestrator, cu Coach Marv
+Masks	Mask
+A heart from the library, the pen, invert and feather.	Un curason for di bibliotec, e pen, inverti i suavisa.
+The Signal Files: redact the evidence	E Dosiernan di Señal: sconde e prueba
+Warp, blend and slices	Warp, blend i slice
+A corner pin, two soft edges, then three slices in the Screens window.	Corner pin, dos rant suave, despues tres slice den e bentana Screens.
+The haunted lighthouse, with Keeper Rook	E faro cu spiritu, cu e cuidado di faro Rook
+GO from anywhere	GO for di tur caminda
+Cue numbers, GOTO, a hotkey, and where Companion, MIDI and OSC come in.	Number di cue, GOTO, un tecla corticu, i for di unda Companion, MIDI i OSC ta bini.
+The game show, with Donna Wheel	Show di pregunta, cu Donna Wheel
+Words on screen	Palabra riba pantaya
+A Lower Third with a name on it, then a title card with a key-green backdrop.	Un Lower Third cu un nomber, despues un carchi di titulo riba un fondo berde di key.
+The kaiju weather report, with June O'Neil	Tempu di kaiju, cu June O'Neil
+Keeping time	Tene tempo
+A stage timer counting down, held, and a presenter view for the person on stage.	Un timer di esenario cu ta conta, pousa, i e vista di presentado pa e hende riba esenario.
+A grand day out, with Wallis and Grommet	Un dia grandi, cu Wallis i Grommet
+Two playlists and TAKE ALL	Dos playlist i TAKE ALL
+A second playlist as a layer, and TAKE ALL so two things change on one beat.	Un di dos playlist como layer, i TAKE ALL pa cambia dos cos den un mesun golpi.
+The magic show, with Turnip Top	Un show di magia, cu Turnip Top
+When it goes wrong	Ora e bai malu
+BLACK against PANIC, and getting a show back.	BLACK contra PANIC, i trese e show bek.
+The cooking show, with Chef Bork	Un show di cushina, cu Chef Bork
+Presets	Preset
+Capture a look on a DASH button, change everything, and get it back with one press.	Tuma un vista riba un boton di DASH, cambia tur cos, i bolbe cu un click.
+Transitions	Transition
+The styles beyond the crossfade: an iris, a shatter, and their times.	Estilo despues di crossfade: iris, shatter, i nan tempo.
+The space-opera trailer, with Optimus Primetime	Trailer di un opera spasial, cu Optimus Primetime
+Sound	Zonido
+An audio effect on a cue, a bend that damages it beautifully, and where the patch lives.	Un efecto di audio riba un cue, un bend cu ta daña e bunita, i unda e patch ta biba.
+The robot DJs, with Deft Funk	DJ robot, cu Deft Funk
+Reading the scopes	Lesa e scopenan
+The waveform, the vectorscope, and false colour: is the glow real, or just too bright?	Waveform, vectorscope, i color falsu: e lus ta di berdad, of solamente muchu cla?
+The Signal Files: is the glow on the horizon a craft?	E Dosiernan di Señal: e lus riba e horizonte ta un barcu?
+Out of the building	Pafo di e edifisio
+Where NDI, SDI and ST 2110 live, and NDI switched on where this computer has it.	Unda NDI, SDI i ST 2110 ta biba, i NDI cende unda e computer aki tin e.
+The webcam as a controller, as a game. Five rounds, a high score.	Un webcam como control, como wega. Cinco ronda, e puntuacion mas haltu.
+A handheld, and bugs	Un aparato di man, i bishitunan
+The multiview	Multiview
+Windows, the ... menu, what each one shows, layouts, and tally.	Bentananan, e menu ..., kico cada un ta mustra, layout i tally.
+Mystery on the starship Cathode, with Lt. Haila and Ensign Jinkley	Un misterio riba e barcu spasial Cathode, cu Lt. Haila i Ensign Jinkley
+DR. PIXEL: Two playlists: Deckboy becomes SUPER DECKBOY. It earned it, skapi.	DR. PIXEL: Dos playlist: Deckboy ta bira SUPER DECKBOY. E a merese, skapi.
+PROF. VIDEO: It evolved! My oscillators never got a fanfare.	PROF. VIDEO: E a evoluciona! Mi oscillatornan nunca no a haña fanfare.
+DR. PIXEL: SUPER DECKBOY! Every show deserves one. Bravo.	DR. PIXEL: SUPER DECKBOY! Tur show ta merese un. Dushi!
+PROF. VIDEO: The power-up! More playlists, more layers, more super.	PROF. VIDEO: Mas forsa! Mas playlist, mas layer, mas super.
+Intro video (left on the office PC)	Video di apertura (a keda riba e PC di ofisina)
+ON THE ROAD	RIBA CAMINDA
+A show you built here, skapi, running on a laptop somewhere else tonight. Press START.	Un show cu bo a traha aki, skapi, ta core awe nochi riba un laptop otro caminda. Primi START.
+Before it travels: check it, fix it, bundle it.	Prome cu biaha: chec, drecha, pac.
+See CHECK in the top bar? It only appears when something is wrong. Press it.	Bo ta mira CHECK riba e bara ariba? E ta aparese solamente ora algu ta malu. Click riba dje.
+It lists everything a show would trip over: missing files, empty cues, unreachable outputs.	E ta pone na lista tur cos cu lo trompeca e show: archivo cu falta, cue bashi, output no conecta.
+FIX IT	DRECHA E
+The intro video is on another computer. Select it and delete it, or RELINK it if you have the file.	E video di apertura ta riba otro computer. Cohe e i kit'e, of RELINK si bo tin e archivo serca bo.
+Fix it at home, where it is easy. Not at the venue, where it is not.	Drecha e na cas, unda ta fasil. No na e luga, unda no ta fasil.
+BUNDLE IT	PAC E
+Press BUNDLE and choose where: a USB stick, a shared folder. The show and all its media, together.	Primi BUNDLE i cohe un luga: USB, un caha comparti. E show i tur su media, huntu.
+The copy finds its media beside it, wherever the folder goes.	E copia ta haña su media banda di dje, unda cu e caha bai.
+SAFE TRAVELS	BON BIAHA
+Checked, fixed, bundled. On the other machine, open the bundle's show: everything is where it should be.	Chekia, drecha, paca. Riba e otro mashin, habri e show paca: tur cos na su luga.
+A show file is only text, so it travels light. The media is the heavy part.	Un archivo di show ta solamente texto, e ta biaha liviano. Loke ta pisa ta e media.
+Student work no. 4 (untitled)	Trabou di studiante no. 4 (sin titulo)
+THE CRIT	CRITICA
+An art school, skapi. One student, one picture, one critic who has seen it all. Press START.	Un scol di arte, skapi. Un studiante, un portret, un critico cu a mira tur cos. Primi START.
+Effects change a picture; an oscillator keeps changing it. The critic only likes the second kind.	Efecto ta cambia un portret; un oscillator ta sigui cambi'e. E critico ta gusta solamente e di dos tipo.
+A grey square on beige. I have seen this at every graduate show since 1987.	Un cuadra gris riba beige. E a mir'e na tur exhibicion di graduacion for di 1987.
+AN EFFECT	UN EFECTO
+In the inspector's EFFECTS section, + adds one. Edges is a good start: it draws the outlines.	Den e parti EFFECTS di e inspector, + ta agrega un. Edges ta un bon cuminsamento: e ta pinta e liñanan.
+There are dozens. Every one runs on the CPU in a few milliseconds. Mostly.	Tin diesnan. Cada un ta core riba e CPU den algun miliseconde. Mayoria.
+Take a risk! Bad art is fine. Boring art is a crime.	Tuma riesgo! Arte malu ta bon. Arte aburido ta un crimen.
+A ~ ON ITS KNOB	UN ~ RIBA SU BOTON
+Every control with a ~ beside it can follow an oscillator. Press one. The knob starts to breathe.	Cualke control cu un ~ banda di dje por sigui un oscillator. Click riba un. E boton ta cuminsa hala rosea.
+A low-frequency oscillator: slow, so the eye can follow it. A quarter of a hertz is a four-second breath.	Un oscillator di frecuensia abou: pocopoco, pa wowo por sigui. Un cuarto di hertz ta un rosea di cuater seconde.
+Now it MOVES. Okay. Okay. I'm listening.	Awor e ta MOVE. Bon. Bon. Mi ta scuchando.
+A COLOUR OF ITS OWN	UN COLOR PROPIO
+Effects that draw a colour, like Edges' line, have a colour chip. It opens the picker: a wheel, typed names, or a colour off the screen.	Efecto cu ta pinta un color, manera e liña di Edges, tin un chip di color. E ta habri e cohedo: un wiel, nomber skirbi, of un color for di pantaya.
+Every colour has a name somewhere. Mine is 'oscilloscope green'. Nobody else uses it.	Cada color tin un nomber un caminda. Di mi ta 'berde di oscilloscope'. Ningun hende mas no ta us'e.
+That colour is doing something. I don't know what. I love it.	E color ei ta hasi algu. Mi no sa kico. Mi ta stima e.
+THE VERDICT	E VEREDICTO
+An effect, a ~ and a colour. The critic is crying, skapi. Good crying, I think.	Un efecto, un ~ i un color. E critico ta yora, skapi. Bon yoramentu, mi ta kere.
+Stack a few. Each has its own ~ on every knob. That is how a look becomes a performance.	Pone hopi riba otro. Cada un tin su mes ~ riba cada boton. Asina un show ta parse un show.
+It's still a square. But it's YOUR square. Post it.	Ainda un cuadra. Pero BO cuadra. Manda e.
+THE TELESTRATOR BOOTH	E CABINA DI TELESTRATOR
+Coach Marv explains sport by drawing circles on it. Once he circled the sun. Ten minutes, skapi.	Coach Marv ta splica deporte pintando sirculo riba dje. Un biaha el a pinta un sirculo rond di solo. Dies minuut, skapi.
+Tonight: test patterns, the video synth, and drawing on the picture. Press START.	Awe nochi: portret di prueba, e synth di video, i pinta riba e portret. Primi START.
+Get me a picture and a pen. BOOM.	Duna mi un portret i un pen. BOEM.
+A TEST PATTERN	POTRET DI PRUEBA
+Line up the screens BEFORE the show. Not during. I learned this in Plovdiv.	Drecha e pantayanan PROME cu e show. No meimei. Mi a siña esaki na Plovdiv.
+Every desk needs a test pattern. PATTERN adds Pocket Test: checked against real meters.	Cada mesa mester un portret di prueba. PATRON ta agrega Pocket Test: chekia cu midi di berdad.
+A VIDEO SYNTH	E SYNTH DI VIDEO
+He says 'no camera needed' like it is a feature. It is a feature.	E ta bisa 'no mester camara' manera ta un caracteristica. Ta un caracteristica.
+My favourite. SOURCE, then Video Synth: oscillators, mirrors and feedback. No camera needed.	Mi faborito. FUENTE, despues Video Synth: oscillator, spiegel i feedback. No mester camara.
+TAKE THE SYNTH	TAKE E SYNTH
+Select it, then TAKE. Confident operators press Enter.	Cohe e, despues TAKE. Operado cu confiansa ta primi Enter.
+That's our replay. Every replay needs a pundit.	Esaki ta nos replay. Cada replay mester un comentarista.
+Now here's a replay. And here's a guy. And BOOM, he's in it.	Ata e replay. Ata e hugado. I BOEM, e ta aden.
+A SECOND PLAYLIST	UN DI DOS PLAYLIST
+Ink goes on top, on its own layer. Press the + at the end of the playlist tabs.	E tinta ta bai ariba, riba su mes layer. Click + na fin di e tabnan di playlist.
+A second playlist is a layer over the first. Like a second oscillator, mixed on top.	Un di dos playlist ta un layer riba e prome. Manera un di dos oscillator, mescla ariba.
+A DRAW CUE	UN DRAW CUE
+In the new playlist: SOURCE, then Draw. Clear everywhere you have not drawn.	Den e playlist nobo: FUENTE, despues Draw. E ta transparente unda bo no a pinta.
+A Draw cue is transparent outside the ink, so the synth shows through.	E draw cue ta transparente pafo di e tinta, p'esei e synth ta mustra.
+TAKE THE INK	TAKE E TINTA
+Select the Draw cue and TAKE it. Two playlists, two layers, one picture.	Cohe e draw cue i TAKE. Dos playlist, dos layer, un portret.
+Now both are live: the synth underneath, the ink on top.	Awor tur dos ta bibu: e synth bou, e tinta ariba.
+CIRCLE SOMETHING	PINTA UN SIRCULO
+Press DRAW in the inspector, then draw on the programme monitor. Mouse, or a pen if you have one.	Den e inspector, click DRAW, despues pinta riba e monitor di program. Cu mouse, of un pen si bo tin.
+A pen's pressure makes the line thicker. A mouse presses at one strength. Like me.	Precion di pen ta hasi e liña diki. Un mouse semper ta primi igual. Manera ami.
+Circle him! No, bigger. BOOM. That's a cloud. Fine. Circle the cloud.	Pinta sirculo rond di dje! No, mas grandi. BOEM. Esei ta un nubia. Ta bon. Pinta sirculo rond di e nubia.
+SAVE A STILL	WARDA UN POTRET FIHO
+SAVE STILL keeps the drawing as a picture with a clear background, and adds it to the playlist.	SAVE STILL ta warda e dibuho como un portret cu fondo transparente i agreg'e na e playlist.
+For next week's show. Coach Marv will want the cloud again.	Pa e programa di siman cu ta bini. Coach Marv lo ke e nubia atrobe.
+THAT'S THE BOOTH	ESEI TA E CABINA
+Patterns, the synth, a layer, ink, a still. Nazdrave, skapi.	Portret di prueba, e synth, un layer, tinta, un portret fiho. Nazdrave, skapi.
+Try Replay in the Draw section: it draws your lines back the way you drew them.	Purba Replay den e parti Draw: e ta pinta bo liñanan atrobe manera bo a pinta nan.
+Same time next week. Bring a bigger pen. And a turducken.	Siman cu ta bini mesun ora. Trese un pen mas grandi. I un plato di sopi di yuana.
+Saucer photo (CLASSIFIED)	Portret di e plato bulado (SECRETO)
+THE SIGNAL FILES	E DOSIERNAN DI SEÑAL
+The Bureau of Unexplained Signals. Two agents, one photo, and it must not air. Press START.	E Ofisina di Señal Sin Splicacion. Dos agente, un portret, i e no mag bai bibu. Primi START.
+Masks cut a picture into shapes. Tonight we cut evidence.	Mask ta corta un portret na un forma. Awe nochi, nos ta corta e prueba.
+That's a craft, Brandt. Look at the lights. I want to believe.	Ta un barcu, Brandt. Wac e lusnan. Mi ke kere.
+A MASK FROM THE LIBRARY	UN MASK FOR DI BIBLIOTEC
+In the inspector's MASK section: mask, then 'new heart'. Any shape will do. The heart is funnier.	Den e parti MASK di e inspector: mask, despues 'new heart'. Cualke forma ta bon. Un curason ta mas dibertido.
+The library has circles, stars, hearts. Each one is points you can move.	E bibliotec tin sirculo, strea, curason. Cada un ta puntonan cu bo por move.
+A heart, Hollis? The Bureau redacts with black bars.	Un curason, Hollis? E Ofisina ta sconde cos cu bara pretu.
+THE PEN	E PEN
+Set the tool to pen, then click round the saucer on the monitor. Click the first point to close it.	Cambia e heramenta pa pen, despues click ront di e plato riba e monitor. Click riba e prome punto pa sera.
+Click for corners, drag for curves. The way the Bezier brothers intended.	Click pa huki, hala pa liña curvo. Manera e rumannan Bezier tabata ke.
+Draw round it carefully. It might be watching.	Pinta ront di dje cu cuidou. Cisas e ta wac.
+INVERT	INVERTI E
+Invert keeps the outside and cuts the inside. The saucer goes. The sky stays.	Inverti ta tene pafo i corta aden. E plato ta bai. E shelu ta keda.
+The same shape, the other way round. Very useful. Slightly spooky.	Mesun forma, inverti. Hopi util. Un tiki spanto.
+Hollis, there's a heart-shaped hole in the sky.	Hollis, tin un buracu cu forma di curason den shelu.
+FEATHER	SUAVISA E
+Feather softens the edge, so nobody sees the cut. Press + on feather.	Suavisa ta hasi e rant suave, pa ningun hende mira e cortamentu. Primi + riba feather.
+A hard edge says 'someone was here'. A soft one says nothing at all.	Un rant duru ta bisa 'tabatin un hende aki'. Un suave no ta bisa nada.
+They'll never know.	Nunca nan lo no sa.
+CASE CLOSED	DOSIER SERA
+A library shape, the pen, invert and feather. The Bureau thanks you. The Bureau was never here.	Un forma for di bibliotec, e pen, inverti i suavisa. E Ofisina ta gradisi bo. E Ofisina nunca no tabata aki.
+Masks also go on a layer, an output, or its matte: MASK ON chooses. And every control takes a ~.	Mask por bai riba un layer, un output of su matte tambe: MASK ON ta cohe. I cada control ta tuma un ~.
+The truth is in the waveform, Hollis. Next time, the scopes.	E berdad ta den e waveform, Hollis. Siguiente biaha, e scope.
+The ghost	Spiritu
+THE HAUNTED LIGHTHOUSE	E FARO CU SPIRITU
+A lighthouse, a ghost, and a keeper who has been alone with the lamp far too long. Press START.	Un faro, un spiritu, i un cuidado cu a keda su so cu e lampi muchu tempo, manera California Lighthouse. Primi START.
+Projection mapping: bending the picture to fit the building. Warp, blend, slices.	Projection mapping: dobla e portret pa e pas riba e edifisio. Warp, blend, slice.
+Ye'll be wanting the ghost on the windows. Mind the lamp. The lamp is MINE.	Boso ke e spiritu riba e bentananan, no? Cuidou cu e lampi. E lampi ta DI MI.
+THE OUTPUT'S GEOMETRY	GEOMETRIA DI OUTPUT
+MENU, then Video Outputs, then Geometry. Where an output's shape lives.	MENU, despues Video Outputs, despues Geometry. E forma di e output ta biba ei.
+Geometry: the projector-menu word for 'what shape is the picture'.	Geometry: e palabra di menu di proyector pa 'ki forma e portret tin'.
+PIN A CORNER	PIN UN HUKI
+Press warp edit, then drag a corner on the programme monitor. The window is not square. Neither is the keeper.	Click warp edit, despues hala un huki riba e monitor di program. E bentana no ta cuadra. Ni e cuidado.
+A corner pin moves the four corners. Perspective keeps the lines straight, like a real window.	Corner pin ta move cuater huki. Perspectiva ta tene liñanan rect, manera un bentana di berdad.
+LEFT! Ye call that a corner? I've seen straighter gulls.	ROBES! Bo ta yama esei un huki? Mi a mira un palu di divi-divi mas rect den e bientu.
+TWO SOFT EDGES	DOS RANT SUAVE
+Back in Geometry: edge blend, + on the left and + on the right.	Bec na Geometry: edge blend, + na robes i + na drechi.
+Two projectors overlap; each fades its edge so the overlap is not twice as bright.	Dos proyector ta crusa; cada un ta fade su rant pa e crusamentu no ta dos biaha mas cla.
+THE SCREENS WINDOW	E BENTANA SCREENS
+Geometry, SLICES, open. The Screens window is where slices are cut and placed.	Geometry, SLICES, habri. E bentana Screens ta unda slice ta worde corta i pon'e.
+A slice is a piece of the picture, put anywhere on the output.	Un slice ta un pida di e portret, pon'e cualkier caminda riba e output.
+THREE SLICES	TRES SLICE
+In the Screens window, + SLICE three times, and drag each crop to a third of the picture.	Den e bentana Screens, + SLICE tres biaha, i hala cada cortamentu pa un di tres di e portret.
+Three windows, three slices: left, middle and right of one picture.	Tres bentana, tres slice: robes, meimei i drechi di un portret.
+Three windows. The lamp gets the middle one. The lamp ALWAYS gets the middle one.	Tres bentana. Esun di meimei ta di e lampi. Esun di meimei SEMPER ta di e lampi.
+THE GHOST IS PLEASED	E SPIRITU TA CONTENTO
+Warp, blend, slices. The keeper will finally sleep. The gulls will not.	Warp, blend, slice. E cuidado lo drumi finalmente. E cocolishinan no.
+Slices have their own warp and mesh in the Screens window. And a ~ on the place and the turn.	Slice tin nan mes warp i mesh den e bentana Screens. I un ~ riba e luga i e bira.
+Ye did alright, lad. Now get away from the lamp.	Bo a hasi bon, mucha. Awor bai leu for di e lampi.
+THE GAME SHOW	E SHOW DI PREGUNTA
+A game show, skapi. Three contestants, one buzzer, and cues that fire from anywhere. Press START.	Un show di pregunta riba television, skapi. Tres partisipante, un zumbado, i cue cu ta tira for di tur caminda. Primi START.
+Cue numbers, hotkeys, and GO from other machines. Like a sequencer you can play from any key.	Number di cue, tecla corticu, i GO for di otro mashin. Manera un sequencer cu bo ta dal cu cualkier tecla.
+Welcome to the show! Let's spin that wheel!	Bon bini na e show! Ban bira e wiel!
+A CUE NUMBER	UN NUMBER DI CUE
+Contestant 3 is selected. In the inspector's metadata, give it a cue number: 3.	Partisipante 3 ta cohe. Den e metadata di e inspector, dune un number di cue: 3.
+Theatre numbers its cues. Q3, Q3.5, Q12A. Deckboy reads them all.	Show ta numera nan cuenan. Q3, Q3.5, Q12A. Deckboy ta lesa tur.
+I'd like to buy a number, please.	Mi ke cumpra un number, por fabor.
+GO TO IT	BAI NA DJE
+Ctrl+G, type the number, Enter. It goes live wherever the list happens to be standing.	Ctrl+G, tipea e number, Enter. E ta bai bibu, unda cu e lista ta.
+GOTO. The fastest way across a long list. Faster than scrolling. Much faster than me.	GOTO. E caminda mas lihe den un lista largu. Mas lihe cu scroll. Hopi mas lihe cu ami.
+And the number is... three!	I e number ta... tres!
+A BUZZER	UN ZUMBADO
+Contestant 1 is selected. In TRIGGERS, press key, then F5. That key now fires this cue.	Partisipante 1 ta cohe. Den TRIGGERS, click key, despues F5. E tecla ei awor ta tira e cue aki.
+F1 to F10, F12, or the number pad. Each one, a buzzer.	F1 te F10, F12, of e pad di number. Cada un ta un zumbado.
+Every contestant gets a buzzer.	Cada partisipante ta haña un zumbado.
+BUZZ IN	ZUMBA!
+Press the key. The cue fires, wherever the list is standing.	Primi e tecla. E cue ta tira, unda cu e lista ta.
+No mouse, no list, no looking. Just the key.	Sin mouse, sin lista, sin wac. Solamente e tecla.
+Buzz! We have a winner!	Bzzz! Nos tin un ganado!
+FROM ANYWHERE	FOR DI TUR CAMINDA
+Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion, un nota MIDI, un mensahe OSC: MENU, despues Red, ta bisa unda cada un ta conecta.
+A Stream Deck in the next room can press GO. So can a keyboard synth. I prefer the synth.	Un Stream Deck den e camber banda por primi GO. Un synth di teclado tambe. Mi ta prefera e synth.
+And for our viewers at home: you can play along too.	I pa e publico na cas: boso tambe por hunga.
+THAT'S OUR SHOW	ESEI TA NOS SHOW
+Numbers, GOTO, a buzzer, and GO from anywhere. You are a game show now, skapi.	Number, GOTO, zumbado, i GO for di tur caminda. Awor bo ta un show di pregunta, skapi.
+A cue can have a key, a MIDI note and an OSC address at once. Belt, braces and a second belt.	Un cue por tin un tecla, un nota MIDI i un adres OSC tur na mesun ora. Faha, brasa, i otro faha.
+Goodnight, everybody! Keep spinning!	Bon nochi, tur hende! Sigui bira!
+Weather map	Mapa di tempo
+THE KAIJU WEATHER	TEMPO DI KAIJU
+Channel 6 weather, skapi. A map, a presenter, and a very large lizard. Press START.	Tempu riba Canal 6, skapi. Un mapa, un presentado, i un lagadishi masha grandi. Primi START.
+Words on screen: Lower Thirds, text, and backdrops.	Palabra riba pantaya: un Lower Third, texto i fondo.
+I'm June O'Neil, and nothing about this forecast is normal.	Ami ta June O'Neil, i nada den e pronostico aki no ta normal.
+A LAYER FOR WORDS	UN LAYER PA PALABRA
+Words go on their own layer: press the + at the end of the playlist tabs.	Palabra ta bai riba nan mes layer: click + na fin di e tabnan di playlist.
+A second playlist is a layer over the map. The lizard stays underneath. Mostly.	Un di dos playlist ta un layer riba e mapa. E lagadishi ta keda bou. Mayoria di tempo.
+Words on top. Always on top.	Palabra ariba. Semper ariba.
+A LOWER THIRD	UN LOWER THIRD
+In the new playlist: SOURCE, then Lower Third.	Den e playlist nobo: FUENTE, despues Lower Third.
+A name and a title, low on the screen, out of the lizard's way.	Un nomber i un titulo, abou na pantaya, fuera di caminda di e lagadishi.
+HER NAME	SU NOMBER
+In the inspector, title: type the presenter's name. The second line is her job.	Den e inspector, title: tipea e nomber di e presentado. E di dos liña ta su trabou.
+Spelling counts. The audience reads it at the speed of light.	Ortografia ta importante. Publico ta lesa cu velocidad di lus.
+Spell it right. Last week it said 'Jane O'Meal'.	Skirbi'e bon. Siman pasa e tabata bisa 'Jane O'Meal'.
+ON AIR	BIBU
+TAKE the Lower Third. Her name slides in over the map.	TAKE e Lower Third. Su nomber ta slep riba e mapa.
+Two layers live: the weather, and the words on top of it.	Dos layer bibu: e tempo, i e palabranan ariba.
+Thank you. Now, about that lizard...	Danki. Awor, tocante e lagadishi ei...
+BREAKING NEWS	NOTISIA URGENTE
+SOURCE, then Text: a title card. Then its backdrop chip: key green, for the vision mixer to key out.	FUENTE, despues Text: un carchi di titulo. Despues e chip di fondo: berde di key, pa e mixer kit'e.
+A backdrop fills behind the words. Key green or key blue, and the mixer does the rest.	Fondo ta yena tras di e palabranan. Berde of blauw di key, e mixer ta hasi e resto.
+Breaking news: it's standing on the five-day forecast.	Urgente: e a trapa riba e pronostico di cinco dia.
+BREAKING: KAIJU	URGENTE: KAIJU
+BACK TO YOU	BEC NA STUDIO
+A Lower Third, a name, a title card, a backdrop. The lizard has left the studio, skapi.	Lower Third, nomber, carchi di titulo, fondo. E lagadishi a sali for di studio, skapi.
+Lower Thirds can wait, slide and leave on their own. Their section has every setting.	Lower Third por warda nan mes, slep aden i slep afo. Nan parti tin tur configuracion.
+That's the weather. Back to you, guys. Run.	Esei ta e tempo. Bec na studio. Core.
+A GRAND DAY OUT	UN DIA GRANDI
+A rocket built in a basement, skapi, and an inventor who wants cheese. Press START.	Un raket traha den kelder, skapi, i un inventor cu ke keshi. Primi START.
+Stage timers: countdowns, clocks, and a presenter view for the person on stage.	Timer di esenario: conta bek, orloshi, i e vista di presentado.
+Cheese, Grommet! The moon's made of it. We'll need a countdown.	Keshi, Grommet! Luna ta traha di keshi. Nos mester conta bek.
+A COUNTDOWN	CONTA BEC
+SOURCE, then Stage Timer. A clock that counts down, in big friendly numbers.	FUENTE, despues Stage Timer. Un orloshi cu ta conta bek, cu number grandi i amabel.
+Its colours change as it runs out: white, amber, red. Like a VU meter for time.	Colonan ta cambia segun tempo ta caba: blancu, ambar, cora. Manera un VU meter di tempo.
+*raises an eyebrow*	*ta hisa un skeñanan*
+LIFT OFF	DESPEGA
+Select the timer and TAKE it. The countdown starts.	Cohe e timer i TAKE. E conta bek ta cuminsa.
+Past zero it keeps going, counting the overtime. Very honest. Slightly rude.	E ta sigui despues di sero, contando e tempo di mas. Masha exacto. Un tiki malcria.
+Ten... nine... ooh, I do love a countdown.	Dies... nuebe... ai, mi ta stima un conta bek.
+HOLD!	TENE!
+Something's loose! Space holds the countdown. The clock shows it is held.	Algu ta los! Space ta pousa e conta. E orloshi ta mustra cu e ta pousa.
+A hold is not a stop. Space again, and it carries on from where it was.	Pousa no ta caba. Space atrobe, i e ta sigui for di unda e tabata.
+*holds up a spanner*	*ta hisa un yabi*
+THE PILOT'S VIEW	VISTA DI PILOTO
+MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	MENU, Video Outputs: pone e tipo di un output na PRESENTER. E hende riba esenario ta mira e timer, e siguiente cue i su notanan.
+A presenter view is an output like any other. Point it at the confidence monitor.	E vista di presentado ta un output manera cualkier otro. Pon'e na e monitor di esenario.
+So the pilot can see the time. The pilot is Grommet.	Pa e piloto mira e tempo. E piloto ta Grommet.
+TO THE MOON	PA LUNA
+A countdown, a hold, and a view for the pilot. Nazdrave, skapi. Bring crackers.	Un conta, un pousa, i un vista pa e piloto. Nazdrave, skapi. Trese pan bati.
+Timers can also count up, or show the time of day. Their section has the lot.	Timer por conta pa dilanti tambe, of mustra e ora. Nan parti tin tur cos.
+A grand day out, Grommet! Pass the crackers.	Un dia grandi, Grommet! Pasa mi e pan bati.
+The trunk (closed)	E caha (sera)
+The trunk (open)	E caha (habri)
+THE MAGIC SHOW	UN SHOW DI MAGIA
+A magic show, skapi. A trunk, a prop, and one beat where everything changes at once. Press START.	Un show di magia, skapi. Un caha, un prop, i un golpi cu ta cambia tur cos huntu. Primi START.
+Two playlists are two layers. TAKE ALL changes both together.	Dos playlist ta dos layer. TAKE ALL ta cambia tur dos huntu.
+Every trick needs two things happening at once. And a rubber chicken.	Cada truco mester dos cos cu ta pasa na mesun ora. I un galiña di goma.
+The prop goes on its own layer. Press the + at the end of the playlist tabs.	E prop ta bai riba su mes layer. Click + na fin di e tabnan di playlist.
+Playlist 2 sits on top of playlist 1. Like a transparency on an overhead projector.	Playlist 2 ta sinta riba playlist 1. Manera un transparensia riba un overhead projector.
+Nothing up my sleeve. Everything in my trunk.	Nada den mi mangas. Tur cos den mi caha.
+THE PROP	E PROP
+In the new playlist, add anything: PATTERN will do. That is the prop.	Den e playlist nobo, agrega cualkier cos: PATRON ta bon. Esei ta e prop.
+Whatever it is, it will appear the instant the trunk opens.	Loke e ta, e ta aparese ora e caha habri.
+Is it a rubber chicken? It's always a rubber chicken.	Ta un galiña di goma? Semper ta un galiña di goma.
+The prop (rubber chicken)	Prop (galiña di goma)
+Select 'The trunk (open)' in playlist 1 and the prop in playlist 2. Then TAKE ALL: both on one beat.	Cohe 'E caha (habri)' den playlist 1 i e prop den playlist 2. Despues TAKE ALL: tur dos den un golpi.
+One press, every playlist's selected cue. The audience never sees the seam.	Un click, e cue cohe di cada playlist. E publico nunca no ta mira e cosementu.
+Ta-daaa! ...Hold for applause. Hold. Hold.	Ta-daaa! ...Warda e aplouso. Warda. Warda.
+THE PRESTIGE	E TRUCO GRANDI
+Two layers, one beat. Every playlist has its own opacity and can sit on any output. Nazdrave, skapi.	Dos layer, un golpi. Cada playlist tin su mes opacity i por sinta riba cualkier output. Nazdrave, skapi.
+A magician never reveals. A playlist never minds being revealed.	Un mago nunca no ta revela. Un playlist no tin problema cu revela.
+Thank you! I'm here all week! The chicken is here forever.	Danki! Mi ta aki henter siman! E galiña ta aki pa semper.
+The kitchen (on fire)	E cushina (sendiendo)
+A lovely souffle	Un souffle bunita
+THE COOKING SHOW	UN SHOW DI CUSHINA
+A cooking show, skapi. Live. Everything is on fire. Press START.	Un show di cushina, skapi. Bibu. Tur cos ta sende. Primi START.
+BLACK hides the picture and keeps the show running. PANIC stops everything. Know which you need.	BLACK ta sconde e portret i laga e show core. PANIC ta stop tur cos. Sa cua bo mester.
+Bork bork! Hurdy-flurdy, de kitchen is fire-a-flurdy!	Bork bork! Hurdy-flurdy, e cushina ta sende-flurdy!
+The audience must not see this. Press BLACK, or B.	E publico no mag mira esaki. Primi BLACK, of B.
+The picture goes. The cue keeps playing underneath, ready to come back.	E portret ta bai. E cue ta toca bou, cla pa bolbe.
+Bork? Bork. Oh, de picture is gun.	Bork? Bork. Oh, e portret a bai.
+AND BACK	I BEC
+The fire's out. Press B again: the picture comes back, still running.	Candela paga. Primi B atrobe: e portret ta bolbe, ainda core.
+Nothing was lost. A mute on a mixer, for pictures.	Nada no a perde. E mute riba un mixer, pa portret.
+Ta-da! Still cookin'!	Ta-da! Ainda cushinando!
+Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	Mas malu: MENU, Sistema, e carchi SAFETY: PANIC. Tur cos ta stop, manera e perfil di panic ta bisa.
+PANIC is the big red button. Use it when BLACK is not enough. Then breathe.	PANIC ta e boton cora grandi. Us'e ora BLACK no ta basta. Despues hala rosea.
+GET IT BACK	TRESE E BEC
+Close MENU, select the souffle, and TAKE it. The show is back on.	Sera MENU, cohe e souffle i TAKE. E show ta bolbe.
+After a panic, the show is still there. Pick up where you meant to be.	Despues di un panic, e show ta ainda einan. Sigui for di unda bo ke.
+Voila! De souffle, he is risen!	Voila! E souffle a subi!
+BON APPETIT	BON APETIT
+BLACK to hide, PANIC to stop, TAKE to come back. You will survive any kitchen, skapi.	BLACK pa sconde, PANIC pa stop, TAKE pa bolbe. Bo ta sali di cualkier cushina, skapi.
+The panic setting chooses what PANIC does: fade out, cut, or just the outputs.	E perfil di panic ta cohe kico PANIC ta hasi: fade out, corta, of solamente e output.
+Bork bork bork! Goodnight!	Bork bork bork! Bon nochi!
+Look one	Vista un
+Look two	Vista dos
+Presets, skapi. A whole look, remembered, and back with one button. Press START.	Preset, skapi. Un vista completo, corda, i bek cu un boton. Primi START.
+Like the patch memory on a synth: store, then recall.	Manera memoria di patch riba un synth: warda e, despues yam'e.
+THE DASH	E DASH
+Press DASH: buttons of your own, for anything at all.	Click DASH: bo mes botonnan, pa tur cos.
+Ctrl+D also works. Very fast. Very professional.	Ctrl+D ta traha tambe. Hopi lihe. Hopi profecional.
+A PRESET BUTTON	UN BOTON DI PRESET
+Press +, then 'preset - a new preset from what is on now'. The button remembers this look.	Click +, despues 'preset - a new preset from what is on now'. E boton ta corda e vista aki.
+Store. Like saving the patch before the drummer leans on the synth.	Warda e. Manera warda un patch prome cu e baterista len riba e synth.
+CHANGE EVERYTHING	CAMBIA TUR COS
+Close the DASH (Esc), then select Look two and TAKE it. A different look.	Sera DASH (Esc), despues cohe Vista dos i TAKE. Otro vista.
+Change it all. Don't worry. It remembers.	Cambia tur cos. No preocupa. E ta corda.
+ONE PRESS	UN CLICK
+Open the DASH and press your preset button. The first look comes back.	Habri DASH i click riba bo boton di preset. E prome vista ta bolbe.
+Recall. The patch memory, returning. Beautiful.	Yama. E memoria di patch a bolbe. Dushi.
+A look, stored and recalled. A preset can keep cues, positions, effects, levels and routing; its button's menu chooses which.	Un vista, warda i yama. Un preset por tene cue, pocion, efecto, nivel i ruta; e menu di su boton ta cohe cua.
+And a DASH button can run any command at all. Any. Even the exciting ones.	I un boton di DASH por core cualkier orden. Cualke. Te e emocionantenan.
+Opening titles	Titulo di apertura
+The planet	E planeta
+The battle	E bataya
+THE TRAILER	TRAILER
+A space-opera trailer, skapi. A narrator with a very deep voice and opinions about transitions. Press START.	Trailer di un opera spasial, skapi. Un narrado cu un stem masha hundu i hopi opinion tocante transition. Primi START.
+A transition is how one cue becomes the next. There are far more than the crossfade.	Un transition ta con un cue ta bira e otro. Tin hopi mas cu crossfade.
+In a galaxy of content... one operator... must choose a transition.	Den un galaxia di contenido... un operado... mester cohe un transition.
+A STYLE	UN ESTILO
+'The planet' is selected. In the inspector, its transition style: choose iris.	'E planeta' ta cohe. Den e inspector, su estilo di transition: cohe iris.
+Pushes, wipes, iris, dip to white. Even a portal. I wrote half of them. On a Tuesday.	Push, wipe, iris, dip to white. Te un portal. Mi a scirbi mitar di nan. Djamars.
+The planet deserves... a dramatic entrance.	E planeta ta merese... un entrada dramatico.
+A TIME	UN TEMPO
+Give it a time: + on transition until it says a second or more.	Dune un tempo: + riba transition te ora e bisa un seconde of mas.
+No time, no transition. A style needs a duration to do anything at all.	Sin tempo, sin transition. E estilo mester tempo pa hasi algu.
+ROLL IT	CORE E
+TAKE the planet. Watch it arrive.	TAKE e planeta. Wac e bini.
+The transition belongs to the cue arriving. Each cue chooses its own entrance.	E transition ta di e cue cu ta yega. Cada cue ta cohe su mes entrada.
+Autobots... roll the transition.	Autobot... core e transition.
+THE BATTLE	E BATAYA
+Now 'The battle': choose shatter, give it a time, and TAKE it.	Awor 'E bataya': cohe shatter, dune un tempo, i TAKE.
+Shatter drops the old picture like a pane of glass. Please do not do this at a funeral.	Shatter ta tira e portret bieu manera glas. Por fabor no us'e na un casamentu.
+Transform... and shatter out!	Transforma... i kibra!
+IN CINEMAS NOW	AWOR DEN SINE
+A style, a time, and two very dramatic entrances. Nazdrave, skapi.	Un estilo, un tempo, i dos entrada masha dramatico. Nazdrave, skapi.
+A playlist has a default style too, for every cue that does not choose its own.	Un playlist tin un estilo standard tambe, pa cualkier cue cu no ta cohe su mes.
+Coming soon... to a desk near you.	Pronto... riba un mesa serca bo.
+The beat	Ritmo
+THE ROBOT DJS	DJ ROBOT
+Two robot DJs, skapi. They do not talk. Their helmets do. Press START.	Dos DJ robot, skapi. Nan no ta papia. Nan helmnan ta papia. Primi START.
+Every cue has its own chain of audio effects, and some of them break the sound on purpose.	Cada cue tin su mes cadena di efecto di audio, i algun ta kibra e zonido aproposito.
+> HELLO. WE ARE HERE TO FIX YOUR MIX.	> BON BINI. NOS A BINI DRECHA BO MIX.
+The beat is selected. In its AUDIO EFFECTS section, + adds one. Try the delay.	Ritmo ta cohe. Den e parti AUDIO EFFECTS, + ta agrega un. Purba Delay.
+Delay, reverb, filters, a compressor. Amount always means 'less of this'.	Delay, reverb, filter, compressor. Amount semper ta nifica 'menos di esaki'.
+> ONE MORE TIME. WITH ECHO. ECHO. ECHO.	> UN BIAHA MAS. CU ECO. ECO. ECO.
+A BEND	UN BEND
+Add a second: a bend, like crush. It damages the sound the way a broken file would.	Agrega un di dos: un bend, manera crush. E ta daña e zonido manera un archivo kibra.
+The bends are my favourite. Like a tape left in the sun. On purpose.	Bend ta mi faboritonan. Manera un caset cu a keda den solo. Aproposito.
+> HARDER. BETTER. CRUNCHIER. LOUDER.	> MAS DURU. MIHO. MAS CROCANTE. MAS DURU DURU.
+THE PATCH	E PATCH
+MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	MENU, despues Audio: unda e zonido di cada playlist ta bai, i e patch pa output cu nomber.
+Speakers, monitors, an in-ear for the drummer. The patch sends each its own.	Box, monitor, in-ear pa e baterista. E patch ta manda cada un su mes.
+> AROUND THE MIX. AROUND THE MIX. AROUND THE MIX.	> RONT DI E MIX. RONT DI E MIX. RONT DI E MIX.
+An effect, a bend and the patch. The robots approve, skapi. I think. Their faces are helmets.	Un efecto, un bend i e patch. E robotnan ta aproba, skapi. Mi ta kere. Nan cara ta helm.
+Every audio effect can follow a ~ too, even Motion. Wave at the delay. It's wonderful.	Cada efecto di audio por sigui un ~ tambe, te Motion. Zwai bo man pa e delay. Ta maraviyoso.
+> THANK YOU. GOOD NIGHT. WE ARE ROBOTS.	> DANKI. BON NOCHI. NOS TA ROBOT.
+The glow on the horizon (evidence #2)	E lus riba e horizonte (prueba #2)
+EVIDENCE #2	PRUEBA #2
+The Bureau again, skapi. A glow on the horizon, and two agents who disagree about it. Press START.	E Ofisina atrobe, skapi. Un lus riba e horizonte, i dos agente cu no ta di acuerdo. Primi START.
+The scopes measure a picture: brightness, colour, levels. Numbers, not opinions.	Scope ta midi e portret: claridat, color, nivel. Number, no opinion.
+It's them, Brandt. It's a craft. Look how it glows.	Ta nan, Brandt. Ta un barcu. Wac con e ta lombra.
+THE REAL SIGNAL	E SEÑAL DI BERDAT
+The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	Scope ta lesa solamente loke ta sali di berdad, nunca un vista previo. Ensende un output: MENU, Video Outputs, OUTPUT OFF.
+Measuring a scaled-down preview would be measuring a photocopy. We measure the original.	Midi un vista previo chiki ta manera midi un fotocopia. Nos ta midi e original.
+Chain of evidence, Hollis. The real signal or nothing.	Cadena di prueba, Hollis. E señal di berdad of nada.
+THE SCOPES	UN SCOPE
+Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	Sera MENU. Riba e monitor, e boton PROGRAM: click te ora e bisa SCOPES of BOTH.
+Both shows the picture and its scopes side by side. Very civilised.	BOTH ta mustra e portret i su scopenan banda di otro. Masha sivilisa.
+Let the scopes decide, Hollis.	Laga e scopenan desidi, Hollis.
+THE WAVEFORM	E WAVEFORM
+Click the waveform to make it big. Bright things sit high, dark things low, left to right as in the picture.	Click riba e waveform pa hasie grandi. Cos cla ariba, scur abou, di robes pa drechi manera den e portret.
+The glow is that spike near the top. Very bright. Bright is not the same as alien.	E lus ta e punta serca ariba. Masha cla. Cla no ta extraterestre.
+Look at the peak. Nothing a streetlight couldn't do.	Wac e punta. Nada cu un lampi di caya no por hasi.
+THE VECTORSCOPE	E VECTORSCOPE
+Click it again to go back, then click the vectorscope: colour round a circle. Saturated runs to the edge.	Click atrobe pa bolbe, despues click riba e vectorscope: color ront di un sirculo. Saturacion ta core pa e rant.
+Magenta, far out by the rim. A strong colour. Strong is not illegal. Yet.	Magenta, leu pa e rant. Un color fuerte. Fuerte no ta ilegal. Ainda.
+It's off the chart, Brandt! Literally off the chart!	E ta pafo di e grafico, Brandt! Literalmente!
+FALSE COLOUR	COLOR FALSU
+And false colour: red is clipped, yellow nearly. Is the glow red?	I color falsu: cora ta corta, hel ta casi. E lus ta cora?
+Clipped means the brightest the signal can carry, and then some lost. Detail gone.	Corta ta nifica e mas cla cu e señal por carga, i algu ariba di esei a perde. E detaye a bai.
+Red. Clipped. Not alien, Hollis. Just too bright. Case closed.	Cora. Corta. No ta extraterestre, Hollis. Solamente muchu cla. Dosier sera.
+THE TRUTH	E BERDAT
+Waveform, vectorscope, false colour. The scopes settled it, skapi. The agents did not.	Waveform, vectorscope, color falsu. E scopenan a disidi, skapi. No e agentenan.
+SCOPES SOURCE reads any output, and the matrix can be 709 or 2020. For the curious.	SCOPES SOURCE ta lesa cualkier output, i e matris por ta 709 of 2020. Pa e curioso.
+Too bright for a streetlight, Brandt. Too bright for anything. ...I want to believe.	Muchu cla pa un lampi di caya, Brandt. Muchu cla pa tur cos. ...Mi ke kere.
+OUT OF THE BUILDING	PAFO DI E EDIFISIO
+Pictures that leave by cable or network, skapi, not only a window on a screen. Press START.	Portret cu ta sali via cabel of via red, skapi, no solamente un bentana riba pantaya. Primi START.
+NDI over the network, SDI from a DeckLink card, ST 2110 for broadcast plants.	NDI riba e red, SDI for di un carchi DeckLink, ST 2110 pa sentro di transmicion.
+THE DEVICES PAGE	E PAGINA DI APARATO
+MENU, Video Outputs, then Devices: every way an output can leave this computer.	MENU, Video Outputs, despues Aparatonan: cada caminda cu un output por sali for di e computer aki.
+Each one says whether this machine can do it, and what it needs if not.	Cada un ta bisa si e mashin aki por, i si no, kico e mester.
+If this computer has NDI, switch NDI SENDING on: the picture is on the network. If not, SHOW ME moves on.	Si e computer aki tin NDI, cende NDI SENDING: e portret ta riba e red. Si no, SHOW ME ta sigui.
+NDI finds itself on the network. No cables, only a good switch and patience.	NDI ta haña su mes riba e red. Sin cabel, solamente un bon switch i pasenshi.
+OUT THERE	PAFO
+The output's own page has the rest: a DeckLink card's SDI, ST 2110 with NMOS, Spout and Syphon.	E pagina di output tin e otronan: SDI di un carchi DeckLink, ST 2110 cu NMOS, Spout i Syphon.
+Every one is just an output. The show does not know or care how it leaves.	Cada un ta solamente un output. E show no sa i no ta importa con e ta sali.
+Nebula ahead	Nebulosa dilanti
+Engine room	Camber di mashin
+Deck 3: something moving	Cubierta 3: algu ta move
+THE BRIDGE	E PUENTE
+The bridge of the starship Cathode, skapi. Four feeds, one main viewer, one mystery. Press START.	E puente di e barcu spasial Cathode, skapi. Cuater feed, un pantaya prinsipal, un misterio. Primi START.
+The multiview shows every playlist at once. Like a wall of oscilloscopes, but in space.	Multiview ta mustra tur playlist na mesun ora. Manera un muraya di oscilloscope, pero den spasio.
+Frequencies open, Captain. All of them. That's the problem.	Tur frecuensia ta habri, capitan. Tur. Esei ta e problema.
+MULTI, above the monitor: every playlist in its own window.	MULTI, riba e monitor: cada playlist den su mes bentana.
+One window per playlist, the programme first.	Un bentana pa cada playlist, program prome.
+Jinkys! Four feeds. And one of them has a monster in it.	Jinkys! Cuater feed. I den un di nan tin un monster.
+WHAT'S NEXT	KICO TA SIGUIENTE
+Add a window (+), then its ... menu: make it show NEXT. What goes live when you press TAKE.	Agrega un bentana (+), despues su menu ...: mustra NEXT. Loke ta bai bibu ora bo primi TAKE.
+Every window has a ... button. It chooses what that window shows.	Cada bentana tin un boton .... E ta cohe kico e bentana ei ta mustra.
+I need to see who's calling before they reach the main viewer.	Mi mester mira ken ta yama prome cu e yega e pantaya prinsipal.
+A CLOCK	UN ORLOSHI
+And one more window, showing the clock. Operators who watch a clock are never late. Mostly.	I un otro bentana, cu ta mustra e orloshi. Operado cu ta wac e orloshi nunca no ta lat. Mayoria.
+Time of day, big. Stardates are just very long timecode.	Ora di dia, grandi. Stardate ta solamente un timecode masha largu.
+The monster only shows up at midnight. We're going to need a clock.	E monster ta aparese solamente mei nochi. Nos mester un orloshi.
+ONE BIG ONE	UN GRANDI
+Any window's ... menu, then a layout: one big, the rest small.	E menu ... di cualkier bentana, despues layout: un grandi, e restu chiki.
+The big window is window one. Usually the programme. Usually.	E bentana grandi ta bentana un. Normalmente program. Normalmente.
+Main viewer big. The captain likes it big.	Pantaya prinsipal, grandi. E capitan ta gusta grandi.
+ON SCREEN	RIBA PANTAYA
+Select Deck 3 in playlist 3 and TAKE. Watch its window.	Cohe Cubierta 3 den playlist 3 i TAKE. Wac su bentana.
+The red border is TALLY: the window that is on air. On screen, as they say on starships.	E marco cora ta TALLY: e bentana cu ta bibu. Riba pantaya, manera nan ta bisa riba barcu.
+There! Feed three! Put it on screen!	Einan! Feed tres! Pon'e riba pantaya!
+THAT'S A WRAP	CLA
+Windows, the ... menu, NEXT, the clock, a layout, tally. Mystery solved, skapi.	Bentana, e menu ..., NEXT, orloshi, layout, tally. Misterio resolvi, skapi.
+A window can also show an output, with its warp and slices. Handy when it's a lighthouse.	Un bentana por mustra un output tambe, cu su warp i slicenan. Util ora ta un proyector.
+And the monster was... the ship's cook, all along. Jinkys.	I e monster tabata... e cushinero di e barcu, tur e tempo. Jinkys.
+there is no such lesson	no tin un les asina
+finish or leave the lesson you are in first	caba of sali for di e les cu bo ta aden prome
+leave Bug Swat first	sali for di Bug Swat prome
+Psst. It's me, the desk. I'll be watching. Supportively.	Pst. Ta ami, e mesa. Mi ta wac. Pa sostene.
+Hi! I'm the one doing all of this, by the way.	Ayo! Di berdad, ami ta esun cu ta hasi tur esaki.
+Ctrl+D opens the DASH. I'm just saying.	Ctrl+D ta habri DASH. Mi ta bisa so.
+Nearly there. I can feel it in my pixels.	Casi. Mi ta sinti e den mi pixelnan.
+You're good at this. I can tell. I'm the one doing it.	Bo ta bon na esaki. Mi ta mira. Di berdad.
+Every click, I heard. Every single one.	Cada click, mi a tende. Cada un.
+The glowing one. I can see it from here. It's glowing for you.	Esun cu ta lombra. Mi ta mir'e for di aki. E ta lombra pa bo.
+lesson paused - MENU > LESSONS picks up where you left off	les pousa - MENU > LESSONS ta sigui for di unda bo a laga
+PROF. VIDEO:  The signal: what the picture is made of, and how to bend it. Pick a lesson.	PROF. VIDEO:  E señal: di kico un portret ta traha, i con e ta worde dobla. Cohe un les.
+DR. PIXEL:  Running the show, skapi. Fast hands, calm face. Pick a lesson.	DR. PIXEL:  Core e show, skapi. Man lihe, cara trankilo. Cohe un les.
+LESSONS  -  PART TWO  -  WHO DO YOU FOLLOW?	LES  -  PARTI DOS  -  KEN BO TA SIGUI?
+FOLLOW PROF. VIDEO	SIGUI PROF. VIDEO
+FOLLOW DR. PIXEL	SIGUI DR. PIXEL
+the signal	e señal
+running the show	core e show
+PICK UP	SIGUI
+CLOSE (Esc)	SERA (Esc)
+PART ONE: THE BASICS	PARTI UN: E BASE
+finish or leave LEARN THE BASICS first	caba of sali for di LEARN THE BASICS prome
+bug swat: Esc leaves, and your show comes back as it was	bug swat: Esc ta sali, i bo show ta bolbe manera e tabata
+bug swat: your show is back. Motion's controls are in Settings > Audio	bug swat: bo show a bolbe. E controlnan di Motion ta den Configuracion > Audio
+TURN MOTION ON	ENSENDE MOTION
+Bugs are crawling to the cue list! Swat them by waving at your camera. First, Motion: in MOTION CONTROL turn it ON and choose what it READS.	Bishitu ta bini pa e lista di cue! Zwai bo man pa e camara pa mata nan. Prome Motion: pon'e ON den MOTION CONTROL i cohe kico e ta lesa (READS).
+This one is NullPointer. Hollow, points at nothing. A finger goes straight through. Use the whole hand, skapi.	Esaki ta NullPointer. E ta bashi, e no ta mustra na nada. Un dede ta pasa dor di dje. Usa henter bo man, skapi.
+Wave like you are hailing a cab! A small, polite cab. Not the buttons. The cab.	Zwai manera bo ta para un taxi! Un taxi chiki i educau. No un boton. Un taxi.
+DRAW TWO ZONES	PINTA DOS ZONA
+Race Condition: twins, each sure it got there first. One reading cannot tell your hands apart, so drag two ZONES on the Motion picture, one each side.	Race Condition: morochi, cada un sigur cu e a yega prome. Un lesamentu no por separa bo mannan, p'esei hala dos ZONES riba e portret di Motion, un pa cada banda.
+Hit both together. Hit one, and they swap. Like my cousins at a wedding.	Dal tur dos na mesun ora. Dal un, nan ta cambia luga. Manera mi primunan na un casamentu.
+One hand each side. Together! Together!	Un man pa cada banda. Huntu! Huntu!
+Off By One. The bug is not the face, it is the tiny extra segment, and a little wiggle needs a finer reading. Turn SENSITIVITY down to 5%.	Off By One. E bishitu no ta e cara, ta e pida chiki di mas, i un movementu chiki mester un lesamentu mas fini. Baha SENSITIVITY te 5%.
+Lower number, finer reading. Yes, I also think it is backwards.	Number mas abou, lesamentu mas fini. Si, ami tambe ta kere cu ta al reves.
+Not the face. The little one on the end. Wiggle a finger.	No e cara. E chiki na fin. Move un dede.
+FALL 1.5 S OR MORE	FALL 1.5 S OF MAS
+Memory Leak. It only lets go while the reading stays up. Make FALL longer, 1.5 seconds or more, so your sweeps join up into one.	Memory Leac. E ta laga solamente ora e lesamentu keda haltu. Hasi FALL mas largu, 1.5 seconde of mas, pa bo golpinan bira un.
+Slow and steady, skapi. Like paying back a loan.	Pocopoco i firme, skapi. Manera paga un debe.
+Sweep, and sweep again. Let the fall carry you between.	Bari, i bari atrobe. Laga e baha tene bo meimei.
+MOTION X ON A TONE	MOTION X RIBA UN TONO
+The Heisenbug! It fades whenever you move. Put a tone cue's pitch on Motion X and follow it by ear: the ticking speeds up as you close in.	Heisenbug! E ta disparse cada biaha bo move. Pone e altura di un cue di zonido riba Motion X i sigui e cu orea: e tictic ta bira mas lihe ora bo ta serca.
+SHOW ME makes the tone for you. High is right. Low is left. Stand still and it comes back.	SHOW ME ta traha e zonido pa bo. Haltu ta drechi. Abou ta robes. Para keto i e ta bolbe.
+Follow it. Listen. Faster ticking, closer bug.	Sigui e. Scucha. Tictic mas lihe, bishitu mas serca.
+Waving paw	E man cu ta zwai
+Heisenbug finder	E detector di Heisenbug
+FIXED! Lovely signal flow.	DRECHA! Bunita fluho di señal.
+Closed as fixed. No regressions. Probably.	Sera como drecha. Sin regrecion. Cisas.
+Squashed! Ship it.	Mata! Manda e.
+One reached the cue list. It has filed a bug report about you.	Un a yega e lista di cue. E a hasi un reporte di eror tocante bo.
+Skapi. It is a handheld. You do not press it. You wave at it.	Skapi. Esaki ta un aparato di man. Bo no ta primi e. Bo ta zwai bo man pa e.
+The buttons are for menus. The bugs are for flailing.	Boton ta pa menu. Bishitu ta pa zwai brasa.
+The D-pad is decorative. Like my diploma.	E D-pad ta decoracion. Manera mi diploma.
+In 1989 we also pressed the buttons. Then we discovered waving. Never looked back.	Na 1989 nos tambe tabata primi boton. Despues nos a descubri zwai. Nunca nos no a wac atras.
+Pressing harder does not help. The bugs cannot feel buttons. Only arms.	Primi mas duru no ta yuda. Bishitu no ta sinti boton. Solamente brasa.
+It's called a handheld because your hands are held... up. In the air. Waving.	Nan ta yam'e aparato di man pasobra mannan ta... subi. Den aire. Ta zwai.
+The mouse? You are swatting bugs with a MOUSE? In Bulgaria the mouse would be on the bugs' side.	Un mouse? Bo ta mata bishitu cu un MOUSE? Na Bulgaria e mouse lo ta riba e banda di e bishitunan.
+Lovely clicking. Very crisp. The camera saw none of it.	Bunita primi. Masha duru. E camara no a mira ni un.
+DONE FOR YOU - PRESS START	A HASI'E PA BO - PRIMI START
+DONE! PRESS START	CLA! PRIMI START
+SELECT OPENS MOTION CONTROL	SELECT TA HABRI MOTION CONTROL
+ALL BUGS FIXED	TUR BISHITU DRECHA
+GAME OVER	WEGA CABA
+NEW HIGH SCORE!	PUNTUACION MAS HALTU NOBO!
+START PLAYS AGAIN	START TA HUNGA ATROBE
+Nazdrave, skapi. Now go and fix real bugs.	Nazdrave, skapi. Awor bai drecha bishitu di berdad.
+Every one of those is a real Motion control. Put them on any ~ knob you like.	Cada un di nan ta un control di Motion di berdad. Pon'e riba cualkier boton ~ cu bo ke.
+START: AGAIN	START: ATROBE
+START: PLAY	START: HUNGA
+# --- end of tutorials ---
