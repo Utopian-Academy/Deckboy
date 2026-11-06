@@ -497,7 +497,7 @@ Oh hey. It's 4:20. Take it easy.	Aa, selam. Saat 4:20. Rahatına bak.
 
 # --- tutorials: tools/lesson_strings.py (a whole line each) ---
 HELLO	MERHABA
-Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me.	Dobar den, skapi. Ben Dr. Piksel. Beş dakika sonra bir şov yöneteceksin. Beni dinlersen daha da az.
+Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me.	Dobar den, skapi. Ben Dr. Piksel. Türkçe, demek... Peki. Komşuyuz sonuçta. Beş dakika sonra bir şov yöneteceksin. Beni dinlersen daha da az.
 And I'm Professor Video. Synths first, then video. Mostly video now. Press START and we'll patch... we'll begin.	Ben de Profesör Video. Önce synth'ler, sonra video. Artık çoğunlukla video. START'a bas, bağlayalım... yani başlayalım.
 TURN THE OUTPUT ON	ÇIKIŞI AÇ
 Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	Skapi, ekran boş. Onları bekletme. MENU'yü aç ve ÇIKIŞ KAPALI'yı ÇIKIŞ AÇIK yap. Hadi!
@@ -521,7 +521,7 @@ SAVE THE SHOW	ŞOVU KAYDET
 Now save. Ctrl+S, or SAVE. Some programs lose your work and then blame you. I would never.	Şimdi kaydet. Ctrl+S ya da KAYDET. Bazı programlar işini kaybeder, sonra seni suçlar. Ben asla.
 Save your patch. Your SHOW. Show. This practice one lives in Deckboy's own folder; yours is safe.	Patch'ini kaydet. ŞOVUNU yani. Şov. Bu alıştırma şovu Deckboy'un kendi klasöründe duruyor; seninki güvende.
 THAT'S A SHOW	İŞTE BİR ŞOV
-That's a show! Output, cue, TAKE, crossfade, BLACK, save. Nazdrave, skapi. Rakia is on me.	İşte bir şov! Çıkış, cue, TAKE, geçiş, BLACK, kaydet. Nazdrave, skapi. Rakiya benden.
+That's a show! Output, cue, TAKE, crossfade, BLACK, save. Nazdrave, skapi. Rakia is on me.	İşte bir şov! Çıkış, cue, TAKE, geçiş, BLACK, kaydet. Nazdrave, skapi. Rakiya benden. Rakı değil. Rakiya.
 Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	Ders bitti. Örnek şovlar katmanları, başlıkları ve efektleri öğretir. MENU > LEARN THE BASICS bunu yeniden oynatır.
 *shakes head* That means yes. Bravo.	*başını iki yana sallar* Bu evet demek. Bravo.
 Wonderful! Lovely signal flow.	Harika! Ne güzel bir sinyal akışı.
@@ -549,7 +549,7 @@ Nothing is live to fade from, skapi. TAKE one cue first, then pick the other and
 That was a cut, skapi. Fast, but not a crossfade. Pick the other cue, press + on transition, then TAKE.	Bu bir kesmeydi, skapi. Hızlı, ama geçiş değil. Diğer cue'yu seç, geçiş'te +'ya bas, sonra TAKE.
 A feedback loop! Output patched straight back into the desk. Happens to the best of us. Mostly to me. 1983. We don't talk about 1983.	Geri besleme döngüsü! Çıkış doğrudan masaya geri bağlanmış. En iyilerimizin başına gelir. Çoğunlukla benim. 1983. 1983'ten bahsetmeyiz.
 No more rakia. The rat has a problem.	Rakiya bitti. Farenin bir sorunu var.
-Nazdrave, skapi! Baba's rakia, from the Rhodopes. One glass, for the lesson.	Nazdrave, skapi! Ninemin rakiyası, Rodoplar'dan. Ders için tek kadeh.
+Nazdrave, skapi! Baba's rakia, from the Rhodopes. One glass, for the lesson.	Nazdrave, skapi! Ninemin rakiyası, Rodoplar'dan. Rakı değil, ona göre. Ders için tek kadeh.
 Is this... is this allowed during a tutorial?	Bu... bu bir eğitim sırasında serbest mi?
 *shakes head* That means one more.	*başını iki yana sallar* Bu bir tane daha demek.
 I love you all. I love the oscillator. I love the OUTPUT. It's video. I know. I KNOW.	Hepinizi seviyorum. Osilatörü seviyorum. ÇIKIŞI seviyorum. Video bu. Biliyorum. BİLİYORUM.
@@ -1004,7 +1004,7 @@ Every click, I heard. Every single one.	Her tıklamayı duydum. Her birini.
 The glowing one. I can see it from here. It's glowing for you.	Parlayan. Buradan görüyorum. Senin için parlıyor.
 lesson paused - MENU > LESSONS picks up where you left off	ders duraklatıldı - MENU > LESSONS kaldığın yerden devam eder
 PROF. VIDEO:  The signal: what the picture is made of, and how to bend it. Pick a lesson.	PROF. VIDEO:  Sinyal: görüntü neden yapılır ve nasıl bükülür. Bir ders seç.
-DR. PIXEL:  Running the show, skapi. Fast hands, calm face. Pick a lesson.	DR. PIXEL:  Şovu yönetmek, skapi. Hızlı eller, sakin yüz. Bir ders seç.
+DR. PIXEL:  Running the show, skapi. Fast hands, calm face. Pick a lesson.	DR. PIXEL:  Şovu yönetmek, skapi. Türkçe de olsa. Hızlı eller, sakin yüz. Bir ders seç.
 LESSONS  -  PART TWO  -  WHO DO YOU FOLLOW?	DERSLER  -  İKİNCİ BÖLÜM  -  KİMİ İZLİYORSUN?
 FOLLOW PROF. VIDEO	PROFESÖR VIDEO'YU İZLE
 FOLLOW DR. PIXEL	DR. PİKSEL'İ İZLE
