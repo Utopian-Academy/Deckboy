@@ -37,6 +37,12 @@
 - `MIDIMAP` over the wire, and `MIDIIN` takes channels, the pitch wheel, aftertouch, program changes and OSC.
 - Fixed: on Windows, every non-English character in `STATUS JSON` and the MIDI and OSC monitor's JSON came out garbled.
 
+### Languages
+
+- New languages: Vietnamese, Lao and Papiamento (Aruba). Lao and Papiamento are marked unreviewed in the picker.
+- Lao is drawn in a face that ships with Deckboy, so it shows on every machine, Linux included.
+- The tutorials, both parts, are now in every language Deckboy offers.
+
 ### Settings
 
 - Beast mode added.
