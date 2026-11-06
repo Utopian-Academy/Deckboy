@@ -98,3 +98,27 @@ Paused
 
 # What the desk face says when you switch to this language: a local saying, not a translation.
 @hello	Yá'át'ééh!
+
+# --- tutorials: tools/lesson_strings.py (a whole line each) ---
+HELLO	YÁʼÁTʼÉÉH
+Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me.	Dobar den, skapi. Yáʼátʼééh! I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me.
+That's a show! Output, cue, TAKE, crossfade, BLACK, save. Nazdrave, skapi. Rakia is on me.	That's a show! Output, cue, TAKE, crossfade, BLACK, save. Nazdrave, skapi. Rakia is on me. Ahwééh after.
+*shakes head* That means yes. Bravo.	*shakes head* That means aooʼ. Nizhóní.
+Wonderful! Lovely signal flow.	Nizhóní! Lovely signal flow.
+Yes! Have a gold star. It's a dot.	Aooʼ! Have a gold star. It's a dot.
+Nazdrave, skapi! Baba's rakia, from the Rhodopes. One glass, for the lesson.	Nazdrave, skapi! Baba's rakia, from the Rhodopes. One glass, for the lesson. Then ahwééh.
+DR. PIXEL: SUPER DECKBOY! Every show deserves one. Bravo.	DR. PIXEL: SUPER DECKBOY! Every show deserves one. Nizhóní.
+SAFE TRAVELS	HÁGOÓNEEʼ
+That colour is doing something. I don't know what. I love it.	That colour is doing something. I don't know what. Nizhóní.
+Same time next week. Bring a bigger pen. And a turducken.	Same time next week. Bring a bigger pen. And dah diniilghaazh.
+And the number is... three!	And the number is... tááʼ!
+Buzz! We have a winner!	Buzz! Aooʼ! We have a winner!
+Goodnight, everybody! Keep spinning!	Hágoóneeʼ, everybody! Keep spinning!
+Ten... nine... ooh, I do love a countdown.	Neeznáá... náhástʼéí... ooh, I do love a countdown.
+A countdown, a hold, and a view for the pilot. Nazdrave, skapi. Bring crackers.	A countdown, a hold, and a view for the pilot. Nazdrave, skapi. Bring frybread.
+A grand day out, Grommet! Pass the crackers.	A grand day out, Grommet! Pass the frybread.
+Thank you! I'm here all week! The chicken is here forever.	Ahéheeʼ! I'm here all week! The chicken is here forever.
+Red. Clipped. Not alien, Hollis. Just too bright. Case closed.	Łichííʼ. Clipped. Not alien, Hollis. Just too bright. Case closed.
+Hi! I'm the one doing all of this, by the way.	Yáʼátʼééh! I'm the one doing all of this, by the way.
+Nazdrave, skapi. Now go and fix real bugs.	Nazdrave, skapi. Now go and fix real bugs. Ahéheeʼ.
+# --- end of tutorials ---

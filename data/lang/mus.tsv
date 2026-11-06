@@ -98,3 +98,23 @@ Paused
 
 # What the desk face says when you switch to this language: a local saying, not a translation.
 @hello	Hesci!
+
+# --- tutorials: tools/lesson_strings.py (a whole line each) ---
+HELLO	HESCI
+Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me.	Dobar den, skapi. Hesci! I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me.
+That's a show! Output, cue, TAKE, crossfade, BLACK, save. Nazdrave, skapi. Rakia is on me.	That's a show! Output, cue, TAKE, crossfade, BLACK, save. Nazdrave, skapi. Rakia is on me. Sofkee after.
+*shakes head* That means yes. Bravo.	*shakes head* That means ehi. Mvto.
+Wonderful! Lovely signal flow.	Mvto! Lovely signal flow.
+Yes! Have a gold star. It's a dot.	Ehi! Have a gold star. It's a dot.
+Nazdrave, skapi! Baba's rakia, from the Rhodopes. One glass, for the lesson.	Nazdrave, skapi! Baba's rakia, from the Rhodopes. One glass, for the lesson. Then sofkee.
+DR. PIXEL: SUPER DECKBOY! Every show deserves one. Bravo.	DR. PIXEL: SUPER DECKBOY! Every show deserves one. Mvto.
+Same time next week. Bring a bigger pen. And a turducken.	Same time next week. Bring a bigger pen. And grape dumplings.
+Welcome to the show! Let's spin that wheel!	Hesci, welcome to the show! Let's spin that wheel!
+And the number is... three!	And the number is... tuccenen!
+Buzz! We have a winner!	Buzz! Ehi! We have a winner!
+Ten... nine... ooh, I do love a countdown.	Palen... ostvpaken... ooh, I do love a countdown.
+A grand day out, Grommet! Pass the crackers.	A grand day out, Grommet! Pass the frybread.
+Thank you! I'm here all week! The chicken is here forever.	Mvto! I'm here all week! The chicken is here forever.
+Hi! I'm the one doing all of this, by the way.	Hesci! I'm the one doing all of this, by the way.
+Nazdrave, skapi. Now go and fix real bugs.	Nazdrave, skapi. Now go and fix real bugs. Mvto.
+# --- end of tutorials ---

@@ -98,3 +98,26 @@ Paused
 
 # What the desk face says when you switch to this language: a local saying, not a translation.
 @hello	Shé:kon!
+
+# --- tutorials: tools/lesson_strings.py (a whole line each) ---
+HELLO	SHÉ:KON
+Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me.	Dobar den, skapi. Shé:kon! I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me.
+That's a show! Output, cue, TAKE, crossfade, BLACK, save. Nazdrave, skapi. Rakia is on me.	That's a show! Output, cue, TAKE, crossfade, BLACK, save. Nazdrave, skapi. Rakia is on me. Corn soup after.
+*shakes head* That means yes. Bravo.	*shakes head* That means hen. Niá:wen.
+Wonderful! Lovely signal flow.	Niá:wen! Lovely signal flow.
+Yes! Have a gold star. It's a dot.	Hen! Have a gold star. It's a dot.
+Nazdrave, skapi! Baba's rakia, from the Rhodopes. One glass, for the lesson.	Nazdrave, skapi! Baba's rakia, from the Rhodopes. One glass, for the lesson. Then corn soup.
+DR. PIXEL: SUPER DECKBOY! Every show deserves one. Bravo.	DR. PIXEL: SUPER DECKBOY! Every show deserves one. Niá:wen.
+SAFE TRAVELS	Ó:NEN KIʼ WÁHI
+Same time next week. Bring a bigger pen. And a turducken.	Same time next week. Bring a bigger pen. And a pot of corn soup.
+LEFT! Ye call that a corner? I've seen straighter gulls.	LEFT! You call that a corner? I've seen ironworkers walk straighter steel forty floors up.
+Welcome to the show! Let's spin that wheel!	Shé:kon, welcome to the show! Let's spin that wheel!
+And the number is... three!	And the number is... áhsen!
+Buzz! We have a winner!	Buzz! Hen! We have a winner!
+Goodnight, everybody! Keep spinning!	Ó:nen kiʼ wáhi, everybody! Keep spinning!
+Ten... nine... ooh, I do love a countdown.	Oié:ri... tióhton... ooh, I do love a countdown.
+A grand day out, Grommet! Pass the crackers.	A grand day out, Grommet! Pass the corn bread.
+Thank you! I'm here all week! The chicken is here forever.	Niá:wen! I'm here all week! The chicken is here forever.
+Hi! I'm the one doing all of this, by the way.	Shé:kon! I'm the one doing all of this, by the way.
+Nazdrave, skapi. Now go and fix real bugs.	Nazdrave, skapi. Now go and fix real bugs. Niá:wen.
+# --- end of tutorials ---
