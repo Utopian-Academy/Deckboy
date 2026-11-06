@@ -496,6 +496,7 @@
       case QuickAction::EffectLfoDepthDec:  effectLfoNudgeDepth(param, -0.05f); return;
       case QuickAction::EffectLfoDepthInc:  effectLfoNudgeDepth(param, +0.05f); return;
       case QuickAction::EffectLfoSync:      effectLfoToggleSync(param); return;
+      case QuickAction::EffectChladniListen: effectChladniListen(param); return;
       // The pad draws on press and on drag, both handled in the input layer
       // where the pointer position is known. A plain click on it has already
       // written a point by the time this is reached, so there is nothing left

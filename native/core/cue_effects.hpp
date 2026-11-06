@@ -985,6 +985,10 @@ enum class LfoShape : std::uint8_t {
   MidiVelocity,
   MidiCc,
   MidiPressure,
+  // The PITCH of the sound, the focused playlist's, across C2-C6 like
+  // MidiNote (James, 2026-11-06: "Chladni that listens"). Held through
+  // silence. Appended.
+  AudioPitch,
   Count
 };
 
@@ -1018,8 +1022,72 @@ inline std::array<LfoMidiChannel, 17>& lfoMidiSignals() {
   static std::array<LfoMidiChannel, 17> signals {};
   return signals;
 }
+// THE SOUND'S PITCH, published by the app (serviceAudioPitch) while anything
+// reads it: the reader stamps lfoAudioPitchWanted, and the app only runs the
+// detector when that stamp is fresh, so a show with no audio-pitch ~ pays
+// nothing for it.
+inline std::atomic<float>& lfoAudioPitchSignal() {
+  static std::atomic<float> value {0.5f};
+  return value;
+}
+inline std::atomic<bool>& lfoAudioPitchWanted() {
+  static std::atomic<bool> wanted {false};
+  return wanted;
+}
+
+// The fundamental of a short mono signal, in Hz, by normalised
+// autocorrelation; 0 when there is no clear pitch (silence, noise). The
+// first lag that comes within 90% of the best one is taken, which is what
+// keeps a note from being read an octave low.
+inline double detectPitchHz(const float* x, std::size_t n, double rate, double lowHz = 60.0,
+                            double highHz = 1200.0) {
+  if (!x || n < 64 || rate <= 0.0) return 0.0;
+  double energy = 0.0;
+  for (std::size_t i = 0; i < n; ++i) energy += static_cast<double>(x[i]) * x[i];
+  if (energy / static_cast<double>(n) < 1e-5) return 0.0;  // silence
+  const int minLag = std::max(2, static_cast<int>(rate / highHz));
+  const int maxLag = std::min(static_cast<int>(n / 2), static_cast<int>(rate / lowHz));
+  if (maxLag <= minLag) return 0.0;
+  std::vector<double> r(static_cast<std::size_t>(maxLag + 2), 0.0);
+  double best = 0.0;
+  for (int lag = minLag; lag <= maxLag + 1; ++lag) {
+    double xy = 0.0, xx = 0.0, yy = 0.0;
+    const std::size_t m = n - static_cast<std::size_t>(lag);
+    for (std::size_t i = 0; i < m; ++i) {
+      const double a = x[i], b = x[i + static_cast<std::size_t>(lag)];
+      xy += a * b;
+      xx += a * a;
+      yy += b * b;
+    }
+    const double v = (xx > 0.0 && yy > 0.0) ? xy / std::sqrt(xx * yy) : 0.0;
+    r[static_cast<std::size_t>(lag)] = v;
+    if (lag <= maxLag && v > best) best = v;
+  }
+  if (best < 0.5) return 0.0;  // no clear period: noise, or a chord too thick to read
+  for (int lag = minLag + 1; lag <= maxLag; ++lag) {
+    const double v = r[static_cast<std::size_t>(lag)];
+    if (v >= 0.9 * best && v >= r[static_cast<std::size_t>(lag - 1)] && v >= r[static_cast<std::size_t>(lag + 1)]) {
+      // A parabola through the peak and its neighbours, for a pitch between lags.
+      const double a = r[static_cast<std::size_t>(lag - 1)], c = r[static_cast<std::size_t>(lag + 1)];
+      const double den = a - 2.0 * v + c;
+      const double shift = std::abs(den) > 1e-12 ? 0.5 * (a - c) / den : 0.0;
+      return rate / (lag + std::clamp(shift, -0.5, 0.5));
+    }
+  }
+  return 0.0;
+}
+
+// A pitch in Hz as the same 0-1 span the MIDI note shape uses.
+inline float pitchToLfoUnit(double hz);
+
 constexpr int kLfoMidiLowNote = 36;   // C2
 constexpr int kLfoMidiHighNote = 84;  // C6
+inline float pitchToLfoUnit(double hz) {
+  if (hz <= 0.0) return -1.0f;
+  const double note = 69.0 + 12.0 * std::log2(hz / 440.0);
+  return static_cast<float>(std::clamp((note - kLfoMidiLowNote) / (kLfoMidiHighNote - kLfoMidiLowNote), 0.0, 1.0));
+}
+
 inline void publishMidiToLfo(int status, int channel, int data1, int data2) {
   channel = std::clamp(channel, 1, 16);
   for (int slot : {0, channel}) {
@@ -1091,6 +1159,7 @@ inline const char* lfoShapeToken(LfoShape shape) {
     case LfoShape::MidiVelocity: return "midi-velocity";
     case LfoShape::MidiCc:       return "midi-cc";
     case LfoShape::MidiPressure: return "aftertouch";
+    case LfoShape::AudioPitch:   return "audio-pitch";
     default:                 return "sine";
   }
 }
@@ -1177,6 +1246,10 @@ inline double lfoUnitValue(const ParamLfo& lfo, double seconds, double beats01,
     const auto& zone = lfoMotionSignals()[static_cast<std::size_t>(std::clamp(lfo.motionZone, 0, 8))];
     return std::clamp(static_cast<double>(zone[static_cast<std::size_t>(which)].load(std::memory_order_relaxed)),
                       0.0, 1.0);
+  }
+  if (lfo.shape == LfoShape::AudioPitch) {
+    lfoAudioPitchWanted().store(true, std::memory_order_relaxed);
+    return static_cast<double>(lfoAudioPitchSignal().load(std::memory_order_relaxed));
   }
   if (lfoShapeIsMidi(lfo.shape)) {
     // And here: the value is what the controller sent.

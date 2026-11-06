@@ -3949,6 +3949,21 @@
                "a MIDI shape's CC and channel survive the show file");
         expect(std::string(lfoShapeToken(LfoShape::MidiPressure)) == "aftertouch",
                "aftertouch is a shape");
+        // The sound's pitch: a 220 Hz tone (A3) at the 6 kHz the detector reads.
+        {
+          std::vector<float> tone(2048);
+          for (std::size_t k = 0; k < tone.size(); ++k) {
+            tone[k] = static_cast<float>(0.5 * std::sin(2.0 * 3.14159265358979 * 220.0 * k / 6000.0) +
+                                         0.2 * std::sin(2.0 * 3.14159265358979 * 440.0 * k / 6000.0));
+          }
+          const double hz = detectPitchHz(tone.data(), tone.size(), 6000.0);
+          expect(std::fabs(hz - 220.0) < 3.0,
+                 "audio-pitch hears A3 as 220 Hz, not its octave (" + std::to_string(hz) + ")");
+          std::vector<float> quiet(2048, 0.0f);
+          expect(detectPitchHz(quiet.data(), quiet.size(), 6000.0) == 0.0, "and silence as no pitch");
+          expect(std::fabs(pitchToLfoUnit(220.0) - (57.0 - 36.0) / 48.0) < 0.01,
+                 "A3 sits where the MIDI note shape puts it");
+        }
 
         std::array<ParamLfo, 2> tone {};
         tone[kToneLfoLevel].on = true;

@@ -3455,6 +3455,8 @@ enum class QuickAction {
   EffectLfoDepthDec,
   EffectLfoDepthInc,
   EffectLfoSync,
+  // Chladni's LISTENS switch: its mode follows the sound's pitch.
+  EffectChladniListen,
   // Drag inside the scribble pad to draw the wave. A scrub rather than a
   // click: the value follows the pointer for as long as the button is down.
   EffectLfoDraw,

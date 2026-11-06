@@ -1141,6 +1141,29 @@ void effectLfoNudgeDepth(int packed, float delta) {
   }
 }
 
+// CHLADNI THAT LISTENS (James, 2026-11-06). One switch: the mode's ~ on,
+// following the sound's pitch at full depth from the middle, so the figure
+// walks through every mode as the music climbs. Off puts the mode back.
+void effectChladniListen(int index) {
+  auto* stack = selectedEffectStack();
+  if (!effectIndexValid(stack, index)) return;
+  auto& fx = (*stack)[static_cast<std::size_t>(index)];
+  auto& lfo = fx.lfo[0];
+  const bool listening = lfo.on && lfo.shape == deckboy::effects::LfoShape::AudioPitch;
+  pushUndoSnapshot();
+  if (listening) {
+    lfo.on = false;
+    triggerToast("Chladni stops listening");
+  } else {
+    lfo.on = true;
+    lfo.shape = deckboy::effects::LfoShape::AudioPitch;
+    lfo.depth = 1.0f;
+    fx.paramA = 0.5f;
+    triggerToast("Chladni listens: the figure follows the pitch of the sound");
+  }
+  markProjectDirty();
+}
+
 void effectLfoToggleSync(int packed) {
   if (auto* lfo = effectLfoAt(packed)) {
     // On MIDI CC this row is the channel (the cell above is the CC).
@@ -1859,4 +1882,24 @@ void syncDatamoshFromStack() {
       entry < static_cast<int>(cue->effects.size())) {
     cue->effects[entry].bypassed = true;
   }
+}
+
+// The sound's pitch for the audio-pitch ~ shape: the focused playlist's
+// played sound, read only while some oscillator asks for it. Held through
+// silence and smoothed a little, so a breath between notes does not throw
+// the figure about.
+void serviceAudioPitch() {
+  if (!deckboy::effects::lfoAudioPitchWanted().exchange(false, std::memory_order_relaxed)) return;
+  MediaEngine* engine = mediaEngineForDeck(project_.focusedDeckIndex);
+  if (!engine) return;
+  if (engine->copyRecentProgramAudio(audioPitchScratch_) < 1024) return;
+  // The newest third of a second is enough for C2 and keeps it responsive.
+  const std::size_t n = std::min<std::size_t>(audioPitchScratch_.size(), 2048);
+  const float* x = audioPitchScratch_.data() + (audioPitchScratch_.size() - n);
+  const double rate = engine->audioRate() / 8.0;  // the recent copy is decimated by 8
+  const float unit = deckboy::effects::pitchToLfoUnit(deckboy::effects::detectPitchHz(x, n, rate));
+  if (unit < 0.0f) return;  // no clear pitch: hold the last one
+  auto& sig = deckboy::effects::lfoAudioPitchSignal();
+  const float last = sig.load(std::memory_order_relaxed);
+  sig.store(last + (unit - last) * 0.5f, std::memory_order_relaxed);
 }

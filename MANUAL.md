@@ -738,6 +738,10 @@ the feedback; letting go returns it.
 **midi-note** (the last key's pitch, C2 to C6, held after you let go),
 **midi-velocity**, **midi-cc** and **aftertouch**, on any channel or one.
 Put midi-note on Chladni's mode and every key plays a different figure.
+Chladni also has a **LISTENS** switch: its mode follows **audio-pitch**, the
+pitch of the focused playlist's sound (C2 to C6, held through silence), so the
+plate takes the shape of the note being played. Any control's **~** can follow
+audio-pitch too.
 
 The MIDI and OSC monitor names the row that matched, what it was aimed at, or
 why nothing happened ("nothing mapped to CC 30", "pickup: it is 2.50, the

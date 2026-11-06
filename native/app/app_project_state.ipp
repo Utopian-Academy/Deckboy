@@ -771,6 +771,8 @@
            << "\"masterDimmer\":" << static_cast<int>(std::round(std::clamp(masterDimmerTarget_, 0.0, 1.0) * 100.0)) << ","
            << "\"blackout\":" << (masterDimmerTarget_ <= 0.001 ? "true" : "false") << ","
            << "\"masterVolume\":" << static_cast<int>(std::round(std::clamp(project_.masterVolume, 0.0, 2.0) * 100.0)) << ","
+           // The sound's pitch as the audio-pitch ~ reads it, 0-1 across C2-C6.
+           << "\"audioPitch\":" << deckboy::effects::lfoAudioPitchSignal().load(std::memory_order_relaxed) << ","
            << "\"findToken\":\"" << escapeJson(lastCueFindToken_) << "\","
            << "\"findMatchCount\":" << lastCueFindMatches_.size() << ","
            << "\"findCursor\":" << (lastCueFindCursor_ >= 0 ? lastCueFindCursor_ + 1 : 0) << ","

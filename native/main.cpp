@@ -7518,6 +7518,19 @@ class App {
         rowY += ix.rowStep;
         rowY = inspDrawLfoRow(ix, rowY, fx, which, i);
       }
+      // Chladni can LISTEN: its mode follows the sound's pitch.
+      if (fx.kind == deckboy::effects::CueEffectKind::Chladni) {
+        const bool listening = fx.lfo[0].on && fx.lfo[0].shape == deckboy::effects::LfoShape::AudioPitch;
+        SDL_Rect r {ix.ctrl.x + ix.inset, rowY, ix.ctrlW - ix.inset * 2, ix.rowH};
+        drawUIPanel(r, listening ? pal.dark : pal.tile, pal.deep, pal.mid);
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, r,
+                             listening ? "LISTENS: the figure follows the sound" : "LISTENS: OFF",
+                             listening ? pal.light : pal.fg);
+        quickButtons_.push_back({r, QuickAction::EffectChladniListen,
+                                 "Let the plate follow the pitch of the playlist's sound, the way a real "
+                                 "plate sings with the note it is played at", i});
+        rowY += ix.rowStep;
+      }
       }
       // Second row: what it is, where it sits, and getting rid of it. Split
       // from the amount row because cramming six controls onto one line is how
@@ -12736,6 +12749,7 @@ class App {
   bool midiMapLearnArmed_ = false;
   std::optional<deckboy::midimap::Message> midiMapLearned_;
   std::vector<int> midiMapLearnedValues_;
+  std::vector<float> audioPitchScratch_;   // serviceAudioPitch
   // The MAP page.
   bool settingsMidiMapOpen_ = false;
   MidiMapEdit midiMapEdit_;

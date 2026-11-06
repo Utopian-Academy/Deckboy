@@ -34,6 +34,7 @@
 - The controller's lights follow the show: pads for cues on air, blackout, loops; knob rings for their values. Only the controller a row came from is lit.
 - The **~** on any control has MIDI shapes: a key's pitch, its velocity, any CC, and aftertouch. Chladni's mode on a key's pitch plays a different figure for every note.
 - The video synth plays from a keyboard: a key's pitch sets the pattern's size, its velocity blooms the feedback.
+- **Chladni listens**: one switch, and the figure follows the pitch of the playlist's sound. Underneath it is a new **~** shape, **audio-pitch**, that any control can follow.
 - `MIDIMAP` over the wire, and `MIDIIN` takes channels, the pitch wheel, aftertouch, program changes and OSC.
 - Fixed: on Windows, every non-English character in `STATUS JSON` and the MIDI and OSC monitor's JSON came out garbled.
 

@@ -897,6 +897,7 @@
         reactiveAudioLevel_ = (vu > reactiveAudioLevel_)
           ? vu : reactiveAudioLevel_ + (vu - reactiveAudioLevel_) * 0.08;
       }
+      serviceAudioPitch();
       // A camera's motion, for the Motion oscillator shapes (app_motion.ipp).
       serviceMotion();
       serviceBugSwat();
