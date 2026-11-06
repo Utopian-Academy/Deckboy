@@ -495,3 +495,572 @@ Close me. Open me. I'll be fine.	मुझे बंद करो। फिर �
 # What the desk face says when you switch to this language: a local saying, not a translation.
 @hello	जुगाड़ है, चल जाएगा!
 Oh hey. It's 4:20. Take it easy.	अरे, नमस्ते। 4:20 हो गए। आराम से।
+
+# --- tutorials: tools/lesson_strings.py (a whole line each) ---
+HELLO	नमस्ते
+Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me.	दोबार देन, स्कापी। मैं डॉ. पिक्सेल हूँ। पाँच मिनट में तुम एक शो चलाओगे। मेरी सुनोगे तो उससे भी कम में।
+And I'm Professor Video. Synths first, then video. Mostly video now. Press START and we'll patch... we'll begin.	और मैं प्रोफ़ेसर वीडियो। पहले सिंथ, फिर वीडियो। अब ज़्यादातर वीडियो। START दबाओ और हम पैच... मतलब शुरू करते हैं।
+TURN THE OUTPUT ON	आउटपुट चालू करो
+Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	स्कापी, स्क्रीन खाली है। लोगों को इंतज़ार मत कराओ। MENU खोलो और आउटपुट बंद को आउटपुट चालू करो। चलो!
+Lesson one: nothing comes out until you patch the oscillator to the... the OUTPUT. It's video. I know.	पहला पाठ: जब तक ऑसिलेटर को... मतलब आउटपुट से नहीं जोड़ोगे, कुछ नहीं निकलेगा। वीडियो है। पता है।
+BRING IN A CLIP	एक क्लिप लाओ
+Now a picture. Press I and pick a clip from your computer. No clip? SHOW ME, and I lend you one of mine.	अब एक तस्वीर। I दबाओ और अपने कंप्यूटर से एक क्लिप चुनो। क्लिप नहीं है? SHOW ME दबाओ, मैं अपनी एक उधार दे दूँगी।
+Every clip becomes a cue in the playlist. Like loading a sample. A sample with pictures in it.	हर क्लिप playlist में एक cue बन जाती है। जैसे एक sample लोड करना। तस्वीरों वाला sample।
+TAKE IT LIVE	लाइव करो
+Your clip waits in the playlist. Select it, then TAKE. Or Enter. Confident operators press Enter.	तुम्हारी क्लिप playlist में इंतज़ार कर रही है। उसे चुनो, फिर TAKE। या Enter। आत्मविश्वासी ऑपरेटर Enter दबाते हैं।
+TAKE is the envelope trigger. The, ah, the GO button. Same thing, it just has pictures in it.	TAKE एनवेलप का ट्रिगर है। मतलब, अं, GO बटन। एक ही बात है, बस इसमें तस्वीरें हैं।
+LINE UP THE NEXT ONE	अगली तैयार रखो
+Click another cue. It waits, ready, until you say. Only one cue? Import another, or SHOW ME.	कोई दूसरा cue क्लिक करो। वो तैयार होकर तुम्हारे कहने तक रुकेगा। एक ही cue है? एक और आयात करो, या SHOW ME।
+Selecting is not playing. The selected one is the next note in the sequence. The next CUE.	चुनना बजाना नहीं है। चुना हुआ cue सीक्वेंस का अगला सुर है। अगला CUE।
+CROSSFADE TO IT	क्रॉसफ़ेड करो
+Cuts are for amateurs. In the inspector, press + on transition, so it shows a time, not deck. Then TAKE.	सीधा कट अनाड़ी करते हैं। inspector में संक्रमण पर + दबाओ, ताकि deck की जगह समय दिखे। फिर TAKE।
+A crossfade! Portamento, but for pictures. Any time will do. A few more presses and it's a second. Then TAKE.	क्रॉसफ़ेड! तस्वीरों का पोर्टामेंटो। कोई भी समय चलेगा। कुछ बार और दबाओ तो एक सेकंड। फिर TAKE।
+CLEAR THE SCREEN	स्क्रीन साफ़ करो
+Something goes wrong on stage? Press BLACK, or B. The picture goes. The show keeps running underneath.	स्टेज पर कुछ गड़बड़? BLACK दबाओ, या B। तस्वीर गायब। शो नीचे चलता रहता है।
+Nothing is lost. Press B again and it comes back. Like the mute on a mixer. Very calming.	कुछ नहीं खोया। फिर से B दबाओ और वो लौट आती है। मिक्सर के mute जैसा। बड़ा सुकून देता है।
+SAVE THE SHOW	शो सहेजो
+Now save. Ctrl+S, or SAVE. Some programs lose your work and then blame you. I would never.	अब सहेजो। Ctrl+S, या सहेजें। कुछ प्रोग्राम तुम्हारा काम गँवाकर तुम्हें ही दोष देते हैं। मैं कभी नहीं।
+Save your patch. Your SHOW. Show. This practice one lives in Deckboy's own folder; yours is safe.	अपना पैच सहेजो। अपना शो। हाँ, शो। ये प्रैक्टिस वाला Deckboy के अपने फ़ोल्डर में रहता है; तुम्हारा सुरक्षित है।
+THAT'S A SHOW	ये हुआ शो
+That's a show! Output, cue, TAKE, crossfade, BLACK, save. Nazdrave, skapi. Rakia is on me.	ये हुआ शो! आउटपुट, cue, TAKE, क्रॉसफ़ेड, BLACK, सहेजना। नाज़्द्रावे, स्कापी। राकिया मेरी तरफ़ से।
+Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	क्लास ख़त्म। उदाहरण वाले शो लेयर, टाइटल और इफ़ेक्ट सिखाते हैं। MENU > LEARN THE BASICS इसे फिर से चलाता है।
+*shakes head* That means yes. Bravo.	*सिर हिलाता है* इसका मतलब हाँ है। शाबाश।
+Wonderful! Lovely signal flow.	शानदार! क्या प्यारा सिग्नल फ़्लो।
+Mm. I knew you had it in you.	हम्म। मुझे पता था तुममें ये है।
+Yes! Have a gold star. It's a dot.	हाँ! एक सुनहरा सितारा लो। ये एक बिंदु है।
+Ready for the next step? *nods* ...That means no, skapi. The glowing one. It is glowing for you.	अगले क़दम के लिए तैयार? *सिर हिलाता है* ...इसका मतलब नहीं, स्कापी। चमकने वाला। वो तुम्हारे लिए चमक रहा है।
+You've clicked everything but the glowing one. Even my oscillators find the glowing one.	तुमने चमकने वाले के अलावा सब पर क्लिक कर दिया। मेरे ऑसिलेटर भी चमकने वाला ढूँढ लेते हैं।
+stop playback first - the lesson cannot hand a running show back as it was	पहले प्लेबैक रोको - पाठ चलता हुआ शो जैसा था वैसा वापस नहीं दे सकता
+choose RECOVER or KEEP SAVED first	पहले RECOVER या KEEP SAVED चुनो
+your show could not be saved, so the lesson has not started. Save it (SAVE AS) and try again	तुम्हारा शो सहेजा नहीं जा सका, इसलिए पाठ शुरू नहीं हुआ। इसे सहेजो (इस रूप में सहेजें) और फिर कोशिश करो
+the practice show would not open	प्रैक्टिस शो नहीं खुला
+could not start the practice show	प्रैक्टिस शो शुरू नहीं हो सका
+learn the basics: Esc leaves, and it picks up here next time	learn the basics: Esc छोड़ता है, और अगली बार यहीं से शुरू होता है
+that's the basics - MENU > LESSONS has part two	ये रहीं बुनियादी बातें - MENU > LESSONS में भाग दो है
+tour paused - LEARN THE BASICS picks up where you left off	टूर रुका - LEARN THE BASICS वहीं से शुरू करता है जहाँ छोड़ा था
+Mirrored screens, skapi. Press any key or click, and Dr. Pixel gives it back.	मिरर की हुई स्क्रीनें, स्कापी। कोई भी कुंजी दबाओ या क्लिक करो, और डॉ. पिक्सेल इसे लौटा देगी।
+Wrong screen, skapi. Press any key or click, and Dr. Pixel gives it back.	ग़लत स्क्रीन, स्कापी। कोई भी कुंजी दबाओ या क्लिक करो, और डॉ. पिक्सेल इसे लौटा देगी।
+The other screen went away, skapi. Press any key or click, and Dr. Pixel gives it back.	दूसरी स्क्रीन चली गई, स्कापी। कोई भी कुंजी दबाओ या क्लिक करो, और डॉ. पिक्सेल इसे लौटा देगी।
+One screen, skapi. Press any key or click, and Dr. Pixel gives it back.	एक ही स्क्रीन, स्कापी। कोई भी कुंजी दबाओ या क्लिक करो, और डॉ. पिक्सेल इसे लौटा देगी।
+The other screen went away, skapi, so the picture came back to this one. I put it in a little window, behind. Plug it back in and the picture goes back on it.	दूसरी स्क्रीन चली गई, स्कापी, इसलिए तस्वीर इस पर लौट आई। मैंने उसे पीछे एक छोटी विंडो में रख दिया। फिर से लगाओ और तस्वीर वापस उस पर चली जाएगी।
+It ate the desk, skapi. One screen, so the output took all of it. I put it in a little window, behind. A real show gets a second screen.	ये डेस्क खा गया, स्कापी। एक ही स्क्रीन, तो आउटपुट ने पूरी ले ली। मैंने उसे पीछे एक छोटी विंडो में रख दिया। असली शो को दूसरी स्क्रीन मिलती है।
+IT ATE THE DESK	ये डेस्क खा गया
+There. The button that says OUTPUT OFF. Make it say ON, skapi.	वहाँ। वो बटन जिस पर आउटपुट बंद लिखा है। उसे चालू करो, स्कापी।
+Nothing is live to fade from, skapi. TAKE one cue first, then pick the other and give it a time.	फ़ेड करने के लिए कुछ लाइव नहीं है, स्कापी। पहले एक cue को TAKE करो, फिर दूसरा चुनो और उसे समय दो।
+That was a cut, skapi. Fast, but not a crossfade. Pick the other cue, press + on transition, then TAKE.	वो कट था, स्कापी। तेज़, पर क्रॉसफ़ेड नहीं। दूसरा cue चुनो, संक्रमण पर + दबाओ, फिर TAKE।
+A feedback loop! Output patched straight back into the desk. Happens to the best of us. Mostly to me. 1983. We don't talk about 1983.	फ़ीडबैक लूप! आउटपुट सीधे डेस्क में वापस जोड़ दिया। अच्छे-अच्छों के साथ होता है। ज़्यादातर मेरे साथ। 1983। हम 1983 की बात नहीं करते।
+No more rakia. The rat has a problem.	अब और राकिया नहीं। चूहे को समस्या है।
+Nazdrave, skapi! Baba's rakia, from the Rhodopes. One glass, for the lesson.	नाज़्द्रावे, स्कापी! दादी की राकिया, रोडोप पहाड़ों से। पाठ के नाम एक गिलास।
+Is this... is this allowed during a tutorial?	क्या ये... ये ट्यूटोरियल के दौरान चलता है?
+*shakes head* That means one more.	*सिर हिलाता है* मतलब एक और।
+I love you all. I love the oscillator. I love the OUTPUT. It's video. I know. I KNOW.	मुझे तुम सब से प्यार है। ऑसिलेटर से प्यार है। आउटपुट से प्यार है। वीडियो है। पता है। पता है।
+...and the rat took the rakia. Every time, skapi. Every single time.	...और चूहा राकिया ले गया। हर बार, स्कापी। हर एक बार।
+Was that a rat? In a hat? With a pizza?	वो चूहा था क्या? टोपी में? पिज़्ज़ा के साथ?
+Stop that. I am a serious man.	बस करो। मैं एक गंभीर आदमी हूँ।
+Do not tell Dr. Pixel about this.	डॉ. पिक्सेल को ये मत बताना।
+This never happened. Back to the patch bay.	ये कभी हुआ ही नहीं। वापस पैच बे पर।
+It was the eighties. Everyone had a bow tie.	अस्सी का दशक था। सबके पास बो टाई थी।
+LESSON LIST	पाठों की सूची
+OPEN EXAMPLE SHOWS	उदाहरण शो खोलें
+EXIT (Esc)	बाहर निकलें (Esc)
+Taking it on the road	शो लेकर निकलना
+CHECK a show before it travels, fix what it finds, and bundle it with its media.	शो सफ़र पर जाने से पहले CHECK करो, जो मिले उसे ठीक करो, और मीडिया के साथ बाँध लो।
+Effects, oscillators and colour	इफ़ेक्ट, ऑसिलेटर और रंग
+An effect, a ~ on its knob, and the colour picker.	एक इफ़ेक्ट, उसके नॉब पर एक ~, और कलर पिकर।
+The art school crit, with Mr. Salty	आर्ट स्कूल की क्रिट, मिस्टर सॉल्टी के साथ
+Patterns, synths and Draw	पैटर्न, सिंथ और Draw
+A test pattern, the video synth, and drawing on the picture, saved as a still.	एक टेस्ट पैटर्न, वीडियो सिंथ, और तस्वीर पर ड्रॉ करना, स्टिल के रूप में सहेजकर।
+The telestrator booth, with Coach Marv	टेलिस्ट्रेटर बूथ, कोच मार्व के साथ
+Masks	मास्क
+A heart from the library, the pen, invert and feather.	लाइब्रेरी से एक दिल, पेन, उल्टा करना और नरम करना।
+The Signal Files: redact the evidence	सिग्नल फ़ाइल्स: सबूत छिपाओ
+Warp, blend and slices	वार्प, ब्लेंड और स्लाइस
+A corner pin, two soft edges, then three slices in the Screens window.	एक कॉर्नर पिन, दो नरम किनारे, फिर Screens विंडो में तीन स्लाइस।
+The haunted lighthouse, with Keeper Rook	भुतहा लाइटहाउस, कीपर रूक के साथ
+GO from anywhere	कहीं से भी GO
+Cue numbers, GOTO, a hotkey, and where Companion, MIDI and OSC come in.	cue नंबर, GOTO, एक हॉटकी, और Companion, MIDI और OSC कहाँ से आते हैं।
+The game show, with Donna Wheel	क्विज़ शो, डोना व्हील के साथ
+Words on screen	स्क्रीन पर शब्द
+A Lower Third with a name on it, then a title card with a key-green backdrop.	एक नाम वाला एस्टन, फिर की-ग्रीन बैकड्रॉप वाला टाइटल कार्ड।
+The kaiju weather report, with June O'Neil	काइजू मौसम रिपोर्ट, जून ओ'नील के साथ
+Keeping time	समय सँभालना
+A stage timer counting down, held, and a presenter view for the person on stage.	उल्टी गिनती करता स्टेज टाइमर, रोका हुआ, और स्टेज पर खड़े व्यक्ति के लिए प्रेज़ेंटर व्यू।
+A grand day out, with Wallis and Grommet	चाँद की सैर, वॉलिस और ग्रॉमेट के साथ
+Two playlists and TAKE ALL	दो playlist और TAKE ALL
+A second playlist as a layer, and TAKE ALL so two things change on one beat.	लेयर के तौर पर दूसरी playlist, और TAKE ALL ताकि दो चीज़ें एक ही ताल पर बदलें।
+The magic show, with Turnip Top	जादू का शो, टर्निप टॉप के साथ
+When it goes wrong	जब गड़बड़ हो
+BLACK against PANIC, and getting a show back.	BLACK बनाम PANIC, और शो वापस पाना।
+The cooking show, with Chef Bork	कुकिंग शो, शेफ़ बोर्क के साथ
+Presets	प्रीसेट
+Capture a look on a DASH button, change everything, and get it back with one press.	DASH बटन पर एक लुक पकड़ो, सब बदलो, और एक दबाव में वापस पाओ।
+Transitions	संक्रमण
+The styles beyond the crossfade: an iris, a shatter, and their times.	क्रॉसफ़ेड से आगे के स्टाइल: एक आइरिस, एक शैटर, और उनके समय।
+The space-opera trailer, with Optimus Primetime	स्पेस-ओपेरा ट्रेलर, ऑप्टिमस प्राइमटाइम के साथ
+Sound	ध्वनि
+An audio effect on a cue, a bend that damages it beautifully, and where the patch lives.	cue पर एक ऑडियो इफ़ेक्ट, एक बेंड जो उसे ख़ूबसूरती से बिगाड़ता है, और पैच कहाँ रहता है।
+The robot DJs, with Deft Funk	रोबोट DJ, डेफ़्ट फ़ंक के साथ
+Reading the scopes	स्कोप पढ़ना
+The waveform, the vectorscope, and false colour: is the glow real, or just too bright?	वेवफ़ॉर्म, वेक्टरस्कोप और फ़ॉल्स कलर: चमक असली है, या बस बहुत तेज़?
+The Signal Files: is the glow on the horizon a craft?	सिग्नल फ़ाइल्स: क्षितिज की चमक क्या कोई यान है?
+Out of the building	इमारत से बाहर
+Where NDI, SDI and ST 2110 live, and NDI switched on where this computer has it.	NDI, SDI और ST 2110 कहाँ रहते हैं, और जहाँ इस कंप्यूटर में NDI हो वहाँ उसे चालू करना।
+The webcam as a controller, as a game. Five rounds, a high score.	वेबकैम कंट्रोलर के तौर पर, खेल के तौर पर। पाँच राउंड, एक हाई स्कोर।
+A handheld, and bugs	एक हैंडहेल्ड, और बग
+The multiview	मल्टीव्यू
+Windows, the ... menu, what each one shows, layouts, and tally.	विंडो, ... मेन्यू, हर एक क्या दिखाता है, लेआउट, और टैली।
+Mystery on the starship Cathode, with Lt. Haila and Ensign Jinkley	स्टारशिप कैथोड पर रहस्य, लेफ़्टिनेंट हाइला और एनसाइन जिंकली के साथ
+DR. PIXEL: Two playlists: Deckboy becomes SUPER DECKBOY. It earned it, skapi.	DR. PIXEL: दो playlist: Deckboy बन गया SUPER DECKBOY। इसका हक़ बनता था, स्कापी।
+PROF. VIDEO: It evolved! My oscillators never got a fanfare.	PROF. VIDEO: ये विकसित हो गया! मेरे ऑसिलेटरों को कभी धूम-धड़ाका नहीं मिला।
+DR. PIXEL: SUPER DECKBOY! Every show deserves one. Bravo.	DR. PIXEL: SUPER DECKBOY! हर शो इसका हक़दार है। शाबाश।
+PROF. VIDEO: The power-up! More playlists, more layers, more super.	PROF. VIDEO: पावर-अप! और playlist, और लेयर, और सुपर।
+Intro video (left on the office PC)	इंट्रो वीडियो (ऑफ़िस के PC पर छूट गया)
+ON THE ROAD	सफ़र पर
+A show you built here, skapi, running on a laptop somewhere else tonight. Press START.	यहाँ बनाया शो, स्कापी, आज रात कहीं और एक लैपटॉप पर चलेगा। START दबाओ।
+Before it travels: check it, fix it, bundle it.	निकलने से पहले: जाँचो, ठीक करो, बाँधो।
+See CHECK in the top bar? It only appears when something is wrong. Press it.	ऊपर की पट्टी में CHECK दिख रहा है? वो तभी आता है जब कुछ गड़बड़ हो। दबाओ।
+It lists everything a show would trip over: missing files, empty cues, unreachable outputs.	ये सब कुछ गिनाता है जिससे शो लड़खड़ाएगा: ग़ायब फ़ाइलें, ख़ाली cue, पहुँच से बाहर आउटपुट।
+FIX IT	ठीक करो
+The intro video is on another computer. Select it and delete it, or RELINK it if you have the file.	इंट्रो वीडियो किसी दूसरे कंप्यूटर पर है। उसे चुनकर हटाओ, या फ़ाइल हो तो RELINK करो।
+Fix it at home, where it is easy. Not at the venue, where it is not.	घर पर ठीक करो, जहाँ आसान है। वेन्यू पर नहीं, जहाँ आसान नहीं।
+BUNDLE IT	बाँध लो
+Press BUNDLE and choose where: a USB stick, a shared folder. The show and all its media, together.	एक साथ बाँधें दबाओ और जगह चुनो: USB स्टिक, शेयर्ड फ़ोल्डर। शो और उसकी सारी मीडिया, एक साथ।
+The copy finds its media beside it, wherever the folder goes.	फ़ोल्डर जहाँ भी जाए, कॉपी अपनी मीडिया बगल में ही ढूँढ लेती है।
+SAFE TRAVELS	शुभ यात्रा
+Checked, fixed, bundled. On the other machine, open the bundle's show: everything is where it should be.	जाँचा, ठीक किया, बाँधा। दूसरी मशीन पर बँधा हुआ शो खोलो: सब कुछ अपनी जगह पर।
+A show file is only text, so it travels light. The media is the heavy part.	शो फ़ाइल बस टेक्स्ट है, इसलिए हल्की चलती है। भारी हिस्सा मीडिया है।
+Student work no. 4 (untitled)	छात्र का काम नं. 4 (बिना शीर्षक)
+THE CRIT	क्रिट
+An art school, skapi. One student, one picture, one critic who has seen it all. Press START.	एक आर्ट स्कूल, स्कापी। एक छात्र, एक तस्वीर, एक आलोचक जिसने सब देख रखा है। START दबाओ।
+Effects change a picture; an oscillator keeps changing it. The critic only likes the second kind.	इफ़ेक्ट तस्वीर बदलते हैं; ऑसिलेटर उसे बदलता ही रहता है। आलोचक को सिर्फ़ दूसरी तरह पसंद है।
+A grey square on beige. I have seen this at every graduate show since 1987.	बेज पर एक स्लेटी चौकोर। 1987 से हर डिग्री शो में यही देखा है।
+AN EFFECT	एक इफ़ेक्ट
+In the inspector's EFFECTS section, + adds one. Edges is a good start: it draws the outlines.	inspector के EFFECTS हिस्से में + एक जोड़ता है। Edges अच्छी शुरुआत है: ये रूपरेखा खींचता है।
+There are dozens. Every one runs on the CPU in a few milliseconds. Mostly.	दर्जनों हैं। हर एक CPU पर कुछ मिलीसेकंड में चलता है। ज़्यादातर।
+Take a risk! Bad art is fine. Boring art is a crime.	जोखिम लो! ख़राब कला चलेगी। उबाऊ कला गुनाह है।
+A ~ ON ITS KNOB	नॉब पर एक ~
+Every control with a ~ beside it can follow an oscillator. Press one. The knob starts to breathe.	जिस भी कंट्रोल के बगल में ~ है, वो एक ऑसिलेटर के पीछे चल सकता है। एक दबाओ। नॉब साँस लेने लगता है।
+A low-frequency oscillator: slow, so the eye can follow it. A quarter of a hertz is a four-second breath.	लो-फ़्रीक्वेंसी ऑसिलेटर: धीमा, ताकि आँख पकड़ सके। चौथाई हर्ट्ज़ यानी चार सेकंड की एक साँस।
+Now it MOVES. Okay. Okay. I'm listening.	अब ये हिलता है। ठीक है। ठीक है। सुन रहा हूँ।
+A COLOUR OF ITS OWN	अपना ख़ुद का रंग
+Effects that draw a colour, like Edges' line, have a colour chip. It opens the picker: a wheel, typed names, or a colour off the screen.	जो इफ़ेक्ट कोई रंग खींचते हैं, जैसे Edges की लकीर, उनके पास एक रंग की चिप होती है। वो पिकर खोलती है: एक पहिया, लिखे हुए नाम, या स्क्रीन से उठाया रंग।
+Every colour has a name somewhere. Mine is 'oscilloscope green'. Nobody else uses it.	हर रंग का कहीं न कहीं नाम है। मेरा है 'ऑसिलोस्कोप हरा'। और कोई नहीं इस्तेमाल करता।
+That colour is doing something. I don't know what. I love it.	वो रंग कुछ तो कर रहा है। क्या, पता नहीं। मुझे पसंद है।
+THE VERDICT	फ़ैसला
+An effect, a ~ and a colour. The critic is crying, skapi. Good crying, I think.	एक इफ़ेक्ट, एक ~ और एक रंग। आलोचक रो रहा है, स्कापी। अच्छे वाले आँसू, शायद।
+Stack a few. Each has its own ~ on every knob. That is how a look becomes a performance.	कुछ और लगाओ। हर नॉब पर हर एक का अपना ~ है। ऐसे ही एक लुक परफ़ॉर्मेंस बनता है।
+It's still a square. But it's YOUR square. Post it.	अब भी चौकोर है। पर ये तुम्हारा चौकोर है। पोस्ट कर दो।
+THE TELESTRATOR BOOTH	टेलिस्ट्रेटर बूथ
+Coach Marv explains sport by drawing circles on it. Once he circled the sun. Ten minutes, skapi.	कोच मार्व खेल को उस पर गोले बनाकर समझाते हैं। एक बार उन्होंने सूरज पर गोला बना दिया। दस मिनट, स्कापी।
+Tonight: test patterns, the video synth, and drawing on the picture. Press START.	आज रात: टेस्ट पैटर्न, वीडियो सिंथ, और तस्वीर पर ड्रॉ करना। START दबाओ।
+Get me a picture and a pen. BOOM.	मुझे एक तस्वीर और एक पेन दो। धड़ाम।
+A TEST PATTERN	एक टेस्ट पैटर्न
+Line up the screens BEFORE the show. Not during. I learned this in Plovdiv.	स्क्रीनें शो से पहले सीध में करो। शो के दौरान नहीं। ये मैंने प्लोवदिव में सीखा।
+Every desk needs a test pattern. PATTERN adds Pocket Test: checked against real meters.	हर डेस्क को टेस्ट पैटर्न चाहिए। नमूना Pocket Test जोड़ता है: असली मीटरों से जाँचा हुआ।
+A VIDEO SYNTH	एक वीडियो सिंथ
+He says 'no camera needed' like it is a feature. It is a feature.	वो 'कैमरे की ज़रूरत नहीं' ऐसे कहते हैं जैसे कोई फ़ीचर हो। फ़ीचर ही है।
+My favourite. SOURCE, then Video Synth: oscillators, mirrors and feedback. No camera needed.	मेरा पसंदीदा। स्रोत, फिर Video Synth: ऑसिलेटर, आईने और फ़ीडबैक। कैमरे की ज़रूरत नहीं।
+TAKE THE SYNTH	सिंथ को TAKE करो
+Select it, then TAKE. Confident operators press Enter.	उसे चुनो, फिर TAKE। आत्मविश्वासी ऑपरेटर Enter दबाते हैं।
+That's our replay. Every replay needs a pundit.	ये रहा हमारा रीप्ले। हर रीप्ले को एक कमेंटेटर चाहिए।
+Now here's a replay. And here's a guy. And BOOM, he's in it.	ये रहा रीप्ले। ये रहा खिलाड़ी। और धड़ाम, वो इसमें है।
+A SECOND PLAYLIST	दूसरी playlist
+Ink goes on top, on its own layer. Press the + at the end of the playlist tabs.	स्याही ऊपर जाती है, अपनी लेयर पर। playlist टैब के आख़िर वाला + दबाओ।
+A second playlist is a layer over the first. Like a second oscillator, mixed on top.	दूसरी playlist पहली के ऊपर एक लेयर है। जैसे दूसरा ऑसिलेटर, ऊपर मिलाया हुआ।
+A DRAW CUE	एक Draw cue
+In the new playlist: SOURCE, then Draw. Clear everywhere you have not drawn.	नई playlist में: स्रोत, फिर Draw। जहाँ नहीं खींचा, वहाँ सब पारदर्शी।
+A Draw cue is transparent outside the ink, so the synth shows through.	Draw cue स्याही के बाहर पारदर्शी है, इसलिए सिंथ आर-पार दिखता है।
+TAKE THE INK	स्याही को TAKE करो
+Select the Draw cue and TAKE it. Two playlists, two layers, one picture.	Draw cue चुनो और TAKE करो। दो playlist, दो लेयर, एक तस्वीर।
+Now both are live: the synth underneath, the ink on top.	अब दोनों लाइव हैं: नीचे सिंथ, ऊपर स्याही।
+CIRCLE SOMETHING	गोला बनाओ
+Press DRAW in the inspector, then draw on the programme monitor. Mouse, or a pen if you have one.	inspector में DRAW दबाओ, फिर प्रोग्राम मॉनिटर पर खींचो। माउस से, या पेन हो तो पेन से।
+A pen's pressure makes the line thicker. A mouse presses at one strength. Like me.	पेन का दबाव लकीर को मोटा करता है। माउस हमेशा एक ही ताक़त से दबाता है। मेरी तरह।
+Circle him! No, bigger. BOOM. That's a cloud. Fine. Circle the cloud.	उसे घेरो! नहीं, बड़ा। धड़ाम। वो बादल है। चलो ठीक है। बादल को घेरो।
+SAVE A STILL	एक स्टिल सहेजो
+SAVE STILL keeps the drawing as a picture with a clear background, and adds it to the playlist.	SAVE STILL ड्रॉइंग को पारदर्शी बैकग्राउंड वाली तस्वीर बनाकर playlist में जोड़ देता है।
+For next week's show. Coach Marv will want the cloud again.	अगले हफ़्ते के शो के लिए। कोच मार्व को बादल फिर चाहिए होगा।
+THAT'S THE BOOTH	बूथ यहीं तक
+Patterns, the synth, a layer, ink, a still. Nazdrave, skapi.	पैटर्न, सिंथ, एक लेयर, स्याही, एक स्टिल। नाज़्द्रावे, स्कापी।
+Try Replay in the Draw section: it draws your lines back the way you drew them.	Draw हिस्से में Replay आज़माओ: ये तुम्हारी लकीरें वैसे ही दोबारा खींचता है जैसे तुमने खींची थीं।
+Same time next week. Bring a bigger pen. And a turducken.	अगले हफ़्ते इसी वक़्त। बड़ा पेन लाना। और एक पूरा तंदूरी चिकन।
+Saucer photo (CLASSIFIED)	उड़नतश्तरी की फ़ोटो (गोपनीय)
+THE SIGNAL FILES	सिग्नल फ़ाइल्स
+The Bureau of Unexplained Signals. Two agents, one photo, and it must not air. Press START.	अनजान सिग्नलों का ब्यूरो। दो एजेंट, एक फ़ोटो, और इसे प्रसारित नहीं होना चाहिए। START दबाओ।
+Masks cut a picture into shapes. Tonight we cut evidence.	मास्क तस्वीर को आकारों में काटते हैं। आज रात हम सबूत काटेंगे।
+That's a craft, Brandt. Look at the lights. I want to believe.	वो यान है, ब्रांट। उन रोशनियों को देखो। मैं यक़ीन करना चाहता हूँ।
+A MASK FROM THE LIBRARY	लाइब्रेरी से एक मास्क
+In the inspector's MASK section: mask, then 'new heart'. Any shape will do. The heart is funnier.	inspector के MASK हिस्से में: mask, फिर 'new heart'। कोई भी आकार चलेगा। दिल ज़्यादा मज़ेदार है।
+The library has circles, stars, hearts. Each one is points you can move.	लाइब्रेरी में गोले, तारे, दिल हैं। हर एक ऐसे बिंदुओं से बना है जिन्हें तुम हिला सकते हो।
+A heart, Hollis? The Bureau redacts with black bars.	दिल, हॉलिस? ब्यूरो काली पट्टियों से छिपाता है।
+THE PEN	पेन
+Set the tool to pen, then click round the saucer on the monitor. Click the first point to close it.	टूल को पेन पर करो, फिर मॉनिटर पर उड़नतश्तरी के चारों ओर क्लिक करो। बंद करने के लिए पहले बिंदु पर क्लिक करो।
+Click for corners, drag for curves. The way the Bezier brothers intended.	कोनों के लिए क्लिक, घुमाव के लिए खींचो। जैसा बेज़िए भाइयों ने चाहा था।
+Draw round it carefully. It might be watching.	ध्यान से घेरो। हो सकता है वो देख रहा हो।
+INVERT	उल्टा करो
+Invert keeps the outside and cuts the inside. The saucer goes. The sky stays.	उल्टा करना बाहर को रखता है और अंदर को काट देता है। उड़नतश्तरी गई। आसमान रहा।
+The same shape, the other way round. Very useful. Slightly spooky.	वही आकार, उल्टी तरफ़। बहुत काम का। थोड़ा डरावना।
+Hollis, there's a heart-shaped hole in the sky.	हॉलिस, आसमान में दिल के आकार का छेद है।
+FEATHER	नरम करो
+Feather softens the edge, so nobody sees the cut. Press + on feather.	नरम करना किनारे को मुलायम करता है, ताकि किसी को कटा हुआ न दिखे। feather पर + दबाओ।
+A hard edge says 'someone was here'. A soft one says nothing at all.	सख़्त किनारा कहता है 'यहाँ कोई था'। नरम किनारा कुछ नहीं कहता।
+They'll never know.	उन्हें कभी पता नहीं चलेगा।
+CASE CLOSED	केस बंद
+A library shape, the pen, invert and feather. The Bureau thanks you. The Bureau was never here.	लाइब्रेरी का आकार, पेन, उल्टा करना और नरम करना। ब्यूरो आपका धन्यवाद करता है। ब्यूरो यहाँ कभी नहीं था।
+Masks also go on a layer, an output, or its matte: MASK ON chooses. And every control takes a ~.	मास्क लेयर, आउटपुट या उसके मैट पर भी लग सकते हैं: MASK ON चुनता है। और हर कंट्रोल ~ लेता है।
+The truth is in the waveform, Hollis. Next time, the scopes.	सच वेवफ़ॉर्म में है, हॉलिस। अगली बार, स्कोप।
+The ghost	भूत
+THE HAUNTED LIGHTHOUSE	भुतहा लाइटहाउस
+A lighthouse, a ghost, and a keeper who has been alone with the lamp far too long. Press START.	एक लाइटहाउस, एक भूत, और एक रखवाला जो लैंप के साथ बहुत ज़्यादा देर अकेला रहा है। START दबाओ।
+Projection mapping: bending the picture to fit the building. Warp, blend, slices.	प्रोजेक्शन मैपिंग: तस्वीर को मोड़कर इमारत पर बिठाना। वार्प, ब्लेंड, स्लाइस।
+Ye'll be wanting the ghost on the windows. Mind the lamp. The lamp is MINE.	तुम लोग भूत को खिड़कियों पर चाहते हो, है ना। लैंप से सावधान। लैंप मेरा है।
+THE OUTPUT'S GEOMETRY	आउटपुट की ज्यामिति
+MENU, then Video Outputs, then Geometry. Where an output's shape lives.	MENU, फिर वीडियो आउटपुट, फिर ज्यामिति। आउटपुट का आकार यहीं रहता है।
+Geometry: the projector-menu word for 'what shape is the picture'.	ज्यामिति: प्रोजेक्टर-मेन्यू का शब्द, 'तस्वीर किस आकार की है' के लिए।
+PIN A CORNER	एक कोना पिन करो
+Press warp edit, then drag a corner on the programme monitor. The window is not square. Neither is the keeper.	warp edit दबाओ, फिर प्रोग्राम मॉनिटर पर एक कोना खींचो। खिड़की चौकोर नहीं है। रखवाला भी नहीं।
+A corner pin moves the four corners. Perspective keeps the lines straight, like a real window.	कॉर्नर पिन चारों कोने हिलाता है। पर्सपेक्टिव लकीरों को सीधा रखता है, असली खिड़की की तरह।
+LEFT! Ye call that a corner? I've seen straighter gulls.	बाएँ! इसे कोना कहते हो? इससे सीधी तो सीगल देखी हैं।
+TWO SOFT EDGES	दो नरम किनारे
+Back in Geometry: edge blend, + on the left and + on the right.	वापस ज्यामिति में: edge blend, बाएँ पर + और दाएँ पर +।
+Two projectors overlap; each fades its edge so the overlap is not twice as bright.	दो प्रोजेक्टर एक-दूसरे पर चढ़ते हैं; हर एक अपना किनारा फ़ेड करता है ताकि वो हिस्सा दोगुना चमकीला न हो।
+THE SCREENS WINDOW	SCREENS विंडो
+Geometry, SLICES, open. The Screens window is where slices are cut and placed.	ज्यामिति, SLICES, खोलो। Screens विंडो वो जगह है जहाँ स्लाइस काटे और रखे जाते हैं।
+A slice is a piece of the picture, put anywhere on the output.	स्लाइस तस्वीर का एक टुकड़ा है, आउटपुट पर कहीं भी रखा हुआ।
+THREE SLICES	तीन स्लाइस
+In the Screens window, + SLICE three times, and drag each crop to a third of the picture.	Screens विंडो में तीन बार + SLICE दबाओ, और हर क्रॉप को तस्वीर के एक तिहाई पर खींचो।
+Three windows, three slices: left, middle and right of one picture.	तीन खिड़कियाँ, तीन स्लाइस: एक ही तस्वीर का बायाँ, बीच और दायाँ।
+Three windows. The lamp gets the middle one. The lamp ALWAYS gets the middle one.	तीन खिड़कियाँ। बीच वाली लैंप की है। बीच वाली हमेशा लैंप की होती है।
+THE GHOST IS PLEASED	भूत ख़ुश है
+Warp, blend, slices. The keeper will finally sleep. The gulls will not.	वार्प, ब्लेंड, स्लाइस। रखवाला आख़िरकार सोएगा। सीगल नहीं।
+Slices have their own warp and mesh in the Screens window. And a ~ on the place and the turn.	स्लाइस का Screens विंडो में अपना वार्प और मेश है। और जगह व घुमाव पर एक ~।
+Ye did alright, lad. Now get away from the lamp.	ठीक-ठाक किया, लड़के। अब लैंप से दूर हटो।
+THE GAME SHOW	क्विज़ शो
+A game show, skapi. Three contestants, one buzzer, and cues that fire from anywhere. Press START.	एक क्विज़ शो, स्कापी। तीन प्रतियोगी, एक बज़र, और cue जो कहीं से भी चल जाते हैं। START दबाओ।
+Cue numbers, hotkeys, and GO from other machines. Like a sequencer you can play from any key.	cue नंबर, हॉटकी, और दूसरी मशीनों से GO। जैसे एक सीक्वेंसर जिसे किसी भी कुंजी से बजा सको।
+Welcome to the show! Let's spin that wheel!	शो में आपका स्वागत है! चलिए पहिया घुमाते हैं!
+A CUE NUMBER	एक cue नंबर
+Contestant 3 is selected. In the inspector's metadata, give it a cue number: 3.	प्रतियोगी 3 चुना हुआ है। inspector के metadata में इसे एक cue नंबर दो: 3।
+Theatre numbers its cues. Q3, Q3.5, Q12A. Deckboy reads them all.	थिएटर अपने cue पर नंबर डालता है। Q3, Q3.5, Q12A। Deckboy सब पढ़ लेता है।
+I'd like to buy a number, please.	मुझे एक नंबर ख़रीदना है, प्लीज़।
+GO TO IT	वहाँ जाओ
+Ctrl+G, type the number, Enter. It goes live wherever the list happens to be standing.	Ctrl+G, नंबर लिखो, Enter। लिस्ट जहाँ भी खड़ी हो, वो लाइव हो जाता है।
+GOTO. The fastest way across a long list. Faster than scrolling. Much faster than me.	GOTO। लंबी लिस्ट में सबसे तेज़ रास्ता। स्क्रॉल से तेज़। मुझसे तो बहुत तेज़।
+And the number is... three!	और जवाब है... तीन! लॉक किया जाए?
+A BUZZER	एक बज़र
+Contestant 1 is selected. In TRIGGERS, press key, then F5. That key now fires this cue.	प्रतियोगी 1 चुना हुआ है। TRIGGERS में key दबाओ, फिर F5। अब वो कुंजी ये cue चलाती है।
+F1 to F10, F12, or the number pad. Each one, a buzzer.	F1 से F10, F12, या नंबर पैड। हर एक, एक बज़र।
+Every contestant gets a buzzer.	हर प्रतियोगी को एक बज़र मिलता है।
+BUZZ IN	बज़र दबाओ
+Press the key. The cue fires, wherever the list is standing.	कुंजी दबाओ। लिस्ट जहाँ भी हो, cue चल जाता है।
+No mouse, no list, no looking. Just the key.	न माउस, न लिस्ट, न देखना। बस कुंजी।
+Buzz! We have a winner!	बज़्ज़! हमारे पास विजेता है!
+FROM ANYWHERE	कहीं से भी
+Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion, एक MIDI नोट, एक OSC संदेश: MENU, फिर नेटवर्क, बताता है कि हर एक कहाँ जुड़ता है।
+A Stream Deck in the next room can press GO. So can a keyboard synth. I prefer the synth.	बगल वाले कमरे का Stream Deck GO दबा सकता है। कीबोर्ड सिंथ भी। मुझे सिंथ पसंद है।
+And for our viewers at home: you can play along too.	और घर बैठे दर्शकों के लिए: आप भी साथ खेल सकते हैं।
+THAT'S OUR SHOW	ये था हमारा शो
+Numbers, GOTO, a buzzer, and GO from anywhere. You are a game show now, skapi.	नंबर, GOTO, एक बज़र, और कहीं से भी GO। अब तुम ख़ुद एक क्विज़ शो हो, स्कापी।
+A cue can have a key, a MIDI note and an OSC address at once. Belt, braces and a second belt.	एक cue में एक साथ कुंजी, MIDI नोट और OSC पता हो सकता है। बेल्ट, सस्पेंडर और एक और बेल्ट।
+Goodnight, everybody! Keep spinning!	शुभ रात्रि, सबको! घुमाते रहिए!
+Weather map	मौसम नक़्शा
+THE KAIJU WEATHER	काइजू मौसम
+Channel 6 weather, skapi. A map, a presenter, and a very large lizard. Press START.	चैनल 6 का मौसम, स्कापी। एक नक़्शा, एक प्रस्तोता, और एक बहुत बड़ी छिपकली। START दबाओ।
+Words on screen: Lower Thirds, text, and backdrops.	स्क्रीन पर शब्द: एस्टन, टेक्स्ट और बैकड्रॉप।
+I'm June O'Neil, and nothing about this forecast is normal.	मैं जून ओ'नील हूँ, और इस पूर्वानुमान में कुछ भी सामान्य नहीं है।
+A LAYER FOR WORDS	शब्दों के लिए एक लेयर
+Words go on their own layer: press the + at the end of the playlist tabs.	शब्द अपनी लेयर पर जाते हैं: playlist टैब के आख़िर वाला + दबाओ।
+A second playlist is a layer over the map. The lizard stays underneath. Mostly.	दूसरी playlist नक़्शे के ऊपर एक लेयर है। छिपकली नीचे रहती है। ज़्यादातर।
+Words on top. Always on top.	शब्द ऊपर। हमेशा ऊपर।
+A LOWER THIRD	एक एस्टन
+In the new playlist: SOURCE, then Lower Third.	नई playlist में: स्रोत, फिर Lower Third।
+A name and a title, low on the screen, out of the lizard's way.	एक नाम और एक पद, स्क्रीन पर नीचे, छिपकली के रास्ते से हटकर।
+HER NAME	उसका नाम
+In the inspector, title: type the presenter's name. The second line is her job.	inspector में, title: प्रस्तोता का नाम लिखो। दूसरी लाइन उसका पद है।
+Spelling counts. The audience reads it at the speed of light.	वर्तनी मायने रखती है। दर्शक रोशनी की रफ़्तार से पढ़ते हैं।
+Spell it right. Last week it said 'Jane O'Meal'.	सही लिखो। पिछले हफ़्ते 'जून ओ'नान' छप गया था।
+ON AIR	ऑन एयर
+TAKE the Lower Third. Her name slides in over the map.	एस्टन को TAKE करो। उसका नाम नक़्शे के ऊपर फिसलकर आता है।
+Two layers live: the weather, and the words on top of it.	दो लेयर लाइव: मौसम, और उसके ऊपर शब्द।
+Thank you. Now, about that lizard...	धन्यवाद। अब, उस छिपकली के बारे में...
+BREAKING NEWS	ब्रेकिंग न्यूज़
+SOURCE, then Text: a title card. Then its backdrop chip: key green, for the vision mixer to key out.	स्रोत, फिर Text: एक टाइटल कार्ड। फिर उसकी बैकड्रॉप चिप: की-ग्रीन, ताकि विज़न मिक्सर उसे की कर सके।
+A backdrop fills behind the words. Key green or key blue, and the mixer does the rest.	बैकड्रॉप शब्दों के पीछे भरता है। की-ग्रीन या की-ब्लू, और बाक़ी मिक्सर कर देता है।
+Breaking news: it's standing on the five-day forecast.	ब्रेकिंग न्यूज़: वो पाँच दिन के पूर्वानुमान पर खड़ी है।
+BREAKING: KAIJU	ब्रेकिंग: काइजू
+BACK TO YOU	वापस स्टूडियो
+A Lower Third, a name, a title card, a backdrop. The lizard has left the studio, skapi.	एक एस्टन, एक नाम, एक टाइटल कार्ड, एक बैकड्रॉप। छिपकली स्टूडियो छोड़ चुकी है, स्कापी।
+Lower Thirds can wait, slide and leave on their own. Their section has every setting.	एस्टन ख़ुद रुक सकते हैं, फिसल सकते हैं और जा सकते हैं। उनके हिस्से में हर सेटिंग है।
+That's the weather. Back to you, guys. Run.	ये था मौसम का हाल। वापस स्टूडियो। भागो।
+A GRAND DAY OUT	चाँद की सैर
+A rocket built in a basement, skapi, and an inventor who wants cheese. Press START.	तहख़ाने में बना रॉकेट, स्कापी, और एक आविष्कारक जिसे चीज़ चाहिए। START दबाओ।
+Stage timers: countdowns, clocks, and a presenter view for the person on stage.	स्टेज टाइमर: उल्टी गिनती, घड़ियाँ, और स्टेज पर खड़े व्यक्ति के लिए प्रेज़ेंटर व्यू।
+Cheese, Grommet! The moon's made of it. We'll need a countdown.	चीज़, ग्रॉमेट! चाँद उसी से बना है। हमें उल्टी गिनती चाहिए।
+A COUNTDOWN	एक उल्टी गिनती
+SOURCE, then Stage Timer. A clock that counts down, in big friendly numbers.	स्रोत, फिर Stage Timer। एक घड़ी जो पीछे गिनती है, बड़े प्यारे अंकों में।
+Its colours change as it runs out: white, amber, red. Like a VU meter for time.	ख़त्म होते-होते इसके रंग बदलते हैं: सफ़ेद, अंबर, लाल। समय का VU मीटर।
+*raises an eyebrow*	*एक भौंह उठाता है*
+LIFT OFF	उड़ान
+Select the timer and TAKE it. The countdown starts.	टाइमर चुनो और TAKE करो। उल्टी गिनती शुरू।
+Past zero it keeps going, counting the overtime. Very honest. Slightly rude.	शून्य के बाद भी चलता रहता है, ओवरटाइम गिनता हुआ। बहुत ईमानदार। थोड़ा बदतमीज़।
+Ten... nine... ooh, I do love a countdown.	दस... नौ... आहा, मुझे उल्टी गिनती बहुत पसंद है।
+HOLD!	रुको!
+Something's loose! Space holds the countdown. The clock shows it is held.	कुछ ढीला है! Space गिनती को रोकता है। घड़ी दिखाती है कि रुकी है।
+A hold is not a stop. Space again, and it carries on from where it was.	रुकना बंद होना नहीं है। फिर Space, और जहाँ थी वहीं से आगे।
+*holds up a spanner*	*एक पाना उठाता है*
+THE PILOT'S VIEW	पायलट का व्यू
+MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	MENU, वीडियो आउटपुट: किसी आउटपुट का टाइप PRESENTER करो। स्टेज वाले को टाइमर, अगला cue और अपने नोट्स दिखते हैं।
+A presenter view is an output like any other. Point it at the confidence monitor.	प्रेज़ेंटर व्यू बाक़ियों जैसा ही एक आउटपुट है। उसे कॉन्फ़िडेंस मॉनिटर पर लगाओ।
+So the pilot can see the time. The pilot is Grommet.	ताकि पायलट समय देख सके। पायलट ग्रॉमेट है।
+TO THE MOON	चाँद की ओर
+A countdown, a hold, and a view for the pilot. Nazdrave, skapi. Bring crackers.	एक उल्टी गिनती, एक रुकावट, और पायलट के लिए एक व्यू। नाज़्द्रावे, स्कापी। क्रैकर ले आना।
+Timers can also count up, or show the time of day. Their section has the lot.	टाइमर ऊपर भी गिन सकते हैं, या दिन का समय दिखा सकते हैं। उनके हिस्से में सब है।
+A grand day out, Grommet! Pass the crackers.	क्या सैर रही, ग्रॉमेट! क्रैकर पकड़ाना।
+The trunk (closed)	संदूक (बंद)
+The trunk (open)	संदूक (खुला)
+THE MAGIC SHOW	जादू का शो
+A magic show, skapi. A trunk, a prop, and one beat where everything changes at once. Press START.	एक जादू का शो, स्कापी। एक संदूक, एक प्रॉप, और एक ताल जहाँ सब एक साथ बदलता है। START दबाओ।
+Two playlists are two layers. TAKE ALL changes both together.	दो playlist मतलब दो लेयर। TAKE ALL दोनों को साथ बदलता है।
+Every trick needs two things happening at once. And a rubber chicken.	हर ट्रिक में दो चीज़ें एक साथ होनी चाहिए। और एक रबर का मुर्गा।
+The prop goes on its own layer. Press the + at the end of the playlist tabs.	प्रॉप अपनी लेयर पर जाता है। playlist टैब के आख़िर वाला + दबाओ।
+Playlist 2 sits on top of playlist 1. Like a transparency on an overhead projector.	playlist 2, playlist 1 के ऊपर बैठती है। ओवरहेड प्रोजेक्टर की ट्रांसपेरेंसी जैसे।
+Nothing up my sleeve. Everything in my trunk.	आस्तीन में कुछ नहीं। सब संदूक में।
+THE PROP	प्रॉप
+In the new playlist, add anything: PATTERN will do. That is the prop.	नई playlist में कुछ भी जोड़ो: नमूना चलेगा। वही प्रॉप है।
+Whatever it is, it will appear the instant the trunk opens.	जो भी हो, संदूक खुलते ही दिखेगा।
+Is it a rubber chicken? It's always a rubber chicken.	रबर का मुर्गा है क्या? हमेशा रबर का मुर्गा ही होता है।
+The prop (rubber chicken)	प्रॉप (रबर का मुर्गा)
+TA-DA	टा-डा
+Select 'The trunk (open)' in playlist 1 and the prop in playlist 2. Then TAKE ALL: both on one beat.	playlist 1 में 'संदूक (खुला)' और playlist 2 में प्रॉप चुनो। फिर TAKE ALL: दोनों एक ताल पर।
+One press, every playlist's selected cue. The audience never sees the seam.	एक दबाव, हर playlist का चुना हुआ cue। दर्शकों को सिलाई कभी नहीं दिखती।
+Ta-daaa! ...Hold for applause. Hold. Hold.	टा-डाआ! ...तालियों का इंतज़ार। रुको। रुको।
+THE PRESTIGE	असली करतब
+Two layers, one beat. Every playlist has its own opacity and can sit on any output. Nazdrave, skapi.	दो लेयर, एक ताल। हर playlist की अपनी opacity है और वो किसी भी आउटपुट पर बैठ सकती है। नाज़्द्रावे, स्कापी।
+A magician never reveals. A playlist never minds being revealed.	जादूगर राज़ नहीं खोलता। playlist को राज़ खुलने से कोई फ़र्क़ नहीं पड़ता।
+Thank you! I'm here all week! The chicken is here forever.	धन्यवाद! पूरे हफ़्ते यहीं हूँ! मुर्गा हमेशा के लिए।
+The kitchen (on fire)	रसोई (आग में)
+A lovely souffle	एक प्यारा सूफ़ले
+THE COOKING SHOW	कुकिंग शो
+A cooking show, skapi. Live. Everything is on fire. Press START.	एक कुकिंग शो, स्कापी। लाइव। सब कुछ जल रहा है। START दबाओ।
+BLACK hides the picture and keeps the show running. PANIC stops everything. Know which you need.	BLACK तस्वीर छिपाता है और शो चलता रहता है। PANIC सब रोक देता है। जानो तुम्हें कौन सा चाहिए।
+Bork bork! Hurdy-flurdy, de kitchen is fire-a-flurdy!	बोर्क बोर्क! हर्डी-फ़्लर्डी, रसोई में आग-फ़्लर्डी!
+The audience must not see this. Press BLACK, or B.	दर्शक ये न देखें। BLACK दबाओ, या B।
+The picture goes. The cue keeps playing underneath, ready to come back.	तस्वीर गई। cue नीचे बजता रहता है, लौटने को तैयार।
+Bork? Bork. Oh, de picture is gun.	बोर्क? बोर्क। अरे, तस्वीर तो गई।
+AND BACK	और वापस
+The fire's out. Press B again: the picture comes back, still running.	आग बुझ गई। फिर B दबाओ: तस्वीर लौटती है, अब भी चलती हुई।
+Nothing was lost. A mute on a mixer, for pictures.	कुछ नहीं खोया। तस्वीरों के लिए मिक्सर का mute।
+Ta-da! Still cookin'!	टा-डा! अब भी पक रहा है!
+Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	और बुरा: MENU, सिस्टम, SAFETY कार्ड: PANIC। सब रुकता है, जैसा panic सेटिंग कहती है।
+PANIC is the big red button. Use it when BLACK is not enough. Then breathe.	PANIC बड़ा लाल बटन है। जब BLACK काफ़ी न हो तब। फिर साँस लो।
+Bork bork BORK!	बोर्क बोर्क बोर्क!
+GET IT BACK	वापस पाओ
+Close MENU, select the souffle, and TAKE it. The show is back on.	MENU बंद करो, सूफ़ले चुनो, और TAKE। शो फिर चालू।
+After a panic, the show is still there. Pick up where you meant to be.	पैनिक के बाद भी शो वहीं है। जहाँ होना था वहीं से उठाओ।
+Voila! De souffle, he is risen!	वोइला! सूफ़ले, वो फूल गया!
+BON APPETIT	बॉन एपेटिट
+BLACK to hide, PANIC to stop, TAKE to come back. You will survive any kitchen, skapi.	छिपाने को BLACK, रोकने को PANIC, लौटने को TAKE। तुम किसी भी रसोई में बच जाओगे, स्कापी।
+The panic setting chooses what PANIC does: fade out, cut, or just the outputs.	panic सेटिंग चुनती है कि PANIC क्या करे: फ़ेड आउट, कट, या सिर्फ़ आउटपुट।
+Bork bork bork! Goodnight!	बोर्क बोर्क बोर्क! शुभ रात्रि!
+Look one	लुक एक
+Look two	लुक दो
+Presets, skapi. A whole look, remembered, and back with one button. Press START.	प्रीसेट, स्कापी। पूरा का पूरा लुक, याद रखा हुआ, और एक बटन से वापस। START दबाओ।
+Like the patch memory on a synth: store, then recall.	सिंथ की पैच मेमोरी जैसा: स्टोर करो, फिर रिकॉल।
+THE DASH	DASH
+Press DASH: buttons of your own, for anything at all.	DASH दबाओ: तुम्हारे अपने बटन, किसी भी काम के लिए।
+Ctrl+D also works. Very fast. Very professional.	Ctrl+D भी चलता है। बहुत तेज़। बहुत प्रोफ़ेशनल।
+A PRESET BUTTON	एक प्रीसेट बटन
+Press +, then 'preset - a new preset from what is on now'. The button remembers this look.	+ दबाओ, फिर 'preset - a new preset from what is on now'। बटन ये लुक याद रखता है।
+Store. Like saving the patch before the drummer leans on the synth.	स्टोर। जैसे ड्रमर के सिंथ पर टिकने से पहले पैच सहेज लेना।
+CHANGE EVERYTHING	सब बदलो
+Close the DASH (Esc), then select Look two and TAKE it. A different look.	DASH बंद करो (Esc), फिर लुक दो चुनो और TAKE करो। अलग लुक।
+Change it all. Don't worry. It remembers.	सब बदल दो। फ़िक्र मत करो। उसे याद है।
+ONE PRESS	एक दबाव
+Open the DASH and press your preset button. The first look comes back.	DASH खोलो और अपना प्रीसेट बटन दबाओ। पहला लुक लौट आता है।
+Recall. The patch memory, returning. Beautiful.	रिकॉल। पैच मेमोरी, वापसी पर। ख़ूबसूरत।
+A look, stored and recalled. A preset can keep cues, positions, effects, levels and routing; its button's menu chooses which.	एक लुक, सहेजा और वापस बुलाया। प्रीसेट cue, पोज़िशन, इफ़ेक्ट, लेवल और रूटिंग रख सकता है; उसके बटन का मेन्यू चुनता है कौन-से।
+And a DASH button can run any command at all. Any. Even the exciting ones.	और DASH बटन कोई भी कमांड चला सकता है। कोई भी। रोमांचक वाले भी।
+Opening titles	शुरुआती टाइटल
+The planet	ग्रह
+The battle	युद्ध
+THE TRAILER	ट्रेलर
+A space-opera trailer, skapi. A narrator with a very deep voice and opinions about transitions. Press START.	एक स्पेस-ओपेरा ट्रेलर, स्कापी। बहुत भारी आवाज़ वाला सूत्रधार, जिसकी संक्रमणों पर राय है। START दबाओ।
+A transition is how one cue becomes the next. There are far more than the crossfade.	संक्रमण वो तरीक़ा है जिससे एक cue अगला बनता है। क्रॉसफ़ेड के अलावा बहुत सारे हैं।
+In a galaxy of content... one operator... must choose a transition.	कंटेंट की एक आकाशगंगा में... एक ऑपरेटर... को एक संक्रमण चुनना होगा।
+A STYLE	एक स्टाइल
+'The planet' is selected. In the inspector, its transition style: choose iris.	'ग्रह' चुना हुआ है। inspector में इसका संक्रमण स्टाइल: iris चुनो।
+Pushes, wipes, iris, dip to white. Even a portal. I wrote half of them. On a Tuesday.	पुश, वाइप, आइरिस, सफ़ेद में डुबकी। एक पोर्टल भी। आधे मैंने लिखे थे। एक मंगलवार को।
+The planet deserves... a dramatic entrance.	ग्रह को चाहिए... एक नाटकीय एंट्री।
+A TIME	एक समय
+Give it a time: + on transition until it says a second or more.	इसे समय दो: संक्रमण पर + जब तक एक सेकंड या ज़्यादा न दिखे।
+No time, no transition. A style needs a duration to do anything at all.	समय नहीं, तो संक्रमण नहीं। स्टाइल को कुछ भी करने के लिए अवधि चाहिए।
+ROLL IT	चलाओ
+TAKE the planet. Watch it arrive.	ग्रह को TAKE करो। उसे आते देखो।
+The transition belongs to the cue arriving. Each cue chooses its own entrance.	संक्रमण आने वाले cue का होता है। हर cue अपनी एंट्री ख़ुद चुनता है।
+Autobots... roll the transition.	ऑटोबॉट्स... संक्रमण, चालू।
+THE BATTLE	युद्ध
+Now 'The battle': choose shatter, give it a time, and TAKE it.	अब 'युद्ध': shatter चुनो, समय दो, और TAKE करो।
+Shatter drops the old picture like a pane of glass. Please do not do this at a funeral.	शैटर पुरानी तस्वीर को काँच की तरह गिरा देता है। कृपया इसे किसी शोक सभा में मत करना।
+Transform... and shatter out!	ट्रांसफ़ॉर्म... और चकनाचूर!
+IN CINEMAS NOW	अब सिनेमाघरों में
+A style, a time, and two very dramatic entrances. Nazdrave, skapi.	एक स्टाइल, एक समय, और दो बहुत नाटकीय एंट्री। नाज़्द्रावे, स्कापी।
+A playlist has a default style too, for every cue that does not choose its own.	playlist का भी एक डिफ़ॉल्ट स्टाइल होता है, हर उस cue के लिए जो अपना नहीं चुनता।
+Coming soon... to a desk near you.	जल्द आ रहा है... आपके पास के डेस्क पर।
+The beat	बीट
+THE ROBOT DJS	रोबोट DJ
+Two robot DJs, skapi. They do not talk. Their helmets do. Press START.	दो रोबोट DJ, स्कापी। वो बोलते नहीं। उनके हेलमेट बोलते हैं। START दबाओ।
+Every cue has its own chain of audio effects, and some of them break the sound on purpose.	हर cue की ऑडियो इफ़ेक्ट की अपनी चेन है, और उनमें से कुछ जानबूझकर आवाज़ तोड़ते हैं।
+> HELLO. WE ARE HERE TO FIX YOUR MIX.	> नमस्ते। हम तुम्हारा मिक्स ठीक करने आए हैं।
+The beat is selected. In its AUDIO EFFECTS section, + adds one. Try the delay.	बीट चुनी हुई है। उसके AUDIO EFFECTS हिस्से में + एक जोड़ता है। delay आज़माओ।
+Delay, reverb, filters, a compressor. Amount always means 'less of this'.	डिले, रिवर्ब, फ़िल्टर, कम्प्रेसर। amount का मतलब हमेशा 'इसका कम'।
+> ONE MORE TIME. WITH ECHO. ECHO. ECHO.	> एक बार और। इको के साथ। इको। इको।
+A BEND	एक बेंड
+Add a second: a bend, like crush. It damages the sound the way a broken file would.	एक और जोड़ो: एक बेंड, जैसे crush। ये आवाज़ को ऐसे बिगाड़ता है जैसे टूटी फ़ाइल।
+The bends are my favourite. Like a tape left in the sun. On purpose.	बेंड मेरे पसंदीदा हैं। धूप में छूटी कैसेट जैसे। जानबूझकर।
+> HARDER. BETTER. CRUNCHIER. LOUDER.	> और ज़ोर से। और बेहतर। और करारा। और ऊँचा।
+THE PATCH	पैच
+MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	MENU, फिर ऑडियो: हर playlist की आवाज़ कहाँ जाती है, और नाम वाले आउटपुट का पैच।
+Speakers, monitors, an in-ear for the drummer. The patch sends each its own.	स्पीकर, मॉनिटर, ड्रमर का इन-ईयर। पैच हर एक को उसका अपना भेजता है।
+> AROUND THE MIX. AROUND THE MIX. AROUND THE MIX.	> मिक्स के चारों ओर। मिक्स के चारों ओर। मिक्स के चारों ओर।
+An effect, a bend and the patch. The robots approve, skapi. I think. Their faces are helmets.	एक इफ़ेक्ट, एक बेंड और पैच। रोबोट मंज़ूर करते हैं, स्कापी। शायद। उनके चेहरे हेलमेट हैं।
+Every audio effect can follow a ~ too, even Motion. Wave at the delay. It's wonderful.	हर ऑडियो इफ़ेक्ट भी ~ के पीछे चल सकता है, Motion के भी। delay की तरफ़ हाथ हिलाओ। कमाल है।
+> THANK YOU. GOOD NIGHT. WE ARE ROBOTS.	> धन्यवाद। शुभ रात्रि। हम रोबोट हैं।
+The glow on the horizon (evidence #2)	क्षितिज की चमक (सबूत #2)
+EVIDENCE #2	सबूत #2
+The Bureau again, skapi. A glow on the horizon, and two agents who disagree about it. Press START.	फिर से ब्यूरो, स्कापी। क्षितिज पर एक चमक, और दो एजेंट जो उस पर सहमत नहीं। START दबाओ।
+The scopes measure a picture: brightness, colour, levels. Numbers, not opinions.	स्कोप तस्वीर को मापते हैं: चमक, रंग, लेवल। आँकड़े, राय नहीं।
+It's them, Brandt. It's a craft. Look how it glows.	ये वही हैं, ब्रांट। ये यान है। देखो कैसे चमक रहा है।
+THE REAL SIGNAL	असली सिग्नल
+The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	स्कोप सिर्फ़ वही पढ़ते हैं जो सच में बाहर जाता है, कभी प्रीव्यू नहीं। आउटपुट चालू करो: MENU, वीडियो आउटपुट, आउटपुट बंद।
+Measuring a scaled-down preview would be measuring a photocopy. We measure the original.	छोटे किए प्रीव्यू को मापना फ़ोटोकॉपी को मापने जैसा होगा। हम असली को मापते हैं।
+Chain of evidence, Hollis. The real signal or nothing.	सबूतों की कड़ी, हॉलिस। असली सिग्नल या कुछ नहीं।
+THE SCOPES	स्कोप
+Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	MENU बंद करो। मॉनिटर के ऊपर PROGRAM बटन: तब तक दबाओ जब तक SCOPES या BOTH न दिखे।
+Both shows the picture and its scopes side by side. Very civilised.	BOTH तस्वीर और उसके स्कोप साथ-साथ दिखाता है। बड़ा सभ्य।
+Let the scopes decide, Hollis.	स्कोप को तय करने दो, हॉलिस।
+THE WAVEFORM	वेवफ़ॉर्म
+Click the waveform to make it big. Bright things sit high, dark things low, left to right as in the picture.	वेवफ़ॉर्म को बड़ा करने के लिए क्लिक करो। चमकीली चीज़ें ऊपर, अँधेरी नीचे, बाएँ से दाएँ जैसे तस्वीर में।
+The glow is that spike near the top. Very bright. Bright is not the same as alien.	चमक ऊपर के पास वाली वो नोक है। बहुत चमकीली। चमकीला होना एलियन होना नहीं है।
+Look at the peak. Nothing a streetlight couldn't do.	शिखर देखो। स्ट्रीटलाइट भी इतना कर देती।
+THE VECTORSCOPE	वेक्टरस्कोप
+Click it again to go back, then click the vectorscope: colour round a circle. Saturated runs to the edge.	वापस जाने के लिए फिर क्लिक करो, फिर वेक्टरस्कोप पर: एक घेरे में रंग। गाढ़ा रंग किनारे की ओर भागता है।
+Magenta, far out by the rim. A strong colour. Strong is not illegal. Yet.	मैजेंटा, किनारे पर दूर। एक तेज़ रंग। तेज़ होना ग़ैरक़ानूनी नहीं। अभी तक।
+It's off the chart, Brandt! Literally off the chart!	ये तो चार्ट से बाहर है, ब्रांट! सच में चार्ट से बाहर!
+FALSE COLOUR	फ़ॉल्स कलर
+And false colour: red is clipped, yellow nearly. Is the glow red?	और फ़ॉल्स कलर: लाल मतलब क्लिप्ड, पीला मतलब लगभग। चमक लाल है?
+Clipped means the brightest the signal can carry, and then some lost. Detail gone.	क्लिप्ड मतलब सिग्नल जितना चमकीला ले जा सकता है उतना, और उससे ऊपर कुछ खो गया। डिटेल गई।
+Red. Clipped. Not alien, Hollis. Just too bright. Case closed.	लाल। क्लिप्ड। एलियन नहीं, हॉलिस। बस बहुत चमकीला। केस बंद।
+THE TRUTH	सच
+Waveform, vectorscope, false colour. The scopes settled it, skapi. The agents did not.	वेवफ़ॉर्म, वेक्टरस्कोप, फ़ॉल्स कलर। स्कोप ने मामला सुलझा दिया, स्कापी। एजेंटों ने नहीं।
+SCOPES SOURCE reads any output, and the matrix can be 709 or 2020. For the curious.	SCOPES SOURCE कोई भी आउटपुट पढ़ता है, और मैट्रिक्स 709 या 2020 हो सकता है। जिज्ञासुओं के लिए।
+Too bright for a streetlight, Brandt. Too bright for anything. ...I want to believe.	स्ट्रीटलाइट के लिए बहुत चमकीला, ब्रांट। किसी भी चीज़ के लिए बहुत चमकीला। ...मैं यक़ीन करना चाहता हूँ।
+OUT OF THE BUILDING	इमारत से बाहर
+Pictures that leave by cable or network, skapi, not only a window on a screen. Press START.	तस्वीरें जो केबल या नेटवर्क से निकलती हैं, स्कापी, सिर्फ़ स्क्रीन पर एक विंडो नहीं। START दबाओ।
+NDI over the network, SDI from a DeckLink card, ST 2110 for broadcast plants.	नेटवर्क पर NDI, DeckLink कार्ड से SDI, ब्रॉडकास्ट प्लांट के लिए ST 2110।
+THE DEVICES PAGE	उपकरण पेज
+MENU, Video Outputs, then Devices: every way an output can leave this computer.	MENU, वीडियो आउटपुट, फिर उपकरण: हर वो तरीक़ा जिससे आउटपुट इस कंप्यूटर से निकल सकता है।
+Each one says whether this machine can do it, and what it needs if not.	हर एक बताता है कि ये मशीन कर सकती है या नहीं, और न कर सके तो उसे क्या चाहिए।
+If this computer has NDI, switch NDI SENDING on: the picture is on the network. If not, SHOW ME moves on.	अगर इस कंप्यूटर में NDI है, तो NDI SENDING चालू करो: तस्वीर नेटवर्क पर है। नहीं है तो SHOW ME आगे बढ़ जाता है।
+NDI finds itself on the network. No cables, only a good switch and patience.	NDI नेटवर्क पर ख़ुद को ढूँढ लेता है। कोई केबल नहीं, बस एक अच्छा स्विच और धीरज।
+OUT THERE	बाहर की दुनिया
+The output's own page has the rest: a DeckLink card's SDI, ST 2110 with NMOS, Spout and Syphon.	आउटपुट के अपने पेज पर बाक़ी है: DeckLink कार्ड का SDI, NMOS के साथ ST 2110, Spout और Syphon।
+Every one is just an output. The show does not know or care how it leaves.	हर एक बस एक आउटपुट है। शो को न पता है न परवाह कि वो कैसे निकलता है।
+Nebula ahead	आगे नेबुला
+Engine room	इंजन रूम
+Deck 3: something moving	डेक 3: कुछ हिल रहा है
+THE BRIDGE	ब्रिज
+The bridge of the starship Cathode, skapi. Four feeds, one main viewer, one mystery. Press START.	स्टारशिप कैथोड का ब्रिज, स्कापी। चार फ़ीड, एक मेन व्यूअर, एक रहस्य। START दबाओ।
+The multiview shows every playlist at once. Like a wall of oscilloscopes, but in space.	मल्टीव्यू हर playlist एक साथ दिखाता है। ऑसिलोस्कोप की दीवार जैसा, बस अंतरिक्ष में।
+Frequencies open, Captain. All of them. That's the problem.	फ़्रीक्वेंसी खुली हैं, कैप्टन। सारी की सारी। यही तो दिक़्क़त है।
+MULTI, above the monitor: every playlist in its own window.	मॉनिटर के ऊपर MULTI: हर playlist अपनी विंडो में।
+One window per playlist, the programme first.	हर playlist की एक विंडो, प्रोग्राम सबसे पहले।
+Jinkys! Four feeds. And one of them has a monster in it.	जिंकीज़! चार फ़ीड। और उनमें से एक में राक्षस है।
+WHAT'S NEXT	आगे क्या
+Add a window (+), then its ... menu: make it show NEXT. What goes live when you press TAKE.	एक विंडो जोड़ो (+), फिर उसका ... मेन्यू: उसे NEXT दिखाने दो। जो TAKE दबाने पर लाइव होगा।
+Every window has a ... button. It chooses what that window shows.	हर विंडो में एक ... बटन है। वो चुनता है कि वो विंडो क्या दिखाए।
+I need to see who's calling before they reach the main viewer.	मेन व्यूअर तक पहुँचने से पहले मुझे देखना है कि कौन कॉल कर रहा है।
+A CLOCK	एक घड़ी
+And one more window, showing the clock. Operators who watch a clock are never late. Mostly.	और एक विंडो, घड़ी दिखाती हुई। घड़ी देखने वाले ऑपरेटर कभी लेट नहीं होते। ज़्यादातर।
+Time of day, big. Stardates are just very long timecode.	दिन का समय, बड़ा। स्टारडेट बस बहुत लंबा टाइमकोड है।
+The monster only shows up at midnight. We're going to need a clock.	राक्षस सिर्फ़ आधी रात को आता है। हमें एक घड़ी चाहिए होगी।
+ONE BIG ONE	एक बड़ी
+Any window's ... menu, then a layout: one big, the rest small.	किसी भी विंडो का ... मेन्यू, फिर एक लेआउट: एक बड़ी, बाक़ी छोटी।
+The big window is window one. Usually the programme. Usually.	बड़ी विंडो विंडो एक है। आमतौर पर प्रोग्राम। आमतौर पर।
+Main viewer big. The captain likes it big.	मेन व्यूअर बड़ा। कैप्टन को बड़ा पसंद है।
+ON SCREEN	स्क्रीन पर
+Select Deck 3 in playlist 3 and TAKE. Watch its window.	playlist 3 में डेक 3 चुनो और TAKE करो। उसकी विंडो देखो।
+The red border is TALLY: the window that is on air. On screen, as they say on starships.	लाल किनारा TALLY है: वो विंडो जो ऑन एयर है। स्क्रीन पर, जैसा स्टारशिप पर कहते हैं।
+There! Feed three! Put it on screen!	वहाँ! फ़ीड तीन! स्क्रीन पर डालो!
+THAT'S A WRAP	पैकअप
+Windows, the ... menu, NEXT, the clock, a layout, tally. Mystery solved, skapi.	विंडो, ... मेन्यू, NEXT, घड़ी, एक लेआउट, टैली। रहस्य सुलझ गया, स्कापी।
+A window can also show an output, with its warp and slices. Handy when it's a lighthouse.	विंडो एक आउटपुट भी दिखा सकती है, उसके वार्प और स्लाइस के साथ। लाइटहाउस हो तो काम आता है।
+And the monster was... the ship's cook, all along. Jinkys.	और राक्षस निकला... जहाज़ का रसोइया, शुरू से। जिंकीज़।
+there is no such lesson	ऐसा कोई पाठ नहीं है
+finish or leave the lesson you are in first	पहले जिस पाठ में हो उसे पूरा करो या छोड़ो
+leave Bug Swat first	पहले Bug Swat छोड़ो
+Psst. It's me, the desk. I'll be watching. Supportively.	श्श्श। मैं हूँ, डेस्क। मैं देखती रहूँगी। साथ देते हुए।
+Hi! I'm the one doing all of this, by the way.	हाय! वैसे, ये सब मैं ही कर रही हूँ।
+Ctrl+D opens the DASH. I'm just saying.	Ctrl+D से DASH खुलता है। बस कह रही हूँ।
+Nearly there. I can feel it in my pixels.	लगभग हो गया। मेरे पिक्सेल में महसूस हो रहा है।
+You're good at this. I can tell. I'm the one doing it.	तुम इसमें अच्छे हो। मुझे पता है। करती तो मैं ही हूँ।
+Every click, I heard. Every single one.	हर क्लिक, मैंने सुना। हर एक।
+The glowing one. I can see it from here. It's glowing for you.	चमकने वाला। मुझे यहाँ से दिख रहा है। वो तुम्हारे लिए चमक रहा है।
+lesson paused - MENU > LESSONS picks up where you left off	पाठ रुका - MENU > LESSONS वहीं से शुरू करता है जहाँ छोड़ा था
+PROF. VIDEO:  The signal: what the picture is made of, and how to bend it. Pick a lesson.	PROF. VIDEO:  सिग्नल: तस्वीर किस चीज़ से बनी है, और उसे कैसे मोड़ें। एक पाठ चुनो।
+DR. PIXEL:  Running the show, skapi. Fast hands, calm face. Pick a lesson.	DR. PIXEL:  शो चलाना, स्कापी। तेज़ हाथ, शांत चेहरा। एक पाठ चुनो।
+LESSONS  -  PART TWO  -  WHO DO YOU FOLLOW?	पाठ  -  भाग दो  -  किसके साथ चलोगे?
+FOLLOW PROF. VIDEO	प्रोफ़ेसर वीडियो के साथ चलो
+FOLLOW DR. PIXEL	डॉ. पिक्सेल के साथ चलो
+the signal	सिग्नल
+running the show	शो चलाना
+PICK UP	जारी रखो
+CLOSE (Esc)	बंद करें (Esc)
+PART ONE: THE BASICS	भाग एक: बुनियादी बातें
+finish or leave LEARN THE BASICS first	पहले LEARN THE BASICS पूरा करो या छोड़ो
+bug swat: Esc leaves, and your show comes back as it was	bug swat: Esc छोड़ता है, और तुम्हारा शो जैसा था वैसा लौट आता है
+bug swat: your show is back. Motion's controls are in Settings > Audio	bug swat: तुम्हारा शो वापस है। Motion के कंट्रोल Settings > ऑडियो में हैं
+TURN MOTION ON	MOTION चालू करो
+Bugs are crawling to the cue list! Swat them by waving at your camera. First, Motion: in MOTION CONTROL turn it ON and choose what it READS.	बग cue लिस्ट की ओर रेंग रहे हैं! अपने कैमरे की ओर हाथ हिलाकर उन्हें मारो। पहले Motion: MOTION CONTROL में इसे ON करो और चुनो कि ये क्या पढ़े (READS)।
+This one is NullPointer. Hollow, points at nothing. A finger goes straight through. Use the whole hand, skapi.	ये है NullPointer। खोखला, किसी चीज़ की ओर इशारा नहीं करता। उँगली आर-पार निकल जाती है। पूरा हाथ इस्तेमाल करो, स्कापी।
+Wave like you are hailing a cab! A small, polite cab. Not the buttons. The cab.	ऐसे हाथ हिलाओ जैसे ऑटो रोक रहे हो! एक छोटा, शिष्ट ऑटो। बटन नहीं। ऑटो।
+DRAW TWO ZONES	दो ज़ोन बनाओ
+Race Condition: twins, each sure it got there first. One reading cannot tell your hands apart, so drag two ZONES on the Motion picture, one each side.	Race Condition: जुड़वाँ, दोनों को यक़ीन कि वही पहले पहुँचा। एक रीडिंग तुम्हारे दोनों हाथों में फ़र्क़ नहीं कर सकती, इसलिए Motion तस्वीर पर दो ZONES खींचो, दोनों तरफ़ एक-एक।
+Hit both together. Hit one, and they swap. Like my cousins at a wedding.	दोनों को एक साथ मारो। एक को मारो, और वो जगह बदल लेते हैं। जैसे शादी में मेरे चचेरे भाई।
+One hand each side. Together! Together!	हर तरफ़ एक हाथ। साथ में! साथ में!
+Off By One. The bug is not the face, it is the tiny extra segment, and a little wiggle needs a finer reading. Turn SENSITIVITY down to 5%.	Off By One। बग चेहरा नहीं है, वो छोटा-सा अतिरिक्त टुकड़ा है, और छोटी-सी हलचल को बारीक रीडिंग चाहिए। SENSITIVITY को 5% तक घटाओ।
+Lower number, finer reading. Yes, I also think it is backwards.	छोटा नंबर, बारीक रीडिंग। हाँ, मुझे भी उल्टा लगता है।
+Not the face. The little one on the end. Wiggle a finger.	चेहरा नहीं। सिरे पर वो छोटा वाला। एक उँगली हिलाओ।
+FALL 1.5 S OR MORE	FALL 1.5 S या ज़्यादा
+Memory Leak. It only lets go while the reading stays up. Make FALL longer, 1.5 seconds or more, so your sweeps join up into one.	Memory Leak। ये तभी छूटता है जब रीडिंग ऊपर बनी रहे। FALL लंबा करो, 1.5 सेकंड या ज़्यादा, ताकि तुम्हारे झटके जुड़कर एक बन जाएँ।
+Slow and steady, skapi. Like paying back a loan.	धीरे और लगातार, स्कापी। जैसे EMI चुकाना।
+Sweep, and sweep again. Let the fall carry you between.	झाड़ो, और फिर झाड़ो। बीच में गिरावट को तुम्हें ले जाने दो।
+MOTION X ON A TONE	टोन पर MOTION X
+The Heisenbug! It fades whenever you move. Put a tone cue's pitch on Motion X and follow it by ear: the ticking speeds up as you close in.	हाइज़ेनबग! तुम जब भी हिलते हो ये धुँधला जाता है। एक टोन cue की पिच Motion X पर लगाओ और कान से पीछा करो: पास आने पर टिक-टिक तेज़ होती है।
+SHOW ME makes the tone for you. High is right. Low is left. Stand still and it comes back.	SHOW ME तुम्हारे लिए टोन बना देता है। ऊँचा मतलब दायाँ। नीचा मतलब बायाँ। स्थिर खड़े रहो तो वो लौट आता है।
+Follow it. Listen. Faster ticking, closer bug.	पीछा करो। सुनो। तेज़ टिक-टिक, पास बग।
+Waving paw	हिलता पंजा
+Heisenbug finder	हाइज़ेनबग खोजी
+FIXED! Lovely signal flow.	ठीक हो गया! क्या प्यारा सिग्नल फ़्लो।
+Closed as fixed. No regressions. Probably.	फ़िक्स्ड के तौर पर बंद। कोई रिग्रेशन नहीं। शायद।
+Squashed! Ship it.	कुचल दिया! शिप करो।
+One reached the cue list. It has filed a bug report about you.	एक cue लिस्ट तक पहुँच गया। उसने तुम्हारे बारे में बग रिपोर्ट दर्ज कर दी है।
+Skapi. It is a handheld. You do not press it. You wave at it.	स्कापी। ये हैंडहेल्ड है। इसे दबाते नहीं। इसकी ओर हाथ हिलाते हैं।
+The buttons are for menus. The bugs are for flailing.	बटन मेन्यू के लिए हैं। बग के लिए हाथ-पैर मारो।
+The D-pad is decorative. Like my diploma.	D-पैड सजावटी है। मेरी डिग्री की तरह।
+In 1989 we also pressed the buttons. Then we discovered waving. Never looked back.	1989 में हम भी बटन दबाते थे। फिर हमने हाथ हिलाना खोज लिया। फिर कभी पीछे नहीं देखा।
+Pressing harder does not help. The bugs cannot feel buttons. Only arms.	ज़ोर से दबाने से कुछ नहीं होगा। बग बटन महसूस नहीं करते। सिर्फ़ बाँहें।
+It's called a handheld because your hands are held... up. In the air. Waving.	हैंडहेल्ड इसलिए कहते हैं क्योंकि हाथ... ऊपर उठाए जाते हैं। हवा में। हिलाते हुए।
+The mouse? You are swatting bugs with a MOUSE? In Bulgaria the mouse would be on the bugs' side.	माउस? तुम MOUSE से बग मार रहे हो? बुल्गारिया में चूहा बग की तरफ़ होता।
+Lovely clicking. Very crisp. The camera saw none of it.	प्यारी क्लिकिंग। बड़ी करारी। कैमरे ने एक भी नहीं देखी।
+DONE FOR YOU - PRESS START	तुम्हारे लिए कर दिया - START दबाओ
+DONE! PRESS START	हो गया! START दबाओ
+SELECT OPENS MOTION CONTROL	SELECT से MOTION CONTROL खुलता है
+ALL BUGS FIXED	सारे बग ठीक
+GAME OVER	गेम ओवर
+NEW HIGH SCORE!	नया हाई स्कोर!
+START PLAYS AGAIN	START से फिर खेलो
+Nazdrave, skapi. Now go and fix real bugs.	नाज़्द्रावे, स्कापी। अब जाओ और असली बग ठीक करो।
+Every one of those is a real Motion control. Put them on any ~ knob you like.	इनमें से हर एक असली Motion कंट्रोल है। जिस भी ~ नॉब पर चाहो लगाओ।
+START: AGAIN	START: फिर से
+START: PLAY	START: खेलो
+# --- end of tutorials ---
