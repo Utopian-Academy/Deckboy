@@ -17,6 +17,8 @@
 - An output can show **slices**: pieces of the programme, or of one playlist, each cropped, placed, corner-pinned or bent by a mesh, soft-edged, masked, turned, flipped and faded. Position, turn and opacity take a **~**. Up to 16 on an output.
 - The **Screens** window (Settings > Video Outputs > Geometry > SLICES) shows each slice's crop on the programme and where it lands on the output, and both are dragged into place by hand.
 - `SLICE` and `SCREENS` over the wire.
+- The Screens window has **MULTIVIEW** and **LED MAP** tabs. MULTIVIEW arranges the multiview by clicking a window and then a feed, with tally. LED MAP numbers the output's LED tiles and makes one slice per row, column or tile, to put a strip cabled out of order where it really is.
+- A slice's across, down, turn and opacity have their **~** in the Screens window.
 
 ### Panel Map
 

@@ -2346,10 +2346,28 @@ each with an on switch.
 - **OUTPUT** shows each slice where it lands, drawn the way the projector
   will draw it. Drag a slice to move it. Its corners size it, or pin it with
   **CORNERS: PIN**. With a mesh on, drag its points to bend it.
-- The selected slice's numbers and switches run down the right.
+- The selected slice's numbers and switches run down the right. Across,
+  down, turn and opacity end in a **~**: switch it on and the slice's
+  oscillator opens under it (shape, rate and depth), as on any other control.
 
 A second slice arrives as the right half of everything, which is where a
 split across two screens starts.
+
+The window has three tabs: **SLICES** (above), **MULTIVIEW** and **LED MAP**.
+
+- **MULTIVIEW** arranges the multiview: a layout on the left and the feeds
+  under it, the windows in the middle (red for what is on air, green for
+  what is next, an empty one asking for a feed), and the chosen window's
+  label, audio meter and safe areas on the right. Click a window, then a
+  feed. It is the arrangement the desk's MULTI monitor and any output set to
+  MULTIVIEW show.
+- **LED MAP** draws the output's LED tiles over its picture, numbered in
+  reading order as the Panel Map numbers them. The tile size starts at the
+  Panel Map cue on air (or 128) and steps here. **ONE PER ROW**,
+  **ONE PER COLUMN** and **ONE PER TILE** replace the output's slices with one
+  per strip or tile, each cropped and placed exactly where it was, so the wall
+  looks the same until you move one to where that strip or tile really is.
+  An output takes 16 slices, so a bigger wall goes by rows or columns.
 
 Over the wire: `SLICE` lists the focused output's slices; `SLICE ADD [name]`,
 `SLICE REMOVE <n>` and `SLICE CLEAR`; then `SLICE <n>` with

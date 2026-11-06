@@ -211,6 +211,36 @@ def run(exe, work):
                     "SLICE 1 GRID POINT 9 9 1 1"):
             ok, reply = refused(db, bad)
             note("refused: %s" % bad, ok, reply)
+
+        print("  the Screens window's tabs and a slice's ~")
+        # ScreensAction numbers (app_screens.ipp): the ~ chip 16, the tab 22,
+        # a multiview window 24, a feed 25, tile height 34, one per row 35.
+        def screens_click(action, param):
+            for b in db.send("SCREENS BUTTONS").split(": ", 1)[1].split():
+                a, rest = b.split(",", 1)
+                p, rect = rest.split("@")
+                if int(a) == action and int(p) == param:
+                    x, y, w, h = map(int, rect.split(","))
+                    db.send("SCREENS CLICK %d %d" % (x + w // 2, y + h // 2))
+                    time.sleep(0.3)
+                    return True
+            return False
+        db.commands("SLICE 1 GRID OFF", "SCREENS ON")
+        time.sleep(0.8)
+        note("a slice's opacity has a ~ chip in the window", screens_click(16, 3))
+        note("...and switching it on opens its rate and depth", screens_click(18, 3))
+        note("the MULTIVIEW tab opens", screens_click(22, 1))
+        note("...its second window can be chosen", screens_click(24, 1))
+        note("...and given the next cue", screens_click(25, 4))
+        saved = db.saved()
+        note("the multiview window is saved with its feed", "next" in saved, saved[-300:])
+        note("the LED MAP tab opens", screens_click(22, 2))
+        screens_click(34, 1)   # tile height 128 -> 136: 2160 is 16 rows
+        note("ONE PER ROW makes a slice per row of tiles", screens_click(35, 0))
+        listing = db.send("SLICE")
+        note("...sixteen of them, crop and place the same", "16=row 16" in listing and "17=" not in listing,
+             listing[-160:])
+        db.send("SCREENS OFF")
         note("the desk still answers", db.send("PING").startswith("OK"))
 
 

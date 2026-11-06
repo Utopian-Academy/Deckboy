@@ -38,7 +38,15 @@
     kScrDec, kScrInc, kScrSource, kScrFlipH, kScrMask, kScrMesh, kScrPerspective, kScrResetPins,
     // A slice's oscillators (param = kSliceLfo* slot): the ~ chip and its row.
     kScrLfoToggle, kScrLfoShape, kScrLfoRateDec, kScrLfoRateInc, kScrLfoDepthDec, kScrLfoDepthInc,
+    // The tabs (board: Slices | Multiview | LED map), and what is on the other two.
+    kScrTab, kScrMvLayout, kScrMvSelect, kScrMvFeed, kScrMvLabel, kScrMvMeter, kScrMvSafe, kScrMvAdd,
+    kScrMvRemove, kScrMvReset, kScrMvDesk, kScrLedTileW, kScrLedTileH, kScrLedRows, kScrLedCols, kScrLedTiles,
   };
+  int screensTab_ = 0;        // 0 slices, 1 multiview, 2 LED map
+  std::vector<std::string> screensMvFeeds_;   // the feed list as drawn, for its buttons
+  int screensMvSel_ = 0;      // the multiview window chosen
+  int screensLedW_ = 0;       // the LED map's tile size; 0 until first drawn
+  int screensLedH_ = 0;
   // The numbers a stepper moves, and by how much.
   enum ScreensField { kFCropX, kFCropY, kFCropW, kFCropH, kFPlaceX, kFPlaceY, kFPlaceW, kFPlaceH, kFRotIn, kFRotOut,
                       kFOpacity, kFEdgeL, kFEdgeR, kFEdgeT, kFEdgeB, kFFieldCount };
@@ -232,7 +240,16 @@
     drawTextSafe(controlRenderer_, fontPixelSmall_ ? fontPixelSmall_ : fontBase_, SDL_Rect {x, hy, 120, rowH},
                  "SCREENS", pal.fg);
     x += 130;
-    for (int o = 0; o < static_cast<int>(project_.outputs.size()) && o < 8; ++o) {
+    {
+      const char* tabs[3] = {"SLICES", "MULTIVIEW", "LED MAP"};
+      for (int t = 0; t < 3; ++t) {
+        const int bw = std::max(90, measuredTextWidth(fontSmall_, tabs[t]) + 20);
+        screensButton(SDL_Rect {x, hy, bw, rowH}, tabs[t], kScrTab, t, t == screensTab_);
+        x += bw + 4;
+      }
+      x += 16;
+    }
+    for (int o = 0; o < static_cast<int>(project_.outputs.size()) && o < 8 && screensTab_ != 1; ++o) {
       const std::string label = outputLabel(o);
       const int bw = std::max(90, measuredTextWidth(fontSmall_, label) + 20);
       screensButton(SDL_Rect {x, hy, bw, rowH}, label, kScrOutputTab, o, o == screensOutput_);
@@ -246,11 +263,19 @@
       rx -= 4;
     };
     rightButton("CLOSE", kScrClose, false);
-    rightButton(screensPinMode_ ? "CORNERS: PIN" : "CORNERS: SIZE", kScrPinMode, screensPinMode_);
-    rightButton("- SLICE", kScrRemoveSlice, false);
-    rightButton("+ SLICE", kScrAddSlice, false);
+    if (screensTab_ == 0) {
+      rightButton(screensPinMode_ ? "CORNERS: PIN" : "CORNERS: SIZE", kScrPinMode, screensPinMode_);
+      rightButton("- SLICE", kScrRemoveSlice, false);
+      rightButton("+ SLICE", kScrAddSlice, false);
+    }
 
     const int top = hy + rowH + pad;
+    if (screensTab_ == 1) {
+      renderScreensMultiview(SDL_Rect {shell.x + pad, top, shell.w - 2 * pad, shell.y + shell.h - pad - top}, rowH);
+    } else if (screensTab_ == 2) {
+      renderScreensLedMap(SDL_Rect {shell.x + pad, top, shell.w - 2 * pad, shell.y + shell.h - pad - top}, rowH);
+    }
+    if (screensTab_ == 0) {
     const int listW = 190, sideW = 300;
     const SDL_Rect list {shell.x + pad, top, listW, shell.y + shell.h - pad - top};
     const SDL_Rect side {shell.x + shell.w - pad - sideW, top, sideW, list.h};
@@ -464,6 +489,7 @@
                 deckboy::slices::pinned(*sel));
       toggleRow("pin as", sel->perspective ? "perspective" : "linear", kScrPerspective, sel->perspective);
     }
+    }  // the Slices tab
 
     if (scanlineOverlay_ && pal.scanlineAlpha > 0) {
       int ww, wh;
@@ -481,6 +507,336 @@
     presentTraced(controlRenderer_, "screens");
     controlRenderer_ = savedRenderer;
     controlWindow_ = savedWindow;
+  }
+
+  // ── THE MULTIVIEW TAB ───────────────────────────────────────────────────
+  //
+  // The board's second mock: layouts on the left with the feeds under them,
+  // the windows in the middle -- each saying what it shows, red for what is
+  // on air and green for what is next, and an empty one asking for a feed --
+  // and the chosen window's switches on the right. Click a window, then a
+  // feed: no hidden right-click. The arrangement is the one the desk's MULTI
+  // monitor and any MULTIVIEW output show.
+
+  void screensMvMaterialise() {
+    // Arranging one window makes the whole set explicit and saved, as the
+    // desk's window menu does, so it cannot rearrange itself later.
+    if (project_.multiviewTiles.empty()) project_.multiviewTiles = multiviewTilePlan();
+  }
+
+  void renderScreensMultiview(const SDL_Rect& area, int rowH) {
+    const int pad = 10, listW = 230, sideW = 280;
+    const SDL_Rect left {area.x, area.y, listW, area.h};
+    const SDL_Rect side {area.x + area.w - sideW, area.y, sideW, area.h};
+    const SDL_Rect mid {left.x + left.w + pad, area.y, side.x - pad - (left.x + left.w + pad), area.h};
+    const std::vector<MultiviewTile> plan = multiviewTilePlan();
+    screensMvSel_ = std::clamp(screensMvSel_, 0, std::max(0, static_cast<int>(plan.size()) - 1));
+
+    // Layouts, then feeds.
+    drawUIPanel(left, pal.tile, pal.deep, pal.mid);
+    int ly = left.y + 6;
+    drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {left.x + 8, ly, left.w - 16, rowH}, "LAYOUT", pal.fg);
+    ly += rowH;
+    for (int l = 0; l < static_cast<int>(deckboy::multiview::Layout::Count); ++l) {
+      const auto layout = static_cast<deckboy::multiview::Layout>(l);
+      screensButton(SDL_Rect {left.x + 6, ly, left.w - 12, rowH}, deckboy::multiview::layoutLabel(layout),
+                    kScrMvLayout, l, project_.multiviewLayout == layout);
+      ly += rowH + 3;
+    }
+    ly += 8;
+    drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {left.x + 8, ly, left.w - 16, rowH},
+                 "FEEDS: pick a window, then one of these", pal.fg);
+    ly += rowH;
+    const std::string current = screensMvSel_ < static_cast<int>(plan.size())
+                                  ? plan[static_cast<std::size_t>(screensMvSel_)].source : std::string();
+    screensMvFeeds_.clear();
+    auto feed = [&](const std::string& id, const std::string& label) {
+      if (ly + rowH > left.y + left.h - 4) return;
+      screensMvFeeds_.push_back(id);
+      screensButton(SDL_Rect {left.x + 6, ly, left.w - 12, rowH}, label, kScrMvFeed,
+                    static_cast<int>(screensMvFeeds_.size()) - 1, id == current);
+      ly += rowH + 3;
+    };
+    feed("programme", "the programme");
+    for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) feed("deck:" + std::to_string(d), deckLabel(d));
+    for (int o = 0; o < static_cast<int>(project_.outputs.size()); ++o) {
+      const std::string& id = project_.outputs[static_cast<std::size_t>(o)].outputId;
+      if (!id.empty()) feed("output:" + id, "output: " + outputLabel(o));
+    }
+    feed("next", "the next cue (what GO plays)");
+    feed("clock", "the time of day");
+    feed("", "nothing - leave it empty");
+
+    // The windows, laid out as the desk and the outputs lay them out.
+    drawUIPanel(mid, SDL_Color {0, 0, 0, 255}, pal.deep, pal.mid);
+    const auto placed = deckboy::multiview::layoutWindows(project_.multiviewLayout, static_cast<int>(plan.size()),
+                                                          {mid.x + 6, mid.y + 6, mid.w - 12, mid.h - 12}, 6);
+    const SDL_Color kRed {226, 85, 75, 255}, kGreen {51, 215, 92, 255}, kHot {242, 179, 61, 255};
+    for (int i = 0; i < static_cast<int>(plan.size()) && i < static_cast<int>(placed.size()); ++i) {
+      const auto& t = plan[static_cast<std::size_t>(i)];
+      const SDL_Rect r {placed[static_cast<std::size_t>(i)].x, placed[static_cast<std::size_t>(i)].y,
+                        placed[static_cast<std::size_t>(i)].w, placed[static_cast<std::size_t>(i)].h};
+      Primitives::fillRect(controlRenderer_, r, pal.tile);
+      // The programme window shows the programme: the one picture this
+      // window already has. The others are named, not pictured.
+      if (t.source == "programme" && screensPic_) {
+        const SDL_FRect fr = fitAspect(r, screensPicW_ > 0 && screensPicH_ > 0
+                                            ? static_cast<double>(screensPicW_) / screensPicH_ : 16.0 / 9.0);
+        SDL_RenderTexture(controlRenderer_, screensPic_, nullptr, &fr);
+      }
+      if (t.source.empty()) {
+        drawCenteredTextSafe(controlRenderer_, fontSmall_, r, "+ CHOOSE A FEED", pal.fg);
+      } else {
+        const int labH = textLineHeight(fontSmall_) + 4;
+        const SDL_Rect lab {r.x, r.y + r.h - labH, r.w, labH};
+        Primitives::fillRect(controlRenderer_, lab, SDL_Color {0, 0, 0, 170});
+        drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {lab.x + 6, lab.y, lab.w - 12, lab.h},
+                     multiviewTileSourceLabel(t) + (t.vuMeter ? "  · meter" : "") + (t.safeAreas ? "  · safe" : ""),
+                     SDL_Color {200, 240, 210, 255});
+      }
+      // Tally: red on air, green next -- every switcher's colours.
+      const bool onAir = multiviewTileOnAir(t);
+      if (onAir || t.source == "next") {
+        const SDL_Color c = onAir ? kRed : kGreen;
+        for (int k = 0; k < 3; ++k) {
+          Primitives::strokeRect(controlRenderer_, SDL_Rect {r.x + k, r.y + k, r.w - 2 * k, r.h - 2 * k}, c);
+        }
+      }
+      if (i == screensMvSel_) {
+        Primitives::strokeRect(controlRenderer_, SDL_Rect {r.x - 3, r.y - 3, r.w + 6, r.h + 6}, kHot);
+      }
+      screensButtons_.push_back({r, kScrMvSelect, i});   // the window itself is the button
+    }
+
+    // The chosen window's switches.
+    drawUIPanel(side, pal.tile, pal.deep, pal.mid);
+    int sy = side.y + 6;
+    auto row = [&](const std::string& label, const std::string& value, int action, bool on) {
+      drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {side.x + 8, sy, 100, rowH}, label, pal.fg);
+      screensButton(SDL_Rect {side.x + 110, sy, side.w - 118, rowH}, value, action, 0, on);
+      sy += rowH + 3;
+    };
+    if (screensMvSel_ < static_cast<int>(plan.size())) {
+      const auto& t = plan[static_cast<std::size_t>(screensMvSel_)];
+      drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {side.x + 8, sy, side.w - 16, rowH},
+                   "WINDOW " + std::to_string(screensMvSel_ + 1), pal.fg);
+      sy += rowH;
+      drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {side.x + 8, sy, side.w - 16, rowH},
+                   "shows " + (t.source.empty() ? std::string("nothing yet") : multiviewTileSourceLabel(t)),
+                   pal.fgSoft);
+      sy += rowH + 4;
+      row("label", t.label ? "ON" : "OFF", kScrMvLabel, t.label);
+      row("audio meter", t.vuMeter ? "ON" : "OFF", kScrMvMeter, t.vuMeter);
+      row("safe areas", t.safeAreas ? "ON" : "OFF", kScrMvSafe, t.safeAreas);
+      sy += 6;
+      row("windows", "+ ONE AFTER THIS", kScrMvAdd, false);
+      if (plan.size() > 1) row("", "- REMOVE THIS ONE", kScrMvRemove, false);
+      row("", "ONE PER PLAYLIST", kScrMvReset, false);
+    }
+    sy += 6;
+    row("on the desk", project_.multiviewMode != 0 ? "MULTI ON" : "MULTI OFF", kScrMvDesk, project_.multiviewMode != 0);
+    drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {side.x + 8, sy, side.w - 16, rowH},
+                 "An output whose Shows is", pal.fgSoft);
+    sy += rowH;
+    drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {side.x + 8, sy, side.w - 16, rowH},
+                 "MULTIVIEW carries this too.", pal.fgSoft);
+  }
+
+  void handleScreensMultiviewButton(const ScreensButton& b) {
+    switch (b.action) {
+      case kScrMvSelect:
+        screensMvSel_ = b.param;
+        return;
+      case kScrMvLayout:
+        pushUndoSnapshot();
+        project_.multiviewLayout = static_cast<deckboy::multiview::Layout>(
+          std::clamp(b.param, 0, static_cast<int>(deckboy::multiview::Layout::Count) - 1));
+        markProjectDirty();
+        return;
+      case kScrMvDesk:
+        project_.multiviewMode = project_.multiviewMode != 0 ? 0 : 1;
+        markProjectDirty();
+        return;
+      case kScrMvReset:
+        pushUndoSnapshot();
+        project_.multiviewTiles.clear();   // empty means automatic again
+        screensMvSel_ = 0;
+        markProjectDirty();
+        triggerToast("multiview: one window per playlist again");
+        return;
+      default:
+        break;
+    }
+    pushUndoSnapshot();
+    screensMvMaterialise();
+    auto& tiles = project_.multiviewTiles;
+    if (screensMvSel_ < 0 || screensMvSel_ >= static_cast<int>(tiles.size())) return;
+    auto& t = tiles[static_cast<std::size_t>(screensMvSel_)];
+    switch (b.action) {
+      case kScrMvFeed:
+        if (b.param >= 0 && b.param < static_cast<int>(screensMvFeeds_.size())) {
+          t.source = screensMvFeeds_[static_cast<std::size_t>(b.param)];
+        }
+        break;
+      case kScrMvLabel: t.label = !t.label; break;
+      case kScrMvMeter: t.vuMeter = !t.vuMeter; break;
+      case kScrMvSafe: t.safeAreas = !t.safeAreas; break;
+      case kScrMvAdd:
+        if (static_cast<int>(tiles.size()) < kMaxMultiviewTiles) {
+          MultiviewTile fresh;
+          fresh.source = "";
+          tiles.insert(tiles.begin() + screensMvSel_ + 1, fresh);
+          ++screensMvSel_;
+        }
+        break;
+      case kScrMvRemove:
+        if (tiles.size() > 1) {
+          tiles.erase(tiles.begin() + screensMvSel_);
+          screensMvSel_ = std::max(0, screensMvSel_ - 1);
+        }
+        break;
+      default:
+        break;
+    }
+    markProjectDirty();
+  }
+
+  // ── THE LED MAP TAB ─────────────────────────────────────────────────────
+  //
+  // The board's "later": the Panel Map as a tab. The output's tiles, numbered
+  // in reading order as the Panel Map pattern numbers them, over the picture,
+  // and slices made from them -- one per row, per column or per tile -- so a
+  // strip or a tile cabled out of order can be moved to where it really is.
+  // The tile size starts at the Panel Map cue on air (or 128) and steps here.
+
+  std::pair<int, int> screensLedTileFromShow() {
+    for (const Deck& deck : project_.decks) {
+      if (deck.activeIndex < 0 || deck.activeIndex >= static_cast<int>(deck.cues.size())) continue;
+      const Cue& c = deck.cues[static_cast<std::size_t>(deck.activeIndex)];
+      if (c.kind == CueKind::Pattern && stripPatternMotionSuffix(normalizePatternTypeId(c.path)) == "panel-map") {
+        return {c.ledPanelWidth, c.ledPanelHeight};
+      }
+    }
+    return {128, 128};
+  }
+
+  void renderScreensLedMap(const SDL_Rect& area, int rowH) {
+    if (screensLedW_ <= 0 || screensLedH_ <= 0) {
+      const auto t = screensLedTileFromShow();
+      screensLedW_ = t.first;
+      screensLedH_ = t.second;
+    }
+    const int pad = 10, sideW = 300;
+    const SDL_Rect side {area.x + area.w - sideW, area.y, sideW, area.h};
+    const SDL_Rect mid {area.x, area.y, side.x - pad - area.x, area.h};
+    const auto outSize = outputRenderSizeForOutput(screensOutput_);
+    const int ow = std::max(1, outSize.first), oh = std::max(1, outSize.second);
+    const int cols = (ow + screensLedW_ - 1) / screensLedW_;
+    const int rows = (oh + screensLedH_ - 1) / screensLedH_;
+    const SDL_FRect stage = fitAspect(mid, static_cast<double>(ow) / oh);
+    SDL_SetRenderDrawColor(controlRenderer_, 0, 0, 0, 255);
+    SDL_RenderFillRect(controlRenderer_, &stage);
+    if (screensPic_) SDL_RenderTexture(controlRenderer_, screensPic_, nullptr, &stage);
+    const float tw = stage.w * screensLedW_ / ow, th = stage.h * screensLedH_ / oh;
+    const SDL_Color line {120, 200, 140, 255};
+    for (int r = 0; r < rows; ++r) {
+      for (int c = 0; c < cols; ++c) {
+        const SDL_Rect cell {static_cast<int>(stage.x + c * tw), static_cast<int>(stage.y + r * th),
+                             static_cast<int>(std::ceil(tw)), static_cast<int>(std::ceil(th))};
+        Primitives::strokeRect(controlRenderer_, cell, line);
+        if (tw > 18 && th > 14) {
+          drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {cell.x + 3, cell.y + 1, cell.w - 4, cell.h - 2},
+                       std::to_string(r * cols + c + 1), SDL_Color {200, 240, 210, 255});
+        }
+      }
+    }
+
+    drawUIPanel(side, pal.tile, pal.deep, pal.mid);
+    int sy = side.y + 6;
+    auto text = [&](const std::string& t, SDL_Color c) {
+      drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {side.x + 8, sy, side.w - 16, rowH}, t, c);
+      sy += rowH;
+    };
+    auto stepper = [&](const std::string& label, int value, int action) {
+      drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {side.x + 8, sy, 90, rowH}, label, pal.fg);
+      const int bx = side.x + 100, bw = side.w - 108;
+      screensButton(SDL_Rect {bx, sy, rowH, rowH}, "-", action, -1);
+      drawUIValueControl(SDL_Rect {bx + rowH + 2, sy, bw - 2 * rowH - 4, rowH}, std::to_string(value) + " px");
+      screensButton(SDL_Rect {bx + bw - rowH, sy, rowH, rowH}, "+", action, 1);
+      sy += rowH + 3;
+    };
+    text(outputLabel(screensOutput_) + "  " + std::to_string(ow) + " x " + std::to_string(oh), pal.fg);
+    stepper("tile width", screensLedW_, kScrLedTileW);
+    stepper("tile height", screensLedH_, kScrLedTileH);
+    text(std::to_string(cols) + " x " + std::to_string(rows) + " tiles  (" + std::to_string(cols * rows) + ")",
+         pal.fgSoft);
+    sy += 6;
+    text("MAKE SLICES (replaces this output's):", pal.fg);
+    auto button = [&](const std::string& label, int action, bool enabled) {
+      // One over the limit says so in its own label rather than going grey:
+      // it still answers, with the reason.
+      screensButton(SDL_Rect {side.x + 8, sy, side.w - 16, rowH}, enabled ? label : label + "  too many", action, 0,
+                    false);
+      sy += rowH + 3;
+    };
+    const int maxS = deckboy::slices::kMaxSlices;
+    button("ONE PER ROW  (" + std::to_string(rows) + ")", kScrLedRows, rows <= maxS);
+    button("ONE PER COLUMN  (" + std::to_string(cols) + ")", kScrLedCols, cols <= maxS);
+    button("ONE PER TILE  (" + std::to_string(cols * rows) + ")", kScrLedTiles, cols * rows <= maxS);
+    if (cols * rows > maxS) {
+      text("An output takes 16 slices: a wall", pal.fgSoft);
+      text("this size goes by rows or columns.", pal.fgSoft);
+    }
+    text("Then on SLICES, move one to where", pal.fgSoft);
+    text("that tile or strip really is.", pal.fgSoft);
+  }
+
+  void handleScreensLedButton(const ScreensButton& b) {
+    if (b.action == kScrLedTileW || b.action == kScrLedTileH) {
+      int& v = b.action == kScrLedTileW ? screensLedW_ : screensLedH_;
+      v = std::clamp(v + (b.param > 0 ? 8 : -8), 16, 2048);
+      return;
+    }
+    OutputTarget* out = screensOutputTarget();
+    if (!out) return;
+    const auto outSize = outputRenderSizeForOutput(screensOutput_);
+    const int ow = std::max(1, outSize.first), oh = std::max(1, outSize.second);
+    const int cols = (ow + screensLedW_ - 1) / screensLedW_;
+    const int rows = (oh + screensLedH_ - 1) / screensLedH_;
+    const int count = b.action == kScrLedRows ? rows : b.action == kScrLedCols ? cols : cols * rows;
+    if (count > deckboy::slices::kMaxSlices) {
+      triggerToast(std::to_string(count) + " slices: an output takes 16. Rows or columns instead.",
+                   ToastKind::Warning, kToastReadableMs);
+      return;
+    }
+    pushUndoSnapshot();
+    out->slices.clear();
+    auto add = [&](const std::string& name, int px, int py, int pw, int ph) {
+      deckboy::slices::Slice s;
+      s.name = name;
+      // The same rectangle in and out: the wall looks the same until a slice
+      // is moved, which is the point -- nothing changes until you mean it to.
+      s.srcX = s.dstX = static_cast<float>(px) / ow;
+      s.srcY = s.dstY = static_cast<float>(py) / oh;
+      s.srcW = s.dstW = static_cast<float>(std::min(pw, ow - px)) / ow;
+      s.srcH = s.dstH = static_cast<float>(std::min(ph, oh - py)) / oh;
+      out->slices.push_back(s);
+    };
+    if (b.action == kScrLedRows) {
+      for (int r = 0; r < rows; ++r) add("row " + std::to_string(r + 1), 0, r * screensLedH_, ow, screensLedH_);
+    } else if (b.action == kScrLedCols) {
+      for (int c = 0; c < cols; ++c) add("column " + std::to_string(c + 1), c * screensLedW_, 0, screensLedW_, oh);
+    } else {
+      for (int r = 0; r < rows; ++r) {
+        for (int c = 0; c < cols; ++c) {
+          add("tile " + std::to_string(r * cols + c + 1), c * screensLedW_, r * screensLedH_, screensLedW_,
+              screensLedH_);
+        }
+      }
+    }
+    screensSlice_ = 0;
+    markProjectDirty();
+    triggerToast(std::to_string(out->slices.size()) + " slices made: move them on SLICES");
   }
 
   // ── PRESSING AND DRAGGING ───────────────────────────────────────────────
@@ -509,6 +865,18 @@
   }
 
   void handleScreensButton(const ScreensButton& b) {
+    if (b.action == kScrTab) {
+      screensTab_ = std::clamp(b.param, 0, 2);
+      return;
+    }
+    if (b.action >= kScrMvLayout && b.action <= kScrMvDesk) {
+      handleScreensMultiviewButton(b);
+      return;
+    }
+    if (b.action >= kScrLedTileW && b.action <= kScrLedTiles) {
+      handleScreensLedButton(b);
+      return;
+    }
     OutputTarget* out = screensOutputTarget();
     if (!out) return;
     deckboy::slices::Slice* sel = screensSelected();
@@ -636,6 +1004,7 @@
         return;
       }
     }
+    if (screensTab_ != 0) return;
     OutputTarget* out = screensOutputTarget();
     if (!out || out->slices.empty()) return;
     const float fx = static_cast<float>(mx), fy = static_cast<float>(my);
