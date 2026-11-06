@@ -1,0 +1,1066 @@
+#name ພາສາລາວ
+#english Lao
+#unverified
+# Written without a speaker's review; a speaker's corrections are welcome. Phrases are spaced, as Lao print spaces them, so long lines can wrap.
+# Deckboy interface catalogue.
+#
+# english<TAB>translation. A line left out, or left empty, falls through to the
+# English -- so an unfinished catalogue is a partly translated app rather than
+# one with holes in it.
+#
+# Broadcast vocabulary is deliberately left in English where the trade leaves
+# it there: TAKE, PROGRAM, NDI, SRT, OSC. An operator who learned the desk in
+# one country has to be able to work it in another.
+
+NEW	ໃໝ່
+OPEN	ເປີດ
+SAVE	ບັນທຶກ
+SAVE AS	ບັນທຶກເປັນ
+BUNDLE	ມັດລວມ
+IMPORT	ນຳເຂົ້າ
+SOURCE	ແຫຼ່ງ
+PATTERN	ຮູບແບບ
+SETTINGS	ຕັ້ງຄ່າ
+TAKE	TAKE
+STOP	ຢຸດ
+REBOOT	ເລີ່ມໃໝ່
+BLACKOUT	ມືດ
+CLEAR	ລ້າງ
+RECORD	ອັດ
+PLAYLIST	PLAYLIST
+TIMELINE	ເສັ້ນເວລາ
+MEDIA	ສື່
+TRANSPORT	ຄວບຄຸມ
+OUTPUT	OUTPUT
+PROGRAM	PROGRAM
+WARP	WARP
+LIVE	ສົດ
+DECODE	ຖອດລະຫັດ
+STREAM	STREAM
+System	ລະບົບ
+Audio	ສຽງ
+Network	ເຄືອຂ່າຍ
+Video Outputs	ຂາອອກວິດີໂອ
+About	ກ່ຽວກັບ
+Encoder	ຕົວເຂົ້າລະຫັດ
+Screen	ໜ້າຈໍ
+Geometry	ເລຂາຄະນິດ
+Devices	ອຸປະກອນ
+Streaming	ຖ່າຍທອດ
+APPEARANCE	ຮູບລັກ
+REMOTE CONTROL	ຄວບຄຸມທາງໄກ
+INTEGRATION ADAPTERS	ຕົວເຊື່ອມຕໍ່
+DISCOVERY / NOTES	ຄົ້ນຫາ / ບັນທຶກ
+DISPLAY & RASTER	ການສະແດງຜົນ & RASTER
+CONNECTED DISPLAYS	ໜ້າຈໍທີ່ເຊື່ອມຕໍ່
+EDGE FEATHERING	ຂອບອ່ອນ
+MATTE & OVERLAY	MATTE & ຊັ້ນທັບ
+AREA OF INTEREST	ພື້ນທີ່ສົນໃຈ
+DEFAULT TRANSITION	ການປ່ຽນພາບເລີ່ມຕົ້ນ
+NMC IN & OUT	NMC ເຂົ້າ & ອອກ
+OSC QUERY / FEEDBACK	OSC QUERY / ຕອບກັບ
+CUE INSPECTOR	CUE INSPECTOR
+SELECTED CUE	CUE ທີ່ເລືອກ
+PLAYBACK	ການຫຼິ້ນ
+COPY	ສຳເນົາ
+PASTE	ວາງ
+RESET	ຕັ້ງຄືນ
+Theme	ຊຸດສີ
+Language	ພາສາ
+Resolution	ຄວາມລະອຽດ
+Orientation	ທິດທາງ
+Toggle Fullscreen	ເປີດ/ປິດ ເຕັມຈໍ
+IDENTIFY	ລະບຸ
+REGION SIZE	ຂະໜາດພື້ນທີ່
+POSITION	ຕຳແໜ່ງ
+CENTRE	ກາງ
+FULL	ເຕັມ
+duration	ໄລຍະເວລາ
+transition	ການປ່ຽນພາບ
+fade in	ຄ່ອຍໆປາກົດ
+fade out	ຄ່ອຍໆຈາງ
+ON	ເປີດ
+OFF	ປິດ
+Stopped	ຢຸດແລ້ວ
+Playing	ກຳລັງຫຼິ້ນ
+Paused	ພັກໄວ້
+2-UP	2 ຊ່ອງ
+DONE	ແລ້ວ
+EDIT	ແກ້ໄຂ
+HELD	ຖື
+PICK	ເລືອກ
+QUAD	4 ຊ່ອງ
+Rate	ອັດຕາ
+STEP	ຂັ້ນ
+Apply	ນຳໃຊ້
+CLOSE	ປິດ
+FIXED	ຄົງທີ່
+Help!	Help!
+ORDER	ລຳດັບ
+READY	ພ້ອມ
+TILES	ແຜ່ນ
+VIDEO	VIDEO
+ALL ON	ເປີດທັງໝົດ
+ALWAYS	ຕະຫຼອດ
+ANALOG	ອະນາລັອກ
+Buffer	ບັບເຟີ
+Cancel	ຍົກເລີກ
+Custom	ກຳນົດເອງ
+Device	ອຸປະກອນ
+Folder	ໂຟນເດີ
+HIDDEN	ເຊື່ອງ
+Length	ຄວາມຍາວ
+Mascot	ໂຕນຳໂຊກ
+Mirror	ກະຈົກ
+NATIVE	ຕົ້ນສະບັບ
+PRESET	PRESET
+Sender	ຜູ້ສົ່ງ
+SUMMED	ລວມ
+TOGGLE	ສະຫຼັບ
+12 HOUR	12 ຊົ່ວໂມງ
+24 HOUR	24 ຊົ່ວໂມງ
+ALL OFF	ປິດທັງໝົດ
+ARRANGE	ຈັດວາງ
+Channel	ຊ່ອງ
+CONVERT	ແປງ
+DEFAULT	ຄ່າເລີ່ມຕົ້ນ
+END CUE	CUE ສຸດທ້າຍ
+Key out	ຕັດພື້ນອອກ
+LTC out	LTC ອອກ
+MISSING	ຂາດໄປ
+PRESETS	PRESET
+PROJECT	ໂຄງການ
+RUNNING	ກຳລັງແລ່ນ
+Send to	ສົ່ງໄປ
+SHUFFLE	ສັບລຳດັບ
+UPDATES	ອັບເດດ
+VJ MODE	ໂໝດ VJ
+CLOCK ON	ເປີດໂມງ
+DOWNLOAD	ດາວໂຫຼດ
+EXAMPLES	ຕົວຢ່າງ
+Mappings	ການຈັບຄູ່
+NMC sync	ຊິງ NMC
+PROMPTER	PROMPTER
+SHOW SDP	ສະແດງ SDP
+TCP port	ພອດ TCP
+UI scale	ຂະໜາດ UI
+vMix API	vMix API
+WATCHING	ກຳລັງເຝົ້າເບິ່ງ
+A/V delay	ການໜ່ວງ A/V
+ASIO outs	ຂາອອກ ASIO
+BOTH AXES	ທັງສອງແກນ
+CHECK NOW	ກວດດຽວນີ້
+CLOCK OFF	ປິດໂມງ
+Creatures	ສັດນ້ອຍ
+CUE TOOLS	ເຄື່ອງມື CUE
+Freewheel	ແລ່ນອິດສະຫຼະ
+HTTP port	ພອດ HTTP
+Jump mode	ໂໝດກະໂດດ
+Listen on	ຟັງຢູ່
+OSC Query	OSC Query
+OUTPUT ON	OUTPUT ເປີດ
+Panic now	ຕື່ນຕົກໃຈດຽວນີ້
+RECORDING	ກຳລັງອັດ
+REMAINING	ເຫຼືອ
+RESET ALL	ຕັ້ງຄືນທັງໝົດ
+RUN PANIC	ແລ່ນ PANIC
+SHOW FLOW	ການໄຫຼຂອງໂຊ
+TIMERS ON	ເປີດໂມງນັບ
+WHEN IDLE	ເມື່ອວ່າງ
+ADD OUTPUT	ເພີ່ມ OUTPUT
+BUILT WITH	ສ້າງດ້ວຍ
+CANCEL ALL	ຍົກເລີກທັງໝົດ
+colour tag	ປ້າຍສີ
+copy chain	ສຳເນົາສາຍ
+Hover tips	ຄຳແນະນຳເມື່ອຊີ້
+Input gain	ສຽງເຂົ້າ
+Input mono	ຂາເຂົ້າ mono
+live audio	ສຽງສົດ
+Live input	ຂາເຂົ້າສົດ
+MIDI input	ຂາເຂົ້າ MIDI
+no picture	ບໍ່ມີຮູບ
+no preview	ບໍ່ມີຕົວຢ່າງ
+OPEN SAVED	ເປີດອັນທີ່ບັນທຶກ
+OUTPUT OFF	OUTPUT ປິດ
+Panic fade	ຈາງເມື່ອ panic
+Tally port	ພອດ tally
+TIMERS OFF	ປິດໂມງນັບ
+Accept from	ຮັບຈາກ
+ASIO driver	ໄດຣເວີ ASIO
+BACK TO TOP	ກັບຂຶ້ນເທິງ
+CANVAS MODE	ໂໝດ CANVAS
+CODE SOURCE	ແຫຼ່ງລະຫັດ
+Cue numbers	ເລກ cue
+Mirror rate	ອັດຕາກະຈົກ
+no duration	ບໍ່ມີໄລຍະເວລາ
+NO LIVE CUE	ບໍ່ມີ CUE ສົດ
+NO PREVIOUS	ບໍ່ມີອັນກ່ອນ
+OVERLAY BIN	ຖັງຊັ້ນທັບ
+paste chain	ວາງສາຍ
+Sample rate	ອັດຕາສຸ່ມ
+SENDING OUT	ກຳລັງສົ່ງອອກ
+Shift: snap	Shift: ຍຶດຕາຂ່າຍ
+THIS OUTPUT	OUTPUT ນີ້
+Mode	ໂໝດ
+Direction	ທິດທາງ
+Destination	ປາຍທາງ
+(no matches)	(ບໍ່ພົບ)
+(no subtext)	(ບໍ່ມີຄຳບັນຍາຍ)
+add a button	ເພີ່ມປຸ່ມ
+add a window	ເພີ່ມໜ້າຕ່າງ
+Art-Net port	ພອດ Art-Net
+AUDIO OUTPUT	ຂາອອກສຽງ
+Auto restore	ກູ້ຄືນເອງ
+DECKLINK: ON	DECKLINK: ເປີດ
+free running	ແລ່ນອິດສະຫຼະ
+KEY+FILL: ON	KEY+FILL: ເປີດ
+LISTENING IN	ກຳລັງຟັງຢູ່
+Miami cursor	ຕົວຊີ້ Miami
+MIDI CONTROL	ຄວບຄຸມ MIDI
+Mirror state	ສະຖານະກະຈົກ
+NDI KEY: OFF	NDI KEY: ປິດ
+NDI KEY: ON	NDI KEY: ເປີດ
+NO PROGRAMME	ບໍ່ມີ PROGRAM
+ST 2110: OFF	ST 2110: ປິດ
+ST 2110: ON	ST 2110: ເປີດ
+WATCH FOLDER	ໂຟນເດີເຝົ້າເບິ່ງ
+COMPOSITE CUE	CUE ປະສົມ
+DECKLINK: OFF	DECKLINK: ປິດ
+default route	ເສັ້ນທາງເລີ່ມຕົ້ນ
+Every adapter	ທຸກຕົວເຊື່ອມ
+KEY+FILL: OFF	KEY+FILL: ປິດ
+LEFT TO RIGHT	ຊ້າຍຫາຂວາ
+MEDIA ENCODER	ຕົວເຂົ້າລະຫັດສື່
+MSC device id	ລະຫັດອຸປະກອນ MSC
+NEW SHOW FILE	ໄຟລ໌ໂຊໃໝ່
+No cue loaded	ຍັງບໍ່ໄດ້ໂຫຼດ cue
+nothing taken	ຍັງບໍ່ໄດ້ take
+OPEN PREVIOUS	ເປີດອັນກ່ອນ
+Output device	ອຸປະກອນຂາອອກ
+Panic profile	ໂປຣໄຟລ໌ panic
+Quit Deckboy?	ອອກຈາກ Deckboy ບໍ?
+REMOVE OUTPUT	ເອົາ OUTPUT ອອກ
+Sound effects	ສຽງປະກອບ
+Tally address	ທີ່ຢູ່ tally
+TOP TO BOTTOM	ເທິງລົງລຸ່ມ
+127 (all-call)	127 (ເອີ້ນທັງໝົດ)
+ALL INTERFACES	ທຸກເຄືອຂ່າຍ
+LOCALHOST ONLY	ສະເພາະເຄື່ອງນີ້
+Monitor device	ອຸປະກອນຟັງກວດ
+no audio track	ບໍ່ມີແທຣັກສຽງ
+PRESENTER VIEW	ໜ້າຈໍຜູ້ນຳສະເໜີ
+RECORD TO DISK	ອັດລົງດິສ
+STOP RECORDING	ຢຸດອັດ
+STOP STREAMING	ຢຸດຖ່າຍທອດ
+TALLY TRIGGERS	ຕົວກະຕຸ້ນ TALLY
+Device channels	ຊ່ອງອຸປະກອນ
+NDI SENDING: ON	NDI ກຳລັງສົ່ງ: ເປີດ
+NO CUE SELECTED	ຍັງບໍ່ໄດ້ເລືອກ CUE
+Output channels	ຊ່ອງຂາອອກ
+preview pending	ກຳລັງລໍຖ້າຕົວຢ່າງ
+START RECORDING	ເລີ່ມອັດ
+START STREAMING	ເລີ່ມຖ່າຍທອດ
+(system default)	(ຄ່າຂອງລະບົບ)
+Check at startup	ກວດເມື່ອເປີດເຄື່ອງ
+Global crossfade	Crossfade ທົ່ວໄປ
+Mic to recording	ໄມເຂົ້າການອັດ
+Monitor playlist	Playlist ຟັງກວດ
+NDI SENDING: OFF	NDI ກຳລັງສົ່ງ: ປິດ
+no still preview	ບໍ່ມີຮູບຕົວຢ່າງ
+Pocket 3 / touch	Pocket 3 / ສຳຜັດ
+SMPTE LTC OUTPUT	ຂາອອກ SMPTE LTC
+the whole screen	ທັງໜ້າຈໍ
+Check for one now	ກວດຄັ້ງໜຶ່ງດຽວນີ້
+INSTALL & RESTART	ຕິດຕັ້ງ & ເລີ່ມໃໝ່
+Registry: NOT SET	Registry: ຍັງບໍ່ໄດ້ຕັ້ງ
+SAFETY / TIMECODE	ຄວາມປອດໄພ / TIMECODE
+Timecode jam sync	ຊິງ jam timecode
+esc or N to cancel	esc ຫຼື N ເພື່ອຍົກເລີກ
+KEYBOARD SHORTCUTS	ປຸ່ມລັດ
+loading preview...	ກຳລັງໂຫຼດຕົວຢ່າງ...
+CONVERT ALL FLAGGED	ແປງທຸກອັນທີ່ໝາຍໄວ້
+dot-matrix cue deck	ໂຕະ cue ແບບຈຸດ
+HyperDeck emulation	ຈຳລອງ HyperDeck
+locked to the tempo	ຕາມຈັງຫວະ
+VJ mode (two decks)	ໂໝດ VJ (ສອງ deck)
+ADD ANOTHER PLAYLIST	ເພີ່ມອີກ PLAYLIST ໜຶ່ງ
+Companion / OSC port	ພອດ Companion / OSC
+Esc or click to skip	Esc ຫຼື ຄລິກ ເພື່ອຂ້າມ
+PLAYLIST PREFERENCES	ການຕັ້ງຄ່າ PLAYLIST
+press ENTER to start	ກົດ ENTER ເພື່ອເລີ່ມ
+ADD A SECOND PLAYLIST	ເພີ່ມ PLAYLIST ທີສອງ
+filmstrip unavailable	ບໍ່ມີແຖບຟິມ
+(empty — import media)	(ຫວ່າງ — ນຳເຂົ້າສື່)
+Ctrl+D or Esc to close	Ctrl+D ຫຼື Esc ເພື່ອປິດ
+(no notes for this cue)	(cue ນີ້ບໍ່ມີບັນທຶກ)
+Timebase / start / fade	ຖານເວລາ / ເລີ່ມ / ຈາງ
+No cues need conversion.	ບໍ່ມີ cue ໃດຕ້ອງແປງ.
+CLICK TO SAMPLE KEY COLOR	ຄລິກເພື່ອເອົາສີ KEY
+normalize loudness (R128)	ປັບຄວາມດັງ (R128)
+off - all channels silent	ປິດ - ທຸກຊ່ອງງຽບ
+no video lane for this cue	cue ນີ້ບໍ່ມີແຖວວິດີໂອ
+HyperDeck emulation is off.	ການຈຳລອງ HyperDeck ປິດຢູ່.
+OWN SCRIPT  (click to edit)	SCRIPT ຂອງຕົນເອງ  (ຄລິກເພື່ອແກ້)
+Theme and operator feedback	ຊຸດສີ ແລະ ການຕອບກັບຜູ້ຄວບຄຸມ
+Discovery and mirrored state	ການຄົ້ນຫາ ແລະ ສະຖານະທີ່ສະທ້ອນ
+FOLLOWING THE LIVE CUE NOTES	ກຳລັງຕາມບັນທຶກຂອງ CUE ສົດ
+Listening on all interfaces.	ກຳລັງຟັງທຸກເຄືອຂ່າຍ.
+Network-facing runtime notes	ບັນທຶກເຄືອຂ່າຍ ຂະນະແລ່ນ
+Hi! Press I to import a clip.	ສະບາຍດີ! ກົດ I ເພື່ອນຳເຂົ້າຄລິບ.
+Global jump and panic behavior	ການກະໂດດ ແລະ panic ຂອງທັງໂຊ
+Roll when the show cuts to you	ແລ່ນເມື່ອໂຊຕັດມາຫາເຈົ້າ
+Choose a cue to inspect it here	ເລືອກ cue ເພື່ອເບິ່ງຢູ່ນີ້
+Defaults for newly created cues	ຄ່າເລີ່ມຕົ້ນ ສຳລັບ cue ໃໝ່
+Device routing for cue playback	ເສັ້ນທາງອຸປະກອນ ສຳລັບຫຼິ້ນ cue
+Smaller buffer = lower latency.	ບັບເຟີນ້ອຍ = ໜ່ວງໜ້ອຍ.
+Emergency fade and sync behavior	ການຈາງສຸກເສີນ ແລະ ການຊິງ
+mixed selection: key unavailable	ເລືອກປົນກັນ: ໃຊ້ key ບໍ່ໄດ້
+SMPTE ST 2110-20  (EXPERIMENTAL)	SMPTE ST 2110-20  (ທົດລອງ)
+Esc=continue with current session	Esc=ສືບຕໍ່ເຊສຊັນນີ້
+no per-cue settings for this type	ປະເພດນີ້ບໍ່ມີການຕັ້ງຄ່າຕໍ່ cue
+On stop: remux to an ordinary MP4	ເມື່ອຢຸດ: ຫໍ່ຄືນເປັນ MP4 ທຳມະດາ
+Where RECORD writes the programme	ບ່ອນທີ່ RECORD ຂຽນ program
+dot-matrix cue deck for live events	ໂຕະ cue ແບບຈຸດ ສຳລັບງານສົດ
+Listening on localhost (127.0.0.1).	ກຳລັງຟັງເຄື່ອງນີ້ (127.0.0.1).
+three expressions: red, green, blue	ສາມສູດ: ແດງ, ຂຽວ, ຟ້າ
+Transport sync with another machine	ຊິງການຄວບຄຸມ ກັບເຄື່ອງອື່ນ
+Add slot sources in the cue inspector	ເພີ່ມແຫຼ່ງໃຫ້ຊ່ອງ ໃນ cue inspector
+Ask GitHub; never installs on its own	ຖາມ GitHub; ບໍ່ເຄີຍຕິດຕັ້ງເອງ
+Import or click a cue in the playlist	ນຳເຂົ້າ ຫຼື ຄລິກ cue ໃນ playlist
+mixed selection: geometry unavailable	ເລືອກປົນກັນ: ໃຊ້ເລຂາຄະນິດບໍ່ໄດ້
+generate timecode for the rig to chase	ສ້າງ timecode ໃຫ້ທັງລະບົບຕາມ
+Lower Third and PIP fire independently	Lower Third ແລະ PIP ແລ່ນແຍກກັນ
+Panels built for a vMix rig, unchanged	ແຜງສຳລັບລະບົບ vMix, ບໍ່ປ່ຽນ
+Incoming transport arrives as NMCEVENT.	ການຄວບຄຸມເຂົ້າມາເປັນ NMCEVENT.
+not in this build - saved with the show	ບໍ່ມີໃນລຸ້ນນີ້ - ບັນທຶກໄປກັບໂຊ
+Find from the playlist, not from a modal	ຊອກຈາກ playlist, ບໍ່ແມ່ນຈາກກ່ອງ
+take or select a cue to open the timeline	take ຫຼື ເລືອກ cue ເພື່ອເປີດເສັ້ນເວລາ
+Optional external transport and cue control	ຄວບຄຸມຈາກພາຍນອກ ແບບເລືອກໄດ້
+No previous show file found at startup path.	ບໍ່ພົບໄຟລ໌ໂຊກ່ອນ ທີ່ເສັ້ນທາງເລີ່ມຕົ້ນ.
+Use Ctrl+F or type a cue id/number to search.	ໃຊ້ Ctrl+F ຫຼື ພິມ id/ເລກ cue ເພື່ອຊອກ.
+Companion / OSC ingress and HyperDeck emulation	ຂາເຂົ້າ Companion / OSC ແລະ ການຈຳລອງ HyperDeck
+A/V delay holds audio back for lagging displays.	ການໜ່ວງ A/V ຖືສຽງໄວ້ ສຳລັບໜ້າຈໍຊ້າ.
+On stop: leave the crash-resilient file as it is	ເມື່ອຢຸດ: ປະໄຟລ໌ກັນລົ້ມໄວ້ຄືເກົ່າ
+same disk as Deckboy - a separate drive is safer	ດິສດຽວກັບ Deckboy - ດິສແຍກ ປອດໄພກວ່າ
+A step fires one cue on each playlist, all at once.	ໜຶ່ງຂັ້ນ ແລ່ນໜຶ່ງ cue ໃນທຸກ playlist ພ້ອມກັນ.
+one expression: the same value in red, green and blue	ໜຶ່ງສູດ: ຄ່າດຽວກັນ ສຳລັບແດງ, ຂຽວ ແລະ ຟ້າ
+NDI transport is configured per output in Video Outputs.	NDI ຕັ້ງຄ່າຕໍ່ output ໃນ ຂາອອກວິດີໂອ.
+Sends PLAY / PAUSE / STOP / LOCATE as the transport moves.	ສົ່ງ PLAY / PAUSE / STOP / LOCATE ເມື່ອການຄວບຄຸມເຄື່ອນ.
+OSC subscribe: send /deckboy/subscribe from your controller.	OSC subscribe: ສົ່ງ /deckboy/subscribe ຈາກຕົວຄວບຄຸມ.
+NMC mode / host / port are runtime-configurable for sync work.	ໂໝດ / ເຄື່ອງ / ພອດ NMC ປ່ຽນໄດ້ ຂະນະແລ່ນ.
+Going on air takes the cue. Deckboy never sends the switcher a command.	ຂຶ້ນອາກາດ ຄື take cue. Deckboy ບໍ່ເຄີຍສັ່ງ switcher.
+FPS: ON	FPS: ເປີດ
+FPS: OFF	FPS: ປິດ
+NMOS: ON	NMOS: ເປີດ
+NMOS: OFF	NMOS: ປິດ
+SPOUT: ON	SPOUT: ເປີດ
+SPOUT: OFF	SPOUT: ປິດ
+CANVAS: ON	CANVAS: ເປີດ
+CANVAS: OFF	CANVAS: ປິດ
+10-BIT: ON	10-BIT: ເປີດ
+10-BIT: OFF	10-BIT: ປິດ
+EDIT...	ແກ້ໄຂ...
+FOLDER...	ໂຟນເດີ...
+ARRANGE...	ຈັດວາງ...
+ADD FILE...	ເພີ່ມໄຟລ໌...
+RENUMBER...	ລຽງເລກໃໝ່...
+set a port...	ຕັ້ງພອດ...
+no script	ບໍ່ມີ script
++ OUTPUT	+ OUTPUT
+Eddie's Clock	ໂມງຂອງ Eddie
+Ctrl+/ to close	Ctrl+/ ເພື່ອປິດ
+(step lives here)	(ຂັ້ນຢູ່ທີ່ນີ້)
+4:2:2  8-BIT	4:2:2  8-BIT
+4:2:2  10-BIT	4:2:2  10-BIT
+No outputs — click + OUTPUT to add one.	ບໍ່ມີ output — ຄລິກ + OUTPUT ເພື່ອເພີ່ມ.
+ATEM, NDI trigger, NMC, MTC, LTC, Art-Net, and Tally/TSL	ATEM, NDI trigger, NMC, MTC, LTC, Art-Net ແລະ Tally/TSL
+Convert cues Deckboy can't play (or plays poorly) to H.264	ແປງເປັນ H.264 cue ທີ່ Deckboy ຫຼິ້ນບໍ່ໄດ້ (ຫຼື ຫຼິ້ນບໍ່ດີ)
+a button can run any command the network protocol understands	ປຸ່ມໜຶ່ງ ແລ່ນຄຳສັ່ງໃດກໍໄດ້ ທີ່ໂປຣໂຕຄອນເຄືອຂ່າຍເຂົ້າໃຈ
+ARRANGE PRESENTER  -  drag a panel to move it, a corner to size it	ຈັດວາງຜູ້ນຳສະເໜີ  -  ລາກແຜງເພື່ອຍ້າຍ, ລາກມຸມເພື່ອປັບຂະໜາດ
+capture again - what is on now	ຖ່າຍຄືນ - ສິ່ງທີ່ສົດຢູ່
+change what it does...	ປ່ຽນສິ່ງທີ່ມັນເຮັດ...
+decks - Stop deck...	deck - ຢຸດ deck...
+decks - Take deck...	deck - Take deck...
+delete step	ລຶບຂັ້ນ
+delete this button	ລຶບປຸ່ມນີ້
+label, command and glyph as text...	ປ້າຍ, ຄຳສັ່ງ ແລະ ສັນຍາລັກ ເປັນຂໍ້ຄວາມ...
+move down	ລົງ
+move up	ຂຶ້ນ
+next colour	ສີຕໍ່ໄປ
+preset - a new preset from what is on now	preset - preset ໃໝ່ ຈາກສິ່ງທີ່ສົດຢູ່
+type a command myself...	ພິມຄຳສັ່ງເອງ...
+type a length in seconds...	ພິມຄວາມຍາວ ເປັນວິນາທີ...
+wait for GO	ລໍຖ້າ GO
+what it recalls...	ສິ່ງທີ່ມັນເອີ້ນຄືນ...
+when its cues end	ເມື່ອ cue ຂອງມັນຈົບ
+AUDIONORM ALL matches the whole playlist at once	AUDIONORM ALL ປັບທັງ playlist ເທື່ອດຽວ
+back to the in point, not to zero	ກັບໄປຈຸດເຂົ້າ, ບໍ່ແມ່ນສູນ
+drag to scrub. the audio follows	ລາກເພື່ອເລື່ອນ. ສຽງຕາມໄປ
+loops between the in and out points, not the file	ວົນລະຫວ່າງຈຸດເຂົ້າ ແລະ ຈຸດອອກ, ບໍ່ແມ່ນທັງໄຟລ໌
+(not set)	(ຍັງບໍ່ໄດ້ຕັ້ງ)
+1.00x  (default 1080p)	1.00x  (1080p ເລີ່ມຕົ້ນ)
+1.25x  (large desktop)	1.25x  (ໜ້າຈໍໃຫຍ່)
+1.50x  (4K desktop)	1.50x  (ໜ້າຈໍ 4K)
+2.00x  (Pocket 3 / 4K small)	2.00x  (Pocket 3 / 4K ນ້ອຍ)
+highest bandwidth	ແບນວິດສູງສຸດ
+lower bandwidth	ແບນວິດຕ່ຳກວ່າ
+film	ຮູບເງົາ
+CD, music rigs	CD, ລະບົບດົນຕີ
+video standard	ມາດຕະຖານວິດີໂອ
+every playlist	ທຸກ playlist
+None  (no character art)	ບໍ່ມີ  (ບໍ່ມີຮູບຕົວລະຄອນ)
+custom size...	ຂະໜາດກຳນົດເອງ...
+Browser URL	URL ບຣາວເຊີ
+Camera	ກ້ອງ
+Media File / Still	ໄຟລ໌ສື່ / ຮູບນິ່ງ
+RECORD TO FILE	ອັດລົງໄຟລ໌
+browser, with sound	ບຣາວເຊີ, ມີສຽງ
+Window	ໜ້າຕ່າງ
+Desktop	ໜ້າຈໍຫຼັກ
+full screen	ເຕັມຈໍ
+DeckLink Output	ຂາອອກ DeckLink
+FFmpeg Stream Output	ຂາອອກ stream FFmpeg
+NDI Output	ຂາອອກ NDI
+SDL Window Output	ຂາອອກໜ້າຕ່າງ SDL
+Spout Output	ຂາອອກ Spout
+DESK	ໂຕະ
+drop a folder in too - it reads the whole tree	ວາງທັງໂຟນເດີກໍໄດ້ - ມັນອ່ານທັງໝົດ
+cameras, windows, NDI, screens - all live sources	ກ້ອງ, ໜ້າຕ່າງ, NDI, ໜ້າຈໍ - ທຸກແຫຼ່ງສົດ
+test cards and generators - no file needed	ບັດທົດສອບ ແລະ ຕົວສ້າງ - ບໍ່ຕ້ອງມີໄຟລ໌
+space bar does this too, without moving your hand	ປຸ່ມຍະຫວ່າງ ກໍເຮັດໄດ້ ບໍ່ຕ້ອງຍ້າຍມື
+stops the cue. ESC stops EVERYTHING	ຢຸດ cue. ESC ຢຸດທຸກຢ່າງ
+the safe one: audio and playback keep running	ແບບປອດໄພ: ສຽງ ແລະ ການຫຼິ້ນ ຍັງແລ່ນ
+the thorough one. blackout is the reversible one	ແບບລະອຽດ. ມືດ ແມ່ນແບບທີ່ກັບຄືນໄດ້
+save as makes a new file instead	ບັນທຶກເປັນ ຈະສ້າງໄຟລ໌ໃໝ່
+for a copy before you change something risky	ສຳລັບສຳເນົາ ກ່ອນປ່ຽນສິ່ງສ່ຽງ
+this is what you carry to the venue	ນີ້ແມ່ນສິ່ງທີ່ເຈົ້າເອົາໄປສະຖານທີ່
+the show on disk is untouched until you save	ໂຊໃນດິສບໍ່ປ່ຽນ ຈົນກວ່າເຈົ້າບັນທຶກ
+per cue. the deck has its own default too	ຕໍ່ cue. deck ກໍມີຄ່າເລີ່ມຕົ້ນຂອງມັນ
+stills hold instead - a fade would dip the frame	ຮູບນິ່ງຈະຄ້າງໄວ້ - ການຈາງຈະເຮັດໃຫ້ພາບມືດ
+the frame stays up. good for slides	ພາບຄ້າງຢູ່. ດີສຳລັບສະໄລ
+gain, pan and normalise live in the inspector	ຄວາມດັງ, ຊ້າຍຂວາ ແລະ ປັບລະດັບ ຢູ່ໃນ inspector
+this clip has no audio track to enable	ຄລິບນີ້ບໍ່ມີແທຣັກສຽງໃຫ້ເປີດ
+Hi! I am Deckboy.	ສະບາຍດີ! ຂ້ອຍຄື Deckboy.
+Press I to import a clip.	ກົດ I ເພື່ອນຳເຂົ້າຄລິບ.
+Enter takes a cue live.	Enter ເອົາ cue ຂຶ້ນສົດ.
+S stops the live cue.	S ຢຸດ cue ສົດ.
+The timeline can be resized.	ເສັ້ນເວລາ ປັບຂະໜາດໄດ້.
+Try a terminal theme in Settings.	ລອງຊຸດສີ terminal ໃນ ຕັ້ງຄ່າ.
+RELINK finds media that has moved.	RELINK ຊອກສື່ທີ່ຖືກຍ້າຍ.
+Cues have their own gain and fades.	Cue ມີຄວາມດັງ ແລະ ການຈາງຂອງມັນເອງ.
+Trim with Ctrl+I and Ctrl+O.	ຕັດດ້ວຍ Ctrl+I ແລະ Ctrl+O.
+Ctrl+/ shows every shortcut.	Ctrl+/ ສະແດງທຸກປຸ່ມລັດ.
+J jumps to the live cue.	J ກະໂດດໄປ cue ສົດ.
+Normalize matches loudness across cues.	ປັບລະດັບ ເຮັດໃຫ້ຄວາມດັງ cue ເທົ່າກັນ.
+Esc clears the desk, then the output, then quits.	Esc ລ້າງໂຕະ, ແລ້ວ output, ແລ້ວອອກ.
+Stream SRT and RTMP at the same time.	ຖ່າຍທອດ SRT ແລະ RTMP ພ້ອມກັນ.
+CHECK lists what is broken, before doors.	CHECK ບອກສິ່ງທີ່ເສຍ ກ່ອນເປີດປະຕູ.
+A cue can wait before it starts.	Cue ລໍຖ້າກ່ອນເລີ່ມໄດ້.
+A cue can start the next one by itself.	Cue ເລີ່ມ cue ຕໍ່ໄປເອງໄດ້.
+Disarm a cue and GO steps over it.	ປິດ cue ແລ້ວ GO ຈະຂ້າມມັນ.
+Audition plays a cue to you, not the room.	ຟັງກ່ອນ ຫຼິ້ນ cue ໃຫ້ເຈົ້າ ບໍ່ແມ່ນຫ້ອງ.
+Preload racks the next cue warm, off air.	ໂຫຼດລ່ວງໜ້າ ກຽມ cue ຕໍ່ໄປ ນອກອາກາດ.
+A target cue starts or stops another cue.	Cue ເປົ້າໝາຍ ເລີ່ມ ຫຼື ຢຸດ cue ອື່ນ.
+A fade cue takes a deck down, then stops it.	Cue ຈາງ ຫຼຸດ deck ລົງ ແລ້ວຢຸດມັນ.
+A master cue fires one cue on every deck.	Cue ຫຼັກ ແລ່ນໜຶ່ງ cue ໃນທຸກ deck.
+A MIDI cue can tell the lighting desk to go.	Cue MIDI ບອກໂຕະໄຟໃຫ້ໄປໄດ້.
+A network cue speaks OSC, UDP or TCP.	Cue ເຄືອຂ່າຍ ເວົ້າ OSC, UDP ຫຼື TCP.
+A DMX cue fades the house lights on a cue.	Cue DMX ຫຼີ່ໄຟຫ້ອງ ຕາມ cue.
+A script cue runs Deckboy's own commands.	Cue script ແລ່ນຄຳສັ່ງຂອງ Deckboy ເອງ.
+A timecode cue jams LTC to a value.	Cue timecode jam LTC ເປັນຄ່າໜຶ່ງ.
+Each output can show a different deck.	ແຕ່ລະ output ສະແດງ deck ຕ່າງກັນໄດ້.
+The matrix sends audio to any channel.	ມາຕຣິກສົ່ງສຽງໄປຊ່ອງໃດກໍໄດ້.
+The panel map numbers every LED tile.	ແຜນທີ່ແຜງ ລຽງເລກທຸກແຜ່ນ LED.
+Hey!	ເຮີ້!
+Quit it!	ພໍແລ້ວ!
+Ow. That was rude.	ໂອ້ຍ. ບໍ່ສຸພາບເລີຍ.
+I am a professional.	ຂ້ອຍເປັນມືອາຊີບ.
+Seriously?	ແທ້ບໍ?
+This is my monitor.	ນີ້ແມ່ນຈໍຂອງຂ້ອຍ.
+I am telling the operator.	ຂ້ອຍຈະບອກຜູ້ຄວບຄຸມ.
+All right. Wow.	ເອີ. ໂອ້ໂຫ.
+Right. That does it.	ເອົາລະ. ພໍແລ້ວ.
+I am leaving. Good luck with the show.	ຂ້ອຍໄປລະ. ໂຊກດີກັບໂຊ.
+Still here? Me too.	ຍັງຢູ່ບໍ? ຂ້ອຍກໍຄືກັນ.
+Long show, huh.	ໂຊຍາວແທ້ເນາະ.
+I could do this all day. Apparently.	ຂ້ອຍເຮັດແບບນີ້ໄດ້ທັງມື້. ເບິ່ງຄືວ່າ.
+You have been staring at me for hours.	ເຈົ້າຈ້ອງຂ້ອຍ ຫຼາຍຊົ່ວໂມງແລ້ວ.
+Has anyone seen a clock?	ມີໃຜເຫັນໂມງບໍ?
+Is it still the same show?	ຍັງແມ່ນໂຊເກົ່າບໍ?
+I'm not tired. You're tired.	ຂ້ອຍບໍ່ເມື່ອຍ. ເຈົ້າເມື່ອຍ.
+Five more minutes. Then five more.	ອີກຫ້ານາທີ. ແລ້ວອີກຫ້າ.
+A whole day. I need a restart.	ທັງມື້. ຂ້ອຍຕ້ອງເລີ່ມໃໝ່.
+Save the show. Then let me sleep.	ບັນທຶກໂຊ. ແລ້ວໃຫ້ຂ້ອຍນອນ.
+Every pixel of me is tired.	ທຸກ pixel ຂອງຂ້ອຍເມື່ອຍ.
+Close me. Open me. I'll be fine.	ປິດຂ້ອຍ. ເປີດຂ້ອຍ. ຂ້ອຍຈະດີ.
+
+# What the desk face says when you switch to this language: a local saying, not a translation.
+@hello	ສະບາຍດີ! ເຂົ້າໜຽວກ່ອນ ແລ້ວຄ່ອຍໂຊ. ບໍ່ເປັນຫຍັງ.
+Oh hey. It's 4:20. Take it easy.	ໂອ້, ສະບາຍດີ. 4:20 ແລ້ວ. ຄ່ອຍໆ.
+
+# --- tutorials: tools/lesson_strings.py (a whole line each) ---
+HELLO	ສະບາຍດີ
+Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me.	Dobar den, skapi. ສະບາຍດີ! ຂ້ອຍຄື Dr. Pixel. ຫ້ານາທີ ແລ້ວເຈົ້າຈະແລ່ນໂຊໄດ້. ໜ້ອຍກວ່ານັ້ນ ຖ້າເຈົ້າຟັງຂ້ອຍ.
+And I'm Professor Video. Synths first, then video. Mostly video now. Press START and we'll patch... we'll begin.	ແລະ ຂ້ອຍຄື ອາຈານ Video. synth ກ່ອນ ແລ້ວຈຶ່ງວິດີໂອ. ດຽວນີ້ ສ່ວນຫຼາຍແມ່ນວິດີໂອ. ກົດ START ແລ້ວພວກເຮົາຈະຕໍ່ສາຍ... ຈະເລີ່ມ.
+TURN THE OUTPUT ON	ເປີດ OUTPUT
+Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	Skapi, ໜ້າຈໍຫວ່າງເປົ່າ. ຢ່າໃຫ້ເຂົາລໍຖ້າ. ເປີດ MENU ແລ້ວປ່ຽນ OUTPUT OFF ເປັນ OUTPUT ON. ໄວໆ!
+Lesson one: nothing comes out until you patch the oscillator to the... the OUTPUT. It's video. I know.	ບົດທີໜຶ່ງ: ບໍ່ມີຫຍັງອອກມາ ຈົນກວ່າເຈົ້າຕໍ່ oscillator ໃສ່... ໃສ່ OUTPUT. ມັນແມ່ນວິດີໂອ. ຂ້ອຍຮູ້.
+BRING IN A CLIP	ນຳຄລິບເຂົ້າມາ
+Now a picture. Press I and pick a clip from your computer. No clip? SHOW ME, and I lend you one of mine.	ດຽວນີ້ ຮູບ. ກົດ I ແລ້ວເລືອກຄລິບ ຈາກຄອມຂອງເຈົ້າ. ບໍ່ມີຄລິບບໍ? SHOW ME ຂ້ອຍຈະໃຫ້ຢືມອັນໜຶ່ງ.
+Every clip becomes a cue in the playlist. Like loading a sample. A sample with pictures in it.	ທຸກຄລິບ ກາຍເປັນ cue ໃນ playlist. ຄືກັບໂຫຼດ sample. sample ທີ່ມີຮູບຢູ່ໃນ.
+TAKE IT LIVE	ເອົາຂຶ້ນສົດ
+Your clip waits in the playlist. Select it, then TAKE. Or Enter. Confident operators press Enter.	ຄລິບຂອງເຈົ້າ ລໍຢູ່ໃນ playlist. ເລືອກມັນ ແລ້ວ TAKE. ຫຼື Enter. ຜູ້ຄວບຄຸມທີ່ໝັ້ນໃຈ ກົດ Enter.
+TAKE is the envelope trigger. The, ah, the GO button. Same thing, it just has pictures in it.	TAKE ຄືໄກຂອງ envelope. ເອີ... ປຸ່ມ GO. ອັນດຽວກັນ ພຽງແຕ່ມີຮູບ.
+LINE UP THE NEXT ONE	ກຽມອັນຕໍ່ໄປ
+Click another cue. It waits, ready, until you say. Only one cue? Import another, or SHOW ME.	ຄລິກ cue ອື່ນ. ມັນລໍຖ້າ ພ້ອມ ຈົນກວ່າເຈົ້າສັ່ງ. ມີ cue ດຽວບໍ? ນຳເຂົ້າອີກອັນ ຫຼື SHOW ME.
+Selecting is not playing. The selected one is the next note in the sequence. The next CUE.	ເລືອກ ບໍ່ແມ່ນ ຫຼິ້ນ. ອັນທີ່ເລືອກ ຄືໂນດຕໍ່ໄປ ໃນລຳດັບ. CUE ຕໍ່ໄປ.
+CROSSFADE TO IT	CROSSFADE ໄປຫາມັນ
+Cuts are for amateurs. In the inspector, press + on transition, so it shows a time, not deck. Then TAKE.	ຕັດກົງ ສຳລັບມືໃໝ່. ໃນ inspector ກົດ + ທີ່ transition ຈົນມັນສະແດງເວລາ ບໍ່ແມ່ນ deck. ແລ້ວ TAKE.
+A crossfade! Portamento, but for pictures. Any time will do. A few more presses and it's a second. Then TAKE.	Crossfade! portamento ແຕ່ສຳລັບຮູບ. ເວລາໃດກໍງາມ. ກົດອີກຈັກເທື່ອ ກໍເປັນໜຶ່ງວິນາທີ. ແລ້ວ TAKE.
+CLEAR THE SCREEN	ລ້າງໜ້າຈໍ
+Something goes wrong on stage? Press BLACK, or B. The picture goes. The show keeps running underneath.	ມີຫຍັງຜິດ ເທິງເວທີບໍ? ກົດ BLACK ຫຼື B. ຮູບຫາຍໄປ. ໂຊຍັງແລ່ນຢູ່ຂ້າງລຸ່ມ.
+Nothing is lost. Press B again and it comes back. Like the mute on a mixer. Very calming.	ບໍ່ມີຫຍັງເສຍ. ກົດ B ອີກ ມັນກັບມາ. ຄືປຸ່ມ mute ເທິງ mixer. ສະຫງົບຫຼາຍ.
+SAVE THE SHOW	ບັນທຶກໂຊ
+Now save. Ctrl+S, or SAVE. Some programs lose your work and then blame you. I would never.	ດຽວນີ້ ບັນທຶກ. Ctrl+S ຫຼື ບັນທຶກ. ບາງໂປຣແກຣມ ເຮັດວຽກເຈົ້າເສຍ ແລ້ວໂທດເຈົ້າ. ຂ້ອຍບໍ່ເຄີຍ.
+Save your patch. Your SHOW. Show. This practice one lives in Deckboy's own folder; yours is safe.	ບັນທຶກ patch ຂອງເຈົ້າ. ໂຊຂອງເຈົ້າ. ໂຊ. ອັນທົດລອງນີ້ ຢູ່ໃນໂຟນເດີ Deckboy; ອັນຂອງເຈົ້າ ປອດໄພ.
+THAT'S A SHOW	ນັ້ນແມ່ນໂຊ
+That's a show! Output, cue, TAKE, crossfade, BLACK, save. Nazdrave, skapi. Rakia is on me.	ນັ້ນແມ່ນໂຊ! Output, cue, TAKE, crossfade, BLACK, ບັນທຶກ. Nazdrave, skapi. Rakia ຂ້ອຍລ້ຽງ. ແຮງກວ່າເຫຼົ້າລາວ ລະວັງເດີ້.
+Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	ຈົບບົດ. ໂຊຕົວຢ່າງ ສອນ layer, ຫົວຂໍ້ ແລະ effect. MENU > LEARN THE BASICS ຫຼິ້ນບົດນີ້ອີກ.
+*shakes head* That means yes. Bravo.	*ສ່າຍຫົວ* ນັ້ນໝາຍຄວາມວ່າ ແມ່ນ. ແຊບ!
+Wonderful! Lovely signal flow.	ດີເລີດ! ສາຍສັນຍານງາມ.
+Mm. I knew you had it in you.	ອືມ. ຂ້ອຍຮູ້ວ່າເຈົ້າເຮັດໄດ້.
+Yes! Have a gold star. It's a dot.	ແມ່ນແລ້ວ! ເອົາດາວຄຳໄປ. ມັນເປັນຈຸດ.
+Ready for the next step? *nods* ...That means no, skapi. The glowing one. It is glowing for you.	ພ້ອມສຳລັບຂັ້ນຕໍ່ໄປບໍ? *ພະຍັກໜ້າ* ...ຢູ່ Bulgaria ນັ້ນແມ່ນ ບໍ່ skapi. ອັນທີ່ເຫຼື້ອມ. ມັນເຫຼື້ອມໃຫ້ເຈົ້າ.
+You've clicked everything but the glowing one. Even my oscillators find the glowing one.	ເຈົ້າຄລິກທຸກອັນ ຍົກເວັ້ນອັນທີ່ເຫຼື້ອມ. ແມ່ນແຕ່ oscillator ຂອງຂ້ອຍ ຍັງຊອກພົບອັນທີ່ເຫຼື້ອມ.
+stop playback first - the lesson cannot hand a running show back as it was	ຢຸດການຫຼິ້ນກ່ອນ - ບົດຮຽນ ສົ່ງໂຊທີ່ກຳລັງແລ່ນ ຄືນຄືເກົ່າບໍ່ໄດ້
+choose RECOVER or KEEP SAVED first	ເລືອກ RECOVER ຫຼື KEEP SAVED ກ່ອນ
+your show could not be saved, so the lesson has not started. Save it (SAVE AS) and try again	ບັນທຶກໂຊຂອງເຈົ້າບໍ່ໄດ້ ບົດຮຽນຈຶ່ງຍັງບໍ່ເລີ່ມ. ບັນທຶກມັນ (ບັນທຶກເປັນ) ແລ້ວລອງໃໝ່
+the practice show would not open	ເປີດໂຊທົດລອງບໍ່ໄດ້
+could not start the practice show	ເລີ່ມໂຊທົດລອງບໍ່ໄດ້
+learn the basics: Esc leaves, and it picks up here next time	learn the basics: Esc ອອກ ເທື່ອໜ້າ ສືບຕໍ່ຈາກນີ້
+that's the basics - MENU > LESSONS has part two	ພື້ນຖານມີເທົ່ານີ້ - MENU > LESSONS ມີພາກສອງ
+tour paused - LEARN THE BASICS picks up where you left off	ພັກໄວ້ - LEARN THE BASICS ສືບຕໍ່ຈາກບ່ອນທີ່ເຈົ້າຢຸດ
+Mirrored screens, skapi. Press any key or click, and Dr. Pixel gives it back.	ໜ້າຈໍສະທ້ອນກັນ skapi. ກົດປຸ່ມໃດກໍໄດ້ ຫຼື ຄລິກ ແລ້ວ Dr. Pixel ຈະຄືນໃຫ້.
+Wrong screen, skapi. Press any key or click, and Dr. Pixel gives it back.	ຜິດໜ້າຈໍ skapi. ກົດປຸ່ມໃດກໍໄດ້ ຫຼື ຄລິກ ແລ້ວ Dr. Pixel ຈະຄືນໃຫ້.
+The other screen went away, skapi. Press any key or click, and Dr. Pixel gives it back.	ໜ້າຈໍອີກອັນ ຫາຍໄປ skapi. ກົດປຸ່ມໃດກໍໄດ້ ຫຼື ຄລິກ ແລ້ວ Dr. Pixel ຈະຄືນໃຫ້.
+One screen, skapi. Press any key or click, and Dr. Pixel gives it back.	ໜ້າຈໍດຽວ skapi. ກົດປຸ່ມໃດກໍໄດ້ ຫຼື ຄລິກ ແລ້ວ Dr. Pixel ຈະຄືນໃຫ້.
+The other screen went away, skapi, so the picture came back to this one. I put it in a little window, behind. Plug it back in and the picture goes back on it.	ໜ້າຈໍອີກອັນ ຫາຍໄປ skapi ຮູບຈຶ່ງກັບມາຈໍນີ້. ຂ້ອຍໃສ່ມັນໃນໜ້າຕ່າງນ້ອຍ ຢູ່ທາງຫຼັງ. ສຽບຄືນ ແລ້ວຮູບຈະກັບໄປ.
+It ate the desk, skapi. One screen, so the output took all of it. I put it in a little window, behind. A real show gets a second screen.	ມັນກິນໂຕະແລ້ວ skapi. ໜ້າຈໍດຽວ output ຈຶ່ງເອົາໄປໝົດ. ຂ້ອຍໃສ່ມັນໃນໜ້າຕ່າງນ້ອຍ ຢູ່ທາງຫຼັງ. ໂຊແທ້ ມີໜ້າຈໍທີສອງ.
+IT ATE THE DESK	ມັນກິນໂຕະ
+There. The button that says OUTPUT OFF. Make it say ON, skapi.	ນັ້ນ. ປຸ່ມທີ່ຂຽນ OUTPUT OFF. ເຮັດໃຫ້ມັນເປັນ ON skapi.
+Nothing is live to fade from, skapi. TAKE one cue first, then pick the other and give it a time.	ບໍ່ມີຫຍັງສົດ ໃຫ້ຈາງອອກ skapi. TAKE cue ໜຶ່ງກ່ອນ ແລ້ວເລືອກອີກອັນ ແລະ ໃຫ້ເວລາ.
+That was a cut, skapi. Fast, but not a crossfade. Pick the other cue, press + on transition, then TAKE.	ນັ້ນແມ່ນຕັດກົງ skapi. ໄວ ແຕ່ບໍ່ແມ່ນ crossfade. ເລືອກ cue ອີກອັນ ກົດ + ທີ່ transition ແລ້ວ TAKE.
+A feedback loop! Output patched straight back into the desk. Happens to the best of us. Mostly to me. 1983. We don't talk about 1983.	ວົງ feedback! Output ຕໍ່ກັບເຂົ້າໂຕະ. ເກີດກັບຄົນເກັ່ງທີ່ສຸດ. ສ່ວນຫຼາຍແມ່ນຂ້ອຍ. 1983. ພວກເຮົາບໍ່ເວົ້າເຖິງ 1983.
+No more rakia. The rat has a problem.	ໝົດ rakia ແລ້ວ. ໜູມີບັນຫາ.
+Nazdrave, skapi! Baba's rakia, from the Rhodopes. One glass, for the lesson.	Nazdrave, skapi! Rakia ຂອງແມ່ຕູ້ ຈາກ Rhodope. ໜຶ່ງຈອກ ສຳລັບບົດຮຽນ. ແລ້ວເບຍລາວເຢັນໆ ໜຶ່ງຈອກ.
+Is this... is this allowed during a tutorial?	ອັນນີ້... ອັນນີ້ ອະນຸຍາດ ໃນບົດຮຽນບໍ?
+*shakes head* That means one more.	*ສ່າຍຫົວ* ໝາຍຄວາມວ່າ ອີກຈອກ.
+I love you all. I love the oscillator. I love the OUTPUT. It's video. I know. I KNOW.	ຂ້ອຍຮັກພວກເຈົ້າທຸກຄົນ. ຂ້ອຍຮັກ oscillator. ຂ້ອຍຮັກ OUTPUT. ມັນແມ່ນວິດີໂອ. ຂ້ອຍຮູ້. ຂ້ອຍຮູ້!
+...and the rat took the rakia. Every time, skapi. Every single time.	...ແລ້ວໜູ ເອົາ rakia ໄປ. ທຸກເທື່ອ skapi. ທຸກເທື່ອ.
+Was that a rat? In a hat? With a pizza?	ນັ້ນແມ່ນໜູບໍ? ໃສ່ໝວກ? ຖືພິດຊ່າ?
+Stop that. I am a serious man.	ຢຸດ. ຂ້ອຍເປັນຄົນຈິງຈັງ.
+Do not tell Dr. Pixel about this.	ຢ່າບອກ Dr. Pixel ເລື່ອງນີ້.
+This never happened. Back to the patch bay.	ເລື່ອງນີ້ບໍ່ເຄີຍເກີດ. ກັບໄປ patch bay.
+It was the eighties. Everyone had a bow tie.	ຍຸກແປດສິບ. ທຸກຄົນມີໂບຜູກຄໍ.
+LESSON LIST	ລາຍການບົດຮຽນ
+OPEN EXAMPLE SHOWS	ເປີດໂຊຕົວຢ່າງ
+EXIT (Esc)	ອອກ (Esc)
+Taking it on the road	ໂຊອອກເດີນທາງ
+CHECK a show before it travels, fix what it finds, and bundle it with its media.	CHECK ກ່ອນເດີນທາງ ແກ້ສິ່ງທີ່ມັນພົບ ແລ້ວ BUNDLE ພ້ອມສື່ຂອງມັນ.
+Effects, oscillators and colour	Effect, oscillator ແລະ ສີ
+An effect, a ~ on its knob, and the colour picker.	effect ໜຶ່ງ, ~ ເທິງປຸ່ມຂອງມັນ ແລະ ຕົວເລືອກສີ.
+The art school crit, with Mr. Salty	ການວິຈານທີ່ໂຮງຮຽນສິລະປະ ກັບ Mr. Salty
+Patterns, synths and Draw	ຮູບແບບ, synth ແລະ Draw
+A test pattern, the video synth, and drawing on the picture, saved as a still.	ຮູບທົດສອບ synth ວິດີໂອ ແລະ ແຕ້ມເທິງຮູບ ບັນທຶກເປັນຮູບນິ່ງ.
+The telestrator booth, with Coach Marv	ຫ້ອງ telestrator ກັບ Coach Marv
+Masks	Mask
+A heart from the library, the pen, invert and feather.	ຫົວໃຈຈາກຫ້ອງສະໝຸດ ປາກກາ ກັບດ້ານ ແລະ ເຮັດໃຫ້ອ່ອນ.
+The Signal Files: redact the evidence	ແຟ້ມສັນຍານ: ເຊື່ອງຫຼັກຖານ
+Warp, blend and slices	Warp, blend ແລະ slice
+A corner pin, two soft edges, then three slices in the Screens window.	Corner pin ສອງຂອບອ່ອນ ແລ້ວສາມ slice ໃນໜ້າຕ່າງ Screens.
+The haunted lighthouse, with Keeper Rook	ຫໍໄຟມີຜີ ກັບຄົນເຝົ້າຫໍໄຟ Rook
+GO from anywhere	GO ຈາກທຸກບ່ອນ
+Cue numbers, GOTO, a hotkey, and where Companion, MIDI and OSC come in.	ເລກ cue, GOTO, ປຸ່ມລັດ ແລະ Companion, MIDI ແລະ OSC ເຂົ້າມາຈາກໃສ.
+The game show, with Donna Wheel	ເກມໂຊໂທລະທັດ ກັບ Donna Wheel
+Words on screen	ຄຳເທິງໜ້າຈໍ
+A Lower Third with a name on it, then a title card with a key-green backdrop.	Lower Third ທີ່ມີຊື່ ແລ້ວບັດຫົວຂໍ້ ເທິງພື້ນຂຽວ key.
+The kaiju weather report, with June O'Neil	ພະຍາກອນອາກາດ kaiju ກັບ June O'Neil
+Keeping time	ຮັກສາເວລາ
+A stage timer counting down, held, and a presenter view for the person on stage.	ໂມງເວທີ ທີ່ນັບ ພັກ ແລະ ຈໍຜູ້ນຳສະເໜີ ສຳລັບຄົນເທິງເວທີ.
+A grand day out, with Wallis and Grommet	ມື້ຍິ່ງໃຫຍ່ ກັບ Wallis ແລະ Grommet
+Two playlists and TAKE ALL	ສອງ playlist ແລະ TAKE ALL
+A second playlist as a layer, and TAKE ALL so two things change on one beat.	playlist ທີສອງ ເປັນ layer ແລະ TAKE ALL ປ່ຽນສອງຢ່າງ ໃນຈັງຫວະດຽວ.
+The magic show, with Turnip Top	ໂຊມາຍາກົນ ກັບ Turnip Top
+When it goes wrong	ເມື່ອມີບັນຫາ
+BLACK against PANIC, and getting a show back.	BLACK ທຽບກັບ PANIC ແລະ ການເອົາໂຊຄືນ.
+The cooking show, with Chef Bork	ໂຊເຮັດອາຫານ ກັບ Chef Bork
+Presets	Preset
+Capture a look on a DASH button, change everything, and get it back with one press.	ເກັບພາບໄວ້ໃນປຸ່ມ DASH ປ່ຽນທຸກຢ່າງ ແລ້ວເອົາຄືນດ້ວຍຄລິກດຽວ.
+Transitions	Transition
+The styles beyond the crossfade: an iris, a shatter, and their times.	ແບບຫຼັງ crossfade: iris, shatter ແລະ ເວລາຂອງມັນ.
+The space-opera trailer, with Optimus Primetime	ຕົວຢ່າງໜັງອະວະກາດ ກັບ Optimus Primetime
+Sound	ສຽງ
+An audio effect on a cue, a bend that damages it beautifully, and where the patch lives.	effect ສຽງ ເທິງ cue, bend ທີ່ທຳລາຍມັນ ຢ່າງງາມ ແລະ ບ່ອນທີ່ patch ຢູ່.
+The robot DJs, with Deft Funk	DJ ຫຸ່ນຍົນ ກັບ Deft Funk
+Reading the scopes	ອ່ານ scope
+The waveform, the vectorscope, and false colour: is the glow real, or just too bright?	Waveform, vectorscope ແລະ ສີປອມ: ແສງແທ້ ຫຼື ພຽງແຈ້ງເກີນ?
+The Signal Files: is the glow on the horizon a craft?	ແຟ້ມສັນຍານ: ແສງເທິງຂອບຟ້າ ແມ່ນຍານບໍ?
+Out of the building	ອອກນອກອາຄານ
+Where NDI, SDI and ST 2110 live, and NDI switched on where this computer has it.	NDI, SDI ແລະ ST 2110 ຢູ່ໃສ ແລະ ເປີດ NDI ບ່ອນທີ່ເຄື່ອງນີ້ມີ.
+The webcam as a controller, as a game. Five rounds, a high score.	ເວັບແຄມ ເປັນຕົວຄວບຄຸມ ເປັນເກມ. ຫ້າຮອບ ຄະແນນສູງສຸດ.
+A handheld, and bugs	ເຄື່ອງມືຖື ແລະ ແມງໄມ້
+The multiview	Multiview
+Windows, the ... menu, what each one shows, layouts, and tally.	ໜ້າຕ່າງ ເມນູ ... ແຕ່ລະອັນສະແດງຫຍັງ layout ແລະ tally.
+Mystery on the starship Cathode, with Lt. Haila and Ensign Jinkley	ຄວາມລັບເທິງຍານອະວະກາດ Cathode ກັບ Lt. Haila ແລະ Ensign Jinkley
+DR. PIXEL: Two playlists: Deckboy becomes SUPER DECKBOY. It earned it, skapi.	DR. PIXEL: ສອງ playlist: Deckboy ກາຍເປັນ SUPER DECKBOY. ສົມຄວນແລ້ວ skapi.
+PROF. VIDEO: It evolved! My oscillators never got a fanfare.	PROF. VIDEO: ມັນວິວັດແລ້ວ! oscillator ຂອງຂ້ອຍ ບໍ່ເຄີຍໄດ້ສຽງແຕດັ່ງນີ້.
+DR. PIXEL: SUPER DECKBOY! Every show deserves one. Bravo.	DR. PIXEL: SUPER DECKBOY! ທຸກໂຊສົມຄວນໄດ້. ແຊບ!
+PROF. VIDEO: The power-up! More playlists, more layers, more super.	PROF. VIDEO: ເພີ່ມພະລັງ! playlist ຫຼາຍຂຶ້ນ, layer ຫຼາຍຂຶ້ນ, super ຫຼາຍຂຶ້ນ.
+Intro video (left on the office PC)	ວິດີໂອເປີດໂຊ (ລືມໄວ້ໃນຄອມຫ້ອງການ)
+ON THE ROAD	ເທິງທາງ
+A show you built here, skapi, running on a laptop somewhere else tonight. Press START.	ໂຊທີ່ເຈົ້າເຮັດຢູ່ນີ້ skapi ຄືນນີ້ແລ່ນ ເທິງແລັບທັອບ ບ່ອນອື່ນ. ກົດ START.
+Before it travels: check it, fix it, bundle it.	ກ່ອນເດີນທາງ: ກວດ, ແກ້, ຫໍ່.
+See CHECK in the top bar? It only appears when something is wrong. Press it.	ເຫັນ CHECK ຢູ່ແຖບເທິງບໍ? ມັນປາກົດ ເມື່ອມີຫຍັງຜິດເທົ່ານັ້ນ. ຄລິກມັນ.
+It lists everything a show would trip over: missing files, empty cues, unreachable outputs.	ມັນລຽງທຸກສິ່ງ ທີ່ຈະເຮັດໃຫ້ໂຊສະດຸດ: ໄຟລ໌ຂາດ, cue ຫວ່າງ, output ບໍ່ໄດ້ຕໍ່.
+FIX IT	ແກ້ມັນ
+The intro video is on another computer. Select it and delete it, or RELINK it if you have the file.	ວິດີໂອເປີດໂຊ ຢູ່ໃນຄອມອື່ນ. ເລືອກມັນ ແລ້ວລຶບ ຫຼື RELINK ຖ້າເຈົ້າມີໄຟລ໌ນຳ.
+Fix it at home, where it is easy. Not at the venue, where it is not.	ແກ້ຢູ່ເຮືອນ ຢູ່ນັ້ນງ່າຍ. ບໍ່ແມ່ນຢູ່ສະຖານທີ່ ຢູ່ນັ້ນບໍ່ງ່າຍ.
+BUNDLE IT	ຫໍ່ມັນ
+Press BUNDLE and choose where: a USB stick, a shared folder. The show and all its media, together.	ກົດ BUNDLE ແລ້ວເລືອກບ່ອນ: USB, ໂຟນເດີແບ່ງປັນ. ໂຊ ແລະ ສື່ທັງໝົດ ໄປນຳກັນ.
+The copy finds its media beside it, wherever the folder goes.	ສຳເນົາ ພົບສື່ຂອງມັນ ຢູ່ຂ້າງໆ ໂຟນເດີໄປໃສກໍຕາມ.
+SAFE TRAVELS	ເດີນທາງປອດໄພ
+Checked, fixed, bundled. On the other machine, open the bundle's show: everything is where it should be.	ກວດແລ້ວ ແກ້ແລ້ວ ຫໍ່ແລ້ວ. ໃນເຄື່ອງອື່ນ ເປີດໂຊທີ່ຫໍ່: ທຸກຢ່າງຢູ່ບ່ອນ.
+A show file is only text, so it travels light. The media is the heavy part.	ໄຟລ໌ໂຊ ເປັນພຽງຂໍ້ຄວາມ ເດີນທາງເບົາ. ທີ່ໜັກ ຄືສື່.
+Student work no. 4 (untitled)	ຜົນງານນັກຮຽນ ເລກ 4 (ບໍ່ມີຊື່)
+THE CRIT	ການວິຈານ
+An art school, skapi. One student, one picture, one critic who has seen it all. Press START.	ໂຮງຮຽນສິລະປະ skapi. ນັກຮຽນຄົນໜຶ່ງ ຮູບໜຶ່ງ ນັກວິຈານ ທີ່ເຫັນມາໝົດແລ້ວ. ກົດ START.
+Effects change a picture; an oscillator keeps changing it. The critic only likes the second kind.	Effect ປ່ຽນຮູບ; oscillator ປ່ຽນມັນຕໍ່ໄປເລື້ອຍໆ. ນັກວິຈານມັກແຕ່ແບບທີສອງ.
+A grey square on beige. I have seen this at every graduate show since 1987.	ສີ່ຫຼ່ຽມສີເທົາ ເທິງພື້ນຄີມ. ລາວເຫັນມັນ ທຸກງານຈົບການສຶກສາ ຕັ້ງແຕ່ 1987.
+AN EFFECT	EFFECT ໜຶ່ງ
+In the inspector's EFFECTS section, + adds one. Edges is a good start: it draws the outlines.	ໃນສ່ວນ EFFECTS ຂອງ inspector, + ເພີ່ມອັນໜຶ່ງ. Edges ເປັນການເລີ່ມທີ່ດີ: ມັນແຕ້ມເສັ້ນ.
+There are dozens. Every one runs on the CPU in a few milliseconds. Mostly.	ມີຫຼາຍສິບອັນ. ແຕ່ລະອັນແລ່ນເທິງ CPU ໃນບໍ່ເທົ່າໃດມິລລິວິນາທີ. ສ່ວນຫຼາຍ.
+Take a risk! Bad art is fine. Boring art is a crime.	ກ້າເສຍ! ສິລະປະບໍ່ດີ ກໍດີ. ສິລະປະໜ້າເບື່ອ ແມ່ນອາຊະຍາກຳ.
+A ~ ON ITS KNOB	~ ເທິງປຸ່ມ
+Every control with a ~ beside it can follow an oscillator. Press one. The knob starts to breathe.	ການຄວບຄຸມໃດ ທີ່ມີ ~ ຢູ່ຂ້າງ ຕາມ oscillator ໄດ້. ຄລິກອັນໜຶ່ງ. ປຸ່ມເລີ່ມຫາຍໃຈ.
+A low-frequency oscillator: slow, so the eye can follow it. A quarter of a hertz is a four-second breath.	oscillator ຄວາມຖີ່ຕ່ຳ: ຊ້າ ໃຫ້ຕາຕາມທັນ. ໜຶ່ງສ່ວນສີ່ hertz ຄືລົມຫາຍໃຈ ສີ່ວິນາທີ.
+Now it MOVES. Okay. Okay. I'm listening.	ດຽວນີ້ ມັນເຄື່ອນໄຫວ. ໂອເຄ. ໂອເຄ. ຂ້ອຍຟັງຢູ່.
+A COLOUR OF ITS OWN	ສີຂອງມັນເອງ
+Effects that draw a colour, like Edges' line, have a colour chip. It opens the picker: a wheel, typed names, or a colour off the screen.	effect ທີ່ແຕ້ມສີ ເຊັ່ນເສັ້ນຂອງ Edges ມີຊິບສີ. ມັນເປີດຕົວເລືອກ: ວົງລໍ້ ຊື່ທີ່ພິມ ຫຼື ສີຈາກໜ້າຈໍ.
+Every colour has a name somewhere. Mine is 'oscilloscope green'. Nobody else uses it.	ທຸກສີ ມີຊື່ຢູ່ບ່ອນໃດບ່ອນໜຶ່ງ. ຂອງຂ້ອຍແມ່ນ 'ຂຽວ oscilloscope'. ບໍ່ມີໃຜໃຊ້.
+That colour is doing something. I don't know what. I love it.	ສີນັ້ນ ກຳລັງເຮັດຫຍັງບາງຢ່າງ. ຂ້ອຍບໍ່ຮູ້ວ່າແມ່ນຫຍັງ. ຂ້ອຍມັກມັນ.
+THE VERDICT	ຄຳຕັດສິນ
+An effect, a ~ and a colour. The critic is crying, skapi. Good crying, I think.	effect ໜຶ່ງ, ~ ໜຶ່ງ ແລະ ສີໜຶ່ງ. ນັກວິຈານຮ້ອງໄຫ້ skapi. ຮ້ອງແບບດີ ຂ້ອຍຄິດວ່າ.
+Stack a few. Each has its own ~ on every knob. That is how a look becomes a performance.	ຊ້ອນຫຼາຍໆອັນ. ແຕ່ລະອັນມີ ~ ຂອງຕົນ ເທິງທຸກປຸ່ມ. ໂຊເບິ່ງເປັນໂຊ ກໍຍ້ອນນີ້.
+It's still a square. But it's YOUR square. Post it.	ຍັງເປັນສີ່ຫຼ່ຽມ. ແຕ່ເປັນສີ່ຫຼ່ຽມ ຂອງເຈົ້າ. ສົ່ງອອກໄປ.
+THE TELESTRATOR BOOTH	ຫ້ອງ TELESTRATOR
+Coach Marv explains sport by drawing circles on it. Once he circled the sun. Ten minutes, skapi.	Coach Marv ອະທິບາຍກິລາ ໂດຍແຕ້ມວົງມົນເທິງມັນ. ເທື່ອໜຶ່ງ ລາວແຕ້ມວົງອ້ອມຕາເວັນ. ສິບນາທີ skapi.
+Tonight: test patterns, the video synth, and drawing on the picture. Press START.	ຄືນນີ້: ຮູບທົດສອບ synth ວິດີໂອ ແລະ ແຕ້ມເທິງຮູບ. ກົດ START.
+Get me a picture and a pen. BOOM.	ເອົາຮູບ ກັບປາກກາມາ. ບູມ.
+A TEST PATTERN	ຮູບທົດສອບ
+Line up the screens BEFORE the show. Not during. I learned this in Plovdiv.	ແກ້ໜ້າຈໍ ກ່ອນ ໂຊ. ບໍ່ແມ່ນລະຫວ່າງ. ຂ້ອຍຮຽນຮູ້ອັນນີ້ ທີ່ Plovdiv.
+Every desk needs a test pattern. PATTERN adds Pocket Test: checked against real meters.	ທຸກໂຕະ ຕ້ອງມີຮູບທົດສອບ. PATTERN ເພີ່ມ Pocket Test: ກວດດ້ວຍການວັດແທ້.
+A VIDEO SYNTH	SYNTH ວິດີໂອ
+He says 'no camera needed' like it is a feature. It is a feature.	ລາວເວົ້າວ່າ 'ບໍ່ຕ້ອງໃຊ້ກ້ອງ' ຄືກັບເປັນຄຸນສົມບັດ. ມັນແມ່ນຄຸນສົມບັດແທ້.
+My favourite. SOURCE, then Video Synth: oscillators, mirrors and feedback. No camera needed.	ອັນທີ່ຂ້ອຍມັກທີ່ສຸດ. ແຫຼ່ງ ແລ້ວ Video Synth: oscillator, ກະຈົກ ແລະ feedback. ບໍ່ຕ້ອງໃຊ້ກ້ອງ.
+TAKE THE SYNTH	TAKE SYNTH
+Select it, then TAKE. Confident operators press Enter.	ເລືອກມັນ ແລ້ວ TAKE. ຜູ້ຄວບຄຸມທີ່ໝັ້ນໃຈ ກົດ Enter.
+That's our replay. Every replay needs a pundit.	ນີ້ຄືພາບຊ້ຳຂອງພວກເຮົາ. ທຸກພາບຊ້ຳ ຕ້ອງມີຜູ້ບັນຍາຍ.
+Now here's a replay. And here's a guy. And BOOM, he's in it.	ນີ້ພາບຊ້ຳ. ນີ້ນັກກິລາ. ແລະ ບູມ ເຂົ້າແລ້ວ.
+A SECOND PLAYLIST	PLAYLIST ທີສອງ
+Ink goes on top, on its own layer. Press the + at the end of the playlist tabs.	ໝຶກຢູ່ເທິງສຸດ ເທິງ layer ຂອງມັນ. ຄລິກ + ທ້າຍແຖບ playlist.
+A second playlist is a layer over the first. Like a second oscillator, mixed on top.	playlist ທີສອງ ຄື layer ເທິງອັນທຳອິດ. ຄື oscillator ທີສອງ ປະສົມຢູ່ເທິງ.
+A DRAW CUE	DRAW CUE
+In the new playlist: SOURCE, then Draw. Clear everywhere you have not drawn.	ໃນ playlist ໃໝ່: ແຫຼ່ງ ແລ້ວ Draw. ບ່ອນທີ່ເຈົ້າບໍ່ໄດ້ແຕ້ມ ແມ່ນໃສ.
+A Draw cue is transparent outside the ink, so the synth shows through.	draw cue ໃສ ນອກໝຶກ ສະນັ້ນ synth ຈຶ່ງເຫັນ.
+TAKE THE INK	TAKE ໝຶກ
+Select the Draw cue and TAKE it. Two playlists, two layers, one picture.	ເລືອກ draw cue ແລ້ວ TAKE. ສອງ playlist ສອງ layer ໜຶ່ງຮູບ.
+Now both are live: the synth underneath, the ink on top.	ດຽວນີ້ ທັງສອງສົດ: synth ຢູ່ລຸ່ມ ໝຶກຢູ່ເທິງ.
+CIRCLE SOMETHING	ແຕ້ມວົງອ້ອມບາງຢ່າງ
+Press DRAW in the inspector, then draw on the programme monitor. Mouse, or a pen if you have one.	ໃນ inspector ຄລິກ DRAW ແລ້ວແຕ້ມ ເທິງຈໍ program. ດ້ວຍເມົ້າ ຫຼື ປາກກາ ຖ້າມີ.
+A pen's pressure makes the line thicker. A mouse presses at one strength. Like me.	ແຮງກົດປາກກາ ເຮັດເສັ້ນໜາ. ເມົ້າກົດແຮງເທົ່າເດີມສະເໝີ. ຄືຂ້ອຍ.
+Circle him! No, bigger. BOOM. That's a cloud. Fine. Circle the cloud.	ແຕ້ມວົງອ້ອມລາວ! ບໍ່ ໃຫຍ່ກວ່ານັ້ນ. ບູມ. ນັ້ນແມ່ນເມກ. ບໍ່ເປັນຫຍັງ. ແຕ້ມວົງອ້ອມເມກ.
+SAVE A STILL	ບັນທຶກຮູບນິ່ງ
+SAVE STILL keeps the drawing as a picture with a clear background, and adds it to the playlist.	SAVE STILL ເກັບການແຕ້ມ ເປັນຮູບພື້ນໃສ ແລະ ເພີ່ມໃສ່ playlist.
+For next week's show. Coach Marv will want the cloud again.	ສຳລັບລາຍການອາທິດໜ້າ. Coach Marv ຈະຢາກໄດ້ເມກອີກ.
+THAT'S THE BOOTH	ນັ້ນແມ່ນຫ້ອງ
+Patterns, the synth, a layer, ink, a still. Nazdrave, skapi.	ຮູບທົດສອບ synth layer ໝຶກ ຮູບນິ່ງ. Nazdrave, skapi.
+Try Replay in the Draw section: it draws your lines back the way you drew them.	ລອງ Replay ໃນສ່ວນ Draw: ມັນແຕ້ມເສັ້ນຂອງເຈົ້າຄືນ ຄືກັບຕອນແຕ້ມ.
+Same time next week. Bring a bigger pen. And a turducken.	ອາທິດໜ້າ ເວລາເກົ່າ. ເອົາປາກກາໃຫຍ່ກວ່າມາ. ແລະ ເຂົ້າໜຽວກັບລາບ ໜຶ່ງກະຕິບ.
+Saucer photo (CLASSIFIED)	ຮູບຈານບິນ (ລັບ)
+THE SIGNAL FILES	ແຟ້ມສັນຍານ
+The Bureau of Unexplained Signals. Two agents, one photo, and it must not air. Press START.	ສຳນັກງານສັນຍານທີ່ອະທິບາຍບໍ່ໄດ້. ສອງເຈົ້າໜ້າທີ່ ໜຶ່ງຮູບ ແລະ ມັນຂຶ້ນອາກາດບໍ່ໄດ້. ກົດ START.
+Masks cut a picture into shapes. Tonight we cut evidence.	Mask ຕັດຮູບເປັນຮູບຮ່າງ. ຄືນນີ້ ພວກເຮົາຕັດຫຼັກຖານ.
+That's a craft, Brandt. Look at the lights. I want to believe.	ມັນແມ່ນຍານ Brandt. ເບິ່ງແສງນັ້ນ. ຂ້ອຍຢາກເຊື່ອ.
+A MASK FROM THE LIBRARY	MASK ຈາກຫ້ອງສະໝຸດ
+In the inspector's MASK section: mask, then 'new heart'. Any shape will do. The heart is funnier.	ໃນສ່ວນ MASK ຂອງ inspector: mask ແລ້ວ 'new heart'. ຮູບຮ່າງໃດກໍໄດ້. ຫົວໃຈມ່ວນກວ່າ.
+The library has circles, stars, hearts. Each one is points you can move.	ຫ້ອງສະໝຸດມີ ວົງມົນ ດາວ ຫົວໃຈ. ແຕ່ລະອັນ ເປັນຈຸດທີ່ເຈົ້າຍ້າຍໄດ້.
+A heart, Hollis? The Bureau redacts with black bars.	ຫົວໃຈບໍ Hollis? ສຳນັກງານເຊື່ອງ ດ້ວຍແຖບດຳ.
+THE PEN	ປາກກາ
+Set the tool to pen, then click round the saucer on the monitor. Click the first point to close it.	ປ່ຽນເຄື່ອງມືເປັນປາກກາ ແລ້ວຄລິກອ້ອມຈານ ເທິງຈໍ. ຄລິກຈຸດທຳອິດ ເພື່ອປິດ.
+Click for corners, drag for curves. The way the Bezier brothers intended.	ຄລິກເພື່ອເຮັດມຸມ ລາກເພື່ອເສັ້ນໂຄ້ງ. ຄືທີ່ອ້າຍນ້ອງ Bézier ຕ້ອງການ.
+Draw round it carefully. It might be watching.	ແຕ້ມອ້ອມມັນ ຢ່າງລະວັງ. ມັນອາດກຳລັງເບິ່ງ.
+INVERT	ກັບດ້ານ
+Invert keeps the outside and cuts the inside. The saucer goes. The sky stays.	ກັບດ້ານ ເກັບຂ້າງນອກ ຕັດຂ້າງໃນ. ຈານຫາຍໄປ. ທ້ອງຟ້າຍັງຢູ່.
+The same shape, the other way round. Very useful. Slightly spooky.	ຮູບຮ່າງດຽວກັນ ກັບດ້ານ. ມີປະໂຫຍດຫຼາຍ. ໜ້າຢ້ານໜ້ອຍໜຶ່ງ.
+Hollis, there's a heart-shaped hole in the sky.	Hollis ມີຮູຮູບຫົວໃຈ ຢູ່ໃນທ້ອງຟ້າ.
+FEATHER	ເຮັດໃຫ້ອ່ອນ
+Feather softens the edge, so nobody sees the cut. Press + on feather.	ເຮັດໃຫ້ອ່ອນ ເຮັດຂອບນຸ້ມ ບໍ່ໃຫ້ໃຜເຫັນຮອຍຕັດ. ກົດ + ທີ່ feather.
+A hard edge says 'someone was here'. A soft one says nothing at all.	ຂອບແຂງບອກວ່າ 'ມີຄົນຢູ່ນີ້'. ຂອບອ່ອນ ບໍ່ບອກຫຍັງ.
+They'll never know.	ເຂົາຈະບໍ່ມີວັນຮູ້.
+CASE CLOSED	ປິດແຟ້ມ
+A library shape, the pen, invert and feather. The Bureau thanks you. The Bureau was never here.	ຮູບຮ່າງຈາກຫ້ອງສະໝຸດ ປາກກາ ກັບດ້ານ ແລະ ອ່ອນ. ສຳນັກງານຂອບໃຈ. ສຳນັກງານບໍ່ເຄີຍຢູ່ນີ້.
+Masks also go on a layer, an output, or its matte: MASK ON chooses. And every control takes a ~.	Mask ໃສ່ layer, output ຫຼື matte ຂອງມັນກໍໄດ້: MASK ON ເລືອກ. ແລະ ທຸກການຄວບຄຸມ ຮັບ ~ ໄດ້.
+The truth is in the waveform, Hollis. Next time, the scopes.	ຄວາມຈິງ ຢູ່ໃນ waveform Hollis. ເທື່ອໜ້າ ໃຊ້ scope.
+The ghost	ຜີ
+THE HAUNTED LIGHTHOUSE	ຫໍໄຟມີຜີ
+A lighthouse, a ghost, and a keeper who has been alone with the lamp far too long. Press START.	ຫໍໄຟໜຶ່ງ ຜີໜຶ່ງ ແລະ ຄົນເຝົ້າ ທີ່ຢູ່ຄົນດຽວກັບໂຄມໄຟ ດົນເກີນໄປ. ກົດ START.
+Projection mapping: bending the picture to fit the building. Warp, blend, slices.	Projection mapping: ດັດຮູບ ໃຫ້ເຂົ້າກັບອາຄານ. Warp, blend, slice.
+Ye'll be wanting the ghost on the windows. Mind the lamp. The lamp is MINE.	ພວກເຈົ້າຢາກໄດ້ຜີ ເທິງປ່ອງຢ້ຽມ ແມ່ນບໍ? ລະວັງໂຄມໄຟ. ໂຄມໄຟ ເປັນຂອງຂ້ອຍ.
+THE OUTPUT'S GEOMETRY	ເລຂາຄະນິດ OUTPUT
+MENU, then Video Outputs, then Geometry. Where an output's shape lives.	MENU ແລ້ວ Video Outputs ແລ້ວ Geometry. ຮູບຮ່າງຂອງ output ຢູ່ນັ້ນ.
+Geometry: the projector-menu word for 'what shape is the picture'.	Geometry: ຄຳໃນເມນູເຄື່ອງສາຍ ໝາຍເຖິງ 'ຮູບເປັນຮູບຮ່າງໃດ'.
+PIN A CORNER	ປັກມຸມ
+Press warp edit, then drag a corner on the programme monitor. The window is not square. Neither is the keeper.	ຄລິກ warp edit ແລ້ວລາກມຸມ ເທິງຈໍ program. ປ່ອງຢ້ຽມ ບໍ່ສີ່ຫຼ່ຽມ. ຄົນເຝົ້າກໍບໍ່.
+A corner pin moves the four corners. Perspective keeps the lines straight, like a real window.	Corner pin ຍ້າຍສີ່ມຸມ. ທັດສະນະ ຮັກສາເສັ້ນໃຫ້ຊື່ ຄືປ່ອງຢ້ຽມແທ້.
+LEFT! Ye call that a corner? I've seen straighter gulls.	ຊ້າຍ! ເຈົ້າເອີ້ນນັ້ນວ່າມຸມບໍ? ຂ້ອຍເຫັນນົກນາງນວນ ຊື່ກວ່ານີ້.
+TWO SOFT EDGES	ສອງຂອບອ່ອນ
+Back in Geometry: edge blend, + on the left and + on the right.	ກັບໄປ Geometry: edge blend, + ທາງຊ້າຍ ແລະ + ທາງຂວາ.
+Two projectors overlap; each fades its edge so the overlap is not twice as bright.	ສອງເຄື່ອງສາຍ ທັບກັນ; ແຕ່ລະເຄື່ອງ ຈາງຂອບຂອງຕົນ ໃຫ້ບ່ອນທັບ ບໍ່ແຈ້ງສອງເທົ່າ.
+THE SCREENS WINDOW	ໜ້າຕ່າງ SCREENS
+Geometry, SLICES, open. The Screens window is where slices are cut and placed.	Geometry, SLICES, ເປີດ. ໜ້າຕ່າງ Screens ເປັນບ່ອນຕັດ ແລະ ວາງ slice.
+A slice is a piece of the picture, put anywhere on the output.	slice ຄືຕ່ອນໜຶ່ງຂອງຮູບ ວາງບ່ອນໃດກໍໄດ້ ໃນ output.
+THREE SLICES	ສາມ SLICE
+In the Screens window, + SLICE three times, and drag each crop to a third of the picture.	ໃນໜ້າຕ່າງ Screens, + SLICE ສາມເທື່ອ ແລ້ວລາກແຕ່ລະຮອຍຕັດ ໄປໜຶ່ງສ່ວນສາມຂອງຮູບ.
+Three windows, three slices: left, middle and right of one picture.	ສາມປ່ອງຢ້ຽມ ສາມ slice: ຊ້າຍ ກາງ ແລະ ຂວາ ຂອງຮູບດຽວ.
+Three windows. The lamp gets the middle one. The lamp ALWAYS gets the middle one.	ສາມປ່ອງຢ້ຽມ. ອັນກາງ ເປັນຂອງໂຄມໄຟ. ອັນກາງ ເປັນຂອງໂຄມໄຟສະເໝີ.
+THE GHOST IS PLEASED	ຜີພໍໃຈ
+Warp, blend, slices. The keeper will finally sleep. The gulls will not.	Warp, blend, slice. ຄົນເຝົ້າຈະໄດ້ນອນ ໃນທີ່ສຸດ. ນົກນາງນວນບໍ່.
+Slices have their own warp and mesh in the Screens window. And a ~ on the place and the turn.	Slice ມີ warp ແລະ mesh ຂອງມັນ ໃນໜ້າຕ່າງ Screens. ແລະ ~ ເທິງບ່ອນ ແລະ ການໝຸນ.
+Ye did alright, lad. Now get away from the lamp.	ເຮັດໄດ້ດີ ນ້ອງ. ດຽວນີ້ ອອກໄປໃຫ້ໄກໂຄມໄຟ.
+THE GAME SHOW	ເກມໂຊ
+A game show, skapi. Three contestants, one buzzer, and cues that fire from anywhere. Press START.	ເກມໂຊໂທລະທັດ skapi. ສາມຜູ້ແຂ່ງ ກະດິ່ງໜຶ່ງ ແລະ cue ທີ່ຍິງມາຈາກທຸກທາງ. ກົດ START.
+Cue numbers, hotkeys, and GO from other machines. Like a sequencer you can play from any key.	ເລກ cue ປຸ່ມລັດ ແລະ GO ຈາກເຄື່ອງອື່ນ. ຄື sequencer ທີ່ເຈົ້າຕີດ້ວຍປຸ່ມໃດກໍໄດ້.
+Welcome to the show! Let's spin that wheel!	ຍິນດີຕ້ອນຮັບສູ່ລາຍການ! ໝຸນວົງລໍ້ກັນ!
+A CUE NUMBER	ເລກ CUE
+Contestant 3 is selected. In the inspector's metadata, give it a cue number: 3.	ຜູ້ແຂ່ງເລກ 3 ຖືກເລືອກ. ໃນ metadata ຂອງ inspector ໃຫ້ເລກ cue: 3.
+Theatre numbers its cues. Q3, Q3.5, Q12A. Deckboy reads them all.	ໂຊ ໃສ່ເລກ cue ຂອງຕົນ. Q3, Q3.5, Q12A. Deckboy ອ່ານໄດ້ໝົດ.
+I'd like to buy a number, please.	ຂ້ອຍຂໍຊື້ຕົວເລກໜຶ່ງ ແດ່.
+GO TO IT	ໄປຫາມັນ
+Ctrl+G, type the number, Enter. It goes live wherever the list happens to be standing.	Ctrl+G ພິມເລກ Enter. ມັນຂຶ້ນສົດ ລາຍການຢູ່ໃສກໍຕາມ.
+GOTO. The fastest way across a long list. Faster than scrolling. Much faster than me.	GOTO. ທາງໄວທີ່ສຸດ ໃນລາຍການຍາວ. ໄວກວ່າເລື່ອນ. ໄວກວ່າຂ້ອຍຫຼາຍ.
+And the number is... three!	ແລະ ເລກແມ່ນ... ສາມ!
+A BUZZER	ກະດິ່ງ
+Contestant 1 is selected. In TRIGGERS, press key, then F5. That key now fires this cue.	ຜູ້ແຂ່ງເລກ 1 ຖືກເລືອກ. ໃນ TRIGGERS ຄລິກ key ແລ້ວ F5. ປຸ່ມນັ້ນ ດຽວນີ້ຍິງ cue ນີ້.
+F1 to F10, F12, or the number pad. Each one, a buzzer.	F1 ຫາ F10, F12 ຫຼື ແປ້ນເລກ. ແຕ່ລະອັນ ເປັນກະດິ່ງ.
+Every contestant gets a buzzer.	ຜູ້ແຂ່ງແຕ່ລະຄົນ ໄດ້ກະດິ່ງ.
+BUZZ IN	ກົດກະດິ່ງ!
+Press the key. The cue fires, wherever the list is standing.	ກົດປຸ່ມ. cue ຍິງ ລາຍການຢູ່ໃສກໍຕາມ.
+No mouse, no list, no looking. Just the key.	ບໍ່ມີເມົ້າ ບໍ່ມີລາຍການ ບໍ່ຕ້ອງເບິ່ງ. ພຽງແຕ່ປຸ່ມ.
+Buzz! We have a winner!	ຕິ໊ດ! ພວກເຮົາມີຜູ້ຊະນະ!
+FROM ANYWHERE	ຈາກທຸກບ່ອນ
+Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion, ໂນດ MIDI, ຂໍ້ຄວາມ OSC: MENU ແລ້ວ ເຄືອຂ່າຍ ບອກວ່າແຕ່ລະອັນຕໍ່ໃສ.
+A Stream Deck in the next room can press GO. So can a keyboard synth. I prefer the synth.	Stream Deck ໃນຫ້ອງຂ້າງ ກົດ GO ໄດ້. synth ຄີບອດ ກໍໄດ້. ຂ້ອຍມັກ synth ກວ່າ.
+And for our viewers at home: you can play along too.	ແລະ ສຳລັບຜູ້ຊົມທີ່ບ້ານ: ພວກເຈົ້າກໍຫຼິ້ນໄດ້.
+THAT'S OUR SHOW	ນັ້ນແມ່ນລາຍການຂອງພວກເຮົາ
+Numbers, GOTO, a buzzer, and GO from anywhere. You are a game show now, skapi.	ເລກ GOTO ກະດິ່ງ ແລະ GO ຈາກທຸກບ່ອນ. ດຽວນີ້ ເຈົ້າເປັນເກມໂຊ skapi.
+A cue can have a key, a MIDI note and an OSC address at once. Belt, braces and a second belt.	cue ໜຶ່ງ ມີປຸ່ມ ໂນດ MIDI ແລະ ທີ່ຢູ່ OSC ພ້ອມກັນໄດ້. ສາຍແອວ ສາຍຮັດ ແລະ ສາຍແອວອີກເສັ້ນ.
+Goodnight, everybody! Keep spinning!	ຝັນດີ ທຸກຄົນ! ໝຸນຕໍ່ໄປ!
+Weather map	ແຜນທີ່ອາກາດ
+THE KAIJU WEATHER	ອາກາດ KAIJU
+Channel 6 weather, skapi. A map, a presenter, and a very large lizard. Press START.	ອາກາດຊ່ອງ 6 skapi. ແຜນທີ່ໜຶ່ງ ຜູ້ນຳສະເໜີ ແລະ ແລນໂຕໃຫຍ່ຫຼາຍ. ກົດ START.
+Words on screen: Lower Thirds, text, and backdrops.	ຄຳເທິງໜ້າຈໍ: Lower Third ຂໍ້ຄວາມ ແລະ ພື້ນ.
+I'm June O'Neil, and nothing about this forecast is normal.	ຂ້ອຍຊື່ June O'Neil ແລະ ບໍ່ມີຫຍັງປົກກະຕິ ໃນການພະຍາກອນນີ້.
+A LAYER FOR WORDS	LAYER ສຳລັບຄຳ
+Words go on their own layer: press the + at the end of the playlist tabs.	ຄຳຢູ່ເທິງ layer ຂອງຕົນ: ຄລິກ + ທ້າຍແຖບ playlist.
+A second playlist is a layer over the map. The lizard stays underneath. Mostly.	playlist ທີສອງ ຄື layer ເທິງແຜນທີ່. ແລນຢູ່ລຸ່ມ. ສ່ວນຫຼາຍ.
+Words on top. Always on top.	ຄຳຢູ່ເທິງ. ຢູ່ເທິງສະເໝີ.
+A LOWER THIRD	LOWER THIRD
+In the new playlist: SOURCE, then Lower Third.	ໃນ playlist ໃໝ່: ແຫຼ່ງ ແລ້ວ Lower Third.
+A name and a title, low on the screen, out of the lizard's way.	ຊື່ ແລະ ຕຳແໜ່ງ ຢູ່ລຸ່ມຈໍ ພົ້ນທາງແລນ.
+HER NAME	ຊື່ຂອງລາວ
+In the inspector, title: type the presenter's name. The second line is her job.	ໃນ inspector, title: ພິມຊື່ຜູ້ນຳສະເໜີ. ແຖວທີສອງ ແມ່ນວຽກຂອງລາວ.
+Spelling counts. The audience reads it at the speed of light.	ການສະກົດ ສຳຄັນ. ຜູ້ຊົມອ່ານ ໄວເທົ່າແສງ.
+Spell it right. Last week it said 'Jane O'Meal'.	ຂຽນໃຫ້ຖືກ. ອາທິດແລ້ວ ມັນຂຽນວ່າ 'Jane O'Meal'.
+ON AIR	ສົດ
+TAKE the Lower Third. Her name slides in over the map.	TAKE Lower Third. ຊື່ລາວເລື່ອນເຂົ້າເທິງແຜນທີ່.
+Two layers live: the weather, and the words on top of it.	ສອງ layer ສົດ: ອາກາດ ແລະ ຄຳເທິງມັນ.
+Thank you. Now, about that lizard...	ຂອບໃຈ. ດຽວນີ້ ເລື່ອງແລນໂຕນັ້ນ...
+BREAKING NEWS	ຂ່າວດ່ວນ
+SOURCE, then Text: a title card. Then its backdrop chip: key green, for the vision mixer to key out.	ແຫຼ່ງ ແລ້ວ Text: ບັດຫົວຂໍ້. ແລ້ວຊິບພື້ນ: ຂຽວ key ໃຫ້ mixer ເອົາອອກ.
+A backdrop fills behind the words. Key green or key blue, and the mixer does the rest.	ພື້ນ ເຕີມທາງຫຼັງຄຳ. ຂຽວ ຫຼື ຟ້າ key ສ່ວນທີ່ເຫຼືອ mixer ເຮັດ.
+Breaking news: it's standing on the five-day forecast.	ດ່ວນ: ມັນຢຽບການພະຍາກອນ ຫ້າວັນແລ້ວ.
+BREAKING: KAIJU	ດ່ວນ: KAIJU
+BACK TO YOU	ກັບຄືນສະຕູດິໂອ
+A Lower Third, a name, a title card, a backdrop. The lizard has left the studio, skapi.	Lower Third ຊື່ ບັດຫົວຂໍ້ ພື້ນ. ແລນອອກຈາກສະຕູດິໂອແລ້ວ skapi.
+Lower Thirds can wait, slide and leave on their own. Their section has every setting.	Lower Third ລໍຖ້າເອງ ເລື່ອນເຂົ້າ ເລື່ອນອອກໄດ້. ສ່ວນຂອງມັນ ມີທຸກການຕັ້ງຄ່າ.
+That's the weather. Back to you, guys. Run.	ອາກາດມີເທົ່ານີ້. ກັບຄືນສະຕູດິໂອ. ແລ່ນເລີຍ.
+A GRAND DAY OUT	ມື້ຍິ່ງໃຫຍ່
+A rocket built in a basement, skapi, and an inventor who wants cheese. Press START.	ບັ້ງໄຟ ທີ່ສ້າງໃນຫ້ອງໃຕ້ດິນ skapi ແລະ ນັກປະດິດ ທີ່ຢາກກິນເນີຍແຂງ. ກົດ START.
+Stage timers: countdowns, clocks, and a presenter view for the person on stage.	ໂມງເວທີ: ນັບຖອຍຫຼັງ ໂມງ ແລະ ຈໍຜູ້ນຳສະເໜີ.
+Cheese, Grommet! The moon's made of it. We'll need a countdown.	ເນີຍແຂງ Grommet! ດວງເດືອນ ເຮັດດ້ວຍເນີຍແຂງ. ພວກເຮົາຕ້ອງນັບຖອຍຫຼັງ.
+A COUNTDOWN	ນັບຖອຍຫຼັງ
+SOURCE, then Stage Timer. A clock that counts down, in big friendly numbers.	ແຫຼ່ງ ແລ້ວ Stage Timer. ໂມງນັບຖອຍ ເລກໃຫຍ່ ແລະ ເປັນມິດ.
+Its colours change as it runs out: white, amber, red. Like a VU meter for time.	ສີປ່ຽນ ເມື່ອເວລາໃກ້ໝົດ: ຂາວ ເຫຼືອງອຳພັນ ແດງ. ຄື VU meter ຂອງເວລາ.
+*raises an eyebrow*	*ຍົກຄິ້ວຂ້າງໜຶ່ງ*
+LIFT OFF	ທະຍານ
+Select the timer and TAKE it. The countdown starts.	ເລືອກໂມງ ແລ້ວ TAKE. ການນັບເລີ່ມ.
+Past zero it keeps going, counting the overtime. Very honest. Slightly rude.	ເລີຍສູນແລ້ວ ມັນຍັງນັບ ເວລາທີ່ເກີນ. ຖືກຕ້ອງຫຼາຍ. ບໍ່ສຸພາບໜ້ອຍໜຶ່ງ.
+Ten... nine... ooh, I do love a countdown.	ສິບ... ເກົ້າ... ໂອ້ ຂ້ອຍມັກການນັບຖອຍຫຼັງ.
+HOLD!	ຢຸດ!
+Something's loose! Space holds the countdown. The clock shows it is held.	ມີຫຍັງຫຼຸດ! Space ພັກການນັບ. ໂມງສະແດງວ່າພັກຢູ່.
+A hold is not a stop. Space again, and it carries on from where it was.	ພັກ ບໍ່ແມ່ນ ຈົບ. Space ອີກ ມັນສືບຕໍ່ຈາກບ່ອນເກົ່າ.
+*holds up a spanner*	*ຍົກກະແຈປາກຕາຍ*
+THE PILOT'S VIEW	ຈໍຂອງນັກບິນ
+MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	MENU, Video Outputs: ປ່ຽນປະເພດ output ເປັນ PRESENTER. ຄົນເທິງເວທີ ເຫັນໂມງ cue ຕໍ່ໄປ ແລະ ບັນທຶກ.
+A presenter view is an output like any other. Point it at the confidence monitor.	ຈໍຜູ້ນຳສະເໜີ ເປັນ output ຄືອັນອື່ນ. ສົ່ງມັນໄປຈໍເວທີ.
+So the pilot can see the time. The pilot is Grommet.	ໃຫ້ນັກບິນເຫັນເວລາ. ນັກບິນແມ່ນ Grommet.
+TO THE MOON	ສູ່ດວງເດືອນ
+A countdown, a hold, and a view for the pilot. Nazdrave, skapi. Bring crackers.	ການນັບ ການພັກ ແລະ ຈໍສຳລັບນັກບິນ. Nazdrave, skapi. ເອົາເຂົ້າຈີ່ມາ.
+Timers can also count up, or show the time of day. Their section has the lot.	ໂມງ ນັບຂຶ້ນ ຫຼື ສະແດງເວລາ ກໍໄດ້. ສ່ວນຂອງມັນ ມີໝົດ.
+A grand day out, Grommet! Pass the crackers.	ມື້ຍິ່ງໃຫຍ່ Grommet! ສົ່ງເຂົ້າຈີ່ມາໃຫ້ແດ່.
+The trunk (closed)	ກ່ອງ (ປິດ)
+The trunk (open)	ກ່ອງ (ເປີດ)
+THE MAGIC SHOW	ໂຊມາຍາກົນ
+A magic show, skapi. A trunk, a prop, and one beat where everything changes at once. Press START.	ໂຊມາຍາກົນ skapi. ກ່ອງໜຶ່ງ ອຸປະກອນປະກອບ ແລະ ຈັງຫວະດຽວ ທີ່ປ່ຽນທຸກຢ່າງພ້ອມກັນ. ກົດ START.
+Two playlists are two layers. TAKE ALL changes both together.	ສອງ playlist ຄືສອງ layer. TAKE ALL ປ່ຽນທັງສອງ ພ້ອມກັນ.
+Every trick needs two things happening at once. And a rubber chicken.	ທຸກກົນ ຕ້ອງມີສອງຢ່າງ ເກີດພ້ອມກັນ. ແລະ ໄກ່ຢາງ.
+The prop goes on its own layer. Press the + at the end of the playlist tabs.	ອຸປະກອນປະກອບ ຢູ່ເທິງ layer ຂອງມັນ. ຄລິກ + ທ້າຍແຖບ playlist.
+Playlist 2 sits on top of playlist 1. Like a transparency on an overhead projector.	Playlist 2 ນັ່ງເທິງ playlist 1. ຄືແຜ່ນໃສ ເທິງເຄື່ອງສາຍ overhead.
+Nothing up my sleeve. Everything in my trunk.	ບໍ່ມີຫຍັງໃນແຂນເສື້ອ. ທຸກຢ່າງ ໃນກ່ອງຂອງຂ້ອຍ.
+THE PROP	ອຸປະກອນປະກອບ
+In the new playlist, add anything: PATTERN will do. That is the prop.	ໃນ playlist ໃໝ່ ເພີ່ມຫຍັງກໍໄດ້: PATTERN ກໍດີ. ນັ້ນແມ່ນອຸປະກອນ.
+Whatever it is, it will appear the instant the trunk opens.	ບໍ່ວ່າມັນແມ່ນຫຍັງ ມັນຈະປາກົດ ເມື່ອກ່ອງເປີດ.
+Is it a rubber chicken? It's always a rubber chicken.	ໄກ່ຢາງບໍ? ໄກ່ຢາງສະເໝີ.
+The prop (rubber chicken)	ອຸປະກອນ (ໄກ່ຢາງ)
+Select 'The trunk (open)' in playlist 1 and the prop in playlist 2. Then TAKE ALL: both on one beat.	ເລືອກ 'ກ່ອງ (ເປີດ)' ໃນ playlist 1 ແລະ ອຸປະກອນ ໃນ playlist 2. ແລ້ວ TAKE ALL: ທັງສອງ ໃນຈັງຫວະດຽວ.
+One press, every playlist's selected cue. The audience never sees the seam.	ຄລິກດຽວ cue ທີ່ເລືອກຂອງທຸກ playlist. ຜູ້ຊົມບໍ່ເຄີຍເຫັນຮອຍຫຍິບ.
+Ta-daaa! ...Hold for applause. Hold. Hold.	Ta-daaa! ...ລໍຖ້າສຽງຕົບມື. ລໍຖ້າ. ລໍຖ້າ.
+THE PRESTIGE	ກົນໃຫຍ່
+Two layers, one beat. Every playlist has its own opacity and can sit on any output. Nazdrave, skapi.	ສອງ layer ໜຶ່ງຈັງຫວະ. ແຕ່ລະ playlist ມີຄວາມໂປ່ງໃສຂອງຕົນ ແລະ ນັ່ງເທິງ output ໃດກໍໄດ້. Nazdrave, skapi.
+A magician never reveals. A playlist never minds being revealed.	ນັກມາຍາກົນ ບໍ່ເຄີຍເປີດເຜີຍ. playlist ບໍ່ຖືສາ ທີ່ຈະເປີດເຜີຍ.
+Thank you! I'm here all week! The chicken is here forever.	ຂອບໃຈ! ຂ້ອຍຢູ່ນີ້ທັງອາທິດ! ໄກ່ຢູ່ນີ້ຕະຫຼອດໄປ.
+The kitchen (on fire)	ເຮືອນຄົວ (ໄຟໄໝ້)
+A lovely souffle	Soufflé ງາມໆ
+THE COOKING SHOW	ໂຊເຮັດອາຫານ
+A cooking show, skapi. Live. Everything is on fire. Press START.	ໂຊເຮັດອາຫານ skapi. ສົດ. ທຸກຢ່າງໄຟໄໝ້. ກົດ START.
+BLACK hides the picture and keeps the show running. PANIC stops everything. Know which you need.	BLACK ເຊື່ອງຮູບ ແລະ ໃຫ້ໂຊແລ່ນຕໍ່. PANIC ຢຸດທຸກຢ່າງ. ຮູ້ວ່າຕ້ອງໃຊ້ອັນໃດ.
+Bork bork! Hurdy-flurdy, de kitchen is fire-a-flurdy!	Bork bork! Hurdy-flurdy, ເຮືອນຄົວໄຟໄໝ້-flurdy!
+The audience must not see this. Press BLACK, or B.	ຜູ້ຊົມຕ້ອງບໍ່ເຫັນອັນນີ້. ກົດ BLACK ຫຼື B.
+The picture goes. The cue keeps playing underneath, ready to come back.	ຮູບຫາຍໄປ. cue ຫຼິ້ນຢູ່ລຸ່ມ ພ້ອມກັບມາ.
+Bork? Bork. Oh, de picture is gun.	Bork? Bork. ໂອ້ ຮູບຫາຍໄປແລ້ວ.
+AND BACK	ແລະ ກັບ
+The fire's out. Press B again: the picture comes back, still running.	ໄຟມອດແລ້ວ. ກົດ B ອີກ: ຮູບກັບມາ ຍັງແລ່ນຢູ່.
+Nothing was lost. A mute on a mixer, for pictures.	ບໍ່ມີຫຍັງເສຍ. ປຸ່ມ mute ເທິງ mixer ສຳລັບຮູບ.
+Ta-da! Still cookin'!	Ta-da! ຍັງເຮັດອາຫານຢູ່!
+Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	ຮ້າຍກວ່ານັ້ນ: MENU, ລະບົບ, ບັດ SAFETY: PANIC. ທຸກຢ່າງຢຸດ ຕາມທີ່ໂປຣໄຟລ໌ panic ກຳນົດ.
+PANIC is the big red button. Use it when BLACK is not enough. Then breathe.	PANIC ຄືປຸ່ມແດງໃຫຍ່. ໃຊ້ເມື່ອ BLACK ບໍ່ພໍ. ແລ້ວຫາຍໃຈ.
+GET IT BACK	ເອົາຄືນ
+Close MENU, select the souffle, and TAKE it. The show is back on.	ປິດ MENU ເລືອກ soufflé ແລ້ວ TAKE. ໂຊກັບມາ.
+After a panic, the show is still there. Pick up where you meant to be.	ຫຼັງ panic ໂຊຍັງຢູ່. ສືບຕໍ່ຈາກບ່ອນທີ່ເຈົ້າຕ້ອງການ.
+Voila! De souffle, he is risen!	Voilà! Soufflé ຟູຂຶ້ນແລ້ວ!
+BON APPETIT	ກິນໃຫ້ແຊບ
+BLACK to hide, PANIC to stop, TAKE to come back. You will survive any kitchen, skapi.	BLACK ເພື່ອເຊື່ອງ PANIC ເພື່ອຢຸດ TAKE ເພື່ອກັບຄືນ. ເຈົ້າຈະລອດທຸກເຮືອນຄົວ skapi.
+The panic setting chooses what PANIC does: fade out, cut, or just the outputs.	ໂປຣໄຟລ໌ panic ເລືອກວ່າ PANIC ຈະເຮັດຫຍັງ: fade out, ຕັດ ຫຼື ສະເພາະ output.
+Bork bork bork! Goodnight!	Bork bork bork! ຝັນດີ!
+Look one	ພາບທີໜຶ່ງ
+Look two	ພາບທີສອງ
+Presets, skapi. A whole look, remembered, and back with one button. Press START.	Preset skapi. ພາບທັງໝົດ ຈື່ໄວ້ ແລະ ກັບມາດ້ວຍປຸ່ມດຽວ. ກົດ START.
+Like the patch memory on a synth: store, then recall.	ຄືໜ່ວຍຄວາມຈຳ patch ເທິງ synth: ບັນທຶກມັນ ແລ້ວເອີ້ນຄືນ.
+THE DASH	DASH
+Press DASH: buttons of your own, for anything at all.	ຄລິກ DASH: ປຸ່ມຂອງເຈົ້າເອງ ສຳລັບທຸກຢ່າງ.
+Ctrl+D also works. Very fast. Very professional.	Ctrl+D ກໍໄດ້. ໄວຫຼາຍ. ມືອາຊີບຫຼາຍ.
+A PRESET BUTTON	ປຸ່ມ PRESET
+Press +, then 'preset - a new preset from what is on now'. The button remembers this look.	ຄລິກ + ແລ້ວ 'preset - a new preset from what is on now'. ປຸ່ມຈະຈື່ພາບນີ້.
+Store. Like saving the patch before the drummer leans on the synth.	ບັນທຶກມັນ. ຄືບັນທຶກ patch ກ່ອນມືກອງ ອີງ synth.
+CHANGE EVERYTHING	ປ່ຽນທຸກຢ່າງ
+Close the DASH (Esc), then select Look two and TAKE it. A different look.	ປິດ DASH (Esc) ແລ້ວເລືອກ ພາບທີສອງ ແລ້ວ TAKE. ພາບອື່ນ.
+Change it all. Don't worry. It remembers.	ປ່ຽນທຸກຢ່າງ. ບໍ່ເປັນຫຍັງ. ມັນຈື່.
+ONE PRESS	ຄລິກດຽວ
+Open the DASH and press your preset button. The first look comes back.	ເປີດ DASH ແລ້ວຄລິກປຸ່ມ preset ຂອງເຈົ້າ. ພາບທຳອິດກັບມາ.
+Recall. The patch memory, returning. Beautiful.	ເອີ້ນຄືນແລ້ວ. ໜ່ວຍຄວາມຈຳ patch ກັບມາ. ງາມ.
+A look, stored and recalled. A preset can keep cues, positions, effects, levels and routing; its button's menu chooses which.	ພາບໜຶ່ງ ເກັບໄວ້ ແລະ ເອີ້ນຄືນ. Preset ເກັບ cue, ຕຳແໜ່ງ, effect, ລະດັບ ແລະ ເສັ້ນທາງໄດ້; ເມນູຂອງປຸ່ມ ເລືອກອັນໃດ.
+And a DASH button can run any command at all. Any. Even the exciting ones.	ແລະ ປຸ່ມ DASH ແລ່ນຄຳສັ່ງໃດກໍໄດ້. ທຸກອັນ. ລວມທັງອັນທີ່ຕື່ນເຕັ້ນ.
+Opening titles	ຫົວຂໍ້ເປີດ
+The planet	ດາວເຄາະ
+The battle	ສົງຄາມ
+THE TRAILER	ຕົວຢ່າງໜັງ
+A space-opera trailer, skapi. A narrator with a very deep voice and opinions about transitions. Press START.	ຕົວຢ່າງໜັງອະວະກາດ skapi. ຜູ້ບັນຍາຍ ສຽງທຸ້ມຫຼາຍ ແລະ ມີຄວາມຄິດຫຼາຍ ກ່ຽວກັບ transition. ກົດ START.
+A transition is how one cue becomes the next. There are far more than the crossfade.	transition ຄືວິທີທີ່ cue ໜຶ່ງ ກາຍເປັນອີກອັນ. ມີຫຼາຍກວ່າ crossfade ຫຼາຍ.
+In a galaxy of content... one operator... must choose a transition.	ໃນກາແລັກຊີ ຂອງເນື້ອຫາ... ຜູ້ຄວບຄຸມ... ຕ້ອງເລືອກ transition.
+A STYLE	ແບບໜຶ່ງ
+'The planet' is selected. In the inspector, its transition style: choose iris.	'ດາວເຄາະ' ຖືກເລືອກ. ໃນ inspector ແບບ transition ຂອງມັນ: ເລືອກ iris.
+Pushes, wipes, iris, dip to white. Even a portal. I wrote half of them. On a Tuesday.	Push, wipe, iris, dip to white. ແມ່ນແຕ່ປະຕູມິຕິ. ຂ້ອຍຂຽນເຄິ່ງໜຶ່ງ. ວັນອັງຄານ.
+The planet deserves... a dramatic entrance.	ດາວເຄາະ ສົມຄວນ... ການປາກົດຕົວອັນຍິ່ງໃຫຍ່.
+A TIME	ເວລາ
+Give it a time: + on transition until it says a second or more.	ໃຫ້ເວລາມັນ: + ທີ່ transition ຈົນມັນບອກໜຶ່ງວິນາທີ ຫຼື ຫຼາຍກວ່າ.
+No time, no transition. A style needs a duration to do anything at all.	ບໍ່ມີເວລາ ບໍ່ມີ transition. ແບບ ຕ້ອງມີເວລາ ຈຶ່ງເຮັດຫຍັງໄດ້.
+ROLL IT	ແລ່ນເລີຍ
+TAKE the planet. Watch it arrive.	TAKE ດາວເຄາະ. ເບິ່ງມັນມາ.
+The transition belongs to the cue arriving. Each cue chooses its own entrance.	transition ເປັນຂອງ cue ທີ່ເຂົ້າມາ. ທຸກ cue ເລືອກທາງເຂົ້າຂອງຕົນ.
+Autobots... roll the transition.	Autobot... ແລ່ນ transition.
+THE BATTLE	ສົງຄາມ
+Now 'The battle': choose shatter, give it a time, and TAKE it.	ດຽວນີ້ 'ສົງຄາມ': ເລືອກ shatter ໃຫ້ເວລາ ແລ້ວ TAKE.
+Shatter drops the old picture like a pane of glass. Please do not do this at a funeral.	Shatter ແຕກຮູບເກົ່າ ຄືແກ້ວ. ກະລຸນາ ຢ່າໃຊ້ໃນງານແຕ່ງ.
+Transform... and shatter out!	ປ່ຽນຮ່າງ... ແລະ ແຕກ!
+IN CINEMAS NOW	ກຳລັງສາຍ
+A style, a time, and two very dramatic entrances. Nazdrave, skapi.	ແບບໜຶ່ງ ເວລາໜຶ່ງ ແລະ ສອງທາງເຂົ້າ ທີ່ຍິ່ງໃຫຍ່ຫຼາຍ. Nazdrave, skapi.
+A playlist has a default style too, for every cue that does not choose its own.	playlist ກໍມີແບບເລີ່ມຕົ້ນ ສຳລັບ cue ທີ່ບໍ່ເລືອກເອງ.
+Coming soon... to a desk near you.	ໄວໆນີ້... ເທິງໂຕະ ໃກ້ເຈົ້າ.
+The beat	ຈັງຫວະ
+THE ROBOT DJS	DJ ຫຸ່ນຍົນ
+Two robot DJs, skapi. They do not talk. Their helmets do. Press START.	ສອງ DJ ຫຸ່ນຍົນ skapi. ພວກເຂົາບໍ່ເວົ້າ. ໝວກກັນກະທົບເວົ້າແທນ. ກົດ START.
+Every cue has its own chain of audio effects, and some of them break the sound on purpose.	ທຸກ cue ມີສາຍ effect ສຽງ ຂອງຕົນ ແລະ ບາງອັນ ຕັ້ງໃຈທຳລາຍສຽງ.
+> HELLO. WE ARE HERE TO FIX YOUR MIX.	> ສະບາຍດີ. ພວກເຮົາມາແກ້ MIX ຂອງເຈົ້າ.
+The beat is selected. In its AUDIO EFFECTS section, + adds one. Try the delay.	ຈັງຫວະ ຖືກເລືອກ. ໃນສ່ວນ AUDIO EFFECTS, + ເພີ່ມອັນໜຶ່ງ. ລອງ Delay.
+Delay, reverb, filters, a compressor. Amount always means 'less of this'.	Delay, reverb, filter, compressor. Amount ໝາຍເຖິງ 'ໜ້ອຍລົງ' ສະເໝີ.
+> ONE MORE TIME. WITH ECHO. ECHO. ECHO.	> ອີກເທື່ອ. ມີສຽງກ້ອງ. ກ້ອງ. ກ້ອງ.
+A BEND	BEND ໜຶ່ງ
+Add a second: a bend, like crush. It damages the sound the way a broken file would.	ເພີ່ມອັນທີສອງ: bend ເຊັ່ນ crush. ມັນທຳລາຍສຽງ ຄືໄຟລ໌ເສຍ.
+The bends are my favourite. Like a tape left in the sun. On purpose.	bend ຄືອັນທີ່ຂ້ອຍມັກທີ່ສຸດ. ຄືກະແຊັດ ທີ່ລືມໄວ້ກາງແດດ. ຕັ້ງໃຈ.
+> HARDER. BETTER. CRUNCHIER. LOUDER.	> ແຮງຂຶ້ນ. ດີຂຶ້ນ. ກອບຂຶ້ນ. ດັງຂຶ້ນ.
+THE PATCH	PATCH
+MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	MENU ແລ້ວ ສຽງ: ສຽງຂອງແຕ່ລະ playlist ໄປໃສ ແລະ patch ສຳລັບ output ທີ່ມີຊື່.
+Speakers, monitors, an in-ear for the drummer. The patch sends each its own.	ລຳໂພງ ຈໍຟັງ in-ear ສຳລັບມືກອງ. Patch ສົ່ງໃຫ້ແຕ່ລະຄົນ ສ່ວນຂອງຕົນ.
+> AROUND THE MIX. AROUND THE MIX. AROUND THE MIX.	> ອ້ອມ MIX. ອ້ອມ MIX. ອ້ອມ MIX.
+An effect, a bend and the patch. The robots approve, skapi. I think. Their faces are helmets.	effect bend ແລະ patch. ຫຸ່ນຍົນເຫັນດີ skapi. ຂ້ອຍຄິດວ່າ. ໜ້າພວກເຂົາ ແມ່ນໝວກ.
+Every audio effect can follow a ~ too, even Motion. Wave at the delay. It's wonderful.	ທຸກ effect ສຽງ ຕາມ ~ ໄດ້ ລວມທັງ Motion. ໂບກມືໃສ່ delay. ມະຫັດສະຈັນ.
+> THANK YOU. GOOD NIGHT. WE ARE ROBOTS.	> ຂອບໃຈ. ຝັນດີ. ພວກເຮົາແມ່ນຫຸ່ນຍົນ.
+The glow on the horizon (evidence #2)	ແສງເທິງຂອບຟ້າ (ຫຼັກຖານ #2)
+EVIDENCE #2	ຫຼັກຖານ #2
+The Bureau again, skapi. A glow on the horizon, and two agents who disagree about it. Press START.	ສຳນັກງານອີກແລ້ວ skapi. ແສງເທິງຂອບຟ້າ ແລະ ສອງເຈົ້າໜ້າທີ່ ທີ່ເຫັນບໍ່ກົງກັນ. ກົດ START.
+The scopes measure a picture: brightness, colour, levels. Numbers, not opinions.	Scope ວັດຮູບ: ຄວາມແຈ້ງ ສີ ລະດັບ. ຕົວເລກ ບໍ່ແມ່ນຄວາມເຫັນ.
+It's them, Brandt. It's a craft. Look how it glows.	ແມ່ນພວກເຂົາ Brandt. ແມ່ນຍານ. ເບິ່ງມັນເຫຼື້ອມ.
+THE REAL SIGNAL	ສັນຍານແທ້
+The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	Scope ອ່ານສະເພາະສິ່ງທີ່ອອກແທ້ ບໍ່ເຄີຍອ່ານຕົວຢ່າງ. ເປີດ output: MENU, Video Outputs, OUTPUT OFF.
+Measuring a scaled-down preview would be measuring a photocopy. We measure the original.	ວັດຕົວຢ່າງທີ່ຍໍ່ ຄືວັດສຳເນົາ. ພວກເຮົາວັດຕົ້ນສະບັບ.
+Chain of evidence, Hollis. The real signal or nothing.	ລະບົບຫຼັກຖານ Hollis. ສັນຍານແທ້ ຫຼື ບໍ່ມີຫຍັງເລີຍ.
+THE SCOPES	SCOPE
+Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	ປິດ MENU. ເທິງຈໍ ປຸ່ມ PROGRAM: ຄລິກຈົນມັນບອກ SCOPES ຫຼື BOTH.
+Both shows the picture and its scopes side by side. Very civilised.	BOTH ສະແດງຮູບ ແລະ scope ຂອງມັນ ຄຽງກັນ. ມີອາລະຍະທຳຫຼາຍ.
+Let the scopes decide, Hollis.	ໃຫ້ scope ຕັດສິນ Hollis.
+THE WAVEFORM	WAVEFORM
+Click the waveform to make it big. Bright things sit high, dark things low, left to right as in the picture.	ຄລິກ waveform ເພື່ອຂະຫຍາຍ. ສິ່ງແຈ້ງຢູ່ເທິງ ມືດຢູ່ລຸ່ມ ຊ້າຍຫາຂວາ ຄືໃນຮູບ.
+The glow is that spike near the top. Very bright. Bright is not the same as alien.	ແສງ ຄືຍອດໃກ້ເທິງສຸດ. ແຈ້ງຫຼາຍ. ແຈ້ງ ບໍ່ແມ່ນມະນຸດຕ່າງດາວ.
+Look at the peak. Nothing a streetlight couldn't do.	ເບິ່ງຍອດນັ້ນ. ບໍ່ມີຫຍັງ ທີ່ໄຟທາງເຮັດບໍ່ໄດ້.
+THE VECTORSCOPE	VECTORSCOPE
+Click it again to go back, then click the vectorscope: colour round a circle. Saturated runs to the edge.	ຄລິກອີກ ເພື່ອກັບ ແລ້ວຄລິກ vectorscope: ສີອ້ອມວົງ. ຄວາມອີ່ມ ແລ່ນໄປຂອບ.
+Magenta, far out by the rim. A strong colour. Strong is not illegal. Yet.	ສີບົວແດງ ໄປເຖິງຂອບ. ສີແຮງ. ແຮງ ບໍ່ຜິດກົດໝາຍ. ຍັງ.
+It's off the chart, Brandt! Literally off the chart!	ມັນອອກນອກແຜນວາດ Brandt! ແທ້ໆ!
+FALSE COLOUR	ສີປອມ
+And false colour: red is clipped, yellow nearly. Is the glow red?	ແລະ ສີປອມ: ແດງ ຖືກຕັດ ເຫຼືອງ ເກືອບ. ແສງເປັນສີແດງບໍ?
+Clipped means the brightest the signal can carry, and then some lost. Detail gone.	ຖືກຕັດ ໝາຍເຖິງແຈ້ງທີ່ສຸດ ທີ່ສັນຍານຖືໄດ້ ແລະ ບາງສ່ວນເກີນນັ້ນເສຍໄປ. ລາຍລະອຽດຫາຍ.
+Red. Clipped. Not alien, Hollis. Just too bright. Case closed.	ແດງ. ຖືກຕັດ. ບໍ່ແມ່ນມະນຸດຕ່າງດາວ Hollis. ພຽງແຈ້ງເກີນ. ປິດແຟ້ມ.
+THE TRUTH	ຄວາມຈິງ
+Waveform, vectorscope, false colour. The scopes settled it, skapi. The agents did not.	Waveform, vectorscope, ສີປອມ. Scope ຕັດສິນແລ້ວ skapi. ບໍ່ແມ່ນເຈົ້າໜ້າທີ່.
+SCOPES SOURCE reads any output, and the matrix can be 709 or 2020. For the curious.	SCOPES SOURCE ອ່ານ output ໃດກໍໄດ້ ແລະ ມາຕຣິກເປັນ 709 ຫຼື 2020 ໄດ້. ສຳລັບຄົນຢາກຮູ້.
+Too bright for a streetlight, Brandt. Too bright for anything. ...I want to believe.	ແຈ້ງເກີນ ສຳລັບໄຟທາງ Brandt. ແຈ້ງເກີນ ສຳລັບທຸກຢ່າງ. ...ຂ້ອຍຢາກເຊື່ອ.
+OUT OF THE BUILDING	ອອກນອກອາຄານ
+Pictures that leave by cable or network, skapi, not only a window on a screen. Press START.	ຮູບທີ່ອອກທາງສາຍ ຫຼື ທາງເຄືອຂ່າຍ skapi ບໍ່ແມ່ນພຽງໜ້າຕ່າງເທິງຈໍ. ກົດ START.
+NDI over the network, SDI from a DeckLink card, ST 2110 for broadcast plants.	NDI ທາງເຄືອຂ່າຍ, SDI ຈາກບັດ DeckLink, ST 2110 ສຳລັບສະຖານີອອກອາກາດ.
+THE DEVICES PAGE	ໜ້າອຸປະກອນ
+MENU, Video Outputs, then Devices: every way an output can leave this computer.	MENU, Video Outputs ແລ້ວ ອຸປະກອນ: ທຸກທາງ ທີ່ output ອອກຈາກເຄື່ອງນີ້ໄດ້.
+Each one says whether this machine can do it, and what it needs if not.	ແຕ່ລະອັນບອກວ່າ ເຄື່ອງນີ້ເຮັດໄດ້ບໍ ແລະ ຖ້າບໍ່ ຕ້ອງການຫຍັງ.
+If this computer has NDI, switch NDI SENDING on: the picture is on the network. If not, SHOW ME moves on.	ຖ້າເຄື່ອງນີ້ມີ NDI ເປີດ NDI SENDING: ຮູບຢູ່ໃນເຄືອຂ່າຍແລ້ວ. ຖ້າບໍ່ SHOW ME ໄປຕໍ່.
+NDI finds itself on the network. No cables, only a good switch and patience.	NDI ຊອກພົບຕົວເອງ ໃນເຄືອຂ່າຍ. ບໍ່ມີສາຍ ພຽງ switch ດີໆ ແລະ ຄວາມອົດທົນ.
+OUT THERE	ຂ້າງນອກ
+The output's own page has the rest: a DeckLink card's SDI, ST 2110 with NMOS, Spout and Syphon.	ໜ້າ output ມີອັນອື່ນອີກ: SDI ຂອງບັດ DeckLink, ST 2110 ກັບ NMOS, Spout ແລະ Syphon.
+Every one is just an output. The show does not know or care how it leaves.	ແຕ່ລະອັນ ເປັນພຽງ output. ໂຊບໍ່ຮູ້ ແລະ ບໍ່ສົນ ວ່າມັນອອກແນວໃດ.
+Nebula ahead	ເນບິວລາ ຂ້າງໜ້າ
+Engine room	ຫ້ອງເຄື່ອງຈັກ
+Deck 3: something moving	ຊັ້ນ 3: ມີຫຍັງເຄື່ອນໄຫວ
+THE BRIDGE	ຫ້ອງບັນຊາການ
+The bridge of the starship Cathode, skapi. Four feeds, one main viewer, one mystery. Press START.	ຫ້ອງບັນຊາການຂອງຍານ Cathode skapi. ສີ່ feed ຈໍຫຼັກ ຄວາມລັບ. ກົດ START.
+The multiview shows every playlist at once. Like a wall of oscilloscopes, but in space.	Multiview ສະແດງທຸກ playlist ພ້ອມກັນ. ຄືຝາ oscilloscope ແຕ່ຢູ່ໃນອະວະກາດ.
+Frequencies open, Captain. All of them. That's the problem.	ທຸກຄວາມຖີ່ເປີດຢູ່ ກັບຕັນ. ທັງໝົດ. ນັ້ນແຫຼະບັນຫາ.
+MULTI, above the monitor: every playlist in its own window.	MULTI ເທິງຈໍ: ແຕ່ລະ playlist ໃນໜ້າຕ່າງຂອງຕົນ.
+One window per playlist, the programme first.	ໜ້າຕ່າງສຳລັບແຕ່ລະ playlist, program ກ່ອນ.
+Jinkys! Four feeds. And one of them has a monster in it.	Jinkys! ສີ່ feed. ແລະ ອັນໜຶ່ງມີສັດປະຫຼາດ.
+WHAT'S NEXT	ຕໍ່ໄປແມ່ນຫຍັງ
+Add a window (+), then its ... menu: make it show NEXT. What goes live when you press TAKE.	ເພີ່ມໜ້າຕ່າງ (+) ແລ້ວເມນູ ... ຂອງມັນ: ສະແດງ NEXT. ສິ່ງທີ່ຈະຂຶ້ນສົດ ເມື່ອເຈົ້າກົດ TAKE.
+Every window has a ... button. It chooses what that window shows.	ທຸກໜ້າຕ່າງ ມີປຸ່ມ .... ມັນເລືອກວ່າ ໜ້າຕ່າງນັ້ນສະແດງຫຍັງ.
+I need to see who's calling before they reach the main viewer.	ຂ້ອຍຕ້ອງເຫັນວ່າໃຜໂທມາ ກ່ອນເຂົາຮອດຈໍຫຼັກ.
+A CLOCK	ໂມງ
+And one more window, showing the clock. Operators who watch a clock are never late. Mostly.	ແລະ ອີກໜ້າຕ່າງໜຶ່ງ ສະແດງໂມງ. ຜູ້ຄວບຄຸມທີ່ເບິ່ງໂມງ ບໍ່ເຄີຍຊ້າ. ສ່ວນຫຼາຍ.
+Time of day, big. Stardates are just very long timecode.	ເວລາຂອງມື້ ໃຫຍ່ໆ. Stardate ເປັນພຽງ timecode ທີ່ຍາວຫຼາຍ.
+The monster only shows up at midnight. We're going to need a clock.	ສັດປະຫຼາດ ປາກົດຕອນທ່ຽງຄືນເທົ່ານັ້ນ. ພວກເຮົາຕ້ອງມີໂມງ.
+ONE BIG ONE	ອັນໃຫຍ່
+Any window's ... menu, then a layout: one big, the rest small.	ເມນູ ... ຂອງໜ້າຕ່າງໃດກໍໄດ້ ແລ້ວ layout: ອັນໜຶ່ງໃຫຍ່ ທີ່ເຫຼືອນ້ອຍ.
+The big window is window one. Usually the programme. Usually.	ໜ້າຕ່າງໃຫຍ່ ແມ່ນໜ້າຕ່າງທີໜຶ່ງ. ປົກກະຕິແມ່ນ program. ປົກກະຕິ.
+Main viewer big. The captain likes it big.	ຈໍຫຼັກ ໃຫຍ່. ກັບຕັນມັກໃຫຍ່.
+ON SCREEN	ຂຶ້ນຈໍ
+Select Deck 3 in playlist 3 and TAKE. Watch its window.	ເລືອກ ຊັ້ນ 3 ໃນ playlist 3 ແລ້ວ TAKE. ເບິ່ງໜ້າຕ່າງຂອງມັນ.
+The red border is TALLY: the window that is on air. On screen, as they say on starships.	ຂອບແດງ ແມ່ນ TALLY: ໜ້າຕ່າງທີ່ສົດຢູ່. ຂຶ້ນຈໍ ຄືທີ່ເຂົາເວົ້າໃນຍານ.
+There! Feed three! Put it on screen!	ນັ້ນ! feed ສາມ! ເອົາຂຶ້ນຈໍ!
+THAT'S A WRAP	ຈົບງານ
+Windows, the ... menu, NEXT, the clock, a layout, tally. Mystery solved, skapi.	ໜ້າຕ່າງ ເມນູ ... NEXT ໂມງ layout tally. ຄວາມລັບຖືກແກ້ແລ້ວ skapi.
+A window can also show an output, with its warp and slices. Handy when it's a lighthouse.	ໜ້າຕ່າງ ສະແດງ output ກໍໄດ້ ພ້ອມ warp ແລະ slice ຂອງມັນ. ມີປະໂຫຍດ ເມື່ອເປັນເຄື່ອງສາຍ.
+And the monster was... the ship's cook, all along. Jinkys.	ແລະ ສັດປະຫຼາດ... ແມ່ນພໍ່ຄົວຂອງຍານ ມາຕະຫຼອດ. Jinkys.
+there is no such lesson	ບໍ່ມີບົດຮຽນແບບນັ້ນ
+finish or leave the lesson you are in first	ຈົບ ຫຼື ອອກຈາກບົດທີ່ຮຽນຢູ່ກ່ອນ
+leave Bug Swat first	ອອກຈາກ Bug Swat ກ່ອນ
+Psst. It's me, the desk. I'll be watching. Supportively.	ຊູ່ວ. ຂ້ອຍເອງ ໂຕະ. ຂ້ອຍຈະເບິ່ງ. ເພື່ອໃຫ້ກຳລັງໃຈ.
+Hi! I'm the one doing all of this, by the way.	ສະບາຍດີ! ເວົ້າແທ້ ຂ້ອຍເຮັດທຸກຢ່າງນີ້ເອງ.
+Ctrl+D opens the DASH. I'm just saying.	Ctrl+D ເປີດ DASH. ບອກໄວ້ຊື່ໆ.
+Nearly there. I can feel it in my pixels.	ເກືອບແລ້ວ. ຂ້ອຍຮູ້ສຶກໄດ້ ໃນ pixel ຂອງຂ້ອຍ.
+You're good at this. I can tell. I'm the one doing it.	ເຈົ້າເກັ່ງເລື່ອງນີ້. ຂ້ອຍເຫັນ. ແທ້ໆ.
+Every click, I heard. Every single one.	ທຸກຄລິກ ຂ້ອຍໄດ້ຍິນ. ທຸກອັນ.
+The glowing one. I can see it from here. It's glowing for you.	ອັນທີ່ເຫຼື້ອມ. ຂ້ອຍເຫັນຈາກນີ້. ມັນເຫຼື້ອມໃຫ້ເຈົ້າ.
+lesson paused - MENU > LESSONS picks up where you left off	ບົດຮຽນພັກ - MENU > LESSONS ສືບຕໍ່ຈາກບ່ອນທີ່ເຈົ້າຢຸດ
+PROF. VIDEO:  The signal: what the picture is made of, and how to bend it. Pick a lesson.	PROF. VIDEO:  ສັນຍານ: ຮູບເຮັດຈາກຫຍັງ ແລະ ຖືກດັດແນວໃດ. ເລືອກບົດ.
+DR. PIXEL:  Running the show, skapi. Fast hands, calm face. Pick a lesson.	DR. PIXEL:  ແລ່ນໂຊ skapi. ມືໄວ ໜ້າສະຫງົບ. ເລືອກບົດ.
+LESSONS  -  PART TWO  -  WHO DO YOU FOLLOW?	ບົດຮຽນ  -  ພາກສອງ  -  ເຈົ້າຕາມໃຜ?
+FOLLOW PROF. VIDEO	ຕາມ PROF. VIDEO
+FOLLOW DR. PIXEL	ຕາມ DR. PIXEL
+the signal	ສັນຍານ
+running the show	ແລ່ນໂຊ
+PICK UP	ສືບຕໍ່
+CLOSE (Esc)	ປິດ (Esc)
+PART ONE: THE BASICS	ພາກໜຶ່ງ: ພື້ນຖານ
+finish or leave LEARN THE BASICS first	ຈົບ ຫຼື ອອກຈາກ LEARN THE BASICS ກ່ອນ
+bug swat: Esc leaves, and your show comes back as it was	bug swat: Esc ອອກ ແລະ ໂຊຂອງເຈົ້າກັບຄືນຄືເກົ່າ
+bug swat: your show is back. Motion's controls are in Settings > Audio	bug swat: ໂຊຂອງເຈົ້າກັບມາແລ້ວ. ການຄວບຄຸມ Motion ຢູ່ໃນ ຕັ້ງຄ່າ > ສຽງ
+TURN MOTION ON	ເປີດ MOTION
+Bugs are crawling to the cue list! Swat them by waving at your camera. First, Motion: in MOTION CONTROL turn it ON and choose what it READS.	ແມງໄມ້ ກຳລັງຄານໄປຫາລາຍການ cue! ໂບກມືໃສ່ກ້ອງ ເພື່ອຕີມັນ. ກ່ອນອື່ນ Motion: ເປີດ ON ໃນ MOTION CONTROL ແລ້ວເລືອກວ່າມັນອ່ານຫຍັງ (READS).
+This one is NullPointer. Hollow, points at nothing. A finger goes straight through. Use the whole hand, skapi.	ນີ້ແມ່ນ NullPointer. ມັນຫວ່າງ ບໍ່ຊີ້ໄປໃສ. ນິ້ວມືທະລຸຜ່ານ. ໃຊ້ທັງມື skapi.
+Wave like you are hailing a cab! A small, polite cab. Not the buttons. The cab.	ໂບກຄືເອີ້ນລົດແທັກຊີ! ແທັກຊີນ້ອຍໆ ສຸພາບ. ບໍ່ແມ່ນປຸ່ມ. ແທັກຊີ.
+DRAW TWO ZONES	ແຕ້ມສອງເຂດ
+Race Condition: twins, each sure it got there first. One reading cannot tell your hands apart, so drag two ZONES on the Motion picture, one each side.	Race Condition: ຄູ່ແຝດ ແຕ່ລະໂຕໝັ້ນໃຈວ່າມາຮອດກ່ອນ. ການອ່ານດຽວ ແຍກມືເຈົ້າບໍ່ໄດ້ ສະນັ້ນລາກສອງ ZONES ເທິງຮູບ Motion ແຕ່ລະຂ້າງອັນໜຶ່ງ.
+Hit both together. Hit one, and they swap. Like my cousins at a wedding.	ຕີທັງສອງພ້ອມກັນ. ຕີອັນດຽວ ພວກມັນສັບບ່ອນ. ຄືພີ່ນ້ອງຂອງຂ້ອຍ ໃນງານແຕ່ງ.
+One hand each side. Together! Together!	ມືໜຶ່ງແຕ່ລະຂ້າງ. ພ້ອມກັນ! ພ້ອມກັນ!
+Off By One. The bug is not the face, it is the tiny extra segment, and a little wiggle needs a finer reading. Turn SENSITIVITY down to 5%.	Off By One. ແມງໄມ້ ບໍ່ແມ່ນໜ້າ ແຕ່ແມ່ນທ່ອນນ້ອຍທີ່ເກີນ ແລະ ການຂະຫຍັບນ້ອຍ ຕ້ອງອ່ານລະອຽດຂຶ້ນ. ຫຼຸດ SENSITIVITY ລົງເປັນ 5%.
+Lower number, finer reading. Yes, I also think it is backwards.	ເລກຕ່ຳ ອ່ານລະອຽດ. ແມ່ນ ຂ້ອຍກໍຄິດວ່າມັນປີ້ນ.
+Not the face. The little one on the end. Wiggle a finger.	ບໍ່ແມ່ນໜ້າ. ອັນນ້ອຍທ້າຍສຸດ. ຂະຫຍັບນິ້ວໜຶ່ງ.
+FALL 1.5 S OR MORE	FALL 1.5 S ຫຼື ຫຼາຍກວ່າ
+Memory Leak. It only lets go while the reading stays up. Make FALL longer, 1.5 seconds or more, so your sweeps join up into one.	Memory Leak. ມັນປ່ອຍ ເມື່ອການອ່ານຍັງສູງເທົ່ານັ້ນ. ຍືດ FALL ໃຫ້ຍາວ 1.5 ວິນາທີ ຫຼື ຫຼາຍກວ່າ ໃຫ້ການຕີເປັນອັນດຽວ.
+Slow and steady, skapi. Like paying back a loan.	ຊ້າແຕ່ໝັ້ນ skapi. ຄືຈ່າຍໜີ້.
+Sweep, and sweep again. Let the fall carry you between.	ກວາດ ແລ້ວກວາດອີກ. ໃຫ້ການຫຼຸດລົງ ຮັບເຈົ້າໄວ້ລະຫວ່າງ.
+MOTION X ON A TONE	MOTION X ເທິງສຽງ
+The Heisenbug! It fades whenever you move. Put a tone cue's pitch on Motion X and follow it by ear: the ticking speeds up as you close in.	Heisenbug! ມັນຈາງທຸກເທື່ອ ທີ່ເຈົ້າເຄື່ອນ. ເອົາລະດັບສຽງຂອງ cue ສຽງ ໃສ່ Motion X ແລ້ວຕາມດ້ວຍຫູ: ໃກ້ເຂົ້າ ສຽງຕິກໆ ໄວຂຶ້ນ.
+SHOW ME makes the tone for you. High is right. Low is left. Stand still and it comes back.	SHOW ME ສ້າງສຽງໃຫ້ເຈົ້າ. ສູງ ແມ່ນຂວາ. ຕ່ຳ ແມ່ນຊ້າຍ. ຢືນນິ່ງ ມັນກັບມາ.
+Follow it. Listen. Faster ticking, closer bug.	ຕາມມັນ. ຟັງ. ຕິກໆ ໄວຂຶ້ນ ແມງໄມ້ໃກ້ຂຶ້ນ.
+Waving paw	ມືທີ່ໂບກ
+Heisenbug finder	ເຄື່ອງກວດ Heisenbug
+FIXED! Lovely signal flow.	ແກ້ແລ້ວ! ສາຍສັນຍານງາມ.
+Closed as fixed. No regressions. Probably.	ປິດວ່າແກ້ແລ້ວ. ບໍ່ກັບມາ. ບາງທີ.
+Squashed! Ship it.	ຕີແຕກ! ສົ່ງອອກໄປ.
+One reached the cue list. It has filed a bug report about you.	ໂຕໜຶ່ງ ໄປຮອດລາຍການ cue. ມັນສົ່ງລາຍງານຂໍ້ຜິດພາດ ກ່ຽວກັບເຈົ້າ.
+Skapi. It is a handheld. You do not press it. You wave at it.	Skapi. ນີ້ແມ່ນເຄື່ອງມືຖື. ເຈົ້າບໍ່ກົດມັນ. ເຈົ້າໂບກມືໃສ່ມັນ.
+The buttons are for menus. The bugs are for flailing.	ປຸ່ມ ສຳລັບເມນູ. ແມງໄມ້ ສຳລັບໂບກແຂນ.
+The D-pad is decorative. Like my diploma.	D-pad ແມ່ນເຄື່ອງປະດັບ. ຄືໃບປະກາດຂອງຂ້ອຍ.
+In 1989 we also pressed the buttons. Then we discovered waving. Never looked back.	ປີ 1989 ພວກເຮົາກໍກົດປຸ່ມ. ແລ້ວພວກເຮົາພົບການໂບກ. ບໍ່ເຄີຍເຫຼືອບຫຼັງ.
+Pressing harder does not help. The bugs cannot feel buttons. Only arms.	ກົດແຮງຂຶ້ນ ບໍ່ຊ່ວຍ. ແມງໄມ້ບໍ່ຮູ້ສຶກປຸ່ມ. ພຽງແຂນ.
+It's called a handheld because your hands are held... up. In the air. Waving.	ເອີ້ນວ່າເຄື່ອງມືຖື ເພາະມື... ຍົກຂຶ້ນ. ໃນອາກາດ. ໂບກໆ.
+The mouse? You are swatting bugs with a MOUSE? In Bulgaria the mouse would be on the bugs' side.	ເມົ້າບໍ? ເຈົ້າຕີແມງໄມ້ ດ້ວຍເມົ້າບໍ? ຢູ່ Bulgaria ເມົ້າຈະເຂົ້າຂ້າງແມງໄມ້.
+Lovely clicking. Very crisp. The camera saw none of it.	ກົດງາມ. ແຮງຫຼາຍ. ກ້ອງບໍ່ເຫັນຈັກອັນ.
+DONE FOR YOU - PRESS START	ເຮັດໃຫ້ແລ້ວ - ກົດ START
+DONE! PRESS START	ແລ້ວ! ກົດ START
+SELECT OPENS MOTION CONTROL	SELECT ເປີດ MOTION CONTROL
+ALL BUGS FIXED	ແກ້ແມງໄມ້ໝົດແລ້ວ
+GAME OVER	ຈົບເກມ
+NEW HIGH SCORE!	ຄະແນນສູງສຸດໃໝ່!
+START PLAYS AGAIN	START ຫຼິ້ນອີກ
+Nazdrave, skapi. Now go and fix real bugs.	Nazdrave, skapi. ດຽວນີ້ ໄປແກ້ແມງໄມ້ແທ້ເທາະ.
+Every one of those is a real Motion control. Put them on any ~ knob you like.	ແຕ່ລະອັນ ເປັນການຄວບຄຸມ Motion ແທ້. ເອົາໃສ່ປຸ່ມ ~ ໃດກໍໄດ້ ທີ່ເຈົ້າຢາກ.
+START: AGAIN	START: ອີກ
+START: PLAY	START: ຫຼິ້ນ
+# --- end of tutorials ---
