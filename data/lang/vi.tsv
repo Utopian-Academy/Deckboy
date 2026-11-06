@@ -1,0 +1,1064 @@
+#name Tiếng Việt
+#english Vietnamese
+# Deckboy interface catalogue.
+#
+# english<TAB>translation. A line left out, or left empty, falls through to the
+# English -- so an unfinished catalogue is a partly translated app rather than
+# one with holes in it.
+#
+# Broadcast vocabulary is deliberately left in English where the trade leaves
+# it there: TAKE, PROGRAM, NDI, SRT, OSC. An operator who learned the desk in
+# one country has to be able to work it in another.
+
+NEW	MỚI
+OPEN	MỞ
+SAVE	LƯU
+SAVE AS	LƯU THÀNH
+BUNDLE	ĐÓNG GÓI
+IMPORT	NHẬP
+SOURCE	NGUỒN
+PATTERN	MẪU
+SETTINGS	CÀI ĐẶT
+TAKE	TAKE
+STOP	DỪNG
+REBOOT	KHỞI ĐỘNG LẠI
+BLACKOUT	TẮT HÌNH
+CLEAR	XÓA
+RECORD	GHI
+PLAYLIST	PLAYLIST
+TIMELINE	DÒNG THỜI GIAN
+MEDIA	MEDIA
+TRANSPORT	ĐIỀU KHIỂN
+OUTPUT	OUTPUT
+PROGRAM	PROGRAM
+WARP	WARP
+LIVE	TRỰC TIẾP
+DECODE	GIẢI MÃ
+STREAM	STREAM
+System	Hệ thống
+Audio	Âm thanh
+Network	Mạng
+Video Outputs	Đầu ra video
+About	Giới thiệu
+Encoder	Bộ mã hóa
+Screen	Màn hình
+Geometry	Hình học
+Devices	Thiết bị
+Streaming	Phát trực tuyến
+APPEARANCE	GIAO DIỆN
+REMOTE CONTROL	ĐIỀU KHIỂN TỪ XA
+INTEGRATION ADAPTERS	BỘ CHUYỂN TÍCH HỢP
+DISCOVERY / NOTES	KHÁM PHÁ / GHI CHÚ
+DISPLAY & RASTER	HIỂN THỊ & RASTER
+CONNECTED DISPLAYS	MÀN HÌNH ĐÃ KẾT NỐI
+EDGE FEATHERING	LÀM MỀM CẠNH
+MATTE & OVERLAY	MATTE & LỚP PHỦ
+AREA OF INTEREST	VÙNG QUAN TÂM
+DEFAULT TRANSITION	CHUYỂN CẢNH MẶC ĐỊNH
+NMC IN & OUT	NMC VÀO & RA
+OSC QUERY / FEEDBACK	OSC QUERY / PHẢN HỒI
+CUE INSPECTOR	CUE INSPECTOR
+SELECTED CUE	CUE ĐANG CHỌN
+PLAYBACK	PHÁT
+COPY	SAO CHÉP
+PASTE	DÁN
+RESET	ĐẶT LẠI
+Theme	Giao diện màu
+Language	Ngôn ngữ
+Resolution	Độ phân giải
+Orientation	Hướng
+Toggle Fullscreen	Bật/tắt toàn màn hình
+IDENTIFY	NHẬN DIỆN
+REGION SIZE	CỠ VÙNG
+POSITION	VỊ TRÍ
+CENTRE	GIỮA
+FULL	ĐẦY
+duration	thời lượng
+transition	chuyển cảnh
+fade in	hiện dần
+fade out	mờ dần
+ON	BẬT
+OFF	TẮT
+Stopped	Đã dừng
+Playing	Đang phát
+Paused	Tạm dừng
+2-UP	2 Ô
+DONE	XONG
+EDIT	SỬA
+HELD	GIỮ
+PICK	CHỌN
+QUAD	4 Ô
+Rate	Tốc độ
+STEP	BƯỚC
+Apply	Áp dụng
+CLOSE	ĐÓNG
+FIXED	CỐ ĐỊNH
+Help!	Help!
+ORDER	THỨ TỰ
+READY	SẴN SÀNG
+TILES	Ô
+VIDEO	VIDEO
+ALL ON	BẬT HẾT
+ALWAYS	LUÔN LUÔN
+ANALOG	ANALOG
+Buffer	Bộ đệm
+Cancel	Hủy
+Custom	Tùy chỉnh
+Device	Thiết bị
+Folder	Thư mục
+HIDDEN	ẨN
+Length	Độ dài
+Mascot	Linh vật
+Mirror	Gương
+NATIVE	GỐC
+PRESET	PRESET
+Sender	Nguồn gửi
+SUMMED	TỔNG
+TOGGLE	BẬT/TẮT
+12 HOUR	12 GIỜ
+24 HOUR	24 GIỜ
+ALL OFF	TẮT HẾT
+ARRANGE	SẮP XẾP
+Channel	Kênh
+CONVERT	CHUYỂN ĐỔI
+DEFAULT	MẶC ĐỊNH
+END CUE	CUE KẾT THÚC
+Key out	Tách nền
+LTC out	LTC ra
+MISSING	THIẾU
+PRESETS	PRESET
+PROJECT	DỰ ÁN
+RUNNING	ĐANG CHẠY
+Send to	Gửi đến
+SHUFFLE	XÁO TRỘN
+UPDATES	CẬP NHẬT
+VJ MODE	CHẾ ĐỘ VJ
+CLOCK ON	BẬT ĐỒNG HỒ
+DOWNLOAD	TẢI VỀ
+EXAMPLES	VÍ DỤ
+Mappings	Ánh xạ
+NMC sync	Đồng bộ NMC
+PROMPTER	MÁY NHẮC CHỮ
+SHOW SDP	XEM SDP
+TCP port	Cổng TCP
+UI scale	Cỡ giao diện
+vMix API	vMix API
+WATCHING	ĐANG THEO DÕI
+A/V delay	Độ trễ A/V
+ASIO outs	Kênh ra ASIO
+BOTH AXES	CẢ HAI TRỤC
+CHECK NOW	KIỂM TRA NGAY
+CLOCK OFF	TẮT ĐỒNG HỒ
+Creatures	Sinh vật
+CUE TOOLS	CÔNG CỤ CUE
+Freewheel	Chạy tự do
+HTTP port	Cổng HTTP
+Jump mode	Chế độ nhảy
+Listen on	Nghe trên
+OSC Query	OSC Query
+OUTPUT ON	OUTPUT BẬT
+Panic now	Hoảng ngay
+RECORDING	ĐANG GHI
+REMAINING	CÒN LẠI
+RESET ALL	ĐẶT LẠI HẾT
+RUN PANIC	CHẠY PANIC
+SHOW FLOW	DÒNG CHƯƠNG TRÌNH
+TIMERS ON	BẬT HẸN GIỜ
+WHEN IDLE	KHI RẢNH
+ADD OUTPUT	THÊM OUTPUT
+BUILT WITH	LÀM BẰNG
+CANCEL ALL	HỦY HẾT
+colour tag	thẻ màu
+copy chain	chép chuỗi
+Hover tips	Gợi ý khi rê chuột
+Input gain	Độ lợi đầu vào
+Input mono	Đầu vào mono
+live audio	âm thanh trực tiếp
+Live input	Đầu vào trực tiếp
+MIDI input	Đầu vào MIDI
+no picture	không có hình
+no preview	không có xem trước
+OPEN SAVED	MỞ BẢN ĐÃ LƯU
+OUTPUT OFF	OUTPUT TẮT
+Panic fade	Mờ khi panic
+Tally port	Cổng tally
+TIMERS OFF	TẮT HẸN GIỜ
+Accept from	Nhận từ
+ASIO driver	Driver ASIO
+BACK TO TOP	LÊN ĐẦU
+CANVAS MODE	CHẾ ĐỘ CANVAS
+CODE SOURCE	NGUỒN MÃ
+Cue numbers	Số cue
+Mirror rate	Tốc độ gương
+no duration	không có thời lượng
+NO LIVE CUE	KHÔNG CÓ CUE TRỰC TIẾP
+NO PREVIOUS	KHÔNG CÓ BẢN TRƯỚC
+OVERLAY BIN	KHAY LỚP PHỦ
+paste chain	dán chuỗi
+Sample rate	Tần số lấy mẫu
+SENDING OUT	ĐANG GỬI RA
+Shift: snap	Shift: bắt dính
+THIS OUTPUT	OUTPUT NÀY
+Mode	Chế độ
+Direction	Chiều
+Destination	Nơi đến
+(no matches)	(không có kết quả)
+(no subtext)	(không có phụ đề)
+add a button	thêm một nút
+add a window	thêm một cửa sổ
+Art-Net port	Cổng Art-Net
+AUDIO OUTPUT	ĐẦU RA ÂM THANH
+Auto restore	Tự khôi phục
+DECKLINK: ON	DECKLINK: BẬT
+free running	chạy tự do
+KEY+FILL: ON	KEY+FILL: BẬT
+LISTENING IN	ĐANG NGHE TRÊN
+Miami cursor	Con trỏ Miami
+MIDI CONTROL	ĐIỀU KHIỂN MIDI
+Mirror state	Trạng thái gương
+NDI KEY: OFF	NDI KEY: TẮT
+NDI KEY: ON	NDI KEY: BẬT
+NO PROGRAMME	KHÔNG CÓ PROGRAM
+ST 2110: OFF	ST 2110: TẮT
+ST 2110: ON	ST 2110: BẬT
+WATCH FOLDER	THƯ MỤC THEO DÕI
+COMPOSITE CUE	CUE GHÉP
+DECKLINK: OFF	DECKLINK: TẮT
+default route	tuyến mặc định
+Every adapter	Mọi bộ chuyển
+KEY+FILL: OFF	KEY+FILL: TẮT
+LEFT TO RIGHT	TRÁI SANG PHẢI
+MEDIA ENCODER	BỘ MÃ HÓA MEDIA
+MSC device id	Mã thiết bị MSC
+NEW SHOW FILE	TỆP SHOW MỚI
+No cue loaded	Chưa nạp cue
+nothing taken	chưa take gì
+OPEN PREVIOUS	MỞ BẢN TRƯỚC
+Output device	Thiết bị ra
+Panic profile	Hồ sơ panic
+Quit Deckboy?	Thoát Deckboy?
+REMOVE OUTPUT	BỎ OUTPUT
+Sound effects	Hiệu ứng âm thanh
+Tally address	Địa chỉ tally
+TOP TO BOTTOM	TRÊN XUỐNG DƯỚI
+127 (all-call)	127 (gọi tất cả)
+ALL INTERFACES	MỌI GIAO DIỆN MẠNG
+LOCALHOST ONLY	CHỈ MÁY NÀY
+Monitor device	Thiết bị nghe kiểm
+no audio track	không có rãnh âm thanh
+PRESENTER VIEW	MÀN HÌNH NGƯỜI DẪN
+RECORD TO DISK	GHI RA ĐĨA
+STOP RECORDING	DỪNG GHI
+STOP STREAMING	DỪNG PHÁT TRỰC TUYẾN
+TALLY TRIGGERS	KÍCH HOẠT TALLY
+Device channels	Kênh thiết bị
+NDI SENDING: ON	NDI ĐANG GỬI: BẬT
+NO CUE SELECTED	CHƯA CHỌN CUE
+Output channels	Kênh đầu ra
+preview pending	đang chờ xem trước
+START RECORDING	BẮT ĐẦU GHI
+START STREAMING	BẮT ĐẦU PHÁT TRỰC TUYẾN
+(system default)	(mặc định hệ thống)
+Check at startup	Kiểm tra khi khởi động
+Global crossfade	Chuyển cảnh chung
+Mic to recording	Mic vào bản ghi
+Monitor playlist	Playlist nghe kiểm
+NDI SENDING: OFF	NDI ĐANG GỬI: TẮT
+no still preview	không có ảnh xem trước
+Pocket 3 / touch	Pocket 3 / cảm ứng
+SMPTE LTC OUTPUT	ĐẦU RA SMPTE LTC
+the whole screen	cả màn hình
+Check for one now	Kiểm tra một lần ngay
+INSTALL & RESTART	CÀI & KHỞI ĐỘNG LẠI
+Registry: NOT SET	Registry: CHƯA ĐẶT
+SAFETY / TIMECODE	AN TOÀN / TIMECODE
+Timecode jam sync	Đồng bộ jam timecode
+esc or N to cancel	esc hoặc N để hủy
+KEYBOARD SHORTCUTS	PHÍM TẮT
+loading preview...	đang tải xem trước...
+CONVERT ALL FLAGGED	CHUYỂN ĐỔI MỌI CUE ĐÃ ĐÁNH DẤU
+dot-matrix cue deck	bàn cue chấm điểm
+HyperDeck emulation	Giả lập HyperDeck
+locked to the tempo	khóa theo nhịp
+VJ mode (two decks)	Chế độ VJ (hai deck)
+ADD ANOTHER PLAYLIST	THÊM MỘT PLAYLIST
+Companion / OSC port	Cổng Companion / OSC
+Esc or click to skip	Esc hoặc bấm để bỏ qua
+PLAYLIST PREFERENCES	TÙY CHỌN PLAYLIST
+press ENTER to start	nhấn ENTER để bắt đầu
+ADD A SECOND PLAYLIST	THÊM PLAYLIST THỨ HAI
+filmstrip unavailable	không có dải phim
+(empty — import media)	(trống — hãy nhập media)
+Ctrl+D or Esc to close	Ctrl+D hoặc Esc để đóng
+(no notes for this cue)	(cue này không có ghi chú)
+Timebase / start / fade	Nhịp thời gian / bắt đầu / mờ
+No cues need conversion.	Không cue nào cần chuyển đổi.
+CLICK TO SAMPLE KEY COLOR	BẤM ĐỂ LẤY MÀU KEY
+normalize loudness (R128)	cân bằng độ lớn (R128)
+off - all channels silent	tắt - mọi kênh im lặng
+no video lane for this cue	cue này không có làn video
+HyperDeck emulation is off.	Giả lập HyperDeck đang tắt.
+OWN SCRIPT  (click to edit)	SCRIPT RIÊNG  (bấm để sửa)
+Theme and operator feedback	Giao diện và phản hồi cho người vận hành
+Discovery and mirrored state	Khám phá và trạng thái phản chiếu
+FOLLOWING THE LIVE CUE NOTES	ĐANG THEO GHI CHÚ CỦA CUE TRỰC TIẾP
+Listening on all interfaces.	Đang nghe trên mọi giao diện mạng.
+Network-facing runtime notes	Ghi chú khi chạy, phía mạng
+Hi! Press I to import a clip.	Chào! Nhấn I để nhập một clip.
+Global jump and panic behavior	Nhảy và panic cho cả show
+Roll when the show cuts to you	Lăn khi show chuyển sang bạn
+Choose a cue to inspect it here	Chọn một cue để xem ở đây
+Defaults for newly created cues	Mặc định cho cue mới tạo
+Device routing for cue playback	Định tuyến thiết bị khi phát cue
+Smaller buffer = lower latency.	Bộ đệm nhỏ = độ trễ thấp.
+Emergency fade and sync behavior	Mờ khẩn cấp và đồng bộ
+mixed selection: key unavailable	chọn lẫn lộn: không tách nền được
+SMPTE ST 2110-20  (EXPERIMENTAL)	SMPTE ST 2110-20  (THỬ NGHIỆM)
+Esc=continue with current session	Esc=tiếp tục phiên hiện tại
+no per-cue settings for this type	loại này không có cài đặt riêng cho từng cue
+On stop: remux to an ordinary MP4	Khi dừng: đóng gói lại thành MP4 thường
+Where RECORD writes the programme	Nơi RECORD ghi program
+dot-matrix cue deck for live events	bàn cue chấm điểm cho sự kiện trực tiếp
+Listening on localhost (127.0.0.1).	Đang nghe trên máy này (127.0.0.1).
+three expressions: red, green, blue	ba biểu thức: đỏ, xanh lá, xanh dương
+Transport sync with another machine	Đồng bộ điều khiển với máy khác
+Add slot sources in the cue inspector	Thêm nguồn cho ô trong cue inspector
+Ask GitHub; never installs on its own	Hỏi GitHub; không bao giờ tự cài
+Import or click a cue in the playlist	Nhập hoặc bấm vào một cue trong playlist
+mixed selection: geometry unavailable	chọn lẫn lộn: không chỉnh hình học được
+generate timecode for the rig to chase	tạo timecode cho cả hệ thống đuổi theo
+Lower Third and PIP fire independently	Lower Third và PIP chạy độc lập
+Panels built for a vMix rig, unchanged	Bảng dựng cho hệ vMix, giữ nguyên
+Incoming transport arrives as NMCEVENT.	Lệnh điều khiển đến dưới dạng NMCEVENT.
+not in this build - saved with the show	bản dựng này không có - vẫn lưu cùng show
+Find from the playlist, not from a modal	Tìm từ playlist, không qua hộp thoại
+take or select a cue to open the timeline	take hoặc chọn một cue để mở dòng thời gian
+Optional external transport and cue control	Điều khiển ngoài cho transport và cue, tùy chọn
+No previous show file found at startup path.	Không tìm thấy tệp show trước ở đường dẫn khởi động.
+Use Ctrl+F or type a cue id/number to search.	Dùng Ctrl+F hoặc gõ id/số cue để tìm.
+Companion / OSC ingress and HyperDeck emulation	Đầu vào Companion / OSC và giả lập HyperDeck
+A/V delay holds audio back for lagging displays.	Độ trễ A/V giữ âm thanh lại cho màn hình chậm.
+On stop: leave the crash-resilient file as it is	Khi dừng: để nguyên tệp chống sập
+same disk as Deckboy - a separate drive is safer	cùng ổ với Deckboy - ổ riêng thì an toàn hơn
+A step fires one cue on each playlist, all at once.	Một bước chạy một cue trên mỗi playlist, cùng lúc.
+one expression: the same value in red, green and blue	một biểu thức: cùng giá trị cho đỏ, xanh lá và xanh dương
+NDI transport is configured per output in Video Outputs.	NDI được đặt cho từng output trong Đầu ra video.
+Sends PLAY / PAUSE / STOP / LOCATE as the transport moves.	Gửi PLAY / PAUSE / STOP / LOCATE khi transport chạy.
+OSC subscribe: send /deckboy/subscribe from your controller.	OSC subscribe: gửi /deckboy/subscribe từ bộ điều khiển.
+NMC mode / host / port are runtime-configurable for sync work.	Chế độ / máy / cổng NMC đổi được khi đang chạy.
+Going on air takes the cue. Deckboy never sends the switcher a command.	Lên sóng là take cue. Deckboy không bao giờ ra lệnh cho bàn trộn.
+FPS: ON	FPS: BẬT
+FPS: OFF	FPS: TẮT
+NMOS: ON	NMOS: BẬT
+NMOS: OFF	NMOS: TẮT
+SPOUT: ON	SPOUT: BẬT
+SPOUT: OFF	SPOUT: TẮT
+CANVAS: ON	CANVAS: BẬT
+CANVAS: OFF	CANVAS: TẮT
+10-BIT: ON	10-BIT: BẬT
+10-BIT: OFF	10-BIT: TẮT
+EDIT...	SỬA...
+FOLDER...	THƯ MỤC...
+ARRANGE...	SẮP XẾP...
+ADD FILE...	THÊM TỆP...
+RENUMBER...	ĐÁNH SỐ LẠI...
+set a port...	đặt một cổng...
+no script	không có script
++ OUTPUT	+ OUTPUT
+Eddie's Clock	Đồng hồ của Eddie
+Ctrl+/ to close	Ctrl+/ để đóng
+(step lives here)	(bước nằm ở đây)
+4:2:2  8-BIT	4:2:2  8-BIT
+4:2:2  10-BIT	4:2:2  10-BIT
+No outputs — click + OUTPUT to add one.	Chưa có output — bấm + OUTPUT để thêm.
+ATEM, NDI trigger, NMC, MTC, LTC, Art-Net, and Tally/TSL	ATEM, NDI trigger, NMC, MTC, LTC, Art-Net và Tally/TSL
+Convert cues Deckboy can't play (or plays poorly) to H.264	Chuyển sang H.264 những cue Deckboy không phát được (hoặc phát kém)
+a button can run any command the network protocol understands	một nút có thể chạy bất kỳ lệnh nào giao thức mạng hiểu
+ARRANGE PRESENTER  -  drag a panel to move it, a corner to size it	SẮP XẾP MÀN HÌNH NGƯỜI DẪN  -  kéo bảng để di chuyển, kéo góc để đổi cỡ
+capture again - what is on now	chụp lại - những gì đang có
+change what it does...	đổi việc nó làm...
+decks - Stop deck...	deck - Dừng deck...
+decks - Take deck...	deck - Take deck...
+delete step	xóa bước
+delete this button	xóa nút này
+label, command and glyph as text...	nhãn, lệnh và ký hiệu dạng chữ...
+move down	xuống
+move up	lên
+next colour	màu tiếp theo
+preset - a new preset from what is on now	preset - preset mới từ những gì đang có
+type a command myself...	tự gõ một lệnh...
+type a length in seconds...	gõ độ dài bằng giây...
+wait for GO	chờ GO
+what it recalls...	những gì nó gọi lại...
+when its cues end	khi các cue của nó kết thúc
+AUDIONORM ALL matches the whole playlist at once	AUDIONORM ALL cân cả playlist một lần
+back to the in point, not to zero	về điểm vào, không về số không
+drag to scrub. the audio follows	kéo để tua. âm thanh chạy theo
+loops between the in and out points, not the file	lặp giữa điểm vào và điểm ra, không phải cả tệp
+(not set)	(chưa đặt)
+1.00x  (default 1080p)	1.00x  (1080p mặc định)
+1.25x  (large desktop)	1.25x  (màn hình lớn)
+1.50x  (4K desktop)	1.50x  (màn hình 4K)
+2.00x  (Pocket 3 / 4K small)	2.00x  (Pocket 3 / 4K nhỏ)
+highest bandwidth	băng thông cao nhất
+lower bandwidth	băng thông thấp hơn
+film	phim
+CD, music rigs	CD, dàn nhạc
+video standard	chuẩn video
+every playlist	mọi playlist
+None  (no character art)	Không  (không có hình nhân vật)
+custom size...	cỡ tùy chỉnh...
+Browser URL	URL trình duyệt
+Camera	Máy quay
+Media File / Still	Tệp media / Ảnh tĩnh
+RECORD TO FILE	GHI RA TỆP
+browser, with sound	trình duyệt, có tiếng
+Window	Cửa sổ
+Desktop	Màn hình nền
+full screen	toàn màn hình
+DeckLink Output	Đầu ra DeckLink
+FFmpeg Stream Output	Đầu ra stream FFmpeg
+NDI Output	Đầu ra NDI
+SDL Window Output	Đầu ra cửa sổ SDL
+Spout Output	Đầu ra Spout
+DESK	BÀN
+drop a folder in too - it reads the whole tree	thả cả thư mục vào - nó đọc hết cây thư mục
+cameras, windows, NDI, screens - all live sources	máy quay, cửa sổ, NDI, màn hình - mọi nguồn trực tiếp
+test cards and generators - no file needed	thẻ thử và bộ tạo hình - không cần tệp
+space bar does this too, without moving your hand	phím cách cũng làm được, khỏi phải dời tay
+stops the cue. ESC stops EVERYTHING	dừng cue. ESC dừng TẤT CẢ
+the safe one: audio and playback keep running	cách an toàn: âm thanh và việc phát vẫn chạy
+the thorough one. blackout is the reversible one	cách triệt để. tắt hình thì lấy lại được
+save as makes a new file instead	lưu thành sẽ tạo tệp mới
+for a copy before you change something risky	để có bản sao trước khi đổi thứ gì liều lĩnh
+this is what you carry to the venue	đây là thứ bạn mang đến nơi diễn
+the show on disk is untouched until you save	show trên đĩa không đổi cho tới khi bạn lưu
+per cue. the deck has its own default too	theo từng cue. deck cũng có mặc định riêng
+stills hold instead - a fade would dip the frame	ảnh tĩnh giữ nguyên - mờ dần sẽ làm tối khung hình
+the frame stays up. good for slides	khung hình vẫn đứng. hợp với slide
+gain, pan and normalise live in the inspector	độ lợi, cân trái phải và chuẩn hóa nằm trong inspector
+this clip has no audio track to enable	clip này không có rãnh âm thanh để bật
+Hi! I am Deckboy.	Chào! Tôi là Deckboy.
+Press I to import a clip.	Nhấn I để nhập một clip.
+Enter takes a cue live.	Enter đưa cue lên sóng.
+S stops the live cue.	S dừng cue đang trực tiếp.
+The timeline can be resized.	Dòng thời gian đổi cỡ được.
+Try a terminal theme in Settings.	Thử giao diện terminal trong Cài đặt.
+RELINK finds media that has moved.	RELINK tìm media đã bị dời chỗ.
+Cues have their own gain and fades.	Cue có độ lợi và mờ riêng.
+Trim with Ctrl+I and Ctrl+O.	Cắt với Ctrl+I và Ctrl+O.
+Ctrl+/ shows every shortcut.	Ctrl+/ hiện mọi phím tắt.
+J jumps to the live cue.	J nhảy tới cue trực tiếp.
+Normalize matches loudness across cues.	Chuẩn hóa làm độ lớn các cue bằng nhau.
+Esc clears the desk, then the output, then quits.	Esc dọn bàn, rồi tắt output, rồi thoát.
+Stream SRT and RTMP at the same time.	Phát SRT và RTMP cùng lúc.
+CHECK lists what is broken, before doors.	CHECK liệt kê những gì hỏng, trước giờ mở cửa.
+A cue can wait before it starts.	Một cue có thể chờ trước khi chạy.
+A cue can start the next one by itself.	Một cue có thể tự chạy cue kế tiếp.
+Disarm a cue and GO steps over it.	Tắt kích hoạt một cue thì GO bước qua nó.
+Audition plays a cue to you, not the room.	Nghe thử phát cue cho riêng bạn, không ra khán phòng.
+Preload racks the next cue warm, off air.	Nạp trước làm nóng cue kế tiếp, ngoài sóng.
+A target cue starts or stops another cue.	Cue đích bật hoặc dừng một cue khác.
+A fade cue takes a deck down, then stops it.	Cue mờ hạ một deck xuống rồi dừng nó.
+A master cue fires one cue on every deck.	Cue chủ chạy một cue trên mọi deck.
+A MIDI cue can tell the lighting desk to go.	Cue MIDI có thể bảo bàn đèn chạy.
+A network cue speaks OSC, UDP or TCP.	Cue mạng nói OSC, UDP hoặc TCP.
+A DMX cue fades the house lights on a cue.	Cue DMX làm mờ đèn khán phòng theo cue.
+A script cue runs Deckboy's own commands.	Cue script chạy các lệnh của chính Deckboy.
+A timecode cue jams LTC to a value.	Cue timecode jam LTC tới một giá trị.
+Each output can show a different deck.	Mỗi output có thể hiện một deck khác.
+The matrix sends audio to any channel.	Ma trận gửi âm thanh tới bất kỳ kênh nào.
+The panel map numbers every LED tile.	Bản đồ panel đánh số mọi tấm LED.
+Hey!	Ê!
+Quit it!	Thôi đi!
+Ow. That was rude.	Ui. Bất lịch sự quá.
+I am a professional.	Tôi là dân chuyên nghiệp.
+Seriously?	Thật hả?
+This is my monitor.	Đây là màn hình của tôi.
+I am telling the operator.	Tôi mách người vận hành đấy.
+All right. Wow.	Được rồi. Trời đất.
+Right. That does it.	Rồi. Đủ rồi đó.
+I am leaving. Good luck with the show.	Tôi đi đây. Chúc show may mắn.
+Still here? Me too.	Vẫn còn đây à? Tôi cũng vậy.
+Long show, huh.	Show dài ghê ha.
+I could do this all day. Apparently.	Tôi làm thế này cả ngày được. Hình như vậy.
+You have been staring at me for hours.	Bạn nhìn tôi mấy tiếng rồi đó.
+Has anyone seen a clock?	Có ai thấy đồng hồ đâu không?
+Is it still the same show?	Vẫn là show đó hả?
+I'm not tired. You're tired.	Tôi không mệt. Bạn mệt thì có.
+Five more minutes. Then five more.	Năm phút nữa thôi. Rồi năm phút nữa.
+A whole day. I need a restart.	Cả một ngày. Tôi cần khởi động lại.
+Save the show. Then let me sleep.	Lưu show đi. Rồi cho tôi ngủ.
+Every pixel of me is tired.	Từng pixel của tôi đều mệt rã rời.
+Close me. Open me. I'll be fine.	Đóng tôi lại. Mở tôi ra. Tôi sẽ ổn.
+
+# What the desk face says when you switch to this language: a local saying, not a translation.
+@hello	Chào! Một ly cà phê sữa đá trước, rồi lên show.
+Oh hey. It's 4:20. Take it easy.	Ơ, chào. 4:20 rồi. Cứ từ từ.
+
+# --- tutorials: tools/lesson_strings.py (a whole line each) ---
+HELLO	XIN CHÀO
+Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me.	Dobar den, skapi. Xin chào! Tôi là Dr. Pixel. Năm phút nữa, bạn sẽ chạy một show. Ít hơn, nếu bạn nghe lời tôi.
+And I'm Professor Video. Synths first, then video. Mostly video now. Press START and we'll patch... we'll begin.	Còn tôi là Giáo sư Video. Synth trước, rồi mới tới video. Giờ thì chủ yếu là video. Nhấn START, ta sẽ nối dây... à, bắt đầu.
+TURN THE OUTPUT ON	BẬT OUTPUT LÊN
+Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	Skapi, màn hình đang trống. Đừng để khán giả chờ. Mở MENU và đổi OUTPUT OFF thành OUTPUT ON. Nhanh nào!
+Lesson one: nothing comes out until you patch the oscillator to the... the OUTPUT. It's video. I know.	Bài một: chưa nối oscillator vào... vào OUTPUT thì chẳng có gì ra cả. Video mà. Tôi biết.
+BRING IN A CLIP	NHẬP MỘT CLIP
+Now a picture. Press I and pick a clip from your computer. No clip? SHOW ME, and I lend you one of mine.	Giờ tới hình. Nhấn I và chọn một clip trong máy. Không có clip? SHOW ME, tôi cho mượn một cái của tôi.
+Every clip becomes a cue in the playlist. Like loading a sample. A sample with pictures in it.	Mỗi clip thành một cue trong playlist. Giống nạp một sample. Một sample có hình bên trong.
+TAKE IT LIVE	ĐƯA LÊN SÓNG
+Your clip waits in the playlist. Select it, then TAKE. Or Enter. Confident operators press Enter.	Clip của bạn đang chờ trong playlist. Chọn nó, rồi TAKE. Hoặc Enter. Người vận hành tự tin thì nhấn Enter.
+TAKE is the envelope trigger. The, ah, the GO button. Same thing, it just has pictures in it.	TAKE là cò của envelope. À, là nút GO. Cùng một thứ, chỉ là có hình.
+LINE UP THE NEXT ONE	XẾP CÁI TIẾP THEO
+Click another cue. It waits, ready, until you say. Only one cue? Import another, or SHOW ME.	Bấm vào một cue khác. Nó chờ sẵn, cho tới khi bạn ra lệnh. Chỉ có một cue? NHẬP thêm cái nữa, hoặc SHOW ME.
+Selecting is not playing. The selected one is the next note in the sequence. The next CUE.	Chọn không phải là phát. Cái được chọn là nốt kế tiếp trong chuỗi. CUE kế tiếp.
+CROSSFADE TO IT	CHUYỂN MỜ SANG NÓ
+Cuts are for amateurs. In the inspector, press + on transition, so it shows a time, not deck. Then TAKE.	Cắt thẳng là dành cho tay mơ. Trong inspector, nhấn + ở transition cho tới khi nó hiện thời gian, không phải deck. Rồi TAKE.
+A crossfade! Portamento, but for pictures. Any time will do. A few more presses and it's a second. Then TAKE.	Crossfade! Portamento, nhưng cho hình. Lúc nào cũng đẹp. Nhấn thêm vài lần là thành một giây. Rồi TAKE.
+CLEAR THE SCREEN	DỌN MÀN HÌNH
+Something goes wrong on stage? Press BLACK, or B. The picture goes. The show keeps running underneath.	Trên sân khấu có chuyện? Nhấn BLACK, hoặc B. Hình biến mất. Show vẫn chạy bên dưới.
+Nothing is lost. Press B again and it comes back. Like the mute on a mixer. Very calming.	Không mất gì cả. Nhấn B lần nữa là hình về. Như nút mute trên bàn trộn. Rất bình tĩnh.
+SAVE THE SHOW	LƯU SHOW
+Now save. Ctrl+S, or SAVE. Some programs lose your work and then blame you. I would never.	Giờ lưu lại. Ctrl+S, hoặc LƯU. Có phần mềm làm mất công của bạn rồi đổ lỗi cho bạn. Tôi thì không bao giờ.
+Save your patch. Your SHOW. Show. This practice one lives in Deckboy's own folder; yours is safe.	Lưu patch của bạn. SHOW của bạn. Show ấy. Bản tập này nằm trong thư mục của Deckboy; show của bạn vẫn an toàn.
+THAT'S A SHOW	ĐÓ LÀ MỘT SHOW
+That's a show! Output, cue, TAKE, crossfade, BLACK, save. Nazdrave, skapi. Rakia is on me.	Đó là một show! Output, cue, TAKE, crossfade, BLACK, lưu. Nazdrave, skapi. Rakia tôi mời. Mạnh hơn rượu đế đấy, cẩn thận.
+Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	Xong bài. Các show mẫu dạy layer, tiêu đề và hiệu ứng. MENU > LEARN THE BASICS chạy lại bài này.
+*shakes head* That means yes. Bravo.	*lắc đầu* Nghĩa là có. Hết sẩy!
+Wonderful! Lovely signal flow.	Tuyệt vời! Dòng tín hiệu thật đẹp.
+Mm. I knew you had it in you.	Ừm. Tôi biết bạn làm được mà.
+Yes! Have a gold star. It's a dot.	Đúng rồi! Tặng bạn ngôi sao vàng. Nó là một dấu chấm.
+Ready for the next step? *nods* ...That means no, skapi. The glowing one. It is glowing for you.	Sẵn sàng cho bước tiếp chưa? *gật đầu* ...Ở Bulgaria thế là không đó, skapi. Cái đang sáng. Nó sáng vì bạn.
+You've clicked everything but the glowing one. Even my oscillators find the glowing one.	Bạn bấm mọi thứ trừ cái đang sáng. Đến oscillator của tôi còn tìm ra cái đang sáng.
+stop playback first - the lesson cannot hand a running show back as it was	hãy dừng phát trước - bài học không trả lại được một show đang chạy như cũ
+choose RECOVER or KEEP SAVED first	hãy chọn RECOVER hoặc KEEP SAVED trước
+your show could not be saved, so the lesson has not started. Save it (SAVE AS) and try again	không lưu được show của bạn, nên bài học chưa bắt đầu. Hãy lưu nó (LƯU THÀNH) rồi thử lại
+the practice show would not open	không mở được show tập
+could not start the practice show	không bắt đầu được show tập
+learn the basics: Esc leaves, and it picks up here next time	learn the basics: Esc để rời, lần sau chạy tiếp từ đây
+that's the basics - MENU > LESSONS has part two	căn bản là vậy - MENU > LESSONS có phần hai
+tour paused - LEARN THE BASICS picks up where you left off	tạm dừng - LEARN THE BASICS chạy tiếp từ chỗ bạn dừng
+Mirrored screens, skapi. Press any key or click, and Dr. Pixel gives it back.	Màn hình đang soi gương, skapi. Nhấn phím bất kỳ hoặc bấm chuột, Dr. Pixel trả lại cho.
+Wrong screen, skapi. Press any key or click, and Dr. Pixel gives it back.	Nhầm màn hình rồi, skapi. Nhấn phím bất kỳ hoặc bấm chuột, Dr. Pixel trả lại cho.
+The other screen went away, skapi. Press any key or click, and Dr. Pixel gives it back.	Màn hình kia đi mất rồi, skapi. Nhấn phím bất kỳ hoặc bấm chuột, Dr. Pixel trả lại cho.
+One screen, skapi. Press any key or click, and Dr. Pixel gives it back.	Một màn hình thôi, skapi. Nhấn phím bất kỳ hoặc bấm chuột, Dr. Pixel trả lại cho.
+The other screen went away, skapi, so the picture came back to this one. I put it in a little window, behind. Plug it back in and the picture goes back on it.	Màn hình kia đi mất rồi, skapi, nên hình quay về màn này. Tôi để nó trong một cửa sổ nhỏ, phía sau. Cắm lại là hình về chỗ cũ.
+It ate the desk, skapi. One screen, so the output took all of it. I put it in a little window, behind. A real show gets a second screen.	Nó nuốt cả cái bàn rồi, skapi. Một màn hình, nên output chiếm hết. Tôi để nó trong một cửa sổ nhỏ, phía sau. Show thật thì có màn hình thứ hai.
+IT ATE THE DESK	NÓ NUỐT CẢ CÁI BÀN
+There. The button that says OUTPUT OFF. Make it say ON, skapi.	Đó. Cái nút ghi OUTPUT OFF. Đổi nó thành ON, skapi.
+Nothing is live to fade from, skapi. TAKE one cue first, then pick the other and give it a time.	Chưa có gì trên sóng để mờ từ đó, skapi. TAKE một cue trước, rồi chọn cái kia và cho nó thời gian.
+That was a cut, skapi. Fast, but not a crossfade. Pick the other cue, press + on transition, then TAKE.	Đó là cắt thẳng, skapi. Nhanh, nhưng không phải crossfade. Chọn cue kia, nhấn + ở transition, rồi TAKE.
+A feedback loop! Output patched straight back into the desk. Happens to the best of us. Mostly to me. 1983. We don't talk about 1983.	Vòng feedback! Output nối thẳng ngược vào bàn. Người giỏi nhất cũng bị. Chủ yếu là tôi. Năm 1983. Chúng ta không nhắc tới năm 1983.
+No more rakia. The rat has a problem.	Hết rakia rồi. Con chuột có vấn đề.
+Nazdrave, skapi! Baba's rakia, from the Rhodopes. One glass, for the lesson.	Nazdrave, skapi! Rakia của bà, từ dãy Rhodope. Một ly, cho bài học. Một, hai, ba, dô!
+Is this... is this allowed during a tutorial?	Cái này... cái này được phép trong giờ học à?
+*shakes head* That means one more.	*lắc đầu* Nghĩa là thêm ly nữa.
+I love you all. I love the oscillator. I love the OUTPUT. It's video. I know. I KNOW.	Tôi yêu tất cả các bạn. Tôi yêu oscillator. Tôi yêu OUTPUT. Video mà. Tôi biết. TÔI BIẾT.
+...and the rat took the rakia. Every time, skapi. Every single time.	...và con chuột lấy mất rakia. Lần nào cũng vậy, skapi. Lần nào cũng vậy.
+Was that a rat? In a hat? With a pizza?	Con chuột hả? Đội mũ? Cầm pizza?
+Stop that. I am a serious man.	Thôi đi. Tôi là người nghiêm túc.
+Do not tell Dr. Pixel about this.	Đừng kể với Dr. Pixel chuyện này.
+This never happened. Back to the patch bay.	Chuyện này chưa từng xảy ra. Quay lại patch bay.
+It was the eighties. Everyone had a bow tie.	Thập niên tám mươi mà. Ai cũng đeo nơ.
+LESSON LIST	DANH SÁCH BÀI HỌC
+OPEN EXAMPLE SHOWS	MỞ SHOW MẪU
+EXIT (Esc)	THOÁT (Esc)
+Taking it on the road	Show lên đường
+CHECK a show before it travels, fix what it finds, and bundle it with its media.	CHECK trước khi đi, sửa những gì nó tìm thấy, rồi BUNDLE cùng media của nó.
+Effects, oscillators and colour	Hiệu ứng, oscillator và màu sắc
+An effect, a ~ on its knob, and the colour picker.	Một hiệu ứng, ~ trên núm của nó, và bộ chọn màu.
+The art school crit, with Mr. Salty	Buổi nhận xét ở trường mỹ thuật, cùng Mr. Salty
+Patterns, synths and Draw	Mẫu, synth và Draw
+A test pattern, the video synth, and drawing on the picture, saved as a still.	Ảnh thử, synth video, và vẽ lên hình, lưu thành ảnh tĩnh.
+The telestrator booth, with Coach Marv	Phòng telestrator, cùng Coach Marv
+Masks	Mask
+A heart from the library, the pen, invert and feather.	Trái tim từ thư viện, bút, đảo ngược và làm mềm.
+The Signal Files: redact the evidence	Hồ sơ Tín hiệu: giấu bằng chứng
+Warp, blend and slices	Warp, blend và slice
+A corner pin, two soft edges, then three slices in the Screens window.	Corner pin, hai mép mềm, rồi ba slice trong cửa sổ Screens.
+The haunted lighthouse, with Keeper Rook	Ngọn hải đăng có ma, cùng người gác đèn Rook
+GO from anywhere	GO từ mọi nơi
+Cue numbers, GOTO, a hotkey, and where Companion, MIDI and OSC come in.	Số cue, GOTO, phím tắt, và Companion, MIDI, OSC đi vào từ đâu.
+The game show, with Donna Wheel	Game show truyền hình, cùng Donna Wheel
+Words on screen	Chữ trên màn hình
+A Lower Third with a name on it, then a title card with a key-green backdrop.	Lower Third mang một cái tên, rồi một thẻ tiêu đề trên nền xanh key.
+The kaiju weather report, with June O'Neil	Thời tiết kaiju, cùng June O'Neil
+Keeping time	Giữ giờ
+A stage timer counting down, held, and a presenter view for the person on stage.	Đồng hồ sân khấu đếm, tạm dừng, và màn hình người dẫn cho người trên sân khấu.
+A grand day out, with Wallis and Grommet	Một ngày tuyệt vời, cùng Wallis và Grommet
+Two playlists and TAKE ALL	Hai playlist và TAKE ALL
+A second playlist as a layer, and TAKE ALL so two things change on one beat.	Playlist thứ hai làm layer, và TAKE ALL để đổi hai thứ trong cùng một nhịp.
+The magic show, with Turnip Top	Màn ảo thuật, cùng Turnip Top
+When it goes wrong	Khi có sự cố
+BLACK against PANIC, and getting a show back.	BLACK đối đầu PANIC, và đưa show trở lại.
+The cooking show, with Chef Bork	Show nấu ăn, cùng Chef Bork
+Presets	Preset
+Capture a look on a DASH button, change everything, and get it back with one press.	Chụp một khung cảnh vào nút DASH, đổi mọi thứ, rồi lấy lại bằng một cú bấm.
+Transitions	Transition
+The styles beyond the crossfade: an iris, a shatter, and their times.	Các kiểu sau crossfade: iris, shatter, và thời gian của chúng.
+The space-opera trailer, with Optimus Primetime	Trailer opera không gian, cùng Optimus Primetime
+Sound	Âm thanh
+An audio effect on a cue, a bend that damages it beautifully, and where the patch lives.	Một hiệu ứng âm thanh trên cue, một cú bend phá nó thật đẹp, và nơi patch nằm.
+The robot DJs, with Deft Funk	Robot DJ, cùng Deft Funk
+Reading the scopes	Đọc scope
+The waveform, the vectorscope, and false colour: is the glow real, or just too bright?	Waveform, vectorscope, và màu giả: ánh sáng là thật, hay chỉ là quá sáng?
+The Signal Files: is the glow on the horizon a craft?	Hồ sơ Tín hiệu: ánh sáng ở chân trời có phải con tàu?
+Out of the building	Ra khỏi tòa nhà
+Where NDI, SDI and ST 2110 live, and NDI switched on where this computer has it.	NDI, SDI và ST 2110 nằm ở đâu, và bật NDI ở nơi máy này có nó.
+The webcam as a controller, as a game. Five rounds, a high score.	Webcam làm điều khiển, làm trò chơi. Năm vòng, điểm cao nhất.
+A handheld, and bugs	Một thiết bị cầm tay, và lũ bọ
+The multiview	Multiview
+Windows, the ... menu, what each one shows, layouts, and tally.	Cửa sổ, menu ..., mỗi cái hiện gì, bố cục và tally.
+Mystery on the starship Cathode, with Lt. Haila and Ensign Jinkley	Bí ẩn trên tàu vũ trụ Cathode, cùng Trung úy Haila và Thiếu úy Jinkley
+DR. PIXEL: Two playlists: Deckboy becomes SUPER DECKBOY. It earned it, skapi.	DR. PIXEL: Hai playlist: Deckboy hóa thành SUPER DECKBOY. Xứng đáng lắm, skapi.
+PROF. VIDEO: It evolved! My oscillators never got a fanfare.	PROF. VIDEO: Nó tiến hóa rồi! Oscillator của tôi chưa bao giờ được kèn trống thế này.
+DR. PIXEL: SUPER DECKBOY! Every show deserves one. Bravo.	DR. PIXEL: SUPER DECKBOY! Show nào cũng xứng đáng. Hết sẩy!
+PROF. VIDEO: The power-up! More playlists, more layers, more super.	PROF. VIDEO: Tăng sức mạnh! Thêm playlist, thêm layer, thêm super.
+Intro video (left on the office PC)	Video mở màn (bị bỏ quên trên máy văn phòng)
+ON THE ROAD	LÊN ĐƯỜNG
+A show you built here, skapi, running on a laptop somewhere else tonight. Press START.	Một show làm ở đây, skapi, tối nay chạy trên laptop ở nơi khác. Nhấn START.
+Before it travels: check it, fix it, bundle it.	Trước khi đi: kiểm tra, sửa, đóng gói.
+See CHECK in the top bar? It only appears when something is wrong. Press it.	Thấy CHECK trên thanh trên cùng không? Nó chỉ hiện khi có gì đó sai. Bấm vào.
+It lists everything a show would trip over: missing files, empty cues, unreachable outputs.	Nó liệt kê mọi thứ sẽ làm show vấp: tệp thiếu, cue trống, output chưa nối.
+FIX IT	SỬA NÓ
+The intro video is on another computer. Select it and delete it, or RELINK it if you have the file.	Video mở màn nằm trên máy khác. Chọn nó và xóa đi, hoặc RELINK nếu bạn có mang tệp theo.
+Fix it at home, where it is easy. Not at the venue, where it is not.	Sửa ở nhà, ở nhà thì dễ. Đừng sửa ở nơi diễn, ở đó chẳng dễ chút nào.
+BUNDLE IT	ĐÓNG GÓI
+Press BUNDLE and choose where: a USB stick, a shared folder. The show and all its media, together.	Nhấn BUNDLE và chọn chỗ: USB, thư mục chia sẻ. Show và toàn bộ media của nó, đi cùng nhau.
+The copy finds its media beside it, wherever the folder goes.	Bản sao tìm thấy media ngay bên cạnh nó, thư mục đi đâu cũng vậy.
+SAFE TRAVELS	THƯỢNG LỘ BÌNH AN
+Checked, fixed, bundled. On the other machine, open the bundle's show: everything is where it should be.	Đã kiểm tra, đã sửa, đã đóng gói. Trên máy kia, mở show đã đóng gói: mọi thứ đúng chỗ.
+A show file is only text, so it travels light. The media is the heavy part.	Tệp show chỉ là chữ, đi nhẹ tênh. Cái nặng là media.
+Student work no. 4 (untitled)	Bài của sinh viên số 4 (không tên)
+THE CRIT	NHẬN XÉT
+An art school, skapi. One student, one picture, one critic who has seen it all. Press START.	Trường mỹ thuật, skapi. Một sinh viên, một bức hình, một nhà phê bình đã thấy hết mọi thứ. Nhấn START.
+Effects change a picture; an oscillator keeps changing it. The critic only likes the second kind.	Hiệu ứng đổi một tấm hình; oscillator thì cứ đổi mãi. Nhà phê bình chỉ thích loại thứ hai.
+A grey square on beige. I have seen this at every graduate show since 1987.	Một hình vuông xám trên nền be. Ông ấy đã thấy nó ở mọi triển lãm tốt nghiệp từ năm 1987.
+AN EFFECT	MỘT HIỆU ỨNG
+In the inspector's EFFECTS section, + adds one. Edges is a good start: it draws the outlines.	Trong phần EFFECTS của inspector, + thêm một cái. Edges là khởi đầu tốt: nó vẽ các đường nét.
+There are dozens. Every one runs on the CPU in a few milliseconds. Mostly.	Có cả chục cái. Cái nào cũng chạy trên CPU trong vài mili giây. Đa số là vậy.
+Take a risk! Bad art is fine. Boring art is a crime.	Liều đi! Nghệ thuật dở thì tốt. Nghệ thuật nhạt nhẽo mới là tội.
+A ~ ON ITS KNOB	MỘT ~ TRÊN NÚM
+Every control with a ~ beside it can follow an oscillator. Press one. The knob starts to breathe.	Điều khiển nào có ~ bên cạnh đều theo được một oscillator. Bấm một cái. Núm bắt đầu thở.
+A low-frequency oscillator: slow, so the eye can follow it. A quarter of a hertz is a four-second breath.	Một oscillator tần số thấp: chậm, để mắt theo kịp. Một phần tư hertz là một hơi thở bốn giây.
+Now it MOVES. Okay. Okay. I'm listening.	Giờ nó CHUYỂN ĐỘNG. Được. Được. Tôi đang nghe.
+A COLOUR OF ITS OWN	MỘT MÀU CỦA RIÊNG NÓ
+Effects that draw a colour, like Edges' line, have a colour chip. It opens the picker: a wheel, typed names, or a colour off the screen.	Hiệu ứng nào vẽ một màu, như đường của Edges, đều có chip màu. Nó mở bộ chọn: bánh xe màu, tên gõ vào, hoặc lấy màu từ màn hình.
+Every colour has a name somewhere. Mine is 'oscilloscope green'. Nobody else uses it.	Màu nào cũng có tên ở đâu đó. Màu của tôi là 'xanh oscilloscope'. Chẳng ai khác dùng.
+That colour is doing something. I don't know what. I love it.	Màu đó đang làm gì đó. Tôi không biết là gì. Tôi mê nó.
+THE VERDICT	PHÁN QUYẾT
+An effect, a ~ and a colour. The critic is crying, skapi. Good crying, I think.	Một hiệu ứng, một ~ và một màu. Nhà phê bình khóc rồi, skapi. Khóc kiểu tốt, chắc vậy.
+Stack a few. Each has its own ~ on every knob. That is how a look becomes a performance.	Chồng thêm vài cái. Cái nào cũng có ~ riêng trên từng núm. Show trông ra dáng là nhờ vậy.
+It's still a square. But it's YOUR square. Post it.	Vẫn là hình vuông. Nhưng là hình vuông CỦA BẠN. Xuất xưởng đi.
+THE TELESTRATOR BOOTH	PHÒNG TELESTRATOR
+Coach Marv explains sport by drawing circles on it. Once he circled the sun. Ten minutes, skapi.	Coach Marv giảng thể thao bằng cách khoanh tròn lên đó. Có lần ông khoanh cả mặt trời. Mười phút, skapi.
+Tonight: test patterns, the video synth, and drawing on the picture. Press START.	Tối nay: ảnh thử, synth video, và vẽ lên hình. Nhấn START.
+Get me a picture and a pen. BOOM.	Cho tôi một tấm hình và một cây bút. BÙM.
+A TEST PATTERN	ẢNH THỬ
+Line up the screens BEFORE the show. Not during. I learned this in Plovdiv.	Chỉnh màn hình TRƯỚC show. Không phải giữa chừng. Tôi học được điều này ở Plovdiv.
+Every desk needs a test pattern. PATTERN adds Pocket Test: checked against real meters.	Bàn nào cũng cần ảnh thử. PATTERN thêm Pocket Test: kiểm bằng phép đo thật.
+A VIDEO SYNTH	SYNTH VIDEO
+He says 'no camera needed' like it is a feature. It is a feature.	Ông ấy nói 'không cần máy quay' như thể đó là tính năng. Đúng là tính năng thật.
+My favourite. SOURCE, then Video Synth: oscillators, mirrors and feedback. No camera needed.	Món tôi thích nhất. NGUỒN, rồi Video Synth: oscillator, gương và feedback. Không cần máy quay.
+TAKE THE SYNTH	TAKE SYNTH
+Select it, then TAKE. Confident operators press Enter.	Chọn nó, rồi TAKE. Người vận hành tự tin thì nhấn Enter.
+That's our replay. Every replay needs a pundit.	Đây là cảnh quay lại của ta. Cảnh quay lại nào cũng cần một bình luận viên.
+Now here's a replay. And here's a guy. And BOOM, he's in it.	Đây là cảnh quay lại. Đây là cầu thủ. Và BÙM, vào rồi.
+A SECOND PLAYLIST	PLAYLIST THỨ HAI
+Ink goes on top, on its own layer. Press the + at the end of the playlist tabs.	Mực nằm ở trên, trên layer của riêng nó. Bấm + ở cuối dãy tab playlist.
+A second playlist is a layer over the first. Like a second oscillator, mixed on top.	Playlist thứ hai là một layer trên cái thứ nhất. Như oscillator thứ hai, trộn ở trên.
+A DRAW CUE	DRAW CUE
+In the new playlist: SOURCE, then Draw. Clear everywhere you have not drawn.	Trong playlist mới: NGUỒN, rồi Draw. Chỗ nào bạn chưa vẽ thì trong suốt.
+A Draw cue is transparent outside the ink, so the synth shows through.	Draw cue trong suốt ngoài nét mực, nên synth lộ ra.
+TAKE THE INK	TAKE MỰC
+Select the Draw cue and TAKE it. Two playlists, two layers, one picture.	Chọn draw cue và TAKE. Hai playlist, hai layer, một hình.
+Now both are live: the synth underneath, the ink on top.	Giờ cả hai cùng lên sóng: synth ở dưới, mực ở trên.
+CIRCLE SOMETHING	KHOANH TRÒN THỨ GÌ ĐÓ
+Press DRAW in the inspector, then draw on the programme monitor. Mouse, or a pen if you have one.	Trong inspector, bấm DRAW, rồi vẽ lên màn hình program. Bằng chuột, hoặc bút nếu có.
+A pen's pressure makes the line thicker. A mouse presses at one strength. Like me.	Lực nhấn bút làm nét đậm. Chuột thì lúc nào cũng nhấn như nhau. Giống tôi.
+Circle him! No, bigger. BOOM. That's a cloud. Fine. Circle the cloud.	Khoanh tròn anh ta! Không, to hơn. BÙM. Đó là đám mây. Cũng được. Khoanh đám mây.
+SAVE A STILL	LƯU ẢNH TĨNH
+SAVE STILL keeps the drawing as a picture with a clear background, and adds it to the playlist.	SAVE STILL giữ hình vẽ thành ảnh nền trong suốt và thêm nó vào playlist.
+For next week's show. Coach Marv will want the cloud again.	Cho chương trình tuần sau. Coach Marv sẽ lại muốn đám mây.
+THAT'S THE BOOTH	ĐÓ LÀ PHÒNG TELESTRATOR
+Patterns, the synth, a layer, ink, a still. Nazdrave, skapi.	Ảnh thử, synth, một layer, mực, một ảnh tĩnh. Nazdrave, skapi.
+Try Replay in the Draw section: it draws your lines back the way you drew them.	Thử Replay trong phần Draw: nó vẽ lại các nét đúng như lúc bạn vẽ.
+Same time next week. Bring a bigger pen. And a turducken.	Tuần sau giờ cũ. Mang bút to hơn. Và một tô phở.
+Saucer photo (CLASSIFIED)	Ảnh đĩa bay (MẬT)
+THE SIGNAL FILES	HỒ SƠ TÍN HIỆU
+The Bureau of Unexplained Signals. Two agents, one photo, and it must not air. Press START.	Cục Tín hiệu Chưa Giải thích. Hai đặc vụ, một bức ảnh, và nó không được lên sóng. Nhấn START.
+Masks cut a picture into shapes. Tonight we cut evidence.	Mask cắt hình thành một hình dạng. Tối nay, ta cắt bằng chứng.
+That's a craft, Brandt. Look at the lights. I want to believe.	Là một con tàu, Brandt. Nhìn mấy ánh đèn kìa. Tôi muốn tin.
+A MASK FROM THE LIBRARY	MASK TỪ THƯ VIỆN
+In the inspector's MASK section: mask, then 'new heart'. Any shape will do. The heart is funnier.	Trong phần MASK của inspector: mask, rồi 'new heart'. Hình nào cũng được. Trái tim thì vui hơn.
+The library has circles, stars, hearts. Each one is points you can move.	Thư viện có hình tròn, ngôi sao, trái tim. Mỗi cái là các điểm bạn kéo được.
+A heart, Hollis? The Bureau redacts with black bars.	Trái tim à, Hollis? Cục giấu đồ bằng vạch đen.
+THE PEN	CÂY BÚT
+Set the tool to pen, then click round the saucer on the monitor. Click the first point to close it.	Đổi công cụ sang bút, rồi bấm quanh chiếc đĩa trên màn hình. Bấm vào điểm đầu tiên để khép lại.
+Click for corners, drag for curves. The way the Bezier brothers intended.	Bấm để làm góc, kéo để làm đường cong. Đúng như anh em nhà Bézier mong muốn.
+Draw round it carefully. It might be watching.	Vẽ quanh nó cẩn thận. Biết đâu nó đang nhìn.
+INVERT	ĐẢO NGƯỢC
+Invert keeps the outside and cuts the inside. The saucer goes. The sky stays.	Đảo ngược giữ phần ngoài và cắt phần trong. Chiếc đĩa biến mất. Bầu trời ở lại.
+The same shape, the other way round. Very useful. Slightly spooky.	Cùng hình dạng, đảo ngược. Rất có ích. Hơi đáng sợ.
+Hollis, there's a heart-shaped hole in the sky.	Hollis, trên trời có một lỗ hình trái tim.
+FEATHER	LÀM MỀM
+Feather softens the edge, so nobody sees the cut. Press + on feather.	Làm mềm làm mịn mép, để không ai thấy vết cắt. Bấm + ở feather.
+A hard edge says 'someone was here'. A soft one says nothing at all.	Mép sắc nói 'có ai đó đã ở đây'. Mép mềm chẳng nói gì.
+They'll never know.	Họ sẽ không bao giờ biết.
+CASE CLOSED	ĐÓNG HỒ SƠ
+A library shape, the pen, invert and feather. The Bureau thanks you. The Bureau was never here.	Một hình từ thư viện, bút, đảo ngược và làm mềm. Cục cảm ơn bạn. Cục chưa từng ở đây.
+Masks also go on a layer, an output, or its matte: MASK ON chooses. And every control takes a ~.	Mask cũng đặt được lên layer, output hoặc matte của nó: MASK ON chọn chỗ. Và điều khiển nào cũng nhận ~.
+The truth is in the waveform, Hollis. Next time, the scopes.	Sự thật nằm trong waveform, Hollis. Lần sau, dùng scope.
+The ghost	Hồn ma
+THE HAUNTED LIGHTHOUSE	NGỌN HẢI ĐĂNG CÓ MA
+A lighthouse, a ghost, and a keeper who has been alone with the lamp far too long. Press START.	Một ngọn hải đăng, một hồn ma, và một người gác đèn đã ở một mình với cây đèn quá lâu. Nhấn START.
+Projection mapping: bending the picture to fit the building. Warp, blend, slices.	Projection mapping: uốn hình cho vừa tòa nhà. Warp, blend, slice.
+Ye'll be wanting the ghost on the windows. Mind the lamp. The lamp is MINE.	Các người muốn hồn ma trên cửa sổ hả? Coi chừng cây đèn. Cây đèn là CỦA TÔI.
+THE OUTPUT'S GEOMETRY	HÌNH HỌC OUTPUT
+MENU, then Video Outputs, then Geometry. Where an output's shape lives.	MENU, rồi Video Outputs, rồi Geometry. Hình dạng của output nằm ở đó.
+Geometry: the projector-menu word for 'what shape is the picture'.	Geometry: chữ trên menu máy chiếu, nghĩa là 'hình có dạng gì'.
+PIN A CORNER	GHIM MỘT GÓC
+Press warp edit, then drag a corner on the programme monitor. The window is not square. Neither is the keeper.	Bấm warp edit, rồi kéo một góc trên màn hình program. Cửa sổ đâu có vuông. Người gác đèn cũng vậy.
+A corner pin moves the four corners. Perspective keeps the lines straight, like a real window.	Corner pin dời bốn góc. Phối cảnh giữ các đường thẳng, như cửa sổ thật.
+LEFT! Ye call that a corner? I've seen straighter gulls.	TRÁI! Thế mà gọi là góc à? Tôi thấy hải âu còn thẳng hơn.
+TWO SOFT EDGES	HAI MÉP MỀM
+Back in Geometry: edge blend, + on the left and + on the right.	Quay lại Geometry: edge blend, + ở bên trái và + ở bên phải.
+Two projectors overlap; each fades its edge so the overlap is not twice as bright.	Hai máy chiếu chồng lên nhau; mỗi cái làm mờ mép của nó để chỗ chồng không sáng gấp đôi.
+THE SCREENS WINDOW	CỬA SỔ SCREENS
+Geometry, SLICES, open. The Screens window is where slices are cut and placed.	Geometry, SLICES, mở. Cửa sổ Screens là nơi slice được cắt và đặt.
+A slice is a piece of the picture, put anywhere on the output.	Slice là một mảnh của hình, đặt ở bất cứ đâu trên output.
+THREE SLICES	BA SLICE
+In the Screens window, + SLICE three times, and drag each crop to a third of the picture.	Trong cửa sổ Screens, + SLICE ba lần, và kéo mỗi vết cắt tới một phần ba của hình.
+Three windows, three slices: left, middle and right of one picture.	Ba cửa sổ, ba slice: trái, giữa và phải của một tấm hình.
+Three windows. The lamp gets the middle one. The lamp ALWAYS gets the middle one.	Ba cửa sổ. Cái giữa là của cây đèn. Cái giữa LUÔN LÀ của cây đèn.
+THE GHOST IS PLEASED	HỒN MA HÀI LÒNG
+Warp, blend, slices. The keeper will finally sleep. The gulls will not.	Warp, blend, slice. Người gác đèn cuối cùng cũng ngủ được. Hải âu thì không.
+Slices have their own warp and mesh in the Screens window. And a ~ on the place and the turn.	Slice có warp và mesh riêng trong cửa sổ Screens. Và ~ trên vị trí và góc xoay.
+Ye did alright, lad. Now get away from the lamp.	Cậu làm được đấy, nhóc. Giờ tránh xa cây đèn ra.
+THE GAME SHOW	GAME SHOW
+A game show, skapi. Three contestants, one buzzer, and cues that fire from anywhere. Press START.	Game show truyền hình, skapi. Ba người chơi, một cái chuông, và cue bắn ra từ mọi phía. Nhấn START.
+Cue numbers, hotkeys, and GO from other machines. Like a sequencer you can play from any key.	Số cue, phím tắt, và GO từ máy khác. Như sequencer bạn đánh bằng phím nào cũng được.
+Welcome to the show! Let's spin that wheel!	Chào mừng tới chương trình! Quay bánh xe nào!
+A CUE NUMBER	SỐ CUE
+Contestant 3 is selected. In the inspector's metadata, give it a cue number: 3.	Người chơi số 3 đang được chọn. Trong metadata của inspector, đặt cho nó một số cue: 3.
+Theatre numbers its cues. Q3, Q3.5, Q12A. Deckboy reads them all.	Show đánh số cue của mình. Q3, Q3.5, Q12A. Deckboy đọc được hết.
+I'd like to buy a number, please.	Tôi muốn mua một con số, làm ơn.
+GO TO IT	ĐI TỚI ĐÓ
+Ctrl+G, type the number, Enter. It goes live wherever the list happens to be standing.	Ctrl+G, gõ số, Enter. Nó lên sóng, danh sách đang ở đâu cũng vậy.
+GOTO. The fastest way across a long list. Faster than scrolling. Much faster than me.	GOTO. Đường nhanh nhất qua một danh sách dài. Nhanh hơn cuộn. Nhanh hơn tôi nhiều.
+And the number is... three!	Và con số là... ba!
+A BUZZER	CÁI CHUÔNG
+Contestant 1 is selected. In TRIGGERS, press key, then F5. That key now fires this cue.	Người chơi số 1 đang được chọn. Trong TRIGGERS, bấm key, rồi F5. Phím đó giờ bắn cue này.
+F1 to F10, F12, or the number pad. Each one, a buzzer.	F1 tới F10, F12, hoặc bàn phím số. Mỗi cái là một cái chuông.
+Every contestant gets a buzzer.	Mỗi người chơi được một cái chuông.
+BUZZ IN	BẤM CHUÔNG!
+Press the key. The cue fires, wherever the list is standing.	Nhấn phím. Cue bắn ra, danh sách đang ở đâu cũng vậy.
+No mouse, no list, no looking. Just the key.	Không chuột, không danh sách, không cần nhìn. Chỉ một phím.
+Buzz! We have a winner!	Bíp! Chúng ta có người thắng!
+FROM ANYWHERE	TỪ MỌI NƠI
+Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion, một nốt MIDI, một tin OSC: MENU, rồi Mạng, cho biết mỗi cái nối vào đâu.
+A Stream Deck in the next room can press GO. So can a keyboard synth. I prefer the synth.	Một Stream Deck ở phòng bên có thể nhấn GO. Một synth phím đàn cũng được. Tôi thích synth hơn.
+And for our viewers at home: you can play along too.	Và cho khán giả ở nhà: các bạn cũng chơi được.
+THAT'S OUR SHOW	ĐÓ LÀ CHƯƠNG TRÌNH CỦA CHÚNG TÔI
+Numbers, GOTO, a buzzer, and GO from anywhere. You are a game show now, skapi.	Số, GOTO, chuông, và GO từ mọi nơi. Giờ bạn là một game show, skapi.
+A cue can have a key, a MIDI note and an OSC address at once. Belt, braces and a second belt.	Một cue có thể có cả phím, nốt MIDI và địa chỉ OSC cùng lúc. Thắt lưng, dây đeo, và thêm thắt lưng nữa.
+Goodnight, everybody! Keep spinning!	Chúc ngủ ngon, mọi người! Cứ quay tiếp nhé!
+Weather map	Bản đồ thời tiết
+THE KAIJU WEATHER	THỜI TIẾT KAIJU
+Channel 6 weather, skapi. A map, a presenter, and a very large lizard. Press START.	Thời tiết Kênh 6, skapi. Một bản đồ, một người dẫn, và một con thằn lằn rất to. Nhấn START.
+Words on screen: Lower Thirds, text, and backdrops.	Chữ trên màn hình: Lower Third, chữ và nền.
+I'm June O'Neil, and nothing about this forecast is normal.	Tôi là June O'Neil, và trong dự báo này chẳng có gì bình thường cả.
+A LAYER FOR WORDS	MỘT LAYER CHO CHỮ
+Words go on their own layer: press the + at the end of the playlist tabs.	Chữ nằm trên layer riêng: bấm + ở cuối dãy tab playlist.
+A second playlist is a layer over the map. The lizard stays underneath. Mostly.	Playlist thứ hai là một layer trên bản đồ. Con thằn lằn ở dưới. Phần lớn thời gian.
+Words on top. Always on top.	Chữ ở trên. Luôn luôn ở trên.
+A LOWER THIRD	LOWER THIRD
+In the new playlist: SOURCE, then Lower Third.	Trong playlist mới: NGUỒN, rồi Lower Third.
+A name and a title, low on the screen, out of the lizard's way.	Một cái tên và một chức danh, ở dưới màn hình, tránh đường con thằn lằn.
+HER NAME	TÊN CÔ ẤY
+In the inspector, title: type the presenter's name. The second line is her job.	Trong inspector, title: gõ tên người dẫn. Dòng thứ hai là công việc của cô.
+Spelling counts. The audience reads it at the speed of light.	Chính tả quan trọng. Khán giả đọc với tốc độ ánh sáng.
+Spell it right. Last week it said 'Jane O'Meal'.	Viết cho đúng. Tuần trước nó ghi 'Jane O'Meal'.
+ON AIR	LÊN SÓNG
+TAKE the Lower Third. Her name slides in over the map.	TAKE Lower Third. Tên cô trượt vào bản đồ.
+Two layers live: the weather, and the words on top of it.	Hai layer trên sóng: thời tiết, và chữ đè lên.
+Thank you. Now, about that lizard...	Cảm ơn. Giờ, về con thằn lằn đó...
+BREAKING NEWS	TIN NÓNG
+SOURCE, then Text: a title card. Then its backdrop chip: key green, for the vision mixer to key out.	NGUỒN, rồi Text: một thẻ tiêu đề. Rồi chip nền: xanh key, để bàn trộn tách nó ra.
+A backdrop fills behind the words. Key green or key blue, and the mixer does the rest.	Nền lấp đầy phía sau chữ. Xanh lá hoặc xanh dương key, phần còn lại bàn trộn lo.
+Breaking news: it's standing on the five-day forecast.	Tin nóng: nó vừa giẫm lên dự báo năm ngày.
+BREAKING: KAIJU	TIN NÓNG: KAIJU
+BACK TO YOU	TRẢ LẠI TRƯỜNG QUAY
+A Lower Third, a name, a title card, a backdrop. The lizard has left the studio, skapi.	Lower Third, tên, thẻ tiêu đề, nền. Con thằn lằn đã rời trường quay, skapi.
+Lower Thirds can wait, slide and leave on their own. Their section has every setting.	Lower Third có thể tự chờ, trượt vào và trượt ra. Phần của nó có đủ mọi cài đặt.
+That's the weather. Back to you, guys. Run.	Thời tiết là vậy. Xin trả lại trường quay. Chạy đi.
+A GRAND DAY OUT	MỘT NGÀY TUYỆT VỜI
+A rocket built in a basement, skapi, and an inventor who wants cheese. Press START.	Một tên lửa đóng dưới tầng hầm, skapi, và một nhà phát minh thèm phô mai. Nhấn START.
+Stage timers: countdowns, clocks, and a presenter view for the person on stage.	Đồng hồ sân khấu: đếm ngược, đồng hồ, và màn hình người dẫn.
+Cheese, Grommet! The moon's made of it. We'll need a countdown.	Phô mai, Grommet! Mặt trăng làm bằng phô mai. Ta cần một cú đếm ngược.
+A COUNTDOWN	ĐẾM NGƯỢC
+SOURCE, then Stage Timer. A clock that counts down, in big friendly numbers.	NGUỒN, rồi Stage Timer. Một đồng hồ chạy lùi, số to và thân thiện.
+Its colours change as it runs out: white, amber, red. Like a VU meter for time.	Màu đổi khi thời gian cạn: trắng, hổ phách, đỏ. Như đồng hồ VU cho thời gian.
+*raises an eyebrow*	*nhướng một bên mày*
+LIFT OFF	CẤT CÁNH
+Select the timer and TAKE it. The countdown starts.	Chọn đồng hồ và TAKE. Đếm ngược bắt đầu.
+Past zero it keeps going, counting the overtime. Very honest. Slightly rude.	Qua số không nó vẫn chạy, đếm phần lố giờ. Rất chính xác. Hơi vô duyên.
+Ten... nine... ooh, I do love a countdown.	Mười... chín... ồ, tôi mê đếm ngược lắm.
+HOLD!	DỪNG LẠI!
+Something's loose! Space holds the countdown. The clock shows it is held.	Có gì đó lỏng! Phím cách dừng cú đếm. Đồng hồ hiện là nó đang dừng.
+A hold is not a stop. Space again, and it carries on from where it was.	Dừng không phải là hết. Phím cách lần nữa, nó chạy tiếp từ chỗ cũ.
+*holds up a spanner*	*giơ một cái cờ lê lên*
+THE PILOT'S VIEW	MÀN HÌNH PHI CÔNG
+MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	MENU, Video Outputs: đổi loại một output thành PRESENTER. Người trên sân khấu thấy đồng hồ, cue kế tiếp và ghi chú.
+A presenter view is an output like any other. Point it at the confidence monitor.	Màn hình người dẫn là một output như mọi output khác. Hướng nó về màn hình sân khấu.
+So the pilot can see the time. The pilot is Grommet.	Để phi công thấy giờ. Phi công là Grommet.
+TO THE MOON	LÊN MẶT TRĂNG
+A countdown, a hold, and a view for the pilot. Nazdrave, skapi. Bring crackers.	Một cú đếm, một lần dừng, và một màn hình cho phi công. Nazdrave, skapi. Mang bánh quy theo.
+Timers can also count up, or show the time of day. Their section has the lot.	Đồng hồ cũng đếm lên được, hoặc hiện giờ. Phần của nó có đủ cả.
+A grand day out, Grommet! Pass the crackers.	Một ngày tuyệt vời, Grommet! Đưa tôi bánh quy.
+The trunk (closed)	Cái hộp (đóng)
+The trunk (open)	Cái hộp (mở)
+THE MAGIC SHOW	MÀN ẢO THUẬT
+A magic show, skapi. A trunk, a prop, and one beat where everything changes at once. Press START.	Màn ảo thuật, skapi. Một cái hộp, một đạo cụ, và một nhịp đổi mọi thứ cùng lúc. Nhấn START.
+Two playlists are two layers. TAKE ALL changes both together.	Hai playlist là hai layer. TAKE ALL đổi cả hai cùng lúc.
+Every trick needs two things happening at once. And a rubber chicken.	Trò nào cũng cần hai thứ xảy ra cùng lúc. Và một con gà cao su.
+The prop goes on its own layer. Press the + at the end of the playlist tabs.	Đạo cụ nằm trên layer riêng. Bấm + ở cuối dãy tab playlist.
+Playlist 2 sits on top of playlist 1. Like a transparency on an overhead projector.	Playlist 2 nằm trên playlist 1. Như tấm phim trong trên máy chiếu overhead.
+Nothing up my sleeve. Everything in my trunk.	Trong tay áo tôi không có gì. Mọi thứ nằm trong hộp.
+THE PROP	ĐẠO CỤ
+In the new playlist, add anything: PATTERN will do. That is the prop.	Trong playlist mới, thêm gì cũng được: PATTERN là ổn. Đó là đạo cụ.
+Whatever it is, it will appear the instant the trunk opens.	Là gì đi nữa, nó sẽ hiện ra khi hộp mở.
+Is it a rubber chicken? It's always a rubber chicken.	Gà cao su hả? Lúc nào cũng là gà cao su.
+The prop (rubber chicken)	Đạo cụ (gà cao su)
+Select 'The trunk (open)' in playlist 1 and the prop in playlist 2. Then TAKE ALL: both on one beat.	Chọn 'Cái hộp (mở)' trong playlist 1 và đạo cụ trong playlist 2. Rồi TAKE ALL: cả hai trong một nhịp.
+One press, every playlist's selected cue. The audience never sees the seam.	Một cú bấm, cue đang chọn của mọi playlist. Khán giả chẳng bao giờ thấy đường may.
+Ta-daaa! ...Hold for applause. Hold. Hold.	Ta-daaa! ...Chờ vỗ tay. Chờ. Chờ.
+THE PRESTIGE	MÀN LỚN
+Two layers, one beat. Every playlist has its own opacity and can sit on any output. Nazdrave, skapi.	Hai layer, một nhịp. Mỗi playlist có độ mờ riêng và đặt được trên output nào cũng được. Nazdrave, skapi.
+A magician never reveals. A playlist never minds being revealed.	Ảo thuật gia không bao giờ tiết lộ. Playlist thì chẳng ngại tiết lộ.
+Thank you! I'm here all week! The chicken is here forever.	Cảm ơn! Tôi diễn cả tuần ở đây! Con gà thì ở đây mãi mãi.
+The kitchen (on fire)	Nhà bếp (đang cháy)
+A lovely souffle	Một chiếc soufflé đẹp
+THE COOKING SHOW	SHOW NẤU ĂN
+A cooking show, skapi. Live. Everything is on fire. Press START.	Show nấu ăn, skapi. Trực tiếp. Mọi thứ đang cháy. Nhấn START.
+BLACK hides the picture and keeps the show running. PANIC stops everything. Know which you need.	BLACK giấu hình và để show chạy tiếp. PANIC dừng mọi thứ. Biết lúc nào cần cái nào.
+Bork bork! Hurdy-flurdy, de kitchen is fire-a-flurdy!	Bork bork! Hurdy-flurdy, nhà bếp cháy-flurdy!
+The audience must not see this. Press BLACK, or B.	Khán giả không được thấy cái này. Nhấn BLACK, hoặc B.
+The picture goes. The cue keeps playing underneath, ready to come back.	Hình biến mất. Cue vẫn chạy bên dưới, sẵn sàng quay lại.
+Bork? Bork. Oh, de picture is gun.	Bork? Bork. Ơ, hình đâu mất rồi.
+AND BACK	VÀ QUAY LẠI
+The fire's out. Press B again: the picture comes back, still running.	Lửa tắt rồi. Nhấn B lần nữa: hình về, vẫn đang chạy.
+Nothing was lost. A mute on a mixer, for pictures.	Không mất gì. Nút mute trên bàn trộn, cho hình.
+Ta-da! Still cookin'!	Ta-da! Vẫn đang nấu!
+Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	Tệ hơn nữa: MENU, Hệ thống, thẻ SAFETY: PANIC. Mọi thứ dừng, đúng như hồ sơ panic quy định.
+PANIC is the big red button. Use it when BLACK is not enough. Then breathe.	PANIC là nút đỏ to. Dùng khi BLACK không đủ. Rồi thở.
+GET IT BACK	LẤY LẠI
+Close MENU, select the souffle, and TAKE it. The show is back on.	Đóng MENU, chọn soufflé và TAKE. Show trở lại.
+After a panic, the show is still there. Pick up where you meant to be.	Sau panic, show vẫn còn đó. Chạy tiếp từ chỗ bạn muốn.
+Voila! De souffle, he is risen!	Voilà! Soufflé đã phồng!
+BON APPETIT	CHÚC NGON MIỆNG
+BLACK to hide, PANIC to stop, TAKE to come back. You will survive any kitchen, skapi.	BLACK để giấu, PANIC để dừng, TAKE để quay lại. Bếp nào bạn cũng thoát được, skapi.
+The panic setting chooses what PANIC does: fade out, cut, or just the outputs.	Hồ sơ panic chọn PANIC sẽ làm gì: fade out, cắt, hay chỉ output.
+Bork bork bork! Goodnight!	Bork bork bork! Chúc ngủ ngon!
+Look one	Khung cảnh một
+Look two	Khung cảnh hai
+Presets, skapi. A whole look, remembered, and back with one button. Press START.	Preset, skapi. Cả một khung cảnh, được nhớ lại, quay về chỉ bằng một nút. Nhấn START.
+Like the patch memory on a synth: store, then recall.	Như bộ nhớ patch trên synth: lưu nó, rồi gọi lại.
+THE DASH	DASH
+Press DASH: buttons of your own, for anything at all.	Bấm DASH: các nút của riêng bạn, cho mọi thứ.
+Ctrl+D also works. Very fast. Very professional.	Ctrl+D cũng được. Rất nhanh. Rất chuyên nghiệp.
+A PRESET BUTTON	NÚT PRESET
+Press +, then 'preset - a new preset from what is on now'. The button remembers this look.	Bấm +, rồi 'preset - a new preset from what is on now'. Nút sẽ nhớ khung cảnh này.
+Store. Like saving the patch before the drummer leans on the synth.	Lưu nó. Như lưu patch trước khi tay trống dựa vào synth.
+CHANGE EVERYTHING	ĐỔI MỌI THỨ
+Close the DASH (Esc), then select Look two and TAKE it. A different look.	Đóng DASH (Esc), rồi chọn Khung cảnh hai và TAKE. Một khung cảnh khác.
+Change it all. Don't worry. It remembers.	Đổi mọi thứ đi. Đừng lo. Nó nhớ mà.
+ONE PRESS	MỘT CÚ BẤM
+Open the DASH and press your preset button. The first look comes back.	Mở DASH và bấm nút preset của bạn. Khung cảnh đầu quay lại.
+Recall. The patch memory, returning. Beautiful.	Đã gọi lại. Bộ nhớ patch đã về. Tuyệt.
+A look, stored and recalled. A preset can keep cues, positions, effects, levels and routing; its button's menu chooses which.	Một khung cảnh, được lưu và gọi lại. Preset giữ được cue, vị trí, hiệu ứng, mức và định tuyến; menu của nút chọn cái nào.
+And a DASH button can run any command at all. Any. Even the exciting ones.	Và một nút DASH chạy được mọi lệnh. Mọi lệnh. Kể cả mấy lệnh gay cấn.
+Opening titles	Chữ mở đầu
+The planet	Hành tinh
+The battle	Trận chiến
+THE TRAILER	TRAILER
+A space-opera trailer, skapi. A narrator with a very deep voice and opinions about transitions. Press START.	Trailer opera không gian, skapi. Một người dẫn chuyện giọng rất trầm và có rất nhiều ý kiến về transition. Nhấn START.
+A transition is how one cue becomes the next. There are far more than the crossfade.	Transition là cách một cue hóa thành cue kia. Có nhiều thứ hơn crossfade nhiều.
+In a galaxy of content... one operator... must choose a transition.	Trong một thiên hà nội dung... một người vận hành... phải chọn một transition.
+A STYLE	MỘT KIỂU
+'The planet' is selected. In the inspector, its transition style: choose iris.	'Hành tinh' đang được chọn. Trong inspector, kiểu transition của nó: chọn iris.
+Pushes, wipes, iris, dip to white. Even a portal. I wrote half of them. On a Tuesday.	Push, wipe, iris, dip to white. Cả một cánh cổng. Nửa số đó tôi viết. Hôm thứ Ba.
+The planet deserves... a dramatic entrance.	Hành tinh xứng đáng... một màn xuất hiện hoành tráng.
+A TIME	MỘT KHOẢNG THỜI GIAN
+Give it a time: + on transition until it says a second or more.	Cho nó thời gian: + ở transition cho tới khi ghi một giây hoặc hơn.
+No time, no transition. A style needs a duration to do anything at all.	Không có thời gian, không có transition. Kiểu cần thời gian để làm được gì đó.
+ROLL IT	CHẠY
+TAKE the planet. Watch it arrive.	TAKE Hành tinh. Xem nó đến.
+The transition belongs to the cue arriving. Each cue chooses its own entrance.	Transition thuộc về cue đang đến. Cue nào cũng tự chọn cách xuất hiện.
+Autobots... roll the transition.	Autobot... chạy transition.
+THE BATTLE	TRẬN CHIẾN
+Now 'The battle': choose shatter, give it a time, and TAKE it.	Giờ 'Trận chiến': chọn shatter, cho nó thời gian, và TAKE.
+Shatter drops the old picture like a pane of glass. Please do not do this at a funeral.	Shatter làm hình cũ vỡ như kính. Xin đừng dùng nó ở đám cưới.
+Transform... and shatter out!	Biến hình... và vỡ tan!
+IN CINEMAS NOW	SẮP CHIẾU
+A style, a time, and two very dramatic entrances. Nazdrave, skapi.	Một kiểu, một khoảng thời gian, và hai màn xuất hiện cực kỳ hoành tráng. Nazdrave, skapi.
+A playlist has a default style too, for every cue that does not choose its own.	Playlist cũng có kiểu mặc định, cho cue nào không tự chọn.
+Coming soon... to a desk near you.	Sắp ra mắt... trên một cái bàn gần bạn.
+The beat	Nhịp
+THE ROBOT DJS	ROBOT DJ
+Two robot DJs, skapi. They do not talk. Their helmets do. Press START.	Hai robot DJ, skapi. Họ không nói. Mũ bảo hiểm của họ nói. Nhấn START.
+Every cue has its own chain of audio effects, and some of them break the sound on purpose.	Mỗi cue có chuỗi hiệu ứng âm thanh riêng, và vài cái cố tình làm hỏng âm thanh.
+> HELLO. WE ARE HERE TO FIX YOUR MIX.	> XIN CHÀO. CHÚNG TÔI ĐẾN SỬA BẢN MIX CỦA BẠN.
+The beat is selected. In its AUDIO EFFECTS section, + adds one. Try the delay.	Nhịp đang được chọn. Trong phần AUDIO EFFECTS, + thêm một cái. Thử Delay.
+Delay, reverb, filters, a compressor. Amount always means 'less of this'.	Delay, reverb, filter, compressor. Amount lúc nào cũng nghĩa là 'ít cái này lại'.
+> ONE MORE TIME. WITH ECHO. ECHO. ECHO.	> THÊM LẦN NỮA. CÓ VỌNG. VỌNG. VỌNG.
+A BEND	MỘT CÚ BEND
+Add a second: a bend, like crush. It damages the sound the way a broken file would.	Thêm cái thứ hai: một bend, như crush. Nó phá âm thanh như tệp bị hỏng.
+The bends are my favourite. Like a tape left in the sun. On purpose.	Bend là món tôi thích nhất. Như cuộn băng cát-xét bỏ quên ngoài nắng. Cố tình.
+> HARDER. BETTER. CRUNCHIER. LOUDER.	> MẠNH HƠN. HAY HƠN. GIÒN HƠN. TO HƠN.
+THE PATCH	PATCH
+MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	MENU, rồi Âm thanh: âm thanh mỗi playlist đi đâu, và patch cho các output có tên.
+Speakers, monitors, an in-ear for the drummer. The patch sends each its own.	Loa, loa kiểm, tai nghe in-ear cho tay trống. Patch gửi cho mỗi người phần của họ.
+> AROUND THE MIX. AROUND THE MIX. AROUND THE MIX.	> QUANH BẢN MIX. QUANH BẢN MIX. QUANH BẢN MIX.
+An effect, a bend and the patch. The robots approve, skapi. I think. Their faces are helmets.	Một hiệu ứng, một bend và patch. Robot duyệt rồi, skapi. Tôi nghĩ vậy. Mặt họ là mũ bảo hiểm.
+Every audio effect can follow a ~ too, even Motion. Wave at the delay. It's wonderful.	Hiệu ứng âm thanh nào cũng theo được ~, kể cả Motion. Vẫy tay với delay. Kỳ diệu lắm.
+> THANK YOU. GOOD NIGHT. WE ARE ROBOTS.	> CẢM ƠN. CHÚC NGỦ NGON. CHÚNG TÔI LÀ ROBOT.
+The glow on the horizon (evidence #2)	Ánh sáng ở chân trời (bằng chứng #2)
+EVIDENCE #2	BẰNG CHỨNG #2
+The Bureau again, skapi. A glow on the horizon, and two agents who disagree about it. Press START.	Lại là Cục, skapi. Một ánh sáng ở chân trời, và hai đặc vụ không đồng ý về nó. Nhấn START.
+The scopes measure a picture: brightness, colour, levels. Numbers, not opinions.	Scope đo hình: độ sáng, màu, mức. Con số, không phải ý kiến.
+It's them, Brandt. It's a craft. Look how it glows.	Họ đó, Brandt. Là tàu. Nhìn nó lóe sáng kìa.
+THE REAL SIGNAL	TÍN HIỆU THẬT
+The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	Scope chỉ đọc những gì thật sự đi ra, không bao giờ đọc bản xem trước. Bật output: MENU, Video Outputs, OUTPUT OFF.
+Measuring a scaled-down preview would be measuring a photocopy. We measure the original.	Đo bản xem trước thu nhỏ thì như đo bản photo. Ta đo bản gốc.
+Chain of evidence, Hollis. The real signal or nothing.	Chuỗi bằng chứng, Hollis. Tín hiệu thật hoặc không gì cả.
+THE SCOPES	SCOPE
+Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	Đóng MENU. Trên màn hình, nút PROGRAM: bấm tới khi nó ghi SCOPES hoặc BOTH.
+Both shows the picture and its scopes side by side. Very civilised.	BOTH hiện hình và scope của nó cạnh nhau. Rất văn minh.
+Let the scopes decide, Hollis.	Để scope quyết định, Hollis.
+THE WAVEFORM	WAVEFORM
+Click the waveform to make it big. Bright things sit high, dark things low, left to right as in the picture.	Bấm vào waveform để phóng to. Chỗ sáng ở trên, chỗ tối ở dưới, trái sang phải như trong hình.
+The glow is that spike near the top. Very bright. Bright is not the same as alien.	Ánh sáng là cái đỉnh gần trên cùng. Rất sáng. Sáng đâu phải là người ngoài hành tinh.
+Look at the peak. Nothing a streetlight couldn't do.	Nhìn cái đỉnh đi. Chẳng có gì mà đèn đường không làm được.
+THE VECTORSCOPE	VECTORSCOPE
+Click it again to go back, then click the vectorscope: colour round a circle. Saturated runs to the edge.	Bấm lần nữa để quay lại, rồi bấm vào vectorscope: màu quanh một vòng tròn. Độ bão hòa chạy ra mép.
+Magenta, far out by the rim. A strong colour. Strong is not illegal. Yet.	Đỏ tía, ra tận mép. Một màu mạnh. Mạnh đâu phải là phạm pháp. Chưa.
+It's off the chart, Brandt! Literally off the chart!	Nó vượt khỏi biểu đồ, Brandt! Theo nghĩa đen!
+FALSE COLOUR	MÀU GIẢ
+And false colour: red is clipped, yellow nearly. Is the glow red?	Và màu giả: đỏ là bị cắt, vàng là gần bị cắt. Ánh sáng có đỏ không?
+Clipped means the brightest the signal can carry, and then some lost. Detail gone.	Bị cắt nghĩa là sáng nhất mà tín hiệu chứa được, và phần nào đó trên mức ấy đã mất. Chi tiết đi rồi.
+Red. Clipped. Not alien, Hollis. Just too bright. Case closed.	Đỏ. Bị cắt. Không phải người ngoài hành tinh, Hollis. Chỉ là quá sáng. Đóng hồ sơ.
+THE TRUTH	SỰ THẬT
+Waveform, vectorscope, false colour. The scopes settled it, skapi. The agents did not.	Waveform, vectorscope, màu giả. Scope đã quyết định, skapi. Không phải các đặc vụ.
+SCOPES SOURCE reads any output, and the matrix can be 709 or 2020. For the curious.	SCOPES SOURCE đọc output nào cũng được, và ma trận có thể là 709 hoặc 2020. Cho người tò mò.
+Too bright for a streetlight, Brandt. Too bright for anything. ...I want to believe.	Quá sáng cho một cái đèn đường, Brandt. Quá sáng cho mọi thứ. ...Tôi muốn tin.
+OUT OF THE BUILDING	RA KHỎI TÒA NHÀ
+Pictures that leave by cable or network, skapi, not only a window on a screen. Press START.	Hình đi ra bằng cáp hoặc bằng mạng, skapi, không chỉ là cửa sổ trên màn hình. Nhấn START.
+NDI over the network, SDI from a DeckLink card, ST 2110 for broadcast plants.	NDI trên mạng, SDI từ card DeckLink, ST 2110 cho các nhà đài.
+THE DEVICES PAGE	TRANG THIẾT BỊ
+MENU, Video Outputs, then Devices: every way an output can leave this computer.	MENU, Video Outputs, rồi Thiết bị: mọi đường một output có thể rời máy này.
+Each one says whether this machine can do it, and what it needs if not.	Mỗi cái cho biết máy này làm được không, và nếu không thì cần gì.
+If this computer has NDI, switch NDI SENDING on: the picture is on the network. If not, SHOW ME moves on.	Nếu máy này có NDI, bật NDI SENDING: hình đã lên mạng. Nếu không, SHOW ME vẫn tiếp tục.
+NDI finds itself on the network. No cables, only a good switch and patience.	NDI tự tìm thấy mình trên mạng. Không cáp, chỉ cần một switch tốt và kiên nhẫn.
+OUT THERE	RA NGOÀI
+The output's own page has the rest: a DeckLink card's SDI, ST 2110 with NMOS, Spout and Syphon.	Trang output có cả những cái khác: SDI của card DeckLink, ST 2110 với NMOS, Spout và Syphon.
+Every one is just an output. The show does not know or care how it leaves.	Mỗi cái chỉ là một output. Show không biết và chẳng quan tâm nó ra bằng cách nào.
+Nebula ahead	Tinh vân phía trước
+Engine room	Phòng máy
+Deck 3: something moving	Tầng 3: có gì đó chuyển động
+THE BRIDGE	ĐÀI CHỈ HUY
+The bridge of the starship Cathode, skapi. Four feeds, one main viewer, one mystery. Press START.	Đài chỉ huy tàu vũ trụ Cathode, skapi. Bốn nguồn hình, một màn hình chính, một bí ẩn. Nhấn START.
+The multiview shows every playlist at once. Like a wall of oscilloscopes, but in space.	Multiview hiện mọi playlist cùng lúc. Như một bức tường oscilloscope, nhưng trong vũ trụ.
+Frequencies open, Captain. All of them. That's the problem.	Mọi tần số đều mở, thuyền trưởng. Tất cả. Rắc rối là ở đó.
+MULTI, above the monitor: every playlist in its own window.	MULTI, phía trên màn hình: mỗi playlist trong cửa sổ riêng.
+One window per playlist, the programme first.	Một cửa sổ cho mỗi playlist, program đứng đầu.
+Jinkys! Four feeds. And one of them has a monster in it.	Jinkys! Bốn nguồn hình. Và một cái có quái vật.
+WHAT'S NEXT	CÁI GÌ TIẾP THEO
+Add a window (+), then its ... menu: make it show NEXT. What goes live when you press TAKE.	Thêm một cửa sổ (+), rồi menu ... của nó: hiện NEXT. Thứ sẽ lên sóng khi bạn nhấn TAKE.
+Every window has a ... button. It chooses what that window shows.	Cửa sổ nào cũng có nút .... Nó chọn cửa sổ đó hiện gì.
+I need to see who's calling before they reach the main viewer.	Tôi phải thấy ai đang gọi trước khi họ lên màn hình chính.
+A CLOCK	MỘT CÁI ĐỒNG HỒ
+And one more window, showing the clock. Operators who watch a clock are never late. Mostly.	Và thêm một cửa sổ nữa, hiện đồng hồ. Người vận hành biết nhìn đồng hồ không bao giờ trễ. Phần lớn thời gian.
+Time of day, big. Stardates are just very long timecode.	Giờ trong ngày, chữ to. Stardate chỉ là một timecode rất dài.
+The monster only shows up at midnight. We're going to need a clock.	Con quái vật chỉ hiện lúc nửa đêm. Ta cần một cái đồng hồ.
+ONE BIG ONE	MỘT CÁI LỚN
+Any window's ... menu, then a layout: one big, the rest small.	Menu ... của cửa sổ nào cũng được, rồi bố cục: một cái lớn, còn lại nhỏ.
+The big window is window one. Usually the programme. Usually.	Cửa sổ lớn là cửa sổ số một. Thường là program. Thường thôi.
+Main viewer big. The captain likes it big.	Màn hình chính, cỡ lớn. Thuyền trưởng thích to.
+ON SCREEN	LÊN MÀN HÌNH
+Select Deck 3 in playlist 3 and TAKE. Watch its window.	Chọn Tầng 3 trong playlist 3 và TAKE. Nhìn cửa sổ của nó.
+The red border is TALLY: the window that is on air. On screen, as they say on starships.	Khung đỏ là TALLY: cửa sổ đang lên sóng. Lên màn hình, như người ta nói trên tàu.
+There! Feed three! Put it on screen!	Kia rồi! Nguồn số ba! Đưa lên màn hình!
+THAT'S A WRAP	ĐÓNG MÁY
+Windows, the ... menu, NEXT, the clock, a layout, tally. Mystery solved, skapi.	Cửa sổ, menu ..., NEXT, đồng hồ, bố cục, tally. Bí ẩn đã được giải, skapi.
+A window can also show an output, with its warp and slices. Handy when it's a lighthouse.	Một cửa sổ cũng hiện được một output, kèm warp và slice của nó. Có ích khi đó là máy chiếu.
+And the monster was... the ship's cook, all along. Jinkys.	Và con quái vật... hóa ra là đầu bếp trên tàu, từ đầu tới cuối. Jinkys.
+there is no such lesson	không có bài học nào như vậy
+finish or leave the lesson you are in first	hãy xong hoặc rời bài đang học trước
+leave Bug Swat first	hãy rời Bug Swat trước
+Psst. It's me, the desk. I'll be watching. Supportively.	Pst. Tôi đây, cái bàn. Tôi sẽ theo dõi. Để ủng hộ.
+Hi! I'm the one doing all of this, by the way.	Chào! Nói thật, mọi thứ ở đây là tôi làm cả.
+Ctrl+D opens the DASH. I'm just saying.	Ctrl+D mở DASH. Nói vậy thôi.
+Nearly there. I can feel it in my pixels.	Sắp tới rồi. Tôi cảm thấy trong từng pixel.
+You're good at this. I can tell. I'm the one doing it.	Bạn giỏi khoản này đó. Tôi thấy mà. Thật.
+Every click, I heard. Every single one.	Mọi cú bấm, tôi đều nghe. Từng cái một.
+The glowing one. I can see it from here. It's glowing for you.	Cái đang sáng. Tôi thấy nó từ đây. Nó sáng vì bạn đó.
+lesson paused - MENU > LESSONS picks up where you left off	bài học tạm dừng - MENU > LESSONS chạy tiếp từ chỗ bạn dừng
+PROF. VIDEO:  The signal: what the picture is made of, and how to bend it. Pick a lesson.	PROF. VIDEO:  Tín hiệu: hình làm bằng gì, và nó bị uốn ra sao. Chọn một bài.
+DR. PIXEL:  Running the show, skapi. Fast hands, calm face. Pick a lesson.	DR. PIXEL:  Chạy show, skapi. Tay nhanh, mặt bình tĩnh. Chọn một bài.
+LESSONS  -  PART TWO  -  WHO DO YOU FOLLOW?	BÀI HỌC  -  PHẦN HAI  -  BẠN THEO AI?
+FOLLOW PROF. VIDEO	THEO PROF. VIDEO
+FOLLOW DR. PIXEL	THEO DR. PIXEL
+the signal	tín hiệu
+running the show	chạy show
+PICK UP	TIẾP TỤC
+CLOSE (Esc)	ĐÓNG (Esc)
+PART ONE: THE BASICS	PHẦN MỘT: CĂN BẢN
+finish or leave LEARN THE BASICS first	hãy xong hoặc rời LEARN THE BASICS trước
+bug swat: Esc leaves, and your show comes back as it was	bug swat: Esc để thoát, và show của bạn trở về như cũ
+bug swat: your show is back. Motion's controls are in Settings > Audio	bug swat: show của bạn đã về. Điều khiển Motion nằm ở Cài đặt > Âm thanh
+TURN MOTION ON	BẬT MOTION
+Bugs are crawling to the cue list! Swat them by waving at your camera. First, Motion: in MOTION CONTROL turn it ON and choose what it READS.	Lũ bọ đang bò về danh sách cue! Vẫy tay trước máy quay để đập chúng. Trước hết Motion: bật ON trong MOTION CONTROL và chọn nó đọc gì (READS).
+This one is NullPointer. Hollow, points at nothing. A finger goes straight through. Use the whole hand, skapi.	Đây là NullPointer. Nó trống rỗng, chẳng chỉ vào đâu. Ngón tay xuyên qua luôn. Dùng cả bàn tay, skapi.
+Wave like you are hailing a cab! A small, polite cab. Not the buttons. The cab.	Vẫy như vẫy taxi! Một chiếc taxi nhỏ, lịch sự. Không phải nút bấm. Taxi.
+DRAW TWO ZONES	VẼ HAI VÙNG
+Race Condition: twins, each sure it got there first. One reading cannot tell your hands apart, so drag two ZONES on the Motion picture, one each side.	Race Condition: cặp sinh đôi, đứa nào cũng chắc mình tới trước. Một lần đọc không tách được hai tay, nên kéo hai ZONES trên hình Motion, mỗi bên một cái.
+Hit both together. Hit one, and they swap. Like my cousins at a wedding.	Đập cả hai cùng lúc. Đập một đứa, chúng đổi chỗ. Như mấy đứa em họ tôi ở đám cưới.
+One hand each side. Together! Together!	Mỗi bên một tay. Cùng lúc! Cùng lúc!
+Off By One. The bug is not the face, it is the tiny extra segment, and a little wiggle needs a finer reading. Turn SENSITIVITY down to 5%.	Off By One. Con bọ không phải cái mặt, mà là đoạn thừa bé xíu, và cử động nhỏ cần đọc nhạy hơn. Hạ SENSITIVITY xuống 5%.
+Lower number, finer reading. Yes, I also think it is backwards.	Số càng thấp, đọc càng nhạy. Ừ, tôi cũng thấy nó ngược ngược.
+Not the face. The little one on the end. Wiggle a finger.	Không phải cái mặt. Cái nhỏ ở cuối. Nhúc nhích một ngón tay.
+FALL 1.5 S OR MORE	FALL 1.5 S HOẶC HƠN
+Memory Leak. It only lets go while the reading stays up. Make FALL longer, 1.5 seconds or more, so your sweeps join up into one.	Memory Leak. Nó chỉ buông ra khi mức đọc còn cao. Kéo FALL dài hơn, 1.5 giây hoặc hơn, để các cú đập nối thành một.
+Slow and steady, skapi. Like paying back a loan.	Chậm mà chắc, skapi. Như trả một món nợ.
+Sweep, and sweep again. Let the fall carry you between.	Quét, rồi quét nữa. Để phần rơi xuống đỡ bạn ở giữa.
+MOTION X ON A TONE	MOTION X LÊN MỘT ÂM
+The Heisenbug! It fades whenever you move. Put a tone cue's pitch on Motion X and follow it by ear: the ticking speeds up as you close in.	Heisenbug! Mỗi lần bạn cử động nó lại mờ đi. Đặt cao độ của một cue âm thanh lên Motion X và đi theo bằng tai: lại gần thì tiếng tích tích nhanh hơn.
+SHOW ME makes the tone for you. High is right. Low is left. Stand still and it comes back.	SHOW ME tạo âm thanh cho bạn. Cao là bên phải. Thấp là bên trái. Đứng yên là nó quay lại.
+Follow it. Listen. Faster ticking, closer bug.	Đi theo nó. Lắng nghe. Tích tích càng nhanh, con bọ càng gần.
+Waving paw	Bàn tay đang vẫy
+Heisenbug finder	Máy dò Heisenbug
+FIXED! Lovely signal flow.	ĐÃ SỬA! Dòng tín hiệu thật đẹp.
+Closed as fixed. No regressions. Probably.	Đóng là đã sửa. Không lặp lại. Chắc vậy.
+Squashed! Ship it.	Đập bẹp! Xuất xưởng.
+One reached the cue list. It has filed a bug report about you.	Một con đã tới danh sách cue. Nó gửi một báo cáo lỗi về bạn.
+Skapi. It is a handheld. You do not press it. You wave at it.	Skapi. Đây là thiết bị cầm tay. Bạn không bấm nó. Bạn vẫy tay với nó.
+The buttons are for menus. The bugs are for flailing.	Nút là cho menu. Bọ là để vẫy tay.
+The D-pad is decorative. Like my diploma.	D-pad để trang trí. Như tấm bằng của tôi.
+In 1989 we also pressed the buttons. Then we discovered waving. Never looked back.	Năm 1989 tụi tôi cũng bấm nút. Rồi tụi tôi khám phá ra vẫy tay. Không bao giờ quay lại.
+Pressing harder does not help. The bugs cannot feel buttons. Only arms.	Bấm mạnh hơn chẳng giúp gì. Bọ không cảm thấy nút. Chỉ cảm thấy tay.
+It's called a handheld because your hands are held... up. In the air. Waving.	Gọi là thiết bị cầm tay vì tay thì... giơ lên. Trên không. Vẫy vẫy.
+The mouse? You are swatting bugs with a MOUSE? In Bulgaria the mouse would be on the bugs' side.	Chuột hả? Bạn đập bọ bằng CHUỘT? Ở Bulgaria con chuột sẽ đứng về phe lũ bọ.
+Lovely clicking. Very crisp. The camera saw none of it.	Bấm đẹp đấy. Rất mạnh. Máy quay chẳng thấy cái nào.
+DONE FOR YOU - PRESS START	ĐÃ LÀM GIÚP BẠN - NHẤN START
+DONE! PRESS START	XONG! NHẤN START
+SELECT OPENS MOTION CONTROL	SELECT MỞ MOTION CONTROL
+ALL BUGS FIXED	SỬA HẾT BỌ RỒI
+GAME OVER	HẾT TRÒ
+NEW HIGH SCORE!	ĐIỂM CAO MỚI!
+START PLAYS AGAIN	START CHƠI LẠI
+Nazdrave, skapi. Now go and fix real bugs.	Nazdrave, skapi. Giờ đi sửa bọ thật đi.
+Every one of those is a real Motion control. Put them on any ~ knob you like.	Mỗi cái là một điều khiển Motion thật. Đặt nó lên bất kỳ núm ~ nào bạn thích.
+START: AGAIN	START: LẠI
+START: PLAY	START: CHƠI
+# --- end of tutorials ---
