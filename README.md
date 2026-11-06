@@ -34,30 +34,26 @@ Free and open source, for Windows, macOS and Linux.
 **If Deckboy is useful to you, ⭐ star this repository** (top right): it is how the next
 operator finds it, and how you find it again.
 
-### New in 0.99.424
+### New in 0.99.426
 
-[Release notes and downloads](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.424)
+[Release notes and downloads](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.426)
 
-- **Smooth playback at any frame rate.** Every clip plays with the steadiest cadence its rate
-  allows on the screen it is on: 24 fps is a clean 3:2 on 60 Hz, 50 fps runs 1-1-1-1-2, a matched
-  rate moves one frame a refresh. A playlist of mixed rates gets it clip by clip.
-- **Lock to the screen.** A clip a hair off the screen's rate (59.94 fps on 60 Hz, 23.976 on 24)
-  can play at the screen's own rate instead, every frame shown exactly once, its sound following
-  like a tape machine's.
-- **Far fewer lost frames.** No tenth-of-a-second freeze each time a clip loops, and less work
-  per frame off Direct3D 11. On a Mac every output now keeps time with its screen: no refreshes
-  missed in a minute of 60 fps playback, measured on an M4 MacBook Air. On Windows the desk no
-  longer holds up the outputs while it draws.
-- **Seamless loops.** A looping clip goes round with no held frame and no gap in the sound, and a
-  cue set to repeat plays that many times.
-- **Recordings that keep up.** Recording at 4K no longer costs the outputs frames, a recording
-  keeps time by the sound card, and ProRes at 60 fps records.
-- **Scopes on the graphics card (Windows).** Every picture of a 4K60 output is measured, bin for
-  bin the same as the processor's reading.
-- **Missed frames are reported.** An output that cannot keep up with its screen now says so: the
-  OUTPUT badge, a warning, the test card and `STATUS`.
-- **Stop every deck, from anywhere.** Ctrl+Shift+Space now works with any dialog open or an output
-  in focus, and nothing waiting in the wings starts a deck again afterwards.
+- **A MIDI map for any controller.** Any key, pad, knob, fader, pitch wheel or aftertouch, and
+  any OSC address, runs any command: at the desk, the selected cue, what is on air in a playlist,
+  or one named cue. Learn, hold-to-fire and pickup; the controller's lights follow the show.
+  Ready-made maps for the KORG nanoKONTROL2, Novation Launch Control XL, and AKAI APC mini mk2
+  and APC40 mkII.
+- **Masks.** Eight shapes and a pen, on a cue, a playlist, an output or the matte slot: feathered,
+  inverted, moved by a **~**, exported as PNG or SVG, and imported from SVG.
+- **Slices and the Screens window.** Pieces of the programme cropped, placed, corner-pinned,
+  mesh-warped and masked, dragged into place by hand, with MULTIVIEW and LED MAP tabs.
+- **Draw.** Draw on the programme with a mouse or a pen, as flipbook frames or a replay of the
+  drawing, and save it as a PNG or a ProRes 4444 with transparency.
+- **Motion.** A camera moves any control with a **~**, in up to eight zones; Bug Swat, a
+  five-round game, teaches it.
+- **And:** seventeen lessons after Learn the Basics, Chladni that follows the pitch of the sound,
+  motion trails, a multiview you can lay out and tally, Vietnamese, Lao and Papiamento (Aruba),
+  and Beast mode.
 - **Known issue (Windows):** an output on a screen at a different refresh rate from the main screen
   (59.94 Hz beside 60) drops or repeats a frame about every 15 seconds. Deckboy warns you when it
   happens; until it is fixed, run the screens at the same rate
