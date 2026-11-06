@@ -62,17 +62,6 @@ operator finds it, and how you find it again.
   happens. For now, set the screens to the same rate
   ([how](MANUAL.md#screens-at-different-refresh-rates)).
 
-### A video synth, on your cue list
-
-Deckboy can make its own picture, with no clip and no camera. The video synth is a cue, so it plays,
-fades and takes like any other cue.
-
-- Oscillators and feedback make the picture.
-- A glitch stack breaks it, and text mode redraws it as characters.
-- Play it from a MIDI keyboard: pitch sets the size of the pattern, and velocity sets the amount of
-  feedback.
-- Any control can follow the sound, a MIDI knob, or a camera.
-
 ### A closer look
 
 <table>
