@@ -86,6 +86,14 @@ function buildAll() {
 		feedbacks: [{ feedbackId: 'connection_lost', options: {}, style: { bgcolor: RED, color: WHITE } }],
 	}
 
+	// ── Multiview and Motion ──
+	button('multiview_toggle', 'Multiview', 'Multiview on/off', 'MULTI\\nVIEW', 'multiview', { state: 'toggle' })
+	button('multiview_grid', 'Multiview', 'Multiview: even grid', 'GRID', 'multiview_layout', { layout: 'grid' })
+	button('multiview_big', 'Multiview', 'Multiview: one big', 'ONE\\nBIG', 'multiview_layout', { layout: 'big' })
+	button('multiview_twotop', 'Multiview', 'Multiview: two big on top', 'TWO\\nTOP', 'multiview_layout', { layout: 'twotop' })
+	button('motion_on', 'Motion', 'Motion on', 'MOTION\\nON', 'motion', { state: 'on' })
+	button('motion_off', 'Motion', 'Motion off', 'MOTION\\nOFF', 'motion', { state: 'off' })
+
 	// ── Output ──
 	button('output_toggle', 'Output', 'Output on/off', 'OUT\\nON/OFF', 'output_enable', { state: 'toggle' }, [
 		{ feedbackId: 'output_enabled', options: { output: 1 }, style: { bgcolor: GREEN, color: WHITE } },

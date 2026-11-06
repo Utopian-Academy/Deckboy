@@ -802,6 +802,305 @@ export function buildActions(self) {
 			},
 		},
 
+		multiview: {
+			name: 'Multiview: on / off',
+			options: [
+				{
+					type: 'dropdown',
+					label: 'State',
+					id: 'state',
+					default: 'toggle',
+					disableAutoExpression: true,
+					choices: [
+						{ id: 'on', label: 'On' },
+						{ id: 'off', label: 'Off' },
+						{ id: 'toggle', label: 'Toggle' },
+					],
+				},
+			],
+			callback: ({ options }) => send(`MULTIVIEW ${choice(options.state, 'toggle')}`),
+		},
+
+		multiview_layout: {
+			name: 'Multiview: layout',
+			options: [
+				{
+					type: 'dropdown',
+					label: 'Layout',
+					id: 'layout',
+					default: 'grid',
+					disableAutoExpression: true,
+					choices: [
+						{ id: 'grid', label: 'Even grid' },
+						{ id: 'big', label: 'One big, the rest beside it' },
+						{ id: 'bigtop', label: 'One big on top' },
+						{ id: 'twotop', label: 'Two big on top' },
+					],
+				},
+			],
+			callback: ({ options }) => send(`MULTIVIEW LAYOUT ${choice(options.layout, 'grid')}`),
+		},
+
+		multiview_window: {
+			name: 'Multiview: what a window shows',
+			description: 'The playlist or output number is used only when you choose Playlist or Output.',
+			options: [
+				{ type: 'number', label: 'Window', id: 'window', default: 1, min: 1, max: 64, asInteger: true },
+				{
+					type: 'dropdown',
+					label: 'Shows',
+					id: 'source',
+					default: 'programme',
+					disableAutoExpression: true,
+					choices: [
+						{ id: 'programme', label: 'Programme' },
+						{ id: 'deck', label: 'Playlist' },
+						{ id: 'output', label: 'Output' },
+						{ id: 'next', label: 'Next cue' },
+						{ id: 'clock', label: 'Clock' },
+						{ id: 'empty', label: 'Empty' },
+					],
+				},
+				{ type: 'number', label: 'Playlist or output number', id: 'number', default: 1, min: 1, max: 64, asInteger: true },
+			],
+			callback: ({ options }) => {
+				const windowNumber = number(options.window, 'Window', { integer: true })
+				if (windowNumber === null) return
+				const source = choice(options.source, 'programme')
+				if (source === 'DECK' || source === 'OUTPUT') {
+					const which = number(options.number, 'Playlist or output number', { integer: true })
+					if (which === null) return
+					send(`MULTIVIEW WINDOW ${windowNumber} ${source}${which}`)
+				} else {
+					send(`MULTIVIEW WINDOW ${windowNumber} ${source}`)
+				}
+			},
+		},
+
+		motion: {
+			name: 'Motion: on / off',
+			description: 'Motion control reads a camera or a playlist. Set it up in Settings > Audio > MOTION CONTROL.',
+			options: [
+				{
+					type: 'dropdown',
+					label: 'State',
+					id: 'state',
+					default: 'on',
+					disableAutoExpression: true,
+					choices: [
+						{ id: 'on', label: 'On' },
+						{ id: 'off', label: 'Off' },
+					],
+				},
+			],
+			callback: ({ options }) => send(`MOTION ${choice(options.state, 'on')}`),
+		},
+
+		mask_assign: {
+			name: 'Mask: put on or take off',
+			description: 'Type the mask id, for example m1 (MASK LIST shows them). Leave it empty to take the mask off.',
+			options: [
+				{ type: 'textinput', label: 'Mask id', id: 'mask', default: 'm1', useVariables: true },
+				{
+					type: 'dropdown',
+					label: 'Where',
+					id: 'where',
+					default: 'output',
+					disableAutoExpression: true,
+					choices: [
+						{ id: 'cue', label: 'The selected cue' },
+						{ id: 'layer', label: 'One playlist on an output' },
+						{ id: 'output', label: 'A whole output' },
+						{ id: 'matte', label: 'The matte of an output' },
+					],
+				},
+				{ type: 'number', label: 'Output', id: 'output', default: 1, min: 1, max: MAX_OUTPUTS, asInteger: true },
+				{ type: 'number', label: 'Playlist', id: 'playlist', default: 1, min: 1, max: MAX_DECKS, asInteger: true },
+			],
+			callback: ({ options }) => {
+				const mask = String(options.mask ?? '').trim() || 'NONE'
+				const where = choice(options.where, 'output')
+				if (where === 'CUE') {
+					send(`MASK ASSIGN ${mask} CUE`)
+					return
+				}
+				const output = number(options.output, 'Output', { integer: true })
+				if (output === null) return
+				if (where === 'LAYER') {
+					const playlist = number(options.playlist, 'Playlist', { integer: true })
+					if (playlist === null) return
+					send(`MASK ASSIGN ${mask} LAYER ${output} ${playlist}`)
+				} else {
+					send(`MASK ASSIGN ${mask} ${where} ${output}`)
+				}
+			},
+		},
+
+		mask_invert: {
+			name: 'Mask: invert',
+			options: [
+				{ type: 'textinput', label: 'Mask id', id: 'mask', default: 'm1', useVariables: true },
+				{
+					type: 'dropdown',
+					label: 'State',
+					id: 'state',
+					default: 'toggle',
+					disableAutoExpression: true,
+					choices: [
+						{ id: 'on', label: 'On' },
+						{ id: 'off', label: 'Off' },
+						{ id: 'toggle', label: 'Toggle' },
+					],
+				},
+			],
+			callback: ({ options }) => {
+				const mask = String(options.mask ?? '').trim()
+				if (!mask) {
+					self.log('warn', 'Mask invert has no mask id: nothing sent')
+					return
+				}
+				send(`MASK SET ${mask} INVERT ${choice(options.state, 'toggle')}`)
+			},
+		},
+
+		mask_opacity: {
+			name: 'Mask: opacity',
+			options: [
+				{ type: 'textinput', label: 'Mask id', id: 'mask', default: 'm1', useVariables: true },
+				{ type: 'number', label: 'Opacity (%)', id: 'opacity', default: 100, min: 0, max: 100 },
+			],
+			callback: ({ options }) => {
+				const mask = String(options.mask ?? '').trim()
+				const opacity = number(options.opacity, 'Opacity')
+				if (!mask) {
+					self.log('warn', 'Mask opacity has no mask id: nothing sent')
+					return
+				}
+				if (opacity !== null) send(`MASK SET ${mask} OPACITY ${opacity}`)
+			},
+		},
+
+		slice_enable: {
+			name: 'Slice: on / off',
+			description: 'Acts on the output selected in Deckboy.',
+			options: [
+				{ type: 'number', label: 'Slice', id: 'slice', default: 1, min: 1, max: 16, asInteger: true },
+				{
+					type: 'dropdown',
+					label: 'State',
+					id: 'state',
+					default: 'on',
+					disableAutoExpression: true,
+					choices: [
+						{ id: 'on', label: 'On' },
+						{ id: 'off', label: 'Off' },
+					],
+				},
+			],
+			callback: ({ options }) => {
+				const slice = number(options.slice, 'Slice', { integer: true })
+				if (slice !== null) send(`SLICE ${slice} ${choice(options.state, 'on')}`)
+			},
+		},
+
+		screens_window: {
+			name: 'Screens window: open / close',
+			options: [
+				{
+					type: 'dropdown',
+					label: 'State',
+					id: 'state',
+					default: 'on',
+					disableAutoExpression: true,
+					choices: [
+						{ id: 'on', label: 'Open' },
+						{ id: 'off', label: 'Close' },
+					],
+				},
+			],
+			callback: ({ options }) => send(`SCREENS ${choice(options.state, 'on')}`),
+		},
+
+		draw_undo: {
+			name: 'Draw: undo the last stroke',
+			description: 'Acts on the selected Draw cue.',
+			options: [],
+			callback: () => send('DRAW UNDO'),
+		},
+
+		draw_clear: {
+			name: 'Draw: clear the drawing',
+			description: 'Acts on the selected Draw cue.',
+			options: [],
+			callback: () => send('DRAW CLEAR'),
+		},
+
+		draw_playback: {
+			name: 'Draw: how it plays',
+			description: 'Acts on the selected Draw cue.',
+			options: [
+				{
+					type: 'dropdown',
+					label: 'Plays as',
+					id: 'playback',
+					default: 'replay',
+					disableAutoExpression: true,
+					choices: [
+						{ id: 'still', label: 'Still' },
+						{ id: 'flipbook', label: 'Flipbook' },
+						{ id: 'replay', label: 'Replay the strokes' },
+					],
+				},
+			],
+			callback: ({ options }) => send(`DRAW PLAYBACK ${choice(options.playback, 'replay').toLowerCase()}`),
+		},
+
+		midi_map_preset: {
+			name: 'MIDI map: add a ready-made map',
+			description: 'Adds rows to the MIDI map on the Deckboy computer. Use it once, during setup.',
+			options: [
+				{
+					type: 'dropdown',
+					label: 'Controller',
+					id: 'preset',
+					default: 'nanokontrol2',
+					disableAutoExpression: true,
+					choices: [
+						{ id: 'nanokontrol2', label: 'KORG nanoKONTROL2' },
+						{ id: 'launchcontrolxl', label: 'Novation Launch Control XL' },
+						{ id: 'apcminimk2', label: 'AKAI APC mini mk2' },
+						{ id: 'apc40mk2', label: 'AKAI APC40 mkII' },
+					],
+				},
+			],
+			callback: ({ options }) => send(`MIDIMAP PRESET ${String(options.preset ?? 'nanokontrol2')}`),
+		},
+
+		lessons: {
+			name: 'Lessons: open / close the list',
+			options: [
+				{
+					type: 'dropdown',
+					label: 'State',
+					id: 'state',
+					default: 'open',
+					disableAutoExpression: true,
+					choices: [
+						{ id: 'open', label: 'Open' },
+						{ id: 'close', label: 'Close' },
+					],
+				},
+			],
+			callback: ({ options }) => send(`LESSONS ${choice(options.state, 'open')}`),
+		},
+
+		bug_swat: {
+			name: 'Bug Swat: start the game',
+			description: 'Plays in a practice show, then gives your show back unchanged.',
+			options: [],
+			callback: () => send('BUGSWAT START'),
+		},
+
 		custom: {
 			name: 'Custom command',
 			description: 'Any Deckboy remote command, sent verbatim. See MANUAL.md section 22 for the full vocabulary.',

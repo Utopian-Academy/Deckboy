@@ -43,6 +43,17 @@ computer under **Settings → Network → Trusted controllers**.
 Deck actions take a **Deck** number. `0` means whichever deck has focus; a button that names its
 deck always acts on that deck, and leaves focus where it was.
 
+New for Deckboy 0.99.425 and later:
+
+- **Multiview:** on or off, the layout, and what each window shows.
+- **Motion:** on or off.
+- **Mask:** put a mask on or take it off, invert it, set its opacity. Use the mask id, for example `m1`.
+- **Slice:** turn a slice on or off, on the output selected in Deckboy.
+- **Screens window:** open or close it.
+- **Draw:** undo, clear, and how the drawing plays.
+- **MIDI map:** add a ready-made map for a controller.
+- **Lessons** and **Bug Swat:** open the lesson list, or start the game.
+
 ### Feedbacks
 
 | Feedback                       | Use                                                      |
