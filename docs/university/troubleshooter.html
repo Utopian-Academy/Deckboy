@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video troubleshooter | Deckboy Video University</title>
+    <meta name="description" content="Answer a few questions and find the likely cause of a video fault.">
+    <style>img,video{max-width:100%;height:auto}</style>
+    <link rel="stylesheet" href="../style.css?v=20261024b">
+    <link rel="stylesheet" href="university.css">
+    <script src="university.js" defer></script>
+</head>
+<body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <nav class="navbar">
+        <div class="logo">Deckboy</div>
+        <div class="nav-links">
+            <a href="index.html">Video University</a>
+            <a href="troubleshooter.html">Troubleshooter</a>
+            <a href="../manual.html">Manual</a>
+            <a href="https://github.com/Utopian-Academy/Deckboy/releases/latest" class="btn-primary">Download Free</a>
+        </div>
+    </nav>
+    <main id="main" class="uni">
+    <p class="uni-crumb"><a href="index.html">Video University</a> / Troubleshooter</p>
+<h1>The troubleshooter</h1>
+<p>Use this when something goes wrong. Answer the questions. You get the likely cause and the fix.</p>
+<section class="sim" aria-label="Troubleshooter"><p class="trail" id="trail" aria-live="polite"></p><div id="stage"></div><div style="display:flex;gap:.5rem"><button id="startover">Start again</button><button id="back">Back</button></div></section>
+<section><h2>Quick answers</h2>
+        <details><summary>Interlaced or progressive?</summary><p>Progressive draws every line of every frame. Interlaced draws the odd lines, then the even lines, as two fields. 1080i is interlaced, 1080p progressive. Shown on a screen that expects progressive without deinterlacing, interlaced video shows comb-like teeth on anything that moves.</p><p class="sources">Prof. Video · VID 110</p></details>
+        <details><summary>What is EDID?</summary><p>A small block of data a screen sends back up the cable saying which resolutions, rates and audio it accepts. The source picks a format from that list. Splitters, converters and extenders can pass on the wrong list, which is why a picture vanishes when one is put in the chain. An EDID emulator holds one fixed list.</p><p class="sources">Dr. Pixel · VID 230</p></details>
+        <details><summary>What is HDCP?</summary><p>Copy protection on HDMI and DisplayPort. Protected content (streaming apps, Blu-ray, some laptops' whole screen) only passes to devices that pass the HDCP handshake. SDI has no HDCP, so a protected picture will not go out over SDI. It is a separate thing from EDID.</p><p class="sources">Dr. Pixel · VID 230</p></details>
+        <details><summary>Fibre, SDI or HDMI?</summary><p>HDMI is made for short runs from a source to a screen, and plugs that lock are rare. SDI uses locking BNC connectors on 75-ohm coax and runs much further; each rate (3G, 12G) has its own distance limit in the cable maker's table. Fibre runs furthest and carries no electrical noise between buildings, but needs the right transceivers and clean connectors.</p><p class="sources">Dr. Pixel · VID 230</p></details>
+        <details><summary>Why 59.94 and not 60?</summary><p>When colour was added to American television in 1953, the rate was lowered by 1000/1001 to keep the colour signal from interfering with the sound. Equipment still offers both, and a mismatch between them can drop or repeat a frame every so often.</p><p class="sources">Prof. Video · VID 120</p></details>
+        <details><summary>Full range or legal range?</summary><p>Video usually keeps black at 16 and white at 235 (in 8-bit); computer screens use 0 to 255. Mix them up and the picture looks washed out (grey blacks) or crushed (lost shadows and highlights). Set both ends to agree.</p><p class="sources">Prof. Video · VID 120</p></details></section>
+<script>window.UNI_TREE = {
+    start: {q: "What do you see on the screen?", a: [["Nothing, or a \"no signal\" message", "src"], ["A picture, but it is wrong", "wrong"], ["A picture, but no sound", "fix_audio"]]},
+    src: {q: "Does the source show the picture on its own screen (the laptop, the player's monitor)?", a: [["No", "fix_source"], ["Yes", "path"]]},
+    path: {q: "What is between the source and the screen?", a: [["One HDMI cable", "hdmi"], ["A converter, splitter or extender", "conv"], ["SDI", "sdi"], ["Fibre", "fix_fibre"]]},
+    hdmi: {q: "Does a short HDMI cable, straight into the screen, work?", a: [["Yes", "fix_length"], ["No", "fix_edid"]]},
+    conv: {q: "Does the converter's input light show a signal?", a: [["No", "prot"], ["Yes", "fix_convout"]]},
+    prot: {q: "Is it protected content (a streaming app, a Blu-ray player)?", a: [["Yes, or not sure", "fix_hdcp"], ["No", "fix_format"]]},
+    sdi: {q: "Does the receiving device show which format is arriving?", a: [["It shows nothing", "fix_bnc"], ["It shows a format, but no picture", "fix_sdifmt"]]},
+    wrong: {q: "What is wrong with it?", a: [["It flickers or tears", "flick"], ["Wrong colours, or washed out", "fix_range"], ["Edges are cut off", "fix_overscan"], ["It drops out and comes back", "fix_drop"]]},
+    flick: {q: "Do moving edges show comb-like teeth?", a: [["Yes", "fix_interlace"], ["No", "fix_rate"]]},
+    fix_source: {t: "The source is not sending", p: "Turn its output on first. On Windows press Win+P and choose Extend or Duplicate; on a Mac, open Displays settings. In Deckboy, OUTPUT ON. Check the source is set to the right output connector.", l: "VID 140 · FLD 110"},
+    fix_length: {t: "The cable is too long or too slow", p: "The chain works short, so the long cable cannot carry this format. Drop to 1080p to prove it, then use a certified high-speed cable, an active or fibre HDMI cable, or HDBaseT for the distance.", l: "VID 230: how far a cable really reaches"},
+    fix_edid: {t: "The two ends cannot agree a format (EDID)", p: "With the screen already on, unplug and replug the source. Set the source to a resolution the screen lists. If a box in the chain keeps losing it, an EDID emulator fixed at the format you want holds it steady.", l: "VID 230: EDID, the screen's calling card"},
+    fix_hdcp: {t: "Copy protection is blocking it (HDCP)", p: "Protected content will not pass to SDI or to converters without HDCP. Play an unprotected copy of the content, or connect the source straight to the screen. Removing the protection is not the fix.", l: "VID 230: HDCP, a different conversation"},
+    fix_format: {t: "The converter does not accept this format", p: "Set the source to a format the converter lists, often 1080p at 59.94 or 60. Watch for 4K, 4:2:0 and deep colour, which many converters refuse. An EDID emulator in front of it stops the source choosing something else.", l: "FLD 130: converters, scalers and adapters"},
+    fix_convout: {t: "The converter's output does not match the screen", p: "Its input is fine, so look at its output: the output format, the rate (59.94 against 50), and whether the screen accepts it. A frame sync or scaler converts between formats when the two ends cannot agree.", l: "FLD 130"},
+    fix_bnc: {t: "Nothing is arriving down the coax", p: "Check the BNC is seated and locked and goes into an input, not a loop or an output. Use 75-ohm cable rated for the rate (12G needs 12G cable) and check its length against the cable maker's table. Try a short known-good cable to prove it.", l: "VID 230: SDI from SD to 12G"},
+    fix_sdifmt: {t: "Both ends are set to different formats", p: "The signal arrives but is not accepted. Set both ends to the same format: 1080i against 1080p, 59.94 against 50, and on 3G, Level A against Level B are the usual culprits.", l: "VID 230 · quick reference: signal formats"},
+    fix_fibre: {t: "Check the fibre end to end", p: "Both transceivers must match (single-mode or multimode, the same wavelength). Transmit must meet receive, so swap the pair at one end if in doubt. Clean the connectors; dust is the most common fibre fault.", l: "VID 230: fibre"},
+    fix_interlace: {t: "Interlaced video shown as progressive", p: "Those teeth are two fields from different moments shown at once. Deinterlace at the receiving end, or set the source to a progressive format.", l: "VID 110: interlace and fields (the simulator above)"},
+    fix_rate: {t: "The rates do not match", p: "Match the source's rate to the screen's (59.94, 60 and 50 are all different). On camera, an LED wall flickers when the shutter does not suit the wall's refresh: change the camera's shutter or the wall's rate.", l: "VID 110 · VID 130"},
+    fix_range: {t: "Full range against legal range", p: "Washed-out blacks or crushed shadows mean the two ends disagree on range, or one sends Y′CbCr where the other expects RGB. For a computer into a screen, set RGB full range at both ends.", l: "VID 120: colour bars, the vectorscope, legal range"},
+    fix_overscan: {t: "The screen is overscanning", p: "Many TVs enlarge the picture and cut off its edges. Turn it off in the screen's picture settings; it is called Just Scan, 1:1, Screen Fit or Overscan off.", l: "VID 240: displays"},
+    fix_drop: {t: "The link is only just working", p: "A picture that comes and goes is a cable or link at its limit, or HDCP re-checking. Shorten the run, drop the resolution to prove it, or replace the cable with one rated for the format.", l: "VID 230 · FLD 110"},
+    fix_audio: {t: "The sound is going somewhere else", p: "HDMI often sends the sound to the screen's speakers. Check which audio device the source uses. Some converters do not carry audio, and SDI carries many channels: check which ones the receiver listens to.", l: "VID 250: sound for picture"}
+  };</script>
+    </main>
+</body>
+</html>

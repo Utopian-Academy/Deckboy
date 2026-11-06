@@ -1,0 +1,71 @@
+/* Video University. Built on the site's tokens and fonts in ../style.css. */
+.uni { max-width: 880px; margin: 0 auto; padding: 2.5rem 1.25rem 4rem; display: grid; gap: 2.2rem; }
+.uni p { margin: 0; max-width: 68ch; }
+.uni h1, .uni h2, .uni h3 { font-family: var(--pixel); font-weight: 400; color: var(--ink); margin: 0; text-wrap: balance; }
+.uni h1 { font-size: clamp(1.25rem, 3.6vw, 2rem); line-height: 1.5; }
+.uni h2 { font-size: .95rem; line-height: 1.7; }
+.uni h3 { font-size: .75rem; line-height: 1.8; }
+.uni section { display: grid; gap: 1rem; min-width: 0; }
+.uni-crumb { font-size: .8rem; color: var(--ink-soft); }
+.uni-crumb a { color: var(--ink-body); }
+
+/* A teacher speaks. */
+.say { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: .9rem; padding: .9rem 1rem; background: var(--panel); border-left: 4px solid var(--ink); }
+.say .who { font: .62rem/1.9 var(--pixel); color: var(--ink); }
+.say.prof { border-left-color: #9fe6ff; } .say.prof .who { color: #9fe6ff; }
+.say.pix { border-left-color: #ffb3d1; } .say.pix .who { color: #ffb3d1; }
+.say p + p { margin-top: .6rem; }
+
+/* A simulator. */
+.sim { border: 2px solid var(--rule); background: var(--panel); padding: 1rem; display: grid; gap: .9rem; min-width: 0; }
+.sim canvas { display: block; width: 100%; max-width: 100%; height: auto; background: #071a07; border: 2px solid var(--rule); image-rendering: pixelated; }
+.sim label { display: grid; gap: .25rem; font-size: .85rem; color: var(--ink-soft); }
+.sim output, .sim .value { color: var(--ink); font-variant-numeric: tabular-nums; }
+.sim input[type=range] { width: 100%; accent-color: var(--ink); }
+.sim select { font: inherit; background: var(--ground); color: var(--ink-body); border: 1px solid var(--ink-soft); padding: .35rem .5rem; }
+.sim-controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: .8rem 1.2rem; align-items: end; }
+.sim-read { font-size: .88rem; font-variant-numeric: tabular-nums; }
+.sim-read b { color: var(--ink); font-weight: 400; }
+.uni button { font: .85rem var(--mono, monospace); background: var(--ground); color: var(--ink-body); border: 1px solid var(--ink-soft); padding: .4rem .8rem; cursor: pointer; text-align: left; }
+.uni button:hover { border-color: var(--ink); }
+.uni button[aria-pressed=true] { background: var(--ink); color: var(--ground); border-color: var(--ink); }
+.uni button:focus-visible, .uni input:focus-visible, .uni select:focus-visible, .uni a:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+
+/* Questions. */
+.q { display: grid; gap: .5rem; padding: .9rem 0; border-top: 1px solid var(--rule); }
+.q .opts { display: grid; gap: .4rem; }
+.q .why { min-height: 1.5em; font-size: .88rem; }
+.q .why.right { color: var(--ink); }
+.uni-score { font-size: .9rem; }
+
+/* Sources, next. */
+.sources { font-size: .8rem; color: var(--ink-soft); }
+.sources ul { margin: .4rem 0 0; padding-left: 1.1rem; display: grid; gap: .2rem; }
+.sources a { color: var(--ink-body); }
+.nextprev { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; border-top: 2px solid var(--rule); padding-top: 1rem; }
+
+/* Catalogue. */
+.uni-year { display: grid; gap: .7rem; }
+.uni-courses { display: grid; grid-template-columns: repeat(auto-fill, minmax(255px, 1fr)); gap: .7rem; }
+.uni-course { background: var(--panel); padding: .8rem .9rem; display: grid; gap: .3rem; align-content: start; border-top: 3px solid var(--rule); font-size: .88rem; min-width: 0; }
+.uni-course.open { border-top-color: var(--ink); }
+.uni-course .code { font-size: .75rem; color: var(--ink-soft); }
+.uni-course .state { font-size: .75rem; color: var(--ink-soft); }
+.uni-course.open .state { color: var(--ink); }
+.lesson-list { list-style: none; margin: 0; padding: 0; display: grid; gap: .45rem; counter-reset: l; }
+.lesson-list li { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; padding: .6rem .8rem; background: var(--panel); }
+.lesson-list .done { color: var(--ink); font-size: .8rem; }
+.uni-exam { border: 2px solid var(--ink); padding: 1rem; display: grid; gap: .6rem; }
+
+/* Troubleshooter. */
+.ask { display: grid; gap: .7rem; background: var(--ground); padding: 1rem; border-left: 4px solid #ffb3d1; }
+.ask .answers { display: grid; gap: .45rem; }
+.fix { border: 2px solid var(--ink); padding: 1rem; display: grid; gap: .6rem; }
+.trail { font-size: .78rem; color: var(--ink-soft); min-height: 1.5em; }
+.uni details { background: var(--panel); padding: .7rem .9rem; border-left: 3px solid #9fe6ff; }
+.uni summary { cursor: pointer; }
+.uni details p { margin-top: .6rem; font-size: .9rem; }
+
+@media (max-width: 620px) {
+  .say { grid-template-columns: 1fr; gap: .2rem; }
+}
