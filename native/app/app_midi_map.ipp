@@ -393,6 +393,7 @@
           midiMapLearned_ = q.msg;
           midiMapLearnedValues_.clear();
           triggerToast("learned: " + mm::describeMessage(q.msg));
+          if (midiMapLearnInto_ != 0) midiMapLearnHeard(q.msg);
           break;
         }
         // The turns that follow tell an encoder from a knob.
@@ -447,6 +448,7 @@
     e.message = q ? mm::describeMessage(q->msg) : (row ? mm::describeSource(*row) : std::string());
     if (q && q->msg.source == mm::Source::Note && q->msg.on) e.midiNote = q->msg.number;
     if (q && q->msg.source == mm::Source::Osc) e.oscAddress = q->msg.oscAddress;
+    if (row) midiMapRowHitMs_[{static_cast<int>(action.origin), action.row}] = SDL_GetTicks();
     const std::string where = row ? " \xC2\xB7 " + midiMapRowLabel(action.origin, action.row) : std::string();
     if (action.command.empty() || !row) {
       e.outcome = 'N';
@@ -704,4 +706,664 @@
       return;
     }
     failRemoteCommand("MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN or LEARNED");
+  }
+
+  // ── THE MAP PAGE (Settings, the MIDI CONTROL card's OPEN THE MAP) ─────────
+  //
+  // Drawn to the approved board: one row per binding -- what comes in, what
+  // it runs, what it runs on, and its value now -- with a dot that lights
+  // while the row's message arrives and an amber (the theme's danger colour)
+  // outline where two things answer one message. Choosing a row opens the
+  // three steps beneath: what comes in, what it runs, what it runs on.
+
+  struct MidiMapEdit {
+    deckboy::midimap::Origin origin = deckboy::midimap::Origin::Computer;
+    int row = -1;
+  };
+
+  std::vector<deckboy::midimap::Row> midiMapRowsOf(deckboy::midimap::Origin origin) {
+    ensureMidiMapLoaded();
+    return origin == deckboy::midimap::Origin::Computer ? midiMapComputerRows_ : showMidiMapRows();
+  }
+
+  void midiMapStore(deckboy::midimap::Origin origin, std::vector<deckboy::midimap::Row> rows) {
+    if (origin == deckboy::midimap::Origin::Computer) {
+      midiMapComputerRows_ = std::move(rows);
+      if (!saveComputerMidiMap()) {
+        triggerToast("MIDI map: could not save " + midiMapComputerPath().string(),
+                     ToastKind::Warning, kToastReadableMs);
+      }
+    } else {
+      pushUndoSnapshot();
+      project_.midiMapRows.clear();
+      for (const auto& r : rows) project_.midiMapRows.push_back(deckboy::midimap::rowToLine(r));
+      markProjectDirty();
+    }
+    refreshMidiMapEngine();
+  }
+
+  // Change the row being edited, and keep it selected.
+  void midiMapEditRow(const std::function<void(deckboy::midimap::Row&)>& change) {
+    auto rows = midiMapRowsOf(midiMapEdit_.origin);
+    if (midiMapEdit_.row < 0 || midiMapEdit_.row >= static_cast<int>(rows.size())) return;
+    change(rows[static_cast<std::size_t>(midiMapEdit_.row)]);
+    midiMapStore(midiMapEdit_.origin, std::move(rows));
+  }
+
+  std::optional<deckboy::midimap::Row> midiMapEditedRow() {
+    auto rows = midiMapRowsOf(midiMapEdit_.origin);
+    if (midiMapEdit_.row < 0 || midiMapEdit_.row >= static_cast<int>(rows.size())) return std::nullopt;
+    return rows[static_cast<std::size_t>(midiMapEdit_.row)];
+  }
+
+  // A row from a learned message: what came in, read the way that kind of
+  // message is usually meant. Its command is asked for straight away.
+  static deckboy::midimap::Row midiMapRowFromMessage(const deckboy::midimap::Message& m) {
+    namespace mm = deckboy::midimap;
+    mm::Row r;
+    r.source = m.source;
+    if (m.source == mm::Source::Osc) {
+      r.oscAddress = m.oscAddress;
+      r.read = m.hasOscValue ? mm::Read::Knob : mm::Read::Press;
+    } else {
+      r.port = m.port;
+      r.channel = m.channel;
+      if (m.source != mm::Source::PitchBend && m.source != mm::Source::Pressure) r.number = m.number;
+      r.read = (m.source == mm::Source::Cc || mm::continuousSource(m.source)) ? mm::Read::Knob
+                                                                              : mm::Read::Press;
+    }
+    if (mm::isContinuous(r.read) || mm::continuousSource(r.source)) {
+      r.command = "MASTERVOL {value}";
+      r.from = 0.0;
+      r.to = 200.0;
+      r.decimals = 0;
+    } else {
+      r.command = "GO";
+    }
+    return r;
+  }
+
+  // Ask for the command of the row being edited. A new row stays OFF until
+  // it has one, so learning a knob never changes the show by itself.
+  void midiMapAskCommand(bool turnOnAfter) {
+    const auto row = midiMapEditedRow();
+    if (!row) return;
+    openInlineTextEditor("midimap.command", "What it runs",
+                         "A command line, as a DASH button runs it. {value} is the knob's number, "
+                         "{note} the key.",
+                         row->command, [this, turnOnAfter](const std::string& value) {
+                           const std::string cmd = trim(value);
+                           if (cmd.empty()) return;
+                           midiMapEditRow([&](deckboy::midimap::Row& r) {
+                             r.command = cmd;
+                             if (turnOnAfter) r.enabled = true;
+                           });
+                         });
+  }
+
+  void midiMapAddRow(const deckboy::midimap::Row& row) {
+    auto rows = midiMapRowsOf(deckboy::midimap::Origin::Computer);
+    deckboy::midimap::Row r = row;
+    r.enabled = false;
+    rows.push_back(r);
+    midiMapStore(deckboy::midimap::Origin::Computer, std::move(rows));
+    midiMapEdit_.origin = deckboy::midimap::Origin::Computer;
+    midiMapEdit_.row = static_cast<int>(midiMapComputerRows_.size()) - 1;
+    midiMapScroll_ = std::max(0, static_cast<int>(midiMapListed_.size()));
+    midiMapAskCommand(true);
+  }
+
+  // Called by serviceMidiMap the moment learn hears something.
+  void midiMapLearnHeard(const deckboy::midimap::Message& m) {
+    if (midiMapLearnInto_ == 1) {
+      midiMapAddRow(midiMapRowFromMessage(m));
+    } else if (midiMapLearnInto_ == 2) {
+      const auto fresh = midiMapRowFromMessage(m);
+      midiMapEditRow([&](deckboy::midimap::Row& r) {
+        r.source = fresh.source;
+        r.port = fresh.port;
+        r.channel = fresh.channel;
+        r.number = fresh.number;
+        r.numberTo = -1;
+        r.oscAddress = fresh.oscAddress;
+        if (deckboy::midimap::isContinuous(r.read) != deckboy::midimap::isContinuous(fresh.read)) {
+          r.read = fresh.read;
+        }
+      });
+    }
+    midiMapLearnInto_ = 0;
+  }
+
+  std::string midiMapNowText(deckboy::midimap::Origin origin, int index, const deckboy::midimap::Row& r) {
+    namespace mm = deckboy::midimap;
+    switch (r.read) {
+      case mm::Read::Hold: return "hold " + mm::formatNumber(r.holdSeconds) + " s";
+      case mm::Read::PressRelease: return "press + release";
+      case mm::Read::Play: return "plays";
+      case mm::Read::Press:
+        if (!mm::continuousSource(r.source) && !(r.source == mm::Source::Osc)) return "on press";
+        break;
+      default: break;
+    }
+    const double p = midiMap_.position(origin, index);
+    if (p < 0.0) return "-";
+    if (!midiMap_.caught(origin, index)) return "pickup";
+    return mm::formatValue(r, mm::mapPosition(r, p));
+  }
+
+  void drawMidiMapPage(const SDL_Rect& content) {
+    namespace mm = deckboy::midimap;
+    refreshMidiMapEngine();
+
+    const SDL_Color ink = pal.fg;
+    const SDL_Color soft = pal.fgSoft;
+    const int pad = uiScaled(12);
+    const int gap = uiScaled(6);
+    const int lineH = std::max(uiScaled(16), textLineHeight(fontSmall_));
+    const int rowH = std::max(uiScaled(24), textLineHeight(fontSmall_) + uiScaled(9));
+    const int x = content.x + pad;
+    const int w = content.w - pad * 2;
+    int y = content.y + uiScaled(10);
+
+    // Title, and the three things to do.
+    const int btnW = uiScaled(110);
+    SDL_Rect backBtn {x + w - btnW, y, btnW, rowH};
+    SDL_Rect learnBtn {backBtn.x - gap - btnW, y, btnW, rowH};
+    SDL_Rect addBtn {learnBtn.x - gap - btnW, y, btnW, rowH};
+    drawTextSafe(controlRenderer_, fontBase_, SDL_Rect {x, y, addBtn.x - x - gap, rowH},
+                 "MIDI MAP", ink);
+    drawUIValueControl(addBtn, "+ ADD");
+    settingsBtns_.push_back({addBtn, kSettingsActionMidiMapAdd, "midimap_add"});
+    drawUIValueControl(learnBtn, midiMapLearnArmed_ && midiMapLearnInto_ == 1 ? "LISTENING..." : "LEARN");
+    if (midiMapLearnArmed_ && midiMapLearnInto_ == 1) drawSettingsStateFill(learnBtn, true);
+    settingsBtns_.push_back({learnBtn, kSettingsActionMidiMapLearn, "midimap_learn"});
+    drawUIValueControl(backBtn, "BACK");
+    settingsBtns_.push_back({backBtn, kSettingsActionMidiMapBack, "midimap_back"});
+    y += rowH + gap;
+
+    // Where the messages come from.
+    std::string where;
+    if (!midiEnabled_) {
+      where = "MIDI input is off: turn it on in MIDI CONTROL. OSC rows still answer.";
+    } else {
+      where = (midiDeviceInUse_.empty() ? midiMonitorPort() : midiDeviceInUse_) + " \xC2\xB7 connected";
+    }
+    if (midiMapLearnArmed_) where = "LEARN: move a knob or press a key on the controller...";
+    drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {x, y, w, lineH}, where, soft);
+    y += lineH + gap;
+
+    // The table.
+    const auto rowsShow = midiMapRowsOf(mm::Origin::Show);
+    const auto rowsComputer = midiMapRowsOf(mm::Origin::Computer);
+    midiMapListed_.clear();
+    for (int i = 0; i < static_cast<int>(rowsShow.size()); ++i) midiMapListed_.push_back({mm::Origin::Show, i});
+    for (int i = 0; i < static_cast<int>(rowsComputer.size()); ++i) {
+      midiMapListed_.push_back({mm::Origin::Computer, i});
+    }
+    const bool editing = midiMapEditedRow().has_value();
+    const int editorH = editing ? std::min(content.h / 2, rowH * 7 + lineH * 3 + gap * 8) : 0;
+    const int tableBottom = content.y + content.h - uiScaled(10) - editorH - (editing ? gap * 2 : 0);
+    const int dotW = uiScaled(14);
+    const int colMsg = static_cast<int>(w * 0.26);
+    const int colRuns = static_cast<int>(w * 0.30);
+    const int colOn = static_cast<int>(w * 0.22);
+    const int colNow = w - dotW - colMsg - colRuns - colOn;
+    auto columns = [&](int rowY, int h) {
+      const int a = x + dotW;
+      return std::array<SDL_Rect, 4> {SDL_Rect {a, rowY, colMsg - gap, h},
+                                      SDL_Rect {a + colMsg, rowY, colRuns - gap, h},
+                                      SDL_Rect {a + colMsg + colRuns, rowY, colOn - gap, h},
+                                      SDL_Rect {a + colMsg + colRuns + colOn, rowY, colNow, h}};
+    };
+    {
+      const auto head = columns(y, lineH);
+      drawTextSafe(controlRenderer_, fontSmall_, head[0], "Message", soft);
+      drawTextSafe(controlRenderer_, fontSmall_, head[1], "Runs", soft);
+      drawTextSafe(controlRenderer_, fontSmall_, head[2], "On", soft);
+      drawTextSafe(controlRenderer_, fontSmall_, head[3], "Now", soft);
+      y += lineH + uiScaled(2);
+    }
+    const int visible = std::max(1, (tableBottom - y - lineH - gap) / (rowH + uiScaled(2)));
+    midiMapScroll_ = std::clamp(midiMapScroll_, 0,
+                                std::max(0, static_cast<int>(midiMapListed_.size()) - visible));
+    const Uint64 nowMs = SDL_GetTicks();
+    for (int v = 0; v < visible && v < kMidiMapVisibleRows; ++v) {
+      const int listIndex = midiMapScroll_ + v;
+      if (listIndex >= static_cast<int>(midiMapListed_.size())) break;
+      const auto [origin, index] = midiMapListed_[static_cast<std::size_t>(listIndex)];
+      const auto& rows = origin == mm::Origin::Show ? rowsShow : rowsComputer;
+      const mm::Row& r = rows[static_cast<std::size_t>(index)];
+      const SDL_Rect rowRect {x, y, w, rowH};
+      const bool selected = editing && midiMapEdit_.origin == origin && midiMapEdit_.row == index;
+      Primitives::fillRect(controlRenderer_, rowRect, selected ? pal.mid : pal.tile);
+      bool overlap = false;
+      for (int o = 0; o < 2 && !overlap; ++o) {
+        const auto& others = o == 0 ? rowsShow : rowsComputer;
+        const mm::Origin oo = o == 0 ? mm::Origin::Show : mm::Origin::Computer;
+        for (int j = 0; j < static_cast<int>(others.size()); ++j) {
+          if (oo == origin && j == index) continue;
+          if (mm::overlaps(r, others[static_cast<std::size_t>(j)])) {
+            overlap = true;
+            break;
+          }
+        }
+      }
+      std::string cueClaim;
+      if (r.source == mm::Source::Note) {
+        for (const Deck& deck : project_.decks) {
+          for (const Cue& cue : deck.cues) {
+            if (cue.triggerMidiNote >= 0 && mm::rowClaimsNote(r, cue.triggerMidiNote)) cueClaim = cue.name;
+          }
+        }
+      }
+      if (overlap || !cueClaim.empty()) Primitives::strokeRect(controlRenderer_, rowRect, pal.deleteBezel);
+      // The dot: lit while this row's message is arriving.
+      const auto hit = midiMapRowHitMs_.find({static_cast<int>(origin), index});
+      const bool lit = hit != midiMapRowHitMs_.end() && nowMs - hit->second < 250;
+      const int d = uiScaled(7);
+      Primitives::fillRect(controlRenderer_,
+                           SDL_Rect {x + (dotW - d) / 2, y + (rowH - d) / 2, d, d}, lit ? ink : pal.dark);
+      const SDL_Color rowInk = !r.enabled ? soft : ink;
+      const auto cells = columns(y, rowH);
+      std::string msg = mm::describeSource(r);
+      if (r.builtIn) msg += "  built in";
+      if (origin == mm::Origin::Show) msg += "  (show)";
+      std::string runs = r.command;
+      if (!cueClaim.empty()) runs += "  - cue \"" + cueClaim + "\" claims it too";
+      if (!r.enabled) runs = "OFF  " + runs;
+      std::string on = midiMapTargetLabel(r);
+      drawTextSafe(controlRenderer_, fontSmall_, cells[0], msg, rowInk);
+      drawTextSafe(controlRenderer_, fontSmall_, cells[1], runs, rowInk);
+      drawTextSafe(controlRenderer_, fontSmall_, cells[2], on, rowInk);
+      drawTextSafe(controlRenderer_, fontSmall_, cells[3], midiMapNowText(origin, index, r), rowInk);
+      settingsBtns_.push_back({rowRect, kSettingsActionMidiMapRowBase + v, "midimap_row"});
+      y += rowH + uiScaled(2);
+    }
+    // Scrolling, when there are more rows than fit.
+    if (static_cast<int>(midiMapListed_.size()) > visible) {
+      SDL_Rect up {x, y, uiScaled(60), lineH + uiScaled(6)};
+      SDL_Rect down {x + uiScaled(66), y, uiScaled(60), lineH + uiScaled(6)};
+      drawUIValueControl(up, "UP");
+      drawUIValueControl(down, "DOWN");
+      settingsBtns_.push_back({up, kSettingsActionMidiMapScrollUp, "midimap_up"});
+      settingsBtns_.push_back({down, kSettingsActionMidiMapScrollDown, "midimap_down"});
+      drawTextSafe(controlRenderer_, fontSmall_,
+                   SDL_Rect {down.x + down.w + gap, y, w / 2, lineH + uiScaled(6)},
+                   std::to_string(midiMapScroll_ + 1) + "-" +
+                     std::to_string(std::min<int>(midiMapScroll_ + visible,
+                                                  static_cast<int>(midiMapListed_.size()))) +
+                     " of " + std::to_string(midiMapListed_.size()),
+                   soft);
+    } else if (midiMapListed_.empty()) {
+      drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {x, y, w, lineH},
+                   "No rows. + ADD or LEARN makes one; MIDIMAP RESET brings the built-in rows back.", soft);
+    }
+
+    if (!editing) return;
+    drawMidiMapEditor(SDL_Rect {content.x + pad, tableBottom + gap, w, editorH});
+  }
+
+  void drawMidiMapEditor(const SDL_Rect& area) {
+    namespace mm = deckboy::midimap;
+    const auto edited = midiMapEditedRow();
+    if (!edited) return;
+    const mm::Row& r = *edited;
+
+    const SDL_Color soft = pal.fgSoft;
+    const int gap = uiScaled(6);
+    const int lineH = std::max(uiScaled(16), textLineHeight(fontSmall_));
+    const int rowH = std::max(uiScaled(24), textLineHeight(fontSmall_) + uiScaled(9));
+    const int colGap = uiScaled(10);
+    const int colW = (area.w - colGap * 2) / 3;
+    const SDL_Rect c1 {area.x, area.y, colW, area.h};
+    const SDL_Rect c2 {area.x + colW + colGap, area.y, colW, area.h};
+    const SDL_Rect c3 {area.x + (colW + colGap) * 2, area.y, area.w - (colW + colGap) * 2, area.h};
+    drawSettingsCard(c1, "1 \xC2\xB7 WHAT COMES IN", "learn it, or say how to read it");
+    drawSettingsCard(c2, "2 \xC2\xB7 WHAT IT RUNS", "any command, {value} is the number");
+    drawSettingsCard(c3, "3 \xC2\xB7 WHAT IT RUNS ON", "aimed here; the desk never moves");
+    const int headerH = settingsHeaderHeight(fontBase_) + lineH + gap;
+    const int pad = uiScaled(8);
+    auto body = [&](const SDL_Rect& c) { return std::make_pair(c.x + pad, c.w - pad * 2); };
+
+    // 1 · what comes in
+    {
+      auto [bx, bw] = body(c1);
+      int by = c1.y + headerH;
+      const bool relearning = midiMapLearnArmed_ && midiMapLearnInto_ == 2;
+      SDL_Rect msgBtn = settingsRow(bx, bw, by, rowH, "Message", gap);
+      drawUIValueControl(msgBtn, relearning ? std::string("LISTENING...") : mm::describeSource(r));
+      settingsBtns_.push_back({msgBtn, kSettingsActionMidiMapRelearn, "midimap_relearn"});
+      if (r.source != mm::Source::Osc) {
+        SDL_Rect chBtn = settingsRow(bx, bw, by, rowH, "Channel", gap);
+        drawUIValueControl(chBtn, r.channel <= 0 ? std::string("any") : std::to_string(r.channel));
+        settingsBtns_.push_back({chBtn, kSettingsActionMidiMapChannel, "midimap_channel"});
+        SDL_Rect portBtn = settingsRow(bx, bw, by, rowH, "Port", gap);
+        drawUIValueControl(portBtn, r.port.empty() ? std::string("any port") : r.port);
+        settingsBtns_.push_back({portBtn, kSettingsActionMidiMapPort, "midimap_port"});
+      }
+      SDL_Rect readBtn = settingsRow(bx, bw, by, rowH, "Read as", gap);
+      drawUIValueControl(readBtn, mm::readLabel(r.read));
+      settingsBtns_.push_back({readBtn, kSettingsActionMidiMapRead, "midimap_read"});
+      if (r.read == mm::Read::Encoder) {
+        SDL_Rect encBtn = settingsRow(bx, bw, by, rowH, "Encoder", gap);
+        drawUIValueControl(encBtn, mm::encoderToken(r.encoder));
+        settingsBtns_.push_back({encBtn, kSettingsActionMidiMapEncoder, "midimap_encoder"});
+      }
+      if (r.read == mm::Read::Hold) {
+        SDL_Rect holdBtn = settingsRow(bx, bw, by, rowH, "Hold for", gap);
+        drawUIValueControl(holdBtn, mm::formatNumber(r.holdSeconds) + " s");
+        settingsBtns_.push_back({holdBtn, kSettingsActionMidiMapHold, "midimap_hold"});
+      }
+    }
+
+    // 2 · what it runs
+    {
+      auto [bx, bw] = body(c2);
+      int by = c2.y + headerH;
+      SDL_Rect cmdBtn = settingsRow(bx, bw, by, rowH, "Command", gap);
+      drawUIValueControl(cmdBtn, r.command);
+      settingsBtns_.push_back({cmdBtn, kSettingsActionMidiMapCommand, "midimap_command"});
+      const bool value = mm::isContinuous(r.read) || mm::continuousSource(r.source) ||
+                         (r.source == mm::Source::Osc && mm::isContinuous(r.read));
+      if (value) {
+        SDL_Rect fromBtn = settingsRow(bx, bw, by, rowH, "From", gap);
+        drawUIValueControl(fromBtn, mm::formatNumber(r.from));
+        settingsBtns_.push_back({fromBtn, kSettingsActionMidiMapFrom, "midimap_from"});
+        SDL_Rect centreBtn = settingsRow(bx, bw, by, rowH, "Centre", gap);
+        drawUIValueControl(centreBtn, r.hasCentre ? mm::formatNumber(r.centre) : std::string("none"));
+        settingsBtns_.push_back({centreBtn, kSettingsActionMidiMapCentre, "midimap_centre"});
+        SDL_Rect toBtn = settingsRow(bx, bw, by, rowH, "To", gap);
+        drawUIValueControl(toBtn, mm::formatNumber(r.to));
+        settingsBtns_.push_back({toBtn, kSettingsActionMidiMapTo, "midimap_to"});
+        if (r.read != mm::Read::Encoder) {
+          SDL_Rect pickBtn = settingsRow(bx, bw, by, rowH, "Pickup", gap);
+          drawSettingsToggle(pickBtn, r.pickup, "ON", "OFF");
+          settingsBtns_.push_back({pickBtn, kSettingsActionMidiMapPickup, "midimap_pickup"});
+        }
+      }
+      if (r.read == mm::Read::PressRelease || r.read == mm::Read::Play) {
+        SDL_Rect relBtn = settingsRow(bx, bw, by, rowH, "On release", gap);
+        drawUIValueControl(relBtn, r.releaseCommand.empty() ? std::string("nothing") : r.releaseCommand);
+        settingsBtns_.push_back({relBtn, kSettingsActionMidiMapRelease, "midimap_release"});
+      }
+      // The test line: the last value and what it became.
+      const double p = midiMap_.position(midiMapEdit_.origin, midiMapEdit_.row);
+      std::string test = "Test: move it on the controller";
+      if (value && p >= 0.0) {
+        const std::string v = mm::formatValue(r, mm::mapPosition(r, p));
+        test = "last value " + std::to_string(mm::value7(p)) + " -> " +
+               mm::replaceAll(r.command, "{value}", v);
+      }
+      drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {bx, by, bw, lineH}, test, soft);
+    }
+
+    // 3 · what it runs on
+    {
+      auto [bx, bw] = body(c3);
+      int by = c3.y + headerH;
+      SDL_Rect onBtn = settingsRow(bx, bw, by, rowH, "Runs on", gap);
+      const char* onLabel = r.target == mm::Target::Selected ? "the selected cue"
+                          : r.target == mm::Target::OnAir ? "what is on air"
+                          : r.target == mm::Target::Named ? "one named cue" : "the desk";
+      drawUIValueControl(onBtn, onLabel);
+      settingsBtns_.push_back({onBtn, kSettingsActionMidiMapTarget, "midimap_target"});
+      if (r.target != mm::Target::Desk) {
+        SDL_Rect plBtn = settingsRow(bx, bw, by, rowH, "Playlist", gap);
+        drawUIValueControl(plBtn, r.playlist > 0 ? std::to_string(r.playlist) : std::string("the focused one"));
+        settingsBtns_.push_back({plBtn, kSettingsActionMidiMapPlaylist, "midimap_playlist"});
+      }
+      if (r.target == mm::Target::Named) {
+        SDL_Rect cueBtn = settingsRow(bx, bw, by, rowH, "Cue", gap);
+        drawUIValueControl(cueBtn, r.cue.empty() ? std::string("name or number...") : r.cue);
+        settingsBtns_.push_back({cueBtn, kSettingsActionMidiMapCue, "midimap_cue"});
+      }
+      SDL_Rect mapBtn = settingsRow(bx, bw, by, rowH, "Saved with", gap);
+      drawSettingsToggle(mapBtn, midiMapEdit_.origin == mm::Origin::Show, "THE SHOW", "THIS COMPUTER");
+      settingsBtns_.push_back({mapBtn, kSettingsActionMidiMapOrigin, "midimap_origin"});
+      SDL_Rect enBtn = settingsRow(bx, bw, by, rowH, "Row", gap);
+      drawSettingsToggle(enBtn, r.enabled, "ON", "OFF");
+      settingsBtns_.push_back({enBtn, kSettingsActionMidiMapEnabled, "midimap_enabled"});
+      const int half = (bw - gap) / 2;
+      SDL_Rect delBtn {bx, by, half, rowH};
+      SDL_Rect doneBtn {bx + half + gap, by, bw - half - gap, rowH};
+      drawUIValueControl(delBtn, "DELETE");
+      Primitives::strokeRect(controlRenderer_, delBtn, pal.deleteBezel);
+      settingsBtns_.push_back({delBtn, kSettingsActionMidiMapDelete, "midimap_delete"});
+      drawUIValueControl(doneBtn, "DONE");
+      settingsBtns_.push_back({doneBtn, kSettingsActionMidiMapDone, "midimap_done"});
+    }
+  }
+
+  // Numbers typed into the editor.
+  void midiMapAskNumber(const std::string& owner, const std::string& title, double current,
+                        std::function<void(deckboy::midimap::Row&, double)> apply,
+                        bool allowNone = false) {
+    openInlineTextEditor(owner, title, allowNone ? "A number, or blank for none" : "A number",
+                         deckboy::midimap::formatNumber(current),
+                         [this, apply, allowNone](const std::string& text) {
+                           const std::string t = trim(text);
+                           if (t.empty() && allowNone) {
+                             midiMapEditRow([&](deckboy::midimap::Row& r) { r.hasCentre = false; });
+                             return;
+                           }
+                           char* end = nullptr;
+                           const double v = std::strtod(t.c_str(), &end);
+                           if (end == t.c_str()) {
+                             triggerToast("not a number: " + t);
+                             return;
+                           }
+                           midiMapEditRow([&](deckboy::midimap::Row& r) { apply(r, v); });
+                         });
+  }
+
+  bool handleMidiMapSettingsClick(const SettingsButton& sb) {
+    namespace mm = deckboy::midimap;
+    const int a = sb.action;
+    if (a == kSettingsActionMidiMapOpen) {
+      settingsMidiMapOpen_ = true;
+      midiMapEdit_ = MidiMapEdit {};
+      return true;
+    }
+    if (a < kSettingsActionMidiMapBack || a >= kSettingsActionMidiMapRowBase + kMidiMapVisibleRows) {
+      return false;
+    }
+    if (a >= kSettingsActionMidiMapRowBase) {
+      const int listIndex = midiMapScroll_ + (a - kSettingsActionMidiMapRowBase);
+      if (listIndex >= 0 && listIndex < static_cast<int>(midiMapListed_.size())) {
+        midiMapEdit_.origin = midiMapListed_[static_cast<std::size_t>(listIndex)].first;
+        midiMapEdit_.row = midiMapListed_[static_cast<std::size_t>(listIndex)].second;
+      }
+      return true;
+    }
+    switch (a) {
+      case kSettingsActionMidiMapBack:
+        settingsMidiMapOpen_ = false;
+        midiMapLearnArmed_ = false;
+        midiMapLearnInto_ = 0;
+        return true;
+      case kSettingsActionMidiMapAdd: {
+        mm::Row r;
+        r.source = mm::Source::Note;
+        r.number = 36;
+        r.command = "GO";
+        midiMapAddRow(r);
+        return true;
+      }
+      case kSettingsActionMidiMapLearn:
+        if (midiMapLearnArmed_ && midiMapLearnInto_ == 1) {
+          midiMapLearnArmed_ = false;
+          midiMapLearnInto_ = 0;
+        } else {
+          midiMapLearnArmed_ = true;
+          midiMapLearnInto_ = 1;
+          midiMapLearned_.reset();
+        }
+        return true;
+      case kSettingsActionMidiMapScrollUp:
+        midiMapScroll_ = std::max(0, midiMapScroll_ - 4);
+        return true;
+      case kSettingsActionMidiMapScrollDown:
+        midiMapScroll_ += 4;
+        return true;
+      case kSettingsActionMidiMapDone:
+        midiMapEdit_ = MidiMapEdit {};
+        midiMapLearnArmed_ = false;
+        midiMapLearnInto_ = 0;
+        return true;
+      default:
+        break;
+    }
+    const auto row = midiMapEditedRow();
+    if (!row) return true;
+    switch (a) {
+      case kSettingsActionMidiMapRelearn:
+        midiMapLearnArmed_ = true;
+        midiMapLearnInto_ = 2;
+        midiMapLearned_.reset();
+        return true;
+      case kSettingsActionMidiMapChannel: {
+        std::vector<std::pair<std::string, std::string>> choices {{"0", "any channel"}};
+        for (int c = 1; c <= 16; ++c) choices.push_back({std::to_string(c), "channel " + std::to_string(c)});
+        openDropdown("midimap.channel", sb.rect, choices, std::to_string(row->channel),
+                     [this](const std::string& v) {
+                       midiMapEditRow([&](mm::Row& r) { r.channel = std::atoi(v.c_str()); });
+                     });
+        return true;
+      }
+      case kSettingsActionMidiMapPort: {
+        std::vector<std::pair<std::string, std::string>> choices {{"", "any port"}};
+        const std::string current = midiDeviceInUse_.empty() ? midiDeviceName_() : midiDeviceInUse_;
+        if (!current.empty()) choices.push_back({current, current});
+        if (!row->port.empty() && row->port != current) choices.push_back({row->port, row->port});
+        openDropdown("midimap.port", sb.rect, choices, row->port, [this](const std::string& v) {
+          midiMapEditRow([&](mm::Row& r) { r.port = v; });
+        });
+        return true;
+      }
+      case kSettingsActionMidiMapRead: {
+        std::vector<std::pair<std::string, std::string>> choices;
+        for (mm::Read k : {mm::Read::Knob, mm::Read::Encoder, mm::Read::Fine, mm::Read::Press,
+                           mm::Read::Hold, mm::Read::PressRelease, mm::Read::Play}) {
+          choices.push_back({mm::readToken(k), mm::readLabel(k)});
+        }
+        openDropdown("midimap.read", sb.rect, choices, mm::readToken(row->read), [this](const std::string& v) {
+          midiMapEditRow([&](mm::Row& r) {
+            if (auto k = mm::readFromToken(v)) {
+              r.read = *k;
+              // Play is a keyboard: give it the synth's two commands.
+              if (r.read == mm::Read::Play && r.releaseCommand.empty()) {
+                r.command = "SYNTHNOTEON {note} {velocity}";
+                r.releaseCommand = "SYNTHNOTEOFF {note}";
+                if (r.number >= 0 && r.numberTo < 0) {
+                  r.number = 0;
+                  r.numberTo = 127;
+                }
+              }
+            }
+          });
+        });
+        return true;
+      }
+      case kSettingsActionMidiMapEncoder: {
+        std::vector<std::pair<std::string, std::string>> choices {
+          {"auto", "auto (reads the common two)"}, {"twos", "1 = right, 127 = left"},
+          {"offset", "65 = right, 63 = left"}, {"signbit", "1 = right, 65 = left"}};
+        openDropdown("midimap.encoder", sb.rect, choices, mm::encoderToken(row->encoder),
+                     [this](const std::string& v) {
+                       midiMapEditRow([&](mm::Row& r) {
+                         if (auto e = mm::encoderFromToken(v)) r.encoder = *e;
+                       });
+                     });
+        return true;
+      }
+      case kSettingsActionMidiMapHold:
+        midiMapAskNumber("midimap.hold", "Hold for (seconds)", row->holdSeconds,
+                         [](mm::Row& r, double v) { r.holdSeconds = std::clamp(v, 0.1, 10.0); });
+        return true;
+      case kSettingsActionMidiMapCommand:
+        midiMapAskCommand(false);
+        return true;
+      case kSettingsActionMidiMapRelease:
+        openInlineTextEditor("midimap.release", "On release", "A command line, or blank for nothing",
+                             row->releaseCommand, [this](const std::string& value) {
+                               midiMapEditRow([&](mm::Row& r) { r.releaseCommand = trim(value); });
+                             });
+        return true;
+      case kSettingsActionMidiMapFrom:
+        midiMapAskNumber("midimap.from", "From", row->from, [](mm::Row& r, double v) { r.from = v; });
+        return true;
+      case kSettingsActionMidiMapCentre:
+        midiMapAskNumber("midimap.centre", "The knob's centre", row->hasCentre ? row->centre : (row->from + row->to) / 2,
+                         [](mm::Row& r, double v) {
+                           r.hasCentre = true;
+                           r.centre = v;
+                         },
+                         true);
+        return true;
+      case kSettingsActionMidiMapTo:
+        midiMapAskNumber("midimap.to", "To", row->to, [](mm::Row& r, double v) { r.to = v; });
+        return true;
+      case kSettingsActionMidiMapPickup:
+        midiMapEditRow([](mm::Row& r) { r.pickup = !r.pickup; });
+        return true;
+      case kSettingsActionMidiMapTarget: {
+        std::vector<std::pair<std::string, std::string>> choices {
+          {"desk", "the desk"}, {"selected", "the selected cue"},
+          {"onair", "what is on air in a playlist"}, {"cue", "one named cue"}};
+        openDropdown("midimap.target", sb.rect, choices, mm::targetToken(row->target),
+                     [this](const std::string& v) {
+                       midiMapEditRow([&](mm::Row& r) {
+                         if (auto t = mm::targetFromToken(v)) r.target = *t;
+                       });
+                     });
+        return true;
+      }
+      case kSettingsActionMidiMapPlaylist: {
+        std::vector<std::pair<std::string, std::string>> choices {{"0", "the focused one"}};
+        for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
+          choices.push_back({std::to_string(d + 1), std::to_string(d + 1) + "  " +
+                                                      project_.decks[static_cast<std::size_t>(d)].name});
+        }
+        openDropdown("midimap.playlist", sb.rect, choices, std::to_string(row->playlist),
+                     [this](const std::string& v) {
+                       midiMapEditRow([&](mm::Row& r) { r.playlist = std::max(0, std::atoi(v.c_str())); });
+                     });
+        return true;
+      }
+      case kSettingsActionMidiMapCue:
+        openInlineTextEditor("midimap.cue", "Which cue", "Its name, number or id", row->cue,
+                             [this](const std::string& value) {
+                               midiMapEditRow([&](mm::Row& r) { r.cue = trim(value); });
+                             });
+        return true;
+      case kSettingsActionMidiMapOrigin: {
+        // Move the row between this computer's map and the show's.
+        auto from = midiMapRowsOf(midiMapEdit_.origin);
+        const mm::Origin to = midiMapEdit_.origin == mm::Origin::Show ? mm::Origin::Computer : mm::Origin::Show;
+        auto dest = midiMapRowsOf(to);
+        mm::Row moved = from[static_cast<std::size_t>(midiMapEdit_.row)];
+        from.erase(from.begin() + midiMapEdit_.row);
+        dest.push_back(moved);
+        const int newIndex = static_cast<int>(dest.size()) - 1;
+        midiMapStore(midiMapEdit_.origin, std::move(from));
+        midiMapStore(to, std::move(dest));
+        midiMapEdit_.origin = to;
+        midiMapEdit_.row = newIndex;
+        return true;
+      }
+      case kSettingsActionMidiMapEnabled:
+        midiMapEditRow([](mm::Row& r) { r.enabled = !r.enabled; });
+        return true;
+      case kSettingsActionMidiMapDelete: {
+        auto rows = midiMapRowsOf(midiMapEdit_.origin);
+        rows.erase(rows.begin() + midiMapEdit_.row);
+        midiMapStore(midiMapEdit_.origin, std::move(rows));
+        midiMapEdit_ = MidiMapEdit {};
+        triggerToast("row deleted");
+        return true;
+      }
+      default:
+        break;
+    }
+    return true;
   }

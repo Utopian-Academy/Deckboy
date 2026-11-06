@@ -1583,6 +1583,9 @@
         drawSettingsScrollHint(content, settingsSystemScroll_, settingsSystemScrollMax_);
       }
 
+    } else if (settingsTab_ == 1 && settingsMidiMapOpen_) {
+      // The MIDI map takes the whole tab while it is open (BACK returns).
+      drawMidiMapPage(content);
     } else if (settingsTab_ == 1) {
       auto drawCard = [&](const SDL_Rect& rect, const std::string& title, const std::string& subtitle = std::string()) {
         drawSettingsCard(rect, title, subtitle);
@@ -2024,8 +2027,8 @@
 
       // Right column: MIDI, then LTC as its own card.
       const int midiH = stackH({sRowH, sRowH,               // enable, port
-                                sLineH,                      // "Mappings"
-                                sLineH, sLineH, sLineH, sLineH,  // the four lines
+                                sRowH,                       // the map
+                                sLineH, sLineH,              // MMC, MSC
                                 sRowH});                     // MSC id
       SDL_Rect midiRect {rightX, cy, rightW, midiH};
       drawCard(midiRect, "MIDI CONTROL", "Optional external transport and cue control");
@@ -2043,14 +2046,17 @@
                                                    : midiDeviceName_());
       settingsBtns_.push_back({midiPortBtn, 211, "midi_port"});
 
-      drawTextSafe(controlRenderer_, fontSmall_,
-                   SDL_Rect{midiX, midiY, midiW, sLineH}, "Mappings", pal.fg);
-      midiY += smallLineH;
-      // One mapping per line. Two-per-line ran past a half-width column and the
-      // shrink-to-fit made these the smallest text in the dialog.
+      // What notes, knobs and OSC addresses do: the MIDI map (its own page).
+      {
+        refreshMidiMapEngine();
+        const std::size_t rows = midiMap_.rows(deckboy::midimap::Origin::Computer).size() +
+                                 midiMap_.rows(deckboy::midimap::Origin::Show).size();
+        SDL_Rect mapBtn = settingsRow(midiX, midiW, midiY, sRowH, "Map", sGap);
+        drawUIValueControl(mapBtn, "OPEN THE MAP  (" + std::to_string(rows) + (rows == 1 ? " row)" : " rows)"));
+        settingsBtns_.push_back({mapBtn, kSettingsActionMidiMapOpen, "midimap_open"});
+      }
+      // Show control is not in the map: it has its own fixed meaning.
       const char* kMidiMappings[] = {
-        "Note 0-127 -> cue index in the focused playlist",
-        "CC 7 -> master volume    CC 20 -> playback speed",
         "MMC Play / Stop / Goto -> transport",
         "MSC Trigger -> cue by id",
       };
@@ -5067,6 +5073,7 @@
     for (const auto& sb : settingsBtns_) {
       if (!pointInRect(mx, my, sb.rect)) continue;
       if (handleFixtureSettingsClick(sb.action)) continue;
+      if (handleMidiMapSettingsClick(sb)) continue;
       if (sb.action == kSettingsActionEncoderConvertAll) { convertAllFlaggedCues(); continue; }
       if (sb.action == kSettingsActionEncoderPresetDelivery) { setEncoderPreset(EncoderPreset::DeliveryH264); continue; }
       if (sb.action == kSettingsActionEncoderPresetProxy)    { setEncoderPreset(EncoderPreset::Proxy); continue; }

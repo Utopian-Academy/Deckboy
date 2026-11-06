@@ -63,6 +63,20 @@ int main() {
            "an unmapped CC says so: " + (miss.empty() ? std::string() : miss[0].note));
   }
 
+  // The built-in note row is a fallback: a row of its own on a key wins.
+  {
+    Row mine;
+    mine.source = Source::Note;
+    mine.number = 43;
+    mine.command = "PANIC";
+    auto rows = builtInRows();
+    Engine e;
+    e.setRows({mine}, rows);
+    expect(only(e.process({note(43, 100)}, 0)) == "PANIC", "a mapped key does not also take cue 44");
+    expect(only(e.process({note(44, 100)}, 0)) == "MIDINOTE 44", "an unmapped key still does");
+    expect(!overlaps(mine, rows[0]), "and the fallback is not flagged as an overlap");
+  }
+
   // A fast knob: forty values in one frame are one action, the latest.
   {
     Row r;

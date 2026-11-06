@@ -44,7 +44,7 @@ enum class EncoderMode { Auto, TwosComplement, Offset64, SignBit };
 struct Row {
   bool enabled = true;
   bool builtIn = false;        // today's fixed behaviour, now an ordinary row
-  bool unclaimed = false;      // notes: only when no cue's TRIGGERS claims it
+  bool unclaimed = false;      // a fallback: only when no cue's TRIGGERS and no other row answers
   std::string port;            // "" = any port. A choice, never a guess.
   Source source = Source::Note;
   int channel = 0;             // 0 = any, 1-16 as operators count them
@@ -528,6 +528,7 @@ inline bool matches(const Row& r, const Message& m) {
 // Two rows that answer the same message: the MAP page outlines both in amber.
 inline bool overlaps(const Row& a, const Row& b) {
   if (!a.enabled || !b.enabled || a.source != b.source) return false;
+  if (a.unclaimed || b.unclaimed) return false;  // a fallback stands aside by design
   if (a.source == Source::Osc) {
     return a.oscAddress.empty() || b.oscAddress.empty() ||
            normalizedOsc(a.oscAddress) == normalizedOsc(b.oscAddress);
@@ -629,13 +630,24 @@ class Engine {
       // A note a cue's own TRIGGERS took is answered, even if no row is.
       bool any = m.source == Source::Note &&
                  std::find(claimedNotes.begin(), claimedNotes.end(), m.number) != claimedNotes.end();
+      // Does a row that is not a fallback answer this message? Then the
+      // fallbacks (today's "note N takes cue N+1") stand aside, as the old
+      // rule only ever applied to a note nothing else claimed.
+      bool answered = false;
+      for (Origin o : {Origin::Show, Origin::Computer}) {
+        for (const Row& r : this->rows(o)) {
+          if (!r.unclaimed && matches(r, m)) answered = true;
+        }
+      }
       for (Origin o : {Origin::Show, Origin::Computer}) {
         const auto& rows = this->rows(o);
         for (int i = 0; i < static_cast<int>(rows.size()); ++i) {
           const Row& r = rows[static_cast<std::size_t>(i)];
           if (!matches(r, m)) continue;
-          if (r.unclaimed && m.source == Source::Note &&
-              std::find(claimedNotes.begin(), claimedNotes.end(), m.number) != claimedNotes.end()) {
+          if (r.unclaimed &&
+              (answered || (m.source == Source::Note &&
+                            std::find(claimedNotes.begin(), claimedNotes.end(), m.number) !=
+                              claimedNotes.end()))) {
             continue;
           }
           any = true;
@@ -794,7 +806,9 @@ class Engine {
     // it reaches or passes the current value, so touching it never jumps the
     // picture. An encoder starts from the current value, so needs none.
     if (r.pickup && r.read != Read::Encoder && current) {
-      if (auto live = current(o, i, r)) {
+      const auto live = current(o, i, r);
+      if (!live) st.caught = true;  // nothing to catch: it is the value
+      if (live) {
         const double target = positionOf(r, *live);
         const double tolerance = 1.5 / 127.0;
         if (!st.caught) {

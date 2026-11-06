@@ -10071,6 +10071,35 @@ class App {
   static constexpr int kSettingsActionHoverTipsToggle = 883;
   static constexpr int kSettingsActionMiamiCursorToggle = 884;
   static constexpr int kSettingsActionBeastModeToggle = 885;
+  // The MIDI map page (app_midi_map.ipp). 1100-1179: the page's controls,
+  // then one per visible table row from kSettingsActionMidiMapRowBase.
+  static constexpr int kSettingsActionMidiMapOpen = 1100;
+  static constexpr int kSettingsActionMidiMapBack = 1101;
+  static constexpr int kSettingsActionMidiMapAdd = 1102;
+  static constexpr int kSettingsActionMidiMapLearn = 1103;
+  static constexpr int kSettingsActionMidiMapScrollUp = 1104;
+  static constexpr int kSettingsActionMidiMapScrollDown = 1105;
+  static constexpr int kSettingsActionMidiMapDone = 1106;
+  static constexpr int kSettingsActionMidiMapRelearn = 1110;
+  static constexpr int kSettingsActionMidiMapChannel = 1111;
+  static constexpr int kSettingsActionMidiMapPort = 1112;
+  static constexpr int kSettingsActionMidiMapRead = 1113;
+  static constexpr int kSettingsActionMidiMapEncoder = 1114;
+  static constexpr int kSettingsActionMidiMapHold = 1115;
+  static constexpr int kSettingsActionMidiMapCommand = 1116;
+  static constexpr int kSettingsActionMidiMapRelease = 1117;
+  static constexpr int kSettingsActionMidiMapFrom = 1118;
+  static constexpr int kSettingsActionMidiMapCentre = 1119;
+  static constexpr int kSettingsActionMidiMapTo = 1120;
+  static constexpr int kSettingsActionMidiMapPickup = 1121;
+  static constexpr int kSettingsActionMidiMapTarget = 1122;
+  static constexpr int kSettingsActionMidiMapPlaylist = 1123;
+  static constexpr int kSettingsActionMidiMapCue = 1124;
+  static constexpr int kSettingsActionMidiMapOrigin = 1125;
+  static constexpr int kSettingsActionMidiMapEnabled = 1126;
+  static constexpr int kSettingsActionMidiMapDelete = 1127;
+  static constexpr int kSettingsActionMidiMapRowBase = 1140;
+  static constexpr int kMidiMapVisibleRows = 40;
   // Scaled to fill, or pixel for pixel at the top-left (an LED tile's feed).
   static constexpr int kSettingsActionOutputAoiPixelMode = 758;
   // Opens the warp editor on the programme monitor for the focused output.
@@ -12674,6 +12703,13 @@ class App {
   bool midiMapLearnArmed_ = false;
   std::optional<deckboy::midimap::Message> midiMapLearned_;
   std::vector<int> midiMapLearnedValues_;
+  // The MAP page.
+  bool settingsMidiMapOpen_ = false;
+  MidiMapEdit midiMapEdit_;
+  int midiMapScroll_ = 0;
+  int midiMapLearnInto_ = 0;  // 1: learn makes a new row; 2: re-learn the edited row
+  std::vector<std::pair<deckboy::midimap::Origin, int>> midiMapListed_;
+  std::map<std::pair<int, int>, Uint64> midiMapRowHitMs_;
 #if !defined(DECKBOY_HAS_ALSA) && defined(DECKBOY_HAS_MIDI)
   // Cross-platform MIDI input (Windows/macOS). ALSA builds use midiSeq_ below.
   deckboy::platform::midi::MidiInput midiRt_;
