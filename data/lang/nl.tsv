@@ -494,3 +494,569 @@ Close me. Open me. I'll be fine.	Sluit me. Open me. Komt wel goed.
 # What the desk face says when you switch to this language: a local saying, not a translation.
 @hello	Doe maar normaal, dan doe je al gek genoeg.
 Oh hey. It's 4:20. Take it easy.	O, hoi. Het is 4:20. Rustig aan.
+
+# --- tutorials: tools/lesson_strings.py (a whole line each) ---
+HELLO	HALLO
+Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me.	Dobar den, skapi. Ik ben dokter Pixel. Vijf minuten en jij draait een show. Minder, als je naar me luistert.
+And I'm Professor Video. Synths first, then video. Mostly video now. Press START and we'll patch... we'll begin.	En ik ben professor Video. Eerst synths, toen video. Nu vooral video. Druk op START en we patchen... we beginnen.
+TURN THE OUTPUT ON	ZET DE UITGANG AAN
+Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	Skapi, het scherm is leeg. Laat ze niet wachten. Open MENU en maak van UITGANG UIT UITGANG AAN. Hajde!
+Lesson one: nothing comes out until you patch the oscillator to the... the OUTPUT. It's video. I know.	Les één: er komt niets uit tot je de oscillator aansluit op de... de UITGANG. Het is video. Ik weet het.
+BRING IN A CLIP	HAAL EEN CLIP BINNEN
+Now a picture. Press I and pick a clip from your computer. No clip? SHOW ME, and I lend you one of mine.	Nu een beeld. Druk op I en kies een clip van je computer. Geen clip? SHOW ME, dan leen ik je er een van mij.
+Every clip becomes a cue in the playlist. Like loading a sample. A sample with pictures in it.	Elke clip wordt een cue in de playlist. Zoals een sample laden. Een sample met plaatjes.
+TAKE IT LIVE	ZET HEM LIVE
+Your clip waits in the playlist. Select it, then TAKE. Or Enter. Confident operators press Enter.	Je clip wacht in de playlist. Selecteer hem, dan TAKE. Of Enter. Zelfverzekerde operators drukken op Enter.
+TAKE is the envelope trigger. The, ah, the GO button. Same thing, it just has pictures in it.	TAKE is de trigger van de envelope. De, eh, de GO-knop. Zelfde ding, er zitten alleen plaatjes in.
+LINE UP THE NEXT ONE	ZET DE VOLGENDE KLAAR
+Click another cue. It waits, ready, until you say. Only one cue? Import another, or SHOW ME.	Klik op een andere cue. Hij wacht klaar tot jij het zegt. Maar één cue? Importeer er nog een, of SHOW ME.
+Selecting is not playing. The selected one is the next note in the sequence. The next CUE.	Selecteren is niet afspelen. De geselecteerde is de volgende noot in de sequence. De volgende CUE.
+CROSSFADE TO IT	FADE ERNAARTOE
+Cuts are for amateurs. In the inspector, press + on transition, so it shows a time, not deck. Then TAKE.	Harde knippen zijn voor amateurs. Druk in de inspector op + bij overgang, zodat er een tijd staat en geen deck. Dan TAKE.
+A crossfade! Portamento, but for pictures. Any time will do. A few more presses and it's a second. Then TAKE.	Een crossfade! Portamento, maar voor beelden. Elke tijd is goed. Nog een paar keer drukken en het is een seconde. Dan TAKE.
+CLEAR THE SCREEN	MAAK HET SCHERM LEEG
+Something goes wrong on stage? Press BLACK, or B. The picture goes. The show keeps running underneath.	Gaat er iets mis op het podium? Druk op BLACK, of B. Het beeld verdwijnt. De show loopt eronder door.
+Nothing is lost. Press B again and it comes back. Like the mute on a mixer. Very calming.	Er gaat niets verloren. Druk nog eens op B en het komt terug. Zoals de mute op een mengtafel. Heel rustgevend.
+SAVE THE SHOW	SLA DE SHOW OP
+Now save. Ctrl+S, or SAVE. Some programs lose your work and then blame you. I would never.	Nu opslaan. Ctrl+S, of OPSLAAN. Sommige programma's raken je werk kwijt en geven jou dan de schuld. Ik nooit.
+Save your patch. Your SHOW. Show. This practice one lives in Deckboy's own folder; yours is safe.	Sla je patch op. Je SHOW. Show. Deze oefenshow woont in Deckboys eigen map; die van jou is veilig.
+THAT'S A SHOW	DAT IS EEN SHOW
+That's a show! Output, cue, TAKE, crossfade, BLACK, save. Nazdrave, skapi. Rakia is on me.	Dat is een show! Uitgang, cue, TAKE, crossfade, BLACK, opslaan. Nazdrave, skapi. De rakia is van mij.
+Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	Les voorbij. De voorbeeldshows leren lagen, titels en effecten. MENU > LEARN THE BASICS speelt dit opnieuw.
+*shakes head* That means yes. Bravo.	*schudt het hoofd* Dat betekent ja. Bravo.
+Wonderful! Lovely signal flow.	Prachtig! Wat een mooie signaalflow.
+Mm. I knew you had it in you.	Mm. Ik wist dat je het in je had.
+Yes! Have a gold star. It's a dot.	Ja! Hier, een gouden ster. Het is een stip.
+Ready for the next step? *nods* ...That means no, skapi. The glowing one. It is glowing for you.	Klaar voor de volgende stap? *knikt* ...Dat betekent nee, skapi. De gloeiende. Hij gloeit voor jou.
+You've clicked everything but the glowing one. Even my oscillators find the glowing one.	Je hebt op alles geklikt behalve de gloeiende. Zelfs mijn oscillators vinden de gloeiende.
+stop playback first - the lesson cannot hand a running show back as it was	stop eerst het afspelen - de les kan een lopende show niet teruggeven zoals hij was
+choose RECOVER or KEEP SAVED first	kies eerst RECOVER of KEEP SAVED
+your show could not be saved, so the lesson has not started. Save it (SAVE AS) and try again	je show kon niet worden opgeslagen, dus de les is niet begonnen. Sla hem op (OPSLAAN ALS) en probeer het opnieuw
+the practice show would not open	de oefenshow ging niet open
+could not start the practice show	kon de oefenshow niet starten
+learn the basics: Esc leaves, and it picks up here next time	learn the basics: Esc stopt, en de volgende keer gaat het hier verder
+that's the basics - MENU > LESSONS has part two	dat is de basis - MENU > LESSONS heeft deel twee
+tour paused - LEARN THE BASICS picks up where you left off	rondleiding gepauzeerd - LEARN THE BASICS gaat verder waar je was
+Mirrored screens, skapi. Press any key or click, and Dr. Pixel gives it back.	Gespiegelde schermen, skapi. Druk op een toets of klik, en dokter Pixel geeft het terug.
+Wrong screen, skapi. Press any key or click, and Dr. Pixel gives it back.	Verkeerd scherm, skapi. Druk op een toets of klik, en dokter Pixel geeft het terug.
+The other screen went away, skapi. Press any key or click, and Dr. Pixel gives it back.	Het andere scherm is weg, skapi. Druk op een toets of klik, en dokter Pixel geeft het terug.
+One screen, skapi. Press any key or click, and Dr. Pixel gives it back.	Eén scherm, skapi. Druk op een toets of klik, en dokter Pixel geeft het terug.
+The other screen went away, skapi, so the picture came back to this one. I put it in a little window, behind. Plug it back in and the picture goes back on it.	Het andere scherm is weg, skapi, dus het beeld kwam terug op dit scherm. Ik heb het in een venstertje gezet, erachter. Sluit het weer aan en het beeld gaat er weer op.
+It ate the desk, skapi. One screen, so the output took all of it. I put it in a little window, behind. A real show gets a second screen.	Het heeft de regietafel opgegeten, skapi. Eén scherm, dus de uitgang nam alles. Ik heb het in een venstertje gezet, erachter. Een echte show krijgt een tweede scherm.
+IT ATE THE DESK	HET AT DE REGIETAFEL OP
+There. The button that says OUTPUT OFF. Make it say ON, skapi.	Daar. De knop waar UITGANG UIT op staat. Maak er AAN van, skapi.
+Nothing is live to fade from, skapi. TAKE one cue first, then pick the other and give it a time.	Er is niets live om vanuit te faden, skapi. Doe eerst TAKE op één cue, kies dan de andere en geef hem een tijd.
+That was a cut, skapi. Fast, but not a crossfade. Pick the other cue, press + on transition, then TAKE.	Dat was een knip, skapi. Snel, maar geen crossfade. Kies de andere cue, druk op + bij overgang, dan TAKE.
+A feedback loop! Output patched straight back into the desk. Happens to the best of us. Mostly to me. 1983. We don't talk about 1983.	Een feedbacklus! Uitgang rechtstreeks terug in de regietafel gepatcht. Gebeurt de besten. Vooral mij. 1983. Over 1983 praten we niet.
+No more rakia. The rat has a problem.	Geen rakia meer. De rat heeft een probleem.
+Nazdrave, skapi! Baba's rakia, from the Rhodopes. One glass, for the lesson.	Nazdrave, skapi! Oma's rakia, uit de Rodopen. Eén glaasje, voor de les.
+Is this... is this allowed during a tutorial?	Mag dit... mag dit tijdens een tutorial?
+*shakes head* That means one more.	*schudt het hoofd* Dat betekent nog eentje.
+I love you all. I love the oscillator. I love the OUTPUT. It's video. I know. I KNOW.	Ik hou van jullie allemaal. Ik hou van de oscillator. Ik hou van de UITGANG. Het is video. Ik weet het. IK WEET HET.
+...and the rat took the rakia. Every time, skapi. Every single time.	...en de rat nam de rakia. Elke keer, skapi. Elke keer weer.
+Was that a rat? In a hat? With a pizza?	Was dat een rat? Met een hoed? Met een pizza?
+Stop that. I am a serious man.	Hou op. Ik ben een serieus man.
+Do not tell Dr. Pixel about this.	Vertel dit niet aan dokter Pixel.
+This never happened. Back to the patch bay.	Dit is nooit gebeurd. Terug naar het patchpaneel.
+It was the eighties. Everyone had a bow tie.	Het waren de jaren tachtig. Iedereen had een strikje.
+LESSON LIST	LESSENLIJST
+OPEN EXAMPLE SHOWS	VOORBEELDSHOWS OPENEN
+EXIT (Esc)	AFSLUITEN (Esc)
+Taking it on the road	De show op tournee
+CHECK a show before it travels, fix what it finds, and bundle it with its media.	Doe een CHECK voor de show op reis gaat, los op wat hij vindt, en bundel hem met zijn media.
+Effects, oscillators and colour	Effecten, oscillators en kleur
+An effect, a ~ on its knob, and the colour picker.	Een effect, een ~ op de knop, en de kleurkiezer.
+The art school crit, with Mr. Salty	De kunstacademie-crit, met Mr. Salty
+Patterns, synths and Draw	Testbeelden, synths en Draw
+A test pattern, the video synth, and drawing on the picture, saved as a still.	Een testbeeld, de videosynth, en tekenen op het beeld, opgeslagen als still.
+The telestrator booth, with Coach Marv	De telestratorcabine, met Coach Marv
+Masks	Maskers
+A heart from the library, the pen, invert and feather.	Een hart uit de bibliotheek, de pen, omkeren en verzachten.
+The Signal Files: redact the evidence	De Signaaldossiers: wis het bewijs
+Warp, blend and slices	Warp, blend en slices
+A corner pin, two soft edges, then three slices in the Screens window.	Een corner pin, twee zachte randen, dan drie slices in het Screens-venster.
+The haunted lighthouse, with Keeper Rook	De spookvuurtoren, met wachter Rook
+GO from anywhere	GO van overal
+Cue numbers, GOTO, a hotkey, and where Companion, MIDI and OSC come in.	Cuenummers, GOTO, een sneltoets, en waar Companion, MIDI en OSC binnenkomen.
+The game show, with Donna Wheel	De spelshow, met Donna Wheel
+Words on screen	Woorden op het scherm
+A Lower Third with a name on it, then a title card with a key-green backdrop.	Een naambalk met een naam, dan een titelkaart met een groene keyachtergrond.
+The kaiju weather report, with June O'Neil	Het kaiju-weerbericht, met June O'Neil
+Keeping time	De tijd bewaken
+A stage timer counting down, held, and a presenter view for the person on stage.	Een podiumtimer die aftelt, gepauzeerd, en een presentatorweergave voor wie op het podium staat.
+A grand day out, with Wallis and Grommet	Een groot avontuur, met Wallis en Grommet
+Two playlists and TAKE ALL	Twee playlists en TAKE ALL
+A second playlist as a layer, and TAKE ALL so two things change on one beat.	Een tweede playlist als laag, en TAKE ALL zodat twee dingen op één tel veranderen.
+The magic show, with Turnip Top	De goochelshow, met Turnip Top
+When it goes wrong	Als het misgaat
+BLACK against PANIC, and getting a show back.	BLACK tegenover PANIC, en een show terugkrijgen.
+The cooking show, with Chef Bork	De kookshow, met Chef Bork
+Capture a look on a DASH button, change everything, and get it back with one press.	Leg een look vast op een DASH-knop, verander alles, en krijg hem terug met één druk.
+Transitions	Overgangen
+The styles beyond the crossfade: an iris, a shatter, and their times.	De stijlen voorbij de crossfade: een iris, een shatter en hun tijden.
+The space-opera trailer, with Optimus Primetime	De space-operatrailer, met Optimus Primetime
+Sound	Geluid
+An audio effect on a cue, a bend that damages it beautifully, and where the patch lives.	Een audio-effect op een cue, een bend die hem prachtig beschadigt, en waar de patch woont.
+The robot DJs, with Deft Funk	De robot-dj's, met Deft Funk
+Reading the scopes	De scopes lezen
+The waveform, the vectorscope, and false colour: is the glow real, or just too bright?	De golfvorm, de vectorscoop en valse kleur: is de gloed echt, of gewoon te fel?
+The Signal Files: is the glow on the horizon a craft?	De Signaaldossiers: is de gloed aan de horizon een schip?
+Out of the building	Het gebouw uit
+Where NDI, SDI and ST 2110 live, and NDI switched on where this computer has it.	Waar NDI, SDI en ST 2110 wonen, en NDI aan waar deze computer het heeft.
+The webcam as a controller, as a game. Five rounds, a high score.	De webcam als controller, als spel. Vijf rondes, een highscore.
+A handheld, and bugs	Een handheld, en bugs
+The multiview	De multiview
+Windows, the ... menu, what each one shows, layouts, and tally.	Vensters, het ...-menu, wat elk laat zien, layouts en tally.
+Mystery on the starship Cathode, with Lt. Haila and Ensign Jinkley	Mysterie op ruimteschip Cathode, met Lt. Haila en vaandrig Jinkley
+DR. PIXEL: Two playlists: Deckboy becomes SUPER DECKBOY. It earned it, skapi.	DR. PIXEL: Twee playlists: Deckboy wordt SUPER DECKBOY. Verdiend, skapi.
+PROF. VIDEO: It evolved! My oscillators never got a fanfare.	PROF. VIDEO: Hij is geëvolueerd! Mijn oscillators kregen nooit een fanfare.
+DR. PIXEL: SUPER DECKBOY! Every show deserves one. Bravo.	DR. PIXEL: SUPER DECKBOY! Elke show verdient er een. Bravo.
+PROF. VIDEO: The power-up! More playlists, more layers, more super.	PROF. VIDEO: De power-up! Meer playlists, meer lagen, meer super.
+Intro video (left on the office PC)	Introvideo (vergeten op de kantoor-pc)
+ON THE ROAD	OP TOURNEE
+A show you built here, skapi, running on a laptop somewhere else tonight. Press START.	Een show die je hier bouwde, skapi, draait vanavond op een laptop ergens anders. Druk op START.
+Before it travels: check it, fix it, bundle it.	Voor hij op reis gaat: controleren, repareren, bundelen.
+See CHECK in the top bar? It only appears when something is wrong. Press it.	Zie je CHECK in de bovenbalk? Die verschijnt alleen als er iets mis is. Druk erop.
+It lists everything a show would trip over: missing files, empty cues, unreachable outputs.	Hij somt alles op waar een show over zou struikelen: ontbrekende bestanden, lege cues, onbereikbare uitgangen.
+FIX IT	REPAREER HET
+The intro video is on another computer. Select it and delete it, or RELINK it if you have the file.	De introvideo staat op een andere computer. Selecteer en verwijder hem, of doe RELINK als je het bestand hebt.
+Fix it at home, where it is easy. Not at the venue, where it is not.	Repareer het thuis, waar het makkelijk is. Niet op locatie, waar het dat niet is.
+BUNDLE IT	BUNDEL HEM
+Press BUNDLE and choose where: a USB stick, a shared folder. The show and all its media, together.	Druk op BUNDELEN en kies waar: een usb-stick, een gedeelde map. De show en al zijn media, samen.
+The copy finds its media beside it, wherever the folder goes.	De kopie vindt zijn media naast zich, waar de map ook heen gaat.
+SAFE TRAVELS	GOEDE REIS
+Checked, fixed, bundled. On the other machine, open the bundle's show: everything is where it should be.	Gecontroleerd, gerepareerd, gebundeld. Open op de andere machine de show uit de bundel: alles staat waar het hoort.
+A show file is only text, so it travels light. The media is the heavy part.	Een showbestand is alleen tekst, dus het reist licht. De media zijn het zware deel.
+Student work no. 4 (untitled)	Studentenwerk nr. 4 (zonder titel)
+THE CRIT	DE CRIT
+An art school, skapi. One student, one picture, one critic who has seen it all. Press START.	Een kunstacademie, skapi. Eén student, één beeld, één criticus die alles al gezien heeft. Druk op START.
+Effects change a picture; an oscillator keeps changing it. The critic only likes the second kind.	Effecten veranderen een beeld; een oscillator blijft het veranderen. De criticus houdt alleen van het tweede soort.
+A grey square on beige. I have seen this at every graduate show since 1987.	Een grijs vierkant op beige. Dat zie ik op elke eindexamenexpositie sinds 1987.
+AN EFFECT	EEN EFFECT
+In the inspector's EFFECTS section, + adds one. Edges is a good start: it draws the outlines.	In de EFFECTS-sectie van de inspector voegt + er een toe. Edges is een goed begin: het tekent de omtrekken.
+There are dozens. Every one runs on the CPU in a few milliseconds. Mostly.	Er zijn er tientallen. Elk draait op de CPU in een paar milliseconden. Meestal.
+Take a risk! Bad art is fine. Boring art is a crime.	Neem een risico! Slechte kunst mag. Saaie kunst is een misdaad.
+A ~ ON ITS KNOB	EEN ~ OP DE KNOP
+Every control with a ~ beside it can follow an oscillator. Press one. The knob starts to breathe.	Elke regelaar met een ~ ernaast kan een oscillator volgen. Druk er een in. De knop begint te ademen.
+A low-frequency oscillator: slow, so the eye can follow it. A quarter of a hertz is a four-second breath.	Een laagfrequente oscillator: traag, zodat het oog hem kan volgen. Een kwart hertz is een ademhaling van vier seconden.
+Now it MOVES. Okay. Okay. I'm listening.	Nu BEWEEGT het. Oké. Oké. Ik luister.
+A COLOUR OF ITS OWN	EEN EIGEN KLEUR
+Effects that draw a colour, like Edges' line, have a colour chip. It opens the picker: a wheel, typed names, or a colour off the screen.	Effecten die een kleur tekenen, zoals de lijn van Edges, hebben een kleurvakje. Dat opent de kiezer: een wiel, getypte namen, of een kleur van het scherm.
+Every colour has a name somewhere. Mine is 'oscilloscope green'. Nobody else uses it.	Elke kleur heeft ergens een naam. De mijne is 'oscilloscoopgroen'. Niemand anders gebruikt hem.
+That colour is doing something. I don't know what. I love it.	Die kleur doet iets. Ik weet niet wat. Ik vind het geweldig.
+THE VERDICT	HET OORDEEL
+An effect, a ~ and a colour. The critic is crying, skapi. Good crying, I think.	Een effect, een ~ en een kleur. De criticus huilt, skapi. Van ontroering, denk ik.
+Stack a few. Each has its own ~ on every knob. That is how a look becomes a performance.	Stapel er een paar. Elk heeft zijn eigen ~ op elke knop. Zo wordt een look een performance.
+It's still a square. But it's YOUR square. Post it.	Het is nog steeds een vierkant. Maar het is JOUW vierkant. Post het.
+THE TELESTRATOR BOOTH	DE TELESTRATORCABINE
+Coach Marv explains sport by drawing circles on it. Once he circled the sun. Ten minutes, skapi.	Coach Marv legt sport uit door er cirkels op te tekenen. Hij heeft ooit de zon omcirkeld. Tien minuten, skapi.
+Tonight: test patterns, the video synth, and drawing on the picture. Press START.	Vanavond: testbeelden, de videosynth en tekenen op het beeld. Druk op START.
+Get me a picture and a pen. BOOM.	Geef me een beeld en een pen. BOEM.
+A TEST PATTERN	EEN TESTBEELD
+Line up the screens BEFORE the show. Not during. I learned this in Plovdiv.	Lijn de schermen uit VOOR de show. Niet tijdens. Dat heb ik in Plovdiv geleerd.
+Every desk needs a test pattern. PATTERN adds Pocket Test: checked against real meters.	Elke regietafel heeft een testbeeld nodig. TESTBEELD voegt Pocket Test toe: gecontroleerd met echte meters.
+A VIDEO SYNTH	EEN VIDEOSYNTH
+He says 'no camera needed' like it is a feature. It is a feature.	Hij zegt 'geen camera nodig' alsof het een feature is. Het is een feature.
+My favourite. SOURCE, then Video Synth: oscillators, mirrors and feedback. No camera needed.	Mijn favoriet. BRON, dan Video Synth: oscillators, spiegels en feedback. Geen camera nodig.
+TAKE THE SYNTH	TAKE DE SYNTH
+Select it, then TAKE. Confident operators press Enter.	Selecteer hem, dan TAKE. Zelfverzekerde operators drukken op Enter.
+That's our replay. Every replay needs a pundit.	Dat is onze herhaling. Elke herhaling heeft een analist nodig.
+Now here's a replay. And here's a guy. And BOOM, he's in it.	Hier is de herhaling. Hier is de speler. En BOEM, hij zit erin.
+A SECOND PLAYLIST	EEN TWEEDE PLAYLIST
+Ink goes on top, on its own layer. Press the + at the end of the playlist tabs.	Inkt gaat bovenop, op zijn eigen laag. Druk op de + aan het eind van de playlisttabs.
+A second playlist is a layer over the first. Like a second oscillator, mixed on top.	Een tweede playlist is een laag boven de eerste. Zoals een tweede oscillator, er bovenop gemixt.
+A DRAW CUE	EEN DRAW-CUE
+In the new playlist: SOURCE, then Draw. Clear everywhere you have not drawn.	In de nieuwe playlist: BRON, dan Draw. Doorzichtig overal waar je niet getekend hebt.
+A Draw cue is transparent outside the ink, so the synth shows through.	Een Draw-cue is doorzichtig buiten de inkt, dus de synth schijnt erdoor.
+TAKE THE INK	TAKE DE INKT
+Select the Draw cue and TAKE it. Two playlists, two layers, one picture.	Selecteer de Draw-cue en doe TAKE. Twee playlists, twee lagen, één beeld.
+Now both are live: the synth underneath, the ink on top.	Nu zijn ze allebei live: de synth eronder, de inkt erop.
+CIRCLE SOMETHING	OMCIRKEL IETS
+Press DRAW in the inspector, then draw on the programme monitor. Mouse, or a pen if you have one.	Druk op DRAW in de inspector en teken op de programmamonitor. Met de muis, of een pen als je die hebt.
+A pen's pressure makes the line thicker. A mouse presses at one strength. Like me.	De druk van een pen maakt de lijn dikker. Een muis drukt altijd even hard. Net als ik.
+Circle him! No, bigger. BOOM. That's a cloud. Fine. Circle the cloud.	Omcirkel hem! Nee, groter. BOEM. Dat is een wolk. Prima. Omcirkel de wolk.
+SAVE A STILL	SLA EEN STILL OP
+SAVE STILL keeps the drawing as a picture with a clear background, and adds it to the playlist.	SAVE STILL bewaart de tekening als beeld met een doorzichtige achtergrond en zet hem in de playlist.
+For next week's show. Coach Marv will want the cloud again.	Voor de uitzending van volgende week. Coach Marv wil de wolk weer.
+THAT'S THE BOOTH	DAT WAS DE CABINE
+Patterns, the synth, a layer, ink, a still. Nazdrave, skapi.	Testbeelden, de synth, een laag, inkt, een still. Nazdrave, skapi.
+Try Replay in the Draw section: it draws your lines back the way you drew them.	Probeer Replay in de Draw-sectie: het tekent je lijnen opnieuw zoals je ze tekende.
+Same time next week. Bring a bigger pen. And a turducken.	Volgende week zelfde tijd. Neem een dikkere pen mee. En een pan stamppot.
+Saucer photo (CLASSIFIED)	Foto van de schotel (GEHEIM)
+THE SIGNAL FILES	DE SIGNAALDOSSIERS
+The Bureau of Unexplained Signals. Two agents, one photo, and it must not air. Press START.	Het Bureau voor Onverklaarbare Signalen. Twee agenten, één foto, en die mag niet uitgezonden worden. Druk op START.
+Masks cut a picture into shapes. Tonight we cut evidence.	Maskers knippen een beeld in vormen. Vanavond knippen we bewijs.
+That's a craft, Brandt. Look at the lights. I want to believe.	Dat is een schip, Brandt. Kijk naar de lichten. Ik wil geloven.
+A MASK FROM THE LIBRARY	EEN MASKER UIT DE BIBLIOTHEEK
+In the inspector's MASK section: mask, then 'new heart'. Any shape will do. The heart is funnier.	In de MASK-sectie van de inspector: mask, dan 'new heart'. Elke vorm is goed. Het hart is grappiger.
+The library has circles, stars, hearts. Each one is points you can move.	De bibliotheek heeft cirkels, sterren, harten. Elke vorm bestaat uit punten die je kunt verplaatsen.
+A heart, Hollis? The Bureau redacts with black bars.	Een hart, Hollis? Het Bureau maakt zwart met zwarte balken.
+THE PEN	DE PEN
+Set the tool to pen, then click round the saucer on the monitor. Click the first point to close it.	Zet het gereedschap op pen en klik rond de schotel op de monitor. Klik op het eerste punt om hem te sluiten.
+Click for corners, drag for curves. The way the Bezier brothers intended.	Klikken voor hoeken, slepen voor bochten. Zoals de gebroeders Bézier het bedoeld hebben.
+Draw round it carefully. It might be watching.	Teken er voorzichtig omheen. Hij kijkt misschien.
+INVERT	OMKEREN
+Invert keeps the outside and cuts the inside. The saucer goes. The sky stays.	Omkeren houdt de buitenkant en knipt de binnenkant weg. De schotel gaat. De lucht blijft.
+The same shape, the other way round. Very useful. Slightly spooky.	Dezelfde vorm, andersom. Heel handig. Een beetje eng.
+Hollis, there's a heart-shaped hole in the sky.	Hollis, er zit een hartvormig gat in de lucht.
+FEATHER	VERZACHTEN
+Feather softens the edge, so nobody sees the cut. Press + on feather.	Verzachten maakt de rand zacht, zodat niemand de knip ziet. Druk op + bij feather.
+A hard edge says 'someone was here'. A soft one says nothing at all.	Een harde rand zegt 'hier is iemand geweest'. Een zachte zegt helemaal niets.
+They'll never know.	Ze komen er nooit achter.
+CASE CLOSED	ZAAK GESLOTEN
+A library shape, the pen, invert and feather. The Bureau thanks you. The Bureau was never here.	Een bibliotheekvorm, de pen, omkeren en verzachten. Het Bureau dankt u. Het Bureau is hier nooit geweest.
+Masks also go on a layer, an output, or its matte: MASK ON chooses. And every control takes a ~.	Maskers gaan ook op een laag, een uitgang of de matte ervan: MASK ON kiest. En elke regelaar neemt een ~.
+The truth is in the waveform, Hollis. Next time, the scopes.	De waarheid zit in de golfvorm, Hollis. Volgende keer: de scopes.
+The ghost	Het spook
+THE HAUNTED LIGHTHOUSE	DE SPOOKVUURTOREN
+A lighthouse, a ghost, and a keeper who has been alone with the lamp far too long. Press START.	Een vuurtoren, een spook en een wachter die veel te lang alleen met de lamp is geweest. Druk op START.
+Projection mapping: bending the picture to fit the building. Warp, blend, slices.	Projection mapping: het beeld buigen tot het op het gebouw past. Warp, blend, slices.
+Ye'll be wanting the ghost on the windows. Mind the lamp. The lamp is MINE.	Jullie willen het spook op de ramen, hè? Pas op de lamp. De lamp is VAN MIJ.
+THE OUTPUT'S GEOMETRY	DE GEOMETRIE VAN DE UITGANG
+MENU, then Video Outputs, then Geometry. Where an output's shape lives.	MENU, dan Video-uitgangen, dan Geometrie. Daar woont de vorm van een uitgang.
+Geometry: the projector-menu word for 'what shape is the picture'.	Geometrie: het woord uit projectormenu's voor 'welke vorm heeft het beeld'.
+PIN A CORNER	PIN EEN HOEK VAST
+Press warp edit, then drag a corner on the programme monitor. The window is not square. Neither is the keeper.	Druk op warp edit en sleep een hoek op de programmamonitor. Het raam is niet vierkant. De wachter ook niet.
+A corner pin moves the four corners. Perspective keeps the lines straight, like a real window.	Een corner pin verplaatst de vier hoeken. Perspectief houdt de lijnen recht, als een echt raam.
+LEFT! Ye call that a corner? I've seen straighter gulls.	LINKS! Noem jij dat een hoek? Ik heb rechtere meeuwen gezien.
+TWO SOFT EDGES	TWEE ZACHTE RANDEN
+Back in Geometry: edge blend, + on the left and + on the right.	Terug in Geometrie: edge blend, + links en + rechts.
+Two projectors overlap; each fades its edge so the overlap is not twice as bright.	Twee projectoren overlappen; elk laat zijn rand uitfaden zodat de overlap niet twee keer zo fel is.
+THE SCREENS WINDOW	HET SCREENS-VENSTER
+Geometry, SLICES, open. The Screens window is where slices are cut and placed.	Geometrie, SLICES, openen. In het Screens-venster worden slices gesneden en geplaatst.
+A slice is a piece of the picture, put anywhere on the output.	Een slice is een stuk van het beeld, waar dan ook op de uitgang gezet.
+THREE SLICES	DRIE SLICES
+In the Screens window, + SLICE three times, and drag each crop to a third of the picture.	Druk in het Screens-venster drie keer op + SLICE en sleep elke uitsnede naar een derde van het beeld.
+Three windows, three slices: left, middle and right of one picture.	Drie ramen, drie slices: links, midden en rechts van één beeld.
+Three windows. The lamp gets the middle one. The lamp ALWAYS gets the middle one.	Drie ramen. De lamp krijgt het middelste. De lamp krijgt ALTIJD het middelste.
+THE GHOST IS PLEASED	HET SPOOK IS TEVREDEN
+Warp, blend, slices. The keeper will finally sleep. The gulls will not.	Warp, blend, slices. De wachter gaat eindelijk slapen. De meeuwen niet.
+Slices have their own warp and mesh in the Screens window. And a ~ on the place and the turn.	Slices hebben hun eigen warp en mesh in het Screens-venster. En een ~ op plek en draaiing.
+Ye did alright, lad. Now get away from the lamp.	Goed gedaan, jochie. Ga nu weg bij de lamp.
+THE GAME SHOW	DE SPELSHOW
+A game show, skapi. Three contestants, one buzzer, and cues that fire from anywhere. Press START.	Een spelshow, skapi. Drie kandidaten, één buzzer en cues die van overal afgaan. Druk op START.
+Cue numbers, hotkeys, and GO from other machines. Like a sequencer you can play from any key.	Cuenummers, sneltoetsen en GO vanaf andere machines. Zoals een sequencer die je met elke toets bespeelt.
+Welcome to the show! Let's spin that wheel!	Welkom bij de show! Draai aan het Rad van Fortuin!
+A CUE NUMBER	EEN CUENUMMER
+Contestant 3 is selected. In the inspector's metadata, give it a cue number: 3.	Kandidaat 3 is geselecteerd. Geef hem in de metadata van de inspector een cuenummer: 3.
+Theatre numbers its cues. Q3, Q3.5, Q12A. Deckboy reads them all.	Het theater nummert zijn cues. Q3, Q3.5, Q12A. Deckboy leest ze allemaal.
+I'd like to buy a number, please.	Ik wil graag een nummer kopen.
+GO TO IT	GA ERHEEN
+Ctrl+G, type the number, Enter. It goes live wherever the list happens to be standing.	Ctrl+G, typ het nummer, Enter. Hij gaat live, waar de lijst ook staat.
+GOTO. The fastest way across a long list. Faster than scrolling. Much faster than me.	GOTO. De snelste weg door een lange lijst. Sneller dan scrollen. Veel sneller dan ik.
+And the number is... three!	En het nummer is... drie!
+A BUZZER	EEN BUZZER
+Contestant 1 is selected. In TRIGGERS, press key, then F5. That key now fires this cue.	Kandidaat 1 is geselecteerd. Druk in TRIGGERS op key, dan F5. Die toets start nu deze cue.
+F1 to F10, F12, or the number pad. Each one, a buzzer.	F1 tot F10, F12 of het numerieke toetsenblok. Elk een buzzer.
+Every contestant gets a buzzer.	Elke kandidaat krijgt een buzzer.
+BUZZ IN	DRUK!
+Press the key. The cue fires, wherever the list is standing.	Druk op de toets. De cue gaat af, waar de lijst ook staat.
+No mouse, no list, no looking. Just the key.	Geen muis, geen lijst, niet kijken. Alleen de toets.
+Buzz! We have a winner!	Bzzzt! We hebben een winnaar!
+FROM ANYWHERE	VAN OVERAL
+Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion, een MIDI-noot, een OSC-bericht: MENU, dan Netwerk, zegt waar elk verbindt.
+A Stream Deck in the next room can press GO. So can a keyboard synth. I prefer the synth.	Een Stream Deck in de kamer ernaast kan op GO drukken. Een keyboard-synth ook. Ik heb liever de synth.
+And for our viewers at home: you can play along too.	En voor de kijkers thuis: jullie kunnen meespelen.
+THAT'S OUR SHOW	DAT WAS ONZE SHOW
+Numbers, GOTO, a buzzer, and GO from anywhere. You are a game show now, skapi.	Nummers, GOTO, een buzzer en GO van overal. Je bent nu zelf een spelshow, skapi.
+A cue can have a key, a MIDI note and an OSC address at once. Belt, braces and a second belt.	Een cue kan tegelijk een toets, een MIDI-noot en een OSC-adres hebben. Riem, bretels en nog een riem.
+Goodnight, everybody! Keep spinning!	Welterusten allemaal! Blijf draaien!
+Weather map	Weerkaart
+THE KAIJU WEATHER	HET KAIJU-WEER
+Channel 6 weather, skapi. A map, a presenter, and a very large lizard. Press START.	Het weer op Kanaal 6, skapi. Een kaart, een presentatrice en een heel grote hagedis. Druk op START.
+Words on screen: Lower Thirds, text, and backdrops.	Woorden op het scherm: naambalken, tekst en achtergronden.
+I'm June O'Neil, and nothing about this forecast is normal.	Ik ben June O'Neil, en niets aan deze verwachting is normaal.
+A LAYER FOR WORDS	EEN LAAG VOOR WOORDEN
+Words go on their own layer: press the + at the end of the playlist tabs.	Woorden gaan op hun eigen laag: druk op de + aan het eind van de playlisttabs.
+A second playlist is a layer over the map. The lizard stays underneath. Mostly.	Een tweede playlist is een laag boven de kaart. De hagedis blijft eronder. Meestal.
+Words on top. Always on top.	Woorden bovenop. Altijd bovenop.
+A LOWER THIRD	EEN NAAMBALK
+In the new playlist: SOURCE, then Lower Third.	In de nieuwe playlist: BRON, dan Lower Third.
+A name and a title, low on the screen, out of the lizard's way.	Een naam en een functie, laag in beeld, uit de buurt van de hagedis.
+HER NAME	HAAR NAAM
+In the inspector, title: type the presenter's name. The second line is her job.	Typ in de inspector bij title de naam van de presentatrice. De tweede regel is haar functie.
+Spelling counts. The audience reads it at the speed of light.	Spelling telt. Kijkers lezen met de snelheid van het licht.
+Spell it right. Last week it said 'Jane O'Meal'.	Spel het goed. Vorige week stond er 'June O'Nijl'.
+ON AIR	IN DE LUCHT
+TAKE the Lower Third. Her name slides in over the map.	TAKE de naambalk. Haar naam schuift over de kaart.
+Two layers live: the weather, and the words on top of it.	Twee lagen live: het weer, en de woorden erbovenop.
+Thank you. Now, about that lizard...	Dank je. Goed, over die hagedis...
+BREAKING NEWS	EXTRA NIEUWS
+SOURCE, then Text: a title card. Then its backdrop chip: key green, for the vision mixer to key out.	BRON, dan Text: een titelkaart. Dan het achtergrondvakje: keygroen, zodat de beeldmenger het weg kan keyen.
+A backdrop fills behind the words. Key green or key blue, and the mixer does the rest.	Een achtergrond vult achter de woorden. Keygroen of keyblauw, en de menger doet de rest.
+Breaking news: it's standing on the five-day forecast.	Extra nieuws: hij staat op de vijfdaagse verwachting.
+BREAKING: KAIJU	EXTRA: KAIJU
+BACK TO YOU	TERUG NAAR DE STUDIO
+A Lower Third, a name, a title card, a backdrop. The lizard has left the studio, skapi.	Een naambalk, een naam, een titelkaart, een achtergrond. De hagedis heeft de studio verlaten, skapi.
+Lower Thirds can wait, slide and leave on their own. Their section has every setting.	Naambalken kunnen zelf wachten, inschuiven en vertrekken. Hun sectie heeft elke instelling.
+That's the weather. Back to you, guys. Run.	Dat was het weer. Terug naar de studio. Rennen.
+A GRAND DAY OUT	EEN GROOT AVONTUUR
+A rocket built in a basement, skapi, and an inventor who wants cheese. Press START.	Een raket gebouwd in een kelder, skapi, en een uitvinder die kaas wil. Druk op START.
+Stage timers: countdowns, clocks, and a presenter view for the person on stage.	Podiumtimers: aftellen, klokken en een presentatorweergave voor wie op het podium staat.
+Cheese, Grommet! The moon's made of it. We'll need a countdown.	Kaas, Grommet! De maan is ervan gemaakt. We hebben een aftelling nodig.
+A COUNTDOWN	EEN AFTELLING
+SOURCE, then Stage Timer. A clock that counts down, in big friendly numbers.	BRON, dan Stage Timer. Een klok die terugtelt, in grote vriendelijke cijfers.
+Its colours change as it runs out: white, amber, red. Like a VU meter for time.	De kleuren veranderen naarmate de tijd opraakt: wit, amber, rood. Een VU-meter voor tijd.
+*raises an eyebrow*	*trekt een wenkbrauw op*
+LIFT OFF	LANCERING
+Select the timer and TAKE it. The countdown starts.	Selecteer de timer en doe TAKE. De aftelling begint.
+Past zero it keeps going, counting the overtime. Very honest. Slightly rude.	Na nul telt hij door, de overtijd. Heel eerlijk. Een beetje onbeleefd.
+Ten... nine... ooh, I do love a countdown.	Tien... negen... oh, ik ben dol op een aftelling.
+HOLD!	STOP!
+Something's loose! Space holds the countdown. The clock shows it is held.	Er zit iets los! Spatie pauzeert de aftelling. De klok laat zien dat hij gepauzeerd is.
+A hold is not a stop. Space again, and it carries on from where it was.	Pauzeren is niet stoppen. Nog eens spatie, en hij gaat verder waar hij was.
+*holds up a spanner*	*houdt een moersleutel omhoog*
+THE PILOT'S VIEW	HET ZICHT VAN DE PILOOT
+MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	MENU, Video-uitgangen: maak het type van een uitgang PRESENTER. Wie op het podium staat, ziet de timer, de volgende cue en zijn aantekeningen.
+A presenter view is an output like any other. Point it at the confidence monitor.	Een presentatorweergave is een uitgang als elke andere. Richt hem op de confidence monitor.
+So the pilot can see the time. The pilot is Grommet.	Zodat de piloot de tijd kan zien. De piloot is Grommet.
+TO THE MOON	NAAR DE MAAN
+A countdown, a hold, and a view for the pilot. Nazdrave, skapi. Bring crackers.	Een aftelling, een pauze en een weergave voor de piloot. Nazdrave, skapi. Neem crackers mee.
+Timers can also count up, or show the time of day. Their section has the lot.	Timers tellen ook op, of tonen de tijd. Hun sectie heeft alles.
+A grand day out, Grommet! Pass the crackers.	Wat een avontuur, Grommet! Geef de crackers eens.
+The trunk (closed)	De koffer (dicht)
+The trunk (open)	De koffer (open)
+THE MAGIC SHOW	DE GOOCHELSHOW
+A magic show, skapi. A trunk, a prop, and one beat where everything changes at once. Press START.	Een goochelshow, skapi. Een koffer, een prop en één tel waarin alles tegelijk verandert. Druk op START.
+Two playlists are two layers. TAKE ALL changes both together.	Twee playlists zijn twee lagen. TAKE ALL verandert ze allebei tegelijk.
+Every trick needs two things happening at once. And a rubber chicken.	Elke truc heeft twee dingen tegelijk nodig. En een rubberen kip.
+The prop goes on its own layer. Press the + at the end of the playlist tabs.	De prop gaat op zijn eigen laag. Druk op de + aan het eind van de playlisttabs.
+Playlist 2 sits on top of playlist 1. Like a transparency on an overhead projector.	Playlist 2 ligt bovenop playlist 1. Zoals een sheet op een overheadprojector.
+Nothing up my sleeve. Everything in my trunk.	Niets in mijn mouw. Alles in mijn koffer.
+THE PROP	DE PROP
+In the new playlist, add anything: PATTERN will do. That is the prop.	Voeg in de nieuwe playlist iets toe: TESTBEELD is goed. Dat is de prop.
+Whatever it is, it will appear the instant the trunk opens.	Wat het ook is, het verschijnt op het moment dat de koffer opengaat.
+Is it a rubber chicken? It's always a rubber chicken.	Is het een rubberen kip? Het is altijd een rubberen kip.
+The prop (rubber chicken)	De prop (rubberen kip)
+TA-DA	TADAA
+Select 'The trunk (open)' in playlist 1 and the prop in playlist 2. Then TAKE ALL: both on one beat.	Selecteer 'De koffer (open)' in playlist 1 en de prop in playlist 2. Dan TAKE ALL: allebei op één tel.
+One press, every playlist's selected cue. The audience never sees the seam.	Eén druk, de geselecteerde cue van elke playlist. Het publiek ziet nooit de naad.
+Ta-daaa! ...Hold for applause. Hold. Hold.	Tadaaa! ...Wacht op applaus. Wacht. Wacht.
+THE PRESTIGE	DE GROTE TRUC
+Two layers, one beat. Every playlist has its own opacity and can sit on any output. Nazdrave, skapi.	Twee lagen, één tel. Elke playlist heeft zijn eigen dekking en kan op elke uitgang staan. Nazdrave, skapi.
+A magician never reveals. A playlist never minds being revealed.	Een goochelaar verklapt nooit iets. Een playlist vindt het niet erg om verklapt te worden.
+Thank you! I'm here all week! The chicken is here forever.	Dank je wel! Ik sta hier de hele week! De kip blijft voor altijd.
+The kitchen (on fire)	De keuken (in brand)
+A lovely souffle	Een heerlijke soufflé
+THE COOKING SHOW	DE KOOKSHOW
+A cooking show, skapi. Live. Everything is on fire. Press START.	Een kookshow, skapi. Live. Alles staat in brand. Druk op START.
+BLACK hides the picture and keeps the show running. PANIC stops everything. Know which you need.	BLACK verbergt het beeld en de show loopt door. PANIC stopt alles. Weet welke je nodig hebt.
+Bork bork! Hurdy-flurdy, de kitchen is fire-a-flurdy!	Bork bork! Hurdy-flurdy, de keuken staat in brand-flurdy!
+The audience must not see this. Press BLACK, or B.	Het publiek mag dit niet zien. Druk op BLACK, of B.
+The picture goes. The cue keeps playing underneath, ready to come back.	Het beeld verdwijnt. De cue speelt eronder door, klaar om terug te komen.
+Bork? Bork. Oh, de picture is gun.	Bork? Bork. O, het beeld is weg.
+AND BACK	EN TERUG
+The fire's out. Press B again: the picture comes back, still running.	Het vuur is uit. Druk nog eens op B: het beeld komt terug, nog steeds lopend.
+Nothing was lost. A mute on a mixer, for pictures.	Niets is verloren. Een mute op een mengtafel, voor beelden.
+Ta-da! Still cookin'!	Tadaa! Nog steeds aan het koken!
+Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	Erger: MENU, Systeem, de SAFETY-kaart: PANIC. Alles stopt, zoals de paniekinstelling zegt.
+PANIC is the big red button. Use it when BLACK is not enough. Then breathe.	PANIC is de grote rode knop. Gebruik hem als BLACK niet genoeg is. Haal dan adem.
+GET IT BACK	HAAL HEM TERUG
+Close MENU, select the souffle, and TAKE it. The show is back on.	Sluit MENU, selecteer de soufflé en doe TAKE. De show is terug.
+After a panic, the show is still there. Pick up where you meant to be.	Na een paniek is de show er nog steeds. Ga verder waar je wilde zijn.
+Voila! De souffle, he is risen!	Voilà! De soufflé, hij is gerezen!
+BON APPETIT	EET SMAKELIJK
+BLACK to hide, PANIC to stop, TAKE to come back. You will survive any kitchen, skapi.	BLACK om te verbergen, PANIC om te stoppen, TAKE om terug te komen. Jij overleeft elke keuken, skapi.
+The panic setting chooses what PANIC does: fade out, cut, or just the outputs.	De paniekinstelling kiest wat PANIC doet: uitfaden, knippen, of alleen de uitgangen.
+Bork bork bork! Goodnight!	Bork bork bork! Welterusten!
+Look one	Look één
+Look two	Look twee
+Presets, skapi. A whole look, remembered, and back with one button. Press START.	Presets, skapi. Een hele look, onthouden, en terug met één knop. Druk op START.
+Like the patch memory on a synth: store, then recall.	Zoals het patchgeheugen van een synth: opslaan, dan oproepen.
+THE DASH	DE DASH
+Press DASH: buttons of your own, for anything at all.	Druk op DASH: knoppen van jezelf, voor wat je maar wilt.
+Ctrl+D also works. Very fast. Very professional.	Ctrl+D werkt ook. Heel snel. Heel professioneel.
+A PRESET BUTTON	EEN PRESETKNOP
+Press +, then 'preset - a new preset from what is on now'. The button remembers this look.	Druk op +, dan 'preset - a new preset from what is on now'. De knop onthoudt deze look.
+Store. Like saving the patch before the drummer leans on the synth.	Opslaan. Zoals je patch opslaan voordat de drummer tegen de synth leunt.
+CHANGE EVERYTHING	VERANDER ALLES
+Close the DASH (Esc), then select Look two and TAKE it. A different look.	Sluit de DASH (Esc), selecteer dan Look twee en doe TAKE. Een andere look.
+Change it all. Don't worry. It remembers.	Verander alles. Geen zorgen. Hij onthoudt het.
+ONE PRESS	ÉÉN DRUK
+Open the DASH and press your preset button. The first look comes back.	Open de DASH en druk op je presetknop. De eerste look komt terug.
+Recall. The patch memory, returning. Beautiful.	Oproepen. Het patchgeheugen, terug. Prachtig.
+A look, stored and recalled. A preset can keep cues, positions, effects, levels and routing; its button's menu chooses which.	Een look, bewaard en opgeroepen. Een preset kan cues, posities, effecten, niveaus en routing bewaren; het menu van zijn knop kiest welke.
+And a DASH button can run any command at all. Any. Even the exciting ones.	En een DASH-knop kan elk commando uitvoeren. Elk. Zelfs de spannende.
+Opening titles	Openingstitels
+The planet	De planeet
+The battle	De strijd
+THE TRAILER	DE TRAILER
+A space-opera trailer, skapi. A narrator with a very deep voice and opinions about transitions. Press START.	Een space-operatrailer, skapi. Een verteller met een heel diepe stem en meningen over overgangen. Druk op START.
+A transition is how one cue becomes the next. There are far more than the crossfade.	Een overgang is hoe de ene cue de volgende wordt. Er zijn er veel meer dan de crossfade.
+In a galaxy of content... one operator... must choose a transition.	In een sterrenstelsel vol content... moet één operator... een overgang kiezen.
+A STYLE	EEN STIJL
+'The planet' is selected. In the inspector, its transition style: choose iris.	'De planeet' is geselecteerd. In de inspector, de overgangsstijl: kies iris.
+Pushes, wipes, iris, dip to white. Even a portal. I wrote half of them. On a Tuesday.	Duwen, wipes, iris, via wit. Zelfs een portaal. De helft heb ik geschreven. Op een dinsdag.
+The planet deserves... a dramatic entrance.	De planeet verdient... een dramatische entree.
+A TIME	EEN TIJD
+Give it a time: + on transition until it says a second or more.	Geef hem een tijd: + bij overgang tot er een seconde of meer staat.
+No time, no transition. A style needs a duration to do anything at all.	Geen tijd, geen overgang. Een stijl heeft een duur nodig om iets te doen.
+ROLL IT	DRAAIEN
+TAKE the planet. Watch it arrive.	TAKE de planeet. Kijk hoe hij aankomt.
+The transition belongs to the cue arriving. Each cue chooses its own entrance.	De overgang hoort bij de cue die binnenkomt. Elke cue kiest zijn eigen entree.
+Autobots... roll the transition.	Autobots... start de overgang.
+THE BATTLE	DE STRIJD
+Now 'The battle': choose shatter, give it a time, and TAKE it.	Nu 'De strijd': kies shatter, geef een tijd en doe TAKE.
+Shatter drops the old picture like a pane of glass. Please do not do this at a funeral.	Shatter laat het oude beeld vallen als een ruit. Doe dit alsjeblieft niet op een uitvaart.
+Transform... and shatter out!	Transformeren... en aan scherven!
+IN CINEMAS NOW	NU IN DE BIOSCOOP
+A style, a time, and two very dramatic entrances. Nazdrave, skapi.	Een stijl, een tijd en twee heel dramatische entrees. Nazdrave, skapi.
+A playlist has a default style too, for every cue that does not choose its own.	Een playlist heeft ook een standaardstijl, voor elke cue die zelf niets kiest.
+Coming soon... to a desk near you.	Binnenkort... op een regietafel bij jou in de buurt.
+The beat	De beat
+THE ROBOT DJS	DE ROBOT-DJ'S
+Two robot DJs, skapi. They do not talk. Their helmets do. Press START.	Twee robot-dj's, skapi. Ze praten niet. Hun helmen praten. Druk op START.
+Every cue has its own chain of audio effects, and some of them break the sound on purpose.	Elke cue heeft zijn eigen keten audio-effecten, en sommige breken het geluid expres.
+> HELLO. WE ARE HERE TO FIX YOUR MIX.	> HALLO. WE KOMEN JE MIX FIKSEN.
+The beat is selected. In its AUDIO EFFECTS section, + adds one. Try the delay.	De beat is geselecteerd. In zijn AUDIO EFFECTS-sectie voegt + er een toe. Probeer de delay.
+Delay, reverb, filters, a compressor. Amount always means 'less of this'.	Delay, reverb, filters, een compressor. Hoeveelheid betekent altijd 'minder hiervan'.
+> ONE MORE TIME. WITH ECHO. ECHO. ECHO.	> NOG ÉÉN KEER. MET ECHO. ECHO. ECHO.
+A BEND	EEN BEND
+Add a second: a bend, like crush. It damages the sound the way a broken file would.	Voeg een tweede toe: een bend, zoals crush. Die beschadigt het geluid zoals een kapot bestand.
+The bends are my favourite. Like a tape left in the sun. On purpose.	De bends zijn mijn favoriet. Zoals een cassette die in de zon is blijven liggen. Expres.
+> HARDER. BETTER. CRUNCHIER. LOUDER.	> HARDER. BETER. KROKANTER. LUIDER.
+THE PATCH	DE PATCH
+MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	MENU, dan Audio: waar het geluid van elke playlist heen gaat, en de patch voor benoemde uitgangen.
+Speakers, monitors, an in-ear for the drummer. The patch sends each its own.	Speakers, monitors, een in-ear voor de drummer. De patch stuurt iedereen het zijne.
+> AROUND THE MIX. AROUND THE MIX. AROUND THE MIX.	> ROND DE MIX. ROND DE MIX. ROND DE MIX.
+An effect, a bend and the patch. The robots approve, skapi. I think. Their faces are helmets.	Een effect, een bend en de patch. De robots keuren het goed, skapi. Denk ik. Hun gezichten zijn helmen.
+Every audio effect can follow a ~ too, even Motion. Wave at the delay. It's wonderful.	Elk audio-effect kan ook een ~ volgen, zelfs Motion. Zwaai naar de delay. Het is prachtig.
+> THANK YOU. GOOD NIGHT. WE ARE ROBOTS.	> DANK JE. WELTERUSTEN. WIJ ZIJN ROBOTS.
+The glow on the horizon (evidence #2)	De gloed aan de horizon (bewijs nr. 2)
+EVIDENCE #2	BEWIJS NR. 2
+The Bureau again, skapi. A glow on the horizon, and two agents who disagree about it. Press START.	Het Bureau weer, skapi. Een gloed aan de horizon, en twee agenten die het er niet over eens zijn. Druk op START.
+The scopes measure a picture: brightness, colour, levels. Numbers, not opinions.	De scopes meten een beeld: helderheid, kleur, niveaus. Getallen, geen meningen.
+It's them, Brandt. It's a craft. Look how it glows.	Zij zijn het, Brandt. Het is een schip. Kijk hoe het gloeit.
+THE REAL SIGNAL	HET ECHTE SIGNAAL
+The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	De scopes lezen alleen wat echt naar buiten gaat, nooit een preview. Zet de uitgang aan: MENU, Video-uitgangen, UITGANG UIT.
+Measuring a scaled-down preview would be measuring a photocopy. We measure the original.	Een verkleinde preview meten is een fotokopie meten. Wij meten het origineel.
+Chain of evidence, Hollis. The real signal or nothing.	Bewijsketen, Hollis. Het echte signaal of niets.
+THE SCOPES	DE SCOPES
+Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	Sluit MENU. Boven de monitor de PROGRAM-knop: druk tot er SCOPES of BOTH staat.
+Both shows the picture and its scopes side by side. Very civilised.	BOTH toont het beeld en zijn scopes naast elkaar. Heel beschaafd.
+Let the scopes decide, Hollis.	Laat de scopes beslissen, Hollis.
+THE WAVEFORM	DE GOLFVORM
+Click the waveform to make it big. Bright things sit high, dark things low, left to right as in the picture.	Klik op de golfvorm om hem groot te maken. Lichte dingen zitten hoog, donkere laag, van links naar rechts zoals in het beeld.
+The glow is that spike near the top. Very bright. Bright is not the same as alien.	De gloed is die piek bij de top. Heel fel. Fel is niet hetzelfde als buitenaards.
+Look at the peak. Nothing a streetlight couldn't do.	Kijk naar de piek. Niets wat een lantaarnpaal niet kan.
+THE VECTORSCOPE	DE VECTORSCOOP
+Click it again to go back, then click the vectorscope: colour round a circle. Saturated runs to the edge.	Klik nog eens om terug te gaan, dan op de vectorscoop: kleur rond een cirkel. Verzadigd rent naar de rand.
+Magenta, far out by the rim. A strong colour. Strong is not illegal. Yet.	Magenta, ver aan de rand. Een sterke kleur. Sterk is niet illegaal. Nog niet.
+It's off the chart, Brandt! Literally off the chart!	Het is van de schaal, Brandt! Letterlijk van de schaal!
+FALSE COLOUR	VALSE KLEUR
+And false colour: red is clipped, yellow nearly. Is the glow red?	En valse kleur: rood is geclipt, geel bijna. Is de gloed rood?
+Clipped means the brightest the signal can carry, and then some lost. Detail gone.	Geclipt betekent het felste wat het signaal kan dragen, en wat erboven zat is weg. Detail weg.
+Red. Clipped. Not alien, Hollis. Just too bright. Case closed.	Rood. Geclipt. Niet buitenaards, Hollis. Gewoon te fel. Zaak gesloten.
+THE TRUTH	DE WAARHEID
+Waveform, vectorscope, false colour. The scopes settled it, skapi. The agents did not.	Golfvorm, vectorscoop, valse kleur. De scopes hebben beslist, skapi. De agenten niet.
+SCOPES SOURCE reads any output, and the matrix can be 709 or 2020. For the curious.	SCOPES SOURCE leest elke uitgang, en de matrix kan 709 of 2020 zijn. Voor de nieuwsgierigen.
+Too bright for a streetlight, Brandt. Too bright for anything. ...I want to believe.	Te fel voor een lantaarnpaal, Brandt. Te fel voor wat dan ook. ...Ik wil geloven.
+OUT OF THE BUILDING	HET GEBOUW UIT
+Pictures that leave by cable or network, skapi, not only a window on a screen. Press START.	Beelden die per kabel of netwerk vertrekken, skapi, niet alleen een venster op een scherm. Druk op START.
+NDI over the network, SDI from a DeckLink card, ST 2110 for broadcast plants.	NDI over het netwerk, SDI van een DeckLink-kaart, ST 2110 voor omroepcentra.
+THE DEVICES PAGE	DE APPARATENPAGINA
+MENU, Video Outputs, then Devices: every way an output can leave this computer.	MENU, Video-uitgangen, dan Apparaten: elke manier waarop een uitgang deze computer kan verlaten.
+Each one says whether this machine can do it, and what it needs if not.	Elk zegt of deze machine het kan, en wat hij nodig heeft als dat niet zo is.
+If this computer has NDI, switch NDI SENDING on: the picture is on the network. If not, SHOW ME moves on.	Als deze computer NDI heeft, zet NDI SENDING aan: het beeld staat op het netwerk. Zo niet, dan gaat SHOW ME verder.
+NDI finds itself on the network. No cables, only a good switch and patience.	NDI vindt zichzelf op het netwerk. Geen kabels, alleen een goede switch en geduld.
+OUT THERE	DAARBUITEN
+The output's own page has the rest: a DeckLink card's SDI, ST 2110 with NMOS, Spout and Syphon.	De eigen pagina van de uitgang heeft de rest: de SDI van een DeckLink-kaart, ST 2110 met NMOS, Spout en Syphon.
+Every one is just an output. The show does not know or care how it leaves.	Elk is gewoon een uitgang. De show weet of maalt niet hoe hij vertrekt.
+Nebula ahead	Nevel in zicht
+Engine room	Machinekamer
+Deck 3: something moving	Dek 3: er beweegt iets
+THE BRIDGE	DE BRUG
+The bridge of the starship Cathode, skapi. Four feeds, one main viewer, one mystery. Press START.	De brug van ruimteschip Cathode, skapi. Vier feeds, één hoofdscherm, één mysterie. Druk op START.
+The multiview shows every playlist at once. Like a wall of oscilloscopes, but in space.	De multiview toont elke playlist tegelijk. Als een muur van oscilloscopen, maar dan in de ruimte.
+Frequencies open, Captain. All of them. That's the problem.	Frequenties open, kapitein. Allemaal. Dat is het probleem.
+MULTI, above the monitor: every playlist in its own window.	MULTI, boven de monitor: elke playlist in zijn eigen venster.
+One window per playlist, the programme first.	Eén venster per playlist, het programma eerst.
+Jinkys! Four feeds. And one of them has a monster in it.	Jinkys! Vier feeds. En in een ervan zit een monster.
+WHAT'S NEXT	WAT VOLGT
+Add a window (+), then its ... menu: make it show NEXT. What goes live when you press TAKE.	Voeg een venster toe (+), dan zijn ...-menu: laat het NEXT tonen. Wat live gaat als je op TAKE drukt.
+Every window has a ... button. It chooses what that window shows.	Elk venster heeft een ...-knop. Die kiest wat dat venster laat zien.
+I need to see who's calling before they reach the main viewer.	Ik moet zien wie er belt voor ze het hoofdscherm bereiken.
+A CLOCK	EEN KLOK
+And one more window, showing the clock. Operators who watch a clock are never late. Mostly.	En nog een venster, met de klok. Operators die op de klok letten, zijn nooit te laat. Meestal.
+Time of day, big. Stardates are just very long timecode.	De tijd, groot. Sterrendata zijn gewoon heel lange timecode.
+The monster only shows up at midnight. We're going to need a clock.	Het monster komt alleen om middernacht. We hebben een klok nodig.
+ONE BIG ONE	ÉÉN GROTE
+Any window's ... menu, then a layout: one big, the rest small.	Het ...-menu van een willekeurig venster, dan een layout: één groot, de rest klein.
+The big window is window one. Usually the programme. Usually.	Het grote venster is venster één. Meestal het programma. Meestal.
+Main viewer big. The captain likes it big.	Hoofdscherm groot. De kapitein houdt van groot.
+ON SCREEN	OP HET SCHERM
+Select Deck 3 in playlist 3 and TAKE. Watch its window.	Selecteer Dek 3 in playlist 3 en doe TAKE. Kijk naar zijn venster.
+The red border is TALLY: the window that is on air. On screen, as they say on starships.	De rode rand is TALLY: het venster dat in de lucht is. Op het scherm, zoals ze op ruimteschepen zeggen.
+There! Feed three! Put it on screen!	Daar! Feed drie! Op het scherm!
+THAT'S A WRAP	DAT IS EEN WRAP
+Windows, the ... menu, NEXT, the clock, a layout, tally. Mystery solved, skapi.	Vensters, het ...-menu, NEXT, de klok, een layout, tally. Mysterie opgelost, skapi.
+A window can also show an output, with its warp and slices. Handy when it's a lighthouse.	Een venster kan ook een uitgang tonen, met zijn warp en slices. Handig als het een vuurtoren is.
+And the monster was... the ship's cook, all along. Jinkys.	En het monster was... de scheepskok, al die tijd. Jinkys.
+there is no such lesson	die les bestaat niet
+finish or leave the lesson you are in first	maak eerst de les waar je in zit af, of verlaat hem
+leave Bug Swat first	verlaat eerst Bug Swat
+Psst. It's me, the desk. I'll be watching. Supportively.	Psst. Ik ben het, de regietafel. Ik kijk mee. Steunend.
+Hi! I'm the one doing all of this, by the way.	Hoi! Ik ben degene die dit allemaal doet, trouwens.
+Ctrl+D opens the DASH. I'm just saying.	Ctrl+D opent de DASH. Ik zeg het maar even.
+Nearly there. I can feel it in my pixels.	Bijna. Ik voel het in mijn pixels.
+You're good at this. I can tell. I'm the one doing it.	Je bent hier goed in. Dat zie ik. Ik ben degene die het doet.
+Every click, I heard. Every single one.	Elke klik heb ik gehoord. Elke ene.
+The glowing one. I can see it from here. It's glowing for you.	De gloeiende. Ik zie hem van hier. Hij gloeit voor jou.
+lesson paused - MENU > LESSONS picks up where you left off	les gepauzeerd - MENU > LESSONS gaat verder waar je was
+PROF. VIDEO:  The signal: what the picture is made of, and how to bend it. Pick a lesson.	PROF. VIDEO:  Het signaal: waar het beeld van gemaakt is, en hoe je het buigt. Kies een les.
+DR. PIXEL:  Running the show, skapi. Fast hands, calm face. Pick a lesson.	DR. PIXEL:  De show draaien, skapi. Snelle handen, rustig gezicht. Kies een les.
+LESSONS  -  PART TWO  -  WHO DO YOU FOLLOW?	LESSEN  -  DEEL TWEE  -  WIE VOLG JIJ?
+FOLLOW PROF. VIDEO	VOLG PROF. VIDEO
+FOLLOW DR. PIXEL	VOLG DR. PIXEL
+the signal	het signaal
+running the show	de show draaien
+PICK UP	VERDERGAAN
+CLOSE (Esc)	SLUITEN (Esc)
+PART ONE: THE BASICS	DEEL EEN: DE BASIS
+finish or leave LEARN THE BASICS first	maak LEARN THE BASICS eerst af, of verlaat het
+bug swat: Esc leaves, and your show comes back as it was	bug swat: Esc stopt, en je show komt terug zoals hij was
+bug swat: your show is back. Motion's controls are in Settings > Audio	bug swat: je show is terug. De regelaars van Motion staan in Instellingen > Audio
+TURN MOTION ON	ZET MOTION AAN
+Bugs are crawling to the cue list! Swat them by waving at your camera. First, Motion: in MOTION CONTROL turn it ON and choose what it READS.	Bugs kruipen naar de cuelijst! Mep ze door naar je camera te zwaaien. Eerst Motion: zet MOTION CONTROL op ON en kies wat hij leest (READS).
+This one is NullPointer. Hollow, points at nothing. A finger goes straight through. Use the whole hand, skapi.	Deze is NullPointer. Hol, wijst naar niets. Een vinger gaat er dwars doorheen. Gebruik je hele hand, skapi.
+Wave like you are hailing a cab! A small, polite cab. Not the buttons. The cab.	Zwaai alsof je een taxi aanhoudt! Een kleine, beleefde taxi. Niet de knoppen. De taxi.
+DRAW TWO ZONES	TEKEN TWEE ZONES
+Race Condition: twins, each sure it got there first. One reading cannot tell your hands apart, so drag two ZONES on the Motion picture, one each side.	Race Condition: tweelingen, allebei zeker dat ze er eerst waren. Eén meting kan je handen niet uit elkaar houden, dus sleep twee ZONES op het Motion-beeld, aan elke kant één.
+Hit both together. Hit one, and they swap. Like my cousins at a wedding.	Raak ze allebei tegelijk. Raak er één en ze wisselen. Net als mijn neven op een bruiloft.
+One hand each side. Together! Together!	Eén hand aan elke kant. Samen! Samen!
+Off By One. The bug is not the face, it is the tiny extra segment, and a little wiggle needs a finer reading. Turn SENSITIVITY down to 5%.	Off By One. De bug is niet het gezicht, maar dat kleine extra stukje, en een klein wiebeltje vraagt een fijnere meting. Zet SENSITIVITY omlaag naar 5%.
+Lower number, finer reading. Yes, I also think it is backwards.	Lager getal, fijnere meting. Ja, ik vind het ook achterstevoren.
+Not the face. The little one on the end. Wiggle a finger.	Niet het gezicht. Die kleine aan het eind. Wiebel met een vinger.
+FALL 1.5 S OR MORE	FALL 1,5 S OF MEER
+Memory Leak. It only lets go while the reading stays up. Make FALL longer, 1.5 seconds or more, so your sweeps join up into one.	Memory Leak. Hij laat alleen los zolang de meting hoog blijft. Maak FALL langer, 1,5 seconde of meer, zodat je zwaaien samensmelten tot één.
+Slow and steady, skapi. Like paying back a loan.	Rustig aan, skapi. Zoals je hypotheek aflossen.
+Sweep, and sweep again. Let the fall carry you between.	Veeg, en veeg nog eens. Laat de daling je ertussen dragen.
+MOTION X ON A TONE	MOTION X OP EEN TOON
+The Heisenbug! It fades whenever you move. Put a tone cue's pitch on Motion X and follow it by ear: the ticking speeds up as you close in.	De Heisenbug! Hij vervaagt telkens als je beweegt. Zet de toonhoogte van een toon-cue op Motion X en volg hem op gehoor: het tikken versnelt als je dichterbij komt.
+SHOW ME makes the tone for you. High is right. Low is left. Stand still and it comes back.	SHOW ME maakt de toon voor je. Hoog is rechts. Laag is links. Sta stil en hij komt terug.
+Follow it. Listen. Faster ticking, closer bug.	Volg hem. Luister. Sneller tikken, dichter bij de bug.
+Waving paw	Zwaaipootje
+Heisenbug finder	Heisenbugzoeker
+FIXED! Lovely signal flow.	GEFIKST! Wat een mooie signaalflow.
+Closed as fixed. No regressions. Probably.	Gesloten als opgelost. Geen regressies. Waarschijnlijk.
+Squashed! Ship it.	Geplet! Uitrollen.
+One reached the cue list. It has filed a bug report about you.	Er heeft er één de cuelijst gehaald. Hij heeft een bugmelding over jou ingediend.
+Skapi. It is a handheld. You do not press it. You wave at it.	Skapi. Het is een handheld. Je drukt er niet op. Je zwaait ernaar.
+The buttons are for menus. The bugs are for flailing.	De knoppen zijn voor menu's. De bugs zijn voor wild zwaaien.
+The D-pad is decorative. Like my diploma.	Het kruisje is decoratief. Net als mijn diploma.
+In 1989 we also pressed the buttons. Then we discovered waving. Never looked back.	In 1989 drukten wij ook op knoppen. Toen ontdekten we zwaaien. Nooit meer omgekeken.
+Pressing harder does not help. The bugs cannot feel buttons. Only arms.	Harder drukken helpt niet. Bugs voelen geen knoppen. Alleen armen.
+It's called a handheld because your hands are held... up. In the air. Waving.	Het heet een handheld omdat je je handen... omhoog houdt. In de lucht. Zwaaiend.
+The mouse? You are swatting bugs with a MOUSE? In Bulgaria the mouse would be on the bugs' side.	De muis? Mep je bugs met een MUIS? In Bulgarije stond de muis aan de kant van de bugs.
+Lovely clicking. Very crisp. The camera saw none of it.	Mooi geklik. Heel knapperig. De camera heeft er niets van gezien.
+DONE FOR YOU - PRESS START	VOOR JE GEDAAN - DRUK OP START
+DONE! PRESS START	KLAAR! DRUK OP START
+SELECT OPENS MOTION CONTROL	SELECT OPENT MOTION CONTROL
+ALL BUGS FIXED	ALLE BUGS GEFIKST
+NEW HIGH SCORE!	NIEUWE HIGHSCORE!
+START PLAYS AGAIN	START SPEELT OPNIEUW
+Nazdrave, skapi. Now go and fix real bugs.	Nazdrave, skapi. Ga nu echte bugs fiksen.
+Every one of those is a real Motion control. Put them on any ~ knob you like.	Elk daarvan is een echte Motion-regelaar. Zet ze op elke ~-knop die je wilt.
+START: AGAIN	START: OPNIEUW
+START: PLAY	START: SPELEN
+# --- end of tutorials ---
