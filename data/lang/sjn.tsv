@@ -453,3 +453,570 @@ Close me. Open me. I'll be fine.	Daro nin. Herio nin ad. Maer im.
 # What the desk face says when you switch to this language: a local saying, not a translation.
 @hello	Mae govannen!
 Oh hey. It's 4:20. Take it easy.	Mae govannen. 4:20 i lû. Post.
+
+# --- tutorials: tools/lesson_strings.py (a whole line each) ---
+HELLO	MAE GOVANNEN
+Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me.	Dobar den, skapi. Im Dr. Pixel. Leben lû, a le dartha o i-thirn. Thinnas, ir lastol nin.
+And I'm Professor Video. Synths first, then video. Mostly video now. Press START and we'll patch... we'll begin.	A im Professor Video. Minui i synth, ab hen i video. Sí video. Matho START: pedo mellon a minno.
+TURN THE OUTPUT ON	EDRO I VENTHO
+Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	Skapi, i chent lost. Ú-dartho ven. Edro MENU, a cer MENTHO DÛ MENTHO NAUR. Hajde!
+Lesson one: nothing comes out until you patch the oscillator to the... the OUTPUT. It's video. I know.	Pennas minui: ú-tôl, tenn i oscillator nestol na i... na i MENTHO. Video. Istan.
+BRING IN A CLIP	TOGO CLIP
+Now a picture. Press I and pick a clip from your computer. No clip? SHOW ME, and I lend you one of mine.	Sí emel. Matho I a cillo clip o i chent lín. Ú-gerich clip? SHOW ME, a anann ad lín.
+Every clip becomes a cue in the playlist. Like loading a sample. A sample with pictures in it.	Ilya clip ah cue mi playlist. Sui sample. Sample a emlinn.
+TAKE IT LIVE	NA LACH
+Your clip waits in the playlist. Select it, then TAKE. Or Enter. Confident operators press Enter.	I clip lín dartha mi playlist. Cillo, ab hen TAKE. Ego Enter. I veleg Enter mathar.
+TAKE is the envelope trigger. The, ah, the GO button. Same thing, it just has pictures in it.	TAKE: i rond. I GO. Sui hen, a emel.
+LINE UP THE NEXT ONE	CERO I NEDHUI
+Click another cue. It waits, ready, until you say. Only one cue? Import another, or SHOW ME.	Matho cue ereb. Dartha tenn pedich. Cue erui? Togo ereb, ego SHOW ME.
+Selecting is not playing. The selected one is the next note in the sequence. The next CUE.	Cillo ú-lind. I cillen: i lind nedhui. I CUE nedhui.
+CROSSFADE TO IT	CROSSFADE
+Cuts are for amateurs. In the inspector, press + on transition, so it shows a time, not deck. Then TAKE.	Rest thand: an i-nûr. Mi inspector, matho + ned gwanath, tenn lû, ú-deck. Ab hen TAKE.
+A crossfade! Portamento, but for pictures. Any time will do. A few more presses and it's a second. Then TAKE.	Crossfade! Portamento, an emlinn. Lû ilya maer. Mathach rim: er lû. Ab hen TAKE.
+CLEAR THE SCREEN	GLAN I CHENT
+Something goes wrong on stage? Press BLACK, or B. The picture goes. The show keeps running underneath.	Úgaru na i dôr? Matho BLACK, ego B. I emel gwanna. I show bâd nu.
+Nothing is lost. Press B again and it comes back. Like the mute on a mixer. Very calming.	Ú-vanna. Matho B ad, a dôl. Sui mute mi mixer. Mae.
+SAVE THE SHOW	HEBO I SHOW
+Now save. Ctrl+S, or SAVE. Some programs lose your work and then blame you. I would never.	Sí hebo. Ctrl+S, ego HEBO. Ehtyl ú-maer gwathar i ŷl lín. Im ú-bain.
+Save your patch. Your SHOW. Show. This practice one lives in Deckboy's own folder; yours is safe.	Hebo i patch lín. I SHOW lín. Show. Hen pennas mi sant Deckboy; lín varn.
+THAT'S A SHOW	HEN SHOW
+That's a show! Output, cue, TAKE, crossfade, BLACK, save. Nazdrave, skapi. Rakia is on me.	Hen show! Mentho, cue, TAKE, crossfade, BLACK, hebo. Nazdrave, skapi. I rakia anann: sui miruvor Imladris, ach tharn.
+Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	Pennas meth. I show tirnen pedir: layer, title, effect. MENU > LEARN THE BASICS ad.
+*shakes head* That means yes. Bravo.	*hel i dôl* 'Ai.' Mae carnen. Mi Bulgaria erui.
+Wonderful! Lovely signal flow.	Mae carnen! Mentho vaer.
+Mm. I knew you had it in you.	Mm. Istannen.
+Yes! Have a gold star. It's a dot.	Ai! Gil malen an le. Tiw thinn.
+Ready for the next step? *nods* ...That means no, skapi. The glowing one. It is glowing for you.	Pân na i nedhui? *dôl am a nu* ...Baw, skapi. I galad. Galad an le.
+You've clicked everything but the glowing one. Even my oscillators find the glowing one.	Mathant ilya, ach ú-i galad. Oscillator nín hîr i galad.
+stop playback first - the lesson cannot hand a running show back as it was	dartho i lind minui - i pennas ú-anna show bâd
+choose RECOVER or KEEP SAVED first	cillo RECOVER ego KEEP SAVED minui
+your show could not be saved, so the lesson has not started. Save it (SAVE AS) and try again	i show lín ú-hebin, a i pennas ú-minnant. Hebo (HEBO SEV) a ceso ad
+the practice show would not open	i show pennas ú-edrant
+could not start the practice show	i show pennas ú-minnant
+learn the basics: Esc leaves, and it picks up here next time	learn the basics: Esc gwanna, a renia sí
+that's the basics - MENU > LESSONS has part two	hen i-nad - MENU > LESSONS: rann tâd
+tour paused - LEARN THE BASICS picks up where you left off	râd dartha - LEARN THE BASICS renia
+Mirrored screens, skapi. Press any key or click, and Dr. Pixel gives it back.	Cenedril, skapi. Matho rond, a Dr. Pixel anna ad.
+Wrong screen, skapi. Press any key or click, and Dr. Pixel gives it back.	Chent ú-thand, skapi. Matho rond, a Dr. Pixel anna ad.
+The other screen went away, skapi. Press any key or click, and Dr. Pixel gives it back.	I chent ereb gwanna, skapi. Matho rond, a Dr. Pixel anna ad.
+One screen, skapi. Press any key or click, and Dr. Pixel gives it back.	Chent er, skapi. Matho rond, a Dr. Pixel anna ad.
+The other screen went away, skapi, so the picture came back to this one. I put it in a little window, behind. Plug it back in and the picture goes back on it.	I chent ereb gwanna, skapi, a i emel tôl sí. Henneth thinn, nu. Nesto ad, a i emel gwanna ad.
+It ate the desk, skapi. One screen, so the output took all of it. I put it in a little window, behind. A real show gets a second screen.	Mant i sant, skapi! Chent er, a i mentho ilya. Henneth thinn, nu. Show thand: chent tâd.
+IT ATE THE DESK	MANT I SANT
+There. The button that says OUTPUT OFF. Make it say ON, skapi.	Sí. I rond MENTHO DÛ. Cer NAUR, skapi.
+Nothing is live to fade from, skapi. TAKE one cue first, then pick the other and give it a time.	Ú-nad na lach, skapi. TAKE cue er minui, ab hen cillo ereb a anno lû.
+That was a cut, skapi. Fast, but not a crossfade. Pick the other cue, press + on transition, then TAKE.	Dag, skapi. Lim, ach ú-crossfade. Cillo cue ereb, matho + ned gwanath, ab hen TAKE.
+A feedback loop! Output patched straight back into the desk. Happens to the best of us. Mostly to me. 1983. We don't talk about 1983.	Rodwen! I mentho na i sant ad. Ilya. Nin vaer. 1983. Ú-pedim o 1983.
+No more rakia. The rat has a problem.	Ú-rakia. I lhûg-rat gerir úgaru.
+Nazdrave, skapi! Baba's rakia, from the Rhodopes. One glass, for the lesson.	Nazdrave, skapi! Rakia i naneth naneth, o Rhodope. Er, an i pennas. Sui miruvor, ach tharn.
+Is this... is this allowed during a tutorial?	Hen... hen maer mi pennas?
+*shakes head* That means one more.	*hel i dôl* Er ad.
+I love you all. I love the oscillator. I love the OUTPUT. It's video. I know. I KNOW.	Melin le ilya. Melin oscillator. Melin MENTHO. Video. Istan. ISTAN.
+...and the rat took the rakia. Every time, skapi. Every single time.	...a i rat mant i rakia. Ilya lû, skapi. Ilya.
+Was that a rat? In a hat? With a pizza?	Rat? A carab? A pizza?
+Stop that. I am a serious man.	Dartho! Im benn thand.
+Do not tell Dr. Pixel about this.	Ú-pedo na Dr. Pixel.
+This never happened. Back to the patch bay.	Ú-anant. Ad na patch.
+It was the eighties. Everyone had a bow tie.	Lû 1980. Ilya bow tie.
+LESSON LIST	GWANATH PENNAS
+OPEN EXAMPLE SHOWS	EDRO SHOW TIRNEN
+EXIT (Esc)	GWANNO (Esc)
+Taking it on the road	I show na râd
+CHECK a show before it travels, fix what it finds, and bundle it with its media.	CHECK i show nan râd, nestad i úgaru, a govanno a media.
+Effects, oscillators and colour	Effect, oscillator, a lhîn
+An effect, a ~ on its knob, and the colour picker.	Effect, ~ na i rond, a cillwen lhîn.
+The art school crit, with Mr. Salty	I bennas mi sant gelaidh, a Mr. Salty
+Patterns, synths and Draw	Cennad, synth, a Draw
+A test pattern, the video synth, and drawing on the picture, saved as a still.	Cennad, video synth, a teitho na emel, hebin sui emel dartha.
+The telestrator booth, with Coach Marv	I chaw teithol, a Coach Marv
+Masks	Mask
+A heart from the library, the pen, invert and feather.	Ind o i mathom, pên, gwanath, a lhind rain.
+The Signal Files: redact the evidence	Parf Gwanath: nurto i-dangen
+Warp, blend and slices	Warp, govanno, a thent
+A corner pin, two soft edges, then three slices in the Screens window.	Rain-pin, rain lhind tâd, ab hen thent nêl mi Screens.
+The haunted lighthouse, with Keeper Rook	I minas lach gaur, a Rook i-thirn
+GO from anywhere	GO o ilya sant
+Cue numbers, GOTO, a hotkey, and where Companion, MIDI and OSC come in.	Nediad cue, GOTO, rond, a Companion, MIDI, OSC.
+The game show, with Donna Wheel	I dinnad, a Donna Wheel
+Words on screen	Pedh na chent
+A Lower Third with a name on it, then a title card with a key-green backdrop.	Lower Third a eneth, ab hen tîw a lhîn calen.
+The kaiju weather report, with June O'Neil	I dhû o kaiju, a June O'Neil
+Keeping time	Heb i lû
+A stage timer counting down, held, and a presenter view for the person on stage.	Lû-tal, dartha, a tîr an i bedwen.
+A grand day out, with Wallis and Grommet	Aur beleg, a Wallis a Grommet
+Two playlists and TAKE ALL	Playlist tâd a TAKE ALL
+A second playlist as a layer, and TAKE ALL so two things change on one beat.	Playlist tâd sui layer, a TAKE ALL: nad tâd mi lû er.
+The magic show, with Turnip Top	I show gûl, a Turnip Top
+When it goes wrong	Ir úgaru
+BLACK against PANIC, and getting a show back.	BLACK a PANIC, a show ad.
+The cooking show, with Chef Bork	I show mîr, a Chef Bork
+Presets	Preset
+Capture a look on a DASH button, change everything, and get it back with one press.	Heb emel na DASH, renio ilya, a togo ad.
+Transitions	Gwanath
+The styles beyond the crossfade: an iris, a shatter, and their times.	Ar crossfade: iris, shatter, a lû.
+The space-opera trailer, with Optimus Primetime	I trailer gilith, a Optimus Primetime
+Sound	Lamm
+An audio effect on a cue, a bend that damages it beautifully, and where the patch lives.	Effect lamm, rhaw, a i patch.
+The robot DJs, with Deft Funk	I DJ angren, a Deft Funk
+Reading the scopes	Ceni i scope
+The waveform, the vectorscope, and false colour: is the glow real, or just too bright?	Waveform, vectorscope, lhîn ú-thand: galad thand, ego galad rim?
+The Signal Files: is the glow on the horizon a craft?	Parf Gwanath: i galad mi rîw, cair?
+Out of the building	Ar i barad
+Where NDI, SDI and ST 2110 live, and NDI switched on where this computer has it.	NDI, SDI, ST 2110, a NDI naur.
+The webcam as a controller, as a game. Five rounds, a high score.	Webcam sui rond, sui tinnad. Leben, nediad am.
+A handheld, and bugs	Chent mi chamm, a lhûg
+The multiview	Multiview
+Windows, the ... menu, what each one shows, layouts, and tally.	Henneth, ... menu, layout, tally.
+Mystery on the starship Cathode, with Lt. Haila and Ensign Jinkley	Nad dhínen mi cair Cathode, a Lt. Haila a Ensign Jinkley
+DR. PIXEL: Two playlists: Deckboy becomes SUPER DECKBOY. It earned it, skapi.	DR. PIXEL: Playlist tâd: Deckboy ah SUPER DECKBOY. Maer, skapi.
+PROF. VIDEO: It evolved! My oscillators never got a fanfare.	PROF. VIDEO: Ahant! Oscillator nín ú-vann rom.
+DR. PIXEL: SUPER DECKBOY! Every show deserves one. Bravo.	DR. PIXEL: SUPER DECKBOY! Ilya show maer. Mae carnen.
+PROF. VIDEO: The power-up! More playlists, more layers, more super.	PROF. VIDEO: Power-up! Playlist rim, layer rim, super rim.
+Intro video (left on the office PC)	Video minui (dínen mi PC)
+ON THE ROAD	NA RÂD
+A show you built here, skapi, running on a laptop somewhere else tonight. Press START.	Show i cerich sí, skapi, bâd hen dû mi laptop ennas. Matho START.
+Before it travels: check it, fix it, bundle it.	Nan râd: tiro, nesto, govanno.
+See CHECK in the top bar? It only appears when something is wrong. Press it.	Tirich CHECK mi bâr ammin? Tôl ir úgaru erui. Matho.
+It lists everything a show would trip over: missing files, empty cues, unreachable outputs.	Pêd ilya úgaru: parf dínen, cue lost, mentho ú-gerin.
+FIX IT	NESTO
+The intro video is on another computer. Select it and delete it, or RELINK it if you have the file.	I video minui mi chent ereb. Cillo a dago, ego RELINK ir gerich i-pharf.
+Fix it at home, where it is easy. Not at the venue, where it is not.	Nesto mi bar, ias raen. Ú-mi dôr, ias ú-raen.
+BUNDLE IT	GOVANNO
+Press BUNDLE and choose where: a USB stick, a shared folder. The show and all its media, together.	Matho GOVANNO a cillo ias: USB, sant govanen. I show a ilya media, govannen.
+The copy finds its media beside it, wherever the folder goes.	I chîn hîr i media ned ondo, ias i sant gwanna.
+SAFE TRAVELS	GALU NA RÂD
+Checked, fixed, bundled. On the other machine, open the bundle's show: everything is where it should be.	Tíren, nesten, govannen. Mi chent ereb, edro i show: ilya mi sant.
+A show file is only text, so it travels light. The media is the heavy part.	Parf show: tîw erui. Lhind. I media: tung.
+Student work no. 4 (untitled)	Ŷl pennoth 4 (ú-eneth)
+THE CRIT	I BENNAS
+An art school, skapi. One student, one picture, one critic who has seen it all. Press START.	Sant gelaidh, skapi. Pennoth er, emel er, cenwen i chen ilya. Matho START.
+Effects change a picture; an oscillator keeps changing it. The critic only likes the second kind.	Effect renia i emel; oscillator renia ilya lû. I cenwen mela i tâd erui.
+A grey square on beige. I have seen this at every graduate show since 1987.	Mîth thoronnas na beige. Cennin ilya athrad ned 1987.
+AN EFFECT	EFFECT
+In the inspector's EFFECTS section, + adds one. Edges is a good start: it draws the outlines.	Mi EFFECTS inspector, + togo er. Edges maer: teitha i rain.
+There are dozens. Every one runs on the CPU in a few milliseconds. Mostly.	Rim sui. Ilya bâd mi CPU mi lû thent. Ah ilya.
+Take a risk! Bad art is fine. Boring art is a crime.	Breso! Gelaidh ú-maer: maer. Gelaidh ú-thand: gwathas!
+A ~ ON ITS KNOB	~ NA I ROND
+Every control with a ~ beside it can follow an oscillator. Press one. The knob starts to breathe.	Ilya rond a ~ ned ondo pada oscillator. Matho er. I rond thuia.
+A low-frequency oscillator: slow, so the eye can follow it. A quarter of a hertz is a four-second breath.	Oscillator thent: lim, an i hen. Lû canad: thuiad canad.
+Now it MOVES. Okay. Okay. I'm listening.	Sí renia. Mae. Mae. Lastan.
+A COLOUR OF ITS OWN	LHÎN IN HÎN
+Effects that draw a colour, like Edges' line, have a colour chip. It opens the picker: a wheel, typed names, or a colour off the screen.	Effect i teitha lhîn, sui Edges, gerir lhîn ram. Edra i cillwen: rodwen, eneth, ego lhîn o i chent.
+Every colour has a name somewhere. Mine is 'oscilloscope green'. Nobody else uses it.	Ilya lhîn gerir eneth. Nín: 'calen oscilloscope'. Ú-aen ereb.
+That colour is doing something. I don't know what. I love it.	Lhîn hen cára nad. Ú-istan man. Melin.
+THE VERDICT	I BAUL
+An effect, a ~ and a colour. The critic is crying, skapi. Good crying, I think.	Effect, ~, lhîn. I cenwen nîr, skapi. Nîr maer, nostan.
+Stack a few. Each has its own ~ on every knob. That is how a look becomes a performance.	Govanno rim. Ilya gerir ~ in hîn. Sí emel ah lind.
+It's still a square. But it's YOUR square. Post it.	Ab hen mîth. Ach mîth lín. Anno.
+THE TELESTRATOR BOOTH	I CHAW TEITHOL
+Coach Marv explains sport by drawing circles on it. Once he circled the sun. Ten minutes, skapi.	Coach Marv pêd i gonath nan teitho rain. Erui, teithant rain na Anor. Lû pae, skapi.
+Tonight: test patterns, the video synth, and drawing on the picture. Press START.	Hen dû: cennad, video synth, a teitho na emel. Matho START.
+Get me a picture and a pen. BOOM.	Anno nin emel a pên. BOOM.
+A TEST PATTERN	CENNAD
+Line up the screens BEFORE the show. Not during. I learned this in Plovdiv.	Cero i chent NAN i show. Ú-ned. Ennas ennin: Plovdiv.
+Every desk needs a test pattern. PATTERN adds Pocket Test: checked against real meters.	Ilya sant cennad thaur. CENNAD togo Pocket Test: tíren.
+A VIDEO SYNTH	VIDEO SYNTH
+He says 'no camera needed' like it is a feature. It is a feature.	Pêd 'ú-thaur camera' sui maer. Maer!
+My favourite. SOURCE, then Video Synth: oscillators, mirrors and feedback. No camera needed.	Melin. CELU, ab hen Video Synth: oscillator, cenedril, a feedback. Ú-thaur camera.
+TAKE THE SYNTH	TAKE I SYNTH
+Select it, then TAKE. Confident operators press Enter.	Cillo, ab hen TAKE. I veleg Enter mathar.
+That's our replay. Every replay needs a pundit.	Hen i chîr. Ilya chîr thaur pedwen.
+Now here's a replay. And here's a guy. And BOOM, he's in it.	Hen i chîr. Hen i dagnir. A BOOM, mi.
+A SECOND PLAYLIST	PLAYLIST TÂD
+Ink goes on top, on its own layer. Press the + at the end of the playlist tabs.	I mâl am, na layer in hîn. Matho + mi meth i playlist.
+A second playlist is a layer over the first. Like a second oscillator, mixed on top.	Playlist tâd: layer am i minui. Sui oscillator tâd.
+A DRAW CUE	CUE DRAW
+In the new playlist: SOURCE, then Draw. Clear everywhere you have not drawn.	Mi playlist vinui: CELU, ab hen Draw. Lhind ias ú-teithant.
+A Draw cue is transparent outside the ink, so the synth shows through.	Cue Draw lhind ar i mâl, a i synth tirnen.
+TAKE THE INK	TAKE I MÂL
+Select the Draw cue and TAKE it. Two playlists, two layers, one picture.	Cillo cue Draw, TAKE. Playlist tâd, layer tâd, emel er.
+Now both are live: the synth underneath, the ink on top.	Sí tâd na lach: synth nu, mâl am.
+CIRCLE SOMETHING	TEITHO RAIN
+Press DRAW in the inspector, then draw on the programme monitor. Mouse, or a pen if you have one.	Matho DRAW mi inspector, a teitho na program. A mouse, ego pên.
+A pen's pressure makes the line thicker. A mouse presses at one strength. Like me.	I pên: lam thar. Mouse: er tûr. Sui nin.
+Circle him! No, bigger. BOOM. That's a cloud. Fine. Circle the cloud.	Teitho rain! Baw, beleg! BOOM. Fanui. Mae. Teitho na i fanui.
+SAVE A STILL	HEBO EMEL DARTHA
+SAVE STILL keeps the drawing as a picture with a clear background, and adds it to the playlist.	SAVE STILL heb i teith, emel lhind, a togo na playlist.
+For next week's show. Coach Marv will want the cloud again.	An i show nedhui. Coach Marv aníra i fanui ad.
+THAT'S THE BOOTH	METH I CHAW
+Patterns, the synth, a layer, ink, a still. Nazdrave, skapi.	Cennad, synth, layer, mâl, emel. Nazdrave, skapi.
+Try Replay in the Draw section: it draws your lines back the way you drew them.	Ceso Replay mi Draw: teitha ad i rain lín.
+Same time next week. Bring a bigger pen. And a turducken.	Lû nedhui, sui hen. Togo pên beleg. A lembas.
+Saucer photo (CLASSIFIED)	Emel i ganol (DÍNEN)
+THE SIGNAL FILES	PARF GWANATH
+The Bureau of Unexplained Signals. Two agents, one photo, and it must not air. Press START.	Sant i gwanath ú-istannen. Ohtar tâd, emel er, a ú-ped. Matho START.
+Masks cut a picture into shapes. Tonight we cut evidence.	Mask dag i emel. Hen dû dagam i-dangen.
+That's a craft, Brandt. Look at the lights. I want to believe.	Cair, Brandt. Tiro i galad. Aníron vîn.
+A MASK FROM THE LIBRARY	MASK O I MATHOM
+In the inspector's MASK section: mask, then 'new heart'. Any shape will do. The heart is funnier.	Mi MASK inspector: mask, ab hen 'new heart'. Ilya maer. Ind: lalaith.
+The library has circles, stars, hearts. Each one is points you can move.	I mathom: rodwen, gil, ind. Ilya: rain i renia.
+A heart, Hollis? The Bureau redacts with black bars.	Ind, Hollis? I sant nurtha a môr.
+THE PEN	I PÊN
+Set the tool to pen, then click round the saucer on the monitor. Click the first point to close it.	Cillo pên, a matho rain i ganol. Matho i minui an holo.
+Click for corners, drag for curves. The way the Bezier brothers intended.	Matho an rain, tiro an rhaw. Sui i-thîr Bézier.
+Draw round it carefully. It might be watching.	Teitho thand. Tíra le.
+INVERT	GWANATH
+Invert keeps the outside and cuts the inside. The saucer goes. The sky stays.	Gwanath: heb i ar, dag i mi. I ganol gwanna. I menel dartha.
+The same shape, the other way round. Very useful. Slightly spooky.	I rain ereb, gwanath. Maer. Gaur.
+Hollis, there's a heart-shaped hole in the sky.	Hollis, i menel gerir dant ind.
+FEATHER	LHIND RAIN
+Feather softens the edge, so nobody sees the cut. Press + on feather.	Lhind rain: ú-tíra aen i dag. Matho + ned feather.
+A hard edge says 'someone was here'. A soft one says nothing at all.	Rain thar: 'aen sí'. Rain lhind: ú-ped.
+They'll never know.	Ú-istar.
+CASE CLOSED	METH I NAD
+A library shape, the pen, invert and feather. The Bureau thanks you. The Bureau was never here.	Rain mathom, pên, gwanath, lhind. I sant hannon le. I sant ú-sí.
+Masks also go on a layer, an output, or its matte: MASK ON chooses. And every control takes a ~.	Mask na layer, mentho, matte: MASK ON cilla. Ilya rond ~.
+The truth is in the waveform, Hollis. Next time, the scopes.	I thand mi rhaw, Hollis. Ad: i scope.
+The ghost	I gaur
+THE HAUNTED LIGHTHOUSE	I MINAS LACH GAUR
+A lighthouse, a ghost, and a keeper who has been alone with the lamp far too long. Press START.	Minas lach, gaur, a tirn er na i lach anann. Matho START.
+Projection mapping: bending the picture to fit the building. Warp, blend, slices.	Projection mapping: rhaw i emel na i barad. Warp, govanno, thent.
+Ye'll be wanting the ghost on the windows. Mind the lamp. The lamp is MINE.	Aníral i gaur na i henneth? Tiro i lach. I lach NÍN.
+THE OUTPUT'S GEOMETRY	TASS I MENTHO
+MENU, then Video Outputs, then Geometry. Where an output's shape lives.	MENU, ab hen Ethir gwaew, ab hen Tass. Sí i rain i mentho.
+Geometry: the projector-menu word for 'what shape is the picture'.	Tass: 'man rain i emel'.
+PIN A CORNER	PIN I RAIN
+Press warp edit, then drag a corner on the programme monitor. The window is not square. Neither is the keeper.	Matho warp edit, a tiro rain na program. I henneth ú-mîth. I-thirn ú-mîth.
+A corner pin moves the four corners. Perspective keeps the lines straight, like a real window.	Rain-pin: canad rain renia. Tîr i rain, sui henneth thand.
+LEFT! Ye call that a corner? I've seen straighter gulls.	HAIR! Rain? Cennin gwael tîr.
+TWO SOFT EDGES	RAIN LHIND TÂD
+Back in Geometry: edge blend, + on the left and + on the right.	Ad na Tass: edge blend, + hair a + forn.
+Two projectors overlap; each fades its edge so the overlap is not twice as bright.	Projector tâd; ilya lhind i rain, a ú-galad tâd.
+THE SCREENS WINDOW	I HENNETH SCREENS
+Geometry, SLICES, open. The Screens window is where slices are cut and placed.	Tass, SLICES, edro. Mi Screens: dagir thent a cerir.
+A slice is a piece of the picture, put anywhere on the output.	Thent: rann i emel, mi ilya sant i mentho.
+THREE SLICES	THENT NÊL
+In the Screens window, + SLICE three times, and drag each crop to a third of the picture.	Mi Screens, + SLICE nêl, a ilya dag na nelchaen i emel.
+Three windows, three slices: left, middle and right of one picture.	Henneth nêl, thent nêl: hair, enedh, forn.
+Three windows. The lamp gets the middle one. The lamp ALWAYS gets the middle one.	Henneth nêl. Enedh: an i lach. Enedh: ILYA an i lach.
+THE GHOST IS PLEASED	I GAUR GLAS
+Warp, blend, slices. The keeper will finally sleep. The gulls will not.	Warp, govanno, thent. I-thirn lostha. I gwael ú-lostha.
+Slices have their own warp and mesh in the Screens window. And a ~ on the place and the turn.	Thent gerir warp a mesh in hîn mi Screens. A ~ na sant a rhaw.
+Ye did alright, lad. Now get away from the lamp.	Mae, ion. Sí, cel o i lach.
+THE GAME SHOW	I TINNAD
+A game show, skapi. Three contestants, one buzzer, and cues that fire from anywhere. Press START.	Tinnad, skapi. Ohtar nêl, buzzer er, a cue o ilya sant. Matho START.
+Cue numbers, hotkeys, and GO from other machines. Like a sequencer you can play from any key.	Nediad cue, rond, a GO o chent ereb. Sui sequencer.
+Welcome to the show! Let's spin that wheel!	Mae govannen na i show! Rodwen, renia!
+A CUE NUMBER	NEDIAD CUE
+Contestant 3 is selected. In the inspector's metadata, give it a cue number: 3.	Ohtar 3 cillen. Mi inspector, anno nediad: 3.
+Theatre numbers its cues. Q3, Q3.5, Q12A. Deckboy reads them all.	I lammen ned nediad: Q3, Q3.5, Q12A. Deckboy ceni ilya.
+I'd like to buy a number, please.	Aníron nediad, ab ion.
+GO TO IT	BADO
+Ctrl+G, type the number, Enter. It goes live wherever the list happens to be standing.	Ctrl+G, teitho i nediad, Enter. Na lach, ias ilya.
+GOTO. The fastest way across a long list. Faster than scrolling. Much faster than me.	GOTO. Ias lim mi gwanath and. Lim. Lim nan nin.
+And the number is... three!	A i nediad... nêl!
+A BUZZER	BUZZER
+Contestant 1 is selected. In TRIGGERS, press key, then F5. That key now fires this cue.	Ohtar 1 cillen. Mi TRIGGERS, matho key, ab hen F5. Sí i rond hen dag i cue.
+F1 to F10, F12, or the number pad. Each one, a buzzer.	F1 na F10, F12, ego i nediad. Ilya: buzzer.
+Every contestant gets a buzzer.	Ilya ohtar: buzzer.
+BUZZ IN	MATHO!
+Press the key. The cue fires, wherever the list is standing.	Matho i rond. I cue lacha.
+No mouse, no list, no looking. Just the key.	Ú-mouse, ú-gwanath, ú-tiro. I rond erui.
+Buzz! We have a winner!	Bzzz! Gerin taur!
+FROM ANYWHERE	O ILYA SANT
+Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion, MIDI, OSC: MENU, ab hen Raew, pêd ias nestar.
+A Stream Deck in the next room can press GO. So can a keyboard synth. I prefer the synth.	Stream Deck mi sant ereb mathra GO. Synth hefyd. Synth melin.
+And for our viewers at home: you can play along too.	A an i tirnen mi bar: tolo, a godo.
+THAT'S OUR SHOW	METH I SHOW VÍN
+Numbers, GOTO, a buzzer, and GO from anywhere. You are a game show now, skapi.	Nediad, GOTO, buzzer, a GO o ilya sant. Sí tinnad le, skapi.
+A cue can have a key, a MIDI note and an OSC address at once. Belt, braces and a second belt.	Cue gerir rond, MIDI, a OSC. Gwaew tâd, a gwaew nêl.
+Goodnight, everybody! Keep spinning!	Novaer, ilya! Rodwen, renia!
+Weather map	Rain i gwaew
+THE KAIJU WEATHER	I GWAEW KAIJU
+Channel 6 weather, skapi. A map, a presenter, and a very large lizard. Press START.	Gwaew mi Channel 6, skapi. Rain, pedwen, a lhûg beleg. Hîth na Hirdh Barrow. Matho START.
+Words on screen: Lower Thirds, text, and backdrops.	Pedh na chent: Lower Third, tîw, a ond.
+I'm June O'Neil, and nothing about this forecast is normal.	Im June O'Neil, a ú-maer i-gwaew hen.
+A LAYER FOR WORDS	LAYER AN PEDH
+Words go on their own layer: press the + at the end of the playlist tabs.	Pedh na layer in hîn: matho + mi meth i playlist.
+A second playlist is a layer over the map. The lizard stays underneath. Mostly.	Playlist tâd: layer am i rain. I lhûg nu. Ah ilya.
+Words on top. Always on top.	Pedh am. Ilya am.
+A LOWER THIRD	LOWER THIRD
+In the new playlist: SOURCE, then Lower Third.	Mi playlist vinui: CELU, ab hen Lower Third.
+A name and a title, low on the screen, out of the lizard's way.	Eneth a ŷl, nu mi chent, o ias i lhûg.
+HER NAME	ENETH HÍN
+In the inspector, title: type the presenter's name. The second line is her job.	Mi inspector, title: teitho eneth i bedwen. Tîw tâd: ŷl hín.
+Spelling counts. The audience reads it at the speed of light.	Tîw thand: i tirnen ceni lim sui galad.
+Spell it right. Last week it said 'Jane O'Meal'.	Teitho thand. Lû ennin: 'June O'Nalb'.
+ON AIR	NA LACH
+TAKE the Lower Third. Her name slides in over the map.	TAKE i Lower Third. I eneth renia am i rain.
+Two layers live: the weather, and the words on top of it.	Layer tâd na lach: gwaew, a pedh am.
+Thank you. Now, about that lizard...	Hannon le. Sí, i lhûg...
+BREAKING NEWS	NAD VINUI
+SOURCE, then Text: a title card. Then its backdrop chip: key green, for the vision mixer to key out.	CELU, ab hen Text: tîw. Ab hen i ram: calen, an i mixer.
+A backdrop fills behind the words. Key green or key blue, and the mixer does the rest.	Ram nu i pedh. Calen ego luin, a i mixer cár i ilya.
+Breaking news: it's standing on the five-day forecast.	Nad vinui: i lhûg na i gwaew leben aur.
+BREAKING: KAIJU	NAD: KAIJU
+BACK TO YOU	AD NA I SANT
+A Lower Third, a name, a title card, a backdrop. The lizard has left the studio, skapi.	Lower Third, eneth, tîw, ram. I lhûg gwanna, skapi.
+Lower Thirds can wait, slide and leave on their own. Their section has every setting.	Lower Third dartha, renia, a gwanna. Ilya mi sant hín.
+That's the weather. Back to you, guys. Run.	Hen i gwaew. Ad na i sant. Noro!
+A GRAND DAY OUT	AUR BELEG
+A rocket built in a basement, skapi, and an inventor who wants cheese. Press START.	Ceryth mi groth, skapi, a tegin i aníra cheese. Matho START.
+Stage timers: countdowns, clocks, and a presenter view for the person on stage.	Lû-tal: nediad nu, lû, a tîr an i bedwen.
+Cheese, Grommet! The moon's made of it. We'll need a countdown.	Cheese, Grommet! Ithil ah cheese. Aníram nediad nu.
+A COUNTDOWN	NEDIAD NU
+SOURCE, then Stage Timer. A clock that counts down, in big friendly numbers.	CELU, ab hen Stage Timer. Lû nediad nu, a nediad beleg.
+Its colours change as it runs out: white, amber, red. Like a VU meter for time.	Lhîn renia: nimp, malen, caran. VU an lû.
+*raises an eyebrow*	*orthor i-lhaew*
+LIFT OFF	ORTHO
+Select the timer and TAKE it. The countdown starts.	Cillo i lû-tal a TAKE. I nediad minna.
+Past zero it keeps going, counting the overtime. Very honest. Slightly rude.	Ab erui, renia. Thand. Ú-maer.
+Ten... nine... ooh, I do love a countdown.	Pae... neder... ai, melin nediad nu.
+HOLD!	DARTHO!
+Something's loose! Space holds the countdown. The clock shows it is held.	Nad lhind! Space dartha. I lû dartha.
+A hold is not a stop. Space again, and it carries on from where it was.	Dartha ú-meth. Space ad, a renia.
+*holds up a spanner*	*orthor i-spanner*
+THE PILOT'S VIEW	TÎR I CHALBUR
+MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	MENU, Ethir gwaew: i mentho ah PRESENTER. I bedwen tíra i lû, i cue nedhui, a i-tîw.
+A presenter view is an output like any other. Point it at the confidence monitor.	Tîr i bedwen: mentho. Tiro na i dôr.
+So the pilot can see the time. The pilot is Grommet.	An i chalbur tíra lû. I chalbur: Grommet.
+TO THE MOON	NA ITHIL
+A countdown, a hold, and a view for the pilot. Nazdrave, skapi. Bring crackers.	Nediad nu, dartha, a tîr an i chalbur. Nazdrave, skapi. Togo cracker.
+Timers can also count up, or show the time of day. Their section has the lot.	Lû-tal: am a nu, a lû. Ilya mi sant hín.
+A grand day out, Grommet! Pass the crackers.	Aur beleg, Grommet! Anno cracker.
+The trunk (closed)	I garaf (holen)
+The trunk (open)	I garaf (edrain)
+THE MAGIC SHOW	I SHOW GÛL
+A magic show, skapi. A trunk, a prop, and one beat where everything changes at once. Press START.	Show gûl, skapi. Garaf, nad, a lû er: ilya renia. Matho START.
+Two playlists are two layers. TAKE ALL changes both together.	Playlist tâd: layer tâd. TAKE ALL renia tâd.
+Every trick needs two things happening at once. And a rubber chicken.	Ilya gûl: nad tâd. A cherf lost.
+The prop goes on its own layer. Press the + at the end of the playlist tabs.	I nad na layer in hîn. Matho + mi meth i playlist.
+Playlist 2 sits on top of playlist 1. Like a transparency on an overhead projector.	Playlist 2 am playlist 1. Sui lhind.
+Nothing up my sleeve. Everything in my trunk.	Ú-nad mi hamp. Ilya mi garaf.
+THE PROP	I NAD
+In the new playlist, add anything: PATTERN will do. That is the prop.	Mi playlist vinui, togo ilya: CENNAD maer. Hen i nad.
+Whatever it is, it will appear the instant the trunk opens.	Ilya nad: tôl ir i garaf edra.
+Is it a rubber chicken? It's always a rubber chicken.	Rubber chicken? Ilya rubber chicken.
+The prop (rubber chicken)	I nad (rubber chicken)
+Select 'The trunk (open)' in playlist 1 and the prop in playlist 2. Then TAKE ALL: both on one beat.	Cillo 'I garaf (edrain)' mi playlist 1, a i nad mi playlist 2. TAKE ALL: lû er.
+One press, every playlist's selected cue. The audience never sees the seam.	Matho er, ilya cue. I tirnen ú-tíra.
+Ta-daaa! ...Hold for applause. Hold. Hold.	Ta-daaa! ...Dartho. Dartho. Dartho.
+THE PRESTIGE	I GÛL BELEG
+Two layers, one beat. Every playlist has its own opacity and can sit on any output. Nazdrave, skapi.	Layer tâd, lû er. Ilya playlist gerir lhind in hîn. Nazdrave, skapi.
+A magician never reveals. A playlist never minds being revealed.	I gûlwen ú-ped. I playlist ú-thaur.
+Thank you! I'm here all week! The chicken is here forever.	Hannon le! Sí i lû! I cherf: ilya ui.
+The kitchen (on fire)	I chaw (lacha)
+A lovely souffle	Soufflé vaer
+THE COOKING SHOW	I SHOW MÎR
+A cooking show, skapi. Live. Everything is on fire. Press START.	Show mîr, skapi. Cuin. Ilya lacha. Matho START.
+BLACK hides the picture and keeps the show running. PANIC stops everything. Know which you need.	BLACK nurtha, i show bâd. PANIC dartha ilya. Isto man aníral.
+Bork bork! Hurdy-flurdy, de kitchen is fire-a-flurdy!	Bork bork! Hurdy-flurdy, i chaw lacha-flurdy!
+The audience must not see this. Press BLACK, or B.	I tirnen ú-tíra! Matho BLACK, ego B.
+The picture goes. The cue keeps playing underneath, ready to come back.	I emel gwanna. I cue bâd nu.
+Bork? Bork. Oh, de picture is gun.	Bork? Bork. Ai, i emel gwanna.
+AND BACK	A AD
+The fire's out. Press B again: the picture comes back, still running.	I naur fiw. Matho B: i emel tôl.
+Nothing was lost. A mute on a mixer, for pictures.	Ú-vanna. Mute, an emlinn.
+Ta-da! Still cookin'!	Ta-da! Mîr ab!
+Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	Gaur: MENU, Gwaith, SAFETY: PANIC. Ilya dartha.
+PANIC is the big red button. Use it when BLACK is not enough. Then breathe.	PANIC: rond caran beleg. Ir BLACK ú-faer. Ab hen thuio.
+GET IT BACK	TOGO AD
+Close MENU, select the souffle, and TAKE it. The show is back on.	Holo MENU, cillo i soufflé, TAKE. I show tôl.
+After a panic, the show is still there. Pick up where you meant to be.	Ab PANIC, i show sí. Renio.
+Voila! De souffle, he is risen!	Voilà! I soufflé ortha!
+BON APPETIT	MAE MATHO
+BLACK to hide, PANIC to stop, TAKE to come back. You will survive any kitchen, skapi.	BLACK nurtha, PANIC dartha, TAKE tôl. Brennich ilya chaw, skapi.
+The panic setting chooses what PANIC does: fade out, cut, or just the outputs.	PANIC: fade, dag, ego mentho erui.
+Bork bork bork! Goodnight!	Bork bork bork! Novaer!
+Look one	Emel er
+Look two	Emel tâd
+Presets, skapi. A whole look, remembered, and back with one button. Press START.	Preset, skapi. Emel ilya, hebin, a ad a rond er. Matho START.
+Like the patch memory on a synth: store, then recall.	Sui patch synth: hebo, ab hen togo.
+THE DASH	DASH
+Press DASH: buttons of your own, for anything at all.	Matho DASH: rond lín.
+Ctrl+D also works. Very fast. Very professional.	Ctrl+D hefyd. Lim. Maer.
+A PRESET BUTTON	ROND PRESET
+Press +, then 'preset - a new preset from what is on now'. The button remembers this look.	Matho +, ab hen 'preset - a new preset from what is on now'. I rond heb i emel.
+Store. Like saving the patch before the drummer leans on the synth.	Hebo. Nan i drummer na i synth.
+CHANGE EVERYTHING	RENIO ILYA
+Close the DASH (Esc), then select Look two and TAKE it. A different look.	Holo DASH (Esc), cillo Emel tâd, TAKE. Emel ereb.
+Change it all. Don't worry. It remembers.	Renio ilya. Ú-gosto. Heb.
+ONE PRESS	MATHO ER
+Open the DASH and press your preset button. The first look comes back.	Edro DASH, matho i rond. Emel minui tôl.
+Recall. The patch memory, returning. Beautiful.	Togo. I patch tôl. Bain.
+A look, stored and recalled. A preset can keep cues, positions, effects, levels and routing; its button's menu chooses which.	Emel hebin a togin ad. Preset heb cue, sant, effect; i menu i rond cilla.
+And a DASH button can run any command at all. Any. Even the exciting ones.	A rond DASH bâd ilya. Ilya.
+Opening titles	Tîw minui
+The planet	I ardh
+The battle	I dagor
+THE TRAILER	I TRAILER
+A space-opera trailer, skapi. A narrator with a very deep voice and opinions about transitions. Press START.	Trailer gilith, skapi. Pedwen a lam dûr. Matho START.
+A transition is how one cue becomes the next. There are far more than the crossfade.	Gwanath: cue ah cue nedhui. Rim sui crossfade.
+In a galaxy of content... one operator... must choose a transition.	Mi gilith... er pedwen... cilla gwanath.
+A STYLE	DÎN
+'The planet' is selected. In the inspector, its transition style: choose iris.	'I ardh' cillen. Mi inspector: iris.
+Pushes, wipes, iris, dip to white. Even a portal. I wrote half of them. On a Tuesday.	Gwanath rim: iris, nimp. Portal hefyd. Teithannen. Mi Orgaladhad.
+The planet deserves... a dramatic entrance.	I ardh... minna beleg.
+A TIME	LÛ
+Give it a time: + on transition until it says a second or more.	Anno lû: + ned gwanath, tenn er lû.
+No time, no transition. A style needs a duration to do anything at all.	Ú-lû, ú-gwanath.
+ROLL IT	RENIO
+TAKE the planet. Watch it arrive.	TAKE i ardh. Tiro.
+The transition belongs to the cue arriving. Each cue chooses its own entrance.	I gwanath an i cue tôl.
+Autobots... roll the transition.	Autobot... gwanath, renio.
+THE BATTLE	I DAGOR
+Now 'The battle': choose shatter, give it a time, and TAKE it.	Sí 'I dagor': shatter, lû, TAKE.
+Shatter drops the old picture like a pane of glass. Please do not do this at a funeral.	Shatter dag i emel ngyrn sui heledh. Ú mi gorth!
+Transform... and shatter out!	Renio... a dago!
+IN CINEMAS NOW	SÍ MI SANT
+A style, a time, and two very dramatic entrances. Nazdrave, skapi.	Dîn, lû, a minna tâd. Nazdrave, skapi.
+A playlist has a default style too, for every cue that does not choose its own.	Playlist gerir dîn an ilya cue.
+Coming soon... to a desk near you.	Tôl... na i sant lín.
+The beat	I dâl
+THE ROBOT DJS	I DJ ANGREN
+Two robot DJs, skapi. They do not talk. Their helmets do. Press START.	DJ angren tâd, skapi. Ú-pedir. Ham pedir. Matho START.
+Every cue has its own chain of audio effects, and some of them break the sound on purpose.	Ilya cue gerir lamm in hîn. Rim dagar i lamm.
+> HELLO. WE ARE HERE TO FIX YOUR MIX.	> MAE GOVANNEN. NESTAM I MIX LÍN.
+The beat is selected. In its AUDIO EFFECTS section, + adds one. Try the delay.	I dâl cillen. Mi AUDIO EFFECTS, + togo. Ceso delay.
+Delay, reverb, filters, a compressor. Amount always means 'less of this'.	Delay, reverb, filter. Amount: 'thinnas'.
+> ONE MORE TIME. WITH ECHO. ECHO. ECHO.	> AD. A LAMM. LAMM. LAMM.
+A BEND	RHAW
+Add a second: a bend, like crush. It damages the sound the way a broken file would.	Togo tâd: rhaw, sui crush. Dag i lamm.
+The bends are my favourite. Like a tape left in the sun. On purpose.	Rhaw melin. Sui tape mi Anor.
+> HARDER. BETTER. CRUNCHIER. LOUDER.	> TUR. MAER. THAR. BELEG.
+THE PATCH	I PATCH
+MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	MENU, ab hen Lamm: ias i lamm.
+Speakers, monitors, an in-ear for the drummer. The patch sends each its own.	Lamm, monitor, in-ear. I patch anna ilya.
+> AROUND THE MIX. AROUND THE MIX. AROUND THE MIX.	> OS I MIX. OS I MIX. OS I MIX.
+An effect, a bend and the patch. The robots approve, skapi. I think. Their faces are helmets.	Effect, rhaw, patch. I angren glas, skapi. Ham.
+Every audio effect can follow a ~ too, even Motion. Wave at the delay. It's wonderful.	Ilya effect lamm ~, Motion hefyd. Hel na delay.
+> THANK YOU. GOOD NIGHT. WE ARE ROBOTS.	> HANNON LE. NOVAER. ANGREN NÍN.
+The glow on the horizon (evidence #2)	I galad mi rîw (dangen 2)
+EVIDENCE #2	DANGEN 2
+The Bureau again, skapi. A glow on the horizon, and two agents who disagree about it. Press START.	I sant ad, skapi. Galad mi rîw, a ohtar tâd. Matho START.
+The scopes measure a picture: brightness, colour, levels. Numbers, not opinions.	I scope nesta: galad, lhîn. Nediad, ú-ind.
+It's them, Brandt. It's a craft. Look how it glows.	Hain, Brandt. Cair. Tiro i galad.
+THE REAL SIGNAL	I MENTHO THAND
+The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	I scope ceni i mentho thand. Edro i mentho: MENU, Ethir gwaew, MENTHO DÛ.
+Measuring a scaled-down preview would be measuring a photocopy. We measure the original.	Nesto emel thinn: sui nesto chîn. Nestam i minui.
+Chain of evidence, Hollis. The real signal or nothing.	Gwanath i dangen, Hollis. Thand ego ú-nad.
+THE SCOPES	I SCOPE
+Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	Holo MENU. Am i monitor, PROGRAM: matho, tenn SCOPES ego BOTH.
+Both shows the picture and its scopes side by side. Very civilised.	BOTH: emel a scope. Maer.
+Let the scopes decide, Hollis.	I scope cilla, Hollis.
+THE WAVEFORM	I WAVEFORM
+Click the waveform to make it big. Bright things sit high, dark things low, left to right as in the picture.	Matho i waveform. Galad am, dûr nu.
+The glow is that spike near the top. Very bright. Bright is not the same as alien.	I galad: amon am. Galad beleg. Galad ú-gelaidh.
+Look at the peak. Nothing a streetlight couldn't do.	Tiro i amon. Lach i-rath.
+THE VECTORSCOPE	I VECTORSCOPE
+Click it again to go back, then click the vectorscope: colour round a circle. Saturated runs to the edge.	Matho ad, ab hen vectorscope: lhîn rodwen.
+Magenta, far out by the rim. A strong colour. Strong is not illegal. Yet.	Magenta, mi rain. Lhîn tur. Ú-maer? Ab.
+It's off the chart, Brandt! Literally off the chart!	Ar i chart, Brandt!
+FALSE COLOUR	LHÎN Ú-THAND
+And false colour: red is clipped, yellow nearly. Is the glow red?	Lhîn ú-thand: caran dag, malen thinn. I galad caran?
+Clipped means the brightest the signal can carry, and then some lost. Detail gone.	Dag: i galad meth, a nad gwanna.
+Red. Clipped. Not alien, Hollis. Just too bright. Case closed.	Caran. Dag. Ú-gelaidh, Hollis. Galad rim. Meth i nad.
+THE TRUTH	I THAND
+Waveform, vectorscope, false colour. The scopes settled it, skapi. The agents did not.	Waveform, vectorscope, lhîn ú-thand. I scope cillant, skapi.
+SCOPES SOURCE reads any output, and the matrix can be 709 or 2020. For the curious.	SCOPES SOURCE ceni ilya mentho, 709 ego 2020.
+Too bright for a streetlight, Brandt. Too bright for anything. ...I want to believe.	Galad rim an lach i-rath, Brandt. ...Aníron vîn.
+OUT OF THE BUILDING	AR I BARAD
+Pictures that leave by cable or network, skapi, not only a window on a screen. Press START.	Emlinn i gwannar, skapi, ú-henneth erui. Matho START.
+NDI over the network, SDI from a DeckLink card, ST 2110 for broadcast plants.	NDI mi raew, SDI o DeckLink, ST 2110.
+THE DEVICES PAGE	SANT I GWAEDHAIL
+MENU, Video Outputs, then Devices: every way an output can leave this computer.	MENU, Ethir gwaew, ab hen Gwaedhail: ilya ias.
+Each one says whether this machine can do it, and what it needs if not.	Ilya pêd: i chent pada? Man thaur?
+If this computer has NDI, switch NDI SENDING on: the picture is on the network. If not, SHOW ME moves on.	Ir NDI, edro NDI SENDING: i emel mi raew. Ir ú, SHOW ME renia.
+NDI finds itself on the network. No cables, only a good switch and patience.	NDI hîr hen mi raew. Ú-lain. Switch maer a dartha.
+OUT THERE	AR
+The output's own page has the rest: a DeckLink card's SDI, ST 2110 with NMOS, Spout and Syphon.	Sant i mentho: SDI DeckLink, ST 2110 NMOS, Spout, Syphon.
+Every one is just an output. The show does not know or care how it leaves.	Ilya: mentho erui. I show ú-ista.
+Nebula ahead	Hîth gilith na ndhu
+Engine room	Sant i nûr
+Deck 3: something moving	Dôr 3: nad renia
+THE BRIDGE	I THARAS
+The bridge of the starship Cathode, skapi. Four feeds, one main viewer, one mystery. Press START.	Tharas i chair Cathode, skapi. Mentho canad, chent er, nad dhínen er. Matho START.
+The multiview shows every playlist at once. Like a wall of oscilloscopes, but in space.	Multiview: ilya playlist. Sui ram o oscilloscope, mi gilith.
+Frequencies open, Captain. All of them. That's the problem.	Raew edrain, Hîr. Ilya. Úgaru.
+MULTI, above the monitor: every playlist in its own window.	MULTI, am monitor: henneth an ilya playlist.
+One window per playlist, the programme first.	Henneth er an playlist, program minui.
+Jinkys! Four feeds. And one of them has a monster in it.	Jinkys! Mentho canad. Mi er: gaur!
+WHAT'S NEXT	NEDHUI
+Add a window (+), then its ... menu: make it show NEXT. What goes live when you press TAKE.	Togo henneth (+), ab hen ... menu: NEXT. Na lach ab TAKE.
+Every window has a ... button. It chooses what that window shows.	Ilya henneth gerir ... rond. Cilla.
+I need to see who's calling before they reach the main viewer.	Aníron tiro i bedir nan i chent.
+A CLOCK	LÛ
+And one more window, showing the clock. Operators who watch a clock are never late. Mostly.	Henneth ereb: lû. I-thirn lû ú-anann. Ah ilya.
+Time of day, big. Stardates are just very long timecode.	Lû beleg. Stardate: timecode and.
+The monster only shows up at midnight. We're going to need a clock.	I gaur tôl mi enedhin. Aníram lû.
+ONE BIG ONE	ER BELEG
+Any window's ... menu, then a layout: one big, the rest small.	... menu, ab hen layout: er beleg.
+The big window is window one. Usually the programme. Usually.	Henneth er: program. Ah ilya.
+Main viewer big. The captain likes it big.	Chent beleg. I Hîr mela beleg.
+ON SCREEN	NA CHENT
+Select Deck 3 in playlist 3 and TAKE. Watch its window.	Cillo Dôr 3 mi playlist 3, TAKE.
+The red border is TALLY: the window that is on air. On screen, as they say on starships.	Rain caran: TALLY. Na lach. 'Na chent!'
+There! Feed three! Put it on screen!	Sí! Mentho nêl! Na chent!
+THAT'S A WRAP	METH
+Windows, the ... menu, NEXT, the clock, a layout, tally. Mystery solved, skapi.	Henneth, ... menu, NEXT, lû, layout, tally. I nad dhínen meth, skapi.
+A window can also show an output, with its warp and slices. Handy when it's a lighthouse.	Henneth tíra mentho a warp a thent.
+And the monster was... the ship's cook, all along. Jinkys.	A i gaur... i mîr i chair, ilya lû. Jinkys.
+there is no such lesson	ú-ennas pennas sui hen
+finish or leave the lesson you are in first	meth i bennas minui
+leave Bug Swat first	gwanno Bug Swat minui
+Psst. It's me, the desk. I'll be watching. Supportively.	Psst. Im i sant. Tíran. Mae.
+Hi! I'm the one doing all of this, by the way.	Mae govannen! Im cerin ilya, hefyd.
+Ctrl+D opens the DASH. I'm just saying.	Ctrl+D edra DASH. Pedin erui.
+Nearly there. I can feel it in my pixels.	Ab ennas. Thangan mi pixel nín.
+You're good at this. I can tell. I'm the one doing it.	Maer le. Istan. Im cerin.
+Every click, I heard. Every single one.	Ilya matho, lastannen. Ilya.
+The glowing one. I can see it from here. It's glowing for you.	I galad. Tíran sí. Ah le.
+lesson paused - MENU > LESSONS picks up where you left off	pennas dartha - MENU > LESSONS renia
+PROF. VIDEO:  The signal: what the picture is made of, and how to bend it. Pick a lesson.	PROF. VIDEO:  I mentho: man i emel, a sui rhaw. Cillo pennas.
+DR. PIXEL:  Running the show, skapi. Fast hands, calm face. Pick a lesson.	DR. PIXEL:  Show, skapi. Mbaw lim, hen dartha. Cillo pennas.
+LESSONS  -  PART TWO  -  WHO DO YOU FOLLOW?	PENNAS  -  RANN TÂD  -  MAN PADACH?
+FOLLOW PROF. VIDEO	PADO PROF. VIDEO
+FOLLOW DR. PIXEL	PADO DR. PIXEL
+the signal	i mentho
+running the show	i show
+PICK UP	RENIO
+CLOSE (Esc)	HOLO (Esc)
+PART ONE: THE BASICS	RANN MINUI: I-NAD
+finish or leave LEARN THE BASICS first	meth LEARN THE BASICS minui
+bug swat: Esc leaves, and your show comes back as it was	bug swat: Esc gwanna, a i show lín tôl
+bug swat: your show is back. Motion's controls are in Settings > Audio	bug swat: i show lín tôl. Motion: Gwaith > Lamm
+TURN MOTION ON	EDRO MOTION
+Bugs are crawling to the cue list! Swat them by waving at your camera. First, Motion: in MOTION CONTROL turn it ON and choose what it READS.	Lhûg renia na i cue! Dago a hel na i camera. Minui Motion: mi MOTION CONTROL, ON, a READS.
+This one is NullPointer. Hollow, points at nothing. A finger goes straight through. Use the whole hand, skapi.	NullPointer. Lost, ú-tíra. Lebed ar. Mbaw ilya, skapi.
+Wave like you are hailing a cab! A small, polite cab. Not the buttons. The cab.	Hel sui taxi! Taxi thinn, maer. Ú-rond. Taxi.
+DRAW TWO ZONES	TEITHO ZONES TÂD
+Race Condition: twins, each sure it got there first. One reading cannot tell your hands apart, so drag two ZONES on the Motion picture, one each side.	Race Condition: gwanûn, ilya 'im minui'. Ceni er ú-ista mbaw tâd: ZONES tâd mi Motion, er an ilya rain.
+Hit both together. Hit one, and they swap. Like my cousins at a wedding.	Dago tâd. Er erui: renia. Sui gwanur mi vereth.
+One hand each side. Together! Together!	Mbaw er an ilya rain. Govannen! Govannen!
+Off By One. The bug is not the face, it is the tiny extra segment, and a little wiggle needs a finer reading. Turn SENSITIVITY down to 5%.	Off By One. I lhûg ú-i hen, ach i rann thinn. Renio thinn: cened maer. SENSITIVITY na 5%.
+Lower number, finer reading. Yes, I also think it is backwards.	Nediad thinn, cened maer. Ai, gwanath.
+Not the face. The little one on the end. Wiggle a finger.	Ú-i hen. I thinn mi meth. Renio lebed.
+FALL 1.5 S OR MORE	FALL 1.5 S EGO RIM
+Memory Leak. It only lets go while the reading stays up. Make FALL longer, 1.5 seconds or more, so your sweeps join up into one.	Memory Leak. Ab i cened am. FALL and: 1.5 lû ego rim.
+Slow and steady, skapi. Like paying back a loan.	Lim ú-lim, skapi. Sui anno ad i mîr.
+Sweep, and sweep again. Let the fall carry you between.	Hel, a hel ad.
+MOTION X ON A TONE	MOTION X NA LÍN
+The Heisenbug! It fades whenever you move. Put a tone cue's pitch on Motion X and follow it by ear: the ticking speeds up as you close in.	I Heisenbug! Gwanna ir renial. Lín na Motion X, a lasto: tîk lim ir anann.
+SHOW ME makes the tone for you. High is right. Low is left. Stand still and it comes back.	SHOW ME cár i lín. Am: forn. Nu: hair. Dartho, a tôl.
+Follow it. Listen. Faster ticking, closer bug.	Pado. Lasto. Tîk lim, lhûg ned.
+Waving paw	Mbaw hel
+Heisenbug finder	Hîr Heisenbug
+FIXED! Lovely signal flow.	NESTEN! Mentho vaer.
+Closed as fixed. No regressions. Probably.	Meth. Ú-rim. Ah.
+Squashed! Ship it.	Dagnen! Anno!
+One reached the cue list. It has filed a bug report about you.	Er tôl na i cue. Teithant parf an le.
+Skapi. It is a handheld. You do not press it. You wave at it.	Skapi. Chent mi chamm. Ú-mathach. Helach.
+The buttons are for menus. The bugs are for flailing.	Rond: an menu. Lhûg: an hel.
+The D-pad is decorative. Like my diploma.	D-pad: bain erui. Sui parf nín.
+In 1989 we also pressed the buttons. Then we discovered waving. Never looked back.	Mi 1989, mathem rond. Ab hen, ennin hel. Ú-tirnem ad.
+Pressing harder does not help. The bugs cannot feel buttons. Only arms.	Matho tur: ú-maer. Lhûg ú-thangar rond. Rond erui.
+It's called a handheld because your hands are held... up. In the air. Waving.	Chent mi chamm: i chamm am. Mi gwaew. Hel.
+The mouse? You are swatting bugs with a MOUSE? In Bulgaria the mouse would be on the bugs' side.	Mouse? Dagach lhûg a MOUSE? Mi Bulgaria, i mouse na i lhûg.
+Lovely clicking. Very crisp. The camera saw none of it.	Matho vaer. I camera ú-tíra.
+DONE FOR YOU - PRESS START	CEREN AN LE - MATHO START
+DONE! PRESS START	METH! MATHO START
+SELECT OPENS MOTION CONTROL	SELECT EDRA MOTION CONTROL
+ALL BUGS FIXED	ILYA LHÛG NESTEN
+GAME OVER	METH I DINNAD
+NEW HIGH SCORE!	NEDIAD AM VINUI!
+START PLAYS AGAIN	START AD
+Nazdrave, skapi. Now go and fix real bugs.	Nazdrave, skapi. Sí, nesto lhûg thand.
+Every one of those is a real Motion control. Put them on any ~ knob you like.	Ilya: rond Motion thand. Na ilya rond ~.
+START: AGAIN	START: AD
+START: PLAY	START: TINNO
+# --- end of tutorials ---
