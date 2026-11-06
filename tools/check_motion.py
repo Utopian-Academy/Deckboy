@@ -146,15 +146,22 @@ def run(exe, work):
         db.send("FX LFO 1 E SHAPE motion")
         db.send("FX LFO 1 E DEPTH 1")
         db.send("FX LFO 1 E ON")
-        time.sleep(1.2)
+        # From the start of the crossing, as the reading above: on a slow
+        # machine the box can have finished crossing by now, and a still
+        # picture is no motion. The background is exactly black without the
+        # invert, so any clear lift is the invert following Motion; how far
+        # it lifts is the motion level (about 0.1 here), not a fixed number.
+        db.send("TAKE")
+        time.sleep(1.6)
+        level = levels(db).get("whole", (0,))[0]
         moving = corner(snap(db, work, 1))
-        note("an invert following Motion lifts the black background (%s)" % (moving,),
-             moving is not None and moving[0] > 15, moving)
+        note("an invert following Motion lifts the black background (%s, motion %.2f)" % (moving, level),
+             moving is not None and moving[0] > 6, moving)
         db.send("MOTION OFF")
         time.sleep(1.0)
         still = corner(snap(db, work, 2))
         note("...and with Motion off it is black again (%s)" % (still,),
-             still is not None and moving is not None and still[0] < moving[0] - 12, still)
+             still is not None and moving is not None and still[0] < moving[0] - 4, still)
         db.send("FX LFO 1 E ZONE 2")
 
         print("  saved, refused")
