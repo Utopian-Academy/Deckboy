@@ -1997,3 +1997,200 @@ Run the clock	Пусни часовника
 What fires this cue besides GO	Какво задейства cue освен GO
 center	Център
 visual	визуализация
+JAM	СИНХР
+MIX	МИКС
+CLIP	КЛИП
+TEXT	ТЕКСТ
+KEY L	KEY Л
+MULTI	МУЛТИ
+WACKY	ЛУДОСТ
+COLOUR	ЦВЯТ
+DARKEN	ЗАТЪМНЯВАНЕ
+STEREO	СТЕРЕО
+COMPARE	СРАВНЕНИЕ
+LIGHTEN	ИЗСВЕТЛЯВАНЕ
+DASHBOARD	ТАБЛО
+25 fps (PAL/EBU)	25 к/с (PAL/EBU)
+29.97 fps (NTSC)	29,97 к/с (NTSC)
+Pocket Test (day)	Тест Pocket (ден)
+Dark Detail (0-12%)	Детайл в сенките (0-12%)
+Frame Count (emoji)	Брояч на кадри (емоджи)
+PLUGE (black level)	PLUGE (ниво на черното)
+Pocket Test (night)	Тест Pocket (нощ)
+Pocket Test (storm)	Тест Pocket (буря)
+Marks stacked BELOW.	Знаци, натрупани ОТДОЛУ.
+Panel Map (animated)	Карта на панелите (анимирана)
+Pocket Test (sunset)	Тест Pocket (залез)
+Boresight (alignment)	Мерник (подравняване)
+SMPTE 75% Colour Bars	Цветни ленти SMPTE 75%
+(projector curve only)	(само крива на проектора)
+Multiburst (bandwidth)	Мултибърст (честотна лента)
+Convergence (fine grid)	Конвергенция (фина мрежа)
+Greyscale Steps (gamma)	Степени на сивото (гама)
+Uniformity (flat fields)	Равномерност (гладки полета)
+MULTIVIEW carries this too.	MULTIVIEW също носи това.
+Test Clock (sync + latency)	Тестов часовник (синхрон + закъснение)
+auto (reads the common two)	авто (чете двата обичайни)
+Panel Map (LED tile numbers)	Карта на панелите (номера на LED панелите)
+Portal (blobs of deep space)	Портал (мехури от дълбокия космос)
+Terrarium (living ecosystem)	Терариум (жива екосистема)
+Window 10% (peak brightness)	Прозорец 10% (пикова яркост)
+Window 50% (peak at mid APL)	Прозорец 50% (пик при среден APL)
+Frame Count (drops + latency)	Брояч на кадри (изпуснати + закъснение)
+Terrarium Pico (1px per cell)	Терариум Pico (1 px на клетка)
+Banding Ramps (real bit depth)	Рампи за бандинг (истинска битова дълбочина)
+Fireside (a hearth that burns)	Огнище (огън, който гори)
+HLG - live broadcast (BT.2100)	HLG - пряко излъчване (BT.2100)
+Test Bars (motion diagnostics)	Тестови ленти (диагностика на движението)
+Moire 1:1 (is anything scaling?)	Моаре 1:1 (мащабира ли нещо?)
+Send now, without taking the cue	Изпрати сега, без да взимаш cue
+Pocket Test (test card + scene cycle)	Тест Pocket (тестова карта + смяна на сцени)
+Critters (pixel-exact scaling, animated)	Critters (мащаб точно по пиксел, анимиран)
+headphones, desk sounds and LTC stay out of it	слушалки, звуци от пулта и LTC остават извън това
+Above 1 tunnels inward, below 1 blooms outward.	Над 1 тунелът се затегля навътре, под 1 разцъфва навън.
+Read everything right to left. Yes, everything.	Всичко се чете отдясно наляво. Да, всичко.
+Amber is closest to the 1976 single-phosphor look.	Кехлибареното е най-близо до еднофосфорния вид от 1976 г.
+Greetings, primitive. Your "slideshow" amuses us.	Поздрави, примитивно същество. Твоето „слайдшоу“ ни забавлява.
+Sway sideways. Depth 1 is half the frame either way	Люлеене встрани. Дълбочина 1 е половин кадър на всяка страна
+Draw the diagnostic over the card, or just the text.	Рисувай диагностиката върху картата или само текста.
+All interfaces, but only this computer is trusted yet.	Всички интерфейси, но засега се доверява само на този компютър.
+Choose the legacy cue token to show inside the PIP window	Избери стария cue токен за прозореца PIP
+ASIO carries the show's sound, and these are not on it yet	ASIO носи звука на шоуто, а тези още не са на него
+N=new  Enter/P=previous  O=open saved  E=examples  L=learn	N=нов  Enter/P=предишен  O=отвори запазен  E=примери  L=обучение
+Hand this parameter to an oscillator so it moves on its own	Дай този параметър на осцилатор, за да се движи сам
+How long the finished drawing stays before it is drawn again	Колко дълго готовата рисунка стои, преди да се нарисува отново
+How it comes on and goes off: none, fade, rise, slide or wipe	Как влиза и излиза: няма, затихване, издигане, плъзгане или завеса
+The 64-step wavetable, quantised to 6 bits like the hardware.	Вълновата таблица с 64 стъпки, квантувана до 6 бита като хардуера.
+Vary tile size per cell, so the grid stops looking like a grid.	Променяй размера на плочките по клетки, за да спре мрежата да изглежда като мрежа.
+Which output channel carries the signal. 'all' feeds every one.	Кой изходен канал носи сигнала. 'all' захранва всички.
+What is sent. Backslash-n, -r, -t and -0 become those characters	Какво се изпраща. Обратна наклонена n, r, t и 0 стават тези знаци
+Deckboy's own remote-protocol verbs, one per line; # is a comment	Собствените команди на протокола на Deckboy, по една на ред; # е коментар
+Modulator speed as a ratio of the note, so the bend tracks pitch.	Скорост на модулатора като отношение към нотата, за да следва огъването височината.
+Play this cue to the preview only; the outputs keep what they have	Пусни този cue само в прегледа; изходите пазят каквото имат
+Put the pitch on an oscillator: Motion X sweeps it like a theremin	Дай височината на осцилатор: Motion X я мете като терменвокс
+A disarmed cue stays in the list and does nothing; GO steps over it	Обезоръжен cue остава в списъка и не прави нищо; GO го прескача
+Where the clock reads from this cue on; click the value to type one	Откъде часовникът чете от този cue нататък; щракни стойността, за да я въведеш
+Add a dashboard button that fires this master by name, from anywhere	Добави бутон в таблото, който пуска този мастер по име отвсякъде
+New here? LEARN THE BASICS takes five minutes. We'll show you round.	Нов си тук? ОСНОВИТЕ отнемат пет минути. Ще те разведем.
+An IPv4 address, or 255.255.255.255 to broadcast to the whole network	IPv4 адрес или 255.255.255.255 за излъчване до цялата мрежа
+How much playing audio widens and brightens the pattern. 0 free-runs.	Колко звучащото аудио разширява и изсветлява шарката. 0 върви свободно.
+LED panel width in pixels - what one tile really is. Click to type it	Ширина на LED панела в пиксели: колко е наистина една плочка. Щракни, за да въведеш
+Which deck it acts on; step off the end for the one this cue lives on	Върху кой дек действа; мини отвъд края за дека на този cue
+only one playlist - use the routing chip on the header to add another	само един плейлист: превключвателят за маршрут в заглавието добавя още
+Which cue this master fires on that deck; step off the end to clear it	Кой cue пуска този мастер на онзи дек; мини отвъд края, за да изчистиш
+Draw on the programme monitor with the mouse or a pen (DRAW). Esc stops	Рисувай върху монитора на програмата с мишка или писалка (DRAW). Esc спира
+How long the move takes, each way. 0 is instant whatever the style says	Колко трае движението във всяка посока. 0 е мигновено, каквото и да казва стилът
+Stop that deck when the ramp lands - the usual take-it-down-and-stop-it	Спри онзи дек, когато рампата стигне: обичайното свали-и-спри
+Which of the file's sound tracks plays: a second language, a commentary	Коя звукова пътечка на файла свири: втори език, коментар
+An oscillator on the colour: depth is how far round the wheel it travels	Осцилатор на цвета: дълбочината е докъде обикаля по колелото
+Rack this cue paused and off air so GO starts it with no decoder spin-up	Зареди този cue на пауза и извън ефир, за да го пусне GO без забавяне на декодера
+Note, control change, program change, MIDI Show Control, or your own bytes	Нота, control change, program change, MIDI Show Control или собствени байтове
+Black behind the words. Zero leaves it over whatever the output already has	Черно зад думите. Нула ги оставя върху това, което изходът вече има
+How far the modulator bends the pitch. 0-63, the hardware's own gain range.	Колко модулаторът огъва височината. 0-63, собственият обхват на усилване на хардуера.
+the words this cue puts on screen  |  Shift+Enter: new line  |  Enter: apply	думите, които този cue показва на екрана  |  Shift+Enter: нов ред  |  Enter: приложи
+OSC and UDP are fire and forget; TCP connects, so it runs off the show thread	OSC и UDP изпращат и забравят; TCP се свързва, затова работи извън нишката на шоуто
+Put the level on an oscillator: Motion makes it a gate that opens as you move	Дай нивото на осцилатор: Motion го прави гейт, който се отваря, докато се движиш
+Marks stacked ABOVE the characters, the way combining accents overflow a line.	Знаци, натрупани НАД символите, като комбинирани ударения, които преливат реда.
+Which chime. Cycling PLAYS it, so it can be chosen by ear rather than by name.	Кой звънец. Превключването го ПУСКА, така че избираш на слух, а не по име.
+No rows. + ADD or LEARN makes one; MIDIMAP RESET brings the built-in rows back.	Няма редове. + ДОБАВИ или НАУЧИ създава ред; MIDIMAP RESET връща вградените.
+Save the mask's paths as SVG, for Illustrator and anything else that reads them	Запиши контурите на маската като SVG, за Illustrator и всичко, което ги чете
+Which MIDI output; a named port that is missing is reported rather than swapped	Кой MIDI изход; липсващ именуван порт се съобщава, а не се подменя
+An oscillator on the level, running after GO until a later cue sets this fixture	Осцилатор на нивото, работещ след GO, докато по-късен cue не зададе това тяло
+Steps in third-octaves, because the ear works in ratios. 1kHz is the convention.	Стъпки по третина октава, защото ухото работи с отношения. 1 kHz е конвенцията.
+Strikes drawn ACROSS the cell, damaging the character rather than decorating it.	Черти НАПРЕКИ на клетката, които повреждат знака, вместо да го украсяват.
+Whether incoming MIDI notes play this synth or trigger cues as they always have.	Дали входящите MIDI ноти свирят този синтезатор, или пускат cue както винаги.
+A note number, or type LEARN and play it. Notes no cue claims still go to cue N+1	Номер на нота, или въведи LEARN и я изсвири. Нотите, които никой cue не взима, отиват към cue N+1
+A plain stereo pair. Click to open the matrix, starting from exactly this routing	Обикновена стерео двойка. Щракни, за да отвориш матрицата точно от този маршрут
+Folding is what turns an arbitrary pattern into something that reads as designed.	Сгъването прави от произволна шарка нещо, което изглежда проектирано.
+Channel=level, comma separated. Ranges too: 1=255, 10-14=64. Channels count from 1	Канал=ниво, разделени със запетая. И диапазони: 1=255, 10-14=64. Каналите се броят от 1
+Moves every selected cue's trim by the same dB; typing a value sets them all to it	Мести трима на всеки избран cue с еднакви dB; въвеждането на стойност я задава на всички
+Bends the carrier's PITCH rather than mixing with it. This is what makes FDS growl.	Огъва ВИСОЧИНАТА на носещата, вместо да се смесва с нея. Затова FDS ръмжи.
+Half way through LEARN THE BASICS. Press L and we pick up where you stopped, skapi.	По средата на ОСНОВИТЕ. Натисни L и продължаваме оттам, skapi.
+Render as a character grid with a 16-colour indexed palette, rather than as pixels.	Рисувай като мрежа от символи с индексирана палитра от 16 цвята, вместо пиксели.
+Which MIDI output this file plays to; step past the end for the first one available	Към кой MIDI изход свири файлът; мини отвъд края за първия свободен
+An IPv4 address, or 255.255.255.255 for the universe's multicast group (239.255.x.y)	IPv4 адрес или 255.255.255.255 за multicast групата на юнивърса (239.255.x.y)
+Click a cell to walk it: off, full, -3, -6, -12. This row turns the matrix off again	Щракай клетка, за да я превключваш: изкл., пълно, -3, -6, -12. Този ред пак изключва матрицата
+How long each phrase stays before it moves. Zero hides them without losing the list.	Колко стои всяка фраза, преди да се помести. Нула ги скрива, без да губи списъка.
+How long it takes to fall away after the attack. Only audible when retrigger is set.	Колко трае спадът след атаката. Чува се само при включен повторен старт.
+Off, from start (next cue fires when this one starts) or from end (when it finishes)	Изкл., от начало (следващият cue тръгва, когато този започне) или от край (когато свърши)
+Height of one line as a percent of the raster, so a card reads the same on any screen	Височина на един ред като процент от растера, за да се чете карта еднакво на всеки екран
+Set slot source as media:/path, browser:url, window:name, camera:name, or syphon:name	Задай източник на слота като media:/път, browser:url, window:име, camera:име или syphon:име
+Short LFSR mode. The period is brief enough to read as pitched metal rather than hiss.	Кратък LFSR режим. Периодът е толкова кратък, че звучи като настроен метал, а не шум.
+White, warm, red, amber, green, cyan, blue, magenta. ~ moves it round the colour wheel	Бяло, топло, червено, кехлибар, зелено, циан, синьо, магента. ~ го върти по цветното колело
+Re-strike the envelope this often. Hold sustains one note, which is what a drone wants.	Рестартирай обвивката толкова често. Hold държи една нота, каквото иска дронът.
+Diamond is the hard-edged Atari Video Music lattice; rings tunnel well with feedback zoom.	Diamond е острата решетка на Atari Video Music; пръстените правят добър тунел със зума на обратната връзка.
+Rock or spin. Depth 1 is half a turn either way; a saw at depth 1 turns it all the way round	Люлеене или въртене. Дълбочина 1 е половин оборот на всяка страна; трион на 1 завърта докрай
+DECK playback level (live, not saved with the cue) - per-cue trim is gain in the AUDIO section	Ниво на възпроизвеждане на ДЕКА (на живо, не се пази в cue) - тримът на cue е усилването в раздел АУДИО
+Still, fade in, typewriter, scroll up, crawl or pulse -- all driven by the cue's own transport	Статично, появяване, пишеща машина, превъртане нагоре, бягащ ред или пулс, всичко от транспорта на cue
+Fields per rendered frame. 1 is one for one, 0.5 holds each field for two frames, 0 freezes it.	Полета на рендериран кадър. 1 е едно към едно, 0,5 държи всяко поле два кадъра, 0 го замразява.
+What this cue shows while it plays: waveform, scope, Lissajous, spectrum, meters or a name card	Какво показва този cue, докато свири: вълнова форма, осцилоскоп, Лисажу, спектър, индикатори или карта с име
+0 picks tiles by brightness so the picture reads. 1 picks at random so the grid becomes texture.	0 избира плочките по яркост, за да се чете картината. 1 ги избира случайно и мрежата става текстура.
+How far it travels, in semitones. Up reads as arrival, down as departure, zero is a struck note.	Колко далеч отива, в полутонове. Нагоре звучи като пристигане, надолу като тръгване, нула е ударена нота.
+An IPv4 address. Names are not resolved: a DNS lookup is a blocking call and GO must not make one	IPv4 адрес. Имената не се разрешават: DNS заявката блокира, а GO не бива да я прави
+Tile width in pixels. Must match the sheet's grid or the slices land across neighbouring sprites.	Ширина на плочката в пиксели. Трябва да съвпада с мрежата на листа, иначе парчетата падат между съседни спрайтове.
+Alternating mirrors by cell position, which reads as pattern where random flipping reads as noise.	Редуващи се огледала по позиция на клетката: четат се като шарка там, където случайното обръщане се чете като шум.
+0 welds them to their cell, which reads as engraved. Above it they re-roll, which reads as boiling.	0 ги заварява за клетката, като гравирани. Над това се теглят наново, сякаш кипят.
+MONO L plays the left input in both speakers: mic 1 on most interfaces. STEREO is for a line source.	MONO L пуска левия вход в двата говорителя: микрофон 1 на повечето интерфейси. STEREO е за линеен източник.
+The whole gesture. This IS the cue's duration -- a sting is the one generated signal here that ends.	Целият жест. Това Е продължителността на cue: джингълът е единственият генериран сигнал тук, който свършва.
+Click the value to send this fixture or leave it where the last cue put it. ~ makes the level breathe	Щракни стойността, за да пратиш това тяло или да го оставиш, където го е сложил последният cue. ~ кара нивото да диша
+FDS is a wavetable bent by a modulator. 2A03 is the pulse/triangle/noise set most chiptune is made of.	FDS е вълнова таблица, огъната от модулатор. 2A03 е наборът пулс/триъгълник/шум, от който е направен почти целият чиптюн.
+Scramble which glyph means which brightness. Same set, different handwriting. Seeded, so it stays put.	Разбъркай кой знак означава коя яркост. Същият набор, друг почерк. Със семе, така че остава на място.
+Pixel sort: runs of pixels sorted by brightness within a row, which is what makes datamosh look melted.	Сортиране на пиксели: поредици от пиксели в реда, подредени по яркост, което дава на датамоша разтопения вид.
+How many cells the marks may climb. They thin out as they go, so a tall reach trails rather than doubles.	С колко клетки могат да се изкачат знаците. Изтъняват по пътя, така че голям обхват оставя следа, вместо да се удвоява.
+cue act val  -  G take  S stop  F fade out (val = tenths of a second)  V volume  O opacity  J jump to row	cue дейст ст  -  G вземи  S стоп  F затихване (ст = десети от секундата)  V сила  O плътност  J скок до ред
+Harmonic weight: a pure chime at zero, brass at full. This is the difference between a ping and a fanfare.	Тежест на хармониците: чист звънец на нула, медни на максимум. Това е разликата между пинг и фанфара.
+Steps through the inputs this computer has. 'Settings input' follows the input chosen in Settings > Audio.	Минава през входовете на този компютър. 'Settings input' следва входа, избран в Настройки > Аудио.
+Embers to roaring. It still surges and settles at any setting -- a fire that does not move reads as a photo	От жар до бучащ огън. Пак се надига и стихва при всяка стойност: огън, който не мърда, изглежда като снимка
+Reference pitch. 440 is modern standard, 432 the common alternative, and older instruments sat lower still.	Опорна височина. 440 е съвременният стандарт, 432 честата алтернатива, а старите инструменти са били още по-ниско.
+Where the sting starts. Under a voice it wants to stay out of the way; over a room it wants to cut through.	Откъде тръгва джингълът. Под глас трябва да се махне от пътя; над зала трябва да пробие.
+Digital gain on the input, -40 to +40 dB. Set the interface's own preamp first; this is for the last few dB.	Цифрово усилване на входа, от -40 до +40 dB. Първо нагласи предусилвателя на интерфейса; това е за последните dB.
+Pulse the size. On its own this moves width AND height together; give height its own ~ to squash and stretch	Пулсирай размера. Само по себе си мести ширина И височина заедно; дай на височината собствено ~, за да сплесква и разтяга
+A card fills the frame; a Lower Third is a name and a role, low on a transparent frame, with an in and an out	Карта запълва кадъра; долният надпис е име и роля ниско върху прозрачен кадър, с влизане и излизане
+Held keeps the last displacement rather than removing it -- the picture stays bent the way the driver left it.	Held пази последното изместване, вместо да го махне: картината остава огъната, както я е оставил драйверът.
+12.5 and 25 are thin and reedy, 50 is hollow. 75 sounds identical to 25 -- it is here because trackers expose it.	12,5 и 25 са тънки и носови, 50 е кухо. 75 звучи като 25: тук е, защото тракерите го дават.
+Quantise the output like the hardware. The steps ARE the sound; smoothing them makes it a synth imitating a chip.	Квантувай изхода като хардуера. Стъпалата СА звукът; изглаждането им прави синтезатор, който имитира чип.
+Moves every selected cue's trim by the same dB, keeping the differences between them; typing a value sets them all to it	Мести трима на всеки избран cue с еднакви dB, като пази разликите; въвеждането на стойност я задава на всички
+Where the playlist's crosspoints send it (Settings > Audio). Click to open the matrix by name, starting from exactly that	Накъде го пращат кръстосаните точки на плейлиста (Настройки > Аудио). Щракни, за да отвориш матрицата по име точно от този маршрут
+name values with  d = ...;  end with one expression, or three for red green blue  |  Shift+Enter: new line  |  Enter: apply	именувай стойности с  d = ...;  завърши с един израз или три за червено зелено синьо  |  Shift+Enter: нов ред  |  Enter: приложи
+Put back what it started from once the ramp lands (after the stop): a deck left ready for its next cue, a swell that lets go	Върни това, от което е тръгнало, когато рампата стигне (след спирането): дек готов за следващия си cue, нарастване, което пуска
+Which speech model makes the captions: English, any language, or the slower, more accurate pair. Each is a one-time download	Кой говорен модел прави субтитрите: английски, всеки език или по-бавната и точна двойка. Всеки се изтегля веднъж
+What the mask cuts: this cue wherever it plays, this playlist on the focused output, that output's whole picture, or its matte	Какво реже маската: този cue, където и да свири, този плейлист на избрания изход, цялата картина на онзи изход или неговия матов слой
+Play at the screen's rate when it is within 0.2% (59.94 on 60): every frame shown once, the sound up to 3.5 cents sharp or flat	Свири с честотата на екрана, когато е в рамките на 0,2% (59,94 на 60): всеки кадър веднъж, звукът до 3,5 цента по-високо или по-ниско
+Quarter turns are exact and stay crisp. Spinning samples at an angle, which tears pixel art -- sometimes that is what you want.	Четвъртините оборот са точни и остават ясни. Въртенето семплира под ъгъл и къса пиксел арта: понякога точно това искаш.
+Every take starts the puppetry the same way, so a rehearsed look repeats instead of depending on how long the app has been open.	Всеки take започва анимацията еднакво, за да се повтаря репетираният вид, вместо да зависи от това колко е отворено приложението.
+What aims each tilt: its own position, the picture's luma gradient so characters lean the way the image does, or the cell's hue.	Какво насочва всеки наклон: собствената позиция, градиентът на яркостта на картината, за да се накланят знаците като нея, или оттенъкът на клетката.
+Name a channel or a pair once. Playlists send to the name, so a different interface means changing the names here, not every cue.	Наименувай канал или двойка веднъж. Плейлистите пращат към името, така че друг интерфейс значи смяна на имената тук, а не на всеки cue.
+Click a crosspoint to walk it: off, 0, -3, -6, -12 dB. Drag it sideways for any level. A playlist with none plays to its own device.	Щракай кръстосана точка, за да я превключваш: изкл., 0, -3, -6, -12 dB. Влачи встрани за всяко ниво. Плейлист без точки свири на собственото си устройство.
+Sprite sets installed in data/sprites. Each folder there is a set; cycling picks one and wraps back to none. Right-click turns them off.	Набори спрайтове в data/sprites. Всяка папка е набор; превключването избира един и се връща към нищо. Десен клик ги изключва.
+Internal resolution, 1 chunkiest to 5 finest. This is an aesthetic control as much as a speed one -- the 8-bit look comes from big pixels.	Вътрешна резолюция, от 1 най-грубата до 5 най-фината. Това е естетика колкото и скорост: 8-битовият вид идва от едрите пиксели.
+Picture takes colour from the image. Green, amber and cyan are terminal phosphors. Palette locks the text to the selected hardware palette.	Picture взима цвета от картината. Зелено, кехлибар и циан са терминални фосфори. Palette заключва текста към избраната хардуерна палитра.
+SUBTLE self-heals (H.264). CLASSIC is the real smear (MPEG-4). EXTREME is chunkier and smears constantly. Changing this re-prepares the cue.	SUBTLE се самолекува (H.264). CLASSIC е истинското размазване (MPEG-4). EXTREME е по-едро и маже непрекъснато. Промяната подготвя cue наново.
+Sine for line-up, pink to ring out a PA, white to find rattles, sweep to hear where a room rings, identify to walk the outputs one at a time.	Синус за настройка, розов за изравняване на PA, бял за търсене на дрънчене, свип, за да чуеш къде звъни залата, identify, за да минеш изходите един по един.
+Which effect, by its place in the stack of the cue that deck is playing when this fires. With nothing there, the fade says so and does nothing	Кой ефект, по мястото му в стека на cue, който онзи дек свири при задействане. Ако там няма нищо, затихването го казва и не прави нищо
+Each frame blended into the next. This is the Hypno signature -- at 0 it is a pattern generator, above it the picture starts feeding on itself.	Всеки кадър се смесва със следващия. Това е подписът на Hypno: на 0 е генератор на шарки, над това картината започва да се храни от себе си.
+What is through the window on the hearth wall: a garden, rain, snow or the sea. A room with weather outside reads as somewhere rather than as a wall	Какво се вижда през прозореца на стената с огнището: градина, дъжд, сняг или морето. Стая с време навън се чете като място, а не като стена
+BY FIXTURE: the lights in the patch (Settings > Network > FIXTURES), by name. CHANNELS: channel=level by hand. A cue can carry both; channels go last	ПО ТЕЛА: светлините в пача (Настройки > Мрежа > ТЕЛА), по име. КАНАЛИ: канал=ниво на ръка. Един cue може да има и двете; каналите са последни
+Each character rocks as though it were a card being tilted. Every cell has its own phase, so the grid breathes instead of sliding about as one sheet.	Всеки символ се люлее като наклонена карта. Всяка клетка има своя фаза, така че мрежата диша, вместо да се плъзга като един лист.
+Pen: click for corners, drag for curves, click the first point to close (P). Points: drag, click the outline to add one, Alt-click or Delete to remove	Писалка: щракни за ъгли, влачи за криви, щракни първата точка, за да затвориш (P). Точки: влачи, щракни контура, за да добавиш, Alt-щракване или Delete, за да махнеш
+The chip's three channels. They differ in kind: triangle has no volume control on the hardware, and noise is a shift register rather than an oscillator.	Трите канала на чипа. Различни са по природа: триъгълникът няма сила на звука в хардуера, а шумът е преместващ регистър, а не осцилатор.
+Curated sets of symbols and emoji -- stars, notes, flowers, arrows, weather, runes, faces. Picking one fills the custom glyphs below, which stays editable.	Подбрани набори символи и емоджи: звезди, ноти, цветя, стрелки, време, руни, лица. Изборът попълва собствените знаци отдолу, които остават редактируеми.
+Play from the computer keyboard, Ableton layout: A W S E D F T G Y H U J, Z and X for octave. While this is ON those keys make notes instead of firing cues.	Свири от клавиатурата на компютъра, подредба Ableton: A W S E D F T G Y H U J, Z и X за октава. Докато това е ВКЛ., тези клавиши свирят ноти, вместо да пускат cue.
+Deck opacity, deck volume, the master dimmer, the active cue's own brightness / contrast / saturation / hue, or a knob of one of its effects or audio effects	Плътност на дека, сила на дека, главният димер, яркост / контраст / наситеност / оттенък на активния cue или копче на някой от неговите ефекти или аудиоефекти
+Scanlines, phosphor bloom and RGB fringing. The bloom is the part that matters -- a phosphor spills sideways, which is why a CRT looks like it is emitting light.	Редове на развивката, сияние на фосфора и RGB ресни. Сиянието е важното: фосфорът прелива встрани, затова кинескопът сякаш излъчва светлина.
+Torn scanline bands and RGB separation. In text mode it also corrupts CELLS -- whole rows lock to one repeating character, the way a real text screen loses sync.	Разкъсани ивици от редове и RGB разделяне. В текстов режим поврежда и КЛЕТКИ: цели редове заседват на един повтарящ се знак, като истински текстов екран, изгубил синхрон.
+Still holds the frame you are on. Flipbook plays the frames in turn. Replay draws the first frame stroke by stroke, the way it was drawn, then holds and starts again	Still държи кадъра, на който си. Flipbook пуска кадрите поред. Replay рисува първия кадър щрих по щрих, както е рисуван, после държи и почва отново
+Start, Stop, Pause, Resume, Load (stand it by without firing), Arm, Disarm, or Devamp it (a loop plays out its pass and ends); or Stop all, Pause all, Resume all: every deck	Start, Stop, Pause, Resume, Load (подготви без пускане), Arm, Disarm или Devamp (цикъл доизсвирва минаването си и свършва); или Stop all, Pause all, Resume all: всеки дек
+Scope shows shape and clipping. Lissajous shows phase and polarity between the first two channels -- a diagonal the wrong way means one is inverted. Spectrum is third-octave bars.	Scope показва формата и изрязването. Lissajous показва фазата и поляритета между първите два канала: диагонал в грешната посока значи, че единият е обърнат. Spectrum е ленти по третина октава.
+0 picks the glyph the brightness asks for, 1 picks any glyph in the set. Turn it up to see the whole alphabet: ranked strictly by ink, a flat area picks one mark and the rest never appear.	0 избира знака, който яркостта иска, 1 всеки знак от набора. Вдигни, за да видиш цялата азбука: при строго подреждане по мастило гладка площ избира един знак и останалите не се появяват.
+Blocks and dithers read as density; the ASCII ramp reads as text; symbols read as wreckage. Cycling this clears a custom glyph string, since that would override it -- the preset row puts one back.	Блоковете и дитерингът се четат като плътност; ASCII рампата като текст; символите като отломки. Превключването изчиства собствения низ от знаци, защото би го надделял; редът с пресети връща един.
+Equal temperament buys free modulation at the cost of every interval being slightly wrong. Just and pythagorean are exactly in tune in one key. Bohlen-Pierce divides a twelfth, so it has no octaves.	Равномерната темперация купува свободна модулация на цената на това всеки интервал да е малко фалшив. Чистият и питагоровият строй са идеално чисти в една тоналност. Болен-Пиърс дели дуодецима, затова няма октави.
+OSC	OSC
+RTMPS	RTMPS
+Twitch	Twitch
+Art-Net	Art-Net
+YouTube	YouTube
+PQ - HDR10	PQ - HDR10
+sACN (E1.31)	sACN (E1.31)
+Syphon / Spout	Syphon / Spout
+NDI® NETWORK	NDI® NETWORK
+AMWA NMOS  IS-04 / IS-05	AMWA NMOS  IS-04 / IS-05
