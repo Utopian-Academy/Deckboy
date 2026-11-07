@@ -1375,11 +1375,11 @@ trim	обрізка
 a camera moves the ~ controls	камера рухає регулятори ~
 a chain on a device, after the mix	ланцюг на пристрої, після мікшу
 a comment	коментар
-Act now, without taking the cue	Виконати зараз, не беручи кю
+Act now, without taking the cue	Виконати зараз, не беручи cue
 Add a light	Додати світло
 add a second output to pair	додайте другий вихід для пари
 add shape	додати форму
-all driven by the cue's own transport	усе керується транспортом кю
+all driven by the cue's own transport	усе керується транспортом cue
 All interfaces; trusted machines only.	Усі інтерфейси; лише довірені машини.
 all to 0	усе на 0
 An audio effect's knob	Регулятор аудіоефекту
@@ -1387,7 +1387,7 @@ An effect's knob	Регулятор ефекту
 any channel	будь-який канал
 any window, any screen	будь-яке вікно, будь-який екран
 arcade	аркада
-Arm this cue as the one GO will fire	Озброїти цей кю для наступного GO
+Arm this cue as the one GO will fire	Звести цей cue для наступного GO
 Art-Net port address, 0-32767	Адреса порту Art-Net, 0-32767
 Attached overlays fire on TAKE only	Пов'язані накладки стартують лише на TAKE
 BACK TO BUG SWAT	НАЗАД ДО BUG SWAT
@@ -1411,7 +1411,7 @@ cartridge	картридж
 cassette	касета
 Ceiling	Стеля
 Chain	Ланцюг
-Changing this re-prepares the cue.	Зміна готує кю заново.
+Changing this re-prepares the cue.	Зміна готує cue заново.
 channel list is not readable	список каналів не читається
 CHANNELS	КАНАЛИ
 channels on your interfaces, by name	канали ваших інтерфейсів, за назвою
@@ -1431,7 +1431,7 @@ Clear the live PIP overlay now	Прибрати накладку PIP зараз
 CLICK ANYWHERE...	КЛАЦНІТЬ БУДЬ-ДЕ...
 click or Esc to close	клацніть або Esc, щоб закрити
 click this window	клацніть це вікно
-Click to edit cue notes	Клацніть, щоб редагувати нотатки кю
+Click to edit cue notes	Клацніть, щоб редагувати нотатки cue
 click to open the grid	клацніть, щоб відкрити сітку
 Click to seek — drag to scrub	Клацніть, щоб перейти, тягніть, щоб перемотати
 Click to type it	Клацніть, щоб ввести
@@ -1445,9 +1445,9 @@ credit	титри
 crossfade	кросфейдер
 crosshair	приціл
 Crosshatch	Штрихування
-Cue has no audio	Кю не має звуку
-cue number	номер кю
-Cycle end action for selected cues	Змінити кінцеву дію вибраних кю
+Cue has no audio	Cue не має звуку
+cue number	номер cue
+Cycle end action for selected cues	Змінити кінцеву дію вибраних cue
 Cycle which slot drives scene audio	Змінити слот, що дає звук сцени
 dateline	дейтлайн
 deck	дека
@@ -1455,12 +1455,12 @@ decoder spin-up	запуск декодера
 Default App Feed	Типове джерело застосунку
 Default Camera	Типова камера
 Delay before the continue fires	Затримка перед продовженням
-Delay between GO and this cue starting	Затримка між GO і стартом кю
+Delay between GO and this cue starting	Затримка між GO і стартом cue
 depth 1 turns it all the way round	глибина 1 робить повний оберт
 Digit colour once amber is reached	Колір цифр на бурштині
 Digit colour while there is time in hand	Колір цифр, коли часу досить
 diskette	дискета
-Do it now, without taking the cue	Зробити зараз, не беручи кю
+Do it now, without taking the cue	Зробити зараз, не беручи cue
 dossier	досьє
 dotmatrix	точкова матриця
 Double-GO guard	Захист від подвійного GO
@@ -1485,15 +1485,15 @@ Fade+LoadNext	Згасання+Завантажити наст.
 Fade+Pause	Згасання+Пауза
 Fade+Rewind	Згасання+Перемотати
 Fade-in duration	Тривалість появи
-Fade-in duration for this cue	Поява цього кю
+Fade-in duration for this cue	Поява цього cue
 Fade-out duration	Тривалість згасання
-Fade-out duration before next cue	Згасання перед наступним кю
-Fade-out duration for this cue	Згасання цього кю
+Fade-out duration before next cue	Згасання перед наступним cue
+Fade-out duration for this cue	Згасання цього cue
 Fall	Спад
 false colour reads SDR pictures	хибні кольори читають зображення SDR
 fill the frame	заповнити кадр
 find a named colour	знайти колір за назвою
-fires cues	запускати кю
+fires cues	запускати cue
 first available	перший вільний
 Fit/Fill/Stretch/Unscaled	Вмістити/Заповнити/Розтягти/Без масштабу
 Fixed repeat count — 0 = infinite	Фіксована кількість повторів: 0 = нескінченно
@@ -1528,7 +1528,7 @@ How many features fit on screen.	Скільки вміщується на екр
 how much of this effect	скільки цього ефекту
 How solid the ink is	Покриття чорнила
 How tall the logo is above the clock	Висота логотипа над годинником
-In-point: cue starts playback here	Точка входу: кю стартує тут
+In-point: cue starts playback here	Точка входу: cue стартує тут
 index	покажчик
 initializing webview	запуск webview
 install Tailscale here and on the phone	встановіть Tailscale тут і на телефоні
@@ -1537,12 +1537,12 @@ Its amount, or one of its knobs A to D	Його кількість або рег
 J jump to row	J: перейти до рядка
 jam to	синхронізувати до
 Jump the driver back to its first frame	Повернути драйвер на перший кадр
-K — cycle cue color tag	K: змінити колір кю
+K — cycle cue color tag	K: змінити колір cue
 Keep counting past zero, or stop dead	Рахувати далі після нуля чи зупинитися
 key	клавіша
 Key edge softness	М'якість краю кеїнгу
 knob	регулятор
-L - loop this cue continuously	L: зациклити цей кю
+L - loop this cue continuously	L: зациклити цей cue
 last reading	останнє читання
 Last refused	Останнє відхилене
 Learn it	Навчити
@@ -1578,13 +1578,13 @@ move points	рухати точки
 Move the height on its own oscillator	Рухати висоту тону осцилятором
 name or number...	назва або номер...
 name, from anywhere	назва, звідки завгодно
-NDI source cue	Кю джерела NDI
+NDI source cue	Cue джерела NDI
 needs file-backed video	потрібен відеофайл
 neon	неон
 new paths	нові контури
 New shows start from	Нові шоу починаються з
 next xfade	наступне згасання
-no effects for this cue type	немає ефектів для цього типу кю
+no effects for this cue type	немає ефектів для цього типу cue
 nobody	немає
 none - click to learn	немає: клацніть, щоб навчити
 none - click to set some	немає: клацніть, щоб задати
@@ -1597,7 +1597,7 @@ nothing	нічого
 nothing assigned yet	нічого не призначено
 nothing follows	нічого не відстежує
 Nothing here with this filter.	Нічого за цим фільтром.
-nothing set - this cue sends nothing	нічого не задано: цей кю нічого не надсилає
+nothing set - this cue sends nothing	нічого не задано: цей cue нічого не надсилає
 nothing targeted yet	немає цілі
 Nothing to see here. Probably.	Тут нема на що дивитися. Мабуть.
 nothing to send - check the message	нічого надсилати: перевірте повідомлення
@@ -1614,8 +1614,8 @@ only this computer	лише цей комп'ютер
 Open a .deckboy show file	Відкрити файл .deckboy
 open the monitor	відкрити монітор
 or your own bytes	або власні байти
-ORDER - cues advance down the list	ПОРЯДОК: кю йдуть униз списком
-Out-point: cue stops playback here	Точка виходу: кю закінчується тут
+ORDER - cues advance down the list	ПОРЯДОК: cue йдуть униз списком
+Out-point: cue stops playback here	Точка виходу: cue закінчується тут
 output already has	вихід уже має
 Outputs Off	Виходи вимк.
 outs	виходи
@@ -1629,7 +1629,7 @@ Passphrase	Парольна фраза
 Pattern motion toggle	Рух візерунка
 pause begin	пауза на старті
 pennant	вимпел
-Per-cue transition duration override	Тривалість переходу цього кю
+Per-cue transition duration override	Тривалість переходу цього cue
 Perspective	Перспектива
 PHASE	ФАЗА
 Phone access	Доступ із телефона
@@ -1686,7 +1686,7 @@ rise, slide or wipe	поява, прокрутка або завіса
 Rotation speed, degrees per second.	Швидкість обертання, градусів на секунду.
 rounded rect	закруглений прям.
 row turns the matrix off again	рядок знову вимикає матрицю
-Run it now, without taking the cue	Запустити зараз, не беручи кю
+Run it now, without taking the cue	Запустити зараз, не беручи cue
 Run the show from a phone	Вести шоу з телефона
 runs off the show thread	поза потоком шоу
 sACN universe, 1-63999	Всесвіт sACN, 1-63999
@@ -1702,19 +1702,19 @@ scroll	прокрутка
 Scroll up	Прокрутка вгору
 sea	море
 SELECT: MOTION	ВИБІР: РУХ
-Send it now, without taking the cue	Надіслати зараз, не беручи кю
+Send it now, without taking the cue	Надіслати зараз, не беручи cue
 sends	надіслати
 Sensitivity	Чутливість
 Set browser URL/path	Задати URL/шлях браузера
 set by	задано
-Set capture source from the cue menu	Задати джерело з меню кю
-Set cue ID for selected cues	Задати ID вибраних кю
-Set cue token to jump to when cue ends	Задати кю для переходу наприкінці
-Set goto target for selected cues	Задати ціль вибраних кю
+Set capture source from the cue menu	Задати джерело з меню cue
+Set cue ID for selected cues	Задати ID вибраних cue
+Set cue token to jump to when cue ends	Задати cue для переходу наприкінці
+Set goto target for selected cues	Задати ціль вибраних cue
 Set Lower Third background alpha	Альфа тла Lower Third
-Set per-cue transition duration	Тривалість переходу кю
-Set playback speed for selected cues	Швидкість вибраних кю
-Set repeat count for selected cues	Повтори вибраних кю
+Set per-cue transition duration	Тривалість переходу cue
+Set playback speed for selected cues	Швидкість вибраних cue
+Set repeat count for selected cues	Повтори вибраних cue
 Set short cue id for search/goto	Короткий ID для пошуку/переходу
 Set short cue label for search/goto	Коротка назва для пошуку/переходу
 Set the NDI source name to receive	Назва джерела NDI для прийому
@@ -1746,7 +1746,7 @@ starting capture	запуск захоплення
 starting xvfb	запуск xvfb
 sticky	стікер
 stop at 0	стоп на 0
-Stop puppeteering this cue	Припинити керувати цим кю
+Stop puppeteering this cue	Припинити керувати цим cue
 STRAIGHT	ПРЯМО
 survey	опуклість
 SVG paths	Контури SVG
@@ -1761,28 +1761,28 @@ The OSC path, e.g. /cue/1/start	Шлях OSC, напр. /cue/1/start
 the playlist's PATCH	PATCH плейлиста
 The role, or leave it empty	Роль або залиште порожнім
 the system output	системний вихід
-The text this cue puts on screen	Текст, який показує цей кю
+The text this cue puts on screen	Текст, який показує цей cue
 theatre	театр
 then stop	потім стоп
 they have	мають
 things that are oscillating	те, що коливається
-this cue lives on	цей кю стоїть на
-This show's setup, no cues	Налаштування цього шоу, без кю
+this cue lives on	цей cue стоїть на
+This show's setup, no cues	Налаштування цього шоу, без cue
 ticket	квиток
 tile h	панель в
 Tile height in pixels.	Висота панелі в пікселях.
 tile w	панель ш
 time of day	час доби
-Toggle audio enable for selected cues	Звук вибраних кю
+Toggle audio enable for selected cues	Звук вибраних cue
 Toggle chroma key	Перемкнути хромакей
-Toggle cue audio	Звук кю
-Toggle cue audio track for this cue	Аудіодоріжка цього кю
+Toggle cue audio	Звук cue
+Toggle cue audio track for this cue	Аудіодоріжка цього cue
 Toggle fade in	Поява
 Toggle fade out	Згасання
 Toggle hold on last frame	Тримати останній кадр
-Toggle hold-at-end for selected cues	Тримати наприкінці у вибраних кю
+Toggle hold-at-end for selected cues	Тримати наприкінці у вибраних cue
 Toggle loop	Цикл
-Toggle loop for selected cues	Цикл вибраних кю
+Toggle loop for selected cues	Цикл вибраних cue
 Toggle the live input's audio	Звук живого входу
 Total time	Загальний час
 transcoding - plays clean until ready	транскодування: грає чисто до кінця
@@ -1791,7 +1791,7 @@ Trusted controllers	Довірені контролери
 TURN OFF	ВИМКНУТИ
 turn phone control on	увімкнути керування з телефона
 two big on top, the rest below	два великих зверху, решта нижче
-type a cue number	введіть номер кю
+type a cue number	введіть номер cue
 Typing needs EDIT on	Для введення потрібен EDIT увімк.
 Use GEOMETRY for exact placement	Використовуйте ГЕОМЕТРІЮ для точного розміщення
 value to type one	значення для запису
@@ -1805,7 +1805,7 @@ what is on air in a playlist	що в ефірі в плейлисті
 What NEW starts from, never this show	Звідки починається НОВЕ, ніколи не це шоу
 whatever the style says	як каже стиль
 Where the ramp ends	Де закінчується рампа
-Which deck the cue it acts on lives on	На якій деці цільовий кю
+Which deck the cue it acts on lives on	На якій деці цільовий cue
 Which frame you draw on	На якому кадрі ви малюєте
 Who can see it	Хто може це бачити
 whole network	уся мережа
@@ -1819,28 +1819,28 @@ X — cycle end action	X: змінити кінцеву дію
 X — cycle end action: stop / next / loop	X: кінцева дія: стоп / наст. / цикл
 Zones	Зони
 ~ makes the level breathe	~ змушує рівень дихати
-a note or an address becomes that cue's trigger	нота або адреса стає тригером кю
-acts on every deck; deck and cue are ignored	діє на всі деки; дека і кю ігноруються
+a note or an address becomes that cue's trigger	нота або адреса стає тригером cue
+acts on every deck; deck and cue are ignored	діє на всі деки; дека і cue ігноруються
 Add an output above, then send playlists to it here.	Додайте вихід вище, потім надішліть сюди плейлисти.
 Ancient cypher, modern video desk. Respect.	Давнє письмо, сучасний пульт. Повага.
 Any font on this computer, Deckboy's own, or a font file	Шрифт комп'ютера, Deckboy або файл
-Apply fade-in to selected video/audio cues	Поява на вибраних відео-/аудіокю
-Apply fade-out to selected video/audio cues	Згасання на вибраних відео-/аудіокю
+Apply fade-in to selected video/audio cues	Поява на вибраних відео-/аудіо cue
+Apply fade-out to selected video/audio cues	Згасання на вибраних відео-/аудіо cue
 Art-Net or sACN (E1.31): whichever the lighting rig listens to	Art-Net або sACN (E1.31): те, що слухає світло
 Auto-advance duration — 0 = hold until taken	Автоперехід: 0 = тримати до take
 Bypass: this master leaves that deck alone	Обхід: цей майстер не чіпає ту деку
 Characters across. Fewer means bigger cells.	Символів у рядку. Менше дає більші клітинки.
 Choose a mask from this show's library, or start a new one from a shape	Виберіть маску з бібліотеки або зробіть із форми
 Click a value to change it. A red address overlaps another fixture.	Клацніть значення, щоб змінити. Червона адреса перекриває інший прилад.
-Click to show or hide this cue's captions	Клацніть, щоб показати чи сховати субтитри кю
+Click to show or hide this cue's captions	Клацніть, щоб показати чи сховати субтитри cue
 Copy the show AND its media into one portable folder	Скопіювати шоу ТА медіа в переносну папку
 Ctrl+S - write back over the show that is open	Ctrl+S: зберегти у відкрите шоу
 Ctrl+Shift+S - write the show to a NEW file	Ctrl+Shift+S: зберегти в НОВИЙ файл
-Device output pair this cue's audio plays on	Пара виходів для звуку цього кю
+Device output pair this cue's audio plays on	Пара виходів для звуку цього cue
 E - freeze on last frame instead of stopping	E: зупинитися на останньому кадрі замість стопу
 Edit title/subtitle here or fire it live with TAKE	Редагуйте заголовок/підзаголовок тут або запустіть через TAKE
 Every channel on every universe this session has touched	Кожен канал кожного всесвіту, задіяний у цьому сеансі
-generator is off - a START cue turns it on	генератор вимк.: кю START вмикає його
+generator is off - a START cue turns it on	генератор вимк.: cue START вмикає його
 How long the note takes to reach full level.	Час, за який нота досягає повного рівня.
 How much it throws off; 0 is a clean burn	Скільки лущиться; 0 горить чисто
 INPUT: the programme. Drag a crop to move it, its corners to size it.	ВХІД: програма. Перетягніть вирізку, щоб посунути, кути, щоб змінити розмір.
@@ -1848,23 +1848,23 @@ Keep the outside and cut the inside instead	Залишити зовні й ви�
 LED panel height in pixels. Click to type it	Висота панелі LED у пікселях. Клацніть, щоб ввести
 Legacy target mode — switch type to convert	Старий режим цілі: змініть тип, щоб перетворити
 Lissajous, spectrum, meters or a name card	Lissajous, спектр, індикатори або табличка з ім'ям
-Load the cue and hold first frame when taken	Завантажити кю і тримати перший кадр до take
+Load the cue and hold first frame when taken	Завантажити cue і тримати перший кадр до take
 no fixtures patched - Settings > Network > FIXTURES	немає приладів у патчі: Налаштування > Мережа > FIXTURES
 Nothing here changes the show that is open.	Ніщо тут не змінює відкрите шоу.
-Per-cue audio: enable, trim, pan, mono, fades, normalize	Аудіо кю: увімк./вимк., трим, панорама, моно, згасання, нормалізація
+Per-cue audio: enable, trim, pan, mono, fades, normalize	Аудіо cue: увімк./вимк., трим, панорама, моно, згасання, нормалізація
 Phone control is in PHONE & TABLET, below	Керування з телефона є в PHONE & TABLET, нижче
 Save the mask as a greyscale PNG at the output's size: white keeps, black cuts	Зберегти маску як сірий PNG у розмірі виходу: білий залишає, чорний вирізає
 Seconds REMAINING when the clock turns amber	Секунди, ЩО ЛИШИЛИСЯ, коли годинник стає бурштиновим
 Seconds REMAINING when the clock turns red	Секунди, ЩО ЛИШИЛИСЯ, коли годинник стає червоним
-Shown to the operator when GO reaches this cue	Показується оператору, коли GO доходить до цього кю
-SHUFFLE - the next cue is picked at random	ВИПАДКОВО: наступний кю вибирається навмання
+Shown to the operator when GO reaches this cue	Показується оператору, коли GO доходить до цього cue
+SHUFFLE - the next cue is picked at random	ВИПАДКОВО: наступний cue вибирається навмання
 Slots are self-contained sources in this first pass	Слоти в цій версії є самостійними джерелами
 that output's whole picture, or its matte	усе зображення того виходу або його матте
-The cue number on the other desk, e.g. 12.5	Номер кю на іншому пульті, напр. 12.5
-Toggle pause-at-beginning for selected cues	Пауза на старті у вибраних кю
-Toggle transition-to-next for selected cues	Перехід до наступного у вибраних кю
+The cue number on the other desk, e.g. 12.5	Номер cue на іншому пульті, напр. 12.5
+Toggle pause-at-beginning for selected cues	Пауза на старті у вибраних cue
+Toggle transition-to-next for selected cues	Перехід до наступного у вибраних cue
 transparent outside the blobs: put it on a layer	прозоре поза плямами: покладіть на шар
 transparent outside the ink: put it on a layer	прозоре поза чорнилом: покладіть на шар
 what is said, on screen, made on this computer	те, що говориться, на екрані, зроблено на цьому комп'ютері
-What this cue does when it ends - click to change	Що робить цей кю наприкінці: клацніть, щоб змінити
+What this cue does when it ends - click to change	Що робить цей cue наприкінці: клацніть, щоб змінити
 Whether the next shape or pen path adds or cuts	Чи наступна форма або контур додає, чи вирізає
