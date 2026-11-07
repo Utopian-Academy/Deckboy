@@ -1020,3 +1020,296 @@ Beast mode	Ha'DIbaH ghot
 + ADD AN OUTPUT	+ ngeHwI' yIchel
 >LIVE	>DaH
 center	botlh
+CLIP	Hap
+Port	'och
+TEXT	ghItlh
+MULTI	law'
+TRACKER	ghochwI'
+DASHBOARD	SeHlaw
+capture again - what is on now	qonqa' - DaH muchlu'bogh
+change what it does...	Qu'Daj yIchoH...
+decks - Stop deck...	decks - deck yImev...
+decks - Take deck...	decks - deck yIlel...
+delete step	mIw yIteq
+delete this button	leQvam yIteq
+label, command and glyph as text...	per, ra' mu', Degh je ghItlh rur...
+move down	bIng yIghoS
+move up	Dung yIghoS
+next colour	qalmuS veb
+preset - a new preset from what is on now	preset - DaH muchlu'bogh preset chu'
+type a command myself...	ra' mu' vIghItlh jIH...
+type a length in seconds...	poH yIghItlh, lup...
+wait for GO	GO yIloS
+what it recalls...	qawmoHbogh...
+when its cues end	cue Dochmey rInDI'
+(not set)	(pagh)
+1.00x  (default 1080p)	1.00x  (motlh 1080p)
+1.25x  (large desktop)	1.25x  (De'wI' Hotlh tIn)
+1.50x  (4K desktop)	1.50x  (De'wI' Hotlh 4K)
+2.00x  (Pocket 3 / 4K small)	2.00x  (Pocket 3 / 4K mach)
+highest bandwidth	ghoqchuy tIn
+lower bandwidth	ghoqchuy mach
+film	HaSta
+CD, music rigs	CD, QoQ jan
+video standard	HaSta motlh
+every playlist	Hoch playlist
+None  (no character art)	pagh  (mIllogh pagh)
+custom size...	tIn le'...
+Camera	mIllogh qonwI'
+RECORD TO FILE	ta yIqon
+browser, with sound	browser, wab je
+Window	Qorwagh
+full screen	jIH naQ
+FALSE COLOUR	qalmuS ngeb
++ ADD	+ yIchel
+LEARN	yIghoj
+LISTENING...	jIQoytaH...
+BACK	yIchegh
+READY-MADE...	ghuSlu'...
+Message	QIn
+Runs	qet
+Now	DaH
+MIDI input is off: turn it on in MIDI CONTROL. OSC rows still answer.	MIDI ghoqchuy chu'be': MIDI CONTROL Daq yIchu'. OSC tlheghmey jangtaH.
+LEARN: move a knob or press a key on the controller...	LEARN: controller Daq jI'ev yIvIH pagh leQ yI'uy...
+1 · WHAT COMES IN	1 · nuq 'el
+learn it, or say how to read it	yIghoj, pagh yIlaD chay' yIDel
+2 · WHAT IT RUNS	2 · nuq qetmoH
+any command, {value} is the number	ra' mu' Hoch, {value} mI' 'oH
+3 · WHAT IT RUNS ON	3 · nuq Daq qet
+aimed here; the desk never moves	naDev DoS; vIHbe' SeHlaw
+Read as	yIlaD rur
+Hold for	yI'uy poH
+Command	ra' mu'
+From	vo'
+To	Daq
+On release	jonHa'DI'
+Runs on	Daq qet
+Saved with	tlhej
+Row	tlhegh
+DELETE	yIteq
+THIS COMPUTER	De'wI'vam
+any port	'och Hoch
+the desk	SeHlaw
+the selected cue	cue wIvlu'bogh
+what is on air	muchlu'bogh
+one named cue	cue wa' pong
+the focused one	Qorwagh buSlu'bogh
+Test: move it on the controller	waH: controller Daq yIvIH
+knob 0-127	jI'ev 0-127
+press	yI'uy
+hold	yI'uy, yIloS
+press + release	yI'uy + yIjonHa'
+play	yIQujmoH
+on press	'uyDI'
+plays	QujmoH
+LED MAP	LED QIn
++ CHOOSE A FEED	+ ghoqchuy yIwIv
+audio meter	wab ta
+safe areas	Daqmey QaD
++ ONE AFTER THIS	+ wa' veb
+- REMOVE THIS ONE	- wa'vam yIteq
+on the desk	SeHlaw Daq
+tile width	'aplo' juch
+tile height	'aplo' 'ab
+LISTENS: OFF	QoytaHbe'
+import an SVG...	SVG yI'ang...
+the selected cue in playlist {n}	cue wIvlu'bogh playlist {n} Daq
+the selected cue in the focused playlist	cue wIvlu'bogh playlist buSlu'bogh Daq
+on air in playlist {n}	DaH much playlist {n} Daq
+on air in the focused playlist	DaH much playlist buSlu'bogh Daq
+hold {n} s	{n} lup yI'uy
+any	Hoch
+built in	ngaSlu'
+motion	vIH
+generated	chenmoHlu'pu'
+NO	ghobe'
+YES	HIja'
+UP	Dung
+DOWN	bIng
+Left	poS
+Right	nIH
+Top	yor
+Bottom	pIrmuS
+add	yIchel
+all	Hoch
+none	pagh
+Cut	pe'
+Load	yIlI'
+Pause	yev
+Resume	yItaH
+Start	yItagh
+Skip	yIjuS
+Arm	yIghuSmoH
+Disarm	yIghuSmoHHa'
+ONE	wa'
+ONCE	wa'logh
+Size	tIn
+Width	juch
+amount	mI'
+brightness	wov
+level	patlh
+speed	Do
+title	per
+subtitle	per mach
+notes	ghItlhmey
+font	ngutlh tu'qom
+frame	qal'aq
+type	Segh
+state	Dotlh
+line	tlhegh
+brush	yachwI'
+mask	qab jech
+grow	yIQa
+subtract	yIboqHa'
+split	yIrIv
+soft	tun
+Deck volume	deck wab
+Cue brightness	cue wov
+no effects	effect pagh
+no audio effects	wab effect pagh
+nothing yet	pagh DaH
+no window	Qorwagh pagh
+source missing	mung chIl
+waiting for a picture	mIllogh loStaH
+clear frame	qal'aq yIteq
+undo stroke	yIghItlhHa'
+save still	mIllogh yItoD
+cue id	cue ID
+set	yIlan
+send	yIngeH
+run	yIqetmoH
+idle	vumbe'
+standby	SuH
+Loop	gho
+loop forever	reH gho
+SECTIONS	'ay'mey
+Window Source	Qorwagh mung
+Camera Source	mIllogh qonwI' mung
+NDI Source	NDI mung
+Syphon/Spout Source	Syphon/Spout mung
+Live stream cue	ghoqchuy cue
+Memo	QIn
+Timer	poH
+Tone	'awtIr
+Target	DoS
+Code	ngoq
+Clouds	'engmey
+Picture	mIllogh
+Placement	Daq
+Gate	lojmIt
+Word	mu'
+Short	ngaj
+Shatter	ghor
+THIS CUE	cuevam
+VALUES	mI'mey
+KEYS	leQmey
+FREEZE	yItaDmoH
+FROZEN	taD
+DEFAULTS	motlh
+CHANGE	yIchoH
+CHOOSE	yIwIv
+Stop all	Hoch yImev
+Pause all	Hoch yIyev
+Resume all	Hoch yItaH
+Do not continue	yItaHQo'
+Name Card	pong 'echletHom
+TEST CARD	waH 'echletHom
+TEST CARD ON	waH 'echletHom chu'
+WITH SOUND	wab je
+THE NETWORK	SIr'o'
+FIXTURES	wovmoHwI'mey
+ADD FIXTURE	wovmoHwI' yIchel
+QR CODE	QR ngoq
+loop	gho
+mixed	DuDlu'pu'
+selected cue lane  |  TAKE to make it live	cue wIvlu'bogh  |  TAKE: DaH much
+continue	yItaH
+fire	yIbaH
+in	'el
+out	mej
+routing	He
+1-16, as the desk counts them	1-16, SeHlaw togh rur
+a camera moves the ~ controls	~ SeHmey vIHmoH mIllogh qonwI'
+Act now, without taking the cue	DaH yIvang, cue yIlelQo'
+Add a light	wovmoHwI' yIchel
+all to 0	Hoch 0
+An audio effect's knob	wab effect jI'ev
+An effect's knob	effect jI'ev
+any channel	'och Hoch
+any window, any screen	Qorwagh Hoch, jIH Hoch
+Arm this cue as the one GO will fire	cuevam yIghuSmoH; GO baH
+BACK TO BUG SWAT	Bug Swat yIchegh
+bulletin	QIn
+card	'echletHom
+Ceiling	rav'eq
+Chain	mIr
+Changing this re-prepares the cue.	Dochvam DachoHchugh cue ghuSmoHqa'lu'.
+CHANNELS	'ochmey
+Choose startup mode:	tagh mIw yIwIv:
+circle, heart, star...	gho, tIq, Hov...
+CLEAR OVERLAY  [Backspace]	overlay yIteq  [Backspace]
+Clear the active Lower Third overlay now	DaH Lower Third yIteq
+Clear the live PIP overlay now	DaH PIP yIteq
+CLICK ANYWHERE...	Daq Hoch yIqIp...
+click or Esc to close	yIqIp pagh Esc: SoQmoH
+click this window	Qorwaghvam yIqIp
+Click to edit cue notes	yIqIp: cue ghItlhmey yIchoH
+click to open the grid	yIqIp: grid poSmoH
+Click to type it	yIqIp: yIghItlh
+count up	Dung yItogh
+Cue has no audio	wab ghajbe' cue
+cue number	cue mI'
+Cycle end action for selected cues	cue wIvlu'bogh: Qav vang yIchoH
+Default Camera	motlh mIllogh qonwI'
+Delay between GO and this cue starting	GO, cuevam tagh joj poH
+Do it now, without taking the cue	DaH yIta', cue yIlelQo'
+dossier	'a'baqa'
+EDIT is on: typing changes the show	EDIT chu': ghItlhlu'chugh show choHlu'
+Edit the main Lower Third title	Lower Third per wa'DIch yIchoH
+Edit the secondary Lower Third line	Lower Third tlhegh cha'DIch yIchoH
+Esc cancels	Esc: yImev
+Esc to close	Esc: SoQmoH
+face	qab
+factory settings	motlh
+Fall	pum
+fill the frame	qal'aq yIbuy'moH
+fires cues	cue baH
+FIXED!	tI'lu'pu'!
+flag	joqwI'
+FORGET MY DEFAULTS	MOTLH YILIJ
+GO steps over it	GO juS
+how much of this effect	effectvam 'ar
+knob	jI'ev
+Learn it	yIghoj
+Left, centre or right	poS, botlh pagh nIH
+Levels	patlhmey
+line  |  Enter: apply	tlhegh  |  Enter: yIlo'
+Lines	tlheghmey
+Listen to	yI'Ij
+listener	'IjwI'
+logo	Degh
+logo size	Degh tIn
+look at it	yIlegh
+MIDI note	MIDI 'awtIr
+name or number...	pong pagh mI'...
+nobody	pagh
+none yet	pagh DaH
+nothing	pagh
+Nothing to see here. Probably.	pagh Dalegh. chaq.
+on any channel	'och Hoch Daq
+only this computer	De'wI'vam neH
+Open a .deckboy show file	.deckboy show yIpoSmoH
+pennant	joqwI'
+play a note...	'awtIr yIchu'...
+PLAY BUG SWAT, a game	BUG SWAT yIQuj, Quj
+press a key...	leQ yI'uy...
+rain	SIS
+Reads	laD
+Rise	Hu'
+Run it now, without taking the cue	DaH yIqetmoH, cue yIlelQo'
+says	jatlh
+SCREENS	jIHmey
+sea	bIQ'a'
+Send now, without taking the cue	DaH yIngeH, cue yIlelQo'
+sends	ngeH
+SHOW ME	HIcha'
