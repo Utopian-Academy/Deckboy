@@ -1359,3 +1359,498 @@ in	vào
 out	ra
 routing	định tuyến
 trim	cắt
+0-63, the hardware's own gain range.	0-63, độ lợi của chính phần cứng.
+1-16, as the desk counts them	1-16, theo cách bàn đếm
+7-segment, blocky, or a real font	7 đoạn, vuông hoặc một phông chữ thật
+[ / ] keys — fade-in duration	Phím [ / ]: thời lượng hiện dần
+a camera moves the ~ controls	camera di chuyển các điều khiển ~
+a chain on a device, after the mix	chuỗi trên thiết bị, sau bản trộn
+a comment	một ghi chú
+Act now, without taking the cue	Thực hiện ngay, không lấy cue
+Add a light	Thêm đèn
+add a second output to pair	thêm đầu ra thứ hai để ghép cặp
+add shape	thêm hình
+all driven by the cue's own transport	tất cả chạy theo trình phát của cue
+All interfaces; trusted machines only.	Mọi giao diện; chỉ máy tin cậy.
+all to 0	tất cả về 0
+An audio effect's knob	Núm của hiệu ứng âm thanh
+An effect's knob	Núm của hiệu ứng
+any channel	kênh bất kỳ
+any window, any screen	cửa sổ bất kỳ, màn hình bất kỳ
+Arm this cue as the one GO will fire	Sẵn sàng cue này cho GO kế tiếp
+Art-Net port address, 0-32767	Địa chỉ cổng Art-Net, 0-32767
+Attached overlays fire on TAKE only	Lớp phủ gắn kèm chỉ chạy khi TAKE
+BACK TO BUG SWAT	QUAY LẠI BUG SWAT
+backdrop	nền
+bar	thanh
+bg alpha	alpha nền
+black lift	nâng đen
+blend gamma	gamma hòa trộn
+blueprint	bản vẽ xanh
+boxes	khung
+bracket	ngoặc
+bulletin	bản tin
+by density	theo mật độ
+BY FIXTURE	THEO THIẾT BỊ ĐÈN
+capsule	viên nang
+caption	chú thích
+card	thẻ
+CARD OFF ALL	TẮT THẺ TẤT CẢ
+CARD ON ALL	BẬT THẺ TẤT CẢ
+cartridge	băng cartridge
+cassette	băng cassette
+Ceiling	Trần
+Chain	Chuỗi
+Changing this re-prepares the cue.	Thay đổi sẽ chuẩn bị lại cue.
+channel list is not readable	không đọc được danh sách kênh
+CHANNELS	KÊNH
+channels on your interfaces, by name	kênh trên giao diện của bạn, theo tên
+Checkerboard	Bàn cờ
+chime amber	cảnh báo hổ phách
+chime red	cảnh báo đỏ
+chime zero	cảnh báo không
+Choose startup mode:	Chọn chế độ khởi động:
+circle, heart, star...	tròn, tim, sao...
+circuit	mạch
+CLASSIC VIEW	GIAO DIỆN CỔ ĐIỂN
+clear driver	xóa trình điều khiển
+Clear in/out trim points	Xóa điểm vào/ra
+CLEAR OVERLAY  [Backspace]	XÓA LỚP PHỦ  [Backspace]
+Clear the active Lower Third overlay now	Gỡ Lower Third đang chạy ngay
+Clear the live PIP overlay now	Gỡ lớp phủ PIP ngay
+CLICK ANYWHERE...	BẤM VÀO ĐÂU CŨNG ĐƯỢC...
+click or Esc to close	bấm hoặc Esc để đóng
+click this window	bấm vào cửa sổ này
+Click to edit cue notes	Bấm để sửa ghi chú cue
+click to open the grid	bấm để mở lưới
+Click to seek — drag to scrub	Bấm để đi tới, kéo để tua
+Click to type it	Bấm để gõ
+comic	truyện tranh
+Companion passphrase	Cụm mật khẩu Companion
+confetti	hoa giấy
+Connections at once	Kết nối đồng thời
+count up	đếm lên
+Countdown, count up, or wall clock	Đếm ngược, đếm lên hoặc đồng hồ
+credit	danh đề
+crossfade	cần chuyển cảnh
+crosshair	chữ thập ngắm
+Crosshatch	Gạch chéo
+Cue has no audio	Cue không có âm thanh
+cue number	số cue
+Cycle end action for selected cues	Đổi hành động kết thúc của cue đã chọn
+Cycle which slot drives scene audio	Đổi ô cấp âm thanh cho cảnh
+dateline	dòng ngày tháng
+decoder spin-up	khởi động bộ giải mã
+Default App Feed	Nguồn ứng dụng mặc định
+Default Camera	Camera mặc định
+Delay before the continue fires	Độ trễ trước khi tiếp tục
+Delay between GO and this cue starting	Độ trễ giữa GO và lúc cue bắt đầu
+depth 1 turns it all the way round	độ sâu 1 quay trọn một vòng
+Digit colour once amber is reached	Màu số khi hổ phách
+Digit colour while there is time in hand	Màu số khi còn nhiều thời gian
+diskette	đĩa mềm
+Do it now, without taking the cue	Làm ngay, không lấy cue
+dossier	hồ sơ
+dotmatrix	ma trận điểm
+Double-GO guard	Chống GO hai lần
+draw on the monitor	vẽ trên màn hình giám sát
+driver speed	tốc độ trình điều khiển
+EDGE BLEND	HÒA TRỘN CẠNH
+EDIT is on: typing changes the show	EDIT bật: gõ sẽ đổi show
+edit on the monitor	sửa trên màn hình giám sát
+Edit the main Lower Third title	Sửa tiêu đề Lower Third
+Edit the secondary Lower Third line	Sửa dòng thứ hai của Lower Third
+eq band	băng EQ
+equalizer	bộ cân bằng
+Esc cancels	Esc để hủy
+Esc cancels, arrows nudge	Esc để hủy, mũi tên để dịch
+Esc to close	Esc để đóng
+even grid	lưới đều
+EXAMPLE SHOWS	SHOW MẪU
+EXIT  Esc	THOÁT  Esc
+face	khuôn mặt
+factory settings	cài đặt gốc
+Fade+LoadNext	Mờ+Nạp tiếp
+Fade+Pause	Mờ+Tạm dừng
+Fade+Rewind	Mờ+Tua lại
+Fade-in duration	Thời lượng hiện dần
+Fade-in duration for this cue	Hiện dần của cue này
+Fade-out duration	Thời lượng mờ dần
+Fade-out duration before next cue	Mờ dần trước cue kế
+Fade-out duration for this cue	Mờ dần của cue này
+Fall	Hạ
+false colour reads SDR pictures	màu giả đọc ảnh SDR
+fill the frame	lấp đầy khung
+find a named colour	tìm màu theo tên
+fires cues	chạy các cue
+first available	cái rảnh đầu tiên
+Fit/Fill/Stretch/Unscaled	Vừa/Lấp/Kéo giãn/Không tỉ lệ
+Fixed repeat count — 0 = infinite	Số lần lặp cố định: 0 = vô hạn
+Fixed repeat count — 0 = loop forever	Số lần lặp cố định: 0 = lặp mãi
+FIXED!	ĐÃ SỬA!
+flag	cờ
+FORGET MY DEFAULTS	QUÊN MẶC ĐỊNH CỦA TÔI
+Frames a second	Khung hình mỗi giây
+from exactly this routing	trực tiếp từ định tuyến này
+Full Black	Đen hoàn toàn
+Full Blue	Xanh dương hoàn toàn
+Full Green	Xanh lá hoàn toàn
+Full Red	Đỏ hoàn toàn
+Full White	Trắng hoàn toàn
+garden	khu vườn
+Ghastly	Ma quái
+glass	kính
+glitch down	glitch xuống
+glitch drift	trôi glitch
+glitch reach	tầm glitch
+glitch through	glitch xuyên
+glitch up	glitch lên
+GO steps over it	GO bỏ qua nó
+hairline	nét mảnh
+Haptics	Rung
+HDR input	Đầu vào HDR
+Hex, e.g. 90 3C 7F	Hex, ví dụ 90 3C 7F
+HOLDING OFF AIR	GIỮ NGOÀI SÓNG
+Home — skip to start	Home: về đầu
+Horizontal output offset in pixels	Độ lệch ngang đầu ra theo pixel
+How many features fit on screen.	Bao nhiêu mục vừa màn hình.
+how much of this effect	lượng hiệu ứng này
+How solid the ink is	Độ phủ của mực
+How tall the logo is above the clock	Chiều cao logo trên đồng hồ
+In-point: cue starts playback here	Điểm vào: cue bắt đầu ở đây
+index	mục lục
+initializing webview	khởi động webview
+install Tailscale here and on the phone	cài Tailscale ở đây và trên điện thoại
+INSTALLING...	ĐANG CÀI...
+Its amount, or one of its knobs A to D	Lượng của nó, hoặc một núm từ A đến D
+J jump to row	J: nhảy tới hàng
+jam to	đồng bộ tới
+Jump the driver back to its first frame	Đưa trình điều khiển về khung đầu
+K — cycle cue color tag	K: đổi màu cue
+Keep counting past zero, or stop dead	Đếm qua số không hoặc dừng
+key	phím
+Key edge softness	Độ mềm cạnh key
+knob	núm
+L - loop this cue continuously	L: lặp cue này
+last reading	lần đọc cuối
+Last refused	Lần từ chối cuối
+Learn it	Học
+LEARN THE BASICS	HỌC CƠ BẢN
+ledger	sổ cái
+Left — skip back 10s	Trái: lùi 10 giây
+Left, centre or right	Trái, giữa hoặc phải
+LESSONS	BÀI HỌC
+Levels	Mức
+Limiter	Bộ giới hạn
+Limiting	Giới hạn
+line  |  Enter: apply	dòng  |  Enter: áp dụng
+LINEAR - a feather, not a blend	TUYẾN TÍNH: dải màu, không phải hòa trộn
+Linear, ease in, ease out or S-curve	Tuyến tính, vào, ra hoặc đường S
+Lines	Đường
+link aspect	giữ tỉ lệ
+Listen to	Nghe
+listener	bộ nghe
+LIVE - every assigned deck matches	LIVE: mọi deck đã gán đều khớp
+lock to screen	khóa vào màn hình
+logo size	cỡ logo
+look at it	nhìn nó đi
+lower 3rd	Lower Third
+marquee	bảng đèn chạy chữ
+mask on	mặt nạ đang bật
+Master oscillator rate.	Tốc độ bộ dao động chính.
+Maximum quality	Chất lượng cao nhất
+MIDI and OSC monitor	Giám sát MIDI và OSC
+midi in	đầu vào MIDI
+MIDI note	nốt MIDI
+move points	dịch điểm
+Move the height on its own oscillator	Dịch cao độ bằng bộ dao động riêng
+name or number...	tên hoặc số...
+name, from anywhere	tên, từ bất kỳ đâu
+NDI source cue	Cue nguồn NDI
+needs file-backed video	cần video từ tệp
+new paths	đường mới
+New shows start from	Show mới bắt đầu từ
+next xfade	lần mờ kế
+no effects for this cue type	không có hiệu ứng cho loại cue này
+nobody	không có
+none - click to learn	không có: bấm để học
+none - click to set some	không có: bấm để đặt
+none - click to write some	không có: bấm để viết
+none yet	chưa có
+none: the one picture	không có: ảnh duy nhất
+none: the whole picture	không có: toàn ảnh
+notebook	sổ tay
+nothing	không gì
+nothing assigned yet	chưa gán gì
+nothing follows	không theo gì
+Nothing here with this filter.	Không có gì với bộ lọc này.
+nothing set - this cue sends nothing	chưa đặt: cue này không gửi gì
+nothing targeted yet	không có đích
+Nothing to see here. Probably.	Không có gì để xem ở đây. Chắc vậy.
+nothing to send - check the message	không có gì để gửi: kiểm tra tin nhắn
+offset X	độ lệch X
+offset Y	độ lệch Y
+on any channel	trên kênh bất kỳ
+on the header to add another	trên đầu mục để thêm
+on the monitor	trên màn hình giám sát
+one big on top, the rest below	một lớn trên, còn lại dưới
+one big, the rest beside it	một lớn, còn lại bên cạnh
+onion off	giấy can tắt
+onion on	giấy can bật
+only this computer	chỉ máy tính này
+Open a .deckboy show file	Mở tệp .deckboy
+open the monitor	mở màn hình giám sát
+or your own bytes	hoặc byte của riêng bạn
+ORDER - cues advance down the list	THỨ TỰ: cue đi xuống danh sách
+Out-point: cue stops playback here	Điểm ra: cue kết thúc ở đây
+output already has	đầu ra đã có
+Outputs Off	Đầu ra tắt
+outs	đầu ra
+over budget - video will drop frames	vượt giới hạn: video sẽ mất khung
+over the picture	trên hình
+PAIR	GHÉP
+Pair a phone	Ghép điện thoại
+Pair overlap	Chồng lấn cặp
+Paired phones	Điện thoại đã ghép
+Passphrase	Cụm mật khẩu
+Pattern motion toggle	Chuyển động mẫu
+pause begin	dừng lúc đầu
+pennant	cờ đuôi nheo
+Per-cue transition duration override	Thời lượng chuyển cảnh của cue này
+Perspective	Phối cảnh
+PHASE	PHA
+Phone access	Truy cập điện thoại
+Phone control	Điều khiển bằng điện thoại
+phrase hold	độ dài câu
+PICK FROM SCREEN	LẤY TỪ MÀN HÌNH
+Pitch, in semitones.	Cao độ, theo nửa cung.
+PIXEL FOR PIXEL, TOP-LEFT	TỪNG PIXEL, TRÊN TRÁI
+placard	biển
+play a note...	chơi một nốt...
+PLAY BUG SWAT, a game	CHƠI BUG SWAT
+Play the out move now, then take it off	Phát đầu ra ngay rồi gỡ
+Playback speed: 0.25–4.0×	Tốc độ phát: 0,25–4,0×
+playlists into the named outputs	danh sách phát tới đầu ra có tên
+plays synth	chơi synth
+plugin	phần bổ trợ
+PNG matte	matte PNG
+podium	bục
+press a key...	nhấn một phím...
+PRESS AGAIN TO FORGET	NHẤN LẦN NỮA ĐỂ QUÊN
+Previous show file:	Tệp trước:
+prog bar	thanh tiến độ
+programme	chương trình
+Programme with sound in any browser	Chương trình có tiếng trên mọi trình duyệt
+PROJECTOR - gamma matched	MÁY CHIẾU: gamma khớp
+Projector gamma	Gamma máy chiếu
+put it on a button	đặt lên một nút
+Put the brush's opacity on an oscillator	Đặt độ phủ cọ lên bộ dao động
+Put the brush's size on an oscillator	Đặt cỡ cọ lên bộ dao động
+Put this control on an oscillator	Đặt điều khiển này lên bộ dao động
+rack it	nạp nó
+RACKED, WARM	ĐÃ NẠP, SẴN SÀNG
+rail	thanh ray
+rain	mưa
+Reads	Đọc
+reads the same on any screen	đọc như nhau trên mọi màn hình
+recent and in this show	gần đây và trong show này
+Recent shows:	Show gần đây:
+red at	đỏ tại
+red col	cột đỏ
+render height	chiều cao kết xuất
+render width	chiều rộng kết xuất
+REPORT A PROBLEM	BÁO LỖI
+reported rather than swapped	đã báo, chưa thay
+restart driver now	khởi động lại trình điều khiển ngay
+restart on take	khởi động lại khi take
+restore at end	khôi phục khi kết thúc
+ribbon	ruy băng
+Right — skip forward 10s	Phải: tới 10 giây
+Right-click turns them off.	Bấm phải để tắt chúng.
+Rise	Tăng
+rise, slide or wipe	lên, cuộn hoặc quét
+Rotation speed, degrees per second.	Tốc độ quay, độ mỗi giây.
+rounded rect	chữ nhật bo góc
+row turns the matrix off again	hàng lại tắt ma trận
+Run it now, without taking the cue	Chạy ngay, không lấy cue
+Run the show from a phone	Chạy show từ điện thoại
+runs off the show thread	ngoài luồng show
+sACN universe, 1-63999	Vũ trụ sACN, 1-63999
+SAVE AS MY DEFAULTS	LƯU LÀM MẶC ĐỊNH
+says	nói
+SCALED TO FILL	CO GIÃN ĐỂ LẤP ĐẦY
+Scene dwell time — 0 = hold	Thời gian cảnh: 0 = giữ
+Scene fade-in duration	Hiện dần của cảnh
+Scene fade-out duration	Mờ dần của cảnh
+scoreboard	bảng điểm
+SCREENS	MÀN HÌNH
+scroll	cuộn
+Scroll up	Cuộn lên
+sea	biển
+SELECT: MOTION	CHỌN: CHUYỂN ĐỘNG
+Send it now, without taking the cue	Gửi ngay, không lấy cue
+sends	gửi
+Sensitivity	Độ nhạy
+Set browser URL/path	Đặt URL/đường dẫn trình duyệt
+set by	đặt bởi
+Set capture source from the cue menu	Đặt nguồn từ menu cue
+Set cue ID for selected cues	Đặt ID cho cue đã chọn
+Set cue token to jump to when cue ends	Đặt cue nhảy tới khi kết thúc
+Set goto target for selected cues	Đặt đích cho cue đã chọn
+Set Lower Third background alpha	Alpha nền Lower Third
+Set per-cue transition duration	Thời lượng chuyển cảnh của cue
+Set playback speed for selected cues	Tốc độ của cue đã chọn
+Set repeat count for selected cues	Số lần lặp của cue đã chọn
+Set short cue id for search/goto	ID ngắn để tìm/nhảy
+Set short cue label for search/goto	Tên ngắn để tìm/nhảy
+Set the NDI source name to receive	Tên nguồn NDI cần nhận
+Shift+[ / ] — fade-out duration	Shift+[ / ]: thời lượng mờ dần
+SHOW ME	CHO TÔI XEM
+Show on	Hiện trên
+Shows	Hiện
+sideline	đường bên
+sketch	phác họa
+slide	trượt
+slide from left	trượt từ trái
+slide from right	trượt từ phải
+SMOOTH	MỀM
+snow	tuyết
+SOS. Kidding. The show is fine.	SOS. Đùa thôi. Show vẫn ổn.
+Sound when the clock turns amber	Âm khi đồng hồ chuyển hổ phách
+Sound when the clock turns red	Âm khi đồng hồ chuyển đỏ
+Sound when time is up	Âm khi hết giờ
+Space — pause	Dấu cách: tạm dừng
+Space — play	Dấu cách: phát
+span	độ trải
+sparkle	lấp lánh
+Speech models	Mô hình giọng nói
+Speed, like tape	Tốc độ, như băng
+stamp	con dấu
+Start NEW from factory	Bắt đầu MỚI từ gốc
+starting browser	khởi động trình duyệt
+starting capture	khởi động ghi hình
+starting xvfb	khởi động xvfb
+sticky	giấy nhớ
+stop at 0	dừng ở 0
+Stop puppeteering this cue	Ngừng điều khiển cue này
+STRAIGHT	THẲNG
+survey	gờ nổi
+SVG paths	Đường SVG
+tab	thẻ
+tag	nhãn
+TAP	CHẠM
+terminal	dòng lệnh
+text mode	chế độ chữ
+the file cannot be read	không đọc được tệp
+The name	Tên
+The OSC path, e.g. /cue/1/start	Đường dẫn OSC, ví dụ /cue/1/start
+the playlist's PATCH	PATCH của danh sách phát
+The role, or leave it empty	Vai trò, hoặc để trống
+the system output	đầu ra hệ thống
+The text this cue puts on screen	Chữ mà cue này hiện
+theatre	nhà hát
+then stop	rồi dừng
+they have	có
+things that are oscillating	những thứ đang dao động
+this cue lives on	cue này nằm trên
+This show's setup, no cues	Thiết lập của show này, không có cue
+ticket	vé
+tile h	ô c
+Tile height in pixels.	Chiều cao ô theo pixel.
+tile w	ô r
+time of day	giờ trong ngày
+Toggle audio enable for selected cues	Âm của cue đã chọn
+Toggle chroma key	Bật/tắt chroma key
+Toggle cue audio	Âm của cue
+Toggle cue audio track for this cue	Đường âm của cue này
+Toggle fade in	Hiện dần
+Toggle fade out	Mờ dần
+Toggle hold on last frame	Giữ khung cuối
+Toggle hold-at-end for selected cues	Giữ ở cuối trên cue đã chọn
+Toggle loop	Lặp
+Toggle loop for selected cues	Lặp cue đã chọn
+Toggle the live input's audio	Âm đầu vào trực tiếp
+Total time	Tổng thời gian
+transcoding - plays clean until ready	chuyển mã: phát sạch đến hết
+transparent: put its playlist on a layer	trong suốt: đặt danh sách phát lên lớp
+Trusted controllers	Bộ điều khiển tin cậy
+TURN OFF	TẮT
+turn phone control on	bật điều khiển bằng điện thoại
+two big on top, the rest below	hai lớn trên, còn lại dưới
+type a cue number	gõ số cue
+Typing needs EDIT on	Gõ cần EDIT bật
+Use GEOMETRY for exact placement	Dùng HÌNH HỌC để đặt chính xác
+value to type one	giá trị cần viết
+Vertical output offset in pixels	Độ lệch dọc đầu ra theo pixel
+VIDEO DIP: OFF	DIP VIDEO: KHÔNG
+VIDEO DIP: ON	DIP VIDEO: CÓ
+walk the outputs one at a time.	đi qua từng đầu ra một.
+walks every output in turn	đi qua từng đầu ra
+WHAT DECKBOY DID	DECKBOY ĐÃ LÀM GÌ
+what is on air in a playlist	thứ đang phát trong danh sách
+What NEW starts from, never this show	NEW bắt đầu từ đâu, không bao giờ là show này
+whatever the style says	theo kiểu đã chọn
+Where the ramp ends	Nơi đoạn dốc kết thúc
+Which deck the cue it acts on lives on	Cue đích nằm trên deck nào
+Which frame you draw on	Bạn vẽ trên khung nào
+Who can see it	Ai có thể xem
+whole network	toàn mạng
+will not open	không mở được
+window and recording outputs only	chỉ đầu ra cửa sổ và ghi hình
+wipe	quét
+Wobble	Lắc
+wobble by	lắc theo
+words	từ
+X — cycle end action	X: đổi hành động kết thúc
+X — cycle end action: stop / next / loop	X: hành động kết thúc: dừng / kế / lặp
+Zones	Vùng
+~ makes the level breathe	~ làm mức thở
+a note or an address becomes that cue's trigger	nốt hoặc địa chỉ thành kích hoạt của cue
+acts on every deck; deck and cue are ignored	tác động mọi deck; bỏ qua deck và cue
+Add an output above, then send playlists to it here.	Thêm đầu ra ở trên, rồi gửi danh sách phát tới đây.
+Ancient cypher, modern video desk. Respect.	Mật mã cổ, bàn hiện đại. Kính trọng.
+Any font on this computer, Deckboy's own, or a font file	Phông máy tính, phông của Deckboy hoặc một tệp
+Apply fade-in to selected video/audio cues	Hiện dần trên cue video/âm thanh đã chọn
+Apply fade-out to selected video/audio cues	Mờ dần trên cue video/âm thanh đã chọn
+Art-Net or sACN (E1.31): whichever the lighting rig listens to	Art-Net hoặc sACN (E1.31): thứ hệ đèn đang nghe
+Auto-advance duration — 0 = hold until taken	Tự chuyển: 0 = giữ đến khi take
+Bypass: this master leaves that deck alone	Bypass: master này không đụng deck đó
+Characters across. Fewer means bigger cells.	Ký tự mỗi dòng. Ít hơn thì ô to hơn.
+Choose a mask from this show's library, or start a new one from a shape	Chọn mặt nạ trong thư viện hoặc tạo từ hình
+Click a value to change it. A red address overlaps another fixture.	Bấm giá trị để đổi. Địa chỉ đỏ trùng với thiết bị khác.
+Click to show or hide this cue's captions	Bấm để hiện hoặc ẩn phụ đề của cue
+Copy the show AND its media into one portable folder	Sao chép show VÀ media vào một thư mục di động
+Ctrl+S - write back over the show that is open	Ctrl+S: lưu vào show đang mở
+Ctrl+Shift+S - write the show to a NEW file	Ctrl+Shift+S: lưu thành tệp MỚI
+Device output pair this cue's audio plays on	Cặp đầu ra cho âm của cue này
+E - freeze on last frame instead of stopping	E: đứng ở khung cuối thay vì dừng
+Edit title/subtitle here or fire it live with TAKE	Sửa tiêu đề/phụ đề ở đây hoặc chạy bằng TAKE
+Every channel on every universe this session has touched	Mọi kênh trên mọi vũ trụ phiên này đã chạm
+generator is off - a START cue turns it on	bộ tạo tắt: cue START sẽ bật
+How long the note takes to reach full level.	Thời gian để nốt đạt mức đầy.
+How much it throws off; 0 is a clean burn	Lượng tàn văng ra; 0 cháy sạch
+INPUT: the programme. Drag a crop to move it, its corners to size it.	ĐẦU VÀO: chương trình. Kéo vùng cắt để dịch, kéo góc để đổi cỡ.
+Keep the outside and cut the inside instead	Giữ bên ngoài và cắt bên trong
+LED panel height in pixels. Click to type it	Chiều cao tấm LED theo pixel. Bấm để gõ
+Legacy target mode — switch type to convert	Chế độ đích cũ: đổi loại để chuyển
+Lissajous, spectrum, meters or a name card	Lissajous, phổ, đồng hồ đo hoặc thẻ tên
+Load the cue and hold first frame when taken	Nạp cue và giữ khung đầu khi take
+no fixtures patched - Settings > Network > FIXTURES	chưa patch thiết bị: Cài đặt > Mạng > FIXTURES
+Nothing here changes the show that is open.	Không gì ở đây đổi show đang mở.
+Per-cue audio: enable, trim, pan, mono, fades, normalize	Âm của cue: bật/tắt, trim, pan, mono, mờ, chuẩn hóa
+Phone control is in PHONE & TABLET, below	Điều khiển bằng điện thoại ở PHONE & TABLET bên dưới
+Save the mask as a greyscale PNG at the output's size: white keeps, black cuts	Lưu mặt nạ thành PNG xám theo cỡ đầu ra: trắng giữ, đen cắt
+Seconds REMAINING when the clock turns amber	Số giây CÒN LẠI khi đồng hồ chuyển hổ phách
+Seconds REMAINING when the clock turns red	Số giây CÒN LẠI khi đồng hồ chuyển đỏ
+Shown to the operator when GO reaches this cue	Hiện cho người vận hành khi GO tới cue này
+SHUFFLE - the next cue is picked at random	NGẪU NHIÊN: cue kế được bốc thăm
+Slots are self-contained sources in this first pass	Trong bản này, các ô là nguồn độc lập
+that output's whole picture, or its matte	toàn ảnh của đầu ra đó, hoặc matte của nó
+The cue number on the other desk, e.g. 12.5	Số cue trên bàn kia, ví dụ 12.5
+Toggle pause-at-beginning for selected cues	Dừng lúc đầu trên cue đã chọn
+Toggle transition-to-next for selected cues	Chuyển sang kế trên cue đã chọn
+transparent outside the blobs: put it on a layer	trong suốt ngoài vệt: đặt lên lớp
+transparent outside the ink: put it on a layer	trong suốt ngoài mực: đặt lên lớp
+what is said, on screen, made on this computer	lời được nói, trên màn hình, làm trên máy này
+What this cue does when it ends - click to change	Cue này làm gì khi kết thúc: bấm để đổi
+Whether the next shape or pen path adds or cuts	Hình hoặc đường kế tiếp thêm hay cắt

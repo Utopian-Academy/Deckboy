@@ -1367,3 +1367,503 @@ out	изх.
 pan	пан
 routing	маршрут
 trim	изрязване
+0-63, the hardware's own gain range.	0-63, собственото усилване на хардуера.
+1-16, as the desk counts them	1-16, както ги брои пултът
+7-segment, blocky, or a real font	7-сегментен, квадратен или истински шрифт
+[ / ] keys — fade-in duration	Клавиши [ / ]: време за появяване
+a camera moves the ~ controls	камера движи контролите ~
+a chain on a device, after the mix	верига на устройство, след микса
+a comment	коментар
+Act now, without taking the cue	Изпълни сега, без да взимаш cue
+Add a light	Добави светлина
+add a second output to pair	добави втори изход за чифт
+add shape	добави форма
+all driven by the cue's own transport	всичко се управлява от транспорта на cue
+All interfaces; trusted machines only.	Всички интерфейси; само доверени машини.
+all to 0	всички на 0
+An audio effect's knob	Копче на аудио ефект
+An effect's knob	Копче на ефект
+any channel	всеки канал
+any window, any screen	всеки прозорец, всеки екран
+arcade	аркада
+Arm this cue as the one GO will fire	Въоръжи този cue за следващото GO
+Art-Net port address, 0-32767	Адрес на порт Art-Net, 0-32767
+Attached overlays fire on TAKE only	Свързаните наслагвания тръгват само при TAKE
+BACK TO BUG SWAT	ОБРАТНО КЪМ BUG SWAT
+backdrop	фон
+bar	лента
+bg alpha	алфа на фона
+black lift	повдигане на черното
+blend gamma	гама на смесване
+blueprint	синьо копие
+boxes	кутии
+bracket	скоби
+bulletin	бюлетин
+by density	по плътност
+BY FIXTURE	ПО УРЕД
+capsule	капсула
+caption	надпис
+card	карта
+CARD OFF ALL	КАРТА ИЗКЛ. ВСИЧКИ
+CARD ON ALL	КАРТА ВКЛ. ВСИЧКИ
+cartridge	картридж
+cassette	касета
+Ceiling	Таван
+Chain	Верига
+Changing this re-prepares the cue.	Промяната подготвя cue отново.
+channel list is not readable	списъкът с канали не се чете
+CHANNELS	КАНАЛИ
+channels on your interfaces, by name	канали на интерфейсите ти, по име
+Checkerboard	Шахматна дъска
+chime amber	предупреждение кехлибар
+chime red	предупреждение червено
+chime zero	предупреждение нула
+Choose startup mode:	Избери режим на старт:
+circle, heart, star...	кръг, сърце, звезда...
+circuit	верига
+CLASSIC VIEW	КЛАСИЧЕН ИЗГЛЕД
+clear driver	изчисти драйвера
+Clear in/out trim points	Изчисти входна/изходна точка
+CLEAR OVERLAY  [Backspace]	ИЗЧИСТИ НАСЛАГВАНЕТО  [Backspace]
+Clear the active Lower Third overlay now	Махни активния Lower Third сега
+Clear the live PIP overlay now	Махни наслагването PIP сега
+CLICK ANYWHERE...	ЩРАКНИ КЪДЕТО И ДА Е...
+click or Esc to close	щракни или Esc за затваряне
+click this window	щракни този прозорец
+Click to edit cue notes	Щракни за редакция на бележките на cue
+click to open the grid	щракни за отваряне на мрежата
+Click to seek — drag to scrub	Щракни за отиване, плъзни за превъртане
+Click to type it	Щракни за писане
+comic	комикс
+Companion passphrase	Парола на Companion
+confetti	конфети
+Connections at once	Едновременни връзки
+count up	броене нагоре
+Countdown, count up, or wall clock	Обратно броене, нагоре или часовник
+credit	финални надписи
+crossfade	кросфейдър
+crosshair	мерник
+Crosshatch	Кръстосано щриховане
+Cue has no audio	Cue няма звук
+cue number	номер на cue
+Cycle end action for selected cues	Смени крайното действие на избраните cue
+Cycle which slot drives scene audio	Смени слота, който дава звука на сцената
+dateline	ред с дата
+deck	дек
+decoder spin-up	стартиране на декодера
+Default App Feed	Подразбиран източник на приложение
+Default Camera	Подразбирана камера
+Delay before the continue fires	Забавяне преди продължаване
+Delay between GO and this cue starting	Забавяне между GO и старта на cue
+depth 1 turns it all the way round	дълбочина 1 прави пълен оборот
+Digit colour once amber is reached	Цвят на цифрите при кехлибар
+Digit colour while there is time in hand	Цвят на цифрите при достатъчно време
+diskette	дискета
+Do it now, without taking the cue	Направи го сега, без да взимаш cue
+dossier	досие
+dotmatrix	точкова матрица
+Double-GO guard	Защита от двойно GO
+draw on the monitor	рисувай на монитора
+driver speed	скорост на драйвера
+EDGE BLEND	СМЕСВАНЕ НА РЪБОВЕ
+EDIT is on: typing changes the show	EDIT вкл.: писането променя шоуто
+edit on the monitor	редактирай на монитора
+Edit the main Lower Third title	Редактирай заглавието на Lower Third
+Edit the secondary Lower Third line	Редактирай втория ред на Lower Third
+eq band	EQ лента
+equalizer	еквалайзер
+Esc cancels	Esc отказва
+Esc cancels, arrows nudge	Esc отказва, стрелките местят
+Esc to close	Esc за затваряне
+even grid	равна мрежа
+EXAMPLE SHOWS	ПРИМЕРНО ШОУ
+EXIT  Esc	ИЗХОД  Esc
+face	лице
+factory settings	фабрични настройки
+Fade+LoadNext	Затихване+Зареди след.
+Fade+Pause	Затихване+Пауза
+Fade+Rewind	Затихване+Превърти
+Fade-in duration	Време за появяване
+Fade-in duration for this cue	Появяване на този cue
+Fade-out duration	Време за затихване
+Fade-out duration before next cue	Затихване преди следващия cue
+Fade-out duration for this cue	Затихване на този cue
+Fall	Спад
+false colour reads SDR pictures	фалшивите цветове четат SDR картина
+fill the frame	запълни кадъра
+find a named colour	намери цвят по име
+fires cues	задейства cue
+first available	първият свободен
+Fit/Fill/Stretch/Unscaled	Вмести/Запълни/Разтегни/Без мащаб
+Fixed repeat count — 0 = infinite	Фиксиран брой повторения: 0 = безкрайно
+Fixed repeat count — 0 = loop forever	Фиксиран брой повторения: 0 = без край
+FIXED!	ПОПРАВЕНО!
+flag	флаг
+FORGET MY DEFAULTS	ЗАБРАВИ МОИТЕ ПОДРАЗБИРАНИ
+Frames a second	Кадри в секунда
+from exactly this routing	точно от това маршрутизиране
+Full Black	Пълно черно
+Full Blue	Пълно синьо
+Full Green	Пълно зелено
+Full Red	Пълно червено
+Full White	Пълно бяло
+garden	градина
+Ghastly	Призрачно
+glass	стъкло
+glitch down	глич надолу
+glitch drift	дрейф на глич
+glitch reach	обхват на глич
+glitch through	глич през
+glitch up	глич нагоре
+GO steps over it	GO го прескача
+hairline	тънка линия
+Haptics	Трептене
+HDR input	Вход HDR
+Hex, e.g. 90 3C 7F	Hex, напр. 90 3C 7F
+HOLDING OFF AIR	ЗАДЪРЖАНО ИЗВЪН ЕФИР
+Home — skip to start	Home: към началото
+Horizontal output offset in pixels	Хоризонтално отместване на изхода в пиксели
+How many features fit on screen.	Колко се побират на екрана.
+how much of this effect	колко от този ефект
+How solid the ink is	Покритие на мастилото
+How tall the logo is above the clock	Височина на логото над часовника
+In-point: cue starts playback here	Входна точка: cue започва тук
+index	индекс
+initializing webview	стартиране на webview
+install Tailscale here and on the phone	инсталирай Tailscale тук и на телефона
+INSTALLING...	ИНСТАЛИРАНЕ...
+Its amount, or one of its knobs A to D	Количеството му или копче от A до D
+J jump to row	J: към ред
+jam to	синхронизирай към
+Jump the driver back to its first frame	Върни драйвера на първия кадър
+K — cycle cue color tag	K: смени цвета на cue
+Keep counting past zero, or stop dead	Брои след нулата или спри
+key	клавиш
+Key edge softness	Мекота на ръба на кея
+knob	копче
+L - loop this cue continuously	L: зацикли този cue
+last reading	последно отчитане
+Last refused	Последно отказано
+Learn it	Научи
+LEARN THE BASICS	НАУЧИ ОСНОВИТЕ
+ledger	счетоводна книга
+Left — skip back 10s	Ляво: 10 с назад
+Left, centre or right	Ляво, център или дясно
+LESSONS	УРОЦИ
+Levels	Нива
+Limiter	Лимитер
+Limiting	Ограничаване
+line  |  Enter: apply	ред  |  Enter: приложи
+LINEAR - a feather, not a blend	ЛИНЕЙНО: градиент, не смесване
+Linear, ease in, ease out or S-curve	Линейно, вход, изход или S-крива
+Lines	Линии
+link aspect	свържи пропорциите
+Listen to	Слушай
+listener	слушател
+LIVE - every assigned deck matches	LIVE: всички назначени декове съвпадат
+lock to screen	заключи към екрана
+logo	лого
+logo size	размер на логото
+look at it	погледни го
+lower 3rd	Lower Third
+marquee	светлинна табела
+mask on	маската е активна
+Master oscillator rate.	Скорост на главния осцилатор.
+Maximum quality	Най-високо качество
+MIDI and OSC monitor	Монитор за MIDI и OSC
+midi in	вход MIDI
+MIDI note	нота MIDI
+move points	премести точки
+Move the height on its own oscillator	Движи височината с нейния осцилатор
+name or number...	име или номер...
+name, from anywhere	име, отвсякъде
+NDI source cue	Cue с източник NDI
+needs file-backed video	нужно е видео от файл
+neon	неон
+new paths	нови пътеки
+New shows start from	Новите шоута започват от
+next xfade	следващо затихване
+no effects for this cue type	няма ефекти за този вид cue
+nobody	няма
+none - click to learn	няма: щракни, за да научи
+none - click to set some	няма: щракни за задаване
+none - click to write some	няма: щракни за писане
+none yet	още няма
+none: the one picture	няма: единствената картина
+none: the whole picture	няма: цялата картина
+notebook	тетрадка
+nothing	нищо
+nothing assigned yet	нищо не е назначено
+nothing follows	не следва нищо
+Nothing here with this filter.	Нищо с този филтър.
+nothing set - this cue sends nothing	нищо не е зададено: този cue не праща нищо
+nothing targeted yet	няма цел
+Nothing to see here. Probably.	Няма какво да се види тук. Вероятно.
+nothing to send - check the message	няма какво да се прати: провери съобщението
+offset X	отместване X
+offset Y	отместване Y
+on any channel	на всеки канал
+on the header to add another	на заглавието, за да добавиш още
+on the monitor	на монитора
+one big on top, the rest below	един голям горе, другите долу
+one big, the rest beside it	един голям, другите до него
+onion off	паус изкл.
+onion on	паус вкл.
+only this computer	само този компютър
+Open a .deckboy show file	Отвори файл .deckboy
+open the monitor	отвори монитора
+or your own bytes	или твоите собствени байтове
+ORDER - cues advance down the list	РЕД: cue вървят надолу по списъка
+Out-point: cue stops playback here	Изходна точка: cue свършва тук
+output already has	изходът вече има
+Outputs Off	Изходи изкл.
+outs	изходи
+over budget - video will drop frames	над лимита: видеото ще губи кадри
+over the picture	върху картината
+PAIR	ЧИФТ
+Pair a phone	Сдвои телефон
+Pair overlap	Припокриване на чифта
+Paired phones	Сдвоени телефони
+Passphrase	Парола
+Pattern motion toggle	Движение на шарката
+pause begin	пауза в началото
+pennant	флагче
+Per-cue transition duration override	Време за преход на този cue
+Perspective	Перспектива
+PHASE	ФАЗА
+Phone access	Достъп от телефон
+Phone control	Управление от телефон
+phrase hold	дължина на фразата
+PICK FROM SCREEN	ВЗЕМИ ОТ ЕКРАНА
+Pitch, in semitones.	Височина, в полутонове.
+PIXEL FOR PIXEL, TOP-LEFT	ПИКСЕЛ ПО ПИКСЕЛ, ГОРЕ ВЛЯВО
+placard	табела
+play a note...	изсвири нота...
+PLAY BUG SWAT, a game	ИГРАЙ BUG SWAT
+Play the out move now, then take it off	Пусни изхода сега, после го махни
+Playback speed: 0.25–4.0×	Скорост: 0,25–4,0×
+playlists into the named outputs	плейлист към именувани изходи
+plays synth	свири на синтезатора
+plugin	плъгин
+PNG matte	PNG мат
+podium	подиум
+pop	поп
+press a key...	натисни клавиш...
+PRESS AGAIN TO FORGET	НАТИСНИ ПАК, ЗА ДА ЗАБРАВИШ
+Previous show file:	Предишен файл:
+prog bar	лента прогрес
+programme	програма
+Programme with sound in any browser	Програма със звук във всеки браузър
+PROJECTOR - gamma matched	ПРОЕКТОР: съгласувана гама
+Projector gamma	Гама на проектора
+put it on a button	сложи го на бутон
+Put the brush's opacity on an oscillator	Сложи покритието на четката на осцилатор
+Put the brush's size on an oscillator	Сложи размера на четката на осцилатор
+Put this control on an oscillator	Сложи тази контрола на осцилатор
+rack it	зареди го
+RACKED, WARM	ЗАРЕДЕНО, ГОТОВО
+rail	релса
+rain	дъжд
+Reads	Чете
+reads the same on any screen	чете се еднакво на всеки екран
+recent and in this show	скорошни и в това шоу
+Recent shows:	Скорошни шоута:
+red at	червено при
+red col	черв. колона
+render height	височина на рендера
+render width	ширина на рендера
+REPORT A PROBLEM	ДОКЛАДВАЙ ПРОБЛЕМ
+reported rather than swapped	докладвано, не е сменено
+restart driver now	рестартирай драйвера сега
+restart on take	рестарт при take
+restore at end	възстанови в края
+ribbon	панделка
+Right — skip forward 10s	Дясно: 10 с напред
+Right-click turns them off.	Десен клик ги изключва.
+Rise	Покачване
+rise, slide or wipe	издигане, превъртане или завеса
+Rotation speed, degrees per second.	Скорост на въртене, градуси в секунда.
+rounded rect	заобл. правоъг.
+row turns the matrix off again	редът пак изключва матрицата
+Run it now, without taking the cue	Пусни сега, без да взимаш cue
+Run the show from a phone	Води шоуто от телефон
+runs off the show thread	извън нишката на шоуто
+sACN universe, 1-63999	Вселена sACN, 1-63999
+SAVE AS MY DEFAULTS	ЗАПАЗИ КАТО ПОДРАЗБИРАНИ
+says	казва
+SCALED TO FILL	МАЩАБИРАНО ДА ЗАПЪЛНИ
+Scene dwell time — 0 = hold	Време на сцената: 0 = задръж
+Scene fade-in duration	Появяване на сцената
+Scene fade-out duration	Затихване на сцената
+scoreboard	табло с резултати
+SCREENS	ЕКРАНИ
+scroll	превъртане
+Scroll up	Превърти нагоре
+sea	море
+SELECT: MOTION	ИЗБОР: ДВИЖЕНИЕ
+Send it now, without taking the cue	Прати сега, без да взимаш cue
+sends	прати
+Sensitivity	Чувствителност
+Set browser URL/path	Задай URL/път на браузъра
+set by	зададено от
+Set capture source from the cue menu	Задай източника от менюто на cue
+Set cue ID for selected cues	Задай ID на избраните cue
+Set cue token to jump to when cue ends	Задай cue за скок в края
+Set goto target for selected cues	Задай целта на избраните cue
+Set Lower Third background alpha	Алфа на фона на Lower Third
+Set per-cue transition duration	Време за преход на cue
+Set playback speed for selected cues	Скорост на избраните cue
+Set repeat count for selected cues	Повторения на избраните cue
+Set short cue id for search/goto	Кратко ID за търсене/скок
+Set short cue label for search/goto	Кратко име за търсене/скок
+Set the NDI source name to receive	Име на NDI източника за приемане
+Shift+[ / ] — fade-out duration	Shift+[ / ]: време за затихване
+SHOW ME	ПОКАЖИ МИ
+Show on	Покажи на
+Shows	Покажи
+sideline	странична линия
+sketch	скица
+slide	плъзгане
+slide from left	плъзгане отляво
+slide from right	плъзгане отдясно
+SMOOTH	МЕКО
+snow	сняг
+SOS. Kidding. The show is fine.	SOS. Шега. Шоуто е добре.
+Sound when the clock turns amber	Звук, когато часовникът стане кехлибарен
+Sound when the clock turns red	Звук, когато часовникът стане червен
+Sound when time is up	Звук, когато времето изтече
+Space — pause	Интервал: пауза
+Space — play	Интервал: пусни
+span	разпръскване
+sparkle	искри
+Speech models	Говорни модели
+Speed, like tape	Скорост, като лента
+stamp	печат
+Start NEW from factory	Започни НОВО от фабрика
+starting browser	стартиране на браузър
+starting capture	стартиране на заснемане
+starting xvfb	стартиране на xvfb
+sticky	лепяща бележка
+stop at 0	спри на 0
+Stop puppeteering this cue	Спри да управляваш този cue
+STRAIGHT	ПРАВО
+survey	релеф
+SVG paths	Пътеки SVG
+tab	раздел
+tag	етикет
+TAP	ДОКОСНИ
+terminal	терминал
+text mode	текстов режим
+the file cannot be read	файлът не се чете
+The name	Името
+The OSC path, e.g. /cue/1/start	OSC път, напр. /cue/1/start
+the playlist's PATCH	PATCH на плейлиста
+The role, or leave it empty	Ролята, или остави празно
+the system output	системният изход
+The text this cue puts on screen	Текстът, който показва този cue
+theatre	театър
+then stop	после спри
+they have	имат
+things that are oscillating	неща, които осцилират
+this cue lives on	този cue е на
+This show's setup, no cues	Настройките на това шоу, без cue
+ticket	билет
+tile h	плочка в
+Tile height in pixels.	Височина на плочката в пиксели.
+tile w	плочка ш
+time of day	час от деня
+Toggle audio enable for selected cues	Звук на избраните cue
+Toggle chroma key	Превключи хромакей
+Toggle cue audio	Звук на cue
+Toggle cue audio track for this cue	Аудиописта на този cue
+Toggle fade in	Появяване
+Toggle fade out	Затихване
+Toggle hold on last frame	Задръж последния кадър
+Toggle hold-at-end for selected cues	Задръж в края на избраните cue
+Toggle loop	Цикъл
+Toggle loop for selected cues	Цикъл на избраните cue
+Toggle the live input's audio	Звук от живия вход
+Total time	Общо време
+transcoding - plays clean until ready	транскодиране: свири чисто до края
+transparent: put its playlist on a layer	прозрачно: сложи плейлиста на слой
+Trusted controllers	Доверени контролери
+TURN OFF	ИЗКЛЮЧИ
+turn phone control on	включи управление от телефон
+two big on top, the rest below	двама големи горе, другите долу
+type a cue number	напиши номер на cue
+Typing needs EDIT on	Писането изисква EDIT вкл.
+Use GEOMETRY for exact placement	Ползвай ГЕОМЕТРИЯ за точно разполагане
+value to type one	стойност за писане
+Vertical output offset in pixels	Вертикално отместване на изхода в пиксели
+VIDEO DIP: OFF	VIDEO DIP: НЕ
+VIDEO DIP: ON	VIDEO DIP: ДА
+walk the outputs one at a time.	мини през изходите един по един.
+walks every output in turn	минава през всеки изход
+WHAT DECKBOY DID	КАКВО НАПРАВИ DECKBOY
+what is on air in a playlist	какво е на живо в плейлиста
+What NEW starts from, never this show	Откъде започва НОВО, никога това шоу
+whatever the style says	каквото каже стилът
+Where the ramp ends	Къде свършва рампата
+Which deck the cue it acts on lives on	На кой дек е целевият cue
+Which frame you draw on	На кой кадър рисуваш
+Who can see it	Кой може да го вижда
+whole network	цялата мрежа
+will not open	не се отваря
+window and recording outputs only	само изходи за прозорец и запис
+wipe	завеса
+Wobble	Клатене
+wobble by	клати с
+words	думи
+X — cycle end action	X: смени крайното действие
+X — cycle end action: stop / next / loop	X: крайно действие: стоп / след. / цикъл
+Zones	Зони
+~ makes the level breathe	~ кара нивото да диша
+a note or an address becomes that cue's trigger	нота или адрес става спусък на този cue
+acts on every deck; deck and cue are ignored	действа на всички декове; дек и cue се пренебрегват
+Add an output above, then send playlists to it here.	Добави изход горе, после прати плейлистите тук.
+Ancient cypher, modern video desk. Respect.	Древна писменост, модерен пулт. Уважение.
+Any font on this computer, Deckboy's own, or a font file	Шрифт от компютъра, на Deckboy или файл
+Apply fade-in to selected video/audio cues	Появяване на избраните видео/аудио cue
+Apply fade-out to selected video/audio cues	Затихване на избраните видео/аудио cue
+Art-Net or sACN (E1.31): whichever the lighting rig listens to	Art-Net или sACN (E1.31): каквото слуша осветлението
+Auto-advance duration — 0 = hold until taken	Автоматично напред: 0 = задръж до take
+Bypass: this master leaves that deck alone	Bypass: този мастър оставя онзи дек на мира
+Characters across. Fewer means bigger cells.	Знаци на ред. По-малко дава по-големи клетки.
+Choose a mask from this show's library, or start a new one from a shape	Избери маска от библиотеката или направи от форма
+Click a value to change it. A red address overlaps another fixture.	Щракни стойност, за да я смениш. Червен адрес се застъпва с друг уред.
+Click to show or hide this cue's captions	Щракни, за да покажеш или скриеш субтитрите на cue
+Copy the show AND its media into one portable folder	Копирай шоуто И медиите в една преносима папка
+Ctrl+S - write back over the show that is open	Ctrl+S: запази в отвореното шоу
+Ctrl+Shift+S - write the show to a NEW file	Ctrl+Shift+S: запази в НОВ файл
+Device output pair this cue's audio plays on	Двойка изходи за звука на този cue
+E - freeze on last frame instead of stopping	E: застини на последния кадър вместо стоп
+Edit title/subtitle here or fire it live with TAKE	Редактирай заглавие/подзаглавие тук или пусни с TAKE
+Every channel on every universe this session has touched	Всеки канал във всяка вселена, докосната в тази сесия
+generator is off - a START cue turns it on	генераторът е изкл.: cue START го включва
+How long the note takes to reach full level.	Време, за което нотата стига пълно ниво.
+How much it throws off; 0 is a clean burn	Колко се лющи; 0 гори чисто
+INPUT: the programme. Drag a crop to move it, its corners to size it.	ВХОД: програмата. Плъзни изрязък за местене, ъглите за размер.
+Keep the outside and cut the inside instead	Запази външното и изрежи вътрешното
+LED panel height in pixels. Click to type it	Височина на LED панела в пиксели. Щракни за писане
+Legacy target mode — switch type to convert	Стар режим на цел: смени вида за превръщане
+Lissajous, spectrum, meters or a name card	Lissajous, спектър, индикатори или табелка с име
+Load the cue and hold first frame when taken	Зареди cue и задръж първия кадър до take
+no fixtures patched - Settings > Network > FIXTURES	няма уреди в пача: Настройки > Мрежа > FIXTURES
+Nothing here changes the show that is open.	Нищо тук не променя отвореното шоу.
+Per-cue audio: enable, trim, pan, mono, fades, normalize	Аудио на cue: вкл./изкл., трим, пан, моно, затихвания, нормализация
+Phone control is in PHONE & TABLET, below	Управлението от телефон е в PHONE & TABLET, долу
+Save the mask as a greyscale PNG at the output's size: white keeps, black cuts	Запази маската като сив PNG с размера на изхода: бялото пази, черното реже
+Seconds REMAINING when the clock turns amber	ОСТАВАЩИ секунди, когато часовникът стане кехлибарен
+Seconds REMAINING when the clock turns red	ОСТАВАЩИ секунди, когато часовникът стане червен
+Shown to the operator when GO reaches this cue	Показва се на оператора, когато GO стигне този cue
+SHUFFLE - the next cue is picked at random	СЛУЧАЙНО: следващият cue се тегли на жребий
+Slots are self-contained sources in this first pass	Слотовете са самостоятелни източници в тази версия
+that output's whole picture, or its matte	цялата картина на този изход или неговият мат
+The cue number on the other desk, e.g. 12.5	Номерът на cue на другия пулт, напр. 12.5
+Toggle pause-at-beginning for selected cues	Пауза в началото на избраните cue
+Toggle transition-to-next for selected cues	Преход към следващия на избраните cue
+transparent outside the blobs: put it on a layer	прозрачно извън петната: сложи го на слой
+transparent outside the ink: put it on a layer	прозрачно извън мастилото: сложи го на слой
+what is said, on screen, made on this computer	казаното, на екрана, направено на този компютър
+What this cue does when it ends - click to change	Какво прави този cue в края: щракни за смяна
+Whether the next shape or pen path adds or cuts	Дали следващата форма или пътека добавя или реже
