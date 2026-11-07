@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ports and firewalls | Deckboy Video University</title>
+    <meta name="description" content="Why the software cannot see the other software.">
+    <style>img,video{max-width:100%;height:auto}</style>
+    <link rel="stylesheet" href="../style.css?v=20261024b">
+    <link rel="stylesheet" href="university.css">
+    <script src="university.js" defer></script>
+</head>
+<body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <nav class="navbar">
+        <div class="logo">Deckboy</div>
+        <div class="nav-links">
+            <a href="index.html">Video University</a>
+            <a href="troubleshooter.html">Troubleshooter</a>
+            <a href="../manual.html">Manual</a>
+            <a href="https://github.com/Utopian-Academy/Deckboy/releases/latest" class="btn-primary">Download Free</a>
+        </div>
+    </nav>
+    <main id="main" class="uni">
+    <p class="uni-crumb"><a href="index.html">Video University</a> / <a href="vid140.html">VID 140</a> / Lecture 5</p>
+    <h1>Ports and firewalls</h1>
+<div class="say pix"><span class="who"><img class="face" src="art/dr-pixel-neutral.png" width="96" height="96" alt="">DR. PIXEL</span><div><p>The address gets you to the building. The <b>port</b> gets you to the right door. Each program listens on a port. A <b>firewall</b> is the guard who decides which doors open.</p><p>So you can ping the computer, and the software still cannot connect. Most of the time, that is the firewall.</p></div></div>
+<section class="sim" aria-label="Simulator: firewall"><h2>Try it: get the message through</h2><div class="sim-controls"><label for="fw-profile">Windows thinks this network is<select id="fw-profile"><option value="public" selected>Public</option><option value="private">Private</option></select></label><label for="fw-allow">Deckboy in the firewall<select id="fw-allow"><option value="no" selected>Not allowed</option><option value="private">Allowed on private networks</option><option value="both">Allowed on private and public</option></select></label><label for="fw-remote">Settings &gt; Network &gt; REMOTE in Deckboy<select id="fw-remote"><option value="off" selected>Off</option><option value="on">On</option></select></label><label for="fw-trust">This controller<select id="fw-trust"><option value="no" selected>Not in Trusted controllers</option><option value="yes">In Trusted controllers</option></select></label></div><p class="sim-read" id="fw-read"></p></section>
+<div class="say pix"><span class="who"><img class="face" src="art/dr-pixel-pointing.png" width="96" height="96" alt="">DR. PIXEL</span><div><p>There is a trap. When Windows first meets a network, it can call it <b>Public</b>, and then it blocks more. A show switch with no internet often lands there. Set it to Private. And let the app through.</p><p>Do not turn the whole firewall off, skapi. Open what you need.</p></div></div>
+<div class="say prof"><span class="who"><img class="face" src="art/prof-video-neutral.png" width="96" height="96" alt="">PROF. VIDEO</span><div><p>Some numbers to know: Art-Net uses UDP port 6454. sACN uses UDP 5568. mDNS, which helps devices find each other, uses UDP 5353. OSC has no fixed port, so both ends must agree. That one has confused me personally.</p></div></div>
+<section data-quiz="vid140-5" aria-label="Problems"><h2>Problems</h2><div class="q"><p>You can ping the computer, but the software cannot connect. What do you suspect first?</p><div class="opts"><button data-right data-why="The address works, so look at the door.">A firewall or a closed port</button><button data-why="Ping works, so the cable carries traffic.">The cable</button><button data-why="Ping works, so they are neighbours.">The subnet mask</button></div><p class="why" aria-live="polite"></p></div><div class="q"><p>Which port does Art-Net use?</p><div class="opts"><button data-right data-why="That is the Art-Net port.">UDP 6454</button><button data-why="That is mDNS.">UDP 5353</button><button data-why="That is web traffic.">TCP 80</button></div><p class="why" aria-live="polite"></p></div><div class="q"><p>What is the better fix?</p><div class="opts"><button data-right data-why="Open only what you need.">Allow the one app, and set the network to Private</button><button data-why="That opens every door.">Turn the firewall off for good</button></div><p class="why" aria-live="polite"></p></div><p class="uni-score" aria-live="polite"></p></section>
+    <section><h2>Do it in Deckboy</h2><p>In Settings &gt; Network, turn on <b>REMOTE</b>. If a controller is refused, <b>Last refused</b> shows its address, and you can add it to <b>Trusted controllers</b>. <code>TRUST LAST</code> does the same over the wire.</p></section>
+    <section class="sources"><h3>Sources</h3><ul><li><a href="https://support.microsoft.com/en-us/windows/firewall-and-network-protection-in-the-windows-security-app-ec0844f7-aebd-0583-67fe-601ecf5d774f">Microsoft: firewall and network protection</a></li><li><a href="https://art-net.org.uk/">Art-Net</a></li><li><a href="https://opensoundcontrol.stanford.edu/spec-1_0.html">The OSC 1.0 specification</a></li><li><a href="https://www.rfc-editor.org/rfc/rfc6762">RFC 6762: Multicast DNS</a></li></ul></section>
+    <div class="nextprev"><a href="vid140-4.html">Lecture 4</a><a href="vid140-6.html">Lecture 6: Finding each other</a></div>
+    </main>
+</body>
+</html>

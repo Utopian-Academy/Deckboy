@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>An address for every box | Deckboy Video University</title>
+    <meta name="description" content="Each device on a network needs its own address.">
+    <style>img,video{max-width:100%;height:auto}</style>
+    <link rel="stylesheet" href="../style.css?v=20261024b">
+    <link rel="stylesheet" href="university.css">
+    <script src="university.js" defer></script>
+</head>
+<body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <nav class="navbar">
+        <div class="logo">Deckboy</div>
+        <div class="nav-links">
+            <a href="index.html">Video University</a>
+            <a href="troubleshooter.html">Troubleshooter</a>
+            <a href="../manual.html">Manual</a>
+            <a href="https://github.com/Utopian-Academy/Deckboy/releases/latest" class="btn-primary">Download Free</a>
+        </div>
+    </nav>
+    <main id="main" class="uni">
+    <p class="uni-crumb"><a href="index.html">Video University</a> / <a href="vid140.html">VID 140</a> / Lecture 1</p>
+    <h1>An address for every box</h1>
+<div class="say pix"><span class="who"><img class="face" src="art/dr-pixel-neutral.png" width="96" height="96" alt="">DR. PIXEL</span><div><p>Dobar den, skapi. Here is the job. The laptop cannot see the camera. Both are plugged into the switch. The lights on the switch are on. What now?</p><p>Now you check the addresses. Every device on a network has an <b>IP address</b>: four numbers, like <b>192.168.1.20</b>. For two devices to talk directly, the first part must match, and the last number must be different.</p></div></div>
+<section class="sim" id="net-sim" aria-label="Simulator: address four devices"><h2>Try it: make them all see each other</h2><p>Change the addresses. All four use the mask 255.255.255.0, so the first three numbers must match.</p><div class="sim-controls"><label for="ip-0">Laptop<input id="ip-0" class="ipbox" value="192.168.1.10"></label><label for="ip-1">Camera<input id="ip-1" class="ipbox" value="192.168.0.20"></label><label for="ip-2">Lighting desk<input id="ip-2" class="ipbox" value="2.0.0.1"></label><label for="ip-3">Stream Deck computer<input id="ip-3" class="ipbox" value="192.168.1.10"></label></div><div class="sim-read" id="net-read"></div></section>
+<div class="say pix"><span class="who"><img class="face" src="art/dr-pixel-pointing.png" width="96" height="96" alt="">DR. PIXEL</span><div><p>You found two faults. The camera and the lighting desk were on different networks, so nobody could reach them. And two boxes had the same address. That is a <b>conflict</b>, and it causes strange faults that come and go. Each address can be used once.</p></div></div>
+<div class="say prof"><span class="who"><img class="face" src="art/prof-video-neutral.png" width="96" height="96" alt="">PROF. VIDEO</span><div><p>It is like patching two modules to one output socket, and expecting each to get its own signal. I have done that. Also, lighting desks often start on 2.x.x.x, because Art-Net once suggested that range. Do not be surprised.</p></div></div>
+<div class="say pix"><span class="who"><img class="face" src="art/dr-pixel-talking.png" width="96" height="96" alt="">DR. PIXEL</span><div><p>For a show network, use a private range. <b>192.168.x.x</b> and <b>10.x.x.x</b> are the common ones. They are reserved for private networks, so they do not clash with the internet.</p></div></div>
+<section data-quiz="vid140-1" aria-label="Problems"><h2>Problems</h2><div class="q"><p>The mask is 255.255.255.0. The laptop is 192.168.1.10. Which address can it reach directly?</p><div class="opts"><button data-right data-why="The first three numbers match, and the last is different.">192.168.1.50</button><button data-why="The third number is different, so this is a different network.">192.168.2.50</button><button data-why="This is a different network.">10.0.0.50</button></div><p class="why" aria-live="polite"></p></div><div class="q"><p>Two devices have the same address. What happens?</p><div class="opts"><button data-right data-why="Each address must be used once only.">A conflict: faults that come and go</button><button data-why="They do not share. The network cannot tell them apart.">They share the traffic</button><button data-why="It causes faults.">Nothing</button></div><p class="why" aria-live="polite"></p></div><div class="q"><p>Which range is private, and safe for a show network?</p><div class="opts"><button data-right data-why="RFC 1918 reserves it for private networks.">192.168.x.x</button><button data-why="That is a public range on the internet.">8.8.8.x</button><button data-why="That range is not for devices.">255.255.255.x</button></div><p class="why" aria-live="polite"></p></div><p class="uni-score" aria-live="polite"></p></section>
+    <section><h2>Do it in Deckboy</h2><p>Find this computer's address in the operating system's network settings. Write it down. Then open Settings &gt; Network in Deckboy, and put the same address in Companion.</p></section>
+    <section class="sources"><h3>Sources</h3><ul><li><a href="https://www.rfc-editor.org/rfc/rfc1918">RFC 1918: address ranges for private networks</a></li><li><a href="https://art-net.org.uk/">Art-Net</a></li></ul></section>
+    <div class="nextprev"><a href="vid140.html">Course page</a><a href="vid140-2.html">Lecture 2: What the mask means</a></div>
+    </main>
+</body>
+</html>

@@ -266,6 +266,115 @@
     render();
   }
 
+
+  // ── VID 140 ──
+  const ipValue = (t) => {
+    const m = String(t).trim().match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+    if (!m || m.slice(1).some((x) => +x > 255)) return null;
+    return ((+m[1] * 16777216) + (+m[2] << 16) + (+m[3] << 8) + (+m[4])) >>> 0;
+  };
+  const maskValue = (bits) => (bits === 0 ? 0 : (0xFFFFFFFF << (32 - bits)) >>> 0);
+  const ipText = (v) => [v >>> 24, (v >>> 16) & 255, (v >>> 8) & 255, v & 255].join('.');
+  const lines = (el, list) => { el.textContent = ''; list.forEach((t) => { const p = document.createElement('p'); p.textContent = t; el.appendChild(p); }); };
+
+  if ($('net-read')) {
+    const NAMES = ['Laptop', 'Camera', 'Lighting desk', 'Stream Deck computer'];
+    const render = () => {
+      const ips = NAMES.map((_, i) => ipValue($('ip-' + i).value));
+      const out = [];
+      NAMES.forEach((n, i) => { if (ips[i] === null) out.push(n + ': this is not a valid address. Use four numbers from 0 to 255.'); });
+      if (!out.length) {
+        const mask = maskValue(24);
+        for (let i = 0; i < 4; i++) for (let j = i + 1; j < 4; j++) {
+          if (ips[i] === ips[j]) out.push('Conflict: ' + NAMES[i] + ' and ' + NAMES[j] + ' have the same address.');
+          else if (((ips[i] & mask) >>> 0) !== ((ips[j] & mask) >>> 0)) out.push(NAMES[i] + ' cannot reach ' + NAMES[j] + ': different networks.');
+        }
+        if (!out.length) out.push('All four can see each other. That is the job done, skapi.');
+      }
+      lines($('net-read'), out);
+    };
+    NAMES.forEach((_, i) => $('ip-' + i).addEventListener('input', render));
+    render();
+  }
+
+  if ($('mask-read')) {
+    const render = () => {
+      const a = ipValue($('mask-a').value), b = ipValue($('mask-b').value), bits = +$('mask-m').value;
+      if (a === null || b === null) { $('mask-read').textContent = 'Use four numbers from 0 to 255.'; return; }
+      const m = maskValue(bits), net = (a & m) >>> 0, last = (net | (~m >>> 0)) >>> 0;
+      const same = ((b & m) >>> 0) === net;
+      const count = bits >= 31 ? 2 ** (32 - bits) : 2 ** (32 - bits) - 2;
+      $('mask-read').textContent = (same ? 'Neighbours: they can talk directly.' : 'Not neighbours: they need a router between them.') +
+        ' This network runs from ' + ipText(net) + ' to ' + ipText(last) + ', with ' + count.toLocaleString('en') + ' usable addresses.';
+    };
+    ['mask-a', 'mask-b', 'mask-m'].forEach((id) => $(id).addEventListener('input', render));
+    render();
+  }
+
+  if ($('dhcp-read')) {
+    const render = () => {
+      const server = $('dhcp-server').value === 'yes', mode = $('dhcp-mode').value;
+      if (mode === 'static') {
+        $('dhcp-addr').textContent = '192.168.1.20';
+        $('dhcp-read').textContent = 'It always has this address. You typed it, so write it on the sheet.';
+      } else if (server) {
+        $('dhcp-addr').textContent = '192.168.1.117';
+        $('dhcp-read').textContent = 'The server gave it an address. It can change later, so a button that points at it can stop working.';
+      } else {
+        $('dhcp-addr').textContent = '169.254.42.7';
+        $('dhcp-read').textContent = 'Nobody answered, so it gave itself this address. It can reach only other devices in the same state.';
+      }
+    };
+    ['dhcp-server', 'dhcp-mode'].forEach((id) => $(id).addEventListener('input', render));
+    render();
+  }
+
+  if ($('bw-read')) {
+    const render = () => {
+      const n = +$('bw-streams').value, rate = +$('bw-rate').value, link = +$('bw-link').value;
+      const use = n * rate, pct = use / link * 100;
+      $('bw-n').textContent = n;
+      const bar = $('bw-bar');
+      bar.style.width = Math.min(100, pct) + '%';
+      bar.style.background = pct > 100 ? '#ff7a59' : pct > 70 ? '#fcfe1f' : '#9fe6ff';
+      $('bw-read').textContent = use.toLocaleString('en') + ' Mb/s on a ' + link.toLocaleString('en') + ' Mb/s link: ' + Math.round(pct) + '%. ' +
+        (pct > 100 ? 'This cannot work. Use fewer streams, compression or a faster link.' : pct > 70 ? 'It is too close to the limit for a show.' : 'There is room to spare.');
+    };
+    ['bw-streams', 'bw-rate', 'bw-link'].forEach((id) => $(id).addEventListener('input', render));
+    render();
+  }
+
+  if ($('fw-read')) {
+    const render = () => {
+      const profile = $('fw-profile').value, allow = $('fw-allow').value, remote = $('fw-remote').value, trust = $('fw-trust').value;
+      const open = allow === 'both' || (allow === 'private' && profile === 'private');
+      $('fw-read').textContent = !open
+        ? 'Blocked by the firewall. The message does not reach Deckboy, and nothing shows in Last refused. Allow Deckboy, or set the network to Private.'
+        : remote === 'off'
+          ? 'It passes the firewall, but REMOTE is off. Deckboy answers only its own computer. Turn REMOTE on.'
+          : trust === 'no'
+            ? 'It reaches Deckboy, and Deckboy refuses it. The controller appears in Last refused. Add it to Trusted controllers.'
+            : 'Connected. The controller can run the show.';
+    };
+    ['fw-profile', 'fw-allow', 'fw-remote', 'fw-trust'].forEach((id) => $(id).addEventListener('input', render));
+    render();
+  }
+
+  if ($('disc-read')) {
+    const render = () => {
+      const where = $('disc-where').value, how = $('disc-how').value;
+      $('disc-read').textContent = how === 'manual'
+        ? (where === 'same' ? 'It works. You typed the address, so no announcement is needed.' : 'It works if the router passes the traffic and the firewall allows it.')
+        : how === 'server'
+          ? 'It works if both devices are set to use the same discovery server, and they can reach it.'
+          : where === 'same'
+            ? 'It appears in the list. The announcement reaches the laptop on the same network.'
+            : 'It does not appear. The announcement normally stops at the router, although the camera may be working perfectly.';
+    };
+    ['disc-where', 'disc-how'].forEach((id) => $(id).addEventListener('input', render));
+    render();
+  }
+
   // ── The troubleshooter.
   if ($('stage') && window.UNI_TREE) {
     const T = window.UNI_TREE, stage = $('stage'), trail = $('trail');
