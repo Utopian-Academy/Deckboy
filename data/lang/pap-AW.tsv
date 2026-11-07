@@ -1856,3 +1856,351 @@ sACN (E1.31)	sACN (E1.31)
 DECKBOY  POCKET	DECKBOY  POCKET
 DECKLINK SDI / HDMI	DECKLINK SDI / HDMI
 AMWA NMOS  IS-04 / IS-05	AMWA NMOS  IS-04 / IS-05
+in	paden
+Arm	Arma
+TAP	TOK
+bar	barra
+out	pafo
+Gate	Porta
+Seam	Costura
+card	karta
+does	ta hasi
+fire	cuminsa
+freq	frecuencia
+knob	boton
+outs	salidanan
+says	ta bisa
+sine	sinus
+snap	mesora
+span	rango
+Crush	Kibra
+Moire	Moiré
+Pulse	Pulso
+Swirl	Remolino
+Timer	Cronometro
+WACKY	LOKO
+chime	klok
+moves	movimentonan
+plays	ta toca
+press	primi
+sends	ta manda
+slide	desliza
+Bottom	Abou
+COLOUR	COLOR
+DARKEN	SCURECE
+Disarm	Desarma
+Wobble	Slinger
+credit	credito
+ledger	buki di cuenta
+podium	podio
+sticky	pegatin
+survey	encuesta
+COMPARE	COMPARA
+Ease in	Drenta suave
+Ghastly	Spantoso
+LED MAP	MAPA LED
+LIGHTEN	ACLARA
+Push up	Pusha ariba
+S-curve	Curva-S
+Shatter	Kibra na pida
+Suspend	Suspende
+Tilt EQ	Inclina EQ
+Wipe up	Wipe ariba
+bracket	parentesis
+eq band	banda eq
+inherit	heredá
+marquee	letrero
+pennant	bandera
+placard	cartel
+routing	ruta
+sparkle	brio
+stacked	stapel
+visuals	visual
+Dissolve	Disolve
+END HOLD	FIN TENE
+END LOOP	FIN LOOP
+END NEXT	FIN SIGUIENTE
+END STOP	FIN PARA
+Ease out	Sali suave
+Low pass	Filter abou
+Place it	Pon'e
+SEQUENCE	SECUENCIA
+Spectrum	Spectro
+TRIGGERS	TRIGGER
+Waveform	Forma di ola
+built in	incorpora
+contrast	contraste
+diskette	disket
+hairline	liña fini
+listener	scuchado
+overtime	tempo extra
+sideline	liña di banda
+Bit depth	Profundidad di bit
+Composite	Composta
+High pass	Filter halto
+Name Card	Karta di nomber
+Placement	Posicion
+Push down	Pusha abou
+Push left	Pusha robes
+Scroll up	Rol ariba
+Wipe down	Wipe abou
+Wipe left	Wipe robes
+auto next	siguiente automatico
+blueprint	plan
+cartridge	cartucho
+crosshair	mira
+dotmatrix	matrix di punto
+equalizer	ecualisador
+even grid	rooster igual
+hold last	tene ultimo
+they have	nan tin
+this deck	e deck aki
+tolerance	tolerancia
+Compressor	Compresor
+Corner pin	Skina pega
+Crosshatch	Liña crusa
+Fade+Pause	Fade+Pausa
+Frame lock	Pega imagen
+HDR signal	Señal HDR
+NDI Source	Fuente NDI
+Push right	Pusha drechi
+Typewriter	Mashin di skirbi
+Wipe right	Wipe drechi
+hold {n} s	tene {n} s
+knob 0-127	boton 0-127
+safe areas	area sigur
+saturation	saturacion
+scoreboard	tabla di punto
+tile width	ancho di tegel
+Auto-follow	Sigui automatico
+Bar opacity	Opacidad di barra
+Browser Cue	Cue di browser
+Deck volume	Volumen di deck
+Fade+Rewind	Fade+Bai bek
+Output mask	Mascara di salida
+Outputs Off	Salida paga
+Raster mode	Modo raster
+Toggle loop	Cambia loop
+Video Synth	Synth di video
+audio meter	meter di zonido
+goto target	meta di goto
+on the desk	riba e mesa
+tile height	altura di tegel
+(no monitor)	(sin monitor)
+Checkerboard	Tabla di dam
+Cue contrast	Contraste di cue
+Deck opacity	Opacidad di deck
+Dip to black	Bai pa pretu
+Dip to white	Bai pa blanco
+Level Meters	Meter di nivel
+Matte aspect	Proporcion di matte
+Oscilloscope	Oscilloscopio
+Refresh rate	Velocidad di refresca
+clear driver	kita driver
+rounded rect	rectangulo rondo
+Auto-continue	Sigui automatico
+Camera Source	Fuente di camara
+Fade+LoadNext	Fade+Carga siguiente
+J jump to row	J bula na liña
+Master dimmer	Dimmer master
+Overlay image	Imagen overlay
+Overlay still	Imagen fiho overlay
+Recent shows:	Shownan reciente:
+Run the clock	Core e oloshi
+Window Source	Fuente di bentana
+one named cue	un cue cu nomber
+starting xvfb	cuminsando xvfb
+Cue brightness	Brio di cue
+Cue saturation	Saturacion di cue
+DeckLink Input	Entrada DeckLink
+Default Camera	Camara predetermina
+Toggle fade in	Cambia drenta suave
+fill the frame	yena e imagen
+tone cue added	cue di toon agrega
+Do not continue	No sigui
+Overlay opacity	Opacidad di overlay
+SDR material at	Material SDR na
+Toggle fade out	Cambia sali suave
+decoder spin-up	cuminsamento di decoder
+endless encoder	encoder sin fin
+press + release	primi + laga bai
+slide from left	desliza for di robes
++ ONE AFTER THIS	+ UN DESPUES DI ESAKI
+2 · WHAT IT RUNS	2 · LOKE E TA CORE
+An effect's knob	Boton di efecto
+Default App Feed	Fuente predetermina di app
+GO steps over it	GO ta stap riba dje
+Hardware display	Pantaya di hardware
+ONE PER PLAYLIST	UN PA CADA PLAYLIST
+Speed, like tape	Velocidad, manera tape
+Toggle cue audio	Cambia zonido di cue
+import an SVG...	importa un SVG...
+slide from right	desliza for di drechi
+source cue added	cue di fuente agrega
+starting browser	cuminsando browser
+starting capture	cuminsando captura
+the selected cue	e cue scogi
+- REMOVE THIS ONE	- KITA ESAKI
+1 · WHAT COMES IN	1 · LOKE TA DRENTA
+Pocket Test (day)	Prueba Pocket (dia)
+browser cue added	cue di browser agrega
+or your own bytes	of bo mes bytes
+this cue lives on	e cue aki ta biba riba
+value to type one	balor pa tipa un
+System audio (SDL)	Zonido di sistema (SDL)
+Transition to next	Transicion pa siguiente
+When taken off air	Ora e sali for di aire
+output already has	salida tin caba
+restart driver now	cuminsa driver di nobo awor
+3 · WHAT IT RUNS ON	3 · RIBA KICO E TA CORE
+Dark Detail (0-12%)	Detaye scur (0-12%)
+Frame Count (emoji)	Contador di imagen (emoji)
+PLUGE (black level)	PLUGE (nivel di pretu)
+Pocket Test (night)	Prueba Pocket (anochi)
+Pocket Test (storm)	Prueba Pocket (tormenta)
+Previous show file:	Archivo di show anterior:
+Syphon/Spout Source	Fuente Syphon/Spout
+rise, slide or wipe	subi, desliza of wipe
+Dimmer + temperature	Dimmer + temperatura
+Panel Map (animated)	Mapa di panel (anima)
+Pocket Test (sunset)	Prueba Pocket (solo baha)
+initializing webview	cuminsando webview
+Boresight (alignment)	Mira (alineacion)
+Not watching a folder	No ta wak un carpeta
+SMPTE 75% Colour Bars	Barra di color SMPTE 75%
+line  |  Enter: apply	liña  |  Enter: aplica
+An audio effect's knob	Boton di efecto di zonido
+Multiburst (bandwidth)	Multiburst (ancho di banda)
+(default system device)	(aparato predetermina di sistema)
+Convergence (fine grid)	Convergencia (rooster fini)
+Greyscale Steps (gamma)	Paso di gris (gamma)
+K — cycle cue color tag	K — cambia etiketa di color di cue
+whatever the style says	cualkier cu e estilo bisa
+Uniformity (flat fields)	Uniformidad (campo plat)
+runs off the show thread	ta core pafo di e hilo di show
+Open a .deckboy show file	Habri un archivo di show .deckboy
+Toggle hold on last frame	Cambia tene riba ultimo imagen
+from exactly this routing	for di exactamente e ruta aki
+~ makes the level breathe	~ ta hasi e nivel hala rosea
+CLEAR OVERLAY  [Backspace]	KITA OVERLAY  [Backspace]
+Stop puppeteering this cue	Para di maneha e cue aki
+Test Clock (sync + latency)	Oloshi di prueba (sync + latencia)
+auto (reads the common two)	auto (ta lesa e dos comun)
+one big, the rest beside it	un grandi, e restu banda dje
+Panel Map (LED tile numbers)	Mapa di panel (number di tegel LED)
+Portal (blobs of deep space)	Portal (bulpa di espacio profundo)
+Set cue ID for selected cues	Pone ID di cue pa cues scogi
+Terrarium (living ecosystem)	Terrarium (ecosistema bibo)
+Window 10% (peak brightness)	Bentana 10% (brio maximo)
+Window 50% (peak at mid APL)	Bentana 50% (maximo na APL medio)
+on the header to add another	riba e cabes pa agrega otro
+reads the same on any screen	ta lesa igual riba cualkier pantaya
+reported rather than swapped	reporta en bes di cambia
+Frame Count (drops + latency)	Contador di imagen (perdi + latencia)
+Terrarium Pico (1px per cell)	Terrarium Pico (1px pa cel)
+Banding Ramps (real bit depth)	Rampa di banding (profundidad di bit real)
+Fireside (a hearth that burns)	Candela (un fogon cu ta kima)
+Nothing to see here. Probably.	Nada pa mira aki. Podisé.
+Test Bars (motion diagnostics)	Barra di prueba (diagnostico di movimento)
+What fires this cue besides GO	Kico ta cuminsa e cue aki fuera di GO
+on air in the focused playlist	riba aire den e playlist cu foco
+one big on top, the rest below	un grandi ariba, e restu abou
+row turns the matrix off again	liña ta paga e matrix atrobe
+two big on top, the rest below	dos grandi ariba, e restu abou
+SOS. Kidding. The show is fine.	SOS. Hungando. E show ta bon.
+Test: move it on the controller	Prueba: mov'e riba e controlador
+walk the outputs one at a time.	pasa e salidanan un pa un.
+Moire 1:1 (is anything scaling?)	Moiré 1:1 (algo ta escala?)
+Set short cue id for search/goto	Pone ID cortico di cue pa busca/goto
+Set goto target for selected cues	Pone meta di goto pa cues scogi
+ORDER - cues advance down the list	ORDER - cues ta bai abou den e lista
+depth 1 turns it all the way round	profundidad 1 ta draai'e henter buelta
+load a sprite sheet from a file...	carga un blachi di sprite for di archivo...
+EDIT is on: typing changes the show	EDIT ta encende: tipa ta cambia e show
+0-63, the hardware's own gain range.	0-63, e rango di ganancia di e hardware.
+Pocket Test (test card + scene cycle)	Prueba Pocket (karta di prueba + ciclo di scena)
+all driven by the cue's own transport	tur ta core pa e transporte di e cue mes
+Set cue token to jump to when cue ends	Pone token di cue pa bula ora cue caba
+Jump the driver back to its first frame	Bula e driver bek na su prome imagen
+Play the out move now, then take it off	Toca e movimento di sali awor, despues kit'e
+Clear the active Lower Third overlay now	Kita e Lower Third activo awor
+Critters (pixel-exact scaling, animated)	Critters (escala exacto di pixel, animá)
+the selected cue in the focused playlist	e cue scogi den e playlist cu foco
+that output's whole picture, or its matte	henter imagen di e salida ei, of su matte
+Lissajous, spectrum, meters or a name card	Lissajous, spectro, meter of karta di nomber
+SHUFFLE - the next cue is picked at random	SHUFFLE - e siguiente cue ta wordo scogi na casualidad
+Ancient cypher, modern video desk. Respect.	Codigo antiguo, mesa di video moderno. Respet.
+Ctrl+Shift+S - write the show to a NEW file	Ctrl+Shift+S - skirbi e show den un archivo NOBO
+Ctrl+S - write back over the show that is open	Ctrl+S - skirbi riba e show cu ta habri
+Read everything right to left. Yes, everything.	Lesa tur cos for di drechi pa robes. Si, tur cos.
+Greetings, primitive. Your "slideshow" amuses us.	Saludo, primitivo. Bo "slideshow" ta diberti nos.
+What this cue does when it ends - click to change	Loke e cue aki ta hasi ora e caba - click pa cambia
+LEARN: move a knob or press a key on the controller...	LEARN: move un boton of primi un tecla riba e controlador...
+Per-cue audio: enable, trim, pan, mono, fades, normalize	Zonido pa cada cue: encende, trim, pan, mono, fade, normalisa
+MIDI input is off: turn it on in MIDI CONTROL. OSC rows still answer.	Entrada MIDI ta paga: pon'e den MIDI CONTROL. Liñanan OSC ta contesta ainda.
+MIX	MEZCLA
+gain	ganancia
+rail	riel
+index	indice
+trans	transicion
+TRACKER	RASTREADOR
+capsule	capsula
+circuit	circuito
+palette	paleta
+bulletin	boletin
+dateline	fecha
+programme	programa
+Perspective	Perspectiva
+Motion: Bug Swat	Movimento: Bug Swat
+, — skip to previous cue	, — bai na cue anterior
+--- -- --  does nothing on that playlist  -  (M) the step's own playlist	--- -- --  no ta hasi nada riba e playlist ei  -  (M) e playlist di e paso mes
+-18 dBFS is EBU alignment, -20 is SMPTE. Capped below 0: this feeds a live PA.	-18 dBFS ta alineacion EBU, -20 ta SMPTE. Limita bou di 0: esaki ta alimenta un PA en bibo.
+--- -- --  does nothing on that playlist  -  (M) the step's own playlist  -  EDIT is on: typing changes the show	--- -- --  no ta hasi nada riba e playlist ei  -  (M) e playlist di e paso mes  -  EDIT ta encende: tipa ta cambia e show
+NO	NO
+tab	tab
+Fade	Fade
+neon	neon
+show	show
+wipe	wipe
+Crawl	Crawl
+RTMPS	RTMPS
+Scrub	Scrub
+TA-DA	TA-DA
+comic	comic
+14-bit	14-bit
+Dimmer	Dimmer
+Master	Master
+Reverb	Reverb
+Script	Script
+visual	visual
+Browser	Browser
+Binaural	Binaural
+confetti	confetti
+feedback	feedback
+protocol	protocol
+crossfade	crossfade
+cue "{n}"	cue "{n}"
+Dimmer + RGB	Dimmer + RGB
+NDI® NETWORK	NDI® NETWORK
+Syphon / Spout	Syphon / Spout
+29.97 fps (NTSC)	29.97 fps (NTSC)
+pan	pan
+pop	pop
+CLIP	CLIP
+deck	deck
+logo	logo
+trim	trim
+KEY L	KEY L
+PATCH	PATCH
+STEREO	STEREO
+arcade	arcade
+plugin	plugin
+ticket	ticket
+dossier	dossier
+cassette	cassette
+terminal	terminal
+DASHBOARD	DASHBOARD
+lower 3rd	lower 3rd
+Lower Third	Lower Third
+Bork bork BORK!	Bork bork BORK!
+25 fps (PAL/EBU)	25 fps (PAL/EBU)
