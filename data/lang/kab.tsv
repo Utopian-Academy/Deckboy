@@ -1800,7 +1800,7 @@ No rows. + ADD or LEARN makes one; MIDIMAP RESET brings the built-in rows back.	
 Save the mask's paths as SVG, for Illustrator and anything else that reads them	Sekles iberdan n tɣmist d SVG, i Illustrator d yal ahil ara ten-yeɣren
 Which MIDI output; a named port that is missing is reported rather than swapped	Anwa tuffɣa MIDI; tawwurt s yisem ixuṣen ad tettwacehed, ur tettwabeddel ara
 An oscillator on the level, running after GO until a later cue sets this fixture	Amsenkez ɣef uswir, yetteddu deffir n GO alamma cue d-iteddun ad yesbadu tafat-agi
-Steps in third-octaves, because the ear works in ratios. 1kHz is the convention.	Isurifen s kraḍ n tmuɣli n timirt, acku ameẓẓuɣ yetteddu s ufmiḍ. 1kHz d aqaεed.
+Steps in third-octaves, because the ear works in ratios. 1kHz is the convention.	Isurifen s kraḍ n tmuɣli n timirt, acku ameẓẓuɣ yetteddu s ufmiḍ. 1kHz d aqaɛed.
 Strikes drawn ACROSS the cell, damaging the character rather than decorating it.	Izirigen ZDAT I TSDDART, ttxessiren asekkil deg wadeg ad t-cebbḥen.
 Whether incoming MIDI notes play this synth or trigger cues as they always have.	Ma tinɣimin MIDI ad urarent asinti-agi neɣ ad snekkrent cue akken daɣen.
 A note number, or type LEARN and play it. Notes no cue claims still go to cue N+1	Uṭṭun n tenɣimt, neɣ aru LEARN tururareḍ-tt. Tinɣimin ur yeṭṭif ula d yiwen cue ad ddunt ɣer cue N+1
