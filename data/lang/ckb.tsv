@@ -1017,3 +1017,722 @@ A cue can wait before it starts.	cue دەتوانێت پێش دەستپێکرد�
 Copy the show AND its media into one portable folder	نمایشەکە و میدیاکانی لە یەک بوخچەی گوازراوەدا لەبەر بگرەوە
 Nothing to see here. Probably.	لێرە هیچ نییە بۆ بینین. بەگومانەوە.
 selected cue lane  |  TAKE to make it live	هێڵی cueی هەڵبژێردراو — TAKE بۆ پەخشی ڕاستەوخۆ
+JAM	هاوکاتکردن
+2-UP	2 لە تەنیشت یەک
+CLIP	کلیپ
+Runs	کار دەکات
+KEY L	KEY چ
+MULTI	فرە
+Reads	دەخوێنێتەوە
+Shows	نیشان دەدات
+ANALOG	ئەنالۆگ
+Buffer	بافەر
+PRESET	پێشڕێکخستن
+Pickup	وەرگرتن
+SLICES	پارچەکان
+STEREO	ستێریۆ
+SUMMED	کۆکراوە
+Splash	شاشەی سەرەتا
+TOGGLE	گۆڕینەوە
+cue id	ID ی cue
+jam to	هاوکاتکردن بە
+red at	سوور لە
+set by	دانراوە لەلایەن
+tile h	تایل h
+tile w	تایل w
+ARRANGE	ڕیزکردن
+Ceiling	بنمیچ
+END CUE	کۆتایی CUE
+Encoder	کۆدکەر
+FPS: ON	FPS: کراوە
+Haptics	لەرزین
+Key out	دەرچوونی key
+LTC out	دەرچوونی LTC
+Limiter	سنووردارکەر
+QR CODE	کۆدی QR
+Read as	بخوێنەوە وەک
+Runs on	کار دەکات لەسەر
+VJ MODE	دۆخی VJ
+mask on	ماسک کراوە
+midi in	هاتنی midi
+rack it	ئامادەی بکە
+red col	ستوونی سوور
+BYPASSED	تێپەڕێنراو
+FIXTURES	ڕووناکییەکان
+FPS: OFF	FPS: داخراو
+Hold for	ڕابگرە بۆ
+Limiting	سنووردارکردن
+MIDI MAP	نەخشەی MIDI
+NMC sync	هاوکاتی NMC
+NMOS: ON	NMOS: کراوە
+PROMPTER	خوێنەرەوە
+SHOW SDP	SDP نیشان بدە
+UI scale	پێوەری UI
+WATCHING	چاودێری دەکات
+amber at	کارەبایی لە
+any port	هەر پۆرتێک
+bg alpha	alpha ی پاشبنەما
+onion on	توێکڵی پیاز کراوە
+prog bar	شریتی بەرنامە
+vMix API	API ی vMix
++ section	+ بەش
++pause pt	+وەستان
+A/V delay	دواکەوتنی A/V
+ASIO outs	دەرچوونەکانی ASIO
+CUE TOOLS	ئامرازەکانی CUE
+DASHBOARD	داشبۆرد
+EXIT  Esc	دەرچوون  Esc
+Freewheel	ئازاد
+HDR input	هاتنی HDR
+Jump mode	دۆخی بازدان
+Listen on	گوێگرتن لەسەر
+MIDI note	نۆتی MIDI
+NMOS: OFF	NMOS: داخراو
+OSC Query	پرسیاری OSC
+OUTPUT ON	دەرچوون کراوە
+PNG matte	matte ی PNG
+Panic now	ترس ئێستا
+RUN PANIC	ترس جێبەجێ بکە
+SHOW FLOW	ڕەوتی نمایش
+SPOUT: ON	SPOUT: کراوە
+SVG paths	ڕێڕەوەکانی SVG
+TEST CARD	کارتی تاقیکردنەوە
+a-fade in	a-هاتنەژوورەوەی هێواش
+amber col	ستوونی کارەبایی
+chime red	زەنگی سوور
+glitch up	glitch سەرەوە
+new paths	ڕێڕەوی نوێ
+no script	سکریپت نییە
+onion off	توێکڵی پیاز داخراو
+wobble by	لەرزاندن بە
+10-BIT: ON	10-BIT: کراوە
+ARRANGE...	ڕیزکردن...
+BUILT WITH	دروستکراو بە
+BY FIXTURE	بەپێی ڕووناکی
+BYPASS ALL	هەموو تێپەڕێنە
+Beast mode	دۆخی دڕندە
+Black lift	بەرزکردنەوەی ڕەش
+CANVAS: ON	کانڤاس: کراوە
+EDGE BLEND	تێکەڵکردنی لێوار
+Hover tips	ڕێنماییەکانی سەر
+Input gain	زیادکردنی هاتن
+Input mono	هاتنی مۆنۆ
+Live input	هاتنی ڕاستەوخۆ
+OUTPUT OFF	دەرچوون داخراو
+Panic fade	کاڵبوونەوەی ترس
+Passphrase	دەستەواژەی نهێنی
+SPOUT: OFF	SPOUT: داخراو
+Saved with	پاشەکەوتکراو بە
+a-fade out	a-دەرچوونی هێواش
+black lift	بەرزکردنەوەی ڕەش
+by density	بەپێی چڕی
+chime zero	زەنگی سفر
+colour tag	تاگی ڕەنگ
+deck fader	fader ی دێک
+end action	کرداری کۆتایی
+fires cues	cue دەست پێ دەکات
+next xfade	xfade ی داهاتوو
+10-BIT: OFF	10-BIT: داخراو
+ADD FIXTURE	ڕووناکی زیاد بکە
+ASIO driver	درایڤەری ASIO
+Accept from	وەرگرتن لە
+Add a light	ڕووناکییەک زیاد بکە
+CANVAS MODE	دۆخی کانڤاس
+CANVAS: OFF	کانڤاس: داخراو
+CARD ON ALL	کارت لەسەر هەموو
+EXPORT CARD	کارت هەناردە بکە
+LOW LATENCY	دواکەوتنی کەم
+Mirror rate	خێرایی ئاوێنە
+NDI KEY: ON	NDI KEY: کراوە
+NO LIVE CUE	هیچ CUE یەکی ڕاستەوخۆ نییە
+OVERLAY BIN	سەبەتەی سەرخستن
+RENUMBER...	دووبارە ژمارە بدە...
+SENDING OUT	دەینێرێت
+ST 2110: ON	ST 2110: کراوە
+Shift: snap	Shift: لکاندن
+WEB MONITOR	چاودێری وێب
+Web monitor	چاودێری وێب
+blend gamma	gamma ی تێکەڵکردن
+chime amber	زەنگی کارەبایی
+gain (each)	زیادکردن (هەر یەک)
+glitch down	glitch خوارەوە
+link aspect	ڕێژە ببەستە
+move points	خاڵەکان بجوڵێنە
+pause begin	وەستان لە سەرەتا
+phrase hold	ڕاگرتنی ڕستە
+plays synth	synth لێ دەدات
+undo stroke	هێڵ پاشگەز بکەرەوە
+Auto restore	گەڕاندنەوەی خۆکار
+CARD OFF ALL	کارت داخراو لەسەر هەموو
+CLASSIC VIEW	بینینی کلاسیک
+DECKLINK: ON	DECKLINK: کراوە
+KEY+FILL: ON	KEY+FILL: کراوە
+LISTENING IN	گوێ دەگرێت
+LISTENING...	گوێگرتن...
+LISTENS: OFF	گوێگرتن: داخراو
+Last refused	دوایین ڕەتکراوە
+Miami cursor	نیشاندەری Miami
+Mirror state	دۆخی ئاوێنە
+NDI KEY: OFF	NDI KEY: داخراو
+NMC IN & OUT	NMC هاتن و دەرچوون
+NO PROGRAMME	هیچ بەرنامەیەک نییە
+Pair overlap	یەکتربڕینی جووت
+RACKED, WARM	ئامادە، گەرم
+SCAN TO PAIR	سکان بکە بۆ بەستن
+ST 2110: OFF	ST 2110: داخراو
+Space — play	Space — لێدان
+TEST CARD ON	کارتی تاقیکردنەوە کراوە
+WATCH FOLDER	فۆڵدەری چاودێری
+driver speed	خێرایی درایڤەر
+free running	ئازادانە کار دەکات
+glitch drift	لادانی glitch
+glitch reach	گەیشتنی glitch
+last reading	دوایین خوێندنەوە
+pair overlap	یەکتربڕینی جووت
+render width	پانی ڕێندەر
+COMPOSITE CUE	CUE ی تێکەڵ
+DECKLINK: OFF	DECKLINK: داخراو
+Eddie's Clock	کاتژمێری Eddie
+Every adapter	هەموو ئەداپتەرێک
+KEY+FILL: OFF	KEY+FILL: داخراو
+LIVE CAPTIONS	ژێرنووسی ڕاستەوخۆ
+Live captions	ژێرنووسی ڕاستەوخۆ
+MEDIA ENCODER	کۆدکەری میدیا
+MSC device id	ID ی ئامێری MSC
+No cue loaded	هیچ cue یەک بار نەکراوە
+Output device	ئامێری دەرچوون
+Panic profile	پرۆفایلی ترس
+Phone control	کۆنترۆڵی تەلەفۆن
+READY-MADE...	ئامادەکراو...
+Space — pause	Space — وەستان
+Speech models	مۆدێلەکانی قسەکردن
+VIDEO DIP: ON	VIDEO DIP: کراوە
+default route	ڕێڕەوی بنەڕەت
+nothing taken	هیچ وەرنەگیراوە
+render height	بەرزی ڕێندەر
+set a port...	پۆرتێک دابنێ...
+127 (all-call)	127 (بانگکردنی هەموو)
+ALL INTERFACES	هەموو ڕووکارەکان
+MOTION CONTROL	کۆنترۆڵی جوڵە
+Monitor device	ئامێری چاودێری
+NDI source cue	cue ی سەرچاوەی NDI
+OUTPUT EFFECTS	کاریگەرییەکانی دەرچوون
+PHONE & TABLET	تەلەفۆن و تابلێت
+PRESENTER VIEW	بینینی پێشکەشکار
+RECORD TO DISK	تۆمارکردن لە دیسک
+REMOTE CONTROL	کۆنترۆڵی دوور
+SCALED TO FILL	پێوانەکراو بۆ پڕکردن
+SELECT: MOTION	هەڵبژاردن: جوڵە
+STOP STREAMING	وەستاندنی پەخش
+TALLY TRIGGERS	هاندەرەکانی TALLY
+VIDEO DIP: OFF	VIDEO DIP: داخراو
+Who can see it	کێ دەتوانێت ببینێت
+glitch through	glitch بەناودا
+lock to screen	ببەستە بە شاشەوە
+on the monitor	لەسەر چاودێر
+play a note...	نۆتێک لێ بدە...
+press a key...	کلیلێک دابگرە...
+restore at end	لە کۆتایی بیگەڕێنەوە
+save animation	ئەنیمەیشن پاشەکەوت بکە
+% of the height	% ی بەرزی
++  a first step	+  یەکەم هەنگاو
++ CHOOSE A FEED	+ سەرچاوەیەک هەڵبژێرە
+Device channels	کەناڵەکانی ئامێر
+Double-GO guard	پاراستنی GO ی دووجار
+Frames a second	وێنە لە چرکەیەکدا
+HOLDING OFF AIR	ڕاگیراوە دەرەوەی پەخش
+Live stream cue	cue ی پەخشی ڕاستەوخۆ
+MATTE & OVERLAY	MATTE و سەرخستن
+NDI SENDING: ON	NDI دەینێرێت: کراوە
+Output channels	کەناڵەکانی دەرچوون
+PIP overlay cue	cue ی PIP
+Projector gamma	gamma ی پرۆجێکتەر
+START STREAMING	پەخش دەست پێ بکە
+first available	یەکەمی بەردەست
+nothing follows	هیچ شتێک بەدوایدا نایەت
+preview pending	پێشبینین چاوەڕێیە
+restart on take	لە take دووبارە دەست پێ بکەرەوە
+the focused one	ئەوەی فۆکەسی لەسەرە
+BACK TO BUG SWAT	گەڕانەوە بۆ BUG SWAT
+DISPLAY & RASTER	شاشە و ڕاستەر
+Fade-in duration	ماوەی هاتنەژوورەوەی هێواش
+Global crossfade	کاڵبوونەوەی گشتی
+Mic to recording	مایک بۆ تۆمارکردن
+Monitor playlist	لیستی چاودێری
+NDI SENDING: OFF	NDI دەینێرێت: داخراو
+PICK FROM SCREEN	لە شاشەوە هەڵبژێرە
+Pocket 3 / touch	Pocket 3 / دەستلێدان
+SMPTE LTC OUTPUT	دەرچوونی SMPTE LTC
+WHAT DECKBOY DID	ئەوەی DECKBOY کردی
+factory settings	ڕێکخستنەکانی کارگە
+open the monitor	چاودێر بکەرەوە
+over the picture	لەسەر وێنەکە
+(step lives here)	(هەنگاو لێرەیە)
+Check for one now	ئێستا یەکێک بپشکنە
+DISCOVERY / NOTES	دۆزینەوە / تێبینی
+Fade-out duration	ماوەی دەرچوونی هێواش
+INSTALL & RESTART	دامەزراندن و دەستپێکردنەوە
+Key edge softness	نەرمی لێواری key
+SAFETY / TIMECODE	سەلامەتی / TIMECODE
+Timecode jam sync	هاوکاتکردنی timecode
+Toggle chroma key	chroma key بکەرەوە/دابخە
+click this window	کلیک لەسەر ئەم پەنجەرەیە بکە
+the system output	دەرچوونی سیستەم
+(none playing now)	(ئێستا هیچ لێ نادرێت)
+CONNECTED DISPLAYS	شاشە بەستراوەکان
+DEFAULT TRANSITION	گواستنەوەی بنەڕەت
+FORGET MY DEFAULTS	بنەڕەتەکانم لەبیر بکە
+Hex, e.g. 90 3C 7F	Hex، بۆ نموونە 90 3C 7F
+put it on a button	بیخە سەر دوگمەیەک
+CONVERT ALL FLAGGED	هەموو نیشانکراوەکان بگۆڕە
+Composite scene cue	cue ی دیمەنی تێکەڵ
+Connections at once	پەیوەندییەکان لە یەک کاتدا
+HyperDeck emulation	لاساییکردنەوەی HyperDeck
+Passphrase (shared)	دەستەواژەی نهێنی (هاوبەش)
+SAVE AS MY DEFAULTS	وەک بنەڕەتەکانم پاشەکەوت بکە
+Trusted controllers	کۆنترۆڵکەرە متمانەپێکراوەکان
+VJ mode (two decks)	دۆخی VJ (دوو دێک)
+Where the ramp ends	لە کوێ ڕامپەکە کۆتایی دێت
+dot-matrix cue deck	cue deck ی خاڵدار
+draw on the monitor	لەسەر چاودێر بکێشە
+edit on the monitor	لەسەر چاودێر دەستکاری بکە
+find a named colour	ڕەنگێک بە ناو بدۆزەرەوە
+locked to the tempo	بەستراو بە خێرایی
+ADD ANOTHER PLAYLIST	لیستێکی تر زیاد بکە
+Companion passphrase	دەستەواژەی نهێنی Companion
+Esc or click to skip	Esc یان کلیک بۆ تێپەڕاندن
+Home — skip to start	Home — بڕۆ بۆ سەرەتا
+How solid the ink is	مەرەکەب چەند پتەوە
+INTEGRATION ADAPTERS	ئەداپتەرەکانی یەکخستن
+Left — skip back 10s	چەپ — 10s گەڕانەوە
+MIDI AND OSC MONITOR	چاودێری MIDI و OSC
+MIDI and OSC monitor	چاودێری MIDI و OSC
+Marks stacked BELOW.	نیشانەکان لە خوارەوە کۆبوونەتەوە.
+New shows start from	نمایشە نوێکان دەست پێ دەکەن لە
+OSC QUERY / FEEDBACK	پرسیاری OSC / وەڵام
+PLAYLIST PREFERENCES	هەڵبژاردەکانی لیست
+Pitch, in semitones.	ئاوازی دەنگ، بە نیوە-تۆن.
+Set browser URL/path	URL/ڕێڕەوی وێبگەڕ دابنێ
+Typing needs EDIT on	نووسین پێویستی بە EDIT ی کراوەیە
+X — cycle end action	X — کرداری کۆتایی بگۆڕە
+nothing assigned yet	هێشتا هیچ دیاری نەکراوە
+nothing targeted yet	هێشتا هیچ ئامانجێک نییە
+the playlist's PATCH	PATCH ی لیست
+ADD A SECOND PLAYLIST	لیستی دووەم زیاد بکە
+Left, centre or right	چەپ، ناوەڕاست یان ڕاست
+PLAY BUG SWAT, a game	BUG SWAT یاری بکە، یارییەک
+PRESS AGAIN TO FORGET	دووبارە دابگرە بۆ لەبیرکردن
+Pattern motion toggle	جوڵەی شێوە بکەرەوە/دابخە
+Sound when time is up	دەنگ کاتێک کات تەواو دەبێت
+click or Esc to close	کلیک یان Esc بۆ داخستن
+filmstrip unavailable	فیلم‌ستریپ بەردەست نییە
+none - click to learn	هیچ - کلیک بکە بۆ فێربوون
+none: the one picture	هیچ: تاکە وێنەکە
+turn phone control on	کۆنترۆڵی تەلەفۆن بکەرەوە
+waiting for a picture	چاوەڕێی وێنەیەک
+(projector curve only)	(تەنها چەماوەی پرۆجێکتەر)
+Scene fade-in duration	ماوەی هاتنەژوورەوەی دیمەن
+Start NEW from factory	نوێ لە کارگەوە دەست پێ بکە
+Tile height in pixels.	بەرزی تایل بە پیکسڵ.
+any window, any screen	هەر پەنجەرەیەک، هەر شاشەیەک
+circle, heart, star...	بازنە، دڵ، ئەستێرە...
+click to open the grid	کلیک بکە بۆ کردنەوەی تۆڕ
+sACN universe, 1-63999	universe ی sACN، 1-63999
+(no notes for this cue)	(هیچ تێبینییەک بۆ ئەم cue یە نییە)
+Lower Third overlay cue	cue ی Lower Third
+Master oscillator rate.	خێرایی ئۆسیلەیتەری سەرەکی.
+Scene fade-out duration	ماوەی دەرچوونی دیمەن
+Timebase / start / fade	بنەمای کات / دەستپێک / کاڵبوونەوە
+Which frame you draw on	لەسەر کام وێنە دەکێشیت
+needs file-backed video	پێویستی بە ڤیدیۆی فایلە
+none: the whole picture	هیچ: هەموو وێنەکە
+recent and in this show	دوایین و لەم نمایشەدا
+Clear in/out trim points	خاڵەکانی بڕینی هاتن/دەرچوون بسڕەوە
+No cues need conversion.	هیچ cue یەک پێویستی بە گۆڕین نییە.
+Right — skip forward 10s	ڕاست — 10s بەرەو پێش
+none - click to set some	هیچ - کلیک بکە بۆ دانان
+CLICK TO SAMPLE KEY COLOR	کلیک بکە بۆ نموونەی ڕەنگی KEY
+Esc cancels, arrows nudge	Esc هەڵدەوەشێنێتەوە، تیرەکان دەجوڵێنن
+Fit/Fill/Stretch/Unscaled	Fit/پڕ/درێژ/بێ پێوانە
+PIXEL FOR PIXEL, TOP-LEFT	پیکسڵ بە پیکسڵ، سەرەوە-چەپ
+PROJECTOR - gamma matched	پرۆجێکتەر - gamma ی هاوتا
+Playback speed: 0.25–4.0×	خێرایی لێدان: 0.25–4.0×
+Run the show from a phone	نمایش لە تەلەفۆنەوە بەڕێوە ببە
+normalize loudness (R128)	دەنگ یەکسان بکە (R128)
+off - all channels silent	داخراو - هەموو کەناڵەکان بێدەنگ
+This show's setup, no cues	ڕێکخستنی ئەم نمایشە، بێ cue
+none - click to write some	هیچ - کلیک بکە بۆ نووسین
+walks every output in turn	یەک بە یەک بە هەموو دەرچوونێکدا دەڕوات
+HyperDeck emulation is off.	لاساییکردنەوەی HyperDeck داخراوە.
+MULTIVIEW carries this too.	MULTIVIEW ئەمەش هەڵدەگرێت.
+OWN SCRIPT  (click to edit)	سکریپتی خۆم  (کلیک بۆ دەستکاری)
+Scene dwell time — 0 = hold	کاتی دیمەن — 0 = ڕاگرتن
+The role, or leave it empty	ڕۆڵ، یان بەتاڵی بهێڵەوە
+Theme and operator feedback	ڕووکار و وەڵامی کارمەند
+add a second output to pair	دەرچوونی دووەم زیاد بکە بۆ جووتکردن
+things that are oscillating	ئەو شتانەی دەلەرزن
+Discovery and mirrored state	دۆزینەوە و دۆخی ئاوێنەکراو
+FOLLOWING THE LIVE CUE NOTES	بەدوای تێبینییەکانی CUE ی ڕاستەوخۆ
+Key tolerance (RGB distance)	بەرگەگرتنی key (دووری RGB)
+Network-facing runtime notes	تێبینییەکانی کاتی کارکردنی تۆڕ
+channel list is not readable	لیستی کەناڵ ناخوێندرێتەوە
+no effects for this cue type	هیچ کاریگەرییەک بۆ ئەم جۆرە cue یە نییە
+1-16, as the desk counts them	1-16، وەک مێزەکە دەیانژمێرێت
+Art-Net port address, 0-32767	ناونیشانی پۆرتی Art-Net، 0-32767
+Fade-in duration for this cue	ماوەی هاتنەژوورەوەی هێواشی ئەم cue یە
+Hi! Press I to import a clip.	سڵاو! I دابگرە بۆ هێنانی کلیپێک.
+Toggle loop for selected cues	لووپ بۆ cue هەڵبژێردراوەکان بکەرەوە/دابخە
+Toggle the live input's audio	دەنگی هاتنی ڕاستەوخۆ بکەرەوە/دابخە
+[ / ] keys — fade-in duration	[ / ] کلیل — ماوەی هاتنەژوورەوە
+a camera moves the ~ controls	کامێرایەک کۆنترۆڵەکانی ~ دەجوڵێنێت
+Contrast multiplier (0.0-2.0x)	لێکدەری کۆنتراست (0.0-2.0x)
+Fade-out duration for this cue	ماوەی دەرچوونی هێواشی ئەم cue یە
+Global jump and panic behavior	ڕەفتاری بازدان و ترسی گشتی
+HLG - live broadcast (BT.2100)	HLG - پەخشی ڕاستەوخۆ (BT.2100)
+L - loop this cue continuously	L - ئەم cue یە بەردەوام دووبارە بکەرەوە
+Roll when the show cuts to you	کاتێک نمایش دەگاتە تۆ دەست پێ بکە
+Sound when the clock turns red	دەنگ کاتێک کاتژمێر سوور دەبێت
+Act now, without taking the cue	ئێستا بیکە، بێ وەرگرتنی cue
+Defaults for newly created cues	بنەڕەت بۆ cue نوێکان
+Delay before the continue fires	دواکەوتن پێش بەردەوامبوون
+Device routing for cue playback	ئاڕاستەکردنی ئامێر بۆ لێدانی cue
+Edit the main Lower Third title	ناونیشانی سەرەکی Lower Third دەستکاری بکە
+LINEAR - a feather, not a blend	LINEAR - پەڕ، نەک تێکەڵکردن
+Set per-cue transition duration	ماوەی گواستنەوەی هەر cue یەک دابنێ
+Shift+[ / ] — fade-out duration	Shift+[ / ] — ماوەی دەرچوون
+Smaller buffer = lower latency.	بافەری بچووکتر = دواکەوتنی کەمتر.
+The OSC path, e.g. /cue/1/start	ڕێڕەوی OSC، بۆ نموونە /cue/1/start
+false colour reads SDR pictures	ڕەنگی درۆ وێنەی SDR دەخوێنێتەوە
+learn it, or say how to read it	فێری ببە، یان بڵێ چۆن بخوێندرێتەوە
+Brightness multiplier (0.0-2.0x)	لێکدەری ڕووناکی (0.0-2.0x)
+Emergency fade and sync behavior	کاڵبوونەوەی فریاکەوتن و هاوکاتکردن
+How many features fit on screen.	چەند تایبەتمەندی لە شاشەدا جێ دەبێتەوە.
+SMPTE ST 2110-20  (EXPERIMENTAL)	SMPTE ST 2110-20  (تاقیکاری)
+Saturation multiplier (0.0-2.0x)	لێکدەری تێربوون (0.0-2.0x)
+Send now, without taking the cue	ئێستا بینێرە، بێ وەرگرتنی cue
+Set Lower Third background alpha	alpha ی پاشبنەمای Lower Third دابنێ
+Sound when the clock turns amber	دەنگ کاتێک کاتژمێر کارەبایی دەبێت
+Use GEOMETRY for exact placement	GEOMETRY بەکاربهێنە بۆ دانانی ورد
+Vertical output offset in pixels	جێگۆڕکێی ستوونی دەرچوون بە پیکسڵ
+aimed here; the desk never moves	ئامانجی ئێرەیە؛ مێز هەرگیز ناجوڵێت
+mixed selection: key unavailable	هەڵبژاردنی تێکەڵ: key بەردەست نییە
+playlists into the named outputs	لیستەکان بۆ دەرچوونە ناودارەکان
+7-segment, blocky, or a real font	7-بەش، بلۆکی، یان فۆنتێکی ڕاستەقینە
+Do it now, without taking the cue	ئێستا بیکە، بێ وەرگرتنی cue
+Esc=continue with current session	Esc=بەردەوام بە لەگەڵ دانیشتنی ئێستا
+Fade-out duration before next cue	ماوەی دەرچوون پێش cue ی داهاتوو
+Fixed repeat count — 0 = infinite	ژمارەی دووبارەکردنەوە — 0 = بێکۆتا
+On stop: remux to an ordinary MP4	لە وەستان: بیکە بە MP4 ی ئاسایی
+Output rotation angle (-180..180)	گۆشەی سووڕانەوەی دەرچوون (-180..180)
+Put this control on an oscillator	ئەم کۆنترۆڵە بخە سەر ئۆسیلەیتەرێک
+Where RECORD writes the programme	RECORD بەرنامە لە کوێ دەنووسێت
+window and recording outputs only	تەنها دەرچوونەکانی پەنجەرە و تۆمارکردن
+Countdown, count up, or wall clock	ژماردنی پێچەوانە، ژماردنی سەرەوە، یان کاتژمێری دیوار
+Cycle end action for selected cues	کرداری کۆتایی بۆ cue هەڵبژێردراوەکان بگۆڕە
+Digit colour once amber is reached	ڕەنگی ژمارەکان کاتێک کارەبایی دێت
+Horizontal output offset in pixels	جێگۆڕکێی ئاسۆیی دەرچوون بە پیکسڵ
+In-point: cue starts playback here	خاڵی هاتن: cue لێرە دەست پێ دەکات
+LIVE - every assigned deck matches	ڕاستەوخۆ - هەموو دێکێکی دیاریکراو یەکدەگرێتەوە
+Out-point: cue stops playback here	خاڵی دەرچوون: cue لێرە دەوەستێت
+Run it now, without taking the cue	ئێستا کاری پێ بکە، بێ وەرگرتنی cue
+Set repeat count for selected cues	ژمارەی دووبارەکردنەوە بۆ cue هەڵبژێردراوەکان دابنێ
+Set the NDI source name to receive	ناوی سەرچاوەی NDI بۆ وەرگرتن دابنێ
+a chain on a device, after the mix	زنجیرەیەک لەسەر ئامێرێک، دوای تێکەڵکردن
+any command, {value} is the number	هەر فەرمانێک، {value} ژمارەکەیە
+Attached overlays fire on TAKE only	سەرخستنە لکێنراوەکان تەنها لە TAKE دەست پێ دەکەن
+Cycle which slot drives scene audio	بیگۆڕە کام slot دەنگی دیمەن دەبات
+Edit the secondary Lower Third line	هێڵی دووەمی Lower Third دەستکاری بکە
+Hue rotation (-180 to +180 degrees)	سووڕانەوەی ڕەنگ (-180 تا +180 پلە)
+Listening on localhost (127.0.0.1).	گوێگرتن لە localhost (127.0.0.1).
+Programme with sound in any browser	بەرنامە بە دەنگەوە لە هەر وێبگەڕێکدا
+Rotation speed, degrees per second.	خێرایی سووڕانەوە، پلە لە چرکەیەکدا.
+Set short cue label for search/goto	ناوی کورتی cue بۆ گەڕان/goto دابنێ
+Toggle cue audio track for this cue	دەنگی ئەم cue یە بکەرەوە/دابخە
+Transport sync with another machine	هاوکاتی گواستنەوە لەگەڵ ئامێرێکی تر
+dot-matrix cue deck for live events	cue deck ی خاڵدار بۆ ڕووداوی ڕاستەوخۆ
+nothing to send - check the message	هیچ شتێک بۆ ناردن نییە - پەیامەکە بپشکنە
+three expressions: red, green, blue	سێ دەربڕین: سوور، سەوز، شین
+Arm this cue as the one GO will fire	ئەم cue یە ئامادە بکە وەک ئەوەی GO دەستی پێ دەکات
+How tall the logo is above the clock	لۆگۆ چەند بەرزە لەسەر کاتژمێر
+Linear, ease in, ease out or S-curve	ڕاست، هاتنی نەرم، دەرچوونی نەرم یان چەماوەی S
+Per-cue transition duration override	ماوەی گواستنەوەی تایبەتی هەر cue یەک
+Set capture source from the cue menu	سەرچاوەی گرتن لە مینیووی cue دابنێ
+Set playback speed for selected cues	خێرایی لێدان بۆ cue هەڵبژێردراوەکان دابنێ
+Toggle hold-at-end for selected cues	ڕاگرتن لە کۆتایی بۆ cue هەڵبژێردراوەکان بکەرەوە/دابخە
+channels on your interfaces, by name	کەناڵەکان لەسەر ڕووکارەکانت، بە ناو
+nothing set - this cue sends nothing	هیچ دانەنراوە - ئەم cue یە هیچ نانێرێت
+over budget - video will drop frames	زیاتر لە بودجە - ڤیدیۆ وێنە فڕێ دەدات
+Add slot sources in the cue inspector	سەرچاوەکانی slot لە پشکنەری cue زیاد بکە
+Ask GitHub; never installs on its own	لە GitHub بپرسە؛ هەرگیز خۆی دانامەزرێنێت
+Fixed repeat count — 0 = loop forever	ژمارەی دووبارەکردنەوە — 0 = لووپی هەتاهەتایی
+Keep counting past zero, or stop dead	دوای سفر بەردەوام بژمێرە، یان بە تەواوی بوەستە
+LISTENS: the figure follows the sound	گوێدەگرێت: شێوەکە بەدوای دەنگدا دەڕوات
+Move the height on its own oscillator	بەرزی بخە سەر ئۆسیلەیتەری خۆی
+Put the brush's size on an oscillator	قەبارەی فڵچە بخە سەر ئۆسیلەیتەرێک
+Toggle audio enable for selected cues	دەنگ بۆ cue هەڵبژێردراوەکان بکەرەوە/دابخە
+What NEW starts from, never this show	NEW لە کوێوە دەست پێ دەکات، هەرگیز ئەم نمایشە نا
+mixed selection: geometry unavailable	هەڵبژاردنی تێکەڵ: ئەندازە بەردەست نییە
+transcoding - plays clean until ready	دەگۆڕدرێت - تا ئامادە دەبێت پاک لێ دەدات
+All interfaces; trusted machines only.	هەموو ڕووکارەکان؛ تەنها ئامێرە متمانەپێکراوەکان.
+Delay between GO and this cue starting	دواکەوتن لە نێوان GO و دەستپێکی ئەم cue یە
+Its amount, or one of its knobs A to D	بڕەکەی، یان یەکێک لە دوگمەکانی A تا D
+Lower Third and PIP fire independently	Lower Third و PIP بە سەربەخۆیی دەست پێ دەکەن
+Lower Third background opacity (0-255)	ناڕوونی پاشبنەمای Lower Third (0-255)
+Panels built for a vMix rig, unchanged	پانێڵەکان بۆ ڕیگێکی vMix، نەگۆڕاو
+Which deck the cue it acts on lives on	ئەو cue یەی کاری لەسەر دەکات لە کام دێکدایە
+generate timecode for the rig to chase	timecode دروست بکە بۆ ئەوەی ڕیگەکە بەدوایدا بچێت
+FEEDS: pick a window, then one of these	سەرچاوە: پەنجەرەیەک هەڵبژێرە، پاشان یەکێک لەمانە
+Incoming transport arrives as NMCEVENT.	گواستنەوەی هاتوو وەک NMCEVENT دێت.
+No outputs — click + OUTPUT to add one.	هیچ دەرچوونێک نییە — کلیک لە + OUTPUT بکە بۆ زیادکردن.
+install Tailscale here and on the phone	Tailscale لێرە و لەسەر تەلەفۆنەکە دابمەزرێنە
+not in this build - saved with the show	لەم وەشانەدا نییە - لەگەڵ نمایش پاشەکەوت دەکرێت
+Digit colour while there is time in hand	ڕەنگی ژمارەکان کاتێک هێشتا کات ماوە
+Find from the playlist, not from a modal	لە لیستەکەوە بیدۆزەرەوە، نەک لە پەنجەرەیەکەوە
+Put the brush's opacity on an oscillator	ناڕوونی فڵچە بخە سەر ئۆسیلەیتەرێک
+X — cycle end action: stop / next / loop	X — کرداری کۆتایی: وەستان / داهاتوو / لووپ
+transparent: put its playlist on a layer	ڕوون: لیستەکەی بخە سەر چینێک
+Click to show or hide this cue's captions	کلیک بکە بۆ پیشاندان یان شاردنەوەی ژێرنووسی ئەم cue یە
+How much it throws off; 0 is a clean burn	چەند فڕێ دەدات؛ 0 سووتانی پاکە
+Phone control is in PHONE & TABLET, below	کۆنترۆڵی تەلەفۆن لە PHONE & TABLET دایە، لە خوارەوە
+take or select a cue to open the timeline	cue یەک وەربگرە یان هەڵبژێرە بۆ کردنەوەی هێڵی کات
+Apply fade-in to selected video/audio cues	هاتنەژوورەوەی هێواش لەسەر cue ی ڤیدیۆ/دەنگی هەڵبژێردراو جێبەجێ بکە
+Bypass: this master leaves that deck alone	تێپەڕاندن: ئەم master ە ئەو دێکە بەجێ دەهێڵێت
+Seconds REMAINING when the clock turns red	چرکە ماوەکان کاتێک کاتژمێر سوور دەبێت
+generator is off - a START cue turns it on	بەرهەمهێنەر داخراوە - cue ی START دەیکاتەوە
+Apply fade-out to selected video/audio cues	دەرچوونی هێواش لەسەر cue ی ڤیدیۆ/دەنگی هەڵبژێردراو جێبەجێ بکە
+Keep the outside and cut the inside instead	دەرەوە ڕابگرە و ناوەوە ببڕە
+Legacy target mode — switch type to convert	دۆخی ئامانجی کۆن — جۆر بگۆڕە بۆ گۆڕین
+Nothing here changes the show that is open.	هیچ شتێک لێرە نمایشە کراوەکە ناگۆڕێت.
+Optional external transport and cue control	کۆنترۆڵی گواستنەوە و cue ی دەرەکی ئارەزوومەندانە
+The cue number on the other desk, e.g. 12.5	ژمارەی cue لەسەر مێزەکەی تر، بۆ نموونە 12.5
+Toggle pause-at-beginning for selected cues	وەستان لە سەرەتا بۆ cue هەڵبژێردراوەکان بکەرەوە/دابخە
+Toggle transition-to-next for selected cues	گواستنەوە بۆ داهاتوو بۆ cue هەڵبژێردراوەکان بکەرەوە/دابخە
+Auto-advance duration — 0 = hold until taken	ماوەی پێشکەوتنی خۆکار — 0 = ڕابگرە تا وەردەگیرێت
+Characters across. Fewer means bigger cells.	پیت بە پانی. کەمتر واتە خانەی گەورەتر.
+Device output pair this cue's audio plays on	جووتی دەرچوونی ئامێر کە دەنگی ئەم cue یە لێی دەدات
+E - freeze on last frame instead of stopping	E - لە جیاتی وەستان لەسەر دوایین وێنە ببەستە
+How long the note takes to reach full level.	نۆت چەند کات دەبات تا دەگاتە ئاستی تەواو.
+LED panel height in pixels. Click to type it	بەرزی پانێڵی LED بە پیکسڵ. کلیک بکە بۆ نووسین
+Load the cue and hold first frame when taken	cue بار بکە و یەکەم وێنە ڕابگرە کاتێک وەردەگیرێت
+No previous show file found at startup path.	هیچ فایلێکی نمایشی پێشوو لە ڕێڕەوی دەستپێک نەدۆزرایەوە.
+Seconds REMAINING when the clock turns amber	چرکە ماوەکان کاتێک کاتژمێر کارەبایی دەبێت
+acts on every deck; deck and cue are ignored	کار لەسەر هەموو دێکێک دەکات؛ دێک و cue پشتگوێ دەخرێن
+0-127; 127 addresses every device on the line	0-127؛ 127 بانگی هەموو ئامێرێکی سەر هێڵەکە دەکات
+GO shows the note; picture and sound carry on	GO تێبینییەکە نیشان دەدات؛ وێنە و دەنگ بەردەوام دەبن
+How fast it moves; no effect when it is still	چەند خێرا دەجوڵێت؛ کاتێک وەستاوە هیچ کاریگەرییەک نییە
+Fires when incoming timecode passes this point	دەست پێ دەکات کاتێک timecode ی هاتوو ئەم خاڵە تێدەپەڕێنێت
+Shown to the operator when GO reaches this cue	کاتێک GO دەگاتە ئەم cue یە بۆ کارمەند پیشان دەدرێت
+Source pixels, independent of output placement	پیکسڵەکانی سەرچاوە، سەربەخۆ لە دانانی دەرچوون
+Stereo balance, applied live (snaps to center)	هاوسەنگی ستێریۆ، ڕاستەوخۆ (لە ناوەڕاست دەلکێت)
+bypassed: nothing here is processed or limited	تێپەڕێنراو: هیچ شتێک لێرە پرۆسێس یان سنووردار ناکرێت
+headphones, desk sounds and LTC stay out of it	هێدفۆن، دەنگەکانی مێز و LTC لە دەرەوە دەمێننەوە
+transparent outside the ink: put it on a layer	ڕوون لە دەرەوەی مەرەکەب: بیخە سەر چینێک
+what is said, on screen, made on this computer	ئەوەی دەوترێت، لەسەر شاشە، لەسەر ئەم کۆمپیوتەرە دروست دەکرێت
+Above 1 tunnels inward, below 1 blooms outward.	سەرووی 1 تونێل بەرەو ناوەوە، خوارووی 1 بەرەو دەرەوە دەکرێتەوە.
+Companion / OSC ingress and HyperDeck emulation	هاتنی Companion / OSC و لاساییکردنەوەی HyperDeck
+Per-cue audio trim: -40 to +40 dB, applied live	کەمکردنەوەی دەنگی هەر cue یەک: -40 تا +40 dB، ڕاستەوخۆ
+Show the message in red - the wrap up NOW state	پەیامەکە بە سوور پیشان بدە - دۆخی کۆتایی ئێستا
+The brush's width, as % of the picture's height	پانی فڵچە، وەک % ی بەرزی وێنە
+What the stream carries: SDR, PQ (HDR10) or HLG	پەخشەکە چی هەڵدەگرێت: SDR، PQ (HDR10) یان HLG
+Whether the next shape or pen path adds or cuts	ئایا شێوە یان ڕێڕەوی پێنووسی داهاتوو زیاد دەکات یان دەبڕێت
+a note or an address becomes that cue's trigger	نۆتێک یان ناونیشانێک دەبێتە هاندەری ئەو cue یە
+A/V delay holds audio back for lagging displays.	دواکەوتنی A/V دەنگ بۆ شاشە دواکەوتووەکان ڕادەگرێت.
+On stop: leave the crash-resilient file as it is	لە وەستان: فایلی بەرگەگرتوو لە کەوتن وەک خۆی بهێڵەوە
+same disk as Deckboy - a separate drive is safer	هەمان دیسکی Deckboy - دیسکێکی جیاواز سەلامەتترە
+transparent outside the blobs: put it on a layer	ڕوون لە دەرەوەی پەڵەکان: بیخە سەر چینێک
+Digit colour once red is reached, and in overtime	ڕەنگی ژمارەکان کاتێک سوور دێت، و لە کاتی زیادە
+Downmix this cue to mono (mono sources / mono PA)	ئەم cue یە بکە بە مۆنۆ (سەرچاوەی مۆنۆ / PA ی مۆنۆ)
+Drag to scrub (shift = fine), click to type exact	ڕابکێشە بۆ گەڕان (shift = ورد)، کلیک بکە بۆ نووسینی ورد
+Hand this to an oscillator so it moves on its own	ئەمە بدە بە ئۆسیلەیتەرێک بۆ ئەوەی خۆی بجوڵێت
+Amber is closest to the 1976 single-phosphor look.	کارەبایی نزیکترینە لە شێوەی تاک-فۆسفۆری ساڵی 1976.
+Changing width also scales height (and vice versa)	گۆڕینی پانی بەرزیش دەگۆڕێت (و پێچەوانەکەی)
+Edit title/subtitle here or fire it live with TAKE	ناونیشان/ژێرناونیشان لێرە دەستکاری بکە یان بە TAKE ڕاستەوخۆ دەستی پێ بکە
+How long the levels take to arrive; zero is a snap	ئاستەکان چەند کات دەبەن تا دەگەن؛ سفر ڕاستەوخۆیە
+Set the self-contained PIP source for this overlay	سەرچاوەی PIP ی ئەم سەرخستنە دابنێ
+Take the newest shape or pen path out of this mask	نوێترین شێوە یان ڕێڕەوی پێنووس لەم ماسکە دەربهێنە
+A step fires one cue on each playlist, all at once.	هەنگاوێک یەک cue لەسەر هەر لیستێک دەست پێ دەکات، هەموو پێکەوە.
+Slots are self-contained sources in this first pass	slot ەکان سەرچاوەی سەربەخۆن لەم یەکەم گەڕەدا
+Sway sideways. Depth 1 is half the frame either way	بە لا بلەرزێنە. قووڵی 1 نیوەی وێنەیە بۆ هەر لایەک
+no fixtures patched - Settings > Network > FIXTURES	هیچ ڕووناکییەک نەبەستراوە - Settings > Network > FIXTURES
+Add an output above, then send playlists to it here.	دەرچوونێک لە سەرەوە زیاد بکە، پاشان لیستەکان لێرە بنێرە بۆی.
+An address sent to Deckboy's OSC port fires this cue	ناونیشانێک کە بۆ پۆرتی OSC ی Deckboy دەنێردرێت ئەم cue یە دەست پێ دەکات
+Draw the diagnostic over the card, or just the text.	دەستنیشانکردنەکە لەسەر کارتەکە بکێشە، یان تەنها دەقەکە.
+Hold on the last composite frame when the scene ends	لەسەر دوایین وێنەی تێکەڵ ڕابوەستە کاتێک دیمەن کۆتایی دێت
+How long it takes; zero is a snap rather than a fade	چەند کات دەبات؛ سفر ڕاستەوخۆیە نەک کاڵبوونەوە
+Set still/pattern/browser duration for selected cues	ماوەی still/pattern/browser بۆ cue هەڵبژێردراوەکان دابنێ
+Start the LTC carrier, stop it, or jam it to a value	LTC دەست پێ بکە، بیوەستێنە، یان هاوکاتی بکە لەگەڵ بەهایەک
+Which cue on that deck; step off the end to clear it	کام cue لەسەر ئەو دێکە؛ لە کۆتایی تێپەڕە بۆ سڕینەوە
+Bob up and down. Depth 1 is half the frame either way	سەرەوە و خوارەوە بەرز ببەرەوە. قووڵی 1 نیوەی وێنەیە بۆ هەر لایەک
+Output width in pixels | click value to type exact px	پانی دەرچوون بە پیکسڵ | کلیک لە بەها بکە بۆ نووسین
+Set the stream URL (srt://, rtmp://, rtsp://, udp://)	URL ی پەخش دابنێ (srt://, rtmp://, rtsp://, udp://)
+one expression: the same value in red, green and blue	یەک دەربڕین: هەمان بەها لە سوور، سەوز و شیندا
+All interfaces, but only this computer is trusted yet.	هەموو ڕووکارەکان، بەڵام هێشتا تەنها ئەم کۆمپیوتەرە متمانەپێکراوە.
+Fires at this time on this computer's clock, every day	لەم کاتەدا لەسەر کاتژمێری ئەم کۆمپیوتەرە دەست پێ دەکات، هەموو ڕۆژێک
+Output height in pixels | click value to type exact px	بەرزی دەرچوون بە پیکسڵ | کلیک لە بەها بکە بۆ نووسین
+Bar across the foot - readable further back than digits	شریت لە خوارەوە - لە دوورتر لە ژمارەکان دەخوێندرێتەوە
+ATEM, NDI trigger, NMC, MTC, LTC, Art-Net, and Tally/TSL	ATEM، هاندەری NDI، NMC، MTC، LTC، Art-Net، و Tally/TSL
+Any font on this computer, Deckboy's own, or a font file	هەر فۆنتێک لەسەر ئەم کۆمپیوتەرە، هی Deckboy، یان فایلێک
+Every channel on every universe this session has touched	هەموو کەناڵێک لەسەر هەموو universe ێک کە ئەم دانیشتنە دەستی لێداوە
+NDI transport is configured per output in Video Outputs.	گواستنەوەی NDI بۆ هەر دەرچوونێک لە Video Outputs ڕێکدەخرێت.
+OUTPUT: drag a slice to move it, its corners to size it.	دەرچوون: پارچەیەک ڕابکێشە بۆ جوڵاندن، گۆشەکانی بۆ قەبارە.
+Choose a Lower Third from the overlay bin to fire on TAKE	Lower Third لە سەبەتەکە هەڵبژێرە بۆ دەستپێکردن لە TAKE
+Choose a PIP overlay from the overlay bin to fire on TAKE	PIP لە سەبەتەکە هەڵبژێرە بۆ دەستپێکردن لە TAKE
+Choose the legacy cue token to show inside the PIP window	تۆکنی کۆنی cue هەڵبژێرە بۆ پیشاندان لە پەنجەرەی PIP
+OUTPUT: drag a slice to move it, its corners to pin them.	دەرچوون: پارچەیەک ڕابکێشە بۆ جوڵاندن، گۆشەکانی بۆ چەسپاندن.
+ASIO carries the show's sound, and these are not on it yet	ASIO دەنگی نمایش هەڵدەگرێت، و ئەمانە هێشتا لەسەری نین
+Convert cues Deckboy can't play (or plays poorly) to H.264	cue ە نەلێدراوەکانی Deckboy (یان بە خراپی لێدراو) بگۆڕە بۆ H.264
+F1-F10, F12 or the number pad fires this cue from anywhere	F1-F10، F12 یان تەختەی ژمارە ئەم cue یە لە هەر شوێنێک دەست پێ دەکات
+N=new  Enter/P=previous  O=open saved  E=examples  L=learn	N=نوێ  Enter/P=پێشوو  O=پاشەکەوتکراو بکەرەوە  E=نموونە  L=فێربوون
+Sends PLAY / PAUSE / STOP / LOCATE as the transport moves.	کاتێک گواستنەوە دەجوڵێت PLAY / PAUSE / STOP / LOCATE دەنێرێت.
+Use transition when auto-advancing or goto-taking next cue	گواستنەوە بەکاربهێنە لە پێشکەوتنی خۆکار یان وەرگرتنی cue ی داهاتوو
+Hand this parameter to an oscillator so it moves on its own	ئەم پارامیتەرە بدە بە ئۆسیلەیتەرێک بۆ ئەوەی خۆی بجوڵێت
+Audio fade-in: follow visual fade, none, or explicit seconds	هاتنی دەنگ: بەدوای وێنە بکەوە، هیچ، یان چرکەی دیاریکراو
+How long the finished drawing stays before it is drawn again	وێنە تەواوکراوەکە چەند دەمێنێتەوە پێش ئەوەی دووبارە بکێشرێتەوە
+OSC subscribe: send /deckboy/subscribe from your controller.	بەشداریکردنی OSC: لە کۆنترۆڵەرەکەتەوە /deckboy/subscribe بنێرە.
+Audio fade-out: follow visual fade, none, or explicit seconds	دەرچوونی دەنگ: بەدوای وێنە بکەوە، هیچ، یان چرکەی دیاریکراو
+How it comes on and goes off: none, fade, rise, slide or wipe	چۆن دێت و دەڕوات: هیچ، کاڵبوونەوە، بەرزبوونەوە، خلیسکان یان سڕینەوە
+The 64-step wavetable, quantised to 6 bits like the hardware.	خشتەی شەپۆلی 64 هەنگاو، وەک ئامێرەکە بە 6 بیت.
+a button can run any command the network protocol understands	دوگمەیەک دەتوانێت هەر فەرمانێک جێبەجێ بکات کە پرۆتۆکۆڵی تۆڕ تێیدەگات
+Add a library shape to this mask; its points are yours to move	شێوەیەک لە کتێبخانە زیاد بکە بۆ ئەم ماسکە؛ خاڵەکانی هی تۆن بۆ جوڵاندن
+Art-Net or sACN (E1.31): whichever the lighting rig listens to	Art-Net یان sACN (E1.31): هەر کامیان کە ڕووناکی گوێی لێ دەگرێت
+NMC mode / host / port are runtime-configurable for sync work.	دۆخی NMC / host / port لە کاتی کارکردندا ڕێکدەخرێن.
+No slices: this output shows its one picture. + SLICE to start.	هیچ پارچەیەک نییە: ئەم دەرچوونە تاکە وێنەکەی خۆی پیشان دەدات. + SLICE بۆ دەستپێک.
+Vary tile size per cell, so the grid stops looking like a grid.	قەبارەی تایل بەپێی خانە بگۆڕە، بۆ ئەوەی تۆڕ وەک تۆڕ دەرنەکەوێت.
+Which output channel carries the signal. 'all' feeds every one.	کام کەناڵی دەرچوون ئاماژە هەڵدەگرێت. 'all' هەموویان دەدات.
+What is sent. Backslash-n, -r, -t and -0 become those characters	چی دەنێردرێت. Backslash-n، -r، -t و -0 دەبن بەو پیتانە
+Deckboy's own remote-protocol verbs, one per line; # is a comment	کردارەکانی پرۆتۆکۆڵی Deckboy، یەک لە هەر هێڵێکدا؛ # تێبینییە
+Modulator speed as a ratio of the note, so the bend tracks pitch.	خێرایی مۆدیولەیتەر وەک ڕێژەی نۆت، بۆ ئەوەی چەمانەوە بەدوای ئاوازدا بچێت.
+Open and close this edge on an oscillator -- a wipe that breathes	ئەم لێوارە بە ئۆسیلەیتەرێک بکەرەوە و دابخە -- سڕینەوەیەک کە هەناسە دەدات
+ARRANGE PRESENTER  -  drag a panel to move it, a corner to size it	ڕیزکردنی پێشکەشکار  -  پانێڵێک ڕابکێشە بۆ جوڵاندن، گۆشەیەک بۆ قەبارە
+Play this cue to the preview only; the outputs keep what they have	ئەم cue یە تەنها لە پێشبینین لێ بدە؛ دەرچوونەکان ئەوەی هەیانە دەیپارێزن
+Put the pitch on an oscillator: Motion X sweeps it like a theremin	ئاواز بخە سەر ئۆسیلەیتەرێک: Motion X وەک theremin دەیماڵێت
+A disarmed cue stays in the list and does nothing; GO steps over it	cue ی بێچەک لە لیستدا دەمێنێتەوە و هیچ ناکات؛ GO لێی تێدەپەڕێت
+Click a value to change it. A red address overlaps another fixture.	کلیک لە بەهایەک بکە بۆ گۆڕین. ناونیشانێکی سوور لەسەر ڕووناکییەکی ترە.
+Where the clock reads from this cue on; click the value to type one	کاتژمێر لەم cue یەوە لە کوێ دەخوێنێتەوە؛ کلیک لە بەها بکە بۆ نووسین
+Add a dashboard button that fires this master by name, from anywhere	دوگمەیەکی داشبۆرد زیاد بکە کە ئەم master ە بە ناو لە هەر شوێنێک دەست پێ دەکات
+New here? LEARN THE BASICS takes five minutes. We'll show you round.	نوێیت؟ فێربوونی بنەماکان پێنج خولەکە. شوێنەکەت پیشان دەدەین.
+An IPv4 address, or 255.255.255.255 to broadcast to the whole network	ناونیشانێکی IPv4، یان 255.255.255.255 بۆ پەخش بۆ هەموو تۆڕەکە
+How much playing audio widens and brightens the pattern. 0 free-runs.	دەنگی لێدراو چەند شێوەکە فراوان و ڕووناک دەکات. 0 ئازادانە کار دەکات.
+INPUT: the programme. Drag a crop to move it, its corners to size it.	هاتن: بەرنامە. بڕینێک ڕابکێشە بۆ جوڵاندن، گۆشەکانی بۆ قەبارە.
+LED panel width in pixels - what one tile really is. Click to type it	پانی پانێڵی LED بە پیکسڵ - تایلێک بە ڕاستی چییە. کلیک بکە بۆ نووسین
+Which deck it acts on; step off the end for the one this cue lives on	کار لەسەر کام دێک دەکات؛ لە کۆتایی تێپەڕە بۆ دێکی ئەم cue یە
+only one playlist - use the routing chip on the header to add another	تەنها یەک لیست - چیپی ئاڕاستەکردن لە سەرەوە بەکاربهێنە بۆ زیادکردنی یەکێکی تر
+Which cue this master fires on that deck; step off the end to clear it	ئەم master ە لەسەر ئەو دێکە کام cue دەست پێ دەکات؛ لە کۆتایی تێپەڕە بۆ سڕینەوە
+Choose a mask from this show's library, or start a new one from a shape	ماسکێک لە کتێبخانەی ئەم نمایشە هەڵبژێرە، یان یەکێکی نوێ لە شێوەیەکەوە دەست پێ بکە
+Draw on the programme monitor with the mouse or a pen (DRAW). Esc stops	لەسەر چاودێری بەرنامە بە ماوس یان پێنووس بکێشە (DRAW). Esc دەوەستێنێت
+Going on air takes the cue. Deckboy never sends the switcher a command.	چوونە سەر پەخش cue وەردەگرێت. Deckboy هەرگیز فەرمان بۆ سویچەر نانێرێت.
+How long the move takes, each way. 0 is instant whatever the style says	جوڵە چەند کات دەبات، هەر لایەک. 0 ڕاستەوخۆیە هەر شێوازێک بێت
+Stop that deck when the ramp lands - the usual take-it-down-and-stop-it	ئەو دێکە بوەستێنە کاتێک ڕامپەکە دەگات - دابەزاندن و وەستاندنی ئاسایی
+Which of the file's sound tracks plays: a second language, a commentary	کام تراکی دەنگی فایلەکە لێ دەدرێت: زمانی دووەم، لێدوان
+An oscillator on the colour: depth is how far round the wheel it travels	ئۆسیلەیتەرێک لەسەر ڕەنگ: قووڵی ئەوەیە چەند بە دەوری بازنەدا دەڕوات
+Rack this cue paused and off air so GO starts it with no decoder spin-up	ئەم cue یە وەستاو و دەرەوەی پەخش ئامادە بکە تا GO بێ دواکەوتنی کۆدکەرەوە دەستی پێ بکات
+Note, control change, program change, MIDI Show Control, or your own bytes	نۆت، control change، program change، MIDI Show Control، یان بایتەکانی خۆت
+Black behind the words. Zero leaves it over whatever the output already has	ڕەش لە پشت وشەکان. سفر لەسەر ئەوەی دەرچوون هەیەتی دەیانهێڵێتەوە
+How far the modulator bends the pitch. 0-63, the hardware's own gain range.	مۆدیولەیتەر چەند ئاواز دەچەمێنێتەوە. 0-63، مەودای زیادکردنی ئامێرەکە.
+the words this cue puts on screen  |  Shift+Enter: new line  |  Enter: apply	ئەو وشانەی ئەم cue یە دەیخاتە سەر شاشە  |  Shift+Enter: هێڵی نوێ  |  Enter: جێبەجێکردن
+OSC and UDP are fire and forget; TCP connects, so it runs off the show thread	OSC و UDP دەنێرن و لەبیری دەکەن؛ TCP دەبەستێت، بۆیە لە دەرەوەی ڕێڕەوی نمایش کار دەکات
+Put the level on an oscillator: Motion makes it a gate that opens as you move	ئاست بخە سەر ئۆسیلەیتەرێک: Motion دەیکاتە دەروازەیەک کە کاتێک دەجوڵێیت دەکرێتەوە
+Marks stacked ABOVE the characters, the way combining accents overflow a line.	نیشانەکان لە سەرووی پیتەکان کۆبوونەتەوە، وەک ئەو نیشانانەی لە هێڵ تێدەپەڕن.
+Save the mask as a greyscale PNG at the output's size: white keeps, black cuts	ماسک وەک PNG ی خۆڵەمێشی بە قەبارەی دەرچوون پاشەکەوت بکە: سپی دەپارێزێت، ڕەش دەبڕێت
+Which chime. Cycling PLAYS it, so it can be chosen by ear rather than by name.	کام زەنگ. گۆڕین لێی دەدات، بۆ ئەوەی بە گوێ هەڵبژێردرێت نەک بە ناو.
+No rows. + ADD or LEARN makes one; MIDIMAP RESET brings the built-in rows back.	هیچ ڕیزێک نییە. + ADD یان LEARN یەکێک دروست دەکات؛ MIDIMAP RESET ڕیزە بنەڕەتییەکان دەگەڕێنێتەوە.
+Save the mask's paths as SVG, for Illustrator and anything else that reads them	ڕێڕەوەکانی ماسک وەک SVG پاشەکەوت بکە، بۆ Illustrator و هەر شتێک کە دەیانخوێنێتەوە
+Which MIDI output; a named port that is missing is reported rather than swapped	کام دەرچوونی MIDI؛ پۆرتێکی ناودار کە نییە ڕاپۆرت دەکرێت، ناگۆڕدرێت
+An oscillator on the level, running after GO until a later cue sets this fixture	ئۆسیلەیتەرێک لەسەر ئاست، دوای GO کار دەکات تا cue یەکی دواتر ئەم ڕووناکییە دادەنێت
+Steps in third-octaves, because the ear works in ratios. 1kHz is the convention.	هەنگاوەکان بە سێیەکی ئۆکتاڤ، چونکە گوێ بە ڕێژە کار دەکات. 1kHz نەریتە.
+Strikes drawn ACROSS the cell, damaging the character rather than decorating it.	هێڵەکان بە ناو خانەدا، پیتەکە تێک دەدەن لە جیاتی ڕازاندنەوە.
+Whether incoming MIDI notes play this synth or trigger cues as they always have.	ئایا نۆتە MIDI ە هاتووەکان ئەم synth ە لێ دەدەن یان وەک هەمیشە cue دەست پێ دەکەن.
+A note number, or type LEARN and play it. Notes no cue claims still go to cue N+1	ژمارەی نۆت، یان LEARN بنووسە و لێی بدە. ئەو نۆتانەی هیچ cue یەک نایانگرێت دەچن بۆ cue N+1
+A plain stereo pair. Click to open the matrix, starting from exactly this routing	جووتێکی ستێریۆی سادە. کلیک بکە بۆ کردنەوەی ماتریکس، ڕاست لەم ئاڕاستەکردنەوە
+Folding is what turns an arbitrary pattern into something that reads as designed.	نوشتانەوە ئەوەیە کە هەر شێوەیەک دەکاتە شتێک کە وەک دیزاینکراو دەردەکەوێت.
+Channel=level, comma separated. Ranges too: 1=255, 10-14=64. Channels count from 1	کەناڵ=ئاست، بە کۆما جیاکراوە. مەوداکانیش: 1=255، 10-14=64. کەناڵەکان لە 1 دەژمێردرێن
+Moves every selected cue's trim by the same dB; typing a value sets them all to it	trim ی هەموو cue یەکی هەڵبژێردراو بە هەمان dB دەجوڵێنێت؛ نووسینی بەهایەک هەموویان لەسەری دادەنێت
+Bends the carrier's PITCH rather than mixing with it. This is what makes FDS growl.	ئاوازی هەڵگر دەچەمێنێتەوە لە جیاتی تێکەڵبوون لەگەڵی. ئەمە FDS دەنەڕێنێت.
+Half way through LEARN THE BASICS. Press L and we pick up where you stopped, skapi.	نیوەی ڕێگای فێربوونی بنەماکان. L دابگرە و لەو شوێنەوە بەردەوام دەبین کە وەستایت، skapi.
+Render as a character grid with a 16-colour indexed palette, rather than as pixels.	وەک تۆڕی پیت بە پالێتی 16 ڕەنگ ڕێندەر بکە، نەک وەک پیکسڵ.
+Which MIDI output this file plays to; step past the end for the first one available	ئەم فایلە بۆ کام دەرچوونی MIDI لێ دەدات؛ لە کۆتایی تێپەڕە بۆ یەکەمی بەردەست
+An IPv4 address, or 255.255.255.255 for the universe's multicast group (239.255.x.y)	ناونیشانێکی IPv4، یان 255.255.255.255 بۆ گرووپی multicast ی universe (239.255.x.y)
+Click a cell to walk it: off, full, -3, -6, -12. This row turns the matrix off again	کلیک لە خانەیەک بکە بۆ گۆڕین: داخراو، تەواو، -3، -6، -12. ئەم ڕیزە ماتریکس دووبارە دادەخات
+How long each phrase stays before it moves. Zero hides them without losing the list.	هەر ڕستەیەک چەند دەمێنێتەوە پێش جوڵان. سفر دەیانشارێتەوە بێ لەدەستدانی لیست.
+How long it takes to fall away after the attack. Only audible when retrigger is set.	دوای لێدان چەند کات دەبات تا دادەبەزێت. تەنها کاتێک لێدانەوە کراوە بێت دەبیسترێت.
+Off, from start (next cue fires when this one starts) or from end (when it finishes)	داخراو، لە سەرەتاوە (cue ی داهاتوو کاتێک ئەمە دەست پێ دەکات) یان لە کۆتاییەوە (کاتێک تەواو دەبێت)
+Height of one line as a percent of the raster, so a card reads the same on any screen	بەرزی یەک هێڵ وەک ڕێژەی سەدی raster، بۆ ئەوەی کارت لەسەر هەموو شاشەیەک وەک یەک بخوێندرێتەوە
+Set slot source as media:/path, browser:url, window:name, camera:name, or syphon:name	سەرچاوەی slot وەک media:/ڕێڕەو، browser:url، window:ناو، camera:ناو، یان syphon:ناو دابنێ
+Short LFSR mode. The period is brief enough to read as pitched metal rather than hiss.	دۆخی LFSR ی کورت. ماوەکە ئەوەندە کورتە کە وەک کانزای ئاوازدار دەبیسترێت نەک فشە.
+White, warm, red, amber, green, cyan, blue, magenta. ~ moves it round the colour wheel	سپی، گەرم، سوور، کارەبایی، سەوز، شینی ئاسمانی، شین، مۆری. ~ بە دەوری بازنەی ڕەنگدا دەیجوڵێنێت
+Re-strike the envelope this often. Hold sustains one note, which is what a drone wants.	زەرفەکە ئەوەندە جار دووبارە لێ بدە. Hold یەک نۆت ڕادەگرێت، ئەوەی drone دەیەوێت.
+Diamond is the hard-edged Atari Video Music lattice; rings tunnel well with feedback zoom.	Diamond تۆڕی لێوار-ڕەقی Atari Video Music ە؛ ئەڵقەکان لەگەڵ زووم ی گەڕانەوە تونێلی باش دروست دەکەن.
+Rock or spin. Depth 1 is half a turn either way; a saw at depth 1 turns it all the way round	بلەرزێنە یان بسووڕێنە. قووڵی 1 نیو سووڕێکە بۆ هەر لایەک؛ saw لە 1 بە تەواوی دەیسووڕێنێت
+DECK playback level (live, not saved with the cue) - per-cue trim is gain in the AUDIO section	ئاستی لێدانی DECK (ڕاستەوخۆ، لەگەڵ cue پاشەکەوت ناکرێت) - trim ی هەر cue یەک زیادکردنە لە بەشی AUDIO
+Still, fade in, typewriter, scroll up, crawl or pulse -- all driven by the cue's own transport	وەستاو، هاتنەژوورەوە، تایپڕایتەر، سکڕۆڵ بۆ سەرەوە، خشکاندن یان لێدان -- هەموو بە گواستنەوەی خودی cue
+Fields per rendered frame. 1 is one for one, 0.5 holds each field for two frames, 0 freezes it.	کێڵگە بۆ هەر وێنەیەک. 1 یەک بە یەکە، 0.5 هەر کێڵگەیەک دوو وێنە ڕادەگرێت، 0 دەیبەستێت.
+What this cue shows while it plays: waveform, scope, Lissajous, spectrum, meters or a name card	ئەم cue یە کاتی لێدان چی پیشان دەدات: شێوەی شەپۆل، scope، Lissajous، سپێکتروم، پێوەر یان کارتی ناو
+0 picks tiles by brightness so the picture reads. 1 picks at random so the grid becomes texture.	0 تایلەکان بەپێی ڕووناکی هەڵدەبژێرێت بۆ ئەوەی وێنە بخوێندرێتەوە. 1 بە هەڕەمەکی هەڵدەبژێرێت تا تۆڕ ببێتە ڕووکار.
+How far it travels, in semitones. Up reads as arrival, down as departure, zero is a struck note.	چەند دەڕوات، بە نیوە-تۆن. سەرەوە وەک گەیشتن، خوارەوە وەک ڕۆیشتن، سفر نۆتێکی لێدراوە.
+An IPv4 address. Names are not resolved: a DNS lookup is a blocking call and GO must not make one	ناونیشانێکی IPv4. ناوەکان چارەسەر ناکرێن: گەڕانی DNS ڕێگر دەبێت و GO نابێت بیکات
+Tile width in pixels. Must match the sheet's grid or the slices land across neighbouring sprites.	پانی تایل بە پیکسڵ. دەبێت لەگەڵ تۆڕی پەڕەکە بگونجێت، ئەگینا پارچەکان دەکەونە سەر sprite ە دراوسێکان.
+Alternating mirrors by cell position, which reads as pattern where random flipping reads as noise.	ئاوێنەی گۆڕاو بەپێی شوێنی خانە، کە وەک شێوە دەخوێندرێتەوە لە جیاتی هەڕەمەکی کە وەک ژاوەژاو دەخوێندرێتەوە.
+0 welds them to their cell, which reads as engraved. Above it they re-roll, which reads as boiling.	0 دەیانلکێنێت بە خانەکەیانەوە، وەک هەڵکەندراو. لە سەرەوەی ئەوە دووبارە هەڵدەبژێردرێن، وەک ئەوەی دەکوڵێن.
+MONO L plays the left input in both speakers: mic 1 on most interfaces. STEREO is for a line source.	MONO L هاتنی چەپ لە هەردوو بڵندگۆدا لێ دەدات: مایکی 1 لە زۆربەی ڕووکارەکاندا. STEREO بۆ سەرچاوەی هێڵە.
+The whole gesture. This IS the cue's duration -- a sting is the one generated signal here that ends.	هەموو جوڵەکە. ئەمە ماوەی cue یە -- sting تاکە ئاماژەی دروستکراوە لێرە کە کۆتایی دێت.
+Click the value to send this fixture or leave it where the last cue put it. ~ makes the level breathe	کلیک لە بەها بکە بۆ ناردنی ئەم ڕووناکییە یان هێشتنەوەی لەو شوێنەی دوایین cue دایناوە. ~ ئاستەکە هەناسە پێ دەدات
+FDS is a wavetable bent by a modulator. 2A03 is the pulse/triangle/noise set most chiptune is made of.	FDS خشتەی شەپۆلێکە کە مۆدیولەیتەرێک دەیچەمێنێتەوە. 2A03 کۆمەڵەی pulse/triangle/noise ە کە زۆربەی chiptune لێی دروست کراوە.
+Scramble which glyph means which brightness. Same set, different handwriting. Seeded, so it stays put.	تێکەڵ بکە کام نیشانە واتای کام ڕووناکییە. هەمان کۆمەڵە، دەستخەتێکی تر. بە تۆو، بۆیە جێگیر دەمێنێت.
+Pixel sort: runs of pixels sorted by brightness within a row, which is what makes datamosh look melted.	ڕیزکردنی پیکسڵ: زنجیرەی پیکسڵ بەپێی ڕووناکی لە ناو ڕیزێکدا، کە datamosh وەک توواوە دەردەخات.
+How many cells the marks may climb. They thin out as they go, so a tall reach trails rather than doubles.	نیشانەکان دەتوانن چەند خانە سەرکەون. لە کاتی ڕۆیشتن تەنک دەبن، بۆیە گەیشتنی بەرز شوێنپێ بەجێ دەهێڵێت نەک دووبارە.
+cue act val  -  G take  S stop  F fade out (val = tenths of a second)  V volume  O opacity  J jump to row	cue کردار بەها  -  G وەرگرتن  S وەستان  F دەرچوونی هێواش (بەها = دەیەکی چرکە)  V دەنگ  O ناڕوونی  J بڕۆ بۆ ڕیز
+Harmonic weight: a pure chime at zero, brass at full. This is the difference between a ping and a fanfare.	کێشی هارمۆنی: زەنگێکی پاک لە سفر، مس لە تەواو. ئەمە جیاوازی نێوان ping و fanfare ە.
+Steps through the inputs this computer has. 'Settings input' follows the input chosen in Settings > Audio.	بە هاتنەکانی ئەم کۆمپیوتەرەدا دەڕوات. 'Settings input' بەدوای ئەو هاتنەدا دەچێت کە لە Settings > Audio هەڵبژێردراوە.
+Embers to roaring. It still surges and settles at any setting -- a fire that does not move reads as a photo	لە پشکۆوە بۆ ئاگری گەورە. لە هەر ڕێکخستنێکدا هەڵدەستێت و ئارام دەبێتەوە -- ئاگرێک کە ناجوڵێت وەک وێنە دەردەکەوێت
+Reference pitch. 440 is modern standard, 432 the common alternative, and older instruments sat lower still.	ئاوازی سەرچاوە. 440 ستانداردی نوێیە، 432 بژاردەی باو، و ئامێرە کۆنەکان نزمتر بوون.
+Where the sting starts. Under a voice it wants to stay out of the way; over a room it wants to cut through.	sting لە کوێ دەست پێ دەکات. لە ژێر دەنگێکدا دەبێت لە ڕێگا دوور بێت؛ لەسەر ژوورێک دەبێت تێپەڕێت.
+Digital gain on the input, -40 to +40 dB. Set the interface's own preamp first; this is for the last few dB.	زیادکردنی دیجیتاڵ لەسەر هاتن، -40 تا +40 dB. یەکەم preamp ی ڕووکار ڕێکبخە؛ ئەمە بۆ چەند dB ی کۆتاییە.
+Pulse the size. On its own this moves width AND height together; give height its own ~ to squash and stretch	قەبارە لێدان بکە. بە تەنها پانی و بەرزی پێکەوە دەجوڵێنێت؛ ~ ی خۆی بدە بە بەرزی بۆ گوشین و درێژکردنەوە
+A card fills the frame; a Lower Third is a name and a role, low on a transparent frame, with an in and an out	کارت وێنەکە پڕ دەکاتەوە؛ Lower Third ناو و ڕۆڵێکە، لە خوارەوە لەسەر وێنەیەکی ڕوون، بە هاتن و دەرچوونەوە
+Held keeps the last displacement rather than removing it -- the picture stays bent the way the driver left it.	Held دوایین جێگۆڕکێ ڕادەگرێت لە جیاتی لابردنی -- وێنە وەک ئەوەی درایڤەر جێی هێشت چەماوە دەمێنێتەوە.
+12.5 and 25 are thin and reedy, 50 is hollow. 75 sounds identical to 25 -- it is here because trackers expose it.	12.5 و 25 تەنک و لووتین، 50 بەتاڵە. 75 وەک 25 دەبیسترێت -- لێرەیە چونکە tracker ەکان پیشانی دەدەن.
+Quantise the output like the hardware. The steps ARE the sound; smoothing them makes it a synth imitating a chip.	دەرچوون وەک ئامێرەکە quantise بکە. هەنگاوەکان دەنگەکەن؛ نەرمکردنیان دەیکاتە synth ێک کە لاسایی چیپ دەکاتەوە.
+Moves every selected cue's trim by the same dB, keeping the differences between them; typing a value sets them all to it	trim ی هەموو cue یەکی هەڵبژێردراو بە هەمان dB دەجوڵێنێت، جیاوازییەکانیان دەپارێزێت؛ نووسینی بەهایەک هەموویان لەسەری دادەنێت
+Where the playlist's crosspoints send it (Settings > Audio). Click to open the matrix by name, starting from exactly that	خاڵە یەکتربڕەکانی لیست بۆ کوێی دەنێرن (Settings > Audio). کلیک بکە بۆ کردنەوەی ماتریکس بە ناو، ڕاست لەو ئاڕاستەکردنەوە
+name values with  d = ...;  end with one expression, or three for red green blue  |  Shift+Enter: new line  |  Enter: apply	ناو لە بەهاکان بنێ بە  d = ...;  بە یەک دەربڕین کۆتایی پێ بهێنە، یان سێ بۆ سوور سەوز شین  |  Shift+Enter: هێڵی نوێ  |  Enter: جێبەجێکردن
+Put back what it started from once the ramp lands (after the stop): a deck left ready for its next cue, a swell that lets go	کاتێک ڕامپەکە دەگات (دوای وەستان) ئەوەی لێیەوە دەستی پێکرد بیگەڕێنەوە: دێکێکی ئامادە بۆ cue ی داهاتوو، بەرزبوونەوەیەک کە بەرەڵا دەکات
+Which speech model makes the captions: English, any language, or the slower, more accurate pair. Each is a one-time download	کام مۆدێلی قسەکردن ژێرنووس دروست دەکات: ئینگلیزی، هەر زمانێک، یان جووتە هێواشتر و وردترەکە. هەر یەکێک یەکجار دادەبەزێت
+What the mask cuts: this cue wherever it plays, this playlist on the focused output, that output's whole picture, or its matte	ماسک چی دەبڕێت: ئەم cue یە لە هەر کوێیەک لێ بدرێت، ئەم لیستە لەسەر دەرچوونی فۆکەسکراو، هەموو وێنەی ئەو دەرچوونە، یان matte ەکەی
+Play at the screen's rate when it is within 0.2% (59.94 on 60): every frame shown once, the sound up to 3.5 cents sharp or flat	بە خێرایی شاشە لێ بدە کاتێک لە ناو 0.2% دایە (59.94 لەسەر 60): هەر وێنەیەک یەکجار، دەنگ تا 3.5 cent بەرز یان نزم
+Quarter turns are exact and stay crisp. Spinning samples at an angle, which tears pixel art -- sometimes that is what you want.	سووڕانەوەی چارەک وردن و ڕوون دەمێننەوە. سووڕاندن بە گۆشە نموونە وەردەگرێت، کە هونەری پیکسڵ دەدڕێنێت -- هەندێک جار ئەوە ئەوەیە کە دەتەوێت.
+Every take starts the puppetry the same way, so a rehearsed look repeats instead of depending on how long the app has been open.	هەر take ێک جوڵەکە بە هەمان شێوە دەست پێ دەکات، بۆ ئەوەی شێوەیەکی ڕاهێنراو دووبارە ببێتەوە نەک پشت بە ماوەی کرانەوەی بەرنامە ببەستێت.
+What aims each tilt: its own position, the picture's luma gradient so characters lean the way the image does, or the cell's hue.	چی ئاراستەی هەر لاربوونێک دەکات: شوێنی خۆی، پلەبەندی ڕووناکی وێنە بۆ ئەوەی پیتەکان وەک وێنە لار بن، یان ڕەنگی خانە.
+Name a channel or a pair once. Playlists send to the name, so a different interface means changing the names here, not every cue.	یەکجار ناو لە کەناڵێک یان جووتێک بنێ. لیستەکان بۆ ناوەکە دەنێرن، بۆیە ڕووکارێکی تر واتە گۆڕینی ناوەکان لێرە، نەک هەموو cue یەک.
+Click a crosspoint to walk it: off, 0, -3, -6, -12 dB. Drag it sideways for any level. A playlist with none plays to its own device.	کلیک لە خاڵی یەکتربڕ بکە بۆ گۆڕین: داخراو، 0، -3، -6، -12 dB. بە لادا ڕایبکێشە بۆ هەر ئاستێک. لیستێک بێ خاڵ لە ئامێری خۆیدا لێ دەدات.
+Sprite sets installed in data/sprites. Each folder there is a set; cycling picks one and wraps back to none. Right-click turns them off.	کۆمەڵەکانی sprite لە data/sprites. هەر فۆڵدەرێک کۆمەڵەیەکە؛ گۆڕین یەکێک هەڵدەبژێرێت و دەگەڕێتەوە بۆ هیچ. کلیکی ڕاست دایاندەخات.
+Internal resolution, 1 chunkiest to 5 finest. This is an aesthetic control as much as a speed one -- the 8-bit look comes from big pixels.	ڕوونی ناوخۆ، 1 زبرترین تا 5 وردترین. ئەمە کۆنترۆڵی جوانییە هێندەی کۆنترۆڵی خێرایی -- شێوەی 8-bit لە پیکسڵە گەورەکانەوە دێت.
+Picture takes colour from the image. Green, amber and cyan are terminal phosphors. Palette locks the text to the selected hardware palette.	Picture ڕەنگ لە وێنەوە وەردەگرێت. سەوز، کارەبایی و شینی ئاسمانی فۆسفۆری تێرمیناڵن. Palette دەق بە پالێتی ئامێری هەڵبژێردراو دەبەستێت.
+SUBTLE self-heals (H.264). CLASSIC is the real smear (MPEG-4). EXTREME is chunkier and smears constantly. Changing this re-prepares the cue.	SUBTLE خۆی چاک دەکاتەوە (H.264). CLASSIC پەڵەی ڕاستەقینەیە (MPEG-4). EXTREME زبرترە و هەمیشە پەڵە دەکات. گۆڕینی ئەمە cue دووبارە ئامادە دەکات.
+Sine for line-up, pink to ring out a PA, white to find rattles, sweep to hear where a room rings, identify to walk the outputs one at a time.	Sine بۆ ڕێکخستن، pink بۆ ڕێکخستنی PA، white بۆ دۆزینەوەی لەرزین، sweep بۆ بیستنی ئەوەی ژوور لە کوێ دەنگ دەداتەوە، identify بۆ تێپەڕین بە دەرچوونەکان یەک بە یەک.
+Which effect, by its place in the stack of the cue that deck is playing when this fires. With nothing there, the fade says so and does nothing	کام کاریگەری، بەپێی شوێنی لە کۆگای ئەو cue یەی کە ئەو دێکە لێی دەدات کاتێک ئەمە دەست پێ دەکات. ئەگەر هیچ نەبێت، کاڵبوونەوە دەیڵێت و هیچ ناکات
+Each frame blended into the next. This is the Hypno signature -- at 0 it is a pattern generator, above it the picture starts feeding on itself.	هەر وێنەیەک لەگەڵ وێنەی داهاتوو تێکەڵ دەبێت. ئەمە واژۆی Hypno ە -- لە 0 بەرهەمهێنەری شێوەیە، لە سەرووی ئەوە وێنە دەست دەکات بە خواردنی خۆی.
+What is through the window on the hearth wall: a garden, rain, snow or the sea. A room with weather outside reads as somewhere rather than as a wall	لە پەنجەرەی سەر دیواری ئاگردان چی هەیە: باخچە، باران، بەفر یان دەریا. ژوورێک بە کەشوهەوا لە دەرەوە وەک شوێنێک دەخوێندرێتەوە نەک دیوار
+BY FIXTURE: the lights in the patch (Settings > Network > FIXTURES), by name. CHANNELS: channel=level by hand. A cue can carry both; channels go last	بەپێی ڕووناکی: ڕووناکییەکانی ناو patch (Settings > Network > FIXTURES)، بە ناو. کەناڵەکان: کەناڵ=ئاست بە دەست. cue دەتوانێت هەردووکیان هەڵبگرێت؛ کەناڵەکان دواجار دێن
+Each character rocks as though it were a card being tilted. Every cell has its own phase, so the grid breathes instead of sliding about as one sheet.	هەر پیتێک وەک کارتێکی لارکراو دەلەرزێت. هەر خانەیەک قۆناغی خۆی هەیە، بۆیە تۆڕەکە هەناسە دەدات لە جیاتی خلیسکان وەک یەک پەڕە.
+Pen: click for corners, drag for curves, click the first point to close (P). Points: drag, click the outline to add one, Alt-click or Delete to remove	پێنووس: کلیک بۆ گۆشەکان، ڕاکێشان بۆ چەماوەکان، کلیک لە یەکەم خاڵ بۆ داخستن (P). خاڵەکان: ڕاکێشان، کلیک لە هێڵی دەرەوە بۆ زیادکردن، Alt-کلیک یان Delete بۆ لابردن
+The chip's three channels. They differ in kind: triangle has no volume control on the hardware, and noise is a shift register rather than an oscillator.	سێ کەناڵی چیپەکە. جیاوازن: triangle لەسەر ئامێرەکە کۆنترۆڵی دەنگی نییە، و noise تۆمارکەری جێگۆڕکێیە نەک ئۆسیلەیتەر.
+Curated sets of symbols and emoji -- stars, notes, flowers, arrows, weather, runes, faces. Picking one fills the custom glyphs below, which stays editable.	کۆمەڵەی هەڵبژێردراوی هێما و emoji -- ئەستێرە، نۆت، گوڵ، تیر، کەشوهەوا، ڕوون، ڕوخسار. هەڵبژاردنی یەکێک نیشانە تایبەتەکانی خوارەوە پڕ دەکاتەوە، کە دەستکاریکراو دەمێننەوە.
+Play from the computer keyboard, Ableton layout: A W S E D F T G Y H U J, Z and X for octave. While this is ON those keys make notes instead of firing cues.	لە تەختەکلیلی کۆمپیوتەر لێ بدە، شێوەی Ableton: A W S E D F T G Y H U J، Z و X بۆ ئۆکتاڤ. کاتێک ئەمە کراوەیە ئەو کلیلانە نۆت لێ دەدەن لە جیاتی دەستپێکردنی cue.
+Deck opacity, deck volume, the master dimmer, the active cue's own brightness / contrast / saturation / hue, or a knob of one of its effects or audio effects	ناڕوونی دێک، دەنگی دێک، کەمکەرەوەی سەرەکی، ڕووناکی / کۆنتراست / تێربوون / ڕەنگی cue ی چالاک، یان دوگمەی یەکێک لە کاریگەرییەکانی یان کاریگەرییە دەنگییەکانی
+Scanlines, phosphor bloom and RGB fringing. The bloom is the part that matters -- a phosphor spills sideways, which is why a CRT looks like it is emitting light.	هێڵەکانی سکان، درەوشانەوەی فۆسفۆر و لێواری RGB. درەوشانەوە بەشی گرنگە -- فۆسفۆر بە لادا دەڕژێت، بۆیە CRT وەک ئەوەی ڕووناکی بڵاو بکاتەوە دەردەکەوێت.
+Torn scanline bands and RGB separation. In text mode it also corrupts CELLS -- whole rows lock to one repeating character, the way a real text screen loses sync.	پشتێنەی هێڵی دڕاو و جیاکردنەوەی RGB. لە دۆخی دەقدا خانەکانیش تێک دەدات -- ڕیزی تەواو لەسەر یەک پیتی دووبارە دەچەقن، وەک شاشەیەکی دەقی ڕاستەقینە کە هاوکاتی لەدەست دەدات.
+Still holds the frame you are on. Flipbook plays the frames in turn. Replay draws the first frame stroke by stroke, the way it was drawn, then holds and starts again	Still ئەو وێنەیە ڕادەگرێت کە لەسەریت. Flipbook وێنەکان بە نۆبە لێ دەدات. Replay یەکەم وێنە هێڵ بە هێڵ دەکێشێت، وەک ئەوەی کێشرابوو، پاشان ڕادەوەستێت و دووبارە دەست پێ دەکاتەوە
+Start, Stop, Pause, Resume, Load (stand it by without firing), Arm, Disarm, or Devamp it (a loop plays out its pass and ends); or Stop all, Pause all, Resume all: every deck	Start، Stop، Pause، Resume، Load (ئامادە بکە بێ دەستپێکردن)، Arm، Disarm، یان Devamp (لووپ گەڕەکەی تەواو دەکات و کۆتایی دێت)؛ یان Stop all، Pause all، Resume all: هەموو دێکێک
+Scope shows shape and clipping. Lissajous shows phase and polarity between the first two channels -- a diagonal the wrong way means one is inverted. Spectrum is third-octave bars.	Scope شێوە و بڕین پیشان دەدات. Lissajous قۆناغ و جەمسەری نێوان دوو کەناڵی یەکەم پیشان دەدات -- هێڵێکی لار بە ئاراستەی هەڵە واتە یەکێکیان پێچەوانەیە. Spectrum شریتی سێیەکی ئۆکتاڤە.
+0 picks the glyph the brightness asks for, 1 picks any glyph in the set. Turn it up to see the whole alphabet: ranked strictly by ink, a flat area picks one mark and the rest never appear.	0 ئەو نیشانەیە هەڵدەبژێرێت کە ڕووناکی داوای دەکات، 1 هەر نیشانەیەک لە کۆمەڵەکە. بەرزی بکەرەوە بۆ بینینی هەموو ئەلفوبێ: بە ڕیزکردنی توند بەپێی مەرەکەب، ڕووبەرێکی ڕێک یەک نیشانە هەڵدەبژێرێت و ئەوانی تر هەرگیز دەرناکەون.
+Blocks and dithers read as density; the ASCII ramp reads as text; symbols read as wreckage. Cycling this clears a custom glyph string, since that would override it -- the preset row puts one back.	بلۆک و dither وەک چڕی دەخوێندرێنەوە؛ ڕامپی ASCII وەک دەق؛ هێماکان وەک پاشماوە. گۆڕینی ئەمە زنجیرەی نیشانەی تایبەت پاک دەکاتەوە، چونکە ئەو لەسەری تێدەپەڕێت -- ڕیزی پێشڕێکخستن یەکێک دەگەڕێنێتەوە.
+Equal temperament buys free modulation at the cost of every interval being slightly wrong. Just and pythagorean are exactly in tune in one key. Bohlen-Pierce divides a twelfth, so it has no octaves.	ئاوازکردنی یەکسان مۆدیولەیشنی ئازاد دەکڕێت بە نرخی ئەوەی هەر مەودایەک کەمێک هەڵە بێت. ئاوازکردنی ڕاست و پیتاگۆری لە یەک کلیلدا بە تەواوی ڕێکن. Bohlen-Pierce دوازدەیەک دابەش دەکات، بۆیە ئۆکتاڤی نییە.
+OSC	OSC
+Twitch	Twitch
+Art-Net	Art-Net
+YouTube	YouTube
+PQ - HDR10	PQ - HDR10
+sACN (E1.31)	sACN (E1.31)
+DECKBOY  POCKET	DECKBOY  POCKET
+DECKLINK SDI / HDMI	DECKLINK SDI / HDMI
+AMWA NMOS  IS-04 / IS-05	AMWA NMOS  IS-04 / IS-05
