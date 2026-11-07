@@ -74,8 +74,8 @@ CENTRE	ΚΕΝΤΡΟ
 FULL	ΠΛΗΡΗΣ
 duration	διάρκεια
 transition	μετάβαση
-fade in	σταδιακή εμφάνιση
-fade out	σταδιακή απόσβεση
+fade in	εμφάνιση
+fade out	σβήσιμο
 ON	ΝΑΙ
 OFF	ΟΧΙ
 Stopped	Σταματημένο

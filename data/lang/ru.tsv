@@ -1227,7 +1227,7 @@ save animation	сохранить анимацию
 export	экспорт
 repeats	повторы
 hold last	держать последний
-end action	действие в конце
+end action	в конце
 cue id	ID cue
 goto target	цель перехода
 set	задать

@@ -73,8 +73,8 @@ CENTRE	ЦЕНТЪР
 FULL	ПЪЛЕН
 duration	времетраене
 transition	преход
-fade in	постепенно появяване
-fade out	постепенно затихване
+fade in	появяване
+fade out	затихване
 ON	ВКЛ
 OFF	ИЗКЛ
 Stopped	Спрян
@@ -1226,7 +1226,7 @@ save animation	запази анимация
 export	експорт
 repeats	повторения
 hold last	задръж последния
-end action	действие накрая
+end action	в края
 cue id	ID на cue
 goto target	цел на скока
 set	задай
