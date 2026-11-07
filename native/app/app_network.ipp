@@ -3406,6 +3406,7 @@ html,body{width:100%;height:100%;overflow:hidden}
         "crossfade: CROSSFADE [OFF | <0-100> | <from> <to> [<0-100>]] - fade between two\n"
         "        entries of the focused output's stack (1 is the base)\n"
         "        VIDEO OUTPUT ASSIGN [<layer>] | UNASSIGN | LAYER [<n>] | HOST [<deck>]\n"
+        "        VIDEO OUTPUT LAYERBLEND [<mode> | NEXT | LIST] - how the focused layer combines with what is under it\n"
         "        VIDEO OUTPUT LAYERWARP [OFF | <8 corner OFFSETS> | MODE linear/perspective] - map a layer onto a surface\n"
         "        WARP EDIT [ON|OFF] | WARP SELECT TL|TR|BR|BL|<col> <row> | WARP AT <x> <y> - place a warp point to the pixel\n"
         "        VIDEO BLEND L|R|T|B|ALL <0-49%> | RESET | CURVE PROJECTOR|LINEAR | GAMMA <1-3> | LIFT <0-20%>\n"

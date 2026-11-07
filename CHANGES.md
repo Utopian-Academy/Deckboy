@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+### Layer blend modes
+- Fixed: blend modes did not reach an output. Add, multiply and every other mode looked like dissolve on the output, and the BLEND button changed only the mix monitor.
+- Each layer on an output now has its own blend mode. It applies all the time, with or without the crossfader.
+- 40 modes, in nine groups: mix, lighten, darken, contrast, compare, colour, key, channel and wacky. New are overlay, soft light, hard light, vivid light, linear light, pin light, hard mix, difference, exclusion, divide, dodge, burn, linear burn, average, hue, saturation, colour, luminosity, two luma keys, stencil, three channel swaps, and six experimental modes: xor, wraparound, solarise, hue-spin, thermal and crush.
+- To choose a mode, click the output tag at the top of the layer's playlist, then **blend: ...**. The picker stays open, so you can try modes on the live output. Over the network: `VIDEO OUTPUT LAYERBLEND <mode>|NEXT|LIST`.
+- The BLEND button in VJ mode now sets the blend of the layer that the crossfader brings in.
+- Fixed: on SDL's software renderer every blend mode looked like dissolve. Fixed: screen, lighten, multiply and darken ignored the fader on Direct3D.
+- Known limit: most modes are done on the processor. On an HDR output they clip highlights to SDR white.
+
+### Interface translations
+- The cue inspector and the rest of the desk are now translated in every language with a full catalogue. Moroccan Tamazight no longer mixes in French, and Kabyle shows French only for long phrases.
+- More of the interface is translated in Sorani, Kurmanji, Scottish Gaelic, Zulu, Lao, Papiamento, Scots, Lumeni and Kabyle.
+- Fixed: the pattern row in the inspector cut off a long word for "pattern".
+- No native speaker has reviewed these translations yet.
+
 ### Companion module 1.0.10
 - New actions: multiview on or off, its layout and what each window shows; Motion on or off; put a mask on or take it off, invert it, set its opacity; turn a slice on or off; open or close the Screens window; Draw undo, clear and how it plays; add a ready-made MIDI map; open the lessons; start Bug Swat.
 - New presets for the multiview and Motion.

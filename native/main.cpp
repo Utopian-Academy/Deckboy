@@ -10655,6 +10655,10 @@ class App {
   int contextMenuDeckIdx_ = 0;
   int contextMenuCueIdx_ = 0;
   SDL_Rect contextMenuRect_ {};
+  // Counts layouts, so a menu row can rebuild the menu in place (the layer
+  // blend row) and the click handler knows not to close what it just opened.
+  int contextMenuLayouts_ = 0;
+  SDL_Point contextMenuAnchor_ {0, 0};
   struct ContextItem {
     std::string label;
     SDL_Color swatch {0,0,0,0};

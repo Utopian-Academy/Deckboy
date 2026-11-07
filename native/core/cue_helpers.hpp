@@ -392,8 +392,84 @@ inline const std::vector<std::string>& vjBlendModes() {
     "undercut",    // the reverse: A eats light out of B
     "infiltrate",  // B appears only where A is dark, growing from the shadows
     "ember",       // B appears only where A is bright, burning in through it
+    // PER-PIXEL MODES (isPixelBlendMode): fixed blend factors cannot express
+    // them, so the layer is drawn on its own and combined with what is under
+    // it pixel by pixel (cpuPixelBlendLayer, app_masks.ipp). The formulas are the usual
+    // ones (W3C Compositing and Blending Level 1 where it defines them).
+    "difference",  // |A - B|
+    "exclusion",   // like difference, softer in the mids
+    "overlay",     // multiply the darks, screen the lights, by A
+    "soft-light",  // a gentle overlay, by B
+    "hard-light",  // overlay decided by B instead of A
+    "vivid-light", // burn or dodge, by B
+    "linear-light",// A + 2B - 1
+    "pin-light",   // darken or lighten, by B
+    "hard-mix",    // every channel to 0 or 1: posterised contrast
+    "dodge",       // A brightened by B (colour dodge)
+    "burn",        // A darkened by B (colour burn)
+    "linear-burn", // A + B - 1
+    "divide",      // A / B
+    "average",     // (A + B) / 2
+    "hue",         // B's hue, A's saturation and luminosity
+    "saturation",  // B's saturation, A's hue and luminosity
+    "colour",      // B's hue and saturation, A's luminosity
+    "luminosity",  // B's luminosity, A's hue and saturation
+    "luma-key",    // B over A, with B's dark parts keyed out
+    "luma-key-inv",// B over A, with B's bright parts keyed out
+    "stencil",     // A shows only where B is bright
+    "take-red",    // B's red channel, A's green and blue
+    "take-green",  // B's green channel, A's red and blue
+    "take-blue",   // B's blue channel, A's red and green
+    // EXPERIMENTAL. Not in any paint program, on purpose.
+    "xor",         // the bits of A and B exclusive-ored: digital noise from two pictures
+    "wraparound",  // A + B, wrapping past white back to black
+    "solarise",    // A turned negative wherever B is bright, channel by channel
+    "hue-spin",    // A's hue turned round the colour wheel by B's brightness
+    "thermal",     // the difference between A and B, on a heat camera's palette
+    "crush",       // A posterised, to fewer levels where B is dark
   };
   return kModes;
+}
+
+inline bool isVjBlendMode(const std::string& name);
+
+// The modes a premultiplied layer is laid on with by blend factors on the
+// GPU. Only the three measured to follow the fader there exactly
+// (tools/check_layer_blend.py): on Direct3D 11, add, undercut and ember came
+// out at full strength at a half fader, and lighten and darken cannot fade
+// as factors at all. Every other mode is combined on the processor.
+inline bool isFactorBlendMode(const std::string& name) {
+  return name == "screen" || name == "multiply" || name == "infiltrate";
+}
+
+// The modes combined pixel by pixel rather than by blend factors.
+inline bool isPixelBlendMode(const std::string& name) {
+  return name != "dissolve" && !isFactorBlendMode(name) && isVjBlendMode(name);
+}
+
+// The heading a mode sits under in the blend menu.
+inline const char* blendModeGroup(const std::string& name) {
+  static const std::pair<const char*, const char*> kGroups[] = {
+    {"dissolve", "MIX"}, {"average", "MIX"},
+    {"add", "LIGHTEN"}, {"screen", "LIGHTEN"}, {"lighten", "LIGHTEN"}, {"dodge", "LIGHTEN"},
+    {"ember", "LIGHTEN"},
+    {"multiply", "DARKEN"}, {"darken", "DARKEN"}, {"burn", "DARKEN"}, {"linear-burn", "DARKEN"},
+    {"infiltrate", "DARKEN"},
+    {"overlay", "CONTRAST"}, {"soft-light", "CONTRAST"}, {"hard-light", "CONTRAST"},
+    {"vivid-light", "CONTRAST"}, {"linear-light", "CONTRAST"}, {"pin-light", "CONTRAST"},
+    {"hard-mix", "CONTRAST"},
+    {"difference", "COMPARE"}, {"exclusion", "COMPARE"}, {"subtract", "COMPARE"},
+    {"undercut", "COMPARE"}, {"divide", "COMPARE"},
+    {"hue", "COLOUR"}, {"saturation", "COLOUR"}, {"colour", "COLOUR"}, {"luminosity", "COLOUR"},
+    {"luma-key", "KEY"}, {"luma-key-inv", "KEY"}, {"stencil", "KEY"},
+    {"take-red", "CHANNEL"}, {"take-green", "CHANNEL"}, {"take-blue", "CHANNEL"},
+    {"xor", "WACKY"}, {"wraparound", "WACKY"}, {"solarise", "WACKY"}, {"hue-spin", "WACKY"},
+    {"thermal", "WACKY"}, {"crush", "WACKY"},
+  };
+  for (const auto& g : kGroups) {
+    if (name == g.first) return g.second;
+  }
+  return "MIX";
 }
 
 // The next mode in the cycle, wrapping. An unknown name starts from the top.

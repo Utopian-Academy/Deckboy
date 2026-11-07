@@ -207,6 +207,7 @@
   // `anchorX/anchorY` is where the caller would LIKE it, usually the control
   // it belongs to. It is honoured when it can be.
   void layoutContextMenu(int anchorX, int anchorY, bool anchorIsBottom = false) {
+    ++contextMenuLayouts_;
     int winW = 0, winH = 0;
     SDL_GetWindowSize(controlWindow_, &winW, &winH);
     const int itemH = uiScaled(32);
@@ -424,6 +425,40 @@
     layoutContextMenu(mx, my);
   }
 
+  // Every blend mode, under its heading, for one layer on one output. A
+  // click sets the mode and leaves the menu open on the new choice.
+  void openLayerBlendMenu(int deckIdx, int outputIndex, int mx, int my) {
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) return;
+    const OutputLayer* layer = nullptr;
+    for (const OutputLayer& l : project_.outputs[outputIndex].layerDecks) {
+      if (l.deckIndex == deckIdx) layer = &l;
+    }
+    if (!layer) return;
+    const std::string current = layer->blendMode.empty() ? std::string("dissolve") : layer->blendMode;
+    contextMenuOpen_ = true;
+    contextMenuDeckIdx_ = deckIdx;
+    contextMenuCueIdx_ = -1;
+    contextMenuAnchor_ = SDL_Point {mx, my};
+    contextItems_.clear();
+    static const char* kOrder[] = {"MIX", "LIGHTEN", "DARKEN", "CONTRAST", "COMPARE", "COLOUR", "KEY",
+                                   "CHANNEL", "WACKY"};
+    for (const char* group : kOrder) {
+      contextItems_.push_back({group, {0, 0, 0, 0}, nullptr});
+      for (const std::string& mode : vjBlendModes()) {
+        if (std::string(blendModeGroup(mode)) != group) continue;
+        const bool on = mode == current;
+        contextItems_.push_back({
+          std::string(on ? "  > " : "    ") + mode,
+          on ? SDL_Color {40, 130, 90, 255} : SDL_Color {0, 0, 0, 0},
+          [this, deckIdx, outputIndex, mode]() {
+            setLayerBlend(deckIdx, outputIndex, mode);
+            openLayerBlendMenu(deckIdx, outputIndex, contextMenuAnchor_.x, contextMenuAnchor_.y);
+          }});
+      }
+    }
+    layoutContextMenu(mx, my);
+  }
+
   void openPlaylistRoutingMenu(int deckIdx, int mx, int my) {
     if (deckIdx < 0 || deckIdx >= static_cast<int>(project_.decks.size())) {
       return;
@@ -431,6 +466,7 @@
     contextMenuOpen_ = true;
     contextMenuDeckIdx_ = deckIdx;
     contextMenuCueIdx_ = -1;
+    contextMenuAnchor_ = SDL_Point {mx, my};
     contextItems_.clear();
 
     contextItems_.push_back({deckLabel(deckIdx) + " goes to:", {0, 0, 0, 0}, nullptr});
@@ -491,6 +527,19 @@
               assignDeckToOutput(deckIdx, outputIndex);
             }
             setDeckOutputAssignmentLayer(deckIdx, outputIndex, 0);
+          }});
+      }
+      // THE LAYER'S BLEND: how it combines with what is under it. Opens the
+      // blend picker, which stays open while the operator tries modes on the
+      // live output.
+      if (here && *here > 0 &&
+          *here - 1 < static_cast<int>(output.layerDecks.size())) {
+        const std::string& mode = output.layerDecks[*here - 1].blendMode;
+        contextItems_.push_back({
+          "        blend: " + (mode.empty() ? std::string("dissolve") : mode) + "  ...",
+          SDL_Color {120, 70, 150, 255},
+          [this, deckIdx, outputIndex]() {
+            openLayerBlendMenu(deckIdx, outputIndex, contextMenuAnchor_.x, contextMenuAnchor_.y);
           }});
       }
       if (here) {
@@ -873,7 +922,11 @@
         if (!item.action) {
           return;
         }
+        const int layoutsBefore = contextMenuLayouts_;
         item.action();
+        if (contextMenuLayouts_ != layoutsBefore) {
+          return;   // the row rebuilt the menu: keep it open
+        }
         contextMenuOpen_ = false;
         uiWatchdogPopupEvent("context_menu", false);
         return;

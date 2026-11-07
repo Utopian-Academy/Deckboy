@@ -1032,10 +1032,11 @@ column carries the controls.
 
 - **Crossfader** between deck A and deck B, folded into the opacity each deck
   already had — so a deck faded down or mid cue-fade stays faded down.
-- **Blend**: dissolve, add, screen, multiply, lighten, darken, subtract,
-  undercut, infiltrate or ember. On a dissolve both decks fade (they are
-  drawn over black, so holding A up until B covered it would be a wipe); on the
-  others the base stays at full and only the incoming deck rides the fader.
+- **Blend**: the BLEND button sets the blend of the layer the crossfader brings
+  in (see *Layer blend modes* below for the 40 modes). On a dissolve both decks
+  fade (they are drawn over black, so holding A up until B covered it would be a
+  wipe); on the others the base stays at full and only the incoming deck rides
+  the fader.
 - **Tap tempo**, averaged over recent taps rather than the last interval —
   nobody taps evenly. Taps more than two seconds apart start again.
 - **Quantised takes** hold until the next beat. The point of tempo in a video
@@ -1048,6 +1049,41 @@ column carries the controls.
 `VJ ON|OFF | MIX <0-1> | BLEND [mode] | TAP | BPM <n> | CLOCK <on|off> |
 QUANTISE <on|off> | DECKS <a> <b> | STATUS` over the wire, because a fader is
 the one control nobody wants to reach for with a mouse.
+
+### Layer blend modes
+
+A playlist that is a layer on an output has a **blend**: how its picture
+combines with everything under it. It applies all the time, with or without the
+crossfader, so a layer can multiply, key or colour the playlists below it for a
+whole show. The base has no blend; it is what the layers blend with.
+
+To set it, click the output tag at the top of the layer's playlist, then
+**blend: ...** under that output. The blend picker lists every mode under its
+heading. A click sets the mode and keeps the picker open, so you can try modes
+on the live output. Over the wire, with the layer's playlist focused:
+`VIDEO OUTPUT LAYERBLEND <mode>`, `NEXT`, or `LIST`.
+
+| Heading | Modes |
+|---|---|
+| MIX | dissolve (the ordinary layer), average |
+| LIGHTEN | add, screen, lighten, dodge, ember |
+| DARKEN | multiply, darken, burn, linear-burn, infiltrate |
+| CONTRAST | overlay, soft-light, hard-light, vivid-light, linear-light, pin-light, hard-mix |
+| COMPARE | difference, exclusion, subtract, undercut, divide |
+| COLOUR | hue, saturation, colour, luminosity |
+| KEY | luma-key (the layer's dark parts are keyed out), luma-key-inv (its bright parts), stencil (the layers below show only where this one is bright) |
+| CHANNEL | take-red, take-green, take-blue: one channel from the layer, the other two from below |
+| WACKY | xor (the bits of both pictures exclusive-ored), wraparound (adds, and wraps past white to black), solarise (negative wherever the layer is bright), hue-spin (turns the colours below round the wheel by the layer's brightness), thermal (the difference on a heat camera's palette), crush (posterises what is below, harder where the layer is dark) |
+
+The layer's opacity, its fades and the crossfader all set how much of the blend
+you see. At 0 the picture below is untouched.
+
+Most modes combine the two pictures on the processor, pixel by pixel, which
+costs about as much as a picture effect on a frame the size of the layer. add,
+screen, multiply, lighten, undercut, infiltrate and ember use the graphics card
+where the renderer can, and the processor where it cannot (SDL's software
+renderer). A processor mode is not HDR yet: on an HDR output it clips highlights
+to SDR white.
 
 ---
 

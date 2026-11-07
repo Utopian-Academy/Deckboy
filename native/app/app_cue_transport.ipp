@@ -6527,8 +6527,43 @@
     // == "multiply"` test written before it existed, and became dissolve. The
     // command still answered OK, so it looked like a mode that does nothing.
     project_.vjBlendMode = isVjBlendMode(mode) ? mode : "dissolve";
+    // THE OUTPUT DRAWS WITH THE LAYER'S BLEND, so this sets the layer the
+    // focused output's crossfader brings in (or its top layer, before the
+    // fader is set up). Before 0.99.426 it set only this label.
+    if (!project_.outputs.empty()) {
+      const int focusedOut = std::clamp(project_.focusedOutputIndex, 0,
+                                        static_cast<int>(project_.outputs.size()) - 1);
+      const OutputTarget& out = project_.outputs[focusedOut];
+      const int top = static_cast<int>(out.layerDecks.size());
+      const int to = out.crossfadeEnabled ? std::clamp(out.crossfadeTo, 0, top) : top;
+      if (to > 0) {
+        setLayerBlend(out.layerDecks[to - 1].deckIndex, focusedOut,
+                      project_.vjBlendMode, false);
+      }
+    }
     triggerToast("mix: " + project_.vjBlendMode);
     markProjectDirty();
+  }
+
+  // One layer's blend on one output. False when the deck is not a layer there.
+  bool setLayerBlend(int deckIndex, int outputIndex, const std::string& mode,
+                     bool toast = true) {
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size()) ||
+        !isVjBlendMode(mode)) {
+      return false;
+    }
+    for (OutputLayer& layer : project_.outputs[outputIndex].layerDecks) {
+      if (layer.deckIndex == deckIndex) {
+        layer.blendMode = mode;
+        if (toast) {
+          triggerToast(deckLabel(deckIndex) + " on " + outputLabel(outputIndex) +
+                       ": blend " + mode);
+        }
+        markProjectDirty();
+        return true;
+      }
+    }
+    return false;
   }
 
   // TAP TEMPO.

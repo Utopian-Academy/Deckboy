@@ -418,6 +418,296 @@
     return true;
   }
 
+  // ══ PER-PIXEL LAYER BLENDS ═══════════════════════════════════════════════
+  //
+  // The blend modes that fixed blend factors cannot express: difference,
+  // overlay, the lights, dodge and burn, the colour modes, the keys and the
+  // channel swaps (isPixelBlendMode). The layer is drawn on its own into the
+  // mask scratch (renderMaskedDeckLayer), and this combines that picture with
+  // the compositor under it, pixel by pixel, on the CPU.
+  //
+  // ON THE CPU so it is the same on every renderer: Direct3D 11, the GPU
+  // renderer, Metal and the software renderer all read and write pixels the
+  // same way. It costs a read-back of both pictures and an upload, so only
+  // a layer that uses one of these modes pays it.
+  //
+  // The scratch is PREMULTIPLIED (drawn onto clear with the ordinary blend),
+  // and its alpha already carries the layer's opacity, fade and crossfader.
+  // Where the layer is absent the base is left exactly as it was.
+
+  struct BlendRgb {
+    float r, g, b;
+  };
+
+  static float blendLum(const BlendRgb& c) { return 0.3f * c.r + 0.59f * c.g + 0.11f * c.b; }
+
+  static BlendRgb blendClipColour(BlendRgb c) {
+    const float l = blendLum(c);
+    const float n = std::min({c.r, c.g, c.b});
+    const float x = std::max({c.r, c.g, c.b});
+    if (n < 0.0f) {
+      const float k = l / std::max(1e-6f, l - n);
+      c = {l + (c.r - l) * k, l + (c.g - l) * k, l + (c.b - l) * k};
+    }
+    if (x > 1.0f) {
+      const float k = (1.0f - l) / std::max(1e-6f, x - l);
+      c = {l + (c.r - l) * k, l + (c.g - l) * k, l + (c.b - l) * k};
+    }
+    return c;
+  }
+
+  static BlendRgb blendSetLum(const BlendRgb& c, float l) {
+    const float d = l - blendLum(c);
+    return blendClipColour({c.r + d, c.g + d, c.b + d});
+  }
+
+  static float blendSat(const BlendRgb& c) {
+    return std::max({c.r, c.g, c.b}) - std::min({c.r, c.g, c.b});
+  }
+
+  static BlendRgb blendSetSat(BlendRgb c, float s) {
+    float* ch[3] = {&c.r, &c.g, &c.b};
+    std::sort(ch, ch + 3, [](const float* a, const float* b) { return *a < *b; });
+    float& lo = *ch[0];
+    float& mid = *ch[1];
+    float& hi = *ch[2];
+    if (hi > lo) {
+      mid = (mid - lo) * s / (hi - lo);
+      hi = s;
+    } else {
+      mid = 0.0f;
+      hi = 0.0f;
+    }
+    lo = 0.0f;
+    return c;
+  }
+
+  enum class PixelBlend {
+    Difference, Exclusion, Overlay, SoftLight, HardLight, VividLight, LinearLight, PinLight,
+    HardMix, Dodge, Burn, LinearBurn, Divide, Average, Hue, Saturation, Colour, Luminosity,
+    LumaKey, LumaKeyInv, Stencil, TakeRed, TakeGreen, TakeBlue,
+    Xor, Wraparound, Solarise, HueSpin, Thermal, Crush,
+    // The factor modes, for a renderer that has no custom blends (SDL's
+    // software renderer): the same result the factors give on a GPU.
+    Add, Screen, Multiply, Lighten, Darken, Subtract, Undercut, Infiltrate, Ember,
+  };
+
+  static bool pixelBlendFor(const std::string& mode, PixelBlend& out) {
+    static const std::pair<const char*, PixelBlend> kModes[] = {
+      {"difference", PixelBlend::Difference}, {"exclusion", PixelBlend::Exclusion},
+      {"overlay", PixelBlend::Overlay}, {"soft-light", PixelBlend::SoftLight},
+      {"hard-light", PixelBlend::HardLight}, {"vivid-light", PixelBlend::VividLight},
+      {"linear-light", PixelBlend::LinearLight}, {"pin-light", PixelBlend::PinLight},
+      {"hard-mix", PixelBlend::HardMix}, {"dodge", PixelBlend::Dodge}, {"burn", PixelBlend::Burn},
+      {"linear-burn", PixelBlend::LinearBurn}, {"divide", PixelBlend::Divide},
+      {"average", PixelBlend::Average}, {"hue", PixelBlend::Hue},
+      {"saturation", PixelBlend::Saturation}, {"colour", PixelBlend::Colour},
+      {"luminosity", PixelBlend::Luminosity}, {"luma-key", PixelBlend::LumaKey},
+      {"luma-key-inv", PixelBlend::LumaKeyInv}, {"stencil", PixelBlend::Stencil},
+      {"take-red", PixelBlend::TakeRed}, {"take-green", PixelBlend::TakeGreen},
+      {"take-blue", PixelBlend::TakeBlue}, {"xor", PixelBlend::Xor},
+      {"wraparound", PixelBlend::Wraparound}, {"solarise", PixelBlend::Solarise},
+      {"hue-spin", PixelBlend::HueSpin}, {"thermal", PixelBlend::Thermal},
+      {"crush", PixelBlend::Crush}, {"add", PixelBlend::Add}, {"screen", PixelBlend::Screen},
+      {"multiply", PixelBlend::Multiply}, {"lighten", PixelBlend::Lighten},
+      {"darken", PixelBlend::Darken}, {"subtract", PixelBlend::Subtract},
+      {"undercut", PixelBlend::Undercut}, {"infiltrate", PixelBlend::Infiltrate},
+      {"ember", PixelBlend::Ember},
+    };
+    for (const auto& m : kModes) {
+      if (mode == m.first) {
+        out = m.second;
+        return true;
+      }
+    }
+    return false;
+  }
+
+  static float blendDodge(float d, float s) {
+    if (d <= 0.0f) return 0.0f;
+    if (s >= 1.0f) return 1.0f;
+    return std::min(1.0f, d / (1.0f - s));
+  }
+
+  static float blendBurn(float d, float s) {
+    if (d >= 1.0f) return 1.0f;
+    if (s <= 0.0f) return 0.0f;
+    return 1.0f - std::min(1.0f, (1.0f - d) / s);
+  }
+
+  static float blendChannel(PixelBlend m, float d, float s) {
+    switch (m) {
+      case PixelBlend::Difference: return std::fabs(d - s);
+      case PixelBlend::Exclusion: return d + s - 2.0f * d * s;
+      case PixelBlend::Overlay:
+        return d <= 0.5f ? 2.0f * d * s : 1.0f - 2.0f * (1.0f - d) * (1.0f - s);
+      case PixelBlend::HardLight:
+        return s <= 0.5f ? 2.0f * d * s : 1.0f - 2.0f * (1.0f - d) * (1.0f - s);
+      case PixelBlend::SoftLight: {
+        if (s <= 0.5f) return d - (1.0f - 2.0f * s) * d * (1.0f - d);
+        const float dd = d <= 0.25f ? ((16.0f * d - 12.0f) * d + 4.0f) * d : std::sqrt(d);
+        return d + (2.0f * s - 1.0f) * (dd - d);
+      }
+      case PixelBlend::VividLight:
+        return s <= 0.5f ? blendBurn(d, 2.0f * s) : blendDodge(d, 2.0f * s - 1.0f);
+      case PixelBlend::LinearLight: return std::clamp(d + 2.0f * s - 1.0f, 0.0f, 1.0f);
+      case PixelBlend::PinLight:
+        return s <= 0.5f ? std::min(d, 2.0f * s) : std::max(d, 2.0f * s - 1.0f);
+      case PixelBlend::HardMix: return d + s >= 1.0f ? 1.0f : 0.0f;
+      case PixelBlend::Dodge: return blendDodge(d, s);
+      case PixelBlend::Burn: return blendBurn(d, s);
+      case PixelBlend::LinearBurn: return std::max(0.0f, d + s - 1.0f);
+      case PixelBlend::Divide: return s <= 0.0f ? (d > 0.0f ? 1.0f : 0.0f) : std::min(1.0f, d / s);
+      case PixelBlend::Average: return 0.5f * (d + s);
+      case PixelBlend::Xor: {
+        const int x = static_cast<int>(std::lround(d * 255.0f)) ^ static_cast<int>(std::lround(s * 255.0f));
+        return x / 255.0f;
+      }
+      case PixelBlend::Wraparound: return d + s > 1.0f ? d + s - 1.0f : d + s;
+      case PixelBlend::Solarise: return s > 0.5f ? 1.0f - d : d;
+      case PixelBlend::Add: return std::min(1.0f, d + s);
+      case PixelBlend::Screen: return d + s - d * s;
+      case PixelBlend::Multiply: return d * s;
+      case PixelBlend::Lighten: return std::max(d, s);
+      case PixelBlend::Darken: return std::min(d, s);
+      case PixelBlend::Subtract: return std::max(0.0f, s - d);
+      case PixelBlend::Undercut: return std::max(0.0f, d - s);
+      case PixelBlend::Infiltrate: return s * (1.0f - d);
+      case PixelBlend::Ember: return std::min(1.0f, d + s * d);
+      default: return s;
+    }
+  }
+
+  // One pixel: d is the base, s the layer (unpremultiplied), a the layer's
+  // coverage. Every mode rides a: at 0 the base is untouched.
+  static BlendRgb blendPixel(PixelBlend m, const BlendRgb& d, const BlendRgb& s, float& a) {
+    switch (m) {
+      case PixelBlend::Hue: return blendSetLum(blendSetSat(s, blendSat(d)), blendLum(d));
+      case PixelBlend::Saturation: return blendSetLum(blendSetSat(d, blendSat(s)), blendLum(d));
+      case PixelBlend::Colour: return blendSetLum(s, blendLum(d));
+      case PixelBlend::Luminosity: return blendSetLum(d, blendLum(s));
+      case PixelBlend::LumaKey: a *= std::clamp(blendLum(s), 0.0f, 1.0f); return s;
+      case PixelBlend::LumaKeyInv: a *= 1.0f - std::clamp(blendLum(s), 0.0f, 1.0f); return s;
+      case PixelBlend::Stencil: {
+        const float l = std::clamp(blendLum(s), 0.0f, 1.0f);
+        return {d.r * l, d.g * l, d.b * l};
+      }
+      case PixelBlend::TakeRed: return {s.r, d.g, d.b};
+      case PixelBlend::TakeGreen: return {d.r, s.g, d.b};
+      case PixelBlend::TakeBlue: return {d.r, d.g, s.b};
+      case PixelBlend::HueSpin: {
+        // A turn about the grey axis, by B's brightness: a full turn at white.
+        const float t = blendLum(s) * 6.2831853f;
+        const float c = std::cos(t), k = (1.0f - c) / 3.0f, q = 0.57735027f * std::sin(t);
+        return blendClipColour({d.r * (c + k) + d.g * (k - q) + d.b * (k + q),
+                                d.r * (k + q) + d.g * (c + k) + d.b * (k - q),
+                                d.r * (k - q) + d.g * (k + q) + d.b * (c + k)});
+      }
+      case PixelBlend::Thermal: {
+        // Black, blue, magenta, orange, yellow, white: what a heat camera shows.
+        static const BlendRgb kHeat[6] = {{0.0f, 0.0f, 0.0f}, {0.1f, 0.0f, 0.6f}, {0.8f, 0.0f, 0.6f},
+                                          {1.0f, 0.45f, 0.0f}, {1.0f, 0.9f, 0.1f}, {1.0f, 1.0f, 1.0f}};
+        const float t = std::clamp(std::fabs(blendLum(d) - blendLum(s)) * 1.6f, 0.0f, 1.0f) * 5.0f;
+        const int i = std::min(4, static_cast<int>(t));
+        const float f = t - i;
+        return {kHeat[i].r + (kHeat[i + 1].r - kHeat[i].r) * f, kHeat[i].g + (kHeat[i + 1].g - kHeat[i].g) * f,
+                kHeat[i].b + (kHeat[i + 1].b - kHeat[i].b) * f};
+      }
+      case PixelBlend::Crush: {
+        const float levels = 2.0f + std::round(std::clamp(blendLum(s), 0.0f, 1.0f) * 14.0f);
+        const auto q = [levels](float v) { return std::round(v * (levels - 1.0f)) / (levels - 1.0f); };
+        return {q(d.r), q(d.g), q(d.b)};
+      }
+      default:
+        return {blendChannel(m, d.r, s.r), blendChannel(m, d.g, s.g), blendChannel(m, d.b, s.b)};
+    }
+  }
+
+  // Combine the scratch (the layer, premultiplied) into the compositor, which
+  // is the render target when this is called. False when the pixels could
+  // not be read, and the caller lays the layer on plainly instead.
+  bool cpuPixelBlendLayer(OutputRuntime& rt, SDL_Texture* scratch, const std::string& mode) {
+    PixelBlend m;
+    if (!pixelBlendFor(mode, m) || !rt.outputRenderer || !scratch) return false;
+    SDL_Renderer* ren = rt.outputRenderer;
+    const SDL_Rect frame {0, 0, rt.compositorWidth, rt.compositorHeight};
+    if (frame.w <= 0 || frame.h <= 0) return false;
+    SDL_Texture* compositor = SDL_GetRenderTarget(ren);
+
+    SDL_SetRenderTarget(ren, scratch);
+    SDL_Surface* layerRaw = SDL_RenderReadPixels(ren, &frame);
+    SDL_SetRenderTarget(ren, compositor);
+    if (!layerRaw) return false;
+    SDL_Surface* layer = SDL_ConvertSurface(layerRaw, SDL_PIXELFORMAT_RGBA32);
+    SDL_DestroySurface(layerRaw);
+    if (!layer) return false;
+
+    // Only the rows and columns the layer covers are read back from the
+    // compositor and written again: a small inset costs what it covers.
+    int x0 = frame.w, y0 = frame.h, x1 = -1, y1 = -1;
+    for (int y = 0; y < frame.h; ++y) {
+      const Uint8* row = static_cast<const Uint8*>(layer->pixels) + static_cast<std::size_t>(y) * layer->pitch;
+      for (int x = 0; x < frame.w; ++x) {
+        if (row[x * 4 + 3] != 0) {
+          x0 = std::min(x0, x);
+          x1 = std::max(x1, x);
+          y0 = std::min(y0, y);
+          y1 = y;
+        }
+      }
+    }
+    if (x1 < 0) {
+      SDL_DestroySurface(layer);
+      return true;   // nothing of the layer is on the picture
+    }
+    const SDL_Rect region {x0, y0, x1 - x0 + 1, y1 - y0 + 1};
+    SDL_Surface* baseRaw = SDL_RenderReadPixels(ren, &region);
+    SDL_Surface* base = baseRaw ? SDL_ConvertSurface(baseRaw, SDL_PIXELFORMAT_RGBA32) : nullptr;
+    if (baseRaw) SDL_DestroySurface(baseRaw);
+    if (!base) {
+      SDL_DestroySurface(layer);
+      return false;
+    }
+
+    const auto rows = [&](int from, int to) {
+      constexpr float k = 1.0f / 255.0f;
+      for (int y = from; y < to; ++y) {
+        Uint8* out = static_cast<Uint8*>(base->pixels) + static_cast<std::size_t>(y) * base->pitch;
+        const Uint8* in = static_cast<const Uint8*>(layer->pixels) +
+                          static_cast<std::size_t>(y + region.y) * layer->pitch + region.x * 4;
+        for (int x = 0; x < region.w; ++x, out += 4, in += 4) {
+          if (in[3] == 0) continue;
+          float a = in[3] * k;
+          const float un = 1.0f / a;
+          const BlendRgb s {std::min(1.0f, in[0] * k * un), std::min(1.0f, in[1] * k * un),
+                            std::min(1.0f, in[2] * k * un)};
+          const BlendRgb d {out[0] * k, out[1] * k, out[2] * k};
+          const BlendRgb r = blendPixel(m, d, s, a);
+          const auto put = [a](float dv, float rv) {
+            const float v = std::clamp(dv + (rv - dv) * a, 0.0f, 1.0f);
+            return static_cast<Uint8>(std::lround(v * 255.0f));
+          };
+          out[0] = put(d.r, r.r);
+          out[1] = put(d.g, r.g);
+          out[2] = put(d.b, r.b);
+        }
+      }
+    };
+    // Split across cores: a 1080p layer is two million pixels a frame.
+    deckboy::effects::detail::parallelRows(region.h, region.w, rows);
+    SDL_DestroySurface(layer);
+
+    SDL_Texture* back = deckboyCreateTextureFromSurface(ren, base);
+    SDL_DestroySurface(base);
+    if (!back) return false;
+    SDL_SetTextureBlendMode(back, SDL_BLENDMODE_NONE);
+    const SDL_FRect dst {static_cast<float>(region.x), static_cast<float>(region.y),
+                         static_cast<float>(region.w), static_cast<float>(region.h)};
+    SDL_RenderTexture(ren, back, nullptr, &dst);
+    SDL_DestroyTexture(back);
+    return true;
+  }
+
   SDL_Texture* ensureMaskScratch(OutputRuntime& rt) {
     const int w = rt.compositorWidth, h = rt.compositorHeight;
     if (w <= 0 || h <= 0 || !rt.outputRenderer) return nullptr;
@@ -484,7 +774,12 @@
     const MaskModel* cueMask = nullptr;
     const Cue* cue = nullptr;
     masksForDeckLayer(stackOutput, deckIndex, layerMask, cueMask, cue);
-    if (!layerMask && !cueMask) return false;
+    // A layer whose blend is per-pixel comes this way too, mask or not: it
+    // has to be drawn on its own before it can be combined.
+    const OutputLayer* blendLayer = layerRecordFor(stackOutput, deckIndex);
+    const bool pixelBlend = blendLayer && !blendLayer->blendMode.empty() &&
+                            blendLayer->blendMode != "dissolve";
+    if (!layerMask && !cueMask && !pixelBlend) return false;
     SDL_Texture* scratch = ensureMaskScratch(*rt);
     if (!scratch) return false;
     SDL_Renderer* ren = rt->outputRenderer;
@@ -541,6 +836,15 @@
       }
     }
     SDL_SetRenderTarget(ren, previous);
+    // PER-PIXEL modes always go through the CPU. A factor mode goes through it
+    // only where the renderer has no custom blends (the software renderer).
+    if (isPixelBlendMode(maskCapturedMode_) ||
+        (isFactorBlendMode(maskCapturedMode_) &&
+         !SDL_SetTextureBlendMode(scratch, premultipliedBlendFor(maskCapturedMode_)))) {
+      if (cpuPixelBlendLayer(*rt, scratch, maskCapturedMode_)) {
+        return true;
+      }
+    }
     // Laid on with the blend the crossfader asked for, premultiplied. Even a
     // failed cut is laid on: the layer must not vanish because its mask did.
     if (!SDL_SetTextureBlendMode(scratch, premultipliedBlendFor(maskCapturedMode_))) {

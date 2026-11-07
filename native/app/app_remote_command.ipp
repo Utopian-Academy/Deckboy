@@ -8579,6 +8579,44 @@
           }
           return;
         }
+        if (outputArg == "LAYERBLEND") {
+          // VIDEO OUTPUT LAYERBLEND            -> the focused playlist's blend on the focused output
+          // VIDEO OUTPUT LAYERBLEND <mode>|NEXT|LIST
+          const OutputTarget& out = focusedOutput();
+          const OutputLayer* layer = nullptr;
+          for (const OutputLayer& candidate : out.layerDecks) {
+            if (candidate.deckIndex == project_.focusedDeckIndex) {
+              layer = &candidate;
+              break;
+            }
+          }
+          const std::string want = parts.size() > 3 ? toLower(parts[3]) : std::string();
+          if (want == "list") {
+            std::string names;
+            for (const auto& m : vjBlendModes()) names += (names.empty() ? "" : " ") + m;
+            remoteCommandDetail_ = std::to_string(vjBlendModes().size()) + ": " + names;
+            return;
+          }
+          if (!layer) {
+            failRemoteCommand("VIDEO OUTPUT LAYERBLEND: " + deckLabel(project_.focusedDeckIndex) +
+                              " is not a layer on " + outputLabel(project_.focusedOutputIndex) +
+                              " (the base has no blend: it is what the layers blend with)");
+            return;
+          }
+          const std::string current = layer->blendMode.empty() ? std::string("dissolve") : layer->blendMode;
+          if (want.empty()) {
+            remoteCommandDetail_ = current;
+            return;
+          }
+          const std::string mode = want == "next" ? vjBlendModeAfter(current) : want;
+          if (!isVjBlendMode(mode)) {
+            failRemoteCommand("VIDEO OUTPUT LAYERBLEND: unknown mode " + want + " (LIST names them)");
+            return;
+          }
+          setLayerBlend(project_.focusedDeckIndex, project_.focusedOutputIndex, mode);
+          remoteCommandDetail_ = mode;
+          return;
+        }
         if (outputArg == "LAYERWARP") {
           // VIDEO OUTPUT LAYERWARP
           //   -> the focused playlist's corner pin on the focused output

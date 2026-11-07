@@ -760,6 +760,28 @@
       return 1.0;
     }
     const OutputTarget& output = project_.outputs[outputIndex];
+    // EVERY LAYER HAS ITS OWN BLEND, and it applies all the time, not only
+    // while the crossfader moves. Index 0 is the base: it has no OutputLayer
+    // record and is drawn plain. Before 0.99.426 a layer's blend was read only
+    // by the crossfader, and nothing could set it, so add and multiply never
+    // reached an output.
+    std::string mode = "dissolve";
+    if (stackIndex > 0 && stackIndex - 1 < static_cast<int>(output.layerDecks.size())) {
+      const std::string& layerMode = output.layerDecks[stackIndex - 1].blendMode;
+      if (!layerMode.empty()) {
+        mode = layerMode;
+      }
+    }
+    auto useMode = [&]() {
+      // A MASKED layer is drawn onto clear first and blended once, when it
+      // is laid on the compositor (app_masks.ipp): record the mode for then.
+      if (maskBlendCapture_) {
+        maskCapturedMode_ = mode;
+      } else {
+        blendOut = vjBlendModeFor(mode);
+      }
+    };
+    useMode();
     if (!output.crossfadeEnabled) {
       return 1.0;
     }
@@ -770,32 +792,20 @@
       return 1.0;   // a crossfader with one end is not a crossfader
     }
     const double mix = std::clamp(output.crossfadeMix, 0.0, 1.0);
-    // The blend belongs to the layer being faded IN. Index 0 is the base,
-    // which has no OutputLayer record and therefore no blend of its own.
-    std::string mode = "dissolve";
-    if (to > 0 && to - 1 < static_cast<int>(output.layerDecks.size())) {
-      const std::string& layerMode = output.layerDecks[to - 1].blendMode;
-      if (!layerMode.empty()) {
-        mode = layerMode;
-      }
-    }
-    // ONLY DISSOLVE FADES THE OUTGOING SIDE. Every other mode leaves it at
-    // full and brings the incoming one in over it, which is what makes add
-    // and multiply look like themselves rather than like a crossfade
-    // wearing a costume. Carried over from VJ mode intact.
-    const bool dissolve = mode == "dissolve";
     if (stackIndex == to) {
-      // A MASKED layer is drawn onto clear first and blended once, when it
-      // is laid on the compositor (app_masks.ipp): record the mode for then.
-      if (maskBlendCapture_) {
-        maskCapturedMode_ = mode;
-        return mix;
-      }
-      blendOut = vjBlendModeFor(mode);
       return mix;
     }
     if (stackIndex == from) {
-      return dissolve ? (1.0 - mix) : 1.0;
+      // ONLY DISSOLVE FADES THE OUTGOING SIDE. Every other mode leaves it at
+      // full and brings the incoming one in over it, which is what makes add
+      // and multiply look like themselves rather than like a crossfade
+      // wearing a costume. The mode that decides is the INCOMING layer's.
+      std::string incoming = "dissolve";
+      if (to > 0 && to - 1 < static_cast<int>(output.layerDecks.size()) &&
+          !output.layerDecks[to - 1].blendMode.empty()) {
+        incoming = output.layerDecks[to - 1].blendMode;
+      }
+      return incoming == "dissolve" ? (1.0 - mix) : 1.0;
     }
     return 1.0;
   }

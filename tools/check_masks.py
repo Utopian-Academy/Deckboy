@@ -192,8 +192,10 @@ def run(exe, work, show, renderer=""):
         # the circle covers the middle for only part of each sweep. A slow
         # machine (Linux CI) takes a snapshot every few tenths of a second, so
         # look up to 50 times; it stops as soon as both have been seen.
-        for _ in range(50):
-            p = probe(snap(0.07), 0.5, 0.5)
+        # The waits are uneven too: a machine that takes a snapshot about once
+        # a second samples a 1 Hz sweep at the same point every time.
+        for i in range(50):
+            p = probe(snap(0.07 + (i * 0.37) % 0.5), 0.5, 0.5)
             if p:
                 seen.add(p[1] < 127)   # red has no green; the white under it does
             if len(seen) == 2:
