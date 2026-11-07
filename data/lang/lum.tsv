@@ -1318,3 +1318,533 @@ nothing to send - check the message	vaala go seni — miri hola
 Set repeat count for selected cues	Seti novtoknuma go vekaku piko
 Delay between GO and this cue starting	Pena mun GO go veka tiri
 selected cue lane  |  TAKE to make it live	vekarana piko — TAKE go seni lumo
+Cue	Veka
+JAM	TOKSETI
+RED	LUMNIRA
+BACK	DOPA
+CLIP	VEKISA
+DOWN	DOPNIRA
+Fall	Nira
+Left	Dopa ran
+Rise	Ala
+Runs	Tiri
+Curve	Rana
+KEY L	KEY D
+MULTI	ALAVEKA
+PATCH	DORADEKA
+Reads	Mira
+Right	Dopa nov
+LAYOUT	KAEPATA
+Pickup	Tira
+SMOOTH	LUMISO
+STEREO	DUASONA
+Splash	Novaveka
+jam to	toksetí kae
+red at	lumnira kae
+tile h	kara h
+tile w	kara w
+Ceiling	Rana fella
+Haptics	Batlisa
+Limiter	Halwia
+QR CODE	NUMKARA QR
+Read as	Miri sov
+Runs on	Tiri kae
+mask on	mira fesa
+rack it	poni
+red col	lumnirakar
+BYPASSED	VATIRA
+FIXTURES	LUMAKU
+Hold for	Hali tok
+Limiting	Halisa
+MIDI MAP	JANDORA MIDI
+STRAIGHT	TAMRANO
+amber at	lumora kae
+bg alpha	alpha muna
+count up	tali ala
+none yet	vana novtok
+onion on	velavek fesa
+prog bar	tirarana
++ section	+ patkis
++pause pt	+tokispen
+DASHBOARD	BATRANA
+EXIT  Esc	TIRI DOR  Esc
+HDR input	munga HDR
+MIDI note	sona MIDI
+PNG matte	matte PNG
+SVG paths	dorku SVG
+TEST CARD	VEKA MIRADA
+a-fade in	a-lum fesi
+add shape	novi kaeveka
+amber col	kan lumora
+chime red	tona lumnira
+glitch up	glitch ala
+logo size	tiddi lumdeka
+new paths	dorku nov
+onion off	velavek klua
+wobble by	setisi kae
+BY FIXTURE	SOV LUMA
+BYPASS ALL	VATIRI ALA
+Beast mode	Tamzaro taka
+Black lift	Nira ala
+EDGE BLEND	RANA KUL
+Passphrase	Holkora
+a-fade out	a-lum klui
+black lift	nira ala
+by density	sov tamka
+chime zero	tona vana
+fires cues	seni vekaku
+next xfade	velum novtok
+ADD FIXTURE	NOVI JANLUMA
+Add a light	Novi luma
+CARD ON ALL	KARA ALAKAE
+EXPORT CARD	TIRI KARA
+LOW LATENCY	VAPENA KISO
+Sensitivity	Lisamera
+WEB MONITOR	MIRADORA RETA
+Web monitor	Miradora reta
+blend gamma	gamma kula
+chime amber	tona lumora
+glitch down	glitch dopnira
+link aspect	kuli forma
+move points	tiriseti numku
+phrase hold	hali holkula
+plays synth	soni synth
+undo stroke	vavel graka
+CARD OFF ALL	KARA VA ALAKAE
+CLASSIC VIEW	VEKA MUNO
+LISTENING...	LISI...
+LISTENS: OFF	LISI: KLUA
+Last refused	Vapika tamuno
+Pair a phone	Kuli telefona
+Pair overlap	Duakula pata
+Phone access	Dor telefona
+RACKED, WARM	PONO, LUMSO
+SCAN TO PAIR	MIRI KULI
+TEST CARD ON	VEKA MIRADA FESA
+driver speed	zara jandora
+glitch drift	setisa glitch
+glitch reach	ranka glitch
+last reading	mira tamuna
+pair overlap	duakula pata
+render width	tehra veka
+LIVE CAPTIONS	HOLKU LUMSO
+Live captions	Holku lumso
+Paired phones	Telefonaku kulo
+Phone control	Hupa telefona
+READY-MADE...	PONOKU...
+Speech models	Holjanku
+VIDEO DIP: ON	VIDEO DIP: FESA
+render height	alka veka
+MOTION CONTROL	HUPA TIRISA
+NDI source cue	veka munga NDI
+PHONE & TABLET	TELEFONA & KARKIS
+SCALED TO FILL	TAMI FENA
+SELECT: MOTION	PIKI: TIRISA
+VIDEO DIP: OFF	VIDEO DIP: KLUA
+glitch through	glitch dora
+lock to screen	hali fenako
+on the monitor	kae miradora
+play a note...	soni sona...
+press a key...	bati bata...
+restore at end	novi tamtok
+% of the height	% alka
++  a first step	+  dora una
++ CHOOSE A FEED	+ PIKI MUNGA
+Double-GO guard	Halwia GO dua
+Frames a second	Vekaku kistok
+Live stream cue	Veka lumso reta
+Maximum quality	Vekaluma tamo
+PIP overlay cue	Veka PIP
+Projector gamma	Gamma vekisa
+first available	una pono
+nothing follows	vana novtok
+the focused one	una mira
+BACK TO BUG SWAT	DOPA BUG SWAT
+Fade-in duration	Tok lum fesa
+PICK FROM SCREEN	PIKI FENA
+WHAT DECKBOY DID	PATAKORA DECKBOY
+over the picture	kae veka
+CLICK ANYWHERE...	BATI ALAKAE...
+Fade-out duration	Tok lum klua
+Key edge softness	Ranlumo bata
+Toggle chroma key	Fesi/klui chroma key
+click this window	bati fena nakae
+FORGET MY DEFAULTS	VANOVI SETAKU MI
+Hex, e.g. 90 3C 7F	Hex, sov 90 3C 7F
+Composite scene cue	Veka kulo
+Connections at once	Kuliku tokuna
+Passphrase (shared)	Holkora (kula)
+SAVE AS MY DEFAULTS	GURI SETAKU MI
+Trusted controllers	Batjanaku tamo
+Where the ramp ends	Kae tira tamtok
+draw on the monitor	graki kae miradora
+edit on the monitor	seti kae miradora
+find a named colour	piki luma sov hol
+Companion passphrase	Holkora Companion
+Home — skip to start	Home — dopa muna
+How solid the ink is	Tamka graka
+Left — skip back 10s	Dopa ran — tok 10s dopa
+MIDI AND OSC MONITOR	MIRADORA MIDI & OSC
+MIDI and OSC monitor	Miradora MIDI & OSC
+Marks stacked BELOW.	Rankku nirakae.
+New shows start from	Vekaranaku nova munga
+Pitch, in semitones.	Sonala, kistok sona.
+Set browser URL/path	Seti URL/dor fena
+Typing needs EDIT on	Grai veli EDIT fesa
+X — cycle end action	X — seti patakora tam
+nothing assigned yet	vana ala nakae
+nothing targeted yet	vana kae mira
+the playlist's PATCH	DORADEKA vekaku
+Left, centre or right	Dopa ran, kora, dopa nov
+PLAY BUG SWAT, a game	SONI BUG SWAT, soka
+PRESS AGAIN TO FORGET	BATI NOVTOK VAMIRI
+Pattern motion toggle	Fesi/klui tirisa vekareta
+Sound when time is up	Sona kae tokvana
+none - click to learn	vana - bati lisi
+none: the one picture	vana: una veka
+turn phone control on	fesi hupa telefona
+waiting for a picture	pena veka
+(projector curve only)	(rana vekisa una)
+Scene fade-in duration	Tok lum fesa vekara
+Start NEW from factory	Muna NOVA setaku muna
+Tile height in pixels.	Teɣra kara kisvekku.
+any window, any screen	ala fena, ala vekafena
+circle, heart, star...	kora, hertka, lumtika...
+click to open the grid	bati fesi vekareta
+sACN universe, 1-63999	Universe sACN, 1-63999
+Lower Third overlay cue	Veka Lower Third
+Master oscillator rate.	Zara mirkora tamo.
+Scene fade-out duration	Tok lum klua vekara
+needs file-backed video	veli veka gura
+none: the whole picture	vana: veka tama
+recent and in this show	novo & kae vekarana nakae
+Clear in/out trim points	Niri dorku muna/tam
+Right — skip forward 10s	Dopa nov — tok 10s mun
+none - click to set some	vana - bati seti
+Esc cancels, arrows nudge	Esc vafesi, tirku tirisetí
+Fit/Fill/Stretch/Unscaled	Fit/Tami/Tiri/Vaseti
+PIXEL FOR PIXEL, TOP-LEFT	KISVEK KAE KISVEK, ALA-DOPA RAN
+PROJECTOR - gamma matched	VEKISA - gamma kulo
+Playback speed: 0.25–4.0×	Zara soni: 0.25–4.0×
+Run the show from a phone	Seni vekarana kae telefona
+This show's setup, no cues	Setaku vekarana nakae, vana veka
+none - click to write some	vana - bati graki
+walks every output in turn	tiri ala senadora tokuna
+MULTIVIEW carries this too.	MULTIVIEW hali nakae.
+Scene dwell time — 0 = hold	Tok vekara — 0 = hali
+The role, or leave it empty	Kaewia, nu vana
+add a second output to pair	novi senadora dua kula
+things that are oscillating	alaka ka setisi
+Key tolerance (RGB distance)	Halisa bata (rana RGB)
+channel list is not readable	vakaneka kanku mira
+no effects for this cue type	vana setaku veka nakae
+1-16, as the desk counts them	1-16, tal deka
+Art-Net port address, 0-32767	Kae dor Art-Net, 0-32767
+Fade-in duration for this cue	Tok lum fesa veka nakae
+Toggle loop for selected cues	Fesi/klui tokrana vekaku pika
+Toggle the live input's audio	Fesi/klui sona munga lumso
+[ / ] keys — fade-in duration	[ / ] batku — tok lum fesa
+a camera moves the ~ controls	vekamira tirisetí batku ~
+Contrast multiplier (0.0-2.0x)	Tali niralum (0.0-2.0x)
+Fade-out duration for this cue	Tok lum klua veka nakae
+HLG - live broadcast (BT.2100)	HLG - sena lumso (BT.2100)
+L - loop this cue continuously	L - tokrana veka nakae ala
+Sound when the clock turns red	Sona kae tokjan lumnira
+Act now, without taking the cue	Seni nu, va veka tiri
+Delay before the continue fires	Pena muna novtok
+Edit the main Lower Third title	Seti hola tama Lower Third
+LINEAR - a feather, not a blend	LINEAR - ranlumo, va kula
+Shift+[ / ] — fade-out duration	Shift+[ / ] — tok lum klua
+The OSC path, e.g. /cue/1/start	Dor OSC, sov /cue/1/start
+false colour reads SDR pictures	luma vaso miri veka SDR
+learn it, or say how to read it	lisi, nu holi miri
+Brightness multiplier (0.0-2.0x)	Tali luma (0.0-2.0x)
+How many features fit on screen.	Mana pata kae vekafena.
+Saturation multiplier (0.0-2.0x)	Tali lumtam (0.0-2.0x)
+Send now, without taking the cue	Seni nu, va veka tiri
+Set Lower Third background alpha	Seti alpha muna Lower Third
+Sound when the clock turns amber	Sona kae tokjan lumora
+Use GEOMETRY for exact placement	Sovi GEOMETRY lanto
+Vertical output offset in pixels	Tiriset dop-nira senadora kisvekku
+aimed here; the desk never moves	mira nakae; deka va tiriseti
+playlists into the named outputs	vekaku dop senadoraku holo
+7-segment, blocky, or a real font	7-pata, karo, nu hola tamo
+Do it now, without taking the cue	Seni nu, va veka tiri
+Fade-out duration before next cue	Tok lum klua muna veka novtok
+Fixed repeat count — 0 = infinite	Tal novtok — 0 = vatam
+Output rotation angle (-180..180)	Kora setí senadora (-180..180)
+Put this control on an oscillator	Lani hupa nakae kae mirkora
+window and recording outputs only	senadora fena & graka una
+Countdown, count up, or wall clock	Tal nira, tal ala, nu tokjan
+Cycle end action for selected cues	Seti patakora tam vekaku pika
+Digit colour once amber is reached	Luma numku kae lumora
+Horizontal output offset in pixels	Tiriset ran senadora kisvekku
+In-point: cue starts playback here	Dor fesa: veka muni nakae
+LIVE - every assigned deck matches	LUMSO - ala deka kulo
+Out-point: cue stops playback here	Dor klua: veka hali nakae
+Run it now, without taking the cue	Tiri nu, va veka tiri
+Set the NDI source name to receive	Seti hola munga NDI
+a chain on a device, after the mix	kula kae jana, dop kula
+Attached overlays fire on TAKE only	Lanku seni kae TAKE una
+Cycle which slot drives scene audio	Seti slot sona vekara
+Edit the secondary Lower Third line	Seti hola dua Lower Third
+Hue rotation (-180 to +180 degrees)	Kora luma (-180 dop +180)
+Programme with sound in any browser	Koraveka sona kae ala fena
+Rotation speed, degrees per second.	Zara kora, kistok.
+Set short cue label for search/goto	Seti holkis veka
+Toggle cue audio track for this cue	Fesi/klui sona veka nakae
+Arm this cue as the one GO will fire	Poni veka nakae una GO seni
+How tall the logo is above the clock	Teɣra lumdeka ala tokjan
+Linear, ease in, ease out or S-curve	Rana, lum fesa, lum klua nu S
+Per-cue transition duration override	Tok setí veka una
+Set capture source from the cue menu	Seti munga tira kae menu veka
+Set playback speed for selected cues	Seti zara soni vekaku pika
+Toggle hold-at-end for selected cues	Fesi/klui hali tam vekaku pika
+channels on your interfaces, by name	kanku kae janku tu, sov hol
+nothing set - this cue sends nothing	vana seti - veka nakae va seni
+over budget - video will drop frames	ala veka - veka tira kistok
+Fixed repeat count — 0 = loop forever	Tal novtok — 0 = tokrana ala
+Keep counting past zero, or stop dead	Tali dop vana, nu hali
+LISTENS: the figure follows the sound	LISI: forma tiri sona
+Move the height on its own oscillator	Tiriseti alka kae mirkora sova
+Put the brush's size on an oscillator	Lani tiddi kuka kae mirkora
+Toggle audio enable for selected cues	Fesi/klui sona vekaku pika
+What NEW starts from, never this show	Munga NOVA, va vekarana nakae
+transcoding - plays clean until ready	setisa - soni lumo tok pono
+All interfaces; trusted machines only.	Ala doraku; jana tamo una.
+Its amount, or one of its knobs A to D	Tala sova, nu bata A dop D
+Lower Third background opacity (0-255)	Lumtam muna Lower Third (0-255)
+Which deck the cue it acts on lives on	Deka kae veka liva
+FEEDS: pick a window, then one of these	MUNGA: piki fena, novtok una nakae
+install Tailscale here and on the phone	novi Tailscale nakae & telefona
+Digit colour while there is time in hand	Luma numku kae tok liva
+Put the brush's opacity on an oscillator	Lani lumtam kuka kae mirkora
+X — cycle end action: stop / next / loop	X — seti tam: hali / novtok / tokrana
+transparent: put its playlist on a layer	vavek: lani vekaku kae kara
+Click to show or hide this cue's captions	Bati miri nu fendi holku veka
+How much it throws off; 0 is a clean burn	Tal tiri; 0 lumo lumso
+Phone control is in PHONE & TABLET, below	Hupa telefona kae PHONE & TABLET, nira
+Apply fade-in to selected video/audio cues	Lani lum fesa vekaku pika
+Bypass: this master leaves that deck alone	Vatira: master nakae va bati deka
+Seconds REMAINING when the clock turns red	Kistokku LIVA kae tokjan lumnira
+generator is off - a START cue turns it on	jana klua - veka START fesi
+Apply fade-out to selected video/audio cues	Lani lum klua vekaku pika
+Keep the outside and cut the inside instead	Hali bra, bati dora
+Legacy target mode — switch type to convert	Kaemira muno — seti forma
+Nothing here changes the show that is open.	Vana nakae seti vekarana fesa.
+The cue number on the other desk, e.g. 12.5	Num veka kae deka dua, sov 12.5
+Toggle pause-at-beginning for selected cues	Fesi/klui tokispen muna vekaku pika
+Toggle transition-to-next for selected cues	Fesi/klui setí novtok vekaku pika
+Auto-advance duration — 0 = hold until taken	Tok tiri — 0 = hali tok seni
+Characters across. Fewer means bigger cells.	Holku ran. Kisa = karku lumo.
+Device output pair this cue's audio plays on	Janadua sena sona veka nakae
+E - freeze on last frame instead of stopping	E - hali veka tamuna, va hali
+How long the note takes to reach full level.	Tok sona dop tamka.
+LED panel height in pixels. Click to type it	Teɣra kara LED kisvekku. Bati grai
+Load the cue and hold first frame when taken	Tiri veka, hali veka una kae seni
+Seconds REMAINING when the clock turns amber	Kistokku LIVA kae tokjan lumora
+acts on every deck; deck and cue are ignored	ala deka; deka & veka vamira
+0-127; 127 addresses every device on the line	0-127; 127 holi ala jana
+GO shows the note; picture and sound carry on	GO miri sona; veka & sona tiri
+How fast it moves; no effect when it is still	Zara tirisa; vana kae hali
+Fires when incoming timecode passes this point	Seni kae timecode tiri kae nakae
+Shown to the operator when GO reaches this cue	Miri kae wia kae GO veka nakae
+Source pixels, independent of output placement	Kisvekku munga, va kae senadora
+Stereo balance, applied live (snaps to center)	Kulsona dua, lumso (hali kora)
+bypassed: nothing here is processed or limited	vatira: vana seti nakae
+headphones, desk sounds and LTC stay out of it	lisjanku, sona deka & LTC bra
+transparent outside the ink: put it on a layer	vavek bra graka: lani kae kara
+what is said, on screen, made on this computer	hol, kae vekafena, tira kae jana nakae
+Above 1 tunnels inward, below 1 blooms outward.	Ala 1 dor dopa, nira 1 dor fesa.
+Per-cue audio trim: -40 to +40 dB, applied live	Tali sona veka una: -40 dop +40 dB, lumso
+Show the message in red - the wrap up NOW state	Miri hola lumnira - tamtok NU
+The brush's width, as % of the picture's height	Ran kuka, % alka veka
+What the stream carries: SDR, PQ (HDR10) or HLG	Ma reta tiri: SDR, PQ (HDR10) nu HLG
+Whether the next shape or pen path adds or cuts	Forma novtok novi nu bati
+a note or an address becomes that cue's trigger	sona nu kaedor ka seni veka
+transparent outside the blobs: put it on a layer	vavek bra karkisku: lani kae kara
+Digit colour once red is reached, and in overtime	Luma numku kae lumnira & tok ala
+Downmix this cue to mono (mono sources / mono PA)	Kuli veka dop una sona (mono)
+Drag to scrub (shift = fine), click to type exact	Tiri dop miri (shift = kiso), bati grai lanto
+Hand this to an oscillator so it moves on its own	Lani nakae kae mirkora ka tiriseti sova
+Amber is closest to the 1976 single-phosphor look.	Lumora kiso dop veka 1976.
+Changing width also scales height (and vice versa)	Seti ran seti alka (& dop)
+Edit title/subtitle here or fire it live with TAKE	Seti hola nakae nu seni lumso kae TAKE
+How long the levels take to arrive; zero is a snap	Tok nivela; vana = zaro
+Set the self-contained PIP source for this overlay	Seti munga PIP nakae
+Take the newest shape or pen path out of this mask	Tiri forma nova kae mila nakae
+Slots are self-contained sources in this first pass	Slotku mungaku sova kae novtok una
+Sway sideways. Depth 1 is half the frame either way	Setisi ran. Tamka 1 = vekakis dopa
+no fixtures patched - Settings > Network > FIXTURES	vana janluma - Settings > Network > FIXTURES
+Add an output above, then send playlists to it here.	Novi senadora ala, novtok seni vekaku nakae.
+An address sent to Deckboy's OSC port fires this cue	Kaedor kae dor OSC Deckboy seni veka nakae
+Draw the diagnostic over the card, or just the text.	Graki mirada kae kara, nu hola una.
+Hold on the last composite frame when the scene ends	Hali veka tamuna kae vekara tam
+How long it takes; zero is a snap rather than a fade	Tok; vana = zaro, va lum
+Set still/pattern/browser duration for selected cues	Seti tok still/pattern/browser vekaku pika
+Start the LTC carrier, stop it, or jam it to a value	Muni LTC, hali, nu tokseti kae tala
+Which cue on that deck; step off the end to clear it	Veka kae deka; dop tam dop niri
+Bob up and down. Depth 1 is half the frame either way	Ala & nira. Tamka 1 = vekakis dopa
+Output width in pixels | click value to type exact px	Ran senadora kisvekku | bati tala grai
+Set the stream URL (srt://, rtmp://, rtsp://, udp://)	Seti URL reta (srt://, rtmp://, rtsp://, udp://)
+All interfaces, but only this computer is trusted yet.	Ala doraku, jana nakae una tamo.
+Fires at this time on this computer's clock, every day	Seni tok nakae kae tokjan jana nakae, lumtok ala
+Output height in pixels | click value to type exact px	Teɣra senadora kisvekku | bati tala grai
+Bar across the foot - readable further back than digits	Tirarana nira - miri ranko numku
+Any font on this computer, Deckboy's own, or a font file	Ala hola kae jana nakae, Deckboy, nu gura
+Every channel on every universe this session has touched	Ala kan kae ala universe tokra nakae
+OUTPUT: drag a slice to move it, its corners to size it.	SENADORA: tiri pata dop tiriseti, ranku dop tiddi.
+Choose a Lower Third from the overlay bin to fire on TAKE	Piki Lower Third kae kara dop seni kae TAKE
+Choose a PIP overlay from the overlay bin to fire on TAKE	Piki PIP kae kara dop seni kae TAKE
+Choose the legacy cue token to show inside the PIP window	Piki veka muno kae fena PIP
+OUTPUT: drag a slice to move it, its corners to pin them.	SENADORA: tiri pata dop tiriseti, ranku dop hali.
+ASIO carries the show's sound, and these are not on it yet	ASIO tiri sona vekarana, nakae va kae
+F1-F10, F12 or the number pad fires this cue from anywhere	F1-F10, F12 nu batku num seni veka nakae kae ala
+N=new  Enter/P=previous  O=open saved  E=examples  L=learn	N=nova  Enter/P=muna  O=fesi gura  E=mirku  L=lisi
+Use transition when auto-advancing or goto-taking next cue	Sovi setí kae tiri sova nu kae veka novtok
+Hand this parameter to an oscillator so it moves on its own	Lani nakae kae mirkora ka tiriseti sova
+Audio fade-in: follow visual fade, none, or explicit seconds	Sona fesa: tiri veka, vana, nu kistokku
+How long the finished drawing stays before it is drawn again	Tok graka tama hali muna graki novtok
+Audio fade-out: follow visual fade, none, or explicit seconds	Sona klua: tiri veka, vana, nu kistokku
+How it comes on and goes off: none, fade, rise, slide or wipe	Fesi & klui: vana, lum, ala, tiri nu niri
+The 64-step wavetable, quantised to 6 bits like the hardware.	Vonda 64 dora, 6 bit sov jana.
+Add a library shape to this mask; its points are yours to move	Novi forma kae mila nakae; numku sov tu
+Art-Net or sACN (E1.31): whichever the lighting rig listens to	Art-Net nu sACN (E1.31): ma luma lisi
+No slices: this output shows its one picture. + SLICE to start.	Vana pata: senadora miri una veka. + SLICE muni.
+Vary tile size per cell, so the grid stops looking like a grid.	Seti tiddi kara, va reta sov reta.
+Which output channel carries the signal. 'all' feeds every one.	Kan senadora tiri luma. 'all' ala.
+What is sent. Backslash-n, -r, -t and -0 become those characters	Ma seni. Backslash-n, -r, -t & -0 holku
+Deckboy's own remote-protocol verbs, one per line; # is a comment	Holku Deckboy, una kae hola; # nota
+Modulator speed as a ratio of the note, so the bend tracks pitch.	Zara setwia sov sona, kuka tiri sonala.
+Open and close this edge on an oscillator -- a wipe that breathes	Fesi & klui ran kae mirkora -- niri lumi
+Play this cue to the preview only; the outputs keep what they have	Soni veka nakae kae mirada una; senadoraku hali
+Put the pitch on an oscillator: Motion X sweeps it like a theremin	Lani sonala kae mirkora: Motion X tiri sov theremin
+A disarmed cue stays in the list and does nothing; GO steps over it	Veka vapona hali kae ala, va patakora; GO dopi
+Click a value to change it. A red address overlaps another fixture.	Bati tala dop seti. Kaedor lumnira kae luma dua.
+Where the clock reads from this cue on; click the value to type one	Kae tokjan miri kae veka nakae; bati grai
+Add a dashboard button that fires this master by name, from anywhere	Novi bata kae batrana seni master nakae sov hol
+New here? LEARN THE BASICS takes five minutes. We'll show you round.	Nova nakae? LISI MUNKU tok 5 kistok. Mi miri tu.
+An IPv4 address, or 255.255.255.255 to broadcast to the whole network	Kaedor IPv4, nu 255.255.255.255 dop ala reta
+How much playing audio widens and brightens the pattern. 0 free-runs.	Sona tama ran & lumi vekareta. 0 tiri sova.
+INPUT: the programme. Drag a crop to move it, its corners to size it.	MUNGA: koraveka. Tiri bati dop tiriseti, ranku dop tiddi.
+LED panel width in pixels - what one tile really is. Click to type it	Ran kara LED kisvekku - kara tamo. Bati grai
+Which deck it acts on; step off the end for the one this cue lives on	Deka nakae; dop tam dop deka veka nakae
+only one playlist - use the routing chip on the header to add another	una vekaku - sovi bata dor kae ala dop novi
+Which cue this master fires on that deck; step off the end to clear it	Veka master seni kae deka; dop tam dop niri
+Choose a mask from this show's library, or start a new one from a shape	Piki mila kae vekarana, nu novi kae forma
+Draw on the programme monitor with the mouse or a pen (DRAW). Esc stops	Graki kae miradora sov mus nu pen (DRAW). Esc hali
+How long the move takes, each way. 0 is instant whatever the style says	Tok tirisa, dopa una. 0 = zaro
+Stop that deck when the ramp lands - the usual take-it-down-and-stop-it	Hali deka kae tira tam - nira & hali
+Which of the file's sound tracks plays: a second language, a commentary	Sona gura: hola dua, holku
+An oscillator on the colour: depth is how far round the wheel it travels	Mirkora kae luma: tamka kora
+Rack this cue paused and off air so GO starts it with no decoder spin-up	Poni veka tokispen & bra sena, GO muni zaro
+Note, control change, program change, MIDI Show Control, or your own bytes	Sona, control change, program change, MIDI Show Control, nu bitku tu
+Black behind the words. Zero leaves it over whatever the output already has	Nira dop holku. Vana hali kae senadora
+How far the modulator bends the pitch. 0-63, the hardware's own gain range.	Tal kuka sonala. 0-63, tali jana.
+the words this cue puts on screen  |  Shift+Enter: new line  |  Enter: apply	holku veka nakae kae vekafena  |  Shift+Enter: hola nova  |  Enter: lani
+OSC and UDP are fire and forget; TCP connects, so it runs off the show thread	OSC & UDP seni & vamiri; TCP kuli, tiri bra vekarana
+Put the level on an oscillator: Motion makes it a gate that opens as you move	Lani nivela kae mirkora: Motion dor fesa kae tirisa
+Marks stacked ABOVE the characters, the way combining accents overflow a line.	Rankku ALA holku, sov rankku tira hola.
+Save the mask as a greyscale PNG at the output's size: white keeps, black cuts	Guri mila sov PNG nira: luma hali, nira bati
+Which chime. Cycling PLAYS it, so it can be chosen by ear rather than by name.	Tona nakae. Seti SONI, piki sov lisa.
+No rows. + ADD or LEARN makes one; MIDIMAP RESET brings the built-in rows back.	Vana hola. + ADD nu LEARN novi; MIDIMAP RESET novtok muna.
+Save the mask's paths as SVG, for Illustrator and anything else that reads them	Guri dorku mila sov SVG, Illustrator & ala miri
+Which MIDI output; a named port that is missing is reported rather than swapped	Senadora MIDI; dor holo vana miri, va seti
+An oscillator on the level, running after GO until a later cue sets this fixture	Mirkora kae nivela, tiri dop GO tok veka novtok
+Steps in third-octaves, because the ear works in ratios. 1kHz is the convention.	Dora tria kae sonala, lisa tal. 1kHz muna.
+Strikes drawn ACROSS the cell, damaging the character rather than decorating it.	Rankku DOPA kara, bati hola va lumi.
+Whether incoming MIDI notes play this synth or trigger cues as they always have.	Sonaku MIDI soni synth nu seni veka sov muna.
+A note number, or type LEARN and play it. Notes no cue claims still go to cue N+1	Num sona, nu grai LEARN & soni. Sona vavek dop veka N+1
+A plain stereo pair. Click to open the matrix, starting from exactly this routing	Kan dua. Bati fesi kara kae dor nakae
+Folding is what turns an arbitrary pattern into something that reads as designed.	Klui forma, vekareta pono sov graka.
+Channel=level, comma separated. Ranges too: 1=255, 10-14=64. Channels count from 1	Kan=nivela, kae ,. Rankku: 1=255, 10-14=64. Kanku kae 1
+Moves every selected cue's trim by the same dB; typing a value sets them all to it	Seti trim vekaku pika sov dB una; tala grai ala
+Bends the carrier's PITCH rather than mixing with it. This is what makes FDS growl.	Kuka SONALA tirwia, va kula. Nakae FDS tamzari.
+Half way through LEARN THE BASICS. Press L and we pick up where you stopped, skapi.	Kora LISI MUNKU. Bati L & tiri kae hali tu, skapi.
+Render as a character grid with a 16-colour indexed palette, rather than as pixels.	Veka sov holkara kae 16 luma, va kisvekku.
+Which MIDI output this file plays to; step past the end for the first one available	Senadora MIDI gura nakae; dop tam dop una pono
+An IPv4 address, or 255.255.255.255 for the universe's multicast group (239.255.x.y)	Kaedor IPv4, nu 255.255.255.255 dop universe (239.255.x.y)
+Click a cell to walk it: off, full, -3, -6, -12. This row turns the matrix off again	Bati kara: klua, tam, -3, -6, -12. Hola nakae klui kara ala
+How long each phrase stays before it moves. Zero hides them without losing the list.	Tok holkula hali. Vana fendi va ala gura.
+How long it takes to fall away after the attack. Only audible when retrigger is set.	Tok nira dop bati. Lisi una kae novtok fesa.
+Off, from start (next cue fires when this one starts) or from end (when it finishes)	Klua, kae muna (novtok veka muni) nu kae tam (kae tam)
+Height of one line as a percent of the raster, so a card reads the same on any screen	Teɣra hola % raster, kara mira una kae ala vekafena
+Set slot source as media:/path, browser:url, window:name, camera:name, or syphon:name	Seti munga slot sov media:/dor, browser:url, window:hol, camera:hol, nu syphon:hol
+Short LFSR mode. The period is brief enough to read as pitched metal rather than hiss.	LFSR kiso. Tok kiso sov sonala tamo, va siso.
+White, warm, red, amber, green, cyan, blue, magenta. ~ moves it round the colour wheel	Luma, lumso, lumnira, lumora, verda, cyan, blua, magenta. ~ kora luma
+Re-strike the envelope this often. Hold sustains one note, which is what a drone wants.	Bati novtok. Hold hali sona una, sov drone.
+Diamond is the hard-edged Atari Video Music lattice; rings tunnel well with feedback zoom.	Diamond reta rana Atari Video Music; koraku dora kae zoom.
+Rock or spin. Depth 1 is half a turn either way; a saw at depth 1 turns it all the way round	Setisi nu kori. Tamka 1 = kora kis; saw 1 = kora tama
+DECK playback level (live, not saved with the cue) - per-cue trim is gain in the AUDIO section	Iswira DECK (lumso, va guri kae veka) - trim veka kae AUDIO
+Still, fade in, typewriter, scroll up, crawl or pulse -- all driven by the cue's own transport	Hali, lum fesa, grawia, tiri ala, tiri nu lumi -- ala kae tirisa veka
+Fields per rendered frame. 1 is one for one, 0.5 holds each field for two frames, 0 freezes it.	Patku veka. 1 una una, 0.5 hali dua, 0 hali tam.
+What this cue shows while it plays: waveform, scope, Lissajous, spectrum, meters or a name card	Ma miri veka nakae: vonda, scope, Lissajous, spectrum, mirku nu kara hol
+0 picks tiles by brightness so the picture reads. 1 picks at random so the grid becomes texture.	0 piki kara sov luma, veka mira. 1 piki vapika, reta forma.
+How far it travels, in semitones. Up reads as arrival, down as departure, zero is a struck note.	Tok tiri, kistok sona. Ala tiri dop, nira tiri bra, vana sona bati.
+An IPv4 address. Names are not resolved: a DNS lookup is a blocking call and GO must not make one	Kaedor IPv4. Holku vamiri: DNS hali & GO va
+Tile width in pixels. Must match the sheet's grid or the slices land across neighbouring sprites.	Ran kara kisvekku. Kulo reta gura, nu pataku kae spriteku dua.
+Alternating mirrors by cell position, which reads as pattern where random flipping reads as noise.	Mirku kae kae kara, vekareta kae siso vapika.
+0 welds them to their cell, which reads as engraved. Above it they re-roll, which reads as boiling.	0 hali kae kara, sov graka. Ala dopi, sov bulka.
+MONO L plays the left input in both speakers: mic 1 on most interfaces. STEREO is for a line source.	MONO L soni munga dopa ran kae dua: mic 1. STEREO kae munga hola.
+The whole gesture. This IS the cue's duration -- a sting is the one generated signal here that ends.	Tirisa tama. NAKAE tok veka -- sting una tamo.
+Click the value to send this fixture or leave it where the last cue put it. ~ makes the level breathe	Bati tala seni luma nu hali kae veka tamuna. ~ lumi nivela
+FDS is a wavetable bent by a modulator. 2A03 is the pulse/triangle/noise set most chiptune is made of.	FDS vonda kuka setwia. 2A03 pulse/triangle/noise chiptune.
+Scramble which glyph means which brightness. Same set, different handwriting. Seeded, so it stays put.	Seti holka sov luma. Una, graka dua. Seed, hali.
+Pixel sort: runs of pixels sorted by brightness within a row, which is what makes datamosh look melted.	Pixel sort: kisvekku sov luma kae hola, datamosh lumso.
+How many cells the marks may climb. They thin out as they go, so a tall reach trails rather than doubles.	Tal kara rankku ala. Kiso kae ala, va dua.
+cue act val  -  G take  S stop  F fade out (val = tenths of a second)  V volume  O opacity  J jump to row	veka pat tala  -  G seni  S hali  F lum klua (tala = kistok/10)  V sona  O lumtam  J tiri hola
+Harmonic weight: a pure chime at zero, brass at full. This is the difference between a ping and a fanfare.	Tamka sona: tona luma kae vana, brass kae tam. Ping & fanfare.
+Steps through the inputs this computer has. 'Settings input' follows the input chosen in Settings > Audio.	Tiri mungaku jana nakae. 'Settings input' tiri munga kae Settings > Audio.
+Embers to roaring. It still surges and settles at any setting -- a fire that does not move reads as a photo	Kis luma dop tamluma. Ala & nira kae ala -- luma vatirisa sov vekagura
+Reference pitch. 440 is modern standard, 432 the common alternative, and older instruments sat lower still.	Sonala muna. 440 nova, 432 dua, jana muno nira.
+Where the sting starts. Under a voice it wants to stay out of the way; over a room it wants to cut through.	Kae sting muni. Nira hola, kisi; ala kae, dopi.
+Digital gain on the input, -40 to +40 dB. Set the interface's own preamp first; this is for the last few dB.	Tali munga, -40 dop +40 dB. Seti preamp muna; nakae una dB tam.
+Pulse the size. On its own this moves width AND height together; give height its own ~ to squash and stretch	Lumi tiddi. Una tiri ran & alka; dop alka ~ sova
+A card fills the frame; a Lower Third is a name and a role, low on a transparent frame, with an in and an out	Kara tami veka; Lower Third hol & wia, nira kae veka vavek, fesa & klua
+Held keeps the last displacement rather than removing it -- the picture stays bent the way the driver left it.	Held hali tiriset tamuna -- veka kuka sov jandora.
+12.5 and 25 are thin and reedy, 50 is hollow. 75 sounds identical to 25 -- it is here because trackers expose it.	12.5 & 25 kiso, 50 vavo. 75 sov 25 -- trackerku.
+Quantise the output like the hardware. The steps ARE the sound; smoothing them makes it a synth imitating a chip.	Tal senadora sov jana. Dora = sona; lumo = synth sov chip.
+Moves every selected cue's trim by the same dB, keeping the differences between them; typing a value sets them all to it	Seti trim vekaku pika sov dB una, hali dua; tala grai ala
+Where the playlist's crosspoints send it (Settings > Audio). Click to open the matrix by name, starting from exactly that	Kae kanku vekaku seni (Settings > Audio). Bati fesi kara sov hol
+name values with  d = ...;  end with one expression, or three for red green blue  |  Shift+Enter: new line  |  Enter: apply	hol talaku kae  d = ...;  tam una, nu tria lumnira verda blua  |  Shift+Enter: hola nova  |  Enter: lani
+Put back what it started from once the ramp lands (after the stop): a deck left ready for its next cue, a swell that lets go	Novtok muna kae tira tam (dop hali): deka pono, ala klua
+Which speech model makes the captions: English, any language, or the slower, more accurate pair. Each is a one-time download	Holjana holku: English, ala hola, nu dua zaro-va tamo. Una tira
+What the mask cuts: this cue wherever it plays, this playlist on the focused output, that output's whole picture, or its matte	Ma mila bati: veka nakae, vekaku kae senadora, veka tama, nu matte
+Play at the screen's rate when it is within 0.2% (59.94 on 60): every frame shown once, the sound up to 3.5 cents sharp or flat	Soni sov vekafena kae 0.2% (59.94 kae 60): veka una, sona 3.5 cent
+Quarter turns are exact and stay crisp. Spinning samples at an angle, which tears pixel art -- sometimes that is what you want.	Kora kwara tamo & lumo. Kora ala kuka pixel art -- nu tu veli.
+Every take starts the puppetry the same way, so a rehearsed look repeats instead of depending on how long the app has been open.	Ala take muni una, vekamira novtok, va tok jana.
+What aims each tilt: its own position, the picture's luma gradient so characters lean the way the image does, or the cell's hue.	Ma mira kuka: kae sova, luma veka sov holku, nu luma kara.
+Name a channel or a pair once. Playlists send to the name, so a different interface means changing the names here, not every cue.	Hol kan una tok. Vekaku seni hol, jana dua = seti hol nakae.
+Click a crosspoint to walk it: off, 0, -3, -6, -12 dB. Drag it sideways for any level. A playlist with none plays to its own device.	Bati kan: klua, 0, -3, -6, -12 dB. Tiri ran dop nivela. Vekaku vana dop jana sova.
+Sprite sets installed in data/sprites. Each folder there is a set; cycling picks one and wraps back to none. Right-click turns them off.	Spriteku kae data/sprites. Kar una = una set; seti piki & vana. Bati dopa nov klua.
+Internal resolution, 1 chunkiest to 5 finest. This is an aesthetic control as much as a speed one -- the 8-bit look comes from big pixels.	Veka dora, 1 kiso dop 5 tamo. Forma sov zara -- 8-bit kae kisvekku tamo.
+Picture takes colour from the image. Green, amber and cyan are terminal phosphors. Palette locks the text to the selected hardware palette.	Picture tiri luma veka. Verda, lumora & cyan lumaku tok muna. Palette hali hola kae luma jana.
+SUBTLE self-heals (H.264). CLASSIC is the real smear (MPEG-4). EXTREME is chunkier and smears constantly. Changing this re-prepares the cue.	SUBTLE lumi sova (H.264). CLASSIC niri tamo (MPEG-4). EXTREME tamo & niri ala. Seti poni veka.
+Sine for line-up, pink to ring out a PA, white to find rattles, sweep to hear where a room rings, identify to walk the outputs one at a time.	Sine, pink PA, white tok, sweep lisi, identify senadoraku una.
+Which effect, by its place in the stack of the cue that deck is playing when this fires. With nothing there, the fade says so and does nothing	Pata kae veka deka nakae. Vana, lum holi & va
+Each frame blended into the next. This is the Hypno signature -- at 0 it is a pattern generator, above it the picture starts feeding on itself.	Veka kula novtok. Hypno -- 0 vekareta, ala veka kae sova.
+What is through the window on the hearth wall: a garden, rain, snow or the sea. A room with weather outside reads as somewhere rather than as a wall	Ma kae vekafena: garda, nira, nivo nu sea. Kae, va fella
+BY FIXTURE: the lights in the patch (Settings > Network > FIXTURES), by name. CHANNELS: channel=level by hand. A cue can carry both; channels go last	SOV LUMA: lumaku kae patch (Settings > Network > FIXTURES). KANKU: kan=nivela. Dua; kanku tam
+Each character rocks as though it were a card being tilted. Every cell has its own phase, so the grid breathes instead of sliding about as one sheet.	Hola setisi sov kara kuka. Kara una tok sova, reta lumi.
+Pen: click for corners, drag for curves, click the first point to close (P). Points: drag, click the outline to add one, Alt-click or Delete to remove	Pen: bati ranku, tiri kuka, bati una dop klui (P). Numku: tiri, bati ran novi, Alt-bati nu Delete niri
+The chip's three channels. They differ in kind: triangle has no volume control on the hardware, and noise is a shift register rather than an oscillator.	Tria kan chip. Triangle vasona, noise shift register.
+Curated sets of symbols and emoji -- stars, notes, flowers, arrows, weather, runes, faces. Picking one fills the custom glyphs below, which stays editable.	Rankku & emoji -- lumtiku, sonaku, flor, tirku, tok, rune, mira. Piki tami holka nira, seti.
+Play from the computer keyboard, Ableton layout: A W S E D F T G Y H U J, Z and X for octave. While this is ON those keys make notes instead of firing cues.	Soni kae batjana, Ableton: A W S E D F T G Y H U J, Z & X. FESA = sona, va veka.
+Deck opacity, deck volume, the master dimmer, the active cue's own brightness / contrast / saturation / hue, or a knob of one of its effects or audio effects	Lumtam deka, sona deka, master, luma / niralum / lumtam / luma veka, nu bata pata
+Scanlines, phosphor bloom and RGB fringing. The bloom is the part that matters -- a phosphor spills sideways, which is why a CRT looks like it is emitting light.	Hola, lumtok & ran RGB. Lumtok tamo -- CRT lumi.
+Torn scanline bands and RGB separation. In text mode it also corrupts CELLS -- whole rows lock to one repeating character, the way a real text screen loses sync.	Hola bati & RGB. Hola: KARKU -- hola una, sov vekafena vatoksetí.
+Still holds the frame you are on. Flipbook plays the frames in turn. Replay draws the first frame stroke by stroke, the way it was drawn, then holds and starts again	Still hali veka. Flipbook soni vekaku. Replay graki una dop una, hali & novtok
+Start, Stop, Pause, Resume, Load (stand it by without firing), Arm, Disarm, or Devamp it (a loop plays out its pass and ends); or Stop all, Pause all, Resume all: every deck	Start, Stop, Pause, Resume, Load (poni), Arm, Disarm, nu Devamp (tokrana tam); nu Stop all, Pause all, Resume all: ala deka
+Scope shows shape and clipping. Lissajous shows phase and polarity between the first two channels -- a diagonal the wrong way means one is inverted. Spectrum is third-octave bars.	Scope forma & bati. Lissajous kora & dop kan dua -- ran vaso = una dopi. Spectrum dora tria.
+0 picks the glyph the brightness asks for, 1 picks any glyph in the set. Turn it up to see the whole alphabet: ranked strictly by ink, a flat area picks one mark and the rest never appear.	0 piki holka sov luma, 1 piki ala. Ala dop miri ala: forma una, vamiri.
+Blocks and dithers read as density; the ASCII ramp reads as text; symbols read as wreckage. Cycling this clears a custom glyph string, since that would override it -- the preset row puts one back.	Karku & dither = tamka; ASCII = hola; rankku = nira. Seti niri holka sova -- preset novtok una.
+Equal temperament buys free modulation at the cost of every interval being slightly wrong. Just and pythagorean are exactly in tune in one key. Bohlen-Pierce divides a twelfth, so it has no octaves.	Equal temperament: ala sona kis vaso. Just & pythagorean tamo kae una. Bohlen-Pierce vana octave.
+OSC	OSC
+Twitch	Twitch
+Art-Net	Art-Net
+YouTube	YouTube
+PQ - HDR10	PQ - HDR10
+sACN (E1.31)	sACN (E1.31)
+DECKBOY  POCKET	DECKBOY  POCKET
+DECKLINK SDI / HDMI	DECKLINK SDI / HDMI
+AMWA NMOS  IS-04 / IS-05	AMWA NMOS  IS-04 / IS-05
