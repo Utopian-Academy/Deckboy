@@ -14,6 +14,9 @@
 ### Playlists
 - A second playlist now appears beside the first as soon as you add it, when the window has room. Before, it hid behind a tab until you dragged the playlist column wider. If you drag the column narrower again, it stays the way you set it.
 
+### Themes
+- 40 new themes, from Amber CRT and Teletext to Risograph, Deep Sea and Synthwave. Every one passes the same readability check as the old ones: no label is hard to read, and a warning never looks like an ordinary message.
+
 ### Dashboard
 - The DASH has a CLOSE button. Before, it closed only with Esc, Ctrl+D or a click outside it.
 
