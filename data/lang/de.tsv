@@ -2140,3 +2140,53 @@ Run the clock	Uhr starten
 What fires this cue besides GO	Was diesen Cue außer GO auslöst
 center	Mitte
 visual	Bildanzeige
+MIX	MISCHEN
+Map	Karte
+WACKY	VERRÜCKT
+COLOUR	FARBE
+DARKEN	ABDUNKELN
+Pickup	Abholung
+COMPARE	VERGLEICHEN
+LIGHTEN	AUFHELLEN
+29.97 fps (NTSC)	29,97 fps (NTSC)
+Pocket Test (day)	Pocket-Test (Tag)
+Dark Detail (0-12%)	Schattendetail (0-12 %)
+Frame Count (emoji)	Bildzähler (Emoji)
+PLUGE (black level)	PLUGE (Schwarzwert)
+Passphrase (shared)	Passphrase (gemeinsam)
+Pocket Test (night)	Pocket-Test (Nacht)
+Pocket Test (storm)	Pocket-Test (Sturm)
+Panel Map (animated)	Panel-Map (animiert)
+Pocket Test (sunset)	Pocket-Test (Sonnenuntergang)
+Boresight (alignment)	Boresight (Ausrichtung)
+SMPTE 75% Colour Bars	SMPTE-75-%-Farbbalken
+Multiburst (bandwidth)	Multiburst (Bandbreite)
+Convergence (fine grid)	Konvergenz (feines Raster)
+Greyscale Steps (gamma)	Graustufen (Gamma)
+Uniformity (flat fields)	Gleichmäßigkeit (Flächen)
+Test Clock (sync + latency)	Testuhr (Sync + Latenz)
+Panel Map (LED tile numbers)	Panel-Map (LED-Kachelnummern)
+Portal (blobs of deep space)	Portal (Blasen aus tiefem Raum)
+Terrarium (living ecosystem)	Terrarium (lebendes Ökosystem)
+Window 10% (peak brightness)	Fenster 10 % (Spitzenhelligkeit)
+Window 50% (peak at mid APL)	Fenster 50 % (Spitze bei mittlerem APL)
+Frame Count (drops + latency)	Bildzähler (Aussetzer + Latenz)
+Terrarium Pico (1px per cell)	Terrarium Pico (1 px pro Zelle)
+Banding Ramps (real bit depth)	Banding-Rampen (echte Bittiefe)
+Fireside (a hearth that burns)	Kamin (ein Herd, der brennt)
+Test Bars (motion diagnostics)	Testbalken (Bewegungsdiagnose)
+Moire 1:1 (is anything scaling?)	Moiré 1:1 (skaliert etwas?)
+Pocket Test (test card + scene cycle)	Pocket-Test (Testbild + Szenenwechsel)
+Critters (pixel-exact scaling, animated)	Critters (pixelgenaue Skalierung, animiert)
+Greetings, primitive. Your "slideshow" amuses us.	Sei gegrüßt, Primitiver. Deine „Diashow“ amüsiert uns.
+the words this cue puts on screen  |  Shift+Enter: new line  |  Enter: apply	die Wörter, die dieser Cue zeigt  |  Shift+Enter: neue Zeile  |  Enter: anwenden
+name values with  d = ...;  end with one expression, or three for red green blue  |  Shift+Enter: new line  |  Enter: apply	Werte benennen mit  d = ...;  mit einem Ausdruck enden, oder drei für Rot Grün Blau  |  Shift+Enter: neue Zeile  |  Enter: anwenden
+OSC	OSC
+RTMPS	RTMPS
+Twitch	Twitch
+Art-Net	Art-Net
+YouTube	YouTube
+PQ - HDR10	PQ - HDR10
+sACN (E1.31)	sACN (E1.31)
+Syphon / Spout	Syphon / Spout
+NDI® NETWORK	NDI® NETWORK
