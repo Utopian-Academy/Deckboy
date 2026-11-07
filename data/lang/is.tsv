@@ -1138,3 +1138,199 @@ hold {n} s	halda {n} s
 any	hvaða sem er
 built in	innbyggt
 show	sýning
+motion	hreyfing
+METADATA	LÝSIGÖGN
+generated	myndað
+Fit	Laga að
+inf	óendanlegt
+NO	NEI
+YES	JÁ
+UP	UPP
+DOWN	NIÐUR
+Left	Vinstri
+Right	Hægri
+Top	Efst
+Bottom	Neðst
+add	bæta við
+all	allt
+none	ekkert
+Cut	Klippa
+Fade	Deyfing
+Load	Hlaða
+Pause	Hlé
+Resume	Halda áfram
+Start	Byrja
+Skip	Sleppa
+Arm	Virkja
+Disarm	Afvirkja
+ONE	EITT
+ONCE	EINU SINNI
+Size	Stærð
+Width	Breidd
+amount	magn
+brightness	birtustig
+contrast	birtuskil
+saturation	mettun
+hue	litblær
+level	stig
+speed	hraði
+style	stíll
+title	titill
+subtitle	undirtitill
+notes	athugasemdir
+font	letur
+frame	rammi
+type	gerð
+state	staða
+blend	blöndun
+align	jafna
+line	lína
+box	rétthyrningur
+oval	sporbaugur
+brush	pensill
+eraser	strokleður
+mask	gríma
+grow	stækka
+subtract	draga frá
+split	skipta
+stacked	staflað
+soft	mjúkt
+tolerance	vikmörk
+curve	ferill
+Linear	Línulegt
+Ease in	Mjúk byrjun
+Ease out	Mjúkur endir
+S-curve	S-ferill
+Position X	Staða X
+Position Y	Staða Y
+Deck volume	Hljóðstyrkur decks
+Deck opacity	Ógegnsæi decks
+Master dimmer	Aðaldimmir
+Cue brightness	Birtustig cues
+Cue contrast	Birtuskil cues
+Cue saturation	Mettun cues
+Cue hue	Litblær cues
+no effects	engin áhrif
+no audio effects	engin hljóðáhrif
+nothing yet	ekkert enn
+no output	ekkert úttak
+no window	enginn gluggi
+source missing	uppspretta vantar
+waiting for a picture	bíður eftir mynd
+clear frame	hreinsa ramma
+undo stroke	afturkalla strok
+save still	vista kyrrmynd
+save animation	vista hreyfimynd
+export	flytja út
+repeats	endurtekningar
+hold last	halda síðasta
+end action	lokaaðgerð
+cue id	cue-auðkenni
+goto target	stökkmark
+set	stilla
+send	senda
+run	keyra
+idle	óvirkt
+standby	tilbúið
+Loop	Lykkja
+loop forever	endalaus lykkja
+PATCH	PATCH
+OUTPUTS	ÚTTÖK
+SECTIONS	HLUTAR
+Video Synth	Myndgervill
+Browser	Vafri
+Browser Cue	Vafra-cue
+Window Source	Gluggauppspretta
+Camera Source	Myndavélaruppspretta
+NDI Source	NDI-uppspretta
+DeckLink Input	DeckLink-inntak
+Syphon/Spout Source	Syphon/Spout-uppspretta
+Live stream cue	Beinstreymis-cue
+Composite	Samsetning
+Composite scene cue	Samsett senu-cue
+Lower Third	Nafnaborði
+Lower Third overlay cue	Nafnaborða-cue
+PIP overlay cue	PIP-yfirlagscue
+MIDI File	MIDI-skrá
+Master	Master
+Memo	Minnispunktur
+Mic	Hljóðnemi
+Timer	Tímamælir
+Tone	Tónn
+Script	Skrift
+Target	Mark
+Draw	Teikning
+Code	Kóði
+Clouds	Ský
+Swirl	Hvirfill
+Moire	Moiré
+Picture	Mynd
+Placement	Staðsetning
+Frame lock	Rammalás
+Suspend	Fresta
+Seam	Samskeyti
+High pass	Hátíðnisía
+Low pass	Lágtíðnisía
+Tilt EQ	Hallandi EQ
+Compressor	Þjappa
+Gate	Hlið
+Delay	Seinkun
+Reverb	Ómur
+Binaural	Tvíeyra
+Crush	Mölun
+Word	Orð
+Scrub	Skrúbb
+Short	Stutt
+Shatter	Sundrun
+Pulse	Púls
+Crawl	Skriðtexti
+Typewriter	Ritvél
+Oscilloscope	Sveiflusjá
+Spectrum	Litróf
+Level Meters	Stigmælar
+Waveform	Bylgjuform
+EFFECTS	ÁHRIF
+TRIGGERS	KVEIKJUR
+SEQUENCE	RUNA
+MOTION CONTROL	HREYFISTÝRING
+THIS CUE	ÞETTA CUE
+FUNCTIONS	AÐGERÐIR
+VALUES	GILDI
+KEYS	TAKKAR
+FREEZE	FRYSTA
+FROZEN	FROSIÐ
+BYPASSED	FRAMHJÁ
+BYPASS ALL	FRAMHJÁ ÖLLU
+DEFAULTS	SJÁLFGEFIÐ
+CHANGE	BREYTA
+CHOOSE	VELJA
+Stop all	Stöðva allt
+Pause all	Gera hlé á öllu
+Resume all	Halda öllu áfram
+Do not continue	Ekki halda áfram
+Auto-continue	Halda sjálfkrafa áfram
+Auto-follow	Fylgja við lok
+END HOLD	LOK HALDA
+END LOOP	LOK LYKKJA
+END NEXT	LOK NÆSTA
+END STOP	LOK STOPP
+OUTPUT EFFECTS	ÚTTAKSÁHRIF
+LIVE CAPTIONS	BEIN TEXTUN
+captions	skjátextar
+Name Card	Nafnspjald
+TEST CARD	PRÓFMYND
+TEST CARD ON	PRÓFMYND VIRK
+EXPORT CARD	FLYTJA ÚT SPJALD
+EXPORTING...	FLYT ÚT...
+LOW LATENCY	LÍTIL TÖF
+WEB MONITOR	VEFSKJÁR
+PHONE & TABLET	SÍMI OG SPJALDTÖLVA
+SCAN TO PAIR	SKANNA TIL AÐ PARA
+WITH SOUND	MEÐ HLJÓÐI
+THE NETWORK	NETIÐ
+FIXTURES	LJÓS
+ADD FIXTURE	BÆTA VIÐ LJÓSI
+Dimmer	Dimmir
+Dimmer + RGB	Dimmir + RGB
+Dimmer + temperature	Dimmir + litahitastig
+QR CODE	QR-KÓÐI

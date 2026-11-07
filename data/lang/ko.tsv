@@ -1144,3 +1144,199 @@ hold {n} s	{n}초 누르기
 any	모두
 built in	기본 제공
 show	쇼
+motion	모션
+METADATA	메타데이터
+generated	생성됨
+Fit	맞춤
+inf	무한
+NO	아니요
+YES	예
+UP	위로
+DOWN	아래로
+Left	왼쪽
+Right	오른쪽
+Top	위
+Bottom	아래
+add	추가
+all	모두
+none	없음
+Cut	컷
+Fade	페이드
+Load	불러오기
+Pause	일시 정지
+Resume	재개
+Start	시작
+Skip	건너뛰기
+Arm	준비
+Disarm	준비 해제
+ONE	하나
+ONCE	한 번
+Size	크기
+Width	너비
+amount	양
+brightness	밝기
+contrast	대비
+saturation	채도
+hue	색조
+level	레벨
+speed	속도
+style	스타일
+title	제목
+subtitle	부제
+notes	메모
+font	글꼴
+frame	프레임
+type	유형
+state	상태
+blend	혼합
+align	정렬
+line	선
+box	사각형
+oval	타원
+brush	브러시
+eraser	지우개
+mask	마스크
+grow	확장
+subtract	빼기
+split	분할
+stacked	쌓기
+soft	부드럽게
+tolerance	허용치
+curve	곡선
+Linear	선형
+Ease in	서서히 시작
+Ease out	서서히 끝
+S-curve	S 곡선
+Position X	X 위치
+Position Y	Y 위치
+Deck volume	덱 음량
+Deck opacity	덱 불투명도
+Master dimmer	마스터 디머
+Cue brightness	큐 밝기
+Cue contrast	큐 대비
+Cue saturation	큐 채도
+Cue hue	큐 색조
+no effects	효과 없음
+no audio effects	오디오 효과 없음
+nothing yet	아직 없음
+no output	출력 없음
+no window	창 없음
+source missing	소스 없음
+waiting for a picture	영상 대기 중
+clear frame	프레임 지우기
+undo stroke	획 실행 취소
+save still	스틸 저장
+save animation	애니메이션 저장
+export	내보내기
+repeats	반복 횟수
+hold last	마지막 유지
+end action	종료 동작
+cue id	큐 ID
+goto target	이동 대상
+set	설정
+send	전송
+run	실행
+idle	유휴
+standby	대기
+Loop	반복
+loop forever	무한 반복
+PATCH	패치
+OUTPUTS	출력
+SECTIONS	섹션
+Video Synth	비디오 신시사이저
+Browser	브라우저
+Browser Cue	브라우저 큐
+Window Source	창 소스
+Camera Source	카메라 소스
+NDI Source	NDI 소스
+DeckLink Input	DeckLink 입력
+Syphon/Spout Source	Syphon/Spout 소스
+Live stream cue	라이브 스트림 큐
+Composite	합성
+Composite scene cue	합성 장면 큐
+Lower Third	하단 자막
+Lower Third overlay cue	하단 자막 큐
+PIP overlay cue	PIP 오버레이 큐
+MIDI File	MIDI 파일
+Master	마스터
+Memo	메모
+Mic	마이크
+Timer	타이머
+Tone	톤
+Script	스크립트
+Target	대상
+Draw	그리기
+Code	코드
+Clouds	구름
+Swirl	소용돌이
+Moire	무아레
+Picture	영상
+Placement	배치
+Frame lock	프레임 잠금
+Suspend	중단
+Seam	이음새
+High pass	하이패스
+Low pass	로우패스
+Tilt EQ	틸트 EQ
+Compressor	컴프레서
+Gate	게이트
+Delay	딜레이
+Reverb	리버브
+Binaural	바이노럴
+Crush	크러시
+Word	워드
+Scrub	스크러브
+Short	쇼트
+Shatter	산산조각
+Pulse	펄스
+Crawl	가로 스크롤
+Typewriter	타자기
+Oscilloscope	오실로스코프
+Spectrum	스펙트럼
+Level Meters	레벨 미터
+Waveform	파형
+EFFECTS	효과
+TRIGGERS	트리거
+SEQUENCE	시퀀스
+MOTION CONTROL	모션 제어
+THIS CUE	이 큐
+FUNCTIONS	기능
+VALUES	값
+KEYS	키
+FREEZE	고정
+FROZEN	고정됨
+BYPASSED	바이패스
+BYPASS ALL	모두 바이패스
+DEFAULTS	기본값
+CHANGE	변경
+CHOOSE	선택
+Stop all	모두 정지
+Pause all	모두 일시 정지
+Resume all	모두 재개
+Do not continue	계속하지 않음
+Auto-continue	자동 계속
+Auto-follow	종료 후 계속
+END HOLD	종료 유지
+END LOOP	종료 반복
+END NEXT	종료 다음
+END STOP	종료 정지
+OUTPUT EFFECTS	출력 효과
+LIVE CAPTIONS	실시간 자막
+captions	자막
+Name Card	이름 카드
+TEST CARD	테스트 카드
+TEST CARD ON	테스트 카드 켜짐
+EXPORT CARD	카드 내보내기
+EXPORTING...	내보내는 중...
+LOW LATENCY	낮은 지연
+WEB MONITOR	웹 모니터
+PHONE & TABLET	휴대폰과 태블릿
+SCAN TO PAIR	스캔하여 연결
+WITH SOUND	소리 포함
+THE NETWORK	네트워크
+FIXTURES	조명기
+ADD FIXTURE	조명기 추가
+Dimmer	디머
+Dimmer + RGB	디머 + RGB
+Dimmer + temperature	디머 + 색온도
+QR CODE	QR 코드

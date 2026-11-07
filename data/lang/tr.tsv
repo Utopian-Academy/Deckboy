@@ -1135,3 +1135,199 @@ hold {n} s	{n} sn basılı tut
 any	her
 built in	yerleşik
 show	gösteri
+motion	hareket
+METADATA	ÜST VERİ
+generated	üretilmiş
+Fit	Sığdır
+inf	sonsuz
+NO	HAYIR
+YES	EVET
+UP	YUKARI
+DOWN	AŞAĞI
+Left	Sol
+Right	Sağ
+Top	Üst
+Bottom	Alt
+add	ekle
+all	tümü
+none	yok
+Cut	Kesme
+Fade	Solma
+Load	Yükle
+Pause	Duraklat
+Resume	Sürdür
+Start	Başlat
+Skip	Atla
+Arm	Hazırla
+Disarm	Devre dışı
+ONE	BİR
+ONCE	BİR KEZ
+Size	Boyut
+Width	Genişlik
+amount	miktar
+brightness	parlaklık
+contrast	kontrast
+saturation	doygunluk
+hue	renk tonu
+level	seviye
+speed	hız
+style	stil
+title	başlık
+subtitle	alt başlık
+notes	notlar
+font	yazı tipi
+frame	kare
+type	tür
+state	durum
+blend	karışım
+align	hizala
+line	çizgi
+box	dikdörtgen
+oval	oval
+brush	fırça
+eraser	silgi
+mask	maske
+grow	genişlet
+subtract	çıkar
+split	böl
+stacked	yığılmış
+soft	yumuşak
+tolerance	tolerans
+curve	eğri
+Linear	Doğrusal
+Ease in	Yumuşak giriş
+Ease out	Yumuşak çıkış
+S-curve	S eğrisi
+Position X	Konum X
+Position Y	Konum Y
+Deck volume	Deck ses düzeyi
+Deck opacity	Deck opaklığı
+Master dimmer	Ana karartıcı
+Cue brightness	Cue parlaklığı
+Cue contrast	Cue kontrastı
+Cue saturation	Cue doygunluğu
+Cue hue	Cue renk tonu
+no effects	efekt yok
+no audio effects	ses efekti yok
+nothing yet	henüz yok
+no output	çıkış yok
+no window	pencere yok
+source missing	kaynak eksik
+waiting for a picture	görüntü bekleniyor
+clear frame	kareyi temizle
+undo stroke	çizgiyi geri al
+save still	resmi kaydet
+save animation	animasyonu kaydet
+export	dışa aktar
+repeats	tekrarlar
+hold last	son kareyi tut
+end action	bitiş eylemi
+cue id	cue kimliği
+goto target	atlama hedefi
+set	ayarla
+send	gönder
+run	çalıştır
+idle	boşta
+standby	hazır
+Loop	Döngü
+loop forever	sonsuz döngü
+PATCH	PATCH
+OUTPUTS	ÇIKIŞLAR
+SECTIONS	BÖLÜMLER
+Video Synth	Video sentezleyici
+Browser	Tarayıcı
+Browser Cue	Tarayıcı cue
+Window Source	Pencere kaynağı
+Camera Source	Kamera kaynağı
+NDI Source	NDI kaynağı
+DeckLink Input	DeckLink girişi
+Syphon/Spout Source	Syphon/Spout kaynağı
+Live stream cue	Canlı yayın cue
+Composite	Kompozit
+Composite scene cue	Birleşik sahne cue
+Lower Third	Alt bant
+Lower Third overlay cue	Alt bant cue
+PIP overlay cue	PIP katman cue
+MIDI File	MIDI dosyası
+Master	Master
+Memo	Not
+Mic	Mikrofon
+Timer	Zamanlayıcı
+Tone	Ton
+Script	Betik
+Target	Hedef
+Draw	Çizim
+Code	Kod
+Clouds	Bulutlar
+Swirl	Girdap
+Moire	Hare
+Picture	Resim
+Placement	Yerleşim
+Frame lock	Kare kilidi
+Suspend	Askıya al
+Seam	Birleşim
+High pass	Yüksek geçiren
+Low pass	Alçak geçiren
+Tilt EQ	Eğim EQ
+Compressor	Kompresör
+Gate	Kapı
+Delay	Gecikme
+Reverb	Yankı
+Binaural	Binaural
+Crush	Ezme
+Word	Sözcük
+Scrub	Sürükle
+Short	Kısa
+Shatter	Parçalama
+Pulse	Darbe
+Crawl	Kayan yazı
+Typewriter	Daktilo
+Oscilloscope	Osiloskop
+Spectrum	Spektrum
+Level Meters	Seviye ölçerler
+Waveform	Dalga biçimi
+EFFECTS	EFEKTLER
+TRIGGERS	TETİKLEYİCİLER
+SEQUENCE	SEKANS
+MOTION CONTROL	HAREKET KONTROLÜ
+THIS CUE	BU CUE
+FUNCTIONS	İŞLEVLER
+VALUES	DEĞERLER
+KEYS	TUŞLAR
+FREEZE	DONDUR
+FROZEN	DONMUŞ
+BYPASSED	ATLANDI
+BYPASS ALL	TÜMÜNÜ ATLA
+DEFAULTS	VARSAYILANLAR
+CHANGE	DEĞİŞTİR
+CHOOSE	SEÇ
+Stop all	Tümünü durdur
+Pause all	Tümünü duraklat
+Resume all	Tümünü sürdür
+Do not continue	Devam etme
+Auto-continue	Otomatik devam
+Auto-follow	Bitince devam
+END HOLD	SON TUT
+END LOOP	SON DÖNGÜ
+END NEXT	SON SONRAKİ
+END STOP	SON DUR
+OUTPUT EFFECTS	ÇIKIŞ EFEKTLERİ
+LIVE CAPTIONS	CANLI ALTYAZI
+captions	altyazılar
+Name Card	İsim kartı
+TEST CARD	TEST KARTI
+TEST CARD ON	TEST KARTI AÇIK
+EXPORT CARD	KARTI DIŞA AKTAR
+EXPORTING...	AKTARILIYOR...
+LOW LATENCY	DÜŞÜK GECİKME
+WEB MONITOR	WEB MONİTÖRÜ
+PHONE & TABLET	TELEFON VE TABLET
+SCAN TO PAIR	EŞLEŞTİRMEK İÇİN TARA
+WITH SOUND	SESLİ
+THE NETWORK	AĞ
+FIXTURES	ARMATÜRLER
+ADD FIXTURE	ARMATÜR EKLE
+Dimmer	Dimmer
+Dimmer + RGB	Dimmer + RGB
+Dimmer + temperature	Dimmer + sıcaklık
+QR CODE	QR KODU

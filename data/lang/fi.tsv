@@ -1138,3 +1138,199 @@ hold {n} s	pidä {n} s
 any	mikä tahansa
 built in	sisäänrakennettu
 show	esitys
+motion	liike
+METADATA	METATIEDOT
+generated	luotu
+Fit	Sovita
+inf	ääretön
+NO	EI
+YES	KYLLÄ
+UP	YLÖS
+DOWN	ALAS
+Left	Vasen
+Right	Oikea
+Top	Ylä
+Bottom	Ala
+add	lisää
+all	kaikki
+none	ei mitään
+Cut	Leikkaus
+Fade	Häivytys
+Load	Lataa
+Pause	Tauko
+Resume	Jatka
+Start	Aloita
+Skip	Ohita
+Arm	Viritä
+Disarm	Poista viritys
+ONE	YKSI
+ONCE	KERRAN
+Size	Koko
+Width	Leveys
+amount	määrä
+brightness	kirkkaus
+contrast	kontrasti
+saturation	kylläisyys
+hue	sävy
+level	taso
+speed	nopeus
+style	tyyli
+title	otsikko
+subtitle	alaotsikko
+notes	muistiinpanot
+font	fontti
+frame	ruutu
+type	tyyppi
+state	tila
+blend	sekoitus
+align	kohdista
+line	viiva
+box	suorakulmio
+oval	soikio
+brush	sivellin
+eraser	pyyhekumi
+mask	maski
+grow	laajenna
+subtract	vähennä
+split	jaa
+stacked	pinottu
+soft	pehmeä
+tolerance	toleranssi
+curve	käyrä
+Linear	Lineaarinen
+Ease in	Pehmeä alku
+Ease out	Pehmeä loppu
+S-curve	S-käyrä
+Position X	Sijainti X
+Position Y	Sijainti Y
+Deck volume	Deckin voimakkuus
+Deck opacity	Deckin peittävyys
+Master dimmer	Päähimmennin
+Cue brightness	Cuen kirkkaus
+Cue contrast	Cuen kontrasti
+Cue saturation	Cuen kylläisyys
+Cue hue	Cuen sävy
+no effects	ei tehosteita
+no audio effects	ei äänitehosteita
+nothing yet	ei vielä mitään
+no output	ei ulostuloa
+no window	ei ikkunaa
+source missing	lähde puuttuu
+waiting for a picture	odotetaan kuvaa
+clear frame	tyhjennä ruutu
+undo stroke	kumoa veto
+save still	tallenna kuva
+save animation	tallenna animaatio
+export	vie
+repeats	toistot
+hold last	pidä viimeinen
+end action	lopputoiminto
+cue id	cue-tunnus
+goto target	hyppykohde
+set	aseta
+send	lähetä
+run	suorita
+idle	jouten
+standby	valmiina
+Loop	Silmukka
+loop forever	toista loputtomiin
+PATCH	PATCH
+OUTPUTS	ULOSTULOT
+SECTIONS	OSIOT
+Video Synth	Videosyntetisaattori
+Browser	Selain
+Browser Cue	Selain-cue
+Window Source	Ikkunalähde
+Camera Source	Kameralähde
+NDI Source	NDI-lähde
+DeckLink Input	DeckLink-tulo
+Syphon/Spout Source	Syphon/Spout-lähde
+Live stream cue	Suoratoisto-cue
+Composite	Kooste
+Composite scene cue	Koostekohtaus-cue
+Lower Third	Nimipalkki
+Lower Third overlay cue	Nimipalkki-cue
+PIP overlay cue	PIP-peittokuva-cue
+MIDI File	MIDI-tiedosto
+Master	Master
+Memo	Muistio
+Mic	Mikrofoni
+Timer	Ajastin
+Tone	Ääni
+Script	Skripti
+Target	Kohde
+Draw	Piirros
+Code	Koodi
+Clouds	Pilvet
+Swirl	Pyörre
+Moire	Moiré
+Picture	Kuva
+Placement	Sijoittelu
+Frame lock	Kuvalukko
+Suspend	Keskeytä
+Seam	Sauma
+High pass	Ylipäästö
+Low pass	Alipäästö
+Tilt EQ	Kallistus-EQ
+Compressor	Kompressori
+Gate	Portti
+Delay	Viive
+Reverb	Kaiku
+Binaural	Binauraalinen
+Crush	Murskaus
+Word	Sana
+Scrub	Selaus
+Short	Lyhyt
+Shatter	Sirpaleet
+Pulse	Pulssi
+Crawl	Vaakavieritys
+Typewriter	Kirjoituskone
+Oscilloscope	Oskilloskooppi
+Spectrum	Spektri
+Level Meters	Tasomittarit
+Waveform	Aaltomuoto
+EFFECTS	TEHOSTEET
+TRIGGERS	LAUKAISIMET
+SEQUENCE	SEKVENSSI
+MOTION CONTROL	LIIKEOHJAUS
+THIS CUE	TÄMÄ CUE
+FUNCTIONS	TOIMINNOT
+VALUES	ARVOT
+KEYS	NÄPPÄIMET
+FREEZE	JÄÄDYTÄ
+FROZEN	JÄÄDYTETTY
+BYPASSED	OHITETTU
+BYPASS ALL	OHITA KAIKKI
+DEFAULTS	OLETUKSET
+CHANGE	VAIHDA
+CHOOSE	VALITSE
+Stop all	Pysäytä kaikki
+Pause all	Tauota kaikki
+Resume all	Jatka kaikkia
+Do not continue	Älä jatka
+Auto-continue	Jatka autom.
+Auto-follow	Seuraa lopussa
+END HOLD	LOPPU PITO
+END LOOP	LOPPU SILMUKKA
+END NEXT	LOPPU SEURAAVA
+END STOP	LOPPU SEIS
+OUTPUT EFFECTS	ULOSTULON TEHOSTEET
+LIVE CAPTIONS	SUORATEKSTITYS
+captions	tekstitys
+Name Card	Nimikortti
+TEST CARD	TESTIKUVA
+TEST CARD ON	TESTIKUVA PÄÄLLÄ
+EXPORT CARD	VIE TESTIKUVA
+EXPORTING...	VIEDÄÄN...
+LOW LATENCY	PIENI VIIVE
+WEB MONITOR	WEBMONITORI
+PHONE & TABLET	PUHELIN JA TABLETTI
+SCAN TO PAIR	SKANNAA PARIKSI
+WITH SOUND	ÄÄNEN KANSSA
+THE NETWORK	VERKKO
+FIXTURES	VALAISIMET
+ADD FIXTURE	LISÄÄ VALAISIN
+Dimmer	Himmennin
+Dimmer + RGB	Himmennin + RGB
+Dimmer + temperature	Himmennin + lämpötila
+QR CODE	QR-KOODI

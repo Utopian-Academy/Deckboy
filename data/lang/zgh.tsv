@@ -604,3 +604,200 @@ Every one of those is a real Motion control. Put them on any ~ knob you like.	�
 START: AGAIN	START: ⴷⴰⴳⵉ
 START: PLAY	START: ⵓⵔⴰⵔ
 # --- end of tutorials ---
+motion	ⴰⵎⵓⵙⵙⵓ
+METADATA	ⵉⵙⴼⴽⴰ ⵏ ⵓⴼⴰⵢⵍⵓ
+generated	ⵉⵜⵜⵓⵙⵏⴼⵍⵓⵍ
+Fit	ⵙⵎⵙⴰⵙⴰ
+inf	ⴱⵍⴰ ⵜⵉⵍⵙⴰ
+NO	ⵓⵀⵓ
+YES	ⵢⴰⵀ
+UP	ⴰⴼⵍⵍⴰ
+DOWN	ⴰⴷⴷⴰⵢ
+Left	ⴰⵥⵍⵎⴰⴹ
+Right	ⴰⴼⴰⵙⵙⵉ
+Top	ⴰⴼⵍⵍⴰ
+Bottom	ⴰⴷⴷⴰⵢ
+add	ⵔⵏⵓ
+all	ⴰⴽⴽ
+none	ⵡⴰⵍⵓ
+Cut	ⴰⴳⵣⴰⵎ
+Fade	ⴰⵙⴼⵙⵉ
+Load	ⵙⴰⵍⵉ
+Pause	ⴰⵃⴱⴰⵙ
+Resume	ⴽⵎⵎⵍ
+Start	ⴱⴷⵓ
+Skip	ⵣⵔⵉ
+Arm	ⵀⴳⴳ
+Disarm	ⵙⵙⵏⵙ
+ONE	ⵢⴰⵏ
+ONCE	ⵢⴰⵜ ⵜⵉⴽⴽⵍⵜ
+Size	ⵜⵉⴷⴷⵉ
+Width	ⵜⴰⵍⴱⴰⴹⵜ
+amount	ⴰⵏⵛⵜ
+brightness	ⵜⴰⴼⴰⵡⵜ
+contrast	ⴰⵎⴳⴰⵔⴰⴷ
+saturation	ⵜⴰⵊⴰⵡⴰⵏⵜ
+hue	ⵉⵏⵉ
+level	ⴰⵙⵡⵉⵔ
+speed	ⴰⵣⵣⴰⵍ
+style	ⴰⵏⴰⵡ
+title	ⴰⵣⵡⵍ
+subtitle	ⴰⵣⵡⵍ ⴰⵎⵣⵢⴰⵏ
+notes	ⵜⵉⵣⵎⵉⵍⵉⵏ
+font	ⵜⵉⵔⵔⴰ
+frame	ⵜⴰⵡⵍⴰⴼⵜ
+type	ⴰⵏⴰⵡ
+state	ⴰⴷⴷⴰⴷ
+blend	ⴰⵙⵎⵓⵏ
+align	ⵙⵔⵔⵙ
+line	ⵉⵣⵉⵔⵉ
+box	ⴰⵏⴰⵎⴽⴰⴹ
+oval	ⴰⵏⴰⵣⵓⵎ
+brush	ⴰⵙⵍⵖⵎ
+eraser	ⵜⴰⵙⴼⴼⴰⴹⵜ
+mask	ⵜⴰⴳⵍⵎⵓⵙⵜ
+grow	ⵙⵉⵎⵖⵓⵔ
+subtract	ⴽⴽⵙ
+split	ⴱⴹⵓ
+stacked	ⵉⵎⵙⵔⵔⴰⵙⵏ
+soft	ⴰⵍⵡⴰⵖ
+tolerance	ⴰⵙⵓⵔⴼ
+curve	ⴰⵣⵏⵏⵓⴳ
+Linear	ⴰⵎⵣⵉⵔⵉ
+Ease in	ⴰⴱⴷⵓ ⴰⵍⵡⴰⵖ
+Ease out	ⵜⴰⴳⴳⴰⵔⴰ ⵜⴰⵍⵡⴰⵖⵜ
+S-curve	ⴰⵣⵏⵏⵓⴳ S
+Position X	ⴰⴷⵖⴰⵔ X
+Position Y	ⴰⴷⵖⴰⵔ Y
+Deck volume	ⴰⵙⵡⵉⵔ ⵏ deck
+Deck opacity	ⵜⴰⵖⵎⵜ ⵏ deck
+Master dimmer	ⴰⵙⵙⴷⵔⵓⵙ ⴰⵎⴰⵜⴰⵢ
+Cue brightness	ⵜⴰⴼⴰⵡⵜ ⵏ cue
+Cue contrast	ⴰⵎⴳⴰⵔⴰⴷ ⵏ cue
+Cue saturation	ⵜⴰⵊⴰⵡⴰⵏⵜ ⵏ cue
+Cue hue	ⵉⵏⵉ ⵏ cue
+no effects	ⵓⵔ ⵍⵍⵉⵏ ⵉⵙⵏⴼⴰⵍⵏ
+no audio effects	ⵓⵔ ⵍⵍⵉⵏ ⵉⵙⵏⴼⴰⵍⵏ ⵏ ⵉⵎⵙⵍⵉ
+nothing yet	ⵡⴰⵍⵓ ⵖⵉⵍⴰ
+no output	ⵓⵔ ⵜⵍⵍⵉ ⵜⵓⴼⴼⵖⴰ
+no window	ⵓⵔ ⵜⵍⵍⵉ ⵜⴰⴳⴳⵓⵔⵜ
+source missing	ⴰⵙⴰⴳⵎ ⵓⵔ ⵉⵍⵍⵉ
+waiting for a picture	ⴰⵔ ⵉⵜⵜⵔⴰⵊⵓ ⵜⴰⵡⵍⴰⴼⵜ
+clear frame	ⵙⴼⴰⴹ ⵜⴰⵡⵍⴰⴼⵜ
+undo stroke	ⵙⵙⵓⵖⵍ ⵉⵣⵉⵔⵉ
+save still	ⵃⴹⵓ ⵜⴰⵡⵍⴰⴼⵜ
+save animation	ⵃⴹⵓ ⴰⵎⵓⵙⵙⵓ
+export	ⵙⵙⵓⴼⵖ
+repeats	ⵉⵙⵙⵓⵖⵍⵏ
+hold last	ⴹⴹⴼ ⵜⴰⵎⴳⴳⴰⵔⵓⵜ
+end action	ⴰⵙⴽⴰⵔ ⵏ ⵜⴳⴳⴰⵔⴰ
+cue id	ⴰⵙⵎⴰⴳ ⵏ cue
+goto target	ⴰⵏⵉⵛⵛⴰ
+set	ⵙⴱⴷⴷ
+send	ⴰⵣⵏ
+run	ⵙⵙⵍⴽⵎ
+idle	ⵉⵃⴱⵙ
+standby	ⵢⵓⵊⴰⴷ
+Loop	ⴰⵙⵙⵓⵖⵍ
+loop forever	ⴰⵙⵙⵓⵖⵍ ⴱⵍⴰ ⵜⴰⴳⴳⴰⵔⴰ
+Layout	ⴰⵙⵔⵔⵙ
+PATCH	PATCH
+OUTPUTS	ⵜⵓⴼⴼⵖⴰⵜⵉⵏ
+SECTIONS	ⵉⴳⵣⵣⵓⵎⵏ
+Video Synth	ⴰⵙⵏⴼⵍⵓⵍ ⵏ ⵜⴼⵉⴷⵢⵓⵜ
+Browser	ⴰⵙⵙⴰⵔⴰ
+Browser Cue	cue ⵏ ⵓⵙⵙⴰⵔⴰ
+Window Source	ⴰⵙⴰⴳⵎ ⵏ ⵜⴳⴳⵓⵔⵜ
+Camera Source	ⴰⵙⴰⴳⵎ ⵏ ⵍⴽⴰⵎⵉⵔⴰ
+NDI Source	ⴰⵙⴰⴳⵎ NDI
+DeckLink Input	ⴰⴽⵛⵛⵓⵎ DeckLink
+Syphon/Spout Source	ⴰⵙⴰⴳⵎ Syphon/Spout
+Live stream cue	cue ⵏ ⵓⵙⵎⵉⴳⵍ ⵓⵙⵔⵉⴷ
+Composite	ⴰⵙⵎⵓⵏ
+Composite scene cue	cue ⵏ ⵓⵙⵎⵓⵏ
+Lower Third	ⴰⵣⵡⵍ ⵏ ⵡⴰⴷⴷⴰⵢ
+Lower Third overlay cue	cue ⵏ ⵓⵣⵡⵍ ⵏ ⵡⴰⴷⴷⴰⵢ
+PIP overlay cue	cue ⵏ PIP
+MIDI File	ⴰⴼⴰⵢⵍⵓ MIDI
+Master	Master
+Memo	ⵜⴰⵣⵎⵉⵍⵜ
+Mic	ⴰⵙⵎⵖⵔ ⵏ ⵉⵎⵙⵍⵉ
+Timer	ⴰⵙⵎⵣⴰⵢ
+Tone	ⴰⵎⵙⵍⵉ
+Script	ⴰⵙⴽⵔⵉⴱⵜ
+Target	ⴰⵏⵉⵛⵛⴰ
+Draw	ⴰⵥⵍⴰⵢ
+Code	ⴰⵏⴳⴰⵍ
+Clouds	ⵉⵙⴰⵢⵏ
+Swirl	ⵜⴰⵡⵔⴳⵉⵜ
+Moire	ⵎⵡⴰⵔⵉ
+Picture	ⵜⴰⵡⵍⴰⴼⵜ
+Placement	ⴰⵙⵔⵔⵙ
+Frame lock	ⴰⵇⵇⴰⵏ ⵏ ⵜⵡⵍⴰⴼⵜ
+Suspend	ⵃⴱⵙ
+Seam	ⴰⵇⵇⴰⵏ
+High pass	ⴰⵙⵉⴼⴼ ⴰⴼⵍⵍⴰ
+Low pass	ⴰⵙⵉⴼⴼ ⴰⴷⴷⴰⵢ
+Tilt EQ	EQ ⴰⵏⴰⵍⵍⴰⵍ
+Compressor	ⴰⵙⴷⵔⵓⵙ
+Gate	ⵜⴰⴳⴳⵓⵔⵜ
+Delay	ⴰⵎⴰⵣⵓⵣ
+Reverb	ⴰⵙⵙⵓⵖⵍ ⵏ ⵉⵎⵙⵍⵉ
+Binaural	ⵙ ⵙⵏⴰⵜ ⵜⵎⵥⵥⵓⵖⵉⵏ
+Crush	ⴰⵕⵥⵥⵓ
+Word	ⴰⵡⴰⵍ
+Scrub	ⴰⵙⵎⵓⵙⵙⵓ
+Short	ⴰⴳⵣⵣⵓⵍ
+Shatter	ⴰⴱⴹⵓ
+Pulse	ⴰⵏⴱⴰⴹ
+Crawl	ⴰⵎⵓⵙⵙⵓ ⵏ ⵓⴹⵕⵉⵚ
+Typewriter	ⵜⴰⵎⴰⵛⵉⵏⵜ ⵏ ⵜⵉⵔⵔⴰ
+Oscilloscope	ⴰⵙⴽⴰⵏ ⵏ ⵜⵎⴰⴷⴰⵏⵉⵏ
+Spectrum	ⴰⵎⵣⵉⵔ
+Level Meters	ⵉⵙⵎⵣⴰⵢⵏ ⵏ ⵓⵙⵡⵉⵔ
+Waveform	ⵜⴰⵍⵖⴰ ⵏ ⵜⵎⴰⴷⴰ
+EFFECTS	ⵉⵙⵏⴼⴰⵍⵏ
+TRIGGERS	ⵉⵙⵏⵇⴰⵔⵏ
+SEQUENCE	ⴰⵙⴹⴼⴰⵕ
+MOTION CONTROL	ⴰⵙⵎⵓⵙⵙⵓ ⵙ ⵜⵏⴱⴰⴹⵜ
+THIS CUE	cue ⴰⴷ
+FUNCTIONS	ⵜⵉⵡⵓⵔⵉⵡⵉⵏ
+VALUES	ⴰⵜⵉⴳⵏ
+KEYS	ⵜⵉⵙⴰⵔⵓⵜⵉⵏ
+FREEZE	ⵙⵙⴽⵔⵚ
+FROZEN	ⵉⴽⵔⵚ
+BYPASSED	ⵉⵜⵜⵓⵣⵔⵉ
+BYPASS ALL	ⵣⵔⵉ ⴰⴽⴽ
+DEFAULTS	ⵉⵎⵣⵡⵓⵔⴰ
+CHANGE	ⵙⵏⴼⵍ
+CHOOSE	ⵙⵜⵉ
+Stop all	ⵃⴱⵙ ⴰⴽⴽ
+Pause all	ⵃⴱⵙ ⴰⴽⴽ ⵉⵎⵉⴽ
+Resume all	ⴽⵎⵎⵍ ⴰⴽⴽ
+Do not continue	ⵓⵔ ⴽⵎⵎⵍ
+Auto-continue	ⴰⵙⴽⵎⵎⵍ ⴰⵡⵔⵎⴰⵏ
+Auto-follow	ⴽⵎⵎⵍ ⴷⴼⴼⵉⵔ ⵜⴳⴳⴰⵔⴰ
+END HOLD	ⵜⴰⴳⴳⴰⵔⴰ ⴹⴹⴼ
+END LOOP	ⵜⴰⴳⴳⴰⵔⴰ ⵙⵙⵓⵖⵍ
+END NEXT	ⵜⴰⴳⴳⴰⵔⴰ ⴰⵎⴰⵢⵏⵓ
+END STOP	ⵜⴰⴳⴳⴰⵔⴰ ⵃⴱⵙ
+OUTPUT EFFECTS	ⵉⵙⵏⴼⴰⵍⵏ ⵏ ⵜⵓⴼⴼⵖⴰ
+LIVE CAPTIONS	ⵜⵉⵔⵔⴰ ⵜⵓⵙⵔⵉⴷⵜ
+captions	ⵜⵉⵔⵔⴰ
+Name Card	ⵜⴰⴽⴰⵕⴹⴰ ⵏ ⵢⵉⵙⵎ
+TEST CARD	ⵜⴰⴽⴰⵕⴹⴰ ⵏ ⵓⵙⵉⵔⵎ
+TEST CARD ON	ⵜⴰⴽⴰⵕⴹⴰ ⵜⵔⵥⵎ
+EXPORT CARD	ⵙⵙⵓⴼⵖ ⵜⴰⴽⴰⵕⴹⴰ
+EXPORTING...	ⴰⵙⵓⴼⵖ...
+LOW LATENCY	ⴰⵎⴰⵣⵓⵣ ⴰⵎⵥⵥⴰⵏ
+WEB MONITOR	ⴰⴳⴷⵉⵍ ⵏ ⵡⵉⴱ
+PHONE & TABLET	ⴰⵙⴰⵡⴰⵍ ⴷ ⵜⴰⴼⵍⵡⵉⵜ
+SCAN TO PAIR	ⵙⵉⴹⵏ ⵃⵎⴰ ⴰⴷ ⵜⵇⵇⵏⵜ
+WITH SOUND	ⵙ ⵉⵎⵙⵍⵉ
+THE NETWORK	ⴰⵥⵟⵟⴰ
+FIXTURES	ⵉⵙⴼⴰⵡⵏ
+ADD FIXTURE	ⵔⵏⵓ ⴰⵙⴼⴰⵡ
+Dimmer	ⴰⵙⵙⴷⵔⵓⵙ
+Dimmer + RGB	ⴰⵙⵙⴷⵔⵓⵙ + RGB
+Dimmer + temperature	ⴰⵙⵙⴷⵔⵓⵙ + ⵜⴰⵥⵖⴰⵍⵜ
+QR CODE	ⴰⵏⴳⴰⵍ QR

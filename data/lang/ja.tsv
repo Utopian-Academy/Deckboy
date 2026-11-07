@@ -1146,3 +1146,199 @@ hold {n} s	{n}秒長押し
 any	すべて
 built in	組み込み
 show	ショー
+motion	モーション
+METADATA	メタデータ
+generated	生成済み
+Fit	全体表示
+inf	無限
+NO	いいえ
+YES	はい
+UP	上へ
+DOWN	下へ
+Left	左
+Right	右
+Top	上
+Bottom	下
+add	追加
+all	すべて
+none	なし
+Cut	カット
+Fade	フェード
+Load	読込
+Pause	一時停止
+Resume	再開
+Start	開始
+Skip	スキップ
+Arm	アーム
+Disarm	アーム解除
+ONE	1つ
+ONCE	1回
+Size	サイズ
+Width	幅
+amount	量
+brightness	明るさ
+contrast	コントラスト
+saturation	彩度
+hue	色相
+level	レベル
+speed	速度
+style	スタイル
+title	タイトル
+subtitle	サブタイトル
+notes	メモ
+font	フォント
+frame	フレーム
+type	種類
+state	状態
+blend	合成
+align	整列
+line	線
+box	四角
+oval	楕円
+brush	ブラシ
+eraser	消しゴム
+mask	マスク
+grow	拡張
+subtract	減算
+split	分割
+stacked	積み重ね
+soft	ソフト
+tolerance	許容値
+curve	カーブ
+Linear	リニア
+Ease in	イーズイン
+Ease out	イーズアウト
+S-curve	S字カーブ
+Position X	X位置
+Position Y	Y位置
+Deck volume	デッキ音量
+Deck opacity	デッキ不透明度
+Master dimmer	マスターディマー
+Cue brightness	キューの明るさ
+Cue contrast	キューのコントラスト
+Cue saturation	キューの彩度
+Cue hue	キューの色相
+no effects	エフェクトなし
+no audio effects	音声エフェクトなし
+nothing yet	まだありません
+no output	出力なし
+no window	ウィンドウなし
+source missing	ソースなし
+waiting for a picture	映像を待機中
+clear frame	フレームを消去
+undo stroke	線を元に戻す
+save still	静止画を保存
+save animation	アニメを保存
+export	書き出し
+repeats	繰り返し数
+hold last	最終フレーム保持
+end action	終了時の動作
+cue id	キューID
+goto target	ジャンプ先
+set	設定
+send	送信
+run	実行
+idle	待機
+standby	スタンバイ
+Loop	ループ
+loop forever	無限ループ
+PATCH	パッチ
+OUTPUTS	出力
+SECTIONS	セクション
+Video Synth	ビデオシンセ
+Browser	ブラウザー
+Browser Cue	ブラウザーキュー
+Window Source	ウィンドウソース
+Camera Source	カメラソース
+NDI Source	NDIソース
+DeckLink Input	DeckLink入力
+Syphon/Spout Source	Syphon/Spoutソース
+Live stream cue	ライブ配信キュー
+Composite	合成
+Composite scene cue	合成シーンキュー
+Lower Third	ローワーサード
+Lower Third overlay cue	ローワーサードキュー
+PIP overlay cue	PIPオーバーレイキュー
+MIDI File	MIDIファイル
+Master	マスター
+Memo	メモ
+Mic	マイク
+Timer	タイマー
+Tone	トーン
+Script	スクリプト
+Target	ターゲット
+Draw	描画
+Code	コード
+Clouds	雲
+Swirl	渦
+Moire	モアレ
+Picture	映像
+Placement	配置
+Frame lock	フレームロック
+Suspend	サスペンド
+Seam	継ぎ目
+High pass	ハイパス
+Low pass	ローパス
+Tilt EQ	ティルトEQ
+Compressor	コンプレッサー
+Gate	ゲート
+Delay	ディレイ
+Reverb	リバーブ
+Binaural	バイノーラル
+Crush	クラッシュ
+Word	ワード
+Scrub	スクラブ
+Short	ショート
+Shatter	粉砕
+Pulse	パルス
+Crawl	横スクロール
+Typewriter	タイプライター
+Oscilloscope	オシロスコープ
+Spectrum	スペクトル
+Level Meters	レベルメーター
+Waveform	波形
+EFFECTS	エフェクト
+TRIGGERS	トリガー
+SEQUENCE	シーケンス
+MOTION CONTROL	モーション制御
+THIS CUE	このキュー
+FUNCTIONS	機能
+VALUES	値
+KEYS	キー
+FREEZE	フリーズ
+FROZEN	フリーズ中
+BYPASSED	バイパス中
+BYPASS ALL	全バイパス
+DEFAULTS	既定値
+CHANGE	変更
+CHOOSE	選択
+Stop all	すべて停止
+Pause all	すべて一時停止
+Resume all	すべて再開
+Do not continue	続行しない
+Auto-continue	自動続行
+Auto-follow	終了後に続行
+END HOLD	終了 保持
+END LOOP	終了 ループ
+END NEXT	終了 次へ
+END STOP	終了 停止
+OUTPUT EFFECTS	出力エフェクト
+LIVE CAPTIONS	ライブ字幕
+captions	字幕
+Name Card	ネームカード
+TEST CARD	テストカード
+TEST CARD ON	テストカード有効
+EXPORT CARD	カードを書出し
+EXPORTING...	書き出し中...
+LOW LATENCY	低遅延
+WEB MONITOR	ウェブモニター
+PHONE & TABLET	スマホとタブレット
+SCAN TO PAIR	スキャンして接続
+WITH SOUND	音声あり
+THE NETWORK	ネットワーク
+FIXTURES	照明器具
+ADD FIXTURE	照明を追加
+Dimmer	ディマー
+Dimmer + RGB	ディマー + RGB
+Dimmer + temperature	ディマー + 色温度
+QR CODE	QRコード

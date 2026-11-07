@@ -1127,3 +1127,200 @@ on air in playlist {n}	i luften i playliste {n}
 on air in the focused playlist	i luften i den aktive playliste
 any	enhver
 built in	indbygget
+motion	bevægelse
+METADATA	METADATA
+generated	genereret
+Fit	Tilpas
+inf	uendelig
+NO	NEJ
+YES	JA
+UP	OP
+DOWN	NED
+Left	Venstre
+Right	Højre
+Top	Top
+Bottom	Bund
+add	tilføj
+all	alle
+none	ingen
+Cut	Klip
+Fade	Blænding
+Load	Indlæs
+Pause	Pause
+Resume	Fortsæt
+Start	Start
+Skip	Spring over
+Arm	Klargør
+Disarm	Deaktivér
+ONE	EN
+ONCE	ÉN GANG
+Size	Størrelse
+Width	Bredde
+amount	mængde
+brightness	lysstyrke
+contrast	kontrast
+saturation	mætning
+hue	farvetone
+level	niveau
+speed	hastighed
+style	stil
+title	titel
+subtitle	undertitel
+notes	noter
+font	skrifttype
+frame	billede
+type	type
+state	tilstand
+blend	blanding
+align	justér
+line	linje
+box	rektangel
+oval	oval
+brush	pensel
+eraser	viskelæder
+mask	maske
+grow	udvid
+subtract	træk fra
+split	opdel
+stacked	stablet
+soft	blød
+tolerance	tolerance
+curve	kurve
+Linear	Lineær
+Ease in	Blød start
+Ease out	Blød slut
+S-curve	S-kurve
+Position X	Position X
+Position Y	Position Y
+Deck volume	Decklydstyrke
+Deck opacity	Deckdækning
+Master dimmer	Hoveddæmper
+Cue brightness	Cue-lysstyrke
+Cue contrast	Cue-kontrast
+Cue saturation	Cue-mætning
+Cue hue	Cue-farvetone
+no effects	ingen effekter
+no audio effects	ingen lydeffekter
+nothing yet	intet endnu
+no output	ingen udgang
+no window	intet vindue
+source missing	kilde mangler
+waiting for a picture	venter på billede
+clear frame	ryd billede
+undo stroke	fortryd strøg
+save still	gem stillbillede
+save animation	gem animation
+export	eksportér
+repeats	gentagelser
+hold last	hold sidste
+end action	sluthandling
+cue id	cue-id
+goto target	springmål
+set	indstil
+send	send
+run	kør
+idle	inaktiv
+standby	klar
+Loop	Løkke
+loop forever	uendelig løkke
+Layout	Layout
+PATCH	PATCH
+OUTPUTS	UDGANGE
+SECTIONS	AFSNIT
+Video Synth	Videosynth
+Browser	Browser
+Browser Cue	Browser-cue
+Window Source	Vindueskilde
+Camera Source	Kamerakilde
+NDI Source	NDI-kilde
+DeckLink Input	DeckLink-indgang
+Syphon/Spout Source	Syphon/Spout-kilde
+Live stream cue	Livestream-cue
+Composite	Komposition
+Composite scene cue	Sammensat scene-cue
+Lower Third	Navnebjælke
+Lower Third overlay cue	Navnebjælke-cue
+PIP overlay cue	PIP-overlay-cue
+MIDI File	MIDI-fil
+Master	Master
+Memo	Memo
+Mic	Mikrofon
+Timer	Timer
+Tone	Tone
+Script	Script
+Target	Mål
+Draw	Tegning
+Code	Kode
+Clouds	Skyer
+Swirl	Hvirvel
+Moire	Moiré
+Picture	Billede
+Placement	Placering
+Frame lock	Billedlås
+Suspend	Afbryd
+Seam	Søm
+High pass	Højpas
+Low pass	Lavpas
+Tilt EQ	Vippe-EQ
+Compressor	Kompressor
+Gate	Gate
+Delay	Forsinkelse
+Reverb	Rumklang
+Binaural	Binaural
+Crush	Knusning
+Word	Ord
+Scrub	Skrub
+Short	Kort
+Shatter	Splintring
+Pulse	Puls
+Crawl	Rulletekst
+Typewriter	Skrivemaskine
+Oscilloscope	Oscilloskop
+Spectrum	Spektrum
+Level Meters	Niveaumålere
+Waveform	Bølgeform
+EFFECTS	EFFEKTER
+TRIGGERS	TRIGGERE
+SEQUENCE	SEKVENS
+MOTION CONTROL	BEVÆGELSESSTYRING
+THIS CUE	DENNE CUE
+FUNCTIONS	FUNKTIONER
+VALUES	VÆRDIER
+KEYS	TASTER
+FREEZE	FRYS
+FROZEN	FROSSET
+BYPASSED	OMGÅET
+BYPASS ALL	OMGÅ ALLE
+DEFAULTS	STANDARDER
+CHANGE	SKIFT
+CHOOSE	VÆLG
+Stop all	Stop alle
+Pause all	Pause alle
+Resume all	Fortsæt alle
+Do not continue	Fortsæt ikke
+Auto-continue	Fortsæt auto.
+Auto-follow	Følg ved slut
+END HOLD	SLUT HOLD
+END LOOP	SLUT LØKKE
+END NEXT	SLUT NÆSTE
+END STOP	SLUT STOP
+OUTPUT EFFECTS	UDGANGSEFFEKTER
+LIVE CAPTIONS	LIVEUNDERTEKSTER
+captions	undertekster
+Name Card	Navnekort
+TEST CARD	TESTKORT
+TEST CARD ON	TESTKORT TIL
+EXPORT CARD	EKSPORTÉR KORT
+EXPORTING...	EKSPORTERER...
+LOW LATENCY	LAV LATENS
+WEB MONITOR	WEBMONITOR
+PHONE & TABLET	TELEFON OG TABLET
+SCAN TO PAIR	SCAN FOR AT PARRE
+WITH SOUND	MED LYD
+THE NETWORK	NETVÆRKET
+FIXTURES	LAMPER
+ADD FIXTURE	TILFØJ LAMPE
+Dimmer	Lysdæmper
+Dimmer + RGB	Lysdæmper + RGB
+Dimmer + temperature	Lysdæmper + temperatur
+QR CODE	QR-KODE

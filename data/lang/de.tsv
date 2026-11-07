@@ -1143,3 +1143,200 @@ hold {n} s	{n} s halten
 any	jeder
 built in	eingebaut
 show	Show
+motion	Bewegung
+METADATA	METADATEN
+generated	erzeugt
+Fit	Einpassen
+inf	unendl.
+NO	NEIN
+YES	JA
+UP	HOCH
+DOWN	RUNTER
+Left	Links
+Right	Rechts
+Top	Oben
+Bottom	Unten
+add	hinzu
+all	alle
+none	keine
+Cut	Schnitt
+Fade	Blende
+Load	Laden
+Pause	Pause
+Resume	Fortsetzen
+Start	Start
+Skip	Überspringen
+Arm	Bereit
+Disarm	Sperren
+ONE	EINS
+ONCE	EINMAL
+Size	Größe
+Width	Breite
+amount	Stärke
+brightness	Helligkeit
+contrast	Kontrast
+saturation	Sättigung
+hue	Farbton
+level	Pegel
+speed	Tempo
+style	Stil
+title	Titel
+subtitle	Untertitel
+notes	Notizen
+font	Schrift
+frame	Bild
+type	Typ
+state	Status
+blend	Mischung
+align	Ausrichten
+line	Linie
+box	Rechteck
+oval	Oval
+brush	Pinsel
+eraser	Radierer
+mask	Maske
+grow	Erweitern
+subtract	Abziehen
+split	Teilen
+stacked	Gestapelt
+soft	Weich
+tolerance	Toleranz
+curve	Kurve
+Linear	Linear
+Ease in	Sanft rein
+Ease out	Sanft raus
+S-curve	S-Kurve
+Position X	Position X
+Position Y	Position Y
+Deck volume	Deck-Lautstärke
+Deck opacity	Deck-Deckkraft
+Master dimmer	Hauptdimmer
+Cue brightness	Cue-Helligkeit
+Cue contrast	Cue-Kontrast
+Cue saturation	Cue-Sättigung
+Cue hue	Cue-Farbton
+no effects	keine Effekte
+no audio effects	keine Audioeffekte
+nothing yet	noch nichts
+no output	kein Ausgang
+no window	kein Fenster
+source missing	Quelle fehlt
+waiting for a picture	warte auf ein Bild
+clear frame	Bild leeren
+undo stroke	Strich zurück
+save still	Standbild sichern
+save animation	Animation sichern
+export	Export
+repeats	Wiederholungen
+hold last	letztes Bild halten
+end action	Endaktion
+cue id	Cue-ID
+goto target	Sprungziel
+set	setzen
+send	senden
+run	ausführen
+idle	inaktiv
+standby	bereit
+Loop	Schleife
+loop forever	endlos wiederholen
+Layout	Anordnung
+PATCH	PATCH
+OUTPUTS	AUSGÄNGE
+SECTIONS	ABSCHNITTE
+Video Synth	Videosynth
+Browser	Browser
+Browser Cue	Browser-Cue
+Window Source	Fensterquelle
+Camera Source	Kameraquelle
+NDI Source	NDI-Quelle
+DeckLink Input	DeckLink-Eingang
+Syphon/Spout Source	Syphon/Spout-Quelle
+Live stream cue	Livestream-Cue
+Composite	Komposition
+Composite scene cue	Szenen-Cue
+Lower Third	Bauchbinde
+Lower Third overlay cue	Bauchbinden-Cue
+PIP overlay cue	PIP-Overlay-Cue
+MIDI File	MIDI-Datei
+Master	Master
+Memo	Notiz
+Mic	Mikro
+Timer	Timer
+Tone	Ton
+Script	Skript
+Target	Ziel
+Draw	Zeichnen
+Code	Code
+Clouds	Wolken
+Swirl	Wirbel
+Moire	Moiré
+Picture	Bild
+Placement	Platzierung
+Frame lock	Bildkopplung
+Suspend	Aussetzen
+Seam	Naht
+High pass	Hochpass
+Low pass	Tiefpass
+Tilt EQ	Neigungs-EQ
+Compressor	Kompressor
+Gate	Gate
+Delay	Verzögerung
+Reverb	Hall
+Binaural	Binaural
+Crush	Bitcrusher
+Word	Wort
+Scrub	Scrub
+Short	Kurz
+Shatter	Zerbrechen
+Pulse	Puls
+Crawl	Laufschrift
+Typewriter	Schreibmaschine
+Oscilloscope	Oszilloskop
+Spectrum	Spektrum
+Level Meters	Pegelanzeigen
+Waveform	Wellenform
+EFFECTS	EFFEKTE
+TRIGGERS	AUSLÖSER
+SEQUENCE	SEQUENZ
+MOTION CONTROL	BEWEGUNGSSTEUERUNG
+THIS CUE	DIESER CUE
+FUNCTIONS	FUNKTIONEN
+VALUES	WERTE
+KEYS	TASTEN
+FREEZE	EINFRIEREN
+FROZEN	EINGEFROREN
+BYPASSED	UMGANGEN
+BYPASS ALL	ALLE UMGEHEN
+DEFAULTS	VORGABEN
+CHANGE	ÄNDERN
+CHOOSE	WÄHLEN
+Stop all	Alle stoppen
+Pause all	Alle pausieren
+Resume all	Alle fortsetzen
+Do not continue	Nicht fortsetzen
+Auto-continue	Automatisch weiter
+Auto-follow	Am Ende weiter
+END HOLD	ENDE HALTEN
+END LOOP	ENDE SCHLEIFE
+END NEXT	ENDE WEITER
+END STOP	ENDE STOPP
+OUTPUT EFFECTS	AUSGANGSEFFEKTE
+LIVE CAPTIONS	LIVE-UNTERTITEL
+captions	Untertitel
+Name Card	Namenskarte
+TEST CARD	TESTKARTE
+TEST CARD ON	TESTKARTE EIN
+EXPORT CARD	KARTE EXPORTIEREN
+EXPORTING...	EXPORT LÄUFT...
+LOW LATENCY	KURZE LATENZ
+WEB MONITOR	WEBMONITOR
+PHONE & TABLET	HANDY & TABLET
+SCAN TO PAIR	ZUM KOPPELN SCANNEN
+WITH SOUND	MIT TON
+THE NETWORK	DAS NETZWERK
+FIXTURES	SCHEINWERFER
+ADD FIXTURE	LAMPE HINZU
+Dimmer	Dimmer
+Dimmer + RGB	Dimmer + RGB
+Dimmer + temperature	Dimmer + Farbtemperatur
+QR CODE	QR-CODE

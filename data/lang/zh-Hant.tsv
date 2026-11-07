@@ -1145,3 +1145,199 @@ hold {n} s	按住 {n} 秒
 any	任何
 built in	內建
 show	演出
+motion	運動
+METADATA	中繼資料
+generated	已產生
+Fit	適合
+inf	無限
+NO	否
+YES	是
+UP	向上
+DOWN	向下
+Left	左
+Right	右
+Top	上
+Bottom	下
+add	新增
+all	全部
+none	無
+Cut	切換
+Fade	漸變
+Load	載入
+Pause	暫停
+Resume	繼續
+Start	開始
+Skip	略過
+Arm	待命
+Disarm	取消待命
+ONE	一個
+ONCE	一次
+Size	尺寸
+Width	寬度
+amount	強度
+brightness	亮度
+contrast	對比
+saturation	飽和度
+hue	色相
+level	電平
+speed	速度
+style	樣式
+title	標題
+subtitle	副標題
+notes	備註
+font	字型
+frame	影格
+type	類型
+state	狀態
+blend	混合
+align	對齊
+line	線條
+box	矩形
+oval	橢圓
+brush	畫筆
+eraser	橡皮擦
+mask	遮罩
+grow	擴展
+subtract	減去
+split	分割
+stacked	堆疊
+soft	柔和
+tolerance	容差
+curve	曲線
+Linear	線性
+Ease in	緩入
+Ease out	緩出
+S-curve	S形曲線
+Position X	X位置
+Position Y	Y位置
+Deck volume	播放台音量
+Deck opacity	播放台不透明度
+Master dimmer	總調光
+Cue brightness	Cue亮度
+Cue contrast	Cue對比
+Cue saturation	Cue飽和度
+Cue hue	Cue色相
+no effects	無效果
+no audio effects	無音訊效果
+nothing yet	暫無
+no output	無輸出
+no window	無視窗
+source missing	訊號源缺失
+waiting for a picture	等待畫面
+clear frame	清空影格
+undo stroke	復原筆畫
+save still	儲存靜態影格
+save animation	儲存動畫
+export	匯出
+repeats	重複次數
+hold last	保持末格
+end action	結束動作
+cue id	Cue ID
+goto target	跳轉目標
+set	設定
+send	傳送
+run	執行
+idle	閒置
+standby	待命
+Loop	循環
+loop forever	無限循環
+PATCH	跳線
+OUTPUTS	輸出
+SECTIONS	分區
+Video Synth	視訊合成器
+Browser	瀏覽器
+Browser Cue	瀏覽器Cue
+Window Source	視窗訊號源
+Camera Source	攝影機訊號源
+NDI Source	NDI訊號源
+DeckLink Input	DeckLink輸入
+Syphon/Spout Source	Syphon/Spout訊號源
+Live stream cue	直播串流Cue
+Composite	合成
+Composite scene cue	合成場景Cue
+Lower Third	下三分之一字幕
+Lower Third overlay cue	下三分之一字幕Cue
+PIP overlay cue	PIP疊加Cue
+MIDI File	MIDI檔案
+Master	主控
+Memo	備忘
+Mic	麥克風
+Timer	計時器
+Tone	音調
+Script	指令碼
+Target	目標
+Draw	繪畫
+Code	程式碼
+Clouds	雲
+Swirl	漩渦
+Moire	摩爾紋
+Picture	畫面
+Placement	位置
+Frame lock	影格鎖定
+Suspend	懸停
+Seam	接縫
+High pass	高通
+Low pass	低通
+Tilt EQ	傾斜等化
+Compressor	壓縮器
+Gate	噪音閘
+Delay	延遲
+Reverb	殘響
+Binaural	雙耳
+Crush	粉碎
+Word	字
+Scrub	搓動
+Short	短路
+Shatter	碎裂
+Pulse	脈衝
+Crawl	橫向捲動
+Typewriter	打字機
+Oscilloscope	示波器
+Spectrum	頻譜
+Level Meters	電平表
+Waveform	波形
+EFFECTS	效果
+TRIGGERS	觸發器
+SEQUENCE	序列
+MOTION CONTROL	運動控制
+THIS CUE	此Cue
+FUNCTIONS	功能
+VALUES	值
+KEYS	按鍵
+FREEZE	凍結
+FROZEN	已凍結
+BYPASSED	已旁通
+BYPASS ALL	全部旁通
+DEFAULTS	預設值
+CHANGE	變更
+CHOOSE	選擇
+Stop all	全部停止
+Pause all	全部暫停
+Resume all	全部繼續
+Do not continue	不繼續
+Auto-continue	自動繼續
+Auto-follow	結束後繼續
+END HOLD	結束保持
+END LOOP	結束循環
+END NEXT	結束下一個
+END STOP	結束停止
+OUTPUT EFFECTS	輸出效果
+LIVE CAPTIONS	即時字幕
+captions	字幕
+Name Card	姓名卡
+TEST CARD	測試卡
+TEST CARD ON	測試卡已開
+EXPORT CARD	匯出測試卡
+EXPORTING...	正在匯出...
+LOW LATENCY	低延遲
+WEB MONITOR	網頁監看
+PHONE & TABLET	手機和平板
+SCAN TO PAIR	掃碼配對
+WITH SOUND	含聲音
+THE NETWORK	網路
+FIXTURES	燈具
+ADD FIXTURE	新增燈具
+Dimmer	調光器
+Dimmer + RGB	調光器 + RGB
+Dimmer + temperature	調光器 + 色溫
+QR CODE	QR碼

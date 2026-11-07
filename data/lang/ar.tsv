@@ -1153,3 +1153,199 @@ hold {n} s	اضغط {n} ث
 any	أي
 built in	مدمج
 show	العرض
+motion	حركة
+METADATA	بيانات وصفية
+generated	مولّد
+Fit	ملاءمة
+inf	بلا حد
+NO	لا
+YES	نعم
+UP	أعلى
+DOWN	أسفل
+Left	يسار
+Right	يمين
+Top	أعلى
+Bottom	أسفل
+add	إضافة
+all	الكل
+none	لا شيء
+Cut	قطع
+Fade	تلاشي
+Load	تحميل
+Pause	إيقاف مؤقت
+Resume	متابعة
+Start	بدء
+Skip	تخطّي
+Arm	تجهيز
+Disarm	إلغاء التجهيز
+ONE	واحد
+ONCE	مرة واحدة
+Size	الحجم
+Width	العرض
+amount	المقدار
+brightness	السطوع
+contrast	التباين
+saturation	التشبع
+hue	درجة اللون
+level	المستوى
+speed	السرعة
+style	النمط
+title	العنوان
+subtitle	عنوان فرعي
+notes	ملاحظات
+font	الخط
+frame	إطار
+type	النوع
+state	الحالة
+blend	مزج
+align	محاذاة
+line	خط
+box	مستطيل
+oval	بيضاوي
+brush	فرشاة
+eraser	ممحاة
+mask	قناع
+grow	توسيع
+subtract	طرح
+split	تقسيم
+stacked	مكدّس
+soft	ناعم
+tolerance	التسامح
+curve	منحنى
+Linear	خطي
+Ease in	بداية ناعمة
+Ease out	نهاية ناعمة
+S-curve	منحنى S
+Position X	الموضع X
+Position Y	الموضع Y
+Deck volume	صوت deck
+Deck opacity	عتامة deck
+Master dimmer	المعتّم الرئيسي
+Cue brightness	سطوع cue
+Cue contrast	تباين cue
+Cue saturation	تشبع cue
+Cue hue	لون cue
+no effects	بلا مؤثرات
+no audio effects	بلا مؤثرات صوتية
+nothing yet	لا شيء بعد
+no output	لا خرج
+no window	لا نافذة
+source missing	المصدر مفقود
+waiting for a picture	بانتظار صورة
+clear frame	مسح الإطار
+undo stroke	تراجع عن الخط
+save still	حفظ صورة
+save animation	حفظ الحركة
+export	تصدير
+repeats	التكرارات
+hold last	تثبيت الأخير
+end action	إجراء النهاية
+cue id	معرّف cue
+goto target	هدف الانتقال
+set	تعيين
+send	إرسال
+run	تنفيذ
+idle	خامل
+standby	استعداد
+Loop	تكرار
+loop forever	تكرار بلا نهاية
+PATCH	PATCH
+OUTPUTS	المخارج
+SECTIONS	الأقسام
+Video Synth	مركّب فيديو
+Browser	متصفح
+Browser Cue	cue متصفح
+Window Source	مصدر نافذة
+Camera Source	مصدر كاميرا
+NDI Source	مصدر NDI
+DeckLink Input	دخل DeckLink
+Syphon/Spout Source	مصدر Syphon/Spout
+Live stream cue	cue بث مباشر
+Composite	تركيب
+Composite scene cue	cue مشهد مركّب
+Lower Third	شريط سفلي
+Lower Third overlay cue	cue شريط سفلي
+PIP overlay cue	cue تراكب PIP
+MIDI File	ملف MIDI
+Master	Master
+Memo	مذكرة
+Mic	ميكروفون
+Timer	مؤقّت
+Tone	نغمة
+Script	برنامج نصي
+Target	هدف
+Draw	رسم
+Code	كود
+Clouds	سحب
+Swirl	دوامة
+Moire	تموّج
+Picture	صورة
+Placement	موضع
+Frame lock	قفل الإطار
+Suspend	تعليق
+Seam	وصلة
+High pass	تمرير عالٍ
+Low pass	تمرير منخفض
+Tilt EQ	EQ مائل
+Compressor	ضاغط
+Gate	بوابة
+Delay	تأخير
+Reverb	صدى
+Binaural	ثنائي الأذن
+Crush	سحق
+Word	كلمة
+Scrub	فرك
+Short	قصير
+Shatter	تحطيم
+Pulse	نبض
+Crawl	نص زاحف
+Typewriter	آلة كاتبة
+Oscilloscope	راسم الذبذبات
+Spectrum	طيف
+Level Meters	مقاييس المستوى
+Waveform	شكل الموجة
+EFFECTS	المؤثرات
+TRIGGERS	المشغّلات
+SEQUENCE	تسلسل
+MOTION CONTROL	تحكم بالحركة
+THIS CUE	هذا cue
+FUNCTIONS	الوظائف
+VALUES	القيم
+KEYS	المفاتيح
+FREEZE	تجميد
+FROZEN	مجمّد
+BYPASSED	متجاوَز
+BYPASS ALL	تجاوز الكل
+DEFAULTS	الافتراضيات
+CHANGE	تغيير
+CHOOSE	اختيار
+Stop all	إيقاف الكل
+Pause all	تعليق الكل
+Resume all	متابعة الكل
+Do not continue	عدم المتابعة
+Auto-continue	متابعة آلية
+Auto-follow	متابعة عند النهاية
+END HOLD	نهاية تثبيت
+END LOOP	نهاية تكرار
+END NEXT	نهاية التالي
+END STOP	نهاية إيقاف
+OUTPUT EFFECTS	مؤثرات الخرج
+LIVE CAPTIONS	ترجمة حية
+captions	ترجمة
+Name Card	بطاقة اسم
+TEST CARD	بطاقة اختبار
+TEST CARD ON	بطاقة الاختبار مفعّلة
+EXPORT CARD	تصدير البطاقة
+EXPORTING...	جارٍ التصدير...
+LOW LATENCY	كمون منخفض
+WEB MONITOR	مراقب ويب
+PHONE & TABLET	هاتف ولوحي
+SCAN TO PAIR	امسح للاقتران
+WITH SOUND	مع الصوت
+THE NETWORK	الشبكة
+FIXTURES	أجهزة الإضاءة
+ADD FIXTURE	إضافة جهاز إضاءة
+Dimmer	معتّم
+Dimmer + RGB	معتّم + RGB
+Dimmer + temperature	معتّم + حرارة اللون
+QR CODE	رمز QR

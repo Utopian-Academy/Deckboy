@@ -1141,3 +1141,199 @@ hold {n} s	держать {n} с
 any	любой
 built in	встроенная
 show	шоу
+motion	движение
+METADATA	МЕТАДАННЫЕ
+generated	сгенерировано
+Fit	Вписать
+inf	бескон.
+NO	НЕТ
+YES	ДА
+UP	ВВЕРХ
+DOWN	ВНИЗ
+Left	Слева
+Right	Справа
+Top	Сверху
+Bottom	Снизу
+add	добавить
+all	все
+none	нет
+Cut	Срез
+Fade	Затухание
+Load	Загрузить
+Pause	Пауза
+Resume	Продолжить
+Start	Старт
+Skip	Пропустить
+Arm	Взвести
+Disarm	Снять готовность
+ONE	ОДИН
+ONCE	ОДИН РАЗ
+Size	Размер
+Width	Ширина
+amount	сила
+brightness	яркость
+contrast	контраст
+saturation	насыщенность
+hue	тон
+level	уровень
+speed	скорость
+style	стиль
+title	заголовок
+subtitle	подзаголовок
+notes	заметки
+font	шрифт
+frame	кадр
+type	тип
+state	состояние
+blend	смешивание
+align	выровнять
+line	линия
+box	прямоугольник
+oval	овал
+brush	кисть
+eraser	ластик
+mask	маска
+grow	расширить
+subtract	вычесть
+split	разделить
+stacked	стопкой
+soft	мягко
+tolerance	допуск
+curve	кривая
+Linear	Линейно
+Ease in	Плавный вход
+Ease out	Плавный выход
+S-curve	S-кривая
+Position X	Позиция X
+Position Y	Позиция Y
+Deck volume	Громкость деки
+Deck opacity	Непрозрачность деки
+Master dimmer	Главный диммер
+Cue brightness	Яркость cue
+Cue contrast	Контраст cue
+Cue saturation	Насыщенность cue
+Cue hue	Тон cue
+no effects	нет эффектов
+no audio effects	нет аудиоэффектов
+nothing yet	пока пусто
+no output	нет выхода
+no window	нет окна
+source missing	источник отсутствует
+waiting for a picture	ожидание изображения
+clear frame	очистить кадр
+undo stroke	отменить штрих
+save still	сохранить кадр
+save animation	сохранить анимацию
+export	экспорт
+repeats	повторы
+hold last	держать последний
+end action	действие в конце
+cue id	ID cue
+goto target	цель перехода
+set	задать
+send	отправить
+run	выполнить
+idle	бездействие
+standby	готовность
+Loop	Цикл
+loop forever	бесконечный цикл
+PATCH	PATCH
+OUTPUTS	ВЫХОДЫ
+SECTIONS	РАЗДЕЛЫ
+Video Synth	Видеосинтезатор
+Browser	Браузер
+Browser Cue	Cue браузера
+Window Source	Источник окна
+Camera Source	Источник камеры
+NDI Source	Источник NDI
+DeckLink Input	Вход DeckLink
+Syphon/Spout Source	Источник Syphon/Spout
+Live stream cue	Cue прямого потока
+Composite	Композиция
+Composite scene cue	Cue составной сцены
+Lower Third	Нижний титр
+Lower Third overlay cue	Cue нижнего титра
+PIP overlay cue	Cue наложения PIP
+MIDI File	MIDI-файл
+Master	Master
+Memo	Заметка
+Mic	Микрофон
+Timer	Таймер
+Tone	Тон
+Script	Скрипт
+Target	Цель
+Draw	Рисование
+Code	Код
+Clouds	Облака
+Swirl	Вихрь
+Moire	Муар
+Picture	Изображение
+Placement	Размещение
+Frame lock	Связь с кадром
+Suspend	Приостановка
+Seam	Стык
+High pass	ФВЧ
+Low pass	ФНЧ
+Tilt EQ	Наклонный EQ
+Compressor	Компрессор
+Gate	Гейт
+Delay	Задержка
+Reverb	Реверберация
+Binaural	Бинауральный
+Crush	Дробление
+Word	Слово
+Scrub	Прокрутка
+Short	Короткий
+Shatter	Осколки
+Pulse	Пульс
+Crawl	Бегущая строка
+Typewriter	Печатная машинка
+Oscilloscope	Осциллограф
+Spectrum	Спектр
+Level Meters	Индикаторы уровня
+Waveform	Форма волны
+EFFECTS	ЭФФЕКТЫ
+TRIGGERS	ТРИГГЕРЫ
+SEQUENCE	СЕКВЕНЦИЯ
+MOTION CONTROL	УПРАВЛЕНИЕ ДВИЖЕНИЕМ
+THIS CUE	ЭТОТ CUE
+FUNCTIONS	ФУНКЦИИ
+VALUES	ЗНАЧЕНИЯ
+KEYS	КЛАВИШИ
+FREEZE	ЗАМОРОЗИТЬ
+FROZEN	ЗАМОРОЖЕНО
+BYPASSED	В ОБХОД
+BYPASS ALL	ВСЁ В ОБХОД
+DEFAULTS	ПО УМОЛЧАНИЮ
+CHANGE	ИЗМЕНИТЬ
+CHOOSE	ВЫБРАТЬ
+Stop all	Остановить всё
+Pause all	Всё на паузу
+Resume all	Продолжить всё
+Do not continue	Не продолжать
+Auto-continue	Автопродолжение
+Auto-follow	Далее по окончании
+END HOLD	КОНЕЦ УДЕРЖАНИЕ
+END LOOP	КОНЕЦ ЦИКЛ
+END NEXT	КОНЕЦ СЛЕДУЮЩИЙ
+END STOP	КОНЕЦ СТОП
+OUTPUT EFFECTS	ЭФФЕКТЫ ВЫХОДА
+LIVE CAPTIONS	ПРЯМЫЕ СУБТИТРЫ
+captions	субтитры
+Name Card	Карточка имени
+TEST CARD	ТЕСТОВАЯ ТАБЛИЦА
+TEST CARD ON	ТАБЛИЦА ВКЛ.
+EXPORT CARD	ЭКСПОРТ ТАБЛИЦЫ
+EXPORTING...	ЭКСПОРТ...
+LOW LATENCY	МАЛАЯ ЗАДЕРЖКА
+WEB MONITOR	ВЕБ-МОНИТОР
+PHONE & TABLET	ТЕЛЕФОН И ПЛАНШЕТ
+SCAN TO PAIR	СКАНИРУЙТЕ ДЛЯ СВЯЗИ
+WITH SOUND	СО ЗВУКОМ
+THE NETWORK	СЕТЬ
+FIXTURES	СВЕТОПРИБОРЫ
+ADD FIXTURE	ДОБАВИТЬ ПРИБОР
+Dimmer	Диммер
+Dimmer + RGB	Диммер + RGB
+Dimmer + temperature	Диммер + температура
+QR CODE	QR-КОД

@@ -1141,3 +1141,199 @@ hold {n} s	тримати {n} с
 any	будь-який
 built in	вбудований
 show	шоу
+motion	рух
+METADATA	МЕТАДАНІ
+generated	згенеровано
+Fit	Вписати
+inf	нескінч.
+NO	НІ
+YES	ТАК
+UP	УГОРУ
+DOWN	УНИЗ
+Left	Ліворуч
+Right	Праворуч
+Top	Угорі
+Bottom	Унизу
+add	додати
+all	усі
+none	немає
+Cut	Зріз
+Fade	Згасання
+Load	Завантажити
+Pause	Пауза
+Resume	Продовжити
+Start	Почати
+Skip	Пропустити
+Arm	Звести
+Disarm	Зняти готовність
+ONE	ОДИН
+ONCE	ОДИН РАЗ
+Size	Розмір
+Width	Ширина
+amount	сила
+brightness	яскравість
+contrast	контраст
+saturation	насиченість
+hue	відтінок
+level	рівень
+speed	швидкість
+style	стиль
+title	заголовок
+subtitle	підзаголовок
+notes	нотатки
+font	шрифт
+frame	кадр
+type	тип
+state	стан
+blend	змішування
+align	вирівняти
+line	лінія
+box	прямокутник
+oval	овал
+brush	пензель
+eraser	гумка
+mask	маска
+grow	розширити
+subtract	відняти
+split	розділити
+stacked	стосом
+soft	м'яко
+tolerance	допуск
+curve	крива
+Linear	Лінійно
+Ease in	Плавний вхід
+Ease out	Плавний вихід
+S-curve	S-крива
+Position X	Позиція X
+Position Y	Позиція Y
+Deck volume	Гучність деки
+Deck opacity	Непрозорість деки
+Master dimmer	Головний димер
+Cue brightness	Яскравість cue
+Cue contrast	Контраст cue
+Cue saturation	Насиченість cue
+Cue hue	Відтінок cue
+no effects	немає ефектів
+no audio effects	немає аудіоефектів
+nothing yet	ще порожньо
+no output	немає виходу
+no window	немає вікна
+source missing	джерело відсутнє
+waiting for a picture	очікування зображення
+clear frame	очистити кадр
+undo stroke	скасувати штрих
+save still	зберегти кадр
+save animation	зберегти анімацію
+export	експорт
+repeats	повтори
+hold last	тримати останній
+end action	кінцева дія
+cue id	ID cue
+goto target	ціль переходу
+set	задати
+send	надіслати
+run	виконати
+idle	бездіяльність
+standby	готовність
+Loop	Цикл
+loop forever	нескінченний цикл
+PATCH	PATCH
+OUTPUTS	ВИХОДИ
+SECTIONS	РОЗДІЛИ
+Video Synth	Відеосинтезатор
+Browser	Браузер
+Browser Cue	Cue браузера
+Window Source	Джерело вікна
+Camera Source	Джерело камери
+NDI Source	Джерело NDI
+DeckLink Input	Вхід DeckLink
+Syphon/Spout Source	Джерело Syphon/Spout
+Live stream cue	Cue прямого потоку
+Composite	Композиція
+Composite scene cue	Cue складеної сцени
+Lower Third	Нижній титр
+Lower Third overlay cue	Cue нижнього титру
+PIP overlay cue	Cue накладання PIP
+MIDI File	MIDI-файл
+Master	Master
+Memo	Нотатка
+Mic	Мікрофон
+Timer	Таймер
+Tone	Тон
+Script	Скрипт
+Target	Ціль
+Draw	Малювання
+Code	Код
+Clouds	Хмари
+Swirl	Вихор
+Moire	Муар
+Picture	Зображення
+Placement	Розміщення
+Frame lock	Зв'язок із кадром
+Suspend	Призупинення
+Seam	Стик
+High pass	ФВЧ
+Low pass	ФНЧ
+Tilt EQ	Похилий EQ
+Compressor	Компресор
+Gate	Гейт
+Delay	Затримка
+Reverb	Реверберація
+Binaural	Бінауральний
+Crush	Дроблення
+Word	Слово
+Scrub	Прокручування
+Short	Короткий
+Shatter	Уламки
+Pulse	Пульс
+Crawl	Рухомий рядок
+Typewriter	Друкарська машинка
+Oscilloscope	Осцилограф
+Spectrum	Спектр
+Level Meters	Індикатори рівня
+Waveform	Форма хвилі
+EFFECTS	ЕФЕКТИ
+TRIGGERS	ТРИГЕРИ
+SEQUENCE	ПОСЛІДОВНІСТЬ
+MOTION CONTROL	КЕРУВАННЯ РУХОМ
+THIS CUE	ЦЕЙ CUE
+FUNCTIONS	ФУНКЦІЇ
+VALUES	ЗНАЧЕННЯ
+KEYS	КЛАВІШІ
+FREEZE	ЗАМОРОЗИТИ
+FROZEN	ЗАМОРОЖЕНО
+BYPASSED	В ОБХІД
+BYPASS ALL	УСЕ В ОБХІД
+DEFAULTS	ТИПОВІ
+CHANGE	ЗМІНИТИ
+CHOOSE	ВИБРАТИ
+Stop all	Зупинити все
+Pause all	Усе на паузу
+Resume all	Продовжити все
+Do not continue	Не продовжувати
+Auto-continue	Автопродовження
+Auto-follow	Далі після кінця
+END HOLD	КІНЕЦЬ УТРИМАННЯ
+END LOOP	КІНЕЦЬ ЦИКЛ
+END NEXT	КІНЕЦЬ НАСТУПНИЙ
+END STOP	КІНЕЦЬ СТОП
+OUTPUT EFFECTS	ЕФЕКТИ ВИХОДУ
+LIVE CAPTIONS	ПРЯМІ СУБТИТРИ
+captions	субтитри
+Name Card	Картка імені
+TEST CARD	ТЕСТОВА ТАБЛИЦЯ
+TEST CARD ON	ТАБЛИЦЯ УВІМК.
+EXPORT CARD	ЕКСПОРТ ТАБЛИЦІ
+EXPORTING...	ЕКСПОРТ...
+LOW LATENCY	МАЛА ЗАТРИМКА
+WEB MONITOR	ВЕБМОНІТОР
+PHONE & TABLET	ТЕЛЕФОН І ПЛАНШЕТ
+SCAN TO PAIR	СКАНУЙТЕ ДЛЯ ЗВ'ЯЗКУ
+WITH SOUND	ЗІ ЗВУКОМ
+THE NETWORK	МЕРЕЖА
+FIXTURES	СВІТЛОПРИЛАДИ
+ADD FIXTURE	ДОДАТИ ПРИЛАД
+Dimmer	Димер
+Dimmer + RGB	Димер + RGB
+Dimmer + temperature	Димер + температура
+QR CODE	QR-КОД

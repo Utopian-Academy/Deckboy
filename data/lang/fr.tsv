@@ -1136,3 +1136,199 @@ hold {n} s	tenir {n} s
 any	tout
 built in	intégré
 show	spectacle
+motion	mouvement
+METADATA	MÉTADONNÉES
+generated	généré
+Fit	Ajuster
+inf	infini
+NO	NON
+YES	OUI
+UP	HAUT
+DOWN	BAS
+Left	Gauche
+Right	Droite
+Top	Haut
+Bottom	Bas
+add	ajouter
+all	tout
+none	aucun
+Cut	Coupe
+Fade	Fondu
+Load	Charger
+Pause	Pause
+Resume	Reprendre
+Start	Démarrer
+Skip	Passer
+Arm	Armer
+Disarm	Désarmer
+ONE	UN
+ONCE	UNE FOIS
+Size	Taille
+Width	Largeur
+amount	quantité
+brightness	luminosité
+contrast	contraste
+saturation	saturation
+hue	teinte
+level	niveau
+speed	vitesse
+style	style
+title	titre
+subtitle	sous-titre
+notes	notes
+font	police
+frame	image
+type	type
+state	état
+blend	mélange
+align	aligner
+line	ligne
+box	rectangle
+oval	ovale
+brush	pinceau
+eraser	gomme
+mask	masque
+grow	dilater
+subtract	soustraire
+split	séparer
+stacked	empilé
+soft	doux
+tolerance	tolérance
+curve	courbe
+Linear	Linéaire
+Ease in	Début doux
+Ease out	Fin douce
+S-curve	Courbe en S
+Position X	Position X
+Position Y	Position Y
+Deck volume	Volume du deck
+Deck opacity	Opacité du deck
+Master dimmer	Gradateur général
+Cue brightness	Luminosité du cue
+Cue contrast	Contraste du cue
+Cue saturation	Saturation du cue
+Cue hue	Teinte du cue
+no effects	aucun effet
+no audio effects	aucun effet audio
+nothing yet	rien encore
+no output	aucune sortie
+no window	aucune fenêtre
+source missing	source absente
+waiting for a picture	en attente d'image
+clear frame	effacer l'image
+undo stroke	annuler le trait
+save still	sauver l'image
+save animation	sauver l'animation
+export	exporter
+repeats	répétitions
+hold last	garder la fin
+end action	action de fin
+cue id	ID du cue
+goto target	cible du saut
+set	définir
+send	envoyer
+run	exécuter
+idle	inactif
+standby	en attente
+Loop	Boucle
+loop forever	boucle infinie
+PATCH	PATCH
+OUTPUTS	SORTIES
+SECTIONS	SECTIONS
+Video Synth	Synthé vidéo
+Browser	Navigateur
+Browser Cue	Cue navigateur
+Window Source	Source fenêtre
+Camera Source	Source caméra
+NDI Source	Source NDI
+DeckLink Input	Entrée DeckLink
+Syphon/Spout Source	Source Syphon/Spout
+Live stream cue	Cue flux en direct
+Composite	Composition
+Composite scene cue	Cue scène composée
+Lower Third	Bandeau
+Lower Third overlay cue	Cue bandeau
+PIP overlay cue	Cue incrustation PIP
+MIDI File	Fichier MIDI
+Master	Master
+Memo	Mémo
+Mic	Micro
+Timer	Minuteur
+Tone	Tonalité
+Script	Script
+Target	Cible
+Draw	Dessin
+Code	Code
+Clouds	Nuages
+Swirl	Tourbillon
+Moire	Moiré
+Picture	Image
+Placement	Placement
+Frame lock	Verrouillage image
+Suspend	Suspension
+Seam	Jonction
+High pass	Passe-haut
+Low pass	Passe-bas
+Tilt EQ	EQ bascule
+Compressor	Compresseur
+Gate	Gate
+Delay	Délai
+Reverb	Réverbération
+Binaural	Binaural
+Crush	Écrasement
+Word	Mot
+Scrub	Balayage
+Short	Court
+Shatter	Éclatement
+Pulse	Pulsation
+Crawl	Défilement
+Typewriter	Machine à écrire
+Oscilloscope	Oscilloscope
+Spectrum	Spectre
+Level Meters	Indicateurs de niveau
+Waveform	Forme d'onde
+EFFECTS	EFFETS
+TRIGGERS	DÉCLENCHEURS
+SEQUENCE	SÉQUENCE
+MOTION CONTROL	COMMANDE PAR MOUVEMENT
+THIS CUE	CE CUE
+FUNCTIONS	FONCTIONS
+VALUES	VALEURS
+KEYS	TOUCHES
+FREEZE	FIGER
+FROZEN	FIGÉ
+BYPASSED	CONTOURNÉ
+BYPASS ALL	TOUT CONTOURNER
+DEFAULTS	VALEURS PAR DÉFAUT
+CHANGE	CHANGER
+CHOOSE	CHOISIR
+Stop all	Tout arrêter
+Pause all	Tout en pause
+Resume all	Tout reprendre
+Do not continue	Ne pas continuer
+Auto-continue	Suite automatique
+Auto-follow	Suite à la fin
+END HOLD	FIN MAINTENUE
+END LOOP	FIN EN BOUCLE
+END NEXT	FIN SUIVANTE
+END STOP	FIN ARRÊT
+OUTPUT EFFECTS	EFFETS DE SORTIE
+LIVE CAPTIONS	SOUS-TITRES EN DIRECT
+captions	sous-titres
+Name Card	Carton nom
+TEST CARD	MIRE
+TEST CARD ON	MIRE ACTIVE
+EXPORT CARD	EXPORTER LA MIRE
+EXPORTING...	EXPORT EN COURS...
+LOW LATENCY	FAIBLE LATENCE
+WEB MONITOR	MONITEUR WEB
+PHONE & TABLET	TÉLÉPHONE & TABLETTE
+SCAN TO PAIR	SCANNER POUR ASSOCIER
+WITH SOUND	AVEC SON
+THE NETWORK	LE RÉSEAU
+FIXTURES	PROJECTEURS
+ADD FIXTURE	AJOUTER UN PROJECTEUR
+Dimmer	Gradateur
+Dimmer + RGB	Gradateur + RGB
+Dimmer + temperature	Gradateur + température
+QR CODE	CODE QR

@@ -1140,3 +1140,199 @@ hold {n} s	{n} से. दबाए रखें
 any	कोई भी
 built in	अंतर्निहित
 show	शो
+motion	गति
+METADATA	मेटाडेटा
+generated	जनित
+Fit	समायोजित
+inf	अनंत
+NO	नहीं
+YES	हाँ
+UP	ऊपर
+DOWN	नीचे
+Left	बायाँ
+Right	दायाँ
+Top	ऊपर
+Bottom	नीचे
+add	जोड़ें
+all	सभी
+none	कोई नहीं
+Cut	कट
+Fade	फेड
+Load	लोड करें
+Pause	विराम
+Resume	जारी रखें
+Start	शुरू करें
+Skip	छोड़ें
+Arm	तैयार करें
+Disarm	निष्क्रिय करें
+ONE	एक
+ONCE	एक बार
+Size	आकार
+Width	चौड़ाई
+amount	मात्रा
+brightness	चमक
+contrast	कंट्रास्ट
+saturation	संतृप्ति
+hue	रंगत
+level	स्तर
+speed	गति
+style	शैली
+title	शीर्षक
+subtitle	उपशीर्षक
+notes	नोट्स
+font	फ़ॉन्ट
+frame	फ़्रेम
+type	प्रकार
+state	स्थिति
+blend	मिश्रण
+align	संरेखण
+line	रेखा
+box	आयत
+oval	अंडाकार
+brush	ब्रश
+eraser	रबर
+mask	मास्क
+grow	बढ़ाएँ
+subtract	घटाएँ
+split	विभाजित करें
+stacked	परतों में
+soft	मुलायम
+tolerance	सहनशीलता
+curve	वक्र
+Linear	रैखिक
+Ease in	धीमी शुरुआत
+Ease out	धीमा अंत
+S-curve	S-वक्र
+Position X	स्थिति X
+Position Y	स्थिति Y
+Deck volume	डेक वॉल्यूम
+Deck opacity	डेक अपारदर्शिता
+Master dimmer	मुख्य डिमर
+Cue brightness	cue चमक
+Cue contrast	cue कंट्रास्ट
+Cue saturation	cue संतृप्ति
+Cue hue	cue रंगत
+no effects	कोई प्रभाव नहीं
+no audio effects	कोई ऑडियो प्रभाव नहीं
+nothing yet	अभी कुछ नहीं
+no output	कोई आउटपुट नहीं
+no window	कोई विंडो नहीं
+source missing	स्रोत नहीं मिला
+waiting for a picture	चित्र की प्रतीक्षा
+clear frame	फ़्रेम साफ करें
+undo stroke	रेखा पूर्ववत करें
+save still	स्थिर चित्र सहेजें
+save animation	एनिमेशन सहेजें
+export	निर्यात
+repeats	दोहराव
+hold last	अंतिम फ़्रेम रोकें
+end action	अंतिम क्रिया
+cue id	cue ID
+goto target	जाने का लक्ष्य
+set	तय करें
+send	भेजें
+run	चलाएँ
+idle	निष्क्रिय
+standby	तैयार
+Loop	लूप
+loop forever	अनंत लूप
+PATCH	PATCH
+OUTPUTS	आउटपुट
+SECTIONS	खंड
+Video Synth	वीडियो सिंथ
+Browser	ब्राउज़र
+Browser Cue	ब्राउज़र cue
+Window Source	विंडो स्रोत
+Camera Source	कैमरा स्रोत
+NDI Source	NDI स्रोत
+DeckLink Input	DeckLink इनपुट
+Syphon/Spout Source	Syphon/Spout स्रोत
+Live stream cue	लाइव स्ट्रीम cue
+Composite	संयोजन
+Composite scene cue	संयुक्त दृश्य cue
+Lower Third	लोअर थर्ड
+Lower Third overlay cue	लोअर थर्ड cue
+PIP overlay cue	PIP ओवरले cue
+MIDI File	MIDI फ़ाइल
+Master	Master
+Memo	नोट
+Mic	माइक
+Timer	टाइमर
+Tone	टोन
+Script	स्क्रिप्ट
+Target	लक्ष्य
+Draw	चित्रकारी
+Code	कोड
+Clouds	बादल
+Swirl	भँवर
+Moire	मोआरे
+Picture	चित्र
+Placement	स्थिति
+Frame lock	फ़्रेम लॉक
+Suspend	निलंबित
+Seam	जोड़
+High pass	हाई पास
+Low pass	लो पास
+Tilt EQ	टिल्ट EQ
+Compressor	कंप्रेसर
+Gate	गेट
+Delay	विलंब
+Reverb	रीवर्ब
+Binaural	द्विकर्णी
+Crush	क्रश
+Word	शब्द
+Scrub	स्क्रब
+Short	छोटा
+Shatter	बिखराव
+Pulse	स्पंदन
+Crawl	रेंगता पाठ
+Typewriter	टाइपराइटर
+Oscilloscope	ऑसिलोस्कोप
+Spectrum	स्पेक्ट्रम
+Level Meters	स्तर मीटर
+Waveform	तरंग रूप
+EFFECTS	प्रभाव
+TRIGGERS	ट्रिगर
+SEQUENCE	अनुक्रम
+MOTION CONTROL	गति नियंत्रण
+THIS CUE	यह cue
+FUNCTIONS	कार्य
+VALUES	मान
+KEYS	कुंजियाँ
+FREEZE	स्थिर करें
+FROZEN	स्थिर
+BYPASSED	बायपास
+BYPASS ALL	सभी बायपास
+DEFAULTS	डिफ़ॉल्ट
+CHANGE	बदलें
+CHOOSE	चुनें
+Stop all	सभी रोकें
+Pause all	सभी विराम
+Resume all	सभी जारी रखें
+Do not continue	जारी न रखें
+Auto-continue	अपने आप जारी
+Auto-follow	अंत पर अगला
+END HOLD	अंत रोकें
+END LOOP	अंत लूप
+END NEXT	अंत अगला
+END STOP	अंत बंद
+OUTPUT EFFECTS	आउटपुट प्रभाव
+LIVE CAPTIONS	लाइव कैप्शन
+captions	कैप्शन
+Name Card	नाम कार्ड
+TEST CARD	टेस्ट कार्ड
+TEST CARD ON	टेस्ट कार्ड चालू
+EXPORT CARD	कार्ड निर्यात
+EXPORTING...	निर्यात हो रहा...
+LOW LATENCY	कम विलंब
+WEB MONITOR	वेब मॉनिटर
+PHONE & TABLET	फ़ोन और टैबलेट
+SCAN TO PAIR	जोड़ने हेतु स्कैन
+WITH SOUND	ध्वनि सहित
+THE NETWORK	नेटवर्क
+FIXTURES	लाइटें
+ADD FIXTURE	लाइट जोड़ें
+Dimmer	डिमर
+Dimmer + RGB	डिमर + RGB
+Dimmer + temperature	डिमर + तापमान
+QR CODE	QR कोड

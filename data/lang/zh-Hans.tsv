@@ -1145,3 +1145,199 @@ hold {n} s	按住 {n} 秒
 any	任意
 built in	内置
 show	演出
+motion	运动
+METADATA	元数据
+generated	已生成
+Fit	适合
+inf	无限
+NO	否
+YES	是
+UP	向上
+DOWN	向下
+Left	左
+Right	右
+Top	上
+Bottom	下
+add	添加
+all	全部
+none	无
+Cut	切换
+Fade	渐变
+Load	加载
+Pause	暂停
+Resume	继续
+Start	开始
+Skip	跳过
+Arm	待命
+Disarm	取消待命
+ONE	一个
+ONCE	一次
+Size	尺寸
+Width	宽度
+amount	强度
+brightness	亮度
+contrast	对比度
+saturation	饱和度
+hue	色相
+level	电平
+speed	速度
+style	样式
+title	标题
+subtitle	副标题
+notes	备注
+font	字体
+frame	帧
+type	类型
+state	状态
+blend	混合
+align	对齐
+line	线条
+box	矩形
+oval	椭圆
+brush	画笔
+eraser	橡皮
+mask	遮罩
+grow	扩展
+subtract	减去
+split	分割
+stacked	堆叠
+soft	柔和
+tolerance	容差
+curve	曲线
+Linear	线性
+Ease in	缓入
+Ease out	缓出
+S-curve	S形曲线
+Position X	X位置
+Position Y	Y位置
+Deck volume	播放台音量
+Deck opacity	播放台不透明度
+Master dimmer	总调光
+Cue brightness	Cue亮度
+Cue contrast	Cue对比度
+Cue saturation	Cue饱和度
+Cue hue	Cue色相
+no effects	无效果
+no audio effects	无音频效果
+nothing yet	暂无
+no output	无输出
+no window	无窗口
+source missing	信号源缺失
+waiting for a picture	等待画面
+clear frame	清空帧
+undo stroke	撤销笔画
+save still	保存静帧
+save animation	保存动画
+export	导出
+repeats	重复次数
+hold last	保持末帧
+end action	结束动作
+cue id	Cue ID
+goto target	跳转目标
+set	设置
+send	发送
+run	运行
+idle	空闲
+standby	待命
+Loop	循环
+loop forever	无限循环
+PATCH	跳线
+OUTPUTS	输出
+SECTIONS	分区
+Video Synth	视频合成器
+Browser	浏览器
+Browser Cue	浏览器Cue
+Window Source	窗口信号源
+Camera Source	摄像头信号源
+NDI Source	NDI信号源
+DeckLink Input	DeckLink输入
+Syphon/Spout Source	Syphon/Spout信号源
+Live stream cue	直播流Cue
+Composite	合成
+Composite scene cue	合成场景Cue
+Lower Third	下三分之一字幕
+Lower Third overlay cue	下三分之一字幕Cue
+PIP overlay cue	PIP叠加Cue
+MIDI File	MIDI文件
+Master	主控
+Memo	备忘
+Mic	麦克风
+Timer	计时器
+Tone	音调
+Script	脚本
+Target	目标
+Draw	绘画
+Code	代码
+Clouds	云
+Swirl	漩涡
+Moire	摩尔纹
+Picture	画面
+Placement	位置
+Frame lock	帧锁定
+Suspend	悬停
+Seam	接缝
+High pass	高通
+Low pass	低通
+Tilt EQ	倾斜均衡
+Compressor	压缩器
+Gate	噪声门
+Delay	延迟
+Reverb	混响
+Binaural	双耳
+Crush	粉碎
+Word	字
+Scrub	搓动
+Short	短路
+Shatter	碎裂
+Pulse	脉冲
+Crawl	横向滚动
+Typewriter	打字机
+Oscilloscope	示波器
+Spectrum	频谱
+Level Meters	电平表
+Waveform	波形
+EFFECTS	效果
+TRIGGERS	触发器
+SEQUENCE	序列
+MOTION CONTROL	运动控制
+THIS CUE	此Cue
+FUNCTIONS	功能
+VALUES	值
+KEYS	按键
+FREEZE	冻结
+FROZEN	已冻结
+BYPASSED	已旁通
+BYPASS ALL	全部旁通
+DEFAULTS	默认值
+CHANGE	更改
+CHOOSE	选择
+Stop all	全部停止
+Pause all	全部暂停
+Resume all	全部继续
+Do not continue	不继续
+Auto-continue	自动继续
+Auto-follow	结束后继续
+END HOLD	结束保持
+END LOOP	结束循环
+END NEXT	结束下一个
+END STOP	结束停止
+OUTPUT EFFECTS	输出效果
+LIVE CAPTIONS	实时字幕
+captions	字幕
+Name Card	姓名卡
+TEST CARD	测试卡
+TEST CARD ON	测试卡已开
+EXPORT CARD	导出测试卡
+EXPORTING...	正在导出...
+LOW LATENCY	低延迟
+WEB MONITOR	网页监看
+PHONE & TABLET	手机和平板
+SCAN TO PAIR	扫码配对
+WITH SOUND	含声音
+THE NETWORK	网络
+FIXTURES	灯具
+ADD FIXTURE	添加灯具
+Dimmer	调光器
+Dimmer + RGB	调光器 + RGB
+Dimmer + temperature	调光器 + 色温
+QR CODE	二维码

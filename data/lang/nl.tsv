@@ -1132,3 +1132,199 @@ on air in the focused playlist	in de uitzending in de actieve playlist
 hold {n} s	{n} s vasthouden
 any	elk
 built in	ingebouwd
+motion	beweging
+METADATA	METADATA
+generated	gegenereerd
+Fit	Passend
+inf	oneindig
+NO	NEE
+YES	JA
+UP	OMHOOG
+DOWN	OMLAAG
+Left	Links
+Right	Rechts
+Top	Boven
+Bottom	Onder
+add	toevoegen
+all	alles
+none	geen
+Cut	Snede
+Fade	Fade
+Load	Laden
+Pause	Pauze
+Resume	Hervatten
+Start	Starten
+Skip	Overslaan
+Arm	Gereedzetten
+Disarm	Uitschakelen
+ONE	ÉÉN
+ONCE	EENMAAL
+Size	Grootte
+Width	Breedte
+amount	sterkte
+brightness	helderheid
+contrast	contrast
+saturation	verzadiging
+hue	tint
+level	niveau
+speed	snelheid
+style	stijl
+title	titel
+subtitle	ondertitel
+notes	notities
+font	lettertype
+frame	beeld
+type	type
+state	status
+blend	menging
+align	uitlijnen
+line	lijn
+box	rechthoek
+oval	ovaal
+brush	penseel
+eraser	gum
+mask	masker
+grow	vergroten
+subtract	aftrekken
+split	splitsen
+stacked	gestapeld
+soft	zacht
+tolerance	tolerantie
+curve	curve
+Linear	Lineair
+Ease in	Zacht begin
+Ease out	Zacht einde
+S-curve	S-curve
+Position X	Positie X
+Position Y	Positie Y
+Deck volume	Deckvolume
+Deck opacity	Deckdekking
+Master dimmer	Hoofddimmer
+Cue brightness	Cue-helderheid
+Cue contrast	Cue-contrast
+Cue saturation	Cue-verzadiging
+Cue hue	Cue-tint
+no effects	geen effecten
+no audio effects	geen audio-effecten
+nothing yet	nog niets
+no output	geen uitgang
+no window	geen venster
+source missing	bron ontbreekt
+waiting for a picture	wachten op beeld
+clear frame	beeld wissen
+undo stroke	streek ongedaan
+save still	beeld opslaan
+save animation	animatie opslaan
+export	exporteren
+repeats	herhalingen
+hold last	laatste beeld
+end action	eindactie
+cue id	cue-ID
+goto target	sprongdoel
+set	instellen
+send	verzenden
+run	uitvoeren
+idle	inactief
+standby	stand-by
+Loop	Lus
+loop forever	oneindige lus
+PATCH	PATCH
+OUTPUTS	UITGANGEN
+SECTIONS	SECTIES
+Video Synth	Videosynth
+Browser	Browser
+Browser Cue	Browsercue
+Window Source	Vensterbron
+Camera Source	Camerabron
+NDI Source	NDI-bron
+DeckLink Input	DeckLink-ingang
+Syphon/Spout Source	Syphon/Spout-bron
+Live stream cue	Livestreamcue
+Composite	Compositie
+Composite scene cue	Samengestelde scènecue
+Lower Third	Naambalk
+Lower Third overlay cue	Naambalkcue
+PIP overlay cue	PIP-overlaycue
+MIDI File	MIDI-bestand
+Master	Master
+Memo	Memo
+Mic	Microfoon
+Timer	Timer
+Tone	Toon
+Script	Script
+Target	Doel
+Draw	Tekenen
+Code	Code
+Clouds	Wolken
+Swirl	Draaikolk
+Moire	Moiré
+Picture	Beeld
+Placement	Plaatsing
+Frame lock	Beeldkoppeling
+Suspend	Onderbreken
+Seam	Naad
+High pass	Hoogdoorlaat
+Low pass	Laagdoorlaat
+Tilt EQ	Kantel-EQ
+Compressor	Compressor
+Gate	Gate
+Delay	Vertraging
+Reverb	Galm
+Binaural	Binauraal
+Crush	Vergruizen
+Word	Woord
+Scrub	Scrub
+Short	Kort
+Shatter	Versplinteren
+Pulse	Puls
+Crawl	Lopende tekst
+Typewriter	Typemachine
+Oscilloscope	Oscilloscoop
+Spectrum	Spectrum
+Level Meters	Niveaumeters
+Waveform	Golfvorm
+EFFECTS	EFFECTEN
+TRIGGERS	TRIGGERS
+SEQUENCE	SEQUENTIE
+MOTION CONTROL	BEWEGINGSBESTURING
+THIS CUE	DEZE CUE
+FUNCTIONS	FUNCTIES
+VALUES	WAARDEN
+KEYS	TOETSEN
+FREEZE	BEVRIEZEN
+FROZEN	BEVROREN
+BYPASSED	OMZEILD
+BYPASS ALL	ALLES OMZEILEN
+DEFAULTS	STANDAARDEN
+CHANGE	WIJZIGEN
+CHOOSE	KIEZEN
+Stop all	Alles stoppen
+Pause all	Alles pauzeren
+Resume all	Alles hervatten
+Do not continue	Niet doorgaan
+Auto-continue	Automatisch door
+Auto-follow	Volgen na einde
+END HOLD	EINDE VASTHOUDEN
+END LOOP	EINDE LUS
+END NEXT	EINDE VOLGENDE
+END STOP	EINDE STOP
+OUTPUT EFFECTS	UITGANGSEFFECTEN
+LIVE CAPTIONS	LIVE ONDERTITELS
+captions	ondertitels
+Name Card	Naamkaart
+TEST CARD	TESTKAART
+TEST CARD ON	TESTKAART AAN
+EXPORT CARD	KAART EXPORTEREN
+EXPORTING...	EXPORTEREN...
+LOW LATENCY	LAGE LATENTIE
+WEB MONITOR	WEBMONITOR
+PHONE & TABLET	TELEFOON EN TABLET
+SCAN TO PAIR	SCAN OM TE KOPPELEN
+WITH SOUND	MET GELUID
+THE NETWORK	HET NETWERK
+FIXTURES	ARMATUREN
+ADD FIXTURE	ARMATUUR TOEVOEGEN
+Dimmer	Dimmer
+Dimmer + RGB	Dimmer + RGB
+Dimmer + temperature	Dimmer + temperatuur
+QR CODE	QR-CODE

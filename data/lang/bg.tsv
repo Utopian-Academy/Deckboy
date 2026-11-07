@@ -1140,3 +1140,199 @@ hold {n} s	задръж {n} с
 any	всеки
 built in	вграден
 show	шоу
+motion	движение
+METADATA	МЕТАДАННИ
+generated	генерирано
+Fit	Побиране
+inf	безкрайно
+NO	НЕ
+YES	ДА
+UP	НАГОРЕ
+DOWN	НАДОЛУ
+Left	Ляво
+Right	Дясно
+Top	Горе
+Bottom	Долу
+add	добави
+all	всички
+none	няма
+Cut	Отрязване
+Fade	Преливане
+Load	Зареди
+Pause	Пауза
+Resume	Продължи
+Start	Старт
+Skip	Пропусни
+Arm	Въоръжи
+Disarm	Разоръжи
+ONE	ЕДНО
+ONCE	ВЕДНЪЖ
+Size	Размер
+Width	Ширина
+amount	сила
+brightness	яркост
+contrast	контраст
+saturation	наситеност
+hue	нюанс
+level	ниво
+speed	скорост
+style	стил
+title	заглавие
+subtitle	подзаглавие
+notes	бележки
+font	шрифт
+frame	кадър
+type	тип
+state	състояние
+blend	смесване
+align	подравни
+line	линия
+box	правоъгълник
+oval	овал
+brush	четка
+eraser	гума
+mask	маска
+grow	разшири
+subtract	извади
+split	раздели
+stacked	подредени
+soft	меко
+tolerance	допуск
+curve	крива
+Linear	Линейно
+Ease in	Плавен вход
+Ease out	Плавен изход
+S-curve	S-крива
+Position X	Позиция X
+Position Y	Позиция Y
+Deck volume	Сила на deck
+Deck opacity	Плътност на deck
+Master dimmer	Главен димер
+Cue brightness	Яркост на cue
+Cue contrast	Контраст на cue
+Cue saturation	Наситеност на cue
+Cue hue	Нюанс на cue
+no effects	няма ефекти
+no audio effects	няма аудиоефекти
+nothing yet	още няма
+no output	няма изход
+no window	няма прозорец
+source missing	липсва източник
+waiting for a picture	изчаква картина
+clear frame	изчисти кадъра
+undo stroke	отмени щриха
+save still	запази кадър
+save animation	запази анимация
+export	експорт
+repeats	повторения
+hold last	задръж последния
+end action	действие накрая
+cue id	ID на cue
+goto target	цел на скока
+set	задай
+send	изпрати
+run	изпълни
+idle	неактивно
+standby	готовност
+Loop	Цикъл
+loop forever	безкраен цикъл
+PATCH	PATCH
+OUTPUTS	ИЗХОДИ
+SECTIONS	РАЗДЕЛИ
+Video Synth	Видео синтезатор
+Browser	Браузър
+Browser Cue	Cue браузър
+Window Source	Източник прозорец
+Camera Source	Източник камера
+NDI Source	NDI източник
+DeckLink Input	DeckLink вход
+Syphon/Spout Source	Syphon/Spout източник
+Live stream cue	Cue поток на живо
+Composite	Композиция
+Composite scene cue	Cue съставна сцена
+Lower Third	Долен надпис
+Lower Third overlay cue	Cue долен надпис
+PIP overlay cue	Cue PIP наслагване
+MIDI File	MIDI файл
+Master	Master
+Memo	Бележка
+Mic	Микрофон
+Timer	Таймер
+Tone	Тон
+Script	Скрипт
+Target	Цел
+Draw	Рисуване
+Code	Код
+Clouds	Облаци
+Swirl	Вихър
+Moire	Моаре
+Picture	Картина
+Placement	Разположение
+Frame lock	Заключване на кадър
+Suspend	Прекъсване
+Seam	Шев
+High pass	Високочестотен
+Low pass	Нискочестотен
+Tilt EQ	Наклонен EQ
+Compressor	Компресор
+Gate	Гейт
+Delay	Закъснение
+Reverb	Реверберация
+Binaural	Бинаурално
+Crush	Смачкване
+Word	Дума
+Scrub	Превъртане
+Short	Кратко
+Shatter	Раздробяване
+Pulse	Пулс
+Crawl	Пълзящ текст
+Typewriter	Пишеща машина
+Oscilloscope	Осцилоскоп
+Spectrum	Спектър
+Level Meters	Нивомери
+Waveform	Форма на вълната
+EFFECTS	ЕФЕКТИ
+TRIGGERS	СПУСЪЦИ
+SEQUENCE	ПОСЛЕДОВАТЕЛНОСТ
+MOTION CONTROL	УПРАВЛЕНИЕ С ДВИЖЕНИЕ
+THIS CUE	ТОЗИ CUE
+FUNCTIONS	ФУНКЦИИ
+VALUES	СТОЙНОСТИ
+KEYS	КЛАВИШИ
+FREEZE	ЗАМРАЗИ
+FROZEN	ЗАМРАЗЕНО
+BYPASSED	ЗАОБИКОЛЕН
+BYPASS ALL	ЗАОБИКОЛИ ВСИЧКИ
+DEFAULTS	ПО ПОДРАЗБИРАНЕ
+CHANGE	ПРОМЕНИ
+CHOOSE	ИЗБЕРИ
+Stop all	Спри всички
+Pause all	Пауза на всички
+Resume all	Продължи всички
+Do not continue	Не продължавай
+Auto-continue	Автопродължаване
+Auto-follow	Следвай при край
+END HOLD	КРАЙ ЗАДРЪЖ
+END LOOP	КРАЙ ЦИКЪЛ
+END NEXT	КРАЙ СЛЕДВАЩ
+END STOP	КРАЙ СПРИ
+OUTPUT EFFECTS	ИЗХОДНИ ЕФЕКТИ
+LIVE CAPTIONS	СУБТИТРИ НА ЖИВО
+captions	субтитри
+Name Card	Карта с име
+TEST CARD	ТЕСТОВА КАРТА
+TEST CARD ON	ТЕСТОВА КАРТА ВКЛ.
+EXPORT CARD	ЕКСПОРТ НА КАРТА
+EXPORTING...	ЕКСПОРТИРАНЕ...
+LOW LATENCY	НИСКА ЛАТЕНТНОСТ
+WEB MONITOR	УЕБ МОНИТОР
+PHONE & TABLET	ТЕЛЕФОН И ТАБЛЕТ
+SCAN TO PAIR	СКАНИРАЙ ЗА СДВОЯВАНЕ
+WITH SOUND	СЪС ЗВУК
+THE NETWORK	МРЕЖАТА
+FIXTURES	ОСВЕТИТЕЛИ
+ADD FIXTURE	ДОБАВИ ОСВЕТИТЕЛ
+Dimmer	Димер
+Dimmer + RGB	Димер + RGB
+Dimmer + temperature	Димер + температура
+QR CODE	QR КОД

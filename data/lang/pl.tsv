@@ -1139,3 +1139,199 @@ hold {n} s	przytrzymaj {n} s
 any	dowolny
 built in	wbudowany
 show	spektakl
+motion	ruch
+METADATA	METADANE
+generated	generowane
+Fit	Dopasuj
+inf	nieskończ.
+NO	NIE
+YES	TAK
+UP	GÓRA
+DOWN	DÓŁ
+Left	Lewo
+Right	Prawo
+Top	Góra
+Bottom	Dół
+add	dodaj
+all	wszystko
+none	brak
+Cut	Cięcie
+Fade	Wygaszenie
+Load	Wczytaj
+Pause	Pauza
+Resume	Wznów
+Start	Start
+Skip	Pomiń
+Arm	Uzbrój
+Disarm	Rozbrój
+ONE	JEDEN
+ONCE	RAZ
+Size	Rozmiar
+Width	Szerokość
+amount	ilość
+brightness	jasność
+contrast	kontrast
+saturation	nasycenie
+hue	odcień
+level	poziom
+speed	prędkość
+style	styl
+title	tytuł
+subtitle	podtytuł
+notes	notatki
+font	czcionka
+frame	klatka
+type	typ
+state	stan
+blend	mieszanie
+align	wyrównaj
+line	linia
+box	prostokąt
+oval	owal
+brush	pędzel
+eraser	gumka
+mask	maska
+grow	rozszerz
+subtract	odejmij
+split	podziel
+stacked	stos
+soft	miękko
+tolerance	tolerancja
+curve	krzywa
+Linear	Liniowo
+Ease in	Łagodny początek
+Ease out	Łagodny koniec
+S-curve	Krzywa S
+Position X	Pozycja X
+Position Y	Pozycja Y
+Deck volume	Głośność decka
+Deck opacity	Krycie decka
+Master dimmer	Główny dimmer
+Cue brightness	Jasność cue
+Cue contrast	Kontrast cue
+Cue saturation	Nasycenie cue
+Cue hue	Odcień cue
+no effects	brak efektów
+no audio effects	brak efektów audio
+nothing yet	jeszcze nic
+no output	brak wyjścia
+no window	brak okna
+source missing	brak źródła
+waiting for a picture	czekanie na obraz
+clear frame	wyczyść klatkę
+undo stroke	cofnij kreskę
+save still	zapisz obraz
+save animation	zapisz animację
+export	eksportuj
+repeats	powtórzenia
+hold last	trzymaj ostatnią
+end action	akcja końcowa
+cue id	ID cue
+goto target	cel skoku
+set	ustaw
+send	wyślij
+run	wykonaj
+idle	bezczynny
+standby	gotowość
+Loop	Pętla
+loop forever	pętla bez końca
+PATCH	PATCH
+OUTPUTS	WYJŚCIA
+SECTIONS	SEKCJE
+Video Synth	Syntezator wideo
+Browser	Przeglądarka
+Browser Cue	Cue przeglądarki
+Window Source	Źródło okna
+Camera Source	Źródło kamery
+NDI Source	Źródło NDI
+DeckLink Input	Wejście DeckLink
+Syphon/Spout Source	Źródło Syphon/Spout
+Live stream cue	Cue transmisji na żywo
+Composite	Kompozycja
+Composite scene cue	Cue sceny złożonej
+Lower Third	Belka podpisu
+Lower Third overlay cue	Cue belki podpisu
+PIP overlay cue	Cue nakładki PIP
+MIDI File	Plik MIDI
+Master	Master
+Memo	Notatka
+Mic	Mikrofon
+Timer	Minutnik
+Tone	Ton
+Script	Skrypt
+Target	Cel
+Draw	Rysunek
+Code	Kod
+Clouds	Chmury
+Swirl	Wir
+Moire	Mora
+Picture	Obraz
+Placement	Położenie
+Frame lock	Blokada klatki
+Suspend	Zawieszenie
+Seam	Szew
+High pass	Górnoprzepustowy
+Low pass	Dolnoprzepustowy
+Tilt EQ	EQ przechyłowy
+Compressor	Kompresor
+Gate	Bramka
+Delay	Opóźnienie
+Reverb	Pogłos
+Binaural	Binauralny
+Crush	Zgniatanie
+Word	Słowo
+Scrub	Przewijanie
+Short	Krótki
+Shatter	Rozbicie
+Pulse	Puls
+Crawl	Przewijany tekst
+Typewriter	Maszyna do pisania
+Oscilloscope	Oscyloskop
+Spectrum	Widmo
+Level Meters	Mierniki poziomu
+Waveform	Przebieg fali
+EFFECTS	EFEKTY
+TRIGGERS	WYZWALACZE
+SEQUENCE	SEKWENCJA
+MOTION CONTROL	STEROWANIE RUCHEM
+THIS CUE	TEN CUE
+FUNCTIONS	FUNKCJE
+VALUES	WARTOŚCI
+KEYS	KLAWISZE
+FREEZE	ZAMROŹ
+FROZEN	ZAMROŻONE
+BYPASSED	POMINIĘTY
+BYPASS ALL	POMIŃ WSZYSTKO
+DEFAULTS	DOMYŚLNE
+CHANGE	ZMIEŃ
+CHOOSE	WYBIERZ
+Stop all	Zatrzymaj wszystko
+Pause all	Pauzuj wszystko
+Resume all	Wznów wszystko
+Do not continue	Nie kontynuuj
+Auto-continue	Auto-kontynuacja
+Auto-follow	Dalej po końcu
+END HOLD	KONIEC TRZYMAJ
+END LOOP	KONIEC PĘTLA
+END NEXT	KONIEC NASTĘPNY
+END STOP	KONIEC STOP
+OUTPUT EFFECTS	EFEKTY WYJŚCIA
+LIVE CAPTIONS	NAPISY NA ŻYWO
+captions	napisy
+Name Card	Plansza z nazwą
+TEST CARD	PLANSZA TESTOWA
+TEST CARD ON	PLANSZA WŁ.
+EXPORT CARD	EKSPORTUJ PLANSZĘ
+EXPORTING...	EKSPORTOWANIE...
+LOW LATENCY	MAŁE OPÓŹNIENIE
+WEB MONITOR	MONITOR WWW
+PHONE & TABLET	TELEFON I TABLET
+SCAN TO PAIR	SKANUJ, ABY SPAROWAĆ
+WITH SOUND	Z DŹWIĘKIEM
+THE NETWORK	SIEĆ
+FIXTURES	OPRAWY
+ADD FIXTURE	DODAJ OPRAWĘ
+Dimmer	Dimmer
+Dimmer + RGB	Dimmer + RGB
+Dimmer + temperature	Dimmer + temperatura
+QR CODE	KOD QR

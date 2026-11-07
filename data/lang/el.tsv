@@ -1140,3 +1140,199 @@ hold {n} s	κράτημα {n} δ
 any	οποιοδήποτε
 built in	ενσωματωμένο
 show	παράσταση
+motion	κίνηση
+METADATA	ΜΕΤΑΔΕΔΟΜΕΝΑ
+generated	παραγόμενο
+Fit	Προσαρμογή
+inf	άπειρο
+NO	ΟΧΙ
+YES	ΝΑΙ
+UP	ΠΑΝΩ
+DOWN	ΚΑΤΩ
+Left	Αριστερά
+Right	Δεξιά
+Top	Πάνω
+Bottom	Κάτω
+add	προσθήκη
+all	όλα
+none	κανένα
+Cut	Κόψιμο
+Fade	Σβήσιμο
+Load	Φόρτωση
+Pause	Παύση
+Resume	Συνέχεια
+Start	Έναρξη
+Skip	Παράλειψη
+Arm	Όπλιση
+Disarm	Αφόπλιση
+ONE	ΕΝΑ
+ONCE	ΜΙΑ ΦΟΡΑ
+Size	Μέγεθος
+Width	Πλάτος
+amount	ποσότητα
+brightness	φωτεινότητα
+contrast	αντίθεση
+saturation	κορεσμός
+hue	απόχρωση
+level	στάθμη
+speed	ταχύτητα
+style	στυλ
+title	τίτλος
+subtitle	υπότιτλος
+notes	σημειώσεις
+font	γραμματοσειρά
+frame	καρέ
+type	τύπος
+state	κατάσταση
+blend	μίξη
+align	στοίχιση
+line	γραμμή
+box	ορθογώνιο
+oval	έλλειψη
+brush	πινέλο
+eraser	γόμα
+mask	μάσκα
+grow	επέκταση
+subtract	αφαίρεση
+split	διαίρεση
+stacked	σε στοίβα
+soft	απαλό
+tolerance	ανοχή
+curve	καμπύλη
+Linear	Γραμμικό
+Ease in	Ήπια αρχή
+Ease out	Ήπιο τέλος
+S-curve	Καμπύλη S
+Position X	Θέση X
+Position Y	Θέση Y
+Deck volume	Ένταση deck
+Deck opacity	Αδιαφάνεια deck
+Master dimmer	Κύριο dimmer
+Cue brightness	Φωτεινότητα cue
+Cue contrast	Αντίθεση cue
+Cue saturation	Κορεσμός cue
+Cue hue	Απόχρωση cue
+no effects	χωρίς εφέ
+no audio effects	χωρίς εφέ ήχου
+nothing yet	τίποτα ακόμη
+no output	χωρίς έξοδο
+no window	χωρίς παράθυρο
+source missing	λείπει η πηγή
+waiting for a picture	αναμονή εικόνας
+clear frame	καθαρισμός καρέ
+undo stroke	αναίρεση πινελιάς
+save still	αποθήκευση εικόνας
+save animation	αποθήκευση κίνησης
+export	εξαγωγή
+repeats	επαναλήψεις
+hold last	κράτα τελευταίο
+end action	ενέργεια τέλους
+cue id	ID cue
+goto target	στόχος μετάβασης
+set	ορισμός
+send	αποστολή
+run	εκτέλεση
+idle	αδρανές
+standby	αναμονή
+Loop	Βρόχος
+loop forever	ατέρμονος βρόχος
+PATCH	PATCH
+OUTPUTS	ΕΞΟΔΟΙ
+SECTIONS	ΕΝΟΤΗΤΕΣ
+Video Synth	Συνθεσάιζερ βίντεο
+Browser	Περιηγητής
+Browser Cue	Cue περιηγητή
+Window Source	Πηγή παραθύρου
+Camera Source	Πηγή κάμερας
+NDI Source	Πηγή NDI
+DeckLink Input	Είσοδος DeckLink
+Syphon/Spout Source	Πηγή Syphon/Spout
+Live stream cue	Cue ζωντανής ροής
+Composite	Σύνθεση
+Composite scene cue	Cue σύνθετης σκηνής
+Lower Third	Κάτω τίτλος
+Lower Third overlay cue	Cue κάτω τίτλου
+PIP overlay cue	Cue επικάλυψης PIP
+MIDI File	Αρχείο MIDI
+Master	Master
+Memo	Σημείωμα
+Mic	Μικρόφωνο
+Timer	Χρονόμετρο
+Tone	Τόνος
+Script	Σενάριο
+Target	Στόχος
+Draw	Σχέδιο
+Code	Κώδικας
+Clouds	Σύννεφα
+Swirl	Δίνη
+Moire	Μουαρέ
+Picture	Εικόνα
+Placement	Τοποθέτηση
+Frame lock	Κλείδωμα καρέ
+Suspend	Αναστολή
+Seam	Ραφή
+High pass	Υψιπερατό
+Low pass	Χαμηλοπερατό
+Tilt EQ	EQ κλίσης
+Compressor	Συμπιεστής
+Gate	Πύλη
+Delay	Καθυστέρηση
+Reverb	Αντήχηση
+Binaural	Αμφιωτικό
+Crush	Σύνθλιψη
+Word	Λέξη
+Scrub	Σάρωση
+Short	Σύντομο
+Shatter	Θρυμματισμός
+Pulse	Παλμός
+Crawl	Κύλιση
+Typewriter	Γραφομηχανή
+Oscilloscope	Παλμογράφος
+Spectrum	Φάσμα
+Level Meters	Μετρητές στάθμης
+Waveform	Κυματομορφή
+EFFECTS	ΕΦΕ
+TRIGGERS	ΣΚΑΝΔΑΛΙΣΜΟΙ
+SEQUENCE	ΑΚΟΛΟΥΘΙΑ
+MOTION CONTROL	ΕΛΕΓΧΟΣ ΚΙΝΗΣΗΣ
+THIS CUE	ΑΥΤΟ ΤΟ CUE
+FUNCTIONS	ΛΕΙΤΟΥΡΓΙΕΣ
+VALUES	ΤΙΜΕΣ
+KEYS	ΠΛΗΚΤΡΑ
+FREEZE	ΠΑΓΩΜΑ
+FROZEN	ΠΑΓΩΜΕΝΟ
+BYPASSED	ΠΑΡΑΚΑΜΦΘΗΚΕ
+BYPASS ALL	ΠΑΡΑΚΑΜΨΗ ΟΛΩΝ
+DEFAULTS	ΠΡΟΕΠΙΛΟΓΕΣ
+CHANGE	ΑΛΛΑΓΗ
+CHOOSE	ΕΠΙΛΟΓΗ
+Stop all	Διακοπή όλων
+Pause all	Παύση όλων
+Resume all	Συνέχεια όλων
+Do not continue	Χωρίς συνέχεια
+Auto-continue	Αυτόματη συνέχεια
+Auto-follow	Συνέχεια στο τέλος
+END HOLD	ΤΕΛΟΣ ΚΡΑΤΗΜΑ
+END LOOP	ΤΕΛΟΣ ΒΡΟΧΟΣ
+END NEXT	ΤΕΛΟΣ ΕΠΟΜΕΝΟ
+END STOP	ΤΕΛΟΣ ΔΙΑΚΟΠΗ
+OUTPUT EFFECTS	ΕΦΕ ΕΞΟΔΟΥ
+LIVE CAPTIONS	ΖΩΝΤΑΝΟΙ ΥΠΟΤΙΤΛΟΙ
+captions	υπότιτλοι
+Name Card	Κάρτα ονόματος
+TEST CARD	ΚΑΡΤΑ ΔΟΚΙΜΗΣ
+TEST CARD ON	ΚΑΡΤΑ ΕΝΕΡΓΗ
+EXPORT CARD	ΕΞΑΓΩΓΗ ΚΑΡΤΑΣ
+EXPORTING...	ΕΞΑΓΩΓΗ...
+LOW LATENCY	ΧΑΜΗΛΗ ΚΑΘΥΣΤΕΡΗΣΗ
+WEB MONITOR	WEB MONITOR
+PHONE & TABLET	ΤΗΛΕΦΩΝΟ ΚΑΙ TABLET
+SCAN TO PAIR	ΣΑΡΩΣΗ ΓΙΑ ΣΥΖΕΥΞΗ
+WITH SOUND	ΜΕ ΗΧΟ
+THE NETWORK	ΤΟ ΔΙΚΤΥΟ
+FIXTURES	ΦΩΤΙΣΤΙΚΑ
+ADD FIXTURE	ΠΡΟΣΘΗΚΗ ΦΩΤΙΣΤΙΚΟΥ
+Dimmer	Dimmer
+Dimmer + RGB	Dimmer + RGB
+Dimmer + temperature	Dimmer + θερμοκρασία
+QR CODE	ΚΩΔΙΚΟΣ QR

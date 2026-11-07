@@ -1133,3 +1133,199 @@ on air in the focused playlist	đang lên sóng trong playlist đang mở
 hold {n} s	giữ {n} giây
 any	bất kỳ
 built in	có sẵn
+motion	chuyển động
+METADATA	SIÊU DỮ LIỆU
+generated	được tạo
+Fit	Vừa khung
+inf	vô hạn
+NO	KHÔNG
+YES	CÓ
+UP	LÊN
+DOWN	XUỐNG
+Left	Trái
+Right	Phải
+Top	Trên
+Bottom	Dưới
+add	thêm
+all	tất cả
+none	không có
+Cut	Cắt
+Fade	Mờ dần
+Load	Nạp
+Pause	Tạm dừng
+Resume	Tiếp tục
+Start	Bắt đầu
+Skip	Bỏ qua
+Arm	Sẵn sàng
+Disarm	Hủy sẵn sàng
+ONE	MỘT
+ONCE	MỘT LẦN
+Size	Cỡ
+Width	Rộng
+amount	mức
+brightness	độ sáng
+contrast	tương phản
+saturation	bão hòa
+hue	sắc độ
+level	mức
+speed	tốc độ
+style	kiểu
+title	tiêu đề
+subtitle	tiêu đề phụ
+notes	ghi chú
+font	phông chữ
+frame	khung hình
+type	loại
+state	trạng thái
+blend	trộn
+align	căn chỉnh
+line	đường
+box	chữ nhật
+oval	bầu dục
+brush	cọ
+eraser	tẩy
+mask	mặt nạ
+grow	nới rộng
+subtract	trừ
+split	chia
+stacked	xếp chồng
+soft	mềm
+tolerance	dung sai
+curve	đường cong
+Linear	Tuyến tính
+Ease in	Đầu chậm
+Ease out	Cuối chậm
+S-curve	Đường cong S
+Position X	Vị trí X
+Position Y	Vị trí Y
+Deck volume	Âm lượng deck
+Deck opacity	Độ đục deck
+Master dimmer	Dimmer tổng
+Cue brightness	Độ sáng cue
+Cue contrast	Tương phản cue
+Cue saturation	Bão hòa cue
+Cue hue	Sắc độ cue
+no effects	không hiệu ứng
+no audio effects	không hiệu ứng âm
+nothing yet	chưa có gì
+no output	không output
+no window	không cửa sổ
+source missing	thiếu nguồn
+waiting for a picture	đang chờ hình
+clear frame	xóa khung hình
+undo stroke	hoàn tác nét
+save still	lưu ảnh tĩnh
+save animation	lưu hoạt ảnh
+export	xuất
+repeats	số lần lặp
+hold last	giữ khung cuối
+end action	hành động cuối
+cue id	ID cue
+goto target	đích nhảy
+set	đặt
+send	gửi
+run	chạy
+idle	nhàn rỗi
+standby	chờ sẵn
+Loop	Lặp
+loop forever	lặp vô hạn
+PATCH	PATCH
+OUTPUTS	OUTPUT
+SECTIONS	CÁC MỤC
+Video Synth	Bộ tổng hợp video
+Browser	Trình duyệt
+Browser Cue	Cue trình duyệt
+Window Source	Nguồn cửa sổ
+Camera Source	Nguồn camera
+NDI Source	Nguồn NDI
+DeckLink Input	Đầu vào DeckLink
+Syphon/Spout Source	Nguồn Syphon/Spout
+Live stream cue	Cue luồng trực tiếp
+Composite	Tổng hợp
+Composite scene cue	Cue cảnh tổng hợp
+Lower Third	Chữ chân màn hình
+Lower Third overlay cue	Cue chữ chân màn hình
+PIP overlay cue	Cue lớp phủ PIP
+MIDI File	Tệp MIDI
+Master	Master
+Memo	Ghi chú
+Mic	Micrô
+Timer	Bộ đếm giờ
+Tone	Âm thử
+Script	Kịch bản
+Target	Đích
+Draw	Vẽ
+Code	Mã
+Clouds	Mây
+Swirl	Xoáy
+Moire	Moiré
+Picture	Hình ảnh
+Placement	Vị trí
+Frame lock	Khóa khung hình
+Suspend	Tạm ngưng
+Seam	Đường nối
+High pass	Thông cao
+Low pass	Thông thấp
+Tilt EQ	EQ nghiêng
+Compressor	Bộ nén
+Gate	Cổng
+Delay	Trễ
+Reverb	Vang
+Binaural	Hai tai
+Crush	Nghiền
+Word	Từ
+Scrub	Rà
+Short	Ngắn
+Shatter	Vỡ
+Pulse	Xung
+Crawl	Chữ chạy
+Typewriter	Máy đánh chữ
+Oscilloscope	Máy hiện sóng
+Spectrum	Phổ
+Level Meters	Đồng hồ mức
+Waveform	Dạng sóng
+EFFECTS	HIỆU ỨNG
+TRIGGERS	KÍCH HOẠT
+SEQUENCE	CHUỖI
+MOTION CONTROL	ĐIỀU KHIỂN CHUYỂN ĐỘNG
+THIS CUE	CUE NÀY
+FUNCTIONS	CHỨC NĂNG
+VALUES	GIÁ TRỊ
+KEYS	PHÍM
+FREEZE	ĐÓNG BĂNG
+FROZEN	ĐÃ ĐÓNG BĂNG
+BYPASSED	BỎ QUA
+BYPASS ALL	BỎ QUA TẤT CẢ
+DEFAULTS	MẶC ĐỊNH
+CHANGE	ĐỔI
+CHOOSE	CHỌN
+Stop all	Dừng tất cả
+Pause all	Tạm dừng tất cả
+Resume all	Tiếp tục tất cả
+Do not continue	Không tiếp tục
+Auto-continue	Tự tiếp tục
+Auto-follow	Tiếp khi kết thúc
+END HOLD	CUỐI GIỮ
+END LOOP	CUỐI LẶP
+END NEXT	CUỐI TIẾP
+END STOP	CUỐI DỪNG
+OUTPUT EFFECTS	HIỆU ỨNG OUTPUT
+LIVE CAPTIONS	PHỤ ĐỀ TRỰC TIẾP
+captions	phụ đề
+Name Card	Thẻ tên
+TEST CARD	BẢNG THỬ
+TEST CARD ON	BẬT BẢNG THỬ
+EXPORT CARD	XUẤT BẢNG THỬ
+EXPORTING...	ĐANG XUẤT...
+LOW LATENCY	ĐỘ TRỄ THẤP
+WEB MONITOR	MÀN HÌNH WEB
+PHONE & TABLET	ĐIỆN THOẠI VÀ MÁY TÍNH BẢNG
+SCAN TO PAIR	QUÉT ĐỂ GHÉP
+WITH SOUND	CÓ ÂM THANH
+THE NETWORK	MẠNG
+FIXTURES	ĐÈN
+ADD FIXTURE	THÊM ĐÈN
+Dimmer	Dimmer
+Dimmer + RGB	Dimmer + RGB
+Dimmer + temperature	Dimmer + nhiệt độ
+QR CODE	MÃ QR

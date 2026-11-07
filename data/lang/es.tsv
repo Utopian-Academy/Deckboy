@@ -1137,3 +1137,199 @@ cue "{n}"	cue «{n}»
 hold {n} s	mantener {n} s
 any	cualquiera
 built in	de fábrica
+motion	movimiento
+METADATA	METADATOS
+generated	generado
+Fit	Ajustar
+inf	infinito
+NO	NO
+YES	SÍ
+UP	ARRIBA
+DOWN	ABAJO
+Left	Izquierda
+Right	Derecha
+Top	Arriba
+Bottom	Abajo
+add	añadir
+all	todo
+none	ninguno
+Cut	Corte
+Fade	Fundido
+Load	Cargar
+Pause	Pausa
+Resume	Reanudar
+Start	Iniciar
+Skip	Saltar
+Arm	Armar
+Disarm	Desarmar
+ONE	UNO
+ONCE	UNA VEZ
+Size	Tamaño
+Width	Ancho
+amount	cantidad
+brightness	brillo
+contrast	contraste
+saturation	saturación
+hue	tono
+level	nivel
+speed	velocidad
+style	estilo
+title	título
+subtitle	subtítulo
+notes	notas
+font	fuente
+frame	fotograma
+type	tipo
+state	estado
+blend	mezcla
+align	alinear
+line	línea
+box	rectángulo
+oval	óvalo
+brush	pincel
+eraser	borrador
+mask	máscara
+grow	expandir
+subtract	restar
+split	dividir
+stacked	apilado
+soft	suave
+tolerance	tolerancia
+curve	curva
+Linear	Lineal
+Ease in	Entrada suave
+Ease out	Salida suave
+S-curve	Curva en S
+Position X	Posición X
+Position Y	Posición Y
+Deck volume	Volumen del deck
+Deck opacity	Opacidad del deck
+Master dimmer	Dimmer maestro
+Cue brightness	Brillo del cue
+Cue contrast	Contraste del cue
+Cue saturation	Saturación del cue
+Cue hue	Tono del cue
+no effects	sin efectos
+no audio effects	sin efectos de audio
+nothing yet	aún nada
+no output	sin salida
+no window	sin ventana
+source missing	falta la fuente
+waiting for a picture	esperando imagen
+clear frame	borrar fotograma
+undo stroke	deshacer trazo
+save still	guardar imagen
+save animation	guardar animación
+export	exportar
+repeats	repeticiones
+hold last	mantener último
+end action	acción final
+cue id	ID del cue
+goto target	destino del salto
+set	definir
+send	enviar
+run	ejecutar
+idle	inactivo
+standby	en espera
+Loop	Bucle
+loop forever	bucle infinito
+PATCH	PATCH
+OUTPUTS	SALIDAS
+SECTIONS	SECCIONES
+Video Synth	Sintetizador de vídeo
+Browser	Navegador
+Browser Cue	Cue de navegador
+Window Source	Fuente de ventana
+Camera Source	Fuente de cámara
+NDI Source	Fuente NDI
+DeckLink Input	Entrada DeckLink
+Syphon/Spout Source	Fuente Syphon/Spout
+Live stream cue	Cue de transmisión
+Composite	Composición
+Composite scene cue	Cue de escena compuesta
+Lower Third	Rótulo inferior
+Lower Third overlay cue	Cue de rótulo inferior
+PIP overlay cue	Cue de superposición PIP
+MIDI File	Archivo MIDI
+Master	Master
+Memo	Nota
+Mic	Micrófono
+Timer	Temporizador
+Tone	Tono
+Script	Script
+Target	Destino
+Draw	Dibujo
+Code	Código
+Clouds	Nubes
+Swirl	Remolino
+Moire	Muaré
+Picture	Imagen
+Placement	Posición
+Frame lock	Bloqueo de fotograma
+Suspend	Suspender
+Seam	Unión
+High pass	Paso alto
+Low pass	Paso bajo
+Tilt EQ	EQ de inclinación
+Compressor	Compresor
+Gate	Puerta
+Delay	Retardo
+Reverb	Reverberación
+Binaural	Binaural
+Crush	Trituración
+Word	Palabra
+Scrub	Barrido
+Short	Corto
+Shatter	Fragmentar
+Pulse	Pulso
+Crawl	Desplazamiento
+Typewriter	Máquina de escribir
+Oscilloscope	Osciloscopio
+Spectrum	Espectro
+Level Meters	Medidores de nivel
+Waveform	Forma de onda
+EFFECTS	EFECTOS
+TRIGGERS	DISPARADORES
+SEQUENCE	SECUENCIA
+MOTION CONTROL	CONTROL POR MOVIMIENTO
+THIS CUE	ESTE CUE
+FUNCTIONS	FUNCIONES
+VALUES	VALORES
+KEYS	TECLAS
+FREEZE	CONGELAR
+FROZEN	CONGELADO
+BYPASSED	OMITIDO
+BYPASS ALL	OMITIR TODO
+DEFAULTS	PREDETERMINADOS
+CHANGE	CAMBIAR
+CHOOSE	ELEGIR
+Stop all	Detener todo
+Pause all	Pausar todo
+Resume all	Reanudar todo
+Do not continue	No continuar
+Auto-continue	Continuación auto.
+Auto-follow	Seguir al terminar
+END HOLD	FINAL MANTENER
+END LOOP	FINAL BUCLE
+END NEXT	FINAL SIGUIENTE
+END STOP	FINAL DETENER
+OUTPUT EFFECTS	EFECTOS DE SALIDA
+LIVE CAPTIONS	SUBTÍTULOS EN VIVO
+captions	subtítulos
+Name Card	Tarjeta de nombre
+TEST CARD	CARTA DE AJUSTE
+TEST CARD ON	CARTA ACTIVADA
+EXPORT CARD	EXPORTAR CARTA
+EXPORTING...	EXPORTANDO...
+LOW LATENCY	BAJA LATENCIA
+WEB MONITOR	MONITOR WEB
+PHONE & TABLET	MÓVIL Y TABLETA
+SCAN TO PAIR	ESCANEAR PARA VINCULAR
+WITH SOUND	CON SONIDO
+THE NETWORK	LA RED
+FIXTURES	LUMINARIAS
+ADD FIXTURE	AÑADIR LUMINARIA
+Dimmer	Dimmer
+Dimmer + RGB	Dimmer + RGB
+Dimmer + temperature	Dimmer + temperatura
+QR CODE	CÓDIGO QR

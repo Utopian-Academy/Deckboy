@@ -1150,3 +1150,199 @@ hold {n} s	{n} ثانیه نگه دارید
 any	هر
 built in	داخلی
 show	نمایش
+motion	حرکت
+METADATA	فراداده
+generated	تولیدشده
+Fit	جا دادن
+inf	بی‌نهایت
+NO	خیر
+YES	بله
+UP	بالا
+DOWN	پایین
+Left	چپ
+Right	راست
+Top	بالا
+Bottom	پایین
+add	افزودن
+all	همه
+none	هیچ‌کدام
+Cut	برش
+Fade	محو شدن
+Load	بارگذاری
+Pause	مکث
+Resume	ادامه
+Start	شروع
+Skip	رد کردن
+Arm	آماده‌سازی
+Disarm	لغو آمادگی
+ONE	یکی
+ONCE	یک بار
+Size	اندازه
+Width	عرض
+amount	مقدار
+brightness	روشنایی
+contrast	کنتراست
+saturation	اشباع
+hue	فام
+level	سطح
+speed	سرعت
+style	سبک
+title	عنوان
+subtitle	زیرعنوان
+notes	یادداشت‌ها
+font	قلم
+frame	فریم
+type	نوع
+state	وضعیت
+blend	ترکیب
+align	تراز
+line	خط
+box	مستطیل
+oval	بیضی
+brush	قلم‌مو
+eraser	پاک‌کن
+mask	ماسک
+grow	گسترش
+subtract	تفریق
+split	تقسیم
+stacked	روی هم
+soft	نرم
+tolerance	تلورانس
+curve	منحنی
+Linear	خطی
+Ease in	شروع نرم
+Ease out	پایان نرم
+S-curve	منحنی S
+Position X	موقعیت X
+Position Y	موقعیت Y
+Deck volume	صدای deck
+Deck opacity	تیرگی deck
+Master dimmer	دیمر اصلی
+Cue brightness	روشنایی cue
+Cue contrast	کنتراست cue
+Cue saturation	اشباع cue
+Cue hue	فام cue
+no effects	بدون افکت
+no audio effects	بدون افکت صوتی
+nothing yet	هنوز چیزی نیست
+no output	بدون خروجی
+no window	بدون پنجره
+source missing	منبع نیست
+waiting for a picture	در انتظار تصویر
+clear frame	پاک کردن فریم
+undo stroke	لغو حرکت قلم
+save still	ذخیره تصویر
+save animation	ذخیره پویانمایی
+export	خروجی گرفتن
+repeats	تکرارها
+hold last	نگه‌داشتن آخرین
+end action	عمل پایان
+cue id	شناسه cue
+goto target	هدف پرش
+set	تنظیم
+send	ارسال
+run	اجرا
+idle	بیکار
+standby	آماده
+Loop	حلقه
+loop forever	تکرار بی‌پایان
+PATCH	PATCH
+OUTPUTS	خروجی‌ها
+SECTIONS	بخش‌ها
+Video Synth	سینت ویدئو
+Browser	مرورگر
+Browser Cue	cue مرورگر
+Window Source	منبع پنجره
+Camera Source	منبع دوربین
+NDI Source	منبع NDI
+DeckLink Input	ورودی DeckLink
+Syphon/Spout Source	منبع Syphon/Spout
+Live stream cue	cue پخش زنده
+Composite	ترکیب
+Composite scene cue	cue صحنه ترکیبی
+Lower Third	زیرنویس معرفی
+Lower Third overlay cue	cue زیرنویس معرفی
+PIP overlay cue	cue لایه PIP
+MIDI File	فایل MIDI
+Master	Master
+Memo	یادداشت
+Mic	میکروفون
+Timer	زمان‌سنج
+Tone	تون
+Script	اسکریپت
+Target	هدف
+Draw	نقاشی
+Code	کد
+Clouds	ابرها
+Swirl	گرداب
+Moire	موآره
+Picture	تصویر
+Placement	جای‌گذاری
+Frame lock	قفل فریم
+Suspend	تعلیق
+Seam	درز
+High pass	بالاگذر
+Low pass	پایین‌گذر
+Tilt EQ	EQ شیب‌دار
+Compressor	کمپرسور
+Gate	گیت
+Delay	تأخیر
+Reverb	ریورب
+Binaural	دوگوشی
+Crush	خردکردن
+Word	کلمه
+Scrub	مرور
+Short	کوتاه
+Shatter	شکستن
+Pulse	ضربان
+Crawl	متن روان
+Typewriter	ماشین‌تحریر
+Oscilloscope	اسیلوسکوپ
+Spectrum	طیف
+Level Meters	سطح‌سنج‌ها
+Waveform	شکل موج
+EFFECTS	افکت‌ها
+TRIGGERS	محرک‌ها
+SEQUENCE	توالی
+MOTION CONTROL	کنترل حرکتی
+THIS CUE	این cue
+FUNCTIONS	عملکردها
+VALUES	مقادیر
+KEYS	کلیدها
+FREEZE	توقف تصویر
+FROZEN	تصویر ثابت
+BYPASSED	کنارگذاشته
+BYPASS ALL	کنارگذاشتن همه
+DEFAULTS	پیش‌فرض‌ها
+CHANGE	تغییر
+CHOOSE	انتخاب
+Stop all	توقف همه
+Pause all	مکث همه
+Resume all	ادامه همه
+Do not continue	ادامه نده
+Auto-continue	ادامه خودکار
+Auto-follow	ادامه پس از پایان
+END HOLD	پایان نگه‌دار
+END LOOP	پایان حلقه
+END NEXT	پایان بعدی
+END STOP	پایان توقف
+OUTPUT EFFECTS	افکت‌های خروجی
+LIVE CAPTIONS	زیرنویس زنده
+captions	زیرنویس‌ها
+Name Card	کارت نام
+TEST CARD	تصویر آزمایشی
+TEST CARD ON	تصویر آزمایشی روشن
+EXPORT CARD	خروجی کارت
+EXPORTING...	در حال خروجی...
+LOW LATENCY	تأخیر کم
+WEB MONITOR	مانیتور وب
+PHONE & TABLET	تلفن و تبلت
+SCAN TO PAIR	برای جفت‌شدن اسکن کنید
+WITH SOUND	با صدا
+THE NETWORK	شبکه
+FIXTURES	چراغ‌ها
+ADD FIXTURE	افزودن چراغ
+Dimmer	دیمر
+Dimmer + RGB	دیمر + RGB
+Dimmer + temperature	دیمر + دما
+QR CODE	کد QR
