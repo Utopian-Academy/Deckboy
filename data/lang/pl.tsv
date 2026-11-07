@@ -1363,3 +1363,495 @@ fire	uruchom
 in	wej.
 out	wyj.
 trim	przytnij
+0-63, the hardware's own gain range.	0-63, własne wzmocnienie sprzętu.
+1-16, as the desk counts them	1-16, tak jak liczy je konsola
+7-segment, blocky, or a real font	7-segmentowy, kanciasty lub prawdziwa czcionka
+[ / ] keys — fade-in duration	Klawisze [ / ]: czas wejścia
+a camera moves the ~ controls	kamera porusza regulatorami ~
+a chain on a device, after the mix	łańcuch na urządzeniu, po miksie
+a comment	komentarz
+Act now, without taking the cue	Wykonaj teraz, bez brania cue
+Add a light	Dodaj światło
+add a second output to pair	dodaj drugie wyjście do pary
+add shape	dodaj kształt
+all driven by the cue's own transport	wszystko sterowane transportem cue
+All interfaces; trusted machines only.	Wszystkie interfejsy; tylko zaufane maszyny.
+all to 0	wszystko na 0
+An audio effect's knob	Pokrętło efektu audio
+An effect's knob	Pokrętło efektu
+any channel	dowolny kanał
+any window, any screen	dowolne okno, dowolny ekran
+Arm this cue as the one GO will fire	Uzbrój ten cue na następne GO
+Art-Net port address, 0-32767	Adres portu Art-Net, 0-32767
+Attached overlays fire on TAKE only	Połączone nakładki startują tylko przy TAKE
+BACK TO BUG SWAT	WRÓĆ DO BUG SWAT
+backdrop	tło
+bar	pasek
+bg alpha	alfa tła
+black lift	podniesienie czerni
+blend gamma	gamma przenikania
+blueprint	plan
+boxes	ramki
+bracket	nawiasy
+bulletin	biuletyn
+by density	według gęstości
+BY FIXTURE	WEDŁUG URZĄDZENIA
+capsule	kapsuła
+caption	podpis
+card	karta
+CARD OFF ALL	KARTA WYŁ. WSZYSTKO
+CARD ON ALL	KARTA WŁ. WSZYSTKO
+cartridge	kartridż
+cassette	kaseta
+Ceiling	Sufit
+Chain	Łańcuch
+Changing this re-prepares the cue.	Zmiana przygotowuje cue od nowa.
+channel list is not readable	lista kanałów nieczytelna
+CHANNELS	KANAŁY
+channels on your interfaces, by name	kanały z twoich interfejsów, po nazwie
+Checkerboard	Szachownica
+chime amber	ostrzeżenie bursztynowe
+chime red	ostrzeżenie czerwone
+chime zero	ostrzeżenie zero
+Choose startup mode:	Wybierz tryb startu:
+circle, heart, star...	koło, serce, gwiazda...
+circuit	obwód
+CLASSIC VIEW	WIDOK KLASYCZNY
+clear driver	wyczyść sterownik
+Clear in/out trim points	Wyczyść punkty wejścia/wyjścia
+CLEAR OVERLAY  [Backspace]	WYCZYŚĆ NAKŁADKĘ  [Backspace]
+Clear the active Lower Third overlay now	Usuń teraz aktywny Lower Third
+Clear the live PIP overlay now	Usuń teraz nakładkę PIP
+CLICK ANYWHERE...	KLIKNIJ GDZIEKOLWIEK...
+click or Esc to close	kliknij lub Esc, aby zamknąć
+click this window	kliknij to okno
+Click to edit cue notes	Kliknij, aby edytować notatki cue
+click to open the grid	kliknij, aby otworzyć siatkę
+Click to seek — drag to scrub	Kliknij, aby przejść, przeciągnij, aby przewijać
+Click to type it	Kliknij, aby pisać
+comic	komiks
+Companion passphrase	Hasło Companion
+confetti	konfetti
+Connections at once	Jednoczesne połączenia
+count up	liczenie w górę
+Countdown, count up, or wall clock	Odliczanie, liczenie w górę lub zegar
+credit	napisy końcowe
+crossfade	suwak przenikania
+crosshair	celownik
+Crosshatch	Kreskowanie
+Cue has no audio	Cue nie ma dźwięku
+cue number	numer cue
+Cycle end action for selected cues	Zmień działanie końcowe wybranych cue
+Cycle which slot drives scene audio	Zmień slot, który daje dźwięk sceny
+decoder spin-up	start dekodera
+Default App Feed	Domyślne źródło aplikacji
+Default Camera	Domyślna kamera
+Delay before the continue fires	Opóźnienie przed kontynuacją
+Delay between GO and this cue starting	Opóźnienie między GO a startem cue
+depth 1 turns it all the way round	głębokość 1 to pełny obrót
+Digit colour once amber is reached	Kolor cyfr na bursztynowym
+Digit colour while there is time in hand	Kolor cyfr przy zapasie czasu
+diskette	dyskietka
+Do it now, without taking the cue	Zrób to teraz, bez brania cue
+dotmatrix	matryca punktowa
+Double-GO guard	Ochrona podwójnego GO
+draw on the monitor	rysuj na monitorze
+driver speed	prędkość sterownika
+EDGE BLEND	MIESZANIE KRAWĘDZI
+EDIT is on: typing changes the show	EDIT wł.: zapis zmienia pokaz
+edit on the monitor	edytuj na monitorze
+Edit the main Lower Third title	Edytuj tytuł Lower Third
+Edit the secondary Lower Third line	Edytuj drugi wiersz Lower Third
+eq band	pasmo EQ
+equalizer	korektor
+Esc cancels	Esc anuluje
+Esc cancels, arrows nudge	Esc anuluje, strzałki przesuwają
+Esc to close	Esc, aby zamknąć
+even grid	równa siatka
+EXAMPLE SHOWS	POKAZ PRZYKŁADOWY
+EXIT  Esc	WYJDŹ  Esc
+face	twarz
+factory settings	ustawienia fabryczne
+Fade+LoadNext	Ściemnij+Wczytaj nast.
+Fade+Pause	Ściemnij+Pauza
+Fade+Rewind	Ściemnij+Przewiń
+Fade-in duration	Czas wejścia
+Fade-in duration for this cue	Wejście tego cue
+Fade-out duration	Czas wyjścia
+Fade-out duration before next cue	Wyjście przed następnym cue
+Fade-out duration for this cue	Wyjście tego cue
+Fall	Opadanie
+false colour reads SDR pictures	fałszywe kolory czytają obraz SDR
+fill the frame	wypełnij kadr
+find a named colour	znajdź kolor po nazwie
+fires cues	uruchamiaj cue
+first available	pierwszy wolny
+Fit/Fill/Stretch/Unscaled	Dopasuj/Wypełnij/Rozciągnij/Bez skali
+Fixed repeat count — 0 = infinite	Stała liczba powtórzeń: 0 = bez końca
+Fixed repeat count — 0 = loop forever	Stała liczba powtórzeń: 0 = bez końca
+FIXED!	NAPRAWIONE!
+flag	flaga
+FORGET MY DEFAULTS	ZAPOMNIJ MOJE DOMYŚLNE
+Frames a second	Klatki na sekundę
+from exactly this routing	prosto z tego routingu
+Full Black	Pełna czerń
+Full Blue	Pełny niebieski
+Full Green	Pełny zielony
+Full Red	Pełny czerwony
+Full White	Pełna biel
+garden	ogród
+Ghastly	Upiorny
+glass	szkło
+glitch down	glitch w dół
+glitch drift	dryf glitcha
+glitch reach	zasięg glitcha
+glitch through	glitch w poprzek
+glitch up	glitch w górę
+GO steps over it	GO to pomija
+hairline	linia
+Haptics	Drgania
+HDR input	Wejście HDR
+Hex, e.g. 90 3C 7F	Hex, np. 90 3C 7F
+HOLDING OFF AIR	STOP POZA ANTENĄ
+Home — skip to start	Home: na początek
+Horizontal output offset in pixels	Przesunięcie poziome wyjścia w pikselach
+How many features fit on screen.	Ile mieści się na ekranie.
+how much of this effect	ile tego efektu
+How solid the ink is	Krycie tuszu
+How tall the logo is above the clock	Wysokość logo nad zegarem
+In-point: cue starts playback here	Punkt wejścia: cue startuje tutaj
+index	indeks
+initializing webview	start webview
+install Tailscale here and on the phone	zainstaluj Tailscale tu i na telefonie
+INSTALLING...	INSTALACJA...
+Its amount, or one of its knobs A to D	Jego ilość lub pokrętło od A do D
+J jump to row	J: skocz do wiersza
+jam to	synchronizuj do
+Jump the driver back to its first frame	Cofnij sterownik do pierwszej klatki
+K — cycle cue color tag	K: zmień kolor cue
+Keep counting past zero, or stop dead	Licz dalej po zerze lub zatrzymaj
+key	klawisz
+Key edge softness	Miękkość krawędzi kluczowania
+knob	pokrętło
+L - loop this cue continuously	L: zapętl ten cue
+last reading	ostatni odczyt
+Last refused	Ostatnio odrzucone
+Learn it	Ucz się
+LEARN THE BASICS	POZNAJ PODSTAWY
+ledger	księga
+Left — skip back 10s	Lewo: 10 s wstecz
+Left, centre or right	Lewo, środek lub prawo
+LESSONS	LEKCJE
+Levels	Poziomy
+Limiting	Ograniczanie
+line  |  Enter: apply	wiersz  |  Enter: zastosuj
+LINEAR - a feather, not a blend	LINIOWE: gradient, nie mieszanie
+Linear, ease in, ease out or S-curve	Liniowo, wejście, wyjście lub krzywa S
+Lines	Linie
+link aspect	połącz proporcje
+Listen to	Słuchaj
+listener	słuchacz
+LIVE - every assigned deck matches	LIVE: wszystkie przypisane decki się zgadzają
+lock to screen	zablokuj na ekranie
+logo size	rozmiar logo
+look at it	popatrz na to
+lower 3rd	Lower Third
+marquee	tablica świetlna
+mask on	maska aktywna
+Master oscillator rate.	Prędkość głównego oscylatora.
+Maximum quality	Najwyższa jakość
+MIDI and OSC monitor	Monitor MIDI i OSC
+midi in	wejście MIDI
+MIDI note	nuta MIDI
+move points	przesuń punkty
+Move the height on its own oscillator	Porusz wysokością tonu oscylatorem
+name or number...	nazwa lub numer...
+name, from anywhere	nazwa, skądkolwiek
+NDI source cue	Źródłowy cue NDI
+needs file-backed video	wymaga pliku wideo
+new paths	nowe ścieżki
+New shows start from	Nowe pokazy zaczynają od
+next xfade	następne przejście
+no effects for this cue type	brak efektów dla tego typu cue
+nobody	brak
+none - click to learn	brak: kliknij, aby nauczyć
+none - click to set some	brak: kliknij, aby ustawić
+none - click to write some	brak: kliknij, aby wpisać
+none yet	jeszcze brak
+none: the one picture	brak: jedyny obraz
+none: the whole picture	brak: cały obraz
+notebook	notes
+nothing	nic
+nothing assigned yet	nic nie przypisano
+nothing follows	nic nie śledzi
+Nothing here with this filter.	Nic przy tym filtrze.
+nothing set - this cue sends nothing	nic nie ustawiono: ten cue nic nie wysyła
+nothing targeted yet	brak celu
+Nothing to see here. Probably.	Nie ma tu nic do oglądania. Chyba.
+nothing to send - check the message	nie ma czego wysłać: sprawdź wiadomość
+offset X	przesunięcie X
+offset Y	przesunięcie Y
+on any channel	na dowolnym kanale
+on the header to add another	na nagłówku, aby dodać więcej
+on the monitor	na monitorze
+one big on top, the rest below	jeden duży na górze, reszta pod nim
+one big, the rest beside it	jeden duży, reszta obok
+onion off	kalka wył.
+onion on	kalka wł.
+only this computer	tylko ten komputer
+Open a .deckboy show file	Otwórz plik .deckboy
+open the monitor	otwórz monitor
+or your own bytes	lub własne bajty
+ORDER - cues advance down the list	KOLEJNOŚĆ: cue idą w dół listy
+Out-point: cue stops playback here	Punkt wyjścia: cue kończy się tutaj
+output already has	wyjście ma już
+Outputs Off	Wyjścia wył.
+outs	wyjścia
+over budget - video will drop frames	ponad limit: wideo zgubi klatki
+over the picture	na obrazie
+PAIR	PARUJ
+Pair a phone	Sparuj telefon
+Pair overlap	Nakładanie pary
+Paired phones	Sparowane telefony
+Passphrase	Hasło
+Pattern motion toggle	Ruch wzoru
+pause begin	pauza na starcie
+pennant	proporczyk
+Per-cue transition duration override	Czas przejścia tego cue
+Perspective	Perspektywa
+PHASE	FAZA
+Phone access	Dostęp z telefonu
+Phone control	Sterowanie z telefonu
+phrase hold	długość frazy
+PICK FROM SCREEN	POBIERZ Z EKRANU
+Pitch, in semitones.	Wysokość tonu, w półtonach.
+PIXEL FOR PIXEL, TOP-LEFT	PIKSEL W PIKSEL, LEWY GÓRNY RÓG
+placard	szyld
+play a note...	zagraj nutę...
+PLAY BUG SWAT, a game	ZAGRAJ W BUG SWAT
+Play the out move now, then take it off	Zagraj wyjście teraz, potem usuń
+Playback speed: 0.25–4.0×	Prędkość: 0,25–4,0×
+playlists into the named outputs	lista odtwarzania na nazwane wyjścia
+plays synth	zagraj na syntezatorze
+plugin	wtyczka
+PNG matte	matte PNG
+podium	mównica
+press a key...	naciśnij klawisz...
+PRESS AGAIN TO FORGET	NACIŚNIJ PONOWNIE, ABY ZAPOMNIEĆ
+Previous show file:	Poprzedni plik:
+prog bar	pasek post.
+programme	program
+Programme with sound in any browser	Program z dźwiękiem w każdej przeglądarce
+PROJECTOR - gamma matched	PROJEKTOR: dopasowana gamma
+Projector gamma	Gamma projektora
+put it on a button	daj to na przycisk
+Put the brush's opacity on an oscillator	Daj krycie pędzla na oscylator
+Put the brush's size on an oscillator	Daj rozmiar pędzla na oscylator
+Put this control on an oscillator	Daj ten regulator na oscylator
+rack it	wczytaj to
+RACKED, WARM	WCZYTANE, GOTOWE
+rail	szyna
+rain	deszcz
+Reads	Czyta
+reads the same on any screen	czyta się tak samo na każdym ekranie
+recent and in this show	ostatnie i w tym pokazie
+Recent shows:	Ostatnie pokazy:
+red at	czerwony przy
+red col	kol. czerwona
+render height	wysokość renderu
+render width	szerokość renderu
+REPORT A PROBLEM	ZGŁOŚ PROBLEM
+reported rather than swapped	zgłoszone, nie zastąpione
+restart driver now	zrestartuj sterownik teraz
+restart on take	restart przy take
+restore at end	przywróć na końcu
+ribbon	wstęga
+Right — skip forward 10s	Prawo: 10 s naprzód
+Right-click turns them off.	Prawy klik je wyłącza.
+Rise	Narastanie
+rise, slide or wipe	wjazd, przewijanie lub kurtyna
+Rotation speed, degrees per second.	Prędkość obrotu, stopnie na sekundę.
+rounded rect	zaokr. prostokąt
+row turns the matrix off again	wiersz znów wyłącza matrycę
+Run it now, without taking the cue	Uruchom teraz, bez brania cue
+Run the show from a phone	Prowadź pokaz z telefonu
+runs off the show thread	poza wątkiem pokazu
+sACN universe, 1-63999	Uniwersum sACN, 1-63999
+SAVE AS MY DEFAULTS	ZAPISZ JAKO DOMYŚLNE
+says	mówi
+SCALED TO FILL	PRZESKALOWANE DO WYPEŁNIENIA
+Scene dwell time — 0 = hold	Czas sceny: 0 = trzymaj
+Scene fade-in duration	Wejście sceny
+Scene fade-out duration	Wyjście sceny
+scoreboard	tablica wyników
+SCREENS	EKRANY
+scroll	przewijanie
+Scroll up	Przewiń w górę
+sea	morze
+SELECT: MOTION	WYBÓR: RUCH
+Send it now, without taking the cue	Wyślij teraz, bez brania cue
+sends	wyślij
+Sensitivity	Czułość
+Set browser URL/path	Ustaw URL/ścieżkę przeglądarki
+set by	ustawione przez
+Set capture source from the cue menu	Ustaw źródło z menu cue
+Set cue ID for selected cues	Ustaw ID wybranych cue
+Set cue token to jump to when cue ends	Ustaw cue, do którego skoczyć na końcu
+Set goto target for selected cues	Ustaw cel wybranych cue
+Set Lower Third background alpha	Alfa tła Lower Third
+Set per-cue transition duration	Czas przejścia cue
+Set playback speed for selected cues	Prędkość wybranych cue
+Set repeat count for selected cues	Powtórzenia wybranych cue
+Set short cue id for search/goto	Krótkie ID do szukania/skoku
+Set short cue label for search/goto	Krótka nazwa do szukania/skoku
+Set the NDI source name to receive	Nazwa źródła NDI do odbioru
+Shift+[ / ] — fade-out duration	Shift+[ / ]: czas wyjścia
+SHOW ME	POKAŻ MI
+Show on	Pokaż na
+Shows	Pokaż
+sideline	linia boczna
+sketch	szkic
+slide	przesuwanie
+slide from left	wsuń z lewej
+slide from right	wsuń z prawej
+SMOOTH	MIĘKKIE
+snow	śnieg
+SOS. Kidding. The show is fine.	SOS. Żart. Pokaz jest w porządku.
+Sound when the clock turns amber	Dźwięk, gdy zegar staje się bursztynowy
+Sound when the clock turns red	Dźwięk, gdy zegar staje się czerwony
+Sound when time is up	Dźwięk po upływie czasu
+Space — pause	Spacja: pauza
+Space — play	Spacja: odtwarzaj
+span	rozrzut
+sparkle	iskrzenie
+Speech models	Modele mowy
+Speed, like tape	Prędkość, jak taśma
+stamp	stempel
+Start NEW from factory	Zacznij NOWY od fabrycznych
+starting browser	start przeglądarki
+starting capture	start przechwytywania
+starting xvfb	start xvfb
+sticky	karteczka
+stop at 0	stop na 0
+Stop puppeteering this cue	Przestań sterować tym cue
+STRAIGHT	PROSTO
+survey	wypukłość
+SVG paths	Ścieżki SVG
+tab	karta
+tag	etykieta
+TAP	STUKNIJ
+text mode	tryb tekstowy
+the file cannot be read	plik jest nieczytelny
+The name	Nazwa
+The OSC path, e.g. /cue/1/start	Ścieżka OSC, np. /cue/1/start
+the playlist's PATCH	PATCH listy odtwarzania
+The role, or leave it empty	Rola lub zostaw puste
+the system output	wyjście systemowe
+The text this cue puts on screen	Tekst, który pokazuje ten cue
+theatre	teatr
+then stop	potem stop
+they have	mają
+things that are oscillating	rzeczy, które oscylują
+this cue lives on	ten cue jest na
+This show's setup, no cues	Ustawienia tego pokazu, bez cue
+ticket	bilet
+tile h	panel w
+Tile height in pixels.	Wysokość panelu w pikselach.
+tile w	panel s
+time of day	pora dnia
+Timecode	Kod czasowy
+Toggle audio enable for selected cues	Dźwięk wybranych cue
+Toggle chroma key	Przełącz kluczowanie chroma
+Toggle cue audio	Dźwięk cue
+Toggle cue audio track for this cue	Ścieżka audio tego cue
+Toggle fade in	Wejście
+Toggle fade out	Wyjście
+Toggle hold on last frame	Trzymaj ostatnią klatkę
+Toggle hold-at-end for selected cues	Trzymaj na końcu w wybranych cue
+Toggle loop	Pętla
+Toggle loop for selected cues	Pętla wybranych cue
+Toggle the live input's audio	Dźwięk wejścia na żywo
+Total time	Czas całkowity
+transcoding - plays clean until ready	transkodowanie: gra czysto do końca
+transparent: put its playlist on a layer	przezroczyste: daj listę na warstwę
+Trusted controllers	Zaufane kontrolery
+TURN OFF	WYŁĄCZ
+turn phone control on	włącz sterowanie z telefonu
+two big on top, the rest below	dwa duże na górze, reszta pod nimi
+type a cue number	wpisz numer cue
+Typing needs EDIT on	Pisanie wymaga EDIT wł.
+Use GEOMETRY for exact placement	Użyj GEOMETRII do dokładnego ustawienia
+value to type one	wartość do zapisu
+Vertical output offset in pixels	Przesunięcie pionowe wyjścia w pikselach
+VIDEO DIP: OFF	PRZEJŚCIE WIDEO: NIE
+VIDEO DIP: ON	PRZEJŚCIE WIDEO: TAK
+walk the outputs one at a time.	przechodź przez wyjścia po kolei.
+walks every output in turn	przechodzi przez każde wyjście
+WHAT DECKBOY DID	CO ZROBIŁ DECKBOY
+what is on air in a playlist	co jest na żywo na liście odtwarzania
+What NEW starts from, never this show	Skąd zaczyna NOWY, nigdy ten pokaz
+whatever the style says	jak mówi styl
+Where the ramp ends	Gdzie kończy się rampa
+Which deck the cue it acts on lives on	Na którym decku jest docelowy cue
+Which frame you draw on	Na której klatce rysujesz
+Who can see it	Kto może to zobaczyć
+whole network	cała sieć
+will not open	nie otwiera się
+window and recording outputs only	tylko wyjścia okien i nagrywania
+wipe	kurtyna
+Wobble	Drganie
+wobble by	drgaj o
+words	słowa
+X — cycle end action	X: zmień działanie końcowe
+X — cycle end action: stop / next / loop	X: działanie końcowe: stop / nast. / pętla
+Zones	Strefy
+~ makes the level breathe	~ sprawia, że poziom oddycha
+a note or an address becomes that cue's trigger	nuta lub adres staje się wyzwalaczem cue
+acts on every deck; deck and cue are ignored	działa na wszystkie decki; deck i cue pominięte
+Add an output above, then send playlists to it here.	Dodaj wyjście powyżej, potem wyślij tu listy odtwarzania.
+Ancient cypher, modern video desk. Respect.	Dawne pismo, nowoczesna konsola. Szacunek.
+Any font on this computer, Deckboy's own, or a font file	Czcionka komputera, Deckboya lub plik
+Apply fade-in to selected video/audio cues	Wejście na wybranych cue wideo/audio
+Apply fade-out to selected video/audio cues	Wyjście na wybranych cue wideo/audio
+Art-Net or sACN (E1.31): whichever the lighting rig listens to	Art-Net lub sACN (E1.31): to, czego słucha oświetlenie
+Auto-advance duration — 0 = hold until taken	Auto-przejście: 0 = trzymaj do take
+Bypass: this master leaves that deck alone	Bypass: ten master zostawia ten deck w spokoju
+Characters across. Fewer means bigger cells.	Znaki w wierszu. Mniej daje większe komórki.
+Choose a mask from this show's library, or start a new one from a shape	Wybierz maskę z biblioteki lub zrób ją z kształtu
+Click a value to change it. A red address overlaps another fixture.	Kliknij wartość, aby ją zmienić. Czerwony adres nakłada się na inne urządzenie.
+Click to show or hide this cue's captions	Kliknij, aby pokazać lub ukryć napisy cue
+Copy the show AND its media into one portable folder	Skopiuj pokaz ORAZ media do przenośnego folderu
+Ctrl+S - write back over the show that is open	Ctrl+S: zapisz do otwartego pokazu
+Ctrl+Shift+S - write the show to a NEW file	Ctrl+Shift+S: zapisz do NOWEGO pliku
+Device output pair this cue's audio plays on	Para wyjść dla dźwięku tego cue
+E - freeze on last frame instead of stopping	E: zatrzymaj na ostatniej klatce zamiast stopu
+Edit title/subtitle here or fire it live with TAKE	Edytuj tytuł/podtytuł tutaj lub uruchom przez TAKE
+Every channel on every universe this session has touched	Każdy kanał każdego uniwersum użyty w tej sesji
+generator is off - a START cue turns it on	generator wył.: cue START go włącza
+How long the note takes to reach full level.	Czas, po którym nuta osiąga pełny poziom.
+How much it throws off; 0 is a clean burn	Jak bardzo się łuszczy; 0 pali czysto
+INPUT: the programme. Drag a crop to move it, its corners to size it.	WEJŚCIE: program. Przeciągnij wycinek, aby przesunąć, narożniki, aby zmienić rozmiar.
+Keep the outside and cut the inside instead	Zachowaj zewnątrz, wytnij środek
+LED panel height in pixels. Click to type it	Wysokość panelu LED w pikselach. Kliknij, aby wpisać
+Legacy target mode — switch type to convert	Stary tryb celu: zmień typ, aby przekonwertować
+Lissajous, spectrum, meters or a name card	Lissajous, widmo, wskaźniki lub tabliczka z nazwą
+Load the cue and hold first frame when taken	Wczytaj cue i trzymaj pierwszą klatkę przy take
+no fixtures patched - Settings > Network > FIXTURES	brak urządzeń w patchu: Ustawienia > Sieć > FIXTURES
+Nothing here changes the show that is open.	Nic tutaj nie zmienia otwartego pokazu.
+Per-cue audio: enable, trim, pan, mono, fades, normalize	Audio cue: wł./wył., trim, pan, mono, przejścia, normalizacja
+Phone control is in PHONE & TABLET, below	Sterowanie z telefonu jest w PHONE & TABLET, poniżej
+Save the mask as a greyscale PNG at the output's size: white keeps, black cuts	Zapisz maskę jako szary PNG w rozmiarze wyjścia: biel zachowuje, czerń wycina
+Seconds REMAINING when the clock turns amber	Sekundy POZOSTAŁE, gdy zegar staje się bursztynowy
+Seconds REMAINING when the clock turns red	Sekundy POZOSTAŁE, gdy zegar staje się czerwony
+Shown to the operator when GO reaches this cue	Pokazane operatorowi, gdy GO dojdzie do tego cue
+SHUFFLE - the next cue is picked at random	LOSOWO: następny cue jest losowany
+Slots are self-contained sources in this first pass	Sloty są w tej wersji samodzielnymi źródłami
+that output's whole picture, or its matte	cały obraz tego wyjścia lub jego matte
+The cue number on the other desk, e.g. 12.5	Numer cue na drugiej konsoli, np. 12.5
+Toggle pause-at-beginning for selected cues	Pauza na starcie w wybranych cue
+Toggle transition-to-next for selected cues	Przejście do następnego w wybranych cue
+transparent outside the blobs: put it on a layer	przezroczyste poza plamami: daj na warstwę
+transparent outside the ink: put it on a layer	przezroczyste poza tuszem: daj na warstwę
+what is said, on screen, made on this computer	to, co jest mówione, na ekranie, zrobione na tym komputerze
+What this cue does when it ends - click to change	Co ten cue robi na końcu: kliknij, aby zmienić
+Whether the next shape or pen path adds or cuts	Czy następny kształt lub ścieżka dodaje, czy wycina
