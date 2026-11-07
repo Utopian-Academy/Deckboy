@@ -38,6 +38,10 @@ operator finds it, and how you find it again.
 
 [Release notes and downloads](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.425)
 
+<img src="docs/images/readme/release-425/feathered-mask.gif" width="49%" alt="A feathered heart mask on a playing clip"> <img src="docs/images/readme/release-425/draw-replay.gif" width="49%" alt="A drawing that replays on a layer above a playing clip">
+
+<sub>Masks and Draw in 0.99.425. Footage: [Tears of Steel](https://mango.blender.org/), Blender Foundation, [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).</sub>
+
 - **MIDI map.** Run any Deckboy command from any MIDI controller or OSC message. Press LEARN, then
   move a knob or press a key to connect it. The lights on the controller follow the show. Ready-made
   maps are included for the KORG nanoKONTROL2, Novation Launch Control XL, AKAI APC mini mk2 and AKAI
@@ -57,17 +61,6 @@ operator finds it, and how you find it again.
   60 Hz, an output drops or repeats a frame about every 15 seconds. Deckboy warns you when this
   happens. For now, set the screens to the same rate
   ([how](MANUAL.md#screens-at-different-refresh-rates)).
-
-### A video synth, on your cue list
-
-Deckboy can make its own picture, with no clip and no camera. The video synth is a cue, so it plays,
-fades and takes like any other cue.
-
-- Oscillators and feedback make the picture.
-- A glitch stack breaks it, and text mode redraws it as characters.
-- Play it from a MIDI keyboard: pitch sets the size of the pattern, and velocity sets the amount of
-  feedback.
-- Any control can follow the sound, a MIDI knob, or a camera.
 
 ### A closer look
 
