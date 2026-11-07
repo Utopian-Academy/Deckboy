@@ -1865,3 +1865,342 @@ sACN (E1.31)	sACN (E1.31)
 DECKBOY  POCKET	DECKBOY  POCKET
 DECKLINK SDI / HDMI	DECKLINK SDI / HDMI
 AMWA NMOS  IS-04 / IS-05	AMWA NMOS  IS-04 / IS-05
+in	ເຂົ້າ
+Arm	ກຽມ
+TAP	ແຕະ
+bar	ແຖບ
+out	ອອກ
+Fade	ຄ່ອຍໆ
+Gate	ປະຕູ
+Seam	ຮອຍຕໍ່
+card	ບັດ
+does	ເຮັດ
+fire	ເລີ່ມ
+freq	ຄວາມຖີ່
+knob	ປຸ່ມໝູນ
+neon	ນີອອນ
+outs	ຂາອອກ
+says	ເວົ້າວ່າ
+snap	ທັນທີ
+span	ຊ່ວງ
+wipe	ກວາດ
+Crawl	ໄຫຼ
+Crush	ບີບ
+Moire	Moiré
+Pulse	ກະພິບ
+Scrub	ເລື່ອນ
+Swirl	ໝຸນວົນ
+WACKY	ແປກປະຫຼາດ
+chime	ກະດິ່ງ
+comic	ກາຕູນ
+moves	ການເຄື່ອນໄຫວ
+plays	ຫຼິ້ນ
+press	ກົດ
+sends	ສົ່ງ
+slide	ເລື່ອນ
+Bottom	ລຸ່ມ
+COLOUR	ສີ
+DARKEN	ເຮັດໃຫ້ມືດ
+Disarm	ປົດອາວຸດ
+Master	ຫຼັກ
+Reverb	ສຽງກ້ອງ
+Script	ສະຄຣິບ
+Wobble	ສັ່ນ
+credit	ເຄຣດິດ
+ledger	ບັນຊີ
+podium	ເວທີ
+sticky	ຕິດ
+survey	ສຳຫຼວດ
+visual	ພາບ
+COMPARE	ປຽບທຽບ
+Ease in	ຄ່ອຍໆເຂົ້າ
+Ghastly	ໜ້າຢ້ານ
+LED MAP	ແຜນທີ່ LED
+LIGHTEN	ເຮັດໃຫ້ແຈ້ງ
+Push up	ດັນຂຶ້ນ
+S-curve	ເສັ້ນໂຄ້ງ S
+Shatter	ແຕກ
+Suspend	ລະງັບ
+Tilt EQ	ອຽງ EQ
+Wipe up	ກວາດຂຶ້ນ
+bracket	ວົງເລັບ
+eq band	ແຖບ eq
+inherit	ສືບທອດ
+marquee	ປ້າຍແລ່ນ
+pennant	ທຸງ
+placard	ປ້າຍ
+routing	ການຈັດເສັ້ນທາງ
+sparkle	ປະກາຍ
+stacked	ຊ້ອນກັນ
+visuals	ພາບ
+Dissolve	ລະລາຍ
+END HOLD	ຈົບ ຖື
+END LOOP	ຈົບ ວົນ
+END NEXT	ຈົບ ຕໍ່ໄປ
+END STOP	ຈົບ ຢຸດ
+Ease out	ຄ່ອຍໆອອກ
+Low pass	ກອງຕ່ຳ
+Place it	ວາງມັນ
+SEQUENCE	ລຳດັບ
+TRIGGERS	ຕົວເລີ່ມ
+Waveform	ຮູບຄື້ນ
+built in	ໃນຕົວ
+confetti	ເຈ້ຍສີ
+contrast	ຄວາມຄົມຊັດ
+diskette	ແຜ່ນດິສ
+feedback	ສຽງສະທ້ອນ
+hairline	ເສັ້ນບາງ
+listener	ຜູ້ຟັງ
+overtime	ເກີນເວລາ
+protocol	ໂປຣໂຕຄອນ
+sideline	ເສັ້ນຂ້າງ
+Bit depth	ຄວາມເລິກ bit
+Composite	ປະສົມ
+High pass	ກອງສູງ
+Name Card	ບັດຊື່
+Placement	ການວາງ
+Push down	ດັນລົງ
+Push left	ດັນຊ້າຍ
+Scroll up	ເລື່ອນຂຶ້ນ
+Wipe down	ກວາດລົງ
+Wipe left	ກວາດຊ້າຍ
+auto next	ຕໍ່ໄປອັດຕະໂນມັດ
+blueprint	ແຜນຜັງ
+cartridge	ຕະຫຼັບ
+crossfade	ຂ້າມຄ່ອຍໆ
+crosshair	ເປົ້າເລັງ
+dotmatrix	ຈຸດ matrix
+equalizer	ອີຄວໄລເຊີ
+even grid	ຕາຂ່າຍເທົ່າກັນ
+hold last	ຖືອັນສຸດທ້າຍ
+they have	ພວກເຂົາມີ
+this deck	deck ນີ້
+tolerance	ຄວາມທົນທານ
+Compressor	ຕົວບີບອັດ
+Corner pin	ປັກມຸມ
+Crosshatch	ເສັ້ນໄຂວ້
+Fade+Pause	ຄ່ອຍໆ+ຢຸດ
+Frame lock	ລັອກເຟຣມ
+HDR signal	ສັນຍານ HDR
+NDI Source	ແຫຼ່ງ NDI
+Push right	ດັນຂວາ
+Typewriter	ເຄື່ອງພິມດີດ
+Wipe right	ກວາດຂວາ
+hold {n} s	ຖື {n} s
+knob 0-127	ປຸ່ມ 0-127
+safe areas	ເຂດປອດໄພ
+saturation	ຄວາມອີ່ມສີ
+scoreboard	ກະດານຄະແນນ
+tile width	ຄວາມກວ້າງແຜ່ນ
+Auto-follow	ຕາມອັດຕະໂນມັດ
+Bar opacity	ຄວາມທຶບແຖບ
+Browser Cue	cue ບຣາວເຊີ
+Deck volume	ສຽງ deck
+Fade+Rewind	ຄ່ອຍໆ+ກັບຄືນ
+Output mask	ໜ້າກາກຂາອອກ
+Outputs Off	ຂາອອກປິດ
+Raster mode	ໂໝດ raster
+Toggle loop	ເປີດ/ປິດວົງ
+Video Synth	synth ວິດີໂອ
+audio meter	ມາດສຽງ
+goto target	ເປົ້າ goto
+on the desk	ເທິງໂຕະ
+tile height	ຄວາມສູງແຜ່ນ
+(no monitor)	(ບໍ່ມີຈໍຕິດຕາມ)
+Checkerboard	ກະດານໝາກຮຸກ
+Cue contrast	ຄວາມຄົມຊັດ cue
+Deck opacity	ຄວາມທຶບ deck
+Dip to black	ຈຸ່ມສູ່ດຳ
+Dip to white	ຈຸ່ມສູ່ຂາວ
+Level Meters	ມາດລະດັບ
+Matte aspect	ອັດຕາສ່ວນ matte
+Refresh rate	ອັດຕາໂຫຼດຄືນ
+clear driver	ລຶບໄດເວີ
+rounded rect	ສີ່ຫຼ່ຽມມົນ
+Auto-continue	ສືບຕໍ່ອັດຕະໂນມັດ
+Camera Source	ແຫຼ່ງກ້ອງ
+Fade+LoadNext	ຄ່ອຍໆ+ໂຫຼດຕໍ່ໄປ
+J jump to row	J ໄປແຖວ
+Master dimmer	Dimmer ຫຼັກ
+Overlay image	ຮູບຊ້ອນ
+Overlay still	ຮູບນິ່ງຊ້ອນ
+Recent shows:	ການສະແດງລ່າສຸດ:
+Run the clock	ເດີນໂມງ
+Window Source	ແຫຼ່ງໜ້າຕ່າງ
+one named cue	cue ທີ່ມີຊື່ອັນດຽວ
+starting xvfb	ກຳລັງເລີ່ມ xvfb
+Cue brightness	ຄວາມສະຫວ່າງ cue
+Cue saturation	ຄວາມອີ່ມສີ cue
+DeckLink Input	ຂາເຂົ້າ DeckLink
+Default Camera	ກ້ອງເລີ່ມຕົ້ນ
+Toggle fade in	ເປີດ/ປິດ ຄ່ອຍໆເຂົ້າ
+fill the frame	ເຕັມເຟຣມ
+tone cue added	ເພີ່ມ cue ໂທນແລ້ວ
+Do not continue	ຢ່າສືບຕໍ່
+Overlay opacity	ຄວາມທຶບຂອງການຊ້ອນ
+SDR material at	ວັດສະດຸ SDR ທີ່
+Toggle fade out	ເປີດ/ປິດ ຄ່ອຍໆອອກ
+decoder spin-up	ການເລີ່ມ decoder
+endless encoder	encoder ບໍ່ສິ້ນສຸດ
+press + release	ກົດ + ປ່ອຍ
+slide from left	ເລື່ອນຈາກຊ້າຍ
++ ONE AFTER THIS	+ ອັນໜຶ່ງຫຼັງອັນນີ້
+2 · WHAT IT RUNS	2 · ສິ່ງທີ່ມັນແລ່ນ
+An effect's knob	ປຸ່ມເອັບເຟັກ
+Default App Feed	ແຫຼ່ງເລີ່ມຕົ້ນຂອງແອັບ
+GO steps over it	GO ຂ້າມມັນ
+Hardware display	ຈໍຮາດແວ
+ONE PER PLAYLIST	ອັນດຽວຕໍ່ playlist
+Speed, like tape	ຄວາມໄວ, ຄືເທບ
+Toggle cue audio	ເປີດ/ປິດສຽງ cue
+import an SVG...	ນຳເຂົ້າ SVG...
+slide from right	ເລື່ອນຈາກຂວາ
+source cue added	ເພີ່ມ cue ແຫຼ່ງແລ້ວ
+starting browser	ກຳລັງເລີ່ມບຣາວເຊີ
+starting capture	ກຳລັງເລີ່ມການຈັບ
+the selected cue	cue ທີ່ເລືອກ
+- REMOVE THIS ONE	- ລຶບອັນນີ້
+1 · WHAT COMES IN	1 · ສິ່ງທີ່ເຂົ້າມາ
+Pocket Test (day)	ທົດສອບ Pocket (ກາງເວັນ)
+browser cue added	ເພີ່ມ cue ບຣາວເຊີແລ້ວ
+or your own bytes	ຫຼື bytes ຂອງທ່ານ
+this cue lives on	cue ນີ້ຢູ່ໃນ
+value to type one	ຄ່າເພື່ອພິມ
+System audio (SDL)	ສຽງລະບົບ (SDL)
+Transition to next	ປ່ຽນໄປອັນຕໍ່ໄປ
+When taken off air	ເມື່ອເອົາອອກຈາກອາກາດ
+output already has	ຂາອອກມີແລ້ວ
+restart driver now	ເລີ່ມໄດເວີໃໝ່ດຽວນີ້
+3 · WHAT IT RUNS ON	3 · ມັນແລ່ນເທິງຫຍັງ
+Dark Detail (0-12%)	ລາຍລະອຽດມືດ (0-12%)
+Frame Count (emoji)	ຕົວນັບເຟຣມ (emoji)
+PLUGE (black level)	PLUGE (ລະດັບດຳ)
+Pocket Test (night)	ທົດສອບ Pocket (ກາງຄືນ)
+Pocket Test (storm)	ທົດສອບ Pocket (ພາຍຸ)
+Previous show file:	ໄຟລ໌ການສະແດງກ່ອນໜ້າ:
+Syphon/Spout Source	ແຫຼ່ງ Syphon/Spout
+rise, slide or wipe	ຂຶ້ນ, ເລື່ອນ ຫຼື ກວາດ
+Dimmer + temperature	Dimmer + ອຸນຫະພູມ
+Panel Map (animated)	ແຜນທີ່ແຜງ (ເຄື່ອນໄຫວ)
+Pocket Test (sunset)	ທົດສອບ Pocket (ຕາເວັນຕົກ)
+initializing webview	ກຳລັງເລີ່ມ webview
+Boresight (alignment)	ການເລັງ (ການຈັດແນວ)
+Not watching a folder	ບໍ່ໄດ້ຕິດຕາມໂຟນເດີ
+SMPTE 75% Colour Bars	ແຖບສີ SMPTE 75%
+line  |  Enter: apply	ແຖວ  |  Enter: ນຳໃຊ້
+An audio effect's knob	ປຸ່ມເອັບເຟັກສຽງ
+Multiburst (bandwidth)	Multiburst (ແບນວິດ)
+(default system device)	(ອຸປະກອນເລີ່ມຕົ້ນຂອງລະບົບ)
+Convergence (fine grid)	ການລວມ (ຕາຂ່າຍລະອຽດ)
+Greyscale Steps (gamma)	ຂັ້ນສີເທົາ (gamma)
+K — cycle cue color tag	K — ສະຫຼັບປ້າຍສີຂອງ cue
+whatever the style says	ບໍ່ວ່າສະໄຕລ໌ຈະວ່າແນວໃດ
+Uniformity (flat fields)	ຄວາມສະໝ່ຳສະເໝີ (ພື້ນຮາບ)
+runs off the show thread	ແລ່ນນອກ thread ການສະແດງ
+Open a .deckboy show file	ເປີດໄຟລ໌ການສະແດງ .deckboy
+Toggle hold on last frame	ເປີດ/ປິດ ການຖືເຟຣມສຸດທ້າຍ
+from exactly this routing	ຈາກເສັ້ນທາງນີ້ພໍດີ
+~ makes the level breathe	~ ເຮັດໃຫ້ລະດັບຫາຍໃຈ
+CLEAR OVERLAY  [Backspace]	ລຶບການຊ້ອນ  [Backspace]
+Stop puppeteering this cue	ຢຸດຄວບຄຸມ cue ນີ້
+Test Clock (sync + latency)	ໂມງທົດສອບ (ຊິງ + ຄວາມໜ່ວງ)
+auto (reads the common two)	ອັດຕະໂນມັດ (ອ່ານສອງອັນທົ່ວໄປ)
+one big, the rest beside it	ອັນໃຫຍ່ອັນໜຶ່ງ, ທີ່ເຫຼືອຢູ່ຂ້າງ
+Panel Map (LED tile numbers)	ແຜນທີ່ແຜງ (ເລກແຜ່ນ LED)
+Portal (blobs of deep space)	Portal (ກ້ອນອະວະກາດເລິກ)
+Set cue ID for selected cues	ຕັ້ງ ID cue ສຳລັບ cue ທີ່ເລືອກ
+Terrarium (living ecosystem)	Terrarium (ລະບົບນິເວດທີ່ມີຊີວິດ)
+Window 10% (peak brightness)	ໜ້າຕ່າງ 10% (ຄວາມສະຫວ່າງສູງສຸດ)
+Window 50% (peak at mid APL)	ໜ້າຕ່າງ 50% (ສູງສຸດທີ່ APL ກາງ)
+on the header to add another	ທີ່ຫົວເພື່ອເພີ່ມອີກອັນ
+reads the same on any screen	ອ່ານຄືກັນທຸກໜ້າຈໍ
+reported rather than swapped	ລາຍງານແທນທີ່ຈະປ່ຽນ
+Frame Count (drops + latency)	ຕົວນັບເຟຣມ (ຕົກ + ຄວາມໜ່ວງ)
+Terrarium Pico (1px per cell)	Terrarium Pico (1px ຕໍ່ຊ່ອງ)
+Banding Ramps (real bit depth)	Banding ramps (ຄວາມເລິກ bit ແທ້)
+Fireside (a hearth that burns)	ເຕົາໄຟ (ເຕົາທີ່ລຸກ)
+Nothing to see here. Probably.	ບໍ່ມີຫຍັງໃຫ້ເບິ່ງ. ອາດຈະ.
+Test Bars (motion diagnostics)	ແຖບທົດສອບ (ວິນິດໄສການເຄື່ອນໄຫວ)
+What fires this cue besides GO	ສິ່ງທີ່ເລີ່ມ cue ນີ້ນອກຈາກ GO
+on air in the focused playlist	ອອກອາກາດໃນ playlist ທີ່ໂຟກັສ
+one big on top, the rest below	ອັນໃຫຍ່ເທິງ, ທີ່ເຫຼືອລຸ່ມ
+row turns the matrix off again	ແຖວປິດ matrix ອີກ
+two big on top, the rest below	ສອງອັນໃຫຍ່ເທິງ, ທີ່ເຫຼືອລຸ່ມ
+SOS. Kidding. The show is fine.	SOS. ຫຼິ້ນໆ. ການສະແດງດີຢູ່.
+Test: move it on the controller	ທົດສອບ: ຍ້າຍມັນເທິງຕົວຄວບຄຸມ
+walk the outputs one at a time.	ຍ່າງຜ່ານຂາອອກເທື່ອລະອັນ.
+Moire 1:1 (is anything scaling?)	Moiré 1:1 (ມີຫຍັງປັບຂະໜາດບໍ?)
+Set short cue id for search/goto	ຕັ້ງ ID ສັ້ນຂອງ cue ເພື່ອຊອກ/goto
+Set goto target for selected cues	ຕັ້ງເປົ້າ goto ສຳລັບ cue ທີ່ເລືອກ
+ORDER - cues advance down the list	ORDER - cue ໄປຕາມລາຍການ
+depth 1 turns it all the way round	ຄວາມເລິກ 1 ໝູນເຕັມຮອບ
+load a sprite sheet from a file...	ໂຫຼດແຜ່ນ sprite ຈາກໄຟລ໌...
+EDIT is on: typing changes the show	EDIT ເປີດຢູ່: ການພິມປ່ຽນການສະແດງ
+0-63, the hardware's own gain range.	0-63, ຂອບເຂດເກນຂອງຮາດແວ.
+Pocket Test (test card + scene cycle)	ທົດສອບ Pocket (ບັດທົດສອບ + ວົງສາກ)
+all driven by the cue's own transport	ທັງໝົດຂັບໂດຍການເຄື່ອນທີ່ຂອງ cue ເອງ
+Set cue token to jump to when cue ends	ຕັ້ງ token cue ເພື່ອໄປເມື່ອ cue ຈົບ
+Jump the driver back to its first frame	ກັບໄດເວີໄປເຟຣມທຳອິດ
+Play the out move now, then take it off	ຫຼິ້ນການເຄື່ອນອອກດຽວນີ້, ແລ້ວເອົາອອກ
+Clear the active Lower Third overlay now	ລຶບ Lower Third ທີ່ໃຊ້ຢູ່ດຽວນີ້
+Critters (pixel-exact scaling, animated)	Critters (ປັບຂະໜາດພິກເຊວແນ່ນອນ, ເຄື່ອນໄຫວ)
+the selected cue in the focused playlist	cue ທີ່ເລືອກໃນ playlist ທີ່ໂຟກັສ
+that output's whole picture, or its matte	ຮູບທັງໝົດຂອງຂາອອກນັ້ນ, ຫຼື matte ຂອງມັນ
+Lissajous, spectrum, meters or a name card	Lissajous, spectrum, ມາດ ຫຼື ບັດຊື່
+SHUFFLE - the next cue is picked at random	SHUFFLE - cue ຕໍ່ໄປຖືກເລືອກແບບສຸ່ມ
+Ancient cypher, modern video desk. Respect.	ລະຫັດລັບບູຮານ, ໂຕະວິດີໂອທັນສະໄໝ. ນັບຖື.
+Ctrl+Shift+S - write the show to a NEW file	Ctrl+Shift+S - ຂຽນການສະແດງໃສ່ໄຟລ໌ໃໝ່
+Ctrl+S - write back over the show that is open	Ctrl+S - ຂຽນທັບການສະແດງທີ່ເປີດຢູ່
+Read everything right to left. Yes, everything.	ອ່ານທຸກຢ່າງຈາກຂວາຫາຊ້າຍ. ແມ່ນແລ້ວ, ທຸກຢ່າງ.
+Greetings, primitive. Your "slideshow" amuses us.	ສະບາຍດີ, ຄົນດຶກດຳບັນ. "ສະໄລ້ໂຊ" ຂອງເຈົ້າເຮັດໃຫ້ພວກເຮົາມ່ວນ.
+What this cue does when it ends - click to change	ສິ່ງທີ່ cue ນີ້ເຮັດເມື່ອຈົບ - ຄລິກເພື່ອປ່ຽນ
+LEARN: move a knob or press a key on the controller...	LEARN: ໝູນປຸ່ມ ຫຼື ກົດປຸ່ມເທິງຕົວຄວບຄຸມ...
+Per-cue audio: enable, trim, pan, mono, fades, normalize	ສຽງຂອງແຕ່ລະ cue: ເປີດ, trim, pan, mono, ຄ່ອຍໆ, ປັບລະດັບ
+MIDI input is off: turn it on in MIDI CONTROL. OSC rows still answer.	ຂາເຂົ້າ MIDI ປິດ: ເປີດໃນ MIDI CONTROL. ແຖວ OSC ຍັງຕອບ.
+MIX	ຜະສົມ
+gain	ເກນ
+logo	ໂລໂກ
+rail	ລາງ
+index	ດັດຊະນີ
+trans	ການປ່ຽນ
+ticket	ປີ້
+TRACKER	ຕົວຕິດຕາມ
+capsule	ແຄບຊູນ
+circuit	ວົງຈອນ
+dossier	ແຟ້ມ
+palette	ຈານສີ
+bulletin	ຂ່າວ
+cassette	ຕະຫຼັບເທບ
+dateline	ວັນທີ
+programme	ໂປຣແກຣມ
+Perspective	ມຸມມອງ
+Motion: Bug Swat	ການເຄື່ອນໄຫວ: Bug Swat
+, — skip to previous cue	, — ໄປ cue ກ່ອນໜ້າ
+--- -- --  does nothing on that playlist  -  (M) the step's own playlist	--- -- --  ບໍ່ເຮັດຫຍັງໃນ playlist ນັ້ນ  -  (M) playlist ຂອງຂັ້ນຕອນເອງ
+-18 dBFS is EBU alignment, -20 is SMPTE. Capped below 0: this feeds a live PA.	-18 dBFS ແມ່ນການຈັດ EBU, -20 ແມ່ນ SMPTE. ຈຳກັດລຸ່ມ 0: ອັນນີ້ສົ່ງເຂົ້າ PA ສົດ.
+--- -- --  does nothing on that playlist  -  (M) the step's own playlist  -  EDIT is on: typing changes the show	--- -- --  ບໍ່ເຮັດຫຍັງໃນ playlist ນັ້ນ  -  (M) playlist ຂອງຂັ້ນຕອນເອງ  -  EDIT ເປີດຢູ່: ການພິມປ່ຽນການສະແດງ
+sine	sine
+RTMPS	RTMPS
+TA-DA	TA-DA
+14-bit	14-bit
+Dimmer	Dimmer
+Binaural	Binaural
+Spectrum	Spectrum
+cue "{n}"	cue "{n}"
+Dimmer + RGB	Dimmer + RGB
+NDI® NETWORK	NDI® NETWORK
+Oscilloscope	Oscilloscope
+Syphon / Spout	Syphon / Spout
+29.97 fps (NTSC)	29.97 fps (NTSC)
+pan	pan
+pop	pop
+deck	deck
+trim	trim
+PATCH	PATCH
+arcade	arcade
+plugin	plugin
+terminal	terminal
+lower 3rd	lower 3rd
+Lower Third	Lower Third
+Bork bork BORK!	Bork bork BORK!
+25 fps (PAL/EBU)	25 fps (PAL/EBU)
