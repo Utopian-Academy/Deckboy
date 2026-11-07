@@ -1,0 +1,18 @@
+# Deckboy Theme: Studio Grey
+# Neutral greys for long nights in a gallery. Nothing argues with the picture.
+# All color values are RRGGBBAA hex.
+
+shell_outer	1B1C1EFF
+shell_inner	232426FF
+shell_shadow	0C0D0EFF
+screen_light	C9CCD1FF
+screen_mid	7B7D80FF
+screen_dark	5D5F62FF
+screen_deep	121214FF
+screen_ink_soft	C1C3C6FF
+screen_fg	E6E8EBFF
+screen_fg_soft	A9ABAEFF
+screen_tile	27282BFF
+button_bezel	4A4D52FF
+delete_bezel	D9504AFF
+scanline_alpha	14

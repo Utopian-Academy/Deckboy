@@ -1,0 +1,15 @@
+# Deckboy Theme: Glacier
+# Ice blue and snow white, cold and clear.
+# All color values are RRGGBBAA hex.
+
+shell_outer	DDF0F7FF
+shell_inner	CEDFE6FF
+shell_shadow	7A8488FF
+screen_light	76C1E2FF
+screen_mid	3FA7D6FF
+screen_dark	246484FF
+screen_deep	0E2E40FF
+screen_ink_soft	1F5874FF
+button_bezel	8CC6DEFF
+delete_bezel	F0412EFF
+scanline_alpha	10

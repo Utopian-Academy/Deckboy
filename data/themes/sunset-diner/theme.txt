@@ -1,0 +1,15 @@
+# Deckboy Theme: Sunset Diner
+# Chrome, cherry red and a mint-green booth at golden hour.
+# All color values are RRGGBBAA hex.
+
+shell_outer	FCE7CFFF
+shell_inner	EAD7C1FF
+shell_shadow	8B7F72FF
+screen_light	EF7C6EFF
+screen_mid	E8423AFF
+screen_dark	822C25FF
+screen_deep	2E1A14FF
+screen_ink_soft	6F2821FF
+button_bezel	7FC9B0FF
+delete_bezel	FFD23AFF
+scanline_alpha	10

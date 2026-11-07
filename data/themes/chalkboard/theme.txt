@@ -1,0 +1,18 @@
+# Deckboy Theme: Chalkboard
+# Slate green and chalk dust.
+# All color values are RRGGBBAA hex.
+
+shell_outer	1E2B24FF
+shell_inner	26322CFF
+shell_shadow	0E1310FF
+screen_light	F2F2E8FF
+screen_mid	939890FF
+screen_dark	6F776EFF
+screen_deep	141C17FF
+screen_ink_soft	C2C6B9FF
+screen_fg	E6E8DAFF
+screen_fg_soft	AAAFA3FF
+screen_tile	2D3932FF
+button_bezel	445A4CFF
+delete_bezel	FF7A6AFF
+scanline_alpha	14

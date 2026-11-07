@@ -1,0 +1,21 @@
+# Deckboy Theme: Ember
+# The last of a fire: charcoal and glowing orange.
+# All color values are RRGGBBAA hex.
+
+shell_outer	120A07FF
+shell_inner	1A1310FF
+shell_shadow	080403FF
+screen_light	FF6A1FFF
+screen_mid	943F14FF
+screen_dark	6C2E10FF
+screen_deep	0C0605FF
+screen_ink_soft	D4B398FF
+screen_fg	FFD8B8FF
+screen_fg_soft	B89A83FF
+screen_tile	231109FF
+button_bezel	5A2410FF
+delete_bezel	FF3A3AFF
+scanline_alpha	14
+
+# Creatures, in the empty part of the playlist; gone while an output is live.
+creature	lava	2

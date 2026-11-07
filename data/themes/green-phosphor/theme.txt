@@ -1,0 +1,18 @@
+# Deckboy Theme: Green Phosphor
+# P1 phosphor green on a dark tube, a little bloom on the bright parts.
+# All color values are RRGGBBAA hex.
+
+shell_outer	040A05FF
+shell_inner	0D130EFF
+shell_shadow	020402FF
+screen_light	33FF66FF
+screen_mid	1E913AFF
+screen_dark	16672AFF
+screen_deep	030603FF
+screen_ink_soft	54D374FF
+screen_fg	66FF8CFF
+screen_fg_soft	49B664FF
+screen_tile	071B0CFF
+button_bezel	1C7A36FF
+delete_bezel	E0443AFF
+scanline_alpha	14

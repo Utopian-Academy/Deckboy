@@ -1,0 +1,18 @@
+# Deckboy Theme: Lavender Fog
+# Soft lilac mist, quiet and dreamy.
+# All color values are RRGGBBAA hex.
+
+shell_outer	E6E0F2FF
+shell_inner	D6D0E1FF
+shell_shadow	7E7B85FF
+screen_light	AA97DCFF
+screen_mid	8A6FD0FF
+screen_dark	554481FF
+screen_deep	2A2040FF
+screen_ink_soft	4C3C72FF
+button_bezel	B9AEDCFF
+delete_bezel	F0412EFF
+scanline_alpha	10
+
+# Creatures, in the empty part of the playlist; gone while an output is live.
+creature	moth	2

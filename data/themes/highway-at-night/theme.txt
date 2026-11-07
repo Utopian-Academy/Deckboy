@@ -1,0 +1,18 @@
+# Deckboy Theme: Highway at Night
+# Asphalt black, sodium-orange lamps and white lane lines.
+# All color values are RRGGBBAA hex.
+
+shell_outer	0C0C0EFF
+shell_inner	151516FF
+shell_shadow	050506FF
+screen_light	FF9A2EFF
+screen_mid	925A20FF
+screen_dark	68421AFF
+screen_deep	080809FF
+screen_ink_soft	C7C7C4FF
+screen_fg	F0F0ECFF
+screen_fg_soft	ACACA9FF
+screen_tile	1D1610FF
+button_bezel	5A3A14FF
+delete_bezel	E8483AFF
+scanline_alpha	14

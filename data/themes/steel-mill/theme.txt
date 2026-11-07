@@ -1,0 +1,18 @@
+# Deckboy Theme: Steel Mill
+# Blue steel, rivets and a molten orange glow.
+# All color values are RRGGBBAA hex.
+
+shell_outer	10161CFF
+shell_inner	181E24FF
+shell_shadow	070A0DFF
+screen_light	FF8A2AFF
+screen_mid	935624FF
+screen_dark	6B4221FF
+screen_deep	0A0E12FF
+screen_ink_soft	B4BDC5FF
+screen_fg	D8E2EAFF
+screen_fg_soft	9CA5ACFF
+screen_tile	211E1DFF
+button_bezel	3A4A5AFF
+delete_bezel	FF4A3AFF
+scanline_alpha	14

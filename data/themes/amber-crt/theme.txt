@@ -1,0 +1,21 @@
+# Deckboy Theme: Amber CRT
+# A single-phosphor terminal: warm amber on black glass.
+# All color values are RRGGBBAA hex.
+
+shell_outer	0B0703FF
+shell_inner	14100CFF
+shell_shadow	050301FF
+screen_light	FFB000FF
+screen_mid	916401FF
+screen_dark	684702FF
+screen_deep	070502FF
+screen_ink_soft	D3A033FF
+screen_fg	FFC23DFF
+screen_fg_soft	B68A2CFF
+screen_tile	1C1303FF
+button_bezel	7A4A00FF
+delete_bezel	E0442EFF
+scanline_alpha	14
+
+# Creatures, in the empty part of the playlist; gone while an output is live.
+creature	firefly	3

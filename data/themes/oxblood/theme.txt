@@ -1,0 +1,18 @@
+# Deckboy Theme: Oxblood
+# Deep red leather and brass, a theatre before the doors open.
+# All color values are RRGGBBAA hex.
+
+shell_outer	1C070AFF
+shell_inner	241013FF
+shell_shadow	0D0304FF
+screen_light	D9A441FF
+screen_mid	845D28FF
+screen_dark	64431FFF
+screen_deep	120506FF
+screen_ink_soft	CBB6A3FF
+screen_fg	F2DCC4FF
+screen_fg_soft	B29C8CFF
+screen_tile	29120EFF
+button_bezel	5E1620FF
+delete_bezel	FF5A3AFF
+scanline_alpha	14

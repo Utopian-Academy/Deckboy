@@ -1,0 +1,15 @@
+# Deckboy Theme: Matcha
+# Whisked green tea, bamboo and a calm afternoon.
+# All color values are RRGGBBAA hex.
+
+shell_outer	E3EBD0FF
+shell_inner	D3DBC1FF
+shell_shadow	7D8172FF
+screen_light	97B66EFF
+screen_mid	6E9A3AFF
+screen_dark	466128FF
+screen_deep	26331AFF
+screen_ink_soft	3F5725FF
+button_bezel	A8BD7EFF
+delete_bezel	F0412EFF
+scanline_alpha	10

@@ -1,0 +1,21 @@
+# Deckboy Theme: Desert Dusk
+# Sand gone violet as the sun drops behind the dunes.
+# All color values are RRGGBBAA hex.
+
+shell_outer	241521FF
+shell_inner	2C1D29FF
+shell_shadow	10090FFF
+screen_light	FFB26BFF
+screen_mid	9C6B4AFF
+screen_dark	77513DFF
+screen_deep	170E15FF
+screen_ink_soft	D1B8A7FF
+screen_fg	F7DCC4FF
+screen_fg_soft	B8A093FF
+screen_tile	332026FF
+button_bezel	6A3A4EFF
+delete_bezel	FF5A4AFF
+scanline_alpha	14
+
+# Creatures, in the empty part of the playlist; gone while an output is live.
+creature	snail	1

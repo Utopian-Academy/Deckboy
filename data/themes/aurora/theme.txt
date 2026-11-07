@@ -1,0 +1,21 @@
+# Deckboy Theme: Aurora
+# A northern sky: green and violet curtains over deep blue.
+# All color values are RRGGBBAA hex.
+
+shell_outer	071423FF
+shell_inner	101C2BFF
+shell_shadow	030910FF
+screen_light	4DFFB0FF
+screen_mid	2E9571FF
+screen_dark	226D59FF
+screen_deep	050D17FF
+screen_ink_soft	B1D5CBFF
+screen_fg	D6FFF0FF
+screen_fg_soft	98B8B2FF
+screen_tile	0C242DFF
+button_bezel	3A2A7AFF
+delete_bezel	FF5A6AFF
+scanline_alpha	14
+
+# Creatures, in the empty part of the playlist; gone while an output is live.
+creature	wisp	2

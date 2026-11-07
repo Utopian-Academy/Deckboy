@@ -1,0 +1,18 @@
+# Deckboy Theme: Teletext
+# Page 100: hard primaries on black, cyan headings, yellow text.
+# All color values are RRGGBBAA hex.
+
+shell_outer	000000FF
+shell_inner	090909FF
+shell_shadow	000000FF
+screen_light	00E5FFFF
+screen_mid	007E8CFF
+screen_dark	005761FF
+screen_deep	000000FF
+screen_ink_soft	D1C600FF
+screen_fg	FFF200FF
+screen_fg_soft	B2A900FF
+screen_tile	001012FF
+button_bezel	0038C8FF
+delete_bezel	FF2020FF
+scanline_alpha	14

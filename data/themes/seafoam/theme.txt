@@ -1,0 +1,18 @@
+# Deckboy Theme: Seafoam
+# Pale green-blue surf on a soft white beach.
+# All color values are RRGGBBAA hex.
+
+shell_outer	D9F2EAFF
+shell_inner	CAE1DAFF
+shell_shadow	778581FF
+screen_light	6AC0ADFF
+screen_mid	2FA58CFF
+screen_dark	1E6858FF
+screen_deep	11372EFF
+screen_ink_soft	1C5E4FFF
+button_bezel	8CCDB9FF
+delete_bezel	F0412EFF
+scanline_alpha	10
+
+# Creatures, in the empty part of the playlist; gone while an output is live.
+creature	crab	2

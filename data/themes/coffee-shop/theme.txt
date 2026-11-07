@@ -1,0 +1,21 @@
+# Deckboy Theme: Coffee Shop
+# Espresso brown, crema and a chalk menu.
+# All color values are RRGGBBAA hex.
+
+shell_outer	1C120DFF
+shell_inner	241A15FF
+shell_shadow	0D0806FF
+screen_light	D9A066FF
+screen_mid	84603EFF
+screen_dark	64482FFF
+screen_deep	120C08FF
+screen_ink_soft	CBBDADFF
+screen_fg	F2E3D0FF
+screen_fg_soft	B2A496FF
+screen_tile	291C13FF
+button_bezel	5A3A26FF
+delete_bezel	E0503AFF
+scanline_alpha	14
+
+# Creatures, in the empty part of the playlist; gone while an output is live.
+creature	cat	1

@@ -1,0 +1,21 @@
+# Deckboy Theme: Neon Noir
+# Wet streets at 2am: black, hot pink and a cyan sign.
+# All color values are RRGGBBAA hex.
+
+shell_outer	08070CFF
+shell_inner	111015FF
+shell_shadow	040305FF
+screen_light	FF2D95FF
+screen_mid	901C57FF
+screen_dark	661540FF
+screen_deep	050508FF
+screen_ink_soft	30BED3FF
+screen_fg	39E6FFFF
+screen_fg_soft	2AA3B6FF
+screen_tile	190A16FF
+button_bezel	4B1A6EFF
+delete_bezel	FF4A3AFF
+scanline_alpha	14
+
+# Creatures, in the empty part of the playlist; gone while an output is live.
+creature	cat	1

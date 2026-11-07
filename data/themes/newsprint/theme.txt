@@ -1,0 +1,15 @@
+# Deckboy Theme: Newsprint
+# Grey paper, black type and one red headline.
+# All color values are RRGGBBAA hex.
+
+shell_outer	DCD8CCFF
+shell_inner	CDC9BEFF
+shell_shadow	797770FF
+screen_light	CB6B63FF
+screen_mid	C2302AFF
+screen_dark	662421FF
+screen_deep	1A1A1AFF
+screen_ink_soft	552220FF
+button_bezel	A6A296FF
+delete_bezel	F0412EFF
+scanline_alpha	10

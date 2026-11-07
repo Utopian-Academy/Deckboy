@@ -1,0 +1,15 @@
+# Deckboy Theme: Risograph
+# Fluorescent pink and teal ink on off-white paper.
+# All color values are RRGGBBAA hex.
+
+shell_outer	F4EFE4FF
+shell_inner	E3DED4FF
+shell_shadow	86837DFF
+screen_light	EC7EAAFF
+screen_mid	E8418AFF
+screen_dark	6E3A61FF
+screen_deep	0A3540FF
+screen_ink_soft	58395AFF
+button_bezel	6FC2C8FF
+delete_bezel	FFD23AFF
+scanline_alpha	10

@@ -1,0 +1,21 @@
+# Deckboy Theme: Ultraviolet
+# Blacklight purple: whatever is white glows.
+# All color values are RRGGBBAA hex.
+
+shell_outer	0D0618FF
+shell_inner	150F20FF
+shell_shadow	06030BFF
+screen_light	B45CFFFF
+screen_mid	693597FF
+screen_dark	4C2770FF
+screen_deep	080410FF
+screen_ink_soft	C3B6D5FF
+screen_fg	EBDDFFFF
+screen_fg_soft	A89CBAFF
+screen_tile	190C28FF
+button_bezel	4A1F7AFF
+delete_bezel	FF4A6AFF
+scanline_alpha	14
+
+# Creatures, in the empty part of the playlist; gone while an output is live.
+creature	jellyfish	2

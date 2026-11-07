@@ -1,0 +1,15 @@
+# Deckboy Theme: Bubblegum
+# Pink and sky blue, loud and cheerful.
+# All color values are RRGGBBAA hex.
+
+shell_outer	FFD1E6FF
+shell_inner	EDC2D6FF
+shell_shadow	8C737EFF
+screen_light	82BEF6FF
+screen_mid	3FB3FFFF
+screen_dark	4E5990FF
+screen_deep	5A1035FF
+screen_ink_soft	51497CFF
+button_bezel	FF8CC0FF
+delete_bezel	F0412EFF
+scanline_alpha	10

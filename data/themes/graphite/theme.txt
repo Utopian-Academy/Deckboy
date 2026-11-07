@@ -1,0 +1,18 @@
+# Deckboy Theme: Graphite
+# Pencil grey on grey, soft and precise.
+# All color values are RRGGBBAA hex.
+
+shell_outer	17181AFF
+shell_inner	1F2022FF
+shell_shadow	0A0B0CFF
+screen_light	A9B0B8FF
+screen_mid	676C71FF
+screen_dark	4E5256FF
+screen_deep	0F1011FF
+screen_ink_soft	B9BCC0FF
+screen_fg	DCE0E4FF
+screen_fg_soft	A1A4A7FF
+screen_tile	212325FF
+button_bezel	3C4045FF
+delete_bezel	D9504AFF
+scanline_alpha	14

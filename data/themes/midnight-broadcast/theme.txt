@@ -1,0 +1,21 @@
+# Deckboy Theme: Midnight Broadcast
+# Late-night network blue, a clock in the corner, coffee gone cold.
+# All color values are RRGGBBAA hex.
+
+shell_outer	06102AFF
+shell_inner	0F1831FF
+shell_shadow	030713FF
+screen_light	5AA8FFFF
+screen_mid	34649FFF
+screen_dark	264A7BFF
+screen_deep	040A1BFF
+screen_ink_soft	B1BFD9FF
+screen_fg	D6E6FFFF
+screen_fg_soft	98A6BFFF
+screen_tile	0C1B39FF
+button_bezel	1F3E80FF
+delete_bezel	E9504CFF
+scanline_alpha	14
+
+# Creatures, in the empty part of the playlist; gone while an output is live.
+creature	moth	2

@@ -7610,8 +7610,11 @@
             // click and points at nothing.
             [this] {
               const SDL_Rect r = tutorialTargetRect();
+              const SDL_Rect& c = tutorial_.cardRect;
               return " target=" + std::to_string(r.x) + "," + std::to_string(r.y) + "," +
-                     std::to_string(r.w) + "x" + std::to_string(r.h);
+                     std::to_string(r.w) + "x" + std::to_string(r.h) +
+                     " card=" + std::to_string(c.x) + "," + std::to_string(c.y) + "," +
+                     std::to_string(c.w) + "x" + std::to_string(c.h);
             }() +
             " says: " + tutorialPixelSays()
         : std::string("off");

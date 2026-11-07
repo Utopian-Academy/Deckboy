@@ -1,0 +1,18 @@
+# Deckboy Theme: Darkroom
+# Safelight red on black: develop, stop, fix.
+# All color values are RRGGBBAA hex.
+
+shell_outer	0A0303FF
+shell_inner	130C0CFF
+shell_shadow	040101FF
+screen_light	FF2A1AFF
+screen_mid	911810FF
+screen_dark	67120CFF
+screen_deep	060202FF
+screen_ink_soft	D37257FF
+screen_fg	FF8A6AFF
+screen_fg_soft	B6624BFF
+screen_tile	1B0605FF
+button_bezel	4A0E0AFF
+delete_bezel	FFB000FF
+scanline_alpha	14

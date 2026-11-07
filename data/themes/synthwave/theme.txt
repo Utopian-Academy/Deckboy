@@ -1,0 +1,18 @@
+# Deckboy Theme: Synthwave
+# A purple sky, a grid to the horizon and a sun in stripes.
+# All color values are RRGGBBAA hex.
+
+shell_outer	1A0B2EFF
+shell_inner	221435FF
+shell_shadow	0C0515FF
+screen_light	FF7AD9FF
+screen_mid	98488CFF
+screen_dark	71356FFF
+screen_deep	11071EFF
+screen_ink_soft	D6AF62FF
+screen_fg	FFD36EFF
+screen_fg_soft	BA975BFF
+screen_tile	2A133AFF
+button_bezel	6A2C9AFF
+delete_bezel	FF4A4AFF
+scanline_alpha	14

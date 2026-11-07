@@ -1,0 +1,18 @@
+# Deckboy Theme: Tally Red
+# A dark studio with one red light that says you are on air.
+# All color values are RRGGBBAA hex.
+
+shell_outer	0E0B0BFF
+shell_inner	161414FF
+shell_shadow	060505FF
+screen_light	FF3B30FF
+screen_mid	93251FFF
+screen_dark	6A1D19FF
+screen_deep	090707FF
+screen_ink_soft	C9BFBFFF
+screen_fg	F2E6E6FF
+screen_fg_soft	AEA4A4FF
+screen_tile	1F0E0EFF
+button_bezel	7A1A16FF
+delete_bezel	FF7A30FF
+scanline_alpha	14

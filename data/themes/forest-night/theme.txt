@@ -1,0 +1,21 @@
+# Deckboy Theme: Forest Night
+# Pine dark, moss green and fireflies between the trees.
+# All color values are RRGGBBAA hex.
+
+shell_outer	0A1209FF
+shell_inner	131A12FF
+shell_shadow	040804FF
+screen_light	9BE36AFF
+screen_mid	5A853EFF
+screen_dark	41612EFF
+screen_deep	060C06FF
+screen_ink_soft	B7C8A6FF
+screen_fg	DDF0C9FF
+screen_fg_soft	9EAD8FFF
+screen_tile	142110FF
+button_bezel	2E4A22FF
+delete_bezel	E05A3AFF
+scanline_alpha	14
+
+# Creatures, in the empty part of the playlist; gone while an output is live.
+creature	firefly	4

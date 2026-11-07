@@ -1,0 +1,15 @@
+# Deckboy Theme: Cherry Blossom
+# Petal pink, bark brown and a pale spring sky.
+# All color values are RRGGBBAA hex.
+
+shell_outer	FBE6ECFF
+shell_inner	E9D6DBFF
+shell_shadow	8A7E82FF
+screen_light	EB95B0FF
+screen_mid	E26A8FFF
+screen_dark	884156FF
+screen_deep	3E2028FF
+screen_ink_soft	773A4CFF
+button_bezel	E9A9BBFF
+delete_bezel	F0412EFF
+scanline_alpha	10

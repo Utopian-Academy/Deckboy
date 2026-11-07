@@ -1,0 +1,18 @@
+# Deckboy Theme: Vaporwave
+# Mint, lilac and a marble bust in a shopping-mall fountain.
+# All color values are RRGGBBAA hex.
+
+shell_outer	F2D7F0FF
+shell_inner	E1C8DFFF
+shell_shadow	857684FF
+screen_light	76CECAFF
+screen_mid	33C9B5FF
+screen_dark	376B84FF
+screen_deep	3B1F5CFF
+screen_ink_soft	385A7BFF
+button_bezel	C28FD6FF
+delete_bezel	F0412EFF
+scanline_alpha	10
+
+# Creatures, in the empty part of the playlist; gone while an output is live.
+creature	fish	3

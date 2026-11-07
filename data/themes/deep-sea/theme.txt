@@ -1,0 +1,21 @@
+# Deckboy Theme: Deep Sea
+# Where the light runs out: navy dark and glowing creatures.
+# All color values are RRGGBBAA hex.
+
+shell_outer	020B16FF
+shell_inner	0B141EFF
+shell_shadow	01050AFF
+screen_light	2EE6D6FF
+screen_mid	1A8380FF
+screen_dark	135E5FFF
+screen_deep	01070EFF
+screen_ink_soft	97CAD5FF
+screen_fg	B8F4FFFF
+screen_fg_soft	81AEB9FF
+screen_tile	051A23FF
+button_bezel	0E3A5AFF
+delete_bezel	FF5A4AFF
+scanline_alpha	14
+
+# Creatures, in the empty part of the playlist; gone while an output is live.
+creature	jellyfish	3

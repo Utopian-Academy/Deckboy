@@ -1,0 +1,15 @@
+# Deckboy Theme: E-Ink
+# Paper grey and ink black, the way an e-reader page looks.
+# All color values are RRGGBBAA hex.
+
+shell_outer	E9E7E1FF
+shell_inner	D9D7D1FF
+shell_shadow	807F7CFF
+screen_light	82817EFF
+screen_mid	4A4A48FF
+screen_dark	2D2D2CFF
+screen_deep	151515FF
+screen_ink_soft	282827FF
+button_bezel	A9A7A0FF
+delete_bezel	F0412EFF
+scanline_alpha	10

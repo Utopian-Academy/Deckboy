@@ -1,0 +1,15 @@
+# Deckboy Theme: Sandstone
+# Warm layered rock, ochre and rust.
+# All color values are RRGGBBAA hex.
+
+shell_outer	EBD6B6FF
+shell_inner	DBC7A9FF
+shell_shadow	817664FF
+screen_light	CF9465FF
+screen_mid	C0703AFF
+screen_dark	764625FF
+screen_deep	3A2414FF
+screen_ink_soft	693F21FF
+button_bezel	C9A27AFF
+delete_bezel	FFD23AFF
+scanline_alpha	10

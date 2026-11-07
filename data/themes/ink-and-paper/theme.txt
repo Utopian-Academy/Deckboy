@@ -1,0 +1,18 @@
+# Deckboy Theme: Ink and Paper
+# Black sumi ink on warm white paper.
+# All color values are RRGGBBAA hex.
+
+shell_outer	F3EEE2FF
+shell_inner	E2DDD2FF
+shell_shadow	86837CFF
+screen_light	696763FF
+screen_mid	1E1E1EFF
+screen_dark	171717FF
+screen_deep	121212FF
+screen_ink_soft	161616FF
+button_bezel	B9B2A0FF
+delete_bezel	F0412EFF
+scanline_alpha	10
+
+# Creatures, in the empty part of the playlist; gone while an output is live.
+creature	spider	1

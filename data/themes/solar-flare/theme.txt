@@ -1,0 +1,18 @@
+# Deckboy Theme: Solar Flare
+# A hot yellow-white core on deep orange space.
+# All color values are RRGGBBAA hex.
+
+shell_outer	1A0800FF
+shell_inner	221109FF
+shell_shadow	0C0400FF
+screen_light	FFD23AFF
+screen_mid	987720FF
+screen_dark	715516FF
+screen_deep	110500FF
+screen_ink_soft	D6C7A5FF
+screen_fg	FFF1C9FF
+screen_fg_soft	BAAB8DFF
+screen_tile	2A1604FF
+button_bezel	8A3A00FF
+delete_bezel	FF3A2AFF
+scanline_alpha	14

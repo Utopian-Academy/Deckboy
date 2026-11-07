@@ -1,0 +1,18 @@
+# Deckboy Theme: Blueprint
+# White lines on cyanotype blue, drawn to scale.
+# All color values are RRGGBBAA hex.
+
+shell_outer	0B3A6EFF
+shell_inner	144173FF
+shell_shadow	051A31FF
+screen_light	E8F2FFFF
+screen_mid	859FBEFF
+screen_dark	5F80A5FF
+screen_deep	072648FF
+screen_ink_soft	D3DCE5FF
+screen_fg	FFFFFFFF
+screen_fg_soft	B6C4D4FF
+screen_tile	1A4778FF
+button_bezel	2C6AA8FF
+delete_bezel	FF6A55FF
+scanline_alpha	14

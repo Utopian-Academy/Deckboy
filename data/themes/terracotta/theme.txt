@@ -1,0 +1,15 @@
+# Deckboy Theme: Terracotta
+# Clay pots in the sun: baked orange and cream.
+# All color values are RRGGBBAA hex.
+
+shell_outer	F1DCC9FF
+shell_inner	E0CDBBFF
+shell_shadow	85796FFF
+screen_light	D48664FF
+screen_mid	C4572EFF
+screen_dark	78351EFF
+screen_deep	3A1A10FF
+screen_ink_soft	6A2F1AFF
+button_bezel	D39A7AFF
+delete_bezel	FFD23AFF
+scanline_alpha	10

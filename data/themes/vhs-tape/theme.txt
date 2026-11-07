@@ -1,0 +1,18 @@
+# Deckboy Theme: VHS Tape
+# Magnetic brown, a tracking-line magenta and the date in the corner.
+# All color values are RRGGBBAA hex.
+
+shell_outer	17110EFF
+shell_inner	1F1916FF
+shell_shadow	0A0806FF
+screen_light	FF4FD8FF
+screen_mid	97337DFF
+screen_dark	6F295BFF
+screen_deep	0F0B09FF
+screen_ink_soft	CCC2B4FF
+screen_fg	F4E9D8FF
+screen_fg_soft	B2A89BFF
+screen_tile	27151CFF
+button_bezel	5A3A2EFF
+delete_bezel	F05A3AFF
+scanline_alpha	14

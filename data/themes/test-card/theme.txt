@@ -1,0 +1,15 @@
+# Deckboy Theme: Test Card
+# Bars and a grey frame: the calm before a broadcast.
+# All color values are RRGGBBAA hex.
+
+shell_outer	BDBDBDFF
+shell_inner	B0B0B0FF
+shell_shadow	686868FF
+screen_light	567DCFFF
+screen_mid	1E5BD8FF
+screen_dark	19346DFF
+screen_deep	151515FF
+screen_ink_soft	182E59FF
+button_bezel	8A8A8AFF
+delete_bezel	F0412EFF
+scanline_alpha	10

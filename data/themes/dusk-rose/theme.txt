@@ -1,0 +1,21 @@
+# Deckboy Theme: Dusk Rose
+# Dusty rose and mauve as the light goes.
+# All color values are RRGGBBAA hex.
+
+shell_outer	201419FF
+shell_inner	281C21FF
+shell_shadow	0E090BFF
+screen_light	F2A0B8FF
+screen_mid	946170FF
+screen_dark	704955FF
+screen_deep	150D10FF
+screen_ink_soft	D0BCC2FF
+screen_fg	F7E1E7FF
+screen_fg_soft	B6A4A9FF
+screen_tile	2F1E24FF
+button_bezel	6A3A4AFF
+delete_bezel	FF5A4AFF
+scanline_alpha	14
+
+# Creatures, in the empty part of the playlist; gone while an output is live.
+creature	moth	1
