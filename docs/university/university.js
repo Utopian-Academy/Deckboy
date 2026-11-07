@@ -11,11 +11,17 @@
     const qs = [...quiz.querySelectorAll('.q')];
     const score = quiz.querySelector('.uni-score');
     const solved = new Set();
+    // A reward stays hidden until you get every answer right.
+    const reveal = () => {
+      const r = document.querySelector('[data-reward="' + quiz.dataset.quiz + '"]');
+      if (r) r.hidden = false;
+    };
     const report = () => {
       if (score) score.textContent = solved.size + ' of ' + qs.length + ' right';
       if (solved.size === qs.length) {
         const p = load(); p[quiz.dataset.quiz] = true; save(p);
         if (score) score.textContent = 'All ' + qs.length + ' right. This is marked as done.';
+        reveal();
       }
     };
     qs.forEach((q, i) => {
@@ -29,6 +35,7 @@
       }));
     });
     report();
+    if (load()[quiz.dataset.quiz]) reveal();
     if (load()[quiz.dataset.quiz] && score) score.textContent = 'You finished this before. You can do it again.';
   });
 
