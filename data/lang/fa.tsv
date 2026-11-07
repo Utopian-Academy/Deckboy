@@ -2007,3 +2007,201 @@ Run the clock	راه‌اندازی ساعت
 What fires this cue besides GO	چه چیزی به‌جز GO این cue را فعال می‌کند
 center	میانه
 visual	تصویر
+Cue	کیو
+JAM	همگام‌سازی
+MIX	میکس
+CLIP	کلیپ
+TEXT	متن
+KEY L	KEY چ
+MULTI	چندگانه
+WACKY	دیوانه‌وار
+COLOUR	رنگ
+DARKEN	تیره‌کردن
+STEREO	استریو
+COMPARE	مقایسه
+LIGHTEN	روشن‌کردن
+DASHBOARD	داشبورد
+25 fps (PAL/EBU)	۲۵ فریم/ث (PAL/EBU)
+29.97 fps (NTSC)	۲۹٫۹۷ فریم/ث (NTSC)
+Pocket Test (day)	آزمون Pocket (روز)
+Dark Detail (0-12%)	جزئیات سایه (۰ تا ۱۲٪)
+Frame Count (emoji)	شمارندهٔ فریم (ایموجی)
+PLUGE (black level)	PLUGE (سطح سیاه)
+Pocket Test (night)	آزمون Pocket (شب)
+Pocket Test (storm)	آزمون Pocket (توفان)
+Marks stacked BELOW.	نشانه‌ها در پایین روی هم.
+Panel Map (animated)	نقشهٔ پنل‌ها (متحرک)
+Pocket Test (sunset)	آزمون Pocket (غروب)
+Boresight (alignment)	نشانه‌روی (تراز)
+SMPTE 75% Colour Bars	نوارهای رنگی SMPTE ۷۵٪
+(projector curve only)	(فقط منحنی پروژکتور)
+Multiburst (bandwidth)	Multiburst (پهنای باند)
+Convergence (fine grid)	همگرایی (شبکهٔ ریز)
+Greyscale Steps (gamma)	پله‌های خاکستری (گاما)
+Uniformity (flat fields)	یکنواختی (میدان‌های تخت)
+MULTIVIEW carries this too.	MULTIVIEW هم این را می‌برد.
+Test Clock (sync + latency)	ساعت آزمون (همگامی + تأخیر)
+auto (reads the common two)	خودکار (دو مورد رایج را می‌خواند)
+Panel Map (LED tile numbers)	نقشهٔ پنل‌ها (شمارهٔ پنل‌های LED)
+Portal (blobs of deep space)	دروازه (حباب‌های فضای ژرف)
+Terrarium (living ecosystem)	Terrarium (زیست‌بوم زنده)
+Window 10% (peak brightness)	پنجرهٔ ۱۰٪ (روشنایی اوج)
+Window 50% (peak at mid APL)	پنجرهٔ ۵۰٪ (اوج در APL میانه)
+Frame Count (drops + latency)	شمارندهٔ فریم (افتادگی + تأخیر)
+Terrarium Pico (1px per cell)	Terrarium Pico (۱ پیکسل در هر خانه)
+Banding Ramps (real bit depth)	شیب‌های نوارشدگی (عمق بیت واقعی)
+Fireside (a hearth that burns)	آتشدان (اجاقی که می‌سوزد)
+HLG - live broadcast (BT.2100)	HLG - پخش زنده (BT.2100)
+Test Bars (motion diagnostics)	نوارهای آزمون (تشخیص حرکت)
+Moire 1:1 (is anything scaling?)	Moiré 1:1 (آیا چیزی مقیاس می‌دهد؟)
+Send now, without taking the cue	اکنون بفرست، بی‌آنکه کیو گرفته شود
+Pocket Test (test card + scene cycle)	آزمون Pocket (کارت آزمون + چرخهٔ صحنه‌ها)
+Critters (pixel-exact scaling, animated)	Critters (مقیاس دقیق پیکسلی، متحرک)
+headphones, desk sounds and LTC stay out of it	هدفون‌ها، صداهای میز و LTC بیرون می‌مانند
+Above 1 tunnels inward, below 1 blooms outward.	بالای ۱ تونل به درون کشیده می‌شود، زیر ۱ به بیرون می‌شکفد.
+Read everything right to left. Yes, everything.	همه‌چیز را از راست به چپ بخوان. آری، همه‌چیز.
+Amber is closest to the 1976 single-phosphor look.	کهربایی نزدیک‌ترین به نمای تک‌فسفری ۱۹۷۶ است.
+Greetings, primitive. Your "slideshow" amuses us.	درود، ای بدوی. «نمایش اسلاید» تو ما را سرگرم می‌کند.
+Sway sideways. Depth 1 is half the frame either way	تاب به پهلو. عمق ۱ نیم‌فریم به هر سوست
+Draw the diagnostic over the card, or just the text.	تشخیص را روی کارت بکش، یا فقط متن را.
+All interfaces, but only this computer is trusted yet.	همهٔ رابط‌ها، اما فعلاً فقط به این رایانه اعتماد شده است.
+Choose the legacy cue token to show inside the PIP window	نشانهٔ کیوی قدیمی را برای پنجرهٔ PIP برگزین
+ASIO carries the show's sound, and these are not on it yet	ASIO صدای نمایش را می‌برد و این‌ها هنوز روی آن نیستند
+N=new  Enter/P=previous  O=open saved  E=examples  L=learn	N=جدید  Enter/P=قبلی  O=باز کردن ذخیره  E=نمونه‌ها  L=آموزش
+Hand this parameter to an oscillator so it moves on its own	این پارامتر را به یک نوسان‌ساز بسپار تا خودش حرکت کند
+How long the finished drawing stays before it is drawn again	نقاشی تمام‌شده چه مدت می‌ماند تا دوباره کشیده شود
+How it comes on and goes off: none, fade, rise, slide or wipe	چگونه می‌آید و می‌رود: هیچ، محو، بالا آمدن، لغزش یا پاک‌کن
+The 64-step wavetable, quantised to 6 bits like the hardware.	جدول موج ۶۴ پله‌ای، کوانتیده به ۶ بیت مانند سخت‌افزار.
+Vary tile size per cell, so the grid stops looking like a grid.	اندازهٔ کاشی را در هر خانه تغییر بده تا شبکه دیگر شبیه شبکه نباشد.
+Which output channel carries the signal. 'all' feeds every one.	کدام کانال خروجی سیگنال را می‌برد. 'all' همه را تغذیه می‌کند.
+What is sent. Backslash-n, -r, -t and -0 become those characters	آنچه فرستاده می‌شود. بک‌اسلش با n و r و t و 0 همان نویسه‌ها می‌شوند
+Deckboy's own remote-protocol verbs, one per line; # is a comment	فعل‌های پروتکل خود Deckboy، هر خط یکی؛ # توضیح است
+Modulator speed as a ratio of the note, so the bend tracks pitch.	سرعت مدولاتور به نسبت نُت، تا خمش زیروبمی را دنبال کند.
+Play this cue to the preview only; the outputs keep what they have	این کیو را فقط در پیش‌نمایش پخش کن؛ خروجی‌ها آنچه دارند نگه می‌دارند
+Put the pitch on an oscillator: Motion X sweeps it like a theremin	زیروبمی را به نوسان‌ساز بده: Motion X آن را مثل ترمین می‌روبد
+A disarmed cue stays in the list and does nothing; GO steps over it	کیوی خلع‌سلاح‌شده در فهرست می‌ماند و کاری نمی‌کند؛ GO از رویش می‌گذرد
+Where the clock reads from this cue on; click the value to type one	ساعت از این کیو به بعد از کجا می‌خواند؛ برای نوشتن روی مقدار کلیک کن
+Add a dashboard button that fires this master by name, from anywhere	دکمه‌ای به داشبورد بیفزا که این مستر را با نامش از هرجا اجرا کند
+New here? LEARN THE BASICS takes five minutes. We'll show you round.	تازه‌وارد هستی؟ آموختن پایه‌ها پنج دقیقه است. همه‌جا را نشانت می‌دهیم.
+An IPv4 address, or 255.255.255.255 to broadcast to the whole network	یک نشانی IPv4، یا 255.255.255.255 برای پخش به همهٔ شبکه
+How much playing audio widens and brightens the pattern. 0 free-runs.	صدای در حال پخش چقدر نقش را پهن‌تر و روشن‌تر می‌کند. ۰ آزاد می‌چرخد.
+LED panel width in pixels - what one tile really is. Click to type it	پهنای پنل LED به پیکسل: اندازهٔ واقعی یک کاشی. برای نوشتن کلیک کن
+Which deck it acts on; step off the end for the one this cue lives on	روی کدام دک کار می‌کند؛ از انتها بگذر برای دک همین کیو
+only one playlist - use the routing chip on the header to add another	فقط یک فهرست پخش: تراشهٔ مسیریابی در سرصفحه یکی دیگر می‌افزاید
+Which cue this master fires on that deck; step off the end to clear it	این مستر کدام کیو را روی آن دک اجرا می‌کند؛ برای پاک کردن از انتها بگذر
+Draw on the programme monitor with the mouse or a pen (DRAW). Esc stops	روی مانیتور برنامه با موس یا قلم بکش (DRAW). Esc متوقف می‌کند
+How long the move takes, each way. 0 is instant whatever the style says	حرکت در هر جهت چقدر طول می‌کشد. ۰ آنی است، سبک هرچه بگوید
+Stop that deck when the ramp lands - the usual take-it-down-and-stop-it	وقتی شیب رسید آن دک را متوقف کن: همان پایین‌آوردن-و-ایستادن همیشگی
+Which of the file's sound tracks plays: a second language, a commentary	کدام قطعهٔ صوتی فایل پخش شود: زبان دوم، تفسیر
+An oscillator on the colour: depth is how far round the wheel it travels	نوسان‌ساز روی رنگ: عمق یعنی چقدر روی چرخه می‌گردد
+Rack this cue paused and off air so GO starts it with no decoder spin-up	این کیو را مکث‌شده و بیرون از آنتن آماده کن تا GO بی‌درنگِ رمزگشا آغازش کند
+Note, control change, program change, MIDI Show Control, or your own bytes	نُت، control change، program change، MIDI Show Control یا بایت‌های خودت
+Black behind the words. Zero leaves it over whatever the output already has	سیاه پشت واژه‌ها. صفر آنها را روی آنچه خروجی دارد رها می‌کند
+How far the modulator bends the pitch. 0-63, the hardware's own gain range.	مدولاتور زیروبمی را چقدر خم می‌کند. ۰ تا ۶۳، گسترهٔ بهرهٔ خود سخت‌افزار.
+the words this cue puts on screen  |  Shift+Enter: new line  |  Enter: apply	واژه‌هایی که این کیو روی صفحه می‌گذارد  |  Shift+Enter: خط تازه  |  Enter: اعمال
+OSC and UDP are fire and forget; TCP connects, so it runs off the show thread	OSC و UDP می‌فرستند و فراموش می‌کنند؛ TCP وصل می‌شود، پس بیرون از رشتهٔ نمایش اجرا می‌شود
+Put the level on an oscillator: Motion makes it a gate that opens as you move	سطح را به نوسان‌ساز بده: Motion آن را دروازه‌ای می‌کند که با حرکت تو باز می‌شود
+Marks stacked ABOVE the characters, the way combining accents overflow a line.	نشانه‌ها بالای حروف روی هم، مانند اعراب ترکیبی که از خط بیرون می‌زنند.
+Which chime. Cycling PLAYS it, so it can be chosen by ear rather than by name.	کدام زنگ. عوض کردن آن را پخش می‌کند، تا با گوش برگزینی نه با نام.
+No rows. + ADD or LEARN makes one; MIDIMAP RESET brings the built-in rows back.	ردیفی نیست. + افزودن یا آموختن یکی می‌سازد؛ MIDIMAP RESET ردیف‌های داخلی را برمی‌گرداند.
+Save the mask's paths as SVG, for Illustrator and anything else that reads them	مسیرهای ماسک را به SVG ذخیره کن، برای Illustrator و هرچه آنها را می‌خواند
+Which MIDI output; a named port that is missing is reported rather than swapped	کدام خروجی MIDI؛ درگاه نام‌داری که نیست گزارش می‌شود، جایگزین نمی‌شود
+An oscillator on the level, running after GO until a later cue sets this fixture	نوسان‌سازی روی سطح، که پس از GO کار می‌کند تا کیوی بعدی این چراغ را تنظیم کند
+Steps in third-octaves, because the ear works in ratios. 1kHz is the convention.	گام‌ها به یک‌سوم اکتاو، چون گوش با نسبت‌ها کار می‌کند. ۱ کیلوهرتز قرارداد است.
+Strikes drawn ACROSS the cell, damaging the character rather than decorating it.	خط‌هایی به عرض خانه که حرف را خراب می‌کنند نه آراسته.
+Whether incoming MIDI notes play this synth or trigger cues as they always have.	اینکه نُت‌های MIDI ورودی این سینت را بنوازند یا مثل همیشه کیو اجرا کنند.
+A note number, or type LEARN and play it. Notes no cue claims still go to cue N+1	شمارهٔ نُت، یا LEARN بنویس و بنوازش. نُت‌هایی که هیچ کیویی برنمی‌دارد همچنان به کیو N+1 می‌روند
+A plain stereo pair. Click to open the matrix, starting from exactly this routing	یک جفت استریوی ساده. برای باز کردن ماتریس دقیقاً از همین مسیریابی کلیک کن
+Folding is what turns an arbitrary pattern into something that reads as designed.	تا زدن هر نقش دلخواهی را به چیزی تبدیل می‌کند که طراحی‌شده به نظر می‌رسد.
+Channel=level, comma separated. Ranges too: 1=255, 10-14=64. Channels count from 1	کانال=سطح، جداشده با ویرگول. بازه‌ها هم: 1=255، 10-14=64. کانال‌ها از ۱ شمرده می‌شوند
+Moves every selected cue's trim by the same dB; typing a value sets them all to it	تریم هر کیوی برگزیده را به یک اندازه دسی‌بل جابه‌جا می‌کند؛ نوشتن مقدار همه را روی آن می‌گذارد
+Bends the carrier's PITCH rather than mixing with it. This is what makes FDS growl.	زیروبمی حامل را خم می‌کند به‌جای آمیختن با آن. همین است که FDS را می‌غرّاند.
+Half way through LEARN THE BASICS. Press L and we pick up where you stopped, skapi.	نیمهٔ آموختن پایه‌ها. L را بزن تا از همان‌جا ادامه دهیم، skapi.
+Render as a character grid with a 16-colour indexed palette, rather than as pixels.	به‌صورت شبکهٔ حروف با پالت نمایه‌دار ۱۶ رنگ رندر کن، نه پیکسل.
+Which MIDI output this file plays to; step past the end for the first one available	این فایل به کدام خروجی MIDI پخش می‌شود؛ برای نخستین آزاد از انتها بگذر
+An IPv4 address, or 255.255.255.255 for the universe's multicast group (239.255.x.y)	یک نشانی IPv4، یا 255.255.255.255 برای گروه چندپخشی یونیورس (239.255.x.y)
+Click a cell to walk it: off, full, -3, -6, -12. This row turns the matrix off again	روی خانه کلیک کن تا بگردد: خاموش، کامل، -۳، -۶، -۱۲. این ردیف ماتریس را دوباره خاموش می‌کند
+How long each phrase stays before it moves. Zero hides them without losing the list.	هر عبارت چقدر می‌ماند تا جابه‌جا شود. صفر آنها را بی‌آنکه فهرست گم شود پنهان می‌کند.
+How long it takes to fall away after the attack. Only audible when retrigger is set.	افت پس از حمله چقدر طول می‌کشد. فقط وقتی بازآغاز روشن است شنیده می‌شود.
+Off, from start (next cue fires when this one starts) or from end (when it finishes)	خاموش، از آغاز (کیوی بعدی با آغاز این شروع می‌شود) یا از پایان (وقتی تمام شود)
+Height of one line as a percent of the raster, so a card reads the same on any screen	ارتفاع یک خط به درصد رستر، تا کارت روی هر صفحه یکسان خوانده شود
+Set slot source as media:/path, browser:url, window:name, camera:name, or syphon:name	منبع جایگاه را media:/مسیر، browser:url، window:نام، camera:نام یا syphon:نام بگذار
+Short LFSR mode. The period is brief enough to read as pitched metal rather than hiss.	حالت LFSR کوتاه. دوره آن‌قدر کوتاه است که مانند فلز کوک‌شده شنیده شود نه خش.
+White, warm, red, amber, green, cyan, blue, magenta. ~ moves it round the colour wheel	سفید، گرم، قرمز، کهربایی، سبز، فیروزه‌ای، آبی، ارغوانی. ~ آن را روی چرخهٔ رنگ می‌چرخاند
+Re-strike the envelope this often. Hold sustains one note, which is what a drone wants.	پوش را این‌قدر یکبار از نو بزن. Hold یک نُت را نگه می‌دارد، همان که درون می‌خواهد.
+Diamond is the hard-edged Atari Video Music lattice; rings tunnel well with feedback zoom.	Diamond توری لبه‌تیز Atari Video Music است؛ حلقه‌ها با زوم بازخورد تونل خوبی می‌سازند.
+Rock or spin. Depth 1 is half a turn either way; a saw at depth 1 turns it all the way round	تاب یا چرخش. عمق ۱ نیم‌دور به هر سوست؛ دندان‌اره‌ای در ۱ تمام دور می‌چرخاند
+DECK playback level (live, not saved with the cue) - per-cue trim is gain in the AUDIO section	سطح پخش دک (زنده، با کیو ذخیره نمی‌شود) - تریم هر کیو بهره در بخش صدا است
+Still, fade in, typewriter, scroll up, crawl or pulse -- all driven by the cue's own transport	ثابت، پدیدار شدن، ماشین تحریر، پیمایش بالا، زیرنویس روان یا تپش، همه با ترابری خود کیو
+Fields per rendered frame. 1 is one for one, 0.5 holds each field for two frames, 0 freezes it.	میدان در هر فریم رندرشده. ۱ یک‌به‌یک، ۰٫۵ هر میدان را دو فریم نگه می‌دارد، ۰ منجمد می‌کند.
+What this cue shows while it plays: waveform, scope, Lissajous, spectrum, meters or a name card	این کیو هنگام پخش چه نشان می‌دهد: شکل موج، اسکوپ، لیساژو، طیف، سنجه‌ها یا کارت نام
+0 picks tiles by brightness so the picture reads. 1 picks at random so the grid becomes texture.	۰ کاشی‌ها را بر پایهٔ روشنایی برمی‌گزیند تا تصویر خوانده شود. ۱ تصادفی برمی‌گزیند و شبکه بافت می‌شود.
+How far it travels, in semitones. Up reads as arrival, down as departure, zero is a struck note.	چقدر جابه‌جا می‌شود، به نیم‌پرده. بالا مانند رسیدن، پایین مانند رفتن، صفر نُتی زده‌شده است.
+An IPv4 address. Names are not resolved: a DNS lookup is a blocking call and GO must not make one	یک نشانی IPv4. نام‌ها ترجمه نمی‌شوند: پرس‌وجوی DNS مسدودکننده است و GO نباید آن را انجام دهد
+Tile width in pixels. Must match the sheet's grid or the slices land across neighbouring sprites.	پهنای کاشی به پیکسل. باید با شبکهٔ برگه بخواند وگرنه برش‌ها روی اسپرایت‌های همسایه می‌افتند.
+Alternating mirrors by cell position, which reads as pattern where random flipping reads as noise.	آینه‌های یک‌درمیان بر پایهٔ جای خانه، که نقش خوانده می‌شوند جایی که برگرداندن تصادفی نویز خوانده می‌شود.
+0 welds them to their cell, which reads as engraved. Above it they re-roll, which reads as boiling.	۰ آنها را به خانه‌شان جوش می‌دهد، گویی کنده‌کاری‌شده. بالاتر دوباره قرعه می‌خورند، گویی می‌جوشند.
+MONO L plays the left input in both speakers: mic 1 on most interfaces. STEREO is for a line source.	MONO L ورودی چپ را در هر دو بلندگو پخش می‌کند: میکروفون ۱ در بیشتر رابط‌ها. STEREO برای منبع خطی است.
+The whole gesture. This IS the cue's duration -- a sting is the one generated signal here that ends.	کل حرکت. همین مدت کیو است: آهنگ کوتاه تنها سیگنال تولیدی اینجاست که تمام می‌شود.
+Click the value to send this fixture or leave it where the last cue put it. ~ makes the level breathe	روی مقدار کلیک کن تا این چراغ فرستاده شود یا همان‌جا بماند که کیوی پیشین گذاشت. ~ سطح را به نفس کشیدن وامی‌دارد
+FDS is a wavetable bent by a modulator. 2A03 is the pulse/triangle/noise set most chiptune is made of.	FDS جدول موجی است که مدولاتور خمش می‌کند. 2A03 مجموعهٔ پالس/مثلث/نویز است که بیشتر چیپ‌تیون از آن ساخته شده.
+Scramble which glyph means which brightness. Same set, different handwriting. Seeded, so it stays put.	بُر بزن کدام نماد کدام روشنایی است. همان مجموعه، دستخطی دیگر. با دانه، پس سر جایش می‌ماند.
+Pixel sort: runs of pixels sorted by brightness within a row, which is what makes datamosh look melted.	مرتب‌سازی پیکسل: رشته‌های پیکسل درون یک ردیف بر پایهٔ روشنایی مرتب می‌شوند، و همین دیتاموش را ذوب‌شده نشان می‌دهد.
+How many cells the marks may climb. They thin out as they go, so a tall reach trails rather than doubles.	نشانه‌ها چند خانه می‌توانند بالا بروند. در راه کم‌پشت می‌شوند، پس بُرد بلند دنباله می‌کشد به‌جای دوتا شدن.
+cue act val  -  G take  S stop  F fade out (val = tenths of a second)  V volume  O opacity  J jump to row	کیو کنش مقدار  -  G گرفتن  S توقف  F محو خروج (مقدار = دهم ثانیه)  V بلندی  O کدری  J پرش به ردیف
+Harmonic weight: a pure chime at zero, brass at full. This is the difference between a ping and a fanfare.	وزن هارمونیک: زنگ ناب در صفر، سازهای برنجی در بیشینه. فرق یک پینگ و یک فانفار همین است.
+Steps through the inputs this computer has. 'Settings input' follows the input chosen in Settings > Audio.	میان ورودی‌های این رایانه می‌گردد. 'Settings input' ورودی برگزیده در تنظیمات > صدا را دنبال می‌کند.
+Embers to roaring. It still surges and settles at any setting -- a fire that does not move reads as a photo	از اخگر تا غرش آتش. در هر تنظیمی برمی‌خیزد و می‌نشیند: آتشی که تکان نمی‌خورد عکس به نظر می‌رسد
+Reference pitch. 440 is modern standard, 432 the common alternative, and older instruments sat lower still.	زیروبمی مرجع. ۴۴۰ استاندارد امروزی است، ۴۳۲ جایگزین رایج، و سازهای قدیمی‌تر پایین‌تر هم بودند.
+Where the sting starts. Under a voice it wants to stay out of the way; over a room it wants to cut through.	آهنگ کوتاه از کجا آغاز شود. زیر صدای گوینده باید کنار برود؛ روی سالن باید بشکافد.
+Digital gain on the input, -40 to +40 dB. Set the interface's own preamp first; this is for the last few dB.	بهرهٔ دیجیتال روی ورودی، از -۴۰ تا +۴۰ دسی‌بل. نخست پیش‌تقویت‌کنندهٔ رابط را تنظیم کن؛ این برای چند دسی‌بل آخر است.
+Pulse the size. On its own this moves width AND height together; give height its own ~ to squash and stretch	اندازه را بتپان. به‌تنهایی پهنا و ارتفاع را با هم می‌جنباند؛ برای فشردن و کشیدن، به ارتفاع ~ خودش را بده
+A card fills the frame; a Lower Third is a name and a role, low on a transparent frame, with an in and an out	کارت قاب را پر می‌کند؛ زیرنویس پایین نام و نقش است، پایین روی قاب شفاف، با ورود و خروج
+Held keeps the last displacement rather than removing it -- the picture stays bent the way the driver left it.	Held آخرین جابه‌جایی را نگه می‌دارد به‌جای برداشتنش: تصویر همان‌گونه که گرداننده رها کرد خمیده می‌ماند.
+12.5 and 25 are thin and reedy, 50 is hollow. 75 sounds identical to 25 -- it is here because trackers expose it.	۱۲٫۵ و ۲۵ نازک و تودماغی‌اند، ۵۰ توخالی است. ۷۵ درست مانند ۲۵ است: اینجاست چون ترکرها آن را نشان می‌دهند.
+Quantise the output like the hardware. The steps ARE the sound; smoothing them makes it a synth imitating a chip.	خروجی را مانند سخت‌افزار کوانتیده کن. پله‌ها خود صدا هستند؛ هموار کردنشان آن را سینتی می‌کند که از تراشه تقلید می‌کند.
+Moves every selected cue's trim by the same dB, keeping the differences between them; typing a value sets them all to it	تریم هر کیوی برگزیده را با نگه‌داشتن فاصله‌ها به یک اندازه جابه‌جا می‌کند؛ نوشتن مقدار همه را روی آن می‌گذارد
+Where the playlist's crosspoints send it (Settings > Audio). Click to open the matrix by name, starting from exactly that	نقطه‌های تقاطع فهرست پخش آن را به کجا می‌فرستند (تنظیمات > صدا). برای باز کردن ماتریس با نام دقیقاً از همان مسیریابی کلیک کن
+name values with  d = ...;  end with one expression, or three for red green blue  |  Shift+Enter: new line  |  Enter: apply	مقدارها را با  d = ...;  نام بگذار، با یک عبارت پایان بده، یا سه تا برای قرمز سبز آبی  |  Shift+Enter: خط تازه  |  Enter: اعمال
+Put back what it started from once the ramp lands (after the stop): a deck left ready for its next cue, a swell that lets go	وقتی شیب رسید (پس از توقف) آنچه از آن آغاز شد را بازگردان: دکی آماده برای کیوی بعدی، اوجی که رها می‌کند
+Which speech model makes the captions: English, any language, or the slower, more accurate pair. Each is a one-time download	کدام مدل گفتار زیرنویس می‌سازد: انگلیسی، هر زبان، یا جفت کندتر و دقیق‌تر. هرکدام یک‌بار دانلود می‌شود
+What the mask cuts: this cue wherever it plays, this playlist on the focused output, that output's whole picture, or its matte	ماسک چه را می‌برد: این کیو هرجا پخش شود، این فهرست پخش روی خروجی برگزیده، کل تصویر آن خروجی، یا مات آن
+Play at the screen's rate when it is within 0.2% (59.94 on 60): every frame shown once, the sound up to 3.5 cents sharp or flat	با نرخ صفحه پخش کن وقتی در ۰٫۲٪ باشد (۵۹٫۹۴ روی ۶۰): هر فریم یکبار، صدا تا ۳٫۵ سنت زیرتر یا بم‌تر
+Quarter turns are exact and stay crisp. Spinning samples at an angle, which tears pixel art -- sometimes that is what you want.	ربع‌دورها دقیق‌اند و تیز می‌مانند. چرخش با زاویه نمونه می‌گیرد و هنر پیکسلی را می‌درد: گاهی همین را می‌خواهی.
+Every take starts the puppetry the same way, so a rehearsed look repeats instead of depending on how long the app has been open.	هر گرفتن عروسک‌گردانی را یکسان آغاز می‌کند، تا ظاهر تمرین‌شده تکرار شود نه آنکه به مدت باز بودن برنامه بستگی داشته باشد.
+What aims each tilt: its own position, the picture's luma gradient so characters lean the way the image does, or the cell's hue.	چه چیزی هر شیب را جهت می‌دهد: جای خودش، شیب روشنایی تصویر تا حروف مانند تصویر خم شوند، یا فام خانه.
+Name a channel or a pair once. Playlists send to the name, so a different interface means changing the names here, not every cue.	یک کانال یا جفت را یکبار نام بگذار. فهرست‌های پخش به نام می‌فرستند، پس رابط دیگر یعنی تغییر نام‌ها اینجا، نه هر کیو.
+Click a crosspoint to walk it: off, 0, -3, -6, -12 dB. Drag it sideways for any level. A playlist with none plays to its own device.	روی نقطهٔ تقاطع کلیک کن تا بگردد: خاموش، ۰، -۳، -۶، -۱۲ دسی‌بل. برای هر سطحی به پهلو بکش. فهرست پخش بی‌نقطه روی دستگاه خودش پخش می‌شود.
+Sprite sets installed in data/sprites. Each folder there is a set; cycling picks one and wraps back to none. Right-click turns them off.	مجموعه‌های اسپرایت در data/sprites. هر پوشه یک مجموعه است؛ گرداندن یکی را برمی‌گزیند و به هیچ برمی‌گردد. کلیک راست خاموششان می‌کند.
+Internal resolution, 1 chunkiest to 5 finest. This is an aesthetic control as much as a speed one -- the 8-bit look comes from big pixels.	وضوح درونی، از ۱ درشت‌ترین تا ۵ ریزترین. این به همان اندازه زیبایی‌شناختی است که سرعتی: ظاهر ۸ بیتی از پیکسل‌های درشت می‌آید.
+Picture takes colour from the image. Green, amber and cyan are terminal phosphors. Palette locks the text to the selected hardware palette.	Picture رنگ را از تصویر می‌گیرد. سبز، کهربایی و فیروزه‌ای فسفرهای پایانه‌اند. Palette متن را به پالت سخت‌افزاری برگزیده قفل می‌کند.
+SUBTLE self-heals (H.264). CLASSIC is the real smear (MPEG-4). EXTREME is chunkier and smears constantly. Changing this re-prepares the cue.	SUBTLE خودش را درمان می‌کند (H.264). CLASSIC لکهٔ واقعی است (MPEG-4). EXTREME درشت‌تر است و پیوسته لک می‌اندازد. تغییرش کیو را از نو آماده می‌کند.
+Sine for line-up, pink to ring out a PA, white to find rattles, sweep to hear where a room rings, identify to walk the outputs one at a time.	سینوسی برای ترازبندی، صورتی برای تنظیم سیستم صوت، سفید برای یافتن لرزش‌ها، جاروب برای شنیدن طنین سالن، identify برای گذر از خروجی‌ها یکی‌یکی.
+Which effect, by its place in the stack of the cue that deck is playing when this fires. With nothing there, the fade says so and does nothing	کدام افکت، بر پایهٔ جایش در پشتهٔ کیویی که آن دک هنگام اجرا پخش می‌کند. اگر چیزی نباشد، محو همین را می‌گوید و کاری نمی‌کند
+Each frame blended into the next. This is the Hypno signature -- at 0 it is a pattern generator, above it the picture starts feeding on itself.	هر فریم در فریم بعدی آمیخته می‌شود. این امضای Hypno است: در ۰ یک سازندهٔ نقش است، بالاتر تصویر از خودش تغذیه می‌کند.
+What is through the window on the hearth wall: a garden, rain, snow or the sea. A room with weather outside reads as somewhere rather than as a wall	از پنجرهٔ دیوار آتشدان چه دیده می‌شود: باغ، باران، برف یا دریا. اتاقی با هوای بیرون جایی خوانده می‌شود نه دیواری
+BY FIXTURE: the lights in the patch (Settings > Network > FIXTURES), by name. CHANNELS: channel=level by hand. A cue can carry both; channels go last	بر پایهٔ چراغ: چراغ‌های پچ (تنظیمات > شبکه > چراغ‌ها)، با نام. کانال‌ها: کانال=سطح با دست. کیو می‌تواند هر دو را داشته باشد؛ کانال‌ها آخر می‌آیند
+Each character rocks as though it were a card being tilted. Every cell has its own phase, so the grid breathes instead of sliding about as one sheet.	هر حرف مانند کارتی که کج می‌شود تاب می‌خورد. هر خانه فاز خودش را دارد، پس شبکه نفس می‌کشد نه آنکه مثل یک برگه بلغزد.
+Pen: click for corners, drag for curves, click the first point to close (P). Points: drag, click the outline to add one, Alt-click or Delete to remove	قلم: برای گوشه‌ها کلیک، برای منحنی‌ها کشیدن، برای بستن روی نقطهٔ نخست کلیک (P). نقطه‌ها: بکش، برای افزودن روی خط پیرامون کلیک، برای حذف Alt-کلیک یا Delete
+The chip's three channels. They differ in kind: triangle has no volume control on the hardware, and noise is a shift register rather than an oscillator.	سه کانال تراشه. گونه‌شان فرق دارد: مثلث در سخت‌افزار کنترل بلندی ندارد و نویز یک ثبات جابه‌جایی است نه نوسان‌ساز.
+Curated sets of symbols and emoji -- stars, notes, flowers, arrows, weather, runes, faces. Picking one fills the custom glyphs below, which stays editable.	مجموعه‌های گزیدهٔ نماد و ایموجی: ستاره، نُت، گل، پیکان، هوا، رون، چهره. گزینش یکی نمادهای سفارشی پایین را پر می‌کند که ویرایش‌پذیر می‌مانند.
+Play from the computer keyboard, Ableton layout: A W S E D F T G Y H U J, Z and X for octave. While this is ON those keys make notes instead of firing cues.	با صفحه‌کلید رایانه بنواز، چیدمان Ableton: A W S E D F T G Y H U J، و Z و X برای اکتاو. تا این روشن است آن کلیدها به‌جای اجرای کیو نُت می‌نوازند.
+Deck opacity, deck volume, the master dimmer, the active cue's own brightness / contrast / saturation / hue, or a knob of one of its effects or audio effects	کدری دک، بلندی دک، دیمر اصلی، روشنایی / کنتراست / اشباع / فام کیوی فعال، یا پیچ یکی از افکت‌ها یا افکت‌های صوتی آن
+Scanlines, phosphor bloom and RGB fringing. The bloom is the part that matters -- a phosphor spills sideways, which is why a CRT looks like it is emitting light.	خطوط اسکن، درخشش فسفر و حاشیه‌های RGB. درخشش مهم است: فسفر به پهلو می‌ریزد، از همین رو CRT گویی نور می‌تاباند.
+Torn scanline bands and RGB separation. In text mode it also corrupts CELLS -- whole rows lock to one repeating character, the way a real text screen loses sync.	نوارهای پارهٔ خط و جدایی RGB. در حالت متن خانه‌ها را هم خراب می‌کند: ردیف‌های کامل روی یک حرف تکراری قفل می‌شوند، مانند صفحهٔ متنی واقعی که همگامی را گم کرده.
+Still holds the frame you are on. Flipbook plays the frames in turn. Replay draws the first frame stroke by stroke, the way it was drawn, then holds and starts again	Still فریمی را که رویش هستی نگه می‌دارد. Flipbook فریم‌ها را به نوبت پخش می‌کند. Replay فریم نخست را ضربه‌به‌ضربه همان‌گونه که کشیده شد می‌کشد، سپس نگه می‌دارد و از نو آغاز می‌کند
+Start, Stop, Pause, Resume, Load (stand it by without firing), Arm, Disarm, or Devamp it (a loop plays out its pass and ends); or Stop all, Pause all, Resume all: every deck	Start، Stop، Pause، Resume، Load (آماده بی‌اجرا)، Arm، Disarm یا Devamp (حلقه دورش را تمام می‌کند و پایان می‌یابد)؛ یا Stop all، Pause all، Resume all: هر دک
+Scope shows shape and clipping. Lissajous shows phase and polarity between the first two channels -- a diagonal the wrong way means one is inverted. Spectrum is third-octave bars.	Scope شکل و بریدگی را نشان می‌دهد. Lissajous فاز و قطبیت میان دو کانال نخست را نشان می‌دهد: قطری به سوی نادرست یعنی یکی وارونه است. Spectrum نوارهای یک‌سوم اکتاو است.
+0 picks the glyph the brightness asks for, 1 picks any glyph in the set. Turn it up to see the whole alphabet: ranked strictly by ink, a flat area picks one mark and the rest never appear.	۰ نمادی را که روشنایی می‌خواهد برمی‌گزیند، ۱ هر نمادی از مجموعه. بالا ببر تا الفبای کامل را ببینی: با رتبه‌بندی سخت بر پایهٔ جوهر، ناحیهٔ تخت یک نشانه را برمی‌گزیند و بقیه هرگز پیدا نمی‌شوند.
+Blocks and dithers read as density; the ASCII ramp reads as text; symbols read as wreckage. Cycling this clears a custom glyph string, since that would override it -- the preset row puts one back.	بلوک‌ها و دیتر چگالی خوانده می‌شوند؛ شیب ASCII متن؛ نمادها آوار. گرداندن این، رشتهٔ نماد سفارشی را پاک می‌کند چون آن را کنار می‌زد؛ ردیف پیش‌تنظیم یکی را بازمی‌گرداند.
+Equal temperament buys free modulation at the cost of every interval being slightly wrong. Just and pythagorean are exactly in tune in one key. Bohlen-Pierce divides a twelfth, so it has no octaves.	کوک برابر مدولاسیون آزاد را می‌خرد به بهای آنکه هر فاصله کمی نادرست باشد. کوک طبیعی و فیثاغورسی در یک گام کاملاً کوک‌اند. Bohlen-Pierce یک دوازدهم را تقسیم می‌کند، پس اکتاو ندارد.
+OSC	OSC
+RTMPS	RTMPS
+Twitch	Twitch
+Art-Net	Art-Net
+YouTube	YouTube
+PQ - HDR10	PQ - HDR10
+sACN (E1.31)	sACN (E1.31)
+Syphon / Spout	Syphon / Spout
+NDI® NETWORK	NDI® NETWORK
+AMWA NMOS  IS-04 / IS-05	AMWA NMOS  IS-04 / IS-05

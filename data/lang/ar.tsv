@@ -2010,3 +2010,200 @@ Run the clock	تشغيل الساعة
 What fires this cue besides GO	ما يشغّل cue بجانب GO
 center	الوسط
 visual	مرئيات
+Cue	كيو
+JAM	مزامنة
+MIX	مزج
+CLIP	مقطع
+TEXT	نص
+KEY L	KEY ي
+MULTI	متعدد
+WACKY	جنون
+COLOUR	لون
+DARKEN	تغميق
+STEREO	ستيريو
+COMPARE	مقارنة
+LIGHTEN	تفتيح
+DASHBOARD	لوحة التحكم
+25 fps (PAL/EBU)	25 إطارًا/ث (PAL/EBU)
+29.97 fps (NTSC)	29.97 إطارًا/ث (NTSC)
+Pocket Test (day)	اختبار Pocket (نهار)
+Dark Detail (0-12%)	تفاصيل الظلال (0-12%)
+Frame Count (emoji)	عدّاد الإطارات (إيموجي)
+PLUGE (black level)	PLUGE (مستوى الأسود)
+Pocket Test (night)	اختبار Pocket (ليل)
+Pocket Test (storm)	اختبار Pocket (عاصفة)
+Marks stacked BELOW.	علامات مكدّسة في الأسفل.
+Panel Map (animated)	خريطة الألواح (متحركة)
+Pocket Test (sunset)	اختبار Pocket (غروب)
+Boresight (alignment)	التسديد (المحاذاة)
+SMPTE 75% Colour Bars	أشرطة ألوان SMPTE 75%
+(projector curve only)	(منحنى جهاز العرض فقط)
+Multiburst (bandwidth)	Multiburst (عرض النطاق)
+Convergence (fine grid)	التقارب (شبكة دقيقة)
+Greyscale Steps (gamma)	درجات الرمادي (غاما)
+Uniformity (flat fields)	التجانس (حقول مسطّحة)
+MULTIVIEW carries this too.	MULTIVIEW يحمل هذا أيضًا.
+Test Clock (sync + latency)	ساعة الاختبار (مزامنة + تأخير)
+auto (reads the common two)	تلقائي (يقرأ الاثنين الشائعين)
+Panel Map (LED tile numbers)	خريطة الألواح (أرقام ألواح LED)
+Portal (blobs of deep space)	بوابة (فقاعات من الفضاء السحيق)
+Terrarium (living ecosystem)	Terrarium (نظام بيئي حي)
+Window 10% (peak brightness)	نافذة 10% (ذروة السطوع)
+Window 50% (peak at mid APL)	نافذة 50% (ذروة عند APL متوسط)
+Frame Count (drops + latency)	عدّاد الإطارات (المفقود + التأخير)
+Terrarium Pico (1px per cell)	Terrarium Pico (بكسل واحد لكل خلية)
+Banding Ramps (real bit depth)	تدرجات التحزّم (عمق البت الحقيقي)
+Fireside (a hearth that burns)	موقد (نار تشتعل)
+HLG - live broadcast (BT.2100)	HLG - بث مباشر (BT.2100)
+Test Bars (motion diagnostics)	أشرطة اختبار (تشخيص الحركة)
+Moire 1:1 (is anything scaling?)	Moiré 1:1 (هل يغيّر شيء الحجم؟)
+Pocket Test (test card + scene cycle)	اختبار Pocket (بطاقة اختبار + دورة مشاهد)
+Critters (pixel-exact scaling, animated)	Critters (تحجيم دقيق بالبكسل، متحرك)
+headphones, desk sounds and LTC stay out of it	السماعات وأصوات الطاولة وLTC تبقى خارجه
+Above 1 tunnels inward, below 1 blooms outward.	فوق 1 يُسحب النفق إلى الداخل، وتحت 1 يتفتح إلى الخارج.
+Read everything right to left. Yes, everything.	اقرأ كل شيء من اليمين إلى اليسار. نعم، كل شيء.
+Amber is closest to the 1976 single-phosphor look.	الكهرماني هو الأقرب إلى مظهر الفوسفور الواحد لعام 1976.
+Greetings, primitive. Your "slideshow" amuses us.	تحياتنا أيها البدائي. «عرض الشرائح» خاصتك يسلّينا.
+Sway sideways. Depth 1 is half the frame either way	تمايل جانبي. العمق 1 نصف إطار في كل اتجاه
+Draw the diagnostic over the card, or just the text.	ارسم التشخيص فوق البطاقة، أو النص فقط.
+All interfaces, but only this computer is trusted yet.	كل الواجهات، لكن هذا الحاسوب وحده موثوق حتى الآن.
+Choose the legacy cue token to show inside the PIP window	اختر رمز الكيو القديم الذي يظهر في نافذة PIP
+ASIO carries the show's sound, and these are not on it yet	ASIO يحمل صوت العرض، وهذه ليست عليه بعد
+N=new  Enter/P=previous  O=open saved  E=examples  L=learn	N=جديد  Enter/P=السابق  O=فتح محفوظ  E=أمثلة  L=تعلّم
+Hand this parameter to an oscillator so it moves on its own	سلّم هذه المعلمة إلى مذبذب لتتحرك وحدها
+How long the finished drawing stays before it is drawn again	كم يبقى الرسم المكتمل قبل أن يُرسم من جديد
+How it comes on and goes off: none, fade, rise, slide or wipe	كيف يدخل ويخرج: بلا، تلاشٍ، صعود، انزلاق أو مسح
+The 64-step wavetable, quantised to 6 bits like the hardware.	جدول الموجة ذو 64 خطوة، مكمّم إلى 6 بت مثل العتاد.
+Vary tile size per cell, so the grid stops looking like a grid.	غيّر حجم البلاطة في كل خلية، كي تكفّ الشبكة عن الظهور كشبكة.
+Which output channel carries the signal. 'all' feeds every one.	أي قناة خرج تحمل الإشارة. 'all' تغذّيها كلها.
+What is sent. Backslash-n, -r, -t and -0 become those characters	ما يُرسل. الشرطة المائلة العكسية مع n وr وt و0 تصبح تلك المحارف
+Deckboy's own remote-protocol verbs, one per line; # is a comment	أفعال بروتوكول Deckboy الخاصة، واحد في كل سطر؛ # تعليق
+Modulator speed as a ratio of the note, so the bend tracks pitch.	سرعة المعدِّل كنسبة من النغمة، فيتبع الانحناء طبقة الصوت.
+Play this cue to the preview only; the outputs keep what they have	شغّل هذا الكيو في المعاينة فقط؛ تبقي المخارج ما لديها
+Put the pitch on an oscillator: Motion X sweeps it like a theremin	ضع طبقة الصوت على مذبذب: Motion X يمسحها مثل الثيرمين
+A disarmed cue stays in the list and does nothing; GO steps over it	الكيو المنزوع التسليح يبقى في القائمة ولا يفعل شيئًا؛ يتخطاه GO
+Where the clock reads from this cue on; click the value to type one	من أين تقرأ الساعة بدءًا من هذا الكيو؛ انقر القيمة لكتابتها
+Add a dashboard button that fires this master by name, from anywhere	أضف إلى لوحة التحكم زرًا يطلق هذا الماستر باسمه من أي مكان
+New here? LEARN THE BASICS takes five minutes. We'll show you round.	جديد هنا؟ تعلّم الأساسيات يستغرق خمس دقائق. سنريك المكان.
+An IPv4 address, or 255.255.255.255 to broadcast to the whole network	عنوان IPv4، أو 255.255.255.255 للبث إلى الشبكة كلها
+How much playing audio widens and brightens the pattern. 0 free-runs.	كم يوسّع الصوت المشغَّل النقش ويفتّحه. 0 يجري حرًّا.
+LED panel width in pixels - what one tile really is. Click to type it	عرض لوح LED بالبكسل: حجم البلاطة الواحدة حقًا. انقر لكتابته
+Which deck it acts on; step off the end for the one this cue lives on	على أي دك يعمل؛ تجاوز النهاية لدك هذا الكيو
+only one playlist - use the routing chip on the header to add another	قائمة تشغيل واحدة فقط: شريحة التوجيه في الترويسة تضيف أخرى
+Which cue this master fires on that deck; step off the end to clear it	أي كيو يطلقه هذا الماستر على ذلك الدك؛ تجاوز النهاية لمسحه
+Draw on the programme monitor with the mouse or a pen (DRAW). Esc stops	ارسم على شاشة البرنامج بالفأرة أو بالقلم (DRAW). Esc يوقف
+How long the move takes, each way. 0 is instant whatever the style says	كم تستغرق الحركة في كل اتجاه. 0 فوري مهما قال النمط
+Stop that deck when the ramp lands - the usual take-it-down-and-stop-it	أوقف ذلك الدك عندما يصل المنحدر: الخفض ثم الإيقاف المعتاد
+Which of the file's sound tracks plays: a second language, a commentary	أي مسار صوتي في الملف يُشغَّل: لغة ثانية، تعليق
+An oscillator on the colour: depth is how far round the wheel it travels	مذبذب على اللون: العمق هو مدى دورانه على العجلة
+Rack this cue paused and off air so GO starts it with no decoder spin-up	جهّز هذا الكيو متوقفًا وخارج البث، كي يبدأه GO دون تأخير المفكّك
+Note, control change, program change, MIDI Show Control, or your own bytes	نغمة أو control change أو program change أو MIDI Show Control أو بايتاتك الخاصة
+Black behind the words. Zero leaves it over whatever the output already has	أسود خلف الكلمات. الصفر يتركها فوق ما في الخرج أصلًا
+How far the modulator bends the pitch. 0-63, the hardware's own gain range.	كم يحني المعدِّل طبقة الصوت. 0-63، مدى الكسب الخاص بالعتاد.
+the words this cue puts on screen  |  Shift+Enter: new line  |  Enter: apply	الكلمات التي يضعها هذا الكيو على الشاشة  |  Shift+Enter: سطر جديد  |  Enter: تطبيق
+OSC and UDP are fire and forget; TCP connects, so it runs off the show thread	OSC وUDP يُرسلان ويُنسيان؛ TCP يتصل، لذا يعمل خارج خيط العرض
+Put the level on an oscillator: Motion makes it a gate that opens as you move	ضع المستوى على مذبذب: Motion يجعله بوابة تنفتح حين تتحرك
+Marks stacked ABOVE the characters, the way combining accents overflow a line.	علامات مكدّسة فوق الحروف، مثل علامات التشكيل المركّبة التي تفيض عن السطر.
+Which chime. Cycling PLAYS it, so it can be chosen by ear rather than by name.	أي جرس. التبديل يُسمعه، فتختار بالأذن لا بالاسم.
+No rows. + ADD or LEARN makes one; MIDIMAP RESET brings the built-in rows back.	لا صفوف. + إضافة أو تعلّم يصنع واحدًا؛ MIDIMAP RESET يعيد الصفوف المدمجة.
+Save the mask's paths as SVG, for Illustrator and anything else that reads them	احفظ مسارات القناع بصيغة SVG، لـ Illustrator وكل ما يقرؤها
+Which MIDI output; a named port that is missing is reported rather than swapped	أي خرج MIDI؛ المنفذ المسمّى المفقود يُبلَّغ عنه ولا يُستبدل
+An oscillator on the level, running after GO until a later cue sets this fixture	مذبذب على المستوى، يعمل بعد GO حتى يضبط كيو لاحق هذا الضوء
+Steps in third-octaves, because the ear works in ratios. 1kHz is the convention.	خطوات بأثلاث الأوكتاف، لأن الأذن تعمل بالنسب. 1 كيلوهرتز هو العرف.
+Strikes drawn ACROSS the cell, damaging the character rather than decorating it.	ضربات عبر الخلية، تُتلف الحرف بدل أن تزيّنه.
+Whether incoming MIDI notes play this synth or trigger cues as they always have.	هل تعزف نغمات MIDI الواردة هذا المركِّب أم تطلق الكيو كما اعتادت.
+A note number, or type LEARN and play it. Notes no cue claims still go to cue N+1	رقم نغمة، أو اكتب LEARN واعزفها. النغمات التي لا يأخذها أي كيو تذهب إلى الكيو N+1
+A plain stereo pair. Click to open the matrix, starting from exactly this routing	زوج ستيريو بسيط. انقر لفتح المصفوفة بدءًا من هذا التوجيه تمامًا
+Folding is what turns an arbitrary pattern into something that reads as designed.	الطيّ يحوّل أي نقش اعتباطي إلى شيء يبدو مصمَّمًا.
+Channel=level, comma separated. Ranges too: 1=255, 10-14=64. Channels count from 1	قناة=مستوى، مفصولة بفواصل. والنطاقات أيضًا: 1=255، 10-14=64. تُعدّ القنوات من 1
+Moves every selected cue's trim by the same dB; typing a value sets them all to it	يحرّك تعديل كل كيو محدَّد بالديسيبلات نفسها؛ كتابة قيمة تضبطها كلها عليها
+Bends the carrier's PITCH rather than mixing with it. This is what makes FDS growl.	يحني طبقة الموجة الحاملة بدل أن يمتزج بها. هذا ما يجعل FDS يزمجر.
+Half way through LEARN THE BASICS. Press L and we pick up where you stopped, skapi.	في منتصف تعلّم الأساسيات. اضغط L ونكمل من حيث توقفت، skapi.
+Render as a character grid with a 16-colour indexed palette, rather than as pixels.	ارسم كشبكة حروف بلوحة ألوان مفهرسة من 16 لونًا، بدل البكسلات.
+Which MIDI output this file plays to; step past the end for the first one available	إلى أي خرج MIDI يعزف هذا الملف؛ تجاوز النهاية لأول متاح
+An IPv4 address, or 255.255.255.255 for the universe's multicast group (239.255.x.y)	عنوان IPv4، أو 255.255.255.255 لمجموعة البث المتعدد للكون (239.255.x.y)
+Click a cell to walk it: off, full, -3, -6, -12. This row turns the matrix off again	انقر خلية للتنقل بين قيمها: إيقاف، كامل، -3، -6، -12. هذا الصف يطفئ المصفوفة مجددًا
+How long each phrase stays before it moves. Zero hides them without losing the list.	كم تبقى كل عبارة قبل أن تتحرك. الصفر يخفيها دون فقد القائمة.
+How long it takes to fall away after the attack. Only audible when retrigger is set.	كم يستغرق الخفوت بعد الهجوم. يُسمع فقط حين يكون إعادة القدح مفعّلًا.
+Off, from start (next cue fires when this one starts) or from end (when it finishes)	إيقاف، من البداية (يبدأ الكيو التالي حين يبدأ هذا) أو من النهاية (حين ينتهي)
+Height of one line as a percent of the raster, so a card reads the same on any screen	ارتفاع السطر كنسبة من المسح، كي تُقرأ البطاقة بالشكل نفسه على أي شاشة
+Set slot source as media:/path, browser:url, window:name, camera:name, or syphon:name	حدّد مصدر الخانة: media:/المسار أو browser:url أو window:الاسم أو camera:الاسم أو syphon:الاسم
+Short LFSR mode. The period is brief enough to read as pitched metal rather than hiss.	وضع LFSR القصير. الدورة قصيرة بما يكفي لتبدو معدنًا مضبوطًا لا هسيسًا.
+White, warm, red, amber, green, cyan, blue, magenta. ~ moves it round the colour wheel	أبيض، دافئ، أحمر، كهرماني، أخضر، سماوي، أزرق، أرجواني. ~ يديره على عجلة الألوان
+Re-strike the envelope this often. Hold sustains one note, which is what a drone wants.	أعد قدح الغلاف بهذا التواتر. Hold يُبقي نغمة واحدة، وهذا ما يريده الطنين.
+Diamond is the hard-edged Atari Video Music lattice; rings tunnel well with feedback zoom.	Diamond هي شبكة Atari Video Music الحادة الحواف؛ الحلقات تصنع نفقًا جيدًا مع تقريب التغذية الراجعة.
+Rock or spin. Depth 1 is half a turn either way; a saw at depth 1 turns it all the way round	تأرجح أو دوران. العمق 1 نصف دورة في كل اتجاه؛ المنشار عند 1 يدور دورة كاملة
+DECK playback level (live, not saved with the cue) - per-cue trim is gain in the AUDIO section	مستوى تشغيل الدك (مباشر، لا يُحفظ مع الكيو) - تعديل كل كيو هو الكسب في قسم الصوت
+Still, fade in, typewriter, scroll up, crawl or pulse -- all driven by the cue's own transport	ثابت، ظهور تدريجي، آلة كاتبة، تمرير لأعلى، شريط متحرك أو نبض، وكلها يقودها نقل الكيو نفسه
+Fields per rendered frame. 1 is one for one, 0.5 holds each field for two frames, 0 freezes it.	حقول لكل إطار مُصيَّر. 1 واحد لواحد، 0.5 يُبقي كل حقل إطارين، 0 يجمّده.
+What this cue shows while it plays: waveform, scope, Lissajous, spectrum, meters or a name card	ما يعرضه هذا الكيو أثناء تشغيله: شكل الموجة، راسم، ليساجو، طيف، عدّادات أو بطاقة اسم
+0 picks tiles by brightness so the picture reads. 1 picks at random so the grid becomes texture.	0 يختار البلاطات حسب السطوع لتُقرأ الصورة. 1 يختارها عشوائيًا فتصير الشبكة ملمسًا.
+How far it travels, in semitones. Up reads as arrival, down as departure, zero is a struck note.	كم يرتحل، بأنصاف النغمات. للأعلى يبدو وصولًا، للأسفل رحيلًا، والصفر نغمة مضروبة.
+An IPv4 address. Names are not resolved: a DNS lookup is a blocking call and GO must not make one	عنوان IPv4. لا تُحلّ الأسماء: استعلام DNS نداء حاجب ولا يجوز لـ GO إجراؤه
+Tile width in pixels. Must match the sheet's grid or the slices land across neighbouring sprites.	عرض البلاطة بالبكسل. يجب أن يطابق شبكة الورقة وإلا وقعت الشرائح عبر العفاريت المجاورة.
+Alternating mirrors by cell position, which reads as pattern where random flipping reads as noise.	مرايا متناوبة حسب موضع الخلية، تُقرأ نقشًا حيث يُقرأ القلب العشوائي ضجيجًا.
+0 welds them to their cell, which reads as engraved. Above it they re-roll, which reads as boiling.	0 يلحمها بخليتها كأنها منقوشة. فوق ذلك يُعاد سحبها كأنها تغلي.
+MONO L plays the left input in both speakers: mic 1 on most interfaces. STEREO is for a line source.	MONO L يشغّل الدخل الأيسر في السمّاعتين: الميكروفون 1 في معظم الواجهات. STEREO لمصدر خطّي.
+The whole gesture. This IS the cue's duration -- a sting is the one generated signal here that ends.	الإيماءة كلها. هذه هي مدة الكيو: اللحن القصير هو الإشارة المولّدة الوحيدة هنا التي تنتهي.
+Click the value to send this fixture or leave it where the last cue put it. ~ makes the level breathe	انقر القيمة لإرسال هذا الضوء أو تركه حيث وضعه آخر كيو. ~ يجعل المستوى يتنفّس
+FDS is a wavetable bent by a modulator. 2A03 is the pulse/triangle/noise set most chiptune is made of.	FDS جدول موجة يحنيه معدِّل. 2A03 هي مجموعة النبضة/المثلث/الضجيج التي صُنع منها معظم الـ chiptune.
+Scramble which glyph means which brightness. Same set, different handwriting. Seeded, so it stays put.	اخلط أي رمز يعني أي سطوع. المجموعة نفسها بخطّ مختلف. ببذرة، لذا يبقى ثابتًا.
+Pixel sort: runs of pixels sorted by brightness within a row, which is what makes datamosh look melted.	فرز البكسلات: سلاسل بكسلات مرتبة حسب السطوع داخل الصف، وهذا ما يعطي الداتاموش مظهره الذائب.
+How many cells the marks may climb. They thin out as they go, so a tall reach trails rather than doubles.	كم خلية يمكن للعلامات أن تصعد. تخفّ أثناء صعودها، فيترك المدى الطويل أثرًا بدل أن يتضاعف.
+cue act val  -  G take  S stop  F fade out (val = tenths of a second)  V volume  O opacity  J jump to row	كيو فعل قيمة  -  G أخذ  S إيقاف  F تلاشٍ للخروج (القيمة = أعشار الثانية)  V الصوت  O العتامة  J انتقال إلى صف
+Harmonic weight: a pure chime at zero, brass at full. This is the difference between a ping and a fanfare.	وزن التوافقيات: جرس صافٍ عند الصفر، نحاسيات عند الأقصى. هذا هو الفرق بين رنين وفانفار.
+Steps through the inputs this computer has. 'Settings input' follows the input chosen in Settings > Audio.	يتنقل بين مداخل هذا الحاسوب. 'Settings input' يتبع الدخل المختار في الإعدادات > الصوت.
+Embers to roaring. It still surges and settles at any setting -- a fire that does not move reads as a photo	من الجمر إلى اللهيب. يظل يتصاعد ويهدأ عند أي إعداد: النار التي لا تتحرك تبدو صورة
+Reference pitch. 440 is modern standard, 432 the common alternative, and older instruments sat lower still.	طبقة المرجع. 440 المعيار الحديث، و432 البديل الشائع، والآلات الأقدم كانت أخفض بعد.
+Where the sting starts. Under a voice it wants to stay out of the way; over a room it wants to cut through.	أين يبدأ اللحن القصير. تحت صوت ما عليه أن يبتعد؛ فوق قاعة عليه أن يخترق.
+Digital gain on the input, -40 to +40 dB. Set the interface's own preamp first; this is for the last few dB.	كسب رقمي على الدخل، من -40 إلى +40 ديسيبل. اضبط أولًا مضخم الواجهة؛ هذا للديسيبلات الأخيرة.
+Pulse the size. On its own this moves width AND height together; give height its own ~ to squash and stretch	انبض بالحجم. وحده يحرّك العرض والارتفاع معًا؛ أعطِ الارتفاع ~ خاصًا ليُسحق ويُمطّ
+A card fills the frame; a Lower Third is a name and a role, low on a transparent frame, with an in and an out	البطاقة تملأ الإطار؛ الشريط السفلي اسم ودور في أسفل إطار شفاف، بدخول وخروج
+Held keeps the last displacement rather than removing it -- the picture stays bent the way the driver left it.	Held يُبقي آخر إزاحة بدل إزالتها: تبقى الصورة منحنية كما تركها المشغّل.
+12.5 and 25 are thin and reedy, 50 is hollow. 75 sounds identical to 25 -- it is here because trackers expose it.	12.5 و25 رفيعان وأنفيان، و50 أجوف. 75 يبدو مثل 25 تمامًا: موجود لأن متتبّعات الموسيقى تعرضه.
+Quantise the output like the hardware. The steps ARE the sound; smoothing them makes it a synth imitating a chip.	كمّم الخرج مثل العتاد. الدرجات هي الصوت؛ تنعيمها يجعله مركِّبًا يقلّد شريحة.
+Moves every selected cue's trim by the same dB, keeping the differences between them; typing a value sets them all to it	يحرّك تعديل كل كيو محدَّد بالديسيبلات نفسها مع الحفاظ على الفروق؛ كتابة قيمة تضبطها كلها عليها
+Where the playlist's crosspoints send it (Settings > Audio). Click to open the matrix by name, starting from exactly that	إلى أين ترسله نقاط تقاطع قائمة التشغيل (الإعدادات > الصوت). انقر لفتح المصفوفة بالاسم بدءًا من ذلك التوجيه تمامًا
+name values with  d = ...;  end with one expression, or three for red green blue  |  Shift+Enter: new line  |  Enter: apply	سمِّ القيم بـ  d = ...;  واختم بتعبير واحد، أو ثلاثة للأحمر والأخضر والأزرق  |  Shift+Enter: سطر جديد  |  Enter: تطبيق
+Put back what it started from once the ramp lands (after the stop): a deck left ready for its next cue, a swell that lets go	أعد ما بدأ منه عند وصول المنحدر (بعد الإيقاف): دك جاهز لكيوه التالي، تصاعد يُفلت
+Which speech model makes the captions: English, any language, or the slower, more accurate pair. Each is a one-time download	أي نموذج كلام يصنع الترجمة: الإنجليزية، أي لغة، أو الزوج الأبطأ والأدق. كلٌّ يُنزَّل مرة واحدة
+What the mask cuts: this cue wherever it plays, this playlist on the focused output, that output's whole picture, or its matte	ما يقصّه القناع: هذا الكيو أينما شُغّل، قائمة التشغيل هذه على الخرج المحدد، صورة ذلك الخرج كلها، أو طبقته المعتمة
+Play at the screen's rate when it is within 0.2% (59.94 on 60): every frame shown once, the sound up to 3.5 cents sharp or flat	شغّل بتردد الشاشة حين يكون ضمن 0.2% (59.94 على 60): كل إطار مرة واحدة، والصوت حتى 3.5 سنت أعلى أو أخفض
+Quarter turns are exact and stay crisp. Spinning samples at an angle, which tears pixel art -- sometimes that is what you want.	أرباع الدورة دقيقة وتبقى حادة. الدوران يأخذ العينات بزاوية فيمزّق فن البكسل: وأحيانًا هذا ما تريده.
+Every take starts the puppetry the same way, so a rehearsed look repeats instead of depending on how long the app has been open.	كل أخذ يبدأ تحريك الدمى بالطريقة نفسها، فيتكرر المظهر المتمرَّن عليه بدل أن يعتمد على مدة فتح التطبيق.
+What aims each tilt: its own position, the picture's luma gradient so characters lean the way the image does, or the cell's hue.	ما يوجّه كل ميل: موضعه نفسه، أو تدرّج سطوع الصورة كي تميل الحروف كما تميل الصورة، أو صبغة الخلية.
+Name a channel or a pair once. Playlists send to the name, so a different interface means changing the names here, not every cue.	سمِّ قناة أو زوجًا مرة واحدة. قوائم التشغيل ترسل إلى الاسم، فتغيير الواجهة يعني تغيير الأسماء هنا لا كل كيو.
+Click a crosspoint to walk it: off, 0, -3, -6, -12 dB. Drag it sideways for any level. A playlist with none plays to its own device.	انقر نقطة تقاطع للتنقل: إيقاف، 0، -3، -6، -12 ديسيبل. اسحبها جانبًا لأي مستوى. قائمة تشغيل بلا نقاط تعزف على جهازها الخاص.
+Sprite sets installed in data/sprites. Each folder there is a set; cycling picks one and wraps back to none. Right-click turns them off.	مجموعات عفاريت مثبتة في data/sprites. كل مجلد مجموعة؛ التبديل يختار واحدة ويعود إلى لا شيء. النقر الأيمن يطفئها.
+Internal resolution, 1 chunkiest to 5 finest. This is an aesthetic control as much as a speed one -- the 8-bit look comes from big pixels.	الدقة الداخلية، من 1 الأخشن إلى 5 الأنعم. هذا تحكم جمالي بقدر ما هو تحكم بالسرعة: مظهر 8 بت يأتي من البكسلات الكبيرة.
+Picture takes colour from the image. Green, amber and cyan are terminal phosphors. Palette locks the text to the selected hardware palette.	Picture يأخذ اللون من الصورة. الأخضر والكهرماني والسماوي فوسفورات طرفيات. Palette يقفل النص على لوحة العتاد المختارة.
+SUBTLE self-heals (H.264). CLASSIC is the real smear (MPEG-4). EXTREME is chunkier and smears constantly. Changing this re-prepares the cue.	SUBTLE يشفى ذاتيًا (H.264). CLASSIC هو اللطخ الحقيقي (MPEG-4). EXTREME أخشن ويلطخ باستمرار. تغيير هذا يعيد تحضير الكيو.
+Sine for line-up, pink to ring out a PA, white to find rattles, sweep to hear where a room rings, identify to walk the outputs one at a time.	جيب للمحاذاة، وردي لضبط نظام الصوت، أبيض لإيجاد الطقطقات، مسح لسماع أين ترنّ القاعة، identify للمرور على المخارج واحدًا تلو الآخر.
+Which effect, by its place in the stack of the cue that deck is playing when this fires. With nothing there, the fade says so and does nothing	أي مؤثر، بموضعه في كومة الكيو الذي يشغّله ذلك الدك عند الإطلاق. إن لم يكن هناك شيء، يقول التلاشي ذلك ولا يفعل شيئًا
+Each frame blended into the next. This is the Hypno signature -- at 0 it is a pattern generator, above it the picture starts feeding on itself.	كل إطار يُمزج في التالي. هذا توقيع Hypno: عند 0 هو مولّد نقوش، وفوقه تبدأ الصورة تتغذى على نفسها.
+What is through the window on the hearth wall: a garden, rain, snow or the sea. A room with weather outside reads as somewhere rather than as a wall	ما يُرى من النافذة في جدار الموقد: حديقة، مطر، ثلج أو البحر. غرفة في خارجها طقس تُقرأ مكانًا لا جدارًا
+BY FIXTURE: the lights in the patch (Settings > Network > FIXTURES), by name. CHANNELS: channel=level by hand. A cue can carry both; channels go last	حسب الضوء: الأضواء في الباتش (الإعدادات > الشبكة > الأضواء)، بالاسم. القنوات: قناة=مستوى يدويًا. يمكن للكيو حمل الاثنين؛ القنوات تأتي أخيرًا
+Each character rocks as though it were a card being tilted. Every cell has its own phase, so the grid breathes instead of sliding about as one sheet.	كل حرف يتأرجح كبطاقة تُمال. لكل خلية طورها، فتتنفس الشبكة بدل أن تنزلق كصفيحة واحدة.
+Pen: click for corners, drag for curves, click the first point to close (P). Points: drag, click the outline to add one, Alt-click or Delete to remove	القلم: انقر للزوايا، اسحب للمنحنيات، انقر النقطة الأولى للإغلاق (P). النقاط: اسحب، انقر المحيط للإضافة، Alt-نقر أو Delete للحذف
+The chip's three channels. They differ in kind: triangle has no volume control on the hardware, and noise is a shift register rather than an oscillator.	قنوات الشريحة الثلاث. تختلف نوعًا: المثلث بلا تحكم بالصوت في العتاد، والضجيج سجل إزاحة لا مذبذب.
+Curated sets of symbols and emoji -- stars, notes, flowers, arrows, weather, runes, faces. Picking one fills the custom glyphs below, which stays editable.	مجموعات منتقاة من الرموز والإيموجي: نجوم، نوتات، زهور، أسهم، طقس، رونات، وجوه. اختيار واحدة يملأ الرموز المخصصة أدناه، وتبقى قابلة للتحرير.
+Play from the computer keyboard, Ableton layout: A W S E D F T G Y H U J, Z and X for octave. While this is ON those keys make notes instead of firing cues.	اعزف من لوحة مفاتيح الحاسوب، تخطيط Ableton: A W S E D F T G Y H U J، وZ وX للأوكتاف. ما دام هذا مفعّلًا تعزف تلك المفاتيح نغمات بدل إطلاق الكيو.
+Deck opacity, deck volume, the master dimmer, the active cue's own brightness / contrast / saturation / hue, or a knob of one of its effects or audio effects	عتامة الدك، صوت الدك، المخفّت الرئيسي، سطوع / تباين / تشبّع / صبغة الكيو النشط، أو مقبض أحد مؤثراته أو مؤثراته الصوتية
+Scanlines, phosphor bloom and RGB fringing. The bloom is the part that matters -- a phosphor spills sideways, which is why a CRT looks like it is emitting light.	خطوط المسح وتوهج الفوسفور وحواف RGB. التوهج هو المهم: الفوسفور ينسكب جانبًا، ولهذا تبدو شاشة CRT وكأنها تبعث الضوء.
+Torn scanline bands and RGB separation. In text mode it also corrupts CELLS -- whole rows lock to one repeating character, the way a real text screen loses sync.	أشرطة خطوط ممزقة وفصل RGB. في وضع النص يفسد الخلايا أيضًا: صفوف كاملة تتجمد على حرف واحد مكرر، مثل شاشة نصية حقيقية فقدت التزامن.
+Still holds the frame you are on. Flipbook plays the frames in turn. Replay draws the first frame stroke by stroke, the way it was drawn, then holds and starts again	Still يُبقي الإطار الذي أنت عليه. Flipbook يشغّل الإطارات بالتناوب. Replay يرسم الإطار الأول ضربة ضربة كما رُسم، ثم يثبت ويبدأ من جديد
+Start, Stop, Pause, Resume, Load (stand it by without firing), Arm, Disarm, or Devamp it (a loop plays out its pass and ends); or Stop all, Pause all, Resume all: every deck	Start وStop وPause وResume وLoad (تجهيز دون إطلاق) وArm وDisarm أو Devamp (الحلقة تكمل دورتها وتنتهي)؛ أو Stop all وPause all وResume all: كل دك
+Scope shows shape and clipping. Lissajous shows phase and polarity between the first two channels -- a diagonal the wrong way means one is inverted. Spectrum is third-octave bars.	Scope يُظهر الشكل والقص. Lissajous يُظهر الطور والقطبية بين القناتين الأوليين: قطر في الاتجاه الخطأ يعني أن إحداهما معكوسة. Spectrum أشرطة بثلث أوكتاف.
+0 picks the glyph the brightness asks for, 1 picks any glyph in the set. Turn it up to see the whole alphabet: ranked strictly by ink, a flat area picks one mark and the rest never appear.	0 يختار الرمز الذي يطلبه السطوع، و1 أي رمز في المجموعة. ارفعه لترى الأبجدية كلها: مع الترتيب الصارم بالحبر تختار المساحة المسطحة علامة واحدة ولا يظهر الباقي أبدًا.
+Blocks and dithers read as density; the ASCII ramp reads as text; symbols read as wreckage. Cycling this clears a custom glyph string, since that would override it -- the preset row puts one back.	الكتل والتنقيط تُقرأ كثافة؛ ومنحدر ASCII نصًا؛ والرموز حطامًا. التبديل يمسح سلسلة الرموز المخصصة لأنها ستتجاوزه؛ صف الإعدادات المسبقة يعيد واحدة.
+Equal temperament buys free modulation at the cost of every interval being slightly wrong. Just and pythagorean are exactly in tune in one key. Bohlen-Pierce divides a twelfth, so it has no octaves.	الضبط المعدَّل بالتساوي يشتري التحويل الحر مقابل أن يكون كل مسافة خاطئًا قليلًا. الضبط الطبيعي والفيثاغوري دقيقان تمامًا في مقام واحد. Bohlen-Pierce يقسم الثانية عشرة، فلا أوكتافات فيه.
+OSC	OSC
+RTMPS	RTMPS
+Twitch	Twitch
+Art-Net	Art-Net
+YouTube	YouTube
+PQ - HDR10	PQ - HDR10
+sACN (E1.31)	sACN (E1.31)
+Syphon / Spout	Syphon / Spout
+NDI® NETWORK	NDI® NETWORK
+AMWA NMOS  IS-04 / IS-05	AMWA NMOS  IS-04 / IS-05
