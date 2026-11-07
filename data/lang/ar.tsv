@@ -1380,3 +1380,503 @@ out	خروج
 pan	توازن
 routing	التوجيه
 trim	قص
+0-63, the hardware's own gain range.	0-63، كسب الجهاز نفسه.
+1-16, as the desk counts them	1-16، كما تعدّها اللوحة
+7-segment, blocky, or a real font	7 مقاطع، مربّع أو خط حقيقي
+[ / ] keys — fade-in duration	مفتاحا [ / ]: مدة الظهور
+a camera moves the ~ controls	كاميرا تحرّك أدوات التحكم ~
+a chain on a device, after the mix	سلسلة على جهاز، بعد المزج
+a comment	تعليق
+Act now, without taking the cue	نفّذ الآن دون أخذ الكيو
+Add a light	إضافة ضوء
+add a second output to pair	أضف خرجًا ثانيًا للإقران
+add shape	إضافة شكل
+all driven by the cue's own transport	الكل يقوده تشغيل الكيو
+All interfaces; trusted machines only.	كل الواجهات؛ الأجهزة الموثوقة فقط.
+all to 0	الكل على 0
+An audio effect's knob	مقبض مؤثر صوتي
+An effect's knob	مقبض مؤثر
+any channel	أي قناة
+any window, any screen	أي نافذة، أي شاشة
+arcade	أركيد
+Arm this cue as the one GO will fire	جهّز هذا الكيو لأمر GO التالي
+Art-Net port address, 0-32767	عنوان منفذ Art-Net، 0-32767
+Attached overlays fire on TAKE only	الطبقات المرتبطة تبدأ عند TAKE فقط
+BACK TO BUG SWAT	العودة إلى BUG SWAT
+backdrop	خلفية
+bar	شريط
+bg alpha	ألفا الخلفية
+black lift	رفع الأسود
+blend gamma	غاما المزج
+blueprint	مخطط أزرق
+boxes	مربعات
+bracket	أقواس
+bulletin	نشرة
+by density	حسب الكثافة
+BY FIXTURE	حسب الجهاز
+capsule	كبسولة
+caption	تعليق توضيحي
+card	بطاقة
+CARD OFF ALL	إيقاف بطاقة الكل
+CARD ON ALL	تشغيل بطاقة الكل
+cartridge	خرطوشة
+cassette	كاسيت
+Ceiling	سقف
+Chain	سلسلة
+Changing this re-prepares the cue.	تغييره يجهّز الكيو من جديد.
+channel list is not readable	تعذرت قراءة قائمة القنوات
+CHANNELS	القنوات
+channels on your interfaces, by name	قنوات واجهاتك، بالاسم
+Checkerboard	رقعة شطرنج
+chime amber	تحذير كهرماني
+chime red	تحذير أحمر
+chime zero	تحذير صفر
+Choose startup mode:	اختر وضع البدء:
+circle, heart, star...	دائرة، قلب، نجمة...
+circuit	دائرة كهربائية
+CLASSIC VIEW	العرض الكلاسيكي
+clear driver	مسح المحرّك
+Clear in/out trim points	مسح نقطتي الدخول والخروج
+CLEAR OVERLAY  [Backspace]	مسح الطبقة  [Backspace]
+Clear the active Lower Third overlay now	أزل الـ Lower Third الحي الآن
+Clear the live PIP overlay now	أزل طبقة PIP الآن
+CLICK ANYWHERE...	انقر في أي مكان...
+click or Esc to close	انقر أو Esc للإغلاق
+click this window	انقر هذه النافذة
+Click to edit cue notes	انقر لتحرير ملاحظات الكيو
+click to open the grid	انقر لفتح الشبكة
+Click to seek — drag to scrub	انقر للانتقال، اسحب للتمرير
+Click to type it	انقر للكتابة
+comic	قصة مصورة
+Companion passphrase	عبارة مرور Companion
+confetti	قصاصات ملونة
+Connections at once	الاتصالات المتزامنة
+count up	عدّ تصاعدي
+Countdown, count up, or wall clock	عدّ تنازلي أو تصاعدي أو ساعة
+credit	شارة النهاية
+crossfade	مازج انتقالي
+crosshair	شعيرات متقاطعة
+Crosshatch	تظليل متقاطع
+Cue has no audio	الكيو بلا صوت
+cue number	رقم الكيو
+Cycle end action for selected cues	غيّر إجراء النهاية للكيوهات المحددة
+Cycle which slot drives scene audio	غيّر الفتحة التي تعطي صوت المشهد
+dateline	سطر التاريخ
+deck	ديك
+decoder spin-up	بدء المفكك
+Default App Feed	مصدر التطبيق الافتراضي
+Default Camera	الكاميرا الافتراضية
+Delay before the continue fires	التأخير قبل المتابعة
+Delay between GO and this cue starting	التأخير بين GO وبدء الكيو
+depth 1 turns it all the way round	العمق 1 يعطي دورة كاملة
+Digit colour once amber is reached	لون الأرقام عند الكهرماني
+Digit colour while there is time in hand	لون الأرقام والوقت كافٍ
+diskette	قرص مرن
+Do it now, without taking the cue	افعلها الآن دون أخذ الكيو
+dossier	ملف
+dotmatrix	مصفوفة نقطية
+Double-GO guard	حماية GO المزدوج
+draw on the monitor	ارسم على الشاشة
+driver speed	سرعة المحرّك
+EDGE BLEND	مزج الحواف
+EDIT is on: typing changes the show	EDIT مفعّل: الكتابة تغيّر العرض
+edit on the monitor	حرّر على الشاشة
+Edit the main Lower Third title	حرّر عنوان Lower Third
+Edit the secondary Lower Third line	حرّر السطر الثاني من Lower Third
+eq band	نطاق EQ
+equalizer	معادل صوت
+Esc cancels	Esc يلغي
+Esc cancels, arrows nudge	Esc يلغي، الأسهم تحرّك
+Esc to close	Esc للإغلاق
+even grid	شبكة منتظمة
+EXAMPLE SHOWS	عرض تجريبي
+EXIT  Esc	خروج  Esc
+face	وجه
+factory settings	إعدادات المصنع
+Fade+LoadNext	تلاشٍ+تحميل التالي
+Fade+Pause	تلاشٍ+إيقاف مؤقت
+Fade+Rewind	تلاشٍ+إرجاع
+Fade-in duration	مدة الظهور
+Fade-in duration for this cue	ظهور هذا الكيو
+Fade-out duration	مدة التلاشي
+Fade-out duration before next cue	تلاشٍ قبل الكيو التالي
+Fade-out duration for this cue	تلاشي هذا الكيو
+Fall	الانخفاض
+false colour reads SDR pictures	الألوان الزائفة تقرأ صورة SDR
+fill the frame	املأ الإطار
+find a named colour	ابحث عن لون بالاسم
+fires cues	أطلق الكيوهات
+first available	أول فارغ
+Fit/Fill/Stretch/Unscaled	ملاءمة/ملء/تمديد/بلا تحجيم
+Fixed repeat count — 0 = infinite	عدد تكرار ثابت: 0 = بلا نهاية
+Fixed repeat count — 0 = loop forever	عدد تكرار ثابت: 0 = بلا توقف
+FIXED!	تم الإصلاح!
+flag	علم
+FORGET MY DEFAULTS	انسَ إعداداتي الافتراضية
+Frames a second	إطارات في الثانية
+from exactly this routing	مباشرة من هذا التوجيه
+Full Black	أسود كامل
+Full Blue	أزرق كامل
+Full Green	أخضر كامل
+Full Red	أحمر كامل
+Full White	أبيض كامل
+garden	حديقة
+Ghastly	شبحي
+glass	زجاج
+glitch down	خلل للأسفل
+glitch drift	انجراف الخلل
+glitch reach	مدى الخلل
+glitch through	خلل بالعرض
+glitch up	خلل للأعلى
+GO steps over it	GO يتخطاه
+hairline	خط رفيع
+Haptics	ارتعاش
+HDR input	دخل HDR
+Hex, e.g. 90 3C 7F	Hex، مثل 90 3C 7F
+HOLDING OFF AIR	إيقاف خارج البث
+Home — skip to start	Home: إلى البداية
+Horizontal output offset in pixels	إزاحة الخرج الأفقية بالبكسل
+How many features fit on screen.	كم يتسع في الشاشة.
+how much of this effect	مقدار هذا المؤثر
+How solid the ink is	تغطية الحبر
+How tall the logo is above the clock	ارتفاع الشعار فوق الساعة
+In-point: cue starts playback here	نقطة الدخول: يبدأ الكيو هنا
+index	فهرس
+initializing webview	بدء webview
+install Tailscale here and on the phone	ثبّت Tailscale هنا وعلى الهاتف
+INSTALLING...	جارٍ التثبيت...
+Its amount, or one of its knobs A to D	مقداره، أو مقبض من A إلى D
+J jump to row	J: انتقل إلى سطر
+jam to	مزامنة إلى
+Jump the driver back to its first frame	أعد المحرّك إلى الإطار الأول
+K — cycle cue color tag	K: غيّر لون الكيو
+Keep counting past zero, or stop dead	واصل العد بعد الصفر أو توقف
+key	مفتاح
+Key edge softness	نعومة حافة الكي
+knob	مقبض
+L - loop this cue continuously	L: كرّر هذا الكيو
+last reading	آخر قراءة
+Last refused	آخر مرفوض
+Learn it	تعلّم
+LEARN THE BASICS	تعلّم الأساسيات
+ledger	دفتر حسابات
+Left — skip back 10s	يسار: 10 ث للخلف
+Left, centre or right	يسار أو وسط أو يمين
+LESSONS	الدروس
+Levels	المستويات
+Limiter	محدّد
+Limiting	التحديد
+line  |  Enter: apply	سطر  |  Enter: تطبيق
+LINEAR - a feather, not a blend	خطي: تدرّج، وليس مزجًا
+Linear, ease in, ease out or S-curve	خطي أو دخول أو خروج أو منحنى S
+Lines	خطوط
+link aspect	اربط التناسب
+Listen to	استمع
+listener	مستمع
+LIVE - every assigned deck matches	LIVE: كل الديكات المعيّنة متطابقة
+lock to screen	قفل على الشاشة
+logo	شعار
+logo size	حجم الشعار
+look at it	شاهده
+lower 3rd	Lower Third
+marquee	لوحة سرادق
+mask on	القناع نشط
+Master oscillator rate.	سرعة المذبذب الرئيسي.
+Maximum quality	أعلى جودة
+MIDI and OSC monitor	مراقب MIDI وOSC
+midi in	دخل MIDI
+MIDI note	نغمة MIDI
+move points	حرّك النقاط
+Move the height on its own oscillator	حرّك طبقة الصوت بمذبذبها
+name or number...	اسم أو رقم...
+name, from anywhere	الاسم، من أي مكان
+NDI source cue	كيو مصدر NDI
+needs file-backed video	يحتاج ملف فيديو
+neon	نيون
+new paths	مسارات جديدة
+New shows start from	العروض الجديدة تبدأ من
+next xfade	التلاشي التالي
+no effects for this cue type	لا مؤثرات لهذا النوع من الكيو
+nobody	لا شيء
+none - click to learn	لا شيء: انقر للتعليم
+none - click to set some	لا شيء: انقر للضبط
+none - click to write some	لا شيء: انقر للكتابة
+none yet	لا شيء بعد
+none: the one picture	لا شيء: الصورة الوحيدة
+none: the whole picture	لا شيء: الصورة كلها
+notebook	دفتر ملاحظات
+nothing	لا شيء
+nothing assigned yet	لم يُعيَّن شيء
+nothing follows	لا يتبع شيئًا
+Nothing here with this filter.	لا شيء بهذا المرشح.
+nothing set - this cue sends nothing	لم يُضبط شيء: هذا الكيو لا يرسل شيئًا
+nothing targeted yet	بلا هدف
+Nothing to see here. Probably.	لا شيء هنا لتراه. على الأرجح.
+nothing to send - check the message	لا شيء للإرسال: تحقق من الرسالة
+offset X	إزاحة X
+offset Y	إزاحة Y
+on any channel	على أي قناة
+on the header to add another	على الترويسة لإضافة المزيد
+on the monitor	على الشاشة
+one big on top, the rest below	واحد كبير أعلى، والباقي تحته
+one big, the rest beside it	واحد كبير، والباقي بجانبه
+onion off	ورق الشف مطفأ
+onion on	ورق الشف مفعّل
+only this computer	هذا الحاسوب فقط
+Open a .deckboy show file	افتح ملف .deckboy
+open the monitor	افتح الشاشة
+or your own bytes	أو بايتاتك الخاصة
+ORDER - cues advance down the list	الترتيب: الكيوهات تنزل في القائمة
+Out-point: cue stops playback here	نقطة الخروج: ينتهي الكيو هنا
+output already has	الخرج لديه بالفعل
+Outputs Off	المخارج مطفأة
+outs	مخارج
+over budget - video will drop frames	فوق الحد: سيفقد الفيديو إطارات
+over the picture	فوق الصورة
+PAIR	إقران
+Pair a phone	إقران هاتف
+Pair overlap	تداخل الزوج
+Paired phones	الهواتف المقترنة
+Passphrase	عبارة المرور
+Pattern motion toggle	حركة النمط
+pause begin	إيقاف عند البدء
+pennant	راية
+Per-cue transition duration override	مدة انتقال هذا الكيو
+Perspective	منظور
+PHASE	الطور
+Phone access	وصول الهاتف
+Phone control	التحكم بالهاتف
+phrase hold	طول الجملة
+PICK FROM SCREEN	التقط من الشاشة
+Pitch, in semitones.	طبقة الصوت، بأنصاف النغمات.
+PIXEL FOR PIXEL, TOP-LEFT	بكسل ببكسل، أعلى اليسار
+placard	لافتة
+play a note...	اعزف نغمة...
+PLAY BUG SWAT, a game	العب BUG SWAT
+Play the out move now, then take it off	شغّل الخرج الآن ثم أزله
+Playback speed: 0.25–4.0×	سرعة التشغيل: 0.25–4.0×
+playlists into the named outputs	قائمة التشغيل إلى مخارج مسماة
+plays synth	اعزف على السينث
+plugin	إضافة
+PNG matte	مات PNG
+podium	منصة
+pop	بوب
+press a key...	اضغط مفتاحًا...
+PRESS AGAIN TO FORGET	اضغط ثانية للنسيان
+Previous show file:	الملف السابق:
+prog bar	شريط التقدم
+programme	البرنامج
+Programme with sound in any browser	البرنامج مع الصوت في كل متصفح
+PROJECTOR - gamma matched	جهاز العرض: غاما مطابقة
+Projector gamma	غاما جهاز العرض
+put it on a button	ضعه على زر
+Put the brush's opacity on an oscillator	اربط عتامة الفرشاة بمذبذب
+Put the brush's size on an oscillator	اربط حجم الفرشاة بمذبذب
+Put this control on an oscillator	اربط أداة التحكم هذه بمذبذب
+rack it	حمّله
+RACKED, WARM	تم التحميل، جاهز
+rail	سكة
+rain	مطر
+Reads	يقرأ
+reads the same on any screen	يُقرأ نفسه على كل شاشة
+recent and in this show	الأخيرة وفي هذا العرض
+Recent shows:	العروض الأخيرة:
+red at	أحمر عند
+red col	عمود أحمر
+render height	ارتفاع التصيير
+render width	عرض التصيير
+REPORT A PROBLEM	أبلغ عن مشكلة
+reported rather than swapped	أُبلغ عنه، لم يُستبدل
+restart driver now	أعد تشغيل المحرّك الآن
+restart on take	إعادة عند take
+restore at end	استعادة عند النهاية
+ribbon	شريط زينة
+Right — skip forward 10s	يمين: 10 ث للأمام
+Right-click turns them off.	النقر الأيمن يطفئها.
+Rise	الارتفاع
+rise, slide or wipe	صعود أو تمرير أو ستارة
+Rotation speed, degrees per second.	سرعة الدوران، درجة في الثانية.
+rounded rect	مستطيل مدور
+row turns the matrix off again	الصف يطفئ المصفوفة ثانية
+Run it now, without taking the cue	شغّل الآن دون أخذ الكيو
+Run the show from a phone	أدر العرض من الهاتف
+runs off the show thread	خارج خيط العرض
+sACN universe, 1-63999	عالم sACN، 1-63999
+SAVE AS MY DEFAULTS	احفظ كافتراضي
+says	يقول
+SCALED TO FILL	محجّم للملء
+Scene dwell time — 0 = hold	مدة المشهد: 0 = ثبات
+Scene fade-in duration	ظهور المشهد
+Scene fade-out duration	تلاشي المشهد
+scoreboard	لوحة نتائج
+SCREENS	الشاشات
+scroll	تمرير
+Scroll up	تمرير لأعلى
+sea	بحر
+SELECT: MOTION	اختيار: حركة
+Send it now, without taking the cue	أرسل الآن دون أخذ الكيو
+sends	إرسال
+Sensitivity	الحساسية
+Set browser URL/path	اضبط عنوان/مسار المتصفح
+set by	ضبطه
+Set capture source from the cue menu	اضبط المصدر من قائمة الكيو
+Set cue ID for selected cues	اضبط معرّف الكيوهات المحددة
+Set cue token to jump to when cue ends	اضبط الكيو الذي يُنتقل إليه في النهاية
+Set goto target for selected cues	اضبط هدف الكيوهات المحددة
+Set Lower Third background alpha	ألفا خلفية Lower Third
+Set per-cue transition duration	مدة انتقال الكيو
+Set playback speed for selected cues	سرعة الكيوهات المحددة
+Set repeat count for selected cues	تكرار الكيوهات المحددة
+Set short cue id for search/goto	معرّف قصير للبحث/الانتقال
+Set short cue label for search/goto	اسم قصير للبحث/الانتقال
+Set the NDI source name to receive	اسم مصدر NDI المراد استقباله
+Shift+[ / ] — fade-out duration	Shift+[ / ]: مدة التلاشي
+SHOW ME	أرني
+Show on	اعرض على
+Shows	عرض
+sideline	خط جانبي
+sketch	رسم تخطيطي
+slide	انزلاق
+slide from left	انزلاق من اليسار
+slide from right	انزلاق من اليمين
+SMOOTH	ناعم
+snow	ثلج
+SOS. Kidding. The show is fine.	SOS. مزحة. العرض بخير.
+Sound when the clock turns amber	صوت عند تحول الساعة إلى الكهرماني
+Sound when the clock turns red	صوت عند تحول الساعة إلى الأحمر
+Sound when time is up	صوت عند انتهاء الوقت
+Space — pause	مسافة: إيقاف مؤقت
+Space — play	مسافة: تشغيل
+span	الانتشار
+sparkle	بريق
+Speech models	نماذج الكلام
+Speed, like tape	السرعة، مثل الشريط
+stamp	ختم
+Start NEW from factory	ابدأ الجديد من المصنع
+starting browser	بدء المتصفح
+starting capture	بدء الالتقاط
+starting xvfb	بدء xvfb
+sticky	ورقة لاصقة
+stop at 0	توقف عند 0
+Stop puppeteering this cue	توقف عن قيادة هذا الكيو
+STRAIGHT	مستقيم
+survey	نتوء
+SVG paths	مسارات SVG
+tab	لسان
+tag	وسم
+TAP	المس
+terminal	طرفية
+text mode	وضع النص
+the file cannot be read	الملف غير مقروء
+The name	الاسم
+The OSC path, e.g. /cue/1/start	مسار OSC، مثل /cue/1/start
+the playlist's PATCH	PATCH قائمة التشغيل
+The role, or leave it empty	الدور، أو اتركه فارغًا
+the system output	خرج النظام
+The text this cue puts on screen	النص الذي يعرضه هذا الكيو
+theatre	مسرح
+then stop	ثم توقف
+they have	لديها
+things that are oscillating	أشياء تتذبذب
+this cue lives on	هذا الكيو على
+This show's setup, no cues	إعدادات هذا العرض، بلا كيوهات
+ticket	تذكرة
+tile h	اللوحة ع
+Tile height in pixels.	ارتفاع اللوحة بالبكسل.
+tile w	اللوحة ض
+time of day	وقت اليوم
+Toggle audio enable for selected cues	صوت الكيوهات المحددة
+Toggle chroma key	تبديل مفتاح الكروما
+Toggle cue audio	صوت الكيو
+Toggle cue audio track for this cue	المسار الصوتي لهذا الكيو
+Toggle fade in	ظهور
+Toggle fade out	تلاشٍ
+Toggle hold on last frame	ثبّت آخر إطار
+Toggle hold-at-end for selected cues	ثبّت عند النهاية في الكيوهات المحددة
+Toggle loop	تكرار
+Toggle loop for selected cues	تكرار الكيوهات المحددة
+Toggle the live input's audio	صوت الدخل الحي
+Total time	الوقت الكلي
+transcoding - plays clean until ready	تحويل الترميز: يعمل نظيفًا حتى النهاية
+transparent: put its playlist on a layer	شفاف: ضع قائمة التشغيل على طبقة
+Trusted controllers	وحدات التحكم الموثوقة
+TURN OFF	إيقاف
+turn phone control on	فعّل التحكم بالهاتف
+two big on top, the rest below	اثنان كبيران أعلى، والباقي تحتهما
+type a cue number	اكتب رقم كيو
+Typing needs EDIT on	الكتابة تتطلب تفعيل EDIT
+Use GEOMETRY for exact placement	استخدم الهندسة للوضع الدقيق
+value to type one	القيمة المراد كتابتها
+Vertical output offset in pixels	إزاحة الخرج الرأسية بالبكسل
+VIDEO DIP: OFF	غمس الفيديو: لا
+VIDEO DIP: ON	غمس الفيديو: نعم
+walk the outputs one at a time.	مرّ على المخارج واحدًا واحدًا.
+walks every output in turn	يمرّ على كل خرج
+WHAT DECKBOY DID	ماذا فعل Deckboy
+what is on air in a playlist	ما هو حي في قائمة تشغيل
+What NEW starts from, never this show	من أين يبدأ الجديد، وليس هذا العرض أبدًا
+whatever the style says	كما يقول النمط
+Where the ramp ends	أين ينتهي المنحدر
+Which deck the cue it acts on lives on	أي ديك عليه الكيو الهدف
+Which frame you draw on	أي إطار ترسم عليه
+Who can see it	من يستطيع رؤيته
+whole network	الشبكة كلها
+will not open	لا يفتح
+window and recording outputs only	مخارج النوافذ والتسجيل فقط
+wipe	ستارة
+Wobble	اهتزاز
+wobble by	هزّ بمقدار
+words	كلمات
+X — cycle end action	X: غيّر إجراء النهاية
+X — cycle end action: stop / next / loop	X: إجراء النهاية: إيقاف / التالي / تكرار
+Zones	مناطق
+~ makes the level breathe	~ تجعل المستوى يتنفس
+a note or an address becomes that cue's trigger	نغمة أو عنوان يصبح مشغّل الكيو
+acts on every deck; deck and cue are ignored	يعمل على كل الديكات؛ يُتجاهل الديك والكيو
+Add an output above, then send playlists to it here.	أضف خرجًا أعلاه، ثم أرسل قوائم التشغيل إلى هنا.
+Ancient cypher, modern video desk. Respect.	خط قديم، لوحة حديثة. احترام.
+Any font on this computer, Deckboy's own, or a font file	خط من الحاسوب، أو خط Deckboy، أو ملف
+Apply fade-in to selected video/audio cues	ظهور على كيوهات الفيديو/الصوت المحددة
+Apply fade-out to selected video/audio cues	تلاشٍ على كيوهات الفيديو/الصوت المحددة
+Art-Net or sACN (E1.31): whichever the lighting rig listens to	Art-Net أو sACN (E1.31): ما تستمع إليه الإضاءة
+Auto-advance duration — 0 = hold until taken	تقدّم تلقائي: 0 = ثبات حتى take
+Bypass: this master leaves that deck alone	تجاوز: هذا الرئيسي يترك ذلك الديك
+Characters across. Fewer means bigger cells.	أحرف لكل سطر. الأقل يعطي خلايا أكبر.
+Choose a mask from this show's library, or start a new one from a shape	اختر قناعًا من المكتبة أو اصنعه من شكل
+Click a value to change it. A red address overlaps another fixture.	انقر قيمة لتغييرها. العنوان الأحمر يتداخل مع جهاز آخر.
+Click to show or hide this cue's captions	انقر لإظهار أو إخفاء ترجمة الكيو
+Copy the show AND its media into one portable folder	انسخ العرض والوسائط إلى مجلد محمول
+Ctrl+S - write back over the show that is open	Ctrl+S: احفظ في العرض المفتوح
+Ctrl+Shift+S - write the show to a NEW file	Ctrl+Shift+S: احفظ في ملف جديد
+Device output pair this cue's audio plays on	زوج مخارج لصوت هذا الكيو
+E - freeze on last frame instead of stopping	E: ثبّت على آخر إطار بدل الإيقاف
+Edit title/subtitle here or fire it live with TAKE	حرّر العنوان/الفرعي هنا أو أطلقه بـ TAKE
+Every channel on every universe this session has touched	كل قناة في كل عالم لُمس في هذه الجلسة
+generator is off - a START cue turns it on	المولّد مطفأ: كيو START يشغّله
+How long the note takes to reach full level.	زمن وصول النغمة إلى المستوى الكامل.
+How much it throws off; 0 is a clean burn	مقدار التقشر؛ 0 يحترق نظيفًا
+INPUT: the programme. Drag a crop to move it, its corners to size it.	الدخل: البرنامج. اسحب قطعة لتحريكها، والزوايا لتغيير الحجم.
+Keep the outside and cut the inside instead	أبقِ الخارج واقطع الداخل
+LED panel height in pixels. Click to type it	ارتفاع لوحة LED بالبكسل. انقر للكتابة
+Legacy target mode — switch type to convert	وضع هدف قديم: غيّر النوع للتحويل
+Lissajous, spectrum, meters or a name card	Lissajous أو طيف أو مقاييس أو لوحة اسم
+Load the cue and hold first frame when taken	حمّل الكيو وثبّت أول إطار عند take
+no fixtures patched - Settings > Network > FIXTURES	لا أجهزة موصولة: الإعدادات > الشبكة > FIXTURES
+Nothing here changes the show that is open.	لا شيء هنا يغيّر العرض المفتوح.
+Per-cue audio: enable, trim, pan, mono, fades, normalize	صوت الكيو: تشغيل/إيقاف، قص، موضع، أحادي، تلاشٍ، تطبيع
+Phone control is in PHONE & TABLET, below	التحكم بالهاتف في PHONE & TABLET، بالأسفل
+Save the mask as a greyscale PNG at the output's size: white keeps, black cuts	احفظ القناع PNG رماديًا بحجم الخرج: الأبيض يُبقي والأسود يقطع
+Seconds REMAINING when the clock turns amber	الثواني المتبقية عند تحول الساعة إلى الكهرماني
+Seconds REMAINING when the clock turns red	الثواني المتبقية عند تحول الساعة إلى الأحمر
+Shown to the operator when GO reaches this cue	يُعرض على المشغّل عندما يصل GO إلى هذا الكيو
+SHUFFLE - the next cue is picked at random	عشوائي: الكيو التالي بالقرعة
+Slots are self-contained sources in this first pass	الفتحات مصادر مستقلة في هذا الإصدار
+that output's whole picture, or its matte	كامل صورة ذلك الخرج، أو المات الخاص به
+The cue number on the other desk, e.g. 12.5	رقم الكيو على اللوحة الأخرى، مثل 12.5
+Toggle pause-at-beginning for selected cues	إيقاف عند البدء في الكيوهات المحددة
+Toggle transition-to-next for selected cues	انتقال إلى التالي في الكيوهات المحددة
+transparent outside the blobs: put it on a layer	شفاف خارج البقع: ضعه على طبقة
+transparent outside the ink: put it on a layer	شفاف خارج الحبر: ضعه على طبقة
+what is said, on screen, made on this computer	ما يُقال، على الشاشة، صُنع على هذا الحاسوب
+What this cue does when it ends - click to change	ما يفعله هذا الكيو عند النهاية: انقر للتغيير
+Whether the next shape or pen path adds or cuts	هل يضيف الشكل أو المسار التالي أم يقطع
