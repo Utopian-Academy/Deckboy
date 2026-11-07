@@ -1364,3 +1364,500 @@ in	inn
 out	út
 routing	beining
 trim	snyrta
+0-63, the hardware's own gain range.	0-63, eigin mögnun vélbúnaðarins.
+1-16, as the desk counts them	1-16, eins og borðið telur þær
+7-segment, blocky, or a real font	7-hluta, kassalegt eða raunverulegt letur
+[ / ] keys — fade-in duration	[ / ] lyklar: lengd innfellingar
+a camera moves the ~ controls	myndavél hreyfir ~ stýringarnar
+a chain on a device, after the mix	keðja á tæki, eftir hljóðblöndun
+a comment	athugasemd
+Act now, without taking the cue	Gera núna, án þess að taka cue
+Add a light	Bæta við ljósi
+add a second output to pair	bættu við öðru úttaki til að para
+add shape	bæta við formi
+all driven by the cue's own transport	allt stýrt af eigin spilun cue
+All interfaces; trusted machines only.	Öll viðmót; aðeins traustar vélar.
+all to 0	allt í 0
+An audio effect's knob	Hnappur á hljóðbrellu
+An effect's knob	Hnappur á brellu
+any channel	hvaða rás sem er
+any window, any screen	hvaða gluggi sem er, hvaða skjár sem er
+arcade	spilakassi
+Arm this cue as the one GO will fire	Virkja þetta cue fyrir næsta GO
+Art-Net port address, 0-32767	Art-Net gáttarvistfang, 0-32767
+Attached overlays fire on TAKE only	Tengd yfirlög byrja aðeins á TAKE
+BACK TO BUG SWAT	AFTUR Í BUG SWAT
+backdrop	bakgrunnur
+bar	stika
+bg alpha	alfa bakgrunns
+black lift	lyfting svarts
+blend gamma	gamma blöndunar
+blueprint	teikning
+boxes	kassar
+bracket	hornklofar
+bulletin	fréttabréf
+by density	eftir þéttleika
+BY FIXTURE	EFTIR LJÓSI
+capsule	hylki
+caption	myndatexti
+card	spjald
+CARD OFF ALL	SPJALD AF ALLT
+CARD ON ALL	SPJALD Á ALLT
+cartridge	skothylki
+cassette	snælda
+Ceiling	Loft
+Chain	Keðja
+Changing this re-prepares the cue.	Breyting undirbýr cue aftur.
+channel list is not readable	rásalisti er ólæsilegur
+CHANNELS	RÁSIR
+channels on your interfaces, by name	rásir á viðmótum þínum, eftir nafni
+Checkerboard	Skákborð
+chime amber	viðvörun gulbrúnt
+chime red	viðvörun rautt
+chime zero	viðvörun núll
+Choose startup mode:	Veldu ræsingarham:
+circle, heart, star...	hringur, hjarta, stjarna...
+circuit	rafrás
+CLASSIC VIEW	KLASSÍSK SÝN
+clear driver	hreinsa drif
+Clear in/out trim points	Hreinsa inn-/útpunkta
+CLEAR OVERLAY  [Backspace]	HREINSA YFIRLAG  [Backspace]
+Clear the active Lower Third overlay now	Fjarlægja virkt Lower Third núna
+Clear the live PIP overlay now	Fjarlægja PIP-yfirlag núna
+CLICK ANYWHERE...	SMELLTU HVAR SEM ER...
+click or Esc to close	smelltu eða Esc til að loka
+click this window	smelltu á þennan glugga
+Click to edit cue notes	Smelltu til að breyta athugasemdum cue
+click to open the grid	smelltu til að opna netið
+Click to seek — drag to scrub	Smelltu til að fara, dragðu til að skruna
+Click to type it	Smelltu til að skrifa
+comic	teiknimynd
+Companion passphrase	Companion-aðgangsfrasi
+confetti	konfetti
+Connections at once	Samtímis tengingar
+count up	telja upp
+Countdown, count up, or wall clock	Niðurtalning, upptalning eða klukka
+credit	kreditlisti
+crossfade	krossdeyfir
+crosshair	sigti
+Crosshatch	Krossskygging
+Cue has no audio	Cue hefur ekkert hljóð
+cue number	cue-númer
+Cycle end action for selected cues	Breyta lokaaðgerð valinna cue
+Cycle which slot drives scene audio	Breyta rauf sem gefur hljóð senunnar
+dateline	dagsetningarlína
+decoder spin-up	afkóðari ræsist
+Default App Feed	Sjálfgefinn forritagjafi
+Default Camera	Sjálfgefin myndavél
+Delay before the continue fires	Töf áður en haldið er áfram
+Delay between GO and this cue starting	Töf milli GO og upphafs cue
+depth 1 turns it all the way round	dýpt 1 snýr heilan hring
+Digit colour once amber is reached	Litur tölustafa við gulbrúnt
+Digit colour while there is time in hand	Litur tölustafa þegar tími er nægur
+diskette	disklingur
+Do it now, without taking the cue	Gera það núna, án þess að taka cue
+dossier	skjalamappa
+dotmatrix	punktafylki
+Double-GO guard	Vörn gegn tvöföldu GO
+draw on the monitor	teikna á skjáinn
+driver speed	hraði drifs
+EDGE BLEND	KANTABLÖNDUN
+EDIT is on: typing changes the show	EDIT á: skrif breyta sýningunni
+edit on the monitor	breyta á skjánum
+Edit the main Lower Third title	Breyta titli Lower Third
+Edit the secondary Lower Third line	Breyta annarri línu Lower Third
+eq band	EQ-band
+equalizer	tónjafnari
+Esc cancels	Esc hættir við
+Esc cancels, arrows nudge	Esc hættir við, örvar færa
+Esc to close	Esc til að loka
+even grid	jafnt net
+EXAMPLE SHOWS	DÆMISÝNING
+EXIT  Esc	HÆTTA  Esc
+face	andlit
+factory settings	verksmiðjustillingar
+Fade+LoadNext	Deyfing+Hlaða næsta
+Fade+Pause	Deyfing+Hlé
+Fade+Rewind	Deyfing+Spóla til baka
+Fade-in duration	Lengd innfellingar
+Fade-in duration for this cue	Innfelling þessa cue
+Fade-out duration	Lengd útfellingar
+Fade-out duration before next cue	Útfelling á undan næsta cue
+Fade-out duration for this cue	Útfelling þessa cue
+false colour reads SDR pictures	falskir litir lesa SDR-myndir
+fill the frame	fylla rammann
+find a named colour	finna lit eftir nafni
+fires cues	ræsir cue
+first available	fyrsta lausa
+Fit/Fill/Stretch/Unscaled	Passa/Fylla/Teygja/Án kvarða
+Fixed repeat count — 0 = infinite	Fastur fjöldi endurtekninga: 0 = óendanlegt
+Fixed repeat count — 0 = loop forever	Fastur fjöldi endurtekninga: 0 = án enda
+FIXED!	LAGAÐ!
+flag	fáni
+FORGET MY DEFAULTS	GLEYMA SJÁLFGEFNUM MÍNUM
+Frames a second	Rammar á sekúndu
+from exactly this routing	beint úr þessari beiningu
+Full Black	Alsvart
+Full Blue	Alblátt
+Full Green	Algrænt
+Full Red	Alrautt
+Full White	Alhvítt
+garden	garður
+Ghastly	Draugalegt
+glass	gler
+glitch down	glitch niður
+glitch drift	rek glitch
+glitch reach	drægni glitch
+glitch through	glitch í gegn
+glitch up	glitch upp
+GO steps over it	GO hoppar yfir það
+hairline	hárlína
+Haptics	Titringur
+HDR input	HDR-inntak
+Hex, e.g. 90 3C 7F	Hex, t.d. 90 3C 7F
+HOLDING OFF AIR	HALDIÐ UTAN ÚTSENDINGAR
+Home — skip to start	Home: í byrjun
+Horizontal output offset in pixels	Lárétt hliðrun úttaks í dílum
+How many features fit on screen.	Hversu mörg komast á skjáinn.
+how much of this effect	hversu mikið af þessari brellu
+How solid the ink is	Þekja bleksins
+How tall the logo is above the clock	Hæð merkis yfir klukkunni
+In-point: cue starts playback here	Innpunktur: cue byrjar hér
+index	skrá
+initializing webview	webview ræsist
+install Tailscale here and on the phone	settu upp Tailscale hér og í símanum
+INSTALLING...	SET UPP...
+Its amount, or one of its knobs A to D	Magn þess, eða hnappur frá A til D
+J jump to row	J: fara í röð
+jam to	samstilla við
+Jump the driver back to its first frame	Setja drifið aftur á fyrsta ramma
+K — cycle cue color tag	K: breyta lit cue
+Keep counting past zero, or stop dead	Telja fram hjá núlli eða stöðva
+key	lykill
+Key edge softness	Mýkt lykilkants
+knob	hnappur
+L - loop this cue continuously	L: endurtaka þetta cue
+last reading	síðasti lestur
+Last refused	Síðast hafnað
+Learn it	Læra
+LEARN THE BASICS	LÆRÐU GRUNNINN
+ledger	höfuðbók
+Left — skip back 10s	Vinstri: 10 sek. til baka
+Left, centre or right	Vinstri, miðja eða hægri
+LESSONS	KENNSLA
+Levels	Stig
+Limiter	Takmarkari
+Limiting	Takmörkun
+line  |  Enter: apply	lína  |  Enter: nota
+LINEAR - a feather, not a blend	LÍNULEGT: litbrigði, ekki blöndun
+Linear, ease in, ease out or S-curve	Línulegt, inn, út eða S-ferill
+Lines	Línur
+link aspect	tengja hlutföll
+Listen to	Hlusta
+listener	hlustandi
+LIVE - every assigned deck matches	LIVE: öll úthlutuð deck passa
+lock to screen	læsa við skjá
+logo	merki
+logo size	stærð merkis
+look at it	sjáðu það
+lower 3rd	Lower Third
+marquee	ljósaskilti
+mask on	gríma virk
+Master oscillator rate.	Hraði aðalsveifils.
+Maximum quality	Mestu gæði
+MIDI and OSC monitor	MIDI- og OSC-vakt
+midi in	MIDI-inntak
+MIDI note	MIDI-nóta
+move points	færa punkta
+Move the height on its own oscillator	Færa tónhæð með eigin sveifli
+name or number...	nafn eða númer...
+name, from anywhere	nafn, hvaðan sem er
+NDI source cue	NDI-gjafa-cue
+needs file-backed video	þarf myndskeið úr skrá
+new paths	nýjar slóðir
+New shows start from	Nýjar sýningar byrja frá
+next xfade	næsta deyfing
+no effects for this cue type	engar brellur fyrir þessa gerð cue
+nobody	ekkert
+none - click to learn	ekkert: smelltu til að læra
+none - click to set some	ekkert: smelltu til að stilla
+none - click to write some	ekkert: smelltu til að skrifa
+none yet	ekkert enn
+none: the one picture	ekkert: eina myndin
+none: the whole picture	ekkert: öll myndin
+notebook	minnisbók
+nothing	ekkert
+nothing assigned yet	engu úthlutað
+nothing follows	fylgir engu
+Nothing here with this filter.	Ekkert með þessari síu.
+nothing set - this cue sends nothing	ekkert stillt: þetta cue sendir ekkert
+nothing targeted yet	ekkert mark
+Nothing to see here. Probably.	Ekkert að sjá hér. Líklega.
+nothing to send - check the message	ekkert að senda: athugaðu skilaboðin
+offset X	hliðrun X
+offset Y	hliðrun Y
+on any channel	á hvaða rás sem er
+on the header to add another	á hausnum til að bæta við
+on the monitor	á skjánum
+one big on top, the rest below	eitt stórt efst, restin undir
+one big, the rest beside it	eitt stórt, restin við hliðina
+onion off	smjörpappír af
+onion on	smjörpappír á
+only this computer	aðeins þessi tölva
+Open a .deckboy show file	Opna .deckboy-skrá
+open the monitor	opna skjáinn
+or your own bytes	eða þín eigin bæti
+ORDER - cues advance down the list	RÖÐ: cue fara niður listann
+Out-point: cue stops playback here	Útpunktur: cue endar hér
+output already has	úttakið hefur þegar
+Outputs Off	Úttök af
+outs	úttök
+over budget - video will drop frames	yfir mörkum: myndskeið missir ramma
+over the picture	yfir myndinni
+PAIR	PARA
+Pair a phone	Para síma
+Pair overlap	Skörun pars
+Paired phones	Paraðir símar
+Passphrase	Aðgangsfrasi
+Pattern motion toggle	Hreyfing mynsturs
+pause begin	hlé í byrjun
+pennant	veifa
+Per-cue transition duration override	Lengd umbreytingar þessa cue
+Perspective	Fjarvídd
+PHASE	FASI
+Phone access	Símaaðgangur
+Phone control	Símastýring
+phrase hold	lengd frasa
+PICK FROM SCREEN	TAKA AF SKJÁ
+Pitch, in semitones.	Tónhæð, í hálftónum.
+PIXEL FOR PIXEL, TOP-LEFT	DÍLL FYRIR DÍL, EFST TIL VINSTRI
+placard	skilti
+play a note...	spilaðu nótu...
+PLAY BUG SWAT, a game	SPILA BUG SWAT
+Play the out move now, then take it off	Spila úttakið núna og fjarlægja svo
+Playback speed: 0.25–4.0×	Spilunarhraði: 0,25–4,0×
+playlists into the named outputs	spilunarlisti á nefnd úttök
+plays synth	spilaðu á hljóðgervil
+plugin	viðbót
+PNG matte	PNG-matta
+podium	verðlaunapallur
+pop	popp
+press a key...	ýttu á lykil...
+PRESS AGAIN TO FORGET	ÝTTU AFTUR TIL AÐ GLEYMA
+Previous show file:	Fyrri skrá:
+prog bar	framvindustika
+programme	dagskrá
+Programme with sound in any browser	Dagskrá með hljóði í hverjum vafra
+PROJECTOR - gamma matched	VARPI: samræmt gamma
+Projector gamma	Gamma varpa
+put it on a button	settu það á hnapp
+Put the brush's opacity on an oscillator	Setja þekju pensils á sveifil
+Put the brush's size on an oscillator	Setja stærð pensils á sveifil
+Put this control on an oscillator	Setja þessa stýringu á sveifil
+rack it	hlaða því
+RACKED, WARM	HLAÐIÐ, TILBÚIÐ
+rail	braut
+rain	rigning
+Reads	Les
+reads the same on any screen	les eins á hverjum skjá
+recent and in this show	nýlegt og í þessari sýningu
+Recent shows:	Nýlegar sýningar:
+red at	rautt við
+red col	rauður dálkur
+render height	hæð myndgerðar
+render width	breidd myndgerðar
+REPORT A PROBLEM	TILKYNNA VANDAMÁL
+reported rather than swapped	tilkynnt, ekki skipt út
+restart driver now	endurræsa drif núna
+restart on take	endurræsa á take
+restore at end	endurheimta í lok
+ribbon	borði
+Right — skip forward 10s	Hægri: 10 sek. áfram
+Right-click turns them off.	Hægrismellur slekkur á þeim.
+Rise	Ris
+rise, slide or wipe	rísa, skruna eða strjúka
+Rotation speed, degrees per second.	Snúningshraði, gráður á sekúndu.
+rounded rect	ávalur ferhyrn.
+row turns the matrix off again	röðin slekkur aftur á fylkinu
+Run it now, without taking the cue	Keyra núna, án þess að taka cue
+Run the show from a phone	Keyra sýninguna úr síma
+runs off the show thread	utan sýningarþráðar
+sACN universe, 1-63999	sACN-alheimur, 1-63999
+SAVE AS MY DEFAULTS	VISTA SEM SJÁLFGEFIÐ
+says	segir
+SCALED TO FILL	KVARÐAÐ TIL AÐ FYLLA
+Scene dwell time — 0 = hold	Tími senu: 0 = halda
+Scene fade-in duration	Innfelling senu
+Scene fade-out duration	Útfelling senu
+scoreboard	stigatafla
+SCREENS	SKJÁIR
+scroll	skrun
+Scroll up	Skruna upp
+sea	haf
+SELECT: MOTION	VAL: HREYFING
+Send it now, without taking the cue	Senda núna, án þess að taka cue
+sends	senda
+Sensitivity	Næmi
+Set browser URL/path	Stilla slóð vafra
+set by	stillt af
+Set capture source from the cue menu	Stilla gjafa úr valmynd cue
+Set cue ID for selected cues	Stilla auðkenni valinna cue
+Set cue token to jump to when cue ends	Stilla cue til að hoppa í við lok
+Set goto target for selected cues	Stilla mark valinna cue
+Set Lower Third background alpha	Alfa bakgrunns Lower Third
+Set per-cue transition duration	Lengd umbreytingar cue
+Set playback speed for selected cues	Hraði valinna cue
+Set repeat count for selected cues	Endurtekningar valinna cue
+Set short cue id for search/goto	Stutt auðkenni fyrir leit/stökk
+Set short cue label for search/goto	Stutt nafn fyrir leit/stökk
+Set the NDI source name to receive	Nafn NDI-gjafans sem á að taka við
+Shift+[ / ] — fade-out duration	Shift+[ / ]: lengd útfellingar
+SHOW ME	SÝNDU MÉR
+Show on	Sýna á
+Shows	Sýna
+sideline	hliðarlína
+sketch	skissa
+slide	renna
+slide from left	renna frá vinstri
+slide from right	renna frá hægri
+SMOOTH	MJÚKT
+snow	snjór
+SOS. Kidding. The show is fine.	SOS. Grín. Sýningin er í lagi.
+Sound when the clock turns amber	Hljóð þegar klukkan verður gulbrún
+Sound when the clock turns red	Hljóð þegar klukkan verður rauð
+Sound when time is up	Hljóð þegar tíminn er búinn
+Space — pause	Bil: hlé
+Space — play	Bil: spila
+span	dreifing
+sparkle	glitur
+Speech models	Talmódel
+Speed, like tape	Hraði, eins og segulband
+stamp	stimpill
+Start NEW from factory	Byrja NÝTT frá verksmiðju
+starting browser	vafri ræsist
+starting capture	upptaka ræsist
+starting xvfb	xvfb ræsist
+sticky	minnismiði
+stop at 0	stöðva við 0
+Stop puppeteering this cue	Hætta að stýra þessu cue
+STRAIGHT	BEINT
+survey	upphleyping
+SVG paths	SVG-slóðir
+tab	flipi
+tag	merkimiði
+TAP	PIKKA
+terminal	skipanalína
+text mode	textahamur
+the file cannot be read	skráin er ólæsileg
+The name	Nafnið
+The OSC path, e.g. /cue/1/start	OSC-slóðin, t.d. /cue/1/start
+the playlist's PATCH	PATCH spilunarlistans
+The role, or leave it empty	Hlutverkið, eða hafa autt
+the system output	kerfisúttakið
+The text this cue puts on screen	Textinn sem þetta cue sýnir
+theatre	leikhús
+then stop	stöðva svo
+they have	þau hafa
+things that are oscillating	það sem sveiflast
+this cue lives on	þetta cue er á
+This show's setup, no cues	Uppsetning þessarar sýningar, án cue
+ticket	miði
+tile h	reitur h
+Tile height in pixels.	Hæð reits í dílum.
+tile w	reitur b
+time of day	tími dags
+Toggle audio enable for selected cues	Hljóð valinna cue
+Toggle chroma key	Kveikja/slökkva á chroma key
+Toggle cue audio	Hljóð cue
+Toggle cue audio track for this cue	Hljóðrás þessa cue
+Toggle fade in	Innfelling
+Toggle fade out	Útfelling
+Toggle hold on last frame	Halda síðasta ramma
+Toggle hold-at-end for selected cues	Halda í lok á völdum cue
+Toggle loop	Lykkja
+Toggle loop for selected cues	Lykkja valinna cue
+Toggle the live input's audio	Hljóð beins inntaks
+Total time	Heildartími
+transcoding - plays clean until ready	umkóðun: spilar hreint til enda
+transparent: put its playlist on a layer	gegnsætt: settu spilunarlistann á lag
+Trusted controllers	Traustir stýringar
+TURN OFF	SLÖKKVA
+turn phone control on	kveiktu á símastýringu
+two big on top, the rest below	tvö stór efst, restin undir
+type a cue number	skrifaðu cue-númer
+Typing needs EDIT on	Skrif krefjast EDIT á
+Use GEOMETRY for exact placement	Notaðu GEOMETRY fyrir nákvæma staðsetningu
+value to type one	gildi til að skrifa
+Vertical output offset in pixels	Lóðrétt hliðrun úttaks í dílum
+VIDEO DIP: OFF	VIDEO DIP: NEI
+VIDEO DIP: ON	VIDEO DIP: JÁ
+walk the outputs one at a time.	farðu gegnum úttökin eitt í einu.
+walks every output in turn	fer gegnum hvert úttak
+WHAT DECKBOY DID	HVAÐ DECKBOY GERÐI
+what is on air in a playlist	hvað er í beinni á spilunarlista
+What NEW starts from, never this show	Hvar NÝTT byrjar, aldrei þessi sýning
+whatever the style says	hvað sem stíllinn segir
+Where the ramp ends	Hvar rampinn endar
+Which deck the cue it acts on lives on	Á hvaða deck mark-cue er
+Which frame you draw on	Á hvaða ramma þú teiknar
+Who can see it	Hver getur séð það
+whole network	allt netið
+will not open	opnast ekki
+window and recording outputs only	aðeins glugga- og upptökuúttök
+wipe	strok
+Wobble	Vagg
+wobble by	vagga um
+words	orð
+X — cycle end action	X: breyta lokaaðgerð
+X — cycle end action: stop / next / loop	X: lokaaðgerð: stöðva / næsta / lykkja
+Zones	Svæði
+~ makes the level breathe	~ lætur styrkinn anda
+a note or an address becomes that cue's trigger	nóta eða vistfang verður kveikja þess cue
+acts on every deck; deck and cue are ignored	virkar á öll deck; deck og cue hunsuð
+Add an output above, then send playlists to it here.	Bættu við úttaki að ofan og sendu svo spilunarlista hingað.
+Ancient cypher, modern video desk. Respect.	Forn ritun, nútíma borð. Virðing.
+Any font on this computer, Deckboy's own, or a font file	Letur tölvunnar, Deckboy eða skrá
+Apply fade-in to selected video/audio cues	Innfelling á völdum mynd-/hljóð-cue
+Apply fade-out to selected video/audio cues	Útfelling á völdum mynd-/hljóð-cue
+Art-Net or sACN (E1.31): whichever the lighting rig listens to	Art-Net eða sACN (E1.31): það sem ljósin hlusta á
+Auto-advance duration — 0 = hold until taken	Sjálfvirkt áfram: 0 = halda til take
+Bypass: this master leaves that deck alone	Framhjá: þessi aðalstýring lætur það deck í friði
+Characters across. Fewer means bigger cells.	Stafir í línu. Færri gefa stærri reiti.
+Choose a mask from this show's library, or start a new one from a shape	Veldu grímu úr safninu eða búðu til úr formi
+Click a value to change it. A red address overlaps another fixture.	Smelltu á gildi til að breyta. Rautt vistfang skarast við annað ljós.
+Click to show or hide this cue's captions	Smelltu til að sýna eða fela texta cue
+Copy the show AND its media into one portable folder	Afrita sýninguna OG miðlana í eina færanlega möppu
+Ctrl+S - write back over the show that is open	Ctrl+S: vista í opnu sýninguna
+Ctrl+Shift+S - write the show to a NEW file	Ctrl+Shift+S: vista í NÝJA skrá
+Device output pair this cue's audio plays on	Úttakspar fyrir hljóð þessa cue
+E - freeze on last frame instead of stopping	E: frysta á síðasta ramma í stað þess að stöðva
+Edit title/subtitle here or fire it live with TAKE	Breyttu titli/undirtitli hér eða ræstu með TAKE
+Every channel on every universe this session has touched	Hver rás í hverjum alheimi sem þessi lota hefur snert
+generator is off - a START cue turns it on	gjafi af: START-cue kveikir á honum
+How long the note takes to reach full level.	Tíminn þar til nótan nær fullum styrk.
+How much it throws off; 0 is a clean burn	Hve mikið flagnar; 0 brennur hreint
+INPUT: the programme. Drag a crop to move it, its corners to size it.	INNTAK: dagskráin. Dragðu skurð til að færa, horn til að breyta stærð.
+Keep the outside and cut the inside instead	Halda ytra og skera innra
+LED panel height in pixels. Click to type it	Hæð LED-skjás í dílum. Smelltu til að skrifa
+Legacy target mode — switch type to convert	Eldri markhamur: skiptu um gerð til að umbreyta
+Lissajous, spectrum, meters or a name card	Lissajous, róf, mælar eða nafnspjald
+Load the cue and hold first frame when taken	Hlaða cue og halda fyrsta ramma til take
+no fixtures patched - Settings > Network > FIXTURES	engin ljós tengd: Stillingar > Net > FIXTURES
+Nothing here changes the show that is open.	Ekkert hér breytir opnu sýningunni.
+Per-cue audio: enable, trim, pan, mono, fades, normalize	Hljóð cue: kveikt/slökkt, trim, pan, mono, deyfingar, jöfnun
+Phone control is in PHONE & TABLET, below	Símastýring er í PHONE & TABLET, að neðan
+Save the mask as a greyscale PNG at the output's size: white keeps, black cuts	Vista grímu sem gráa PNG í stærð úttaks: hvítt heldur, svart sker
+Seconds REMAINING when the clock turns amber	Sekúndur EFTIR þegar klukkan verður gulbrún
+Seconds REMAINING when the clock turns red	Sekúndur EFTIR þegar klukkan verður rauð
+Shown to the operator when GO reaches this cue	Sýnt stjórnanda þegar GO nær þessu cue
+SHUFFLE - the next cue is picked at random	HANDAHÓF: næsta cue dregið
+Slots are self-contained sources in this first pass	Raufar eru sjálfstæðir gjafar í þessari útgáfu
+that output's whole picture, or its matte	öll mynd þess úttaks, eða matta þess
+The cue number on the other desk, e.g. 12.5	Cue-númerið á hinu borðinu, t.d. 12.5
+Toggle pause-at-beginning for selected cues	Hlé í byrjun á völdum cue
+Toggle transition-to-next for selected cues	Umbreyting í næsta á völdum cue
+transparent outside the blobs: put it on a layer	gegnsætt utan klessna: settu á lag
+transparent outside the ink: put it on a layer	gegnsætt utan bleks: settu á lag
+what is said, on screen, made on this computer	það sem er sagt, á skjánum, gert á þessari tölvu
+What this cue does when it ends - click to change	Hvað þetta cue gerir í lokin: smelltu til að breyta
+Whether the next shape or pen path adds or cuts	Hvort næsta form eða slóð bætir við eða sker

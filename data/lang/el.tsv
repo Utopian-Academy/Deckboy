@@ -1365,3 +1365,502 @@ in	είσ.
 out	έξ.
 routing	δρομολόγηση
 trim	περικοπή
+0-63, the hardware's own gain range.	0-63, το κέρδος του ίδιου του υλικού.
+1-16, as the desk counts them	1-16, όπως τα μετρά η κονσόλα
+7-segment, blocky, or a real font	7 τμημάτων, τετράγωνη ή πραγματική γραμματοσειρά
+[ / ] keys — fade-in duration	Πλήκτρα [ / ]: διάρκεια εμφάνισης
+a camera moves the ~ controls	μια κάμερα κινεί τα χειριστήρια ~
+a chain on a device, after the mix	αλυσίδα σε συσκευή, μετά τη μίξη
+a comment	ένα σχόλιο
+Act now, without taking the cue	Κάν' το τώρα, χωρίς λήψη του cue
+Add a light	Προσθήκη φωτός
+add a second output to pair	πρόσθεσε δεύτερη έξοδο για ζεύγος
+add shape	προσθήκη σχήματος
+all driven by the cue's own transport	όλα από τη μεταφορά του cue
+All interfaces; trusted machines only.	Όλες οι διεπαφές· μόνο έμπιστα μηχανήματα.
+all to 0	όλα στο 0
+An audio effect's knob	Κουμπί εφέ ήχου
+An effect's knob	Κουμπί εφέ
+any channel	οποιοδήποτε κανάλι
+any window, any screen	οποιοδήποτε παράθυρο, οποιαδήποτε οθόνη
+Arm this cue as the one GO will fire	Όπλισε αυτό το cue για το επόμενο GO
+Art-Net port address, 0-32767	Διεύθυνση θύρας Art-Net, 0-32767
+Attached overlays fire on TAKE only	Οι συνδεδεμένες επικαλύψεις ξεκινούν μόνο με TAKE
+BACK TO BUG SWAT	ΠΙΣΩ ΣΤΟ BUG SWAT
+backdrop	φόντο
+bar	μπάρα
+bg alpha	άλφα φόντου
+black lift	ανύψωση μαύρου
+blend gamma	γάμμα μίξης
+blueprint	σχέδιο
+boxes	κουτιά
+bracket	αγκύλες
+bulletin	δελτίο
+by density	κατά πυκνότητα
+BY FIXTURE	ΑΝΑ ΦΩΤΙΣΤΙΚΟ
+capsule	κάψουλα
+caption	λεζάντα
+card	κάρτα
+CARD OFF ALL	ΚΑΡΤΑ ΣΒΗΣΤΗ ΟΛΑ
+CARD ON ALL	ΚΑΡΤΑ ΑΝΑΜΜΕΝΗ ΟΛΑ
+cartridge	κασέτα
+cassette	κασέτα ήχου
+Ceiling	Οροφή
+Chain	Αλυσίδα
+Changing this re-prepares the cue.	Η αλλαγή προετοιμάζει ξανά το cue.
+channel list is not readable	η λίστα καναλιών δεν διαβάζεται
+CHANNELS	ΚΑΝΑΛΙΑ
+channels on your interfaces, by name	κανάλια των διεπαφών σου, κατά όνομα
+Checkerboard	Σκακιέρα
+chime amber	προειδοποίηση κεχριμπαρί
+chime red	προειδοποίηση κόκκινο
+chime zero	προειδοποίηση μηδέν
+Choose startup mode:	Διάλεξε τρόπο εκκίνησης:
+circle, heart, star...	κύκλος, καρδιά, αστέρι...
+circuit	κύκλωμα
+CLASSIC VIEW	ΚΛΑΣΙΚΗ ΠΡΟΒΟΛΗ
+clear driver	καθαρισμός οδηγού
+Clear in/out trim points	Καθαρισμός σημείων εισόδου/εξόδου
+CLEAR OVERLAY  [Backspace]	ΚΑΘΑΡΙΣΜΟΣ ΕΠΙΚΑΛΥΨΗΣ  [Backspace]
+Clear the active Lower Third overlay now	Βγάλε τώρα το ενεργό Lower Third
+Clear the live PIP overlay now	Βγάλε τώρα την επικάλυψη PIP
+CLICK ANYWHERE...	ΚΛΙΚ ΟΠΟΥΔΗΠΟΤΕ...
+click or Esc to close	κλικ ή Esc για κλείσιμο
+click this window	κλικ σε αυτό το παράθυρο
+Click to edit cue notes	Κλικ για επεξεργασία σημειώσεων cue
+click to open the grid	κλικ για άνοιγμα πλέγματος
+Click to seek — drag to scrub	Κλικ για μετάβαση, σύρε για κύλιση
+Click to type it	Κλικ για πληκτρολόγηση
+comic	κόμικ
+Companion passphrase	Φράση πρόσβασης Companion
+confetti	κομφετί
+Connections at once	Ταυτόχρονες συνδέσεις
+count up	μέτρηση προς τα πάνω
+Countdown, count up, or wall clock	Αντίστροφη μέτρηση, προς τα πάνω ή ρολόι
+credit	τίτλοι τέλους
+crossfade	crossfader
+crosshair	σταυρόνημα
+Crosshatch	Διασταυρούμενη γραμμοσκίαση
+Cue has no audio	Το cue δεν έχει ήχο
+cue number	αριθμός cue
+Cycle end action for selected cues	Αλλαγή τελικής ενέργειας επιλεγμένων cue
+Cycle which slot drives scene audio	Αλλαγή θέσης που δίνει τον ήχο της σκηνής
+dateline	γραμμή ημερομηνίας
+decoder spin-up	εκκίνηση αποκωδικοποιητή
+Default App Feed	Προεπιλεγμένη πηγή εφαρμογής
+Default Camera	Προεπιλεγμένη κάμερα
+Delay before the continue fires	Καθυστέρηση πριν τη συνέχεια
+Delay between GO and this cue starting	Καθυστέρηση μεταξύ GO και έναρξης cue
+depth 1 turns it all the way round	βάθος 1 κάνει πλήρη περιστροφή
+Digit colour once amber is reached	Χρώμα ψηφίων στο κεχριμπαρί
+Digit colour while there is time in hand	Χρώμα ψηφίων με αρκετό χρόνο
+diskette	δισκέτα
+Do it now, without taking the cue	Κάν' το τώρα, χωρίς λήψη του cue
+dossier	φάκελος
+dotmatrix	κουκκιδωτή μήτρα
+Double-GO guard	Προστασία διπλού GO
+draw on the monitor	σχεδίαση στην οθόνη ελέγχου
+driver speed	ταχύτητα οδηγού
+EDGE BLEND	ΜΙΞΗ ΑΚΡΩΝ
+EDIT is on: typing changes the show	EDIT ενεργό: η γραφή αλλάζει την παράσταση
+edit on the monitor	επεξεργασία στην οθόνη ελέγχου
+Edit the main Lower Third title	Επεξεργασία τίτλου Lower Third
+Edit the secondary Lower Third line	Επεξεργασία δεύτερης γραμμής Lower Third
+eq band	ζώνη EQ
+equalizer	ισοσταθμιστής
+Esc cancels	Το Esc ακυρώνει
+Esc cancels, arrows nudge	Esc ακυρώνει, τα βέλη μετακινούν
+Esc to close	Esc για κλείσιμο
+even grid	ομοιόμορφο πλέγμα
+EXAMPLE SHOWS	ΠΑΡΑΣΤΑΣΗ ΠΑΡΑΔΕΙΓΜΑ
+EXIT  Esc	ΕΞΟΔΟΣ  Esc
+face	πρόσωπο
+factory settings	εργοστασιακές ρυθμίσεις
+Fade+LoadNext	Σβήσιμο+Φόρτωση επόμ.
+Fade+Pause	Σβήσιμο+Παύση
+Fade+Rewind	Σβήσιμο+Επαναφορά
+Fade-in duration	Διάρκεια εμφάνισης
+Fade-in duration for this cue	Εμφάνιση αυτού του cue
+Fade-out duration	Διάρκεια σβησίματος
+Fade-out duration before next cue	Σβήσιμο πριν το επόμενο cue
+Fade-out duration for this cue	Σβήσιμο αυτού του cue
+Fall	Πτώση
+false colour reads SDR pictures	τα ψευδή χρώματα διαβάζουν εικόνα SDR
+fill the frame	γέμισε το κάδρο
+find a named colour	βρες χρώμα με όνομα
+fires cues	ξεκινά cue
+first available	το πρώτο ελεύθερο
+Fit/Fill/Stretch/Unscaled	Προσαρμογή/Γέμισμα/Τέντωμα/Χωρίς κλίμακα
+Fixed repeat count — 0 = infinite	Σταθερός αριθμός επαναλήψεων: 0 = άπειρες
+Fixed repeat count — 0 = loop forever	Σταθερός αριθμός επαναλήψεων: 0 = χωρίς τέλος
+FIXED!	ΔΙΟΡΘΩΘΗΚΕ!
+flag	σημαία
+FORGET MY DEFAULTS	ΞΕΧΑΣΕ ΤΙΣ ΠΡΟΕΠΙΛΟΓΕΣ ΜΟΥ
+Frames a second	Καρέ ανά δευτερόλεπτο
+from exactly this routing	ακριβώς από αυτή τη δρομολόγηση
+Full Black	Πλήρες μαύρο
+Full Blue	Πλήρες μπλε
+Full Green	Πλήρες πράσινο
+Full Red	Πλήρες κόκκινο
+Full White	Πλήρες λευκό
+garden	κήπος
+Ghastly	Απόκοσμο
+glass	γυαλί
+glitch down	glitch κάτω
+glitch drift	ολίσθηση glitch
+glitch reach	εμβέλεια glitch
+glitch through	glitch μέσα
+glitch up	glitch πάνω
+GO steps over it	Το GO το προσπερνά
+hairline	λεπτή γραμμή
+Haptics	Τρέμουλο
+HDR input	Είσοδος HDR
+Hex, e.g. 90 3C 7F	Hex, π.χ. 90 3C 7F
+HOLDING OFF AIR	ΚΡΑΤΗΜΑ ΕΚΤΟΣ ΑΕΡΑ
+Home — skip to start	Home: στην αρχή
+Horizontal output offset in pixels	Οριζόντια μετατόπιση εξόδου σε pixel
+How many features fit on screen.	Πόσα χωρούν στην οθόνη.
+how much of this effect	πόσο από αυτό το εφέ
+How solid the ink is	Κάλυψη μελανιού
+How tall the logo is above the clock	Ύψος λογότυπου πάνω από το ρολόι
+In-point: cue starts playback here	Σημείο εισόδου: το cue ξεκινά εδώ
+index	ευρετήριο
+initializing webview	εκκίνηση webview
+install Tailscale here and on the phone	εγκατάστησε το Tailscale εδώ και στο τηλέφωνο
+INSTALLING...	ΕΓΚΑΤΑΣΤΑΣΗ...
+Its amount, or one of its knobs A to D	Η ποσότητά του ή ένα κουμπί από A έως D
+J jump to row	J: μετάβαση σε γραμμή
+jam to	συγχρονισμός σε
+Jump the driver back to its first frame	Γύρνα τον οδηγό στο πρώτο καρέ
+K — cycle cue color tag	K: αλλαγή χρώματος cue
+Keep counting past zero, or stop dead	Μέτρα πέρα από το μηδέν ή σταμάτα
+key	πλήκτρο
+Key edge softness	Απαλότητα άκρης key
+knob	κουμπί
+L - loop this cue continuously	L: επανάληψη αυτού του cue
+last reading	τελευταία ανάγνωση
+Last refused	Τελευταίο απορριφθέν
+Learn it	Μάθε
+LEARN THE BASICS	ΜΑΘΕ ΤΑ ΒΑΣΙΚΑ
+ledger	λογιστικό βιβλίο
+Left — skip back 10s	Αριστερά: 10 δλ πίσω
+Left, centre or right	Αριστερά, κέντρο ή δεξιά
+LESSONS	ΜΑΘΗΜΑΤΑ
+Levels	Επίπεδα
+Limiter	Περιοριστής
+Limiting	Περιορισμός
+line  |  Enter: apply	γραμμή  |  Enter: εφαρμογή
+LINEAR - a feather, not a blend	ΓΡΑΜΜΙΚΟ: διαβάθμιση, όχι μίξη
+Linear, ease in, ease out or S-curve	Γραμμικό, είσοδος, έξοδος ή καμπύλη S
+Lines	Γραμμές
+link aspect	σύνδεση αναλογίας
+Listen to	Άκου
+listener	ακροατής
+LIVE - every assigned deck matches	LIVE: όλα τα εκχωρημένα deck ταιριάζουν
+lock to screen	κλείδωμα στην οθόνη
+logo	λογότυπο
+logo size	μέγεθος λογότυπου
+look at it	κοίτα το
+lower 3rd	Lower Third
+marquee	φωτεινή ταμπέλα
+mask on	μάσκα ενεργή
+Master oscillator rate.	Ταχύτητα κύριου ταλαντωτή.
+Maximum quality	Μέγιστη ποιότητα
+MIDI and OSC monitor	Παρακολούθηση MIDI και OSC
+midi in	είσοδος MIDI
+MIDI note	νότα MIDI
+move points	μετακίνηση σημείων
+Move the height on its own oscillator	Κίνησε το τονικό ύψος με τον ταλαντωτή του
+name or number...	όνομα ή αριθμός...
+name, from anywhere	όνομα, από οπουδήποτε
+NDI source cue	Cue πηγής NDI
+needs file-backed video	χρειάζεται βίντεο από αρχείο
+neon	νέον
+new paths	νέες διαδρομές
+New shows start from	Οι νέες παραστάσεις ξεκινούν από
+next xfade	επόμενο σβήσιμο
+no effects for this cue type	κανένα εφέ για αυτόν τον τύπο cue
+nobody	κανένα
+none - click to learn	κανένα: κλικ για εκμάθηση
+none - click to set some	κανένα: κλικ για ρύθμιση
+none - click to write some	κανένα: κλικ για γραφή
+none yet	κανένα ακόμη
+none: the one picture	κανένα: η μόνη εικόνα
+none: the whole picture	κανένα: όλη η εικόνα
+notebook	σημειωματάριο
+nothing	τίποτα
+nothing assigned yet	τίποτα δεν έχει εκχωρηθεί
+nothing follows	δεν ακολουθεί τίποτα
+Nothing here with this filter.	Τίποτα με αυτό το φίλτρο.
+nothing set - this cue sends nothing	τίποτα ορισμένο: αυτό το cue δεν στέλνει τίποτα
+nothing targeted yet	χωρίς στόχο
+Nothing to see here. Probably.	Τίποτα να δεις εδώ. Μάλλον.
+nothing to send - check the message	τίποτα για αποστολή: έλεγξε το μήνυμα
+offset X	μετατόπιση X
+offset Y	μετατόπιση Y
+on any channel	σε οποιοδήποτε κανάλι
+on the header to add another	στην κεφαλίδα για προσθήκη
+on the monitor	στην οθόνη ελέγχου
+one big on top, the rest below	ένα μεγάλο πάνω, τα άλλα κάτω
+one big, the rest beside it	ένα μεγάλο, τα άλλα δίπλα
+onion off	ριζόχαρτο σβηστό
+onion on	ριζόχαρτο αναμμένο
+only this computer	μόνο αυτός ο υπολογιστής
+Open a .deckboy show file	Άνοιγμα αρχείου .deckboy
+open the monitor	άνοιγμα οθόνης ελέγχου
+or your own bytes	ή τα δικά σου byte
+ORDER - cues advance down the list	ΣΕΙΡΑ: τα cue κατεβαίνουν στη λίστα
+Out-point: cue stops playback here	Σημείο εξόδου: το cue τελειώνει εδώ
+output already has	η έξοδος έχει ήδη
+Outputs Off	Έξοδοι σβηστές
+outs	έξοδοι
+over budget - video will drop frames	πάνω από το όριο: το βίντεο θα χάνει καρέ
+over the picture	πάνω στην εικόνα
+PAIR	ΖΕΥΓΟΣ
+Pair a phone	Ζεύξη τηλεφώνου
+Pair overlap	Επικάλυψη ζεύγους
+Paired phones	Ζευγμένα τηλέφωνα
+Passphrase	Φράση πρόσβασης
+Pattern motion toggle	Κίνηση μοτίβου
+pause begin	παύση στην αρχή
+pennant	σημαιάκι
+Per-cue transition duration override	Διάρκεια μετάβασης αυτού του cue
+Perspective	Προοπτική
+PHASE	ΦΑΣΗ
+Phone access	Πρόσβαση τηλεφώνου
+Phone control	Έλεγχος από τηλέφωνο
+phrase hold	μήκος φράσης
+PICK FROM SCREEN	ΠΑΡΕ ΑΠΟ ΤΗΝ ΟΘΟΝΗ
+Pitch, in semitones.	Τονικό ύψος, σε ημιτόνια.
+PIXEL FOR PIXEL, TOP-LEFT	PIXEL ΠΡΟΣ PIXEL, ΠΑΝΩ ΑΡΙΣΤΕΡΑ
+placard	πινακίδα
+play a note...	παίξε μια νότα...
+PLAY BUG SWAT, a game	ΠΑΙΞΕ BUG SWAT
+Play the out move now, then take it off	Παίξε την έξοδο τώρα, μετά βγάλ' τη
+Playback speed: 0.25–4.0×	Ταχύτητα: 0,25–4,0×
+playlists into the named outputs	λίστα σε ονομασμένες εξόδους
+plays synth	παίξε το synth
+plugin	πρόσθετο
+PNG matte	ματ PNG
+podium	βάθρο
+pop	ποπ
+press a key...	πάτα ένα πλήκτρο...
+PRESS AGAIN TO FORGET	ΠΑΤΑ ΞΑΝΑ ΓΙΑ ΝΑ ΞΕΧΑΣΕΙ
+Previous show file:	Προηγούμενο αρχείο:
+prog bar	γραμμή προόδου
+programme	πρόγραμμα
+Programme with sound in any browser	Πρόγραμμα με ήχο σε κάθε φυλλομετρητή
+PROJECTOR - gamma matched	ΠΡΟΒΟΛΕΑΣ: ταιριασμένο γάμμα
+Projector gamma	Γάμμα προβολέα
+put it on a button	βάλ' το σε ένα κουμπί
+Put the brush's opacity on an oscillator	Βάλε την κάλυψη πινέλου σε ταλαντωτή
+Put the brush's size on an oscillator	Βάλε το μέγεθος πινέλου σε ταλαντωτή
+Put this control on an oscillator	Βάλε αυτό το χειριστήριο σε ταλαντωτή
+rack it	φόρτωσέ το
+RACKED, WARM	ΦΟΡΤΩΘΗΚΕ, ΕΤΟΙΜΟ
+rail	ράγα
+rain	βροχή
+Reads	Διαβάζει
+reads the same on any screen	διαβάζεται ίδιο σε κάθε οθόνη
+recent and in this show	πρόσφατα και σε αυτή την παράσταση
+Recent shows:	Πρόσφατες παραστάσεις:
+red at	κόκκινο στο
+red col	κόκκ. στήλη
+render height	ύψος απόδοσης
+render width	πλάτος απόδοσης
+REPORT A PROBLEM	ΑΝΑΦΟΡΑ ΠΡΟΒΛΗΜΑΤΟΣ
+reported rather than swapped	αναφέρθηκε, δεν αντικαταστάθηκε
+restart driver now	επανεκκίνηση οδηγού τώρα
+restart on take	επανεκκίνηση στο take
+restore at end	επαναφορά στο τέλος
+ribbon	κορδέλα
+Right — skip forward 10s	Δεξιά: 10 δλ μπροστά
+Right-click turns them off.	Το δεξί κλικ τα σβήνει.
+Rise	Άνοδος
+rise, slide or wipe	άνοδος, κύλιση ή παραπέτασμα
+Rotation speed, degrees per second.	Ταχύτητα περιστροφής, μοίρες ανά δευτερόλεπτο.
+rounded rect	στρογγυλό ορθογ.
+row turns the matrix off again	η γραμμή σβήνει ξανά τη μήτρα
+Run it now, without taking the cue	Τρέξε τώρα, χωρίς λήψη του cue
+Run the show from a phone	Τρέξε την παράσταση από τηλέφωνο
+runs off the show thread	εκτός του νήματος της παράστασης
+sACN universe, 1-63999	Σύμπαν sACN, 1-63999
+SAVE AS MY DEFAULTS	ΑΠΟΘΗΚΕΥΣΗ ΩΣ ΠΡΟΕΠΙΛΟΓΕΣ
+says	λέει
+SCALED TO FILL	ΣΕ ΚΛΙΜΑΚΑ ΓΙΑ ΓΕΜΙΣΜΑ
+Scene dwell time — 0 = hold	Χρόνος σκηνής: 0 = κράτημα
+Scene fade-in duration	Εμφάνιση σκηνής
+Scene fade-out duration	Σβήσιμο σκηνής
+scoreboard	πίνακας σκορ
+SCREENS	ΟΘΟΝΕΣ
+scroll	κύλιση
+Scroll up	Κύλιση πάνω
+sea	θάλασσα
+SELECT: MOTION	ΕΠΙΛΟΓΗ: ΚΙΝΗΣΗ
+Send it now, without taking the cue	Στείλε τώρα, χωρίς λήψη του cue
+sends	αποστολή
+Sensitivity	Ευαισθησία
+Set browser URL/path	Ορισμός URL/διαδρομής φυλλομετρητή
+set by	ορίστηκε από
+Set capture source from the cue menu	Ορισμός πηγής από το μενού του cue
+Set cue ID for selected cues	Ορισμός ID επιλεγμένων cue
+Set cue token to jump to when cue ends	Ορισμός cue για άλμα στο τέλος
+Set goto target for selected cues	Ορισμός στόχου επιλεγμένων cue
+Set Lower Third background alpha	Άλφα φόντου Lower Third
+Set per-cue transition duration	Διάρκεια μετάβασης cue
+Set playback speed for selected cues	Ταχύτητα επιλεγμένων cue
+Set repeat count for selected cues	Επαναλήψεις επιλεγμένων cue
+Set short cue id for search/goto	Σύντομο ID για αναζήτηση/άλμα
+Set short cue label for search/goto	Σύντομο όνομα για αναζήτηση/άλμα
+Set the NDI source name to receive	Όνομα πηγής NDI για λήψη
+Shift+[ / ] — fade-out duration	Shift+[ / ]: διάρκεια σβησίματος
+SHOW ME	ΔΕΙΞΕ ΜΟΥ
+Show on	Εμφάνιση σε
+Shows	Εμφάνιση
+sideline	πλαϊνή γραμμή
+sketch	σκίτσο
+slide	ολίσθηση
+slide from left	ολίσθηση από αριστερά
+slide from right	ολίσθηση από δεξιά
+SMOOTH	ΑΠΑΛΟ
+snow	χιόνι
+SOS. Kidding. The show is fine.	SOS. Πλάκα κάνω. Η παράσταση είναι μια χαρά.
+Sound when the clock turns amber	Ήχος όταν το ρολόι γίνει κεχριμπαρί
+Sound when the clock turns red	Ήχος όταν το ρολόι γίνει κόκκινο
+Sound when time is up	Ήχος όταν τελειώσει ο χρόνος
+Space — pause	Διάστημα: παύση
+Space — play	Διάστημα: αναπαραγωγή
+span	άνοιγμα
+sparkle	λάμψη
+Speech models	Μοντέλα ομιλίας
+Speed, like tape	Ταχύτητα, σαν ταινία
+stamp	σφραγίδα
+Start NEW from factory	Ξεκίνα ΝΕΟ από εργοστάσιο
+starting browser	εκκίνηση φυλλομετρητή
+starting capture	εκκίνηση λήψης
+starting xvfb	εκκίνηση xvfb
+sticky	αυτοκόλλητο
+stop at 0	σταμάτα στο 0
+Stop puppeteering this cue	Σταμάτα να οδηγείς αυτό το cue
+STRAIGHT	ΙΣΙΟ
+survey	ανάγλυφο
+SVG paths	Διαδρομές SVG
+tab	καρτέλα
+tag	ετικέτα
+TAP	ΠΑΤΗΣΕ
+terminal	τερματικό
+text mode	λειτουργία κειμένου
+the file cannot be read	το αρχείο δεν διαβάζεται
+The name	Το όνομα
+The OSC path, e.g. /cue/1/start	Η διαδρομή OSC, π.χ. /cue/1/start
+the playlist's PATCH	το PATCH της λίστας
+The role, or leave it empty	Ο ρόλος, ή άφησέ το κενό
+the system output	η έξοδος συστήματος
+The text this cue puts on screen	Το κείμενο που δείχνει αυτό το cue
+theatre	θέατρο
+then stop	μετά σταμάτα
+they have	έχουν
+things that are oscillating	πράγματα που ταλαντώνονται
+this cue lives on	αυτό το cue είναι στο
+This show's setup, no cues	Ρυθμίσεις αυτής της παράστασης, χωρίς cue
+ticket	εισιτήριο
+tile h	πλακίδιο υ
+Tile height in pixels.	Ύψος πλακιδίου σε pixel.
+tile w	πλακίδιο π
+time of day	ώρα της ημέρας
+Timecode	Χρονοκώδικας
+Toggle audio enable for selected cues	Ήχος επιλεγμένων cue
+Toggle chroma key	Εναλλαγή chroma key
+Toggle cue audio	Ήχος cue
+Toggle cue audio track for this cue	Κανάλι ήχου αυτού του cue
+Toggle fade in	Εμφάνιση
+Toggle fade out	Σβήσιμο
+Toggle hold on last frame	Κράτα το τελευταίο καρέ
+Toggle hold-at-end for selected cues	Κράτημα στο τέλος στα επιλεγμένα cue
+Toggle loop	Βρόχος
+Toggle loop for selected cues	Βρόχος επιλεγμένων cue
+Toggle the live input's audio	Ήχος ζωντανής εισόδου
+Total time	Συνολικός χρόνος
+transcoding - plays clean until ready	μετακωδικοποίηση: παίζει καθαρά ως το τέλος
+transparent: put its playlist on a layer	διάφανο: βάλε τη λίστα σε στρώση
+Trusted controllers	Έμπιστοι ελεγκτές
+TURN OFF	ΣΒΗΣΕ
+turn phone control on	άναψε τον έλεγχο από τηλέφωνο
+two big on top, the rest below	δύο μεγάλα πάνω, τα άλλα κάτω
+type a cue number	γράψε αριθμό cue
+Typing needs EDIT on	Η γραφή θέλει EDIT ενεργό
+Use GEOMETRY for exact placement	Χρησιμοποίησε GEOMETRY για ακριβή θέση
+value to type one	τιμή για εγγραφή
+Vertical output offset in pixels	Κάθετη μετατόπιση εξόδου σε pixel
+VIDEO DIP: OFF	VIDEO DIP: ΟΧΙ
+VIDEO DIP: ON	VIDEO DIP: ΝΑΙ
+walk the outputs one at a time.	πέρασε τις εξόδους μία μία.
+walks every output in turn	περνά κάθε έξοδο
+WHAT DECKBOY DID	ΤΙ ΕΚΑΝΕ ΤΟ DECKBOY
+what is on air in a playlist	τι είναι ζωντανά σε μια λίστα
+What NEW starts from, never this show	Από πού ξεκινά το ΝΕΟ, ποτέ αυτή η παράσταση
+whatever the style says	ό,τι λέει το στυλ
+Where the ramp ends	Πού τελειώνει η ράμπα
+Which deck the cue it acts on lives on	Σε ποιο deck είναι το cue στόχος
+Which frame you draw on	Σε ποιο καρέ σχεδιάζεις
+Who can see it	Ποιος μπορεί να το δει
+whole network	όλο το δίκτυο
+will not open	δεν ανοίγει
+window and recording outputs only	μόνο έξοδοι παραθύρου και εγγραφής
+wipe	παραπέτασμα
+Wobble	Ταλάντευση
+wobble by	ταλάντευση κατά
+words	λέξεις
+X — cycle end action	X: αλλαγή τελικής ενέργειας
+X — cycle end action: stop / next / loop	X: τελική ενέργεια: στοπ / επόμ. / βρόχος
+Zones	Ζώνες
+~ makes the level breathe	~ κάνει το επίπεδο να αναπνέει
+a note or an address becomes that cue's trigger	μια νότα ή διεύθυνση γίνεται έναυσμα του cue
+acts on every deck; deck and cue are ignored	δρα σε όλα τα deck· deck και cue αγνοούνται
+Add an output above, then send playlists to it here.	Πρόσθεσε έξοδο πάνω, μετά στείλε εδώ τις λίστες.
+Ancient cypher, modern video desk. Respect.	Αρχαία γραφή, σύγχρονη κονσόλα. Σεβασμός.
+Any font on this computer, Deckboy's own, or a font file	Γραμματοσειρά του υπολογιστή, του Deckboy ή αρχείο
+Apply fade-in to selected video/audio cues	Εμφάνιση στα επιλεγμένα cue βίντεο/ήχου
+Apply fade-out to selected video/audio cues	Σβήσιμο στα επιλεγμένα cue βίντεο/ήχου
+Art-Net or sACN (E1.31): whichever the lighting rig listens to	Art-Net ή sACN (E1.31): ό,τι ακούει ο φωτισμός
+Auto-advance duration — 0 = hold until taken	Αυτόματη συνέχεια: 0 = κράτημα ως το take
+Bypass: this master leaves that deck alone	Παράκαμψη: αυτό το master αφήνει εκείνο το deck
+Characters across. Fewer means bigger cells.	Χαρακτήρες ανά γραμμή. Λιγότεροι δίνουν μεγαλύτερα κελιά.
+Choose a mask from this show's library, or start a new one from a shape	Διάλεξε μάσκα από τη βιβλιοθήκη ή φτιάξε από σχήμα
+Click a value to change it. A red address overlaps another fixture.	Κλικ σε τιμή για αλλαγή. Κόκκινη διεύθυνση επικαλύπτει άλλο φωτιστικό.
+Click to show or hide this cue's captions	Κλικ για εμφάνιση ή απόκρυψη υποτίτλων του cue
+Copy the show AND its media into one portable folder	Αντίγραψε την παράσταση ΚΑΙ τα μέσα σε έναν φορητό φάκελο
+Ctrl+S - write back over the show that is open	Ctrl+S: αποθήκευση στην ανοιχτή παράσταση
+Ctrl+Shift+S - write the show to a NEW file	Ctrl+Shift+S: αποθήκευση σε ΝΕΟ αρχείο
+Device output pair this cue's audio plays on	Ζεύγος εξόδων για τον ήχο αυτού του cue
+E - freeze on last frame instead of stopping	E: πάγωμα στο τελευταίο καρέ αντί για στοπ
+Edit title/subtitle here or fire it live with TAKE	Επεξεργασία τίτλου/υπότιτλου εδώ ή εκκίνηση με TAKE
+Every channel on every universe this session has touched	Κάθε κανάλι σε κάθε σύμπαν που άγγιξε αυτή η συνεδρία
+generator is off - a START cue turns it on	γεννήτρια σβηστή: ένα cue START την ανάβει
+How long the note takes to reach full level.	Χρόνος για να φτάσει η νότα στο πλήρες επίπεδο.
+How much it throws off; 0 is a clean burn	Πόσο ξεφλουδίζει· 0 καίει καθαρά
+INPUT: the programme. Drag a crop to move it, its corners to size it.	ΕΙΣΟΔΟΣ: το πρόγραμμα. Σύρε ένα κόψιμο για μετακίνηση, τις γωνίες για μέγεθος.
+Keep the outside and cut the inside instead	Κράτα το έξω και κόψε το μέσα
+LED panel height in pixels. Click to type it	Ύψος πάνελ LED σε pixel. Κλικ για γραφή
+Legacy target mode — switch type to convert	Παλιά λειτουργία στόχου: άλλαξε τύπο για μετατροπή
+Lissajous, spectrum, meters or a name card	Lissajous, φάσμα, μετρητές ή κάρτα ονόματος
+Load the cue and hold first frame when taken	Φόρτωσε το cue και κράτα το πρώτο καρέ ως το take
+no fixtures patched - Settings > Network > FIXTURES	κανένα φωτιστικό στο patch: Ρυθμίσεις > Δίκτυο > FIXTURES
+Nothing here changes the show that is open.	Τίποτα εδώ δεν αλλάζει την ανοιχτή παράσταση.
+Per-cue audio: enable, trim, pan, mono, fades, normalize	Ήχος cue: ενεργό/ανενεργό, trim, pan, mono, σβησίματα, κανονικοποίηση
+Phone control is in PHONE & TABLET, below	Ο έλεγχος από τηλέφωνο είναι στο PHONE & TABLET, κάτω
+Save the mask as a greyscale PNG at the output's size: white keeps, black cuts	Αποθήκευση μάσκας ως γκρι PNG στο μέγεθος εξόδου: το λευκό κρατά, το μαύρο κόβει
+Seconds REMAINING when the clock turns amber	Δευτερόλεπτα που ΑΠΟΜΕΝΟΥΝ όταν το ρολόι γίνει κεχριμπαρί
+Seconds REMAINING when the clock turns red	Δευτερόλεπτα που ΑΠΟΜΕΝΟΥΝ όταν το ρολόι γίνει κόκκινο
+Shown to the operator when GO reaches this cue	Εμφανίζεται στον χειριστή όταν το GO φτάσει σε αυτό το cue
+SHUFFLE - the next cue is picked at random	ΤΥΧΑΙΟ: το επόμενο cue με κλήρωση
+Slots are self-contained sources in this first pass	Οι θέσεις είναι αυτόνομες πηγές σε αυτή την έκδοση
+that output's whole picture, or its matte	όλη η εικόνα εκείνης της εξόδου ή το ματ της
+The cue number on the other desk, e.g. 12.5	Ο αριθμός cue στην άλλη κονσόλα, π.χ. 12.5
+Toggle pause-at-beginning for selected cues	Παύση στην αρχή στα επιλεγμένα cue
+Toggle transition-to-next for selected cues	Μετάβαση στο επόμενο στα επιλεγμένα cue
+transparent outside the blobs: put it on a layer	διάφανο έξω από τις κηλίδες: βάλ' το σε στρώση
+transparent outside the ink: put it on a layer	διάφανο έξω από το μελάνι: βάλ' το σε στρώση
+what is said, on screen, made on this computer	όσα λέγονται, στην οθόνη, φτιαγμένα σε αυτόν τον υπολογιστή
+What this cue does when it ends - click to change	Τι κάνει αυτό το cue στο τέλος: κλικ για αλλαγή
+Whether the next shape or pen path adds or cuts	Αν το επόμενο σχήμα ή διαδρομή προσθέτει ή κόβει
