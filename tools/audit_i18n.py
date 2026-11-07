@@ -137,6 +137,11 @@ def drawn_strings():
                                 break
                         i += 1
                     args = text[m.end():i]
+                    # "one " "sentence" across lines is ONE string to C++,
+                    # and the catalogue key is the whole of it. Counted in
+                    # pieces, every wrapped tip read as two or three missing
+                    # strings that no catalogue could ever hold.
+                    args = re.sub(r'"\s+"', "", args)
                     for lit in literal.finditer(args):
                         s = lit.group(1)
                         if not s or len(s) < 2:
