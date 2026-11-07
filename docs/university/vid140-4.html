@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Switches, cables and Wi-Fi | Deckboy Video University</title>
+    <meta name="description" content="What carries the traffic, and why the venue's Wi-Fi is not your network.">
+    <style>img,video{max-width:100%;height:auto}</style>
+    <link rel="stylesheet" href="../style.css?v=20261024b">
+    <link rel="stylesheet" href="university.css">
+    <script src="university.js" defer></script>
+</head>
+<body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <nav class="navbar">
+        <div class="logo">Deckboy</div>
+        <div class="nav-links">
+            <a href="index.html">Video University</a>
+            <a href="troubleshooter.html">Troubleshooter</a>
+            <a href="../manual.html">Manual</a>
+            <a href="https://github.com/Utopian-Academy/Deckboy/releases/latest" class="btn-primary">Download Free</a>
+        </div>
+    </nav>
+    <main id="main" class="uni">
+    <p class="uni-crumb"><a href="index.html">Video University</a> / <a href="vid140.html">VID 140</a> / Lecture 4</p>
+    <h1>Switches, cables and Wi-Fi</h1>
+<div class="say pix"><span class="who"><img class="face" src="art/dr-pixel-neutral.png" width="96" height="96" alt="">DR. PIXEL</span><div><p>A <b>switch</b> connects the devices. A <b>router</b> connects networks. A simple show often needs only a switch.</p><p>Use wired connections for anything that matters. Use your own switch. The venue's Wi-Fi is shared with everybody in the room, and you do not control it. When the audience arrives, the Wi-Fi gets slower. That is the worst moment.</p></div></div>
+<section class="sim" aria-label="Simulator: how full is the link"><h2>Try it: how full is the cable?</h2><p>The rates are examples. Check the real rate of your own format and device.</p><div class="sim-controls"><label for="bw-streams">Number of video streams: <output id="bw-n">4</output><input id="bw-streams" type="range" min="1" max="20" value="4"></label><label for="bw-rate">Each stream<select id="bw-rate"><option value="20">A compressed stream: about 20 Mb/s</option><option value="150" selected>A light production stream: about 150 Mb/s</option><option value="3000">Uncompressed 1080p: about 3,000 Mb/s</option></select></label><label for="bw-link">The cable and switch<select id="bw-link"><option value="100">100 Mb/s (old equipment)</option><option value="1000" selected>1 Gb/s</option><option value="10000">10 Gb/s</option></select></label></div><div class="meter"><div id="bw-bar"></div></div><p class="sim-read" id="bw-read"></p></section>
+<div class="say pix"><span class="who"><img class="face" src="art/dr-pixel-pointing.png" width="96" height="96" alt="">DR. PIXEL</span><div><p>Keep some room. A link that runs near 100% drops packets, and then video breaks up. I plan to stay under about 70%, skapi. That is my own rule, and it has served me well.</p><p>Read the speed on the switch. One old 100 Mb/s switch in the chain limits everything behind it. It is often the one nobody remembers.</p></div></div>
+<div class="say prof"><span class="who"><img class="face" src="art/prof-video-neutral.png" width="96" height="96" alt="">PROF. VIDEO</span><div><p>Think of a mixer bus. Every channel sums into one. Push it past the limit and you hear it. Here you see it.</p></div></div>
+<section data-quiz="vid140-4" aria-label="Problems"><h2>Problems</h2><div class="q"><p>Which connects devices on the same network?</p><div class="opts"><button data-right data-why="A router connects networks to each other.">A switch</button><button data-why="No.">A projector</button><button data-why="No.">A DMX cable</button></div><p class="why" aria-live="polite"></p></div><div class="q"><p>Six streams at 150 Mb/s use how much of a 1 Gb/s link?</p><div class="opts"><button data-right data-why="6 x 150 = 900. Use fewer streams or a faster link.">900 Mb/s: too close to the limit</button><button data-why="That is one stream.">150 Mb/s</button><button data-why="Check the multiplication.">6 Gb/s</button></div><p class="why" aria-live="polite"></p></div><div class="q"><p>Why not use the venue's Wi-Fi for show control?</p><div class="opts"><button data-right data-why="It can slow down when the audience arrives.">It is shared, and you do not control it</button><button data-why="It can, but it is not reliable enough here.">Wi-Fi cannot carry numbers</button></div><p class="why" aria-live="polite"></p></div><p class="uni-score" aria-live="polite"></p></section>
+    <section><h2>Do it in Deckboy</h2><p>Look at the output's <b>OUTPUT</b> badge while you stream. It reports missed frames. If frames go missing only when other traffic starts, suspect the network.</p></section>
+    <section class="sources"><h3>Sources</h3><ul><li><a href="https://docs.ndi.video/all/getting-started/white-paper/discovery-and-registration">NDI documentation: discovery and registration</a></li></ul></section>
+    <div class="nextprev"><a href="vid140-3.html">Lecture 3</a><a href="vid140-5.html">Lecture 5: Ports and firewalls</a></div>
+    </main>
+</body>
+</html>

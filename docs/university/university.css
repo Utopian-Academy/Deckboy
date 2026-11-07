@@ -85,3 +85,7 @@
 .uni-reward { display: grid; gap: 1rem; }
 .uni-reward[hidden] { display: none; }
 .say.rat { border-left-color: #c9a7a0; } .say.rat .who { color: #c9a7a0; }
+
+.sim input.ipbox { font: inherit; background: var(--ground); color: var(--ink-body); border: 1px solid var(--ink-soft); padding: .35rem .5rem; width: 100%; font-variant-numeric: tabular-nums; }
+.meter { height: 1rem; background: var(--ground); border: 1px solid var(--ink-soft); }
+.meter > div { height: 100%; width: 0; }
