@@ -15,7 +15,11 @@
 - The cue inspector and the rest of the desk are now translated in every language with a full catalogue. Moroccan Tamazight no longer mixes in French, and Kabyle shows French only for long phrases.
 - More of the interface is translated in Sorani, Kurmanji, Scottish Gaelic, Zulu, Lao, Papiamento, Scots, Lumeni and Kabyle.
 - Fixed: the pattern row in the inspector cut off a long word for "pattern".
+- More of the interface is translated in Klingon and Sindarin, using only words from their published vocabularies. Terms with no such word stay in English.
 - No native speaker has reviewed these translations yet.
+
+### Lessons
+- Fixed: in three lessons (Patterns, synths and Draw; Words on screen; Two playlists and TAKE ALL), a cue added after the + went into playlist 1, and the lesson carried on as if it were in playlist 2. A new step now asks you to click the Deck 2 tab first, and the next step waits until the cue is in Deck 2.
 
 ### Companion module 1.0.10
 - New actions: multiview on or off, its layout and what each window shows; Motion on or off; put a mask on or take it off, invert it, set its opacity; turn a slice on or off; open or close the Screens window; Draw undo, clear and how it plays; add a ready-made MIDI map; open the lessons; start Bug Swat.
