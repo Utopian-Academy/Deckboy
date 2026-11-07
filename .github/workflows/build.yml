@@ -323,7 +323,7 @@ jobs:
         run: |
           set -e
           url=https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n8.1-latest-linux64-gpl-shared-8.1.tar.xz
-          curl -fsSL "$url" -o /tmp/ffmpeg.tar.xz
+          curl -fsSL --retry 4 --retry-all-errors --retry-delay 15 "$url" -o /tmp/ffmpeg.tar.xz
           mkdir -p /tmp/ffmpeg && tar -xJf /tmp/ffmpeg.tar.xz -C /tmp/ffmpeg --strip-components=1
           sudo cp -a /tmp/ffmpeg/bin/. /usr/local/bin/
           sudo cp -a /tmp/ffmpeg/lib/. /usr/local/lib/
@@ -363,7 +363,7 @@ jobs:
           # A RELEASE, not the release-3.4.x branch: on 2026-10-09 a commit to that
           # branch stopped it compiling and took both Linux builds of a release tag
           # with it. Matches the Mac build (tools/macos_build_deps.sh).
-          git clone --depth 1 --branch release-3.4.18 https://github.com/libsdl-org/SDL.git /tmp/SDL
+          bash "$GITHUB_WORKSPACE/tools/ci_retry.sh" git clone --depth 1 --branch release-3.4.18 https://github.com/libsdl-org/SDL.git /tmp/SDL
           # 3.4 HARD-FAILS on a missing X11 dev package where 3.2 quietly turned
           # the feature off, so the dependency list above is now load-bearing --
           # it is SDL's documented Linux set rather than the minimum that
@@ -374,7 +374,7 @@ jobs:
           sudo cmake --install /tmp/SDL/build
           # SDL_ttf has no 3.4 line; 3.2 builds against SDL 3.4 unchanged. A release,
           # not the branch, for the same reason as SDL above.
-          git clone --depth 1 --branch release-3.2.2 --recurse-submodules \
+          bash "$GITHUB_WORKSPACE/tools/ci_retry.sh" git clone --depth 1 --branch release-3.2.2 --recurse-submodules \
             https://github.com/libsdl-org/SDL_ttf.git /tmp/SDL_ttf
           # HARFBUZZ ON. Without it SDL_ttf cannot shape or reorder, so a
           # right-to-left script draws as unjoined letters in the wrong order --
@@ -464,7 +464,7 @@ jobs:
           v=$(sed -n 's/.*kUnicodeVersion = "\(.*\)";/\1/p' native/core/bidi_data.inc)
           echo "Unicode $v"
           for f in BidiTest.txt BidiCharacterTest.txt; do
-            curl -fsSL --retry 3 -o "/tmp/$f" "https://www.unicode.org/Public/$v/ucd/$f"
+            curl -fsSL --retry 4 --retry-all-errors --retry-delay 15 -o "/tmp/$f" "https://www.unicode.org/Public/$v/ucd/$f"
           done
           ./build/deckboy-bidi-check /tmp/BidiTest.txt /tmp/BidiCharacterTest.txt
 
@@ -730,7 +730,7 @@ jobs:
       - name: Build whisper-cli (captions)
         if: matrix.features == 'all'
         run: |
-          git clone --depth 1 --branch v1.9.5 https://github.com/ggml-org/whisper.cpp "$RUNNER_TEMP/whisper.cpp"
+          bash "$GITHUB_WORKSPACE/tools/ci_retry.sh" git clone --depth 1 --branch v1.9.5 https://github.com/ggml-org/whisper.cpp "$RUNNER_TEMP/whisper.cpp"
           cmake -S "$RUNNER_TEMP/whisper.cpp" -B "$RUNNER_TEMP/whisper-build" -DCMAKE_BUILD_TYPE=Release \
             -DBUILD_SHARED_LIBS=OFF -DGGML_NATIVE=OFF -DGGML_OPENMP=OFF -DWHISPER_BUILD_TESTS=OFF -DWHISPER_BUILD_SERVER=OFF
           cmake --build "$RUNNER_TEMP/whisper-build" --target whisper-cli -j"$(nproc)"
@@ -848,7 +848,7 @@ jobs:
         run: |
           set -e
           url=https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n8.1-latest-linuxarm64-gpl-shared-8.1.tar.xz
-          curl -fsSL "$url" -o /tmp/ffmpeg.tar.xz
+          curl -fsSL --retry 4 --retry-all-errors --retry-delay 15 "$url" -o /tmp/ffmpeg.tar.xz
           mkdir -p /tmp/ffmpeg && tar -xJf /tmp/ffmpeg.tar.xz -C /tmp/ffmpeg --strip-components=1
           sudo cp -a /tmp/ffmpeg/bin/. /usr/local/bin/
           sudo cp -a /tmp/ffmpeg/lib/. /usr/local/lib/
@@ -867,11 +867,11 @@ jobs:
       - name: Install SDL3 and SDL_ttf (releases, from source)
         run: |
           set -e
-          git clone --depth 1 --branch release-3.4.18 https://github.com/libsdl-org/SDL.git /tmp/SDL
+          bash "$GITHUB_WORKSPACE/tools/ci_retry.sh" git clone --depth 1 --branch release-3.4.18 https://github.com/libsdl-org/SDL.git /tmp/SDL
           cmake -S /tmp/SDL -B /tmp/SDL/build -DCMAKE_BUILD_TYPE=Release -DSDL_STATIC=OFF
           cmake --build /tmp/SDL/build -j"$(nproc)"
           sudo cmake --install /tmp/SDL/build
-          git clone --depth 1 --branch release-3.2.2 --recurse-submodules \
+          bash "$GITHUB_WORKSPACE/tools/ci_retry.sh" git clone --depth 1 --branch release-3.2.2 --recurse-submodules \
             https://github.com/libsdl-org/SDL_ttf.git /tmp/SDL_ttf
           cmake -S /tmp/SDL_ttf -B /tmp/SDL_ttf/build -DCMAKE_BUILD_TYPE=Release -DSDLTTF_VENDORED=ON -DSDLTTF_HARFBUZZ=ON
           cmake --build /tmp/SDL_ttf/build -j"$(nproc)"
@@ -1301,7 +1301,7 @@ jobs:
       # not ship looking like one that can.
       - name: Build whisper-cli (captions)
         run: |
-          git clone --depth 1 --branch v1.9.5 https://github.com/ggml-org/whisper.cpp "$RUNNER_TEMP/whisper.cpp"
+          bash "$GITHUB_WORKSPACE/tools/ci_retry.sh" git clone --depth 1 --branch v1.9.5 https://github.com/ggml-org/whisper.cpp "$RUNNER_TEMP/whisper.cpp"
           cmake -S "$RUNNER_TEMP/whisper.cpp" -B "$RUNNER_TEMP/whisper-build" -DCMAKE_BUILD_TYPE=Release \
             -DBUILD_SHARED_LIBS=OFF -DGGML_NATIVE=OFF -DGGML_OPENMP=OFF -DWHISPER_BUILD_TESTS=OFF -DWHISPER_BUILD_SERVER=OFF \
             -DCMAKE_OSX_DEPLOYMENT_TARGET="${{ matrix.captions_floor }}"
@@ -1528,7 +1528,7 @@ jobs:
       - name: Install vcpkg
         id: vcpkg-setup
         run: |
-          git clone --depth 1 https://github.com/microsoft/vcpkg.git
+          foreach ($try in 1..4) { git clone --depth 1 https://github.com/microsoft/vcpkg.git; if ($LASTEXITCODE -eq 0) { break }; if ($try -eq 4) { throw "git clone failed 4 times" }; Start-Sleep -Seconds (15 * $try) }
           .\vcpkg\bootstrap-vcpkg.bat
           git -C vcpkg rev-parse HEAD | ForEach-Object { "revision=$_" >> $env:GITHUB_OUTPUT }
 
@@ -1904,7 +1904,7 @@ jobs:
         if: matrix.features == 'all'
         shell: pwsh
         run: |
-          git clone --depth 1 --branch v1.9.5 https://github.com/ggml-org/whisper.cpp "$env:RUNNER_TEMP\whisper.cpp"
+          foreach ($try in 1..4) { git clone --depth 1 --branch v1.9.5 https://github.com/ggml-org/whisper.cpp "$env:RUNNER_TEMP\whisper.cpp"; if ($LASTEXITCODE -eq 0) { break }; if ($try -eq 4) { throw "git clone failed 4 times" }; Start-Sleep -Seconds (15 * $try) }
           cmake -S "$env:RUNNER_TEMP\whisper.cpp" -B "$env:RUNNER_TEMP\whisper-build" -DBUILD_SHARED_LIBS=OFF -DGGML_NATIVE=OFF -DGGML_OPENMP=OFF -DWHISPER_BUILD_TESTS=OFF -DWHISPER_BUILD_SERVER=OFF
           if ($LASTEXITCODE -ne 0) { throw "whisper.cpp configure failed" }
           cmake --build "$env:RUNNER_TEMP\whisper-build" --config Release --target whisper-cli -j 4
