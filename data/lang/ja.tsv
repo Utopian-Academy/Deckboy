@@ -1342,3 +1342,34 @@ Dimmer	ディマー
 Dimmer + RGB	ディマー + RGB
 Dimmer + temperature	ディマー + 色温度
 QR CODE	QRコード
+loop	ループ
+inherit	継承
+Fill	フィル
+Stretch	引き伸ばし
+Dissolve	ディゾルブ
+Pattern	パターン
+mixed	混在
+selected cue lane  |  TAKE to make it live	選択キューのレーン  |  TAKEでライブへ
+Dip to black	黒経由
+Dip to white	白経由
+Iris	アイリス
+Push left	左へプッシュ
+Push right	右へプッシュ
+Push up	上へプッシュ
+Push down	下へプッシュ
+Wipe left	左ワイプ
+Wipe right	右ワイプ
+Wipe up	上ワイプ
+Wipe down	下ワイプ
+Still	静止画
+Timecode	タイムコード
+address	アドレス
+auto next	自動で次へ
+continue	続行
+deck fader	デッキフェーダー
+fire	発火
+in	イン
+out	アウト
+pan	パン
+routing	ルーティング
+trim	トリム

@@ -1336,3 +1336,34 @@ Dimmer	Димер
 Dimmer + RGB	Димер + RGB
 Dimmer + temperature	Димер + температура
 QR CODE	QR КОД
+loop	цикъл
+inherit	наследи
+Fill	Запълни
+Stretch	Разтегни
+Dissolve	Разтваряне
+Pattern	Шаблон
+mixed	смесено
+selected cue lane  |  TAKE to make it live	писта на избрания cue  |  TAKE го пуска в ефир
+Dip to black	През черно
+Dip to white	През бяло
+Iris	Ирис
+Push left	Бутане вляво
+Push right	Бутане вдясно
+Push up	Бутане нагоре
+Push down	Бутане надолу
+Wipe left	Завеса вляво
+Wipe right	Завеса вдясно
+Wipe up	Завеса нагоре
+Wipe down	Завеса надолу
+Still	Стоп кадър
+Timecode	Тайм код
+address	адрес
+auto next	авто следващ
+continue	продължи
+deck fader	фейдър на дека
+fire	пусни
+in	вх.
+out	изх.
+pan	пан
+routing	маршрут
+trim	изрязване

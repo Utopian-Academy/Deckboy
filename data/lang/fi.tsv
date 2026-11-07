@@ -1334,3 +1334,33 @@ Dimmer	Himmennin
 Dimmer + RGB	Himmennin + RGB
 Dimmer + temperature	Himmennin + lämpötila
 QR CODE	QR-KOODI
+loop	silmukka
+inherit	peri
+Fill	Täytä
+Stretch	Venytä
+Dissolve	Häivytys
+Pattern	Kuvio
+mixed	sekalainen
+selected cue lane  |  TAKE to make it live	valitun cuen raita  |  TAKE vie sen lähetykseen
+Dip to black	Mustan kautta
+Dip to white	Valkoisen kautta
+Iris	Iiris
+Push left	Työnnä vasemmalle
+Push right	Työnnä oikealle
+Push up	Työnnä ylös
+Push down	Työnnä alas
+Wipe left	Pyyhi vasemmalle
+Wipe right	Pyyhi oikealle
+Wipe up	Pyyhi ylös
+Wipe down	Pyyhi alas
+Still	Pysäytyskuva
+Timecode	Aikakoodi
+address	osoite
+auto next	auto seuraava
+continue	jatka
+deck fader	deckin liukusäädin
+fire	käynnistä
+in	sisään
+out	ulos
+routing	reititys
+trim	rajaus

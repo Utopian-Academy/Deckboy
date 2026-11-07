@@ -1340,3 +1340,34 @@ Dimmer	디머
 Dimmer + RGB	디머 + RGB
 Dimmer + temperature	디머 + 색온도
 QR CODE	QR 코드
+loop	루프
+inherit	상속
+Fill	채움
+Stretch	늘림
+Dissolve	디졸브
+Pattern	패턴
+mixed	혼합
+selected cue lane  |  TAKE to make it live	선택한 큐 레인  |  TAKE로 라이브
+Dip to black	검정 경유
+Dip to white	흰색 경유
+Iris	아이리스
+Push left	왼쪽 밀기
+Push right	오른쪽 밀기
+Push up	위로 밀기
+Push down	아래로 밀기
+Wipe left	왼쪽 와이프
+Wipe right	오른쪽 와이프
+Wipe up	위 와이프
+Wipe down	아래 와이프
+Still	정지 화면
+Timecode	타임코드
+address	주소
+auto next	자동 다음
+continue	계속
+deck fader	덱 페이더
+fire	실행
+in	인
+out	아웃
+pan	팬
+routing	라우팅
+trim	트림

@@ -1324,3 +1324,29 @@ Dimmer	Lysdæmper
 Dimmer + RGB	Lysdæmper + RGB
 Dimmer + temperature	Lysdæmper + temperatur
 QR CODE	QR-KODE
+loop	løkke
+inherit	arv
+Fill	Fyld
+Stretch	Stræk
+Dissolve	Overtoning
+Pattern	Mønster
+mixed	blandet
+selected cue lane  |  TAKE to make it live	valgt cue-spor  |  TAKE sender det live
+Dip to black	Via sort
+Dip to white	Via hvid
+Push left	Skub venstre
+Push right	Skub højre
+Push up	Skub op
+Push down	Skub ned
+Wipe left	Vis venstre
+Wipe right	Vis højre
+Wipe up	Vis op
+Wipe down	Vis ned
+Still	Stillbillede
+address	adresse
+auto next	auto næste
+continue	fortsæt
+deck fader	deck-fader
+fire	start
+in	ind
+out	ud

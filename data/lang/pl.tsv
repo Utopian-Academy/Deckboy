@@ -1335,3 +1335,31 @@ Dimmer	Dimmer
 Dimmer + RGB	Dimmer + RGB
 Dimmer + temperature	Dimmer + temperatura
 QR CODE	KOD QR
+loop	pętla
+inherit	dziedzicz
+Fill	Wypełnij
+Stretch	Rozciągnij
+Dissolve	Przenikanie
+Pattern	Wzór
+mixed	mieszane
+selected cue lane  |  TAKE to make it live	ścieżka wybranego cue  |  TAKE daje ją na antenę
+Dip to black	Przez czerń
+Dip to white	Przez biel
+Iris	Przysłona
+Push left	Pchnij w lewo
+Push right	Pchnij w prawo
+Push up	Pchnij w górę
+Push down	Pchnij w dół
+Wipe left	Kurtyna w lewo
+Wipe right	Kurtyna w prawo
+Wipe up	Kurtyna w górę
+Wipe down	Kurtyna w dół
+Still	Stopklatka
+address	adres
+auto next	auto dalej
+continue	kontynuuj
+deck fader	suwak decku
+fire	uruchom
+in	wej.
+out	wyj.
+trim	przytnij

@@ -1349,3 +1349,34 @@ Dimmer	معتّم
 Dimmer + RGB	معتّم + RGB
 Dimmer + temperature	معتّم + حرارة اللون
 QR CODE	رمز QR
+loop	تكرار
+inherit	وراثة
+Fill	ملء
+Stretch	تمديد
+Dissolve	تلاشٍ
+Pattern	نمط اختبار
+mixed	مختلط
+selected cue lane  |  TAKE to make it live	مسار الـ cue المحدد  |  TAKE يبثه مباشرة
+Dip to black	عبر الأسود
+Dip to white	عبر الأبيض
+Iris	قزحية
+Push left	دفع لليسار
+Push right	دفع لليمين
+Push up	دفع للأعلى
+Push down	دفع للأسفل
+Wipe left	مسح لليسار
+Wipe right	مسح لليمين
+Wipe up	مسح للأعلى
+Wipe down	مسح للأسفل
+Still	صورة ثابتة
+Timecode	الكود الزمني
+address	العنوان
+auto next	التالي تلقائيًا
+continue	متابعة
+deck fader	فيدر الـ deck
+fire	تشغيل
+in	دخول
+out	خروج
+pan	توازن
+routing	التوجيه
+trim	قص

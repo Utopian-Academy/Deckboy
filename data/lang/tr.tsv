@@ -1331,3 +1331,32 @@ Dimmer	Dimmer
 Dimmer + RGB	Dimmer + RGB
 Dimmer + temperature	Dimmer + sıcaklık
 QR CODE	QR KODU
+loop	döngü
+inherit	devral
+Fill	Doldur
+Stretch	Uzat
+Dissolve	Geçiş
+Pattern	Desen
+mixed	karışık
+selected cue lane  |  TAKE to make it live	seçili cue şeridi  |  TAKE canlıya alır
+Dip to black	Siyahtan
+Dip to white	Beyazdan
+Iris	İris
+Push left	Sola it
+Push right	Sağa it
+Push up	Yukarı it
+Push down	Aşağı it
+Wipe left	Sola sil
+Wipe right	Sağa sil
+Wipe up	Yukarı sil
+Wipe down	Aşağı sil
+Still	Durağan
+Timecode	Zaman kodu
+address	adres
+auto next	otomatik sonraki
+continue	devam
+fire	tetikle
+in	giriş
+out	çıkış
+routing	yönlendirme
+trim	kırp

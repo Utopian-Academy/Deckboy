@@ -1332,3 +1332,30 @@ Dimmer	Gradateur
 Dimmer + RGB	Gradateur + RGB
 Dimmer + temperature	Gradateur + température
 QR CODE	CODE QR
+loop	boucle
+inherit	hériter
+Fill	Remplir
+Stretch	Étirer
+Dissolve	Fondu
+Pattern	Mire
+mixed	mixte
+selected cue lane  |  TAKE to make it live	piste du cue choisi  |  TAKE pour la mettre en direct
+Dip to black	Par le noir
+Dip to white	Par le blanc
+Push left	Pousser gauche
+Push right	Pousser droite
+Push up	Pousser haut
+Push down	Pousser bas
+Wipe left	Volet gauche
+Wipe right	Volet droite
+Wipe up	Volet haut
+Wipe down	Volet bas
+Still	Image fixe
+address	adresse
+auto next	suivant auto
+continue	continuer
+deck fader	fader du deck
+fire	déclencher
+in	entrée
+out	sortie
+routing	routage

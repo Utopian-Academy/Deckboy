@@ -1337,3 +1337,34 @@ Dimmer	Димер
 Dimmer + RGB	Димер + RGB
 Dimmer + temperature	Димер + температура
 QR CODE	QR-КОД
+loop	цикл
+inherit	успадкувати
+Fill	Заповнити
+Stretch	Розтягнути
+Dissolve	Розчинення
+Pattern	Шаблон
+mixed	різне
+selected cue lane  |  TAKE to make it live	доріжка вибраного cue  |  TAKE виводить в ефір
+Dip to black	Через чорний
+Dip to white	Через білий
+Iris	Ірис
+Push left	Зсув уліво
+Push right	Зсув управо
+Push up	Зсув угору
+Push down	Зсув униз
+Wipe left	Шторка вліво
+Wipe right	Шторка вправо
+Wipe up	Шторка вгору
+Wipe down	Шторка вниз
+Still	Стоп-кадр
+Timecode	Таймкод
+address	адреса
+auto next	авто далі
+continue	продовжити
+deck fader	фейдер дека
+fire	запуск
+in	вх.
+out	вих.
+pan	панорама
+routing	маршрут
+trim	обрізка

@@ -1340,3 +1340,32 @@ Dimmer	Dimmer
 Dimmer + RGB	Dimmer + RGB
 Dimmer + temperature	Dimmer + Farbtemperatur
 QR CODE	QR-CODE
+loop	Schleife
+inherit	erben
+Fill	Füllen
+Stretch	Strecken
+Dissolve	Überblenden
+Pattern	Testbild
+mixed	gemischt
+selected cue lane  |  TAKE to make it live	gewählte Cue-Spur  |  TAKE macht sie live
+Dip to black	Über Schwarz
+Dip to white	Über Weiß
+Push left	Schieben links
+Push right	Schieben rechts
+Push up	Schieben hoch
+Push down	Schieben runter
+Wipe left	Wischen links
+Wipe right	Wischen rechts
+Wipe up	Wischen hoch
+Wipe down	Wischen runter
+Still	Standbild
+address	Adresse
+auto next	auto weiter
+continue	weiter
+deck fader	Deck-Fader
+fire	auslösen
+in	ein
+out	aus
+pan	Pan
+routing	Routing
+trim	Trim

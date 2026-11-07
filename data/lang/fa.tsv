@@ -1346,3 +1346,34 @@ Dimmer	دیمر
 Dimmer + RGB	دیمر + RGB
 Dimmer + temperature	دیمر + دما
 QR CODE	کد QR
+loop	حلقه
+inherit	ارث‌بری
+Fill	پر کردن
+Stretch	کشیدن
+Dissolve	محو تدریجی
+Pattern	الگو
+mixed	ترکیبی
+selected cue lane  |  TAKE to make it live	مسیر cue انتخاب‌شده  |  TAKE آن را پخش می‌کند
+Dip to black	از سیاه
+Dip to white	از سفید
+Iris	عنبیه
+Push left	هل به چپ
+Push right	هل به راست
+Push up	هل به بالا
+Push down	هل به پایین
+Wipe left	جاروب چپ
+Wipe right	جاروب راست
+Wipe up	جاروب بالا
+Wipe down	جاروب پایین
+Still	ثابت
+Timecode	تایم‌کد
+address	نشانی
+auto next	بعدی خودکار
+continue	ادامه
+deck fader	فیدر deck
+fire	اجرا
+in	ورودی
+out	خروجی
+pan	تراز
+routing	مسیریابی
+trim	برش

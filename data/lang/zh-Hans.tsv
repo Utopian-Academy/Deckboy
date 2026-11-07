@@ -1341,3 +1341,34 @@ Dimmer	调光器
 Dimmer + RGB	调光器 + RGB
 Dimmer + temperature	调光器 + 色温
 QR CODE	二维码
+loop	循环
+inherit	继承
+Fill	填充
+Stretch	拉伸
+Dissolve	叠化
+Pattern	图案
+mixed	混合
+selected cue lane  |  TAKE to make it live	所选 cue 轨道  |  按 TAKE 上线
+Dip to black	经黑场
+Dip to white	经白场
+Iris	光圈
+Push left	向左推
+Push right	向右推
+Push up	向上推
+Push down	向下推
+Wipe left	向左擦除
+Wipe right	向右擦除
+Wipe up	向上擦除
+Wipe down	向下擦除
+Still	静帧
+Timecode	时间码
+address	地址
+auto next	自动下一个
+continue	继续
+deck fader	deck 推子
+fire	触发
+in	入
+out	出
+pan	声像
+routing	路由
+trim	修剪

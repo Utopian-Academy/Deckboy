@@ -1334,3 +1334,33 @@ Dimmer	Dimmir
 Dimmer + RGB	Dimmir + RGB
 Dimmer + temperature	Dimmir + litahitastig
 QR CODE	QR-KÓÐI
+loop	lykkja
+inherit	erfa
+Fill	Fylla
+Stretch	Teygja
+Dissolve	Þoning
+Pattern	Mynstur
+mixed	blandað
+selected cue lane  |  TAKE to make it live	rás valins cue  |  TAKE setur í loftið
+Dip to black	Um svart
+Dip to white	Um hvítt
+Iris	Lithimna
+Push left	Ýta til vinstri
+Push right	Ýta til hægri
+Push up	Ýta upp
+Push down	Ýta niður
+Wipe left	Strjúka til vinstri
+Wipe right	Strjúka til hægri
+Wipe up	Strjúka upp
+Wipe down	Strjúka niður
+Still	Kyrrmynd
+Timecode	Tímakóði
+address	vistfang
+auto next	sjálfvirkt næst
+continue	halda áfram
+deck fader	deck-sleði
+fire	ræsa
+in	inn
+out	út
+routing	beining
+trim	snyrta

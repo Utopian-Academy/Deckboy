@@ -1328,3 +1328,28 @@ Dimmer	Dimmer
 Dimmer + RGB	Dimmer + RGB
 Dimmer + temperature	Dimmer + temperatuur
 QR CODE	QR-CODE
+loop	lus
+inherit	overnemen
+Fill	Vullen
+Stretch	Uitrekken
+Dissolve	Overvloeien
+Pattern	Testbeeld
+mixed	gemengd
+selected cue lane  |  TAKE to make it live	spoor gekozen cue  |  TAKE zet het live
+Dip to black	Via zwart
+Dip to white	Via wit
+Push left	Duwen links
+Push right	Duwen rechts
+Push up	Duwen omhoog
+Push down	Duwen omlaag
+Wipe left	Veeg links
+Wipe right	Veeg rechts
+Wipe up	Veeg omhoog
+Wipe down	Veeg omlaag
+Still	Stilstaand
+address	adres
+auto next	auto volgende
+continue	doorgaan
+deck fader	deck-fader
+fire	starten
+out	uit

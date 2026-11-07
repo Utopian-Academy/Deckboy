@@ -1329,3 +1329,33 @@ Dimmer	Dimmer
 Dimmer + RGB	Dimmer + RGB
 Dimmer + temperature	Dimmer + nhiệt độ
 QR CODE	MÃ QR
+loop	lặp
+inherit	kế thừa
+Fill	Lấp đầy
+Stretch	Kéo giãn
+Dissolve	Hòa tan
+Pattern	Mẫu
+mixed	hỗn hợp
+selected cue lane  |  TAKE to make it live	làn cue đã chọn  |  TAKE để phát trực tiếp
+Dip to black	Qua đen
+Dip to white	Qua trắng
+Iris	Mống mắt
+Push left	Đẩy trái
+Push right	Đẩy phải
+Push up	Đẩy lên
+Push down	Đẩy xuống
+Wipe left	Quét trái
+Wipe right	Quét phải
+Wipe up	Quét lên
+Wipe down	Quét xuống
+Still	Ảnh tĩnh
+Timecode	Mã thời gian
+address	địa chỉ
+auto next	tự động tiếp
+continue	tiếp tục
+deck fader	fader deck
+fire	kích hoạt
+in	vào
+out	ra
+routing	định tuyến
+trim	cắt

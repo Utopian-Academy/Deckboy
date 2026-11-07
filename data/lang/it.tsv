@@ -1332,3 +1332,26 @@ Dimmer	Dimmer
 Dimmer + RGB	Dimmer + RGB
 Dimmer + temperature	Dimmer + temperatura
 QR CODE	CODICE QR
+inherit	eredita
+Fill	Riempi
+Stretch	Allunga
+Dissolve	Dissolvenza
+mixed	misto
+selected cue lane  |  TAKE to make it live	traccia del cue scelto  |  TAKE per mandarla in onda
+Dip to black	Sul nero
+Dip to white	Sul bianco
+Iris	Iride
+Push left	Spingi a sinistra
+Push right	Spingi a destra
+Push up	Spingi su
+Push down	Spingi giù
+Wipe left	Tendina sinistra
+Wipe right	Tendina destra
+Wipe up	Tendina su
+Wipe down	Tendina giù
+Still	Fermo immagine
+address	indirizzo
+auto next	avanti auto
+continue	continua
+deck fader	fader del deck
+fire	attiva

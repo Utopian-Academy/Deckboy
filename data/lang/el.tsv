@@ -1336,3 +1336,32 @@ Dimmer	Dimmer
 Dimmer + RGB	Dimmer + RGB
 Dimmer + temperature	Dimmer + θερμοκρασία
 QR CODE	ΚΩΔΙΚΟΣ QR
+loop	βρόχος
+inherit	κληρονομιά
+Fill	Γέμισμα
+Stretch	Τέντωμα
+Dissolve	Διάλυση
+Pattern	Μοτίβο
+mixed	μικτό
+selected cue lane  |  TAKE to make it live	κανάλι επιλεγμένου cue  |  TAKE για να βγει στον αέρα
+Dip to black	Μέσω μαύρου
+Dip to white	Μέσω λευκού
+Iris	Ίριδα
+Push left	Ώθηση αριστερά
+Push right	Ώθηση δεξιά
+Push up	Ώθηση πάνω
+Push down	Ώθηση κάτω
+Wipe left	Σάρωση αριστερά
+Wipe right	Σάρωση δεξιά
+Wipe up	Σάρωση πάνω
+Wipe down	Σάρωση κάτω
+Still	Ακίνητη εικόνα
+address	διεύθυνση
+auto next	αυτόματο επόμενο
+continue	συνέχεια
+deck fader	fader του deck
+fire	εκκίνηση
+in	είσ.
+out	έξ.
+routing	δρομολόγηση
+trim	περικοπή
