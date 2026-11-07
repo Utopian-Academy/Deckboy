@@ -108,7 +108,9 @@ def run_lives(exe, work, show):
         try:
             db.snapshot(base / "starting.bmp")
             later = time.monotonic() - t2
-        except TimeoutError:
+        except (TimeoutError, RuntimeError):
+            # RuntimeError: the app closed while the request was on its way.
+            wait_until(lambda: db.proc.poll() is not None, 3)
             # Closing is the job: where the app has already gone (a fast
             # install, a slow test machine), there is no later frame to ask for.
             later = 0.0 if db.proc.poll() is not None else 99.0
