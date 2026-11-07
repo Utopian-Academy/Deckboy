@@ -682,3 +682,330 @@ START: AGAIN	START: DÎSA
 START: PLAY	START: BILÎZE
 # --- end of tutorials ---
 >LIVE	>ZINDÎ
+NO	NA
+YES	ERÊ
+To	Ji bo
+UP	JOR
+add	zêde bike
+all	hemû
+any	her yek
+box	çargoşe
+Cut	Birrîn
+Fit	Bicih bike
+hue	reng
+inf	bêdawî
+key	bişkok
+Map	Nexşe
+Now	Niha
+ONE	YEK
+RED	SOR
+Row	Rêz
+run	bimeşîne
+sea	derya
+set	diyar bike
+tab	hilpekîn
+tag	etiket
+Top	Jor
+BACK	PAŞ
+bell	zeng
+blue	şîn
+Code	Kod
+DOWN	JÊR
+DRAW	XÊZ BIKE
+face	rû
+Fall	Daketin
+Fill	Tije bike
+film	fîlm
+font	curetîp
+From	Ji
+FULL	TIJE
+grow	mezin bike
+HELD	HATIYE GIRTIN
+hold	bigire
+idle	bêkar
+KEYS	BIŞKOK
+Left	Çep
+line	xêz
+Load	Bar bike
+Loop	Dubare
+MASK	MASKE
+NONE	TU YEK
+ONCE	CAREK
+oval	hêkî
+PAIR	COT
+PICK	HILBIJÊRE
+play	bilîze
+Port	Dergeh
+QUAD	ÇAR
+rain	baran
+Rate	Rêje
+Rise	Bilindbûn
+send	bişîne
+show	pêşandan
+Size	Mezinahî
+SKIP	DERBAS BE
+snow	berf
+soft	nerm
+STEP	GAV
+TEXT	NIVÎS
+type	cure
+Word	Peyv
++ ADD	+ ZÊDE BIKE
+align	rêz bike
+black	reş
+blend	tevlihev
+boxes	çargoşe
+brush	firçe
+Chain	Zincîr
+Curve	Kevan
+Delay	Derengî
+do it	bike
+FIXED	SABÎT
+frame	çarçove
+glass	cam
+green	kesk
+LEARN	FÊR BIBE
+level	ast
+Lines	Xêz
+mixed	tevlihev
+notes	têbînî
+ORDER	RÊZ
+Pause	Bisekinîne
+Right	Rast
+scale	pîvan
+shape	şikl
+Short	Kurt
+speed	lez
+split	parçe bike
+START	DEST PÊ BIKE
+state	rewş
+Still	Wêne
+style	şêwaz
+title	sernav
+Width	Firehî
+words	peyv
+Zones	Herêm
+(none)	(tune)
+ALL ON	HEMÛ ÇALAK
+amount	mîqdar
+anyone	her kes
+Camera	Kamera
+center	navend
+Centre	Navend
+CHANGE	BIGUHERÎNE
+CHOOSE	HILBIJÊRE
+Clouds	Ewr
+DELETE	JÊ BIBE
+eraser	jêbir
+export	derxe
+FIXED!	HAT SERRASTKIRIN!
+follow	bişopîne
+FREEZE	BICEMIDÎNE
+FROZEN	CEMIDÎ
+garden	baxçe
+LAYOUT	RÊKXISTIN
+Levels	Ast
+Linear	Xêzî
+MOTION	TEVGER
+nobody	tu kes
+Output	Derketin
+REBOOT	JI NÛ VE BIDE DESTPÊKIRIN
+Resume	Berdewam be
+signal	Sînyal
+SMOOTH	NERM
+Target	Armanc
+VALUES	NIRX
+Window	Pace
+(empty)	(vala)
+(unset)	(nehatiye diyarkirin)
+address	navnîşan
+ALL OFF	HEMÛ GIRTÎ
+Browser	Gerok
+Command	Ferman
+CONVERT	VEGUHERÎNE
+Cue hue	Rengê cue
+Desktop	Sermase
+EFFECTS	EFEKT
+English	Îngilîzî
+LESSONS	DERS
+Message	Peyam
+move up	bibe jor
+nothing	tiştek tune
+OUTPUTS	DERKETIN
+Picture	Wêne
+repeats	dubare
+RUNNING	DIXEBITE
+SCREENS	EKRAN
+SHOW ME	NÎŞANÎ MIN BIDE
+Show on	Nîşan bide li
+standby	li bendê
+Stretch	Dirêj bike
+theatre	şano
++ OUTPUT	+ DERKETIN
+all to 0	hemû bike 0
+backdrop	paşxane
+captions	binnivîs
+CHANNELS	KANAL
+CLOCK ON	SAET ÇALAK
+continue	berdewam be
+count up	bijmêre
+DEFAULTS	PÊŞDANASÎN
+Full Red	Sorê temam
+IDENTIFY	NAS BIKE
+Learn it	Fêr bibe
+METADATA	METADANE
+none yet	hêj tune
+notebook	defter
+offset X	Şemitîna X
+offset Y	Şemitîna Y
+on press	dema pêlêkirinê
+SECTIONS	BEŞ
+Stop all	Hemûyan rawestîne
+STRAIGHT	RAST
+subtitle	binnivîs
+subtract	kêm bike
+The name	Nav
+THE SHOW	PÊŞANDAN
+THIS CUE	EV CUE
+TURN OFF	BIGIRE
+(not set)	(nehatiye diyarkirin)
+a comment	şîroveyek
+add shape	şikl zêde bike
+choose...	hilbijêre...
+CLOCK OFF	SAET GIRTÎ
+Creatures	Zindî
+Full Blue	Şînê temam
+FUNCTIONS	ERK
+generated	hatiye çêkirin
+Listen to	Guh bide
+logo size	mezinahiya logo
+MIDI File	Pela MIDI
+move down	bibe jêr
+no output	derketin tune
+no window	pace tune
+Pause all	Hemûyan bisekinîne
+RECORDING	TÊ QEYDKIRIN
+stop at 0	li 0 raweste
+text mode	moda nivîsê
+then stop	paşê raweste
+TIMERS ON	DEMJIMÊR ÇALAK
+WHEN IDLE	DEMA BÊKAR
+(no notes)	(têbînî tune)
+ADD OUTPUT	DERKETIN ZÊDE BIKE
+APPEARANCE	XUYANG
+brightness	ronahî
+copy chain	zincîrê kopî bike
+cue number	hejmara cue
+Full Black	Reşê temam
+Full Green	Keskê temam
+Full White	Spîyê temam
+Fullscreen	Ekrana tijî
+live audio	dengê zindî
+look at it	lê binêre
+no effects	efekt tune
+OPEN SAVED	YA TOMARKIRÎ VEKE
+On release	Dema berdanê
+Position X	Cihê X
+Position Y	Cihê Y
+Resume all	Hemûyan bidomîne
+save still	wêneyê tomar bike
+text added	nivîs hat zêdekirin
+TIMERS OFF	DEMJIMÊR GIRTÎ
+Total time	Dema giştî
+WITH SOUND	BI DENG
+any channel	her kanal
+BACK TO TOP	VEGERE JOR
+clear frame	çarçoveyê paqij bike
+CODE SOURCE	ÇAVKANIYA KODÊ
+Cue numbers	Hejmarên cue
+delete step	gavê jê bibe
+Esc cancels	Esc betal dike
+full screen	ekrana tijî
+next colour	rengê din
+no duration	dem tune
+NO PREVIOUS	YA BERÊ TUNE
+nothing yet	hêj tiştek tune
+paste chain	zincîrê pêve bike
+Sensitivity	Hestiyarî
+THE NETWORK	TOR
+THIS OUTPUT	EV DERKETIN
+time of day	saeta rojê
+wait for GO	li benda GO be
+(no subtext)	(binnivîs tune)
+AUDIO OUTPUT	DERKETINA DENG
+Esc to close	Esc ji bo girtinê
+EXPORTING...	TÊ DERXISTIN...
+loop forever	her dem dubare bike
+Pair a phone	telefonê girê bide
+Pause at end	Li dawiyê bisekine
+Phone access	Gihîştina telefonê
+SELECTED CUE	CUE HILBIJARTÎ
+(nothing yet)	(hêj tiştek tune)
+EXAMPLE SHOWS	PÊŞANDANÊN MÎNAK
+INSTALLING...	TÊ SAZKIRIN...
+NEW SHOW FILE	PELA PÊŞANDANA NÛ
+OPEN PREVIOUS	YA BERÊ VEKE
+Paired phones	Telefonên girêdayî
+REMOVE OUTPUT	DERKETINÊ JÊ BIBE
+THIS COMPUTER	EV KOMPÎTER
+whole network	tevahiya torê
+will not open	venabe
+every playlist	her lîsteya lêxistinê
+not configured	nehatiye mîhengkirin
+on any channel	li her kanalê
+Pause at start	Li destpêkê bisekine
+source missing	çavkanî winda ye
++ ADD AN EFFECT	+ EFEKT ZÊDE BIKE
++ ADD AN OUTPUT	+ DERKETIN ZÊDE BIKE
+Maximum quality	Kalîteya herî bilind
+NO CUE SELECTED	CUE NEHATIYE HILBIJARTIN
+Click to type it	Bitikîne û binivîse
+Cue has no audio	Dengê cue tune
+LEARN THE BASICS	BINGEHAN FÊR BIBE
+REPORT A PROBLEM	PIRSGIRÊKEKÊ RAGIHÎNE
+(no media source)	(çavkaniya medya tune)
+CLICK ANYWHERE...	LI HER CIHÎ BITIKÎNE...
+name or number...	nav an hejmar...
+only this computer	tenê ev kompîter
+type a cue number	hejmara cue binivîse
+PLAYBACK	LÊXISTIN
+CUE INSPECTOR	VENÊRÊ CUE
+PATTERN	NEXŞE
+TRANSPORT	KONTROLA LÊXISTINÊ
+DESK	MASEYA KONTROLÊ
+transition	derbasbûn
+hold last	ya dawî bigire
+no still preview	pêşdîtina wêneyê tune
+Browser URL	URL ya gerokê
+no audio effects	efektên dengî tune
+MIDI input	MIDI têketin
+MIDI CONTROL	KONTROLA MIDI
+Video Outputs	Derketinên vîdyoyê
+NDI Output	Derketina NDI
+Spout Output	Derketina Spout
+DeckLink Output	Derketina DeckLink
+Click to edit cue notes	Bitikîne da ku têbîniyên cue biguherîne
+the file cannot be read	pel nayê xwendin
+Keep a transcript (.srt)	Nivîsê biparêze (.srt)
+Nothing here with this filter.	Bi vê parzûnê tiştek li vir tune.
+Choose a cue to inspect it here	Cue hilbijêre da ku li vir lê binêrî
+Nothing has arrived yet. Press something on the controller.	Hêj tiştek nehatiye. Bişkokekê li ser kontrolkerê bitikîne.
+Click to seek — drag to scrub	Bitikîne da ku biçî wê derê — bikişîne da ku bigerî
+name, from anywhere	nav, ji her derê
+what is on air	ya ku tê weşandin
+on air in playlist {n}	di lîsteya lêxistinê {n} de zindî
+the selected cue in playlist {n}	cue hilbijartî di lîsteya lêxistinê {n} de
+how much of this effect	mîqdara vê efektê
+The text this cue puts on screen	Nivîsa ku ev cue li ser ekranê nîşan dide
+no video lane for this cue	ji bo vê cue şopa vîdyoyê tune
+no per-cue settings for this type	ji bo vî cureyî mîhengên taybet ên cue tune
+The timeline can be resized.	Mezinahiya rêzika demê dikare were guhertin.
+Press I to import a clip.	I bitikîne da ku klîpekê bînî hundir.
+Enter takes a cue live.	Enter cue dixe weşana zindî.
+S stops the live cue.	S cue ya zindî rawestîne.
+Ctrl+/ shows every shortcut.	Ctrl+/ hemû kurtebiran nîşan dide.
+Use Ctrl+F or type a cue id/number to search.	Ctrl+F bi kar bîne an ID/hejmara cue binivîse da ku bigerî.
+Import or click a cue in the playlist	Cue bîne hundir an di lîsteya lêxistinê de li cue bitikîne
+The matrix sends audio to any channel.	Matrîs deng dişîne her kanalê.
+A cue can wait before it starts.	Cue dikare berî destpêkirinê li bendê be.
+selected cue lane  |  TAKE to make it live	şopa cue ya hilbijartî — TAKE ji bo weşana zindî

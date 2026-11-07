@@ -1066,3 +1066,272 @@ Beast mode	Imodi yesilo
 + ADD AN OUTPUT	+ ENGEZA OKUPHUMAYO
 >LIVE	>BUKHOMA
 center	MAPHAKATHI
+NO	CHA
+YES	YEBO
+To	Kuya
+UP	PHEZULU
+add	engeza
+all	konke
+any	noma yikuphi
+box	ibhokisi
+Cut	Sika
+Fit	Faka kulingane
+hue	umbala
+inf	okungapheli
+key	inkinobho
+Map	Imephu
+Mic	Imakrofoni
+Now	Manje
+ONE	KUNYE
+RED	BOMVU
+Row	Umugqa
+run	sebenzisa
+sea	ulwandle
+set	setha
+tab	ithebhu
+tag	uphawu
+Top	Phezulu
+BACK	EMUVA
+bell	insimbi
+blue	okwesibhakabhaka
+Code	Ikhodi
+DOWN	PHANSI
+DRAW	DWEBA
+face	ubuso
+Fill	Gcwalisa
+flag	ifulegi
+font	ifonti
+From	Kusuka
+grow	khulisa
+hold	bamba
+idle	akusebenzi
+KEYS	IZINKINOBHO
+Left	Kwesobunxele
+line	umugqa
+Load	Layisha
+Loop	Phinda
+MASK	IMASKI
+Memo	Inothi
+NONE	LUTHO
+ONCE	KANYE
+oval	okweqanda
+PAIR	BHEQA
+play	dlala
+Port	Imbobo
+rain	imvula
+send	thumela
+show	umbukiso
+Size	Ubukhulu
+SKIP	YEQA
+snow	iqhwa
+soft	thambile
+TEXT	UMBHALO
+Tone	Ithoni
+type	uhlobo
+Word	Igama
++ ADD	+ ENGEZA
+align	qondanisa
+black	mnyama
+blend	hlanganisa
+boxes	amabhokisi
+brush	ibhulashi
+Chain	Uchungechunge
+Curve	Ijika
+Delay	Libazisa
+do it	kwenze
+frame	uhlaka
+glass	ingilazi
+green	luhlaza
+LEARN	FUNDA
+level	izinga
+Lines	Imigqa
+mixed	kuxubile
+notes	amanothi
+Pause	Misa kancane
+Right	Kwesokudla
+scale	isikali
+shape	isimo
+Short	Kufushane
+speed	isivinini
+split	hlukanisa
+stamp	isitembu
+START	QALA
+state	isimo
+Still	Isithombe
+style	isitayela
+Timer	Iwashi
+title	isihloko
+Width	Ububanzi
+words	amagama
+Zones	Izindawo
+(none)	(akukho)
+amount	inani
+anyone	noma ubani
+CHANGE	SHINTSHA
+CHOOSE	KHETHA
+Clouds	Amafu
+DELETE	SUSA
+eraser	irabha
+export	khipha
+FIXED!	KULUNGISIWE!
+follow	landela
+FREEZE	QANDISA
+FROZEN	KUQANDISIWE
+garden	ingadi
+LAYOUT	ISAKHIWO
+Levels	Amazinga
+MOTION	UKUNYAKAZA
+nobody	akekho
+Resume	Qhubeka
+ribbon	iribhoni
+Script	Isikripthi
+scroll	skrola
+signal	isignali
+sketch	umdwebo
+SLICES	IZINGCEZU
+SMOOTH	BUSHELELE
+Target	Okuqondiwe
+VALUES	AMANANI
+(empty)	(akunalutho)
+(unset)	(akusethiwe)
+address	ikheli
+Browser	Isiphequluli
+caption	umbhalo
+Ceiling	Umkhawulo
+Command	Umyalo
+Cue hue	Umbala we-cue
+EFFECTS	IMIPHUMELA
+English	IsiNgisi
+Haptics	Ukudlidliza
+LESSONS	IZIFUNDO
+Message	Umlayezo
+midi in	I-MIDI engenayo
+nothing	lutho
+OUTPUTS	OKUPHUMAYO
+Picture	Isithombe
+repeats	ukuphinda
+SCREENS	IZIKRINI
+SHOW ME	NGIBONISE
+Show on	Bonisa ku
+standby	kulindile
+Stretch	Nweba
+theatre	ithiyetha
+all to 0	konke kube 0
+backdrop	ingemuva
+captions	imibhalo
+CHANNELS	IZITESHI
+continue	qhubeka
+count up	bala ukhuphuke
+DEFAULTS	OKUJWAYELEKILE
+Full Red	Bomvu ngokuphelele
+Learn it	Kufunde
+METADATA	IMINININGWANE
+none yet	akukho okwamanje
+notebook	incwajana
+offset X	ukugudluka X
+offset Y	ukugudluka Y
+on press	uma ucindezela
+SECTIONS	IZIGABA
+Stop all	Misa konke
+STRAIGHT	QONDILE
+subtitle	umbhalo ongezansi
+subtract	susa
+the desk	ideski
+The name	Igama
+THE SHOW	UMBUKISO
+THIS CUE	LE CUE
+TURN OFF	CISHA
+a comment	umbono
+add shape	engeza isimo
+choose...	khetha...
+Full Blue	Kwesibhakabhaka ngokuphelele
+FUNCTIONS	IMISEBENZI
+generated	kukhiqiziwe
+Listen to	Lalela
+logo size	usayizi logo
+MIDI File	Ifayela le-MIDI
+no output	akukho okuphumayo
+no window	alikho iwindi
+Pause all	Misa konke kancane
+stop at 0	misa ku-0
+text mode	indlela yombhalo
+then stop	bese umisa
+(no notes)	(awekho amanothi)
+brightness	ukukhanya
+cue number	inombolo ye-cue
+Full Black	Mnyama ngokuphelele
+Full Green	Luhlaza ngokuphelele
+Full White	Mhlophe ngokuphelele
+Fullscreen	Isikrini sonke
+look at it	kubuke
+no effects	ayikho imiphumela
+Position X	Indawo X
+Position Y	Indawo Y
+Resume all	Qhubeka konke
+save still	londoloza isithombe
+text added	umbhalo wengeziwe
+Total time	Isikhathi sonke
+WITH SOUND	NOMSINDO
+any channel	noma yisiphi isiteshi
+clear frame	sula uhlaka
+Esc cancels	U-Esc uyakhansela
+nothing yet	akukho okwamanje
+Sensitivity	Ukuzwela
+THE NETWORK	INETHIWEKHI
+time of day	isikhathi sosuku
+Esc to close	Esc ukuvala
+EXPORTING...	IYAKHIPHA...
+loop forever	phinda njalo
+Pair a phone	Xhuma ifoni
+Pause at end	Misa ekugcineni
+Phone access	Ukufinyelela ngefoni
+(nothing yet)	(akukho okwamanje)
+EXAMPLE SHOWS	IMIBUKISO EYIZIBONELO
+INSTALLING...	IYAFAKA...
+Paired phones	Amafoni axhunyiwe
+THIS COMPUTER	LE KHOMPYUTHA
+whole network	inethiwekhi yonke
+will not open	akuvuleki
+not configured	akulungiselelwe
+on any channel	kunoma yisiphi isiteshi
+Pause at start	Misa ekuqaleni
+source missing	umthombo awutholakali
++ ADD AN EFFECT	+ ENGEZA UMPHUMELA
+Maximum quality	Ikhwalithi ephezulu kakhulu
+Click to type it	Chofoza ukuze uthayiphe
+Cue has no audio	I-cue ayinawo umsindo
+LEARN THE BASICS	FUNDA IZISEKELO
+REPORT A PROBLEM	BIKA INKINGA
+(no media source)	(awukho umthombo wemidiya)
+CLICK ANYWHERE...	CHOFOZA NOMA KUPHI...
+name or number...	igama noma inombolo...
+only this computer	le khompyutha kuphela
+type a cue number	thayipha inombolo ye-cue
+Click to edit cue notes	Chofoza ukuhlela amanothi e-cue
+the file cannot be read	ifayela alifundeki
+Keep a transcript (.srt)	Gcina okulotshiwe (.srt)
+Nothing here with this filter.	Akukho lutho ngalesi sihlungi.
+Nothing has arrived yet. Press something on the controller.	Akukafiki lutho. Cindezela okuthile kusilawuli.
+Click to seek — drag to scrub	Chofoza ukuya endaweni — hudula ukudlula kusiqeshana
+name, from anywhere	igama, noma kuphi
+what is on air	okusemoyeni
+on air in playlist {n}	emoyeni ohlwini {n}
+the selected cue in playlist {n}	i-cue ekhethiwe ohlwini {n}
+how much of this effect	inani lalo mphumela
+The text this cue puts on screen	Umbhalo le cue ewubeka esikrinini
+Which frame you draw on	Uhlaka odweba kulo
+Choose startup mode:	Khetha indlela yokuqalisa:
+Run the show from a phone	Lawula umbukiso ngefoni
+Who can see it	Ubani ongakubona
+what is on air in a playlist	okusemoyeni ohlwini
+click or Esc to close	chofoza noma u-Esc ukuvala
+Right-click turns them off.	Ukuchofoza kwesokudla kuyazicisha.
+Copy the show AND its media into one portable folder	Kopisha umbukiso KANYE nemidiya yawo kufolda eyodwa ephathekayo
+The role, or leave it empty	Indima, noma kushiye kungenalutho
+Clear the live PIP overlay now	Susa isembozo se-PIP esibukhoma manje
+Set per-cue transition duration	Setha ubude bokuguqula nge-cue ngayinye
+Changing this re-prepares the cue.	Ukushintsha lokhu kulungisa i-cue kabusha.
+The OSC path, e.g. /cue/1/start	Indlela ye-OSC, isib. /cue/1/start
+any command, {value} is the number	noma yimuphi umyalo, {value} yinombolo
+nothing to send - check the message	akukho okuthunyelwayo — hlola umlayezo
+selected cue lane  |  TAKE to make it live	umzila we-cue ekhethiwe — TAKE ukuyifaka emoyeni

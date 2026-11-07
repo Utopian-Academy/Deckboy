@@ -1066,3 +1066,269 @@ Beast mode	Modh bèist
 + ADD AN OUTPUT	+ CUIR ÀS-CHUR RIS
 >LIVE	>BEÒ
 center	MEADHAN
+NO	CHAN EIL
+YES	THA
+To	Gu
+UP	SUAS
+add	cuir ris
+all	uile
+any	sam bith
+box	bogsa
+Cut	Gearradh
+Fit	Freagair
+hue	dath
+inf	neo-chrìoch
+key	iuchair
+Map	Mapa
+Now	A-nis
+ONE	AON
+RED	DEARG
+Row	Ràgh
+run	ruith
+sea	muir
+set	suidhich
+tab	taba
+tag	taga
+Top	Mullach
+BACK	AIR AIS
+bell	clag
+blue	gorm
+Code	Còd
+DOWN	SÌOS
+DRAW	TARRAING
+face	aodann
+Fill	Lìon
+flag	bratach
+font	cruth-clò
+From	Bho
+grow	fàs
+hold	cùm
+idle	na thàmh
+KEYS	IUCHRAICHEAN
+Left	Clì
+line	loidhne
+Load	Luchdaich
+Loop	Lùb
+MASK	MASG
+Memo	Meòrachan
+NONE	CHAN EIL GIN
+ONCE	AON TURAS
+oval	ugh-chruthach
+PAIR	PAIDHIR
+play	cluich
+rain	uisge
+send	cuir
+show	taisbeanadh
+Size	Meud
+SKIP	LEUM THAIRIS
+snow	sneachd
+soft	bog
+TEXT	TEACSA
+type	seòrsa
+Word	Facal
++ ADD	+ CUIR RIS
+align	co-thaobhaich
+black	dubh
+blend	measgachadh
+boxes	bogsaichean
+brush	bruis
+Chain	Sreath
+Curve	Lùb
+Delay	Dàil
+do it	dèan e
+frame	frèam
+glass	glainne
+green	uaine
+LEARN	IONNSAICH
+level	ìre
+Lines	Loidhnichean
+mixed	measgaichte
+notes	nòtaichean
+Pause	Cuir na stad
+Right	Deas
+scale	sgèile
+shape	cumadh
+Short	Goirid
+speed	luaths
+split	sgolt
+stamp	stampa
+START	TÒISICH
+state	staid
+Still	Dealbh
+style	stoidhle
+title	tiotal
+Width	Leud
+words	faclan
+Zones	Raointean
+(none)	(chan eil gin)
+amount	uiread
+anyone	duine sam bith
+CHANGE	ATHARRAICH
+CHOOSE	TAGH
+Clouds	Neòil
+DELETE	SGUAB ÀS
+eraser	suathan
+export	às-phortaich
+FIXED!	CÀRAICHTE!
+follow	lean
+FREEZE	REÒTH
+FROZEN	REÒTA
+garden	gàrradh
+LAYOUT	CO-DHEALBHACHD
+Levels	Ìrean
+Linear	Loidhneach
+MOTION	GLUASAD
+nobody	gun duine
+Resume	Lean air
+ribbon	rioban
+Script	Sgriobt
+scroll	sgrolaich
+signal	comharra
+sketch	sgeidse
+SLICES	SLISEAGAN
+SMOOTH	RÈIDH
+Target	Targaid
+VALUES	LUACHAN
+(empty)	(falamh)
+(unset)	(gun suidheachadh)
+address	seòladh
+Browser	Brabhsair
+caption	fo-thiotal
+Ceiling	Mullach
+Command	Àithne
+Cue hue	Dath cue
+EFFECTS	ÈIFEACHDAN
+English	Beurla
+Haptics	Crith
+LESSONS	LEASANAN
+Message	Teachdaireachd
+midi in	MIDI a-steach
+nothing	dad
+OUTPUTS	ÀS-CHUIR
+Picture	Dealbh
+repeats	ath-chluich
+SCREENS	SGRÌNICHEAN
+SHOW ME	SEALL DHOMH
+Show on	Seall air
+standby	a' feitheamh
+Stretch	Sìn
+theatre	taigh-cluiche
+all to 0	uile gu 0
+backdrop	cùl-raon
+captions	fo-thiotalan
+CHANNELS	SEANAILEAN
+continue	lean air
+count up	cunnt suas
+DEFAULTS	BUN-ROGHAINNEAN
+Full Red	Dearg slàn
+Learn it	Ionnsaich e
+METADATA	MEATA-DÀTA
+none yet	gin fhathast
+notebook	leabhar-nòta
+offset X	claonadh X
+offset Y	claonadh Y
+on press	nuair a bhrùthar
+SECTIONS	EARRANNAN
+Stop all	Stad na h-uile
+STRAIGHT	DÌREACH
+subtitle	fo-thiotal
+subtract	thoir air falbh
+the desk	an deasg
+The name	An t-ainm
+THE SHOW	AN TAISBEANADH
+THIS CUE	AN CUE SEO
+TURN OFF	CUIR DHETH
+a comment	beachd
+add shape	cuir cumadh ris
+choose...	tagh...
+Full Blue	Gorm slàn
+FUNCTIONS	GNÌOMHAN
+generated	air a ghineadh
+Listen to	Èist ri
+logo size	meud logo
+MIDI File	Faidhle MIDI
+no output	gun às-chur
+no window	gun uinneag
+Pause all	Cuir uile na stad
+stop at 0	stad aig 0
+text mode	modh teacsa
+then stop	an uair sin stad
+(no notes)	(gun nòtaichean)
+brightness	soilleireachd
+cue number	àireamh cue
+Full Black	Dubh slàn
+Full Green	Uaine slàn
+Full White	Geal slàn
+Fullscreen	Làn-sgrìn
+look at it	seall air
+no effects	gun èifeachd
+Position X	Suidheachadh X
+Position Y	Suidheachadh Y
+Resume all	Lean leis na h-uile
+save still	sàbhail dealbh
+text added	teacsa air a chur ris
+Total time	Ùine iomlan
+WITH SOUND	LE FUAIM
+any channel	seanail sam bith
+clear frame	glan am frèam
+Esc cancels	Esc: sguir dheth
+nothing yet	dad fhathast
+Sensitivity	Mothalachd
+THE NETWORK	AN LÌONRA
+time of day	àm an latha
+Esc to close	Esc gus dùnadh
+EXPORTING...	ÀS-PHORTADH...
+loop forever	lùb gu bràth
+Pair a phone	Paidhrich fòn
+Pause at end	Stad aig deireadh
+Phone access	Inntrigeadh fòin
+(nothing yet)	(dad fhathast)
+EXAMPLE SHOWS	TAISBEANAIDHEAN EISIMPLEIR
+INSTALLING...	A' STÀLADH...
+Paired phones	Fònaichean paidhrichte
+THIS COMPUTER	AN COIMPIUTAIR SEO
+whole network	an lìonra gu lèir
+will not open	cha dh'fhosgail
+not configured	gun rèiteachadh
+on any channel	air seanail sam bith
+Pause at start	Stad aig toiseach
+source missing	tùs a dhìth
++ ADD AN EFFECT	+ CUIR ÈIFEACHD RIS
+Maximum quality	Càileachd as àirde
+Click to type it	Briog gus sgrìobhadh
+Cue has no audio	Chan eil fuaim aig cue
+LEARN THE BASICS	IONNSAICH NA BUNASAN
+REPORT A PROBLEM	AITHRIS AIR DUILGHEADAS
+(no media source)	(gun tùs meadhain)
+CLICK ANYWHERE...	BRIOG ÀITE SAM BITH...
+name or number...	ainm no àireamh...
+only this computer	an coimpiutair seo a-mhàin
+type a cue number	sgrìobh àireamh cue
+Click to edit cue notes	Briog gus nòtaichean cue a dheasachadh
+the file cannot be read	cha ghabh am faidhle a leughadh
+Keep a transcript (.srt)	Cùm tar-sgrìobhadh (.srt)
+Nothing here with this filter.	Chan eil dad an seo leis a' chriathrag seo.
+Nothing has arrived yet. Press something on the controller.	Cha tàinig dad fhathast. Brùth putan air an smachdair.
+Click to seek — drag to scrub	Briog gus leum — slaod gus gluasad tron chriomag
+name, from anywhere	ainm, à àite sam bith
+what is on air	na tha air an èadhar
+on air in playlist {n}	air an èadhar ann an liosta {n}
+the selected cue in playlist {n}	an cue taghte ann an liosta {n}
+how much of this effect	uiread na h-èifeachd seo
+The text this cue puts on screen	An teacsa a sheallas an cue seo air an sgrìn
+Which frame you draw on	Am frèam air an tarraing thu
+Choose startup mode:	Tagh modh tòiseachaidh:
+Run the show from a phone	Ruith an taisbeanadh bho fhòn
+Who can see it	Cò chì e
+what is on air in a playlist	na tha air an èadhar ann an liosta
+click or Esc to close	briog no Esc gus dùnadh
+Right-click turns them off.	Cuiridh briogadh deas dheth iad.
+Copy the show AND its media into one portable folder	Dèan lethbhreac dhen taisbeanadh AGUS de na meadhanan aige ann an aon phasgan so-ghiùlain
+The role, or leave it empty	An dreuchd, no fàg falamh e
+Clear the live PIP overlay now	Thoir air falbh an còmhdach PIP beò a-nis
+Set per-cue transition duration	Suidhich fad a' ghluasaid airson gach cue
+Changing this re-prepares the cue.	Ullaichidh seo an cue a-rithist ma dh'atharraicheas tu e.
+The OSC path, e.g. /cue/1/start	An t-slighe OSC, m.e. /cue/1/start
+any command, {value} is the number	àithne sam bith, 's e {value} an àireamh
+nothing to send - check the message	chan eil dad ri chur — thoir sùil air an teachdaireachd
+selected cue lane  |  TAKE to make it live	slighe a' chue thaghte — TAKE gus a chur air an èadhar

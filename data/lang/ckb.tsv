@@ -686,3 +686,334 @@ START: AGAIN	START: دووبارە
 START: PLAY	START: یاری
 # --- end of tutorials ---
 >LIVE	>ڕاستەوخۆ
+NO	نەخێر
+YES	بەڵێ
+To	بۆ
+UP	سەرەوە
+add	زیادکردن
+all	هەموو
+any	هەرکام
+box	چوارگۆشە
+Cut	بڕین
+Fit	گونجاندن
+hue	ڕەنگ
+inf	بێکۆتایی
+key	کلیل
+Map	نەخشە
+Now	ئێستا
+ONE	یەک
+RED	سوور
+Row	ڕیز
+run	جێبەجێکردن
+sea	دەریا
+set	دیاریکردن
+tab	بازدەر
+tag	تاگ
+Top	سەرەوە
+BACK	گەڕانەوە
+bell	زەنگ
+blue	شین
+Code	کۆد
+DOWN	خوارەوە
+DRAW	کێشان
+face	ڕووخسار
+Fall	دابەزین
+Fill	پڕکردنەوە
+film	فیلم
+font	فۆنت
+From	لە
+FULL	پڕ
+grow	گەورەکردن
+HELD	ڕاگیراو
+hold	ڕاگرتن
+idle	بێکار
+KEYS	کلیلەکان
+Left	چەپ
+line	هێڵ
+Load	بارکردن
+Loop	دووبارە
+MASK	ماسک
+NONE	هیچ
+ONCE	یەک جار
+oval	هێلکەیی
+PAIR	جووت
+PICK	هەڵبژاردن
+play	لێدان
+Port	دەروازە
+QUAD	چوار
+rain	باران
+Rate	ڕێژە
+Rise	بەرزبوونەوە
+send	ناردن
+show	نمایش
+Size	قەبارە
+SKIP	تێپەڕاندن
+snow	بەفر
+soft	نەرم
+STEP	هەنگاو
+TEXT	دەق
+type	جۆر
+Word	وشە
++ ADD	+ زیادکردن
+align	ڕیزکردن
+black	ڕەش
+blend	تێکەڵ
+boxes	چوارگۆشەکان
+brush	فڵچە
+Chain	زنجیرە
+Curve	چەماوە
+Delay	دواخستن
+do it	جێبەجێ بکە
+FIXED	جێگیر
+frame	چوارچێوە
+glass	شووشە
+green	سەوز
+LEARN	فێربوون
+level	ئاست
+Lines	هێڵەکان
+mixed	تێکەڵ
+notes	تێبینیەکان
+ORDER	ڕیزبەندی
+Pause	ڕاگرتن
+Right	ڕاست
+scale	پێوەر
+shape	شێوە
+Short	کورت
+speed	خێرایی
+split	دابەشکردن
+START	دەستپێکردن
+state	دۆخ
+Still	وێنەی جێگیر
+style	شێواز
+title	ناونیشان
+Width	پانی
+words	وشەکان
+Zones	ناوچەکان
+(none)	(هیچ)
+ALL ON	هەموو هەڵکراو
+amount	بڕ
+anyone	هەموو کەسێک
+Camera	کامێرا
+center	ناوەڕاست
+Centre	ناوەڕاست
+CHANGE	گۆڕین
+CHOOSE	هەڵبژاردن
+Clouds	هەورەکان
+DELETE	سڕینەوە
+eraser	سڕکەرەوە
+export	هەناردەکردن
+FIXED!	چاککرایەوە!
+follow	شوێنکەوتن
+FREEZE	ڕاگرتن
+FROZEN	ڕاگیراو
+garden	باخچە
+LAYOUT	ڕێکخستن
+Levels	ئاستەکان
+Linear	هێڵی
+MOTION	جووڵە
+nobody	هیچ کەس
+Output	دەرچوون
+REBOOT	دەستپێکردنەوە
+Resume	بەردەوامبوون
+signal	سیگناڵ
+SMOOTH	نەرم
+Target	ئامانج
+VALUES	بەهاکان
+Window	پەنجەرە
+(empty)	(بەتاڵ)
+(unset)	(دیاری نەکراو)
+address	ناونیشان
+ALL OFF	هەموو کوژاوە
+Browser	وێبگەڕ
+Command	فەرمان
+CONVERT	گۆڕین
+Cue hue	ڕەنگی cue
+Desktop	ڕوومێز
+EFFECTS	کاریگەریەکان
+English	ئینگلیزی
+LESSONS	وانەکان
+Message	پەیام
+move up	بەرەو سەرەوە
+nothing	هیچ
+OUTPUTS	دەرچوونەکان
+Picture	وێنە
+repeats	دووبارەکان
+RUNNING	لە کاردایە
+SCREENS	شاشەکان
+SHOW ME	پیشانم بدە
+Show on	پیشاندانی لە
+standby	چاوەڕوان
+Stretch	ڕاکێشان
+theatre	شانۆ
++ OUTPUT	+ دەرچوون
+all to 0	هەموو بۆ 0
+backdrop	پاشبنەما
+captions	ژێرنووسەکان
+CHANNELS	کەناڵەکان
+CLOCK ON	کاتژمێر هەڵکراو
+continue	بەردەوام بە
+count up	ژماردن
+DEFAULTS	بنەڕەتەکان
+Full Red	سووری تەواو
+IDENTIFY	ناسینەوە
+Learn it	فێری بە
+METADATA	زانیارییەکان
+none yet	هێشتا هیچ
+notebook	دەفتەر
+offset X	لادانی X
+offset Y	لادانی Y
+on press	لە داگرتن
+SECTIONS	بەشەکان
+Stop all	وەستاندنی هەموو
+STRAIGHT	ڕاست
+subtitle	ژێرنووس
+subtract	کەمکردنەوە
+The name	ناوەکە
+THE SHOW	نمایشەکە
+THIS CUE	ئەم cue
+TURN OFF	کوژاندنەوە
+(not set)	(دیاری نەکراو)
+a comment	تێبینییەک
+add shape	زیادکردنی شێوە
+choose...	هەڵبژێرە...
+CLOCK OFF	کاتژمێر کوژاوە
+Creatures	گیاندارەکان
+Full Blue	شینی تەواو
+FUNCTIONS	ئەرکەکان
+generated	دروستکراو
+Listen to	گوێ بگرە لە
+logo size	قەبارەی لۆگۆ
+MIDI File	پەڕگەی MIDI
+move down	بەرەو خوارەوە
+no output	دەرچوون نییە
+no window	پەنجەرە نییە
+Pause all	ڕاگرتنی هەموو
+RECORDING	لە تۆمارکردندایە
+stop at 0	وەستان لە 0
+text mode	دۆخی دەق
+then stop	پاشان بوەستە
+TIMERS ON	کاتژمێرەکان هەڵکراون
+WHEN IDLE	لە بێکاریدا
+(no notes)	(تێبینی نییە)
+ADD OUTPUT	زیادکردنی دەرچوون
+APPEARANCE	دەرکەوتن
+brightness	ڕووناکی
+copy chain	لەبەرگرتنەوەی زنجیرە
+cue number	ژمارەی cue
+Full Black	ڕەشی تەواو
+Full Green	سەوزی تەواو
+Full White	سپیی تەواو
+Fullscreen	پڕشاشە
+live audio	دەنگی ڕاستەوخۆ
+look at it	سەیری بکە
+no effects	کاریگەری نییە
+OPEN SAVED	کردنەوەی پاشەکەوتکراو
+On release	لە بەردان
+Position X	شوێنی X
+Position Y	شوێنی Y
+Resume all	بەردەوامبوونی هەموو
+save still	پاشەکەوتی وێنە
+text added	دەق زیادکرا
+TIMERS OFF	کاتژمێرەکان کوژاون
+Total time	کاتی گشتی
+WITH SOUND	بە دەنگ
+any channel	هەر کەناڵێک
+BACK TO TOP	گەڕانەوە بۆ سەرەوە
+clear frame	پاککردنەوەی وێنە
+CODE SOURCE	سەرچاوەی کۆد
+Cue numbers	ژمارەی cue
+delete step	سڕینەوەی هەنگاو
+Esc cancels	Esc هەڵدەوەشێنێتەوە
+full screen	پڕشاشە
+next colour	ڕەنگی داهاتوو
+no duration	ماوە نییە
+NO PREVIOUS	پێشوو نییە
+nothing yet	هێشتا هیچ
+paste chain	لکاندنی زنجیرە
+Sensitivity	هەستیاری
+THE NETWORK	تۆڕەکە
+THIS OUTPUT	ئەم دەرچوونە
+time of day	کاتی ڕۆژ
+wait for GO	چاوەڕێی GO بە
+(no subtext)	(ژێرنووس نییە)
+AUDIO OUTPUT	دەرچوونی دەنگ
+Esc to close	Esc بۆ داخستن
+EXPORTING...	هەناردە دەکرێت...
+loop forever	دووبارە بێکۆتایی
+Pair a phone	پەیوەستکردنی مۆبایل
+Pause at end	ڕاگرتن لە کۆتایی
+Phone access	دەستگەیشتنی مۆبایل
+SELECTED CUE	cue هەڵبژێردراو
+(nothing yet)	(هێشتا هیچ)
+EXAMPLE SHOWS	نمایشی نموونە
+INSTALLING...	دادەمەزرێت...
+NEW SHOW FILE	پەڕگەی نمایشی نوێ
+OPEN PREVIOUS	کردنەوەی پێشوو
+Paired phones	مۆبایلە پەیوەستکراوەکان
+REMOVE OUTPUT	سڕینەوەی دەرچوون
+THIS COMPUTER	ئەم کۆمپیوتەرە
+whole network	هەموو تۆڕەکە
+will not open	ناکرێتەوە
+every playlist	هەر لیستێکی لێدان
+not configured	ڕێک نەخراوە
+on any channel	لە هەر کەناڵێک
+Pause at start	ڕاگرتن لە سەرەتا
+source missing	سەرچاوە ونە
++ ADD AN EFFECT	+ زیادکردنی کاریگەری
++ ADD AN OUTPUT	+ زیادکردنی دەرچوون
+Maximum quality	بەرزترین کوالێتی
+NO CUE SELECTED	هیچ cue هەڵنەبژێردراوە
+Click to type it	کرتە بکە بۆ نووسین
+Cue has no audio	cue دەنگی نییە
+LEARN THE BASICS	فێری بنەماکان بە
+REPORT A PROBLEM	ڕاپۆرتی کێشەیەک بدە
+(no media source)	(سەرچاوەی میدیا نییە)
+CLICK ANYWHERE...	کرتە لە هەر شوێنێک بکە...
+name or number...	ناو یان ژمارە...
+only this computer	تەنها ئەم کۆمپیوتەرە
+type a cue number	ژمارەی cue بنووسە
+PLAYBACK	لێدان
+CUE INSPECTOR	پشکنەری cue
+PATTERN	نەخش
+TRANSPORT	کۆنترۆڵی لێدان
+DESK	مێزی کۆنترۆڵ
+transition	گواستنەوە
+fade in	دەرکەوتن
+fade out	کاڵبوونەوە
+hold last	ڕاگرتنی کۆتایی
+no still preview	پێشبینینی وێنە نییە
+Browser URL	URLی وێبگەڕ
+no audio effects	کاریگەریی دەنگ نییە
+MIDI input	MIDIی هاتوو
+MIDI CONTROL	کۆنترۆڵی MIDI
+Video Outputs	دەرچوونی ڤیدیۆ
+NDI Output	دەرچوونی NDI
+Spout Output	دەرچوونی Spout
+DeckLink Output	دەرچوونی DeckLink
+Click to edit cue notes	کرتە بکە بۆ دەستکاری تێبینیەکانی cue
+the file cannot be read	پەڕگەکە ناخوێندرێتەوە
+Keep a transcript (.srt)	دەقەکە بپارێزە (.srt)
+Nothing here with this filter.	هیچ شتێک بەو پاڵێوەرە نییە.
+Choose a cue to inspect it here	cue هەڵبژێرە بۆ پشکنینی لێرە
+Nothing has arrived yet. Press something on the controller.	هێشتا هیچ نەگەیشتووە. دوگمەیەک لە کۆنترۆڵەرەکە دابگرە.
+Click to seek — drag to scrub	کرتە بکە بۆ چوونە شوێنێک — ڕایبکێشە بۆ گەڕان
+name, from anywhere	ناو، لە هەر شوێنێکەوە
+what is on air	ئەوەی پەخش دەکرێت
+on air in playlist {n}	لە پەخشدایە لە لیستی لێدانی {n}
+the selected cue in playlist {n}	cueی هەڵبژێردراو لە لیستی لێدانی {n}
+how much of this effect	بڕی ئەم کاریگەرییە
+The text this cue puts on screen	ئەو دەقەی ئەم cue لە شاشە پیشانی دەدات
+no video lane for this cue	ئەم cue هێڵی ڤیدیۆی نییە
+no per-cue settings for this type	ئەم جۆرە ڕێکخستنی تایبەتی cueی نییە
+The timeline can be resized.	قەبارەی هێڵی کات دەگۆڕدرێت.
+Press I to import a clip.	I دابگرە بۆ هاوردەکردنی کلیپ.
+Enter takes a cue live.	Enter cue دەخاتە پەخشی ڕاستەوخۆ.
+S stops the live cue.	S cueی ڕاستەوخۆ دەوەستێنێت.
+Ctrl+/ shows every shortcut.	Ctrl+/ هەموو کورتبڕەکان پیشان دەدات.
+Use Ctrl+F or type a cue id/number to search.	Ctrl+F بەکاربهێنە یان ID/ژمارەی cue بنووسە بۆ گەڕان.
+Import or click a cue in the playlist	cue هاوردە بکە یان لە لیستی لێدان کرتەی لەسەر بکە
+The matrix sends audio to any channel.	ماتریس دەنگ بۆ هەر کەناڵێک دەنێرێت.
+A cue can wait before it starts.	cue دەتوانێت پێش دەستپێکردن چاوەڕێ بکات.
+Copy the show AND its media into one portable folder	نمایشەکە و میدیاکانی لە یەک بوخچەی گوازراوەدا لەبەر بگرەوە
+Nothing to see here. Probably.	لێرە هیچ نییە بۆ بینین. بەگومانەوە.
+selected cue lane  |  TAKE to make it live	هێڵی cueی هەڵبژێردراو — TAKE بۆ پەخشی ڕاستەوخۆ

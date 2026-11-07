@@ -1047,3 +1047,274 @@ START: PLAY	START: TIRI
 + ADD AN OUTPUT	+ LANI SENADORA
 >LIVE	>LUMO
 center	KORAKAE
+To	Go
+add	lani
+all	ala
+any	ala piko
+Arm	Poni
+box	kara
+Cut	Rani
+Fit	Kaeseti
+hue	lumadopa
+key	bata
+Map	Kaemira
+Mic	Sonatira
+Now	Nakaetoka
+ONE	UNA
+Row	Rana
+run	zari
+set	seti
+tab	fenabata
+tag	hola
+Code	Grahola
+DRAW	VEKI
+Fill	Tamlani
+font	holapata
+From	Mun
+gain	sonazara
+grow	tamseti
+hold	hali
+idle	vazaro
+KEYS	BATAKU
+knob	setabata
+line	rana
+Load	Tiri
+Loop	Novtoki
+MASK	NIRARANA
+Memo	Hola
+NONE	VAALA
+ONCE	UNATOK
+PAIR	DUA
+pan	sonakaea
+play	lumakori
+Port	Pora
+send	seni
+show	vekarana
+Size	Tama
+SKIP	RANI
+span	kaetama
+TEXT	HOLA
+Tone	Unasona
+trim	ranseti
+type	pata
+Word	Hola
++ ADD	+ LANI
+align	ranaseti
+blend	alaseti
+boxes	karaku
+brush	vekgrajana
+Chain	Rana
+Delay	Pena
+do it	tiri
+frame	veka
+LEARN	PONMIRI
+level	numa
+Lines	Ranaku
+mixed	ranavo
+notes	holaku
+Pause	Tokispeni
+scale	tamaseta
+shape	pata
+Short	Kiso
+Shows	Veki
+speed	zara
+START	TIRI
+state	dopa
+Still	Halveka
+style	pata
+Timer	Tokawia
+title	korhola
+words	holaku
+Zones	Kaeku
+(none)	(vaala)
+amount	numa
+Camera	Vekagrajana
+CHANGE	SETI
+CHOOSE	PIKI
+cue id	vekanuma
+DELETE	NIRI
+Disarm	Vaponi
+eraser	veknirjana
+export	seni
+FIXED!	NOVPONO!
+follow	novtoki so
+FREEZE	HALI
+FROZEN	HALO
+Levels	Numaku
+MOTION	TIRISETA
+Resume	Novtiri
+Script	Korhola
+set by	seto mun
+signal	sena
+sketch	kisveka
+SLICES	KISVEKAKU
+Target	Pikkaea
+VALUES	NUMAKU
+visual	veka
+Window	Fena
+(empty)	(vakaro)
+(unset)	(vaseto)
+address	kaea
+Browser	Retamira
+caption	holaveka
+Command	Korhola
+Cue hue	Vekalumadopa
+EFFECTS	SETAPATAKU
+LESSONS	HUPAKU
+Message	Hola
+midi in	MIDI tira
+move up	korkaeseti
+nothing	vaala
+OUTPUTS	SENADORAKU
+Picture	Veka
+repeats	novtokaku
+SCREENS	VEKADEKAKU
+SHOW ME	VEKI MI
+Show on	Veki kae
+standby	peno
+Stretch	Tamtiri
+visuals	vekaku
+all to 0	ala go 0
+any port	ala pora piko
+backdrop	munveka
+captions	holavekaku
+CHANNELS	KANAKU
+continue	novtiri
+DEFAULTS	KORO SETAKU
+Learn it	Ponmiri
+METADATA	SOVHOLAKU
+offset X	kaeseta X
+offset Y	kaeseta Y
+on press	tok bati
+Place it	Lani
+SECTIONS	PATAKU
+Stop all	Hali ala
+subtitle	kishola
+the desk	dekapata
+The name	Korhola
+THE SHOW	VEKARANA
+THIS CUE	VEKA NAKAE
+TURN OFF	VAPONI
+(not set)	(vaseto)
+a comment	sovhola
+auto next	kornovtoka
+choose...	piki...
+cue "{n}"	veka "{n}"
+FUNCTIONS	PATAKORAKU
+generated	grao
+hold last	ranahali
+Listen to	Lisi
+MIDI File	MIDI gura
+move down	rankaeseti
+no output	vasenadora
+no window	vafena
+Pause all	Tokispeni ala
+stop at 0	hali kae 0
+text mode	holadopa
+then stop	novtok hali
+this deck	deka nakae
+(no notes)	(vaholaku)
+brightness	lumazara
+cue number	vekanuma
+deck fader	deklumahali
+end action	halpatakora
+Fullscreen	Tamvekadeka
+hold {n} s	hali {n} s
+look at it	miri
+no effects	vasetapataku
+On release	Tok vahali
+Position X	Kaea X
+Position Y	Kaea Y
+Resume all	Novtiri ala
+save still	guri halveka
+Saved with	Guro so
+text added	hola lano
+Total time	Alatoka
+WITH SOUND	SO SONA
+any channel	ala kana piko
+audio meter	sonanumira
+clear frame	niri veka
+delete step	niri beta
+Esc cancels	Esc vaseti
+full screen	tamvekadeka
+gain (each)	sonazara
+next colour	novtokluma
+nothing yet	vaala nakae
+pause begin	tiripeni
+THE NETWORK	RETA
+time of day	lumtoka
+wait for GO	peni GO
+(no monitor)	(vamirajana)
+Esc to close	Esc go klui
+EXPORTING...	SENO...
+loop forever	novtoki alatoka
+Pause at end	Halpeni
+Space — play	Space — lumakori
+(nothing yet)	(vaala nakae)
+EXAMPLE SHOWS	MIRAVEKARANAKU
+INSTALLING...	LANO...
+one named cue	una holveka
+Overlay still	Vekaluma halo
+Run the clock	Tiri tokamira
+Space — pause	Space — tokispeni
+THIS COMPUTER	JANA NAKAE
+whole network	reta tamo
+will not open	vafesi
+every playlist	ala vekaku
+fill the frame	tamlani veka
+not configured	vaseto
+on any channel	kae ala kana piko
+OUTPUT EFFECTS	SENASETAPATAKU
+Pause at start	Tiripeni
+source missing	munga vakae
++ ADD AN EFFECT	+ LANI SETAPATA
+Do not continue	Vanovtiri
+HOLDING OFF AIR	HALO VASENO
+press + release	bati + vahali
+restart on take	novtiri tok seni
+Click to type it	Bati go grai
+Cue has no audio	Veka vasono
+factory settings	munsetaku
+GO steps over it	GO rani
+LEARN THE BASICS	PONMIRI KORAKU
+no audio effects	vasonasetaku
+ONE PER PLAYLIST	UNA GO VEKAKU
+open the monitor	fesi mirajana
+REPORT A PROBLEM	HOLI VAPONO
+the selected cue	veka piko
+(no media source)	(vavekadoramunga)
+delete this button	niri bata nakae
+name or number...	hola va numa...
+the system output	korapata senadora
+type a cue number	grai vekanuma
+when its cues end	tok vekaku hali
+(none playing now)	(vaveka lumo)
+only this computer	jana nakae uno
+put it on a button	lani go bata
+save animation	guri tirisetveka
+this cue lives on	veka nakae kae
+Click to edit cue notes	Bati go seti vekaholaku
+the file cannot be read	gura vapel miri
+Keep a transcript (.srt)	Guri sonahola (.srt)
+Nothing here with this filter.	Vaala kae nakae so pika nakae.
+Nothing has arrived yet. Press something on the controller.	Vaala tiro nakaetoka. Bati bata go setajana.
+Click to seek — drag to scrub	Bati go kaeseti — tiri go tokamiri
+name, from anywhere	hola, mun ala kaea
+what is on air	veka lumo
+on air in playlist {n}	lumo kae vekaku {n}
+the selected cue in playlist {n}	veka piko kae vekaku {n}
+how much of this effect	setapata numa
+The text this cue puts on screen	Hola veka nakae veki kae vekadeka
+Which frame you draw on	Veka go tu veki
+Who can see it	Pik holawia pel miri
+what is on air in a playlist	veka lumo kae vekaku
+click or Esc to close	bati va Esc go klui
+Right-click turns them off.	Bati nira vaponi.
+Copy the show AND its media into one portable folder	Veli vekarana SO vekadoraku go una kara tiriseto
+Set per-cue transition duration	Seti setatoka go una veka
+Changing this re-prepares the cue.	Seti nakae novponi veka.
+any command, {value} is the number	ala korhola piko, {value} numa
+nothing to send - check the message	vaala go seni — miri hola
+Set repeat count for selected cues	Seti novtoknuma go vekaku piko
+Delay between GO and this cue starting	Pena mun GO go veka tiri
+selected cue lane  |  TAKE to make it live	vekarana piko — TAKE go seni lumo

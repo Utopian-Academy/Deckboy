@@ -1067,3 +1067,272 @@ START: PLAY	START: ຫຼິ້ນ
 + ADD AN OUTPUT	+ ເພີ່ມ OUTPUT
 >LIVE	>ສົດ
 center	ກາງ
+NO	ບໍ່
+YES	ແມ່ນ
+To	ໄປ
+UP	ຂຶ້ນ
+add	ເພີ່ມ
+all	ທັງໝົດ
+any	ໃດກໍໄດ້
+box	ກ່ອງ
+Cut	ຕັດ
+Fit	ພໍດີ
+hue	ສີ
+inf	ບໍ່ສິ້ນສຸດ
+key	ປຸ່ມ
+Map	ແຜນທີ່
+Mic	ໄມ
+Now	ດຽວນີ້
+ONE	ໜຶ່ງ
+RED	ແດງ
+Row	ແຖວ
+run	ແລ່ນ
+sea	ທະເລ
+set	ຕັ້ງ
+tab	ແຖບ
+tag	ປ້າຍ
+Top	ເທິງ
+BACK	ກັບ
+bell	ລະຄັງ
+blue	ຟ້າ
+Code	ລະຫັດ
+DOWN	ລົງ
+DRAW	ແຕ້ມ
+face	ໃບໜ້າ
+Fill	ເຕັມ
+flag	ທຸງ
+font	ຟອນ
+From	ຈາກ
+grow	ຂະຫຍາຍ
+hold	ຄ້າງ
+idle	ວ່າງ
+KEYS	ປຸ່ມ
+Left	ຊ້າຍ
+line	ເສັ້ນ
+Load	ໂຫຼດ
+Loop	ວົນ
+MASK	ໜ້າກາກ
+Memo	ບັນທຶກ
+NONE	ບໍ່ມີ
+ONCE	ຄັ້ງດຽວ
+oval	ວົງຮີ
+PAIR	ຈັບຄູ່
+play	ຫຼິ້ນ
+Port	ພອດ
+rain	ຝົນ
+send	ສົ່ງ
+show	ໂຊ
+Size	ຂະໜາດ
+SKIP	ຂ້າມ
+snow	ຫິມະ
+soft	ອ່ອນ
+TEXT	ຂໍ້ຄວາມ
+Tone	ໂທນ
+type	ປະເພດ
+Word	ຄຳ
++ ADD	+ ເພີ່ມ
+align	ຈັດແນວ
+black	ດຳ
+blend	ປະສົມ
+boxes	ກ່ອງ
+brush	ແປງ
+Chain	ສາຍ
+Curve	ເສັ້ນໂຄ້ງ
+Delay	ໜ່ວງ
+do it	ເຮັດເລີຍ
+frame	ພາບ
+glass	ແກ້ວ
+green	ຂຽວ
+LEARN	ຮຽນຮູ້
+level	ລະດັບ
+Lines	ເສັ້ນ
+mixed	ປົນກັນ
+notes	ບັນທຶກ
+Pause	ພັກ
+Right	ຂວາ
+scale	ຂະໜາດ
+shape	ຮູບຊົງ
+Short	ສັ້ນ
+speed	ຄວາມໄວ
+split	ແຍກ
+stamp	ຕາປະທັບ
+START	ເລີ່ມ
+state	ສະຖານະ
+Still	ຮູບນິ່ງ
+style	ຮູບແບບ
+Timer	ໂມງນັບ
+title	ຫົວຂໍ້
+Width	ຄວາມກວ້າງ
+words	ຄຳ
+Zones	ເຂດ
+(none)	(ບໍ່ມີ)
+amount	ປະລິມານ
+anyone	ທຸກຄົນ
+CHANGE	ປ່ຽນ
+CHOOSE	ເລືອກ
+Clouds	ເມກ
+DELETE	ລຶບ
+eraser	ຢາງລຶບ
+export	ສົ່ງອອກ
+FIXED!	ແກ້ໄຂແລ້ວ!
+follow	ຕາມ
+FREEZE	ຄ້າງພາບ
+FROZEN	ພາບຄ້າງ
+garden	ສວນ
+LAYOUT	ການຈັດວາງ
+Levels	ລະດັບ
+Linear	ເສັ້ນຊື່
+MOTION	ການເຄື່ອນ
+nobody	ບໍ່ມີໃຜ
+Resume	ສືບຕໍ່
+ribbon	ໂບ
+scroll	ເລື່ອນ
+signal	ສັນຍານ
+sketch	ຮ່າງ
+SLICES	ຊິ້ນ
+SMOOTH	ລຽບ
+Target	ເປົ້າໝາຍ
+VALUES	ຄ່າ
+(empty)	(ຫວ່າງ)
+(unset)	(ຍັງບໍ່ຕັ້ງ)
+address	ທີ່ຢູ່
+Browser	ບຣາວເຊີ
+caption	ຄຳບັນຍາຍ
+Ceiling	ຂີດຈຳກັດ
+Command	ຄຳສັ່ງ
+Cue hue	ສີ cue
+EFFECTS	ເອັບເຟັກ
+English	ອັງກິດ
+Haptics	ການສັ່ນ
+LESSONS	ບົດຮຽນ
+Message	ຂໍ້ຄວາມ
+midi in	MIDI ເຂົ້າ
+nothing	ບໍ່ມີຫຍັງ
+OUTPUTS	ຂາອອກ
+Picture	ຮູບ
+repeats	ຊ້ຳ
+SCREENS	ໜ້າຈໍ
+SHOW ME	ສະແດງໃຫ້ເບິ່ງ
+Show on	ສະແດງຢູ່
+standby	ລໍຖ້າ
+Stretch	ຍືດ
+theatre	ໂຮງລະຄອນ
+all to 0	ທັງໝົດເປັນ 0
+backdrop	ພື້ນຫຼັງ
+captions	ຄຳບັນຍາຍ
+CHANNELS	ຊ່ອງ
+continue	ສືບຕໍ່
+count up	ນັບຂຶ້ນ
+DEFAULTS	ຄ່າເລີ່ມຕົ້ນ
+Full Red	ແດງເຕັມ
+Learn it	ຮຽນຮູ້
+METADATA	ຂໍ້ມູນກຳກັບ
+none yet	ຍັງບໍ່ມີ
+notebook	ປຶ້ມບັນທຶກ
+offset X	ເລື່ອນ X
+offset Y	ເລື່ອນ Y
+on press	ເມື່ອກົດ
+SECTIONS	ພາກ
+Stop all	ຢຸດທັງໝົດ
+STRAIGHT	ຊື່
+subtitle	ຄຳບັນຍາຍ
+subtract	ລົບ
+the desk	ໂຕະ
+The name	ຊື່
+THE SHOW	ໂຊ
+THIS CUE	CUE ນີ້
+TURN OFF	ປິດ
+a comment	ຄຳເຫັນ
+add shape	ເພີ່ມຮູບຊົງ
+choose...	ເລືອກ...
+Full Blue	ຟ້າເຕັມ
+FUNCTIONS	ໜ້າທີ່
+generated	ສ້າງແລ້ວ
+Listen to	ຟັງ
+logo size	ຂະໜາດໂລໂກ້
+MIDI File	ໄຟລ໌ MIDI
+no output	ບໍ່ມີ output
+no window	ບໍ່ມີໜ້າຕ່າງ
+Pause all	ພັກທັງໝົດ
+stop at 0	ຢຸດທີ່ 0
+text mode	ໂໝດຂໍ້ຄວາມ
+then stop	ແລ້ວຢຸດ
+(no notes)	(ບໍ່ມີບັນທຶກ)
+brightness	ຄວາມສະຫວ່າງ
+cue number	ເລກ cue
+Full Black	ດຳເຕັມ
+Full Green	ຂຽວເຕັມ
+Full White	ຂາວເຕັມ
+Fullscreen	ເຕັມຈໍ
+look at it	ເບິ່ງມັນ
+no effects	ບໍ່ມີເອັບເຟັກ
+Position X	ຕຳແໜ່ງ X
+Position Y	ຕຳແໜ່ງ Y
+Resume all	ສືບຕໍ່ທັງໝົດ
+save still	ບັນທຶກຮູບ
+text added	ເພີ່ມຂໍ້ຄວາມແລ້ວ
+Total time	ເວລາລວມ
+WITH SOUND	ມີສຽງ
+any channel	ຊ່ອງໃດກໍໄດ້
+clear frame	ລ້າງພາບ
+Esc cancels	Esc ຍົກເລີກ
+nothing yet	ຍັງບໍ່ມີຫຍັງ
+Sensitivity	ຄວາມໄວຮັບ
+THE NETWORK	ເຄືອຂ່າຍ
+time of day	ເວລາຂອງມື້
+Esc to close	Esc ເພື່ອປິດ
+EXPORTING...	ກຳລັງສົ່ງອອກ...
+loop forever	ວົນຕະຫຼອດ
+Pair a phone	ຈັບຄູ່ໂທລະສັບ
+Pause at end	ພັກຕອນຈົບ
+Phone access	ເຂົ້າຜ່ານໂທລະສັບ
+(nothing yet)	(ຍັງບໍ່ມີຫຍັງ)
+EXAMPLE SHOWS	ໂຊຕົວຢ່າງ
+INSTALLING...	ກຳລັງຕິດຕັ້ງ...
+Paired phones	ໂທລະສັບທີ່ຈັບຄູ່
+THIS COMPUTER	ຄອມພິວເຕີນີ້
+whole network	ທັງເຄືອຂ່າຍ
+will not open	ເປີດບໍ່ໄດ້
+not configured	ຍັງບໍ່ຕັ້ງຄ່າ
+on any channel	ຢູ່ຊ່ອງໃດກໍໄດ້
+Pause at start	ພັກຕອນເລີ່ມ
+source missing	ຂາດແຫຼ່ງ
++ ADD AN EFFECT	+ ເພີ່ມເອັບເຟັກ
+Maximum quality	ຄຸນນະພາບສູງສຸດ
+Click to type it	ຄລິກເພື່ອພິມ
+Cue has no audio	Cue ບໍ່ມີສຽງ
+LEARN THE BASICS	ຮຽນພື້ນຖານ
+REPORT A PROBLEM	ລາຍງານບັນຫາ
+(no media source)	(ບໍ່ມີແຫຼ່ງສື່)
+CLICK ANYWHERE...	ຄລິກບ່ອນໃດກໍໄດ້...
+name or number...	ຊື່ ຫຼື ເລກ...
+only this computer	ສະເພາະຄອມພິວເຕີນີ້
+type a cue number	ພິມເລກ cue
+Click to edit cue notes	ຄລິກເພື່ອແກ້ບັນທຶກ cue
+the file cannot be read	ອ່ານໄຟລ໌ບໍ່ໄດ້
+Keep a transcript (.srt)	ເກັບຂໍ້ຄວາມຖອດສຽງ (.srt)
+Nothing here with this filter.	ບໍ່ມີຫຍັງໃນຕົວກອງນີ້.
+Nothing has arrived yet. Press something on the controller.	ຍັງບໍ່ມີຫຍັງມາຮອດ. ກົດປຸ່ມໃດໜຶ່ງໃນຕົວຄວບຄຸມ.
+Click to seek — drag to scrub	ຄລິກເພື່ອໄປຈຸດນັ້ນ — ລາກເພື່ອເລື່ອນ
+name, from anywhere	ຊື່, ຈາກບ່ອນໃດກໍໄດ້
+what is on air	ສິ່ງທີ່ກຳລັງຖ່າຍທອດ
+on air in playlist {n}	ກຳລັງຖ່າຍທອດໃນ playlist {n}
+the selected cue in playlist {n}	cue ທີ່ເລືອກໃນ playlist {n}
+how much of this effect	ປະລິມານເອັບເຟັກນີ້
+The text this cue puts on screen	ຂໍ້ຄວາມທີ່ cue ນີ້ສະແດງຢູ່ໜ້າຈໍ
+Which frame you draw on	ພາບທີ່ເຈົ້າແຕ້ມໃສ່
+Choose startup mode:	ເລືອກໂໝດເລີ່ມຕົ້ນ:
+Run the show from a phone	ຄວບຄຸມໂຊຈາກໂທລະສັບ
+Who can see it	ໃຜສາມາດເບິ່ງໄດ້
+what is on air in a playlist	ສິ່ງທີ່ກຳລັງຖ່າຍທອດໃນ playlist
+click or Esc to close	ຄລິກ ຫຼື Esc ເພື່ອປິດ
+Right-click turns them off.	ຄລິກຂວາເພື່ອປິດ.
+Copy the show AND its media into one portable folder	ສຳເນົາໂຊ ແລະ ສື່ຂອງມັນໃສ່ໂຟນເດີດຽວທີ່ຍ້າຍໄດ້
+The role, or leave it empty	ບົດບາດ ຫຼື ປະໄວ້ວ່າງ
+Clear the live PIP overlay now	ລ້າງຊັ້ນທັບ PIP ສົດດຽວນີ້
+Set per-cue transition duration	ຕັ້ງໄລຍະປ່ຽນພາບຕໍ່ cue
+Changing this re-prepares the cue.	ປ່ຽນຄ່ານີ້ຈະກຽມ cue ໃໝ່.
+The OSC path, e.g. /cue/1/start	ເສັ້ນທາງ OSC, ເຊັ່ນ /cue/1/start
+any command, {value} is the number	ຄຳສັ່ງໃດກໍໄດ້, {value} ແມ່ນຕົວເລກ
+nothing to send - check the message	ບໍ່ມີຫຍັງຈະສົ່ງ — ກວດຂໍ້ຄວາມ
+selected cue lane  |  TAKE to make it live	ແຖວ cue ທີ່ເລືອກ — TAKE ເພື່ອຂຶ້ນສົດ
