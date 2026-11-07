@@ -667,3 +667,691 @@ Every one of those is a real Motion control. Put them on any ~ knob you like.	Ya
 START: AGAIN	START: TIKKELT NNIḌEN
 START: PLAY	START: URAR
 # --- end of tutorials ---
+in	anekcum
+NO	ALA
+To	Ɣer
+UP	AFELLA
+add	rnu
+all	akk
+any	yal
+Arm	Heggi
+bar	afeggag
+box	tanaka
+Cut	Gzem
+Fit	Snemmes
+hue	ini
+inf	war taggara
+key	tasarut
+Map	Takarḍa
+Now	Tura
+ONE	YIWEN
+out	tuffɣa
+RED	AZEGGAƔ
+Row	Izirig
+run	sker
+sea	ilel
+set	sbadu
+tab	iccer
+tag	tabzimt
+TAP	SIT
+Top	Afella
+YES	IH
+BACK	UƔAL
+bell	abluḍ
+blue	amidadi
+card	takarḍa
+Code	Tangalt
+DESK	ṬṬABLA
+does	tigawt
+DOWN	ADDA
+Draw	Suneɣ
+face	udem
+Fall	Asader
+Fill	Ččar
+film	asaru
+fire	senker
+flag	acenyal
+font	tasefsit
+freq	amḍiq
+From	Seg
+FULL	ČČUR
+grow	simɣer
+HELD	YEṬṬEF
+Hey!	Ay!
+hold	aṭṭaf
+idle	yeqqim
+KEYS	TISURA
+knob	taqeffalt
+Left	Azelmaḍ
+line	izirig
+Load	Sali
+Loop	Tineḍt
+mask	taɣmist
+neon	nnun
+none	ulac
+ONCE	TIKKELT
+outs	tuffɣiwin
+PAIR	SIN
+play	urar
+QUAD	UKKUZ
+rain	agafur
+Rate	Aktum
+Rise	Asali
+Runs	Yesnekkar
+says	yenna
+Seam	Tamlilt
+send	azen
+show	askan
+Size	Tiddi
+Skip	Zgel
+snow	adfel
+soft	leqqaq
+type	anaw
+wipe	asfeḍ
+Word	Awal
++ ADD	+ RNU
+>LIVE	>S TIDET
+align	semsawi
+black	aberkan
+blend	asemlili
+boxes	tinakiwin
+brush	tacetta
+Chain	Tazrart
+chime	ṭṭnan
+Crawl	Asikel
+curve	taɣzut
+Delay	Aɛetteb
+do it	sker-it
+FIXED	IWWEN
+frame	tugna
+glass	lkas
+green	azegzaw
+LEARN	LMED
+level	aswir
+Lines	Izirigen
+Masks	Tiɣmisin
+MEDIA	IMIDYATEN
+mixed	yemxalaḍ
+moves	amussu
+notes	tizmilin
+ORDER	AMYIZWER
+Pause	Asteɛfu
+plays	yettwaurar
+press	asiti
+Pulse	Tukkza
+Reads	Yeqqar
+Right	Ayeffus
+scale	taskala
+sends	yettazen
+shape	talɣa
+Short	Awezlan
+Shows	Yesskan
+slide	zleg
+speed	arured
+split	bḍu
+stamp	ttabeɛ
+Start	Bdu
+state	addad
+Still	Tugna
+style	aɣanib
+Swirl	Tuzzya
+TILES	IẒELLIYEN
+Timer	Amakud
+title	azwel
+Width	Tehri
+words	awalen
+(none)	(ulac)
+14-bit	14 n ibiten
+ALL ON	AKK YERMED
+amount	tanecta
+anyone	yal yiwen
+Bottom	Akessar
+Buffer	Aḥraz
+BUNDLE	SEDDU
+Camera	Takamirat
+center	alemmas
+CENTRE	ALEMMAS
+CHANGE	BEDDEL
+CHOOSE	FREN
+Clouds	Isigna
+credit	tidmi
+cue id	asulay n cue
+DECODE	KKES ANGAL
+DELETE	KKES
+Disarm	Sens aheggi
+eraser	asfaḍ
+export	sifeḍ
+FIXED!	YETTWASEGGEM!
+follow	ḍfer
+FREEZE	SEṬṬEF
+FROZEN	YETTWAṬṬEF
+garden	urti
+jam to	serked ɣer
+LAYOUT	TAƔESSA
+ledger	adlis
+Levels	Iswiren
+Linear	Izirigan
+Mascot	Amaskut
+Master	Agejdan
+Mirror	Lemri
+motion	amussu
+nobody	ula yiwen
+OUTPUT	TUFFƔA
+Pickup	Asdukkel
+podium	amaḍal n umeslay
+REBOOT	ALSA ASEKKER
+RECORD	SEKLES
+red at	azeggaɣ di
+Resume	Kemmel
+Reverb	Ameslaw n ugrireb
+ribbon	aɛeṣṣab
+Script	Askript
+scroll	sefsi
+set by	yesbadu-t
+sketch	akaẓ
+Slices	Iceqfan
+SMOOTH	LEQQAQ
+Splash	Agdil n ubdu
+sticky	tazmilt yettwaleqqmen
+STREAM	SIƔEL
+SUMMED	YEDDUKEL
+survey	asekyed
+Target	Iswi
+tile h	aẓelliw a
+tile w	aẓelliw t
+TOGGLE	BEDDEL ADDAD
+VALUES	AZALEN
+visual	udmawan
+Window	Asfaylu
+Wobble	Asenkez
+(empty)	(d ilem)
+(unset)	(ur yettwasbadu ara)
+12 HOUR	12 N USRAGEN
+24 HOUR	24 N USRAGEN
+address	tansa
+ALL OFF	AKK YENSA
+ARRANGE	SEMYIZWER
+bracket	tacrurt
+Browser	Iminig
+caption	aglam
+Ceiling	Asqif
+Channel	Abadu
+Command	Taladna
+CONVERT	ABDIL
+Cue hue	Ini n cue
+Desktop	Tanarit
+Ease in	Beddu leqqaqen
+EFFECTS	ISEMDA
+Encoder	Asettengal
+END CUE	TAGGARA N CUE
+English	Taglizit
+eq band	tasfift n EQ
+fade in	asader n unekcum
+FPS: ON	FPS: YERMED
+Ghastly	Yuḍen
+Haptics	Asemsusem
+inherit	wrat
+Key out	Tuffɣa n key
+LED MAP	TAKARḌA LED
+LESSONS	TIMSIRIN
+Limiter	Amḥadan
+LTC out	Tuffɣa LTC
+marquee	asikel
+mask on	taɣmist termed
+midi in	anekcum MIDI
+move up	ali
+nothing	ulac
+OUTPUTS	TUFFƔIWIN
+PATTERN	AMUDEL
+pennant	acenyal amẓẓyan
+Picture	Tugna
+placard	aɣerbal
+Playing	Yettwaurar
+Push up	Ssuɣ ɣer ufella
+QR CODE	TANGALT QR
+rack it	sali-t
+Read as	Ɣer am
+red col	ajgu azeggaɣ
+repeats	allus
+routing	abrid n usawaḍ
+RUNNING	YETTEDDU
+Runs on	Yetteddu ɣef
+S-curve	Taɣzut S
+SCREENS	IGDILEN
+Send to	Azen ɣer
+Shatter	Abruri
+SHOW ME	SKEN-IYI-D
+Show on	Sken ɣef
+SHUFFLE	SEMXALAḌ
+sparkle	aflalay
+stacked	yettwasnejmaɛ
+standby	di tuzzya
+Stretch	Ẓuɣer
+Suspend	Aḥbas
+theatre	ttiyatru
+visuals	udmawan
+VJ MODE	ASKAR VJ
+Wipe up	Asfeḍ d asawen
++ OUTPUT	+ TUFFƔA
+all to 0	akk ɣer 0
+amber at	aqlaɣ di
+any port	yal tawwurt
+backdrop	agilal
+bg alpha	alpha n ugilal
+BLACKOUT	ABERKAN
+built in	yeddan
+BYPASSED	YETTWAZGEL
+captions	iglamen
+CHANNELS	IBADUTEN
+CLOCK ON	TAMRILT TERMED
+confetti	aqejjar n tmeɣra
+continue	kemmel
+contrast	amgirred
+count up	ḥsu d asawen
+DEFAULTS	IMEZWURA
+diskette	tadiskett
+Dissolve	Asfeḍ
+Ease out	Taggara leqqaqen
+END HOLD	TAGGARA TEṬṬEF
+END LOOP	TAGGARA S TNEḌT
+END NEXT	TAGGARA D-ITTEDDUN
+END STOP	TAGGARA YEḤBES
+fade out	asader n tuffɣa
+feedback	tuɣalin
+FIXTURES	ISFUKAL
+FPS: OFF	FPS: YENSA
+Full Red	Azeggaɣ ačuran
+Geometry	Tasengama
+hairline	izirig ameẓẓyan
+Hold for	Ṭṭef i
+IDENTIFY	SSEN
+Learn it	Lmed-it
+Limiting	Aḥadan
+listener	amsefli
+Low pass	Asfay n wadda
+Mappings	Tiɣimiyin
+METADATA	ISEFKA IMETTA
+MIDI MAP	TAKARḌA MIDI
+NMC sync	Amtawi NMC
+NMOS: ON	NMOS: YERMED
+none yet	mazal ulac
+notebook	tazmamt
+offset X	asmutti X
+offset Y	asmutti Y
+on press	mi ara tessiteḍ
+onion on	aɣlaf yermed
+overtime	asɛeddi n wakud
+Place it	Sers-it
+PLAYBACK	TAƔURI
+PLAYLIST	TABDART
+prog bar	afeggag n usenfar
+PROMPTER	AMEƔRI
+protocol	aneggaf
+Quit it!	Ḥbes!
+SECTIONS	IḤRIQEN
+SEQUENCE	AZRAR
+SHOW SDP	SKEN SDP
+sideline	idis
+Spectrum	Aspektrum
+Stop all	Ḥbes akk
+STRAIGHT	USRID
+subtitle	addad n ddaw
+subtract	ssenqes
+the desk	ṭṭabla
+The name	Isem
+THE SHOW	ASKAN
+THIS CUE	CUE-AGI
+TIMELINE	AZRAR N WAKUD
+TRIGGERS	IMSENKAREN
+TURN OFF	SENS
+UI scale	Taskala n ugrudem
+vMix API	API n vMix
+WATCHING	YETTƔEṬṬIF
+Waveform	Talɣa n umewwaj
+(not set)	(ur yettwasbadu ara)
++pause pt	+ asteɛfu
+a comment	awennit
+a-fade in	a-asader n unekcum
+A/V delay	Aɛetteb A/V
+add shape	rnu talɣa
+amber col	ini n waqlaɣ
+ASIO outs	Tuffɣiwin ASIO
+auto next	awurman ɣer uḍfir
+Bit depth	Tuzert n ibiten
+blueprint	aɣawas
+BOTH AXES	SIN IGERRAZEN
+cartridge	akartuc
+chime red	ṭṭnan azeggaɣ
+choose...	fren...
+CLOCK OFF	TAMRILT TENSA
+Composite	Asuddem
+Creatures	Imexluqen
+crossfade	asader yemlalen
+CUE TOOLS	IFECKA N CUE
+dotmatrix	tasɣerṭ n tenqiḍin
+equalizer	amsaga
+even grid	aẓeṭṭa ameɣnu
+EXIT  Esc	FFEƔ  Esc
+Freewheel	Tazzla ilelli
+Full Blue	Amidadi ačuran
+FUNCTIONS	TIWURIN
+generated	yettusnulfa-d
+glitch up	glitch d asawen
+HDR input	Anekcum HDR
+High pass	Asfay n ufella
+hold last	ṭṭef aneggaru
+Jump mode	Askar n uneggez
+Listen on	Sefli ɣef
+Listen to	Sefli i
+logo size	tiddi n ulugu
+MIDI File	Afaylu MIDI
+MIDI note	tanut MIDI
+move down	ader
+Name Card	Takarḍa n yisem
+new paths	iberdan imaynuten
+NMOS: OFF	NMOS: YENSA
+no output	ulac tuffɣa
+no script	ulac askript
+no window	ulac asfaylu
+onion off	aɣlaf yensa
+OSC Query	Asuter OSC
+OUTPUT ON	TUFFƔA TERMED
+Panic now	Tawaɣit tura
+Pause all	Asteɛfu i akk
+Placement	Asers
+PNG matte	aɣlaf PNG
+Push down	Ssuɣ ɣer wadda
+Push left	Ssuɣ ɣer zelmaḍ
+RECORDING	ASEKLES
+REMAINING	YEQQIMEN
+RUN PANIC	SNEKKER TAWAƔIT
+Scroll up	Sefsi d asawen
+SHOW FLOW	AZRAR N USKAN
+SPOUT: ON	SPOUT: YERMED
+stop at 0	ḥbes di 0
+Streaming	Asiɣel
+SVG paths	Iberdan SVG
+TEST CARD	TAKARḌA N USEKYED
+text mode	askar n uḍris
+then stop	sakin ḥbes
+they have	sɛan
+this deck	deck-agi
+TIMERS ON	IMAKUDEN RMEDEN
+tolerance	aqbal
+TRANSPORT	ASMUTTI
+WHEN IDLE	MI YEQQIM
+Wipe down	Asfeḍ d akessar
+Wipe left	Asfeḍ ɣer zelmaḍ
+wobble by	senkez s
+(no notes)	(ulac tizmilin)
+10-BIT: ON	10 N IBITEN: YERMED
+a-fade out	a-asader n tuffɣa
+ADD OUTPUT	RNU TUFFƔA
+APPEARANCE	UDEM
+ARRANGE...	SEMYIZWER...
+Beast mode	Askar n uɣersiw
+black lift	asali n uberkan
+brightness	tafat
+BUILT WITH	YETTWABNA S
+by density	s tneẓẓa
+BY FIXTURE	S USARU
+BYPASS ALL	ZGEL AKK
+CANVAS: ON	TAƔAWSA: TERMED
+chime zero	ṭṭnan n ulac
+colour tag	tabzimt n yini
+Compressor	Asettẓi
+copy chain	nɣel tazrart
+Corner pin	Tiɣmar
+Crosshatch	Izirigen imyezgan
+cue number	uṭṭun n cue
+deck fader	fader n deck
+EDGE BLEND	ASEMLILI N YIRIN
+end action	tigawt n taggara
+Fade+Pause	Asader+Asteɛfu
+fires cues	yesnekkar cues
+Frame lock	Asekkeṛ n tugna
+Full Black	Aberkan ačuran
+Full Green	Azegzaw ačuran
+Full White	Amellal ačuran
+Fullscreen	Agdil ačuran
+HDR signal	Asɣal HDR
+hold {n} s	ṭṭef {n} s
+Hover tips	Iwellihen
+Input gain	Asegmi n unekcum
+Input mono	Anekcum amuno
+knob 0-127	taqeffalt 0-127
+live audio	ameslaw s tidet
+Live input	Anekcum s tidet
+look at it	wali-t
+MIDI input	Anekcum MIDI
+NDI Output	Tuffɣa NDI
+NDI Source	Aɣbalu NDI
+next xfade	asader d-iteddun
+no effects	ulac isemda
+On release	Mi ara tserḥeḍ
+OPEN SAVED	LDI WIN YETTWAKELSEN
+OUTPUT OFF	TUFFƔA TENSA
+Panic fade	Asader n tawaɣit
+Passphrase	Tafyirt n uɛessi
+Push right	Ssuɣ ɣer yeffus
+Resolution	Tabadut
+Resume all	Kemmel akk
+safe areas	timnaḍin n tɣellist
+saturation	tuɣzin
+save still	sekles tugna
+Saved with	Yettwasekles s
+scoreboard	tafelwit n igmaḍ
+Seriously?	S tidet?
+SPOUT: OFF	SPOUT: YENSA
+text added	aḍris yettwarna
+tile width	tehri n uẓelliw
+TIMERS OFF	IMAKUDEN NSAN
+Total time	Akud akk
+transition	aɛeddi
+Typewriter	Tamacint n tira
+Wipe right	Asfeḍ ɣer yeffus
+WITH SOUND	S IMESLI
+10-BIT: OFF	10 N IBITEN: YENSA
+Accept from	Qbel seg
+Add a light	Rnu tafat
+ADD FIXTURE	RNU ASARU
+any channel	yal abadu
+ASIO driver	Anuḍaf ASIO
+audio meter	amaktar n umeslaw
+Auto-follow	Aḍfar awurman
+BACK TO TOP	UƔAL ƔER UFELLA
+Bar opacity	Tiffert n yifeggagen
+blend gamma	gamma n usemlili
+Browser Cue	Cue n yiminig
+Browser URL	URL n yiminig
+CANVAS MODE	ASKAR N TƔAWSA
+CANVAS: OFF	TAƔAWSA: TENSA
+CARD ON ALL	TAKARḌA ƔEF AKK
+chime amber	ṭṭnan n waqlaɣ
+clear frame	sfeḍ tugna
+CODE SOURCE	TANGALT TAƔBALUT
+Cue numbers	Uṭṭunen n cue
+Deck volume	Ableɣ n deck
+delete step	kkes asurif
+Destination	Asawaḍ
+Esc cancels	Esc yesefsax
+EXPORT CARD	SIFEḌ TAKARḌA
+Fade+Rewind	Asader+Tuɣalin
+full screen	agdil ačuran
+gain (each)	asegmi (yal yiwen)
+glitch down	glitch d akessar
+goto target	iswi n uneggez
+link aspect	qqen tuɣzint
+LOW LATENCY	AƐETTEB AMEẒẒYAN
+Mirror rate	Asnerni n lemri
+move points	smutti tinqiḍin
+NDI KEY: ON	NDI KEY: YERMED
+next colour	ini d-iteddun
+no duration	ulac tanzagt
+NO LIVE CUE	ULAC CUE S TIDET
+nothing yet	mazal ulac
+on the desk	ɣef ṭṭabla
+Orientation	Tanila
+Output mask	Taɣmist n tuffɣa
+Outputs Off	Tuffɣiwin nsant
+OVERLAY BIN	ASNEJMAƐ N YISNAFEN
+paste chain	senteḍ tazrart
+pause begin	asteɛfu di tazwara
+phrase hold	aṭṭaf n tefyirt
+plays synth	yettawi asinti
+Raster mode	Askar n raster
+REGION SIZE	TIDDI N TEMNAḌT
+RENUMBER...	ALS TUṬṬUNA...
+Sample rate	Aktum n yimedyaten
+SENDING OUT	ITTAZEN
+Sensitivity	Tiḥuṭ
+Shift: snap	Shift: senṭeḍ
+ST 2110: ON	ST 2110: YERMED
+THE NETWORK	AẒEṬṬA
+THIS OUTPUT	TUFFƔA-AGI
+tile height	teɣzi n uẓelliw
+time of day	akud n wass
+Toggle loop	Tineḍt
+undo stroke	sefsex azuɣer
+Video Synth	Asinti n tvidyut
+wait for GO	raǧu GO
+WEB MONITOR	AMWALI WEB
+(no monitor)	(ulac amwali)
+(no subtext)	(ulac aḍris n ddaw)
+4:2:2  8-BIT	4:2:2  8 N IBITEN
+AUDIO OUTPUT	TUFFƔA N UMESLAW
+Auto restore	Tiririt tawurmant
+CARD OFF ALL	TAKARḌA TENSA I AKK
+CLASSIC VIEW	TIMEẒRI TAQDIMT
+clear driver	sfeḍ anuḍaf
+Cue contrast	Amgirred n cue
+Deck opacity	Tiffert n deck
+DECKLINK: ON	DECKLINK: YERMED
+Dimmer + RGB	Asnerni + RGB
+Dip to black	Ɛeddi s uberkan
+Dip to white	Ɛeddi s umellal
+driver speed	arured n unuḍaf
+Esc to close	Esc i umdal
+EXPORTING...	ASIFEḌ...
+free running	ilelli
+glitch drift	aglaw n glitch
+glitch reach	tiɣzi n glitch
+KEY+FILL: ON	KEY+FILL: YERMED
+last reading	taɣuri taneggarut
+Last refused	Aneggaru yettwagin
+Level Meters	Imaktaren n uswir
+LISTENING IN	ASEFLI
+LISTENING...	ASEFLI...
+LISTENS: OFF	ASEFLI: YENSA
+loop forever	tineḍt war taggara
+Matte aspect	Tuɣzint n uɣlaf
+Miami cursor	Taḥnaccaṭ Miami
+MIDI CONTROL	ASEFRAK MIDI
+Mirror state	Addad n lemri
+NDI KEY: OFF	NDI KEY: YENSA
+NMC IN & OUT	NMC ANEKCUM D TUFFƔA
+NO PROGRAMME	ULAC ASENFAR
+Pair a phone	Qqen tiliɣri
+Pair overlap	Asemlili n sin
+Pause at end	Asteɛfu di taggara
+Phone access	Anekcum n tiliɣri
+RACKED, WARM	IHEGGA, YEḤMA
+Refresh rate	Aktum n usmiren
+render width	tehri n tuɣalin
+rounded rect	amkuz yezzin
+SCAN TO PAIR	SEKYED I USEMLILI
+SELECTED CUE	CUE YETTWAFERNEN
+Space — play	Tallunt — urar
+Spout Output	Tuffɣa Spout
+ST 2110: OFF	ST 2110: YENSA
+TEST CARD ON	TAKARḌA N USEKYED TERMED
+WATCH FOLDER	AKARAM YETTWAƔEṬṬFEN
+(nothing yet)	(mazal ulac)
+4:2:2  10-BIT	4:2:2  10 N IBITEN
+Auto-continue	Kemmel s wudem awurman
+Camera Source	Aɣbalu n tkamirat
+COMPOSITE CUE	CUE AMSUDDEM
+CUE INSPECTOR	AMSENQED N CUE
+DECKLINK: OFF	DECKLINK: YENSA
+default route	abrid amezwer
+Eddie's Clock	Tamrilt n Eddie
+Every adapter	Yal asmeɣri
+EXAMPLE SHOWS	ISKANEN N YIMEDYATEN
+Fade+LoadNext	Asader+Sali d-iteddun
+INSTALLING...	ASEBDED...
+J jump to row	J ali ɣer yizirig
+KEY+FILL: OFF	KEY+FILL: YENSA
+LIVE CAPTIONS	IGLAMEN S TIDET
+Master dimmer	Asnerni agejdan
+MEDIA ENCODER	ASETTENGAL N YIMIDYATEN
+MSC device id	Asulay MSC
+NEW SHOW FILE	AFAYLU N USKAN AMAYNUT
+No cue loaded	Ulac cue yuli
+nothing taken	ulac i yettwaṭṭfen
+one named cue	yiwen n cue s yisem
+Output device	Ibenk n tuffɣa
+Overlay image	Tugna n usnejmaɛ
+Overlay still	Tugna n usnejmaɛ
+Paired phones	Tiliɣriwin yeqqnen
+Panic profile	Amaɣnu n tawaɣit
+Phone control	Asefrek s tiliɣri
+READY-MADE...	WEJDEN...
+Recent shows:	Iskanen ineggura:
+REMOVE OUTPUT	KKES TUFFƔA
+render height	teɣzi n tuɣalin
+Run the clock	Snekker tamrilt
+Sound effects	Isemda n yimesli
+Space — pause	Tallunt — asteɛfu
+Speech models	Timudmin n wawal
+starting xvfb	asenker n xvfb
+THIS COMPUTER	ASELKIM-AGI
+VIDEO DIP: ON	VIDEO DIP: YERMED
+Video Outputs	Tuffɣiwin n tvidyut
+whole network	aẓeṭṭa akk
+will not open	ur yeldi ara
+Window Source	Aɣbalu n usfaylu
+127 (all-call)	127 (i yal yiwen)
+CD, music rigs	CD, ibenkan n uẓawan
+Cue brightness	Tafat n cue
+Cue saturation	Tuɣzin n cue
+custom size...	tiddi tudmawant...
+DeckLink Input	Anekcum DeckLink
+Default Camera	Takamirat tamezwart
+every playlist	yal tabdart
+fill the frame	ččar akk tugna
+glitch through	glitch deg
+lock to screen	qqen ɣer ugdil
+Monitor device	Ibenk n usefli
+MOTION CONTROL	ASEFRAK S UMUSSU
+NDI source cue	Cue n uɣbalu NDI
+no audio track	ulac abrid n umeslaw
+not configured	ur yettwasbadu ara
+on any channel	ɣef yal abadu
+on the monitor	ɣef umwali
+OUTPUT EFFECTS	ISEMDA N TUFFƔA
+Pause at start	Asteɛfu di tazwara
+PHONE & TABLET	TILIƔRI D TAFELWIT
+play a note...	urar tanut...
+PRESENTER VIEW	TIMEẒRI N UMESSKAN
+press a key...	ssit ɣef tsarut...
+RECORD TO DISK	SEKLES ƔEF UḌEBSI
+RECORD TO FILE	SEKLES DEG UFAYLU
+REMOTE CONTROL	ASEFRAK SEG WADEG
+restore at end	err-it di taggara
+save animation	sekles tasekkant
+SCALED TO FILL	YEČČUR S TSEKTI
+SELECT: MOTION	SELECT: AMUSSU
+source missing	aɣbalu ixuṣ
+STOP RECORDING	ḤBES ASEKLES
+STOP STREAMING	ḤBES ASIƔEL
+TALLY TRIGGERS	IMSENKAREN TALLY
+Toggle fade in	Asader n unekcum
+tone cue added	cue n tenɣimt yettwarna
+VIDEO DIP: OFF	VIDEO DIP: YENSA
+video standard	alugen n tvidyut
+what is on air	ayen yellan s tidet
+Who can see it	Anwa i t-yettwalin
+On	Yermed
+loop	tineḍt
+Pattern	Amudel
+no still preview	ulac taskant n tugna

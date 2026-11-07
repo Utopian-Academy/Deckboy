@@ -5923,7 +5923,11 @@
           // column holding it and spilled out to the left of the panel.
           const int patRowH = std::max(uiScaled(30),
                                        textLineHeight(fontSmall_) + uiScaled(8));
-          const int patLabelW = measuredTextWidth(fontSmall_, "transition") + uiScaled(10);
+          // Wide enough for this language's word for "pattern", up to 2/5 of the row.
+          const int patLabelW = std::min(
+              (kCtrlW - kInspectorInset * 2) * 2 / 5,
+              std::max(measuredTextWidth(fontSmall_, "transition"),
+                       measuredTextWidth(fontSmall_, "pattern")) + uiScaled(10));
           SDL_Rect patternTypeLabel {ctrl.x + kInspectorInset, playbackY,
                                      patLabelW, patRowH};
           SDL_Rect patternTypeBtn {patternTypeLabel.x + patLabelW + uiScaled(8), playbackY,
