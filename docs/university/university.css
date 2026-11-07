@@ -80,3 +80,8 @@
   .say .who { display: flex; align-items: center; justify-items: start; text-align: left; gap: .6rem; }
   .face { width: 64px; height: 64px; }
 }
+
+.uni-group { display: block; width: 100%; height: auto; image-rendering: pixelated; border: 2px solid var(--rule); }
+.uni-reward { display: grid; gap: 1rem; }
+.uni-reward[hidden] { display: none; }
+.say.rat { border-left-color: #c9a7a0; } .say.rat .who { color: #c9a7a0; }
