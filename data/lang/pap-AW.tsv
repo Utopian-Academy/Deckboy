@@ -1331,3 +1331,528 @@ The OSC path, e.g. /cue/1/start	E ruta OSC, por ehempel /cue/1/start
 any command, {value} is the number	cualkier orden, {value} ta e number
 nothing to send - check the message	no tin nada pa manda — check e mensahe
 selected cue lane  |  TAKE to make it live	baan di e cue selecciona — TAKE pa pone bibu
+JAM	SINCRONISA
+Fall	Baha
+Rise	Subi
+Runs	Ta core
+MULTI	MULTIPLE
+Reads	Ta lesa
+Shows	Ta mustra
+FORMAT	FORMATO
+Pickup	Garra
+Splash	Pantaya di cuminsamento
+cue id	ID di cue
+jam to	sincronisa na
+red at	cora na
+set by	poni pa
+tile h	tegel h
+tile w	tegel w
+Limiter	Limitador
+QR CODE	CODIGO QR
+Read as	Lesa como
+Runs on	Ta core riba
+mask on	mascara encende
+rack it	prepar'e
+red col	colum cora
+BYPASSED	SALTA
+FIXTURES	LUZNAN
+Hold for	Tene pa
+Limiting	Limitando
+MIDI MAP	MAPA MIDI
+amber at	amber na
+any port	cualkier porta
+bg alpha	alpha di fondo
+onion on	papel di siboyo encende
+prog bar	barra di programa
++ section	+ seccion
++pause pt	+pausa
+EXIT  Esc	SALI  Esc
+HDR input	entrada HDR
+MIDI note	nota MIDI
+PNG matte	matte PNG
+SVG paths	caminda SVG
+TEST CARD	KARTA DI PRUEBA
+a-fade in	a-drenta poco poco
+amber col	colum amber
+chime red	klok cora
+glitch up	glitch ariba
+new paths	caminda nobo
+onion off	papel di siboyo paga
+wobble by	slinger cu
+BY FIXTURE	PA LUZ
+BYPASS ALL	SALTA TUR
+Beast mode	Modo di bestia
+Black lift	Lantamento di pretu
+EDGE BLEND	MEZCLA DI RANDA
+On release	Ora di laga bai
+Passphrase	Frase di entrada
+Saved with	Wardá cu
+a-fade out	a-sali poco poco
+black lift	lantamento di pretu
+by density	segun densidad
+chime zero	klok cero
+deck fader	fader di deck
+end action	accion final
+fires cues	ta cuminsa cues
+next xfade	siguiente xfade
+ADD FIXTURE	AGREGA LUZ
+Add a light	Agrega un luz
+CARD ON ALL	KARTA RIBA TUR
+EXPORT CARD	EXPORTA KARTA
+LOW LATENCY	LATENCIA ABOU
+WEB MONITOR	MONITOR WEB
+Web monitor	Monitor web
+blend gamma	gamma di mezcla
+chime amber	klok amber
+gain (each)	ganancia (cada un)
+glitch down	glitch abou
+link aspect	conecta proporcion
+move points	move puntonan
+pause begin	pausa na cuminsamento
+phrase hold	tene frase
+plays synth	ta toca synth
+undo stroke	deshace streep
+CARD OFF ALL	KARTA PAGA RIBA TUR
+CLASSIC VIEW	VISTA CLASICO
+LISTENING...	TA SCUCHA...
+LISTENS: OFF	SCUCHA: PAGA
+Last refused	Ultimo cu a ser rechasa
+Pair overlap	Sobreposicion di pareja
+RACKED, WARM	CARGA, CALIENTE
+SCAN TO PAIR	SCAN PA CONECTA
+Space — play	Space — toca
+TEST CARD ON	KARTA DI PRUEBA ENCENDE
+driver speed	velocidad di driver
+glitch drift	derivacion di glitch
+glitch reach	alcance di glitch
+last reading	ultimo lectura
+pair overlap	sobreposicion di pareja
+render width	ancho di render
+LIVE CAPTIONS	SUBTITULO EN BIBO
+Live captions	Subtitulo en bibo
+Phone control	Control pa telefon
+READY-MADE...	KLA PA USA...
+Space — pause	Space — pausa
+Speech models	Modelonan di habla
+VIDEO DIP: ON	VIDEO DIP: ENCENDE
+render height	altura di render
+MOTION CONTROL	CONTROL DI MOVIMENTO
+NDI source cue	cue di fuente NDI
+OUTPUT EFFECTS	EFECTONAN DI SALIDA
+PHONE & TABLET	TELEFON & TABLET
+SCALED TO FILL	ESCALA PA YENA
+SELECT: MOTION	SCOGE: MOVIMENTO
+VIDEO DIP: OFF	VIDEO DIP: PAGA
+glitch through	glitch atraves
+lock to screen	pega na pantaya
+on the monitor	riba e monitor
+play a note...	toca un nota...
+press a key...	primi un tecla...
+restore at end	restaura na final
+save animation	warda animacion
+% of the height	% di altura
++  a first step	+  prome paso
++ CHOOSE A FEED	+ SCOGE UN FUENTE
+Double-GO guard	Proteccion contra GO dobel
+Frames a second	Imagen pa segundo
+HOLDING OFF AIR	TENIENDO FOR DI AIRE
+Live stream cue	Cue di stream en bibo
+PIP overlay cue	Cue di PIP
+Projector gamma	Gamma di proyector
+first available	prome disponibel
+nothing follows	nada ta sigui
+restart on take	cuminsa di nobo na take
+the focused one	esun cu tin foco
+BACK TO BUG SWAT	BAI BEK NA BUG SWAT
+Fade-in duration	Duracion di drenta
+PICK FROM SCREEN	SCOGE FOR DI PANTAYA
+WHAT DECKBOY DID	LOKE DECKBOY A HASI
+factory settings	ahustamento di fabrica
+no audio effects	sin efecto di zonido
+open the monitor	habri e monitor
+over the picture	riba e imagen
+Fade-out duration	Duracion di sali
+Key edge softness	Suavedad di randa di tecla
+Toggle chroma key	Cambia chroma key
+click this window	click riba e bentana aki
+the system output	salida di sistema
+(none playing now)	(nada ta tocando awor)
+FORGET MY DEFAULTS	LUBIDA MI VALORNAN
+Hex, e.g. 90 3C 7F	Hex, p.e. 90 3C 7F
+put it on a button	pon'e riba un boton
+Composite scene cue	Cue di scena composta
+Connections at once	Conexionnan na mesun tempo
+Passphrase (shared)	Frase di entrada (comparti)
+SAVE AS MY DEFAULTS	WARDA COMO MI VALORNAN
+Trusted controllers	Controladornan confiabel
+Where the ramp ends	Unda e rampa ta caba
+draw on the monitor	pinta riba e monitor
+edit on the monitor	edita riba e monitor
+find a named colour	busca un color pa nomber
+Companion passphrase	Frase di entrada di Companion
+Home — skip to start	Home — bai na cuminsamento
+How solid the ink is	Con fuerte e tinta ta
+Left — skip back 10s	Banda robes — bai atras 10s
+MIDI AND OSC MONITOR	MONITOR DI MIDI Y OSC
+MIDI and OSC monitor	Monitor di MIDI y OSC
+Marks stacked BELOW.	Marcanan stapel ABOU.
+New shows start from	Show nobo ta cuminsa for di
+Pitch, in semitones.	Toon, den semitono.
+Set browser URL/path	Pone URL/caminda di browser
+Typing needs EDIT on	Pa tipa mester EDIT encende
+X — cycle end action	X — cambia accion final
+nothing assigned yet	nada asigna ainda
+nothing targeted yet	nada apunta ainda
+the playlist's PATCH	PATCH di e playlist
+Left, centre or right	Robes, centro of drechi
+PLAY BUG SWAT, a game	HUGA BUG SWAT, un wega
+PRESS AGAIN TO FORGET	PRIMI BIAHA PA LUBIDA
+Pattern motion toggle	Cambia movimento di patron
+Sound when time is up	Zonido ora tempo caba
+none - click to learn	nada - click pa siña
+none: the one picture	nada: e un imagen
+turn phone control on	pone control pa telefon
+waiting for a picture	ta warda un imagen
+(projector curve only)	(curva di proyector so)
+Scene fade-in duration	Duracion di drenta di scena
+Start NEW from factory	Cuminsa NOBO for di fabrica
+Tile height in pixels.	Altura di tegel den pixel.
+any window, any screen	cualkier bentana, cualkier pantaya
+circle, heart, star...	rondo, curason, strea...
+click to open the grid	click pa habri e rooster
+sACN universe, 1-63999	Universo sACN, 1-63999
+Lower Third overlay cue	Cue di Lower Third
+Master oscillator rate.	Velocidad di oscilador principal.
+Scene fade-out duration	Duracion di sali di scena
+needs file-backed video	mester video for di un archivo
+none: the whole picture	nada: e imagen completo
+recent and in this show	reciente y den e show aki
+Clear in/out trim points	Kita puntonan di corta drenta/sali
+Right — skip forward 10s	Drechi — bai dilanti 10s
+none - click to set some	nada - click pa pone algun
+Esc cancels, arrows nudge	Esc ta cancela, flechanan ta move
+Fit/Fill/Stretch/Unscaled	Fit/Yena/Stira/Sin escala
+PIXEL FOR PIXEL, TOP-LEFT	PIXEL PA PIXEL, ARIBA-ROBES
+PROJECTOR - gamma matched	PROYECTOR - gamma igual
+Playback speed: 0.25–4.0×	Velocidad di toca: 0.25–4.0×
+This show's setup, no cues	E configuracion di e show aki, sin cues
+none - click to write some	nada - click pa skirbi algo
+walks every output in turn	ta pasa tur salida un pa un
+MULTIVIEW carries this too.	MULTIVIEW tambe ta carga esaki.
+Scene dwell time — 0 = hold	Tempo di scena — 0 = tene
+add a second output to pair	agrega un di dos salida pa pareja
+things that are oscillating	cosnan cu ta oscila
+Key tolerance (RGB distance)	Tolerancia di tecla (distancia RGB)
+channel list is not readable	lista di canal no por wordo lesa
+no effects for this cue type	sin efecto pa e tipo di cue aki
+1-16, as the desk counts them	1-16, manera e mesa ta conta nan
+Art-Net port address, 0-32767	Adres di porta Art-Net, 0-32767
+Fade-in duration for this cue	Duracion di drenta pa e cue aki
+Toggle loop for selected cues	Cambia loop pa cues scogi
+Toggle the live input's audio	Cambia zonido di entrada en bibo
+[ / ] keys — fade-in duration	[ / ] tecla — duracion di drenta
+a camera moves the ~ controls	un camara ta move e controlnan ~
+Contrast multiplier (0.0-2.0x)	Multiplicador di contraste (0.0-2.0x)
+Fade-out duration for this cue	Duracion di sali pa e cue aki
+HLG - live broadcast (BT.2100)	HLG - transmision en bibo (BT.2100)
+L - loop this cue continuously	L - repiti e cue aki semper
+Sound when the clock turns red	Zonido ora e oloshi bira cora
+Act now, without taking the cue	Hasi awor, sin tuma e cue
+Delay before the continue fires	Tardansa promer cu e sigui ta cuminsa
+Edit the main Lower Third title	Edita e titulo principal di Lower Third
+LINEAR - a feather, not a blend	LINEAR - un pluma, no un mezcla
+Shift+[ / ] — fade-out duration	Shift+[ / ] — duracion di sali
+false colour reads SDR pictures	color falso ta lesa imagen SDR
+learn it, or say how to read it	siñ'e, of bisa con pa les'e
+Brightness multiplier (0.0-2.0x)	Multiplicador di brio (0.0-2.0x)
+How many features fit on screen.	Cuanto funcion ta cabe riba pantaya.
+Saturation multiplier (0.0-2.0x)	Multiplicador di saturacion (0.0-2.0x)
+Send now, without taking the cue	Manda awor, sin tuma e cue
+Set Lower Third background alpha	Pone alpha di fondo di Lower Third
+Sound when the clock turns amber	Zonido ora e oloshi bira amber
+Use GEOMETRY for exact placement	Usa GEOMETRY pa pone exacto
+Vertical output offset in pixels	Desplasamento vertical di salida den pixel
+aimed here; the desk never moves	apunta aki; e mesa nunca ta move
+playlists into the named outputs	playlistnan pa e salidanan cu nomber
+7-segment, blocky, or a real font	7 segmento, blokki, of un fuente berdadero
+Do it now, without taking the cue	Hasi'e awor, sin tuma e cue
+Fade-out duration before next cue	Duracion di sali promer cu siguiente cue
+Fixed repeat count — 0 = infinite	Cantidad di repeticion — 0 = sin fin
+Output rotation angle (-180..180)	Angulo di rotacion di salida (-180..180)
+Put this control on an oscillator	Pone e control aki riba un oscilador
+window and recording outputs only	salida di bentana y grabacion so
+Countdown, count up, or wall clock	Conta abou, conta ariba, of oloshi di muraya
+Cycle end action for selected cues	Cambia accion final pa cues scogi
+Digit colour once amber is reached	Color di number ora amber yega
+Horizontal output offset in pixels	Desplasamento horizontal di salida den pixel
+In-point: cue starts playback here	Punto di drenta: cue ta cuminsa aki
+LIVE - every assigned deck matches	EN BIBO - tur deck asigna ta cuadra
+Out-point: cue stops playback here	Punto di sali: cue ta para aki
+Run it now, without taking the cue	Core'e awor, sin tuma e cue
+Set repeat count for selected cues	Pone cantidad di repeticion pa cues scogi
+Set the NDI source name to receive	Pone nomber di fuente NDI pa ricibi
+a chain on a device, after the mix	un cadena riba un aparato, despues di mezcla
+Attached overlays fire on TAKE only	Overlay pega ta cuminsa riba TAKE so
+Cycle which slot drives scene audio	Cambia cua slot ta guia zonido di scena
+Edit the secondary Lower Third line	Edita di dos liña di Lower Third
+Hue rotation (-180 to +180 degrees)	Rotacion di tono (-180 te +180 grado)
+Programme with sound in any browser	Programa cu zonido den cualkier browser
+Rotation speed, degrees per second.	Velocidad di rotacion, grado pa segundo.
+Set short cue label for search/goto	Pone etiketa cortico di cue pa busca/goto
+Toggle cue audio track for this cue	Cambia pista di zonido di e cue aki
+Arm this cue as the one GO will fire	Arma e cue aki como esun cu GO lo cuminsa
+How tall the logo is above the clock	Con halto e logo ta riba e oloshi
+Linear, ease in, ease out or S-curve	Linear, drenta suave, sali suave of curva-S
+Per-cue transition duration override	Duracion di transicion pa cada cue
+Set capture source from the cue menu	Pone fuente di captura for di e menu di cue
+Set playback speed for selected cues	Pone velocidad di toca pa cues scogi
+Toggle hold-at-end for selected cues	Cambia tene-na-final pa cues scogi
+channels on your interfaces, by name	canalnan riba bo interfaznan, pa nomber
+nothing set - this cue sends nothing	nada pone - e cue aki no ta manda nada
+over budget - video will drop frames	riba presupuesto - video lo laga imagen cai
+Fixed repeat count — 0 = loop forever	Cantidad di repeticion — 0 = loop pa semper
+Keep counting past zero, or stop dead	Sigui conta pasa cero, of para mesora
+LISTENS: the figure follows the sound	TA SCUCHA: e figura ta sigui e zonido
+Move the height on its own oscillator	Move altura riba su mes oscilador
+Put the brush's size on an oscillator	Pone tamaño di e brocha riba un oscilador
+Toggle audio enable for selected cues	Cambia zonido pa cues scogi
+What NEW starts from, never this show	For di unda NOBO ta cuminsa, nunca e show aki
+transcoding - plays clean until ready	ta transcodifica - ta toca limpi te ora e ta kla
+All interfaces; trusted machines only.	Tur interfaz; mashinnan confiabel so.
+Delay between GO and this cue starting	Tardansa entre GO y e cuminsamento di e cue aki
+Its amount, or one of its knobs A to D	Su cantidad, of un di su botonnan A te D
+Lower Third background opacity (0-255)	Opacidad di fondo di Lower Third (0-255)
+Which deck the cue it acts on lives on	Den cua deck e cue cu e ta traha riba dje ta biba
+FEEDS: pick a window, then one of these	FUENTE: scoge un bentana, despues un di esakinan
+install Tailscale here and on the phone	instala Tailscale aki y riba e telefon
+Digit colour while there is time in hand	Color di number mientras tin tempo ainda
+Put the brush's opacity on an oscillator	Pone opacidad di e brocha riba un oscilador
+X — cycle end action: stop / next / loop	X — cambia accion final: para / siguiente / loop
+transparent: put its playlist on a layer	transparente: pone su playlist riba un capa
+Click to show or hide this cue's captions	Click pa mustra of skonde subtitulonan di e cue aki
+How much it throws off; 0 is a clean burn	Cuanto e ta tira; 0 ta un kima limpi
+Phone control is in PHONE & TABLET, below	Control pa telefon ta den PHONE & TABLET, abou
+Apply fade-in to selected video/audio cues	Pone drenta poco poco riba cues di video/zonido scogi
+Bypass: this master leaves that deck alone	Salta: e master aki ta laga e deck ei trankil
+Seconds REMAINING when the clock turns red	Segundonan CU FALTA ora e oloshi bira cora
+generator is off - a START cue turns it on	generador ta paga - un cue START ta pon'e
+Apply fade-out to selected video/audio cues	Pone sali poco poco riba cues di video/zonido scogi
+Keep the outside and cut the inside instead	Tene e parti pafo y corta e parti paden
+Legacy target mode — switch type to convert	Modo di meta bieuw — cambia tipo pa converti
+Nothing here changes the show that is open.	Nada aki ta cambia e show cu ta habri.
+The cue number on the other desk, e.g. 12.5	Number di cue riba e otro mesa, p.e. 12.5
+Toggle pause-at-beginning for selected cues	Cambia pausa-na-cuminsamento pa cues scogi
+Toggle transition-to-next for selected cues	Cambia transicion-pa-siguiente pa cues scogi
+Auto-advance duration — 0 = hold until taken	Duracion di avanse automatico — 0 = tene te ora e wordo tuma
+Characters across. Fewer means bigger cells.	Letternan na ancho. Menos ta nifica cel mas grandi.
+Device output pair this cue's audio plays on	Pareja di salida di aparato unda zonido di e cue aki ta toca
+E - freeze on last frame instead of stopping	E - stop riba ultimo imagen en bes di para
+How long the note takes to reach full level.	Cuanto tempo e nota ta tuma pa yega su nivel completo.
+LED panel height in pixels. Click to type it	Altura di panel LED den pixel. Click pa tip'e
+Load the cue and hold first frame when taken	Carga e cue y tene e prome imagen ora e wordo tuma
+Seconds REMAINING when the clock turns amber	Segundonan CU FALTA ora e oloshi bira amber
+acts on every deck; deck and cue are ignored	ta traha riba tur deck; deck y cue ta wordo ignora
+0-127; 127 addresses every device on the line	0-127; 127 ta yama tur aparato riba e liña
+GO shows the note; picture and sound carry on	GO ta mustra e nota; imagen y zonido ta sigui
+How fast it moves; no effect when it is still	Con lihe e ta move; sin efecto ora e ta keto
+Fires when incoming timecode passes this point	Ta cuminsa ora timecode cu ta drenta pasa e punto aki
+Shown to the operator when GO reaches this cue	Mustra na operador ora GO yega e cue aki
+Source pixels, independent of output placement	Pixelnan di fuente, independiente di posicion di salida
+Stereo balance, applied live (snaps to center)	Balansa di stereo, en bibo (ta pega den centro)
+bypassed: nothing here is processed or limited	saltá: nada aki ta wordo procesa of limita
+headphones, desk sounds and LTC stay out of it	koptelefon, zonido di mesa y LTC ta keda pafo
+transparent outside the ink: put it on a layer	transparente pafo di e tinta: pon'e riba un capa
+what is said, on screen, made on this computer	loke ta wordo bisa, riba pantaya, traha riba e computer aki
+Above 1 tunnels inward, below 1 blooms outward.	Riba 1 tunel ta drenta, bou di 1 e ta habri pafo.
+Per-cue audio trim: -40 to +40 dB, applied live	Trim di zonido pa cada cue: -40 te +40 dB, en bibo
+Show the message in red - the wrap up NOW state	Mustra e mensahe na cora - e estado di caba AWOR
+The brush's width, as % of the picture's height	Ancho di e brocha, como % di altura di e imagen
+What the stream carries: SDR, PQ (HDR10) or HLG	Loke e stream ta carga: SDR, PQ (HDR10) of HLG
+Whether the next shape or pen path adds or cuts	Si e siguiente forma of caminda di pen ta agrega of corta
+a note or an address becomes that cue's trigger	un nota of adres ta bira e trigger di e cue ei
+transparent outside the blobs: put it on a layer	transparente pafo di e blobnan: pon'e riba un capa
+Digit colour once red is reached, and in overtime	Color di number ora cora yega, y den overtime
+Downmix this cue to mono (mono sources / mono PA)	Mezcla e cue aki abou pa mono (fuente mono / PA mono)
+Drag to scrub (shift = fine), click to type exact	Hala pa scrub (shift = fini), click pa tipa exacto
+Hand this to an oscillator so it moves on its own	Duna esaki na un oscilador pa e move su so
+Amber is closest to the 1976 single-phosphor look.	Amber ta esun mas cerca di e aparencia di un fosforo di 1976.
+Changing width also scales height (and vice versa)	Cambia ancho ta cambia altura tambe (y alrevez)
+Edit title/subtitle here or fire it live with TAKE	Edita titulo/subtitulo aki of cuminsa'e en bibo cu TAKE
+How long the levels take to arrive; zero is a snap	Cuanto tempo nivelnan ta tuma pa yega; cero ta un salto
+Set the self-contained PIP source for this overlay	Pone e fuente PIP di e overlay aki
+Take the newest shape or pen path out of this mask	Kita e forma of caminda di pen mas nobo for di e mascara aki
+Slots are self-contained sources in this first pass	Slotnan ta fuentenan independiente den e prome biaha aki
+Sway sideways. Depth 1 is half the frame either way	Slinger pa banda. Profundidad 1 ta mitar di imagen pa cada banda
+no fixtures patched - Settings > Network > FIXTURES	ningun luz conecta - Settings > Network > FIXTURES
+Add an output above, then send playlists to it here.	Agrega un salida ariba, despues manda playlistnan aki.
+An address sent to Deckboy's OSC port fires this cue	Un adres manda na porta OSC di Deckboy ta cuminsa e cue aki
+Draw the diagnostic over the card, or just the text.	Pinta e diagnostico riba e karta, of e texto so.
+Hold on the last composite frame when the scene ends	Tene e ultimo imagen composta ora e scena caba
+How long it takes; zero is a snap rather than a fade	Cuanto tempo e ta tuma; cero ta un salto en bes di un fade
+Set still/pattern/browser duration for selected cues	Pone duracion di still/pattern/browser pa cues scogi
+Start the LTC carrier, stop it, or jam it to a value	Cuminsa e LTC, par'e, of sincronis'e na un balor
+Which cue on that deck; step off the end to clear it	Cua cue riba e deck ei; pasa e final pa kit'e
+Bob up and down. Depth 1 is half the frame either way	Bula ariba y abou. Profundidad 1 ta mitar di imagen pa cada banda
+Output width in pixels | click value to type exact px	Ancho di salida den pixel | click riba balor pa tipa exacto
+Set the stream URL (srt://, rtmp://, rtsp://, udp://)	Pone e URL di stream (srt://, rtmp://, rtsp://, udp://)
+All interfaces, but only this computer is trusted yet.	Tur interfaz, pero e computer aki so ta confiabel ainda.
+Fires at this time on this computer's clock, every day	Ta cuminsa na e ora aki riba oloshi di e computer aki, tur dia
+Output height in pixels | click value to type exact px	Altura di salida den pixel | click riba balor pa tipa exacto
+Bar across the foot - readable further back than digits	Barra abou - por lesa'e mas leu cu numbernan
+Any font on this computer, Deckboy's own, or a font file	Cualkier fuente riba e computer aki, esun di Deckboy, of un archivo
+Every channel on every universe this session has touched	Tur canal riba tur universo cu e sesion aki a toca
+OUTPUT: drag a slice to move it, its corners to size it.	SALIDA: hala un pida pa mov'e, su skinanan pa tamaño.
+Choose a Lower Third from the overlay bin to fire on TAKE	Scoge un Lower Third for di e baki pa cuminsa riba TAKE
+Choose a PIP overlay from the overlay bin to fire on TAKE	Scoge un PIP for di e baki pa cuminsa riba TAKE
+Choose the legacy cue token to show inside the PIP window	Scoge e token di cue bieuw pa mustra den bentana PIP
+OUTPUT: drag a slice to move it, its corners to pin them.	SALIDA: hala un pida pa mov'e, su skinanan pa pega nan.
+ASIO carries the show's sound, and these are not on it yet	ASIO ta carga e zonido di e show, y esakinan no ta riba dje ainda
+F1-F10, F12 or the number pad fires this cue from anywhere	F1-F10, F12 of e teclado numerico ta cuminsa e cue aki for di cualkier caminda
+N=new  Enter/P=previous  O=open saved  E=examples  L=learn	N=nobo  Enter/P=anterior  O=habri wardá  E=ehempel  L=siña
+Use transition when auto-advancing or goto-taking next cue	Usa transicion ora e ta avansa su so of ora e ta tuma siguiente cue
+Hand this parameter to an oscillator so it moves on its own	Duna e parameter aki na un oscilador pa e move su so
+Audio fade-in: follow visual fade, none, or explicit seconds	Drenta di zonido: sigui e imagen, nada, of segundo exacto
+How long the finished drawing stays before it is drawn again	Cuanto tempo e dibuho cla ta keda promer cu e wordo pinta atrobe
+Audio fade-out: follow visual fade, none, or explicit seconds	Sali di zonido: sigui e imagen, nada, of segundo exacto
+How it comes on and goes off: none, fade, rise, slide or wipe	Con e ta drenta y sali: nada, fade, subi, desliza of wipe
+The 64-step wavetable, quantised to 6 bits like the hardware.	E wavetable di 64 paso, cuantisa na 6 bit manera e hardware.
+Add a library shape to this mask; its points are yours to move	Agrega un forma di biblioteca na e mascara aki; su puntonan ta pa bo move
+Art-Net or sACN (E1.31): whichever the lighting rig listens to	Art-Net of sACN (E1.31): cualkier cu e sistema di luz ta scucha
+No slices: this output shows its one picture. + SLICE to start.	Sin pida: e salida aki ta mustra su un imagen. + SLICE pa cuminsa.
+Vary tile size per cell, so the grid stops looking like a grid.	Varia tamaño di tegel pa cel, pa e rooster stop di parce un rooster.
+Which output channel carries the signal. 'all' feeds every one.	Cua canal di salida ta carga e señal. 'all' ta alimenta tur.
+What is sent. Backslash-n, -r, -t and -0 become those characters	Loke ta wordo manda. Backslash-n, -r, -t y -0 ta bira e letternan ei
+Deckboy's own remote-protocol verbs, one per line; # is a comment	E verbonan di protocol di Deckboy, un pa liña; # ta un comentario
+Modulator speed as a ratio of the note, so the bend tracks pitch.	Velocidad di modulador como proporcion di e nota, pa e dobladura sigui e toon.
+Open and close this edge on an oscillator -- a wipe that breathes	Habri y sera e randa aki cu un oscilador -- un wipe cu ta hala rosea
+Play this cue to the preview only; the outputs keep what they have	Toca e cue aki den e vista previo so; salidanan ta tene loke nan tin
+Put the pitch on an oscillator: Motion X sweeps it like a theremin	Pone e toon riba un oscilador: Motion X ta bari'e manera un theremin
+A disarmed cue stays in the list and does nothing; GO steps over it	Un cue desarma ta keda den lista y no ta hasi nada; GO ta stap riba dje
+Click a value to change it. A red address overlaps another fixture.	Click riba un balor pa cambi'e. Un adres cora ta cay riba otro luz.
+Where the clock reads from this cue on; click the value to type one	Unda e oloshi ta lesa for di e cue aki; click riba e balor pa tip'e
+Add a dashboard button that fires this master by name, from anywhere	Agrega un boton di dashboard cu ta cuminsa e master aki pa nomber, for di cualkier caminda
+New here? LEARN THE BASICS takes five minutes. We'll show you round.	Nobo aki? SIÑA E BASE ta tuma cinco minuut. Nos ta mustra bo rond.
+An IPv4 address, or 255.255.255.255 to broadcast to the whole network	Un adres IPv4, of 255.255.255.255 pa manda na henter e red
+How much playing audio widens and brightens the pattern. 0 free-runs.	Cuanto zonido cu ta toca ta hancha y aclara e patron. 0 ta core liber.
+INPUT: the programme. Drag a crop to move it, its corners to size it.	ENTRADA: e programa. Hala un corte pa mov'e, su skinanan pa tamaño.
+LED panel width in pixels - what one tile really is. Click to type it	Ancho di panel LED den pixel - loke un tegel ta di berdad. Click pa tip'e
+Which deck it acts on; step off the end for the one this cue lives on	Riba cua deck e ta traha; pasa e final pa esun di e cue aki
+only one playlist - use the routing chip on the header to add another	un playlist so - usa e chip di ruta riba e cabes pa agrega otro
+Which cue this master fires on that deck; step off the end to clear it	Cua cue e master aki ta cuminsa riba e deck ei; pasa e final pa kit'e
+Choose a mask from this show's library, or start a new one from a shape	Scoge un mascara for di biblioteca di e show aki, of cuminsa un nobo for di un forma
+Draw on the programme monitor with the mouse or a pen (DRAW). Esc stops	Pinta riba monitor di programa cu mouse of un pen (DRAW). Esc ta para
+How long the move takes, each way. 0 is instant whatever the style says	Cuanto tempo e movimento ta tuma, cada banda. 0 ta mesora cualkier cu e estilo bisa
+Stop that deck when the ramp lands - the usual take-it-down-and-stop-it	Para e deck ei ora e rampa yega - e usual baha-y-para
+Which of the file's sound tracks plays: a second language, a commentary	Cua pista di zonido di e archivo ta toca: un di dos idioma, un comentario
+An oscillator on the colour: depth is how far round the wheel it travels	Un oscilador riba e color: profundidad ta con leu rond di e wiel e ta bai
+Rack this cue paused and off air so GO starts it with no decoder spin-up	Prepara e cue aki den pausa y for di aire pa GO cuminsa'e sin warda decoder
+Note, control change, program change, MIDI Show Control, or your own bytes	Nota, control change, program change, MIDI Show Control, of bo mes bytes
+Black behind the words. Zero leaves it over whatever the output already has	Pretu tras di e palabranan. Cero ta laga nan riba loke e salida tin caba
+How far the modulator bends the pitch. 0-63, the hardware's own gain range.	Cuanto e modulador ta dobla e toon. 0-63, e rango di ganancia di e hardware.
+the words this cue puts on screen  |  Shift+Enter: new line  |  Enter: apply	e palabranan cu e cue aki ta pone riba pantaya  |  Shift+Enter: liña nobo  |  Enter: aplica
+OSC and UDP are fire and forget; TCP connects, so it runs off the show thread	OSC y UDP ta manda y lubida; TCP ta conecta, pesei e ta core pafo di e hilo di show
+Put the level on an oscillator: Motion makes it a gate that opens as you move	Pone e nivel riba un oscilador: Motion ta hasie un porta cu ta habri ora bo move
+Marks stacked ABOVE the characters, the way combining accents overflow a line.	Marcanan stapel ARIBA di e letternan, manera acento cu ta pasa liña.
+Save the mask as a greyscale PNG at the output's size: white keeps, black cuts	Warda e mascara como PNG gris na tamaño di salida: blanco ta tene, pretu ta corta
+Which chime. Cycling PLAYS it, so it can be chosen by ear rather than by name.	Cua klok. Cambia'e ta TOC'E, pa bo scoge cu oido en bes di nomber.
+No rows. + ADD or LEARN makes one; MIDIMAP RESET brings the built-in rows back.	Sin liña. + ADD of LEARN ta traha un; MIDIMAP RESET ta trece e liñanan original bek.
+Save the mask's paths as SVG, for Illustrator and anything else that reads them	Warda e caminda di mascara como SVG, pa Illustrator y cualkier cos cu ta les'e
+Which MIDI output; a named port that is missing is reported rather than swapped	Cua salida MIDI; un porta cu nomber cu falta ta wordo reporta, no cambia
+An oscillator on the level, running after GO until a later cue sets this fixture	Un oscilador riba e nivel, ta core despues di GO te ora un cue despues pone e luz aki
+Steps in third-octaves, because the ear works in ratios. 1kHz is the convention.	Paso den tercio di octava, pasobra oido ta traha cu proporcion. 1kHz ta e costumber.
+Strikes drawn ACROSS the cell, damaging the character rather than decorating it.	Strepnan ATRAVES di e cel, cu ta daña e letter en bes di dekor'e.
+Whether incoming MIDI notes play this synth or trigger cues as they always have.	Si notanan MIDI cu ta drenta ta toca e synth aki of ta cuminsa cues manera semper.
+A note number, or type LEARN and play it. Notes no cue claims still go to cue N+1	Un number di nota, of tipa LEARN y toc'e. Notanan cu ningun cue ta reclama ta bai na cue N+1
+A plain stereo pair. Click to open the matrix, starting from exactly this routing	Un pareja stereo simpel. Click pa habri e matrix, cuminsando exacto for di e ruta aki
+Folding is what turns an arbitrary pattern into something that reads as designed.	Dobla ta loke ta bira cualkier patron den algo cu ta parce diseña.
+Channel=level, comma separated. Ranges too: 1=255, 10-14=64. Channels count from 1	Canal=nivel, separa cu comma. Rango tambe: 1=255, 10-14=64. Canalnan ta conta for di 1
+Moves every selected cue's trim by the same dB; typing a value sets them all to it	Ta move trim di tur cue scogi cu e mesun dB; tipa un balor ta pone nan tur na dje
+Bends the carrier's PITCH rather than mixing with it. This is what makes FDS growl.	Ta dobla e TOON di e portador en bes di mezcla cu ne. Esaki ta pone FDS gruña.
+Half way through LEARN THE BASICS. Press L and we pick up where you stopped, skapi.	Mitar di caminda den SIÑA E BASE. Primi L y nos ta sigui unda bo a para, skapi.
+Render as a character grid with a 16-colour indexed palette, rather than as pixels.	Render como un rooster di letter cu un paleta indexa di 16 color, en bes di pixel.
+Which MIDI output this file plays to; step past the end for the first one available	Na cua salida MIDI e archivo aki ta toca; pasa e final pa e prome disponibel
+An IPv4 address, or 255.255.255.255 for the universe's multicast group (239.255.x.y)	Un adres IPv4, of 255.255.255.255 pa e grupo multicast di e universo (239.255.x.y)
+Click a cell to walk it: off, full, -3, -6, -12. This row turns the matrix off again	Click riba un cel pa cambi'e: paga, yen, -3, -6, -12. E liña aki ta paga e matrix atrobe
+How long each phrase stays before it moves. Zero hides them without losing the list.	Cuanto tempo cada frase ta keda promer cu e move. Cero ta skonde nan sin perde e lista.
+How long it takes to fall away after the attack. Only audible when retrigger is set.	Cuanto tempo e ta tuma pa baha despues di e ataque. Ta zona so ora retrigger ta encende.
+Off, from start (next cue fires when this one starts) or from end (when it finishes)	Paga, for di cuminsamento (siguiente cue ta cuminsa ora esaki cuminsa) of for di final (ora e caba)
+Height of one line as a percent of the raster, so a card reads the same on any screen	Altura di un liña como porcentahe di raster, pa un karta lesa igual riba cualkier pantaya
+Set slot source as media:/path, browser:url, window:name, camera:name, or syphon:name	Pone fuente di slot como media:/caminda, browser:url, window:nomber, camera:nomber, of syphon:nomber
+Short LFSR mode. The period is brief enough to read as pitched metal rather than hiss.	Modo LFSR cortico. E periodo ta cortico basta pa zona manera metal afina en bes di sisa.
+White, warm, red, amber, green, cyan, blue, magenta. ~ moves it round the colour wheel	Blanco, cayente, cora, amber, berde, cyan, blauw, magenta. ~ ta move'e rond di e wiel di color
+Re-strike the envelope this often. Hold sustains one note, which is what a drone wants.	Bati e envelope atrobe asina tantu. Hold ta tene un nota, loke un drone ta kier.
+Diamond is the hard-edged Atari Video Music lattice; rings tunnel well with feedback zoom.	Diamond ta e rooster di randa duro di Atari Video Music; ringnan ta traha bon tunel cu zoom di feedback.
+Rock or spin. Depth 1 is half a turn either way; a saw at depth 1 turns it all the way round	Slinger of draai. Profundidad 1 ta mitar di un buelta cada banda; un saw na 1 ta draai'e henter buelta
+DECK playback level (live, not saved with the cue) - per-cue trim is gain in the AUDIO section	Nivel di toca di DECK (en bibo, no warda cu e cue) - trim pa cada cue ta ganancia den seccion AUDIO
+Still, fade in, typewriter, scroll up, crawl or pulse -- all driven by the cue's own transport	Keto, drenta, mashin di skirbi, rol ariba, crawl of pulso -- tur ta core pa e transporte di e cue mes
+Fields per rendered frame. 1 is one for one, 0.5 holds each field for two frames, 0 freezes it.	Campo pa imagen. 1 ta un pa un, 0.5 ta tene cada campo dos imagen, 0 ta frees'e.
+What this cue shows while it plays: waveform, scope, Lissajous, spectrum, meters or a name card	Loke e cue aki ta mustra mientras e ta toca: forma di ola, scope, Lissajous, spectro, meter of un karta di nomber
+0 picks tiles by brightness so the picture reads. 1 picks at random so the grid becomes texture.	0 ta scoge tegel pa brio pa e imagen lesa. 1 ta scoge na casualidad pa e rooster bira textura.
+How far it travels, in semitones. Up reads as arrival, down as departure, zero is a struck note.	Cuanto e ta biaha, den semitono. Ariba ta zona manera yegada, abou manera salida, cero ta un nota bati.
+An IPv4 address. Names are not resolved: a DNS lookup is a blocking call and GO must not make one	Un adres IPv4. Nombernan no ta wordo resolve: un busqueda DNS ta bloka y GO no mag hasi esei
+Tile width in pixels. Must match the sheet's grid or the slices land across neighbouring sprites.	Ancho di tegel den pixel. Mester cuadra cu rooster di e blachi of e pidanan ta cay riba sprites banda.
+Alternating mirrors by cell position, which reads as pattern where random flipping reads as noise.	Spiegel alterna pa posicion di cel, cu ta lesa como patron unda cambio na casualidad ta lesa como ruido.
+0 welds them to their cell, which reads as engraved. Above it they re-roll, which reads as boiling.	0 ta solda nan na nan cel, cu ta lesa como grabá. Riba esei nan ta wordo scogi atrobe, cu ta lesa como hirbiendo.
+MONO L plays the left input in both speakers: mic 1 on most interfaces. STEREO is for a line source.	MONO L ta toca entrada robes den tur dos boxi: mic 1 riba mayoria interfaz. STEREO ta pa un fuente di liña.
+The whole gesture. This IS the cue's duration -- a sting is the one generated signal here that ends.	Henter e gesto. Esaki TA e duracion di e cue -- un sting ta e unico señal genera aki cu ta caba.
+Click the value to send this fixture or leave it where the last cue put it. ~ makes the level breathe	Click riba e balor pa manda e luz aki of laga'e unda ultimo cue a pon'e. ~ ta hasi e nivel hala rosea
+FDS is a wavetable bent by a modulator. 2A03 is the pulse/triangle/noise set most chiptune is made of.	FDS ta un wavetable dobla pa un modulador. 2A03 ta e set di pulse/triangle/noise cu mayoria chiptune ta traha di dje.
+Scramble which glyph means which brightness. Same set, different handwriting. Seeded, so it stays put.	Mezcla cua glyph ta nifica cua brio. Mesun set, otro letter. Cu semia, pesei e ta keda.
+Pixel sort: runs of pixels sorted by brightness within a row, which is what makes datamosh look melted.	Pixel sort: rij di pixel ordena pa brio den un liña, esei ta pone datamosh parce derriti.
+How many cells the marks may climb. They thin out as they go, so a tall reach trails rather than doubles.	Cuanto cel e marcanan por subi. Nan ta bira fini segun nan ta subi, pesei un alcance halto ta laga rastro en bes di dobla.
+cue act val  -  G take  S stop  F fade out (val = tenths of a second)  V volume  O opacity  J jump to row	cue acc bal  -  G tuma  S para  F sali poco poco (bal = decimo di segundo)  V volumen  O opacidad  J bula na liña
+Harmonic weight: a pure chime at zero, brass at full. This is the difference between a ping and a fanfare.	Peso harmonico: un klok puro na cero, brass na full. Esaki ta e diferencia entre un ping y un fanfara.
+Steps through the inputs this computer has. 'Settings input' follows the input chosen in Settings > Audio.	Ta pasa e entradanan di e computer aki. 'Settings input' ta sigui e entrada scogi den Settings > Audio.
+Embers to roaring. It still surges and settles at any setting -- a fire that does not move reads as a photo	For di carbon te candela grandi. E ta subi y baha na cualkier ahustamento -- candela cu no ta move ta parce un potret
+Reference pitch. 440 is modern standard, 432 the common alternative, and older instruments sat lower still.	Toon di referencia. 440 ta e standard moderno, 432 e alternativa comun, y instrumento bieuw tabata mas abou ainda.
+Where the sting starts. Under a voice it wants to stay out of the way; over a room it wants to cut through.	Unda e sting ta cuminsa. Bou di un stem e mester keda for di caminda; riba un sala e mester corta pasa.
+Digital gain on the input, -40 to +40 dB. Set the interface's own preamp first; this is for the last few dB.	Ganancia digital riba e entrada, -40 te +40 dB. Pone preamp di e interfaz prome; esaki ta pa e ultimo pa dB.
+Pulse the size. On its own this moves width AND height together; give height its own ~ to squash and stretch	Pulsa e tamaño. E so ta move ancho Y altura huntu; duna altura su mes ~ pa pusha y stira
+A card fills the frame; a Lower Third is a name and a role, low on a transparent frame, with an in and an out	Un karta ta yena e imagen; un Lower Third ta un nomber y un rol, abou riba un imagen transparente, cu un drenta y un sali
+Held keeps the last displacement rather than removing it -- the picture stays bent the way the driver left it.	Held ta tene e ultimo desplasamento en bes di kit'e -- e imagen ta keda dobla manera e driver a lag'e.
+12.5 and 25 are thin and reedy, 50 is hollow. 75 sounds identical to 25 -- it is here because trackers expose it.	12.5 y 25 ta fini y nasal, 50 ta bashi. 75 ta zona igual cu 25 -- e ta aki pasobra trackers ta mustr'e.
+Quantise the output like the hardware. The steps ARE the sound; smoothing them makes it a synth imitating a chip.	Cuantisa e salida manera e hardware. E pasonan TA e zonido; suavisa nan ta hasi'e un synth cu ta imita un chip.
+Moves every selected cue's trim by the same dB, keeping the differences between them; typing a value sets them all to it	Ta move trim di tur cue scogi cu e mesun dB, ta tene e diferencia entre nan; tipa un balor ta pone nan tur na dje
+Where the playlist's crosspoints send it (Settings > Audio). Click to open the matrix by name, starting from exactly that	Unda e puntonan di cruce di e playlist ta mand'e (Settings > Audio). Click pa habri e matrix pa nomber, cuminsando exacto for di e ruta ei
+name values with  d = ...;  end with one expression, or three for red green blue  |  Shift+Enter: new line  |  Enter: apply	duna balor nomber cu  d = ...;  caba cu un expresion, of tres pa cora berde blauw  |  Shift+Enter: liña nobo  |  Enter: aplica
+Put back what it started from once the ramp lands (after the stop): a deck left ready for its next cue, a swell that lets go	Pone bek loke tabata na cuminsamento ora e rampa yega (despues di para): un deck kla pa su siguiente cue, un subida cu ta laga bai
+Which speech model makes the captions: English, any language, or the slower, more accurate pair. Each is a one-time download	Cua modelo di habla ta traha e subtitulonan: Ingles, cualkier idioma, of e pareja mas pocopoco y mas exacto. Cada un ta wordo descarga un biaha
+What the mask cuts: this cue wherever it plays, this playlist on the focused output, that output's whole picture, or its matte	Loke e mascara ta corta: e cue aki unda cu e toca, e playlist aki riba e salida cu foco, henter imagen di e salida ei, of su matte
+Play at the screen's rate when it is within 0.2% (59.94 on 60): every frame shown once, the sound up to 3.5 cents sharp or flat	Toca na velocidad di pantaya ora e ta den 0.2% (59.94 riba 60): cada imagen mustra un biaha, e zonido te 3.5 cent mas halto of mas abou
+Quarter turns are exact and stay crisp. Spinning samples at an angle, which tears pixel art -- sometimes that is what you want.	Cuarto buelta ta exacto y ta keda claro. Draai ta tuma muestra na un angulo, cu ta skeur pixel art -- tin biaha esei ta loke bo kier.
+Every take starts the puppetry the same way, so a rehearsed look repeats instead of depending on how long the app has been open.	Cada take ta cuminsa e movimento mesun manera, pa un aparencia ensaya repiti en bes di depende di cuanto tempo e app ta habri.
+What aims each tilt: its own position, the picture's luma gradient so characters lean the way the image does, or the cell's hue.	Loke ta apunta cada inclinacion: su mes posicion, e gradiente di luma di e imagen pa e letternan inclina manera e imagen, of e tono di e cel.
+Name a channel or a pair once. Playlists send to the name, so a different interface means changing the names here, not every cue.	Duna un canal of un pareja nomber un biaha. Playlistnan ta manda na e nomber, pesei un otro interfaz ta nifica cambia e nombernan aki, no cada cue.
+Click a crosspoint to walk it: off, 0, -3, -6, -12 dB. Drag it sideways for any level. A playlist with none plays to its own device.	Click riba un punto di cruce pa cambi'e: paga, 0, -3, -6, -12 dB. Hal'e pa banda pa cualkier nivel. Un playlist sin ningun ta toca na su mes aparato.
+Sprite sets installed in data/sprites. Each folder there is a set; cycling picks one and wraps back to none. Right-click turns them off.	Set di sprite instala den data/sprites. Cada carpeta ei ta un set; cambia ta scoge un y bai bek na ningun. Click drechi ta paga nan.
+Internal resolution, 1 chunkiest to 5 finest. This is an aesthetic control as much as a speed one -- the 8-bit look comes from big pixels.	Resolucion interno, 1 mas grof te 5 mas fini. Esaki ta un control di estetica mesun tantu cu di velocidad -- e aparencia di 8-bit ta bin di pixel grandi.
+Picture takes colour from the image. Green, amber and cyan are terminal phosphors. Palette locks the text to the selected hardware palette.	Picture ta tuma color di e imagen. Berde, amber y cyan ta fosforo di terminal. Palette ta pega e texto na e paleta di hardware scogi.
+SUBTLE self-heals (H.264). CLASSIC is the real smear (MPEG-4). EXTREME is chunkier and smears constantly. Changing this re-prepares the cue.	SUBTLE ta cura su mes (H.264). CLASSIC ta e smeer berdadero (MPEG-4). EXTREME ta mas grof y ta smeer semper. Cambia esaki ta prepara e cue atrobe.
+Sine for line-up, pink to ring out a PA, white to find rattles, sweep to hear where a room rings, identify to walk the outputs one at a time.	Sine pa ahusta, pink pa sintoniza un PA, white pa haya ratel, sweep pa tende unda un sala ta zona, identify pa pasa e salidanan un pa un.
+Which effect, by its place in the stack of the cue that deck is playing when this fires. With nothing there, the fade says so and does nothing	Cua efecto, pa su lugar den e stapel di e cue cu e deck ei ta toca ora esaki cuminsa. Si no tin nada ei, e fade ta bisa esei y no ta hasi nada
+Each frame blended into the next. This is the Hypno signature -- at 0 it is a pattern generator, above it the picture starts feeding on itself.	Cada imagen mezcla den esun siguiente. Esaki ta e firma di Hypno -- na 0 e ta un generador di patron, riba esei e imagen ta cuminsa come su mes.
+What is through the window on the hearth wall: a garden, rain, snow or the sea. A room with weather outside reads as somewhere rather than as a wall	Loke tin pafo di e bentana riba e muraya di candela: un hardin, awa, sneeuw of laman. Un cuarto cu tempo pafo ta lesa como un lugar en bes di un muraya
+BY FIXTURE: the lights in the patch (Settings > Network > FIXTURES), by name. CHANNELS: channel=level by hand. A cue can carry both; channels go last	PA LUZ: e luznan den e patch (Settings > Network > FIXTURES), pa nomber. CANALNAN: canal=nivel na man. Un cue por carga tur dos; canalnan ta bai ultimo
+Each character rocks as though it were a card being tilted. Every cell has its own phase, so the grid breathes instead of sliding about as one sheet.	Cada letter ta slinger manera un karta cu ta inclina. Cada cel tin su mes fase, pesei e rooster ta hala rosea en bes di desliza manera un blachi.
+Pen: click for corners, drag for curves, click the first point to close (P). Points: drag, click the outline to add one, Alt-click or Delete to remove	Pen: click pa skina, hala pa curva, click riba prome punto pa sera (P). Punto: hala, click riba e rand pa agrega un, Alt-click of Delete pa kita
+The chip's three channels. They differ in kind: triangle has no volume control on the hardware, and noise is a shift register rather than an oscillator.	E tres canal di e chip. Nan ta diferente: triangle no tin control di volumen riba hardware, y noise ta un shift register en bes di un oscilador.
+Curated sets of symbols and emoji -- stars, notes, flowers, arrows, weather, runes, faces. Picking one fills the custom glyphs below, which stays editable.	Set scogi di simbolo y emoji -- strea, nota, flor, flecha, tempo, runa, cara. Scoge un ta yena e glyphnan ariba, cu ta keda editabel.
+Play from the computer keyboard, Ableton layout: A W S E D F T G Y H U J, Z and X for octave. While this is ON those keys make notes instead of firing cues.	Toca for di teclado di computer, layout di Ableton: A W S E D F T G Y H U J, Z y X pa octava. Mientras esaki ta ON e teclanan ei ta toca nota en bes di cuminsa cues.
+Deck opacity, deck volume, the master dimmer, the active cue's own brightness / contrast / saturation / hue, or a knob of one of its effects or audio effects	Opacidad di deck, volumen di deck, e dimmer master, brio / contraste / saturacion / tono di e cue activo, of un boton di un di su efecto of efecto di zonido
+Scanlines, phosphor bloom and RGB fringing. The bloom is the part that matters -- a phosphor spills sideways, which is why a CRT looks like it is emitting light.	Scanline, brio di fosforo y rand RGB. E brio ta loke ta conta -- un fosforo ta sparse pa banda, pesei un CRT ta parce cu e ta saca luz.
+Torn scanline bands and RGB separation. In text mode it also corrupts CELLS -- whole rows lock to one repeating character, the way a real text screen loses sync.	Banda di scanline skeur y separacion RGB. Den modo di texto e ta daña CEL tambe -- henter liña ta pega riba un letter cu ta repiti, manera un pantaya di texto berdadero cu ta perde sincronisacion.
+Still holds the frame you are on. Flipbook plays the frames in turn. Replay draws the first frame stroke by stroke, the way it was drawn, then holds and starts again	Still ta tene e imagen cu bo ta riba dje. Flipbook ta toca e imagennan un tras di otro. Replay ta pinta e prome imagen streep pa streep, manera e a wordo pinta, despues e ta tene y cuminsa atrobe
+Start, Stop, Pause, Resume, Load (stand it by without firing), Arm, Disarm, or Devamp it (a loop plays out its pass and ends); or Stop all, Pause all, Resume all: every deck	Start, Stop, Pause, Resume, Load (prepar'e sin cuminsa), Arm, Disarm, of Devamp (un loop ta caba su buelta y para); of Stop all, Pause all, Resume all: tur deck
+Scope shows shape and clipping. Lissajous shows phase and polarity between the first two channels -- a diagonal the wrong way means one is inverted. Spectrum is third-octave bars.	Scope ta mustra forma y clipping. Lissajous ta mustra fase y polaridad entre e prome dos canal -- un diagonal na e banda robes ta nifica cu un ta inverti. Spectrum ta barra di tercio di octava.
+0 picks the glyph the brightness asks for, 1 picks any glyph in the set. Turn it up to see the whole alphabet: ranked strictly by ink, a flat area picks one mark and the rest never appear.	0 ta scoge e glyph cu e brio ta pidi, 1 ta scoge cualkier glyph den e set. Subi'e pa mira henter e alfabet: ordena stricto pa tinta, un area plat ta scoge un marca y e restu nunca ta parce.
+Blocks and dithers read as density; the ASCII ramp reads as text; symbols read as wreckage. Cycling this clears a custom glyph string, since that would override it -- the preset row puts one back.	Blokki y dither ta lesa como densidad; e rampa ASCII ta lesa como texto; simbolonan ta lesa como restu. Cambia esaki ta kita un cadena di glyph propio, pasobra e lo pasa riba dje -- e liña di preset ta pone un bek.
+Equal temperament buys free modulation at the cost of every interval being slightly wrong. Just and pythagorean are exactly in tune in one key. Bohlen-Pierce divides a twelfth, so it has no octaves.	Temperamento igual ta cumpra modulacion liber na costo di cada interval ta un tiki robes. Just y pythagoreano ta exacto afina den un tono. Bohlen-Pierce ta parti un duodecima, pesei e no tin octava.
+OSC	OSC
+Twitch	Twitch
+Art-Net	Art-Net
+YouTube	YouTube
+PQ - HDR10	PQ - HDR10
+sACN (E1.31)	sACN (E1.31)
+DECKBOY  POCKET	DECKBOY  POCKET
+DECKLINK SDI / HDMI	DECKLINK SDI / HDMI
+AMWA NMOS  IS-04 / IS-05	AMWA NMOS  IS-04 / IS-05
