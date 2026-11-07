@@ -1848,3 +1848,382 @@ sACN (E1.31)	sACN (E1.31)
 DECKBOY  POCKET	DECKBOY  POCKET
 DECKLINK SDI / HDMI	DECKLINK SDI / HDMI
 AMWA NMOS  IS-04 / IS-05	AMWA NMOS  IS-04 / IS-05
+NO	VA
+UP	ALA
+in	dora
+TAP	BATI
+Top	Ala
+YES	NU
+bar	tirarana
+inf	vatam
+out	bra
+Fade	Lum
+Gate	Dor
+Seam	Ranka
+bell	tona
+blue	blua
+card	kara
+does	pati
+face	mira
+film	vekagura
+fire	seni
+flag	ranta
+freq	tok-tal
+outs	senadoraku
+oval	koralo
+rain	nira
+says	holi
+snap	zaro
+snow	nivo
+soft	lumo
+wipe	niri
+Crawl	Tiri
+Crush	Bati
+Moire	Moiré
+Pulse	Lumi
+Scrub	Tiri
+Swirl	Kori
+WACKY	TAMZARO
+Width	Ran
+black	nira
+chime	tona
+comic	vekahol
+glass	kara lumo
+green	verda
+moves	tirisaku
+plays	soni
+press	bati
+sends	seni
+slide	tiri
+split	pati dua
+stamp	lani
+@hello	@lumi
+Bottom	Nira
+COLOUR	LUMA
+Clouds	Nubaku
+DARKEN	NIRI
+Dimmer	Lumhal
+Linear	Rano
+Master	Kora
+Reverb	Sonadop
+Wobble	Setisi
+anyone	ala wia
+credit	munhol
+garden	garda
+ledger	gurgra
+nobody	va wia
+podium	kaeala
+ribbon	ranka
+scroll	tiri ala
+sticky	lanka
+survey	mira tama
+COMPARE	KULI
+Desktop	Tabula
+Ease in	Lum fesa
+Ghastly	Vaso
+LED MAP	LUMKAE LED
+LIGHTEN	LUMI
+Push up	Tiri ala
+S-curve	Rana S
+Shatter	Bati tama
+Suspend	Hali
+Tilt EQ	Kuka EQ
+Wipe up	Niri ala
+bracket	kar
+eq band	ranka eq
+inherit	tiri muna
+marquee	hola tira
+pennant	ranta
+placard	kara hol
+routing	dorset
+sparkle	lumkis
+stacked	ala dua
+theatre	vekarana
+Dissolve	Kula
+END HOLD	TAM HALI
+END LOOP	TAM TOKRANA
+END NEXT	TAM NOVTOK
+END STOP	TAM HALI TAM
+Ease out	Lum klua
+Full Red	Lumnira tama
+Low pass	Sona nira dor
+SEQUENCE	TOKRANA
+TRIGGERS	SENIKU
+Waveform	Vonda
+built in	kae dora
+confetti	konfeti
+contrast	niralum
+diskette	gura kis
+feedback	dopsona
+hairline	rana kiso
+listener	liswia
+notebook	gura hola
+overtime	tok ala
+protocol	holdor
+sideline	rana dop
+subtract	tiri dop
+Bit depth	Tamka bit
+Composite	Kula
+Full Blue	Blua tama
+High pass	Sona ala dor
+Name Card	Kara hol
+Placement	Lanka
+Push down	Tiri nira
+Push left	Tiri dopa ran
+Scroll up	Tiri ala
+Wipe down	Niri nira
+Wipe left	Niri dopa ran
+blueprint	kara muna
+cartridge	kar jana
+crossfade	lum kula
+crosshair	mira kora
+dotmatrix	numku kara
+equalizer	kulsona
+even grid	reta una
+they have	tu pel
+tolerance	halisa
+Compressor	Klujana
+Corner pin	Ran hali
+Crosshatch	Rana kula
+Fade+Pause	Lum+Tokispen
+Frame lock	Hali veka
+Full Black	Nira tama
+Full Green	Verda tama
+Full White	Luma tama
+HDR signal	Sena HDR
+NDI Output	Senadora NDI
+NDI Source	Munga NDI
+Push right	Tiri dopa nov
+Typewriter	Grawia
+Wipe right	Niri dopa nov
+knob 0-127	bata 0-127
+safe areas	kaeku tamo
+saturation	lumtam
+scoreboard	kara tal
+tile width	ran kara
+Auto-follow	Tiri sova
+Bar opacity	Lumtam rana
+Browser Cue	Veka fena
+Browser URL	URL fena
+Deck volume	Sona deka
+Fade+Rewind	Lum+Dopi
+Output mask	Mila senadora
+Outputs Off	Senadoraku klua
+Raster mode	Forma raster
+Toggle loop	Fesi/klui tokrana
+Video Synth	Synth veka
+goto target	kae goto
+on the desk	kae deka
+tile height	alka kara
+Checkerboard	Kara lumnira
+Cue contrast	Niralum veka
+Deck opacity	Lumtam deka
+Dimmer + RGB	Lumhal + RGB
+Dip to black	Dopi nira
+Dip to white	Dopi luma
+Level Meters	Mira nivela
+Matte aspect	Forma matte
+Oscilloscope	Vondamira
+Refresh rate	Zara novtok
+Spout Output	Senadora Spout
+clear driver	niri jandora
+rounded rect	kara koro
+Auto-continue	Tiri sova
+Camera Source	Munga vekamira
+Fade+LoadNext	Lum+Tiri novtok
+J jump to row	J tiri hola
+Master dimmer	Lumhal tama
+Overlay image	Veka ala
+Recent shows:	Vekaranaku novo:
+Window Source	Munga fena
+starting xvfb	muni xvfb
+CD, music rigs	CD, sonajanku
+Cue brightness	Luma veka
+Cue saturation	Lumtam veka
+DeckLink Input	Munga DeckLink
+Default Camera	Vekamira muna
+RECORD TO FILE	GRAI KAE GURA
+Toggle fade in	Fesi/klui lum fesa
+custom size...	tiddi sova...
+tone cue added	veka sona novi
+video standard	tal veka
+DeckLink Output	Senadora DeckLink
+Overlay opacity	Lumtam ala
+SDR material at	Vekadora SDR kae
+Toggle fade out	Fesi/klui lum klua
+decoder spin-up	muni vekaset
+endless encoder	grawia vatam
+lower bandwidth	dor kiso
+slide from left	tiri kae dopa ran
++ ONE AFTER THIS	+ UNA DOP NAKAE
+2 · WHAT IT RUNS	2 · MA TIRI
+An effect's knob	Bata pata
+Default App Feed	Munga jana muna
+Hardware display	Vekafena jana
+Speed, like tape	Zara, sov tira
+Toggle cue audio	Fesi/klui sona veka
+import an SVG...	tiri SVG...
+slide from right	tiri kae dopa nov
+source cue added	munga veka novi
+starting browser	muni fena
+starting capture	muni tira
+- REMOVE THIS ONE	- NIRI NAKAE
+1 · WHAT COMES IN	1 · MA FESA
+Pocket Test (day)	Mirada Pocket (lumtok)
+SDL Window Output	Senadora fena SDL
+browser cue added	veka fena novi
+highest bandwidth	dor tamo
+or your own bytes	nu bitku tu
+value to type one	tala grai una
+Media File / Still	Gura vekadora / Hali
+System audio (SDL)	Sona tama (SDL)
+Transition to next	Seti novtok
+When taken off air	Kae tira sena
+output already has	senadora pel
+restart driver now	novi jandora nu
+what it recalls...	ma novtok...
+1.50x  (4K desktop)	1.50x  (tabula 4K)
+3 · WHAT IT RUNS ON	3 · KAE MA TIRI
+Dark Detail (0-12%)	Nira kisa (0-12%)
+Frame Count (emoji)	Tal veka (emoji)
+PLUGE (black level)	PLUGE (nivela nira)
+Pocket Test (night)	Mirada Pocket (nira)
+Pocket Test (storm)	Mirada Pocket (tamnira)
+Previous show file:	Gura vekarana muna:
+Syphon/Spout Source	Munga Syphon/Spout
+browser, with sound	fena, sov sona
+rise, slide or wipe	ala, tiri nu niri
+Choose startup mode:	Piki dor muna:
+Dimmer + temperature	Lumhal + lumso
+FFmpeg Stream Output	Senadora reta FFmpeg
+Panel Map (animated)	Kara vekakar (tirisa)
+Pocket Test (sunset)	Mirada Pocket (lumtam nira)
+decks - Stop deck...	decks - Hali deka...
+decks - Take deck...	decks - Seni deka...
+initializing webview	muni webview
+Boresight (alignment)	Mira kora (kula)
+Not watching a folder	Va mira kar
+SMPTE 75% Colour Bars	Lumaku SMPTE 75%
+line  |  Enter: apply	hola  |  Enter: lani
+1.00x  (default 1080p)	1.00x  (muna 1080p)
+1.25x  (large desktop)	1.25x  (tabula tamo)
+An audio effect's knob	Bata pata sona
+Multiburst (bandwidth)	Multiburst (dor)
+change what it does...	seti ma pati...
+(default system device)	(jana muna tama)
+Convergence (fine grid)	Kula (reta kiso)
+Greyscale Steps (gamma)	Dora nira (gamma)
+K — cycle cue color tag	K — seti luma veka
+whatever the style says	ala ma hol forma
+None  (no character art)	Vana  (vana vekawia)
+Uniformity (flat fields)	Unaka (rana lumo)
+runs off the show thread	tiri bra vekarana
+type a command myself...	grai hol sova...
+Open a .deckboy show file	Fesi gura .deckboy
+Toggle hold on last frame	Fesi/klui hali veka tamuna
+from exactly this routing	kae dor nakae
+~ makes the level breathe	~ lumi nivela
+CLEAR OVERLAY  [Backspace]	NIRI ALA  [Backspace]
+Stop puppeteering this cue	Hali tiri veka nakae
+Test Clock (sync + latency)	Tokjan mirada (toksetí + pena)
+auto (reads the common two)	sova (miri dua)
+one big, the rest beside it	una tamo, ala ran
+type a length in seconds...	grai tok kistokku...
+2.00x  (Pocket 3 / 4K small)	2.00x  (Pocket 3 / 4K kis)
+Panel Map (LED tile numbers)	Kara vekakar (numku LED)
+Portal (blobs of deep space)	Portal (karkis nira tama)
+Set cue ID for selected cues	Seti ID veka pika
+Terrarium (living ecosystem)	Terrarium (kae lumso)
+Window 10% (peak brightness)	Fena 10% (luma tama)
+Window 50% (peak at mid APL)	Fena 50% (luma kora)
+on the header to add another	kae ala dop novi
+reads the same on any screen	mira una kae ala vekafena
+reported rather than swapped	holi va seti
+Frame Count (drops + latency)	Tal veka (tira + pena)
+Terrarium Pico (1px per cell)	Terrarium Pico (1px kara)
+Banding Ramps (real bit depth)	Ranka banding (bit tamo)
+Clear the live PIP overlay now	Niri PIP nu
+Fireside (a hearth that burns)	Fella luma (tamluma)
+Nothing to see here. Probably.	Vana mira nakae. Kiso.
+Test Bars (motion diagnostics)	Mirada (tirisa)
+What fires this cue besides GO	Ma seni veka nakae va GO
+capture again - what is on now	tira novtok - ma nu
+on air in the focused playlist	sena kae vekaku mira
+one big on top, the rest below	una tamo ala, ala nira
+row turns the matrix off again	hola klui kara ala
+two big on top, the rest below	dua tamo ala, ala nira
+SOS. Kidding. The show is fine.	SOS. Holkis. Vekarana pono.
+Test: move it on the controller	Mirada: tiriseti kae batjana
+walk the outputs one at a time.	tiri senadoraku una dop una.
+Moire 1:1 (is anything scaling?)	Moiré 1:1 (pata tiddi?)
+Set short cue id for search/goto	Seti ID kis veka
+Set goto target for selected cues	Seti kae goto vekaku pika
+ORDER - cues advance down the list	ORDER - vekaku tiri nira
+depth 1 turns it all the way round	tamka 1 kori tama
+load a sprite sheet from a file...	tiri kar sprite kae gura...
+EDIT is on: typing changes the show	EDIT fesa: grai seti vekarana
+label, command and glyph as text...	hol, holdor & holka sov hola...
+0-63, the hardware's own gain range.	0-63, tali jana.
+Pocket Test (test card + scene cycle)	Mirada Pocket (kara mirada + vekaraku)
+all driven by the cue's own transport	ala kae tirisa veka
+Set cue token to jump to when cue ends	Seti veka tiri kae tam
+Jump the driver back to its first frame	Tiri jandora dop veka una
+Play the out move now, then take it off	Soni klua nu, novtok niri
+Clear the active Lower Third overlay now	Niri Lower Third nu
+Critters (pixel-exact scaling, animated)	Critters (kisvek tamo, tirisa)
+the selected cue in the focused playlist	veka pika kae vekaku mira
+preset - a new preset from what is on now	preset - nova kae ma nu
+that output's whole picture, or its matte	veka tama senadora, nu matte
+Lissajous, spectrum, meters or a name card	Lissajous, spectrum, mira nu kara hol
+SHUFFLE - the next cue is picked at random	SHUFFLE - veka novtok vapika
+Ancient cypher, modern video desk. Respect.	Holka muno, deka veka nova. Lumi.
+Ctrl+Shift+S - write the show to a NEW file	Ctrl+Shift+S - grai vekarana kae gura NOVA
+Ctrl+S - write back over the show that is open	Ctrl+S - grai ala vekarana fesa
+Read everything right to left. Yes, everything.	Miri ala dopa nov dop dopa ran. Lumi, ala.
+Greetings, primitive. Your "slideshow" amuses us.	Lumi, muno. "Vekakis" tu soni mi.
+What this cue does when it ends - click to change	Ma veka nakae pati kae tam - bati seti
+LEARN: move a knob or press a key on the controller...	LEARN: tiri bata nu bati batjana...
+Per-cue audio: enable, trim, pan, mono, fades, normalize	Sona veka: fesi, trim, pan, mono, lum, nivela
+MIDI input is off: turn it on in MIDI CONTROL. OSC rows still answer.	Munga MIDI klua: fesi kae MIDI CONTROL. Holku OSC holi.
+MIX	KULA
+deck	deka
+logo	lumdeka
+rail	rana
+index	numka
+trans	setí
+arcade	sokakae
+plugin	novjana
+ticket	kara dor
+TRACKER	TIRWIA
+capsule	karkis
+circuit	kora
+dossier	gura
+palette	lumkar
+bulletin	hola nov
+cassette	kar sona
+dateline	tok-hol
+terminal	jandora
+programme	koraveka
+Perspective	Mira
+Motion: Bug Swat	Tirisa: Bug Swat
+, — skip to previous cue	, — veka muna
+--- -- --  does nothing on that playlist  -  (M) the step's own playlist	--- -- --  vana kae vekaku  -  (M) vekaku dora sova
+-18 dBFS is EBU alignment, -20 is SMPTE. Capped below 0: this feeds a live PA.	-18 dBFS EBU, -20 SMPTE. Hali nira 0: sona PA lumso.
+--- -- --  does nothing on that playlist  -  (M) the step's own playlist  -  EDIT is on: typing changes the show	--- -- --  vana kae vekaku  -  (M) vekaku dora sova  -  EDIT fesa: grai seti vekarana
+sea	sea
+neon	neon
+sine	sine
+RTMPS	RTMPS
+TA-DA	TA-DA
+14-bit	14-bit
+English	English
+Binaural	Binaural
+Spectrum	Spectrum
+NDI® NETWORK	NDI® NETWORK
+Syphon / Spout	Syphon / Spout
+29.97 fps (NTSC)	29.97 fps (NTSC)
+pop	pop
+lower 3rd	lower 3rd
+Lower Third	Lower Third
+Bork bork BORK!	Bork bork BORK!
+25 fps (PAL/EBU)	25 fps (PAL/EBU)
