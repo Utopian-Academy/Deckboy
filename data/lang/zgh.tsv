@@ -2088,3 +2088,141 @@ Scope shows shape and clipping. Lissajous shows phase and polarity between the f
 0 picks the glyph the brightness asks for, 1 picks any glyph in the set. Turn it up to see the whole alphabet: ranked strictly by ink, a flat area picks one mark and the rest never appear.	0 ⴰⵔ ⵉⵜⵜⵙⵜⴰⵢ ⴰⵙⵙⴽⵉⵍ ⵍⵍⵉ ⵉⵜⵜⵉⵏⵉⵏ ⵜⴰⴼⴰⵜ, 1 ⴽⵔⴰⵢⴳⴰⵜⵜ ⴰⵙⵙⴽⵉⵍ ⵖ ⵜⴳⵔⵓⵎⵎⴰ. ⵙⵙⴰⵍⵉ ⵜ ⴰⴷ ⵜⵥⵔⵜ ⴰⴳⵎⵎⴰⵢ ⴽⵓⵍⵍⵓ: ⵙ ⵓⵙⵎⵙⵉⴷⴷ ⵙ ⵜⵉⴷⵜ ⵙ ⵓⵣⴳⴳⴰⵔ, ⴰⴷⵖⴰⵔ ⵉⴼⵙⵓⵙⵏ ⴰⵔ ⵉⵜⵜⵙⵜⴰⵢ ⵢⴰⵜ ⵜⵕⵎⵎⵓⵣⵜ, ⵡⵉⵢⴰⴹ ⵓⵔ ⴱⴰⵢⵢⴰⵏⵏ.
 Blocks and dithers read as density; the ASCII ramp reads as text; symbols read as wreckage. Cycling this clears a custom glyph string, since that would override it -- the preset row puts one back.	ⵉⴱⵍⵓⴽⵏ ⴷ ⵓⴷⵉⵜⵀⴻⵔ ⴰⵔ ⵜⵜⵢⴰⵖⵔⴰⵏⵜ ⴰⵎ ⵜⴰⵣⵣⵍⴰ; ⵜⴰⴳⵔⵓⵎⵎⴰ ASCII ⴰⵎ ⵓⴹⵔⵉⵙ; ⵜⵉⵕⵎⵎⵓⵣⵉⵏ ⴰⵎ ⵉⴼⵍⴰⵏ. ⴰⴱⴷⴷⵍ ⵏ ⵡⴰⴷ ⴰⵔ ⵉⵙⵙⴼⴹ ⴰⵙⵔⴷⴰⵙ ⵏ ⵉⵙⵙⴽⵉⵍⵏ ⵉⵎⵣⵡⴰⵔ, ⴰⵛⴽⵓ ⴰⴷ ⵜ ⵉⵙⵏⵏⴼⵍ -- ⵉⵣⵔⵉⵖ ⵏ ⵓⵙⴱⴰⴷⵓ ⴰⵔ ⴷ ⵉⵙⵔⴰⵔ ⵢⴰⵏ.
 Equal temperament buys free modulation at the cost of every interval being slightly wrong. Just and pythagorean are exactly in tune in one key. Bohlen-Pierce divides a twelfth, so it has no octaves.	ⵜⴰⴳⵓⵜ ⵜⴰⵎⵙⴰⵙⴰⵏⵜ ⴰⵔ ⵜⵙⵙⴰⵖ ⴰⵙⵎⵓⵜⵜⵉ ⵉⵍⴻⵍⵍⵉ ⵙ ⵜⵎⵔⵏⵜ ⵏ ⵢⴰⵍ ⵜⴰⴳⵓⵜ ⴰⴷ ⵜⵉⵍⵉ ⵢⴰⵜ ⵜⵎⵥⵥⵉ ⵓⵔ ⵜⵚⵃⴰ. ⵜⴰⵣⴷⴷⴷⴳⵜ ⴷ pythagore ⵚⵃⴰⵏ ⵙ ⵜⵉⴷⵜ ⵖ ⵢⴰⵏ ⵓⴱⵔⵉⴷ. Bohlen-Pierce ⴰⵔ ⵉⴱⴹⴹⵓ ⵢⴰⵏ ⵜⵉⵙ ⵎⵔⴰⵡ ⵙⵏⴰⵜ, ⵙ ⵓⵢⴰⴷ ⵓⵔ ⵖⵓⵔⵙ ⵜⵜⵎⵏ.
+TAP	ⵙⵉⵜ
+bell	ⴰⵟⵏⵟⵏ
+blue	ⴰⵏⵉⵍⵉ
+does	ⴰⵔ ⵉⵙⴽⴰⵔ
+freq	ⵜⵉⵙⵏⵜ
+snap	ⴰⵙⵔⴱⵓ
+WACKY	ⴰⵎⵅⵅⵓ
+black	ⴰⵙⴳⵏⵓ
+chime	ⴰⵟⵏⵟⵏ
+green	ⴰⵣⴳⵣⴰⵡ
+moves	ⵉⵎⵓⵙⵙⵓⵜⵏ
+scale	ⵜⴰⵙⴽⴰⵍⴰ
+shape	ⵜⴰⵍⵖⴰ
+14-bit	14 ⵏ ⵉⴱⵉⵜⵏ
+COLOUR	ⵉⵏⵉ
+DARKEN	ⵙⴷⵍⴰⵙ
+anyone	ⴽⵔⴰⵢⴳⴰⵜⵜ ⵢⴰⵏ
+follow	ⴹⴼⵔ
+visual	ⴰⵎⵎⴰⵍ
+COMPARE	ⵙⵎⵖⵓⴷⵓ
+English	ⵜⴰⴳⵍⵉⵣⵉⵜ
+LIGHTEN	ⵙⴼⴰⵡ
+visuals	ⵉⵎⵎⴰⵍⵏ
+Place it	ⵙⵔⵙ ⵜ
+feedback	ⵜⵓⴼⵔⵏⵜ
+overtime	ⴰⴽⵓⴷ ⵏ ⵓⵣⵔⵉ
+protocol	ⴰⵟⵓⵟⵓⴽⵓⵍ
+Bit depth	ⵜⵉⵣⵣⵓⵔⵜ ⵏ ⵉⴱⵉⵜⵏ
+choose...	ⵙⵜⵉ...
+this deck	deck ⴰⴷ
+Corner pin	ⵜⵉⵖⵎⵔⵉⵏ
+Fullscreen	ⴰⴳⴷⵉⵍ ⵉⵛⵛⵓⵔⵏ
+HDR signal	ⴰⵙⵎⵎⴰⵇⵍ HDR
+text added	ⴰⴹⵔⵉⵙ ⵉⵜⵜⵢⴰⵔⵏⴰⵏ
+Bar opacity	ⵜⵉⴼⵔⴰⵡⵜ ⵏ ⵉⴼⴳⴳⴰⴳⵏ
+Output mask	ⵜⴰⵎⵍⵖⵜ ⵏ ⵜⵓⴼⴼⵖⴰ
+Raster mode	ⴰⵙⴽⴰⵔ ⵏ raster
+(no monitor)	(ⵓⵍⴰⵛ ⴰⵎⵙⴽⵏⴰⵢ)
+Matte aspect	ⵜⵉⵖⵎⴻⵔⵜ ⵏ matte
+Pause at end	ⴰⵙⴳⵓⵏⴼⵓ ⵖ ⵜⴰⴳⴰⵔⴰ
+Refresh rate	ⴰⵔⵓⵔⴻⴷ ⵏ ⵓⵙⵏⴼⵍ
+Overlay image	ⵜⴰⵡⵍⴰⴼⵜ ⵏ ⵜⵓⵙⵍⵖⵜ
+Overlay still	ⵜⵓⴳⵏⴰ ⵏ ⵜⵓⵙⵍⵖⵜ
+Run the clock	ⵙⵙⵏⴽⵔ ⵜⴰⵎⵔⵉⵍⵜ
+Pause at start	ⴰⵙⴳⵓⵏⴼⵓ ⵖ ⵜⴰⵣⵡⴰⵔⴰ
+not configured	ⵓⵔ ⵉⵜⵜⵓⵙⴱⴰⴷⴷ
+tone cue added	cue ⵏ ⵜⵓⵏⵜ ⵉⵜⵜⵢⴰⵔⵏⴰⵏ
+Overlay opacity	ⵜⵉⴼⵔⴰⵡⵜ ⵏ ⵜⵓⵙⵍⵖⵜ
+SDR material at	ⴰⵎⴰⵜⵔⵉⵢⴰⵍ SDR ⵖ
+Hardware display	ⴰⴳⴷⵉⵍ ⵏ ⵓⵙⵍⴽⵉⵎ
+source cue added	cue ⵏ ⵓⵖⴱⴰⵍⵓ ⵉⵜⵜⵢⴰⵔⵏⴰⵏ
+(no media source)	(ⵓⵍⴰⵛ ⴰⵖⴱⴰⵍⵓ ⵏ ⵓⵎⵉⴷⵢⴰ)
+Pocket Test (day)	ⴰⵙⵎⵔⵙ Pocket (ⴰⵙⵙ)
+browser cue added	cue ⵏ ⵓⵎⵙⵉⴳⵍ ⵉⵜⵜⵢⴰⵔⵏⴰⵏ
+System audio (SDL)	ⵉⵎⵙⵍⵉ ⵏ ⵓⵏⴰⴳⵔⴰⵡ (SDL)
+Transition to next	ⴰⵙⴰⴽⴰ ⵙ ⵡⵉⵏ ⴷ ⵉⵜⵜⴷⵓⵏ
+When taken off air	ⵎⵉ ⵜ ⵉⵜⵜⵓⴽⴽⴰⵙ ⵣⴳ ⵓⵙⵓⴷⴷⵎ
+Dark Detail (0-12%)	ⵉⴼⵔⵓⵔⵉⵢⵏ ⵏ ⵓⵙⴳⵏⵓ (0-12%)
+Frame Count (emoji)	ⴰⵎⵙⵉⴹⵏ ⵏ ⵜⵓⴳⵏⵉⵡⵉⵏ (emoji)
+PLUGE (black level)	PLUGE (ⴰⵙⵡⵉⵔ ⵏ ⵓⵙⴳⵏⵓ)
+Pocket Test (night)	ⴰⵙⵎⵔⵙ Pocket (ⵉⴹ)
+Pocket Test (storm)	ⴰⵙⵎⵔⵙ Pocket (ⵜⴰⴱⵃⵔⵉⵜ)
+Panel Map (animated)	ⵜⴰⵙⵏⴰⵢⵜ ⵏ ⵜⴼⵍⵍⴰⵡⵉⵏ (ⵜⴰⵎⵓⵙⵙⴰⵏⵜ)
+Pocket Test (sunset)	ⴰⵙⵎⵔⵙ Pocket (ⵜⵉⵡⵡⵓⵜšⵉ)
+Boresight (alignment)	ⵜⴰⵎⵏⵣⵜ (ⴰⵙⵎⵎⴰⵍ)
+Not watching a folder	ⵓⵔ ⵉⵜⵜⵖⵟⵟⴰⴼ ⵢⴰⵜ ⵜⴰⵙⴷⴰⵡⵜ
+SMPTE 75% Colour Bars	ⵉⴼⴳⴳⴰⴳⵏ ⵏ ⵉⵏⵉⵏ SMPTE 75%
+Multiburst (bandwidth)	Multiburst (ⵜⴰⵀⵔⵔⴰⵢⵜ ⵏ ⵜⴰⵣⵡⴰⵔⵜ)
+(default system device)	(ⵉⴱⵏⴽ ⴰⵎⵣⵡⴰⵔⵓ ⵏ ⵓⵏⴰⴳⵔⴰⵡ)
+Convergence (fine grid)	ⴰⵎⵢⴰⴳⵓⵔ (ⵜⴰⵣⴳⴷⵓⵜ ⵜⴰⵎⵥⵥⵢⴰⵏⵜ)
+Greyscale Steps (gamma)	ⵜⵉⵙⵓⵔⵉⴼⵉⵏ ⵏ ⵓⴱⵔⵔⴰⵏⵉ (gamma)
+Uniformity (flat fields)	ⵜⴰⴳⴷⵓⴷⵜ (ⵜⴰⴳⵔⴰⵡⵉⵏ ⵜⵉⵙⵏⵎⴰⵙⵏⵉⵏ)
+Test Clock (sync + latency)	ⵜⴰⵎⵔⵉⵍⵜ ⵏ ⵓⵙⵎⵔⵙ (ⴰⵎⵜⴰⵡⴰ + ⴰⵄⵟⵟⵍ)
+auto (reads the common two)	ⴰⵡⵓⵔⵎⴰⵏ (ⴰⵔ ⵉⵇⵇⵔⴰ ⵙⵏⴰⵜ ⵉⵎⵇⵇⵓⵔⵏⵉⵏ)
+Panel Map (LED tile numbers)	ⵜⴰⵙⵏⴰⵢⵜ ⵏ ⵜⴼⵍⵍⴰⵡⵉⵏ (ⵓⵟⵟⵓⵏⵏ ⵏ ⵜⵣⵍⵍⵉⵡⵉⵏ LED)
+Portal (blobs of deep space)	ⵜⴰⵡⵡⵓⵔⵜ (ⵜⵉⵡⵍⵍⵉⵡⵉⵏ ⵏ ⵓⴳⵏⵙⵓ)
+Terrarium (living ecosystem)	Terrarium (ⴰⵏⴰⴳⵔⴰⵡ ⵓⴷⵎⵉⵔ)
+Window 10% (peak brightness)	ⴰⵙⴼⴰⵢⵍⵓ 10% (ⵜⴰⴼⴰⵜ ⵜⴰⵎⵇⵇⵔⴰⵏⵜ)
+Window 50% (peak at mid APL)	ⴰⵙⴼⴰⵢⵍⵓ 50% (ⵜⴰⴼⴰⵜ ⵖ APL ⴰⵎⵎⴰⵙ)
+Frame Count (drops + latency)	ⴰⵎⵙⵉⴹⵏ ⵏ ⵜⵓⴳⵏⵉⵡⵉⵏ (ⵜⵉⵖⵍⵉⵏ + ⴰⵄⵟⵟⵍ)
+Terrarium Pico (1px per cell)	Terrarium Pico (1px ⵉ ⵢⴰⵍ ⵜⴰⵙⴷⴷⴰⵔⵜ)
+Banding Ramps (real bit depth)	ⵉⵙⴰⵡⵏ ⵏ banding (ⵜⵉⵣⵣⵓⵔⵜ ⵏ ⵉⴱⵉⵜⵏ ⵙ ⵜⵉⴷⵜ)
+Fireside (a hearth that burns)	ⵜⴰⴽⴰⵜ (ⵍⴽⴰⵏⵓⵏ ⵉⵜⵜⵖⴰⵏ)
+Test Bars (motion diagnostics)	ⵉⴼⴳⴳⴰⴳⵏ ⵏ ⵓⵙⵎⵔⵙ (ⴰⵙⵏⵇⵇⴷ ⵏ ⵓⵎⵓⵙⵙⵓ)
+What fires this cue besides GO	ⵎⴰ ⵉⵙⵙⵏⴽⴰⵔⵏ cue ⴰⴷ ⴱⵍⴰ GO
+Moire 1:1 (is anything scaling?)	Moiré 1:1 (ⵉⵙ ⴽⵔⴰ ⴰⵔ ⵉⵜⵜⴱⴷⴷⴰⵍ ⵜⵉⴷⴷⵉ?)
+load a sprite sheet from a file...	ⵙⴰⵍⵉ ⵜⴰⵙⵏⴰ ⵏ sprite ⵣⴳ ⵓⴼⴰⵢⵍⵓ...
+Pocket Test (test card + scene cycle)	ⴰⵙⵎⵔⵙ Pocket (ⵜⴰⴽⴰⵔⴹⴰ ⵏ ⵓⵙⵎⵔⵙ + ⵜⴰⵣⵣⵢⴰ ⵏ ⵜⵎⵙⴹⴰⵍⵉⵏ)
+Critters (pixel-exact scaling, animated)	Critters (ⵜⴰⵙⴽⴰⵍⴰ ⵙ ⵉⴱⵉⴽⵙⵍ, ⵜⴰⵎⵓⵙⵙⴰⵏⵜ)
+Read everything right to left. Yes, everything.	ⵖⵔ ⴽⵓⵍⵍⵓ ⵣⴳ ⵓⴼⴰⵙⵉ ⴰⵔ ⴰⵣⵍⵎⴰⴹ. ⵉⵀ, ⴽⵓⵍⵍⵓ.
+Greetings, primitive. Your "slideshow" amuses us.	ⴰⵣⵓⵍ ⴰ ⴰⵎⵣⵡⴰⵔⵓ. "ⴰⵙⵙⴽⵏ ⵏ ⵜⵓⴳⵏⵉⵡⵉⵏ" ⵏⵏⴽ ⵉⵙⵙⴼⵔⴰv ⴰⵖ.
+MIX	ⴰⵙⵎⵍⵉⵍ
+gain	ⵜⴰⵣⵎⴻⵔⵜ
+logo	ⴰⵍⵓⴳⵓ
+rail	ⴰⴱⵔⵉⴷ
+index	ⴰⵎⴰⵜⴰⵔ
+trans	ⴰⵙⴰⴽⴰ
+ANALOG	ⴰⵎⵙⴰⵙⴰ
+STEREO	ⵙⵏⴰⵜ ⵏ ⵉⴼⵔⴷⵉⵙⵏ
+arcade	ⴰⵙⴰⴳⴳⵡ
+plugin	ⴰⵙⵎⵍⵉⵍ
+signal	ⴰⵙⵎⵎⴰⵇⵍ
+ticket	ⵜⵉⴽⴽⵜ
+TRACKER	ⴰⵎⴹⴼⴰⵔ
+capsule	ⵜⴰⵎⴹⵍⵜ
+circuit	ⵜⴰⵣⵣⵢⴰ
+dossier	ⴰⵙⴷⴰⵡ
+palette	ⵜⴰⵏⴰⵢⵜ
+bulletin	ⵜⴰⴱⵔⴰⵜ
+cassette	ⵜⴰⴽⴰⵙⵉⵟ
+dateline	ⴰⵣⵎⵣ
+terminal	ⴰⴳⴷⵉⵍ ⵏ ⵜⵉⵔⴰ
+Perspective	ⵜⴰⵎⵓⵖⵍⵉ
+Transitions	ⵉⵙⴰⴽⴰⵜⵏ
+Passphrase (shared)	ⵜⴰⵡⴰⵍⵜ ⵏ ⵓⵣⵔⵉ (ⵜⴰⵎⵙⵎⵓⵏⵜ)
+, — skip to previous cue	, — ⴷⴷⵓ ⵙ cue ⴰⵎⵣⵡⴰⵔⵓ
+--- -- --  does nothing on that playlist  -  (M) the step's own playlist	--- -- --  ⵓⵔ ⵉⵜⵜⴳⴳⴰ ⵡⴰⵍⵓ ⵖ ⵜⴱⴷⴰⵔⵜ ⴰⵏⵏ  -  (M) ⵜⴰⴱⴷⴰⵔⵜ ⵏ ⵜⵙⵓⵔⵉⴼⵜ ⵙ ⵢⵉⵎⴰⵏ ⵏⵏⵙ
+-18 dBFS is EBU alignment, -20 is SMPTE. Capped below 0: this feeds a live PA.	-18 dBFS ⵉⴳⴰ ⴰⵙⵎⵎⴰⵍ ⵏ EBU, -20 ⵏ SMPTE. ⵉⵜⵜⵡⴰⵃⴱⴰⵙ ⴷⴷⴰⵡ 0: ⴰⵔ ⵉⵙⵙⴳⴷⵓⵔ PA ⵙ ⵜⵉⴷⵜ.
+--- -- --  does nothing on that playlist  -  (M) the step's own playlist  -  EDIT is on: typing changes the show	--- -- --  ⵓⵔ ⵉⵜⵜⴳⴳⴰ ⵡⴰⵍⵓ ⵖ ⵜⴱⴷⴰⵔⵜ ⴰⵏⵏ  -  (M) ⵜⴰⴱⴷⴰⵔⵜ ⵏ ⵜⵙⵓⵔⵉⴼⵜ ⵙ ⵢⵉⵎⴰⵏ ⵏⵏⵙ  -  EDIT ⵉⵔⵎⴷ: ⵜⵉⵔⴰ ⴰⵔ ⵜⴱⴷⴷⴰⵍ ⴰⵙⵙⴽⴰⵏ
+sine	sine
+RTMPS	RTMPS
+TA-DA	TA-DA
+NDI® NETWORK	NDI® NETWORK
+Syphon / Spout	Syphon / Spout
+29.97 fps (NTSC)	29.97 fps (NTSC)
+OSC	OSC
+pan	pan
+pop	pop
+deck	deck
+trim	trim
+Twitch	Twitch
+Art-Net	Art-Net
+YouTube	YouTube
+PQ - HDR10	PQ - HDR10
+sACN (E1.31)	sACN (E1.31)
+25 fps (PAL/EBU)	25 fps (PAL/EBU)
+DECKLINK SDI / HDMI	DECKLINK SDI / HDMI
+AMWA NMOS  IS-04 / IS-05	AMWA NMOS  IS-04 / IS-05
