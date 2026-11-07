@@ -1736,3 +1736,469 @@ sACN (E1.31)	sACN (E1.31)
 DECKBOY  POCKET	DECKBOY  POCKET
 DECKLINK SDI / HDMI	DECKLINK SDI / HDMI
 AMWA NMOS  IS-04 / IS-05	AMWA NMOS  IS-04 / IS-05
+in	هاتن
+Arm	ئامادەکردن
+Mic	مایک
+TAP	لێدان
+bar	شریت
+out	دەرچوون
+Fade	کاڵبوونەوە
+Gate	دەروازە
+Hey!	هەی!
+Memo	یادداشت
+Seam	دروومان
+Tone	تۆن
+card	کارت
+does	دەکات
+fire	دەست پێ دەکات
+flag	ئاڵا
+freq	لەرەلەر
+knob	دوگمە
+neon	نیۆن
+outs	دەرچوونەکان
+says	دەڵێت
+snap	ڕاستەوخۆ
+span	مەودا
+wipe	سڕینەوە
+Crawl	خشکان
+Crush	پڵیشاندنەوە
+Moire	Moiré
+Pulse	لێدان
+Scrub	گەڕان
+Swirl	گێژاو
+TILES	تایلەکان
+Timer	کاتژمێر
+WACKY	شێتانە
+chime	زەنگ
+comic	کۆمیک
+moves	جوڵەکان
+plays	لێ دەدات
+press	دابگرە
+sends	دەنێرێت
+slide	خلیسکان
+stamp	مۆر
+BUNDLE	کۆکردنەوە
+Bottom	خوارەوە
+COLOUR	ڕەنگ
+DARKEN	تاریک بکە
+DECODE	کۆد کردنەوە
+Disarm	بێچەککردن
+Mascot	ماسکۆت
+Master	سەرەکی
+Reverb	دەنگدانەوە
+STREAM	پەخش
+Script	سکریپت
+Wobble	لەرزین
+credit	سوپاس
+ledger	دەفتەری حساب
+podium	سەکۆ
+ribbon	قۆردێڵە
+scroll	سکڕۆڵ
+sketch	ڕەشنووس
+sticky	لکاو
+survey	ڕاپرسی
+visual	بینراو
+COMPARE	بەراورد
+Ease in	دەستپێکی نەرم
+Ghastly	ترسناک
+LED MAP	نەخشەی LED
+LIGHTEN	ڕووناک بکە
+Push up	پاڵنان بۆ سەرەوە
+S-curve	چەماوەی S
+Shatter	شکان
+Suspend	ڕاگرتن
+Tilt EQ	EQ ی لار
+Wipe up	سڕینەوە بۆ سەرەوە
+bracket	کەوانە
+caption	ژێرنووس
+eq band	بەندی eq
+inherit	بۆماوە
+marquee	دەقی ڕۆیشتوو
+pennant	ئاڵا
+placard	تابلۆ
+routing	ئاڕاستەکردن
+sparkle	درەوشانەوە
+stacked	لەسەر یەک
+visuals	دیمەنەکان
+BLACKOUT	ڕەشکردنەوە
+Dissolve	تواندنەوە
+END HOLD	کۆتایی ڕاگرتن
+END LOOP	کۆتایی لووپ
+END NEXT	کۆتایی داهاتوو
+END STOP	کۆتایی وەستان
+Ease out	کۆتایی نەرم
+Geometry	ئەندازە
+Low pass	پاڵاوتنی نزم
+Mappings	نەخشەکان
+Place it	دایبنێ
+Quit it!	بەسە!
+SEQUENCE	زنجیرە
+Spectrum	سپێکتروم
+TRIGGERS	هاندەرەکان
+Waveform	شێوەی شەپۆل
+built in	ناوخۆیی
+confetti	کۆنفێتی
+contrast	کۆنتراست
+diskette	دیسکێت
+feedback	وەڵام
+hairline	هێڵی باریک
+listener	گوێگر
+overtime	کاتی زیادە
+protocol	پرۆتۆکۆڵ
+sideline	هێڵی لا
+the desk	مێز
+Bit depth	قووڵی bit
+Composite	تێکەڵ
+High pass	پاڵاوتنی بەرز
+Name Card	کارتی ناو
+Placement	دانان
+Push down	پاڵنان بۆ خوارەوە
+Push left	پاڵنان بۆ چەپ
+Scroll up	سکڕۆڵ بۆ سەرەوە
+Streaming	پەخشکردن
+Wipe down	سڕینەوە بۆ خوارەوە
+Wipe left	سڕینەوە بۆ چەپ
+auto next	داهاتووی خۆکار
+blueprint	نەخشە
+cartridge	کارتریج
+crossfade	کاڵبوونەوەی تێکەڵ
+crosshair	نیشانەگر
+dotmatrix	ماتریکسی خاڵ
+equalizer	یەکسانکەر
+even grid	تۆڕی ڕێک
+they have	هەیانە
+this deck	ئەم دێکە
+tolerance	بەرگەگرتن
+Compressor	پەستێنەر
+Corner pin	چەسپاندنی گۆشە
+Crosshatch	هێڵی یەکتربڕ
+Fade+Pause	کاڵبوونەوە+وەستان
+Frame lock	قوفڵی وێنە
+HDR signal	ئاماژەی HDR
+NDI Source	سەرچاوەی NDI
+Push right	پاڵنان بۆ ڕاست
+Resolution	ڕوونی
+Seriously?	بەڕاستی؟
+Typewriter	تایپڕایتەر
+Wipe right	سڕینەوە بۆ ڕاست
+hold {n} s	ڕاگرتن {n} s
+knob 0-127	دوگمە 0-127
+safe areas	ناوچە سەلامەتەکان
+saturation	تێربوون
+scoreboard	تابلۆی خاڵ
+tile width	پانی تایل
+Auto-follow	بەدواداچوونی خۆکار
+Bar opacity	ناڕوونی شریت
+Browser Cue	cue ی وێبگەڕ
+Deck volume	دەنگی دێک
+Fade+Rewind	کاڵبوونەوە+گەڕانەوە
+Orientation	ئاراستە
+Output mask	ماسکی دەرچوون
+Outputs Off	دەرچوونەکان داخراو
+REGION SIZE	قەبارەی ناوچە
+Raster mode	دۆخی raster
+Toggle loop	لووپ بکەرەوە/دابخە
+Video Synth	synth ی ڤیدیۆ
+audio meter	پێوەری دەنگ
+goto target	ئامانجی goto
+on the desk	لەسەر مێز
+tile height	بەرزی تایل
+(no monitor)	(چاودێر نییە)
+Checkerboard	تەختەی دامە
+Cue contrast	کۆنتراستی cue
+Deck opacity	ناڕوونی دێک
+Dip to black	چوونە ناو ڕەش
+Dip to white	چوونە ناو سپی
+Level Meters	پێوەرەکانی ئاست
+Matte aspect	ڕێژەی matte
+Oscilloscope	ئۆسیلۆسکۆپ
+Refresh rate	خێرایی نوێکردنەوە
+clear driver	درایڤەر پاک بکەرەوە
+rounded rect	لاکێشەی خڕ
+Auto-continue	بەردەوامبوونی خۆکار
+Camera Source	سەرچاوەی کامێرا
+Fade+LoadNext	کاڵبوونەوە+داهاتوو بار بکە
+J jump to row	J بڕۆ بۆ ڕیز
+Master dimmer	Dimmer ی سەرەکی
+Overlay image	وێنەی سەرخستن
+Overlay still	وێنەی وەستاوی سەرخستن
+Recent shows:	نمایشە نوێکان:
+Run the clock	کاتژمێر بخەرە کار
+Window Source	سەرچاوەی پەنجەرە
+one named cue	یەک cue ی ناودار
+starting xvfb	xvfb دەست پێ دەکات
+CD, music rigs	CD، ئامێرەکانی مۆسیقا
+Cue brightness	ڕووناکی cue
+Cue saturation	تێربوونی cue
+DeckLink Input	هاتنی DeckLink
+Default Camera	کامێرای بنەڕەت
+RECORD TO FILE	تۆمار لە فایل
+Toggle fade in	هاتنەژوورەوەی نەرم بکەرەوە/دابخە
+custom size...	قەبارەی تایبەت...
+fill the frame	وێنەکە پڕ بکەرەوە
+tone cue added	cue ی تۆن زیاد کرا
+video standard	ستانداردی ڤیدیۆ
+All right. Wow.	باشە. وای.
+Do not continue	بەردەوام مەبە
+EDGE FEATHERING	نەرمکردنی لێوار
+Long show, huh.	نمایشێکی درێژە، ها.
+Overlay opacity	ناڕوونی سەرخستن
+SDR material at	کەرەستەی SDR لە
+Toggle fade out	دەرچوونی نەرم بکەرەوە/دابخە
+decoder spin-up	دەستپێکی کۆدکەرەوە
+endless encoder	کۆدکەری بێکۆتا
+lower bandwidth	پانی بەندی کەمتر
+press + release	دابگرە + بەرەڵاکردن
+slide from left	خلیسکان لە چەپەوە
++ ONE AFTER THIS	+ یەکێک دوای ئەمە
+2 · WHAT IT RUNS	2 · چی بەڕێوە دەبات
+AREA OF INTEREST	ناوچەی گرنگ
+An effect's knob	دوگمەی کاریگەری
+Default App Feed	سەرچاوەی بنەڕەتی بەرنامە
+GO steps over it	GO لێی تێدەپەڕێت
+Hardware display	شاشەی ئامێر
+ONE PER PLAYLIST	یەک بۆ هەر لیستێک
+Speed, like tape	خێرایی، وەک کاسێت
+Toggle cue audio	دەنگی cue بکەرەوە/دابخە
+import an SVG...	SVG بهێنە...
+slide from right	خلیسکان لە ڕاستەوە
+source cue added	cue ی سەرچاوە زیاد کرا
+starting browser	وێبگەڕ دەست پێ دەکات
+starting capture	گرتن دەست پێ دەکات
+the selected cue	cue ی هەڵبژێردراو
+- REMOVE THIS ONE	- ئەمە لاببە
+1 · WHAT COMES IN	1 · چی دێتە ژوورەوە
+Hi! I am Deckboy.	سڵاو! من Deckboy م.
+Pocket Test (day)	تاقیکردنەوەی Pocket (ڕۆژ)
+Registry: NOT SET	Registry: دانەنراوە
+SDL Window Output	دەرچوونی پەنجەرەی SDL
+Toggle Fullscreen	شاشەی تەواو بکەرەوە/دابخە
+browser cue added	cue ی وێبگەڕ زیاد کرا
+highest bandwidth	بەرزترین پانی بەند
+or your own bytes	یان بایتەکانی خۆت
+this cue lives on	ئەم cue یە لەسەر دەژیت
+value to type one	بەهایەک بۆ نووسین
+when its cues end	کاتێک cue ەکانی کۆتایی دێن
+Media File / Still	فایلی میدیا / وێنەی وەستاو
+Ow. That was rude.	ئای. ئەوە بێڕێزی بوو.
+System audio (SDL)	دەنگی سیستەم (SDL)
+Transition to next	گواستنەوە بۆ داهاتوو
+When taken off air	کاتێک لە پەخش دەردەهێنرێت
+delete this button	ئەم دوگمەیە بسڕەوە
+output already has	دەرچوون پێشتر هەیەتی
+restart driver now	ئێستا درایڤەر دووبارە دەست پێ بکەرەوە
+what it recalls...	چی دەگەڕێنێتەوە...
+1.50x  (4K desktop)	1.50x  (ڕووکاری 4K)
+3 · WHAT IT RUNS ON	3 · لەسەر چی کار دەکات
+Dark Detail (0-12%)	وردەکاری تاریک (0-12%)
+Frame Count (emoji)	ژمێرەری وێنە (emoji)
+PLUGE (black level)	PLUGE (ئاستی ڕەش)
+Pocket Test (night)	تاقیکردنەوەی Pocket (شەو)
+Pocket Test (storm)	تاقیکردنەوەی Pocket (زریان)
+Previous show file:	فایلی نمایشی پێشوو:
+Still here? Me too.	هێشتا لێرەیت؟ منیش.
+Syphon/Spout Source	سەرچاوەی Syphon/Spout
+This is my monitor.	ئەمە چاودێرەکەی منە.
+browser, with sound	وێبگەڕ، بە دەنگەوە
+rise, slide or wipe	بەرزبوونەوە، خلیسکان یان سڕینەوە
+Choose startup mode:	دۆخی دەستپێک هەڵبژێرە:
+Dimmer + temperature	Dimmer + پلەی گەرمی
+FFmpeg Stream Output	دەرچوونی پەخشی FFmpeg
+I am a professional.	من پیشەگەرم.
+Panel Map (animated)	نەخشەی پانێڵ (جووڵاو)
+Pocket Test (sunset)	تاقیکردنەوەی Pocket (ئاوابوون)
+Right. That does it.	باشە. بەسە.
+decks - Stop deck...	decks - دێک ڕاگرە...
+decks - Take deck...	decks - دێک وەربگرە...
+initializing webview	webview دەست پێ دەکات
+Boresight (alignment)	ئامانجگرتن (ڕێکخستن)
+Not watching a folder	چاودێری هیچ فۆڵدەرێک ناکات
+SMPTE 75% Colour Bars	شریتی ڕەنگی SMPTE 75%
+line  |  Enter: apply	هێڵ  |  Enter: جێبەجێکردن
+1.00x  (default 1080p)	1.00x  (بنەڕەت 1080p)
+1.25x  (large desktop)	1.25x  (ڕووکاری گەورە)
+An audio effect's knob	دوگمەی کاریگەری دەنگ
+Multiburst (bandwidth)	Multiburst (پانی بەند)
+change what it does...	بیگۆڕە چی دەکات...
+(default system device)	(ئامێری بنەڕەتی سیستەم)
+Convergence (fine grid)	کۆبوونەوە (تۆڕی ورد)
+Greyscale Steps (gamma)	پلەکانی خۆڵەمێشی (gamma)
+K — cycle cue color tag	K — تاگی ڕەنگی cue بگۆڕە
+whatever the style says	هەرچی شێوازەکە بڵێت
+Has anyone seen a clock?	کەس کاتژمێرێکی بینیوە؟
+J jumps to the live cue.	J دەچێت بۆ cue ی ڕاستەوخۆ.
+None  (no character art)	هیچ  (وێنەی کارەکتەر نییە)
+Uniformity (flat fields)	یەکسانی (ڕووبەری ڕێک)
+runs off the show thread	لە دەرەوەی ڕێڕەوی نمایش کار دەکات
+type a command myself...	فەرمانێک خۆم بنووسم...
+Open a .deckboy show file	فایلی نمایشی .deckboy بکەرەوە
+Toggle hold on last frame	ڕاگرتن لەسەر دوایین وێنە بکەرەوە/دابخە
+from exactly this routing	ڕاست لەم ئاڕاستەکردنەوە
+~ makes the level breathe	~ ئاستەکە هەناسە پێ دەدات
+CLEAR OVERLAY  [Backspace]	سەرخستن پاک بکەرەوە  [Backspace]
+I am telling the operator.	بە کارمەند دەڵێم.
+Is it still the same show?	هێشتا هەمان نمایشە؟
+Stop puppeteering this cue	وازبهێنە لە جووڵاندنی ئەم cue یە
+Every pixel of me is tired.	هەموو پیکسڵێکم ماندووە.
+Right-click turns them off.	کلیکی ڕاست دایاندەخات.
+Test Clock (sync + latency)	کاتژمێری تاقیکردنەوە (هاوکاتی + دواکەوتن)
+auto (reads the common two)	خۆکار (دووە باوەکە دەخوێنێتەوە)
+one big, the rest beside it	یەکێکی گەورە، ئەوانی تر لە تەنیشت
+type a length in seconds...	درێژییەک بە چرکە بنووسە...
+2.00x  (Pocket 3 / 4K small)	2.00x  (Pocket 3 / 4K ی بچووک)
+I'm not tired. You're tired.	من ماندوو نیم. تۆ ماندوویت.
+Listening on all interfaces.	گوێ لە هەموو ڕووکارەکان دەگرێت.
+Panel Map (LED tile numbers)	نەخشەی پانێڵ (ژمارەی تایلەکانی LED)
+Portal (blobs of deep space)	Portal (پەڵەکانی بۆشایی قووڵ)
+Set cue ID for selected cues	ID ی cue بۆ cue هەڵبژێردراوەکان دابنێ
+Terrarium (living ecosystem)	Terrarium (ژینگەی زیندوو)
+Trim with Ctrl+I and Ctrl+O.	بە Ctrl+I و Ctrl+O ببڕە.
+Window 10% (peak brightness)	پەنجەرە 10% (بەرزترین ڕووناکی)
+Window 50% (peak at mid APL)	پەنجەرە 50% (بەرزترین لە APL ی ناوەند)
+on the header to add another	لەسەر سەرەوە بۆ زیادکردنی یەکێکی تر
+reads the same on any screen	لەسەر هەموو شاشەیەک وەک یەک دەخوێندرێتەوە
+reported rather than swapped	ڕاپۆرت دەکرێت نەک گۆڕین
+what is on air in a playlist	چی لە پەخشدایە لە لیستێکدا
+Frame Count (drops + latency)	ژمێرەری وێنە (کەوتن + دواکەوتن)
+Terrarium Pico (1px per cell)	Terrarium Pico (1px بۆ هەر خانەیەک)
+A whole day. I need a restart.	ڕۆژێکی تەواو. پێویستم بە دەستپێکردنەوەیە.
+Banding Ramps (real bit depth)	ڕامپی banding (قووڵی bit ی ڕاستەقینە)
+Clear the live PIP overlay now	سەرخستنی PIP ی ڕاستەوخۆ ئێستا پاک بکەرەوە
+Fireside (a hearth that burns)	ئاگردان (ئاگرێکی گڕگرتوو)
+Test Bars (motion diagnostics)	شریتی تاقیکردنەوە (دەستنیشانکردنی جوڵە)
+What fires this cue besides GO	جگە لە GO چی ئەم cue یە دەست پێ دەکات
+capture again - what is on now	دووبارە بیگرە - ئەوەی ئێستا هەیە
+on air in the focused playlist	لە پەخشدا لە لیستی فۆکەسکراو
+one big on top, the rest below	یەکێکی گەورە لە سەرەوە، ئەوانی تر لە خوارەوە
+row turns the matrix off again	ڕیز ماتریکس دووبارە دادەخات
+two big on top, the rest below	دوو گەورە لە سەرەوە، ئەوانی تر لە خوارەوە
+SOS. Kidding. The show is fine.	SOS. گاڵتەیە. نمایش باشە.
+Test: move it on the controller	تاقیکردنەوە: لەسەر کۆنترۆڵەر بیجوڵێنە
+walk the outputs one at a time.	یەک بە یەک بە دەرچوونەکاندا بڕۆ.
+Close me. Open me. I'll be fine.	دامبخە. بمکەرەوە. باش دەبم.
+Moire 1:1 (is anything scaling?)	Moiré 1:1 (شتێک قەبارە دەگۆڕێت؟)
+Oh hey. It's 4:20. Take it easy.	ئای. کاتژمێر 4:20 ە. هێمن بە.
+Set short cue id for search/goto	ID ی کورتی cue بۆ گەڕان دابنێ
+drag to scrub. the audio follows	ڕابکێشە بۆ گەڕان. دەنگ بەدوایدا دێت
+save as makes a new file instead	وەک پاشەکەوتکردن فایلێکی نوێ دروست دەکات
+Save the show. Then let me sleep.	نمایش پاشەکەوت بکە. پاشان بهێڵە بخەوم.
+Set goto target for selected cues	ئامانجی goto بۆ cue هەڵبژێردراوەکان دابنێ
+Try a terminal theme in Settings.	لە ڕێکخستنەکاندا ڕووکارێکی تێرمیناڵ تاقی بکەرەوە.
+back to the in point, not to zero	دەگەڕێتەوە بۆ خاڵی هاتن، نەک سفر
+Changing this re-prepares the cue.	گۆڕینی ئەمە cue دووبارە ئامادە دەکات.
+Disarm a cue and GO steps over it.	cue بێچەک بکە و GO لێی تێدەپەڕێت.
+Five more minutes. Then five more.	پێنج خولەکی تر. پاشان پێنجی تر.
+ORDER - cues advance down the list	ORDER - cue ەکان بە لیستدا دەچنە خوارەوە
+RELINK finds media that has moved.	RELINK ئەو میدیایە دەدۆزێتەوە کە جێگای گۆڕاوە.
+depth 1 turns it all the way round	قووڵی 1 بە تەواوی دەیسووڕێنێت
+load a sprite sheet from a file...	پەڕەی sprite لە فایلەوە بار بکە...
+A timecode cue jams LTC to a value.	cue ی timecode LTC لەسەر بەهایەک دادەنێت.
+Cues have their own gain and fades.	cue ەکان زیادکردن و کاڵبوونەوەی خۆیان هەیە.
+EDIT is on: typing changes the show	EDIT کراوەیە: نووسین نمایش دەگۆڕێت
+label, command and glyph as text...	ناونیشان، فەرمان و glyph وەک دەق...
+stops the cue. ESC stops EVERYTHING	cue دەوەستێنێت. ESC هەموو شتێک دەوەستێنێت
+the frame stays up. good for slides	وێنەکە دەمێنێتەوە. باشە بۆ سلاید
+this is what you carry to the venue	ئەمە ئەوەیە کە دەیبەیت بۆ شوێنی نمایش
+0-63, the hardware's own gain range.	0-63، مەودای زیادکردنی ئامێرەکە.
+I could do this all day. Apparently.	دەتوانم هەموو ڕۆژ ئەمە بکەم. دیارە.
+A network cue speaks OSC, UDP or TCP.	cue ی تۆڕ بە OSC، UDP یان TCP قسە دەکات.
+Pocket Test (test card + scene cycle)	تاقیکردنەوەی Pocket (کارتی تاقیکردنەوە + گەڕانی دیمەن)
+Stream SRT and RTMP at the same time.	SRT و RTMP لە یەک کاتدا پەخش بکە.
+The panel map numbers every LED tile.	نەخشەی پانێڵ ژمارە دەداتە هەموو تایلێکی LED.
+all driven by the cue's own transport	هەموو بە گواستنەوەی خودی cue
+Each output can show a different deck.	هەر دەرچوونێک دەتوانێت دێکێکی جیاواز پیشان بدات.
+I am leaving. Good luck with the show.	دەڕۆم. سەرکەوتوو بیت لە نمایشدا.
+Set cue token to jump to when cue ends	تۆکنی cue دابنێ بۆ بازدان کاتێک cue کۆتایی دێت
+You have been staring at me for hours.	بە کاتژمێرەها سەیرم دەکەیت.
+this clip has no audio track to enable	ئەم کلیپە ڕێڕەوی دەنگی نییە بۆ کردنەوە
+A cue can start the next one by itself.	cue دەتوانێت خۆی دەست بە داهاتوو بکات.
+Jump the driver back to its first frame	درایڤەر بگەڕێنەوە بۆ یەکەم وێنەی
+Normalize matches loudness across cues.	یەکسانکردن دەنگ لە نێوان cue ەکاندا یەکسان دەکات.
+Play the out move now, then take it off	ئێستا جوڵەی دەرچوون لێ بدە، پاشان لایببە
+Clear the active Lower Third overlay now	Lower Third ی چالاک ئێستا پاک بکەرەوە
+Critters (pixel-exact scaling, animated)	Critters (پێوانەی وردی پیکسڵ، جووڵاو)
+the selected cue in the focused playlist	cue ی هەڵبژێردراو لە لیستی فۆکەسکراو
+A master cue fires one cue on every deck.	cue ی master لەسەر هەر دێکێک یەک cue دەست پێ دەکات.
+A script cue runs Deckboy's own commands.	cue ی سکریپت فەرمانەکانی Deckboy جێبەجێ دەکات.
+A target cue starts or stops another cue.	cue ی ئامانج cue یەکی تر دەست پێ دەکات یان دەوەستێنێت.
+CHECK lists what is broken, before doors.	CHECK ئەوەی شکاوە دەیڵێت، پێش کردنەوەی دەرگاکان.
+Preload racks the next cue warm, off air.	پێشبارکردن cue ی داهاتوو گەرم ئامادە دەکات، دەرەوەی پەخش.
+per cue. the deck has its own default too	بۆ هەر cue یەک. دێکیش بنەڕەتی خۆی هەیە
+preset - a new preset from what is on now	preset - پێشڕێکخستنێکی نوێ لەوەی ئێستا هەیە
+that output's whole picture, or its matte	هەموو وێنەی ئەو دەرچوونە، یان matte ەکەی
+A DMX cue fades the house lights on a cue.	cue ی DMX ڕووناکییەکانی هۆڵ کاڵ دەکاتەوە.
+Audition plays a cue to you, not the room.	Audition cue بۆ تۆ لێ دەدات، نەک بۆ هۆڵ.
+Lissajous, spectrum, meters or a name card	Lissajous، سپێکتروم، پێوەر یان کارتی ناو
+SHUFFLE - the next cue is picked at random	SHUFFLE - cue ی داهاتوو بە هەڕەمەکی هەڵدەبژێردرێت
+test cards and generators - no file needed	کارتی تاقیکردنەوە و بەرهەمهێنەر - فایل پێویست نییە
+Ancient cypher, modern video desk. Respect.	نهێنی کۆن، مێزی ڤیدیۆی نوێ. ڕێز.
+Ctrl+Shift+S - write the show to a NEW file	Ctrl+Shift+S - نمایش لە فایلێکی نوێ بنووسە
+A MIDI cue can tell the lighting desk to go.	cue ی MIDI دەتوانێت بە مێزی ڕووناکی بڵێت دەست پێ بکات.
+A fade cue takes a deck down, then stops it.	cue ی کاڵبوونەوە دێک دادەگرێت، پاشان دەیوەستێنێت.
+for a copy before you change something risky	بۆ کۆپییەک پێش ئەوەی شتێکی مەترسیدار بگۆڕیت
+the show on disk is untouched until you save	نمایشی سەر دیسک دەستی لێ نادرێت تا پاشەکەوت دەکەیت
+gain, pan and normalise live in the inspector	زیادکردن، pan و یەکسانکردن ڕاستەوخۆ لە پشکنەردا
+the safe one: audio and playback keep running	سەلامەتەکە: دەنگ و لێدان بەردەوام دەبن
+Ctrl+S - write back over the show that is open	Ctrl+S - لەسەر نمایشی کراوە بنووسە
+drop a folder in too - it reads the whole tree	فۆڵدەرێکیش دابنێ - هەموو درەختەکە دەخوێنێتەوە
+Read everything right to left. Yes, everything.	هەموو شتێک لە ڕاستەوە بۆ چەپ بخوێنەوە. بەڵێ، هەموو شتێک.
+AUDIONORM ALL matches the whole playlist at once	AUDIONORM ALL هەموو لیستەکە یەکجار یەکسان دەکات
+stills hold instead - a fade would dip the frame	وێنە وەستاوەکان لە جیاتی دەمێننەوە - کاڵبوونەوە وێنە دادەگرێت
+the thorough one. blackout is the reversible one	وردەکە. ڕەشکردنەوە ئەوەیە کە دەگەڕێتەوە
+Esc clears the desk, then the output, then quits.	Esc مێز پاک دەکاتەوە، پاشان دەرچوون، پاشان دەردەچێت.
+Greetings, primitive. Your "slideshow" amuses us.	سڵاو، سەرەتایی. «پێشانگای سلاید»ەکەت پێمان پێدەکەنێنێت.
+What this cue does when it ends - click to change	ئەم cue یە کاتی کۆتایی چی دەکات - کلیک بکە بۆ گۆڕین
+cameras, windows, NDI, screens - all live sources	کامێرا، پەنجەرە، NDI، شاشە - هەموو سەرچاوە ڕاستەوخۆکان
+loops between the in and out points, not the file	لە نێوان خاڵەکانی هاتن و دەرچوون لووپ دەکات، نەک هەموو فایلەکە
+space bar does this too, without moving your hand	شریتی بۆشاییش ئەمە دەکات، بێ جوڵاندنی دەستت
+LEARN: move a knob or press a key on the controller...	LEARN: دوگمەیەک بجوڵێنە یان کلیلێک لەسەر کۆنترۆڵەر دابگرە...
+Per-cue audio: enable, trim, pan, mono, fades, normalize	دەنگی هەر cue یەک: کردنەوە، trim، pan، mono، کاڵبوونەوە، یەکسانکردن
+MIDI input is off: turn it on in MIDI CONTROL. OSC rows still answer.	هاتنی MIDI داخراوە: لە MIDI CONTROL بیکەرەوە. ڕیزەکانی OSC هێشتا وەڵام دەدەنەوە.
+MIX	تێکەڵکردن
+deck	دێک
+gain	زیادکردن
+logo	لۆگۆ
+rail	ڕێل
+index	پێڕست
+trans	گواستنەوە
+arcade	ئارکەید
+plugin	پێوەکراو
+ticket	بلیت
+TRACKER	بەدواداچوو
+capsule	کەپسوول
+circuit	بازنە
+dossier	دۆسیە
+palette	پالێت
+bulletin	هەواڵنامە
+cassette	کاسێت
+dateline	بەروار
+terminal	تێرمیناڵ
+programme	بەرنامە
+Perspective	دیمەن
+Motion: Bug Swat	جوڵە: Bug Swat
+, — skip to previous cue	, — بڕۆ بۆ cue ی پێشوو
+--- -- --  does nothing on that playlist  -  (M) the step's own playlist	--- -- --  لەسەر ئەو لیستە هیچ ناکات  -  (M) لیستی خودی هەنگاوەکە
+-18 dBFS is EBU alignment, -20 is SMPTE. Capped below 0: this feeds a live PA.	-18 dBFS ڕێکخستنی EBU یە، -20 هی SMPTE. لە خوار 0 سنووردارە: ئەمە PA ی ڕاستەوخۆ دەدات.
+--- -- --  does nothing on that playlist  -  (M) the step's own playlist  -  EDIT is on: typing changes the show	--- -- --  لەسەر ئەو لیستە هیچ ناکات  -  (M) لیستی خودی هەنگاوەکە  -  EDIT کراوەیە: نووسین نمایش دەگۆڕێت
+sine	sine
+RTMPS	RTMPS
+TA-DA	TA-DA
+14-bit	14-bit
+Dimmer	Dimmer
+Binaural	Binaural
+cue "{n}"	cue "{n}"
+Dimmer + RGB	Dimmer + RGB
+NDI® NETWORK	NDI® NETWORK
+Syphon / Spout	Syphon / Spout
+29.97 fps (NTSC)	29.97 fps (NTSC)
+pan	pan
+pop	pop
+WARP	WARP
+trim	trim
+PATCH	PATCH
+lower 3rd	lower 3rd
+Lower Third	Lower Third
+4:2:2  8-BIT	4:2:2  8-BIT
+4:2:2  10-BIT	4:2:2  10-BIT
+Bork bork BORK!	Bork bork BORK!
+25 fps (PAL/EBU)	25 fps (PAL/EBU)
