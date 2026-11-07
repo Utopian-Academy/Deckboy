@@ -2002,3 +2002,196 @@ Run the clock	시계 시작
 What fires this cue besides GO	GO 외에 이 큐를 실행하는 조건
 center	중앙
 visual	시각화
+JAM	동기
+MIX	믹스
+CLIP	클립
+TEXT	텍스트
+MULTI	멀티
+WACKY	괴짜
+COLOUR	색
+DARKEN	어둡게
+STEREO	스테레오
+COMPARE	비교
+LIGHTEN	밝게
+DASHBOARD	대시보드
+Pocket Test (day)	Pocket 테스트 (낮)
+Dark Detail (0-12%)	암부 디테일 (0-12%)
+Frame Count (emoji)	프레임 카운터 (이모지)
+PLUGE (black level)	PLUGE (블랙 레벨)
+Pocket Test (night)	Pocket 테스트 (밤)
+Pocket Test (storm)	Pocket 테스트 (폭풍)
+Marks stacked BELOW.	기호를 아래에 쌓음.
+Panel Map (animated)	패널 맵 (애니메이션)
+Pocket Test (sunset)	Pocket 테스트 (해질녘)
+Boresight (alignment)	조준 (정렬)
+SMPTE 75% Colour Bars	SMPTE 75% 컬러 바
+(projector curve only)	(프로젝터 곡선만)
+Multiburst (bandwidth)	멀티버스트 (대역폭)
+Convergence (fine grid)	컨버전스 (촘촘한 격자)
+Greyscale Steps (gamma)	그레이 단계 (감마)
+Uniformity (flat fields)	균일도 (평탄한 면)
+MULTIVIEW carries this too.	MULTIVIEW도 이것을 싣습니다.
+Test Clock (sync + latency)	테스트 시계 (동기 + 지연)
+auto (reads the common two)	자동 (흔한 두 가지를 읽음)
+Panel Map (LED tile numbers)	패널 맵 (LED 패널 번호)
+Portal (blobs of deep space)	포털 (깊은 우주의 거품)
+Terrarium (living ecosystem)	테라리움 (살아 있는 생태계)
+Window 10% (peak brightness)	윈도 10% (최대 밝기)
+Window 50% (peak at mid APL)	윈도 50% (중간 APL에서 최대)
+Frame Count (drops + latency)	프레임 카운터 (누락 + 지연)
+Terrarium Pico (1px per cell)	테라리움 Pico (칸당 1px)
+Banding Ramps (real bit depth)	밴딩 램프 (실제 비트 심도)
+Fireside (a hearth that burns)	벽난로 (타오르는 화로)
+HLG - live broadcast (BT.2100)	HLG - 생방송 (BT.2100)
+Test Bars (motion diagnostics)	테스트 바 (움직임 진단)
+Moire 1:1 (is anything scaling?)	모아레 1:1 (뭔가 스케일링 중인가?)
+Pocket Test (test card + scene cycle)	Pocket 테스트 (테스트 카드 + 장면 순환)
+Critters (pixel-exact scaling, animated)	Critters (픽셀 정확 스케일링, 애니메이션)
+headphones, desk sounds and LTC stay out of it	헤드폰, 콘솔 소리, LTC는 빠집니다
+Above 1 tunnels inward, below 1 blooms outward.	1보다 크면 터널이 안으로 빨려 들고, 작으면 밖으로 피어납니다.
+Read everything right to left. Yes, everything.	모든 것을 오른쪽에서 왼쪽으로 읽습니다. 네, 모든 것을.
+Amber is closest to the 1976 single-phosphor look.	앰버가 1976년 단색 형광체 모습에 가장 가깝습니다.
+Greetings, primitive. Your "slideshow" amuses us.	안녕하신가, 원시인. 너의 "슬라이드 쇼"가 우리를 즐겁게 하는군.
+Sway sideways. Depth 1 is half the frame either way	옆으로 흔들기. 깊이 1은 양쪽으로 반 화면
+Draw the diagnostic over the card, or just the text.	진단을 카드 위에 그리거나 텍스트만.
+All interfaces, but only this computer is trusted yet.	모든 인터페이스. 다만 아직은 이 컴퓨터만 신뢰합니다.
+Choose the legacy cue token to show inside the PIP window	PIP 창에 보일 예전 큐 토큰 선택
+ASIO carries the show's sound, and these are not on it yet	ASIO가 쇼의 소리를 싣고 있고, 이것들은 아직 그 위에 없습니다
+N=new  Enter/P=previous  O=open saved  E=examples  L=learn	N=새로  Enter/P=이전  O=저장본 열기  E=예제  L=배우기
+Hand this parameter to an oscillator so it moves on its own	이 매개변수를 오실레이터에 맡겨 스스로 움직이게
+How long the finished drawing stays before it is drawn again	완성된 그림이 다시 그려지기 전까지 머무는 시간
+How it comes on and goes off: none, fade, rise, slide or wipe	들어오고 나가는 방식: 없음, 페이드, 상승, 슬라이드, 와이프
+The 64-step wavetable, quantised to 6 bits like the hardware.	64단계 웨이브테이블, 하드웨어처럼 6비트로 양자화.
+Vary tile size per cell, so the grid stops looking like a grid.	칸마다 타일 크기를 바꿔 격자가 격자처럼 보이지 않게.
+Which output channel carries the signal. 'all' feeds every one.	신호를 싣는 출력 채널. 'all'은 모두에 보냅니다.
+What is sent. Backslash-n, -r, -t and -0 become those characters	보낼 내용. 백슬래시 n, r, t, 0은 그 문자가 됩니다
+Deckboy's own remote-protocol verbs, one per line; # is a comment	Deckboy 자체 원격 프로토콜 명령, 한 줄에 하나; #은 주석
+Modulator speed as a ratio of the note, so the bend tracks pitch.	음에 대한 비율로 정한 모듈레이터 속도, 그래서 휨이 음높이를 따라갑니다.
+Play this cue to the preview only; the outputs keep what they have	이 큐를 미리보기에서만 재생; 출력은 지금 것을 유지
+Put the pitch on an oscillator: Motion X sweeps it like a theremin	음높이를 오실레이터에: Motion X가 테레민처럼 훑습니다
+A disarmed cue stays in the list and does nothing; GO steps over it	무장 해제된 큐는 목록에 남고 아무것도 하지 않음; GO가 건너뜁니다
+Where the clock reads from this cue on; click the value to type one	이 큐부터 시계가 읽는 위치; 값을 클릭해 입력
+Add a dashboard button that fires this master by name, from anywhere	이 마스터를 이름으로 어디서나 실행하는 버튼을 대시보드에 추가
+New here? LEARN THE BASICS takes five minutes. We'll show you round.	처음이세요? 기초 배우기는 5분이면 됩니다. 안내해 드릴게요.
+An IPv4 address, or 255.255.255.255 to broadcast to the whole network	IPv4 주소, 또는 네트워크 전체로 보내는 255.255.255.255
+How much playing audio widens and brightens the pattern. 0 free-runs.	재생 중인 소리가 무늬를 얼마나 넓히고 밝히는지. 0은 자유 진행.
+LED panel width in pixels - what one tile really is. Click to type it	LED 패널 너비(픽셀): 타일 한 장의 실제 크기. 클릭해 입력
+Which deck it acts on; step off the end for the one this cue lives on	어느 덱에 작용할지; 끝을 넘기면 이 큐의 덱
+only one playlist - use the routing chip on the header to add another	재생 목록이 하나뿐: 헤더의 라우팅 칩으로 하나 더 추가
+Which cue this master fires on that deck; step off the end to clear it	이 마스터가 그 덱에서 실행할 큐; 끝을 넘기면 지움
+Draw on the programme monitor with the mouse or a pen (DRAW). Esc stops	프로그램 모니터에 마우스나 펜으로 그리기 (DRAW). Esc로 멈춤
+How long the move takes, each way. 0 is instant whatever the style says	움직임이 걸리는 시간(편도). 스타일과 상관없이 0은 즉시
+Stop that deck when the ramp lands - the usual take-it-down-and-stop-it	램프가 도착하면 그 덱 정지: 흔한 내리고-멈추기
+Which of the file's sound tracks plays: a second language, a commentary	파일의 어느 오디오 트랙을 틀지: 다른 언어, 해설
+An oscillator on the colour: depth is how far round the wheel it travels	색에 오실레이터: 깊이는 색상환을 얼마나 도는지
+Rack this cue paused and off air so GO starts it with no decoder spin-up	이 큐를 일시정지·오프에어로 준비해 GO가 디코더 대기 없이 시작
+Note, control change, program change, MIDI Show Control, or your own bytes	노트, 컨트롤 체인지, 프로그램 체인지, MIDI 쇼 컨트롤 또는 직접 쓴 바이트
+Black behind the words. Zero leaves it over whatever the output already has	글자 뒤의 검정. 0이면 출력에 이미 있는 것 위에 둡니다
+How far the modulator bends the pitch. 0-63, the hardware's own gain range.	모듈레이터가 음높이를 휘는 정도. 0-63, 하드웨어의 게인 범위.
+the words this cue puts on screen  |  Shift+Enter: new line  |  Enter: apply	이 큐가 화면에 띄우는 글자  |  Shift+Enter: 새 줄  |  Enter: 적용
+OSC and UDP are fire and forget; TCP connects, so it runs off the show thread	OSC와 UDP는 보내고 잊음; TCP는 연결하므로 쇼 스레드 밖에서 실행
+Put the level on an oscillator: Motion makes it a gate that opens as you move	레벨을 오실레이터에: Motion이 움직일 때 열리는 게이트로 만듭니다
+Marks stacked ABOVE the characters, the way combining accents overflow a line.	글자 위에 쌓는 기호. 줄 밖으로 넘치는 결합 악센트처럼.
+Which chime. Cycling PLAYS it, so it can be chosen by ear rather than by name.	어떤 차임. 바꾸면 소리가 나므로 이름이 아니라 귀로 고릅니다.
+No rows. + ADD or LEARN makes one; MIDIMAP RESET brings the built-in rows back.	행이 없습니다. + 추가나 배우기로 만들고; MIDIMAP RESET으로 기본 행을 되돌립니다.
+Save the mask's paths as SVG, for Illustrator and anything else that reads them	마스크 경로를 SVG로 저장, Illustrator 등 읽을 수 있는 무엇에든
+Which MIDI output; a named port that is missing is reported rather than swapped	어느 MIDI 출력; 이름 붙은 포트가 없으면 바꾸지 않고 알립니다
+An oscillator on the level, running after GO until a later cue sets this fixture	레벨에 오실레이터, GO 이후 다음 큐가 이 조명기를 정할 때까지 동작
+Steps in third-octaves, because the ear works in ratios. 1kHz is the convention.	3분의 1 옥타브 단계, 귀는 비율로 듣기 때문. 1 kHz가 관례입니다.
+Strikes drawn ACROSS the cell, damaging the character rather than decorating it.	칸을 가로지르는 획, 글자를 꾸미지 않고 망가뜨립니다.
+Whether incoming MIDI notes play this synth or trigger cues as they always have.	들어오는 MIDI 노트로 이 신스를 연주할지, 늘 그랬듯 큐를 실행할지.
+A note number, or type LEARN and play it. Notes no cue claims still go to cue N+1	노트 번호, 또는 LEARN을 입력하고 연주. 어느 큐도 차지하지 않은 노트는 그대로 큐 N+1로
+A plain stereo pair. Click to open the matrix, starting from exactly this routing	평범한 스테레오 쌍. 클릭하면 바로 이 라우팅에서 매트릭스를 엽니다
+Folding is what turns an arbitrary pattern into something that reads as designed.	접기는 아무 무늬나 디자인된 것처럼 보이게 합니다.
+Channel=level, comma separated. Ranges too: 1=255, 10-14=64. Channels count from 1	채널=레벨, 쉼표로 구분. 범위도 가능: 1=255, 10-14=64. 채널은 1부터
+Moves every selected cue's trim by the same dB; typing a value sets them all to it	선택한 모든 큐의 트림을 같은 dB만큼 이동; 값을 입력하면 모두 그 값으로
+Bends the carrier's PITCH rather than mixing with it. This is what makes FDS growl.	캐리어와 섞이지 않고 그 음높이를 휩니다. 이것이 FDS의 으르렁거림입니다.
+Half way through LEARN THE BASICS. Press L and we pick up where you stopped, skapi.	기초 배우기 절반. L을 누르면 멈춘 곳부터 이어갑니다, skapi.
+Render as a character grid with a 16-colour indexed palette, rather than as pixels.	픽셀 대신 16색 인덱스 팔레트의 문자 격자로 그리기.
+Which MIDI output this file plays to; step past the end for the first one available	이 파일을 보낼 MIDI 출력; 끝을 넘기면 처음 사용 가능한 것
+An IPv4 address, or 255.255.255.255 for the universe's multicast group (239.255.x.y)	IPv4 주소, 또는 유니버스 멀티캐스트 그룹용 255.255.255.255 (239.255.x.y)
+Click a cell to walk it: off, full, -3, -6, -12. This row turns the matrix off again	칸을 클릭해 바꾸기: 끔, 최대, -3, -6, -12. 이 행이 매트릭스를 다시 끕니다
+How long each phrase stays before it moves. Zero hides them without losing the list.	각 문구가 움직이기 전 머무는 시간. 0이면 목록을 잃지 않고 숨깁니다.
+How long it takes to fall away after the attack. Only audible when retrigger is set.	어택 후 감쇠 시간. 재트리거가 켜졌을 때만 들립니다.
+Off, from start (next cue fires when this one starts) or from end (when it finishes)	끔, 시작부터 (이 큐가 시작되면 다음 큐 실행) 또는 끝부터 (끝나면)
+Height of one line as a percent of the raster, so a card reads the same on any screen	한 줄 높이를 래스터의 퍼센트로, 어느 화면에서도 카드가 똑같이 읽히게
+Set slot source as media:/path, browser:url, window:name, camera:name, or syphon:name	슬롯 소스 지정: media:/경로, browser:url, window:이름, camera:이름, syphon:이름
+Short LFSR mode. The period is brief enough to read as pitched metal rather than hiss.	짧은 LFSR 모드. 주기가 짧아 쉬익 소리가 아닌 조율된 금속처럼 들립니다.
+White, warm, red, amber, green, cyan, blue, magenta. ~ moves it round the colour wheel	흰색, 따뜻한 색, 빨강, 앰버, 초록, 시안, 파랑, 마젠타. ~로 색상환을 돕니다
+Re-strike the envelope this often. Hold sustains one note, which is what a drone wants.	엔벨로프를 이 간격으로 다시 칩니다. Hold는 한 음을 유지, 드론에 맞습니다.
+Diamond is the hard-edged Atari Video Music lattice; rings tunnel well with feedback zoom.	Diamond는 Atari Video Music의 날카로운 격자; 링은 피드백 줌과 함께 멋진 터널이 됩니다.
+Rock or spin. Depth 1 is half a turn either way; a saw at depth 1 turns it all the way round	흔들기나 돌리기. 깊이 1은 양쪽으로 반 바퀴; 깊이 1의 톱니파는 한 바퀴 돕니다
+DECK playback level (live, not saved with the cue) - per-cue trim is gain in the AUDIO section	덱 재생 레벨 (라이브, 큐에 저장 안 됨) - 큐별 트림은 AUDIO 섹션의 게인
+Still, fade in, typewriter, scroll up, crawl or pulse -- all driven by the cue's own transport	정지, 페이드 인, 타자기, 위로 스크롤, 크롤, 펄스, 모두 큐 자체 트랜스포트로
+Fields per rendered frame. 1 is one for one, 0.5 holds each field for two frames, 0 freezes it.	렌더 프레임당 필드 수. 1은 일대일, 0.5는 필드마다 두 프레임 유지, 0은 정지.
+What this cue shows while it plays: waveform, scope, Lissajous, spectrum, meters or a name card	이 큐가 재생 중 보여 줄 것: 파형, 스코프, 리사주, 스펙트럼, 미터, 이름 카드
+0 picks tiles by brightness so the picture reads. 1 picks at random so the grid becomes texture.	0은 밝기로 타일을 골라 그림이 읽힙니다. 1은 무작위로 골라 격자가 질감이 됩니다.
+How far it travels, in semitones. Up reads as arrival, down as departure, zero is a struck note.	이동하는 정도(반음). 위는 도착, 아래는 출발처럼 들리고, 0은 친 음입니다.
+An IPv4 address. Names are not resolved: a DNS lookup is a blocking call and GO must not make one	IPv4 주소. 이름은 해석하지 않음: DNS 조회는 막히는 호출이고 GO는 이를 하면 안 됩니다
+Tile width in pixels. Must match the sheet's grid or the slices land across neighbouring sprites.	타일 너비(픽셀). 시트 격자와 맞아야 하며, 아니면 조각이 이웃 스프라이트에 걸칩니다.
+Alternating mirrors by cell position, which reads as pattern where random flipping reads as noise.	칸 위치에 따라 번갈아 거울. 무작위 뒤집기는 잡음으로, 이것은 무늬로 읽힙니다.
+0 welds them to their cell, which reads as engraved. Above it they re-roll, which reads as boiling.	0은 칸에 고정해 새긴 듯. 그 이상이면 다시 뽑혀 끓는 듯 보입니다.
+MONO L plays the left input in both speakers: mic 1 on most interfaces. STEREO is for a line source.	MONO L은 왼쪽 입력을 두 스피커로: 대부분 장비의 마이크 1. STEREO는 라인 소스용.
+The whole gesture. This IS the cue's duration -- a sting is the one generated signal here that ends.	몸짓 전체. 이것이 곧 큐의 길이: 스팅은 여기서 유일하게 끝나는 생성 신호입니다.
+Click the value to send this fixture or leave it where the last cue put it. ~ makes the level breathe	값을 클릭해 이 조명기를 보내거나 마지막 큐가 둔 자리에 두기. ~로 레벨이 숨 쉽니다
+FDS is a wavetable bent by a modulator. 2A03 is the pulse/triangle/noise set most chiptune is made of.	FDS는 모듈레이터가 휘는 웨이브테이블. 2A03은 대부분의 칩튠을 만든 펄스/삼각/노이즈 세트입니다.
+Scramble which glyph means which brightness. Same set, different handwriting. Seeded, so it stays put.	어떤 글리프가 어떤 밝기인지 섞기. 같은 세트, 다른 필체. 시드가 있어 그대로 유지.
+Pixel sort: runs of pixels sorted by brightness within a row, which is what makes datamosh look melted.	픽셀 정렬: 행 안의 픽셀 줄을 밝기로 정렬, 데이터모시가 녹아내린 듯 보이는 이유.
+How many cells the marks may climb. They thin out as they go, so a tall reach trails rather than doubles.	기호가 오를 수 있는 칸 수. 오를수록 옅어져, 높이 닿으면 겹치지 않고 꼬리를 남깁니다.
+cue act val  -  G take  S stop  F fade out (val = tenths of a second)  V volume  O opacity  J jump to row	큐 동작 값  -  G 테이크  S 정지  F 페이드 아웃 (값 = 0.1초)  V 볼륨  O 불투명도  J 행으로 이동
+Harmonic weight: a pure chime at zero, brass at full. This is the difference between a ping and a fanfare.	배음 비중: 0이면 맑은 차임, 최대면 금관. 이것이 핑과 팡파르의 차이입니다.
+Steps through the inputs this computer has. 'Settings input' follows the input chosen in Settings > Audio.	이 컴퓨터의 입력을 차례로. 'Settings input'은 설정 > 오디오에서 고른 입력을 따릅니다.
+Embers to roaring. It still surges and settles at any setting -- a fire that does not move reads as a photo	잉걸불에서 타오르는 불까지. 어떤 값에서도 솟았다 가라앉습니다: 움직이지 않는 불은 사진 같습니다
+Reference pitch. 440 is modern standard, 432 the common alternative, and older instruments sat lower still.	기준 음높이. 440은 현대 표준, 432는 흔한 대안, 옛 악기는 더 낮았습니다.
+Where the sting starts. Under a voice it wants to stay out of the way; over a room it wants to cut through.	스팅이 시작되는 곳. 목소리 아래에서는 비켜 있고, 홀 위에서는 뚫고 나가야 합니다.
+Digital gain on the input, -40 to +40 dB. Set the interface's own preamp first; this is for the last few dB.	입력의 디지털 게인, -40 ~ +40 dB. 먼저 장비의 프리앰프를 맞추세요; 이것은 마지막 몇 dB용.
+Pulse the size. On its own this moves width AND height together; give height its own ~ to squash and stretch	크기를 맥동. 혼자서는 너비와 높이를 함께 움직임; 찌그러뜨리고 늘이려면 높이에 따로 ~를
+A card fills the frame; a Lower Third is a name and a role, low on a transparent frame, with an in and an out	카드는 화면을 채움; 하단 자막은 투명 화면 아래쪽의 이름과 직함, 들어오고 나가기 포함
+Held keeps the last displacement rather than removing it -- the picture stays bent the way the driver left it.	Held는 마지막 변위를 없애지 않고 유지: 그림이 드라이버가 둔 대로 휜 채 남습니다.
+12.5 and 25 are thin and reedy, 50 is hollow. 75 sounds identical to 25 -- it is here because trackers expose it.	12.5와 25는 가늘고 콧소리, 50은 비어 있는 소리. 75는 25와 같게 들립니다: 트래커에 있어서 둡니다.
+Quantise the output like the hardware. The steps ARE the sound; smoothing them makes it a synth imitating a chip.	하드웨어처럼 출력을 양자화. 계단이 곧 소리; 매끄럽게 하면 칩을 흉내 내는 신스가 됩니다.
+Moves every selected cue's trim by the same dB, keeping the differences between them; typing a value sets them all to it	선택한 모든 큐의 트림을 차이를 유지하며 같은 dB만큼 이동; 값을 입력하면 모두 그 값으로
+Where the playlist's crosspoints send it (Settings > Audio). Click to open the matrix by name, starting from exactly that	재생 목록 크로스포인트가 보내는 곳 (설정 > 오디오). 클릭하면 바로 그 라우팅에서 이름으로 매트릭스를 엽니다
+name values with  d = ...;  end with one expression, or three for red green blue  |  Shift+Enter: new line  |  Enter: apply	값에  d = ...;  로 이름을 붙이고, 식 하나 또는 빨강 초록 파랑 세 개로 끝냄  |  Shift+Enter: 새 줄  |  Enter: 적용
+Put back what it started from once the ramp lands (after the stop): a deck left ready for its next cue, a swell that lets go	램프가 도착하면 (정지 후) 처음 상태로 되돌리기: 다음 큐를 기다리는 덱, 손을 놓는 스웰
+Which speech model makes the captions: English, any language, or the slower, more accurate pair. Each is a one-time download	자막을 만드는 음성 모델: 영어, 모든 언어, 또는 느리지만 더 정확한 쌍. 각각 한 번 내려받기
+What the mask cuts: this cue wherever it plays, this playlist on the focused output, that output's whole picture, or its matte	마스크가 자르는 것: 어디서 재생되든 이 큐, 선택한 출력의 이 재생 목록, 그 출력의 전체 그림, 또는 그 매트
+Play at the screen's rate when it is within 0.2% (59.94 on 60): every frame shown once, the sound up to 3.5 cents sharp or flat	화면 주사율과 0.2% 이내면 (60에 59.94) 그 주사율로 재생: 모든 프레임 한 번씩, 소리는 최대 3.5센트 높거나 낮게
+Quarter turns are exact and stay crisp. Spinning samples at an angle, which tears pixel art -- sometimes that is what you want.	90도 회전은 정확하고 선명합니다. 회전은 비스듬히 샘플링해 픽셀 아트를 찢습니다: 가끔은 그게 원하는 바.
+Every take starts the puppetry the same way, so a rehearsed look repeats instead of depending on how long the app has been open.	테이크마다 같은 방식으로 움직임을 시작하므로, 리허설한 모습이 앱이 열려 있던 시간과 상관없이 반복됩니다.
+What aims each tilt: its own position, the picture's luma gradient so characters lean the way the image does, or the cell's hue.	각 기울기의 방향: 자기 위치, 그림의 휘도 기울기 (글자가 그림처럼 기울게), 또는 칸의 색상.
+Name a channel or a pair once. Playlists send to the name, so a different interface means changing the names here, not every cue.	채널이나 쌍에 한 번 이름을 붙이세요. 재생 목록은 이름으로 보내므로, 장비를 바꿔도 여기 이름만 바꾸면 되고 큐마다 고칠 필요가 없습니다.
+Click a crosspoint to walk it: off, 0, -3, -6, -12 dB. Drag it sideways for any level. A playlist with none plays to its own device.	크로스포인트를 클릭해 바꾸기: 끔, 0, -3, -6, -12 dB. 옆으로 끌면 원하는 레벨. 포인트가 없는 재생 목록은 자기 장치로 재생합니다.
+Sprite sets installed in data/sprites. Each folder there is a set; cycling picks one and wraps back to none. Right-click turns them off.	data/sprites에 설치된 스프라이트 세트. 폴더 하나가 한 세트; 바꾸면 하나를 고르고 마지막엔 없음으로. 오른쪽 클릭으로 끕니다.
+Internal resolution, 1 chunkiest to 5 finest. This is an aesthetic control as much as a speed one -- the 8-bit look comes from big pixels.	내부 해상도, 1이 가장 거칠고 5가 가장 고움. 속도만큼 미적 설정: 8비트 느낌은 큰 픽셀에서 옵니다.
+Picture takes colour from the image. Green, amber and cyan are terminal phosphors. Palette locks the text to the selected hardware palette.	Picture는 그림에서 색을 가져옴. 초록, 앰버, 시안은 단말기 형광체. Palette는 텍스트를 고른 하드웨어 팔레트에 고정.
+SUBTLE self-heals (H.264). CLASSIC is the real smear (MPEG-4). EXTREME is chunkier and smears constantly. Changing this re-prepares the cue.	SUBTLE은 스스로 회복 (H.264). CLASSIC은 진짜 번짐 (MPEG-4). EXTREME은 더 거칠고 계속 번집니다. 바꾸면 큐를 다시 준비합니다.
+Sine for line-up, pink to ring out a PA, white to find rattles, sweep to hear where a room rings, identify to walk the outputs one at a time.	사인은 정렬용, 핑크는 PA 맞추기, 화이트는 잡소리 찾기, 스윕은 홀이 울리는 곳 듣기, identify는 출력을 하나씩 확인하기.
+Which effect, by its place in the stack of the cue that deck is playing when this fires. With nothing there, the fade says so and does nothing	어느 이펙트인지, 실행될 때 그 덱이 재생 중인 큐의 스택 위치로. 아무것도 없으면 페이드가 그렇다고 알리고 아무것도 하지 않습니다
+Each frame blended into the next. This is the Hypno signature -- at 0 it is a pattern generator, above it the picture starts feeding on itself.	각 프레임을 다음 프레임에 섞습니다. 이것이 Hypno의 특징: 0에서는 무늬 생성기, 그 이상에서는 그림이 스스로를 먹기 시작합니다.
+What is through the window on the hearth wall: a garden, rain, snow or the sea. A room with weather outside reads as somewhere rather than as a wall	화로 벽 창밖으로 보이는 것: 정원, 비, 눈, 바다. 밖에 날씨가 있는 방은 벽이 아니라 장소로 읽힙니다
+BY FIXTURE: the lights in the patch (Settings > Network > FIXTURES), by name. CHANNELS: channel=level by hand. A cue can carry both; channels go last	조명기별: 패치의 조명 (설정 > 네트워크 > 조명기), 이름으로. 채널: 손으로 채널=레벨. 한 큐에 둘 다 가능; 채널이 마지막
+Each character rocks as though it were a card being tilted. Every cell has its own phase, so the grid breathes instead of sliding about as one sheet.	각 글자가 기울어지는 카드처럼 흔들립니다. 칸마다 위상이 달라 격자가 한 장으로 미끄러지지 않고 숨 쉽니다.
+Pen: click for corners, drag for curves, click the first point to close (P). Points: drag, click the outline to add one, Alt-click or Delete to remove	펜: 클릭은 모서리, 드래그는 곡선, 첫 점 클릭으로 닫기 (P). 점: 드래그, 윤곽 클릭으로 추가, Alt+클릭이나 Delete로 삭제
+The chip's three channels. They differ in kind: triangle has no volume control on the hardware, and noise is a shift register rather than an oscillator.	칩의 세 채널. 성격이 다릅니다: 삼각파는 하드웨어에 볼륨이 없고, 노이즈는 오실레이터가 아니라 시프트 레지스터입니다.
+Curated sets of symbols and emoji -- stars, notes, flowers, arrows, weather, runes, faces. Picking one fills the custom glyphs below, which stays editable.	엄선한 기호와 이모지 세트: 별, 음표, 꽃, 화살표, 날씨, 룬, 얼굴. 고르면 아래 사용자 글리프가 채워지고 계속 편집할 수 있습니다.
+Play from the computer keyboard, Ableton layout: A W S E D F T G Y H U J, Z and X for octave. While this is ON those keys make notes instead of firing cues.	컴퓨터 키보드로 연주, Ableton 배열: A W S E D F T G Y H U J, 옥타브는 Z와 X. 켜져 있는 동안 그 키는 큐 대신 음을 냅니다.
+Deck opacity, deck volume, the master dimmer, the active cue's own brightness / contrast / saturation / hue, or a knob of one of its effects or audio effects	덱 불투명도, 덱 볼륨, 마스터 디머, 활성 큐의 밝기 / 대비 / 채도 / 색상, 또는 그 이펙트나 오디오 이펙트의 노브
+Scanlines, phosphor bloom and RGB fringing. The bloom is the part that matters -- a phosphor spills sideways, which is why a CRT looks like it is emitting light.	주사선, 형광체 번짐, RGB 테두리. 중요한 건 번짐: 형광체가 옆으로 퍼져서 CRT가 빛을 내는 것처럼 보입니다.
+Torn scanline bands and RGB separation. In text mode it also corrupts CELLS -- whole rows lock to one repeating character, the way a real text screen loses sync.	찢어진 주사선 띠와 RGB 분리. 텍스트 모드에서는 칸도 망가뜨립니다: 행 전체가 한 글자 반복에 굳어, 동기를 잃은 진짜 텍스트 화면처럼.
+Still holds the frame you are on. Flipbook plays the frames in turn. Replay draws the first frame stroke by stroke, the way it was drawn, then holds and starts again	Still은 지금 프레임에 멈춤. Flipbook은 프레임을 차례로 재생. Replay는 첫 프레임을 그린 대로 한 획씩 그린 뒤 멈췄다 다시 시작
+Start, Stop, Pause, Resume, Load (stand it by without firing), Arm, Disarm, or Devamp it (a loop plays out its pass and ends); or Stop all, Pause all, Resume all: every deck	Start, Stop, Pause, Resume, Load (실행 없이 대기), Arm, Disarm, Devamp (루프가 한 바퀴를 마치고 끝남); 또는 Stop all, Pause all, Resume all: 모든 덱
+Scope shows shape and clipping. Lissajous shows phase and polarity between the first two channels -- a diagonal the wrong way means one is inverted. Spectrum is third-octave bars.	Scope는 모양과 클리핑. Lissajous는 첫 두 채널 사이의 위상과 극성: 대각선이 반대면 하나가 뒤집힌 것. Spectrum은 3분의 1 옥타브 막대입니다.
+0 picks the glyph the brightness asks for, 1 picks any glyph in the set. Turn it up to see the whole alphabet: ranked strictly by ink, a flat area picks one mark and the rest never appear.	0은 밝기가 요구하는 글리프를, 1은 세트의 아무 글리프나 고릅니다. 올리면 알파벳 전체가 보입니다: 잉크 양으로 엄격히 정렬하면 평평한 영역은 한 기호만 고르고 나머지는 나오지 않습니다.
+Blocks and dithers read as density; the ASCII ramp reads as text; symbols read as wreckage. Cycling this clears a custom glyph string, since that would override it -- the preset row puts one back.	블록과 디더는 밀도로, ASCII 램프는 글자로, 기호는 잔해로 읽힙니다. 바꾸면 사용자 글리프 문자열을 지웁니다 (덮어쓸 것이므로); 프리셋 행으로 하나 되돌릴 수 있습니다.
+Equal temperament buys free modulation at the cost of every interval being slightly wrong. Just and pythagorean are exactly in tune in one key. Bohlen-Pierce divides a twelfth, so it has no octaves.	평균율은 모든 음정이 조금씩 틀리는 대신 자유로운 전조를 얻습니다. 순정률과 피타고라스 음률은 한 조에서 완벽히 맞습니다. Bohlen-Pierce는 12도를 나누므로 옥타브가 없습니다.
+OSC	OSC
+RTMPS	RTMPS
+Twitch	Twitch
+Art-Net	Art-Net
+YouTube	YouTube
+PQ - HDR10	PQ - HDR10
+sACN (E1.31)	sACN (E1.31)
+Syphon / Spout	Syphon / Spout
+NDI® NETWORK	NDI® NETWORK
+AMWA NMOS  IS-04 / IS-05	AMWA NMOS  IS-04 / IS-05

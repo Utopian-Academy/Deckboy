@@ -2001,3 +2001,196 @@ Run the clock	啟動時鐘
 What fires this cue besides GO	除GO外觸發此cue的條件
 center	中心
 visual	畫面
+JAM	同步
+MIX	混合
+CLIP	片段
+TEXT	文字
+MULTI	多畫面
+WACKY	瘋狂
+COLOUR	顏色
+DARKEN	變暗
+STEREO	立體聲
+COMPARE	比較
+LIGHTEN	變亮
+DASHBOARD	儀表板
+Pocket Test (day)	Pocket 測試 (白天)
+Dark Detail (0-12%)	暗部細節 (0-12%)
+Frame Count (emoji)	影格計數器 (表情符號)
+PLUGE (black level)	PLUGE (黑位準)
+Pocket Test (night)	Pocket 測試 (夜晚)
+Pocket Test (storm)	Pocket 測試 (暴風雨)
+Marks stacked BELOW.	符號堆疊在下方。
+Panel Map (animated)	面板對應 (動畫)
+Pocket Test (sunset)	Pocket 測試 (日落)
+Boresight (alignment)	準星 (對齊)
+SMPTE 75% Colour Bars	SMPTE 75% 彩條
+(projector curve only)	(僅投影機曲線)
+Multiburst (bandwidth)	多波群 (頻寬)
+Convergence (fine grid)	會聚 (細網格)
+Greyscale Steps (gamma)	灰階 (伽瑪)
+Uniformity (flat fields)	均勻度 (平場)
+MULTIVIEW carries this too.	MULTIVIEW 也會承載這個。
+Test Clock (sync + latency)	測試時鐘 (同步 + 延遲)
+auto (reads the common two)	自動 (讀取常見的兩種)
+Panel Map (LED tile numbers)	面板對應 (LED 面板編號)
+Portal (blobs of deep space)	傳送門 (深空氣泡)
+Terrarium (living ecosystem)	生態缸 (活的生態系)
+Window 10% (peak brightness)	視窗 10% (峰值亮度)
+Window 50% (peak at mid APL)	視窗 50% (中等 APL 下的峰值)
+Frame Count (drops + latency)	影格計數器 (掉格 + 延遲)
+Terrarium Pico (1px per cell)	生態缸 Pico (每格 1 像素)
+Banding Ramps (real bit depth)	色帶漸層 (真實位元深度)
+Fireside (a hearth that burns)	壁爐 (燃燒的爐火)
+HLG - live broadcast (BT.2100)	HLG - 現場直播 (BT.2100)
+Test Bars (motion diagnostics)	測試條 (動態診斷)
+Moire 1:1 (is anything scaling?)	摩爾紋 1:1 (有東西在縮放嗎?)
+Pocket Test (test card + scene cycle)	Pocket 測試 (測試卡 + 場景輪替)
+Critters (pixel-exact scaling, animated)	Critters (像素精確縮放,動畫)
+headphones, desk sounds and LTC stay out of it	耳機、控台聲音和 LTC 不包含在內
+Above 1 tunnels inward, below 1 blooms outward.	大於 1 時隧道向內吸入,小於 1 時向外綻放。
+Read everything right to left. Yes, everything.	一切都從右往左讀。是的,一切。
+Amber is closest to the 1976 single-phosphor look.	琥珀色最接近 1976 年的單螢光粉效果。
+Greetings, primitive. Your "slideshow" amuses us.	你好,原始人。你的「投影片播放」讓我們很開心。
+Sway sideways. Depth 1 is half the frame either way	左右搖擺。深度 1 為每側半個畫面
+Draw the diagnostic over the card, or just the text.	在測試卡上繪製診斷資訊,或只繪製文字。
+All interfaces, but only this computer is trusted yet.	所有介面,但目前只信任這台電腦。
+Choose the legacy cue token to show inside the PIP window	選擇在 PIP 視窗中顯示的舊版 Cue 標記
+ASIO carries the show's sound, and these are not on it yet	ASIO 承載演出的聲音,而這些尚未接上
+N=new  Enter/P=previous  O=open saved  E=examples  L=learn	N=新增  Enter/P=上一個  O=開啟已儲存  E=範例  L=學習
+Hand this parameter to an oscillator so it moves on its own	把此參數交給振盪器,讓它自己動
+How long the finished drawing stays before it is drawn again	畫完的圖在重畫前停留多久
+How it comes on and goes off: none, fade, rise, slide or wipe	如何進出:無、淡變、上升、滑動或劃像
+The 64-step wavetable, quantised to 6 bits like the hardware.	64 級波表,像硬體一樣量化為 6 位元。
+Vary tile size per cell, so the grid stops looking like a grid.	每格改變磁磚大小,讓網格不再像網格。
+Which output channel carries the signal. 'all' feeds every one.	哪個輸出聲道承載訊號。'all' 送往全部。
+What is sent. Backslash-n, -r, -t and -0 become those characters	傳送的內容。反斜線 n、r、t 和 0 會變成對應字元
+Deckboy's own remote-protocol verbs, one per line; # is a comment	Deckboy 自己的遠端協定指令,每行一個;# 為註解
+Modulator speed as a ratio of the note, so the bend tracks pitch.	調變器速度為音符的比率,使彎音跟隨音高。
+Play this cue to the preview only; the outputs keep what they have	只在預覽中播放此 Cue;輸出保持原樣
+Put the pitch on an oscillator: Motion X sweeps it like a theremin	把音高交給振盪器:Motion X 像特雷門琴一樣掃動它
+A disarmed cue stays in the list and does nothing; GO steps over it	已解除的 Cue 留在清單中但不做任何事;GO 會跳過它
+Where the clock reads from this cue on; click the value to type one	從此 Cue 起時鐘讀數的來源;點擊數值輸入
+Add a dashboard button that fires this master by name, from anywhere	在儀表板新增一個按鈕,可從任何地方依名稱觸發此主控
+New here? LEARN THE BASICS takes five minutes. We'll show you round.	第一次來?學習基礎只要五分鐘。我們帶你逛一圈。
+An IPv4 address, or 255.255.255.255 to broadcast to the whole network	IPv4 位址,或用 255.255.255.255 向整個網路廣播
+How much playing audio widens and brightens the pattern. 0 free-runs.	播放的聲音讓圖案變寬變亮的程度。0 為自由執行。
+LED panel width in pixels - what one tile really is. Click to type it	LED 面板寬度(像素):一塊磁磚的真實大小。點擊輸入
+Which deck it acts on; step off the end for the one this cue lives on	作用於哪個卡座;越過末尾則為此 Cue 所在的卡座
+only one playlist - use the routing chip on the header to add another	只有一個播放清單:標題上的路由晶片可再新增一個
+Which cue this master fires on that deck; step off the end to clear it	此主控在該卡座上觸發哪個 Cue;越過末尾則清除
+Draw on the programme monitor with the mouse or a pen (DRAW). Esc stops	用滑鼠或筆在節目監看器上繪製 (DRAW)。Esc 停止
+How long the move takes, each way. 0 is instant whatever the style says	每個方向的移動時長。無論樣式如何,0 為瞬間
+Stop that deck when the ramp lands - the usual take-it-down-and-stop-it	斜坡到達時停止該卡座:常見的拉下並停止
+Which of the file's sound tracks plays: a second language, a commentary	播放檔案的哪條音軌:第二語言、旁白
+An oscillator on the colour: depth is how far round the wheel it travels	顏色上的振盪器:深度為在色輪上轉多遠
+Rack this cue paused and off air so GO starts it with no decoder spin-up	以暫停、不播出的狀態預載此 Cue,讓 GO 不必等待解碼器即可開始
+Note, control change, program change, MIDI Show Control, or your own bytes	音符、控制變更、程式變更、MIDI 演出控制或你自己的位元組
+Black behind the words. Zero leaves it over whatever the output already has	文字後的黑底。為零則疊在輸出已有的內容上
+How far the modulator bends the pitch. 0-63, the hardware's own gain range.	調變器彎曲音高的程度。0-63,硬體本身的增益範圍。
+the words this cue puts on screen  |  Shift+Enter: new line  |  Enter: apply	此 Cue 顯示在螢幕上的文字  |  Shift+Enter:換行  |  Enter:套用
+OSC and UDP are fire and forget; TCP connects, so it runs off the show thread	OSC 和 UDP 發出即不管;TCP 要建立連線,所以在演出執行緒之外執行
+Put the level on an oscillator: Motion makes it a gate that opens as you move	把位準交給振盪器:Motion 讓它成為你動起來就打開的閘門
+Marks stacked ABOVE the characters, the way combining accents overflow a line.	符號堆疊在字元上方,像溢出行外的組合重音。
+Which chime. Cycling PLAYS it, so it can be chosen by ear rather than by name.	哪種鈴聲。切換時會播放,所以可憑耳朵而非名稱選擇。
+No rows. + ADD or LEARN makes one; MIDIMAP RESET brings the built-in rows back.	沒有列。+ 新增或學習可建立一列;MIDIMAP RESET 恢復內建列。
+Save the mask's paths as SVG, for Illustrator and anything else that reads them	把遮罩的路徑存為 SVG,供 Illustrator 及任何能讀取的程式使用
+Which MIDI output; a named port that is missing is reported rather than swapped	哪個 MIDI 輸出;缺少的具名連接埠會回報而不會被替換
+An oscillator on the level, running after GO until a later cue sets this fixture	位準上的振盪器,在 GO 之後執行,直到後面的 Cue 設定此燈具
+Steps in third-octaves, because the ear works in ratios. 1kHz is the convention.	以三分之一八度步進,因為耳朵依比例感知。1 kHz 是慣例。
+Strikes drawn ACROSS the cell, damaging the character rather than decorating it.	橫穿格子的筆畫,破壞字元而非裝飾它。
+Whether incoming MIDI notes play this synth or trigger cues as they always have.	傳入的 MIDI 音符是演奏此合成器,還是像往常一樣觸發 Cue。
+A note number, or type LEARN and play it. Notes no cue claims still go to cue N+1	音符編號,或輸入 LEARN 後彈奏它。沒有 Cue 認領的音符仍會去 Cue N+1
+A plain stereo pair. Click to open the matrix, starting from exactly this routing	普通立體聲對。點擊從正是這個路由開啟矩陣
+Folding is what turns an arbitrary pattern into something that reads as designed.	摺疊讓任意圖案看起來像精心設計的。
+Channel=level, comma separated. Ranges too: 1=255, 10-14=64. Channels count from 1	聲道=位準,逗號分隔。也可用範圍:1=255, 10-14=64。聲道從 1 開始計
+Moves every selected cue's trim by the same dB; typing a value sets them all to it	把每個所選 Cue 的微調移動相同的 dB;輸入數值會把它們全部設為該值
+Bends the carrier's PITCH rather than mixing with it. This is what makes FDS growl.	彎曲載波的音高,而不是與之混合。這就是 FDS 低吼的原因。
+Half way through LEARN THE BASICS. Press L and we pick up where you stopped, skapi.	學習基礎已過半。按 L,我們從你停下的地方繼續,skapi。
+Render as a character grid with a 16-colour indexed palette, rather than as pixels.	以帶 16 色索引調色盤的字元網格算繪,而不是像素。
+Which MIDI output this file plays to; step past the end for the first one available	此檔案播放到哪個 MIDI 輸出;越過末尾則為第一個可用的
+An IPv4 address, or 255.255.255.255 for the universe's multicast group (239.255.x.y)	IPv4 位址,或用 255.255.255.255 發往該 universe 的群播群組 (239.255.x.y)
+Click a cell to walk it: off, full, -3, -6, -12. This row turns the matrix off again	點擊格子切換:關、滿、-3、-6、-12。這一列會再次關閉矩陣
+How long each phrase stays before it moves. Zero hides them without losing the list.	每句停留多久後移動。零會隱藏它們而不遺失清單。
+How long it takes to fall away after the attack. Only audible when retrigger is set.	起音後衰落所需的時間。只有開啟重觸發時才聽得到。
+Off, from start (next cue fires when this one starts) or from end (when it finishes)	關、從開始 (此 Cue 開始時觸發下一個) 或從結束 (它結束時)
+Height of one line as a percent of the raster, so a card reads the same on any screen	一行的高度佔光柵的百分比,讓字卡在任何螢幕上看起來都一樣
+Set slot source as media:/path, browser:url, window:name, camera:name, or syphon:name	設定插槽來源為 media:/路徑、browser:url、window:名稱、camera:名稱或 syphon:名稱
+Short LFSR mode. The period is brief enough to read as pitched metal rather than hiss.	短 LFSR 模式。週期短到聽起來像有音高的金屬而非嘶聲。
+White, warm, red, amber, green, cyan, blue, magenta. ~ moves it round the colour wheel	白、暖、紅、琥珀、綠、青、藍、洋紅。~ 讓它在色輪上轉動
+Re-strike the envelope this often. Hold sustains one note, which is what a drone wants.	以此頻率重新觸發封包。Hold 保持一個音,正適合持續音。
+Diamond is the hard-edged Atari Video Music lattice; rings tunnel well with feedback zoom.	Diamond 是 Atari Video Music 的硬邊網格;圓環配合回授縮放能做出很好的隧道。
+Rock or spin. Depth 1 is half a turn either way; a saw at depth 1 turns it all the way round	搖擺或旋轉。深度 1 為每側半圈;深度 1 的鋸齒波會轉滿一整圈
+DECK playback level (live, not saved with the cue) - per-cue trim is gain in the AUDIO section	卡座播放位準 (即時,不隨 Cue 儲存) - 每個 Cue 的微調是 AUDIO 區的增益
+Still, fade in, typewriter, scroll up, crawl or pulse -- all driven by the cue's own transport	靜止、淡入、打字機、上捲、跑馬燈或脈衝,全部由 Cue 自身的走帶驅動
+Fields per rendered frame. 1 is one for one, 0.5 holds each field for two frames, 0 freezes it.	每個算繪影格的圖場數。1 為一對一,0.5 讓每個圖場保持兩格,0 為凍結。
+What this cue shows while it plays: waveform, scope, Lissajous, spectrum, meters or a name card	此 Cue 播放時顯示什麼:波形、示波器、李薩如、頻譜、電平表或姓名卡
+0 picks tiles by brightness so the picture reads. 1 picks at random so the grid becomes texture.	0 依亮度選磁磚,讓畫面可辨認。1 隨機選擇,網格變成紋理。
+How far it travels, in semitones. Up reads as arrival, down as departure, zero is a struck note.	移動多少半音。向上聽起來像抵達,向下像離開,零是一個敲擊音。
+An IPv4 address. Names are not resolved: a DNS lookup is a blocking call and GO must not make one	IPv4 位址。不解析名稱:DNS 查詢會阻塞,而 GO 不能做這樣的呼叫
+Tile width in pixels. Must match the sheet's grid or the slices land across neighbouring sprites.	磁磚寬度(像素)。必須與圖集的網格一致,否則切片會落到相鄰精靈上。
+Alternating mirrors by cell position, which reads as pattern where random flipping reads as noise.	依格子位置交替鏡像,隨機翻轉看起來像雜訊的地方,這樣看起來像圖案。
+0 welds them to their cell, which reads as engraved. Above it they re-roll, which reads as boiling.	0 把它們焊在格子上,如同雕刻。高於 0 時會重新抽取,像在沸騰。
+MONO L plays the left input in both speakers: mic 1 on most interfaces. STEREO is for a line source.	MONO L 在兩個喇叭中播放左輸入:多數介面上的麥克風 1。STEREO 用於線路訊號源。
+The whole gesture. This IS the cue's duration -- a sting is the one generated signal here that ends.	整個動作。這就是 Cue 的時長:提示音是這裡唯一會結束的生成訊號。
+Click the value to send this fixture or leave it where the last cue put it. ~ makes the level breathe	點擊數值以傳送此燈具,或讓它保留在上一個 Cue 放置的位置。~ 讓位準呼吸
+FDS is a wavetable bent by a modulator. 2A03 is the pulse/triangle/noise set most chiptune is made of.	FDS 是被調變器彎曲的波表。2A03 是大多數晶片音樂所用的脈衝/三角/雜訊組合。
+Scramble which glyph means which brightness. Same set, different handwriting. Seeded, so it stays put.	打亂哪個字形代表哪種亮度。同一套字形,不同筆跡。帶種子,因此保持不變。
+Pixel sort: runs of pixels sorted by brightness within a row, which is what makes datamosh look melted.	像素排序:一列內的像素串依亮度排序,這正是資料損壞效果看起來像融化的原因。
+How many cells the marks may climb. They thin out as they go, so a tall reach trails rather than doubles.	符號最多可向上爬幾格。越往上越稀疏,所以高處會拖出尾跡而不是重疊。
+cue act val  -  G take  S stop  F fade out (val = tenths of a second)  V volume  O opacity  J jump to row	cue 動作 值  -  G 執行  S 停止  F 淡出 (值 = 十分之一秒)  V 音量  O 不透明度  J 跳到列
+Harmonic weight: a pure chime at zero, brass at full. This is the difference between a ping and a fanfare.	諧波權重:零為清脆鈴聲,滿為銅管。這就是提示音與號角的差別。
+Steps through the inputs this computer has. 'Settings input' follows the input chosen in Settings > Audio.	逐一切換本機的輸入。'Settings input' 跟隨 設定 > 音訊 中選擇的輸入。
+Embers to roaring. It still surges and settles at any setting -- a fire that does not move reads as a photo	從餘燼到熊熊烈火。任何設定下都會起伏:不動的火看起來像照片
+Reference pitch. 440 is modern standard, 432 the common alternative, and older instruments sat lower still.	參考音高。440 是現代標準,432 是常見替代,更老的樂器還要更低。
+Where the sting starts. Under a voice it wants to stay out of the way; over a room it wants to cut through.	提示音從哪裡開始。在人聲下要讓路;在會場上要穿透。
+Digital gain on the input, -40 to +40 dB. Set the interface's own preamp first; this is for the last few dB.	輸入的數位增益,-40 到 +40 dB。先調好介面自己的前級;這是給最後幾 dB 用的。
+Pulse the size. On its own this moves width AND height together; give height its own ~ to squash and stretch	讓大小脈動。單獨使用時寬高一起變化;給高度單獨一個 ~ 來擠壓和拉伸
+A card fills the frame; a Lower Third is a name and a role, low on a transparent frame, with an in and an out	字卡填滿畫面;下三分之一字幕是姓名和職稱,位於透明畫面的下方,帶進場和退場
+Held keeps the last displacement rather than removing it -- the picture stays bent the way the driver left it.	Held 保留最後的位移而不是移除它:畫面保持驅動程式留下的彎曲狀態。
+12.5 and 25 are thin and reedy, 50 is hollow. 75 sounds identical to 25 -- it is here because trackers expose it.	12.5 和 25 細而帶鼻音,50 空洞。75 聽起來與 25 相同:因為追蹤器提供它,所以保留。
+Quantise the output like the hardware. The steps ARE the sound; smoothing them makes it a synth imitating a chip.	像硬體一樣量化輸出。階梯本身就是聲音;把它們抹平,就成了模仿晶片的合成器。
+Moves every selected cue's trim by the same dB, keeping the differences between them; typing a value sets them all to it	把每個所選 Cue 的微調移動相同的 dB,保持它們之間的差異;輸入數值會把它們全部設為該值
+Where the playlist's crosspoints send it (Settings > Audio). Click to open the matrix by name, starting from exactly that	播放清單的交叉點把它送往何處 (設定 > 音訊)。點擊依名稱從正是那個路由開啟矩陣
+name values with  d = ...;  end with one expression, or three for red green blue  |  Shift+Enter: new line  |  Enter: apply	用  d = ...;  命名數值,以一個運算式結束,或用三個表示紅 綠 藍  |  Shift+Enter:換行  |  Enter:套用
+Put back what it started from once the ramp lands (after the stop): a deck left ready for its next cue, a swell that lets go	斜坡到達時 (停止後) 恢復起始狀態:卡座為下一個 Cue 就緒,漸強隨之放開
+Which speech model makes the captions: English, any language, or the slower, more accurate pair. Each is a one-time download	由哪個語音模型產生字幕:英文、任何語言,或更慢更準的一對。每個都只需下載一次
+What the mask cuts: this cue wherever it plays, this playlist on the focused output, that output's whole picture, or its matte	遮罩裁切什麼:此 Cue 無論在哪裡播放、所選輸出上的此播放清單、該輸出的整個畫面,或其遮片
+Play at the screen's rate when it is within 0.2% (59.94 on 60): every frame shown once, the sound up to 3.5 cents sharp or flat	當螢幕更新率相差在 0.2% 內 (60 對 59.94) 時以螢幕更新率播放:每格顯示一次,聲音最多偏高或偏低 3.5 音分
+Quarter turns are exact and stay crisp. Spinning samples at an angle, which tears pixel art -- sometimes that is what you want.	四分之一圈旋轉是精確的並保持清晰。任意角度旋轉會斜向取樣,撕裂像素畫:有時這正是你想要的。
+Every take starts the puppetry the same way, so a rehearsed look repeats instead of depending on how long the app has been open.	每次執行都以同樣方式開始動畫,讓排練好的效果重複出現,而不取決於程式已開啟多久。
+What aims each tilt: its own position, the picture's luma gradient so characters lean the way the image does, or the cell's hue.	每個傾斜的方向由什麼決定:自身位置、畫面的亮度梯度 (讓字元隨畫面傾斜),或格子的色相。
+Name a channel or a pair once. Playlists send to the name, so a different interface means changing the names here, not every cue.	為一個聲道或一對聲道命名一次。播放清單傳送到名稱,所以換介面只需改這裡的名稱,而不是每個 Cue。
+Click a crosspoint to walk it: off, 0, -3, -6, -12 dB. Drag it sideways for any level. A playlist with none plays to its own device.	點擊交叉點切換:關、0、-3、-6、-12 dB。橫向拖曳可設任意位準。沒有交叉點的播放清單在自己的裝置上播放。
+Sprite sets installed in data/sprites. Each folder there is a set; cycling picks one and wraps back to none. Right-click turns them off.	安裝在 data/sprites 的精靈組。每個資料夾是一組;切換會選擇一組並最終回到無。右鍵關閉它們。
+Internal resolution, 1 chunkiest to 5 finest. This is an aesthetic control as much as a speed one -- the 8-bit look comes from big pixels.	內部解析度,1 最粗,5 最細。這既是速度控制,也是美學控制:8 位元效果來自大像素。
+Picture takes colour from the image. Green, amber and cyan are terminal phosphors. Palette locks the text to the selected hardware palette.	Picture 從影像取色。綠、琥珀和青是終端機螢光粉。Palette 把文字鎖定到所選硬體調色盤。
+SUBTLE self-heals (H.264). CLASSIC is the real smear (MPEG-4). EXTREME is chunkier and smears constantly. Changing this re-prepares the cue.	SUBTLE 會自行恢復 (H.264)。CLASSIC 是真正的拖影 (MPEG-4)。EXTREME 更粗糙且持續拖影。變更會重新準備此 Cue。
+Sine for line-up, pink to ring out a PA, white to find rattles, sweep to hear where a room rings, identify to walk the outputs one at a time.	正弦波用於校準,粉紅雜訊用於調喇叭,白雜訊用於找異音,掃頻用於聽會場哪裡共振,identify 用於逐一檢查輸出。
+Which effect, by its place in the stack of the cue that deck is playing when this fires. With nothing there, the fade says so and does nothing	哪個效果,依觸發時該卡座正在播放的 Cue 的效果堆疊中的位置。那裡沒有效果時,淡變會提示並且不做任何事
+Each frame blended into the next. This is the Hypno signature -- at 0 it is a pattern generator, above it the picture starts feeding on itself.	每一格都混入下一格。這是 Hypno 的標誌:0 時它是圖案產生器,高於 0 畫面開始以自身為食。
+What is through the window on the hearth wall: a garden, rain, snow or the sea. A room with weather outside reads as somewhere rather than as a wall	壁爐牆上的窗外是什麼:花園、雨、雪或大海。窗外有天氣的房間看起來像一個地方,而不是一面牆
+BY FIXTURE: the lights in the patch (Settings > Network > FIXTURES), by name. CHANNELS: channel=level by hand. A cue can carry both; channels go last	依燈具:配接中的燈光 (設定 > 網路 > 燈具),依名稱。聲道:手動聲道=位準。一個 Cue 可以兩者都有;聲道最後執行
+Each character rocks as though it were a card being tilted. Every cell has its own phase, so the grid breathes instead of sliding about as one sheet.	每個字元像被傾斜的卡片一樣搖擺。每格有自己的相位,所以網格在呼吸,而不是整張滑動。
+Pen: click for corners, drag for curves, click the first point to close (P). Points: drag, click the outline to add one, Alt-click or Delete to remove	鋼筆:點擊畫角,拖曳畫曲線,點擊第一個點封閉 (P)。點:拖曳,點擊輪廓新增,Alt+點擊或 Delete 刪除
+The chip's three channels. They differ in kind: triangle has no volume control on the hardware, and noise is a shift register rather than an oscillator.	晶片的三個聲道。它們本質不同:三角波在硬體上沒有音量控制,雜訊是移位暫存器而不是振盪器。
+Curated sets of symbols and emoji -- stars, notes, flowers, arrows, weather, runes, faces. Picking one fills the custom glyphs below, which stays editable.	精選的符號和表情集合:星星、音符、花朵、箭頭、天氣、符文、表情。選擇一個會填入下方的自訂字形,仍可編輯。
+Play from the computer keyboard, Ableton layout: A W S E D F T G Y H U J, Z and X for octave. While this is ON those keys make notes instead of firing cues.	用電腦鍵盤演奏,Ableton 配置:A W S E D F T G Y H U J,Z 和 X 切換八度。開啟時這些鍵演奏音符而不觸發 Cue。
+Deck opacity, deck volume, the master dimmer, the active cue's own brightness / contrast / saturation / hue, or a knob of one of its effects or audio effects	卡座不透明度、卡座音量、總調光、目前 Cue 的亮度 / 對比 / 飽和度 / 色相,或其某個效果或音訊效果的旋鈕
+Scanlines, phosphor bloom and RGB fringing. The bloom is the part that matters -- a phosphor spills sideways, which is why a CRT looks like it is emitting light.	掃描線、螢光粉輝光和 RGB 邊紋。關鍵在輝光:螢光粉向旁邊溢散,這就是 CRT 看起來在發光的原因。
+Torn scanline bands and RGB separation. In text mode it also corrupts CELLS -- whole rows lock to one repeating character, the way a real text screen loses sync.	撕裂的掃描帶和 RGB 分離。在文字模式下還會損壞格子:整列鎖定為同一個重複字元,就像失去同步的真實文字螢幕。
+Still holds the frame you are on. Flipbook plays the frames in turn. Replay draws the first frame stroke by stroke, the way it was drawn, then holds and starts again	Still 停在目前影格。Flipbook 依序播放各影格。Replay 依原本的筆畫逐筆重畫第一格,然後停住再重新開始
+Start, Stop, Pause, Resume, Load (stand it by without firing), Arm, Disarm, or Devamp it (a loop plays out its pass and ends); or Stop all, Pause all, Resume all: every deck	Start、Stop、Pause、Resume、Load (準備但不觸發)、Arm、Disarm 或 Devamp (循環播完本輪後結束);或 Stop all、Pause all、Resume all:每個卡座
+Scope shows shape and clipping. Lissajous shows phase and polarity between the first two channels -- a diagonal the wrong way means one is inverted. Spectrum is third-octave bars.	Scope 顯示形狀和削波。Lissajous 顯示前兩個聲道之間的相位和極性:對角線方向相反表示其中一個反相。Spectrum 為三分之一八度長條圖。
+0 picks the glyph the brightness asks for, 1 picks any glyph in the set. Turn it up to see the whole alphabet: ranked strictly by ink, a flat area picks one mark and the rest never appear.	0 選擇亮度所需的字形,1 選擇集合中的任意字形。調高可看到整個字母表:嚴格依墨量排序時,平坦區域只會選中一個符號,其餘永遠不會出現。
+Blocks and dithers read as density; the ASCII ramp reads as text; symbols read as wreckage. Cycling this clears a custom glyph string, since that would override it -- the preset row puts one back.	方塊和抖動看起來像密度;ASCII 漸層像文字;符號像殘骸。切換會清除自訂字形串,因為它會覆蓋此設定;預設列可放回一個。
+Equal temperament buys free modulation at the cost of every interval being slightly wrong. Just and pythagorean are exactly in tune in one key. Bohlen-Pierce divides a twelfth, so it has no octaves.	十二平均律以每個音程都略有偏差為代價,換來自由轉調。純律和五度相生律在一個調上完全準確。Bohlen-Pierce 劃分的是十二度,因此沒有八度。
+OSC	OSC
+RTMPS	RTMPS
+Twitch	Twitch
+Art-Net	Art-Net
+YouTube	YouTube
+PQ - HDR10	PQ - HDR10
+sACN (E1.31)	sACN (E1.31)
+Syphon / Spout	Syphon / Spout
+NDI® NETWORK	NDI® NETWORK
+AMWA NMOS  IS-04 / IS-05	AMWA NMOS  IS-04 / IS-05
