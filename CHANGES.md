@@ -13,11 +13,6 @@
 
 ## 2026-11-07 - v0.99.427 (lessons that point everywhere, Esc that closes the right thing, 40 new themes)
 
-### Thanks
-- Cool-Colin on Reddit suggested the layer blend modes (0.99.426).
-- Tim Cronin suggested the Final Cut-style timeline.
-- On GitHub: joeladria found that the interface had no text on macOS (#6), larszu found that the Mac build had no text layers (#7), and FillmyMap found that Ctrl+Shift+Space did not stop all decks (#12).
-
 ### Lessons
 - Fixed: in the Presets lesson, Esc closed the lesson instead of the DASH. Esc now closes whatever is open first (DASH, settings, a menu); only an Esc that nothing else wants leaves a lesson.
 - Fixed: thirteen lesson steps pointed at nothing, so there was no ring to show where to click. MENU and DASH steps lost their pointer; a cue in a playlist that was not on screen had none (the pointer now goes to its tab first); the scopes steps lost theirs while a scope was shown large; and edge blend could not be found when the settings page was scrolled below it.
@@ -36,7 +31,6 @@
 ### Layer blend modes
 - Fixed: blend modes did not reach an output. Add, multiply and every other mode looked like dissolve on the output, and the BLEND button changed only the mix monitor.
 - Each layer on an output now has its own blend mode. It applies all the time, with or without the crossfader.
-- Suggested by Cool-Colin on Reddit.
 - 40 modes, in nine groups: mix, lighten, darken, contrast, compare, colour, key, channel and wacky. New are overlay, soft light, hard light, vivid light, linear light, pin light, hard mix, difference, exclusion, divide, dodge, burn, linear burn, average, hue, saturation, colour, luminosity, two luma keys, stencil, three channel swaps, and six experimental modes: xor, wraparound, solarise, hue-spin, thermal and crush.
 - To choose a mode, click the output tag at the top of the layer's playlist, then **blend: ...**. The picker stays open, so you can try modes on the live output. Over the network: `VIDEO OUTPUT LAYERBLEND <mode>|NEXT|LIST`.
 - The BLEND button in VJ mode now sets the blend of the layer that the crossfader brings in.
