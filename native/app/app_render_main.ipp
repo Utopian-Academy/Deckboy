@@ -4384,7 +4384,8 @@
       int summaryY = summaryRect.y + kSummaryPad + headingAreaH + uiScaled(4);
 
       SDL_Rect nameRect {summaryRect.x + kSummaryPad, summaryY, contentW, summaryNameH};
-      drawTextSafe(controlRenderer_, fontBase_, nameRect, selectedCue->name, pal.fg);
+      // The cue's name is the show's words, whatever language the desk is in.
+      drawTextSafe(controlRenderer_, fontBase_, nameRect, selectedCue->name, pal.fg, /*localise=*/false);
       // A long name ellipsizes here same as any other drawTextSafe call, and
       // there was no way to read the rest of it — reported as not being able
       // to see the full name of the selected cue. Only worth a tip when it

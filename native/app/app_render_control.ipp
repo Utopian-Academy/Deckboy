@@ -84,7 +84,7 @@
                               : std::max(10, row.w - 72 - 4);
     std::string name = ellipsizeToPixelWidth(fontSmall_, cue.name, nameW);
     SDL_Rect nameR {nameX, row.y + (row.h - 18) / 2, nameW, 18};
-    drawTextSafe(controlRenderer_, fontSmall_, nameR, name, ink);
+    drawTextSafe(controlRenderer_, fontSmall_, nameR, name, ink, /*localise=*/false);
 
     if (remBadgeW > 0) {
       SDL_Rect remR {row.x + row.w - (remBadgeW + 4), row.y + 2, remBadgeW, row.h - 4};
@@ -181,7 +181,7 @@
     activeStr = ellipsizeToPixelWidth(fontSmall_, activeStr, progressArea.w - 4);
     drawTextSafe(controlRenderer_, fontSmall_,
                  SDL_Rect {progressArea.x + 2, progressArea.y + 36, progressArea.w - 4, 14},
-                 activeStr, pal.dark);
+                 activeStr, pal.dark, /*localise=*/false);
 
     y += kProgressAreaH + 4;
 
@@ -2466,7 +2466,7 @@
     SDL_Rect nameRect {nameX, nameY, nameW, std::max(uiScaled(24), lineH)};
     {
 
-      drawTextSafe(controlRenderer_, fontSmall_, nameRect, dc.ellipsizedName, ink);
+      drawTextSafe(controlRenderer_, fontSmall_, nameRect, dc.ellipsizedName, ink, /*localise=*/false);
     }
 
     // Metadata — line 3 (bottom of row, within bounds)
