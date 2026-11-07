@@ -1897,3 +1897,264 @@ sACN (E1.31)	sACN (E1.31)
 DECKBOY  POCKET	DECKBOY  POCKET
 DECKLINK SDI / HDMI	DECKLINK SDI / HDMI
 AMWA NMOS  IS-04 / IS-05	AMWA NMOS  IS-04 / IS-05
+Mic	Amikru
+Fade	Asader
+Gate	Tawwurt
+Memo	Tazmilt
+Tone	Imesli
+oval	tawinest tazegrart
+sine	sinus
+snap	aɣbal
+span	tagnit
+Crush	Aɛfas
+Moire	Moiré
+Scrub	Asikel
+WACKY	MXALEF
+comic	AQEṢṢER S TUGNIWIN
+COLOUR	INI
+DARKEN	SSEBREK
+Dimmer	Asnerni
+COMPARE	SERWES
+LIGHTEN	SFAW
+Tilt EQ	Aknan EQ
+crosshair	ačuran n teslit
+Position X	Ideg X
+Position Y	Ideg Y
+Checkerboard	Tafelwit n udamas
+All right. Wow.	Ihi. Wah.
+DeckLink Output	Tuffɣa DeckLink
+Do not continue	Ur kemmel ara
+EDGE FEATHERING	ALEQQAQ N YIRI
+Long show, huh.	D askan aɣezfan, ih.
+Overlay opacity	Tiffert n usnejmaɛ
+SDR material at	Amaɛlum SDR di
+Toggle fade out	Asader n tuffɣa
+decoder spin-up	tasinut n umsefsi
+endless encoder	asettengal war taggara
+lower bandwidth	asfay ameẓẓyan
+press + release	ssed + serreḥ
+slide from left	aẓlaq seg zelmaḍ
++ ONE AFTER THIS	+ YIWEN DEFFIR N WAYAGI
+2 · WHAT IT RUNS	2 · AYEN I YESSEDDAY
+AREA OF INTEREST	TAMNAḌT N USEFLED
+An effect's knob	Taqeffalt n usemdu
+Click to type it	Sit i tira-s
+Cue has no audio	Cue ulac imesli
+Default App Feed	Aɣbalu amezwer n wahil
+GO steps over it	GO yezgel-it
+Hardware display	Agdil n ibenk
+ONE PER PLAYLIST	YIWEN I YAL TABDART
+Speed, like tape	Arured, am tebkemt
+Toggle cue audio	Imesli n cue: rmed/sens
+import an SVG...	kter SVG...
+slide from right	aẓlaq seg yeffus
+source cue added	cue n uɣbalu yettwarna
+starting browser	asenker n yiminig
+starting capture	asenker n tuṭṭfa
+the selected cue	cue yettwafernen
+(no media source)	(ulac aɣbalu n imidyaten)
+- REMOVE THIS ONE	- KKES WA
+1 · WHAT COMES IN	1 · AYEN D-IKECMEN
+Hi! I am Deckboy.	Azul! Nekk d Deckboy.
+Pocket Test (day)	Akayad Pocket (ass)
+Registry: NOT SET	Registry: UR YETTWASBADU ARA
+SDL Window Output	Tuffɣa n usfaylu SDL
+Toggle Fullscreen	Agdil ačuran: rmed/sens
+browser cue added	cue n yiminig yettwarna
+highest bandwidth	asfay ameqqran
+or your own bytes	neɣ ibiten-ik
+this cue lives on	cue-agi yella deg
+type a cue number	aru uṭṭun n cue
+value to type one	azal i tira
+when its cues end	mi ara fakken cue-nsen
+Media File / Still	Afaylu n imidyaten / Tugna
+Ow. That was rude.	Ay. D aqejjar aya.
+System audio (SDL)	Imesli n unagraw (SDL)
+Transition to next	Asaka ɣer win d-iteddun
+When taken off air	Mi yeffeɣ seg usiɣel
+delete this button	kkes taqeffalt-agi
+output already has	tuffɣa tesɛa yakan
+restart driver now	ales asekker n unuḍaf tura
+what it recalls...	ayen i d-yettarra...
+1.50x  (4K desktop)	1.50x  (agdil 4K)
+3 · WHAT IT RUNS ON	3 · ƔEF WACU I YETTEDDU
+Dark Detail (0-12%)	Tifrat n uberkan (0-12%)
+Frame Count (emoji)	Amḍan n tugniwin (emoji)
+PLUGE (black level)	PLUGE (aswir n uberkan)
+Pocket Test (night)	Akayad Pocket (iḍ)
+Pocket Test (storm)	Akayad Pocket (abeḥri)
+Previous show file:	Afaylu n uskan yezrin:
+Still here? Me too.	Mazal-ik da? Nekk daɣen.
+Syphon/Spout Source	Aɣbalu Syphon/Spout
+This is my monitor.	Wa d amwali-inu.
+browser, with sound	iminig, s yimesli
+name, from anywhere	isem, seg yal adeg
+rise, slide or wipe	asali, aẓlaq neɣ asfeḍ
+Choose startup mode:	Fren askar n tazwara:
+Dimmer + temperature	Asnerni + tafat yeḥman
+FFmpeg Stream Output	Tuffɣa FFmpeg Stream
+I am a professional.	Nekk d amussnaw.
+Panel Map (animated)	Takarḍa n tfelwin (tamussant)
+Pocket Test (sunset)	Akayad Pocket (tafukt teɣli)
+Right. That does it.	Ihi. Yekfa.
+decks - Stop deck...	decks - Ḥbes deck...
+decks - Take deck...	decks - Ṭṭef deck...
+initializing webview	asenker n webview
+Boresight (alignment)	Tiɣri (aserwes)
+Not watching a folder	Ur yettwaḍfer ara ukaram
+S stops the live cue.	S yesḥebbes cue s tidet.
+SMPTE 75% Colour Bars	Ifeggagen n yiniten SMPTE 75%
+line  |  Enter: apply	izirig  |  Enter: snes
+1.00x  (default 1080p)	1.00x  (amezwer 1080p)
+1.25x  (large desktop)	1.25x  (agdil ameqqran)
+An audio effect's knob	Taqeffalt n usemdu n umeslaw
+Multiburst (bandwidth)	Multiburst (asfay)
+change what it does...	beddel ayen i yexdem...
+on air in playlist {n}	s tidet deg tbdart {n}
+(default system device)	(ibenk amezwer n unagraw)
+Convergence (fine grid)	Amlili (aẓeṭṭa leqqaqen)
+Enter takes a cue live.	Enter yettawi cue ɣer usiɣel.
+Greyscale Steps (gamma)	Isurifen n uwraɣ (gamma)
+K — cycle cue color tag	K — beddel tabzimt n yini n cue
+whatever the style says	akken yebɣu yini uɣanib
+Has anyone seen a clock?	Yella win yeẓran tamrilt?
+J jumps to the live cue.	J yettneggiz ɣer cue s tidet.
+None  (no character art)	Ulac  (ulac tugna n wudem)
+Uniformity (flat fields)	Tagdemt (iḥricen imsawen)
+runs off the show thread	yetteddu berra n usqerdec n uskan
+type a command myself...	aru taladna s yiman-iw...
+Open a .deckboy show file	Ldi afaylu n uskan .deckboy
+Press I to import a clip.	Ssed I i ukter n ufmiz.
+Toggle hold on last frame	Ṭṭef tugna taneggarut: rmed/sens
+from exactly this routing	seg ubrid-agi s tidet
+~ makes the level breathe	~ yesneffus aswir
+CLEAR OVERLAY  [Backspace]	SFEḌ ASNEJMAƐ  [Backspace]
+I am telling the operator.	Ad as-iniɣ i umsefrek.
+Is it still the same show?	Mazal d yiwen n uskan?
+Stop puppeteering this cue	Ḥbes asmussu n cue-agi
+Every pixel of me is tired.	Yal ipiksil deg-i yeɛya.
+Right-click turns them off.	Asiti ayeffus yessens-iten.
+Test Clock (sync + latency)	Tamrilt n ukayad (amtawi + aɛetteb)
+auto (reads the common two)	awurman (yeqqar sin imeyzza)
+one big, the rest beside it	yiwen d ameqqran, wiyaḍ ɣer tama
+type a length in seconds...	aru tanzagt s tsinin...
+2.00x  (Pocket 3 / 4K small)	2.00x  (Pocket 3 / 4K ameẓẓyan)
+Ctrl+/ shows every shortcut.	Ctrl+/ yesskan akk inegzumen.
+I'm not tired. You're tired.	Ur ɛyiɣ ara. D kečč i yeɛyan.
+Panel Map (LED tile numbers)	Takarḍa n tfelwin (uṭṭunen n yiẓelliyen LED)
+Portal (blobs of deep space)	Tawwurt (tibuqqiyin n tallunt)
+Set cue ID for selected cues	Sbadu asulay n cue i cue yettwafernen
+Terrarium (living ecosystem)	Terrarium (taɣamsa tuddirt)
+The timeline can be resized.	Azrar n wakud yezmer ad yettwabeddel tiddi.
+Trim with Ctrl+I and Ctrl+O.	Gzem s Ctrl+I d Ctrl+O.
+Window 10% (peak brightness)	Asfaylu 10% (tafat tafellayt)
+Window 50% (peak at mid APL)	Asfaylu 50% (tafat s APL alemmas)
+on the header to add another	ɣef uqerru i urnu tayeḍ
+reads the same on any screen	yettwaɣra kifkif ɣef yal agdil
+reported rather than swapped	yettwacehed, ur yettwabeddel ara
+what is on air in a playlist	ayen yellan deg usiɣel deg tbdart
+Click to seek — drag to scrub	Sit i uneggez — zuɣer i usikel
+Frame Count (drops + latency)	Amḍan n tugniwin (tiɣlin + aɛetteb)
+Terrarium Pico (1px per cell)	Terrarium Pico (1px i yal tasddart)
+A whole day. I need a restart.	Ass akk. Bɣiɣ ad ɛawdeɣ asekker.
+Banding Ramps (real bit depth)	Tisuḍaf n tirruẓ (tazurt n ibiten s tidet)
+Clear the live PIP overlay now	Sfeḍ asnejmaɛ PIP s tidet tura
+Fireside (a hearth that burns)	Lkanun (times yettrusun)
+Nothing to see here. Probably.	Ulac ara twaliḍ da. Ahat.
+Test Bars (motion diagnostics)	Ifeggagen n ukayad (asenqed n umussu)
+What fires this cue besides GO	Acu i yesnekkaren cue-agi ɣer GO
+capture again - what is on now	ales tuṭṭfa - ayen yellan tura
+on air in the focused playlist	s tidet deg tbdart yettwafernen
+one big on top, the rest below	yiwen d ameqqran nnig, wiyaḍ ddaw
+row turns the matrix off again	izirig yessens tamatrist tikkelt nniḍen
+two big on top, the rest below	sin imeqqranen nnig, wiyaḍ ddaw
+SOS. Kidding. The show is fine.	SOS. D taḍṣa. Askan yelha.
+Test: move it on the controller	Akayad: ssmutti-t ɣef umsefrek
+walk the outputs one at a time.	ɛeddi ɣef tuffɣiwin yiwet yiwet.
+A cue can wait before it starts.	Cue yezmer ad yeraǧu uqbel ad yebdu.
+Close me. Open me. I'll be fine.	Mdel-iyi. Ldi-yi. Ad lhuɣ.
+Moire 1:1 (is anything scaling?)	Moiré 1:1 (yella kra yettbeddilen tiddi?)
+Oh hey. It's 4:20. Take it easy.	Ay. D 4:20. Ẓẓeḍ-itt.
+Set short cue id for search/goto	Sbadu asulay awezlan i unadi/aneggez
+drag to scrub. the audio follows	zuɣer i usikel. imesli yeḍfer
+save as makes a new file instead	sekles am yesnulfuyen afaylu amaynut
+the selected cue in playlist {n}	cue yettwafernen deg tbdart {n}
+Save the show. Then let me sleep.	Sekles askan. Sakin eǧǧ-iyi ad ṭṭseɣ.
+Set goto target for selected cues	Sbadu iswi n uneggez i cue yettwafernen
+Try a terminal theme in Settings.	Ɛreḍ asentel n terminal deg Iɣewwaren.
+back to the in point, not to zero	ɣer tanqiḍt n unekcum, macči ɣer ulac
+Changing this re-prepares the cue.	Abeddel-agi yessewjad cue tikkelt nniḍen.
+Disarm a cue and GO steps over it.	Kkes asmsli i cue, GO ad t-yezri.
+Five more minutes. Then five more.	Semmus n tesdatin nniḍen. Sakin semmus nniḍen.
+ORDER - cues advance down the list	ORDER - cue ttedun s tbdart
+RELINK finds media that has moved.	RELINK yettaf imidyaten yettwasmuttin.
+depth 1 turns it all the way round	tazurt 1 tezzi-t akk
+load a sprite sheet from a file...	sali tiferkit n sprites seg ufaylu...
+A timecode cue jams LTC to a value.	Cue n timecode yesemtaw LTC ɣer wazal.
+Cues have their own gain and fades.	Cue sɛan asemɣer-nsen d isaḍuren-nsen.
+EDIT is on: typing changes the show	EDIT yermed: tira tbeddel askan
+label, command and glyph as text...	tabzimt, taladna d glyph d aḍris...
+stops the cue. ESC stops EVERYTHING	yesḥebbas cue. ESC yesḥebbas KULLEC
+the frame stays up. good for slides	tugna teqqim. Tṣelḥ i tfelwin
+this is what you carry to the venue	d wagi i ara d-tawiḍ ɣer wadeg
+0-63, the hardware's own gain range.	0-63, tagnit n usemɣer n uselkim.
+I could do this all day. Apparently.	Zemreɣ ad xedmeɣ aya ass akk. Iban-d.
+A network cue speaks OSC, UDP or TCP.	Cue n uẓeṭṭa yessawal s OSC, UDP neɣ TCP.
+Pocket Test (test card + scene cycle)	Akayad Pocket (takarḍa n ukayad + tuzzya n isayesen)
+Stream SRT and RTMP at the same time.	Siɣel SRT d RTMP deg yiwen n wakud.
+The panel map numbers every LED tile.	Takarḍa n tfelwin tettak uṭṭun i yal aẓelliw LED.
+all driven by the cue's own transport	akk s usmutti n cue s yiman-is
+Each output can show a different deck.	Yal tuffɣa tezmer ad tesken deck nniḍen.
+I am leaving. Good luck with the show.	Ad ruḥeɣ. Ṛṛbeḥ i uskan.
+Set cue token to jump to when cue ends	Sbadu asulay n cue ara d-yawi i taggara
+The matrix sends audio to any channel.	Tamatrist tettazen imesli ɣer yal abadu.
+You have been staring at me for hours.	Acḥal n yisragen i yi-tettmuqleḍ.
+this clip has no audio track to enable	afmiz-agi ulac-it ubrid n umeslaw
+A cue can start the next one by itself.	Cue yezmer ad yebdu win d-iteddun weḥd-s.
+Jump the driver back to its first frame	Err anuḍaf ɣer tugna-ines tamezwarut
+Normalize matches loudness across cues.	Asemsawi yesemsawa taɣect gar cue.
+Play the out move now, then take it off	Urar amussu n tuffɣa tura, sakin kkes-it
+Clear the active Lower Third overlay now	Sfeḍ asnejmaɛ Lower Third s tidet tura
+Critters (pixel-exact scaling, animated)	Critters (tiddi s ipiksil, tamussant)
+the selected cue in the focused playlist	cue yettwafernen deg tbdart yettwafernen
+A master cue fires one cue on every deck.	Cue master yesnekkar yiwen cue ɣef yal deck.
+A script cue runs Deckboy's own commands.	Cue n uskript yesseddaw tiladna n Deckboy.
+A target cue starts or stops another cue.	Cue n yiswi yesnekkar neɣ yesḥebbas cue nniḍen.
+CHECK lists what is broken, before doors.	CHECK yettak tabdart n wayen yerẓan, uqbel tiwwura.
+Preload racks the next cue warm, off air.	Asali uqbel yettheggi cue d-iteddun yeḥma, berra n usiɣel.
+per cue. the deck has its own default too	i yal cue. deck yesɛa amezwer-is daɣen
+preset - a new preset from what is on now	preset - aheggi amaynut seg wayen yellan tura
+that output's whole picture, or its matte	tugna n tuffɣa-nni akk, neɣ matte-ines
+A DMX cue fades the house lights on a cue.	Cue DMX yessader tifawin n tzeqqa.
+Audition plays a cue to you, not the room.	Audition yessurar cue i kečč, macči i tzeqqa.
+Lissajous, spectrum, meters or a name card	Lissajous, aspektrum, imaktaren neɣ takarḍa n yisem
+SHUFFLE - the next cue is picked at random	SHUFFLE - cue d-iteddun yettwafren s ugacur
+selected cue lane  |  TAKE to make it live	abrid n cue yettwafernen  |  TAKE i usiɣel
+test cards and generators - no file needed	tikarḍiwin n ukayad d imsuffuɣen - ulac afaylu i ilaqen
+Ancient cypher, modern video desk. Respect.	Tangalt taqburt, ṭṭabla n tvidyut tatrart. Leqder.
+Ctrl+Shift+S - write the show to a NEW file	Ctrl+Shift+S - aru askan deg ufaylu AMAYNUT
+A MIDI cue can tell the lighting desk to go.	Cue MIDI yezmer ad yini i ṭṭabla n tafat ad tebdu.
+A fade cue takes a deck down, then stops it.	Cue n usader yessader deck, sakin yesḥebbas-it.
+for a copy before you change something risky	i unɣel uqbel ad tbeddleḍ kra yeǧǧhen
+the show on disk is untouched until you save	askan ɣef uḍebsi ur yettwannal ara alamma tsekelseḍ
+gain, pan and normalise live in the inspector	asemɣer, pan d usemsawi s tidet deg umsenqed
+the safe one: audio and playback keep running	win aɣelsan: imesli d tɣuri kemmlen
+Ctrl+S - write back over the show that is open	Ctrl+S - aru nnig uskan yeldin
+drop a folder in too - it reads the whole tree	ssers akaram daɣen - yeqqar aseklu akk
+Read everything right to left. Yes, everything.	Ɣer kullec seg yeffus ɣer zelmaḍ. Ih, kullec.
+AUDIONORM ALL matches the whole playlist at once	AUDIONORM ALL yesemsawa tabdart akk yiwet n tikkelt
+stills hold instead - a fade would dip the frame	tugniwin yettwaṭṭfen deg wadeg - asader ad d-yessader tugna
+the thorough one. blackout is the reversible one	win aqbaǧ. aberkan d win yettuɣalen
+Esc clears the desk, then the output, then quits.	Esc yessfaḍ ṭṭabla, sakin tuffɣa, sakin yeffeɣ.
+Greetings, primitive. Your "slideshow" amuses us.	Azul a win aqbur. «Taskant»-ik tessaḍsay-aɣ.
+What this cue does when it ends - click to change	Ayen ara yexdem cue-agi mi ara yekfu - sit i ubeddel
+cameras, windows, NDI, screens - all live sources	tikamiratin, isfuyla, NDI, igdilen - iɣbula s tidet akk
+loops between the in and out points, not the file	tineḍt gar tnaqqiḍin n unekcum d tuffɣa, macči afaylu akk
+space bar does this too, without moving your hand	afeggag n tallunt yexdem aya daɣen, war ma tessmuttiḍ afus
+Copy the show AND its media into one portable folder	Nɣel askan D imidyaten-is deg yiwen ukaram
+LEARN: move a knob or press a key on the controller...	LEARN: smutti taqeffalt neɣ ssed tasarut ɣef umsefrek...
+Per-cue audio: enable, trim, pan, mono, fades, normalize	Imesli n cue: rmed, trim, pan, mono, isaḍuren, asemsawi
+MIDI input is off: turn it on in MIDI CONTROL. OSC rows still answer.	Anekcum MIDI yensa: rmed-it deg MIDI CONTROL. Izirigen OSC ttarran.
+RTMPS	RTMPS
+NDI® NETWORK	NDI® NETWORK
+Syphon / Spout	Syphon / Spout
