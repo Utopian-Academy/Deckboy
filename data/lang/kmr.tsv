@@ -1009,3 +1009,722 @@ Import or click a cue in the playlist	Cue bîne hundir an di lîsteya lêxistin�
 The matrix sends audio to any channel.	Matrîs deng dişîne her kanalê.
 A cue can wait before it starts.	Cue dikare berî destpêkirinê li bendê be.
 selected cue lane  |  TAKE to make it live	şopa cue ya hilbijartî — TAKE ji bo weşana zindî
+JAM	HEVDEMKIRIN
+2-UP	2 BI HEV RE
+CLIP	KLÎP
+Runs	Dimeşe
+KEY L	KEY Ç
+MULTI	PIRANÎ
+Reads	Dixwîne
+Shows	Nîşan dide
+Buffer	Bafer
+PRESET	PÊŞSAZ
+Pickup	Girtin
+SLICES	PERÇE
+SUMMED	KOMKIRÎ
+Splash	Ekrana destpêkê
+TOGGLE	VEGUHERÎNE
+cue id	ID ya cue
+jam to	hevdem bike bi
+red at	sor li
+set by	ji aliyê
+tile h	kaşî b
+tile w	kaşî f
+ARRANGE	RÊZ BIKE
+Ceiling	Banî
+END CUE	DAWIYA CUE
+Encoder	Kodker
+FPS: ON	FPS: VEKIRÎ
+Haptics	Lerizîn
+Key out	Derketina key
+LTC out	Derketina LTC
+Limiter	Sînordar
+QR CODE	KODA QR
+Read as	Bixwîne wekî
+Runs on	Li ser dimeşe
+VJ MODE	MODA VJ
+fade in	ketina hêdî
+mask on	mask vekirî
+midi in	ketina midi
+rack it	amade bike
+red col	stûna sor
+BYPASSED	DERBASKIRÎ
+FIXTURES	RONAHÎ
+FPS: OFF	FPS: GIRTÎ
+Hold for	Bigire ji bo
+Limiting	Sînordarkirin
+MIDI MAP	NEXŞEYA MIDI
+NMC sync	Hevdemiya NMC
+NMOS: ON	NMOS: VEKIRÎ
+PROMPTER	XWÎNER
+SHOW SDP	SDP NÎŞAN BIDE
+UI scale	Pîvana UI
+WATCHING	DIŞOPÎNE
+amber at	zer li
+any port	her port
+bg alpha	alpha ya paşxanê
+fade out	derketina hêdî
+onion on	qalikê pîvazê vekirî
+prog bar	darika bernameyê
+vMix API	API ya vMix
++ section	+ beş
++pause pt	+rawestan
+A/V delay	Derengiya A/V
+ASIO outs	Derketinên ASIO
+CUE TOOLS	AMÛRÊN CUE
+DASHBOARD	PANEL
+EXIT  Esc	DERKEVE  Esc
+Freewheel	Azad
+HDR input	ketina HDR
+Jump mode	Moda bazdanê
+Listen on	Guhdarî li ser
+MIDI note	nota MIDI
+NMOS: OFF	NMOS: GIRTÎ
+OSC Query	Pirsa OSC
+OUTPUT ON	DERKETIN VEKIRÎ
+PNG matte	matte PNG
+Panic now	Panîk niha
+RUN PANIC	PANÎKÊ BIMEŞÎNE
+SHOW FLOW	HERIKÎNA NÎŞANÊ
+SPOUT: ON	SPOUT: VEKIRÎ
+SVG paths	rêyên SVG
+TEST CARD	KARTA CERIBANDINÊ
+a-fade in	a-ketina hêdî
+amber col	stûna zer
+chime red	zengila sor
+glitch up	glitch jor
+new paths	rêyên nû
+no script	skrîpt tune
+onion off	qalikê pîvazê girtî
+wobble by	bihejîne bi
+10-BIT: ON	10-BIT: VEKIRÎ
+ARRANGE...	RÊZ BIKE...
+BUILT WITH	ÇÊKIRÎ BI
+BY FIXTURE	LI GOR RONAHIYÊ
+BYPASS ALL	HEMÛYAN DERBAS BIKE
+Beast mode	Moda cinawir
+Black lift	Bilindkirina reş
+CANVAS: ON	KANVAS: VEKIRÎ
+EDGE BLEND	TÊKELKIRINA QERAXÊ
+Hover tips	Şîretên ser
+Input gain	Zêdekirina ketinê
+Input mono	Ketina mono
+Live input	Ketina zindî
+OUTPUT OFF	DERKETIN GIRTÎ
+Panic fade	Ketina panîkê
+Passphrase	Hevoka şîfreyê
+SPOUT: OFF	SPOUT: GIRTÎ
+Saved with	Tomarkirî bi
+a-fade out	a-derketina hêdî
+black lift	bilindkirina reş
+by density	li gor tîrbûnê
+chime zero	zengila sifir
+colour tag	etîketa reng
+deck fader	fader a deck
+end action	çalakiya dawiyê
+fires cues	cue dide destpêkirin
+next xfade	xfade ya din
+10-BIT: OFF	10-BIT: GIRTÎ
+ADD FIXTURE	RONAHIYÊ ZÊDE BIKE
+ASIO driver	Ajokera ASIO
+Accept from	Qebûl bike ji
+Add a light	Ronahiyekê zêde bike
+CANVAS MODE	MODA KANVASÊ
+CANVAS: OFF	KANVAS: GIRTÎ
+CARD ON ALL	KART LI SER HEMÛYAN
+EXPORT CARD	KARTÊ HINARDE BIKE
+LOW LATENCY	DERENGIYA KÊM
+Mirror rate	Leza neynikê
+NDI KEY: ON	NDI KEY: VEKIRÎ
+NO LIVE CUE	CUE YA ZINDÎ TUNE
+OVERLAY BIN	SELIKA SERDANÊ
+RENUMBER...	DÎSA HEJMAR BIKE...
+SENDING OUT	DIŞÎNE
+ST 2110: ON	ST 2110: VEKIRÎ
+Shift: snap	Shift: bizeliqîne
+WEB MONITOR	ÇAVDÊRÊ WEBÊ
+Web monitor	Çavdêrê webê
+blend gamma	gamma ya têkelê
+chime amber	zengila zer
+gain (each)	zêdekirin (her yek)
+glitch down	glitch jêr
+link aspect	rêjeyê girê bide
+move points	xalan bilivîne
+pause begin	rawestan li destpêkê
+phrase hold	ragirtina hevokê
+plays synth	synth lê dixe
+undo stroke	xêzê vegerîne
+Auto restore	Vegerandina xweber
+CARD OFF ALL	KART LI SER HEMÛYAN GIRTÎ
+CLASSIC VIEW	DÎTINA KLASÎK
+DECKLINK: ON	DECKLINK: VEKIRÎ
+KEY+FILL: ON	KEY+FILL: VEKIRÎ
+LISTENING IN	GUHDARÎ DIKE
+LISTENING...	GUHDARÎ...
+LISTENS: OFF	GUHDARÎ: GIRTÎ
+Last refused	Ya dawî ya redkirî
+Miami cursor	Nîşanderê Miami
+Mirror state	Rewşa neynikê
+NDI KEY: OFF	NDI KEY: GIRTÎ
+NMC IN & OUT	NMC KETIN & DERKETIN
+NO PROGRAMME	BERNAME TUNE
+Pair overlap	Hevpîşana cotê
+RACKED, WARM	AMADE, GERM
+SCAN TO PAIR	SCAN BIKE JI BO GIRÊDANÊ
+ST 2110: OFF	ST 2110: GIRTÎ
+Space — play	Space — lêxe
+TEST CARD ON	KARTA CERIBANDINÊ VEKIRÎ
+WATCH FOLDER	PELDANKA ŞOPANDINÊ
+driver speed	leza ajokerê
+free running	azad dimeşe
+glitch drift	herikîna glitch
+glitch reach	gihîştina glitch
+last reading	xwendina dawî
+pair overlap	hevpîşana cotê
+render width	firehiya render
+COMPOSITE CUE	CUE YA HEVBEŞ
+DECKLINK: OFF	DECKLINK: GIRTÎ
+Eddie's Clock	Saeta Eddie
+Every adapter	Her adaptor
+KEY+FILL: OFF	KEY+FILL: GIRTÎ
+LIVE CAPTIONS	BINNIVÎSÊN ZINDÎ
+Live captions	Binnivîsên zindî
+MEDIA ENCODER	KODKERA MEDYAYÊ
+MSC device id	ID ya amûra MSC
+No cue loaded	Tu cue nehatiye barkirin
+Output device	Amûra derketinê
+Panic profile	Profîla panîkê
+Phone control	Kontrola telefonê
+READY-MADE...	AMADE...
+Space — pause	Space — rawestan
+Speech models	Modelên axaftinê
+VIDEO DIP: ON	VIDEO DIP: VEKIRÎ
+default route	rêya destpêkî
+nothing taken	tiştek nehat girtin
+render height	bilindahiya render
+set a port...	portekê bide...
+127 (all-call)	127 (gazî hemûyan)
+ALL INTERFACES	HEMÛ NAVRÛ
+MOTION CONTROL	KONTROLA TEVGERÊ
+Monitor device	Amûra çavdêriyê
+NDI source cue	cue ya çavkaniya NDI
+OUTPUT EFFECTS	BANDORÊN DERKETINÊ
+PHONE & TABLET	TELEFON & TABLET
+PRESENTER VIEW	DÎTINA PÊŞKÊŞKER
+RECORD TO DISK	LI DÎSKÊ TOMAR BIKE
+REMOTE CONTROL	KONTROLA DÛR
+SCALED TO FILL	JI BO TIJÎKIRINÊ PÎVANDÎ
+SELECT: MOTION	HILBIJÊRE: TEVGER
+STOP STREAMING	WEŞANÊ RAWESTÎNE
+TALLY TRIGGERS	TETIKÊN TALLY
+VIDEO DIP: OFF	VIDEO DIP: GIRTÎ
+Who can see it	Kî dikare bibîne
+glitch through	glitch di nav re
+lock to screen	bi ekranê ve girê bide
+on the monitor	li ser çavdêr
+play a note...	notayekê lê xe...
+press a key...	bişkokekê bitikîne...
+restore at end	li dawiyê vegerîne
+save animation	anîmasyonê tomar bike
+% of the height	% ya bilindahiyê
++  a first step	+  gava yekem
++ CHOOSE A FEED	+ ÇAVKANIYEKÊ HILBIJÊRE
+Device channels	Kenalên amûrê
+Double-GO guard	Parastina GO ya dubare
+Frames a second	Wêne di çirkeyê de
+HOLDING OFF AIR	DERVEYÎ WEŞANÊ TÊ GIRTIN
+Live stream cue	Cue ya weşana zindî
+MATTE & OVERLAY	MATTE & SERDAN
+NDI SENDING: ON	NDI DIŞÎNE: VEKIRÎ
+Output channels	Kenalên derketinê
+PIP overlay cue	Cue ya serdana PIP
+Projector gamma	Gamma ya projektorê
+START STREAMING	WEŞANÊ DEST PÊ BIKE
+first available	ya yekem a amade
+nothing follows	tiştek li pey nayê
+preview pending	pêşdîtin li bendê ye
+restart on take	li ser take ji nû ve dest pê bike
+the focused one	ya bi fokûs
+BACK TO BUG SWAT	VEGERE BUG SWAT
+DISPLAY & RASTER	EKRAN & RASTER
+Fade-in duration	Dirêjahiya ketina hêdî
+Global crossfade	Têkeliya giştî
+Mic to recording	Mîkrofon ji bo tomarê
+Monitor playlist	Lîsteya çavdêriyê
+NDI SENDING: OFF	NDI DIŞÎNE: GIRTÎ
+PICK FROM SCREEN	JI EKRANÊ HILBIJÊRE
+Pocket 3 / touch	Pocket 3 / destdan
+SMPTE LTC OUTPUT	DERKETINA SMPTE LTC
+WHAT DECKBOY DID	DECKBOY ÇI KIR
+factory settings	mîhengên kargehê
+open the monitor	çavdêrê veke
+over the picture	li ser wêneyê
+(step lives here)	(gav li vir e)
+Check for one now	Niha yekê kontrol bike
+DISCOVERY / NOTES	DÎTIN / NOTE
+Fade-out duration	Dirêjahiya derketina hêdî
+INSTALL & RESTART	SAZ BIKE & JI NÛ VE DEST PÊ BIKE
+Key edge softness	Nermiya qeraxa key
+SAFETY / TIMECODE	EWLEHÎ / TIMECODE
+Timecode jam sync	Hevdemkirina timecode
+Toggle chroma key	Chroma key veke/bigire
+click this window	li vê pencereyê bitikîne
+the system output	derketina pergalê
+(none playing now)	(niha tiştek lê nayê xistin)
+CONNECTED DISPLAYS	EKRANÊN GIRÊDAYÎ
+DEFAULT TRANSITION	DERBASBÛNA DESTPÊKÎ
+FORGET MY DEFAULTS	DESTPÊKÊN MIN JI BÎR BIKE
+Hex, e.g. 90 3C 7F	Hex, mînak 90 3C 7F
+put it on a button	li ser bişkokekê bide
+CONVERT ALL FLAGGED	HEMÛ NÎŞANKIRÎ VEGUHERÎNE
+Composite scene cue	Cue ya dîmena hevbeş
+Connections at once	Girêdanên di carekê de
+HyperDeck emulation	Teqlîda HyperDeck
+Passphrase (shared)	Hevoka şîfreyê (parvekirî)
+SAVE AS MY DEFAULTS	WEKÎ DESTPÊKÊN MIN TOMAR BIKE
+Trusted controllers	Kontrolkerên ewledar
+VJ mode (two decks)	Moda VJ (du deck)
+Where the ramp ends	Rampa li ku diqede
+dot-matrix cue deck	cue deck a xalî
+draw on the monitor	li ser çavdêr xêz bike
+edit on the monitor	li ser çavdêr biguherîne
+find a named colour	rengekê bi navê bibîne
+locked to the tempo	bi lezê ve girêdayî
+ADD ANOTHER PLAYLIST	LÎSTEYEKE DIN ZÊDE BIKE
+Companion passphrase	Hevoka şîfreyê ya Companion
+Esc or click to skip	Esc an tikandin ji bo derbaskirinê
+Home — skip to start	Home — biçe destpêkê
+How solid the ink is	Mîrek çiqas qewî ye
+INTEGRATION ADAPTERS	ADAPTORÊN ENTEGRASYONÊ
+Left — skip back 10s	Çep — 10s paş
+MIDI AND OSC MONITOR	ÇAVDÊRÊ MIDI Û OSC
+MIDI and OSC monitor	Çavdêrê MIDI û OSC
+Marks stacked BELOW.	Nîşan li JÊR kom bûne.
+New shows start from	Nîşanên nû dest pê dikin ji
+OSC QUERY / FEEDBACK	PIRSA OSC / BERSIV
+PLAYLIST PREFERENCES	VEBIJARKÊN LÎSTEYÊ
+Pitch, in semitones.	Pîç, bi nîv-tonan.
+Set browser URL/path	URL/rêya gerokê bide
+Typing needs EDIT on	Nivîsandin EDIT vekirî dixwaze
+X — cycle end action	X — çalakiya dawiyê biguherîne
+nothing assigned yet	hê tiştek nehatiye diyarkirin
+nothing targeted yet	hê armanc tune
+the playlist's PATCH	PATCH ya lîsteyê
+ADD A SECOND PLAYLIST	LÎSTEYA DUYEM ZÊDE BIKE
+Left, centre or right	Çep, navîn an rast
+PLAY BUG SWAT, a game	BUG SWAT BILÎZE, lîstikek
+PRESS AGAIN TO FORGET	DÎSA BITIKÎNE JI BO JI BÎR KIRINÊ
+Pattern motion toggle	Tevgera şablonê veke/bigire
+Sound when time is up	Deng dema ku dem diqede
+click or Esc to close	tikandin an Esc ji bo girtinê
+filmstrip unavailable	fîlmstrîp tune
+none - click to learn	tune - bitikîne ji bo hînbûnê
+none: the one picture	tune: wêneyê yekane
+turn phone control on	kontrola telefonê veke
+waiting for a picture	li benda wêneyekê
+(projector curve only)	(tenê kevana projektorê)
+Scene fade-in duration	Dirêjahiya ketina dîmenê
+Start NEW from factory	NÛ ji kargehê dest pê bike
+Tile height in pixels.	Bilindahiya kaşiyê bi pîkselan.
+any window, any screen	her pencere, her ekran
+circle, heart, star...	dorhêl, dil, stêrk...
+click to open the grid	bitikîne ji bo vekirina torê
+sACN universe, 1-63999	Universe ya sACN, 1-63999
+(no notes for this cue)	(ji bo vê cue note tune)
+Lower Third overlay cue	Cue ya Lower Third
+Master oscillator rate.	Leza osîlatorê sereke.
+Scene fade-out duration	Dirêjahiya derketina dîmenê
+Timebase / start / fade	Bingeha demê / destpêk / hêdî
+Which frame you draw on	Tu li ser kîjan wêneyî xêz dikî
+needs file-backed video	vîdyoya ji pelê dixwaze
+none: the whole picture	tune: hemû wêne
+recent and in this show	yên dawî û di vê nîşanê de
+Clear in/out trim points	Xalên birrînê yên ketin/derketinê paqij bike
+No cues need conversion.	Tu cue ne hewceyî veguhertinê ye.
+Right — skip forward 10s	Rast — 10s pêş
+none - click to set some	tune - bitikîne ji bo danînê
+CLICK TO SAMPLE KEY COLOR	BITIKÎNE JI BO NIMÛNEYA RENGÊ KEY
+Esc cancels, arrows nudge	Esc betal dike, tîr dilivînin
+Fit/Fill/Stretch/Unscaled	Fit/Tije/Dirêj/Bê pîvan
+PIXEL FOR PIXEL, TOP-LEFT	PÎKSEL BI PÎKSEL, JOR-ÇEP
+PROJECTOR - gamma matched	PROJEKTOR - gamma lihevhatî
+Playback speed: 0.25–4.0×	Leza lêxistinê: 0.25–4.0×
+Run the show from a phone	Nîşanê ji telefonê bimeşîne
+normalize loudness (R128)	dengbilindiyê wekhev bike (R128)
+off - all channels silent	girtî - hemû kenal bêdeng
+This show's setup, no cues	Sazkirina vê nîşanê, bê cue
+none - click to write some	tune - bitikîne ji bo nivîsandinê
+walks every output in turn	yek bi yek di her derketinê re derbas dibe
+HyperDeck emulation is off.	Teqlîda HyperDeck girtî ye.
+MULTIVIEW carries this too.	MULTIVIEW jî vê hildigire.
+OWN SCRIPT  (click to edit)	SKRÎPTA MIN  (bitikîne ji bo guhertinê)
+Scene dwell time — 0 = hold	Dema dîmenê — 0 = bigire
+The role, or leave it empty	Rol, an vala bihêle
+Theme and operator feedback	Tema û bersiva operatorê
+add a second output to pair	derketina duyem zêde bike ji bo cotkirinê
+things that are oscillating	tiştên ku dilerizin
+Discovery and mirrored state	Dîtin û rewşa neynikkirî
+FOLLOWING THE LIVE CUE NOTES	LI PEY NOTEYÊN CUE YA ZINDÎ
+Key tolerance (RGB distance)	Tolerasa key (dûrahiya RGB)
+Network-facing runtime notes	Noteyên dema xebatê yên torê
+channel list is not readable	lîsteya kenalan nayê xwendin
+no effects for this cue type	ji bo vî celebê cue bandor tune
+1-16, as the desk counts them	1-16, wekî maseyê wan dijmêre
+Art-Net port address, 0-32767	Navnîşana porta Art-Net, 0-32767
+Fade-in duration for this cue	Dirêjahiya ketina hêdî ya vê cue
+Hi! Press I to import a clip.	Silav! I bitikîne ji bo anîna klîpekê.
+Toggle loop for selected cues	Ji bo cue yên hilbijartî lûpê veke/bigire
+Toggle the live input's audio	Dengê ketina zindî veke/bigire
+[ / ] keys — fade-in duration	[ / ] bişkok — dirêjahiya ketina hêdî
+a camera moves the ~ controls	kamerayek kontrolên ~ dilivîne
+Contrast multiplier (0.0-2.0x)	Zêdekera kontrastê (0.0-2.0x)
+Fade-out duration for this cue	Dirêjahiya derketina hêdî ya vê cue
+Global jump and panic behavior	Tevgera bazdan û panîkê ya giştî
+HLG - live broadcast (BT.2100)	HLG - weşana zindî (BT.2100)
+L - loop this cue continuously	L - vê cue bê rawestan dubare bike
+Roll when the show cuts to you	Dema ku nîşan dizivire te dest pê bike
+Sound when the clock turns red	Deng dema ku saet sor dibe
+Act now, without taking the cue	Niha bike, bêyî girtina cue
+Defaults for newly created cues	Destpêkî ji bo cue yên nû
+Delay before the continue fires	Derengî berî domandinê
+Device routing for cue playback	Rêkirina amûran ji bo lêxistina cue
+Edit the main Lower Third title	Sernavê sereke yê Lower Third biguherîne
+LINEAR - a feather, not a blend	LINEAR - perik, ne têkel
+Set per-cue transition duration	Dirêjahiya derbasbûnê ya her cue bide
+Shift+[ / ] — fade-out duration	Shift+[ / ] — dirêjahiya derketina hêdî
+Smaller buffer = lower latency.	Baferê piçûktir = derengiya kêmtir.
+The OSC path, e.g. /cue/1/start	Rêya OSC, mînak /cue/1/start
+false colour reads SDR pictures	rengê derewîn wêneyên SDR dixwîne
+learn it, or say how to read it	hîn bibe, an bêje çawa were xwendin
+Brightness multiplier (0.0-2.0x)	Zêdekera ronahiyê (0.0-2.0x)
+Emergency fade and sync behavior	Hêdîbûna lezgîn û hevdemkirin
+How many features fit on screen.	Çend taybetmendî di ekranê de cih digirin.
+SMPTE ST 2110-20  (EXPERIMENTAL)	SMPTE ST 2110-20  (CERIBANDINÎ)
+Saturation multiplier (0.0-2.0x)	Zêdekera têrbûnê (0.0-2.0x)
+Send now, without taking the cue	Niha bişîne, bêyî girtina cue
+Set Lower Third background alpha	Alpha ya paşxana Lower Third bide
+Sound when the clock turns amber	Deng dema ku saet zer dibe
+Use GEOMETRY for exact placement	Ji bo cihê rast GEOMETRY bi kar bîne
+Vertical output offset in pixels	Guhertina stûnî ya derketinê bi pîkselan
+aimed here; the desk never moves	li vir armanc e; mase qet nalive
+mixed selection: key unavailable	hilbijartina tevlihev: key tune
+playlists into the named outputs	lîste ber bi derketinên navdar
+7-segment, blocky, or a real font	7-beş, blokî, an fonteke rastîn
+Do it now, without taking the cue	Niha bike, bêyî girtina cue
+Esc=continue with current session	Esc=bi danişîna niha re bidomîne
+Fade-out duration before next cue	Dirêjahiya derketina hêdî berî cue ya din
+Fixed repeat count — 0 = infinite	Hejmara dubarekirinê — 0 = bêdawî
+On stop: remux to an ordinary MP4	Li rawestanê: bike MP4 ya asayî
+Output rotation angle (-180..180)	Goşeya zivirîna derketinê (-180..180)
+Put this control on an oscillator	Vê kontrolê li ser osîlatorekê deyne
+Where RECORD writes the programme	RECORD bernameyê li ku dinivîse
+window and recording outputs only	tenê derketinên pencere û tomarkirinê
+Countdown, count up, or wall clock	Jimartina berepaş, jimartina jor, an saeta dîwêr
+Cycle end action for selected cues	Ji bo cue yên hilbijartî çalakiya dawiyê biguherîne
+Digit colour once amber is reached	Rengê hejmaran dema ku zer tê
+Horizontal output offset in pixels	Guhertina asoyî ya derketinê bi pîkselan
+In-point: cue starts playback here	Xala ketinê: cue li vir dest pê dike
+LIVE - every assigned deck matches	ZINDÎ - her deck a diyarkirî li hev tê
+Out-point: cue stops playback here	Xala derketinê: cue li vir radiweste
+Run it now, without taking the cue	Niha bimeşîne, bêyî girtina cue
+Set repeat count for selected cues	Ji bo cue yên hilbijartî hejmara dubarekirinê bide
+Set the NDI source name to receive	Navê çavkaniya NDI ya ku were wergirtin bide
+a chain on a device, after the mix	zincîrek li ser amûrekê, piştî têkelê
+any command, {value} is the number	here ferman, {value} hejmar e
+Attached overlays fire on TAKE only	Serdanên girêdayî tenê li ser TAKE dest pê dikin
+Cycle which slot drives scene audio	Biguherîne kîjan slot dengê dîmenê dimeşîne
+Edit the secondary Lower Third line	Rêza duyem a Lower Third biguherîne
+Hue rotation (-180 to +180 degrees)	Zivirîna rengê (-180 heta +180 derece)
+Listening on localhost (127.0.0.1).	Li ser localhost guhdarî dike (127.0.0.1).
+Programme with sound in any browser	Bername bi deng di her gerokê de
+Rotation speed, degrees per second.	Leza zivirînê, derece di çirkeyê de.
+Set short cue label for search/goto	Etîketa kurt a cue ji bo lêgerînê bide
+Toggle cue audio track for this cue	Dengê vê cue veke/bigire
+Transport sync with another machine	Hevdemiya veguhastinê bi makîneyeke din re
+dot-matrix cue deck for live events	cue deck a xalî ji bo bûyerên zindî
+nothing to send - check the message	tiştek nayê şandin - peyamê kontrol bike
+three expressions: red, green, blue	sê derbirîn: sor, kesk, şîn
+Arm this cue as the one GO will fire	Vê cue amade bike wekî ya ku GO dê bide destpêkirin
+How tall the logo is above the clock	Logo li ser saetê çiqas bilind e
+Linear, ease in, ease out or S-curve	Rast, nerm destpêk, nerm dawî an kevana S
+Per-cue transition duration override	Dirêjahiya derbasbûnê ya taybet a her cue
+Set capture source from the cue menu	Çavkaniya girtinê ji menuya cue bide
+Set playback speed for selected cues	Ji bo cue yên hilbijartî leza lêxistinê bide
+Toggle hold-at-end for selected cues	Ji bo cue yên hilbijartî ragirtina dawiyê veke/bigire
+channels on your interfaces, by name	kenalên li ser navrûyên te, bi navê
+nothing set - this cue sends nothing	tiştek nehatiye danîn - ev cue tiştek naşîne
+over budget - video will drop frames	ji budceyê zêdetir - vîdyo dê wêneyan bavêje
+Add slot sources in the cue inspector	Çavkaniyên slotê di kontrolkerê cue de zêde bike
+Ask GitHub; never installs on its own	Ji GitHub bipirse; qet bi xwe saz nake
+Fixed repeat count — 0 = loop forever	Hejmara dubarekirinê — 0 = her tim lûp
+Keep counting past zero, or stop dead	Li dû sifirê bijmêre, an bi tevahî raweste
+LISTENS: the figure follows the sound	GUHDARÎ: şikil li pey deng diçe
+Move the height on its own oscillator	Bilindahiyê li ser osîlatora xwe bilivîne
+Put the brush's size on an oscillator	Mezinahiya firçeyê li ser osîlatorekê deyne
+Toggle audio enable for selected cues	Ji bo cue yên hilbijartî deng veke/bigire
+What NEW starts from, never this show	NÛ ji ku dest pê dike, qet ne ev nîşan
+mixed selection: geometry unavailable	hilbijartina tevlihev: geometrî tune
+transcoding - plays clean until ready	tê veguherîn - heta amade bibe paqij lê dixe
+All interfaces; trusted machines only.	Hemû navrû; tenê makîneyên ewledar.
+Delay between GO and this cue starting	Derengî di navbera GO û destpêka vê cue de
+Its amount, or one of its knobs A to D	Rêjeya wê, an yek ji bişkokên wê A heta D
+Lower Third and PIP fire independently	Lower Third û PIP ji hev serbixwe dest pê dikin
+Lower Third background opacity (0-255)	Tarîtiya paşxana Lower Third (0-255)
+Panels built for a vMix rig, unchanged	Panelên ji bo vMix, neguhertî
+Which deck the cue it acts on lives on	Cue ya ku li ser dixebite di kîjan deck de ye
+generate timecode for the rig to chase	timecode çêke ji bo ku sazî li pey biçe
+FEEDS: pick a window, then one of these	ÇAVKANÎ: pencereyekê hilbijêre, paşê yek ji van
+Incoming transport arrives as NMCEVENT.	Veguhastina tê wekî NMCEVENT tê.
+No outputs — click + OUTPUT to add one.	Derketin tune — + OUTPUT bitikîne ji bo zêdekirinê.
+install Tailscale here and on the phone	Tailscale li vir û li ser telefonê saz bike
+not in this build - saved with the show	ne di vê guhertoyê de - bi nîşanê re tê tomarkirin
+Digit colour while there is time in hand	Rengê hejmaran dema ku hê dem heye
+Find from the playlist, not from a modal	Ji lîsteyê bibîne, ne ji pencereyekê
+Put the brush's opacity on an oscillator	Tarîtiya firçeyê li ser osîlatorekê deyne
+X — cycle end action: stop / next / loop	X — çalakiya dawiyê: rawestîne / ya din / lûp
+transparent: put its playlist on a layer	zelal: lîsteya wê li ser qatekê deyne
+Click to show or hide this cue's captions	Bitikîne ji bo nîşandan an veşartina binnivîsên vê cue
+How much it throws off; 0 is a clean burn	Çiqas davêje; 0 şewitandineke paqij e
+Phone control is in PHONE & TABLET, below	Kontrola telefonê di PHONE & TABLET de ye, li jêr
+take or select a cue to open the timeline	cue yekê bigire an hilbijêre ji bo vekirina demnameyê
+Apply fade-in to selected video/audio cues	Ketina hêdî li ser cue yên vîdyo/deng ên hilbijartî bicîh bîne
+Bypass: this master leaves that deck alone	Derbas bike: ev master wî deck bi tenê dihêle
+Seconds REMAINING when the clock turns red	Çirkeyên MAYÎ dema ku saet sor dibe
+generator is off - a START cue turns it on	hilberîner girtî ye - cue ya START wî vedike
+Apply fade-out to selected video/audio cues	Derketina hêdî li ser cue yên vîdyo/deng ên hilbijartî bicîh bîne
+Keep the outside and cut the inside instead	Derve bigire û hundir bibire
+Legacy target mode — switch type to convert	Moda armanca kevn — celebê biguherîne ji bo veguhertinê
+Nothing here changes the show that is open.	Li vir tiştek nîşana vekirî naguherîne.
+Optional external transport and cue control	Kontrola veguhastin û cue ya derveyî ya vebijarkî
+The cue number on the other desk, e.g. 12.5	Hejmara cue li ser maseya din, mînak 12.5
+Toggle pause-at-beginning for selected cues	Ji bo cue yên hilbijartî rawestana destpêkê veke/bigire
+Toggle transition-to-next for selected cues	Ji bo cue yên hilbijartî derbasbûna ber bi ya din veke/bigire
+Auto-advance duration — 0 = hold until taken	Dirêjahiya pêşveçûna xweber — 0 = bigire heta were girtin
+Characters across. Fewer means bigger cells.	Tîp bi firehî. Kêmtir yanî şaneyên mezintir.
+Device output pair this cue's audio plays on	Cota derketina amûrê ku dengê vê cue lê dixe
+E - freeze on last frame instead of stopping	E - li şûna rawestanê li ser wêneyê dawî bicemide
+How long the note takes to reach full level.	Nota çiqas dem digire ku bigihîje asta tije.
+LED panel height in pixels. Click to type it	Bilindahiya panela LED bi pîkselan. Bitikîne ji bo nivîsandinê
+Load the cue and hold first frame when taken	Cue bar bike û dema hat girtin wêneyê yekem bigire
+No previous show file found at startup path.	Di rêya destpêkê de pelê nîşana berê nehat dîtin.
+Seconds REMAINING when the clock turns amber	Çirkeyên MAYÎ dema ku saet zer dibe
+acts on every deck; deck and cue are ignored	li ser her deck dixebite; deck û cue nayên dîtin
+0-127; 127 addresses every device on the line	0-127; 127 gazî her amûrê li ser xetê dike
+GO shows the note; picture and sound carry on	GO notê nîşan dide; wêne û deng berdewam dikin
+How fast it moves; no effect when it is still	Çiqas bilez dilive; dema rawestiyayî bandor tune
+Fires when incoming timecode passes this point	Dema ku timecode ya tê ji vê xalê derbas dibe dest pê dike
+Shown to the operator when GO reaches this cue	Dema ku GO digihîje vê cue ji operatorê re tê nîşandan
+Source pixels, independent of output placement	Pîkselên çavkaniyê, ji cihê derketinê serbixwe
+Stereo balance, applied live (snaps to center)	Hevsengiya stereo, zindî (di navîn de disekine)
+bypassed: nothing here is processed or limited	derbaskirî: li vir tiştek nayê pêvajokirin an sînorkirin
+headphones, desk sounds and LTC stay out of it	guhok, dengên maseyê û LTC li derve dimînin
+transparent outside the ink: put it on a layer	li derveyî mîrekê zelal: li ser qatekê deyne
+what is said, on screen, made on this computer	tiştê tê gotin, li ekranê, li ser vê kompîterê tê çêkirin
+Above 1 tunnels inward, below 1 blooms outward.	Li ser 1 tunel ber bi hundir, li bin 1 ber bi derve vedibe.
+Companion / OSC ingress and HyperDeck emulation	Ketina Companion / OSC û teqlîda HyperDeck
+Per-cue audio trim: -40 to +40 dB, applied live	Kêmkirina dengê her cue: -40 heta +40 dB, zindî
+Show the message in red - the wrap up NOW state	Peyamê bi sor nîşan bide - rewşa NIHA biqedîne
+The brush's width, as % of the picture's height	Firehiya firçeyê, wekî % ya bilindahiya wêneyê
+What the stream carries: SDR, PQ (HDR10) or HLG	Weşan çi hildigire: SDR, PQ (HDR10) an HLG
+Whether the next shape or pen path adds or cuts	Şikil an rêya pênûsê ya din zêde dike an dibire
+a note or an address becomes that cue's trigger	notek an navnîşanek dibe tetika wê cue
+A/V delay holds audio back for lagging displays.	Derengiya A/V dengê ji bo ekranên dereng radigire.
+On stop: leave the crash-resilient file as it is	Li rawestanê: pelê li hember têkçûnê wekî xwe bihêle
+same disk as Deckboy - a separate drive is safer	heman dîsk wekî Deckboy - dîskeke cuda ewletir e
+transparent outside the blobs: put it on a layer	li derveyî lekeyan zelal: li ser qatekê deyne
+Digit colour once red is reached, and in overtime	Rengê hejmaran dema ku sor tê, û di dema zêde de
+Downmix this cue to mono (mono sources / mono PA)	Vê cue bike mono (çavkaniyên mono / PA mono)
+Drag to scrub (shift = fine), click to type exact	Bikişîne ji bo şopandinê (shift = hûr), bitikîne ji bo nivîsandina rast
+Hand this to an oscillator so it moves on its own	Vê bide osîlatorekê da ku bi xwe bilive
+Amber is closest to the 1976 single-phosphor look.	Zer nêzîkî dîmena yek-fosforî ya 1976 e.
+Changing width also scales height (and vice versa)	Guhertina firehiyê bilindahiyê jî diguherîne (û berovajî)
+Edit title/subtitle here or fire it live with TAKE	Sernav/binsernav li vir biguherîne an bi TAKE zindî bide destpêkirin
+How long the levels take to arrive; zero is a snap	Ast çiqas dem digirin ku bigihîjin; sifir yekser e
+Set the self-contained PIP source for this overlay	Çavkaniya PIP ya vê serdanê bide
+Take the newest shape or pen path out of this mask	Şikil an rêya pênûsê ya herî nû ji vê maskê derxîne
+A step fires one cue on each playlist, all at once.	Gavek li ser her lîsteyê yek cue dide destpêkirin, hemû bi hev re.
+Slots are self-contained sources in this first pass	Slot di vê derbasbûna yekem de çavkaniyên serbixwe ne
+Sway sideways. Depth 1 is half the frame either way	Bi alî ve bihejîne. Kûrahiya 1 nîvê wêneyê ye her alî
+no fixtures patched - Settings > Network > FIXTURES	ronahî nehatine girêdan - Settings > Network > FIXTURES
+Add an output above, then send playlists to it here.	Li jor derketinekê zêde bike, paşê lîsteyan li vir bişîne wê.
+An address sent to Deckboy's OSC port fires this cue	Navnîşanek ku ji porta OSC ya Deckboy re tê şandin vê cue dide destpêkirin
+Draw the diagnostic over the card, or just the text.	Teşhîsê li ser kartê xêz bike, an tenê nivîsê.
+Hold on the last composite frame when the scene ends	Dema dîmen diqede li ser wêneyê hevbeş ê dawî bimîne
+How long it takes; zero is a snap rather than a fade	Çiqas dem digire; sifir yekser e ne hêdî
+Set still/pattern/browser duration for selected cues	Ji bo cue yên hilbijartî dirêjahiya still/pattern/browser bide
+Start the LTC carrier, stop it, or jam it to a value	LTC dest pê bike, rawestîne, an li ser nirxekê hevdem bike
+Which cue on that deck; step off the end to clear it	Kîjan cue li ser wî deck; ji dawiyê derbas bibe ji bo paqijkirinê
+Bob up and down. Depth 1 is half the frame either way	Jor û jêr biçe. Kûrahiya 1 nîvê wêneyê ye her alî
+Output width in pixels | click value to type exact px	Firehiya derketinê bi pîkselan | li nirxê bitikîne ji bo nivîsandinê
+Set the stream URL (srt://, rtmp://, rtsp://, udp://)	URL ya weşanê bide (srt://, rtmp://, rtsp://, udp://)
+one expression: the same value in red, green and blue	yek derbirîn: heman nirx di sor, kesk û şîn de
+All interfaces, but only this computer is trusted yet.	Hemû navrû, lê hê tenê ev kompîter ewledar e.
+Fires at this time on this computer's clock, every day	Di vê demê de li ser saeta vê kompîterê dest pê dike, her roj
+Output height in pixels | click value to type exact px	Bilindahiya derketinê bi pîkselan | li nirxê bitikîne ji bo nivîsandinê
+Bar across the foot - readable further back than digits	Darik li jêr - ji dûrtir ji hejmaran tê xwendin
+ATEM, NDI trigger, NMC, MTC, LTC, Art-Net, and Tally/TSL	ATEM, tetika NDI, NMC, MTC, LTC, Art-Net, û Tally/TSL
+Any font on this computer, Deckboy's own, or a font file	Her fonteke li ser vê kompîterê, ya Deckboy, an pelek
+Every channel on every universe this session has touched	Her kenal li ser her universe ku vê danişînê destê xwe dayê
+NDI transport is configured per output in Video Outputs.	Veguhastina NDI ji bo her derketinê di Video Outputs de tê sazkirin.
+OUTPUT: drag a slice to move it, its corners to size it.	DERKETIN: perçeyekê bikişîne ji bo livandinê, goşeyên wê ji bo mezinahiyê.
+Choose a Lower Third from the overlay bin to fire on TAKE	Ji selikê Lower Third hilbijêre ji bo destpêkirinê li ser TAKE
+Choose a PIP overlay from the overlay bin to fire on TAKE	Ji selikê PIP hilbijêre ji bo destpêkirinê li ser TAKE
+Choose the legacy cue token to show inside the PIP window	Tokena cue ya kevn hilbijêre ku di pencereya PIP de xuya bibe
+OUTPUT: drag a slice to move it, its corners to pin them.	DERKETIN: perçeyekê bikişîne ji bo livandinê, goşeyên wê ji bo derzîkirinê.
+ASIO carries the show's sound, and these are not on it yet	ASIO dengê nîşanê hildigire, û ev hê ne li ser wê ne
+Convert cues Deckboy can't play (or plays poorly) to H.264	Cue yên ku Deckboy nikare lê bixe (an xirab lê dixe) bike H.264
+F1-F10, F12 or the number pad fires this cue from anywhere	F1-F10, F12 an klavyeya hejmaran vê cue ji her derê dide destpêkirin
+N=new  Enter/P=previous  O=open saved  E=examples  L=learn	N=nû  Enter/P=berê  O=tomarkirî veke  E=mînak  L=hîn bibe
+Sends PLAY / PAUSE / STOP / LOCATE as the transport moves.	Dema veguhastin dilive PLAY / PAUSE / STOP / LOCATE dişîne.
+Use transition when auto-advancing or goto-taking next cue	Dema pêşveçûna xweber an girtina cue ya din derbasbûnê bi kar bîne
+Hand this parameter to an oscillator so it moves on its own	Vê parametreyê bide osîlatorekê da ku bi xwe bilive
+Audio fade-in: follow visual fade, none, or explicit seconds	Ketina dengê: li pey wêneyê here, tune, an çirkeyên diyar
+How long the finished drawing stays before it is drawn again	Xêzkirina qediyayî çiqas dimîne berî ku dîsa were xêzkirin
+OSC subscribe: send /deckboy/subscribe from your controller.	Abonetiya OSC: ji kontrolkerê xwe /deckboy/subscribe bişîne.
+Audio fade-out: follow visual fade, none, or explicit seconds	Derketina dengê: li pey wêneyê here, tune, an çirkeyên diyar
+How it comes on and goes off: none, fade, rise, slide or wipe	Çawa tê û diçe: tune, hêdî, rabûn, şemitîn an paqijkirin
+The 64-step wavetable, quantised to 6 bits like the hardware.	Tabloya pêlan a 64 gavan, wekî hardware bi 6 bit.
+a button can run any command the network protocol understands	bişkokek dikare her fermana ku protokola torê fêm dike bimeşîne
+Add a library shape to this mask; its points are yours to move	Şikilekî ji pirtûkxaneyê li vê maskê zêde bike; xalên wê yên te ne ku bilivînî
+Art-Net or sACN (E1.31): whichever the lighting rig listens to	Art-Net an sACN (E1.31): kîjan be ku sazûmana ronahiyê guhdarî dike
+NMC mode / host / port are runtime-configurable for sync work.	Moda NMC / host / port di dema xebatê de tên sazkirin.
+No slices: this output shows its one picture. + SLICE to start.	Perçe tune: ev derketin wêneyê xwe yê yekane nîşan dide. + SLICE ji bo destpêkê.
+Vary tile size per cell, so the grid stops looking like a grid.	Mezinahiya kaşiyê li gor şaneyê biguherîne, da ku tor êdî wekî torê xuya neke.
+Which output channel carries the signal. 'all' feeds every one.	Kîjan kenala derketinê îşaretê hildigire. 'all' hemûyan têr dike.
+What is sent. Backslash-n, -r, -t and -0 become those characters	Çi tê şandin. Backslash-n, -r, -t û -0 dibin wan tîpan
+Deckboy's own remote-protocol verbs, one per line; # is a comment	Lêkerên protokola Deckboy, yek di her rêzê de; # şîrove ye
+Modulator speed as a ratio of the note, so the bend tracks pitch.	Leza modulatorê wekî rêjeya notayê, da ku xwarbûn li pey pîçê here.
+Open and close this edge on an oscillator -- a wipe that breathes	Vê qeraxê bi osîlatorekê veke û bigire -- paqijkirineke ku nefes digire
+ARRANGE PRESENTER  -  drag a panel to move it, a corner to size it	PÊŞKÊŞKER RÊZ BIKE  -  panelekê bikişîne ji bo livandinê, goşeyekê ji bo mezinahiyê
+Play this cue to the preview only; the outputs keep what they have	Vê cue tenê di pêşdîtinê de lê bixe; derketin tiştê wan heye diparêzin
+Put the pitch on an oscillator: Motion X sweeps it like a theremin	Pîçê li ser osîlatorekê deyne: Motion X wekî theremin wê dişo
+A disarmed cue stays in the list and does nothing; GO steps over it	Cue ya bêçek di lîsteyê de dimîne û tiştek nake; GO jê derbas dibe
+Click a value to change it. A red address overlaps another fixture.	Li nirxekê bitikîne ji bo guhertinê. Navnîşaneke sor li ser ronahiyeke din e.
+Where the clock reads from this cue on; click the value to type one	Saet ji vê cue û pê ve ji ku dixwîne; li nirxê bitikîne ji bo nivîsandinê
+Add a dashboard button that fires this master by name, from anywhere	Bişkokeke panelê zêde bike ku vê master bi navê ji her derê dide destpêkirin
+New here? LEARN THE BASICS takes five minutes. We'll show you round.	Nû yî? BINGEHAN HÎN BIBE pênc deqîqe ye. Em ê te bigerînin.
+An IPv4 address, or 255.255.255.255 to broadcast to the whole network	Navnîşanek IPv4, an 255.255.255.255 ji bo weşana li tevahiya torê
+How much playing audio widens and brightens the pattern. 0 free-runs.	Dengê ku lê dide çiqas şablonê fireh û ronî dike. 0 azad dimeşe.
+INPUT: the programme. Drag a crop to move it, its corners to size it.	KETIN: bername. Birrînekê bikişîne ji bo livandinê, goşeyên wê ji bo mezinahiyê.
+LED panel width in pixels - what one tile really is. Click to type it	Firehiya panela LED bi pîkselan - kaşiyek bi rastî çi ye. Bitikîne ji bo nivîsandinê
+Which deck it acts on; step off the end for the one this cue lives on	Li ser kîjan deck dixebite; ji dawiyê derbas bibe ji bo deck a vê cue
+only one playlist - use the routing chip on the header to add another	tenê yek lîste - çîpa rêkirinê ya li serî bi kar bîne ji bo zêdekirina yeke din
+Which cue this master fires on that deck; step off the end to clear it	Ev master li ser wî deck kîjan cue dide destpêkirin; ji dawiyê derbas bibe ji bo paqijkirinê
+Choose a mask from this show's library, or start a new one from a shape	Ji pirtûkxaneya vê nîşanê maskekê hilbijêre, an ji şikilekî yeke nû dest pê bike
+Draw on the programme monitor with the mouse or a pen (DRAW). Esc stops	Li ser çavdêrê bernameyê bi mişk an pênûsê xêz bike (DRAW). Esc radiwestîne
+Going on air takes the cue. Deckboy never sends the switcher a command.	Ketina weşanê cue digire. Deckboy qet fermanê naşîne guhêrbarê.
+How long the move takes, each way. 0 is instant whatever the style says	Tevger çiqas dem digire, her alî. 0 yekser e çi şêwe dibe bila bibe
+Stop that deck when the ramp lands - the usual take-it-down-and-stop-it	Dema rampa digihîje wî deck rawestîne - kêmkirin-û-rawestandina asayî
+Which of the file's sound tracks plays: a second language, a commentary	Kîjan rêya dengê ya pelê lê dide: zimanê duyem, şîrove
+An oscillator on the colour: depth is how far round the wheel it travels	Osîlatorek li ser rengê: kûrahî ew e ka çiqas li dora çerxê digere
+Rack this cue paused and off air so GO starts it with no decoder spin-up	Vê cue rawestiyayî û derveyî weşanê amade bike da ku GO bê derengiya dekoderê dest pê bike
+Note, control change, program change, MIDI Show Control, or your own bytes	Nota, control change, program change, MIDI Show Control, an baytên te
+Black behind the words. Zero leaves it over whatever the output already has	Reş li pişt peyvan. Sifir wan li ser tiştê ku derketinê heye dihêle
+How far the modulator bends the pitch. 0-63, the hardware's own gain range.	Modulator pîçê çiqas xwar dike. 0-63, rêza zêdekirinê ya hardware.
+the words this cue puts on screen  |  Shift+Enter: new line  |  Enter: apply	peyvên ku ev cue li ekranê datîne  |  Shift+Enter: rêza nû  |  Enter: bicîh bîne
+OSC and UDP are fire and forget; TCP connects, so it runs off the show thread	OSC û UDP dişînin û ji bîr dikin; TCP girê dide, ji ber vê li derveyî xeta nîşanê dimeşe
+Put the level on an oscillator: Motion makes it a gate that opens as you move	Astê li ser osîlatorekê deyne: Motion wê dike deriyek ku dema tu dilivî vedibe
+Marks stacked ABOVE the characters, the way combining accents overflow a line.	Nîşan li SER tîpan kom bûne, wekî nîşanên hevgirtî yên ku ji rêzê derdikevin.
+Save the mask as a greyscale PNG at the output's size: white keeps, black cuts	Maskê wekî PNG ya gewr bi mezinahiya derketinê tomar bike: spî digire, reş dibire
+Which chime. Cycling PLAYS it, so it can be chosen by ear rather than by name.	Kîjan zengil. Guhertin wê LÊ DIXE, da ku bi guh were hilbijartin ne bi navê.
+No rows. + ADD or LEARN makes one; MIDIMAP RESET brings the built-in rows back.	Rêz tune. + ADD an LEARN yekê çêdike; MIDIMAP RESET rêzên bingehîn vedigerîne.
+Save the mask's paths as SVG, for Illustrator and anything else that reads them	Rêyên maskê wekî SVG tomar bike, ji bo Illustrator û her tiştê ku wan dixwîne
+Which MIDI output; a named port that is missing is reported rather than swapped	Kîjan derketina MIDI; portek bi nav ku tune ye tê ragihandin, nayê guhertin
+An oscillator on the level, running after GO until a later cue sets this fixture	Osîlatorek li ser astê, piştî GO dimeşe heta cue yeke paşê vê ronahiyê saz bike
+Steps in third-octaves, because the ear works in ratios. 1kHz is the convention.	Gav bi sêyeka oktavê, ji ber ku guh bi rêjeyan dixebite. 1kHz adet e.
+Strikes drawn ACROSS the cell, damaging the character rather than decorating it.	Xêzên DI NAV şaneyê re, tîpê xirab dikin li şûna xemilandinê.
+Whether incoming MIDI notes play this synth or trigger cues as they always have.	Notayên MIDI yên tên vê synth lê dixin an wekî her car cue didin destpêkirin.
+A note number, or type LEARN and play it. Notes no cue claims still go to cue N+1	Hejmara notayê, an LEARN binivîse û lê bixe. Notayên ku tu cue nagire hê diçin cue N+1
+A plain stereo pair. Click to open the matrix, starting from exactly this routing	Cotek stereo ya sade. Bitikîne ji bo vekirina matrixê, rast ji vê rêkirinê
+Folding is what turns an arbitrary pattern into something that reads as designed.	Pêçandin e ku şablonekî kêfî dike tiştek ku sêwirandî xuya dike.
+Channel=level, comma separated. Ranges too: 1=255, 10-14=64. Channels count from 1	Kenal=ast, bi bêhnokê veqetandî. Rêze jî: 1=255, 10-14=64. Kenal ji 1 tên jimartin
+Moves every selected cue's trim by the same dB; typing a value sets them all to it	Trim a her cue ya hilbijartî bi heman dB dilivîne; nivîsandina nirxekê hemûyan li ser wê datîne
+Bends the carrier's PITCH rather than mixing with it. This is what makes FDS growl.	PÎÇA hilgir xwar dike li şûna ku pê re têkel bibe. Ev e ku FDS dike ku bigire.
+Half way through LEARN THE BASICS. Press L and we pick up where you stopped, skapi.	Nîvê rêya BINGEHAN HÎN BIBE. L bitikîne û em ji cihê ku tu lê rawestiyayî berdewam dikin, skapi.
+Render as a character grid with a 16-colour indexed palette, rather than as pixels.	Wekî tora tîpan bi paleta 16 rengan render bike, ne wekî pîkselan.
+Which MIDI output this file plays to; step past the end for the first one available	Ev pel li kîjan derketina MIDI lê dide; ji dawiyê derbas bibe ji bo ya yekem a amade
+An IPv4 address, or 255.255.255.255 for the universe's multicast group (239.255.x.y)	Navnîşanek IPv4, an 255.255.255.255 ji bo koma multicast a universe (239.255.x.y)
+Click a cell to walk it: off, full, -3, -6, -12. This row turns the matrix off again	Li şaneyekê bitikîne ji bo guhertinê: girtî, tije, -3, -6, -12. Ev rêz matrixê dîsa digire
+How long each phrase stays before it moves. Zero hides them without losing the list.	Her hevok çiqas dimîne berî ku bilive. Sifir wan vedişêre bêyî windakirina lîsteyê.
+How long it takes to fall away after the attack. Only audible when retrigger is set.	Piştî êrîşê çiqas dem digire ku dakeve. Tenê dema ku ji nû ve tetikkirin vekirî be tê bihîstin.
+Off, from start (next cue fires when this one starts) or from end (when it finishes)	Girtî, ji destpêkê (cue ya din dema ev dest pê dike dest pê dike) an ji dawiyê (dema diqede)
+Height of one line as a percent of the raster, so a card reads the same on any screen	Bilindahiya rêzekê wekî ji sedî ya raster, da ku kartek li ser her ekranê wekî hev were xwendin
+Set slot source as media:/path, browser:url, window:name, camera:name, or syphon:name	Çavkaniya slotê wekî media:/rê, browser:url, window:nav, camera:nav, an syphon:nav bide
+Short LFSR mode. The period is brief enough to read as pitched metal rather than hiss.	Moda LFSR ya kurt. Dewr têra xwe kurt e ku wekî metala bi pîç were bihîstin ne fîşîn.
+White, warm, red, amber, green, cyan, blue, magenta. ~ moves it round the colour wheel	Spî, germ, sor, zer, kesk, şînê vekirî, şîn, magenta. ~ wê li dora çerxa rengan dilivîne
+Re-strike the envelope this often. Hold sustains one note, which is what a drone wants.	Zerfê bi vî rengî dîsa lê bixe. Hold notayekê digire, tiştê ku drone dixwaze.
+Diamond is the hard-edged Atari Video Music lattice; rings tunnel well with feedback zoom.	Diamond tora qerax-hişk a Atari Video Music e; xelek bi zoom a vegerê tunelekê baş çêdikin.
+Rock or spin. Depth 1 is half a turn either way; a saw at depth 1 turns it all the way round	Bihejîne an bizivirîne. Kûrahiya 1 nîv zivirînek e her alî; saw li 1 bi tevahî dizivirîne
+DECK playback level (live, not saved with the cue) - per-cue trim is gain in the AUDIO section	Asta lêxistina DECK (zindî, bi cue re nayê tomarkirin) - trim a her cue zêdekirin e di beşa AUDIO de
+Still, fade in, typewriter, scroll up, crawl or pulse -- all driven by the cue's own transport	Sekinî, ketina hêdî, daktîlo, jor çûn, xişandin an lêdan -- hemû bi veguhastina cue bi xwe tên meşandin
+Fields per rendered frame. 1 is one for one, 0.5 holds each field for two frames, 0 freezes it.	Zevî di her wêneyekî de. 1 yek bi yek e, 0.5 her zeviyê du wêneyan digire, 0 dicemidîne.
+What this cue shows while it plays: waveform, scope, Lissajous, spectrum, meters or a name card	Ev cue dema lê dide çi nîşan dide: forma pêlê, scope, Lissajous, spektrum, pîvan an karta navê
+0 picks tiles by brightness so the picture reads. 1 picks at random so the grid becomes texture.	0 kaşiyan li gor ronahiyê hildibijêre da ku wêne were xwendin. 1 bi rasthatinî hildibijêre da ku tor bibe tevn.
+How far it travels, in semitones. Up reads as arrival, down as departure, zero is a struck note.	Çiqas diçe, bi nîv-tonan. Jor wekî gihîştin, jêr wekî çûyîn, sifir notayeke lêxistî ye.
+An IPv4 address. Names are not resolved: a DNS lookup is a blocking call and GO must not make one	Navnîşanek IPv4. Nav nayên çareserkirin: lêgerîna DNS asteng dike û GO nabe yekê bike
+Tile width in pixels. Must match the sheet's grid or the slices land across neighbouring sprites.	Firehiya kaşiyê bi pîkselan. Divê bi tora pelê re li hev were, an perçe dê bikevin ser sprite yên cîran.
+Alternating mirrors by cell position, which reads as pattern where random flipping reads as noise.	Neynikên guhêrbar li gor cihê şaneyê, ku wekî şablon têne xwendin li cihê ku zivirandina rasthatinî wekî deng tê xwendin.
+0 welds them to their cell, which reads as engraved. Above it they re-roll, which reads as boiling.	0 wan bi şaneya wan ve dizeliqîne, wekî kolandî. Li jor wê ji nû ve tên kişandin, wekî ku dikelin.
+MONO L plays the left input in both speakers: mic 1 on most interfaces. STEREO is for a line source.	MONO L ketina çep di her du hoparlêran de lê dide: mîkrofona 1 li ser piraniya navrûyan. STEREO ji bo çavkaniya xetê ye.
+The whole gesture. This IS the cue's duration -- a sting is the one generated signal here that ends.	Tevahiya tevgerê. Ev dirêjahiya cue YE -- sting tenê îşareta çêkirî ye li vir ku diqede.
+Click the value to send this fixture or leave it where the last cue put it. ~ makes the level breathe	Li nirxê bitikîne ji bo şandina vê ronahiyê an hiştina wê li cihê ku cue ya dawî danî. ~ astê dike ku nefes bigire
+FDS is a wavetable bent by a modulator. 2A03 is the pulse/triangle/noise set most chiptune is made of.	FDS tabloyeke pêlan e ku modulator xwar dike. 2A03 koma pulse/triangle/noise e ku piraniya chiptune jê hatiye çêkirin.
+Scramble which glyph means which brightness. Same set, different handwriting. Seeded, so it stays put.	Tevlihev bike kîjan glyph kîjan ronahiyê dide. Heman kom, destnivîseke din. Bi tov, ji ber vê disekine.
+Pixel sort: runs of pixels sorted by brightness within a row, which is what makes datamosh look melted.	Rêzkirina pîkselan: rêzên pîkselan li gor ronahiyê di nav rêzekê de, ya ku datamosh dike ku helandî xuya bike.
+How many cells the marks may climb. They thin out as they go, so a tall reach trails rather than doubles.	Nîşan dikarin çend şaneyan hilkişin. Her ku diçin zirav dibin, ji ber vê gihîştina bilind şopê dihêle ne ducarî dibe.
+cue act val  -  G take  S stop  F fade out (val = tenths of a second)  V volume  O opacity  J jump to row	cue kar nirx  -  G bigire  S rawestîne  F derketina hêdî (nirx = dehyeka çirkeyê)  V deng  O tarîtî  J here rêzê
+Harmonic weight: a pure chime at zero, brass at full. This is the difference between a ping and a fanfare.	Giraniya harmonîk: zengileke paqij li sifirê, sifir li tijebûnê. Ev ferqa di navbera ping û fanfarê de ye.
+Steps through the inputs this computer has. 'Settings input' follows the input chosen in Settings > Audio.	Di ketinên vê kompîterê re derbas dibe. 'Settings input' li pey ketina ku di Settings > Audio de hatiye hilbijartin diçe.
+Embers to roaring. It still surges and settles at any setting -- a fire that does not move reads as a photo	Ji pelên agir heta agirê gurr. Di her mîhengê de rabe û danî -- agirê ku nalive wekî wêneyekê xuya dike
+Reference pitch. 440 is modern standard, 432 the common alternative, and older instruments sat lower still.	Pîça referansê. 440 standarda nûjen e, 432 alternatîfa hevpar, û amûrên kevntir hê nizmtir bûn.
+Where the sting starts. Under a voice it wants to stay out of the way; over a room it wants to cut through.	Sting li ku dest pê dike. Di bin dengekê de divê ji rê dûr bimîne; li ser odeyekê divê derbas bibe.
+Digital gain on the input, -40 to +40 dB. Set the interface's own preamp first; this is for the last few dB.	Zêdekirina dîjîtal li ser ketinê, -40 heta +40 dB. Pêşî preamp a navrûyê saz bike; ev ji bo çend dB yên dawî ye.
+Pulse the size. On its own this moves width AND height together; give height its own ~ to squash and stretch	Mezinahiyê lêdan bike. Bi tenê firehî Û bilindahiyê bi hev re dilivîne; ~ ya xwe bide bilindahiyê ji bo pelçiqandin û dirêjkirinê
+A card fills the frame; a Lower Third is a name and a role, low on a transparent frame, with an in and an out	Kartek wêneyê tije dike; Lower Third nav û rolek e, li jêr li ser wêneyekî zelal, bi ketin û derketinê
+Held keeps the last displacement rather than removing it -- the picture stays bent the way the driver left it.	Held guhertina dawî digire li şûna rakirinê -- wêne wekî ku ajoker hişt xwar dimîne.
+12.5 and 25 are thin and reedy, 50 is hollow. 75 sounds identical to 25 -- it is here because trackers expose it.	12.5 û 25 zirav û pifî ne, 50 vala ye. 75 wekî 25 tê bihîstin -- li vir e ji ber ku tracker wê nîşan didin.
+Quantise the output like the hardware. The steps ARE the sound; smoothing them makes it a synth imitating a chip.	Derketinê wekî hardware quantise bike. Gav DENG IN; nermkirina wan wê dike synth ku çîpekê teqlîd dike.
+Moves every selected cue's trim by the same dB, keeping the differences between them; typing a value sets them all to it	Trim a her cue ya hilbijartî bi heman dB dilivîne, ferqên wan diparêze; nivîsandina nirxekê hemûyan li ser wê datîne
+Where the playlist's crosspoints send it (Settings > Audio). Click to open the matrix by name, starting from exactly that	Xalên hevbirrînê yên lîsteyê wê li ku dişînin (Settings > Audio). Bitikîne ji bo vekirina matrixê bi navê, rast ji wê rêkirinê
+name values with  d = ...;  end with one expression, or three for red green blue  |  Shift+Enter: new line  |  Enter: apply	nirxan bi  d = ...;  binav bike, bi derbirînekê biqedîne, an sê ji bo sor kesk şîn  |  Shift+Enter: rêza nû  |  Enter: bicîh bîne
+Put back what it started from once the ramp lands (after the stop): a deck left ready for its next cue, a swell that lets go	Dema rampa digihîje (piştî rawestanê) tiştê ku jê dest pê kiribû vegerîne: deck a amade ji bo cue ya xwe ya din, rabûneke ku berdide
+Which speech model makes the captions: English, any language, or the slower, more accurate pair. Each is a one-time download	Kîjan modela axaftinê binnivîsan çêdike: Îngilîzî, her ziman, an cota hêdîtir û rasttir. Her yek carekê tê daxistin
+What the mask cuts: this cue wherever it plays, this playlist on the focused output, that output's whole picture, or its matte	Mask çi dibire: ev cue li ku derê lê bide, ev lîste li ser derketina fokûskirî, tevahiya wêneyê wê derketinê, an matte ya wê
+Play at the screen's rate when it is within 0.2% (59.94 on 60): every frame shown once, the sound up to 3.5 cents sharp or flat	Bi leza ekranê lê bide dema ku di nav 0.2% de be (59.94 li ser 60): her wêne carekê, deng heta 3.5 cent bilind an nizm
+Quarter turns are exact and stay crisp. Spinning samples at an angle, which tears pixel art -- sometimes that is what you want.	Zivirînên çaryek rast in û zelal dimînin. Zivirîn bi goşeyekê nimûne digire, ku hunera pîkselan diçirîne -- carinan ev e ya ku tu dixwazî.
+Every take starts the puppetry the same way, so a rehearsed look repeats instead of depending on how long the app has been open.	Her take tevgerê bi heman awayî dest pê dike, da ku dîmeneke ceribandî dubare bibe li şûna ku bi demdirêjiya vekirina sepanê ve girêdayî be.
+What aims each tilt: its own position, the picture's luma gradient so characters lean the way the image does, or the cell's hue.	Çi her xwarbûnê arasteyî dike: cihê wê, gradienta ronahiyê ya wêneyê da ku tîp wekî wêneyê xwar bibin, an rengê şaneyê.
+Name a channel or a pair once. Playlists send to the name, so a different interface means changing the names here, not every cue.	Navê kenalekê an cotekê carekê bide. Lîste ji navê re dişînin, ji ber vê navrûyeke din tê wateya guhertina navan li vir, ne her cue.
+Click a crosspoint to walk it: off, 0, -3, -6, -12 dB. Drag it sideways for any level. A playlist with none plays to its own device.	Li xala hevbirrînê bitikîne ji bo guhertinê: girtî, 0, -3, -6, -12 dB. Bi alî ve bikişîne ji bo her astê. Lîsteya bê xal li amûra xwe lê dide.
+Sprite sets installed in data/sprites. Each folder there is a set; cycling picks one and wraps back to none. Right-click turns them off.	Komên sprite di data/sprites de. Her peldank li wir komek e; guhertin yekê hildibijêre û vedigere tune. Tikandina rast wan digire.
+Internal resolution, 1 chunkiest to 5 finest. This is an aesthetic control as much as a speed one -- the 8-bit look comes from big pixels.	Çareseriya hundirîn, 1 herî stûr heta 5 herî zirav. Ev bi qasî kontrola lezê kontrola dîmenê ye -- dîmena 8-bit ji pîkselên mezin tê.
+Picture takes colour from the image. Green, amber and cyan are terminal phosphors. Palette locks the text to the selected hardware palette.	Picture rengê ji wêneyê digire. Kesk, zer û şînê vekirî fosforên termînalê ne. Palette nivîsê bi paleta hardware ya hilbijartî ve girê dide.
+SUBTLE self-heals (H.264). CLASSIC is the real smear (MPEG-4). EXTREME is chunkier and smears constantly. Changing this re-prepares the cue.	SUBTLE xwe baş dike (H.264). CLASSIC lekeya rastîn e (MPEG-4). EXTREME stûrtir e û her tim leke dike. Guhertina vê cue ji nû ve amade dike.
+Sine for line-up, pink to ring out a PA, white to find rattles, sweep to hear where a room rings, identify to walk the outputs one at a time.	Sine ji bo rêzkirinê, pink ji bo sazkirina PA, white ji bo dîtina lerzînan, sweep ji bo bihîstina ka ode li ku deng dide, identify ji bo derbasbûna derketinan yek bi yek.
+Which effect, by its place in the stack of the cue that deck is playing when this fires. With nothing there, the fade says so and does nothing	Kîjan bandor, li gor cihê wê di stûna cue de ku ew deck dema ev dest pê dike lê dide. Ger tiştek tune be, hêdîbûn vê dibêje û tiştek nake
+Each frame blended into the next. This is the Hypno signature -- at 0 it is a pattern generator, above it the picture starts feeding on itself.	Her wêne di yê din de têkel dibe. Ev îmzeya Hypno ye -- li 0 hilberînerê şablonan e, li jor wê wêne dest pê dike xwe bixwe.
+What is through the window on the hearth wall: a garden, rain, snow or the sea. A room with weather outside reads as somewhere rather than as a wall	Di pencereya li ser dîwarê ocaxê de çi heye: baxçe, baran, berf an derya. Odeyek bi hewaya derve wekî cihekî tê xwendin ne wekî dîwarekî
+BY FIXTURE: the lights in the patch (Settings > Network > FIXTURES), by name. CHANNELS: channel=level by hand. A cue can carry both; channels go last	LI GOR RONAHIYÊ: ronahiyên di patch de (Settings > Network > FIXTURES), bi navê. KENAL: kenal=ast bi destan. Cue dikare herduyan hilgire; kenal dawî tên
+Each character rocks as though it were a card being tilted. Every cell has its own phase, so the grid breathes instead of sliding about as one sheet.	Her tîp wekî kartekê ku tê xwarkirin dihejîne. Her şaneyek qonaxa xwe heye, ji ber vê tor nefes digire li şûna ku wekî pelekî bişemite.
+Pen: click for corners, drag for curves, click the first point to close (P). Points: drag, click the outline to add one, Alt-click or Delete to remove	Pênûs: ji bo goşeyan bitikîne, ji bo kevanan bikişîne, li xala yekem bitikîne ji bo girtinê (P). Xal: bikişîne, li ser xêzê bitikîne ji bo zêdekirinê, Alt-tikandin an Delete ji bo jêbirinê
+The chip's three channels. They differ in kind: triangle has no volume control on the hardware, and noise is a shift register rather than an oscillator.	Sê kenalên çîpê. Ji hev cuda ne: triangle li ser hardware kontrola dengê nîne, û noise tomarkereke guherînê ye ne osîlator.
+Curated sets of symbols and emoji -- stars, notes, flowers, arrows, weather, runes, faces. Picking one fills the custom glyphs below, which stays editable.	Komên hilbijartî yên sembol û emoji -- stêrk, nota, kulîlk, tîr, hewa, rûn, rû. Hilbijartina yekê glyph yên taybet ên jêr tije dike, ku dikarin werin guhertin.
+Play from the computer keyboard, Ableton layout: A W S E D F T G Y H U J, Z and X for octave. While this is ON those keys make notes instead of firing cues.	Ji klavyeya kompîterê lê bixe, sazûmana Ableton: A W S E D F T G Y H U J, Z û X ji bo oktavê. Dema ev VEKIRÎ ye ew bişkok nota lê dixin li şûna destpêkirina cue.
+Deck opacity, deck volume, the master dimmer, the active cue's own brightness / contrast / saturation / hue, or a knob of one of its effects or audio effects	Tarîtiya deck, dengê deck, dimmera sereke, ronahî / kontrast / têrbûn / rengê cue ya çalak, an bişkokeke yek ji bandor an bandorên dengê wê
+Scanlines, phosphor bloom and RGB fringing. The bloom is the part that matters -- a phosphor spills sideways, which is why a CRT looks like it is emitting light.	Xetên scanê, geşbûna fosforê û qeraxên RGB. Geşbûn beşa girîng e -- fosfor ber bi alî ve diherike, ji ber vê CRT wekî ku ronahiyê belav dike xuya dike.
+Torn scanline bands and RGB separation. In text mode it also corrupts CELLS -- whole rows lock to one repeating character, the way a real text screen loses sync.	Bendên xetan ên çirandî û veqetandina RGB. Di moda nivîsê de ŞANEYAN jî xirab dike -- rêzên tevahî li ser tîpekî dubare disekinin, wekî ekraneke nivîsê ya rastîn ku hevdemiyê winda dike.
+Still holds the frame you are on. Flipbook plays the frames in turn. Replay draws the first frame stroke by stroke, the way it was drawn, then holds and starts again	Still wêneyê ku tu li ser î digire. Flipbook wêneyan bi dorê lê dide. Replay wêneyê yekem xêz bi xêz xêz dike, wekî ku hatibû xêzkirin, paşê digire û dîsa dest pê dike
+Start, Stop, Pause, Resume, Load (stand it by without firing), Arm, Disarm, or Devamp it (a loop plays out its pass and ends); or Stop all, Pause all, Resume all: every deck	Start, Stop, Pause, Resume, Load (bêyî destpêkirinê amade bike), Arm, Disarm, an Devamp (lûp derbasbûna xwe diqedîne û disekine); an Stop all, Pause all, Resume all: her deck
+Scope shows shape and clipping. Lissajous shows phase and polarity between the first two channels -- a diagonal the wrong way means one is inverted. Spectrum is third-octave bars.	Scope şikil û birrînê nîşan dide. Lissajous qonax û polariteyê di navbera du kenalên yekem de nîşan dide -- xêzeke berevajî tê wateya ku yek berevajî ye. Spectrum darikên sêyeka oktavê ye.
+0 picks the glyph the brightness asks for, 1 picks any glyph in the set. Turn it up to see the whole alphabet: ranked strictly by ink, a flat area picks one mark and the rest never appear.	0 glyph a ku ronahî dixwaze hildibijêre, 1 her glyph a di komê de. Bilind bike da ku tevahiya alfabeyê bibînî: bi rêzkirina hişk li gor mîrekê, deverek rast yek nîşanê hildibijêre û yên din qet xuya nabin.
+Blocks and dithers read as density; the ASCII ramp reads as text; symbols read as wreckage. Cycling this clears a custom glyph string, since that would override it -- the preset row puts one back.	Blok û dither wekî tîrbûnê tên xwendin; rampa ASCII wekî nivîsê; sembol wekî bermahiyan. Guhertina vê rêzika glyph a taybet paqij dike, ji ber ku ew ê wê derbas bike -- rêza pêşsazê yekê vedigerîne.
+Equal temperament buys free modulation at the cost of every interval being slightly wrong. Just and pythagorean are exactly in tune in one key. Bohlen-Pierce divides a twelfth, so it has no octaves.	Akorta wekhev modulasyona azad bi bihayê ku her navber hinekî şaş be dikire. Akorta rast û pythagorean di yek tonê de bi tevahî rast in. Bohlen-Pierce dozdehekê dabeş dike, ji ber vê oktava wê tune.
+OSC	OSC
+Twitch	Twitch
+Art-Net	Art-Net
+YouTube	YouTube
+PQ - HDR10	PQ - HDR10
+sACN (E1.31)	sACN (E1.31)
+DECKBOY  POCKET	DECKBOY  POCKET
+DECKLINK SDI / HDMI	DECKLINK SDI / HDMI
+AMWA NMOS  IS-04 / IS-05	AMWA NMOS  IS-04 / IS-05
