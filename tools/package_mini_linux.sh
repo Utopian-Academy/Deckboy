@@ -69,7 +69,7 @@ cp -L "$FFPROBE" "$STAGE/bin/ffprobe"
 # The subtitle face, and the faces that draw Arabic, Persian, Tamazight and Lao
 # on a machine without them, each with the licence that has to travel with it.
 for f in LiberationSans-Regular.ttf LICENSE-Liberation.txt NotoSansArabic-Regular.ttf \
-         NotoSansTifinagh-Regular.ttf NotoSansLao-Regular.ttf LICENSE-Noto.txt; do
+         NotoSansTifinagh-Regular.ttf NotoSansLao-Regular.ttf NotoSansCherokee-Regular.ttf LICENSE-Noto.txt; do
   cp "$REPO_ROOT/data/fonts/$f" "$STAGE/data/fonts/"
 done
 cp "$REPO_ROOT/LICENSE" "$STAGE/"

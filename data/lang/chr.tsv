@@ -1,0 +1,33 @@
+#name ᏣᎳᎩ
+#english Cherokee
+#unverified
+# UNREVIEWED. No speaker of this language has read this file.
+#
+# Written in the syllabary (Noto Sans Cherokee is bundled; Windows also has it
+# in Gadugi). Only everyday words are here: yes, no and the colours. The
+# Cherokee Nation's Language Department made computer terms with Google and
+# Microsoft (Gmail, Windows, Office); a speaker or the Language Department
+# (language@cherokee.org) is the right source for the rest.
+#
+# The rest of the interface is deliberately NOT filled in: a line left out
+# falls through to English, and English is better than invented technical
+# vocabulary put into the mouth of a living language.
+#
+# So this is a starting point for a speaker to correct, not a translation.
+# The picker says so, so that choosing it is an informed choice.
+#
+# To help: each line is english<TAB>translation, and tools/add_translations.py
+# checks the file every way it can be broken silently.
+# Deckboy interface catalogue.
+#
+# Broadcast vocabulary is deliberately left in English where the trade leaves
+# it there: TAKE, PROGRAM, NDI, SRT, OSC.
+# What the desk face says when you switch to this language: a local saying, not a translation.
+# --- tutorials: tools/lesson_strings.py (a whole line each) ---
+# --- end of tutorials ---
+YES	ᎥᎥ
+NO	ᎥᏝ
+RED	ᎩᎦᎨ
+black	ᎬᎿᎨ
+blue	ᏌᎪᏂᎨ
+green	ᎢᏤᎢᏳᏍᏗ

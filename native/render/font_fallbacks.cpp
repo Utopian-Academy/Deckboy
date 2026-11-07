@@ -163,6 +163,7 @@ std::vector<FallbackFont> otherScripts() {
     {"/System/Library/Fonts/Supplemental/Khmer Sangam MN.ttf", 0},
     {"/System/Library/Fonts/Supplemental/Myanmar Sangam MN.ttc", 0},
     {"/System/Library/Fonts/Supplemental/Kefa.ttc", 0},  // Ethiopic
+    {"/System/Library/Fonts/Supplemental/PlantagenetCherokee.ttf", 0},
     {"/System/Library/Fonts/Supplemental/Mshtakan.ttc", 0},  // Armenian
     {"/System/Library/Fonts/Apple Symbols.ttf", 0},
     {"/System/Library/Fonts/Apple Color Emoji.ttc", 0},
@@ -182,6 +183,7 @@ std::vector<FallbackFont> otherScripts() {
     {"/usr/share/fonts/truetype/noto/NotoSansKhmer-Regular.ttf", 0},
     {"/usr/share/fonts/truetype/noto/NotoSansMyanmar-Regular.ttf", 0},
     {"/usr/share/fonts/truetype/noto/NotoSansEthiopic-Regular.ttf", 0},
+    {"/usr/share/fonts/truetype/noto/NotoSansCherokee-Regular.ttf", 0},
     {"/usr/share/fonts/truetype/noto/NotoSansArmenian-Regular.ttf", 0},
     {"/usr/share/fonts/truetype/noto/NotoSansGeorgian-Regular.ttf", 0},
     {"/usr/share/fonts/truetype/noto/NotoSansSymbols2-Regular.ttf", 0},
@@ -355,6 +357,7 @@ std::vector<FallbackFont> fontconfigOtherScripts(const Fontconfig& fc) {
     fc.bestFor("my", {0x1019, 0x103C, 0x1014, 0x103A}),          // Myanmar
     fc.bestFor("bo", {0x0F56, 0x0F7C, 0x0F51, 0x0F0B}),          // Tibetan
     fc.bestFor("am", {0x12A0, 0x121B, 0x122D, 0x129B}),          // Ethiopic
+    fc.bestFor("chr", {0x13E3, 0x13B3, 0x13A9}),                 // Cherokee
     fc.bestFor("hy", {0x0540, 0x0561, 0x0575, 0x0565}),          // Armenian
     fc.bestFor("ka", {0x10E5, 0x10D0, 0x10E0, 0x10D7}),          // Georgian
     fc.bestFor(nullptr, {0x2605, 0x2192, 0x2713, 0x25B6}),       // symbols, arrows
@@ -380,6 +383,9 @@ std::vector<FallbackFont> scriptFallbacks(const std::string& uiLanguage) {
   wanted.push_back({(bundled / "NotoSansTifinagh-Regular.ttf").string(), 0});
   // And Lao, which few Linux machines have a face for at all.
   wanted.push_back({(bundled / "NotoSansLao-Regular.ttf").string(), 0});
+  // And the Cherokee syllabary: Windows has it in Gadugi, a Mac only in an
+  // optional face, a stock Linux install not at all.
+  wanted.push_back({(bundled / "NotoSansCherokee-Regular.ttf").string(), 0});
   // The Alienese II cypher's symbols, in the private use area -- ahead of the
   // system's faces, any of which may put something of its own there.
   wanted.push_back({(bundled / "Alienese.ttf").string(), 0});

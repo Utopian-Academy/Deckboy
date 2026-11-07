@@ -1,0 +1,87 @@
+#name ʻŌlelo Hawaiʻi
+#english Hawaiian
+#unverified
+# UNREVIEWED. No speaker of this language has read this file.
+#
+# Everyday Hawaiian words for the common controls, with the ʻokina (U+02BB)
+# and kahakō. Not yet checked against Māmaka Kaiao, the Hawaiian Lexicon
+# Committee's dictionary of new words, which is where computer terms belong.
+#
+# The rest of the interface is deliberately NOT filled in: a line left out
+# falls through to English, and English is better than invented technical
+# vocabulary put into the mouth of a living language.
+#
+# So this is a starting point for a speaker to correct, not a translation.
+# The picker says so, so that choosing it is an informed choice.
+#
+# To help: each line is english<TAB>translation, and tools/add_translations.py
+# checks the file every way it can be broken silently.
+# Deckboy interface catalogue.
+#
+# Broadcast vocabulary is deliberately left in English where the trade leaves
+# it there: TAKE, PROGRAM, NDI, SRT, OSC.
+# What the desk face says when you switch to this language: a local saying, not a translation.
+# --- tutorials: tools/lesson_strings.py (a whole line each) ---
+# --- end of tutorials ---
+YES	ʻAE
+NO	ʻAʻOLE
+RED	ʻULAʻULA
+black	ʻeleʻele
+green	ʻōmaʻomaʻo
+blue	polū
+NEW	HOU
+OPEN	WEHE
+SAVE	MĀLAMA
+STOP	HOʻŌKI
+SOURCE	KUMU
+BACK	HOʻI
+DELETE	HOLOI
+Left	Hema
+Right	ʻĀkau
+UP	I LUNA
+DOWN	I LALO
+Top	Luna
+Bottom	Lalo
+add	hoʻohui
+Cut	ʻOki
+Pause	Hoʻomaha
+Resume	Hoʻomau
+Start	Hoʻomaka
+Size	Nui
+Picture	Kiʻi
+Word	Huaʻōlelo
+Clouds	Ao
+Window	Puka aniani
+Camera	Pahupaʻikiʻi
+Message	Leka
+Now	Ano
+LESSONS	NĀ HAʻAWINA
+snow	hau
+rain	ua
+sea	kai
+garden	māla
+line	laina
+box	pahu
+title	poʻo inoa
+The name	Ka inoa
+none	ʻaʻohe
+nobody	ʻaʻohe kanaka
+nothing	ʻaʻohe mea
+Stop all	Hoʻōki a pau
+Pause all	Hoʻomaha a pau
+Resume all	Hoʻomau a pau
+CHANGE	HOʻOLOLI
+CHOOSE	KOHO
+Choose startup mode:	Koho i ke ʻano hoʻomaka:
+choose...	koho...
+Fill	Hoʻopiha
+Fullscreen	Piha ka pākaukau
+Total time	Ka manawa holoʻokoʻa
+time of day	ka hola
+look at it	e nānā
+Learn it	E aʻo
+LEARN	AʻO
+words	nā huaʻōlelo
+anyone	kekahi
+FIXED!	PONO!
+BLACK	ʻELEʻELE

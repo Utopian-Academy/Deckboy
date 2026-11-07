@@ -16,6 +16,7 @@
 - More of the interface is translated in Sorani, Kurmanji, Scottish Gaelic, Zulu, Lao, Papiamento, Scots, Lumeni and Kabyle.
 - Fixed: the pattern row in the inspector cut off a long word for "pattern".
 - More of the interface is translated in Klingon and Sindarin, using only words from their published vocabularies. Terms with no such word stay in English.
+- New: Cherokee (ᏣᎳᎩ) and Hawaiian (ʻŌlelo Hawaiʻi). Both are a start: everyday words only, and the rest of the desk stays in English until a speaker can help. Deckboy now includes a Cherokee syllabary font, so it draws on a Mac and on Linux too.
 - No native speaker has reviewed these translations yet.
 
 ### Lessons

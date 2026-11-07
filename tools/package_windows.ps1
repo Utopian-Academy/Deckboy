@@ -554,7 +554,7 @@ Get-ChildItem -Path $StageDir -Filter *.dll |
 # The subtitle face, and the faces that draw Arabic, Persian, Tamazight and Lao
 # on a machine without them, each with the licence that has to travel with it.
 foreach ($Font in @("LiberationSans-Regular.ttf", "LICENSE-Liberation.txt", "NotoSansArabic-Regular.ttf",
-                    "NotoSansTifinagh-Regular.ttf", "NotoSansLao-Regular.ttf", "LICENSE-Noto.txt")) {
+                    "NotoSansTifinagh-Regular.ttf", "NotoSansLao-Regular.ttf", "NotoSansCherokee-Regular.ttf", "LICENSE-Noto.txt")) {
     Copy-Item (Join-Path $RepoRoot "data\fonts\$Font") -Destination (Join-Path $MiniStage "data\fonts")
 }
 Copy-Item (Join-Path $RepoRoot "LICENSE") -Destination $MiniStage
