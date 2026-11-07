@@ -1,6 +1,6 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
-## Unreleased
+## 2026-11-07 - v0.99.426 (forty layer blend modes; Cherokee and Hawaiian; translations finished)
 
 ### Layer blend modes
 - Fixed: blend modes did not reach an output. Add, multiply and every other mode looked like dissolve on the output, and the BLEND button changed only the mix monitor.
