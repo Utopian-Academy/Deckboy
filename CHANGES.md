@@ -1,6 +1,6 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
-## Unreleased
+## 2026-11-07 - v0.99.427 (lessons that point everywhere, Esc that closes the right thing, 40 new themes)
 
 ### Thanks
 - Cool-Colin on Reddit suggested the layer blend modes (0.99.426).
