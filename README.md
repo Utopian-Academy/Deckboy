@@ -38,9 +38,9 @@ operator finds it, and how you find it again.
 
 [Release notes and downloads](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.425)
 
-<img src="docs/images/readme/release-425/feathered-mask.gif" width="49%" alt="A feathered heart mask on a playing clip"> <img src="docs/images/readme/release-425/draw-replay.gif" width="49%" alt="A drawing that replays on a layer above a playing clip">
+<img src="docs/images/readme/release-425/feathered-mask.gif" width="49%" alt="A feathered heart mask on a playing clip"> <img src="docs/images/readme/release-425/molten-tv.gif" width="49%" alt="A warped ring on an old TV that breaks up into emoji">
 
-<sub>Masks and Draw in 0.99.425. Footage: [Tears of Steel](https://mango.blender.org/), Blender Foundation, [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).</sub>
+<sub>Masks and the video synth in 0.99.425. Footage: [Tears of Steel](https://mango.blender.org/), Blender Foundation, [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).</sub>
 
 - **MIDI map.** Run any Deckboy command from any MIDI controller or OSC message. Press LEARN, then
   move a knob or press a key to connect it. The lights on the controller follow the show. Ready-made
