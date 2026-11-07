@@ -1336,3 +1336,532 @@ The OSC path, e.g. /cue/1/start	ເສັ້ນທາງ OSC, ເຊັ່ນ /c
 any command, {value} is the number	ຄຳສັ່ງໃດກໍໄດ້, {value} ແມ່ນຕົວເລກ
 nothing to send - check the message	ບໍ່ມີຫຍັງຈະສົ່ງ — ກວດຂໍ້ຄວາມ
 selected cue lane  |  TAKE to make it live	ແຖວ cue ທີ່ເລືອກ — TAKE ເພື່ອຂຶ້ນສົດ
+JAM	ຊິງ
+CLIP	ຄລິບ
+Fall	ຕົກ
+Rise	ຂຶ້ນ
+Runs	ແລ່ນ
+KEY L	KEY ຊ
+MULTI	ຫຼາຍ
+Reads	ອ່ານ
+Shows	ສະແດງ
+FORMAT	ຮູບແບບ
+Pickup	ຮັບຄ່າ
+STEREO	ສະເຕຣິໂອ
+Splash	ໜ້າຈໍເປີດ
+cue id	ID cue
+jam to	ຊິງໄປທີ່
+red at	ແດງທີ່
+set by	ຕັ້ງໂດຍ
+tile h	ແຜ່ນ h
+tile w	ແຜ່ນ w
+Limiter	ຕົວຈຳກັດ
+QR CODE	ລະຫັດ QR
+Read as	ອ່ານເປັນ
+Runs on	ແລ່ນເທິງ
+mask on	ໜ້າກາກເປີດ
+rack it	ກຽມມັນ
+red col	ຖັນແດງ
+BYPASSED	ຂ້າມແລ້ວ
+FIXTURES	ໄຟ
+Hold for	ຖືໄວ້
+Limiting	ກຳລັງຈຳກັດ
+MIDI MAP	ແຜນທີ່ MIDI
+amber at	ອຳພັນທີ່
+any port	ພອດໃດກໍໄດ້
+bg alpha	alpha ພື້ນຫຼັງ
+onion on	ຊັ້ນຫົວຜັກບົ່ວເປີດ
+prog bar	ແຖບໂປຣແກຣມ
++ section	+ ພາກສ່ວນ
++pause pt	+ຢຸດຊົ່ວຄາວ
+DASHBOARD	ແຜງຄວບຄຸມ
+EXIT  Esc	ອອກ  Esc
+HDR input	ຂາເຂົ້າ HDR
+MIDI note	ໂນດ MIDI
+PNG matte	matte PNG
+SVG paths	ເສັ້ນທາງ SVG
+TEST CARD	ບັດທົດສອບ
+a-fade in	a-ຄ່ອຍໆເຂົ້າ
+amber col	ຖັນອຳພັນ
+chime red	ກະດິ່ງແດງ
+glitch up	glitch ຂຶ້ນ
+new paths	ເສັ້ນທາງໃໝ່
+onion off	ຊັ້ນຫົວຜັກບົ່ວປິດ
+wobble by	ສັ່ນໂດຍ
+BY FIXTURE	ຕາມໄຟ
+BYPASS ALL	ຂ້າມທັງໝົດ
+Beast mode	ໂໝດສັດຮ້າຍ
+Black lift	ຍົກລະດັບດຳ
+EDGE BLEND	ຜະສົມຂອບ
+On release	ເມື່ອປ່ອຍ
+Passphrase	ວະລີລະຫັດ
+Saved with	ບັນທຶກດ້ວຍ
+a-fade out	a-ຄ່ອຍໆອອກ
+black lift	ຍົກລະດັບດຳ
+by density	ຕາມຄວາມໜາແໜ້ນ
+chime zero	ກະດິ່ງສູນ
+deck fader	fader ຂອງ deck
+end action	ການກະທຳສຸດທ້າຍ
+fires cues	ເລີ່ມ cue
+next xfade	xfade ຕໍ່ໄປ
+ADD FIXTURE	ເພີ່ມໄຟ
+Add a light	ເພີ່ມໄຟ
+CARD ON ALL	ບັດເທິງທັງໝົດ
+EXPORT CARD	ສົ່ງອອກບັດ
+LOW LATENCY	ຄວາມໜ່ວງຕ່ຳ
+WEB MONITOR	ຈໍຕິດຕາມເວັບ
+Web monitor	ຈໍຕິດຕາມເວັບ
+blend gamma	gamma ການຜະສົມ
+chime amber	ກະດິ່ງອຳພັນ
+gain (each)	ເກນ (ແຕ່ລະອັນ)
+glitch down	glitch ລົງ
+link aspect	ລິ້ງອັດຕາສ່ວນ
+move points	ຍ້າຍຈຸດ
+pause begin	ຢຸດຊົ່ວຄາວຕອນເລີ່ມ
+phrase hold	ຖືປະໂຫຍກ
+plays synth	ຫຼິ້ນ synth
+undo stroke	ຍົກເລີກເສັ້ນ
+CARD OFF ALL	ບັດປິດທັງໝົດ
+CLASSIC VIEW	ມຸມມອງແບບເກົ່າ
+LISTENING...	ກຳລັງຟັງ...
+LISTENS: OFF	ການຟັງ: ປິດ
+Last refused	ອັນທີ່ຖືກປະຕິເສດລ່າສຸດ
+Pair overlap	ການຊ້ອນກັນຂອງຄູ່
+RACKED, WARM	ກຽມແລ້ວ, ອຸ່ນ
+SCAN TO PAIR	ສະແກນເພື່ອຈັບຄູ່
+Space — play	Space — ຫຼິ້ນ
+TEST CARD ON	ບັດທົດສອບເປີດ
+driver speed	ຄວາມໄວຂອງໄດເວີ
+glitch drift	ການເລື່ອນ glitch
+glitch reach	ການເອື້ອມ glitch
+last reading	ການອ່ານລ່າສຸດ
+pair overlap	ການຊ້ອນກັນຂອງຄູ່
+render width	ຄວາມກວ້າງການເຣັນເດີ
+LIVE CAPTIONS	ຄຳບັນຍາຍສົດ
+Live captions	ຄຳບັນຍາຍສົດ
+Phone control	ຄວບຄຸມດ້ວຍໂທລະສັບ
+READY-MADE...	ສຳເລັດຮູບ...
+Space — pause	Space — ຢຸດຊົ່ວຄາວ
+Speech models	ແບບຈຳລອງການເວົ້າ
+VIDEO DIP: ON	VIDEO DIP: ເປີດ
+render height	ຄວາມສູງການເຣັນເດີ
+MOTION CONTROL	ການຄວບຄຸມດ້ວຍການເຄື່ອນໄຫວ
+NDI source cue	cue ແຫຼ່ງ NDI
+OUTPUT EFFECTS	ເອັບເຟັກຂາອອກ
+PHONE & TABLET	ໂທລະສັບ & ແທັບເລັດ
+SCALED TO FILL	ປັບຂະໜາດໃຫ້ເຕັມ
+SELECT: MOTION	ເລືອກ: ການເຄື່ອນໄຫວ
+VIDEO DIP: OFF	VIDEO DIP: ປິດ
+glitch through	glitch ຜ່ານ
+lock to screen	ລັອກກັບໜ້າຈໍ
+on the monitor	ເທິງຈໍຕິດຕາມ
+play a note...	ຫຼິ້ນໂນດ...
+press a key...	ກົດປຸ່ມ...
+restore at end	ຄືນຄ່າຕອນຈົບ
+save animation	ບັນທຶກພາບເຄື່ອນໄຫວ
+% of the height	% ຂອງຄວາມສູງ
++  a first step	+  ຂັ້ນຕອນທຳອິດ
++ CHOOSE A FEED	+ ເລືອກແຫຼ່ງ
+Double-GO guard	ປ້ອງກັນ GO ສອງເທື່ອ
+Frames a second	ເຟຣມຕໍ່ວິນາທີ
+HOLDING OFF AIR	ຖືໄວ້ນອກອາກາດ
+Live stream cue	cue ການຖ່າຍທອດສົດ
+PIP overlay cue	cue PIP
+Projector gamma	gamma ໂປຣເຈັກເຕີ
+first available	ອັນທຳອິດທີ່ມີ
+nothing follows	ບໍ່ມີຫຍັງຕາມມາ
+restart on take	ເລີ່ມໃໝ່ເມື່ອ take
+the focused one	ອັນທີ່ໂຟກັສ
+BACK TO BUG SWAT	ກັບໄປ BUG SWAT
+Fade-in duration	ໄລຍະຄ່ອຍໆເຂົ້າ
+PICK FROM SCREEN	ເລືອກຈາກໜ້າຈໍ
+WHAT DECKBOY DID	ສິ່ງທີ່ DECKBOY ເຮັດ
+factory settings	ການຕັ້ງຄ່າໂຮງງານ
+no audio effects	ບໍ່ມີເອັບເຟັກສຽງ
+open the monitor	ເປີດຈໍຕິດຕາມ
+over the picture	ເທິງຮູບ
+Fade-out duration	ໄລຍະຄ່ອຍໆອອກ
+Key edge softness	ຄວາມອ່ອນຂອງຂອບ key
+Toggle chroma key	ເປີດ/ປິດ chroma key
+click this window	ຄລິກໜ້າຕ່າງນີ້
+the system output	ຂາອອກຂອງລະບົບ
+(none playing now)	(ບໍ່ມີຫຍັງຫຼິ້ນຢູ່)
+FORGET MY DEFAULTS	ລືມຄ່າເລີ່ມຕົ້ນຂອງຂ້ອຍ
+Hex, e.g. 90 3C 7F	Hex, ເຊັ່ນ 90 3C 7F
+put it on a button	ເອົາໃສ່ປຸ່ມ
+Composite scene cue	cue ສາກປະສົມ
+Connections at once	ການເຊື່ອມຕໍ່ພ້ອມກັນ
+Passphrase (shared)	ວະລີລະຫັດ (ແບ່ງປັນ)
+SAVE AS MY DEFAULTS	ບັນທຶກເປັນຄ່າເລີ່ມຕົ້ນຂອງຂ້ອຍ
+Trusted controllers	ຕົວຄວບຄຸມທີ່ເຊື່ອຖືໄດ້
+Where the ramp ends	ບ່ອນທີ່ທາງລາດສິ້ນສຸດ
+draw on the monitor	ແຕ້ມເທິງຈໍຕິດຕາມ
+edit on the monitor	ແກ້ໄຂເທິງຈໍຕິດຕາມ
+find a named colour	ຊອກສີຕາມຊື່
+Companion passphrase	ວະລີລະຫັດ Companion
+Home — skip to start	Home — ໄປຈຸດເລີ່ມ
+How solid the ink is	ໝຶກເຂັ້ມແຂງປານໃດ
+Left — skip back 10s	ຊ້າຍ — ຖອຍຫຼັງ 10s
+MIDI AND OSC MONITOR	ຈໍຕິດຕາມ MIDI ແລະ OSC
+MIDI and OSC monitor	ຈໍຕິດຕາມ MIDI ແລະ OSC
+Marks stacked BELOW.	ເຄື່ອງໝາຍຊ້ອນຢູ່ລຸ່ມ.
+New shows start from	ການສະແດງໃໝ່ເລີ່ມຈາກ
+Pitch, in semitones.	ລະດັບສຽງ, ເປັນ semitone.
+Set browser URL/path	ຕັ້ງ URL/ເສັ້ນທາງບຣາວເຊີ
+Typing needs EDIT on	ການພິມຕ້ອງເປີດ EDIT
+X — cycle end action	X — ສະຫຼັບການກະທຳສຸດທ້າຍ
+nothing assigned yet	ຍັງບໍ່ມີຫຍັງກຳນົດ
+nothing targeted yet	ຍັງບໍ່ມີເປົ້າໝາຍ
+the playlist's PATCH	PATCH ຂອງ playlist
+Left, centre or right	ຊ້າຍ, ກາງ ຫຼື ຂວາ
+PLAY BUG SWAT, a game	ຫຼິ້ນ BUG SWAT, ເກມ
+PRESS AGAIN TO FORGET	ກົດອີກເທື່ອເພື່ອລືມ
+Pattern motion toggle	ເປີດ/ປິດການເຄື່ອນໄຫວແບບ
+Sound when time is up	ສຽງເມື່ອໝົດເວລາ
+none - click to learn	ບໍ່ມີ - ຄລິກເພື່ອຮຽນຮູ້
+none: the one picture	ບໍ່ມີ: ຮູບດຽວ
+turn phone control on	ເປີດການຄວບຄຸມດ້ວຍໂທລະສັບ
+waiting for a picture	ລໍຖ້າຮູບ
+(projector curve only)	(ສະເພາະເສັ້ນໂຄ້ງໂປຣເຈັກເຕີ)
+Scene fade-in duration	ໄລຍະຄ່ອຍໆເຂົ້າຂອງສາກ
+Start NEW from factory	ເລີ່ມໃໝ່ຈາກໂຮງງານ
+Tile height in pixels.	ຄວາມສູງແຜ່ນເປັນພິກເຊວ.
+any window, any screen	ໜ້າຕ່າງໃດ, ໜ້າຈໍໃດກໍໄດ້
+circle, heart, star...	ວົງມົນ, ຫົວໃຈ, ດາວ...
+click to open the grid	ຄລິກເພື່ອເປີດຕາຂ່າຍ
+sACN universe, 1-63999	Universe sACN, 1-63999
+Lower Third overlay cue	cue Lower Third
+Master oscillator rate.	ອັດຕາ oscillator ຫຼັກ.
+Scene fade-out duration	ໄລຍະຄ່ອຍໆອອກຂອງສາກ
+needs file-backed video	ຕ້ອງການວິດີໂອຈາກໄຟລ໌
+none: the whole picture	ບໍ່ມີ: ຮູບທັງໝົດ
+recent and in this show	ລ່າສຸດ ແລະ ໃນການສະແດງນີ້
+Clear in/out trim points	ລຶບຈຸດຕັດເຂົ້າ/ອອກ
+Right — skip forward 10s	ຂວາ — ໄປໜ້າ 10s
+none - click to set some	ບໍ່ມີ - ຄລິກເພື່ອຕັ້ງ
+Esc cancels, arrows nudge	Esc ຍົກເລີກ, ລູກສອນຍ້າຍ
+Fit/Fill/Stretch/Unscaled	Fit/ເຕັມ/ຢືດ/ບໍ່ປັບຂະໜາດ
+PIXEL FOR PIXEL, TOP-LEFT	ພິກເຊວຕໍ່ພິກເຊວ, ເທິງ-ຊ້າຍ
+PROJECTOR - gamma matched	ໂປຣເຈັກເຕີ - gamma ຕົງກັນ
+Playback speed: 0.25–4.0×	ຄວາມໄວການຫຼິ້ນ: 0.25–4.0×
+This show's setup, no cues	ການຕັ້ງຄ່າຂອງການສະແດງນີ້, ບໍ່ມີ cue
+none - click to write some	ບໍ່ມີ - ຄລິກເພື່ອຂຽນ
+walks every output in turn	ຍ່າງຜ່ານທຸກຂາອອກເທື່ອລະອັນ
+MULTIVIEW carries this too.	MULTIVIEW ກໍນຳອັນນີ້ໄປນຳ.
+Scene dwell time — 0 = hold	ເວລາຂອງສາກ — 0 = ຖື
+add a second output to pair	ເພີ່ມຂາອອກທີສອງເພື່ອຈັບຄູ່
+things that are oscillating	ສິ່ງທີ່ກຳລັງແກວ່ງ
+Key tolerance (RGB distance)	ຄວາມທົນທານຂອງ key (ໄລຍະ RGB)
+channel list is not readable	ອ່ານລາຍການຊ່ອງບໍ່ໄດ້
+no effects for this cue type	ບໍ່ມີເອັບເຟັກສຳລັບ cue ປະເພດນີ້
+1-16, as the desk counts them	1-16, ຕາມທີ່ໂຕະນັບ
+Art-Net port address, 0-32767	ທີ່ຢູ່ພອດ Art-Net, 0-32767
+Fade-in duration for this cue	ໄລຍະຄ່ອຍໆເຂົ້າຂອງ cue ນີ້
+Toggle loop for selected cues	ເປີດ/ປິດວົງສຳລັບ cue ທີ່ເລືອກ
+Toggle the live input's audio	ເປີດ/ປິດສຽງຂາເຂົ້າສົດ
+[ / ] keys — fade-in duration	[ / ] ປຸ່ມ — ໄລຍະຄ່ອຍໆເຂົ້າ
+a camera moves the ~ controls	ກ້ອງຍ້າຍຕົວຄວບຄຸມ ~
+Contrast multiplier (0.0-2.0x)	ຕົວຄູນຄວາມຄົມຊັດ (0.0-2.0x)
+Fade-out duration for this cue	ໄລຍະຄ່ອຍໆອອກຂອງ cue ນີ້
+HLG - live broadcast (BT.2100)	HLG - ອອກອາກາດສົດ (BT.2100)
+L - loop this cue continuously	L - ວົນ cue ນີ້ຕະຫຼອດ
+Sound when the clock turns red	ສຽງເມື່ອໂມງເປັນສີແດງ
+Act now, without taking the cue	ເຮັດດຽວນີ້, ບໍ່ຕ້ອງ take cue
+Delay before the continue fires	ຄວາມລ່າຊ້າກ່ອນສືບຕໍ່
+Edit the main Lower Third title	ແກ້ໄຂຫົວຂໍ້ຫຼັກຂອງ Lower Third
+LINEAR - a feather, not a blend	LINEAR - ຂອບອ່ອນ, ບໍ່ແມ່ນການຜະສົມ
+Shift+[ / ] — fade-out duration	Shift+[ / ] — ໄລຍະຄ່ອຍໆອອກ
+false colour reads SDR pictures	ສີປອມອ່ານຮູບ SDR
+learn it, or say how to read it	ຮຽນຮູ້ມັນ, ຫຼື ບອກວິທີອ່ານ
+Brightness multiplier (0.0-2.0x)	ຕົວຄູນຄວາມສະຫວ່າງ (0.0-2.0x)
+How many features fit on screen.	ຈຳນວນຄຸນສົມບັດທີ່ພໍດີໜ້າຈໍ.
+Saturation multiplier (0.0-2.0x)	ຕົວຄູນຄວາມອີ່ມສີ (0.0-2.0x)
+Send now, without taking the cue	ສົ່ງດຽວນີ້, ບໍ່ຕ້ອງ take cue
+Set Lower Third background alpha	ຕັ້ງ alpha ພື້ນຫຼັງ Lower Third
+Sound when the clock turns amber	ສຽງເມື່ອໂມງເປັນສີອຳພັນ
+Use GEOMETRY for exact placement	ໃຊ້ GEOMETRY ເພື່ອວາງໃຫ້ແນ່ນອນ
+Vertical output offset in pixels	ການເລື່ອນແນວຕັ້ງຂອງຂາອອກເປັນພິກເຊວ
+aimed here; the desk never moves	ຊີ້ມາທີ່ນີ້; ໂຕະບໍ່ເຄີຍຍ້າຍ
+playlists into the named outputs	playlist ໄປຫາຂາອອກທີ່ມີຊື່
+7-segment, blocky, or a real font	7 ສ່ວນ, ຕັນ, ຫຼື ຟອນແທ້
+Do it now, without taking the cue	ເຮັດມັນດຽວນີ້, ບໍ່ຕ້ອງ take cue
+Fade-out duration before next cue	ໄລຍະຄ່ອຍໆອອກກ່ອນ cue ຕໍ່ໄປ
+Fixed repeat count — 0 = infinite	ຈຳນວນເທື່ອຊ້ຳ — 0 = ບໍ່ສິ້ນສຸດ
+Output rotation angle (-180..180)	ມຸມໝູນຂາອອກ (-180..180)
+Put this control on an oscillator	ເອົາຕົວຄວບຄຸມນີ້ໃສ່ oscillator
+window and recording outputs only	ສະເພາະຂາອອກໜ້າຕ່າງ ແລະ ການບັນທຶກ
+Countdown, count up, or wall clock	ນັບຖອຍຫຼັງ, ນັບຂຶ້ນ, ຫຼື ໂມງຝາ
+Cycle end action for selected cues	ສະຫຼັບການກະທຳສຸດທ້າຍຂອງ cue ທີ່ເລືອກ
+Digit colour once amber is reached	ສີຕົວເລກເມື່ອເຖິງສີອຳພັນ
+Horizontal output offset in pixels	ການເລື່ອນແນວນອນຂອງຂາອອກເປັນພິກເຊວ
+In-point: cue starts playback here	ຈຸດເຂົ້າ: cue ເລີ່ມຫຼິ້ນທີ່ນີ້
+LIVE - every assigned deck matches	ສົດ - ທຸກ deck ທີ່ກຳນົດກົງກັນ
+Out-point: cue stops playback here	ຈຸດອອກ: cue ຢຸດທີ່ນີ້
+Run it now, without taking the cue	ແລ່ນມັນດຽວນີ້, ບໍ່ຕ້ອງ take cue
+Set repeat count for selected cues	ຕັ້ງຈຳນວນເທື່ອຊ້ຳຂອງ cue ທີ່ເລືອກ
+Set the NDI source name to receive	ຕັ້ງຊື່ແຫຼ່ງ NDI ທີ່ຈະຮັບ
+a chain on a device, after the mix	ລະບົບຕໍ່ເທິງອຸປະກອນ, ຫຼັງການຜະສົມ
+Attached overlays fire on TAKE only	ສິ່ງທີ່ຕິດຢູ່ເລີ່ມເມື່ອ TAKE ເທົ່ານັ້ນ
+Cycle which slot drives scene audio	ສະຫຼັບ slot ທີ່ຂັບສຽງຂອງສາກ
+Edit the secondary Lower Third line	ແກ້ໄຂແຖວທີສອງຂອງ Lower Third
+Hue rotation (-180 to +180 degrees)	ການໝູນສີ (-180 ຫາ +180 ອົງສາ)
+Programme with sound in any browser	ໂປຣແກຣມພ້ອມສຽງໃນບຣາວເຊີໃດກໍໄດ້
+Rotation speed, degrees per second.	ຄວາມໄວໝູນ, ອົງສາຕໍ່ວິນາທີ.
+Set short cue label for search/goto	ຕັ້ງປ້າຍສັ້ນຂອງ cue ເພື່ອຊອກ/goto
+Toggle cue audio track for this cue	ເປີດ/ປິດສຽງຂອງ cue ນີ້
+Arm this cue as the one GO will fire	ກຽມ cue ນີ້ເປັນອັນທີ່ GO ຈະເລີ່ມ
+How tall the logo is above the clock	ໂລໂກສູງປານໃດເທິງໂມງ
+Linear, ease in, ease out or S-curve	ເສັ້ນຊື່, ຄ່ອຍໆເຂົ້າ, ຄ່ອຍໆອອກ ຫຼື ເສັ້ນໂຄ້ງ S
+Per-cue transition duration override	ໄລຍະການປ່ຽນສະເພາະແຕ່ລະ cue
+Set capture source from the cue menu	ຕັ້ງແຫຼ່ງຈັບພາບຈາກເມນູ cue
+Set playback speed for selected cues	ຕັ້ງຄວາມໄວການຫຼິ້ນຂອງ cue ທີ່ເລືອກ
+Toggle hold-at-end for selected cues	ເປີດ/ປິດການຖືຕອນທ້າຍຂອງ cue ທີ່ເລືອກ
+channels on your interfaces, by name	ຊ່ອງໃນອິນເຕີເຟສຂອງທ່ານ, ຕາມຊື່
+nothing set - this cue sends nothing	ບໍ່ມີຫຍັງຕັ້ງ - cue ນີ້ບໍ່ສົ່ງຫຍັງ
+over budget - video will drop frames	ເກີນງົບ - ວິດີໂອຈະຕົກເຟຣມ
+Fixed repeat count — 0 = loop forever	ຈຳນວນເທື່ອຊ້ຳ — 0 = ວົນຕະຫຼອດ
+Keep counting past zero, or stop dead	ນັບຕໍ່ເກີນສູນ, ຫຼື ຢຸດທັນທີ
+LISTENS: the figure follows the sound	ການຟັງ: ຮູບຕາມສຽງ
+Move the height on its own oscillator	ຍ້າຍຄວາມສູງໃສ່ oscillator ຂອງມັນເອງ
+Put the brush's size on an oscillator	ເອົາຂະໜາດແປງໃສ່ oscillator
+Toggle audio enable for selected cues	ເປີດ/ປິດສຽງຂອງ cue ທີ່ເລືອກ
+What NEW starts from, never this show	ສິ່ງທີ່ NEW ເລີ່ມຈາກ, ບໍ່ແມ່ນການສະແດງນີ້
+transcoding - plays clean until ready	ກຳລັງແປງ - ຫຼິ້ນໄດ້ສະອາດຈົນກວ່າພ້ອມ
+All interfaces; trusted machines only.	ທຸກອິນເຕີເຟສ; ສະເພາະເຄື່ອງທີ່ເຊື່ອຖືໄດ້.
+Delay between GO and this cue starting	ຄວາມລ່າຊ້າລະຫວ່າງ GO ແລະ ການເລີ່ມ cue ນີ້
+Its amount, or one of its knobs A to D	ປະລິມານຂອງມັນ, ຫຼື ປຸ່ມໃດໜຶ່ງ A ຫາ D
+Lower Third background opacity (0-255)	ຄວາມທຶບພື້ນຫຼັງ Lower Third (0-255)
+Which deck the cue it acts on lives on	deck ທີ່ cue ທີ່ມັນກະທຳຢູ່
+FEEDS: pick a window, then one of these	ແຫຼ່ງ: ເລືອກໜ້າຕ່າງ, ແລ້ວເລືອກອັນໜຶ່ງໃນນີ້
+install Tailscale here and on the phone	ຕິດຕັ້ງ Tailscale ທີ່ນີ້ ແລະ ໃນໂທລະສັບ
+Digit colour while there is time in hand	ສີຕົວເລກໃນຂະນະທີ່ຍັງມີເວລາ
+Put the brush's opacity on an oscillator	ເອົາຄວາມທຶບຂອງແປງໃສ່ oscillator
+X — cycle end action: stop / next / loop	X — ສະຫຼັບການກະທຳສຸດທ້າຍ: ຢຸດ / ຕໍ່ໄປ / ວົນ
+transparent: put its playlist on a layer	ໂປ່ງໃສ: ເອົາ playlist ຂອງມັນໃສ່ຊັ້ນ
+Click to show or hide this cue's captions	ຄລິກເພື່ອສະແດງ ຫຼື ເຊື່ອງຄຳບັນຍາຍຂອງ cue ນີ້
+How much it throws off; 0 is a clean burn	ມັນຖິ້ມອອກຫຼາຍປານໃດ; 0 ແມ່ນໄໝ້ສະອາດ
+Phone control is in PHONE & TABLET, below	ການຄວບຄຸມດ້ວຍໂທລະສັບຢູ່ໃນ PHONE & TABLET, ດ້ານລຸ່ມ
+Apply fade-in to selected video/audio cues	ໃສ່ການຄ່ອຍໆເຂົ້າໃຫ້ cue ວິດີໂອ/ສຽງທີ່ເລືອກ
+Bypass: this master leaves that deck alone	ຂ້າມ: master ນີ້ບໍ່ແຕະ deck ນັ້ນ
+Seconds REMAINING when the clock turns red	ວິນາທີທີ່ເຫຼືອເມື່ອໂມງເປັນສີແດງ
+generator is off - a START cue turns it on	ເຄື່ອງກຳເນີດປິດຢູ່ - cue START ເປີດມັນ
+Apply fade-out to selected video/audio cues	ໃສ່ການຄ່ອຍໆອອກໃຫ້ cue ວິດີໂອ/ສຽງທີ່ເລືອກ
+Keep the outside and cut the inside instead	ເກັບດ້ານນອກ ແລະ ຕັດດ້ານໃນແທນ
+Legacy target mode — switch type to convert	ໂໝດເປົ້າໝາຍເກົ່າ — ປ່ຽນປະເພດເພື່ອແປງ
+Nothing here changes the show that is open.	ບໍ່ມີຫຍັງຢູ່ນີ້ປ່ຽນການສະແດງທີ່ເປີດຢູ່.
+The cue number on the other desk, e.g. 12.5	ເລກ cue ໃນໂຕະອື່ນ, ເຊັ່ນ 12.5
+Toggle pause-at-beginning for selected cues	ເປີດ/ປິດການຢຸດຊົ່ວຄາວຕອນເລີ່ມຂອງ cue ທີ່ເລືອກ
+Toggle transition-to-next for selected cues	ເປີດ/ປິດການປ່ຽນໄປອັນຕໍ່ໄປຂອງ cue ທີ່ເລືອກ
+Auto-advance duration — 0 = hold until taken	ໄລຍະການໄປຕໍ່ອັດຕະໂນມັດ — 0 = ຖືຈົນກວ່າ take
+Characters across. Fewer means bigger cells.	ຕົວອັກສອນຕາມຂວາງ. ໜ້ອຍລົງ ໝາຍເຖິງຊ່ອງໃຫຍ່ຂຶ້ນ.
+Device output pair this cue's audio plays on	ຄູ່ຂາອອກຂອງອຸປະກອນທີ່ສຽງຂອງ cue ນີ້ຫຼິ້ນ
+E - freeze on last frame instead of stopping	E - ຄ້າງຢູ່ເຟຣມສຸດທ້າຍແທນການຢຸດ
+How long the note takes to reach full level.	ໂນດໃຊ້ເວລາດົນປານໃດເພື່ອເຖິງລະດັບເຕັມ.
+LED panel height in pixels. Click to type it	ຄວາມສູງແຜງ LED ເປັນພິກເຊວ. ຄລິກເພື່ອພິມ
+Load the cue and hold first frame when taken	ໂຫຼດ cue ແລະ ຖືເຟຣມທຳອິດເມື່ອ take
+Seconds REMAINING when the clock turns amber	ວິນາທີທີ່ເຫຼືອເມື່ອໂມງເປັນສີອຳພັນ
+acts on every deck; deck and cue are ignored	ກະທຳກັບທຸກ deck; deck ແລະ cue ຖືກລະເລີຍ
+0-127; 127 addresses every device on the line	0-127; 127 ເອີ້ນທຸກອຸປະກອນໃນສາຍ
+GO shows the note; picture and sound carry on	GO ສະແດງໂນດ; ຮູບ ແລະ ສຽງດຳເນີນຕໍ່
+How fast it moves; no effect when it is still	ມັນຍ້າຍໄວປານໃດ; ບໍ່ມີຜົນເມື່ອມັນຢູ່ນິ່ງ
+Fires when incoming timecode passes this point	ເລີ່ມເມື່ອ timecode ທີ່ເຂົ້າມາຜ່ານຈຸດນີ້
+Shown to the operator when GO reaches this cue	ສະແດງໃຫ້ຜູ້ຄວບຄຸມເມື່ອ GO ມາຮອດ cue ນີ້
+Source pixels, independent of output placement	ພິກເຊວແຫຼ່ງ, ບໍ່ຂຶ້ນກັບການວາງຂາອອກ
+Stereo balance, applied live (snaps to center)	ຄວາມສົມດຸນສະເຕຣິໂອ, ສົດ (ຕິດຢູ່ກາງ)
+bypassed: nothing here is processed or limited	ຂ້າມແລ້ວ: ບໍ່ມີຫຍັງຖືກປະມວນຜົນ ຫຼື ຈຳກັດ
+headphones, desk sounds and LTC stay out of it	ຫູຟັງ, ສຽງໂຕະ ແລະ LTC ຢູ່ນອກ
+transparent outside the ink: put it on a layer	ໂປ່ງໃສນອກໝຶກ: ເອົາໃສ່ຊັ້ນ
+what is said, on screen, made on this computer	ສິ່ງທີ່ເວົ້າ, ເທິງໜ້າຈໍ, ເຮັດໃນຄອມພິວເຕີນີ້
+Above 1 tunnels inward, below 1 blooms outward.	ເກີນ 1 ອຸໂມງເຂົ້າໃນ, ຕ່ຳກວ່າ 1 ບານອອກ.
+Per-cue audio trim: -40 to +40 dB, applied live	ການປັບສຽງແຕ່ລະ cue: -40 ຫາ +40 dB, ສົດ
+Show the message in red - the wrap up NOW state	ສະແດງຂໍ້ຄວາມເປັນສີແດງ - ສະຖານະຈົບດຽວນີ້
+The brush's width, as % of the picture's height	ຄວາມກວ້າງແປງ, ເປັນ % ຂອງຄວາມສູງຮູບ
+What the stream carries: SDR, PQ (HDR10) or HLG	ສິ່ງທີ່ການຖ່າຍທອດນຳ: SDR, PQ (HDR10) ຫຼື HLG
+Whether the next shape or pen path adds or cuts	ວ່າຮູບຮ່າງ ຫຼື ເສັ້ນປາກກາຕໍ່ໄປເພີ່ມ ຫຼື ຕັດ
+a note or an address becomes that cue's trigger	ໂນດ ຫຼື ທີ່ຢູ່ກາຍເປັນຕົວເລີ່ມຂອງ cue ນັ້ນ
+transparent outside the blobs: put it on a layer	ໂປ່ງໃສນອກກ້ອນ: ເອົາໃສ່ຊັ້ນ
+Digit colour once red is reached, and in overtime	ສີຕົວເລກເມື່ອເຖິງສີແດງ, ແລະ ເມື່ອເກີນເວລາ
+Downmix this cue to mono (mono sources / mono PA)	ປະສົມ cue ນີ້ເປັນ mono (ແຫຼ່ງ mono / PA mono)
+Drag to scrub (shift = fine), click to type exact	ລາກເພື່ອເລື່ອນ (shift = ລະອຽດ), ຄລິກເພື່ອພິມໃຫ້ແນ່ນອນ
+Hand this to an oscillator so it moves on its own	ມອບອັນນີ້ໃຫ້ oscillator ເພື່ອໃຫ້ມັນຍ້າຍເອງ
+Amber is closest to the 1976 single-phosphor look.	ອຳພັນໃກ້ກັບຮູບແບບຟອສເຟີດຽວຂອງປີ 1976 ທີ່ສຸດ.
+Changing width also scales height (and vice versa)	ການປ່ຽນຄວາມກວ້າງກໍປ່ຽນຄວາມສູງ (ແລະ ກົງກັນຂ້າມ)
+Edit title/subtitle here or fire it live with TAKE	ແກ້ໄຂຫົວຂໍ້/ຫົວຂໍ້ຍ່ອຍທີ່ນີ້ ຫຼື ເລີ່ມສົດດ້ວຍ TAKE
+How long the levels take to arrive; zero is a snap	ລະດັບໃຊ້ເວລາດົນປານໃດເພື່ອມາເຖິງ; ສູນແມ່ນທັນທີ
+Set the self-contained PIP source for this overlay	ຕັ້ງແຫຼ່ງ PIP ຂອງສິ່ງທີ່ຊ້ອນນີ້
+Take the newest shape or pen path out of this mask	ເອົາຮູບຮ່າງ ຫຼື ເສັ້ນປາກກາໃໝ່ສຸດອອກຈາກໜ້າກາກນີ້
+Slots are self-contained sources in this first pass	slot ເປັນແຫຼ່ງທີ່ສົມບູນໃນຕົວໃນຮອບທຳອິດນີ້
+Sway sideways. Depth 1 is half the frame either way	ແກວ່ງຂ້າງ. ຄວາມເລິກ 1 ແມ່ນເຄິ່ງຮູບແຕ່ລະຂ້າງ
+no fixtures patched - Settings > Network > FIXTURES	ບໍ່ມີໄຟທີ່ເຊື່ອມ - Settings > Network > FIXTURES
+Add an output above, then send playlists to it here.	ເພີ່ມຂາອອກທາງເທິງ, ແລ້ວສົ່ງ playlist ໄປທີ່ນີ້.
+An address sent to Deckboy's OSC port fires this cue	ທີ່ຢູ່ທີ່ສົ່ງໄປພອດ OSC ຂອງ Deckboy ເລີ່ມ cue ນີ້
+Draw the diagnostic over the card, or just the text.	ແຕ້ມການວິນິດໄສເທິງບັດ, ຫຼື ສະເພາະຂໍ້ຄວາມ.
+Hold on the last composite frame when the scene ends	ຖືເຟຣມປະສົມສຸດທ້າຍເມື່ອສາກຈົບ
+How long it takes; zero is a snap rather than a fade	ໃຊ້ເວລາດົນປານໃດ; ສູນແມ່ນທັນທີແທນການຄ່ອຍໆ
+Set still/pattern/browser duration for selected cues	ຕັ້ງໄລຍະ still/pattern/browser ຂອງ cue ທີ່ເລືອກ
+Start the LTC carrier, stop it, or jam it to a value	ເລີ່ມ LTC, ຢຸດມັນ, ຫຼື ຊິງໃຫ້ເປັນຄ່າ
+Which cue on that deck; step off the end to clear it	cue ໃດໃນ deck ນັ້ນ; ເກີນທ້າຍເພື່ອລຶບ
+Bob up and down. Depth 1 is half the frame either way	ເດັ້ງຂຶ້ນລົງ. ຄວາມເລິກ 1 ແມ່ນເຄິ່ງຮູບແຕ່ລະຂ້າງ
+Output width in pixels | click value to type exact px	ຄວາມກວ້າງຂາອອກເປັນພິກເຊວ | ຄລິກຄ່າເພື່ອພິມ
+Set the stream URL (srt://, rtmp://, rtsp://, udp://)	ຕັ້ງ URL ການຖ່າຍທອດ (srt://, rtmp://, rtsp://, udp://)
+All interfaces, but only this computer is trusted yet.	ທຸກອິນເຕີເຟສ, ແຕ່ຍັງເຊື່ອຖືສະເພາະຄອມພິວເຕີນີ້.
+Fires at this time on this computer's clock, every day	ເລີ່ມເວລານີ້ຕາມໂມງຂອງຄອມພິວເຕີນີ້, ທຸກມື້
+Output height in pixels | click value to type exact px	ຄວາມສູງຂາອອກເປັນພິກເຊວ | ຄລິກຄ່າເພື່ອພິມ
+Bar across the foot - readable further back than digits	ແຖບທາງລຸ່ມ - ອ່ານໄດ້ໄກກວ່າຕົວເລກ
+Any font on this computer, Deckboy's own, or a font file	ຟອນໃດກໍໄດ້ໃນຄອມພິວເຕີນີ້, ຂອງ Deckboy, ຫຼື ໄຟລ໌ຟອນ
+Every channel on every universe this session has touched	ທຸກຊ່ອງໃນທຸກ universe ທີ່ເຊສຊັນນີ້ແຕະ
+OUTPUT: drag a slice to move it, its corners to size it.	ຂາອອກ: ລາກຊິ້ນເພື່ອຍ້າຍ, ມຸມເພື່ອປັບຂະໜາດ.
+Choose a Lower Third from the overlay bin to fire on TAKE	ເລືອກ Lower Third ຈາກຖັງເພື່ອເລີ່ມເມື່ອ TAKE
+Choose a PIP overlay from the overlay bin to fire on TAKE	ເລືອກ PIP ຈາກຖັງເພື່ອເລີ່ມເມື່ອ TAKE
+Choose the legacy cue token to show inside the PIP window	ເລືອກ token cue ເກົ່າທີ່ສະແດງໃນໜ້າຕ່າງ PIP
+OUTPUT: drag a slice to move it, its corners to pin them.	ຂາອອກ: ລາກຊິ້ນເພື່ອຍ້າຍ, ມຸມເພື່ອປັກ.
+ASIO carries the show's sound, and these are not on it yet	ASIO ນຳສຽງຂອງການສະແດງ, ແລະ ອັນເຫຼົ່ານີ້ຍັງບໍ່ຢູ່ໃນມັນ
+F1-F10, F12 or the number pad fires this cue from anywhere	F1-F10, F12 ຫຼື ແປ້ນຕົວເລກເລີ່ມ cue ນີ້ຈາກບ່ອນໃດກໍໄດ້
+N=new  Enter/P=previous  O=open saved  E=examples  L=learn	N=ໃໝ່  Enter/P=ກ່ອນໜ້າ  O=ເປີດທີ່ບັນທຶກ  E=ຕົວຢ່າງ  L=ຮຽນ
+Use transition when auto-advancing or goto-taking next cue	ໃຊ້ການປ່ຽນເມື່ອໄປຕໍ່ອັດຕະໂນມັດ ຫຼື ເມື່ອ take cue ຕໍ່ໄປ
+Hand this parameter to an oscillator so it moves on its own	ມອບພາລາມິເຕີນີ້ໃຫ້ oscillator ເພື່ອໃຫ້ມັນຍ້າຍເອງ
+Audio fade-in: follow visual fade, none, or explicit seconds	ສຽງຄ່ອຍໆເຂົ້າ: ຕາມຮູບ, ບໍ່ມີ, ຫຼື ວິນາທີທີ່ກຳນົດ
+How long the finished drawing stays before it is drawn again	ຮູບແຕ້ມສຳເລັດຢູ່ດົນປານໃດກ່ອນແຕ້ມໃໝ່
+Audio fade-out: follow visual fade, none, or explicit seconds	ສຽງຄ່ອຍໆອອກ: ຕາມຮູບ, ບໍ່ມີ, ຫຼື ວິນາທີທີ່ກຳນົດ
+How it comes on and goes off: none, fade, rise, slide or wipe	ວິທີມັນເຂົ້າ ແລະ ອອກ: ບໍ່ມີ, ຄ່ອຍໆ, ຂຶ້ນ, ເລື່ອນ ຫຼື ກວາດ
+The 64-step wavetable, quantised to 6 bits like the hardware.	wavetable 64 ຂັ້ນ, quantise ເປັນ 6 bit ຄືຮາດແວ.
+Add a library shape to this mask; its points are yours to move	ເພີ່ມຮູບຮ່າງຈາກຄັງໃສ່ໜ້າກາກນີ້; ຈຸດຂອງມັນທ່ານຍ້າຍໄດ້
+Art-Net or sACN (E1.31): whichever the lighting rig listens to	Art-Net ຫຼື sACN (E1.31): ອັນໃດທີ່ລະບົບໄຟຟັງ
+No slices: this output shows its one picture. + SLICE to start.	ບໍ່ມີຊິ້ນ: ຂາອອກນີ້ສະແດງຮູບດຽວຂອງມັນ. + SLICE ເພື່ອເລີ່ມ.
+Vary tile size per cell, so the grid stops looking like a grid.	ປ່ຽນຂະໜາດແຜ່ນຕາມຊ່ອງ, ເພື່ອໃຫ້ຕາຂ່າຍບໍ່ເບິ່ງຄືຕາຂ່າຍ.
+Which output channel carries the signal. 'all' feeds every one.	ຊ່ອງຂາອອກໃດນຳສັນຍານ. 'all' ສົ່ງໃຫ້ທຸກອັນ.
+What is sent. Backslash-n, -r, -t and -0 become those characters	ສິ່ງທີ່ສົ່ງ. Backslash-n, -r, -t ແລະ -0 ກາຍເປັນຕົວອັກສອນເຫຼົ່ານັ້ນ
+Deckboy's own remote-protocol verbs, one per line; # is a comment	ຄຳສັ່ງໂປຣໂຕຄອນຂອງ Deckboy, ແຖວລະອັນ; # ແມ່ນຄຳເຫັນ
+Modulator speed as a ratio of the note, so the bend tracks pitch.	ຄວາມໄວ modulator ເປັນອັດຕາສ່ວນຂອງໂນດ, ເພື່ອໃຫ້ການງໍຕາມລະດັບສຽງ.
+Open and close this edge on an oscillator -- a wipe that breathes	ເປີດ ແລະ ປິດຂອບນີ້ດ້ວຍ oscillator -- ການກວາດທີ່ຫາຍໃຈ
+Play this cue to the preview only; the outputs keep what they have	ຫຼິ້ນ cue ນີ້ໃນພາບຕົວຢ່າງເທົ່ານັ້ນ; ຂາອອກເກັບສິ່ງທີ່ມີ
+Put the pitch on an oscillator: Motion X sweeps it like a theremin	ເອົາລະດັບສຽງໃສ່ oscillator: Motion X ກວາດມັນຄື theremin
+A disarmed cue stays in the list and does nothing; GO steps over it	cue ທີ່ປົດອາວຸດຢູ່ໃນລາຍການ ແລະ ບໍ່ເຮັດຫຍັງ; GO ຂ້າມມັນ
+Click a value to change it. A red address overlaps another fixture.	ຄລິກຄ່າເພື່ອປ່ຽນ. ທີ່ຢູ່ສີແດງຊ້ອນກັບໄຟອື່ນ.
+Where the clock reads from this cue on; click the value to type one	ບ່ອນທີ່ໂມງອ່ານຈາກ cue ນີ້; ຄລິກຄ່າເພື່ອພິມ
+Add a dashboard button that fires this master by name, from anywhere	ເພີ່ມປຸ່ມແຜງຄວບຄຸມທີ່ເລີ່ມ master ນີ້ຕາມຊື່, ຈາກບ່ອນໃດກໍໄດ້
+New here? LEARN THE BASICS takes five minutes. We'll show you round.	ໃໝ່ຢູ່ນີ້ບໍ? ຮຽນພື້ນຖານໃຊ້ເວລາຫ້ານາທີ. ພວກເຮົາຈະພາທ່ານເບິ່ງ.
+An IPv4 address, or 255.255.255.255 to broadcast to the whole network	ທີ່ຢູ່ IPv4, ຫຼື 255.255.255.255 ເພື່ອກະຈາຍໄປທົ່ວເຄືອຂ່າຍ
+How much playing audio widens and brightens the pattern. 0 free-runs.	ສຽງທີ່ຫຼິ້ນຂະຫຍາຍ ແລະ ເຮັດໃຫ້ລາຍສະຫວ່າງປານໃດ. 0 ແລ່ນອິດສະຫຼະ.
+INPUT: the programme. Drag a crop to move it, its corners to size it.	ຂາເຂົ້າ: ໂປຣແກຣມ. ລາກການຕັດເພື່ອຍ້າຍ, ມຸມເພື່ອປັບຂະໜາດ.
+LED panel width in pixels - what one tile really is. Click to type it	ຄວາມກວ້າງແຜງ LED ເປັນພິກເຊວ - ຂະໜາດແທ້ຂອງແຜ່ນໜຶ່ງ. ຄລິກເພື່ອພິມ
+Which deck it acts on; step off the end for the one this cue lives on	ກະທຳກັບ deck ໃດ; ເກີນທ້າຍສຳລັບ deck ຂອງ cue ນີ້
+only one playlist - use the routing chip on the header to add another	playlist ດຽວ - ໃຊ້ຊິບເສັ້ນທາງທີ່ຫົວເພື່ອເພີ່ມອີກ
+Which cue this master fires on that deck; step off the end to clear it	cue ໃດທີ່ master ນີ້ເລີ່ມໃນ deck ນັ້ນ; ເກີນທ້າຍເພື່ອລຶບ
+Choose a mask from this show's library, or start a new one from a shape	ເລືອກໜ້າກາກຈາກຄັງຂອງການສະແດງນີ້, ຫຼື ເລີ່ມໃໝ່ຈາກຮູບຮ່າງ
+Draw on the programme monitor with the mouse or a pen (DRAW). Esc stops	ແຕ້ມເທິງຈໍໂປຣແກຣມດ້ວຍເມົາ ຫຼື ປາກກາ (DRAW). Esc ຢຸດ
+How long the move takes, each way. 0 is instant whatever the style says	ການເຄື່ອນໃຊ້ເວລາດົນປານໃດ, ແຕ່ລະທາງ. 0 ແມ່ນທັນທີບໍ່ວ່າສະໄຕລ໌ຈະວ່າແນວໃດ
+Stop that deck when the ramp lands - the usual take-it-down-and-stop-it	ຢຸດ deck ນັ້ນເມື່ອທາງລາດມາຮອດ - ແບບປົກກະຕິ ຫຼຸດແລ້ວຢຸດ
+Which of the file's sound tracks plays: a second language, a commentary	ແທຣັກສຽງໃດຂອງໄຟລ໌ຫຼິ້ນ: ພາສາທີສອງ, ຄຳບັນລະຍາຍ
+An oscillator on the colour: depth is how far round the wheel it travels	oscillator ເທິງສີ: ຄວາມເລິກແມ່ນມັນໄປໄກປານໃດຮອບວົງລໍ້
+Rack this cue paused and off air so GO starts it with no decoder spin-up	ກຽມ cue ນີ້ຢຸດຊົ່ວຄາວ ແລະ ນອກອາກາດ ເພື່ອໃຫ້ GO ເລີ່ມໂດຍບໍ່ລໍຖ້າ decoder
+Note, control change, program change, MIDI Show Control, or your own bytes	ໂນດ, control change, program change, MIDI Show Control, ຫຼື bytes ຂອງທ່ານເອງ
+Black behind the words. Zero leaves it over whatever the output already has	ສີດຳຫຼັງຄຳ. ສູນປ່ອຍໃຫ້ຢູ່ເທິງສິ່ງທີ່ຂາອອກມີແລ້ວ
+How far the modulator bends the pitch. 0-63, the hardware's own gain range.	modulator ງໍລະດັບສຽງໄກປານໃດ. 0-63, ຂອບເຂດເກນຂອງຮາດແວ.
+the words this cue puts on screen  |  Shift+Enter: new line  |  Enter: apply	ຄຳທີ່ cue ນີ້ໃສ່ໜ້າຈໍ  |  Shift+Enter: ແຖວໃໝ່  |  Enter: ນຳໃຊ້
+OSC and UDP are fire and forget; TCP connects, so it runs off the show thread	OSC ແລະ UDP ສົ່ງແລ້ວລືມ; TCP ເຊື່ອມຕໍ່, ຈຶ່ງແລ່ນນອກ thread ຂອງການສະແດງ
+Put the level on an oscillator: Motion makes it a gate that opens as you move	ເອົາລະດັບໃສ່ oscillator: Motion ເຮັດໃຫ້ມັນເປັນປະຕູທີ່ເປີດເມື່ອທ່ານເຄື່ອນ
+Marks stacked ABOVE the characters, the way combining accents overflow a line.	ເຄື່ອງໝາຍຊ້ອນຢູ່ເທິງຕົວອັກສອນ, ຄືວັນນະຍຸດທີ່ລົ້ນແຖວ.
+Save the mask as a greyscale PNG at the output's size: white keeps, black cuts	ບັນທຶກໜ້າກາກເປັນ PNG ສີເທົາຂະໜາດຂາອອກ: ຂາວເກັບ, ດຳຕັດ
+Which chime. Cycling PLAYS it, so it can be chosen by ear rather than by name.	ກະດິ່ງໃດ. ການສະຫຼັບຈະຫຼິ້ນມັນ, ເພື່ອເລືອກດ້ວຍຫູ ບໍ່ແມ່ນຊື່.
+No rows. + ADD or LEARN makes one; MIDIMAP RESET brings the built-in rows back.	ບໍ່ມີແຖວ. + ADD ຫຼື LEARN ສ້າງອັນໜຶ່ງ; MIDIMAP RESET ເອົາແຖວເດີມຄືນ.
+Save the mask's paths as SVG, for Illustrator and anything else that reads them	ບັນທຶກເສັ້ນທາງໜ້າກາກເປັນ SVG, ສຳລັບ Illustrator ແລະ ສິ່ງອື່ນທີ່ອ່ານໄດ້
+Which MIDI output; a named port that is missing is reported rather than swapped	ຂາອອກ MIDI ໃດ; ພອດທີ່ມີຊື່ທີ່ຫາຍໄປຈະຖືກລາຍງານ ບໍ່ແມ່ນປ່ຽນ
+An oscillator on the level, running after GO until a later cue sets this fixture	oscillator ເທິງລະດັບ, ແລ່ນຫຼັງ GO ຈົນກວ່າ cue ຕໍ່ມາຕັ້ງໄຟນີ້
+Steps in third-octaves, because the ear works in ratios. 1kHz is the convention.	ຂັ້ນເປັນສ່ວນສາມຂອງ octave, ເພາະຫູເຮັດວຽກເປັນອັດຕາສ່ວນ. 1kHz ແມ່ນທຳນຽມ.
+Strikes drawn ACROSS the cell, damaging the character rather than decorating it.	ເສັ້ນຂີດຂວາງຊ່ອງ, ທຳລາຍຕົວອັກສອນແທນການຕົບແຕ່ງ.
+Whether incoming MIDI notes play this synth or trigger cues as they always have.	ວ່າໂນດ MIDI ທີ່ເຂົ້າມາຫຼິ້ນ synth ນີ້ ຫຼື ເລີ່ມ cue ຄືເຄີຍ.
+A note number, or type LEARN and play it. Notes no cue claims still go to cue N+1	ເລກໂນດ, ຫຼື ພິມ LEARN ແລ້ວຫຼິ້ນ. ໂນດທີ່ບໍ່ມີ cue ໃດຮັບໄປ cue N+1
+A plain stereo pair. Click to open the matrix, starting from exactly this routing	ຄູ່ສະເຕຣິໂອທຳມະດາ. ຄລິກເພື່ອເປີດ matrix ເລີ່ມຈາກເສັ້ນທາງນີ້ພໍດີ
+Folding is what turns an arbitrary pattern into something that reads as designed.	ການພັບເຮັດໃຫ້ລາຍໃດກໍໄດ້ເບິ່ງຄືອອກແບບມາ.
+Channel=level, comma separated. Ranges too: 1=255, 10-14=64. Channels count from 1	ຊ່ອງ=ລະດັບ, ແຍກດ້ວຍຈຸດ. ຊ່ວງກໍໄດ້: 1=255, 10-14=64. ຊ່ອງນັບຈາກ 1
+Moves every selected cue's trim by the same dB; typing a value sets them all to it	ຍ້າຍ trim ຂອງທຸກ cue ທີ່ເລືອກດ້ວຍ dB ເທົ່າກັນ; ພິມຄ່າຈະຕັ້ງທັງໝົດ
+Bends the carrier's PITCH rather than mixing with it. This is what makes FDS growl.	ງໍລະດັບສຽງຂອງ carrier ແທນການປະສົມ. ນີ້ແມ່ນສິ່ງທີ່ເຮັດໃຫ້ FDS ຄຳລາມ.
+Half way through LEARN THE BASICS. Press L and we pick up where you stopped, skapi.	ເຄິ່ງທາງຂອງຮຽນພື້ນຖານ. ກົດ L ແລ້ວພວກເຮົາສືບຕໍ່ຈາກບ່ອນທ່ານຢຸດ, skapi.
+Render as a character grid with a 16-colour indexed palette, rather than as pixels.	ເຣັນເດີເປັນຕາຂ່າຍຕົວອັກສອນກັບຈານສີ 16 ສີ, ແທນພິກເຊວ.
+Which MIDI output this file plays to; step past the end for the first one available	ໄຟລ໌ນີ້ຫຼິ້ນໄປຂາອອກ MIDI ໃດ; ເກີນທ້າຍສຳລັບອັນທຳອິດທີ່ມີ
+An IPv4 address, or 255.255.255.255 for the universe's multicast group (239.255.x.y)	ທີ່ຢູ່ IPv4, ຫຼື 255.255.255.255 ສຳລັບກຸ່ມ multicast ຂອງ universe (239.255.x.y)
+Click a cell to walk it: off, full, -3, -6, -12. This row turns the matrix off again	ຄລິກຊ່ອງເພື່ອສະຫຼັບ: ປິດ, ເຕັມ, -3, -6, -12. ແຖວນີ້ປິດ matrix ອີກ
+How long each phrase stays before it moves. Zero hides them without losing the list.	ແຕ່ລະປະໂຫຍກຢູ່ດົນປານໃດກ່ອນຍ້າຍ. ສູນເຊື່ອງໂດຍບໍ່ເສຍລາຍການ.
+How long it takes to fall away after the attack. Only audible when retrigger is set.	ໃຊ້ເວລາດົນປານໃດເພື່ອຫຼຸດລົງຫຼັງການໂຈມຕີ. ໄດ້ຍິນສະເພາະເມື່ອເປີດ retrigger.
+Off, from start (next cue fires when this one starts) or from end (when it finishes)	ປິດ, ຈາກເລີ່ມ (cue ຕໍ່ໄປເລີ່ມເມື່ອອັນນີ້ເລີ່ມ) ຫຼື ຈາກທ້າຍ (ເມື່ອມັນຈົບ)
+Height of one line as a percent of the raster, so a card reads the same on any screen	ຄວາມສູງແຖວໜຶ່ງເປັນເປີເຊັນຂອງ raster, ເພື່ອໃຫ້ບັດອ່ານຄືກັນທຸກໜ້າຈໍ
+Set slot source as media:/path, browser:url, window:name, camera:name, or syphon:name	ຕັ້ງແຫຼ່ງ slot ເປັນ media:/ເສັ້ນທາງ, browser:url, window:ຊື່, camera:ຊື່, ຫຼື syphon:ຊື່
+Short LFSR mode. The period is brief enough to read as pitched metal rather than hiss.	ໂໝດ LFSR ສັ້ນ. ໄລຍະສັ້ນພໍທີ່ຈະຟັງຄືໂລຫະມີລະດັບສຽງ ແທນສຽງຊູ່.
+White, warm, red, amber, green, cyan, blue, magenta. ~ moves it round the colour wheel	ຂາວ, ອຸ່ນ, ແດງ, ອຳພັນ, ຂຽວ, ຟ້າອ່ອນ, ຟ້າ, ບົວ. ~ ໝູນມັນຮອບວົງລໍ້ສີ
+Re-strike the envelope this often. Hold sustains one note, which is what a drone wants.	ເຄາະ envelope ຄືນເລື້ອຍໆ. Hold ຖືໂນດດຽວ, ສິ່ງທີ່ drone ຕ້ອງການ.
+Diamond is the hard-edged Atari Video Music lattice; rings tunnel well with feedback zoom.	Diamond ແມ່ນຕາຂ່າຍຂອບແຂງຂອງ Atari Video Music; ວົງແຫວນເຮັດອຸໂມງໄດ້ດີກັບ zoom ສະທ້ອນ.
+Rock or spin. Depth 1 is half a turn either way; a saw at depth 1 turns it all the way round	ໂຍກ ຫຼື ໝູນ. ຄວາມເລິກ 1 ແມ່ນເຄິ່ງຮອບແຕ່ລະທາງ; saw ທີ່ 1 ໝູນເຕັມຮອບ
+DECK playback level (live, not saved with the cue) - per-cue trim is gain in the AUDIO section	ລະດັບການຫຼິ້ນ DECK (ສົດ, ບໍ່ບັນທຶກກັບ cue) - trim ແຕ່ລະ cue ແມ່ນເກນໃນພາກ AUDIO
+Still, fade in, typewriter, scroll up, crawl or pulse -- all driven by the cue's own transport	ນິ່ງ, ຄ່ອຍໆເຂົ້າ, ເຄື່ອງພິມດີດ, ເລື່ອນຂຶ້ນ, ໄຫຼ ຫຼື ກະພິບ -- ທັງໝົດຂັບໂດຍການເຄື່ອນທີ່ຂອງ cue ເອງ
+Fields per rendered frame. 1 is one for one, 0.5 holds each field for two frames, 0 freezes it.	ຟີລດ໌ຕໍ່ເຟຣມ. 1 ແມ່ນໜຶ່ງຕໍ່ໜຶ່ງ, 0.5 ຖືແຕ່ລະຟີລດ໌ສອງເຟຣມ, 0 ແຊ່ແຂງ.
+What this cue shows while it plays: waveform, scope, Lissajous, spectrum, meters or a name card	ສິ່ງທີ່ cue ນີ້ສະແດງຂະນະຫຼິ້ນ: ຮູບຄື້ນ, scope, Lissajous, spectrum, ມາດ ຫຼື ບັດຊື່
+0 picks tiles by brightness so the picture reads. 1 picks at random so the grid becomes texture.	0 ເລືອກແຜ່ນຕາມຄວາມສະຫວ່າງເພື່ອໃຫ້ຮູບອ່ານໄດ້. 1 ເລືອກແບບສຸ່ມ ຕາຂ່າຍກາຍເປັນລວດລາຍ.
+How far it travels, in semitones. Up reads as arrival, down as departure, zero is a struck note.	ມັນເດີນທາງໄກປານໃດ, ເປັນ semitone. ຂຶ້ນຄືມາຮອດ, ລົງຄືອອກໄປ, ສູນແມ່ນໂນດທີ່ຕີ.
+An IPv4 address. Names are not resolved: a DNS lookup is a blocking call and GO must not make one	ທີ່ຢູ່ IPv4. ຊື່ບໍ່ຖືກແປງ: ການຊອກ DNS ບລັອກ ແລະ GO ຕ້ອງບໍ່ເຮັດ
+Tile width in pixels. Must match the sheet's grid or the slices land across neighbouring sprites.	ຄວາມກວ້າງແຜ່ນເປັນພິກເຊວ. ຕ້ອງກົງກັບຕາຂ່າຍຂອງແຜ່ນ ບໍ່ດັ່ງນັ້ນຊິ້ນຈະຕົກຂ້າມ sprite ທີ່ຢູ່ຂ້າງ.
+Alternating mirrors by cell position, which reads as pattern where random flipping reads as noise.	ກະຈົກສະຫຼັບຕາມຕຳແໜ່ງຊ່ອງ, ອ່ານເປັນລາຍ ບ່ອນທີ່ການພິກແບບສຸ່ມອ່ານເປັນສຽງລົບກວນ.
+0 welds them to their cell, which reads as engraved. Above it they re-roll, which reads as boiling.	0 ເຊື່ອມພວກມັນກັບຊ່ອງ, ອ່ານຄືແກະສະຫຼັກ. ເກີນນັ້ນພວກມັນສຸ່ມໃໝ່, ອ່ານຄືກຳລັງຕົ້ມ.
+MONO L plays the left input in both speakers: mic 1 on most interfaces. STEREO is for a line source.	MONO L ຫຼິ້ນຂາເຂົ້າຊ້າຍໃນລຳໂພງທັງສອງ: ໄມ 1 ໃນອິນເຕີເຟສສ່ວນຫຼາຍ. STEREO ສຳລັບແຫຼ່ງ line.
+The whole gesture. This IS the cue's duration -- a sting is the one generated signal here that ends.	ທ່າທາງທັງໝົດ. ນີ້ແມ່ນໄລຍະຂອງ cue -- sting ແມ່ນສັນຍານທີ່ສ້າງຂຶ້ນອັນດຽວທີ່ຈົບ.
+Click the value to send this fixture or leave it where the last cue put it. ~ makes the level breathe	ຄລິກຄ່າເພື່ອສົ່ງໄຟນີ້ ຫຼື ປ່ອຍໄວ້ບ່ອນ cue ສຸດທ້າຍວາງ. ~ ເຮັດໃຫ້ລະດັບຫາຍໃຈ
+FDS is a wavetable bent by a modulator. 2A03 is the pulse/triangle/noise set most chiptune is made of.	FDS ແມ່ນ wavetable ທີ່ modulator ງໍ. 2A03 ແມ່ນຊຸດ pulse/triangle/noise ທີ່ chiptune ສ່ວນຫຼາຍສ້າງຂຶ້ນ.
+Scramble which glyph means which brightness. Same set, different handwriting. Seeded, so it stays put.	ສັບສົນວ່າ glyph ໃດໝາຍເຖິງຄວາມສະຫວ່າງໃດ. ຊຸດດຽວກັນ, ລາຍມືຕ່າງ. ມີ seed, ຈຶ່ງຢູ່ຄົງທີ່.
+Pixel sort: runs of pixels sorted by brightness within a row, which is what makes datamosh look melted.	ຈັດລຽງພິກເຊວ: ແຖວພິກເຊວຈັດຕາມຄວາມສະຫວ່າງໃນແຖວ, ເຊິ່ງເຮັດໃຫ້ datamosh ເບິ່ງຄືລະລາຍ.
+How many cells the marks may climb. They thin out as they go, so a tall reach trails rather than doubles.	ເຄື່ອງໝາຍປີນໄດ້ຈັກຊ່ອງ. ພວກມັນບາງລົງເມື່ອໄປ, ການເອື້ອມສູງຈຶ່ງລາກຮອຍ ແທນທີ່ຈະຊ້ອນ.
+cue act val  -  G take  S stop  F fade out (val = tenths of a second)  V volume  O opacity  J jump to row	cue ການກະທຳ ຄ່າ  -  G take  S ຢຸດ  F ຄ່ອຍໆອອກ (ຄ່າ = ສ່ວນສິບວິນາທີ)  V ສຽງ  O ຄວາມທຶບ  J ໄປແຖວ
+Harmonic weight: a pure chime at zero, brass at full. This is the difference between a ping and a fanfare.	ນ້ຳໜັກ harmonic: ກະດິ່ງບໍລິສຸດທີ່ສູນ, ທອງເຫຼືອງທີ່ເຕັມ. ນີ້ແມ່ນຄວາມແຕກຕ່າງລະຫວ່າງ ping ແລະ fanfare.
+Steps through the inputs this computer has. 'Settings input' follows the input chosen in Settings > Audio.	ຜ່ານຂາເຂົ້າຂອງຄອມພິວເຕີນີ້. 'Settings input' ຕາມຂາເຂົ້າທີ່ເລືອກໃນ Settings > Audio.
+Embers to roaring. It still surges and settles at any setting -- a fire that does not move reads as a photo	ຈາກຖ່ານໄຟຮອດໄຟລຸກ. ມັນຍັງລຸກ ແລະ ສະຫງົບທຸກການຕັ້ງ -- ໄຟທີ່ບໍ່ເຄື່ອນເບິ່ງຄືຮູບຖ່າຍ
+Reference pitch. 440 is modern standard, 432 the common alternative, and older instruments sat lower still.	ລະດັບສຽງອ້າງອີງ. 440 ແມ່ນມາດຕະຖານປັດຈຸບັນ, 432 ທາງເລືອກທົ່ວໄປ, ແລະ ເຄື່ອງດົນຕີເກົ່າຕ່ຳກວ່ານັ້ນອີກ.
+Where the sting starts. Under a voice it wants to stay out of the way; over a room it wants to cut through.	ບ່ອນທີ່ sting ເລີ່ມ. ລຸ່ມສຽງເວົ້າມັນຕ້ອງຫຼີກທາງ; ເທິງຫ້ອງມັນຕ້ອງຕັດຜ່ານ.
+Digital gain on the input, -40 to +40 dB. Set the interface's own preamp first; this is for the last few dB.	ເກນດິຈິຕອນເທິງຂາເຂົ້າ, -40 ຫາ +40 dB. ຕັ້ງ preamp ຂອງອິນເຕີເຟສກ່ອນ; ອັນນີ້ສຳລັບ dB ສຸດທ້າຍ.
+Pulse the size. On its own this moves width AND height together; give height its own ~ to squash and stretch	ກະພິບຂະໜາດ. ຢ່າງດຽວມັນຍ້າຍຄວາມກວ້າງ ແລະ ຄວາມສູງພ້ອມກັນ; ໃຫ້ຄວາມສູງມີ ~ ຂອງຕົນເພື່ອບີບ ແລະ ຢືດ
+A card fills the frame; a Lower Third is a name and a role, low on a transparent frame, with an in and an out	ບັດເຕັມເຟຣມ; Lower Third ແມ່ນຊື່ ແລະ ບົດບາດ, ຕ່ຳໃນເຟຣມໂປ່ງໃສ, ມີເຂົ້າ ແລະ ອອກ
+Held keeps the last displacement rather than removing it -- the picture stays bent the way the driver left it.	Held ເກັບການເລື່ອນສຸດທ້າຍແທນການລຶບ -- ຮູບຄົງງໍຄືທີ່ໄດເວີປ່ອຍໄວ້.
+12.5 and 25 are thin and reedy, 50 is hollow. 75 sounds identical to 25 -- it is here because trackers expose it.	12.5 ແລະ 25 ບາງ ແລະ ອອກດັງ, 50 ກວງ. 75 ຟັງຄື 25 ທຸກຢ່າງ -- ມັນຢູ່ນີ້ເພາະ tracker ສະແດງມັນ.
+Quantise the output like the hardware. The steps ARE the sound; smoothing them makes it a synth imitating a chip.	quantise ຂາອອກຄືຮາດແວ. ຂັ້ນຄືສຽງ; ເຮັດໃຫ້ລຽບເປັນ synth ທີ່ຮຽນແບບ chip.
+Moves every selected cue's trim by the same dB, keeping the differences between them; typing a value sets them all to it	ຍ້າຍ trim ຂອງທຸກ cue ທີ່ເລືອກດ້ວຍ dB ເທົ່າກັນ, ຮັກສາຄວາມແຕກຕ່າງ; ພິມຄ່າຈະຕັ້ງທັງໝົດ
+Where the playlist's crosspoints send it (Settings > Audio). Click to open the matrix by name, starting from exactly that	ບ່ອນທີ່ຈຸດຕັດກັນຂອງ playlist ສົ່ງມັນ (Settings > Audio). ຄລິກເພື່ອເປີດ matrix ຕາມຊື່ ເລີ່ມຈາກເສັ້ນທາງນັ້ນພໍດີ
+name values with  d = ...;  end with one expression, or three for red green blue  |  Shift+Enter: new line  |  Enter: apply	ຕັ້ງຊື່ຄ່າດ້ວຍ  d = ...;  ຈົບດ້ວຍສຳນວນດຽວ, ຫຼື ສາມສຳລັບແດງ ຂຽວ ຟ້າ  |  Shift+Enter: ແຖວໃໝ່  |  Enter: ນຳໃຊ້
+Put back what it started from once the ramp lands (after the stop): a deck left ready for its next cue, a swell that lets go	ຄືນສິ່ງທີ່ເລີ່ມຈາກເມື່ອທາງລາດມາຮອດ (ຫຼັງຢຸດ): deck ພ້ອມສຳລັບ cue ຕໍ່ໄປ, ການຂະຫຍາຍທີ່ປ່ອຍ
+Which speech model makes the captions: English, any language, or the slower, more accurate pair. Each is a one-time download	ແບບຈຳລອງການເວົ້າໃດສ້າງຄຳບັນຍາຍ: ອັງກິດ, ພາສາໃດກໍໄດ້, ຫຼື ຄູ່ທີ່ຊ້າກວ່າແຕ່ແມ່ນກວ່າ. ແຕ່ລະອັນດາວໂຫຼດເທື່ອດຽວ
+What the mask cuts: this cue wherever it plays, this playlist on the focused output, that output's whole picture, or its matte	ສິ່ງທີ່ໜ້າກາກຕັດ: cue ນີ້ບ່ອນໃດທີ່ມັນຫຼິ້ນ, playlist ນີ້ໃນຂາອອກທີ່ໂຟກັສ, ຮູບທັງໝົດຂອງຂາອອກນັ້ນ, ຫຼື matte ຂອງມັນ
+Play at the screen's rate when it is within 0.2% (59.94 on 60): every frame shown once, the sound up to 3.5 cents sharp or flat	ຫຼິ້ນຕາມອັດຕາຂອງໜ້າຈໍເມື່ອຢູ່ໃນ 0.2% (59.94 ເທິງ 60): ທຸກເຟຣມສະແດງເທື່ອດຽວ, ສຽງສູງ ຫຼື ຕ່ຳສູງສຸດ 3.5 cent
+Quarter turns are exact and stay crisp. Spinning samples at an angle, which tears pixel art -- sometimes that is what you want.	ການໝູນໜຶ່ງສ່ວນສີ່ແນ່ນອນ ແລະ ຄົມຊັດ. ການໝູນມຸມອື່ນເກັບຕົວຢ່າງແບບອຽງ ເຊິ່ງຈີກ pixel art -- ບາງເທື່ອນັ້ນແມ່ນສິ່ງທີ່ທ່ານຕ້ອງການ.
+Every take starts the puppetry the same way, so a rehearsed look repeats instead of depending on how long the app has been open.	ທຸກ take ເລີ່ມການເຄື່ອນໄຫວແບບດຽວກັນ, ເພື່ອໃຫ້ຮູບແບບທີ່ຊ້ອມມາຊ້ຳ ແທນທີ່ຈະຂຶ້ນກັບວ່າແອັບເປີດມາດົນປານໃດ.
+What aims each tilt: its own position, the picture's luma gradient so characters lean the way the image does, or the cell's hue.	ສິ່ງທີ່ກຳນົດທິດທາງແຕ່ລະການອຽງ: ຕຳແໜ່ງຂອງມັນເອງ, gradient ຄວາມສະຫວ່າງຂອງຮູບເພື່ອໃຫ້ຕົວອັກສອນອຽງຄືຮູບ, ຫຼື ສີຂອງຊ່ອງ.
+Name a channel or a pair once. Playlists send to the name, so a different interface means changing the names here, not every cue.	ຕັ້ງຊື່ຊ່ອງ ຫຼື ຄູ່ເທື່ອດຽວ. playlist ສົ່ງໄປຫາຊື່, ສະນັ້ນອິນເຕີເຟສອື່ນໝາຍເຖິງການປ່ຽນຊື່ຢູ່ນີ້ ບໍ່ແມ່ນທຸກ cue.
+Click a crosspoint to walk it: off, 0, -3, -6, -12 dB. Drag it sideways for any level. A playlist with none plays to its own device.	ຄລິກຈຸດຕັດກັນເພື່ອສະຫຼັບ: ປິດ, 0, -3, -6, -12 dB. ລາກໄປຂ້າງສຳລັບລະດັບໃດກໍໄດ້. playlist ທີ່ບໍ່ມີຫຼິ້ນໄປອຸປະກອນຂອງມັນເອງ.
+Sprite sets installed in data/sprites. Each folder there is a set; cycling picks one and wraps back to none. Right-click turns them off.	ຊຸດ sprite ທີ່ຕິດຕັ້ງໃນ data/sprites. ແຕ່ລະໂຟນເດີແມ່ນຊຸດ; ການສະຫຼັບເລືອກອັນໜຶ່ງ ແລ້ວກັບໄປບໍ່ມີ. ຄລິກຂວາປິດ.
+Internal resolution, 1 chunkiest to 5 finest. This is an aesthetic control as much as a speed one -- the 8-bit look comes from big pixels.	ຄວາມລະອຽດພາຍໃນ, 1 ຫຍາບທີ່ສຸດ ຫາ 5 ລະອຽດທີ່ສຸດ. ນີ້ແມ່ນການຄວບຄຸມຄວາມງາມເທົ່າກັບຄວາມໄວ -- ຮູບແບບ 8-bit ມາຈາກພິກເຊວໃຫຍ່.
+Picture takes colour from the image. Green, amber and cyan are terminal phosphors. Palette locks the text to the selected hardware palette.	Picture ເອົາສີຈາກຮູບ. ຂຽວ, ອຳພັນ ແລະ ຟ້າອ່ອນແມ່ນຟອສເຟີຂອງ terminal. Palette ລັອກຂໍ້ຄວາມກັບຈານສີຮາດແວທີ່ເລືອກ.
+SUBTLE self-heals (H.264). CLASSIC is the real smear (MPEG-4). EXTREME is chunkier and smears constantly. Changing this re-prepares the cue.	SUBTLE ປິ່ນປົວຕົວເອງ (H.264). CLASSIC ແມ່ນການເປື້ອນແທ້ (MPEG-4). EXTREME ຫຍາບກວ່າ ແລະ ເປື້ອນຕະຫຼອດ. ການປ່ຽນອັນນີ້ກຽມ cue ໃໝ່.
+Sine for line-up, pink to ring out a PA, white to find rattles, sweep to hear where a room rings, identify to walk the outputs one at a time.	Sine ສຳລັບການຈັດລຽງ, pink ເພື່ອປັບ PA, white ເພື່ອຊອກສຽງສັ່ນ, sweep ເພື່ອຟັງບ່ອນທີ່ຫ້ອງດັງ, identify ເພື່ອຍ່າງຜ່ານຂາອອກເທື່ອລະອັນ.
+Which effect, by its place in the stack of the cue that deck is playing when this fires. With nothing there, the fade says so and does nothing	ເອັບເຟັກໃດ, ຕາມຕຳແໜ່ງໃນ stack ຂອງ cue ທີ່ deck ນັ້ນຫຼິ້ນເມື່ອອັນນີ້ເລີ່ມ. ບໍ່ມີຫຍັງຢູ່ນັ້ນ, fade ບອກ ແລະ ບໍ່ເຮັດຫຍັງ
+Each frame blended into the next. This is the Hypno signature -- at 0 it is a pattern generator, above it the picture starts feeding on itself.	ແຕ່ລະເຟຣມຜະສົມເຂົ້າເຟຣມຕໍ່ໄປ. ນີ້ແມ່ນລາຍເຊັນຂອງ Hypno -- ທີ່ 0 ມັນແມ່ນເຄື່ອງສ້າງລາຍ, ເກີນນັ້ນຮູບເລີ່ມກິນຕົວເອງ.
+What is through the window on the hearth wall: a garden, rain, snow or the sea. A room with weather outside reads as somewhere rather than as a wall	ສິ່ງທີ່ຢູ່ນອກປ່ອງຢ້ຽມເທິງຝາເຕົາໄຟ: ສວນ, ຝົນ, ຫິມະ ຫຼື ທະເລ. ຫ້ອງທີ່ມີອາກາດຢູ່ນອກອ່ານເປັນສະຖານທີ່ ບໍ່ແມ່ນຝາ
+BY FIXTURE: the lights in the patch (Settings > Network > FIXTURES), by name. CHANNELS: channel=level by hand. A cue can carry both; channels go last	ຕາມໄຟ: ໄຟໃນ patch (Settings > Network > FIXTURES), ຕາມຊື່. ຊ່ອງ: ຊ່ອງ=ລະດັບດ້ວຍມື. cue ນຳໄດ້ທັງສອງ; ຊ່ອງໄປສຸດທ້າຍ
+Each character rocks as though it were a card being tilted. Every cell has its own phase, so the grid breathes instead of sliding about as one sheet.	ແຕ່ລະຕົວອັກສອນໂຍກຄືບັດທີ່ຖືກອຽງ. ທຸກຊ່ອງມີ phase ຂອງຕົນ, ຕາຂ່າຍຈຶ່ງຫາຍໃຈ ແທນທີ່ຈະເລື່ອນເປັນແຜ່ນດຽວ.
+Pen: click for corners, drag for curves, click the first point to close (P). Points: drag, click the outline to add one, Alt-click or Delete to remove	ປາກກາ: ຄລິກສຳລັບມຸມ, ລາກສຳລັບເສັ້ນໂຄ້ງ, ຄລິກຈຸດທຳອິດເພື່ອປິດ (P). ຈຸດ: ລາກ, ຄລິກເສັ້ນຂອບເພື່ອເພີ່ມ, Alt-ຄລິກ ຫຼື Delete ເພື່ອລຶບ
+The chip's three channels. They differ in kind: triangle has no volume control on the hardware, and noise is a shift register rather than an oscillator.	ສາມຊ່ອງຂອງ chip. ແຕກຕ່າງກັນ: triangle ບໍ່ມີການຄວບຄຸມສຽງໃນຮາດແວ, ແລະ noise ແມ່ນ shift register ບໍ່ແມ່ນ oscillator.
+Curated sets of symbols and emoji -- stars, notes, flowers, arrows, weather, runes, faces. Picking one fills the custom glyphs below, which stays editable.	ຊຸດສັນຍາລັກ ແລະ emoji ທີ່ເລືອກ -- ດາວ, ໂນດ, ດອກໄມ້, ລູກສອນ, ອາກາດ, rune, ໃບໜ້າ. ການເລືອກອັນໜຶ່ງເຕີມ glyph ກຳນົດເອງທາງລຸ່ມ ເຊິ່ງຍັງແກ້ໄຂໄດ້.
+Play from the computer keyboard, Ableton layout: A W S E D F T G Y H U J, Z and X for octave. While this is ON those keys make notes instead of firing cues.	ຫຼິ້ນຈາກແປ້ນພິມຄອມພິວເຕີ, ຮູບແບບ Ableton: A W S E D F T G Y H U J, Z ແລະ X ສຳລັບ octave. ເມື່ອເປີດ ປຸ່ມເຫຼົ່ານັ້ນຈະຫຼິ້ນໂນດ ແທນການເລີ່ມ cue.
+Deck opacity, deck volume, the master dimmer, the active cue's own brightness / contrast / saturation / hue, or a knob of one of its effects or audio effects	ຄວາມທຶບ deck, ສຽງ deck, dimmer ຫຼັກ, ຄວາມສະຫວ່າງ / ຄວາມຄົມຊັດ / ຄວາມອີ່ມສີ / ສີ ຂອງ cue ທີ່ໃຊ້ງານ, ຫຼື ປຸ່ມໜຶ່ງຂອງເອັບເຟັກ ຫຼື ເອັບເຟັກສຽງ
+Scanlines, phosphor bloom and RGB fringing. The bloom is the part that matters -- a phosphor spills sideways, which is why a CRT looks like it is emitting light.	ເສັ້ນສະແກນ, ແສງຟອສເຟີ ແລະ ຂອບ RGB. ແສງແມ່ນສ່ວນສຳຄັນ -- ຟອສເຟີລົ້ນອອກຂ້າງ, ນັ້ນແມ່ນເຫດທີ່ CRT ເບິ່ງຄືປ່ອຍແສງ.
+Torn scanline bands and RGB separation. In text mode it also corrupts CELLS -- whole rows lock to one repeating character, the way a real text screen loses sync.	ແຖບເສັ້ນສະແກນທີ່ຈີກ ແລະ ການແຍກ RGB. ໃນໂໝດຂໍ້ຄວາມມັນທຳລາຍຊ່ອງນຳ -- ທັງແຖວລັອກເປັນຕົວອັກສອນດຽວຊ້ຳໆ, ຄືໜ້າຈໍຂໍ້ຄວາມແທ້ທີ່ເສຍການຊິງ.
+Still holds the frame you are on. Flipbook plays the frames in turn. Replay draws the first frame stroke by stroke, the way it was drawn, then holds and starts again	Still ຖືເຟຣມທີ່ທ່ານຢູ່. Flipbook ຫຼິ້ນເຟຣມເທື່ອລະອັນ. Replay ແຕ້ມເຟຣມທຳອິດເທື່ອລະເສັ້ນ ຄືທີ່ແຕ້ມ, ແລ້ວຖື ແລະ ເລີ່ມໃໝ່
+Start, Stop, Pause, Resume, Load (stand it by without firing), Arm, Disarm, or Devamp it (a loop plays out its pass and ends); or Stop all, Pause all, Resume all: every deck	Start, Stop, Pause, Resume, Load (ກຽມໂດຍບໍ່ເລີ່ມ), Arm, Disarm, ຫຼື Devamp (ວົງຫຼິ້ນຮອບຂອງມັນແລ້ວຈົບ); ຫຼື Stop all, Pause all, Resume all: ທຸກ deck
+Scope shows shape and clipping. Lissajous shows phase and polarity between the first two channels -- a diagonal the wrong way means one is inverted. Spectrum is third-octave bars.	Scope ສະແດງຮູບຮ່າງ ແລະ ການຕັດ. Lissajous ສະແດງ phase ແລະ polarity ລະຫວ່າງສອງຊ່ອງທຳອິດ -- ເສັ້ນທະແຍງຜິດທາງໝາຍເຖິງອັນໜຶ່ງກັບຂົ້ວ. Spectrum ແມ່ນແຖບສ່ວນສາມ octave.
+0 picks the glyph the brightness asks for, 1 picks any glyph in the set. Turn it up to see the whole alphabet: ranked strictly by ink, a flat area picks one mark and the rest never appear.	0 ເລືອກ glyph ທີ່ຄວາມສະຫວ່າງຂໍ, 1 ເລືອກ glyph ໃດກໍໄດ້ໃນຊຸດ. ເພີ່ມເພື່ອເບິ່ງຕົວອັກສອນທັງໝົດ: ຈັດອັນດັບຕາມໝຶກຢ່າງເຂັ້ມງວດ, ພື້ນທີ່ຮາບເລືອກເຄື່ອງໝາຍດຽວ ແລະ ທີ່ເຫຼືອບໍ່ເຄີຍປາກົດ.
+Blocks and dithers read as density; the ASCII ramp reads as text; symbols read as wreckage. Cycling this clears a custom glyph string, since that would override it -- the preset row puts one back.	ຕັນ ແລະ dither ອ່ານເປັນຄວາມໜາແໜ້ນ; ASCII ramp ອ່ານເປັນຂໍ້ຄວາມ; ສັນຍາລັກອ່ານເປັນຊາກ. ການສະຫຼັບນີ້ລຶບສາຍ glyph ກຳນົດເອງ ເພາະມັນຈະທັບ -- ແຖວ preset ເອົາຄືນອັນໜຶ່ງ.
+Equal temperament buys free modulation at the cost of every interval being slightly wrong. Just and pythagorean are exactly in tune in one key. Bohlen-Pierce divides a twelfth, so it has no octaves.	equal temperament ຊື້ການປ່ຽນຄີຢ່າງອິດສະຫຼະໂດຍແລກກັບທຸກຂັ້ນສຽງຜິດເລັກນ້ອຍ. just ແລະ pythagorean ຖືກຕ້ອງໃນຄີດຽວ. Bohlen-Pierce ແບ່ງ twelfth, ຈຶ່ງບໍ່ມີ octave.
+OSC	OSC
+Twitch	Twitch
+Art-Net	Art-Net
+YouTube	YouTube
+PQ - HDR10	PQ - HDR10
+sACN (E1.31)	sACN (E1.31)
+DECKBOY  POCKET	DECKBOY  POCKET
+DECKLINK SDI / HDMI	DECKLINK SDI / HDMI
+AMWA NMOS  IS-04 / IS-05	AMWA NMOS  IS-04 / IS-05
