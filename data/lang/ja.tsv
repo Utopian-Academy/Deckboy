@@ -2003,3 +2003,196 @@ Run the clock	時計を開始
 What fires this cue besides GO	GO以外のキュー実行条件
 center	中央
 visual	映像表示
+JAM	同期
+MIX	ミックス
+CLIP	クリップ
+TEXT	テキスト
+MULTI	マルチ
+WACKY	ぶっ飛び
+COLOUR	カラー
+DARKEN	暗く
+STEREO	ステレオ
+COMPARE	比較
+LIGHTEN	明るく
+DASHBOARD	ダッシュボード
+Pocket Test (day)	Pocketテスト (昼)
+Dark Detail (0-12%)	暗部ディテール (0-12%)
+Frame Count (emoji)	フレームカウンター (絵文字)
+PLUGE (black level)	PLUGE (黒レベル)
+Pocket Test (night)	Pocketテスト (夜)
+Pocket Test (storm)	Pocketテスト (嵐)
+Marks stacked BELOW.	記号を下に重ねる。
+Panel Map (animated)	パネルマップ (アニメーション)
+Pocket Test (sunset)	Pocketテスト (夕焼け)
+Boresight (alignment)	照準 (位置合わせ)
+SMPTE 75% Colour Bars	SMPTE 75% カラーバー
+(projector curve only)	(プロジェクターカーブのみ)
+Multiburst (bandwidth)	マルチバースト (帯域)
+Convergence (fine grid)	コンバージェンス (細かいグリッド)
+Greyscale Steps (gamma)	グレースケール段階 (ガンマ)
+Uniformity (flat fields)	均一性 (フラットフィールド)
+MULTIVIEW carries this too.	MULTIVIEW にもこれが載ります。
+Test Clock (sync + latency)	テストクロック (同期 + 遅延)
+auto (reads the common two)	自動 (よく使う2つを読む)
+Panel Map (LED tile numbers)	パネルマップ (LEDパネル番号)
+Portal (blobs of deep space)	ポータル (深宇宙の泡)
+Terrarium (living ecosystem)	テラリウム (生きた生態系)
+Window 10% (peak brightness)	ウィンドウ 10% (ピーク輝度)
+Window 50% (peak at mid APL)	ウィンドウ 50% (中間APLでのピーク)
+Frame Count (drops + latency)	フレームカウンター (落ち + 遅延)
+Terrarium Pico (1px per cell)	テラリウム Pico (1セル1px)
+Banding Ramps (real bit depth)	バンディング ランプ (本当のビット深度)
+Fireside (a hearth that burns)	暖炉 (燃える炉辺)
+HLG - live broadcast (BT.2100)	HLG - 生放送 (BT.2100)
+Test Bars (motion diagnostics)	テストバー (動きの診断)
+Moire 1:1 (is anything scaling?)	モアレ 1:1 (何かがスケーリングしている?)
+Pocket Test (test card + scene cycle)	Pocketテスト (テストカード + シーン巡回)
+Critters (pixel-exact scaling, animated)	Critters (ピクセル単位の拡大、アニメーション)
+headphones, desk sounds and LTC stay out of it	ヘッドホン、卓の音、LTCは含まれません
+Above 1 tunnels inward, below 1 blooms outward.	1より上でトンネルは内へ吸い込まれ、1より下で外へ開きます。
+Read everything right to left. Yes, everything.	すべて右から左へ読みます。そう、すべて。
+Amber is closest to the 1976 single-phosphor look.	アンバーが1976年の単色蛍光体の見た目に最も近いです。
+Greetings, primitive. Your "slideshow" amuses us.	ごきげんよう、原始人。君の「スライドショー」はなかなか愉快だ。
+Sway sideways. Depth 1 is half the frame either way	横に揺らす。深さ1で左右それぞれ半画面
+Draw the diagnostic over the card, or just the text.	診断をカードの上に描く、またはテキストだけ。
+All interfaces, but only this computer is trusted yet.	すべてのインターフェース。ただし今はこのコンピューターだけを信頼しています。
+Choose the legacy cue token to show inside the PIP window	PIPウィンドウに表示する旧キュートークンを選ぶ
+ASIO carries the show's sound, and these are not on it yet	ASIOがショーの音を運んでいますが、これらはまだ乗っていません
+N=new  Enter/P=previous  O=open saved  E=examples  L=learn	N=新規  Enter/P=前回  O=保存を開く  E=サンプル  L=学ぶ
+Hand this parameter to an oscillator so it moves on its own	このパラメーターをオシレーターに任せて勝手に動かす
+How long the finished drawing stays before it is drawn again	描き終えた絵が描き直されるまで残る時間
+How it comes on and goes off: none, fade, rise, slide or wipe	出入りの仕方: なし、フェード、上昇、スライド、ワイプ
+The 64-step wavetable, quantised to 6 bits like the hardware.	64ステップのウェーブテーブル。実機と同じ6ビットに量子化。
+Vary tile size per cell, so the grid stops looking like a grid.	セルごとにタイルの大きさを変え、グリッドがグリッドに見えないようにする。
+Which output channel carries the signal. 'all' feeds every one.	信号を運ぶ出力チャンネル。'all' はすべてに送ります。
+What is sent. Backslash-n, -r, -t and -0 become those characters	送る内容。バックスラッシュ n、r、t、0 はその文字になります
+Deckboy's own remote-protocol verbs, one per line; # is a comment	Deckboy独自のリモートプロトコルの命令。1行に1つ。# はコメント
+Modulator speed as a ratio of the note, so the bend tracks pitch.	音程に対する比率でのモジュレーター速度。曲がりが音程に追従します。
+Play this cue to the preview only; the outputs keep what they have	このキューをプレビューだけで再生。出力は今のまま
+Put the pitch on an oscillator: Motion X sweeps it like a theremin	音程をオシレーターに: Motion X でテルミンのように掃引
+A disarmed cue stays in the list and does nothing; GO steps over it	無効化したキューはリストに残り、何もしません。GOは飛ばします
+Where the clock reads from this cue on; click the value to type one	このキューから時計が読む場所。値をクリックして入力
+Add a dashboard button that fires this master by name, from anywhere	このマスターを名前でどこからでも起動するボタンをダッシュボードに追加
+New here? LEARN THE BASICS takes five minutes. We'll show you round.	はじめてですか? 基本を学ぶは5分です。ご案内します。
+An IPv4 address, or 255.255.255.255 to broadcast to the whole network	IPv4アドレス、またはネットワーク全体に送る 255.255.255.255
+How much playing audio widens and brightens the pattern. 0 free-runs.	再生中の音が模様をどれだけ広げ明るくするか。0は自走。
+LED panel width in pixels - what one tile really is. Click to type it	LEDパネルの幅 (ピクセル)。1枚のタイルの実寸。クリックして入力
+Which deck it acts on; step off the end for the one this cue lives on	どのデッキに作用するか。末尾を越えるとこのキューのデッキ
+only one playlist - use the routing chip on the header to add another	プレイリストは1つだけ。見出しのルーティングチップで追加できます
+Which cue this master fires on that deck; step off the end to clear it	このマスターがそのデッキで起動するキュー。末尾を越えると解除
+Draw on the programme monitor with the mouse or a pen (DRAW). Esc stops	プログラムモニターにマウスかペンで描く (DRAW)。Escで終了
+How long the move takes, each way. 0 is instant whatever the style says	動きにかかる時間 (片道)。スタイルにかかわらず0は即時
+Stop that deck when the ramp lands - the usual take-it-down-and-stop-it	ランプが着いたらそのデッキを止める: よくある下げて止める
+Which of the file's sound tracks plays: a second language, a commentary	ファイルのどの音声トラックを鳴らすか: 別の言語、解説
+An oscillator on the colour: depth is how far round the wheel it travels	色にオシレーター: 深さは色相環をどこまで回るか
+Rack this cue paused and off air so GO starts it with no decoder spin-up	このキューを一時停止・オフエアで準備し、GOでデコーダーの立ち上がり待ちなしに始める
+Note, control change, program change, MIDI Show Control, or your own bytes	ノート、コントロールチェンジ、プログラムチェンジ、MIDIショーコントロール、または独自のバイト
+Black behind the words. Zero leaves it over whatever the output already has	文字の後ろの黒。0なら出力に既にあるものの上に重ねます
+How far the modulator bends the pitch. 0-63, the hardware's own gain range.	モジュレーターが音程を曲げる量。0-63、実機のゲイン範囲。
+the words this cue puts on screen  |  Shift+Enter: new line  |  Enter: apply	このキューが画面に出す言葉  |  Shift+Enter: 改行  |  Enter: 適用
+OSC and UDP are fire and forget; TCP connects, so it runs off the show thread	OSCとUDPは送りっぱなし。TCPは接続するので、ショーのスレッドの外で動きます
+Put the level on an oscillator: Motion makes it a gate that opens as you move	レベルをオシレーターに: Motion で動くと開くゲートになります
+Marks stacked ABOVE the characters, the way combining accents overflow a line.	文字の上に重ねる記号。行からはみ出す結合アクセントのように。
+Which chime. Cycling PLAYS it, so it can be chosen by ear rather than by name.	どのチャイムか。切り替えると鳴るので、名前ではなく耳で選べます。
+No rows. + ADD or LEARN makes one; MIDIMAP RESET brings the built-in rows back.	行がありません。+ 追加 か 学習 で作成。MIDIMAP RESET で組み込みの行が戻ります。
+Save the mask's paths as SVG, for Illustrator and anything else that reads them	マスクのパスをSVGで保存。Illustratorなど読めるものなら何でも
+Which MIDI output; a named port that is missing is reported rather than swapped	どのMIDI出力か。名前付きのポートが無ければ別のものに替えず報告します
+An oscillator on the level, running after GO until a later cue sets this fixture	レベルにオシレーター。GOの後、後のキューがこの灯体を設定するまで動き続けます
+Steps in third-octaves, because the ear works in ratios. 1kHz is the convention.	3分の1オクターブ刻み。耳は比で聞くから。1 kHz が慣例です。
+Strikes drawn ACROSS the cell, damaging the character rather than decorating it.	セルを横切る線。文字を飾るのではなく傷つけます。
+Whether incoming MIDI notes play this synth or trigger cues as they always have.	入ってくるMIDIノートでこのシンセを鳴らすか、いつも通りキューを起動するか。
+A note number, or type LEARN and play it. Notes no cue claims still go to cue N+1	ノート番号、または LEARN と入力して弾く。どのキューも取らないノートは引き続きキュー N+1 へ
+A plain stereo pair. Click to open the matrix, starting from exactly this routing	ふつうのステレオペア。クリックでこのルーティングからマトリクスを開く
+Folding is what turns an arbitrary pattern into something that reads as designed.	折り畳みが、任意の模様をデザインされたものに変えます。
+Channel=level, comma separated. Ranges too: 1=255, 10-14=64. Channels count from 1	チャンネル=レベルをカンマ区切りで。範囲も可: 1=255, 10-14=64。チャンネルは1から数えます
+Moves every selected cue's trim by the same dB; typing a value sets them all to it	選択した全キューのトリムを同じdBだけ動かします。値を入力するとすべてその値に
+Bends the carrier's PITCH rather than mixing with it. This is what makes FDS growl.	キャリアの音程を、混ぜるのではなく曲げます。これがFDSのうなりです。
+Half way through LEARN THE BASICS. Press L and we pick up where you stopped, skapi.	基本を学ぶの途中です。Lを押せば続きから、skapi。
+Render as a character grid with a 16-colour indexed palette, rather than as pixels.	ピクセルではなく、16色インデックスパレットの文字グリッドとして描く。
+Which MIDI output this file plays to; step past the end for the first one available	このファイルを鳴らすMIDI出力。末尾を越えると最初に空いているもの
+An IPv4 address, or 255.255.255.255 for the universe's multicast group (239.255.x.y)	IPv4アドレス、またはユニバースのマルチキャストグループ用の 255.255.255.255 (239.255.x.y)
+Click a cell to walk it: off, full, -3, -6, -12. This row turns the matrix off again	セルをクリックで切り替え: オフ、最大、-3、-6、-12。この行でマトリクスをまたオフに
+How long each phrase stays before it moves. Zero hides them without losing the list.	各フレーズが動くまで留まる時間。0ならリストを失わずに隠します。
+How long it takes to fall away after the attack. Only audible when retrigger is set.	アタック後に減衰する時間。リトリガーがオンのときだけ聞こえます。
+Off, from start (next cue fires when this one starts) or from end (when it finishes)	オフ、開始から (このキューが始まると次が起動) または終了から (終わったとき)
+Height of one line as a percent of the raster, so a card reads the same on any screen	1行の高さをラスターの割合で。どの画面でもカードが同じに見えます
+Set slot source as media:/path, browser:url, window:name, camera:name, or syphon:name	スロットのソースを media:/パス、browser:url、window:名前、camera:名前、syphon:名前 で指定
+Short LFSR mode. The period is brief enough to read as pitched metal rather than hiss.	短いLFSRモード。周期が短く、シャーではなく調律された金属のように聞こえます。
+White, warm, red, amber, green, cyan, blue, magenta. ~ moves it round the colour wheel	白、暖色、赤、アンバー、緑、シアン、青、マゼンタ。~ で色相環を回します
+Re-strike the envelope this often. Hold sustains one note, which is what a drone wants.	エンベロープを打ち直す間隔。Hold は1音を保ち、ドローン向きです。
+Diamond is the hard-edged Atari Video Music lattice; rings tunnel well with feedback zoom.	Diamond は Atari Video Music の鋭いエッジの格子。リングはフィードバックズームでよいトンネルになります。
+Rock or spin. Depth 1 is half a turn either way; a saw at depth 1 turns it all the way round	揺らすか回すか。深さ1で左右それぞれ半回転。深さ1ののこぎり波で一回転
+DECK playback level (live, not saved with the cue) - per-cue trim is gain in the AUDIO section	デッキの再生レベル (ライブ、キューに保存されません) - キューごとのトリムは AUDIO セクションのゲイン
+Still, fade in, typewriter, scroll up, crawl or pulse -- all driven by the cue's own transport	静止、フェードイン、タイプライター、上スクロール、クロール、パルス。すべてキュー自身のトランスポートで動きます
+Fields per rendered frame. 1 is one for one, 0.5 holds each field for two frames, 0 freezes it.	描画1フレームあたりのフィールド数。1で1対1、0.5で各フィールドを2フレーム保持、0で停止。
+What this cue shows while it plays: waveform, scope, Lissajous, spectrum, meters or a name card	再生中にこのキューが表示するもの: 波形、スコープ、リサージュ、スペクトラム、メーター、ネームカード
+0 picks tiles by brightness so the picture reads. 1 picks at random so the grid becomes texture.	0は明るさでタイルを選び、絵が読めます。1はランダムに選び、グリッドが質感になります。
+How far it travels, in semitones. Up reads as arrival, down as departure, zero is a struck note.	移動する量 (半音)。上は到着、下は出発のように、0は打たれた音です。
+An IPv4 address. Names are not resolved: a DNS lookup is a blocking call and GO must not make one	IPv4アドレス。名前は解決しません: DNS照会は処理を止めるため、GOでは行えません
+Tile width in pixels. Must match the sheet's grid or the slices land across neighbouring sprites.	タイル幅 (ピクセル)。シートのグリッドと合わないと、切り出しが隣のスプライトにかかります。
+Alternating mirrors by cell position, which reads as pattern where random flipping reads as noise.	セル位置で交互に鏡像化。ランダムな反転はノイズに見え、こちらは模様に見えます。
+0 welds them to their cell, which reads as engraved. Above it they re-roll, which reads as boiling.	0でセルに固定し、彫ったように。それ以上は引き直され、煮えたぎるように見えます。
+MONO L plays the left input in both speakers: mic 1 on most interfaces. STEREO is for a line source.	MONO L は左入力を両スピーカーで鳴らします: 多くの機器でマイク1。STEREO はライン入力用です。
+The whole gesture. This IS the cue's duration -- a sting is the one generated signal here that ends.	身ぶり全体。これがキューの長さそのものです: ここで唯一終わる生成信号がスティングです。
+Click the value to send this fixture or leave it where the last cue put it. ~ makes the level breathe	値をクリックして、この灯体を送るか、前のキューが置いた所に残すか。~ でレベルが呼吸します
+FDS is a wavetable bent by a modulator. 2A03 is the pulse/triangle/noise set most chiptune is made of.	FDS はモジュレーターで曲げるウェーブテーブル。2A03 はほとんどのチップチューンの元になったパルス/三角/ノイズの組です。
+Scramble which glyph means which brightness. Same set, different handwriting. Seeded, so it stays put.	どの字形がどの明るさを表すかを混ぜる。同じ組で別の筆跡。シード付きなので固定です。
+Pixel sort: runs of pixels sorted by brightness within a row, which is what makes datamosh look melted.	ピクセルソート: 行の中のピクセル列を明るさで並べ替え、データモッシュの溶けた見た目を作ります。
+How many cells the marks may climb. They thin out as they go, so a tall reach trails rather than doubles.	記号が上れるセル数。上るほど薄くなるので、高い到達は重なるのではなく尾を引きます。
+cue act val  -  G take  S stop  F fade out (val = tenths of a second)  V volume  O opacity  J jump to row	キュー 動作 値  -  G テイク  S 停止  F フェードアウト (値 = 0.1秒単位)  V 音量  O 不透明度  J 行へジャンプ
+Harmonic weight: a pure chime at zero, brass at full. This is the difference between a ping and a fanfare.	倍音の重み: 0で澄んだチャイム、最大で金管。これがピンとファンファーレの違いです。
+Steps through the inputs this computer has. 'Settings input' follows the input chosen in Settings > Audio.	このコンピューターの入力を順に切り替えます。'Settings input' は 設定 > オーディオ で選んだ入力に従います。
+Embers to roaring. It still surges and settles at any setting -- a fire that does not move reads as a photo	熾火から燃え盛る炎まで。どの設定でも盛り上がって落ち着きます: 動かない火は写真に見えます
+Reference pitch. 440 is modern standard, 432 the common alternative, and older instruments sat lower still.	基準音。440が現代の標準、432がよくある代案、古い楽器はさらに低めでした。
+Where the sting starts. Under a voice it wants to stay out of the way; over a room it wants to cut through.	スティングの始まり。声の下では邪魔にならず、会場の上では突き抜けるように。
+Digital gain on the input, -40 to +40 dB. Set the interface's own preamp first; this is for the last few dB.	入力のデジタルゲイン、-40〜+40 dB。まず機器のプリアンプを合わせ、これは最後の数dB用です。
+Pulse the size. On its own this moves width AND height together; give height its own ~ to squash and stretch	大きさを脈打たせる。単独では幅と高さが一緒に動きます。潰したり伸ばしたりするには高さに別の ~ を
+A card fills the frame; a Lower Third is a name and a role, low on a transparent frame, with an in and an out	カードは画面全体。ロワーサードは名前と肩書きを透明な画面の下に、イン・アウト付きで
+Held keeps the last displacement rather than removing it -- the picture stays bent the way the driver left it.	Held は最後の変位を消さずに保ちます: ドライバーが残したとおり曲がったままです。
+12.5 and 25 are thin and reedy, 50 is hollow. 75 sounds identical to 25 -- it is here because trackers expose it.	12.5と25は細く鼻にかかり、50はうつろ。75は25と同じ音: トラッカーにあるので置いています。
+Quantise the output like the hardware. The steps ARE the sound; smoothing them makes it a synth imitating a chip.	実機のように出力を量子化。段差こそが音で、滑らかにするとチップを真似るシンセになります。
+Moves every selected cue's trim by the same dB, keeping the differences between them; typing a value sets them all to it	選択した全キューのトリムを差を保ったまま同じdBだけ動かします。値を入力するとすべてその値に
+Where the playlist's crosspoints send it (Settings > Audio). Click to open the matrix by name, starting from exactly that	プレイリストのクロスポイントの送り先 (設定 > オーディオ)。クリックでそのルーティングから名前でマトリクスを開く
+name values with  d = ...;  end with one expression, or three for red green blue  |  Shift+Enter: new line  |  Enter: apply	値に名前を  d = ...;  で付け、式1つ、または赤 緑 青の3つで終える  |  Shift+Enter: 改行  |  Enter: 適用
+Put back what it started from once the ramp lands (after the stop): a deck left ready for its next cue, a swell that lets go	ランプが着いたら (停止の後) 元の状態に戻す: 次のキューに備えたデッキ、手を離すスウェル
+Which speech model makes the captions: English, any language, or the slower, more accurate pair. Each is a one-time download	字幕を作る音声モデル: 英語、全言語、またはより遅く正確な組。どれも1回のダウンロード
+What the mask cuts: this cue wherever it plays, this playlist on the focused output, that output's whole picture, or its matte	マスクが切るもの: どこで再生してもこのキュー、選択中の出力上のこのプレイリスト、その出力の画面全体、またはそのマット
+Play at the screen's rate when it is within 0.2% (59.94 on 60): every frame shown once, the sound up to 3.5 cents sharp or flat	画面のレートとの差が0.2%以内 (60に対し59.94) ならそのレートで再生: 各フレームを1回、音は最大3.5セント高めか低め
+Quarter turns are exact and stay crisp. Spinning samples at an angle, which tears pixel art -- sometimes that is what you want.	90度単位は正確で鮮明なまま。回転は斜めにサンプリングし、ピクセルアートを裂きます: それが欲しいときもあります。
+Every take starts the puppetry the same way, so a rehearsed look repeats instead of depending on how long the app has been open.	テイクごとに同じように動かし始めるので、リハーサルした見た目が、アプリの起動時間に左右されず再現されます。
+What aims each tilt: its own position, the picture's luma gradient so characters lean the way the image does, or the cell's hue.	各傾きの向きを決めるもの: 自分の位置、画像の輝度勾配 (文字が絵と同じに傾く)、またはセルの色相。
+Name a channel or a pair once. Playlists send to the name, so a different interface means changing the names here, not every cue.	チャンネルやペアに一度だけ名前を付ける。プレイリストは名前へ送るので、機器を替えてもここの名前を変えるだけで、キューごとの変更は不要です。
+Click a crosspoint to walk it: off, 0, -3, -6, -12 dB. Drag it sideways for any level. A playlist with none plays to its own device.	クロスポイントをクリックで切り替え: オフ、0、-3、-6、-12 dB。横にドラッグで任意のレベル。ポイントの無いプレイリストは自分のデバイスで鳴ります。
+Sprite sets installed in data/sprites. Each folder there is a set; cycling picks one and wraps back to none. Right-click turns them off.	data/sprites に入れたスプライトセット。フォルダ1つが1セット。切り替えで選び、最後はなしに戻ります。右クリックでオフ。
+Internal resolution, 1 chunkiest to 5 finest. This is an aesthetic control as much as a speed one -- the 8-bit look comes from big pixels.	内部解像度、1が最も粗く5が最も細かい。速度と同じくらい見た目の設定です: 8ビットらしさは大きなピクセルから来ます。
+Picture takes colour from the image. Green, amber and cyan are terminal phosphors. Palette locks the text to the selected hardware palette.	Picture は画像から色を取ります。緑、アンバー、シアンは端末の蛍光体。Palette は選んだハードウェアパレットに文字を固定します。
+SUBTLE self-heals (H.264). CLASSIC is the real smear (MPEG-4). EXTREME is chunkier and smears constantly. Changing this re-prepares the cue.	SUBTLE は自然に回復 (H.264)。CLASSIC は本物のにじみ (MPEG-4)。EXTREME はより粗く常ににじみます。変更するとキューを準備し直します。
+Sine for line-up, pink to ring out a PA, white to find rattles, sweep to hear where a room rings, identify to walk the outputs one at a time.	サインは調整、ピンクはPAの鳴らし、ホワイトはびびり探し、スイープは会場の響く所を聞く、identify は出力を1つずつ確かめるため。
+Which effect, by its place in the stack of the cue that deck is playing when this fires. With nothing there, the fade says so and does nothing	どのエフェクトか。起動時にそのデッキが再生しているキューのスタック内の位置で選びます。何も無ければ、フェードはそう告げて何もしません
+Each frame blended into the next. This is the Hypno signature -- at 0 it is a pattern generator, above it the picture starts feeding on itself.	各フレームを次のフレームに混ぜます。これがHypnoの持ち味: 0では模様の生成器、それ以上では画像が自分自身を食べ始めます。
+What is through the window on the hearth wall: a garden, rain, snow or the sea. A room with weather outside reads as somewhere rather than as a wall	炉辺の壁の窓から見えるもの: 庭、雨、雪、海。外に天気のある部屋は、壁ではなく場所に見えます
+BY FIXTURE: the lights in the patch (Settings > Network > FIXTURES), by name. CHANNELS: channel=level by hand. A cue can carry both; channels go last	灯体ごと: パッチの照明 (設定 > ネットワーク > 灯体) を名前で。チャンネル: チャンネル=レベルを手で。キューは両方持てます。チャンネルが最後
+Each character rocks as though it were a card being tilted. Every cell has its own phase, so the grid breathes instead of sliding about as one sheet.	各文字が傾くカードのように揺れます。セルごとに位相が違うので、グリッドは1枚で滑るのではなく呼吸します。
+Pen: click for corners, drag for curves, click the first point to close (P). Points: drag, click the outline to add one, Alt-click or Delete to remove	ペン: クリックで角、ドラッグで曲線、最初の点をクリックで閉じる (P)。点: ドラッグ、輪郭をクリックで追加、Alt+クリックか Delete で削除
+The chip's three channels. They differ in kind: triangle has no volume control on the hardware, and noise is a shift register rather than an oscillator.	チップの3チャンネル。性質が違います: 三角波は実機に音量が無く、ノイズはオシレーターではなくシフトレジスターです。
+Curated sets of symbols and emoji -- stars, notes, flowers, arrows, weather, runes, faces. Picking one fills the custom glyphs below, which stays editable.	厳選した記号と絵文字のセット: 星、音符、花、矢印、天気、ルーン、顔。選ぶと下のカスタム字形が埋まり、編集もできます。
+Play from the computer keyboard, Ableton layout: A W S E D F T G Y H U J, Z and X for octave. While this is ON those keys make notes instead of firing cues.	コンピューターのキーボードで演奏、Ableton配列: A W S E D F T G Y H U J、Z と X でオクターブ。オンの間、そのキーはキューを起動せず音を鳴らします。
+Deck opacity, deck volume, the master dimmer, the active cue's own brightness / contrast / saturation / hue, or a knob of one of its effects or audio effects	デッキの不透明度、デッキの音量、マスターディマー、アクティブなキューの明るさ / コントラスト / 彩度 / 色相、またはそのエフェクトかオーディオエフェクトのつまみ
+Scanlines, phosphor bloom and RGB fringing. The bloom is the part that matters -- a phosphor spills sideways, which is why a CRT looks like it is emitting light.	走査線、蛍光体のにじみ、RGBのふち。大事なのはにじみ: 蛍光体が横に広がるので、CRTは光を発しているように見えます。
+Torn scanline bands and RGB separation. In text mode it also corrupts CELLS -- whole rows lock to one repeating character, the way a real text screen loses sync.	裂けた走査線の帯とRGBのずれ。テキストモードではセルも壊します: 行全体が同じ文字の繰り返しに固まり、同期を失った本物のテキスト画面のようです。
+Still holds the frame you are on. Flipbook plays the frames in turn. Replay draws the first frame stroke by stroke, the way it was drawn, then holds and starts again	Still は今のフレームで止めます。Flipbook はフレームを順に再生。Replay は最初のフレームを描いたとおり一筆ずつ描き、止まってまた始めます
+Start, Stop, Pause, Resume, Load (stand it by without firing), Arm, Disarm, or Devamp it (a loop plays out its pass and ends); or Stop all, Pause all, Resume all: every deck	Start、Stop、Pause、Resume、Load (起動せず準備)、Arm、Disarm、Devamp (ループが一周を終えて終わる)。または Stop all、Pause all、Resume all: すべてのデッキ
+Scope shows shape and clipping. Lissajous shows phase and polarity between the first two channels -- a diagonal the wrong way means one is inverted. Spectrum is third-octave bars.	Scope は形とクリップを表示。Lissajous は最初の2チャンネル間の位相と極性: 対角線が逆向きならどちらかが反転しています。Spectrum は3分の1オクターブのバーです。
+0 picks the glyph the brightness asks for, 1 picks any glyph in the set. Turn it up to see the whole alphabet: ranked strictly by ink, a flat area picks one mark and the rest never appear.	0は明るさが求める字形を、1はセット内の任意の字形を選びます。上げるとアルファベット全体が見えます: インク量で厳密に並べると、平らな部分は1つの記号だけを選び、残りは出てきません。
+Blocks and dithers read as density; the ASCII ramp reads as text; symbols read as wreckage. Cycling this clears a custom glyph string, since that would override it -- the preset row puts one back.	ブロックとディザは密度に、ASCIIランプは文字に、記号は残骸に見えます。切り替えるとカスタム字形の文字列を消します (上書きするため)。プリセットの行で1つ戻せます。
+Equal temperament buys free modulation at the cost of every interval being slightly wrong. Just and pythagorean are exactly in tune in one key. Bohlen-Pierce divides a twelfth, so it has no octaves.	平均律はどの音程も少しずつずれる代わりに自由な転調を得ます。純正律とピタゴラス音律は1つの調で完全に合います。Bohlen-Pierce は12度を分割するのでオクターブがありません。
+OSC	OSC
+RTMPS	RTMPS
+Twitch	Twitch
+Art-Net	Art-Net
+YouTube	YouTube
+PQ - HDR10	PQ - HDR10
+sACN (E1.31)	sACN (E1.31)
+Syphon / Spout	Syphon / Spout
+NDI® NETWORK	NDI® NETWORK
+AMWA NMOS  IS-04 / IS-05	AMWA NMOS  IS-04 / IS-05

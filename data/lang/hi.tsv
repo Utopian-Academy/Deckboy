@@ -1997,3 +1997,199 @@ Run the clock	घड़ी चलाएँ
 What fires this cue besides GO	GO के अलावा इस cue को क्या चलाता है
 center	बीच
 visual	दृश्य
+Cue	क्यू
+JAM	सिंक
+MIX	मिक्स
+CLIP	क्लिप
+TEXT	टेक्स्ट
+KEY L	KEY बा
+MULTI	मल्टी
+WACKY	पागलपन
+COLOUR	रंग
+DARKEN	गहरा
+STEREO	स्टीरियो
+COMPARE	तुलना
+LIGHTEN	हल्का
+DASHBOARD	डैशबोर्ड
+Pocket Test (day)	Pocket परीक्षण (दिन)
+Dark Detail (0-12%)	छाया विवरण (0-12%)
+Frame Count (emoji)	फ़्रेम गणक (इमोजी)
+PLUGE (black level)	PLUGE (काले का स्तर)
+Pocket Test (night)	Pocket परीक्षण (रात)
+Pocket Test (storm)	Pocket परीक्षण (तूफ़ान)
+Marks stacked BELOW.	चिह्न नीचे की ओर ढेर।
+Panel Map (animated)	पैनल नक्शा (एनिमेटेड)
+Pocket Test (sunset)	Pocket परीक्षण (सूर्यास्त)
+Boresight (alignment)	निशाना (संरेखण)
+SMPTE 75% Colour Bars	SMPTE 75% रंग पट्टियाँ
+(projector curve only)	(केवल प्रोजेक्टर वक्र)
+Multiburst (bandwidth)	मल्टीबर्स्ट (बैंडविड्थ)
+Convergence (fine grid)	अभिसरण (बारीक ग्रिड)
+Greyscale Steps (gamma)	ग्रे के चरण (गामा)
+Uniformity (flat fields)	एकरूपता (समतल क्षेत्र)
+MULTIVIEW carries this too.	MULTIVIEW भी इसे ले जाता है।
+Test Clock (sync + latency)	परीक्षण घड़ी (सिंक + विलंब)
+auto (reads the common two)	स्वतः (दो आम वाले पढ़ता है)
+Panel Map (LED tile numbers)	पैनल नक्शा (LED पैनल संख्याएँ)
+Portal (blobs of deep space)	पोर्टल (गहरे अंतरिक्ष के बुलबुले)
+Terrarium (living ecosystem)	Terrarium (जीवित पारिस्थितिकी)
+Window 10% (peak brightness)	विंडो 10% (शिखर चमक)
+Window 50% (peak at mid APL)	विंडो 50% (मध्य APL पर शिखर)
+Frame Count (drops + latency)	फ़्रेम गणक (छूटे + विलंब)
+Terrarium Pico (1px per cell)	Terrarium Pico (प्रति खाना 1 px)
+Banding Ramps (real bit depth)	बैंडिंग रैंप (असली बिट गहराई)
+Fireside (a hearth that burns)	अलाव (जलता हुआ चूल्हा)
+HLG - live broadcast (BT.2100)	HLG - लाइव प्रसारण (BT.2100)
+Test Bars (motion diagnostics)	परीक्षण पट्टियाँ (गति निदान)
+Moire 1:1 (is anything scaling?)	Moiré 1:1 (क्या कुछ स्केल कर रहा है?)
+Send now, without taking the cue	अभी भेजें, क्यू लिए बिना
+Pocket Test (test card + scene cycle)	Pocket परीक्षण (टेस्ट कार्ड + दृश्य चक्र)
+Critters (pixel-exact scaling, animated)	Critters (पिक्सेल-सटीक स्केलिंग, एनिमेटेड)
+headphones, desk sounds and LTC stay out of it	हेडफ़ोन, डेस्क की आवाज़ें और LTC इससे बाहर रहते हैं
+Above 1 tunnels inward, below 1 blooms outward.	1 से ऊपर सुरंग भीतर खिंचती है, 1 से नीचे बाहर खिलती है।
+Read everything right to left. Yes, everything.	सब कुछ दाएँ से बाएँ पढ़ें। हाँ, सब कुछ।
+Amber is closest to the 1976 single-phosphor look.	अंबर 1976 के एकल-फ़ॉस्फ़र रूप के सबसे क़रीब है।
+Greetings, primitive. Your "slideshow" amuses us.	नमस्कार, आदिम प्राणी। तुम्हारा "स्लाइड शो" हमें मज़ेदार लगता है।
+Sway sideways. Depth 1 is half the frame either way	बगल में झूलना। गहराई 1 हर ओर आधा फ़्रेम है
+Draw the diagnostic over the card, or just the text.	कार्ड पर निदान बनाएँ, या केवल टेक्स्ट।
+All interfaces, but only this computer is trusted yet.	सभी इंटरफ़ेस, पर अभी केवल यह कंप्यूटर भरोसेमंद है।
+Choose the legacy cue token to show inside the PIP window	PIP विंडो में दिखाने के लिए पुराना क्यू टोकन चुनें
+ASIO carries the show's sound, and these are not on it yet	ASIO शो की आवाज़ ले जाता है, और ये अभी उस पर नहीं हैं
+N=new  Enter/P=previous  O=open saved  E=examples  L=learn	N=नया  Enter/P=पिछला  O=सहेजा खोलें  E=उदाहरण  L=सीखें
+Hand this parameter to an oscillator so it moves on its own	यह पैरामीटर किसी ऑसिलेटर को सौंपें ताकि यह अपने आप चले
+How long the finished drawing stays before it is drawn again	पूरा चित्र दोबारा बनने से पहले कितनी देर रहता है
+How it comes on and goes off: none, fade, rise, slide or wipe	यह कैसे आता और जाता है: कुछ नहीं, फ़ेड, ऊपर उठना, खिसकना या वाइप
+The 64-step wavetable, quantised to 6 bits like the hardware.	64-चरण वेवटेबल, हार्डवेयर की तरह 6 बिट में क्वांटाइज़।
+Vary tile size per cell, so the grid stops looking like a grid.	हर खाने में टाइल का आकार बदलें, ताकि ग्रिड ग्रिड जैसा न दिखे।
+Which output channel carries the signal. 'all' feeds every one.	कौन-सा आउटपुट चैनल सिग्नल ले जाता है। 'all' सबको भरता है।
+What is sent. Backslash-n, -r, -t and -0 become those characters	क्या भेजा जाता है। बैकस्लैश-n, -r, -t और -0 वे अक्षर बन जाते हैं
+Deckboy's own remote-protocol verbs, one per line; # is a comment	Deckboy की अपनी रिमोट-प्रोटोकॉल क्रियाएँ, हर पंक्ति में एक; # टिप्पणी है
+Modulator speed as a ratio of the note, so the bend tracks pitch.	मॉड्यूलेटर की गति नोट के अनुपात में, ताकि मोड़ पिच के पीछे चले।
+Play this cue to the preview only; the outputs keep what they have	यह क्यू केवल प्रीव्यू में चलाएँ; आउटपुट जो है वही रखते हैं
+Put the pitch on an oscillator: Motion X sweeps it like a theremin	पिच को ऑसिलेटर पर रखें: Motion X इसे थेरेमिन की तरह घुमाता है
+A disarmed cue stays in the list and does nothing; GO steps over it	निष्क्रिय क्यू सूची में रहता है और कुछ नहीं करता; GO उसे लाँघ जाता है
+Where the clock reads from this cue on; click the value to type one	इस क्यू से घड़ी कहाँ से पढ़ती है; टाइप करने के लिए मान पर क्लिक करें
+Add a dashboard button that fires this master by name, from anywhere	डैशबोर्ड पर बटन जोड़ें जो इस मास्टर को नाम से कहीं से भी चलाए
+New here? LEARN THE BASICS takes five minutes. We'll show you round.	यहाँ नए हैं? बुनियादी बातें सीखें में पाँच मिनट लगते हैं। हम घुमा देंगे।
+An IPv4 address, or 255.255.255.255 to broadcast to the whole network	IPv4 पता, या पूरे नेटवर्क पर भेजने के लिए 255.255.255.255
+How much playing audio widens and brightens the pattern. 0 free-runs.	बजती आवाज़ पैटर्न को कितना चौड़ा और उजला करती है। 0 मुक्त चलता है।
+LED panel width in pixels - what one tile really is. Click to type it	LED पैनल की चौड़ाई पिक्सेल में: एक टाइल वास्तव में कितनी है। टाइप करने के लिए क्लिक करें
+Which deck it acts on; step off the end for the one this cue lives on	यह किस डेक पर काम करता है; इस क्यू के डेक के लिए अंत से आगे जाएँ
+only one playlist - use the routing chip on the header to add another	केवल एक प्लेलिस्ट: हेडर पर रूटिंग चिप दूसरी जोड़ती है
+Which cue this master fires on that deck; step off the end to clear it	यह मास्टर उस डेक पर कौन-सा क्यू चलाता है; साफ़ करने के लिए अंत से आगे जाएँ
+Draw on the programme monitor with the mouse or a pen (DRAW). Esc stops	प्रोग्राम मॉनिटर पर माउस या पेन से बनाएँ (DRAW)। Esc रोकता है
+How long the move takes, each way. 0 is instant whatever the style says	हर दिशा में चाल कितनी देर लेती है। 0 तुरंत है, शैली जो भी कहे
+Stop that deck when the ramp lands - the usual take-it-down-and-stop-it	रैंप पहुँचने पर उस डेक को रोकें: सामान्य घटाओ-और-रोको
+Which of the file's sound tracks plays: a second language, a commentary	फ़ाइल का कौन-सा ध्वनि ट्रैक बजे: दूसरी भाषा, कमेंट्री
+An oscillator on the colour: depth is how far round the wheel it travels	रंग पर ऑसिलेटर: गहराई बताती है कि वह चक्र पर कितना घूमता है
+Rack this cue paused and off air so GO starts it with no decoder spin-up	इस क्यू को रुका हुआ और ऑफ़-एयर तैयार करें, ताकि GO इसे डिकोडर की देरी के बिना शुरू करे
+Note, control change, program change, MIDI Show Control, or your own bytes	नोट, control change, program change, MIDI Show Control या आपके अपने बाइट
+Black behind the words. Zero leaves it over whatever the output already has	शब्दों के पीछे काला। शून्य उन्हें आउटपुट पर पहले से मौजूद चीज़ पर छोड़ता है
+How far the modulator bends the pitch. 0-63, the hardware's own gain range.	मॉड्यूलेटर पिच को कितना मोड़ता है। 0-63, हार्डवेयर की अपनी गेन सीमा।
+the words this cue puts on screen  |  Shift+Enter: new line  |  Enter: apply	इस क्यू द्वारा स्क्रीन पर रखे शब्द  |  Shift+Enter: नई पंक्ति  |  Enter: लागू करें
+OSC and UDP are fire and forget; TCP connects, so it runs off the show thread	OSC और UDP भेजकर भूल जाते हैं; TCP जुड़ता है, इसलिए शो थ्रेड से बाहर चलता है
+Put the level on an oscillator: Motion makes it a gate that opens as you move	स्तर को ऑसिलेटर पर रखें: Motion इसे ऐसा गेट बनाता है जो आपके हिलने पर खुलता है
+Marks stacked ABOVE the characters, the way combining accents overflow a line.	अक्षरों के ऊपर ढेर चिह्न, जैसे संयुक्त मात्राएँ जो पंक्ति से बाहर निकलती हैं।
+Which chime. Cycling PLAYS it, so it can be chosen by ear rather than by name.	कौन-सी घंटी। बदलने पर यह बजती है, ताकि नाम के बजाय कान से चुनें।
+No rows. + ADD or LEARN makes one; MIDIMAP RESET brings the built-in rows back.	कोई पंक्ति नहीं। + जोड़ें या सीखें एक बनाता है; MIDIMAP RESET बनी-बनाई पंक्तियाँ लौटाता है।
+Save the mask's paths as SVG, for Illustrator and anything else that reads them	मास्क के पथ SVG के रूप में सहेजें, Illustrator और उन्हें पढ़ने वाली हर चीज़ के लिए
+Which MIDI output; a named port that is missing is reported rather than swapped	कौन-सा MIDI आउटपुट; ग़ायब नामित पोर्ट बताया जाता है, बदला नहीं जाता
+An oscillator on the level, running after GO until a later cue sets this fixture	स्तर पर ऑसिलेटर, GO के बाद चलता है जब तक बाद का क्यू इस फ़िक्स्चर को सेट न करे
+Steps in third-octaves, because the ear works in ratios. 1kHz is the convention.	तिहाई-सप्तक के चरण, क्योंकि कान अनुपात में काम करता है। 1 kHz परंपरा है।
+Strikes drawn ACROSS the cell, damaging the character rather than decorating it.	खाने के आर-पार लकीरें, जो अक्षर को सजाने के बजाय बिगाड़ती हैं।
+Whether incoming MIDI notes play this synth or trigger cues as they always have.	क्या आने वाले MIDI नोट यह सिंथ बजाएँ या हमेशा की तरह क्यू चलाएँ।
+A note number, or type LEARN and play it. Notes no cue claims still go to cue N+1	नोट संख्या, या LEARN लिखें और बजाएँ। जिन नोटों को कोई क्यू नहीं लेता वे अब भी क्यू N+1 पर जाते हैं
+A plain stereo pair. Click to open the matrix, starting from exactly this routing	एक साधारण स्टीरियो जोड़ी। इसी रूटिंग से शुरू करके मैट्रिक्स खोलने के लिए क्लिक करें
+Folding is what turns an arbitrary pattern into something that reads as designed.	मोड़ना किसी भी पैटर्न को ऐसा बनाता है जो डिज़ाइन किया हुआ लगे।
+Channel=level, comma separated. Ranges too: 1=255, 10-14=64. Channels count from 1	चैनल=स्तर, अल्पविराम से अलग। रेंज भी: 1=255, 10-14=64। चैनल 1 से गिने जाते हैं
+Moves every selected cue's trim by the same dB; typing a value sets them all to it	हर चुने क्यू का ट्रिम उतने ही dB खिसकाता है; मान टाइप करने से सब उस पर सेट होते हैं
+Bends the carrier's PITCH rather than mixing with it. This is what makes FDS growl.	कैरियर की पिच को मोड़ता है, उससे मिलने के बजाय। इसी से FDS गुर्राता है।
+Half way through LEARN THE BASICS. Press L and we pick up where you stopped, skapi.	बुनियादी बातें सीखें का आधा हुआ। L दबाएँ और जहाँ रुके थे वहीं से चलें, skapi।
+Render as a character grid with a 16-colour indexed palette, rather than as pixels.	पिक्सेल के बजाय 16-रंग अनुक्रमित पैलेट वाले अक्षर ग्रिड के रूप में दिखाएँ।
+Which MIDI output this file plays to; step past the end for the first one available	यह फ़ाइल किस MIDI आउटपुट पर बजती है; पहले उपलब्ध के लिए अंत से आगे जाएँ
+An IPv4 address, or 255.255.255.255 for the universe's multicast group (239.255.x.y)	IPv4 पता, या यूनिवर्स के मल्टीकास्ट समूह के लिए 255.255.255.255 (239.255.x.y)
+Click a cell to walk it: off, full, -3, -6, -12. This row turns the matrix off again	खाने पर क्लिक कर बदलें: बंद, पूरा, -3, -6, -12। यह पंक्ति मैट्रिक्स को फिर बंद करती है
+How long each phrase stays before it moves. Zero hides them without losing the list.	हर वाक्यांश हिलने से पहले कितनी देर रहता है। शून्य उन्हें सूची खोए बिना छिपाता है।
+How long it takes to fall away after the attack. Only audible when retrigger is set.	अटैक के बाद ढलने में कितना समय लगता है। केवल रीट्रिगर चालू होने पर सुनाई देता है।
+Off, from start (next cue fires when this one starts) or from end (when it finishes)	बंद, शुरू से (अगला क्यू इसके शुरू होते ही चलता है) या अंत से (जब यह ख़त्म हो)
+Height of one line as a percent of the raster, so a card reads the same on any screen	एक पंक्ति की ऊँचाई रास्टर के प्रतिशत में, ताकि कार्ड हर स्क्रीन पर एक-सा पढ़ा जाए
+Set slot source as media:/path, browser:url, window:name, camera:name, or syphon:name	स्लॉट का स्रोत media:/पथ, browser:url, window:नाम, camera:नाम या syphon:नाम सेट करें
+Short LFSR mode. The period is brief enough to read as pitched metal rather than hiss.	छोटा LFSR मोड। अवधि इतनी छोटी है कि सरसराहट के बजाय सुर में धातु जैसी लगती है।
+White, warm, red, amber, green, cyan, blue, magenta. ~ moves it round the colour wheel	सफ़ेद, गर्म, लाल, अंबर, हरा, सियान, नीला, मैजेंटा। ~ इसे रंग चक्र पर घुमाता है
+Re-strike the envelope this often. Hold sustains one note, which is what a drone wants.	एनवेलप को इतनी बार फिर से चलाएँ। Hold एक नोट थामे रखता है, जो ड्रोन चाहता है।
+Diamond is the hard-edged Atari Video Music lattice; rings tunnel well with feedback zoom.	Diamond Atari Video Music की तीखी जाली है; छल्ले फ़ीडबैक ज़ूम के साथ अच्छी सुरंग बनाते हैं।
+Rock or spin. Depth 1 is half a turn either way; a saw at depth 1 turns it all the way round	झुलाना या घुमाना। गहराई 1 हर ओर आधा चक्कर है; गहराई 1 पर आरा पूरा चक्कर घुमाता है
+DECK playback level (live, not saved with the cue) - per-cue trim is gain in the AUDIO section	डेक प्लेबैक स्तर (लाइव, क्यू के साथ सहेजा नहीं जाता) - प्रति-क्यू ट्रिम AUDIO खंड में गेन है
+Still, fade in, typewriter, scroll up, crawl or pulse -- all driven by the cue's own transport	स्थिर, फ़ेड इन, टाइपराइटर, ऊपर स्क्रॉल, क्रॉल या पल्स, सब क्यू के अपने ट्रांसपोर्ट से
+Fields per rendered frame. 1 is one for one, 0.5 holds each field for two frames, 0 freezes it.	हर रेंडर फ़्रेम में फ़ील्ड। 1 एक-के-एक, 0.5 हर फ़ील्ड को दो फ़्रेम रखता है, 0 जमा देता है।
+What this cue shows while it plays: waveform, scope, Lissajous, spectrum, meters or a name card	बजते समय यह क्यू क्या दिखाता है: वेवफ़ॉर्म, स्कोप, लिसाजू, स्पेक्ट्रम, मीटर या नाम कार्ड
+0 picks tiles by brightness so the picture reads. 1 picks at random so the grid becomes texture.	0 चमक के अनुसार टाइल चुनता है ताकि चित्र पढ़ा जा सके। 1 बेतरतीब चुनता है, तो ग्रिड बनावट बन जाती है।
+How far it travels, in semitones. Up reads as arrival, down as departure, zero is a struck note.	यह कितनी दूर जाता है, सेमीटोन में। ऊपर आगमन जैसा, नीचे प्रस्थान जैसा, शून्य एक ठोका गया नोट है।
+An IPv4 address. Names are not resolved: a DNS lookup is a blocking call and GO must not make one	IPv4 पता। नाम हल नहीं होते: DNS लुकअप रोकने वाला कॉल है और GO को इसे नहीं करना चाहिए
+Tile width in pixels. Must match the sheet's grid or the slices land across neighbouring sprites.	टाइल की चौड़ाई पिक्सेल में। शीट की ग्रिड से मेल खानी चाहिए, वरना टुकड़े पड़ोसी स्प्राइट्स पर पड़ेंगे।
+Alternating mirrors by cell position, which reads as pattern where random flipping reads as noise.	खाने की स्थिति से बारी-बारी दर्पण, जो पैटर्न जैसे पढ़ते हैं जहाँ बेतरतीब पलटना शोर जैसा पढ़ता है।
+0 welds them to their cell, which reads as engraved. Above it they re-roll, which reads as boiling.	0 उन्हें उनके खाने से जोड़ देता है, उकेरे हुए जैसे। उससे ऊपर वे फिर से चुने जाते हैं, जैसे उबल रहे हों।
+MONO L plays the left input in both speakers: mic 1 on most interfaces. STEREO is for a line source.	MONO L बायाँ इनपुट दोनों स्पीकर में बजाता है: अधिकांश इंटरफ़ेस पर माइक 1। STEREO लाइन स्रोत के लिए है।
+The whole gesture. This IS the cue's duration -- a sting is the one generated signal here that ends.	पूरा भाव। यही क्यू की अवधि है: स्टिंग यहाँ का अकेला बना सिग्नल है जो ख़त्म होता है।
+Click the value to send this fixture or leave it where the last cue put it. ~ makes the level breathe	इस फ़िक्स्चर को भेजने या पिछले क्यू की जगह छोड़ने के लिए मान पर क्लिक करें। ~ स्तर को साँस लेने देता है
+FDS is a wavetable bent by a modulator. 2A03 is the pulse/triangle/noise set most chiptune is made of.	FDS एक मॉड्यूलेटर से मुड़ी वेवटेबल है। 2A03 पल्स/त्रिकोण/शोर का सेट है जिससे ज़्यादातर चिपट्यून बनता है।
+Scramble which glyph means which brightness. Same set, different handwriting. Seeded, so it stays put.	कौन-सा चिह्न कौन-सी चमक है, फेंटें। वही सेट, अलग लिखावट। सीड के साथ, तो यह टिका रहता है।
+Pixel sort: runs of pixels sorted by brightness within a row, which is what makes datamosh look melted.	पिक्सेल सॉर्ट: पंक्ति के भीतर पिक्सेल की लड़ियाँ चमक से क्रमबद्ध, जिससे डेटामोश पिघला दिखता है।
+How many cells the marks may climb. They thin out as they go, so a tall reach trails rather than doubles.	चिह्न कितने खाने चढ़ सकते हैं। चढ़ते-चढ़ते पतले होते हैं, तो ऊँची पहुँच दोगुनी होने के बजाय निशान छोड़ती है।
+cue act val  -  G take  S stop  F fade out (val = tenths of a second)  V volume  O opacity  J jump to row	क्यू क्रिया मान  -  G लें  S रोकें  F फ़ेड आउट (मान = सेकंड के दसवें)  V आवाज़  O अपारदर्शिता  J पंक्ति पर जाएँ
+Harmonic weight: a pure chime at zero, brass at full. This is the difference between a ping and a fanfare.	हार्मोनिक भार: शून्य पर शुद्ध घंटी, पूरे पर पीतल। यही पिंग और तूर्यनाद का अंतर है।
+Steps through the inputs this computer has. 'Settings input' follows the input chosen in Settings > Audio.	इस कंप्यूटर के इनपुट से गुज़रता है। 'Settings input' सेटिंग्स > ऑडियो में चुने इनपुट के पीछे चलता है।
+Embers to roaring. It still surges and settles at any setting -- a fire that does not move reads as a photo	अंगारों से धधकती आग तक। हर सेटिंग पर उठता-बैठता रहता है: न हिलने वाली आग फ़ोटो जैसी लगती है
+Reference pitch. 440 is modern standard, 432 the common alternative, and older instruments sat lower still.	संदर्भ पिच। 440 आधुनिक मानक है, 432 आम विकल्प, और पुराने वाद्य और भी नीचे थे।
+Where the sting starts. Under a voice it wants to stay out of the way; over a room it wants to cut through.	स्टिंग कहाँ से शुरू हो। आवाज़ के नीचे इसे रास्ते से हटना है; हॉल के ऊपर इसे चीरना है।
+Digital gain on the input, -40 to +40 dB. Set the interface's own preamp first; this is for the last few dB.	इनपुट पर डिजिटल गेन, -40 से +40 dB। पहले इंटरफ़ेस का अपना प्रीएम्प सेट करें; यह आख़िरी कुछ dB के लिए है।
+Pulse the size. On its own this moves width AND height together; give height its own ~ to squash and stretch	आकार को धड़काएँ। अकेले यह चौड़ाई और ऊँचाई साथ हिलाता है; दबाने-खींचने के लिए ऊँचाई को अपना ~ दें
+A card fills the frame; a Lower Third is a name and a role, low on a transparent frame, with an in and an out	कार्ड फ़्रेम भरता है; लोअर थर्ड एक नाम और भूमिका है, पारदर्शी फ़्रेम पर नीचे, आने-जाने के साथ
+Held keeps the last displacement rather than removing it -- the picture stays bent the way the driver left it.	Held आख़िरी विस्थापन हटाने के बजाय रखता है: चित्र वैसा ही मुड़ा रहता है जैसा ड्राइवर ने छोड़ा।
+12.5 and 25 are thin and reedy, 50 is hollow. 75 sounds identical to 25 -- it is here because trackers expose it.	12.5 और 25 पतले और नकियाते हैं, 50 खोखला है। 75 बिल्कुल 25 जैसा लगता है: यह इसलिए है क्योंकि ट्रैकर इसे दिखाते हैं।
+Quantise the output like the hardware. The steps ARE the sound; smoothing them makes it a synth imitating a chip.	आउटपुट को हार्डवेयर की तरह क्वांटाइज़ करें। सीढ़ियाँ ही आवाज़ हैं; उन्हें चिकना करने से यह चिप की नक़ल करता सिंथ बन जाता है।
+Moves every selected cue's trim by the same dB, keeping the differences between them; typing a value sets them all to it	हर चुने क्यू का ट्रिम अंतर बनाए रखते हुए उतने ही dB खिसकाता है; मान टाइप करने से सब उस पर सेट होते हैं
+Where the playlist's crosspoints send it (Settings > Audio). Click to open the matrix by name, starting from exactly that	प्लेलिस्ट के क्रॉसपॉइंट इसे कहाँ भेजते हैं (सेटिंग्स > ऑडियो)। उसी रूटिंग से शुरू करके नाम से मैट्रिक्स खोलने के लिए क्लिक करें
+name values with  d = ...;  end with one expression, or three for red green blue  |  Shift+Enter: new line  |  Enter: apply	मानों को  d = ...;  से नाम दें, एक व्यंजक पर ख़त्म करें, या लाल हरे नीले के लिए तीन  |  Shift+Enter: नई पंक्ति  |  Enter: लागू करें
+Put back what it started from once the ramp lands (after the stop): a deck left ready for its next cue, a swell that lets go	रैंप पहुँचने पर (रुकने के बाद) जहाँ से शुरू हुआ था वह लौटाएँ: अगले क्यू के लिए तैयार डेक, छोड़ती हुई उठान
+Which speech model makes the captions: English, any language, or the slower, more accurate pair. Each is a one-time download	कौन-सा वाक् मॉडल कैप्शन बनाता है: अंग्रेज़ी, कोई भी भाषा, या धीमी और अधिक सटीक जोड़ी। हर एक एक बार डाउनलोड होता है
+What the mask cuts: this cue wherever it plays, this playlist on the focused output, that output's whole picture, or its matte	मास्क क्या काटता है: यह क्यू जहाँ भी बजे, चुने आउटपुट पर यह प्लेलिस्ट, उस आउटपुट का पूरा चित्र, या उसका मैट
+Play at the screen's rate when it is within 0.2% (59.94 on 60): every frame shown once, the sound up to 3.5 cents sharp or flat	स्क्रीन की दर पर चलाएँ जब वह 0.2% के भीतर हो (60 पर 59.94): हर फ़्रेम एक बार, आवाज़ 3.5 सेंट तक ऊँची या नीची
+Quarter turns are exact and stay crisp. Spinning samples at an angle, which tears pixel art -- sometimes that is what you want.	चौथाई चक्कर सटीक होते हैं और साफ़ रहते हैं। घुमाना कोण पर सैंपल लेता है, जो पिक्सेल आर्ट को फाड़ता है: कभी-कभी यही चाहिए।
+Every take starts the puppetry the same way, so a rehearsed look repeats instead of depending on how long the app has been open.	हर टेक कठपुतली को एक ही तरह शुरू करता है, ताकि अभ्यास किया रूप दोहराए, न कि इस पर निर्भर करे कि ऐप कितनी देर से खुला है।
+What aims each tilt: its own position, the picture's luma gradient so characters lean the way the image does, or the cell's hue.	हर झुकाव को क्या दिशा देता है: अपनी स्थिति, चित्र का ल्यूमा ढलान ताकि अक्षर चित्र की तरह झुकें, या खाने का रंग।
+Name a channel or a pair once. Playlists send to the name, so a different interface means changing the names here, not every cue.	किसी चैनल या जोड़ी को एक बार नाम दें। प्लेलिस्ट नाम पर भेजती हैं, तो दूसरा इंटरफ़ेस यानी यहाँ नाम बदलना, हर क्यू नहीं।
+Click a crosspoint to walk it: off, 0, -3, -6, -12 dB. Drag it sideways for any level. A playlist with none plays to its own device.	क्रॉसपॉइंट पर क्लिक कर बदलें: बंद, 0, -3, -6, -12 dB। किसी भी स्तर के लिए बगल में खींचें। बिना बिंदु की प्लेलिस्ट अपने उपकरण पर बजती है।
+Sprite sets installed in data/sprites. Each folder there is a set; cycling picks one and wraps back to none. Right-click turns them off.	data/sprites में स्थापित स्प्राइट सेट। हर फ़ोल्डर एक सेट है; बदलना एक चुनता है और कुछ नहीं पर लौटता है। दायाँ क्लिक इन्हें बंद करता है।
+Internal resolution, 1 chunkiest to 5 finest. This is an aesthetic control as much as a speed one -- the 8-bit look comes from big pixels.	आंतरिक रिज़ॉल्यूशन, 1 सबसे मोटा से 5 सबसे बारीक। यह गति जितना ही सौंदर्य का नियंत्रण है: 8-बिट रूप बड़े पिक्सेल से आता है।
+Picture takes colour from the image. Green, amber and cyan are terminal phosphors. Palette locks the text to the selected hardware palette.	Picture चित्र से रंग लेता है। हरा, अंबर और सियान टर्मिनल फ़ॉस्फ़र हैं। Palette टेक्स्ट को चुने हार्डवेयर पैलेट पर बाँधता है।
+SUBTLE self-heals (H.264). CLASSIC is the real smear (MPEG-4). EXTREME is chunkier and smears constantly. Changing this re-prepares the cue.	SUBTLE ख़ुद ठीक हो जाता है (H.264)। CLASSIC असली धब्बा है (MPEG-4)। EXTREME मोटा है और लगातार धब्बा करता है। इसे बदलने से क्यू फिर तैयार होता है।
+Sine for line-up, pink to ring out a PA, white to find rattles, sweep to hear where a room rings, identify to walk the outputs one at a time.	संरेखण के लिए साइन, PA मिलाने के लिए गुलाबी, खड़खड़ाहट ढूँढने के लिए सफ़ेद, हॉल कहाँ गूँजता है सुनने के लिए स्वीप, आउटपुट एक-एक कर देखने के लिए identify।
+Which effect, by its place in the stack of the cue that deck is playing when this fires. With nothing there, the fade says so and does nothing	कौन-सा इफ़ेक्ट, उस क्यू के स्टैक में उसकी जगह से जो वह डेक चलने पर बजा रहा है। वहाँ कुछ न हो तो फ़ेड यही बताता है और कुछ नहीं करता
+Each frame blended into the next. This is the Hypno signature -- at 0 it is a pattern generator, above it the picture starts feeding on itself.	हर फ़्रेम अगले में मिलाया जाता है। यह Hypno की पहचान है: 0 पर यह पैटर्न जनरेटर है, ऊपर चित्र ख़ुद को खाने लगता है।
+What is through the window on the hearth wall: a garden, rain, snow or the sea. A room with weather outside reads as somewhere rather than as a wall	चूल्हे की दीवार की खिड़की से क्या दिखता है: बगीचा, बारिश, बर्फ़ या समुद्र। बाहर मौसम वाला कमरा दीवार नहीं, जगह जैसा लगता है
+BY FIXTURE: the lights in the patch (Settings > Network > FIXTURES), by name. CHANNELS: channel=level by hand. A cue can carry both; channels go last	फ़िक्स्चर से: पैच की लाइटें (सेटिंग्स > नेटवर्क > फ़िक्स्चर), नाम से। चैनल: हाथ से चैनल=स्तर। एक क्यू दोनों रख सकता है; चैनल आख़िर में आते हैं
+Each character rocks as though it were a card being tilted. Every cell has its own phase, so the grid breathes instead of sliding about as one sheet.	हर अक्षर झुकाए जा रहे कार्ड की तरह झूलता है। हर खाने का अपना फ़ेज़ है, तो ग्रिड एक चादर की तरह खिसकने के बजाय साँस लेती है।
+Pen: click for corners, drag for curves, click the first point to close (P). Points: drag, click the outline to add one, Alt-click or Delete to remove	पेन: कोनों के लिए क्लिक, वक्रों के लिए खींचें, बंद करने के लिए पहले बिंदु पर क्लिक (P)। बिंदु: खींचें, जोड़ने के लिए रूपरेखा पर क्लिक, हटाने के लिए Alt-क्लिक या Delete
+The chip's three channels. They differ in kind: triangle has no volume control on the hardware, and noise is a shift register rather than an oscillator.	चिप के तीन चैनल। ये प्रकार में अलग हैं: त्रिकोण का हार्डवेयर पर कोई वॉल्यूम नियंत्रण नहीं, और शोर एक शिफ़्ट रजिस्टर है, ऑसिलेटर नहीं।
+Curated sets of symbols and emoji -- stars, notes, flowers, arrows, weather, runes, faces. Picking one fills the custom glyphs below, which stays editable.	चुने हुए चिह्न और इमोजी सेट: तारे, नोट, फूल, तीर, मौसम, रून, चेहरे। एक चुनने से नीचे के अपने चिह्न भरते हैं, जो संपादन योग्य रहते हैं।
+Play from the computer keyboard, Ableton layout: A W S E D F T G Y H U J, Z and X for octave. While this is ON those keys make notes instead of firing cues.	कंप्यूटर कीबोर्ड से बजाएँ, Ableton लेआउट: A W S E D F T G Y H U J, सप्तक के लिए Z और X। जब तक यह चालू है वे कुंजियाँ क्यू चलाने के बजाय नोट बजाती हैं।
+Deck opacity, deck volume, the master dimmer, the active cue's own brightness / contrast / saturation / hue, or a knob of one of its effects or audio effects	डेक अपारदर्शिता, डेक आवाज़, मुख्य डिमर, सक्रिय क्यू की चमक / कंट्रास्ट / संतृप्ति / रंगत, या उसके किसी इफ़ेक्ट या ऑडियो इफ़ेक्ट का नॉब
+Scanlines, phosphor bloom and RGB fringing. The bloom is the part that matters -- a phosphor spills sideways, which is why a CRT looks like it is emitting light.	स्कैनलाइन, फ़ॉस्फ़र चमक और RGB किनारे। चमक ही मायने रखती है: फ़ॉस्फ़र बगल में फैलता है, इसीलिए CRT रोशनी छोड़ता लगता है।
+Torn scanline bands and RGB separation. In text mode it also corrupts CELLS -- whole rows lock to one repeating character, the way a real text screen loses sync.	फटी लाइन पट्टियाँ और RGB अलगाव। टेक्स्ट मोड में यह खानों को भी बिगाड़ता है: पूरी पंक्तियाँ एक दोहराए अक्षर पर अटक जाती हैं, जैसे सिंक खोती असली टेक्स्ट स्क्रीन।
+Still holds the frame you are on. Flipbook plays the frames in turn. Replay draws the first frame stroke by stroke, the way it was drawn, then holds and starts again	Still वह फ़्रेम थामे रखता है जिस पर आप हैं। Flipbook फ़्रेम बारी-बारी चलाता है। Replay पहला फ़्रेम उसी तरह स्ट्रोक-दर-स्ट्रोक बनाता है जैसे बना था, फिर रुककर फिर शुरू करता है
+Start, Stop, Pause, Resume, Load (stand it by without firing), Arm, Disarm, or Devamp it (a loop plays out its pass and ends); or Stop all, Pause all, Resume all: every deck	Start, Stop, Pause, Resume, Load (चलाए बिना तैयार), Arm, Disarm या Devamp (लूप अपना चक्कर पूरा कर ख़त्म होता है); या Stop all, Pause all, Resume all: हर डेक
+Scope shows shape and clipping. Lissajous shows phase and polarity between the first two channels -- a diagonal the wrong way means one is inverted. Spectrum is third-octave bars.	Scope आकार और क्लिपिंग दिखाता है। Lissajous पहले दो चैनलों के बीच फ़ेज़ और ध्रुवता दिखाता है: ग़लत दिशा का विकर्ण यानी एक उलटा है। Spectrum तिहाई-सप्तक पट्टियाँ है।
+0 picks the glyph the brightness asks for, 1 picks any glyph in the set. Turn it up to see the whole alphabet: ranked strictly by ink, a flat area picks one mark and the rest never appear.	0 वह चिह्न चुनता है जो चमक माँगती है, 1 सेट का कोई भी चिह्न। पूरी वर्णमाला देखने के लिए बढ़ाएँ: स्याही से सख़्ती से क्रमबद्ध होने पर समतल क्षेत्र एक चिह्न चुनता है और बाक़ी कभी नहीं दिखते।
+Blocks and dithers read as density; the ASCII ramp reads as text; symbols read as wreckage. Cycling this clears a custom glyph string, since that would override it -- the preset row puts one back.	ब्लॉक और डिथर घनत्व की तरह पढ़ते हैं; ASCII रैंप टेक्स्ट की तरह; चिह्न मलबे की तरह। इसे बदलने से अपनी चिह्न स्ट्रिंग साफ़ होती है, क्योंकि वह इसे पलट देती; प्रीसेट पंक्ति एक लौटाती है।
+Equal temperament buys free modulation at the cost of every interval being slightly wrong. Just and pythagorean are exactly in tune in one key. Bohlen-Pierce divides a twelfth, so it has no octaves.	सम स्वरमान हर अंतराल के थोड़ा ग़लत होने की क़ीमत पर मुक्त मॉड्यूलेशन ख़रीदता है। शुद्ध और पाइथागोरियन एक स्वरग्राम में पूरी तरह सुर में हैं। Bohlen-Pierce बारहवें को बाँटता है, इसलिए इसमें सप्तक नहीं।
+OSC	OSC
+RTMPS	RTMPS
+Twitch	Twitch
+Art-Net	Art-Net
+YouTube	YouTube
+PQ - HDR10	PQ - HDR10
+sACN (E1.31)	sACN (E1.31)
+Syphon / Spout	Syphon / Spout
+NDI® NETWORK	NDI® NETWORK
+AMWA NMOS  IS-04 / IS-05	AMWA NMOS  IS-04 / IS-05
