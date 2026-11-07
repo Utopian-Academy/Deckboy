@@ -1214,3 +1214,321 @@ Which output channel carries the signal. 'all' feeds every one.	Whilk ootpit cha
 Deckboy's own remote-protocol verbs, one per line; # is a comment	Deckboy's ain remote-protocol verbs, ane per line; # is a comment
 Open and close this edge on an oscillator -- a wipe that breathes	Apen an steek this edge on an oscillator -- a wipe that breathes
 selected cue lane  |  TAKE to make it live	lane o the waled cue — TAKE tae pit it live
+Map	Cairt
+Row	Raw
+Fall	Faw
+Runs	Rins
+SOUND	SOOND
+CHANGE	CHYNGE
+LAYOUT	LAYOOT
+Pickup	Pick-up
+jam to	jam tae
+red at	reid at
+(empty)	(tuim)
+(unset)	(no set)
+Ceiling	Ceilin
+red col	reid col
+DEFAULTS	DEFAUTS
+Limiting	Limitin
+prog bar	prog baur
+GAME OVER	GEMME OWER
+TEST CARD	TEST CAIRD
+add shape	eik shape
+chime red	chime reid
+onion off	onion aff
+ADD FIXTURE	EIK FIXTURE
+Add a light	Eik a licht
+LOW LATENCY	LAW LATENCY
+START: PLAY	STERT: PLAY
+THE NETWORK	THE NETWARK
+gain (each)	gain (ilk ane)
+phrase hold	phrase hauld
+time of day	time o day
+CLASSIC VIEW	AULD-STYLE VIEW
+FALSE COLOUR	FAUSE COLOUR
+Pair overlap	Pair owerlap
+START: AGAIN	STERT: AGAIN
+pair overlap	pair owerlap
+From anywhere	Frae onywhaur
+render height	render heicht
+ALL BUGS FIXED	AW BUGS FIXED
+NDI source cue	NDI soorce cue
+SCALED TO FILL	SCALED TAE FILL
+glitch through	glitch throu
++ ADD AN EFFECT	+ EIK AN EFFECT
+Double-GO guard	Double-GO guaird
+Maximum quality	Maist quality
+NEW HIGH SCORE!	NEW HEICH SCORE!
+the focused one	the yin in focus
+BACK TO BUG SWAT	BACK TAE BUG SWAT
+FOLLOW DR. PIXEL	FOLLAE DR. PIXEL
+Fade-in duration	Fade-in lenth
+CLICK ANYWHERE...	CLICK ONYWHAUR...
+DONE! PRESS START	DUNE! PRESS STERT
+Fade-out duration	Fade-oot lenth
+Key edge softness	Key edge saftness
+START PLAYS AGAIN	STERT PLAYS AGAIN
+FOLLOW PROF. VIDEO	FOLLAE PROF. VIDEO
+FORGET MY DEFAULTS	FORGET MA DEFAUTS
+Trusted controllers	Trustit controllers
+Home — skip to start	Hame — skip tae stert
+MIDI AND OSC MONITOR	MIDI AN OSC MONITOR
+MIDI and OSC monitor	MIDI an OSC monitor
+Marks stacked BELOW.	Merks stackit ABLOW.
+PLAY BUG SWAT, a game	PLAY BUG SWAT, a gemme
+PRESS AGAIN TO FORGET	PRESS AGAIN TAE FORGET
+Pattern motion toggle	Pattren motion toggle
+(projector curve only)	(projector curve ainly)
+Scene fade-in duration	Scene fade-in lenth
+circle, heart, star...	circle, hert, starn...
+click to open the grid	click tae open the grid
+Lower Third overlay cue	Lower Third owerlay cue
+Master oscillator rate.	Maister oscillator rate.
+Scene fade-out duration	Scene fade-oot lenth
+recent and in this show	recent an in this show
+Clear in/out trim points	Clear in/oot trim pynts
+Right — skip forward 10s	Richt — skip forrit 10s
+Esc cancels, arrows nudge	Esc cancels, arras nudge
+Fit/Fill/Stretch/Unscaled	Fit/Fill/Streetch/Unscaled
+PIXEL FOR PIXEL, TOP-LEFT	PIXEL FOR PIXEL, TAP-LEFT
+DONE FOR YOU - PRESS START	DUNE FOR YE - PRESS STERT
+MULTIVIEW carries this too.	MULTIVIEW cairries this tae.
+Scene dwell time — 0 = hold	Scene dwall time — 0 = haud
+things that are oscillating	things that are swingin
+Fade-in duration for this cue	Fade-in lenth for this cue
+Toggle loop for selected cues	Toggle loop for walit cues
+[ / ] keys — fade-in duration	[ / ] keys — fade-in lenth
+Fade-out duration for this cue	Fade-oot lenth for this cue
+HLG - live broadcast (BT.2100)	HLG - live braidcast (BT.2100)
+L - loop this cue continuously	L - loop this cue for aye
+Shift+[ / ] — fade-out duration	Shift+[ / ] — fade-oot lenth
+false colour reads SDR pictures	fause colour reads SDR picturs
+Brightness multiplier (0.0-2.0x)	Brichtness multiplier (0.0-2.0x)
+Set Lower Third background alpha	Set Lower Third backgrund alpha
+Use GEOMETRY for exact placement	Uise GEOMETRY for exact placin
+aimed here; the desk never moves	aimed here; the desk never muives
+playlists into the named outputs	playlists intae the named ootpits
+Put this control on an oscillator	Pit this control on an oscillator
+Cycle end action for selected cues	Cycle end action for walit cues
+LIVE - every assigned deck matches	LIVE - ilka assigned deck matches
+Attached overlays fire on TAKE only	Attached owerlays fire on TAKE ainly
+Cycle which slot drives scene audio	Cycle whit slot drives scene audio
+Hue rotation (-180 to +180 degrees)	Hue rotation (-180 tae +180 degrees)
+Rotation speed, degrees per second.	Rotation speed, degrees a second.
+Set short cue label for search/goto	Set short cue label for seek/goto
+Linear, ease in, ease out or S-curve	Linear, ease in, ease oot or S-curve
+Per-cue transition duration override	Per-cue transition lenth owerride
+channels on your interfaces, by name	channels on yer interfaces, by name
+over budget - video will drop frames	ower budget - video will drap frames
+Move the height on its own oscillator	Muive the heicht on its ain oscillator
+Put the brush's size on an oscillator	Pit the brush's size on an oscillator
+transcoding - plays clean until ready	transcodin - plays clean till ready
+Lower Third background opacity (0-255)	Lower Third backgrund opacity (0-255)
+FEEDS: pick a window, then one of these	FEEDS: wale a windae, then ane o these
+Digit colour while there is time in hand	Digit colour while there's time in haund
+Put the brush's opacity on an oscillator	Pit the brush's opacity on an oscillator
+X — cycle end action: stop / next / loop	X — cycle end action: stop / neist / loop
+transparent: put its playlist on a layer	see-throu: pit its playlist on a layer
+Click to show or hide this cue's captions	Click tae shaw or hide this cue's captions
+How much it throws off; 0 is a clean burn	Hou muckle it thraws aff; 0 is a clean burn
+Phone control is in PHONE & TABLET, below	Phone control is in PHONE & TABLET, ablow
+Apply fade-in to selected video/audio cues	Pit fade-in on walit video/audio cues
+Bypass: this master leaves that deck alone	Bypass: this maister lets that deck be
+Seconds REMAINING when the clock turns red	Seconds LEFT whan the clock turns reid
+generator is off - a START cue turns it on	generator is aff - a START cue turns it on
+Apply fade-out to selected video/audio cues	Pit fade-oot on walit video/audio cues
+Keep the outside and cut the inside instead	Keep the ootside an cut the inside insteid
+Legacy target mode — switch type to convert	Auld target mode — chynge type tae convert
+Nothing here changes the show that is open.	Naethin here chynges the show that's open.
+The cue number on the other desk, e.g. 12.5	The cue nummer on the ither desk, e.g. 12.5
+Toggle pause-at-beginning for selected cues	Toggle pause-at-stert for walit cues
+Toggle transition-to-next for selected cues	Toggle transition-tae-neist for walit cues
+Auto-advance duration — 0 = hold until taken	Auto-advance lenth — 0 = haud till taen
+Device output pair this cue's audio plays on	Device ootpit pair this cue's audio plays on
+E - freeze on last frame instead of stopping	E - freeze on the hinmaist frame insteid o stoppin
+How long the note takes to reach full level.	Hou lang the note taks tae win tae full level.
+LED panel height in pixels. Click to type it	LED panel heicht in pixels. Click tae type it
+Load the cue and hold first frame when taken	Load the cue an haud the first frame whan taen
+Seconds REMAINING when the clock turns amber	Seconds LEFT whan the clock turns amber
+acts on every deck; deck and cue are ignored	acts on ilka deck; deck an cue are ignored
+0-127; 127 addresses every device on the line	0-127; 127 cries on ilka device on the line
+GO shows the note; picture and sound carry on	GO shaws the note; pictur an soond cairy on
+How fast it moves; no effect when it is still	Hou fast it muives; nae effect whan it's still
+Fires when incoming timecode passes this point	Fires whan incomin timecode passes this pynt
+Shown to the operator when GO reaches this cue	Shawn tae the operator whan GO wins tae this cue
+Source pixels, independent of output placement	Soorce pixels, no tied tae ootpit placin
+Stereo balance, applied live (snaps to center)	Stereo balance, applied live (snaps tae centre)
+bypassed: nothing here is processed or limited	bypassed: naethin here is processed or limitit
+headphones, desk sounds and LTC stay out of it	heidphones, desk soonds an LTC bide oot o it
+transparent outside the ink: put it on a layer	see-throu ootside the ink: pit it on a layer
+what is said, on screen, made on this computer	whit's said, on screen, made on this computer
+Above 1 tunnels inward, below 1 blooms outward.	Abuin 1 tunnels inwart, ablow 1 blooms ootwart.
+Per-cue audio trim: -40 to +40 dB, applied live	Per-cue audio trim: -40 tae +40 dB, applied live
+Show the message in red - the wrap up NOW state	Shaw the message in reid - the wrap up NOO state
+The brush's width, as % of the picture's height	The brush's width, as % o the pictur's heicht
+What the stream carries: SDR, PQ (HDR10) or HLG	Whit the stream cairries: SDR, PQ (HDR10) or HLG
+Whether the next shape or pen path adds or cuts	Whether the neist shape or pen path eiks or cuts
+transparent outside the blobs: put it on a layer	see-throu ootside the blobs: pit it on a layer
+Digit colour once red is reached, and in overtime	Digit colour aince reid is reached, an in owertime
+Downmix this cue to mono (mono sources / mono PA)	Doonmix this cue tae mono (mono soorces / mono PA)
+Drag to scrub (shift = fine), click to type exact	Drag tae scrub (shift = fine), click tae type exact
+Hand this to an oscillator so it moves on its own	Haund this tae an oscillator sae it muives on its lane
+Amber is closest to the 1976 single-phosphor look.	Amber is closest tae the 1976 single-phosphor look.
+Changing width also scales height (and vice versa)	Chyngin width scales heicht tae (an the ither wey roond)
+Edit title/subtitle here or fire it live with TAKE	Edit title/subtitle here or fire it live wi TAKE
+How long the levels take to arrive; zero is a snap	Hou lang the levels tak tae arrive; zero is a snap
+Set the self-contained PIP source for this overlay	Set the PIP soorce for this owerlay
+Take the newest shape or pen path out of this mask	Tak the newest shape or pen path oot o this mask
+Slots are self-contained sources in this first pass	Slots are sel-contained soorces in this first pass
+Sway sideways. Depth 1 is half the frame either way	Sway sideweys. Depth 1 is hauf the frame either wey
+no fixtures patched - Settings > Network > FIXTURES	nae fixtures patched - Settings > Network > FIXTURES
+Draw the diagnostic over the card, or just the text.	Draw the diagnostic ower the caird, or jist the text.
+Start the LTC carrier, stop it, or jam it to a value	Stert the LTC cairrier, stop it, or jam it tae a value
+Bob up and down. Depth 1 is half the frame either way	Bob up an doon. Depth 1 is hauf the frame either wey
+Output width in pixels | click value to type exact px	Ootpit width in pixels | click value tae type exact px
+All interfaces, but only this computer is trusted yet.	Aw interfaces, but ainly this computer is trustit yet.
+Output height in pixels | click value to type exact px	Ootpit heicht in pixels | click value tae type exact px
+Bar across the foot - readable further back than digits	Baur across the fit - readable faur back nor digits
+Choose the legacy cue token to show inside the PIP window	Wale the auld cue token tae shaw inside the PIP windae
+ASIO carries the show's sound, and these are not on it yet	ASIO cairries the show's soond, an thir arena on it yet
+N=new  Enter/P=previous  O=open saved  E=examples  L=learn	N=new  Enter/P=last  O=open saved  E=examples  L=learn
+Use transition when auto-advancing or goto-taking next cue	Uise transition whan auto-advancin or goto-takkin the neist cue
+Hand this parameter to an oscillator so it moves on its own	Haund this parameter tae an oscillator sae it muives on its lane
+Audio fade-in: follow visual fade, none, or explicit seconds	Audio fade-in: follae the visual fade, nane, or set seconds
+Audio fade-out: follow visual fade, none, or explicit seconds	Audio fade-oot: follae the visual fade, nane, or set seconds
+The 64-step wavetable, quantised to 6 bits like the hardware.	The 64-step wavetable, quantised tae 6 bits like the hardware.
+Art-Net or sACN (E1.31): whichever the lighting rig listens to	Art-Net or sACN (E1.31): whichever the lichtin rig listens tae
+Vary tile size per cell, so the grid stops looking like a grid.	Vary tile size by cell, sae the grid stops lookin like a grid.
+What is sent. Backslash-n, -r, -t and -0 become those characters	Whit's sent. Backslash-n, -r, -t an -0 become thae characters
+Modulator speed as a ratio of the note, so the bend tracks pitch.	Modulator speed as a ratio o the note, sae the bend follaes pitch.
+Play this cue to the preview only; the outputs keep what they have	Play this cue tae the preview ainly; the ootpits keep whit they hae
+Put the pitch on an oscillator: Motion X sweeps it like a theremin	Pit the pitch on an oscillator: Motion X sweeps it like a theremin
+A disarmed cue stays in the list and does nothing; GO steps over it	A disarmed cue bides in the leet an does naethin; GO steps ower it
+Click a value to change it. A red address overlaps another fixture.	Click a value tae chynge it. A reid address owerlaps anither fixture.
+Where the clock reads from this cue on; click the value to type one	Whaur the clock reads frae this cue on; click the value tae type ane
+Add a dashboard button that fires this master by name, from anywhere	Eik a dashboard button that fires this maister by name, frae onywhaur
+New here? LEARN THE BASICS takes five minutes. We'll show you round.	New here? LEARN THE BASICS taks five minutes. We'll shaw ye roond.
+An IPv4 address, or 255.255.255.255 to broadcast to the whole network	An IPv4 address, or 255.255.255.255 tae braidcast tae the hale netwark
+How much playing audio widens and brightens the pattern. 0 free-runs.	Hou muckle playin audio widens an brichtens the pattren. 0 free-rins.
+INPUT: the programme. Drag a crop to move it, its corners to size it.	INPUT: the programme. Drag a crop tae muive it, its corners tae size it.
+LED panel width in pixels - what one tile really is. Click to type it	LED panel width in pixels - whit ae tile really is. Click tae type it
+Which deck it acts on; step off the end for the one this cue lives on	Whit deck it acts on; step aff the end for the yin this cue bides on
+only one playlist - use the routing chip on the header to add another	ainly ae playlist - uise the routin chip on the heider tae eik anither
+Which cue this master fires on that deck; step off the end to clear it	Whit cue this maister fires on that deck; step aff the end tae clear it
+Choose a mask from this show's library, or start a new one from a shape	Wale a mask frae this show's library, or stert a new ane frae a shape
+Draw on the programme monitor with the mouse or a pen (DRAW). Esc stops	Draw on the programme monitor wi the moose or a pen (DRAW). Esc stops
+How long the move takes, each way. 0 is instant whatever the style says	Hou lang the muive taks, ilka wey. 0 is instant whitever the style says
+Stop that deck when the ramp lands - the usual take-it-down-and-stop-it	Stop that deck whan the ramp lands - the uisual tak-it-doon-an-stop-it
+Which of the file's sound tracks plays: a second language, a commentary	Whit o the file's soond tracks plays: a secont leid, a commentary
+An oscillator on the colour: depth is how far round the wheel it travels	An oscillator on the colour: depth is hou faur roond the wheel it gangs
+Rack this cue paused and off air so GO starts it with no decoder spin-up	Rack this cue paused an aff air sae GO sterts it wi nae decoder spin-up
+Note, control change, program change, MIDI Show Control, or your own bytes	Note, control change, program change, MIDI Show Control, or yer ain bytes
+Black behind the words. Zero leaves it over whatever the output already has	Black ahint the words. Zero leas it ower whitever the ootpit awready haes
+How far the modulator bends the pitch. 0-63, the hardware's own gain range.	Hou faur the modulator bends the pitch. 0-63, the hardware's ain gain range.
+the words this cue puts on screen  |  Shift+Enter: new line  |  Enter: apply	the words this cue pits on screen  |  Shift+Enter: new line  |  Enter: apply
+OSC and UDP are fire and forget; TCP connects, so it runs off the show thread	OSC an UDP are fire an forget; TCP connects, sae it rins aff the show threid
+Put the level on an oscillator: Motion makes it a gate that opens as you move	Pit the level on an oscillator: Motion maks it a gate that opens as ye muive
+Marks stacked ABOVE the characters, the way combining accents overflow a line.	Merks stackit ABUIN the characters, the wey combinin accents owerflow a line.
+Save the mask as a greyscale PNG at the output's size: white keeps, black cuts	Save the mask as a greyscale PNG at the ootpit's size: white keeps, black cuts
+Which chime. Cycling PLAYS it, so it can be chosen by ear rather than by name.	Whit chime. Cyclin PLAYS it, sae it can be waled by lug raither nor by name.
+No rows. + ADD or LEARN makes one; MIDIMAP RESET brings the built-in rows back.	Nae raws. + ADD or LEARN maks ane; MIDIMAP RESET brings the biggit-in raws back.
+Save the mask's paths as SVG, for Illustrator and anything else that reads them	Save the mask's paths as SVG, for Illustrator an onything else that reads them
+Which MIDI output; a named port that is missing is reported rather than swapped	Whit MIDI ootpit; a named port that's missin is reportit raither nor swappit
+An oscillator on the level, running after GO until a later cue sets this fixture	An oscillator on the level, rinnin efter GO till a later cue sets this fixture
+Steps in third-octaves, because the ear works in ratios. 1kHz is the convention.	Steps in third-octaves, acause the lug warks in ratios. 1kHz is the convention.
+Strikes drawn ACROSS the cell, damaging the character rather than decorating it.	Strikes drawn ACROSS the cell, skaithin the character raither nor decoratin it.
+Whether incoming MIDI notes play this synth or trigger cues as they always have.	Whether incomin MIDI notes play this synth or trigger cues as they aye hae.
+A note number, or type LEARN and play it. Notes no cue claims still go to cue N+1	A note nummer, or type LEARN an play it. Notes nae cue claims still gang tae cue N+1
+A plain stereo pair. Click to open the matrix, starting from exactly this routing	A plain stereo pair. Click tae open the matrix, stertin frae exactly this routin
+Folding is what turns an arbitrary pattern into something that reads as designed.	Faulding is whit turns an onythin-gaes pattren intae something that reads as designed.
+Channel=level, comma separated. Ranges too: 1=255, 10-14=64. Channels count from 1	Channel=level, comma separatit. Ranges tae: 1=255, 10-14=64. Channels coont frae 1
+Moves every selected cue's trim by the same dB; typing a value sets them all to it	Muives ilka walit cue's trim by the same dB; typin a value sets them aw tae it
+Bends the carrier's PITCH rather than mixing with it. This is what makes FDS growl.	Bends the cairrier's PITCH raither nor mixin wi it. This is whit maks FDS gurr.
+Half way through LEARN THE BASICS. Press L and we pick up where you stopped, skapi.	Hauf wey throu LEARN THE BASICS. Press L an we pick up whaur ye stoppit, skapi.
+Render as a character grid with a 16-colour indexed palette, rather than as pixels.	Render as a character grid wi a 16-colour indexed palette, raither nor as pixels.
+Which MIDI output this file plays to; step past the end for the first one available	Whit MIDI ootpit this file plays tae; step past the end for the first free ane
+Click a cell to walk it: off, full, -3, -6, -12. This row turns the matrix off again	Click a cell tae walk it: aff, fu, -3, -6, -12. This raw turns the matrix aff again
+How long each phrase stays before it moves. Zero hides them without losing the list.	Hou lang ilka phrase bides afore it muives. Zero hides them wioot tinin the leet.
+How long it takes to fall away after the attack. Only audible when retrigger is set.	Hou lang it taks tae faw awa efter the attack. Ainly hearable whan retrigger is set.
+Off, from start (next cue fires when this one starts) or from end (when it finishes)	Aff, frae stert (neist cue fires whan this ane sterts) or frae end (whan it feenishes)
+Show the mask's points on the programme monitor, to move, add and remove them (MASK)	Shaw the mask's pynts on the programme monitor, tae muive, eik an remove them (MASK)
+Height of one line as a percent of the raster, so a card reads the same on any screen	Heicht o ae line as a percent o the raster, sae a caird reads the same on ony screen
+Set slot source as media:/path, browser:url, window:name, camera:name, or syphon:name	Set slot soorce as media:/path, browser:url, window:name, camera:name, or syphon:name
+Short LFSR mode. The period is brief enough to read as pitched metal rather than hiss.	Short LFSR mode. The period is short eneuch tae read as pitched metal raither nor hiss.
+White, warm, red, amber, green, cyan, blue, magenta. ~ moves it round the colour wheel	White, warm, reid, amber, green, cyan, blue, magenta. ~ muives it roond the colour wheel
+Re-strike the envelope this often. Hold sustains one note, which is what a drone wants.	Re-strike the envelope this aften. Hold hauds ae note, whit a drone wants.
+Diamond is the hard-edged Atari Video Music lattice; rings tunnel well with feedback zoom.	Diamond is the hard-edged Atari Video Music lattice; rings tunnel weel wi feedback zoom.
+Rock or spin. Depth 1 is half a turn either way; a saw at depth 1 turns it all the way round	Rock or birl. Depth 1 is hauf a turn either wey; a saw at depth 1 turns it aw the wey roond
+DECK playback level (live, not saved with the cue) - per-cue trim is gain in the AUDIO section	DECK playback level (live, no saved wi the cue) - per-cue trim is gain in the AUDIO section
+Still, fade in, typewriter, scroll up, crawl or pulse -- all driven by the cue's own transport	Still, fade in, typewriter, scroll up, crawl or pulse -- aw driven by the cue's ain transport
+Fields per rendered frame. 1 is one for one, 0.5 holds each field for two frames, 0 freezes it.	Fields per rendered frame. 1 is ane for ane, 0.5 hauds ilka field for twa frames, 0 freezes it.
+What this cue shows while it plays: waveform, scope, Lissajous, spectrum, meters or a name card	Whit this cue shaws while it plays: waveform, scope, Lissajous, spectrum, meters or a name caird
+0 picks tiles by brightness so the picture reads. 1 picks at random so the grid becomes texture.	0 wales tiles by brichtness sae the pictur reads. 1 wales at random sae the grid becomes texture.
+How far it travels, in semitones. Up reads as arrival, down as departure, zero is a struck note.	Hou faur it traivels, in semitones. Up reads as arrival, doon as departure, zero is a struck note.
+An IPv4 address. Names are not resolved: a DNS lookup is a blocking call and GO must not make one	An IPv4 address. Names arena resolved: a DNS lookup is a blockin call an GO maunna mak ane
+Tile width in pixels. Must match the sheet's grid or the slices land across neighbouring sprites.	Tile width in pixels. Maun match the sheet's grid or the slices land athort neibourin sprites.
+Alternating mirrors by cell position, which reads as pattern where random flipping reads as noise.	Alternatin mirrors by cell poseetion, that reads as pattren whaur random flippin reads as noise.
+0 welds them to their cell, which reads as engraved. Above it they re-roll, which reads as boiling.	0 welds them tae their cell, that reads as engraved. Abuin it they re-roll, that reads as bylin.
+MONO L plays the left input in both speakers: mic 1 on most interfaces. STEREO is for a line source.	MONO L plays the left input in baith speakers: mic 1 on maist interfaces. STEREO is for a line soorce.
+The whole gesture. This IS the cue's duration -- a sting is the one generated signal here that ends.	The hale gesture. This IS the cue's lenth -- a sting is the ae generatit signal here that ends.
+Click the value to send this fixture or leave it where the last cue put it. ~ makes the level breathe	Click the value tae send this fixture or lea it whaur the last cue pit it. ~ maks the level breathe
+FDS is a wavetable bent by a modulator. 2A03 is the pulse/triangle/noise set most chiptune is made of.	FDS is a wavetable bent by a modulator. 2A03 is the pulse/triangle/noise set maist chiptune is made o.
+Scramble which glyph means which brightness. Same set, different handwriting. Seeded, so it stays put.	Scramble whit glyph means whit brichtness. Same set, different haundwrite. Seedit, sae it bides put.
+Pixel sort: runs of pixels sorted by brightness within a row, which is what makes datamosh look melted.	Pixel sort: rins o pixels sortit by brichtness in a raw, that's whit maks datamosh look meltit.
+How many cells the marks may climb. They thin out as they go, so a tall reach trails rather than doubles.	Hou mony cells the merks can sclim. They thin oot as they gang, sae a tall reach trails raither nor doubles.
+cue act val  -  G take  S stop  F fade out (val = tenths of a second)  V volume  O opacity  J jump to row	cue act val  -  G tak  S stop  F fade oot (val = tenths o a second)  V volume  O opacity  J jump tae raw
+Harmonic weight: a pure chime at zero, brass at full. This is the difference between a ping and a fanfare.	Harmonic weicht: a pure chime at zero, brass at fu. This is the differ atween a ping an a fanfare.
+Steps through the inputs this computer has. 'Settings input' follows the input chosen in Settings > Audio.	Steps throu the inputs this computer haes. 'Settings input' follaes the input waled in Settings > Audio.
+Embers to roaring. It still surges and settles at any setting -- a fire that does not move reads as a photo	Emmers tae roarin. It aye surges an settles at ony settin -- a fire that disna muive reads as a photie
+Reference pitch. 440 is modern standard, 432 the common alternative, and older instruments sat lower still.	Reference pitch. 440 is modren staundart, 432 the common ither, an aulder instruments sat lawer yet.
+Where the sting starts. Under a voice it wants to stay out of the way; over a room it wants to cut through.	Whaur the sting sterts. Unner a voice it wants tae bide oot the road; ower a room it wants tae cut throu.
+Digital gain on the input, -40 to +40 dB. Set the interface's own preamp first; this is for the last few dB.	Digital gain on the input, -40 tae +40 dB. Set the interface's ain preamp first; this is for the last few dB.
+Pulse the size. On its own this moves width AND height together; give height its own ~ to squash and stretch	Pulse the size. On its lane this muives width AN heicht thegither; gie heicht its ain ~ tae squash an streetch
+A card fills the frame; a Lower Third is a name and a role, low on a transparent frame, with an in and an out	A caird fills the frame; a Lower Third is a name an a role, laich on a see-throu frame, wi an in an an oot
+Held keeps the last displacement rather than removing it -- the picture stays bent the way the driver left it.	Held keeps the hinmaist displacement raither nor removin it -- the pictur bides bent the wey the driver left it.
+12.5 and 25 are thin and reedy, 50 is hollow. 75 sounds identical to 25 -- it is here because trackers expose it.	12.5 an 25 are thin an reedy, 50 is howe. 75 soonds jist like 25 -- it's here acause trackers shaw it.
+Quantise the output like the hardware. The steps ARE the sound; smoothing them makes it a synth imitating a chip.	Quantise the ootpit like the hardware. The steps ARE the soond; smoothin them maks it a synth copyin a chip.
+Moves every selected cue's trim by the same dB, keeping the differences between them; typing a value sets them all to it	Muives ilka walit cue's trim by the same dB, keepin the differs atween them; typin a value sets them aw tae it
+Where the playlist's crosspoints send it (Settings > Audio). Click to open the matrix by name, starting from exactly that	Whaur the playlist's crosspynts send it (Settings > Audio). Click tae open the matrix by name, stertin frae exactly that
+name values with  d = ...;  end with one expression, or three for red green blue  |  Shift+Enter: new line  |  Enter: apply	name values wi  d = ...;  end wi ae expression, or three for reid green blue  |  Shift+Enter: new line  |  Enter: apply
+Put back what it started from once the ramp lands (after the stop): a deck left ready for its next cue, a swell that lets go	Pit back whit it stertit frae aince the ramp lands (efter the stop): a deck left ready for its neist cue, a swall that lets gang
+Which speech model makes the captions: English, any language, or the slower, more accurate pair. Each is a one-time download	Whit speech model maks the captions: English, ony leid, or the slawer, mair accurate pair. Ilk ane is a ae-time download
+What the mask cuts: this cue wherever it plays, this playlist on the focused output, that output's whole picture, or its matte	Whit the mask cuts: this cue whauriver it plays, this playlist on the focused ootpit, that ootpit's hale pictur, or its matte
+Play at the screen's rate when it is within 0.2% (59.94 on 60): every frame shown once, the sound up to 3.5 cents sharp or flat	Play at the screen's rate whan it's within 0.2% (59.94 on 60): ilka frame shawn aince, the soond up tae 3.5 cents sherp or flat
+Quarter turns are exact and stay crisp. Spinning samples at an angle, which tears pixel art -- sometimes that is what you want.	Quarter turns are exact an bide crisp. Birlin samples at an angle, that rives pixel art -- whiles that's whit ye want.
+Every take starts the puppetry the same way, so a rehearsed look repeats instead of depending on how long the app has been open.	Ilka take sterts the puppetry the same wey, sae a rehearsed look repeats insteid o hingin on hou lang the app's been open.
+What aims each tilt: its own position, the picture's luma gradient so characters lean the way the image does, or the cell's hue.	Whit aims ilka tilt: its ain poseetion, the pictur's luma gradient sae characters lean the wey the image does, or the cell's hue.
+Name a channel or a pair once. Playlists send to the name, so a different interface means changing the names here, not every cue.	Name a channel or a pair aince. Playlists send tae the name, sae a different interface means chyngin the names here, no ilka cue.
+Click a crosspoint to walk it: off, 0, -3, -6, -12 dB. Drag it sideways for any level. A playlist with none plays to its own device.	Click a crosspynt tae walk it: aff, 0, -3, -6, -12 dB. Drag it sideweys for ony level. A playlist wi nane plays tae its ain device.
+Sprite sets installed in data/sprites. Each folder there is a set; cycling picks one and wraps back to none. Right-click turns them off.	Sprite sets installed in data/sprites. Ilka fauder there is a set; cyclin wales ane an wraps back tae nane. Richt-click turns them aff.
+Internal resolution, 1 chunkiest to 5 finest. This is an aesthetic control as much as a speed one -- the 8-bit look comes from big pixels.	Internal resolution, 1 chunkiest tae 5 finest. This is a control for the look as muckle as for speed -- the 8-bit look comes frae big pixels.
+Picture takes colour from the image. Green, amber and cyan are terminal phosphors. Palette locks the text to the selected hardware palette.	Picture taks colour frae the image. Green, amber an cyan are terminal phosphors. Palette locks the text tae the walit hardware palette.
+SUBTLE self-heals (H.264). CLASSIC is the real smear (MPEG-4). EXTREME is chunkier and smears constantly. Changing this re-prepares the cue.	SUBTLE heals itsel (H.264). CLASSIC is the real smear (MPEG-4). EXTREME is chunkier an smears aw the time. Chyngin this re-readies the cue.
+Sine for line-up, pink to ring out a PA, white to find rattles, sweep to hear where a room rings, identify to walk the outputs one at a time.	Sine for line-up, pink tae ring oot a PA, white tae fin rattles, sweep tae hear whaur a room rings, identify tae walk the ootpits ane at a time.
+Which effect, by its place in the stack of the cue that deck is playing when this fires. With nothing there, the fade says so and does nothing	Whit effect, by its place in the stack o the cue that deck is playin whan this fires. Wi naethin there, the fade says sae an does naethin
+Each frame blended into the next. This is the Hypno signature -- at 0 it is a pattern generator, above it the picture starts feeding on itself.	Ilka frame blendit intae the neist. This is the Hypno signatur -- at 0 it's a pattren generator, abuin it the pictur sterts feedin on itsel.
+What is through the window on the hearth wall: a garden, rain, snow or the sea. A room with weather outside reads as somewhere rather than as a wall	Whit's throu the windae on the hearth waw: a gairden, rain, snaw or the sea. A room wi weather ootside reads as somewhaur raither nor as a waw
+BY FIXTURE: the lights in the patch (Settings > Network > FIXTURES), by name. CHANNELS: channel=level by hand. A cue can carry both; channels go last	BY FIXTURE: the lichts in the patch (Settings > Network > FIXTURES), by name. CHANNELS: channel=level by haund. A cue can cairy baith; channels gang last
+Each character rocks as though it were a card being tilted. Every cell has its own phase, so the grid breathes instead of sliding about as one sheet.	Ilka character rocks as though it were a caird bein tiltit. Ilka cell haes its ain phase, sae the grid breathes insteid o slidin aboot as ae sheet.
+Pen: click for corners, drag for curves, click the first point to close (P). Points: drag, click the outline to add one, Alt-click or Delete to remove	Pen: click for corners, drag for curves, click the first pynt tae close (P). Pynts: drag, click the ootline tae eik ane, Alt-click or Delete tae remove
+The chip's three channels. They differ in kind: triangle has no volume control on the hardware, and noise is a shift register rather than an oscillator.	The chip's three channels. They differ in kind: triangle haes nae volume control on the hardware, an noise is a shift register raither nor an oscillator.
+Curated sets of symbols and emoji -- stars, notes, flowers, arrows, weather, runes, faces. Picking one fills the custom glyphs below, which stays editable.	Waled sets o symbols an emoji -- starns, notes, flouers, arras, weather, runes, faces. Walin ane fills the custom glyphs ablow, that bides editable.
+Play from the computer keyboard, Ableton layout: A W S E D F T G Y H U J, Z and X for octave. While this is ON those keys make notes instead of firing cues.	Play frae the computer keyboard, Ableton layoot: A W S E D F T G Y H U J, Z an X for octave. While this is ON thae keys mak notes insteid o firin cues.
+Deck opacity, deck volume, the master dimmer, the active cue's own brightness / contrast / saturation / hue, or a knob of one of its effects or audio effects	Deck opacity, deck volume, the maister dimmer, the active cue's ain brichtness / contrast / saturation / hue, or a knob o ane o its effects or audio effects
+Scanlines, phosphor bloom and RGB fringing. The bloom is the part that matters -- a phosphor spills sideways, which is why a CRT looks like it is emitting light.	Scanlines, phosphor bloom an RGB fringin. The bloom is the bit that maitters -- a phosphor skails sideweys, that's hou a CRT looks like it's giein aff licht.
+Torn scanline bands and RGB separation. In text mode it also corrupts CELLS -- whole rows lock to one repeating character, the way a real text screen loses sync.	Torn scanline bands an RGB separation. In text mode it rots CELLS tae -- hale raws lock tae ae repeatin character, the wey a real text screen tines sync.
+Still holds the frame you are on. Flipbook plays the frames in turn. Replay draws the first frame stroke by stroke, the way it was drawn, then holds and starts again	Still hauds the frame ye're on. Flipbook plays the frames in turn. Replay draws the first frame stroke by stroke, the wey it wis drawn, then hauds an sterts again
+Start, Stop, Pause, Resume, Load (stand it by without firing), Arm, Disarm, or Devamp it (a loop plays out its pass and ends); or Stop all, Pause all, Resume all: every deck	Start, Stop, Pause, Resume, Load (staund it by wioot firin), Arm, Disarm, or Devamp it (a loop plays oot its pass an ends); or Stop all, Pause all, Resume all: ilka deck
+Scope shows shape and clipping. Lissajous shows phase and polarity between the first two channels -- a diagonal the wrong way means one is inverted. Spectrum is third-octave bars.	Scope shaws shape an clippin. Lissajous shaws phase an polarity atween the first twa channels -- a diagonal the wrang wey means ane is inverted. Spectrum is third-octave baurs.
+0 picks the glyph the brightness asks for, 1 picks any glyph in the set. Turn it up to see the whole alphabet: ranked strictly by ink, a flat area picks one mark and the rest never appear.	0 wales the glyph the brichtness asks for, 1 wales ony glyph in the set. Turn it up tae see the hale alphabet: rankit strictly by ink, a flat area wales ae merk an the lave never shaw.
+Blocks and dithers read as density; the ASCII ramp reads as text; symbols read as wreckage. Cycling this clears a custom glyph string, since that would override it -- the preset row puts one back.	Blocks an dithers read as density; the ASCII ramp reads as text; symbols read as wrack. Cyclin this clears a custom glyph string, as that wad owerride it -- the preset raw pits ane back.
+Equal temperament buys free modulation at the cost of every interval being slightly wrong. Just and pythagorean are exactly in tune in one key. Bohlen-Pierce divides a twelfth, so it has no octaves.	Equal temperament buys free modulation at the cost o ilka interval bein a wee bit wrang. Just an pythagorean are exactly in tune in ae key. Bohlen-Pierce divides a twalt, sae it haes nae octaves.
+OSC	OSC
+Twitch	Twitch
+Art-Net	Art-Net
+YouTube	YouTube
+PQ - HDR10	PQ - HDR10
+sACN (E1.31)	sACN (E1.31)
+DECKBOY  POCKET	DECKBOY  POCKET
+DECKLINK SDI / HDMI	DECKLINK SDI / HDMI
+AMWA NMOS  IS-04 / IS-05	AMWA NMOS  IS-04 / IS-05
