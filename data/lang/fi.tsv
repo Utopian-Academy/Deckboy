@@ -1989,3 +1989,197 @@ Run the clock	Käynnistä kello
 What fires this cue besides GO	Mikä laukaisee cuen GO:n lisäksi
 center	Keskikohta
 visual	kuva
+JAM	TAHDISTA
+MIX	MIKSAUS
+CLIP	KLIPPI
+TEXT	TEKSTI
+KEY L	KEY V
+WACKY	HULLUT
+COLOUR	VÄRI
+DARKEN	TUMMENNA
+COMPARE	VERTAA
+LIGHTEN	VAALENNA
+DASHBOARD	KOJELAUTA
+29.97 fps (NTSC)	29,97 fps (NTSC)
+Pocket Test (day)	Pocket-testi (päivä)
+Dark Detail (0-12%)	Varjojen yksityiskohdat (0-12 %)
+Frame Count (emoji)	Ruutulaskuri (emoji)
+PLUGE (black level)	PLUGE (mustan taso)
+Pocket Test (night)	Pocket-testi (yö)
+Pocket Test (storm)	Pocket-testi (myrsky)
+Marks stacked BELOW.	Merkit pinottuina ALLE.
+Panel Map (animated)	Paneelikartta (animoitu)
+Pocket Test (sunset)	Pocket-testi (auringonlasku)
+Boresight (alignment)	Tähtäin (kohdistus)
+SMPTE 75% Colour Bars	SMPTE 75 % väripalkit
+(projector curve only)	(vain projektorikäyrä)
+Multiburst (bandwidth)	Multiburst (kaistanleveys)
+Convergence (fine grid)	Konvergenssi (tiheä ruudukko)
+Greyscale Steps (gamma)	Harmaaportaat (gamma)
+Uniformity (flat fields)	Tasaisuus (tasaiset kentät)
+MULTIVIEW carries this too.	MULTIVIEW kantaa myös tämän.
+Test Clock (sync + latency)	Testikello (tahdistus + viive)
+auto (reads the common two)	auto (lukee kaksi tavallista)
+Panel Map (LED tile numbers)	Paneelikartta (LED-paneelien numerot)
+Portal (blobs of deep space)	Portaali (syvän avaruuden kuplia)
+Terrarium (living ecosystem)	Terraario (elävä ekosysteemi)
+Window 10% (peak brightness)	Ikkuna 10 % (huippukirkkaus)
+Window 50% (peak at mid APL)	Ikkuna 50 % (huippu keskimääräisellä APL:llä)
+Frame Count (drops + latency)	Ruutulaskuri (pudotukset + viive)
+Terrarium Pico (1px per cell)	Terraario Pico (1 px solua kohden)
+Banding Ramps (real bit depth)	Raitaramppi (todellinen bittisyvyys)
+Fireside (a hearth that burns)	Takkatuli (palava tulisija)
+HLG - live broadcast (BT.2100)	HLG - suora lähetys (BT.2100)
+Test Bars (motion diagnostics)	Testipalkit (liikediagnostiikka)
+Moire 1:1 (is anything scaling?)	Moiré 1:1 (skaalaako jokin?)
+Send now, without taking the cue	Lähetä nyt ottamatta cueta
+Pocket Test (test card + scene cycle)	Pocket-testi (testikuva + kohtausten kierto)
+Critters (pixel-exact scaling, animated)	Critters (pikselintarkka skaalaus, animoitu)
+headphones, desk sounds and LTC stay out of it	kuulokkeet, pöydän äänet ja LTC pysyvät poissa
+Above 1 tunnels inward, below 1 blooms outward.	Yli 1 tunneli imee sisään, alle 1 se aukeaa ulos.
+Read everything right to left. Yes, everything.	Lue kaikki oikealta vasemmalle. Kyllä, kaikki.
+Amber is closest to the 1976 single-phosphor look.	Meripihka on lähinnä vuoden 1976 yksifosforista ilmettä.
+Greetings, primitive. Your "slideshow" amuses us.	Tervehdys, alkukantainen. ”Diaesityksesi” huvittaa meitä.
+Sway sideways. Depth 1 is half the frame either way	Heilu sivuttain. Syvyys 1 on puoli kuvaa kumpaankin suuntaan
+Draw the diagnostic over the card, or just the text.	Piirrä diagnostiikka testikuvan päälle, tai vain teksti.
+All interfaces, but only this computer is trusted yet.	Kaikki liitännät, mutta vain tähän tietokoneeseen luotetaan vielä.
+Choose the legacy cue token to show inside the PIP window	Valitse vanha cue-tunnus, joka näytetään PIP-ikkunassa
+ASIO carries the show's sound, and these are not on it yet	ASIO kantaa esityksen äänen, eikä näitä ole siinä vielä
+N=new  Enter/P=previous  O=open saved  E=examples  L=learn	N=uusi  Enter/P=edellinen  O=avaa tallennettu  E=esimerkit  L=opi
+Hand this parameter to an oscillator so it moves on its own	Anna tämä parametri oskillaattorille, niin se liikkuu itsestään
+How long the finished drawing stays before it is drawn again	Kuinka kauan valmis piirros pysyy ennen kuin se piirretään uudelleen
+How it comes on and goes off: none, fade, rise, slide or wipe	Miten se tulee ja lähtee: ei mitään, häivytys, nousu, liuku tai pyyhkäisy
+The 64-step wavetable, quantised to 6 bits like the hardware.	64-portainen aaltotaulukko, kvantisoitu 6 bittiin kuten laitteistossa.
+Vary tile size per cell, so the grid stops looking like a grid.	Vaihtele laatan kokoa soluittain, ettei ruudukko enää näytä ruudukolta.
+Which output channel carries the signal. 'all' feeds every one.	Mikä lähtökanava kantaa signaalin. 'all' syöttää kaikkia.
+What is sent. Backslash-n, -r, -t and -0 become those characters	Mitä lähetetään. Kenoviiva-n, -r, -t ja -0 muuttuvat näiksi merkeiksi
+Deckboy's own remote-protocol verbs, one per line; # is a comment	Deckboyn omat etäprotokollan verbit, yksi riville; # on kommentti
+Modulator speed as a ratio of the note, so the bend tracks pitch.	Modulaattorin nopeus suhteessa säveleen, joten taivutus seuraa sävelkorkeutta.
+Play this cue to the preview only; the outputs keep what they have	Toista tämä cue vain esikatselussa; lähdöt pitävät sen mitä niillä on
+Put the pitch on an oscillator: Motion X sweeps it like a theremin	Laita sävelkorkeus oskillaattorille: Motion X pyyhkii sitä kuin thereminiä
+A disarmed cue stays in the list and does nothing; GO steps over it	Aseistamaton cue pysyy listassa eikä tee mitään; GO ohittaa sen
+Where the clock reads from this cue on; click the value to type one	Mistä kello lukee tästä cuesta eteenpäin; napsauta arvoa kirjoittaaksesi
+Add a dashboard button that fires this master by name, from anywhere	Lisää kojelautaan painike, joka käynnistää tämän masterin nimellä mistä tahansa
+New here? LEARN THE BASICS takes five minutes. We'll show you round.	Uusi täällä? OPI PERUSTEET vie viisi minuuttia. Näytämme paikat.
+An IPv4 address, or 255.255.255.255 to broadcast to the whole network	IPv4-osoite, tai 255.255.255.255 lähettääksesi koko verkkoon
+How much playing audio widens and brightens the pattern. 0 free-runs.	Kuinka paljon soiva ääni levittää ja vaalentaa kuviota. 0 käy vapaasti.
+LED panel width in pixels - what one tile really is. Click to type it	LED-paneelin leveys pikseleinä: mitä yksi laatta oikeasti on. Napsauta kirjoittaaksesi
+Which deck it acts on; step off the end for the one this cue lives on	Mihin deckiin se vaikuttaa; mene lopun yli tämän cuen omaan
+only one playlist - use the routing chip on the header to add another	vain yksi playlist: otsikon reitityssiru lisää toisen
+Which cue this master fires on that deck; step off the end to clear it	Minkä cuen tämä master laukaisee siinä deckissä; mene lopun yli tyhjentääksesi
+Draw on the programme monitor with the mouse or a pen (DRAW). Esc stops	Piirrä ohjelmamonitoriin hiirellä tai kynällä (DRAW). Esc lopettaa
+How long the move takes, each way. 0 is instant whatever the style says	Kuinka kauan liike kestää, kumpaankin suuntaan. 0 on välitön tyylistä riippumatta
+Stop that deck when the ramp lands - the usual take-it-down-and-stop-it	Pysäytä se deck, kun ramppi päättyy: tavallinen laske-ja-pysäytä
+Which of the file's sound tracks plays: a second language, a commentary	Mikä tiedoston ääniraita soi: toinen kieli, selostus
+An oscillator on the colour: depth is how far round the wheel it travels	Oskillaattori värissä: syvyys on se, kuinka pitkälle se kiertää väripyörää
+Rack this cue paused and off air so GO starts it with no decoder spin-up	Valmistele tämä cue tauolle ja pois lähetyksestä, niin GO käynnistää sen ilman dekooderin käynnistysviivettä
+Note, control change, program change, MIDI Show Control, or your own bytes	Nuotti, control change, program change, MIDI Show Control tai omat tavusi
+Black behind the words. Zero leaves it over whatever the output already has	Mustaa sanojen taakse. Nolla jättää ne sen päälle, mitä lähdössä jo on
+How far the modulator bends the pitch. 0-63, the hardware's own gain range.	Kuinka paljon modulaattori taivuttaa sävelkorkeutta. 0-63, laitteiston oma vahvistusalue.
+the words this cue puts on screen  |  Shift+Enter: new line  |  Enter: apply	sanat, jotka tämä cue tuo ruudulle  |  Shift+Enter: uusi rivi  |  Enter: käytä
+OSC and UDP are fire and forget; TCP connects, so it runs off the show thread	OSC ja UDP lähetetään ja unohdetaan; TCP yhdistää, joten se ajetaan esityssäikeen ulkopuolella
+Put the level on an oscillator: Motion makes it a gate that opens as you move	Laita taso oskillaattorille: Motion tekee siitä portin, joka aukeaa kun liikut
+Marks stacked ABOVE the characters, the way combining accents overflow a line.	Merkit pinottuina merkkien YLLE, kuten yhdistyvät aksentit, jotka valuvat rivin yli.
+Which chime. Cycling PLAYS it, so it can be chosen by ear rather than by name.	Mikä kello. Vaihtaminen SOITTAA sen, joten sen voi valita korvalla eikä nimellä.
+No rows. + ADD or LEARN makes one; MIDIMAP RESET brings the built-in rows back.	Ei rivejä. + LISÄÄ tai OPI tekee yhden; MIDIMAP RESET palauttaa sisäänrakennetut rivit.
+Save the mask's paths as SVG, for Illustrator and anything else that reads them	Tallenna maskin polut SVG:nä Illustratoria ja kaikkea niitä lukevaa varten
+Which MIDI output; a named port that is missing is reported rather than swapped	Mikä MIDI-lähtö; puuttuva nimetty portti ilmoitetaan eikä sitä vaihdeta
+An oscillator on the level, running after GO until a later cue sets this fixture	Oskillaattori tasossa, käynnissä GO:n jälkeen, kunnes myöhempi cue asettaa tämän valaisimen
+Steps in third-octaves, because the ear works in ratios. 1kHz is the convention.	Askeleet terssioktaaveina, koska korva toimii suhteissa. 1 kHz on käytäntö.
+Strikes drawn ACROSS the cell, damaging the character rather than decorating it.	Viivat solun POIKKI, jotka vahingoittavat merkkiä sen sijaan että koristaisivat.
+Whether incoming MIDI notes play this synth or trigger cues as they always have.	Soittavatko saapuvat MIDI-nuotit tätä syntetisaattoria vai laukaisevatko ne cueja kuten aina.
+A note number, or type LEARN and play it. Notes no cue claims still go to cue N+1	Nuotin numero, tai kirjoita LEARN ja soita se. Nuotit, joita mikään cue ei ota, menevät cuelle N+1
+A plain stereo pair. Click to open the matrix, starting from exactly this routing	Tavallinen stereopari. Napsauta avataksesi matriisin, tasan tästä reitityksestä alkaen
+Folding is what turns an arbitrary pattern into something that reads as designed.	Taittelu tekee mielivaltaisesta kuviosta jotain, mikä näyttää suunnitellulta.
+Channel=level, comma separated. Ranges too: 1=255, 10-14=64. Channels count from 1	Kanava=taso, pilkuilla erotettuna. Myös välit: 1=255, 10-14=64. Kanavat lasketaan ykkösestä
+Moves every selected cue's trim by the same dB; typing a value sets them all to it	Siirtää jokaisen valitun cuen trimmiä saman dB-määrän; arvon kirjoittaminen asettaa ne kaikki siihen
+Bends the carrier's PITCH rather than mixing with it. This is what makes FDS growl.	Taivuttaa kantoaallon SÄVELKORKEUTTA sen sijaan että sekoittuisi siihen. Tämä saa FDS:n murisemaan.
+Half way through LEARN THE BASICS. Press L and we pick up where you stopped, skapi.	Puolivälissä OPI PERUSTEET -kierrosta. Paina L, niin jatketaan siitä mihin jäit, skapi.
+Render as a character grid with a 16-colour indexed palette, rather than as pixels.	Piirrä merkkiruudukkona 16-värisellä indeksoidulla paletilla, pikselien sijaan.
+Which MIDI output this file plays to; step past the end for the first one available	Mihin MIDI-lähtöön tämä tiedosto soittaa; mene lopun yli ensimmäiseen vapaaseen
+An IPv4 address, or 255.255.255.255 for the universe's multicast group (239.255.x.y)	IPv4-osoite, tai 255.255.255.255 universumin multicast-ryhmälle (239.255.x.y)
+Click a cell to walk it: off, full, -3, -6, -12. This row turns the matrix off again	Napsauta solua käydäksesi sen läpi: pois, täysi, -3, -6, -12. Tämä rivi sammuttaa matriisin taas
+How long each phrase stays before it moves. Zero hides them without losing the list.	Kuinka kauan kukin fraasi pysyy ennen siirtymistä. Nolla piilottaa ne kadottamatta listaa.
+How long it takes to fall away after the attack. Only audible when retrigger is set.	Kuinka kauan vaimeneminen kestää iskun jälkeen. Kuuluu vain, kun uudelleenliipaisu on päällä.
+Off, from start (next cue fires when this one starts) or from end (when it finishes)	Pois, alusta (seuraava cue alkaa, kun tämä alkaa) tai lopusta (kun tämä päättyy)
+Height of one line as a percent of the raster, so a card reads the same on any screen	Yhden rivin korkeus prosentteina rasterista, jotta kortti näyttää samalta joka ruudulla
+Set slot source as media:/path, browser:url, window:name, camera:name, or syphon:name	Aseta paikan lähde: media:/polku, browser:url, window:nimi, camera:nimi tai syphon:nimi
+Short LFSR mode. The period is brief enough to read as pitched metal rather than hiss.	Lyhyt LFSR-tila. Jakso on niin lyhyt, että se kuulostaa viritetyltä metallilta eikä kohinalta.
+White, warm, red, amber, green, cyan, blue, magenta. ~ moves it round the colour wheel	Valkoinen, lämmin, punainen, meripihka, vihreä, syaani, sininen, magenta. ~ kierrättää sitä väripyörällä
+Re-strike the envelope this often. Hold sustains one note, which is what a drone wants.	Iske verhokäyrä uudelleen näin usein. Hold pitää yhtä säveltä, mitä drone haluaa.
+Diamond is the hard-edged Atari Video Music lattice; rings tunnel well with feedback zoom.	Diamond on Atari Video Musicin teräväreunainen hila; renkaat tunneloivat hyvin feedback-zoomin kanssa.
+Rock or spin. Depth 1 is half a turn either way; a saw at depth 1 turns it all the way round	Keinu tai pyöri. Syvyys 1 on puoli kierrosta kumpaankin suuntaan; saha syvyydellä 1 kiertää koko kierroksen
+DECK playback level (live, not saved with the cue) - per-cue trim is gain in the AUDIO section	DECKin toistotaso (live, ei tallennu cueen) - cuekohtainen trimmi on vahvistus AUDIO-osiossa
+Still, fade in, typewriter, scroll up, crawl or pulse -- all driven by the cue's own transport	Paikallaan, häivytys sisään, kirjoituskone, vieritys ylös, ryömintä tai syke, kaikki cuen oman siirron ohjaamana
+Fields per rendered frame. 1 is one for one, 0.5 holds each field for two frames, 0 freezes it.	Kentät renderöityä kuvaa kohden. 1 on yksi yhteen, 0,5 pitää kutakin kenttää kaksi kuvaa, 0 jäädyttää.
+What this cue shows while it plays: waveform, scope, Lissajous, spectrum, meters or a name card	Mitä tämä cue näyttää soidessaan: aaltomuoto, skooppi, Lissajous, spektri, mittarit tai nimikortti
+0 picks tiles by brightness so the picture reads. 1 picks at random so the grid becomes texture.	0 valitsee laatat kirkkauden mukaan, jotta kuva erottuu. 1 valitsee satunnaisesti, jolloin ruudukosta tulee pintaa.
+How far it travels, in semitones. Up reads as arrival, down as departure, zero is a struck note.	Kuinka pitkälle se kulkee, puolisävelaskelina. Ylös kuulostaa saapumiselta, alas lähdöltä, nolla on lyöty sävel.
+An IPv4 address. Names are not resolved: a DNS lookup is a blocking call and GO must not make one	IPv4-osoite. Nimiä ei selvitetä: DNS-haku on estävä kutsu, eikä GO saa tehdä sellaista
+Tile width in pixels. Must match the sheet's grid or the slices land across neighbouring sprites.	Laatan leveys pikseleinä. Sen on vastattava arkin ruudukkoa, muuten palat osuvat naapurisprittien yli.
+Alternating mirrors by cell position, which reads as pattern where random flipping reads as noise.	Vuorottelevat peilit solun paikan mukaan, mikä luetaan kuviona, kun satunnainen kääntö luetaan kohinana.
+0 welds them to their cell, which reads as engraved. Above it they re-roll, which reads as boiling.	0 hitsaa ne soluunsa, kaiverretun näköisiksi. Sen yli ne arvotaan uudelleen, kuin kiehuisivat.
+MONO L plays the left input in both speakers: mic 1 on most interfaces. STEREO is for a line source.	MONO L soittaa vasemman tulon molemmista kaiuttimista: mikki 1 useimmissa liitännöissä. STEREO on linjalähteelle.
+The whole gesture. This IS the cue's duration -- a sting is the one generated signal here that ends.	Koko ele. Tämä ON cuen kesto: tunnari on ainoa tässä luotu signaali, joka päättyy.
+Click the value to send this fixture or leave it where the last cue put it. ~ makes the level breathe	Napsauta arvoa lähettääksesi tämän valaisimen tai jättääksesi sen siihen, mihin edellinen cue sen jätti. ~ saa tason hengittämään
+FDS is a wavetable bent by a modulator. 2A03 is the pulse/triangle/noise set most chiptune is made of.	FDS on modulaattorin taivuttama aaltotaulukko. 2A03 on pulssi/kolmio/kohina-sarja, josta useimmat chiptunet tehdään.
+Scramble which glyph means which brightness. Same set, different handwriting. Seeded, so it stays put.	Sekoita, mikä merkki tarkoittaa mitäkin kirkkautta. Sama sarja, eri käsiala. Siemenellä, joten se pysyy paikallaan.
+Pixel sort: runs of pixels sorted by brightness within a row, which is what makes datamosh look melted.	Pikselilajittelu: rivin pikselijonot lajiteltuna kirkkauden mukaan, mikä saa datamoshin näyttämään sulaneelta.
+How many cells the marks may climb. They thin out as they go, so a tall reach trails rather than doubles.	Kuinka monta solua merkit saavat kiivetä. Ne harvenevat noustessaan, joten pitkä ulottuma jättää vanan eikä tuplaa.
+cue act val  -  G take  S stop  F fade out (val = tenths of a second)  V volume  O opacity  J jump to row	cue toim arv  -  G ota  S pysäytä  F häivytä ulos (arv = sekunnin kymmenyksiä)  V äänenvoimakkuus  O peittävyys  J hyppää riville
+Harmonic weight: a pure chime at zero, brass at full. This is the difference between a ping and a fanfare.	Harmoninen paino: puhdas kello nollassa, vaskea täysillä. Tämä on ero piippauksen ja fanfaarin välillä.
+Steps through the inputs this computer has. 'Settings input' follows the input chosen in Settings > Audio.	Käy läpi tämän tietokoneen tulot. 'Settings input' seuraa tuloa, joka on valittu kohdassa Asetukset > Ääni.
+Embers to roaring. It still surges and settles at any setting -- a fire that does not move reads as a photo	Hiilloksesta roihuun. Se nousee ja laskee joka asetuksella: tuli, joka ei liiku, näyttää valokuvalta
+Reference pitch. 440 is modern standard, 432 the common alternative, and older instruments sat lower still.	Viritystaajuus. 440 on nykystandardi, 432 yleinen vaihtoehto, ja vanhemmat soittimet olivat vielä alempana.
+Where the sting starts. Under a voice it wants to stay out of the way; over a room it wants to cut through.	Mistä tunnari alkaa. Puheen alla sen pitää pysyä poissa tieltä; salin yllä sen pitää leikata läpi.
+Digital gain on the input, -40 to +40 dB. Set the interface's own preamp first; this is for the last few dB.	Digitaalinen vahvistus tuloon, -40 ... +40 dB. Säädä ensin liitännän oma esivahvistin; tämä on viimeisille desibeleille.
+Pulse the size. On its own this moves width AND height together; give height its own ~ to squash and stretch	Sykitä kokoa. Yksinään tämä liikuttaa leveyttä JA korkeutta yhdessä; anna korkeudelle oma ~ litistämään ja venyttämään
+A card fills the frame; a Lower Third is a name and a role, low on a transparent frame, with an in and an out	Kortti täyttää kuvan; Lower Third on nimi ja rooli, alhaalla läpinäkyvällä pohjalla, sisääntulolla ja poistumisella
+Held keeps the last displacement rather than removing it -- the picture stays bent the way the driver left it.	Held pitää viimeisen siirtymän sen sijaan että poistaisi sen: kuva jää taipuneeksi niin kuin ajuri sen jätti.
+12.5 and 25 are thin and reedy, 50 is hollow. 75 sounds identical to 25 -- it is here because trackers expose it.	12,5 ja 25 ovat ohuita ja nenäisiä, 50 on ontto. 75 kuulostaa samalta kuin 25: se on tässä, koska trackerit tarjoavat sen.
+Quantise the output like the hardware. The steps ARE the sound; smoothing them makes it a synth imitating a chip.	Kvantisoi lähtö kuten laitteisto. Portaat OVAT ääni; niiden tasoittaminen tekee siitä sirua jäljittelevän syntikan.
+Moves every selected cue's trim by the same dB, keeping the differences between them; typing a value sets them all to it	Siirtää jokaisen valitun cuen trimmiä saman dB-määrän säilyttäen erot; arvon kirjoittaminen asettaa ne kaikki siihen
+Where the playlist's crosspoints send it (Settings > Audio). Click to open the matrix by name, starting from exactly that	Minne playlistin ristipisteet sen lähettävät (Asetukset > Ääni). Napsauta avataksesi matriisin nimellä, tasan siitä reitityksestä alkaen
+name values with  d = ...;  end with one expression, or three for red green blue  |  Shift+Enter: new line  |  Enter: apply	nimeä arvot  d = ...;  lopeta yhdellä lausekkeella, tai kolmella punaiselle vihreälle siniselle  |  Shift+Enter: uusi rivi  |  Enter: käytä
+Put back what it started from once the ramp lands (after the stop): a deck left ready for its next cue, a swell that lets go	Palauta lähtötilanne, kun ramppi päättyy (pysäytyksen jälkeen): deck valmiina seuraavaan cueen, paisunta joka päästää irti
+Which speech model makes the captions: English, any language, or the slower, more accurate pair. Each is a one-time download	Mikä puhemalli tekee tekstitykset: englanti, mikä tahansa kieli, tai hitaampi ja tarkempi pari. Kukin ladataan kerran
+What the mask cuts: this cue wherever it plays, this playlist on the focused output, that output's whole picture, or its matte	Mitä maski leikkaa: tämän cuen missä tahansa se soi, tämän playlistin valitussa lähdössä, sen lähdön koko kuvan tai sen matten
+Play at the screen's rate when it is within 0.2% (59.94 on 60): every frame shown once, the sound up to 3.5 cents sharp or flat	Toista ruudun taajuudella, kun se on 0,2 %:n sisällä (59,94 vs 60): jokainen kuva näytetään kerran, ääni enintään 3,5 senttiä ylä- tai alavireessä
+Quarter turns are exact and stay crisp. Spinning samples at an angle, which tears pixel art -- sometimes that is what you want.	Neljänneskierrokset ovat tarkkoja ja pysyvät terävinä. Pyöritys näytteistää vinosti, mikä repii pikselitaidetta: joskus juuri sitä halutaan.
+Every take starts the puppetry the same way, so a rehearsed look repeats instead of depending on how long the app has been open.	Jokainen otto aloittaa nukketeatterin samoin, jotta harjoiteltu ilme toistuu eikä riipu siitä, kauanko sovellus on ollut auki.
+What aims each tilt: its own position, the picture's luma gradient so characters lean the way the image does, or the cell's hue.	Mikä suuntaa kunkin kallistuksen: oma paikka, kuvan luma-gradientti niin että merkit kallistuvat kuten kuva, tai solun sävy.
+Name a channel or a pair once. Playlists send to the name, so a different interface means changing the names here, not every cue.	Nimeä kanava tai pari kerran. Playlistit lähettävät nimelle, joten eri liitäntä tarkoittaa nimien muuttamista täällä, ei jokaista cueta.
+Click a crosspoint to walk it: off, 0, -3, -6, -12 dB. Drag it sideways for any level. A playlist with none plays to its own device.	Napsauta ristipistettä käydäksesi sen läpi: pois, 0, -3, -6, -12 dB. Vedä sivulle mihin tahansa tasoon. Playlist ilman ristipisteitä soittaa omaan laitteeseensa.
+Sprite sets installed in data/sprites. Each folder there is a set; cycling picks one and wraps back to none. Right-click turns them off.	Sprittisarjat asennettuna kansioon data/sprites. Jokainen kansio on sarja; kierto valitsee yhden ja palaa tyhjään. Oikea napsautus sammuttaa ne.
+Internal resolution, 1 chunkiest to 5 finest. This is an aesthetic control as much as a speed one -- the 8-bit look comes from big pixels.	Sisäinen resoluutio, 1 karkein ja 5 hienoin. Tämä on yhtä paljon esteettinen kuin nopeussäädin: 8-bittinen ilme tulee isoista pikseleistä.
+Picture takes colour from the image. Green, amber and cyan are terminal phosphors. Palette locks the text to the selected hardware palette.	Picture ottaa värin kuvasta. Vihreä, meripihka ja syaani ovat päätteiden fosforeja. Palette lukitsee tekstin valittuun laitteistopalettiin.
+SUBTLE self-heals (H.264). CLASSIC is the real smear (MPEG-4). EXTREME is chunkier and smears constantly. Changing this re-prepares the cue.	SUBTLE korjaa itsensä (H.264). CLASSIC on aito suttu (MPEG-4). EXTREME on karkeampi ja suttaa jatkuvasti. Tämän vaihtaminen valmistelee cuen uudelleen.
+Sine for line-up, pink to ring out a PA, white to find rattles, sweep to hear where a room rings, identify to walk the outputs one at a time.	Sini linjaukseen, vaaleanpunainen PA:n soinnin säätöön, valkoinen rämisevän etsimiseen, pyyhkäisy kuulemaan missä huone soi, identify käymään lähdöt läpi yksi kerrallaan.
+Which effect, by its place in the stack of the cue that deck is playing when this fires. With nothing there, the fade says so and does nothing	Mikä efekti, paikkansa mukaan siinä pinossa, jota deckin cue soittaa tämän lauetessa. Jos siellä ei ole mitään, häivytys kertoo sen eikä tee mitään
+Each frame blended into the next. This is the Hypno signature -- at 0 it is a pattern generator, above it the picture starts feeding on itself.	Jokainen kuva sekoitetaan seuraavaan. Tämä on Hypnon tunnusmerkki: nollassa se on kuviogeneraattori, sen yli kuva alkaa syödä itseään.
+What is through the window on the hearth wall: a garden, rain, snow or the sea. A room with weather outside reads as somewhere rather than as a wall	Mitä tulisijan seinän ikkunasta näkyy: puutarha, sade, lumi tai meri. Huone, jonka ulkona on sää, tuntuu paikalta eikä seinältä
+BY FIXTURE: the lights in the patch (Settings > Network > FIXTURES), by name. CHANNELS: channel=level by hand. A cue can carry both; channels go last	VALAISIMITTAIN: patchin valot (Asetukset > Verkko > VALAISIMET), nimellä. KANAVAT: kanava=taso käsin. Cuessa voi olla molemmat; kanavat tulevat viimeisinä
+Each character rocks as though it were a card being tilted. Every cell has its own phase, so the grid breathes instead of sliding about as one sheet.	Jokainen merkki keinuu kuin kallistettava kortti. Jokaisella solulla on oma vaiheensa, joten ruudukko hengittää eikä liu'u yhtenä levynä.
+Pen: click for corners, drag for curves, click the first point to close (P). Points: drag, click the outline to add one, Alt-click or Delete to remove	Kynä: napsauta kulmat, vedä kaaret, napsauta ensimmäistä pistettä sulkeaksesi (P). Pisteet: vedä, napsauta reunaa lisätäksesi, Alt-napsautus tai Delete poistaa
+The chip's three channels. They differ in kind: triangle has no volume control on the hardware, and noise is a shift register rather than an oscillator.	Sirun kolme kanavaa. Ne eroavat lajiltaan: kolmiolla ei ole äänenvoimakkuutta laitteistossa, ja kohina on siirtorekisteri eikä oskillaattori.
+Curated sets of symbols and emoji -- stars, notes, flowers, arrows, weather, runes, faces. Picking one fills the custom glyphs below, which stays editable.	Valikoidut symboli- ja emojisarjat: tähdet, nuotit, kukat, nuolet, sää, riimut, kasvot. Yhden valitseminen täyttää alla olevat omat merkit, jotka pysyvät muokattavina.
+Play from the computer keyboard, Ableton layout: A W S E D F T G Y H U J, Z and X for octave. While this is ON those keys make notes instead of firing cues.	Soita tietokoneen näppäimistöllä, Ableton-asettelu: A W S E D F T G Y H U J, Z ja X oktaaville. Kun tämä on PÄÄLLÄ, ne näppäimet soittavat säveliä eivätkä laukaise cueja.
+Deck opacity, deck volume, the master dimmer, the active cue's own brightness / contrast / saturation / hue, or a knob of one of its effects or audio effects	Deckin peittävyys, deckin äänenvoimakkuus, päähimmennin, aktiivisen cuen kirkkaus / kontrasti / kylläisyys / sävy, tai sen jonkin efektin tai ääniefektin säädin
+Scanlines, phosphor bloom and RGB fringing. The bloom is the part that matters -- a phosphor spills sideways, which is why a CRT looks like it is emitting light.	Juovat, fosforin hehku ja RGB-reunukset. Hehku on tärkein: fosfori leviää sivuille, ja siksi CRT näyttää säteilevän valoa.
+Torn scanline bands and RGB separation. In text mode it also corrupts CELLS -- whole rows lock to one repeating character, the way a real text screen loses sync.	Revenneet juovakaistat ja RGB-erottelu. Tekstitilassa se korruptoi myös SOLUJA: kokonaiset rivit lukittuvat yhteen toistuvaan merkkiin, kuin oikea tekstiruutu, joka kadottaa tahdistuksen.
+Still holds the frame you are on. Flipbook plays the frames in turn. Replay draws the first frame stroke by stroke, the way it was drawn, then holds and starts again	Still pitää kuvan, jossa olet. Flipbook toistaa kuvat vuorotellen. Replay piirtää ensimmäisen kuvan veto vedolta, kuten se piirrettiin, pysähtyy ja aloittaa alusta
+Start, Stop, Pause, Resume, Load (stand it by without firing), Arm, Disarm, or Devamp it (a loop plays out its pass and ends); or Stop all, Pause all, Resume all: every deck	Start, Stop, Pause, Resume, Load (valmiiksi laukaisematta), Arm, Disarm tai Devamp (silmukka soittaa kierroksensa loppuun ja päättyy); tai Stop all, Pause all, Resume all: jokainen deck
+Scope shows shape and clipping. Lissajous shows phase and polarity between the first two channels -- a diagonal the wrong way means one is inverted. Spectrum is third-octave bars.	Scope näyttää muodon ja leikkautumisen. Lissajous näyttää vaiheen ja napaisuuden kahden ensimmäisen kanavan välillä: väärinpäin oleva diagonaali tarkoittaa, että toinen on käännetty. Spectrum on terssioktaavipalkit.
+0 picks the glyph the brightness asks for, 1 picks any glyph in the set. Turn it up to see the whole alphabet: ranked strictly by ink, a flat area picks one mark and the rest never appear.	0 valitsee merkin, jota kirkkaus pyytää, 1 mitä tahansa sarjan merkkiä. Nosta nähdäksesi koko aakkoston: tiukasti musteen mukaan järjestettynä tasainen alue valitsee yhden merkin, eikä muita näy koskaan.
+Blocks and dithers read as density; the ASCII ramp reads as text; symbols read as wreckage. Cycling this clears a custom glyph string, since that would override it -- the preset row puts one back.	Lohkot ja rasterointi luetaan tiheytenä; ASCII-ramppi tekstinä; symbolit hylkyinä. Tämän vaihtaminen tyhjentää oman merkkijonon, koska se ohittaisi sen; esiasetusrivi palauttaa yhden.
+Equal temperament buys free modulation at the cost of every interval being slightly wrong. Just and pythagorean are exactly in tune in one key. Bohlen-Pierce divides a twelfth, so it has no octaves.	Tasavireisyys ostaa vapaan modulaation sillä hinnalla, että jokainen intervalli on hieman väärin. Puhdas ja pythagoralainen ovat täysin vireessä yhdessä sävellajissa. Bohlen-Pierce jakaa duodesimin, joten siinä ei ole oktaaveja.
+OSC	OSC
+RTMPS	RTMPS
+Twitch	Twitch
+Art-Net	Art-Net
+YouTube	YouTube
+PQ - HDR10	PQ - HDR10
+sACN (E1.31)	sACN (E1.31)
+Syphon / Spout	Syphon / Spout
+NDI® NETWORK	NDI® NETWORK
+AMWA NMOS  IS-04 / IS-05	AMWA NMOS  IS-04 / IS-05

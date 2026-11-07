@@ -1991,3 +1991,198 @@ Run the clock	Ræsa klukkuna
 What fires this cue besides GO	Hvað ræsir cue fyrir utan GO
 center	Miðja
 visual	mynd
+JAM	SAMSTILLA
+MIX	BLÖNDUN
+CLIP	BÚTUR
+TEXT	TEXTI
+KEY L	KEY V
+WACKY	BRJÁLAÐ
+COLOUR	LITUR
+DARKEN	DEKKJA
+STEREO	STEREÓ
+COMPARE	BERA SAMAN
+LIGHTEN	LÝSA
+DASHBOARD	MÆLABORÐ
+29.97 fps (NTSC)	29,97 fps (NTSC)
+Pocket Test (day)	Pocket-próf (dagur)
+Dark Detail (0-12%)	Smáatriði í skugga (0-12%)
+Frame Count (emoji)	Rammateljari (emoji)
+PLUGE (black level)	PLUGE (svartstig)
+Pocket Test (night)	Pocket-próf (nótt)
+Pocket Test (storm)	Pocket-próf (stormur)
+Marks stacked BELOW.	Merki hlaðin FYRIR NEÐAN.
+Panel Map (animated)	Flísakort (hreyfimynd)
+Pocket Test (sunset)	Pocket-próf (sólarlag)
+Boresight (alignment)	Mið (stilling)
+SMPTE 75% Colour Bars	SMPTE 75% litaslár
+(projector curve only)	(aðeins skjávarpaferill)
+Multiburst (bandwidth)	Multiburst (bandbreidd)
+Convergence (fine grid)	Samleitni (fínt net)
+Greyscale Steps (gamma)	Grátónaþrep (gamma)
+Uniformity (flat fields)	Jafnleiki (sléttir fletir)
+MULTIVIEW carries this too.	MULTIVIEW ber þetta líka.
+Test Clock (sync + latency)	Prófunarklukka (samstilling + töf)
+auto (reads the common two)	sjálfvirkt (les algengu tvö)
+Panel Map (LED tile numbers)	Flísakort (númer LED-flísa)
+Portal (blobs of deep space)	Gátt (bólur úr djúpgeimnum)
+Terrarium (living ecosystem)	Terrarium (lifandi vistkerfi)
+Window 10% (peak brightness)	Gluggi 10% (hámarksbirta)
+Window 50% (peak at mid APL)	Gluggi 50% (hámark við miðlungs APL)
+Frame Count (drops + latency)	Rammateljari (tap + töf)
+Terrarium Pico (1px per cell)	Terrarium Pico (1 px á reit)
+Banding Ramps (real bit depth)	Banding-rampar (raunveruleg bitadýpt)
+Fireside (a hearth that burns)	Arineldur (eldstæði sem logar)
+HLG - live broadcast (BT.2100)	HLG - bein útsending (BT.2100)
+Test Bars (motion diagnostics)	Prófunarslár (hreyfigreining)
+Moire 1:1 (is anything scaling?)	Moiré 1:1 (er eitthvað að kvarða?)
+Send now, without taking the cue	Senda núna, án þess að taka cue-ið
+Pocket Test (test card + scene cycle)	Pocket-próf (prófunarmynd + senuhringur)
+Critters (pixel-exact scaling, animated)	Critters (pixlanákvæm kvörðun, hreyfð)
+headphones, desk sounds and LTC stay out of it	heyrnartól, borðhljóð og LTC eru ekki með
+Above 1 tunnels inward, below 1 blooms outward.	Yfir 1 sogast göngin inn, undir 1 blómstra þau út.
+Read everything right to left. Yes, everything.	Lestu allt frá hægri til vinstri. Já, allt.
+Amber is closest to the 1976 single-phosphor look.	Raf er næst hinu einfalda fosfóri frá 1976.
+Greetings, primitive. Your "slideshow" amuses us.	Kveðja, frumstæða vera. „Myndasýningin“ þín skemmtir okkur.
+Sway sideways. Depth 1 is half the frame either way	Sveifla til hliðar. Dýpt 1 er hálfur rammi til hvorrar hliðar
+Draw the diagnostic over the card, or just the text.	Teikna greininguna yfir prófunarmyndina, eða bara textann.
+All interfaces, but only this computer is trusted yet.	Öll viðmót, en aðeins þessari tölvu er treyst enn.
+Choose the legacy cue token to show inside the PIP window	Veldu gamla cue-táknið sem birtist í PIP-glugganum
+ASIO carries the show's sound, and these are not on it yet	ASIO ber hljóð sýningarinnar, og þessir eru ekki á því enn
+N=new  Enter/P=previous  O=open saved  E=examples  L=learn	N=nýtt  Enter/P=fyrra  O=opna vistað  E=dæmi  L=læra
+Hand this parameter to an oscillator so it moves on its own	Láttu sveiflugjafa fá þessa breytu svo hún hreyfist sjálf
+How long the finished drawing stays before it is drawn again	Hve lengi fullbúna teikningin stendur áður en hún er teiknuð aftur
+How it comes on and goes off: none, fade, rise, slide or wipe	Hvernig það kemur og fer: ekkert, dofnun, rís, renna eða þurrka
+The 64-step wavetable, quantised to 6 bits like the hardware.	64 þrepa bylgjutaflan, magnbundin í 6 bita eins og vélbúnaðurinn.
+Vary tile size per cell, so the grid stops looking like a grid.	Breyta stærð flísa eftir reitum, svo netið hætti að líta út eins og net.
+Which output channel carries the signal. 'all' feeds every one.	Hvaða útgangsrás ber merkið. 'all' fæðir þær allar.
+What is sent. Backslash-n, -r, -t and -0 become those characters	Það sem er sent. Bakstrik-n, -r, -t og -0 verða að þeim stöfum
+Deckboy's own remote-protocol verbs, one per line; # is a comment	Eigin sagnir fjarstýrisamskipta Deckboy, ein í línu; # er athugasemd
+Modulator speed as a ratio of the note, so the bend tracks pitch.	Hraði mótarans sem hlutfall af nótunni, svo beygjan fylgi tónhæðinni.
+Play this cue to the preview only; the outputs keep what they have	Spila þetta cue aðeins í forskoðun; útgangarnir halda því sem þeir hafa
+Put the pitch on an oscillator: Motion X sweeps it like a theremin	Settu tónhæðina á sveiflugjafa: Motion X sópar henni eins og þeremín
+A disarmed cue stays in the list and does nothing; GO steps over it	Afvopnað cue er áfram á listanum og gerir ekkert; GO stígur yfir það
+Where the clock reads from this cue on; click the value to type one	Hvaðan klukkan les frá þessu cue; smelltu á gildið til að slá það inn
+Add a dashboard button that fires this master by name, from anywhere	Bæta við mælaborðshnapp sem ræsir þennan master eftir nafni, hvaðan sem er
+New here? LEARN THE BASICS takes five minutes. We'll show you round.	Nýr hér? LÆRÐU GRUNNINN tekur fimm mínútur. Við sýnum þér um.
+An IPv4 address, or 255.255.255.255 to broadcast to the whole network	IPv4-vistfang, eða 255.255.255.255 til að senda á allt netið
+How much playing audio widens and brightens the pattern. 0 free-runs.	Hve mikið spilað hljóð breikkar og lýsir mynstrið. 0 gengur frjálst.
+LED panel width in pixels - what one tile really is. Click to type it	Breidd LED-flísar í pixlum: hvað ein flís er í raun. Smelltu til að slá inn
+Which deck it acts on; step off the end for the one this cue lives on	Á hvaða deck það virkar; farðu fram yfir endann fyrir deck þessa cue
+only one playlist - use the routing chip on the header to add another	aðeins einn spilunarlisti: leiðarflagan í hausnum bætir öðrum við
+Which cue this master fires on that deck; step off the end to clear it	Hvaða cue þessi master ræsir á því decki; farðu fram yfir endann til að hreinsa
+Draw on the programme monitor with the mouse or a pen (DRAW). Esc stops	Teiknaðu á dagskrárskjáinn með mús eða penna (DRAW). Esc stöðvar
+How long the move takes, each way. 0 is instant whatever the style says	Hve lengi hreyfingin tekur, hvora leið. 0 er strax, hvað sem stíllinn segir
+Stop that deck when the ramp lands - the usual take-it-down-and-stop-it	Stöðva þetta deck þegar rampinn lendir: hið venjulega niður-og-stöðva
+Which of the file's sound tracks plays: a second language, a commentary	Hvaða hljóðrás skrárinnar spilar: annað tungumál, lýsing
+An oscillator on the colour: depth is how far round the wheel it travels	Sveiflugjafi á litnum: dýptin er hve langt hann fer um litahjólið
+Rack this cue paused and off air so GO starts it with no decoder spin-up	Hlaða þessu cue í biðstöðu og utan útsendingar, svo GO ræsi það án biðtíma afkóðarans
+Note, control change, program change, MIDI Show Control, or your own bytes	Nóta, control change, program change, MIDI Show Control eða þín eigin bæti
+Black behind the words. Zero leaves it over whatever the output already has	Svart á bak við orðin. Núll lætur þau liggja yfir því sem útgangurinn hefur þegar
+How far the modulator bends the pitch. 0-63, the hardware's own gain range.	Hve mikið mótarinn beygir tónhæðina. 0-63, eigið mögnunarsvið vélbúnaðarins.
+the words this cue puts on screen  |  Shift+Enter: new line  |  Enter: apply	orðin sem þetta cue setur á skjáinn  |  Shift+Enter: ný lína  |  Enter: virkja
+OSC and UDP are fire and forget; TCP connects, so it runs off the show thread	OSC og UDP eru send og gleymd; TCP tengist, svo það keyrir utan sýningarþráðarins
+Put the level on an oscillator: Motion makes it a gate that opens as you move	Settu stigið á sveiflugjafa: Motion gerir það að hliði sem opnast þegar þú hreyfir þig
+Marks stacked ABOVE the characters, the way combining accents overflow a line.	Merki hlaðin FYRIR OFAN stafina, eins og samsettir broddar sem flæða yfir línu.
+Which chime. Cycling PLAYS it, so it can be chosen by ear rather than by name.	Hvaða bjalla. Að fletta SPILAR hana, svo hægt er að velja eftir eyranu frekar en nafni.
+No rows. + ADD or LEARN makes one; MIDIMAP RESET brings the built-in rows back.	Engar raðir. + BÆTA VIÐ eða LÆRA býr til eina; MIDIMAP RESET skilar innbyggðu röðunum.
+Save the mask's paths as SVG, for Illustrator and anything else that reads them	Vista slóðir grímunnar sem SVG, fyrir Illustrator og allt annað sem les þær
+Which MIDI output; a named port that is missing is reported rather than swapped	Hvaða MIDI-útgangur; nefnd gátt sem vantar er tilkynnt frekar en skipt út
+An oscillator on the level, running after GO until a later cue sets this fixture	Sveiflugjafi á stiginu, keyrir eftir GO þar til síðara cue stillir þetta ljós
+Steps in third-octaves, because the ear works in ratios. 1kHz is the convention.	Þrep í þriðjungsáttundum, því eyrað vinnur í hlutföllum. 1 kHz er venjan.
+Strikes drawn ACROSS the cell, damaging the character rather than decorating it.	Strik ÞVERT yfir reitinn, sem skemma stafinn frekar en að skreyta hann.
+Whether incoming MIDI notes play this synth or trigger cues as they always have.	Hvort innkomnar MIDI-nótur spila þennan hljóðgervil eða ræsa cue eins og alltaf.
+A note number, or type LEARN and play it. Notes no cue claims still go to cue N+1	Nótunúmer, eða sláðu inn LEARN og spilaðu hana. Nótur sem ekkert cue á fara enn í cue N+1
+A plain stereo pair. Click to open the matrix, starting from exactly this routing	Einfalt stereópar. Smelltu til að opna fylkið, frá nákvæmlega þessari leið
+Folding is what turns an arbitrary pattern into something that reads as designed.	Brot gera hvaða mynstur sem er að einhverju sem lítur út fyrir að vera hannað.
+Channel=level, comma separated. Ranges too: 1=255, 10-14=64. Channels count from 1	Rás=stig, aðskilið með kommum. Líka bil: 1=255, 10-14=64. Rásir eru taldar frá 1
+Moves every selected cue's trim by the same dB; typing a value sets them all to it	Færir trim hvers valins cue um sama dB; að slá inn gildi setur þau öll á það
+Bends the carrier's PITCH rather than mixing with it. This is what makes FDS growl.	Beygir TÓNHÆÐ burðarbylgjunnar frekar en að blandast henni. Þetta lætur FDS urra.
+Half way through LEARN THE BASICS. Press L and we pick up where you stopped, skapi.	Hálfnuð með LÆRÐU GRUNNINN. Ýttu á L og við höldum áfram þar sem þú hættir, skapi.
+Render as a character grid with a 16-colour indexed palette, rather than as pixels.	Birta sem stafanet með 16 lita vísaðri litaspjaldi, frekar en sem pixla.
+Which MIDI output this file plays to; step past the end for the first one available	Á hvaða MIDI-útgang þessi skrá spilar; farðu fram yfir endann fyrir þann fyrsta lausa
+An IPv4 address, or 255.255.255.255 for the universe's multicast group (239.255.x.y)	IPv4-vistfang, eða 255.255.255.255 fyrir fjölvarpshóp alheimsins (239.255.x.y)
+Click a cell to walk it: off, full, -3, -6, -12. This row turns the matrix off again	Smelltu á reit til að fara í gegnum hann: af, fullt, -3, -6, -12. Þessi röð slekkur aftur á fylkinu
+How long each phrase stays before it moves. Zero hides them without losing the list.	Hve lengi hver setning stendur áður en hún færist. Núll felur þær án þess að missa listann.
+How long it takes to fall away after the attack. Only audible when retrigger is set.	Hve lengi það tekur að dvína eftir áslátt. Heyrist aðeins þegar endurræsing er á.
+Off, from start (next cue fires when this one starts) or from end (when it finishes)	Af, frá byrjun (næsta cue ræsist þegar þetta byrjar) eða frá enda (þegar því lýkur)
+Height of one line as a percent of the raster, so a card reads the same on any screen	Hæð einnar línu sem hlutfall af rastanum, svo spjald lesist eins á öllum skjám
+Set slot source as media:/path, browser:url, window:name, camera:name, or syphon:name	Stilltu uppsprettu raufar sem media:/slóð, browser:url, window:nafn, camera:nafn eða syphon:nafn
+Short LFSR mode. The period is brief enough to read as pitched metal rather than hiss.	Stuttur LFSR-hamur. Tímabilið er nógu stutt til að hljóma eins og stillt málmhljóð frekar en suð.
+White, warm, red, amber, green, cyan, blue, magenta. ~ moves it round the colour wheel	Hvítt, hlýtt, rautt, raf, grænt, blágrænt, blátt, magenta. ~ snýr því um litahjólið
+Re-strike the envelope this often. Hold sustains one note, which is what a drone wants.	Endurræsa hjúpinn svona oft. Hold heldur einni nótu, sem drone vill.
+Diamond is the hard-edged Atari Video Music lattice; rings tunnel well with feedback zoom.	Diamond er skarpbrýnda Atari Video Music-grindin; hringir mynda góð göng með endurgjafaraðdrætti.
+Rock or spin. Depth 1 is half a turn either way; a saw at depth 1 turns it all the way round	Rugga eða snúa. Dýpt 1 er hálfur hringur til hvorrar hliðar; sög á dýpt 1 snýr alla leið
+DECK playback level (live, not saved with the cue) - per-cue trim is gain in the AUDIO section	Spilunarstig DECKS (í beinni, ekki vistað með cue) - trim hvers cue er mögnun í HLJÓÐ-hlutanum
+Still, fade in, typewriter, scroll up, crawl or pulse -- all driven by the cue's own transport	Kyrrt, dofna inn, ritvél, fletta upp, skríða eða púls, allt drifið af eigin flutningi cue-sins
+Fields per rendered frame. 1 is one for one, 0.5 holds each field for two frames, 0 freezes it.	Svið á birtan ramma. 1 er eitt á móti einu, 0,5 heldur hverju sviði í tvo ramma, 0 frystir.
+What this cue shows while it plays: waveform, scope, Lissajous, spectrum, meters or a name card	Hvað þetta cue sýnir meðan það spilar: bylgjuform, sjá, Lissajous, róf, mælar eða nafnspjald
+0 picks tiles by brightness so the picture reads. 1 picks at random so the grid becomes texture.	0 velur flísar eftir birtu svo myndin skiljist. 1 velur af handahófi svo netið verði áferð.
+How far it travels, in semitones. Up reads as arrival, down as departure, zero is a struck note.	Hve langt það fer, í hálftónum. Upp hljómar eins og koma, niður eins og brottför, núll er slegin nóta.
+An IPv4 address. Names are not resolved: a DNS lookup is a blocking call and GO must not make one	IPv4-vistfang. Nöfn eru ekki leyst: DNS-fyrirspurn er hindrandi kall og GO má ekki gera slíkt
+Tile width in pixels. Must match the sheet's grid or the slices land across neighbouring sprites.	Breidd flísar í pixlum. Verður að passa við net blaðsins, annars lenda bútarnir yfir nágrannasprítum.
+Alternating mirrors by cell position, which reads as pattern where random flipping reads as noise.	Spegla á víxl eftir staðsetningu reits, sem les sem mynstur þar sem tilviljanakenndur viðsnúningur les sem suð.
+0 welds them to their cell, which reads as engraved. Above it they re-roll, which reads as boiling.	0 sýður þau við reitinn, eins og grafin. Þar fyrir ofan er dregið aftur, eins og þau sjóði.
+MONO L plays the left input in both speakers: mic 1 on most interfaces. STEREO is for a line source.	MONO L spilar vinstri inngang í báðum hátölurum: hljóðnemi 1 á flestum viðmótum. STEREO er fyrir línuuppsprettu.
+The whole gesture. This IS the cue's duration -- a sting is the one generated signal here that ends.	Öll hreyfingin. Þetta ER lengd cue-sins: stef er eina myndaða merkið hér sem endar.
+Click the value to send this fixture or leave it where the last cue put it. ~ makes the level breathe	Smelltu á gildið til að senda þetta ljós eða láta það vera þar sem síðasta cue setti það. ~ lætur stigið anda
+FDS is a wavetable bent by a modulator. 2A03 is the pulse/triangle/noise set most chiptune is made of.	FDS er bylgjutafla sem mótari beygir. 2A03 er púls/þríhyrningur/suð-settið sem flest chiptune er gert úr.
+Scramble which glyph means which brightness. Same set, different handwriting. Seeded, so it stays put.	Rugla hvaða tákn þýðir hvaða birtu. Sama sett, önnur rithönd. Með fræi, svo það haggast ekki.
+Pixel sort: runs of pixels sorted by brightness within a row, which is what makes datamosh look melted.	Pixlaröðun: runur pixla raðaðar eftir birtu innan raðar, sem gefur datamosh bráðið útlit.
+How many cells the marks may climb. They thin out as they go, so a tall reach trails rather than doubles.	Hve marga reiti merkin mega klifra. Þau þynnast á leiðinni, svo hátt ris dregur slóða frekar en að tvöfaldast.
+cue act val  -  G take  S stop  F fade out (val = tenths of a second)  V volume  O opacity  J jump to row	cue aðg gildi  -  G taka  S stöðva  F dofna út (gildi = tíundu úr sekúndu)  V hljóðstyrkur  O þekja  J hoppa í röð
+Harmonic weight: a pure chime at zero, brass at full. This is the difference between a ping and a fanfare.	Yfirtónaþyngd: hrein bjalla við núll, málmblástur í botni. Þetta er munurinn á pingi og lúðrablæstri.
+Steps through the inputs this computer has. 'Settings input' follows the input chosen in Settings > Audio.	Fer í gegnum innganga þessarar tölvu. 'Settings input' fylgir inngangnum sem valinn er í Stillingar > Hljóð.
+Embers to roaring. It still surges and settles at any setting -- a fire that does not move reads as a photo	Frá glæðum til báls. Það rís og sest á hvaða stillingu sem er: eldur sem hreyfist ekki lítur út eins og ljósmynd
+Reference pitch. 440 is modern standard, 432 the common alternative, and older instruments sat lower still.	Viðmiðunartónn. 440 er nútímastaðall, 432 algengur valkostur, og eldri hljóðfæri lágu enn lægra.
+Where the sting starts. Under a voice it wants to stay out of the way; over a room it wants to cut through.	Hvar stefið byrjar. Undir rödd á það að halda sig til hliðar; yfir sal á það að skera í gegn.
+Digital gain on the input, -40 to +40 dB. Set the interface's own preamp first; this is for the last few dB.	Stafræn mögnun á inngangi, -40 til +40 dB. Stilltu fyrst formagnara viðmótsins; þetta er fyrir síðustu dB.
+Pulse the size. On its own this moves width AND height together; give height its own ~ to squash and stretch	Púlsa stærðina. Eitt og sér hreyfir þetta breidd OG hæð saman; gefðu hæðinni sitt eigið ~ til að kremja og teygja
+A card fills the frame; a Lower Third is a name and a role, low on a transparent frame, with an in and an out	Spjald fyllir rammann; Lower Third er nafn og hlutverk, neðarlega á gagnsæjum ramma, með inn og út
+Held keeps the last displacement rather than removing it -- the picture stays bent the way the driver left it.	Held heldur síðustu tilfærslu frekar en að fjarlægja hana: myndin helst bogin eins og rekillinn skildi við hana.
+12.5 and 25 are thin and reedy, 50 is hollow. 75 sounds identical to 25 -- it is here because trackers expose it.	12,5 og 25 eru þunn og nefmælt, 50 er holt. 75 hljómar eins og 25: það er hér því trackerar bjóða það.
+Quantise the output like the hardware. The steps ARE the sound; smoothing them makes it a synth imitating a chip.	Magnbinda útganginn eins og vélbúnaðurinn. Þrepin ERU hljóðið; að slétta þau gerir hljóðgervil sem hermir eftir kubb.
+Moves every selected cue's trim by the same dB, keeping the differences between them; typing a value sets them all to it	Færir trim hvers valins cue um sama dB og heldur muninum; að slá inn gildi setur þau öll á það
+Where the playlist's crosspoints send it (Settings > Audio). Click to open the matrix by name, starting from exactly that	Hvert krosspunktar spilunarlistans senda það (Stillingar > Hljóð). Smelltu til að opna fylkið eftir nafni, frá nákvæmlega þeirri leið
+name values with  d = ...;  end with one expression, or three for red green blue  |  Shift+Enter: new line  |  Enter: apply	nefndu gildi með  d = ...;  endaðu á einni segð, eða þremur fyrir rautt grænt blátt  |  Shift+Enter: ný lína  |  Enter: virkja
+Put back what it started from once the ramp lands (after the stop): a deck left ready for its next cue, a swell that lets go	Setja aftur það sem var í byrjun þegar rampinn lendir (eftir stöðvun): deck tilbúið fyrir næsta cue, bylgja sem sleppir
+Which speech model makes the captions: English, any language, or the slower, more accurate pair. Each is a one-time download	Hvaða talmódel býr til skjátextann: enska, hvaða mál sem er, eða hægara og nákvæmara parið. Hvert er sótt einu sinni
+What the mask cuts: this cue wherever it plays, this playlist on the focused output, that output's whole picture, or its matte	Það sem gríman sker: þetta cue hvar sem það spilar, þennan spilunarlista á völdum útgangi, alla mynd þess útgangs, eða matte hans
+Play at the screen's rate when it is within 0.2% (59.94 on 60): every frame shown once, the sound up to 3.5 cents sharp or flat	Spila á tíðni skjásins þegar hún er innan 0,2% (59,94 á 60): hver rammi sýndur einu sinni, hljóðið allt að 3,5 sent of hátt eða lágt
+Quarter turns are exact and stay crisp. Spinning samples at an angle, which tears pixel art -- sometimes that is what you want.	Fjórðungssnúningar eru nákvæmir og haldast skarpir. Snúningur sýnatekur á ská, sem rífur pixlalist: stundum er það einmitt það sem maður vill.
+Every take starts the puppetry the same way, so a rehearsed look repeats instead of depending on how long the app has been open.	Hver taka byrjar brúðuleikinn eins, svo æft útlit endurtaki sig frekar en að ráðast af því hve lengi forritið hefur verið opið.
+What aims each tilt: its own position, the picture's luma gradient so characters lean the way the image does, or the cell's hue.	Hvað stýrir hverri halla: eigin staðsetning, birtustigull myndarinnar svo stafirnir halli eins og myndin, eða litblær reitsins.
+Name a channel or a pair once. Playlists send to the name, so a different interface means changing the names here, not every cue.	Nefndu rás eða par einu sinni. Spilunarlistar senda á nafnið, svo annað viðmót þýðir að breyta nöfnunum hér, ekki hverju cue.
+Click a crosspoint to walk it: off, 0, -3, -6, -12 dB. Drag it sideways for any level. A playlist with none plays to its own device.	Smelltu á krosspunkt til að fara í gegnum hann: af, 0, -3, -6, -12 dB. Dragðu til hliðar fyrir hvaða stig sem er. Spilunarlisti án krosspunkta spilar á eigið tæki.
+Sprite sets installed in data/sprites. Each folder there is a set; cycling picks one and wraps back to none. Right-click turns them off.	Sprítusett sett upp í data/sprites. Hver mappa er sett; að fletta velur eitt og fer aftur í ekkert. Hægrismellur slekkur á þeim.
+Internal resolution, 1 chunkiest to 5 finest. This is an aesthetic control as much as a speed one -- the 8-bit look comes from big pixels.	Innri upplausn, 1 grófast til 5 fínast. Þetta er jafnmikið fagurfræðileg stilling og hraðastilling: 8 bita útlitið kemur frá stórum pixlum.
+Picture takes colour from the image. Green, amber and cyan are terminal phosphors. Palette locks the text to the selected hardware palette.	Picture tekur lit úr myndinni. Grænt, raf og blágrænt eru skjáfosfór. Palette læsir textann við valið vélbúnaðarlitaspjald.
+SUBTLE self-heals (H.264). CLASSIC is the real smear (MPEG-4). EXTREME is chunkier and smears constantly. Changing this re-prepares the cue.	SUBTLE læknar sig sjálft (H.264). CLASSIC er hin raunverulega klessa (MPEG-4). EXTREME er grófara og klessir stöðugt. Að breyta þessu undirbýr cue-ið aftur.
+Sine for line-up, pink to ring out a PA, white to find rattles, sweep to hear where a room rings, identify to walk the outputs one at a time.	Sínus til uppröðunar, bleikt til að stilla PA, hvítt til að finna glamur, sóp til að heyra hvar salur hringir, identify til að fara yfir útgangana einn í einu.
+Which effect, by its place in the stack of the cue that deck is playing when this fires. With nothing there, the fade says so and does nothing	Hvaða áhrif, eftir stað í stafla cue-sins sem það deck spilar þegar þetta ræsist. Ef ekkert er þar segir dofnunin það og gerir ekkert
+Each frame blended into the next. This is the Hypno signature -- at 0 it is a pattern generator, above it the picture starts feeding on itself.	Hver rammi blandaður inn í þann næsta. Þetta er einkenni Hypno: við 0 er það mynsturgjafi, fyrir ofan byrjar myndin að nærast á sjálfri sér.
+What is through the window on the hearth wall: a garden, rain, snow or the sea. A room with weather outside reads as somewhere rather than as a wall	Það sem sést út um gluggann á eldstæðisveggnum: garður, regn, snjór eða hafið. Herbergi með veðri úti les sem staður frekar en veggur
+BY FIXTURE: the lights in the patch (Settings > Network > FIXTURES), by name. CHANNELS: channel=level by hand. A cue can carry both; channels go last	EFTIR LJÓSI: ljósin í patchinu (Stillingar > Net > LJÓS), eftir nafni. RÁSIR: rás=stig í höndunum. Cue getur haft hvort tveggja; rásir koma síðast
+Each character rocks as though it were a card being tilted. Every cell has its own phase, so the grid breathes instead of sliding about as one sheet.	Hver stafur ruggar eins og spil sem hallað er. Hver reitur hefur eigin fasa, svo netið andar frekar en að renna sem eitt blað.
+Pen: click for corners, drag for curves, click the first point to close (P). Points: drag, click the outline to add one, Alt-click or Delete to remove	Penni: smelltu fyrir horn, dragðu fyrir boga, smelltu á fyrsta punkt til að loka (P). Punktar: dragðu, smelltu á útlínuna til að bæta við, Alt-smellur eða Delete til að eyða
+The chip's three channels. They differ in kind: triangle has no volume control on the hardware, and noise is a shift register rather than an oscillator.	Þrjár rásir kubbsins. Þær eru ólíkar: þríhyrningur hefur engan hljóðstyrk á vélbúnaðinum, og suð er hliðrunarskrá frekar en sveiflugjafi.
+Curated sets of symbols and emoji -- stars, notes, flowers, arrows, weather, runes, faces. Picking one fills the custom glyphs below, which stays editable.	Valin sett tákna og emoji: stjörnur, nótur, blóm, örvar, veður, rúnir, andlit. Að velja eitt fyllir eigin tákn fyrir neðan, sem haldast breytanleg.
+Play from the computer keyboard, Ableton layout: A W S E D F T G Y H U J, Z and X for octave. While this is ON those keys make notes instead of firing cues.	Spila af tölvulyklaborðinu, Ableton-útlit: A W S E D F T G Y H U J, Z og X fyrir áttund. Meðan þetta er Á spila þeir lyklar nótur frekar en að ræsa cue.
+Deck opacity, deck volume, the master dimmer, the active cue's own brightness / contrast / saturation / hue, or a knob of one of its effects or audio effects	Þekja decks, hljóðstyrkur decks, aðaldeyfirinn, birta / birtuskil / mettun / litblær virka cue-sins, eða hnappur á einum af áhrifum þess eða hljóðáhrifum
+Scanlines, phosphor bloom and RGB fringing. The bloom is the part that matters -- a phosphor spills sideways, which is why a CRT looks like it is emitting light.	Skannlínur, fosfórljómi og RGB-jaðrar. Ljóminn skiptir máli: fosfór lekur til hliðar, og þess vegna virðist CRT gefa frá sér ljós.
+Torn scanline bands and RGB separation. In text mode it also corrupts CELLS -- whole rows lock to one repeating character, the way a real text screen loses sync.	Rifin línubönd og RGB-aðskilnaður. Í textaham skemmir það líka REITI: heilar raðir læsast á einn endurtekinn staf, eins og raunverulegur textaskjár sem missir samstillingu.
+Still holds the frame you are on. Flipbook plays the frames in turn. Replay draws the first frame stroke by stroke, the way it was drawn, then holds and starts again	Still heldur rammanum sem þú ert á. Flipbook spilar rammana til skiptis. Replay teiknar fyrsta rammann strik fyrir strik, eins og hann var teiknaður, heldur og byrjar aftur
+Start, Stop, Pause, Resume, Load (stand it by without firing), Arm, Disarm, or Devamp it (a loop plays out its pass and ends); or Stop all, Pause all, Resume all: every deck	Start, Stop, Pause, Resume, Load (gera tilbúið án þess að ræsa), Arm, Disarm eða Devamp (lykkja klárar umferð sína og endar); eða Stop all, Pause all, Resume all: hvert deck
+Scope shows shape and clipping. Lissajous shows phase and polarity between the first two channels -- a diagonal the wrong way means one is inverted. Spectrum is third-octave bars.	Scope sýnir lögun og klippingu. Lissajous sýnir fasa og pólun milli fyrstu tveggja rásanna: hornalína á rangan veg þýðir að önnur er snúin. Spectrum er þriðjungsáttundarslár.
+0 picks the glyph the brightness asks for, 1 picks any glyph in the set. Turn it up to see the whole alphabet: ranked strictly by ink, a flat area picks one mark and the rest never appear.	0 velur táknið sem birtan biður um, 1 hvaða tákn sem er í settinu. Hækkaðu til að sjá allt stafrófið: raðað stranglega eftir bleki velur sléttur flötur eitt merki og hin birtast aldrei.
+Blocks and dithers read as density; the ASCII ramp reads as text; symbols read as wreckage. Cycling this clears a custom glyph string, since that would override it -- the preset row puts one back.	Kubbar og dreifing lesast sem þéttleiki; ASCII-rampinn sem texti; tákn sem brak. Að fletta þessu hreinsar eigin táknastreng, þar sem hann myndi yfirskrifa það; forstillingaröðin setur einn aftur.
+Equal temperament buys free modulation at the cost of every interval being slightly wrong. Just and pythagorean are exactly in tune in one key. Bohlen-Pierce divides a twelfth, so it has no octaves.	Jöfn stilling kaupir frjálsa tóntegundaskiptingu á kostnað þess að hvert tónbil sé örlítið rangt. Hrein og pýþagórísk eru fullkomlega stillt í einni tóntegund. Bohlen-Pierce skiptir duodecimu, svo hún hefur engar áttundir.
+OSC	OSC
+RTMPS	RTMPS
+Twitch	Twitch
+Art-Net	Art-Net
+YouTube	YouTube
+PQ - HDR10	PQ - HDR10
+sACN (E1.31)	sACN (E1.31)
+Syphon / Spout	Syphon / Spout
+NDI® NETWORK	NDI® NETWORK
+AMWA NMOS  IS-04 / IS-05	AMWA NMOS  IS-04 / IS-05

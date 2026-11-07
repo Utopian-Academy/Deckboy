@@ -1958,3 +1958,193 @@ Run the clock	Klok starten
 What fires this cue besides GO	Wat deze cue naast GO start
 center	Midden
 visual	beeld
+JAM	SYNC
+Map	Kaart
+TEXT	TEKST
+WACKY	GEKKIGHEID
+COLOUR	KLEUR
+DARKEN	DONKERDER
+COMPARE	VERGELIJKEN
+LIGHTEN	LICHTER
+29.97 fps (NTSC)	29,97 fps (NTSC)
+Pocket Test (day)	Pocket-test (dag)
+Dark Detail (0-12%)	Schaduwdetail (0-12%)
+Frame Count (emoji)	Beeldteller (emoji)
+PLUGE (black level)	PLUGE (zwartniveau)
+Pocket Test (night)	Pocket-test (nacht)
+Pocket Test (storm)	Pocket-test (storm)
+Marks stacked BELOW.	Tekens gestapeld ONDER.
+Panel Map (animated)	Paneelkaart (geanimeerd)
+Pocket Test (sunset)	Pocket-test (zonsondergang)
+Boresight (alignment)	Vizier (uitlijning)
+SMPTE 75% Colour Bars	SMPTE 75% kleurenbalken
+(projector curve only)	(alleen projectorcurve)
+Multiburst (bandwidth)	Multiburst (bandbreedte)
+Convergence (fine grid)	Convergentie (fijn raster)
+Greyscale Steps (gamma)	Grijstrappen (gamma)
+Uniformity (flat fields)	Gelijkmatigheid (vlakke velden)
+MULTIVIEW carries this too.	MULTIVIEW draagt dit ook.
+Test Clock (sync + latency)	Testklok (sync + latentie)
+auto (reads the common two)	auto (leest de twee gangbare)
+Panel Map (LED tile numbers)	Paneelkaart (LED-paneelnummers)
+Portal (blobs of deep space)	Portaal (bellen van de diepe ruimte)
+Terrarium (living ecosystem)	Terrarium (levend ecosysteem)
+Window 10% (peak brightness)	Venster 10% (piekhelderheid)
+Window 50% (peak at mid APL)	Venster 50% (piek bij gemiddelde APL)
+Frame Count (drops + latency)	Beeldteller (uitval + latentie)
+Terrarium Pico (1px per cell)	Terrarium Pico (1 px per cel)
+Banding Ramps (real bit depth)	Banding-hellingen (echte bitdiepte)
+Fireside (a hearth that burns)	Haardvuur (een haard die brandt)
+HLG - live broadcast (BT.2100)	HLG - live uitzending (BT.2100)
+Test Bars (motion diagnostics)	Testbalken (bewegingsdiagnose)
+Moire 1:1 (is anything scaling?)	Moiré 1:1 (schaalt er iets?)
+Pocket Test (test card + scene cycle)	Pocket-test (testbeeld + scènewissel)
+Critters (pixel-exact scaling, animated)	Critters (pixelexact schalen, geanimeerd)
+headphones, desk sounds and LTC stay out of it	koptelefoons, tafelgeluiden en LTC blijven erbuiten
+Above 1 tunnels inward, below 1 blooms outward.	Boven 1 trekt de tunnel naar binnen, onder 1 bloeit hij open.
+Read everything right to left. Yes, everything.	Lees alles van rechts naar links. Ja, alles.
+Amber is closest to the 1976 single-phosphor look.	Amber komt het dichtst bij het enkele fosfor van 1976.
+Greetings, primitive. Your "slideshow" amuses us.	Gegroet, primitieveling. Je "diavoorstelling" vermaakt ons.
+Sway sideways. Depth 1 is half the frame either way	Zijwaarts wiegen. Diepte 1 is een half beeld naar elke kant
+Draw the diagnostic over the card, or just the text.	Teken de diagnose over het testbeeld, of alleen de tekst.
+All interfaces, but only this computer is trusted yet.	Alle interfaces, maar alleen deze computer wordt nog vertrouwd.
+Choose the legacy cue token to show inside the PIP window	Kies het oude cue-token dat in het PIP-venster te zien is
+ASIO carries the show's sound, and these are not on it yet	ASIO draagt het geluid van de show, en deze zitten er nog niet op
+N=new  Enter/P=previous  O=open saved  E=examples  L=learn	N=nieuw  Enter/P=vorige  O=opgeslagen openen  E=voorbeelden  L=leren
+Hand this parameter to an oscillator so it moves on its own	Geef deze parameter aan een oscillator zodat hij zelf beweegt
+How long the finished drawing stays before it is drawn again	Hoe lang de klare tekening blijft staan voor ze opnieuw getekend wordt
+How it comes on and goes off: none, fade, rise, slide or wipe	Hoe het opkomt en weggaat: geen, fade, omhoog, schuiven of wipe
+The 64-step wavetable, quantised to 6 bits like the hardware.	De wavetable van 64 stappen, op 6 bits gekwantiseerd zoals de hardware.
+Vary tile size per cell, so the grid stops looking like a grid.	Varieer de tegelgrootte per cel, zodat het raster niet meer als raster oogt.
+Which output channel carries the signal. 'all' feeds every one.	Welk uitgangskanaal het signaal draagt. 'all' voedt ze allemaal.
+What is sent. Backslash-n, -r, -t and -0 become those characters	Wat er verstuurd wordt. Backslash-n, -r, -t en -0 worden die tekens
+Deckboy's own remote-protocol verbs, one per line; # is a comment	Deckboys eigen protocolwerkwoorden, één per regel; # is commentaar
+Modulator speed as a ratio of the note, so the bend tracks pitch.	Snelheid van de modulator als verhouding tot de noot, zodat de buiging de toonhoogte volgt.
+Play this cue to the preview only; the outputs keep what they have	Speel deze cue alleen in de preview; de uitgangen houden wat ze hebben
+Put the pitch on an oscillator: Motion X sweeps it like a theremin	Zet de toonhoogte op een oscillator: Motion X veegt hem als een theremin
+A disarmed cue stays in the list and does nothing; GO steps over it	Een ontwapende cue blijft in de lijst en doet niets; GO stapt eroverheen
+Where the clock reads from this cue on; click the value to type one	Waar de klok vanaf deze cue leest; klik de waarde om te typen
+Add a dashboard button that fires this master by name, from anywhere	Voeg een dashboardknop toe die deze master op naam start, van overal
+New here? LEARN THE BASICS takes five minutes. We'll show you round.	Nieuw hier? DE BASIS LEREN duurt vijf minuten. We leiden je rond.
+An IPv4 address, or 255.255.255.255 to broadcast to the whole network	Een IPv4-adres, of 255.255.255.255 om naar het hele netwerk te sturen
+How much playing audio widens and brightens the pattern. 0 free-runs.	Hoeveel spelend geluid het patroon verbreedt en verheldert. 0 loopt vrij.
+LED panel width in pixels - what one tile really is. Click to type it	Breedte van het LED-paneel in pixels: wat één tegel echt is. Klik om te typen
+Which deck it acts on; step off the end for the one this cue lives on	Op welk deck het werkt; ga voorbij het einde voor het deck van deze cue
+only one playlist - use the routing chip on the header to add another	maar één playlist: de routeringschip in de kop voegt er een toe
+Which cue this master fires on that deck; step off the end to clear it	Welke cue deze master op dat deck start; ga voorbij het einde om te wissen
+Draw on the programme monitor with the mouse or a pen (DRAW). Esc stops	Teken op de programmamonitor met muis of pen (DRAW). Esc stopt
+How long the move takes, each way. 0 is instant whatever the style says	Hoe lang de beweging duurt, elke kant op. 0 is direct, wat de stijl ook zegt
+Stop that deck when the ramp lands - the usual take-it-down-and-stop-it	Stop dat deck als de helling aankomt: het gewone omlaag-en-stoppen
+Which of the file's sound tracks plays: a second language, a commentary	Welk geluidsspoor van het bestand speelt: een tweede taal, commentaar
+An oscillator on the colour: depth is how far round the wheel it travels	Een oscillator op de kleur: diepte is hoe ver hij over het kleurenwiel gaat
+Rack this cue paused and off air so GO starts it with no decoder spin-up	Laad deze cue gepauzeerd en niet in beeld, zodat GO hem start zonder opstarttijd van de decoder
+Note, control change, program change, MIDI Show Control, or your own bytes	Noot, control change, program change, MIDI Show Control of je eigen bytes
+Black behind the words. Zero leaves it over whatever the output already has	Zwart achter de woorden. Nul laat ze over wat de uitgang al heeft
+How far the modulator bends the pitch. 0-63, the hardware's own gain range.	Hoe ver de modulator de toonhoogte buigt. 0-63, het eigen gainbereik van de hardware.
+the words this cue puts on screen  |  Shift+Enter: new line  |  Enter: apply	de woorden die deze cue op het scherm zet  |  Shift+Enter: nieuwe regel  |  Enter: toepassen
+OSC and UDP are fire and forget; TCP connects, so it runs off the show thread	OSC en UDP zijn versturen-en-vergeten; TCP maakt verbinding, dus draait het buiten de showthread
+Put the level on an oscillator: Motion makes it a gate that opens as you move	Zet het niveau op een oscillator: Motion maakt er een poort van die opengaat als je beweegt
+Marks stacked ABOVE the characters, the way combining accents overflow a line.	Tekens gestapeld BOVEN de karakters, zoals combinerende accenten die een regel overlopen.
+Which chime. Cycling PLAYS it, so it can be chosen by ear rather than by name.	Welke bel. Wisselen SPEELT hem, zodat je op het gehoor kiest in plaats van op naam.
+No rows. + ADD or LEARN makes one; MIDIMAP RESET brings the built-in rows back.	Geen rijen. + TOEVOEGEN of LEREN maakt er een; MIDIMAP RESET zet de ingebouwde rijen terug.
+Save the mask's paths as SVG, for Illustrator and anything else that reads them	Sla de paden van het masker op als SVG, voor Illustrator en alles wat ze leest
+Which MIDI output; a named port that is missing is reported rather than swapped	Welke MIDI-uitgang; een benoemde poort die ontbreekt wordt gemeld, niet vervangen
+An oscillator on the level, running after GO until a later cue sets this fixture	Een oscillator op het niveau, actief na GO tot een latere cue dit armatuur instelt
+Steps in third-octaves, because the ear works in ratios. 1kHz is the convention.	Stappen in terts-octaven, want het oor werkt in verhoudingen. 1 kHz is de afspraak.
+Strikes drawn ACROSS the cell, damaging the character rather than decorating it.	Strepen DWARS over de cel, die het teken beschadigen in plaats van versieren.
+Whether incoming MIDI notes play this synth or trigger cues as they always have.	Of binnenkomende MIDI-noten deze synth spelen of cues starten zoals altijd.
+A note number, or type LEARN and play it. Notes no cue claims still go to cue N+1	Een nootnummer, of typ LEARN en speel hem. Noten die geen cue claimt gaan naar cue N+1
+A plain stereo pair. Click to open the matrix, starting from exactly this routing	Een gewoon stereopaar. Klik om de matrix te openen, precies vanaf deze routering
+Folding is what turns an arbitrary pattern into something that reads as designed.	Vouwen maakt van een willekeurig patroon iets dat ontworpen oogt.
+Channel=level, comma separated. Ranges too: 1=255, 10-14=64. Channels count from 1	Kanaal=niveau, gescheiden door komma's. Ook bereiken: 1=255, 10-14=64. Kanalen tellen vanaf 1
+Moves every selected cue's trim by the same dB; typing a value sets them all to it	Verschuift de trim van elke geselecteerde cue evenveel dB; een waarde typen zet ze allemaal daarop
+Bends the carrier's PITCH rather than mixing with it. This is what makes FDS growl.	Buigt de TOONHOOGTE van de draaggolf in plaats van ermee te mengen. Daardoor grommt FDS.
+Half way through LEARN THE BASICS. Press L and we pick up where you stopped, skapi.	Halverwege DE BASIS LEREN. Druk op L en we gaan verder waar je stopte, skapi.
+Render as a character grid with a 16-colour indexed palette, rather than as pixels.	Teken als tekenraster met een geïndexeerd palet van 16 kleuren, in plaats van als pixels.
+Which MIDI output this file plays to; step past the end for the first one available	Naar welke MIDI-uitgang dit bestand speelt; ga voorbij het einde voor de eerste beschikbare
+An IPv4 address, or 255.255.255.255 for the universe's multicast group (239.255.x.y)	Een IPv4-adres, of 255.255.255.255 voor de multicastgroep van het universum (239.255.x.y)
+Click a cell to walk it: off, full, -3, -6, -12. This row turns the matrix off again	Klik een cel om hem door te lopen: uit, vol, -3, -6, -12. Deze rij zet de matrix weer uit
+How long each phrase stays before it moves. Zero hides them without losing the list.	Hoe lang elke zin blijft voor hij beweegt. Nul verbergt ze zonder de lijst te verliezen.
+How long it takes to fall away after the attack. Only audible when retrigger is set.	Hoe lang het wegsterven na de aanslag duurt. Alleen hoorbaar als retrigger aan staat.
+Off, from start (next cue fires when this one starts) or from end (when it finishes)	Uit, vanaf start (de volgende cue start als deze begint) of vanaf einde (als hij klaar is)
+Height of one line as a percent of the raster, so a card reads the same on any screen	Hoogte van één regel als percentage van het raster, zodat een kaart op elk scherm gelijk leest
+Set slot source as media:/path, browser:url, window:name, camera:name, or syphon:name	Stel de slotbron in als media:/pad, browser:url, window:naam, camera:naam of syphon:naam
+Short LFSR mode. The period is brief enough to read as pitched metal rather than hiss.	Korte LFSR-modus. De periode is kort genoeg om als gestemd metaal te klinken in plaats van ruis.
+White, warm, red, amber, green, cyan, blue, magenta. ~ moves it round the colour wheel	Wit, warm, rood, amber, groen, cyaan, blauw, magenta. ~ draait hem over het kleurenwiel
+Re-strike the envelope this often. Hold sustains one note, which is what a drone wants.	Start de envelope zo vaak opnieuw. Hold houdt één noot aan, wat een drone wil.
+Diamond is the hard-edged Atari Video Music lattice; rings tunnel well with feedback zoom.	Diamond is het scherpe Atari Video Music-rooster; ringen tunnelen goed met feedbackzoom.
+Rock or spin. Depth 1 is half a turn either way; a saw at depth 1 turns it all the way round	Wiegen of draaien. Diepte 1 is een halve slag elke kant op; een zaagtand op 1 draait helemaal rond
+DECK playback level (live, not saved with the cue) - per-cue trim is gain in the AUDIO section	DECK-afspeelniveau (live, niet met de cue opgeslagen) - trim per cue is de gain in de AUDIO-sectie
+Still, fade in, typewriter, scroll up, crawl or pulse -- all driven by the cue's own transport	Stil, infaden, typemachine, omhoog scrollen, crawl of puls, allemaal aangestuurd door het transport van de cue
+Fields per rendered frame. 1 is one for one, 0.5 holds each field for two frames, 0 freezes it.	Velden per gerenderd beeld. 1 is één op één, 0,5 houdt elk veld twee beelden, 0 bevriest het.
+What this cue shows while it plays: waveform, scope, Lissajous, spectrum, meters or a name card	Wat deze cue laat zien tijdens het spelen: golfvorm, scope, Lissajous, spectrum, meters of een naamkaart
+0 picks tiles by brightness so the picture reads. 1 picks at random so the grid becomes texture.	0 kiest tegels op helderheid zodat het beeld leesbaar is. 1 kiest willekeurig zodat het raster textuur wordt.
+How far it travels, in semitones. Up reads as arrival, down as departure, zero is a struck note.	Hoe ver het reist, in halve tonen. Omhoog klinkt als aankomst, omlaag als vertrek, nul is een aangeslagen noot.
+An IPv4 address. Names are not resolved: a DNS lookup is a blocking call and GO must not make one	Een IPv4-adres. Namen worden niet opgezocht: een DNS-opvraag blokkeert en GO mag er geen doen
+Tile width in pixels. Must match the sheet's grid or the slices land across neighbouring sprites.	Tegelbreedte in pixels. Moet bij het raster van het blad passen, anders vallen de stukken tussen buurtsprites.
+Alternating mirrors by cell position, which reads as pattern where random flipping reads as noise.	Afwisselende spiegels per celpositie, die als patroon lezen waar willekeurig omklappen als ruis leest.
+0 welds them to their cell, which reads as engraved. Above it they re-roll, which reads as boiling.	0 last ze vast aan hun cel, als gegraveerd. Daarboven worden ze opnieuw getrokken, alsof ze koken.
+MONO L plays the left input in both speakers: mic 1 on most interfaces. STEREO is for a line source.	MONO L speelt de linkeringang in beide speakers: mic 1 op de meeste interfaces. STEREO is voor een lijnbron.
+The whole gesture. This IS the cue's duration -- a sting is the one generated signal here that ends.	Het hele gebaar. Dit IS de duur van de cue: een sting is het enige gegenereerde signaal hier dat eindigt.
+Click the value to send this fixture or leave it where the last cue put it. ~ makes the level breathe	Klik de waarde om dit armatuur te sturen of te laten waar de laatste cue het zette. ~ laat het niveau ademen
+FDS is a wavetable bent by a modulator. 2A03 is the pulse/triangle/noise set most chiptune is made of.	FDS is een wavetable gebogen door een modulator. 2A03 is de puls/driehoek/ruis-set waar de meeste chiptune van gemaakt is.
+Scramble which glyph means which brightness. Same set, different handwriting. Seeded, so it stays put.	Schud welk teken welke helderheid betekent. Zelfde set, ander handschrift. Met seed, dus het blijft staan.
+Pixel sort: runs of pixels sorted by brightness within a row, which is what makes datamosh look melted.	Pixel sort: reeksen pixels binnen een rij op helderheid gesorteerd, wat datamosh dat gesmolten uiterlijk geeft.
+How many cells the marks may climb. They thin out as they go, so a tall reach trails rather than doubles.	Hoeveel cellen de tekens mogen klimmen. Ze dunnen uit, dus een hoog bereik sleept in plaats van te verdubbelen.
+cue act val  -  G take  S stop  F fade out (val = tenths of a second)  V volume  O opacity  J jump to row	cue act val  -  G nemen  S stop  F uitfaden (val = tienden van een seconde)  V volume  O dekking  J spring naar rij
+Harmonic weight: a pure chime at zero, brass at full. This is the difference between a ping and a fanfare.	Harmonisch gewicht: een zuivere bel op nul, koper op vol. Dit is het verschil tussen een ping en een fanfare.
+Steps through the inputs this computer has. 'Settings input' follows the input chosen in Settings > Audio.	Loopt door de ingangen van deze computer. 'Settings input' volgt de ingang gekozen in Instellingen > Audio.
+Embers to roaring. It still surges and settles at any setting -- a fire that does not move reads as a photo	Van gloeiende kolen tot loeiend vuur. Het golft en zakt bij elke stand: een vuur dat niet beweegt lijkt een foto
+Reference pitch. 440 is modern standard, 432 the common alternative, and older instruments sat lower still.	Referentietoon. 440 is de moderne standaard, 432 het gangbare alternatief, en oudere instrumenten zaten nog lager.
+Where the sting starts. Under a voice it wants to stay out of the way; over a room it wants to cut through.	Waar de sting begint. Onder een stem moet hij uit de weg blijven; over een zaal moet hij erdoor snijden.
+Digital gain on the input, -40 to +40 dB. Set the interface's own preamp first; this is for the last few dB.	Digitale gain op de ingang, -40 tot +40 dB. Stel eerst de preamp van de interface in; dit is voor de laatste dB.
+Pulse the size. On its own this moves width AND height together; give height its own ~ to squash and stretch	Laat de grootte pulseren. Alleen beweegt dit breedte EN hoogte samen; geef de hoogte een eigen ~ om te pletten en te rekken
+A card fills the frame; a Lower Third is a name and a role, low on a transparent frame, with an in and an out	Een kaart vult het beeld; een Lower Third is een naam en een functie, laag op een transparant beeld, met een in en een uit
+Held keeps the last displacement rather than removing it -- the picture stays bent the way the driver left it.	Held houdt de laatste verschuiving in plaats van haar weg te halen: het beeld blijft gebogen zoals de driver het liet.
+12.5 and 25 are thin and reedy, 50 is hollow. 75 sounds identical to 25 -- it is here because trackers expose it.	12,5 en 25 zijn dun en nasaal, 50 is hol. 75 klinkt als 25: hij staat er omdat trackers hem aanbieden.
+Quantise the output like the hardware. The steps ARE the sound; smoothing them makes it a synth imitating a chip.	Kwantiseer de uitgang zoals de hardware. De stappen ZIJN het geluid; gladstrijken maakt er een synth van die een chip nadoet.
+Moves every selected cue's trim by the same dB, keeping the differences between them; typing a value sets them all to it	Verschuift de trim van elke geselecteerde cue evenveel dB, met behoud van de verschillen; een waarde typen zet ze allemaal daarop
+Where the playlist's crosspoints send it (Settings > Audio). Click to open the matrix by name, starting from exactly that	Waar de kruispunten van de playlist het heen sturen (Instellingen > Audio). Klik om de matrix op naam te openen, precies vanaf die routering
+name values with  d = ...;  end with one expression, or three for red green blue  |  Shift+Enter: new line  |  Enter: apply	benoem waarden met  d = ...;  eindig met één expressie, of drie voor rood groen blauw  |  Shift+Enter: nieuwe regel  |  Enter: toepassen
+Put back what it started from once the ramp lands (after the stop): a deck left ready for its next cue, a swell that lets go	Zet terug wat er aan het begin was als de helling aankomt (na de stop): een deck klaar voor zijn volgende cue, een zwelling die loslaat
+Which speech model makes the captions: English, any language, or the slower, more accurate pair. Each is a one-time download	Welk spraakmodel de ondertitels maakt: Engels, elke taal, of het tragere, nauwkeurigere paar. Elk is een eenmalige download
+What the mask cuts: this cue wherever it plays, this playlist on the focused output, that output's whole picture, or its matte	Wat het masker snijdt: deze cue waar hij ook speelt, deze playlist op de gekozen uitgang, het hele beeld van die uitgang, of zijn matte
+Play at the screen's rate when it is within 0.2% (59.94 on 60): every frame shown once, the sound up to 3.5 cents sharp or flat	Speel op de verversing van het scherm als die binnen 0,2% ligt (59,94 op 60): elk beeld één keer, het geluid tot 3,5 cent te hoog of te laag
+Quarter turns are exact and stay crisp. Spinning samples at an angle, which tears pixel art -- sometimes that is what you want.	Kwartslagen zijn exact en blijven scherp. Draaien bemonstert schuin, wat pixel art scheurt; soms is dat precies wat je wilt.
+Every take starts the puppetry the same way, so a rehearsed look repeats instead of depending on how long the app has been open.	Elke take start het poppenspel hetzelfde, zodat een geoefende look terugkomt in plaats van af te hangen van hoe lang de app openstaat.
+What aims each tilt: its own position, the picture's luma gradient so characters lean the way the image does, or the cell's hue.	Wat elke kanteling richt: de eigen positie, de lumagradiënt van het beeld zodat tekens hellen zoals het beeld, of de tint van de cel.
+Name a channel or a pair once. Playlists send to the name, so a different interface means changing the names here, not every cue.	Benoem een kanaal of paar één keer. Playlists sturen naar de naam, dus een andere interface betekent hier de namen veranderen, niet elke cue.
+Click a crosspoint to walk it: off, 0, -3, -6, -12 dB. Drag it sideways for any level. A playlist with none plays to its own device.	Klik een kruispunt om het door te lopen: uit, 0, -3, -6, -12 dB. Sleep opzij voor elk niveau. Een playlist zonder kruispunten speelt naar zijn eigen apparaat.
+Sprite sets installed in data/sprites. Each folder there is a set; cycling picks one and wraps back to none. Right-click turns them off.	Spritesets geïnstalleerd in data/sprites. Elke map is een set; wisselen kiest er een en springt terug naar geen. Rechtsklik zet ze uit.
+Internal resolution, 1 chunkiest to 5 finest. This is an aesthetic control as much as a speed one -- the 8-bit look comes from big pixels.	Interne resolutie, 1 het grofst tot 5 het fijnst. Dit is net zo goed een esthetische als een snelheidsknop: de 8-bit-look komt van grote pixels.
+Picture takes colour from the image. Green, amber and cyan are terminal phosphors. Palette locks the text to the selected hardware palette.	Picture neemt de kleur uit het beeld. Groen, amber en cyaan zijn terminalfosforen. Palette zet de tekst vast op het gekozen hardwarepalet.
+SUBTLE self-heals (H.264). CLASSIC is the real smear (MPEG-4). EXTREME is chunkier and smears constantly. Changing this re-prepares the cue.	SUBTLE herstelt zichzelf (H.264). CLASSIC is de echte veeg (MPEG-4). EXTREME is grover en veegt voortdurend. Dit wijzigen bereidt de cue opnieuw voor.
+Sine for line-up, pink to ring out a PA, white to find rattles, sweep to hear where a room rings, identify to walk the outputs one at a time.	Sinus voor uitlijnen, roze om een PA af te regelen, wit om rammels te vinden, sweep om te horen waar een zaal galmt, identify om de uitgangen één voor één langs te gaan.
+Which effect, by its place in the stack of the cue that deck is playing when this fires. With nothing there, the fade says so and does nothing	Welk effect, op zijn plaats in de stapel van de cue die dat deck speelt als dit start. Staat er niets, dan meldt de fade dat en doet niets
+Each frame blended into the next. This is the Hypno signature -- at 0 it is a pattern generator, above it the picture starts feeding on itself.	Elk beeld wordt in het volgende gemengd. Dit is de Hypno-handtekening: op 0 is het een patroongenerator, daarboven begint het beeld zichzelf te voeden.
+What is through the window on the hearth wall: a garden, rain, snow or the sea. A room with weather outside reads as somewhere rather than as a wall	Wat er door het raam in de haardmuur te zien is: een tuin, regen, sneeuw of de zee. Een kamer met weer buiten leest als een plek in plaats van een muur
+BY FIXTURE: the lights in the patch (Settings > Network > FIXTURES), by name. CHANNELS: channel=level by hand. A cue can carry both; channels go last	PER ARMATUUR: de lampen in de patch (Instellingen > Netwerk > ARMATUREN), op naam. KANALEN: kanaal=niveau met de hand. Een cue kan beide dragen; kanalen gaan laatst
+Each character rocks as though it were a card being tilted. Every cell has its own phase, so the grid breathes instead of sliding about as one sheet.	Elk teken wiegt als een kaart die gekanteld wordt. Elke cel heeft zijn eigen fase, dus het raster ademt in plaats van als één vel te schuiven.
+Pen: click for corners, drag for curves, click the first point to close (P). Points: drag, click the outline to add one, Alt-click or Delete to remove	Pen: klik voor hoeken, sleep voor bochten, klik het eerste punt om te sluiten (P). Punten: slepen, klik de omtrek om er een toe te voegen, Alt-klik of Delete om te verwijderen
+The chip's three channels. They differ in kind: triangle has no volume control on the hardware, and noise is a shift register rather than an oscillator.	De drie kanalen van de chip. Ze verschillen: driehoek heeft geen volume op de hardware, en ruis is een schuifregister in plaats van een oscillator.
+Curated sets of symbols and emoji -- stars, notes, flowers, arrows, weather, runes, faces. Picking one fills the custom glyphs below, which stays editable.	Gekozen sets symbolen en emoji: sterren, noten, bloemen, pijlen, weer, runen, gezichten. Een kiezen vult de eigen tekens hieronder, die bewerkbaar blijven.
+Play from the computer keyboard, Ableton layout: A W S E D F T G Y H U J, Z and X for octave. While this is ON those keys make notes instead of firing cues.	Speel op het computertoetsenbord, Ableton-indeling: A W S E D F T G Y H U J, Z en X voor octaaf. Zolang dit AAN staat spelen die toetsen noten in plaats van cues te starten.
+Deck opacity, deck volume, the master dimmer, the active cue's own brightness / contrast / saturation / hue, or a knob of one of its effects or audio effects	Deckdekking, deckvolume, de hoofddimmer, de helderheid / het contrast / de verzadiging / de tint van de actieve cue, of een knop van een van zijn effecten of audio-effecten
+Scanlines, phosphor bloom and RGB fringing. The bloom is the part that matters -- a phosphor spills sideways, which is why a CRT looks like it is emitting light.	Scanlijnen, fosforgloed en RGB-randen. De gloed is waar het om gaat: een fosfor lekt zijwaarts, daarom lijkt een CRT licht uit te stralen.
+Torn scanline bands and RGB separation. In text mode it also corrupts CELLS -- whole rows lock to one repeating character, the way a real text screen loses sync.	Gescheurde lijnbanden en RGB-scheiding. In tekstmodus beschadigt het ook CELLEN: hele rijen blijven op één herhaald teken hangen, zoals een echt tekstscherm dat de sync kwijt is.
+Still holds the frame you are on. Flipbook plays the frames in turn. Replay draws the first frame stroke by stroke, the way it was drawn, then holds and starts again	Still houdt het beeld waar je bent. Flipbook speelt de beelden om de beurt. Replay tekent het eerste beeld streek voor streek, zoals het getekend is, houdt dan en begint opnieuw
+Start, Stop, Pause, Resume, Load (stand it by without firing), Arm, Disarm, or Devamp it (a loop plays out its pass and ends); or Stop all, Pause all, Resume all: every deck	Start, Stop, Pause, Resume, Load (klaarzetten zonder te starten), Arm, Disarm of Devamp (een loop speelt zijn ronde uit en stopt); of Stop all, Pause all, Resume all: elk deck
+Scope shows shape and clipping. Lissajous shows phase and polarity between the first two channels -- a diagonal the wrong way means one is inverted. Spectrum is third-octave bars.	Scope toont vorm en clipping. Lissajous toont fase en polariteit tussen de eerste twee kanalen: een diagonaal de verkeerde kant op betekent dat er een omgekeerd is. Spectrum is in terts-octaafbalken.
+0 picks the glyph the brightness asks for, 1 picks any glyph in the set. Turn it up to see the whole alphabet: ranked strictly by ink, a flat area picks one mark and the rest never appear.	0 kiest het teken waar de helderheid om vraagt, 1 kiest elk teken uit de set. Zet hem hoger om het hele alfabet te zien: strikt op inkt gerangschikt kiest een vlak gebied één teken en verschijnt de rest nooit.
+Blocks and dithers read as density; the ASCII ramp reads as text; symbols read as wreckage. Cycling this clears a custom glyph string, since that would override it -- the preset row puts one back.	Blokken en dither lezen als dichtheid; de ASCII-helling als tekst; symbolen als wrakstukken. Wisselen wist een eigen tekenreeks, die dit zou overschrijven; de presetrij zet er een terug.
+Equal temperament buys free modulation at the cost of every interval being slightly wrong. Just and pythagorean are exactly in tune in one key. Bohlen-Pierce divides a twelfth, so it has no octaves.	Gelijkzwevende stemming koopt vrije modulatie met elk interval een beetje vals. Rein en pythagoreïsch zijn precies zuiver in één toonsoort. Bohlen-Pierce deelt een duodecime, dus heeft geen octaven.
+OSC	OSC
+RTMPS	RTMPS
+Twitch	Twitch
+Art-Net	Art-Net
+YouTube	YouTube
+PQ - HDR10	PQ - HDR10
+sACN (E1.31)	sACN (E1.31)
+Syphon / Spout	Syphon / Spout
+NDI® NETWORK	NDI® NETWORK
+AMWA NMOS  IS-04 / IS-05	AMWA NMOS  IS-04 / IS-05
