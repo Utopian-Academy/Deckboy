@@ -4188,14 +4188,14 @@
         if (sourceRef.empty()) {
           sourceRef = defaultSourceRefForKind(cue.kind);
         }
-        return std::string("Source  ") + sourceCueRefFriendlyLabel(cue.kind, sourceRef);
+        return deckboy::core::i18n::translate("Source") + "  " + sourceCueRefFriendlyLabel(cue.kind, sourceRef);
       }
       if (cue.kind == CueKind::Pattern) {
         const std::string generator = generatorPatternName(cue.path);
         if (!generator.empty()) {
           return generator + "  made by Deckboy";
         }
-        return std::string("Pattern  ") + patternLabelForType(normalizePatternTypeId(cue.path));
+        return deckboy::core::i18n::translate("Pattern") + "  " + patternLabelForType(normalizePatternTypeId(cue.path));
       }
       if (cue.path.empty()) {
         return std::string("(no media source)");
@@ -4409,11 +4409,11 @@
       };
 
       std::string metaLine = cueDisplayToken(*selectedCue, focusedDeck().selectedIndex) + "  " +
-                             cueTypeLabel(*selectedCue);
+                             deckboy::core::i18n::translate(cueTypeLabel(*selectedCue));
       if (selectedCue->width > 0 && selectedCue->height > 0) {
         metaLine += "  " + std::to_string(selectedCue->width) + "x" + std::to_string(selectedCue->height);
       }
-      metaLine += "  " + cueSummaryDurationLabel(*selectedCue);
+      metaLine += "  " + deckboy::core::i18n::translate(cueSummaryDurationLabel(*selectedCue));
       summaryLine(metaLine, pal.fgSoft);
       summaryLine(cueSummarySourceLine(*selectedCue), pal.fgSoft);
       summaryLine(cueSummaryTechLine(*selectedCue), pal.fgSoft);
@@ -4700,7 +4700,7 @@
       if (cue.width > 0 && cue.height > 0) {
         mediaSummary += "  " + std::to_string(cue.width) + "x" + std::to_string(cue.height);
       }
-      mediaSummary += "  " + cueTimelineDurationLabel(cue);
+      mediaSummary += "  " + deckboy::core::i18n::translate(cueTimelineDurationLabel(cue));
       rowY = drawInspectorStatusRow(rowY, "media", mediaSummary, false);
 
       std::string codecSummary;
