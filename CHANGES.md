@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Thanks
+- Cool-Colin on Reddit suggested the layer blend modes (0.99.426).
+- Tim Cronin suggested the Final Cut-style timeline.
+- On GitHub: joeladria found that the interface had no text on macOS (#6), larszu found that the Mac build had no text layers (#7), and FillmyMap found that Ctrl+Shift+Space did not stop all decks (#12).
+
 ### Lessons
 - Fixed: in the Presets lesson, Esc closed the lesson instead of the DASH. Esc now closes whatever is open first (DASH, settings, a menu); only an Esc that nothing else wants leaves a lesson.
 - Fixed: thirteen lesson steps pointed at nothing, so there was no ring to show where to click. MENU and DASH steps lost their pointer; a cue in a playlist that was not on screen had none (the pointer now goes to its tab first); the scopes steps lost theirs while a scope was shown large; and edge blend could not be found when the settings page was scrolled below it.
