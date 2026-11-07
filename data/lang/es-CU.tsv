@@ -2179,3 +2179,24 @@ sACN (E1.31)	sACN (E1.31)
 Syphon / Spout	Syphon / Spout
 NDI® NETWORK	NDI® NETWORK
 AMWA NMOS  IS-04 / IS-05	AMWA NMOS  IS-04 / IS-05
+pan	paneo
+Passphrase (shared)	Frase de acceso (compartida)
+, — skip to previous cue	, — saltar al cue anterior
+--- -- --  does nothing on that playlist  -  (M) the step's own playlist	--- -- --  no hace nada en esa playlist  -  (M) la playlist del propio paso
+-18 dBFS is EBU alignment, -20 is SMPTE. Capped below 0: this feeds a live PA.	-18 dBFS es la alineación EBU, -20 la SMPTE. Limitado por debajo de 0: esto alimenta un PA en vivo.
+--- -- --  does nothing on that playlist  -  (M) the step's own playlist  -  EDIT is on: typing changes the show	--- -- --  no hace nada en esa playlist  -  (M) la playlist del propio paso  -  EDIT está activado: escribir cambia el show
+pop	pop
+CLIP	CLIP
+deck	deck
+logo	logo
+show	show
+MULTI	MULTI
+trans	trans
+arcade	arcade
+plugin	plugin
+ticket	ticket
+TRACKER	TRACKER
+dossier	dossier
+terminal	terminal
+Motion: Bug Swat	Motion: Bug Swat
+DECKLINK SDI / HDMI	DECKLINK SDI / HDMI

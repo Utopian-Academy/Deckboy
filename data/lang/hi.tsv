@@ -2193,3 +2193,15 @@ sACN (E1.31)	sACN (E1.31)
 Syphon / Spout	Syphon / Spout
 NDI® NETWORK	NDI® NETWORK
 AMWA NMOS  IS-04 / IS-05	AMWA NMOS  IS-04 / IS-05
+trans	संक्रमण
+TRACKER	ट्रैकर
+Motion: Bug Swat	गति: Bug Swat
+Passphrase (shared)	पासफ़्रेज़ (साझा)
+, — skip to previous cue	, — पिछले क्यू पर जाएँ
+--- -- --  does nothing on that playlist  -  (M) the step's own playlist	--- -- --  उस प्लेलिस्ट पर कुछ नहीं करता  -  (M) चरण की अपनी प्लेलिस्ट
+-18 dBFS is EBU alignment, -20 is SMPTE. Capped below 0: this feeds a live PA.	-18 dBFS EBU संरेखण है, -20 SMPTE। 0 से नीचे सीमित: यह लाइव PA को भरता है।
+--- -- --  does nothing on that playlist  -  (M) the step's own playlist  -  EDIT is on: typing changes the show	--- -- --  उस प्लेलिस्ट पर कुछ नहीं करता  -  (M) चरण की अपनी प्लेलिस्ट  -  EDIT चालू है: टाइप करने से शो बदलता है
+cue "{n}"	cue "{n}"
+25 fps (PAL/EBU)	25 fps (PAL/EBU)
+29.97 fps (NTSC)	29.97 fps (NTSC)
+DECKLINK SDI / HDMI	DECKLINK SDI / HDMI

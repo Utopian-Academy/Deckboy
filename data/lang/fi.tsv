@@ -2183,3 +2183,23 @@ sACN (E1.31)	sACN (E1.31)
 Syphon / Spout	Syphon / Spout
 NDI® NETWORK	NDI® NETWORK
 AMWA NMOS  IS-04 / IS-05	AMWA NMOS  IS-04 / IS-05
+pan	panorointi
+trans	siirt.
+arcade	pelihalli
+TRACKER	SEURANTA
+Motion: Bug Swat	Liike: Bug Swat
+Passphrase (shared)	Tunnuslause (jaettu)
+, — skip to previous cue	, — edelliseen cueen
+--- -- --  does nothing on that playlist  -  (M) the step's own playlist	--- -- --  ei tee mitään sillä playlistillä  -  (M) askeleen oma playlist
+-18 dBFS is EBU alignment, -20 is SMPTE. Capped below 0: this feeds a live PA.	-18 dBFS on EBU-linjaus, -20 SMPTE. Rajattu alle 0: tämä syöttää live-PA:ta.
+--- -- --  does nothing on that playlist  -  (M) the step's own playlist  -  EDIT is on: typing changes the show	--- -- --  ei tee mitään sillä playlistillä  -  (M) askeleen oma playlist  -  EDIT on päällä: kirjoittaminen muuttaa esitystä
+pop	pop
+deck	deck
+logo	logo
+neon	neon
+MULTI	MULTI
+STEREO	STEREO
+cue "{n}"	cue "{n}"
+Bork bork BORK!	Bork bork BORK!
+25 fps (PAL/EBU)	25 fps (PAL/EBU)
+DECKLINK SDI / HDMI	DECKLINK SDI / HDMI

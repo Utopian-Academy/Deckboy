@@ -2195,3 +2195,13 @@ sACN (E1.31)	sACN (E1.31)
 Syphon / Spout	Syphon / Spout
 NDI® NETWORK	NDI® NETWORK
 AMWA NMOS  IS-04 / IS-05	AMWA NMOS  IS-04 / IS-05
+TRACKER	트래커
+Motion: Bug Swat	모션: Bug Swat
+Passphrase (shared)	암호 문구 (공유)
+, — skip to previous cue	, — 이전 큐로
+--- -- --  does nothing on that playlist  -  (M) the step's own playlist	--- -- --  그 재생 목록에서는 아무것도 하지 않음  -  (M) 단계 자체의 재생 목록
+-18 dBFS is EBU alignment, -20 is SMPTE. Capped below 0: this feeds a live PA.	-18 dBFS는 EBU 정렬, -20은 SMPTE. 0 미만으로 제한: 라이브 PA로 보내기 때문.
+--- -- --  does nothing on that playlist  -  (M) the step's own playlist  -  EDIT is on: typing changes the show	--- -- --  그 재생 목록에서는 아무것도 하지 않음  -  (M) 단계 자체의 재생 목록  -  EDIT 켜짐: 입력하면 쇼가 바뀝니다
+25 fps (PAL/EBU)	25 fps (PAL/EBU)
+29.97 fps (NTSC)	29.97 fps (NTSC)
+DECKLINK SDI / HDMI	DECKLINK SDI / HDMI

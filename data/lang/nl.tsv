@@ -2148,3 +2148,54 @@ sACN (E1.31)	sACN (E1.31)
 Syphon / Spout	Syphon / Spout
 NDI® NETWORK	NDI® NETWORK
 AMWA NMOS  IS-04 / IS-05	AMWA NMOS  IS-04 / IS-05
+trans	overg.
+Passphrase (shared)	Wachtzin (gedeeld)
+, — skip to previous cue	, — naar de vorige cue
+--- -- --  does nothing on that playlist  -  (M) the step's own playlist	--- -- --  doet niets op die playlist  -  (M) de eigen playlist van de stap
+-18 dBFS is EBU alignment, -20 is SMPTE. Capped below 0: this feeds a live PA.	-18 dBFS is EBU-uitlijning, -20 SMPTE. Begrensd onder 0: dit voedt een live PA.
+--- -- --  does nothing on that playlist  -  (M) the step's own playlist  -  EDIT is on: typing changes the show	--- -- --  doet niets op die playlist  -  (M) de eigen playlist van de stap  -  EDIT staat aan: typen verandert de show
+in	in
+MIX	MIX
+pan	pan
+pop	pop
+CLIP	CLIP
+deck	deck
+gain	gain
+logo	logo
+neon	neon
+rail	rail
+show	show
+trim	trim
+>LIVE	>LIVE
+KEY L	KEY L
+MULTI	MULTI
+VIDEO	VIDEO
+Zones	Zones
+index	index
+14-bit	14-bit
+STEREO	STEREO
+arcade	arcade
+podium	podium
+ticket	ticket
+Limiter	Limiter
+TRACKER	TRACKER
+capsule	capsule
+circuit	circuit
+dossier	dossier
+routing	routing
+bulletin	bulletin
+cassette	cassette
+confetti	confetti
+dateline	dateline
+diskette	diskette
+protocol	protocol
+terminal	terminal
+DASHBOARD	DASHBOARD
+GAME OVER	GAME OVER
+cartridge	cartridge
+cue "{n}"	cue "{n}"
+equalizer	equalizer
+Bork bork BORK!	Bork bork BORK!
+25 fps (PAL/EBU)	25 fps (PAL/EBU)
+Motion: Bug Swat	Motion: Bug Swat
+DECKLINK SDI / HDMI	DECKLINK SDI / HDMI

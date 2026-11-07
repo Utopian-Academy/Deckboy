@@ -2180,3 +2180,27 @@ sACN (E1.31)	sACN (E1.31)
 Syphon / Spout	Syphon / Spout
 NDI® NETWORK	NDI® NETWORK
 AMWA NMOS  IS-04 / IS-05	AMWA NMOS  IS-04 / IS-05
+trans	chuyển
+Passphrase (shared)	Cụm mật khẩu (dùng chung)
+, — skip to previous cue	, — về cue trước
+--- -- --  does nothing on that playlist  -  (M) the step's own playlist	--- -- --  không làm gì trên playlist đó  -  (M) playlist của chính bước đó
+-18 dBFS is EBU alignment, -20 is SMPTE. Capped below 0: this feeds a live PA.	-18 dBFS là căn chỉnh EBU, -20 là SMPTE. Giới hạn dưới 0: thứ này cấp cho PA trực tiếp.
+--- -- --  does nothing on that playlist  -  (M) the step's own playlist  -  EDIT is on: typing changes the show	--- -- --  không làm gì trên playlist đó  -  (M) playlist của chính bước đó  -  EDIT đang bật: gõ sẽ thay đổi show
+pan	pan
+pop	pop
+CLIP	CLIP
+deck	deck
+gain	gain
+logo	logo
+neon	neon
+show	show
+TA-DA	TA-DA
+14-bit	14-bit
+STEREO	STEREO
+arcade	arcade
+TRACKER	TRACKER
+cue "{n}"	cue "{n}"
+Bork bork BORK!	Bork bork BORK!
+25 fps (PAL/EBU)	25 fps (PAL/EBU)
+Motion: Bug Swat	Motion: Bug Swat
+DECKLINK SDI / HDMI	DECKLINK SDI / HDMI

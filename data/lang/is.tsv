@@ -2186,3 +2186,20 @@ sACN (E1.31)	sACN (E1.31)
 Syphon / Spout	Syphon / Spout
 NDI® NETWORK	NDI® NETWORK
 AMWA NMOS  IS-04 / IS-05	AMWA NMOS  IS-04 / IS-05
+pan	hliðrun
+trans	yfirf.
+TRACKER	RAKNARI
+Motion: Bug Swat	Hreyfing: Bug Swat
+Passphrase (shared)	Aðgangsorð (sameiginlegt)
+, — skip to previous cue	, — fara í fyrra cue
+--- -- --  does nothing on that playlist  -  (M) the step's own playlist	--- -- --  gerir ekkert á þeim spilunarlista  -  (M) spilunarlisti skrefsins sjálfs
+-18 dBFS is EBU alignment, -20 is SMPTE. Capped below 0: this feeds a live PA.	-18 dBFS er EBU-stilling, -20 SMPTE. Takmarkað undir 0: þetta fæðir lifandi PA.
+--- -- --  does nothing on that playlist  -  (M) the step's own playlist  -  EDIT is on: typing changes the show	--- -- --  gerir ekkert á þeim spilunarlista  -  (M) spilunarlisti skrefsins sjálfs  -  EDIT er á: að skrifa breytir sýningunni
+Fall	Fall
+deck	deck
+neon	neon
+MULTI	MULTI
+TA-DA	TA-DA
+Bork bork BORK!	Bork bork BORK!
+25 fps (PAL/EBU)	25 fps (PAL/EBU)
+DECKLINK SDI / HDMI	DECKLINK SDI / HDMI

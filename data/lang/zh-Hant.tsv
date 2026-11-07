@@ -2194,3 +2194,13 @@ sACN (E1.31)	sACN (E1.31)
 Syphon / Spout	Syphon / Spout
 NDI® NETWORK	NDI® NETWORK
 AMWA NMOS  IS-04 / IS-05	AMWA NMOS  IS-04 / IS-05
+deck	卡座
+TRACKER	追蹤器
+Passphrase (shared)	通關密語 (共用)
+, — skip to previous cue	, — 跳到上一個 cue
+--- -- --  does nothing on that playlist  -  (M) the step's own playlist	--- -- --  對該播放清單不起作用  -  (M) 該步驟自己的播放清單
+-18 dBFS is EBU alignment, -20 is SMPTE. Capped below 0: this feeds a live PA.	-18 dBFS 是 EBU 校準,-20 是 SMPTE。限制在 0 以下:這會送入現場擴聲。
+--- -- --  does nothing on that playlist  -  (M) the step's own playlist  -  EDIT is on: typing changes the show	--- -- --  對該播放清單不起作用  -  (M) 該步驟自己的播放清單  -  EDIT 已開啟:輸入會改變演出
+25 fps (PAL/EBU)	25 fps (PAL/EBU)
+29.97 fps (NTSC)	29.97 fps (NTSC)
+DECKLINK SDI / HDMI	DECKLINK SDI / HDMI

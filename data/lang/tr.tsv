@@ -2182,3 +2182,23 @@ sACN (E1.31)	sACN (E1.31)
 Syphon / Spout	Syphon / Spout
 NDI® NETWORK	NDI® NETWORK
 AMWA NMOS  IS-04 / IS-05	AMWA NMOS  IS-04 / IS-05
+trans	geçiş
+TRACKER	İZLEYİCİ
+Motion: Bug Swat	Hareket: Bug Swat
+Passphrase (shared)	Parola cümlesi (paylaşılan)
+, — skip to previous cue	, — önceki cue'ya git
+--- -- --  does nothing on that playlist  -  (M) the step's own playlist	--- -- --  o çalma listesinde hiçbir şey yapmaz  -  (M) adımın kendi çalma listesi
+-18 dBFS is EBU alignment, -20 is SMPTE. Capped below 0: this feeds a live PA.	-18 dBFS EBU hizalamasıdır, -20 SMPTE. 0'ın altında sınırlı: bu canlı bir PA'yı besler.
+--- -- --  does nothing on that playlist  -  (M) the step's own playlist  -  EDIT is on: typing changes the show	--- -- --  o çalma listesinde hiçbir şey yapmaz  -  (M) adımın kendi çalma listesi  -  EDIT açık: yazmak gösteriyi değiştirir
+pan	pan
+pop	pop
+deck	deck
+logo	logo
+neon	neon
+TA-DA	TA-DA
+STEREO	STEREO
+terminal	terminal
+cue "{n}"	cue "{n}"
+Bork bork BORK!	Bork bork BORK!
+25 fps (PAL/EBU)	25 fps (PAL/EBU)
+DECKLINK SDI / HDMI	DECKLINK SDI / HDMI

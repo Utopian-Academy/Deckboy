@@ -2190,3 +2190,16 @@ sACN (E1.31)	sACN (E1.31)
 Syphon / Spout	Syphon / Spout
 NDI® NETWORK	NDI® NETWORK
 AMWA NMOS  IS-04 / IS-05	AMWA NMOS  IS-04 / IS-05
+trans	μετάβ.
+Motion: Bug Swat	Κίνηση: Bug Swat
+Passphrase (shared)	Φράση πρόσβασης (κοινή)
+, — skip to previous cue	, — πήγαινε στο προηγούμενο cue
+--- -- --  does nothing on that playlist  -  (M) the step's own playlist	--- -- --  δεν κάνει τίποτα σε εκείνη τη λίστα  -  (M) η λίστα του ίδιου του βήματος
+-18 dBFS is EBU alignment, -20 is SMPTE. Capped below 0: this feeds a live PA.	-18 dBFS είναι η στάθμιση EBU, -20 η SMPTE. Περιορισμένο κάτω από 0: τροφοδοτεί ζωντανό PA.
+--- -- --  does nothing on that playlist  -  (M) the step's own playlist  -  EDIT is on: typing changes the show	--- -- --  δεν κάνει τίποτα σε εκείνη τη λίστα  -  (M) η λίστα του ίδιου του βήματος  -  το EDIT είναι ανοιχτό: η πληκτρολόγηση αλλάζει το σόου
+pan	pan
+deck	deck
+arcade	arcade
+TRACKER	TRACKER
+25 fps (PAL/EBU)	25 fps (PAL/EBU)
+DECKLINK SDI / HDMI	DECKLINK SDI / HDMI

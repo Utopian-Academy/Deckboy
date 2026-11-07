@@ -2205,3 +2205,12 @@ sACN (E1.31)	sACN (E1.31)
 Syphon / Spout	Syphon / Spout
 NDI® NETWORK	NDI® NETWORK
 AMWA NMOS  IS-04 / IS-05	AMWA NMOS  IS-04 / IS-05
+trans	گذار
+TRACKER	ردیاب
+Motion: Bug Swat	حرکت: Bug Swat
+Passphrase (shared)	عبارت عبور (مشترک)
+, — skip to previous cue	, — رفتن به کیوی پیشین
+--- -- --  does nothing on that playlist  -  (M) the step's own playlist	--- -- --  روی آن فهرست پخش کاری نمی‌کند  -  (M) فهرست پخش خود گام
+-18 dBFS is EBU alignment, -20 is SMPTE. Capped below 0: this feeds a live PA.	-18 dBFS تراز EBU است، -20 تراز SMPTE. زیر 0 محدود شده: این یک سیستم صوت زنده را تغذیه می‌کند.
+--- -- --  does nothing on that playlist  -  (M) the step's own playlist  -  EDIT is on: typing changes the show	--- -- --  روی آن فهرست پخش کاری نمی‌کند  -  (M) فهرست پخش خود گام  -  EDIT روشن است: تایپ کردن نمایش را تغییر می‌دهد
+DECKLINK SDI / HDMI	DECKLINK SDI / HDMI

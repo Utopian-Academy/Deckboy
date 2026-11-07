@@ -2196,3 +2196,12 @@ sACN (E1.31)	sACN (E1.31)
 Syphon / Spout	Syphon / Spout
 NDI® NETWORK	NDI® NETWORK
 AMWA NMOS  IS-04 / IS-05	AMWA NMOS  IS-04 / IS-05
+TRACKER	トラッカー
+Passphrase (shared)	パスフレーズ (共有)
+, — skip to previous cue	, — 前のキューへ
+--- -- --  does nothing on that playlist  -  (M) the step's own playlist	--- -- --  そのプレイリストでは何もしない  -  (M) ステップ自身のプレイリスト
+-18 dBFS is EBU alignment, -20 is SMPTE. Capped below 0: this feeds a live PA.	-18 dBFS は EBU のアライメント、-20 は SMPTE。0 未満に制限: ライブの PA に送るため。
+--- -- --  does nothing on that playlist  -  (M) the step's own playlist  -  EDIT is on: typing changes the show	--- -- --  そのプレイリストでは何もしない  -  (M) ステップ自身のプレイリスト  -  EDIT がオン: 入力でショーが変わります
+25 fps (PAL/EBU)	25 fps (PAL/EBU)
+29.97 fps (NTSC)	29.97 fps (NTSC)
+DECKLINK SDI / HDMI	DECKLINK SDI / HDMI

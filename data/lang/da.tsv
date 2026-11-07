@@ -2156,3 +2156,49 @@ sACN (E1.31)	sACN (E1.31)
 Syphon / Spout	Syphon / Spout
 NDI® NETWORK	NDI® NETWORK
 AMWA NMOS  IS-04 / IS-05	AMWA NMOS  IS-04 / IS-05
+trans	overg
+ON AIR	PÅ LUFTEN
+Passphrase (shared)	Adgangssætning (delt)
+, — skip to previous cue	, — spring til forrige cue
+--- -- --  does nothing on that playlist  -  (M) the step's own playlist	--- -- --  gør intet på den playlist  -  (M) trinnets egen playlist
+-18 dBFS is EBU alignment, -20 is SMPTE. Capped below 0: this feeds a live PA.	-18 dBFS er EBU-opmåling, -20 er SMPTE. Begrænset under 0: dette fødder et live PA.
+--- -- --  does nothing on that playlist  -  (M) the step's own playlist  -  EDIT is on: typing changes the show	--- -- --  gør intet på den playlist  -  (M) trinnets egen playlist  -  EDIT er til: skrivning ændrer showet
+MIX	MIX
+pan	pan
+pop	pop
+Port	Port
+deck	deck
+flag	flag
+gain	gain
+hold	hold
+logo	logo
+neon	neon
+show	show
+trim	trim
+MULTI	MULTI
+VIDEO	VIDEO
+14-bit	14-bit
+ANALOG	ANALOG
+FORMAT	FORMAT
+STEREO	STEREO
+plugin	plugin
+signal	signal
+TRACKER	TRACKER
+dossier	dossier
+routing	routing
+bulletin	bulletin
+dateline	dateline
+diskette	diskette
+feedback	feedback
+terminal	terminal
+DASHBOARD	DASHBOARD
+GAME OVER	GAME OVER
+cue "{n}"	cue "{n}"
+equalizer	equalizer
+hold {n} s	hold {n} s
+Bork bork BORK!	Bork bork BORK!
+25 fps (PAL/EBU)	25 fps (PAL/EBU)
+Motion: Bug Swat	Motion: Bug Swat
+DECKLINK SDI / HDMI	DECKLINK SDI / HDMI
+HLG - live broadcast (BT.2100)	HLG - live broadcast (BT.2100)
+Limiter	Limiter
