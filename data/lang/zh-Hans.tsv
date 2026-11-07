@@ -1372,3 +1372,503 @@ out	出
 pan	声像
 routing	路由
 trim	修剪
+0-63, the hardware's own gain range.	0-63，硬件自身的增益范围。
+1-16, as the desk counts them	1-16，按控台的计数
+7-segment, blocky, or a real font	七段、方块或真实字体
+[ / ] keys — fade-in duration	[ / ] 键：淡入时长
+a camera moves the ~ controls	摄像机移动 ~ 控件
+a chain on a device, after the mix	设备上的效果链，在混音之后
+a comment	注释
+Act now, without taking the cue	立即执行，不取 cue
+Add a light	添加灯光
+add a second output to pair	添加第二个输出以配对
+add shape	添加形状
+all driven by the cue's own transport	全部由 cue 的走带控制
+All interfaces; trusted machines only.	所有接口；仅限受信任的机器。
+all to 0	全部归 0
+An audio effect's knob	音频效果的旋钮
+An effect's knob	效果的旋钮
+any channel	任意通道
+any window, any screen	任意窗口，任意屏幕
+arcade	街机
+Arm this cue as the one GO will fire	预备此 cue，供下次 GO 触发
+Art-Net port address, 0-32767	Art-Net 端口地址，0-32767
+Attached overlays fire on TAKE only	附加叠加层仅在 TAKE 时触发
+BACK TO BUG SWAT	返回 BUG SWAT
+backdrop	背景
+bar	条
+bg alpha	背景透明度
+black lift	提升黑位
+blend gamma	融合伽马
+blueprint	蓝图
+boxes	方框
+bracket	括号
+bulletin	公告
+by density	按密度
+BY FIXTURE	按灯具
+capsule	胶囊
+caption	说明文字
+card	卡片
+CARD OFF ALL	全部卡片关
+CARD ON ALL	全部卡片开
+cartridge	卡带盒
+cassette	磁带
+Ceiling	上限
+Chain	链
+Changing this re-prepares the cue.	更改后会重新准备 cue。
+channel list is not readable	无法读取通道列表
+CHANNELS	通道
+channels on your interfaces, by name	接口上的通道，按名称
+Checkerboard	棋盘格
+chime amber	黄色提示音
+chime red	红色提示音
+chime zero	归零提示音
+Choose startup mode:	选择启动模式：
+circle, heart, star...	圆形、心形、星形...
+circuit	电路
+CLASSIC VIEW	经典视图
+clear driver	清除驱动
+Clear in/out trim points	清除入点/出点
+CLEAR OVERLAY  [Backspace]	清除叠加层  [退格]
+Clear the active Lower Third overlay now	立即清除当前 Lower Third
+Clear the live PIP overlay now	立即清除 PIP 叠加层
+CLICK ANYWHERE...	点击任意位置...
+click or Esc to close	点击或按 Esc 关闭
+click this window	点击此窗口
+Click to edit cue notes	点击编辑 cue 备注
+click to open the grid	点击打开网格
+Click to seek — drag to scrub	点击定位，拖动浏览
+Click to type it	点击输入
+comic	漫画
+Companion passphrase	Companion 口令
+confetti	彩纸
+Connections at once	同时连接数
+count up	正计时
+Countdown, count up, or wall clock	倒计时、正计时或时钟
+credit	字幕表
+crossfade	交叉淡化
+crosshair	十字线
+Crosshatch	交叉线
+Cue has no audio	Cue 没有声音
+cue number	Cue 编号
+Cycle end action for selected cues	切换所选 cue 的结束动作
+Cycle which slot drives scene audio	切换提供场景声音的槽位
+dateline	电头
+decoder spin-up	解码器启动
+Default App Feed	默认应用输入
+Default Camera	默认摄像机
+Delay before the continue fires	继续触发前的延迟
+Delay between GO and this cue starting	GO 到 cue 开始的延迟
+depth 1 turns it all the way round	深度 1 转满一圈
+Digit colour once amber is reached	变黄后的数字颜色
+Digit colour while there is time in hand	时间充足时的数字颜色
+diskette	软盘
+Do it now, without taking the cue	立即执行，不取 cue
+dossier	档案
+dotmatrix	点阵
+Double-GO guard	GO 双击保护
+draw on the monitor	在监视器上绘制
+driver speed	驱动速度
+EDGE BLEND	边缘融合
+EDIT is on: typing changes the show	EDIT 已开：输入会更改演出
+edit on the monitor	在监视器上编辑
+Edit the main Lower Third title	编辑 Lower Third 主标题
+Edit the secondary Lower Third line	编辑 Lower Third 第二行
+eq band	EQ 频段
+equalizer	均衡器
+Esc cancels	Esc 取消
+Esc cancels, arrows nudge	Esc 取消，方向键微调
+Esc to close	Esc 关闭
+even grid	均匀网格
+EXAMPLE SHOWS	示例演出
+EXIT  Esc	退出  Esc
+face	脸
+factory settings	出厂设置
+Fade+LoadNext	淡出+加载下一个
+Fade+Pause	淡出+暂停
+Fade+Rewind	淡出+倒回
+Fade-in duration	淡入时长
+Fade-in duration for this cue	此 cue 的淡入时长
+Fade-out duration	淡出时长
+Fade-out duration before next cue	下一 cue 前的淡出时长
+Fade-out duration for this cue	此 cue 的淡出时长
+Fall	下降
+false colour reads SDR pictures	伪彩读取 SDR 画面
+fill the frame	填满画面
+find a named colour	按名称查找颜色
+fires cues	触发 cue
+first available	第一个可用
+Fit/Fill/Stretch/Unscaled	适应/填充/拉伸/不缩放
+Fixed repeat count — 0 = infinite	固定重复：0 = 无限
+Fixed repeat count — 0 = loop forever	固定重复：0 = 永远循环
+FIXED!	已修复！
+flag	旗帜
+FORGET MY DEFAULTS	忘记我的默认值
+Frames a second	每秒帧数
+from exactly this routing	完全按此路由
+Full Black	全黑
+Full Blue	全蓝
+Full Green	全绿
+Full Red	全红
+Full White	全白
+garden	花园
+Ghastly	惨白
+glass	玻璃
+glitch down	故障向下
+glitch drift	故障漂移
+glitch reach	故障范围
+glitch through	故障穿透
+glitch up	故障向上
+GO steps over it	GO 跳过它
+hairline	细线
+Haptics	触感
+HDR input	HDR 输入
+Hex, e.g. 90 3C 7F	十六进制，如 90 3C 7F
+HOLDING OFF AIR	保持未播出
+Home — skip to start	Home：跳到开头
+Horizontal output offset in pixels	输出水平偏移（像素）
+How many features fit on screen.	屏幕上能放下多少。
+how much of this effect	此效果的量
+How solid the ink is	墨水的不透明度
+How tall the logo is above the clock	时钟上方标志的高度
+In-point: cue starts playback here	入点：cue 从此开始
+index	索引
+initializing webview	正在初始化 webview
+install Tailscale here and on the phone	在此处和手机上安装 Tailscale
+INSTALLING...	正在安装...
+Its amount, or one of its knobs A to D	它的量，或旋钮 A 到 D 之一
+J jump to row	J：跳到行
+jam to	同步到
+Jump the driver back to its first frame	让驱动回到第一帧
+K — cycle cue color tag	K：切换 cue 颜色
+Keep counting past zero, or stop dead	过零继续或立即停止
+key	键
+Key edge softness	键控边缘柔和度
+KEY L	键 L
+knob	旋钮
+L - loop this cue continuously	L：循环此 cue
+last reading	最后读数
+Last refused	最近被拒绝
+Learn it	学习
+LEARN THE BASICS	学习基础
+ledger	账簿
+Left — skip back 10s	左：后退 10 秒
+Left, centre or right	左、中或右
+LESSONS	课程
+Levels	电平
+Limiter	限幅器
+Limiting	限幅中
+line  |  Enter: apply	行  |  Enter：应用
+LINEAR - a feather, not a blend	线性：羽化，不是融合
+Linear, ease in, ease out or S-curve	线性、缓入、缓出或 S 曲线
+Lines	行数
+link aspect	锁定比例
+Listen to	监听
+listener	听众
+LIVE - every assigned deck matches	LIVE：所有分配的 deck 一致
+lock to screen	锁定屏幕
+logo	标志
+logo size	标志大小
+look at it	看看
+lower 3rd	Lower Third
+marquee	跑马灯
+mask on	遮罩开
+Master oscillator rate.	主振荡器速率。
+Maximum quality	最高质量
+MIDI and OSC monitor	MIDI 和 OSC 监视器
+midi in	MIDI 输入
+MIDI note	MIDI 音符
+move points	移动点
+Move the height on its own oscillator	用独立振荡器移动高度
+name or number...	名称或编号...
+name, from anywhere	名称，来自任何位置
+NDI source cue	NDI 信号源 cue
+needs file-backed video	需要文件视频
+neon	霓虹
+new paths	新路径
+New shows start from	新演出来自
+next xfade	下一淡化
+no effects for this cue type	此 cue 类型没有效果
+nobody	无人
+none - click to learn	无：点击学习
+none - click to set some	无：点击设置
+none - click to write some	无：点击书写
+none yet	暂无
+none: the one picture	无：单一画面
+none: the whole picture	无：整幅画面
+notebook	笔记本
+nothing	无
+nothing assigned yet	尚未分配
+nothing follows	后面没有内容
+Nothing here with this filter.	此筛选下没有内容。
+nothing set - this cue sends nothing	未设置：此 cue 不发送
+nothing targeted yet	尚无目标
+Nothing to see here. Probably.	这里没什么好看的。大概吧。
+nothing to send - check the message	没有可发送的内容：检查消息
+offset X	偏移 X
+offset Y	偏移 Y
+on any channel	在任意通道
+on the header to add another	在标题上添加另一个
+on the monitor	在监视器上
+one big on top, the rest below	上方一个大的，其余在下
+one big, the rest beside it	一个大的，其余在旁
+onion off	洋葱皮关
+onion on	洋葱皮开
+only this computer	仅此电脑
+Open a .deckboy show file	打开 .deckboy 演出文件
+open the monitor	打开监视器
+or your own bytes	或你自己的字节
+ORDER - cues advance down the list	顺序：cue 沿列表前进
+Out-point: cue stops playback here	出点：cue 在此结束
+output already has	输出已有
+Outputs Off	输出关闭
+outs	输出
+over budget - video will drop frames	超出预算：视频会丢帧
+over the picture	在画面上
+PAIR	配对
+Pair a phone	配对手机
+Pair overlap	配对重叠
+Paired phones	已配对手机
+Passphrase	口令
+Pattern motion toggle	切换图案运动
+pause begin	开头暂停
+pennant	三角旗
+Per-cue transition duration override	此 cue 的转场时长
+Perspective	透视
+PHASE	相位
+Phone access	手机访问
+Phone control	手机控制
+phrase hold	短语停留
+PICK FROM SCREEN	从屏幕取色
+Pitch, in semitones.	音高（半音）。
+PIXEL FOR PIXEL, TOP-LEFT	逐像素，左上角
+placard	标牌
+play a note...	弹一个音...
+PLAY BUG SWAT, a game	玩 BUG SWAT 游戏
+Play the out move now, then take it off	现在播放退出动作，然后移除
+Playback speed: 0.25–4.0×	播放速度：0.25–4.0×
+playlists into the named outputs	播放列表到命名输出
+plays synth	演奏合成器
+plugin	插件
+PNG matte	PNG 遮罩
+podium	讲台
+pop	流行
+press a key...	按一个键...
+PRESS AGAIN TO FORGET	再按一次以忘记
+Previous show file:	上一个演出文件：
+prog bar	进度条
+programme	节目
+Programme with sound in any browser	任何浏览器都能看的带声音节目
+PROJECTOR - gamma matched	投影机：伽马匹配
+Projector gamma	投影机伽马
+put it on a button	放到按钮上
+Put the brush's opacity on an oscillator	把画笔不透明度放到振荡器上
+Put the brush's size on an oscillator	把画笔大小放到振荡器上
+Put this control on an oscillator	把此控件放到振荡器上
+rack it	装入
+RACKED, WARM	已装入，就绪
+rail	轨道
+rain	雨
+Reads	读取
+reads the same on any screen	在任何屏幕上都一样清晰
+recent and in this show	最近和此演出中
+Recent shows:	最近的演出：
+red at	红色起点
+red col	红色列
+render height	渲染高度
+render width	渲染宽度
+REPORT A PROBLEM	报告问题
+reported rather than swapped	报告而不替换
+restart driver now	立即重启驱动
+restart on take	取用时重启
+restore at end	结束时恢复
+ribbon	丝带
+Right — skip forward 10s	右：前进 10 秒
+Right-click turns them off.	右键关闭它们。
+Rise	上升
+rise, slide or wipe	上升、滑动或擦除
+Rotation speed, degrees per second.	旋转速度，度/秒。
+rounded rect	圆角矩形
+row turns the matrix off again	此行再次关闭矩阵
+Run it now, without taking the cue	立即运行，不取 cue
+Run the show from a phone	用手机运行演出
+runs off the show thread	在演出线程之外运行
+sACN universe, 1-63999	sACN 域，1-63999
+SAVE AS MY DEFAULTS	存为我的默认值
+says	说
+SCALED TO FILL	缩放填充
+Scene dwell time — 0 = hold	场景停留：0 = 保持
+Scene fade-in duration	场景淡入时长
+Scene fade-out duration	场景淡出时长
+scoreboard	记分牌
+SCREENS	屏幕
+scroll	滚动
+Scroll up	向上滚动
+sea	海
+Send it now, without taking the cue	立即发送，不取 cue
+sends	发送
+Sensitivity	灵敏度
+Set browser URL/path	设置浏览器 URL/路径
+set by	设置者
+Set capture source from the cue menu	在 cue 菜单中设置捕获源
+Set cue ID for selected cues	设置所选 cue 的 ID
+Set cue token to jump to when cue ends	设置结束时跳转的 cue
+Set goto target for selected cues	设置所选 cue 的跳转目标
+Set Lower Third background alpha	设置 Lower Third 背景透明度
+Set per-cue transition duration	设置此 cue 的转场时长
+Set playback speed for selected cues	设置所选 cue 的播放速度
+Set repeat count for selected cues	设置所选 cue 的重复次数
+Set short cue id for search/goto	设置用于搜索/跳转的短 ID
+Set short cue label for search/goto	设置用于搜索/跳转的短名称
+Set the NDI source name to receive	设置要接收的 NDI 源名称
+Shift+[ / ] — fade-out duration	Shift+[ / ]：淡出时长
+SHOW ME	演示给我看
+Show on	显示在
+Shows	显示
+sideline	边线
+sketch	草图
+slide	滑动
+slide from left	从左滑入
+slide from right	从右滑入
+SMOOTH	平滑
+snow	雪花
+SOS. Kidding. The show is fine.	SOS。开玩笑。演出很好。
+Sound when the clock turns amber	时钟变黄时的声音
+Sound when the clock turns red	时钟变红时的声音
+Sound when time is up	时间到的声音
+Space — pause	空格：暂停
+Space — play	空格：播放
+span	跨度
+sparkle	闪光
+Speech models	语音模型
+Speed, like tape	速度，像磁带
+stamp	印章
+Start NEW from factory	从出厂设置新建
+starting browser	正在启动浏览器
+starting capture	正在启动捕获
+starting xvfb	正在启动 xvfb
+sticky	便利贴
+stop at 0	到 0 停止
+Stop puppeteering this cue	停止操控此 cue
+STRAIGHT	笔直
+survey	测绘
+SVG paths	SVG 路径
+tab	标签
+tag	标记
+TAP	点按
+terminal	终端
+text mode	文本模式
+the file cannot be read	无法读取文件
+The name	名称
+The OSC path, e.g. /cue/1/start	OSC 路径，如 /cue/1/start
+the playlist's PATCH	播放列表的 PATCH
+The role, or leave it empty	职位，或留空
+the system output	系统输出
+The text this cue puts on screen	此 cue 显示的文字
+theatre	剧场
+then stop	然后停止
+they have	它们有
+things that are oscillating	正在振荡的内容
+this cue lives on	此 cue 位于
+This show's setup, no cues	此演出的设置，不含 cue
+ticket	票
+tile h	单元高
+Tile height in pixels.	单元高度（像素）。
+tile w	单元宽
+time of day	当前时间
+Toggle audio enable for selected cues	切换所选 cue 的声音
+Toggle chroma key	切换色键
+Toggle cue audio	切换 cue 声音
+Toggle cue audio track for this cue	切换此 cue 的音轨
+Toggle fade in	切换淡入
+Toggle fade out	切换淡出
+Toggle hold on last frame	切换保持最后一帧
+Toggle hold-at-end for selected cues	切换所选 cue 的结束保持
+Toggle loop	切换循环
+Toggle loop for selected cues	切换所选 cue 的循环
+Toggle the live input's audio	切换直播输入的声音
+Total time	总时长
+trans	转场
+transcoding - plays clean until ready	转码中：完成前正常播放
+transparent: put its playlist on a layer	透明：把它的播放列表放到图层上
+Trusted controllers	受信任的控制器
+TURN OFF	关闭
+turn phone control on	打开手机控制
+two big on top, the rest below	上方两个大的，其余在下
+type a cue number	输入 cue 编号
+Typing needs EDIT on	输入需要打开 EDIT
+Use GEOMETRY for exact placement	用几何设置精确放置
+value to type one	要输入的值
+Vertical output offset in pixels	输出垂直偏移（像素）
+VIDEO DIP: OFF	视频下沉：关
+VIDEO DIP: ON	视频下沉：开
+walk the outputs one at a time.	逐个查看输出。
+walks every output in turn	依次查看每个输出
+WHAT DECKBOY DID	DECKBOY 做了什么
+what is on air in a playlist	播放列表中正在播出的内容
+What NEW starts from, never this show	新建的来源，绝不是此演出
+whatever the style says	由样式决定
+Where the ramp ends	斜坡终点
+Which deck the cue it acts on lives on	目标 cue 所在的 deck
+Which frame you draw on	你绘制的帧
+Who can see it	谁能看到
+whole network	整个网络
+will not open	无法打开
+window and recording outputs only	仅窗口和录制输出
+wipe	擦除
+Wobble	摆动
+wobble by	摆动幅度
+words	词语
+X — cycle end action	X：切换结束动作
+X — cycle end action: stop / next / loop	X：结束动作：停止 / 下一个 / 循环
+Zones	区域
+~ makes the level breathe	~ 让电平呼吸
+a note or an address becomes that cue's trigger	音符或地址成为此 cue 的触发器
+acts on every deck; deck and cue are ignored	作用于所有 deck；忽略 deck 和 cue
+Add an output above, then send playlists to it here.	在上方添加输出，然后把播放列表发送到这里。
+Ancient cypher, modern video desk. Respect.	古老密码，现代视频台。致敬。
+Any font on this computer, Deckboy's own, or a font file	此电脑上的字体、Deckboy 自带字体或字体文件
+Apply fade-in to selected video/audio cues	为所选视频/音频 cue 应用淡入
+Apply fade-out to selected video/audio cues	为所选视频/音频 cue 应用淡出
+Art-Net or sACN (E1.31): whichever the lighting rig listens to	Art-Net 或 sACN (E1.31)：看灯光系统接收哪种
+Auto-advance duration — 0 = hold until taken	自动前进时长：0 = 保持到取用
+Bypass: this master leaves that deck alone	旁路：此主控不影响该 deck
+Characters across. Fewer means bigger cells.	每行字符数。越少格子越大。
+Choose a mask from this show's library, or start a new one from a shape	从此演出的库中选择遮罩，或从形状新建
+Click a value to change it. A red address overlaps another fixture.	点击数值进行更改。红色地址与其他灯具重叠。
+Click to show or hide this cue's captions	点击显示或隐藏此 cue 的字幕
+Copy the show AND its media into one portable folder	把演出和媒体复制到一个便携文件夹
+Ctrl+S - write back over the show that is open	Ctrl+S：覆盖打开的演出
+Ctrl+Shift+S - write the show to a NEW file	Ctrl+Shift+S：存为新文件
+Device output pair this cue's audio plays on	此 cue 声音使用的设备输出对
+E - freeze on last frame instead of stopping	E：冻结在最后一帧，不停止
+Edit title/subtitle here or fire it live with TAKE	在此编辑标题/副标题，或用 TAKE 直接触发
+Every channel on every universe this session has touched	本次会话触及的每个域的每个通道
+generator is off - a START cue turns it on	发生器已关：START cue 会打开它
+How long the note takes to reach full level.	音符达到满电平所需时间。
+How much it throws off; 0 is a clean burn	抛出多少；0 为干净燃烧
+INPUT: the programme. Drag a crop to move it, its corners to size it.	输入：节目。拖动裁切移动，拖动角调整大小。
+Keep the outside and cut the inside instead	保留外部，切掉内部
+LED panel height in pixels. Click to type it	LED 面板高度（像素）。点击输入
+Legacy target mode — switch type to convert	旧目标模式：切换类型以转换
+Lissajous, spectrum, meters or a name card	李萨如、频谱、电平表或名牌
+Load the cue and hold first frame when taken	加载 cue，取用时保持第一帧
+no fixtures patched - Settings > Network > FIXTURES	没有配接灯具：设置 > 网络 > FIXTURES
+Nothing here changes the show that is open.	这里不会更改打开的演出。
+Per-cue audio: enable, trim, pan, mono, fades, normalize	Cue 音频：启用、微调、声像、单声道、淡变、标准化
+Phone control is in PHONE & TABLET, below	手机控制在下方 PHONE & TABLET
+Save the mask as a greyscale PNG at the output's size: white keeps, black cuts	把遮罩存为输出尺寸的灰度 PNG：白保留，黑切除
+Seconds REMAINING when the clock turns amber	时钟变黄时的剩余秒数
+Seconds REMAINING when the clock turns red	时钟变红时的剩余秒数
+Shown to the operator when GO reaches this cue	GO 到达此 cue 时显示给操作员
+SHUFFLE - the next cue is picked at random	随机：随机选择下一个 cue
+Slots are self-contained sources in this first pass	此版本中槽位是独立信号源
+that output's whole picture, or its matte	该输出的整幅画面或其遮罩
+The cue number on the other desk, e.g. 12.5	另一控台上的 cue 编号，如 12.5
+Toggle pause-at-beginning for selected cues	切换所选 cue 的开头暂停
+Toggle transition-to-next for selected cues	切换所选 cue 转场到下一个
+transparent outside the blobs: put it on a layer	斑点外透明：放到图层上
+transparent outside the ink: put it on a layer	墨迹外透明：放到图层上
+what is said, on screen, made on this computer	所说内容显示在屏幕上，在此电脑生成
+What this cue does when it ends - click to change	此 cue 结束时做什么：点击更改
+Whether the next shape or pen path adds or cuts	下一个形状或路径是添加还是切除
