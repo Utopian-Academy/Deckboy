@@ -1373,3 +1373,504 @@ out	アウト
 pan	パン
 routing	ルーティング
 trim	トリム
+0-63, the hardware's own gain range.	0-63、機器本来のゲイン範囲。
+1-16, as the desk counts them	1-16、デスクの数え方で
+7-segment, blocky, or a real font	7セグ、ブロック、または実フォント
+[ / ] keys — fade-in duration	[ / ] キー：フェードイン時間
+a camera moves the ~ controls	カメラが ~ のコントロールを動かす
+a chain on a device, after the mix	ミックス後のデバイス上のチェーン
+a comment	コメント
+Act now, without taking the cue	キューを取らずに今実行
+Add a light	ライトを追加
+add a second output to pair	ペアにする2つ目の出力を追加
+add shape	図形を追加
+all driven by the cue's own transport	すべてキーのトランスポートで動く
+All interfaces; trusted machines only.	全インターフェース、信頼済みのマシンのみ。
+all to 0	すべて0に
+An audio effect's knob	オーディオエフェクトのノブ
+An effect's knob	エフェクトのノブ
+any channel	全チャンネル
+any window, any screen	どのウィンドウ、どの画面でも
+arcade	アーケード
+Arm this cue as the one GO will fire	次のGOで発火するようこのキューを準備
+Art-Net port address, 0-32767	Art-Netポートアドレス、0-32767
+Attached overlays fire on TAKE only	付属オーバーレイはTAKEでのみ発火
+BACK TO BUG SWAT	BUG SWATへ戻る
+backdrop	背景
+bar	バー
+bg alpha	背景アルファ
+black lift	黒レベル持ち上げ
+blend gamma	ブレンドガンマ
+blueprint	青写真
+boxes	ボックス
+bracket	ブラケット
+bulletin	速報
+by density	密度順
+BY FIXTURE	機器別
+capsule	カプセル
+caption	キャプション
+card	カード
+CARD OFF ALL	全カードオフ
+CARD ON ALL	全カードオン
+cartridge	カートリッジ
+cassette	カセット
+Ceiling	上限
+Chain	チェーン
+Changing this re-prepares the cue.	変更するとキューを再準備します。
+channel list is not readable	チャンネル一覧を読めません
+CHANNELS	チャンネル
+channels on your interfaces, by name	インターフェースのチャンネル（名前で）
+Checkerboard	市松模様
+chime amber	黄色のチャイム
+chime red	赤のチャイム
+chime zero	ゼロのチャイム
+Choose startup mode:	起動モードを選択：
+circle, heart, star...	円、ハート、星...
+circuit	回路
+CLASSIC VIEW	クラシック表示
+clear driver	ドライバーをクリア
+Clear in/out trim points	イン/アウト点をクリア
+CLEAR OVERLAY  [Backspace]	オーバーレイを消去  [Backspace]
+Clear the active Lower Third overlay now	有効なLower Thirdを今消す
+Clear the live PIP overlay now	PIPオーバーレイを今消す
+CLICK ANYWHERE...	どこかをクリック...
+click or Esc to close	クリックかEscで閉じる
+click this window	このウィンドウをクリック
+Click to edit cue notes	クリックでキューのメモを編集
+click to open the grid	クリックでグリッドを開く
+Click to seek — drag to scrub	クリックで移動、ドラッグでスクラブ
+Click to type it	クリックして入力
+comic	コミック
+Companion passphrase	Companionパスフレーズ
+confetti	紙吹雪
+Connections at once	同時接続数
+count up	カウントアップ
+Countdown, count up, or wall clock	カウントダウン、カウントアップ、時刻
+credit	クレジット
+crossfade	クロスフェード
+crosshair	十字線
+Crosshatch	クロスハッチ
+Cue has no audio	キューに音声なし
+cue number	キュー番号
+Cycle end action for selected cues	選択キューの終了動作を切替
+Cycle which slot drives scene audio	シーン音声を出すスロットを切替
+dateline	デートライン
+deck	デッキ
+decoder spin-up	デコーダー起動
+Default App Feed	既定のアプリ入力
+Default Camera	既定のカメラ
+Delay before the continue fires	続行が発火するまでの遅延
+Delay between GO and this cue starting	GOからキュー開始までの遅延
+depth 1 turns it all the way round	深さ1で一回転
+Digit colour once amber is reached	黄色になった後の数字の色
+Digit colour while there is time in hand	時間に余裕がある時の数字の色
+diskette	フロッピー
+Do it now, without taking the cue	キューを取らずに今実行
+dossier	ドシエ
+dotmatrix	ドットマトリクス
+Double-GO guard	GO二重押し防止
+draw on the monitor	モニターに描く
+driver speed	ドライバー速度
+EDGE BLEND	エッジブレンド
+EDIT is on: typing changes the show	EDITがオン：入力でショーが変わります
+edit on the monitor	モニターで編集
+Edit the main Lower Third title	Lower Thirdの主タイトルを編集
+Edit the secondary Lower Third line	Lower Thirdの2行目を編集
+eq band	EQバンド
+equalizer	イコライザー
+Esc cancels	Escでキャンセル
+Esc cancels, arrows nudge	Escでキャンセル、矢印で微調整
+Esc to close	Escで閉じる
+even grid	均等グリッド
+EXAMPLE SHOWS	サンプルショー
+EXIT  Esc	終了  Esc
+face	顔
+factory settings	工場設定
+Fade+LoadNext	フェード+次を読込
+Fade+Pause	フェード+一時停止
+Fade+Rewind	フェード+巻戻し
+Fade-in duration	フェードイン時間
+Fade-in duration for this cue	このキューのフェードイン時間
+Fade-out duration	フェードアウト時間
+Fade-out duration before next cue	次のキュー前のフェードアウト時間
+Fade-out duration for this cue	このキューのフェードアウト時間
+Fall	下降
+false colour reads SDR pictures	フォルスカラーはSDR映像を読む
+fill the frame	画面いっぱいに
+find a named colour	色名で探す
+fires cues	キューを発火
+first available	最初の空き
+Fit/Fill/Stretch/Unscaled	フィット/フィル/引き伸ばし/等倍
+Fixed repeat count — 0 = infinite	固定リピート：0 = 無限
+Fixed repeat count — 0 = loop forever	固定リピート：0 = 永久ループ
+FIXED!	固定！
+flag	フラッグ
+FORGET MY DEFAULTS	既定値を忘れる
+Frames a second	毎秒フレーム数
+from exactly this routing	このルーティングから正確に
+Full Black	全黒
+Full Blue	全青
+Full Green	全緑
+Full Red	全赤
+Full White	全白
+garden	庭園
+Ghastly	不気味
+glass	ガラス
+glitch down	グリッチ下
+glitch drift	グリッチの流れ
+glitch reach	グリッチの範囲
+glitch through	グリッチ貫通
+glitch up	グリッチ上
+GO steps over it	GOが飛ばす
+hairline	極細線
+Haptics	触覚
+HDR input	HDR入力
+Hex, e.g. 90 3C 7F	16進、例 90 3C 7F
+HOLDING OFF AIR	オフエアで保持中
+Home — skip to start	Home：先頭へ
+Horizontal output offset in pixels	出力の水平オフセット（ピクセル）
+How many features fit on screen.	画面に収まる数。
+how much of this effect	このエフェクトの量
+How solid the ink is	インクの濃さ
+How tall the logo is above the clock	時計の上のロゴの高さ
+In-point: cue starts playback here	イン点：ここから再生
+index	索引
+initializing webview	WebViewを起動中
+install Tailscale here and on the phone	ここと電話にTailscaleをインストール
+INSTALLING...	インストール中...
+Its amount, or one of its knobs A to D	量、またはノブAからDのいずれか
+J jump to row	J：行へ移動
+jam to	ジャム先
+Jump the driver back to its first frame	ドライバーを最初のフレームへ
+K — cycle cue color tag	K：キューの色を切替
+Keep counting past zero, or stop dead	ゼロを過ぎて数える、または止める
+key	キー
+Key edge softness	キーの縁のぼかし
+KEY L	キーL
+knob	ノブ
+L - loop this cue continuously	L：このキューをループ
+last reading	最後の読み値
+Last refused	最後に拒否
+Learn it	学習
+LEARN THE BASICS	基本を学ぶ
+ledger	台帳
+Left — skip back 10s	左：10秒戻る
+Left, centre or right	左、中央、右
+LESSONS	レッスン
+Levels	レベル
+Limiter	リミッター
+Limiting	制限中
+line  |  Enter: apply	行  |  Enter：適用
+LINEAR - a feather, not a blend	リニア：フェザー、ブレンドではない
+Linear, ease in, ease out or S-curve	リニア、イーズイン、イーズアウト、Sカーブ
+Lines	行数
+link aspect	縦横比を連動
+Listen to	聴く
+listener	リスナー
+LIVE - every assigned deck matches	LIVE：割当デッキがすべて一致
+lock to screen	画面に同期
+logo	ロゴ
+logo size	ロゴサイズ
+look at it	見る
+lower 3rd	Lower Third
+marquee	マーキー
+mask on	マスクオン
+Master oscillator rate.	マスターオシレーターの速度。
+Maximum quality	最高画質
+MIDI and OSC monitor	MIDIとOSCのモニター
+midi in	MIDI入力
+MIDI note	MIDIノート
+move points	点を動かす
+Move the height on its own oscillator	高さを専用オシレーターで動かす
+name or number...	名前か番号...
+name, from anywhere	名前、どこからでも
+NDI source cue	NDIソースキュー
+needs file-backed video	ファイルの映像が必要
+neon	ネオン
+new paths	新しいパス
+New shows start from	新規ショーの元
+next xfade	次のフェード
+no effects for this cue type	このキュー種にエフェクトはありません
+nobody	なし
+none - click to learn	なし：クリックで学習
+none - click to set some	なし：クリックで設定
+none - click to write some	なし：クリックで記入
+none yet	まだなし
+none: the one picture	なし：1枚の画像
+none: the whole picture	なし：画像全体
+notebook	ノート
+nothing	なし
+nothing assigned yet	まだ割当なし
+nothing follows	次はなし
+Nothing here with this filter.	このフィルターでは何もありません。
+nothing set - this cue sends nothing	未設定：このキューは何も送りません
+nothing targeted yet	まだ対象なし
+Nothing to see here. Probably.	ここには何もありません。たぶん。
+nothing to send - check the message	送るものなし：メッセージを確認
+offset X	オフセットX
+offset Y	オフセットY
+on any channel	全チャンネルで
+on the header to add another	ヘッダーで追加
+on the monitor	モニター上
+one big on top, the rest below	上に大1つ、残りは下
+one big, the rest beside it	大1つ、残りは横
+onion off	オニオンオフ
+onion on	オニオンオン
+only this computer	このコンピューターのみ
+Open a .deckboy show file	.deckboyファイルを開く
+open the monitor	モニターを開く
+or your own bytes	または独自のバイト
+ORDER - cues advance down the list	順番：キューはリスト順に進む
+Out-point: cue stops playback here	アウト点：ここで再生停止
+output already has	出力には既に
+Outputs Off	出力オフ
+outs	出力
+over budget - video will drop frames	予算超過：映像がコマ落ちします
+over the picture	映像の上
+PAIR	ペア
+Pair a phone	電話をペアリング
+Pair overlap	ペアの重なり
+Paired phones	ペア済みの電話
+Passphrase	パスフレーズ
+Pattern motion toggle	パターンの動きを切替
+pause begin	先頭で一時停止
+pennant	ペナント
+Per-cue transition duration override	キューごとのトランジション時間
+Perspective	パース
+PHASE	位相
+Phone access	電話アクセス
+Phone control	電話操作
+phrase hold	フレーズ保持
+PICK FROM SCREEN	画面から取得
+Pitch, in semitones.	ピッチ（半音）。
+PIXEL FOR PIXEL, TOP-LEFT	等倍、左上
+placard	プラカード
+play a note...	音を弾いて...
+PLAY BUG SWAT, a game	BUG SWATで遊ぶ（ゲーム）
+Play the out move now, then take it off	アウト動作を今再生して外す
+Playback speed: 0.25–4.0×	再生速度：0.25–4.0×
+playlists into the named outputs	プレイリストを名前付き出力へ
+plays synth	シンセを演奏
+plugin	プラグイン
+PNG matte	PNGマット
+podium	演台
+pop	ポップ
+press a key...	キーを押して...
+PRESS AGAIN TO FORGET	もう一度押すと忘れる
+Previous show file:	前のショーファイル：
+prog bar	プログレスバー
+programme	プログラム
+Programme with sound in any browser	どのブラウザでも音声付きプログラム
+PROJECTOR - gamma matched	プロジェクター：ガンマ合わせ
+Projector gamma	プロジェクターガンマ
+put it on a button	ボタンに割当
+Put the brush's opacity on an oscillator	ブラシの濃さをオシレーターへ
+Put the brush's size on an oscillator	ブラシのサイズをオシレーターへ
+Put this control on an oscillator	このコントロールをオシレーターへ
+rack it	ラックする
+RACKED, WARM	ラック済み、準備完了
+rail	レール
+rain	雨
+Reads	読取
+reads the same on any screen	どの画面でも同じに読める
+recent and in this show	最近とこのショー
+Recent shows:	最近のショー：
+red at	赤の開始
+red col	赤の列
+render height	レンダー高さ
+render width	レンダー幅
+REPORT A PROBLEM	問題を報告
+reported rather than swapped	入れ替えず報告
+restart driver now	ドライバーを今再起動
+restart on take	テイクで再起動
+restore at end	終了時に復元
+ribbon	リボン
+Right — skip forward 10s	右：10秒進む
+Right-click turns them off.	右クリックでオフ。
+Rise	上昇
+rise, slide or wipe	上昇、スライド、ワイプ
+Rotation speed, degrees per second.	回転速度（度/秒）。
+rounded rect	角丸四角
+row turns the matrix off again	行でマトリクスを再びオフ
+Run it now, without taking the cue	キューを取らずに今実行
+Run the show from a phone	電話でショーを操作
+runs off the show thread	ショースレッド外で実行
+sACN universe, 1-63999	sACNユニバース、1-63999
+SAVE AS MY DEFAULTS	既定値として保存
+says	話す
+SCALED TO FILL	埋めるように拡大縮小
+Scene dwell time — 0 = hold	シーンの滞在時間：0 = 保持
+Scene fade-in duration	シーンのフェードイン時間
+Scene fade-out duration	シーンのフェードアウト時間
+scoreboard	スコアボード
+SCREENS	スクリーン
+scroll	スクロール
+Scroll up	上スクロール
+sea	海
+Send it now, without taking the cue	キューを取らずに今送信
+sends	送信
+Sensitivity	感度
+Set browser URL/path	ブラウザのURL/パスを設定
+set by	設定元
+Set capture source from the cue menu	キューメニューでソースを設定
+Set cue ID for selected cues	選択キューのIDを設定
+Set cue token to jump to when cue ends	終了時に飛ぶキューを設定
+Set goto target for selected cues	選択キューの移動先を設定
+Set Lower Third background alpha	Lower Third背景のアルファを設定
+Set per-cue transition duration	キューのトランジション時間を設定
+Set playback speed for selected cues	選択キューの再生速度を設定
+Set repeat count for selected cues	選択キューのリピート数を設定
+Set short cue id for search/goto	検索/移動用の短いIDを設定
+Set short cue label for search/goto	検索/移動用の短い名前を設定
+Set the NDI source name to receive	受信するNDIソース名を設定
+Shift+[ / ] — fade-out duration	Shift+[ / ]：フェードアウト時間
+SHOW ME	見本を見せて
+Show on	表示先
+Shows	表示
+sideline	サイドライン
+sketch	スケッチ
+slide	スライド
+slide from left	左からスライド
+slide from right	右からスライド
+SMOOTH	なめらか
+snow	雪
+SOS. Kidding. The show is fine.	SOS。冗談です。ショーは順調。
+Sound when the clock turns amber	時計が黄色になる時の音
+Sound when the clock turns red	時計が赤になる時の音
+Sound when time is up	時間切れの音
+Space — pause	スペース：一時停止
+Space — play	スペース：再生
+span	スパン
+sparkle	きらめき
+Speech models	音声モデル
+Speed, like tape	速度、テープのように
+stamp	スタンプ
+Start NEW from factory	新規を工場設定から開始
+starting browser	ブラウザーを起動中
+starting capture	キャプチャを起動中
+starting xvfb	xvfbを起動中
+sticky	付箋
+stop at 0	0で停止
+Stop puppeteering this cue	このキューの操作を止める
+STRAIGHT	直線
+survey	測量
+SVG paths	SVGパス
+tab	タブ
+tag	タグ
+TAP	タップ
+terminal	ターミナル
+text mode	テキストモード
+the file cannot be read	ファイルを読めません
+The name	名前
+The OSC path, e.g. /cue/1/start	OSCパス、例 /cue/1/start
+the playlist's PATCH	プレイリストのPATCH
+The role, or leave it empty	役職、または空欄
+the system output	システム出力
+The text this cue puts on screen	このキューが画面に出す文字
+theatre	劇場
+then stop	その後停止
+they have	持っている
+things that are oscillating	振動しているもの
+this cue lives on	このキューの場所
+This show's setup, no cues	このショーの設定（キューなし）
+ticket	チケット
+tile h	タイル高
+Tile height in pixels.	タイルの高さ（ピクセル）。
+tile w	タイル幅
+time of day	時刻
+Toggle audio enable for selected cues	選択キューの音声を切替
+Toggle chroma key	クロマキーを切替
+Toggle cue audio	キューの音声を切替
+Toggle cue audio track for this cue	このキューの音声トラックを切替
+Toggle fade in	フェードインを切替
+Toggle fade out	フェードアウトを切替
+Toggle hold on last frame	最終フレーム保持を切替
+Toggle hold-at-end for selected cues	選択キューの終了時保持を切替
+Toggle loop	ループを切替
+Toggle loop for selected cues	選択キューのループを切替
+Toggle the live input's audio	ライブ入力の音声を切替
+Total time	合計時間
+trans	遷移
+transcoding - plays clean until ready	変換中：完了までそのまま再生
+transparent: put its playlist on a layer	透明：プレイリストをレイヤーへ
+Trusted controllers	信頼済みコントローラー
+TURN OFF	オフにする
+turn phone control on	電話操作をオンに
+two big on top, the rest below	上に大2つ、残りは下
+type a cue number	キュー番号を入力
+Typing needs EDIT on	入力にはEDITをオンに
+Use GEOMETRY for exact placement	正確な配置はジオメトリーで
+value to type one	入力する値
+Vertical output offset in pixels	出力の垂直オフセット（ピクセル）
+VIDEO DIP: OFF	ビデオディップ：オフ
+VIDEO DIP: ON	ビデオディップ：オン
+walk the outputs one at a time.	出力を一つずつ確認。
+walks every output in turn	各出力を順に確認
+WHAT DECKBOY DID	Deckboyがしたこと
+what is on air in a playlist	プレイリストのオンエア中のもの
+What NEW starts from, never this show	新規の元、このショーではない
+whatever the style says	スタイルに従う
+Where the ramp ends	ランプの終点
+Which deck the cue it acts on lives on	対象キューのあるデッキ
+Which frame you draw on	描くフレーム
+Who can see it	見られる人
+whole network	ネットワーク全体
+will not open	開きません
+window and recording outputs only	ウィンドウと録画の出力のみ
+wipe	ワイプ
+Wobble	揺れ
+wobble by	揺れ幅
+words	単語
+X — cycle end action	X：終了動作を切替
+X — cycle end action: stop / next / loop	X：終了動作：停止 / 次へ / ループ
+Zones	ゾーン
+~ makes the level breathe	~ でレベルが呼吸する
+a note or an address becomes that cue's trigger	ノートやアドレスがこのキューのトリガーに
+acts on every deck; deck and cue are ignored	全デッキに作用、デッキとキューは無視
+Add an output above, then send playlists to it here.	上で出力を追加し、ここへプレイリストを送ります。
+Ancient cypher, modern video desk. Respect.	古代の暗号、現代のビデオデスク。敬意を。
+Any font on this computer, Deckboy's own, or a font file	このコンピューターのフォント、Deckboyのもの、またはファイル
+Apply fade-in to selected video/audio cues	選択した映像/音声キューにフェードインを適用
+Apply fade-out to selected video/audio cues	選択した映像/音声キューにフェードアウトを適用
+Art-Net or sACN (E1.31): whichever the lighting rig listens to	Art-NetかsACN (E1.31)：照明の受信方式に合わせて
+Auto-advance duration — 0 = hold until taken	自動進行の時間：0 = テイクまで保持
+Bypass: this master leaves that deck alone	バイパス：このマスターはそのデッキに触れない
+Characters across. Fewer means bigger cells.	横の文字数。少ないほどセルが大きい。
+Choose a mask from this show's library, or start a new one from a shape	ライブラリからマスクを選ぶか、図形から新規作成
+Click a value to change it. A red address overlaps another fixture.	値をクリックして変更。赤いアドレスは他の機器と重複。
+Click to show or hide this cue's captions	クリックでこのキューの字幕を表示/非表示
+Copy the show AND its media into one portable folder	ショーとメディアを1つのフォルダーへコピー
+Ctrl+S - write back over the show that is open	Ctrl+S：開いているショーに上書き
+Ctrl+Shift+S - write the show to a NEW file	Ctrl+Shift+S：新しいファイルに保存
+Device output pair this cue's audio plays on	このキューの音声を出す出力ペア
+E - freeze on last frame instead of stopping	E：停止せず最終フレームで固定
+Edit title/subtitle here or fire it live with TAKE	ここでタイトルを編集、またはTAKEでライブ発火
+Every channel on every universe this session has touched	このセッションで触れた全ユニバースの全チャンネル
+generator is off - a START cue turns it on	ジェネレーターはオフ：STARTキューでオン
+How long the note takes to reach full level.	ノートが最大レベルに達する時間。
+How much it throws off; 0 is a clean burn	飛び散る量、0はきれいに燃える
+INPUT: the programme. Drag a crop to move it, its corners to size it.	入力：プログラム。切り抜きをドラッグで移動、角でサイズ変更。
+Keep the outside and cut the inside instead	外側を残して内側を切る
+LED panel height in pixels. Click to type it	LEDパネルの高さ（ピクセル）。クリックで入力
+Legacy target mode — switch type to convert	旧ターゲットモード：種類を変えて変換
+Lissajous, spectrum, meters or a name card	リサジュー、スペクトル、メーター、名前カード
+Load the cue and hold first frame when taken	キューを読み込み、テイク時に先頭フレームで保持
+no fixtures patched - Settings > Network > FIXTURES	機器のパッチなし：設定 > ネットワーク > FIXTURES
+Nothing here changes the show that is open.	ここでは開いているショーは変わりません。
+Per-cue audio: enable, trim, pan, mono, fades, normalize	キューの音声：有効、トリム、パン、モノ、フェード、正規化
+Phone control is in PHONE & TABLET, below	電話操作は下のPHONE & TABLETにあります
+Save the mask as a greyscale PNG at the output's size: white keeps, black cuts	マスクを出力サイズのグレーPNGで保存：白は残し、黒は切る
+Seconds REMAINING when the clock turns amber	時計が黄色になる残り秒数
+Seconds REMAINING when the clock turns red	時計が赤になる残り秒数
+Shown to the operator when GO reaches this cue	GOがこのキューに来たらオペレーターに表示
+SHUFFLE - the next cue is picked at random	シャッフル：次のキューをランダムに選ぶ
+Slots are self-contained sources in this first pass	スロットはこの版では独立したソースです
+that output's whole picture, or its matte	その出力の画像全体、またはマット
+The cue number on the other desk, e.g. 12.5	他のデスクのキュー番号、例 12.5
+Toggle pause-at-beginning for selected cues	選択キューの先頭一時停止を切替
+Toggle transition-to-next for selected cues	選択キューの次への遷移を切替
+transparent outside the blobs: put it on a layer	しみの外は透明：レイヤーへ
+transparent outside the ink: put it on a layer	インクの外は透明：レイヤーへ
+what is said, on screen, made on this computer	話された内容を画面へ、このコンピューターで作成
+What this cue does when it ends - click to change	このキューの終了時の動作：クリックで変更
+Whether the next shape or pen path adds or cuts	次の図形やペンが足すか切るか
