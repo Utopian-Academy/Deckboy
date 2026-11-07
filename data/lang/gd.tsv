@@ -1858,3 +1858,345 @@ sACN (E1.31)	sACN (E1.31)
 DECKBOY  POCKET	DECKBOY  POCKET
 DECKLINK SDI / HDMI	DECKLINK SDI / HDMI
 AMWA NMOS  IS-04 / IS-05	AMWA NMOS  IS-04 / IS-05
+in	a-steach
+Arm	Armaich
+TAP	BUAIL
+bar	bàr
+out	a-mach
+Fade	Fad
+Gate	Geata
+Seam	Fuaigheal
+Tone	Tòna
+card	cairt
+does	nì
+fire	cuir
+freq	tricead
+knob	putan
+outs	às-chuir
+says	ag ràdh
+snap	leum
+span	raon
+wipe	sguab
+Crawl	Snàig
+Crush	Pronn
+Moire	Moiré
+Pulse	Buille
+Scrub	Sgrìob
+Swirl	Cuairteag
+Timer	Uaireadair
+WACKY	NEÒNACH
+chime	clag
+comic	comaig
+moves	gluasadan
+plays	cluichidh
+press	brùth
+sends	cuiridh
+slide	sleamhnaich
+Bottom	Bonn
+COLOUR	DATH
+DARKEN	DORCHAICH
+Disarm	Dì-armaich
+Master	Maighstir
+Reverb	Aisealadh
+Wobble	Crith
+credit	creideas
+ledger	leabhar-cunntais
+podium	àrd-ùrlar
+sticky	steigeach
+survey	sgrùdadh
+visual	lèirsinneach
+COMPARE	DÈAN COIMEAS
+Ease in	Socair a-steach
+Ghastly	Uabhasach
+LED MAP	MAPA LED
+LIGHTEN	SOILLSICH
+Push up	Put suas
+S-curve	Lùb-S
+Shatter	Spealg
+Suspend	Cuir dàil
+Tilt EQ	Claon EQ
+Wipe up	Sguab suas
+bracket	camag
+eq band	bann eq
+inherit	sealbhaich
+marquee	bratach-ruith
+pennant	bratach
+placard	clàr-taisbeanaidh
+routing	stiùireadh
+sparkle	lainnir
+stacked	air a chàrnadh
+visuals	seallaidhean
+Dissolve	Leaghadh
+END HOLD	CRÌOCH CÙM
+END LOOP	CRÌOCH LÙB
+END NEXT	CRÌOCH ATH
+END STOP	CRÌOCH STAD
+Ease out	Socair a-mach
+Low pass	Sìoladh ìosal
+Place it	Suidhich e
+SEQUENCE	SREATH
+Spectrum	Speactram
+TRIGGERS	INNEALAN-TÒISEACHAIDH
+Waveform	Cruth-tonn
+built in	togte a-staigh
+contrast	iomsgaradh
+diskette	diosga
+feedback	ais-bhiadhadh
+hairline	loidhne chaol
+listener	neach-èisteachd
+overtime	thar ùine
+protocol	pròtacal
+sideline	taobh-loidhne
+Bit depth	Doimhneachd bit
+Composite	Co-dhèanta
+High pass	Sìoladh àrd
+Name Card	Cairt-ainm
+Placement	Suidheachadh
+Push down	Put sìos
+Push left	Put clì
+Scroll up	Sgrolaich suas
+Wipe down	Sguab sìos
+Wipe left	Sguab clì
+auto next	fèin ath
+blueprint	gorm-dhealbh
+cartridge	cartas
+crossfade	tar-fhad
+crosshair	crois-chuimseachaidh
+dotmatrix	matrix dhotagan
+equalizer	co-ionannaiche
+even grid	griod cothromach
+hold last	cùm am fear mu dheireadh
+they have	tha aca
+this deck	an deck seo
+tolerance	fulangas
+Compressor	Teannachair
+Corner pin	Prìne oisein
+Crosshatch	Tar-loidhneachadh
+Fade+Pause	Fad+Stad
+Frame lock	Glas frèam
+HDR signal	Siognail HDR
+NDI Source	Tùs NDI
+Push right	Put deas
+Typewriter	Clò-sgrìobhadair
+Wipe right	Sguab deas
+hold {n} s	cùm {n} d
+knob 0-127	putan 0-127
+safe areas	raointean sàbhailte
+saturation	sàthachadh
+scoreboard	clàr-sgòr
+tile width	leud leac
+Auto-follow	Leantainn fèin-obrachail
+Bar opacity	Trìd-shoilleireachd bàir
+Browser Cue	Cue brabhsair
+Deck volume	Àirde deck
+Fade+Rewind	Fad+Ath-thoinneamh
+Output mask	Masg às-chuir
+Outputs Off	Às-chuir dheth
+Raster mode	Modh raster
+Toggle loop	Toglaich lùb
+Video Synth	Synth bhidio
+audio meter	meatair fuaime
+goto target	targaid goto
+on the desk	air an deasg
+tile height	àirde leac
+(no monitor)	(gun sgrùdair)
+Checkerboard	Bòrd-dàmais
+Cue contrast	Iomsgaradh cue
+Deck opacity	Trìd-shoilleireachd deck
+Dip to black	Tum gu dubh
+Dip to white	Tum gu geal
+Level Meters	Meatairean ìre
+Matte aspect	Co-mheas matte
+Refresh rate	Reat ùrachaidh
+clear driver	glan an draibhear
+rounded rect	ceart-cheàrnach cruinn
+Auto-continue	Leantainn fèin-obrachail
+Camera Source	Tùs camara
+Fade+LoadNext	Fad+Luchdaich ath
+J jump to row	J leum gu sreath
+Master dimmer	Prìomh dimmer
+Overlay image	Ìomhaigh thar-chòmhdaich
+Overlay still	Dealbh thar-chòmhdaich
+Recent shows:	Taisbeanaidhean o chionn ghoirid:
+Run the clock	Ruith an gleoc
+Window Source	Tùs uinneige
+one named cue	aon cue ainmichte
+starting xvfb	a' tòiseachadh xvfb
+Cue brightness	Soilleireachd cue
+Cue saturation	Sàthachadh cue
+DeckLink Input	Inntrigeadh DeckLink
+Default Camera	Camara bunaiteach
+Toggle fade in	Toglaich fad a-steach
+fill the frame	lìon am frèam
+tone cue added	cue tòna air a chur ris
+Do not continue	Na lean air adhart
+Overlay opacity	Trìd-shoilleireachd thar-chòmhdaich
+SDR material at	Stuth SDR aig
+Toggle fade out	Toglaich fad a-mach
+decoder spin-up	snìomh a' chòdaire
+endless encoder	còdair gun chrìoch
+press + release	brùth + leig às
+slide from left	sleamhnaich bho chlì
++ ONE AFTER THIS	+ AON ÀS DÈIDH SEO
+2 · WHAT IT RUNS	2 · NA RUITHEAS E
+An effect's knob	Putan buaidh
+Default App Feed	Biadhadh bunaiteach an aplacaid
+GO steps over it	Leumaidh GO thairis air
+Hardware display	Taisbeanadh uidheim
+ONE PER PLAYLIST	AON GACH LIOSTA
+Speed, like tape	Luaths, mar theip
+Toggle cue audio	Toglaich fuaim cue
+import an SVG...	ion-phortaich SVG...
+slide from right	sleamhnaich bho dheas
+source cue added	cue tùis air a chur ris
+starting browser	a' tòiseachadh brabhsair
+starting capture	a' tòiseachadh glacaidh
+the selected cue	an cue taghte
+- REMOVE THIS ONE	- THOIR AIR FALBH AM FEAR SEO
+1 · WHAT COMES IN	1 · NA THIG A-STEACH
+Pocket Test (day)	Deuchainn Pocket (latha)
+browser cue added	cue brabhsair air a chur ris
+or your own bytes	no na bytes agad fhèin
+this cue lives on	tha an cue seo a' fuireach air
+value to type one	luach airson fear a sgrìobhadh
+System audio (SDL)	Fuaim an t-siostaim (SDL)
+Transition to next	Tar-chur chun ath fhear
+When taken off air	Nuair a thèid a thoirt far an èadhair
+output already has	tha aig an às-chur mu thràth
+restart driver now	ath-thòisich an draibhear an-dràsta
+3 · WHAT IT RUNS ON	3 · CÀIT AN RUITH E
+Dark Detail (0-12%)	Mion-fhiosrachadh dorcha (0-12%)
+Frame Count (emoji)	Cunntair frèam (emoji)
+PLUGE (black level)	PLUGE (ìre dhubh)
+Pocket Test (night)	Deuchainn Pocket (oidhche)
+Pocket Test (storm)	Deuchainn Pocket (stoirm)
+Previous show file:	Faidhle an taisbeanaidh roimhe:
+Syphon/Spout Source	Tùs Syphon/Spout
+rise, slide or wipe	èirigh, sleamhnaich no sguab
+Dimmer + temperature	Dimmer + teòthachd
+Panel Map (animated)	Mapa phannalan (beòthaichte)
+Pocket Test (sunset)	Deuchainn Pocket (dol fodha na grèine)
+initializing webview	a' tòiseachadh webview
+Boresight (alignment)	Cuimseachadh (co-thaobhadh)
+Not watching a folder	Chan eil e a' coimhead air pasgan
+SMPTE 75% Colour Bars	Bàraichean dath SMPTE 75%
+line  |  Enter: apply	loidhne  |  Enter: cuir an sàs
+An audio effect's knob	Putan buaidh fuaime
+Multiburst (bandwidth)	Multiburst (leud-banna)
+(default system device)	(inneal bunaiteach an t-siostaim)
+Convergence (fine grid)	Co-chruinneachadh (griod mìn)
+Greyscale Steps (gamma)	Ceumannan liath (gamma)
+K — cycle cue color tag	K — cuairtich taga dath a' cue
+whatever the style says	ge b' e dè a chanas an stoidhle
+Uniformity (flat fields)	Co-ionannachd (raointean rèidh)
+runs off the show thread	a' ruith taobh a-muigh snàithlean an taisbeanaidh
+Open a .deckboy show file	Fosgail faidhle taisbeanaidh .deckboy
+Toggle hold on last frame	Toglaich cumail air an fhrèam mu dheireadh
+from exactly this routing	bhon dearbh shlighe seo
+~ makes the level breathe	nì ~ anail air an ìre
+CLEAR OVERLAY  [Backspace]	GLAN AN THAR-CHÒMHDACH  [Backspace]
+Stop puppeteering this cue	Sguir a' cluich leis a' cue seo
+Test Clock (sync + latency)	Gleoc deuchainn (sync + dàil)
+auto (reads the common two)	fèin (leughaidh e an dà chumanta)
+one big, the rest beside it	fear mòr, càch ri thaobh
+Panel Map (LED tile numbers)	Mapa phannalan (àireamhan leacan LED)
+Portal (blobs of deep space)	Portal (blobaichean fànais dhomhainn)
+Set cue ID for selected cues	Suidhich ID cue airson cues taghte
+Terrarium (living ecosystem)	Terrarium (eag-shiostam beò)
+Window 10% (peak brightness)	Uinneag 10% (soilleireachd as àirde)
+Window 50% (peak at mid APL)	Uinneag 50% (as àirde aig APL meadhanach)
+on the header to add another	air a' cheann gus fear eile a chur ris
+reads the same on any screen	a' leughadh mar an ceudna air sgrìn sam bith
+reported rather than swapped	air aithris seach air atharrachadh
+Frame Count (drops + latency)	Cunntair frèam (call + dàil)
+Terrarium Pico (1px per cell)	Terrarium Pico (1px gach cealla)
+Banding Ramps (real bit depth)	Rampaichean banding (fìor dhoimhneachd bit)
+Fireside (a hearth that burns)	Taobh an teine (teallach a' losgadh)
+Nothing to see here. Probably.	Chan eil dad ri fhaicinn an seo. Is dòcha.
+Test Bars (motion diagnostics)	Bàraichean deuchainn (diagnosachadh gluasaid)
+What fires this cue besides GO	Dè a chuireas an cue seo a bharrachd air GO
+on air in the focused playlist	beò anns an liosta le fòcas
+one big on top, the rest below	fear mòr gu h-àrd, càch fodha
+row turns the matrix off again	cuiridh an sreath am matrix dheth a-rithist
+two big on top, the rest below	dà mhòr gu h-àrd, càch fodha
+SOS. Kidding. The show is fine.	SOS. Fealla-dhà. Tha an taisbeanadh ceart.
+Test: move it on the controller	Deuchainn: gluais e air an uidheam-smachd
+walk the outputs one at a time.	coisich tro na às-chuir aon às dèidh aoin.
+Moire 1:1 (is anything scaling?)	Moiré 1:1 (a bheil dad ag atharrachadh meud?)
+Set short cue id for search/goto	Suidhich ID goirid cue airson lorg/goto
+Set goto target for selected cues	Suidhich targaid goto airson cues taghte
+ORDER - cues advance down the list	ORDER - thèid cues sìos an liosta
+depth 1 turns it all the way round	tionndaidhidh doimhneachd 1 e fad na slighe
+load a sprite sheet from a file...	luchdaich duilleag sprite bho fhaidhle...
+EDIT is on: typing changes the show	Tha EDIT air: atharraichidh sgrìobhadh an taisbeanadh
+0-63, the hardware's own gain range.	0-63, raon buannachd an uidheim fhèin.
+Pocket Test (test card + scene cycle)	Deuchainn Pocket (cairt deuchainn + cuairt sheallaidhean)
+all driven by the cue's own transport	uile air an stiùireadh le còmhdhail a' cue fhèin
+Set cue token to jump to when cue ends	Suidhich token cue airson leum thuige nuair a chrìochnaicheas an cue
+Jump the driver back to its first frame	Leum an draibhear air ais gu a' chiad fhrèam
+Play the out move now, then take it off	Cluich an gluasad a-mach an-dràsta, an uairsin thoir dheth e
+Clear the active Lower Third overlay now	Glan an thar-chòmhdach Lower Third gnìomhach an-dràsta
+Critters (pixel-exact scaling, animated)	Critters (sgèileadh piogsail-mionaideach, beòthaichte)
+the selected cue in the focused playlist	an cue taghte anns an liosta le fòcas
+that output's whole picture, or its matte	dealbh slàn an às-chuir sin, no am matte aige
+Lissajous, spectrum, meters or a name card	Lissajous, speactram, meatairean no cairt-ainm
+SHUFFLE - the next cue is picked at random	SHUFFLE - thèid an ath cue a thaghadh air thuaiream
+Ancient cypher, modern video desk. Respect.	Seann chòd-dìomhair, deasg bhidio ùr. Spèis.
+Ctrl+Shift+S - write the show to a NEW file	Ctrl+Shift+S - sgrìobh an taisbeanadh gu faidhle ÙR
+Ctrl+S - write back over the show that is open	Ctrl+S - sgrìobh thairis air an taisbeanadh fosgailte
+Read everything right to left. Yes, everything.	Leugh a h-uile càil bho dheas gu clì. Seadh, a h-uile càil.
+Greetings, primitive. Your "slideshow" amuses us.	Fàilte, a phrìomhadair. Tha an "taisbeanadh-shleamhnag" agad gar n-èibhinneachadh.
+What this cue does when it ends - click to change	Na nì an cue seo nuair a chrìochnaicheas e - briog gus atharrachadh
+LEARN: move a knob or press a key on the controller...	LEARN: gluais putan no brùth iuchair air an uidheam-smachd...
+Per-cue audio: enable, trim, pan, mono, fades, normalize	Fuaim gach cue: cuir air, trim, pan, mono, fadan, co-ionannachadh
+MIDI input is off: turn it on in MIDI CONTROL. OSC rows still answer.	Tha inntrigeadh MIDI dheth: cuir air e ann am MIDI CONTROL. Freagraidh sreathan OSC fhathast.
+MIX	MEASGACHADH
+gain	buannachd
+logo	suaicheantas
+rail	rèile
+index	clàr-amais
+trans	tar-chur
+arcade	arcàid
+plugin	plugan
+ticket	tiogaid
+TRACKER	LORGAIR
+capsule	capsal
+circuit	cuairt
+dossier	faidhle
+palette	pailead
+bulletin	iris-naidheachd
+cassette	cèiseag
+dateline	ceann-latha
+terminal	teirmineal
+programme	prògram
+Perspective	Sealladh
+Motion: Bug Swat	Gluasad: Bug Swat
+, — skip to previous cue	, — leum chun a' cue roimhe
+--- -- --  does nothing on that playlist  -  (M) the step's own playlist	--- -- --  cha dèan e dad air an liosta sin  -  (M) liosta a' cheuma fhèin
+-18 dBFS is EBU alignment, -20 is SMPTE. Capped below 0: this feeds a live PA.	Tha -18 dBFS aig co-thaobhadh EBU, -20 aig SMPTE. Cuingealaichte fo 0: biathaidh seo PA beò.
+--- -- --  does nothing on that playlist  -  (M) the step's own playlist  -  EDIT is on: typing changes the show	--- -- --  cha dèan e dad air an liosta sin  -  (M) liosta a' cheuma fhèin  -  Tha EDIT air: atharraichidh sgrìobhadh an taisbeanadh
+Mic	Mic
+neon	neon
+sine	sine
+RTMPS	RTMPS
+TA-DA	TA-DA
+14-bit	14-bit
+Dimmer	Dimmer
+Binaural	Binaural
+confetti	confetti
+cue "{n}"	cue "{n}"
+Dimmer + RGB	Dimmer + RGB
+NDI® NETWORK	NDI® NETWORK
+Oscilloscope	Oscilloscope
+Syphon / Spout	Syphon / Spout
+29.97 fps (NTSC)	29.97 fps (NTSC)
+pan	pan
+pop	pop
+Port	Port
+deck	deck
+trim	trim
+PATCH	PATCH
+lower 3rd	lower 3rd
+Lower Third	Lower Third
+Bork bork BORK!	Bork bork BORK!
+25 fps (PAL/EBU)	25 fps (PAL/EBU)
