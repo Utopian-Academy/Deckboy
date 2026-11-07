@@ -7299,7 +7299,7 @@
 
         drawChoiceRow(dxY, "send", std::string("now"),
                       QuickAction::DmxFireNow,
-                      "Send it now, without taking the cue");
+                      "Send now, without taking the cue");
         dxY += kInspectorRowStep;
 
         drawChoiceRow(dxY, "blackout", std::string("all to 0"),
@@ -7481,7 +7481,7 @@
 
         drawChoiceRow(nwY, "send", std::string("now"),
                       QuickAction::NetSendNow,
-                      "Send it now, without taking the cue");
+                      "Send now, without taking the cue");
         nwY += kInspectorRowStep;
 
         // WHAT WILL ACTUALLY HAPPEN, spelled out, and what is wrong when
@@ -7601,7 +7601,7 @@
 
         drawChoiceRow(mdY, "send", std::string("now"),
                       QuickAction::MidiSendNow,
-                      "Send it now, without taking the cue");
+                      "Send now, without taking the cue");
         mdY += kInspectorRowStep;
 
         // WHAT WILL ACTUALLY GO DOWN THE WIRE, spelled out. A MIDI cue is the
