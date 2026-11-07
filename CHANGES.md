@@ -1,5 +1,10 @@
 # CHANGES - Incremental Updates (March-October 2026)
 
+## Unreleased
+
+### Languages
+- Hawaiian (ʻŌlelo Hawaiʻi) is now a full translation: the whole desk and every lesson. No speaker has reviewed it yet.
+
 ## 2026-11-07 - v0.99.427 (lessons that point everywhere, Esc that closes the right thing, 40 new themes)
 
 ### Thanks

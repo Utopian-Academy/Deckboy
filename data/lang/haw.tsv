@@ -1,18 +1,12 @@
 #name ʻŌlelo Hawaiʻi
 #english Hawaiian
 #unverified
-# UNREVIEWED. No speaker of this language has read this file.
+# UNREVIEWED. No speaker of Hawaiian has read this file yet.
 #
-# Everyday Hawaiian words for the common controls, with the ʻokina (U+02BB)
-# and kahakō. Not yet checked against Māmaka Kaiao, the Hawaiian Lexicon
-# Committee's dictionary of new words, which is where computer terms belong.
-#
-# The rest of the interface is deliberately NOT filled in: a line left out
-# falls through to English, and English is better than invented technical
-# vocabulary put into the mouth of a living language.
-#
-# So this is a starting point for a speaker to correct, not a translation.
-# The picker says so, so that choosing it is an informed choice.
+# A full translation, with the ʻokina (U+02BB) and kahakō. Computer terms are
+# everyday Hawaiian words, not yet checked against Māmaka Kaiao, the Hawaiian
+# Lexicon Committee's dictionary of new words. Names (Dr. Pixel, the guests)
+# and the trade's words (TAKE, NDI, Lower Third) stay in English.
 #
 # To help: each line is english<TAB>translation, and tools/add_translations.py
 # checks the file every way it can be broken silently.
@@ -85,3 +79,2035 @@ words	nā huaʻōlelo
 anyone	kekahi
 FIXED!	PONO!
 BLACK	ʻELEʻELE
+SAVE AS	MĀLAMA MA KA INOA HOU
+BUNDLE	HOʻOPŪʻOLO
+IMPORT	HOʻOKOMO
+PATTERN	KĀPOʻE
+SETTINGS	KĀ HOʻONOHONOHO
+REBOOT	HOʻOMAKA HOU
+BLACKOUT	PŌʻELE
+CLEAR	HOLOI
+RECORD	HOʻOPAʻA
+PLAYLIST	PAPA HELU
+TIMELINE	LALANI MANAWA
+TRANSPORT	HOʻOHOLO
+OUTPUT	PUKA
+WARP	HOʻOKEKEʻE
+LIVE	OLA
+DECODE	WEHEHELU
+STREAM	KAHE
+System	ʻŌnaehana
+Audio	Leo
+Network	Pūnaewele
+Video Outputs	Nā puka wikiō
+About	E pili ana
+Encoder	Mea hoʻopāʻālua
+Screen	Papakaumaka
+Geometry	Ana ʻāina
+Devices	Nā mea hana
+Streaming	Kahe pūnaewele
+APPEARANCE	HELEHELENA
+REMOTE CONTROL	KĀOHI MAI KAHI LOA
+INTEGRATION ADAPTERS	NĀ MEA HOʻOHUI
+DISCOVERY / NOTES	ʻIMI / NĀ MEMO
+DISPLAY & RASTER	PAPAKAUMAKA
+CONNECTED DISPLAYS	NĀ PAPAKAUMAKA I HOʻOPILI ʻIA
+EDGE FEATHERING	HULU O KA ʻAOʻAO
+MATTE & OVERLAY	MATTE A ME KA UHI
+AREA OF INTEREST	WAHI NUI
+DEFAULT TRANSITION	HOʻOLOLI MAʻAMAU
+NMC IN & OUT	NMC KOMO A PUKA
+OSC QUERY / FEEDBACK	OSC NĪNAU / HOʻIHOʻI
+CUE INSPECTOR	NĀNĀ CUE
+SELECTED CUE	CUE I KOHO ʻIA
+PLAYBACK	HOʻOKANI
+COPY	KOPE
+PASTE	KĀPILI
+RESET	HOʻIHOʻI
+Theme	Kumuhana
+Language	ʻŌlelo
+Resolution	Kikoʻī
+Orientation	Huli
+Toggle Fullscreen	Piha / ʻaʻole piha
+IDENTIFY	HŌʻIKE
+REGION SIZE	NUI O KA WAHI
+POSITION	KŪLANA
+CENTRE	WAENA
+FULL	PIHA
+duration	lōʻihi
+transition	hoʻololi
+fade in	hiki mai
+fade out	hala aku
+Stopped	Hoʻōki ʻia
+Playing	Ke hoʻokani nei
+Paused	Hoʻomaha ʻia
+DONE	PAU
+EDIT	HOʻOPONOPONO
+HELD	PAʻA
+Mode	ʻAno
+PICK	KOHO
+QUAD	ʻEHĀ
+STEP	KAʻINA
+Apply	Hoʻohana
+CLOSE	PANI
+FIXED	PAʻA
+Help!	Kōkua!
+ORDER	KAʻINA
+READY	MĀKAUKAU
+TILES	NĀ PAPA
+ALL ON	HOʻĀ A PAU
+ALWAYS	MAU
+Buffer	Waihona kali
+Cancel	Hoʻōki
+Custom	Ponoʻī
+Device	Mea hana
+Folder	Waihona
+HIDDEN	HŪNĀ ʻIA
+Length	Lōʻihi
+Mascot	Kiʻi hōʻailona
+Mirror	Aniani
+NATIVE	KUMU
+SUMMED	HUIPŪ ʻIA
+TOGGLE	HOʻOHULI
+12 HOUR	12 HOLA
+24 HOUR	24 HOLA
+ALL OFF	PIO A PAU
+ARRANGE	HOʻONOHONOHO
+Channel	Kahawai
+CONVERT	HOʻOLOLI
+DEFAULT	MAʻAMAU
+END CUE	CUE HOPE
+Key out	Kī i waho
+LTC out	LTC i waho
+MISSING	NALOWALE
+PROJECT	PAPAHANA
+RUNNING	KE HOLO NEI
+Send to	Hoʻouna i
+SHUFFLE	KĀWILI
+CLOCK ON	UAKI HOʻĀ
+DOWNLOAD	HOʻOIHO
+EXAMPLES	NĀ LAʻANA
+Mappings	Nā palapala ʻāina
+PROMPTER	MEA HOʻOKUHI
+SHOW SDP	HŌʻIKE SDP
+UI scale	Nui o ka UI
+WATCHING	KE NĀNĀ NEI
+A/V delay	Lohi A/V
+BOTH AXES	NĀ KUʻINA ʻELUA
+CHECK NOW	NĀNĀ I KĒIA MANAWA
+CLOCK OFF	UAKI PIO
+Creatures	Nā holoholona
+CUE TOOLS	NĀ MEA HANA CUE
+Direction	Kuhikuhina
+Freewheel	Kaʻa kūʻokoʻa
+Jump mode	ʻAno lele
+Listen on	Hoʻolohe ma
+OUTPUT ON	PUKA HOʻĀ
+Panic now	PANIC i kēia manawa
+RECORDING	KE HOʻOPAʻA NEI
+REMAINING	KOE
+RESET ALL	HOʻIHOʻI A PAU
+SHOW FLOW	KAHE O KA HŌʻIKE
+TIMERS ON	NĀ UAKI HOʻĀ
+WHEN IDLE	KE KŪ MALIE
+ADD OUTPUT	HOʻOHUI PUKA
+BUILT WITH	HANA ʻIA ME
+CANCEL ALL	HOʻŌKI A PAU
+colour tag	lepili waihoʻoluʻu
+copy chain	kope i ke kaulahao
+Hover tips	Nā ʻōlelo aʻoaʻo
+Input gain	Ikaika komo
+Input mono	Komo mono
+live audio	leo ola
+Live input	Komo ola
+MIDI input	MIDI komo
+no picture	ʻaʻohe kiʻi
+no preview	ʻaʻohe nānā mua
+OPEN SAVED	WEHE I KA MĀLAMA ʻIA
+OUTPUT OFF	PUKA PIO
+Panic fade	Hala PANIC
+TIMERS OFF	NĀ UAKI PIO
+Accept from	ʻAe mai
+BACK TO TOP	I KE POʻO
+CANVAS MODE	ʻANO PAPA
+CODE SOURCE	KUMU PĀʻĀLUA
+Cue numbers	Nā helu cue
+Destination	Wahi e hiki ai
+Mirror rate	Māmā aniani
+no duration	ʻaʻohe lōʻihi
+NO LIVE CUE	ʻAʻOHE CUE OLA
+NO PREVIOUS	ʻAʻOHE MUA
+OVERLAY BIN	PAHU UHI
+paste chain	kāpili i ke kaulahao
+Sample rate	Māmā laʻana
+SENDING OUT	KE HOʻOUNA NEI
+Shift: snap	Shift: paʻi
+THIS OUTPUT	KĒIA PUKA
+Rate	Māmā
+TEXT	HUAʻŌLELO
+MULTI	NUI
+VIDEO	WIKIŌ
+FORMAT	ʻANO
+Sender	Mea hoʻouna
+UPDATES	NĀ HŌʻANO HOU
+(no matches)	(ʻaʻohe mea i loaʻa)
+(no subtext)	(ʻaʻohe lalani lua)
+add a button	hoʻohui i pihi
+add a window	hoʻohui i puka aniani
+AUDIO OUTPUT	PUKA LEO
+Auto restore	Hoʻihoʻi ʻakomi
+free running	holo kūʻokoʻa
+LISTENING IN	KE HOʻOLOHE NEI
+MIDI CONTROL	KĀOHI MIDI
+Mirror state	Kūlana aniani
+NO PROGRAMME	ʻAʻOHE PAPAHANA
+WATCH FOLDER	WAIHONA NĀNĀ
+COMPOSITE CUE	CUE HUIPŪ
+default route	ala maʻamau
+Every adapter	Kēlā me kēia mea hoʻopili
+LEFT TO RIGHT	HEMA A ʻĀKAU
+MEDIA ENCODER	MEA HOʻOPĀʻĀLUA
+NEW SHOW FILE	WAIHONA HŌʻIKE HOU
+No cue loaded	ʻAʻohe cue i hoʻouka ʻia
+nothing taken	ʻaʻohe mea i lawe ʻia
+OPEN PREVIOUS	WEHE I KA MUA
+Output device	Mea puka
+Panic profile	Kūlana PANIC
+Quit Deckboy?	Haʻalele iā Deckboy?
+REMOVE OUTPUT	WEHE I KA PUKA
+Sound effects	Nā kani
+TOP TO BOTTOM	LUNA A LALO
+127 (all-call)	127 (kāhea i nā mea a pau)
+ALL INTERFACES	NĀ MEA HOʻOPILI A PAU
+LOCALHOST ONLY	KĒIA KAMEPIULA WALE NŌ
+Monitor device	Mea nānā
+no audio track	ʻaʻohe meheu leo
+PRESENTER VIEW	NĀNĀ O KA MEA HŌʻIKE
+RECORD TO DISK	HOʻOPAʻA I KA PĀ
+STOP RECORDING	HOʻŌKI I KA HOʻOPAʻA
+STOP STREAMING	HOʻŌKI I KA KAHE
+TALLY TRIGGERS	NĀ HOʻOMAKA TALLY
+Device channels	Nā kahawai mea hana
+NO CUE SELECTED	ʻAʻOHE CUE I KOHO ʻIA
+Output channels	Nā kahawai puka
+preview pending	ke kali nei ka nānā mua
+START RECORDING	HOʻOMAKA I KA HOʻOPAʻA
+START STREAMING	HOʻOMAKA I KA KAHE
+(system default)	(ka maʻamau o ka ʻōnaehana)
+Check at startup	Nānā i ka hoʻomaka ʻana
+Global crossfade	Hoʻololi pili holoʻokoʻa
+Mic to recording	Mic i ka hoʻopaʻa
+Monitor playlist	Papa helu nānā
+no still preview	ʻaʻohe nānā mua kiʻi paʻa
+Pocket 3 / touch	Pocket 3 / pā lima
+the whole screen	ka papakaumaka holoʻokoʻa
+Check for one now	Nānā i kēia manawa
+INSTALL & RESTART	HOʻOKOMO A HOʻOMAKA HOU
+Registry: NOT SET	Papa inoa: ʻAʻOHE I HOʻONOHO ʻIA
+SAFETY / TIMECODE	PALEKANA / KA MANAWA
+Timecode jam sync	Hoʻokūlike i ka timecode
+esc or N to cancel	esc a i ʻole N e hoʻōki
+KEYBOARD SHORTCUTS	NĀ KĪ PŌKOLE
+loading preview...	ke hoʻouka nei i ka nānā mua...
+CONVERT ALL FLAGGED	HOʻOLOLI I NĀ MEA I HŌʻAILONA ʻIA
+dot-matrix cue deck	pāʻani cue kiko kiko
+locked to the tempo	paʻa i ka pana
+VJ mode (two decks)	ʻAno VJ (ʻelua papa)
+ADD ANOTHER PLAYLIST	HOʻOHUI I PAPA HELU HOU
+Esc or click to skip	Esc a i ʻole kaomi e lele
+PLAYLIST PREFERENCES	NĀ KOHO O KA PAPA HELU
+press ENTER to start	kaomi ENTER e hoʻomaka
+ADD A SECOND PLAYLIST	HOʻOHUI I PAPA HELU ʻELUA
+filmstrip unavailable	ʻaʻole loaʻa ke kiʻi lipine
+(empty — import media)	(nele — hoʻokomo i ka media)
+Ctrl+D or Esc to close	Ctrl+D a i ʻole Esc e pani
+(no notes for this cue)	(ʻaʻohe memo no kēia cue)
+Timebase / start / fade	Kumu manawa / hoʻomaka / hala
+No cues need conversion.	ʻAʻohe cue pono e hoʻololi.
+CLICK TO SAMPLE KEY COLOR	KAOMI E LAWE I KA WAIHOʻOLUʻU KĪ
+normalize loudness (R128)	hoʻokūlike i ka leo nui (R128)
+off - all channels silent	pio - hāmau nā kahawai a pau
+no video lane for this cue	ʻaʻohe lalani wikiō no kēia cue
+HyperDeck emulation is off.	Ua pio ka HyperDeck.
+OWN SCRIPT  (click to edit)	PĀʻĀLUA PONOʻĪ  (kaomi e hoʻoponopono)
+Theme and operator feedback	Kumuhana a me ka pane i ka mea hoʻohana
+Discovery and mirrored state	ʻImi a me ke kūlana aniani
+FOLLOWING THE LIVE CUE NOTES	E HAHAI ANA I NĀ MEMO O KA CUE OLA
+Listening on all interfaces.	Ke hoʻolohe nei ma nā mea hoʻopili a pau.
+Network-facing runtime notes	Nā memo pūnaewele
+Hi! Press I to import a clip.	Aloha! Kaomi i ka I e hoʻokomo i ka wikiō.
+Global jump and panic behavior	Ka lele holoʻokoʻa a me ka PANIC
+Roll when the show cuts to you	E hoʻoholo ke ʻoki ka hōʻike iā ʻoe
+Choose a cue to inspect it here	Koho i cue e nānā ma ʻaneʻi
+Defaults for newly created cues	Nā maʻamau no nā cue hou
+Device routing for cue playback	Ke ala mea hana no ka hoʻokani cue
+Smaller buffer = lower latency.	Waihona liʻiliʻi = lohi liʻiliʻi.
+Emergency fade and sync behavior	Ka hala pōpilikia a me ke kūlike
+mixed selection: key unavailable	koho huikau: ʻaʻohe kī
+SMPTE ST 2110-20  (EXPERIMENTAL)	SMPTE ST 2110-20  (HOʻĀʻO)
+Esc=continue with current session	Esc=hoʻomau me kēia hana
+no per-cue settings for this type	ʻaʻohe koho no kēia ʻano cue
+On stop: remux to an ordinary MP4	Ke hoʻōki: hana hou i MP4 maʻamau
+Where RECORD writes the programme	Kahi e kākau ai ʻo RECORD i ka papahana
+dot-matrix cue deck for live events	pāʻani cue kiko kiko no nā hōʻike ola
+Listening on localhost (127.0.0.1).	Ke hoʻolohe nei ma localhost (127.0.0.1).
+three expressions: red, green, blue	ʻekolu ʻōlelo: ʻulaʻula, ʻōmaʻomaʻo, polū
+Transport sync with another machine	Ke kūlike me kekahi kamepiula ʻē aʻe
+Add slot sources in the cue inspector	Hoʻohui i nā kumu ma ka nānā cue
+Ask GitHub; never installs on its own	Nīnau iā GitHub; ʻaʻole hoʻokomo iā ia iho
+Import or click a cue in the playlist	Hoʻokomo a kaomi paha i cue ma ka papa helu
+mixed selection: geometry unavailable	koho huikau: ʻaʻohe ana ʻāina
+generate timecode for the rig to chase	hana i ka timecode no ka mea hana e hahai
+Lower Third and PIP fire independently	Holo kaʻawale ka Lower Third a me ka PIP
+Panels built for a vMix rig, unchanged	Nā papa i hana ʻia no vMix, ʻaʻole i hoʻololi ʻia
+Incoming transport arrives as NMCEVENT.	Hiki mai ka hoʻoholo ma ke ʻano he NMCEVENT.
+not in this build - saved with the show	ʻaʻole ma kēia kūkulu - mālama ʻia me ka hōʻike
+Find from the playlist, not from a modal	ʻImi ma ka papa helu, ʻaʻole ma ka puka aniani
+take or select a cue to open the timeline	lawe a koho paha i cue e wehe i ka lalani manawa
+Optional external transport and cue control	Kāohi hoʻoholo a cue mai waho, inā makemake
+No previous show file found at startup path.	ʻAʻohe waihona hōʻike mua ma ke ala hoʻomaka.
+Use Ctrl+F or type a cue id/number to search.	E hoʻohana iā Ctrl+F a i ʻole e kikokiko i ka helu cue e ʻimi.
+Companion / OSC ingress and HyperDeck emulation	Companion / OSC komo a me HyperDeck
+A/V delay holds audio back for lagging displays.	Hoʻopaneʻe ka lohi A/V i ka leo no nā papakaumaka lohi.
+On stop: leave the crash-resilient file as it is	Ke hoʻōki: waiho i ka waihona e like me ia
+same disk as Deckboy - a separate drive is safer	ka pā like me Deckboy - ʻoi aku ka palekana o kekahi pā ʻē aʻe
+A step fires one cue on each playlist, all at once.	Hoʻā kekahi kaʻina i hoʻokahi cue ma kēlā me kēia papa helu, i ka manawa hoʻokahi.
+one expression: the same value in red, green and blue	hoʻokahi ʻōlelo: ka helu like ma ka ʻulaʻula, ʻōmaʻomaʻo a me ka polū
+NDI transport is configured per output in Video Outputs.	Hoʻonohonoho ʻia ka NDI no kēlā me kēia puka ma Nā puka wikiō.
+Sends PLAY / PAUSE / STOP / LOCATE as the transport moves.	Hoʻouna i ka PLAY / PAUSE / STOP / LOCATE ke neʻe ka hoʻoholo.
+OSC subscribe: send /deckboy/subscribe from your controller.	OSC kākau inoa: hoʻouna i /deckboy/subscribe mai kāu mea kāohi.
+NMC mode / host / port are runtime-configurable for sync work.	Hiki ke hoʻololi i ke ʻano / host / port NMC i ka wā e holo ana.
+Going on air takes the cue. Deckboy never sends the switcher a command.	Lawe ka hele ʻana i ka lewa i ka cue. ʻAʻole hoʻouna ʻo Deckboy i kauoha i ka mea hoʻololi.
+EDIT...	HOʻOPONOPONO...
+FOLDER...	WAIHONA...
+ARRANGE...	HOʻONOHONOHO...
+ADD FILE...	HOʻOHUI WAIHONA...
+RENUMBER...	HELU HOU...
+set a port...	hoʻonoho i port...
+no script	ʻaʻohe pāʻālua
++ OUTPUT	+ PUKA
+Eddie's Clock	Ka uaki a Eddie
+Ctrl+/ to close	Ctrl+/ e pani
+(step lives here)	(noho ke kaʻina ma ʻaneʻi)
+No outputs — click + OUTPUT to add one.	ʻAʻohe puka — kaomi i + PUKA e hoʻohui.
+Convert cues Deckboy can't play (or plays poorly) to H.264	Hoʻololi i nā cue ʻaʻole hiki iā Deckboy ke hoʻokani (a hoʻokani maikaʻi ʻole) i H.264
+a button can run any command the network protocol understands	hiki i ka pihi ke holo i kekahi kauoha a ka pūnaewele e hoʻomaopopo ai
+ARRANGE PRESENTER  -  drag a panel to move it, a corner to size it	HOʻONOHONOHO I KA MEA HŌʻIKE  -  kauo i ka papa e neʻe, i ke kihi e hoʻonui
+Desktop	Pākaukau
+capture again - what is on now	lawe hou - ka mea e holo ana i kēia manawa
+change what it does...	hoʻololi i kāna hana...
+decks - Stop deck...	decks - hoʻōki i ka papa...
+decks - Take deck...	decks - lawe i ka papa...
+delete step	holoi i ke kaʻina
+delete this button	holoi i kēia pihi
+label, command and glyph as text...	lepili, kauoha a me ka hōʻailona ma ke ʻano he huaʻōlelo...
+move down	neʻe i lalo
+move up	neʻe i luna
+next colour	waihoʻoluʻu aʻe
+preset - a new preset from what is on now	preset - he preset hou mai ka mea e holo ana
+type a command myself...	kikokiko au i kauoha...
+type a length in seconds...	kikokiko i ka lōʻihi ma nā kekona...
+wait for GO	kali no GO
+what it recalls...	ka mea e hoʻomanaʻo ai...
+when its cues end	ke pau kāna mau cue
+AUDIONORM ALL matches the whole playlist at once	Hoʻokūlike ʻo AUDIONORM ALL i ka papa helu holoʻokoʻa i ka manawa hoʻokahi
+back to the in point, not to zero	hoʻi i ka hoʻomaka, ʻaʻole i ka ʻole
+drag to scrub. the audio follows	kauo e kahi. hahai ka leo
+loops between the in and out points, not the file	pōʻai ma waena o ka hoʻomaka a me ka hopena, ʻaʻole ka waihona
+(not set)	(ʻaʻole i hoʻonoho ʻia)
+1.00x  (default 1080p)	1.00x  (maʻamau 1080p)
+1.25x  (large desktop)	1.25x  (pākaukau nui)
+1.50x  (4K desktop)	1.50x  (pākaukau 4K)
+2.00x  (Pocket 3 / 4K small)	2.00x  (Pocket 3 / 4K liʻiliʻi)
+highest bandwidth	ākea loa
+lower bandwidth	ākea liʻiliʻi
+film	kiʻiʻoniʻoni
+CD, music rigs	CD, nā mea hoʻokani mele
+video standard	ke ana wikiō
+every playlist	kēlā me kēia papa helu
+None  (no character art)	ʻAʻohe  (ʻaʻohe kiʻi kanaka)
+custom size...	nui ponoʻī...
+Browser URL	URL polokalamu kele
+Media File / Still	Waihona media / kiʻi paʻa
+RECORD TO FILE	HOʻOPAʻA I KA WAIHONA
+browser, with sound	polokalamu kele, me ka leo
+full screen	piha ka papakaumaka
+DeckLink Output	Puka DeckLink
+FFmpeg Stream Output	Puka kahe FFmpeg
+NDI Output	Puka NDI
+SDL Window Output	Puka aniani SDL
+Spout Output	Puka Spout
+DESK	PAPA
+drop a folder in too - it reads the whole tree	hoʻokuʻu pū i ka waihona - heluhelu ʻo ia i ka lāʻau holoʻokoʻa
+cameras, windows, NDI, screens - all live sources	nā pahupaʻikiʻi, nā puka aniani, NDI, nā papakaumaka - nā kumu ola a pau
+test cards and generators - no file needed	nā kāleka hoʻāʻo a me nā mea hana kiʻi - ʻaʻohe waihona e pono ai
+space bar does this too, without moving your hand	pēlā pū ka pihi kaʻawale, me ka neʻe ʻole o kou lima
+stops the cue. ESC stops EVERYTHING	hoʻōki i ka cue. hoʻōki ʻo ESC i NĀ MEA A PAU
+the safe one: audio and playback keep running	ka mea palekana: holo mau ka leo a me ka hoʻokani
+the thorough one. blackout is the reversible one	ka mea piha loa. hiki ke hoʻihoʻi ʻia ka pōʻele
+save as makes a new file instead	hana ʻo save as i waihona hou
+for a copy before you change something risky	no ke kope ma mua o kou hoʻololi ʻana i kekahi mea pilikia
+this is what you carry to the venue	ʻo kēia kāu e lawe ai i ke kahua
+the show on disk is untouched until you save	ʻaʻole hoʻololi ʻia ka hōʻike ma ka pā a hiki i kou mālama ʻana
+per cue. the deck has its own default too	no kēlā me kēia cue. he maʻamau ko ka papa pū
+stills hold instead - a fade would dip the frame	paʻa nā kiʻi paʻa - e pōʻeleʻele ka hala i ke kiʻi
+the frame stays up. good for slides	kū mau ke kiʻi. maikaʻi no nā kiʻi hōʻike
+gain, pan and normalise live in the inspector	noho ka ikaika, ka pan a me ka hoʻokūlike ma ka nānā cue
+this clip has no audio track to enable	ʻaʻohe meheu leo o kēia wikiō
+Hi! I am Deckboy.	Aloha! ʻO Deckboy au.
+Press I to import a clip.	Kaomi i ka I e hoʻokomo i ka wikiō.
+Enter takes a cue live.	Lawe ʻo Enter i ka cue i ka lewa.
+S stops the live cue.	Hoʻōki ʻo S i ka cue ola.
+The timeline can be resized.	Hiki ke hoʻonui ʻia ka lalani manawa.
+Try a terminal theme in Settings.	E hoʻāʻo i kumuhana kamepiula kahiko ma Kā hoʻonohonoho.
+RELINK finds media that has moved.	Loaʻa iā RELINK ka media i neʻe.
+Cues have their own gain and fades.	He ikaika a me nā hala ko kēlā me kēia cue.
+Trim with Ctrl+I and Ctrl+O.	ʻOki me Ctrl+I a me Ctrl+O.
+Ctrl+/ shows every shortcut.	Hōʻike ʻo Ctrl+/ i nā kī pōkole a pau.
+J jumps to the live cue.	Lele ʻo J i ka cue ola.
+Normalize matches loudness across cues.	Hoʻokūlike ʻo Normalize i ka leo nui o nā cue.
+Esc clears the desk, then the output, then quits.	Holoi ʻo Esc i ka papa, a laila i ka puka, a laila haʻalele.
+Stream SRT and RTMP at the same time.	Kahe SRT a me RTMP i ka manawa hoʻokahi.
+CHECK lists what is broken, before doors.	Helu ʻo CHECK i nā mea haki, ma mua o ka wehe ʻana i nā puka.
+A cue can wait before it starts.	Hiki i ka cue ke kali ma mua o kona hoʻomaka ʻana.
+A cue can start the next one by itself.	Hiki i ka cue ke hoʻomaka i ka mea aʻe nona iho.
+Disarm a cue and GO steps over it.	Hoʻopau i ka mākaukau o ka cue a lele ʻo GO ma luna ona.
+Audition plays a cue to you, not the room.	Hoʻokani ʻo Audition i ka cue iā ʻoe, ʻaʻole i ka lumi.
+Preload racks the next cue warm, off air.	Hoʻomākaukau ʻo Preload i ka cue aʻe, ma waho o ka lewa.
+A target cue starts or stops another cue.	Hoʻomaka a hoʻōki paha ka cue pahuhopu i kekahi cue ʻē aʻe.
+A fade cue takes a deck down, then stops it.	Hoʻohaʻahaʻa ka cue hala i ka papa, a laila hoʻōki iā ia.
+A master cue fires one cue on every deck.	Hoʻā ka cue haku i hoʻokahi cue ma kēlā me kēia papa.
+A MIDI cue can tell the lighting desk to go.	Hiki i ka cue MIDI ke haʻi i ka papa kukui e hele.
+A network cue speaks OSC, UDP or TCP.	ʻŌlelo ka cue pūnaewele i ka OSC, UDP a i ʻole TCP.
+A DMX cue fades the house lights on a cue.	Hoʻohaʻahaʻa ka cue DMX i nā kukui hale ma ka cue.
+A script cue runs Deckboy's own commands.	Holo ka cue pāʻālua i nā kauoha ponoʻī o Deckboy.
+A timecode cue jams LTC to a value.	Hoʻonoho ka cue timecode i ka LTC i kekahi helu.
+Each output can show a different deck.	Hiki i kēlā me kēia puka ke hōʻike i papa ʻē aʻe.
+The matrix sends audio to any channel.	Hoʻouna ka matrix i ka leo i kekahi kahawai.
+The panel map numbers every LED tile.	Helu ka palapala ʻāina papa i kēlā me kēia tile LED.
+Hey!	ʻĒ!
+Quit it!	Hoʻōki!
+Ow. That was rude.	Auē. ʻAʻole maikaʻi kēlā.
+I am a professional.	He loea au.
+Seriously?	ʻOiaʻiʻo?
+This is my monitor.	Kaʻu papakaumaka kēia.
+I am telling the operator.	E haʻi ana au i ka mea hoʻohana.
+All right. Wow.	ʻĀ. Auē.
+Right. That does it.	Pēlā. Ua lawa.
+I am leaving. Good luck with the show.	Ke haʻalele nei au. Pōmaikaʻi i ka hōʻike.
+Still here? Me too.	Aia nō ʻoe ma ʻaneʻi? ʻO wau pū.
+Long show, huh.	Lōʻihi ka hōʻike, ʻeā.
+I could do this all day. Apparently.	Hiki iaʻu ke hana i kēia i ka lā holoʻokoʻa. Me he mea lā.
+You have been staring at me for hours.	Ua nānā ʻoe iaʻu no nā hola he nui.
+Has anyone seen a clock?	Ua ʻike kekahi i ka uaki?
+Is it still the same show?	ʻO ka hōʻike like nō kēia?
+I'm not tired. You're tired.	ʻAʻole au i luhi. Ua luhi ʻoe.
+Five more minutes. Then five more.	ʻElima minuke hou. A laila ʻelima hou.
+A whole day. I need a restart.	He lā holoʻokoʻa. Pono au e hoʻomaka hou.
+Save the show. Then let me sleep.	Mālama i ka hōʻike. A laila e hiamoe au.
+Every pixel of me is tired.	Luhi kēlā me kēia kiko oʻu.
+Close me. Open me. I'll be fine.	Pani iaʻu. Wehe iaʻu. Maikaʻi ana au.
+@hello	@aloha
+Oh hey. It's 4:20. Take it easy.	ʻĒ. ʻO ka 4:20. E hoʻomaha.
+HELLO	ALOHA
+Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me.	Dobar den, skapi. ʻO Dr. Pixel au. ʻElima minuke, a e holo ana ʻoe i hōʻike. Emi iho, inā hoʻolohe ʻoe iaʻu.
+And I'm Professor Video. Synths first, then video. Mostly video now. Press START and we'll patch... we'll begin.	A ʻo Professor Video au. Nā synth ma mua, a laila ka wikiō. Wikiō ka hapa nui i kēia manawa. Kaomi i START a e patch... e hoʻomaka kāua.
+TURN THE OUTPUT ON	E HOʻĀ I KA PUKA
+Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	Skapi, nele ka papakaumaka. Mai hoʻokali iā lākou. Wehe i ka MENU a hoʻololi i OUTPUT OFF i OUTPUT ON. Aide!
+Lesson one: nothing comes out until you patch the oscillator to the... the OUTPUT. It's video. I know.	Haʻawina ʻekahi: ʻaʻohe mea e puka mai a hiki i kou patch ʻana i ka oscillator i ka... i ka OUTPUT. He wikiō ia. ʻIke au.
+BRING IN A CLIP	E HOʻOKOMO I KA WIKIŌ
+Now a picture. Press I and pick a clip from your computer. No clip? SHOW ME, and I lend you one of mine.	I kēia manawa he kiʻi. Kaomi i ka I a koho i wikiō mai kou kamepiula. ʻAʻohe wikiō? SHOW ME, a hōʻaiʻē au iā ʻoe i kekahi oʻu.
+Every clip becomes a cue in the playlist. Like loading a sample. A sample with pictures in it.	Lilo kēlā me kēia wikiō i cue ma ka papa helu. Me he hoʻouka ʻana i ka laʻana. He laʻana me nā kiʻi i loko.
+TAKE IT LIVE	E LAWE I KA LEWA
+Your clip waits in the playlist. Select it, then TAKE. Or Enter. Confident operators press Enter.	Ke kali nei kāu wikiō ma ka papa helu. Koho iā ia, a laila TAKE. A i ʻole Enter. Kaomi ka poʻe paʻa i ka Enter.
+TAKE is the envelope trigger. The, ah, the GO button. Same thing, it just has pictures in it.	ʻO TAKE ka envelope trigger. ʻO ka, ʻā, ka pihi GO. Like nō, he mau kiʻi wale nō i loko.
+LINE UP THE NEXT ONE	E HOʻOMĀKAUKAU I KA MEA AʻE
+Click another cue. It waits, ready, until you say. Only one cue? Import another, or SHOW ME.	Kaomi i kekahi cue ʻē aʻe. Kali ia, mākaukau, a hiki i kāu ʻōlelo. Hoʻokahi wale nō cue? Hoʻokomo i kekahi, a i ʻole SHOW ME.
+Selecting is not playing. The selected one is the next note in the sequence. The next CUE.	ʻAʻole ke koho ʻana ka hoʻokani ʻana. ʻO ka mea i koho ʻia ka note aʻe ma ke kaʻina. Ka CUE aʻe.
+CROSSFADE TO IT	E HOʻOLOLI MALIE I ʻŌ
+Cuts are for amateurs. In the inspector, press + on transition, so it shows a time, not deck. Then TAKE.	No ka poʻe hou nā ʻoki. Ma ka nānā cue, kaomi i ka + ma transition, i hōʻike ʻia ka manawa, ʻaʻole deck. A laila TAKE.
+A crossfade! Portamento, but for pictures. Any time will do. A few more presses and it's a second. Then TAKE.	He crossfade! Portamento, akā no nā kiʻi. Maikaʻi nō kekahi manawa. Kekahi mau kaomi hou a he kekona. A laila TAKE.
+CLEAR THE SCREEN	E HOLOI I KA PAPAKAUMAKA
+Something goes wrong on stage? Press BLACK, or B. The picture goes. The show keeps running underneath.	Hewa kekahi mea ma ke kahua? Kaomi i BLACK, a i ʻole B. Nalo ke kiʻi. Holo mau ka hōʻike ma lalo.
+Nothing is lost. Press B again and it comes back. Like the mute on a mixer. Very calming.	ʻAʻohe mea i nalo. Kaomi hou i ka B a hoʻi mai ia. Me ka mute ma ka mixer. Hoʻomalu loa.
+SAVE THE SHOW	E MĀLAMA I KA HŌʻIKE
+Now save. Ctrl+S, or SAVE. Some programs lose your work and then blame you. I would never.	I kēia manawa, mālama. Ctrl+S, a i ʻole SAVE. Hoʻopoina kekahi mau polokalamu i kāu hana a laila hoʻohewa iā ʻoe. ʻAʻole loa au.
+Save your patch. Your SHOW. Show. This practice one lives in Deckboy's own folder; yours is safe.	Mālama i kāu patch. Kāu HŌʻIKE. Hōʻike. Noho kēia hōʻike hoʻomaʻamaʻa ma ka waihona ponoʻī o Deckboy; palekana kāu.
+THAT'S A SHOW	HE HŌʻIKE KĒLĀ
+That's a show! Output, cue, TAKE, crossfade, BLACK, save. Nazdrave, skapi. Rakia is on me.	He hōʻike kēlā! Puka, cue, TAKE, crossfade, BLACK, mālama. Nazdrave, skapi. Naʻu ka rakia.
+Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	Ua pau ka papa. Aʻo nā hōʻike laʻana i nā papa, nā poʻo inoa a me nā hopena. Holo hou ʻo MENU > LEARN THE BASICS i kēia.
+*shakes head* That means yes. Bravo.	*hoʻoluliluli i ke poʻo* ʻO ka ʻae kēlā. Bravo.
+Wonderful! Lovely signal flow.	Nani! Kahe hōʻailona maikaʻi.
+Mm. I knew you had it in you.	Mm. Ua ʻike au aia iā ʻoe.
+Yes! Have a gold star. It's a dot.	ʻAe! He hōkū gula nou. He kiko ia.
+Ready for the next step? *nods* ...That means no, skapi. The glowing one. It is glowing for you.	Mākaukau no ke kaʻina aʻe? *kunou* ...ʻO ka ʻaʻole kēlā, skapi. Ka mea ʻōlinolino. Ke ʻōlinolino nei nou.
+You've clicked everything but the glowing one. Even my oscillators find the glowing one.	Ua kaomi ʻoe i nā mea a pau koe ka mea ʻōlinolino. ʻIke koʻu mau oscillator i ka mea ʻōlinolino.
+stop playback first - the lesson cannot hand a running show back as it was	hoʻōki mua i ka hoʻokani - ʻaʻole hiki i ka haʻawina ke hoʻihoʻi i hōʻike e holo ana e like me ia
+choose RECOVER or KEEP SAVED first	koho mua i RECOVER a i ʻole KEEP SAVED
+your show could not be saved, so the lesson has not started. Save it (SAVE AS) and try again	ʻaʻole hiki ke mālama ʻia kāu hōʻike, no laila ʻaʻole i hoʻomaka ka haʻawina. Mālama iā ia (SAVE AS) a hoʻāʻo hou
+the practice show would not open	ʻaʻole i wehe ka hōʻike hoʻomaʻamaʻa
+could not start the practice show	ʻaʻole hiki ke hoʻomaka i ka hōʻike hoʻomaʻamaʻa
+learn the basics: Esc leaves, and it picks up here next time	aʻo i nā kumu: haʻalele ʻo Esc, a hoʻomau ʻia ma ʻaneʻi i ka manawa aʻe
+that's the basics - MENU > LESSONS has part two	ʻo ia nā kumu - aia ka ʻāpana ʻelua ma MENU > LESSONS
+tour paused - LEARN THE BASICS picks up where you left off	hoʻomaha ka huakaʻi - hoʻomau ʻo LEARN THE BASICS ma kahi āu i waiho ai
+Mirrored screens, skapi. Press any key or click, and Dr. Pixel gives it back.	Nā papakaumaka aniani, skapi. Kaomi i kekahi kī a i ʻole kaomi, a hoʻihoʻi ʻo Dr. Pixel.
+Wrong screen, skapi. Press any key or click, and Dr. Pixel gives it back.	Papakaumaka hewa, skapi. Kaomi i kekahi kī a i ʻole kaomi, a hoʻihoʻi ʻo Dr. Pixel.
+The other screen went away, skapi. Press any key or click, and Dr. Pixel gives it back.	Ua hala ka papakaumaka ʻē aʻe, skapi. Kaomi i kekahi kī a i ʻole kaomi, a hoʻihoʻi ʻo Dr. Pixel.
+One screen, skapi. Press any key or click, and Dr. Pixel gives it back.	Hoʻokahi papakaumaka, skapi. Kaomi i kekahi kī a i ʻole kaomi, a hoʻihoʻi ʻo Dr. Pixel.
+The other screen went away, skapi, so the picture came back to this one. I put it in a little window, behind. Plug it back in and the picture goes back on it.	Ua hala ka papakaumaka ʻē aʻe, skapi, no laila ua hoʻi mai ke kiʻi i kēia. Ua waiho au iā ia ma kahi puka aniani liʻiliʻi, ma hope. Hoʻopili hou iā ia a hoʻi ke kiʻi ma luna ona.
+It ate the desk, skapi. One screen, so the output took all of it. I put it in a little window, behind. A real show gets a second screen.	Ua ʻai ia i ka papa, skapi. Hoʻokahi papakaumaka, no laila ua lawe ka puka i nā mea a pau. Ua waiho au iā ia ma kahi puka aniani liʻiliʻi, ma hope. Loaʻa i ka hōʻike maoli he papakaumaka ʻelua.
+IT ATE THE DESK	UA ʻAI IA I KA PAPA
+There. The button that says OUTPUT OFF. Make it say ON, skapi.	Aia. Ka pihi e ʻōlelo ana OUTPUT OFF. E hoʻololi iā ia i ON, skapi.
+Nothing is live to fade from, skapi. TAKE one cue first, then pick the other and give it a time.	ʻAʻohe mea ola e hala mai ai, skapi. TAKE mua i hoʻokahi cue, a laila koho i kekahi a hāʻawi i ka manawa.
+That was a cut, skapi. Fast, but not a crossfade. Pick the other cue, press + on transition, then TAKE.	He ʻoki kēlā, skapi. Wikiwiki, akā ʻaʻole he crossfade. Koho i ka cue ʻē aʻe, kaomi i ka + ma transition, a laila TAKE.
+A feedback loop! Output patched straight back into the desk. Happens to the best of us. Mostly to me. 1983. We don't talk about 1983.	He pōʻai hoʻihoʻi! Ua patch pololei ʻia ka puka i ka papa. Hiki i nā mea maikaʻi loa. Iaʻu ka hapa nui. 1983. ʻAʻole kāua e kamaʻilio no 1983.
+No more rakia. The rat has a problem.	ʻAʻohe rakia hou. He pilikia ko ka ʻiole.
+Nazdrave, skapi! Baba's rakia, from Belogradchik. One glass, for the lesson.	Nazdrave, skapi! Ka rakia a Baba, mai Belogradchik. Hoʻokahi kīʻaha, no ka haʻawina.
+Is this... is this allowed during a tutorial?	ʻAe ʻia anei... ʻae ʻia anei kēia i ka wā o ka haʻawina?
+*shakes head* That means one more.	*hoʻoluliluli i ke poʻo* ʻO ka hoʻokahi hou kēlā.
+I love you all. I love the oscillator. I love the OUTPUT. It's video. I know. I KNOW.	Aloha au iā ʻoukou a pau. Aloha au i ka oscillator. Aloha au i ka OUTPUT. He wikiō ia. ʻIke au. ʻIKE AU.
+...and the rat took the rakia. Every time, skapi. Every single time.	...a lawe ka ʻiole i ka rakia. I kēlā me kēia manawa, skapi. I kēlā me kēia manawa.
+Was that a rat? In a hat? With a pizza?	He ʻiole anei kēlā? Me ka pāpale? Me ka pizza?
+Stop that. I am a serious man.	Hoʻōki i kēlā. He kanaka koʻikoʻi au.
+Do not tell Dr. Pixel about this.	Mai haʻi iā Dr. Pixel no kēia.
+This never happened. Back to the patch bay.	ʻAʻole i hana ʻia kēia. Hoʻi i ka papa patch.
+It was the eighties. Everyone had a bow tie.	ʻO nā makahiki kanawalu ia. He kāʻei ʻāʻī pewa ko nā kānaka a pau.
+LESSON LIST	PAPA HAʻAWINA
+OPEN EXAMPLE SHOWS	WEHE I NĀ HŌʻIKE LAʻANA
+EXIT (Esc)	HAʻALELE (Esc)
+Taking it on the road	Ka lawe ʻana i ke alanui
+CHECK a show before it travels, fix what it finds, and bundle it with its media.	CHECK i ka hōʻike ma mua o kona huakaʻi, hoʻoponopono i nā mea i loaʻa, a hoʻopūʻolo me kāna media.
+Effects, oscillators and colour	Nā hopena, nā oscillator a me ka waihoʻoluʻu
+An effect, a ~ on its knob, and the colour picker.	He hopena, he ~ ma kona pihi, a me ka mea koho waihoʻoluʻu.
+The art school crit, with Mr. Salty	Ka loiloi kula noʻeau, me Mr. Salty
+Patterns, synths and Draw	Nā kāpoʻe, nā synth a me ke kaha kiʻi
+A test pattern, the video synth, and drawing on the picture, saved as a still.	He kāpoʻe hoʻāʻo, ka synth wikiō, a me ke kaha kiʻi ma luna o ke kiʻi, mālama ʻia ma ke ʻano he kiʻi paʻa.
+The telestrator booth, with Coach Marv	Ka lumi telestrator, me Coach Marv
+Masks	Nā uhi
+A heart from the library, the pen, invert and feather.	He puʻuwai mai ka waihona, ka peni, ka hoʻohuli a me ka hulu.
+The Signal Files: redact the evidence	The Signal Files: hūnā i ka hōʻike
+Warp, blend and slices	Hoʻokekeʻe, hoʻohui a me nā ʻāpana
+A corner pin, two soft edges, then three slices in the Screens window.	He kihi i hoʻopaʻa ʻia, ʻelua ʻaoʻao palupalu, a laila ʻekolu ʻāpana ma ka puka aniani Screens.
+The haunted lighthouse, with Keeper Rook	Ka hale ipukukui lapu, me Keeper Rook
+GO from anywhere	GO mai nā wahi a pau
+Cue numbers, GOTO, a hotkey, and where Companion, MIDI and OSC come in.	Nā helu cue, GOTO, he kī wikiwiki, a me kahi e komo mai ai ʻo Companion, MIDI a me OSC.
+The game show, with Donna Wheel	Ka hōʻike pāʻani, me Donna Wheel
+Words on screen	Nā huaʻōlelo ma ka papakaumaka
+A Lower Third with a name on it, then a title card with a key-green backdrop.	He Lower Third me ka inoa, a laila he kāleka poʻo inoa me ke kua ʻōmaʻomaʻo kī.
+The kaiju weather report, with June O'Neil	Ka wānana ʻeā kaiju, me June O'Neil
+Keeping time	Ka mālama ʻana i ka manawa
+A stage timer counting down, held, and a presenter view for the person on stage.	He uaki kahua e helu ana i lalo, paʻa ʻia, a me ka nānā o ka mea hōʻike no ke kanaka ma ke kahua.
+A grand day out, with Wallis and Grommet	He lā nui ma waho, me Wallis lāua ʻo Grommet
+Two playlists and TAKE ALL	ʻElua papa helu a me TAKE ALL
+A second playlist as a layer, and TAKE ALL so two things change on one beat.	He papa helu ʻelua ma ke ʻano he papa, a me TAKE ALL i loli ʻelua mea i ka paʻi hoʻokahi.
+The magic show, with Turnip Top	Ka hōʻike kilokilo, me Turnip Top
+When it goes wrong	Ke hewa ka hana
+BLACK against PANIC, and getting a show back.	BLACK kūʻē iā PANIC, a me ka hoʻihoʻi ʻana i ka hōʻike.
+The cooking show, with Chef Bork	Ka hōʻike kuke, me Chef Bork
+Capture a look on a DASH button, change everything, and get it back with one press.	Hopu i ke ʻano ma kekahi pihi DASH, hoʻololi i nā mea a pau, a hoʻihoʻi me ke kaomi hoʻokahi.
+Transitions	Nā hoʻololi
+The styles beyond the crossfade: an iris, a shatter, and their times.	Nā ʻano ma waho o ka crossfade: he iris, he shatter, a me ko lāua mau manawa.
+The space-opera trailer, with Optimus Primetime	Ka hōʻike mua kiʻiʻoniʻoni ākea, me Optimus Primetime
+Sound	Leo
+An audio effect on a cue, a bend that damages it beautifully, and where the patch lives.	He hopena leo ma ka cue, he kekeʻe e hōʻino nani ana iā ia, a me kahi e noho ai ka patch.
+The robot DJs, with Deft Funk	Nā DJ lopako, me Deft Funk
+Reading the scopes	Ka heluhelu ʻana i nā scope
+The waveform, the vectorscope, and false colour: is the glow real, or just too bright?	Ka waveform, ka vectorscope, a me ka waihoʻoluʻu wahaheʻe: he ʻoiaʻiʻo anei ka ʻōlinolino, a i ʻole he ʻōlinolino loa wale nō?
+The Signal Files: is the glow on the horizon a craft?	The Signal Files: he moku anei ka ʻōlinolino ma ka ʻalihi lani?
+Out of the building	Ma waho o ka hale
+Where NDI, SDI and ST 2110 live, and NDI switched on where this computer has it.	Kahi e noho ai ʻo NDI, SDI a me ST 2110, a me ka hoʻā ʻana i ka NDI ma kahi i loaʻa iā ia ma kēia kamepiula.
+The webcam as a controller, as a game. Five rounds, a high score.	Ka pahupaʻikiʻi pūnaewele ma ke ʻano he mea kāohi, ma ke ʻano he pāʻani. ʻElima puni, he helu kiʻekiʻe.
+A handheld, and bugs	He mea lima, a me nā ʻelala
+The multiview	Ka nānā lehulehu
+Windows, the ... menu, what each one shows, layouts, and tally.	Nā puka aniani, ka papa ..., ka mea e hōʻike ai kēlā me kēia, nā hoʻonohonoho, a me ka tally.
+Mystery on the starship Cathode, with Lt. Haila and Ensign Jinkley	Pohihihi ma ka moku hōkū Cathode, me Lt. Haila lāua ʻo Ensign Jinkley
+DR. PIXEL: Two playlists: Deckboy becomes SUPER DECKBOY. It earned it, skapi.	DR. PIXEL: ʻElua papa helu: lilo ʻo Deckboy i SUPER DECKBOY. Ua loaʻa pono iā ia, skapi.
+PROF. VIDEO: It evolved! My oscillators never got a fanfare.	PROF. VIDEO: Ua ulu ia! ʻAʻohe pū hoʻolauleʻa i koʻu mau oscillator.
+DR. PIXEL: SUPER DECKBOY! Every show deserves one. Bravo.	DR. PIXEL: SUPER DECKBOY! Pono ka hōʻike a pau i hoʻokahi. Bravo.
+PROF. VIDEO: The power-up! More playlists, more layers, more super.	PROF. VIDEO: Ka hoʻoikaika! Nui aʻe nā papa helu, nui aʻe nā papa, nui aʻe ka super.
+Intro video (left on the office PC)	Wikiō hoʻomaka (waiho ʻia ma ka kamepiula keʻena)
+ON THE ROAD	MA KE ALANUI
+A show you built here, skapi, running on a laptop somewhere else tonight. Press START.	He hōʻike āu i kūkulu ai ma ʻaneʻi, skapi, e holo ana ma kahi kamepiula lawelima ma kahi ʻē i kēia pō. Kaomi i START.
+Before it travels: check it, fix it, bundle it.	Ma mua o kona huakaʻi: nānā, hoʻoponopono, hoʻopūʻolo.
+See CHECK in the top bar? It only appears when something is wrong. Press it.	ʻIke ʻoe i ka CHECK ma ka pae luna? Puka mai ia ke hewa kekahi mea. Kaomi iā ia.
+It lists everything a show would trip over: missing files, empty cues, unreachable outputs.	Helu ia i nā mea a pau e hina ai ka hōʻike: nā waihona nalo, nā cue nele, nā puka hiki ʻole ke hōʻea.
+FIX IT	E HOʻOPONOPONO
+The intro video is on another computer. Select it and delete it, or RELINK it if you have the file.	Aia ka wikiō hoʻomaka ma kekahi kamepiula ʻē aʻe. Koho iā ia a holoi, a i ʻole RELINK inā loaʻa iā ʻoe ka waihona.
+Fix it at home, where it is easy. Not at the venue, where it is not.	E hoʻoponopono ma ka home, kahi maʻalahi. ʻAʻole ma ke kahua, kahi paʻakikī.
+BUNDLE IT	E HOʻOPŪʻOLO
+Press BUNDLE and choose where: a USB stick, a shared folder. The show and all its media, together.	Kaomi i BUNDLE a koho i kahi: he USB, he waihona kaʻana. Ka hōʻike a me kāna media a pau, pū.
+The copy finds its media beside it, wherever the folder goes.	Loaʻa i ke kope kāna media ma kona ʻaoʻao, i kahi e hele ai ka waihona.
+SAFE TRAVELS	HUAKAʻI PALEKANA
+Checked, fixed, bundled. On the other machine, open the bundle's show: everything is where it should be.	Nānā ʻia, hoʻoponopono ʻia, hoʻopūʻolo ʻia. Ma ka kamepiula ʻē aʻe, wehe i ka hōʻike o ka pūʻolo: aia nā mea a pau ma ko lākou wahi.
+A show file is only text, so it travels light. The media is the heavy part.	He huaʻōlelo wale nō ka waihona hōʻike, no laila māmā kona huakaʻi. ʻO ka media ka ʻāpana kaumaha.
+Student work no. 4 (untitled)	Hana haumāna helu 4 (inoa ʻole)
+THE CRIT	KA LOILOI
+An art school, skapi. One student, one picture, one critic who has seen it all. Press START.	He kula noʻeau, skapi. Hoʻokahi haumāna, hoʻokahi kiʻi, hoʻokahi mea loiloi i ʻike i nā mea a pau. Kaomi i START.
+Effects change a picture; an oscillator keeps changing it. The critic only likes the second kind.	Hoʻololi nā hopena i ke kiʻi; hoʻololi mau ka oscillator. ʻO ke ʻano ʻelua wale nō ka makemake o ka mea loiloi.
+A grey square on beige. I have seen this at every graduate show since 1987.	He huinahā hina ma luna o ka ʻulaʻula ʻeleʻele māmā. Ua ʻike au i kēia ma kēlā me kēia hōʻike puka kula mai 1987.
+AN EFFECT	HE HOPENA
+In the inspector's EFFECTS section, + adds one. Edges is a good start: it draws the outlines.	Ma ka ʻāpana EFFECTS o ka nānā cue, hoʻohui ka + i hoʻokahi. He hoʻomaka maikaʻi ʻo Edges: kaha ia i nā laina waho.
+There are dozens. Every one runs on the CPU in a few milliseconds. Mostly.	He nui loa. Holo kēlā me kēia ma ka CPU i kekahi mau millisecond. Ka hapa nui.
+Take a risk! Bad art is fine. Boring art is a crime.	E hoʻāʻo! Maikaʻi ke kiʻi ʻino. He hewa ke kiʻi hoʻoluhi.
+A ~ ON ITS KNOB	HE ~ MA KONA PIHI
+Every control with a ~ beside it can follow an oscillator. Press one. The knob starts to breathe.	Hiki i nā mana a pau me ka ~ ma ka ʻaoʻao ke hahai i ka oscillator. Kaomi i hoʻokahi. Hoʻomaka ka pihi e hanu.
+A low-frequency oscillator: slow, so the eye can follow it. A quarter of a hertz is a four-second breath.	He oscillator alapine haʻahaʻa: lohi, i hiki i ka maka ke hahai. He hapahā hertz he hanu ʻehā kekona.
+Now it MOVES. Okay. Okay. I'm listening.	I kēia manawa NEʻE ia. ʻAe. ʻAe. Ke hoʻolohe nei au.
+A COLOUR OF ITS OWN	HE WAIHOʻOLUʻU PONOʻĪ
+Effects that draw a colour, like Edges' line, have a colour chip. It opens the picker: a wheel, typed names, or a colour off the screen.	He pahu waihoʻoluʻu ko nā hopena e kaha ana i ka waihoʻoluʻu, e like me ka laina o Edges. Wehe ia i ka mea koho: he huila, nā inoa i kikokiko ʻia, a i ʻole he waihoʻoluʻu mai ka papakaumaka.
+Every colour has a name somewhere. Mine is 'oscilloscope green'. Nobody else uses it.	He inoa ko kēlā me kēia waihoʻoluʻu ma kekahi wahi. ʻO koʻu ʻo 'ʻōmaʻomaʻo oscilloscope'. ʻAʻohe mea ʻē aʻe e hoʻohana.
+That colour is doing something. I don't know what. I love it.	Ke hana nei kēlā waihoʻoluʻu i kekahi mea. ʻAʻole au i ʻike i ka mea. Aloha au iā ia.
+THE VERDICT	KA ʻŌLELO HOʻOHOLO
+An effect, a ~ and a colour. The critic is crying, skapi. Good crying, I think.	He hopena, he ~ a me ka waihoʻoluʻu. Ke uē nei ka mea loiloi, skapi. Uē maikaʻi, manaʻo wau.
+Stack a few. Each has its own ~ on every knob. That is how a look becomes a performance.	Hōʻuluʻulu i kekahi. He ~ ponoʻī ko kēlā me kēia pihi. Pēlā e lilo ai ke ʻano i hōʻike.
+It's still a square. But it's YOUR square. Post it.	He huinahā nō. Akā ʻo KĀU huinahā. Kau iā ia.
+THE TELESTRATOR BOOTH	KA LUMI TELESTRATOR
+Coach Marv explains sport by drawing circles on it. Once he circled the sun. Ten minutes, skapi.	Wehewehe ʻo Coach Marv i ka haʻuki ma ke kaha ʻana i nā pōʻai ma luna. Ua kaha pōʻai ʻo ia i ka lā i kekahi manawa. ʻUmi minuke, skapi.
+Tonight: test patterns, the video synth, and drawing on the picture. Press START.	I kēia pō: nā kāpoʻe hoʻāʻo, ka synth wikiō, a me ke kaha kiʻi ma luna o ke kiʻi. Kaomi i START.
+Get me a picture and a pen. BOOM.	Hāʻawi mai i ke kiʻi a me ka peni. BOOM.
+A TEST PATTERN	HE KĀPOʻE HOʻĀʻO
+Line up the screens BEFORE the show. Not during. I learned this in Plovdiv.	Hoʻonohonoho i nā papakaumaka MA MUA o ka hōʻike. ʻAʻole i loko. Ua aʻo au i kēia ma Plovdiv.
+Every desk needs a test pattern. PATTERN adds Pocket Test: checked against real meters.	Pono kēlā me kēia papa i ke kāpoʻe hoʻāʻo. Hoʻohui ʻo PATTERN i ka Pocket Test: nānā ʻia me nā mika maoli.
+A VIDEO SYNTH	HE SYNTH WIKIŌ
+He says 'no camera needed' like it is a feature. It is a feature.	ʻŌlelo ʻo ia 'ʻaʻohe pahupaʻikiʻi e pono ai' me he mea lā he mea maikaʻi ia. He mea maikaʻi nō.
+My favourite. SOURCE, then Video Synth: oscillators, mirrors and feedback. No camera needed.	Kaʻu punahele. SOURCE, a laila Video Synth: nā oscillator, nā aniani a me ka hoʻihoʻi. ʻAʻohe pahupaʻikiʻi e pono ai.
+TAKE THE SYNTH	E LAWE I KA SYNTH
+Select it, then TAKE. Confident operators press Enter.	Koho iā ia, a laila TAKE. Kaomi ka poʻe paʻa i ka Enter.
+That's our replay. Every replay needs a pundit.	ʻO kā kākou hana hou kēlā. Pono kēlā me kēia hana hou i ka mea wehewehe.
+Now here's a replay. And here's a guy. And BOOM, he's in it.	Eia ka hana hou. A eia kekahi kanaka. A BOOM, aia ʻo ia i loko.
+A SECOND PLAYLIST	HE PAPA HELU ʻELUA
+Ink goes on top, on its own layer. Press the + at the end of the playlist tabs.	Hele ka ʻīnika ma luna, ma kona papa ponoʻī. Kaomi i ka + ma ka hopena o nā kāwele papa helu.
+A second playlist is a layer over the first. Like a second oscillator, mixed on top.	He papa ma luna o ka mua ka papa helu ʻelua. E like me ka oscillator ʻelua, hui ʻia ma luna.
+A DRAW CUE	HE CUE KAHA
+In the new playlist: SOURCE, then Draw. Clear everywhere you have not drawn.	Ma ka papa helu hou: SOURCE, a laila Draw. Akaka i nā wahi a pau āu i kaha ʻole ai.
+A Draw cue is transparent outside the ink, so the synth shows through.	Akaka ka cue Draw ma waho o ka ʻīnika, no laila ʻike ʻia ka synth ma lalo.
+TAKE THE INK	E LAWE I KA ʻĪNIKA
+Select the Draw cue and TAKE it. Two playlists, two layers, one picture.	Koho i ka cue Draw a TAKE iā ia. ʻElua papa helu, ʻelua papa, hoʻokahi kiʻi.
+Now both are live: the synth underneath, the ink on top.	Ola lāua ʻelua i kēia manawa: ka synth ma lalo, ka ʻīnika ma luna.
+CIRCLE SOMETHING	E KAHA PŌʻAI
+Press DRAW in the inspector, then draw on the programme monitor. Mouse, or a pen if you have one.	Kaomi i DRAW ma ka nānā cue, a laila kaha ma ka papakaumaka papahana. ʻIole, a i ʻole peni inā loaʻa.
+A pen's pressure makes the line thicker. A mouse presses at one strength. Like me.	Hoʻomānoanoa ke kaomi ʻana o ka peni i ka laina. Kaomi ka ʻiole me ka ikaika hoʻokahi. E like me aʻu.
+Circle him! No, bigger. BOOM. That's a cloud. Fine. Circle the cloud.	Kaha pōʻai iā ia! ʻAʻole, nui aʻe. BOOM. He ao kēlā. ʻAe. Kaha pōʻai i ke ao.
+SAVE A STILL	E MĀLAMA I KE KIʻI PAʻA
+SAVE STILL keeps the drawing as a picture with a clear background, and adds it to the playlist.	Mālama ʻo SAVE STILL i ke kaha ma ke ʻano he kiʻi me ke kua akaka, a hoʻohui iā ia i ka papa helu.
+For next week's show. Coach Marv will want the cloud again.	No ka hōʻike o kēlā pule aku. Makemake ʻo Coach Marv i ke ao hou.
+THAT'S THE BOOTH	ʻO IA KA LUMI
+Patterns, the synth, a layer, ink, a still. Nazdrave, skapi.	Nā kāpoʻe, ka synth, he papa, ka ʻīnika, he kiʻi paʻa. Nazdrave, skapi.
+Try Replay in the Draw section: it draws your lines back the way you drew them.	E hoʻāʻo i ka Replay ma ka ʻāpana Draw: kaha hou ia i kāu mau laina e like me kāu i kaha ai.
+Same time next week. Bring a bigger pen. And a turducken.	Ka manawa like i kēlā pule aku. Lawe mai i peni nui aʻe. A me ka turducken.
+Saucer photo (CLASSIFIED)	Kiʻi pā lele (HŪNĀ)
+The Bureau of Unexplained Signals. Two agents, one photo, and it must not air. Press START.	Ke Keʻena o nā Hōʻailona Hoʻomaopopo ʻole ʻia. ʻElua ʻelele, hoʻokahi kiʻi, a ʻaʻole pono e hoʻolele ʻia. Kaomi i START.
+Masks cut a picture into shapes. Tonight we cut evidence.	ʻOki nā uhi i ke kiʻi i nā kinona. I kēia pō ʻoki kākou i ka hōʻike.
+That's a craft, Brandt. Look at the lights. I want to believe.	He moku kēlā, Brandt. E nānā i nā kukui. Makemake au e manaʻoʻiʻo.
+A MASK FROM THE LIBRARY	HE UHI MAI KA WAIHONA
+In the inspector's MASK section: mask, then 'new heart'. Any shape will do. The heart is funnier.	Ma ka ʻāpana MASK o ka nānā cue: mask, a laila 'new heart'. Maikaʻi kekahi kinona. ʻAkaʻaka aʻe ka puʻuwai.
+The library has circles, stars, hearts. Each one is points you can move.	He mau pōʻai, nā hōkū, nā puʻuwai ma ka waihona. He mau kiko ko kēlā me kēia hiki iā ʻoe ke neʻe.
+A heart, Hollis? The Bureau redacts with black bars.	He puʻuwai, Hollis? Hūnā ke Keʻena me nā kaola ʻeleʻele.
+THE PEN	KA PENI
+Set the tool to pen, then click round the saucer on the monitor. Click the first point to close it.	Hoʻonoho i ka mea hana i ka peni, a laila kaomi a puni ka pā lele ma ka papakaumaka. Kaomi i ke kiko mua e pani.
+Click for corners, drag for curves. The way the Bezier brothers intended.	Kaomi no nā kihi, kauo no nā pihi. E like me ka manaʻo o nā kaikunāne Bezier.
+Draw round it carefully. It might be watching.	Kaha a puni me ka mālama. Ke nānā mai nei paha ia.
+INVERT	HOʻOHULI
+Invert keeps the outside and cuts the inside. The saucer goes. The sky stays.	Mālama ʻo Invert i waho a ʻoki i loko. Hala ka pā lele. Noho ka lani.
+The same shape, the other way round. Very useful. Slightly spooky.	Ka kinona like, ma ka ʻaoʻao ʻē. Pono loa. Weliweli iki.
+Hollis, there's a heart-shaped hole in the sky.	Hollis, he lua kinona puʻuwai ma ka lani.
+FEATHER	HULU
+Feather softens the edge, so nobody sees the cut. Press + on feather.	Hoʻopalupalu ʻo Feather i ka lihi, i ʻike ʻole kekahi i ka ʻoki. Kaomi i ka + ma feather.
+A hard edge says 'someone was here'. A soft one says nothing at all.	ʻŌlelo ka lihi paʻakikī 'aia kekahi ma ʻaneʻi'. ʻAʻohe mea i ʻōlelo ʻia e ka lihi palupalu.
+They'll never know.	ʻAʻole loa lākou e ʻike.
+CASE CLOSED	UA PANI ʻIA KA HIHIA
+A library shape, the pen, invert and feather. The Bureau thanks you. The Bureau was never here.	He kinona waihona, ka peni, hoʻohuli a me ka hulu. Mahalo ke Keʻena iā ʻoe. ʻAʻole i hele mai ke Keʻena ma ʻaneʻi.
+Masks also go on a layer, an output, or its matte: MASK ON chooses. And every control takes a ~.	Hele pū nā uhi ma kekahi papa, kekahi puka, a i ʻole kona matte: koho ʻo MASK ON. A lawe kēlā me kēia mana i ka ~.
+The truth is in the waveform, Hollis. Next time, the scopes.	Aia ka ʻoiaʻiʻo ma ka waveform, Hollis. I ka manawa aʻe, nā scope.
+The ghost	Ka lapu
+THE HAUNTED LIGHTHOUSE	KA HALE IPUKUKUI LAPU
+A lighthouse, a ghost, and a keeper who has been alone with the lamp far too long. Press START.	He hale ipukukui, he lapu, a me ke kahu i noho hoʻokahi me ke kukui no ka manawa lōʻihi loa. Kaomi i START.
+Projection mapping: bending the picture to fit the building. Warp, blend, slices.	Projection mapping: ke kekeʻe ʻana i ke kiʻi i kūpono i ka hale. Hoʻokekeʻe, hoʻohui, nā ʻāpana.
+Ye'll be wanting the ghost on the windows. Mind the lamp. The lamp is MINE.	Makemake ʻoe i ka lapu ma nā puka aniani. Mālama i ke kukui. Naʻu ke kukui.
+THE OUTPUT'S GEOMETRY	KE ANA ʻĀINA O KA PUKA
+MENU, then Video Outputs, then Geometry. Where an output's shape lives.	MENU, a laila Video Outputs, a laila Geometry. Kahi e noho ai ke kinona o ka puka.
+Geometry: the projector-menu word for 'what shape is the picture'.	Geometry: ka huaʻōlelo papa kuhikuhi projector no 'he aha ke kinona o ke kiʻi'.
+PIN A CORNER	HOʻOPAʻA I KE KIHI
+Press warp edit, then drag a corner on the programme monitor. The window is not square. Neither is the keeper.	Kaomi i warp edit, a laila kauo i ke kihi ma ka papakaumaka papahana. ʻAʻole huinahā like ka puka aniani. ʻAʻole pū ke kahu.
+A corner pin moves the four corners. Perspective keeps the lines straight, like a real window.	Neʻe ka corner pin i nā kihi ʻehā. Mālama ʻo Perspective i nā laina pololei, e like me ka puka aniani maoli.
+LEFT! Ye call that a corner? I've seen straighter gulls.	HEMA! He kihi kēlā iā ʻoe? Ua ʻike au i nā manu kai pololei aʻe.
+TWO SOFT EDGES	ʻELUA LIHI PALUPALU
+Back in Geometry: edge blend, + on the left and + on the right.	Hoʻi i Geometry: edge blend, + ma ka hema a me + ma ka ʻākau.
+Two projectors overlap; each fades its edge so the overlap is not twice as bright.	Kau ʻelua projector kekahi ma luna o kekahi; hoʻēmi kēlā me kēia i kona lihi i ʻaʻole pālua ka ʻōlinolino o ka wahi like.
+THE SCREENS WINDOW	KA PUKA ANIANI SCREENS
+Geometry, SLICES, open. The Screens window is where slices are cut and placed.	Geometry, SLICES, open. ʻO ka puka aniani Screens kahi e ʻoki ʻia ai a hoʻonoho ʻia ai nā ʻāpana.
+A slice is a piece of the picture, put anywhere on the output.	He ʻāpana o ke kiʻi ka slice, kau ʻia ma nā wahi a pau o ka puka.
+THREE SLICES	ʻEKOLU ʻĀPANA
+In the Screens window, + SLICE three times, and drag each crop to a third of the picture.	Ma ka puka aniani Screens, + SLICE ʻekolu manawa, a kauo i kēlā me kēia ʻoki i ka hapakolu o ke kiʻi.
+Three windows, three slices: left, middle and right of one picture.	ʻEkolu puka aniani, ʻekolu ʻāpana: hema, waena a me ka ʻākau o ke kiʻi hoʻokahi.
+Three windows. The lamp gets the middle one. The lamp ALWAYS gets the middle one.	ʻEkolu puka aniani. Loaʻa i ke kukui ka mea waena. Loaʻa MAU i ke kukui ka mea waena.
+THE GHOST IS PLEASED	UA HAUʻOLI KA LAPU
+Warp, blend, slices. The keeper will finally sleep. The gulls will not.	Hoʻokekeʻe, hoʻohui, nā ʻāpana. E hiamoe ke kahu i ka hopena. ʻAʻole nā manu kai.
+Slices have their own warp and mesh in the Screens window. And a ~ on the place and the turn.	He warp a me ka mesh ponoʻī ko nā ʻāpana ma ka puka aniani Screens. A he ~ ma ke kūlana a me ka huli.
+Ye did alright, lad. Now get away from the lamp.	Ua maikaʻi kāu hana, keiki. I kēia manawa e haʻalele i ke kukui.
+THE GAME SHOW	KA HŌʻIKE PĀʻANI
+A game show, skapi. Three contestants, one buzzer, and cues that fire from anywhere. Press START.	He hōʻike pāʻani, skapi. ʻEkolu mea hoʻokūkū, hoʻokahi pele, a me nā cue e hoʻā mai nā wahi a pau. Kaomi i START.
+Cue numbers, hotkeys, and GO from other machines. Like a sequencer you can play from any key.	Nā helu cue, nā kī wikiwiki, a me GO mai nā kamepiula ʻē aʻe. E like me ka sequencer hiki iā ʻoe ke hoʻokani mai kekahi kī.
+Welcome to the show! Let's spin that wheel!	Welina mai i ka hōʻike! E wili kākou i ka huila!
+A CUE NUMBER	HE HELU CUE
+Contestant 3 is selected. In the inspector's metadata, give it a cue number: 3.	Ua koho ʻia ka mea hoʻokūkū 3. Ma ka metadata o ka nānā cue, hāʻawi iā ia i ka helu cue: 3.
+Theatre numbers its cues. Q3, Q3.5, Q12A. Deckboy reads them all.	Helu ka hale keaka i kona mau cue. Q3, Q3.5, Q12A. Heluhelu ʻo Deckboy iā lākou a pau.
+I'd like to buy a number, please.	Makemake au e kūʻai i ka helu, e ʻoluʻolu.
+GO TO IT	E HELE I LAILA
+Ctrl+G, type the number, Enter. It goes live wherever the list happens to be standing.	Ctrl+G, kikokiko i ka helu, Enter. Ola ia i kahi e kū ana ka papa helu.
+GOTO. The fastest way across a long list. Faster than scrolling. Much faster than me.	GOTO. Ke ala wikiwiki loa ma kahi papa helu lōʻihi. Wikiwiki aʻe ma mua o ka ʻōwili. Wikiwiki loa ma mua oʻu.
+And the number is... three!	A ʻo ka helu... ʻekolu!
+A BUZZER	HE PELE
+Contestant 1 is selected. In TRIGGERS, press key, then F5. That key now fires this cue.	Ua koho ʻia ka mea hoʻokūkū 1. Ma TRIGGERS, kaomi i key, a laila F5. Hoʻā kēlā kī i kēia cue i kēia manawa.
+F1 to F10, F12, or the number pad. Each one, a buzzer.	F1 a F10, F12, a i ʻole ka papa helu. Kēlā me kēia, he pele.
+Every contestant gets a buzzer.	Loaʻa i kēlā me kēia mea hoʻokūkū he pele.
+BUZZ IN	KANI I KA PELE
+Press the key. The cue fires, wherever the list is standing.	Kaomi i ke kī. Hoʻā ka cue, i kahi e kū ana ka papa helu.
+No mouse, no list, no looking. Just the key.	ʻAʻohe ʻiole, ʻaʻohe papa helu, ʻaʻohe nānā. ʻO ke kī wale nō.
+Buzz! We have a winner!	Kani! He lanakila ko kākou!
+FROM ANYWHERE	MAI NĀ WAHI A PAU
+Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion, he note MIDI, he leka OSC: MENU, a laila Network, haʻi i kahi e hoʻopili ai kēlā me kēia.
+A Stream Deck in the next room can press GO. So can a keyboard synth. I prefer the synth.	Hiki i ka Stream Deck ma ka lumi aʻe ke kaomi i GO. Pēlā pū ka synth papa kī. Makemake au i ka synth.
+And for our viewers at home: you can play along too.	A no kā mākou poʻe nānā ma ka home: hiki iā ʻoukou ke pāʻani pū.
+THAT'S OUR SHOW	ʻO IA KĀ KĀKOU HŌʻIKE
+Numbers, GOTO, a buzzer, and GO from anywhere. You are a game show now, skapi.	Nā helu, GOTO, he pele, a me GO mai nā wahi a pau. He hōʻike pāʻani ʻoe i kēia manawa, skapi.
+A cue can have a key, a MIDI note and an OSC address at once. Belt, braces and a second belt.	Hiki i ka cue ke loaʻa he kī, he note MIDI a me ka helu wahi OSC i ka manawa hoʻokahi. Kāʻei, kaulawaha a me ke kāʻei ʻelua.
+Goodnight, everybody! Keep spinning!	Aloha ahiahi, e nā mea a pau! E wili mau!
+Weather map	Palapala ʻāina ʻeā
+THE KAIJU WEATHER	KA ʻEĀ KAIJU
+Channel 6 weather, skapi. A map, a presenter, and a very large lizard. Press START.	Ka ʻeā o ke Kahawai 6, skapi. He palapala ʻāina, he mea hōʻike, a me ka moʻo nui loa. Kaomi i START.
+Words on screen: Lower Thirds, text, and backdrops.	Nā huaʻōlelo ma ka papakaumaka: nā Lower Third, ka huaʻōlelo, a me nā kua.
+I'm June O'Neil, and nothing about this forecast is normal.	ʻO June O'Neil au, a ʻaʻohe mea maʻamau o kēia wānana.
+A LAYER FOR WORDS	HE PAPA NO NĀ HUAʻŌLELO
+Words go on their own layer: press the + at the end of the playlist tabs.	Hele nā huaʻōlelo ma ko lākou papa ponoʻī: kaomi i ka + ma ka hopena o nā kāwele papa helu.
+A second playlist is a layer over the map. The lizard stays underneath. Mostly.	He papa ma luna o ka palapala ʻāina ka papa helu ʻelua. Noho ka moʻo ma lalo. Ka hapa nui.
+Words on top. Always on top.	Nā huaʻōlelo ma luna. Ma luna mau.
+A LOWER THIRD	HE LOWER THIRD
+In the new playlist: SOURCE, then Lower Third.	Ma ka papa helu hou: SOURCE, a laila Lower Third.
+A name and a title, low on the screen, out of the lizard's way.	He inoa a me ke kūlana, haʻahaʻa ma ka papakaumaka, ma waho o ke ala o ka moʻo.
+HER NAME	KONA INOA
+In the inspector, title: type the presenter's name. The second line is her job.	Ma ka nānā cue, title: kikokiko i ka inoa o ka mea hōʻike. ʻO kāna hana ka lalani ʻelua.
+Spelling counts. The audience reads it at the speed of light.	He koʻikoʻi ka pela ʻana. Heluhelu ka poʻe nānā me ka māmā o ka mālamalama.
+Spell it right. Last week it said 'Jane O'Meal'.	E pela pololei. I kēlā pule aku ua ʻōlelo ʻia 'Jane O'Meal'.
+ON AIR	MA KA LEWA
+TAKE the Lower Third. Her name slides in over the map.	TAKE i ka Lower Third. Paheʻe kona inoa ma luna o ka palapala ʻāina.
+Two layers live: the weather, and the words on top of it.	ʻElua papa ola: ka ʻeā, a me nā huaʻōlelo ma luna.
+Thank you. Now, about that lizard...	Mahalo. I kēia manawa, no kēlā moʻo...
+BREAKING NEWS	NŪHOU KOʻIKOʻI
+SOURCE, then Text: a title card. Then its backdrop chip: key green, for the vision mixer to key out.	SOURCE, a laila Text: he kāleka poʻo inoa. A laila kona pahu kua: ʻōmaʻomaʻo kī, no ka mea hoʻohui kiʻi e kī ai.
+A backdrop fills behind the words. Key green or key blue, and the mixer does the rest.	Hoʻopiha ke kua ma hope o nā huaʻōlelo. ʻŌmaʻomaʻo kī a polū kī paha, a hana ka mixer i ke koena.
+Breaking news: it's standing on the five-day forecast.	Nūhou koʻikoʻi: ke kū nei ia ma luna o ka wānana ʻelima lā.
+BREAKING: KAIJU	KOʻIKOʻI: KAIJU
+BACK TO YOU	HOʻI IĀ ʻOUKOU
+A Lower Third, a name, a title card, a backdrop. The lizard has left the studio, skapi.	He Lower Third, he inoa, he kāleka poʻo inoa, he kua. Ua haʻalele ka moʻo i ke keʻena, skapi.
+Lower Thirds can wait, slide and leave on their own. Their section has every setting.	Hiki i nā Lower Third ke kali, paheʻe a haʻalele nona iho. Aia nā koho a pau ma ko lākou ʻāpana.
+That's the weather. Back to you, guys. Run.	ʻO ia ka ʻeā. Hoʻi iā ʻoukou. Holo.
+A GRAND DAY OUT	HE LĀ NUI MA WAHO
+A rocket built in a basement, skapi, and an inventor who wants cheese. Press START.	He pōhaku ahi i kūkulu ʻia ma lalo o ka hale, skapi, a me ka mea hana makemake i ka waiū paʻa. Kaomi i START.
+Stage timers: countdowns, clocks, and a presenter view for the person on stage.	Nā uaki kahua: nā helu i lalo, nā uaki, a me ka nānā o ka mea hōʻike no ke kanaka ma ke kahua.
+Cheese, Grommet! The moon's made of it. We'll need a countdown.	Waiū paʻa, Grommet! Hana ʻia ka mahina me ia. Pono kākou i ka helu i lalo.
+A COUNTDOWN	HE HELU I LALO
+SOURCE, then Stage Timer. A clock that counts down, in big friendly numbers.	SOURCE, a laila Stage Timer. He uaki e helu i lalo, me nā helu nui ʻoluʻolu.
+Its colours change as it runs out: white, amber, red. Like a VU meter for time.	Loli kona mau waihoʻoluʻu ke pau: keʻokeʻo, ʻākala, ʻulaʻula. E like me ka mika VU no ka manawa.
+*raises an eyebrow*	*hoʻokiʻekiʻe i ke kuemaka*
+LIFT OFF	LELE I LUNA
+Select the timer and TAKE it. The countdown starts.	Koho i ka uaki a TAKE iā ia. Hoʻomaka ka helu i lalo.
+Past zero it keeps going, counting the overtime. Very honest. Slightly rude.	Ma hala o ka ʻole holo mau ia, e helu ana i ka manawa keu. ʻOiaʻiʻo loa. ʻAʻole maikaʻi iki.
+Ten... nine... ooh, I do love a countdown.	ʻUmi... iwa... ʻoh, aloha au i ka helu i lalo.
+HOLD!	E KALI!
+Something's loose! Space holds the countdown. The clock shows it is held.	Aia kekahi mea i wehe ʻia! Paʻa ʻo Space i ka helu i lalo. Hōʻike ka uaki ua paʻa ʻia.
+A hold is not a stop. Space again, and it carries on from where it was.	ʻAʻole ka hoʻopaʻa he hoʻōki. Space hou, a hoʻomau ia mai kahi i waiho ai.
+*holds up a spanner*	*hāpai i ke kī wili*
+THE PILOT'S VIEW	KA NĀNĀ O KA MEA HOʻOKELE
+MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	MENU, Video Outputs: hoʻonoho i ke ʻano o ka puka i PRESENTER. Loaʻa i ke kanaka ma ke kahua ka uaki, ka cue aʻe a me kāna mau memo.
+A presenter view is an output like any other. Point it at the confidence monitor.	He puka e like me nā mea ʻē aʻe ka nānā o ka mea hōʻike. Kuhikuhi iā ia i ka papakaumaka hilinaʻi.
+So the pilot can see the time. The pilot is Grommet.	I ʻike ka mea hoʻokele i ka manawa. ʻO Grommet ka mea hoʻokele.
+TO THE MOON	I KA MAHINA
+A countdown, a hold, and a view for the pilot. Nazdrave, skapi. Bring crackers.	He helu i lalo, he hoʻopaʻa, a me ka nānā no ka mea hoʻokele. Nazdrave, skapi. Lawe mai i nā pelena.
+Timers can also count up, or show the time of day. Their section has the lot.	Hiki i nā uaki ke helu i luna, a hōʻike paha i ka hola o ka lā. Aia nā mea a pau ma ko lākou ʻāpana.
+A grand day out, Grommet! Pass the crackers.	He lā nui ma waho, Grommet! Hāʻawi mai i nā pelena.
+The trunk (closed)	Ka pahu (pani ʻia)
+The trunk (open)	Ka pahu (wehe ʻia)
+THE MAGIC SHOW	KA HŌʻIKE KILOKILO
+A magic show, skapi. A trunk, a prop, and one beat where everything changes at once. Press START.	He hōʻike kilokilo, skapi. He pahu, he mea hana, a me ka paʻi hoʻokahi e loli ai nā mea a pau. Kaomi i START.
+Two playlists are two layers. TAKE ALL changes both together.	ʻElua papa helu he ʻelua papa. Hoʻololi ʻo TAKE ALL iā lāua ʻelua pū.
+Every trick needs two things happening at once. And a rubber chicken.	Pono kēlā me kēia hana kilokilo i ʻelua mea i ka manawa hoʻokahi. A me ka moa lāpala.
+The prop goes on its own layer. Press the + at the end of the playlist tabs.	Hele ka mea hana ma kona papa ponoʻī. Kaomi i ka + ma ka hopena o nā kāwele papa helu.
+Playlist 2 sits on top of playlist 1. Like a transparency on an overhead projector.	Noho ka papa helu 2 ma luna o ka papa helu 1. E like me ka pepa akaka ma ka projector kahiko.
+Nothing up my sleeve. Everything in my trunk.	ʻAʻohe mea i loko o koʻu lima kapa. Nā mea a pau i loko o kaʻu pahu.
+THE PROP	KA MEA HANA
+In the new playlist, add anything: PATTERN will do. That is the prop.	Ma ka papa helu hou, hoʻohui i kekahi mea: maikaʻi ʻo PATTERN. ʻO ia ka mea hana.
+Whatever it is, it will appear the instant the trunk opens.	He aha lā ia, e puka mai ia i ka wehe ʻana o ka pahu.
+Is it a rubber chicken? It's always a rubber chicken.	He moa lāpala anei? He moa lāpala mau nō.
+The prop (rubber chicken)	Ka mea hana (moa lāpala)
+Select 'The trunk (open)' in playlist 1 and the prop in playlist 2. Then TAKE ALL: both on one beat.	Koho iā 'The trunk (open)' ma ka papa helu 1 a me ka mea hana ma ka papa helu 2. A laila TAKE ALL: ʻelua i ka paʻi hoʻokahi.
+One press, every playlist's selected cue. The audience never sees the seam.	Hoʻokahi kaomi, ka cue i koho ʻia o kēlā me kēia papa helu. ʻAʻole loa ʻike ka poʻe nānā i ka humuhumu.
+Ta-daaa! ...Hold for applause. Hold. Hold.	Ta-daaa! ...Kali no ka paʻipaʻi lima. Kali. Kali.
+THE PRESTIGE	KA HANA HOPE
+Two layers, one beat. Every playlist has its own opacity and can sit on any output. Nazdrave, skapi.	ʻElua papa, hoʻokahi paʻi. He opacity ponoʻī ko kēlā me kēia papa helu a hiki ke noho ma kekahi puka. Nazdrave, skapi.
+A magician never reveals. A playlist never minds being revealed.	ʻAʻole hōʻike ka mea kilokilo. ʻAʻole hopohopo ka papa helu ke hōʻike ʻia.
+Thank you! I'm here all week! The chicken is here forever.	Mahalo! Aia au ma ʻaneʻi i ka pule holoʻokoʻa! Aia ka moa ma ʻaneʻi mau loa.
+The kitchen (on fire)	Ka lumi kuke (ke ʻā nei)
+A lovely souffle	He souffle nani
+THE COOKING SHOW	KA HŌʻIKE KUKE
+A cooking show, skapi. Live. Everything is on fire. Press START.	He hōʻike kuke, skapi. Ola. Ke ʻā nei nā mea a pau. Kaomi i START.
+BLACK hides the picture and keeps the show running. PANIC stops everything. Know which you need.	Hūnā ʻo BLACK i ke kiʻi a holo mau ka hōʻike. Hoʻōki ʻo PANIC i nā mea a pau. E ʻike i ka mea āu e pono ai.
+The audience must not see this. Press BLACK, or B.	ʻAʻole pono ka poʻe nānā e ʻike i kēia. Kaomi i BLACK, a i ʻole B.
+The picture goes. The cue keeps playing underneath, ready to come back.	Hala ke kiʻi. Holo mau ka cue ma lalo, mākaukau e hoʻi mai.
+AND BACK	A HOʻI MAI
+The fire's out. Press B again: the picture comes back, still running.	Ua pio ke ahi. Kaomi hou i ka B: hoʻi mai ke kiʻi, e holo mau ana.
+Nothing was lost. A mute on a mixer, for pictures.	ʻAʻohe mea i nalo. He mute ma ka mixer, no nā kiʻi.
+Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	ʻOi aku ka ʻino: MENU, System, ke kāleka SAFETY: PANIC. Kū nā mea a pau, e like me ka ʻōlelo a ka hoʻonoho panic.
+PANIC is the big red button. Use it when BLACK is not enough. Then breathe.	ʻO PANIC ka pihi ʻulaʻula nui. E hoʻohana inā ʻaʻole lawa ʻo BLACK. A laila e hanu.
+GET IT BACK	E HOʻIHOʻI
+Close MENU, select the souffle, and TAKE it. The show is back on.	Pani i ka MENU, koho i ka souffle, a TAKE iā ia. Ua hoʻi ka hōʻike.
+After a panic, the show is still there. Pick up where you meant to be.	Ma hope o ka panic, aia nō ka hōʻike. E hoʻomau ma kahi āu i manaʻo ai e hele.
+BLACK to hide, PANIC to stop, TAKE to come back. You will survive any kitchen, skapi.	BLACK e hūnā, PANIC e hoʻōki, TAKE e hoʻi mai. E ola ana ʻoe ma kekahi lumi kuke, skapi.
+The panic setting chooses what PANIC does: fade out, cut, or just the outputs.	Koho ka hoʻonoho panic i ka hana a PANIC: hala, ʻoki, a i ʻole nā puka wale nō.
+Bork bork bork! Goodnight!	Bork bork bork! Aloha ahiahi!
+Look one	Ke ʻano ʻekahi
+Look two	Ke ʻano ʻelua
+Presets, skapi. A whole look, remembered, and back with one button. Press START.	Nā preset, skapi. He ʻano holoʻokoʻa, hoʻomanaʻo ʻia, a hoʻi mai me ka pihi hoʻokahi. Kaomi i START.
+Like the patch memory on a synth: store, then recall.	E like me ka hoʻomanaʻo patch ma ka synth: mālama, a laila kiʻi hou.
+THE DASH	KA DASH
+Press DASH: buttons of your own, for anything at all.	Kaomi i DASH: nā pihi ponoʻī nou, no nā mea a pau.
+Ctrl+D also works. Very fast. Very professional.	Hana pū ʻo Ctrl+D. Wikiwiki loa. Loea loa.
+A PRESET BUTTON	HE PIHI PRESET
+Press +, then 'preset - a new preset from what is on now'. The button remembers this look.	Kaomi i ka +, a laila 'preset - a new preset from what is on now'. Hoʻomanaʻo ka pihi i kēia ʻano.
+Store. Like saving the patch before the drummer leans on the synth.	Mālama. E like me ka mālama ʻana i ka patch ma mua o ke kau ʻana o ka mea hoʻokani pahu ma luna o ka synth.
+CHANGE EVERYTHING	E HOʻOLOLI I NĀ MEA A PAU
+Close the DASH (Esc), then select Look two and TAKE it. A different look.	Pani i ka DASH (Esc), a laila koho iā Look two a TAKE iā ia. He ʻano ʻē aʻe.
+Change it all. Don't worry. It remembers.	Hoʻololi i nā mea a pau. Mai hopohopo. Hoʻomanaʻo ia.
+ONE PRESS	HOʻOKAHI KAOMI
+Open the DASH and press your preset button. The first look comes back.	Wehe i ka DASH a kaomi i kāu pihi preset. Hoʻi mai ke ʻano mua.
+Recall. The patch memory, returning. Beautiful.	Kiʻi hou. Ka hoʻomanaʻo patch, e hoʻi mai ana. Nani.
+A look, stored and recalled. A preset can keep cues, positions, effects, levels and routing; its button's menu chooses which.	He ʻano, mālama ʻia a kiʻi hou ʻia. Hiki i ka preset ke mālama i nā cue, nā kūlana, nā hopena, nā pae a me ke ala; koho ka papa o kona pihi i nā mea.
+And a DASH button can run any command at all. Any. Even the exciting ones.	A hiki i ka pihi DASH ke holo i kekahi kauoha. Kekahi. ʻOiai nā mea hoihoi.
+Opening titles	Nā poʻo inoa hoʻomaka
+The planet	Ka honua
+The battle	Ke kaua
+THE TRAILER	KA HŌʻIKE MUA
+A space-opera trailer, skapi. A narrator with a very deep voice and opinions about transitions. Press START.	He hōʻike mua kiʻiʻoniʻoni ākea, skapi. He mea haʻi moʻolelo me ka leo hohonu loa a me nā manaʻo e pili ana i nā hoʻololi. Kaomi i START.
+A transition is how one cue becomes the next. There are far more than the crossfade.	ʻO ka hoʻololi ke ala e lilo ai kekahi cue i ka mea aʻe. Nui loa aʻe ma mua o ka crossfade.
+In a galaxy of content... one operator... must choose a transition.	Ma kahi wahi hōkū o nā mea... hoʻokahi mea hoʻohana... pono e koho i ka hoʻololi.
+A STYLE	HE ʻANO
+'The planet' is selected. In the inspector, its transition style: choose iris.	Ua koho ʻia 'The planet'. Ma ka nānā cue, kona ʻano hoʻololi: koho i iris.
+Pushes, wipes, iris, dip to white. Even a portal. I wrote half of them. On a Tuesday.	Nā pahu, nā kāwele, iris, hāʻule i ke keʻokeʻo. ʻOiai he puka. Naʻu i kākau i ka hapa. I ka Pōʻalua.
+The planet deserves... a dramatic entrance.	Pono ka honua i... ke komo ʻana koʻikoʻi.
+A TIME	HE MANAWA
+Give it a time: + on transition until it says a second or more.	Hāʻawi iā ia i ka manawa: + ma transition a ʻōlelo ia i hoʻokahi kekona a ʻoi aku.
+No time, no transition. A style needs a duration to do anything at all.	ʻAʻohe manawa, ʻaʻohe hoʻololi. Pono ke ʻano i ka lōʻihi e hana ai i kekahi mea.
+ROLL IT	E HOʻOHOLO
+TAKE the planet. Watch it arrive.	TAKE i ka honua. Nānā i kona hiki ʻana mai.
+The transition belongs to the cue arriving. Each cue chooses its own entrance.	No ka cue e hiki mai ana ka hoʻololi. Koho kēlā me kēia cue i kona komo ʻana.
+Autobots... roll the transition.	Autobots... hoʻoholo i ka hoʻololi.
+THE BATTLE	KE KAUA
+Now 'The battle': choose shatter, give it a time, and TAKE it.	I kēia manawa 'The battle': koho i shatter, hāʻawi i ka manawa, a TAKE iā ia.
+Shatter drops the old picture like a pane of glass. Please do not do this at a funeral.	Hāʻule ʻo Shatter i ke kiʻi kahiko me he aniani lā. Mai hana i kēia ma ka hoʻolewa.
+Transform... and shatter out!	Hoʻololi... a nahā i waho!
+IN CINEMAS NOW	MA NĀ HALE KIʻIʻONIʻONI
+A style, a time, and two very dramatic entrances. Nazdrave, skapi.	He ʻano, he manawa, a me ʻelua komo ʻana koʻikoʻi loa. Nazdrave, skapi.
+A playlist has a default style too, for every cue that does not choose its own.	He ʻano maʻamau ko ka papa helu pū, no kēlā me kēia cue ʻaʻole i koho i kona ʻano ponoʻī.
+Coming soon... to a desk near you.	Ke hiki mai nei... i ka papa kokoke iā ʻoe.
+The beat	Ka paʻi
+THE ROBOT DJS	NĀ DJ LOPAKO
+Two robot DJs, skapi. They do not talk. Their helmets do. Press START.	ʻElua DJ lopako, skapi. ʻAʻole lāua e kamaʻilio. ʻO ko lāua mau pāpale kila ke kamaʻilio. Kaomi i START.
+Every cue has its own chain of audio effects, and some of them break the sound on purpose.	He kaulahao hopena leo ponoʻī ko kēlā me kēia cue, a uhaki kekahi o lākou i ka leo me ka manaʻo.
+> HELLO. WE ARE HERE TO FIX YOUR MIX.	> ALOHA. AIA MĀUA MA ʻANEʻI E HOʻOPONOPONO I KĀU MIX.
+The beat is selected. In its AUDIO EFFECTS section, + adds one. Try the delay.	Ua koho ʻia ka paʻi. Ma kona ʻāpana AUDIO EFFECTS, hoʻohui ka + i hoʻokahi. E hoʻāʻo i ka delay.
+Delay, reverb, filters, a compressor. Amount always means 'less of this'.	Delay, reverb, nā kānana, he compressor. ʻO ka nui ke ʻano 'emi iho o kēia'.
+> ONE MORE TIME. WITH ECHO. ECHO. ECHO.	> HOʻOKAHI MANAWA HOU. ME KA LEO HOʻI. HOʻI. HOʻI.
+A BEND	HE KEKEʻE
+Add a second: a bend, like crush. It damages the sound the way a broken file would.	Hoʻohui i ka lua: he kekeʻe, e like me crush. Hōʻino ia i ka leo e like me ka waihona haki.
+The bends are my favourite. Like a tape left in the sun. On purpose.	ʻO nā kekeʻe kaʻu punahele. E like me ka lipine i waiho ʻia i ka lā. Me ka manaʻo.
+> HARDER. BETTER. CRUNCHIER. LOUDER.	> PAʻAKIKĪ AʻE. MAIKAʻI AʻE. KAKANI AʻE. LEO NUI AʻE.
+THE PATCH	KA PATCH
+MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	MENU, a laila Audio: kahi e hele ai ka leo o kēlā me kēia papa helu, a me ka patch no nā puka i kapa ʻia.
+Speakers, monitors, an in-ear for the drummer. The patch sends each its own.	Nā pahu leo, nā mea nānā, he pepeiao no ka mea hoʻokani pahu. Hoʻouna ka patch i kēlā me kēia kāna ponoʻī.
+> AROUND THE MIX. AROUND THE MIX. AROUND THE MIX.	> A PUNI KA MIX. A PUNI KA MIX. A PUNI KA MIX.
+An effect, a bend and the patch. The robots approve, skapi. I think. Their faces are helmets.	He hopena, he kekeʻe a me ka patch. ʻAe nā lopako, skapi. Manaʻo wau. He pāpale kila ko lāua mau maka.
+Every audio effect can follow a ~ too, even Motion. Wave at the delay. It's wonderful.	Hiki i nā hopena leo a pau ke hahai i ka ~ pū, ʻoiai ʻo Motion. ʻAleʻale i ka delay. Nani loa.
+> THANK YOU. GOOD NIGHT. WE ARE ROBOTS.	> MAHALO. ALOHA AHIAHI. HE LOPAKO MĀUA.
+The glow on the horizon (evidence #2)	Ka ʻōlinolino ma ka ʻalihi lani (hōʻike #2)
+EVIDENCE #2	HŌʻIKE #2
+The Bureau again, skapi. A glow on the horizon, and two agents who disagree about it. Press START.	Ke Keʻena hou, skapi. He ʻōlinolino ma ka ʻalihi lani, a me ʻelua ʻelele kūʻē no ia. Kaomi i START.
+The scopes measure a picture: brightness, colour, levels. Numbers, not opinions.	Ana nā scope i ke kiʻi: ka ʻōlinolino, ka waihoʻoluʻu, nā pae. Nā helu, ʻaʻole nā manaʻo.
+It's them, Brandt. It's a craft. Look how it glows.	ʻO lākou, Brandt. He moku. E nānā i kona ʻōlinolino.
+THE REAL SIGNAL	KA HŌʻAILONA MAOLI
+The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	Heluhelu nā scope i ka mea e puka maoli ana wale nō, ʻaʻole loa ka nānā mua. Hoʻā i ka puka: MENU, Video Outputs, OUTPUT OFF.
+Measuring a scaled-down preview would be measuring a photocopy. We measure the original.	ʻO ke ana ʻana i ka nānā mua liʻiliʻi he ana ʻana i ke kope. Ana mākou i ke kumu.
+Chain of evidence, Hollis. The real signal or nothing.	Kaulahao hōʻike, Hollis. Ka hōʻailona maoli a i ʻole ʻaʻohe mea.
+THE SCOPES	NĀ SCOPE
+Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	Pani i ka MENU. Ma luna o ka papakaumaka, ka pihi PROGRAM: kaomi a ʻōlelo ia SCOPES a i ʻole BOTH.
+Both shows the picture and its scopes side by side. Very civilised.	Hōʻike ʻo Both i ke kiʻi a me kona mau scope ma ka ʻaoʻao. Noʻeau loa.
+Let the scopes decide, Hollis.	E hoʻoholo nā scope, Hollis.
+THE WAVEFORM	KA WAVEFORM
+Click the waveform to make it big. Bright things sit high, dark things low, left to right as in the picture.	Kaomi i ka waveform e hoʻonui. Noho nā mea ʻōlinolino ma luna, nā mea pōʻeleʻele ma lalo, hema a ʻākau e like me ke kiʻi.
+The glow is that spike near the top. Very bright. Bright is not the same as alien.	ʻO ka ʻōlinolino kēlā kiko kiʻekiʻe ma luna. ʻŌlinolino loa. ʻAʻole like ka ʻōlinolino me ke kanaka ʻē.
+Look at the peak. Nothing a streetlight couldn't do.	E nānā i ka piko. ʻAʻohe mea hiki ʻole i ke kukui alanui.
+THE VECTORSCOPE	KA VECTORSCOPE
+Click it again to go back, then click the vectorscope: colour round a circle. Saturated runs to the edge.	Kaomi hou e hoʻi, a laila kaomi i ka vectorscope: ka waihoʻoluʻu a puni ka pōʻai. Holo ka mea ikaika i ka lihi.
+Magenta, far out by the rim. A strong colour. Strong is not illegal. Yet.	Magenta, ma kahi mamao ma ka lihi. He waihoʻoluʻu ikaika. ʻAʻole kapu ka ikaika. ʻAʻole i kēia manawa.
+It's off the chart, Brandt! Literally off the chart!	Ma waho o ka pakuhi, Brandt! Ma waho maoli o ka pakuhi!
+FALSE COLOUR	WAIHOʻOLUʻU WAHAHEʻE
+And false colour: red is clipped, yellow nearly. Is the glow red?	A me ka waihoʻoluʻu wahaheʻe: ʻoki ʻia ka ʻulaʻula, kokoke ka melemele. He ʻulaʻula anei ka ʻōlinolino?
+Clipped means the brightest the signal can carry, and then some lost. Detail gone.	ʻO ka ʻoki ʻia ka ʻōlinolino loa e hiki ai i ka hōʻailona ke lawe, a nalo kekahi. Ua hala nā kikoʻī.
+Red. Clipped. Not alien, Hollis. Just too bright. Case closed.	ʻUlaʻula. ʻOki ʻia. ʻAʻole kanaka ʻē, Hollis. ʻŌlinolino loa wale nō. Ua pani ʻia ka hihia.
+THE TRUTH	KA ʻOIAʻIʻO
+Waveform, vectorscope, false colour. The scopes settled it, skapi. The agents did not.	Waveform, vectorscope, waihoʻoluʻu wahaheʻe. Ua hoʻoholo nā scope, skapi. ʻAʻole nā ʻelele.
+SCOPES SOURCE reads any output, and the matrix can be 709 or 2020. For the curious.	Heluhelu ʻo SCOPES SOURCE i kekahi puka, a hiki i ka matrix ke 709 a i ʻole 2020. No ka poʻe nīele.
+Too bright for a streetlight, Brandt. Too bright for anything. ...I want to believe.	ʻŌlinolino loa no ke kukui alanui, Brandt. ʻŌlinolino loa no nā mea a pau. ...Makemake au e manaʻoʻiʻo.
+OUT OF THE BUILDING	MA WAHO O KA HALE
+Pictures that leave by cable or network, skapi, not only a window on a screen. Press START.	Nā kiʻi e haʻalele ma ke uea a i ʻole ka pūnaewele, skapi, ʻaʻole wale he puka aniani ma ka papakaumaka. Kaomi i START.
+NDI over the network, SDI from a DeckLink card, ST 2110 for broadcast plants.	NDI ma ka pūnaewele, SDI mai ka kāleka DeckLink, ST 2110 no nā hale hoʻolele.
+THE DEVICES PAGE	KA ʻAOʻAO MEA HANA
+MENU, Video Outputs, then Devices: every way an output can leave this computer.	MENU, Video Outputs, a laila Devices: nā ala a pau e haʻalele ai ka puka i kēia kamepiula.
+Each one says whether this machine can do it, and what it needs if not.	Haʻi kēlā me kēia inā hiki i kēia mīkini ke hana, a me ka mea e pono ai inā ʻaʻole.
+If this computer has NDI, switch NDI SENDING on: the picture is on the network. If not, SHOW ME moves on.	Inā he NDI ko kēia kamepiula, hoʻā i NDI SENDING: aia ke kiʻi ma ka pūnaewele. Inā ʻaʻole, neʻe ʻo SHOW ME i mua.
+NDI finds itself on the network. No cables, only a good switch and patience.	Loaʻa ʻo NDI iā ia iho ma ka pūnaewele. ʻAʻohe uea, he switch maikaʻi a me ke ahonui wale nō.
+OUT THERE	MA WAHO
+The output's own page has the rest: a DeckLink card's SDI, ST 2110 with NMOS, Spout and Syphon.	Aia ke koena ma ka ʻaoʻao ponoʻī o ka puka: ka SDI o ka kāleka DeckLink, ST 2110 me NMOS, Spout a me Syphon.
+Every one is just an output. The show does not know or care how it leaves.	He puka wale nō kēlā me kēia. ʻAʻole ʻike a mālama ka hōʻike i kona ala e haʻalele ai.
+Nebula ahead	Ka ao hōkū ma mua
+Engine room	Lumi mīkini
+Deck 3: something moving	Deck 3: kekahi mea e neʻe ana
+THE BRIDGE	KA ALAHELE
+The bridge of the starship Cathode, skapi. Four feeds, one main viewer, one mystery. Press START.	Ka alahele o ka moku hōkū Cathode, skapi. ʻEhā kahe, hoʻokahi papakaumaka nui, hoʻokahi pohihihi. Kaomi i START.
+The multiview shows every playlist at once. Like a wall of oscilloscopes, but in space.	Hōʻike ka nānā lehulehu i nā papa helu a pau i ka manawa hoʻokahi. E like me ka paia o nā oscilloscope, akā ma ka lewa.
+Frequencies open, Captain. All of them. That's the problem.	Ua wehe ʻia nā alapine, Kāpena. Nā mea a pau. ʻO ia ka pilikia.
+MULTI, above the monitor: every playlist in its own window.	MULTI, ma luna o ka papakaumaka: kēlā me kēia papa helu ma kona puka aniani ponoʻī.
+One window per playlist, the programme first.	Hoʻokahi puka aniani no kēlā me kēia papa helu, ka papahana ma mua.
+Jinkys! Four feeds. And one of them has a monster in it.	Jinkys! ʻEhā kahe. A he moʻo ʻino i loko o kekahi.
+WHAT'S NEXT	KA MEA AʻE
+Add a window (+), then its ... menu: make it show NEXT. What goes live when you press TAKE.	Hoʻohui i ka puka aniani (+), a laila kona papa ...: e hōʻike iā NEXT. Ka mea e ola ke kaomi ʻoe i TAKE.
+Every window has a ... button. It chooses what that window shows.	He pihi ... ko kēlā me kēia puka aniani. Koho ia i ka mea e hōʻike ai kēlā puka aniani.
+I need to see who's calling before they reach the main viewer.	Pono au e ʻike i ka mea e kāhea mai ana ma mua o ko lākou hiki ʻana i ka papakaumaka nui.
+A CLOCK	HE UAKI
+And one more window, showing the clock. Operators who watch a clock are never late. Mostly.	A hoʻokahi puka aniani hou, e hōʻike ana i ka uaki. ʻAʻole lohi ka poʻe nānā i ka uaki. Ka hapa nui.
+Time of day, big. Stardates are just very long timecode.	Ka hola o ka lā, nui. He timecode lōʻihi loa wale nō nā lā hōkū.
+The monster only shows up at midnight. We're going to need a clock.	Puka mai ka moʻo ʻino i ke aumoe wale nō. Pono kākou i ka uaki.
+ONE BIG ONE	HOʻOKAHI NUI
+Any window's ... menu, then a layout: one big, the rest small.	Ka papa ... o kekahi puka aniani, a laila he hoʻonohonoho: hoʻokahi nui, ke koena liʻiliʻi.
+The big window is window one. Usually the programme. Usually.	ʻO ka puka aniani nui ka puka aniani ʻekahi. ʻO ka papahana ka hapa nui. Ka hapa nui.
+Main viewer big. The captain likes it big.	Papakaumaka nui, nui. Makemake ke kāpena iā ia he nui.
+ON SCREEN	MA KA PAPAKAUMAKA
+Select Deck 3 in playlist 3 and TAKE. Watch its window.	Koho iā Deck 3 ma ka papa helu 3 a TAKE. Nānā i kona puka aniani.
+The red border is TALLY: the window that is on air. On screen, as they say on starships.	ʻO ka lihi ʻulaʻula ka TALLY: ka puka aniani e ola ana. Ma ka papakaumaka, e like me kā lākou ʻōlelo ma nā moku hōkū.
+There! Feed three! Put it on screen!	Aia! Kahe ʻekolu! Kau iā ia ma ka papakaumaka!
+THAT'S A WRAP	UA PAU
+Windows, the ... menu, NEXT, the clock, a layout, tally. Mystery solved, skapi.	Nā puka aniani, ka papa ..., NEXT, ka uaki, he hoʻonohonoho, ka tally. Ua hoʻomaopopo ʻia ka pohihihi, skapi.
+A window can also show an output, with its warp and slices. Handy when it's a lighthouse.	Hiki i ka puka aniani ke hōʻike i ka puka, me kona warp a me nā ʻāpana. Pono ke lilo ia i hale ipukukui.
+And the monster was... the ship's cook, all along. Jinkys.	A ʻo ka moʻo ʻino... ʻo ka mea kuke o ka moku, mai ka hoʻomaka. Jinkys.
+there is no such lesson	ʻaʻohe haʻawina pēlā
+finish or leave the lesson you are in first	hoʻopau a haʻalele paha i ka haʻawina āu e noho nei ma mua
+leave Bug Swat first	haʻalele mua iā Bug Swat
+Psst. It's me, the desk. I'll be watching. Supportively.	Psst. ʻO wau, ka papa. E nānā ana au. Me ke kākoʻo.
+Hi! I'm the one doing all of this, by the way.	Aloha! ʻO wau ka mea e hana nei i kēia mau mea a pau, ma ke ala.
+Ctrl+D opens the DASH. I'm just saying.	Wehe ʻo Ctrl+D i ka DASH. Ke ʻōlelo wale nei au.
+Nearly there. I can feel it in my pixels.	Kokoke. Ke ʻike nei au ma koʻu mau kiko.
+You're good at this. I can tell. I'm the one doing it.	Akamai ʻoe ma kēia. Ke ʻike nei au. ʻO wau ka mea e hana nei.
+Every click, I heard. Every single one.	Ua lohe au i kēlā me kēia kaomi. Kēlā me kēia.
+The glowing one. I can see it from here. It's glowing for you.	Ka mea ʻōlinolino. ʻIke au iā ia mai ʻaneʻi. Ke ʻōlinolino nei nou.
+lesson paused - MENU > LESSONS picks up where you left off	hoʻomaha ka haʻawina - hoʻomau ʻo MENU > LESSONS ma kahi āu i waiho ai
+PROF. VIDEO:  The signal: what the picture is made of, and how to bend it. Pick a lesson.	PROF. VIDEO:  Ka hōʻailona: ka mea i hana ʻia ai ke kiʻi, a me ke kekeʻe ʻana. Koho i haʻawina.
+DR. PIXEL:  Running the show, skapi. Fast hands, calm face. Pick a lesson.	DR. PIXEL:  Ka holo ʻana i ka hōʻike, skapi. Lima wikiwiki, maka mālie. Koho i haʻawina.
+LESSONS  -  PART TWO  -  WHO DO YOU FOLLOW?	NĀ HAʻAWINA  -  ʻĀPANA ʻELUA  -  ʻO WAI KĀU E HAHAI AI?
+FOLLOW PROF. VIDEO	HAHAI IĀ PROF. VIDEO
+FOLLOW DR. PIXEL	HAHAI IĀ DR. PIXEL
+the signal	ka hōʻailona
+running the show	ka holo ʻana i ka hōʻike
+PICK UP	HOʻOMAU
+CLOSE (Esc)	PANI (Esc)
+PART ONE: THE BASICS	ʻĀPANA ʻEKAHI: NĀ KUMU
+finish or leave LEARN THE BASICS first	hoʻopau a haʻalele paha iā LEARN THE BASICS ma mua
+bug swat: Esc leaves, and your show comes back as it was	bug swat: haʻalele ʻo Esc, a hoʻi kāu hōʻike e like me ia
+bug swat: your show is back. Motion's controls are in Settings > Audio	bug swat: ua hoʻi kāu hōʻike. Aia nā mana Motion ma Settings > Audio
+TURN MOTION ON	HOʻĀ I KA MOTION
+Bugs are crawling to the cue list! Swat them by waving at your camera. First, Motion: in MOTION CONTROL turn it ON and choose what it READS.	Ke kolo nei nā ʻelala i ka papa helu cue! Pāpaʻi iā lākou ma ka ʻaleʻale ʻana i kāu pahupaʻikiʻi. Ma mua, Motion: ma MOTION CONTROL hoʻā iā ia a koho i ka mea e HELUHELU ai.
+This one is NullPointer. Hollow, points at nothing. A finger goes straight through. Use the whole hand, skapi.	ʻO NullPointer kēia. Puka, kuhikuhi i ka mea ʻole. Komo pololei ka manamana lima. E hoʻohana i ka lima holoʻokoʻa, skapi.
+Wave like you are hailing a cab! A small, polite cab. Not the buttons. The cab.	ʻAleʻale me he mea lā e kāhea ana ʻoe i ke kaʻa hoʻolimalima! He kaʻa liʻiliʻi, ʻoluʻolu. ʻAʻole nā pihi. Ke kaʻa.
+DRAW TWO ZONES	KAHA I ʻELUA WAHI
+Race Condition: twins, each sure it got there first. One reading cannot tell your hands apart, so drag two ZONES on the Motion picture, one each side.	Race Condition: nā māhoe, manaʻo kēlā me kēia ua hiki mua ʻo ia. ʻAʻole hiki i ka heluhelu hoʻokahi ke ʻike i ka ʻokoʻa o kou mau lima, no laila kauo i ʻelua ZONES ma ke kiʻi Motion, hoʻokahi ma kēlā me kēia ʻaoʻao.
+Hit both together. Hit one, and they swap. Like my cousins at a wedding.	Paʻi i lāua ʻelua pū. Paʻi i hoʻokahi, a hoʻololi lāua. E like me koʻu mau hoahānau ma ka male.
+One hand each side. Together! Together!	Hoʻokahi lima ma kēlā me kēia ʻaoʻao. Pū! Pū!
+Off By One. The bug is not the face, it is the tiny extra segment, and a little wiggle needs a finer reading. Turn SENSITIVITY down to 5%.	Off By One. ʻAʻole ka maka ka ʻelala, ʻo ka ʻāpana liʻiliʻi keu ia, a pono ka ʻoni liʻiliʻi i ka heluhelu nāwaliwali aʻe. Hoʻohaʻahaʻa iā SENSITIVITY i 5%.
+Lower number, finer reading. Yes, I also think it is backwards.	Helu haʻahaʻa, heluhelu nāwaliwali. ʻAe, manaʻo pū wau ua hoʻohuli ʻia.
+Not the face. The little one on the end. Wiggle a finger.	ʻAʻole ka maka. Ka mea liʻiliʻi ma ka hope. E hoʻoneʻe i ka manamana lima.
+FALL 1.5 S OR MORE	FALL 1.5 S A ʻOI AKU
+Memory Leak. It only lets go while the reading stays up. Make FALL longer, 1.5 seconds or more, so your sweeps join up into one.	Memory Leak. Hoʻokuʻu wale ia ke noho kiʻekiʻe ka heluhelu. E hoʻolōʻihi iā FALL, 1.5 kekona a ʻoi aku, i hui pū kāu mau kahili i hoʻokahi.
+Slow and steady, skapi. Like paying back a loan.	Mālie a paʻa, skapi. E like me ka uku ʻana i ka hōʻaiʻē.
+Sweep, and sweep again. Let the fall carry you between.	Kahili, a kahili hou. E lawe ka fall iā ʻoe ma waena.
+MOTION X ON A TONE	MOTION X MA KA LEO
+The Heisenbug! It fades whenever you move. Put a tone cue's pitch on Motion X and follow it by ear: the ticking speeds up as you close in.	Ka Heisenbug! Nalo ia ke neʻe ʻoe. Kau i ka leo kiʻekiʻe o ka cue tone ma Motion X a hahai ma ka pepeiao: wikiwiki ke kani ke kokoke ʻoe.
+SHOW ME makes the tone for you. High is right. Low is left. Stand still and it comes back.	Hana ʻo SHOW ME i ka leo nou. Kiʻekiʻe ka ʻākau. Haʻahaʻa ka hema. Kū mālie a hoʻi mai ia.
+Follow it. Listen. Faster ticking, closer bug.	Hahai iā ia. Hoʻolohe. Kani wikiwiki aʻe, kokoke aʻe ka ʻelala.
+Waving paw	Wāwae ʻaleʻale
+Heisenbug finder	Mea ʻimi Heisenbug
+FIXED! Lovely signal flow.	UA HOʻOPONOPONO ʻIA! Kahe hōʻailona maikaʻi.
+Closed as fixed. No regressions. Probably.	Pani ʻia, ua hoʻoponopono ʻia. ʻAʻohe hoʻi hope. Paha.
+Squashed! Ship it.	Ua kaomi ʻia! Hoʻouna aku.
+One reached the cue list. It has filed a bug report about you.	Ua hiki kekahi i ka papa helu cue. Ua waiho ʻo ia i hōʻike ʻelala nou.
+Skapi. It is a handheld. You do not press it. You wave at it.	Skapi. He mea lima ia. ʻAʻole ʻoe e kaomi iā ia. ʻAleʻale ʻoe iā ia.
+The buttons are for menus. The bugs are for flailing.	No nā papa kuhikuhi nā pihi. No ka ʻaleʻale ʻana nā ʻelala.
+The D-pad is decorative. Like my diploma.	He mea hoʻonani ka D-pad. E like me kaʻu palapala puka kula.
+In 1989 we also pressed the buttons. Then we discovered waving. Never looked back.	I 1989 ua kaomi pū mākou i nā pihi. A laila ua ʻike mākou i ka ʻaleʻale. ʻAʻole i nānā i hope.
+Pressing harder does not help. The bugs cannot feel buttons. Only arms.	ʻAʻole kōkua ke kaomi ikaika ʻana. ʻAʻole hiki i nā ʻelala ke ʻike i nā pihi. Nā lima wale nō.
+It's called a handheld because your hands are held... up. In the air. Waving.	Kapa ʻia he mea lima no ka mea ua hāpai ʻia kou mau lima... i luna. I ka lewa. E ʻaleʻale ana.
+The mouse? You are swatting bugs with a MOUSE? In Bulgaria the mouse would be on the bugs' side.	Ka ʻiole? Ke pāpaʻi nei ʻoe i nā ʻelala me ka ʻIOLE? Ma Bulgaria aia ka ʻiole ma ka ʻaoʻao o nā ʻelala.
+Lovely clicking. Very crisp. The camera saw none of it.	Kaomi nani. Kakani loa. ʻAʻole i ʻike ka pahupaʻikiʻi i kekahi.
+DONE FOR YOU - PRESS START	UA HANA ʻIA NOU - KAOMI I START
+DONE! PRESS START	UA PAU! KAOMI I START
+SELECT OPENS MOTION CONTROL	WEHE ʻO SELECT I KA MOTION CONTROL
+ALL BUGS FIXED	UA HOʻOPONOPONO ʻIA NĀ ʻELALA A PAU
+GAME OVER	UA PAU KA PĀʻANI
+NEW HIGH SCORE!	HELU KIʻEKIʻE HOU!
+START PLAYS AGAIN	PĀʻANI HOU ʻO START
+Nazdrave, skapi. Now go and fix real bugs.	Nazdrave, skapi. I kēia manawa e hele a hoʻoponopono i nā ʻelala maoli.
+Every one of those is a real Motion control. Put them on any ~ knob you like.	He mana Motion maoli kēlā me kēia o lākou. Kau iā lākou ma kekahi pihi ~ āu e makemake ai.
+START: AGAIN	START: HOU
+START: PLAY	START: PĀʻANI
+Splash	Pakī
+Beast mode	ʻAno holoholona
+MIDI MAP	PALAPALA ʻĀINA MIDI
++ ADD	+ HOʻOHUI
+LISTENING...	KE HOʻOLOHE NEI...
+READY-MADE...	MĀKAUKAU...
+Runs	Holo
+On	Ma
+MIDI input is off: turn it on in MIDI CONTROL. OSC rows still answer.	Ua pio ka MIDI komo: hoʻā iā ia ma MIDI CONTROL. Pane mau nā lalani OSC.
+LEARN: move a knob or press a key on the controller...	LEARN: hoʻoneʻe i ka pihi a kaomi paha i ke kī ma ka mea kāohi...
+1 · WHAT COMES IN	1 · KA MEA E KOMO MAI ANA
+learn it, or say how to read it	aʻo iā ia, a i ʻole haʻi pehea e heluhelu ai
+2 · WHAT IT RUNS	2 · KA MEA E HOLO AI
+any command, {value} is the number	kekahi kauoha, ʻo {value} ka helu
+3 · WHAT IT RUNS ON	3 · KAHI E HOLO AI
+aimed here; the desk never moves	kuhikuhi ʻia ma ʻaneʻi; ʻaʻole neʻe ka papa
+Read as	Heluhelu e like me
+Hold for	Paʻa no
+Command	Kauoha
+From	Mai
+Centre	Waena
+To	I
+On release	Ke hoʻokuʻu
+Runs on	Holo ma
+Saved with	Mālama ʻia me
+Row	Lalani
+THE SHOW	KA HŌʻIKE
+THIS COMPUTER	KĒIA KAMEPIULA
+any port	kekahi port
+the desk	ka papa
+the selected cue	ka cue i koho ʻia
+what is on air	ka mea ma ka lewa
+one named cue	hoʻokahi cue me ka inoa
+the focused one	ka mea i kālele ʻia
+Test: move it on the controller	Hoʻāʻo: hoʻoneʻe iā ia ma ka mea kāohi
+knob 0-127	pihi 0-127
+endless encoder	encoder pau ʻole
+press	kaomi
+hold	paʻa
+press + release	kaomi + hoʻokuʻu
+play	hoʻokani
+on press	ke kaomi
+plays	hoʻokani
+LED MAP	PALAPALA ʻĀINA LED
+FEEDS: pick a window, then one of these	NĀ KAHE: koho i ka puka aniani, a laila kekahi o kēia
++ CHOOSE A FEED	+ KOHO I KA KAHE
+audio meter	mika leo
+safe areas	nā wahi palekana
++ ONE AFTER THIS	+ HOʻOKAHI MA HOPE O KĒIA
+- REMOVE THIS ONE	- WEHE I KĒIA
+ONE PER PLAYLIST	HOʻOKAHI NO KĒLĀ ME KĒIA PAPA HELU
+on the desk	ma ka papa
+tile width	ākea tile
+tile height	kiʻekiʻe tile
+LISTENS: OFF	HOʻOLOHE: PIO
+LISTENS: the figure follows the sound	HOʻOLOHE: hahai ke kiʻi i ka leo
+import an SVG...	hoʻokomo i SVG...
+the selected cue in playlist {n}	ka cue i koho ʻia ma ka papa helu {n}
+the selected cue in the focused playlist	ka cue i koho ʻia ma ka papa helu i kālele ʻia
+on air in playlist {n}	ma ka lewa ma ka papa helu {n}
+on air in the focused playlist	ma ka lewa ma ka papa helu i kālele ʻia
+hold {n} s	paʻa {n} s
+any	kekahi
+built in	i loko
+show	hōʻike
+motion	neʻe
+generated	hana ʻia
+Fit	Kūpono
+all	a pau
+Fade	Hala
+Load	Hoʻouka
+Skip	Lele
+Arm	Hoʻomākaukau
+Disarm	Wehe i ka mākaukau
+ONE	HOʻOKAHI
+ONCE	HOʻOKAHI MANAWA
+Width	Ākea
+amount	nui
+brightness	ʻōlinolino
+contrast	ʻokoʻa
+saturation	ikaika waihoʻoluʻu
+hue	ʻano waihoʻoluʻu
+level	pae
+speed	māmā
+style	ʻano
+subtitle	lalani lua
+notes	nā memo
+font	kinona hua
+frame	kiʻi
+type	ʻano
+state	kūlana
+blend	hui
+align	hoʻopololei
+oval	pōʻai lōʻihi
+brush	hulu pena
+eraser	holoi
+mask	uhi
+grow	hoʻonui
+subtract	lawe aku
+split	māhele
+stacked	hōʻuluʻulu ʻia
+soft	palupalu
+tolerance	ʻae ʻia
+curve	pihi
+Linear	Laina
+Ease in	Hoʻomaka mālie
+Ease out	Hoʻopau mālie
+S-curve	Pihi S
+Position X	Kūlana X
+Position Y	Kūlana Y
+Deck volume	Leo o ka papa
+Deck opacity	ʻIke ʻia o ka papa
+Master dimmer	Hoʻēmi haku
+Cue brightness	ʻŌlinolino cue
+Cue contrast	ʻOkoʻa cue
+Cue saturation	Ikaika waihoʻoluʻu cue
+Cue hue	ʻAno waihoʻoluʻu cue
+no effects	ʻaʻohe hopena
+no audio effects	ʻaʻohe hopena leo
+nothing yet	ʻaʻohe mea i kēia manawa
+no output	ʻaʻohe puka
+no window	ʻaʻohe puka aniani
+source missing	nalowale ke kumu
+waiting for a picture	ke kali nei i ke kiʻi
+clear frame	holoi i ke kiʻi
+undo stroke	hoʻihoʻi i ke kaha
+save still	mālama i ke kiʻi paʻa
+save animation	mālama i ke kiʻi neʻe
+export	hoʻopuka
+repeats	nā hana hou
+hold last	paʻa ka hope
+end action	hana hope
+goto target	pahuhopu goto
+set	hoʻonoho
+send	hoʻouna
+run	holo
+idle	kū mālie
+standby	mākaukau
+Loop	Pōʻai
+loop forever	pōʻai mau loa
+Layout	Hoʻonohonoho
+OUTPUTS	NĀ PUKA
+SECTIONS	NĀ ʻĀPANA
+Video Synth	Synth wikiō
+Browser	Polokalamu kele
+Browser Cue	Cue polokalamu kele
+Window Source	Kumu puka aniani
+Camera Source	Kumu pahupaʻikiʻi
+NDI Source	Kumu NDI
+DeckLink Input	Komo DeckLink
+Syphon/Spout Source	Kumu Syphon/Spout
+Live stream cue	Cue kahe ola
+Composite	Huipū
+Composite scene cue	Cue kiʻi huipū
+Lower Third overlay cue	Cue uhi Lower Third
+PIP overlay cue	Cue uhi PIP
+MIDI File	Waihona MIDI
+Master	Haku
+Timer	Uaki
+Tone	Leo kani
+Script	Pāʻālua
+Target	Pahuhopu
+Draw	Kaha
+Code	Pāʻālua
+Swirl	Wili
+Placement	Kau ʻana
+Frame lock	Paʻa kiʻi
+Suspend	Kau
+Seam	Humuhumu
+High pass	Kānana kiʻekiʻe
+Low pass	Kānana haʻahaʻa
+Tilt EQ	EQ hiō
+Gate	Puka
+Delay	Lohi
+Reverb	Leo hoʻi
+Crush	Kuʻi
+Short	Pōkole
+Shatter	Nahā
+Pulse	Panapana
+Crawl	Kolo
+Typewriter	Mīkini kikokiko
+Level Meters	Nā mika pae
+EFFECTS	NĀ HOPENA
+TRIGGERS	NĀ HOʻOMAKA
+SEQUENCE	KAʻINA
+THIS CUE	KĒIA CUE
+FUNCTIONS	NĀ HANA
+VALUES	NĀ HELU
+KEYS	NĀ KĪ
+FREEZE	HOʻOPAʻA
+FROZEN	PAʻA
+BYPASSED	ALA ʻĒ
+BYPASS ALL	ALA ʻĒ A PAU
+DEFAULTS	NĀ MAʻAMAU
+Do not continue	Mai hoʻomau
+Auto-continue	Hoʻomau ʻakomi
+Auto-follow	Hahai ʻakomi
+END HOLD	PAU: PAʻA
+END LOOP	PAU: PŌʻAI
+END NEXT	PAU: AʻE
+END STOP	PAU: KŪ
+OUTPUT EFFECTS	NĀ HOPENA PUKA
+LIVE CAPTIONS	NĀ HUAʻŌLELO OLA
+captions	nā huaʻōlelo
+Name Card	Kāleka inoa
+TEST CARD	KĀLEKA HOʻĀʻO
+TEST CARD ON	KĀLEKA HOʻĀʻO HOʻĀ
+EXPORT CARD	HOʻOPUKA I KA KĀLEKA
+EXPORTING...	KE HOʻOPUKA NEI...
+LOW LATENCY	LOHI LIʻILIʻI
+WEB MONITOR	NĀNĀ PŪNAEWELE
+PHONE & TABLET	KELEPONA A PAPA
+SCAN TO PAIR	NĀNĀ E HOʻOPILI
+WITH SOUND	ME KA LEO
+THE NETWORK	KA PŪNAEWELE
+FIXTURES	NĀ KUKUI
+ADD FIXTURE	HOʻOHUI KUKUI
+Dimmer	Hoʻēmi
+Dimmer + RGB	Hoʻēmi + RGB
+Dimmer + temperature	Hoʻēmi + mehana
+loop	pōʻai
+inherit	ili mai
+Stretch	Kīkoʻo
+Dissolve	Hoʻoheheʻe
+Pattern	Kāpoʻe
+mixed	huikau
+selected cue lane  |  TAKE to make it live	lalani cue i koho ʻia  |  TAKE e hoʻola
+Dip to black	Hāʻule i ka ʻeleʻele
+Dip to white	Hāʻule i ke keʻokeʻo
+Push left	Pahu i ka hema
+Push right	Pahu i ka ʻākau
+Push up	Pahu i luna
+Push down	Pahu i lalo
+Wipe left	Kāwele i ka hema
+Wipe right	Kāwele i ka ʻākau
+Wipe up	Kāwele i luna
+Wipe down	Kāwele i lalo
+Still	Paʻa
+address	helu wahi
+auto next	aʻe ʻakomi
+continue	hoʻomau
+deck fader	pihi papa
+fire	hoʻā
+in	komo
+out	puka
+routing	ala
+trim	ʻoki
+0-63, the hardware's own gain range.	0-63, ka pae ikaika ponoʻī o ka mea hana.
+1-16, as the desk counts them	1-16, e like me ka helu ʻana a ka papa
+7-segment, blocky, or a real font	7-ʻāpana, poloka, a i ʻole kinona hua maoli
+[ / ] keys — fade-in duration	nā kī [ / ] — ka lōʻihi o ka hiki mai
+a camera moves the ~ controls	hoʻoneʻe ka pahupaʻikiʻi i nā mana ~
+a chain on a device, after the mix	he kaulahao ma ka mea hana, ma hope o ka mix
+a comment	he manaʻo
+Act now, without taking the cue	Hana i kēia manawa, me ka lawe ʻole i ka cue
+Add a light	Hoʻohui i ke kukui
+add a second output to pair	hoʻohui i puka ʻelua e pili ai
+add shape	hoʻohui i ke kinona
+all driven by the cue's own transport	hoʻoholo ʻia e ka hoʻoholo ponoʻī o ka cue
+All interfaces; trusted machines only.	Nā mea hoʻopili a pau; nā mīkini hilinaʻi wale nō.
+all to 0	a pau i ka 0
+An audio effect's knob	Pihi o ka hopena leo
+An effect's knob	Pihi o ka hopena
+any channel	kekahi kahawai
+any window, any screen	kekahi puka aniani, kekahi papakaumaka
+arcade	pāʻani kālā
+Arm this cue as the one GO will fire	Hoʻomākaukau i kēia cue ma ke ʻano ʻo ia ka mea e hoʻā ai ʻo GO
+Art-Net port address, 0-32767	Helu wahi port Art-Net, 0-32767
+Attached overlays fire on TAKE only	Hoʻā nā uhi i hoʻopili ʻia ma TAKE wale nō
+BACK TO BUG SWAT	HOʻI I BUG SWAT
+backdrop	kua
+bar	kaola
+bg alpha	alpha kua
+black lift	hoʻokiʻekiʻe ʻeleʻele
+blend gamma	gamma hui
+blueprint	palapala kiʻi polū
+boxes	nā pahu
+bracket	kahaapo
+bulletin	nūhou
+by density	ma ka mānoanoa
+BY FIXTURE	MA KA KUKUI
+capsule	pahu liʻiliʻi
+caption	huaʻōlelo
+card	kāleka
+CARD OFF ALL	KĀLEKA PIO A PAU
+CARD ON ALL	KĀLEKA HOʻĀ A PAU
+cartridge	pahu lipine
+cassette	lipine leo
+Ceiling	Kaupoku
+Chain	Kaulahao
+Changing this re-prepares the cue.	Hoʻomākaukau hou ka hoʻololi ʻana i kēia i ka cue.
+channel list is not readable	ʻaʻole hiki ke heluhelu ʻia ka papa kahawai
+CHANNELS	NĀ KAHAWAI
+channels on your interfaces, by name	nā kahawai ma kāu mau mea hoʻopili, ma ka inoa
+Checkerboard	Papa kōnane
+chime amber	kani ʻākala
+chime red	kani ʻulaʻula
+chime zero	kani ʻole
+circle, heart, star...	pōʻai, puʻuwai, hōkū...
+circuit	ala uila
+CLASSIC VIEW	NĀNĀ KAHIKO
+clear driver	holoi i ka mea hoʻokele
+Clear in/out trim points	Holoi i nā kiko ʻoki komo/puka
+CLEAR OVERLAY  [Backspace]	HOLOI I KA UHI  [Backspace]
+Clear the active Lower Third overlay now	Holoi i ka uhi Lower Third e holo ana i kēia manawa
+Clear the live PIP overlay now	Holoi i ka uhi PIP ola i kēia manawa
+CLICK ANYWHERE...	KAOMI MA KEKAHI WAHI...
+click or Esc to close	kaomi a i ʻole Esc e pani
+click this window	kaomi i kēia puka aniani
+Click to edit cue notes	Kaomi e hoʻoponopono i nā memo cue
+click to open the grid	kaomi e wehe i ka papa kōnane
+Click to seek — drag to scrub	Kaomi e lele — kauo e kahi
+Click to type it	Kaomi e kikokiko
+comic	kiʻi ʻakaʻaka
+Companion passphrase	Huaʻōlelo hūnā Companion
+confetti	pepa ʻoliʻoli
+Connections at once	Nā hoʻopili i ka manawa hoʻokahi
+count up	helu i luna
+Countdown, count up, or wall clock	Helu i lalo, helu i luna, a i ʻole uaki paia
+credit	hōʻaiʻē
+crosshair	kea kuhikuhi
+Crosshatch	Kaha keʻa
+Cue has no audio	ʻAʻohe leo o ka cue
+cue number	helu cue
+Cycle end action for selected cues	Hoʻololi i ka hana hope no nā cue i koho ʻia
+Cycle which slot drives scene audio	Hoʻololi i ka ʻāpana e alakaʻi i ka leo o ke kiʻi
+dateline	laina lā
+deck	papa
+decoder spin-up	ka hoʻomaka ʻana o ka wehehelu
+Default App Feed	Kahe app maʻamau
+Default Camera	Pahupaʻikiʻi maʻamau
+Delay before the continue fires	Lohi ma mua o ka hoʻomau ʻana
+Delay between GO and this cue starting	Lohi ma waena o GO a me ka hoʻomaka ʻana o kēia cue
+depth 1 turns it all the way round	ʻO ka hohonu 1 ka huli ʻana a puni
+Digit colour once amber is reached	Waihoʻoluʻu helu ke hiki i ka ʻākala
+Digit colour while there is time in hand	Waihoʻoluʻu helu ke koe ka manawa
+diskette	pā liʻiliʻi
+Do it now, without taking the cue	Hana i kēia manawa, me ka lawe ʻole i ka cue
+dossier	waihona
+dotmatrix	kiko kiko
+Double-GO guard	Kiaʻi GO pālua
+draw on the monitor	kaha ma ka papakaumaka
+driver speed	māmā o ka mea hoʻokele
+EDGE BLEND	HUI LIHI
+EDIT is on: typing changes the show	Ua hoʻā ʻia ʻo EDIT: hoʻololi ke kikokiko ʻana i ka hōʻike
+edit on the monitor	hoʻoponopono ma ka papakaumaka
+Edit the main Lower Third title	Hoʻoponopono i ke poʻo inoa nui o ka Lower Third
+Edit the secondary Lower Third line	Hoʻoponopono i ka lalani lua o ka Lower Third
+eq band	pae eq
+equalizer	mea hoʻokaulike
+Esc cancels	Hoʻōki ʻo Esc
+Esc cancels, arrows nudge	Hoʻōki ʻo Esc, hoʻoneʻe iki nā pua
+Esc to close	Esc e pani
+even grid	papa kōnane like
+EXAMPLE SHOWS	NĀ HŌʻIKE LAʻANA
+EXIT  Esc	HAʻALELE  Esc
+face	maka
+factory settings	nā hoʻonoho mua
+Fade+LoadNext	Hala+HoʻoukaAʻe
+Fade+Pause	Hala+Hoʻomaha
+Fade+Rewind	Hala+Hoʻihoʻi
+Fade-in duration	Lōʻihi o ka hiki mai
+Fade-in duration for this cue	Lōʻihi o ka hiki mai no kēia cue
+Fade-out duration	Lōʻihi o ka hala aku
+Fade-out duration before next cue	Lōʻihi o ka hala aku ma mua o ka cue aʻe
+Fade-out duration for this cue	Lōʻihi o ka hala aku no kēia cue
+Fall	Hāʻule
+false colour reads SDR pictures	heluhelu ka waihoʻoluʻu wahaheʻe i nā kiʻi SDR
+fill the frame	hoʻopiha i ke kiʻi
+find a named colour	ʻimi i ka waihoʻoluʻu me ka inoa
+fires cues	hoʻā i nā cue
+first available	ka mea mua i loaʻa
+Fit/Fill/Stretch/Unscaled	Kūpono/Piha/Kīkoʻo/Nui maoli
+Fixed repeat count — 0 = infinite	Helu hana hou paʻa — 0 = pau ʻole
+Fixed repeat count — 0 = loop forever	Helu hana hou paʻa — 0 = pōʻai mau loa
+flag	hae
+FORGET MY DEFAULTS	HOʻOPOINA I KAʻU MAU MAʻAMAU
+Frames a second	Nā kiʻi i ke kekona
+from exactly this routing	mai kēia ala pololei
+Full Black	ʻEleʻele piha
+Full Blue	Polū piha
+Full Green	ʻŌmaʻomaʻo piha
+Full Red	ʻUlaʻula piha
+Full White	Keʻokeʻo piha
+Ghastly	Weliweli
+glass	aniani
+glitch down	glitch i lalo
+glitch drift	glitch ʻauana
+glitch reach	glitch hōʻea
+glitch through	glitch ma waena
+glitch up	glitch i luna
+GO steps over it	Lele ʻo GO ma luna ona
+hairline	laina lauoho
+Haptics	Haʻalulu
+HDR input	Komo HDR
+Hex, e.g. 90 3C 7F	Hex, e laʻa 90 3C 7F
+HOLDING OFF AIR	PAʻA MA WAHO O KA LEWA
+Home — skip to start	Home — lele i ka hoʻomaka
+Horizontal output offset in pixels	Neʻe ʻaoʻao o ka puka ma nā pika
+How many features fit on screen.	ʻEhia mau mea e kūpono ma ka papakaumaka.
+how much of this effect	ka nui o kēia hopena
+How solid the ink is	Ka paʻa o ka ʻīnika
+How tall the logo is above the clock	Ke kiʻekiʻe o ka hōʻailona ma luna o ka uaki
+In-point: cue starts playback here	Kiko komo: hoʻomaka ka cue e hoʻokani ma ʻaneʻi
+index	papa kuhikuhi
+initializing webview	ke hoʻomaka nei i ka webview
+install Tailscale here and on the phone	hoʻokomo iā Tailscale ma ʻaneʻi a ma ke kelepona
+INSTALLING...	KE HOʻOKOMO NEI...
+Its amount, or one of its knobs A to D	Kona nui, a i ʻole kekahi o kona mau pihi A a D
+J jump to row	J lele i ka lalani
+jam to	hoʻonoho i
+Jump the driver back to its first frame	Hoʻihoʻi i ka mea hoʻokele i kona kiʻi mua
+K — cycle cue color tag	K — hoʻololi i ka lepili waihoʻoluʻu cue
+Keep counting past zero, or stop dead	Helu mau ma hala o ka ʻole, a i ʻole kū pono
+key	kī
+Key edge softness	Palupalu o ka lihi kī
+knob	pihi
+L - loop this cue continuously	L - pōʻai mau i kēia cue
+last reading	heluhelu hope
+Last refused	Hōʻole hope
+ledger	puke moʻokālā
+Left — skip back 10s	Hema — lele i hope 10s
+Left, centre or right	Hema, waena a ʻākau paha
+Levels	Nā pae
+Limiting	Hoʻopalena
+line  |  Enter: apply	laina  |  Enter: hoʻohana
+LINEAR - a feather, not a blend	LINEAR - he hulu, ʻaʻole he hui
+Linear, ease in, ease out or S-curve	Laina, hoʻomaka mālie, hoʻopau mālie a pihi S paha
+Lines	Nā laina
+link aspect	pili ka like
+Listen to	Hoʻolohe i
+listener	mea hoʻolohe
+LIVE - every assigned deck matches	LIVE - like nā papa a pau i hāʻawi ʻia
+lock to screen	paʻa i ka papakaumaka
+logo	hōʻailona
+logo size	nui o ka hōʻailona
+marquee	hōʻailona holo
+mask on	uhi hoʻā
+Master oscillator rate.	Māmā o ka oscillator haku.
+Maximum quality	Maikaʻi loa
+MIDI and OSC monitor	Nānā MIDI a me OSC
+midi in	MIDI komo
+MIDI note	Note MIDI
+move points	neʻe i nā kiko
+Move the height on its own oscillator	Neʻe i ke kiʻekiʻe ma kona oscillator ponoʻī
+name or number...	inoa a helu paha...
+name, from anywhere	inoa, mai nā wahi a pau
+NDI source cue	Cue kumu NDI
+needs file-backed video	pono i ka wikiō mai ka waihona
+new paths	nā ala hou
+New shows start from	Hoʻomaka nā hōʻike hou mai
+next xfade	xfade aʻe
+no effects for this cue type	ʻaʻohe hopena no kēia ʻano cue
+none - click to learn	ʻaʻohe - kaomi e aʻo
+none - click to set some	ʻaʻohe - kaomi e hoʻonoho
+none - click to write some	ʻaʻohe - kaomi e kākau
+none yet	ʻaʻohe i kēia manawa
+none: the one picture	ʻaʻohe: ke kiʻi hoʻokahi
+none: the whole picture	ʻaʻohe: ke kiʻi holoʻokoʻa
+notebook	puke kākau
+nothing assigned yet	ʻaʻohe mea i hāʻawi ʻia i kēia manawa
+nothing follows	ʻaʻohe mea e hahai mai
+Nothing here with this filter.	ʻAʻohe mea ma ʻaneʻi me kēia kānana.
+nothing set - this cue sends nothing	ʻaʻohe mea i hoʻonoho ʻia - ʻaʻohe mea e hoʻouna ai kēia cue
+nothing targeted yet	ʻaʻohe mea i kuhikuhi ʻia i kēia manawa
+Nothing to see here. Probably.	ʻAʻohe mea e nānā ai ma ʻaneʻi. Paha.
+nothing to send - check the message	ʻaʻohe mea e hoʻouna ai - nānā i ka leka
+offset X	neʻe X
+offset Y	neʻe Y
+on any channel	ma kekahi kahawai
+on the header to add another	ma ke poʻo e hoʻohui i kekahi
+on the monitor	ma ka papakaumaka
+one big on top, the rest below	hoʻokahi nui ma luna, ke koena ma lalo
+one big, the rest beside it	hoʻokahi nui, ke koena ma ka ʻaoʻao
+onion off	ʻakaʻakai pio
+onion on	ʻakaʻakai hoʻā
+only this computer	kēia kamepiula wale nō
+Open a .deckboy show file	Wehe i ka waihona hōʻike .deckboy
+open the monitor	wehe i ka papakaumaka
+or your own bytes	a i ʻole kāu mau byte ponoʻī
+ORDER - cues advance down the list	ORDER - neʻe nā cue i lalo o ka papa helu
+Out-point: cue stops playback here	Kiko puka: hoʻōki ka cue ma ʻaneʻi
+output already has	ua loaʻa i ka puka
+Outputs Off	Pio nā puka
+outs	nā puka
+over budget - video will drop frames	ma luna o ka palena - e hāʻule nā kiʻi wikiō
+over the picture	ma luna o ke kiʻi
+PAIR	HOʻOPILI
+Pair a phone	Hoʻopili i ke kelepona
+Pair overlap	Kau like o ka hoʻopili
+Paired phones	Nā kelepona i hoʻopili ʻia
+Pattern motion toggle	Hoʻā/pio i ka neʻe kāpoʻe
+pause begin	hoʻomaha hoʻomaka
+pennant	hae kīkoʻo
+Per-cue transition duration override	Ka lōʻihi hoʻololi no kēia cue
+Perspective	Ka ʻike mamao
+Phone access	Komo kelepona
+Phone control	Kāohi kelepona
+phrase hold	paʻa o ka māmalaʻōlelo
+PICK FROM SCREEN	KOHO MAI KA PAPAKAUMAKA
+Pitch, in semitones.	Leo kiʻekiʻe, ma nā semitone.
+PIXEL FOR PIXEL, TOP-LEFT	PIKA NO PIKA, LUNA-HEMA
+placard	papa hōʻike
+play a note...	hoʻokani i ka note...
+PLAY BUG SWAT, a game	PĀʻANI IĀ BUG SWAT, he pāʻani
+Play the out move now, then take it off	Hoʻokani i ka neʻe ʻana i waho i kēia manawa, a laila lawe aku
+Playback speed: 0.25–4.0×	Māmā hoʻokani: 0.25–4.0×
+playlists into the named outputs	nā papa helu i loko o nā puka i kapa ʻia
+plays synth	hoʻokani i ka synth
+PNG matte	matte PNG
+podium	paepae ʻōlelo
+press a key...	kaomi i ke kī...
+PRESS AGAIN TO FORGET	KAOMI HOU E HOʻOPOINA
+Previous show file:	Waihona hōʻike mua:
+prog bar	kaola papahana
+programme	papahana
+Programme with sound in any browser	Papahana me ka leo ma kekahi polokalamu kele
+PROJECTOR - gamma matched	PROJECTOR - gamma kūlike
+Projector gamma	Gamma projector
+put it on a button	kau ma ka pihi
+Put the brush's opacity on an oscillator	Kau i ka ʻike ʻia o ka hulu pena ma ka oscillator
+Put the brush's size on an oscillator	Kau i ka nui o ka hulu pena ma ka oscillator
+Put this control on an oscillator	Kau i kēia mana ma ka oscillator
+rack it	hoʻomākaukau
+RACKED, WARM	MĀKAUKAU, MEHANA
+rail	ala hao
+Reads	Heluhelu
+reads the same on any screen	heluhelu like ma kekahi papakaumaka
+recent and in this show	hou a ma kēia hōʻike
+Recent shows:	Nā hōʻike hou:
+red at	ʻulaʻula ma
+red col	kolamu ʻulaʻula
+render height	kiʻekiʻe hana
+render width	ākea hana
+REPORT A PROBLEM	HŌʻIKE I KA PILIKIA
+reported rather than swapped	hōʻike ʻia ma kahi o ka hoʻololi ʻia
+restart driver now	hoʻomaka hou i ka mea hoʻokele i kēia manawa
+restart on take	hoʻomaka hou ke lawe
+restore at end	hoʻihoʻi i ka hopena
+ribbon	lipine
+Right — skip forward 10s	ʻĀkau — lele i mua 10s
+Right-click turns them off.	Hoʻopio ke kaomi ʻākau iā lākou.
+Rise	Piʻi
+rise, slide or wipe	piʻi, paheʻe a kāwele paha
+Rotation speed, degrees per second.	Māmā huli, nā kēkelē i ke kekona.
+rounded rect	huinahā poepoe
+row turns the matrix off again	hoʻopio hou kēia lalani i ka matrix
+Run it now, without taking the cue	Holo i kēia manawa, me ka lawe ʻole i ka cue
+Run the show from a phone	Holo i ka hōʻike mai ke kelepona
+runs off the show thread	holo ma waho o ke kaula hōʻike
+sACN universe, 1-63999	Ao sACN, 1-63999
+SAVE AS MY DEFAULTS	MĀLAMA MA KAʻU MAU MAʻAMAU
+says	ʻōlelo
+SCALED TO FILL	HOʻONUI ʻIA E PIHA
+Scene dwell time — 0 = hold	Ka manawa noho o ke kiʻi — 0 = paʻa
+Scene fade-in duration	Lōʻihi o ka hiki mai o ke kiʻi
+Scene fade-out duration	Lōʻihi o ka hala aku o ke kiʻi
+scoreboard	papa helu ʻai
+SCREENS	NĀ PAPAKAUMAKA
+scroll	ʻōwili
+Scroll up	ʻŌwili i luna
+SELECT: MOTION	SELECT: NEʻE
+Send now, without taking the cue	Hoʻouna i kēia manawa, me ka lawe ʻole i ka cue
+sends	hoʻouna
+Sensitivity	Ka ʻike nāwaliwali
+Set browser URL/path	Hoʻonoho i ka URL/ala polokalamu kele
+set by	hoʻonoho ʻia e
+Set capture source from the cue menu	Hoʻonoho i ke kumu hopu mai ka papa cue
+Set cue ID for selected cues	Hoʻonoho i ka ID cue no nā cue i koho ʻia
+Set cue token to jump to when cue ends	Hoʻonoho i ka hōʻailona cue e lele ai ke pau ka cue
+Set goto target for selected cues	Hoʻonoho i ka pahuhopu goto no nā cue i koho ʻia
+Set Lower Third background alpha	Hoʻonoho i ka alpha kua o ka Lower Third
+Set per-cue transition duration	Hoʻonoho i ka lōʻihi hoʻololi no kēia cue
+Set playback speed for selected cues	Hoʻonoho i ka māmā hoʻokani no nā cue i koho ʻia
+Set repeat count for selected cues	Hoʻonoho i ka helu hana hou no nā cue i koho ʻia
+Set short cue id for search/goto	Hoʻonoho i ka ID cue pōkole no ka ʻimi/goto
+Set short cue label for search/goto	Hoʻonoho i ka lepili cue pōkole no ka ʻimi/goto
+Set the NDI source name to receive	Hoʻonoho i ka inoa kumu NDI e loaʻa ai
+Shift+[ / ] — fade-out duration	Shift+[ / ] — lōʻihi o ka hala aku
+Show on	Hōʻike ma
+Shows	Nā hōʻike
+sideline	laina ʻaoʻao
+sketch	kaha kiʻi
+slide	paheʻe
+slide from left	paheʻe mai ka hema
+slide from right	paheʻe mai ka ʻākau
+SMOOTH	MĀLIE
+SOS. Kidding. The show is fine.	SOS. He ʻakaʻaka wale. Maikaʻi ka hōʻike.
+Sound when the clock turns amber	Kani ke lilo ka uaki i ka ʻākala
+Sound when the clock turns red	Kani ke lilo ka uaki i ka ʻulaʻula
+Sound when time is up	Kani ke pau ka manawa
+Space — pause	Space — hoʻomaha
+Space — play	Space — hoʻokani
+span	ākea
+sparkle	ʻōlinolino
+Speech models	Nā kumu ʻōlelo
+Speed, like tape	Māmā, e like me ka lipine
+stamp	kuni
+Start NEW from factory	Hoʻomaka HOU mai ka hoʻonoho mua
+starting browser	ke hoʻomaka nei i ka polokalamu kele
+starting capture	ke hoʻomaka nei i ka hopu
+starting xvfb	ke hoʻomaka nei iā xvfb
+sticky	pipili
+stop at 0	kū ma ka 0
+Stop puppeteering this cue	Hoʻōki i ka hoʻoneʻe ʻana i kēia cue
+STRAIGHT	POLOLEI
+survey	anaina
+SVG paths	Nā ala SVG
+tab	kāwele
+tag	lepili
+TAP	PAʻI
+terminal	pahu kauoha
+text mode	ʻano huaʻōlelo
+the file cannot be read	ʻaʻole hiki ke heluhelu ʻia ka waihona
+The OSC path, e.g. /cue/1/start	Ke ala OSC, e laʻa /cue/1/start
+the playlist's PATCH	ka PATCH o ka papa helu
+The role, or leave it empty	Ke kūlana, a i ʻole waiho nele
+the system output	ka puka o ka ʻōnaehana
+The text this cue puts on screen	Ka huaʻōlelo a kēia cue e kau ai ma ka papakaumaka
+theatre	hale keaka
+then stop	a laila kū
+they have	ua loaʻa iā lākou
+things that are oscillating	nā mea e lūlū ana
+this cue lives on	noho kēia cue ma
+This show's setup, no cues	Ka hoʻonohonoho o kēia hōʻike, ʻaʻohe cue
+ticket	palapala komo
+tile h	tile k
+Tile height in pixels.	Ke kiʻekiʻe tile ma nā pika.
+tile w	tile ā
+Toggle audio enable for selected cues	Hoʻā/pio i ka leo no nā cue i koho ʻia
+Toggle chroma key	Hoʻā/pio i ke kī waihoʻoluʻu
+Toggle cue audio	Hoʻā/pio i ka leo cue
+Toggle cue audio track for this cue	Hoʻā/pio i ka meheu leo no kēia cue
+Toggle fade in	Hoʻā/pio i ka hiki mai
+Toggle fade out	Hoʻā/pio i ka hala aku
+Toggle hold on last frame	Hoʻā/pio i ka paʻa ma ke kiʻi hope
+Toggle hold-at-end for selected cues	Hoʻā/pio i ka paʻa ma ka hopena no nā cue i koho ʻia
+Toggle loop	Hoʻā/pio i ka pōʻai
+Toggle loop for selected cues	Hoʻā/pio i ka pōʻai no nā cue i koho ʻia
+Toggle the live input's audio	Hoʻā/pio i ka leo o ka komo ola
+trans	hoʻololi
+transcoding - plays clean until ready	ke hoʻololi nei - hoʻokani maikaʻi a mākaukau
+transparent: put its playlist on a layer	akaka: kau i kona papa helu ma kekahi papa
+Trusted controllers	Nā mea kāohi hilinaʻi
+TURN OFF	HOʻOPIO
+turn phone control on	hoʻā i ke kāohi kelepona
+two big on top, the rest below	ʻelua nui ma luna, ke koena ma lalo
+type a cue number	kikokiko i ka helu cue
+Typing needs EDIT on	Pono ke kikokiko ʻana iā EDIT e hoʻā
+Use GEOMETRY for exact placement	E hoʻohana iā GEOMETRY no ke kau pololei ʻana
+value to type one	ka helu e kikokiko ai
+Vertical output offset in pixels	Neʻe kū o ka puka ma nā pika
+VIDEO DIP: OFF	HĀʻULE WIKIŌ: PIO
+VIDEO DIP: ON	HĀʻULE WIKIŌ: HOʻĀ
+walk the outputs one at a time.	hele ma nā puka i kēlā me kēia manawa.
+walks every output in turn	hele ma kēlā me kēia puka ma ka hulina
+WHAT DECKBOY DID	KA HANA A DECKBOY
+what is on air in a playlist	ka mea ma ka lewa ma ka papa helu
+What NEW starts from, never this show	Ka mea e hoʻomaka ai ʻo NEW, ʻaʻole loa kēia hōʻike
+whatever the style says	ka mea a ke ʻano e ʻōlelo ai
+Where the ramp ends	Kahi e pau ai ka piʻina
+Which deck the cue it acts on lives on	Ka papa kahi e noho ai ka cue e hana ai ʻo ia
+Which frame you draw on	Ke kiʻi āu e kaha ai
+Who can see it	Ka mea hiki ke ʻike
+whole network	pūnaewele holoʻokoʻa
+will not open	ʻaʻole e wehe
+window and recording outputs only	nā puka puka aniani a me ka hoʻopaʻa wale nō
+wipe	kāwele
+Wobble	Kapalili
+wobble by	kapalili ma
+X — cycle end action	X — hoʻololi i ka hana hope
+X — cycle end action: stop / next / loop	X — hoʻololi i ka hana hope: kū / aʻe / pōʻai
+Zones	Nā wahi
+~ makes the level breathe	~ hoʻohanu i ka pae
+a note or an address becomes that cue's trigger	lilo ka note a i ʻole ka helu wahi i mea hoʻomaka o ia cue
+acts on every deck; deck and cue are ignored	hana ma nā papa a pau; ʻaʻole nānā ʻia ka papa a me ka cue
+Add an output above, then send playlists to it here.	Hoʻohui i ka puka ma luna, a laila hoʻouna i nā papa helu iā ia ma ʻaneʻi.
+Ancient cypher, modern video desk. Respect.	Hōʻailona hūnā kahiko, papa wikiō hou. Mahalo.
+Any font on this computer, Deckboy's own, or a font file	Kekahi kinona hua ma kēia kamepiula, ko Deckboy ponoʻī, a i ʻole he waihona kinona hua
+Apply fade-in to selected video/audio cues	Hoʻohana i ka hiki mai i nā cue wikiō/leo i koho ʻia
+Apply fade-out to selected video/audio cues	Hoʻohana i ka hala aku i nā cue wikiō/leo i koho ʻia
+Art-Net or sACN (E1.31): whichever the lighting rig listens to	Art-Net a i ʻole sACN (E1.31): ka mea e hoʻolohe ai ka mea kukui
+Auto-advance duration — 0 = hold until taken	Lōʻihi o ka neʻe ʻakomi — 0 = paʻa a lawe ʻia
+Bypass: this master leaves that deck alone	Ala ʻē: waiho kēia haku i kēlā papa
+Characters across. Fewer means bigger cells.	Nā hua ma ka ʻaoʻao. Emi iho ka helu, nui aʻe nā pahu.
+Choose a mask from this show's library, or start a new one from a shape	Koho i ka uhi mai ka waihona o kēia hōʻike, a i ʻole hoʻomaka i kekahi hou mai ke kinona
+Click a value to change it. A red address overlaps another fixture.	Kaomi i ka helu e hoʻololi. Kau ka helu wahi ʻulaʻula ma luna o kekahi kukui ʻē aʻe.
+Click to show or hide this cue's captions	Kaomi e hōʻike a hūnā i nā huaʻōlelo o kēia cue
+Copy the show AND its media into one portable folder	Kope i ka hōʻike A ME kāna media i hoʻokahi waihona lawe lima
+Ctrl+S - write back over the show that is open	Ctrl+S - kākau ma luna o ka hōʻike i wehe ʻia
+Ctrl+Shift+S - write the show to a NEW file	Ctrl+Shift+S - kākau i ka hōʻike i waihona HOU
+Device output pair this cue's audio plays on	Ka pālua puka o ka mea hana e hoʻokani ai ka leo o kēia cue
+E - freeze on last frame instead of stopping	E - paʻa ma ke kiʻi hope ma kahi o ka hoʻōki ʻana
+Edit title/subtitle here or fire it live with TAKE	Hoʻoponopono i ke poʻo inoa/lalani lua ma ʻaneʻi a i ʻole hoʻā ola me TAKE
+Every channel on every universe this session has touched	Kēlā me kēia kahawai ma kēlā me kēia ao i hoʻopā ʻia e kēia hana
+generator is off - a START cue turns it on	ua pio ka mea hana - hoʻā ka cue START iā ia
+How long the note takes to reach full level.	Ka lōʻihi e hiki ai ka note i ka pae piha.
+How much it throws off; 0 is a clean burn	Ka nui o kona kiola ʻana; ʻo 0 ke ahi maʻemaʻe
+INPUT: the programme. Drag a crop to move it, its corners to size it.	KOMO: ka papahana. Kauo i ka ʻoki e neʻe, i kona mau kihi e hoʻonui.
+Keep the outside and cut the inside instead	Mālama i waho a ʻoki i loko ma kahi o ia
+LED panel height in pixels. Click to type it	Kiʻekiʻe papa LED ma nā pika. Kaomi e kikokiko
+Legacy target mode — switch type to convert	ʻAno pahuhopu kahiko — hoʻololi i ke ʻano e hoʻololi
+Lissajous, spectrum, meters or a name card	Lissajous, spectrum, nā mika a i ʻole ke kāleka inoa
+Load the cue and hold first frame when taken	Hoʻouka i ka cue a paʻa i ke kiʻi mua ke lawe ʻia
+no fixtures patched - Settings > Network > FIXTURES	ʻaʻohe kukui i patch ʻia - Settings > Network > FIXTURES
+Nothing here changes the show that is open.	ʻAʻohe mea ma ʻaneʻi e hoʻololi i ka hōʻike i wehe ʻia.
+Per-cue audio: enable, trim, pan, mono, fades, normalize	Leo no kēlā me kēia cue: hoʻā, ʻoki, pan, mono, nā hala, hoʻokūlike
+Phone control is in PHONE & TABLET, below	Aia ke kāohi kelepona ma PHONE & TABLET, ma lalo
+Save the mask as a greyscale PNG at the output's size: white keeps, black cuts	Mālama i ka uhi ma ke ʻano he PNG hina ma ka nui o ka puka: mālama ke keʻokeʻo, ʻoki ka ʻeleʻele
+Seconds REMAINING when the clock turns amber	Nā kekona KOE ke lilo ka uaki i ka ʻākala
+Seconds REMAINING when the clock turns red	Nā kekona KOE ke lilo ka uaki i ka ʻulaʻula
+Shown to the operator when GO reaches this cue	Hōʻike ʻia i ka mea hoʻohana ke hiki ʻo GO i kēia cue
+SHUFFLE - the next cue is picked at random	SHUFFLE - koho wale ʻia ka cue aʻe
+Slots are self-contained sources in this first pass	He mau kumu kūʻokoʻa nā ʻāpana ma kēia hana mua
+that output's whole picture, or its matte	ke kiʻi holoʻokoʻa o kēlā puka, a i ʻole kona matte
+The cue number on the other desk, e.g. 12.5	Ka helu cue ma ka papa ʻē aʻe, e laʻa 12.5
+Toggle pause-at-beginning for selected cues	Hoʻā/pio i ka hoʻomaha ma ka hoʻomaka no nā cue i koho ʻia
+Toggle transition-to-next for selected cues	Hoʻā/pio i ka hoʻololi i ka mea aʻe no nā cue i koho ʻia
+transparent outside the blobs: put it on a layer	akaka ma waho o nā pōpō: kau iā ia ma kekahi papa
+transparent outside the ink: put it on a layer	akaka ma waho o ka ʻīnika: kau iā ia ma kekahi papa
+what is said, on screen, made on this computer	ka mea i ʻōlelo ʻia, ma ka papakaumaka, hana ʻia ma kēia kamepiula
+What this cue does when it ends - click to change	Ka hana a kēia cue ke pau - kaomi e hoʻololi
+Whether the next shape or pen path adds or cuts	Inā hoʻohui a ʻoki paha ke kinona aʻe a i ʻole ke ala peni
+shape	kinona
+palette	papa waihoʻoluʻu
+scale	nui
+feedback	hoʻihoʻi
+do it	e hana
+(empty)	(nele)
+(unset)	(ʻaʻole i hoʻonoho ʻia)
+English	Pelekānia
+amber at	ʻākala ma
++ section	+ ʻāpana
++pause pt	+kiko hoʻomaha
+a-fade in	l-hiki mai
+amber col	kolamu ʻākala
+(no notes)	(ʻaʻohe memo)
+a-fade out	l-hala aku
+gain (each)	ikaika (kēlā me kēia)
+% of the height	% o ke kiʻekiʻe
++  a first step	+  he kaʻina mua
++ ADD AN EFFECT	+ HOʻOHUI I KA HOPENA
+(none playing now)	(ʻaʻohe mea e hoʻokani ana)
+Keep a transcript (.srt)	Mālama i ke kope (.srt)
+Key tolerance (RGB distance)	Ka ʻae o ke kī (mamao RGB)
+Contrast multiplier (0.0-2.0x)	Hoʻonui ʻokoʻa (0.0-2.0x)
+Brightness multiplier (0.0-2.0x)	Hoʻonui ʻōlinolino (0.0-2.0x)
+Saturation multiplier (0.0-2.0x)	Hoʻonui ikaika waihoʻoluʻu (0.0-2.0x)
+Output rotation angle (-180..180)	Kihi huli o ka puka (-180..180)
+Hue rotation (-180 to +180 degrees)	Huli ʻano waihoʻoluʻu (-180 a +180 kēkelē)
+Lower Third background opacity (0-255)	ʻIke ʻia o ke kua Lower Third (0-255)
+0-127; 127 addresses every device on the line	0-127; kāhea ʻo 127 i nā mea hana a pau ma ka laina
+GO shows the note; picture and sound carry on	Hōʻike ʻo GO i ka memo; hoʻomau ke kiʻi a me ka leo
+How fast it moves; no effect when it is still	Ka māmā o kona neʻe ʻana; ʻaʻohe hopena ke kū mālie
+Fires when incoming timecode passes this point	Hoʻā ke hala ka timecode e komo mai ana i kēia kiko
+Source pixels, independent of output placement	Nā pika kumu, kaʻawale mai ke kau ʻana o ka puka
+Stereo balance, applied live (snaps to center)	Kaulike stereo, hoʻohana ʻia ola (paʻi i waena)
+bypassed: nothing here is processed or limited	ala ʻē: ʻaʻohe mea ma ʻaneʻi i hana ʻia a i palena ʻia
+Per-cue audio trim: -40 to +40 dB, applied live	ʻOki leo no kēlā me kēia cue: -40 a +40 dB, ola
+Show the message in red - the wrap up NOW state	Hōʻike i ka leka ma ka ʻulaʻula - ke kūlana E HOʻOPAU I KĒIA MANAWA
+The brush's width, as % of the picture's height	Ke ākea o ka hulu pena, ma ka % o ke kiʻekiʻe o ke kiʻi
+What the stream carries: SDR, PQ (HDR10) or HLG	Ka mea i lawe ʻia e ke kahe: SDR, PQ (HDR10) a i ʻole HLG
+Digit colour once red is reached, and in overtime	Waihoʻoluʻu helu ke hiki i ka ʻulaʻula, a ma ka manawa keu
+Downmix this cue to mono (mono sources / mono PA)	Hoʻohui i kēia cue i mono (nā kumu mono / PA mono)
+Drag to scrub (shift = fine), click to type exact	Kauo e kahi (shift = mālie), kaomi e kikokiko pololei
+Hand this to an oscillator so it moves on its own	Hāʻawi i kēia i ka oscillator i neʻe ia nona iho
+Changing width also scales height (and vice versa)	Hoʻonui ka hoʻololi ʻana i ke ākea i ke kiʻekiʻe pū (a pēlā pū ka ʻaoʻao ʻē)
+How long the levels take to arrive; zero is a snap	Ka lōʻihi e hiki ai nā pae; ʻo ka ʻole he paʻi
+Set the self-contained PIP source for this overlay	Hoʻonoho i ke kumu PIP kūʻokoʻa no kēia uhi
+Take the newest shape or pen path out of this mask	Lawe i ke kinona hou loa a i ʻole ke ala peni mai kēia uhi
+An address sent to Deckboy's OSC port fires this cue	Hoʻā kēia cue i ka helu wahi i hoʻouna ʻia i ka port OSC o Deckboy
+Hold on the last composite frame when the scene ends	Paʻa ma ke kiʻi huipū hope ke pau ke kiʻi
+How long it takes; zero is a snap rather than a fade	Ka lōʻihi; ʻo ka ʻole he paʻi ma kahi o ka hala
+Set still/pattern/browser duration for selected cues	Hoʻonoho i ka lōʻihi kiʻi paʻa/kāpoʻe/polokalamu kele no nā cue i koho ʻia
+Start the LTC carrier, stop it, or jam it to a value	Hoʻomaka i ka LTC, hoʻōki iā ia, a i ʻole hoʻonoho iā ia i kekahi helu
+Which cue on that deck; step off the end to clear it	Ka cue ma kēlā papa; lele ma ka hopena e holoi
+Bob up and down. Depth 1 is half the frame either way	Piʻi a iho. ʻO ka hohonu 1 ka hapalua o ke kiʻi ma kēlā me kēia ʻaoʻao
+Output width in pixels | click value to type exact px	Ākea puka ma nā pika | kaomi i ka helu e kikokiko i nā px pololei
+Set the stream URL (srt://, rtmp://, rtsp://, udp://)	Hoʻonoho i ka URL kahe (srt://, rtmp://, rtsp://, udp://)
+Fires at this time on this computer's clock, every day	Hoʻā i kēia manawa ma ka uaki o kēia kamepiula, i kēlā me kēia lā
+Output height in pixels | click value to type exact px	Kiʻekiʻe puka ma nā pika | kaomi i ka helu e kikokiko i nā px pololei
+Bar across the foot - readable further back than digits	Kaola ma lalo - heluhelu ʻia ma kahi mamao aʻe ma mua o nā helu
+OUTPUT: drag a slice to move it, its corners to size it.	PUKA: kauo i ka ʻāpana e neʻe, i kona mau kihi e hoʻonui.
+Choose a Lower Third from the overlay bin to fire on TAKE	Koho i ka Lower Third mai ka pahu uhi e hoʻā ma TAKE
+Choose a PIP overlay from the overlay bin to fire on TAKE	Koho i ka uhi PIP mai ka pahu uhi e hoʻā ma TAKE
+OUTPUT: drag a slice to move it, its corners to pin them.	PUKA: kauo i ka ʻāpana e neʻe, i kona mau kihi e hoʻopaʻa.
+F1-F10, F12 or the number pad fires this cue from anywhere	Hoʻā ʻo F1-F10, F12 a i ʻole ka papa helu i kēia cue mai nā wahi a pau
+Use transition when auto-advancing or goto-taking next cue	Hoʻohana i ka hoʻololi ke neʻe ʻakomi a i ʻole goto i ka cue aʻe
+Nothing has arrived yet. Press something on the controller.	ʻAʻohe mea i hiki mai i kēia manawa. Kaomi i kekahi mea ma ka mea kāohi.
+Audio fade-in: follow visual fade, none, or explicit seconds	Hiki mai leo: hahai i ka hala kiʻi, ʻaʻohe, a i ʻole nā kekona
+Audio fade-out: follow visual fade, none, or explicit seconds	Hala aku leo: hahai i ka hala kiʻi, ʻaʻohe, a i ʻole nā kekona
+Add a library shape to this mask; its points are yours to move	Hoʻohui i ke kinona waihona i kēia uhi; nou kona mau kiko e neʻe
+No slices: this output shows its one picture. + SLICE to start.	ʻAʻohe ʻāpana: hōʻike kēia puka i kona kiʻi hoʻokahi. + SLICE e hoʻomaka.
+Open and close this edge on an oscillator -- a wipe that breathes	Wehe a pani i kēia lihi ma ka oscillator -- he kāwele e hanu ana
+(none)	(ʻaʻohe)
+(nothing yet)	(ʻaʻohe mea i kēia manawa)
++ ADD AN OUTPUT	+ HOʻOHUI I KA PUKA
+(no media source)	(ʻaʻohe kumu media)
+snap	paʻi
+this deck	kēia papa
+protocol	kaʻina kamaʻilio
+does	hana
+signal	hōʻailona
+freq	alapine
+visuals	nā kiʻi
+Pause at start	Hoʻomaha ma ka hoʻomaka
+Pause at end	Hoʻomaha ma ka hopena
+Transition to next	Hoʻololi i ka mea aʻe
+Hardware display	Papakaumaka mea hana
+Raster mode	ʻAno raster
+Refresh rate	Māmā hōʻano hou
+Bit depth	Hohonu bit
+SDR material at	Mea SDR ma
+HDR signal	Hōʻailona HDR
+Matte aspect	Like matte
+Bar opacity	ʻIke ʻia o ke kaola
+Output mask	Uhi puka
+Overlay still	Kiʻi paʻa uhi
+Overlay opacity	ʻIke ʻia o ka uhi
+Overlay image	Kiʻi uhi
+Place it	Kau iā ia
+Corner pin	Kihi i hoʻopaʻa ʻia
+Slices	Nā ʻāpana
+not configured	ʻaʻole i hoʻonohonoho ʻia
+(default system device)	(mea hana maʻamau o ka ʻōnaehana)
+(no monitor)	(ʻaʻohe papakaumaka)
+System audio (SDL)	Leo ʻōnaehana (SDL)
+Not watching a folder	ʻAʻole e nānā ana i ka waihona
+When taken off air	Ke lawe ʻia ma waho o ka lewa
+browser cue added	ua hoʻohui ʻia ka cue polokalamu kele
+source cue added	ua hoʻohui ʻia ka cue kumu
+text added	ua hoʻohui ʻia ka huaʻōlelo
+tone cue added	ua hoʻohui ʻia ka cue leo kani
+Marks stacked BELOW.	Nā kaha i hōʻuluʻulu ʻia MA LALO.
+(projector curve only)	(pihi projector wale nō)
+, — skip to previous cue	, — lele i ka cue mua
+MULTIVIEW carries this too.	Lawe pū ʻo MULTIVIEW i kēia.
+auto (reads the common two)	ʻakomi (heluhelu i nā mea maʻamau ʻelua)
+HLG - live broadcast (BT.2100)	HLG - hoʻolele ola (BT.2100)
+headphones, desk sounds and LTC stay out of it	noho ma waho nā pepeiao, nā kani papa a me LTC
+Above 1 tunnels inward, below 1 blooms outward.	Ma luna o 1 komo i loko, ma lalo o 1 mohala i waho.
+Read everything right to left. Yes, everything.	Heluhelu i nā mea a pau mai ka ʻākau a i ka hema. ʻAe, nā mea a pau.
+Amber is closest to the 1976 single-phosphor look.	Kokoke loa ka ʻākala i ke ʻano phosphor hoʻokahi o 1976.
+Sway sideways. Depth 1 is half the frame either way	Luli ma ka ʻaoʻao. ʻO ka hohonu 1 ka hapalua o ke kiʻi ma kēlā me kēia ʻaoʻao
+Draw the diagnostic over the card, or just the text.	Kaha i ka nānā ma luna o ke kāleka, a i ʻole ka huaʻōlelo wale nō.
+All interfaces, but only this computer is trusted yet.	Nā mea hoʻopili a pau, akā ʻo kēia kamepiula wale nō ka mea hilinaʻi i kēia manawa.
+Choose the legacy cue token to show inside the PIP window	Koho i ka hōʻailona cue kahiko e hōʻike ai i loko o ka puka aniani PIP
+ASIO carries the show's sound, and these are not on it yet	Lawe ʻo ASIO i ka leo o ka hōʻike, a ʻaʻole kēia mau mea ma luna ona i kēia manawa
+N=new  Enter/P=previous  O=open saved  E=examples  L=learn	N=hou  Enter/P=mua  O=wehe i ka mālama ʻia  E=nā laʻana  L=aʻo
+Hand this parameter to an oscillator so it moves on its own	Hāʻawi i kēia helu i ka oscillator i neʻe ia nona iho
+How long the finished drawing stays before it is drawn again	Ka lōʻihi e noho ai ke kaha i pau ma mua o ke kaha hou ʻia ʻana
+How it comes on and goes off: none, fade, rise, slide or wipe	Pehea e komo mai ai a haʻalele: ʻaʻohe, hala, piʻi, paheʻe a kāwele paha
+The 64-step wavetable, quantised to 6 bits like the hardware.	Ka papa nalu 64-kaʻina, ʻoki ʻia i 6 bit e like me ka mea hana.
+Vary tile size per cell, so the grid stops looking like a grid.	Hoʻololi i ka nui tile no kēlā me kēia pahu, i pau ka papa kōnane i ke ʻano he papa kōnane.
+Which output channel carries the signal. 'all' feeds every one.	Ke kahawai puka e lawe ai i ka hōʻailona. Hānai ʻo 'all' i nā mea a pau.
+What is sent. Backslash-n, -r, -t and -0 become those characters	Ka mea i hoʻouna ʻia. Lilo ʻo Backslash-n, -r, -t a me -0 i ia mau hua.
+Deckboy's own remote-protocol verbs, one per line; # is a comment	Nā kauoha ponoʻī o Deckboy, hoʻokahi ma ka lalani; he manaʻo ʻo #
+Modulator speed as a ratio of the note, so the bend tracks pitch.	Ka māmā modulator ma ke ʻano he lakio o ka note, i hahai ke kekeʻe i ka leo kiʻekiʻe.
+Play this cue to the preview only; the outputs keep what they have	Hoʻokani i kēia cue i ka nānā mua wale nō; mālama nā puka i ka mea i loaʻa iā lākou
+Put the pitch on an oscillator: Motion X sweeps it like a theremin	Kau i ka leo kiʻekiʻe ma ka oscillator: kahili ʻo Motion X iā ia e like me ka theremin
+A disarmed cue stays in the list and does nothing; GO steps over it	Noho ka cue i wehe ʻia ka mākaukau ma ka papa helu a hana ʻole; lele ʻo GO ma luna ona
+Where the clock reads from this cue on; click the value to type one	Kahi e heluhelu ai ka uaki mai kēia cue; kaomi i ka helu e kikokiko
+Add a dashboard button that fires this master by name, from anywhere	Hoʻohui i ka pihi dashboard e hoʻā i kēia haku ma ka inoa, mai nā wahi a pau
+New here? LEARN THE BASICS takes five minutes. We'll show you round.	Hou ʻoe ma ʻaneʻi? ʻElima minuke ʻo LEARN THE BASICS. E hōʻike mākou iā ʻoe a puni.
+An IPv4 address, or 255.255.255.255 to broadcast to the whole network	He helu wahi IPv4, a i ʻole 255.255.255.255 e hoʻolele i ka pūnaewele holoʻokoʻa
+How much playing audio widens and brightens the pattern. 0 free-runs.	Ka nui o ka hoʻonui a me ka hoʻōlinolino ʻana o ka leo e hoʻokani ana i ke kāpoʻe. Holo kūʻokoʻa ʻo 0.
+LED panel width in pixels - what one tile really is. Click to type it	Ākea papa LED ma nā pika - ka nui maoli o hoʻokahi tile. Kaomi e kikokiko
+Which deck it acts on; step off the end for the one this cue lives on	Ka papa e hana ai; lele ma ka hopena no ka papa e noho ai kēia cue
+only one playlist - use the routing chip on the header to add another	hoʻokahi wale nō papa helu - e hoʻohana i ka pahu ala ma ke poʻo e hoʻohui i kekahi
+Which cue this master fires on that deck; step off the end to clear it	Ka cue a kēia haku e hoʻā ai ma kēlā papa; lele ma ka hopena e holoi
+Draw on the programme monitor with the mouse or a pen (DRAW). Esc stops	Kaha ma ka papakaumaka papahana me ka ʻiole a i ʻole ka peni (DRAW). Hoʻōki ʻo Esc
+How long the move takes, each way. 0 is instant whatever the style says	Ka lōʻihi o ka neʻe ʻana, ma kēlā me kēia ʻaoʻao. ʻAʻohe lohi ʻo 0 i nā ʻano a pau
+Stop that deck when the ramp lands - the usual take-it-down-and-stop-it	Hoʻōki i kēlā papa ke pae ka piʻina - ka hoʻohaʻahaʻa-a-hoʻōki maʻamau
+Which of the file's sound tracks plays: a second language, a commentary	Ka meheu leo o ka waihona e hoʻokani ai: he ʻōlelo ʻelua, he wehewehe
+An oscillator on the colour: depth is how far round the wheel it travels	He oscillator ma ka waihoʻoluʻu: ʻo ka hohonu ka mamao a puni ka huila
+Rack this cue paused and off air so GO starts it with no decoder spin-up	Hoʻomākaukau i kēia cue me ka hoʻomaha a ma waho o ka lewa i hoʻomaka ʻo GO iā ia me ka lohi ʻole
+Note, control change, program change, MIDI Show Control, or your own bytes	Note, hoʻololi mana, hoʻololi papahana, MIDI Show Control, a i ʻole kāu mau byte ponoʻī
+Black behind the words. Zero leaves it over whatever the output already has	ʻEleʻele ma hope o nā huaʻōlelo. Waiho ka ʻole ma luna o ka mea i loaʻa i ka puka
+How far the modulator bends the pitch. 0-63, the hardware's own gain range.	Ka nui o ke kekeʻe ʻana o ka modulator i ka leo kiʻekiʻe. 0-63, ka pae ikaika ponoʻī o ka mea hana.
+OSC and UDP are fire and forget; TCP connects, so it runs off the show thread	Hoʻouna wale ʻo OSC a me UDP; hoʻopili ʻo TCP, no laila holo ia ma waho o ke kaula hōʻike
+Put the level on an oscillator: Motion makes it a gate that opens as you move	Kau i ka pae ma ka oscillator: hana ʻo Motion iā ia i puka e wehe ke neʻe ʻoe
+-18 dBFS is EBU alignment, -20 is SMPTE. Capped below 0: this feeds a live PA.	ʻO -18 dBFS ke kūlike EBU, ʻo -20 ka SMPTE. Palena ma lalo o 0: hānai kēia i ka PA ola.
+Marks stacked ABOVE the characters, the way combining accents overflow a line.	Nā kaha i hōʻuluʻulu ʻia MA LUNA o nā hua, e like me nā kaha ʻōlelo e kahe ma luna o ka laina.
+Which chime. Cycling PLAYS it, so it can be chosen by ear rather than by name.	Ka leo kani. HOʻOKANI ka hoʻololi ʻana iā ia, i koho ʻia ma ka pepeiao ma kahi o ka inoa.
+No rows. + ADD or LEARN makes one; MIDIMAP RESET brings the built-in rows back.	ʻAʻohe lalani. Hana ʻo + ADD a LEARN paha i hoʻokahi; hoʻihoʻi ʻo MIDIMAP RESET i nā lalani mua.
+Save the mask's paths as SVG, for Illustrator and anything else that reads them	Mālama i nā ala o ka uhi ma ke ʻano he SVG, no Illustrator a me nā mea ʻē aʻe e heluhelu ai
+Which MIDI output; a named port that is missing is reported rather than swapped	Ka puka MIDI; hōʻike ʻia ka port i kapa ʻia i nalowale ma kahi o ka hoʻololi ʻia
+An oscillator on the level, running after GO until a later cue sets this fixture	He oscillator ma ka pae, e holo ana ma hope o GO a hoʻonoho ka cue hope i kēia kukui
+Steps in third-octaves, because the ear works in ratios. 1kHz is the convention.	Nā kaʻina ma nā hapakolu octave, no ka mea hana ka pepeiao ma nā lakio. ʻO 1kHz ka maʻamau.
+Strikes drawn ACROSS the cell, damaging the character rather than decorating it.	Nā kaha i kaha ʻia MA WAENA o ka pahu, e hōʻino ana i ka hua ma kahi o ka hoʻonani.
+Whether incoming MIDI notes play this synth or trigger cues as they always have.	Inā hoʻokani nā note MIDI e komo mai ana i kēia synth a i ʻole hoʻā i nā cue e like me mau.
+A note number, or type LEARN and play it. Notes no cue claims still go to cue N+1	He helu note, a i ʻole kikokiko iā LEARN a hoʻokani. Hele mau nā note ʻaʻohe cue e kuleana i ka cue N+1
+A plain stereo pair. Click to open the matrix, starting from exactly this routing	He pālua stereo maʻalahi. Kaomi e wehe i ka matrix, e hoʻomaka ana mai kēia ala pololei
+Folding is what turns an arbitrary pattern into something that reads as designed.	ʻO ka pelu ʻana ka mea e lilo ai ke kāpoʻe ʻokoʻa i mea i hoʻolālā ʻia.
+Channel=level, comma separated. Ranges too: 1=255, 10-14=64. Channels count from 1	Kahawai=pae, hoʻokaʻawale ʻia me ke koma. Nā kaʻina pū: 1=255, 10-14=64. Helu nā kahawai mai ka 1
+Moves every selected cue's trim by the same dB; typing a value sets them all to it	Hoʻoneʻe i ka ʻoki o nā cue i koho ʻia ma ka dB like; hoʻonoho ke kikokiko ʻana i ka helu iā lākou a pau
+Bends the carrier's PITCH rather than mixing with it. This is what makes FDS growl.	Kekeʻe i ka LEO KIʻEKIʻE o ke kalaka ma kahi o ka hui ʻana me ia. ʻO kēia ka mea e uō ai ʻo FDS.
+Half way through LEARN THE BASICS. Press L and we pick up where you stopped, skapi.	Ka hapalua o LEARN THE BASICS. Kaomi i ka L a hoʻomau kāua ma kahi āu i kū ai, skapi.
+Render as a character grid with a 16-colour indexed palette, rather than as pixels.	Hōʻike ma ke ʻano he papa hua me ka papa waihoʻoluʻu 16, ma kahi o nā pika.
+Which MIDI output this file plays to; step past the end for the first one available	Ka puka MIDI e hoʻokani ai kēia waihona; lele ma ka hopena no ka mea mua i loaʻa
+An IPv4 address, or 255.255.255.255 for the universe's multicast group (239.255.x.y)	He helu wahi IPv4, a i ʻole 255.255.255.255 no ka hui multicast o ke ao (239.255.x.y)
+Click a cell to walk it: off, full, -3, -6, -12. This row turns the matrix off again	Kaomi i ka pahu e hele: pio, piha, -3, -6, -12. Hoʻopio hou kēia lalani i ka matrix
+How long each phrase stays before it moves. Zero hides them without losing the list.	Ka lōʻihi e noho ai kēlā me kēia māmalaʻōlelo ma mua o ka neʻe ʻana. Hūnā ka ʻole iā lākou me ka nalo ʻole o ka papa.
+How long it takes to fall away after the attack. Only audible when retrigger is set.	Ka lōʻihi e hāʻule ai ma hope o ka hoʻouka ʻana. Lohe ʻia wale nō ke hoʻonoho ʻia ka paʻi hou.
+Off, from start (next cue fires when this one starts) or from end (when it finishes)	Pio, mai ka hoʻomaka (hoʻā ka cue aʻe ke hoʻomaka kēia) a mai ka hopena paha (ke pau)
+Height of one line as a percent of the raster, so a card reads the same on any screen	Ke kiʻekiʻe o hoʻokahi laina ma ka pākēneka o ka raster, i heluhelu like ke kāleka ma kekahi papakaumaka
+Set slot source as media:/path, browser:url, window:name, camera:name, or syphon:name	Hoʻonoho i ke kumu ʻāpana ma ke ʻano he media:/path, browser:url, window:name, camera:name, a i ʻole syphon:name
+Short LFSR mode. The period is brief enough to read as pitched metal rather than hiss.	ʻAno LFSR pōkole. Pōkole ka manawa e lohe ʻia ai he metala leo ma kahi o ka ʻuʻina.
+White, warm, red, amber, green, cyan, blue, magenta. ~ moves it round the colour wheel	Keʻokeʻo, mehana, ʻulaʻula, ʻākala, ʻōmaʻomaʻo, cyan, polū, magenta. Neʻe ʻo ~ iā ia a puni ka huila waihoʻoluʻu
+Re-strike the envelope this often. Hold sustains one note, which is what a drone wants.	Paʻi hou i ka envelope i kēia manawa. Mālama ʻo Hold i hoʻokahi note, ʻo ia ka makemake o ka drone.
+Diamond is the hard-edged Atari Video Music lattice; rings tunnel well with feedback zoom.	ʻO Diamond ka lattice Atari Video Music lihi paʻakikī; komo maikaʻi nā apo me ka hoʻonui hoʻihoʻi.
+Rock or spin. Depth 1 is half a turn either way; a saw at depth 1 turns it all the way round	Luli a wili paha. ʻO ka hohonu 1 ka hapalua huli ma kēlā me kēia ʻaoʻao; huli ka saw ma ka hohonu 1 a puni
+DECK playback level (live, not saved with the cue) - per-cue trim is gain in the AUDIO section	Pae hoʻokani PAPA (ola, ʻaʻole mālama ʻia me ka cue) - ʻo ka ʻoki cue ka ikaika ma ka ʻāpana AUDIO
+Still, fade in, typewriter, scroll up, crawl or pulse -- all driven by the cue's own transport	Paʻa, hiki mai, mīkini kikokiko, ʻōwili i luna, kolo a panapana paha -- hoʻoholo ʻia e ka hoʻoholo ponoʻī o ka cue
+Fields per rendered frame. 1 is one for one, 0.5 holds each field for two frames, 0 freezes it.	Nā kahua no ke kiʻi. ʻO 1 hoʻokahi no hoʻokahi, paʻa ʻo 0.5 i kēlā me kēia kahua no ʻelua kiʻi, hoʻopaʻa ʻo 0.
+What this cue shows while it plays: waveform, scope, Lissajous, spectrum, meters or a name card	Ka mea a kēia cue e hōʻike ai ke hoʻokani: waveform, scope, Lissajous, spectrum, nā mika a i ʻole kāleka inoa
+0 picks tiles by brightness so the picture reads. 1 picks at random so the grid becomes texture.	Koho ʻo 0 i nā tile ma ka ʻōlinolino i heluhelu ʻia ke kiʻi. Koho wale ʻo 1 i lilo ka papa kōnane i ʻili.
+How far it travels, in semitones. Up reads as arrival, down as departure, zero is a struck note.	Ka mamao o kona hele ʻana, ma nā semitone. Hiki mai ka piʻi, haʻalele ka iho, he note i paʻi ʻia ka ʻole.
+An IPv4 address. Names are not resolved: a DNS lookup is a blocking call and GO must not make one	He helu wahi IPv4. ʻAʻole hoʻoholo ʻia nā inoa: kāohi ka nīnau DNS, a ʻaʻole pono ʻo GO e hana i kekahi
+Tile width in pixels. Must match the sheet's grid or the slices land across neighbouring sprites.	Ākea tile ma nā pika. Pono e kūlike me ka papa kōnane o ka pepa, a i ʻole pae nā ʻāpana ma nā sprite e pili ana.
+Alternating mirrors by cell position, which reads as pattern where random flipping reads as noise.	Nā aniani e kaʻahele ma ke kūlana pahu, heluhelu ʻia he kāpoʻe kahi e heluhelu ʻia ai ka huli wale he ʻuʻina.
+0 welds them to their cell, which reads as engraved. Above it they re-roll, which reads as boiling.	Hoʻopili ʻo 0 iā lākou i ko lākou pahu, heluhelu ʻia ua kālai ʻia. Ma luna aʻe ʻōwili hou lākou, heluhelu ʻia e paila ana.
+--- -- --  does nothing on that playlist  -  (M) the step's own playlist	--- -- --  ʻaʻohe hana ma kēlā papa helu  -  (M) ka papa helu ponoʻī o ke kaʻina
+MONO L plays the left input in both speakers: mic 1 on most interfaces. STEREO is for a line source.	Hoʻokani ʻo MONO L i ka komo hema ma nā pahu leo ʻelua: mic 1 ma ka hapa nui o nā mea hoʻopili. No ke kumu laina ʻo STEREO.
+The whole gesture. This IS the cue's duration -- a sting is the one generated signal here that ends.	Ke ʻano holoʻokoʻa. ʻO kēia KA lōʻihi o ka cue -- ʻo ka sting ka hōʻailona hoʻokahi i hana ʻia ma ʻaneʻi e pau ana.
+Click the value to send this fixture or leave it where the last cue put it. ~ makes the level breathe	Kaomi i ka helu e hoʻouna i kēia kukui a i ʻole waiho iā ia ma kahi a ka cue hope i kau ai. Hoʻohanu ʻo ~ i ka pae
+FDS is a wavetable bent by a modulator. 2A03 is the pulse/triangle/noise set most chiptune is made of.	He papa nalu ʻo FDS i kekeʻe ʻia e ka modulator. ʻO 2A03 ka hui pulse/triangle/noise i hana ʻia ai ka hapa nui o ka chiptune.
+Scramble which glyph means which brightness. Same set, different handwriting. Seeded, so it stays put.	Hoʻohuikau i ka hua e kuhikuhi ai i ka ʻōlinolino. Ka hui like, kākau lima ʻokoʻa. Hoʻopaʻa ʻia ka hua, no laila noho mau.
+Pixel sort: runs of pixels sorted by brightness within a row, which is what makes datamosh look melted.	Hoʻonohonoho pika: nā pika i hoʻonohonoho ʻia ma ka ʻōlinolino i loko o ka lalani, ʻo ia ka mea e hehee ai ka datamosh.
+How many cells the marks may climb. They thin out as they go, so a tall reach trails rather than doubles.	Ka nui o nā pahu e hiki ai i nā kaha ke piʻi. Lahilahi lākou ke hele, no laila hahai ka hōʻea kiʻekiʻe ma kahi o ka pālua.
+cue act val  -  G take  S stop  F fade out (val = tenths of a second)  V volume  O opacity  J jump to row	cue hana helu  -  G lawe  S kū  F hala aku (helu = hapaʻumi kekona)  V leo  O ʻike ʻia  J lele i ka lalani
+Harmonic weight: a pure chime at zero, brass at full. This is the difference between a ping and a fanfare.	Kaumaha harmonic: he kani maʻemaʻe ma ka ʻole, he keleawe ma ka piha. ʻO kēia ka ʻokoʻa ma waena o ka ping a me ka fanfare.
+Steps through the inputs this computer has. 'Settings input' follows the input chosen in Settings > Audio.	Hele ma nā komo o kēia kamepiula. Hahai ʻo 'Settings input' i ka komo i koho ʻia ma Settings > Audio.
+Embers to roaring. It still surges and settles at any setting -- a fire that does not move reads as a photo	Mai nā lānahu a i ka uwō. Piʻi a noho mau nō ia ma nā hoʻonoho a pau -- heluhelu ʻia ke ahi neʻe ʻole he kiʻi paʻi.
+Reference pitch. 440 is modern standard, 432 the common alternative, and older instruments sat lower still.	Leo kiʻekiʻe kuhikuhi. ʻO 440 ka maʻamau hou, ʻo 432 ka mea ʻē aʻe maʻamau, a ua noho haʻahaʻa aʻe nā mea kani kahiko.
+Where the sting starts. Under a voice it wants to stay out of the way; over a room it wants to cut through.	Kahi e hoʻomaka ai ka sting. Ma lalo o ka leo makemake ia e noho ma waho o ke ala; ma luna o ka lumi makemake ia e ʻoki.
+Digital gain on the input, -40 to +40 dB. Set the interface's own preamp first; this is for the last few dB.	Ikaika kikohoʻe ma ka komo, -40 a +40 dB. Hoʻonoho mua i ka preamp ponoʻī o ka mea hoʻopili; no nā dB hope kēia.
+Pulse the size. On its own this moves width AND height together; give height its own ~ to squash and stretch	Panapana i ka nui. Iā ia iho neʻe kēia i ke ākea A ME ke kiʻekiʻe pū; hāʻawi i ke kiʻekiʻe i kona ~ ponoʻī e kaomi a kīkoʻo
+A card fills the frame; a Lower Third is a name and a role, low on a transparent frame, with an in and an out	Hoʻopiha ke kāleka i ke kiʻi; he inoa a me ke kūlana ka Lower Third, haʻahaʻa ma ke kiʻi akaka, me ke komo a me ka puka
+Held keeps the last displacement rather than removing it -- the picture stays bent the way the driver left it.	Mālama ʻo Held i ka neʻe hope ma kahi o ka wehe ʻana -- noho ke kiʻi i kekeʻe ʻia e like me ka waiho ʻana a ka mea hoʻokele.
+--- -- --  does nothing on that playlist  -  (M) the step's own playlist  -  EDIT is on: typing changes the show	--- -- --  ʻaʻohe hana ma kēlā papa helu  -  (M) ka papa helu ponoʻī o ke kaʻina  -  Ua hoʻā ʻia ʻo EDIT: hoʻololi ke kikokiko ʻana i ka hōʻike
+12.5 and 25 are thin and reedy, 50 is hollow. 75 sounds identical to 25 -- it is here because trackers expose it.	Lahilahi a mānoanoa ʻole ʻo 12.5 a me 25, puka ʻo 50. Like ka leo o 75 me 25 -- aia ma ʻaneʻi no ka mea hōʻike nā tracker iā ia.
+Quantise the output like the hardware. The steps ARE the sound; smoothing them makes it a synth imitating a chip.	Hoʻokaʻawale i ka puka e like me ka mea hana. ʻO nā kaʻina KA leo; ʻo ka hoʻomālie ʻana iā lākou he synth e hoʻohālike ana i ka chip.
+Moves every selected cue's trim by the same dB, keeping the differences between them; typing a value sets them all to it	Hoʻoneʻe i ka ʻoki o nā cue i koho ʻia ma ka dB like, me ka mālama ʻana i ko lākou ʻokoʻa; hoʻonoho ke kikokiko ʻana i ka helu iā lākou a pau
+Where the playlist's crosspoints send it (Settings > Audio). Click to open the matrix by name, starting from exactly that	Kahi e hoʻouna ai nā kea o ka papa helu (Settings > Audio). Kaomi e wehe i ka matrix ma ka inoa, e hoʻomaka ana mai ia ala pololei
+Put back what it started from once the ramp lands (after the stop): a deck left ready for its next cue, a swell that lets go	Hoʻihoʻi i kona hoʻomaka ʻana ke pae ka piʻina (ma hope o ke kū): he papa mākaukau no kona cue aʻe, he piʻi e hoʻokuʻu
+Which speech model makes the captions: English, any language, or the slower, more accurate pair. Each is a one-time download	Ke kumu ʻōlelo e hana ai i nā huaʻōlelo: Pelekānia, kekahi ʻōlelo, a i ʻole ka pālua lohi aʻe, pololei aʻe. Hoʻoiho hoʻokahi manawa kēlā me kēia
+What the mask cuts: this cue wherever it plays, this playlist on the focused output, that output's whole picture, or its matte	Ka mea a ka uhi e ʻoki ai: kēia cue ma nā wahi a pau e hoʻokani ai, kēia papa helu ma ka puka i kālele ʻia, ke kiʻi holoʻokoʻa o kēlā puka, a i ʻole kona matte
+Play at the screen's rate when it is within 0.2% (59.94 on 60): every frame shown once, the sound up to 3.5 cents sharp or flat	Hoʻokani ma ka māmā o ka papakaumaka ke loko o 0.2% (59.94 ma 60): hōʻike ʻia kēlā me kēia kiʻi hoʻokahi manawa, ka leo a hiki i 3.5 cents kiʻekiʻe a haʻahaʻa
+Quarter turns are exact and stay crisp. Spinning samples at an angle, which tears pixel art -- sometimes that is what you want.	Pololei nā huli hapahā a noho ʻoʻoleʻa. Laʻana ka wili ʻana ma ka huina, e haehae ana i ke kiʻi pika -- i kekahi manawa ʻo ia kāu e makemake ai.
+Every take starts the puppetry the same way, so a rehearsed look repeats instead of depending on how long the app has been open.	Hoʻomaka kēlā me kēia lawe i ka hoʻoneʻe ma ke ala like, i hana hou ʻia ke ʻano i hoʻomaʻamaʻa ʻia ma kahi o ka pili ʻana i ka lōʻihi o ka wehe ʻana o ka app.
+What aims each tilt: its own position, the picture's luma gradient so characters lean the way the image does, or the cell's hue.	Ka mea e kuhikuhi ai i kēlā me kēia hiō: kona kūlana ponoʻī, ka luma gradient o ke kiʻi i hiō nā hua e like me ke kiʻi, a i ʻole ke ʻano waihoʻoluʻu o ka pahu.
+Name a channel or a pair once. Playlists send to the name, so a different interface means changing the names here, not every cue.	Kapa i ke kahawai a i ʻole ka pālua hoʻokahi manawa. Hoʻouna nā papa helu i ka inoa, no laila ʻo ka mea hoʻopili ʻokoʻa ka hoʻololi ʻana i nā inoa ma ʻaneʻi, ʻaʻole kēlā me kēia cue.
+Click a crosspoint to walk it: off, 0, -3, -6, -12 dB. Drag it sideways for any level. A playlist with none plays to its own device.	Kaomi i ke kea e hele: pio, 0, -3, -6, -12 dB. Kauo iā ia ma ka ʻaoʻao no kekahi pae. Hoʻokani ka papa helu ʻaʻohe ona i kona mea hana ponoʻī.
+Sprite sets installed in data/sprites. Each folder there is a set; cycling picks one and wraps back to none. Right-click turns them off.	Nā hui sprite i hoʻokomo ʻia ma data/sprites. He hui kēlā me kēia waihona ma laila; koho ka hoʻololi ʻana i hoʻokahi a hoʻi i ka ʻaʻohe. Hoʻopio ke kaomi ʻākau iā lākou.
+Internal resolution, 1 chunkiest to 5 finest. This is an aesthetic control as much as a speed one -- the 8-bit look comes from big pixels.	Kikoʻī kūloko, 1 nui loa a 5 liʻiliʻi loa. He mana nani kēia e like me ka māmā -- mai nā pika nui mai ke ʻano 8-bit.
+Picture takes colour from the image. Green, amber and cyan are terminal phosphors. Palette locks the text to the selected hardware palette.	Lawe ʻo Picture i ka waihoʻoluʻu mai ke kiʻi. He phosphor pahu kauoha ka ʻōmaʻomaʻo, ʻākala a me ka cyan. Hoʻopaʻa ʻo Palette i ka huaʻōlelo i ka papa waihoʻoluʻu mea hana i koho ʻia.
+SUBTLE self-heals (H.264). CLASSIC is the real smear (MPEG-4). EXTREME is chunkier and smears constantly. Changing this re-prepares the cue.	Hoʻōla iā ia iho ʻo SUBTLE (H.264). ʻO CLASSIC ka hamo maoli (MPEG-4). Poloka aʻe ʻo EXTREME a hamo mau. Hoʻomākaukau hou ka hoʻololi ʻana i kēia i ka cue.
+Sine for line-up, pink to ring out a PA, white to find rattles, sweep to hear where a room rings, identify to walk the outputs one at a time.	Sine no ka hoʻonohonoho, pink e hoʻokani i ka PA, keʻokeʻo e ʻimi i nā ʻuʻina, sweep e lohe i kahi e kani ai ka lumi, identify e hele ma nā puka i kēlā me kēia manawa.
+Which effect, by its place in the stack of the cue that deck is playing when this fires. With nothing there, the fade says so and does nothing	Ka hopena, ma kona wahi i ka hōʻuluʻulu o ka cue e hoʻokani ana kēlā papa ke hoʻā kēia. Inā ʻaʻohe mea ma laila, haʻi ka hala a hana ʻole
+Each frame blended into the next. This is the Hypno signature -- at 0 it is a pattern generator, above it the picture starts feeding on itself.	Hui ʻia kēlā me kēia kiʻi i ka mea aʻe. ʻO kēia ka hōʻailona Hypno -- ma ka 0 he mea hana kāpoʻe ia, ma luna aʻe hoʻomaka ke kiʻi e ʻai iā ia iho.
+What is through the window on the hearth wall: a garden, rain, snow or the sea. A room with weather outside reads as somewhere rather than as a wall	Ka mea ma waho o ka puka aniani ma ka paia kapuahi: he māla, he ua, he hau a i ʻole ke kai. ʻO ka lumi me ka ʻeā ma waho, he wahi ia ma kahi o ka paia
+BY FIXTURE: the lights in the patch (Settings > Network > FIXTURES), by name. CHANNELS: channel=level by hand. A cue can carry both; channels go last	MA KA KUKUI: nā kukui ma ka patch (Settings > Network > FIXTURES), ma ka inoa. NĀ KAHAWAI: kahawai=pae ma ka lima. Hiki i ka cue ke lawe i nā mea ʻelua; hope loa nā kahawai
+Each character rocks as though it were a card being tilted. Every cell has its own phase, so the grid breathes instead of sliding about as one sheet.	Luli kēlā me kēia hua me he kāleka lā e hiō ana. He pae ponoʻī ko kēlā me kēia pahu, no laila hanu ka papa kōnane ma kahi o ka paheʻe ʻana me he pepa hoʻokahi lā.
+Pen: click for corners, drag for curves, click the first point to close (P). Points: drag, click the outline to add one, Alt-click or Delete to remove	Peni: kaomi no nā kihi, kauo no nā pihi, kaomi i ke kiko mua e pani (P). Nā kiko: kauo, kaomi i ka laina waho e hoʻohui, Alt-kaomi a Delete paha e wehe
+The chip's three channels. They differ in kind: triangle has no volume control on the hardware, and noise is a shift register rather than an oscillator.	Nā kahawai ʻekolu o ka chip. ʻOkoʻa ko lākou ʻano: ʻaʻohe mana leo o ka triangle ma ka mea hana, a he shift register ka noise ma kahi o ka oscillator.
+Curated sets of symbols and emoji -- stars, notes, flowers, arrows, weather, runes, faces. Picking one fills the custom glyphs below, which stays editable.	Nā hui hōʻailona a me nā emoji i koho ʻia -- nā hōkū, nā note, nā pua, nā pua kuhikuhi, ka ʻeā, nā rune, nā maka. Hoʻopiha ke koho ʻana i nā hua ponoʻī ma lalo, hiki mau ke hoʻoponopono ʻia.
+Play from the computer keyboard, Ableton layout: A W S E D F T G Y H U J, Z and X for octave. While this is ON those keys make notes instead of firing cues.	Hoʻokani mai ka papa kī kamepiula, ʻano Ableton: A W S E D F T G Y H U J, Z a me X no ka octave. Ke HOʻĀ kēia hana kēlā mau kī i nā note ma kahi o ka hoʻā ʻana i nā cue.
+Deck opacity, deck volume, the master dimmer, the active cue's own brightness / contrast / saturation / hue, or a knob of one of its effects or audio effects	ʻIke ʻia o ka papa, leo o ka papa, ka hoʻēmi haku, ka ʻōlinolino / ʻokoʻa / ikaika waihoʻoluʻu / ʻano waihoʻoluʻu ponoʻī o ka cue ola, a i ʻole ka pihi o kekahi o kāna mau hopena a hopena leo paha
+Scanlines, phosphor bloom and RGB fringing. The bloom is the part that matters -- a phosphor spills sideways, which is why a CRT looks like it is emitting light.	Nā laina scan, ka mohala phosphor a me ka lihi RGB. ʻO ka mohala ka ʻāpana koʻikoʻi -- kahe ka phosphor ma ka ʻaoʻao, no laila me he mea lā e hoʻopuka ana ka CRT i ka mālamalama.
+Torn scanline bands and RGB separation. In text mode it also corrupts CELLS -- whole rows lock to one repeating character, the way a real text screen loses sync.	Nā kaola laina scan i haehae ʻia a me ka hoʻokaʻawale RGB. Ma ke ʻano huaʻōlelo hōʻino pū ia i nā PAHU -- paʻa nā lalani holoʻokoʻa i hoʻokahi hua hana hou, e like me ka nalo ʻana o ke kūlike o ka papakaumaka huaʻōlelo maoli.
+Still holds the frame you are on. Flipbook plays the frames in turn. Replay draws the first frame stroke by stroke, the way it was drawn, then holds and starts again	Paʻa ʻo Still i ke kiʻi āu e noho nei. Hoʻokani ʻo Flipbook i nā kiʻi ma ka hulina. Kaha hou ʻo Replay i ke kiʻi mua kaha ma ke kaha, e like me kona kaha ʻia ʻana, a laila paʻa a hoʻomaka hou
+Start, Stop, Pause, Resume, Load (stand it by without firing), Arm, Disarm, or Devamp it (a loop plays out its pass and ends); or Stop all, Pause all, Resume all: every deck	Start, Stop, Pause, Resume, Load (hoʻomākaukau me ka hoʻā ʻole), Arm, Disarm, a i ʻole Devamp (pau ka pōʻai i kona puni a pau); a i ʻole Stop all, Pause all, Resume all: nā papa a pau
+Scope shows shape and clipping. Lissajous shows phase and polarity between the first two channels -- a diagonal the wrong way means one is inverted. Spectrum is third-octave bars.	Hōʻike ʻo Scope i ke kinona a me ka ʻoki. Hōʻike ʻo Lissajous i ka pae a me ka polarity ma waena o nā kahawai mua ʻelua -- ʻo ka diagonal ma ka ʻaoʻao hewa ka mea i hoʻohuli ʻia. He hapakolu octave ka Spectrum
+0 picks the glyph the brightness asks for, 1 picks any glyph in the set. Turn it up to see the whole alphabet: ranked strictly by ink, a flat area picks one mark and the rest never appear.	Koho ʻo 0 i ka hua a ka ʻōlinolino e noi ai, koho ʻo 1 i kekahi hua ma ka hui. Hoʻonui iā ia e ʻike i ka pīʻāpā holoʻokoʻa: ma ka ʻīnika wale nō, koho ka wahi pālahalaha i hoʻokahi kaha
+Blocks and dithers read as density; the ASCII ramp reads as text; symbols read as wreckage. Cycling this clears a custom glyph string, since that would override it -- the preset row puts one back.	Heluhelu ʻia nā poloka a me nā dither he mānoanoa; heluhelu ʻia ka ramp ASCII he huaʻōlelo; heluhelu ʻia nā hōʻailona he ʻōpala. Holoi ka hoʻololi ʻana i kēia i nā hua ponoʻī, no ka mea e hoʻopau ia iā ia
+Equal temperament buys free modulation at the cost of every interval being slightly wrong. Just and pythagorean are exactly in tune in one key. Bohlen-Pierce divides a twelfth, so it has no octaves.	Kūʻai ka equal temperament i ka modulation manuahi me ka hewa iki o kēlā me kēia interval. Kūlike pololei ʻo Just a me pythagorean ma hoʻokahi kī. Māhele ʻo Bohlen-Pierce
+gain	ikaika
+follow	hahai
+moves	nā neʻe
+overtime	manawa keu
+chime	kani
+bell	pele
+load a sprite sheet from a file...	hoʻouka i ka pepa sprite mai ka waihona...
+Run the clock	Holo i ka uaki
+What fires this cue besides GO	Ka mea e hoʻā ai i kēia cue ma waho o GO
+center	waena
+visual	kiʻi
+MIX	HUI
+Map	Palapala ʻāina
+WACKY	PUPULE
+COLOUR	WAIHOʻOLUʻU
+DARKEN	HOʻOPŌʻELE
+Pickup	Kiʻi
+COMPARE	HOʻOHĀLIKE
+LIGHTEN	HOʻOMĀLAMALAMA
+Pocket Test (day)	Pocket Test (ao)
+Dark Detail (0-12%)	Kikoʻī pōʻeleʻele (0-12%)
+Frame Count (emoji)	Helu kiʻi (emoji)
+PLUGE (black level)	PLUGE (pae ʻeleʻele)
+Passphrase (shared)	Huaʻōlelo hūnā (kaʻana)
+Pocket Test (night)	Pocket Test (pō)
+Pocket Test (storm)	Pocket Test (ʻino)
+Panel Map (animated)	Palapala ʻāina papa (neʻe)
+Pocket Test (sunset)	Pocket Test (napoʻo ʻana o ka lā)
+Boresight (alignment)	Nānā pololei (hoʻopololei)
+SMPTE 75% Colour Bars	Nā kaola waihoʻoluʻu SMPTE 75%
+Multiburst (bandwidth)	Multiburst (ākea)
+Convergence (fine grid)	Hui ʻana (papa kōnane liʻiliʻi)
+Greyscale Steps (gamma)	Nā kaʻina hina (gamma)
+Uniformity (flat fields)	Like ʻana (nā kahua pālahalaha)
+Test Clock (sync + latency)	Uaki hoʻāʻo (kūlike + lohi)
+Panel Map (LED tile numbers)	Palapala ʻāina papa (nā helu tile LED)
+Portal (blobs of deep space)	Puka (nā pōpō o ka lewa hohonu)
+Terrarium (living ecosystem)	Terrarium (kaiaola ola)
+Window 10% (peak brightness)	Puka aniani 10% (ʻōlinolino kiʻekiʻe)
+Window 50% (peak at mid APL)	Puka aniani 50% (kiʻekiʻe ma APL waena)
+Frame Count (drops + latency)	Helu kiʻi (hāʻule + lohi)
+Terrarium Pico (1px per cell)	Terrarium Pico (1px no ka pahu)
+Banding Ramps (real bit depth)	Nā piʻina banding (hohonu bit maoli)
+Fireside (a hearth that burns)	Kapuahi (he kapuahi e ʻā ana)
+Test Bars (motion diagnostics)	Nā kaola hoʻāʻo (nānā neʻe)
+Moire 1:1 (is anything scaling?)	Moire 1:1 (hoʻonui ʻia anei kekahi mea?)
+Pocket Test (test card + scene cycle)	Pocket Test (kāleka hoʻāʻo + kaʻina kiʻi)
+Critters (pixel-exact scaling, animated)	Nā holoholona (nui pika pololei, neʻe)
+Greetings, primitive. Your "slideshow" amuses us.	Aloha, e ke kanaka kahiko. Hoʻoleʻaleʻa kāu "slideshow" iā mākou.
+the words this cue puts on screen  |  Shift+Enter: new line  |  Enter: apply	nā huaʻōlelo a kēia cue e kau ai ma ka papakaumaka  |  Shift+Enter: laina hou  |  Enter: hoʻohana
+name values with  d = ...;  end with one expression, or three for red green blue  |  Shift+Enter: new line  |  Enter: apply	kapa i nā helu me  d = ...;  hoʻopau me hoʻokahi ʻōlelo, a ʻekolu paha no ka ʻulaʻula ʻōmaʻomaʻo polū  |  Shift+Enter: laina hou  |  Enter: hoʻohana
+>LIVE	>OLA
+Limiter	Mea hoʻopalena
+Passphrase	Huaʻōlelo hūnā
+Motion: Bug Swat	Neʻe: Bug Swat
+LAYOUT	HOʻONOHONOHO
+Presets	Nā preset
+MULTI ON	MULTI HOʻĀ
+SELECT DECK 2	KOHO IĀ DECK 2
+Now click its tab, Deck 2. A new playlist is not the selected one until you click it.	I kēia manawa kaomi i kona kāwele, Deck 2. ʻAʻole koho ʻia ka papa helu hou a hiki i kou kaomi ʻana.
+The lit tab is where SOURCE puts things. Skip this and the ink lands under the synth.	ʻO ke kāwele ʻā kahi e kau ai ʻo SOURCE i nā mea. Lele ma luna o kēia a hāʻule ka ʻīnika ma lalo o ka synth.
+See that tab? Click it. Now you're on Deck 2. BOOM. Fundamentals.	ʻIke ʻoe i kēlā kāwele? Kaomi. Aia ʻoe ma Deck 2 i kēia manawa. BOOM. Nā kumu.
+Click its tab, Deck 2. The lit tab is the playlist SOURCE adds to.	Kaomi i kona kāwele, Deck 2. ʻO ke kāwele ʻā ka papa helu e hoʻohui ai ʻo SOURCE.
+Skip this and the words go under the map. With the lizard.	Lele ma luna o kēia a hele nā huaʻōlelo ma lalo o ka palapala ʻāina. Me ka moʻo.
+Nine years of live weather. Always click the tab.	ʻEiwa makahiki o ka ʻeā ola. Kaomi mau i ke kāwele.
+Click its tab, Deck 2. A new playlist waits until you choose it.	Kaomi i kona kāwele, Deck 2. Kali ka papa helu hou a hiki i kou koho ʻana.
+The lit tab gets the next cue. Like choosing which slide goes in the projector.	Loaʻa i ke kāwele ʻā ka cue aʻe. E like me ke koho ʻana i ke kiʻi e komo i ka projector.
+Pick a deck. Any deck. ...Deck 2. Pick Deck 2.	Koho i kahi pūʻulu. Kekahi pūʻulu. ...Deck 2. Koho iā Deck 2.
