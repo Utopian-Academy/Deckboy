@@ -1360,3 +1360,498 @@ in	giriş
 out	çıkış
 routing	yönlendirme
 trim	kırp
+0-63, the hardware's own gain range.	0-63, donanımın kendi kazancı.
+1-16, as the desk counts them	1-16, masanın saydığı gibi
+7-segment, blocky, or a real font	7 segment, köşeli veya gerçek bir yazı tipi
+[ / ] keys — fade-in duration	[ / ] tuşları: giriş süresi
+a camera moves the ~ controls	bir kamera kontrolleri hareket ettirir ~
+a chain on a device, after the mix	bir aygıtta zincir, miksten sonra
+a comment	bir yorum
+Act now, without taking the cue	Cue'yu almadan şimdi yap
+Add a light	Işık ekle
+add a second output to pair	eşlemek için ikinci bir çıkış ekle
+add shape	şekil ekle
+all driven by the cue's own transport	hepsi cue'nun oynatımıyla sürülür
+All interfaces; trusted machines only.	Tüm arayüzler; yalnızca güvenilen makineler.
+all to 0	hepsi 0
+An audio effect's knob	Bir ses efekti düğmesi
+An effect's knob	Bir efekt düğmesi
+any channel	herhangi bir kanal
+any window, any screen	herhangi bir pencere, herhangi bir ekran
+arcade	atari
+Arm this cue as the one GO will fire	Bu cue'yu sonraki GO için hazırla
+Art-Net port address, 0-32767	Art-Net port adresi, 0-32767
+Attached overlays fire on TAKE only	Bağlı kaplamalar yalnızca TAKE ile başlar
+BACK TO BUG SWAT	BUG SWAT'A DÖN
+backdrop	arka plan
+bar	çubuk
+bg alpha	arka plan alfası
+black lift	siyah yükseltme
+blend gamma	karışım gaması
+blueprint	mavi kopya
+boxes	kutular
+bracket	köşeli ayraçlar
+bulletin	bülten
+by density	yoğunluğa göre
+BY FIXTURE	ARMATÜRE GÖRE
+capsule	kapsül
+caption	alt yazı
+card	kart
+CARD OFF ALL	KART HEPSİ KAPALI
+CARD ON ALL	KART HEPSİ AÇIK
+cartridge	kartuş
+cassette	kaset
+Ceiling	Tavan
+Chain	Zincir
+Changing this re-prepares the cue.	Değiştirmek cue'yu yeniden hazırlar.
+channel list is not readable	kanal listesi okunamıyor
+CHANNELS	KANALLAR
+channels on your interfaces, by name	arayüzlerinden kanallar, ada göre
+Checkerboard	Dama tahtası
+chime amber	kehribar uyarısı
+chime red	kırmızı uyarısı
+chime zero	sıfır uyarısı
+Choose startup mode:	Başlangıç modunu seç:
+circle, heart, star...	daire, kalp, yıldız...
+circuit	devre
+CLASSIC VIEW	KLASİK GÖRÜNÜM
+clear driver	sürücüyü temizle
+Clear in/out trim points	Giriş/çıkış noktalarını temizle
+CLEAR OVERLAY  [Backspace]	KAPLAMAYI TEMİZLE  [Backspace]
+Clear the active Lower Third overlay now	Canlı Lower Third'ü şimdi kaldır
+Clear the live PIP overlay now	PIP kaplamasını şimdi kaldır
+CLICK ANYWHERE...	HERHANGİ BİR YERE TIKLA...
+click or Esc to close	kapatmak için tıkla veya Esc
+click this window	bu pencereye tıkla
+Click to edit cue notes	Cue notlarını düzenlemek için tıkla
+click to open the grid	ızgarayı açmak için tıkla
+Click to seek — drag to scrub	Gitmek için tıkla, sarmak için sürükle
+Click to type it	Yazmak için tıkla
+comic	çizgi roman
+Companion passphrase	Companion parolası
+confetti	konfeti
+Connections at once	Eşzamanlı bağlantılar
+count up	ileri say
+Countdown, count up, or wall clock	Geri sayım, ileri sayım veya saat
+credit	jenerik
+crossfade	geçiş çubuğu
+crosshair	artı işareti
+Crosshatch	Çapraz tarama
+Cue has no audio	Cue'nun sesi yok
+cue number	cue numarası
+Cycle end action for selected cues	Seçili cue'ların bitiş eylemini değiştir
+Cycle which slot drives scene audio	Sahnenin sesini veren yuvayı değiştir
+dateline	tarih satırı
+decoder spin-up	çözücü başlatma
+Default App Feed	Varsayılan uygulama kaynağı
+Default Camera	Varsayılan kamera
+Delay before the continue fires	Devam etmeden önce gecikme
+Delay between GO and this cue starting	GO ile cue başlangıcı arasındaki gecikme
+depth 1 turns it all the way round	derinlik 1 tam dönüş yapar
+Digit colour once amber is reached	Kehribarda rakam rengi
+Digit colour while there is time in hand	Bol zamanda rakam rengi
+diskette	disket
+Do it now, without taking the cue	Cue'yu almadan şimdi yap
+dossier	dosya
+dotmatrix	nokta vuruşlu
+Double-GO guard	Çift GO koruması
+draw on the monitor	monitörde çiz
+driver speed	sürücü hızı
+EDGE BLEND	KENAR KARIŞIMI
+EDIT is on: typing changes the show	EDIT açık: yazmak gösteriyi değiştirir
+edit on the monitor	monitörde düzenle
+Edit the main Lower Third title	Lower Third başlığını düzenle
+Edit the secondary Lower Third line	Lower Third'ün ikinci satırını düzenle
+eq band	EQ bandı
+equalizer	ekolayzır
+Esc cancels	Esc iptal eder
+Esc cancels, arrows nudge	Esc iptal eder, oklar taşır
+Esc to close	kapatmak için Esc
+even grid	düzenli ızgara
+EXAMPLE SHOWS	ÖRNEK GÖSTERİ
+EXIT  Esc	ÇIK  Esc
+face	yüz
+factory settings	fabrika ayarları
+Fade+LoadNext	Kararma+Sonrakini Yükle
+Fade+Pause	Kararma+Duraklat
+Fade+Rewind	Kararma+Başa Sar
+Fade-in duration	Giriş süresi
+Fade-in duration for this cue	Bu cue'nun girişi
+Fade-out duration	Çıkış süresi
+Fade-out duration before next cue	Sonraki cue'dan önce çıkış
+Fade-out duration for this cue	Bu cue'nun çıkışı
+Fall	Düşüş
+false colour reads SDR pictures	yanlış renkler SDR görüntü okur
+fill the frame	kareyi doldur
+find a named colour	ada göre renk bul
+fires cues	cue'ları başlat
+first available	ilk boş olan
+Fit/Fill/Stretch/Unscaled	Sığdır/Doldur/Uzat/Ölçeksiz
+Fixed repeat count — 0 = infinite	Sabit tekrar sayısı: 0 = sonsuz
+Fixed repeat count — 0 = loop forever	Sabit tekrar sayısı: 0 = sonsuza dek
+FIXED!	DÜZELDİ!
+flag	bayrak
+FORGET MY DEFAULTS	VARSAYILANLARIMI UNUT
+Frames a second	Saniyedeki kare
+from exactly this routing	doğrudan bu yönlendirmeden
+Full Black	Tam siyah
+Full Blue	Tam mavi
+Full Green	Tam yeşil
+Full Red	Tam kırmızı
+Full White	Tam beyaz
+garden	bahçe
+Ghastly	Hayaletimsi
+glass	cam
+glitch down	glitch aşağı
+glitch drift	glitch kayması
+glitch reach	glitch menzili
+glitch through	glitch yana
+glitch up	glitch yukarı
+GO steps over it	GO bunu atlar
+hairline	çizgi
+Haptics	Titreme
+HDR input	HDR girişi
+Hex, e.g. 90 3C 7F	Hex, örn. 90 3C 7F
+HOLDING OFF AIR	YAYIN DIŞI DURDUR
+Home — skip to start	Home: başa
+Horizontal output offset in pixels	Yatay çıkış kayması, piksel
+How many features fit on screen.	Ekrana kaç tane sığar.
+how much of this effect	bu efektten ne kadar
+How solid the ink is	Mürekkep örtücülüğü
+How tall the logo is above the clock	Saatin üstündeki logo yüksekliği
+In-point: cue starts playback here	Giriş noktası: cue burada başlar
+index	dizin
+initializing webview	webview başlatma
+install Tailscale here and on the phone	Tailscale'i buraya ve telefona kur
+INSTALLING...	KURULUYOR...
+Its amount, or one of its knobs A to D	Miktarı veya A-D arası bir düğme
+J jump to row	J: satıra git
+jam to	eşitle
+Jump the driver back to its first frame	Sürücüyü ilk kareye geri al
+K — cycle cue color tag	K: cue rengini değiştir
+Keep counting past zero, or stop dead	Sıfırı geçerek say veya dur
+key	tuş
+Key edge softness	Kilit kenar yumuşaklığı
+knob	düğme
+L - loop this cue continuously	L: bu cue'yu döngüye al
+last reading	son okuma
+Last refused	Son reddedilen
+Learn it	Öğret
+LEARN THE BASICS	TEMELLERİ ÖĞREN
+ledger	defter
+Left — skip back 10s	Sol: 10 sn geri
+Left, centre or right	Sol, orta veya sağ
+LESSONS	DERSLER
+Levels	Seviyeler
+Limiter	Sınırlayıcı
+Limiting	Sınırlama
+line  |  Enter: apply	satır  |  Enter: uygula
+LINEAR - a feather, not a blend	DOĞRUSAL: bir gradyan, karışım değil
+Linear, ease in, ease out or S-curve	Doğrusal, giriş, çıkış veya S eğrisi
+Lines	Çizgiler
+link aspect	en boyu bağla
+Listen to	Dinle
+listener	dinleyici
+LIVE - every assigned deck matches	LIVE: atanan tüm deck'ler eşleşiyor
+lock to screen	ekrana kilitle
+logo size	logo boyutu
+look at it	ona bak
+lower 3rd	Lower Third
+marquee	kayan yazı tabelası
+mask on	maske etkin
+Master oscillator rate.	Ana osilatörün hızı.
+Maximum quality	En yüksek kalite
+MIDI and OSC monitor	MIDI ve OSC monitörü
+midi in	MIDI girişi
+MIDI note	MIDI notası
+move points	noktaları taşı
+Move the height on its own oscillator	Perdeyi osilatörle hareket ettir
+name or number...	ad veya numara...
+name, from anywhere	ad, her yerden
+NDI source cue	NDI kaynak cue'su
+needs file-backed video	video dosyası gerekir
+new paths	yeni yollar
+New shows start from	Yeni gösteriler şununla başlar
+next xfade	sonraki kararma
+no effects for this cue type	bu cue türü için efekt yok
+nobody	yok
+none - click to learn	yok: öğretmek için tıkla
+none - click to set some	yok: ayarlamak için tıkla
+none - click to write some	yok: yazmak için tıkla
+none yet	henüz yok
+none: the one picture	yok: tek görüntü
+none: the whole picture	yok: tüm görüntü
+notebook	defter
+nothing	hiçbir şey
+nothing assigned yet	hiçbir şey atanmadı
+nothing follows	hiçbir şeyi izlemez
+Nothing here with this filter.	Bu filtreyle hiçbir şey yok.
+nothing set - this cue sends nothing	hiçbir şey ayarlı değil: bu cue hiçbir şey göndermez
+nothing targeted yet	hedef yok
+Nothing to see here. Probably.	Burada görülecek bir şey yok. Herhalde.
+nothing to send - check the message	gönderilecek bir şey yok: iletiyi kontrol et
+offset X	kayma X
+offset Y	kayma Y
+on any channel	herhangi bir kanalda
+on the header to add another	daha fazlası için başlıkta
+on the monitor	monitörde
+one big on top, the rest below	biri üstte büyük, gerisi altta
+one big, the rest beside it	biri büyük, gerisi yanında
+onion off	aydınger kapalı
+onion on	aydınger açık
+only this computer	yalnızca bu bilgisayar
+Open a .deckboy show file	Bir .deckboy dosyası aç
+open the monitor	monitörü aç
+or your own bytes	veya kendi baytların
+ORDER - cues advance down the list	SIRA: cue'lar listede aşağı iner
+Out-point: cue stops playback here	Çıkış noktası: cue burada biter
+output already has	çıkışta zaten var
+Outputs Off	Çıkışlar kapalı
+outs	çıkışlar
+over budget - video will drop frames	sınırın üstünde: video kare kaybedecek
+over the picture	görüntünün üstünde
+PAIR	EŞLE
+Pair a phone	Telefon eşle
+Pair overlap	Çift bindirmesi
+Paired phones	Eşlenmiş telefonlar
+Passphrase	Parola
+Pattern motion toggle	Desen hareketi
+pause begin	başta duraklat
+pennant	flama
+Per-cue transition duration override	Bu cue'nun geçiş süresi
+Perspective	Perspektif
+PHASE	FAZ
+Phone access	Telefon erişimi
+Phone control	Telefon kontrolü
+phrase hold	cümle uzunluğu
+PICK FROM SCREEN	EKRANDAN AL
+Pitch, in semitones.	Perde, yarım ton olarak.
+PIXEL FOR PIXEL, TOP-LEFT	PİKSELİ PİKSELİNE, SOL ÜST
+placard	tabela
+play a note...	bir nota çal...
+PLAY BUG SWAT, a game	BUG SWAT OYNA
+Play the out move now, then take it off	Çıkışı şimdi oynat, sonra kaldır
+Playback speed: 0.25–4.0×	Hız: 0,25–4,0×
+playlists into the named outputs	oynatma listesi adlı çıkışlara
+plays synth	sentezi çal
+plugin	eklenti
+PNG matte	PNG matı
+podium	kürsü
+press a key...	bir tuşa bas...
+PRESS AGAIN TO FORGET	UNUTMAK İÇİN YİNE BAS
+Previous show file:	Önceki dosya:
+prog bar	ilerleme ç.
+programme	program
+Programme with sound in any browser	Her tarayıcıda sesli program
+PROJECTOR - gamma matched	PROJEKSİYON: gama uyumlu
+Projector gamma	Projeksiyon gaması
+put it on a button	bir düğmeye koy
+Put the brush's opacity on an oscillator	Fırça örtücülüğünü osilatöre bağla
+Put the brush's size on an oscillator	Fırça boyutunu osilatöre bağla
+Put this control on an oscillator	Bu kontrolü osilatöre bağla
+rack it	yükle
+RACKED, WARM	YÜKLENDİ, HAZIR
+rail	ray
+rain	yağmur
+Reads	Okur
+reads the same on any screen	her ekranda aynı okunur
+recent and in this show	son kullanılanlar ve bu gösteride
+Recent shows:	Son gösteriler:
+red at	kırmızı:
+red col	kırmızı süt.
+render height	işleme yüksekliği
+render width	işleme genişliği
+REPORT A PROBLEM	SORUN BİLDİR
+reported rather than swapped	bildirildi, değiştirilmedi
+restart driver now	sürücüyü şimdi yeniden başlat
+restart on take	take'te yeniden başla
+restore at end	sonda geri yükle
+ribbon	şerit
+Right — skip forward 10s	Sağ: 10 sn ileri
+Right-click turns them off.	Sağ tık onları kapatır.
+Rise	Yükseliş
+rise, slide or wipe	yüksel, kaydır veya perde
+Rotation speed, degrees per second.	Dönme hızı, saniyede derece.
+rounded rect	yuvarlak dikd.
+row turns the matrix off again	satır matrisi yine kapatır
+Run it now, without taking the cue	Cue'yu almadan şimdi çalıştır
+Run the show from a phone	Gösteriyi telefondan yönet
+runs off the show thread	gösteri iş parçacığının dışında
+sACN universe, 1-63999	sACN evreni, 1-63999
+SAVE AS MY DEFAULTS	VARSAYILAN OLARAK KAYDET
+says	der
+SCALED TO FILL	DOLDURMAK İÇİN ÖLÇEKLENDİ
+Scene dwell time — 0 = hold	Sahne süresi: 0 = tut
+Scene fade-in duration	Sahne girişi
+Scene fade-out duration	Sahne çıkışı
+scoreboard	skor tablosu
+SCREENS	EKRANLAR
+scroll	kaydırma
+Scroll up	Yukarı kaydır
+sea	deniz
+SELECT: MOTION	SEÇİM: HAREKET
+Send it now, without taking the cue	Cue'yu almadan şimdi gönder
+sends	gönder
+Sensitivity	Hassasiyet
+Set browser URL/path	Tarayıcı URL'sini/yolunu ayarla
+set by	ayarlayan
+Set capture source from the cue menu	Kaynağı cue menüsünden ayarla
+Set cue ID for selected cues	Seçili cue'ların kimliğini ayarla
+Set cue token to jump to when cue ends	Sonda atlanacak cue'yu ayarla
+Set goto target for selected cues	Seçili cue'ların hedefini ayarla
+Set Lower Third background alpha	Lower Third arka plan alfası
+Set per-cue transition duration	Cue geçiş süresi
+Set playback speed for selected cues	Seçili cue'ların hızı
+Set repeat count for selected cues	Seçili cue'ların tekrarı
+Set short cue id for search/goto	Arama/atlama için kısa kimlik
+Set short cue label for search/goto	Arama/atlama için kısa ad
+Set the NDI source name to receive	Alınacak NDI kaynağının adı
+Shift+[ / ] — fade-out duration	Shift+[ / ]: çıkış süresi
+SHOW ME	GÖSTER BANA
+Show on	Şurada göster
+Shows	Göster
+sideline	yan çizgi
+sketch	eskiz
+slide	kaydır
+slide from left	soldan kaydır
+slide from right	sağdan kaydır
+SMOOTH	YUMUŞAK
+snow	kar
+SOS. Kidding. The show is fine.	SOS. Şaka. Gösteri iyi.
+Sound when the clock turns amber	Saat kehribar olunca ses
+Sound when the clock turns red	Saat kırmızı olunca ses
+Sound when time is up	Süre bitince ses
+Space — pause	Boşluk: duraklat
+Space — play	Boşluk: oynat
+span	yayılım
+sparkle	parıltı
+Speech models	Konuşma modelleri
+Speed, like tape	Hız, bant gibi
+stamp	damga
+Start NEW from factory	YENİ'yi fabrikadan başlat
+starting browser	tarayıcı başlatma
+starting capture	yakalama başlatma
+starting xvfb	xvfb başlatma
+sticky	yapışkan not
+stop at 0	0'da dur
+Stop puppeteering this cue	Bu cue'yu sürmeyi bırak
+STRAIGHT	DÜZ
+survey	kabartma
+SVG paths	SVG yolları
+tab	sekme
+tag	etiket
+TAP	DOKUN
+text mode	metin modu
+the file cannot be read	dosya okunamıyor
+The name	Ad
+The OSC path, e.g. /cue/1/start	OSC yolu, örn. /cue/1/start
+the playlist's PATCH	oynatma listesinin PATCH'i
+The role, or leave it empty	Rol veya boş bırak
+the system output	sistem çıkışı
+The text this cue puts on screen	Bu cue'nun gösterdiği metin
+theatre	tiyatro
+then stop	sonra dur
+they have	var
+things that are oscillating	salınan şeyler
+this cue lives on	bu cue şurada
+This show's setup, no cues	Bu gösterinin ayarları, cue'lar olmadan
+ticket	bilet
+tile h	panel y
+Tile height in pixels.	Piksel olarak panel yüksekliği.
+tile w	panel g
+time of day	günün saati
+Toggle audio enable for selected cues	Seçili cue'ların sesi
+Toggle chroma key	Krom anahtarı aç/kapat
+Toggle cue audio	Cue sesi
+Toggle cue audio track for this cue	Bu cue'nun ses izi
+Toggle fade in	Giriş
+Toggle fade out	Çıkış
+Toggle hold on last frame	Son kareyi tut
+Toggle hold-at-end for selected cues	Seçili cue'larda sonda tut
+Toggle loop	Döngü
+Toggle loop for selected cues	Seçili cue'ların döngüsü
+Toggle the live input's audio	Canlı giriş sesi
+Total time	Toplam süre
+transcoding - plays clean until ready	dönüştürme: sonuna kadar temiz oynar
+transparent: put its playlist on a layer	saydam: oynatma listesini bir katmana koy
+Trusted controllers	Güvenilen kontrolcüler
+TURN OFF	KAPAT
+turn phone control on	telefon kontrolünü aç
+two big on top, the rest below	ikisi üstte büyük, gerisi altta
+type a cue number	bir cue numarası yaz
+Typing needs EDIT on	Yazmak için EDIT açık olmalı
+Use GEOMETRY for exact placement	Tam yerleşim için GEOMETRİ kullan
+value to type one	yazılacak değer
+Vertical output offset in pixels	Dikey çıkış kayması, piksel
+VIDEO DIP: OFF	VİDEO GEÇİŞİ: HAYIR
+VIDEO DIP: ON	VİDEO GEÇİŞİ: EVET
+walk the outputs one at a time.	çıkışları tek tek gez.
+walks every output in turn	her çıkışı gezer
+WHAT DECKBOY DID	DECKBOY NE YAPTI
+what is on air in a playlist	oynatma listesinde canlı olan
+What NEW starts from, never this show	YENİ'nin başladığı yer, asla bu gösteri
+whatever the style says	stilin dediği gibi
+Where the ramp ends	Rampanın bittiği yer
+Which deck the cue it acts on lives on	Hedef cue hangi deck'te
+Which frame you draw on	Hangi kareye çizdiğin
+Who can see it	Kim görebilir
+whole network	tüm ağ
+will not open	açılmıyor
+window and recording outputs only	yalnızca pencere ve kayıt çıkışları
+wipe	perde
+Wobble	Salınım
+wobble by	şu kadar salla
+words	sözcükler
+X — cycle end action	X: bitiş eylemini değiştir
+X — cycle end action: stop / next / loop	X: bitiş eylemi: dur / sonr. / döngü
+Zones	Bölgeler
+~ makes the level breathe	~ seviyeyi nefes aldırır
+a note or an address becomes that cue's trigger	bir nota veya adres cue'nun tetikleyicisi olur
+acts on every deck; deck and cue are ignored	tüm deck'lere etki eder; deck ve cue yok sayılır
+Add an output above, then send playlists to it here.	Yukarıda bir çıkış ekle, sonra oynatma listelerini buraya gönder.
+Ancient cypher, modern video desk. Respect.	Eski yazı, modern masa. Saygı.
+Any font on this computer, Deckboy's own, or a font file	Bilgisayar yazı tipi, Deckboy'unki veya bir dosya
+Apply fade-in to selected video/audio cues	Seçili video/ses cue'larında giriş
+Apply fade-out to selected video/audio cues	Seçili video/ses cue'larında çıkış
+Art-Net or sACN (E1.31): whichever the lighting rig listens to	Art-Net veya sACN (E1.31): ışık sisteminin dinlediği
+Auto-advance duration — 0 = hold until taken	Otomatik ilerleme: 0 = take'e kadar tut
+Bypass: this master leaves that deck alone	Bypass: bu master o deck'e dokunmaz
+Characters across. Fewer means bigger cells.	Satır başına karakter. Az olması hücreleri büyütür.
+Choose a mask from this show's library, or start a new one from a shape	Kitaplıktan bir maske seç veya şekilden yap
+Click a value to change it. A red address overlaps another fixture.	Değiştirmek için bir değere tıkla. Kırmızı adres başka bir armatürle çakışır.
+Click to show or hide this cue's captions	Cue altyazılarını göstermek veya gizlemek için tıkla
+Copy the show AND its media into one portable folder	Gösteriyi VE medyayı taşınabilir bir klasöre kopyala
+Ctrl+S - write back over the show that is open	Ctrl+S: açık gösteriye kaydet
+Ctrl+Shift+S - write the show to a NEW file	Ctrl+Shift+S: YENİ dosyaya kaydet
+Device output pair this cue's audio plays on	Bu cue'nun sesi için çıkış çifti
+E - freeze on last frame instead of stopping	E: durmak yerine son karede kal
+Edit title/subtitle here or fire it live with TAKE	Başlığı/alt başlığı burada düzenle veya TAKE ile başlat
+Every channel on every universe this session has touched	Bu oturumda dokunulan her evrenin her kanalı
+generator is off - a START cue turns it on	üreteç kapalı: bir START cue'su onu açar
+How long the note takes to reach full level.	Notanın tam seviyeye ulaşma süresi.
+How much it throws off; 0 is a clean burn	Ne kadar pul pul dökülür; 0 temiz yanar
+INPUT: the programme. Drag a crop to move it, its corners to size it.	GİRİŞ: program. Taşımak için kesimi, boyut için köşeleri sürükle.
+Keep the outside and cut the inside instead	Dışını tut, içini kes
+LED panel height in pixels. Click to type it	Piksel olarak LED panel yüksekliği. Yazmak için tıkla
+Legacy target mode — switch type to convert	Eski hedef modu: dönüştürmek için türü değiştir
+Lissajous, spectrum, meters or a name card	Lissajous, spektrum, göstergeler veya ad etiketi
+Load the cue and hold first frame when taken	Cue'yu yükle ve take'e kadar ilk kareyi tut
+no fixtures patched - Settings > Network > FIXTURES	yamalı armatür yok: Ayarlar > Ağ > FIXTURES
+Nothing here changes the show that is open.	Burada hiçbir şey açık gösteriyi değiştirmez.
+Per-cue audio: enable, trim, pan, mono, fades, normalize	Cue sesi: aç/kapat, trim, pan, mono, geçişler, normalleştir
+Phone control is in PHONE & TABLET, below	Telefon kontrolü aşağıda, PHONE & TABLET içinde
+Save the mask as a greyscale PNG at the output's size: white keeps, black cuts	Maskeyi çıkış boyutunda gri PNG kaydet: beyaz tutar, siyah keser
+Seconds REMAINING when the clock turns amber	Saat kehribar olunca KALAN saniye
+Seconds REMAINING when the clock turns red	Saat kırmızı olunca KALAN saniye
+Shown to the operator when GO reaches this cue	GO bu cue'ya gelince operatöre gösterilir
+SHUFFLE - the next cue is picked at random	RASTGELE: sonraki cue kurayla seçilir
+Slots are self-contained sources in this first pass	Yuvalar bu sürümde bağımsız kaynaklardır
+that output's whole picture, or its matte	o çıkışın tüm görüntüsü veya matı
+The cue number on the other desk, e.g. 12.5	Diğer masadaki cue numarası, örn. 12.5
+Toggle pause-at-beginning for selected cues	Seçili cue'larda başta duraklat
+Toggle transition-to-next for selected cues	Seçili cue'larda sonrakine geçiş
+transparent outside the blobs: put it on a layer	lekelerin dışı saydam: bir katmana koy
+transparent outside the ink: put it on a layer	mürekkebin dışı saydam: bir katmana koy
+what is said, on screen, made on this computer	söylenenler, ekranda, bu bilgisayarda yapıldı
+What this cue does when it ends - click to change	Bu cue'nun sonda ne yaptığı: değiştirmek için tıkla
+Whether the next shape or pen path adds or cuts	Sonraki şekil veya yol ekler mi keser mi
