@@ -175,6 +175,43 @@
     return n;
   }
 
+  // A matching cue sits in playlist minDeck or later. A new playlist is not
+  // the focused one, so a cue added before its tab is clicked lands in
+  // playlist 1, and a count over every playlist passed anyway.
+  bool lessonCueInDeckFrom(const std::function<bool(const Cue&)>& match, int minDeck) const {
+    for (int d = std::max(0, minDeck); d < static_cast<int>(project_.decks.size()); ++d) {
+      for (const Cue& cue : project_.decks[static_cast<std::size_t>(d)].cues) {
+        if (match(cue)) return true;
+      }
+    }
+    return false;
+  }
+
+  SDL_Rect lessonDeckTabRect(int deck) const {
+    if (deck < 0 || deck >= static_cast<int>(deckTabRects_.size())) return SDL_Rect {};
+    return deckTabRects_[static_cast<std::size_t>(deck)];
+  }
+
+  // Point at a button while playlist 2 or later is focused; otherwise back at
+  // the Deck 2 tab, because the button would add to the wrong playlist.
+  SDL_Rect lessonOnSecondDeck(const SDL_Rect& button) const {
+    return project_.focusedDeckIndex >= 1 ? button : lessonDeckTabRect(1);
+  }
+
+  // The step after the + (James, 2026-11-07: the lessons never said to select
+  // the new playlist before adding to it). Same check in every lesson, its
+  // own lines in each.
+  LessonStep lessonSelectSecondDeckStep(const char* pixel, const char* video,
+                                        const char* guestName, const char* guest) {
+    return {"SELECT DECK 2", nullptr, pixel, video, guestName, guest,
+            [this] { return project_.decks.size() >= 2 && project_.focusedDeckIndex >= 1; },
+            [this] {
+              if (project_.decks.size() < 2) addDeck();
+              setFocusedDeckIndex(1);
+            },
+            [this] { return lessonDeckTabRect(1); }, nullptr};
+  }
+
   // The cue a match finds is live on its playlist.
   bool lessonCueLive(const std::function<bool(const Cue&)>& match) const {
     for (const Deck& deck : project_.decks) {
@@ -952,17 +989,21 @@
          [this] { return project_.decks.size() >= 2; },
          [this] { addDeck(); },
          [this] { return deckAddTabRect_; }, nullptr},
+        lessonSelectSecondDeckStep(
+          "Now click its tab, Deck 2. A new playlist is not the selected one until you click it.",
+          "The lit tab is where SOURCE puts things. Skip this and the ink lands under the synth.",
+          "COACH MARV", "See that tab? Click it. Now you're on Deck 2. BOOM. Fundamentals."),
         {"A DRAW CUE", nullptr,
          "In the new playlist: SOURCE, then Draw. Clear everywhere you have not drawn.",
          "A Draw cue is transparent outside the ink, so the synth shows through.",
          nullptr, nullptr,
-         [this] { return lessonCountCues(lessonIsDraw) > 0; },
+         [this] { return lessonCueInDeckFrom(lessonIsDraw, 1); },
          [this] {
            if (project_.decks.size() < 2) addDeck();
-           project_.focusedDeckIndex = static_cast<int>(project_.decks.size()) - 1;
+           setFocusedDeckIndex(1);
            addGeneratorCue("draw");
          },
-         [this] { return tutorialButtonRect("SOURCE"); }, nullptr},
+         [this] { return lessonOnSecondDeck(tutorialButtonRect("SOURCE")); }, nullptr},
         {"TAKE THE INK", "ENTER",
          "Select the Draw cue and TAKE it. Two playlists, two layers, one picture.",
          "Now both are live: the synth underneath, the ink on top.",
@@ -1396,17 +1437,21 @@
          [this] { return project_.decks.size() >= 2; },
          [this] { addDeck(); },
          [this] { return deckAddTabRect_; }, nullptr},
+        lessonSelectSecondDeckStep(
+          "Click its tab, Deck 2. The lit tab is the playlist SOURCE adds to.",
+          "Skip this and the words go under the map. With the lizard.",
+          "JUNE O'NEIL", "Nine years of live weather. Always click the tab."),
         {"A LOWER THIRD", nullptr,
          "In the new playlist: SOURCE, then Lower Third.",
          "A name and a title, low on the screen, out of the lizard's way.",
          nullptr, nullptr,
-         [this, isLowerThird] { return lessonCountCues(isLowerThird) > 0; },
+         [this, isLowerThird] { return lessonCueInDeckFrom(isLowerThird, 1); },
          [this] {
            if (project_.decks.size() < 2) addDeck();
-           project_.focusedDeckIndex = static_cast<int>(project_.decks.size()) - 1;
+           setFocusedDeckIndex(1);
            addLowerThirdTextCue();
          },
-         [this] { return tutorialButtonRect("SOURCE"); }, nullptr},
+         [this] { return lessonOnSecondDeck(tutorialButtonRect("SOURCE")); }, nullptr},
         {"HER NAME", nullptr,
          "In the inspector, title: type the presenter's name. The second line is her job.",
          "Spelling counts. The audience reads it at the speed of light.",
@@ -1585,6 +1630,10 @@
          [this] { return project_.decks.size() >= 2; },
          [this] { addDeck(); },
          [this] { return deckAddTabRect_; }, nullptr},
+        lessonSelectSecondDeckStep(
+          "Click its tab, Deck 2. A new playlist waits until you choose it.",
+          "The lit tab gets the next cue. Like choosing which slide goes in the projector.",
+          "TURNIP TOP", "Pick a deck. Any deck. ...Deck 2. Pick Deck 2."),
         {"THE PROP", nullptr,
          "In the new playlist, add anything: PATTERN will do. That is the prop.",
          "Whatever it is, it will appear the instant the trunk opens.",
@@ -1597,7 +1646,7 @@
            Deck& deck = focusedDeckMutable();
            if (!deck.cues.empty()) deck.cues.back().name = "The prop (rubber chicken)";
          },
-         [this] { return tutorialButtonRect("PATTERN"); }, nullptr},
+         [this] { return lessonOnSecondDeck(tutorialButtonRect("PATTERN")); }, nullptr},
         {"TA-DA", "CTRL+ENTER",
          "Select 'The trunk (open)' in playlist 1 and the prop in playlist 2. Then TAKE ALL: both on one beat.",
          "One press, every playlist's selected cue. The audience never sees the seam.",

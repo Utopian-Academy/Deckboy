@@ -129,6 +129,38 @@ def run(exe, work, keep):
                  "Nebula ahead" not in after and "Look two" not in after and "Contestant" not in after and "Weather map" not in after and "The trunk" not in after and "souffle" not in after and "The planet" not in after and "The beat" not in after and "office PC" not in after and "evidence #2" not in after and "Saucer" not in after and "Student work" not in after and "ghost" not in after.lower(),
                  (motion(before), motion(after)))
 
+        # James, 2026-11-07: the lessons never said to select the new
+        # playlist. The + leaves playlist 1 focused, so a cue added straight
+        # after it landed in playlist 1 and the step passed anyway.
+        print("  a new playlist must be selected before adding to it")
+        db.send("LESSONS START layers")
+        time.sleep(0.8)
+        walk(db, "layers", work, None, stop_at=2)
+        db.send("DECKADD")
+        time.sleep(0.6)
+        step, _, reply = step_of(db)
+        note("the + moves on to SELECT DECK 2", "SELECT DECK 2" in reply, reply)
+        db.send("PATTERN ADD checkerboard")
+        time.sleep(0.8)
+        step2, _, reply = step_of(db)
+        note("a cue added to playlist 1 does not pass it", step2 == step, reply)
+        db.send("DECK 2")
+        time.sleep(0.8)
+        step3, _, reply = step_of(db)
+        note("clicking Deck 2 passes it", step3 == step + 1, reply)
+        db.send("DECK 1 PATTERN ADD checkerboard")
+        time.sleep(0.8)
+        step4, _, reply = step_of(db)
+        note("the prop added to playlist 1 does not pass THE PROP", step4 == step3, reply)
+        db.send("DECK 2 PATTERN ADD checkerboard")
+        time.sleep(0.8)
+        step5, _, reply = step_of(db)
+        note("the prop added to Deck 2 passes it", step5 == step3 + 1, reply)
+        db.send("TUTORIAL EXIT")
+        time.sleep(1.0)
+        db.send("LESSONS CLOSE")
+        time.sleep(0.4)
+
         print("  picking up where it was left")
         (state / "lessons.txt").write_text("track video\n")
         db.send("LESSONS START masks")
