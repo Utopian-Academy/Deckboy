@@ -1994,3 +1994,199 @@ Run the clock	Εκκίνηση ρολογιού
 What fires this cue besides GO	Τι ενεργοποιεί το cue εκτός από GO
 center	Κέντρο
 visual	οπτικά
+JAM	ΣΥΓΧΡ.
+MIX	ΜΙΞΗ
+CLIP	ΚΛΙΠ
+TEXT	ΚΕΙΜΕΝΟ
+KEY L	KEY Α
+MULTI	ΠΟΛΛΑΠΛΟ
+WACKY	ΤΡΕΛΑ
+COLOUR	ΧΡΩΜΑ
+DARKEN	ΣΚΟΥΡΑΙΝΕΙ
+STEREO	ΣΤΕΡΕΟ
+COMPARE	ΣΥΓΚΡΙΣΗ
+LIGHTEN	ΦΩΤΙΖΕΙ
+DASHBOARD	ΠΙΝΑΚΑΣ
+29.97 fps (NTSC)	29,97 fps (NTSC)
+Pocket Test (day)	Τεστ Pocket (μέρα)
+Dark Detail (0-12%)	Λεπτομέρεια σκιών (0-12%)
+Frame Count (emoji)	Μετρητής καρέ (emoji)
+PLUGE (black level)	PLUGE (στάθμη μαύρου)
+Pocket Test (night)	Τεστ Pocket (νύχτα)
+Pocket Test (storm)	Τεστ Pocket (καταιγίδα)
+Marks stacked BELOW.	Σημάδια στοιβαγμένα ΑΠΟ ΚΑΤΩ.
+Panel Map (animated)	Χάρτης πάνελ (κινούμενος)
+Pocket Test (sunset)	Τεστ Pocket (ηλιοβασίλεμα)
+Boresight (alignment)	Στόχαστρο (ευθυγράμμιση)
+SMPTE 75% Colour Bars	Χρωματικές μπάρες SMPTE 75%
+(projector curve only)	(μόνο καμπύλη προβολέα)
+Multiburst (bandwidth)	Multiburst (εύρος ζώνης)
+Convergence (fine grid)	Σύγκλιση (λεπτό πλέγμα)
+Greyscale Steps (gamma)	Διαβαθμίσεις γκρι (γάμμα)
+Uniformity (flat fields)	Ομοιομορφία (ενιαία πεδία)
+MULTIVIEW carries this too.	Το MULTIVIEW το μεταφέρει κι αυτό.
+Test Clock (sync + latency)	Ρολόι δοκιμής (συγχρονισμός + καθυστέρηση)
+auto (reads the common two)	αυτόματα (διαβάζει τα δύο συνήθη)
+Panel Map (LED tile numbers)	Χάρτης πάνελ (αριθμοί πάνελ LED)
+Portal (blobs of deep space)	Πύλη (φυσαλίδες βαθέος διαστήματος)
+Terrarium (living ecosystem)	Terrarium (ζωντανό οικοσύστημα)
+Window 10% (peak brightness)	Παράθυρο 10% (μέγιστη φωτεινότητα)
+Window 50% (peak at mid APL)	Παράθυρο 50% (μέγιστο σε μέσο APL)
+Frame Count (drops + latency)	Μετρητής καρέ (απώλειες + καθυστέρηση)
+Terrarium Pico (1px per cell)	Terrarium Pico (1 px ανά κελί)
+Banding Ramps (real bit depth)	Ράμπες banding (πραγματικό βάθος bit)
+Fireside (a hearth that burns)	Τζάκι (μια εστία που καίει)
+HLG - live broadcast (BT.2100)	HLG - ζωντανή μετάδοση (BT.2100)
+Test Bars (motion diagnostics)	Μπάρες δοκιμής (διάγνωση κίνησης)
+Moire 1:1 (is anything scaling?)	Moiré 1:1 (κλιμακώνει κάτι;)
+Send now, without taking the cue	Αποστολή τώρα, χωρίς λήψη του cue
+Pocket Test (test card + scene cycle)	Τεστ Pocket (κάρτα δοκιμής + κύκλος σκηνών)
+Critters (pixel-exact scaling, animated)	Critters (κλιμάκωση ακριβής στο pixel, κινούμενη)
+headphones, desk sounds and LTC stay out of it	ακουστικά, ήχοι κονσόλας και LTC μένουν έξω
+Above 1 tunnels inward, below 1 blooms outward.	Πάνω από 1 το τούνελ ρουφάει προς τα μέσα, κάτω από 1 ανθίζει προς τα έξω.
+Read everything right to left. Yes, everything.	Διάβασε τα πάντα από δεξιά προς αριστερά. Ναι, τα πάντα.
+Amber is closest to the 1976 single-phosphor look.	Το κεχριμπαρένιο είναι πιο κοντά στο μονό φώσφορο του 1976.
+Greetings, primitive. Your "slideshow" amuses us.	Χαιρετίσματα, πρωτόγονε. Η «προβολή διαφανειών» σου μας διασκεδάζει.
+Sway sideways. Depth 1 is half the frame either way	Λίκνισμα στο πλάι. Βάθος 1 είναι μισό καρέ προς κάθε πλευρά
+Draw the diagnostic over the card, or just the text.	Σχεδίασε τη διάγνωση πάνω στην κάρτα, ή μόνο το κείμενο.
+All interfaces, but only this computer is trusted yet.	Όλες οι διεπαφές, αλλά προς το παρόν μόνο αυτός ο υπολογιστής είναι έμπιστος.
+Choose the legacy cue token to show inside the PIP window	Επιλογή του παλιού token cue που δείχνει το παράθυρο PIP
+ASIO carries the show's sound, and these are not on it yet	Το ASIO μεταφέρει τον ήχο της παράστασης, κι αυτά δεν είναι ακόμη πάνω του
+N=new  Enter/P=previous  O=open saved  E=examples  L=learn	N=νέο  Enter/P=προηγούμενο  O=άνοιγμα αποθηκευμένου  E=παραδείγματα  L=μάθηση
+Hand this parameter to an oscillator so it moves on its own	Δώσε αυτή την παράμετρο σε ταλαντωτή, ώστε να κινείται μόνη της
+How long the finished drawing stays before it is drawn again	Πόσο μένει το τελειωμένο σχέδιο πριν σχεδιαστεί ξανά
+How it comes on and goes off: none, fade, rise, slide or wipe	Πώς μπαίνει και φεύγει: κανένα, σβήσιμο, άνοδος, ολίσθηση ή σάρωση
+The 64-step wavetable, quantised to 6 bits like the hardware.	Ο πίνακας κυματομορφής 64 βημάτων, κβαντισμένος σε 6 bit όπως το υλικό.
+Vary tile size per cell, so the grid stops looking like a grid.	Άλλαζε το μέγεθος πλακιδίου ανά κελί, ώστε το πλέγμα να μη μοιάζει πια πλέγμα.
+Which output channel carries the signal. 'all' feeds every one.	Ποιο κανάλι εξόδου φέρει το σήμα. Το 'all' τροφοδοτεί όλα.
+What is sent. Backslash-n, -r, -t and -0 become those characters	Τι στέλνεται. Ανάποδη κάθετος n, r, t και 0 γίνονται αυτοί οι χαρακτήρες
+Deckboy's own remote-protocol verbs, one per line; # is a comment	Τα ρήματα του πρωτοκόλλου του Deckboy, ένα ανά γραμμή· το # είναι σχόλιο
+Modulator speed as a ratio of the note, so the bend tracks pitch.	Ταχύτητα διαμορφωτή ως λόγος της νότας, ώστε η κάμψη να ακολουθεί το τονικό ύψος.
+Play this cue to the preview only; the outputs keep what they have	Παίξε αυτό το cue μόνο στην προεπισκόπηση· οι έξοδοι κρατούν ό,τι έχουν
+Put the pitch on an oscillator: Motion X sweeps it like a theremin	Βάλε το τονικό ύψος σε ταλαντωτή: το Motion X το σαρώνει σαν θέρεμιν
+A disarmed cue stays in the list and does nothing; GO steps over it	Ένα αφοπλισμένο cue μένει στη λίστα και δεν κάνει τίποτα· το GO το προσπερνά
+Where the clock reads from this cue on; click the value to type one	Από πού διαβάζει το ρολόι από αυτό το cue· κάνε κλικ στην τιμή για να την πληκτρολογήσεις
+Add a dashboard button that fires this master by name, from anywhere	Πρόσθεσε στον πίνακα κουμπί που ξεκινά αυτόν τον master με το όνομά του, από παντού
+New here? LEARN THE BASICS takes five minutes. We'll show you round.	Νέος εδώ; Η ΜΑΘΗΣΗ ΤΩΝ ΒΑΣΙΚΩΝ θέλει πέντε λεπτά. Θα σε ξεναγήσουμε.
+An IPv4 address, or 255.255.255.255 to broadcast to the whole network	Διεύθυνση IPv4, ή 255.255.255.255 για εκπομπή σε όλο το δίκτυο
+How much playing audio widens and brightens the pattern. 0 free-runs.	Πόσο ο ήχος που παίζει πλαταίνει και φωτίζει το μοτίβο. Το 0 τρέχει ελεύθερα.
+LED panel width in pixels - what one tile really is. Click to type it	Πλάτος πάνελ LED σε pixel: πόσο είναι πραγματικά ένα πλακίδιο. Κλικ για πληκτρολόγηση
+Which deck it acts on; step off the end for the one this cue lives on	Σε ποιο deck δρα· πέρασε το τέλος για το deck αυτού του cue
+only one playlist - use the routing chip on the header to add another	μόνο μία λίστα: ο επιλογέας δρομολόγησης στην κεφαλίδα προσθέτει άλλη
+Which cue this master fires on that deck; step off the end to clear it	Ποιο cue ξεκινά αυτός ο master σε εκείνο το deck· πέρασε το τέλος για καθάρισμα
+Draw on the programme monitor with the mouse or a pen (DRAW). Esc stops	Σχεδίασε στο μόνιτορ προγράμματος με ποντίκι ή πένα (DRAW). Το Esc σταματά
+How long the move takes, each way. 0 is instant whatever the style says	Πόσο κρατά η κίνηση, προς κάθε κατεύθυνση. Το 0 είναι στιγμιαίο ό,τι κι αν λέει το στυλ
+Stop that deck when the ramp lands - the usual take-it-down-and-stop-it	Σταμάτα εκείνο το deck όταν φτάσει η ράμπα: το συνηθισμένο χαμήλωσε-και-σταμάτα
+Which of the file's sound tracks plays: a second language, a commentary	Ποιο ηχητικό κανάλι του αρχείου παίζει: δεύτερη γλώσσα, σχολιασμός
+An oscillator on the colour: depth is how far round the wheel it travels	Ταλαντωτής στο χρώμα: το βάθος είναι πόσο γυρίζει στον τροχό
+Rack this cue paused and off air so GO starts it with no decoder spin-up	Φόρτωσε αυτό το cue σε παύση και εκτός αέρα, ώστε το GO να το ξεκινά χωρίς καθυστέρηση αποκωδικοποιητή
+Note, control change, program change, MIDI Show Control, or your own bytes	Νότα, control change, program change, MIDI Show Control ή δικά σου bytes
+Black behind the words. Zero leaves it over whatever the output already has	Μαύρο πίσω από τις λέξεις. Το μηδέν τις αφήνει πάνω σε ό,τι έχει ήδη η έξοδος
+How far the modulator bends the pitch. 0-63, the hardware's own gain range.	Πόσο κάμπτει ο διαμορφωτής το τονικό ύψος. 0-63, το δικό του εύρος ενίσχυσης του υλικού.
+the words this cue puts on screen  |  Shift+Enter: new line  |  Enter: apply	οι λέξεις που βάζει αυτό το cue στην οθόνη  |  Shift+Enter: νέα γραμμή  |  Enter: εφαρμογή
+OSC and UDP are fire and forget; TCP connects, so it runs off the show thread	Τα OSC και UDP στέλνονται και ξεχνιούνται· το TCP συνδέεται, άρα τρέχει έξω από το νήμα της παράστασης
+Put the level on an oscillator: Motion makes it a gate that opens as you move	Βάλε τη στάθμη σε ταλαντωτή: το Motion την κάνει πύλη που ανοίγει όταν κινείσαι
+Marks stacked ABOVE the characters, the way combining accents overflow a line.	Σημάδια στοιβαγμένα ΠΑΝΩ από τους χαρακτήρες, όπως συνδυαστικοί τόνοι που ξεχειλίζουν τη γραμμή.
+Which chime. Cycling PLAYS it, so it can be chosen by ear rather than by name.	Ποιο κουδουνάκι. Η εναλλαγή το ΠΑΙΖΕΙ, ώστε να διαλέγεις με το αυτί κι όχι με το όνομα.
+No rows. + ADD or LEARN makes one; MIDIMAP RESET brings the built-in rows back.	Καμία γραμμή. Το + ΠΡΟΣΘΗΚΗ ή ΜΑΘΗΣΗ φτιάχνει μία· το MIDIMAP RESET επαναφέρει τις ενσωματωμένες.
+Save the mask's paths as SVG, for Illustrator and anything else that reads them	Αποθήκευση των διαδρομών της μάσκας ως SVG, για το Illustrator και ό,τι άλλο τις διαβάζει
+Which MIDI output; a named port that is missing is reported rather than swapped	Ποια έξοδος MIDI· μια ονομασμένη θύρα που λείπει αναφέρεται, δεν αντικαθίσταται
+An oscillator on the level, running after GO until a later cue sets this fixture	Ταλαντωτής στη στάθμη, ενεργός μετά το GO ώσπου ένα επόμενο cue να ρυθμίσει αυτό το φωτιστικό
+Steps in third-octaves, because the ear works in ratios. 1kHz is the convention.	Βήματα σε τρίτα οκτάβας, γιατί το αυτί δουλεύει με λόγους. Το 1 kHz είναι η σύμβαση.
+Strikes drawn ACROSS the cell, damaging the character rather than decorating it.	Γραμμές ΚΑΤΑ ΜΗΚΟΣ του κελιού, που χαλούν τον χαρακτήρα αντί να τον στολίζουν.
+Whether incoming MIDI notes play this synth or trigger cues as they always have.	Αν οι εισερχόμενες νότες MIDI παίζουν αυτό το συνθεσάιζερ ή ξεκινούν cue όπως πάντα.
+A note number, or type LEARN and play it. Notes no cue claims still go to cue N+1	Αριθμός νότας, ή γράψε LEARN και παίξε την. Νότες που δεν παίρνει κανένα cue πάνε ακόμη στο cue N+1
+A plain stereo pair. Click to open the matrix, starting from exactly this routing	Ένα απλό στερεοφωνικό ζεύγος. Κλικ για άνοιγμα του πίνακα, ακριβώς από αυτή τη δρομολόγηση
+Folding is what turns an arbitrary pattern into something that reads as designed.	Το δίπλωμα κάνει ένα τυχαίο μοτίβο κάτι που μοιάζει σχεδιασμένο.
+Channel=level, comma separated. Ranges too: 1=255, 10-14=64. Channels count from 1	Κανάλι=στάθμη, χωρισμένα με κόμμα. Και εύρη: 1=255, 10-14=64. Τα κανάλια μετρούν από το 1
+Moves every selected cue's trim by the same dB; typing a value sets them all to it	Μετακινεί το trim κάθε επιλεγμένου cue κατά τα ίδια dB· μια πληκτρολογημένη τιμή τα ορίζει όλα σε αυτή
+Bends the carrier's PITCH rather than mixing with it. This is what makes FDS growl.	Κάμπτει το ΤΟΝΙΚΟ ΥΨΟΣ του φέροντος αντί να αναμειγνύεται μαζί του. Αυτό κάνει το FDS να γρυλίζει.
+Half way through LEARN THE BASICS. Press L and we pick up where you stopped, skapi.	Στη μέση της ΜΑΘΗΣΗΣ ΤΩΝ ΒΑΣΙΚΩΝ. Πάτα L και συνεχίζουμε από εκεί που σταμάτησες, skapi.
+Render as a character grid with a 16-colour indexed palette, rather than as pixels.	Απόδοση ως πλέγμα χαρακτήρων με ευρετηριασμένη παλέτα 16 χρωμάτων, αντί για pixel.
+Which MIDI output this file plays to; step past the end for the first one available	Σε ποια έξοδο MIDI παίζει αυτό το αρχείο· πέρασε το τέλος για την πρώτη διαθέσιμη
+An IPv4 address, or 255.255.255.255 for the universe's multicast group (239.255.x.y)	Διεύθυνση IPv4, ή 255.255.255.255 για την ομάδα multicast του universe (239.255.x.y)
+Click a cell to walk it: off, full, -3, -6, -12. This row turns the matrix off again	Κλικ σε κελί για εναλλαγή: off, πλήρες, -3, -6, -12. Αυτή η γραμμή κλείνει ξανά τον πίνακα
+How long each phrase stays before it moves. Zero hides them without losing the list.	Πόσο μένει κάθε φράση πριν κινηθεί. Το μηδέν τις κρύβει χωρίς να χάνεται η λίστα.
+How long it takes to fall away after the attack. Only audible when retrigger is set.	Πόσο διαρκεί η πτώση μετά την επίθεση. Ακούγεται μόνο με ενεργή την επανενεργοποίηση.
+Off, from start (next cue fires when this one starts) or from end (when it finishes)	Off, από την αρχή (το επόμενο cue ξεκινά όταν αρχίζει αυτό) ή από το τέλος (όταν τελειώνει)
+Height of one line as a percent of the raster, so a card reads the same on any screen	Ύψος μίας γραμμής ως ποσοστό του raster, ώστε μια κάρτα να διαβάζεται ίδια σε κάθε οθόνη
+Set slot source as media:/path, browser:url, window:name, camera:name, or syphon:name	Ορισμός πηγής θέσης ως media:/διαδρομή, browser:url, window:όνομα, camera:όνομα ή syphon:όνομα
+Short LFSR mode. The period is brief enough to read as pitched metal rather than hiss.	Σύντομη λειτουργία LFSR. Η περίοδος είναι αρκετά σύντομη ώστε να ακούγεται σαν κουρδισμένο μέταλλο κι όχι σαν σφύριγμα.
+White, warm, red, amber, green, cyan, blue, magenta. ~ moves it round the colour wheel	Λευκό, θερμό, κόκκινο, κεχριμπαρί, πράσινο, κυανό, μπλε, ματζέντα. Το ~ το γυρίζει στον χρωματικό τροχό
+Re-strike the envelope this often. Hold sustains one note, which is what a drone wants.	Επανεκκίνηση της περιβάλλουσας τόσο συχνά. Το Hold κρατά μία νότα, όπως θέλει ένα drone.
+Diamond is the hard-edged Atari Video Music lattice; rings tunnel well with feedback zoom.	Το Diamond είναι το αιχμηρό πλέγμα του Atari Video Music· οι δακτύλιοι κάνουν ωραίο τούνελ με το zoom ανάδρασης.
+Rock or spin. Depth 1 is half a turn either way; a saw at depth 1 turns it all the way round	Λίκνισμα ή περιστροφή. Βάθος 1 είναι μισή στροφή προς κάθε πλευρά· ένα πριόνι στο 1 κάνει πλήρη στροφή
+DECK playback level (live, not saved with the cue) - per-cue trim is gain in the AUDIO section	Στάθμη αναπαραγωγής του DECK (ζωντανά, δεν αποθηκεύεται με το cue) - το trim ανά cue είναι η ενίσχυση στην ενότητα ΗΧΟΣ
+Still, fade in, typewriter, scroll up, crawl or pulse -- all driven by the cue's own transport	Ακίνητο, εμφάνιση, γραφομηχανή, κύλιση πάνω, κυλιόμενο ή παλμός, όλα από τη μεταφορά του ίδιου του cue
+Fields per rendered frame. 1 is one for one, 0.5 holds each field for two frames, 0 freezes it.	Πεδία ανά αποδοθέν καρέ. 1 είναι ένα προς ένα, 0,5 κρατά κάθε πεδίο δύο καρέ, 0 το παγώνει.
+What this cue shows while it plays: waveform, scope, Lissajous, spectrum, meters or a name card	Τι δείχνει αυτό το cue όσο παίζει: κυματομορφή, παλμογράφο, Lissajous, φάσμα, μετρητές ή κάρτα ονόματος
+0 picks tiles by brightness so the picture reads. 1 picks at random so the grid becomes texture.	Το 0 διαλέγει πλακίδια κατά φωτεινότητα ώστε να διαβάζεται η εικόνα. Το 1 διαλέγει τυχαία κι έτσι το πλέγμα γίνεται υφή.
+How far it travels, in semitones. Up reads as arrival, down as departure, zero is a struck note.	Πόσο ταξιδεύει, σε ημιτόνια. Πάνω ακούγεται σαν άφιξη, κάτω σαν αναχώρηση, το μηδέν είναι χτυπημένη νότα.
+An IPv4 address. Names are not resolved: a DNS lookup is a blocking call and GO must not make one	Διεύθυνση IPv4. Τα ονόματα δεν επιλύονται: ένα ερώτημα DNS μπλοκάρει και το GO δεν πρέπει να το κάνει
+Tile width in pixels. Must match the sheet's grid or the slices land across neighbouring sprites.	Πλάτος πλακιδίου σε pixel. Πρέπει να ταιριάζει με το πλέγμα του φύλλου, αλλιώς τα κομμάτια πέφτουν πάνω σε γειτονικά sprite.
+Alternating mirrors by cell position, which reads as pattern where random flipping reads as noise.	Εναλλασσόμενοι καθρέφτες κατά θέση κελιού, που διαβάζονται σαν μοτίβο εκεί που το τυχαίο αναποδογύρισμα διαβάζεται σαν θόρυβος.
+0 welds them to their cell, which reads as engraved. Above it they re-roll, which reads as boiling.	Το 0 τα κολλά στο κελί τους, σαν χαραγμένα. Πάνω από αυτό ξανακληρώνονται, σαν να βράζουν.
+MONO L plays the left input in both speakers: mic 1 on most interfaces. STEREO is for a line source.	Το MONO L παίζει την αριστερή είσοδο και στα δύο ηχεία: μικρόφωνο 1 στις περισσότερες διεπαφές. Το STEREO είναι για πηγή γραμμής.
+The whole gesture. This IS the cue's duration -- a sting is the one generated signal here that ends.	Όλη η χειρονομία. Αυτή ΕΙΝΑΙ η διάρκεια του cue: το jingle είναι το μόνο παραγόμενο σήμα εδώ που τελειώνει.
+Click the value to send this fixture or leave it where the last cue put it. ~ makes the level breathe	Κλικ στην τιμή για να στείλεις αυτό το φωτιστικό ή να το αφήσεις όπου το έβαλε το τελευταίο cue. Το ~ κάνει τη στάθμη να ανασαίνει
+FDS is a wavetable bent by a modulator. 2A03 is the pulse/triangle/noise set most chiptune is made of.	Το FDS είναι πίνακας κυματομορφής που τον κάμπτει διαμορφωτής. Το 2A03 είναι το σετ παλμός/τρίγωνο/θόρυβος από το οποίο φτιάχνεται το περισσότερο chiptune.
+Scramble which glyph means which brightness. Same set, different handwriting. Seeded, so it stays put.	Ανακάτεψε ποιο σύμβολο σημαίνει ποια φωτεινότητα. Ίδιο σετ, άλλος γραφικός χαρακτήρας. Με σπόρο, άρα μένει σταθερό.
+Pixel sort: runs of pixels sorted by brightness within a row, which is what makes datamosh look melted.	Pixel sort: σειρές από pixel ταξινομημένες κατά φωτεινότητα μέσα σε μια γραμμή, που δίνει στο datamosh τη λιωμένη όψη.
+How many cells the marks may climb. They thin out as they go, so a tall reach trails rather than doubles.	Πόσα κελιά μπορούν να ανέβουν τα σημάδια. Αραιώνουν καθώς ανεβαίνουν, άρα μεγάλη έκταση αφήνει ίχνος αντί να διπλασιάζεται.
+cue act val  -  G take  S stop  F fade out (val = tenths of a second)  V volume  O opacity  J jump to row	cue ενέρ τιμ  -  G λήψη  S στοπ  F σβήσιμο (τιμ = δέκατα δευτερολέπτου)  V ένταση  O αδιαφάνεια  J μετάβαση σε γραμμή
+Harmonic weight: a pure chime at zero, brass at full. This is the difference between a ping and a fanfare.	Αρμονικό βάρος: καθαρό κουδουνάκι στο μηδέν, χάλκινα στο τέρμα. Αυτή είναι η διαφορά ανάμεσα σε ping και φανφάρα.
+Steps through the inputs this computer has. 'Settings input' follows the input chosen in Settings > Audio.	Περνά από τις εισόδους αυτού του υπολογιστή. Το 'Settings input' ακολουθεί την είσοδο που επιλέχθηκε στις Ρυθμίσεις > Ήχος.
+Embers to roaring. It still surges and settles at any setting -- a fire that does not move reads as a photo	Από κάρβουνα σε φλόγες. Φουντώνει και καταλαγιάζει σε κάθε ρύθμιση: μια φωτιά που δεν κινείται μοιάζει με φωτογραφία
+Reference pitch. 440 is modern standard, 432 the common alternative, and older instruments sat lower still.	Τόνος αναφοράς. Το 440 είναι το σύγχρονο πρότυπο, το 432 η συνηθισμένη εναλλακτική, και τα παλιότερα όργανα ήταν ακόμη χαμηλότερα.
+Where the sting starts. Under a voice it wants to stay out of the way; over a room it wants to cut through.	Πού ξεκινά το jingle. Κάτω από φωνή πρέπει να μένει μακριά· πάνω από αίθουσα πρέπει να κόβει.
+Digital gain on the input, -40 to +40 dB. Set the interface's own preamp first; this is for the last few dB.	Ψηφιακή ενίσχυση στην είσοδο, από -40 έως +40 dB. Ρύθμισε πρώτα τον προενισχυτή της διεπαφής· αυτό είναι για τα τελευταία dB.
+Pulse the size. On its own this moves width AND height together; give height its own ~ to squash and stretch	Παλμός στο μέγεθος. Μόνο του κινεί πλάτος ΚΑΙ ύψος μαζί· δώσε στο ύψος δικό του ~ για να ζουλάει και να τεντώνει
+A card fills the frame; a Lower Third is a name and a role, low on a transparent frame, with an in and an out	Η κάρτα γεμίζει το καρέ· ο κάτω τίτλος είναι όνομα και ρόλος χαμηλά σε διάφανο φόντο, με είσοδο κι έξοδο
+Held keeps the last displacement rather than removing it -- the picture stays bent the way the driver left it.	Το Held κρατά την τελευταία μετατόπιση αντί να την αφαιρεί: η εικόνα μένει λυγισμένη όπως την άφησε ο οδηγός.
+12.5 and 25 are thin and reedy, 50 is hollow. 75 sounds identical to 25 -- it is here because trackers expose it.	Τα 12,5 και 25 είναι λεπτά και ένρινα, το 50 κούφιο. Το 75 ακούγεται ίδιο με το 25: είναι εδώ επειδή το δίνουν οι trackers.
+Quantise the output like the hardware. The steps ARE the sound; smoothing them makes it a synth imitating a chip.	Κβάντισε την έξοδο όπως το υλικό. Τα σκαλοπάτια ΕΙΝΑΙ ο ήχος· αν τα λειάνεις γίνεται συνθεσάιζερ που μιμείται chip.
+Moves every selected cue's trim by the same dB, keeping the differences between them; typing a value sets them all to it	Μετακινεί το trim κάθε επιλεγμένου cue κατά τα ίδια dB, κρατώντας τις διαφορές· μια πληκτρολογημένη τιμή τα ορίζει όλα σε αυτή
+Where the playlist's crosspoints send it (Settings > Audio). Click to open the matrix by name, starting from exactly that	Πού το στέλνουν τα σημεία διασταύρωσης της λίστας (Ρυθμίσεις > Ήχος). Κλικ για άνοιγμα του πίνακα με όνομα, ακριβώς από εκείνη τη δρομολόγηση
+name values with  d = ...;  end with one expression, or three for red green blue  |  Shift+Enter: new line  |  Enter: apply	ονόμασε τιμές με  d = ...;  τελείωσε με μία έκφραση, ή τρεις για κόκκινο πράσινο μπλε  |  Shift+Enter: νέα γραμμή  |  Enter: εφαρμογή
+Put back what it started from once the ramp lands (after the stop): a deck left ready for its next cue, a swell that lets go	Επανάφερε ό,τι υπήρχε στην αρχή όταν φτάσει η ράμπα (μετά τη στάση): ένα deck έτοιμο για το επόμενο cue, ένα φούσκωμα που αφήνεται
+Which speech model makes the captions: English, any language, or the slower, more accurate pair. Each is a one-time download	Ποιο μοντέλο ομιλίας φτιάχνει τους υπότιτλους: αγγλικά, οποιαδήποτε γλώσσα, ή το πιο αργό και ακριβές ζεύγος. Το καθένα κατεβαίνει μία φορά
+What the mask cuts: this cue wherever it plays, this playlist on the focused output, that output's whole picture, or its matte	Τι κόβει η μάσκα: αυτό το cue όπου κι αν παίζει, αυτή τη λίστα στην επιλεγμένη έξοδο, όλη την εικόνα εκείνης της εξόδου ή το matte της
+Play at the screen's rate when it is within 0.2% (59.94 on 60): every frame shown once, the sound up to 3.5 cents sharp or flat	Παίξε στον ρυθμό της οθόνης όταν είναι εντός 0,2% (59,94 σε 60): κάθε καρέ μία φορά, ο ήχος έως 3,5 cent ψηλότερα ή χαμηλότερα
+Quarter turns are exact and stay crisp. Spinning samples at an angle, which tears pixel art -- sometimes that is what you want.	Τα τέταρτα στροφής είναι ακριβή και μένουν καθαρά. Η περιστροφή δειγματοληπτεί υπό γωνία, που σκίζει το pixel art: μερικές φορές αυτό ακριβώς θέλεις.
+Every take starts the puppetry the same way, so a rehearsed look repeats instead of depending on how long the app has been open.	Κάθε take ξεκινά την κουκλοπαιξία με τον ίδιο τρόπο, ώστε μια πρόβα να επαναλαμβάνεται αντί να εξαρτάται από το πόση ώρα είναι ανοιχτή η εφαρμογή.
+What aims each tilt: its own position, the picture's luma gradient so characters lean the way the image does, or the cell's hue.	Τι κατευθύνει κάθε κλίση: η δική του θέση, η κλίση φωτεινότητας της εικόνας ώστε οι χαρακτήρες να γέρνουν όπως αυτή, ή η απόχρωση του κελιού.
+Name a channel or a pair once. Playlists send to the name, so a different interface means changing the names here, not every cue.	Ονόμασε ένα κανάλι ή ζεύγος μία φορά. Οι λίστες στέλνουν στο όνομα, οπότε άλλη διεπαφή σημαίνει αλλαγή ονομάτων εδώ, όχι κάθε cue.
+Click a crosspoint to walk it: off, 0, -3, -6, -12 dB. Drag it sideways for any level. A playlist with none plays to its own device.	Κλικ σε σημείο διασταύρωσης για εναλλαγή: off, 0, -3, -6, -12 dB. Σύρε στο πλάι για οποιαδήποτε στάθμη. Λίστα χωρίς σημεία παίζει στη δική της συσκευή.
+Sprite sets installed in data/sprites. Each folder there is a set; cycling picks one and wraps back to none. Right-click turns them off.	Σετ sprite εγκατεστημένα στο data/sprites. Κάθε φάκελος είναι ένα σετ· η εναλλαγή διαλέγει ένα και γυρίζει σε κανένα. Δεξί κλικ τα κλείνει.
+Internal resolution, 1 chunkiest to 5 finest. This is an aesthetic control as much as a speed one -- the 8-bit look comes from big pixels.	Εσωτερική ανάλυση, από 1 την πιο χοντρή ως 5 την πιο λεπτή. Είναι αισθητική ρύθμιση όσο και ταχύτητας: η όψη 8-bit έρχεται από τα μεγάλα pixel.
+Picture takes colour from the image. Green, amber and cyan are terminal phosphors. Palette locks the text to the selected hardware palette.	Το Picture παίρνει χρώμα από την εικόνα. Πράσινο, κεχριμπαρί και κυανό είναι φώσφοροι τερματικών. Το Palette κλειδώνει το κείμενο στην επιλεγμένη παλέτα υλικού.
+SUBTLE self-heals (H.264). CLASSIC is the real smear (MPEG-4). EXTREME is chunkier and smears constantly. Changing this re-prepares the cue.	Το SUBTLE αυτοθεραπεύεται (H.264). Το CLASSIC είναι το αληθινό μουτζούρωμα (MPEG-4). Το EXTREME είναι πιο χοντρό και μουτζουρώνει συνέχεια. Η αλλαγή ξαναπροετοιμάζει το cue.
+Sine for line-up, pink to ring out a PA, white to find rattles, sweep to hear where a room rings, identify to walk the outputs one at a time.	Ημίτονο για ευθυγράμμιση, ροζ για ρύθμιση PA, λευκό για εντοπισμό κροταλισμάτων, σάρωση για να ακούσεις πού αντηχεί η αίθουσα, identify για να περάσεις τις εξόδους μία μία.
+Which effect, by its place in the stack of the cue that deck is playing when this fires. With nothing there, the fade says so and does nothing	Ποιο εφέ, με τη θέση του στη στοίβα του cue που παίζει εκείνο το deck όταν ενεργοποιηθεί. Αν δεν υπάρχει τίποτα, το σβήσιμο το λέει και δεν κάνει τίποτα
+Each frame blended into the next. This is the Hypno signature -- at 0 it is a pattern generator, above it the picture starts feeding on itself.	Κάθε καρέ αναμειγνύεται στο επόμενο. Αυτή είναι η υπογραφή του Hypno: στο 0 είναι γεννήτρια μοτίβων, πάνω από αυτό η εικόνα αρχίζει να τρέφεται από τον εαυτό της.
+What is through the window on the hearth wall: a garden, rain, snow or the sea. A room with weather outside reads as somewhere rather than as a wall	Τι φαίνεται από το παράθυρο στον τοίχο του τζακιού: κήπος, βροχή, χιόνι ή θάλασσα. Ένα δωμάτιο με καιρό έξω διαβάζεται σαν τόπος κι όχι σαν τοίχος
+BY FIXTURE: the lights in the patch (Settings > Network > FIXTURES), by name. CHANNELS: channel=level by hand. A cue can carry both; channels go last	ΑΝΑ ΦΩΤΙΣΤΙΚΟ: τα φώτα στο patch (Ρυθμίσεις > Δίκτυο > ΦΩΤΙΣΤΙΚΑ), με όνομα. ΚΑΝΑΛΙΑ: κανάλι=στάθμη με το χέρι. Ένα cue μπορεί να έχει και τα δύο· τα κανάλια πάνε τελευταία
+Each character rocks as though it were a card being tilted. Every cell has its own phase, so the grid breathes instead of sliding about as one sheet.	Κάθε χαρακτήρας λικνίζεται σαν κάρτα που γέρνει. Κάθε κελί έχει τη δική του φάση, έτσι το πλέγμα ανασαίνει αντί να γλιστρά σαν ένα φύλλο.
+Pen: click for corners, drag for curves, click the first point to close (P). Points: drag, click the outline to add one, Alt-click or Delete to remove	Πένα: κλικ για γωνίες, σύρσιμο για καμπύλες, κλικ στο πρώτο σημείο για κλείσιμο (P). Σημεία: σύρε, κλικ στο περίγραμμα για προσθήκη, Alt-κλικ ή Delete για αφαίρεση
+The chip's three channels. They differ in kind: triangle has no volume control on the hardware, and noise is a shift register rather than an oscillator.	Τα τρία κανάλια του chip. Διαφέρουν στη φύση: το τρίγωνο δεν έχει ένταση στο υλικό, και ο θόρυβος είναι καταχωρητής ολίσθησης κι όχι ταλαντωτής.
+Curated sets of symbols and emoji -- stars, notes, flowers, arrows, weather, runes, faces. Picking one fills the custom glyphs below, which stays editable.	Επιλεγμένα σετ συμβόλων και emoji: αστέρια, νότες, λουλούδια, βέλη, καιρός, ρούνοι, πρόσωπα. Η επιλογή γεμίζει τα δικά σου σύμβολα από κάτω, που μένουν επεξεργάσιμα.
+Play from the computer keyboard, Ableton layout: A W S E D F T G Y H U J, Z and X for octave. While this is ON those keys make notes instead of firing cues.	Παίξε από το πληκτρολόγιο του υπολογιστή, διάταξη Ableton: A W S E D F T G Y H U J, Z και X για οκτάβα. Όσο είναι ON, αυτά τα πλήκτρα παίζουν νότες αντί να ξεκινούν cue.
+Deck opacity, deck volume, the master dimmer, the active cue's own brightness / contrast / saturation / hue, or a knob of one of its effects or audio effects	Αδιαφάνεια deck, ένταση deck, ο γενικός ροοστάτης, φωτεινότητα / αντίθεση / κορεσμός / απόχρωση του ενεργού cue, ή ένα κουμπί από τα εφέ ή τα ηχητικά εφέ του
+Scanlines, phosphor bloom and RGB fringing. The bloom is the part that matters -- a phosphor spills sideways, which is why a CRT looks like it is emitting light.	Γραμμές σάρωσης, λάμψη φωσφόρου και κρόσσια RGB. Η λάμψη είναι το σημαντικό: ο φώσφορος απλώνεται στο πλάι, γι' αυτό ένας CRT μοιάζει να εκπέμπει φως.
+Torn scanline bands and RGB separation. In text mode it also corrupts CELLS -- whole rows lock to one repeating character, the way a real text screen loses sync.	Σκισμένες ζώνες γραμμών και διαχωρισμός RGB. Σε λειτουργία κειμένου χαλά και ΚΕΛΙΑ: ολόκληρες γραμμές κολλούν σε έναν επαναλαμβανόμενο χαρακτήρα, όπως μια αληθινή οθόνη κειμένου που χάνει συγχρονισμό.
+Still holds the frame you are on. Flipbook plays the frames in turn. Replay draws the first frame stroke by stroke, the way it was drawn, then holds and starts again	Το Still κρατά το καρέ όπου βρίσκεσαι. Το Flipbook παίζει τα καρέ με τη σειρά. Το Replay σχεδιάζει το πρώτο καρέ πινελιά πινελιά, όπως σχεδιάστηκε, μετά κρατά και ξαναρχίζει
+Start, Stop, Pause, Resume, Load (stand it by without firing), Arm, Disarm, or Devamp it (a loop plays out its pass and ends); or Stop all, Pause all, Resume all: every deck	Start, Stop, Pause, Resume, Load (έτοιμο χωρίς εκκίνηση), Arm, Disarm ή Devamp (ένα loop ολοκληρώνει το πέρασμά του και τελειώνει)· ή Stop all, Pause all, Resume all: κάθε deck
+Scope shows shape and clipping. Lissajous shows phase and polarity between the first two channels -- a diagonal the wrong way means one is inverted. Spectrum is third-octave bars.	Το Scope δείχνει σχήμα και ψαλίδισμα. Το Lissajous δείχνει φάση και πολικότητα ανάμεσα στα δύο πρώτα κανάλια: διαγώνιος ανάποδα σημαίνει ότι το ένα είναι αντεστραμμένο. Το Spectrum είναι μπάρες τρίτου οκτάβας.
+0 picks the glyph the brightness asks for, 1 picks any glyph in the set. Turn it up to see the whole alphabet: ranked strictly by ink, a flat area picks one mark and the rest never appear.	Το 0 διαλέγει το σύμβολο που ζητά η φωτεινότητα, το 1 οποιοδήποτε σύμβολο του σετ. Ανέβασέ το για να δεις όλο το αλφάβητο: με αυστηρή κατάταξη κατά μελάνι, μια επίπεδη περιοχή διαλέγει ένα σημάδι και τα υπόλοιπα δεν εμφανίζονται ποτέ.
+Blocks and dithers read as density; the ASCII ramp reads as text; symbols read as wreckage. Cycling this clears a custom glyph string, since that would override it -- the preset row puts one back.	Τα μπλοκ και το dither διαβάζονται ως πυκνότητα· η ράμπα ASCII ως κείμενο· τα σύμβολα ως συντρίμμια. Η εναλλαγή σβήνει μια δική σου σειρά συμβόλων, αφού θα το παρέκαμπτε· η γραμμή προρυθμίσεων ξαναβάζει μία.
+Equal temperament buys free modulation at the cost of every interval being slightly wrong. Just and pythagorean are exactly in tune in one key. Bohlen-Pierce divides a twelfth, so it has no octaves.	Το ισοσυγκερασμένο κούρδισμα αγοράζει ελεύθερη μετατροπία με κόστος κάθε διάστημα να είναι λίγο λάθος. Το φυσικό και το πυθαγόρειο είναι τέλεια κουρδισμένα σε μία τονικότητα. Το Bohlen-Pierce διαιρεί δωδεκάτη, άρα δεν έχει οκτάβες.
+OSC	OSC
+RTMPS	RTMPS
+Twitch	Twitch
+Art-Net	Art-Net
+YouTube	YouTube
+PQ - HDR10	PQ - HDR10
+sACN (E1.31)	sACN (E1.31)
+Syphon / Spout	Syphon / Spout
+NDI® NETWORK	NDI® NETWORK
+AMWA NMOS  IS-04 / IS-05	AMWA NMOS  IS-04 / IS-05

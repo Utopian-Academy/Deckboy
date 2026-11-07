@@ -1985,3 +1985,200 @@ Run the clock	Saati başlat
 What fires this cue besides GO	GO dışında bu cue'yu ne tetikler
 center	Orta
 visual	görsel
+JAM	EŞLE
+MIX	MİKS
+CLIP	KLİP
+Port	Bağlantı noktası
+TEXT	METİN
+KEY L	KEY S
+MULTI	ÇOKLU
+VIDEO	VİDEO
+WACKY	ÇILGIN
+COLOUR	RENK
+DARKEN	KOYULAŞTIR
+COMPARE	KARŞILAŞTIR
+LIGHTEN	AÇIKLAŞTIR
+DASHBOARD	PANO
+deck fader	deck fader'ı
+29.97 fps (NTSC)	29,97 fps (NTSC)
+Pocket Test (day)	Pocket testi (gündüz)
+Dark Detail (0-12%)	Gölge ayrıntısı (%0-12)
+Frame Count (emoji)	Kare sayacı (emoji)
+PLUGE (black level)	PLUGE (siyah seviyesi)
+Pocket Test (night)	Pocket testi (gece)
+Pocket Test (storm)	Pocket testi (fırtına)
+Marks stacked BELOW.	İşaretler ALTA yığılı.
+Panel Map (animated)	Panel haritası (hareketli)
+Pocket Test (sunset)	Pocket testi (gün batımı)
+Boresight (alignment)	Nişangâh (hizalama)
+SMPTE 75% Colour Bars	SMPTE %75 renk çubukları
+(projector curve only)	(yalnızca projektör eğrisi)
+Multiburst (bandwidth)	Multiburst (bant genişliği)
+Convergence (fine grid)	Yakınsama (ince ızgara)
+Greyscale Steps (gamma)	Gri basamaklar (gama)
+Uniformity (flat fields)	Tekdüzelik (düz alanlar)
+MULTIVIEW carries this too.	MULTIVIEW de bunu taşır.
+Test Clock (sync + latency)	Test saati (eşleme + gecikme)
+auto (reads the common two)	otomatik (yaygın ikisini okur)
+Panel Map (LED tile numbers)	Panel haritası (LED panel numaraları)
+Portal (blobs of deep space)	Portal (derin uzay kabarcıkları)
+Terrarium (living ecosystem)	Teraryum (canlı ekosistem)
+Window 10% (peak brightness)	Pencere %10 (tepe parlaklık)
+Window 50% (peak at mid APL)	Pencere %50 (orta APL'de tepe)
+Frame Count (drops + latency)	Kare sayacı (kayıplar + gecikme)
+Terrarium Pico (1px per cell)	Teraryum Pico (hücre başına 1 px)
+Banding Ramps (real bit depth)	Bantlaşma rampaları (gerçek bit derinliği)
+Fireside (a hearth that burns)	Ocak başı (yanan bir şömine)
+HLG - live broadcast (BT.2100)	HLG - canlı yayın (BT.2100)
+Test Bars (motion diagnostics)	Test çubukları (hareket teşhisi)
+Moire 1:1 (is anything scaling?)	Moiré 1:1 (bir şey ölçekliyor mu?)
+Pocket Test (test card + scene cycle)	Pocket testi (test kartı + sahne döngüsü)
+Critters (pixel-exact scaling, animated)	Critters (piksel kesinliğinde ölçek, hareketli)
+headphones, desk sounds and LTC stay out of it	kulaklıklar, masa sesleri ve LTC dışarıda kalır
+Above 1 tunnels inward, below 1 blooms outward.	1'in üstünde tünel içe çeker, altında dışa açılır.
+Read everything right to left. Yes, everything.	Her şeyi sağdan sola oku. Evet, her şeyi.
+Amber is closest to the 1976 single-phosphor look.	Kehribar, 1976'nın tek fosforlu görünümüne en yakın olandır.
+Greetings, primitive. Your "slideshow" amuses us.	Selamlar, ilkel. "Slayt gösterin" bizi eğlendiriyor.
+Sway sideways. Depth 1 is half the frame either way	Yana salın. Derinlik 1, her yöne yarım kare
+Draw the diagnostic over the card, or just the text.	Teşhisi test kartının üstüne çiz, ya da yalnızca metni.
+All interfaces, but only this computer is trusted yet.	Tüm arayüzler, ama şimdilik yalnızca bu bilgisayara güveniliyor.
+Choose the legacy cue token to show inside the PIP window	PIP penceresinde gösterilecek eski cue belirtecini seç
+ASIO carries the show's sound, and these are not on it yet	ASIO gösterinin sesini taşır ve bunlar henüz onun üzerinde değil
+N=new  Enter/P=previous  O=open saved  E=examples  L=learn	N=yeni  Enter/P=önceki  O=kayıtlıyı aç  E=örnekler  L=öğren
+Hand this parameter to an oscillator so it moves on its own	Bu parametreyi bir osilatöre ver, kendi kendine hareket etsin
+How long the finished drawing stays before it is drawn again	Biten çizimin yeniden çizilmeden önce ne kadar kalacağı
+How it comes on and goes off: none, fade, rise, slide or wipe	Nasıl girer ve çıkar: yok, solma, yükselme, kayma ya da silme
+The 64-step wavetable, quantised to 6 bits like the hardware.	64 adımlı dalga tablosu, donanım gibi 6 bite nicemlenmiş.
+Vary tile size per cell, so the grid stops looking like a grid.	Döşeme boyutunu hücreye göre değiştir, ızgara ızgaraya benzemesin.
+Which output channel carries the signal. 'all' feeds every one.	Sinyali hangi çıkış kanalı taşır. 'all' hepsini besler.
+What is sent. Backslash-n, -r, -t and -0 become those characters	Ne gönderilir. Ters bölü n, r, t ve 0 bu karakterlere dönüşür
+Deckboy's own remote-protocol verbs, one per line; # is a comment	Deckboy'un kendi uzaktan protokol komutları, satır başına bir tane; # yorumdur
+Modulator speed as a ratio of the note, so the bend tracks pitch.	Modülatör hızı notanın oranı olarak, böylece bükme perdeyi izler.
+Play this cue to the preview only; the outputs keep what they have	Bu cue'yu yalnızca önizlemede çal; çıkışlar sahip olduklarını korur
+Put the pitch on an oscillator: Motion X sweeps it like a theremin	Perdeyi bir osilatöre ver: Motion X onu theremin gibi süpürür
+A disarmed cue stays in the list and does nothing; GO steps over it	Silahsızlandırılmış cue listede kalır ve hiçbir şey yapmaz; GO onu atlar
+Where the clock reads from this cue on; click the value to type one	Saatin bu cue'dan itibaren nereden okuduğu; yazmak için değere tıkla
+Add a dashboard button that fires this master by name, from anywhere	Bu master'ı adıyla her yerden başlatan bir pano düğmesi ekle
+New here? LEARN THE BASICS takes five minutes. We'll show you round.	Yeni misin? TEMELLERİ ÖĞREN beş dakika sürer. Sana etrafı gösterelim.
+An IPv4 address, or 255.255.255.255 to broadcast to the whole network	Bir IPv4 adresi ya da tüm ağa yayın için 255.255.255.255
+How much playing audio widens and brightens the pattern. 0 free-runs.	Çalan sesin deseni ne kadar genişletip aydınlattığı. 0 serbest çalışır.
+LED panel width in pixels - what one tile really is. Click to type it	LED panel genişliği piksel olarak: bir döşemenin gerçek boyu. Yazmak için tıkla
+Which deck it acts on; step off the end for the one this cue lives on	Hangi deck üzerinde etki eder; bu cue'nun deck'i için sonun ötesine geç
+only one playlist - use the routing chip on the header to add another	tek bir çalma listesi: başlıktaki yönlendirme çipi bir tane daha ekler
+Which cue this master fires on that deck; step off the end to clear it	Bu master'ın o deck'te hangi cue'yu başlattığı; temizlemek için sonun ötesine geç
+Draw on the programme monitor with the mouse or a pen (DRAW). Esc stops	Program monitörüne fare ya da kalemle çiz (DRAW). Esc durdurur
+How long the move takes, each way. 0 is instant whatever the style says	Hareketin her yönde ne kadar sürdüğü. Stil ne derse desin 0 anlıktır
+Stop that deck when the ramp lands - the usual take-it-down-and-stop-it	Rampa varınca o deck'i durdur: alışılmış kıs-ve-durdur
+Which of the file's sound tracks plays: a second language, a commentary	Dosyanın hangi ses izi çalar: ikinci bir dil, bir yorum
+An oscillator on the colour: depth is how far round the wheel it travels	Renkte bir osilatör: derinlik, çark üzerinde ne kadar döndüğüdür
+Rack this cue paused and off air so GO starts it with no decoder spin-up	Bu cue'yu duraklatılmış ve yayın dışı yükle, GO onu kod çözücü beklemesi olmadan başlatsın
+Note, control change, program change, MIDI Show Control, or your own bytes	Nota, control change, program change, MIDI Show Control ya da kendi baytların
+Black behind the words. Zero leaves it over whatever the output already has	Kelimelerin arkasında siyah. Sıfır onları çıkışta zaten olanın üstünde bırakır
+How far the modulator bends the pitch. 0-63, the hardware's own gain range.	Modülatörün perdeyi ne kadar büktüğü. 0-63, donanımın kendi kazanç aralığı.
+the words this cue puts on screen  |  Shift+Enter: new line  |  Enter: apply	bu cue'nun ekrana koyduğu kelimeler  |  Shift+Enter: yeni satır  |  Enter: uygula
+OSC and UDP are fire and forget; TCP connects, so it runs off the show thread	OSC ve UDP gönder-ve-unut; TCP bağlanır, bu yüzden gösteri iş parçacığının dışında çalışır
+Put the level on an oscillator: Motion makes it a gate that opens as you move	Seviyeyi bir osilatöre ver: Motion onu sen hareket ettikçe açılan bir kapıya çevirir
+Marks stacked ABOVE the characters, the way combining accents overflow a line.	Karakterlerin ÜSTÜNE yığılı işaretler, satırdan taşan birleşik aksanlar gibi.
+Which chime. Cycling PLAYS it, so it can be chosen by ear rather than by name.	Hangi zil. Değiştirmek onu ÇALAR, böylece adına göre değil kulakla seçilir.
+No rows. + ADD or LEARN makes one; MIDIMAP RESET brings the built-in rows back.	Satır yok. + EKLE ya da ÖĞREN bir tane oluşturur; MIDIMAP RESET yerleşik satırları geri getirir.
+Save the mask's paths as SVG, for Illustrator and anything else that reads them	Maskenin yollarını SVG olarak kaydet, Illustrator ve onları okuyan her şey için
+Which MIDI output; a named port that is missing is reported rather than swapped	Hangi MIDI çıkışı; eksik adlı bir bağlantı noktası değiştirilmez, bildirilir
+An oscillator on the level, running after GO until a later cue sets this fixture	Seviyede bir osilatör, GO'dan sonra çalışır, ta ki sonraki bir cue bu armatürü ayarlayana dek
+Steps in third-octaves, because the ear works in ratios. 1kHz is the convention.	Üçte bir oktav adımları, çünkü kulak oranlarla çalışır. 1 kHz gelenektir.
+Strikes drawn ACROSS the cell, damaging the character rather than decorating it.	Hücrenin BOYUNCA çizgiler, karakteri süslemek yerine bozan.
+Whether incoming MIDI notes play this synth or trigger cues as they always have.	Gelen MIDI notalarının bu synth'i mi çalacağı yoksa her zamanki gibi cue mu başlatacağı.
+A note number, or type LEARN and play it. Notes no cue claims still go to cue N+1	Bir nota numarası, ya da LEARN yaz ve çal. Hiçbir cue'nun sahiplenmediği notalar yine cue N+1'e gider
+A plain stereo pair. Click to open the matrix, starting from exactly this routing	Düz bir stereo çift. Tam bu yönlendirmeden başlayarak matrisi açmak için tıkla
+Folding is what turns an arbitrary pattern into something that reads as designed.	Katlama, rastgele bir deseni tasarlanmış görünen bir şeye çevirir.
+Channel=level, comma separated. Ranges too: 1=255, 10-14=64. Channels count from 1	Kanal=seviye, virgülle ayrılmış. Aralıklar da: 1=255, 10-14=64. Kanallar 1'den sayılır
+Moves every selected cue's trim by the same dB; typing a value sets them all to it	Seçili her cue'nun trim'ini aynı dB kadar kaydırır; bir değer yazmak hepsini ona ayarlar
+Bends the carrier's PITCH rather than mixing with it. This is what makes FDS growl.	Taşıyıcının PERDESİNİ onunla karışmak yerine büker. FDS'yi hırlatan budur.
+Half way through LEARN THE BASICS. Press L and we pick up where you stopped, skapi.	TEMELLERİ ÖĞREN'in yarısındasın. L'ye bas, kaldığın yerden devam edelim, skapi.
+Render as a character grid with a 16-colour indexed palette, rather than as pixels.	Piksel yerine 16 renkli dizinli paletle bir karakter ızgarası olarak çiz.
+Which MIDI output this file plays to; step past the end for the first one available	Bu dosyanın hangi MIDI çıkışına çaldığı; ilk boştaki için sonun ötesine geç
+An IPv4 address, or 255.255.255.255 for the universe's multicast group (239.255.x.y)	Bir IPv4 adresi ya da evrenin çoklu yayın grubu için 255.255.255.255 (239.255.x.y)
+Click a cell to walk it: off, full, -3, -6, -12. This row turns the matrix off again	Bir hücreyi dolaştırmak için tıkla: kapalı, tam, -3, -6, -12. Bu satır matrisi yeniden kapatır
+How long each phrase stays before it moves. Zero hides them without losing the list.	Her ifadenin hareket etmeden önce ne kadar kaldığı. Sıfır, listeyi kaybetmeden onları gizler.
+How long it takes to fall away after the attack. Only audible when retrigger is set.	Atak sonrası sönmenin ne kadar sürdüğü. Yalnızca yeniden tetikleme açıkken duyulur.
+Off, from start (next cue fires when this one starts) or from end (when it finishes)	Kapalı, baştan (bu başlayınca sonraki cue başlar) ya da sondan (bu bitince)
+Height of one line as a percent of the raster, so a card reads the same on any screen	Bir satırın yüksekliği rasterin yüzdesi olarak, böylece kart her ekranda aynı okunur
+Set slot source as media:/path, browser:url, window:name, camera:name, or syphon:name	Yuva kaynağını media:/yol, browser:url, window:ad, camera:ad ya da syphon:ad olarak ayarla
+Short LFSR mode. The period is brief enough to read as pitched metal rather than hiss.	Kısa LFSR modu. Periyot, hışırtı yerine akortlu metal gibi duyulacak kadar kısa.
+White, warm, red, amber, green, cyan, blue, magenta. ~ moves it round the colour wheel	Beyaz, sıcak, kırmızı, kehribar, yeşil, camgöbeği, mavi, macenta. ~ onu renk çarkında döndürür
+Re-strike the envelope this often. Hold sustains one note, which is what a drone wants.	Zarfı bu sıklıkta yeniden vur. Hold tek bir notayı tutar, bir drone'un istediği de budur.
+Diamond is the hard-edged Atari Video Music lattice; rings tunnel well with feedback zoom.	Diamond, Atari Video Music'in keskin kenarlı kafesidir; halkalar geri besleme yakınlaştırmasıyla güzel tünel yapar.
+Rock or spin. Depth 1 is half a turn either way; a saw at depth 1 turns it all the way round	Salla ya da döndür. Derinlik 1 her yöne yarım tur; derinlik 1'de testere dişi tam tur döndürür
+DECK playback level (live, not saved with the cue) - per-cue trim is gain in the AUDIO section	DECK çalma seviyesi (canlı, cue ile kaydedilmez) - cue başına trim, SES bölümündeki kazançtır
+Still, fade in, typewriter, scroll up, crawl or pulse -- all driven by the cue's own transport	Sabit, belirme, daktilo, yukarı kaydırma, kayan yazı ya da nabız, hepsi cue'nun kendi aktarımıyla yürür
+Fields per rendered frame. 1 is one for one, 0.5 holds each field for two frames, 0 freezes it.	İşlenen kare başına alan. 1 bire bir, 0,5 her alanı iki kare tutar, 0 dondurur.
+What this cue shows while it plays: waveform, scope, Lissajous, spectrum, meters or a name card	Bu cue çalarken ne gösterir: dalga biçimi, skop, Lissajous, spektrum, ölçerler ya da isim kartı
+0 picks tiles by brightness so the picture reads. 1 picks at random so the grid becomes texture.	0 resim okunabilsin diye döşemeleri parlaklığa göre seçer. 1 rastgele seçer, ızgara dokuya dönüşür.
+How far it travels, in semitones. Up reads as arrival, down as departure, zero is a struck note.	Yarım ses olarak ne kadar gider. Yukarı varış, aşağı ayrılış gibi duyulur, sıfır vurulmuş bir notadır.
+An IPv4 address. Names are not resolved: a DNS lookup is a blocking call and GO must not make one	Bir IPv4 adresi. Adlar çözülmez: DNS sorgusu engelleyici bir çağrıdır ve GO bunu yapmamalı
+Tile width in pixels. Must match the sheet's grid or the slices land across neighbouring sprites.	Döşeme genişliği piksel olarak. Sayfanın ızgarasına uymalı, yoksa dilimler komşu sprite'ların üstüne düşer.
+Alternating mirrors by cell position, which reads as pattern where random flipping reads as noise.	Hücre konumuna göre dönüşümlü aynalar; rastgele çevirmenin gürültü gibi okunduğu yerde desen gibi okunur.
+0 welds them to their cell, which reads as engraved. Above it they re-roll, which reads as boiling.	0 onları hücrelerine kaynak yapar, oyulmuş gibi. Üstünde yeniden çekilirler, kaynıyormuş gibi.
+MONO L plays the left input in both speakers: mic 1 on most interfaces. STEREO is for a line source.	MONO L sol girişi iki hoparlörde de çalar: çoğu arayüzde mikrofon 1. STEREO hat kaynağı içindir.
+The whole gesture. This IS the cue's duration -- a sting is the one generated signal here that ends.	Hareketin tamamı. Cue'nun süresi BUDUR: jingle buradaki biten tek üretilmiş sinyaldir.
+Click the value to send this fixture or leave it where the last cue put it. ~ makes the level breathe	Bu armatürü göndermek ya da son cue'nun bıraktığı yerde bırakmak için değere tıkla. ~ seviyeyi nefes aldırır
+FDS is a wavetable bent by a modulator. 2A03 is the pulse/triangle/noise set most chiptune is made of.	FDS bir modülatörün büktüğü dalga tablosudur. 2A03 çoğu chiptune'un yapıldığı puls/üçgen/gürültü setidir.
+Scramble which glyph means which brightness. Same set, different handwriting. Seeded, so it stays put.	Hangi glifin hangi parlaklık olduğunu karıştır. Aynı set, farklı el yazısı. Tohumlu, yani yerinde kalır.
+Pixel sort: runs of pixels sorted by brightness within a row, which is what makes datamosh look melted.	Piksel sıralama: bir satırdaki piksel dizileri parlaklığa göre sıralanır, datamosh'a erimiş görünümü veren budur.
+How many cells the marks may climb. They thin out as they go, so a tall reach trails rather than doubles.	İşaretlerin kaç hücre tırmanabileceği. Gittikçe seyrelirler, böylece yüksek erişim ikilenmek yerine iz bırakır.
+cue act val  -  G take  S stop  F fade out (val = tenths of a second)  V volume  O opacity  J jump to row	cue eyl değ  -  G al  S dur  F sönerek çık (değ = saniyenin onda biri)  V ses  O opaklık  J satıra atla
+Harmonic weight: a pure chime at zero, brass at full. This is the difference between a ping and a fanfare.	Harmonik ağırlık: sıfırda saf bir zil, tamda bakır nefesliler. Ping ile fanfar arasındaki fark budur.
+Steps through the inputs this computer has. 'Settings input' follows the input chosen in Settings > Audio.	Bu bilgisayarın girişlerinde dolaşır. 'Settings input', Ayarlar > Ses'te seçilen girişi izler.
+Embers to roaring. It still surges and settles at any setting -- a fire that does not move reads as a photo	Közden gürleyen ateşe. Her ayarda kabarır ve yatışır: hareket etmeyen bir ateş fotoğraf gibi görünür
+Reference pitch. 440 is modern standard, 432 the common alternative, and older instruments sat lower still.	Referans perde. 440 modern standart, 432 yaygın alternatif, eski çalgılar ise daha da alçaktaydı.
+Where the sting starts. Under a voice it wants to stay out of the way; over a room it wants to cut through.	Jingle'ın başladığı yer. Bir sesin altında yoldan çekilmeli; bir salonun üstünde delip geçmeli.
+Digital gain on the input, -40 to +40 dB. Set the interface's own preamp first; this is for the last few dB.	Girişte dijital kazanç, -40 ile +40 dB arası. Önce arayüzün kendi ön yükselticisini ayarla; bu son birkaç dB için.
+Pulse the size. On its own this moves width AND height together; give height its own ~ to squash and stretch	Boyutu titreştir. Tek başına genişlik VE yüksekliği birlikte hareket ettirir; ezip uzatmak için yüksekliğe kendi ~'ini ver
+A card fills the frame; a Lower Third is a name and a role, low on a transparent frame, with an in and an out	Kart kareyi doldurur; alt bant bir isim ve bir unvandır, saydam bir karenin altında, girişi ve çıkışıyla
+Held keeps the last displacement rather than removing it -- the picture stays bent the way the driver left it.	Held son kaydırmayı kaldırmak yerine tutar: resim, sürücünün bıraktığı gibi bükük kalır.
+12.5 and 25 are thin and reedy, 50 is hollow. 75 sounds identical to 25 -- it is here because trackers expose it.	12,5 ve 25 ince ve genizden, 50 boş. 75, 25 ile aynı duyulur: tracker'lar sunduğu için burada.
+Quantise the output like the hardware. The steps ARE the sound; smoothing them makes it a synth imitating a chip.	Çıkışı donanım gibi nicemle. Basamaklar SESİN TA KENDİSİDİR; onları yumuşatmak çipi taklit eden bir synth yapar.
+Moves every selected cue's trim by the same dB, keeping the differences between them; typing a value sets them all to it	Seçili her cue'nun trim'ini farklarını koruyarak aynı dB kadar kaydırır; bir değer yazmak hepsini ona ayarlar
+Where the playlist's crosspoints send it (Settings > Audio). Click to open the matrix by name, starting from exactly that	Çalma listesinin çapraz noktalarının onu nereye gönderdiği (Ayarlar > Ses). Tam o yönlendirmeden başlayarak matrisi adıyla açmak için tıkla
+name values with  d = ...;  end with one expression, or three for red green blue  |  Shift+Enter: new line  |  Enter: apply	değerleri  d = ...;  ile adlandır, tek bir ifadeyle ya da kırmızı yeşil mavi için üçüyle bitir  |  Shift+Enter: yeni satır  |  Enter: uygula
+Put back what it started from once the ramp lands (after the stop): a deck left ready for its next cue, a swell that lets go	Rampa varınca (durduktan sonra) başladığı şeyi geri koy: sonraki cue'suna hazır bir deck, bırakan bir kabarma
+Which speech model makes the captions: English, any language, or the slower, more accurate pair. Each is a one-time download	Altyazıları hangi konuşma modeli yapar: İngilizce, herhangi bir dil, ya da daha yavaş ve daha doğru çift. Her biri bir kez indirilir
+What the mask cuts: this cue wherever it plays, this playlist on the focused output, that output's whole picture, or its matte	Maskenin kestiği: çaldığı her yerde bu cue, odaktaki çıkışta bu çalma listesi, o çıkışın tüm resmi ya da onun matte'ı
+Play at the screen's rate when it is within 0.2% (59.94 on 60): every frame shown once, the sound up to 3.5 cents sharp or flat	Ekranın hızı %0,2 içindeyse (60'ta 59,94) o hızda çal: her kare bir kez gösterilir, ses en fazla 3,5 sent tiz ya da pes
+Quarter turns are exact and stay crisp. Spinning samples at an angle, which tears pixel art -- sometimes that is what you want.	Çeyrek turlar kesindir ve net kalır. Döndürme açılı örnekler, bu da piksel sanatını yırtar: bazen istenen tam da budur.
+Every take starts the puppetry the same way, so a rehearsed look repeats instead of depending on how long the app has been open.	Her take kuklacılığı aynı şekilde başlatır, böylece prova edilmiş bir görünüm uygulamanın ne kadar açık kaldığına bağlı olmadan tekrarlanır.
+What aims each tilt: its own position, the picture's luma gradient so characters lean the way the image does, or the cell's hue.	Her eğimi neyin yönlendirdiği: kendi konumu, karakterler resim gibi eğilsin diye resmin luma gradyanı, ya da hücrenin tonu.
+Name a channel or a pair once. Playlists send to the name, so a different interface means changing the names here, not every cue.	Bir kanala ya da çifte bir kez ad ver. Çalma listeleri ada gönderir, böylece farklı bir arayüz her cue'yu değil buradaki adları değiştirmek demektir.
+Click a crosspoint to walk it: off, 0, -3, -6, -12 dB. Drag it sideways for any level. A playlist with none plays to its own device.	Bir çapraz noktayı dolaştırmak için tıkla: kapalı, 0, -3, -6, -12 dB. Herhangi bir seviye için yana sürükle. Noktası olmayan çalma listesi kendi cihazına çalar.
+Sprite sets installed in data/sprites. Each folder there is a set; cycling picks one and wraps back to none. Right-click turns them off.	data/sprites içinde kurulu sprite setleri. Her klasör bir settir; değiştirmek birini seçer ve hiçbirine geri döner. Sağ tık onları kapatır.
+Internal resolution, 1 chunkiest to 5 finest. This is an aesthetic control as much as a speed one -- the 8-bit look comes from big pixels.	İç çözünürlük, 1 en kaba, 5 en ince. Bu bir hız kadar estetik ayarıdır: 8 bit görünüm büyük piksellerden gelir.
+Picture takes colour from the image. Green, amber and cyan are terminal phosphors. Palette locks the text to the selected hardware palette.	Picture rengi resimden alır. Yeşil, kehribar ve camgöbeği terminal fosforlarıdır. Palette metni seçili donanım paletine kilitler.
+SUBTLE self-heals (H.264). CLASSIC is the real smear (MPEG-4). EXTREME is chunkier and smears constantly. Changing this re-prepares the cue.	SUBTLE kendi kendini onarır (H.264). CLASSIC gerçek bulaşmadır (MPEG-4). EXTREME daha kabadır ve sürekli bulaşır. Bunu değiştirmek cue'yu yeniden hazırlar.
+Sine for line-up, pink to ring out a PA, white to find rattles, sweep to hear where a room rings, identify to walk the outputs one at a time.	Hizalama için sinüs, PA ayarı için pembe, tıkırtı bulmak için beyaz, salonun nerede çınladığını duymak için tarama, çıkışları tek tek dolaşmak için identify.
+Which effect, by its place in the stack of the cue that deck is playing when this fires. With nothing there, the fade says so and does nothing	Bu tetiklendiğinde o deck'in çaldığı cue'nun yığınındaki yerine göre hangi efekt. Orada bir şey yoksa solma bunu söyler ve hiçbir şey yapmaz
+Each frame blended into the next. This is the Hypno signature -- at 0 it is a pattern generator, above it the picture starts feeding on itself.	Her kare bir sonrakine karışır. Bu Hypno imzasıdır: 0'da bir desen üretecidir, üstünde resim kendini beslemeye başlar.
+What is through the window on the hearth wall: a garden, rain, snow or the sea. A room with weather outside reads as somewhere rather than as a wall	Ocak duvarındaki pencereden ne görünür: bir bahçe, yağmur, kar ya da deniz. Dışarıda hava olan bir oda duvar değil bir yer gibi okunur
+BY FIXTURE: the lights in the patch (Settings > Network > FIXTURES), by name. CHANNELS: channel=level by hand. A cue can carry both; channels go last	ARMATÜRE GÖRE: patch'teki ışıklar (Ayarlar > Ağ > ARMATÜRLER), adıyla. KANALLAR: elle kanal=seviye. Bir cue ikisini de taşıyabilir; kanallar en son gelir
+Each character rocks as though it were a card being tilted. Every cell has its own phase, so the grid breathes instead of sliding about as one sheet.	Her karakter eğilen bir kart gibi sallanır. Her hücrenin kendi fazı vardır, böylece ızgara tek bir yaprak gibi kaymak yerine nefes alır.
+Pen: click for corners, drag for curves, click the first point to close (P). Points: drag, click the outline to add one, Alt-click or Delete to remove	Kalem: köşeler için tıkla, eğriler için sürükle, kapatmak için ilk noktaya tıkla (P). Noktalar: sürükle, eklemek için kontura tıkla, kaldırmak için Alt-tık ya da Delete
+The chip's three channels. They differ in kind: triangle has no volume control on the hardware, and noise is a shift register rather than an oscillator.	Çipin üç kanalı. Türce farklıdırlar: üçgenin donanımda ses denetimi yoktur ve gürültü bir osilatör değil kaydırma yazmacıdır.
+Curated sets of symbols and emoji -- stars, notes, flowers, arrows, weather, runes, faces. Picking one fills the custom glyphs below, which stays editable.	Seçilmiş sembol ve emoji setleri: yıldızlar, notalar, çiçekler, oklar, hava, runlar, yüzler. Birini seçmek aşağıdaki özel glifleri doldurur, düzenlenebilir kalırlar.
+Play from the computer keyboard, Ableton layout: A W S E D F T G Y H U J, Z and X for octave. While this is ON those keys make notes instead of firing cues.	Bilgisayar klavyesinden çal, Ableton düzeni: A W S E D F T G Y H U J, oktav için Z ve X. Bu AÇIKKEN o tuşlar cue başlatmak yerine nota çalar.
+Deck opacity, deck volume, the master dimmer, the active cue's own brightness / contrast / saturation / hue, or a knob of one of its effects or audio effects	Deck opaklığı, deck sesi, ana karartıcı, etkin cue'nun parlaklık / kontrast / doygunluk / tonu, ya da efektlerinden veya ses efektlerinden birinin düğmesi
+Scanlines, phosphor bloom and RGB fringing. The bloom is the part that matters -- a phosphor spills sideways, which is why a CRT looks like it is emitting light.	Tarama çizgileri, fosfor parlaması ve RGB saçakları. Önemli olan parlamadır: fosfor yana taşar, bu yüzden CRT ışık yayıyor gibi görünür.
+Torn scanline bands and RGB separation. In text mode it also corrupts CELLS -- whole rows lock to one repeating character, the way a real text screen loses sync.	Yırtık satır bantları ve RGB ayrımı. Metin modunda HÜCRELERİ de bozar: tüm satırlar tek bir tekrarlanan karaktere kilitlenir, eşlemesini kaybeden gerçek bir metin ekranı gibi.
+Still holds the frame you are on. Flipbook plays the frames in turn. Replay draws the first frame stroke by stroke, the way it was drawn, then holds and starts again	Still bulunduğun kareyi tutar. Flipbook kareleri sırayla oynatır. Replay ilk kareyi çizildiği gibi fırça fırça çizer, sonra tutar ve yeniden başlar
+Start, Stop, Pause, Resume, Load (stand it by without firing), Arm, Disarm, or Devamp it (a loop plays out its pass and ends); or Stop all, Pause all, Resume all: every deck	Start, Stop, Pause, Resume, Load (başlatmadan hazırla), Arm, Disarm ya da Devamp (döngü turunu bitirip sona erer); ya da Stop all, Pause all, Resume all: her deck
+Scope shows shape and clipping. Lissajous shows phase and polarity between the first two channels -- a diagonal the wrong way means one is inverted. Spectrum is third-octave bars.	Scope biçimi ve kırpmayı gösterir. Lissajous ilk iki kanal arasındaki fazı ve kutupluluğu gösterir: ters yönde bir köşegen birinin ters olduğu anlamına gelir. Spectrum üçte bir oktav çubuklarıdır.
+0 picks the glyph the brightness asks for, 1 picks any glyph in the set. Turn it up to see the whole alphabet: ranked strictly by ink, a flat area picks one mark and the rest never appear.	0 parlaklığın istediği glifi, 1 setteki herhangi bir glifi seçer. Tüm alfabeyi görmek için yükselt: kesin olarak mürekkebe göre sıralanınca düz bir alan tek işaret seçer ve gerisi hiç görünmez.
+Blocks and dithers read as density; the ASCII ramp reads as text; symbols read as wreckage. Cycling this clears a custom glyph string, since that would override it -- the preset row puts one back.	Bloklar ve dither yoğunluk olarak okunur; ASCII rampası metin olarak; semboller enkaz olarak. Bunu değiştirmek özel glif dizesini temizler, çünkü onu geçersiz kılardı; ön ayar satırı birini geri koyar.
+Equal temperament buys free modulation at the cost of every interval being slightly wrong. Just and pythagorean are exactly in tune in one key. Bohlen-Pierce divides a twelfth, so it has no octaves.	Eşit akort, her aralığın biraz yanlış olması pahasına serbest modülasyon satın alır. Saf ve Pisagor akortları tek bir tonda tam akortludur. Bohlen-Pierce bir on ikiliyi böler, bu yüzden oktavı yoktur.
+OSC	OSC
+RTMPS	RTMPS
+Twitch	Twitch
+Art-Net	Art-Net
+YouTube	YouTube
+PQ - HDR10	PQ - HDR10
+sACN (E1.31)	sACN (E1.31)
+Syphon / Spout	Syphon / Spout
+NDI® NETWORK	NDI® NETWORK
+AMWA NMOS  IS-04 / IS-05	AMWA NMOS  IS-04 / IS-05
