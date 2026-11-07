@@ -13,3 +13,6 @@ screen_ink_soft	6A2F1AFF
 button_bezel	D39A7AFF
 delete_bezel	FFD23AFF
 scanline_alpha	10
+
+# Creatures, in the empty part of the playlist; gone while an output is live.
+creature	ant	6

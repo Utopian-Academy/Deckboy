@@ -18,4 +18,5 @@ delete_bezel	FF5A4AFF
 scanline_alpha	14
 
 # Creatures, in the empty part of the playlist; gone while an output is live.
-creature	jellyfish	3
+creature	jellyfish	2
+creature	octopus	1

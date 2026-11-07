@@ -11614,6 +11614,9 @@ class App {
   std::vector<int> deckOverlayScrolls_;
   int mouseX_ = 0;
   int mouseY_ = 0;
+  // Whether the pointer is over the control window now. The creatures react
+  // to it, and a position left over from before it went away is not a pointer.
+  bool mouseInControlWindow_ = false;
   bool confirmQuit_ = false;
   SDL_Rect quitYesBtn_ {};
   SDL_Rect quitNoBtn_ {};

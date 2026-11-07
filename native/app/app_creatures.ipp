@@ -54,10 +54,18 @@
     // Each colony is stepped against ITS OWN habitat. step() bounds a
     // creature to the band it was given, so sharing one habitat across two
     // panels would let an animal walk out of one and hover over the other.
+    // What they can sense: the moths' light, and the pointer -- the
+    // starlings scatter from it, the owl watches it, the bat flees it.
+    deckboy::creatures::World world;
+    world.lureX = creatureLureX_;
+    world.lureY = creatureLureY_;
+    if (mouseInControlWindow_) {
+      world.pointerX = mouseX_;
+      world.pointerY = mouseY_;
+    }
     for (auto& colony : colonies_) {
       if (colony.home.w > 8 && colony.home.h > 8) {
-        deckboy::creatures::step(colony.creatures, colony.home, dt, nowSeconds,
-                                 creatureLureX_, creatureLureY_);
+        deckboy::creatures::step(colony.creatures, colony.home, dt, nowSeconds, world);
       }
     }
   }
@@ -147,10 +155,38 @@
       colonies_[i].home = homes[i];
     }
     std::size_t next = 0;
+    // A FLOCK STAYS TOGETHER. Starlings, koi and ants only make sense as a
+    // group -- dealt round the gaps, twelve starlings became four lone birds
+    // in each -- so each of those requests goes whole into the biggest gap
+    // (a ledge for the ants, which walk).
+    using deckboy::creatures::Species;
+    auto biggest = [this](bool needLedge) {
+      std::size_t best = 0;
+      long bestArea = -1;
+      for (std::size_t i = 0; i < colonies_.size(); ++i) {
+        const auto& h = colonies_[i].home;
+        if (needLedge && !h.ledge) continue;
+        const long area = static_cast<long>(h.w) * h.h;
+        if (area > bestArea) { bestArea = area; best = i; }
+      }
+      return best;
+    };
     for (const auto& request : themeCreatures_) {
+      bool together = request.species == Species::Starling ||
+                            request.species == Species::Koi || request.species == Species::Ant;
+      std::size_t home = together ? biggest(request.species == Species::Ant) : 0;
+      // A mouse goes where the cat is: the cat stalks only within its own gap,
+      // and a mouse two panels away is a cat asleep for ever.
+      if (request.species == Species::Mouse) {
+        for (std::size_t ci = 0; ci < colonies_.size(); ++ci) {
+          for (const auto& other : colonies_[ci].creatures) {
+            if (other.species == Species::Cat) { home = ci; together = true; }
+          }
+        }
+      }
       for (int i = 0; i < request.count; ++i) {
-        Colony& colony = colonies_[next % colonies_.size()];
-        ++next;
+        Colony& colony = together ? colonies_[home] : colonies_[next % colonies_.size()];
+        if (!together) ++next;
         deckboy::creatures::Creature c;
         c.species = request.species;
         deckboy::creatures::place(c, colony.home, seed++);
@@ -189,6 +225,104 @@
     };
     const int face = static_cast<int>(c.facing);
     switch (c.species) {
+      case Species::Starling: {
+        // A dark dash with two wings that flap: at this size a flock of them
+        // reads as a murmuration, which is the point.
+        const int up = std::sin(t * 22.0 + c.phase) > 0.0 ? -1 : 0;
+        dot(-1, 0, 3, 1, ink);
+        dot(-2, up, 1, 1, ink);
+        dot(2, up, 1, 1, ink);
+        break;
+      }
+      case Species::Koi: {
+        // A long body, a tail that sways, and a spot of the accent colour.
+        const int tail = static_cast<int>(std::lround(std::sin(t * 4.0 + c.phase) * 1.0));
+        dot(-3, 0, 6, 2, ink);
+        dot(face > 0 ? 1 : -3, 0, 2, 1, accent);          // the spot
+        dot(face > 0 ? -5 : 3, tail, 2, 2, accent);       // the tail
+        dot(face > 0 ? 3 : -4, 0, 1, 1, accent);          // the head
+        break;
+      }
+      case Species::Snake: {
+        // The body is the trail: each point the head passed, thinning toward
+        // the tail, with a gentle side-to-side wave travelling down it.
+        for (int k = c.trailCount - 1; k >= 0; --k) {
+          const int bx = static_cast<int>(std::lround(c.trail[static_cast<std::size_t>(k * 2)]));
+          const int by = static_cast<int>(std::lround(c.trail[static_cast<std::size_t>(k * 2 + 1)] +
+                                                      std::sin(t * 3.0 - k * 0.7 + c.phase) * 1.5));
+          const int w = k < 3 ? 3 * S : (k < 9 ? 2 * S + 1 : 2 * S);
+          Primitives::fillRect(controlRenderer_, SDL_Rect {bx - w / 2, by - w / 2, w, w},
+                               k % 3 == 1 ? accent : ink);
+        }
+        dot(-1, -1, 3, 3, ink);                               // the head
+        dot(face > 0 ? 1 : -1, -1, 1, 1, accent);              // the eye
+        if (std::fmod(t + c.phase, 2.4) < 0.25) {
+          dot(face > 0 ? 2 : -4, 0, 2, 1, accent);              // the tongue
+        }
+        break;
+      }
+      case Species::Octopus: {
+        // A round head and six arms, each a short chain of dots that waves,
+        // trailing further when it has just jetted.
+        dot(-2, -3, 5, 4, ink);
+        dot(-1, -2, 1, 1, accent);
+        dot(1, -2, 1, 1, accent);
+        const double trailing = c.state == 1 ? 1.6 : 1.0;
+        for (int a = 0; a < 6; ++a) {
+          const int ax = -2 + a;
+          for (int j = 1; j <= 3; ++j) {
+            const int wave = static_cast<int>(std::lround(std::sin(t * 3.0 + a * 1.1 + j * 0.8) * 0.8 * j / 2.0));
+            dot(ax + wave, static_cast<int>(1 + j * trailing), 1, 1, j == 3 ? accent : ink);
+          }
+        }
+        break;
+      }
+      case Species::Owl: {
+        // Round body, ear tufts, two big eyes whose pupils follow the pointer
+        // (c.look), and a blink that shuts them for a moment.
+        dot(-3, -6, 7, 8, ink);
+        dot(-3, -7, 1, 1, ink);
+        dot(3, -7, 1, 1, ink);
+        if (c.blink > 0.5) {
+          dot(-2, -5, 2, 2, accent);
+          dot(1, -5, 2, 2, accent);
+          const int look = static_cast<int>(std::lround(c.look));
+          dot(-2 + (look > 0 ? 1 : 0), -4, 1, 1, ink);
+          dot(1 + (look > 0 ? 1 : 0), -4, 1, 1, ink);
+        } else {
+          dot(-2, -4, 2, 1, accent);
+          dot(1, -4, 2, 1, accent);
+        }
+        dot(0, -3, 1, 1, accent);                              // beak
+        break;
+      }
+      case Species::Bat: {
+        if (c.state == 0) {
+          // Hanging upside down, wings folded.
+          dot(0, -1, 1, 1, ink);                                 // feet on the ceiling
+          dot(-1, 0, 3, 3, ink);
+          dot(-1, 3, 1, 1, accent);
+          dot(1, 3, 1, 1, accent);                               // ears, pointing down
+        } else {
+          const int up = std::sin(t * 26.0 + c.phase) > 0.0 ? -1 : 1;
+          dot(-1, 0, 2, 2, ink);
+          dot(-4, up, 3, 1, ink);
+          dot(1, up, 3, 1, ink);
+          dot(-1, -1, 1, 1, accent);
+          dot(0, -1, 1, 1, accent);
+        }
+        break;
+      }
+      case Species::Ant: {
+        // Head, waist, abdomen, and legs that tick as it walks.
+        const int step = std::sin(t * 14.0 + c.phase) > 0.0 ? 1 : 0;
+        dot(face > 0 ? 2 : -2, -1, 1, 1, ink);
+        dot(0, -1, 1, 1, ink);
+        dot(face > 0 ? -2 : 1, -1, 2, 1, ink);
+        dot(-1 + step, 0, 1, 1, accent);
+        dot(1 - step, 0, 1, 1, accent);
+        break;
+      }
       case Species::Moth: {
         // Wings that beat. Two rectangles whose height is the wingbeat, which
         // at this size reads as fluttering and costs four fills.

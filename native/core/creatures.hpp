@@ -29,6 +29,8 @@
 #ifndef DECKBOY_CORE_CREATURES_HPP
 #define DECKBOY_CORE_CREATURES_HPP
 
+#include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstdint>
 #include <string>
@@ -50,6 +52,15 @@ enum class Species : std::uint8_t {
   Bird,      // hops along the ledge and turns its head
   Wisp,      // a curl of smoke: rises, sways, thins away, starts again below
   Lava,      // a blob of warm wax: rises and sinks, stretching as it goes
+  // THE SOCIAL ONES (2026-11-07, James: "new creatures, more advanced").
+  // Each of these reads the others in its colony, or the pointer, or both.
+  Starling,  // flocks: steers with its neighbours, scatters from the pointer
+  Koi,       // schools slowly, turns away from the pointer
+  Snake,     // a long body that follows its head, segment by segment
+  Octopus,   // drifts, jets away when the pointer comes close, arms waving
+  Owl,       // sits still and turns its head to follow the pointer
+  Bat,       // hangs from the top; the pointer sends it flitting, then it roosts
+  Ant,       // walks in a line, each one following the ant ahead of it
   Count
 };
 
@@ -68,6 +79,13 @@ inline const char* speciesToken(Species s) {
     case Species::Bird:      return "bird";
     case Species::Wisp:      return "wisp";
     case Species::Lava:      return "lava";
+    case Species::Starling:  return "starling";
+    case Species::Koi:       return "koi";
+    case Species::Snake:     return "snake";
+    case Species::Octopus:   return "octopus";
+    case Species::Owl:       return "owl";
+    case Species::Bat:       return "bat";
+    case Species::Ant:       return "ant";
     default:                 return "moth";
   }
 }
@@ -97,6 +115,20 @@ struct Creature {
   double restUntil = 0.0;    // seconds; crabs and cats stop and think
   double facing = 1.0;       // -1 or 1
   double blink = 0.0;
+  // A snake's body: where its head has been, newest first, as x,y pairs.
+  static constexpr int kTrail = 14;
+  std::array<float, kTrail * 2> trail {};
+  int trailCount = 0;
+  double look = 0.0;         // the owl's head turn, -1 (left) to 1 (right)
+  int state = 0;             // cat: 0 asleep, 1 stalking, 2 pouncing; bat: 0 roosting, 1 flying
+  double stateUntil = 0.0;
+};
+
+// What a creature can sense besides its own colony. The pointer is where the
+// mouse is on the control window; far off-screen when it is not over the app.
+struct World {
+  double lureX = 0.0, lureY = 0.0;
+  double pointerX = -1.0e9, pointerY = -1.0e9;
 };
 
 // A band of chrome a creature is allowed to occupy. The app fills these in from
@@ -156,6 +188,29 @@ inline void place(Creature& c, const Habitat& home, std::uint32_t seed) {
       c.y = home.y + ry * std::max(1, home.h);
       c.vy = -6.0;
       break;
+    case Species::Owl:
+      // A perch near one end of the ledge, where it can see the whole gap.
+      c.x = home.x + (rx < 0.5 ? 26.0 : std::max(1, home.w) - 34.0);
+      c.y = home.y + home.h - 12.0;
+      c.blink = 1.0;
+      break;
+    case Species::Bat:
+      // Roosting from the top edge.
+      c.x = home.x + 20.0 + rx * std::max(1.0, home.w - 40.0);
+      c.y = home.y + 16.0;
+      break;
+    case Species::Ant:
+      // In a line along the floor, all walking the same way.
+      c.x = home.x + std::max(1, home.w) * 0.2 + (seed % 16u) * 9.0;
+      c.y = home.y + home.h - 4.0;
+      c.facing = 1.0;
+      c.vx = 16.0;
+      break;
+    case Species::Snake:
+      c.x = home.x + rx * std::max(1, home.w);
+      c.y = home.y + home.h * (0.4 + 0.4 * ry);
+      c.vx = c.facing * 14.0;
+      break;
     case Species::Cat:
       // Cats pick a corner and stay in it.
       c.x = home.x + (rx < 0.5 ? 18.0 : std::max(1, home.w) - 30.0);
@@ -177,8 +232,84 @@ inline void place(Creature& c, const Habitat& home, std::uint32_t seed) {
 // `lure` is the point a moth steers toward -- the app passes the brightest
 // thing on screen, which is usually the program monitor. Moths going to the
 // light is the entire reason to have a moth.
+// Steer gently away from the habitat's edges instead of bouncing off them,
+// which a flock needs: a bounce breaks it in two.
+inline void steerOffEdges(Creature& c, double left, double right, double top, double bottom,
+                          double room, double push, double dt) {
+  if (c.x < left + room)   c.vx += push * dt * (1.0 - (c.x - left) / room);
+  if (c.x > right - room)  c.vx -= push * dt * (1.0 - (right - c.x) / room);
+  if (c.y < top + room)    c.vy += push * dt * (1.0 - (c.y - top) / room);
+  if (c.y > bottom - room) c.vy -= push * dt * (1.0 - (bottom - c.y) / room);
+}
+
+// FLOCKING (the classic three rules): keep apart from the nearest, fly the way
+// the neighbours fly, drift toward where they are. Only the same species
+// counts as a neighbour, so a school of koi ignores the starlings above it.
+inline void flock(std::vector<Creature>& all, std::size_t self, double sight, double apart,
+                  double cohere, double align, double separate, double dt) {
+  Creature& c = all[self];
+  double cx = 0.0, cy = 0.0, ax = 0.0, ay = 0.0, sx = 0.0, sy = 0.0;
+  int n = 0;
+  for (std::size_t j = 0; j < all.size(); ++j) {
+    const Creature& o = all[j];
+    if (j == self || o.species != c.species) continue;
+    const double dx = o.x - c.x, dy = o.y - c.y;
+    const double d2 = dx * dx + dy * dy;
+    if (d2 > sight * sight) continue;
+    cx += o.x; cy += o.y; ax += o.vx; ay += o.vy; ++n;
+    if (d2 < apart * apart && d2 > 0.01) {
+      const double d = std::sqrt(d2);
+      sx -= dx / d * (apart - d);
+      sy -= dy / d * (apart - d);
+    }
+  }
+  if (n > 0) {
+    c.vx += ((cx / n - c.x) * cohere + (ax / n - c.vx) * align + sx * separate) * dt;
+    c.vy += ((cy / n - c.y) * cohere + (ay / n - c.vy) * align + sy * separate) * dt;
+  }
+}
+
+// Away from the pointer, harder the closer it is.
+inline void fleePointer(Creature& c, const World& w, double radius, double push, double dt) {
+  const double dx = c.x - w.pointerX, dy = c.y - w.pointerY;
+  const double d2 = dx * dx + dy * dy;
+  if (d2 > radius * radius) return;
+  const double d = std::sqrt(d2) + 1.0;
+  c.vx += dx / d * push * (1.0 - d / radius) * dt;
+  c.vy += dy / d * push * (1.0 - d / radius) * dt;
+}
+
+inline Creature* nearestOf(std::vector<Creature>& all, const Creature& from, Species kind) {
+  Creature* best = nullptr;
+  double bestD = 1.0e18;
+  for (Creature& o : all) {
+    if (o.species != kind || &o == &from) continue;
+    const double d = (o.x - from.x) * (o.x - from.x) + (o.y - from.y) * (o.y - from.y);
+    if (d < bestD) { bestD = d; best = &o; }
+  }
+  return best;
+}
+
+inline void limitSpeed(Creature& c, double lo, double hi) {
+  const double v = std::sqrt(c.vx * c.vx + c.vy * c.vy);
+  if (v > hi) { c.vx = c.vx / v * hi; c.vy = c.vy / v * hi; }
+  else if (v < lo && v > 0.001) { c.vx = c.vx / v * lo; c.vy = c.vy / v * lo; }
+  else if (v <= 0.001) { c.vx = lo; }
+}
+
+inline void step(std::vector<Creature>& all, const Habitat& home, double dt, double now, const World& world);
+
 inline void step(std::vector<Creature>& all, const Habitat& home, double dt,
                  double now, double lureX, double lureY) {
+  World world;
+  world.lureX = lureX;
+  world.lureY = lureY;
+  step(all, home, dt, now, world);
+}
+
+inline void step(std::vector<Creature>& all, const Habitat& home, double dt, double now,
+                 const World& world) {
+  const double lureX = world.lureX, lureY = world.lureY;
   // Room for the animal itself, not just its anchor point. Clamping the
   // centre to the edge lets half a cat hang outside the panel and get clipped
   // away, which reads as it not being there at all.
@@ -187,7 +318,8 @@ inline void step(std::vector<Creature>& all, const Habitat& home, double dt,
   const double right = home.x + std::max(2.0 * margin + 8.0, static_cast<double>(home.w)) - margin;
   const double top = home.y + margin;
   const double bottom = home.y + std::max(2.0 * margin + 8.0, static_cast<double>(home.h)) - margin;
-  for (Creature& c : all) {
+  for (std::size_t index = 0; index < all.size(); ++index) {
+    Creature& c = all[index];
     switch (c.species) {
       case Species::Moth: {
         // Toward the light, but badly: a moth that flew straight at a lamp
@@ -244,7 +376,21 @@ inline void step(std::vector<Creature>& all, const Habitat& home, double dt,
         // beetle; the stillness between runs is what makes it a mouse.
         c.y = bottom;
         c.vy = 0.0;
-        if (now < c.restUntil) {
+        // A pouncing cat, a creeping one right beside it, or the pointer sends
+        // it running the other way. A creep further off goes unnoticed: that is
+        // what makes it a creep.
+        const Creature* cat = nearestOf(all, c, Species::Cat);
+        double fromX = 1.0e18;
+        if (cat && ((cat->state == 2 && std::fabs(cat->x - c.x) < 120.0) || (cat->state == 1 && std::fabs(cat->x - c.x) < 30.0))) {
+          fromX = cat->x;
+        } else if (std::fabs(world.pointerX - c.x) < 50.0 && std::fabs(world.pointerY - c.y) < 40.0) {
+          fromX = world.pointerX;
+        }
+        if (fromX < 1.0e17) {
+          c.facing = c.x >= fromX ? 1.0 : -1.0;
+          c.vx = c.facing * (cat && cat->state == 2 ? 150.0 : 96.0);
+          c.restUntil = 0.0;
+        } else if (now < c.restUntil) {
           c.vx = 0.0;
         } else if (c.vx == 0.0) {
           c.facing = hash01(static_cast<std::uint32_t>(now * 9.0) + 5u) < 0.5 ? -1.0 : 1.0;
@@ -327,20 +473,187 @@ inline void step(std::vector<Creature>& all, const Habitat& home, double dt,
         c.vy = std::sin(now * 0.16 + c.phase) * 9.0;
         c.vx = std::sin(now * 0.07 + c.phase * 2.0) * 2.5;
         break;
-    case Species::Cat:
-        // Asleep, mostly. The stretch is the whole performance.
-        c.vx = 0.0;
+    case Species::Cat: {
+        // Asleep, mostly. The stretch is the whole performance -- unless the
+        // theme also has a mouse, in which case the cat wakes now and then and
+        // stalks it: a slow crouched creep, a pounce, and back to sleep. It
+        // never catches it. Nobody wants that on a show desk.
         c.vy = 0.0;
-        if (now > c.restUntil) {
-          c.restUntil = now + 8.0 + hash01(static_cast<std::uint32_t>(now)) * 14.0;
-          c.facing = -c.facing;
+        Creature* prey = nearestOf(all, c, Species::Mouse);
+        if (c.state == 0) {
+          c.vx = 0.0;
+          if (now > c.restUntil) {
+            c.restUntil = now + 8.0 + hash01(static_cast<std::uint32_t>(now)) * 14.0;
+            c.facing = -c.facing;
+            if (prey && hash01(static_cast<std::uint32_t>(now * 3.0) + 77u) < 0.6) {
+              c.state = 1;
+              c.stateUntil = now + 16.0;
+            }
+          }
+        } else if (c.state == 1) {
+          if (!prey || now > c.stateUntil) {
+            c.state = 0;
+            c.restUntil = now + 6.0;
+          } else {
+            c.facing = prey->x >= c.x ? 1.0 : -1.0;
+            // Trots in from afar, creeps the last stretch.
+            c.vx = c.facing * (std::fabs(prey->x - c.x) > 90.0 ? 28.0 : 9.0);
+            if (std::fabs(prey->x - c.x) < 60.0) {
+              c.state = 2;
+              c.stateUntil = now + 0.45;
+            }
+          }
+        } else {
+          c.vx = c.facing * 110.0;
+          if (now > c.stateUntil) {
+            c.state = 0;
+            c.vx = 0.0;
+            c.restUntil = now + 10.0 + hash01(static_cast<std::uint32_t>(now * 2.0)) * 10.0;
+          }
         }
         break;
+      }
+      case Species::Starling: {
+        flock(all, index, 150.0, 20.0, 1.4, 2.4, 6.0, dt);
+        c.vx += std::sin(now * 0.8 + c.phase) * 10.0 * dt;
+        c.vy += std::cos(now * 0.6 + c.phase) * 8.0 * dt;
+        fleePointer(c, world, 80.0, 900.0, dt);
+        steerOffEdges(c, left, right, top, bottom, 30.0, 160.0, dt);
+        limitSpeed(c, 26.0, 60.0);
+        c.facing = c.vx >= 0.0 ? 1.0 : -1.0;
+        break;
+      }
+      case Species::Koi: {
+        flock(all, index, 70.0, 22.0, 0.25, 0.8, 2.0, dt);
+        c.vx += std::sin(now * 0.35 + c.phase) * 4.0 * dt;
+        c.vy += std::cos(now * 0.27 + c.phase) * 3.0 * dt;
+        fleePointer(c, world, 70.0, 260.0, dt);
+        steerOffEdges(c, left, right, top, bottom, 28.0, 60.0, dt);
+        limitSpeed(c, 6.0, 24.0);
+        c.facing = c.vx >= 0.0 ? 1.0 : -1.0;
+        break;
+      }
+      case Species::Snake: {
+        // A heading that wanders, not a velocity: the body follows the head,
+        // so a smooth head is a smooth snake.
+        const double heading = std::atan2(c.vy, c.vx) + std::sin(now * 0.6 + c.phase) * 0.9 * dt;
+        c.vx = std::cos(heading) * 15.0;
+        c.vy = std::sin(heading) * 15.0;
+        fleePointer(c, world, 60.0, 400.0, dt);
+        steerOffEdges(c, left, right, top, bottom, 34.0, 120.0, dt);
+        limitSpeed(c, 12.0, 30.0);
+        c.facing = c.vx >= 0.0 ? 1.0 : -1.0;
+        break;
+      }
+      case Species::Octopus: {
+        // Drifts down and sideways; now and then, or when the pointer comes
+        // close, a jet: a hard push away that decays, arms trailing.
+        const double px = c.x - world.pointerX, py = c.y - world.pointerY;
+        const bool scared = px * px + py * py < 70.0 * 70.0;
+        if (now > c.stateUntil || (scared && c.state == 0)) {
+          const double ang = scared ? std::atan2(py, px)
+                                    : -1.5707963 + (hash01(static_cast<std::uint32_t>(now * 7.0) + 9u) - 0.5) * 1.6;
+          c.vx = std::cos(ang) * 46.0;
+          c.vy = std::sin(ang) * 46.0;
+          c.state = 1;
+          c.stateUntil = now + 4.0 + hash01(static_cast<std::uint32_t>(now * 5.0)) * 5.0;
+        }
+        c.vx *= std::pow(0.35, dt);
+        c.vy = c.vy * std::pow(0.35, dt) + 4.0 * dt;
+        if (std::fabs(c.vx) + std::fabs(c.vy) < 6.0) c.state = 0;
+        steerOffEdges(c, left, right, top, bottom, 24.0, 80.0, dt);
+        break;
+      }
+      case Species::Owl: {
+        // It does not move. It WATCHES: the head turns toward the pointer,
+        // eased, and it blinks slowly every few seconds.
+        c.vx = 0.0;
+        c.vy = 0.0;
+        c.y = bottom - 4.0;
+        const double want = world.pointerX > -1.0e8
+                              ? std::clamp((world.pointerX - c.x) / 140.0, -1.0, 1.0) : 0.0;
+        c.look += (want - c.look) * std::min(1.0, dt * 5.0);
+        const double cycle = std::fmod(now + c.phase * 3.0, 5.5);
+        c.blink = cycle < 0.18 ? 0.0 : 1.0;
+        break;
+      }
+      case Species::Bat: {
+        // Roosts upside down from the top edge. The pointer coming near sends
+        // it off in a jagged flutter; after a few seconds it finds a new spot
+        // and hangs up again.
+        const double px = world.pointerX - c.x, py = world.pointerY - c.y;
+        const bool pointerClose = px * px + py * py < 90.0 * 90.0;
+        if (c.state == 0) {
+          c.vx = 0.0;
+          c.vy = 0.0;
+          c.y = top;
+          if (pointerClose) {
+            c.state = 1;
+            c.stateUntil = now + 3.0 + hash01(static_cast<std::uint32_t>(now * 9.0)) * 3.0;
+            c.vx = (px > 0 ? -1.0 : 1.0) * 60.0;
+            c.vy = 40.0;
+          }
+        } else {
+          c.vx += (hash01(static_cast<std::uint32_t>(now * 9.0) + static_cast<std::uint32_t>(c.phase * 53)) - 0.5) * 900.0 * dt;
+          c.vy += (hash01(static_cast<std::uint32_t>(now * 8.0) + static_cast<std::uint32_t>(c.phase * 37)) - 0.5) * 900.0 * dt;
+          if (pointerClose) fleePointer(c, world, 90.0, 600.0, dt);
+          if (now > c.stateUntil) c.vy -= 160.0 * dt;   // back up to the ceiling
+          steerOffEdges(c, left, right, top, bottom, 20.0, now > c.stateUntil ? 0.0 : 200.0, dt);
+          limitSpeed(c, 30.0, 80.0);
+          c.facing = c.vx >= 0.0 ? 1.0 : -1.0;
+          if (now > c.stateUntil && c.y <= top + 3.0) {
+            c.state = 0;
+          }
+        }
+        break;
+      }
+      case Species::Ant: {
+        // A line: the first ant leads and wanders, every other ant walks to
+        // where the ant ahead of it is, a body length behind. The ant ahead is
+        // the previous one in this colony -- the order they were dealt in.
+        c.y = bottom;
+        c.vy = 0.0;
+        Creature* ahead = nullptr;
+        for (std::size_t j = index; j-- > 0;) {
+          if (all[j].species == Species::Ant) { ahead = &all[j]; break; }
+        }
+        if (!ahead) {
+          if (now < c.restUntil) {
+            c.vx = 0.0;
+          } else {
+            if (c.vx == 0.0) c.vx = c.facing * 16.0;
+            if (hash01(static_cast<std::uint32_t>(now * 4.0) + 101u) > 0.996) {
+              c.restUntil = now + 0.6 + hash01(static_cast<std::uint32_t>(now)) * 1.4;
+            }
+          }
+        } else {
+          const double target = ahead->x - ahead->facing * 9.0;
+          const double dx = target - c.x;
+          c.vx = std::clamp(dx * 3.0, -26.0, 26.0);
+          if (std::fabs(dx) > 1.0) c.facing = dx > 0 ? 1.0 : -1.0;
+        }
+        break;
+      }
       default:
         break;
     }
     c.x += c.vx * dt;
     c.y += c.vy * dt;
+    // A long body remembers where the head has been, one point every few
+    // pixels, so the segments follow the path rather than a straight line.
+    if (c.species == Species::Snake) {
+      const double lx = c.trailCount > 0 ? c.trail[0] : c.x - 99.0;
+      const double ly = c.trailCount > 0 ? c.trail[1] : c.y;
+      if ((c.x - lx) * (c.x - lx) + (c.y - ly) * (c.y - ly) >= 9.0) {
+        for (int k = Creature::kTrail - 1; k > 0; --k) {
+          c.trail[static_cast<std::size_t>(k * 2)] = c.trail[static_cast<std::size_t>((k - 1) * 2)];
+          c.trail[static_cast<std::size_t>(k * 2 + 1)] = c.trail[static_cast<std::size_t>((k - 1) * 2 + 1)];
+        }
+        c.trail[0] = static_cast<float>(c.x);
+        c.trail[1] = static_cast<float>(c.y);
+        c.trailCount = std::min(Creature::kTrail, c.trailCount + 1);
+      }
+    }
     // Turn around at the edges rather than vanishing through them.
     if (c.x < left)  { c.x = left;  c.vx = std::fabs(c.vx); c.facing = 1.0; }
     if (c.x > right) { c.x = right; c.vx = -std::fabs(c.vx); c.facing = -1.0; }

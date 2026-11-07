@@ -19,3 +19,4 @@ scanline_alpha	14
 
 # Creatures, in the empty part of the playlist; gone while an output is live.
 creature	cat	1
+creature	mouse	1

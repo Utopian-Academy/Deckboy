@@ -99,6 +99,11 @@
           // OS/app close request should quit immediately.
           gShouldQuit.store(true);
           break;
+        case SDL_EVENT_WINDOW_MOUSE_LEAVE:
+          if (controlWindow_ && event.window.windowID == SDL_GetWindowID(controlWindow_)) {
+            mouseInControlWindow_ = false;
+          }
+          break;
         case SDL_EVENT_WINDOW_CLOSE_REQUESTED: {
           // SDL3 promotes window events to top-level event types.
           Uint32 closingWindowId = event.window.windowID;
@@ -254,6 +259,7 @@
           if (event.motion.windowID == SDL_GetWindowID(controlWindow_)) {
             mouseX_ = static_cast<int>(event.motion.x);
             mouseY_ = static_cast<int>(event.motion.y);
+            mouseInControlWindow_ = true;
             handleMouseMotion(static_cast<int>(event.motion.x), static_cast<int>(event.motion.y));
           } else if (screensWindow_ && event.motion.windowID == SDL_GetWindowID(screensWindow_)) {
             handleScreensMouseMotion(static_cast<int>(event.motion.x), static_cast<int>(event.motion.y));

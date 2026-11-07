@@ -16,3 +16,6 @@ screen_tile	1D1610FF
 button_bezel	5A3A14FF
 delete_bezel	E8483AFF
 scanline_alpha	14
+
+# Creatures, in the empty part of the playlist; gone while an output is live.
+creature	bat	1

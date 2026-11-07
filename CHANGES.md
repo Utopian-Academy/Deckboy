@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Creatures
+- Seven new creatures that react to each other and to you: starlings that fly as one flock and scatter from the mouse pointer, a school of koi, a snake whose body follows its head, an octopus that jets away from the pointer, an owl that turns its head to watch the pointer, bats that roost until the pointer comes near, and ants that walk in a line.
+- A cat and a mouse on the same theme now play: the cat wakes, creeps up, pounces, and misses. The mouse also runs from the pointer.
+- Fourteen of the new themes have them: Dusk Rose and Glacier (starlings), Matcha and Cherry Blossom (koi), Desert Dusk (snake), Deep Sea (octopus), Forest Night (owl), Darkroom, Highway at Night and Ultraviolet (bats), Sandstone and Terracotta (ants), Coffee Shop and Neon Noir (cat and mouse).
+- As before, creatures only live in empty space, never over a control, and leave while an output is live.
+
 ### Languages
 - Hawaiian (ʻŌlelo Hawaiʻi) is now a full translation: the whole desk and every lesson. No speaker has reviewed it yet.
 
