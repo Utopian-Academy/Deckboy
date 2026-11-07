@@ -1371,3 +1371,505 @@ out	아웃
 pan	팬
 routing	라우팅
 trim	트림
+0-63, the hardware's own gain range.	0-63, 하드웨어 자체 게인 범위.
+1-16, as the desk counts them	1-16, 데스크 기준
+7-segment, blocky, or a real font	7세그먼트, 블록 또는 실제 글꼴
+[ / ] keys — fade-in duration	[ / ] 키: 페이드 인 시간
+a camera moves the ~ controls	카메라가 ~ 컨트롤을 움직임
+a chain on a device, after the mix	믹스 후 장치의 체인
+a comment	주석
+Act now, without taking the cue	큐를 가져오지 않고 지금 실행
+Add a light	조명 추가
+add a second output to pair	페어링할 두 번째 출력 추가
+add shape	도형 추가
+all driven by the cue's own transport	모두 큐의 트랜스포트로 동작
+All interfaces; trusted machines only.	모든 인터페이스, 신뢰하는 컴퓨터만.
+all to 0	모두 0으로
+An audio effect's knob	오디오 효과 노브
+An effect's knob	효과 노브
+any channel	모든 채널
+any window, any screen	어느 창이든, 어느 화면이든
+arcade	아케이드
+Arm this cue as the one GO will fire	다음 GO가 실행할 큐로 준비
+Art-Net port address, 0-32767	Art-Net 포트 주소, 0-32767
+Attached overlays fire on TAKE only	첨부 오버레이는 TAKE에서만 실행
+BACK TO BUG SWAT	BUG SWAT로 돌아가기
+backdrop	배경
+bar	막대
+bg alpha	배경 알파
+black lift	블랙 리프트
+blend gamma	블렌드 감마
+blueprint	청사진
+boxes	상자
+bracket	괄호
+bulletin	속보
+by density	밀도순
+BY FIXTURE	기기별
+capsule	캡슐
+caption	캡션
+card	카드
+CARD OFF ALL	모든 카드 끔
+CARD ON ALL	모든 카드 켬
+cartridge	카트리지
+cassette	카세트
+Ceiling	상한
+Chain	체인
+Changing this re-prepares the cue.	변경하면 큐를 다시 준비합니다.
+channel list is not readable	채널 목록을 읽을 수 없음
+CHANNELS	채널
+channels on your interfaces, by name	인터페이스의 채널, 이름으로
+Checkerboard	체커보드
+chime amber	노랑 차임
+chime red	빨강 차임
+chime zero	영 차임
+Choose startup mode:	시작 모드 선택:
+circle, heart, star...	원, 하트, 별...
+circuit	회로
+CLASSIC VIEW	클래식 보기
+clear driver	드라이버 지우기
+Clear in/out trim points	인/아웃 지점 지우기
+CLEAR OVERLAY  [Backspace]	오버레이 지우기  [Backspace]
+Clear the active Lower Third overlay now	활성 Lower Third 지금 지우기
+Clear the live PIP overlay now	PIP 오버레이 지금 지우기
+CLICK ANYWHERE...	아무 곳이나 클릭...
+click or Esc to close	클릭 또는 Esc로 닫기
+click this window	이 창을 클릭
+Click to edit cue notes	클릭하여 큐 메모 편집
+click to open the grid	클릭하여 격자 열기
+Click to seek — drag to scrub	클릭으로 이동, 드래그로 스크럽
+Click to type it	클릭하여 입력
+comic	만화
+Companion passphrase	Companion 암호문
+confetti	색종이
+Connections at once	동시 연결
+count up	카운트 업
+Countdown, count up, or wall clock	카운트다운, 카운트 업 또는 시계
+credit	크레딧
+crossfade	크로스페이드
+crosshair	십자선
+Crosshatch	크로스해치
+Cue has no audio	큐에 소리 없음
+cue number	큐 번호
+Cycle end action for selected cues	선택한 큐의 종료 동작 변경
+Cycle which slot drives scene audio	장면 소리를 내는 슬롯 변경
+dateline	데이트라인
+deck	덱
+decoder spin-up	디코더 시작
+Default App Feed	기본 앱 입력
+Default Camera	기본 카메라
+Delay before the continue fires	계속 실행 전 지연
+Delay between GO and this cue starting	GO와 큐 시작 사이 지연
+depth 1 turns it all the way round	깊이 1은 한 바퀴
+Digit colour once amber is reached	노랑 이후 숫자 색
+Digit colour while there is time in hand	시간 여유 있을 때 숫자 색
+diskette	디스켓
+Do it now, without taking the cue	큐를 가져오지 않고 지금 실행
+dossier	문서철
+dotmatrix	도트 매트릭스
+Double-GO guard	GO 두 번 방지
+draw on the monitor	모니터에 그리기
+driver speed	드라이버 속도
+EDGE BLEND	에지 블렌드
+EDIT is on: typing changes the show	EDIT 켜짐: 입력이 쇼를 바꿈
+edit on the monitor	모니터에서 편집
+Edit the main Lower Third title	Lower Third 제목 편집
+Edit the secondary Lower Third line	Lower Third 둘째 줄 편집
+eq band	EQ 대역
+equalizer	이퀄라이저
+Esc cancels	Esc 취소
+Esc cancels, arrows nudge	Esc 취소, 화살표 미세 조정
+Esc to close	Esc로 닫기
+even grid	균등 격자
+EXAMPLE SHOWS	예제 쇼
+EXIT  Esc	나가기  Esc
+face	얼굴
+factory settings	공장 설정
+Fade+LoadNext	페이드+다음 불러오기
+Fade+Pause	페이드+일시정지
+Fade+Rewind	페이드+되감기
+Fade-in duration	페이드 인 시간
+Fade-in duration for this cue	이 큐의 페이드 인 시간
+Fade-out duration	페이드 아웃 시간
+Fade-out duration before next cue	다음 큐 전 페이드 아웃 시간
+Fade-out duration for this cue	이 큐의 페이드 아웃 시간
+Fall	하강
+false colour reads SDR pictures	폴스 컬러는 SDR 화면을 읽음
+fill the frame	프레임 채우기
+find a named colour	이름으로 색 찾기
+fires cues	큐 실행
+first available	첫 번째 빈 것
+Fit/Fill/Stretch/Unscaled	맞춤/채움/늘림/원본
+Fixed repeat count — 0 = infinite	고정 반복: 0 = 무한
+Fixed repeat count — 0 = loop forever	고정 반복: 0 = 계속 반복
+FIXED!	고침!
+flag	깃발
+FORGET MY DEFAULTS	내 기본값 잊기
+Frames a second	초당 프레임
+from exactly this routing	바로 이 라우팅에서
+Full Black	완전 검정
+Full Blue	완전 파랑
+Full Green	완전 초록
+Full Red	완전 빨강
+Full White	완전 흰색
+garden	정원
+Ghastly	창백함
+glass	유리
+glitch down	글리치 아래
+glitch drift	글리치 드리프트
+glitch reach	글리치 범위
+glitch through	글리치 관통
+glitch up	글리치 위
+GO steps over it	GO가 건너뜀
+hairline	가는 선
+Haptics	햅틱
+HDR input	HDR 입력
+Hex, e.g. 90 3C 7F	16진수, 예: 90 3C 7F
+HOLDING OFF AIR	방송 밖에서 대기 중
+Home — skip to start	Home: 처음으로
+Horizontal output offset in pixels	출력 수평 오프셋(픽셀)
+How many features fit on screen.	화면에 들어가는 개수.
+how much of this effect	이 효과의 양
+How solid the ink is	잉크 농도
+How tall the logo is above the clock	시계 위 로고 높이
+In-point: cue starts playback here	인 지점: 여기서 재생 시작
+index	색인
+initializing webview	웹뷰 초기화 중
+install Tailscale here and on the phone	여기와 휴대폰에 Tailscale 설치
+INSTALLING...	설치 중...
+Its amount, or one of its knobs A to D	양, 또는 노브 A~D 중 하나
+J jump to row	J: 행으로 이동
+jam to	잼 대상
+Jump the driver back to its first frame	드라이버를 첫 프레임으로
+K — cycle cue color tag	K: 큐 색 변경
+Keep counting past zero, or stop dead	0 지나 계속 세기 또는 멈춤
+key	키
+Key edge softness	키 가장자리 부드러움
+KEY L	키 L
+knob	노브
+L - loop this cue continuously	L: 이 큐 반복
+last reading	마지막 값
+Last refused	마지막 거부
+Learn it	학습
+LEARN THE BASICS	기초 배우기
+ledger	장부
+Left — skip back 10s	왼쪽: 10초 뒤로
+Left, centre or right	왼쪽, 가운데, 오른쪽
+LESSONS	레슨
+Levels	레벨
+Limiter	리미터
+Limiting	제한 중
+line  |  Enter: apply	줄  |  Enter: 적용
+LINEAR - a feather, not a blend	선형: 페더, 블렌드 아님
+Linear, ease in, ease out or S-curve	선형, 이즈 인, 이즈 아웃, S 곡선
+Lines	줄 수
+link aspect	비율 연결
+Listen to	듣기
+listener	청취자
+LIVE - every assigned deck matches	LIVE: 할당된 덱 모두 일치
+lock to screen	화면에 고정
+logo	로고
+logo size	로고 크기
+look at it	보기
+lower 3rd	Lower Third
+marquee	전광판
+mask on	마스크 켬
+Master oscillator rate.	마스터 오실레이터 속도.
+Maximum quality	최고 화질
+MIDI and OSC monitor	MIDI 및 OSC 모니터
+midi in	MIDI 입력
+MIDI note	MIDI 노트
+move points	점 이동
+Move the height on its own oscillator	높이를 자체 오실레이터로 이동
+name or number...	이름 또는 번호...
+name, from anywhere	이름, 어디서나
+NDI source cue	NDI 소스 큐
+needs file-backed video	파일 영상 필요
+neon	네온
+new paths	새 경로
+New shows start from	새 쇼의 시작
+next xfade	다음 페이드
+no effects for this cue type	이 큐 유형에는 효과 없음
+nobody	아무도 없음
+none - click to learn	없음: 클릭하여 학습
+none - click to set some	없음: 클릭하여 설정
+none - click to write some	없음: 클릭하여 작성
+none yet	아직 없음
+none: the one picture	없음: 한 화면
+none: the whole picture	없음: 화면 전체
+notebook	노트
+nothing	없음
+nothing assigned yet	아직 할당 없음
+nothing follows	다음 없음
+Nothing here with this filter.	이 필터에 항목 없음.
+nothing set - this cue sends nothing	설정 없음: 이 큐는 보내지 않음
+nothing targeted yet	아직 대상 없음
+Nothing to see here. Probably.	볼 것 없습니다. 아마도.
+nothing to send - check the message	보낼 것 없음: 메시지 확인
+offset X	오프셋 X
+offset Y	오프셋 Y
+on any channel	모든 채널에서
+on the header to add another	머리글에서 추가
+on the monitor	모니터에서
+one big on top, the rest below	위에 큰 것 하나, 나머지 아래
+one big, the rest beside it	큰 것 하나, 나머지 옆
+onion off	어니언 끔
+onion on	어니언 켬
+only this computer	이 컴퓨터만
+Open a .deckboy show file	.deckboy 파일 열기
+open the monitor	모니터 열기
+or your own bytes	또는 직접 입력한 바이트
+ORDER - cues advance down the list	순서: 큐가 목록을 따라 진행
+Out-point: cue stops playback here	아웃 지점: 여기서 재생 종료
+output already has	출력에 이미 있음
+Outputs Off	출력 끔
+outs	출력
+over budget - video will drop frames	예산 초과: 영상 프레임 손실
+over the picture	화면 위
+PAIR	페어
+Pair a phone	휴대폰 페어링
+Pair overlap	페어 겹침
+Paired phones	페어링된 휴대폰
+Passphrase	암호문
+Pattern motion toggle	패턴 움직임 전환
+pause begin	시작에서 일시정지
+pennant	페넌트
+Per-cue transition duration override	큐별 전환 시간
+Perspective	원근
+PHASE	위상
+Phone access	휴대폰 접근
+Phone control	휴대폰 제어
+phrase hold	문구 유지
+PICK FROM SCREEN	화면에서 가져오기
+Pitch, in semitones.	음높이, 반음 단위.
+PIXEL FOR PIXEL, TOP-LEFT	픽셀 그대로, 왼쪽 위
+placard	플래카드
+play a note...	음을 연주하세요...
+PLAY BUG SWAT, a game	BUG SWAT 게임하기
+Play the out move now, then take it off	아웃 동작을 재생하고 제거
+Playback speed: 0.25–4.0×	재생 속도: 0.25–4.0×
+playlists into the named outputs	플레이리스트를 이름 있는 출력으로
+plays synth	신스 연주
+plugin	플러그인
+PNG matte	PNG 매트
+podium	연단
+pop	팝
+press a key...	키를 누르세요...
+PRESS AGAIN TO FORGET	다시 누르면 잊음
+Previous show file:	이전 쇼 파일:
+prog bar	진행 막대
+programme	프로그램
+Programme with sound in any browser	어느 브라우저에서나 소리 있는 프로그램
+PROJECTOR - gamma matched	프로젝터: 감마 맞춤
+Projector gamma	프로젝터 감마
+put it on a button	버튼에 지정
+Put the brush's opacity on an oscillator	브러시 농도를 오실레이터에
+Put the brush's size on an oscillator	브러시 크기를 오실레이터에
+Put this control on an oscillator	이 컨트롤을 오실레이터에
+rack it	장착
+RACKED, WARM	장착됨, 준비됨
+rail	레일
+rain	비
+Reads	읽기
+reads the same on any screen	어느 화면에서나 똑같이 읽힘
+recent and in this show	최근 및 이 쇼
+Recent shows:	최근 쇼:
+red at	빨강 시작
+red col	빨강 열
+render height	렌더 높이
+render width	렌더 너비
+REPORT A PROBLEM	문제 신고
+reported rather than swapped	교체하지 않고 보고
+restart driver now	드라이버 지금 재시작
+restart on take	테이크 시 재시작
+restore at end	끝에서 복원
+ribbon	리본
+Right — skip forward 10s	오른쪽: 10초 앞으로
+Right-click turns them off.	오른쪽 클릭으로 끔.
+Rise	상승
+rise, slide or wipe	상승, 슬라이드, 와이프
+Rotation speed, degrees per second.	회전 속도, 초당 도.
+rounded rect	둥근 사각형
+row turns the matrix off again	행이 매트릭스를 다시 끔
+Run it now, without taking the cue	큐를 가져오지 않고 지금 실행
+Run the show from a phone	휴대폰으로 쇼 운영
+runs off the show thread	쇼 스레드 밖에서 실행
+sACN universe, 1-63999	sACN 유니버스, 1-63999
+SAVE AS MY DEFAULTS	내 기본값으로 저장
+says	말함
+SCALED TO FILL	채우도록 크기 조정
+Scene dwell time — 0 = hold	장면 유지 시간: 0 = 유지
+Scene fade-in duration	장면 페이드 인 시간
+Scene fade-out duration	장면 페이드 아웃 시간
+scoreboard	점수판
+SCREENS	스크린
+scroll	스크롤
+Scroll up	위로 스크롤
+sea	바다
+SELECT: MOTION	선택: 모션
+Send it now, without taking the cue	큐를 가져오지 않고 지금 보내기
+sends	보냄
+Sensitivity	감도
+Set browser URL/path	브라우저 URL/경로 설정
+set by	설정자
+Set capture source from the cue menu	큐 메뉴에서 소스 설정
+Set cue ID for selected cues	선택한 큐의 ID 설정
+Set cue token to jump to when cue ends	종료 시 이동할 큐 설정
+Set goto target for selected cues	선택한 큐의 이동 대상 설정
+Set Lower Third background alpha	Lower Third 배경 알파 설정
+Set per-cue transition duration	큐 전환 시간 설정
+Set playback speed for selected cues	선택한 큐의 재생 속도 설정
+Set repeat count for selected cues	선택한 큐의 반복 횟수 설정
+Set short cue id for search/goto	검색/이동용 짧은 ID 설정
+Set short cue label for search/goto	검색/이동용 짧은 이름 설정
+Set the NDI source name to receive	받을 NDI 소스 이름 설정
+Shift+[ / ] — fade-out duration	Shift+[ / ]: 페이드 아웃 시간
+SHOW ME	보여 주세요
+Show on	표시 위치
+Shows	표시
+sideline	사이드라인
+sketch	스케치
+slide	슬라이드
+slide from left	왼쪽에서 슬라이드
+slide from right	오른쪽에서 슬라이드
+SMOOTH	부드럽게
+snow	눈
+SOS. Kidding. The show is fine.	SOS. 농담입니다. 쇼는 괜찮아요.
+Sound when the clock turns amber	시계가 노랗게 될 때 소리
+Sound when the clock turns red	시계가 빨갛게 될 때 소리
+Sound when time is up	시간 종료 소리
+Space — pause	스페이스: 일시정지
+Space — play	스페이스: 재생
+span	범위
+sparkle	반짝임
+Speech models	음성 모델
+Speed, like tape	속도, 테이프처럼
+stamp	도장
+Start NEW from factory	공장 설정에서 새로 시작
+starting browser	브라우저 시작 중
+starting capture	캡처 시작 중
+starting xvfb	xvfb 시작 중
+sticky	메모지
+stop at 0	0에서 정지
+Stop puppeteering this cue	이 큐 조종 중지
+STRAIGHT	직선
+survey	측량
+SVG paths	SVG 경로
+tab	탭
+tag	태그
+TAP	탭
+terminal	터미널
+text mode	텍스트 모드
+the file cannot be read	파일을 읽을 수 없음
+The name	이름
+The OSC path, e.g. /cue/1/start	OSC 경로, 예: /cue/1/start
+the playlist's PATCH	플레이리스트의 PATCH
+The role, or leave it empty	직함, 또는 비워 두기
+the system output	시스템 출력
+The text this cue puts on screen	이 큐가 화면에 표시하는 글
+theatre	극장
+then stop	그 다음 정지
+they have	가지고 있음
+things that are oscillating	진동하는 것들
+this cue lives on	이 큐의 위치
+This show's setup, no cues	이 쇼의 설정, 큐 없음
+ticket	티켓
+tile h	타일 높이
+Tile height in pixels.	타일 높이(픽셀).
+tile w	타일 너비
+time of day	시각
+Toggle audio enable for selected cues	선택한 큐의 소리 전환
+Toggle chroma key	크로마 키 전환
+Toggle cue audio	큐 소리 전환
+Toggle cue audio track for this cue	이 큐의 오디오 트랙 전환
+Toggle fade in	페이드 인 전환
+Toggle fade out	페이드 아웃 전환
+Toggle hold on last frame	마지막 프레임 유지 전환
+Toggle hold-at-end for selected cues	선택한 큐의 끝 유지 전환
+Toggle loop	루프 전환
+Toggle loop for selected cues	선택한 큐의 루프 전환
+Toggle the live input's audio	라이브 입력 소리 전환
+Total time	전체 시간
+trans	전환
+transcoding - plays clean until ready	변환 중: 끝날 때까지 정상 재생
+transparent: put its playlist on a layer	투명: 플레이리스트를 레이어에
+Trusted controllers	신뢰하는 컨트롤러
+TURN OFF	끄기
+turn phone control on	휴대폰 제어 켜기
+two big on top, the rest below	위에 큰 것 둘, 나머지 아래
+type a cue number	큐 번호 입력
+Typing needs EDIT on	입력하려면 EDIT 켜기
+Use GEOMETRY for exact placement	정확한 배치는 지오메트리로
+value to type one	입력할 값
+Vertical output offset in pixels	출력 수직 오프셋(픽셀)
+VIDEO DIP: OFF	비디오 딥: 끔
+VIDEO DIP: ON	비디오 딥: 켬
+walk the outputs one at a time.	출력을 하나씩 확인.
+walks every output in turn	각 출력을 차례로 확인
+WHAT DECKBOY DID	DECKBOY가 한 일
+what is on air in a playlist	플레이리스트에서 방송 중인 것
+What NEW starts from, never this show	새 쇼의 시작, 이 쇼 아님
+whatever the style says	스타일에 따름
+Where the ramp ends	램프 끝
+Which deck the cue it acts on lives on	대상 큐가 있는 덱
+Which frame you draw on	그리는 프레임
+Who can see it	볼 수 있는 사람
+whole network	네트워크 전체
+will not open	열리지 않음
+window and recording outputs only	창 및 녹화 출력만
+wipe	와이프
+Wobble	흔들림
+wobble by	흔들림 폭
+words	단어
+X — cycle end action	X: 종료 동작 변경
+X — cycle end action: stop / next / loop	X: 종료 동작: 정지 / 다음 / 루프
+Zones	영역
+~ makes the level breathe	~ 로 레벨이 숨 쉼
+a note or an address becomes that cue's trigger	노트나 주소가 이 큐의 트리거가 됨
+acts on every deck; deck and cue are ignored	모든 덱에 작용, 덱과 큐 무시
+Add an output above, then send playlists to it here.	위에서 출력을 추가한 뒤 플레이리스트를 여기로 보내세요.
+Ancient cypher, modern video desk. Respect.	고대 암호, 현대 비디오 데스크. 존경.
+Any font on this computer, Deckboy's own, or a font file	이 컴퓨터의 글꼴, Deckboy 글꼴 또는 글꼴 파일
+Apply fade-in to selected video/audio cues	선택한 영상/오디오 큐에 페이드 인 적용
+Apply fade-out to selected video/audio cues	선택한 영상/오디오 큐에 페이드 아웃 적용
+Art-Net or sACN (E1.31): whichever the lighting rig listens to	Art-Net 또는 sACN (E1.31): 조명 시스템에 맞춰
+Auto-advance duration — 0 = hold until taken	자동 진행 시간: 0 = 테이크까지 유지
+Bypass: this master leaves that deck alone	우회: 이 마스터는 해당 덱을 건드리지 않음
+Characters across. Fewer means bigger cells.	줄당 글자 수. 적을수록 칸이 큼.
+Choose a mask from this show's library, or start a new one from a shape	라이브러리에서 마스크 선택 또는 도형에서 새로 만들기
+Click a value to change it. A red address overlaps another fixture.	값을 클릭해 변경. 빨간 주소는 다른 기기와 겹침.
+Click to show or hide this cue's captions	클릭하여 이 큐의 자막 표시/숨기기
+Copy the show AND its media into one portable folder	쇼와 미디어를 휴대용 폴더 하나로 복사
+Ctrl+S - write back over the show that is open	Ctrl+S: 열린 쇼에 덮어쓰기
+Ctrl+Shift+S - write the show to a NEW file	Ctrl+Shift+S: 새 파일로 저장
+Device output pair this cue's audio plays on	이 큐 소리의 장치 출력 쌍
+E - freeze on last frame instead of stopping	E: 멈추지 않고 마지막 프레임에서 고정
+Edit title/subtitle here or fire it live with TAKE	여기서 제목을 편집하거나 TAKE로 라이브 실행
+Every channel on every universe this session has touched	이번 세션에서 건드린 모든 유니버스의 모든 채널
+generator is off - a START cue turns it on	생성기 꺼짐: START 큐가 켬
+How long the note takes to reach full level.	음이 최대 레벨에 이르는 시간.
+How much it throws off; 0 is a clean burn	튀어나가는 양, 0은 깨끗이 탐
+INPUT: the programme. Drag a crop to move it, its corners to size it.	입력: 프로그램. 자르기를 드래그해 이동, 모서리로 크기 조정.
+Keep the outside and cut the inside instead	바깥을 남기고 안쪽을 자름
+LED panel height in pixels. Click to type it	LED 패널 높이(픽셀). 클릭하여 입력
+Legacy target mode — switch type to convert	이전 대상 모드: 유형을 바꿔 변환
+Lissajous, spectrum, meters or a name card	리사주, 스펙트럼, 미터 또는 이름 카드
+Load the cue and hold first frame when taken	큐를 불러와 테이크 시 첫 프레임 유지
+no fixtures patched - Settings > Network > FIXTURES	패치된 기기 없음: 설정 > 네트워크 > FIXTURES
+Nothing here changes the show that is open.	여기서는 열린 쇼가 바뀌지 않음.
+Per-cue audio: enable, trim, pan, mono, fades, normalize	큐 오디오: 사용, 트림, 팬, 모노, 페이드, 노멀라이즈
+Phone control is in PHONE & TABLET, below	휴대폰 제어는 아래 PHONE & TABLET에 있음
+Save the mask as a greyscale PNG at the output's size: white keeps, black cuts	마스크를 출력 크기 회색 PNG로 저장: 흰색은 유지, 검정은 자름
+Seconds REMAINING when the clock turns amber	시계가 노랗게 될 때 남은 초
+Seconds REMAINING when the clock turns red	시계가 빨갛게 될 때 남은 초
+Shown to the operator when GO reaches this cue	GO가 이 큐에 오면 운영자에게 표시
+SHUFFLE - the next cue is picked at random	셔플: 다음 큐를 무작위로 선택
+Slots are self-contained sources in this first pass	이 버전에서 슬롯은 독립 소스
+that output's whole picture, or its matte	그 출력의 화면 전체, 또는 매트
+The cue number on the other desk, e.g. 12.5	다른 데스크의 큐 번호, 예: 12.5
+Toggle pause-at-beginning for selected cues	선택한 큐의 시작 일시정지 전환
+Toggle transition-to-next for selected cues	선택한 큐의 다음으로 전환 설정
+transparent outside the blobs: put it on a layer	얼룩 밖은 투명: 레이어에
+transparent outside the ink: put it on a layer	잉크 밖은 투명: 레이어에
+what is said, on screen, made on this computer	말한 내용을 화면에, 이 컴퓨터에서 생성
+What this cue does when it ends - click to change	이 큐의 종료 동작: 클릭하여 변경
+Whether the next shape or pen path adds or cuts	다음 도형이나 경로가 더할지 자를지
