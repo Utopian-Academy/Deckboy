@@ -1507,7 +1507,7 @@ waiting for a picture	pena veka
 (projector curve only)	(rana vekisa una)
 Scene fade-in duration	Tok lum fesa vekara
 Start NEW from factory	Muna NOVA setaku muna
-Tile height in pixels.	Teɣra kara kisvekku.
+Tile height in pixels.	Alka kara kisvekku.
 any window, any screen	ala fena, ala vekafena
 circle, heart, star...	kora, hertka, lumtika...
 click to open the grid	bati fesi vekareta
@@ -1594,7 +1594,7 @@ Rotation speed, degrees per second.	Zara kora, kistok.
 Set short cue label for search/goto	Seti holkis veka
 Toggle cue audio track for this cue	Fesi/klui sona veka nakae
 Arm this cue as the one GO will fire	Poni veka nakae una GO seni
-How tall the logo is above the clock	Teɣra lumdeka ala tokjan
+How tall the logo is above the clock	Alka lumdeka ala tokjan
 Linear, ease in, ease out or S-curve	Rana, lum fesa, lum klua nu S
 Per-cue transition duration override	Tok setí veka una
 Set capture source from the cue menu	Seti munga tira kae menu veka
@@ -1640,7 +1640,7 @@ Characters across. Fewer means bigger cells.	Holku ran. Kisa = karku lumo.
 Device output pair this cue's audio plays on	Janadua sena sona veka nakae
 E - freeze on last frame instead of stopping	E - hali veka tamuna, va hali
 How long the note takes to reach full level.	Tok sona dop tamka.
-LED panel height in pixels. Click to type it	Teɣra kara LED kisvekku. Bati grai
+LED panel height in pixels. Click to type it	Alka kara LED kisvekku. Bati grai
 Load the cue and hold first frame when taken	Tiri veka, hali veka una kae seni
 Seconds REMAINING when the clock turns amber	Kistokku LIVA kae tokjan lumora
 acts on every deck; deck and cue are ignored	ala deka; deka & veka vamira
@@ -1689,7 +1689,7 @@ Output width in pixels | click value to type exact px	Ran senadora kisvekku | ba
 Set the stream URL (srt://, rtmp://, rtsp://, udp://)	Seti URL reta (srt://, rtmp://, rtsp://, udp://)
 All interfaces, but only this computer is trusted yet.	Ala doraku, jana nakae una tamo.
 Fires at this time on this computer's clock, every day	Seni tok nakae kae tokjan jana nakae, lumtok ala
-Output height in pixels | click value to type exact px	Teɣra senadora kisvekku | bati tala grai
+Output height in pixels | click value to type exact px	Alka senadora kisvekku | bati tala grai
 Bar across the foot - readable further back than digits	Tirarana nira - miri ranko numku
 Any font on this computer, Deckboy's own, or a font file	Ala hola kae jana nakae, Deckboy, nu gura
 Every channel on every universe this session has touched	Ala kan kae ala universe tokra nakae
@@ -1768,7 +1768,7 @@ Click a cell to walk it: off, full, -3, -6, -12. This row turns the matrix off a
 How long each phrase stays before it moves. Zero hides them without losing the list.	Tok holkula hali. Vana fendi va ala gura.
 How long it takes to fall away after the attack. Only audible when retrigger is set.	Tok nira dop bati. Lisi una kae novtok fesa.
 Off, from start (next cue fires when this one starts) or from end (when it finishes)	Klua, kae muna (novtok veka muni) nu kae tam (kae tam)
-Height of one line as a percent of the raster, so a card reads the same on any screen	Teɣra hola % raster, kara mira una kae ala vekafena
+Height of one line as a percent of the raster, so a card reads the same on any screen	Alka hola % raster, kara mira una kae ala vekafena
 Set slot source as media:/path, browser:url, window:name, camera:name, or syphon:name	Seti munga slot sov media:/dor, browser:url, window:hol, camera:hol, nu syphon:hol
 Short LFSR mode. The period is brief enough to read as pitched metal rather than hiss.	LFSR kiso. Tok kiso sov sonala tamo, va siso.
 White, warm, red, amber, green, cyan, blue, magenta. ~ moves it round the colour wheel	Luma, lumso, lumnira, lumora, verda, cyan, blua, magenta. ~ kora luma
