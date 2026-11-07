@@ -1877,3 +1877,133 @@ transparent outside the ink: put it on a layer	بیرون جوهر شفاف: ر�
 what is said, on screen, made on this computer	آنچه گفته می‌شود، روی صفحه، ساخته‌شده در این رایانه
 What this cue does when it ends - click to change	کار این کیو در پایان: برای تغییر کلیک کنید
 Whether the next shape or pen path adds or cuts	شکل یا مسیر بعدی می‌افزاید یا می‌برد
+shape	شکل
+palette	پالت
+scale	مقیاس
+feedback	بازخورد
+RED	قرمز
+do it	اجرا
+(empty)	(خالی)
+(unset)	(تنظیم نشده)
+English	انگلیسی
+amber at	زرد در
++ section	+ بخش
++pause pt	+ نقطه مکث
+a-fade in	محو ورودی صدا
+amber col	رنگ زرد
+(no notes)	(بدون یادداشت)
+a-fade out	محو خروجی صدا
+gain (each)	بهره (هرکدام)
+% of the height	% ارتفاع
++  a first step	+  نخستین گام
++ ADD AN EFFECT	+ افزودن افکت
+(none playing now)	(چیزی پخش نمی‌شود)
+Keep a transcript (.srt)	ذخیره متن (.srt)
+Key tolerance (RGB distance)	تلرانس key (فاصله RGB)
+Contrast multiplier (0.0-2.0x)	ضریب کنتراست (0.0–2.0x)
+Brightness multiplier (0.0-2.0x)	ضریب روشنایی (0.0–2.0x)
+Saturation multiplier (0.0-2.0x)	ضریب اشباع (0.0–2.0x)
+Output rotation angle (-180..180)	زاویه چرخش خروجی (-180..180)
+Hue rotation (-180 to +180 degrees)	چرخش فام (-180 تا +180 درجه)
+Lower Third background opacity (0-255)	تیرگی پس‌زمینه زیرنویس معرفی (0–255)
+0-127; 127 addresses every device on the line	0–127؛ مقدار 127 همه دستگاه‌های خط را خطاب می‌کند
+GO shows the note; picture and sound carry on	GO یادداشت را نشان می‌دهد؛ تصویر و صدا ادامه دارند
+How fast it moves; no effect when it is still	سرعت حرکت؛ در حالت سکون اثری ندارد
+Fires when incoming timecode passes this point	با عبور تایم‌کد ورودی از این نقطه فعال می‌شود
+Source pixels, independent of output placement	پیکسل‌های منبع، مستقل از جای‌گذاری خروجی
+Stereo balance, applied live (snaps to center)	توازن استریو به‌صورت زنده (روی مرکز می‌نشیند)
+bypassed: nothing here is processed or limited	دور زده شده: بدون پردازش یا محدودسازی
+Per-cue audio trim: -40 to +40 dB, applied live	بهره cue از -40 تا +40 dB، به‌صورت زنده
+Show the message in red - the wrap up NOW state	پیام قرمز: همین حالا پایان دهید
+The brush's width, as % of the picture's height	پهنای قلم‌مو به درصد ارتفاع تصویر
+What the stream carries: SDR, PQ (HDR10) or HLG	محتوای جریان: SDR، ‏PQ (HDR10) یا HLG
+Digit colour once red is reached, and in overtime	رنگ ارقام پس از آستانه قرمز و در وقت اضافه
+Downmix this cue to mono (mono sources / mono PA)	ترکیب cue به مونو (منبع یا PA مونو)
+Drag to scrub (shift = fine), click to type exact	برای مرور بکشید (Shift: دقیق)، برای ورود مقدار کلیک کنید
+Hand this to an oscillator so it moves on its own	به نوسان‌ساز بسپارید تا خودکار حرکت کند
+Changing width also scales height (and vice versa)	تغییر عرض، ارتفاع را هم تغییر می‌دهد و برعکس
+How long the levels take to arrive; zero is a snap	زمان رسیدن به سطح‌ها؛ صفر یعنی تغییر فوری
+Set the self-contained PIP source for this overlay	منبع مستقل PIP این لایه را تعیین کنید
+Take the newest shape or pen path out of this mask	جدیدترین شکل یا مسیر قلم را از ماسک بردارید
+An address sent to Deckboy's OSC port fires this cue	این نشانی در درگاه OSC ‏Deckboy، ‏cue را فعال می‌کند
+Hold on the last composite frame when the scene ends	آخرین قاب ترکیبی را در پایان صحنه نگه دارید
+How long it takes; zero is a snap rather than a fade	مدت؛ صفر یعنی تغییر فوری بدون محوشدن
+Set still/pattern/browser duration for selected cues	مدت تصویر/الگو/مرورگر cueهای انتخاب‌شده را تعیین کنید
+Start the LTC carrier, stop it, or jam it to a value	حامل LTC را شروع، متوقف یا با مقداری همگام کنید
+Which cue on that deck; step off the end to clear it	cue روی آن دک؛ برای پاک‌کردن از انتها بگذرید
+Bob up and down. Depth 1 is half the frame either way	بالا و پایین. عمق 1: نیم قاب در هر جهت
+Output width in pixels | click value to type exact px	عرض خروجی به پیکسل؛ برای مقدار دقیق کلیک کنید
+Set the stream URL (srt://, rtmp://, rtsp://, udp://)	نشانی جریان را تعیین کنید (srt://, rtmp://, rtsp://, udp://)
+Fires at this time on this computer's clock, every day	هر روز در این ساعتِ رایانه فعال می‌شود
+Output height in pixels | click value to type exact px	ارتفاع خروجی به پیکسل؛ برای مقدار دقیق کلیک کنید
+Bar across the foot - readable further back than digits	نوار پایین: از دورتر از ارقام خوانده می‌شود
+OUTPUT: drag a slice to move it, its corners to size it.	خروجی: برش را برای جابه‌جایی و گوشه‌ها را برای تغییر اندازه بکشید
+Choose a Lower Third from the overlay bin to fire on TAKE	زیرنویس معرفی را از مخزن لایه‌ها برای اجرا با TAKE انتخاب کنید
+Choose a PIP overlay from the overlay bin to fire on TAKE	PIP را از مخزن لایه‌ها برای اجرا با TAKE انتخاب کنید
+OUTPUT: drag a slice to move it, its corners to pin them.	خروجی: برش را برای جابه‌جایی و گوشه‌ها را برای تثبیت بکشید
+F1-F10, F12 or the number pad fires this cue from anywhere	F1–F10، ‏F12 یا صفحه اعداد، این cue را از هرجا فعال می‌کند
+Use transition when auto-advancing or goto-taking next cue	در پیشروی خودکار یا پرش به cue بعدی از گذار استفاده شود
+Nothing has arrived yet. Press something on the controller.	هنوز چیزی نرسیده. یکی از کنترل‌های کنترلر را به کار ببرید.
+Audio fade-in: follow visual fade, none, or explicit seconds	ورود تدریجی صدا: پیروی از تصویر، هیچ یا ثانیه‌های مشخص
+Audio fade-out: follow visual fade, none, or explicit seconds	خروج تدریجی صدا: پیروی از تصویر، هیچ یا ثانیه‌های مشخص
+Add a library shape to this mask; its points are yours to move	شکل کتابخانه را به ماسک بیفزایید؛ نقاطش جابه‌جا می‌شوند
+No slices: this output shows its one picture. + SLICE to start.	بدون برش: خروجی تصویر خودش را نشان می‌دهد. با + SLICE شروع کنید.
+Open and close this edge on an oscillator -- a wipe that breathes	این لبه را با نوسان‌ساز باز و بسته کنید: گذار تپنده
+(none)	(هیچ‌کدام)
+(nothing yet)	(هنوز چیزی نیست)
++ ADD AN OUTPUT	+ افزودن خروجی
+>LIVE	>زنده
+(no media source)	(بدون منبع رسانه)
+snap	فوری
+this deck	این دک
+protocol	پروتکل
+does	عمل
+signal	سیگنال
+sine	سینوس
+freq	فرکانس
+visuals	تصویر
+black	سیاه
+green	سبز
+blue	آبی
+Pause at start	مکث در آغاز
+Pause at end	مکث در پایان
+Transition to next	گذار به بعدی
+Hardware display	نمایشگر
+Raster mode	حالت رستر
+Refresh rate	نرخ نوسازی
+Bit depth	عمق بیت
+SDR material at	سطح SDR
+HDR signal	سیگنال HDR
+Fullscreen	تمام‌صفحه
+Matte aspect	نسبت مات
+Bar opacity	تیرگی نوار
+Output mask	ماسک خروجی
+Overlay still	لایه ثابت
+Overlay opacity	تیرگی لایه
+Overlay image	تصویر لایه
+Place it	جای‌گذاری
+Corner pin	گوشه‌ها
+Slices	برش‌ها
+choose...	انتخاب...
+not configured	تنظیم نشده
+(default system device)	(دستگاه پیش‌فرض سیستم)
+(no monitor)	(بدون مانیتور)
+System audio (SDL)	صدای سیستم (SDL)
+Not watching a folder	پوشه‌ای پایش نمی‌شود
+anyone	همه
+When taken off air	هنگام خروج از پخش
+browser cue added	cue مرورگر افزوده شد
+source cue added	cue منبع افزوده شد
+text added	متن افزوده شد
+tone cue added	cue نغمه افزوده شد
+gain	بهره
+follow	دنبال کن
+moves	حرکت
+overtime	وقت اضافه
+chime	آوا
+bell	زنگ
+load a sprite sheet from a file...	بارگذاری برگه اسپرایت از فایل...
+Run the clock	راه‌اندازی ساعت
+What fires this cue besides GO	چه چیزی به‌جز GO این cue را فعال می‌کند
+center	میانه
+visual	تصویر

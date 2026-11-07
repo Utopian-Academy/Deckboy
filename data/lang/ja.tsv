@@ -1874,3 +1874,132 @@ transparent outside the ink: put it on a layer	インクの外は透明：レイ
 what is said, on screen, made on this computer	話された内容を画面へ、このコンピューターで作成
 What this cue does when it ends - click to change	このキューの終了時の動作：クリックで変更
 Whether the next shape or pen path adds or cuts	次の図形やペンが足すか切るか
+shape	形状
+palette	パレット
+scale	拡大率
+feedback	フィードバック
+RED	赤
+do it	実行
+(empty)	(空)
+(unset)	(未設定)
+English	英語
+amber at	黄になる時点
++ section	+ セクション
++pause pt	+ 一時停止点
+a-fade in	音声フェードイン
+amber col	黄色
+(no notes)	(メモなし)
+a-fade out	音声フェードアウト
+gain (each)	ゲイン（各）
+% of the height	高さの%
++  a first step	+  最初のステップ
++ ADD AN EFFECT	+ エフェクトを追加
+(none playing now)	(現在再生なし)
+Keep a transcript (.srt)	文字起こしを保存 (.srt)
+Key tolerance (RGB distance)	キー許容差（RGB距離）
+Contrast multiplier (0.0-2.0x)	コントラスト倍率（0.0–2.0x）
+Brightness multiplier (0.0-2.0x)	明るさ倍率（0.0–2.0x）
+Saturation multiplier (0.0-2.0x)	彩度倍率（0.0–2.0x）
+Output rotation angle (-180..180)	出力の回転角（-180..180）
+Hue rotation (-180 to +180 degrees)	色相回転（-180～+180度）
+Lower Third background opacity (0-255)	ローワーサードの背景不透明度（0–255）
+0-127; 127 addresses every device on the line	0–127。127は回線上の全機器を指定
+GO shows the note; picture and sound carry on	GOでメモ表示。映像と音声は続行
+How fast it moves; no effect when it is still	動きの速さ。静止時は無効
+Fires when incoming timecode passes this point	入力タイムコードがこの位置を通過すると実行
+Source pixels, independent of output placement	出力の配置に依存しないソースのピクセル
+Stereo balance, applied live (snaps to center)	ステレオバランスを即時反映（中央にスナップ）
+bypassed: nothing here is processed or limited	バイパス中：処理もリミットも適用しない
+Per-cue audio trim: -40 to +40 dB, applied live	キューの音量補正：-40～+40 dB、即時反映
+Show the message in red - the wrap up NOW state	メッセージを赤く表示：今すぐ終了の合図
+The brush's width, as % of the picture's height	画像の高さに対するブラシ幅の割合（%）
+What the stream carries: SDR, PQ (HDR10) or HLG	配信形式：SDR、PQ (HDR10)、HLG
+Digit colour once red is reached, and in overtime	赤のしきい値以降と時間超過時の数字の色
+Downmix this cue to mono (mono sources / mono PA)	キューをモノラルにミックス（モノ音源／モノPA）
+Drag to scrub (shift = fine), click to type exact	ドラッグでスクラブ（Shift：微調整）、クリックで数値入力
+Hand this to an oscillator so it moves on its own	オシレーターに割り当てて自動で動かす
+Changing width also scales height (and vice versa)	幅の変更で高さも拡縮。逆も同様
+How long the levels take to arrive; zero is a snap	目標レベルまでの時間。0で即時変更
+Set the self-contained PIP source for this overlay	このオーバーレイ専用の独立したPIPソースを設定
+Take the newest shape or pen path out of this mask	マスクから最新の図形やペンパスを削除
+An address sent to Deckboy's OSC port fires this cue	DeckboyのOSCポートでこのアドレスを受信するとキューを実行
+Hold on the last composite frame when the scene ends	シーン終了時に最後の合成フレームを保持
+How long it takes; zero is a snap rather than a fade	所要時間。0ならフェードせず即時変更
+Set still/pattern/browser duration for selected cues	選択キューの静止画／パターン／ブラウザーの長さを設定
+Start the LTC carrier, stop it, or jam it to a value	LTC搬送波を開始・停止、または指定値に同期
+Which cue on that deck; step off the end to clear it	このデッキのキュー。末尾を越えると選択解除
+Bob up and down. Depth 1 is half the frame either way	上下に揺らす。深さ1で各方向に半画面
+Output width in pixels | click value to type exact px	出力幅（ピクセル）。クリックで正確な値を入力
+Set the stream URL (srt://, rtmp://, rtsp://, udp://)	配信URLを設定（srt://, rtmp://, rtsp://, udp://）
+Fires at this time on this computer's clock, every day	毎日、このコンピューターの時計の指定時刻に実行
+Output height in pixels | click value to type exact px	出力高（ピクセル）。クリックで正確な値を入力
+Bar across the foot - readable further back than digits	下端のバー：数字より遠くから読める
+OUTPUT: drag a slice to move it, its corners to size it.	出力：スライスをドラッグして移動、角をドラッグして拡縮
+Choose a Lower Third from the overlay bin to fire on TAKE	TAKEで起動するローワーサードをオーバーレイ一覧から選択
+Choose a PIP overlay from the overlay bin to fire on TAKE	TAKEで起動するPIPをオーバーレイ一覧から選択
+OUTPUT: drag a slice to move it, its corners to pin them.	出力：スライスをドラッグして移動、角をドラッグして固定
+F1-F10, F12 or the number pad fires this cue from anywhere	F1–F10、F12、テンキーでどこからでもこのキューを実行
+Use transition when auto-advancing or goto-taking next cue	自動送りやGOTOで次のキューへ移るときにトランジションを使用
+Nothing has arrived yet. Press something on the controller.	まだ受信していません。コントローラーを操作してください。
+Audio fade-in: follow visual fade, none, or explicit seconds	音声フェードイン：映像に連動、なし、または秒数を指定
+Audio fade-out: follow visual fade, none, or explicit seconds	音声フェードアウト：映像に連動、なし、または秒数を指定
+Add a library shape to this mask; its points are yours to move	ライブラリーの図形をマスクに追加。各点を移動できます
+No slices: this output shows its one picture. + SLICE to start.	スライスなし：この出力は自身の画像を表示。+ SLICEで開始
+Open and close this edge on an oscillator -- a wipe that breathes	オシレーターでこの端を開閉：呼吸するようなワイプ
+(none)	(なし)
+(nothing yet)	(まだありません)
++ ADD AN OUTPUT	+ 出力を追加
+>LIVE	>ライブ
+(no media source)	(メディアソースなし)
+snap	即時
+this deck	このデッキ
+protocol	プロトコル
+does	動作
+signal	信号
+sine	正弦波
+freq	周波数
+visuals	映像表示
+black	黒
+green	緑
+blue	青
+Pause at start	開始時に一時停止
+Pause at end	終了時に一時停止
+Transition to next	次へトランジション
+Hardware display	表示装置
+Raster mode	ラスター方式
+Refresh rate	リフレッシュレート
+Bit depth	ビット深度
+SDR material at	SDRレベル
+HDR signal	HDR信号
+Fullscreen	全画面
+Matte aspect	マット比率
+Bar opacity	帯の不透明度
+Output mask	出力マスク
+Overlay still	静止画オーバーレイ
+Overlay opacity	重ね画像の不透明度
+Overlay image	重ね画像
+Place it	配置
+Corner pin	コーナーピン
+choose...	選択...
+not configured	未設定
+(default system device)	(システムの既定機器)
+(no monitor)	(モニターなし)
+System audio (SDL)	システム音声 (SDL)
+Not watching a folder	フォルダー監視なし
+anyone	誰でも
+When taken off air	オンエア終了時
+browser cue added	ブラウザーキュー追加
+source cue added	ソースキュー追加
+text added	テキスト追加
+tone cue added	トーンキュー追加
+gain	ゲイン
+follow	連動
+moves	動き
+overtime	時間超過
+chime	チャイム
+bell	ベル
+load a sprite sheet from a file...	ファイルからスプライトシートを読み込む...
+Run the clock	時計を開始
+What fires this cue besides GO	GO以外のキュー実行条件
+center	中央
+visual	映像表示

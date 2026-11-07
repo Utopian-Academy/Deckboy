@@ -1867,3 +1867,276 @@ transparent outside the ink: put it on a layer	außerhalb der Tinte transparent:
 what is said, on screen, made on this computer	was gesagt wird, auf dem Bildschirm, auf diesem Computer erzeugt
 What this cue does when it ends - click to change	Was dieser Cue am Ende tut: klicken zum Ändern
 Whether the next shape or pen path adds or cuts	Ob die nächste Form oder der Pfad addiert oder schneidet
+shape	Form
+palette	Palette
+scale	Skalierung
+feedback	Rückkopplung
+RED	ROT
+do it	ausführen
+(empty)	(leer)
+(unset)	(ungesetzt)
+English	Englisch
+amber at	Gelb ab
++ section	+ Abschnitt
++pause pt	+ Haltepunkt
+a-fade in	Ton einbl.
+amber col	Gelbton
+(no notes)	(keine Notizen)
+a-fade out	Ton ausbl.
+gain (each)	Pegel (je)
+% of the height	% der Höhe
++  a first step	+  erster Schritt
++ ADD AN EFFECT	+ EFFEKT HINZU
+(none playing now)	(gerade keine Wiedergabe)
+Keep a transcript (.srt)	Transkript sichern (.srt)
+Key tolerance (RGB distance)	Key-Toleranz (RGB-Abstand)
+Contrast multiplier (0.0-2.0x)	Kontrastfaktor (0.0–2.0x)
+Brightness multiplier (0.0-2.0x)	Helligkeitsfaktor (0.0–2.0x)
+Saturation multiplier (0.0-2.0x)	Sättigungsfaktor (0.0–2.0x)
+Output rotation angle (-180..180)	Ausgangsdrehung (-180..180)
+Hue rotation (-180 to +180 degrees)	Farbtondrehung (-180 bis +180 Grad)
+Lower Third background opacity (0-255)	Hintergrunddeckkraft der Bauchbinde (0–255)
+0-127; 127 addresses every device on the line	0–127; 127 adressiert alle Geräte der Leitung
+GO shows the note; picture and sound carry on	GO zeigt die Notiz; Bild und Ton laufen weiter
+How fast it moves; no effect when it is still	Bewegungstempo; ohne Wirkung im Stillstand
+Fires when incoming timecode passes this point	Löst aus, wenn der eingehende Timecode diesen Punkt überschreitet
+Source pixels, independent of output placement	Quellpixel, unabhängig von der Platzierung am Ausgang
+Stereo balance, applied live (snaps to center)	Stereobalance, wirkt live (rastet mittig ein)
+bypassed: nothing here is processed or limited	umgangen: keine Verarbeitung oder Begrenzung
+Per-cue audio trim: -40 to +40 dB, applied live	Cue-Pegelkorrektur: -40 bis +40 dB, wirkt live
+Show the message in red - the wrap up NOW state	Meldung rot zeigen: Jetzt zum Ende kommen
+The brush's width, as % of the picture's height	Pinselbreite in % der Bildhöhe
+What the stream carries: SDR, PQ (HDR10) or HLG	Stream-Inhalt: SDR, PQ (HDR10) oder HLG
+Digit colour once red is reached, and in overtime	Ziffernfarbe ab Rot und bei Überziehung
+Downmix this cue to mono (mono sources / mono PA)	Cue auf Mono mischen (Monoquellen / Mono-PA)
+Drag to scrub (shift = fine), click to type exact	Ziehen zum Suchen (Shift: fein), klicken für genaue Eingabe
+Hand this to an oscillator so it moves on its own	Einem Oszillator zuweisen, damit es sich selbst bewegt
+Changing width also scales height (and vice versa)	Breitenänderung skaliert auch die Höhe und umgekehrt
+How long the levels take to arrive; zero is a snap	Zeit bis zu den Zielpegeln; 0 schaltet sofort
+Set the self-contained PIP source for this overlay	Eigenständige PIP-Quelle dieser Einblendung festlegen
+Take the newest shape or pen path out of this mask	Neueste Form oder neuesten Stiftpfad aus der Maske nehmen
+An address sent to Deckboy's OSC port fires this cue	Diese Adresse am OSC-Port von Deckboy löst den Cue aus
+Hold on the last composite frame when the scene ends	Am Szenenende das letzte zusammengesetzte Bild halten
+How long it takes; zero is a snap rather than a fade	Dauer; 0 schaltet sofort statt zu blenden
+Set still/pattern/browser duration for selected cues	Standbild-/Testbild-/Browserdauer der gewählten Cues setzen
+Start the LTC carrier, stop it, or jam it to a value	LTC-Träger starten, stoppen oder auf einen Wert synchronisieren
+Which cue on that deck; step off the end to clear it	Cue auf diesem Deck; über das Ende hinaus zum Leeren
+Bob up and down. Depth 1 is half the frame either way	Auf und ab. Tiefe 1: halbe Bildhöhe in jede Richtung
+Output width in pixels | click value to type exact px	Ausgangsbreite in Pixeln; Wert für genaue Eingabe anklicken
+Set the stream URL (srt://, rtmp://, rtsp://, udp://)	Stream-URL setzen (srt://, rtmp://, rtsp://, udp://)
+Fires at this time on this computer's clock, every day	Löst täglich zu dieser Uhrzeit des Computers aus
+Output height in pixels | click value to type exact px	Ausgangshöhe in Pixeln; Wert für genaue Eingabe anklicken
+Bar across the foot - readable further back than digits	Balken am unteren Rand: aus der Ferne besser lesbar als Ziffern
+OUTPUT: drag a slice to move it, its corners to size it.	AUSGANG: Ausschnitt zum Bewegen ziehen, Ecken zum Skalieren
+Choose a Lower Third from the overlay bin to fire on TAKE	Bauchbinde aus der Ablage wählen, die bei TAKE startet
+Choose a PIP overlay from the overlay bin to fire on TAKE	PIP aus der Ablage wählen, das bei TAKE startet
+OUTPUT: drag a slice to move it, its corners to pin them.	AUSGANG: Ausschnitt zum Bewegen ziehen, Ecken zum Festlegen
+F1-F10, F12 or the number pad fires this cue from anywhere	F1–F10, F12 oder Ziffernblock lösen diesen Cue überall aus
+Use transition when auto-advancing or goto-taking next cue	Beim automatischen Weiterschalten oder GOTO den Übergang nutzen
+Nothing has arrived yet. Press something on the controller.	Noch kein Eingang. Etwas am Controller betätigen.
+Audio fade-in: follow visual fade, none, or explicit seconds	Ton einblenden: Bildblende folgen, aus oder Sekunden festlegen
+Audio fade-out: follow visual fade, none, or explicit seconds	Ton ausblenden: Bildblende folgen, aus oder Sekunden festlegen
+Add a library shape to this mask; its points are yours to move	Bibliotheksform zur Maske hinzufügen; Punkte frei verschieben
+No slices: this output shows its one picture. + SLICE to start.	Keine Ausschnitte: Ausgang zeigt sein Bild. Mit + SLICE beginnen.
+Open and close this edge on an oscillator -- a wipe that breathes	Diese Kante per Oszillator öffnen und schließen: pulsierende Wischblende
+(none)	(keine)
+(nothing yet)	(noch nichts)
++ ADD AN OUTPUT	+ AUSGANG HINZUFÜGEN
+(no media source)	(keine Medienquelle)
+snap	sofort
+this deck	dieses Deck
+protocol	Protokoll
+does	Aktion
+signal	Signal
+sine	Sinus
+freq	Frequenz
+visuals	Bildanzeige
+black	schwarz
+green	grün
+blue	blau
+Pause at start	Startpause
+Pause at end	Endpause
+Transition to next	Weiterblende
+Hardware display	Bildschirm
+Raster mode	Rastermodus
+Refresh rate	Bildrate
+Bit depth	Bittiefe
+SDR material at	SDR-Pegel
+HDR signal	HDR-Signal
+Fullscreen	Vollbild
+Matte aspect	Maskenformat
+Bar opacity	Balkendeckung
+Output mask	Ausgangsmaske
+Overlay still	Standbild
+Overlay opacity	Bilddeckung
+Overlay image	Einblendbild
+Place it	Platzieren
+Corner pin	Eckpunkte
+Slices	Ausschnitte
+choose...	wählen...
+not configured	nicht konfiguriert
+(default system device)	(Standardgerät des Systems)
+(no monitor)	(kein Monitor)
+System audio (SDL)	Systemton (SDL)
+Not watching a folder	Kein Ordner überwacht
+anyone	jeder
+When taken off air	Nach Abwahl im Programm
+browser cue added	Browser-Cue hinzugefügt
+source cue added	Quell-Cue hinzugefügt
+text added	Text hinzugefügt
+tone cue added	Ton-Cue hinzugefügt
+Marks stacked BELOW.	Zeichen UNTEN gestapelt.
+(projector curve only)	(nur Projektorkurve)
+, — skip to previous cue	, — zum vorherigen Cue springen
+MULTIVIEW carries this too.	MULTIVIEW übernimmt dies ebenfalls.
+auto (reads the common two)	auto (liest die beiden üblichen)
+HLG - live broadcast (BT.2100)	HLG – Liveübertragung (BT.2100)
+headphones, desk sounds and LTC stay out of it	Kopfhörer, Pultklänge und LTC bleiben davon getrennt
+Above 1 tunnels inward, below 1 blooms outward.	Über 1 zieht das Bild nach innen, unter 1 wächst es nach außen.
+Read everything right to left. Yes, everything.	Alles von rechts nach links lesen. Ja, alles.
+Amber is closest to the 1976 single-phosphor look.	Bernstein kommt dem einfarbigen Leuchtstoff von 1976 am nächsten.
+Sway sideways. Depth 1 is half the frame either way	Seitlich schwingen. Tiefe 1: halbe Bildbreite in jede Richtung
+Draw the diagnostic over the card, or just the text.	Diagnose über der Karte oder nur als Text anzeigen.
+All interfaces, but only this computer is trusted yet.	Alle Schnittstellen, bisher ist aber nur dieser Computer vertrauenswürdig.
+Choose the legacy cue token to show inside the PIP window	Alten Cue-Bezeichner für die Anzeige im PIP-Fenster wählen
+ASIO carries the show's sound, and these are not on it yet	ASIO führt den Showton; diese Signale sind dort noch nicht enthalten
+N=new  Enter/P=previous  O=open saved  E=examples  L=learn	N=neu  Enter/P=vorherige  O=gespeicherte öffnen  E=Beispiele  L=lernen
+Hand this parameter to an oscillator so it moves on its own	Diesen Parameter einem Oszillator zuweisen, damit er sich selbst bewegt
+How long the finished drawing stays before it is drawn again	Wie lange die fertige Zeichnung bleibt, bevor sie neu gezeichnet wird
+How it comes on and goes off: none, fade, rise, slide or wipe	Ein- und Ausblenden: ohne, Blende, aufsteigen, schieben oder wischen
+The 64-step wavetable, quantised to 6 bits like the hardware.	Die Wellentabelle mit 64 Schritten, wie die Hardware auf 6 Bit quantisiert.
+Vary tile size per cell, so the grid stops looking like a grid.	Kachelgröße pro Zelle variieren, damit das Raster weniger gleichmäßig wirkt.
+Which output channel carries the signal. 'all' feeds every one.	Ausgangskanal des Signals. 'alle' speist jeden Kanal.
+What is sent. Backslash-n, -r, -t and -0 become those characters	Sendeinhalt. Backslash-n, -r, -t und -0 werden in die jeweiligen Zeichen umgewandelt
+Deckboy's own remote-protocol verbs, one per line; # is a comment	Deckboys eigene Fernsteuerbefehle, einer je Zeile; # beginnt einen Kommentar
+Modulator speed as a ratio of the note, so the bend tracks pitch.	Modulatortempo im Verhältnis zur Note, damit die Modulation der Tonhöhe folgt.
+Play this cue to the preview only; the outputs keep what they have	Diesen Cue nur in der Vorschau spielen; die Ausgänge bleiben unverändert
+Put the pitch on an oscillator: Motion X sweeps it like a theremin	Tonhöhe einem Oszillator zuweisen: Motion X spielt sie wie ein Theremin
+A disarmed cue stays in the list and does nothing; GO steps over it	Ein gesperrter Cue bleibt wirkungslos in der Liste; GO überspringt ihn
+Where the clock reads from this cue on; click the value to type one	Zeitwert ab diesem Cue; zum Eingeben auf den Wert klicken
+Add a dashboard button that fires this master by name, from anywhere	Dashboard-Taste hinzufügen, die diesen Master überall per Namen startet
+New here? LEARN THE BASICS takes five minutes. We'll show you round.	Neu hier? GRUNDLAGEN LERNEN dauert fünf Minuten. Wir zeigen das Pult.
+An IPv4 address, or 255.255.255.255 to broadcast to the whole network	IPv4-Adresse oder 255.255.255.255 zum Senden an das gesamte Netz
+How much playing audio widens and brightens the pattern. 0 free-runs.	Wie stark spielender Ton das Muster verbreitert und aufhellt. 0 läuft frei.
+LED panel width in pixels - what one tile really is. Click to type it	LED-Panelbreite in Pixeln: die tatsächliche Kachelbreite. Klicken zum Eingeben
+Which deck it acts on; step off the end for the one this cue lives on	Betroffenes Deck; über das Ende hinaus für das Deck, auf dem dieser Cue liegt
+only one playlist - use the routing chip on the header to add another	Nur eine Playlist: mit dem Routing-Feld in der Kopfzeile eine weitere hinzufügen
+Which cue this master fires on that deck; step off the end to clear it	Cue, den dieser Master auf dem Deck startet; über das Ende hinaus zum Leeren
+Draw on the programme monitor with the mouse or a pen (DRAW). Esc stops	Mit Maus oder Stift auf den Programmmonitor zeichnen (DRAW). Esc beendet
+How long the move takes, each way. 0 is instant whatever the style says	Dauer der Bewegung je Richtung. 0 wirkt sofort, unabhängig vom Stil
+Stop that deck when the ramp lands - the usual take-it-down-and-stop-it	Deck am Rampenende stoppen: der übliche Ablauf Abblenden und Stoppen
+Which of the file's sound tracks plays: a second language, a commentary	Tonspur der Datei: etwa eine zweite Sprache oder ein Kommentar
+--- -- --  does nothing on that playlist  -  (M) the step's own playlist	--- -- --  bewirkt auf dieser Playlist nichts  -  (M) die Playlist dieses Schritts
+An oscillator on the colour: depth is how far round the wheel it travels	Oszillator auf der Farbe: die Tiefe bestimmt den Weg um den Farbkreis
+Rack this cue paused and off air so GO starts it with no decoder spin-up	Cue pausiert und nicht auf Sendung vorladen; GO startet ohne Decoder-Anlauf
+Note, control change, program change, MIDI Show Control, or your own bytes	Note, Control Change, Program Change, MIDI Show Control oder eigene Bytes
+Black behind the words. Zero leaves it over whatever the output already has	Schwarz hinter dem Text. Bei null bleibt der vorhandene Ausgang sichtbar
+How far the modulator bends the pitch. 0-63, the hardware's own gain range.	Stärke der Tonhöhenmodulation. 0–63, der Verstärkungsbereich der Hardware.
+OSC and UDP are fire and forget; TCP connects, so it runs off the show thread	OSC und UDP senden ohne Verbindung; TCP verbindet und läuft daher außerhalb des Show-Threads
+Put the level on an oscillator: Motion makes it a gate that opens as you move	Pegel einem Oszillator zuweisen: Motion öffnet ihn wie ein Gate bei Bewegung
+-18 dBFS is EBU alignment, -20 is SMPTE. Capped below 0: this feeds a live PA.	-18 dBFS ist EBU-Abgleich, -20 SMPTE. Unter 0 begrenzt: speist eine Live-PA.
+Marks stacked ABOVE the characters, the way combining accents overflow a line.	Zeichen ÜBER den Buchstaben stapeln, wie kombinierende Akzente über eine Zeile hinauswachsen.
+Which chime. Cycling PLAYS it, so it can be chosen by ear rather than by name.	Welcher Klang. Wechseln SPIELT ihn ab: nach Gehör statt nach Namen wählen.
+No rows. + ADD or LEARN makes one; MIDIMAP RESET brings the built-in rows back.	Keine Zeilen. + ADD oder LEARN legt eine an; MIDIMAP RESET stellt die eingebauten Zeilen wieder her.
+Save the mask's paths as SVG, for Illustrator and anything else that reads them	Maskenpfade als SVG für Illustrator und andere Programme mit SVG-Unterstützung speichern
+Which MIDI output; a named port that is missing is reported rather than swapped	MIDI-Ausgang; ein fehlender benannter Port wird gemeldet und nicht ersetzt
+An oscillator on the level, running after GO until a later cue sets this fixture	Oszillator auf dem Pegel: läuft nach GO, bis ein späterer Cue das Gerät setzt
+Steps in third-octaves, because the ear works in ratios. 1kHz is the convention.	Terzschritte, weil das Gehör in Verhältnissen arbeitet. 1 kHz ist üblich.
+Strikes drawn ACROSS the cell, damaging the character rather than decorating it.	Striche QUER durch die Zelle beschädigen das Zeichen, statt es zu verzieren.
+Whether incoming MIDI notes play this synth or trigger cues as they always have.	Ob eingehende MIDI-Noten diesen Synth spielen oder wie bisher Cues auslösen.
+A note number, or type LEARN and play it. Notes no cue claims still go to cue N+1	Notennummer eingeben oder LEARN tippen und spielen. Nicht zugewiesene Noten starten weiter Cue N+1
+A plain stereo pair. Click to open the matrix, starting from exactly this routing	Ein einfaches Stereopaar. Klicken öffnet die Matrix mit genau diesem Routing
+Folding is what turns an arbitrary pattern into something that reads as designed.	Faltung macht aus einem beliebigen Muster eine geordnet wirkende Gestaltung.
+Channel=level, comma separated. Ranges too: 1=255, 10-14=64. Channels count from 1	Kanal=Pegel, mit Kommas trennen. Bereiche gehen auch: 1=255, 10-14=64. Kanäle zählen ab 1
+Moves every selected cue's trim by the same dB; typing a value sets them all to it	Verschiebt den Pegel aller gewählten Cues um denselben dB-Wert; Eingabe setzt alle auf diesen Wert
+Bends the carrier's PITCH rather than mixing with it. This is what makes FDS growl.	Moduliert die TONHÖHE des Trägers, statt sich dazuzumischen. So entsteht das FDS-Knurren.
+Half way through LEARN THE BASICS. Press L and we pick up where you stopped, skapi.	GRUNDLAGEN LERNEN ist halb geschafft. Mit L geht es dort weiter, wo du aufgehört hast, skapi.
+Render as a character grid with a 16-colour indexed palette, rather than as pixels.	Als Zeichenraster mit indizierter 16-Farben-Palette statt als Pixel darstellen.
+Which MIDI output this file plays to; step past the end for the first one available	MIDI-Ausgang dieser Datei; über das Ende hinaus für den ersten verfügbaren
+An IPv4 address, or 255.255.255.255 for the universe's multicast group (239.255.x.y)	IPv4-Adresse oder 255.255.255.255 für die Multicast-Gruppe des Universums (239.255.x.y)
+Click a cell to walk it: off, full, -3, -6, -12. This row turns the matrix off again	Zelle anklicken: aus, voll, -3, -6, -12. Diese Zeile schaltet die Matrix wieder aus
+How long each phrase stays before it moves. Zero hides them without losing the list.	Wie lange jeder Text vor dem Wechsel bleibt. Null blendet ihn aus und erhält die Liste.
+How long it takes to fall away after the attack. Only audible when retrigger is set.	Abklingzeit nach dem Anschlag. Nur mit erneutem Anschlagen hörbar.
+Off, from start (next cue fires when this one starts) or from end (when it finishes)	Aus, ab Start (nächster Cue startet mit diesem) oder ab Ende (wenn dieser endet)
+Height of one line as a percent of the raster, so a card reads the same on any screen	Zeilenhöhe in Prozent der Rasterhöhe: Die Karte wirkt auf jedem Bildschirm gleich groß
+Set slot source as media:/path, browser:url, window:name, camera:name, or syphon:name	Slot-Quelle setzen: media:/path, browser:url, window:name, camera:name oder syphon:name
+Short LFSR mode. The period is brief enough to read as pitched metal rather than hiss.	Kurzer LFSR-Modus. Die kurze Periode klingt metallisch mit Tonhöhe statt wie Rauschen.
+White, warm, red, amber, green, cyan, blue, magenta. ~ moves it round the colour wheel	Weiß, warm, rot, bernstein, grün, cyan, blau, magenta. ~ bewegt die Farbe im Farbkreis
+Re-strike the envelope this often. Hold sustains one note, which is what a drone wants.	Hüllkurve in diesem Abstand neu anschlagen. Halten erhält einen Ton für einen Dauerton.
+Diamond is the hard-edged Atari Video Music lattice; rings tunnel well with feedback zoom.	Raute ist das kantige Atari-Video-Music-Gitter; Ringe bilden mit Rückkopplungszoom Tunnel.
+Rock or spin. Depth 1 is half a turn either way; a saw at depth 1 turns it all the way round	Wiegen oder drehen. Tiefe 1: halbe Drehung je Richtung; Sägezahn mit Tiefe 1 dreht ganz herum
+DECK playback level (live, not saved with the cue) - per-cue trim is gain in the AUDIO section	DECK-Pegel (live, nicht im Cue gespeichert). Cue-Pegelkorrektur ist Gain im Abschnitt AUDIO
+Still, fade in, typewriter, scroll up, crawl or pulse -- all driven by the cue's own transport	Still, Einblenden, Schreibmaschine, aufwärts rollen, Laufschrift oder Puls – gesteuert vom Cue-Transport
+Fields per rendered frame. 1 is one for one, 0.5 holds each field for two frames, 0 freezes it.	Halbbilder je gerendertem Bild. 1: eins zu eins, 0.5: jedes Halbbild zwei Bilder halten, 0: einfrieren.
+What this cue shows while it plays: waveform, scope, Lissajous, spectrum, meters or a name card	Anzeige beim Abspielen: Wellenform, Scope, Lissajous, Spektrum, Pegel oder Namenskarte
+0 picks tiles by brightness so the picture reads. 1 picks at random so the grid becomes texture.	0 wählt Kacheln nach Helligkeit für ein lesbares Bild. 1 wählt zufällig und macht das Raster zur Textur.
+How far it travels, in semitones. Up reads as arrival, down as departure, zero is a struck note.	Tonhöhenweg in Halbtönen. Aufwärts wirkt wie Ankunft, abwärts wie Abschied, null wie ein angeschlagener Ton.
+An IPv4 address. Names are not resolved: a DNS lookup is a blocking call and GO must not make one	IPv4-Adresse. Keine Namensauflösung: DNS kann blockieren, GO darf das nicht auslösen
+Tile width in pixels. Must match the sheet's grid or the slices land across neighbouring sprites.	Kachelbreite in Pixeln. Muss zum Raster der Vorlage passen, sonst greifen Ausschnitte in benachbarte Sprites.
+Alternating mirrors by cell position, which reads as pattern where random flipping reads as noise.	Abwechselnd nach Zellposition spiegeln: ergibt ein Muster; zufälliges Spiegeln wirkt wie Rauschen.
+0 welds them to their cell, which reads as engraved. Above it they re-roll, which reads as boiling.	0 hält die Zeichen wie eingraviert in ihren Zellen. Höhere Werte würfeln sie neu aus und wirken kochend.
+MONO L plays the left input in both speakers: mic 1 on most interfaces. STEREO is for a line source.	MONO L spielt links auf beiden Lautsprechern: bei vielen Interfaces Mikrofon 1. STEREO ist für Line-Quellen.
+The whole gesture. This IS the cue's duration -- a sting is the one generated signal here that ends.	Die ganze Klanggeste. Dies IST die Cue-Dauer: Der Jingle ist das einzige erzeugte Signal hier, das endet.
+Click the value to send this fixture or leave it where the last cue put it. ~ makes the level breathe	Wert anklicken: dieses Gerät senden oder den letzten Cue-Wert behalten. ~ lässt den Pegel pulsieren
+FDS is a wavetable bent by a modulator. 2A03 is the pulse/triangle/noise set most chiptune is made of.	FDS: modulierte Wellentabelle. 2A03: Puls, Dreieck und Rauschen, die Grundlage vieler Chiptunes.
+Scramble which glyph means which brightness. Same set, different handwriting. Seeded, so it stays put.	Zuordnung von Zeichen und Helligkeit mischen. Derselbe Satz, andere Schriftwirkung. Fester Zufallsstart hält das Ergebnis.
+Pixel sort: runs of pixels sorted by brightness within a row, which is what makes datamosh look melted.	Pixelsortierung: Pixel innerhalb einer Zeile nach Helligkeit ordnen; so wirkt Datamosh geschmolzen.
+How many cells the marks may climb. They thin out as they go, so a tall reach trails rather than doubles.	Wie viele Zellen die Zeichen aufsteigen. Nach oben werden sie dünner: große Reichweite zieht Spuren statt zu verdoppeln.
+cue act val  -  G take  S stop  F fade out (val = tenths of a second)  V volume  O opacity  J jump to row	cue act val  -  G starten  S stoppen  F ausblenden (val = Zehntelsekunden)  V Lautstärke  O Deckkraft  J Zeilensprung
+Harmonic weight: a pure chime at zero, brass at full. This is the difference between a ping and a fanfare.	Obertonanteil: bei null reiner Glockenton, bei voll Blechklang. Der Unterschied zwischen Ping und Fanfare.
+Steps through the inputs this computer has. 'Settings input' follows the input chosen in Settings > Audio.	Durch die Eingänge dieses Computers schalten. 'Einstellungseingang' folgt Einstellungen > Audio.
+Embers to roaring. It still surges and settles at any setting -- a fire that does not move reads as a photo	Von Glut bis lodernd. Bei jedem Wert lodert und beruhigt es sich: Ein unbewegtes Feuer wirkt wie ein Foto
+Reference pitch. 440 is modern standard, 432 the common alternative, and older instruments sat lower still.	Referenztonhöhe. 440 ist heutiger Standard, 432 die übliche Alternative; ältere Instrumente lagen noch tiefer.
+Where the sting starts. Under a voice it wants to stay out of the way; over a room it wants to cut through.	Anfangston des Jingles. Unter Sprache soll er Platz lassen, im Raum soll er sich durchsetzen.
+Digital gain on the input, -40 to +40 dB. Set the interface's own preamp first; this is for the last few dB.	Digitale Eingangsverstärkung, -40 bis +40 dB. Zuerst den Vorverstärker am Interface einstellen; dies korrigiert die letzten dB.
+Pulse the size. On its own this moves width AND height together; give height its own ~ to squash and stretch	Größe pulsieren lassen. Bewegt allein Breite UND Höhe; ein eigenes ~ für die Höhe staucht und streckt
+A card fills the frame; a Lower Third is a name and a role, low on a transparent frame, with an in and an out	Eine Karte füllt das Bild; eine Bauchbinde zeigt unten Name und Rolle auf transparentem Grund mit Ein- und Ausblendung
+Held keeps the last displacement rather than removing it -- the picture stays bent the way the driver left it.	Halten erhält die letzte Verformung: Das Bild bleibt so verzogen, wie der Treiber es hinterließ.
+--- -- --  does nothing on that playlist  -  (M) the step's own playlist  -  EDIT is on: typing changes the show	--- -- --  bewirkt auf dieser Playlist nichts  -  (M) die Playlist dieses Schritts  -  EDIT ist an: Tippen ändert die Show
+12.5 and 25 are thin and reedy, 50 is hollow. 75 sounds identical to 25 -- it is here because trackers expose it.	12.5 und 25 klingen dünn und rohrartig, 50 hohl. 75 klingt wie 25 und ist enthalten, weil Tracker es anbieten.
+Quantise the output like the hardware. The steps ARE the sound; smoothing them makes it a synth imitating a chip.	Ausgabe wie die Hardware quantisieren. Die Stufen SIND der Klang; Glätten macht daraus einen Synth, der einen Chip imitiert.
+Moves every selected cue's trim by the same dB, keeping the differences between them; typing a value sets them all to it	Verschiebt alle gewählten Cue-Pegel um denselben dB-Wert und erhält ihre Abstände; Eingabe setzt alle auf denselben Wert
+Where the playlist's crosspoints send it (Settings > Audio). Click to open the matrix by name, starting from exactly that	Ziele der Playlist-Kreuzpunkte (Einstellungen > Audio). Klicken öffnet die benannte Matrix mit genau diesem Routing
+Put back what it started from once the ramp lands (after the stop): a deck left ready for its next cue, a swell that lets go	Am Rampenende nach dem Stopp den Anfangswert wiederherstellen: Das Deck ist für den nächsten Cue bereit, der Anstieg lässt los
+Which speech model makes the captions: English, any language, or the slower, more accurate pair. Each is a one-time download	Sprachmodell für Untertitel: Englisch, beliebige Sprache oder das langsamere, genauere Paar. Jedes wird einmal heruntergeladen
+What the mask cuts: this cue wherever it plays, this playlist on the focused output, that output's whole picture, or its matte	Maskenziel: dieser Cue überall, diese Playlist am gewählten Ausgang, dessen gesamtes Bild oder seine Matte
+Play at the screen's rate when it is within 0.2% (59.94 on 60): every frame shown once, the sound up to 3.5 cents sharp or flat	Bei höchstens 0.2% Abweichung mit Bildschirmrate spielen (59.94 auf 60): jedes Bild einmal, Ton bis 3.5 Cent höher oder tiefer
+Quarter turns are exact and stay crisp. Spinning samples at an angle, which tears pixel art -- sometimes that is what you want.	Vierteldrehungen bleiben exakt und scharf. Freie Drehung tastet schräg ab und zerreißt Pixelkunst – manchmal gewollt.
+Every take starts the puppetry the same way, so a rehearsed look repeats instead of depending on how long the app has been open.	Jeder TAKE startet die Bewegung gleich; der geprobte Look wiederholt sich unabhängig von der Laufzeit der App.
+What aims each tilt: its own position, the picture's luma gradient so characters lean the way the image does, or the cell's hue.	Neigungsrichtung: Zellposition, Helligkeitsgradient des Bildes für passende Zeichenneigung oder Farbton der Zelle.
+Name a channel or a pair once. Playlists send to the name, so a different interface means changing the names here, not every cue.	Kanal oder Paar einmal benennen. Playlists senden an den Namen; bei anderem Interface ändern sich nur diese Namen, nicht alle Cues.
+Click a crosspoint to walk it: off, 0, -3, -6, -12 dB. Drag it sideways for any level. A playlist with none plays to its own device.	Kreuzpunkt anklicken: aus, 0, -3, -6, -12 dB. Seitlich ziehen für beliebige Pegel. Ohne Kreuzpunkt nutzt die Playlist ihr eigenes Gerät.
+Sprite sets installed in data/sprites. Each folder there is a set; cycling picks one and wraps back to none. Right-click turns them off.	Sprite-Sätze in data/sprites. Jeder Ordner ist ein Satz; Durchschalten kehrt zu 'keine' zurück. Rechtsklick schaltet sie aus.
+Internal resolution, 1 chunkiest to 5 finest. This is an aesthetic control as much as a speed one -- the 8-bit look comes from big pixels.	Interne Auflösung: 1 am gröbsten, 5 am feinsten. Bestimmt Look und Tempo: Große Pixel erzeugen die 8-Bit-Wirkung.
+Picture takes colour from the image. Green, amber and cyan are terminal phosphors. Palette locks the text to the selected hardware palette.	Bild übernimmt seine Farben. Grün, Bernstein und Cyan sind Terminal-Leuchtstoffe. Palette bindet Text an die gewählte Hardwarepalette.
+SUBTLE self-heals (H.264). CLASSIC is the real smear (MPEG-4). EXTREME is chunkier and smears constantly. Changing this re-prepares the cue.	SUBTLE heilt sich selbst (H.264). CLASSIC verschmiert echt (MPEG-4). EXTREME ist gröber und verschmiert ständig. Änderung bereitet den Cue neu vor.
+Sine for line-up, pink to ring out a PA, white to find rattles, sweep to hear where a room rings, identify to walk the outputs one at a time.	Sinus zum Einpegeln, Rosa zum Einmessen der PA, Weiß zum Finden von Rasseln, Sweep für Raumresonanzen, Identifizieren für einzelne Ausgänge.
+Which effect, by its place in the stack of the cue that deck is playing when this fires. With nothing there, the fade says so and does nothing	Effektposition im Stapel des Cues, den das Deck beim Auslösen spielt. Ist dort nichts, meldet die Blende das und bleibt wirkungslos
+Each frame blended into the next. This is the Hypno signature -- at 0 it is a pattern generator, above it the picture starts feeding on itself.	Jedes Bild ins nächste mischen: typisch Hypno. Bei 0 ein Mustergenerator; darüber speist sich das Bild zunehmend selbst.
+What is through the window on the hearth wall: a garden, rain, snow or the sea. A room with weather outside reads as somewhere rather than as a wall	Blick aus dem Fenster an der Kaminwand: Garten, Regen, Schnee oder Meer. Wetter draußen macht aus der Wand einen Ort
+BY FIXTURE: the lights in the patch (Settings > Network > FIXTURES), by name. CHANNELS: channel=level by hand. A cue can carry both; channels go last	NACH GERÄT: gepatchte Lampen nach Namen (Einstellungen > Netzwerk > SCHEINWERFER). CHANNELS: Kanal=Pegel von Hand. Beides möglich; Kanäle zuletzt
+Each character rocks as though it were a card being tilted. Every cell has its own phase, so the grid breathes instead of sliding about as one sheet.	Jedes Zeichen wie eine gekippte Karte wiegen. Jede Zelle hat ihre eigene Phase: Das Raster atmet, statt als starre Fläche zu gleiten.
+Pen: click for corners, drag for curves, click the first point to close (P). Points: drag, click the outline to add one, Alt-click or Delete to remove	Stift: klicken für Ecken, ziehen für Kurven, ersten Punkt zum Schließen anklicken (P). Punkte ziehen; Umrissklick fügt hinzu, Alt-Klick oder Delete entfernt
+The chip's three channels. They differ in kind: triangle has no volume control on the hardware, and noise is a shift register rather than an oscillator.	Drei unterschiedliche Chipkanäle: Dreieck hat in der Hardware keinen Lautstärkeregler; Rauschen nutzt ein Schieberegister statt eines Oszillators.
+Curated sets of symbols and emoji -- stars, notes, flowers, arrows, weather, runes, faces. Picking one fills the custom glyphs below, which stays editable.	Symbolsätze: Sterne, Noten, Blumen, Pfeile, Wetter, Runen, Gesichter. Die Wahl füllt die eigenen Zeichen unten aus; sie bleiben bearbeitbar.
+Play from the computer keyboard, Ableton layout: A W S E D F T G Y H U J, Z and X for octave. While this is ON those keys make notes instead of firing cues.	Computertastatur im Ableton-Layout: A W S E D F T G Y H U J, Z und X für die Oktave. Wenn EIN, spielen diese Tasten Noten statt Cues.
+Deck opacity, deck volume, the master dimmer, the active cue's own brightness / contrast / saturation / hue, or a knob of one of its effects or audio effects	Deck-Deckkraft, Deck-Lautstärke, Hauptdimmer, Helligkeit/Kontrast/Sättigung/Farbton des aktiven Cues oder Regler seiner Bild- oder Audioeffekte
+Scanlines, phosphor bloom and RGB fringing. The bloom is the part that matters -- a phosphor spills sideways, which is why a CRT looks like it is emitting light.	Scanlines, Leuchtstoffglühen und RGB-Farbsäume. Entscheidend ist das seitliche Glühen: Deshalb wirkt die Bildröhre selbstleuchtend.
+Torn scanline bands and RGB separation. In text mode it also corrupts CELLS -- whole rows lock to one repeating character, the way a real text screen loses sync.	Zerrissene Zeilenbänder und RGB-Trennung. Im Textmodus werden auch ZELLEN beschädigt: ganze Zeilen wiederholen ein Zeichen wie bei Sync-Verlust.
+Still holds the frame you are on. Flipbook plays the frames in turn. Replay draws the first frame stroke by stroke, the way it was drawn, then holds and starts again	Standbild hält den aktuellen Frame. Daumenkino spielt die Frames der Reihe nach. Wiederholung zeichnet Frame 1 Strich für Strich nach, hält und beginnt neu
+Start, Stop, Pause, Resume, Load (stand it by without firing), Arm, Disarm, or Devamp it (a loop plays out its pass and ends); or Stop all, Pause all, Resume all: every deck	Start, Stopp, Pause, Fortsetzen, Laden ohne Start, Bereit, Sperren oder Devamp (Schleife zu Ende spielen); oder alle stoppen, pausieren, fortsetzen
+Scope shows shape and clipping. Lissajous shows phase and polarity between the first two channels -- a diagonal the wrong way means one is inverted. Spectrum is third-octave bars.	Scope zeigt Form und Clipping. Lissajous zeigt Phase und Polarität der ersten beiden Kanäle: Falsche Diagonale bedeutet einen invertierten Kanal. Spektrum zeigt Terzbänder.
+0 picks the glyph the brightness asks for, 1 picks any glyph in the set. Turn it up to see the whole alphabet: ranked strictly by ink, a flat area picks one mark and the rest never appear.	0 wählt Zeichen nach Helligkeit, 1 beliebige aus dem Satz. Erhöhen zeigt das ganze Alphabet; rein nach Helligkeit bekommt eine flache Fläche nur ein Zeichen.
+Blocks and dithers read as density; the ASCII ramp reads as text; symbols read as wreckage. Cycling this clears a custom glyph string, since that would override it -- the preset row puts one back.	Blöcke und Dither wirken als Dichte, ASCII als Text, Symbole als Trümmer. Wechseln leert eigene Zeichen, die sonst Vorrang hätten; die Vorlagenzeile stellt einen Satz her.
+Equal temperament buys free modulation at the cost of every interval being slightly wrong. Just and pythagorean are exactly in tune in one key. Bohlen-Pierce divides a twelfth, so it has no octaves.	Gleichstufige Stimmung erlaubt jede Tonart, macht aber jedes Intervall etwas unrein. Reine und pythagoreische Stimmung passen exakt in einer Tonart. Bohlen-Pierce teilt eine Duodezime und hat keine Oktaven.
+gain	Pegel
+follow	folgen
+moves	Bewegung
+overtime	Überziehung
+chime	Klang
+bell	Glocke
+load a sprite sheet from a file...	Sprite-Vorlage aus Datei laden...
+Run the clock	Uhr starten
+What fires this cue besides GO	Was diesen Cue außer GO auslöst
+center	Mitte
+visual	Bildanzeige

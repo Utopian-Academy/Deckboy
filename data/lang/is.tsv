@@ -1861,3 +1861,133 @@ transparent outside the ink: put it on a layer	gegnsætt utan bleks: settu á la
 what is said, on screen, made on this computer	það sem er sagt, á skjánum, gert á þessari tölvu
 What this cue does when it ends - click to change	Hvað þetta cue gerir í lokin: smelltu til að breyta
 Whether the next shape or pen path adds or cuts	Hvort næsta form eða slóð bætir við eða sker
+shape	lögun
+palette	litaspjald
+scale	kvarði
+feedback	endurgjöf
+RED	RAUTT
+do it	framkvæma
+(empty)	(tómt)
+(unset)	(óstillt)
+English	Enska
+amber at	gult við
++ section	+ kafli
++pause pt	+ biðpunktur
+a-fade in	hljóð inn
+amber col	gulur litur
+(no notes)	(engar athugasemdir)
+a-fade out	hljóð út
+gain (each)	mögnun (hvert)
+% of the height	% af hæð
++  a first step	+  fyrsta skref
++ ADD AN EFFECT	+ BÆTA VIÐ ÁHRIFUM
+(none playing now)	(ekkert í spilun)
+Keep a transcript (.srt)	Vista uppskrift (.srt)
+Key tolerance (RGB distance)	Key-þolmörk (RGB-fjarlægð)
+Contrast multiplier (0.0-2.0x)	Margfaldari birtuskila (0.0–2.0x)
+Brightness multiplier (0.0-2.0x)	Margfaldari birtu (0.0–2.0x)
+Saturation multiplier (0.0-2.0x)	Margfaldari litmettunar (0.0–2.0x)
+Output rotation angle (-180..180)	Snúningshorn úttaks (-180..180)
+Hue rotation (-180 to +180 degrees)	Litblæssnúningur (-180 til +180 gráður)
+Lower Third background opacity (0-255)	Ógagnsæi bakgrunns nafnborða (0–255)
+0-127; 127 addresses every device on the line	0–127; 127 ávarpar öll tæki á línunni
+GO shows the note; picture and sound carry on	GO sýnir athugasemdina; mynd og hljóð halda áfram
+How fast it moves; no effect when it is still	Hraði hreyfingar; engin áhrif í kyrrstöðu
+Fires when incoming timecode passes this point	Virkjast þegar innkomandi tímakóði fer yfir þennan punkt
+Source pixels, independent of output placement	Upprunapixlar, óháð staðsetningu á úttaki
+Stereo balance, applied live (snaps to center)	Stereojafnvægi í beinni (smellur í miðju)
+bypassed: nothing here is processed or limited	framhjá: engin vinnsla eða takmörkun
+Per-cue audio trim: -40 to +40 dB, applied live	Mögnun cue: -40 til +40 dB, í beinni
+Show the message in red - the wrap up NOW state	Sýna skilaboð rauð: ljúka NÚNA
+The brush's width, as % of the picture's height	Breidd pensils sem % af myndhæð
+What the stream carries: SDR, PQ (HDR10) or HLG	Efni straums: SDR, PQ (HDR10) eða HLG
+Digit colour once red is reached, and in overtime	Litur talna eftir rauð mörk og í yfirvinnslu tíma
+Downmix this cue to mono (mono sources / mono PA)	Blanda cue í mono (mono-gjafi / mono-hljóðkerfi)
+Drag to scrub (shift = fine), click to type exact	Dragðu til að leita (Shift: nákvæmt), smelltu til að slá inn gildi
+Hand this to an oscillator so it moves on its own	Úthluta sveifli svo þetta hreyfist sjálft
+Changing width also scales height (and vice versa)	Breytt breidd skalar líka hæð og öfugt
+How long the levels take to arrive; zero is a snap	Tími að markgildum; núll skiptir strax
+Set the self-contained PIP source for this overlay	Velja sjálfstæðan PIP-gjafa þessarar yfirlagningar
+Take the newest shape or pen path out of this mask	Fjarlægja nýjasta form eða pennaslóð úr maskanum
+An address sent to Deckboy's OSC port fires this cue	Þetta vistfang á OSC-tengi Deckboy ræsir cue
+Hold on the last composite frame when the scene ends	Halda síðasta samsetta ramma þegar atriðinu lýkur
+How long it takes; zero is a snap rather than a fade	Lengd; núll skiptir strax án deyfingar
+Set still/pattern/browser duration for selected cues	Velja lengd kyrrmyndar/mynsturs/vafra fyrir valin cue
+Start the LTC carrier, stop it, or jam it to a value	Ræsa, stöðva eða samstilla LTC-burðarbylgju við gildi
+Which cue on that deck; step off the end to clear it	Cue á þeim spilara; fara fram yfir endann til að hreinsa
+Bob up and down. Depth 1 is half the frame either way	Upp og niður. Dýpt 1: hálfur rammi í hvora átt
+Output width in pixels | click value to type exact px	Úttaksbreidd í pixlum; smelltu til að slá inn nákvæmt gildi
+Set the stream URL (srt://, rtmp://, rtsp://, udp://)	Setja straumslóð (srt://, rtmp://, rtsp://, udp://)
+Fires at this time on this computer's clock, every day	Virkjast daglega á þessum tíma samkvæmt klukku tölvunnar
+Output height in pixels | click value to type exact px	Úttakshæð í pixlum; smelltu til að slá inn nákvæmt gildi
+Bar across the foot - readable further back than digits	Stika neðst: læsileg lengra að en tölur
+OUTPUT: drag a slice to move it, its corners to size it.	ÚTTAK: dragðu sneið til að færa, horn til að breyta stærð
+Choose a Lower Third from the overlay bin to fire on TAKE	Velja nafnborða úr yfirlagningasafni til að ræsa með TAKE
+Choose a PIP overlay from the overlay bin to fire on TAKE	Velja PIP úr yfirlagningasafni til að ræsa með TAKE
+OUTPUT: drag a slice to move it, its corners to pin them.	ÚTTAK: dragðu sneið til að færa, horn til að festa þau
+F1-F10, F12 or the number pad fires this cue from anywhere	F1–F10, F12 eða talnaborð ræsir þetta cue hvaðan sem er
+Use transition when auto-advancing or goto-taking next cue	Nota umskipti við sjálfvirkt framhald eða stökk í næsta cue
+Nothing has arrived yet. Press something on the controller.	Ekkert komið. Hreyfðu stjórntæki á stýringunni.
+Audio fade-in: follow visual fade, none, or explicit seconds	Hljóð inn: fylgja mynddeyfingu, engin eða ákveðnar sekúndur
+Audio fade-out: follow visual fade, none, or explicit seconds	Hljóð út: fylgja mynddeyfingu, engin eða ákveðnar sekúndur
+Add a library shape to this mask; its points are yours to move	Bæta safnformi í maskann; færa má punkta þess
+No slices: this output shows its one picture. + SLICE to start.	Engar sneiðar: úttakið sýnir sína mynd. Byrja með + SLICE.
+Open and close this edge on an oscillator -- a wipe that breathes	Opna og loka jaðrinum með sveifli: umskipti sem anda
+(none)	(ekkert)
+(nothing yet)	(ekkert enn)
++ ADD AN OUTPUT	+ BÆTA VIÐ ÚTTAKI
+>LIVE	>Í BEINNI
+(no media source)	(enginn miðlagjafi)
+snap	strax
+this deck	þessi spilari
+protocol	samskiptaregla
+does	aðgerð
+signal	merki
+sine	sínus
+freq	tíðni
+visuals	mynd
+black	svart
+green	grænt
+blue	blátt
+Pause at start	Bið í byrjun
+Pause at end	Bið í lok
+Transition to next	Næstu skipti
+Hardware display	Skjár
+Raster mode	Rasturhamur
+Refresh rate	Uppfærslutíðni
+Bit depth	Bitadýpt
+SDR material at	SDR-stig
+HDR signal	HDR-merki
+Fullscreen	Heilskjár
+Matte aspect	Matte-hlutfall
+Bar opacity	Þekja stika
+Output mask	Úttaksmaski
+Overlay still	Kyrrmynd yfir
+Overlay opacity	Þekja yfirlags
+Overlay image	Yfirlagsmynd
+Place it	Staðsetja
+Corner pin	Hornfesting
+Slices	Sneiðar
+choose...	velja...
+not configured	óstillt
+(default system device)	(sjálfgefið kerfistæki)
+(no monitor)	(enginn monitor)
+System audio (SDL)	Kerfishljóð (SDL)
+Not watching a folder	Engin mappa vöktuð
+anyone	hver sem er
+When taken off air	Þegar tekið úr útsendingu
+browser cue added	vafra-cue bætt við
+source cue added	gjafa-cue bætt við
+text added	texta bætt við
+tone cue added	tón-cue bætt við
+gain	mögnun
+follow	fylgja
+moves	hreyfing
+overtime	umfram tíma
+chime	hljómur
+bell	bjalla
+load a sprite sheet from a file...	hlaða spriteblaði úr skrá...
+Run the clock	Ræsa klukkuna
+What fires this cue besides GO	Hvað ræsir cue fyrir utan GO
+center	Miðja
+visual	mynd

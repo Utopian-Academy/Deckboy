@@ -1864,3 +1864,133 @@ transparent outside the ink: put it on a layer	διάφανο έξω από το
 what is said, on screen, made on this computer	όσα λέγονται, στην οθόνη, φτιαγμένα σε αυτόν τον υπολογιστή
 What this cue does when it ends - click to change	Τι κάνει αυτό το cue στο τέλος: κλικ για αλλαγή
 Whether the next shape or pen path adds or cuts	Αν το επόμενο σχήμα ή διαδρομή προσθέτει ή κόβει
+shape	σχήμα
+palette	παλέτα
+scale	κλίμακα
+feedback	ανάδραση
+RED	ΚΟΚΚΙΝΟ
+do it	εκτέλεση
+(empty)	(κενό)
+(unset)	(δεν ορίστηκε)
+English	Αγγλικά
+amber at	κίτρινο στα
++ section	+ ενότητα
++pause pt	+ παύση
+a-fade in	ήχος εισόδου
+amber col	κίτρινο χρ.
+(no notes)	(χωρίς σημειώσεις)
+a-fade out	ήχος εξόδου
+gain (each)	κέρδος (ανά)
+% of the height	% του ύψους
++  a first step	+  πρώτο βήμα
++ ADD AN EFFECT	+ ΠΡΟΣΘΗΚΗ ΕΦΕ
+(none playing now)	(καμία αναπαραγωγή τώρα)
+Keep a transcript (.srt)	Αποθήκευση απομαγνητοφώνησης (.srt)
+Key tolerance (RGB distance)	Ανοχή key (απόσταση RGB)
+Contrast multiplier (0.0-2.0x)	Πολλαπλασιαστής αντίθεσης (0.0–2.0x)
+Brightness multiplier (0.0-2.0x)	Πολλαπλασιαστής φωτεινότητας (0.0–2.0x)
+Saturation multiplier (0.0-2.0x)	Πολλαπλασιαστής κορεσμού (0.0–2.0x)
+Output rotation angle (-180..180)	Γωνία εξόδου (-180..180)
+Hue rotation (-180 to +180 degrees)	Περιστροφή απόχρωσης (-180 έως +180 μοίρες)
+Lower Third background opacity (0-255)	Αδιαφάνεια φόντου κάτω τίτλου (0–255)
+0-127; 127 addresses every device on the line	0–127· το 127 απευθύνεται σε όλες τις συσκευές της γραμμής
+GO shows the note; picture and sound carry on	Το GO δείχνει τη σημείωση· εικόνα και ήχος συνεχίζονται
+How fast it moves; no effect when it is still	Ταχύτητα κίνησης· χωρίς επίδραση όταν είναι ακίνητο
+Fires when incoming timecode passes this point	Ενεργοποιείται όταν ο εισερχόμενος χρονοκώδικας περάσει αυτό το σημείο
+Source pixels, independent of output placement	Pixel πηγής, ανεξάρτητα από τη θέση στην έξοδο
+Stereo balance, applied live (snaps to center)	Στερεοφωνική ισορροπία ζωντανά (κουμπώνει στο κέντρο)
+bypassed: nothing here is processed or limited	παράκαμψη: καμία επεξεργασία ή περιορισμός
+Per-cue audio trim: -40 to +40 dB, applied live	Κέρδος cue: -40 έως +40 dB, ζωντανά
+Show the message in red - the wrap up NOW state	Κόκκινο μήνυμα: ολοκλήρωση ΤΩΡΑ
+The brush's width, as % of the picture's height	Πλάτος πινέλου ως % του ύψους της εικόνας
+What the stream carries: SDR, PQ (HDR10) or HLG	Περιεχόμενο ροής: SDR, PQ (HDR10) ή HLG
+Digit colour once red is reached, and in overtime	Χρώμα ψηφίων από το κόκκινο όριο και στην υπέρβαση
+Downmix this cue to mono (mono sources / mono PA)	Μίξη cue σε μονοφωνικό (μονοφωνική πηγή / PA)
+Drag to scrub (shift = fine), click to type exact	Σύρετε για αναζήτηση (Shift: λεπτή), κλικ για ακριβή τιμή
+Hand this to an oscillator so it moves on its own	Ανάθεση σε ταλαντωτή για αυτόνομη κίνηση
+Changing width also scales height (and vice versa)	Η αλλαγή πλάτους αλλάζει και το ύψος, και αντίστροφα
+How long the levels take to arrive; zero is a snap	Χρόνος ως τις τελικές στάθμες· μηδέν για άμεση αλλαγή
+Set the self-contained PIP source for this overlay	Ορίστε την αυτόνομη πηγή PIP αυτής της επικάλυψης
+Take the newest shape or pen path out of this mask	Αφαιρέστε το νεότερο σχήμα ή διαδρομή πένας από τη μάσκα
+An address sent to Deckboy's OSC port fires this cue	Αυτή η διεύθυνση στη θύρα OSC του Deckboy ενεργοποιεί το cue
+Hold on the last composite frame when the scene ends	Κράτημα του τελευταίου σύνθετου καρέ στο τέλος της σκηνής
+How long it takes; zero is a snap rather than a fade	Διάρκεια· μηδέν για άμεση αλλαγή χωρίς σβήσιμο
+Set still/pattern/browser duration for selected cues	Διάρκεια εικόνας/μοτίβου/browser για τα επιλεγμένα cues
+Start the LTC carrier, stop it, or jam it to a value	Έναρξη, διακοπή ή συγχρονισμός του φέροντος LTC σε τιμή
+Which cue on that deck; step off the end to clear it	Cue αυτού του deck· πέρα από το τέλος για εκκαθάριση
+Bob up and down. Depth 1 is half the frame either way	Πάνω και κάτω. Βάθος 1: μισό καρέ προς κάθε κατεύθυνση
+Output width in pixels | click value to type exact px	Πλάτος εξόδου σε pixel· κλικ για ακριβή τιμή
+Set the stream URL (srt://, rtmp://, rtsp://, udp://)	Ορισμός URL ροής (srt://, rtmp://, rtsp://, udp://)
+Fires at this time on this computer's clock, every day	Ενεργοποιείται καθημερινά αυτή την ώρα του υπολογιστή
+Output height in pixels | click value to type exact px	Ύψος εξόδου σε pixel· κλικ για ακριβή τιμή
+Bar across the foot - readable further back than digits	Κάτω μπάρα: διαβάζεται από πιο μακριά από τα ψηφία
+OUTPUT: drag a slice to move it, its corners to size it.	ΕΞΟΔΟΣ: σύρετε το τμήμα για μετακίνηση, τις γωνίες για μέγεθος
+Choose a Lower Third from the overlay bin to fire on TAKE	Επιλέξτε κάτω τίτλο από τις επικαλύψεις για έναρξη με TAKE
+Choose a PIP overlay from the overlay bin to fire on TAKE	Επιλέξτε PIP από τις επικαλύψεις για έναρξη με TAKE
+OUTPUT: drag a slice to move it, its corners to pin them.	ΕΞΟΔΟΣ: σύρετε το τμήμα για μετακίνηση, τις γωνίες για στερέωση
+F1-F10, F12 or the number pad fires this cue from anywhere	F1–F10, F12 ή αριθμητικό πληκτρολόγιο ενεργοποιούν το cue από παντού
+Use transition when auto-advancing or goto-taking next cue	Μετάβαση στην αυτόματη προώθηση ή στο GOTO του επόμενου cue
+Nothing has arrived yet. Press something on the controller.	Δεν έχει ληφθεί τίποτα. Χειριστείτε ένα πλήκτρο ή ρυθμιστικό στο χειριστήριο.
+Audio fade-in: follow visual fade, none, or explicit seconds	Ομαλή είσοδος ήχου: ακολουθεί εικόνα, καμία ή ρητά δευτερόλεπτα
+Audio fade-out: follow visual fade, none, or explicit seconds	Ομαλή έξοδος ήχου: ακολουθεί εικόνα, καμία ή ρητά δευτερόλεπτα
+Add a library shape to this mask; its points are yours to move	Προσθήκη σχήματος βιβλιοθήκης στη μάσκα· τα σημεία μετακινούνται
+No slices: this output shows its one picture. + SLICE to start.	Χωρίς τμήματα: η έξοδος δείχνει την εικόνα της. + SLICE για αρχή.
+Open and close this edge on an oscillator -- a wipe that breathes	Άνοιγμα και κλείσιμο ακμής με ταλαντωτή: σάρωση που αναπνέει
+(none)	(κανένα)
+(nothing yet)	(τίποτα ακόμη)
++ ADD AN OUTPUT	+ ΠΡΟΣΘΗΚΗ ΕΞΟΔΟΥ
+>LIVE	>ΖΩΝΤΑΝΑ
+(no media source)	(χωρίς πηγή πολυμέσων)
+snap	άμεσα
+this deck	αυτό το deck
+protocol	πρωτόκολλο
+does	ενέργεια
+signal	σήμα
+sine	ημίτονο
+freq	συχνότητα
+visuals	οπτικά
+black	μαύρο
+green	πράσινο
+blue	μπλε
+Pause at start	Παύση αρχής
+Pause at end	Παύση τέλους
+Transition to next	Μετάβαση μετά
+Hardware display	Φυσική οθόνη
+Raster mode	Τύπος ράστερ
+Refresh rate	Ανανέωση
+Bit depth	Βάθος bit
+SDR material at	Στάθμη SDR
+HDR signal	Σήμα HDR
+Fullscreen	Πλήρης οθόνη
+Matte aspect	Αναλογία ματ
+Bar opacity	Αδιαφ. μπάρας
+Output mask	Μάσκα εξόδου
+Overlay still	Στατικό πάνω
+Overlay opacity	Αδιαφ. πάνω
+Overlay image	Εικόνα πάνω
+Place it	Τοποθέτηση
+Corner pin	Γωνίες
+Slices	Τμήματα
+choose...	επιλογή...
+not configured	δεν ρυθμίστηκε
+(default system device)	(προεπιλεγμένη συσκευή)
+(no monitor)	(χωρίς μόνιτορ)
+System audio (SDL)	Ήχος συστήματος (SDL)
+Not watching a folder	Δεν παρακολουθείται φάκελος
+anyone	οποιοσδήποτε
+When taken off air	Όταν βγει εκτός αέρα
+browser cue added	προστέθηκε cue browser
+source cue added	προστέθηκε cue πηγής
+text added	προστέθηκε κείμενο
+tone cue added	προστέθηκε cue τόνου
+gain	κέρδος
+follow	ακολούθηση
+moves	κίνηση
+overtime	υπέρβαση
+chime	ήχος
+bell	καμπάνα
+load a sprite sheet from a file...	φόρτωση φύλλου sprite από αρχείο...
+Run the clock	Εκκίνηση ρολογιού
+What fires this cue besides GO	Τι ενεργοποιεί το cue εκτός από GO
+center	Κέντρο
+visual	οπτικά

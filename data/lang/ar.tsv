@@ -1880,3 +1880,133 @@ transparent outside the ink: put it on a layer	شفاف خارج الحبر: ض�
 what is said, on screen, made on this computer	ما يُقال، على الشاشة، صُنع على هذا الحاسوب
 What this cue does when it ends - click to change	ما يفعله هذا الكيو عند النهاية: انقر للتغيير
 Whether the next shape or pen path adds or cuts	هل يضيف الشكل أو المسار التالي أم يقطع
+shape	الشكل
+palette	لوحة الألوان
+scale	المقياس
+feedback	التغذية الراجعة
+RED	أحمر
+do it	نفّذ
+(empty)	(فارغ)
+(unset)	(غير محدد)
+English	الإنجليزية
+amber at	الكهرماني عند
++ section	+ قسم
++pause pt	+ نقطة توقف
+a-fade in	تلاشي الدخول
+amber col	لون كهرماني
+(no notes)	(بلا ملاحظات)
+a-fade out	تلاشي الخروج
+gain (each)	الكسب (لكل)
+% of the height	% من الارتفاع
++  a first step	+  الخطوة الأولى
++ ADD AN EFFECT	+ إضافة تأثير
+(none playing now)	(لا شيء يعمل الآن)
+Keep a transcript (.srt)	حفظ نص مكتوب (.srt)
+Key tolerance (RGB distance)	تسامح key (مسافة RGB)
+Contrast multiplier (0.0-2.0x)	معامل التباين (0.0–2.0x)
+Brightness multiplier (0.0-2.0x)	معامل السطوع (0.0–2.0x)
+Saturation multiplier (0.0-2.0x)	معامل التشبع (0.0–2.0x)
+Output rotation angle (-180..180)	زاوية دوران الخرج (-180..180)
+Hue rotation (-180 to +180 degrees)	دوران درجة اللون (-180 إلى +180 درجة)
+Lower Third background opacity (0-255)	عتامة خلفية الشريط السفلي (0–255)
+0-127; 127 addresses every device on the line	0–127؛ يخاطب 127 كل الأجهزة على الخط
+GO shows the note; picture and sound carry on	يعرض GO الملاحظة؛ تستمر الصورة والصوت
+How fast it moves; no effect when it is still	سرعة الحركة؛ لا تأثير في حالة السكون
+Fires when incoming timecode passes this point	يُشغّل عندما يتجاوز التايم كود الوارد هذه النقطة
+Source pixels, independent of output placement	بكسلات المصدر، مستقلة عن موضع الخرج
+Stereo balance, applied live (snaps to center)	توازن ستيريو مباشر (يثبت في المنتصف)
+bypassed: nothing here is processed or limited	متجاوز: بلا معالجة أو تحديد للمستوى
+Per-cue audio trim: -40 to +40 dB, applied live	كسب cue من -40 إلى +40 dB، يُطبق مباشرة
+Show the message in red - the wrap up NOW state	عرض الرسالة بالأحمر: يجب الانتهاء الآن
+The brush's width, as % of the picture's height	عرض الفرشاة كنسبة مئوية من ارتفاع الصورة
+What the stream carries: SDR, PQ (HDR10) or HLG	محتوى البث: SDR أو PQ (HDR10) أو HLG
+Digit colour once red is reached, and in overtime	لون الأرقام عند بلوغ الأحمر وبعد تجاوز الوقت
+Downmix this cue to mono (mono sources / mono PA)	مزج cue إلى مونو (مصدر أو نظام PA أحادي)
+Drag to scrub (shift = fine), click to type exact	اسحب للتنقل (Shift: دقيق)، وانقر لإدخال القيمة بدقة
+Hand this to an oscillator so it moves on its own	أسنده إلى مذبذب ليتحرك تلقائياً
+Changing width also scales height (and vice versa)	تغيير العرض يغيّر الارتفاع أيضاً والعكس
+How long the levels take to arrive; zero is a snap	زمن بلوغ المستويات؛ صفر يغيّرها فوراً
+Set the self-contained PIP source for this overlay	تعيين مصدر PIP المستقل لهذه الطبقة
+Take the newest shape or pen path out of this mask	إزالة أحدث شكل أو مسار قلم من القناع
+An address sent to Deckboy's OSC port fires this cue	هذا العنوان على منفذ OSC في Deckboy يشغّل cue
+Hold on the last composite frame when the scene ends	تثبيت آخر إطار مركّب عند انتهاء المشهد
+How long it takes; zero is a snap rather than a fade	المدة؛ صفر يغيّر فوراً بلا تلاشي
+Set still/pattern/browser duration for selected cues	تعيين مدة الصورة/النمط/المتصفح لعناصر cue المحددة
+Start the LTC carrier, stop it, or jam it to a value	بدء حامل LTC أو إيقافه أو مزامنته مع قيمة
+Which cue on that deck; step off the end to clear it	عنصر cue على ذلك الدك؛ تجاوز النهاية للمسح
+Bob up and down. Depth 1 is half the frame either way	حركة صعوداً وهبوطاً. عمق 1 يساوي نصف الإطار في كل اتجاه
+Output width in pixels | click value to type exact px	عرض الخرج بالبكسل؛ انقر لإدخال قيمة دقيقة
+Set the stream URL (srt://, rtmp://, rtsp://, udp://)	تعيين عنوان البث (srt://, rtmp://, rtsp://, udp://)
+Fires at this time on this computer's clock, every day	يُشغّل يومياً في هذا الوقت وفق ساعة الكمبيوتر
+Output height in pixels | click value to type exact px	ارتفاع الخرج بالبكسل؛ انقر لإدخال قيمة دقيقة
+Bar across the foot - readable further back than digits	شريط أسفل الشاشة: يُقرأ من أبعد من الأرقام
+OUTPUT: drag a slice to move it, its corners to size it.	الخرج: اسحب المقطع لنقله، وزواياه لتغيير حجمه
+Choose a Lower Third from the overlay bin to fire on TAKE	اختر شريطاً سفلياً من مخزن الطبقات لتشغيله عند TAKE
+Choose a PIP overlay from the overlay bin to fire on TAKE	اختر PIP من مخزن الطبقات لتشغيله عند TAKE
+OUTPUT: drag a slice to move it, its corners to pin them.	الخرج: اسحب المقطع لنقله، وزواياه لتثبيتها
+F1-F10, F12 or the number pad fires this cue from anywhere	تشغّل F1–F10 أو F12 أو لوحة الأرقام هذا cue من أي مكان
+Use transition when auto-advancing or goto-taking next cue	استخدم انتقالاً عند التقدم التلقائي أو القفز إلى cue التالي
+Nothing has arrived yet. Press something on the controller.	لم يصل شيء بعد. حرّك عنصراً أو اضغط زرّاً في وحدة التحكم.
+Audio fade-in: follow visual fade, none, or explicit seconds	تلاشي دخول الصوت: يتبع الصورة، بلا تلاشي، أو ثوانٍ محددة
+Audio fade-out: follow visual fade, none, or explicit seconds	تلاشي خروج الصوت: يتبع الصورة، بلا تلاشي، أو ثوانٍ محددة
+Add a library shape to this mask; its points are yours to move	أضف شكلاً من المكتبة إلى القناع؛ يمكنك تحريك نقاطه
+No slices: this output shows its one picture. + SLICE to start.	بلا مقاطع: يعرض الخرج صورته. ابدأ باستخدام + SLICE.
+Open and close this edge on an oscillator -- a wipe that breathes	افتح هذه الحافة وأغلقها بمذبذب: مسح ينبض
+(none)	(لا شيء)
+(nothing yet)	(لا شيء بعد)
++ ADD AN OUTPUT	+ إضافة خرج
+>LIVE	>مباشر
+(no media source)	(بلا مصدر وسائط)
+snap	فوري
+this deck	هذا الدك
+protocol	البروتوكول
+does	الإجراء
+signal	الإشارة
+sine	جيب
+freq	التردد
+visuals	مرئيات
+black	أسود
+green	أخضر
+blue	أزرق
+Pause at start	توقف أولاً
+Pause at end	توقف أخيراً
+Transition to next	انتقال للتالي
+Hardware display	شاشة الجهاز
+Raster mode	وضع الصورة
+Refresh rate	معدل التحديث
+Bit depth	عمق البت
+SDR material at	مستوى SDR
+HDR signal	إشارة HDR
+Fullscreen	ملء الشاشة
+Matte aspect	نسبة القناع
+Bar opacity	عتامة الشريط
+Output mask	قناع الخرج
+Overlay still	طبقة ثابتة
+Overlay opacity	عتامة الطبقة
+Overlay image	صورة الطبقة
+Place it	ضعه
+Corner pin	تثبيت الزوايا
+Slices	المقاطع
+choose...	اختر...
+not configured	غير مهيأ
+(default system device)	(جهاز النظام الافتراضي)
+(no monitor)	(بلا مراقبة)
+System audio (SDL)	صوت النظام (SDL)
+Not watching a folder	لا يُراقَب مجلد
+anyone	أي شخص
+When taken off air	عند الخروج من البث
+browser cue added	أُضيف cue للمتصفح
+source cue added	أُضيف cue للمصدر
+text added	أُضيف النص
+tone cue added	أُضيف cue للنغمة
+gain	الكسب
+follow	اتبع
+moves	الحركة
+overtime	وقت إضافي
+chime	رنين
+bell	جرس
+load a sprite sheet from a file...	تحميل ورقة sprites من ملف...
+Run the clock	تشغيل الساعة
+What fires this cue besides GO	ما يشغّل cue بجانب GO
+center	الوسط
+visual	مرئيات

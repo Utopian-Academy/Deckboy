@@ -1831,3 +1831,130 @@ transparent outside the ink: put it on a layer	transparant buiten de inkt: zet h
 what is said, on screen, made on this computer	wat er gezegd wordt, op het scherm, gemaakt op deze computer
 What this cue does when it ends - click to change	Wat deze cue aan het einde doet: klik om te wijzigen
 Whether the next shape or pen path adds or cuts	Of de volgende vorm of het volgende pad toevoegt of snijdt
+shape	vorm
+palette	palet
+scale	schaal
+feedback	terugkoppeling
+RED	ROOD
+do it	uitvoeren
+(empty)	(leeg)
+(unset)	(niet ingesteld)
+English	Engels
+amber at	geel bij
++ section	+ sectie
++pause pt	+ pauzepunt
+a-fade in	audio in
+amber col	geeltint
+(no notes)	(geen notities)
+a-fade out	audio uit
+gain (each)	gain (elk)
+% of the height	% van de hoogte
++  a first step	+  eerste stap
++ ADD AN EFFECT	+ EFFECT TOEVOEGEN
+(none playing now)	(niets wordt afgespeeld)
+Keep a transcript (.srt)	Transcript bewaren (.srt)
+Key tolerance (RGB distance)	Keytolerantie (RGB-afstand)
+Contrast multiplier (0.0-2.0x)	Contrastfactor (0.0–2.0x)
+Brightness multiplier (0.0-2.0x)	Helderheidsfactor (0.0–2.0x)
+Saturation multiplier (0.0-2.0x)	Verzadigingsfactor (0.0–2.0x)
+Output rotation angle (-180..180)	Draaihoek uitgang (-180..180)
+Hue rotation (-180 to +180 degrees)	Tintrotatie (-180 tot +180 graden)
+Lower Third background opacity (0-255)	Achtergronddekking naambalk (0–255)
+0-127; 127 addresses every device on the line	0–127; 127 adresseert alle apparaten op de lijn
+GO shows the note; picture and sound carry on	GO toont de notitie; beeld en geluid gaan door
+How fast it moves; no effect when it is still	Bewegingssnelheid; geen effect bij stilstand
+Fires when incoming timecode passes this point	Start wanneer binnenkomende tijdcode dit punt passeert
+Source pixels, independent of output placement	Bronpixels, onafhankelijk van plaatsing op de uitgang
+Stereo balance, applied live (snaps to center)	Stereobalans, werkt live (klikt vast in het midden)
+bypassed: nothing here is processed or limited	omzeild: geen verwerking of begrenzing
+Per-cue audio trim: -40 to +40 dB, applied live	Cue-gain: -40 tot +40 dB, werkt live
+Show the message in red - the wrap up NOW state	Bericht rood tonen: NU afronden
+The brush's width, as % of the picture's height	Penseelbreedte als % van de beeldhoogte
+What the stream carries: SDR, PQ (HDR10) or HLG	Streaminhoud: SDR, PQ (HDR10) of HLG
+Digit colour once red is reached, and in overtime	Cijferkleur vanaf rood en bij tijdoverschrijding
+Downmix this cue to mono (mono sources / mono PA)	Cue naar mono mengen (monobron / mono-PA)
+Drag to scrub (shift = fine), click to type exact	Sleep om te zoeken (Shift: fijn), klik voor exacte invoer
+Hand this to an oscillator so it moves on its own	Aan oscillator toewijzen voor zelfstandige beweging
+Changing width also scales height (and vice versa)	Breedte wijzigen schaalt ook de hoogte, en omgekeerd
+How long the levels take to arrive; zero is a snap	Tijd tot de doelniveaus; nul schakelt direct
+Set the self-contained PIP source for this overlay	Zelfstandige PIP-bron voor deze overlay instellen
+Take the newest shape or pen path out of this mask	Nieuwste vorm of penpad uit het masker verwijderen
+An address sent to Deckboy's OSC port fires this cue	Dit adres op Deckboys OSC-poort start de cue
+Hold on the last composite frame when the scene ends	Laatste samengestelde beeld vasthouden aan het scène-einde
+How long it takes; zero is a snap rather than a fade	Duur; nul schakelt direct zonder fade
+Set still/pattern/browser duration for selected cues	Duur beeld/patroon/browser van gekozen cues instellen
+Start the LTC carrier, stop it, or jam it to a value	LTC-draaggolf starten, stoppen of op een waarde synchroniseren
+Which cue on that deck; step off the end to clear it	Cue op dat deck; voorbij het einde om te wissen
+Bob up and down. Depth 1 is half the frame either way	Op en neer. Diepte 1: halve beeldhoogte in elke richting
+Output width in pixels | click value to type exact px	Uitgangsbreedte in pixels; klik voor exacte invoer
+Set the stream URL (srt://, rtmp://, rtsp://, udp://)	Stream-URL instellen (srt://, rtmp://, rtsp://, udp://)
+Fires at this time on this computer's clock, every day	Start dagelijks op deze tijd van de computerklok
+Output height in pixels | click value to type exact px	Uitgangshoogte in pixels; klik voor exacte invoer
+Bar across the foot - readable further back than digits	Balk onderaan: van verder weg leesbaar dan cijfers
+OUTPUT: drag a slice to move it, its corners to size it.	UITGANG: sleep een uitsnede om te bewegen, hoeken om te schalen
+Choose a Lower Third from the overlay bin to fire on TAKE	Naambalk uit de overlaybak kiezen om met TAKE te starten
+Choose a PIP overlay from the overlay bin to fire on TAKE	PIP uit de overlaybak kiezen om met TAKE te starten
+OUTPUT: drag a slice to move it, its corners to pin them.	UITGANG: sleep een uitsnede om te bewegen, hoeken om ze vast te zetten
+F1-F10, F12 or the number pad fires this cue from anywhere	F1–F10, F12 of het numerieke toetsenblok starten deze cue overal
+Use transition when auto-advancing or goto-taking next cue	Overgang gebruiken bij automatisch doorgaan of GOTO naar de volgende cue
+Nothing has arrived yet. Press something on the controller.	Nog niets ontvangen. Bedien iets op de controller.
+Audio fade-in: follow visual fade, none, or explicit seconds	Audio-infaden: beeldfade volgen, geen of ingestelde seconden
+Audio fade-out: follow visual fade, none, or explicit seconds	Audio-uitfaden: beeldfade volgen, geen of ingestelde seconden
+Add a library shape to this mask; its points are yours to move	Bibliotheekvorm aan masker toevoegen; punten zijn verplaatsbaar
+No slices: this output shows its one picture. + SLICE to start.	Geen uitsneden: de uitgang toont zijn beeld. Begin met + SLICE.
+Open and close this edge on an oscillator -- a wipe that breathes	Deze rand met een oscillator openen en sluiten: een ademende wipe
+(none)	(geen)
+(nothing yet)	(nog niets)
++ ADD AN OUTPUT	+ UITGANG TOEVOEGEN
+(no media source)	(geen mediabron)
+snap	direct
+this deck	dit deck
+does	actie
+signal	signaal
+sine	sinus
+freq	frequentie
+visuals	beeld
+black	zwart
+green	groen
+blue	blauw
+Pause at start	Startpauze
+Pause at end	Eindpauze
+Transition to next	Overgang volg.
+Hardware display	Beeldscherm
+Raster mode	Rastermodus
+Refresh rate	Verversing
+Bit depth	Bitdiepte
+SDR material at	SDR-niveau
+HDR signal	HDR-signaal
+Fullscreen	Volledig scherm
+Matte aspect	Matteformaat
+Bar opacity	Balkdekking
+Output mask	Uitgangsmasker
+Overlay still	Stil overlay
+Overlay opacity	Overlaydekking
+Overlay image	Overlaybeeld
+Place it	Plaatsen
+Corner pin	Hoekpunten
+Slices	Uitsneden
+choose...	kiezen...
+not configured	niet ingesteld
+(default system device)	(standaard systeemapparaat)
+(no monitor)	(geen monitor)
+System audio (SDL)	Systeemaudio (SDL)
+Not watching a folder	Geen map bewaakt
+anyone	iedereen
+When taken off air	Bij verlaten van uitzending
+browser cue added	browsercue toegevoegd
+source cue added	broncue toegevoegd
+text added	tekst toegevoegd
+tone cue added	tooncue toegevoegd
+follow	volgen
+moves	beweging
+overtime	over tijd
+chime	klank
+bell	bel
+load a sprite sheet from a file...	spriteblad uit bestand laden...
+Run the clock	Klok starten
+What fires this cue besides GO	Wat deze cue naast GO start
+center	Midden
+visual	beeld

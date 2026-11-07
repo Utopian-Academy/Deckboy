@@ -1872,3 +1872,132 @@ transparent outside the ink: put it on a layer	墨跡外透明：放到圖層上
 what is said, on screen, made on this computer	所說內容顯示在螢幕上，在此電腦產生
 What this cue does when it ends - click to change	此 cue 結束時做什麼：點選變更
 Whether the next shape or pen path adds or cuts	下一個形狀或路徑是新增還是切除
+shape	形狀
+palette	調色盤
+scale	縮放
+feedback	回授
+RED	紅色
+do it	執行
+(empty)	(空)
+(unset)	(未設定)
+English	英語
+amber at	變黃時點
++ section	+ 段落
++pause pt	+ 暫停點
+a-fade in	音訊淡入
+amber col	黃色
+(no notes)	(無筆記)
+a-fade out	音訊淡出
+gain (each)	增益（每個）
+% of the height	高度的百分比
++  a first step	+  首個步驟
++ ADD AN EFFECT	+ 新增效果
+(none playing now)	(目前無播放)
+Keep a transcript (.srt)	儲存轉錄 (.srt)
+Key tolerance (RGB distance)	去背容差（RGB距離）
+Contrast multiplier (0.0-2.0x)	對比倍率（0.0–2.0x）
+Brightness multiplier (0.0-2.0x)	亮度倍率（0.0–2.0x）
+Saturation multiplier (0.0-2.0x)	飽和度倍率（0.0–2.0x）
+Output rotation angle (-180..180)	輸出旋轉角（-180..180）
+Hue rotation (-180 to +180 degrees)	色相旋轉（-180至+180度）
+Lower Third background opacity (0-255)	下三分之一字幕背景不透明度（0–255）
+0-127; 127 addresses every device on the line	0–127；127定址線路上的所有裝置
+GO shows the note; picture and sound carry on	GO顯示筆記；畫面與聲音繼續
+How fast it moves; no effect when it is still	移動速度；靜止時無效
+Fires when incoming timecode passes this point	輸入時間碼經過此點時觸發
+Source pixels, independent of output placement	來源像素，與輸出位置無關
+Stereo balance, applied live (snaps to center)	即時立體聲平衡（吸附至中心）
+bypassed: nothing here is processed or limited	已旁通：不處理也不限幅
+Per-cue audio trim: -40 to +40 dB, applied live	Cue音量微調：-40至+40 dB，即時套用
+Show the message in red - the wrap up NOW state	以紅色顯示訊息：現在必須結束
+The brush's width, as % of the picture's height	畫筆寬度占影像高度的百分比
+What the stream carries: SDR, PQ (HDR10) or HLG	串流內容：SDR、PQ (HDR10) 或 HLG
+Digit colour once red is reached, and in overtime	達紅色門檻及超時後的數字顏色
+Downmix this cue to mono (mono sources / mono PA)	將此cue混為單聲道（單聲道來源／單聲道PA）
+Drag to scrub (shift = fine), click to type exact	拖曳定位（Shift微調），點擊輸入精確值
+Hand this to an oscillator so it moves on its own	交給振盪器自動驅動
+Changing width also scales height (and vice versa)	改變寬度也縮放高度，反之亦然
+How long the levels take to arrive; zero is a snap	達到目標位準的時間；0表示立即改變
+Set the self-contained PIP source for this overlay	設定此疊加的獨立PIP來源
+Take the newest shape or pen path out of this mask	從遮罩移除最新圖形或鋼筆路徑
+An address sent to Deckboy's OSC port fires this cue	Deckboy的OSC連接埠收到此位址時觸發cue
+Hold on the last composite frame when the scene ends	場景結束時保留最後的合成影格
+How long it takes; zero is a snap rather than a fade	持續時間；0表示立即切換而非淡變
+Set still/pattern/browser duration for selected cues	設定所選cue的靜態圖／圖案／瀏覽器時長
+Start the LTC carrier, stop it, or jam it to a value	啟動、停止LTC載波，或將其同步至指定值
+Which cue on that deck; step off the end to clear it	該卡座的cue；越過末尾可清除選取
+Bob up and down. Depth 1 is half the frame either way	上下擺動。深度1表示每個方向半個影格高度
+Output width in pixels | click value to type exact px	輸出寬度（像素）；點擊輸入精確值
+Set the stream URL (srt://, rtmp://, rtsp://, udp://)	設定串流URL（srt://, rtmp://, rtsp://, udp://）
+Fires at this time on this computer's clock, every day	每天按本機時鐘在此時間觸發
+Output height in pixels | click value to type exact px	輸出高度（像素）；點擊輸入精確值
+Bar across the foot - readable further back than digits	底部橫條：比數字更適合遠處查看
+OUTPUT: drag a slice to move it, its corners to size it.	輸出：拖曳切片移動，拖曳角點調整大小
+Choose a Lower Third from the overlay bin to fire on TAKE	從疊加庫選取在TAKE時觸發的下三分之一字幕
+Choose a PIP overlay from the overlay bin to fire on TAKE	從疊加庫選取在TAKE時觸發的PIP
+OUTPUT: drag a slice to move it, its corners to pin them.	輸出：拖曳切片移動，拖曳角點固定位置
+F1-F10, F12 or the number pad fires this cue from anywhere	F1–F10、F12或數字鍵盤可在任何位置觸發此cue
+Use transition when auto-advancing or goto-taking next cue	自動前進或GOTO跳至下一個cue時使用轉場
+Nothing has arrived yet. Press something on the controller.	尚未收到輸入。請操作控制器。
+Audio fade-in: follow visual fade, none, or explicit seconds	音訊淡入：跟隨畫面、無或指定秒數
+Audio fade-out: follow visual fade, none, or explicit seconds	音訊淡出：跟隨畫面、無或指定秒數
+Add a library shape to this mask; its points are yours to move	向遮罩新增庫中圖形；各點皆可移動
+No slices: this output shows its one picture. + SLICE to start.	無切片：此輸出顯示自身畫面。以+ SLICE開始。
+Open and close this edge on an oscillator -- a wipe that breathes	用振盪器開合此邊緣，形成呼吸般的擦除效果
+(none)	(無)
+(nothing yet)	(暫無)
++ ADD AN OUTPUT	+ 新增輸出
+>LIVE	>直播
+(no media source)	(無媒體來源)
+snap	即時
+this deck	本卡座
+protocol	協定
+does	動作
+signal	訊號
+sine	正弦
+freq	頻率
+visuals	畫面
+black	黑
+green	綠
+blue	藍
+Pause at start	開始時暫停
+Pause at end	結束時暫停
+Transition to next	轉場至下一個
+Hardware display	顯示裝置
+Raster mode	光柵模式
+Refresh rate	更新率
+Bit depth	位元深度
+SDR material at	SDR級別
+HDR signal	HDR訊號
+Fullscreen	全螢幕
+Matte aspect	遮幅比例
+Bar opacity	黑邊不透明度
+Output mask	輸出遮罩
+Overlay still	靜態疊加
+Overlay opacity	疊加不透明度
+Overlay image	疊加影像
+Place it	放置
+Corner pin	角點定位
+choose...	選擇...
+not configured	未設定
+(default system device)	(系統預設裝置)
+(no monitor)	(無監聽)
+System audio (SDL)	系統音訊 (SDL)
+Not watching a folder	未監看資料夾
+anyone	任何人
+When taken off air	退出播出時
+browser cue added	已新增瀏覽器cue
+source cue added	已新增來源cue
+text added	已新增文字
+tone cue added	已新增測試音cue
+gain	增益
+follow	跟隨
+moves	運動
+overtime	超時
+chime	提示音
+bell	鐘聲
+load a sprite sheet from a file...	從檔案載入精靈圖集...
+Run the clock	啟動時鐘
+What fires this cue besides GO	除GO外觸發此cue的條件
+center	中心
+visual	畫面

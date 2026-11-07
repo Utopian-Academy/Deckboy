@@ -1854,3 +1854,133 @@ transparent outside the ink: put it on a layer	transparente fuera de la tinta: p
 what is said, on screen, made on this computer	lo que se dice, en pantalla, creado en este ordenador
 What this cue does when it ends - click to change	Qué hace este cue al terminar: clic para cambiar
 Whether the next shape or pen path adds or cuts	Si la próxima forma o trazo suma o corta
+shape	forma
+palette	paleta
+scale	escala
+feedback	realimentación
+RED	ROJO
+do it	ejecutar
+(empty)	(vacío)
+(unset)	(sin definir)
+English	Inglés
+amber at	ámbar en
++ section	+ sección
++pause pt	+ pausa
+a-fade in	entrada audio
+amber col	color ámbar
+(no notes)	(sin notas)
+a-fade out	salida audio
+gain (each)	ganancia c/u
+% of the height	% de la altura
++  a first step	+  primer paso
++ ADD AN EFFECT	+ AÑADIR EFECTO
+(none playing now)	(nada en reproducción)
+Keep a transcript (.srt)	Guardar transcripción (.srt)
+Key tolerance (RGB distance)	Tolerancia del key (distancia RGB)
+Contrast multiplier (0.0-2.0x)	Multiplicador de contraste (0.0–2.0x)
+Brightness multiplier (0.0-2.0x)	Multiplicador de brillo (0.0–2.0x)
+Saturation multiplier (0.0-2.0x)	Multiplicador de saturación (0.0–2.0x)
+Output rotation angle (-180..180)	Ángulo de salida (-180..180)
+Hue rotation (-180 to +180 degrees)	Rotación del tono (-180 a +180 grados)
+Lower Third background opacity (0-255)	Opacidad del fondo del rótulo inferior (0–255)
+0-127; 127 addresses every device on the line	0–127; 127 dirige a todos los dispositivos de la línea
+GO shows the note; picture and sound carry on	GO muestra la nota; imagen y sonido continúan
+How fast it moves; no effect when it is still	Velocidad del movimiento; sin efecto si está quieto
+Fires when incoming timecode passes this point	Se activa al pasar el timecode entrante por este punto
+Source pixels, independent of output placement	Píxeles de origen, independientes de la posición de salida
+Stereo balance, applied live (snaps to center)	Balance estéreo en vivo (encaja en el centro)
+bypassed: nothing here is processed or limited	omitido: no se procesa ni limita nada
+Per-cue audio trim: -40 to +40 dB, applied live	Ganancia del cue: -40 a +40 dB, en vivo
+Show the message in red - the wrap up NOW state	Mensaje rojo: hay que terminar AHORA
+The brush's width, as % of the picture's height	Ancho del pincel como % de la altura de la imagen
+What the stream carries: SDR, PQ (HDR10) or HLG	Contenido del flujo: SDR, PQ (HDR10) o HLG
+Digit colour once red is reached, and in overtime	Color de cifras al llegar al rojo y al exceder el tiempo
+Downmix this cue to mono (mono sources / mono PA)	Mezclar el cue a mono (fuente / PA mono)
+Drag to scrub (shift = fine), click to type exact	Arrastrar para recorrer (Shift: fino), clic para escribir el valor exacto
+Hand this to an oscillator so it moves on its own	Asignar a un oscilador para que se mueva solo
+Changing width also scales height (and vice versa)	Cambiar el ancho también escala la altura y viceversa
+How long the levels take to arrive; zero is a snap	Tiempo para alcanzar los niveles; cero es inmediato
+Set the self-contained PIP source for this overlay	Definir la fuente PIP independiente de esta superposición
+Take the newest shape or pen path out of this mask	Quitar la última forma o trazado del lápiz de la máscara
+An address sent to Deckboy's OSC port fires this cue	Esta dirección en el puerto OSC de Deckboy activa el cue
+Hold on the last composite frame when the scene ends	Mantener el último fotograma compuesto al acabar la escena
+How long it takes; zero is a snap rather than a fade	Duración; cero cambia de golpe, sin fundido
+Set still/pattern/browser duration for selected cues	Duración de imagen/patrón/navegador para los cues elegidos
+Start the LTC carrier, stop it, or jam it to a value	Iniciar, detener o sincronizar la portadora LTC con un valor
+Which cue on that deck; step off the end to clear it	Cue de ese deck; pasar del final para borrar
+Bob up and down. Depth 1 is half the frame either way	Oscilar arriba y abajo. Profundidad 1: medio cuadro en cada sentido
+Output width in pixels | click value to type exact px	Ancho de salida en píxeles; clic para introducir el valor exacto
+Set the stream URL (srt://, rtmp://, rtsp://, udp://)	Definir URL del flujo (srt://, rtmp://, rtsp://, udp://)
+Fires at this time on this computer's clock, every day	Se activa cada día a esta hora del reloj del ordenador
+Output height in pixels | click value to type exact px	Altura de salida en píxeles; clic para introducir el valor exacto
+Bar across the foot - readable further back than digits	Barra inferior: legible desde más lejos que las cifras
+OUTPUT: drag a slice to move it, its corners to size it.	SALIDA: arrastrar un recorte para moverlo, sus esquinas para dimensionarlo
+Choose a Lower Third from the overlay bin to fire on TAKE	Elegir un rótulo inferior del banco para lanzar con TAKE
+Choose a PIP overlay from the overlay bin to fire on TAKE	Elegir un PIP del banco para lanzar con TAKE
+OUTPUT: drag a slice to move it, its corners to pin them.	SALIDA: arrastrar un recorte para moverlo, sus esquinas para fijarlas
+F1-F10, F12 or the number pad fires this cue from anywhere	F1–F10, F12 o el teclado numérico activan este cue desde cualquier lugar
+Use transition when auto-advancing or goto-taking next cue	Usar transición al avanzar automáticamente o saltar al siguiente cue
+Nothing has arrived yet. Press something on the controller.	Aún no llega nada. Acciona algún control del controlador.
+Audio fade-in: follow visual fade, none, or explicit seconds	Fundido de entrada de audio: seguir imagen, ninguno o segundos indicados
+Audio fade-out: follow visual fade, none, or explicit seconds	Fundido de salida de audio: seguir imagen, ninguno o segundos indicados
+Add a library shape to this mask; its points are yours to move	Añadir una forma de la biblioteca a la máscara; puedes mover sus puntos
+No slices: this output shows its one picture. + SLICE to start.	Sin recortes: la salida muestra su imagen. + SLICE para empezar.
+Open and close this edge on an oscillator -- a wipe that breathes	Abrir y cerrar este borde con un oscilador: un barrido que respira
+(none)	(ninguno)
+(nothing yet)	(aún nada)
++ ADD AN OUTPUT	+ AÑADIR SALIDA
+>LIVE	>EN VIVO
+(no media source)	(sin fuente multimedia)
+snap	inmediato
+this deck	este deck
+protocol	protocolo
+does	acción
+signal	señal
+sine	seno
+freq	frecuencia
+visuals	imagen
+black	negro
+green	verde
+blue	azul
+Pause at start	Pausa inicio
+Pause at end	Pausa final
+Transition to next	Trans. sig.
+Hardware display	Pantalla
+Raster mode	Modo ráster
+Refresh rate	Refresco
+Bit depth	Bits
+SDR material at	Nivel SDR
+HDR signal	Señal HDR
+Fullscreen	Pant. completa
+Matte aspect	Aspecto mate
+Bar opacity	Opac. barras
+Output mask	Máscara sal.
+Overlay still	Imagen fija
+Overlay opacity	Opac. capa
+Overlay image	Imagen capa
+Place it	Colocar
+Corner pin	Esquinas
+Slices	Recortes
+choose...	elegir...
+not configured	sin configurar
+(default system device)	(dispositivo predeterminado)
+(no monitor)	(sin monitor)
+System audio (SDL)	Audio del sistema (SDL)
+Not watching a folder	No se vigila ninguna carpeta
+anyone	cualquiera
+When taken off air	Al salir del aire
+browser cue added	cue de navegador añadido
+source cue added	cue de fuente añadido
+text added	texto añadido
+tone cue added	cue de tono añadido
+gain	ganancia
+follow	seguir
+moves	movimiento
+overtime	tiempo extra
+chime	aviso sonoro
+bell	campana
+load a sprite sheet from a file...	cargar hoja de sprites de un archivo...
+Run the clock	Iniciar reloj
+What fires this cue besides GO	Qué activa este cue además de GO
+center	Centro
+visual	imagen

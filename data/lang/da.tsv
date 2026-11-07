@@ -1838,3 +1838,130 @@ transparent outside the ink: put it on a layer	transparent uden for blækket: l�
 what is said, on screen, made on this computer	det der siges, på skærmen, lavet på denne computer
 What this cue does when it ends - click to change	Hvad denne cue gør ved slut: klik for at ændre
 Whether the next shape or pen path adds or cuts	Om næste form eller sti tilføjer eller skærer
+shape	form
+palette	palet
+scale	skala
+RED	RØD
+do it	udfør
+(empty)	(tom)
+(unset)	(ikke angivet)
+English	Engelsk
+amber at	gul ved
++ section	+ afsnit
++pause pt	+ pausepunkt
+a-fade in	lyd ind
+amber col	gul farve
+(no notes)	(ingen noter)
+a-fade out	lyd ud
+gain (each)	gain (hver)
+% of the height	% af højden
++  a first step	+  første trin
++ ADD AN EFFECT	+ TILFØJ EFFEKT
+(none playing now)	(intet afspilles nu)
+Keep a transcript (.srt)	Gem udskrift (.srt)
+Key tolerance (RGB distance)	Keytolerance (RGB-afstand)
+Contrast multiplier (0.0-2.0x)	Kontrastfaktor (0.0–2.0x)
+Brightness multiplier (0.0-2.0x)	Lysstyrkefaktor (0.0–2.0x)
+Saturation multiplier (0.0-2.0x)	Mætningsfaktor (0.0–2.0x)
+Output rotation angle (-180..180)	Udgangens drejevinkel (-180..180)
+Hue rotation (-180 to +180 degrees)	Farvetonedrejning (-180 til +180 grader)
+Lower Third background opacity (0-255)	Navnebjælkens baggrundsdækning (0–255)
+0-127; 127 addresses every device on the line	0–127; 127 adresserer alle enheder på linjen
+GO shows the note; picture and sound carry on	GO viser noten; billede og lyd fortsætter
+How fast it moves; no effect when it is still	Bevægelseshastighed; uden virkning når det står stille
+Fires when incoming timecode passes this point	Udløses når indgående tidskode passerer dette punkt
+Source pixels, independent of output placement	Kildepixel, uafhængigt af placering på udgangen
+Stereo balance, applied live (snaps to center)	Stereobalance i realtid (låser ved midten)
+bypassed: nothing here is processed or limited	omgået: ingen behandling eller begrænsning
+Per-cue audio trim: -40 to +40 dB, applied live	Cue-gain: -40 til +40 dB, i realtid
+Show the message in red - the wrap up NOW state	Vis beskeden rødt: afslut NU
+The brush's width, as % of the picture's height	Penselbredde som % af billedhøjden
+What the stream carries: SDR, PQ (HDR10) or HLG	Strømmens indhold: SDR, PQ (HDR10) eller HLG
+Digit colour once red is reached, and in overtime	Cifferfarve fra rød grænse og ved tidsoverskridelse
+Downmix this cue to mono (mono sources / mono PA)	Bland cue til mono (monokilde / mono-PA)
+Drag to scrub (shift = fine), click to type exact	Træk for at søge (Shift: fint), klik for præcis indtastning
+Hand this to an oscillator so it moves on its own	Tildel en oscillator, så det bevæger sig selv
+Changing width also scales height (and vice versa)	Breddeændring skalerer også højden og omvendt
+How long the levels take to arrive; zero is a snap	Tid til målniveauerne; nul skifter straks
+Set the self-contained PIP source for this overlay	Indstil denne overlays selvstændige PIP-kilde
+Take the newest shape or pen path out of this mask	Fjern nyeste form eller pennesti fra masken
+An address sent to Deckboy's OSC port fires this cue	Denne adresse på Deckboys OSC-port udløser cue
+Hold on the last composite frame when the scene ends	Hold sidste sammensatte billede ved scenens slutning
+How long it takes; zero is a snap rather than a fade	Varighed; nul skifter straks uden fade
+Set still/pattern/browser duration for selected cues	Indstil varighed af billede/mønster/browser for valgte cues
+Start the LTC carrier, stop it, or jam it to a value	Start, stop eller synkroniser LTC-bærebølgen til en værdi
+Which cue on that deck; step off the end to clear it	Cue på dette deck; gå forbi slutningen for at rydde
+Bob up and down. Depth 1 is half the frame either way	Op og ned. Dybde 1: et halvt billede i hver retning
+Output width in pixels | click value to type exact px	Udgangsbredde i pixel; klik for præcis indtastning
+Set the stream URL (srt://, rtmp://, rtsp://, udp://)	Indstil strøm-URL (srt://, rtmp://, rtsp://, udp://)
+Fires at this time on this computer's clock, every day	Udløses dagligt på dette tidspunkt efter computerens ur
+Output height in pixels | click value to type exact px	Udgangshøjde i pixel; klik for præcis indtastning
+Bar across the foot - readable further back than digits	Bjælke nederst: læselig længere væk end cifre
+OUTPUT: drag a slice to move it, its corners to size it.	UDGANG: træk en udskæring for at flytte den, hjørner for at skalere
+Choose a Lower Third from the overlay bin to fire on TAKE	Vælg navnebjælke fra overlaybakken til start med TAKE
+Choose a PIP overlay from the overlay bin to fire on TAKE	Vælg PIP fra overlaybakken til start med TAKE
+OUTPUT: drag a slice to move it, its corners to pin them.	UDGANG: træk en udskæring for at flytte den, hjørner for at fæstne dem
+F1-F10, F12 or the number pad fires this cue from anywhere	F1–F10, F12 eller det numeriske tastatur udløser cue overalt
+Use transition when auto-advancing or goto-taking next cue	Brug overgang ved automatisk fremrykning eller GOTO til næste cue
+Nothing has arrived yet. Press something on the controller.	Intet modtaget. Betjen noget på controlleren.
+Audio fade-in: follow visual fade, none, or explicit seconds	Lydindtoning: følg billedfade, ingen eller angivne sekunder
+Audio fade-out: follow visual fade, none, or explicit seconds	Lydudtoning: følg billedfade, ingen eller angivne sekunder
+Add a library shape to this mask; its points are yours to move	Føj biblioteksform til masken; punkterne kan flyttes
+No slices: this output shows its one picture. + SLICE to start.	Ingen udskæringer: udgangen viser sit billede. Start med + SLICE.
+Open and close this edge on an oscillator -- a wipe that breathes	Åbn og luk kanten med en oscillator: en åndende wipe
+(none)	(ingen)
+(nothing yet)	(intet endnu)
++ ADD AN OUTPUT	+ TILFØJ UDGANG
+>LIVE	>DIREKTE
+(no media source)	(ingen mediekilde)
+snap	straks
+this deck	dette deck
+protocol	protokol
+does	handling
+sine	sinus
+freq	frekvens
+visuals	visuelt
+black	sort
+green	grøn
+blue	blå
+Pause at start	Pause start
+Pause at end	Pause slut
+Transition to next	Overgang næste
+Hardware display	Fysisk skærm
+Raster mode	Rastertilstand
+Refresh rate	Opdatering
+Bit depth	Bitdybde
+SDR material at	SDR-niveau
+HDR signal	HDR-signal
+Fullscreen	Fuldskærm
+Matte aspect	Matteformat
+Bar opacity	Bjælkedækning
+Output mask	Udgangsmaske
+Overlay still	Still-overlay
+Overlay opacity	Overlaydækning
+Overlay image	Overlaybillede
+Place it	Placér
+Corner pin	Hjørnepunkter
+Slices	Udskæringer
+choose...	vælg...
+not configured	ikke indstillet
+(default system device)	(systemets standardenhed)
+(no monitor)	(ingen monitor)
+System audio (SDL)	Systemlyd (SDL)
+Not watching a folder	Ingen mappe overvåges
+anyone	alle
+When taken off air	Når taget af luften
+browser cue added	browser-cue tilføjet
+source cue added	kilde-cue tilføjet
+text added	tekst tilføjet
+tone cue added	tone-cue tilføjet
+follow	følg
+moves	bevægelse
+overtime	over tid
+chime	klang
+bell	klokke
+load a sprite sheet from a file...	indlæs spriteark fra fil...
+Run the clock	Start uret
+What fires this cue besides GO	Hvad der udløser cue ud over GO
+center	Midte
+visual	visuelt

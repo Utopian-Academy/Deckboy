@@ -1854,3 +1854,132 @@ transparent outside the ink: put it on a layer	trong suốt ngoài mực: đặt
 what is said, on screen, made on this computer	lời được nói, trên màn hình, làm trên máy này
 What this cue does when it ends - click to change	Cue này làm gì khi kết thúc: bấm để đổi
 Whether the next shape or pen path adds or cuts	Hình hoặc đường kế tiếp thêm hay cắt
+shape	hình dạng
+palette	bảng màu
+scale	tỷ lệ
+feedback	hồi tiếp
+RED	ĐỎ
+do it	thực hiện
+(empty)	(trống)
+(unset)	(chưa đặt)
+English	Tiếng Anh
+amber at	vàng khi
++ section	+ phần
++pause pt	+ điểm dừng
+a-fade in	âm vào dần
+amber col	màu vàng
+(no notes)	(không ghi chú)
+a-fade out	âm ra dần
+gain (each)	gain (mỗi)
+% of the height	% chiều cao
++  a first step	+  bước đầu
++ ADD AN EFFECT	+ THÊM HIỆU ỨNG
+(none playing now)	(chưa có gì phát)
+Keep a transcript (.srt)	Lưu bản chép lời (.srt)
+Key tolerance (RGB distance)	Dung sai key (khoảng cách RGB)
+Contrast multiplier (0.0-2.0x)	Hệ số tương phản (0.0–2.0x)
+Brightness multiplier (0.0-2.0x)	Hệ số độ sáng (0.0–2.0x)
+Saturation multiplier (0.0-2.0x)	Hệ số độ bão hòa (0.0–2.0x)
+Output rotation angle (-180..180)	Góc xoay đầu ra (-180..180)
+Hue rotation (-180 to +180 degrees)	Xoay sắc độ (-180 đến +180 độ)
+Lower Third background opacity (0-255)	Độ đục nền bảng tên dưới (0–255)
+0-127; 127 addresses every device on the line	0–127; 127 gửi tới mọi thiết bị trên đường truyền
+GO shows the note; picture and sound carry on	GO hiện ghi chú; hình và tiếng vẫn tiếp tục
+How fast it moves; no effect when it is still	Tốc độ chuyển động; không tác dụng khi đứng yên
+Fires when incoming timecode passes this point	Kích hoạt khi timecode đầu vào đi qua điểm này
+Source pixels, independent of output placement	Điểm ảnh nguồn, không phụ thuộc vị trí đầu ra
+Stereo balance, applied live (snaps to center)	Cân bằng stereo trực tiếp (hút về giữa)
+bypassed: nothing here is processed or limited	bỏ qua: không xử lý hay giới hạn
+Per-cue audio trim: -40 to +40 dB, applied live	Gain cue: -40 đến +40 dB, áp dụng trực tiếp
+Show the message in red - the wrap up NOW state	Hiện thông báo đỏ: kết thúc NGAY
+The brush's width, as % of the picture's height	Độ rộng bút theo % chiều cao hình
+What the stream carries: SDR, PQ (HDR10) or HLG	Nội dung luồng: SDR, PQ (HDR10) hoặc HLG
+Digit colour once red is reached, and in overtime	Màu chữ số khi chạm ngưỡng đỏ và quá giờ
+Downmix this cue to mono (mono sources / mono PA)	Trộn cue thành mono (nguồn / PA mono)
+Drag to scrub (shift = fine), click to type exact	Kéo để dò (Shift: tinh chỉnh), nhấp để nhập chính xác
+Hand this to an oscillator so it moves on its own	Giao cho bộ dao động để tự chuyển động
+Changing width also scales height (and vice versa)	Đổi chiều rộng cũng đổi chiều cao và ngược lại
+How long the levels take to arrive; zero is a snap	Thời gian đến mức đích; 0 đổi ngay
+Set the self-contained PIP source for this overlay	Đặt nguồn PIP độc lập cho lớp phủ này
+Take the newest shape or pen path out of this mask	Bỏ hình hoặc nét bút mới nhất khỏi mặt nạ
+An address sent to Deckboy's OSC port fires this cue	Địa chỉ này gửi đến cổng OSC của Deckboy sẽ kích hoạt cue
+Hold on the last composite frame when the scene ends	Giữ khung hình ghép cuối khi cảnh kết thúc
+How long it takes; zero is a snap rather than a fade	Thời lượng; 0 đổi ngay không chuyển mờ
+Set still/pattern/browser duration for selected cues	Đặt thời lượng ảnh/mẫu/trình duyệt cho cue đã chọn
+Start the LTC carrier, stop it, or jam it to a value	Khởi động, dừng hoặc đồng bộ sóng mang LTC về một giá trị
+Which cue on that deck; step off the end to clear it	Cue trên deck đó; đi quá cuối để xóa lựa chọn
+Bob up and down. Depth 1 is half the frame either way	Lên xuống. Độ sâu 1: nửa khung theo mỗi hướng
+Output width in pixels | click value to type exact px	Chiều rộng đầu ra bằng pixel; nhấp để nhập chính xác
+Set the stream URL (srt://, rtmp://, rtsp://, udp://)	Đặt URL luồng (srt://, rtmp://, rtsp://, udp://)
+Fires at this time on this computer's clock, every day	Kích hoạt mỗi ngày vào giờ này theo đồng hồ máy tính
+Output height in pixels | click value to type exact px	Chiều cao đầu ra bằng pixel; nhấp để nhập chính xác
+Bar across the foot - readable further back than digits	Thanh ở đáy: dễ đọc từ xa hơn chữ số
+OUTPUT: drag a slice to move it, its corners to size it.	ĐẦU RA: kéo lát để di chuyển, kéo góc để đổi kích thước
+Choose a Lower Third from the overlay bin to fire on TAKE	Chọn bảng tên dưới từ kho lớp phủ để chạy khi TAKE
+Choose a PIP overlay from the overlay bin to fire on TAKE	Chọn PIP từ kho lớp phủ để chạy khi TAKE
+OUTPUT: drag a slice to move it, its corners to pin them.	ĐẦU RA: kéo lát để di chuyển, kéo góc để ghim vị trí
+F1-F10, F12 or the number pad fires this cue from anywhere	F1–F10, F12 hoặc bàn phím số kích hoạt cue từ mọi nơi
+Use transition when auto-advancing or goto-taking next cue	Dùng chuyển cảnh khi tự chuyển tiếp hoặc GOTO cue kế
+Nothing has arrived yet. Press something on the controller.	Chưa nhận gì. Thao tác một nút trên bộ điều khiển.
+Audio fade-in: follow visual fade, none, or explicit seconds	Âm vào dần: theo hình, không dùng hoặc số giây cụ thể
+Audio fade-out: follow visual fade, none, or explicit seconds	Âm ra dần: theo hình, không dùng hoặc số giây cụ thể
+Add a library shape to this mask; its points are yours to move	Thêm hình từ thư viện vào mặt nạ; có thể kéo các điểm
+No slices: this output shows its one picture. + SLICE to start.	Không có lát: đầu ra hiện hình của nó. + SLICE để bắt đầu.
+Open and close this edge on an oscillator -- a wipe that breathes	Dùng bộ dao động mở và đóng mép này: chuyển gạt nhịp nhàng
+(none)	(không có)
+(nothing yet)	(chưa có gì)
++ ADD AN OUTPUT	+ THÊM OUTPUT
+>LIVE	>TRỰC TIẾP
+(no media source)	(không nguồn media)
+snap	tức thì
+this deck	deck này
+protocol	giao thức
+does	hành động
+signal	tín hiệu
+sine	sin
+freq	tần số
+visuals	hình ảnh
+black	đen
+green	xanh lá
+blue	xanh lam
+Pause at start	Dừng đầu
+Pause at end	Dừng cuối
+Transition to next	Chuyển tiếp
+Hardware display	Màn hình
+Raster mode	Chế độ raster
+Refresh rate	Tần số quét
+Bit depth	Độ sâu bit
+SDR material at	Mức SDR
+HDR signal	Tín hiệu HDR
+Fullscreen	Toàn màn hình
+Matte aspect	Tỷ lệ matte
+Bar opacity	Độ đục dải
+Output mask	Mặt nạ ra
+Overlay still	Lớp phủ tĩnh
+Overlay opacity	Độ đục phủ
+Overlay image	Ảnh lớp phủ
+Place it	Đặt vị trí
+Corner pin	Ghim góc
+Slices	Lát cắt
+choose...	chọn...
+not configured	chưa cấu hình
+(default system device)	(thiết bị hệ thống mặc định)
+(no monitor)	(không monitor)
+System audio (SDL)	Âm thanh hệ thống (SDL)
+Not watching a folder	Không theo dõi thư mục
+anyone	bất kỳ ai
+When taken off air	Khi ngừng lên sóng
+browser cue added	đã thêm cue trình duyệt
+source cue added	đã thêm cue nguồn
+text added	đã thêm văn bản
+tone cue added	đã thêm cue âm thử
+follow	theo
+moves	chuyển động
+overtime	quá giờ
+chime	âm báo
+bell	chuông
+load a sprite sheet from a file...	tải bảng sprite từ tệp...
+Run the clock	Chạy đồng hồ
+What fires this cue besides GO	Điều gì kích hoạt cue ngoài GO
+center	Giữa
+visual	hình ảnh

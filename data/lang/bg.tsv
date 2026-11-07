@@ -1867,3 +1867,133 @@ transparent outside the ink: put it on a layer	прозрачно извън м�
 what is said, on screen, made on this computer	казаното, на екрана, направено на този компютър
 What this cue does when it ends - click to change	Какво прави този cue в края: щракни за смяна
 Whether the next shape or pen path adds or cuts	Дали следващата форма или пътека добавя или реже
+shape	форма
+palette	палитра
+scale	мащаб
+feedback	обр. връзка
+RED	ЧЕРВЕНО
+do it	изпълни
+(empty)	(празно)
+(unset)	(незададено)
+English	Английски
+amber at	жълто при
++ section	+ раздел
++pause pt	+ пауза
+a-fade in	звук вход
+amber col	жълт цвят
+(no notes)	(няма бележки)
+a-fade out	звук изход
+gain (each)	усилв. (всеки)
+% of the height	% от височината
++  a first step	+  първа стъпка
++ ADD AN EFFECT	+ ДОБАВИ ЕФЕКТ
+(none playing now)	(нищо не се възпроизвежда)
+Keep a transcript (.srt)	Запази препис (.srt)
+Key tolerance (RGB distance)	Толеранс на key (RGB разстояние)
+Contrast multiplier (0.0-2.0x)	Множител на контраста (0.0–2.0x)
+Brightness multiplier (0.0-2.0x)	Множител на яркостта (0.0–2.0x)
+Saturation multiplier (0.0-2.0x)	Множител на наситеността (0.0–2.0x)
+Output rotation angle (-180..180)	Завъртане на изхода (-180..180)
+Hue rotation (-180 to +180 degrees)	Завъртане на оттенъка (-180 до +180 градуса)
+Lower Third background opacity (0-255)	Непрозрачност на фона на долния надпис (0–255)
+0-127; 127 addresses every device on the line	0–127; 127 адресира всички устройства на линията
+GO shows the note; picture and sound carry on	GO показва бележката; картината и звукът продължават
+How fast it moves; no effect when it is still	Скорост на движение; няма ефект в покой
+Fires when incoming timecode passes this point	Задейства се, когато входящият таймкод премине тази точка
+Source pixels, independent of output placement	Пиксели от източника, независимо от разположението на изхода
+Stereo balance, applied live (snaps to center)	Стереобаланс на живо (прилепва в центъра)
+bypassed: nothing here is processed or limited	заобиколено: без обработка или ограничаване
+Per-cue audio trim: -40 to +40 dB, applied live	Усилване на cue: -40 до +40 dB, на живо
+Show the message in red - the wrap up NOW state	Червено съобщение: приключете СЕГА
+The brush's width, as % of the picture's height	Ширина на четката в % от височината на картината
+What the stream carries: SDR, PQ (HDR10) or HLG	Съдържание на потока: SDR, PQ (HDR10) или HLG
+Digit colour once red is reached, and in overtime	Цвят на цифрите след червения праг и при просрочване
+Downmix this cue to mono (mono sources / mono PA)	Смесване на cue в моно (моноизточник / моно PA)
+Drag to scrub (shift = fine), click to type exact	Влачете за преглед (Shift: фино), щракнете за точна стойност
+Hand this to an oscillator so it moves on its own	Възложете на осцилатор за самостоятелно движение
+Changing width also scales height (and vice versa)	Промяната на ширината мащабира и височината, и обратно
+How long the levels take to arrive; zero is a snap	Време до целевите нива; нула сменя веднага
+Set the self-contained PIP source for this overlay	Задайте самостоятелния PIP източник на това наслагване
+Take the newest shape or pen path out of this mask	Премахнете последната форма или път от маската
+An address sent to Deckboy's OSC port fires this cue	Този адрес на OSC порта на Deckboy задейства cue
+Hold on the last composite frame when the scene ends	Задръжте последния съставен кадър в края на сцената
+How long it takes; zero is a snap rather than a fade	Продължителност; нула сменя веднага без преливане
+Set still/pattern/browser duration for selected cues	Задайте време за изображение/шаблон/браузър на избраните cues
+Start the LTC carrier, stop it, or jam it to a value	Пуснете, спрете или синхронизирайте LTC носещата с дадена стойност
+Which cue on that deck; step off the end to clear it	Cue на този дек; преминете отвъд края за изчистване
+Bob up and down. Depth 1 is half the frame either way	Нагоре и надолу. Дълбочина 1: половин кадър във всяка посока
+Output width in pixels | click value to type exact px	Изходна ширина в пиксели; щракнете за точна стойност
+Set the stream URL (srt://, rtmp://, rtsp://, udp://)	Задайте URL на потока (srt://, rtmp://, rtsp://, udp://)
+Fires at this time on this computer's clock, every day	Задейства се всеки ден в този час по часовника на компютъра
+Output height in pixels | click value to type exact px	Изходна височина в пиксели; щракнете за точна стойност
+Bar across the foot - readable further back than digits	Долна лента: чете се от по-далеч от цифрите
+OUTPUT: drag a slice to move it, its corners to size it.	ИЗХОД: влачете среза за местене, ъглите за размер
+Choose a Lower Third from the overlay bin to fire on TAKE	Изберете долен надпис от хранилището за пускане с TAKE
+Choose a PIP overlay from the overlay bin to fire on TAKE	Изберете PIP от хранилището за пускане с TAKE
+OUTPUT: drag a slice to move it, its corners to pin them.	ИЗХОД: влачете среза за местене, ъглите за фиксиране
+F1-F10, F12 or the number pad fires this cue from anywhere	F1–F10, F12 или цифровата клавиатура задействат cue отвсякъде
+Use transition when auto-advancing or goto-taking next cue	Използвайте преход при автоматично продължаване или GOTO към следващ cue
+Nothing has arrived yet. Press something on the controller.	Нищо не е получено. Задействайте нещо на контролера.
+Audio fade-in: follow visual fade, none, or explicit seconds	Плавен вход на звука: следва картината, без или зададени секунди
+Audio fade-out: follow visual fade, none, or explicit seconds	Плавен изход на звука: следва картината, без или зададени секунди
+Add a library shape to this mask; its points are yours to move	Добавете библиотечна форма към маската; точките ѝ могат да се местят
+No slices: this output shows its one picture. + SLICE to start.	Няма срезове: изходът показва своята картина. Започнете с + SLICE.
+Open and close this edge on an oscillator -- a wipe that breathes	Отваряйте и затваряйте ръба с осцилатор: пулсиращ преход
+(none)	(няма)
+(nothing yet)	(още няма)
++ ADD AN OUTPUT	+ ДОБАВИ ИЗХОД
+>LIVE	>НА ЖИВО
+(no media source)	(няма медиен източник)
+snap	веднага
+this deck	този дек
+protocol	протокол
+does	действие
+signal	сигнал
+sine	синус
+freq	честота
+visuals	визуализация
+black	черно
+green	зелено
+blue	синьо
+Pause at start	Пауза начало
+Pause at end	Пауза край
+Transition to next	Към следващ
+Hardware display	Екран
+Raster mode	Растер режим
+Refresh rate	Опресняване
+Bit depth	Битова дълб.
+SDR material at	Ниво SDR
+HDR signal	HDR сигнал
+Fullscreen	Цял екран
+Matte aspect	Формат мат
+Bar opacity	Плътн. ленти
+Output mask	Изходна маска
+Overlay still	Снимка отгоре
+Overlay opacity	Плътн. слой
+Overlay image	Насл. образ
+Place it	Постави
+Corner pin	Ъглови точки
+Slices	Срезове
+choose...	избери...
+not configured	ненастроено
+(default system device)	(устройство по подразбиране)
+(no monitor)	(без монитор)
+System audio (SDL)	Системен звук (SDL)
+Not watching a folder	Няма наблюдавана папка
+anyone	всеки
+When taken off air	При спиране на ефира
+browser cue added	добавен браузър cue
+source cue added	добавен cue източник
+text added	добавен текст
+tone cue added	добавен тон cue
+gain	усилване
+follow	следвай
+moves	движение
+overtime	просрочване
+chime	звън
+bell	камбана
+load a sprite sheet from a file...	зареди sprite лист от файл...
+Run the clock	Пусни часовника
+What fires this cue besides GO	Какво задейства cue освен GO
+center	Център
+visual	визуализация

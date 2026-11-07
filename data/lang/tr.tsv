@@ -1855,3 +1855,133 @@ transparent outside the ink: put it on a layer	mürekkebin dışı saydam: bir k
 what is said, on screen, made on this computer	söylenenler, ekranda, bu bilgisayarda yapıldı
 What this cue does when it ends - click to change	Bu cue'nun sonda ne yaptığı: değiştirmek için tıkla
 Whether the next shape or pen path adds or cuts	Sonraki şekil veya yol ekler mi keser mi
+shape	şekil
+palette	palet
+scale	ölçek
+feedback	geri besleme
+RED	KIRMIZI
+do it	uygula
+(empty)	(boş)
+(unset)	(ayarlanmamış)
+English	İngilizce
+amber at	sarı eşiği
++ section	+ bölüm
++pause pt	+ durak
+a-fade in	ses giriş
+amber col	sarı renk
+(no notes)	(not yok)
+a-fade out	ses çıkış
+gain (each)	kazanç (her)
+% of the height	yüksekliğin %'si
++  a first step	+  ilk adım
++ ADD AN EFFECT	+ EFEKT EKLE
+(none playing now)	(şu an çalan yok)
+Keep a transcript (.srt)	Dökümü sakla (.srt)
+Key tolerance (RGB distance)	Key toleransı (RGB uzaklığı)
+Contrast multiplier (0.0-2.0x)	Kontrast çarpanı (0.0–2.0x)
+Brightness multiplier (0.0-2.0x)	Parlaklık çarpanı (0.0–2.0x)
+Saturation multiplier (0.0-2.0x)	Doygunluk çarpanı (0.0–2.0x)
+Output rotation angle (-180..180)	Çıkış döndürme açısı (-180..180)
+Hue rotation (-180 to +180 degrees)	Ton döndürme (-180 ile +180 derece)
+Lower Third background opacity (0-255)	Alt bant arka plan opaklığı (0–255)
+0-127; 127 addresses every device on the line	0–127; 127 hattaki tüm aygıtlara seslenir
+GO shows the note; picture and sound carry on	GO notu gösterir; görüntü ve ses sürer
+How fast it moves; no effect when it is still	Hareket hızı; sabitken etkisiz
+Fires when incoming timecode passes this point	Gelen zaman kodu bu noktayı geçince tetiklenir
+Source pixels, independent of output placement	Çıkış yerleşiminden bağımsız kaynak pikselleri
+Stereo balance, applied live (snaps to center)	Canlı stereo dengesi (ortaya yapışır)
+bypassed: nothing here is processed or limited	atlanıyor: işleme veya sınırlama yok
+Per-cue audio trim: -40 to +40 dB, applied live	Cue kazancı: -40 ile +40 dB, canlı uygulanır
+Show the message in red - the wrap up NOW state	Mesajı kırmızı göster: ŞİMDİ bitir durumu
+The brush's width, as % of the picture's height	Fırça genişliği, görüntü yüksekliğinin yüzdesi
+What the stream carries: SDR, PQ (HDR10) or HLG	Akış içeriği: SDR, PQ (HDR10) veya HLG
+Digit colour once red is reached, and in overtime	Kırmızı eşiğinde ve süre aşımında rakam rengi
+Downmix this cue to mono (mono sources / mono PA)	Cue'yu monoya karıştır (mono kaynak / mono PA)
+Drag to scrub (shift = fine), click to type exact	Tarama için sürükle (Shift: hassas), kesin değer için tıkla
+Hand this to an oscillator so it moves on its own	Kendiliğinden hareket etmesi için osilatöre bağla
+Changing width also scales height (and vice versa)	Genişlik değişince yükseklik de ölçeklenir; tersi de geçerli
+How long the levels take to arrive; zero is a snap	Seviyelere ulaşma süresi; sıfır anında değiştirir
+Set the self-contained PIP source for this overlay	Bu katmanın bağımsız PIP kaynağını ayarla
+Take the newest shape or pen path out of this mask	Maskeden son şekli veya kalem yolunu çıkar
+An address sent to Deckboy's OSC port fires this cue	Deckboy OSC portuna gelen bu adres cue'yu tetikler
+Hold on the last composite frame when the scene ends	Sahne bitince son birleşik kareyi tut
+How long it takes; zero is a snap rather than a fade	Süre; sıfır geçişsiz, anında değiştirir
+Set still/pattern/browser duration for selected cues	Seçili cue'ların resim/desen/tarayıcı süresini ayarla
+Start the LTC carrier, stop it, or jam it to a value	LTC taşıyıcısını başlat, durdur veya bir değere eşitle
+Which cue on that deck; step off the end to clear it	O deck'teki cue; sona geçerek seçimi temizle
+Bob up and down. Depth 1 is half the frame either way	Yukarı aşağı. Derinlik 1: her yönde yarım kare
+Output width in pixels | click value to type exact px	Çıkış genişliği, piksel; kesin değer için tıkla
+Set the stream URL (srt://, rtmp://, rtsp://, udp://)	Akış URL'sini ayarla (srt://, rtmp://, rtsp://, udp://)
+Fires at this time on this computer's clock, every day	Her gün bilgisayar saatine göre bu saatte tetiklenir
+Output height in pixels | click value to type exact px	Çıkış yüksekliği, piksel; kesin değer için tıkla
+Bar across the foot - readable further back than digits	Alttaki çubuk: rakamlardan daha uzaktan okunur
+OUTPUT: drag a slice to move it, its corners to size it.	ÇIKIŞ: dilimi taşımak için sürükle, boyut için köşelerini sürükle
+Choose a Lower Third from the overlay bin to fire on TAKE	TAKE ile başlatılacak alt bandı katman kutusundan seç
+Choose a PIP overlay from the overlay bin to fire on TAKE	TAKE ile başlatılacak PIP'i katman kutusundan seç
+OUTPUT: drag a slice to move it, its corners to pin them.	ÇIKIŞ: dilimi taşımak için sürükle, köşeleri sabitlemek için sürükle
+F1-F10, F12 or the number pad fires this cue from anywhere	F1–F10, F12 veya sayısal tuş takımı cue'yu her yerden tetikler
+Use transition when auto-advancing or goto-taking next cue	Otomatik ilerleme veya sonraki cue'ya GOTO sırasında geçiş kullan
+Nothing has arrived yet. Press something on the controller.	Henüz sinyal gelmedi. Denetleyicide bir kontrolü kullan.
+Audio fade-in: follow visual fade, none, or explicit seconds	Ses açılışı: görüntü geçişini izle, yok veya belirtilen saniye
+Audio fade-out: follow visual fade, none, or explicit seconds	Ses kapanışı: görüntü geçişini izle, yok veya belirtilen saniye
+Add a library shape to this mask; its points are yours to move	Maskeye kitaplıktan şekil ekle; noktalarını taşıyabilirsin
+No slices: this output shows its one picture. + SLICE to start.	Dilim yok: çıkış kendi görüntüsünü gösterir. + SLICE ile başla.
+Open and close this edge on an oscillator -- a wipe that breathes	Kenarı osilatörle açıp kapat: nefes alan bir silme geçişi
+(none)	(yok)
+(nothing yet)	(henüz yok)
++ ADD AN OUTPUT	+ ÇIKIŞ EKLE
+>LIVE	>CANLI
+(no media source)	(medya kaynağı yok)
+snap	anında
+this deck	bu deck
+protocol	protokol
+does	eylem
+signal	sinyal
+sine	sinüs
+freq	frekans
+visuals	görsel
+black	siyah
+green	yeşil
+blue	mavi
+Pause at start	Başta durakla
+Pause at end	Sonda durakla
+Transition to next	Sonraki geçiş
+Hardware display	Ekran
+Raster mode	Raster modu
+Refresh rate	Yenileme
+Bit depth	Bit derinliği
+SDR material at	SDR düzeyi
+HDR signal	HDR sinyali
+Fullscreen	Tam ekran
+Matte aspect	Mat oranı
+Bar opacity	Çubuk opakl.
+Output mask	Çıkış maskesi
+Overlay still	Sabit katman
+Overlay opacity	Katman opakl.
+Overlay image	Katman resmi
+Place it	Yerleştir
+Corner pin	Köşe sabitle
+Slices	Dilimler
+choose...	seç...
+not configured	ayarlanmamış
+(default system device)	(varsayılan sistem aygıtı)
+(no monitor)	(monitör yok)
+System audio (SDL)	Sistem sesi (SDL)
+Not watching a folder	İzlenen klasör yok
+anyone	herkes
+When taken off air	Yayından alındığında
+browser cue added	tarayıcı cue eklendi
+source cue added	kaynak cue eklendi
+text added	metin eklendi
+tone cue added	ton cue eklendi
+gain	kazanç
+follow	izle
+moves	hareket
+overtime	süre aşımı
+chime	çan sesi
+bell	çan
+load a sprite sheet from a file...	dosyadan sprite sayfası yükle...
+Run the clock	Saati başlat
+What fires this cue besides GO	GO dışında bu cue'yu ne tetikler
+center	Orta
+visual	görsel

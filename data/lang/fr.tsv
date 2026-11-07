@@ -1839,3 +1839,129 @@ transparent outside the ink: put it on a layer	transparent hors de l'encre : met
 what is said, on screen, made on this computer	ce qui est dit, à l'écran, créé sur cet ordinateur
 What this cue does when it ends - click to change	Ce que fait ce cue à la fin : cliquez pour changer
 Whether the next shape or pen path adds or cuts	Si la prochaine forme ou le tracé ajoute ou coupe
+shape	forme
+scale	échelle
+feedback	rétroaction
+RED	ROUGE
+do it	exécuter
+(empty)	(vide)
+(unset)	(non défini)
+English	Anglais
+amber at	ambre à
++pause pt	+ pause
+a-fade in	fondu entrée
+amber col	couleur ambre
+(no notes)	(sans notes)
+a-fade out	fondu sortie
+gain (each)	gain (chacun)
+% of the height	% de la hauteur
++  a first step	+  premier pas
++ ADD AN EFFECT	+ AJOUTER UN EFFET
+(none playing now)	(rien en lecture)
+Keep a transcript (.srt)	Garder la transcription (.srt)
+Key tolerance (RGB distance)	Tolérance de key (distance RVB)
+Contrast multiplier (0.0-2.0x)	Facteur de contraste (0.0–2.0x)
+Brightness multiplier (0.0-2.0x)	Facteur de luminosité (0.0–2.0x)
+Saturation multiplier (0.0-2.0x)	Facteur de saturation (0.0–2.0x)
+Output rotation angle (-180..180)	Rotation de sortie (-180..180)
+Hue rotation (-180 to +180 degrees)	Rotation de teinte (-180 à +180 degrés)
+Lower Third background opacity (0-255)	Opacité du fond du bandeau (0–255)
+0-127; 127 addresses every device on the line	0–127 ; 127 vise tous les appareils de la ligne
+GO shows the note; picture and sound carry on	GO montre la note ; image et son continuent
+How fast it moves; no effect when it is still	Vitesse du mouvement ; sans effet à l'arrêt
+Fires when incoming timecode passes this point	Déclenche quand le timecode reçu dépasse ce point
+Source pixels, independent of output placement	Pixels source, indépendants du placement en sortie
+Stereo balance, applied live (snaps to center)	Balance stéréo en direct (cran au centre)
+bypassed: nothing here is processed or limited	contourné : aucun traitement ni limitation
+Per-cue audio trim: -40 to +40 dB, applied live	Gain du cue : -40 à +40 dB, en direct
+Show the message in red - the wrap up NOW state	Message rouge : il faut terminer MAINTENANT
+The brush's width, as % of the picture's height	Largeur du pinceau en % de la hauteur de l'image
+What the stream carries: SDR, PQ (HDR10) or HLG	Contenu du flux : SDR, PQ (HDR10) ou HLG
+Digit colour once red is reached, and in overtime	Couleur des chiffres au seuil rouge et en dépassement
+Downmix this cue to mono (mono sources / mono PA)	Mixer le cue en mono (source / sonorisation mono)
+Drag to scrub (shift = fine), click to type exact	Glisser pour parcourir (Shift : précis), cliquer pour saisir
+Hand this to an oscillator so it moves on its own	Confier à un oscillateur pour un mouvement autonome
+Changing width also scales height (and vice versa)	La largeur modifie aussi la hauteur, et inversement
+How long the levels take to arrive; zero is a snap	Durée pour atteindre les niveaux ; zéro est instantané
+Set the self-contained PIP source for this overlay	Définir la source PIP autonome de cette incrustation
+Take the newest shape or pen path out of this mask	Retirer la dernière forme ou le dernier tracé du masque
+An address sent to Deckboy's OSC port fires this cue	Cette adresse reçue sur le port OSC de Deckboy déclenche le cue
+Hold on the last composite frame when the scene ends	Garder la dernière image composée à la fin de la scène
+How long it takes; zero is a snap rather than a fade	Durée ; zéro coupe instantanément au lieu d'un fondu
+Set still/pattern/browser duration for selected cues	Durée image/mire/navigateur des cues choisis
+Start the LTC carrier, stop it, or jam it to a value	Démarrer, arrêter ou caler la porteuse LTC sur une valeur
+Which cue on that deck; step off the end to clear it	Cue de ce deck ; dépasser la fin pour effacer
+Bob up and down. Depth 1 is half the frame either way	Monter et descendre. Profondeur 1 : une demi-image dans chaque sens
+Output width in pixels | click value to type exact px	Largeur de sortie en pixels ; cliquer pour saisir la valeur exacte
+Set the stream URL (srt://, rtmp://, rtsp://, udp://)	Définir l'URL du flux (srt://, rtmp://, rtsp://, udp://)
+Fires at this time on this computer's clock, every day	Déclenche chaque jour à cette heure de l'ordinateur
+Output height in pixels | click value to type exact px	Hauteur de sortie en pixels ; cliquer pour saisir la valeur exacte
+Bar across the foot - readable further back than digits	Barre en bas : lisible de plus loin que les chiffres
+OUTPUT: drag a slice to move it, its corners to size it.	SORTIE : glisser une tranche pour la déplacer, ses coins pour la redimensionner
+Choose a Lower Third from the overlay bin to fire on TAKE	Choisir un bandeau du bac à lancer sur TAKE
+Choose a PIP overlay from the overlay bin to fire on TAKE	Choisir un PIP du bac à lancer sur TAKE
+OUTPUT: drag a slice to move it, its corners to pin them.	SORTIE : glisser une tranche pour la déplacer, ses coins pour les positionner
+F1-F10, F12 or the number pad fires this cue from anywhere	F1–F10, F12 ou le pavé numérique déclenchent ce cue partout
+Use transition when auto-advancing or goto-taking next cue	Utiliser la transition en avance automatique ou vers le cue GOTO
+Nothing has arrived yet. Press something on the controller.	Rien reçu. Actionner une commande du contrôleur.
+Audio fade-in: follow visual fade, none, or explicit seconds	Fondu audio d'entrée : suivre l'image, aucun ou durée en secondes
+Audio fade-out: follow visual fade, none, or explicit seconds	Fondu audio de sortie : suivre l'image, aucun ou durée en secondes
+Add a library shape to this mask; its points are yours to move	Ajouter une forme de la bibliothèque au masque ; ses points sont modifiables
+No slices: this output shows its one picture. + SLICE to start.	Aucune tranche : cette sortie montre son image. + SLICE pour commencer.
+Open and close this edge on an oscillator -- a wipe that breathes	Ouvrir et fermer ce bord avec un oscillateur : un volet qui respire
+(none)	(aucun)
+(nothing yet)	(rien encore)
++ ADD AN OUTPUT	+ AJOUTER UNE SORTIE
+>LIVE	>DIRECT
+(no media source)	(sans source média)
+snap	instantané
+this deck	ce deck
+protocol	protocole
+does	action
+sine	sinus
+freq	fréquence
+visuals	visuels
+black	noir
+green	vert
+blue	bleu
+Pause at start	Pause début
+Pause at end	Pause fin
+Transition to next	Trans. suiv.
+Hardware display	Écran
+Raster mode	Mode raster
+Refresh rate	Rafraîch.
+Bit depth	Profondeur bit
+SDR material at	Niveau SDR
+HDR signal	Signal HDR
+Fullscreen	Plein écran
+Matte aspect	Format matte
+Bar opacity	Opac. barres
+Output mask	Masque sortie
+Overlay still	Image fixe
+Overlay opacity	Opac. couche
+Overlay image	Image couche
+Place it	Placer
+Corner pin	Coins
+Slices	Tranches
+choose...	choisir...
+not configured	non configuré
+(default system device)	(périphérique par défaut)
+(no monitor)	(sans moniteur)
+System audio (SDL)	Audio système (SDL)
+Not watching a folder	Aucun dossier surveillé
+anyone	tout le monde
+When taken off air	À la sortie d'antenne
+browser cue added	cue navigateur ajouté
+source cue added	cue source ajouté
+text added	texte ajouté
+tone cue added	cue tonalité ajouté
+follow	suivre
+moves	mouvement
+overtime	dépassement
+chime	carillon
+bell	cloche
+load a sprite sheet from a file...	charger une planche de sprites depuis un fichier...
+Run the clock	Démarrer l'horloge
+What fires this cue besides GO	Ce qui déclenche ce cue en plus de GO
+center	CENTRER
+visual	visuels

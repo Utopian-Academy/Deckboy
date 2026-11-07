@@ -1867,3 +1867,133 @@ transparent outside the ink: put it on a layer	स्याही के बा�
 what is said, on screen, made on this computer	जो कहा जाता है, स्क्रीन पर, इस कंप्यूटर पर बना
 What this cue does when it ends - click to change	यह क्यू अंत में क्या करता है: बदलने को क्लिक करें
 Whether the next shape or pen path adds or cuts	अगली आकृति या पथ जोड़ता है या काटता है
+shape	आकृति
+palette	रंगपट्टिका
+scale	पैमाना
+feedback	फ़ीडबैक
+RED	लाल
+do it	चलाएँ
+(empty)	(खाली)
+(unset)	(तय नहीं)
+English	अंग्रेज़ी
+amber at	पीला होने पर
++ section	+ भाग
++pause pt	+ विराम बिंदु
+a-fade in	ध्वनि फ़ेड इन
+amber col	पीला रंग
+(no notes)	(नोट नहीं)
+a-fade out	ध्वनि फ़ेड आउट
+gain (each)	गेन (हर एक)
+% of the height	ऊँचाई का %
++  a first step	+  पहला चरण
++ ADD AN EFFECT	+ प्रभाव जोड़ें
+(none playing now)	(अभी कुछ नहीं चल रहा)
+Keep a transcript (.srt)	प्रतिलेख रखें (.srt)
+Key tolerance (RGB distance)	Key सहनशीलता (RGB दूरी)
+Contrast multiplier (0.0-2.0x)	कॉन्ट्रास्ट गुणक (0.0–2.0x)
+Brightness multiplier (0.0-2.0x)	चमक गुणक (0.0–2.0x)
+Saturation multiplier (0.0-2.0x)	संतृप्ति गुणक (0.0–2.0x)
+Output rotation angle (-180..180)	आउटपुट घुमाव कोण (-180..180)
+Hue rotation (-180 to +180 degrees)	रंगत का घुमाव (-180 से +180 डिग्री)
+Lower Third background opacity (0-255)	लोअर थर्ड की पृष्ठभूमि की अपारदर्शिता (0–255)
+0-127; 127 addresses every device on the line	0–127; 127 लाइन के सभी उपकरणों को संबोधित करता है
+GO shows the note; picture and sound carry on	GO नोट दिखाता है; चित्र और ध्वनि जारी रहते हैं
+How fast it moves; no effect when it is still	चलने की गति; स्थिर होने पर कोई प्रभाव नहीं
+Fires when incoming timecode passes this point	आने वाला टाइमकोड इस बिंदु से आगे जाते ही सक्रिय होता है
+Source pixels, independent of output placement	स्रोत पिक्सेल, आउटपुट की स्थिति से स्वतंत्र
+Stereo balance, applied live (snaps to center)	स्टीरियो संतुलन तुरंत लागू (बीच में स्नैप होता है)
+bypassed: nothing here is processed or limited	बायपास: कोई प्रसंस्करण या लिमिटिंग नहीं
+Per-cue audio trim: -40 to +40 dB, applied live	Cue गेन: -40 से +40 dB, तुरंत लागू
+Show the message in red - the wrap up NOW state	संदेश लाल दिखाएँ: अभी समाप्त करने की स्थिति
+The brush's width, as % of the picture's height	ब्रश की चौड़ाई, चित्र की ऊँचाई के प्रतिशत में
+What the stream carries: SDR, PQ (HDR10) or HLG	स्ट्रीम का स्वरूप: SDR, PQ (HDR10) या HLG
+Digit colour once red is reached, and in overtime	लाल सीमा और अतिरिक्त समय में अंकों का रंग
+Downmix this cue to mono (mono sources / mono PA)	Cue को मोनो में मिलाएँ (मोनो स्रोत / मोनो PA)
+Drag to scrub (shift = fine), click to type exact	खोजने के लिए खींचें (Shift: सूक्ष्म), सटीक मान के लिए क्लिक करें
+Hand this to an oscillator so it moves on its own	अपने आप चलने के लिए ऑसिलेटर को सौंपें
+Changing width also scales height (and vice versa)	चौड़ाई बदलने से ऊँचाई भी बदलती है, और उल्टा भी
+How long the levels take to arrive; zero is a snap	स्तरों तक पहुँचने का समय; शून्य पर तुरंत बदलाव
+Set the self-contained PIP source for this overlay	इस ओवरले का स्वतंत्र PIP स्रोत तय करें
+Take the newest shape or pen path out of this mask	मास्क से सबसे नई आकृति या पेन पथ हटाएँ
+An address sent to Deckboy's OSC port fires this cue	Deckboy के OSC पोर्ट पर यह पता आने से cue सक्रिय होता है
+Hold on the last composite frame when the scene ends	दृश्य समाप्त होने पर अंतिम संयुक्त फ्रेम रोकें
+How long it takes; zero is a snap rather than a fade	अवधि; शून्य पर फ़ेड की जगह तुरंत बदलाव
+Set still/pattern/browser duration for selected cues	चुने cue की स्थिर चित्र/पैटर्न/ब्राउज़र अवधि तय करें
+Start the LTC carrier, stop it, or jam it to a value	LTC कैरियर शुरू करें, रोकें या किसी मान से सिंक करें
+Which cue on that deck; step off the end to clear it	उस डेक का cue; अंत से आगे जाकर चयन साफ करें
+Bob up and down. Depth 1 is half the frame either way	ऊपर-नीचे गति। गहराई 1: हर दिशा में आधा फ्रेम
+Output width in pixels | click value to type exact px	आउटपुट की चौड़ाई पिक्सेल में; सटीक मान के लिए क्लिक करें
+Set the stream URL (srt://, rtmp://, rtsp://, udp://)	स्ट्रीम URL तय करें (srt://, rtmp://, rtsp://, udp://)
+Fires at this time on this computer's clock, every day	हर दिन कंप्यूटर की घड़ी के इस समय सक्रिय होता है
+Output height in pixels | click value to type exact px	आउटपुट की ऊँचाई पिक्सेल में; सटीक मान के लिए क्लिक करें
+Bar across the foot - readable further back than digits	नीचे की पट्टी: अंकों से अधिक दूरी पर पढ़ी जा सकती है
+OUTPUT: drag a slice to move it, its corners to size it.	आउटपुट: स्लाइस खींचकर खिसकाएँ, कोने खींचकर आकार बदलें
+Choose a Lower Third from the overlay bin to fire on TAKE	TAKE पर चलने वाला लोअर थर्ड ओवरले संग्रह से चुनें
+Choose a PIP overlay from the overlay bin to fire on TAKE	TAKE पर चलने वाला PIP ओवरले संग्रह से चुनें
+OUTPUT: drag a slice to move it, its corners to pin them.	आउटपुट: स्लाइस खींचकर खिसकाएँ, कोने खींचकर टिकाएँ
+F1-F10, F12 or the number pad fires this cue from anywhere	F1–F10, F12 या नंबर पैड कहीं से भी यह cue चलाते हैं
+Use transition when auto-advancing or goto-taking next cue	अपने आप आगे बढ़ने या अगले cue पर GOTO में ट्रांज़िशन लगाएँ
+Nothing has arrived yet. Press something on the controller.	अभी कुछ नहीं आया। कंट्रोलर का कोई बटन या नियंत्रण चलाएँ।
+Audio fade-in: follow visual fade, none, or explicit seconds	ध्वनि फ़ेड इन: चित्र का अनुसरण, बंद या तय सेकंड
+Audio fade-out: follow visual fade, none, or explicit seconds	ध्वनि फ़ेड आउट: चित्र का अनुसरण, बंद या तय सेकंड
+Add a library shape to this mask; its points are yours to move	मास्क में लाइब्रेरी की आकृति जोड़ें; उसके बिंदु खिसका सकते हैं
+No slices: this output shows its one picture. + SLICE to start.	स्लाइस नहीं: आउटपुट अपना चित्र दिखाता है। + SLICE से शुरू करें।
+Open and close this edge on an oscillator -- a wipe that breathes	ऑसिलेटर से यह किनारा खोलें-बंद करें: लयबद्ध वाइप
+(none)	(कोई नहीं)
+(nothing yet)	(अभी कुछ नहीं)
++ ADD AN OUTPUT	+ आउटपुट जोड़ें
+>LIVE	>लाइव
+(no media source)	(मीडिया स्रोत नहीं)
+snap	तुरंत
+this deck	यह डेक
+protocol	प्रोटोकॉल
+does	कार्य
+signal	संकेत
+sine	साइन
+freq	आवृत्ति
+visuals	दृश्य
+black	काला
+green	हरा
+blue	नीला
+Pause at start	शुरू में विराम
+Pause at end	अंत में विराम
+Transition to next	अगले में बदलाव
+Hardware display	डिस्प्ले
+Raster mode	रास्टर मोड
+Refresh rate	रिफ़्रेश दर
+Bit depth	बिट गहराई
+SDR material at	SDR स्तर
+HDR signal	HDR संकेत
+Fullscreen	पूर्ण स्क्रीन
+Matte aspect	मैट अनुपात
+Bar opacity	पट्टी अपारदर्शिता
+Output mask	आउटपुट मास्क
+Overlay still	स्थिर ओवरले
+Overlay opacity	ओवरले अपारदर्शिता
+Overlay image	ओवरले चित्र
+Place it	स्थिति रखें
+Corner pin	कोने टिकाएँ
+Slices	स्लाइस
+choose...	चुनें...
+not configured	सेट नहीं
+(default system device)	(सिस्टम का डिफ़ॉल्ट उपकरण)
+(no monitor)	(मॉनिटर नहीं)
+System audio (SDL)	सिस्टम ऑडियो (SDL)
+Not watching a folder	कोई फ़ोल्डर निगरानी में नहीं
+anyone	कोई भी
+When taken off air	प्रसारण से हटने पर
+browser cue added	ब्राउज़र cue जोड़ा
+source cue added	स्रोत cue जोड़ा
+text added	टेक्स्ट जोड़ा
+tone cue added	टोन cue जोड़ा
+gain	गेन
+follow	अनुसरण
+moves	गति
+overtime	अतिरिक्त समय
+chime	झंकार
+bell	घंटी
+load a sprite sheet from a file...	फ़ाइल से sprite शीट लोड करें...
+Run the clock	घड़ी चलाएँ
+What fires this cue besides GO	GO के अलावा इस cue को क्या चलाता है
+center	बीच
+visual	दृश्य

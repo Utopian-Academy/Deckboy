@@ -1870,3 +1870,133 @@ transparent outside the ink: put it on a layer	прозрачно вне чер�
 what is said, on screen, made on this computer	что сказано, на экране, сделано на этом компьютере
 What this cue does when it ends - click to change	Что делает cue в конце: щёлкните, чтобы изменить
 Whether the next shape or pen path adds or cuts	Добавляет или режет следующая фигура или контур
+shape	форма
+palette	палитра
+scale	масштаб
+feedback	обр. связь
+RED	КРАСНЫЙ
+do it	выполнить
+(empty)	(пусто)
+(unset)	(не задано)
+English	Английский
+amber at	жёлтый при
++ section	+ раздел
++pause pt	+ пауза
+a-fade in	звук вход
+amber col	жёлтый цвет
+(no notes)	(нет заметок)
+a-fade out	звук выход
+gain (each)	усил. (кажд.)
+% of the height	% высоты
++  a first step	+  первый шаг
++ ADD AN EFFECT	+ ДОБАВИТЬ ЭФФЕКТ
+(none playing now)	(ничего не играет)
+Keep a transcript (.srt)	Сохранять расшифровку (.srt)
+Key tolerance (RGB distance)	Допуск key (расстояние RGB)
+Contrast multiplier (0.0-2.0x)	Множитель контраста (0.0–2.0x)
+Brightness multiplier (0.0-2.0x)	Множитель яркости (0.0–2.0x)
+Saturation multiplier (0.0-2.0x)	Множитель насыщенности (0.0–2.0x)
+Output rotation angle (-180..180)	Угол поворота выхода (-180..180)
+Hue rotation (-180 to +180 degrees)	Поворот оттенка (-180 до +180 градусов)
+Lower Third background opacity (0-255)	Непрозрачность фона нижнего титра (0–255)
+0-127; 127 addresses every device on the line	0–127; 127 адресует все устройства линии
+GO shows the note; picture and sound carry on	GO показывает заметку; изображение и звук продолжаются
+How fast it moves; no effect when it is still	Скорость движения; не влияет на неподвижный объект
+Fires when incoming timecode passes this point	Срабатывает, когда входящий таймкод проходит эту точку
+Source pixels, independent of output placement	Пиксели источника, независимо от размещения на выходе
+Stereo balance, applied live (snaps to center)	Стереобаланс вживую (фиксация в центре)
+bypassed: nothing here is processed or limited	обход: без обработки и ограничения
+Per-cue audio trim: -40 to +40 dB, applied live	Усиление cue: -40 до +40 dB, вживую
+Show the message in red - the wrap up NOW state	Красное сообщение: завершать ПРЯМО СЕЙЧАС
+The brush's width, as % of the picture's height	Ширина кисти в % от высоты изображения
+What the stream carries: SDR, PQ (HDR10) or HLG	Содержимое потока: SDR, PQ (HDR10) или HLG
+Digit colour once red is reached, and in overtime	Цвет цифр после красного порога и при превышении времени
+Downmix this cue to mono (mono sources / mono PA)	Свести cue в моно (моноисточник / моно PA)
+Drag to scrub (shift = fine), click to type exact	Тяните для прокрутки (Shift: точно), щёлкните для ввода значения
+Hand this to an oscillator so it moves on its own	Назначьте осциллятор для самостоятельного движения
+Changing width also scales height (and vice versa)	Изменение ширины масштабирует и высоту, и наоборот
+How long the levels take to arrive; zero is a snap	Время достижения уровней; ноль меняет мгновенно
+Set the self-contained PIP source for this overlay	Задайте независимый источник PIP для этого наложения
+Take the newest shape or pen path out of this mask	Удалить последнюю фигуру или путь пера из маски
+An address sent to Deckboy's OSC port fires this cue	Этот адрес на OSC-порту Deckboy запускает cue
+Hold on the last composite frame when the scene ends	Удерживать последний составной кадр в конце сцены
+How long it takes; zero is a snap rather than a fade	Длительность; ноль меняет сразу, без затухания
+Set still/pattern/browser duration for selected cues	Длительность изображения/шаблона/браузера выбранных cues
+Start the LTC carrier, stop it, or jam it to a value	Запустить, остановить или синхронизировать несущую LTC со значением
+Which cue on that deck; step off the end to clear it	Cue на этой деке; шаг за конец очищает выбор
+Bob up and down. Depth 1 is half the frame either way	Вверх и вниз. Глубина 1: половина кадра в каждую сторону
+Output width in pixels | click value to type exact px	Ширина выхода в пикселях; щёлкните для точного ввода
+Set the stream URL (srt://, rtmp://, rtsp://, udp://)	Задать URL потока (srt://, rtmp://, rtsp://, udp://)
+Fires at this time on this computer's clock, every day	Срабатывает ежедневно в это время по часам компьютера
+Output height in pixels | click value to type exact px	Высота выхода в пикселях; щёлкните для точного ввода
+Bar across the foot - readable further back than digits	Полоса внизу: видна с большего расстояния, чем цифры
+OUTPUT: drag a slice to move it, its corners to size it.	ВЫХОД: тяните срез для перемещения, углы для изменения размера
+Choose a Lower Third from the overlay bin to fire on TAKE	Выберите нижний титр из набора наложений для запуска по TAKE
+Choose a PIP overlay from the overlay bin to fire on TAKE	Выберите PIP из набора наложений для запуска по TAKE
+OUTPUT: drag a slice to move it, its corners to pin them.	ВЫХОД: тяните срез для перемещения, углы для их закрепления
+F1-F10, F12 or the number pad fires this cue from anywhere	F1–F10, F12 или цифровая клавиатура запускают cue отовсюду
+Use transition when auto-advancing or goto-taking next cue	Использовать переход при автопродвижении или GOTO к следующему cue
+Nothing has arrived yet. Press something on the controller.	Пока ничего не поступило. Задействуйте элемент контроллера.
+Audio fade-in: follow visual fade, none, or explicit seconds	Нарастание звука: вслед за изображением, нет или заданные секунды
+Audio fade-out: follow visual fade, none, or explicit seconds	Затухание звука: вслед за изображением, нет или заданные секунды
+Add a library shape to this mask; its points are yours to move	Добавить фигуру из библиотеки в маску; её точки можно двигать
+No slices: this output shows its one picture. + SLICE to start.	Нет срезов: выход показывает своё изображение. Начните с + SLICE.
+Open and close this edge on an oscillator -- a wipe that breathes	Открывать и закрывать край осциллятором: пульсирующая шторка
+(none)	(нет)
+(nothing yet)	(пока пусто)
++ ADD AN OUTPUT	+ ДОБАВИТЬ ВЫХОД
+>LIVE	>В ЭФИРЕ
+(no media source)	(нет источника медиа)
+snap	мгновенно
+this deck	эта дека
+protocol	протокол
+does	действие
+signal	сигнал
+sine	синус
+freq	частота
+visuals	изображение
+black	чёрный
+green	зелёный
+blue	синий
+Pause at start	Пауза вначале
+Pause at end	Пауза в конце
+Transition to next	Переход далее
+Hardware display	Экран
+Raster mode	Режим растра
+Refresh rate	Обновление
+Bit depth	Разрядность
+SDR material at	Уровень SDR
+HDR signal	Сигнал HDR
+Fullscreen	Полный экран
+Matte aspect	Формат маски
+Bar opacity	Плотн. полос
+Output mask	Маска выхода
+Overlay still	Стат. слой
+Overlay opacity	Плотн. слоя
+Overlay image	Картинка слоя
+Place it	Разместить
+Corner pin	Углы
+Slices	Срезы
+choose...	выбрать...
+not configured	не настроено
+(default system device)	(устройство по умолчанию)
+(no monitor)	(нет монитора)
+System audio (SDL)	Системный звук (SDL)
+Not watching a folder	Нет отслеживаемой папки
+anyone	любой
+When taken off air	При уходе из эфира
+browser cue added	добавлен cue браузера
+source cue added	добавлен cue источника
+text added	добавлен текст
+tone cue added	добавлен cue тона
+gain	усиление
+follow	следовать
+moves	движение
+overtime	сверх времени
+chime	звон
+bell	колокол
+load a sprite sheet from a file...	загрузить лист спрайтов из файла...
+Run the clock	Запустить часы
+What fires this cue besides GO	Что запускает cue кроме GO
+center	Центр
+visual	изображение

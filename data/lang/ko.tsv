@@ -1873,3 +1873,132 @@ transparent outside the ink: put it on a layer	잉크 밖은 투명: 레이어�
 what is said, on screen, made on this computer	말한 내용을 화면에, 이 컴퓨터에서 생성
 What this cue does when it ends - click to change	이 큐의 종료 동작: 클릭하여 변경
 Whether the next shape or pen path adds or cuts	다음 도형이나 경로가 더할지 자를지
+shape	모양
+palette	팔레트
+scale	배율
+feedback	피드백
+RED	빨강
+do it	실행
+(empty)	(비어 있음)
+(unset)	(미설정)
+English	영어
+amber at	노랑 전환
++ section	+ 구간
++pause pt	+ 일시정지점
+a-fade in	음향 페이드인
+amber col	노란색
+(no notes)	(메모 없음)
+a-fade out	음향 페이드아웃
+gain (each)	게인 (각각)
+% of the height	높이의 %
++  a first step	+  첫 단계
++ ADD AN EFFECT	+ 효과 추가
+(none playing now)	(재생 중인 항목 없음)
+Keep a transcript (.srt)	전사 저장 (.srt)
+Key tolerance (RGB distance)	키 허용오차 (RGB 거리)
+Contrast multiplier (0.0-2.0x)	대비 배율 (0.0–2.0x)
+Brightness multiplier (0.0-2.0x)	밝기 배율 (0.0–2.0x)
+Saturation multiplier (0.0-2.0x)	채도 배율 (0.0–2.0x)
+Output rotation angle (-180..180)	출력 회전 각도 (-180..180)
+Hue rotation (-180 to +180 degrees)	색조 회전 (-180~+180도)
+Lower Third background opacity (0-255)	하단 자막 배경 불투명도 (0–255)
+0-127; 127 addresses every device on the line	0–127; 127은 선상의 모든 장치를 지정
+GO shows the note; picture and sound carry on	GO로 메모 표시; 영상과 소리는 계속 재생
+How fast it moves; no effect when it is still	이동 속도; 정지 상태에서는 효과 없음
+Fires when incoming timecode passes this point	입력 타임코드가 이 지점을 지나면 실행
+Source pixels, independent of output placement	출력 배치와 무관한 원본 픽셀
+Stereo balance, applied live (snaps to center)	스테레오 균형 즉시 반영 (중앙에 스냅)
+bypassed: nothing here is processed or limited	우회 중: 처리나 제한을 적용하지 않음
+Per-cue audio trim: -40 to +40 dB, applied live	큐 게인: -40~+40 dB, 즉시 적용
+Show the message in red - the wrap up NOW state	메시지를 빨강으로 표시: 지금 마무리할 상태
+The brush's width, as % of the picture's height	영상 높이에 대한 브러시 너비 비율 (%)
+What the stream carries: SDR, PQ (HDR10) or HLG	스트림 형식: SDR, PQ (HDR10) 또는 HLG
+Digit colour once red is reached, and in overtime	빨강 임계점 이후 및 시간 초과 시 숫자 색
+Downmix this cue to mono (mono sources / mono PA)	큐를 모노로 믹스 (모노 소스 / 모노 PA)
+Drag to scrub (shift = fine), click to type exact	끌어서 탐색 (Shift: 미세 조정), 클릭해 정확한 값 입력
+Hand this to an oscillator so it moves on its own	오실레이터에 맡겨 자동으로 움직이게 함
+Changing width also scales height (and vice versa)	너비 변경 시 높이도 조절되며 그 반대도 동일
+How long the levels take to arrive; zero is a snap	목표 레벨까지 걸리는 시간; 0은 즉시 변경
+Set the self-contained PIP source for this overlay	이 오버레이의 독립적인 PIP 소스 지정
+Take the newest shape or pen path out of this mask	마스크에서 가장 최근 도형이나 펜 경로 제거
+An address sent to Deckboy's OSC port fires this cue	Deckboy OSC 포트에서 이 주소를 받으면 큐 실행
+Hold on the last composite frame when the scene ends	장면 종료 시 마지막 합성 프레임 유지
+How long it takes; zero is a snap rather than a fade	소요 시간; 0이면 페이드 없이 즉시 변경
+Set still/pattern/browser duration for selected cues	선택한 큐의 정지영상/패턴/브라우저 길이 설정
+Start the LTC carrier, stop it, or jam it to a value	LTC 반송파 시작, 정지 또는 지정 값으로 동기화
+Which cue on that deck; step off the end to clear it	해당 덱의 큐; 끝을 지나면 선택 해제
+Bob up and down. Depth 1 is half the frame either way	위아래로 이동. 깊이 1: 양쪽으로 반 프레임
+Output width in pixels | click value to type exact px	출력 너비 (픽셀); 클릭해 정확한 값 입력
+Set the stream URL (srt://, rtmp://, rtsp://, udp://)	스트림 URL 설정 (srt://, rtmp://, rtsp://, udp://)
+Fires at this time on this computer's clock, every day	매일 이 컴퓨터 시계의 지정 시각에 실행
+Output height in pixels | click value to type exact px	출력 높이 (픽셀); 클릭해 정확한 값 입력
+Bar across the foot - readable further back than digits	하단 막대: 숫자보다 먼 거리에서 읽기 쉬움
+OUTPUT: drag a slice to move it, its corners to size it.	출력: 슬라이스를 끌어 이동, 모서리를 끌어 크기 조절
+Choose a Lower Third from the overlay bin to fire on TAKE	TAKE로 실행할 하단 자막을 오버레이 보관함에서 선택
+Choose a PIP overlay from the overlay bin to fire on TAKE	TAKE로 실행할 PIP를 오버레이 보관함에서 선택
+OUTPUT: drag a slice to move it, its corners to pin them.	출력: 슬라이스를 끌어 이동, 모서리를 끌어 고정
+F1-F10, F12 or the number pad fires this cue from anywhere	F1–F10, F12 또는 숫자 키패드로 어디서든 이 큐 실행
+Use transition when auto-advancing or goto-taking next cue	자동 진행 또는 다음 큐로 GOTO 이동 시 전환 사용
+Nothing has arrived yet. Press something on the controller.	아직 수신된 내용이 없습니다. 컨트롤러를 조작하세요.
+Audio fade-in: follow visual fade, none, or explicit seconds	음향 페이드인: 영상 따라가기, 없음 또는 지정한 초
+Audio fade-out: follow visual fade, none, or explicit seconds	음향 페이드아웃: 영상 따라가기, 없음 또는 지정한 초
+Add a library shape to this mask; its points are yours to move	마스크에 라이브러리 도형 추가; 점을 이동할 수 있음
+No slices: this output shows its one picture. + SLICE to start.	슬라이스 없음: 출력은 자신의 영상 표시. + SLICE로 시작
+Open and close this edge on an oscillator -- a wipe that breathes	오실레이터로 이 가장자리를 여닫기: 호흡하는 와이프
+(none)	(없음)
+(nothing yet)	(아직 없음)
++ ADD AN OUTPUT	+ 출력 추가
+>LIVE	>라이브
+(no media source)	(미디어 소스 없음)
+snap	즉시
+this deck	이 덱
+protocol	프로토콜
+does	동작
+signal	신호
+sine	사인파
+freq	주파수
+visuals	시각화
+black	검정
+green	초록
+blue	파랑
+Pause at start	시작 시 일시정지
+Pause at end	끝에서 일시정지
+Transition to next	다음으로 전환
+Hardware display	디스플레이
+Raster mode	래스터 모드
+Refresh rate	새로 고침 빈도
+Bit depth	비트 깊이
+SDR material at	SDR 레벨
+HDR signal	HDR 신호
+Fullscreen	전체 화면
+Matte aspect	매트 비율
+Bar opacity	막대 불투명도
+Output mask	출력 마스크
+Overlay still	정지영상 오버레이
+Overlay opacity	오버레이 불투명도
+Overlay image	오버레이 이미지
+Place it	배치
+Corner pin	모서리 고정
+choose...	선택...
+not configured	미설정
+(default system device)	(시스템 기본 장치)
+(no monitor)	(모니터 없음)
+System audio (SDL)	시스템 오디오 (SDL)
+Not watching a folder	감시 중인 폴더 없음
+anyone	누구나
+When taken off air	방송에서 빠질 때
+browser cue added	브라우저 큐 추가됨
+source cue added	소스 큐 추가됨
+text added	텍스트 추가됨
+tone cue added	톤 큐 추가됨
+gain	게인
+follow	따르기
+moves	움직임
+overtime	시간 초과
+chime	알림음
+bell	종
+load a sprite sheet from a file...	파일에서 스프라이트 시트 불러오기...
+Run the clock	시계 시작
+What fires this cue besides GO	GO 외에 이 큐를 실행하는 조건
+center	중앙
+visual	시각화

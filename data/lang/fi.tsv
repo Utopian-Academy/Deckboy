@@ -1859,3 +1859,133 @@ transparent outside the ink: put it on a layer	läpinäkyvä musteen ulkopuolell
 what is said, on screen, made on this computer	mitä sanotaan, näytöllä, tehty tällä tietokoneella
 What this cue does when it ends - click to change	Mitä tämä cue tekee lopussa: vaihda napsauttamalla
 Whether the next shape or pen path adds or cuts	Lisääkö vai leikkaako seuraava muoto tai polku
+shape	muoto
+palette	paletti
+scale	skaala
+feedback	takaisinkytk.
+RED	PUNAINEN
+do it	suorita
+(empty)	(tyhjä)
+(unset)	(ei asetettu)
+English	Englanti
+amber at	keltainen kun
++ section	+ osio
++pause pt	+ taukokohta
+a-fade in	äänen alku
+amber col	kelt. väri
+(no notes)	(ei muistiinpanoja)
+a-fade out	äänen loppu
+gain (each)	vahv. (kukin)
+% of the height	% korkeudesta
++  a first step	+  ensi askel
++ ADD AN EFFECT	+ LISÄÄ TEHOSTE
+(none playing now)	(ei toistoa nyt)
+Keep a transcript (.srt)	Tallenna litterointi (.srt)
+Key tolerance (RGB distance)	Key-toleranssi (RGB-etäisyys)
+Contrast multiplier (0.0-2.0x)	Kontrastikerroin (0.0–2.0x)
+Brightness multiplier (0.0-2.0x)	Kirkkauskerroin (0.0–2.0x)
+Saturation multiplier (0.0-2.0x)	Kylläisyyskerroin (0.0–2.0x)
+Output rotation angle (-180..180)	Ulostulon kiertokulma (-180..180)
+Hue rotation (-180 to +180 degrees)	Sävyn kierto (-180...+180 astetta)
+Lower Third background opacity (0-255)	Alatekstin taustan peittävyys (0–255)
+0-127; 127 addresses every device on the line	0–127; 127 osoittaa kaikkia linjan laitteita
+GO shows the note; picture and sound carry on	GO näyttää muistiinpanon; kuva ja ääni jatkuvat
+How fast it moves; no effect when it is still	Liikenopeus; ei vaikutusta paikallaan
+Fires when incoming timecode passes this point	Laukeaa saapuvan aikakoodin ohittaessa tämän kohdan
+Source pixels, independent of output placement	Lähdepikselit, riippumatta ulostulon sijoittelusta
+Stereo balance, applied live (snaps to center)	Stereotasapaino reaaliajassa (napsahtaa keskelle)
+bypassed: nothing here is processed or limited	ohitettu: ei käsittelyä eikä rajoitusta
+Per-cue audio trim: -40 to +40 dB, applied live	Cuen vahvistus: -40...+40 dB, reaaliajassa
+Show the message in red - the wrap up NOW state	Viesti punaisena: lopetettava NYT
+The brush's width, as % of the picture's height	Siveltimen leveys prosentteina kuvan korkeudesta
+What the stream carries: SDR, PQ (HDR10) or HLG	Virran sisältö: SDR, PQ (HDR10) tai HLG
+Digit colour once red is reached, and in overtime	Numeroiden väri punaisen rajan jälkeen ja yliajalla
+Downmix this cue to mono (mono sources / mono PA)	Sekoita cue monoksi (monolähde / mono-PA)
+Drag to scrub (shift = fine), click to type exact	Selaa vetämällä (Shift: tarkasti), syötä arvo napsauttamalla
+Hand this to an oscillator so it moves on its own	Anna oskillaattorin liikuttaa tätä automaattisesti
+Changing width also scales height (and vice versa)	Leveyden muutos skaalaa myös korkeutta ja päinvastoin
+How long the levels take to arrive; zero is a snap	Aika tavoitetasoihin; nolla vaihtaa heti
+Set the self-contained PIP source for this overlay	Aseta tämän peittokuvan itsenäinen PIP-lähde
+Take the newest shape or pen path out of this mask	Poista maskin uusin muoto tai kynäpolku
+An address sent to Deckboy's OSC port fires this cue	Tämä osoite Deckboyn OSC-portissa laukaisee cuen
+Hold on the last composite frame when the scene ends	Pidä viimeinen yhdistelmäkuva kohtauksen päättyessä
+How long it takes; zero is a snap rather than a fade	Kesto; nolla vaihtaa heti ilman häivytystä
+Set still/pattern/browser duration for selected cues	Aseta valittujen kuva-/kuvio-/selaincueiden kesto
+Start the LTC carrier, stop it, or jam it to a value	Käynnistä tai pysäytä LTC-kantoaalto tai tahdista arvoon
+Which cue on that deck; step off the end to clear it	Cue kyseisellä dekillä; tyhjennä siirtymällä lopun yli
+Bob up and down. Depth 1 is half the frame either way	Ylös ja alas. Syvyys 1: puoli kuvaa kumpaankin suuntaan
+Output width in pixels | click value to type exact px	Ulostulon leveys pikseleinä; napsauta syöttääksesi tarkan arvon
+Set the stream URL (srt://, rtmp://, rtsp://, udp://)	Aseta virran URL (srt://, rtmp://, rtsp://, udp://)
+Fires at this time on this computer's clock, every day	Laukeaa päivittäin tähän aikaan tietokoneen kellon mukaan
+Output height in pixels | click value to type exact px	Ulostulon korkeus pikseleinä; napsauta syöttääksesi tarkan arvon
+Bar across the foot - readable further back than digits	Alapalkki: näkyy kauemmas kuin numerot
+OUTPUT: drag a slice to move it, its corners to size it.	ULOSTULO: siirrä viipaletta vetämällä, muuta kokoa kulmista
+Choose a Lower Third from the overlay bin to fire on TAKE	Valitse peittokuvista alateksti, jonka TAKE käynnistää
+Choose a PIP overlay from the overlay bin to fire on TAKE	Valitse peittokuvista PIP, jonka TAKE käynnistää
+OUTPUT: drag a slice to move it, its corners to pin them.	ULOSTULO: siirrä viipaletta vetämällä, kiinnitä kulmat vetämällä
+F1-F10, F12 or the number pad fires this cue from anywhere	F1–F10, F12 tai numeronäppäimistö laukaisee cuen kaikkialta
+Use transition when auto-advancing or goto-taking next cue	Käytä siirtymää automaattisessa etenemisessä tai GOTO-hypyssä
+Nothing has arrived yet. Press something on the controller.	Mitään ei ole saapunut. Käytä ohjaimen säädintä.
+Audio fade-in: follow visual fade, none, or explicit seconds	Äänen sisäänhäivytys: seuraa kuvaa, ei mitään tai määritetyt sekunnit
+Audio fade-out: follow visual fade, none, or explicit seconds	Äänen uloshäivytys: seuraa kuvaa, ei mitään tai määritetyt sekunnit
+Add a library shape to this mask; its points are yours to move	Lisää kirjastomuoto maskiin; voit siirtää sen pisteitä
+No slices: this output shows its one picture. + SLICE to start.	Ei viipaleita: ulostulo näyttää oman kuvansa. Aloita: + SLICE.
+Open and close this edge on an oscillator -- a wipe that breathes	Avaa ja sulje reuna oskillaattorilla: hengittävä pyyhkäisy
+(none)	(ei mitään)
+(nothing yet)	(ei vielä mitään)
++ ADD AN OUTPUT	+ LISÄÄ ULOSTULO
+>LIVE	>SUORA
+(no media source)	(ei medialähdettä)
+snap	heti
+this deck	tämä dekki
+protocol	protokolla
+does	toiminto
+signal	signaali
+sine	sini
+freq	taajuus
+visuals	kuva
+black	musta
+green	vihreä
+blue	sininen
+Pause at start	Alkutauko
+Pause at end	Lopputauko
+Transition to next	Siirtymä seur.
+Hardware display	Näyttölaite
+Raster mode	Rasteritila
+Refresh rate	Virkistys
+Bit depth	Bittisyvyys
+SDR material at	SDR-taso
+HDR signal	HDR-signaali
+Fullscreen	Koko näyttö
+Matte aspect	Maskin suhde
+Bar opacity	Palkin peitto
+Output mask	Ulost. maski
+Overlay still	Päällyskuva
+Overlay opacity	Peittokyky
+Overlay image	Peittokuva
+Place it	Sijoita
+Corner pin	Kulmapisteet
+Slices	Viipaleet
+choose...	valitse...
+not configured	ei määritetty
+(default system device)	(järjestelmän oletuslaite)
+(no monitor)	(ei monitoria)
+System audio (SDL)	Järjestelmä-ääni (SDL)
+Not watching a folder	Ei seurattavaa kansiota
+anyone	kuka tahansa
+When taken off air	Kun poistuu lähetyksestä
+browser cue added	selaincue lisätty
+source cue added	lähdecue lisätty
+text added	teksti lisätty
+tone cue added	äänicue lisätty
+gain	vahvistus
+follow	seuraa
+moves	liike
+overtime	yliaika
+chime	äänimerkki
+bell	kello
+load a sprite sheet from a file...	lataa spritearkki tiedostosta...
+Run the clock	Käynnistä kello
+What fires this cue besides GO	Mikä laukaisee cuen GO:n lisäksi
+center	Keskikohta
+visual	kuva
