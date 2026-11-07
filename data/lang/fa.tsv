@@ -1377,3 +1377,503 @@ out	خروجی
 pan	تراز
 routing	مسیریابی
 trim	برش
+0-63, the hardware's own gain range.	0-63، بهرهٔ خود سخت‌افزار.
+1-16, as the desk counts them	1-16، همان‌طور که میز می‌شمارد
+7-segment, blocky, or a real font	7 بخشی، چهارگوش یا یک قلم واقعی
+[ / ] keys — fade-in duration	کلیدهای [ / ]: مدت ورود
+a camera moves the ~ controls	دوربین کنترل‌ها را حرکت می‌دهد ~
+a chain on a device, after the mix	زنجیره روی دستگاه، پس از میکس
+a comment	یک یادداشت
+Act now, without taking the cue	الان اجرا کن، بدون گرفتن کیو
+Add a light	افزودن نور
+add a second output to pair	یک خروجی دوم برای جفت کردن بیفزایید
+add shape	افزودن شکل
+all driven by the cue's own transport	همه با پخش خود کیو کار می‌کنند
+All interfaces; trusted machines only.	همهٔ رابط‌ها؛ فقط دستگاه‌های مورد اعتماد.
+all to 0	همه روی 0
+An audio effect's knob	پیچ جلوهٔ صوتی
+An effect's knob	پیچ جلوه
+any channel	هر کانال
+any window, any screen	هر پنجره، هر صفحه
+arcade	آرکید
+Arm this cue as the one GO will fire	این کیو را برای GO بعدی آماده کن
+Art-Net port address, 0-32767	نشانی درگاه Art-Net، 0-32767
+Attached overlays fire on TAKE only	لایه‌های پیوسته فقط با TAKE شروع می‌شوند
+BACK TO BUG SWAT	بازگشت به BUG SWAT
+backdrop	پس‌زمینه
+bar	نوار
+bg alpha	آلفای پس‌زمینه
+black lift	بالا بردن سیاهی
+blend gamma	گامای ترکیب
+blueprint	نقشهٔ آبی
+boxes	جعبه‌ها
+bracket	کروشه‌ها
+bulletin	بولتن
+by density	بر اساس چگالی
+BY FIXTURE	بر اساس دستگاه
+capsule	کپسول
+caption	زیرنویس
+card	کارت
+CARD OFF ALL	خاموش کردن کارت همه
+CARD ON ALL	روشن کردن کارت همه
+cartridge	کارتریج
+cassette	کاست
+Ceiling	سقف
+Chain	زنجیره
+Changing this re-prepares the cue.	تغییر آن کیو را دوباره آماده می‌کند.
+channel list is not readable	فهرست کانال‌ها خوانده نشد
+CHANNELS	کانال‌ها
+channels on your interfaces, by name	کانال‌های رابط‌های شما، به نام
+Checkerboard	شطرنجی
+chime amber	هشدار کهربایی
+chime red	هشدار قرمز
+chime zero	هشدار صفر
+Choose startup mode:	حالت شروع را انتخاب کنید:
+circle, heart, star...	دایره، قلب، ستاره...
+circuit	مدار
+CLASSIC VIEW	نمای کلاسیک
+clear driver	پاک کردن گرداننده
+Clear in/out trim points	پاک کردن نقاط ورود و خروج
+CLEAR OVERLAY  [Backspace]	پاک کردن لایه  [Backspace]
+Clear the active Lower Third overlay now	Lower Third زنده را الان بردار
+Clear the live PIP overlay now	لایهٔ PIP را الان بردار
+CLICK ANYWHERE...	هر جا کلیک کنید...
+click or Esc to close	برای بستن کلیک کنید یا Esc
+click this window	روی این پنجره کلیک کنید
+Click to edit cue notes	برای ویرایش یادداشت‌های کیو کلیک کنید
+click to open the grid	برای باز کردن شبکه کلیک کنید
+Click to seek — drag to scrub	برای رفتن کلیک، برای پیمایش بکشید
+Click to type it	برای نوشتن کلیک کنید
+comic	کمیک
+Companion passphrase	گذرعبارت Companion
+confetti	کاغذ رنگی
+Connections at once	اتصال‌های هم‌زمان
+count up	شمارش رو به بالا
+Countdown, count up, or wall clock	شمارش معکوس، رو به بالا یا ساعت
+credit	تیتراژ
+crossfade	کراس‌فیدر
+crosshair	نشانهٔ هدف
+Crosshatch	هاشور متقاطع
+Cue has no audio	کیو صدا ندارد
+cue number	شمارهٔ کیو
+Cycle end action for selected cues	تغییر کنش پایان کیوهای انتخابی
+Cycle which slot drives scene audio	تغییر جایگاهی که صدای صحنه را می‌دهد
+dateline	خط تاریخ
+deck	دک
+decoder spin-up	شروع رمزگشا
+Default App Feed	منبع پیش‌فرض برنامه
+Default Camera	دوربین پیش‌فرض
+Delay before the continue fires	تأخیر پیش از ادامه
+Delay between GO and this cue starting	تأخیر میان GO و شروع کیو
+depth 1 turns it all the way round	عمق 1 یک دور کامل می‌زند
+Digit colour once amber is reached	رنگ رقم در کهربایی
+Digit colour while there is time in hand	رنگ رقم وقتی زمان هست
+diskette	دیسکت
+Do it now, without taking the cue	الان انجام بده، بدون گرفتن کیو
+dossier	پرونده
+dotmatrix	ماتریس نقطه‌ای
+Double-GO guard	حفاظت GO دوباره
+draw on the monitor	روی مانیتور بکش
+driver speed	سرعت گرداننده
+EDGE BLEND	ترکیب لبه
+EDIT is on: typing changes the show	EDIT روشن: نوشتن نمایش را تغییر می‌دهد
+edit on the monitor	روی مانیتور ویرایش کن
+Edit the main Lower Third title	ویرایش عنوان Lower Third
+Edit the secondary Lower Third line	ویرایش خط دوم Lower Third
+eq band	باند EQ
+equalizer	اکولایزر
+Esc cancels	Esc لغو می‌کند
+Esc cancels, arrows nudge	Esc لغو می‌کند، پیکان‌ها جابه‌جا می‌کنند
+Esc to close	Esc برای بستن
+even grid	شبکهٔ یکنواخت
+EXAMPLE SHOWS	نمایش نمونه
+EXIT  Esc	خروج  Esc
+face	چهره
+factory settings	تنظیمات کارخانه
+Fade+LoadNext	محو+بارگذاری بعدی
+Fade+Pause	محو+مکث
+Fade+Rewind	محو+بازگشت
+Fade-in duration	مدت ورود
+Fade-in duration for this cue	ورود این کیو
+Fade-out duration	مدت خروج
+Fade-out duration before next cue	خروج پیش از کیوی بعدی
+Fade-out duration for this cue	خروج این کیو
+Fall	افت
+false colour reads SDR pictures	رنگ کاذب تصویر SDR می‌خواند
+fill the frame	قاب را پر کن
+find a named colour	یافتن رنگ با نام
+fires cues	کیوها را اجرا می‌کند
+first available	نخستین آزاد
+Fit/Fill/Stretch/Unscaled	جا دادن/پر کردن/کشیدن/بدون مقیاس
+Fixed repeat count — 0 = infinite	تعداد تکرار ثابت: 0 = بی‌پایان
+Fixed repeat count — 0 = loop forever	تعداد تکرار ثابت: 0 = بدون توقف
+FIXED!	درست شد!
+flag	پرچم
+FORGET MY DEFAULTS	پیش‌فرض‌هایم را فراموش کن
+Frames a second	فریم در ثانیه
+from exactly this routing	مستقیم از همین مسیر
+Full Black	سیاه کامل
+Full Blue	آبی کامل
+Full Green	سبز کامل
+Full Red	قرمز کامل
+Full White	سفید کامل
+garden	باغ
+Ghastly	شبح‌وار
+glass	شیشه
+glitch down	گلیچ پایین
+glitch drift	رانش گلیچ
+glitch reach	برد گلیچ
+glitch through	گلیچ درون
+glitch up	گلیچ بالا
+GO steps over it	GO از آن می‌گذرد
+hairline	خط نازک
+Haptics	لرزش
+HDR input	ورودی HDR
+Hex, e.g. 90 3C 7F	Hex، مانند 90 3C 7F
+HOLDING OFF AIR	نگه‌داشته بیرون از پخش
+Home — skip to start	Home: رفتن به آغاز
+Horizontal output offset in pixels	جابه‌جایی افقی خروجی به پیکسل
+How many features fit on screen.	چند تا در صفحه جا می‌شود.
+how much of this effect	مقدار این جلوه
+How solid the ink is	پوشش جوهر
+How tall the logo is above the clock	بلندی لوگو بالای ساعت
+In-point: cue starts playback here	نقطهٔ ورود: کیو از اینجا شروع می‌شود
+index	نمایه
+initializing webview	شروع webview
+install Tailscale here and on the phone	Tailscale را اینجا و روی تلفن نصب کنید
+INSTALLING...	در حال نصب...
+Its amount, or one of its knobs A to D	مقدار آن، یا یکی از پیچ‌های A تا D
+J jump to row	J: پرش به ردیف
+jam to	همگام با
+Jump the driver back to its first frame	گرداننده را به فریم اول برگردان
+K — cycle cue color tag	K: تغییر رنگ کیو
+Keep counting past zero, or stop dead	شمارش پس از صفر یا توقف
+key	کلید
+Key edge softness	نرمی لبهٔ کی
+knob	پیچ
+L - loop this cue continuously	L: تکرار این کیو
+last reading	آخرین خوانش
+Last refused	آخرین ردشده
+Learn it	یادگیری
+LEARN THE BASICS	مبانی را یاد بگیرید
+ledger	دفتر حساب
+Left — skip back 10s	چپ: 10 ثانیه عقب
+Left, centre or right	چپ، وسط یا راست
+LESSONS	درس‌ها
+Levels	سطوح
+Limiter	محدودکننده
+Limiting	محدودسازی
+line  |  Enter: apply	خط  |  Enter: اعمال
+LINEAR - a feather, not a blend	خطی: یک گرادیان، نه ترکیب
+Linear, ease in, ease out or S-curve	خطی، ورود، خروج یا منحنی S
+Lines	خطوط
+link aspect	پیوند نسبت
+Listen to	گوش دادن
+listener	شنونده
+LIVE - every assigned deck matches	LIVE: همهٔ دک‌های تخصیص‌یافته یکسان‌اند
+lock to screen	قفل روی صفحه
+logo	لوگو
+logo size	اندازهٔ لوگو
+look at it	نگاهش کن
+lower 3rd	Lower Third
+marquee	تابلوی روان
+mask on	ماسک فعال
+Master oscillator rate.	سرعت نوسان‌ساز اصلی.
+Maximum quality	بیشترین کیفیت
+MIDI and OSC monitor	مانیتور MIDI و OSC
+midi in	ورودی MIDI
+MIDI note	نت MIDI
+move points	جابه‌جایی نقطه‌ها
+Move the height on its own oscillator	حرکت گام با نوسان‌ساز خودش
+name or number...	نام یا شماره...
+name, from anywhere	نام، از هر جا
+NDI source cue	کیوی منبع NDI
+needs file-backed video	به ویدیوی فایلی نیاز دارد
+neon	نئون
+new paths	مسیرهای تازه
+New shows start from	نمایش‌های تازه از اینجا شروع می‌شوند
+next xfade	محو بعدی
+no effects for this cue type	جلوه‌ای برای این نوع کیو نیست
+nobody	هیچ
+none - click to learn	هیچ: برای یادگیری کلیک کنید
+none - click to set some	هیچ: برای تنظیم کلیک کنید
+none - click to write some	هیچ: برای نوشتن کلیک کنید
+none yet	هنوز هیچ
+none: the one picture	هیچ: تنها تصویر
+none: the whole picture	هیچ: همهٔ تصویر
+notebook	دفترچه
+nothing	هیچ‌چیز
+nothing assigned yet	چیزی تخصیص نیافته
+nothing follows	چیزی را دنبال نمی‌کند
+Nothing here with this filter.	با این فیلتر چیزی نیست.
+nothing set - this cue sends nothing	چیزی تنظیم نشده: این کیو چیزی نمی‌فرستد
+nothing targeted yet	بدون هدف
+Nothing to see here. Probably.	اینجا چیزی برای دیدن نیست. احتمالاً.
+nothing to send - check the message	چیزی برای فرستادن نیست: پیام را بررسی کنید
+offset X	جابه‌جایی X
+offset Y	جابه‌جایی Y
+on any channel	روی هر کانال
+on the header to add another	روی سرصفحه برای افزودن بیشتر
+on the monitor	روی مانیتور
+one big on top, the rest below	یکی بزرگ بالا، بقیه پایین
+one big, the rest beside it	یکی بزرگ، بقیه کنارش
+onion off	کاغذ پوستی خاموش
+onion on	کاغذ پوستی روشن
+only this computer	فقط این رایانه
+Open a .deckboy show file	باز کردن فایل .deckboy
+open the monitor	باز کردن مانیتور
+or your own bytes	یا بایت‌های خودتان
+ORDER - cues advance down the list	ترتیب: کیوها در فهرست پایین می‌روند
+Out-point: cue stops playback here	نقطهٔ خروج: کیو اینجا تمام می‌شود
+output already has	خروجی از قبل دارد
+Outputs Off	خروجی‌ها خاموش
+outs	خروجی‌ها
+over budget - video will drop frames	فراتر از حد: ویدیو فریم از دست می‌دهد
+over the picture	روی تصویر
+PAIR	جفت
+Pair a phone	جفت کردن تلفن
+Pair overlap	همپوشانی جفت
+Paired phones	تلفن‌های جفت‌شده
+Passphrase	گذرعبارت
+Pattern motion toggle	حرکت الگو
+pause begin	مکث در آغاز
+pennant	پرچم سه‌گوش
+Per-cue transition duration override	مدت گذار این کیو
+Perspective	پرسپکتیو
+PHASE	فاز
+Phone access	دسترسی تلفن
+Phone control	کنترل با تلفن
+phrase hold	طول عبارت
+PICK FROM SCREEN	برداشتن از صفحه
+Pitch, in semitones.	گام، به نیم‌پرده.
+PIXEL FOR PIXEL, TOP-LEFT	پیکسل به پیکسل، بالا چپ
+placard	لوحه
+play a note...	نتی بزنید...
+PLAY BUG SWAT, a game	BUG SWAT بازی کن
+Play the out move now, then take it off	خروجی را الان پخش کن، سپس بردار
+Playback speed: 0.25–4.0×	سرعت پخش: 0.25–4.0×
+playlists into the named outputs	فهرست پخش به خروجی‌های نام‌دار
+plays synth	سینت را بنواز
+plugin	افزونه
+PNG matte	مات PNG
+podium	سکو
+pop	پاپ
+press a key...	کلیدی را بزنید...
+PRESS AGAIN TO FORGET	برای فراموشی دوباره بزنید
+Previous show file:	فایل پیشین:
+prog bar	نوار پیشرفت
+programme	برنامه
+Programme with sound in any browser	برنامه با صدا در هر مرورگر
+PROJECTOR - gamma matched	پروژکتور: گامای هماهنگ
+Projector gamma	گامای پروژکتور
+put it on a button	روی یک دکمه بگذارید
+Put the brush's opacity on an oscillator	شفافیت قلم را به نوسان‌ساز بده
+Put the brush's size on an oscillator	اندازهٔ قلم را به نوسان‌ساز بده
+Put this control on an oscillator	این کنترل را به نوسان‌ساز بده
+rack it	بارگذاری‌اش کن
+RACKED, WARM	بارگذاری شد، آماده
+rail	ریل
+rain	باران
+Reads	می‌خواند
+reads the same on any screen	در هر صفحه یکسان خوانده می‌شود
+recent and in this show	اخیر و در این نمایش
+Recent shows:	نمایش‌های اخیر:
+red at	قرمز در
+red col	ستون قرمز
+render height	بلندی رندر
+render width	پهنای رندر
+REPORT A PROBLEM	گزارش مشکل
+reported rather than swapped	گزارش شد، جایگزین نشد
+restart driver now	گرداننده را الان بازآغاز کن
+restart on take	بازآغاز با take
+restore at end	بازگردانی در پایان
+ribbon	روبان
+Right — skip forward 10s	راست: 10 ثانیه جلو
+Right-click turns them off.	کلیک راست آن‌ها را خاموش می‌کند.
+Rise	خیز
+rise, slide or wipe	بالا آمدن، پیمایش یا پرده
+Rotation speed, degrees per second.	سرعت چرخش، درجه در ثانیه.
+rounded rect	مستطیل گرد
+row turns the matrix off again	ردیف دوباره ماتریس را خاموش می‌کند
+Run it now, without taking the cue	الان اجرا کن، بدون گرفتن کیو
+Run the show from a phone	نمایش را از تلفن بچرخانید
+runs off the show thread	بیرون از رشتهٔ نمایش
+sACN universe, 1-63999	جهان sACN، 1-63999
+SAVE AS MY DEFAULTS	ذخیره به‌عنوان پیش‌فرض
+says	می‌گوید
+SCALED TO FILL	مقیاس برای پر کردن
+Scene dwell time — 0 = hold	زمان صحنه: 0 = نگه‌داشتن
+Scene fade-in duration	ورود صحنه
+Scene fade-out duration	خروج صحنه
+scoreboard	تابلوی امتیاز
+SCREENS	صفحه‌ها
+scroll	پیمایش
+Scroll up	پیمایش به بالا
+sea	دریا
+SELECT: MOTION	انتخاب: حرکت
+Send it now, without taking the cue	الان بفرست، بدون گرفتن کیو
+sends	فرستادن
+Sensitivity	حساسیت
+Set browser URL/path	تنظیم نشانی/مسیر مرورگر
+set by	تنظیم‌شده توسط
+Set capture source from the cue menu	تنظیم منبع از منوی کیو
+Set cue ID for selected cues	تنظیم شناسهٔ کیوهای انتخابی
+Set cue token to jump to when cue ends	تنظیم کیوی پرش در پایان
+Set goto target for selected cues	تنظیم هدف کیوهای انتخابی
+Set Lower Third background alpha	آلفای پس‌زمینهٔ Lower Third
+Set per-cue transition duration	مدت گذار کیو
+Set playback speed for selected cues	سرعت کیوهای انتخابی
+Set repeat count for selected cues	تکرار کیوهای انتخابی
+Set short cue id for search/goto	شناسهٔ کوتاه برای جستجو/پرش
+Set short cue label for search/goto	نام کوتاه برای جستجو/پرش
+Set the NDI source name to receive	نام منبع NDI برای دریافت
+Shift+[ / ] — fade-out duration	Shift+[ / ]: مدت خروج
+SHOW ME	نشانم بده
+Show on	نمایش روی
+Shows	نمایش
+sideline	خط کناری
+sketch	طرح
+slide	لغزش
+slide from left	لغزش از چپ
+slide from right	لغزش از راست
+SMOOTH	نرم
+snow	برف
+SOS. Kidding. The show is fine.	SOS. شوخی بود. نمایش خوب است.
+Sound when the clock turns amber	صدا وقتی ساعت کهربایی می‌شود
+Sound when the clock turns red	صدا وقتی ساعت قرمز می‌شود
+Sound when time is up	صدا وقتی زمان تمام می‌شود
+Space — pause	فاصله: مکث
+Space — play	فاصله: پخش
+span	گستره
+sparkle	درخشش
+Speech models	مدل‌های گفتار
+Speed, like tape	سرعت، مانند نوار
+stamp	مهر
+Start NEW from factory	شروع تازه از کارخانه
+starting browser	شروع مرورگر
+starting capture	شروع ضبط
+starting xvfb	شروع xvfb
+sticky	یادداشت چسبان
+stop at 0	توقف در 0
+Stop puppeteering this cue	کنترل این کیو را رها کن
+STRAIGHT	مستقیم
+survey	برجستگی
+SVG paths	مسیرهای SVG
+tab	زبانه
+tag	برچسب
+TAP	ضربه
+terminal	پایانه
+text mode	حالت متن
+the file cannot be read	فایل خوانده نمی‌شود
+The name	نام
+The OSC path, e.g. /cue/1/start	مسیر OSC، مانند /cue/1/start
+the playlist's PATCH	PATCH فهرست پخش
+The role, or leave it empty	نقش، یا خالی بگذارید
+the system output	خروجی سیستم
+The text this cue puts on screen	متنی که این کیو نشان می‌دهد
+theatre	تئاتر
+then stop	سپس توقف
+they have	دارند
+things that are oscillating	چیزهایی که نوسان می‌کنند
+this cue lives on	این کیو روی
+This show's setup, no cues	تنظیمات این نمایش، بدون کیو
+ticket	بلیت
+tile h	بلندی کاشی
+Tile height in pixels.	بلندی کاشی به پیکسل.
+tile w	پهنای کاشی
+time of day	زمان روز
+Toggle audio enable for selected cues	صدای کیوهای انتخابی
+Toggle chroma key	تغییر کلید کروما
+Toggle cue audio	صدای کیو
+Toggle cue audio track for this cue	مسیر صدای این کیو
+Toggle fade in	ورود تدریجی
+Toggle fade out	خروج تدریجی
+Toggle hold on last frame	نگه‌داشتن آخرین فریم
+Toggle hold-at-end for selected cues	نگه‌داشتن پایان در کیوهای انتخابی
+Toggle loop	تکرار
+Toggle loop for selected cues	تکرار کیوهای انتخابی
+Toggle the live input's audio	صدای ورودی زنده
+Total time	زمان کل
+transcoding - plays clean until ready	تبدیل رمز: تا پایان تمیز پخش می‌شود
+transparent: put its playlist on a layer	شفاف: فهرست پخش را روی لایه بگذارید
+Trusted controllers	کنترل‌کننده‌های مورد اعتماد
+TURN OFF	خاموش کن
+turn phone control on	کنترل تلفن را روشن کنید
+two big on top, the rest below	دو تا بزرگ بالا، بقیه پایین
+type a cue number	شمارهٔ کیو را بنویسید
+Typing needs EDIT on	نوشتن به EDIT روشن نیاز دارد
+Use GEOMETRY for exact placement	برای جای دقیق از GEOMETRY استفاده کنید
+value to type one	مقدار برای نوشتن
+Vertical output offset in pixels	جابه‌جایی عمودی خروجی به پیکسل
+VIDEO DIP: OFF	فروافت ویدیو: نه
+VIDEO DIP: ON	فروافت ویدیو: بله
+walk the outputs one at a time.	خروجی‌ها را یکی‌یکی بگردید.
+walks every output in turn	از هر خروجی می‌گذرد
+WHAT DECKBOY DID	Deckboy چه کرد
+what is on air in a playlist	آنچه در فهرست پخش زنده است
+What NEW starts from, never this show	آغاز نمایش تازه، هرگز این نمایش
+whatever the style says	هرچه سبک بگوید
+Where the ramp ends	پایان شیب
+Which deck the cue it acts on lives on	کیوی هدف روی کدام دک است
+Which frame you draw on	روی کدام فریم می‌کشید
+Who can see it	چه کسی می‌تواند ببیند
+whole network	همهٔ شبکه
+will not open	باز نمی‌شود
+window and recording outputs only	فقط خروجی‌های پنجره و ضبط
+wipe	پرده
+Wobble	لرزش
+wobble by	لرزش به اندازهٔ
+words	واژه‌ها
+X — cycle end action	X: تغییر کنش پایان
+X — cycle end action: stop / next / loop	X: کنش پایان: توقف / بعدی / تکرار
+Zones	ناحیه‌ها
+~ makes the level breathe	~ سطح را نفس‌کشان می‌کند
+a note or an address becomes that cue's trigger	نت یا نشانی محرک آن کیو می‌شود
+acts on every deck; deck and cue are ignored	روی همهٔ دک‌ها اثر دارد؛ دک و کیو نادیده گرفته می‌شوند
+Add an output above, then send playlists to it here.	بالا خروجی بیفزایید، سپس فهرست‌ها را اینجا بفرستید.
+Ancient cypher, modern video desk. Respect.	خط باستانی، میز امروزی. احترام.
+Any font on this computer, Deckboy's own, or a font file	قلم رایانه، قلم Deckboy یا یک فایل
+Apply fade-in to selected video/audio cues	ورود روی کیوهای ویدیو/صدای انتخابی
+Apply fade-out to selected video/audio cues	خروج روی کیوهای ویدیو/صدای انتخابی
+Art-Net or sACN (E1.31): whichever the lighting rig listens to	Art-Net یا sACN (E1.31): آنچه نور به آن گوش می‌دهد
+Auto-advance duration — 0 = hold until taken	پیشروی خودکار: 0 = نگه‌داشتن تا take
+Bypass: this master leaves that deck alone	عبور: این مستر به آن دک کاری ندارد
+Characters across. Fewer means bigger cells.	نویسه در هر خط. کمتر یعنی خانه‌های بزرگ‌تر.
+Choose a mask from this show's library, or start a new one from a shape	ماسکی از کتابخانه برگزینید یا از شکلی بسازید
+Click a value to change it. A red address overlaps another fixture.	برای تغییر، روی مقدار کلیک کنید. نشانی قرمز با دستگاه دیگری تداخل دارد.
+Click to show or hide this cue's captions	برای نمایش یا پنهان کردن زیرنویس کیو کلیک کنید
+Copy the show AND its media into one portable folder	نمایش و رسانه را در یک پوشهٔ قابل حمل کپی کن
+Ctrl+S - write back over the show that is open	Ctrl+S: ذخیره در نمایش باز
+Ctrl+Shift+S - write the show to a NEW file	Ctrl+Shift+S: ذخیره در فایل تازه
+Device output pair this cue's audio plays on	جفت خروجی برای صدای این کیو
+E - freeze on last frame instead of stopping	E: نگه‌داشتن آخرین فریم به جای توقف
+Edit title/subtitle here or fire it live with TAKE	عنوان/زیرعنوان را اینجا ویرایش یا با TAKE اجرا کنید
+Every channel on every universe this session has touched	هر کانال هر جهانی که در این نشست لمس شده
+generator is off - a START cue turns it on	مولد خاموش: کیوی START روشنش می‌کند
+How long the note takes to reach full level.	زمان رسیدن نت به سطح کامل.
+How much it throws off; 0 is a clean burn	مقدار پوسته‌شدن؛ 0 تمیز می‌سوزد
+INPUT: the programme. Drag a crop to move it, its corners to size it.	ورودی: برنامه. برش را برای جابه‌جایی و گوشه‌ها را برای اندازه بکشید.
+Keep the outside and cut the inside instead	بیرون را نگه دار و درون را ببر
+LED panel height in pixels. Click to type it	بلندی پنل LED به پیکسل. برای نوشتن کلیک کنید
+Legacy target mode — switch type to convert	حالت هدف قدیمی: برای تبدیل نوع را عوض کنید
+Lissajous, spectrum, meters or a name card	Lissajous، طیف، سنج‌ها یا کارت نام
+Load the cue and hold first frame when taken	کیو را بارگذاری کن و فریم اول را تا take نگه دار
+no fixtures patched - Settings > Network > FIXTURES	دستگاهی پچ نشده: تنظیمات > شبکه > FIXTURES
+Nothing here changes the show that is open.	چیزی در اینجا نمایش باز را تغییر نمی‌دهد.
+Per-cue audio: enable, trim, pan, mono, fades, normalize	صدای کیو: روشن/خاموش، تریم، پن، مونو، محو، نرمال‌سازی
+Phone control is in PHONE & TABLET, below	کنترل تلفن در PHONE & TABLET، پایین است
+Save the mask as a greyscale PNG at the output's size: white keeps, black cuts	ماسک را PNG خاکستری در اندازهٔ خروجی ذخیره کن: سفید نگه می‌دارد، سیاه می‌برد
+Seconds REMAINING when the clock turns amber	ثانیه‌های باقی‌مانده وقتی ساعت کهربایی می‌شود
+Seconds REMAINING when the clock turns red	ثانیه‌های باقی‌مانده وقتی ساعت قرمز می‌شود
+Shown to the operator when GO reaches this cue	وقتی GO به این کیو می‌رسد به اپراتور نشان داده می‌شود
+SHUFFLE - the next cue is picked at random	تصادفی: کیوی بعدی با قرعه
+Slots are self-contained sources in this first pass	جایگاه‌ها در این نسخه منابعی مستقل‌اند
+that output's whole picture, or its matte	همهٔ تصویر آن خروجی، یا مات آن
+The cue number on the other desk, e.g. 12.5	شمارهٔ کیو روی میز دیگر، مانند 12.5
+Toggle pause-at-beginning for selected cues	مکث در آغاز کیوهای انتخابی
+Toggle transition-to-next for selected cues	گذار به بعدی در کیوهای انتخابی
+transparent outside the blobs: put it on a layer	بیرون لکه‌ها شفاف: روی لایه بگذارید
+transparent outside the ink: put it on a layer	بیرون جوهر شفاف: روی لایه بگذارید
+what is said, on screen, made on this computer	آنچه گفته می‌شود، روی صفحه، ساخته‌شده در این رایانه
+What this cue does when it ends - click to change	کار این کیو در پایان: برای تغییر کلیک کنید
+Whether the next shape or pen path adds or cuts	شکل یا مسیر بعدی می‌افزاید یا می‌برد
