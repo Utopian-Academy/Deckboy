@@ -237,6 +237,10 @@
     // click anywhere inside its panel is consumed either way -- a modal that
     // lets clicks through to the controls it covers fires the wrong thing.
     if (dashboardOverlayOpen_) {
+      if (pointInRect(x, y, dashCloseRect_)) {
+        dashboardOverlayOpen_ = false;
+        return;
+      }
       // LAST DRAWN WINS. A tile's edit, colour and delete controls sit INSIDE
       // the tile and are pushed after it, so a first-match walk handed every
       // press on them to the tile underneath: the pencil and the x fired the
@@ -1609,6 +1613,7 @@
       constexpr int kPlaylistMinW = 236;
       int maxW = std::max(kPlaylistMinW, contentAreaRect_.w - 520);
       playlistPaneWidth_ = std::clamp(x - contentAreaRect_.x, kPlaylistMinW, maxW);
+      playlistDraggedAtDecks_ = static_cast<int>(project_.decks.size());
       return;
     }
     if (layoutDragMode_ == LayoutDragMode::Inspector && mainPanelLayoutRect_.w > 0) {
@@ -2277,7 +2282,7 @@
       // Each stage announces the next one, so the sequence is discoverable
       // instead of something the operator has to know.
       case SDLK_ESCAPE: {
-        if (!keyRepeat) {
+        if (!keyRepeat && !tutorialTakesEscape()) {
           escapeEscalation(sourceWindowId);
         }
         break;

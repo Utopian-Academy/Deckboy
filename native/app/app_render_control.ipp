@@ -1077,6 +1077,16 @@
     // fading away from is not a mixer -- and those two lists are exactly what
     // the crossfader is choosing between, so they belong next to each other.
     const bool vjSplitDecks = project_.vjModeEnabled && project_.decks.size() > 1;
+    // A SECOND PLAYLIST IS SHOWN, NOT HIDDEN BEHIND A TAB (James, 2026-11-07:
+    // "the 2nd deck should be visible if space allow instead of having to
+    // drag out to reveal it"). With two or more playlists the column widens
+    // to fit two side by side whenever the window leaves the monitor its
+    // room -- unless the operator has dragged the splitter since, with the
+    // second playlist there to see. The 280 matches `comfortable` below.
+    if (!vjSplitDecks && project_.decks.size() >= 2 && playlistDraggedAtDecks_ < 2) {
+      const int twoColumns = uiScaled(280) * 2 + kLayoutPanelGap;
+      if (twoColumns <= playlistMaxW) playlistW = std::max(playlistW, twoColumns);
+    }
     if (vjSplitDecks) {
       // TWO DECKS, NOT TWICE THE WIDTH.
       //

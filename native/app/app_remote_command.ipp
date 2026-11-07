@@ -7606,6 +7606,13 @@
             " " + tutorialLineNow().title +
             (tutorial_.deskEatenOutput >= 0 ? " (the output has the desk)" : "") +
             (tutorial_.resumeAt > 0 ? " (then back to step " + std::to_string(tutorial_.resumeAt + 1) + ")" : "") +
+            // Where the pointer is, so a check can find a step that asks for a
+            // click and points at nothing.
+            [this] {
+              const SDL_Rect r = tutorialTargetRect();
+              return " target=" + std::to_string(r.x) + "," + std::to_string(r.y) + "," +
+                     std::to_string(r.w) + "x" + std::to_string(r.h);
+            }() +
             " says: " + tutorialPixelSays()
         : std::string("off");
       return;

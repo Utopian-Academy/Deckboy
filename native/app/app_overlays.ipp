@@ -1614,6 +1614,7 @@
   void renderDashboardOverlay() {
     dashButtons_.clear();
     dashModalRect_ = SDL_Rect {};
+    dashCloseRect_ = SDL_Rect {};
     if (!dashboardOverlayOpen_) return;
     int ww = 0, wh = 0;
     SDL_GetWindowSize(controlWindow_, &ww, &wh);
@@ -1640,10 +1641,17 @@
                  SDL_Rect {modal.x + uiScaled(16), modal.y + uiScaled(10),
                            mw - hintW - uiScaled(28), uiScaled(24)},
                  "DASHBOARD", pal.fg);
-    drawTextSafe(controlRenderer_, fontSmall_,
-                 SDL_Rect {modal.x + mw - hintW - uiScaled(8), modal.y + uiScaled(14),
-                           hintW, uiScaled(18)},
-                 "Ctrl+D or Esc to close", pal.fgSoft);
+    // A button, not only a hint: a touch panel has no Esc, and in a lesson
+    // Esc was taken by the tour (James, 2026-11-07: "dash needs a way to
+    // close without esc or cmd d").
+    {
+      SDL_Rect close {modal.x + mw - hintW - uiScaled(8), modal.y + uiScaled(8),
+                      hintW, uiScaled(26)};
+      drawUIPanel(close, paletteToggleFill(false), pal.deep, pal.mid);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, close, "CLOSE (Esc)",
+                           paletteToggleInk(false));
+      dashCloseRect_ = close;
+    }
 
     // TILES | TRACKER. Two views of the same page rather than two pages:
     // the dashboard is where a show is laid out, and a master sequence is

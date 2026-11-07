@@ -187,6 +187,16 @@
     return false;
   }
 
+  // A cue's row, or -- while its playlist is not the one shown -- that
+  // playlist's tab: only the selected playlist's list is on screen, so a row
+  // in another one has nowhere to be pointed at (multiview's ON SCREEN and
+  // the magic show's TA-DA pointed at nothing, 2026-11-07).
+  SDL_Rect lessonCueRowRect(int deck, int cue) const {
+    const SDL_Rect row = tutorialCueRowRect(deck, cue);
+    if (row.w > 0 || deck == project_.focusedDeckIndex) return row;
+    return lessonDeckTabRect(deck);
+  }
+
   SDL_Rect lessonDeckTabRect(int deck) const {
     if (deck < 0 || deck >= static_cast<int>(deckTabRects_.size())) return SDL_Rect {};
     return deckTabRects_[static_cast<std::size_t>(deck)];
@@ -229,7 +239,7 @@
     const int index = lessonFindCue(match, &deck);
     if (index < 0) return SDL_Rect {};
     const Deck& d = project_.decks[static_cast<std::size_t>(deck)];
-    if (project_.focusedDeckIndex != deck || d.selectedIndex != index) return tutorialCueRowRect(deck, index);
+    if (project_.focusedDeckIndex != deck || d.selectedIndex != index) return lessonCueRowRect(deck, index);
     return tutorialButtonRect("TAKE");
   }
 
@@ -824,7 +834,7 @@
          [this, isLost] {
            int d = -1;
            const int i = lessonFindCue(isLost, &d);
-           return i < 0 ? SDL_Rect {} : tutorialCueRowRect(d, i);
+           return i < 0 ? SDL_Rect {} : lessonCueRowRect(d, i);
          }, nullptr},
         {"BUNDLE IT", nullptr,
          "Press BUNDLE and choose where: a USB stick, a shared folder. The show and all its media, together.",
@@ -1265,7 +1275,7 @@
          [this, menuOr] {
            return menuOr(focusedOutput().edgeBlendLeft <= 0.0f ? kSettingsActionOutputEdgeBlendLInc
                                                                : kSettingsActionOutputEdgeBlendRInc);
-         }, nullptr},
+         }, nullptr, kSettingsActionOutputEdgeBlendLInc},
         {"THE SCREENS WINDOW", nullptr,
          "Geometry, SLICES, open. The Screens window is where slices are cut and placed.",
          "A slice is a piece of the picture, put anywhere on the output.",
@@ -1670,9 +1680,9 @@
          [this, isOpenTrunk] {
            int d = -1;
            const int i = lessonFindCue(isOpenTrunk, &d);
-           if (i >= 0 && project_.decks[0].selectedIndex != i) return tutorialCueRowRect(0, i);
+           if (i >= 0 && project_.decks[0].selectedIndex != i) return lessonCueRowRect(0, i);
            if (project_.decks.size() >= 2 && !project_.decks[1].cues.empty() && project_.decks[1].selectedIndex < 0) {
-             return tutorialCueRowRect(1, 0);
+             return lessonCueRowRect(1, 0);
            }
            return tutorialButtonRect("TAKE ALL");
          }, nullptr},
@@ -1835,11 +1845,11 @@
            }
          },
          [this] {
-           if (dashboardOverlayOpen_) return SDL_Rect {};
+           if (dashboardOverlayOpen_) return dashCloseRect_;
            const Deck& deck = focusedDeck();
            for (int i = 0; i < static_cast<int>(deck.cues.size()); ++i) {
              if (i != deck.activeIndex) {
-               return deck.selectedIndex == i ? tutorialButtonRect("TAKE") : tutorialCueRowRect(project_.focusedDeckIndex, i);
+               return deck.selectedIndex == i ? tutorialButtonRect("TAKE") : lessonCueRowRect(project_.focusedDeckIndex, i);
              }
            }
            return SDL_Rect {};
@@ -1967,7 +1977,7 @@
            int d = -1;
            const int i = lessonFindCue(named("The battle"), &d);
            if (i < 0) return SDL_Rect {};
-           if (project_.decks[static_cast<std::size_t>(d)].selectedIndex != i) return tutorialCueRowRect(d, i);
+           if (project_.decks[static_cast<std::size_t>(d)].selectedIndex != i) return lessonCueRowRect(d, i);
            return cueTransitionStyleDropdownRect_;
          },
          [selectNamed] { selectNamed("The battle"); }},
@@ -2095,14 +2105,14 @@
          "AGENT HOLLIS", "It's off the chart, Brandt! Literally off the chart!",
          [this] { return scopesBig_ == kScopeVector; },
          [this] { setScopeBig(kScopeVector); },
-         [this] { return scopesBig_ == kScopeVector ? SDL_Rect {} : scopesPanelRects_[kScopeVector]; }, nullptr},
+         [this] { return scopesBig_ == kScopeVector ? SDL_Rect {} : scopesPanelRects_[scopesBig_ >= 0 ? scopesBig_ : kScopeVector]; }, nullptr},
         {"FALSE COLOUR", nullptr,
          "And false colour: red is clipped, yellow nearly. Is the glow red?",
          "Clipped means the brightest the signal can carry, and then some lost. Detail gone.",
          "AGENT BRANDT", "Red. Clipped. Not alien, Hollis. Just too bright. Case closed.",
          [this] { return scopesBig_ == kScopeFalseColour; },
          [this] { setScopeBig(kScopeFalseColour); },
-         [this] { return scopesBig_ == kScopeFalseColour ? SDL_Rect {} : scopesPanelRects_[kScopeFalseColour]; },
+         [this] { return scopesBig_ == kScopeFalseColour ? SDL_Rect {} : scopesPanelRects_[scopesBig_ >= 0 ? scopesBig_ : kScopeFalseColour]; },
          nullptr},
         {"THE TRUTH", nullptr,
          "Waveform, vectorscope, false colour. The scopes settled it, skapi. The agents did not.",
@@ -2253,7 +2263,7 @@
          },
          [this] {
            if (project_.decks.size() <= 2 || project_.decks[2].cues.empty()) return SDL_Rect {};
-           if (project_.focusedDeckIndex != 2 || project_.decks[2].selectedIndex != 0) return tutorialCueRowRect(2, 0);
+           if (project_.focusedDeckIndex != 2 || project_.decks[2].selectedIndex != 0) return lessonCueRowRect(2, 0);
            return tutorialButtonRect("TAKE");
          }, nullptr},
         {"THAT'S A WRAP", nullptr,
@@ -2413,7 +2423,15 @@
   // A target in the inspector's column: in its scrolled viewport, or not.
   bool lessonRectInInspectorColumn(const SDL_Rect& r) const {
     const SDL_Rect& v = cueSettingsViewportRect_;
-    return v.w > 0 && r.w > 0 && r.x >= v.x && r.x + r.w <= v.x + v.w;
+    if (v.w <= 0 || r.w <= 0 || r.x < v.x || r.x + r.w > v.x + v.w) return false;
+    // The bars' own buttons (MENU, DASH...) sit straight below the inspector
+    // and are never scrolled. Counted as inspector rows, they looked
+    // scrolled out and lost their pointer: twelve steps in eight lessons
+    // pointed at nothing (2026-11-07).
+    for (const auto& button : buttons_) {
+      if (SDL_RectsEqual(&button.rect, &r)) return false;
+    }
+    return true;
   }
 
   void serviceLesson() {
@@ -2444,11 +2462,18 @@
       cueSettingsScroll_ = std::clamp(cueSettingsScroll_ + delta, 0, std::max(0, cueSettingsScrollMax_));
       ++tutorial_.inspectorNudges;
     }
-    // A settings control not on screen yet: page down until it registers.
+    // A settings control not on screen yet: page down until it registers,
+    // and from the bottom start again at the top. Paging only down never
+    // found a control ABOVE the view: the step before TWO SOFT EDGES leaves
+    // Geometry scrolled to WARP, below EDGE BLEND (2026-11-07).
     if (s && s->seekSetting && settingsOpen_ && settingsTab_ == 3 && lessonSettingRect(s->seekSetting).w == 0 &&
-        settingsVideoScroll_ < settingsVideoScrollMax_ && tutorial_.inspectorNudges < 24) {
-      settingsVideoScroll_ = std::min(settingsVideoScrollMax_,
-                                      settingsVideoScroll_ + std::max(uiScaled(60), settingsVideoViewport_.h / 2));
+        tutorial_.inspectorNudges < 24) {
+      if (settingsVideoScroll_ < settingsVideoScrollMax_) {
+        settingsVideoScroll_ = std::min(settingsVideoScrollMax_,
+                                        settingsVideoScroll_ + std::max(uiScaled(60), settingsVideoViewport_.h / 2));
+      } else {
+        settingsVideoScroll_ = 0;
+      }
       ++tutorial_.inspectorNudges;
     }
     // The same for a control further down a settings page (warp edit sits

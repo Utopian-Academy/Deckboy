@@ -161,6 +161,28 @@ def run(exe, work, keep):
         db.send("LESSONS CLOSE")
         time.sleep(0.4)
 
+        # James, 2026-11-07: "Close the DASH (Esc)" in the presets lesson
+        # closed the lesson. Esc goes to whatever is open first; only an Esc
+        # nothing else wanted leaves the lesson.
+        print("  Esc closes what is open before it leaves a lesson")
+        db.send("LESSONS START presets")
+        time.sleep(0.8)
+        db.send("DASH SHOW")
+        time.sleep(0.4)
+        db.send("KEY Escape")
+        time.sleep(0.6)
+        step, _, treply = step_of(db)
+        reply = db.send("DASH TOGGLE")    # "shown" means Esc had closed it
+        db.send("DASH HIDE")
+        note("Esc with DASH open closes DASH", "dashboard shown" in reply, reply)
+        note("...and the lesson is still running", step is not None, treply)
+        db.send("KEY Escape")
+        time.sleep(0.8)
+        step, _, treply = step_of(db)
+        note("the next Esc leaves the lesson", step is None, treply)
+        db.send("LESSONS CLOSE")
+        time.sleep(0.4)
+
         print("  picking up where it was left")
         (state / "lessons.txt").write_text("track video\n")
         db.send("LESSONS START masks")

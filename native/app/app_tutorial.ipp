@@ -1052,19 +1052,25 @@
     return false;
   }
 
-  // Esc leaves the tour, but only when nothing else is waiting for it: an
-  // open menu or a text field takes it first, as it always has.
+  // Esc leaves the tour, but only when nothing else is waiting for it. That
+  // is decided at the END of handleKeyDown (tutorialTakesEscape), not here:
+  // a list of exceptions here missed DASH, so "Close the DASH (Esc)" in the
+  // presets lesson closed the lesson instead (James, 2026-11-07), and every
+  // page added later would have missed it too.
+  // Esc that nothing open wanted: it leaves the tour rather than walking the
+  // desk's own Esc ladder (which clears outputs on the second press).
+  bool tutorialTakesEscape() {
+    if (!tutorial_.active) return false;
+    endTutorial(tutorial_.step == tutorialStepCount() - 1);
+    return true;
+  }
+
   bool handleTutorialKey(SDL_Keycode key, bool keyRepeat) {
     if (!tutorial_.active || keyRepeat) return false;
     // ANY key while the output has the screen, Esc included: Esc would
     // otherwise leave the tour from behind a screen with no tour on it.
     if (tutorial_.deskEatenOutput >= 0) {
       tutorialGiveDeskBack();
-      return true;
-    }
-    if (key == SDLK_ESCAPE && !settingsOpen_ && !inlineEditor_.open && !codeEditor_.open &&
-        !confirmQuit_) {
-      endTutorial(tutorial_.step == tutorialStepCount() - 1);
       return true;
     }
     if (tutorial_.step == 0 && (key == SDLK_RETURN || key == SDLK_KP_ENTER)) {

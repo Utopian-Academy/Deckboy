@@ -10885,6 +10885,7 @@ class App {
   // click was thrown away. That is why 'add a button' did nothing.
   std::vector<QuickButton> dashButtons_;
   SDL_Rect dashModalRect_ {};
+  SDL_Rect dashCloseRect_ {};
   // Which tile was fired last and when, so it can squish on press. Purely
   // cosmetic and runtime-only.
   int dashPressedSlot_ = -1;
@@ -11732,6 +11733,9 @@ class App {
   SDL_Rect playlistSplitterRect_ {};
   SDL_Rect inspectorSplitterRect_ {};
   int playlistPaneWidth_ = 0;
+  // How many playlists there were when the splitter was last dragged. Two or
+  // more and the operator chose that width with Deck 2 in view, so it stands.
+  int playlistDraggedAtDecks_ = 0;
   bool testThrowPending_ = false;   // TESTTHROW: the next frame throws, for the crash-log check
   int inspectorPaneWidth_ = 0;
   // Program-monitor <-> timeline vertical split. timelineExtraH_ is the extra
