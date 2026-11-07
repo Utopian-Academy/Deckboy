@@ -2203,3 +2203,13 @@ Passphrase (shared)	Парольная фраза (общая)
 -18 dBFS is EBU alignment, -20 is SMPTE. Capped below 0: this feeds a live PA.	-18 dBFS это выравнивание EBU, -20 SMPTE. Ограничено ниже 0: это питает живой PA.
 --- -- --  does nothing on that playlist  -  (M) the step's own playlist  -  EDIT is on: typing changes the show	--- -- --  ничего не делает в этом плейлисте  -  (M) плейлист самого шага  -  EDIT включён: ввод меняет шоу
 DECKLINK SDI / HDMI	DECKLINK SDI / HDMI
+SELECT DECK 2	ВЫБЕРИ DECK 2
+Now click its tab, Deck 2. A new playlist is not the selected one until you click it.	Теперь щёлкни по его вкладке, Deck 2. Новый плейлист не выбран, пока ты по нему не щёлкнешь.
+The lit tab is where SOURCE puts things. Skip this and the ink lands under the synth.	Светящаяся вкладка — туда ИСТОЧНИК кладёт вещи. Пропусти это, и чернила окажутся под синтом.
+See that tab? Click it. Now you're on Deck 2. BOOM. Fundamentals.	Видишь ту вкладку? Щёлкни. Теперь ты на Deck 2. БУМ. Основы.
+Click its tab, Deck 2. The lit tab is the playlist SOURCE adds to.	Щёлкни по его вкладке, Deck 2. Светящаяся вкладка — плейлист, в который добавляет ИСТОЧНИК.
+Skip this and the words go under the map. With the lizard.	Пропусти это, и слова уйдут под карту. К ящерице.
+Nine years of live weather. Always click the tab.	Девять лет погоды в прямом эфире. Всегда щёлкай по вкладке.
+Click its tab, Deck 2. A new playlist waits until you choose it.	Щёлкни по его вкладке, Deck 2. Новый плейлист ждёт, пока ты его выберешь.
+The lit tab gets the next cue. Like choosing which slide goes in the projector.	Светящаяся вкладка получает следующий кью. Как выбрать, какой слайд пойдёт в проектор.
+Pick a deck. Any deck. ...Deck 2. Pick Deck 2.	Выберите колоду. Любую. ...Deck 2. Выберите Deck 2.

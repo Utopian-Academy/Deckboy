@@ -2203,3 +2203,13 @@ Passphrase (shared)	Парола-фраза (споделена)
 -18 dBFS is EBU alignment, -20 is SMPTE. Capped below 0: this feeds a live PA.	-18 dBFS е подравняване по EBU, -20 по SMPTE. Ограничено под 0: това захранва жива озвучителна система.
 --- -- --  does nothing on that playlist  -  (M) the step's own playlist  -  EDIT is on: typing changes the show	--- -- --  не прави нищо в този плейлист  -  (M) плейлистът на самата стъпка  -  EDIT е включен: писането променя шоуто
 DECKLINK SDI / HDMI	DECKLINK SDI / HDMI
+SELECT DECK 2	ИЗБЕРИ DECK 2
+Now click its tab, Deck 2. A new playlist is not the selected one until you click it.	Сега кликни таба му, Deck 2. Нов плейлист не е избран, докато не го кликнеш.
+The lit tab is where SOURCE puts things. Skip this and the ink lands under the synth.	Светещият таб е мястото, където ИЗТОЧНИК слага нещата. Пропусни това и мастилото пада под синтезатора.
+See that tab? Click it. Now you're on Deck 2. BOOM. Fundamentals.	Виждаш ли този таб? Кликни го. Сега си на Deck 2. БУМ. Основи.
+Click its tab, Deck 2. The lit tab is the playlist SOURCE adds to.	Кликни таба му, Deck 2. Светещият таб е плейлистът, в който ИЗТОЧНИК добавя.
+Skip this and the words go under the map. With the lizard.	Пропусни това и думите отиват под картата. При гущера.
+Nine years of live weather. Always click the tab.	Девет години прогноза на живо. Винаги кликай таба.
+Click its tab, Deck 2. A new playlist waits until you choose it.	Кликни таба му, Deck 2. Нов плейлист чака, докато го избереш.
+The lit tab gets the next cue. Like choosing which slide goes in the projector.	Светещият таб получава следващия кю. Като да избереш кой слайд влиза в проектора.
+Pick a deck. Any deck. ...Deck 2. Pick Deck 2.	Изтегли тесте. Което и да е. ...Deck 2. Изтегли Deck 2.
