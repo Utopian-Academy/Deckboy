@@ -23,6 +23,9 @@
 ### Languages
 - About 75 more interface strings are translated in every language: the About page, the tracker, the encoder's format list, the timecode, ATEM, NDI and tally rows, the keyboard help, and the playlist's drag hint.
 - The About page's label column now fits the longest label in the language on screen. Long labels were cut short.
+- Text the desk builds while it runs is now translated: "Deck 2", "1 of 2", "Bitrate: 6000 kbps", "Deck 1  to Out 1", the watch folder line, "added ..." toasts, and the lesson lines that name your screens. Names, paths, codecs and numbers stay as they are.
+- The lesson line about a second screen names the MENU and OUTPUT buttons the way the buttons read in your language.
+- Fixed: the "It ate the desk" joke said "You have Two screens" with a capital T.
 - MENU and the VOLUME label are now translated in every language. The lessons that say "MENU" use the same word as the button.
 - Hawaiian (ʻŌlelo Hawaiʻi) is now a full translation: the whole desk and every lesson. No speaker has reviewed it yet.
 

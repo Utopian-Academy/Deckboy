@@ -2289,3 +2289,61 @@ Bitfocus Companion, and x42/libltc.	i-Bitfocus Companion, ne-x42/libltc.
 Keys	Okhiye
 None. See LICENSE sections 15-16.	Ayikho. Bheka i-LICENSE, izigaba 15-16.
 none compiled in	akukho okuhlanganisiwe
+Alpha	I-Alpha
+Group	Iqembu
+Normal	Okuvamile
+Remote	Okukude
+lesson	isifundo
+Bitrate	I-bitrate
+Latency	Ukubambezeleka
+OUT {n}	OKUPHUMAYO {n}
+Out {n}	Okuphumayo {n}
+{n} row	umugqa ongu-{n}
+Deck {n}	I-deck {n}
+Key name	Igama lenkinobho
+Keyframe	Ifreyimu eyinhloko
+Registry	I-registry
+fade {n}	fiphaza {n}
+{n} rows	imigqa engu-{n}
+Node port	Imbobo ye-node
+Stream ID	I-ID yokusakaza
+added {1}	kungeziwe {1}
+start {n}	qala {n}
+still {n}	isithombe {n}
+FADE {n} s	FIPHAZA {n} s
+LAYER {n}%	UNGQIMBA {n}%
+Output {n}	Okuphumayo {n}
+PROXY {n}p	IPROKSI {n}p
+PTP domain	Isizinda se-PTP
+Proxy {n}p	Iproksi {n}p
+Stream key	Ukhiye wokusakaza
+[ASSIGNED]	[KUNIKEZIWE]
+audio only	umsindo kuphela
+to Out {n}	kuya ku-Okuphumayo {n}
+{n} of {n}	{n} kwangu-{n}
+Display {n}	Isibonisi {n}
+active jobs	imisebenzi esebenzayo
+local clock	iwashi lendawo
+not running	ayisebenzi
+click to set	chofoza ukuze usethe
+full {n}x{n}	gcwele {n}x{n}
+running v{n}	iyasebenza v{n}
+the other one	enye
+DELIVERY H.{n}	UKULETHWA H.{n}
+Output {n} mix	Ukuxuba kokuphumayo {n}
+made by Deckboy	yenziwe yi-Deckboy
+{1} plays to {2}	{1} idlala ku-{2}
+the picture {1} plays	isithombe esidlalwa ngu-{1}
+New media joins {1} by itself	Imidiya emisha ijoyina {1} ngokwayo
+Press Win+P and choose Extend	Cindezela Win+P bese ukhetha Yandisa
+{n} patched - DMX cues set them by name	{n} kuxhunyiwe - ama-cue e-DMX azisetha ngegama
+Set them to extend in your display settings	Zisethe ukuthi zandise kuzilungiselelo zesibonisi sakho
+lesson: {1}. Esc leaves, and it picks up here next time	isifundo: {1}. I-Esc iyaphuma, ngokuzayo iqhubeka lapha
+Answers ATEM Software Control as a deck on TCP 9993 at {1}	Iphendula i-ATEM Software Control njenge-deck ku-TCP 9993 ku-{1}
+In System Settings > Displays, use it as an extended display	Ku-Izilungiselelo Zesistimu > Izibonisi, yisebenzise njengesibonisi esandisiwe
+It ate the desk, skapi. You have {1} screens: the output's DISPLAY in MENU puts it on another.	Kudle ideski, skapi. Unezikrini ezingu-{1}: i-ISIBONISI sokuphumayo ku-IMENYU siyibeka kwesinye.
+It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts it on the other one.	Kudle ideski, skapi. Unezikrini ezimbili: i-ISIBONISI sokuphumayo ku-IMENYU siyibeka kwesinye.
+{1} screens, skapi. The desk stays on this one, the picture goes on {2}. Open MENU and make OUTPUT OFF say OUTPUT ON.	Izikrini ezingu-{1}, skapi. Ideski lihlala kulesi, isithombe siya ku-{2}. Vula IMENYU bese wenza OKUPHUMAYO KUVALIWE kuthi OKUPHUMAYO KUVULIWE.
+Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	Izikrini ezimbili, skapi. Ideski lihlala kulesi, isithombe siya kwesinye: {1}. Vula IMENYU bese wenza OKUPHUMAYO KUVALIWE kuthi OKUPHUMAYO KUVULIWE.
+It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	Kudle ideski, skapi. Izikrini ezikopishanayo zibonisa isithombe kuzo zombili, ngakho ngisibeke ewindini elincane, ngemuva. {1}, futhi sizothola isikrini saso.
+Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	Izikrini zakho ziyakopishana, skapi: {1} ibonisa okuboniswa yilesi, ngakho isithombe sizomboza ideski kuzo zombili. {2}, futhi ngizobeka isithombe esikrinini saso. Noma vula IMENYU bese wenza OKUPHUMAYO KUVALIWE kuthi OKUPHUMAYO KUVULIWE.

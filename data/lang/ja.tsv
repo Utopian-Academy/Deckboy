@@ -2293,3 +2293,61 @@ Bitfocus Companion, and x42/libltc.	Bitfocus Companion、x42/libltc に感謝し
 Keys	キー
 None. See LICENSE sections 15-16.	なし。LICENSE の第15-16節を参照。
 none compiled in	組み込みなし
+Alpha	アルファ
+Group	グループ
+Normal	通常
+Remote	リモート
+lesson	レッスン
+Bitrate	ビットレート
+Latency	レイテンシ
+OUT {n}	アウト {n}
+Out {n}	アウト {n}
+{n} row	{n} 行
+Deck {n}	デッキ {n}
+Key name	キー名
+Keyframe	キーフレーム
+Registry	レジストリ
+fade {n}	フェード {n}
+{n} rows	{n} 行
+Node port	ノードポート
+Stream ID	ストリームID
+added {1}	{1} を追加
+start {n}	開始 {n}
+still {n}	静止画 {n}
+FADE {n} s	フェード {n}秒
+LAYER {n}%	レイヤー {n}%
+Output {n}	出力 {n}
+PROXY {n}p	プロキシ {n}p
+PTP domain	PTPドメイン
+Proxy {n}p	プロキシ {n}p
+Stream key	ストリームキー
+[ASSIGNED]	[割り当て済み]
+audio only	オーディオのみ
+to Out {n}	アウト {n} へ
+{n} of {n}	{n} / {n}
+Display {n}	ディスプレイ {n}
+active jobs	実行中のジョブ
+local clock	ローカル時計
+not running	停止中
+click to set	クリックして設定
+full {n}x{n}	全体 {n}x{n}
+running v{n}	v{n} 実行中
+the other one	もう一方
+DELIVERY H.{n}	納品用 H.{n}
+Output {n} mix	出力 {n} ミックス
+made by Deckboy	Deckboyで作成
+{1} plays to {2}	{1} は {2} へ演奏
+the picture {1} plays	{1} が演奏する映像
+New media joins {1} by itself	新規メディアは自動で {1} に加わる
+Press Win+P and choose Extend	Win+P を押して「拡張」を選択
+{n} patched - DMX cues set them by name	{n} 件パッチ済み - DMXキューが名前で設定
+Set them to extend in your display settings	ディスプレイ設定で拡張に設定
+lesson: {1}. Esc leaves, and it picks up here next time	レッスン：{1}。Escで抜けると、次回はここから再開します
+Answers ATEM Software Control as a deck on TCP 9993 at {1}	{1} の TCP 9993 でデッキとして ATEM Software Control に応答
+In System Settings > Displays, use it as an extended display	システム設定 > ディスプレイ で拡張ディスプレイとして使用
+It ate the desk, skapi. You have {1} screens: the output's DISPLAY in MENU puts it on another.	卓を食べちゃった、skapi。画面が{1}つあるよ。メニューで出力のディスプレイを使えば別の画面に移せるよ。
+It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts it on the other one.	卓を食べちゃった、skapi。画面が2つあるよ。メニューで出力のディスプレイを使えばもう一方に移せるよ。
+{1} screens, skapi. The desk stays on this one, the picture goes on {2}. Open MENU and make OUTPUT OFF say OUTPUT ON.	画面が{1}つだね、skapi。デスクはこっちに残って、映像は{2}に出るよ。メニューを開いて出力オフを出力オンにしてね。
+Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	画面が2つだね、skapi。デスクはこっちに残って、映像はもう一方に出るよ：{1}。メニューを開いて出力オフを出力オンにしてね。
+It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	卓を食べちゃった、skapi。ミラーリングした画面だと両方に映像が出るから、後ろの小さなウィンドウに入れておいたよ。{1}と、映像専用の画面ができるよ。
+Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	画面がミラーリングされてるよ、skapi。{1}はこの画面と同じものを映すから、両方で映像がデスクを覆っちゃう。{2}と、映像を専用の画面に出すよ。それかメニューを開いて出力オフを出力オンにしてね。

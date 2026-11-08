@@ -2292,3 +2292,61 @@ Bitfocus Companion, and x42/libltc.	Bitfocus Companion और x42/libltc को�
 Keys	कुंजियाँ
 None. See LICENSE sections 15-16.	कोई नहीं। LICENSE के खंड 15-16 देखें।
 none compiled in	कुछ भी शामिल नहीं
+Alpha	अल्फ़ा
+Group	समूह
+Normal	सामान्य
+Remote	रिमोट
+lesson	पाठ
+Bitrate	बिटरेट
+Latency	लेटेंसी
+OUT {n}	आउट {n}
+Out {n}	आउट {n}
+{n} row	{n} पंक्ति
+Deck {n}	डेक {n}
+Key name	कुंजी का नाम
+Keyframe	कीफ़्रेम
+Registry	रजिस्ट्री
+fade {n}	फेड {n}
+{n} rows	{n} पंक्तियाँ
+Node port	नोड पोर्ट
+Stream ID	स्ट्रीम ID
+added {1}	{1} जोड़ा गया
+start {n}	शुरू {n}
+still {n}	स्थिर चित्र {n}
+FADE {n} s	फेड {n} s
+LAYER {n}%	लेयर {n}%
+Output {n}	आउटपुट {n}
+PROXY {n}p	प्रॉक्सी {n}p
+PTP domain	PTP डोमेन
+Proxy {n}p	प्रॉक्सी {n}p
+Stream key	स्ट्रीम कुंजी
+[ASSIGNED]	[असाइन किया]
+audio only	सिर्फ़ ऑडियो
+to Out {n}	आउट {n} पर
+{n} of {n}	{n} / {n}
+Display {n}	डिस्प्ले {n}
+active jobs	सक्रिय जॉब
+local clock	स्थानीय घड़ी
+not running	नहीं चल रहा
+click to set	तय करने के लिए क्लिक करें
+full {n}x{n}	पूर्ण {n}x{n}
+running v{n}	v{n} चल रहा है
+the other one	दूसरी वाली
+DELIVERY H.{n}	डिलीवरी H.{n}
+Output {n} mix	आउटपुट {n} मिक्स
+made by Deckboy	Deckboy द्वारा बनाया गया
+{1} plays to {2}	{1} {2} पर बजाता है
+the picture {1} plays	{1} जो चित्र बजाता है
+New media joins {1} by itself	नया मीडिया अपने आप {1} में जुड़ता है
+Press Win+P and choose Extend	Win+P दबाएँ और विस्तारित करें चुनें
+{n} patched - DMX cues set them by name	{n} पैच किए गए - DMX क्यू इन्हें नाम से तय करते हैं
+Set them to extend in your display settings	डिस्प्ले सेटिंग्स में इन्हें विस्तारित पर तय करें
+lesson: {1}. Esc leaves, and it picks up here next time	पाठ: {1}। Esc छोड़ता है, और अगली बार यहीं से शुरू होता है
+Answers ATEM Software Control as a deck on TCP 9993 at {1}	{1} पर TCP 9993 पर डेक की तरह ATEM Software Control को जवाब देता है
+In System Settings > Displays, use it as an extended display	सिस्टम सेटिंग्स > डिस्प्ले में इसे विस्तारित डिस्प्ले की तरह इस्तेमाल करें
+It ate the desk, skapi. You have {1} screens: the output's DISPLAY in MENU puts it on another.	ये डेस्क खा गया, skapi. तुम्हारे पास {1} स्क्रीन हैं: मेनू में आउटपुट का डिस्प्ले इसे दूसरी पर रख देता है।
+It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts it on the other one.	ये डेस्क खा गया, skapi. तुम्हारे पास दो स्क्रीन हैं: मेनू में आउटपुट का डिस्प्ले इसे दूसरी वाली पर रख देता है।
+{1} screens, skapi. The desk stays on this one, the picture goes on {2}. Open MENU and make OUTPUT OFF say OUTPUT ON.	{1} स्क्रीन, skapi. डेस्क इसी पर रहता है, चित्र {2} पर जाता है। मेनू खोलो और आउटपुट बंद को आउटपुट चालू कर दो।
+Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	दो स्क्रीन, skapi. डेस्क इसी पर रहता है, चित्र दूसरी वाली पर जाता है: {1}। मेनू खोलो और आउटपुट बंद को आउटपुट चालू कर दो।
+It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	ये डेस्क खा गया, skapi. मिरर की हुई स्क्रीन दोनों पर चित्र दिखाती हैं, इसलिए मैंने इसे पीछे एक छोटी विंडो में रख दिया। {1}, और इसे अपनी अलग स्क्रीन मिल जाएगी।
+Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	तुम्हारी स्क्रीन मिरर हैं, skapi: {1} वही दिखाती है जो ये दिखाती है, इसलिए चित्र दोनों पर डेस्क को ढक देगा। {2}, और चित्र अपनी अलग स्क्रीन पर चला जाएगा। या मेनू खोलो और आउटपुट बंद को आउटपुट चालू कर दो।

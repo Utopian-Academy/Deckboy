@@ -2282,3 +2282,55 @@ Bitfocus Companion, and x42/libltc.	ao Bitfocus Companion e ao x42/libltc.
 Keys	Teclas
 None. See LICENSE sections 15-16.	Nenhuma. Veja as seções 15-16 da LICENSE.
 none compiled in	nenhum compilado
+Alpha	Alfa
+Group	Grupo
+Remote	Remoto
+lesson	lição
+Bitrate	Taxa de bits
+Latency	Latência
+OUT {n}	SAÍDA {n}
+Out {n}	Saída {n}
+{n} row	{n} linha
+Key name	Nome da tecla
+Keyframe	Quadro-chave
+Registry	Registro
+{n} rows	{n} linhas
+Node port	Porta do nó
+Stream ID	ID do stream
+added {1}	adicionado {1}
+start {n}	início {n}
+still {n}	imagem fixa {n}
+LAYER {n}%	CAMADA {n}%
+Output {n}	Saída {n}
+PTP domain	Domínio PTP
+Stream key	Chave de transmissão
+[ASSIGNED]	[ATRIBUÍDO]
+audio only	só áudio
+to Out {n}	para a saída {n}
+{n} of {n}	{n} de {n}
+Display {n}	Monitor {n}
+active jobs	tarefas ativas
+local clock	relógio local
+not running	parado
+click to set	clique para definir
+full {n}x{n}	cheio {n}x{n}
+running v{n}	em execução v{n}
+the other one	o outro
+DELIVERY H.{n}	ENTREGA H.{n}
+Output {n} mix	Mixagem da saída {n}
+made by Deckboy	feito pelo Deckboy
+{1} plays to {2}	{1} toca em {2}
+the picture {1} plays	a imagem que {1} toca
+New media joins {1} by itself	Mídia nova entra em {1} sozinha
+Press Win+P and choose Extend	Aperte Win+P e escolha Estender
+{n} patched - DMX cues set them by name	{n} patcheados - cues DMX os definem pelo nome
+Set them to extend in your display settings	Defina-as para estender nas configurações de tela
+lesson: {1}. Esc leaves, and it picks up here next time	lição: {1}. Esc sai, e da próxima vez continua daqui
+Answers ATEM Software Control as a deck on TCP 9993 at {1}	Responde ao ATEM Software Control como deck na TCP 9993 em {1}
+In System Settings > Displays, use it as an extended display	Em Ajustes do Sistema > Telas, use-a como tela estendida
+It ate the desk, skapi. You have {1} screens: the output's DISPLAY in MENU puts it on another.	Comeu a mesa, skapi. Você tem {1} telas: o MONITOR da saída no MENU põe a imagem em outra.
+It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts it on the other one.	Comeu a mesa, skapi. Você tem duas telas: o MONITOR da saída no MENU põe a imagem na outra.
+{1} screens, skapi. The desk stays on this one, the picture goes on {2}. Open MENU and make OUTPUT OFF say OUTPUT ON.	{1} telas, skapi. A mesa fica nesta, a imagem vai para {2}. Abra o MENU e faça SAÍDA DESLIGADA virar SAÍDA LIGADA.
+Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	Duas telas, skapi. A mesa fica nesta, a imagem vai para a outra: {1}. Abra o MENU e faça SAÍDA DESLIGADA virar SAÍDA LIGADA.
+It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	Comeu a mesa, skapi. Telas espelhadas mostram a imagem nas duas, então coloquei a imagem numa janelinha, atrás. {1}, e ela ganha uma tela só dela.
+Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	Suas telas estão espelhadas, skapi: {1} mostra o mesmo que esta, então a imagem vai cobrir a mesa nas duas. {2}, e eu ponho a imagem numa tela só dela. Ou abra o MENU e faça SAÍDA DESLIGADA virar SAÍDA LIGADA.

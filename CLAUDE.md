@@ -584,6 +584,27 @@ attached (`PendingRemoteCommand`), and `processRemoteCommands` replies with
 - libltc is dlopen'd at runtime and BUNDLED by the packagers (Frameworks on mac,
   lib/ on Linux); `ltc_api.hpp` looks for it relative to the exe first.
 
+## Translations (`native/core/i18n.cpp`, `data/lang/*.tsv`)
+
+Every drawn string goes through `i18n::translate()`. Three rules keep the 34
+full languages complete:
+
+- **New text is translated as it is committed.** `tools/hooks/pre-commit` runs
+  `tools/i18n_translate.py --staged`, which translates the strings a commit adds
+  with `claude -p` and stages the catalogues it wrote. Install once per clone:
+  `git config core.hooksPath tools/hooks`. CI's `audit_i18n.py --gate` fails on
+  any drawn string that skipped the hook. A string that must stay English (a
+  trade word, a name) goes on `tools/i18n_keep_english.txt`, never into a
+  catalogue as an identical line.
+- **Build a sentence with `i18n::format`, not `+`.** `format("New media joins {1}
+  by itself", {name})` translates the template, then puts the name in.
+  `"New media joins " + name + " by itself"` can never be translated.
+- **Labels and numbers need no code.** When a string has no line of its own,
+  `translate()` takes it apart: `Deck 2` looks up `Deck {n}`, `Bitrate: 6000
+  kbps` translates `Bitrate`, columns split on two spaces, and `Name (qualifier)`
+  is looked up half by half. `tools/i18n_pieces.py` lists the pieces a run's
+  misses (`DECKBOY_I18N_MISSES=<file>`) still need. CTest `i18n` tests the rules.
+
 ## Key Conventions
 
 - No new files unless strictly necessary — extend existing `.ipp`/`.cpp` instead

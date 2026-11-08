@@ -2288,3 +2288,56 @@ Bitfocus Companion, and x42/libltc.	Bitfocus Companion i x42/libltc.
 Keys	Klawisze
 None. See LICENSE sections 15-16.	Brak. Zobacz LICENSE, sekcje 15-16.
 none compiled in	nic nie wkompilowano
+Alpha	Alfa
+Group	Grupa
+Normal	Normalny
+Remote	Zdalne
+lesson	lekcja
+Latency	Opóźnienie
+OUT {n}	WYJ. {n}
+Out {n}	Wyj. {n}
+{n} row	{n} wiersz
+Key name	Nazwa klawisza
+Keyframe	Klatka kluczowa
+Registry	Rejestr
+fade {n}	wygaszenie {n}
+{n} rows	{n} wierszy
+Node port	Port węzła
+Stream ID	ID strumienia
+added {1}	dodano {1}
+still {n}	stopklatka {n}
+FADE {n} s	WYGASZENIE {n} s
+LAYER {n}%	WARSTWA {n}%
+Output {n}	Wyjście {n}
+PTP domain	Domena PTP
+Stream key	Klucz strumienia
+[ASSIGNED]	[PRZYPISANE]
+audio only	tylko dźwięk
+to Out {n}	do wyj. {n}
+{n} of {n}	{n} z {n}
+Display {n}	Wyświetlacz {n}
+active jobs	aktywne zadania
+local clock	zegar lokalny
+not running	nie działa
+click to set	kliknij, aby ustawić
+full {n}x{n}	pełny {n}x{n}
+running v{n}	działa v{n}
+the other one	ten drugi
+DELIVERY H.{n}	WYDANIE H.{n}
+Output {n} mix	Miks wyjścia {n}
+made by Deckboy	zrobione w Deckboy
+{1} plays to {2}	{1} gra na {2}
+the picture {1} plays	obraz, który gra {1}
+New media joins {1} by itself	Nowe media same trafiają do {1}
+Press Win+P and choose Extend	Naciśnij Win+P i wybierz Rozszerz
+{n} patched - DMX cues set them by name	{n} spatchowanych - cue DMX ustawiają je po nazwie
+Set them to extend in your display settings	Ustaw rozszerzanie w ustawieniach ekranu
+lesson: {1}. Esc leaves, and it picks up here next time	lekcja: {1}. Esc wychodzi, a następnym razem zaczyna stąd
+Answers ATEM Software Control as a deck on TCP 9993 at {1}	Odpowiada ATEM Software Control jako deck na TCP 9993 pod {1}
+In System Settings > Displays, use it as an extended display	W Ustawieniach systemowych > Wyświetlacze użyj go jako rozszerzonego ekranu
+It ate the desk, skapi. You have {1} screens: the output's DISPLAY in MENU puts it on another.	Zjadło stół, skapi. Masz {1} ekrany: WYŚWIETLACZ wyjścia w MENU przenosi obraz na inny.
+It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts it on the other one.	Zjadło stół, skapi. Masz dwa ekrany: WYŚWIETLACZ wyjścia w MENU przenosi obraz na ten drugi.
+{1} screens, skapi. The desk stays on this one, the picture goes on {2}. Open MENU and make OUTPUT OFF say OUTPUT ON.	{1} ekrany, skapi. Stół zostaje na tym, obraz idzie na {2}. Otwórz MENU i zmień WYJŚCIE WYŁ. na WYJŚCIE WŁ.
+Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	Dwa ekrany, skapi. Stół zostaje na tym, obraz idzie na drugi: {1}. Otwórz MENU i zmień WYJŚCIE WYŁ. na WYJŚCIE WŁ.
+It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	Zjadło stół, skapi. Ekrany w trybie lustrzanym pokazują obraz na obu, więc obraz trafił do małego okna, z tyłu. {1}, a dostanie własny ekran.
+Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	Twoje ekrany są w trybie lustrzanym, skapi: {1} pokazuje to samo co ten, więc obraz zakryje stół na obu. {2}, a obraz dostanie własny ekran. Albo otwórz MENU i zmień WYJŚCIE WYŁ. na WYJŚCIE WŁ.

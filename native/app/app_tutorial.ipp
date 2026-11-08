@@ -503,9 +503,15 @@
     return s;
   }
 
-  static std::string tutorialScreensWord(int count) {
-    static const char* kWords[] = {"No", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight"};
-    return count >= 0 && count <= 8 ? kWords[count] : std::to_string(count);
+  // A count of screens for a line that has more than two: "Three" in English,
+  // as James wrote it, and digits in a translation, where a word put in from
+  // outside cannot agree with its noun.
+  static std::string tutorialScreenCount(int count, bool startsSentence) {
+    static const char* kWords[] = {"no", "one", "two", "three", "four", "five", "six", "seven", "eight"};
+    if (!deckboy::core::i18n::passthrough() || count < 0 || count > 8) return std::to_string(count);
+    std::string word = kWords[count];
+    if (startsSentence) word[0] = static_cast<char>(word[0] - 'a' + 'A');
+    return word;
   }
 
   // How to stop mirroring, in the words of the system in front of them.
@@ -523,15 +529,29 @@
   std::string tutorialOutputStepLine(const TutorialScreens& s) const {
     if (s.count >= 2) {
       // James's wording for two (2026-10-30), counted up for more.
-      return tutorialScreensWord(s.count) + " screens, skapi. The desk stays on this one, the picture goes on " +
-             (s.count == 2 ? "the other: " : "") + s.spareName +
-             ". Open MENU and make OUTPUT OFF say OUTPUT ON.";
+      // Templates, so a language can put the count and the screen's name where
+      // its own grammar wants them.
+      // "Two" stays inside the line for two screens: a count word put in from
+      // outside cannot agree with its noun in half the languages. More than
+      // two is rare, and takes the number as digits.
+      if (s.count == 2) {
+        return deckboy::core::i18n::format(
+          "Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. "
+          "Open MENU and make OUTPUT OFF say OUTPUT ON.",
+          {s.spareName});
+      }
+      return deckboy::core::i18n::format(
+        "{1} screens, skapi. The desk stays on this one, the picture goes on {2}. "
+        "Open MENU and make OUTPUT OFF say OUTPUT ON.",
+        {tutorialScreenCount(s.count, true), s.spareName});
     }
     if (s.mirrored) {
-      return "Your screens are mirrored, skapi: " +
-             (s.mirroredWith.empty() ? std::string("the other one") : s.mirroredWith) +
-             " shows what this one shows, so the picture will cover the desk on both. " + tutorialExtendHow() +
-             ", and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.";
+      return deckboy::core::i18n::format(
+        "Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover "
+        "the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make "
+        "OUTPUT OFF say OUTPUT ON.",
+        {s.mirroredWith.empty() ? deckboy::core::i18n::translate("the other one") : s.mirroredWith,
+         deckboy::core::i18n::translate(tutorialExtendHow())});
     }
     return tutorialLine(1).pixel;
   }
@@ -552,11 +572,19 @@
     const TutorialScreens s = tutorialScreens();
     switch (why) {
       case kDeskEatenMirrored:
-        return std::string("It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a "
-                           "little window, behind. ") + tutorialExtendHow() + ", and it gets a screen of its own.";
+        return deckboy::core::i18n::format(
+          "It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, "
+          "behind. {1}, and it gets a screen of its own.",
+          {deckboy::core::i18n::translate(tutorialExtendHow())});
       case kDeskEatenWrongScreen:
-        return "It ate the desk, skapi. You have " + tutorialScreensWord(s.count) +
-               " screens: the output's DISPLAY in MENU puts it on " + (s.count == 2 ? "the other one." : "another.");
+        // Whole lines, as for the output step: "two" agrees with its noun.
+        if (s.count == 2) {
+          return "It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts it on the "
+                 "other one.";
+        }
+        return deckboy::core::i18n::format(
+          "It ate the desk, skapi. You have {1} screens: the output's DISPLAY in MENU puts it on another.",
+          {tutorialScreenCount(s.count, false)});
       case kDeskEatenScreenGone:
         return "The other screen went away, skapi, so the picture came back to this one. I put it in a little "
                "window, behind. Plug it back in and the picture goes back on it.";

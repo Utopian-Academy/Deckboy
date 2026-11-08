@@ -189,6 +189,13 @@ bool passthrough();
 // already a filename, a number or a cue name.
 std::string translate(const std::string& source);
 
+// A sentence with something the code fills in: `tmpl` is translated as a
+// line of its own, then "{1}".."{9}" (or "{n}" in order) are replaced by
+// `args`, which go in as given -- translate an arg first if it is the desk's
+// own word rather than a name. "New media joins {1} by itself" keeps a
+// renamed playlist's name and still reads in every language.
+std::string format(const std::string& tmpl, const std::vector<std::string>& args);
+
 }  // namespace i18n
 }  // namespace core
 }  // namespace deckboy

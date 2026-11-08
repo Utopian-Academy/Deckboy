@@ -1,0 +1,40 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Deckboy Contributors
+#
+# New interface text goes into the commit already translated (James,
+# 2026-11-08: "if new text is entered for any reason, lets auto translate it to
+# all"). tools/i18n_translate.py --staged finds the strings this commit adds that
+# a full catalogue lacks, translates them with `claude -p`, and stages the
+# catalogue files it wrote -- only those, and never one that has somebody
+# else's unstaged edits in it.
+#
+# It never stops a commit. Without `claude` or Python, or when the translator
+# fails, it says so and the commit goes ahead; CI's `audit_i18n.py --gate` then
+# fails on the untranslated strings, so nothing reaches main in English.
+#
+# Installed once per clone:   git config core.hooksPath tools/hooks
+# Skipped for one commit:     DECKBOY_NO_TRANSLATE=1 git commit ...
+
+[ -n "$DECKBOY_NO_TRANSLATE" ] && exit 0
+# Nothing in native/ staged: nothing new to translate.
+git diff --cached --quiet -- native && exit 0
+
+if ! command -v claude >/dev/null 2>&1; then
+  echo "i18n: 'claude' is not on PATH; new strings stay English until translated (CI will list them)."
+  exit 0
+fi
+PY=""
+for candidate in python3 python "py -3"; do
+  if $candidate -c "import sys" >/dev/null 2>&1; then PY="$candidate"; break; fi
+done
+if [ -z "$PY" ]; then
+  echo "i18n: no Python found; new strings stay English until translated (CI will list them)."
+  exit 0
+fi
+
+root=$(git rev-parse --show-toplevel)
+if ! $PY "$root/tools/i18n_translate.py" --staged; then
+  echo "i18n: the translator failed; the commit goes ahead and CI will list what is missing."
+fi
+exit 0

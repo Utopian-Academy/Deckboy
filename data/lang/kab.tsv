@@ -2290,3 +2290,55 @@ Bitfocus Companion, and x42/libltc.	i Bitfocus Companion, d x42/libltc.
 Keys	Tisura
 None. See LICENSE sections 15-16.	Ulac. Wali LICENSE, tigezmin 15-16.
 none compiled in	ulac ayen yettusmezgen
+Group	Agraw
+Normal	Amagnu
+Remote	S lebɛid
+lesson	tamsirt
+Latency	Taɛeṭṭelt
+OUT {n}	TUFFƔA {n}
+Out {n}	Tuffɣa {n}
+{n} row	{n} izirig
+Key name	Isem n tsarut
+Registry	Ajerred
+fade {n}	asader {n}
+{n} rows	{n} izirigen
+Node port	Tawwurt n node
+Stream ID	ID n usiɣel
+added {1}	yettwarna {1}
+start {n}	bdu {n}
+still {n}	tugna {n}
+FADE {n} s	ASADER {n} s
+LAYER {n}%	ASWIR {n}%
+Output {n}	Tuffɣa {n}
+PTP domain	Taɣult PTP
+Stream key	Tasarut n usiɣel
+[ASSIGNED]	[YETTUSBADU]
+audio only	ameslaw kan
+to Out {n}	ɣer Tuffɣa {n}
+{n} of {n}	{n} ɣef {n}
+Display {n}	Agdil {n}
+active jobs	imahilen urmiden
+local clock	tamrilt tadigant
+not running	ur yetteddu ara
+click to set	sit i usbadu
+full {n}x{n}	ččur {n}x{n}
+running v{n}	yetteddu v{n}
+the other one	wayeḍ
+DELIVERY H.{n}	ASIWEḌ H.{n}
+Output {n} mix	Asemlili n tuffɣa {n}
+made by Deckboy	yettwaxdem s Deckboy
+{1} plays to {2}	{1} yettwaurar ɣer {2}
+the picture {1} plays	tugna yettwaurar deg {1}
+New media joins {1} by itself	Imidyaten imaynuten ttekcamen ɣer {1} weḥd-sen
+Press Win+P and choose Extend	Siti Win+P syin fren Extend
+{n} patched - DMX cues set them by name	{n} yettwaqqnen - cue DMX sbadun-ten s yisem
+Set them to extend in your display settings	Sbadu-ten ɣef Extend deg yiɣewwaren n ugdil
+lesson: {1}. Esc leaves, and it picks up here next time	tamsirt: {1}. Esc yettaǧǧa, tikkelt i d-iteddun ad ikemmel seg dagi
+Answers ATEM Software Control as a deck on TCP 9993 at {1}	Yettarra i ATEM Software Control am deck ɣef TCP 9993 deg {1}
+In System Settings > Displays, use it as an extended display	Deg System Settings > Displays, seqdec-it d agdil yettwasɣezfen
+It ate the desk, skapi. You have {1} screens: the output's DISPLAY in MENU puts it on another.	Yečča ṭṭabla, skapi. Tesɛiḍ {1} igdilen: AGDIL n tuffɣa deg UMUƔ ad tt-yessers ɣef wayeḍ.
+It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts it on the other one.	Yečča ṭṭabla, skapi. Tesɛiḍ sin igdilen: AGDIL n tuffɣa deg UMUƔ ad tt-yessers ɣef wayeḍ.
+{1} screens, skapi. The desk stays on this one, the picture goes on {2}. Open MENU and make OUTPUT OFF say OUTPUT ON.	{1} igdilen, skapi. Ṭṭabla ad teqqim ɣef wagi, tugna ad teddu ɣer {2}. Ldi UMUƔ, rr TUFFƔA TENSA d TUFFƔA TERMED.
+Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	Sin igdilen, skapi. Ṭṭabla ad teqqim ɣef wagi, tugna ad teddu ɣer wayeḍ: {1}. Ldi UMUƔ, rr TUFFƔA TENSA d TUFFƔA TERMED.
+It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	Yečča ṭṭabla, skapi. Igdilen yemsaren sskanen tugna ɣef sin, ihi sersaɣ-tt deg usfaylu amecṭuḥ, deffir. {1}, ad tesɛu agdil-is.
+Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	Igdilen-ik msaren, skapi: {1} yesskan ayen yesskan wagi, ihi tugna ad tɣumm ṭṭabla ɣef sin. {2}, ad sserseɣ tugna ɣef ugdil-is. Neɣ ldi UMUƔ, rr TUFFƔA TENSA d TUFFƔA TERMED.

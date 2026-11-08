@@ -11,9 +11,11 @@
 #include <cctype>
 #include <fstream>
 #include <map>
+#include <mutex>
 #include <set>
 #include <system_error>
 #include <unordered_map>
+#include <vector>
 
 namespace fs = dbfs;
 
@@ -44,6 +46,7 @@ bool gRtl = false;          // catalogue said #rtl 1
 bool gRtlOk = false;        // the renderer accepted that direction
 bool gShaping = false;      // this build can shape/reorder at all
 int gCypher = 0;   // 0 = none; see kCyphers
+void clearComposed();   // beside translate(): the memo of composed strings
 
 std::string lower(std::string s) {
   std::transform(s.begin(), s.end(), s.begin(),
@@ -381,6 +384,7 @@ bool setLanguage(const std::string& code, const fs::path& dataDir, std::string& 
   if (want == "en") {
     gActive = nullptr;
     gActiveLower.clear();
+    clearComposed();
     gCypher = 0;
     gCode = "en";
     gName = "English";
@@ -394,6 +398,7 @@ bool setLanguage(const std::string& code, const fs::path& dataDir, std::string& 
     if (want == kCyphers[i].code) {
       gActive = nullptr;
       gActiveLower.clear();
+      clearComposed();
       gCypher = i + 1;
       gCode = want;
       gName = kCyphers[i].name;
@@ -440,6 +445,7 @@ bool setLanguage(const std::string& code, const fs::path& dataDir, std::string& 
   // differs from another only in case would collide here; first wins, which
   // is the same answer exact lookup would have given for that spelling.
   gActiveLower.clear();
+  clearComposed();
   for (const auto& entry : cached->second) {
     if (!entry.first.empty() && entry.first[0] == '\x01') continue;  // metadata
     gActiveLower.emplace(lower(entry.first), entry.second);
@@ -518,16 +524,14 @@ void noteFontResolved(bool found) {
 
 bool passthrough() { return gActive == nullptr && gCypher == 0; }
 
-std::string translate(const std::string& source) {
-  if (gCypher != 0) {
-    return applyCypher(gCypher, source);
-  }
-  if (!gActive || source.empty()) {
-    return source;
-  }
+namespace {
+
+// An exact line, or the same line in another case. See translate().
+bool lookupHit(const std::string& source, std::string& out) {
   const auto at = gActive->find(source);
   if (at != gActive->end()) {
-    return at->second;
+    out = at->second;
+    return true;
   }
   // ── THE SAME WORD, SHOUTED ────────────────────────────────────────────────
   //
@@ -543,8 +547,57 @@ std::string translate(const std::string& source) {
   // right answer and "ANWENDEN" with a broken umlaut is not.
   const auto caseHit = gActiveLower.find(lower(source));
   if (caseHit != gActiveLower.end()) {
-    return caseHit->second;
+    out = caseHit->second;
+    return true;
   }
+  return false;
+}
+
+// Put `args` into a translated template. "{n}" takes the next one in order;
+// "{1}".."{9}" take that one, so a language can reorder them ("{2}件中{1}").
+std::string substitute(const std::string& value, const std::vector<std::string>& args) {
+  std::string out;
+  out.reserve(value.size() + 16);
+  std::size_t next = 0;
+  for (std::size_t i = 0; i < value.size(); ++i) {
+    if (value[i] == '{' && i + 2 < value.size() && value[i + 2] == '}') {
+      const char c = value[i + 1];
+      if (c == 'n') {
+        if (next < args.size()) out += args[next];
+        ++next;
+        i += 2;
+        continue;
+      }
+      if (c >= '1' && c <= '9') {
+        const std::size_t k = static_cast<std::size_t>(c - '1');
+        if (k < args.size()) out += args[k];
+        i += 2;
+        continue;
+      }
+    }
+    out += value[i];
+  }
+  return out;
+}
+
+bool isDigit(char c) { return c >= '0' && c <= '9'; }
+
+bool composeHit(const std::string& source, std::string& out, int depth);
+
+// ── A STRING BUILT AT RUN TIME ────────────────────────────────────────────────
+//
+// "Deck 2", "1 of 2", "Bitrate: 6000 kbps", "Deck 1  to Out 1": a label and a
+// value put together by the code, which no catalogue can hold whole, because
+// the value changes. They were English in every language (2026-11-08: about
+// 120 of them in one sweep). Each rule below takes the string apart along a
+// seam the interface really uses, translates what the catalogue knows, and
+// leaves what it does not as it is -- a path, a screen's name, a codec, a cue
+// name. A string none of them can take apart stays English, exactly as an
+// untranslated line always has.
+bool composeHit(const std::string& source, std::string& out, int depth) {
+  if (source.empty() || depth > 4) return false;
+  if (lookupHit(source, out)) return true;
+
   // ── A NAME AND ITS QUALIFIER ──────────────────────────────────────────────
   //
   // Menus qualify a name in brackets: "Full White (motion)", "Pocket Test
@@ -557,16 +610,152 @@ std::string translate(const std::string& source) {
     const std::size_t open = source.rfind(" (");
     if (open != std::string::npos && open > 0 &&
         source.find_first_of("()", open + 2) == source.size() - 1) {
-      const std::string base = source.substr(0, open);
+      // A base laid out in columns ends in spaces ("OPEN THE MAP  (3 rows)"):
+      // they are kept, and the words before them are what is looked up.
+      std::string base = source.substr(0, open);
+      std::string pad;
+      while (!base.empty() && base.back() == ' ') {
+        pad += ' ';
+        base.pop_back();
+      }
       const std::string qualifier = source.substr(open + 2, source.size() - open - 3);
-      const std::string baseShown = translate(base);
-      const auto qualifierHit = gActiveLower.find(lower(qualifier));
-      const std::string qualifierShown =
-        qualifierHit == gActiveLower.end() ? qualifier : qualifierHit->second;
-      if (baseShown != base || qualifierShown != qualifier) {
-        return baseShown + " (" + qualifierShown + ")";
+      std::string baseShown;
+      std::string qualifierShown;
+      const bool baseHit = composeHit(base, baseShown, depth + 1);
+      const bool qualifierHit = composeHit(qualifier, qualifierShown, depth + 1);
+      if (baseHit || qualifierHit) {
+        out = (baseHit ? baseShown : base) + pad + " (" + (qualifierHit ? qualifierShown : qualifier) + ")";
+        return true;
       }
     }
+  }
+
+  // ── NUMBERS ───────────────────────────────────────────────────────────────
+  //
+  // "Deck 2" is the line "Deck {n}" with a 2 in it; "FADE 2.0 s" is
+  // "FADE {n} s". A number is a run of digits with . , or : inside it, so a
+  // time (00:01.5) or a decimal is one value. The numbers go back in the order
+  // they came out, unless the translation numbers them ({1}, {2}).
+  {
+    std::string key;
+    std::vector<std::string> numbers;
+    for (std::size_t i = 0; i < source.size();) {
+      if (isDigit(source[i])) {
+        std::size_t j = i + 1;
+        while (j < source.size() &&
+               (isDigit(source[j]) ||
+                ((source[j] == '.' || source[j] == ',' || source[j] == ':') &&
+                 j + 1 < source.size() && isDigit(source[j + 1])))) {
+          ++j;
+        }
+        numbers.push_back(source.substr(i, j - i));
+        key += "{n}";
+        i = j;
+      } else {
+        key += source[i++];
+      }
+    }
+    std::string value;
+    if (!numbers.empty() && lookupHit(key, value)) {
+      out = substitute(value, numbers);
+      return true;
+    }
+  }
+
+  // ── COLUMNS ───────────────────────────────────────────────────────────────
+  //
+  // Two or more spaces is how the desk lays a line out in columns: "Deck 1  to
+  // Out 1", "HyperDeck 9993  |  OSC Query 5511", "AREA OF INTEREST  full
+  // 3840x2160". Each column is its own phrase, so each is looked up on its own
+  // and the spacing is kept.
+  if (source.find("  ") != std::string::npos) {
+    std::string built;
+    bool any = false;
+    std::size_t i = 0;
+    while (i < source.size()) {
+      std::size_t gap = source.find("  ", i);
+      if (gap == std::string::npos) gap = source.size();
+      const std::string piece = source.substr(i, gap - i);
+      std::string shown;
+      if (!piece.empty() && composeHit(piece, shown, depth + 1)) {
+        built += shown;
+        any = true;
+      } else {
+        built += piece;
+      }
+      std::size_t after = gap;
+      while (after < source.size() && source[after] == ' ') ++after;
+      built.append(source, gap, after - gap);
+      i = after;
+    }
+    if (any) {
+      out = built;
+      return true;
+    }
+  }
+
+  // ── A LABEL AND ITS VALUE ─────────────────────────────────────────────────
+  //
+  // "Bitrate: 6000 kbps", "PTP: not running", "camera: the first one found".
+  // The label is looked up, and the value is too -- but a value nobody wrote
+  // a line for is left exactly as it is, because it is so often a path, a
+  // screen or a cue that must read as the operator knows it.
+  {
+    const std::size_t colon = source.find(": ");
+    if (colon != std::string::npos && colon > 0 && colon + 2 < source.size()) {
+      const std::string label = source.substr(0, colon);
+      const std::string value = source.substr(colon + 2);
+      std::string labelShown;
+      std::string valueShown;
+      const bool labelHit = composeHit(label, labelShown, depth + 1);
+      const bool valueHit = composeHit(value, valueShown, depth + 1);
+      if (labelHit || valueHit) {
+        out = (labelHit ? labelShown : label) + ": " + (valueHit ? valueShown : value);
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+// Strings built at run time are looked up every frame they are drawn, so what
+// the rules above made of each is kept. Cleared with the catalogue; emptied
+// when it grows past a bound, because a running timecode is a new string
+// every frame.
+std::unordered_map<std::string, std::string> gComposed;
+std::mutex gComposedMutex;
+
+void clearComposed() {
+  std::lock_guard<std::mutex> lock(gComposedMutex);
+  gComposed.clear();
+}
+
+}  // namespace
+
+std::string translate(const std::string& source) {
+  if (gCypher != 0) {
+    return applyCypher(gCypher, source);
+  }
+  if (!gActive || source.empty()) {
+    return source;
+  }
+  std::string hit;
+  if (lookupHit(source, hit)) {
+    return hit;
+  }
+  {
+    std::lock_guard<std::mutex> lock(gComposedMutex);
+    const auto known = gComposed.find(source);
+    if (known != gComposed.end()) return known->second;
+  }
+  const bool composed = composeHit(source, hit, 0);
+  {
+    std::lock_guard<std::mutex> lock(gComposedMutex);
+    if (gComposed.size() > 20000) gComposed.clear();
+    gComposed.emplace(source, composed ? hit : source);
+  }
+  if (composed) {
+    return hit;
   }
   // FOR TESTS: DECKBOY_I18N_MISSES=<file> lists every string the app asked
   // for and the active catalogue did not have, once each. Only a running app
@@ -582,6 +771,10 @@ std::string translate(const std::string& source) {
     }
   }
   return source;
+}
+
+std::string format(const std::string& tmpl, const std::vector<std::string>& args) {
+  return substitute(translate(tmpl), args);
 }
 
 }  // namespace i18n

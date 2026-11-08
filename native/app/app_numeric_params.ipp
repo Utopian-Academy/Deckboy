@@ -1398,9 +1398,10 @@ void audioEffectStackAdd() {
     // this was reported.
     refreshLiveCueIfPixelPathChanged(wasNeeded);
     if (any) {
-      triggerToast(std::string("added ") +
-                   deckboy::audiofx::audioEffectLabel(kind) +
-                   audioEditScopeSuffix());
+      triggerToast(deckboy::core::i18n::format(
+                     "added {1}",
+                     {deckboy::core::i18n::translate(deckboy::audiofx::audioEffectLabel(kind))}) +
+                   deckboy::core::i18n::translate(audioEditScopeSuffix()));
     } else {
       triggerToast("no cue with audio selected");
     }

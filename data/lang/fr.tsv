@@ -2280,3 +2280,56 @@ Bitfocus Companion, and x42/libltc.	à Bitfocus Companion et à x42/libltc.
 Keys	Touches
 None. See LICENSE sections 15-16.	Aucune. Voir LICENSE, sections 15-16.
 none compiled in	aucun compilé
+Group	Groupe
+Remote	À distance
+lesson	leçon
+Bitrate	Débit
+Latency	Latence
+OUT {n}	SORTIE {n}
+Out {n}	Sortie {n}
+{n} row	{n} ligne
+Key name	Nom de touche
+Keyframe	Image clé
+Registry	Registre
+fade {n}	fondu {n}
+{n} rows	{n} lignes
+Node port	Port du nœud
+Stream ID	ID de flux
+added {1}	{1} ajouté
+start {n}	démarrer {n}
+still {n}	image fixe {n}
+FADE {n} s	FONDU {n} s
+LAYER {n}%	CALQUE {n}%
+Output {n}	Sortie {n}
+PTP domain	Domaine PTP
+Stream key	Clé de flux
+[ASSIGNED]	[ASSIGNÉ]
+audio only	audio seul
+to Out {n}	vers Sortie {n}
+{n} of {n}	{n} sur {n}
+Display {n}	Affichage {n}
+active jobs	tâches actives
+local clock	horloge locale
+not running	arrêté
+click to set	cliquer pour définir
+full {n}x{n}	plein {n}x{n}
+running v{n}	en cours v{n}
+the other one	l'autre
+DELIVERY H.{n}	LIVRAISON H.{n}
+Output {n} mix	Mix Sortie {n}
+made by Deckboy	fait avec Deckboy
+{1} plays to {2}	{1} joue sur {2}
+the picture {1} plays	l'image que joue {1}
+New media joins {1} by itself	Les nouveaux médias rejoignent {1} tout seuls
+Press Win+P and choose Extend	Appuie sur Win+P et choisis Étendre
+{n} patched - DMX cues set them by name	{n} patchés - les cues DMX les règlent par leur nom
+Set them to extend in your display settings	Règle-les en mode étendu dans les réglages d'affichage
+lesson: {1}. Esc leaves, and it picks up here next time	leçon : {1}. Esc pour quitter, et la prochaine fois on reprend ici
+Answers ATEM Software Control as a deck on TCP 9993 at {1}	Répond à ATEM Software Control comme deck sur TCP 9993 à {1}
+In System Settings > Displays, use it as an extended display	Dans Réglages Système > Moniteurs, utilise-le comme moniteur étendu
+It ate the desk, skapi. You have {1} screens: the output's DISPLAY in MENU puts it on another.	Ça a mangé la régie, skapi. Tu as {1} écrans : l'AFFICHAGE de la sortie dans MENU met l'image sur un autre.
+It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts it on the other one.	Ça a mangé la régie, skapi. Tu as deux écrans : l'AFFICHAGE de la sortie dans MENU met l'image sur l'autre.
+{1} screens, skapi. The desk stays on this one, the picture goes on {2}. Open MENU and make OUTPUT OFF say OUTPUT ON.	{1} écrans, skapi. La régie reste sur celui-ci, l'image va sur {2}. Ouvre MENU et fais passer SORTIE COUPÉE à SORTIE ACTIVE.
+Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	Deux écrans, skapi. La régie reste sur celui-ci, l'image va sur l'autre : {1}. Ouvre MENU et fais passer SORTIE COUPÉE à SORTIE ACTIVE.
+It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	Ça a mangé la régie, skapi. Des écrans en miroir montrent l'image sur les deux, alors je l'ai mise dans une petite fenêtre, derrière. {1}, et elle aura son propre écran.
+Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	Tes écrans sont en miroir, skapi : {1} affiche la même chose que celui-ci, donc l'image couvrira la régie sur les deux. {2}, et je mets l'image sur son propre écran. Ou ouvre MENU et fais passer SORTIE COUPÉE à SORTIE ACTIVE.

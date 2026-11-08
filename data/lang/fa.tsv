@@ -2301,3 +2301,61 @@ Bitfocus Companion, and x42/libltc.	Bitfocus Companion و x42/libltc.
 Keys	کلیدها
 None. See LICENSE sections 15-16.	هیچ. بخش‌های 15-16 در LICENSE را ببینید.
 none compiled in	هیچ‌چیز درون‌ساخت نیست
+Alpha	آلفا
+Group	گروه
+Normal	عادی
+Remote	از راه دور
+lesson	درس
+Bitrate	نرخ بیت
+Latency	تأخیر
+OUT {n}	خروجی {n}
+Out {n}	خروجی {n}
+{n} row	{n} ردیف
+Deck {n}	دک {n}
+Key name	نام کلید
+Keyframe	فریم کلیدی
+Registry	رجیستری
+fade {n}	محو شدن {n}
+{n} rows	{n} ردیف
+Node port	درگاه گره
+Stream ID	شناسه استریم
+added {1}	{1} افزوده شد
+start {n}	شروع {n}
+still {n}	ثابت {n}
+FADE {n} s	محو شدن {n} s
+LAYER {n}%	لایه {n}%
+Output {n}	خروجی {n}
+PROXY {n}p	پراکسی {n}p
+PTP domain	دامنه PTP
+Proxy {n}p	پراکسی {n}p
+Stream key	کلید استریم
+[ASSIGNED]	[اختصاص‌یافته]
+audio only	فقط صدا
+to Out {n}	به خروجی {n}
+{n} of {n}	{n} از {n}
+Display {n}	نمایشگر {n}
+active jobs	کارهای فعال
+local clock	ساعت محلی
+not running	در حال اجرا نیست
+click to set	برای تنظیم کلیک کن
+full {n}x{n}	کامل {n}x{n}
+running v{n}	در حال اجرا v{n}
+the other one	آن یکی
+DELIVERY H.{n}	تحویل H.{n}
+Output {n} mix	میکس خروجی {n}
+made by Deckboy	ساخته‌شده با Deckboy
+{1} plays to {2}	{1} در {2} می‌نوازد
+the picture {1} plays	تصویری که {1} می‌نوازد
+New media joins {1} by itself	رسانه‌ی جدید خودش به {1} می‌پیوندد
+Press Win+P and choose Extend	Win+P را فشار بده و Extend را انتخاب کن
+{n} patched - DMX cues set them by name	{n} پچ شد - کیوهای DMX آن‌ها را با نام تنظیم می‌کنند
+Set them to extend in your display settings	در تنظیمات نمایشگر، آن‌ها را روی Extend بگذار
+lesson: {1}. Esc leaves, and it picks up here next time	درس: {1}. Esc بیرون می‌رود، و دفعه‌ی بعد از همین جا ادامه می‌دهد
+Answers ATEM Software Control as a deck on TCP 9993 at {1}	به ATEM Software Control به‌عنوان دک روی TCP 9993 در {1} پاسخ می‌دهد
+In System Settings > Displays, use it as an extended display	در تنظیمات سیستم > نمایشگرها، از آن به‌عنوان نمایشگر گسترش‌یافته استفاده کن
+It ate the desk, skapi. You have {1} screens: the output's DISPLAY in MENU puts it on another.	میز را خورد، skapi. {1} صفحه‌نمایش داری: نمایشگرِ خروجی در منو آن را روی یکی دیگر می‌برد.
+It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts it on the other one.	میز را خورد، skapi. دو صفحه‌نمایش داری: نمایشگرِ خروجی در منو آن را روی آن یکی می‌برد.
+{1} screens, skapi. The desk stays on this one, the picture goes on {2}. Open MENU and make OUTPUT OFF say OUTPUT ON.	{1} صفحه‌نمایش، skapi. میز روی همین می‌ماند، تصویر روی {2} می‌رود. منو را باز کن و کاری کن خروجی خاموش بشود خروجی روشن.
+Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	دو صفحه‌نمایش، skapi. میز روی همین می‌ماند، تصویر روی آن یکی می‌رود: {1}. منو را باز کن و کاری کن خروجی خاموش بشود خروجی روشن.
+It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	میز را خورد، skapi. صفحه‌های آینه‌ای تصویر را روی هر دو نشان می‌دهند، پس آن را در یک پنجره‌ی کوچک، پشت، گذاشتم. {1}، تا صفحه‌ی خودش را داشته باشد.
+Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	صفحه‌هایت آینه‌ای‌اند، skapi: {1} همان چیزی را نشان می‌دهد که این یکی، پس تصویر روی هر دو میز را می‌پوشاند. {2}، تا تصویر را روی صفحه‌ی خودش بگذارم. یا منو را باز کن و کاری کن خروجی خاموش بشود خروجی روشن.

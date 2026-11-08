@@ -1267,6 +1267,17 @@ if(BUILD_TESTING)
     target_compile_options(deckboy-creatures-check PRIVATE -Wall -Wextra -Wshadow -Werror)
   endif()
   add_test(NAME creatures COMMAND deckboy-creatures-check)
+  # translate(): the rules for strings built at run time, and format().
+  add_executable(deckboy-i18n-check tools/i18n_check.cpp native/core/i18n.cpp)
+  target_include_directories(deckboy-i18n-check PRIVATE native)
+  if(MSVC)
+    target_compile_options(deckboy-i18n-check PRIVATE /W4 /WX)
+    # As the app: i18n.cpp reads its test switch with getenv.
+    target_compile_definitions(deckboy-i18n-check PRIVATE _CRT_SECURE_NO_WARNINGS)
+  else()
+    target_compile_options(deckboy-i18n-check PRIVATE -Wall -Wextra -Wshadow -Werror)
+  endif()
+  add_test(NAME i18n COMMAND deckboy-i18n-check)
   # The MIDI map: matching, knobs, encoders, holds, pickup, OSC, the saved form.
   add_executable(deckboy-midi-map-check tools/midi_map_check.cpp)
   target_include_directories(deckboy-midi-map-check PRIVATE native)

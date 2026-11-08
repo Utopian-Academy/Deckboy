@@ -2382,7 +2382,8 @@
     tutorial_.active = true;
     tutorial_.lesson = index + 1;
     enterTutorialStep(step);
-    triggerToast(std::string("lesson: ") + def->title + ". Esc leaves, and it picks up here next time",
+    triggerToast(deckboy::core::i18n::format("lesson: {1}. Esc leaves, and it picks up here next time",
+                                             {deckboy::core::i18n::translate(def->title)}),
                  ToastKind::Help);
     return true;
   }

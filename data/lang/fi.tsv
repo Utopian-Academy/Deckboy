@@ -2289,3 +2289,58 @@ Bitfocus Companion, and x42/libltc.	Bitfocus Companionille ja x42/libltc:lle.
 Keys	Näppäimet
 None. See LICENSE sections 15-16.	Ei mitään. Katso LICENSE, kohdat 15-16.
 none compiled in	ei mitään käännetty mukaan
+Alpha	Alfa
+Group	Ryhmä
+Normal	Normaali
+Remote	Etäohjaus
+lesson	oppitunti
+Bitrate	Bittinopeus
+Latency	Viive
+OUT {n}	ULOS {n}
+Out {n}	Ulos {n}
+{n} row	{n} rivi
+Key name	Näppäimen nimi
+Keyframe	Avainkuva
+Registry	Rekisteri
+fade {n}	häivytys {n}
+{n} rows	{n} riviä
+Node port	Solmun portti
+Stream ID	Virran ID
+added {1}	lisätty {1}
+start {n}	aloita {n}
+still {n}	pysäytyskuva {n}
+FADE {n} s	HÄIVYTYS {n} s
+LAYER {n}%	TASO {n}%
+Output {n}	Ulostulo {n}
+PTP domain	PTP-toimialue
+Stream key	Lähetysavain
+[ASSIGNED]	[MÄÄRITETTY]
+audio only	vain ääni
+to Out {n}	kohteeseen Ulos {n}
+{n} of {n}	{n}/{n}
+Display {n}	Näyttö {n}
+active jobs	aktiiviset työt
+local clock	paikallinen kello
+not running	ei käynnissä
+click to set	aseta napsauttamalla
+full {n}x{n}	täysi {n}x{n}
+running v{n}	käynnissä v{n}
+the other one	toinen
+DELIVERY H.{n}	TOIMITUS H.{n}
+Output {n} mix	Ulostulon {n} miksaus
+made by Deckboy	tehty Deckboylla
+{1} plays to {2}	{1} soittaa kohteeseen {2}
+the picture {1} plays	kuva, jota {1} soittaa
+New media joins {1} by itself	Uusi media liittyy kohteeseen {1} itsestään
+Press Win+P and choose Extend	Paina Win+P ja valitse Laajenna
+{n} patched - DMX cues set them by name	{n} patchattu - DMX-cuet asettavat ne nimen mukaan
+Set them to extend in your display settings	Aseta ne laajennetuiksi näyttöasetuksista
+lesson: {1}. Esc leaves, and it picks up here next time	oppitunti: {1}. Esc poistuu, ja ensi kerralla jatketaan tästä
+Answers ATEM Software Control as a deck on TCP 9993 at {1}	Vastaa ATEM Software Controlille deckinä TCP 9993:ssa osoitteessa {1}
+In System Settings > Displays, use it as an extended display	Kohdassa Järjestelmäasetukset > Näytöt käytä sitä laajennettuna näyttönä
+It ate the desk, skapi. You have {1} screens: the output's DISPLAY in MENU puts it on another.	Se söi pöydän, skapi. Sinulla on {1} näyttöä: VALIKKO > ulostulon NÄYTTÖ siirtää sen toiselle.
+It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts it on the other one.	Se söi pöydän, skapi. Sinulla on kaksi näyttöä: VALIKKO > ulostulon NÄYTTÖ siirtää sen toiselle.
+{1} screens, skapi. The desk stays on this one, the picture goes on {2}. Open MENU and make OUTPUT OFF say OUTPUT ON.	{1} näyttöä, skapi. Pöytä pysyy tässä, kuva menee näytölle {2}. Avaa VALIKKO ja muuta ULOSTULO POIS muotoon ULOSTULO PÄÄLLE.
+Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	Kaksi näyttöä, skapi. Pöytä pysyy tässä, kuva menee toiseen: {1}. Avaa VALIKKO ja muuta ULOSTULO POIS muotoon ULOSTULO PÄÄLLE.
+It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	Se söi pöydän, skapi. Peilatut näytöt näyttävät kuvan molemmissa, joten laitoin sen pieneen ikkunaan taakse. {1}, niin se saa oman näytön.
+Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	Näyttösi on peilattu, skapi: {1} näyttää saman kuin tämä, joten kuva peittää pöydän molemmissa. {2}, niin laitan kuvan omalle näytölleen. Tai avaa VALIKKO ja muuta ULOSTULO POIS muotoon ULOSTULO PÄÄLLE.

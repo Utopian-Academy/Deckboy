@@ -2315,3 +2315,59 @@ Bitfocus Companion, and x42/libltc.	ⵉ Bitfocus Companion, ⴷ x42/libltc.
 Keys	ⵜⵉⵙⵓⵔⴰ
 None. See LICENSE sections 15-16.	ⵓⵍⴰ ⵢⴰⵜ. ⵥⵕ LICENSE, ⵜⵉⴳⵣⵎⵉⵏ 15-16.
 none compiled in	ⵓⵍⴰ ⵢⴰⵏ ⵉⵜⵜⵓⵙⵎⵓⵏ
+Group	ⴰⴳⵔⴰⵡ
+Normal	ⴰⵎⴰⴳⵏⵓ
+Remote	ⵙⴳ ⵜⴰⴳⴳⵓⴳⵜ
+lesson	ⴰⵙⵍⵎⴷ
+Bitrate	ⵜⴰⵖⴰⵡⵍⵉ ⵏ bit
+Latency	ⴰⵙⵎⴰⵜⵍ
+OUT {n}	ⵜⵓⴼⴼⵖⴰ {n}
+Out {n}	ⵜⵓⴼⴼⵖⴰ {n}
+{n} row	{n} ⵉⵣⵉⵔⵉⴳ
+Key name	ⵉⵙⵎ ⵏ ⵜⵙⴰⵔⵓⵜ
+Keyframe	ⵜⴰⵡⵍⴰⴼⵜ ⵜⴰⴳⵊⴷⴰⵏⵜ
+Registry	ⴰⵙⵉⵍ
+fade {n}	ⴰⵙⴼⵙⵉ {n}
+{n} rows	{n} ⵉⵣⵉⵔⵉⴳⵏ
+Node port	ⵜⴰⵡⵡⵓⵔⵜ ⵏ ⵜⴽⵔⵙⵜ
+Stream ID	ID ⵏ ⵓⵙⵓⴷⴷⵎ
+added {1}	ⵉⵜⵜⵓⵔⵏⴰ {1}
+start {n}	ⴱⴷⵓ {n}
+still {n}	ⵜⴰⵡⵍⴰⴼⵜ {n}
+FADE {n} s	ⴰⵙⴼⵙⵉ {n} s
+LAYER {n}%	ⴰⵙⵙⵓ {n}%
+Output {n}	ⵜⵓⴼⴼⵖⴰ {n}
+PROXY {n}p	ⴰⵎⵙⵏⴼⵍ {n}p
+PTP domain	ⵜⴰⵎⵏⴰⴹⵜ ⵏ PTP
+Proxy {n}p	ⴰⵎⵙⵏⴼⵍ {n}p
+Stream key	ⵜⴰⵙⴰⵔⵓⵜ ⵏ ⵓⵙⵓⴷⴷⵎ
+[ASSIGNED]	[ⵉⵜⵜⵓⵙⵎⵔⵙ]
+audio only	ⵉⵎⵙⵍⵉ ⵡⴰⵃⴷⵓ
+to Out {n}	ⵙ ⵜⵓⴼⴼⵖⴰ {n}
+{n} of {n}	{n} ⵣⴳ {n}
+Display {n}	ⴰⴳⴷⵉⵍ {n}
+active jobs	ⵜⵉⵡⵓⵔⵉⵡⵉⵏ ⵉⵜⴷⴷⵓⵏ
+local clock	ⵜⴰⵙⴰⵄⵜ ⵜⴰⴷⵖⴰⵔⴰⵏⵜ
+not running	ⵓⵔ ⵉⵜⴷⴷⵓ
+click to set	ⵙⵉⵜ ⵉ ⵓⵙⴱⴷⴷ
+full {n}x{n}	ⴰⴽⴽ {n}x{n}
+running v{n}	ⵉⵜⴷⴷⵓ v{n}
+the other one	ⵡⴰⵢⵢⴰⴹ
+DELIVERY H.{n}	ⴰⵙⵉⵡⴹ H.{n}
+Output {n} mix	ⴰⵙⵎⵍⵉⵍ ⵏ ⵜⵓⴼⴼⵖⴰ {n}
+made by Deckboy	ⵉⵙⴽⵔ ⵜ Deckboy
+{1} plays to {2}	{1} ⵉⵜⵜⵖⵔⴰ ⵙ {2}
+the picture {1} plays	ⵜⴰⵡⵍⴰⴼⵜ ⵍⵍⵉ ⵉⵜⵜⵖⵔⴰ {1}
+New media joins {1} by itself	ⴰⵎⵉⴷⵢⴰ ⴰⵎⴰⵢⵏⵓ ⵉⵜⵜⵎⵓⵏ ⴷ {1} ⵙ ⵢⵉⵎⴰⵏ ⵏⵏⵙ
+Press Win+P and choose Extend	ⵙⵉⵜ Win+P, ⵜⵙⵜⵉⴷ Extend
+{n} patched - DMX cues set them by name	{n} ⵉⵜⵜⵓⵇⵇⵏⵏ - cue ⵏ DMX ⵙⴱⴷⴷⵏ ⵜⵏ ⵙ ⵉⵙⵎ
+Set them to extend in your display settings	ⵙⴱⴷⴷ ⵜⵏ ⴰⴷ ⵙⵎⵖⵔⵏ ⵖ ⵜⵉⵙⵖⴰⵍ ⵏ ⵓⴳⴷⵉⵍ
+lesson: {1}. Esc leaves, and it picks up here next time	ⴰⵙⵍⵎⴷ: {1}. Esc ⴰⵔ ⵉⴼⴼⵓⵖ, ⵜⵉⴽⴽⵍ ⴷ ⵉⵜⵜⴰⵙⵏ ⴰⴷ ⵉⴽⵎⵎⵍ ⵣⴳ ⵖⵉⴷ
+Answers ATEM Software Control as a deck on TCP 9993 at {1}	ⴰⵔ ⵉⵜⵜⵔⴰⵔ ⵉ ATEM Software Control ⴰⵎ deck ⵖ TCP 9993 ⵖ {1}
+In System Settings > Displays, use it as an extended display	ⵖ ⵜⵉⵙⵖⴰⵍ ⵏ ⵓⵏⴰⴳⵔⴰⵡ > ⵉⴳⴷⵉⵍⵏ, ⵙⵎⵔⵙ ⵜ ⴰⵎ ⵓⴳⴷⵉⵍ ⵉⵜⵜⵓⵙⵎⵖⵔⵏ
+It ate the desk, skapi. You have {1} screens: the output's DISPLAY in MENU puts it on another.	ⵉⴹⵕ ⵟⵟⴰⴱⵍⴰ, skapi. ⵖⵓⵔⴽ {1} ⵉⴳⴷⵉⵍⵏ: ⴰⴳⴷⵉⵍ ⵏ ⵜⵓⴼⴼⵖⴰ ⵖ ⵓⵎⵓⵖ ⴰⴷ ⵜ ⵉⵙⵙⵔⵙ ⵖ ⵢⴰⵏ ⵢⴰⴹⵏ.
+It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts it on the other one.	ⵉⴹⵕ ⵟⵟⴰⴱⵍⴰ, skapi. ⵖⵓⵔⴽ ⵙⵉⵏ ⵉⴳⴷⵉⵍⵏ: ⴰⴳⴷⵉⵍ ⵏ ⵜⵓⴼⴼⵖⴰ ⵖ ⵓⵎⵓⵖ ⴰⴷ ⵜ ⵉⵙⵙⵔⵙ ⵖ ⵡⴰⵢⵢⴰⴹ.
+{1} screens, skapi. The desk stays on this one, the picture goes on {2}. Open MENU and make OUTPUT OFF say OUTPUT ON.	{1} ⵉⴳⴷⵉⵍⵏ, skapi. ⵜⴰⴼⵉⵍⵓⵜ ⴰⴷ ⵜⵇⵇⵉⵎ ⵖ ⵡⴰ, ⵜⴰⵡⵍⴰⴼⵜ ⴰⴷ ⵜⴷⴷⵓ ⵖ {2}. ⵕⵥⵎ ⵓⵎⵓⵖ ⵜⵔⴰⵔⴷ ⵜⵓⴼⴼⵖⴰ ⵉⵅⵙⴰ ⵖⵔ ⵜⵓⴼⴼⵖⴰ ⵉⵔⵎⴷ.
+Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	ⵙⵉⵏ ⵉⴳⴷⵉⵍⵏ, skapi. ⵜⴰⴼⵉⵍⵓⵜ ⴰⴷ ⵜⵇⵇⵉⵎ ⵖ ⵡⴰ, ⵜⴰⵡⵍⴰⴼⵜ ⴰⴷ ⵜⴷⴷⵓ ⵖ ⵡⴰⵢⵢⴰⴹ: {1}. ⵕⵥⵎ ⵓⵎⵓⵖ ⵜⵔⴰⵔⴷ ⵜⵓⴼⴼⵖⴰ ⵉⵅⵙⴰ ⵖⵔ ⵜⵓⴼⴼⵖⴰ ⵉⵔⵎⴷ.
+It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	ⵉⴹⵕ ⵟⵟⴰⴱⵍⴰ, skapi. ⵉⴳⴷⵉⵍⵏ ⵉⵎⵙⴰⵙⴰⵏ ⴰⵔ ⵙⵙⴽⴰⵏⵏ ⵜⴰⵡⵍⴰⴼⵜ ⵖ ⵙⵉⵏ, ⵉⵅⵚ ⴰⴷ ⵜ ⴳⴳⵉⵖ ⵖ ⵢⴰⵏ ⵓⵙⴰⵜⵎ ⴰⵎⵥⵢⴰⵏ, ⴷⴼⴼⵉⵔ. {1}, ⴰⴷ ⵢⴰⵡⵉ ⴰⴳⴷⵉⵍ ⵏⵏⵙ.
+Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	ⵉⴳⴷⵉⵍⵏ ⵏⵏⴽ ⵎⵙⴰⵙⴰⵏ, skapi: {1} ⴰⵔ ⵉⵙⵙⴽⴰⵏ ⴰⵢⴷ ⵉⵙⵙⴽⴰⵏ ⵡⴰ, ⵉⵅⵚ ⵜⴰⵡⵍⴰⴼⵜ ⴰⴷ ⵜⴷⵍ ⵜⴰⴼⵉⵍⵓⵜ ⵖ ⵙⵉⵏ. {2}, ⴰⴷ ⴳⴳⵉⵖ ⵜⴰⵡⵍⴰⴼⵜ ⵖ ⵓⴳⴷⵉⵍ ⵏⵏⵙ. ⵏⵖ ⵕⵥⵎ ⵓⵎⵓⵖ ⵜⵔⴰⵔⴷ ⵜⵓⴼⴼⵖⴰ ⵉⵅⵙⴰ ⵖⵔ ⵜⵓⴼⴼⵖⴰ ⵉⵔⵎⴷ.

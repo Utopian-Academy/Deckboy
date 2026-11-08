@@ -6160,7 +6160,8 @@
       if (!becomingSuper) {
         playUiSound(UiSoundEffect::DeckAdded);
       }
-      triggerToast("added " + added.name);
+      triggerToast(deckboy::core::i18n::format(
+        "added {1}", {deckboy::core::i18n::translate(added.name)}));
     }
     return true;
   }

@@ -2313,3 +2313,60 @@ Bitfocus Companion, and x42/libltc.	Bitfocus Companion, x42/libltc.
 Keys	Batku
 None. See LICENSE sections 15-16.	Vaala. LICENSE miri, 15-16.
 none compiled in	vaala koranu
+Group	Pata
+Normal	Gurso
+Remote	Ranjana
+lesson	holakora
+Bitrate	Zarnuma
+Latency	Senpena
+OUT {n}	SENA {n}
+Out {n}	Sena {n}
+{n} row	{n} rana
+Deck {n}	Deka {n}
+Key name	Batahola
+Keyframe	Kaeveka
+Registry	Korabufa
+fade {n}	lum {n}
+{n} rows	{n} ranaku
+Node port	Janapora
+Stream ID	Retasenanuma
+added {1}	{1} lano
+start {n}	tira {n}
+still {n}	halveka {n}
+FADE {n} s	LUM {n} s
+LAYER {n}%	LANA {n}%
+Output {n}	Senadora {n}
+PROXY {n}p	KISVEKA {n}p
+PTP domain	PTP kaea
+Proxy {n}p	Kisveka {n}p
+Stream key	Retabata
+[ASSIGNED]	[LANO]
+audio only	sona una
+to Out {n}	go Sena {n}
+{n} of {n}	{n} / {n}
+Display {n}	Vekadeka {n}
+active jobs	zaro patakoraku
+local clock	kaeo toktala
+not running	vazaro
+click to set	bati go seti
+full {n}x{n}	tamo {n}x{n}
+running v{n}	zaro v{n}
+the other one	una seto
+DELIVERY H.{n}	TAMSENA H.{n}
+Output {n} mix	Senadora {n} kula
+made by Deckboy	go Deckboy grao
+{1} plays to {2}	{1} soni go {2}
+the picture {1} plays	veka {1} soni
+New media joins {1} by itself	Novo vekadora lani go {1} una
+Press Win+P and choose Extend	Bati Win+P so piki Extend
+{n} patched - DMX cues set them by name	{n} lano - DMX vekaku seti hola
+Set them to extend in your display settings	Seti rano kae vekadeka setaku
+lesson: {1}. Esc leaves, and it picks up here next time	holakora: {1}. Esc gwani, novtok kae hen
+Answers ATEM Software Control as a deck on TCP 9993 at {1}	Holi ATEM Software Control go deka kae TCP 9993, {1}
+In System Settings > Displays, use it as an extended display	Kae System Settings > Displays, lani go ranvekadeka
+It ate the desk, skapi. You have {1} screens: the output's DISPLAY in MENU puts it on another.	Deka nirik, skapi. Tu guri {1} vekadekaku: VEKADEKA sov senadora kae MENU lani go una seto.
+It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts it on the other one.	Deka nirik, skapi. Tu guri dua vekadekaku: VEKADEKA sov senadora kae MENU lani go una seto.
+{1} screens, skapi. The desk stays on this one, the picture goes on {2}. Open MENU and make OUTPUT OFF say OUTPUT ON.	{1} vekadekaku, skapi. Dekapata hali kae nakae, veka go {2}. Fesi MENU so seti SENA VAP go SENA PON.
+Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	Dua vekadekaku, skapi. Dekapata hali kae nakae, veka go una seto: {1}. Fesi MENU so seti SENA VAP go SENA PON.
+It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	Deka nirik, skapi. Velo vekadekaku veki veka kae dua, so mi lani kae kiso fena, dop. {1}, so veka guri una vekadeka.
+Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	Vekadekaku tu velo, skapi: {1} veki nakae veki, so veka hali dekapata kae dua. {2}, so mi lani veka kae una vekadeka. Pel tu fesi MENU so seti SENA VAP go SENA PON.

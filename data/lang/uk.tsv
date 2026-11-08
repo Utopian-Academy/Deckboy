@@ -2291,3 +2291,61 @@ Bitfocus Companion, and x42/libltc.	Bitfocus Companion і x42/libltc.
 Keys	Клавіші
 None. See LICENSE sections 15-16.	Немає. Див. LICENSE, розділи 15-16.
 none compiled in	нічого не вбудовано
+Alpha	Альфа
+Group	Група
+Normal	Звичайний
+Remote	Віддалено
+lesson	урок
+Bitrate	Бітрейт
+Latency	Затримка
+OUT {n}	ВИХ. {n}
+Out {n}	Вих. {n}
+{n} row	{n} рядок
+Deck {n}	Дека {n}
+Key name	Назва клавіші
+Keyframe	Ключовий кадр
+Registry	Реєстр
+fade {n}	згасання {n}
+{n} rows	рядків: {n}
+Node port	Порт вузла
+Stream ID	ID потоку
+added {1}	додано: {1}
+start {n}	початок {n}
+still {n}	стоп-кадр {n}
+FADE {n} s	ЗГАСАННЯ {n} с
+LAYER {n}%	ШАР {n}%
+Output {n}	Вихід {n}
+PROXY {n}p	ПРОКСІ {n}p
+PTP domain	Домен PTP
+Proxy {n}p	Проксі {n}p
+Stream key	Ключ потоку
+[ASSIGNED]	[ПРИЗНАЧЕНО]
+audio only	лише звук
+to Out {n}	на вих. {n}
+{n} of {n}	{n} з {n}
+Display {n}	Дисплей {n}
+active jobs	активні завдання
+local clock	локальний годинник
+not running	не працює
+click to set	натисніть, щоб задати
+full {n}x{n}	повний {n}x{n}
+running v{n}	працює v{n}
+the other one	інший
+DELIVERY H.{n}	ВИДАЧА H.{n}
+Output {n} mix	Мікс виходу {n}
+made by Deckboy	зроблено в Deckboy
+{1} plays to {2}	{1} грає на {2}
+the picture {1} plays	зображення, яке грає {1}
+New media joins {1} by itself	Нові медіа самі потрапляють у {1}
+Press Win+P and choose Extend	Натисни Win+P і вибери Розширити
+{n} patched - DMX cues set them by name	{n} пропатчено - DMX-к’ю задають їх за назвою
+Set them to extend in your display settings	Увімкни розширення в налаштуваннях екрана
+lesson: {1}. Esc leaves, and it picks up here next time	урок: {1}. Esc виходить, а наступного разу продовжить звідси
+Answers ATEM Software Control as a deck on TCP 9993 at {1}	Відповідає ATEM Software Control як дека на TCP 9993 за адресою {1}
+In System Settings > Displays, use it as an extended display	У Системних параметрах > Дисплеї використовуй його як розширений екран
+It ate the desk, skapi. You have {1} screens: the output's DISPLAY in MENU puts it on another.	Він з'їв пульт, skapi. Екранів у тебе: {1}. ДИСПЛЕЙ виходу в МЕНЮ виводить зображення на інший.
+It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts it on the other one.	Він з'їв пульт, skapi. У тебе два екрани: ДИСПЛЕЙ виходу в МЕНЮ виводить зображення на інший.
+{1} screens, skapi. The desk stays on this one, the picture goes on {2}. Open MENU and make OUTPUT OFF say OUTPUT ON.	Екранів: {1}, skapi. Пульт лишається на цьому, зображення йде на {2}. Відкрий МЕНЮ й переключи ВИХІД ВИМК. на ВИХІД УВІМК.
+Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	Два екрани, skapi. Пульт лишається на цьому, зображення йде на інший: {1}. Відкрий МЕНЮ й переключи ВИХІД ВИМК. на ВИХІД УВІМК.
+It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	Він з'їв пульт, skapi. Дзеркальні екрани показують зображення на обох, тож воно тепер у маленькому вікні, позаду. {1}, і в нього буде власний екран.
+Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	Твої екрани віддзеркалені, skapi: {1} показує те саме, що цей, тож зображення закриє пульт на обох. {2}, і зображення отримає власний екран. Або відкрий МЕНЮ й переключи ВИХІД ВИМК. на ВИХІД УВІМК.

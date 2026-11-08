@@ -2281,3 +2281,52 @@ Bitfocus Companion, and x42/libltc.	Bitfocus Companion en x42/libltc.
 Keys	Toetsen
 None. See LICENSE sections 15-16.	Geen. Zie LICENSE, secties 15-16.
 none compiled in	niets ingebouwd
+Group	Groep
+Normal	Normaal
+Remote	Op afstand
+lesson	les
+Latency	Latentie
+OUT {n}	UITGANG {n}
+Out {n}	Uitgang {n}
+{n} row	{n} rij
+Key name	Toetsnaam
+Registry	Register
+{n} rows	{n} rijen
+Node port	Node-poort
+Stream ID	Stream-ID
+added {1}	{1} toegevoegd
+still {n}	stilstaand {n}
+LAYER {n}%	LAAG {n}%
+Output {n}	Uitgang {n}
+PTP domain	PTP-domein
+Stream key	Streamsleutel
+[ASSIGNED]	[TOEGEWEZEN]
+audio only	alleen audio
+to Out {n}	naar Uitgang {n}
+{n} of {n}	{n} van {n}
+Display {n}	Beeldscherm {n}
+active jobs	actieve taken
+local clock	lokale klok
+not running	loopt niet
+click to set	klik om in te stellen
+full {n}x{n}	vol {n}x{n}
+running v{n}	loopt v{n}
+the other one	de andere
+DELIVERY H.{n}	LEVERING H.{n}
+Output {n} mix	Uitgang {n}-mix
+made by Deckboy	gemaakt door Deckboy
+{1} plays to {2}	{1} speelt naar {2}
+the picture {1} plays	het beeld dat {1} speelt
+New media joins {1} by itself	Nieuwe media komen vanzelf in {1}
+Press Win+P and choose Extend	Druk op Win+P en kies Uitbreiden
+{n} patched - DMX cues set them by name	{n} gepatcht - DMX-cues stellen ze in op naam
+Set them to extend in your display settings	Stel ze in op uitbreiden in je beeldscherminstellingen
+lesson: {1}. Esc leaves, and it picks up here next time	les: {1}. Esc stopt, en de volgende keer gaat het hier verder
+Answers ATEM Software Control as a deck on TCP 9993 at {1}	Reageert op ATEM Software Control als deck op TCP 9993 op {1}
+In System Settings > Displays, use it as an extended display	Gebruik het in Systeeminstellingen > Beeldschermen als uitgebreid beeldscherm
+It ate the desk, skapi. You have {1} screens: the output's DISPLAY in MENU puts it on another.	Het at de regietafel op, skapi. Je hebt {1} schermen: BEELDSCHERM van de uitgang in MENU zet het op een ander.
+It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts it on the other one.	Het at de regietafel op, skapi. Je hebt twee schermen: BEELDSCHERM van de uitgang in MENU zet het op het andere.
+{1} screens, skapi. The desk stays on this one, the picture goes on {2}. Open MENU and make OUTPUT OFF say OUTPUT ON.	{1} schermen, skapi. De tafel blijft op dit scherm, het beeld gaat naar {2}. Open MENU en maak van UITGANG UIT UITGANG AAN.
+Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	Twee schermen, skapi. De tafel blijft op dit scherm, het beeld gaat naar het andere: {1}. Open MENU en maak van UITGANG UIT UITGANG AAN.
+It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	Het at de regietafel op, skapi. Gespiegelde schermen tonen het beeld op allebei, dus ik zette het in een klein venster, erachter. {1}, en het krijgt een eigen scherm.
+Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	Je schermen zijn gespiegeld, skapi: {1} toont wat dit scherm toont, dus het beeld bedekt de tafel op allebei. {2}, en ik zet het beeld op een eigen scherm. Of open MENU en maak van UITGANG UIT UITGANG AAN.

@@ -2295,3 +2295,54 @@ Bitfocus Companion, and x42/libltc.	Bitfocus Companion, ແລະ x42/libltc.
 Keys	ປຸ່ມ
 None. See LICENSE sections 15-16.	ບໍ່ມີ. ເບິ່ງ LICENSE, ພາກ 15-16.
 none compiled in	ບໍ່ມີສິ່ງໃດຖືກລວມ
+Alpha	ອັນຟາ
+Group	ກຸ່ມ
+Normal	ປົກກະຕິ
+Remote	ທາງໄກ
+lesson	ບົດຮຽນ
+Bitrate	ອັດຕາບິດ
+Latency	ຄວາມໜ່ວງ
+{n} row	{n} ແຖວ
+Key name	ຊື່ປຸ່ມ
+Keyframe	ເຟຣມຫຼັກ
+Registry	ທະບຽນລະບົບ
+fade {n}	ຄ່ອຍໆ {n}
+{n} rows	{n} ແຖວ
+Node port	ພອດໂນດ
+added {1}	ເພີ່ມ {1} ແລ້ວ
+start {n}	ເລີ່ມ {n}
+still {n}	ຮູບນິ່ງ {n}
+FADE {n} s	ຄ່ອຍໆ {n} s
+LAYER {n}%	ຊັ້ນ {n}%
+PTP domain	ໂດເມນ PTP
+Stream key	ລະຫັດ Stream
+[ASSIGNED]	[ກຳນົດແລ້ວ]
+audio only	ສຽງເທົ່ານັ້ນ
+to Out {n}	ໄປ Out {n}
+{n} of {n}	{n} ຈາກ {n}
+Display {n}	ຈໍສະແດງຜົນ {n}
+active jobs	ວຽກທີ່ກຳລັງເຮັດ
+local clock	ໂມງທ້ອງຖິ່ນ
+not running	ບໍ່ໄດ້ແລ່ນ
+click to set	ຄລິກເພື່ອຕັ້ງ
+full {n}x{n}	ເຕັມ {n}x{n}
+running v{n}	ກຳລັງແລ່ນ v{n}
+the other one	ອີກອັນໜຶ່ງ
+DELIVERY H.{n}	ສົ່ງມອບ H.{n}
+Output {n} mix	ຜະສົມ Output {n}
+made by Deckboy	ສ້າງໂດຍ Deckboy
+{1} plays to {2}	{1} ຫຼິ້ນໄປ {2}
+the picture {1} plays	ຮູບທີ່ {1} ຫຼິ້ນ
+New media joins {1} by itself	ສື່ໃໝ່ເຂົ້າ {1} ເອງ
+Press Win+P and choose Extend	ກົດ Win+P ແລ້ວເລືອກ Extend
+{n} patched - DMX cues set them by name	{n} ເຊື່ອມແລ້ວ - cue DMX ຕັ້ງພວກມັນຕາມຊື່
+Set them to extend in your display settings	ຕັ້ງໃຫ້ພວກມັນຂະຫຍາຍໃນການຕັ້ງຄ່າຈໍສະແດງຜົນ
+lesson: {1}. Esc leaves, and it picks up here next time	ບົດຮຽນ: {1}. Esc ອອກ ເທື່ອໜ້າ ສືບຕໍ່ຈາກນີ້
+Answers ATEM Software Control as a deck on TCP 9993 at {1}	ຕອບ ATEM Software Control ເປັນ deck ທາງ TCP 9993 ທີ່ {1}
+In System Settings > Displays, use it as an extended display	ໃນ System Settings > Displays, ໃຊ້ມັນເປັນຈໍຂະຫຍາຍ
+It ate the desk, skapi. You have {1} screens: the output's DISPLAY in MENU puts it on another.	ມັນກິນໂຕະ, skapi. ເຈົ້າມີ {1} ໜ້າຈໍ: ຈໍສະແດງຜົນ ຂອງ OUTPUT ໃນ ເມນູ ຍ້າຍມັນໄປຈໍອື່ນ.
+It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts it on the other one.	ມັນກິນໂຕະ, skapi. ເຈົ້າມີສອງໜ້າຈໍ: ຈໍສະແດງຜົນ ຂອງ OUTPUT ໃນ ເມນູ ຍ້າຍມັນໄປອີກຈໍໜຶ່ງ.
+{1} screens, skapi. The desk stays on this one, the picture goes on {2}. Open MENU and make OUTPUT OFF say OUTPUT ON.	{1} ໜ້າຈໍ, skapi. ໂຕະຢູ່ຈໍນີ້, ຮູບໄປ {2}. ເປີດ ເມນູ ແລ້ວປ່ຽນ OUTPUT ປິດ ເປັນ OUTPUT ເປີດ.
+Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	ສອງໜ້າຈໍ, skapi. ໂຕະຢູ່ຈໍນີ້, ຮູບໄປອີກຈໍໜຶ່ງ: {1}. ເປີດ ເມນູ ແລ້ວປ່ຽນ OUTPUT ປິດ ເປັນ OUTPUT ເປີດ.
+It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	ມັນກິນໂຕະ, skapi. ໜ້າຈໍແບບສະທ້ອນສະແດງຮູບທັງສອງຈໍ, ສະນັ້ນຂ້ອຍໃສ່ມັນໃນໜ້າຕ່າງນ້ອຍຢູ່ທາງຫຼັງ. {1}, ແລ້ວມັນຈະມີໜ້າຈໍຂອງມັນເອງ.
+Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	ໜ້າຈໍຂອງເຈົ້າສະທ້ອນກັນ, skapi: {1} ສະແດງຄືກັບຈໍນີ້, ສະນັ້ນຮູບຈະບັງໂຕະທັງສອງຈໍ. {2}, ແລ້ວຂ້ອຍຈະໃສ່ຮູບໃນໜ້າຈໍຂອງມັນເອງ. ຫຼື ເປີດ ເມນູ ແລ້ວປ່ຽນ OUTPUT ປິດ ເປັນ OUTPUT ເປີດ.

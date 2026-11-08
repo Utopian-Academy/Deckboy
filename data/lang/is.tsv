@@ -2290,3 +2290,58 @@ Bitfocus Companion, and x42/libltc.	Bitfocus Companion og x42/libltc.
 Keys	Lyklar
 None. See LICENSE sections 15-16.	Engin. Sjá LICENSE, kafla 15-16.
 none compiled in	ekkert innbyggt
+Alpha	Alfa
+Group	Hópur
+Normal	Venjulegt
+Remote	Fjarstýring
+lesson	lexía
+Bitrate	Bitahraði
+Latency	Biðtími
+OUT {n}	ÚT {n}
+Out {n}	Út {n}
+{n} row	{n} lína
+Key name	Heiti lykils
+Keyframe	Lykilrammi
+Registry	Skrásetning
+fade {n}	deyfing {n}
+{n} rows	{n} línur
+Node port	Tengi hnúts
+Stream ID	Auðkenni streymis
+added {1}	bætti við {1}
+start {n}	byrja {n}
+still {n}	kyrrmynd {n}
+FADE {n} s	DEYFING {n} s
+LAYER {n}%	LAG {n}%
+Output {n}	Úttak {n}
+PTP domain	PTP-lén
+Stream key	Streymislykill
+[ASSIGNED]	[ÚTHLUTAÐ]
+audio only	aðeins hljóð
+to Out {n}	á Út {n}
+{n} of {n}	{n} af {n}
+Display {n}	Skjár {n}
+active jobs	virk verk
+local clock	staðbundin klukka
+not running	ekki í gangi
+click to set	smelltu til að stilla
+full {n}x{n}	fullt {n}x{n}
+running v{n}	í gangi v{n}
+the other one	hinn
+DELIVERY H.{n}	AFHENDING H.{n}
+Output {n} mix	Blöndun úttaks {n}
+made by Deckboy	gert með Deckboy
+{1} plays to {2}	{1} spilar á {2}
+the picture {1} plays	myndin sem {1} spilar
+New media joins {1} by itself	Nýir miðlar bætast sjálfkrafa í {1}
+Press Win+P and choose Extend	Ýttu á Win+P og veldu Extend
+{n} patched - DMX cues set them by name	{n} tengd - DMX-cue stilla þau eftir heiti
+Set them to extend in your display settings	Stilltu þá á Extend í skjástillingunum
+lesson: {1}. Esc leaves, and it picks up here next time	lexía: {1}. Esc hættir, og næst er haldið áfram héðan
+Answers ATEM Software Control as a deck on TCP 9993 at {1}	Svarar ATEM Software Control sem deck á TCP 9993 á {1}
+In System Settings > Displays, use it as an extended display	Í System Settings > Displays skaltu nota hann sem útvíkkaðan skjá
+It ate the desk, skapi. You have {1} screens: the output's DISPLAY in MENU puts it on another.	Það át borðið, skapi. Þú ert með {1} skjái: SKJÁR úttaksins í VALMYND setur það á annan.
+It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts it on the other one.	Það át borðið, skapi. Þú ert með tvo skjái: SKJÁR úttaksins í VALMYND setur það á hinn.
+{1} screens, skapi. The desk stays on this one, the picture goes on {2}. Open MENU and make OUTPUT OFF say OUTPUT ON.	{1} skjáir, skapi. Borðið verður á þessum, myndin fer á {2}. Opnaðu VALMYND og láttu ÚTTAK AF segja ÚTTAK Á.
+Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	Tveir skjáir, skapi. Borðið verður á þessum, myndin fer á hinn: {1}. Opnaðu VALMYND og láttu ÚTTAK AF segja ÚTTAK Á.
+It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	Það át borðið, skapi. Speglaðir skjáir sýna myndina á báðum, svo ég setti hana í lítinn glugga, fyrir aftan. {1}, og hún fær sinn eigin skjá.
+Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	Skjáirnir þínir eru speglaðir, skapi: {1} sýnir það sama og þessi, svo myndin hylur borðið á báðum. {2}, og ég set myndina á sinn eigin skjá. Eða opnaðu VALMYND og láttu ÚTTAK AF segja ÚTTAK Á.

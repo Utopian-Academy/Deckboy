@@ -378,7 +378,9 @@
   std::string motionSourceLabel() const {
     if (!motionUsesCamera()) {
       const int deck = motionDeck();
-      return deck >= 0 ? "the picture " + deckLabel(deck) + " plays" : std::string("a playlist that is gone");
+      return deck >= 0 ? deckboy::core::i18n::format(
+                           "the picture {1} plays", {deckboy::core::i18n::translate(deckLabel(deck))})
+                       : std::string("a playlist that is gone");
     }
     const std::string name = motionCameraName();
     return "camera: " + (name.empty() ? std::string("the first one found") : name);
@@ -525,7 +527,9 @@
         std::vector<std::pair<std::string, std::string>> choices;
         for (const auto& name : motionCameras(true)) choices.emplace_back("camera:" + name, "camera: " + name);
         for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
-          choices.emplace_back("deck:" + std::to_string(d), "the picture " + deckLabel(d) + " plays");
+          choices.emplace_back("deck:" + std::to_string(d),
+                               deckboy::core::i18n::format(
+                                 "the picture {1} plays", {deckboy::core::i18n::translate(deckLabel(d))}));
         }
         openDropdown("motion.source", rect, choices, project_.motionSource, [this](const std::string& value) {
           project_.motionSource = value;

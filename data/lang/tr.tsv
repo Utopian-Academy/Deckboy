@@ -2288,3 +2288,57 @@ Bitfocus Companion, and x42/libltc.	Bitfocus Companion'a ve x42/libltc'ye.
 Keys	Tuşlar
 None. See LICENSE sections 15-16.	Yok. LICENSE, bölüm 15-16'ya bakın.
 none compiled in	hiçbiri derlenmedi
+Alpha	Alfa
+Group	Grup
+Remote	Uzak
+lesson	ders
+Bitrate	Bit hızı
+Latency	Gecikme
+OUT {n}	ÇIKIŞ {n}
+Out {n}	Çıkış {n}
+{n} row	{n} satır
+Key name	Tuş adı
+Keyframe	Ana kare
+Registry	Kayıt Defteri
+fade {n}	solma {n}
+{n} rows	{n} satır
+Node port	Düğüm bağlantı noktası
+Stream ID	Yayın kimliği
+added {1}	eklendi: {1}
+start {n}	başlangıç {n}
+still {n}	durağan {n}
+FADE {n} s	SOLMA {n} sn
+LAYER {n}%	KATMAN %{n}
+Output {n}	Çıkış {n}
+PTP domain	PTP alanı
+Stream key	Yayın anahtarı
+[ASSIGNED]	[ATANDI]
+audio only	yalnızca ses
+to Out {n}	çıkış {n} hedefine
+{n} of {n}	{n}/{n}
+Display {n}	Ekran {n}
+active jobs	etkin işler
+local clock	yerel saat
+not running	çalışmıyor
+click to set	ayarlamak için tıkla
+full {n}x{n}	tam {n}x{n}
+running v{n}	v{n} çalışıyor
+the other one	diğeri
+DELIVERY H.{n}	TESLİM H.{n}
+Output {n} mix	Çıkış {n} miksi
+made by Deckboy	Deckboy ile yapıldı
+{1} plays to {2}	{1}, {2} üzerinde çalar
+the picture {1} plays	{1} tarafından çalınan resim
+New media joins {1} by itself	Yeni ortam kendiliğinden {1} içine katılır
+Press Win+P and choose Extend	Win+P'ye bas ve Genişlet'i seç
+{n} patched - DMX cues set them by name	{n} patch'lendi - DMX cue'ları bunları adla ayarlar
+Set them to extend in your display settings	Ekran ayarlarından genişletmeye ayarla
+lesson: {1}. Esc leaves, and it picks up here next time	ders: {1}. Esc çıkar, bir dahaki sefere buradan devam eder
+Answers ATEM Software Control as a deck on TCP 9993 at {1}	ATEM Software Control'e {1} adresinde TCP 9993 üzerinden deck olarak yanıt verir
+In System Settings > Displays, use it as an extended display	Sistem Ayarları > Ekranlar bölümünde onu genişletilmiş ekran olarak kullan
+It ate the desk, skapi. You have {1} screens: the output's DISPLAY in MENU puts it on another.	Masayı yedi, skapi. {1} ekranın var: MENÜ'deki çıkışın EKRAN ayarı resmi başka birine taşır.
+It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts it on the other one.	Masayı yedi, skapi. İki ekranın var: MENÜ'deki çıkışın EKRAN ayarı resmi diğerine taşır.
+{1} screens, skapi. The desk stays on this one, the picture goes on {2}. Open MENU and make OUTPUT OFF say OUTPUT ON.	{1} ekran, skapi. Masa bunda kalır, resim şuraya gider: {2}. MENÜ'yü aç ve ÇIKIŞ KAPALI'yı ÇIKIŞ AÇIK yap.
+Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	İki ekran, skapi. Masa bunda kalır, resim diğerine gider: {1}. MENÜ'yü aç ve ÇIKIŞ KAPALI'yı ÇIKIŞ AÇIK yap.
+It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	Masayı yedi, skapi. Yansıtılan ekranlar resmi ikisinde de gösterir, o yüzden onu arkada küçük bir pencereye koydum. {1}, böylece kendi ekranı olur.
+Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	Ekranların yansıtılıyor, skapi: {1} bununla aynı şeyi gösteriyor, yani resim ikisinde de masayı kaplayacak. {2}, ben de resmi kendi ekranına koyayım. Ya da MENÜ'yü aç ve ÇIKIŞ KAPALI'yı ÇIKIŞ AÇIK yap.

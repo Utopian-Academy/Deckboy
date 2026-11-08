@@ -2292,3 +2292,50 @@ Bitfocus Companion, and x42/libltc.	Bitfocus Companion, y x42/libltc.
 Keys	Tecla
 None. See LICENSE sections 15-16.	Ningun. Mira LICENSE, seccion 15-16.
 none compiled in	nada compilá aden
+Alpha	Alfa
+Group	Grupo
+Remote	Na distancia
+lesson	les
+Latency	Latencia
+{n} row	{n} rij
+Key name	Nomber di tecla
+Registry	Registro
+{n} rows	{n} rij
+Node port	Porta di nodo
+Stream ID	ID di stream
+added {1}	{1} agrega
+start {n}	cuminsa {n}
+still {n}	portret {n}
+LAYER {n}%	CAPA {n}%
+PTP domain	Dominio PTP
+Stream key	Clave di stream
+[ASSIGNED]	[ASIGNA]
+audio only	audio so
+to Out {n}	pa Out {n}
+{n} of {n}	{n} di {n}
+Display {n}	Pantaya {n}
+active jobs	trabounan activo
+local clock	oloshi local
+not running	no ta corre
+click to set	click pa pone
+full {n}x{n}	completo {n}x{n}
+running v{n}	ta corre v{n}
+the other one	e otro
+DELIVERY H.{n}	ENTREGA H.{n}
+Output {n} mix	Mezcla di Output {n}
+made by Deckboy	traha pa Deckboy
+{1} plays to {2}	{1} ta toca na {2}
+the picture {1} plays	e portret cu {1} ta toca
+New media joins {1} by itself	Media nobo ta drenta {1} su mes
+Press Win+P and choose Extend	Primi Win+P i cohe Extend
+{n} patched - DMX cues set them by name	{n} conecta - cues di DMX ta pone nan pa nomber
+Set them to extend in your display settings	Pone nan pa extende den bo configuracion di pantaya
+lesson: {1}. Esc leaves, and it picks up here next time	les: {1}. Esc ta sali, i siguiente biaha e ta sigui aki
+Answers ATEM Software Control as a deck on TCP 9993 at {1}	Ta contesta ATEM Software Control como un deck riba TCP 9993 na {1}
+In System Settings > Displays, use it as an extended display	Den System Settings > Displays, usa e como pantaya extendi
+It ate the desk, skapi. You have {1} screens: the output's DISPLAY in MENU puts it on another.	E a come e mesa, skapi. Bo tin {1} pantaya: PANTAYA di e output den MENU ta pon'e riba otro.
+It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts it on the other one.	E a come e mesa, skapi. Bo tin dos pantaya: PANTAYA di e output den MENU ta pon'e riba e otro.
+{1} screens, skapi. The desk stays on this one, the picture goes on {2}. Open MENU and make OUTPUT OFF say OUTPUT ON.	{1} pantaya, skapi. E mesa ta keda riba esaki, e portret ta bai riba {2}. Habri MENU i laga OUTPUT PAGA bira OUTPUT CENDE.
+Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	Dos pantaya, skapi. E mesa ta keda riba esaki, e portret ta bai riba e otro: {1}. Habri MENU i laga OUTPUT PAGA bira OUTPUT CENDE.
+It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	E a come e mesa, skapi. Pantayanan refleha ta mustra e portret riba tur dos, p'esei mi a pon'e den un bentana chikito, patras. {1}, i e ta haya su mes pantaya.
+Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	Bo pantayanan ta refleha, skapi: {1} ta mustra loke esaki ta mustra, p'esei e portret lo tapa e mesa riba tur dos. {2}, i mi ta pone e portret riba su mes pantaya. Of habri MENU i laga OUTPUT PAGA bira OUTPUT CENDE.

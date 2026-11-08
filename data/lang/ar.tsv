@@ -2304,3 +2304,61 @@ Bitfocus Companion, and x42/libltc.	وBitfocus Companion وx42/libltc.
 Keys	المفاتيح
 None. See LICENSE sections 15-16.	لا يوجد. انظر LICENSE، القسمين 15-16.
 none compiled in	لا شيء مضمّن
+Alpha	ألفا
+Group	مجموعة
+Normal	عادي
+Remote	تحكم عن بُعد
+lesson	درس
+Bitrate	معدل البت
+Latency	التأخير
+OUT {n}	خرج {n}
+Out {n}	خرج {n}
+{n} row	{n} صف
+Deck {n}	ديك {n}
+Key name	اسم المفتاح
+Keyframe	إطار مفتاحي
+Registry	السجل
+fade {n}	تلاشي {n}
+{n} rows	{n} صفوف
+Node port	منفذ العقدة
+Stream ID	معرّف البث
+added {1}	أُضيف {1}
+start {n}	بدء {n}
+still {n}	صورة ثابتة {n}
+FADE {n} s	تلاشي {n} ث
+LAYER {n}%	طبقة {n}%
+Output {n}	الخرج {n}
+PROXY {n}p	بروكسي {n}p
+PTP domain	نطاق PTP
+Proxy {n}p	بروكسي {n}p
+Stream key	مفتاح البث
+[ASSIGNED]	[معيَّن]
+audio only	الصوت فقط
+to Out {n}	إلى خرج {n}
+{n} of {n}	{n} من {n}
+Display {n}	شاشة العرض {n}
+active jobs	مهام نشطة
+local clock	الساعة المحلية
+not running	لا يعمل
+click to set	انقر للتعيين
+full {n}x{n}	كامل {n}x{n}
+running v{n}	يعمل v{n}
+the other one	الأخرى
+DELIVERY H.{n}	تسليم H.{n}
+Output {n} mix	مزج الخرج {n}
+made by Deckboy	صُنع بواسطة Deckboy
+{1} plays to {2}	{1} يعزف إلى {2}
+the picture {1} plays	الصورة التي يعزفها {1}
+New media joins {1} by itself	الوسائط الجديدة تنضم إلى {1} تلقائيًا
+Press Win+P and choose Extend	اضغط Win+P واختر توسيع
+{n} patched - DMX cues set them by name	{n} موصول - كيوهات DMX تعيّنها بالاسم
+Set them to extend in your display settings	اضبطها على التوسيع في إعدادات الشاشة
+lesson: {1}. Esc leaves, and it picks up here next time	درس: {1}. Esc يخرج، ويكمل من هنا في المرة القادمة
+Answers ATEM Software Control as a deck on TCP 9993 at {1}	يردّ على ATEM Software Control كديك عبر TCP 9993 على {1}
+In System Settings > Displays, use it as an extended display	في إعدادات النظام > شاشات العرض، استخدمها كشاشة ممتدة
+It ate the desk, skapi. You have {1} screens: the output's DISPLAY in MENU puts it on another.	أكل الطاولة، skapi. لديك {1} شاشات: شاشة العرض للخرج في القائمة تنقله إلى شاشة أخرى.
+It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts it on the other one.	أكل الطاولة، skapi. لديك شاشتان: شاشة العرض للخرج في القائمة تنقله إلى الأخرى.
+{1} screens, skapi. The desk stays on this one, the picture goes on {2}. Open MENU and make OUTPUT OFF say OUTPUT ON.	{1} شاشات، skapi. تبقى الطاولة على هذه، والصورة تذهب إلى {2}. افتح القائمة واجعل الخرج متوقف يصبح الخرج يعمل.
+Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	شاشتان، skapi. تبقى الطاولة على هذه، والصورة تذهب إلى الأخرى: {1}. افتح القائمة واجعل الخرج متوقف يصبح الخرج يعمل.
+It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	أكل الطاولة، skapi. الشاشات المنعكسة تعرض الصورة على كلتيهما، لذا وضعتها في نافذة صغيرة في الخلف. {1}، وستحصل على شاشة خاصة بها.
+Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	شاشاتك منعكسة، skapi: {1} تعرض ما تعرضه هذه، لذا ستغطي الصورة الطاولة على كلتيهما. {2}، وسأضع الصورة على شاشة خاصة بها. أو افتح القائمة واجعل الخرج متوقف يصبح الخرج يعمل.

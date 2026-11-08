@@ -2288,3 +2288,58 @@ Bitfocus Companion, and x42/libltc.	Bitfocus Companion û x42/libltc.
 Keys	Kilît
 None. See LICENSE sections 15-16.	Tune. Li LICENSE, beşên 15-16 binêre.
 none compiled in	tiştek tê de nayê berhevkirin
+Alpha	Alfa
+Group	Kom
+Normal	Asayî
+Remote	Ji dûr ve
+lesson	ders
+Bitrate	Rêjeya bitan
+Latency	Derengmayîn
+OUT {n}	DERKETIN {n}
+Out {n}	Derketin {n}
+{n} row	{n} rêz
+Key name	Navê bişkokê
+Keyframe	Çarçoveya sereke
+Registry	Tomargeh
+fade {n}	hêdîbûn {n}
+{n} rows	{n} rêz
+Node port	Dergehê girêkê
+Stream ID	Nasnameya weşanê
+added {1}	{1} hat zêdekirin
+start {n}	destpêk {n}
+still {n}	wêne {n}
+FADE {n} s	HÊDÎBÛN {n} s
+LAYER {n}%	QAT {n}%
+Output {n}	Derketin {n}
+PTP domain	Domaina PTP
+Stream key	Kilîta weşanê
+[ASSIGNED]	[DIYARKIRÎ]
+audio only	tenê deng
+to Out {n}	ji bo Derketin {n}
+{n} of {n}	{n} ji {n}
+Display {n}	Dîmender {n}
+active jobs	karên çalak
+local clock	demjimêra herêmî
+not running	naxebite
+click to set	ji bo diyarkirinê bitikîne
+full {n}x{n}	tije {n}x{n}
+running v{n}	dixebite v{n}
+the other one	ya din
+DELIVERY H.{n}	RADESTKIRIN H.{n}
+Output {n} mix	Têkela Derketin {n}
+made by Deckboy	ji hêla Deckboy ve hatiye çêkirin
+{1} plays to {2}	{1} li {2} lê dide
+the picture {1} plays	wêneyê ku {1} lê dide
+New media joins {1} by itself	Medyaya nû bi xwe tevlî {1} dibe
+Press Win+P and choose Extend	Win+P bitikîne û Extend hilbijêre
+{n} patched - DMX cues set them by name	{n} hatin girêdan - cue'yên DMX wan bi navê diyar dikin
+Set them to extend in your display settings	Di mîhengên dîmenderê de wan berfireh bike
+lesson: {1}. Esc leaves, and it picks up here next time	ders: {1}. Esc derdikeve, cara din ji vir dewam dike
+Answers ATEM Software Control as a deck on TCP 9993 at {1}	Li {1} li ser TCP 9993 wek deck bersivê dide ATEM Software Control
+In System Settings > Displays, use it as an extended display	Di System Settings > Displays de, wê wek dîmendera berfireh bi kar bîne
+It ate the desk, skapi. You have {1} screens: the output's DISPLAY in MENU puts it on another.	Mase xwar, skapi. {1} ekranên te hene: DÎMENDER a derketinê di MENÛ de wê dixe ser yeke din.
+It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts it on the other one.	Mase xwar, skapi. Du ekranên te hene: DÎMENDER a derketinê di MENÛ de wê dixe ser ya din.
+{1} screens, skapi. The desk stays on this one, the picture goes on {2}. Open MENU and make OUTPUT OFF say OUTPUT ON.	{1} ekran, skapi. Mase li ser vê dimîne, wêne diçe ser {2}. MENÛ veke û bike ku DERKETIN GIRTÎ bibe DERKETIN VEKIRÎ.
+Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	Du ekran, skapi. Mase li ser vê dimîne, wêne diçe ser ya din: {1}. MENÛ veke û bike ku DERKETIN GIRTÎ bibe DERKETIN VEKIRÎ.
+It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	Mase xwar, skapi. Ekranên neynikî wêne li ser herduyan nîşan didin, loma min ew xist paceyeke biçûk, li paş. {1}, û ew dibe xwediyê ekraneke xwe.
+Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	Ekranên te neynikî ne, skapi: {1} tiştê ku ev nîşan dide nîşan dide, loma wêne dê li ser herduyan masê bigire. {2}, û ez wêne dixim ser ekraneke xwe. An jî MENÛ veke û bike ku DERKETIN GIRTÎ bibe DERKETIN VEKIRÎ.

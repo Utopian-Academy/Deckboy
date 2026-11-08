@@ -2293,3 +2293,61 @@ Bitfocus Companion, and x42/libltc.	Bitfocus Companion و x42/libltc.
 Keys	کلیلەکان
 None. See LICENSE sections 15-16.	هیچ. بڕوانە LICENSE، بەشەکانی 15-16.
 none compiled in	هیچ تێدا نییە
+Alpha	ئەلفا
+Group	گرووپ
+Normal	ئاسایی
+Remote	لە دوورەوە
+lesson	وانە
+Bitrate	ڕێژەی بیت
+Latency	دواکەوتن
+OUT {n}	دەرچوون {n}
+Out {n}	دەرچوون {n}
+{n} row	{n} ڕیز
+Deck {n}	دێک {n}
+Key name	ناوی کلیل
+Keyframe	فرەیمی سەرەکی
+Registry	تۆمارگە
+fade {n}	کاڵبوونەوە {n}
+{n} rows	{n} ڕیز
+Node port	دەروازەی گرێ
+Stream ID	ناسنامەی پەخش
+added {1}	{1} زیادکرا
+start {n}	دەستپێکردن {n}
+still {n}	وێنەی جێگیر {n}
+FADE {n} s	کاڵبوونەوە {n} چ
+LAYER {n}%	چین {n}%
+Output {n}	دەرچوون {n}
+PROXY {n}p	پرۆکسی {n}p
+PTP domain	دۆمەینی PTP
+Proxy {n}p	پرۆکسی {n}p
+Stream key	کلیلی پەخش
+[ASSIGNED]	[دیاریکراو]
+audio only	تەنها دەنگ
+to Out {n}	بۆ دەرچوون {n}
+{n} of {n}	{n} لە {n}
+Display {n}	پیشاندەر {n}
+active jobs	ئەرکە چالاکەکان
+local clock	کاتژمێری ناوخۆیی
+not running	لە کاردا نییە
+click to set	کرتە بکە بۆ دیاریکردن
+full {n}x{n}	پڕ {n}x{n}
+running v{n}	لە کاردایە v{n}
+the other one	ئەوی تر
+DELIVERY H.{n}	ڕادەستکردن H.{n}
+Output {n} mix	تێکەڵکردنی دەرچوون {n}
+made by Deckboy	دروستکراوە بە Deckboy
+{1} plays to {2}	{1} بۆ {2} لێ دەدات
+the picture {1} plays	ئەو وێنەیەی {1} لێی دەدات
+New media joins {1} by itself	میدیای نوێ خۆی دەچێتە ناو {1}
+Press Win+P and choose Extend	Win+P دابگرە و درێژکردنەوە هەڵبژێرە
+{n} patched - DMX cues set them by name	{n} پاچ کراوە - cue ەکانی DMX بە ناو دیاریان دەکەن
+Set them to extend in your display settings	لە ڕێکخستنەکانی شاشەدا بیانکە بە درێژکراوە
+lesson: {1}. Esc leaves, and it picks up here next time	وانە: {1}. Esc دەردەچێت، جاری داهاتوو لێرەوە بەردەوام دەبێت
+Answers ATEM Software Control as a deck on TCP 9993 at {1}	وەک دێک وەڵامی ATEM Software Control دەداتەوە لەسەر TCP 9993 لە {1}
+In System Settings > Displays, use it as an extended display	لە ڕێکخستنەکانی سیستەم > پیشاندەرەکان، وەک پیشاندەری درێژکراوە بەکاری بهێنە
+It ate the desk, skapi. You have {1} screens: the output's DISPLAY in MENU puts it on another.	مێزەکەی خوارد، skapi. {1} شاشەت هەیە: پیشاندەری دەرچوون لە مێنیو دەیخاتە سەر یەکێکی تر.
+It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts it on the other one.	مێزەکەی خوارد، skapi. دوو شاشەت هەیە: پیشاندەری دەرچوون لە مێنیو دەیخاتە سەر ئەوی تر.
+{1} screens, skapi. The desk stays on this one, the picture goes on {2}. Open MENU and make OUTPUT OFF say OUTPUT ON.	{1} شاشە، skapi. مێز لەسەر ئەمە دەمێنێتەوە، وێنە دەچێتە سەر {2}. مێنیو بکەرەوە و دەرچوون داخراو بکە بە دەرچوون کراوە.
+Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	دوو شاشە، skapi. مێز لەسەر ئەمە دەمێنێتەوە، وێنە دەچێتە سەر ئەوی تر: {1}. مێنیو بکەرەوە و دەرچوون داخراو بکە بە دەرچوون کراوە.
+It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	مێزەکەی خوارد، skapi. شاشە ئاوێنەییەکان وێنە لەسەر هەردووکیان نیشان دەدەن، بۆیە خستمە ناو پەنجەرەیەکی بچووک، لە پشتەوە. {1}، و شاشەیەکی خۆی دەبێت.
+Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	شاشەکانت ئاوێنەیین، skapi: {1} هەمان ئەوە نیشان دەدات کە ئەمە نیشانی دەدات، بۆیە وێنە مێز لەسەر هەردووکیان دادەپۆشێت. {2}، و وێنە دەخەمە سەر شاشەیەکی خۆی. یان مێنیو بکەرەوە و دەرچوون داخراو بکە بە دەرچوون کراوە.

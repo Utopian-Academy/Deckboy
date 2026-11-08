@@ -2290,3 +2290,57 @@ Bitfocus Companion, and x42/libltc.	Bitfocus Companion, agus x42/libltc.
 Keys	Iuchraichean
 None. See LICENSE sections 15-16.	Chan eil gin. Faic LICENSE, earrannan 15-16.
 none compiled in	dad air a thrusadh
+Group	Buidheann
+Normal	Àbhaisteach
+Remote	Cèin
+lesson	leasan
+Bitrate	Reat bhìdean
+Latency	Dàil
+OUT {n}	A-MACH {n}
+Out {n}	A-mach {n}
+{n} row	{n} ràgh
+Key name	Ainm na h-iuchrach
+Keyframe	Prìomh-fhrèam
+Registry	Clàr-lann
+fade {n}	fad {n}
+{n} rows	{n} ràghan
+Node port	Port na nòid
+Stream ID	ID an t-srutha
+added {1}	chaidh {1} a chur ris
+start {n}	tòisich {n}
+still {n}	dealbh {n}
+FADE {n} s	FAD {n} s
+LAYER {n}%	SREATH {n}%
+Output {n}	Às-chur {n}
+PTP domain	Àrainn PTP
+Stream key	Iuchair an t-srutha
+[ASSIGNED]	[SANNTAICHTE]
+audio only	fuaim a-mhàin
+to Out {n}	gu A-mach {n}
+{n} of {n}	{n} à {n}
+Display {n}	Taisbeanair {n}
+active jobs	obraichean gnìomhach
+local clock	uaireadair ionadail
+not running	chan eil a' ruith
+click to set	briog gus a shuidheachadh
+full {n}x{n}	làn {n}x{n}
+running v{n}	a' ruith v{n}
+the other one	an tè eile
+DELIVERY H.{n}	LIBHRIGEADH H.{n}
+Output {n} mix	Measgachadh Às-chur {n}
+made by Deckboy	air a dhèanamh le Deckboy
+{1} plays to {2}	cluichidh {1} gu {2}
+the picture {1} plays	an dealbh a chluicheas {1}
+New media joins {1} by itself	Thèid meadhanan ùra a-steach do {1} leotha fhèin
+Press Win+P and choose Extend	Brùth Win+P is tagh Extend
+{n} patched - DMX cues set them by name	{n} ceangailte - suidhichidh cues DMX iad a-rèir ainm
+Set them to extend in your display settings	Suidhich iad gu Extend ann an roghainnean na sgrìn agad
+lesson: {1}. Esc leaves, and it picks up here next time	leasan: {1}. fàgaidh Esc, agus leanaidh e bhon seo an ath thuras
+Answers ATEM Software Control as a deck on TCP 9993 at {1}	Freagraidh e ATEM Software Control mar deck air TCP 9993 aig {1}
+In System Settings > Displays, use it as an extended display	Ann an Roghainnean an t-Siostaim > Sgrìnichean, cleachd i mar sgrìn leudaichte
+It ate the desk, skapi. You have {1} screens: the output's DISPLAY in MENU puts it on another.	Dh'ith e an deasg, skapi. Tha {1} sgrìnichean agad: cuiridh TAISBEANAIR an às-chuir sa CLÀR air tè eile e.
+It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts it on the other one.	Dh'ith e an deasg, skapi. Tha dà sgrìn agad: cuiridh TAISBEANAIR an às-chuir sa CLÀR air an tè eile e.
+{1} screens, skapi. The desk stays on this one, the picture goes on {2}. Open MENU and make OUTPUT OFF say OUTPUT ON.	{1} sgrìnichean, skapi. Fanaidh an deasg air an tè seo, thèid an dealbh air {2}. Fosgail CLÀR agus dèan gun can ÀS-CHUR DHETH ÀS-CHUR AIR.
+Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	Dà sgrìn, skapi. Fanaidh an deasg air an tè seo, thèid an dealbh air an tè eile: {1}. Fosgail CLÀR agus dèan gun can ÀS-CHUR DHETH ÀS-CHUR AIR.
+It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	Dh'ith e an deasg, skapi. Seallaidh sgrìnichean sgàthanaichte an dealbh air an dà chuid, mar sin chuir mi ann an uinneag bheag e, air a chùlaibh. {1}, agus gheibh e sgrìn dha fhèin.
+Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	Tha na sgrìnichean agad sgàthanaichte, skapi: seallaidh {1} na tha an tè seo a' sealltainn, mar sin còmhdaichidh an dealbh an deasg air an dà chuid. {2}, agus cuiridh mi an dealbh air sgrìn dha fhèin. No fosgail CLÀR agus dèan gun can ÀS-CHUR DHETH ÀS-CHUR AIR.

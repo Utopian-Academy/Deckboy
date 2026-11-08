@@ -206,7 +206,7 @@ def screens_checks(exe, work):
         # desk; the caption and Dr. Pixel's joke say why, for the rig there is.
         for rig, joke in (("1", "It ate the desk, skapi. One screen"),
                           ("mirrored", "It ate the desk, skapi. Mirrored screens"),
-                          ("2", "It ate the desk, skapi. You have Two screens")):
+                          ("2", "It ate the desk, skapi. You have two screens")):
             db.send(f"TUTORIAL SCREENS {rig}")
             db.send("TUTORIAL START")
             wait_step(db, 2)

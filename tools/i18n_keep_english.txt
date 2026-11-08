@@ -1,0 +1,169 @@
+# Strings that stay English, so tools/i18n_translate.py and the CI gate in
+# tools/audit_i18n.py --gate treat them as done. A catalogue is never padded
+# with a line identical to its key (James's rule); this file records the
+# decision instead. code<TAB>english, or *<TAB>english for every language.
+*	ANY+
+*	Art-Net / DMX
+*	DATAMOSH
+*	DNxHR / MXF
+*	Enter
+*	GO >
+*	HAP / MOV
+*	HAP Alpha / MOV
+*	HAP Q / MOV
+*	Motion JPEG / AVI
+*	PgDn/Up
+*	QuickTime RLE / MOV
+*	RTMP / RTMPS
+*	SUPER DECKBOY!
+*	Space
+de	Enter Take  Space Play/Pause
+de	Optional
+de	RATE: AUTO
+de	Toolkit
+de	auto
+fr	DEST...
+fr	Licence
+fr	Session
+fr	auto
+es	auto
+es-CU	auto
+it	Copyright
+it	DEST...
+it	Toolkit
+it	auto
+it	play / stop
+pt-BR	Toolkit
+pt-BR	auto
+pt-BR	play / stop
+nl	MMC Play / Stop / Goto -> transport
+nl	Platform
+nl	RATE: AUTO
+nl	Toolkit
+nl	auto
+da	MMC Play / Stop / Goto -> transport
+da	Platform
+da	RATE: AUTO
+da	Session
+da	auto
+fi	auto
+pl	MMC Play / Stop / Goto -> transport
+pl	auto
+tr	ATEM tally
+tr	Platform
+kmr	Platform
+pap-AW	auto
+zu	auto
+da	Alpha
+da	Normal
+da	Bitrate
+da	Deck {n}
+da	Keyframe
+da	start {n}
+da	PROXY {n}p
+da	Proxy {n}p
+de	Alpha
+de	Normal
+de	Bitrate
+de	Deck {n}
+de	Keyframe
+de	PROXY {n}p
+de	Proxy {n}p
+de	Display {n}
+el	Deck {n}
+el	PROXY {n}p
+el	Proxy {n}p
+es-CU	Normal
+es-CU	Deck {n}
+es-CU	PROXY {n}p
+es-CU	Proxy {n}p
+es	Normal
+es	Deck {n}
+es	PROXY {n}p
+es	Proxy {n}p
+fi	Deck {n}
+fi	PROXY {n}p
+fi	Proxy {n}p
+fr	Alpha
+fr	Normal
+fr	Deck {n}
+fr	PROXY {n}p
+fr	Proxy {n}p
+gd	Alpha
+gd	Deck {n}
+gd	PROXY {n}p
+gd	Proxy {n}p
+haw	Alpha
+haw	Bitrate
+haw	Keyframe
+haw	PROXY {n}p
+haw	Proxy {n}p
+is	Deck {n}
+is	PROXY {n}p
+is	Proxy {n}p
+it	Alpha
+it	Bitrate
+it	Deck {n}
+it	Keyframe
+it	PROXY {n}p
+it	Proxy {n}p
+kab	Alpha
+kab	Bitrate
+kab	Deck {n}
+kab	Keyframe
+kab	PROXY {n}p
+kab	Proxy {n}p
+kmr	Deck {n}
+kmr	PROXY {n}p
+kmr	Proxy {n}p
+lo	OUT {n}
+lo	Out {n}
+lo	Deck {n}
+lo	Stream ID
+lo	Output {n}
+lo	PROXY {n}p
+lo	Proxy {n}p
+lum	Alpha
+nl	Alpha
+nl	Bitrate
+nl	Deck {n}
+nl	Keyframe
+nl	fade {n}
+nl	start {n}
+nl	FADE {n} s
+nl	PROXY {n}p
+nl	Proxy {n}p
+pap-AW	Normal
+pap-AW	Bitrate
+pap-AW	OUT {n}
+pap-AW	Out {n}
+pap-AW	Deck {n}
+pap-AW	Keyframe
+pap-AW	fade {n}
+pap-AW	FADE {n} s
+pap-AW	Output {n}
+pap-AW	PROXY {n}p
+pap-AW	Proxy {n}p
+pl	Bitrate
+pl	Deck {n}
+pl	start {n}
+pl	PROXY {n}p
+pl	Proxy {n}p
+pt-BR	Normal
+pt-BR	Deck {n}
+pt-BR	fade {n}
+pt-BR	FADE {n} s
+pt-BR	PROXY {n}p
+pt-BR	Proxy {n}p
+tr	Normal
+tr	Deck {n}
+tr	PROXY {n}p
+tr	Proxy {n}p
+vi	Alpha
+vi	Bitrate
+vi	Deck {n}
+vi	Output {n}
+vi	PROXY {n}p
+vi	Proxy {n}p
+zgh	Alpha
+zgh	Deck {n}

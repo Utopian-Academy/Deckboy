@@ -2293,3 +2293,61 @@ Bitfocus Companion, and x42/libltc.	Bitfocus Companion, x42/libltc에 감사합�
 Keys	키
 None. See LICENSE sections 15-16.	없음. LICENSE 15-16절을 보세요.
 none compiled in	내장된 것 없음
+Alpha	알파
+Group	그룹
+Normal	보통
+Remote	원격
+lesson	수업
+Bitrate	비트레이트
+Latency	지연 시간
+OUT {n}	출력 {n}
+Out {n}	출력 {n}
+{n} row	{n}행
+Deck {n}	덱 {n}
+Key name	키 이름
+Keyframe	키프레임
+Registry	레지스트리
+fade {n}	페이드 {n}
+{n} rows	{n}행
+Node port	노드 포트
+Stream ID	스트림 ID
+added {1}	{1} 추가됨
+start {n}	시작 {n}
+still {n}	정지 화면 {n}
+FADE {n} s	페이드 {n}초
+LAYER {n}%	레이어 {n}%
+Output {n}	출력 {n}
+PROXY {n}p	프록시 {n}p
+PTP domain	PTP 도메인
+Proxy {n}p	프록시 {n}p
+Stream key	스트림 키
+[ASSIGNED]	[할당됨]
+audio only	오디오만
+to Out {n}	출력 {n}로
+{n} of {n}	{n}/{n}
+Display {n}	디스플레이 {n}
+active jobs	진행 중인 작업
+local clock	로컬 시계
+not running	실행 중 아님
+click to set	클릭해서 설정
+full {n}x{n}	전체 {n}x{n}
+running v{n}	v{n} 실행 중
+the other one	다른 쪽
+DELIVERY H.{n}	납품용 H.{n}
+Output {n} mix	출력 {n} 믹스
+made by Deckboy	Deckboy 제작
+{1} plays to {2}	{1}, {2}에서 재생
+the picture {1} plays	{1}에서 재생되는 영상
+New media joins {1} by itself	새 미디어는 {1}에 알아서 들어가
+Press Win+P and choose Extend	Win+P를 누르고 확장을 선택해
+{n} patched - DMX cues set them by name	{n}개 패치됨 - DMX 큐가 이름으로 설정해
+Set them to extend in your display settings	디스플레이 설정에서 확장으로 설정해
+lesson: {1}. Esc leaves, and it picks up here next time	수업: {1}. Esc로 나가면 다음엔 여기서 이어져요
+Answers ATEM Software Control as a deck on TCP 9993 at {1}	{1}의 TCP 9993에서 ATEM Software Control에 덱으로 응답
+In System Settings > Displays, use it as an extended display	시스템 설정 > 디스플레이에서 확장 디스플레이로 사용해
+It ate the desk, skapi. You have {1} screens: the output's DISPLAY in MENU puts it on another.	데스크를 먹어 버렸어, skapi. 스크린이 {1}개 있네: 메뉴에서 출력의 디스플레이를 바꾸면 다른 스크린으로 옮겨져.
+It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts it on the other one.	데스크를 먹어 버렸어, skapi. 스크린이 두 개 있네: 메뉴에서 출력의 디스플레이를 바꾸면 다른 쪽으로 옮겨져.
+{1} screens, skapi. The desk stays on this one, the picture goes on {2}. Open MENU and make OUTPUT OFF say OUTPUT ON.	스크린 {1}개야, skapi. 데스크는 이쪽에 두고 영상은 {2}에 띄워. 메뉴를 열고 출력 끄기를 출력 켜기로 바꿔.
+Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	스크린 두 개야, skapi. 데스크는 이쪽에 두고 영상은 다른 쪽에 띄워: {1}. 메뉴를 열고 출력 끄기를 출력 켜기로 바꿔.
+It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	데스크를 먹어 버렸어, skapi. 미러링된 스크린은 양쪽에 영상을 보여 줘서, 뒤쪽 작은 창에 넣어 뒀어. {1}, 그러면 영상이 자기 스크린을 갖게 돼.
+Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	스크린이 미러링돼 있어, skapi: {1}에 이 화면과 같은 게 나와서 영상이 양쪽 다 데스크를 가릴 거야. {2}, 그러면 영상을 따로 스크린에 띄울게. 아니면 메뉴를 열고 출력 끄기를 출력 켜기로 바꿔.

@@ -1537,7 +1537,8 @@
       // control that edits the wrong thing.
       const Deck& watchDeck = focusedDeck();
       drawCard(watchRect, "WATCH FOLDER",
-               "New media joins " + watchDeck.name + " by itself");
+               deckboy::core::i18n::format("New media joins {1} by itself",
+                                           {deckboy::core::i18n::translate(watchDeck.name)}));
       const int watX = cardBodyX(watchRect);
       const int watW = cardBodyW(watchRect);
       int watY = cardBodyY(watchRect);
@@ -2147,8 +2148,10 @@
         const int qw = cardBodyW(limitRect);
         int qy = cardBodyY(limitRect);
         drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {qx, qy, qw, sLineH},
-                     deckLabel(project_.focusedDeckIndex) + " plays to " +
-                       (limitDevice.empty() ? std::string("the system output") : limitDevice),
+                     deckboy::core::i18n::format("{1} plays to {2}", {
+                       deckboy::core::i18n::translate(deckLabel(project_.focusedDeckIndex)),
+                       limitDevice.empty() ? deckboy::core::i18n::translate("the system output")
+                                           : limitDevice}),
                      pal.fg);
         qy += sLineH + sGap;
         for (std::size_t i = 0; i < effectCount; ++i) {
@@ -2420,8 +2423,9 @@
       drawTextSafe(controlRenderer_, fontSmall_,
                    SDL_Rect{remoteX, remoteY, remoteW, sLineH},
                    project_.hyperDeckEnabled
-                     ? ("Answers ATEM Software Control as a deck on TCP 9993 at "
-                        + hyperDeckReachableAddress())
+                     ? deckboy::core::i18n::format(
+                         "Answers ATEM Software Control as a deck on TCP 9993 at {1}",
+                         {hyperDeckReachableAddress()})
                      : std::string("HyperDeck emulation is off."), soft);
       remoteY += sLineH;
       drawTextSafe(controlRenderer_, fontSmall_,

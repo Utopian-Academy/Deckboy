@@ -65,6 +65,11 @@ DRAW_HELPERS = [
     # them reported 55% coverage while most inspector rows were English.
     "drawQuickRow", "inspDrawQuickRow", "inspDrawValueRow", "drawChoiceRow", "inspDrawChoiceRow",
     "drawInspectorMessageRow", "inspDrawMessageRow", "drawInspectorEditableRow", "drawTCtrl",
+    # Toasts are drawn through drawTextSafe too, and were never counted: they
+    # were most of what a run of the app found untranslated (2026-11-08).
+    # failRemoteCommand toasts its reason as well. And a template handed to
+    # i18n::format or i18n::translate is a line a catalogue must hold.
+    "triggerToast", "failRemoteCommand", r"i18n::format", r"i18n::translate",
 ]
 
 SOURCE_DIRS = [os.path.join(ROOT, "native")]
@@ -103,6 +108,12 @@ def is_prose(s):
     # A fragment ending or starting with a colon is half of a runtime
     # concatenation, so there is no whole sentence here to translate.
     if t.endswith(":") or t.startswith(":"):
+        return False
+    # Space at either end, or an operator: the other half of a sentence the
+    # code builds (" cue", "A =", "added "). It never reaches translate() on
+    # its own; the whole does, and translate() takes that apart itself.
+    if (s != s.strip() or t.endswith("=") or t.startswith(("=", ")"))
+            or t.endswith(("(", "'", "\""))):
         return False
     return True
 
@@ -327,12 +338,67 @@ def confusable_report():
     return bad
 
 
+# ── THE GATE ─────────────────────────────────────────────────────────────────
+#
+# New interface text is translated by tools/i18n_translate.py, which the
+# pre-commit hook runs on what a commit adds. A commit that did not pass through
+# the hook (another machine, the web editor, a hook that could not reach the
+# translator) is caught here instead: any drawn string a full catalogue cannot
+# show, that is not kept English on purpose and was not already missing when the
+# baseline was written, fails the build. The baseline only ever shrinks.
+BASELINE = os.path.join(HERE, "i18n_baseline.txt")
+
+
+def gate(write):
+    sys.path.insert(0, HERE)
+    import argparse as _argparse
+    import i18n_translate as tr                 # the same reading of "missing"
+    keys = tr.candidate_keys(_argparse.Namespace(keys=None, misses=None))
+    keep = tr.load_keep()
+    gaps = set()
+    for code in tr.FULL:
+        for k in tr.missing_for(code, keys, keep):
+            gaps.add(code + "\t" + k)
+    if write:
+        with open(BASELINE, "w", encoding="utf-8", newline="\n") as f:
+            f.write("# Untranslated when the gate began. tools/audit_i18n.py --gate allows these\n"
+                    "# and nothing new. Run tools/i18n_translate.py, then --write-baseline.\n")
+            f.write("\n".join(sorted(gaps)) + "\n")
+        print("audit_i18n: baseline written, %d gaps" % len(gaps))
+        return 0
+    allowed = set()
+    if os.path.exists(BASELINE):
+        for line in open(BASELINE, encoding="utf-8"):
+            line = line.rstrip("\n")
+            if line and not line.startswith("#"):
+                allowed.add(line)
+    new = sorted(gaps - allowed)
+    if not new:
+        print("audit_i18n --gate: no new untranslated strings (%d older gaps in the baseline)"
+              % len(gaps & allowed))
+        return 0
+    strings = sorted({g.split("\t", 1)[1] for g in new})
+    print("audit_i18n --gate: %d new strings are not translated in every full language:" % len(strings))
+    for s in strings[:40]:
+        langs = [g.split("\t", 1)[0] for g in new if g.split("\t", 1)[1] == s]
+        print("  %-50s missing in %d" % (('"' + s + '"')[:50], len(langs)))
+    print("Translate them: python tools/i18n_translate.py  (or add a stays-English line to"
+          " tools/i18n_keep_english.txt)")
+    return 1
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--missing", action="store_true",
                     help="list the drawn strings no catalogue translates")
     ap.add_argument("--top", type=int, default=25)
+    ap.add_argument("--gate", action="store_true",
+                    help="fail on a drawn string a full catalogue lacks that is not in the baseline")
+    ap.add_argument("--write-baseline", action="store_true",
+                    help="record today's gaps as the baseline the gate allows")
     args = ap.parse_args()
+    if args.gate or args.write_baseline:
+        return gate(args.write_baseline)
 
     drawn = drawn_strings()
     if not drawn:

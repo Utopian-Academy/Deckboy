@@ -2235,3 +2235,57 @@ Bitfocus Companion, and x42/libltc.	Bitfocus Companion, a me x42/libltc.
 Keys	Nā pihi
 None. See LICENSE sections 15-16.	ʻAʻohe. E nānā i LICENSE, nā pauku 15-16.
 none compiled in	ʻaʻohe mea i hoʻokomo ʻia
+Port	Awa
+Group	Pūʻulu
+Normal	Maʻamau
+Remote	Mamao
+lesson	haʻawina
+Latency	Lohi
+OUT {n}	PUKA {n}
+Out {n}	Puka {n}
+{n} row	{n} lalani
+Deck {n}	Papa {n}
+Key name	Inoa kī
+Registry	Waihona inoa
+fade {n}	hala {n}
+{n} rows	{n} lalani
+Node port	Awa node
+Stream ID	ID kahe
+added {1}	hoʻohui ʻia {1}
+start {n}	hoʻomaka {n}
+still {n}	paʻa {n}
+FADE {n} s	HALA {n} s
+LAYER {n}%	ʻĀPANA {n}%
+Output {n}	Puka {n}
+PTP domain	Kahua PTP
+Stream key	Kī kahe
+[ASSIGNED]	[HĀʻAWI ʻIA]
+audio only	leo wale nō
+to Out {n}	i Puka {n}
+{n} of {n}	{n} o {n}
+Display {n}	Papakaumaka {n}
+active jobs	nā hana e holo nei
+local clock	uaki kūloko
+not running	ʻaʻole e holo ana
+click to set	kaomi e hoʻonoho
+full {n}x{n}	piha {n}x{n}
+running v{n}	ke holo nei v{n}
+the other one	kēlā ʻē aʻe
+DELIVERY H.{n}	HOʻOUNA H.{n}
+Output {n} mix	Hui Puka {n}
+made by Deckboy	hana ʻia e Deckboy
+{1} plays to {2}	hoʻokani ʻo {1} i {2}
+the picture {1} plays	ke kiʻi a {1} e hoʻokani ai
+New media joins {1} by itself	Komo ka media hou i {1} nona iho
+Press Win+P and choose Extend	Kaomi i Win+P a koho i Extend
+{n} patched - DMX cues set them by name	{n} hoʻopili ʻia - hoʻonoho nā cue DMX iā lākou ma ka inoa
+Set them to extend in your display settings	Hoʻonoho iā lākou i Extend ma nā hoʻonohonoho papakaumaka
+lesson: {1}. Esc leaves, and it picks up here next time	haʻawina: {1}. haʻalele ʻo Esc, a hoʻomau ʻia ma ʻaneʻi i ka manawa aʻe
+Answers ATEM Software Control as a deck on TCP 9993 at {1}	Pane iā ATEM Software Control ma ke ʻano he papa ma TCP 9993 ma {1}
+In System Settings > Displays, use it as an extended display	Ma System Settings > Displays, e hoʻohana iā ia he papakaumaka hoʻolōʻihi
+It ate the desk, skapi. You have {1} screens: the output's DISPLAY in MENU puts it on another.	Ua ʻai ia i ka papa, skapi. He {1} papakaumaka kāu: na ka PAPAKAUMAKA o ka puka ma PAPA KUHIKUHI e kau iā ia ma kekahi ʻē aʻe.
+It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts it on the other one.	Ua ʻai ia i ka papa, skapi. He ʻelua papakaumaka kāu: na ka PAPAKAUMAKA o ka puka ma PAPA KUHIKUHI e kau iā ia ma kēlā ʻē aʻe.
+{1} screens, skapi. The desk stays on this one, the picture goes on {2}. Open MENU and make OUTPUT OFF say OUTPUT ON.	{1} papakaumaka, skapi. Noho ka papa ma kēia, hele ke kiʻi ma {2}. E wehe i PAPA KUHIKUHI a hoʻololi i PUKA PIO i PUKA HOʻĀ.
+Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	ʻElua papakaumaka, skapi. Noho ka papa ma kēia, hele ke kiʻi ma kēlā ʻē aʻe: {1}. E wehe i PAPA KUHIKUHI a hoʻololi i PUKA PIO i PUKA HOʻĀ.
+It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	Ua ʻai ia i ka papa, skapi. Hōʻike nā papakaumaka like i ke kiʻi ma nā mea ʻelua, no laila ua kau au iā ia i loko o kahi puka aniani liʻiliʻi, ma hope. {1}, a loaʻa iā ia kona papakaumaka ponoʻī.
+Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	Ua like kāu mau papakaumaka, skapi: hōʻike ʻo {1} i ka mea a kēia e hōʻike nei, no laila e uhi ke kiʻi i ka papa ma nā mea ʻelua. {2}, a kau au i ke kiʻi ma kona papakaumaka ponoʻī. A i ʻole e wehe i PAPA KUHIKUHI a hoʻololi i PUKA PIO i PUKA HOʻĀ.

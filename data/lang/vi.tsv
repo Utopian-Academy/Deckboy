@@ -2291,3 +2291,55 @@ Bitfocus Companion, and x42/libltc.	Bitfocus Companion và x42/libltc.
 Keys	Phím
 None. See LICENSE sections 15-16.	Không có. Xem LICENSE, mục 15-16.
 none compiled in	không có gì được biên dịch kèm
+Group	Nhóm
+Normal	Bình thường
+Remote	Từ xa
+lesson	bài học
+Latency	Độ trễ
+OUT {n}	RA {n}
+Out {n}	Ra {n}
+{n} row	{n} hàng
+Key name	Tên phím
+Keyframe	Khung hình chính
+Registry	Sổ đăng ký
+fade {n}	mờ dần {n}
+{n} rows	{n} hàng
+Node port	Cổng nút
+Stream ID	ID luồng
+added {1}	đã thêm {1}
+start {n}	bắt đầu {n}
+still {n}	ảnh tĩnh {n}
+FADE {n} s	MỜ DẦN {n} s
+LAYER {n}%	LỚP {n}%
+PTP domain	Miền PTP
+Stream key	Khóa stream
+[ASSIGNED]	[ĐÃ GÁN]
+audio only	chỉ âm thanh
+to Out {n}	đến Ra {n}
+{n} of {n}	{n}/{n}
+Display {n}	Màn hình {n}
+active jobs	tác vụ đang chạy
+local clock	đồng hồ cục bộ
+not running	không chạy
+click to set	nhấn để đặt
+full {n}x{n}	đầy {n}x{n}
+running v{n}	đang chạy v{n}
+the other one	cái còn lại
+DELIVERY H.{n}	BẢN GIAO H.{n}
+Output {n} mix	Trộn Output {n}
+made by Deckboy	làm bởi Deckboy
+{1} plays to {2}	{1} chơi tới {2}
+the picture {1} plays	hình ảnh mà {1} chơi
+New media joins {1} by itself	Media mới tự vào {1}
+Press Win+P and choose Extend	Nhấn Win+P rồi chọn Mở rộng
+{n} patched - DMX cues set them by name	{n} đã patch - cue DMX đặt chúng theo tên
+Set them to extend in your display settings	Đặt chế độ mở rộng trong cài đặt màn hình
+lesson: {1}. Esc leaves, and it picks up here next time	bài học: {1}. Esc để rời, lần sau chạy tiếp từ đây
+Answers ATEM Software Control as a deck on TCP 9993 at {1}	Trả lời ATEM Software Control như một deck trên TCP 9993 tại {1}
+In System Settings > Displays, use it as an extended display	Trong Cài đặt hệ thống > Màn hình, dùng nó làm màn hình mở rộng
+It ate the desk, skapi. You have {1} screens: the output's DISPLAY in MENU puts it on another.	Nó nuốt cả cái bàn, skapi. Bạn có {1} màn hình: MÀN HÌNH của output trong DANH MỤC đưa hình ảnh sang màn khác.
+It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts it on the other one.	Nó nuốt cả cái bàn, skapi. Bạn có hai màn hình: MÀN HÌNH của output trong DANH MỤC đưa hình ảnh sang cái còn lại.
+{1} screens, skapi. The desk stays on this one, the picture goes on {2}. Open MENU and make OUTPUT OFF say OUTPUT ON.	{1} màn hình, skapi. Bàn ở lại màn này, hình ảnh sang {2}. Mở DANH MỤC và chuyển OUTPUT TẮT thành OUTPUT BẬT.
+Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	Hai màn hình, skapi. Bàn ở lại màn này, hình ảnh sang cái còn lại: {1}. Mở DANH MỤC và chuyển OUTPUT TẮT thành OUTPUT BẬT.
+It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	Nó nuốt cả cái bàn, skapi. Màn hình nhân bản hiện hình ảnh trên cả hai, nên tôi đặt nó vào một cửa sổ nhỏ, phía sau. {1}, và nó sẽ có màn hình riêng.
+Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	Màn hình của bạn đang nhân bản, skapi: {1} hiện y như màn này, nên hình ảnh sẽ che bàn trên cả hai. {2}, và tôi đặt hình ảnh lên màn hình riêng. Hoặc mở DANH MỤC và chuyển OUTPUT TẮT thành OUTPUT BẬT.

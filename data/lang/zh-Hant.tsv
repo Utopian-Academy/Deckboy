@@ -2292,3 +2292,61 @@ Bitfocus Companion, and x42/libltc.	Bitfocus Companion 與 x42/libltc。
 Keys	按鍵
 None. See LICENSE sections 15-16.	無。見 LICENSE 第 15-16 節。
 none compiled in	未編譯任何項目
+Alpha	Alpha 通道
+Group	群組
+Normal	正常
+Remote	遠端
+lesson	課程
+Bitrate	位元速率
+Latency	延遲
+OUT {n}	輸出 {n}
+Out {n}	輸出 {n}
+{n} row	{n} 列
+Deck {n}	卡座 {n}
+Key name	鍵名
+Keyframe	關鍵影格
+Registry	登錄檔
+fade {n}	漸變 {n}
+{n} rows	{n} 列
+Node port	節點連接埠
+Stream ID	串流 ID
+added {1}	已新增 {1}
+start {n}	開始 {n}
+still {n}	靜幀 {n}
+FADE {n} s	漸變 {n} 秒
+LAYER {n}%	圖層 {n}%
+Output {n}	輸出 {n}
+PROXY {n}p	代理 {n}p
+PTP domain	PTP 網域
+Proxy {n}p	代理 {n}p
+Stream key	串流金鑰
+[ASSIGNED]	[已指派]
+audio only	僅音訊
+to Out {n}	到輸出 {n}
+{n} of {n}	第 {n} / 共 {n}
+Display {n}	顯示器 {n}
+active jobs	進行中的工作
+local clock	本機時鐘
+not running	未執行
+click to set	點擊設定
+full {n}x{n}	完整 {n}x{n}
+running v{n}	執行中 v{n}
+the other one	另一個
+DELIVERY H.{n}	交付 H.{n}
+Output {n} mix	輸出 {n} 混合
+made by Deckboy	由 Deckboy 製作
+{1} plays to {2}	{1} 播放到 {2}
+the picture {1} plays	{1} 播放的畫面
+New media joins {1} by itself	新的媒體會自動加入 {1}
+Press Win+P and choose Extend	按下 Win+P 並選擇延伸
+{n} patched - DMX cues set them by name	已配接 {n} 個 - DMX cue 依名稱設定它們
+Set them to extend in your display settings	在顯示器設定中將它們設為延伸
+lesson: {1}. Esc leaves, and it picks up here next time	課程：{1}。按Esc離開，下次從這裡繼續
+Answers ATEM Software Control as a deck on TCP 9993 at {1}	在 {1} 的 TCP 9993 上作為卡座回應 ATEM Software Control
+In System Settings > Displays, use it as an extended display	在系統設定 > 顯示器中，將其用作延伸顯示器
+It ate the desk, skapi. You have {1} screens: the output's DISPLAY in MENU puts it on another.	它把控台吃掉了，skapi。你有 {1} 個螢幕：選單裡輸出的顯示器選項可以把它放到另一個上。
+It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts it on the other one.	它把控台吃掉了，skapi。你有兩個螢幕：選單裡輸出的顯示器選項可以把它放到另一個上。
+{1} screens, skapi. The desk stays on this one, the picture goes on {2}. Open MENU and make OUTPUT OFF say OUTPUT ON.	{1} 個螢幕，skapi。控台留在這個上，畫面放到 {2}。開啟選單，把輸出關切換成輸出開。
+Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	兩個螢幕，skapi。控台留在這個上，畫面放到另一個：{1}。開啟選單，把輸出關切換成輸出開。
+It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	它把控台吃掉了，skapi。鏡像螢幕會在兩個上都顯示畫面，所以我把它放進了後面的一個小視窗。{1}，它就會有自己的螢幕。
+Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	你的螢幕是鏡像的，skapi：{1} 顯示的和這個一樣，所以畫面會在兩個螢幕上都蓋住控台。{2}，我就把畫面放到它自己的螢幕上。或者開啟選單，把輸出關切換成輸出開。

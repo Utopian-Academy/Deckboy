@@ -2290,3 +2290,58 @@ Bitfocus Companion, and x42/libltc.	στο Bitfocus Companion και στο x42/
 Keys	Πλήκτρα
 None. See LICENSE sections 15-16.	Καμία. Δείτε LICENSE, ενότητες 15-16.
 none compiled in	τίποτα ενσωματωμένο
+Alpha	Άλφα
+Group	Ομάδα
+Normal	Κανονικό
+Remote	Απομακρυσμένο
+lesson	μάθημα
+Bitrate	Ρυθμός bit
+Latency	Καθυστέρηση
+OUT {n}	ΕΞ. {n}
+Out {n}	Έξ. {n}
+{n} row	{n} γραμμή
+Key name	Όνομα πλήκτρου
+Keyframe	Καρέ-κλειδί
+Registry	Μητρώο
+fade {n}	σβήσιμο {n}
+{n} rows	{n} γραμμές
+Node port	Θύρα κόμβου
+Stream ID	ID ροής
+added {1}	προστέθηκε {1}
+start {n}	έναρξη {n}
+still {n}	ακίνητη εικόνα {n}
+FADE {n} s	ΣΒΗΣΙΜΟ {n} δ
+LAYER {n}%	ΕΠΙΠΕΔΟ {n}%
+Output {n}	Έξοδος {n}
+PTP domain	Τομέας PTP
+Stream key	Κλειδί ροής
+[ASSIGNED]	[ΑΝΑΤΕΘΗΚΕ]
+audio only	μόνο ήχος
+to Out {n}	στην έξ. {n}
+{n} of {n}	{n} από {n}
+Display {n}	Οθόνη {n}
+active jobs	ενεργές εργασίες
+local clock	τοπικό ρολόι
+not running	δεν τρέχει
+click to set	κλικ για ορισμό
+full {n}x{n}	πλήρης {n}x{n}
+running v{n}	τρέχει v{n}
+the other one	την άλλη
+DELIVERY H.{n}	ΠΑΡΑΔΟΣΗ H.{n}
+Output {n} mix	Μίξη εξόδου {n}
+made by Deckboy	φτιαγμένο με Deckboy
+{1} plays to {2}	{1} παίζει στο {2}
+the picture {1} plays	η εικόνα που παίζει το {1}
+New media joins {1} by itself	Τα νέα μέσα μπαίνουν μόνα τους στο {1}
+Press Win+P and choose Extend	Πάτησε Win+P και επίλεξε Επέκταση
+{n} patched - DMX cues set them by name	{n} συνδεδεμένα - τα cue DMX τα ορίζουν με το όνομα
+Set them to extend in your display settings	Ρύθμισέ τες σε επέκταση στις ρυθμίσεις οθόνης
+lesson: {1}. Esc leaves, and it picks up here next time	μάθημα: {1}. το Esc βγαίνει, και την επόμενη φορά συνεχίζει από εδώ
+Answers ATEM Software Control as a deck on TCP 9993 at {1}	Απαντά στο ATEM Software Control ως deck στο TCP 9993 στο {1}
+In System Settings > Displays, use it as an extended display	Στις Ρυθμίσεις συστήματος > Οθόνες, χρησιμοποίησέ την ως εκτεταμένη οθόνη
+It ate the desk, skapi. You have {1} screens: the output's DISPLAY in MENU puts it on another.	Έφαγε την κονσόλα, skapi. Έχεις {1} οθόνες: η ΟΘΟΝΗ της εξόδου στο ΜΕΝΟΥ τη βάζει σε άλλη.
+It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts it on the other one.	Έφαγε την κονσόλα, skapi. Έχεις δύο οθόνες: η ΟΘΟΝΗ της εξόδου στο ΜΕΝΟΥ τη βάζει στην άλλη.
+{1} screens, skapi. The desk stays on this one, the picture goes on {2}. Open MENU and make OUTPUT OFF say OUTPUT ON.	{1} οθόνες, skapi. Η κονσόλα μένει σε αυτή, η εικόνα πάει στην {2}. Άνοιξε το ΜΕΝΟΥ και κάνε το ΕΞΟΔΟΣ ΕΚΤΟΣ να γράφει ΕΞΟΔΟΣ ΕΝΤΟΣ.
+Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	Δύο οθόνες, skapi. Η κονσόλα μένει σε αυτή, η εικόνα πάει στην άλλη: {1}. Άνοιξε το ΜΕΝΟΥ και κάνε το ΕΞΟΔΟΣ ΕΚΤΟΣ να γράφει ΕΞΟΔΟΣ ΕΝΤΟΣ.
+It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	Έφαγε την κονσόλα, skapi. Οι καθρεφτισμένες οθόνες δείχνουν την εικόνα και στις δύο, γι' αυτό την έβαλα σε ένα μικρό παράθυρο, από πίσω. {1}, και θα πάρει δική της οθόνη.
+Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	Οι οθόνες σου είναι καθρεφτισμένες, skapi: η {1} δείχνει ό,τι δείχνει αυτή, οπότε η εικόνα θα καλύψει την κονσόλα και στις δύο. {2}, και θα βάλω την εικόνα σε δική της οθόνη. Ή άνοιξε το ΜΕΝΟΥ και κάνε το ΕΞΟΔΟΣ ΕΚΤΟΣ να γράφει ΕΞΟΔΟΣ ΕΝΤΟΣ.

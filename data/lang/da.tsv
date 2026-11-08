@@ -2283,3 +2283,53 @@ Bitfocus Companion, and x42/libltc.	Bitfocus Companion og x42/libltc.
 Keys	Taster
 None. See LICENSE sections 15-16.	Ingen. Se LICENSE, afsnit 15-16.
 none compiled in	intet indbygget
+Group	Gruppe
+Remote	Fjernstyring
+lesson	lektion
+Latency	Latens
+OUT {n}	UDG. {n}
+Out {n}	Udg. {n}
+{n} row	{n} række
+Key name	Tastnavn
+Registry	Registrering
+fade {n}	blænding {n}
+{n} rows	{n} rækker
+Node port	Nodeport
+Stream ID	Stream-ID
+added {1}	tilføjede {1}
+still {n}	stillbillede {n}
+FADE {n} s	BLÆNDING {n} s
+LAYER {n}%	LAG {n}%
+Output {n}	Udgang {n}
+PTP domain	PTP-domæne
+Stream key	Streamnøgle
+[ASSIGNED]	[TILDELT]
+audio only	kun lyd
+to Out {n}	til udg. {n}
+{n} of {n}	{n} af {n}
+Display {n}	Skærm {n}
+active jobs	aktive job
+local clock	lokalt ur
+not running	kører ikke
+click to set	klik for at indstille
+full {n}x{n}	fuld {n}x{n}
+running v{n}	kører v{n}
+the other one	den anden
+DELIVERY H.{n}	LEVERING H.{n}
+Output {n} mix	Udgang {n}-mix
+made by Deckboy	lavet med Deckboy
+{1} plays to {2}	{1} spiller til {2}
+the picture {1} plays	billedet, {1} spiller
+New media joins {1} by itself	Nye medier kommer selv med i {1}
+Press Win+P and choose Extend	Tryk Win+P og vælg Udvid
+{n} patched - DMX cues set them by name	{n} patchet - DMX-cues sætter dem efter navn
+Set them to extend in your display settings	Sæt dem til at udvide i dine skærmindstillinger
+lesson: {1}. Esc leaves, and it picks up here next time	lektion: {1}. Esc går ud, og næste gang fortsætter den herfra
+Answers ATEM Software Control as a deck on TCP 9993 at {1}	Svarer ATEM Software Control som et deck på TCP 9993 på {1}
+In System Settings > Displays, use it as an extended display	I Systemindstillinger > Skærme skal du bruge den som udvidet skærm
+It ate the desk, skapi. You have {1} screens: the output's DISPLAY in MENU puts it on another.	Det åd pulten, skapi. Du har {1} skærme: udgangens SKÆRM i MENU sætter den på en anden.
+It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts it on the other one.	Det åd pulten, skapi. Du har to skærme: udgangens SKÆRM i MENU sætter den på den anden.
+{1} screens, skapi. The desk stays on this one, the picture goes on {2}. Open MENU and make OUTPUT OFF say OUTPUT ON.	{1} skærme, skapi. Pulten bliver på denne, billedet kommer på {2}. Åbn MENU, og få UDGANG FRA til at sige UDGANG TIL.
+Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	To skærme, skapi. Pulten bliver på denne, billedet kommer på den anden: {1}. Åbn MENU, og få UDGANG FRA til at sige UDGANG TIL.
+It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	Det åd pulten, skapi. Spejlede skærme viser billedet på begge, så jeg lagde det i et lille vindue bagved. {1}, så får det sin egen skærm.
+Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	Dine skærme er spejlet, skapi: {1} viser det samme som denne, så billedet vil dække pulten på begge. {2}, så lægger jeg billedet på sin egen skærm. Eller åbn MENU, og få UDGANG FRA til at sige UDGANG TIL.
