@@ -2219,3 +2219,79 @@ Timecode	ລະຫັດເວລາ
 PHASE	ເຟສ
 MENU	ເມນູ
 VOLUME	ສຽງ
++ step	+ ຂັ້ນ
+< BACK	< ກັບ
+ATEM switcher	ເຄື່ອງສະຫຼັບ ATEM
+ATEM tally	Tally ATEM
+AUDIO: DEFAULT	ສຽງ: ຄ່າເລີ່ມຕົ້ນ
+Animated GIF	GIF ເຄື່ອນໄຫວ
+Arrows	ປຸ່ມລູກສອນ
+CLICKER	ຣີໂມດນຳສະເໜີ
+Copyright	ລິຂະສິດ
+DEST...	ປາຍທາງ...
+Datamosh - classic	Datamosh – ຄລາສສິກ
+Datamosh - extreme	Datamosh – ສຸດຂີດ
+Datamosh - subtle	Datamosh – ເບົາໆ
+Deckboy is input	Deckboy ແມ່ນອິນພຸດ
+Device: None	ອຸປະກອນ: ບໍ່ມີ
+Drag	ລາກ
+Drop media here	ວາງສື່ໄວ້ທີ່ນີ້
+Enter Take  Space Play/Pause	Enter Take  Space ຫຼິ້ນ/ຢຸດຊົ່ວຄາວ
+FFmpeg / libav  (in-process)	FFmpeg / libav  (ພາຍໃນໂປຣເຊສ)
+FPS: SOURCE	FPS: ແຫຼ່ງ
+Fonts	ຟອນ
+Free software. You may use, study, share	ຊອບແວເສລີ. ທ່ານໃຊ້, ສຶກສາ,
+GO / BACK	GO / ກັບ
+GO / BACK (clicker)	GO / ກັບ (ຣີໂມດ)
+Key out: None - fill only	ເອົາ key ອອກ: ບໍ່ມີ – fill ຢ່າງດຽວ
+LTC in	ອິນພຸດ LTC
+Licence	ໃບອະນຸຍາດ
+MATCH SOURCE	ຕາມແຫຼ່ງ
+MMC Play / Stop / Goto -> transport	MMC Play / Stop / Goto -> ການຫຼິ້ນ
+MOSH: SUBTLE	MOSH: ເບົາໆ
+MSC Trigger -> cue by id	MSC Trigger -> cue ຕາມ id
+MTC in	ອິນພຸດ MTC
+Mode: CALLER	ໂໝດ: CALLER
+NDI receiver	ຕົວຮັບ NDI
+NDI trigger	ຕົວກະຕຸ້ນ NDI
+NO STEPS YET	ຍັງບໍ່ມີຂັ້ນ
+No PTP lock, wide-model pacing - will not genlock to plant sources	ບໍ່ມີການລັອກ PTP, ຈັງຫວະໂດຍປະມານ – ຈະບໍ່ genlock ກັບແຫຼ່ງຂອງສະຕູດິໂອ
+ONCE  |  ORDER	ຄັ້ງດຽວ  |  ລຳດັບ
+Optional	ທາງເລືອກ
+PNG sequence	ລຳດັບ PNG
+Platform	ແພລດຟອມ
+Press A to take cue	ກົດ A ເພື່ອເອົາ cue
+RATE: AUTO	ອັດຕາ: ອັດຕະໂນມັດ
+S Stop   C Clear   Esc Panic	S ຢຸດ   C ລ້າງ   Esc ສຸກເສີນ
+SIZE: SOURCE	ຂະໜາດ: ແຫຼ່ງ
+SPOUT TEXTURE SHARE	ແບ່ງປັນເທັກເຈີ SPOUT
+Session	ເຊດຊັນ
+TSL tally out	ອອກ tally TSL
+Thanks	ຂອບໃຈ
+Timecode chase	ຕິດຕາມ timecode
+Timecode run	ແລ່ນ timecode
+Toolkit	ຊຸດເຄື່ອງມື
+Trigger	ກະຕຸ້ນ
+WAV (audio only)	WAV (ສຽງຢ່າງດຽວ)
+Warranty	ການຮັບປະກັນ
+address...	ທີ່ຢູ່...
+and modify it; derivatives stay GPL.	ແບ່ງປັນ ແລະ ດັດແປງໄດ້; ຜົນງານທີ່ສືບມາຍັງເປັນ GPL.
+auto	ອັດຕະໂນມັດ
+clear the cell	ລ້າງຊ່ອງ
+companion ping	ping ຈາກ Companion
+fire this row	ເລີ່ມແຖວນີ້
+insert a row	ແຊກແຖວ
+live lane  |  I/O set trim  |  click or drag to seek	ເລນສົດ  |  I/O ຕັ້ງການຕັດ  |  ຄລິກ ຫຼື ລາກເພື່ອຂ້າມໄປ
+media in	ສື່ເຂົ້າ
+move the cursor	ຍ້າຍເຄີເຊີ
+mute / solo a column	ປິດສຽງ / ໂຊໂລ ຖັນ
+off -- edit on monitor	ປິດ -- ແກ້ໄຂເທິງຈໍ
+off: no camera is open. Drag on the picture to draw a zone.	ປິດ: ບໍ່ມີກ້ອງເປີດຢູ່. ລາກເທິງຮູບເພື່ອແຕ້ມເຂດ.
+open the code editor	ເປີດຕົວແກ້ໄຂໂຄ້ດ
+play / stop	ຫຼິ້ນ / ຢຸດ
+stop, fade, vol, opacity	ຢຸດ, ຈາງ, ສຽງ, ຄວາມທຶບ
+the FFmpeg, SDL and FreeType projects,	ໂຄງການ FFmpeg, SDL ແລະ FreeType,
+Bitfocus Companion, and x42/libltc.	Bitfocus Companion, ແລະ x42/libltc.
+Keys	ປຸ່ມ
+None. See LICENSE sections 15-16.	ບໍ່ມີ. ເບິ່ງ LICENSE, ພາກ 15-16.
+none compiled in	ບໍ່ມີສິ່ງໃດຖືກລວມ

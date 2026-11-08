@@ -9,13 +9,20 @@
 - As before, creatures only live in empty space, never over a control, and leave while an output is live.
 
 ### Splash
-- The new Dr. Pixel and Prof. Video splash panels are now 4K, from the 4K originals, and drawn with smooth scaling. They were 1920x1080 and drawn with blocky nearest-neighbour scaling, which made them look low-resolution on large or 4K screens.
+- The new Dr. Pixel and Prof. Video splash panels are now drawn with smooth scaling instead of nearest-neighbour scaling, which made uneven blocks on large screens.
 
 ### Lesson voices
 - The guests in the lessons now have voices of their own, in the same little Game Boy synth as Dr. Pixel and Prof. Video: the lighthouse keeper low and slow, the coach gruff, the chef bouncing between octaves. A guest waits for the teacher to finish, and stage directions like *raises an eyebrow* are not spoken.
 - The robot DJs speak in chopped, synthy syllables on the Game Boy's wave channel, which the synth now has: a high voice and a low one.
 
+### Transitions
+- Fixed: the Ghastly, Shatter and Clouds transitions dropped frames on a 60 Hz output, most at 4K. A 4K Shatter took 26 ms a frame and now takes 4-7 ms; Ghastly took 18-22 ms and now takes 8-10 ms. The pictures are exactly the same.
+- Fixed: with no output on, the program monitor showed a cut where the transition should be. It now shows the transition the output would draw. This also made transitions look broken in the Transitions lesson, which runs with the output off.
+- STATUS reports the transition the output draws, as `outgoing=<style>@<percent>` per playlist.
+
 ### Languages
+- About 75 more interface strings are translated in every language: the About page, the tracker, the encoder's format list, the timecode, ATEM, NDI and tally rows, the keyboard help, and the playlist's drag hint.
+- The About page's label column now fits the longest label in the language on screen. Long labels were cut short.
 - MENU and the VOLUME label are now translated in every language. The lessons that say "MENU" use the same word as the button.
 - Hawaiian (ʻŌlelo Hawaiʻi) is now a full translation: the whole desk and every lesson. No speaker has reviewed it yet.
 

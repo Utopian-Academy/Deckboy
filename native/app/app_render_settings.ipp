@@ -4643,9 +4643,22 @@
       int colsH = std::max(120, content.y + content.h - aboutY2 - 8);
       SDL_Rect leftAbout {cx, aboutY2, aboutLeftW, colsH};
       SDL_Rect rightAbout {cx + aboutLeftW + aboutColGap, aboutY2, aboutRightW, colsH};
+      // THE LABEL COLUMN FITS THE WIDEST LABEL, in the language on screen. It
+      // was a raw 96 px: unscaled, so at 1.5x even an English label filled it,
+      // and every translation longer than the English was cut short.
+      static const char* const kAboutLabels[] = {
+        "Copyright", "Licence", "Source", "Warranty", "Session", "Media", "Theme",
+        "Platform", "Toolkit", "Optional", "Timecode", "Thanks", "Fonts", "Keys"};
+      int aboutLabelW = 0;
+      for (const char* label : kAboutLabels) {
+        aboutLabelW = std::max(aboutLabelW, measuredTextWidth(fontSmall_, label));
+      }
       auto aboutRow = [&](const SDL_Rect& card, int& rowY, const std::string& label,
                           const std::string& value) {
-        int gutter = std::min(96, card.w / 3);
+        const int gutter = std::min(card.w / 3,
+                                    // + the label rect's 8 px and drawTextSafe's own
+                                    // inset, or the widest label is shrunk to fit.
+                                    std::max(uiScaled(96), aboutLabelW + uiScaled(28)));
         int rowH = aboutLineH;
         if (rowY + rowH > card.y + card.h - 6) {
           return;

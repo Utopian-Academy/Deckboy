@@ -2216,3 +2216,79 @@ The lit tab gets the next cue. Like choosing which slide goes in the projector.	
 Pick a deck. Any deck. ...Deck 2. Pick Deck 2.	एक गड्डी चुनो। कोई भी। ...Deck 2. Deck 2 चुनो।
 MENU	मेनू
 VOLUME	आवाज़
++ step	+ चरण
+< BACK	< वापस
+ATEM switcher	ATEM स्विचर
+ATEM tally	ATEM टैली
+AUDIO: DEFAULT	ऑडियो: डिफ़ॉल्ट
+Animated GIF	एनिमेटेड GIF
+Arrows	तीर कुंजियाँ
+CLICKER	क्लिकर
+Copyright	कॉपीराइट
+DEST...	गंतव्य...
+Datamosh - classic	Datamosh – क्लासिक
+Datamosh - extreme	Datamosh – चरम
+Datamosh - subtle	Datamosh – हल्का
+Deckboy is input	Deckboy इनपुट है
+Device: None	डिवाइस: कोई नहीं
+Drag	खींचें
+Drop media here	मीडिया यहाँ छोड़ें
+Enter Take  Space Play/Pause	Enter Take  Space चलाएँ/रोकें
+FFmpeg / libav  (in-process)	FFmpeg / libav  (प्रक्रिया के भीतर)
+FPS: SOURCE	FPS: स्रोत
+Fonts	फ़ॉन्ट
+Free software. You may use, study, share	मुक्त सॉफ़्टवेयर। आप इसे उपयोग कर सकते हैं, पढ़ सकते हैं,
+GO / BACK	GO / वापस
+GO / BACK (clicker)	GO / वापस (क्लिकर)
+Key out: None - fill only	Key आउट: कोई नहीं – केवल fill
+LTC in	LTC इनपुट
+Licence	लाइसेंस
+MATCH SOURCE	स्रोत जैसा
+MMC Play / Stop / Goto -> transport	MMC Play / Stop / Goto -> ट्रांसपोर्ट
+MOSH: SUBTLE	MOSH: हल्का
+MSC Trigger -> cue by id	MSC Trigger -> id से cue
+MTC in	MTC इनपुट
+Mode: CALLER	मोड: CALLER
+NDI receiver	NDI रिसीवर
+NDI trigger	NDI ट्रिगर
+NO STEPS YET	अभी कोई चरण नहीं
+No PTP lock, wide-model pacing - will not genlock to plant sources	PTP लॉक नहीं, मोटा समय – स्टूडियो स्रोतों से genlock नहीं होगा
+ONCE  |  ORDER	एक बार  |  क्रम
+Optional	वैकल्पिक
+PNG sequence	PNG अनुक्रम
+Platform	प्लेटफ़ॉर्म
+Press A to take cue	cue लेने के लिए A दबाएँ
+RATE: AUTO	दर: स्वतः
+S Stop   C Clear   Esc Panic	S रोकें   C साफ़ करें   Esc आपात
+SIZE: SOURCE	आकार: स्रोत
+SPOUT TEXTURE SHARE	SPOUT टेक्सचर साझा
+Session	सत्र
+TSL tally out	TSL टैली आउट
+Thanks	धन्यवाद
+Timecode chase	timecode का पीछा
+Timecode run	timecode चलाएँ
+Toolkit	टूलकिट
+Trigger	ट्रिगर
+WAV (audio only)	WAV (केवल ऑडियो)
+Warranty	वारंटी
+address...	पता...
+and modify it; derivatives stay GPL.	साझा और बदल सकते हैं; व्युत्पन्न GPL ही रहते हैं।
+auto	स्वतः
+clear the cell	सेल साफ़ करें
+companion ping	Companion पिंग
+fire this row	यह पंक्ति चलाएँ
+insert a row	पंक्ति डालें
+live lane  |  I/O set trim  |  click or drag to seek	लाइव लेन  |  I/O ट्रिम सेट करें  |  खोजने के लिए क्लिक करें या खींचें
+media in	मीडिया अंदर
+move the cursor	कर्सर हिलाएँ
+mute / solo a column	कॉलम म्यूट / सोलो
+off -- edit on monitor	बंद -- मॉनिटर पर संपादित करें
+off: no camera is open. Drag on the picture to draw a zone.	बंद: कोई कैमरा खुला नहीं है। ज़ोन बनाने के लिए चित्र पर खींचें।
+open the code editor	कोड संपादक खोलें
+play / stop	चलाएँ / रोकें
+stop, fade, vol, opacity	रोकें, फ़ेड, वॉल्यूम, अपारदर्शिता
+the FFmpeg, SDL and FreeType projects,	FFmpeg, SDL और FreeType परियोजनाओं,
+Bitfocus Companion, and x42/libltc.	Bitfocus Companion और x42/libltc को।
+Keys	कुंजियाँ
+None. See LICENSE sections 15-16.	कोई नहीं। LICENSE के खंड 15-16 देखें।
+none compiled in	कुछ भी शामिल नहीं

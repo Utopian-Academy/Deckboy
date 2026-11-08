@@ -2214,3 +2214,77 @@ The lit tab gets the next cue. Like choosing which slide goes in the projector.	
 Pick a deck. Any deck. ...Deck 2. Pick Deck 2.	Bir deste seçin. Herhangi biri. ...Deck 2. Deck 2'yi seçin.
 MENU	MENÜ
 VOLUME	SES
++ step	+ adım
+< BACK	< GERİ
+ATEM switcher	ATEM mikseri
+AUDIO: DEFAULT	SES: VARSAYILAN
+Animated GIF	Hareketli GIF
+Arrows	Oklar
+CLICKER	SUNUM KUMANDASI
+Copyright	Telif hakkı
+DEST...	HEDEF...
+Datamosh - classic	Datamosh – klasik
+Datamosh - extreme	Datamosh – aşırı
+Datamosh - subtle	Datamosh – hafif
+Deckboy is input	Deckboy girişi
+Device: None	Aygıt: yok
+Drag	Sürükle
+Drop media here	Medyayı buraya bırakın
+Enter Take  Space Play/Pause	Enter Take  Space Oynat/Duraklat
+FFmpeg / libav  (in-process)	FFmpeg / libav  (süreç içi)
+FPS: SOURCE	FPS: KAYNAK
+Fonts	Yazı tipleri
+Free software. You may use, study, share	Özgür yazılım. Kullanabilir, inceleyebilir,
+GO / BACK	GO / GERİ
+GO / BACK (clicker)	GO / GERİ (kumanda)
+Key out: None - fill only	Key çıkışı: yok – yalnız fill
+LTC in	LTC girişi
+Licence	Lisans
+MATCH SOURCE	KAYNAKLA AYNI
+MMC Play / Stop / Goto -> transport	MMC Play / Stop / Goto -> aktarım
+MOSH: SUBTLE	MOSH: HAFİF
+MSC Trigger -> cue by id	MSC Trigger -> kimliğe göre cue
+MTC in	MTC girişi
+Mode: CALLER	Mod: CALLER
+NDI receiver	NDI alıcısı
+NDI trigger	NDI tetikleyici
+NO STEPS YET	HENÜZ ADIM YOK
+No PTP lock, wide-model pacing - will not genlock to plant sources	PTP kilidi yok, kaba zamanlama – stüdyo kaynaklarına genlock olmaz
+ONCE  |  ORDER	BİR KEZ  |  SIRA
+Optional	İsteğe bağlı
+PNG sequence	PNG dizisi
+Press A to take cue	Cue'yu almak için A'ya basın
+RATE: AUTO	HIZ: OTOMATİK
+S Stop   C Clear   Esc Panic	S Dur   C Temizle   Esc Panik
+SIZE: SOURCE	BOYUT: KAYNAK
+SPOUT TEXTURE SHARE	SPOUT DOKU PAYLAŞIMI
+Session	Oturum
+TSL tally out	TSL tally çıkışı
+Thanks	Teşekkürler
+Timecode chase	Timecode takip
+Timecode run	Timecode çalıştır
+Toolkit	Araç takımı
+Trigger	Tetikle
+WAV (audio only)	WAV (yalnız ses)
+Warranty	Garanti
+address...	adres...
+and modify it; derivatives stay GPL.	paylaşabilir ve değiştirebilirsiniz; türevler GPL kalır.
+auto	otomatik
+clear the cell	hücreyi temizle
+companion ping	Companion pingi
+fire this row	bu satırı ateşle
+insert a row	satır ekle
+live lane  |  I/O set trim  |  click or drag to seek	canlı şerit  |  I/O kırpmayı ayarlar  |  aramak için tıklayın veya sürükleyin
+media in	medya içeri
+move the cursor	imleci taşı
+mute / solo a column	sütunu sustur / solo
+off -- edit on monitor	kapalı -- monitörde düzenle
+off: no camera is open. Drag on the picture to draw a zone.	kapalı: açık kamera yok. Bir bölge çizmek için resmin üzerinde sürükleyin.
+open the code editor	kod düzenleyicisini aç
+play / stop	oynat / durdur
+stop, fade, vol, opacity	dur, geçiş, ses, opaklık
+the FFmpeg, SDL and FreeType projects,	FFmpeg, SDL ve FreeType projelerine,
+Bitfocus Companion, and x42/libltc.	Bitfocus Companion'a ve x42/libltc'ye.
+Keys	Tuşlar
+None. See LICENSE sections 15-16.	Yok. LICENSE, bölüm 15-16'ya bakın.
+none compiled in	hiçbiri derlenmedi

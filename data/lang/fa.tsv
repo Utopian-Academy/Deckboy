@@ -2225,3 +2225,79 @@ The lit tab gets the next cue. Like choosing which slide goes in the projector.	
 Pick a deck. Any deck. ...Deck 2. Pick Deck 2.	یک دسته انتخاب کن. هر دسته‌ای. ...Deck 2. Deck 2 را انتخاب کن.
 MENU	منو
 VOLUME	صدا
++ step	+ گام
+< BACK	< بازگشت
+ATEM switcher	میکسر ATEM
+ATEM tally	Tally از ATEM
+AUDIO: DEFAULT	صدا: پیش‌فرض
+Animated GIF	GIF متحرک
+Arrows	پیکان‌ها
+CLICKER	کنترل از راه دور
+Copyright	حق نشر
+DEST...	مقصد...
+Datamosh - classic	Datamosh – کلاسیک
+Datamosh - extreme	Datamosh – افراطی
+Datamosh - subtle	Datamosh – ملایم
+Deckboy is input	Deckboy ورودی است
+Device: None	دستگاه: هیچ
+Drag	بکشید
+Drop media here	رسانه را اینجا رها کنید
+Enter Take  Space Play/Pause	Enter Take  Space پخش/مکث
+FFmpeg / libav  (in-process)	FFmpeg / libav  (درون فرایند)
+FPS: SOURCE	FPS: منبع
+Fonts	قلم‌ها
+Free software. You may use, study, share	نرم‌افزار آزاد. می‌توانید آن را به کار ببرید، مطالعه کنید،
+GO / BACK	GO / بازگشت
+GO / BACK (clicker)	GO / بازگشت (کنترل از راه دور)
+Key out: None - fill only	خروجی key: هیچ – فقط fill
+LTC in	ورودی LTC
+Licence	مجوز
+MATCH SOURCE	مطابق منبع
+MMC Play / Stop / Goto -> transport	MMC Play / Stop / Goto -> انتقال
+MOSH: SUBTLE	MOSH: ملایم
+MSC Trigger -> cue by id	MSC Trigger -> cue با شناسه
+MTC in	ورودی MTC
+Mode: CALLER	حالت: CALLER
+NDI receiver	گیرنده NDI
+NDI trigger	ماشه NDI
+NO STEPS YET	هنوز گامی نیست
+No PTP lock, wide-model pacing - will not genlock to plant sources	بدون قفل PTP، زمان‌بندی تقریبی – با منابع استودیو genlock نمی‌شود
+ONCE  |  ORDER	یک بار  |  ترتیب
+Optional	اختیاری
+PNG sequence	دنباله PNG
+Platform	سکو
+Press A to take cue	برای گرفتن cue کلید A را بزنید
+RATE: AUTO	نرخ: خودکار
+S Stop   C Clear   Esc Panic	S توقف   C پاک‌کردن   Esc اضطرار
+SIZE: SOURCE	اندازه: منبع
+SPOUT TEXTURE SHARE	اشتراک بافت SPOUT
+Session	نشست
+TSL tally out	خروجی tally از TSL
+Thanks	سپاس
+Timecode chase	دنبال‌کردن timecode
+Timecode run	اجرای timecode
+Toolkit	جعبه‌ابزار
+Trigger	راه‌اندازی
+WAV (audio only)	WAV (فقط صدا)
+Warranty	ضمانت
+address...	نشانی...
+and modify it; derivatives stay GPL.	هم‌رسانی و ویرایش کنید؛ آثار برگرفته GPL می‌مانند.
+auto	خودکار
+clear the cell	خانه را پاک کن
+companion ping	پینگ از Companion
+fire this row	این ردیف را اجرا کن
+insert a row	یک ردیف درج کن
+live lane  |  I/O set trim  |  click or drag to seek	مسیر زنده  |  I/O برش را تنظیم می‌کند  |  برای جستجو کلیک کنید یا بکشید
+media in	ورود رسانه
+move the cursor	مکان‌نما را جابه‌جا کن
+mute / solo a column	بی‌صدا / تکی‌کردن یک ستون
+off -- edit on monitor	خاموش -- روی نمایشگر ویرایش کنید
+off: no camera is open. Drag on the picture to draw a zone.	خاموش: هیچ دوربینی باز نیست. برای کشیدن یک ناحیه روی تصویر بکشید.
+open the code editor	ویرایشگر کد را باز کن
+play / stop	پخش / توقف
+stop, fade, vol, opacity	توقف، محوشدن، صدا، کدری
+the FFmpeg, SDL and FreeType projects,	پروژه‌های FFmpeg، SDL و FreeType،
+Bitfocus Companion, and x42/libltc.	Bitfocus Companion و x42/libltc.
+Keys	کلیدها
+None. See LICENSE sections 15-16.	هیچ. بخش‌های 15-16 در LICENSE را ببینید.
+none compiled in	هیچ‌چیز درون‌ساخت نیست

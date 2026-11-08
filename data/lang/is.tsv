@@ -2214,3 +2214,79 @@ The lit tab gets the next cue. Like choosing which slide goes in the projector.	
 Pick a deck. Any deck. ...Deck 2. Pick Deck 2.	Veldu stokk. Hvaða stokk sem er. ...Deck 2. Veldu Deck 2.
 MENU	VALMYND
 VOLUME	HLJÓÐSTYRKUR
++ step	+ skref
+< BACK	< TIL BAKA
+ATEM switcher	ATEM-myndblandari
+ATEM tally	ATEM-tally
+AUDIO: DEFAULT	HLJÓÐ: SJÁLFGEFIÐ
+Animated GIF	Hreyfð GIF
+Arrows	Örvar
+CLICKER	FJARSTÝRING
+Copyright	Höfundarréttur
+DEST...	ÁFANGASTAÐUR...
+Datamosh - classic	Datamosh – sígilt
+Datamosh - extreme	Datamosh – öfgafullt
+Datamosh - subtle	Datamosh – lúmskt
+Deckboy is input	Deckboy er inntak
+Device: None	Tæki: ekkert
+Drag	Draga
+Drop media here	Slepptu miðlum hér
+Enter Take  Space Play/Pause	Enter Take  Space Spila/Hlé
+FFmpeg / libav  (in-process)	FFmpeg / libav  (innbyggt)
+FPS: SOURCE	FPS: UPPSPRETTA
+Fonts	Letur
+Free software. You may use, study, share	Frjáls hugbúnaður. Þú mátt nota hann, rannsaka,
+GO / BACK	GO / TIL BAKA
+GO / BACK (clicker)	GO / TIL BAKA (fjarstýring)
+Key out: None - fill only	Key-úttak: ekkert – aðeins fill
+LTC in	LTC-inntak
+Licence	Leyfi
+MATCH SOURCE	EINS OG UPPSPRETTA
+MMC Play / Stop / Goto -> transport	MMC Play / Stop / Goto -> flutningur
+MOSH: SUBTLE	MOSH: LÚMSKT
+MSC Trigger -> cue by id	MSC Trigger -> cue eftir auðkenni
+MTC in	MTC-inntak
+Mode: CALLER	Hamur: CALLER
+NDI receiver	NDI-móttakari
+NDI trigger	NDI-kveikja
+NO STEPS YET	ENGIN SKREF ENN
+No PTP lock, wide-model pacing - will not genlock to plant sources	Enginn PTP-lás, gróf tímasetning – samstillist ekki við upptökur versins
+ONCE  |  ORDER	EINU SINNI  |  RÖÐ
+Optional	Valfrjálst
+PNG sequence	PNG-röð
+Platform	Stýrikerfi
+Press A to take cue	Ýttu á A til að taka cue
+RATE: AUTO	TÍÐNI: SJÁLFV.
+S Stop   C Clear   Esc Panic	S Stöðva   C Hreinsa   Esc Neyð
+SIZE: SOURCE	STÆRÐ: UPPSPRETTA
+SPOUT TEXTURE SHARE	SPOUT-ÁFERÐADEILING
+Session	Lota
+TSL tally out	TSL-tally-úttak
+Thanks	Þakkir
+Timecode chase	Elta tímakóða
+Timecode run	Keyra tímakóða
+Toolkit	Verkfærasett
+Trigger	Kveikja
+WAV (audio only)	WAV (aðeins hljóð)
+Warranty	Ábyrgð
+address...	vistfang...
+and modify it; derivatives stay GPL.	deila og breyta; afleiður haldast GPL.
+auto	sjálfv.
+clear the cell	hreinsa reitinn
+companion ping	Companion-ping
+fire this row	ræsa þessa röð
+insert a row	setja inn röð
+live lane  |  I/O set trim  |  click or drag to seek	beinlína  |  I/O stillir klippingu  |  smelltu eða dragðu til að leita
+media in	miðlar inn
+move the cursor	færa bendilinn
+mute / solo a column	þagga / sóló dálk
+off -- edit on monitor	slökkt -- breyta á skjánum
+off: no camera is open. Drag on the picture to draw a zone.	slökkt: engin myndavél opin. Dragðu á myndina til að teikna svæði.
+open the code editor	opna kóðaritilinn
+play / stop	spila / stöðva
+stop, fade, vol, opacity	stöðva, deyfa, hljóðst., ógegnsæi
+the FFmpeg, SDL and FreeType projects,	FFmpeg-, SDL- og FreeType-verkefnin,
+Bitfocus Companion, and x42/libltc.	Bitfocus Companion og x42/libltc.
+Keys	Lyklar
+None. See LICENSE sections 15-16.	Engin. Sjá LICENSE, kafla 15-16.
+none compiled in	ekkert innbyggt

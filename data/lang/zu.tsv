@@ -2214,3 +2214,78 @@ Timecode	Ikhodi yesikhathi
 PHASE	ISIGABA
 MENU	IMENYU
 VOLUME	IVOLUMU
++ step	+ isinyathelo
+< BACK	< EMUVA
+ATEM switcher	Isixubi se-ATEM
+ATEM tally	I-tally ye-ATEM
+AUDIO: DEFAULT	UMSINDO: OKUJWAYELEKILE
+Animated GIF	I-GIF enyakazayo
+Arrows	Imicibisholo
+CLICKER	ISICHOFOZI
+Copyright	Ilungelo lobunikazi
+DEST...	INDAWO...
+Datamosh - classic	Datamosh – esidala
+Datamosh - extreme	Datamosh – eweqile
+Datamosh - subtle	Datamosh – encane
+Deckboy is input	I-Deckboy iyinto efakwayo
+Device: None	Idivayisi: ayikho
+Drag	Hudula
+Drop media here	Lahla imidiya lapha
+Enter Take  Space Play/Pause	Enter Take  Space Dlala/Misa kancane
+FFmpeg / libav  (in-process)	FFmpeg / libav  (ngaphakathi kwenqubo)
+FPS: SOURCE	FPS: UMTHOMBO
+Fonts	Amafonti
+Free software. You may use, study, share	Isofthiwe yamahhala. Ungayisebenzisa, uyifunde,
+GO / BACK	GO / EMUVA
+GO / BACK (clicker)	GO / EMUVA (isichofozi)
+Key out: None - fill only	Ukuphuma kwe-key: akukho – i-fill kuphela
+LTC in	Okungenayo kwe-LTC
+Licence	Ilayisensi
+MATCH SOURCE	NJENGOMTHOMBO
+MMC Play / Stop / Goto -> transport	MMC Play / Stop / Goto -> ukudlala
+MOSH: SUBTLE	MOSH: ENCANE
+MSC Trigger -> cue by id	MSC Trigger -> i-cue nge-id
+MTC in	Okungenayo kwe-MTC
+Mode: CALLER	Indlela: CALLER
+NDI receiver	Isamukeli se-NDI
+NDI trigger	Isiqalisi se-NDI
+NO STEPS YET	AKUKABI NEZINYATHELO
+No PTP lock, wide-model pacing - will not genlock to plant sources	Akukho kukhiya kwe-PTP, isikhathi esilinganiselwe – ngeke kwenze i-genlock nemithombo yesitudiyo
+ONCE  |  ORDER	KANYE  |  UKUHLELEKA
+Optional	Okuzikhethela
+PNG sequence	Uchungechunge lwe-PNG
+Platform	Inkundla
+Press A to take cue	Cindezela u-A ukuze uthathe i-cue
+RATE: AUTO	IZINGA: AUTO
+S Stop   C Clear   Esc Panic	S Misa   C Sula   Esc Ingozi
+SIZE: SOURCE	USAYIZI: UMTHOMBO
+SPOUT TEXTURE SHARE	UKWABELANA NGOKWAKHIWA KWE-SPOUT
+Session	Iseshini
+TSL tally out	Ukuphuma kwe-tally ye-TSL
+Thanks	Siyabonga
+Timecode chase	Landela i-timecode
+Timecode run	Gijimisa i-timecode
+Toolkit	Ithuluzi
+Trigger	Qalisa
+WAV (audio only)	WAV (umsindo kuphela)
+Warranty	Iwaranti
+address...	ikheli...
+and modify it; derivatives stay GPL.	wabelane ngayo futhi uyiguqule; okuthathwe kuyo kuhlala kuyi-GPL.
+clear the cell	sula iseli
+companion ping	i-ping ye-Companion
+fire this row	qalisa lo mugqa
+insert a row	faka umugqa
+live lane  |  I/O set trim  |  click or drag to seek	umzila obukhoma  |  I/O isetha ukusika  |  chofoza noma hudula ukuze useshe
+media in	imidiya ingene
+move the cursor	hambisa ikhesa
+mute / solo a column	thulisa / solo ikholomu
+off -- edit on monitor	kuvaliwe -- hlela kumonitha
+off: no camera is open. Drag on the picture to draw a zone.	kuvaliwe: ayikho ikhamera evuliwe. Hudula esithombeni ukuze udwebe indawo.
+open the code editor	vula umhleli wekhodi
+play / stop	dlala / misa
+stop, fade, vol, opacity	misa, fiphala, umsindo, i-opacity
+the FFmpeg, SDL and FreeType projects,	amaphrojekthi e-FFmpeg, SDL ne-FreeType,
+Bitfocus Companion, and x42/libltc.	i-Bitfocus Companion, ne-x42/libltc.
+Keys	Okhiye
+None. See LICENSE sections 15-16.	Ayikho. Bheka i-LICENSE, izigaba 15-16.
+none compiled in	akukho okuhlanganisiwe

@@ -2210,3 +2210,74 @@ Click its tab, Deck 2. A new playlist waits until you choose it.	Klik op zijn ta
 The lit tab gets the next cue. Like choosing which slide goes in the projector.	De verlichte tab krijgt de volgende cue. Zoals kiezen welke dia de projector in gaat.
 Pick a deck. Any deck. ...Deck 2. Pick Deck 2.	Kies een stok. Welke dan ook. ...Deck 2. Kies Deck 2.
 Timecode	Tijdcode
++ step	+ stap
+< BACK	< TERUG
+ATEM switcher	ATEM-mixer
+ATEM tally	ATEM-tally
+AUDIO: DEFAULT	AUDIO: STANDAARD
+Animated GIF	Geanimeerde GIF
+Arrows	Pijltjes
+CLICKER	PRESENTER
+Copyright	Auteursrecht
+DEST...	DOEL...
+Datamosh - classic	Datamosh – klassiek
+Datamosh - extreme	Datamosh – extreem
+Datamosh - subtle	Datamosh – subtiel
+Deckboy is input	Deckboy is ingang
+Device: None	Apparaat: geen
+Drag	Slepen
+Drop media here	Zet media hier neer
+Enter Take  Space Play/Pause	Enter Take  Space Afspelen/Pauze
+FFmpeg / libav  (in-process)	FFmpeg / libav  (in het proces)
+FPS: SOURCE	FPS: BRON
+Fonts	Lettertypen
+Free software. You may use, study, share	Vrije software. Je mag het gebruiken, bestuderen,
+GO / BACK	GO / TERUG
+GO / BACK (clicker)	GO / TERUG (presenter)
+Key out: None - fill only	Key-uitgang: geen – alleen fill
+LTC in	LTC-ingang
+Licence	Licentie
+MATCH SOURCE	ZOALS BRON
+MOSH: SUBTLE	MOSH: SUBTIEL
+MSC Trigger -> cue by id	MSC Trigger -> cue op id
+MTC in	MTC-ingang
+Mode: CALLER	Modus: CALLER
+NDI receiver	NDI-ontvanger
+NDI trigger	NDI-trigger
+NO STEPS YET	NOG GEEN STAPPEN
+No PTP lock, wide-model pacing - will not genlock to plant sources	Geen PTP-lock, grove timing – geen genlock op bronnen van de studio
+ONCE  |  ORDER	EENMAAL  |  VOLGORDE
+Optional	Optioneel
+PNG sequence	PNG-reeks
+Press A to take cue	Druk op A om de cue te nemen
+S Stop   C Clear   Esc Panic	S Stop   C Wissen   Esc Paniek
+SIZE: SOURCE	GROOTTE: BRON
+SPOUT TEXTURE SHARE	SPOUT-TEXTUUR DELEN
+Session	Sessie
+TSL tally out	TSL-tally-uitgang
+Thanks	Dank
+Timecode chase	Timecode volgen
+Timecode run	Timecode lopen
+Trigger	Activeren
+WAV (audio only)	WAV (alleen audio)
+Warranty	Garantie
+address...	adres...
+and modify it; derivatives stay GPL.	delen en aanpassen; afgeleiden blijven GPL.
+clear the cell	cel wissen
+companion ping	Companion-ping
+fire this row	deze rij afvuren
+insert a row	rij invoegen
+live lane  |  I/O set trim  |  click or drag to seek	live-baan  |  I/O zet trim  |  klik of sleep om te zoeken
+media in	media erin
+move the cursor	cursor verplaatsen
+mute / solo a column	kolom dempen / solo
+off -- edit on monitor	uit -- bewerk op de monitor
+off: no camera is open. Drag on the picture to draw a zone.	uit: geen camera open. Sleep over het beeld om een zone te tekenen.
+open the code editor	code-editor openen
+play / stop	afspelen / stoppen
+stop, fade, vol, opacity	stop, fade, vol, dekking
+the FFmpeg, SDL and FreeType projects,	de projecten FFmpeg, SDL en FreeType,
+Bitfocus Companion, and x42/libltc.	Bitfocus Companion en x42/libltc.
+Keys	Toetsen
+None. See LICENSE sections 15-16.	Geen. Zie LICENSE, secties 15-16.
+none compiled in	niets ingebouwd

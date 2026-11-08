@@ -2209,3 +2209,74 @@ Nine years of live weather. Always click the tab.	Nove anni di meteo in diretta.
 Click its tab, Deck 2. A new playlist waits until you choose it.	Clicca sulla sua scheda, Deck 2. Una nuova playlist aspetta finché non la scegli.
 The lit tab gets the next cue. Like choosing which slide goes in the projector.	La scheda accesa riceve il prossimo cue. Come scegliere quale diapositiva entra nel proiettore.
 Pick a deck. Any deck. ...Deck 2. Pick Deck 2.	Scegli un mazzo. Uno qualsiasi. ...Deck 2. Scegli Deck 2.
++ step	+ passo
+< BACK	< INDIETRO
+ATEM switcher	Mixer ATEM
+ATEM tally	Tally ATEM
+AUDIO: DEFAULT	AUDIO: PREDEFINITO
+Animated GIF	GIF animata
+Arrows	Frecce
+CLICKER	PRESENTER
+Datamosh - classic	Datamosh – classico
+Datamosh - extreme	Datamosh – estremo
+Datamosh - subtle	Datamosh – leggero
+Deckboy is input	Deckboy è l'ingresso
+Device: None	Dispositivo: nessuno
+Drag	Trascina
+Drop media here	Rilascia qui i media
+Enter Take  Space Play/Pause	Enter Take  Space Play/Pausa
+FFmpeg / libav  (in-process)	FFmpeg / libav  (integrato)
+FPS: SOURCE	FPS: SORGENTE
+Fonts	Font
+Free software. You may use, study, share	Software libero. Puoi usarlo, studiarlo,
+GO / BACK	GO / INDIETRO
+GO / BACK (clicker)	GO / INDIETRO (presenter)
+Key out: None - fill only	Uscita key: nessuna – solo fill
+LTC in	Ingresso LTC
+Licence	Licenza
+MATCH SOURCE	COME LA SORGENTE
+MMC Play / Stop / Goto -> transport	MMC Play / Stop / Goto -> trasporto
+MOSH: SUBTLE	MOSH: LEGGERO
+MSC Trigger -> cue by id	MSC Trigger -> cue per id
+MTC in	Ingresso MTC
+Mode: CALLER	Modalità: CALLER
+NDI receiver	Ricevitore NDI
+NDI trigger	Trigger NDI
+NO STEPS YET	ANCORA NESSUN PASSO
+No PTP lock, wide-model pacing - will not genlock to plant sources	Nessun aggancio PTP, cadenza approssimativa – niente genlock con le sorgenti di regia
+ONCE  |  ORDER	UNA VOLTA  |  ORDINE
+Optional	Opzionale
+PNG sequence	Sequenza PNG
+Platform	Piattaforma
+Press A to take cue	Premi A per prendere il cue
+RATE: AUTO	CADENZA: AUTO
+S Stop   C Clear   Esc Panic	S Stop   C Pulisci   Esc Panico
+SIZE: SOURCE	DIMENSIONE: SORGENTE
+SPOUT TEXTURE SHARE	CONDIVISIONE TEXTURE SPOUT
+Session	Sessione
+TSL tally out	Uscita tally TSL
+Thanks	Grazie
+Timecode chase	Insegui il timecode
+Timecode run	Timecode libero
+Trigger	Attiva
+WAV (audio only)	WAV (solo audio)
+Warranty	Garanzia
+address...	indirizzo...
+and modify it; derivatives stay GPL.	condividerlo e modificarlo; i derivati restano GPL.
+clear the cell	svuota la cella
+companion ping	ping di Companion
+fire this row	lancia questa riga
+insert a row	inserisci una riga
+live lane  |  I/O set trim  |  click or drag to seek	corsia live  |  I/O imposta il trim  |  clic o trascina per cercare
+media in	aggiungi media
+move the cursor	muovi il cursore
+mute / solo a column	muto / solo di una colonna
+off -- edit on monitor	spento -- modifica sul monitor
+off: no camera is open. Drag on the picture to draw a zone.	spento: nessuna telecamera aperta. Trascina sull'immagine per disegnare una zona.
+open the code editor	apri l'editor del codice
+stop, fade, vol, opacity	stop, dissolvenza, vol, opacità
+the FFmpeg, SDL and FreeType projects,	ai progetti FFmpeg, SDL e FreeType,
+Bitfocus Companion, and x42/libltc.	a Bitfocus Companion e a x42/libltc.
+Keys	Tasti
+None. See LICENSE sections 15-16.	Nessuna. Vedi LICENSE, sezioni 15-16.
+none compiled in	nessuno compilato

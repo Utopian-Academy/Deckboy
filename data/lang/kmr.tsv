@@ -2213,3 +2213,78 @@ Timecode	Koda demê
 PHASE	QONAX
 MENU	MENÛ
 VOLUME	DENG
++ step	+ gav
+< BACK	< PAŞ
+ATEM switcher	Tevlihevkerê ATEM
+ATEM tally	Tally ya ATEM
+AUDIO: DEFAULT	DENG: PÊŞDANASÎN
+Animated GIF	GIF-a livok
+Arrows	Tîr
+CLICKER	KONTROLA DÛR
+Copyright	Mafê weşanê
+DEST...	ARMANC...
+Datamosh - classic	Datamosh – klasîk
+Datamosh - extreme	Datamosh – tund
+Datamosh - subtle	Datamosh – nerm
+Deckboy is input	Deckboy ketin e
+Device: None	Amûr: tune
+Drag	Bikişîne
+Drop media here	Medyayê li vir berde
+Enter Take  Space Play/Pause	Enter Take  Space Lêxe/Rawestîne
+FFmpeg / libav  (in-process)	FFmpeg / libav  (di pêvajoyê de)
+FPS: SOURCE	FPS: ÇAVKANÎ
+Fonts	Font
+Free software. You may use, study, share	Nermalava azad. Tu dikarî wê bi kar bînî, lê bikolî,
+GO / BACK	GO / PAŞ
+GO / BACK (clicker)	GO / PAŞ (kontrola dûr)
+Key out: None - fill only	Derketina key: tune – tenê fill
+LTC in	Ketina LTC
+Licence	Destûrname
+MATCH SOURCE	WEKÎ ÇAVKANIYÊ
+MMC Play / Stop / Goto -> transport	MMC Play / Stop / Goto -> veguhastin
+MOSH: SUBTLE	MOSH: NERM
+MSC Trigger -> cue by id	MSC Trigger -> cue li gorî nasnameyê
+MTC in	Ketina MTC
+Mode: CALLER	Mod: CALLER
+NDI receiver	Wergirê NDI
+NDI trigger	Destpêkerê NDI
+NO STEPS YET	HÊJ GAV TUNE NE
+No PTP lock, wide-model pacing - will not genlock to plant sources	Kilîta PTP tune, demkirina texmînî – bi çavkaniyên stûdyoyê re genlock nabe
+ONCE  |  ORDER	CAREK  |  RÊZ
+Optional	Bijarte
+PNG sequence	Rêzeya PNG
+Press A to take cue	Ji bo girtina cue A bitikîne
+RATE: AUTO	LEZ: OTOMATÎK
+S Stop   C Clear   Esc Panic	S Rawestîne   C Paqij bike   Esc Acîl
+SIZE: SOURCE	MEZINAHÎ: ÇAVKANÎ
+SPOUT TEXTURE SHARE	PARVEKIRINA TEKSTÛRA SPOUT
+Session	Danişîn
+TSL tally out	Derketina tally ya TSL
+Thanks	Spas
+Timecode chase	Şopandina timecode
+Timecode run	Meşandina timecode
+Toolkit	Amûrxane
+Trigger	Pêxistin
+WAV (audio only)	WAV (tenê deng)
+Warranty	Garantî
+address...	navnîşan...
+and modify it; derivatives stay GPL.	parve bikî û biguherînî; yên jê hatî GPL dimînin.
+auto	otomatîk
+clear the cell	xaneyê paqij bike
+companion ping	pinga Companion
+fire this row	vê rêzê pêxe
+insert a row	rêzekê têxe
+live lane  |  I/O set trim  |  click or drag to seek	xeta zindî  |  I/O birrînê datîne  |  ji bo lêgerînê bitikîne an bikişîne
+media in	medya hundir
+move the cursor	nîşanderê bilivîne
+mute / solo a column	stûnekê bêdeng / solo bike
+off -- edit on monitor	girtî -- li ser ekranê biguherîne
+off: no camera is open. Drag on the picture to draw a zone.	girtî: kamera venebûye. Ji bo xêzkirina herêmekê li ser wêneyê bikişîne.
+open the code editor	edîtora kodê veke
+play / stop	lêxe / rawestîne
+stop, fade, vol, opacity	rawestîne, vemirandin, deng, nezelalî
+the FFmpeg, SDL and FreeType projects,	projeyên FFmpeg, SDL û FreeType,
+Bitfocus Companion, and x42/libltc.	Bitfocus Companion û x42/libltc.
+Keys	Kilît
+None. See LICENSE sections 15-16.	Tune. Li LICENSE, beşên 15-16 binêre.
+none compiled in	tiştek tê de nayê berhevkirin

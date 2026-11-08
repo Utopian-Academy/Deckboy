@@ -2228,3 +2228,79 @@ The lit tab gets the next cue. Like choosing which slide goes in the projector.	
 Pick a deck. Any deck. ...Deck 2. Pick Deck 2.	اختر مجموعة. أي مجموعة. ...Deck 2. اختر Deck 2.
 MENU	القائمة
 VOLUME	الصوت
++ step	+ خطوة
+< BACK	< رجوع
+ATEM switcher	مازج ATEM
+ATEM tally	Tally من ATEM
+AUDIO: DEFAULT	الصوت: افتراضي
+Animated GIF	GIF متحرك
+Arrows	الأسهم
+CLICKER	جهاز التحكم
+Copyright	حقوق النشر
+DEST...	الوجهة...
+Datamosh - classic	Datamosh – كلاسيكي
+Datamosh - extreme	Datamosh – متطرف
+Datamosh - subtle	Datamosh – خفيف
+Deckboy is input	Deckboy هو المدخل
+Device: None	الجهاز: لا شيء
+Drag	اسحب
+Drop media here	أفلت الوسائط هنا
+Enter Take  Space Play/Pause	Enter Take  Space تشغيل/إيقاف مؤقت
+FFmpeg / libav  (in-process)	FFmpeg / libav  (داخل العملية)
+FPS: SOURCE	FPS: المصدر
+Fonts	الخطوط
+Free software. You may use, study, share	برنامج حر. يمكنك استخدامه ودراسته
+GO / BACK	GO / رجوع
+GO / BACK (clicker)	GO / رجوع (جهاز التحكم)
+Key out: None - fill only	مخرج key: لا شيء – fill فقط
+LTC in	مدخل LTC
+Licence	الترخيص
+MATCH SOURCE	مطابق للمصدر
+MMC Play / Stop / Goto -> transport	MMC Play / Stop / Goto -> النقل
+MOSH: SUBTLE	MOSH: خفيف
+MSC Trigger -> cue by id	MSC Trigger -> cue حسب المعرّف
+MTC in	مدخل MTC
+Mode: CALLER	الوضع: CALLER
+NDI receiver	مستقبل NDI
+NDI trigger	مشغّل NDI
+NO STEPS YET	لا خطوات بعد
+No PTP lock, wide-model pacing - will not genlock to plant sources	لا قفل PTP، توقيت تقريبي – لن يتزامن genlock مع مصادر الاستوديو
+ONCE  |  ORDER	مرة واحدة  |  الترتيب
+Optional	اختياري
+PNG sequence	تسلسل PNG
+Platform	المنصة
+Press A to take cue	اضغط A لأخذ الـ cue
+RATE: AUTO	المعدل: تلقائي
+S Stop   C Clear   Esc Panic	S إيقاف   C مسح   Esc طوارئ
+SIZE: SOURCE	الحجم: المصدر
+SPOUT TEXTURE SHARE	مشاركة نسيج SPOUT
+Session	الجلسة
+TSL tally out	مخرج tally من TSL
+Thanks	شكر
+Timecode chase	تتبع timecode
+Timecode run	تشغيل timecode
+Toolkit	مجموعة الأدوات
+Trigger	إطلاق
+WAV (audio only)	WAV (صوت فقط)
+Warranty	الضمان
+address...	العنوان...
+and modify it; derivatives stay GPL.	ومشاركته وتعديله؛ وتبقى المشتقات GPL.
+auto	تلقائي
+clear the cell	امسح الخلية
+companion ping	نداء من Companion
+fire this row	أطلق هذا الصف
+insert a row	أدرج صفًا
+live lane  |  I/O set trim  |  click or drag to seek	المسار الحي  |  I/O يضبط القص  |  انقر أو اسحب للتنقل
+media in	إدخال الوسائط
+move the cursor	حرّك المؤشر
+mute / solo a column	كتم / عزل عمود
+off -- edit on monitor	متوقف -- حرّر على الشاشة
+off: no camera is open. Drag on the picture to draw a zone.	متوقف: لا توجد كاميرا مفتوحة. اسحب على الصورة لرسم منطقة.
+open the code editor	افتح محرر الشيفرة
+play / stop	تشغيل / إيقاف
+stop, fade, vol, opacity	إيقاف، تلاشٍ، صوت، عتامة
+the FFmpeg, SDL and FreeType projects,	لمشاريع FFmpeg وSDL وFreeType،
+Bitfocus Companion, and x42/libltc.	وBitfocus Companion وx42/libltc.
+Keys	المفاتيح
+None. See LICENSE sections 15-16.	لا يوجد. انظر LICENSE، القسمين 15-16.
+none compiled in	لا شيء مضمّن

@@ -2216,3 +2216,79 @@ The lit tab gets the next cue. Like choosing which slide goes in the projector.	
 Pick a deck. Any deck. ...Deck 2. Pick Deck 2.	请选一副牌。哪副都行。……Deck 2。请选 Deck 2。
 MENU	菜单
 VOLUME	音量
++ step	+ 步骤
+< BACK	< 返回
+ATEM switcher	ATEM 切换台
+ATEM tally	ATEM 提示灯
+AUDIO: DEFAULT	音频：默认
+Animated GIF	动画 GIF
+Arrows	方向键
+CLICKER	翻页笔
+Copyright	版权
+DEST...	目标...
+Datamosh - classic	Datamosh – 经典
+Datamosh - extreme	Datamosh – 极端
+Datamosh - subtle	Datamosh – 轻微
+Deckboy is input	Deckboy 所在输入
+Device: None	设备：无
+Drag	拖动
+Drop media here	将媒体拖到这里
+Enter Take  Space Play/Pause	Enter Take  Space 播放/暂停
+FFmpeg / libav  (in-process)	FFmpeg / libav  (进程内)
+FPS: SOURCE	FPS：信号源
+Fonts	字体
+Free software. You may use, study, share	自由软件。你可以使用、研究、
+GO / BACK	GO / 返回
+GO / BACK (clicker)	GO / 返回（翻页笔）
+Key out: None - fill only	键输出：无 – 仅填充
+LTC in	LTC 输入
+Licence	许可证
+MATCH SOURCE	匹配信号源
+MMC Play / Stop / Goto -> transport	MMC Play / Stop / Goto -> 走带
+MOSH: SUBTLE	MOSH：轻微
+MSC Trigger -> cue by id	MSC Trigger -> 按 id 的 cue
+MTC in	MTC 输入
+Mode: CALLER	模式：CALLER
+NDI receiver	NDI 接收器
+NDI trigger	NDI 触发器
+NO STEPS YET	还没有步骤
+No PTP lock, wide-model pacing - will not genlock to plant sources	无 PTP 锁定，粗略节奏 – 不会与机房信号源同步锁相
+ONCE  |  ORDER	一次  |  顺序
+Optional	可选
+PNG sequence	PNG 序列
+Platform	平台
+Press A to take cue	按 A 切出 cue
+RATE: AUTO	速率：自动
+S Stop   C Clear   Esc Panic	S 停止   C 清除   Esc 应急
+SIZE: SOURCE	尺寸：信号源
+SPOUT TEXTURE SHARE	SPOUT 纹理共享
+Session	会话
+TSL tally out	TSL 提示灯输出
+Thanks	致谢
+Timecode chase	追随时间码
+Timecode run	运行时间码
+Toolkit	工具包
+Trigger	触发
+WAV (audio only)	WAV（仅音频）
+Warranty	担保
+address...	地址...
+and modify it; derivatives stay GPL.	分享和修改；衍生作品仍为 GPL。
+auto	自动
+clear the cell	清空单元格
+companion ping	Companion ping
+fire this row	执行这一行
+insert a row	插入一行
+live lane  |  I/O set trim  |  click or drag to seek	直播轨道  |  I/O 设置修剪  |  单击或拖动以定位
+media in	导入媒体
+move the cursor	移动光标
+mute / solo a column	静音 / 独奏一列
+off -- edit on monitor	关 -- 在监视器上编辑
+off: no camera is open. Drag on the picture to draw a zone.	关：没有打开的摄像机。在画面上拖动以绘制区域。
+open the code editor	打开代码编辑器
+play / stop	播放 / 停止
+stop, fade, vol, opacity	停止、淡变、音量、不透明度
+the FFmpeg, SDL and FreeType projects,	感谢 FFmpeg、SDL 和 FreeType 项目，
+Bitfocus Companion, and x42/libltc.	Bitfocus Companion 和 x42/libltc。
+Keys	按键
+None. See LICENSE sections 15-16.	无。见 LICENSE 第 15-16 节。
+none compiled in	未编译任何项

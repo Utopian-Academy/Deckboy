@@ -2215,3 +2215,79 @@ The lit tab gets the next cue. Like choosing which slide goes in the projector.	
 Pick a deck. Any deck. ...Deck 2. Pick Deck 2.	Оберіть колоду. Будь-яку. ...Deck 2. Оберіть Deck 2.
 MENU	МЕНЮ
 VOLUME	ГУЧНІСТЬ
++ step	+ крок
+< BACK	< НАЗАД
+ATEM switcher	Мікшер ATEM
+ATEM tally	Tally ATEM
+AUDIO: DEFAULT	АУДІО: ТИПОВО
+Animated GIF	Анімований GIF
+Arrows	Стрілки
+CLICKER	ПУЛЬТ
+Copyright	Авторське право
+DEST...	КУДИ...
+Datamosh - classic	Datamosh – класичний
+Datamosh - extreme	Datamosh – екстремальний
+Datamosh - subtle	Datamosh – м'який
+Deckboy is input	Deckboy на вході
+Device: None	Пристрій: немає
+Drag	Перетягніть
+Drop media here	Перетягніть медіа сюди
+Enter Take  Space Play/Pause	Enter Take  Space Пуск/Пауза
+FFmpeg / libav  (in-process)	FFmpeg / libav  (у процесі)
+FPS: SOURCE	FPS: ДЖЕРЕЛО
+Fonts	Шрифти
+Free software. You may use, study, share	Вільне ПЗ. Його можна використовувати, вивчати,
+GO / BACK	GO / НАЗАД
+GO / BACK (clicker)	GO / НАЗАД (пульт)
+Key out: None - fill only	Вихід key: немає – лише fill
+LTC in	Вхід LTC
+Licence	Ліцензія
+MATCH SOURCE	ЯК ДЖЕРЕЛО
+MMC Play / Stop / Goto -> transport	MMC Play / Stop / Goto -> транспорт
+MOSH: SUBTLE	MOSH: М'ЯКИЙ
+MSC Trigger -> cue by id	MSC Trigger -> cue за id
+MTC in	Вхід MTC
+Mode: CALLER	Режим: CALLER
+NDI receiver	Приймач NDI
+NDI trigger	Тригер NDI
+NO STEPS YET	КРОКІВ ЩЕ НЕМАЄ
+No PTP lock, wide-model pacing - will not genlock to plant sources	Немає захоплення PTP, груба синхронізація – genlock із джерелами апаратної не буде
+ONCE  |  ORDER	ОДИН РАЗ  |  ПОРЯДОК
+Optional	Додатково
+PNG sequence	Послідовність PNG
+Platform	Платформа
+Press A to take cue	Натисніть A, щоб узяти cue
+RATE: AUTO	ЧАСТОТА: АВТО
+S Stop   C Clear   Esc Panic	S Стоп   C Очистити   Esc Паніка
+SIZE: SOURCE	РОЗМІР: ДЖЕРЕЛО
+SPOUT TEXTURE SHARE	ОБМІН ТЕКСТУРАМИ SPOUT
+Session	Сеанс
+TSL tally out	Вихід tally TSL
+Thanks	Подяки
+Timecode chase	Стежити за timecode
+Timecode run	Запустити timecode
+Toolkit	Інструментарій
+Trigger	Запуск
+WAV (audio only)	WAV (лише звук)
+Warranty	Гарантія
+address...	адреса...
+and modify it; derivatives stay GPL.	поширювати й змінювати; похідні лишаються GPL.
+auto	авто
+clear the cell	очистити клітинку
+companion ping	пінг Companion
+fire this row	запустити цей рядок
+insert a row	вставити рядок
+live lane  |  I/O set trim  |  click or drag to seek	жива доріжка  |  I/O задає обрізку  |  клацніть або тягніть для перемотування
+media in	медіа всередину
+move the cursor	рухати курсор
+mute / solo a column	заглушити / соло стовпця
+off -- edit on monitor	вимк. -- редагування на моніторі
+off: no camera is open. Drag on the picture to draw a zone.	вимк.: камеру не відкрито. Проведіть по картинці, щоб намалювати зону.
+open the code editor	відкрити редактор коду
+play / stop	пуск / стоп
+stop, fade, vol, opacity	стоп, згасання, гучн., непрозорість
+the FFmpeg, SDL and FreeType projects,	проєктам FFmpeg, SDL і FreeType,
+Bitfocus Companion, and x42/libltc.	Bitfocus Companion і x42/libltc.
+Keys	Клавіші
+None. See LICENSE sections 15-16.	Немає. Див. LICENSE, розділи 15-16.
+none compiled in	нічого не вбудовано

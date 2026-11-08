@@ -2212,3 +2212,74 @@ Click its tab, Deck 2. A new playlist waits until you choose it.	Klik på dens f
 The lit tab gets the next cue. Like choosing which slide goes in the projector.	Den tændte fane får næste cue. Som at vælge, hvilket dias der skal i projektoren.
 Pick a deck. Any deck. ...Deck 2. Pick Deck 2.	Træk et kort. Hvilket som helst. ...Deck 2. Træk Deck 2.
 VOLUME	LYDSTYRKE
++ step	+ trin
+< BACK	< TILBAGE
+ATEM switcher	ATEM-mixer
+ATEM tally	ATEM-tally
+AUDIO: DEFAULT	LYD: STANDARD
+Animated GIF	Animeret GIF
+Arrows	Piletaster
+CLICKER	PRESENTER
+Copyright	Ophavsret
+DEST...	MÅL...
+Datamosh - classic	Datamosh – klassisk
+Datamosh - extreme	Datamosh – ekstrem
+Datamosh - subtle	Datamosh – diskret
+Deckboy is input	Deckboy er indgang
+Device: None	Enhed: ingen
+Drag	Træk
+Drop media here	Slip medier her
+Enter Take  Space Play/Pause	Enter Take  Space Afspil/Pause
+FFmpeg / libav  (in-process)	FFmpeg / libav  (i processen)
+FPS: SOURCE	FPS: KILDE
+Fonts	Skrifttyper
+Free software. You may use, study, share	Fri software. Du må bruge den, studere den,
+GO / BACK	GO / TILBAGE
+GO / BACK (clicker)	GO / TILBAGE (presenter)
+Key out: None - fill only	Key-udgang: ingen – kun fill
+LTC in	LTC-indgang
+Licence	Licens
+MATCH SOURCE	SOM KILDEN
+MOSH: SUBTLE	MOSH: DISKRET
+MSC Trigger -> cue by id	MSC Trigger -> cue efter id
+MTC in	MTC-indgang
+Mode: CALLER	Tilstand: CALLER
+NDI receiver	NDI-modtager
+NDI trigger	NDI-trigger
+NO STEPS YET	INGEN TRIN ENDNU
+No PTP lock, wide-model pacing - will not genlock to plant sources	Ingen PTP-lås, grov timing – genlocker ikke til studiekilder
+ONCE  |  ORDER	ÉN GANG  |  RÆKKEFØLGE
+Optional	Valgfrit
+PNG sequence	PNG-sekvens
+Press A to take cue	Tryk A for at tage cuen
+S Stop   C Clear   Esc Panic	S Stop   C Ryd   Esc Panik
+SIZE: SOURCE	STØRRELSE: KILDE
+SPOUT TEXTURE SHARE	SPOUT-TEKSTURDELING
+TSL tally out	TSL-tally-udgang
+Thanks	Tak
+Timecode chase	Følg timecode
+Timecode run	Kør timecode
+Toolkit	Værktøjssæt
+Trigger	Udløs
+WAV (audio only)	WAV (kun lyd)
+Warranty	Garanti
+address...	adresse...
+and modify it; derivatives stay GPL.	dele og ændre den; afledte værker forbliver GPL.
+clear the cell	ryd cellen
+companion ping	Companion-ping
+fire this row	affyr denne række
+insert a row	indsæt en række
+live lane  |  I/O set trim  |  click or drag to seek	livebane  |  I/O sætter trim  |  klik eller træk for at søge
+media in	medier ind
+move the cursor	flyt markøren
+mute / solo a column	mute / solo en kolonne
+off -- edit on monitor	fra -- redigér på monitoren
+off: no camera is open. Drag on the picture to draw a zone.	fra: intet kamera er åbent. Træk på billedet for at tegne en zone.
+open the code editor	åbn kodeeditoren
+play / stop	afspil / stop
+stop, fade, vol, opacity	stop, fade, vol, dækkevne
+the FFmpeg, SDL and FreeType projects,	projekterne FFmpeg, SDL og FreeType,
+Bitfocus Companion, and x42/libltc.	Bitfocus Companion og x42/libltc.
+Keys	Taster
+None. See LICENSE sections 15-16.	Ingen. Se LICENSE, afsnit 15-16.
+none compiled in	intet indbygget

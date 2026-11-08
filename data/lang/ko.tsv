@@ -2217,3 +2217,79 @@ The lit tab gets the next cue. Like choosing which slide goes in the projector.	
 Pick a deck. Any deck. ...Deck 2. Pick Deck 2.	덱을 하나 고르세요. 아무거나. ...Deck 2. Deck 2를 고르세요.
 MENU	메뉴
 VOLUME	볼륨
++ step	+ 단계
+< BACK	< 뒤로
+ATEM switcher	ATEM 스위처
+ATEM tally	ATEM 탈리
+AUDIO: DEFAULT	오디오: 기본값
+Animated GIF	애니메이션 GIF
+Arrows	화살표
+CLICKER	프레젠터
+Copyright	저작권
+DEST...	대상...
+Datamosh - classic	Datamosh – 클래식
+Datamosh - extreme	Datamosh – 극단
+Datamosh - subtle	Datamosh – 은은하게
+Deckboy is input	Deckboy 입력
+Device: None	장치: 없음
+Drag	드래그
+Drop media here	여기에 미디어를 놓으세요
+Enter Take  Space Play/Pause	Enter Take  Space 재생/일시정지
+FFmpeg / libav  (in-process)	FFmpeg / libav  (프로세스 내)
+FPS: SOURCE	FPS: 소스
+Fonts	글꼴
+Free software. You may use, study, share	자유 소프트웨어입니다. 사용, 연구,
+GO / BACK	GO / 뒤로
+GO / BACK (clicker)	GO / 뒤로 (프레젠터)
+Key out: None - fill only	키 출력: 없음 – 필만
+LTC in	LTC 입력
+Licence	라이선스
+MATCH SOURCE	소스에 맞춤
+MMC Play / Stop / Goto -> transport	MMC Play / Stop / Goto -> 트랜스포트
+MOSH: SUBTLE	MOSH: 은은하게
+MSC Trigger -> cue by id	MSC Trigger -> id로 cue
+MTC in	MTC 입력
+Mode: CALLER	모드: CALLER
+NDI receiver	NDI 수신기
+NDI trigger	NDI 트리거
+NO STEPS YET	아직 단계 없음
+No PTP lock, wide-model pacing - will not genlock to plant sources	PTP 잠금 없음, 대략적 페이싱 – 스튜디오 소스에 젠록하지 않음
+ONCE  |  ORDER	한 번  |  순서
+Optional	선택 사항
+PNG sequence	PNG 시퀀스
+Platform	플랫폼
+Press A to take cue	A를 눌러 cue 테이크
+RATE: AUTO	속도: 자동
+S Stop   C Clear   Esc Panic	S 정지   C 지우기   Esc 패닉
+SIZE: SOURCE	크기: 소스
+SPOUT TEXTURE SHARE	SPOUT 텍스처 공유
+Session	세션
+TSL tally out	TSL 탈리 출력
+Thanks	감사
+Timecode chase	타임코드 추종
+Timecode run	타임코드 실행
+Toolkit	툴킷
+Trigger	트리거
+WAV (audio only)	WAV (오디오만)
+Warranty	보증
+address...	주소...
+and modify it; derivatives stay GPL.	공유와 수정이 가능하며, 파생물도 GPL입니다.
+auto	자동
+clear the cell	셀 지우기
+companion ping	Companion 핑
+fire this row	이 행 실행
+insert a row	행 삽입
+live lane  |  I/O set trim  |  click or drag to seek	라이브 레인  |  I/O 트림 설정  |  클릭하거나 끌어서 탐색
+media in	미디어 넣기
+move the cursor	커서 이동
+mute / solo a column	열 음소거 / 솔로
+off -- edit on monitor	꺼짐 -- 모니터에서 편집
+off: no camera is open. Drag on the picture to draw a zone.	꺼짐: 열린 카메라가 없습니다. 그림 위를 끌어 영역을 그리세요.
+open the code editor	코드 편집기 열기
+play / stop	재생 / 정지
+stop, fade, vol, opacity	정지, 페이드, 볼륨, 불투명도
+the FFmpeg, SDL and FreeType projects,	FFmpeg, SDL, FreeType 프로젝트,
+Bitfocus Companion, and x42/libltc.	Bitfocus Companion, x42/libltc에 감사합니다.
+Keys	키
+None. See LICENSE sections 15-16.	없음. LICENSE 15-16절을 보세요.
+none compiled in	내장된 것 없음

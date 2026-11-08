@@ -2210,3 +2210,74 @@ The lit tab gets the next cue. Like choosing which slide goes in the projector.	
 Pick a deck. Any deck. ...Deck 2. Pick Deck 2.	Ziehen Sie eine Karte. Irgendeine. ...Deck 2. Ziehen Sie Deck 2.
 MENU	MENÜ
 VOLUME	LAUTSTÄRKE
++ step	+ Schritt
+< BACK	< ZURÜCK
+ATEM switcher	ATEM-Bildmischer
+ATEM tally	ATEM-Tally
+AUDIO: DEFAULT	AUDIO: STANDARD
+Animated GIF	Animiertes GIF
+Arrows	Pfeiltasten
+CLICKER	PRESENTER
+Copyright	Urheberrecht
+DEST...	ZIEL...
+Datamosh - classic	Datamosh – klassisch
+Datamosh - extreme	Datamosh – extrem
+Datamosh - subtle	Datamosh – dezent
+Deckboy is input	Deckboy ist Eingang
+Device: None	Gerät: keins
+Drag	Ziehen
+Drop media here	Medien hier ablegen
+FFmpeg / libav  (in-process)	FFmpeg / libav  (im Prozess)
+FPS: SOURCE	FPS: QUELLE
+Fonts	Schriften
+Free software. You may use, study, share	Freie Software. Sie dürfen sie nutzen, studieren,
+GO / BACK	GO / ZURÜCK
+GO / BACK (clicker)	GO / ZURÜCK (Presenter)
+Key out: None - fill only	Key-Ausgang: keins – nur Fill
+LTC in	LTC-Eingang
+Licence	Lizenz
+MATCH SOURCE	WIE QUELLE
+MMC Play / Stop / Goto -> transport	MMC Play / Stop / Goto -> Transport
+MOSH: SUBTLE	MOSH: DEZENT
+MSC Trigger -> cue by id	MSC Trigger -> Cue nach ID
+MTC in	MTC-Eingang
+Mode: CALLER	Modus: CALLER
+NDI receiver	NDI-Empfänger
+NDI trigger	NDI-Trigger
+NO STEPS YET	NOCH KEINE SCHRITTE
+No PTP lock, wide-model pacing - will not genlock to plant sources	Kein PTP-Lock, grobes Timing – kein Genlock zu Studioquellen
+ONCE  |  ORDER	EINMAL  |  REIHENFOLGE
+PNG sequence	PNG-Sequenz
+Platform	Plattform
+Press A to take cue	A drücken, um den Cue zu nehmen
+S Stop   C Clear   Esc Panic	S Stopp   C Leeren   Esc Panik
+SIZE: SOURCE	GRÖSSE: QUELLE
+SPOUT TEXTURE SHARE	SPOUT-TEXTURFREIGABE
+Session	Sitzung
+TSL tally out	TSL-Tally-Ausgang
+Thanks	Dank
+Timecode chase	Timecode folgen
+Timecode run	Timecode laufen
+Trigger	Auslösen
+WAV (audio only)	WAV (nur Audio)
+Warranty	Gewährleistung
+address...	Adresse...
+and modify it; derivatives stay GPL.	teilen und ändern; Ableitungen bleiben GPL.
+clear the cell	Zelle leeren
+companion ping	Companion-Ping
+fire this row	diese Zeile auslösen
+insert a row	Zeile einfügen
+live lane  |  I/O set trim  |  click or drag to seek	Live-Spur  |  I/O setzt Trim  |  klicken oder ziehen zum Suchen
+media in	Medien rein
+move the cursor	Cursor bewegen
+mute / solo a column	Spalte stumm / solo
+off -- edit on monitor	aus – am Monitor bearbeiten
+off: no camera is open. Drag on the picture to draw a zone.	aus: keine Kamera offen. Auf dem Bild ziehen, um eine Zone zu zeichnen.
+open the code editor	Code-Editor öffnen
+play / stop	Play / Stopp
+stop, fade, vol, opacity	Stopp, Blende, Lautst., Deckkraft
+the FFmpeg, SDL and FreeType projects,	den Projekten FFmpeg, SDL und FreeType,
+Bitfocus Companion, and x42/libltc.	Bitfocus Companion und x42/libltc.
+Keys	Tasten
+None. See LICENSE sections 15-16.	Keine. Siehe LICENSE, Abschnitte 15-16.
+none compiled in	keine einkompiliert

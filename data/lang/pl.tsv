@@ -2214,3 +2214,77 @@ Click its tab, Deck 2. A new playlist waits until you choose it.	Kliknij jej zak
 The lit tab gets the next cue. Like choosing which slide goes in the projector.	Podświetlona zakładka dostaje następny cue. Jak wybór slajdu, który trafi do projektora.
 Pick a deck. Any deck. ...Deck 2. Pick Deck 2.	Wybierz talię. Dowolną. ...Deck 2. Wybierz Deck 2.
 VOLUME	GŁOŚNOŚĆ
++ step	+ krok
+< BACK	< WSTECZ
+ATEM switcher	Mikser ATEM
+ATEM tally	Tally ATEM
+AUDIO: DEFAULT	AUDIO: DOMYŚLNE
+Animated GIF	Animowany GIF
+Arrows	Strzałki
+CLICKER	PILOT
+Copyright	Prawa autorskie
+DEST...	CEL...
+Datamosh - classic	Datamosh – klasyczny
+Datamosh - extreme	Datamosh – ekstremalny
+Datamosh - subtle	Datamosh – subtelny
+Deckboy is input	Deckboy to wejście
+Device: None	Urządzenie: brak
+Drag	Przeciągnij
+Drop media here	Upuść tu media
+Enter Take  Space Play/Pause	Enter Take  Space Odtwórz/Pauza
+FFmpeg / libav  (in-process)	FFmpeg / libav  (w procesie)
+FPS: SOURCE	FPS: ŹRÓDŁO
+Fonts	Czcionki
+Free software. You may use, study, share	Wolne oprogramowanie. Możesz go używać, badać,
+GO / BACK	GO / WSTECZ
+GO / BACK (clicker)	GO / WSTECZ (pilot)
+Key out: None - fill only	Wyjście key: brak – tylko fill
+LTC in	Wejście LTC
+Licence	Licencja
+MATCH SOURCE	JAK ŹRÓDŁO
+MOSH: SUBTLE	MOSH: SUBTELNY
+MSC Trigger -> cue by id	MSC Trigger -> cue według id
+MTC in	Wejście MTC
+Mode: CALLER	Tryb: CALLER
+NDI receiver	Odbiornik NDI
+NDI trigger	Wyzwalacz NDI
+NO STEPS YET	JESZCZE BRAK KROKÓW
+No PTP lock, wide-model pacing - will not genlock to plant sources	Brak blokady PTP, zgrubne tempo – bez genlocka do źródeł realizacji
+ONCE  |  ORDER	RAZ  |  KOLEJNOŚĆ
+Optional	Opcjonalne
+PNG sequence	Sekwencja PNG
+Platform	Platforma
+Press A to take cue	Naciśnij A, aby wziąć cue
+RATE: AUTO	TEMPO: AUTO
+S Stop   C Clear   Esc Panic	S Stop   C Wyczyść   Esc Panika
+SIZE: SOURCE	ROZMIAR: ŹRÓDŁO
+SPOUT TEXTURE SHARE	WSPÓŁDZIELENIE TEKSTURY SPOUT
+Session	Sesja
+TSL tally out	Wyjście tally TSL
+Thanks	Podziękowania
+Timecode chase	Podążaj za timecode
+Timecode run	Uruchom timecode
+Toolkit	Zestaw narzędzi
+Trigger	Wyzwól
+WAV (audio only)	WAV (tylko dźwięk)
+Warranty	Gwarancja
+address...	adres...
+and modify it; derivatives stay GPL.	udostępniać i zmieniać; pochodne pozostają GPL.
+clear the cell	wyczyść komórkę
+companion ping	ping Companion
+fire this row	odpal ten wiersz
+insert a row	wstaw wiersz
+live lane  |  I/O set trim  |  click or drag to seek	ścieżka na żywo  |  I/O ustawia przycięcie  |  kliknij lub przeciągnij, by przewinąć
+media in	wrzuć media
+move the cursor	przesuń kursor
+mute / solo a column	wycisz / solo kolumny
+off -- edit on monitor	wył. -- edytuj na monitorze
+off: no camera is open. Drag on the picture to draw a zone.	wył.: żadna kamera nie jest otwarta. Przeciągnij po obrazie, by narysować strefę.
+open the code editor	otwórz edytor kodu
+play / stop	odtwórz / zatrzymaj
+stop, fade, vol, opacity	stop, przenikanie, głośn., krycie
+the FFmpeg, SDL and FreeType projects,	projektom FFmpeg, SDL i FreeType,
+Bitfocus Companion, and x42/libltc.	Bitfocus Companion i x42/libltc.
+Keys	Klawisze
+None. See LICENSE sections 15-16.	Brak. Zobacz LICENSE, sekcje 15-16.
+none compiled in	nic nie wkompilowano

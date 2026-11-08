@@ -2214,3 +2214,79 @@ Timecode	Còd-ama
 PHASE	ÌRE
 MENU	CLÀR
 VOLUME	FUAIM
++ step	+ ceum
+< BACK	< AIR AIS
+ATEM switcher	Measgaichear ATEM
+ATEM tally	Tally ATEM
+AUDIO: DEFAULT	FUAIM: BUN-ROGHAINN
+Animated GIF	GIF beòthail
+Arrows	Saighdean
+CLICKER	CLICEAR
+Copyright	Còir-lethbhreac
+DEST...	CEANN-UIDHE...
+Datamosh - classic	Datamosh – clasaigeach
+Datamosh - extreme	Datamosh – fìor-chruaidh
+Datamosh - subtle	Datamosh – sèimh
+Deckboy is input	Is e Deckboy an cur-a-steach
+Device: None	Uidheam: chan eil gin
+Drag	Slaod
+Drop media here	Leig às meadhanan an-seo
+Enter Take  Space Play/Pause	Enter Take  Space Cluich/Stad greis
+FFmpeg / libav  (in-process)	FFmpeg / libav  (sa phròiseas)
+FPS: SOURCE	FPS: TÙS
+Fonts	Cruthan-clò
+Free software. You may use, study, share	Bathar-bog saor. Faodaidh tu a chleachdadh, a sgrùdadh,
+GO / BACK	GO / AIR AIS
+GO / BACK (clicker)	GO / AIR AIS (clicear)
+Key out: None - fill only	Key a-mach: chan eil gin – fill a-mhàin
+LTC in	LTC a-steach
+Licence	Ceadachas
+MATCH SOURCE	CO-IONANN RIS AN TÙS
+MMC Play / Stop / Goto -> transport	MMC Play / Stop / Goto -> còmhdhail
+MOSH: SUBTLE	MOSH: SÈIMH
+MSC Trigger -> cue by id	MSC Trigger -> cue a rèir id
+MTC in	MTC a-steach
+Mode: CALLER	Modh: CALLER
+NDI receiver	Glacadair NDI
+NDI trigger	Brosnachair NDI
+NO STEPS YET	GUN CHEUMAN FHATHAST
+No PTP lock, wide-model pacing - will not genlock to plant sources	Gun ghlas PTP, astar garbh – cha dèan e genlock ri tùsan an stiùidio
+ONCE  |  ORDER	AON TURAS  |  ÒRDUGH
+Optional	Roghainneil
+PNG sequence	Sreath PNG
+Platform	Ùrlar
+Press A to take cue	Brùth A gus an cue a ghabhail
+RATE: AUTO	RÈIT: FÈIN-OBRACHAIL
+S Stop   C Clear   Esc Panic	S Stad   C Falamhaich   Esc Clisgeadh
+SIZE: SOURCE	MEUD: TÙS
+SPOUT TEXTURE SHARE	CO-ROINNEADH INNEACHAIDH SPOUT
+Session	Seisean
+TSL tally out	Tally TSL a-mach
+Thanks	Taing
+Timecode chase	Lean an timecode
+Timecode run	Ruith an timecode
+Toolkit	Pasgan-innealan
+Trigger	Cuir gu dol
+WAV (audio only)	WAV (fuaim a-mhàin)
+Warranty	Barantas
+address...	seòladh...
+and modify it; derivatives stay GPL.	a cho-roinneadh is atharrachadh; fanaidh tùsan-sìol GPL.
+auto	fèin-obrachail
+clear the cell	falamhaich an cealla
+companion ping	ping Companion
+fire this row	cuir an sreath seo gu dol
+insert a row	cuir a-steach sreath
+live lane  |  I/O set trim  |  click or drag to seek	sreath bheò  |  I/O a' suidheachadh na bearraidh  |  briog no slaod gus lorg
+media in	meadhanan a-steach
+move the cursor	gluais an cùrsair
+mute / solo a column	mùch / solo colbh
+off -- edit on monitor	dheth -- deasaich air a' mhonatair
+off: no camera is open. Drag on the picture to draw a zone.	dheth: chan eil camara fosgailte. Slaod air an dealbh gus raon a tharraing.
+open the code editor	fosgail deasaiche a' chòd
+play / stop	cluich / stad
+stop, fade, vol, opacity	stad, crìonadh, fuaim, dorchachd
+the FFmpeg, SDL and FreeType projects,	dha na pròiseactan FFmpeg, SDL agus FreeType,
+Bitfocus Companion, and x42/libltc.	Bitfocus Companion, agus x42/libltc.
+Keys	Iuchraichean
+None. See LICENSE sections 15-16.	Chan eil gin. Faic LICENSE, earrannan 15-16.
+none compiled in	dad air a thrusadh

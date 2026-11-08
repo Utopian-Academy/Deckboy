@@ -2214,3 +2214,79 @@ The lit tab gets the next cue. Like choosing which slide goes in the projector.	
 Pick a deck. Any deck. ...Deck 2. Pick Deck 2.	Διάλεξε μια τράπουλα. Οποιαδήποτε. ...Deck 2. Διάλεξε το Deck 2.
 MENU	ΜΕΝΟΥ
 VOLUME	ΕΝΤΑΣΗ
++ step	+ βήμα
+< BACK	< ΠΙΣΩ
+ATEM switcher	Μίκτης ATEM
+ATEM tally	Tally ATEM
+AUDIO: DEFAULT	ΗΧΟΣ: ΠΡΟΕΠΙΛΟΓΗ
+Animated GIF	Κινούμενο GIF
+Arrows	Βέλη
+CLICKER	ΤΗΛΕΧΕΙΡΙΣΤΗΡΙΟ
+Copyright	Δικαιώματα
+DEST...	ΠΡΟΟΡΙΣΜΟΣ...
+Datamosh - classic	Datamosh – κλασικό
+Datamosh - extreme	Datamosh – ακραίο
+Datamosh - subtle	Datamosh – διακριτικό
+Deckboy is input	Το Deckboy είναι η είσοδος
+Device: None	Συσκευή: καμία
+Drag	Σύρετε
+Drop media here	Αφήστε εδώ τα μέσα
+Enter Take  Space Play/Pause	Enter Take  Space Αναπαραγωγή/Παύση
+FFmpeg / libav  (in-process)	FFmpeg / libav  (εντός διεργασίας)
+FPS: SOURCE	FPS: ΠΗΓΗ
+Fonts	Γραμματοσειρές
+Free software. You may use, study, share	Ελεύθερο λογισμικό. Μπορείτε να το χρησιμοποιείτε, να το μελετάτε,
+GO / BACK	GO / ΠΙΣΩ
+GO / BACK (clicker)	GO / ΠΙΣΩ (τηλεχειριστήριο)
+Key out: None - fill only	Έξοδος key: καμία – μόνο fill
+LTC in	Είσοδος LTC
+Licence	Άδεια
+MATCH SOURCE	ΟΠΩΣ Η ΠΗΓΗ
+MMC Play / Stop / Goto -> transport	MMC Play / Stop / Goto -> μεταφορά
+MOSH: SUBTLE	MOSH: ΔΙΑΚΡΙΤΙΚΟ
+MSC Trigger -> cue by id	MSC Trigger -> cue κατά id
+MTC in	Είσοδος MTC
+Mode: CALLER	Λειτουργία: CALLER
+NDI receiver	Δέκτης NDI
+NDI trigger	Σκανδάλη NDI
+NO STEPS YET	ΚΑΝΕΝΑ ΒΗΜΑ ΑΚΟΜΑ
+No PTP lock, wide-model pacing - will not genlock to plant sources	Χωρίς κλείδωμα PTP, χονδρικός ρυθμός – χωρίς genlock με τις πηγές του στούντιο
+ONCE  |  ORDER	ΜΙΑ ΦΟΡΑ  |  ΣΕΙΡΑ
+Optional	Προαιρετικά
+PNG sequence	Ακολουθία PNG
+Platform	Πλατφόρμα
+Press A to take cue	Πατήστε A για να πάρετε το cue
+RATE: AUTO	ΡΥΘΜΟΣ: ΑΥΤΟ
+S Stop   C Clear   Esc Panic	S Στοπ   C Καθάρισμα   Esc Πανικός
+SIZE: SOURCE	ΜΕΓΕΘΟΣ: ΠΗΓΗ
+SPOUT TEXTURE SHARE	ΚΟΙΝΗ ΧΡΗΣΗ ΥΦΗΣ SPOUT
+Session	Συνεδρία
+TSL tally out	Έξοδος tally TSL
+Thanks	Ευχαριστίες
+Timecode chase	Ακολουθία timecode
+Timecode run	Εκτέλεση timecode
+Toolkit	Εργαλειοθήκη
+Trigger	Ενεργοποίηση
+WAV (audio only)	WAV (μόνο ήχος)
+Warranty	Εγγύηση
+address...	διεύθυνση...
+and modify it; derivatives stay GPL.	να το μοιράζεστε και να το τροποποιείτε· τα παράγωγα μένουν GPL.
+auto	αυτόματο
+clear the cell	καθάρισε το κελί
+companion ping	ping από το Companion
+fire this row	ενεργοποίηση γραμμής
+insert a row	εισαγωγή γραμμής
+live lane  |  I/O set trim  |  click or drag to seek	ζωντανή λωρίδα  |  I/O ορίζει το trim  |  κλικ ή σύρσιμο για αναζήτηση
+media in	εισαγωγή μέσων
+move the cursor	μετακίνηση δρομέα
+mute / solo a column	σίγαση / σόλο στήλης
+off -- edit on monitor	ανενεργό -- επεξεργασία στην οθόνη
+off: no camera is open. Drag on the picture to draw a zone.	ανενεργό: καμία κάμερα ανοιχτή. Σύρετε πάνω στην εικόνα για να σχεδιάσετε ζώνη.
+open the code editor	άνοιγμα επεξεργαστή κώδικα
+play / stop	αναπαραγωγή / στοπ
+stop, fade, vol, opacity	στοπ, σβήσιμο, έντ., αδιαφάνεια
+the FFmpeg, SDL and FreeType projects,	στα έργα FFmpeg, SDL και FreeType,
+Bitfocus Companion, and x42/libltc.	στο Bitfocus Companion και στο x42/libltc.
+Keys	Πλήκτρα
+None. See LICENSE sections 15-16.	Καμία. Δείτε LICENSE, ενότητες 15-16.
+none compiled in	τίποτα ενσωματωμένο

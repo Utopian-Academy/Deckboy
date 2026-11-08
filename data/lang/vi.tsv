@@ -2215,3 +2215,79 @@ The lit tab gets the next cue. Like choosing which slide goes in the projector.	
 Pick a deck. Any deck. ...Deck 2. Pick Deck 2.	Mời chọn một bộ bài. Bộ nào cũng được. ...Deck 2. Mời chọn Deck 2.
 MENU	DANH MỤC
 VOLUME	ÂM LƯỢNG
++ step	+ bước
+< BACK	< QUAY LẠI
+ATEM switcher	Bàn trộn ATEM
+ATEM tally	Tally ATEM
+AUDIO: DEFAULT	ÂM THANH: MẶC ĐỊNH
+Animated GIF	GIF động
+Arrows	Phím mũi tên
+CLICKER	BÚT TRÌNH CHIẾU
+Copyright	Bản quyền
+DEST...	ĐÍCH...
+Datamosh - classic	Datamosh – cổ điển
+Datamosh - extreme	Datamosh – cực độ
+Datamosh - subtle	Datamosh – nhẹ
+Deckboy is input	Deckboy là đầu vào
+Device: None	Thiết bị: không có
+Drag	Kéo
+Drop media here	Thả phương tiện vào đây
+Enter Take  Space Play/Pause	Enter Take  Space Phát/Tạm dừng
+FFmpeg / libav  (in-process)	FFmpeg / libav  (trong tiến trình)
+FPS: SOURCE	FPS: NGUỒN
+Fonts	Phông chữ
+Free software. You may use, study, share	Phần mềm tự do. Bạn có thể dùng, nghiên cứu,
+GO / BACK	GO / QUAY LẠI
+GO / BACK (clicker)	GO / QUAY LẠI (bút trình chiếu)
+Key out: None - fill only	Đầu ra key: không có – chỉ fill
+LTC in	Đầu vào LTC
+Licence	Giấy phép
+MATCH SOURCE	THEO NGUỒN
+MMC Play / Stop / Goto -> transport	MMC Play / Stop / Goto -> điều khiển phát
+MOSH: SUBTLE	MOSH: NHẸ
+MSC Trigger -> cue by id	MSC Trigger -> cue theo id
+MTC in	Đầu vào MTC
+Mode: CALLER	Chế độ: CALLER
+NDI receiver	Bộ thu NDI
+NDI trigger	Kích hoạt NDI
+NO STEPS YET	CHƯA CÓ BƯỚC NÀO
+No PTP lock, wide-model pacing - will not genlock to plant sources	Không khóa PTP, nhịp ước lượng – sẽ không genlock với nguồn của trường quay
+ONCE  |  ORDER	MỘT LẦN  |  THỨ TỰ
+Optional	Tùy chọn
+PNG sequence	Chuỗi PNG
+Platform	Nền tảng
+Press A to take cue	Nhấn A để lấy cue
+RATE: AUTO	TỐC ĐỘ: TỰ ĐỘNG
+S Stop   C Clear   Esc Panic	S Dừng   C Xóa   Esc Khẩn cấp
+SIZE: SOURCE	KÍCH THƯỚC: NGUỒN
+SPOUT TEXTURE SHARE	CHIA SẺ TEXTURE SPOUT
+Session	Phiên
+TSL tally out	Đầu ra tally TSL
+Thanks	Cảm ơn
+Timecode chase	Bám theo timecode
+Timecode run	Chạy timecode
+Toolkit	Bộ công cụ
+Trigger	Kích hoạt
+WAV (audio only)	WAV (chỉ âm thanh)
+Warranty	Bảo hành
+address...	địa chỉ...
+and modify it; derivatives stay GPL.	chia sẻ và sửa đổi; bản phái sinh vẫn là GPL.
+auto	tự động
+clear the cell	xóa ô
+companion ping	ping từ Companion
+fire this row	kích hoạt hàng này
+insert a row	chèn một hàng
+live lane  |  I/O set trim  |  click or drag to seek	làn trực tiếp  |  I/O đặt trim  |  nhấp hoặc kéo để tua
+media in	thêm phương tiện
+move the cursor	di chuyển con trỏ
+mute / solo a column	tắt tiếng / solo một cột
+off -- edit on monitor	tắt -- sửa trên màn hình
+off: no camera is open. Drag on the picture to draw a zone.	tắt: chưa mở máy quay nào. Kéo trên hình để vẽ một vùng.
+open the code editor	mở trình sửa mã
+play / stop	phát / dừng
+stop, fade, vol, opacity	dừng, mờ dần, âm lượng, độ đục
+the FFmpeg, SDL and FreeType projects,	các dự án FFmpeg, SDL và FreeType,
+Bitfocus Companion, and x42/libltc.	Bitfocus Companion và x42/libltc.
+Keys	Phím
+None. See LICENSE sections 15-16.	Không có. Xem LICENSE, mục 15-16.
+none compiled in	không có gì được biên dịch kèm

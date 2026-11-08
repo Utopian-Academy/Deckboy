@@ -2217,3 +2217,79 @@ Timecode	کۆدی کات
 PHASE	فاز
 MENU	مێنیو
 VOLUME	دەنگ
++ step	+ هەنگاو
+< BACK	< گەڕانەوە
+ATEM switcher	تێکەڵکەری ATEM
+ATEM tally	Tally ی ATEM
+AUDIO: DEFAULT	دەنگ: بنەڕەت
+Animated GIF	GIF ی جووڵاو
+Arrows	تیرەکان
+CLICKER	کۆنترۆڵی دوور
+Copyright	مافی بڵاوکردنەوە
+DEST...	مەبەست...
+Datamosh - classic	Datamosh – کلاسیک
+Datamosh - extreme	Datamosh – توند
+Datamosh - subtle	Datamosh – نەرم
+Deckboy is input	Deckboy تێچوونە
+Device: None	ئامێر: هیچ
+Drag	ڕابکێشە
+Drop media here	میدیا لێرە دابنێ
+Enter Take  Space Play/Pause	Enter Take  Space لێدان/وەستان
+FFmpeg / libav  (in-process)	FFmpeg / libav  (لەناو پرۆسە)
+FPS: SOURCE	FPS: سەرچاوە
+Fonts	فۆنتەکان
+Free software. You may use, study, share	نەرمەکاڵای ئازاد. دەتوانیت بەکاری بهێنیت، بیخوێنیتەوە،
+GO / BACK	GO / گەڕانەوە
+GO / BACK (clicker)	GO / گەڕانەوە (کۆنترۆڵی دوور)
+Key out: None - fill only	دەرچەی key: هیچ – تەنها fill
+LTC in	تێچووی LTC
+Licence	مۆڵەت
+MATCH SOURCE	وەک سەرچاوە
+MMC Play / Stop / Goto -> transport	MMC Play / Stop / Goto -> گواستنەوە
+MOSH: SUBTLE	MOSH: نەرم
+MSC Trigger -> cue by id	MSC Trigger -> cue بە ناسنامە
+MTC in	تێچووی MTC
+Mode: CALLER	دۆخ: CALLER
+NDI receiver	وەرگری NDI
+NDI trigger	کارپێکەری NDI
+NO STEPS YET	هێشتا هیچ هەنگاوێک نییە
+No PTP lock, wide-model pacing - will not genlock to plant sources	قفڵی PTP نییە، کاتی نزیکەیی – لەگەڵ سەرچاوەکانی ستۆدیۆ genlock ناکات
+ONCE  |  ORDER	یەک جار  |  ڕیزبەندی
+Optional	ئارەزوومەندانە
+PNG sequence	زنجیرەی PNG
+Platform	پلاتفۆرم
+Press A to take cue	A دابگرە بۆ وەرگرتنی cue
+RATE: AUTO	ڕێژە: خۆکار
+S Stop   C Clear   Esc Panic	S وەستان   C پاککردنەوە   Esc فریاکەوتن
+SIZE: SOURCE	قەبارە: سەرچاوە
+SPOUT TEXTURE SHARE	هاوبەشکردنی تێکستەری SPOUT
+Session	دانیشتن
+TSL tally out	دەرچەی tally ی TSL
+Thanks	سوپاس
+Timecode chase	شوێنکەوتنی timecode
+Timecode run	لێدانی timecode
+Toolkit	ئامرازەکان
+Trigger	کارپێکردن
+WAV (audio only)	WAV (تەنها دەنگ)
+Warranty	گەرەنتی
+address...	ناونیشان...
+and modify it; derivatives stay GPL.	و هاوبەشی بکەیت و بیگۆڕیت؛ وەرگیراوەکان GPL دەمێننەوە.
+auto	خۆکار
+clear the cell	خانەکە پاک بکەوە
+companion ping	پینگی Companion
+fire this row	ئەم ڕیزە کارپێبکە
+insert a row	ڕیزێک زیاد بکە
+live lane  |  I/O set trim  |  click or drag to seek	هێڵی ڕاستەوخۆ  |  I/O بڕین دادەنێت  |  کرتە بکە یان ڕابکێشە بۆ گەڕان
+media in	هێنانی میدیا
+move the cursor	نیشاندەر بجووڵێنە
+mute / solo a column	بێدەنگ / تاکی ستوونێک
+off -- edit on monitor	کوژاوە -- لەسەر شاشە دەستکاری بکە
+off: no camera is open. Drag on the picture to draw a zone.	کوژاوە: هیچ کامێرایەک کراوە نییە. لەسەر وێنەکە ڕابکێشە بۆ کێشانی ناوچەیەک.
+open the code editor	دەستکاریکەری کۆد بکەوە
+play / stop	لێدان / وەستان
+stop, fade, vol, opacity	وەستان، کاڵبوونەوە، دەنگ، ناڕوونی
+the FFmpeg, SDL and FreeType projects,	پڕۆژەکانی FFmpeg و SDL و FreeType،
+Bitfocus Companion, and x42/libltc.	Bitfocus Companion و x42/libltc.
+Keys	کلیلەکان
+None. See LICENSE sections 15-16.	هیچ. بڕوانە LICENSE، بەشەکانی 15-16.
+none compiled in	هیچ تێدا نییە

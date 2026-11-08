@@ -2214,3 +2214,78 @@ The lit tab gets the next cue. Like choosing which slide goes in the projector.	
 Pick a deck. Any deck. ...Deck 2. Pick Deck 2.	Valitse pakka. Mikä tahansa. ...Deck 2. Valitse Deck 2.
 MENU	VALIKKO
 VOLUME	VOIMAKKUUS
++ step	+ vaihe
+< BACK	< TAKAISIN
+ATEM switcher	ATEM-kuvamikseri
+ATEM tally	ATEM-tally
+AUDIO: DEFAULT	ÄÄNI: OLETUS
+Animated GIF	Animoitu GIF
+Arrows	Nuolet
+CLICKER	ESITYSOHJAIN
+Copyright	Tekijänoikeus
+DEST...	KOHDE...
+Datamosh - classic	Datamosh – klassinen
+Datamosh - extreme	Datamosh – äärimmäinen
+Datamosh - subtle	Datamosh – hienovarainen
+Deckboy is input	Deckboy on tulo
+Device: None	Laite: ei mitään
+Drag	Vedä
+Drop media here	Pudota media tähän
+Enter Take  Space Play/Pause	Enter Take  Space Toista/Tauko
+FFmpeg / libav  (in-process)	FFmpeg / libav  (prosessin sisällä)
+FPS: SOURCE	FPS: LÄHDE
+Fonts	Fontit
+Free software. You may use, study, share	Vapaa ohjelmisto. Saat käyttää, tutkia,
+GO / BACK	GO / TAKAISIN
+GO / BACK (clicker)	GO / TAKAISIN (esitysohjain)
+Key out: None - fill only	Key-lähtö: ei mitään – vain fill
+LTC in	LTC-tulo
+Licence	Lisenssi
+MATCH SOURCE	KUTEN LÄHDE
+MMC Play / Stop / Goto -> transport	MMC Play / Stop / Goto -> siirto
+MOSH: SUBTLE	MOSH: HIENOVARAINEN
+MSC Trigger -> cue by id	MSC Trigger -> cue tunnisteella
+MTC in	MTC-tulo
+Mode: CALLER	Tila: CALLER
+NDI receiver	NDI-vastaanotin
+NDI trigger	NDI-laukaisin
+NO STEPS YET	EI VIELÄ VAIHEITA
+No PTP lock, wide-model pacing - will not genlock to plant sources	Ei PTP-lukitusta, karkea ajoitus – ei genlockia studion lähteisiin
+ONCE  |  ORDER	KERRAN  |  JÄRJESTYS
+Optional	Valinnainen
+PNG sequence	PNG-sarja
+Platform	Alusta
+Press A to take cue	Paina A ottaaksesi cuen
+RATE: AUTO	TAAJUUS: AUTO
+S Stop   C Clear   Esc Panic	S Seis   C Tyhjennä   Esc Paniikki
+SIZE: SOURCE	KOKO: LÄHDE
+SPOUT TEXTURE SHARE	SPOUT-TEKSTUURIN JAKO
+Session	Istunto
+TSL tally out	TSL-tally-lähtö
+Thanks	Kiitokset
+Timecode chase	Seuraa aikakoodia
+Timecode run	Aja aikakoodia
+Toolkit	Työkalupakki
+Trigger	Laukaise
+WAV (audio only)	WAV (vain ääni)
+Warranty	Takuu
+address...	osoite...
+and modify it; derivatives stay GPL.	jakaa ja muokata; johdannaiset pysyvät GPL:nä.
+clear the cell	tyhjennä solu
+companion ping	Companion-ping
+fire this row	laukaise tämä rivi
+insert a row	lisää rivi
+live lane  |  I/O set trim  |  click or drag to seek	livekaista  |  I/O asettaa trimmin  |  napsauta tai vedä hakeaksesi
+media in	media sisään
+move the cursor	siirrä kohdistinta
+mute / solo a column	mykistä / soolo sarake
+off -- edit on monitor	pois -- muokkaa monitorissa
+off: no camera is open. Drag on the picture to draw a zone.	pois: kameraa ei ole auki. Vedä kuvan päällä piirtääksesi alueen.
+open the code editor	avaa koodieditori
+play / stop	toista / pysäytä
+stop, fade, vol, opacity	seis, häivytys, vol, peittävyys
+the FFmpeg, SDL and FreeType projects,	FFmpeg-, SDL- ja FreeType-projekteille,
+Bitfocus Companion, and x42/libltc.	Bitfocus Companionille ja x42/libltc:lle.
+Keys	Näppäimet
+None. See LICENSE sections 15-16.	Ei mitään. Katso LICENSE, kohdat 15-16.
+none compiled in	ei mitään käännetty mukaan

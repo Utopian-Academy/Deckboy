@@ -2212,3 +2212,78 @@ The lit tab gets the next cue. Like choosing which slide goes in the projector.	
 Pick a deck. Any deck. ...Deck 2. Pick Deck 2.	Escoge una baraja. Cualquiera. ...Deck 2. Escoge Deck 2.
 MENU	MENÚ
 VOLUME	VOLUMEN
++ step	+ paso
+< BACK	< ATRÁS
+ATEM switcher	Mezclador ATEM
+ATEM tally	Tally ATEM
+AUDIO: DEFAULT	AUDIO: PREDETERMINADO
+Animated GIF	GIF animado
+Arrows	Flechas
+CLICKER	MANDO
+Copyright	Derechos de autor
+DEST...	DESTINO...
+Datamosh - classic	Datamosh – clásico
+Datamosh - extreme	Datamosh – extremo
+Datamosh - subtle	Datamosh – suave
+Deckboy is input	Deckboy es la entrada
+Device: None	Dispositivo: ninguno
+Drag	Arrastra
+Drop media here	Suelta los medios aquí
+Enter Take  Space Play/Pause	Enter Take  Space Reproducir/Pausa
+FFmpeg / libav  (in-process)	FFmpeg / libav  (integrado)
+FPS: SOURCE	FPS: FUENTE
+Fonts	Tipografías
+Free software. You may use, study, share	Software libre. Puedes usarlo, estudiarlo,
+GO / BACK	GO / ATRÁS
+GO / BACK (clicker)	GO / ATRÁS (mando)
+Key out: None - fill only	Salida de key: ninguna – solo fill
+LTC in	Entrada LTC
+Licence	Licencia
+MATCH SOURCE	IGUAL QUE LA FUENTE
+MMC Play / Stop / Goto -> transport	MMC Play / Stop / Goto -> transporte
+MOSH: SUBTLE	MOSH: SUAVE
+MSC Trigger -> cue by id	MSC Trigger -> cue por id
+MTC in	Entrada MTC
+Mode: CALLER	Modo: CALLER
+NDI receiver	Receptor NDI
+NDI trigger	Disparador NDI
+NO STEPS YET	TODAVÍA NO HAY PASOS
+No PTP lock, wide-model pacing - will not genlock to plant sources	Sin enganche PTP, ritmo aproximado – no hará genlock con las fuentes de planta
+ONCE  |  ORDER	UNA VEZ  |  ORDEN
+Optional	Opcional
+PNG sequence	Secuencia PNG
+Platform	Plataforma
+Press A to take cue	Dale a la A para tomar el cue
+RATE: AUTO	TASA: AUTO
+S Stop   C Clear   Esc Panic	S Para   C Limpia   Esc Pánico
+SIZE: SOURCE	TAMAÑO: FUENTE
+SPOUT TEXTURE SHARE	TEXTURA COMPARTIDA SPOUT
+Session	Sesión
+TSL tally out	Salida de tally TSL
+Thanks	Gracias
+Timecode chase	Seguir timecode
+Timecode run	Timecode libre
+Toolkit	Herramientas
+Trigger	Disparar
+WAV (audio only)	WAV (solo audio)
+Warranty	Garantía
+address...	dirección...
+and modify it; derivatives stay GPL.	compartirlo y cambiarlo; los derivados siguen siendo GPL.
+clear the cell	vaciar la celda
+companion ping	ping de Companion
+fire this row	disparar esta fila
+insert a row	meter una fila
+live lane  |  I/O set trim  |  click or drag to seek	carril en vivo  |  I/O fija el recorte  |  clic o arrastra para buscar
+media in	meter medios
+move the cursor	mover el cursor
+mute / solo a column	silenciar / solo de una columna
+off -- edit on monitor	apagado -- edita en el monitor
+off: no camera is open. Drag on the picture to draw a zone.	apagado: no hay cámara abierta. Arrastra sobre la imagen para dibujar una zona.
+open the code editor	abrir el editor de código
+play / stop	reproducir / parar
+stop, fade, vol, opacity	parar, fundido, vol, opacidad
+the FFmpeg, SDL and FreeType projects,	a los proyectos FFmpeg, SDL y FreeType,
+Bitfocus Companion, and x42/libltc.	a Bitfocus Companion y a x42/libltc.
+Keys	Teclas
+None. See LICENSE sections 15-16.	Ninguna. Mira las secciones 15-16 de LICENSE.
+none compiled in	ninguno compilado

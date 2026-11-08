@@ -2217,3 +2217,79 @@ The lit tab gets the next cue. Like choosing which slide goes in the projector.	
 Pick a deck. Any deck. ...Deck 2. Pick Deck 2.	デッキを一つお選びください。どれでも。…Deck 2。Deck 2 をお選びください。
 MENU	メニュー
 VOLUME	音量
++ step	+ ステップ
+< BACK	< 戻る
+ATEM switcher	ATEMスイッチャー
+ATEM tally	ATEMタリー
+AUDIO: DEFAULT	オーディオ: 既定
+Animated GIF	アニメーションGIF
+Arrows	矢印キー
+CLICKER	プレゼンター
+Copyright	著作権
+DEST...	保存先...
+Datamosh - classic	Datamosh – クラシック
+Datamosh - extreme	Datamosh – エクストリーム
+Datamosh - subtle	Datamosh – 控えめ
+Deckboy is input	Deckboyの入力
+Device: None	デバイス: なし
+Drag	ドラッグ
+Drop media here	ここにメディアをドロップ
+Enter Take  Space Play/Pause	Enter Take  Space 再生/一時停止
+FFmpeg / libav  (in-process)	FFmpeg / libav  (プロセス内)
+FPS: SOURCE	FPS: ソース
+Fonts	フォント
+Free software. You may use, study, share	自由ソフトウェア。使用・研究・
+GO / BACK	GO / 戻る
+GO / BACK (clicker)	GO / 戻る (プレゼンター)
+Key out: None - fill only	キー出力: なし – フィルのみ
+LTC in	LTC入力
+Licence	ライセンス
+MATCH SOURCE	ソースに合わせる
+MMC Play / Stop / Goto -> transport	MMC Play / Stop / Goto -> トランスポート
+MOSH: SUBTLE	MOSH: 控えめ
+MSC Trigger -> cue by id	MSC Trigger -> IDでcue
+MTC in	MTC入力
+Mode: CALLER	モード: CALLER
+NDI receiver	NDIレシーバー
+NDI trigger	NDIトリガー
+NO STEPS YET	ステップはまだありません
+No PTP lock, wide-model pacing - will not genlock to plant sources	PTPロックなし、粗いペーシング – 局内ソースにはゲンロックしません
+ONCE  |  ORDER	1回  |  順序
+Optional	オプション
+PNG sequence	PNG連番
+Platform	プラットフォーム
+Press A to take cue	Aでcueをテイク
+RATE: AUTO	レート: 自動
+S Stop   C Clear   Esc Panic	S 停止   C クリア   Esc パニック
+SIZE: SOURCE	サイズ: ソース
+SPOUT TEXTURE SHARE	SPOUTテクスチャ共有
+Session	セッション
+TSL tally out	TSLタリー出力
+Thanks	謝辞
+Timecode chase	タイムコード追従
+Timecode run	タイムコード走行
+Toolkit	ツールキット
+Trigger	トリガー
+WAV (audio only)	WAV (音声のみ)
+Warranty	保証
+address...	アドレス...
+and modify it; derivatives stay GPL.	共有・改変できます。派生物もGPLです。
+auto	自動
+clear the cell	セルを消去
+companion ping	Companionからのping
+fire this row	この行を実行
+insert a row	行を挿入
+live lane  |  I/O set trim  |  click or drag to seek	ライブレーン  |  I/O でトリム設定  |  クリックかドラッグでシーク
+media in	メディア投入
+move the cursor	カーソル移動
+mute / solo a column	列をミュート / ソロ
+off -- edit on monitor	オフ -- モニター上で編集
+off: no camera is open. Drag on the picture to draw a zone.	オフ: カメラが開いていません。画面上をドラッグしてゾーンを描きます。
+open the code editor	コードエディターを開く
+play / stop	再生 / 停止
+stop, fade, vol, opacity	停止、フェード、音量、不透明度
+the FFmpeg, SDL and FreeType projects,	FFmpeg、SDL、FreeType の各プロジェクト、
+Bitfocus Companion, and x42/libltc.	Bitfocus Companion、x42/libltc に感謝します。
+Keys	キー
+None. See LICENSE sections 15-16.	なし。LICENSE の第15-16節を参照。
+none compiled in	組み込みなし
