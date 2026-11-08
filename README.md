@@ -2,8 +2,8 @@
 
 <div align="center">
 
-[![Download](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FUtopian-Academy%2FDeckboy%2Fbadges%2Fversion.json%3Frefresh%3D0.99.421-current&cacheSeconds=300&label=download&color=blue&logo=github)](https://github.com/Utopian-Academy/Deckboy/releases/latest)
-[![Downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FUtopian-Academy%2FDeckboy%2Fbadges%2Fdownloads.json%3Frefresh%3D0.99.421-current&cacheSeconds=300&label=downloads&color=brightgreen&logo=github)](https://github.com/Utopian-Academy/Deckboy/releases)
+[![Download](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FUtopian-Academy%2FDeckboy%2Fbadges%2Fversion.json%3Frefresh%3D0.99.427-current&cacheSeconds=300&label=download&color=blue&logo=github)](https://github.com/Utopian-Academy/Deckboy/releases/latest)
+[![Downloads](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FUtopian-Academy%2FDeckboy%2Fbadges%2Fdownloads.json%3Frefresh%3D0.99.427-current&cacheSeconds=300&label=downloads&color=brightgreen&logo=github)](https://github.com/Utopian-Academy/Deckboy/releases)
 [![Stars](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FUtopian-Academy%2FDeckboy%2Fbadges%2Fstars.json%3Frefresh%3D0.99.421-current&cacheSeconds=300&label=stars&color=yellow&logo=github)](https://github.com/Utopian-Academy/Deckboy/stargazers)
 [![Discord](https://img.shields.io/discord/1560690462766006362?label=discord&logo=discord&logoColor=white&color=5865F2)](https://discord.gg/AZzsE4AZWx)
 
