@@ -2058,6 +2058,13 @@
                                  mix(pal.light.r), mix(pal.light.g), mix(pal.light.b));
         }
       }
+      // SMOOTH, NOT NEAREST. Every desk texture is nearest-neighbour for the
+      // pixel icons; the splash is a 4K illustration drawn at whatever size the
+      // window is, and nearest at 1.25x-2x made uneven blocky pixels -- the
+      // panels looked low-res (James, 2026-11-07).
+      if (ensureUiImageLoaded(uiSplashArt_) && uiSplashArt_.texture) {
+        SDL_SetTextureScaleMode(uiSplashArt_.texture, SDL_SCALEMODE_LINEAR);
+      }
       drawUiImageCover(uiSplashArt_, artRect, tint ? 235 : 220);
       if (tint && uiSplashArt_.texture) {
         SDL_SetTextureColorMod(uiSplashArt_.texture, 255, 255, 255);

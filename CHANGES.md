@@ -8,6 +8,9 @@
 - Fourteen of the new themes have them: Dusk Rose and Glacier (starlings), Matcha and Cherry Blossom (koi), Desert Dusk (snake), Deep Sea (octopus), Forest Night (owl), Darkroom, Highway at Night and Ultraviolet (bats), Sandstone and Terracotta (ants), Coffee Shop and Neon Noir (cat and mouse).
 - As before, creatures only live in empty space, never over a control, and leave while an output is live.
 
+### Splash
+- The new Dr. Pixel and Prof. Video splash panels are now 4K, from the 4K originals, and drawn with smooth scaling. They were 1920x1080 and drawn with blocky nearest-neighbour scaling, which made them look low-resolution on large or 4K screens.
+
 ### Languages
 - Hawaiian (ʻŌlelo Hawaiʻi) is now a full translation: the whole desk and every lesson. No speaker has reviewed it yet.
 
