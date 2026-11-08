@@ -7,10 +7,10 @@
 // at run time -- numbers, "Label: value", columns, a name and its qualifier --
 // and format(). Runs against a catalogue it writes itself, so it tests the
 // rules and not whatever the real catalogues happen to hold.
+#include "core/fs.hpp"
 #include "core/i18n.hpp"
 
 #include <cstdio>
-#include <filesystem>
 #include <fstream>
 #include <string>
 #include <system_error>
@@ -36,10 +36,12 @@ void expect(const std::string& source, const std::string& want) {
 
 int main() {
   std::error_code ec;
-  const std::filesystem::path root = std::filesystem::temp_directory_path(ec) / "deckboy-i18n-check";
-  std::filesystem::create_directories(root / "lang", ec);
+  // dbfs, not std::filesystem: the macOS 10.13 build has no std::filesystem
+  // (it arrived in 10.15), and core/fs.hpp picks ghc::filesystem there.
+  const dbfs::path root = dbfs::temp_directory_path(ec) / "deckboy-i18n-check";
+  dbfs::create_directories(root / "lang", ec);
   {
-    std::ofstream out(root / "lang" / "xx.tsv", std::ios::binary);
+    std::ofstream out((root / "lang" / "xx.tsv").string(), std::ios::binary);
     out << "#name Test\n"
            "Deck {n}\tDECK-{n}\n"
            "{n} of {n}\t{2}/{1}\n"
@@ -106,7 +108,7 @@ int main() {
     }
   }
 
-  std::filesystem::remove_all(root, ec);
+  dbfs::remove_all(root, ec);
   std::printf("%s: %d failure(s)\n", failures ? "FAILED" : "passed", failures);
   return failures ? 1 : 0;
 }
