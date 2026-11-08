@@ -4450,6 +4450,7 @@ class App {
     }
     if (controlRenderer_) {
       purgeTextTextureCache(controlRenderer_);
+      releasePreviewTransitionRuntime();
       SDL_DestroyRenderer(controlRenderer_);
       controlRenderer_ = nullptr;
     }
@@ -5334,6 +5335,7 @@ class App {
         // A window takes ONE renderer: the old one has to go before SDL will
         // make another for it -- and its cached label textures before it.
         clearTextTextureCache();
+        releasePreviewTransitionRuntime();
         if (scanlineOverlay_) {
           SDL_DestroyTexture(scanlineOverlay_);
           scanlineOverlay_ = nullptr;
@@ -11123,6 +11125,9 @@ class App {
   // uploaded. Composite frames already carry the cue's geometry, so the
   // monitor must draw them plainly instead of re-applying it.
   bool controlPreviewIsComposite_ = false;
+  // Draws a transition on the control preview when no output is armed
+  // (renderPreviewTransition). Bound to controlRenderer_; released before it.
+  std::unique_ptr<OutputRuntime> previewTransitionRuntime_;
   // Scratch for the preview's graded/effected copy, so the decoded frame
   // itself is never mutated -- other consumers still need it clean.
   DecodedFrame controlPreviewLookFrame_;

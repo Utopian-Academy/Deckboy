@@ -3343,6 +3343,24 @@
       }
     } else if (hasLiveVideo) {
       SDL_Rect inner = warpMonitorInner_;
+      // NO OUTPUT ARMED AND A TRANSITION RUNNING: the decoder frame is the
+      // incoming cue, so the transition is drawn over it here, clipped to the
+      // monitor (renderPreviewTransition). A push moves the incoming picture.
+      const int previewDeck = project_.focusedDeckIndex;
+      const bool previewTransition =
+        !controlPreviewIsComposite_ && previewTransitionPending(previewDeck);
+      const int previewRasterW = outputRenderSizeForDeck(previewDeck).first;
+      SDL_Rect previousClip {};
+      const bool hadClip = previewTransition && SDL_RenderClipEnabled(controlRenderer_);
+      if (previewTransition) {
+        if (hadClip) SDL_GetRenderClipRect(controlRenderer_, &previousClip);
+        SDL_Rect clip = inner;
+        if (hadClip && !SDL_GetRectIntersection(&previousClip, &inner, &clip)) {
+          clip = SDL_Rect {inner.x, inner.y, 0, 0};   // nothing of the monitor is visible
+        }
+        SDL_SetRenderClipRect(controlRenderer_, &clip);
+      }
+      const SDL_Rect incoming = previewTransition ? previewIncomingRect(previewDeck, inner) : inner;
       // A composite tap is the finished output frame: scale/offset/crop/
       // rotation and every layer are already baked in, so pass no cue and let
       // it letterbox. Only a raw decoder frame needs the geometry applied here.
@@ -3352,13 +3370,17 @@
         controlPreviewTexW_,
         controlPreviewTexH_,
         controlPreviewIsComposite_ ? nullptr : activeCue,
-        inner,
+        incoming,
         SDL_BLENDMODE_BLEND,
         nullptr,
-        controlPreviewIsComposite_ ? 0 : outputRenderSizeForDeck(project_.focusedDeckIndex).first);
+        controlPreviewIsComposite_ ? 0 : previewRasterW);
       // The raw decoder frame has no mask in it; the composite tap does.
       if (!controlPreviewIsComposite_ && activeCue) {
-        drawMonitorCueMaskCover(project_.focusedDeckIndex, *activeCue, inner);
+        drawMonitorCueMaskCover(previewDeck, *activeCue, incoming);
+      }
+      if (previewTransition) {
+        renderPreviewTransition(previewDeck, inner, previewRasterW);
+        SDL_SetRenderClipRect(controlRenderer_, hadClip ? &previousClip : nullptr);
       }
     } else if (!showMascot && !mascotWaiting && activeCue && activeCue->kind == CueKind::Text) {
       // A TEXT CUE HAS NO DECODED FRAME, so there is nothing for the

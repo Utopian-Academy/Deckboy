@@ -532,6 +532,16 @@
                // composites from currentFrame() and does its own thing, so this
                // is the only way to see whether the two agree.
                << " transition_running=" << (engine->transitionRunning() ? 1 : 0)
+               // The transition the OUTPUT draws: the held outgoing picture and
+               // how far through it is, or "none". transition_running above is
+               // the engine's old render() state and reads 0 for every take;
+               // this is the one to test against.
+               << " outgoing=" << [engine] {
+                    const double prog = engine->outgoingProgress01();
+                    if (!engine->outgoingFrame() || prog >= 1.0) return std::string("none");
+                    return deckboy::core::utils::transitionStyleToken(engine->outgoingStyle()) + "@" +
+                           std::to_string(static_cast<int>(prog * 100.0));
+                  }()
                // The engine's own lip-sync view, as in the other builder. It
                // was first added there only, and the drift tool reads THIS
                // one, so a whole hour of drift telemetry came back without it.

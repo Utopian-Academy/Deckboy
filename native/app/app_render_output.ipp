@@ -4435,26 +4435,49 @@
     }
     DeckRuntime* deckRuntime = runtimeForDeck(sourceDeckIndex);
     if (!deckRuntime || !deckRuntime->mediaEngine) return;
-    MediaEngine& engine = *deckRuntime->mediaEngine;
     const int compositionIndex = layerSourceOutputIndex >= 0 ? layerSourceOutputIndex : outputIndex;
     SDL_BlendMode transitionBlend = SDL_BLENDMODE_BLEND;
     const float deckGain = std::clamp(project_.decks[sourceDeckIndex].playlistOpacity, 0.0f, 1.0f) *
       static_cast<float>(outputCrossfadeGain(compositionIndex,
         stackPositionFor(compositionIndex, sourceDeckIndex), transitionBlend));
     if (deckGain <= 0.0f) return;
-    const float heldGain = deckGain * engine.outgoingSourceGain();
     const OutputLayer* layerWarp = layerRecordFor(
       layerSourceOutputIndex >= 0 ? layerSourceOutputIndex : outputIndex, sourceDeckIndex);
+    // ITS BARS FADE WITH IT, on the deck that owns the output only: a
+    // layer's bars are transparent.
+    const bool ownsBars = outputIndex >= 0 &&
+      outputIndex < static_cast<int>(project_.outputs.size()) &&
+      project_.outputs[static_cast<std::size_t>(outputIndex)].hostDeckIndex == sourceDeckIndex;
+    renderDeckTransition(*outputRuntime, sourceDeckIndex, target, deckGain, transitionBlend,
+                         layerWarp, ownsBars);
+  }
+
+  // THE TRANSITION ITSELF, drawn with whichever renderer `rt` holds. The
+  // output calls it through renderDeckTransitionIntoOutput; the control
+  // preview calls it with its own runtime when no output is armed, so the
+  // monitor shows the transition instead of a cut (James, 2026-11-08: the
+  // Transitions lesson runs with the output off, and every take looked like
+  // a cut). The caller has already clipped to `target`: the dips fill the
+  // whole clip. `rasterW` is the output raster a preview stands for (see
+  // cuePlacementFor); 0 on an output.
+  void renderDeckTransition(OutputRuntime& rt, int sourceDeckIndex, const SDL_Rect& target,
+                            float deckGain, SDL_BlendMode transitionBlend,
+                            const OutputLayer* layerWarp, bool ownsBars, int rasterW = 0) {
+    if (!rt.outputRenderer) return;
+    DeckRuntime* deckRuntime = runtimeForDeck(sourceDeckIndex);
+    if (!deckRuntime || !deckRuntime->mediaEngine) return;
+    MediaEngine& engine = *deckRuntime->mediaEngine;
+    const float heldGain = deckGain * engine.outgoingSourceGain();
     auto drawHeld = [&](const DecodedFrame& frame, const SDL_Rect& rect, Uint8 alpha,
                         const char* key = "transition") {
       alpha = static_cast<Uint8>(std::lround(alpha * heldGain));
-      renderTransitionFrame(*outputRuntime, frame, sourceDeckIndex, rect, alpha, key, layerWarp,
-                            transitionBlend);
+      renderTransitionFrame(rt, frame, sourceDeckIndex, rect, alpha, key, layerWarp,
+                            transitionBlend, rasterW);
     };
 
     const double seconds = engine.outgoingSeconds();
     if (seconds <= 0.0001) return;                  // a cut has nothing to draw
-    const DecodedFrame* out = cpuFrameForTransition(*outputRuntime, engine.outgoingFrame(),
+    const DecodedFrame* out = cpuFrameForTransition(rt, engine.outgoingFrame(),
                                                     sourceDeckIndex, "out");
     if (!out || out->width <= 0 || out->height <= 0 || out->pixels.empty()) return;
 
@@ -4477,13 +4500,13 @@
       outRect.x += shift.x;
       outRect.y += shift.y;
       SDL_Rect previousClip {};
-      const bool hadClip = SDL_RenderClipEnabled(outputRuntime->outputRenderer);
-      if (hadClip) SDL_GetRenderClipRect(outputRuntime->outputRenderer, &previousClip);
+      const bool hadClip = SDL_RenderClipEnabled(rt.outputRenderer);
+      if (hadClip) SDL_GetRenderClipRect(rt.outputRenderer, &previousClip);
       SDL_Rect clip = target;
       if (hadClip && !SDL_GetRectIntersection(&previousClip, &target, &clip)) return;
-      SDL_SetRenderClipRect(outputRuntime->outputRenderer, &clip);
+      SDL_SetRenderClipRect(rt.outputRenderer, &clip);
       drawHeld(*out, outRect, 255);
-      SDL_SetRenderClipRect(outputRuntime->outputRenderer, hadClip ? &previousClip : nullptr);
+      SDL_SetRenderClipRect(rt.outputRenderer, hadClip ? &previousClip : nullptr);
       return;
     }
 
@@ -4508,11 +4531,11 @@
       }
       if (keep.w <= 0 || keep.h <= 0) return;
       SDL_Rect previousClip {};
-      const bool hadClip = SDL_RenderClipEnabled(outputRuntime->outputRenderer);
-      if (hadClip) SDL_GetRenderClipRect(outputRuntime->outputRenderer, &previousClip);
-      SDL_SetRenderClipRect(outputRuntime->outputRenderer, &keep);
+      const bool hadClip = SDL_RenderClipEnabled(rt.outputRenderer);
+      if (hadClip) SDL_GetRenderClipRect(rt.outputRenderer, &previousClip);
+      SDL_SetRenderClipRect(rt.outputRenderer, &keep);
       drawHeld(*out, target, 255);
-      SDL_SetRenderClipRect(outputRuntime->outputRenderer,
+      SDL_SetRenderClipRect(rt.outputRenderer,
                             hadClip ? &previousClip : nullptr);
       return;
     }
@@ -4529,8 +4552,8 @@
       const int cx = target.x + target.w / 2;
       const int cy = target.y + target.h / 2;
       SDL_Rect previousClip {};
-      const bool hadClip = SDL_RenderClipEnabled(outputRuntime->outputRenderer);
-      if (hadClip) SDL_GetRenderClipRect(outputRuntime->outputRenderer, &previousClip);
+      const bool hadClip = SDL_RenderClipEnabled(rt.outputRenderer);
+      if (hadClip) SDL_GetRenderClipRect(rt.outputRenderer, &previousClip);
       // BANDS SIZED TO THE RASTER, not to a constant. Four pixels at 4K is
       // five hundred and forty clipped draws a frame, which measured 54fps on
       // a 60fps output -- an effect that costs frames during a transition is
@@ -4556,7 +4579,7 @@
         if (half >= target.w / 2) continue;          // fully inside the hole
         if (half < 0) {
           SDL_Rect band {target.x, y, target.w, kBand};
-          SDL_SetRenderClipRect(outputRuntime->outputRenderer, &band);
+          SDL_SetRenderClipRect(rt.outputRenderer, &band);
           drawHeld(*out, target, 255);
           continue;
         }
@@ -4565,11 +4588,11 @@
                               std::max(0, target.x + target.w - (cx + half)), kBand};
         for (const SDL_Rect& part : {left, right}) {
           if (part.w <= 0) continue;
-          SDL_SetRenderClipRect(outputRuntime->outputRenderer, &part);
+          SDL_SetRenderClipRect(rt.outputRenderer, &part);
           drawHeld(*out, target, 255);
         }
       }
-      SDL_SetRenderClipRect(outputRuntime->outputRenderer,
+      SDL_SetRenderClipRect(rt.outputRenderer,
                             hadClip ? &previousClip : nullptr);
       return;
     }
@@ -4606,7 +4629,7 @@
         default: break;
       }
       if (build) {
-        std::vector<std::uint8_t>& pixels = outputRuntime->portalTransitionPixels;
+        std::vector<std::uint8_t>& pixels = rt.portalTransitionPixels;
         build(*out, pixels, progress, progress * seconds,
               static_cast<std::uint64_t>(out->index));
         if (!pixels.empty()) {
@@ -4616,20 +4639,16 @@
           const std::string key =
             std::string(cacheKey) + ":" + std::to_string(sourceDeckIndex);
           SDL_Texture* tex = ensureOverlayBridgeTexture(
-            *outputRuntime, key, out->width, out->height, SDL_PIXELFORMAT_RGBA32);
+            rt, key, out->width, out->height, SDL_PIXELFORMAT_RGBA32);
           if (tex) {
             SDL_UpdateTexture(tex, nullptr, pixels.data(), out->width * 4);
             SDL_SetTextureBlendMode(tex, SDL_BLENDMODE_BLEND);
             SDL_SetTextureAlphaMod(tex, static_cast<Uint8>(std::lround(255 * heldGain)));
-            Cue outgoingGeometry;
-            const Cue* geometry = nullptr;
-            if (DeckRuntime* rt = runtimeForDeck(sourceDeckIndex); rt && rt->mediaEngine) {
-              outgoingGeometry = rt->mediaEngine->outgoingGeometryCue();
-              geometry = &outgoingGeometry;
-            }
-            renderTextureWithCueGeometry(outputRuntime->outputRenderer, tex,
+            const Cue outgoingGeometry = engine.outgoingGeometryCue();
+            const Cue* geometry = &outgoingGeometry;
+            renderTextureWithCueGeometry(rt.outputRenderer, tex,
                                          out->width, out->height, geometry,
-                                          target, transitionBlend, layerWarp);
+                                         target, transitionBlend, layerWarp, rasterW);
             return;
           }
         }
@@ -4639,17 +4658,17 @@
     if (style == TransitionStyle::DipWhite) {
       // The same shape as dip-to-black, through white: a flash rather than a
       // blink, and the one an operator reaches for on a camera cut.
-      SDL_SetRenderDrawBlendMode(outputRuntime->outputRenderer, SDL_BLENDMODE_BLEND);
+      SDL_SetRenderDrawBlendMode(rt.outputRenderer, SDL_BLENDMODE_BLEND);
       if (progress < 0.5) {
         drawHeld(*out, target, 255);
-        SDL_SetRenderDrawColor(outputRuntime->outputRenderer, 255, 255, 255,
+        SDL_SetRenderDrawColor(rt.outputRenderer, 255, 255, 255,
           static_cast<Uint8>(std::clamp(progress * 2.0, 0.0, 1.0) * 255.0));
       } else {
-        SDL_SetRenderDrawColor(outputRuntime->outputRenderer, 255, 255, 255,
+        SDL_SetRenderDrawColor(rt.outputRenderer, 255, 255, 255,
           static_cast<Uint8>(std::clamp(1.0 - (progress - 0.5) * 2.0, 0.0, 1.0) * 255.0));
       }
-      SDL_RenderFillRect(outputRuntime->outputRenderer, nullptr);
-      SDL_SetRenderDrawBlendMode(outputRuntime->outputRenderer, SDL_BLENDMODE_NONE);
+      SDL_RenderFillRect(rt.outputRenderer, nullptr);
+      SDL_SetRenderDrawBlendMode(rt.outputRenderer, SDL_BLENDMODE_NONE);
       return;
     }
 
@@ -4657,19 +4676,19 @@
       // Two halves: the outgoing picture falls into black, then black lifts off
       // the incoming one. Nothing of the outgoing frame is drawn in the second
       // half -- it has already gone.
-      SDL_SetRenderDrawBlendMode(outputRuntime->outputRenderer, SDL_BLENDMODE_BLEND);
+      SDL_SetRenderDrawBlendMode(rt.outputRenderer, SDL_BLENDMODE_BLEND);
       if (progress < 0.5) {
         drawHeld(*out, target, 255);
         const Uint8 black = static_cast<Uint8>(
           std::clamp(progress * 2.0, 0.0, 1.0) * 255.0);
-        SDL_SetRenderDrawColor(outputRuntime->outputRenderer, 0, 0, 0, black);
+        SDL_SetRenderDrawColor(rt.outputRenderer, 0, 0, 0, black);
       } else {
         const Uint8 black = static_cast<Uint8>(
           std::clamp(1.0 - (progress - 0.5) * 2.0, 0.0, 1.0) * 255.0);
-        SDL_SetRenderDrawColor(outputRuntime->outputRenderer, 0, 0, 0, black);
+        SDL_SetRenderDrawColor(rt.outputRenderer, 0, 0, 0, black);
       }
-      SDL_RenderFillRect(outputRuntime->outputRenderer, nullptr);
-      SDL_SetRenderDrawBlendMode(outputRuntime->outputRenderer, SDL_BLENDMODE_NONE);
+      SDL_RenderFillRect(rt.outputRenderer, nullptr);
+      SDL_SetRenderDrawBlendMode(rt.outputRenderer, SDL_BLENDMODE_NONE);
       return;
     }
 
@@ -4681,16 +4700,15 @@
     // picture's bars are black, and they are part of what is fading out --
     // without this the incoming cue appeared in them at once. A layer's bars
     // are transparent, so only the base gets them.
-    if (outputIndex >= 0 && outputIndex < static_cast<int>(project_.outputs.size()) &&
-        project_.outputs[static_cast<std::size_t>(outputIndex)].hostDeckIndex == sourceDeckIndex) {
+    if (ownsBars) {
       // Only WHERE THE BARS ARE: the target outside the outgoing picture's
       // placed rectangle. Filling under the picture too darkened the middle
       // of every dissolve.
       const Cue geometry = engine.outgoingGeometryCue();
-      const SDL_Rect pic = cuePlacementFor(&geometry, out->width, out->height, target).destination;
+      const SDL_Rect pic = cuePlacementFor(&geometry, out->width, out->height, target, rasterW).destination;
       if (std::abs(geometry.outputRotationDegrees) < 0.01f) {
-        SDL_SetRenderDrawBlendMode(outputRuntime->outputRenderer, SDL_BLENDMODE_BLEND);
-        SDL_SetRenderDrawColor(outputRuntime->outputRenderer, 0, 0, 0,
+        SDL_SetRenderDrawBlendMode(rt.outputRenderer, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(rt.outputRenderer, 0, 0, 0,
           static_cast<Uint8>(std::lround(alpha * heldGain)));
         const int picL = std::clamp(pic.x, target.x, target.x + target.w);
         const int picR = std::clamp(pic.x + pic.w, target.x, target.x + target.w);
@@ -4703,9 +4721,9 @@
           {picR, picT, target.x + target.w - picR, picB - picT},            // right
         };
         for (const SDL_Rect& bar : bars) {
-          if (bar.w > 0 && bar.h > 0) SDL_RenderFillRect(outputRuntime->outputRenderer, &bar);
+          if (bar.w > 0 && bar.h > 0) SDL_RenderFillRect(rt.outputRenderer, &bar);
         }
-        SDL_SetRenderDrawBlendMode(outputRuntime->outputRenderer, SDL_BLENDMODE_NONE);
+        SDL_SetRenderDrawBlendMode(rt.outputRenderer, SDL_BLENDMODE_NONE);
       }
     }
     drawHeld(*out, target, alpha);
@@ -4787,17 +4805,12 @@
     }
   }
 
-  void renderDeckWithTransitionIntoOutput(int outputIndex, int deckIndex,
-                                          const SDL_Rect& target,
-                                          int compositionIndex = -1) {
-    OutputRuntime* output = runtimeForOutput(outputIndex);
-    DeckRuntime* deck = runtimeForDeck(deckIndex);
-    if (!output || !output->outputRenderer || !deck || !deck->mediaEngine) return;
-    MediaEngine& engine = *deck->mediaEngine;
+  // Where the INCOMING picture sits while a transition runs: at rest, except
+  // during a push. Pushes draw the incoming layer once, through its ordinary
+  // processed path, translated into place. Drawing it at rest as well exposed
+  // a second copy and made a differently shaped cue appear to resize.
+  static SDL_Rect transitionIncomingRect(const MediaEngine& engine, const SDL_Rect& target) {
     SDL_Rect incoming = target;
-    // Pushes draw the incoming layer once, through its ordinary processed
-    // path, translated into place. Drawing it at rest as well exposed a
-    // second copy and made a differently shaped cue appear to resize.
     if (engine.outgoingSeconds() > 0.0001 && engine.outgoingFrame() &&
         isPushStyle(engine.outgoingStyle()) && engine.outgoingProgress01() < 1.0) {
       const TransitionStyle style = engine.outgoingStyle();
@@ -4811,6 +4824,56 @@
         default:                        incoming.y -= target.h; break;
       }
     }
+    return incoming;
+  }
+
+  // ── THE TRANSITION ON THE CONTROL PREVIEW, WITH NO OUTPUT ARMED ──────────
+  //
+  // With an output up, the monitor is the output's own composite and shows
+  // the transition already. Without one it is the deck's decoded frame, which
+  // is the INCOMING cue from the moment of the take: every transition looked
+  // like a cut. The practice shows of the lessons run with the output off, so
+  // the Transitions lesson taught transitions on a monitor that could not show
+  // one (James, 2026-11-08). This draws the same transition the output would,
+  // through the same code, with a runtime bound to the control renderer.
+  bool previewTransitionPending(int deckIndex) {
+    DeckRuntime* deck = runtimeForDeck(deckIndex);
+    return deck && deck->mediaEngine && deck->mediaEngine->outgoingFrame() &&
+           deck->mediaEngine->outgoingSeconds() > 0.0001;
+  }
+  SDL_Rect previewIncomingRect(int deckIndex, const SDL_Rect& target) {
+    DeckRuntime* deck = runtimeForDeck(deckIndex);
+    if (!deck || !deck->mediaEngine) return target;
+    return transitionIncomingRect(*deck->mediaEngine, target);
+  }
+  // Called with the monitor already clipped to `target`.
+  void renderPreviewTransition(int deckIndex, const SDL_Rect& target, int rasterW) {
+    if (!controlRenderer_ || !previewTransitionPending(deckIndex)) return;
+    if (!previewTransitionRuntime_) {
+      previewTransitionRuntime_ = std::make_unique<OutputRuntime>();
+      previewTransitionRuntime_->outputRenderer = controlRenderer_;
+    }
+    renderDeckTransition(*previewTransitionRuntime_, deckIndex, target, 1.0f,
+                         SDL_BLENDMODE_BLEND, nullptr, true, rasterW);
+  }
+  // Its textures belong to the control renderer: freed before that renderer
+  // is destroyed or replaced.
+  void releasePreviewTransitionRuntime() {
+    if (!previewTransitionRuntime_) return;
+    for (auto& [key, texture] : previewTransitionRuntime_->overlayBridgeTextures) {
+      (void) key;
+      if (texture) SDL_DestroyTexture(texture);
+    }
+    previewTransitionRuntime_.reset();
+  }
+
+  void renderDeckWithTransitionIntoOutput(int outputIndex, int deckIndex,
+                                          const SDL_Rect& target,
+                                          int compositionIndex = -1) {
+    OutputRuntime* output = runtimeForOutput(outputIndex);
+    DeckRuntime* deck = runtimeForDeck(deckIndex);
+    if (!output || !output->outputRenderer || !deck || !deck->mediaEngine) return;
+    const SDL_Rect incoming = transitionIncomingRect(*deck->mediaEngine, target);
     SDL_Rect previousClip {};
     const bool hadClip = SDL_RenderClipEnabled(output->outputRenderer);
     if (hadClip) SDL_GetRenderClipRect(output->outputRenderer, &previousClip);
@@ -4832,7 +4895,7 @@
   void renderTransitionFrame(OutputRuntime& outputRuntime, const DecodedFrame& frame,
                              int deckIndex, const SDL_Rect& target, Uint8 alpha,
                               const char* key = "transition", const OutputLayer* layerWarp = nullptr,
-                              SDL_BlendMode blendMode = SDL_BLENDMODE_BLEND) {
+                              SDL_BlendMode blendMode = SDL_BLENDMODE_BLEND, int rasterW = 0) {
     const Uint32 format = sdlPixelFormat(frame.format);
     const std::string bridgeKey = std::string(key) + ":" + std::to_string(deckIndex);
     SDL_Texture* tex = ensureOverlayBridgeTexture(
@@ -4858,7 +4921,7 @@
     auto drawPlaced = [&]() {
       SDL_SetTextureAlphaMod(tex, alpha);
       renderTextureWithCueGeometry(outputRuntime.outputRenderer, tex, frame.width, frame.height,
-                                   geometry, target, blendMode, layerWarp);
+                                   geometry, target, blendMode, layerWarp, rasterW);
       SDL_SetTextureAlphaMod(tex, 255);
     };
     if (!needUpload) {
