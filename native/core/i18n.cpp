@@ -7,9 +7,11 @@
 #include "i18n.hpp"
 
 #include <algorithm>
+#include <cstdlib>
 #include <cctype>
 #include <fstream>
 #include <map>
+#include <set>
 #include <system_error>
 #include <unordered_map>
 
@@ -564,6 +566,19 @@ std::string translate(const std::string& source) {
       if (baseShown != base || qualifierShown != qualifier) {
         return baseShown + " (" + qualifierShown + ")";
       }
+    }
+  }
+  // FOR TESTS: DECKBOY_I18N_MISSES=<file> lists every string the app asked
+  // for and the active catalogue did not have, once each. Only a running app
+  // knows what it builds at run time ("VOLUME " + a number, a renamed button),
+  // which is what a source audit cannot see.
+  static const char* missFile = std::getenv("DECKBOY_I18N_MISSES");
+  if (missFile && *missFile) {
+    static std::set<std::string> seen;
+    int letters = 0;
+    for (unsigned char ch : source) letters += std::isalpha(ch) ? 1 : 0;
+    if (letters >= 2 && seen.insert(source).second) {
+      std::ofstream(missFile, std::ios::app) << source << '\n';
     }
   }
   return source;
