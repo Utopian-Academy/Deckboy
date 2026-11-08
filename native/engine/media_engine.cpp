@@ -13695,77 +13695,136 @@ void MediaEngine::buildShatterTransition(const DecodedFrame& outgoing,
   const double fly = unit * 0.85;
   const std::uint64_t salt = portalHash(seed ^ 0x5A17E12ull);
 
+  // ONE SET OF SHARD NUMBERS PER SHARD, NOT PER PIXEL. Everything below up to
+  // the rotation depends only on which shard a pixel is in, and it was all
+  // evaluated inside the pixel loop: a hash, four random draws, a sqrt and
+  // three trig pairs for each of ~8 million pixels at 4K, for ~600 shards.
+  // A 2-second Shatter cost 18-20 ms a frame and dropped frames at 60 Hz
+  // (found 2026-11-08 measuring Ghastly's sister builders). Same expressions,
+  // computed once per shard, so the pixels are identical.
+  struct Shard { double gone, ox, oy, ca, sa, ccx, ccy; };
+  const int shardsX = (W + shard - 1) / shard;
+  const int shardsY = (H + shard - 1) / shard;
+  std::vector<Shard> shards(static_cast<std::size_t>(shardsX) * shardsY);
+  for (int gy = 0; gy < shardsY; ++gy) {
+    for (int gx = 0; gx < shardsX; ++gx) {
+      Shard& sh = shards[static_cast<std::size_t>(gy) * shardsX + gx];
+      const std::uint64_t h = portalHash(salt +
+        static_cast<std::uint64_t>(gx) * 73856093ull +
+        static_cast<std::uint64_t>(gy) * 19349663ull);
+      // WHEN THIS SHARD GOES. Waves, not a single sheet: the start is spread
+      // over the first two thirds and every shard is gone by 0.92.
+      const double start = 0.58 * portalRand(h, 1);
+      sh.gone = tSmooth(start, std::min(0.92, start + 0.40), p);
+      if (sh.gone >= 1.0) continue;
+      // Its own line out of the frame, biased away from the centre so the
+      // pane opens outward instead of milling about.
+      const double ang = portalRand(h, 2) * 6.283185307179586;
+      const double awayX = (gx * shard + shard * 0.5) - W * 0.5;
+      const double awayY = (gy * shard + shard * 0.5) - H * 0.5;
+      const double awayLen = std::sqrt(awayX * awayX + awayY * awayY) + 1e-6;
+      const double dirX = 0.45 * std::cos(ang) + 0.55 * (awayX / awayLen);
+      const double dirY = 0.45 * std::sin(ang) + 0.55 * (awayY / awayLen);
+      // Gravity, because a dropped pane falls. Quadratic in the shard's own
+      // travel rather than in p, so late shards fall from where they broke.
+      const double travel = sh.gone * sh.gone;
+      sh.ox = dirX * fly * travel;
+      sh.oy = dirY * fly * travel + unit * 0.35 * travel * travel;
+      // BOTH TERMS SCALE WITH `gone`, including the wobble. The wobble used
+      // to be added ungated, so at progress 0 every shard was already turned
+      // a little: --transition-dump measured meanAlpha 0.9998 and 42 pixels
+      // already gone on the first frame, which on an output is the picture
+      // twitching the instant the take lands. The first frame of a transition
+      // has to be the last frame of the cue, exactly.
+      const double spin = sh.gone * ((portalRand(h, 3) - 0.5) * 2.2 +
+                                     0.05 * std::sin(t * 1.7 + portalRand(h, 4) * 6.283));
+      sh.ccx = gx * shard + shard * 0.5;
+      sh.ccy = gy * shard + shard * 0.5;
+      sh.ca = std::cos(spin);
+      sh.sa = std::sin(spin);
+    }
+  }
+
+  // The glint's falloff by whole pixels from the shard's edge: the same
+  // expression the pixel loop used, so the result is identical.
+  std::vector<double> glintFalloff(static_cast<std::size_t>(shard));
+  for (int e = 0; e < shard; ++e) {
+    glintFalloff[static_cast<std::size_t>(e)] =
+      std::clamp(1.0 - static_cast<double>(e) / std::max(1.0, unit * 0.010), 0.0, 1.0);
+  }
+  // std::lround, inline. It was a library call twice per pixel. The fraction
+  // v - trunc(v) is exact in double, so this rounds half away from zero exactly
+  // as lround does, for every value a shard can reach.
+  const auto roundHalfAway = [](double v) {
+    const long long whole = static_cast<long long>(v);
+    const double frac = v - static_cast<double>(whole);
+    return static_cast<int>(whole + (frac >= 0.5 ? 1 : (frac <= -0.5 ? -1 : 0)));
+  };
+
   deckboy::effects::detail::parallelRows(H, W * 6, [&](int y0, int y1) {
     for (int y = y0; y < y1; ++y) {
       std::uint8_t* row = dst.data() + static_cast<std::size_t>(y) * W * 4u;
-      for (int x = 0; x < W; ++x) {
-        std::uint8_t* px = row + static_cast<std::size_t>(x) * 4u;
-        const int gx = x / shard;
-        const int gy = y / shard;
-        const std::uint64_t h = portalHash(salt +
-          static_cast<std::uint64_t>(gx) * 73856093ull +
-          static_cast<std::uint64_t>(gy) * 19349663ull);
-        // WHEN THIS SHARD GOES. Waves, not a single sheet: the start is spread
-        // over the first two thirds and every shard is gone by 0.92.
-        const double start = 0.58 * portalRand(h, 1);
-        const double gone = tSmooth(start, std::min(0.92, start + 0.40), p);
+      const int gy = y / shard;
+      const Shard* shardRow = shards.data() + static_cast<std::size_t>(gy) * shardsX;
+      const int edgeY = std::min(y - gy * shard, (gy + 1) * shard - 1 - y);
+      // ONE SHARD'S RUN OF THIS ROW AT A TIME, so what is constant across the
+      // shard is read once per run rather than once per pixel.
+      for (int gx = 0; gx < shardsX; ++gx) {
+        const int xa = gx * shard;
+        const int xb = std::min(W, xa + shard);
+        std::uint8_t* run = row + static_cast<std::size_t>(xa) * 4u;
+        const Shard& sh = shardRow[gx];
+        const double gone = sh.gone;
         if (gone >= 1.0) {
-          px[0] = px[1] = px[2] = px[3] = 0;
+          std::memset(run, 0, static_cast<std::size_t>(xb - xa) * 4u);
           continue;
         }
-        // Its own line out of the frame, biased away from the centre so the
-        // pane opens outward instead of milling about.
-        const double ang = portalRand(h, 2) * 6.283185307179586;
-        const double awayX = (gx * shard + shard * 0.5) - W * 0.5;
-        const double awayY = (gy * shard + shard * 0.5) - H * 0.5;
-        const double awayLen = std::sqrt(awayX * awayX + awayY * awayY) + 1e-6;
-        const double dirX = 0.45 * std::cos(ang) + 0.55 * (awayX / awayLen);
-        const double dirY = 0.45 * std::sin(ang) + 0.55 * (awayY / awayLen);
-        // Gravity, because a dropped pane falls. Quadratic in the shard's own
-        // travel rather than in p, so late shards fall from where they broke.
-        const double travel = gone * gone;
-        const double ox = dirX * fly * travel;
-        const double oy = dirY * fly * travel + unit * 0.35 * travel * travel;
-        // BOTH TERMS SCALE WITH `gone`, including the wobble. The wobble used
-        // to be added ungated, so at progress 0 every shard was already turned
-        // a little: --transition-dump measured meanAlpha 0.9998 and 42 pixels
-        // already gone on the first frame, which on an output is the picture
-        // twitching the instant the take lands. The first frame of a transition
-        // has to be the last frame of the cue, exactly.
-        const double spin = gone * ((portalRand(h, 3) - 0.5) * 2.2 +
-                                   0.05 * std::sin(t * 1.7 + portalRand(h, 4) * 6.283));
-        const double ccx = gx * shard + shard * 0.5;
-        const double ccy = gy * shard + shard * 0.5;
-        const double rx = x - ccx;
+        if (gone <= 0.0) {
+          // Not broken yet: no offset, no spin (cos 1, sin 0, exactly) and no
+          // glint, so every pixel samples itself, opaque. The same bytes the
+          // general case below writes for it, without the arithmetic.
+          for (int x = xa; x < xb; ++x) {
+            std::uint8_t* px = row + static_cast<std::size_t>(x) * 4u;
+            pic.fetch(x, y, px);
+            px[3] = 255;
+          }
+          continue;
+        }
+        const double ox = sh.ox;
+        const double oy = sh.oy;
+        const double ccx = sh.ccx;
+        const double ccy = sh.ccy;
         const double ry = y - ccy;
-        const double ca = std::cos(spin);
-        const double sa = std::sin(spin);
-        // Sample from where this pixel WOULD have been before the shard moved,
-        // which is what makes the seams show a piece of somewhere else.
-        const int sx = static_cast<int>(std::lround(ccx + rx * ca - ry * sa - ox));
-        const int sy = static_cast<int>(std::lround(ccy + rx * sa + ry * ca - oy));
-        if (sx < 0 || sx >= W || sy < 0 || sy >= H) {
-          px[0] = px[1] = px[2] = px[3] = 0;
-          continue;
+        const double ca = sh.ca;
+        const double sa = sh.sa;
+        const double glintScale = 0.55 * gone;
+        const std::uint8_t alpha =
+          static_cast<std::uint8_t>(std::clamp((1.0 - gone) * 255.0, 0.0, 255.0));
+        for (int x = xa; x < xb; ++x) {
+          std::uint8_t* px = row + static_cast<std::size_t>(x) * 4u;
+          const double rx = x - ccx;
+          // Sample from where this pixel WOULD have been before the shard
+          // moved, which is what makes the seams show a piece of somewhere else.
+          const int sx = roundHalfAway(ccx + rx * ca - ry * sa - ox);
+          const int sy = roundHalfAway(ccy + rx * sa + ry * ca - oy);
+          if (sx < 0 || sx >= W || sy < 0 || sy >= H) {
+            px[0] = px[1] = px[2] = px[3] = 0;
+            continue;
+          }
+          std::uint8_t s[4];
+          pic.fetch(sx, sy, s);
+          // A glint along the break: the leading edge of a turning shard
+          // catches the light, which is what makes glass look like glass
+          // rather than like a grid of moving squares. The distance to the
+          // shard's edge is a whole number of pixels, so the falloff is read
+          // from a table.
+          const int edge = std::min(edgeY, std::min(x - xa, (gx + 1) * shard - 1 - x));
+          const double glint = glintFalloff[static_cast<std::size_t>(edge)] * glintScale;
+          px[0] = static_cast<std::uint8_t>(std::min(255.0, s[0] + (255.0 - s[0]) * glint));
+          px[1] = static_cast<std::uint8_t>(std::min(255.0, s[1] + (255.0 - s[1]) * glint));
+          px[2] = static_cast<std::uint8_t>(std::min(255.0, s[2] + (255.0 - s[2]) * glint));
+          px[3] = alpha;
         }
-        std::uint8_t s[4];
-        pic.fetch(sx, sy, s);
-        // A glint along the break: the leading edge of a turning shard catches
-        // the light, which is what makes glass look like glass rather than
-        // like a grid of moving squares.
-        const double edge = std::min({static_cast<double>(x - gx * shard),
-                                      static_cast<double>(y - gy * shard),
-                                      static_cast<double>((gx + 1) * shard - 1 - x),
-                                      static_cast<double>((gy + 1) * shard - 1 - y)});
-        const double glint = gone > 0.0
-          ? std::clamp(1.0 - edge / std::max(1.0, unit * 0.010), 0.0, 1.0) *
-            (0.55 * gone)
-          : 0.0;
-        const double keep = 1.0 - gone;
-        px[0] = static_cast<std::uint8_t>(std::min(255.0, s[0] + (255.0 - s[0]) * glint));
-        px[1] = static_cast<std::uint8_t>(std::min(255.0, s[1] + (255.0 - s[1]) * glint));
-        px[2] = static_cast<std::uint8_t>(std::min(255.0, s[2] + (255.0 - s[2]) * glint));
-        px[3] = static_cast<std::uint8_t>(std::clamp(keep * 255.0, 0.0, 255.0));
       }
     }
   });
@@ -13830,15 +13889,66 @@ void MediaEngine::buildCloudsTransition(const DecodedFrame& outgoing,
   const float band = 0.16f;                 // how soft the cloud edge is
   const float invStep = 1.0f / static_cast<float>(step);
 
+  // ── WHICH CELLS NEED SHADING (as the Portal does it) ──────────────────
+  //
+  // Bilinear interpolation stays inside the range of its four corners, so a
+  // lattice cell whose corners are all well clear of the cloud's soft edge is
+  // either untouched picture (open 0: the pixel is the source, opaque) or
+  // gone (open 1: transparent). Only cells ON the edge are shaded per pixel.
+  // The margin keeps a cell within rounding of the edge on the per-pixel
+  // path, so the result is identical to shading every pixel -- which cost
+  // 11-12 ms a 4K frame (2026-11-08, measured with DECKBOY_TRANSITION_BENCH).
+  enum : std::uint8_t { kKeep = 0, kClear = 1, kShade = 2 };
+  const int cw = gw - 1;
+  const int ch = gh - 1;
+  const float keepAbove = cut + band * 0.5f + 1e-3f;
+  const float clearBelow = cut - band * 0.5f - 1e-3f;
+  std::vector<std::uint8_t> cellKind(static_cast<std::size_t>(cw) * ch, kShade);
+  deckboy::effects::detail::parallelRows(ch, cw * 2, [&](int y0, int y1) {
+    for (int gy = y0; gy < y1; ++gy) {
+      for (int gx = 0; gx < cw; ++gx) {
+        const std::size_t a = static_cast<std::size_t>(gy) * gw + gx;
+        const float c0 = field[a];
+        const float c1 = field[a + 1];
+        const float c2 = field[a + gw];
+        const float c3 = field[a + gw + 1];
+        const float lo = std::min(std::min(c0, c1), std::min(c2, c3));
+        const float hi = std::max(std::max(c0, c1), std::max(c2, c3));
+        cellKind[static_cast<std::size_t>(gy) * cw + gx] =
+          lo > keepAbove ? kKeep : (hi < clearBelow ? kClear : kShade);
+      }
+    }
+  });
+
   deckboy::effects::detail::parallelRows(H, W * 4, [&](int y0, int y1) {
     for (int y = y0; y < y1; ++y) {
       const float fy = y * invStep;
       const int gy = static_cast<int>(fy);
       const float wy = fy - gy;
       std::uint8_t* row = dst.data() + static_cast<std::size_t>(y) * W * 4u;
+      const std::uint8_t* kinds = cellKind.data() + static_cast<std::size_t>(gy) * cw;
       for (int x = 0; x < W; ++x) {
         const float fx = x * invStep;
         const int gx = static_cast<int>(fx);
+        const std::uint8_t kind = kinds[std::min(cw - 1, gx)];
+        if (kind == kClear) {
+          // The rest of this cell along the row, in one go.
+          const int x1 = std::min(W, (gx + 1) * step);
+          std::memset(row + static_cast<std::size_t>(x) * 4u, 0,
+                      static_cast<std::size_t>(x1 - x) * 4u);
+          x = x1 - 1;
+          continue;
+        }
+        if (kind == kKeep) {
+          const int x1 = std::min(W, (gx + 1) * step);
+          for (; x < x1; ++x) {
+            std::uint8_t* px = row + static_cast<std::size_t>(x) * 4u;
+            pic.fetch(x, y, px);
+            px[3] = 255;
+          }
+          x = x1 - 1;
+          continue;
+        }
         const float wx = fx - gx;
         const std::size_t at = static_cast<std::size_t>(gy) * gw + gx;
         const float a = field[at];
@@ -13932,17 +14042,35 @@ void MediaEngine::buildGhastlyTransition(const DecodedFrame& outgoing,
   const float wispSlow = static_cast<float>(7.0 / unit);
   const float wispFast = static_cast<float>(41.0 / unit);
 
+  // ONE WISP LINE PER COLUMN, NOT PER PIXEL. The wobble depends on x and t
+  // only, and it was evaluated inside the row loop: two fBm calls for every
+  // pixel, ~16 million a 4K frame for 7680 distinct values. That made a
+  // 2-second Ghastly take 18-22 ms a frame and drop frames at 60 Hz (James,
+  // 2026-11-08, TAKE ALL with a Lower Third on deck 2). Same expression,
+  // computed once per column, so the pixels are identical.
+  std::vector<float> columnLine(static_cast<std::size_t>(W));
+  deckboy::effects::detail::parallelRows(W, 1, [&](int x0, int x1) {
+    for (int x = x0; x < x1; ++x) {
+      const float slow = tFbm(salt, x * wispSlow, t * 0.6f) - 0.5f;
+      const float fast = tFbm(salt ^ 0x77ull, x * wispFast, t * 1.9f) - 0.5f;
+      const float wob = slow * 0.62f + fast * 0.38f;
+      columnLine[static_cast<std::size_t>(x)] = wispLine + wob * wispWob;
+    }
+  });
+  // Constant for the whole frame.
+  const float thin = static_cast<float>(1.0 - tSmooth(0.35, 1.0, p) * 0.55);
+
   deckboy::effects::detail::parallelRows(H, W * 5, [&](int y0, int y1) {
     for (int y = y0; y < y1; ++y) {
       std::uint8_t* row = dst.data() + static_cast<std::size_t>(y) * W * 4u;
+      // Where this row samples from. It depends on the row alone, so it is
+      // rounded once here rather than once per pixel.
+      const int sy = static_cast<int>(std::lround(y + lift));
       for (int x = 0; x < W; ++x) {
         std::uint8_t* px = row + static_cast<std::size_t>(x) * 4u;
         // A per-column wobble so the wisps are columns of different heights
-        // rather than one ragged line.
-        const float slow = tFbm(salt, x * wispSlow, t * 0.6f) - 0.5f;
-        const float fast = tFbm(salt ^ 0x77ull, x * wispFast, t * 1.9f) - 0.5f;
-        const float wob = slow * 0.62f + fast * 0.38f;
-        const float line = wispLine + wob * wispWob;
+        // rather than one ragged line (computed above, once per column).
+        const float line = columnLine[static_cast<std::size_t>(x)];
         // HOW FAR THIS ROW IS ABOVE THE WISP LINE. y grows downward, so a row
         // above the line has (line - y) positive, and keep runs 0 at the line
         // to 1 a soft distance above it.
@@ -13959,7 +14087,6 @@ void MediaEngine::buildGhastlyTransition(const DecodedFrame& outgoing,
           px[0] = px[1] = px[2] = px[3] = 0;
           continue;
         }
-        const int sy = static_cast<int>(std::lround(y + lift));
         if (sy >= H) {
           px[0] = px[1] = px[2] = px[3] = 0;
           continue;
@@ -13983,7 +14110,6 @@ void MediaEngine::buildGhastlyTransition(const DecodedFrame& outgoing,
         px[1] = static_cast<std::uint8_t>(std::clamp(g, 0.0f, 255.0f));
         px[2] = static_cast<std::uint8_t>(std::clamp(b, 0.0f, 255.0f));
         // The ghost thins overall as well as being eaten from below.
-        const float thin = static_cast<float>(1.0 - tSmooth(0.35, 1.0, p) * 0.55);
         px[3] = static_cast<std::uint8_t>(std::clamp(keep * thin * 255.0f, 0.0f, 255.0f));
       }
     }

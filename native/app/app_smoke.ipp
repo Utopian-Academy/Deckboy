@@ -5902,26 +5902,49 @@
     std::vector<std::uint8_t> layer;
     const std::uint64_t seed = 0;         // fixed: a dump has to repeat exactly
     const double elapsed = progress * seconds;
-    switch (style) {
-      case TransitionStyle::Portal:
-        MediaEngine::buildPortalTransition(outgoing, layer, progress, elapsed, seed);
-        break;
-      case TransitionStyle::Shatter:
-        MediaEngine::buildShatterTransition(outgoing, layer, progress, elapsed, seed);
-        break;
-      case TransitionStyle::Clouds:
-        MediaEngine::buildCloudsTransition(outgoing, layer, progress, elapsed, seed);
-        break;
-      case TransitionStyle::Ghastly:
-        MediaEngine::buildGhastlyTransition(outgoing, layer, progress, elapsed, seed);
-        break;
-      default:
-        std::cerr << "transition-dump: "
-                  << deckboy::core::utils::transitionStyleToken(style)
-                  << " is drawn by the renderer rather than built on the CPU, so"
-                     " there is nothing to dump. Dumpable: portal, shatter,"
-                     " clouds, ghastly\n";
-        return 2;
+    const auto build = [&]() -> bool {
+      switch (style) {
+        case TransitionStyle::Portal:
+          MediaEngine::buildPortalTransition(outgoing, layer, progress, elapsed, seed);
+          return true;
+        case TransitionStyle::Shatter:
+          MediaEngine::buildShatterTransition(outgoing, layer, progress, elapsed, seed);
+          return true;
+        case TransitionStyle::Clouds:
+          MediaEngine::buildCloudsTransition(outgoing, layer, progress, elapsed, seed);
+          return true;
+        case TransitionStyle::Ghastly:
+          MediaEngine::buildGhastlyTransition(outgoing, layer, progress, elapsed, seed);
+          return true;
+        default:
+          return false;
+      }
+    };
+    if (!build()) {
+      std::cerr << "transition-dump: "
+                << deckboy::core::utils::transitionStyleToken(style)
+                << " is drawn by the renderer rather than built on the CPU, so"
+                   " there is nothing to dump. Dumpable: portal, shatter,"
+                   " clouds, ghastly\n";
+      return 2;
+    }
+    // DECKBOY_TRANSITION_BENCH=<n>: build the frame n more times and print the
+    // median. A builder runs once per output frame while a transition is on
+    // air, so it has to fit inside one frame with the rest of the composite;
+    // this times the builder alone, on the picture given.
+    if (const char* benchEnv = std::getenv("DECKBOY_TRANSITION_BENCH")) {
+      const int runs = std::clamp(std::atoi(benchEnv), 1, 500);
+      std::vector<double> ms;
+      for (int i = 0; i < runs; ++i) {
+        const auto t0 = std::chrono::steady_clock::now();
+        build();
+        ms.push_back(std::chrono::duration<double, std::milli>(
+          std::chrono::steady_clock::now() - t0).count());
+      }
+      std::sort(ms.begin(), ms.end());
+      std::printf("transition-bench: %s %dx%d p=%.2f median %.2f ms, min %.2f, max %.2f (%d runs)\n",
+                  deckboy::core::utils::transitionStyleToken(style).c_str(), ow, oh,
+                  progress, ms[ms.size() / 2], ms.front(), ms.back(), runs);
     }
     if (layer.size() < count * 4u) {
       std::cerr << "transition-dump: the builder produced nothing (the frame"
