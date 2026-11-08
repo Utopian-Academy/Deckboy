@@ -109,7 +109,7 @@ HELLO	AZUL
 Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me.	Dobar den, skapi. Azul fell-ak! Nekk d Dr. Pixel. Semmus n tesdatin, ad tesleḥḍeḍ askan. Ugar ur yettili ara, ma tesliḍ-iyi.
 And I'm Professor Video. Synths first, then video. Mostly video now. Press START and we'll patch... we'll begin.	Nekk d Professor Video. Zik synth, syin tavidyut. Tura s waṭas tavidyut. Sit ɣef START, ad nqqen... ad nebdu.
 TURN THE OUTPUT ON	LDI TUFFƔA
-Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	Skapi, agdil d ilem. Ur ten-ttaǧǧa ara ttrajun. Ldi MENU, rre OUTPUT OFF d OUTPUT ON. Yya!
+Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	Skapi, agdil d ilem. Ur ten-ttaǧǧa ara ttrajun. Ldi UMUƔ, rre OUTPUT OFF d OUTPUT ON. Yya!
 Lesson one: nothing comes out until you patch the oscillator to the... the OUTPUT. It's video. I know.	Tamsirt tamezwarut: alamma teqqneḍ oscillator ɣer OUTPUT... ulac ayen ara d-iffɣen. D tavidyut. Ẓriɣ.
 BRING IN A CLIP	KTER AFMIZ
 Now a picture. Press I and pick a clip from your computer. No clip? SHOW ME, and I lend you one of mine.	Tura, tugna. Sit ɣef I, fren afmiz seg uselkim-ik. Ulac afmiz? SHOW ME, ad ak-d-fkeɣ yiwen seg wid-iw.
@@ -131,7 +131,7 @@ Now save. Ctrl+S, or SAVE. Some programs lose your work and then blame you. I wo
 Save your patch. Your SHOW. Show. This practice one lives in Deckboy's own folder; yours is safe.	Sekles patch-ik. ASKAN-ik. D askan. Wagi n ujerreb yezdeɣ deg ukaram n Deckboy; win-ik d aɣellsan.
 THAT'S A SHOW	WAGI D ASKAN
 That's a show! Output, cue, TAKE, crossfade, BLACK, save. Nazdrave, skapi. Rakia is on me.	Wagi d askan! Output, cue, TAKE, crossfade, BLACK, asekles. Nazdrave, skapi. Rakia ɣef uqerruy-iw. Teǧhed ugar n tzurin n Djurdjura, ḥader.
-Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	Tamsirt tfuk. Iskanen n yimedyaten slemmaden layers, izwal d yisemda. MENU > LEARN THE BASICS ad tt-id-yerr.
+Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	Tamsirt tfuk. Iskanen n yimedyaten slemmaden layers, izwal d yisemda. UMUƔ > LEARN THE BASICS ad tt-id-yerr.
 *shakes head* That means yes. Bravo.	*yehuzz aqerruy* Ayagi d ih. Ad yidir!
 Wonderful! Lovely signal flow.	Yelha aṭas! Asuddem n tdellalt yelhan.
 Mm. I knew you had it in you.	Mm. Ẓriɣ tzemreḍ.
@@ -144,7 +144,7 @@ your show could not be saved, so the lesson has not started. Save it (SAVE AS) a
 the practice show would not open	askan n ujerreb ur yeldi ara
 could not start the practice show	askan n ujerreb ur yebdi ara
 learn the basics: Esc leaves, and it picks up here next time	learn the basics: Esc yettaǧǧa, tikkelt i d-iteddun ad ikemmel seg dagi
-that's the basics - MENU > LESSONS has part two	d tiseglawin - MENU > LESSONS yesɛa aḥric wis sin
+that's the basics - MENU > LESSONS has part two	d tiseglawin - UMUƔ > LESSONS yesɛa aḥric wis sin
 tour paused - LEARN THE BASICS picks up where you left off	tikli teḥbes - LEARN THE BASICS ad tkemmel seg wanida i tt-teǧǧiḍ
 Mirrored screens, skapi. Press any key or click, and Dr. Pixel gives it back.	Igdilen s lemri, skapi. Sit ɣef yal tasarut, Dr. Pixel ad t-id-yerr.
 Wrong screen, skapi. Press any key or click, and Dr. Pixel gives it back.	Agdil ur nelli ara, skapi. Sit ɣef yal tasarut, Dr. Pixel ad t-id-yerr.
@@ -320,7 +320,7 @@ A lighthouse, a ghost, and a keeper who has been alone with the lamp far too lon
 Projection mapping: bending the picture to fit the building. Warp, blend, slices.	Projection mapping: knun tugna akken ad tezg ɣef lebni. Warp, blend, slice.
 Ye'll be wanting the ghost on the windows. Mind the lamp. The lamp is MINE.	Tebɣam aɛeffrit ɣef yisfuyla, neɣ? Ḥadret lmesbaḥ. Lmesbaḥ D WIN-IW.
 THE OUTPUT'S GEOMETRY	TALƔA N OUTPUT
-MENU, then Video Outputs, then Geometry. Where an output's shape lives.	MENU, syin Video Outputs, syin Geometry. Talɣa n output tezdeɣ dinna.
+MENU, then Video Outputs, then Geometry. Where an output's shape lives.	UMUƔ, syin Video Outputs, syin Geometry. Talɣa n output tezdeɣ dinna.
 Geometry: the projector-menu word for 'what shape is the picture'.	Geometry: awal n wumuɣ n projector i 'acu n talɣa i tesɛa tugna'.
 PIN A CORNER	SENṬEḌ TIƔMERT
 Press warp edit, then drag a corner on the programme monitor. The window is not square. Neither is the keeper.	Sit ɣef warp edit, syin zuɣer tiɣmert ɣef amḍiq n usaḍuf. Asfaylu mačči d amkuẓ. Unaẓur daɣen.
@@ -361,7 +361,7 @@ Press the key. The cue fires, wherever the list is standing.	Sit ɣef tsarut. Cu
 No mouse, no list, no looking. Just the key.	Ulac taɣerdayt, ulac tabdart, ulac amuqel. Tasarut kan.
 Buzz! We have a winner!	Bzzz! Nesɛa amerbaḥ!
 FROM ANYWHERE	SEG YAL AMKAN
-Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion, tanuṭ MIDI, izen OSC: MENU, syin Aẓeṭṭa, ad yini anda i yeqqen yal yiwen.
+Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion, tanuṭ MIDI, izen OSC: UMUƔ, syin Aẓeṭṭa, ad yini anda i yeqqen yal yiwen.
 A Stream Deck in the next room can press GO. So can a keyboard synth. I prefer the synth.	Stream Deck deg texxamt n tama yezmer ad yessit GO. Synth n unasiw daɣen. Ḥemmleɣ synth ugar.
 And for our viewers at home: you can play along too.	I yimeẓḍa deg uxxam: ula d kenwi tzemrem ad turarem.
 THAT'S OUR SHOW	D ASKAN-NNEƔ
@@ -414,7 +414,7 @@ Something's loose! Space holds the countdown. The clock shows it is held.	Yella 
 A hold is not a stop. Space again, and it carries on from where it was.	Aḥbas mačči d tagara. Space tikkelt nniḍen, ad ikemmel seg wanida yeḥbes.
 *holds up a spanner*	*yessali tasarut*
 THE PILOT'S VIEW	TAMUƔLI N UMENHAR
-MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	MENU, Video Outputs: rre anaw n output d PRESENTER. Win yellan ɣef usayes ad iwali tasragt, cue i d-iteddun d tizmilin-is.
+MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	UMUƔ, Video Outputs: rre anaw n output d PRESENTER. Win yellan ɣef usayes ad iwali tasragt, cue i d-iteddun d tizmilin-is.
 A presenter view is an output like any other. Point it at the confidence monitor.	Tamuɣli n umsizwer d output am wiyaḍ. Wehhi-tt ɣer tmuɣli n usayes.
 So the pilot can see the time. The pilot is Grommet.	Akken ad iwali umenhar akud. Amenhar d Grommet.
 TO THE MOON	ƔER UGGUR
@@ -455,10 +455,10 @@ AND BACK	D TUƔALIN
 The fire's out. Press B again: the picture comes back, still running.	Times texsi. B tikkelt nniḍen: tugna tuɣal-d, mazal tettuddu.
 Nothing was lost. A mute on a mixer, for pictures.	Ulac ayen iruḥen. Mute ɣef mixer, i tugniwin.
 Ta-da! Still cookin'!	Ta-da! Mazal nettsewwi!
-Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	Ugar n diri: MENU, Anagraw, takarḍa SAFETY: PANIC. Kullec yeḥbes, akken yeqqar uṣeggem n panic.
+Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	Ugar n diri: UMUƔ, Anagraw, takarḍa SAFETY: PANIC. Kullec yeḥbes, akken yeqqar uṣeggem n panic.
 PANIC is the big red button. Use it when BLACK is not enough. Then breathe.	PANIC d taqeffalt tazeggaɣt tameqqrant. Seqdec-itt mi ara ur yeqqim ara BLACK. Syin senfes.
 GET IT BACK	RR-IT-ID
-Close MENU, select the souffle, and TAKE it. The show is back on.	MDEL MENU, fren soufflé, TAKE-it. Askan yuɣal-d.
+Close MENU, select the souffle, and TAKE it. The show is back on.	MDEL UMUƔ, fren soufflé, TAKE-it. Askan yuɣal-d.
 After a panic, the show is still there. Pick up where you meant to be.	Deffir n panic, askan mazal-it dinna. Kemmel seg wanida i tebɣiḍ.
 Voila! De souffle, he is risen!	Voilà! Soufflé yuli!
 BON APPETIT	SAḤA
@@ -522,7 +522,7 @@ Add a second: a bend, like crush. It damages the sound the way a broken file wou
 The bends are my favourite. Like a tape left in the sun. On purpose.	Bends d wid ḥemmleɣ ugar. Am tkasiṭ yeqqimen deg yiṭij. S lebɣi.
 > HARDER. BETTER. CRUNCHIER. LOUDER.	> QESḤEN. YIF. YEQQRAQEB. ƐLIN.
 THE PATCH	PATCH
-MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	MENU, syin Ameslaw: anida yettruḥ imesli n yal playlist, d patch i yoututs s yisem.
+MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	UMUƔ, syin Ameslaw: anida yettruḥ imesli n yal playlist, d patch i yoututs s yisem.
 Speakers, monitors, an in-ear for the drummer. The patch sends each its own.	Imesla, imsekyaden, in-ear i ubendir. Patch yettazen i yal yiwen win-ines.
 > AROUND THE MIX. AROUND THE MIX. AROUND THE MIX.	> I TEWZI N MIX. I TEWZI N MIX. I TEWZI N MIX.
 An effect, a bend and the patch. The robots approve, skapi. I think. Their faces are helmets.	Asemda, bend d patch. Irubuten qeblen, skapi. I nniɣ. Udmawen-nsen d tiqbaɛin.
@@ -534,11 +534,11 @@ The Bureau again, skapi. A glow on the horizon, and two agents who disagree abou
 The scopes measure a picture: brightness, colour, levels. Numbers, not opinions.	Scopes ttaktilen tugna: tafat, ini, aswir. Uṭṭunen, mačči tamuɣli.
 It's them, Brandt. It's a craft. Look how it glows.	D nutni, Brandt. D aɣerrabu. Muqel amek yettfeǧǧiǧ.
 THE REAL SIGNAL	TADELLALT N TIDET
-The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	Scopes ttɣaren kan ayen yeffɣen s tidet, laɛmer preview. Ldi output: MENU, Video Outputs, OUTPUT OFF.
+The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	Scopes ttɣaren kan ayen yeffɣen s tidet, laɛmer preview. Ldi output: UMUƔ, Video Outputs, OUTPUT OFF.
 Measuring a scaled-down preview would be measuring a photocopy. We measure the original.	Taktilt n preview yettwasmeẓyen am tektilt n photocopie. Nettaktil aneẓli.
 Chain of evidence, Hollis. The real signal or nothing.	Tasuddemt n yinagiyen, Hollis. Tadellalt n tidet neɣ ulac.
 THE SCOPES	SCOPE
-Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	MDEL MENU. Nnig usaḍuf, taqeffalt PROGRAM: sit alamma tenna SCOPES neɣ BOTH.
+Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	MDEL UMUƔ. Nnig usaḍuf, taqeffalt PROGRAM: sit alamma tenna SCOPES neɣ BOTH.
 Both shows the picture and its scopes side by side. Very civilised.	BOTH yesken tugna d scopes-is yiwen ɣer tama n wayeḍ. D ayen yesɛan leqder.
 Let the scopes decide, Hollis.	Eǧǧ scopes ad sfuglen, Hollis.
 THE WAVEFORM	WAVEFORM
@@ -561,7 +561,7 @@ OUT OF THE BUILDING	BEṚṚA N LEBNI
 Pictures that leave by cable or network, skapi, not only a window on a screen. Press START.	Tugniwin yeffɣen s ufeggag neɣ s uẓeṭṭa, skapi, mačči d asfaylu kan ɣef ugdil. Sit ɣef START.
 NDI over the network, SDI from a DeckLink card, ST 2110 for broadcast plants.	NDI ɣef uẓeṭṭa, SDI seg tkarḍa DeckLink, ST 2110 i tezrigin.
 THE DEVICES PAGE	ASEBTER N YIBENKAN
-MENU, Video Outputs, then Devices: every way an output can leave this computer.	MENU, Video Outputs, syin Ibenkan: yal abrid i yezmer output ad yeffeɣ seg uselkim-agi.
+MENU, Video Outputs, then Devices: every way an output can leave this computer.	UMUƔ, Video Outputs, syin Ibenkan: yal abrid i yezmer output ad yeffeɣ seg uselkim-agi.
 Each one says whether this machine can do it, and what it needs if not.	Yal yiwen yeqqar ma tezmer tmacint-agi, ma ulac, d acu i tḥwaǧ.
 If this computer has NDI, switch NDI SENDING on: the picture is on the network. If not, SHOW ME moves on.	Ma yella NDI ɣef uselkim-agi, ldi NDI SENDING: tugna ɣef uẓeṭṭa. Ma ulac, SHOW ME ikemmel.
 NDI finds itself on the network. No cables, only a good switch and patience.	NDI yettaf iman-is ɣef uẓeṭṭa. Ulac afeggag, kan switch yelhan d ṣṣber.
@@ -608,7 +608,7 @@ Nearly there. I can feel it in my pixels.	Qrib. Ḥusseɣ-t deg yipiksilen-iw.
 You're good at this. I can tell. I'm the one doing it.	Kečč d aḥerfi deg waya. Walaɣ-t. S tidet.
 Every click, I heard. Every single one.	Yal asit, sliɣ-as. Yal yiwen.
 The glowing one. I can see it from here. It's glowing for you.	Win yettfeǧǧiǧen. Walaɣ-t seg dagi. Yettfeǧǧiǧ i kečč.
-lesson paused - MENU > LESSONS picks up where you left off	tamsirt teḥbes - MENU > LESSONS ad tkemmel seg wanida i tt-teǧǧiḍ
+lesson paused - MENU > LESSONS picks up where you left off	tamsirt teḥbes - UMUƔ > LESSONS ad tkemmel seg wanida i tt-teǧǧiḍ
 PROF. VIDEO:  The signal: what the picture is made of, and how to bend it. Pick a lesson.	PROF. VIDEO:  Tadellalt: seg wacu i texdem tugna, d amek i tettwaknu. Fren tamsirt.
 DR. PIXEL:  Running the show, skapi. Fast hands, calm face. Pick a lesson.	DR. PIXEL:  Asleḥ n uskan, skapi. Ifassen arurad, udem yehnan. Fren tamsirt.
 LESSONS  -  PART TWO  -  WHO DO YOU FOLLOW?	TAMSIRT  -  AḤRIC WIS SIN  -  ANWA I TEḌFERḌ?
@@ -2212,3 +2212,5 @@ Click its tab, Deck 2. A new playlist waits until you choose it.	Sit ɣef yiccer
 The lit tab gets the next cue. Like choosing which slide goes in the projector.	Iccer i iceɛlen ad yaweḍ cue d-iteddun. Am wakken ad tferneḍ tugna ara yekcmen ɣer projecteur.
 Pick a deck. Any deck. ...Deck 2. Pick Deck 2.	Fren tafarkunt. Anta ma tebɣiḍ. ...Deck 2. Fren Deck 2.
 Timecode	Tangalt n wakud
+MENU	UMUƔ
+VOLUME	ASAWAL

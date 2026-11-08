@@ -501,7 +501,7 @@ HELLO	ΓΕΙΑ ΣΟΥ
 Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me.	Ντόμπαρ ντεν, σκάπι. Είμαι η δρ Πίξελ. Πέντε λεπτά και θα τρέχεις σόου. Λιγότερο, αν με ακούσεις.
 And I'm Professor Video. Synths first, then video. Mostly video now. Press START and we'll patch... we'll begin.	Κι εγώ είμαι ο καθηγητής Βίντεο. Πρώτα συνθεσάιζερ, μετά βίντεο. Τώρα κυρίως βίντεο. Πάτα START και θα συνδέσουμε... θα ξεκινήσουμε.
 TURN THE OUTPUT ON	ΑΝΑΨΕ ΤΗΝ ΕΞΟΔΟ
-Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	Σκάπι, η οθόνη είναι άδεια. Μην τους αφήνεις να περιμένουν. Άνοιξε το MENU και κάνε το ΕΞΟΔΟΣ ΕΚΤΟΣ να γίνει ΕΞΟΔΟΣ ΕΝΤΟΣ. Άιντε!
+Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	Σκάπι, η οθόνη είναι άδεια. Μην τους αφήνεις να περιμένουν. Άνοιξε το ΜΕΝΟΥ και κάνε το ΕΞΟΔΟΣ ΕΚΤΟΣ να γίνει ΕΞΟΔΟΣ ΕΝΤΟΣ. Άιντε!
 Lesson one: nothing comes out until you patch the oscillator to the... the OUTPUT. It's video. I know.	Μάθημα πρώτο: τίποτα δεν βγαίνει μέχρι να συνδέσεις τον ταλαντωτή στην... στην ΕΞΟΔΟ. Βίντεο είναι. Το ξέρω.
 BRING IN A CLIP	ΦΕΡΕ ΕΝΑ ΚΛΙΠ
 Now a picture. Press I and pick a clip from your computer. No clip? SHOW ME, and I lend you one of mine.	Τώρα μια εικόνα. Πάτα I και διάλεξε ένα κλιπ από τον υπολογιστή σου. Δεν έχεις κλιπ; SHOW ME, και σου δανείζω ένα δικό μου.
@@ -523,7 +523,7 @@ Now save. Ctrl+S, or SAVE. Some programs lose your work and then blame you. I wo
 Save your patch. Your SHOW. Show. This practice one lives in Deckboy's own folder; yours is safe.	Αποθήκευσε το πατς σου. Το ΣΟΟΥ σου. Σόου. Αυτό το εξασκητικό μένει στον φάκελο του ίδιου του Deckboy· το δικό σου είναι ασφαλές.
 THAT'S A SHOW	ΑΥΤΟ ΕΙΝΑΙ ΣΟΟΥ
 That's a show! Output, cue, TAKE, crossfade, BLACK, save. Nazdrave, skapi. Rakia is on me.	Αυτό είναι σόου! Έξοδος, cue, TAKE, διασταύρωση, BLACK, αποθήκευση. Ναζντράβε, σκάπι. Η ρακία κερασμένη από μένα.
-Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	Τέλος μαθήματος. Τα παραδείγματα σόου διδάσκουν επίπεδα, τίτλους και εφέ. Το MENU > LEARN THE BASICS τα ξαναπαίζει.
+Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	Τέλος μαθήματος. Τα παραδείγματα σόου διδάσκουν επίπεδα, τίτλους και εφέ. Το ΜΕΝΟΥ > LEARN THE BASICS τα ξαναπαίζει.
 *shakes head* That means yes. Bravo.	*κουνάει το κεφάλι πέρα δώθε* Αυτό σημαίνει ναι. Μπράβο.
 Wonderful! Lovely signal flow.	Υπέροχα! Τι ωραία ροή σήματος.
 Mm. I knew you had it in you.	Μμ. Το ήξερα ότι το έχεις.
@@ -536,7 +536,7 @@ your show could not be saved, so the lesson has not started. Save it (SAVE AS) a
 the practice show would not open	το σόου εξάσκησης δεν άνοιξε
 could not start the practice show	δεν ήταν δυνατό να ξεκινήσει το σόου εξάσκησης
 learn the basics: Esc leaves, and it picks up here next time	learn the basics: το Esc βγαίνει, και την επόμενη φορά συνεχίζει από εδώ
-that's the basics - MENU > LESSONS has part two	αυτά είναι τα βασικά - το MENU > LESSONS έχει δεύτερο μέρος
+that's the basics - MENU > LESSONS has part two	αυτά είναι τα βασικά - το ΜΕΝΟΥ > LESSONS έχει δεύτερο μέρος
 tour paused - LEARN THE BASICS picks up where you left off	ξενάγηση σε παύση - το LEARN THE BASICS συνεχίζει από εκεί που σταμάτησες
 Mirrored screens, skapi. Press any key or click, and Dr. Pixel gives it back.	Οθόνες σε καθρέφτη, σκάπι. Πάτα ένα πλήκτρο ή κάνε κλικ, και η δρ Πίξελ το επιστρέφει.
 Wrong screen, skapi. Press any key or click, and Dr. Pixel gives it back.	Λάθος οθόνη, σκάπι. Πάτα ένα πλήκτρο ή κάνε κλικ, και η δρ Πίξελ το επιστρέφει.
@@ -715,7 +715,7 @@ A lighthouse, a ghost, and a keeper who has been alone with the lamp far too lon
 Projection mapping: bending the picture to fit the building. Warp, blend, slices.	Προβολική χαρτογράφηση: λυγίζουμε την εικόνα να ταιριάξει στο κτίριο. Παραμόρφωση, μείξη, φέτες.
 Ye'll be wanting the ghost on the windows. Mind the lamp. The lamp is MINE.	Το φάντασμα στα παράθυρα θέλετε, ε; Προσοχή στη λάμπα. Η λάμπα είναι ΔΙΚΗ ΜΟΥ.
 THE OUTPUT'S GEOMETRY	Η ΓΕΩΜΕΤΡΙΑ ΤΗΣ ΕΞΟΔΟΥ
-MENU, then Video Outputs, then Geometry. Where an output's shape lives.	MENU, μετά Έξοδοι βίντεο, μετά Γεωμετρία. Εκεί ζει το σχήμα μιας εξόδου.
+MENU, then Video Outputs, then Geometry. Where an output's shape lives.	ΜΕΝΟΥ, μετά Έξοδοι βίντεο, μετά Γεωμετρία. Εκεί ζει το σχήμα μιας εξόδου.
 Geometry: the projector-menu word for 'what shape is the picture'.	Γεωμετρία: η λέξη των μενού του προβολέα για το «τι σχήμα έχει η εικόνα».
 PIN A CORNER	ΚΑΡΦΙΤΣΩΣΕ ΜΙΑ ΓΩΝΙΑ
 Press warp edit, then drag a corner on the programme monitor. The window is not square. Neither is the keeper.	Πάτα warp edit, μετά σύρε μια γωνία στην οθόνη προγράμματος. Το παράθυρο δεν είναι τετράγωνο. Ούτε ο φαροφύλακας.
@@ -756,7 +756,7 @@ Press the key. The cue fires, wherever the list is standing.	Πάτα το πλ�
 No mouse, no list, no looking. Just the key.	Χωρίς ποντίκι, χωρίς λίστα, χωρίς να κοιτάς. Μόνο το πλήκτρο.
 Buzz! We have a winner!	Μπζζ! Έχουμε νικητή!
 FROM ANYWHERE	ΑΠΟ ΠΑΝΤΟΥ
-Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion, μια νότα MIDI, ένα μήνυμα OSC: MENU, μετά Δίκτυο, λέει πού συνδέεται το καθένα.
+Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion, μια νότα MIDI, ένα μήνυμα OSC: ΜΕΝΟΥ, μετά Δίκτυο, λέει πού συνδέεται το καθένα.
 A Stream Deck in the next room can press GO. So can a keyboard synth. I prefer the synth.	Ένα Stream Deck στο διπλανό δωμάτιο μπορεί να πατήσει GO. Κι ένα συνθεσάιζερ με πλήκτρα. Προτιμώ το συνθεσάιζερ.
 And for our viewers at home: you can play along too.	Και για τους τηλεθεατές στο σπίτι: μπορείτε να παίξετε κι εσείς.
 THAT'S OUR SHOW	ΑΥΤΗ ΗΤΑΝ Η ΕΚΠΟΜΠΗ ΜΑΣ
@@ -809,7 +809,7 @@ Something's loose! Space holds the countdown. The clock shows it is held.	Κάτ
 A hold is not a stop. Space again, and it carries on from where it was.	Η παύση δεν είναι στοπ. Ξανά διάστημα, και συνεχίζει από εκεί που ήταν.
 *holds up a spanner*	*σηκώνει ένα κλειδί*
 THE PILOT'S VIEW	Η ΘΕΑ ΤΟΥ ΠΙΛΟΤΟΥ
-MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	MENU, Έξοδοι βίντεο: κάνε τον τύπο μιας εξόδου PRESENTER. Όποιος είναι στη σκηνή βλέπει το χρονόμετρο, το επόμενο cue και τις σημειώσεις του.
+MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	ΜΕΝΟΥ, Έξοδοι βίντεο: κάνε τον τύπο μιας εξόδου PRESENTER. Όποιος είναι στη σκηνή βλέπει το χρονόμετρο, το επόμενο cue και τις σημειώσεις του.
 A presenter view is an output like any other. Point it at the confidence monitor.	Μια προβολή παρουσιαστή είναι έξοδος σαν όλες τις άλλες. Στρέψ' την στην οθόνη επιστροφής.
 So the pilot can see the time. The pilot is Grommet.	Για να βλέπει ο πιλότος την ώρα. Ο πιλότος είναι ο Grommet.
 TO THE MOON	ΣΤΟ ΦΕΓΓΑΡΙ
@@ -851,11 +851,11 @@ AND BACK	ΚΑΙ ΠΙΣΩ
 The fire's out. Press B again: the picture comes back, still running.	Η φωτιά έσβησε. Πάτα πάλι B: η εικόνα γυρίζει, ακόμα τρέχει.
 Nothing was lost. A mute on a mixer, for pictures.	Τίποτα δεν χάθηκε. Ένα mute σε κονσόλα, για εικόνες.
 Ta-da! Still cookin'!	Τα-ντα! Ακόμα μαγειρεύουμε!
-Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	Χειρότερα: MENU, Σύστημα, η κάρτα SAFETY: PANIC. Όλα σταματούν, όπως λέει η ρύθμιση πανικού.
+Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	Χειρότερα: ΜΕΝΟΥ, Σύστημα, η κάρτα SAFETY: PANIC. Όλα σταματούν, όπως λέει η ρύθμιση πανικού.
 PANIC is the big red button. Use it when BLACK is not enough. Then breathe.	Το PANIC είναι το μεγάλο κόκκινο κουμπί. Χρησιμοποίησέ το όταν το BLACK δεν φτάνει. Μετά ανάσανε.
 Bork bork BORK!	Μπορκ μπορκ ΜΠΟΡΚ!
 GET IT BACK	ΠΑΡ' ΤΟ ΠΙΣΩ
-Close MENU, select the souffle, and TAKE it. The show is back on.	Κλείσε το MENU, επίλεξε το σουφλέ και κάνε TAKE. Το σόου ξαναρχίζει.
+Close MENU, select the souffle, and TAKE it. The show is back on.	Κλείσε το ΜΕΝΟΥ, επίλεξε το σουφλέ και κάνε TAKE. Το σόου ξαναρχίζει.
 After a panic, the show is still there. Pick up where you meant to be.	Μετά από πανικό, το σόου είναι ακόμα εκεί. Συνέχισε από εκεί που ήθελες να είσαι.
 Voila! De souffle, he is risen!	Βουαλά! Το σουφλέ, φούσκωσε!
 BON APPETIT	ΚΑΛΗ ΟΡΕΞΗ
@@ -919,7 +919,7 @@ Add a second: a bend, like crush. It damages the sound the way a broken file wou
 The bends are my favourite. Like a tape left in the sun. On purpose.	Οι κάμψεις είναι οι αγαπημένες μου. Σαν κασέτα ξεχασμένη στον ήλιο. Επίτηδες.
 > HARDER. BETTER. CRUNCHIER. LOUDER.	> ΠΙΟ ΣΚΛΗΡΑ. ΚΑΛΥΤΕΡΑ. ΠΙΟ ΤΡΑΓΑΝΑ. ΠΙΟ ΔΥΝΑΤΑ.
 THE PATCH	ΤΟ ΠΑΤΣ
-MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	MENU, μετά Ήχος: πού πηγαίνει ο ήχος κάθε λίστας, και το πατς για τις εξόδους με όνομα.
+MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	ΜΕΝΟΥ, μετά Ήχος: πού πηγαίνει ο ήχος κάθε λίστας, και το πατς για τις εξόδους με όνομα.
 Speakers, monitors, an in-ear for the drummer. The patch sends each its own.	Ηχεία, μόνιτορ, ένα in-ear για τον ντράμερ. Το πατς στέλνει στον καθένα το δικό του.
 > AROUND THE MIX. AROUND THE MIX. AROUND THE MIX.	> ΓΥΡΩ ΑΠΟ ΤΗ ΜΙΞΗ. ΓΥΡΩ ΑΠΟ ΤΗ ΜΙΞΗ. ΓΥΡΩ ΑΠΟ ΤΗ ΜΙΞΗ.
 An effect, a bend and the patch. The robots approve, skapi. I think. Their faces are helmets.	Ένα εφέ, μια κάμψη και το πατς. Τα ρομπότ εγκρίνουν, σκάπι. Νομίζω. Τα πρόσωπά τους είναι κράνη.
@@ -931,11 +931,11 @@ The Bureau again, skapi. A glow on the horizon, and two agents who disagree abou
 The scopes measure a picture: brightness, colour, levels. Numbers, not opinions.	Τα σκόουπ μετράνε μια εικόνα: φωτεινότητα, χρώμα, στάθμες. Αριθμοί, όχι απόψεις.
 It's them, Brandt. It's a craft. Look how it glows.	Είναι αυτοί, Μπραντ. Είναι σκάφος. Δες πώς λάμπει.
 THE REAL SIGNAL	ΤΟ ΑΛΗΘΙΝΟ ΣΗΜΑ
-The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	Τα σκόουπ διαβάζουν μόνο ό,τι βγαίνει πραγματικά, ποτέ προεπισκόπηση. Άναψε την έξοδο: MENU, Έξοδοι βίντεο, ΕΞΟΔΟΣ ΕΚΤΟΣ.
+The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	Τα σκόουπ διαβάζουν μόνο ό,τι βγαίνει πραγματικά, ποτέ προεπισκόπηση. Άναψε την έξοδο: ΜΕΝΟΥ, Έξοδοι βίντεο, ΕΞΟΔΟΣ ΕΚΤΟΣ.
 Measuring a scaled-down preview would be measuring a photocopy. We measure the original.	Να μετράς μια μικρυμένη προεπισκόπηση είναι σαν να μετράς φωτοτυπία. Εμείς μετράμε το πρωτότυπο.
 Chain of evidence, Hollis. The real signal or nothing.	Αλυσίδα τεκμηρίων, Χόλις. Το αληθινό σήμα ή τίποτα.
 THE SCOPES	ΤΑ ΣΚΟΟΥΠ
-Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	Κλείσε το MENU. Πάνω από την οθόνη, το κουμπί PROGRAM: πάτα το μέχρι να γράφει SCOPES ή BOTH.
+Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	Κλείσε το ΜΕΝΟΥ. Πάνω από την οθόνη, το κουμπί PROGRAM: πάτα το μέχρι να γράφει SCOPES ή BOTH.
 Both shows the picture and its scopes side by side. Very civilised.	Το BOTH δείχνει την εικόνα και τα σκόουπ της δίπλα δίπλα. Πολύ πολιτισμένο.
 Let the scopes decide, Hollis.	Ας αποφασίσουν τα σκόουπ, Χόλις.
 THE WAVEFORM	Η ΚΥΜΑΤΟΜΟΡΦΗ
@@ -958,7 +958,7 @@ OUT OF THE BUILDING	ΕΞΩ ΑΠΟ ΤΟ ΚΤΙΡΙΟ
 Pictures that leave by cable or network, skapi, not only a window on a screen. Press START.	Εικόνες που φεύγουν με καλώδιο ή δίκτυο, σκάπι, όχι μόνο ένα παράθυρο σε μια οθόνη. Πάτα START.
 NDI over the network, SDI from a DeckLink card, ST 2110 for broadcast plants.	NDI πάνω από το δίκτυο, SDI από κάρτα DeckLink, ST 2110 για εγκαταστάσεις εκπομπής.
 THE DEVICES PAGE	Η ΣΕΛΙΔΑ ΣΥΣΚΕΥΩΝ
-MENU, Video Outputs, then Devices: every way an output can leave this computer.	MENU, Έξοδοι βίντεο, μετά Συσκευές: κάθε τρόπος με τον οποίο μια έξοδος μπορεί να φύγει από αυτόν τον υπολογιστή.
+MENU, Video Outputs, then Devices: every way an output can leave this computer.	ΜΕΝΟΥ, Έξοδοι βίντεο, μετά Συσκευές: κάθε τρόπος με τον οποίο μια έξοδος μπορεί να φύγει από αυτόν τον υπολογιστή.
 Each one says whether this machine can do it, and what it needs if not.	Το καθένα λέει αν αυτό το μηχάνημα μπορεί, και τι χρειάζεται αν όχι.
 If this computer has NDI, switch NDI SENDING on: the picture is on the network. If not, SHOW ME moves on.	Αν αυτός ο υπολογιστής έχει NDI, άναψε το NDI SENDING: η εικόνα είναι στο δίκτυο. Αν όχι, το SHOW ME προχωράει.
 NDI finds itself on the network. No cables, only a good switch and patience.	Το NDI βρίσκει μόνο του τον εαυτό του στο δίκτυο. Χωρίς καλώδια, μόνο ένα καλό switch και υπομονή.
@@ -1005,7 +1005,7 @@ Nearly there. I can feel it in my pixels.	Σχεδόν. Το νιώθω στα �
 You're good at this. I can tell. I'm the one doing it.	Είσαι καλός σε αυτό. Φαίνεται. Εγώ το κάνω.
 Every click, I heard. Every single one.	Κάθε κλικ, το άκουσα. Κάθε ένα.
 The glowing one. I can see it from here. It's glowing for you.	Αυτό που λάμπει. Το βλέπω από εδώ. Λάμπει για σένα.
-lesson paused - MENU > LESSONS picks up where you left off	το μάθημα σε παύση - το MENU > LESSONS συνεχίζει από εκεί που σταμάτησες
+lesson paused - MENU > LESSONS picks up where you left off	το μάθημα σε παύση - το ΜΕΝΟΥ > LESSONS συνεχίζει από εκεί που σταμάτησες
 PROF. VIDEO:  The signal: what the picture is made of, and how to bend it. Pick a lesson.	PROF. VIDEO:  Το σήμα: από τι είναι φτιαγμένη η εικόνα, και πώς τη λυγίζεις. Διάλεξε μάθημα.
 DR. PIXEL:  Running the show, skapi. Fast hands, calm face. Pick a lesson.	DR. PIXEL:  Να τρέχεις το σόου, σκάπι. Γρήγορα χέρια, ήρεμο πρόσωπο. Διάλεξε μάθημα.
 LESSONS  -  PART TWO  -  WHO DO YOU FOLLOW?	ΜΑΘΗΜΑΤΑ  -  ΜΕΡΟΣ ΔΕΥΤΕΡΟ  -  ΠΟΙΟΝ ΑΚΟΛΟΥΘΕΙΣ;
@@ -2212,3 +2212,5 @@ Nine years of live weather. Always click the tab.	Εννιά χρόνια και
 Click its tab, Deck 2. A new playlist waits until you choose it.	Κάνε κλικ στην καρτέλα της, Deck 2. Μια νέα λίστα περιμένει μέχρι να τη διαλέξεις.
 The lit tab gets the next cue. Like choosing which slide goes in the projector.	Η φωτισμένη καρτέλα παίρνει το επόμενο cue. Σαν να διαλέγεις ποια διαφάνεια μπαίνει στον προβολέα.
 Pick a deck. Any deck. ...Deck 2. Pick Deck 2.	Διάλεξε μια τράπουλα. Οποιαδήποτε. ...Deck 2. Διάλεξε το Deck 2.
+MENU	ΜΕΝΟΥ
+VOLUME	ΕΝΤΑΣΗ

@@ -500,7 +500,7 @@ HELLO	SAWUBONA
 Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me.	Dobar den, skapi. Sawubona! NginguDokotela Pixel. Imizuzu emihlanu, uzobe usuqhuba umbukiso. Kancane kunalokho, uma ungilalela.
 And I'm Professor Video. Synths first, then video. Mostly video now. Press START and we'll patch... we'll begin.	Futhi minginguSolwazi Video. Kuqala ama-synth, bese kuba ividiyo. Manje ikakhulu ividiyo. Cindezela u-START sixhume... siqale.
 TURN THE OUTPUT ON	VULA OKUPHUMAYO
-Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	Skapi, isikrini asinalutho. Ungabalindisi. Vula i-MENU wenze u-OKUPHUMAYO KUVALIWE abe ngu-OKUPHUMAYO KUVULIWE. Hajde!
+Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	Skapi, isikrini asinalutho. Ungabalindisi. Vula i-IMENYU wenze u-OKUPHUMAYO KUVALIWE abe ngu-OKUPHUMAYO KUVULIWE. Hajde!
 Lesson one: nothing comes out until you patch the oscillator to the... the OUTPUT. It's video. I know.	Isifundo sokuqala: akukho okuphumayo uze uxhume i-oscillator ku... kokuphumayo. Yividiyo. Ngiyazi.
 BRING IN A CLIP	LETHA I-CLIP
 Now a picture. Press I and pick a clip from your computer. No clip? SHOW ME, and I lend you one of mine.	Manje isithombe. Cindezela u-I ukhethe i-clip kukhompyutha yakho. Ayikho i-clip? SHOW ME, ngizokuboleka eyami.
@@ -522,7 +522,7 @@ Now save. Ctrl+S, or SAVE. Some programs lose your work and then blame you. I wo
 Save your patch. Your SHOW. Show. This practice one lives in Deckboy's own folder; yours is safe.	Londoloza i-patch yakho. UMBUKISO wakho. Umbukiso. Lona owokuzijwayeza uhlala kufolda kaDeckboy uqobo; owakho uphephile.
 THAT'S A SHOW	LOWO NGUMBUKISO
 That's a show! Output, cue, TAKE, crossfade, BLACK, save. Nazdrave, skapi. Rakia is on me.	Lowo ngumbukiso! Okuphumayo, i-cue, u-TAKE, i-crossfade, u-BLACK, ukulondoloza. Nazdrave, skapi. I-rakia ngeyami. Halala!
-Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	Isifundo siphelile. Imibukiso eyizibonelo ifundisa ama-layer, iziqu nemiphumela. I-MENU > LEARN THE BASICS iphinda lokhu.
+Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	Isifundo siphelile. Imibukiso eyizibonelo ifundisa ama-layer, iziqu nemiphumela. I-IMENYU > LEARN THE BASICS iphinda lokhu.
 *shakes head* That means yes. Bravo.	*unikina ikhanda* Lokho kusho yebo. Halala!
 Wonderful! Lovely signal flow.	Kuhle kakhulu! Ukugeleza kwesignali okuhle.
 Mm. I knew you had it in you.	Mm. Bengazi ukuthi uyakwazi.
@@ -535,7 +535,7 @@ your show could not be saved, so the lesson has not started. Save it (SAVE AS) a
 the practice show would not open	umbukiso wokuzijwayeza awuvulekanga
 could not start the practice show	ayikwazanga ukuqala umbukiso wokuzijwayeza
 learn the basics: Esc leaves, and it picks up here next time	learn the basics: i-Esc iyaphuma, ngokuzayo iqhubeka lapha
-that's the basics - MENU > LESSONS has part two	lezo yizisekelo - i-MENU > LESSONS inengxenye yesibili
+that's the basics - MENU > LESSONS has part two	lezo yizisekelo - i-IMENYU > LESSONS inengxenye yesibili
 tour paused - LEARN THE BASICS picks up where you left off	uhambo lumisiwe - u-LEARN THE BASICS uqhubeka lapho ugcine khona
 Mirrored screens, skapi. Press any key or click, and Dr. Pixel gives it back.	Izikrini ezibonisanayo, skapi. Cindezela noma iyiphi inkinobho noma uchofoze, uDokotela Pixel uyakubuyisela.
 Wrong screen, skapi. Press any key or click, and Dr. Pixel gives it back.	Isikrini esingesiso, skapi. Cindezela noma iyiphi inkinobho noma uchofoze, uDokotela Pixel uyakubuyisela.
@@ -714,7 +714,7 @@ A lighthouse, a ghost, and a keeper who has been alone with the lamp far too lon
 Projection mapping: bending the picture to fit the building. Warp, blend, slices.	I-projection mapping: ukugoba isithombe silingane nesakhiwo. Ukusonta, ukuxuba, izingcezu.
 Ye'll be wanting the ghost on the windows. Mind the lamp. The lamp is MINE.	Nifuna isipoki emafasiteleni, akunjalo? Qaphelani isibani. Isibani ngesaMI.
 THE OUTPUT'S GEOMETRY	I-JIYOMETHRI YOKUPHUMAYO
-MENU, then Video Outputs, then Geometry. Where an output's shape lives.	I-MENU, bese u-Okuphumayo kwevidiyo, bese u-Ijiyomethri. Lapho kuhlala khona isimo sokuphumayo.
+MENU, then Video Outputs, then Geometry. Where an output's shape lives.	I-IMENYU, bese u-Okuphumayo kwevidiyo, bese u-Ijiyomethri. Lapho kuhlala khona isimo sokuphumayo.
 Geometry: the projector-menu word for 'what shape is the picture'.	I-jiyomethri: igama lamamenyu e-projector elisho 'isithombe simise kanjani'.
 PIN A CORNER	BETHELA IKHONA
 Press warp edit, then drag a corner on the programme monitor. The window is not square. Neither is the keeper.	Cindezela u-warp edit, bese uhudula ikhona ku-monitor yohlelo. Ifasitela aliyona isikwele. Nomgcini akayona.
@@ -755,7 +755,7 @@ Press the key. The cue fires, wherever the list is standing.	Cindezela inkinobho
 No mouse, no list, no looking. Just the key.	Akukho mouse, akukho hlu, akukho ukubheka. Inkinobho nje.
 Buzz! We have a winner!	Bzzz! Sinomnqobi!
 FROM ANYWHERE	NOMA KUPHI
-Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	U-Companion, inothi ye-MIDI, umlayezo we-OSC: i-MENU, bese u-Inethiwekhi, kusho ukuthi ngayinye ixhuma kuphi.
+Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	U-Companion, inothi ye-MIDI, umlayezo we-OSC: i-IMENYU, bese u-Inethiwekhi, kusho ukuthi ngayinye ixhuma kuphi.
 A Stream Deck in the next room can press GO. So can a keyboard synth. I prefer the synth.	I-Stream Deck egumbini elilandelayo ingacindezela u-GO. Ne-keyboard synth futhi. Mina ngithanda i-synth.
 And for our viewers at home: you can play along too.	Futhi ababukeli abasekhaya: nani ningadlala nathi.
 THAT'S OUR SHOW	LOWO KWAKUNGUMBUKISO WETHU
@@ -808,7 +808,7 @@ Something's loose! Space holds the countdown. The clock shows it is held.	Kukhon
 A hold is not a stop. Space again, and it carries on from where it was.	Ukumisa akusikho ukuyeka. I-space futhi, luqhubeke lapho belukhona.
 *holds up a spanner*	*uphakamisa isipanela*
 THE PILOT'S VIEW	UMBONO WOMSHAYELI
-MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	I-MENU, Okuphumayo kwevidiyo: yenza uhlobo lokuphumayo lube ngu-PRESENTER. Umuntu osesiteji uthola isikhathi, i-cue elandelayo namanothi akhe.
+MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	I-IMENYU, Okuphumayo kwevidiyo: yenza uhlobo lokuphumayo lube ngu-PRESENTER. Umuntu osesiteji uthola isikhathi, i-cue elandelayo namanothi akhe.
 A presenter view is an output like any other. Point it at the confidence monitor.	Umbono womethuli ungokuphumayo njengakho konke okunye. Wukhombise ku-monitor yesiteji.
 So the pilot can see the time. The pilot is Grommet.	Ukuze umshayeli abone isikhathi. Umshayeli nguGrommet.
 TO THE MOON	ENYANGENI
@@ -849,10 +849,10 @@ AND BACK	NOKUBUYA
 The fire's out. Press B again: the picture comes back, still running.	Umlilo ucimile. Cindezela u-B futhi: isithombe siyabuya, sisasebenza.
 Nothing was lost. A mute on a mixer, for pictures.	Akukho okulahlekile. Ukuthulisa ku-mixer, kwezithombe.
 Ta-da! Still cookin'!	Ta-da! Sisapheka!
-Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	Kubi kakhulu: i-MENU, Isistimu, ikhadi le-SAFETY: u-PANIC. Konke kuyama, njengoba isilungiselelo sokwethuka sisho.
+Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	Kubi kakhulu: i-IMENYU, Isistimu, ikhadi le-SAFETY: u-PANIC. Konke kuyama, njengoba isilungiselelo sokwethuka sisho.
 PANIC is the big red button. Use it when BLACK is not enough. Then breathe.	U-PANIC yinkinobho enkulu ebomvu. Yisebenzise uma u-BLACK enganele. Bese uphefumula.
 GET IT BACK	KUBUYISE
-Close MENU, select the souffle, and TAKE it. The show is back on.	Vala i-MENU, khetha i-soufflé, wenze u-TAKE. Umbukiso uyaqhubeka futhi.
+Close MENU, select the souffle, and TAKE it. The show is back on.	Vala i-IMENYU, khetha i-soufflé, wenze u-TAKE. Umbukiso uyaqhubeka futhi.
 After a panic, the show is still there. Pick up where you meant to be.	Ngemuva kokwethuka, umbukiso usekhona. Qhubeka lapho ubufuna ukuba khona.
 Voila! De souffle, he is risen!	Voilà! I-soufflé, ivukile!
 BON APPETIT	DLANI KAHLE
@@ -916,7 +916,7 @@ Add a second: a bend, like crush. It damages the sound the way a broken file wou
 The bends are my favourite. Like a tape left in the sun. On purpose.	Ukugoba yikho engikuthanda kakhulu. Njengekhasethi elishiywe elangeni. Ngamabomu.
 > HARDER. BETTER. CRUNCHIER. LOUDER.	> KAKHULU. KANGCONO. KUQHUMA. KUZWAKALA.
 THE PATCH	I-PATCH
-MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	I-MENU, bese u-Umsindo: lapho umsindo we-playlist ngayinye uya khona, ne-patch yokuphumayo okunamagama.
+MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	I-IMENYU, bese u-Umsindo: lapho umsindo we-playlist ngayinye uya khona, ne-patch yokuphumayo okunamagama.
 Speakers, monitors, an in-ear for the drummer. The patch sends each its own.	Izipikha, ama-monitor, i-in-ear yomshayi wezigubhu. I-patch ithumela ngamunye okwakhe.
 > AROUND THE MIX. AROUND THE MIX. AROUND THE MIX.	> EZUNGEZE I-MIX. EZUNGEZE I-MIX. EZUNGEZE I-MIX.
 An effect, a bend and the patch. The robots approve, skapi. I think. Their faces are helmets.	Umphumela, ukugoba ne-patch. Amarobhothi ayavuma, skapi. Ngicabanga. Ubuso bawo yizigqoko.
@@ -928,11 +928,11 @@ The Bureau again, skapi. A glow on the horizon, and two agents who disagree abou
 The scopes measure a picture: brightness, colour, levels. Numbers, not opinions.	Ama-scope alinganisa isithombe: ukukhanya, umbala, amazinga. Izinombolo, hhayi imibono.
 It's them, Brandt. It's a craft. Look how it glows.	Yibo, Brandt. Ngumkhumbi. Bheka ukuthi ukhanya kanjani.
 THE REAL SIGNAL	ISIGNALI YANGEMPELA
-The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	Ama-scope afunda kuphela okuphuma ngempela, hhayi i-preview. Vula okuphumayo: i-MENU, Okuphumayo kwevidiyo, OKUPHUMAYO KUVALIWE.
+The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	Ama-scope afunda kuphela okuphuma ngempela, hhayi i-preview. Vula okuphumayo: i-IMENYU, Okuphumayo kwevidiyo, OKUPHUMAYO KUVALIWE.
 Measuring a scaled-down preview would be measuring a photocopy. We measure the original.	Ukulinganisa i-preview encishisiwe kungaba njengokulinganisa i-photocopy. Thina silinganisa okwangempela.
 Chain of evidence, Hollis. The real signal or nothing.	Uchungechunge lobufakazi, Hollis. Isignali yangempela noma lutho.
 THE SCOPES	AMA-SCOPE
-Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	Vala i-MENU. Ngaphezu kwe-monitor, inkinobho ye-PROGRAM: yicindezele kuze kube kuthi SCOPES noma BOTH.
+Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	Vala i-IMENYU. Ngaphezu kwe-monitor, inkinobho ye-PROGRAM: yicindezele kuze kube kuthi SCOPES noma BOTH.
 Both shows the picture and its scopes side by side. Very civilised.	U-BOTH ubonisa isithombe nama-scope aso eceleni. Kunesizotha kakhulu.
 Let the scopes decide, Hollis.	Ake ama-scope anqume, Hollis.
 THE WAVEFORM	I-WAVEFORM
@@ -955,7 +955,7 @@ OUT OF THE BUILDING	PHUMA ESAKHIWENI
 Pictures that leave by cable or network, skapi, not only a window on a screen. Press START.	Izithombe eziphuma ngekhebula noma ngenethiwekhi, skapi, hhayi nje ifasitela esikrinini. Cindezela u-START.
 NDI over the network, SDI from a DeckLink card, ST 2110 for broadcast plants.	U-NDI ngenethiwekhi, u-SDI ovela kukhadi le-DeckLink, u-ST 2110 wezindawo zokusakaza.
 THE DEVICES PAGE	IKHASI LAMADIVAYISI
-MENU, Video Outputs, then Devices: every way an output can leave this computer.	I-MENU, Okuphumayo kwevidiyo, bese u-Amadivayisi: zonke izindlela okuphumayo okungashiya ngazo le khompyutha.
+MENU, Video Outputs, then Devices: every way an output can leave this computer.	I-IMENYU, Okuphumayo kwevidiyo, bese u-Amadivayisi: zonke izindlela okuphumayo okungashiya ngazo le khompyutha.
 Each one says whether this machine can do it, and what it needs if not.	Ngayinye isho ukuthi lo mshini ungakwenza yini, nokuthi udingani uma ungakwazi.
 If this computer has NDI, switch NDI SENDING on: the picture is on the network. If not, SHOW ME moves on.	Uma le khompyutha ino-NDI, vula u-NDI SENDING: isithombe sisenethiwekhini. Uma kungenjalo, u-SHOW ME uyaqhubeka.
 NDI finds itself on the network. No cables, only a good switch and patience.	U-NDI uzithola yena kunethiwekhi. Awekho amakhebula, i-switch enhle nokubekezela kuphela.
@@ -1002,7 +1002,7 @@ Nearly there. I can feel it in my pixels.	Cishe. Ngikuzwa kuma-pixel ami.
 You're good at this. I can tell. I'm the one doing it.	Ukuhle kulokhu. Ngiyabona. Yimi owenzayo.
 Every click, I heard. Every single one.	Konke ukuchofoza, ngikuzwile. Konke.
 The glowing one. I can see it from here. It's glowing for you.	Elikhanyayo. Ngiyalibona ngilapha. Likhanyela wena.
-lesson paused - MENU > LESSONS picks up where you left off	isifundo simisiwe - i-MENU > LESSONS iqhubeka lapho ugcine khona
+lesson paused - MENU > LESSONS picks up where you left off	isifundo simisiwe - i-IMENYU > LESSONS iqhubeka lapho ugcine khona
 PROF. VIDEO:  The signal: what the picture is made of, and how to bend it. Pick a lesson.	PROF. VIDEO:  Isignali: isithombe senziwe ngani, nokuthi usigoba kanjani. Khetha isifundo.
 DR. PIXEL:  Running the show, skapi. Fast hands, calm face. Pick a lesson.	DR. PIXEL:  Ukuqhuba umbukiso, skapi. Izandla ezisheshayo, ubuso obuzolile. Khetha isifundo.
 LESSONS  -  PART TWO  -  WHO DO YOU FOLLOW?	IZIFUNDO  -  INGXENYE YESIBILI  -  ULANDELA BANI?
@@ -2212,3 +2212,5 @@ The lit tab gets the next cue. Like choosing which slide goes in the projector.	
 Pick a deck. Any deck. ...Deck 2. Pick Deck 2.	Khetha iphakethe. Noma yiliphi. ...Deck 2. Khetha i-Deck 2.
 Timecode	Ikhodi yesikhathi
 PHASE	ISIGABA
+MENU	IMENYU
+VOLUME	IVOLUMU

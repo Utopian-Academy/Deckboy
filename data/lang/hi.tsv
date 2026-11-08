@@ -501,7 +501,7 @@ HELLO	नमस्ते
 Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me.	दोबार देन, स्कापी। मैं डॉ. पिक्सेल हूँ। पाँच मिनट में तुम एक शो चलाओगे। मेरी सुनोगे तो उससे भी कम में।
 And I'm Professor Video. Synths first, then video. Mostly video now. Press START and we'll patch... we'll begin.	और मैं प्रोफ़ेसर वीडियो। पहले सिंथ, फिर वीडियो। अब ज़्यादातर वीडियो। START दबाओ और हम पैच... मतलब शुरू करते हैं।
 TURN THE OUTPUT ON	आउटपुट चालू करो
-Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	स्कापी, स्क्रीन खाली है। लोगों को इंतज़ार मत कराओ। MENU खोलो और आउटपुट बंद को आउटपुट चालू करो। चलो!
+Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	स्कापी, स्क्रीन खाली है। लोगों को इंतज़ार मत कराओ। मेनू खोलो और आउटपुट बंद को आउटपुट चालू करो। चलो!
 Lesson one: nothing comes out until you patch the oscillator to the... the OUTPUT. It's video. I know.	पहला पाठ: जब तक ऑसिलेटर को... मतलब आउटपुट से नहीं जोड़ोगे, कुछ नहीं निकलेगा। वीडियो है। पता है।
 BRING IN A CLIP	एक क्लिप लाओ
 Now a picture. Press I and pick a clip from your computer. No clip? SHOW ME, and I lend you one of mine.	अब एक तस्वीर। I दबाओ और अपने कंप्यूटर से एक क्लिप चुनो। क्लिप नहीं है? SHOW ME दबाओ, मैं अपनी एक उधार दे दूँगी।
@@ -523,7 +523,7 @@ Now save. Ctrl+S, or SAVE. Some programs lose your work and then blame you. I wo
 Save your patch. Your SHOW. Show. This practice one lives in Deckboy's own folder; yours is safe.	अपना पैच सहेजो। अपना शो। हाँ, शो। ये प्रैक्टिस वाला Deckboy के अपने फ़ोल्डर में रहता है; तुम्हारा सुरक्षित है।
 THAT'S A SHOW	ये हुआ शो
 That's a show! Output, cue, TAKE, crossfade, BLACK, save. Nazdrave, skapi. Rakia is on me.	ये हुआ शो! आउटपुट, cue, TAKE, क्रॉसफ़ेड, BLACK, सहेजना। नाज़्द्रावे, स्कापी। राकिया मेरी तरफ़ से।
-Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	क्लास ख़त्म। उदाहरण वाले शो लेयर, टाइटल और इफ़ेक्ट सिखाते हैं। MENU > LEARN THE BASICS इसे फिर से चलाता है।
+Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	क्लास ख़त्म। उदाहरण वाले शो लेयर, टाइटल और इफ़ेक्ट सिखाते हैं। मेनू > LEARN THE BASICS इसे फिर से चलाता है।
 *shakes head* That means yes. Bravo.	*सिर दाएँ-बाएँ हिलाता है* इसका मतलब हाँ है। शाबाश।
 Wonderful! Lovely signal flow.	शानदार! क्या प्यारा सिग्नल फ़्लो।
 Mm. I knew you had it in you.	हम्म। मुझे पता था तुममें ये है।
@@ -536,7 +536,7 @@ your show could not be saved, so the lesson has not started. Save it (SAVE AS) a
 the practice show would not open	प्रैक्टिस शो नहीं खुला
 could not start the practice show	प्रैक्टिस शो शुरू नहीं हो सका
 learn the basics: Esc leaves, and it picks up here next time	learn the basics: Esc छोड़ता है, और अगली बार यहीं से शुरू होता है
-that's the basics - MENU > LESSONS has part two	ये रहीं बुनियादी बातें - MENU > LESSONS में भाग दो है
+that's the basics - MENU > LESSONS has part two	ये रहीं बुनियादी बातें - मेनू > LESSONS में भाग दो है
 tour paused - LEARN THE BASICS picks up where you left off	टूर रुका - LEARN THE BASICS वहीं से शुरू करता है जहाँ छोड़ा था
 Mirrored screens, skapi. Press any key or click, and Dr. Pixel gives it back.	मिरर की हुई स्क्रीनें, स्कापी। कोई भी कुंजी दबाओ या क्लिक करो, और डॉ. पिक्सेल इसे लौटा देगी।
 Wrong screen, skapi. Press any key or click, and Dr. Pixel gives it back.	ग़लत स्क्रीन, स्कापी। कोई भी कुंजी दबाओ या क्लिक करो, और डॉ. पिक्सेल इसे लौटा देगी।
@@ -715,7 +715,7 @@ A lighthouse, a ghost, and a keeper who has been alone with the lamp far too lon
 Projection mapping: bending the picture to fit the building. Warp, blend, slices.	प्रोजेक्शन मैपिंग: तस्वीर को मोड़कर इमारत पर बिठाना। वार्प, ब्लेंड, स्लाइस।
 Ye'll be wanting the ghost on the windows. Mind the lamp. The lamp is MINE.	तुम लोग भूत को खिड़कियों पर चाहते हो, है ना। लैंप से सावधान। लैंप मेरा है।
 THE OUTPUT'S GEOMETRY	आउटपुट की ज्यामिति
-MENU, then Video Outputs, then Geometry. Where an output's shape lives.	MENU, फिर वीडियो आउटपुट, फिर ज्यामिति। आउटपुट का आकार यहीं रहता है।
+MENU, then Video Outputs, then Geometry. Where an output's shape lives.	मेनू, फिर वीडियो आउटपुट, फिर ज्यामिति। आउटपुट का आकार यहीं रहता है।
 Geometry: the projector-menu word for 'what shape is the picture'.	ज्यामिति: प्रोजेक्टर-मेन्यू का शब्द, 'तस्वीर किस आकार की है' के लिए।
 PIN A CORNER	एक कोना पिन करो
 Press warp edit, then drag a corner on the programme monitor. The window is not square. Neither is the keeper.	warp edit दबाओ, फिर प्रोग्राम मॉनिटर पर एक कोना खींचो। खिड़की चौकोर नहीं है। रखवाला भी नहीं।
@@ -756,7 +756,7 @@ Press the key. The cue fires, wherever the list is standing.	कुंजी द
 No mouse, no list, no looking. Just the key.	न माउस, न लिस्ट, न देखना। बस कुंजी।
 Buzz! We have a winner!	बज़्ज़! हमारे पास विजेता है!
 FROM ANYWHERE	कहीं से भी
-Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion, एक MIDI नोट, एक OSC संदेश: MENU, फिर नेटवर्क, बताता है कि हर एक कहाँ जुड़ता है।
+Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion, एक MIDI नोट, एक OSC संदेश: मेनू, फिर नेटवर्क, बताता है कि हर एक कहाँ जुड़ता है।
 A Stream Deck in the next room can press GO. So can a keyboard synth. I prefer the synth.	बगल वाले कमरे का Stream Deck GO दबा सकता है। कीबोर्ड सिंथ भी। मुझे सिंथ पसंद है।
 And for our viewers at home: you can play along too.	और घर बैठे दर्शकों के लिए: आप भी साथ खेल सकते हैं।
 THAT'S OUR SHOW	ये था हमारा शो
@@ -809,7 +809,7 @@ Something's loose! Space holds the countdown. The clock shows it is held.	कु
 A hold is not a stop. Space again, and it carries on from where it was.	रुकना बंद होना नहीं है। फिर Space, और जहाँ थी वहीं से आगे।
 *holds up a spanner*	*एक पाना उठाता है*
 THE PILOT'S VIEW	पायलट का व्यू
-MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	MENU, वीडियो आउटपुट: किसी आउटपुट का टाइप PRESENTER करो। स्टेज वाले को टाइमर, अगला cue और अपने नोट्स दिखते हैं।
+MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	मेनू, वीडियो आउटपुट: किसी आउटपुट का टाइप PRESENTER करो। स्टेज वाले को टाइमर, अगला cue और अपने नोट्स दिखते हैं।
 A presenter view is an output like any other. Point it at the confidence monitor.	प्रेज़ेंटर व्यू बाक़ियों जैसा ही एक आउटपुट है। उसे कॉन्फ़िडेंस मॉनिटर पर लगाओ।
 So the pilot can see the time. The pilot is Grommet.	ताकि पायलट समय देख सके। पायलट ग्रॉमेट है।
 TO THE MOON	चाँद की ओर
@@ -851,11 +851,11 @@ AND BACK	और वापस
 The fire's out. Press B again: the picture comes back, still running.	आग बुझ गई। फिर B दबाओ: तस्वीर लौटती है, अब भी चलती हुई।
 Nothing was lost. A mute on a mixer, for pictures.	कुछ नहीं खोया। तस्वीरों के लिए मिक्सर का mute।
 Ta-da! Still cookin'!	टा-डा! अब भी पक रहा है!
-Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	और बुरा: MENU, सिस्टम, SAFETY कार्ड: PANIC। सब रुकता है, जैसा panic सेटिंग कहती है।
+Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	और बुरा: मेनू, सिस्टम, SAFETY कार्ड: PANIC। सब रुकता है, जैसा panic सेटिंग कहती है।
 PANIC is the big red button. Use it when BLACK is not enough. Then breathe.	PANIC बड़ा लाल बटन है। जब BLACK काफ़ी न हो तब। फिर साँस लो।
 Bork bork BORK!	बोर्क बोर्क बोर्क!
 GET IT BACK	वापस पाओ
-Close MENU, select the souffle, and TAKE it. The show is back on.	MENU बंद करो, सूफ़ले चुनो, और TAKE। शो फिर चालू।
+Close MENU, select the souffle, and TAKE it. The show is back on.	मेनू बंद करो, सूफ़ले चुनो, और TAKE। शो फिर चालू।
 After a panic, the show is still there. Pick up where you meant to be.	पैनिक के बाद भी शो वहीं है। जहाँ होना था वहीं से उठाओ।
 Voila! De souffle, he is risen!	वोइला! सूफ़ले, वो फूल गया!
 BON APPETIT	बॉन एपेटिट
@@ -919,7 +919,7 @@ Add a second: a bend, like crush. It damages the sound the way a broken file wou
 The bends are my favourite. Like a tape left in the sun. On purpose.	बेंड मेरे पसंदीदा हैं। धूप में छूटी कैसेट जैसे। जानबूझकर।
 > HARDER. BETTER. CRUNCHIER. LOUDER.	> और ज़ोर से। और बेहतर। और करारा। और ऊँचा।
 THE PATCH	पैच
-MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	MENU, फिर ऑडियो: हर playlist की आवाज़ कहाँ जाती है, और नाम वाले आउटपुट का पैच।
+MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	मेनू, फिर ऑडियो: हर playlist की आवाज़ कहाँ जाती है, और नाम वाले आउटपुट का पैच।
 Speakers, monitors, an in-ear for the drummer. The patch sends each its own.	स्पीकर, मॉनिटर, ड्रमर का इन-ईयर। पैच हर एक को उसका अपना भेजता है।
 > AROUND THE MIX. AROUND THE MIX. AROUND THE MIX.	> मिक्स के चारों ओर। मिक्स के चारों ओर। मिक्स के चारों ओर।
 An effect, a bend and the patch. The robots approve, skapi. I think. Their faces are helmets.	एक इफ़ेक्ट, एक बेंड और पैच। रोबोट मंज़ूर करते हैं, स्कापी। शायद। उनके चेहरे हेलमेट हैं।
@@ -931,11 +931,11 @@ The Bureau again, skapi. A glow on the horizon, and two agents who disagree abou
 The scopes measure a picture: brightness, colour, levels. Numbers, not opinions.	स्कोप तस्वीर को मापते हैं: चमक, रंग, लेवल। आँकड़े, राय नहीं।
 It's them, Brandt. It's a craft. Look how it glows.	ये वही हैं, ब्रांट। ये यान है। देखो कैसे चमक रहा है।
 THE REAL SIGNAL	असली सिग्नल
-The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	स्कोप सिर्फ़ वही पढ़ते हैं जो सच में बाहर जाता है, कभी प्रीव्यू नहीं। आउटपुट चालू करो: MENU, वीडियो आउटपुट, आउटपुट बंद।
+The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	स्कोप सिर्फ़ वही पढ़ते हैं जो सच में बाहर जाता है, कभी प्रीव्यू नहीं। आउटपुट चालू करो: मेनू, वीडियो आउटपुट, आउटपुट बंद।
 Measuring a scaled-down preview would be measuring a photocopy. We measure the original.	छोटे किए प्रीव्यू को मापना फ़ोटोकॉपी को मापने जैसा होगा। हम असली को मापते हैं।
 Chain of evidence, Hollis. The real signal or nothing.	सबूतों की कड़ी, हॉलिस। असली सिग्नल या कुछ नहीं।
 THE SCOPES	स्कोप
-Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	MENU बंद करो। मॉनिटर के ऊपर PROGRAM बटन: तब तक दबाओ जब तक SCOPES या BOTH न दिखे।
+Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	मेनू बंद करो। मॉनिटर के ऊपर PROGRAM बटन: तब तक दबाओ जब तक SCOPES या BOTH न दिखे।
 Both shows the picture and its scopes side by side. Very civilised.	BOTH तस्वीर और उसके स्कोप साथ-साथ दिखाता है। बड़ा सभ्य।
 Let the scopes decide, Hollis.	स्कोप को तय करने दो, हॉलिस।
 THE WAVEFORM	वेवफ़ॉर्म
@@ -958,7 +958,7 @@ OUT OF THE BUILDING	इमारत से बाहर
 Pictures that leave by cable or network, skapi, not only a window on a screen. Press START.	तस्वीरें जो केबल या नेटवर्क से निकलती हैं, स्कापी, सिर्फ़ स्क्रीन पर एक विंडो नहीं। START दबाओ।
 NDI over the network, SDI from a DeckLink card, ST 2110 for broadcast plants.	नेटवर्क पर NDI, DeckLink कार्ड से SDI, ब्रॉडकास्ट प्लांट के लिए ST 2110।
 THE DEVICES PAGE	उपकरण पेज
-MENU, Video Outputs, then Devices: every way an output can leave this computer.	MENU, वीडियो आउटपुट, फिर उपकरण: हर वो तरीक़ा जिससे आउटपुट इस कंप्यूटर से निकल सकता है।
+MENU, Video Outputs, then Devices: every way an output can leave this computer.	मेनू, वीडियो आउटपुट, फिर उपकरण: हर वो तरीक़ा जिससे आउटपुट इस कंप्यूटर से निकल सकता है।
 Each one says whether this machine can do it, and what it needs if not.	हर एक बताता है कि ये मशीन कर सकती है या नहीं, और न कर सके तो उसे क्या चाहिए।
 If this computer has NDI, switch NDI SENDING on: the picture is on the network. If not, SHOW ME moves on.	अगर इस कंप्यूटर में NDI है, तो NDI SENDING चालू करो: तस्वीर नेटवर्क पर है। नहीं है तो SHOW ME आगे बढ़ जाता है।
 NDI finds itself on the network. No cables, only a good switch and patience.	NDI नेटवर्क पर ख़ुद को ढूँढ लेता है। कोई केबल नहीं, बस एक अच्छा स्विच और धीरज।
@@ -1005,7 +1005,7 @@ Nearly there. I can feel it in my pixels.	लगभग हो गया। म�
 You're good at this. I can tell. I'm the one doing it.	तुम इसमें अच्छे हो। मुझे पता है। करती तो मैं ही हूँ।
 Every click, I heard. Every single one.	हर क्लिक, मैंने सुना। हर एक।
 The glowing one. I can see it from here. It's glowing for you.	चमकने वाला। मुझे यहाँ से दिख रहा है। वो तुम्हारे लिए चमक रहा है।
-lesson paused - MENU > LESSONS picks up where you left off	पाठ रुका - MENU > LESSONS वहीं से शुरू करता है जहाँ छोड़ा था
+lesson paused - MENU > LESSONS picks up where you left off	पाठ रुका - मेनू > LESSONS वहीं से शुरू करता है जहाँ छोड़ा था
 PROF. VIDEO:  The signal: what the picture is made of, and how to bend it. Pick a lesson.	PROF. VIDEO:  सिग्नल: तस्वीर किस चीज़ से बनी है, और उसे कैसे मोड़ें। एक पाठ चुनो।
 DR. PIXEL:  Running the show, skapi. Fast hands, calm face. Pick a lesson.	DR. PIXEL:  शो चलाना, स्कापी। तेज़ हाथ, शांत चेहरा। एक पाठ चुनो।
 LESSONS  -  PART TWO  -  WHO DO YOU FOLLOW?	पाठ  -  भाग दो  -  किसके साथ चलोगे?
@@ -2214,3 +2214,5 @@ Nine years of live weather. Always click the tab.	नौ साल लाइव 
 Click its tab, Deck 2. A new playlist waits until you choose it.	उसके टैब पर क्लिक करो, Deck 2. नई playlist तब तक इंतज़ार करती है जब तक तुम उसे न चुनो।
 The lit tab gets the next cue. Like choosing which slide goes in the projector.	जलते टैब को अगला cue मिलता है। जैसे चुनना कि प्रोजेक्टर में कौन-सी स्लाइड जाएगी।
 Pick a deck. Any deck. ...Deck 2. Pick Deck 2.	एक गड्डी चुनो। कोई भी। ...Deck 2. Deck 2 चुनो।
+MENU	मेनू
+VOLUME	आवाज़

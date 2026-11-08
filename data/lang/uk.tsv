@@ -501,7 +501,7 @@ HELLO	ПРИВІТ
 Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me.	Добър ден, скъпи. Я докторка Піксель. П'ять хвилин, і ти вестимеш шоу. Менше, якщо слухатимеш мене.
 And I'm Professor Video. Synths first, then video. Mostly video now. Press START and we'll patch... we'll begin.	А я професор Відео. Спочатку синтезатори, потім відео. Тепер здебільшого відео. Тисни START, і ми скомутуємо... тобто почнемо.
 TURN THE OUTPUT ON	УВІМКНИ ВИХІД
-Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	Скъпи, екран порожній. Не змушуй їх чекати. Відкрий MENU і зроби з ВИХІД ВИМК. ВИХІД УВІМК. Айде!
+Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	Скъпи, екран порожній. Не змушуй їх чекати. Відкрий МЕНЮ і зроби з ВИХІД ВИМК. ВИХІД УВІМК. Айде!
 Lesson one: nothing comes out until you patch the oscillator to the... the OUTPUT. It's video. I know.	Урок перший: нічого не вийде, доки не під'єднаєш осцилятор до... до ВИХОДУ. Це відео. Знаю.
 BRING IN A CLIP	ДОДАЙ КЛІП
 Now a picture. Press I and pick a clip from your computer. No clip? SHOW ME, and I lend you one of mine.	Тепер картинка. Натисни I і вибери кліп із комп'ютера. Немає кліпу? SHOW ME, і я позичу тобі свій.
@@ -523,7 +523,7 @@ Now save. Ctrl+S, or SAVE. Some programs lose your work and then blame you. I wo
 Save your patch. Your SHOW. Show. This practice one lives in Deckboy's own folder; yours is safe.	Збережи свій патч. Своє ШОУ. Шоу. Це навчальне лежить у теці самого Deckboy; твоє в безпеці.
 THAT'S A SHOW	ОСЬ ЦЕ ШОУ
 That's a show! Output, cue, TAKE, crossfade, BLACK, save. Nazdrave, skapi. Rakia is on me.	Ось це шоу! Вихід, к'ю, TAKE, наплив, BLACK, збереження. Наздраве, скъпи. Ракія за мій рахунок.
-Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	Урок закінчено. Приклади шоу вчать шарів, титрів і ефектів. MENU > LEARN THE BASICS запускає все знову.
+Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	Урок закінчено. Приклади шоу вчать шарів, титрів і ефектів. МЕНЮ > LEARN THE BASICS запускає все знову.
 *shakes head* That means yes. Bravo.	*хитає головою з боку в бік* Це означає «так». Браво.
 Wonderful! Lovely signal flow.	Чудово! Прекрасний сигнальний тракт.
 Mm. I knew you had it in you.	М-м. Я знала, що в тебе вийде.
@@ -536,7 +536,7 @@ your show could not be saved, so the lesson has not started. Save it (SAVE AS) a
 the practice show would not open	навчальне шоу не відкрилося
 could not start the practice show	не вдалося запустити навчальне шоу
 learn the basics: Esc leaves, and it picks up here next time	learn the basics: Esc виходить, а наступного разу продовжить звідси
-that's the basics - MENU > LESSONS has part two	це основи - у MENU > LESSONS є друга частина
+that's the basics - MENU > LESSONS has part two	це основи - у МЕНЮ > LESSONS є друга частина
 tour paused - LEARN THE BASICS picks up where you left off	тур на паузі - LEARN THE BASICS продовжить із того самого місця
 Mirrored screens, skapi. Press any key or click, and Dr. Pixel gives it back.	Екрани дублюються, скъпи. Натисни будь-яку клавішу або клацни, і докторка Піксель усе поверне.
 Wrong screen, skapi. Press any key or click, and Dr. Pixel gives it back.	Не той екран, скъпи. Натисни будь-яку клавішу або клацни, і докторка Піксель усе поверне.
@@ -715,7 +715,7 @@ A lighthouse, a ghost, and a keeper who has been alone with the lamp far too lon
 Projection mapping: bending the picture to fit the building. Warp, blend, slices.	Проєкційний мапінг: вигинаємо картинку під будівлю. Варп, зведення, слайси.
 Ye'll be wanting the ghost on the windows. Mind the lamp. The lamp is MINE.	Привида на вікна хочете, га? Обережно з лампою. Лампа — МОЯ.
 THE OUTPUT'S GEOMETRY	ГЕОМЕТРІЯ ВИХОДУ
-MENU, then Video Outputs, then Geometry. Where an output's shape lives.	MENU, потім Відеовиходи, потім Геометрія. Там живе форма виходу.
+MENU, then Video Outputs, then Geometry. Where an output's shape lives.	МЕНЮ, потім Відеовиходи, потім Геометрія. Там живе форма виходу.
 Geometry: the projector-menu word for 'what shape is the picture'.	Геометрія: слово з меню проєктора про «якої форми картинка».
 PIN A CORNER	ЗАКРІПИ КУТ
 Press warp edit, then drag a corner on the programme monitor. The window is not square. Neither is the keeper.	Натисни warp edit, потім тягни кут на моніторі програми. Вікно не квадратне. Доглядач теж.
@@ -756,7 +756,7 @@ Press the key. The cue fires, wherever the list is standing.	Натисни кл
 No mouse, no list, no looking. Just the key.	Без миші, без списку, не дивлячись. Лише клавіша.
 Buzz! We have a winner!	Дзень! У нас є переможець!
 FROM ANYWHERE	ЗВІДУСІЛЬ
-Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion, MIDI-нота, OSC-повідомлення: MENU, потім Мережа, покаже, куди кожен під'єднується.
+Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion, MIDI-нота, OSC-повідомлення: МЕНЮ, потім Мережа, покаже, куди кожен під'єднується.
 A Stream Deck in the next room can press GO. So can a keyboard synth. I prefer the synth.	Stream Deck із сусідньої кімнати може натиснути GO. І клавішний синтезатор теж. Я за синтезатор.
 And for our viewers at home: you can play along too.	А для наших глядачів удома: ви теж можете грати.
 THAT'S OUR SHOW	ЦЕ БУЛО НАШЕ ШОУ
@@ -809,7 +809,7 @@ Something's loose! Space holds the countdown. The clock shows it is held.	Щос
 A hold is not a stop. Space again, and it carries on from where it was.	Пауза — не стоп. Ще раз пробіл, і він іде далі з того самого місця.
 *holds up a spanner*	*здіймає гайковий ключ*
 THE PILOT'S VIEW	ВИГЛЯД ПІЛОТА
-MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	MENU, Відеовиходи: постав виходу тип PRESENTER. Той, хто на сцені, бачить таймер, наступний к'ю і свої нотатки.
+MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	МЕНЮ, Відеовиходи: постав виходу тип PRESENTER. Той, хто на сцені, бачить таймер, наступний к'ю і свої нотатки.
 A presenter view is an output like any other. Point it at the confidence monitor.	Вигляд для ведучого — такий самий вихід, як будь-який інший. Спрямуй його на суфлерський монітор.
 So the pilot can see the time. The pilot is Grommet.	Щоб пілот бачив час. Пілот — Громіт.
 TO THE MOON	НА МІСЯЦЬ
@@ -851,11 +851,11 @@ AND BACK	І НАЗАД
 The fire's out. Press B again: the picture comes back, still running.	Пожежу загашено. Натисни B ще раз: картинка повертається, досі граючи.
 Nothing was lost. A mute on a mixer, for pictures.	Нічого не втрачено. М'ют на пульті, тільки для картинок.
 Ta-da! Still cookin'!	Та-дам! Досі готуємо!
-Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	Гірше: MENU, Система, картка SAFETY: PANIC. Усе зупиняється так, як велить налаштування паніки.
+Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	Гірше: МЕНЮ, Система, картка SAFETY: PANIC. Усе зупиняється так, як велить налаштування паніки.
 PANIC is the big red button. Use it when BLACK is not enough. Then breathe.	PANIC — велика червона кнопка. Використовуй, коли BLACK не вистачає. Потім дихай.
 Bork bork BORK!	Борк борк БОРК!
 GET IT BACK	ПОВЕРНИ
-Close MENU, select the souffle, and TAKE it. The show is back on.	Закрий MENU, виділи суфле й зроби TAKE. Шоу знову йде.
+Close MENU, select the souffle, and TAKE it. The show is back on.	Закрий МЕНЮ, виділи суфле й зроби TAKE. Шоу знову йде.
 After a panic, the show is still there. Pick up where you meant to be.	Після паніки шоу досі на місці. Продовжуй з того місця, де хотів бути.
 Voila! De souffle, he is risen!	Вуаля! Суфле, воно піднялося!
 BON APPETIT	СМАЧНОГО
@@ -919,7 +919,7 @@ Add a second: a bend, like crush. It damages the sound the way a broken file wou
 The bends are my favourite. Like a tape left in the sun. On purpose.	Бенди — мої улюблені. Як касета, забута на сонці. Навмисно.
 > HARDER. BETTER. CRUNCHIER. LOUDER.	> СИЛЬНІШЕ. КРАЩЕ. ХРУМКІШЕ. ГУЧНІШЕ.
 THE PATCH	ПАТЧ
-MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	MENU, потім Звук: куди йде звук кожного плейлиста й патч іменованих виходів.
+MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	МЕНЮ, потім Звук: куди йде звук кожного плейлиста й патч іменованих виходів.
 Speakers, monitors, an in-ear for the drummer. The patch sends each its own.	Колонки, монітори, внутрішньоканальний монітор барабанщика. Патч шле кожному своє.
 > AROUND THE MIX. AROUND THE MIX. AROUND THE MIX.	> НАВКОЛО МІКСУ. НАВКОЛО МІКСУ. НАВКОЛО МІКСУ.
 An effect, a bend and the patch. The robots approve, skapi. I think. Their faces are helmets.	Ефект, бенд і патч. Роботи схвалюють, скъпи. Мабуть. У них замість облич шоломи.
@@ -931,11 +931,11 @@ The Bureau again, skapi. A glow on the horizon, and two agents who disagree abou
 The scopes measure a picture: brightness, colour, levels. Numbers, not opinions.	Скопи вимірюють картинку: яскравість, колір, рівні. Цифри, а не думки.
 It's them, Brandt. It's a craft. Look how it glows.	Це вони, Брандт. Це корабель. Дивись, як світиться.
 THE REAL SIGNAL	СПРАВЖНІЙ СИГНАЛ
-The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	Скопи читають лише те, що справді виходить, ніколи прев'ю. Увімкни вихід: MENU, Відеовиходи, ВИХІД ВИМК.
+The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	Скопи читають лише те, що справді виходить, ніколи прев'ю. Увімкни вихід: МЕНЮ, Відеовиходи, ВИХІД ВИМК.
 Measuring a scaled-down preview would be measuring a photocopy. We measure the original.	Міряти зменшене прев'ю — це як міряти ксерокопію. Ми міряємо оригінал.
 Chain of evidence, Hollis. The real signal or nothing.	Ланцюжок доказів, Голліс. Справжній сигнал або нічого.
 THE SCOPES	СКОПИ
-Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	Закрий MENU. Над монітором кнопка PROGRAM: тисни, доки не буде SCOPES або BOTH.
+Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	Закрий МЕНЮ. Над монітором кнопка PROGRAM: тисни, доки не буде SCOPES або BOTH.
 Both shows the picture and its scopes side by side. Very civilised.	BOTH показує картинку й скопи поруч. Дуже цивілізовано.
 Let the scopes decide, Hollis.	Хай вирішать скопи, Голліс.
 THE WAVEFORM	ОСЦИЛОГРАМА
@@ -958,7 +958,7 @@ OUT OF THE BUILDING	ПОЗА БУДІВЛЕЮ
 Pictures that leave by cable or network, skapi, not only a window on a screen. Press START.	Картинки, що виходять кабелем або мережею, скъпи, а не лише вікно на екрані. Тисни START.
 NDI over the network, SDI from a DeckLink card, ST 2110 for broadcast plants.	NDI мережею, SDI з карти DeckLink, ST 2110 для мовних комплексів.
 THE DEVICES PAGE	СТОРІНКА ПРИСТРОЇВ
-MENU, Video Outputs, then Devices: every way an output can leave this computer.	MENU, Відеовиходи, потім Пристрої: усі способи, якими вихід може залишити цей комп'ютер.
+MENU, Video Outputs, then Devices: every way an output can leave this computer.	МЕНЮ, Відеовиходи, потім Пристрої: усі способи, якими вихід може залишити цей комп'ютер.
 Each one says whether this machine can do it, and what it needs if not.	Кожен каже, чи може ця машина це зробити, а якщо ні — що їй потрібно.
 If this computer has NDI, switch NDI SENDING on: the picture is on the network. If not, SHOW ME moves on.	Якщо на цьому комп'ютері є NDI, увімкни NDI SENDING: картинка в мережі. Якщо ні, SHOW ME іде далі.
 NDI finds itself on the network. No cables, only a good switch and patience.	NDI знаходить себе в мережі сам. Жодних кабелів, лише добрий комутатор і терпіння.
@@ -1005,7 +1005,7 @@ Nearly there. I can feel it in my pixels.	Майже. Відчуваю це св
 You're good at this. I can tell. I'm the one doing it.	У тебе виходить. Я бачу. Це ж я роблю.
 Every click, I heard. Every single one.	Кожне клацання я чув. Кожне до одного.
 The glowing one. I can see it from here. It's glowing for you.	Той, що світиться. Мені звідси видно. Він світиться для тебе.
-lesson paused - MENU > LESSONS picks up where you left off	урок на паузі - MENU > LESSONS продовжить із того самого місця
+lesson paused - MENU > LESSONS picks up where you left off	урок на паузі - МЕНЮ > LESSONS продовжить із того самого місця
 PROF. VIDEO:  The signal: what the picture is made of, and how to bend it. Pick a lesson.	PROF. VIDEO:  Сигнал: із чого зроблена картинка і як її гнути. Вибери урок.
 DR. PIXEL:  Running the show, skapi. Fast hands, calm face. Pick a lesson.	DR. PIXEL:  Вести шоу, скъпи. Швидкі руки, спокійне обличчя. Вибери урок.
 LESSONS  -  PART TWO  -  WHO DO YOU FOLLOW?	УРОКИ  -  ЧАСТИНА ДРУГА  -  ЗА КИМ ІДЕШ?
@@ -2213,3 +2213,5 @@ Nine years of live weather. Always click the tab.	Дев'ять років по�
 Click its tab, Deck 2. A new playlist waits until you choose it.	Клацни по його вкладці, Deck 2. Новий плейлист чекає, доки ти його обереш.
 The lit tab gets the next cue. Like choosing which slide goes in the projector.	Світла вкладка отримує наступний кʼю. Як вибрати, який слайд піде в проєктор.
 Pick a deck. Any deck. ...Deck 2. Pick Deck 2.	Оберіть колоду. Будь-яку. ...Deck 2. Оберіть Deck 2.
+MENU	МЕНЮ
+VOLUME	ГУЧНІСТЬ

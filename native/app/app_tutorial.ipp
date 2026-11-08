@@ -1225,14 +1225,84 @@
   // an octave down and rounder. Vowels are the round pulse, consonants the
   // thin one. Through the desk's own DMG synth, so the Sound effects switch
   // turns it off, and only ever in the tour, which runs in its practice show.
-  void tutorialBabble(bool pixel, const std::string& line) {
-    if (!tutorial_.active) return;
+  // A VOICE: what makes one speaker sound like themselves through the same
+  // little synth. The teachers have one each, and so does every guest.
+  struct BabbleVoice {
+    double base = 440.0;     // the pitch of the first note of the scale
+    int vowelMs = 64;        // how long a vowel lasts, a consonant a fifth less
+    double vowelDuty = 0.5;  // round or thin
+    double consonantDuty = 0.25;
+    int range = 6;           // how many notes of the scale it uses: 1 is a monotone
+    bool octaveBounce = false;   // every other letter an octave up (a chef, mostly)
+    bool silent = false;     // a dog does not talk
+    // On the wave channel, in chopped syllables (the robot DJs): which
+    // wavetable, the notes it steps between, and the measured syllable length.
+    int waveTable = 0;
+    std::vector<double> notes;
+    double syllableSec = 0.0, spreadSec = 0.0;
+  };
+
+  // THE ROBOTS' VOICE, from the reference James chose (2026-11-07, "Dubble
+  // Bath (DIY Remix)"): measured pitch, syllable length and tone, rendered to
+  // a WAV, measured again to match, and approved by ear ("thats fine"). A line
+  // is cut into syllables (each vowel group with its consonants); each
+  // syllable takes a note from the measured set, a length round the measured
+  // median, sometimes a 2-semitone slide up, and a short gap after it.
+  int waveBabbleNotes(const BabbleVoice& voice, const std::string& line, int delayMs,
+                      std::vector<DmgNote>& notes) const {
+    std::vector<std::string> syl;
+    std::string word;
+    auto flush = [&syl](const std::string& w) {
+      std::string cur;
+      bool seenVowel = false;
+      for (char ch : w) {
+        const bool vowel = std::strchr("aeiouy", ch) != nullptr;
+        if (seenVowel && !vowel && !cur.empty()) {
+          syl.push_back(cur);
+          cur = std::string(1, ch);
+          seenVowel = false;
+        } else {
+          cur += ch;
+          seenVowel = seenVowel || vowel;
+        }
+      }
+      if (!cur.empty()) syl.push_back(cur);
+    };
+    for (char ch : line) {
+      if (std::isalpha(static_cast<unsigned char>(ch))) {
+        word += static_cast<char>(std::tolower(static_cast<unsigned char>(ch)));
+      } else if (!word.empty()) {
+        flush(word);
+        word.clear();
+      }
+    }
+    if (!word.empty()) flush(word);
+    int at = delayMs;
+    for (const std::string& s : syl) {
+      long h = 0;
+      for (std::size_t j = 0; j < s.size(); ++j) h += static_cast<unsigned char>(s[j]) * static_cast<long>(j + 3);
+      const double f = voice.notes[static_cast<std::size_t>(h % static_cast<long>(voice.notes.size()))];
+      const int dur = static_cast<int>(std::lround((voice.syllableSec + (h % 7 - 3) * voice.spreadSec) * 1000.0));
+      DmgNote n {3, f, at, std::max(30, dur), 0.5, 12};
+      n.table = voice.waveTable;
+      n.slideSemitones = (h % 5 == 0) ? 2.0 : 0.0;
+      notes.push_back(n);
+      at += std::max(30, dur) + 35 + static_cast<int>(h % 3) * 15;
+    }
+    return at;
+  }
+
+  // The notes for a line, starting `delayMs` from now. Stage directions in
+  // *asterisks* are not said: "*raises an eyebrow*" is a face, not words.
+  int babbleNotes(const BabbleVoice& voice, const std::string& line, int delayMs,
+                  std::vector<DmgNote>& notes) const {
     static const int kScale[6] = {0, 2, 4, 7, 9, 12};
-    const double base = pixel ? 659.25 : 329.63;   // E5, E4
-    std::vector<DmgNote> notes;
-    int at = 0;
+    int at = delayMs;
     int letters = 0;
+    bool inAction = false;
     for (std::size_t i = 0; i < line.size() && letters < 26; ++i) {
+      if (line[i] == '*') { inAction = !inAction; continue; }
+      if (inAction) continue;
       const int c = std::tolower(static_cast<unsigned char>(line[i]));
       if (c < 'a' || c > 'z') {
         if (c == '.' || c == '!' || c == '?') at += 110;
@@ -1240,16 +1310,108 @@
         continue;
       }
       const bool vowel = std::strchr("aeiouy", c) != nullptr;
-      const double freq = base * std::pow(2.0, kScale[(c - 'a') % 6] / 12.0);
-      notes.push_back(DmgNote {letters % 2, freq, at, vowel ? 58 : 46, vowel ? 0.5 : 0.25,
-                               vowel ? 11 : 9});
-      at += vowel ? 64 : 52;
+      const int step = kScale[(c - 'a') % std::clamp(voice.range, 1, 6)];
+      double freq = voice.base * std::pow(2.0, step / 12.0);
+      if (voice.octaveBounce && (letters % 2) == 1) freq *= 2.0;
+      const int len = vowel ? voice.vowelMs - 6 : voice.vowelMs * 4 / 5 - 6;
+      notes.push_back(DmgNote {letters % 2, freq, at, std::max(20, len),
+                               vowel ? voice.vowelDuty : voice.consonantDuty, vowel ? 11 : 9});
+      at += vowel ? voice.vowelMs : voice.vowelMs * 4 / 5;
       ++letters;
     }
+    return at;
+  }
+
+  void tutorialBabble(bool pixel, const std::string& line) {
+    if (!tutorial_.active) return;
+    BabbleVoice voice;
+    voice.base = pixel ? 659.25 : 329.63;   // E5, E4
+    std::vector<DmgNote> notes;
+    const int at = babbleNotes(voice, line, 0, notes);
     if (notes.empty()) return;
     queueDmgPattern(notes, 0.09f);
     tutorial_.babbleUntilMs = SDL_GetTicks() + static_cast<Uint64>(at);
     tutorial_.babbleIsPixel = pixel;
+  }
+
+  // EVERY GUEST HAS A VOICE (James, 2026-11-07: "the guests dont have
+  // voices?"). Same synth as the teachers, cast to the character: the keeper
+  // low and slow, the coach gruff, the robots one note, the chef bouncing.
+  static BabbleVoice guestVoice(const std::string& name) {
+    BabbleVoice v;
+    if (name == "COACH MARV")             { v.base = 196.0; v.vowelMs = 48; v.vowelDuty = 0.5; v.consonantDuty = 0.5; }
+    else if (name == "JUNE O'NEIL")       { v.base = 523.25; v.vowelMs = 56; }
+    else if (name == "TURNIP TOP")        { v.base = 440.0; v.vowelMs = 70; v.range = 6; }
+    else if (name == "CHEF BORK")         { v.base = 293.66; v.vowelMs = 58; v.octaveBounce = true; }
+    else if (name == "DONNA WHEEL")       { v.base = 587.33; v.vowelMs = 46; }
+    else if (name == "KEEPER ROOK")       { v.base = 146.83; v.vowelMs = 84; v.vowelDuty = 0.5; }
+    else if (name == "AGENT BRANDT")      { v.base = 246.94; v.vowelMs = 60; v.vowelDuty = 0.125; v.range = 3; }
+    else if (name == "AGENT HOLLIS")      { v.base = 311.13; v.vowelMs = 56; v.range = 4; }
+    else if (name == "MR. SALTY")         { v.base = 392.0; v.vowelMs = 74; v.vowelDuty = 0.125; v.consonantDuty = 0.125; }
+    else if (name == "OPTIMUS PRIMETIME") { v.base = 110.0; v.vowelMs = 92; v.vowelDuty = 0.5; v.range = 3; }
+    else if (name.rfind("DEFT FUNK", 0) == 0) {
+      // Silver the high voice, Gold the low one (see waveBabbleNotes).
+      if (name.find("GOLD") != std::string::npos) {
+        v.waveTable = 2;
+        v.notes = {104.0, 117.0, 117.0, 132.0};
+        v.syllableSec = 0.12;
+        v.spreadSec = 0.025;
+      } else {
+        v.waveTable = 1;
+        v.notes = {262.0, 300.0, 314.0, 350.0, 417.0, 466.0};
+        v.syllableSec = 0.075;
+        v.spreadSec = 0.012;
+      }
+    }
+    else if (name == "WALLIS")            { v.base = 349.23; v.vowelMs = 60; }
+    else if (name == "GROMMET")           { v.silent = true; }
+    else if (name == "LT. HAILA")         { v.base = 466.16; v.vowelMs = 54; }
+    else if (name == "ENSIGN JINKLEY")    { v.base = 415.30; v.vowelMs = 40; }
+    else {
+      // Anyone not cast yet still gets a voice of their own, from their name.
+      unsigned h = 2166136261u;
+      for (char ch : name) h = (h ^ static_cast<unsigned char>(ch)) * 16777619u;
+      v.base = 220.0 * std::pow(2.0, (h % 24) / 12.0);
+      v.vowelMs = 48 + static_cast<int>(h % 30);
+    }
+    return v;
+  }
+
+  // The guest speaks once the teacher has finished, and the mouth moves only
+  // while it does.
+  void tutorialGuestBabble(const char* name, const std::string& line) {
+    if (!tutorial_.active || !name) return;
+    const BabbleVoice voice = guestVoice(name);
+    const Uint64 now = SDL_GetTicks();
+    const int wait = tutorial_.babbleUntilMs > now
+                       ? static_cast<int>(tutorial_.babbleUntilMs - now) + 250 : 200;
+    if (voice.silent) {
+      guestTalkFromMs_ = guestTalkUntilMs_ = 0;
+      return;
+    }
+    // HELD, NOT QUEUED NOW. Queuing a pattern clears whatever the synth is
+    // playing, so a guest queued with the teacher's line cut the teacher off
+    // mid-sentence. The notes wait in guestPendingNotes_ and go out when the
+    // teacher has finished (serviceGuestBabble).
+    guestPendingNotes_.clear();
+    const int end = voice.waveTable > 0 ? waveBabbleNotes(voice, line, 0, guestPendingNotes_)
+                                        : babbleNotes(voice, line, 0, guestPendingNotes_);
+    if (guestPendingNotes_.empty()) return;
+    guestPendingAtMs_ = now + static_cast<Uint64>(wait);
+    guestTalkFromMs_ = guestPendingAtMs_;
+    guestTalkUntilMs_ = guestPendingAtMs_ + static_cast<Uint64>(end);
+  }
+
+  // Sends the guest's held line once its moment comes.
+  void serviceGuestBabble() {
+    if (guestPendingNotes_.empty()) return;
+    if (!tutorial_.active) {
+      guestPendingNotes_.clear();
+      return;
+    }
+    if (SDL_GetTicks() < guestPendingAtMs_) return;
+    queueDmgPattern(guestPendingNotes_, 0.09f);
+    guestPendingNotes_.clear();
   }
 
   // ── Drawing ───────────────────────────────────────────────────────────────
@@ -1283,6 +1445,7 @@
 
   void renderTutorial(int width, int height) {
     serviceTutorial();
+    serviceGuestBabble();
     if (!tutorial_.active) return;
     const TutorialLine line = tutorialLineNow();
     const int stepCount = tutorialStepCount();
@@ -1523,11 +1686,12 @@
       const std::string guestSaid = line.guest;
       if (guestSaid != guestLineSeen_) {
         guestLineSeen_ = guestSaid;
-        guestTalkUntilMs_ = SDL_GetTicks() + 2400;
+        tutorialGuestBabble(line.guestName, lessonText(line.guest));
       }
       if (guestHasFace) {
+        const Uint64 nowMs = SDL_GetTicks();
         drawGuestPortrait(SDL_Rect {card.x + pad, y, portrait, portrait}, line.guestName,
-                          SDL_GetTicks() < guestTalkUntilMs_);
+                          nowMs >= guestTalkFromMs_ && nowMs < guestTalkUntilMs_);
       }
       for (std::size_t i = 0; i < guestLines.size(); ++i) {
         drawCardLine(guestLines[i], y + static_cast<int>(i) * lineH, pal.fgSoft);

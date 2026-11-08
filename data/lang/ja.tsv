@@ -501,7 +501,7 @@ HELLO	こんにちは
 Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me.	ドバル・デン、スカピ。私はピクセル博士。5分でショーを回せるようになる。私の話を聞けば、もっと早い。
 And I'm Professor Video. Synths first, then video. Mostly video now. Press START and we'll patch... we'll begin.	そして私はビデオ教授。最初はシンセ、それからビデオ。今はほとんどビデオだ。STARTを押して、パッチを…いや、始めよう。
 TURN THE OUTPUT ON	出力をオンにする
-Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	スカピ、画面が空っぽだ。お客さんを待たせない。MENUを開いて、出力オフを出力オンにする。アイデ！
+Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	スカピ、画面が空っぽだ。お客さんを待たせない。メニューを開いて、出力オフを出力オンにする。アイデ！
 Lesson one: nothing comes out until you patch the oscillator to the... the OUTPUT. It's video. I know.	第一課：オシレーターを…その、出力につなぐまで、何も出てこない。ビデオだ。わかっている。
 BRING IN A CLIP	クリップを入れる
 Now a picture. Press I and pick a clip from your computer. No clip? SHOW ME, and I lend you one of mine.	次は映像。Iを押して、パソコンからクリップを選ぶ。クリップがない？SHOW MEを押せば、私のを貸してあげる。
@@ -523,7 +523,7 @@ Now save. Ctrl+S, or SAVE. Some programs lose your work and then blame you. I wo
 Save your patch. Your SHOW. Show. This practice one lives in Deckboy's own folder; yours is safe.	パッチを保存。いや、ショーを。ショーだ。この練習用はDeckboy自身のフォルダにある。あなたのショーは無事だよ。
 THAT'S A SHOW	これでショーだ
 That's a show! Output, cue, TAKE, crossfade, BLACK, save. Nazdrave, skapi. Rakia is on me.	これでショーだ！出力、キュー、TAKE、クロスフェード、BLACK、保存。ナズドラヴェ、スカピ。ラキヤは私のおごり。
-Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	本日の授業は終わり。サンプルのショーでレイヤー、タイトル、エフェクトが学べる。MENU > LEARN THE BASICSでもう一度。
+Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	本日の授業は終わり。サンプルのショーでレイヤー、タイトル、エフェクトが学べる。メニュー > LEARN THE BASICSでもう一度。
 *shakes head* That means yes. Bravo.	＊首を横に振る＊ これは「はい」という意味。ブラボー。
 Wonderful! Lovely signal flow.	素晴らしい！見事なシグナルフロー。
 Mm. I knew you had it in you.	うむ。君ならできると思っていた。
@@ -536,7 +536,7 @@ your show could not be saved, so the lesson has not started. Save it (SAVE AS) a
 the practice show would not open	練習用のショーが開きませんでした
 could not start the practice show	練習用のショーを始められませんでした
 learn the basics: Esc leaves, and it picks up here next time	learn the basics：Escで抜けると、次回はここから再開します
-that's the basics - MENU > LESSONS has part two	基本はここまで - MENU > LESSONSに第二部があります
+that's the basics - MENU > LESSONS has part two	基本はここまで - メニュー > LESSONSに第二部があります
 tour paused - LEARN THE BASICS picks up where you left off	ツアー一時停止 - LEARN THE BASICSで続きから再開
 Mirrored screens, skapi. Press any key or click, and Dr. Pixel gives it back.	画面がミラーになってるよ、スカピ。何かキーを押すかクリックすれば、ピクセル博士が元に戻す。
 Wrong screen, skapi. Press any key or click, and Dr. Pixel gives it back.	画面が違うよ、スカピ。何かキーを押すかクリックすれば、ピクセル博士が元に戻す。
@@ -716,7 +716,7 @@ A lighthouse, a ghost, and a keeper who has been alone with the lamp far too lon
 Projection mapping: bending the picture to fit the building. Warp, blend, slices.	プロジェクションマッピング：建物に合わせて映像を曲げる。ワープ、ブレンド、スライス。
 Ye'll be wanting the ghost on the windows. Mind the lamp. The lamp is MINE.	幽霊を窓に映したいんだろう。ランプに気をつけろ。ランプは「わし」のだ。
 THE OUTPUT'S GEOMETRY	出力のジオメトリ
-MENU, then Video Outputs, then Geometry. Where an output's shape lives.	MENU、映像出力、ジオメトリ。出力の形はここにある。
+MENU, then Video Outputs, then Geometry. Where an output's shape lives.	メニュー、映像出力、ジオメトリ。出力の形はここにある。
 Geometry: the projector-menu word for 'what shape is the picture'.	ジオメトリ：プロジェクターのメニューで「映像はどんな形か」を表す言葉。
 PIN A CORNER	角をピンで留める
 Press warp edit, then drag a corner on the programme monitor. The window is not square. Neither is the keeper.	warp editを押して、プログラムモニターで角をドラッグ。窓は四角くない。灯台守も四角四面じゃない。
@@ -757,7 +757,7 @@ Press the key. The cue fires, wherever the list is standing.	キーを押して�
 No mouse, no list, no looking. Just the key.	マウスなし、リストなし、見なくていい。キーだけ。
 Buzz! We have a winner!	ピンポーン！正解者が出ました！
 FROM ANYWHERE	どこからでも
-Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion、MIDIノート、OSCメッセージ：MENU、ネットワークで、それぞれの接続先がわかる。
+Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion、MIDIノート、OSCメッセージ：メニュー、ネットワークで、それぞれの接続先がわかる。
 A Stream Deck in the next room can press GO. So can a keyboard synth. I prefer the synth.	隣の部屋のStream DeckでもGOを押せる。鍵盤シンセでも。私はシンセ派だ。
 And for our viewers at home: you can play along too.	そしてお茶の間の皆さん：一緒に遊べますよ。
 THAT'S OUR SHOW	番組はここまで
@@ -810,7 +810,7 @@ Something's loose! Space holds the countdown. The clock shows it is held.	何か
 A hold is not a stop. Space again, and it carries on from where it was.	一時停止は停止じゃない。もう一度スペースで、止めたところから続く。
 *holds up a spanner*	＊スパナを掲げる＊
 THE PILOT'S VIEW	パイロットの視界
-MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	MENU、映像出力：出力の種類をPRESENTERに。舞台の人には、タイマー、次のキュー、メモが見える。
+MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	メニュー、映像出力：出力の種類をPRESENTERに。舞台の人には、タイマー、次のキュー、メモが見える。
 A presenter view is an output like any other. Point it at the confidence monitor.	発表者ビューも、ほかと同じ出力の一つ。返しのモニターに向ければいい。
 So the pilot can see the time. The pilot is Grommet.	パイロットが時間を見られるように。パイロットはグロメットだ。
 TO THE MOON	月へ
@@ -852,11 +852,11 @@ AND BACK	そして戻る
 The fire's out. Press B again: the picture comes back, still running.	火は消えた。もう一度B：映像が戻る、再生したまま。
 Nothing was lost. A mute on a mixer, for pictures.	何も失っていない。映像用の、ミキサーのミュートだ。
 Ta-da! Still cookin'!	ジャジャーン！まだ料理中！
-Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	もっとひどいとき：MENU、システム、SAFETYカード：PANIC。パニック設定の通りに全部止まる。
+Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	もっとひどいとき：メニュー、システム、SAFETYカード：PANIC。パニック設定の通りに全部止まる。
 PANIC is the big red button. Use it when BLACK is not enough. Then breathe.	PANICは大きな赤いボタン。BLACKで足りないときに。それから深呼吸。
 Bork bork BORK!	ボルク ボルク ボルク！
 GET IT BACK	取り戻す
-Close MENU, select the souffle, and TAKE it. The show is back on.	MENUを閉じて、スフレを選んでTAKE。ショー再開。
+Close MENU, select the souffle, and TAKE it. The show is back on.	メニューを閉じて、スフレを選んでTAKE。ショー再開。
 After a panic, the show is still there. Pick up where you meant to be.	パニックの後も、ショーはそこにある。いるはずだった場所から続ければいい。
 Voila! De souffle, he is risen!	ヴォワラ！スフレ、膨らんだ！
 BON APPETIT	召し上がれ
@@ -920,7 +920,7 @@ Add a second: a bend, like crush. It damages the sound the way a broken file wou
 The bends are my favourite. Like a tape left in the sun. On purpose.	ベンドは私のお気に入り。日なたに置き忘れたテープのように。わざとね。
 > HARDER. BETTER. CRUNCHIER. LOUDER.	> モット ハゲシク。モット ヨク。モット サクサク。モット オオキク。
 THE PATCH	パッチ
-MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	MENU、オーディオ：各プレイリストの音の行き先と、名前付き出力のパッチ。
+MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	メニュー、オーディオ：各プレイリストの音の行き先と、名前付き出力のパッチ。
 Speakers, monitors, an in-ear for the drummer. The patch sends each its own.	スピーカー、モニター、ドラマーのイヤモニ。パッチがそれぞれに届ける。
 > AROUND THE MIX. AROUND THE MIX. AROUND THE MIX.	> ミックス イッシュウ。ミックス イッシュウ。ミックス イッシュウ。
 An effect, a bend and the patch. The robots approve, skapi. I think. Their faces are helmets.	エフェクト、ベンド、パッチ。ロボットたちも満足だよ、スカピ。たぶん。顔がヘルメットだから。
@@ -932,11 +932,11 @@ The Bureau again, skapi. A glow on the horizon, and two agents who disagree abou
 The scopes measure a picture: brightness, colour, levels. Numbers, not opinions.	スコープは映像を測る：明るさ、色、レベル。数字であって、意見ではない。
 It's them, Brandt. It's a craft. Look how it glows.	あれよ、ブラント。宇宙船よ。あの光り方を見て。
 THE REAL SIGNAL	本物の信号
-The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	スコープは実際に出ていくものだけを読む。プレビューは読まない。出力をオンに：MENU、映像出力、出力オフ。
+The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	スコープは実際に出ていくものだけを読む。プレビューは読まない。出力をオンに：メニュー、映像出力、出力オフ。
 Measuring a scaled-down preview would be measuring a photocopy. We measure the original.	縮小したプレビューを測るのは、コピーを測るようなもの。私たちは原本を測る。
 Chain of evidence, Hollis. The real signal or nothing.	証拠の管理だ、ホリス。本物の信号か、何もなしか。
 THE SCOPES	スコープ
-Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	MENUを閉じる。モニターの上のPROGRAMボタン：SCOPESかBOTHになるまで押す。
+Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	メニューを閉じる。モニターの上のPROGRAMボタン：SCOPESかBOTHになるまで押す。
 Both shows the picture and its scopes side by side. Very civilised.	BOTHは映像とスコープを並べて表示する。とても文化的だ。
 Let the scopes decide, Hollis.	スコープに決めさせよう、ホリス。
 THE WAVEFORM	波形
@@ -959,7 +959,7 @@ OUT OF THE BUILDING	建物の外へ
 Pictures that leave by cable or network, skapi, not only a window on a screen. Press START.	ケーブルやネットワークで出ていく映像だよ、スカピ。画面の中のウィンドウだけじゃない。STARTを押して。
 NDI over the network, SDI from a DeckLink card, ST 2110 for broadcast plants.	ネットワークでNDI、DeckLinkカードからSDI、放送局向けにST 2110。
 THE DEVICES PAGE	デバイスのページ
-MENU, Video Outputs, then Devices: every way an output can leave this computer.	MENU、映像出力、デバイス：出力がこのパソコンから出ていく、あらゆる方法。
+MENU, Video Outputs, then Devices: every way an output can leave this computer.	メニュー、映像出力、デバイス：出力がこのパソコンから出ていく、あらゆる方法。
 Each one says whether this machine can do it, and what it needs if not.	それぞれ、このマシンでできるかどうか、できないなら何が必要かを教えてくれる。
 If this computer has NDI, switch NDI SENDING on: the picture is on the network. If not, SHOW ME moves on.	このパソコンにNDIがあれば、NDI SENDINGをオンに：映像がネットワークに出る。なければSHOW MEで先へ。
 NDI finds itself on the network. No cables, only a good switch and patience.	NDIはネットワーク上で勝手に見つかる。ケーブルは要らない。いいスイッチと忍耐だけ。
@@ -1006,7 +1006,7 @@ Nearly there. I can feel it in my pixels.	もう少し。ピクセルで感じ�
 You're good at this. I can tell. I'm the one doing it.	上手だね。わかるよ。やってるのは私だから。
 Every click, I heard. Every single one.	クリックは全部聞こえてた。一回残らず。
 The glowing one. I can see it from here. It's glowing for you.	光ってるやつ。ここから見えるよ。君のために光ってるんだ。
-lesson paused - MENU > LESSONS picks up where you left off	レッスン一時停止 - MENU > LESSONSで続きから再開
+lesson paused - MENU > LESSONS picks up where you left off	レッスン一時停止 - メニュー > LESSONSで続きから再開
 PROF. VIDEO:  The signal: what the picture is made of, and how to bend it. Pick a lesson.	PROF. VIDEO:  信号：映像は何でできていて、どう曲げるのか。レッスンを選んで。
 DR. PIXEL:  Running the show, skapi. Fast hands, calm face. Pick a lesson.	DR. PIXEL:  ショーを回すこと、スカピ。手は速く、顔は涼しく。レッスンを選んで。
 LESSONS  -  PART TWO  -  WHO DO YOU FOLLOW?	レッスン  -  第二部  -  誰についていく？
@@ -2215,3 +2215,5 @@ Nine years of live weather. Always click the tab.	生の天気予報を九年。
 Click its tab, Deck 2. A new playlist waits until you choose it.	そのタブ、Deck 2 をクリック。新しいプレイリストは、選ばれるまで待っている。
 The lit tab gets the next cue. Like choosing which slide goes in the projector.	光っているタブが次のキューを受け取る。プロジェクターに入れるスライドを選ぶのと同じ。
 Pick a deck. Any deck. ...Deck 2. Pick Deck 2.	デッキを一つお選びください。どれでも。…Deck 2。Deck 2 をお選びください。
+MENU	メニュー
+VOLUME	音量

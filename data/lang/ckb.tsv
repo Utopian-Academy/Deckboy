@@ -124,7 +124,7 @@ HELLO	ڕۆژباش
 Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me.	Dobar den، سکاپی. ڕۆژباش! من دکتۆر پیکسڵم. پێنج خولەک، و شانۆیەک بەڕێوە دەبەیت. کەمتر، ئەگەر گوێم لێ بگریت.
 And I'm Professor Video. Synths first, then video. Mostly video now. Press START and we'll patch... we'll begin.	منیش پرۆفیسۆر ڤیدیۆم. سەرەتا synth، دواتر ڤیدیۆ. ئێستا زۆرتر ڤیدیۆ. START دابگرە، با پەیوەست... با دەست پێ بکەین.
 TURN THE OUTPUT ON	دەرچوون بکەرەوە
-Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	سکاپی، شاشەکە بەتاڵە. چاوەڕێیان مەهێڵە. MENU بکەرەوە و OUTPUT OFF بکە بە OUTPUT ON. دە!
+Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	سکاپی، شاشەکە بەتاڵە. چاوەڕێیان مەهێڵە. مێنیو بکەرەوە و OUTPUT OFF بکە بە OUTPUT ON. دە!
 Lesson one: nothing comes out until you patch the oscillator to the... the OUTPUT. It's video. I know.	وانەی یەکەم: تا oscillator نەگەیەنیتە OUTPUT... هیچ دەرناچێت. ڤیدیۆیە. دەزانم.
 BRING IN A CLIP	کلیپێک هاوردە بکە
 Now a picture. Press I and pick a clip from your computer. No clip? SHOW ME, and I lend you one of mine.	ئێستا وێنەیەک. I دابگرە و کلیپێک لە کۆمپیوتەرەکەت هەڵبژێرە. کلیپت نییە؟ SHOW ME، یەکێک لە هی خۆمت دەدەمێ.
@@ -146,7 +146,7 @@ Now save. Ctrl+S, or SAVE. Some programs lose your work and then blame you. I wo
 Save your patch. Your SHOW. Show. This practice one lives in Deckboy's own folder; yours is safe.	patch ـەکەت پاشەکەوت بکە. شانۆکەت. شانۆ. ئەم تاقیکردنەوەیە لە فۆڵدەری Deckboy دەژی؛ هی خۆت پارێزراوە.
 THAT'S A SHOW	ئەمە شانۆیەکە
 That's a show! Output, cue, TAKE, crossfade, BLACK, save. Nazdrave, skapi. Rakia is on me.	ئەمە شانۆیەکە! Output، cue، TAKE، crossfade، BLACK، پاشەکەوت. Nazdrave، سکاپی. rakia لەسەر من. لە عەرەق بەهێزترە، ئاگادار بە.
-Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	وانە تەواو. شانۆ نموونەییەکان layer و ناونیشان و effect فێر دەکەن. MENU > LEARN THE BASICS دووبارەی دەکاتەوە.
+Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	وانە تەواو. شانۆ نموونەییەکان layer و ناونیشان و effect فێر دەکەن. مێنیو > LEARN THE BASICS دووبارەی دەکاتەوە.
 *shakes head* That means yes. Bravo.	*سەری ڕادەوەشێنێت* ئەمە واتای بەڵێ. بژی!
 Wonderful! Lovely signal flow.	نایابە! ڕەوتی سیگناڵ جوانە.
 Mm. I knew you had it in you.	مم. دەمزانی دەتوانیت.
@@ -159,7 +159,7 @@ your show could not be saved, so the lesson has not started. Save it (SAVE AS) a
 the practice show would not open	شانۆی تاقیکردنەوە نەکرایەوە
 could not start the practice show	شانۆی تاقیکردنەوە دەستی پێ نەکرد
 learn the basics: Esc leaves, and it picks up here next time	learn the basics: Esc دەردەچێت، جاری داهاتوو لێرەوە بەردەوام دەبێت
-that's the basics - MENU > LESSONS has part two	ئەوە بنەماکان بوو - MENU > LESSONS بەشی دووەمی هەیە
+that's the basics - MENU > LESSONS has part two	ئەوە بنەماکان بوو - مێنیو > LESSONS بەشی دووەمی هەیە
 tour paused - LEARN THE BASICS picks up where you left off	گەشت وەستاوە - LEARN THE BASICS لەو شوێنەوە بەردەوام دەبێت کە جێت هێشت
 Mirrored screens, skapi. Press any key or click, and Dr. Pixel gives it back.	شاشەی ئاوێنەیی، سکاپی. هەر کلیلێک دابگرە یان کرتە بکە، دکتۆر پیکسڵ دەیگەڕێنێتەوە.
 Wrong screen, skapi. Press any key or click, and Dr. Pixel gives it back.	شاشەی هەڵە، سکاپی. هەر کلیلێک دابگرە یان کرتە بکە، دکتۆر پیکسڵ دەیگەڕێنێتەوە.
@@ -338,7 +338,7 @@ A lighthouse, a ghost, and a keeper who has been alone with the lamp far too lon
 Projection mapping: bending the picture to fit the building. Warp, blend, slices.	Projection mapping: وێنەکە خوار دەکەن تا لە بیناکە بگونجێت. Warp، blend، slice.
 Ye'll be wanting the ghost on the windows. Mind the lamp. The lamp is MINE.	تارماییەکەتان لەسەر پەنجەرەکان دەوێت، وانییە؟ ئاگاتان لە چراکە بێت. چراکە هی منە.
 THE OUTPUT'S GEOMETRY	جیۆمەتری OUTPUT
-MENU, then Video Outputs, then Geometry. Where an output's shape lives.	MENU، پاشان Video Outputs، پاشان Geometry. شێوەی output لەوێ دەژی.
+MENU, then Video Outputs, then Geometry. Where an output's shape lives.	مێنیو، پاشان Video Outputs، پاشان Geometry. شێوەی output لەوێ دەژی.
 Geometry: the projector-menu word for 'what shape is the picture'.	Geometry: وشەی مێنیوی پرۆجێکتەر بۆ 'وێنەکە چ شێوەیەکە'.
 PIN A CORNER	گۆشەیەک PIN بکە
 Press warp edit, then drag a corner on the programme monitor. The window is not square. Neither is the keeper.	warp edit دابگرە، پاشان گۆشەیەک لەسەر مۆنیتەری بەرنامە ڕابکێشە. پەنجەرەکە چوارگۆشە نییە. فانۆسوانەکەش نا.
@@ -379,7 +379,7 @@ Press the key. The cue fires, wherever the list is standing.	کلیلەکە دا
 No mouse, no list, no looking. Just the key.	بێ ماوس، بێ لیست، بێ سەیرکردن. تەنها کلیل.
 Buzz! We have a winner!	Bzzz! براوەیەکمان هەیە!
 FROM ANYWHERE	لە هەموو شوێنێکەوە
-Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion، نۆتەیەکی MIDI، نامەیەکی OSC: MENU، پاشان تۆڕ، دەڵێت هەر یەکێک لە کوێ پەیوەست دەبێت.
+Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion، نۆتەیەکی MIDI، نامەیەکی OSC: مێنیو، پاشان تۆڕ، دەڵێت هەر یەکێک لە کوێ پەیوەست دەبێت.
 A Stream Deck in the next room can press GO. So can a keyboard synth. I prefer the synth.	Stream Deck لە ژووری تەنیشت دەتوانێت GO دابگرێت. synth ـی کیبۆردیش. من synth باشتر دەزانم.
 And for our viewers at home: you can play along too.	و بۆ بینەرانی ماڵەوە: ئێوەش دەتوانن یاری بکەن.
 THAT'S OUR SHOW	ئەوە شانۆکەمان بوو
@@ -432,7 +432,7 @@ Something's loose! Space holds the countdown. The clock shows it is held.	شتێ
 A hold is not a stop. Space again, and it carries on from where it was.	وەستان کۆتایی نییە. دووبارە Space، و لە شوێنی خۆی بەردەوام دەبێت.
 *holds up a spanner*	*کلیلێک بەرز دەکاتەوە*
 THE PILOT'S VIEW	دیمەنی فڕۆکەوان
-MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	MENU، Video Outputs: جۆری output ـێک بکە بە PRESENTER. کەسی سەر شانۆ کاتژمێر، cue ـی داهاتوو و تێبینییەکانی دەبینێت.
+MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	مێنیو، Video Outputs: جۆری output ـێک بکە بە PRESENTER. کەسی سەر شانۆ کاتژمێر، cue ـی داهاتوو و تێبینییەکانی دەبینێت.
 A presenter view is an output like any other. Point it at the confidence monitor.	دیمەنی پێشکەشکار output ـێکە وەک ئەوانی تر. بینێرە بۆ مۆنیتەری سەر شانۆ.
 So the pilot can see the time. The pilot is Grommet.	بۆ ئەوەی فڕۆکەوان کاتەکە ببینێت. فڕۆکەوان Grommet ـە.
 TO THE MOON	بەرەو مانگ
@@ -473,10 +473,10 @@ AND BACK	و گەڕانەوە
 The fire's out. Press B again: the picture comes back, still running.	ئاگرەکە کوژایەوە. دووبارە B: وێنەکە دەگەڕێتەوە، هێشتا کار دەکات.
 Nothing was lost. A mute on a mixer, for pictures.	هیچ ون نەبوو. mute لەسەر mixer، بۆ وێنە.
 Ta-da! Still cookin'!	Ta-da! هێشتا چێشت لێدەنێین!
-Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	خراپتر: MENU، سیستەم، کارتی SAFETY: PANIC. هەموو شت دەوەستێت، وەک ڕێکخستنی panic دەڵێت.
+Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	خراپتر: مێنیو، سیستەم، کارتی SAFETY: PANIC. هەموو شت دەوەستێت، وەک ڕێکخستنی panic دەڵێت.
 PANIC is the big red button. Use it when BLACK is not enough. Then breathe.	PANIC دوگمە سوورە گەورەکەیە. کاتێک BLACK بەس نییە بەکاری بهێنە. پاشان هەناسە بدە.
 GET IT BACK	بیگەڕێنەرەوە
-Close MENU, select the souffle, and TAKE it. The show is back on.	MENU دابخە، soufflé هەڵبژێرە و TAKE بکە. شانۆکە دەگەڕێتەوە.
+Close MENU, select the souffle, and TAKE it. The show is back on.	مێنیو دابخە، soufflé هەڵبژێرە و TAKE بکە. شانۆکە دەگەڕێتەوە.
 After a panic, the show is still there. Pick up where you meant to be.	دوای panic، شانۆکە هێشتا لەوێیە. لەو شوێنەوە بەردەوام بە کە دەتویست.
 Voila! De souffle, he is risen!	Voilà! soufflé ـەکە بەرز بووەوە!
 BON APPETIT	نۆشی گیان
@@ -540,7 +540,7 @@ Add a second: a bend, like crush. It damages the sound the way a broken file wou
 The bends are my favourite. Like a tape left in the sun. On purpose.	bend ـەکان دڵخوازترینمن. وەک کاسێتێک کە لە خۆردا مایەوە. بە ئەنقەست.
 > HARDER. BETTER. CRUNCHIER. LOUDER.	> توندتر. باشتر. قرچەتر. بەرزتر.
 THE PATCH	PATCH
-MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	MENU، پاشان دەنگ: دەنگی هەموو playlist ـێک بۆ کوێ دەچێت، و patch بۆ output ـە ناودارەکان.
+MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	مێنیو، پاشان دەنگ: دەنگی هەموو playlist ـێک بۆ کوێ دەچێت، و patch بۆ output ـە ناودارەکان.
 Speakers, monitors, an in-ear for the drummer. The patch sends each its own.	بڵندگۆ، مۆنیتەر، in-ear بۆ دەهۆڵژەن. Patch بۆ هەر یەکێک هی خۆی دەنێرێت.
 > AROUND THE MIX. AROUND THE MIX. AROUND THE MIX.	> بە دەوری MIX ـدا. بە دەوری MIX ـدا. بە دەوری MIX ـدا.
 An effect, a bend and the patch. The robots approve, skapi. I think. Their faces are helmets.	effect ـێک، bend ـێک و patch ـێک. ڕۆبۆتەکان ڕازین، سکاپی. وا دەزانم. ڕوخساریان کڵاوە.
@@ -552,11 +552,11 @@ The Bureau again, skapi. A glow on the horizon, and two agents who disagree abou
 The scopes measure a picture: brightness, colour, levels. Numbers, not opinions.	Scope وێنەکە دەپێون: گەشی، ڕەنگ، ئاست. ژمارە، نەک بیروڕا.
 It's them, Brandt. It's a craft. Look how it glows.	ئەوانن، Brandt. کەشتییە. سەیر بکە چۆن دەدرەوشێتەوە.
 THE REAL SIGNAL	سیگناڵی ڕاستەقینە
-The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	scope تەنها ئەوە دەخوێننەوە کە بە ڕاستی دەردەچێت، هەرگیز preview نا. output بکەرەوە: MENU، Video Outputs، OUTPUT OFF.
+The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	scope تەنها ئەوە دەخوێننەوە کە بە ڕاستی دەردەچێت، هەرگیز preview نا. output بکەرەوە: مێنیو، Video Outputs، OUTPUT OFF.
 Measuring a scaled-down preview would be measuring a photocopy. We measure the original.	پێوانەی preview ـێکی بچووککراوە وەک پێوانەی فۆتۆکۆپییە. ئێمە ئەسڵەکە دەپێوین.
 Chain of evidence, Hollis. The real signal or nothing.	زنجیرەی بەڵگە، Hollis. سیگناڵی ڕاستەقینە یان هیچ.
 THE SCOPES	SCOPE
-Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	MENU دابخە. لە سەرووی مۆنیتەر، دوگمەی PROGRAM: دابگرە تا SCOPES یان BOTH بڵێت.
+Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	مێنیو دابخە. لە سەرووی مۆنیتەر، دوگمەی PROGRAM: دابگرە تا SCOPES یان BOTH بڵێت.
 Both shows the picture and its scopes side by side. Very civilised.	BOTH وێنەکە و scope ـەکانی لە تەنیشت یەک پیشان دەدات. زۆر شارستانی.
 Let the scopes decide, Hollis.	با scope ـەکان بڕیار بدەن، Hollis.
 THE WAVEFORM	WAVEFORM
@@ -579,7 +579,7 @@ OUT OF THE BUILDING	لە بیناکە دەرەوە
 Pictures that leave by cable or network, skapi, not only a window on a screen. Press START.	ئەو وێنانەی بە کێبڵ یان تۆڕ دەردەچن، سکاپی، نەک تەنها پەنجەرەیەک لەسەر شاشە. START دابگرە.
 NDI over the network, SDI from a DeckLink card, ST 2110 for broadcast plants.	NDI لەسەر تۆڕ، SDI لە کارتی DeckLink، ST 2110 بۆ ناوەندەکانی پەخش.
 THE DEVICES PAGE	پەڕەی ئامێرەکان
-MENU, Video Outputs, then Devices: every way an output can leave this computer.	MENU، Video Outputs، پاشان ئامێرەکان: هەموو ڕێگایەک کە output دەتوانێت لەم کۆمپیوتەرەوە دەربچێت.
+MENU, Video Outputs, then Devices: every way an output can leave this computer.	مێنیو، Video Outputs، پاشان ئامێرەکان: هەموو ڕێگایەک کە output دەتوانێت لەم کۆمپیوتەرەوە دەربچێت.
 Each one says whether this machine can do it, and what it needs if not.	هەر یەکێک دەڵێت ئایا ئەم ئامێرە دەتوانێت، و ئەگەر نا، چی پێویستە.
 If this computer has NDI, switch NDI SENDING on: the picture is on the network. If not, SHOW ME moves on.	ئەگەر NDI لەم کۆمپیوتەرە هەیە، NDI SENDING بکەرەوە: وێنەکە لەسەر تۆڕە. ئەگەر نا، SHOW ME بەردەوام دەبێت.
 NDI finds itself on the network. No cables, only a good switch and patience.	NDI خۆی لەسەر تۆڕ دەدۆزێتەوە. بێ کێبڵ، تەنها switch ـێکی باش و ئارامگرتن.
@@ -626,7 +626,7 @@ Nearly there. I can feel it in my pixels.	نزیکە. لە پیکسڵەکانم�
 You're good at this. I can tell. I'm the one doing it.	تۆ لەمەدا باشیت. دەیبینم. بە ڕاستی.
 Every click, I heard. Every single one.	هەموو کرتەیەک، بیستم. هەموویان.
 The glowing one. I can see it from here. It's glowing for you.	ئەوەی دەدرەوشێتەوە. لێرەوە دەیبینم. بۆ تۆ دەدرەوشێتەوە.
-lesson paused - MENU > LESSONS picks up where you left off	وانە وەستاوە - MENU > LESSONS لەو شوێنەوە بەردەوام دەبێت کە جێت هێشت
+lesson paused - MENU > LESSONS picks up where you left off	وانە وەستاوە - مێنیو > LESSONS لەو شوێنەوە بەردەوام دەبێت کە جێت هێشت
 PROF. VIDEO:  The signal: what the picture is made of, and how to bend it. Pick a lesson.	PROF. VIDEO:  سیگناڵ: وێنە لە چی دروست کراوە، و چۆن خوار دەکرێتەوە. وانەیەک هەڵبژێرە.
 DR. PIXEL:  Running the show, skapi. Fast hands, calm face. Pick a lesson.	DR. PIXEL:  بەڕێوەبردنی شانۆ، سکاپی. دەستی خێرا، ڕووی ئارام. وانەیەک هەڵبژێرە.
 LESSONS  -  PART TWO  -  WHO DO YOU FOLLOW?	وانە  -  بەشی دووەم  -  شوێن کێ دەکەویت؟
@@ -2215,3 +2215,5 @@ Pick a deck. Any deck. ...Deck 2. Pick Deck 2.	دەستەیەک هەڵبژێرە
 Iris	ئایریس
 Timecode	کۆدی کات
 PHASE	فاز
+MENU	مێنیو
+VOLUME	دەنگ

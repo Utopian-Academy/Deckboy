@@ -500,7 +500,7 @@ HELLO	HALLÓ
 Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me.	Dobar den, skapi. Ég er doktor Pixel. Fimm mínútur og þú stýrir sýningu. Styttra, ef þú hlustar á mig.
 And I'm Professor Video. Synths first, then video. Mostly video now. Press START and we'll patch... we'll begin.	Og ég er prófessor Video. Fyrst hljóðgervlar, svo myndband. Núna mest myndband. Ýttu á START og við tengjum... byrjum.
 TURN THE OUTPUT ON	KVEIKTU Á ÚTTAKINU
-Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	Skapi, skjárinn er tómur. Ekki láta þau bíða. Opnaðu MENU og láttu ÚTTAK AF verða ÚTTAK Á. Hajde!
+Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	Skapi, skjárinn er tómur. Ekki láta þau bíða. Opnaðu VALMYND og láttu ÚTTAK AF verða ÚTTAK Á. Hajde!
 Lesson one: nothing comes out until you patch the oscillator to the... the OUTPUT. It's video. I know.	Fyrsta lexía: ekkert kemur út fyrr en þú tengir sveifluvakann við... við ÚTTAKIÐ. Þetta er myndband. Ég veit.
 BRING IN A CLIP	SÆKTU MYNDSKEIÐ
 Now a picture. Press I and pick a clip from your computer. No clip? SHOW ME, and I lend you one of mine.	Nú mynd. Ýttu á I og veldu myndskeið úr tölvunni. Ekkert myndskeið? SHOW ME, og ég lána þér eitt af mínum.
@@ -522,7 +522,7 @@ Now save. Ctrl+S, or SAVE. Some programs lose your work and then blame you. I wo
 Save your patch. Your SHOW. Show. This practice one lives in Deckboy's own folder; yours is safe.	Vistaðu patchið þitt. SÝNINGUNA þína. Sýningu. Þessi æfingasýning býr í möppu Deckboy sjálfs; þín er örugg.
 THAT'S A SHOW	ÞETTA ER SÝNING
 That's a show! Output, cue, TAKE, crossfade, BLACK, save. Nazdrave, skapi. Rakia is on me.	Þetta er sýning! Úttak, cue, TAKE, víxldofnun, BLACK, vista. Nazdrave, skapi. Rakían er á mig.
-Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	Tíminn búinn. Dæmasýningarnar kenna lög, titla og áhrif. MENU > LEARN THE BASICS keyrir þetta aftur.
+Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	Tíminn búinn. Dæmasýningarnar kenna lög, titla og áhrif. VALMYND > LEARN THE BASICS keyrir þetta aftur.
 *shakes head* That means yes. Bravo.	*hristir höfuðið* Það þýðir já. Bravó.
 Wonderful! Lovely signal flow.	Dásamlegt! Yndislegt merkjaflæði.
 Mm. I knew you had it in you.	Mm. Ég vissi að þú hefðir þetta í þér.
@@ -535,7 +535,7 @@ your show could not be saved, so the lesson has not started. Save it (SAVE AS) a
 the practice show would not open	æfingasýningin opnaðist ekki
 could not start the practice show	gat ekki ræst æfingasýninguna
 learn the basics: Esc leaves, and it picks up here next time	learn the basics: Esc hættir, og næst er haldið áfram héðan
-that's the basics - MENU > LESSONS has part two	þetta eru grunnatriðin - MENU > LESSONS er með annan hluta
+that's the basics - MENU > LESSONS has part two	þetta eru grunnatriðin - VALMYND > LESSONS er með annan hluta
 tour paused - LEARN THE BASICS picks up where you left off	kynning á bið - LEARN THE BASICS heldur áfram þar sem þú hættir
 Mirrored screens, skapi. Press any key or click, and Dr. Pixel gives it back.	Speglaðir skjáir, skapi. Ýttu á hvaða takka sem er eða smelltu, og doktor Pixel skilar honum.
 Wrong screen, skapi. Press any key or click, and Dr. Pixel gives it back.	Rangur skjár, skapi. Ýttu á hvaða takka sem er eða smelltu, og doktor Pixel skilar honum.
@@ -714,7 +714,7 @@ A lighthouse, a ghost, and a keeper who has been alone with the lamp far too lon
 Projection mapping: bending the picture to fit the building. Warp, blend, slices.	Varpkortlagning: að beygja myndina svo hún passi á bygginguna. Bjögun, blöndun, sneiðar.
 Ye'll be wanting the ghost on the windows. Mind the lamp. The lamp is MINE.	Þið viljið drauginn á gluggana, ha? Farið varlega með ljósið. Ljósið er MITT.
 THE OUTPUT'S GEOMETRY	RÚMFRÆÐI ÚTTAKSINS
-MENU, then Video Outputs, then Geometry. Where an output's shape lives.	MENU, svo Myndúttök, svo Rúmfræði. Þar býr lögun úttaks.
+MENU, then Video Outputs, then Geometry. Where an output's shape lives.	VALMYND, svo Myndúttök, svo Rúmfræði. Þar býr lögun úttaks.
 Geometry: the projector-menu word for 'what shape is the picture'.	Rúmfræði: orð skjávarpavalmynda yfir 'hvernig er myndin í laginu'.
 PIN A CORNER	FESTU HORN
 Press warp edit, then drag a corner on the programme monitor. The window is not square. Neither is the keeper.	Ýttu á warp edit og dragðu horn á útsendingarskjánum. Glugginn er ekki ferhyrndur. Ekki vörðurinn heldur.
@@ -755,7 +755,7 @@ Press the key. The cue fires, wherever the list is standing.	Ýttu á takkann. C
 No mouse, no list, no looking. Just the key.	Engin mús, enginn listi, ekkert að horfa. Bara takkinn.
 Buzz! We have a winner!	Bzzz! Við eigum sigurvegara!
 FROM ANYWHERE	HVAÐAN SEM ER
-Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion, MIDI-nóta, OSC-skilaboð: MENU, svo Net, segir hvert hvert og eitt tengist.
+Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion, MIDI-nóta, OSC-skilaboð: VALMYND, svo Net, segir hvert hvert og eitt tengist.
 A Stream Deck in the next room can press GO. So can a keyboard synth. I prefer the synth.	Stream Deck í næsta herbergi getur ýtt á GO. Hljómborðsgervill líka. Ég vil frekar gervilinn.
 And for our viewers at home: you can play along too.	Og fyrir áhorfendur heima: þið getið spilað með.
 THAT'S OUR SHOW	ÞETTA VAR ÞÁTTURINN OKKAR
@@ -808,7 +808,7 @@ Something's loose! Space holds the countdown. The clock shows it is held.	Eitthv
 A hold is not a stop. Space again, and it carries on from where it was.	Bið er ekki stopp. Bilslá aftur, og hún heldur áfram þaðan sem hún var.
 *holds up a spanner*	*lyftir skiptilykli*
 THE PILOT'S VIEW	SÝN FLUGMANNSINS
-MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	MENU, Myndúttök: gerðu tegund úttaks að PRESENTER. Sá sem er á sviðinu fær klukkuna, næsta cue og glósurnar sínar.
+MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	VALMYND, Myndúttök: gerðu tegund úttaks að PRESENTER. Sá sem er á sviðinu fær klukkuna, næsta cue og glósurnar sínar.
 A presenter view is an output like any other. Point it at the confidence monitor.	Kynnisskjár er úttak eins og hvert annað. Beindu honum að sviðsskjánum.
 So the pilot can see the time. The pilot is Grommet.	Svo flugmaðurinn sjái tímann. Flugmaðurinn er Grommet.
 TO THE MOON	TIL TUNGLSINS
@@ -849,10 +849,10 @@ AND BACK	OG TIL BAKA
 The fire's out. Press B again: the picture comes back, still running.	Eldurinn er slökktur. Ýttu aftur á B: myndin kemur aftur, enn í gangi.
 Nothing was lost. A mute on a mixer, for pictures.	Ekkert tapaðist. Mute á hljóðborði, fyrir myndir.
 Ta-da! Still cookin'!	Ta-da! Enn að elda!
-Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	Verra: MENU, Kerfi, SAFETY-spjaldið: PANIC. Allt stöðvast, eins og ofsahræðslustillingin segir.
+Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	Verra: VALMYND, Kerfi, SAFETY-spjaldið: PANIC. Allt stöðvast, eins og ofsahræðslustillingin segir.
 PANIC is the big red button. Use it when BLACK is not enough. Then breathe.	PANIC er stóri rauði hnappurinn. Notaðu hann þegar BLACK dugar ekki. Andaðu svo.
 GET IT BACK	NÁÐU ÞVÍ AFTUR
-Close MENU, select the souffle, and TAKE it. The show is back on.	Lokaðu MENU, veldu soufflé-ið og gerðu TAKE. Sýningin er aftur í gangi.
+Close MENU, select the souffle, and TAKE it. The show is back on.	Lokaðu VALMYND, veldu soufflé-ið og gerðu TAKE. Sýningin er aftur í gangi.
 After a panic, the show is still there. Pick up where you meant to be.	Eftir ofsahræðslu er sýningin enn þarna. Haltu áfram þar sem þú ætlaðir að vera.
 Voila! De souffle, he is risen!	Voilà! Soufflé-ið, það reis!
 BON APPETIT	VERÐI YKKUR AÐ GÓÐU
@@ -916,7 +916,7 @@ Add a second: a bend, like crush. It damages the sound the way a broken file wou
 The bends are my favourite. Like a tape left in the sun. On purpose.	Beygjurnar eru í uppáhaldi hjá mér. Eins og snælda sem gleymdist í sólinni. Viljandi.
 > HARDER. BETTER. CRUNCHIER. LOUDER.	> HARÐARA. BETRA. STÖKKARA. HÆRRA.
 THE PATCH	PATCHIÐ
-MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	MENU, svo Hljóð: hvert hljóð hvers lista fer, og patchið fyrir nefnd úttök.
+MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	VALMYND, svo Hljóð: hvert hljóð hvers lista fer, og patchið fyrir nefnd úttök.
 Speakers, monitors, an in-ear for the drummer. The patch sends each its own.	Hátalarar, mónitorar, eyrnatól fyrir trommarann. Patchið sendir hverjum sitt.
 > AROUND THE MIX. AROUND THE MIX. AROUND THE MIX.	> KRINGUM BLÖNDUNA. KRINGUM BLÖNDUNA. KRINGUM BLÖNDUNA.
 An effect, a bend and the patch. The robots approve, skapi. I think. Their faces are helmets.	Áhrif, beygja og patchið. Vélmennin samþykkja, skapi. Held ég. Andlitin þeirra eru hjálmar.
@@ -928,11 +928,11 @@ The Bureau again, skapi. A glow on the horizon, and two agents who disagree abou
 The scopes measure a picture: brightness, colour, levels. Numbers, not opinions.	Mælarnir mæla mynd: birtu, lit, styrk. Tölur, ekki skoðanir.
 It's them, Brandt. It's a craft. Look how it glows.	Þetta eru þeir, Brandt. Þetta er geimfar. Sjáðu hvernig það glóir.
 THE REAL SIGNAL	ALVÖRU MERKIÐ
-The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	Mælarnir lesa bara það sem raunverulega fer út, aldrei forskoðun. Kveiktu á úttakinu: MENU, Myndúttök, ÚTTAK AF.
+The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	Mælarnir lesa bara það sem raunverulega fer út, aldrei forskoðun. Kveiktu á úttakinu: VALMYND, Myndúttök, ÚTTAK AF.
 Measuring a scaled-down preview would be measuring a photocopy. We measure the original.	Að mæla minnkaða forskoðun væri að mæla ljósrit. Við mælum frumritið.
 Chain of evidence, Hollis. The real signal or nothing.	Sönnunarkeðja, Hollis. Alvöru merkið eða ekkert.
 THE SCOPES	MÆLARNIR
-Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	Lokaðu MENU. Fyrir ofan skjáinn, PROGRAM-hnappurinn: ýttu þar til stendur SCOPES eða BOTH.
+Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	Lokaðu VALMYND. Fyrir ofan skjáinn, PROGRAM-hnappurinn: ýttu þar til stendur SCOPES eða BOTH.
 Both shows the picture and its scopes side by side. Very civilised.	BOTH sýnir myndina og mælana hlið við hlið. Mjög siðmenntað.
 Let the scopes decide, Hollis.	Leyfum mælunum að skera úr, Hollis.
 THE WAVEFORM	BYLGJUFORMIÐ
@@ -955,7 +955,7 @@ OUT OF THE BUILDING	ÚT ÚR BYGGINGUNNI
 Pictures that leave by cable or network, skapi, not only a window on a screen. Press START.	Myndir sem fara með snúru eða neti, skapi, ekki bara gluggi á skjá. Ýttu á START.
 NDI over the network, SDI from a DeckLink card, ST 2110 for broadcast plants.	NDI yfir netið, SDI af DeckLink-korti, ST 2110 fyrir útsendingarstöðvar.
 THE DEVICES PAGE	TÆKJASÍÐAN
-MENU, Video Outputs, then Devices: every way an output can leave this computer.	MENU, Myndúttök, svo Tæki: allar leiðir sem úttak getur yfirgefið þessa tölvu.
+MENU, Video Outputs, then Devices: every way an output can leave this computer.	VALMYND, Myndúttök, svo Tæki: allar leiðir sem úttak getur yfirgefið þessa tölvu.
 Each one says whether this machine can do it, and what it needs if not.	Hver segir hvort þessi vél geti það, og hvað hún þarf ef ekki.
 If this computer has NDI, switch NDI SENDING on: the picture is on the network. If not, SHOW ME moves on.	Ef þessi tölva hefur NDI, kveiktu á NDI SENDING: myndin er á netinu. Ef ekki, heldur SHOW ME áfram.
 NDI finds itself on the network. No cables, only a good switch and patience.	NDI finnur sjálft sig á netinu. Engar snúrur, bara góður netrofi og þolinmæði.
@@ -1002,7 +1002,7 @@ Nearly there. I can feel it in my pixels.	Næstum. Ég finn það í pixlunum m�
 You're good at this. I can tell. I'm the one doing it.	Þú ert góður í þessu. Ég sé það. Það er ég sem geri það.
 Every click, I heard. Every single one.	Hvern smell heyrði ég. Hvern og einn.
 The glowing one. I can see it from here. It's glowing for you.	Sá sem glóir. Ég sé hann héðan. Hann glóir fyrir þig.
-lesson paused - MENU > LESSONS picks up where you left off	lexía á bið - MENU > LESSONS heldur áfram þar sem þú hættir
+lesson paused - MENU > LESSONS picks up where you left off	lexía á bið - VALMYND > LESSONS heldur áfram þar sem þú hættir
 PROF. VIDEO:  The signal: what the picture is made of, and how to bend it. Pick a lesson.	PROF. VIDEO:  Merkið: úr hverju myndin er gerð, og hvernig á að beygja hana. Veldu lexíu.
 DR. PIXEL:  Running the show, skapi. Fast hands, calm face. Pick a lesson.	DR. PIXEL:  Að stýra sýningunni, skapi. Snöggar hendur, rólegt andlit. Veldu lexíu.
 LESSONS  -  PART TWO  -  WHO DO YOU FOLLOW?	LEXÍUR  -  ANNAR HLUTI  -  HVERJUM FYLGIR ÞÚ?
@@ -2212,3 +2212,5 @@ Nine years of live weather. Always click the tab.	Níu ár af veðri í beinni. 
 Click its tab, Deck 2. A new playlist waits until you choose it.	Smelltu á flipann hans, Deck 2. Nýr listi bíður þar til þú velur hann.
 The lit tab gets the next cue. Like choosing which slide goes in the projector.	Upplýsti flipinn fær næsta cue. Eins og að velja hvaða skyggna fer í sýningarvélina.
 Pick a deck. Any deck. ...Deck 2. Pick Deck 2.	Veldu stokk. Hvaða stokk sem er. ...Deck 2. Veldu Deck 2.
+MENU	VALMYND
+VOLUME	HLJÓÐSTYRKUR

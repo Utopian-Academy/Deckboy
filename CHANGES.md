@@ -11,7 +11,12 @@
 ### Splash
 - The new Dr. Pixel and Prof. Video splash panels are now 4K, from the 4K originals, and drawn with smooth scaling. They were 1920x1080 and drawn with blocky nearest-neighbour scaling, which made them look low-resolution on large or 4K screens.
 
+### Lesson voices
+- The guests in the lessons now have voices of their own, in the same little Game Boy synth as Dr. Pixel and Prof. Video: the lighthouse keeper low and slow, the coach gruff, the chef bouncing between octaves. A guest waits for the teacher to finish, and stage directions like *raises an eyebrow* are not spoken.
+- The robot DJs speak in chopped, synthy syllables on the Game Boy's wave channel, which the synth now has: a high voice and a low one.
+
 ### Languages
+- MENU and the VOLUME label are now translated in every language. The lessons that say "MENU" use the same word as the button.
 - Hawaiian (ʻŌlelo Hawaiʻi) is now a full translation: the whole desk and every lesson. No speaker has reviewed it yet.
 
 ## 2026-11-07 - v0.99.427 (lessons that point everywhere, Esc that closes the right thing, 40 new themes)

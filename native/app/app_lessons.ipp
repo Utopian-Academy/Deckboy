@@ -684,6 +684,9 @@
 
   std::string guestLineSeen_;
   Uint64 guestTalkUntilMs_ = 0;
+  Uint64 guestTalkFromMs_ = 0;      // the guest waits for the teacher to finish
+  std::vector<DmgNote> guestPendingNotes_;   // the guest's line, held until the teacher stops
+  Uint64 guestPendingAtMs_ = 0;
 
   // False when there is no face for that name (the card then draws none).
   bool drawGuestPortrait(const SDL_Rect& box, const char* name, bool speaking) {

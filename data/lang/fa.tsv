@@ -510,7 +510,7 @@ HELLO	سلام
 Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me.	دوبار دن، اسکاپی. من دکتر پیکسل هستم. پنج دقیقه دیگر یک نمایش را اجرا می‌کنی. اگر به حرفم گوش کنی، کمتر.
 And I'm Professor Video. Synths first, then video. Mostly video now. Press START and we'll patch... we'll begin.	و من پروفسور ویدیو هستم. اول سینت‌سایزر، بعد ویدیو. حالا بیشتر ویدیو. START را بزن تا وصل کنیم... یعنی شروع کنیم.
 TURN THE OUTPUT ON	خروجی را روشن کن
-Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	اسکاپی، صفحه خالی است. منتظرشان نگذار. MENU را باز کن و «خروجی خاموش» را «خروجی روشن» کن. یالا!
+Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	اسکاپی، صفحه خالی است. منتظرشان نگذار. منو را باز کن و «خروجی خاموش» را «خروجی روشن» کن. یالا!
 Lesson one: nothing comes out until you patch the oscillator to the... the OUTPUT. It's video. I know.	درس اول: تا اسیلاتور را به... به خروجی وصل نکنی، چیزی بیرون نمی‌آید. ویدیو است. می‌دانم.
 BRING IN A CLIP	یک کلیپ بیاور
 Now a picture. Press I and pick a clip from your computer. No clip? SHOW ME, and I lend you one of mine.	حالا یک تصویر. I را بزن و کلیپی از رایانه‌ات انتخاب کن. کلیپ نداری؟ SHOW ME را بزن، یکی از مال خودم را قرض می‌دهم.
@@ -532,7 +532,7 @@ Now save. Ctrl+S, or SAVE. Some programs lose your work and then blame you. I wo
 Save your patch. Your SHOW. Show. This practice one lives in Deckboy's own folder; yours is safe.	پچت را ذخیره کن. نمایشت را. نمایش. این تمرینی در پوشه‌ی خود Deckboy است؛ مال تو در امان است.
 THAT'S A SHOW	این یعنی نمایش
 That's a show! Output, cue, TAKE, crossfade, BLACK, save. Nazdrave, skapi. Rakia is on me.	این یعنی نمایش! خروجی، کیو، TAKE، محو، BLACK، ذخیره. نازدراوه، اسکاپی. راکیا مهمان من.
-Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	کلاس تمام. نمایش‌های نمونه لایه‌ها، عنوان‌ها و افکت‌ها را یاد می‌دهند. MENU > LEARN THE BASICS دوباره اجرایش می‌کند.
+Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	کلاس تمام. نمایش‌های نمونه لایه‌ها، عنوان‌ها و افکت‌ها را یاد می‌دهند. منو > LEARN THE BASICS دوباره اجرایش می‌کند.
 *shakes head* That means yes. Bravo.	*سرش را به چپ و راست تکان می‌دهد* یعنی بله. براوو.
 Wonderful! Lovely signal flow.	عالی! چه جریان سیگنال قشنگی.
 Mm. I knew you had it in you.	اوم. می‌دانستم از پسش برمی‌آیی.
@@ -545,7 +545,7 @@ your show could not be saved, so the lesson has not started. Save it (SAVE AS) a
 the practice show would not open	نمایش تمرینی باز نشد
 could not start the practice show	نمایش تمرینی شروع نشد
 learn the basics: Esc leaves, and it picks up here next time	learn the basics: Esc بیرون می‌رود، و دفعه‌ی بعد از همین جا ادامه می‌دهد
-that's the basics - MENU > LESSONS has part two	مبانی همین بود - MENU > LESSONS بخش دو را دارد
+that's the basics - MENU > LESSONS has part two	مبانی همین بود - منو > LESSONS بخش دو را دارد
 tour paused - LEARN THE BASICS picks up where you left off	گشت متوقف شد - LEARN THE BASICS از همان جا ادامه می‌دهد
 Mirrored screens, skapi. Press any key or click, and Dr. Pixel gives it back.	صفحه‌ها آینه‌ای‌اند، اسکاپی. هر کلیدی را بزن یا کلیک کن، دکتر پیکسل برش می‌گرداند.
 Wrong screen, skapi. Press any key or click, and Dr. Pixel gives it back.	صفحه‌ی اشتباه، اسکاپی. هر کلیدی را بزن یا کلیک کن، دکتر پیکسل برش می‌گرداند.
@@ -724,7 +724,7 @@ A lighthouse, a ghost, and a keeper who has been alone with the lamp far too lon
 Projection mapping: bending the picture to fit the building. Warp, blend, slices.	نقشه‌برداری نوری: خم کردن تصویر تا روی ساختمان بنشیند. وارپ، ادغام، برش‌ها.
 Ye'll be wanting the ghost on the windows. Mind the lamp. The lamp is MINE.	روح را روی پنجره‌ها می‌خواهید، ها؟ مواظب چراغ باشید. چراغ مال من است.
 THE OUTPUT'S GEOMETRY	هندسه‌ی خروجی
-MENU, then Video Outputs, then Geometry. Where an output's shape lives.	MENU، بعد خروجی‌های ویدیو، بعد هندسه. شکل خروجی آنجا زندگی می‌کند.
+MENU, then Video Outputs, then Geometry. Where an output's shape lives.	منو، بعد خروجی‌های ویدیو، بعد هندسه. شکل خروجی آنجا زندگی می‌کند.
 Geometry: the projector-menu word for 'what shape is the picture'.	هندسه: واژه‌ی منوی پروژکتور برای «تصویر چه شکلی است».
 PIN A CORNER	یک گوشه را سنجاق کن
 Press warp edit, then drag a corner on the programme monitor. The window is not square. Neither is the keeper.	warp edit را بزن، بعد یک گوشه را روی مانیتور برنامه بکش. پنجره مربع نیست. نگهبان هم نیست.
@@ -765,7 +765,7 @@ Press the key. The cue fires, wherever the list is standing.	کلید را بز�
 No mouse, no list, no looking. Just the key.	بی‌ماوس، بی‌فهرست، بی‌نگاه. فقط کلید.
 Buzz! We have a winner!	دینگ! برنده داریم!
 FROM ANYWHERE	از هر جا
-Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion، یک نت MIDI، یک پیام OSC: MENU، بعد شبکه، می‌گوید هر کدام کجا وصل می‌شود.
+Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion، یک نت MIDI، یک پیام OSC: منو، بعد شبکه، می‌گوید هر کدام کجا وصل می‌شود.
 A Stream Deck in the next room can press GO. So can a keyboard synth. I prefer the synth.	یک Stream Deck در اتاق بغلی می‌تواند GO را بزند. یک کیبورد سینت هم. من سینت را ترجیح می‌دهم.
 And for our viewers at home: you can play along too.	و برای بینندگان در خانه: شما هم می‌توانید بازی کنید.
 THAT'S OUR SHOW	برنامه‌ی ما همین بود
@@ -818,7 +818,7 @@ Something's loose! Space holds the countdown. The clock shows it is held.	چیز
 A hold is not a stop. Space again, and it carries on from where it was.	نگه داشتن توقف نیست. دوباره فاصله، و از همان جا ادامه می‌دهد.
 *holds up a spanner*	*یک آچار بالا می‌برد*
 THE PILOT'S VIEW	نمای خلبان
-MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	MENU، خروجی‌های ویدیو: نوع یک خروجی را PRESENTER کن. کسی که روی صحنه است زمان‌سنج، کیوی بعدی و یادداشت‌هایش را می‌بیند.
+MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	منو، خروجی‌های ویدیو: نوع یک خروجی را PRESENTER کن. کسی که روی صحنه است زمان‌سنج، کیوی بعدی و یادداشت‌هایش را می‌بیند.
 A presenter view is an output like any other. Point it at the confidence monitor.	نمای ارائه‌دهنده هم یک خروجی است مثل بقیه. به سمت مانیتور جلوی صحنه بگیرش.
 So the pilot can see the time. The pilot is Grommet.	تا خلبان بتواند زمان را ببیند. خلبان گرومت است.
 TO THE MOON	به سوی ماه
@@ -860,11 +860,11 @@ AND BACK	و برگشت
 The fire's out. Press B again: the picture comes back, still running.	آتش خاموش شد. دوباره B را بزن: تصویر برمی‌گردد، هنوز در حال پخش.
 Nothing was lost. A mute on a mixer, for pictures.	هیچ چیز گم نشد. بی‌صدای میکسر، برای تصویر.
 Ta-da! Still cookin'!	تادا! هنوز داریم می‌پزیم!
-Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	بدتر: MENU، سیستم، کارت SAFETY: PANIC. همه چیز همان‌طور که تنظیم وحشت می‌گوید متوقف می‌شود.
+Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	بدتر: منو، سیستم، کارت SAFETY: PANIC. همه چیز همان‌طور که تنظیم وحشت می‌گوید متوقف می‌شود.
 PANIC is the big red button. Use it when BLACK is not enough. Then breathe.	PANIC دکمه‌ی قرمز بزرگ است. وقتی BLACK کافی نیست. بعد نفس بکش.
 Bork bork BORK!	بورک بورک بورک!
 GET IT BACK	برش گردان
-Close MENU, select the souffle, and TAKE it. The show is back on.	MENU را ببند، سوفله را انتخاب کن و TAKE بزن. نمایش برگشت.
+Close MENU, select the souffle, and TAKE it. The show is back on.	منو را ببند، سوفله را انتخاب کن و TAKE بزن. نمایش برگشت.
 After a panic, the show is still there. Pick up where you meant to be.	بعد از وحشت، نمایش هنوز آنجاست. از همان جایی که می‌خواستی ادامه بده.
 Voila! De souffle, he is risen!	بفرما! سوفله، پف کرد!
 BON APPETIT	نوش جان
@@ -928,7 +928,7 @@ Add a second: a bend, like crush. It damages the sound the way a broken file wou
 The bends are my favourite. Like a tape left in the sun. On purpose.	خم‌ها مورد علاقه‌ی من‌اند. مثل نواری که زیر آفتاب جا مانده. عمدی.
 > HARDER. BETTER. CRUNCHIER. LOUDER.	> سخت‌تر. بهتر. تردتر. بلندتر.
 THE PATCH	پچ
-MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	MENU، بعد صدا: صدای هر فهرست کجا می‌رود، و پچ خروجی‌های نام‌دار.
+MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	منو، بعد صدا: صدای هر فهرست کجا می‌رود، و پچ خروجی‌های نام‌دار.
 Speakers, monitors, an in-ear for the drummer. The patch sends each its own.	بلندگوها، مانیتورها، یک گوشی داخل گوش برای نوازنده‌ی درامز. پچ به هر کدام مال خودش را می‌فرستد.
 > AROUND THE MIX. AROUND THE MIX. AROUND THE MIX.	> دور میکس. دور میکس. دور میکس.
 An effect, a bend and the patch. The robots approve, skapi. I think. Their faces are helmets.	یک افکت، یک خم و پچ. ربات‌ها تأیید می‌کنند، اسکاپی. فکر کنم. صورتشان کلاه‌خود است.
@@ -940,11 +940,11 @@ The Bureau again, skapi. A glow on the horizon, and two agents who disagree abou
 The scopes measure a picture: brightness, colour, levels. Numbers, not opinions.	اسکوپ‌ها تصویر را می‌سنجند: روشنایی، رنگ، سطح. عدد، نه نظر.
 It's them, Brandt. It's a craft. Look how it glows.	خودشان‌اند، برانت. یک سفینه است. ببین چطور می‌درخشد.
 THE REAL SIGNAL	سیگنال واقعی
-The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	اسکوپ‌ها فقط چیزی را می‌خوانند که واقعاً بیرون می‌رود، هرگز پیش‌نمایش را. خروجی را روشن کن: MENU، خروجی‌های ویدیو، «خروجی خاموش».
+The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	اسکوپ‌ها فقط چیزی را می‌خوانند که واقعاً بیرون می‌رود، هرگز پیش‌نمایش را. خروجی را روشن کن: منو، خروجی‌های ویدیو، «خروجی خاموش».
 Measuring a scaled-down preview would be measuring a photocopy. We measure the original.	سنجیدن پیش‌نمایش کوچک‌شده مثل سنجیدن فتوکپی است. ما اصل را می‌سنجیم.
 Chain of evidence, Hollis. The real signal or nothing.	زنجیره‌ی مدارک، هالیس. سیگنال واقعی یا هیچ.
 THE SCOPES	اسکوپ‌ها
-Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	MENU را ببند. بالای مانیتور، دکمه‌ی PROGRAM: آن‌قدر بزن تا SCOPES یا BOTH بگوید.
+Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	منو را ببند. بالای مانیتور، دکمه‌ی PROGRAM: آن‌قدر بزن تا SCOPES یا BOTH بگوید.
 Both shows the picture and its scopes side by side. Very civilised.	BOTH تصویر و اسکوپ‌هایش را کنار هم نشان می‌دهد. خیلی متمدنانه.
 Let the scopes decide, Hollis.	بگذار اسکوپ‌ها تصمیم بگیرند، هالیس.
 THE WAVEFORM	شکل موج
@@ -967,7 +967,7 @@ OUT OF THE BUILDING	بیرون از ساختمان
 Pictures that leave by cable or network, skapi, not only a window on a screen. Press START.	تصویرهایی که با کابل یا شبکه بیرون می‌روند، اسکاپی، نه فقط یک پنجره روی صفحه. START را بزن.
 NDI over the network, SDI from a DeckLink card, ST 2110 for broadcast plants.	NDI روی شبکه، SDI از کارت DeckLink، ST 2110 برای مراکز پخش.
 THE DEVICES PAGE	صفحه‌ی دستگاه‌ها
-MENU, Video Outputs, then Devices: every way an output can leave this computer.	MENU، خروجی‌های ویدیو، بعد دستگاه‌ها: هر راهی که یک خروجی می‌تواند از این رایانه بیرون برود.
+MENU, Video Outputs, then Devices: every way an output can leave this computer.	منو، خروجی‌های ویدیو، بعد دستگاه‌ها: هر راهی که یک خروجی می‌تواند از این رایانه بیرون برود.
 Each one says whether this machine can do it, and what it needs if not.	هر کدام می‌گوید این دستگاه می‌تواند یا نه، و اگر نه چه لازم دارد.
 If this computer has NDI, switch NDI SENDING on: the picture is on the network. If not, SHOW ME moves on.	اگر این رایانه NDI دارد، NDI SENDING را روشن کن: تصویر روی شبکه است. اگر نه، SHOW ME جلو می‌رود.
 NDI finds itself on the network. No cables, only a good switch and patience.	NDI خودش را روی شبکه پیدا می‌کند. بی‌کابل، فقط یک سوییچ خوب و صبر.
@@ -1014,7 +1014,7 @@ Nearly there. I can feel it in my pixels.	نزدیکیم. در پیکسل‌ها
 You're good at this. I can tell. I'm the one doing it.	کارت خوب است. می‌فهمم. انجامش با من است.
 Every click, I heard. Every single one.	هر کلیکی را شنیدم. تک‌تکش را.
 The glowing one. I can see it from here. It's glowing for you.	آن که می‌درخشد. از اینجا می‌بینمش. برای تو می‌درخشد.
-lesson paused - MENU > LESSONS picks up where you left off	درس متوقف شد - MENU > LESSONS از همان جا ادامه می‌دهد
+lesson paused - MENU > LESSONS picks up where you left off	درس متوقف شد - منو > LESSONS از همان جا ادامه می‌دهد
 PROF. VIDEO:  The signal: what the picture is made of, and how to bend it. Pick a lesson.	PROF. VIDEO:  سیگنال: تصویر از چه ساخته شده و چطور خمش کنیم. یک درس انتخاب کن.
 DR. PIXEL:  Running the show, skapi. Fast hands, calm face. Pick a lesson.	DR. PIXEL:  اجرای نمایش، اسکاپی. دست‌های سریع، چهره‌ی آرام. یک درس انتخاب کن.
 LESSONS  -  PART TWO  -  WHO DO YOU FOLLOW?	درس‌ها  -  بخش دو  -  دنبال چه کسی می‌روی؟
@@ -2223,3 +2223,5 @@ Nine years of live weather. Always click the tab.	نه سال هواشناسی �
 Click its tab, Deck 2. A new playlist waits until you choose it.	روی زبانه‌اش کلیک کن، Deck 2. فهرست جدید منتظر می‌ماند تا انتخابش کنی.
 The lit tab gets the next cue. Like choosing which slide goes in the projector.	زبانه‌ی روشن cue بعدی را می‌گیرد. مثل انتخاب اسلایدی که در پروژکتور می‌رود.
 Pick a deck. Any deck. ...Deck 2. Pick Deck 2.	یک دسته انتخاب کن. هر دسته‌ای. ...Deck 2. Deck 2 را انتخاب کن.
+MENU	منو
+VOLUME	صدا

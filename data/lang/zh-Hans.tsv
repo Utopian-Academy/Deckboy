@@ -501,7 +501,7 @@ HELLO	你好
 Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me.	多巴尔·登，斯卡皮。我是像素博士。五分钟，你就能主控一场演出。听我的，用不了五分钟。
 And I'm Professor Video. Synths first, then video. Mostly video now. Press START and we'll patch... we'll begin.	我是视频教授。先玩合成器，后来玩视频。现在基本只玩视频。按START，我们来接线……来开始。
 TURN THE OUTPUT ON	打开输出
-Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	斯卡皮，屏幕是空的。别让观众干等。打开MENU，把输出关变成输出开。快点！
+Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	斯卡皮，屏幕是空的。别让观众干等。打开菜单，把输出关变成输出开。快点！
 Lesson one: nothing comes out until you patch the oscillator to the... the OUTPUT. It's video. I know.	第一课：不把振荡器接到……接到输出上，什么都出不来。是视频。我知道。
 BRING IN A CLIP	导入一段素材
 Now a picture. Press I and pick a clip from your computer. No clip? SHOW ME, and I lend you one of mine.	现在来点画面。按I，从电脑里选一段素材。没有素材？按SHOW ME，我借你一段。
@@ -523,7 +523,7 @@ Now save. Ctrl+S, or SAVE. Some programs lose your work and then blame you. I wo
 Save your patch. Your SHOW. Show. This practice one lives in Deckboy's own folder; yours is safe.	保存你的音色。你的演出。对，演出。这个练习用的放在Deckboy自己的文件夹里，你的演出很安全。
 THAT'S A SHOW	这就是一场演出
 That's a show! Output, cue, TAKE, crossfade, BLACK, save. Nazdrave, skapi. Rakia is on me.	这就是一场演出！输出、cue、TAKE、叠化、BLACK、保存。纳兹德拉维，斯卡皮。拉基亚酒我请。
-Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	下课。示例演出会教你图层、字幕和特效。MENU > LEARN THE BASICS可以再来一遍。
+Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	下课。示例演出会教你图层、字幕和特效。菜单 > LEARN THE BASICS可以再来一遍。
 *shakes head* That means yes. Bravo.	*摇摇头* 这是“对”的意思。好样的。
 Wonderful! Lovely signal flow.	太棒了！漂亮的信号流。
 Mm. I knew you had it in you.	嗯。我就知道你行。
@@ -536,7 +536,7 @@ your show could not be saved, so the lesson has not started. Save it (SAVE AS) a
 the practice show would not open	练习演出打不开
 could not start the practice show	无法启动练习演出
 learn the basics: Esc leaves, and it picks up here next time	learn the basics：按Esc退出，下次从这里继续
-that's the basics - MENU > LESSONS has part two	基础就到这里 - MENU > LESSONS有第二部分
+that's the basics - MENU > LESSONS has part two	基础就到这里 - 菜单 > LESSONS有第二部分
 tour paused - LEARN THE BASICS picks up where you left off	导览已暂停 - LEARN THE BASICS从你离开的地方继续
 Mirrored screens, skapi. Press any key or click, and Dr. Pixel gives it back.	屏幕是镜像的，斯卡皮。按任意键或点一下，像素博士会还给你。
 Wrong screen, skapi. Press any key or click, and Dr. Pixel gives it back.	屏幕不对，斯卡皮。按任意键或点一下，像素博士会还给你。
@@ -716,7 +716,7 @@ A lighthouse, a ghost, and a keeper who has been alone with the lamp far too lon
 Projection mapping: bending the picture to fit the building. Warp, blend, slices.	投影映射：把画面弯过来贴合建筑。变形、融合、切片。
 Ye'll be wanting the ghost on the windows. Mind the lamp. The lamp is MINE.	你们是想把鬼投到窗户上吧。小心那盏灯。那盏灯是“我的”。
 THE OUTPUT'S GEOMETRY	输出的几何
-MENU, then Video Outputs, then Geometry. Where an output's shape lives.	MENU，然后视频输出，然后几何。输出的形状就在这里。
+MENU, then Video Outputs, then Geometry. Where an output's shape lives.	菜单，然后视频输出，然后几何。输出的形状就在这里。
 Geometry: the projector-menu word for 'what shape is the picture'.	几何：投影机菜单里“画面是什么形状”的说法。
 PIN A CORNER	定住一个角
 Press warp edit, then drag a corner on the programme monitor. The window is not square. Neither is the keeper.	按warp edit，然后在节目监视器上拖一个角。窗户不是方的。守塔人也不是方的。
@@ -757,7 +757,7 @@ Press the key. The cue fires, wherever the list is standing.	按下那个键。�
 No mouse, no list, no looking. Just the key.	不用鼠标，不用列表，不用看。只要那个键。
 Buzz! We have a winner!	叮咚！我们有赢家了！
 FROM ANYWHERE	从任何地方
-Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion、一个MIDI音符、一条OSC消息：MENU，然后网络，会告诉你每一个从哪里连接。
+Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion、一个MIDI音符、一条OSC消息：菜单，然后网络，会告诉你每一个从哪里连接。
 A Stream Deck in the next room can press GO. So can a keyboard synth. I prefer the synth.	隔壁房间的Stream Deck也能按GO。键盘合成器也行。我更喜欢合成器。
 And for our viewers at home: you can play along too.	电视机前的观众朋友们：你们也可以一起玩。
 THAT'S OUR SHOW	节目到此结束
@@ -810,7 +810,7 @@ Something's loose! Space holds the countdown. The clock shows it is held.	有东
 A hold is not a stop. Space again, and it carries on from where it was.	暂停不是停止。再按空格，从停下的地方继续。
 *holds up a spanner*	*举起一把扳手*
 THE PILOT'S VIEW	驾驶员的视图
-MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	MENU，视频输出：把一个输出的类型设为PRESENTER。台上的人能看到计时器、下一个cue和自己的备注。
+MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	菜单，视频输出：把一个输出的类型设为PRESENTER。台上的人能看到计时器、下一个cue和自己的备注。
 A presenter view is an output like any other. Point it at the confidence monitor.	演讲者视图也只是一个普通输出。对着返送监视器就行。
 So the pilot can see the time. The pilot is Grommet.	让驾驶员能看到时间。驾驶员是格罗米特。
 TO THE MOON	飞向月球
@@ -852,11 +852,11 @@ AND BACK	再回来
 The fire's out. Press B again: the picture comes back, still running.	火灭了。再按一次B：画面回来，还在播放。
 Nothing was lost. A mute on a mixer, for pictures.	什么都没丢。画面版的调音台静音键。
 Ta-da! Still cookin'!	当当！还在做饭！
-Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	更糟的时候：MENU，系统，SAFETY卡片：PANIC。一切按照应急设置停下。
+Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	更糟的时候：菜单，系统，SAFETY卡片：PANIC。一切按照应急设置停下。
 PANIC is the big red button. Use it when BLACK is not enough. Then breathe.	PANIC是那个大红按钮。BLACK不够用时才用它。然后深呼吸。
 Bork bork BORK!	博克博克博克！
 GET IT BACK	找回来
-Close MENU, select the souffle, and TAKE it. The show is back on.	关掉MENU，选中舒芙蕾，TAKE。演出继续。
+Close MENU, select the souffle, and TAKE it. The show is back on.	关掉菜单，选中舒芙蕾，TAKE。演出继续。
 After a panic, the show is still there. Pick up where you meant to be.	应急之后，演出还在。从你想在的地方接着来。
 Voila! De souffle, he is risen!	瞧！舒芙蕾，它发起来了！
 BON APPETIT	请慢用
@@ -920,7 +920,7 @@ Add a second: a bend, like crush. It damages the sound the way a broken file wou
 The bends are my favourite. Like a tape left in the sun. On purpose.	弯折是我的最爱。像一盘晒过太阳的磁带。故意的。
 > HARDER. BETTER. CRUNCHIER. LOUDER.	> 更猛。更好。更脆。更响。
 THE PATCH	跳线
-MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	MENU，然后音频：每个播放列表的声音去哪，以及命名输出的跳线。
+MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	菜单，然后音频：每个播放列表的声音去哪，以及命名输出的跳线。
 Speakers, monitors, an in-ear for the drummer. The patch sends each its own.	音箱、返听、鼓手的入耳监听。跳线给每个送去它自己的。
 > AROUND THE MIX. AROUND THE MIX. AROUND THE MIX.	> 绕着混音转。绕着混音转。绕着混音转。
 An effect, a bend and the patch. The robots approve, skapi. I think. Their faces are helmets.	一个效果、一个弯折、跳线。机器人们满意了，斯卡皮。大概吧。他们的脸就是头盔。
@@ -932,11 +932,11 @@ The Bureau again, skapi. A glow on the horizon, and two agents who disagree abou
 The scopes measure a picture: brightness, colour, levels. Numbers, not opinions.	示波器测量画面：亮度、颜色、电平。是数字，不是意见。
 It's them, Brandt. It's a craft. Look how it glows.	是他们，布兰特。是飞船。看它怎么发光。
 THE REAL SIGNAL	真正的信号
-The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	示波器只读真正送出去的东西，从不读预览。打开输出：MENU，视频输出，输出关。
+The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	示波器只读真正送出去的东西，从不读预览。打开输出：菜单，视频输出，输出关。
 Measuring a scaled-down preview would be measuring a photocopy. We measure the original.	测量缩小的预览，就像测量复印件。我们测的是原件。
 Chain of evidence, Hollis. The real signal or nothing.	证据链，霍利斯。要么是真信号，要么什么都不是。
 THE SCOPES	示波器
-Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	关掉MENU。监视器上方的PROGRAM按钮：一直按到显示SCOPES或BOTH。
+Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	关掉菜单。监视器上方的PROGRAM按钮：一直按到显示SCOPES或BOTH。
 Both shows the picture and its scopes side by side. Very civilised.	BOTH把画面和示波器并排显示。非常文明。
 Let the scopes decide, Hollis.	让示波器来决定吧，霍利斯。
 THE WAVEFORM	波形
@@ -959,7 +959,7 @@ OUT OF THE BUILDING	走出大楼
 Pictures that leave by cable or network, skapi, not only a window on a screen. Press START.	通过线缆或网络离开的画面，斯卡皮，不只是屏幕上的一个窗口。按START。
 NDI over the network, SDI from a DeckLink card, ST 2110 for broadcast plants.	网络上的NDI，DeckLink卡的SDI，广播中心用的ST 2110。
 THE DEVICES PAGE	设备页
-MENU, Video Outputs, then Devices: every way an output can leave this computer.	MENU，视频输出，然后设备：输出离开这台电脑的所有方式。
+MENU, Video Outputs, then Devices: every way an output can leave this computer.	菜单，视频输出，然后设备：输出离开这台电脑的所有方式。
 Each one says whether this machine can do it, and what it needs if not.	每一种都会告诉你这台机器能不能做，不能的话需要什么。
 If this computer has NDI, switch NDI SENDING on: the picture is on the network. If not, SHOW ME moves on.	如果这台电脑有NDI，打开NDI SENDING：画面就上网络了。没有的话，SHOW ME会跳过。
 NDI finds itself on the network. No cables, only a good switch and patience.	NDI会在网络上自己找到对方。不用线，只要一台好交换机和耐心。
@@ -1006,7 +1006,7 @@ Nearly there. I can feel it in my pixels.	快到了。我的像素都感觉到�
 You're good at this. I can tell. I'm the one doing it.	你很擅长。我看得出来。毕竟是我在做。
 Every click, I heard. Every single one.	每一下点击，我都听到了。每一下。
 The glowing one. I can see it from here. It's glowing for you.	发光的那个。我在这儿都看得见。它在为你发光。
-lesson paused - MENU > LESSONS picks up where you left off	课程已暂停 - MENU > LESSONS从你离开的地方继续
+lesson paused - MENU > LESSONS picks up where you left off	课程已暂停 - 菜单 > LESSONS从你离开的地方继续
 PROF. VIDEO:  The signal: what the picture is made of, and how to bend it. Pick a lesson.	PROF. VIDEO:  信号：画面由什么构成，以及怎么把它弯过来。选一节课。
 DR. PIXEL:  Running the show, skapi. Fast hands, calm face. Pick a lesson.	DR. PIXEL:  主控演出，斯卡皮。手要快，脸要稳。选一节课。
 LESSONS  -  PART TWO  -  WHO DO YOU FOLLOW?	课程  -  第二部分  -  你跟谁学？
@@ -2214,3 +2214,5 @@ Nine years of live weather. Always click the tab.	九年直播天气。永远要
 Click its tab, Deck 2. A new playlist waits until you choose it.	点它的标签，Deck 2。新播放列表会等你选它。
 The lit tab gets the next cue. Like choosing which slide goes in the projector.	亮着的标签接收下一个提示。就像选哪张幻灯片放进投影机。
 Pick a deck. Any deck. ...Deck 2. Pick Deck 2.	请选一副牌。哪副都行。……Deck 2。请选 Deck 2。
+MENU	菜单
+VOLUME	音量

@@ -501,7 +501,7 @@ HELLO	XIN CHÀO
 Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me.	Dobar den, skapi. Xin chào! Tôi là Dr. Pixel. Năm phút nữa, bạn sẽ chạy một show. Ít hơn, nếu bạn nghe lời tôi.
 And I'm Professor Video. Synths first, then video. Mostly video now. Press START and we'll patch... we'll begin.	Còn tôi là Giáo sư Video. Synth trước, rồi mới tới video. Giờ thì chủ yếu là video. Nhấn START, ta sẽ nối dây... à, bắt đầu.
 TURN THE OUTPUT ON	BẬT OUTPUT LÊN
-Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	Skapi, màn hình đang trống. Đừng để khán giả chờ. Mở MENU và đổi OUTPUT OFF thành OUTPUT ON. Nhanh nào!
+Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	Skapi, màn hình đang trống. Đừng để khán giả chờ. Mở DANH MỤC và đổi OUTPUT OFF thành OUTPUT ON. Nhanh nào!
 Lesson one: nothing comes out until you patch the oscillator to the... the OUTPUT. It's video. I know.	Bài một: chưa nối oscillator vào... vào OUTPUT thì chẳng có gì ra cả. Video mà. Tôi biết.
 BRING IN A CLIP	NHẬP MỘT CLIP
 Now a picture. Press I and pick a clip from your computer. No clip? SHOW ME, and I lend you one of mine.	Giờ tới hình. Nhấn I và chọn một clip trong máy. Không có clip? SHOW ME, tôi cho mượn một cái của tôi.
@@ -523,7 +523,7 @@ Now save. Ctrl+S, or SAVE. Some programs lose your work and then blame you. I wo
 Save your patch. Your SHOW. Show. This practice one lives in Deckboy's own folder; yours is safe.	Lưu patch của bạn. SHOW của bạn. Show ấy. Bản tập này nằm trong thư mục của Deckboy; show của bạn vẫn an toàn.
 THAT'S A SHOW	ĐÓ LÀ MỘT SHOW
 That's a show! Output, cue, TAKE, crossfade, BLACK, save. Nazdrave, skapi. Rakia is on me.	Đó là một show! Output, cue, TAKE, crossfade, BLACK, lưu. Nazdrave, skapi. Rakia tôi mời. Mạnh hơn rượu đế đấy, cẩn thận.
-Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	Xong bài. Các show mẫu dạy layer, tiêu đề và hiệu ứng. MENU > LEARN THE BASICS chạy lại bài này.
+Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	Xong bài. Các show mẫu dạy layer, tiêu đề và hiệu ứng. DANH MỤC > LEARN THE BASICS chạy lại bài này.
 *shakes head* That means yes. Bravo.	*lắc đầu* Nghĩa là có. Hết sẩy!
 Wonderful! Lovely signal flow.	Tuyệt vời! Dòng tín hiệu thật đẹp.
 Mm. I knew you had it in you.	Ừm. Tôi biết bạn làm được mà.
@@ -536,7 +536,7 @@ your show could not be saved, so the lesson has not started. Save it (SAVE AS) a
 the practice show would not open	không mở được show tập
 could not start the practice show	không bắt đầu được show tập
 learn the basics: Esc leaves, and it picks up here next time	learn the basics: Esc để rời, lần sau chạy tiếp từ đây
-that's the basics - MENU > LESSONS has part two	căn bản là vậy - MENU > LESSONS có phần hai
+that's the basics - MENU > LESSONS has part two	căn bản là vậy - DANH MỤC > LESSONS có phần hai
 tour paused - LEARN THE BASICS picks up where you left off	tạm dừng - LEARN THE BASICS chạy tiếp từ chỗ bạn dừng
 Mirrored screens, skapi. Press any key or click, and Dr. Pixel gives it back.	Màn hình đang soi gương, skapi. Nhấn phím bất kỳ hoặc bấm chuột, Dr. Pixel trả lại cho.
 Wrong screen, skapi. Press any key or click, and Dr. Pixel gives it back.	Nhầm màn hình rồi, skapi. Nhấn phím bất kỳ hoặc bấm chuột, Dr. Pixel trả lại cho.
@@ -715,7 +715,7 @@ A lighthouse, a ghost, and a keeper who has been alone with the lamp far too lon
 Projection mapping: bending the picture to fit the building. Warp, blend, slices.	Projection mapping: uốn hình cho vừa tòa nhà. Warp, blend, slice.
 Ye'll be wanting the ghost on the windows. Mind the lamp. The lamp is MINE.	Các người muốn hồn ma trên cửa sổ hả? Coi chừng cây đèn. Cây đèn là CỦA TÔI.
 THE OUTPUT'S GEOMETRY	HÌNH HỌC OUTPUT
-MENU, then Video Outputs, then Geometry. Where an output's shape lives.	MENU, rồi Video Outputs, rồi Geometry. Hình dạng của output nằm ở đó.
+MENU, then Video Outputs, then Geometry. Where an output's shape lives.	DANH MỤC, rồi Video Outputs, rồi Geometry. Hình dạng của output nằm ở đó.
 Geometry: the projector-menu word for 'what shape is the picture'.	Geometry: chữ trên menu máy chiếu, nghĩa là 'hình có dạng gì'.
 PIN A CORNER	GHIM MỘT GÓC
 Press warp edit, then drag a corner on the programme monitor. The window is not square. Neither is the keeper.	Bấm warp edit, rồi kéo một góc trên màn hình program. Cửa sổ đâu có vuông. Người gác đèn cũng vậy.
@@ -756,7 +756,7 @@ Press the key. The cue fires, wherever the list is standing.	Nhấn phím. Cue b
 No mouse, no list, no looking. Just the key.	Không chuột, không danh sách, không cần nhìn. Chỉ một phím.
 Buzz! We have a winner!	Bíp! Chúng ta có người thắng!
 FROM ANYWHERE	TỪ MỌI NƠI
-Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion, một nốt MIDI, một tin OSC: MENU, rồi Mạng, cho biết mỗi cái nối vào đâu.
+Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion, một nốt MIDI, một tin OSC: DANH MỤC, rồi Mạng, cho biết mỗi cái nối vào đâu.
 A Stream Deck in the next room can press GO. So can a keyboard synth. I prefer the synth.	Một Stream Deck ở phòng bên có thể nhấn GO. Một synth phím đàn cũng được. Tôi thích synth hơn.
 And for our viewers at home: you can play along too.	Và cho khán giả ở nhà: các bạn cũng chơi được.
 THAT'S OUR SHOW	ĐÓ LÀ CHƯƠNG TRÌNH CỦA CHÚNG TÔI
@@ -809,7 +809,7 @@ Something's loose! Space holds the countdown. The clock shows it is held.	Có g�
 A hold is not a stop. Space again, and it carries on from where it was.	Dừng không phải là hết. Phím cách lần nữa, nó chạy tiếp từ chỗ cũ.
 *holds up a spanner*	*giơ một cái cờ lê lên*
 THE PILOT'S VIEW	MÀN HÌNH PHI CÔNG
-MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	MENU, Video Outputs: đổi loại một output thành PRESENTER. Người trên sân khấu thấy đồng hồ, cue kế tiếp và ghi chú.
+MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	DANH MỤC, Video Outputs: đổi loại một output thành PRESENTER. Người trên sân khấu thấy đồng hồ, cue kế tiếp và ghi chú.
 A presenter view is an output like any other. Point it at the confidence monitor.	Màn hình người dẫn là một output như mọi output khác. Hướng nó về màn hình sân khấu.
 So the pilot can see the time. The pilot is Grommet.	Để phi công thấy giờ. Phi công là Grommet.
 TO THE MOON	LÊN MẶT TRĂNG
@@ -850,10 +850,10 @@ AND BACK	VÀ QUAY LẠI
 The fire's out. Press B again: the picture comes back, still running.	Lửa tắt rồi. Nhấn B lần nữa: hình về, vẫn đang chạy.
 Nothing was lost. A mute on a mixer, for pictures.	Không mất gì. Nút mute trên bàn trộn, cho hình.
 Ta-da! Still cookin'!	Ta-da! Vẫn đang nấu!
-Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	Tệ hơn nữa: MENU, Hệ thống, thẻ SAFETY: PANIC. Mọi thứ dừng, đúng như hồ sơ panic quy định.
+Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	Tệ hơn nữa: DANH MỤC, Hệ thống, thẻ SAFETY: PANIC. Mọi thứ dừng, đúng như hồ sơ panic quy định.
 PANIC is the big red button. Use it when BLACK is not enough. Then breathe.	PANIC là nút đỏ to. Dùng khi BLACK không đủ. Rồi thở.
 GET IT BACK	LẤY LẠI
-Close MENU, select the souffle, and TAKE it. The show is back on.	Đóng MENU, chọn soufflé và TAKE. Show trở lại.
+Close MENU, select the souffle, and TAKE it. The show is back on.	Đóng DANH MỤC, chọn soufflé và TAKE. Show trở lại.
 After a panic, the show is still there. Pick up where you meant to be.	Sau panic, show vẫn còn đó. Chạy tiếp từ chỗ bạn muốn.
 Voila! De souffle, he is risen!	Voilà! Soufflé đã phồng!
 BON APPETIT	CHÚC NGON MIỆNG
@@ -917,7 +917,7 @@ Add a second: a bend, like crush. It damages the sound the way a broken file wou
 The bends are my favourite. Like a tape left in the sun. On purpose.	Bend là món tôi thích nhất. Như cuộn băng cát-xét bỏ quên ngoài nắng. Cố tình.
 > HARDER. BETTER. CRUNCHIER. LOUDER.	> MẠNH HƠN. HAY HƠN. GIÒN HƠN. TO HƠN.
 THE PATCH	PATCH
-MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	MENU, rồi Âm thanh: âm thanh mỗi playlist đi đâu, và patch cho các output có tên.
+MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	DANH MỤC, rồi Âm thanh: âm thanh mỗi playlist đi đâu, và patch cho các output có tên.
 Speakers, monitors, an in-ear for the drummer. The patch sends each its own.	Loa, loa kiểm, tai nghe in-ear cho tay trống. Patch gửi cho mỗi người phần của họ.
 > AROUND THE MIX. AROUND THE MIX. AROUND THE MIX.	> QUANH BẢN MIX. QUANH BẢN MIX. QUANH BẢN MIX.
 An effect, a bend and the patch. The robots approve, skapi. I think. Their faces are helmets.	Một hiệu ứng, một bend và patch. Robot duyệt rồi, skapi. Tôi nghĩ vậy. Mặt họ là mũ bảo hiểm.
@@ -929,11 +929,11 @@ The Bureau again, skapi. A glow on the horizon, and two agents who disagree abou
 The scopes measure a picture: brightness, colour, levels. Numbers, not opinions.	Scope đo hình: độ sáng, màu, mức. Con số, không phải ý kiến.
 It's them, Brandt. It's a craft. Look how it glows.	Họ đó, Brandt. Là tàu. Nhìn nó lóe sáng kìa.
 THE REAL SIGNAL	TÍN HIỆU THẬT
-The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	Scope chỉ đọc những gì thật sự đi ra, không bao giờ đọc bản xem trước. Bật output: MENU, Video Outputs, OUTPUT OFF.
+The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	Scope chỉ đọc những gì thật sự đi ra, không bao giờ đọc bản xem trước. Bật output: DANH MỤC, Video Outputs, OUTPUT OFF.
 Measuring a scaled-down preview would be measuring a photocopy. We measure the original.	Đo bản xem trước thu nhỏ thì như đo bản photo. Ta đo bản gốc.
 Chain of evidence, Hollis. The real signal or nothing.	Chuỗi bằng chứng, Hollis. Tín hiệu thật hoặc không gì cả.
 THE SCOPES	SCOPE
-Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	Đóng MENU. Trên màn hình, nút PROGRAM: bấm tới khi nó ghi SCOPES hoặc BOTH.
+Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	Đóng DANH MỤC. Trên màn hình, nút PROGRAM: bấm tới khi nó ghi SCOPES hoặc BOTH.
 Both shows the picture and its scopes side by side. Very civilised.	BOTH hiện hình và scope của nó cạnh nhau. Rất văn minh.
 Let the scopes decide, Hollis.	Để scope quyết định, Hollis.
 THE WAVEFORM	WAVEFORM
@@ -956,7 +956,7 @@ OUT OF THE BUILDING	RA KHỎI TÒA NHÀ
 Pictures that leave by cable or network, skapi, not only a window on a screen. Press START.	Hình đi ra bằng cáp hoặc bằng mạng, skapi, không chỉ là cửa sổ trên màn hình. Nhấn START.
 NDI over the network, SDI from a DeckLink card, ST 2110 for broadcast plants.	NDI trên mạng, SDI từ card DeckLink, ST 2110 cho các nhà đài.
 THE DEVICES PAGE	TRANG THIẾT BỊ
-MENU, Video Outputs, then Devices: every way an output can leave this computer.	MENU, Video Outputs, rồi Thiết bị: mọi đường một output có thể rời máy này.
+MENU, Video Outputs, then Devices: every way an output can leave this computer.	DANH MỤC, Video Outputs, rồi Thiết bị: mọi đường một output có thể rời máy này.
 Each one says whether this machine can do it, and what it needs if not.	Mỗi cái cho biết máy này làm được không, và nếu không thì cần gì.
 If this computer has NDI, switch NDI SENDING on: the picture is on the network. If not, SHOW ME moves on.	Nếu máy này có NDI, bật NDI SENDING: hình đã lên mạng. Nếu không, SHOW ME vẫn tiếp tục.
 NDI finds itself on the network. No cables, only a good switch and patience.	NDI tự tìm thấy mình trên mạng. Không cáp, chỉ cần một switch tốt và kiên nhẫn.
@@ -1003,7 +1003,7 @@ Nearly there. I can feel it in my pixels.	Sắp tới rồi. Tôi cảm thấy t
 You're good at this. I can tell. I'm the one doing it.	Bạn giỏi khoản này đó. Tôi thấy mà. Thật.
 Every click, I heard. Every single one.	Mọi cú bấm, tôi đều nghe. Từng cái một.
 The glowing one. I can see it from here. It's glowing for you.	Cái đang sáng. Tôi thấy nó từ đây. Nó sáng vì bạn đó.
-lesson paused - MENU > LESSONS picks up where you left off	bài học tạm dừng - MENU > LESSONS chạy tiếp từ chỗ bạn dừng
+lesson paused - MENU > LESSONS picks up where you left off	bài học tạm dừng - DANH MỤC > LESSONS chạy tiếp từ chỗ bạn dừng
 PROF. VIDEO:  The signal: what the picture is made of, and how to bend it. Pick a lesson.	PROF. VIDEO:  Tín hiệu: hình làm bằng gì, và nó bị uốn ra sao. Chọn một bài.
 DR. PIXEL:  Running the show, skapi. Fast hands, calm face. Pick a lesson.	DR. PIXEL:  Chạy show, skapi. Tay nhanh, mặt bình tĩnh. Chọn một bài.
 LESSONS  -  PART TWO  -  WHO DO YOU FOLLOW?	BÀI HỌC  -  PHẦN HAI  -  BẠN THEO AI?
@@ -2213,3 +2213,5 @@ Nine years of live weather. Always click the tab.	Chín năm dự báo thời ti
 Click its tab, Deck 2. A new playlist waits until you choose it.	Bấm vào tab của nó, Deck 2. Playlist mới chờ đến khi bạn chọn nó.
 The lit tab gets the next cue. Like choosing which slide goes in the projector.	Tab đang sáng nhận cue tiếp theo. Như chọn tấm phim nào sẽ vào máy chiếu.
 Pick a deck. Any deck. ...Deck 2. Pick Deck 2.	Mời chọn một bộ bài. Bộ nào cũng được. ...Deck 2. Mời chọn Deck 2.
+MENU	DANH MỤC
+VOLUME	ÂM LƯỢNG

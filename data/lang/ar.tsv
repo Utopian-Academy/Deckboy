@@ -513,7 +513,7 @@ HELLO	مرحبًا
 Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me.	دوبار دن، سكابي. أنا الدكتورة بكسل. خمس دقائق وستدير عرضًا. أقل، إن استمعت إليّ.
 And I'm Professor Video. Synths first, then video. Mostly video now. Press START and we'll patch... we'll begin.	وأنا البروفيسور فيديو. السنثات أولًا، ثم الفيديو. الآن فيديو في الغالب. اضغط START وسنوصل... سنبدأ.
 TURN THE OUTPUT ON	شغّل الخرج
-Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	سكابي، الشاشة فارغة. لا تجعلهم ينتظرون. افتح MENU واجعل «الخرج متوقف» يصبح «الخرج يعمل». هيا!
+Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	سكابي، الشاشة فارغة. لا تجعلهم ينتظرون. افتح القائمة واجعل «الخرج متوقف» يصبح «الخرج يعمل». هيا!
 Lesson one: nothing comes out until you patch the oscillator to the... the OUTPUT. It's video. I know.	الدرس الأول: لا يخرج شيء حتى توصل المذبذب بـ... بالخرج. إنه فيديو. أعرف.
 BRING IN A CLIP	أحضر مقطعًا
 Now a picture. Press I and pick a clip from your computer. No clip? SHOW ME, and I lend you one of mine.	الآن صورة. اضغط I واختر مقطعًا من حاسوبك. لا مقطع لديك؟ SHOW ME، وسأعيرك واحدًا من مقاطعي.
@@ -535,7 +535,7 @@ Now save. Ctrl+S, or SAVE. Some programs lose your work and then blame you. I wo
 Save your patch. Your SHOW. Show. This practice one lives in Deckboy's own folder; yours is safe.	احفظ الباتش. أقصد عرضك. العرض. هذا العرض التدريبي يعيش في مجلد Deckboy نفسه؛ عرضك في أمان.
 THAT'S A SHOW	هذا هو العرض
 That's a show! Output, cue, TAKE, crossfade, BLACK, save. Nazdrave, skapi. Rakia is on me.	هذا هو العرض! خرج، إشارة، TAKE، تلاشٍ، BLACK، حفظ. ناسدرافي، سكابي. الراكيا على حسابي.
-Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	انتهى الدرس. العروض النموذجية تعلّم الطبقات والعناوين والمؤثرات. MENU > LEARN THE BASICS يعيد هذا كله.
+Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	انتهى الدرس. العروض النموذجية تعلّم الطبقات والعناوين والمؤثرات. القائمة > LEARN THE BASICS يعيد هذا كله.
 *shakes head* That means yes. Bravo.	*يهزّ رأسه يمينًا ويسارًا* هذا يعني نعم. برافو.
 Wonderful! Lovely signal flow.	رائع! يا له من مسار إشارة جميل.
 Mm. I knew you had it in you.	ممم. كنت أعرف أنك قادر.
@@ -548,7 +548,7 @@ your show could not be saved, so the lesson has not started. Save it (SAVE AS) a
 the practice show would not open	لم يُفتح العرض التدريبي
 could not start the practice show	تعذّر بدء العرض التدريبي
 learn the basics: Esc leaves, and it picks up here next time	learn the basics: Esc يخرج، ويكمل من هنا في المرة القادمة
-that's the basics - MENU > LESSONS has part two	هذه هي الأساسيات - في MENU > LESSONS الجزء الثاني
+that's the basics - MENU > LESSONS has part two	هذه هي الأساسيات - في القائمة > LESSONS الجزء الثاني
 tour paused - LEARN THE BASICS picks up where you left off	الجولة متوقفة مؤقتًا - LEARN THE BASICS يكمل من حيث توقفت
 Mirrored screens, skapi. Press any key or click, and Dr. Pixel gives it back.	شاشات متطابقة يا سكابي. اضغط أي مفتاح أو انقر، وستعيدها الدكتورة بكسل.
 Wrong screen, skapi. Press any key or click, and Dr. Pixel gives it back.	شاشة خاطئة يا سكابي. اضغط أي مفتاح أو انقر، وستعيدها الدكتورة بكسل.
@@ -727,7 +727,7 @@ A lighthouse, a ghost, and a keeper who has been alone with the lamp far too lon
 Projection mapping: bending the picture to fit the building. Warp, blend, slices.	الإسقاط الضوئي: ثني الصورة لتطابق المبنى. تشويه، دمج، شرائح.
 Ye'll be wanting the ghost on the windows. Mind the lamp. The lamp is MINE.	تريدون الشبح على النوافذ، أليس كذلك؟ انتبهوا للمصباح. المصباح لي أنا.
 THE OUTPUT'S GEOMETRY	هندسة الخرج
-MENU, then Video Outputs, then Geometry. Where an output's shape lives.	MENU، ثم مخارج الفيديو، ثم الهندسة. هنا يعيش شكل الخرج.
+MENU, then Video Outputs, then Geometry. Where an output's shape lives.	القائمة، ثم مخارج الفيديو، ثم الهندسة. هنا يعيش شكل الخرج.
 Geometry: the projector-menu word for 'what shape is the picture'.	الهندسة: كلمة قوائم أجهزة العرض لـ«ما شكل الصورة».
 PIN A CORNER	ثبّت زاوية
 Press warp edit, then drag a corner on the programme monitor. The window is not square. Neither is the keeper.	اضغط warp edit، ثم اسحب زاوية على شاشة البرنامج. النافذة ليست مربعة. ولا الحارس.
@@ -768,7 +768,7 @@ Press the key. The cue fires, wherever the list is standing.	اضغط المفت
 No mouse, no list, no looking. Just the key.	لا فأرة، لا قائمة، لا نظر. المفتاح فقط.
 Buzz! We have a winner!	طنين! لدينا فائز!
 FROM ANYWHERE	من أي مكان
-Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion، نغمة MIDI، رسالة OSC: MENU، ثم الشبكة، يخبرك أين يتصل كل منها.
+Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion، نغمة MIDI، رسالة OSC: القائمة، ثم الشبكة، يخبرك أين يتصل كل منها.
 A Stream Deck in the next room can press GO. So can a keyboard synth. I prefer the synth.	Stream Deck في الغرفة المجاورة يمكنه ضغط GO. وكذلك لوحة مفاتيح سنث. أفضّل السنث.
 And for our viewers at home: you can play along too.	ولمشاهدينا في البيوت: يمكنكم اللعب معنا.
 THAT'S OUR SHOW	هذا كان برنامجنا
@@ -821,7 +821,7 @@ Something's loose! Space holds the countdown. The clock shows it is held.	شيء
 A hold is not a stop. Space again, and it carries on from where it was.	الإيقاف المؤقت ليس توقفًا. المسافة مرة أخرى، ويكمل من حيث كان.
 *holds up a spanner*	*يرفع مفتاح ربط*
 THE PILOT'S VIEW	شاشة الطيار
-MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	MENU، مخارج الفيديو: اجعل نوع أحد المخارج PRESENTER. من على المسرح يرى المؤقت والإشارة التالية وملاحظاته.
+MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	القائمة، مخارج الفيديو: اجعل نوع أحد المخارج PRESENTER. من على المسرح يرى المؤقت والإشارة التالية وملاحظاته.
 A presenter view is an output like any other. Point it at the confidence monitor.	عرض المقدّم خرج كأي خرج آخر. وجّهه إلى شاشة الثقة أمام المسرح.
 So the pilot can see the time. The pilot is Grommet.	كي يرى الطيار الوقت. الطيار هو غروميت.
 TO THE MOON	إلى القمر
@@ -863,11 +863,11 @@ AND BACK	وعودة
 The fire's out. Press B again: the picture comes back, still running.	انطفأت النار. اضغط B مجددًا: تعود الصورة، وما زالت تعمل.
 Nothing was lost. A mute on a mixer, for pictures.	لم يضع شيء. كتم صوت المازج، لكن للصور.
 Ta-da! Still cookin'!	تا-دا! ما زلنا نطبخ!
-Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	أسوأ: MENU، النظام، بطاقة SAFETY: PANIC. يتوقف كل شيء، كما يقول إعداد الذعر.
+Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	أسوأ: القائمة، النظام، بطاقة SAFETY: PANIC. يتوقف كل شيء، كما يقول إعداد الذعر.
 PANIC is the big red button. Use it when BLACK is not enough. Then breathe.	PANIC هو الزر الأحمر الكبير. استعمله حين لا يكفي BLACK. ثم تنفّس.
 Bork bork BORK!	بورك بورك بورك!
 GET IT BACK	استعده
-Close MENU, select the souffle, and TAKE it. The show is back on.	أغلق MENU، حدّد السوفليه، واعمل له TAKE. عاد العرض.
+Close MENU, select the souffle, and TAKE it. The show is back on.	أغلق القائمة، حدّد السوفليه، واعمل له TAKE. عاد العرض.
 After a panic, the show is still there. Pick up where you meant to be.	بعد الذعر، العرض ما زال هناك. أكمل من حيث كنت تريد أن تكون.
 Voila! De souffle, he is risen!	فوالا! السوفليه، لقد انتفخ!
 BON APPETIT	بالهناء والشفاء
@@ -931,7 +931,7 @@ Add a second: a bend, like crush. It damages the sound the way a broken file wou
 The bends are my favourite. Like a tape left in the sun. On purpose.	الانحناءات المفضلة لديّ. مثل شريط كاسيت نُسي في الشمس. عمدًا.
 > HARDER. BETTER. CRUNCHIER. LOUDER.	> أقوى. أفضل. أقرمش. أعلى.
 THE PATCH	الباتش
-MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	MENU، ثم الصوت: أين يذهب صوت كل قائمة، وباتش المخارج المسمّاة.
+MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	القائمة، ثم الصوت: أين يذهب صوت كل قائمة، وباتش المخارج المسمّاة.
 Speakers, monitors, an in-ear for the drummer. The patch sends each its own.	سماعات، وشاشات مراقبة، وسماعة أذن لعازف الطبول. الباتش يرسل لكلٍّ نصيبه.
 > AROUND THE MIX. AROUND THE MIX. AROUND THE MIX.	> حول المزيج. حول المزيج. حول المزيج.
 An effect, a bend and the patch. The robots approve, skapi. I think. Their faces are helmets.	مؤثر، وانحناء، وباتش. الروبوتان موافقان يا سكابي. أظن. وجهاهما خوذتان.
@@ -943,11 +943,11 @@ The Bureau again, skapi. A glow on the horizon, and two agents who disagree abou
 The scopes measure a picture: brightness, colour, levels. Numbers, not opinions.	أدوات القياس تقيس الصورة: السطوع، واللون، والمستويات. أرقام لا آراء.
 It's them, Brandt. It's a craft. Look how it glows.	إنهم هم يا براندت. إنها مركبة. انظري كيف تتوهج.
 THE REAL SIGNAL	الإشارة الحقيقية
-The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	أدوات القياس تقرأ ما يخرج فعلًا فقط، لا المعاينة أبدًا. شغّل الخرج: MENU، مخارج الفيديو، «الخرج متوقف».
+The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	أدوات القياس تقرأ ما يخرج فعلًا فقط، لا المعاينة أبدًا. شغّل الخرج: القائمة، مخارج الفيديو، «الخرج متوقف».
 Measuring a scaled-down preview would be measuring a photocopy. We measure the original.	قياس معاينة مصغّرة كقياس نسخة مصوّرة. نحن نقيس الأصل.
 Chain of evidence, Hollis. The real signal or nothing.	سلسلة الأدلة يا هوليس. الإشارة الحقيقية أو لا شيء.
 THE SCOPES	أدوات القياس
-Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	أغلق MENU. فوق الشاشة زر PROGRAM: اضغطه حتى يقول SCOPES أو BOTH.
+Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	أغلق القائمة. فوق الشاشة زر PROGRAM: اضغطه حتى يقول SCOPES أو BOTH.
 Both shows the picture and its scopes side by side. Very civilised.	BOTH يعرض الصورة وأدوات قياسها جنبًا إلى جنب. متحضّر جدًا.
 Let the scopes decide, Hollis.	لندع أدوات القياس تقرر يا هوليس.
 THE WAVEFORM	الموجة
@@ -970,7 +970,7 @@ OUT OF THE BUILDING	خارج المبنى
 Pictures that leave by cable or network, skapi, not only a window on a screen. Press START.	صور تغادر عبر كابل أو شبكة يا سكابي، لا مجرد نافذة على شاشة. اضغط START.
 NDI over the network, SDI from a DeckLink card, ST 2110 for broadcast plants.	NDI عبر الشبكة، وSDI من بطاقة DeckLink، وST 2110 لمراكز البث.
 THE DEVICES PAGE	صفحة الأجهزة
-MENU, Video Outputs, then Devices: every way an output can leave this computer.	MENU، مخارج الفيديو، ثم الأجهزة: كل طريقة يمكن أن يغادر بها الخرج هذا الحاسوب.
+MENU, Video Outputs, then Devices: every way an output can leave this computer.	القائمة، مخارج الفيديو، ثم الأجهزة: كل طريقة يمكن أن يغادر بها الخرج هذا الحاسوب.
 Each one says whether this machine can do it, and what it needs if not.	كل واحدة تقول إن كان هذا الجهاز يستطيعها، وما يحتاجه إن لم يستطع.
 If this computer has NDI, switch NDI SENDING on: the picture is on the network. If not, SHOW ME moves on.	إن كان في هذا الحاسوب NDI فشغّل NDI SENDING: الصورة على الشبكة. وإلا فـ SHOW ME ينتقل إلى ما بعدها.
 NDI finds itself on the network. No cables, only a good switch and patience.	NDI يجد نفسه على الشبكة. بلا كابلات، فقط مُبدِّل جيد وصبر.
@@ -1017,7 +1017,7 @@ Nearly there. I can feel it in my pixels.	اقتربنا. أشعر بهذا في
 You're good at this. I can tell. I'm the one doing it.	أنت بارع في هذا. أستطيع أن أرى. فأنا من يفعله.
 Every click, I heard. Every single one.	كل نقرة سمعتها. كل واحدة.
 The glowing one. I can see it from here. It's glowing for you.	المتوهج. أراه من هنا. إنه يتوهج من أجلك.
-lesson paused - MENU > LESSONS picks up where you left off	الدرس متوقف مؤقتًا - MENU > LESSONS يكمل من حيث توقفت
+lesson paused - MENU > LESSONS picks up where you left off	الدرس متوقف مؤقتًا - القائمة > LESSONS يكمل من حيث توقفت
 PROF. VIDEO:  The signal: what the picture is made of, and how to bend it. Pick a lesson.	PROF. VIDEO:  الإشارة: مِمّ تُصنع الصورة، وكيف تثنيها. اختر درسًا.
 DR. PIXEL:  Running the show, skapi. Fast hands, calm face. Pick a lesson.	DR. PIXEL:  إدارة العرض يا سكابي. أيدٍ سريعة، ووجه هادئ. اختر درسًا.
 LESSONS  -  PART TWO  -  WHO DO YOU FOLLOW?	الدروس  -  الجزء الثاني  -  من تتبع؟
@@ -2226,3 +2226,5 @@ Nine years of live weather. Always click the tab.	تسع سنوات من الط�
 Click its tab, Deck 2. A new playlist waits until you choose it.	انقر لسانها، Deck 2. القائمة الجديدة تنتظر حتى تختارها.
 The lit tab gets the next cue. Like choosing which slide goes in the projector.	اللسان المضيء يأخذ الإشارة التالية. مثل اختيار الشريحة التي تدخل جهاز العرض.
 Pick a deck. Any deck. ...Deck 2. Pick Deck 2.	اختر مجموعة. أي مجموعة. ...Deck 2. اختر Deck 2.
+MENU	القائمة
+VOLUME	الصوت

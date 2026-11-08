@@ -500,7 +500,7 @@ HELLO	HOLA
 Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me.	Dobar den, skapi. Soy la Dra. Pixel. Cinco minutos y estarás llevando un espectáculo. Menos, si me haces caso.
 And I'm Professor Video. Synths first, then video. Mostly video now. Press START and we'll patch... we'll begin.	Y yo soy el Profesor Video. Primero sintetizadores, luego vídeo. Ahora casi todo vídeo. Pulsa START y conectamos... empezamos.
 TURN THE OUTPUT ON	ENCIENDE LA SALIDA
-Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	Skapi, la pantalla está vacía. No los hagas esperar. Abre MENU y haz que SALIDA APAGADA diga SALIDA ACTIVA. ¡Aide!
+Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	Skapi, la pantalla está vacía. No los hagas esperar. Abre MENÚ y haz que SALIDA APAGADA diga SALIDA ACTIVA. ¡Aide!
 Lesson one: nothing comes out until you patch the oscillator to the... the OUTPUT. It's video. I know.	Lección uno: no sale nada hasta que conectas el oscilador a la... a la SALIDA. Es vídeo. Ya lo sé.
 BRING IN A CLIP	TRAE UN CLIP
 Now a picture. Press I and pick a clip from your computer. No clip? SHOW ME, and I lend you one of mine.	Ahora una imagen. Pulsa I y elige un clip de tu ordenador. ¿Sin clip? SHOW ME, y te presto uno de los míos.
@@ -522,7 +522,7 @@ Now save. Ctrl+S, or SAVE. Some programs lose your work and then blame you. I wo
 Save your patch. Your SHOW. Show. This practice one lives in Deckboy's own folder; yours is safe.	Guarda tu patch. Tu ESPECTÁCULO. Eso. Este de práctica vive en la carpeta de Deckboy; el tuyo está a salvo.
 THAT'S A SHOW	ESO ES UN ESPECTÁCULO
 That's a show! Output, cue, TAKE, crossfade, BLACK, save. Nazdrave, skapi. Rakia is on me.	¡Eso es un espectáculo! Salida, cue, TAKE, fundido, BLACK, guardar. Nazdrave, skapi. La rakia corre de mi cuenta.
-Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	Se acabó la clase. Los espectáculos de ejemplo enseñan capas, títulos y efectos. MENU > LEARN THE BASICS lo repite.
+Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	Se acabó la clase. Los espectáculos de ejemplo enseñan capas, títulos y efectos. MENÚ > LEARN THE BASICS lo repite.
 *shakes head* That means yes. Bravo.	*niega con la cabeza* Eso significa que sí. Bravo.
 Wonderful! Lovely signal flow.	¡Maravilloso! Qué flujo de señal tan bonito.
 Mm. I knew you had it in you.	Mm. Sabía que podías.
@@ -535,7 +535,7 @@ your show could not be saved, so the lesson has not started. Save it (SAVE AS) a
 the practice show would not open	el espectáculo de práctica no se ha abierto
 could not start the practice show	no se ha podido empezar el espectáculo de práctica
 learn the basics: Esc leaves, and it picks up here next time	learn the basics: Esc sale, y la próxima vez sigue aquí
-that's the basics - MENU > LESSONS has part two	eso es lo básico - MENU > LESSONS tiene la segunda parte
+that's the basics - MENU > LESSONS has part two	eso es lo básico - MENÚ > LESSONS tiene la segunda parte
 tour paused - LEARN THE BASICS picks up where you left off	tour en pausa - LEARN THE BASICS sigue donde lo dejaste
 Mirrored screens, skapi. Press any key or click, and Dr. Pixel gives it back.	Pantallas en espejo, skapi. Pulsa cualquier tecla o haz clic, y la Dra. Pixel te la devuelve.
 Wrong screen, skapi. Press any key or click, and Dr. Pixel gives it back.	Pantalla equivocada, skapi. Pulsa cualquier tecla o haz clic, y la Dra. Pixel te la devuelve.
@@ -713,7 +713,7 @@ A lighthouse, a ghost, and a keeper who has been alone with the lamp far too lon
 Projection mapping: bending the picture to fit the building. Warp, blend, slices.	Mapping de proyección: doblar la imagen para que encaje en el edificio. Warp, fundido, cortes.
 Ye'll be wanting the ghost on the windows. Mind the lamp. The lamp is MINE.	Querrás el fantasma en las ventanas, ¿eh? Cuidado con la lámpara. La lámpara es MÍA.
 THE OUTPUT'S GEOMETRY	LA GEOMETRÍA DE LA SALIDA
-MENU, then Video Outputs, then Geometry. Where an output's shape lives.	MENU, luego Salidas de vídeo, luego Geometría. Donde vive la forma de una salida.
+MENU, then Video Outputs, then Geometry. Where an output's shape lives.	MENÚ, luego Salidas de vídeo, luego Geometría. Donde vive la forma de una salida.
 Geometry: the projector-menu word for 'what shape is the picture'.	Geometría: la palabra de menú de proyector para «qué forma tiene la imagen».
 PIN A CORNER	FIJA UNA ESQUINA
 Press warp edit, then drag a corner on the programme monitor. The window is not square. Neither is the keeper.	Pulsa warp edit y arrastra una esquina en el monitor de programa. La ventana no es cuadrada. El farero tampoco.
@@ -754,7 +754,7 @@ Press the key. The cue fires, wherever the list is standing.	Pulsa la tecla. El 
 No mouse, no list, no looking. Just the key.	Sin ratón, sin lista, sin mirar. Solo la tecla.
 Buzz! We have a winner!	¡Piiip! ¡Tenemos ganador!
 FROM ANYWHERE	DESDE CUALQUIER SITIO
-Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion, una nota MIDI, un mensaje OSC: MENU, luego Red, dice dónde se conecta cada uno.
+Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion, una nota MIDI, un mensaje OSC: MENÚ, luego Red, dice dónde se conecta cada uno.
 A Stream Deck in the next room can press GO. So can a keyboard synth. I prefer the synth.	Un Stream Deck en la sala de al lado puede pulsar GO. Y un teclado sintetizador también. Yo prefiero el sintetizador.
 And for our viewers at home: you can play along too.	Y para los espectadores en casa: también podéis jugar.
 THAT'S OUR SHOW	ESE ES NUESTRO PROGRAMA
@@ -807,7 +807,7 @@ Something's loose! Space holds the countdown. The clock shows it is held.	¡Algo
 A hold is not a stop. Space again, and it carries on from where it was.	Una pausa no es un final. Espacio otra vez y sigue desde donde estaba.
 *holds up a spanner*	*levanta una llave inglesa*
 THE PILOT'S VIEW	LA VISTA DEL PILOTO
-MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	MENU, Salidas de vídeo: pon el tipo de una salida en PRESENTER. Quien está en el escenario ve el temporizador, el siguiente cue y sus notas.
+MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	MENÚ, Salidas de vídeo: pon el tipo de una salida en PRESENTER. Quien está en el escenario ve el temporizador, el siguiente cue y sus notas.
 A presenter view is an output like any other. Point it at the confidence monitor.	Una vista de presentador es una salida como cualquier otra. Apúntala al monitor de retorno.
 So the pilot can see the time. The pilot is Grommet.	Para que el piloto vea la hora. El piloto es Grommet.
 TO THE MOON	A LA LUNA
@@ -849,11 +849,11 @@ AND BACK	Y DE VUELTA
 The fire's out. Press B again: the picture comes back, still running.	El fuego está apagado. Pulsa B otra vez: la imagen vuelve, todavía en marcha.
 Nothing was lost. A mute on a mixer, for pictures.	No se ha perdido nada. Un mute de mesa de mezclas, para imágenes.
 Ta-da! Still cookin'!	¡Tachán! ¡Aún cocinando!
-Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	Peor: MENU, Sistema, la tarjeta SAFETY: PANIC. Todo se para, como diga el ajuste de pánico.
+Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	Peor: MENÚ, Sistema, la tarjeta SAFETY: PANIC. Todo se para, como diga el ajuste de pánico.
 PANIC is the big red button. Use it when BLACK is not enough. Then breathe.	PANIC es el gran botón rojo. Úsalo cuando BLACK no basta. Luego respira.
 Bork bork BORK!	¡Bork bork BORK!
 GET IT BACK	RECUPÉRALO
-Close MENU, select the souffle, and TAKE it. The show is back on.	Cierra MENU, selecciona el suflé y haz TAKE. El espectáculo vuelve.
+Close MENU, select the souffle, and TAKE it. The show is back on.	Cierra MENÚ, selecciona el suflé y haz TAKE. El espectáculo vuelve.
 After a panic, the show is still there. Pick up where you meant to be.	Después de un pánico, el espectáculo sigue ahí. Retoma donde querías estar.
 Voila! De souffle, he is risen!	¡Voilà! ¡El suflé ha resucitado!
 BON APPETIT	¡QUE APROVECHE!
@@ -917,7 +917,7 @@ Add a second: a bend, like crush. It damages the sound the way a broken file wou
 The bends are my favourite. Like a tape left in the sun. On purpose.	Las distorsiones son mis favoritas. Como una cinta olvidada al sol. A propósito.
 > HARDER. BETTER. CRUNCHIER. LOUDER.	> MÁS FUERTE. MEJOR. MÁS CRUJIENTE. MÁS ALTO.
 THE PATCH	EL PATCH
-MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	MENU, luego Audio: adónde va el sonido de cada lista, y el patch de salidas con nombre.
+MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	MENÚ, luego Audio: adónde va el sonido de cada lista, y el patch de salidas con nombre.
 Speakers, monitors, an in-ear for the drummer. The patch sends each its own.	Altavoces, monitores, un in-ear para el batería. El patch manda a cada uno lo suyo.
 > AROUND THE MIX. AROUND THE MIX. AROUND THE MIX.	> ALREDEDOR DE LA MEZCLA. ALREDEDOR DE LA MEZCLA. ALREDEDOR DE LA MEZCLA.
 An effect, a bend and the patch. The robots approve, skapi. I think. Their faces are helmets.	Un efecto, una distorsión y el patch. Los robots lo aprueban, skapi. Creo. Sus caras son cascos.
@@ -929,11 +929,11 @@ The Bureau again, skapi. A glow on the horizon, and two agents who disagree abou
 The scopes measure a picture: brightness, colour, levels. Numbers, not opinions.	Los scopes miden una imagen: brillo, color, niveles. Números, no opiniones.
 It's them, Brandt. It's a craft. Look how it glows.	Son ellos, Brandt. Es una nave. Mira cómo brilla.
 THE REAL SIGNAL	LA SEÑAL REAL
-The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	Los scopes solo leen lo que sale de verdad, nunca una vista previa. Enciende la salida: MENU, Salidas de vídeo, SALIDA APAGADA.
+The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	Los scopes solo leen lo que sale de verdad, nunca una vista previa. Enciende la salida: MENÚ, Salidas de vídeo, SALIDA APAGADA.
 Measuring a scaled-down preview would be measuring a photocopy. We measure the original.	Medir una vista previa reducida sería medir una fotocopia. Medimos el original.
 Chain of evidence, Hollis. The real signal or nothing.	Cadena de custodia, Hollis. La señal real o nada.
 THE SCOPES	LOS SCOPES
-Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	Cierra MENU. Encima del monitor, el botón PROGRAM: púlsalo hasta que diga SCOPES o BOTH.
+Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	Cierra MENÚ. Encima del monitor, el botón PROGRAM: púlsalo hasta que diga SCOPES o BOTH.
 Both shows the picture and its scopes side by side. Very civilised.	BOTH muestra la imagen y sus scopes lado a lado. Muy civilizado.
 Let the scopes decide, Hollis.	Que decidan los scopes, Hollis.
 THE WAVEFORM	LA FORMA DE ONDA
@@ -956,7 +956,7 @@ OUT OF THE BUILDING	FUERA DEL EDIFICIO
 Pictures that leave by cable or network, skapi, not only a window on a screen. Press START.	Imágenes que salen por cable o por red, skapi, no solo una ventana en una pantalla. Pulsa START.
 NDI over the network, SDI from a DeckLink card, ST 2110 for broadcast plants.	NDI por la red, SDI desde una tarjeta DeckLink, ST 2110 para centros de emisión.
 THE DEVICES PAGE	LA PÁGINA DE DISPOSITIVOS
-MENU, Video Outputs, then Devices: every way an output can leave this computer.	MENU, Salidas de vídeo, luego Dispositivos: todas las formas en que una salida puede dejar este ordenador.
+MENU, Video Outputs, then Devices: every way an output can leave this computer.	MENÚ, Salidas de vídeo, luego Dispositivos: todas las formas en que una salida puede dejar este ordenador.
 Each one says whether this machine can do it, and what it needs if not.	Cada una dice si esta máquina puede hacerlo, y qué necesita si no.
 If this computer has NDI, switch NDI SENDING on: the picture is on the network. If not, SHOW ME moves on.	Si este ordenador tiene NDI, activa NDI SENDING: la imagen está en la red. Si no, SHOW ME pasa al siguiente.
 NDI finds itself on the network. No cables, only a good switch and patience.	NDI se encuentra solo en la red. Sin cables, solo un buen switch y paciencia.
@@ -1003,7 +1003,7 @@ Nearly there. I can feel it in my pixels.	Ya casi. Lo noto en los píxeles.
 You're good at this. I can tell. I'm the one doing it.	Se te da bien. Lo sé. Lo estoy haciendo yo.
 Every click, I heard. Every single one.	Cada clic, lo he oído. Todos y cada uno.
 The glowing one. I can see it from here. It's glowing for you.	El que brilla. Lo veo desde aquí. Brilla para ti.
-lesson paused - MENU > LESSONS picks up where you left off	lección en pausa - MENU > LESSONS sigue donde lo dejaste
+lesson paused - MENU > LESSONS picks up where you left off	lección en pausa - MENÚ > LESSONS sigue donde lo dejaste
 PROF. VIDEO:  The signal: what the picture is made of, and how to bend it. Pick a lesson.	PROF. VIDEO:  La señal: de qué está hecha la imagen y cómo doblarla. Elige una lección.
 DR. PIXEL:  Running the show, skapi. Fast hands, calm face. Pick a lesson.	DRA. PIXEL:  Llevar el espectáculo, skapi. Manos rápidas, cara tranquila. Elige una lección.
 LESSONS  -  PART TWO  -  WHO DO YOU FOLLOW?	LECCIONES  -  SEGUNDA PARTE  -  ¿A QUIÉN SIGUES?
@@ -2210,3 +2210,5 @@ Nine years of live weather. Always click the tab.	Nueve años dando el tiempo en
 Click its tab, Deck 2. A new playlist waits until you choose it.	Haz clic en su pestaña, Deck 2. Una lista nueva espera hasta que la eliges.
 The lit tab gets the next cue. Like choosing which slide goes in the projector.	La pestaña iluminada recibe el siguiente cue. Como elegir qué diapositiva entra en el proyector.
 Pick a deck. Any deck. ...Deck 2. Pick Deck 2.	Elija una baraja. Cualquiera. ...Deck 2. Elija Deck 2.
+MENU	MENÚ
+VOLUME	VOLUMEN

@@ -120,7 +120,7 @@ HELLO	ROJBAŞ
 Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me.	Dobar den, skapi. Rojbaş! Ez Dr. Pixel im. Pênc deqe, û tu dê şanoyekê bimeşînî. Kêmtir, eger tu guh bidî min.
 And I'm Professor Video. Synths first, then video. Mostly video now. Press START and we'll patch... we'll begin.	Û ez Profesor Video me. Pêşî synth, paşê vîdyo. Niha bi piranî vîdyo. START bitikîne, em ê girê bidin... dest pê bikin.
 TURN THE OUTPUT ON	DERKETINÊ VEKE
-Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	Skapi, ekran vala ye. Wan li bendê nehêle. MENU veke û OUTPUT OFF bike OUTPUT ON. Hajde!
+Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	Skapi, ekran vala ye. Wan li bendê nehêle. MENÛ veke û OUTPUT OFF bike OUTPUT ON. Hajde!
 Lesson one: nothing comes out until you patch the oscillator to the... the OUTPUT. It's video. I know.	Dersa yekem: heta tu oscillator negihînî... OUTPUT-ê, tiştek dernakeve. Vîdyo ye. Dizanim.
 BRING IN A CLIP	KLÎPEKÊ BÎNE
 Now a picture. Press I and pick a clip from your computer. No clip? SHOW ME, and I lend you one of mine.	Niha wêneyek. I bitikîne û ji komputera xwe klîpekê hilbijêre. Klîp tune? SHOW ME, ez ê yek ji yên xwe bidim te.
@@ -142,7 +142,7 @@ Now save. Ctrl+S, or SAVE. Some programs lose your work and then blame you. I wo
 Save your patch. Your SHOW. Show. This practice one lives in Deckboy's own folder; yours is safe.	Patch-a xwe tomar bike. ŞANOYA xwe. Şano. Ev ya ceribandinê di peldanka Deckboy de dijî; ya te ewle ye.
 THAT'S A SHOW	EV ŞANOYEK E
 That's a show! Output, cue, TAKE, crossfade, BLACK, save. Nazdrave, skapi. Rakia is on me.	Ev şanoyek e! Output, cue, TAKE, crossfade, BLACK, tomar. Nazdrave, skapi. Rakia li ser min. Ji araqê xurtir e, hişyar be.
-Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	Ders qediya. Şanoyên mînak layer, sernav û efektan hîn dikin. MENU > LEARN THE BASICS dîsa dimeşîne.
+Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	Ders qediya. Şanoyên mînak layer, sernav û efektan hîn dikin. MENÛ > LEARN THE BASICS dîsa dimeşîne.
 *shakes head* That means yes. Bravo.	*serê xwe dihejîne* Ev tê wateya erê. Bijî!
 Wonderful! Lovely signal flow.	Ecêb! Herikîna sînyalê xweş.
 Mm. I knew you had it in you.	Mm. Min dizanî ku tu dikarî.
@@ -155,7 +155,7 @@ your show could not be saved, so the lesson has not started. Save it (SAVE AS) a
 the practice show would not open	şanoya ceribandinê venebû
 could not start the practice show	şanoya ceribandinê dest pê nekir
 learn the basics: Esc leaves, and it picks up here next time	learn the basics: Esc derdikeve, cara din ji vir dewam dike
-that's the basics - MENU > LESSONS has part two	ev bingeh e - MENU > LESSONS beşa duyem heye
+that's the basics - MENU > LESSONS has part two	ev bingeh e - MENÛ > LESSONS beşa duyem heye
 tour paused - LEARN THE BASICS picks up where you left off	ger rawestî - LEARN THE BASICS ji cihê ku te hişt dewam dike
 Mirrored screens, skapi. Press any key or click, and Dr. Pixel gives it back.	Ekranên neynikî, skapi. Her bişkokekê bitikîne an bikirtîne, Dr. Pixel wê vedigerîne.
 Wrong screen, skapi. Press any key or click, and Dr. Pixel gives it back.	Ekrana xelet, skapi. Her bişkokekê bitikîne an bikirtîne, Dr. Pixel wê vedigerîne.
@@ -334,7 +334,7 @@ A lighthouse, a ghost, and a keeper who has been alone with the lamp far too lon
 Projection mapping: bending the picture to fit the building. Warp, blend, slices.	Projection mapping: wêneyê xwar dikin da ku li avahiyê bê. Warp, blend, slice.
 Ye'll be wanting the ghost on the windows. Mind the lamp. The lamp is MINE.	Hûn xeyalê li ser pencereyan dixwazin, ne wisa? Hay ji çirayê hebin. Çira YA MIN e.
 THE OUTPUT'S GEOMETRY	GEOMETRIYA OUTPUT
-MENU, then Video Outputs, then Geometry. Where an output's shape lives.	MENU, paşê Video Outputs, paşê Geometry. Şeklê outputê li wir dijî.
+MENU, then Video Outputs, then Geometry. Where an output's shape lives.	MENÛ, paşê Video Outputs, paşê Geometry. Şeklê outputê li wir dijî.
 Geometry: the projector-menu word for 'what shape is the picture'.	Geometry: peyva menuya projektorê ji bo 'wêne çi şekil e'.
 PIN A CORNER	GOŞEYEKÊ PÎN BIKE
 Press warp edit, then drag a corner on the programme monitor. The window is not square. Neither is the keeper.	warp edit bitikîne, paşê goşeyekê li ser monitora bernameyê bikişîne. Pencere ne çargoşe ye. Fenerdar jî ne.
@@ -375,7 +375,7 @@ Press the key. The cue fires, wherever the list is standing.	Bişkokê bitikîne
 No mouse, no list, no looking. Just the key.	Bê mişk, bê lîste, bê nihêrîn. Tenê bişkok.
 Buzz! We have a winner!	Bzzz! Serkevtiyek me heye!
 FROM ANYWHERE	JI HER DERÊ
-Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion, notayeke MIDI, peyameke OSC: MENU, paşê Tor, dibêje her yek li ku girê dide.
+Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion, notayeke MIDI, peyameke OSC: MENÛ, paşê Tor, dibêje her yek li ku girê dide.
 A Stream Deck in the next room can press GO. So can a keyboard synth. I prefer the synth.	Stream Deck di odeya kêlekê de dikare GO bitikîne. Synth-a klavyeyê jî. Ez synth tercîh dikim.
 And for our viewers at home: you can play along too.	Û ji bo temaşevanên li malê: hûn jî dikarin bilîzin.
 THAT'S OUR SHOW	EV ŞANOYA ME BÛ
@@ -428,7 +428,7 @@ Something's loose! Space holds the countdown. The clock shows it is held.	Tişte
 A hold is not a stop. Space again, and it carries on from where it was.	Rawestandin ne qedandin e. Dîsa Space, û ji cihê xwe dewam dike.
 *holds up a spanner*	*mifteyekê bilind dike*
 THE PILOT'S VIEW	DÎMENA PÎLOT
-MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	MENU, Video Outputs: cureyê outputekê bike PRESENTER. Kesê li ser sehnê demjimêr, cue-ya din û notên xwe dibîne.
+MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	MENÛ, Video Outputs: cureyê outputekê bike PRESENTER. Kesê li ser sehnê demjimêr, cue-ya din û notên xwe dibîne.
 A presenter view is an output like any other. Point it at the confidence monitor.	Dîmena pêşkêşvan outputek e wek yên din. Wê ber bi monitora sehnê ve bike.
 So the pilot can see the time. The pilot is Grommet.	Da ku pîlot demê bibîne. Pîlot Grommet e.
 TO THE MOON	BER BI HEYVÊ
@@ -469,10 +469,10 @@ AND BACK	Û VEGER
 The fire's out. Press B again: the picture comes back, still running.	Agir vemirî. Dîsa B bitikîne: wêne vedigere, hîn dimeşe.
 Nothing was lost. A mute on a mixer, for pictures.	Tiştek winda nebû. Mute li ser mixer, ji bo wêneyan.
 Ta-da! Still cookin'!	Ta-da! Hîn jî xwarin çêdikin!
-Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	Xirabtir: MENU, Pergal, karta SAFETY: PANIC. Her tişt radiweste, wek ku mîhenga panîkê dibêje.
+Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	Xirabtir: MENÛ, Pergal, karta SAFETY: PANIC. Her tişt radiweste, wek ku mîhenga panîkê dibêje.
 PANIC is the big red button. Use it when BLACK is not enough. Then breathe.	PANIC bişkoka sor a mezin e. Dema BLACK têr nake bi kar bîne. Paşê bêhn bigire.
 GET IT BACK	VEGERÎNE
-Close MENU, select the souffle, and TAKE it. The show is back on.	MENU bigire, soufflé hilbijêre û TAKE bike. Şano vedigere.
+Close MENU, select the souffle, and TAKE it. The show is back on.	MENÛ bigire, soufflé hilbijêre û TAKE bike. Şano vedigere.
 After a panic, the show is still there. Pick up where you meant to be.	Piştî panîkê, şano hîn li wir e. Ji cihê ku te dixwest dewam bike.
 Voila! De souffle, he is risen!	Voilà! Soufflé rabû!
 BON APPETIT	NOŞÎ CAN BE
@@ -536,7 +536,7 @@ Add a second: a bend, like crush. It damages the sound the way a broken file wou
 The bends are my favourite. Like a tape left in the sun. On purpose.	Bend yên min ên herî hezkirî ne. Wek kasetekê ku di tavê de ma. Bi qestî.
 > HARDER. BETTER. CRUNCHIER. LOUDER.	> HIŞKTIR. BAŞTIR. QIRÇTIR. BILINDTIR.
 THE PATCH	PATCH
-MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	MENU, paşê Deng: dengê her playlistê diçe ku, û patch ji bo outputên navdar.
+MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	MENÛ, paşê Deng: dengê her playlistê diçe ku, û patch ji bo outputên navdar.
 Speakers, monitors, an in-ear for the drummer. The patch sends each its own.	Hoparlor, monitor, in-ear ji bo defçî. Patch ji her yekê ya wî dişîne.
 > AROUND THE MIX. AROUND THE MIX. AROUND THE MIX.	> LI DORA MIXÊ. LI DORA MIXÊ. LI DORA MIXÊ.
 An effect, a bend and the patch. The robots approve, skapi. I think. Their faces are helmets.	Efektek, bendek û patch. Robot dipejirînin, skapi. Ez difikirim. Rûyên wan kum in.
@@ -548,11 +548,11 @@ The Bureau again, skapi. A glow on the horizon, and two agents who disagree abou
 The scopes measure a picture: brightness, colour, levels. Numbers, not opinions.	Scope wêneyê dipîvin: geşî, reng, ast. Hejmar, ne raman.
 It's them, Brandt. It's a craft. Look how it glows.	Ew in, Brandt. Keştî ye. Binêre çawa dibiriqe.
 THE REAL SIGNAL	SÎNYALA RASTÎN
-The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	Scope tenê tiştê ku bi rastî derdikeve dixwînin, qet preview na. Outputê veke: MENU, Video Outputs, OUTPUT OFF.
+The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	Scope tenê tiştê ku bi rastî derdikeve dixwînin, qet preview na. Outputê veke: MENÛ, Video Outputs, OUTPUT OFF.
 Measuring a scaled-down preview would be measuring a photocopy. We measure the original.	Pîvana previewekî biçûkkirî wek pîvana fotokopiyê ye. Em orîjînalê dipîvin.
 Chain of evidence, Hollis. The real signal or nothing.	Zincîra delîlan, Hollis. Sînyala rastîn an tiştek na.
 THE SCOPES	SCOPE
-Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	MENU bigire. Li jor monitorê, bişkoka PROGRAM: heta SCOPES an BOTH bibêje bitikîne.
+Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	MENÛ bigire. Li jor monitorê, bişkoka PROGRAM: heta SCOPES an BOTH bibêje bitikîne.
 Both shows the picture and its scopes side by side. Very civilised.	BOTH wêne û scope-yên wê li kêleka hev nîşan dide. Pir şaristanî.
 Let the scopes decide, Hollis.	Bila scope biryarê bidin, Hollis.
 THE WAVEFORM	WAVEFORM
@@ -575,7 +575,7 @@ OUT OF THE BUILDING	JI AVAHIYÊ DERVE
 Pictures that leave by cable or network, skapi, not only a window on a screen. Press START.	Wêneyên ku bi kablo an torê derdikevin, skapi, ne tenê pencereyek li ser ekranê. START bitikîne.
 NDI over the network, SDI from a DeckLink card, ST 2110 for broadcast plants.	NDI li ser torê, SDI ji karta DeckLink, ST 2110 ji bo navendên weşanê.
 THE DEVICES PAGE	RÛPELA AMÛRAN
-MENU, Video Outputs, then Devices: every way an output can leave this computer.	MENU, Video Outputs, paşê Amûr: her rêya ku output dikare ji vê komputerê derkeve.
+MENU, Video Outputs, then Devices: every way an output can leave this computer.	MENÛ, Video Outputs, paşê Amûr: her rêya ku output dikare ji vê komputerê derkeve.
 Each one says whether this machine can do it, and what it needs if not.	Her yek dibêje ka ev makîne dikare an na, û eger na çi pêwîst e.
 If this computer has NDI, switch NDI SENDING on: the picture is on the network. If not, SHOW ME moves on.	Eger NDI li vê komputerê hebe, NDI SENDING veke: wêne li ser torê ye. Eger na, SHOW ME dewam dike.
 NDI finds itself on the network. No cables, only a good switch and patience.	NDI xwe li ser torê dibîne. Bê kablo, tenê switcheke baş û sebir.
@@ -622,7 +622,7 @@ Nearly there. I can feel it in my pixels.	Hema hema. Di pîkselên xwe de hîs d
 You're good at this. I can tell. I'm the one doing it.	Tu di vê de baş î. Dibînim. Ez dikim.
 Every click, I heard. Every single one.	Her tikandin, min bihîst. Her yek.
 The glowing one. I can see it from here. It's glowing for you.	Ya ku dibiriqe. Ji vir dibînim. Ji bo te dibiriqe.
-lesson paused - MENU > LESSONS picks up where you left off	ders rawestî - MENU > LESSONS ji cihê ku te hişt dewam dike
+lesson paused - MENU > LESSONS picks up where you left off	ders rawestî - MENÛ > LESSONS ji cihê ku te hişt dewam dike
 PROF. VIDEO:  The signal: what the picture is made of, and how to bend it. Pick a lesson.	PROF. VIDEO:  Sînyal: wêne ji çi hatiye çêkirin, û çawa tê xwarkirin. Dersekê hilbijêre.
 DR. PIXEL:  Running the show, skapi. Fast hands, calm face. Pick a lesson.	DR. PIXEL:  Meşandina şanoyê, skapi. Destên bilez, rûyê aram. Dersekê hilbijêre.
 LESSONS  -  PART TWO  -  WHO DO YOU FOLLOW?	DERS  -  BEŞA DUYEM  -  LI PEY KÊ DIÇÎ?
@@ -2211,3 +2211,5 @@ Pick a deck. Any deck. ...Deck 2. Pick Deck 2.	Destekê hilbijêre. Kîjan be. .
 Iris	Îrîs
 Timecode	Koda demê
 PHASE	QONAX
+MENU	MENÛ
+VOLUME	DENG

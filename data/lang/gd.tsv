@@ -500,7 +500,7 @@ HELLO	HALÒ
 Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me.	Dobar den, skapi. Is mise an Dotair Pixel. Còig mionaidean, agus bidh tu a' ruith taisbeanadh. Nas lugha, ma dh'èisteas tu rium.
 And I'm Professor Video. Synths first, then video. Mostly video now. Press START and we'll patch... we'll begin.	Agus is mise an t-Ollamh Video. Synths an toiseach, an uairsin bhidio. Bhidio sa mhòr-chuid a-nis. Brùth START agus ceanglaidh sinn... tòisichidh sinn.
 TURN THE OUTPUT ON	CUIR AN T-ÀS-CHUR AIR
-Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	Skapi, tha an sgrìn falamh. Na cùm iad a' feitheamh. Fosgail MENU agus dèan ÀS-CHUR DHETH na ÀS-CHUR AIR. Hajde!
+Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	Skapi, tha an sgrìn falamh. Na cùm iad a' feitheamh. Fosgail CLÀR agus dèan ÀS-CHUR DHETH na ÀS-CHUR AIR. Hajde!
 Lesson one: nothing comes out until you patch the oscillator to the... the OUTPUT. It's video. I know.	Leasan a h-aon: chan eil dad a' tighinn a-mach gus an ceangail thu an t-oscillator ris an... ris an ÀS-CHUR. 'S e bhidio a th' ann. Tha fios agam.
 BRING IN A CLIP	THOIR A-STEACH CLIOP
 Now a picture. Press I and pick a clip from your computer. No clip? SHOW ME, and I lend you one of mine.	A-nis dealbh. Brùth I agus tagh cliop bhon choimpiutair agad. Gun chliop? SHOW ME, agus bheir mi iasad dhut de dh'fhear dhe mo chuid.
@@ -522,7 +522,7 @@ Now save. Ctrl+S, or SAVE. Some programs lose your work and then blame you. I wo
 Save your patch. Your SHOW. Show. This practice one lives in Deckboy's own folder; yours is safe.	Sàbhail am patch agad. An TAISBEANADH agad. Taisbeanadh. Tha am fear-cleachdaidh seo a' fuireach ann am pasgan Deckboy fhèin; tha am fear agad sàbhailte.
 THAT'S A SHOW	SIN TAISBEANADH
 That's a show! Output, cue, TAKE, crossfade, BLACK, save. Nazdrave, skapi. Rakia is on me.	Sin taisbeanadh! Às-chur, cue, TAKE, crossfade, BLACK, sàbhail. Nazdrave, skapi. Tha an rakia orm-sa. Slàinte mhath!
-Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	Tha an clas seachad. Bidh na taisbeanaidhean eisimpleir a' teagasg sreathan, tiotalan agus buadhan. Ruithidh MENU > LEARN THE BASICS seo a-rithist.
+Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	Tha an clas seachad. Bidh na taisbeanaidhean eisimpleir a' teagasg sreathan, tiotalan agus buadhan. Ruithidh CLÀR > LEARN THE BASICS seo a-rithist.
 *shakes head* That means yes. Bravo.	*crathaidh e a cheann* Tha sin a' ciallachadh tha. Math fhèin.
 Wonderful! Lovely signal flow.	Iongantach! Sruth comharra àlainn.
 Mm. I knew you had it in you.	Mm. Bha fios agam gun robh e annad.
@@ -535,7 +535,7 @@ your show could not be saved, so the lesson has not started. Save it (SAVE AS) a
 the practice show would not open	cha do dh'fhosgail an taisbeanadh-cleachdaidh
 could not start the practice show	cha b' urrainn an taisbeanadh-cleachdaidh a thòiseachadh
 learn the basics: Esc leaves, and it picks up here next time	learn the basics: fàgaidh Esc, agus leanaidh e bhon seo an ath thuras
-that's the basics - MENU > LESSONS has part two	sin na bunaitean - tha pàirt a dhà aig MENU > LESSONS
+that's the basics - MENU > LESSONS has part two	sin na bunaitean - tha pàirt a dhà aig CLÀR > LESSONS
 tour paused - LEARN THE BASICS picks up where you left off	turas air a chumail - leanaidh LEARN THE BASICS bhon àite far an do sguir thu
 Mirrored screens, skapi. Press any key or click, and Dr. Pixel gives it back.	Sgrìnichean sgàthanaichte, skapi. Brùth iuchair sam bith no briog, agus bheir an Dotair Pixel air ais e.
 Wrong screen, skapi. Press any key or click, and Dr. Pixel gives it back.	An sgrìn cheàrr, skapi. Brùth iuchair sam bith no briog, agus bheir an Dotair Pixel air ais e.
@@ -714,7 +714,7 @@ A lighthouse, a ghost, and a keeper who has been alone with the lamp far too lon
 Projection mapping: bending the picture to fit the building. Warp, blend, slices.	Mapadh teilgidh: a' lùbadh an deilbh gus am freagair e an togalach. Lùbadh, measgachadh, sliseagan.
 Ye'll be wanting the ghost on the windows. Mind the lamp. The lamp is MINE.	Bidh sibh ag iarraidh an taibhse air na h-uinneagan, a bheil? Thoiribh an aire don lampa. Is ann LEAMSA a tha an lampa.
 THE OUTPUT'S GEOMETRY	GEOIMEATRAIDH AN ÀS-CHUIR
-MENU, then Video Outputs, then Geometry. Where an output's shape lives.	MENU, an uairsin Às-chuir bhidio, an uairsin Geoimeatraidh. Sin far a bheil cumadh às-chuir a' fuireach.
+MENU, then Video Outputs, then Geometry. Where an output's shape lives.	CLÀR, an uairsin Às-chuir bhidio, an uairsin Geoimeatraidh. Sin far a bheil cumadh às-chuir a' fuireach.
 Geometry: the projector-menu word for 'what shape is the picture'.	Geoimeatraidh: facal clàr-taice an teilgeadair airson 'dè an cumadh a th' air an dealbh'.
 PIN A CORNER	PRÌNICH OISEAN
 Press warp edit, then drag a corner on the programme monitor. The window is not square. Neither is the keeper.	Brùth warp edit, an uairsin slaod oisean air monitor a' phrògraim. Chan eil an uinneag ceàrnagach. No am fear-gleidhidh.
@@ -755,7 +755,7 @@ Press the key. The cue fires, wherever the list is standing.	Brùth an iuchair. 
 No mouse, no list, no looking. Just the key.	Gun luchag, gun liosta, gun choimhead. Dìreach an iuchair.
 Buzz! We have a winner!	Bzzz! Tha buannaiche againn!
 FROM ANYWHERE	BHO ÀITE SAM BITH
-Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion, nòta MIDI, teachdaireachd OSC: MENU, an uairsin Lìonra, ag innse càite an ceangail gach fear.
+Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion, nòta MIDI, teachdaireachd OSC: CLÀR, an uairsin Lìonra, ag innse càite an ceangail gach fear.
 A Stream Deck in the next room can press GO. So can a keyboard synth. I prefer the synth.	Faodaidh Stream Deck san ath rùm GO a bhrùthadh. Agus synth meur-chlàir cuideachd. B' fheàrr leam an synth.
 And for our viewers at home: you can play along too.	Agus don luchd-coimhead aig an taigh: faodaidh sibhse cluich cuideachd.
 THAT'S OUR SHOW	SIN AN TAISBEANADH AGAINN
@@ -808,7 +808,7 @@ Something's loose! Space holds the countdown. The clock shows it is held.	Tha ru
 A hold is not a stop. Space again, and it carries on from where it was.	Chan e stad a th' ann an cumail. Am bàr-fànais a-rithist, agus leanaidh e bhon àite far an robh e.
 *holds up a spanner*	*togaidh e spanair*
 THE PILOT'S VIEW	SEALLADH A' PHÌOLOTA
-MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	MENU, Às-chuir bhidio: dèan seòrsa às-chuir PRESENTER. Gheibh an neach air an àrd-ùrlar an t-uaireadair, an ath cue agus na notaichean aca.
+MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	CLÀR, Às-chuir bhidio: dèan seòrsa às-chuir PRESENTER. Gheibh an neach air an àrd-ùrlar an t-uaireadair, an ath cue agus na notaichean aca.
 A presenter view is an output like any other. Point it at the confidence monitor.	'S e às-chur coltach ri gin eile a th' ann an sealladh preasantair. Stiùir e chun a' mhonitor misneachd.
 So the pilot can see the time. The pilot is Grommet.	Gus am faic am pìolota an uair. 'S e Grommet am pìolota.
 TO THE MOON	CHUN NA GEALAICH
@@ -849,10 +849,10 @@ AND BACK	AGUS AIR AIS
 The fire's out. Press B again: the picture comes back, still running.	Tha an teine às. Brùth B a-rithist: thig an dealbh air ais, fhathast a' ruith.
 Nothing was lost. A mute on a mixer, for pictures.	Cha deach dad air chall. Mute air measgaire, airson dealbhan.
 Ta-da! Still cookin'!	Ta-da! Fhathast a' còcaireachd!
-Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	Nas miosa: MENU, Siostam, a' chairt SAFETY: PANIC. Stadaidh a h-uile càil, mar a tha roghainn a' chlisgidh ag ràdh.
+Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	Nas miosa: CLÀR, Siostam, a' chairt SAFETY: PANIC. Stadaidh a h-uile càil, mar a tha roghainn a' chlisgidh ag ràdh.
 PANIC is the big red button. Use it when BLACK is not enough. Then breathe.	'S e PANIC am putan mòr dearg. Cleachd e nuair nach leòr BLACK. An uairsin tarraing anail.
 GET IT BACK	FAIGH AIR AIS E
-Close MENU, select the souffle, and TAKE it. The show is back on.	Dùin MENU, tagh an soufflé, agus dèan TAKE. Tha an taisbeanadh a' dol a-rithist.
+Close MENU, select the souffle, and TAKE it. The show is back on.	Dùin CLÀR, tagh an soufflé, agus dèan TAKE. Tha an taisbeanadh a' dol a-rithist.
 After a panic, the show is still there. Pick up where you meant to be.	Às dèidh clisgeadh, tha an taisbeanadh ann fhathast. Lean ort bhon àite far an robh thu airson a bhith.
 Voila! De souffle, he is risen!	Voilà! An soufflé, dh'èirich e!
 BON APPETIT	BIADH MATH DHUIBH
@@ -916,7 +916,7 @@ Add a second: a bend, like crush. It damages the sound the way a broken file wou
 The bends are my favourite. Like a tape left in the sun. On purpose.	'S iad na lùban an fheadhainn as fheàrr leam. Mar theip air fhàgail sa ghrèin. A dh'aona ghnothach.
 > HARDER. BETTER. CRUNCHIER. LOUDER.	> NAS CRUAIDHE. NAS FHEÀRR. NAS CRIOSLAICHE. NAS ÀIRDE.
 THE PATCH	AM PATCH
-MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	MENU, an uairsin Fuaim: far an tèid fuaim gach liosta, agus am patch airson às-chuir ainmichte.
+MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	CLÀR, an uairsin Fuaim: far an tèid fuaim gach liosta, agus am patch airson às-chuir ainmichte.
 Speakers, monitors, an in-ear for the drummer. The patch sends each its own.	Labhradairean, monitors, in-ear don drumair. Cuiridh am patch a chuid fhèin gu gach fear.
 > AROUND THE MIX. AROUND THE MIX. AROUND THE MIX.	> TIMCHEALL A' MHEASGACHAIDH. TIMCHEALL A' MHEASGACHAIDH. TIMCHEALL A' MHEASGACHAIDH.
 An effect, a bend and the patch. The robots approve, skapi. I think. Their faces are helmets.	Buaidh, lùb agus am patch. Tha na h-innealan riaraichte, skapi. Tha mi a' smaoineachadh. 'S e clogaidean a th' anns na h-aodainn aca.
@@ -928,11 +928,11 @@ The Bureau again, skapi. A glow on the horizon, and two agents who disagree abou
 The scopes measure a picture: brightness, colour, levels. Numbers, not opinions.	Tomhaisidh na scopes dealbh: soilleireachd, dath, ìrean. Àireamhan, chan e beachdan.
 It's them, Brandt. It's a craft. Look how it glows.	'S iad-san a th' ann, Brandt. 'S e soitheach a th' ann. Coimhead mar a tha e a' deàrrsadh.
 THE REAL SIGNAL	AN FHÌOR CHOMHARRA
-The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	Cha leugh na scopes ach na thèid a-mach dha-rìribh, ro-shealladh gu bràth. Cuir an t-às-chur air: MENU, Às-chuir bhidio, ÀS-CHUR DHETH.
+The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	Cha leugh na scopes ach na thèid a-mach dha-rìribh, ro-shealladh gu bràth. Cuir an t-às-chur air: CLÀR, Às-chuir bhidio, ÀS-CHUR DHETH.
 Measuring a scaled-down preview would be measuring a photocopy. We measure the original.	Bhiodh tomhas ro-shealladh air a lùghdachadh mar tomhas lethbhreac. Tomhaisidh sinne an tùsail.
 Chain of evidence, Hollis. The real signal or nothing.	Sreath na fianais, Hollis. An fhìor chomharra no dad.
 THE SCOPES	NA SCOPES
-Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	Dùin MENU. Os cionn a' mhonitor, am putan PROGRAM: brùth e gus an can e SCOPES no BOTH.
+Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	Dùin CLÀR. Os cionn a' mhonitor, am putan PROGRAM: brùth e gus an can e SCOPES no BOTH.
 Both shows the picture and its scopes side by side. Very civilised.	Seallaidh BOTH an dealbh agus na scopes aige taobh ri taobh. Glè shìobhalta.
 Let the scopes decide, Hollis.	Leig leis na scopes co-dhùnadh, Hollis.
 THE WAVEFORM	AN CRUTH-TONN
@@ -955,7 +955,7 @@ OUT OF THE BUILDING	A-MACH ÀS AN TOGALACH
 Pictures that leave by cable or network, skapi, not only a window on a screen. Press START.	Dealbhan a dh'fhàgas le càball no lìonra, skapi, chan e dìreach uinneag air sgrìn. Brùth START.
 NDI over the network, SDI from a DeckLink card, ST 2110 for broadcast plants.	NDI thar an lìonra, SDI bho chairt DeckLink, ST 2110 airson ionadan craolaidh.
 THE DEVICES PAGE	DUILLEAG NAN INNEALAN
-MENU, Video Outputs, then Devices: every way an output can leave this computer.	MENU, Às-chuir bhidio, an uairsin Innealan: gach dòigh anns an urrainn do às-chur an coimpiutair seo fhàgail.
+MENU, Video Outputs, then Devices: every way an output can leave this computer.	CLÀR, Às-chuir bhidio, an uairsin Innealan: gach dòigh anns an urrainn do às-chur an coimpiutair seo fhàgail.
 Each one says whether this machine can do it, and what it needs if not.	Tha gach fear ag ràdh an urrainn don inneal seo a dhèanamh, agus dè a dh'fheumas e mura h-urrainn.
 If this computer has NDI, switch NDI SENDING on: the picture is on the network. If not, SHOW ME moves on.	Ma tha NDI aig a' choimpiutair seo, cuir NDI SENDING air: tha an dealbh air an lìonra. Mura h-eil, gluaisidh SHOW ME air adhart.
 NDI finds itself on the network. No cables, only a good switch and patience.	Lorgaidh NDI e fhèin air an lìonra. Gun chàballan, dìreach deagh shuidse agus foighidinn.
@@ -1002,7 +1002,7 @@ Nearly there. I can feel it in my pixels.	Cha mhòr. Tha mi ga fhaireachdainn na
 You're good at this. I can tell. I'm the one doing it.	Tha thu math air seo. Chì mi sin. 'S e mise a tha ga dhèanamh.
 Every click, I heard. Every single one.	Gach briogadh, chuala mi e. Gach fear dhiubh.
 The glowing one. I can see it from here. It's glowing for you.	Am fear a tha a' deàrrsadh. Chì mi e às an seo. Tha e a' deàrrsadh dhutsa.
-lesson paused - MENU > LESSONS picks up where you left off	leasan air a chumail - leanaidh MENU > LESSONS bhon àite far an do sguir thu
+lesson paused - MENU > LESSONS picks up where you left off	leasan air a chumail - leanaidh CLÀR > LESSONS bhon àite far an do sguir thu
 PROF. VIDEO:  The signal: what the picture is made of, and how to bend it. Pick a lesson.	PROF. VIDEO:  An comharra: dè às a bheil an dealbh air a dhèanamh, agus ciamar a lùbas tu e. Tagh leasan.
 DR. PIXEL:  Running the show, skapi. Fast hands, calm face. Pick a lesson.	DR. PIXEL:  A' ruith an taisbeanaidh, skapi. Làmhan luath, aodann socair. Tagh leasan.
 LESSONS  -  PART TWO  -  WHO DO YOU FOLLOW?	LEASANAN  -  PÀIRT A DHÀ  -  CÒ LEANAS TU?
@@ -2212,3 +2212,5 @@ The lit tab gets the next cue. Like choosing which slide goes in the projector.	
 Pick a deck. Any deck. ...Deck 2. Pick Deck 2.	Tagh paca. Paca sam bith. ...Deck 2. Tagh Deck 2.
 Timecode	Còd-ama
 PHASE	ÌRE
+MENU	CLÀR
+VOLUME	FUAIM

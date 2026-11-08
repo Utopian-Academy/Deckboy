@@ -500,7 +500,7 @@ HELLO	HEI
 Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me.	Dobar den, skapi. Olen tohtori Pixel. Viisi minuuttia, ja ajat showta. Vähemmän, jos kuuntelet minua.
 And I'm Professor Video. Synths first, then video. Mostly video now. Press START and we'll patch... we'll begin.	Ja minä olen professori Video. Ensin syntikat, sitten video. Nyt lähinnä video. Paina START, niin kytketään... aloitetaan.
 TURN THE OUTPUT ON	KYTKE ULOSTULO PÄÄLLE
-Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	Skapi, ruutu on tyhjä. Älä anna heidän odottaa. Avaa MENU ja tee ULOSTULO POIS -kohdasta ULOSTULO PÄÄLLE. Hajde!
+Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	Skapi, ruutu on tyhjä. Älä anna heidän odottaa. Avaa VALIKKO ja tee ULOSTULO POIS -kohdasta ULOSTULO PÄÄLLE. Hajde!
 Lesson one: nothing comes out until you patch the oscillator to the... the OUTPUT. It's video. I know.	Ensimmäinen oppitunti: mitään ei tule ulos, ennen kuin kytket oskillaattorin... ULOSTULOON. Se on videota. Tiedän.
 BRING IN A CLIP	TUO KLIPPI
 Now a picture. Press I and pick a clip from your computer. No clip? SHOW ME, and I lend you one of mine.	Nyt kuva. Paina I ja valitse klippi tietokoneeltasi. Eikö ole klippiä? SHOW ME, niin lainaan sinulle yhden omistani.
@@ -522,7 +522,7 @@ Now save. Ctrl+S, or SAVE. Some programs lose your work and then blame you. I wo
 Save your patch. Your SHOW. Show. This practice one lives in Deckboy's own folder; yours is safe.	Tallenna patchisi. SHOW'si. Show. Tämä harjoitusshow asuu Deckboyn omassa kansiossa; omasi on turvassa.
 THAT'S A SHOW	TÄMÄ ON SHOW
 That's a show! Output, cue, TAKE, crossfade, BLACK, save. Nazdrave, skapi. Rakia is on me.	Tämä on show! Ulostulo, cue, TAKE, ristihäivytys, BLACK, tallennus. Nazdrave, skapi. Rakia on minun piikkiini.
-Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	Tunti päättyi. Esimerkkishowt opettavat tasoja, otsikoita ja efektejä. MENU > LEARN THE BASICS ajaa tämän uudelleen.
+Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	Tunti päättyi. Esimerkkishowt opettavat tasoja, otsikoita ja efektejä. VALIKKO > LEARN THE BASICS ajaa tämän uudelleen.
 *shakes head* That means yes. Bravo.	*pudistaa päätään* Se tarkoittaa kyllä. Bravo.
 Wonderful! Lovely signal flow.	Upeaa! Ihana signaalinkulku.
 Mm. I knew you had it in you.	Mm. Tiesin, että sinusta on tähän.
@@ -535,7 +535,7 @@ your show could not be saved, so the lesson has not started. Save it (SAVE AS) a
 the practice show would not open	harjoitusshow ei auennut
 could not start the practice show	harjoitusshowta ei voitu käynnistää
 learn the basics: Esc leaves, and it picks up here next time	learn the basics: Esc poistuu, ja ensi kerralla jatketaan tästä
-that's the basics - MENU > LESSONS has part two	siinä perusteet - MENU > LESSONS sisältää osan kaksi
+that's the basics - MENU > LESSONS has part two	siinä perusteet - VALIKKO > LESSONS sisältää osan kaksi
 tour paused - LEARN THE BASICS picks up where you left off	kierros tauolla - LEARN THE BASICS jatkaa siitä, mihin jäit
 Mirrored screens, skapi. Press any key or click, and Dr. Pixel gives it back.	Peilatut näytöt, skapi. Paina mitä tahansa näppäintä tai napsauta, niin tohtori Pixel antaa sen takaisin.
 Wrong screen, skapi. Press any key or click, and Dr. Pixel gives it back.	Väärä näyttö, skapi. Paina mitä tahansa näppäintä tai napsauta, niin tohtori Pixel antaa sen takaisin.
@@ -714,7 +714,7 @@ A lighthouse, a ghost, and a keeper who has been alone with the lamp far too lon
 Projection mapping: bending the picture to fit the building. Warp, blend, slices.	Projisointimappaus: kuvan taivuttaminen rakennukseen sopivaksi. Vääristys, sulautus, viipaleet.
 Ye'll be wanting the ghost on the windows. Mind the lamp. The lamp is MINE.	Kummitusta te ikkunoihin haluatte, häh? Varokaa lamppua. Lamppu on MINUN.
 THE OUTPUT'S GEOMETRY	ULOSTULON GEOMETRIA
-MENU, then Video Outputs, then Geometry. Where an output's shape lives.	MENU, sitten Videolähdöt, sitten Geometria. Siellä asuu ulostulon muoto.
+MENU, then Video Outputs, then Geometry. Where an output's shape lives.	VALIKKO, sitten Videolähdöt, sitten Geometria. Siellä asuu ulostulon muoto.
 Geometry: the projector-menu word for 'what shape is the picture'.	Geometria: projektorivalikoiden sana sille, 'minkä muotoinen kuva on'.
 PIN A CORNER	KIINNITÄ KULMA
 Press warp edit, then drag a corner on the programme monitor. The window is not square. Neither is the keeper.	Paina warp edit ja vedä kulmaa ohjelmamonitorissa. Ikkuna ei ole neliö. Eikä vartijakaan.
@@ -755,7 +755,7 @@ Press the key. The cue fires, wherever the list is standing.	Paina näppäintä.
 No mouse, no list, no looking. Just the key.	Ei hiirtä, ei listaa, ei katsomista. Pelkkä näppäin.
 Buzz! We have a winner!	Bzzzt! Meillä on voittaja!
 FROM ANYWHERE	MISTÄ TAHANSA
-Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion, MIDI-nuotti, OSC-viesti: MENU, sitten Verkko, kertoo, mihin kukin yhdistää.
+Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion, MIDI-nuotti, OSC-viesti: VALIKKO, sitten Verkko, kertoo, mihin kukin yhdistää.
 A Stream Deck in the next room can press GO. So can a keyboard synth. I prefer the synth.	Viereisen huoneen Stream Deck voi painaa GO:ta. Niin voi koskettimistosyntikkakin. Minä otan syntikan.
 And for our viewers at home: you can play along too.	Ja kotikatsojille: tekin voitte pelata mukana.
 THAT'S OUR SHOW	SE OLI OHJELMAMME
@@ -808,7 +808,7 @@ Something's loose! Space holds the countdown. The clock shows it is held.	Jokin 
 A hold is not a stop. Space again, and it carries on from where it was.	Pysäytys ei ole lopetus. Välilyönti uudelleen, ja se jatkaa siitä, mihin jäi.
 *holds up a spanner*	*nostaa jakoavaimen*
 THE PILOT'S VIEW	LENTÄJÄN NÄKYMÄ
-MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	MENU, Videolähdöt: tee jonkin ulostulon tyypiksi PRESENTER. Lavalla oleva saa ajastimen, seuraavan cuen ja muistiinpanonsa.
+MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	VALIKKO, Videolähdöt: tee jonkin ulostulon tyypiksi PRESENTER. Lavalla oleva saa ajastimen, seuraavan cuen ja muistiinpanonsa.
 A presenter view is an output like any other. Point it at the confidence monitor.	Esiintyjänäkymä on ulostulo siinä missä muutkin. Suuntaa se paluumonitoriin.
 So the pilot can see the time. The pilot is Grommet.	Jotta lentäjä näkee ajan. Lentäjä on Grommet.
 TO THE MOON	KUUHUN
@@ -850,10 +850,10 @@ AND BACK	JA TAKAISIN
 The fire's out. Press B again: the picture comes back, still running.	Tuli on sammunut. Paina B uudelleen: kuva palaa, yhä käynnissä.
 Nothing was lost. A mute on a mixer, for pictures.	Mitään ei menetetty. Miksauspöydän mute, kuville.
 Ta-da! Still cookin'!	Tadaa! Yhä kokataan!
-Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	Pahempaa: MENU, Järjestelmä, SAFETY-kortti: PANIC. Kaikki pysähtyy niin kuin paniikkiasetus sanoo.
+Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	Pahempaa: VALIKKO, Järjestelmä, SAFETY-kortti: PANIC. Kaikki pysähtyy niin kuin paniikkiasetus sanoo.
 PANIC is the big red button. Use it when BLACK is not enough. Then breathe.	PANIC on iso punainen nappi. Käytä sitä, kun BLACK ei riitä. Hengitä sitten.
 GET IT BACK	HAE SE TAKAISIN
-Close MENU, select the souffle, and TAKE it. The show is back on.	Sulje MENU, valitse kohokas ja tee TAKE. Show on taas käynnissä.
+Close MENU, select the souffle, and TAKE it. The show is back on.	Sulje VALIKKO, valitse kohokas ja tee TAKE. Show on taas käynnissä.
 After a panic, the show is still there. Pick up where you meant to be.	Paniikin jälkeen show on yhä siellä. Jatka siitä, missä halusit olla.
 Voila! De souffle, he is risen!	Voilà! Kohokas, se kohosi!
 BON APPETIT	HYVÄÄ RUOKAHALUA
@@ -917,7 +917,7 @@ Add a second: a bend, like crush. It damages the sound the way a broken file wou
 The bends are my favourite. Like a tape left in the sun. On purpose.	Bendit ovat suosikkejani. Kuin aurinkoon unohtunut kasetti. Tahallaan.
 > HARDER. BETTER. CRUNCHIER. LOUDER.	> KOVEMPAA. PAREMPAA. RAPEAMPAA. LUJEMPAA.
 THE PATCH	PATCH
-MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	MENU, sitten Ääni: minne kunkin soittolistan ääni menee, ja nimettyjen ulostulojen patch.
+MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	VALIKKO, sitten Ääni: minne kunkin soittolistan ääni menee, ja nimettyjen ulostulojen patch.
 Speakers, monitors, an in-ear for the drummer. The patch sends each its own.	Kaiuttimet, monitorit, rumpalin korvamonitori. Patch lähettää kullekin omansa.
 > AROUND THE MIX. AROUND THE MIX. AROUND THE MIX.	> MIKSIN YMPÄRI. MIKSIN YMPÄRI. MIKSIN YMPÄRI.
 An effect, a bend and the patch. The robots approve, skapi. I think. Their faces are helmets.	Efekti, bendi ja patch. Robotit hyväksyvät, skapi. Luulisin. Heidän kasvonsa ovat kypäriä.
@@ -929,11 +929,11 @@ The Bureau again, skapi. A glow on the horizon, and two agents who disagree abou
 The scopes measure a picture: brightness, colour, levels. Numbers, not opinions.	Skoopit mittaavat kuvaa: kirkkautta, väriä, tasoja. Lukuja, ei mielipiteitä.
 It's them, Brandt. It's a craft. Look how it glows.	Se on heitä, Brandt. Se on alus. Katso miten se hehkuu.
 THE REAL SIGNAL	OIKEA SIGNAALI
-The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	Skoopit lukevat vain sen, mikä oikeasti lähtee ulos, ei koskaan esikatselua. Kytke ulostulo: MENU, Videolähdöt, ULOSTULO POIS.
+The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	Skoopit lukevat vain sen, mikä oikeasti lähtee ulos, ei koskaan esikatselua. Kytke ulostulo: VALIKKO, Videolähdöt, ULOSTULO POIS.
 Measuring a scaled-down preview would be measuring a photocopy. We measure the original.	Pienennetyn esikatselun mittaaminen olisi kuin valokopion mittaamista. Me mittaamme alkuperäisen.
 Chain of evidence, Hollis. The real signal or nothing.	Todisteketju, Hollis. Oikea signaali tai ei mitään.
 THE SCOPES	SKOOPIT
-Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	Sulje MENU. Monitorin yläpuolella PROGRAM-nappi: paina, kunnes siinä lukee SCOPES tai BOTH.
+Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	Sulje VALIKKO. Monitorin yläpuolella PROGRAM-nappi: paina, kunnes siinä lukee SCOPES tai BOTH.
 Both shows the picture and its scopes side by side. Very civilised.	BOTH näyttää kuvan ja sen skoopit rinnakkain. Hyvin sivistynyttä.
 Let the scopes decide, Hollis.	Annetaan skooppien päättää, Hollis.
 THE WAVEFORM	AALTOMUOTO
@@ -956,7 +956,7 @@ OUT OF THE BUILDING	ULOS RAKENNUKSESTA
 Pictures that leave by cable or network, skapi, not only a window on a screen. Press START.	Kuvat, jotka lähtevät kaapelia tai verkkoa pitkin, skapi, eivät vain ikkuna ruudulla. Paina START.
 NDI over the network, SDI from a DeckLink card, ST 2110 for broadcast plants.	NDI verkon yli, SDI DeckLink-kortilta, ST 2110 lähetyskeskuksille.
 THE DEVICES PAGE	LAITESIVU
-MENU, Video Outputs, then Devices: every way an output can leave this computer.	MENU, Videolähdöt, sitten Laitteet: kaikki tavat, joilla ulostulo voi lähteä tästä koneesta.
+MENU, Video Outputs, then Devices: every way an output can leave this computer.	VALIKKO, Videolähdöt, sitten Laitteet: kaikki tavat, joilla ulostulo voi lähteä tästä koneesta.
 Each one says whether this machine can do it, and what it needs if not.	Jokainen kertoo, pystyykö tämä kone siihen, ja mitä se tarvitsee, jos ei.
 If this computer has NDI, switch NDI SENDING on: the picture is on the network. If not, SHOW ME moves on.	Jos tässä koneessa on NDI, kytke NDI SENDING päälle: kuva on verkossa. Jos ei, SHOW ME jatkaa eteenpäin.
 NDI finds itself on the network. No cables, only a good switch and patience.	NDI löytää itsensä verkosta. Ei kaapeleita, vain hyvä kytkin ja kärsivällisyyttä.
@@ -1003,7 +1003,7 @@ Nearly there. I can feel it in my pixels.	Melkein. Tunnen sen pikseleissäni.
 You're good at this. I can tell. I'm the one doing it.	Olet hyvä tässä. Näen sen. Minä sen teen.
 Every click, I heard. Every single one.	Jokaisen napsautuksen kuulin. Jokaisen.
 The glowing one. I can see it from here. It's glowing for you.	Se hehkuva. Näen sen täältä. Se hehkuu sinulle.
-lesson paused - MENU > LESSONS picks up where you left off	oppitunti tauolla - MENU > LESSONS jatkaa siitä, mihin jäit
+lesson paused - MENU > LESSONS picks up where you left off	oppitunti tauolla - VALIKKO > LESSONS jatkaa siitä, mihin jäit
 PROF. VIDEO:  The signal: what the picture is made of, and how to bend it. Pick a lesson.	PROF. VIDEO:  Signaali: mistä kuva on tehty ja miten sitä taivutetaan. Valitse oppitunti.
 DR. PIXEL:  Running the show, skapi. Fast hands, calm face. Pick a lesson.	DR. PIXEL:  Shown ajaminen, skapi. Nopeat kädet, rauhalliset kasvot. Valitse oppitunti.
 LESSONS  -  PART TWO  -  WHO DO YOU FOLLOW?	OPPITUNNIT  -  OSA KAKSI  -  KETÄ SEURAAT?
@@ -2212,3 +2212,5 @@ Nine years of live weather. Always click the tab.	Yhdeksän vuotta suoraa säät
 Click its tab, Deck 2. A new playlist waits until you choose it.	Klikkaa sen välilehteä, Deck 2. Uusi soittolista odottaa, kunnes valitset sen.
 The lit tab gets the next cue. Like choosing which slide goes in the projector.	Valaistu välilehti saa seuraavan cuen. Kuin valitsisi, mikä dia menee projektoriin.
 Pick a deck. Any deck. ...Deck 2. Pick Deck 2.	Valitse pakka. Mikä tahansa. ...Deck 2. Valitse Deck 2.
+MENU	VALIKKO
+VOLUME	VOIMAKKUUS

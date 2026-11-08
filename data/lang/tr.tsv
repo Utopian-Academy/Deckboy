@@ -500,7 +500,7 @@ HELLO	MERHABA
 Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me.	Dobar den, skapi. Ben Dr. Piksel. Komşuyuz... uzun bir geçmişimiz var. Neyse. Beş dakika sonra bir şov yöneteceksin. Beni dinlersen daha da az.
 And I'm Professor Video. Synths first, then video. Mostly video now. Press START and we'll patch... we'll begin.	Ben de Profesör Video. Önce synth'ler, sonra video. Artık çoğunlukla video. START'a bas, bağlayalım... yani başlayalım.
 TURN THE OUTPUT ON	ÇIKIŞI AÇ
-Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	Skapi, ekran boş. Onları bekletme. MENU'yü aç ve ÇIKIŞ KAPALI'yı ÇIKIŞ AÇIK yap. Hadi!
+Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	Skapi, ekran boş. Onları bekletme. MENÜ'yü aç ve ÇIKIŞ KAPALI'yı ÇIKIŞ AÇIK yap. Hadi!
 Lesson one: nothing comes out until you patch the oscillator to the... the OUTPUT. It's video. I know.	Birinci ders: osilatörü... şeye, ÇIKIŞA bağlamadan hiçbir şey çıkmaz. Video bu. Biliyorum.
 BRING IN A CLIP	BİR KLİP GETİR
 Now a picture. Press I and pick a clip from your computer. No clip? SHOW ME, and I lend you one of mine.	Şimdi bir görüntü. I'ya bas ve bilgisayarından bir klip seç. Klip yok mu? SHOW ME, ben sana kendiminkilerden birini ödünç veririm.
@@ -522,7 +522,7 @@ Now save. Ctrl+S, or SAVE. Some programs lose your work and then blame you. I wo
 Save your patch. Your SHOW. Show. This practice one lives in Deckboy's own folder; yours is safe.	Patch'ini kaydet. ŞOVUNU yani. Şov. Bu alıştırma şovu Deckboy'un kendi klasöründe duruyor; seninki güvende.
 THAT'S A SHOW	İŞTE BİR ŞOV
 That's a show! Output, cue, TAKE, crossfade, BLACK, save. Nazdrave, skapi. Rakia is on me.	İşte bir şov! Çıkış, cue, TAKE, geçiş, BLACK, kaydet. Nazdrave, skapi. Rakiya benden. Ama gözüm üstünde.
-Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	Ders bitti. Örnek şovlar katmanları, başlıkları ve efektleri öğretir. MENU > LEARN THE BASICS bunu yeniden oynatır.
+Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	Ders bitti. Örnek şovlar katmanları, başlıkları ve efektleri öğretir. MENÜ > LEARN THE BASICS bunu yeniden oynatır.
 *shakes head* That means yes. Bravo.	*başını iki yana sallar* Bu evet demek. Bravo.
 Wonderful! Lovely signal flow.	Harika! Ne güzel bir sinyal akışı.
 Mm. I knew you had it in you.	Hımm. Yapabileceğini biliyordum.
@@ -535,7 +535,7 @@ your show could not be saved, so the lesson has not started. Save it (SAVE AS) a
 the practice show would not open	alıştırma şovu açılmadı
 could not start the practice show	alıştırma şovu başlatılamadı
 learn the basics: Esc leaves, and it picks up here next time	learn the basics: Esc çıkar, bir dahaki sefere buradan devam eder
-that's the basics - MENU > LESSONS has part two	temeller bu kadar - MENU > LESSONS'ta ikinci bölüm var
+that's the basics - MENU > LESSONS has part two	temeller bu kadar - MENÜ > LESSONS'ta ikinci bölüm var
 tour paused - LEARN THE BASICS picks up where you left off	tur duraklatıldı - LEARN THE BASICS kaldığın yerden devam eder
 Mirrored screens, skapi. Press any key or click, and Dr. Pixel gives it back.	Ekranlar yansıtılmış, skapi. Bir tuşa bas ya da tıkla, Dr. Piksel geri verir.
 Wrong screen, skapi. Press any key or click, and Dr. Pixel gives it back.	Yanlış ekran, skapi. Bir tuşa bas ya da tıkla, Dr. Piksel geri verir.
@@ -714,7 +714,7 @@ A lighthouse, a ghost, and a keeper who has been alone with the lamp far too lon
 Projection mapping: bending the picture to fit the building. Warp, blend, slices.	Projeksiyon haritalama: görüntüyü binaya uyacak şekilde bükmek. Warp, harmanlama, dilimler.
 Ye'll be wanting the ghost on the windows. Mind the lamp. The lamp is MINE.	Hayaleti pencerelerde istiyorsunuz, he? Lambaya dikkat. Lamba BENİM.
 THE OUTPUT'S GEOMETRY	ÇIKIŞIN GEOMETRİSİ
-MENU, then Video Outputs, then Geometry. Where an output's shape lives.	MENU, sonra Video çıkışları, sonra Geometri. Bir çıkışın şekli burada yaşar.
+MENU, then Video Outputs, then Geometry. Where an output's shape lives.	MENÜ, sonra Video çıkışları, sonra Geometri. Bir çıkışın şekli burada yaşar.
 Geometry: the projector-menu word for 'what shape is the picture'.	Geometri: projektör menülerinde 'görüntü ne şekilde' demek.
 PIN A CORNER	BİR KÖŞEYİ SABİTLE
 Press warp edit, then drag a corner on the programme monitor. The window is not square. Neither is the keeper.	warp edit'e bas, sonra program monitöründe bir köşeyi sürükle. Pencere kare değil. Fenerci de değil.
@@ -755,7 +755,7 @@ Press the key. The cue fires, wherever the list is standing.	Tuşa bas. Liste ne
 No mouse, no list, no looking. Just the key.	Fare yok, liste yok, bakmak yok. Sadece tuş.
 Buzz! We have a winner!	Dıııt! Bir kazananımız var!
 FROM ANYWHERE	HER YERDEN
-Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion, bir MIDI notası, bir OSC mesajı: MENU, sonra Ağ, her birinin nereye bağlandığını söyler.
+Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion, bir MIDI notası, bir OSC mesajı: MENÜ, sonra Ağ, her birinin nereye bağlandığını söyler.
 A Stream Deck in the next room can press GO. So can a keyboard synth. I prefer the synth.	Yan odadaki bir Stream Deck GO'ya basabilir. Bir klavye synth de. Ben synth'i tercih ederim.
 And for our viewers at home: you can play along too.	Ve evdeki izleyicilerimiz için: siz de oynayabilirsiniz.
 THAT'S OUR SHOW	PROGRAMIMIZ BU KADAR
@@ -808,7 +808,7 @@ Something's loose! Space holds the countdown. The clock shows it is held.	Bir ş
 A hold is not a stop. Space again, and it carries on from where it was.	Duraklatmak durdurmak değildir. Tekrar boşluk, kaldığı yerden devam eder.
 *holds up a spanner*	*bir İngiliz anahtarı kaldırır*
 THE PILOT'S VIEW	PİLOTUN GÖRÜNÜMÜ
-MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	MENU, Video çıkışları: bir çıkışın türünü PRESENTER yap. Sahnedeki kişi zamanlayıcıyı, sonraki cue'yu ve notlarını görür.
+MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	MENÜ, Video çıkışları: bir çıkışın türünü PRESENTER yap. Sahnedeki kişi zamanlayıcıyı, sonraki cue'yu ve notlarını görür.
 A presenter view is an output like any other. Point it at the confidence monitor.	Sunucu görünümü de her çıkış gibi bir çıkış. Onu güven monitörüne yönelt.
 So the pilot can see the time. The pilot is Grommet.	Pilot saati görebilsin diye. Pilot Grommet.
 TO THE MOON	AYA
@@ -849,10 +849,10 @@ AND BACK	VE GERİ
 The fire's out. Press B again: the picture comes back, still running.	Yangın söndü. B'ye tekrar bas: görüntü geri gelir, hâlâ çalıyor.
 Nothing was lost. A mute on a mixer, for pictures.	Hiçbir şey kaybolmadı. Görüntüler için mikser mute'u.
 Ta-da! Still cookin'!	Ta-da! Hâlâ pişiyor!
-Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	Daha kötüsü: MENU, Sistem, SAFETY kartı: PANIC. Panik ayarı ne diyorsa, her şey öyle durur.
+Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	Daha kötüsü: MENÜ, Sistem, SAFETY kartı: PANIC. Panik ayarı ne diyorsa, her şey öyle durur.
 PANIC is the big red button. Use it when BLACK is not enough. Then breathe.	PANIC büyük kırmızı düğme. BLACK yetmediğinde kullan. Sonra nefes al.
 GET IT BACK	GERİ AL
-Close MENU, select the souffle, and TAKE it. The show is back on.	MENU'yü kapat, sufleyi seç ve TAKE yap. Şov yeniden başladı.
+Close MENU, select the souffle, and TAKE it. The show is back on.	MENÜ'yü kapat, sufleyi seç ve TAKE yap. Şov yeniden başladı.
 After a panic, the show is still there. Pick up where you meant to be.	Panikten sonra şov hâlâ orada. Olmak istediğin yerden devam et.
 Voila! De souffle, he is risen!	Voilà! Sufle, kabardı!
 BON APPETIT	AFİYET OLSUN
@@ -916,7 +916,7 @@ Add a second: a bend, like crush. It damages the sound the way a broken file wou
 The bends are my favourite. Like a tape left in the sun. On purpose.	Bend'ler en sevdiklerim. Güneşte unutulmuş bir kaset gibi. Bilerek.
 > HARDER. BETTER. CRUNCHIER. LOUDER.	> DAHA SERT. DAHA İYİ. DAHA ÇITIR. DAHA YÜKSEK.
 THE PATCH	PATCH
-MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	MENU, sonra Ses: her listenin sesinin nereye gittiği ve adlandırılmış çıkışların patch'i.
+MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	MENÜ, sonra Ses: her listenin sesinin nereye gittiği ve adlandırılmış çıkışların patch'i.
 Speakers, monitors, an in-ear for the drummer. The patch sends each its own.	Hoparlörler, monitörler, davulcu için kulak içi. Patch her birine kendininkini yollar.
 > AROUND THE MIX. AROUND THE MIX. AROUND THE MIX.	> MİKSİN ETRAFINDA. MİKSİN ETRAFINDA. MİKSİN ETRAFINDA.
 An effect, a bend and the patch. The robots approve, skapi. I think. Their faces are helmets.	Bir efekt, bir bend ve patch. Robotlar onaylıyor, skapi. Galiba. Yüzleri kask.
@@ -928,11 +928,11 @@ The Bureau again, skapi. A glow on the horizon, and two agents who disagree abou
 The scopes measure a picture: brightness, colour, levels. Numbers, not opinions.	Skoplar bir görüntüyü ölçer: parlaklık, renk, seviyeler. Fikir değil, sayı.
 It's them, Brandt. It's a craft. Look how it glows.	Onlar, Brandt. Bir araç. Nasıl parladığına bak.
 THE REAL SIGNAL	GERÇEK SİNYAL
-The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	Skoplar sadece gerçekten çıkanı okur, asla önizlemeyi değil. Çıkışı aç: MENU, Video çıkışları, ÇIKIŞ KAPALI.
+The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	Skoplar sadece gerçekten çıkanı okur, asla önizlemeyi değil. Çıkışı aç: MENÜ, Video çıkışları, ÇIKIŞ KAPALI.
 Measuring a scaled-down preview would be measuring a photocopy. We measure the original.	Küçültülmüş önizlemeyi ölçmek fotokopi ölçmek olurdu. Biz aslını ölçeriz.
 Chain of evidence, Hollis. The real signal or nothing.	Delil zinciri, Hollis. Ya gerçek sinyal ya hiç.
 THE SCOPES	SKOPLAR
-Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	MENU'yü kapat. Monitörün üstünde PROGRAM düğmesi: SCOPES ya da BOTH yazana kadar bas.
+Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	MENÜ'yü kapat. Monitörün üstünde PROGRAM düğmesi: SCOPES ya da BOTH yazana kadar bas.
 Both shows the picture and its scopes side by side. Very civilised.	BOTH görüntüyü ve skoplarını yan yana gösterir. Çok medeni.
 Let the scopes decide, Hollis.	Bırak skoplar karar versin, Hollis.
 THE WAVEFORM	DALGA FORMU
@@ -955,7 +955,7 @@ OUT OF THE BUILDING	BİNANIN DIŞINA
 Pictures that leave by cable or network, skapi, not only a window on a screen. Press START.	Kabloyla ya da ağla çıkan görüntüler, skapi, sadece ekrandaki bir pencere değil. START'a bas.
 NDI over the network, SDI from a DeckLink card, ST 2110 for broadcast plants.	Ağ üzerinden NDI, bir DeckLink kartından SDI, yayın tesisleri için ST 2110.
 THE DEVICES PAGE	AYGITLAR SAYFASI
-MENU, Video Outputs, then Devices: every way an output can leave this computer.	MENU, Video çıkışları, sonra Aygıtlar: bir çıkışın bu bilgisayardan çıkabileceği her yol.
+MENU, Video Outputs, then Devices: every way an output can leave this computer.	MENÜ, Video çıkışları, sonra Aygıtlar: bir çıkışın bu bilgisayardan çıkabileceği her yol.
 Each one says whether this machine can do it, and what it needs if not.	Her biri bu makinenin yapıp yapamayacağını, yapamazsa neye ihtiyacı olduğunu söyler.
 If this computer has NDI, switch NDI SENDING on: the picture is on the network. If not, SHOW ME moves on.	Bu bilgisayarda NDI varsa NDI SENDING'i aç: görüntü ağda. Yoksa SHOW ME devam eder.
 NDI finds itself on the network. No cables, only a good switch and patience.	NDI ağda kendini bulur. Kablo yok, sadece iyi bir switch ve sabır.
@@ -1002,7 +1002,7 @@ Nearly there. I can feel it in my pixels.	Az kaldı. Piksellerimde hissediyorum.
 You're good at this. I can tell. I'm the one doing it.	Bunda iyisin. Anlıyorum. Yapan benim.
 Every click, I heard. Every single one.	Her tıklamayı duydum. Her birini.
 The glowing one. I can see it from here. It's glowing for you.	Parlayan. Buradan görüyorum. Senin için parlıyor.
-lesson paused - MENU > LESSONS picks up where you left off	ders duraklatıldı - MENU > LESSONS kaldığın yerden devam eder
+lesson paused - MENU > LESSONS picks up where you left off	ders duraklatıldı - MENÜ > LESSONS kaldığın yerden devam eder
 PROF. VIDEO:  The signal: what the picture is made of, and how to bend it. Pick a lesson.	PROF. VIDEO:  Sinyal: görüntü neden yapılır ve nasıl bükülür. Bir ders seç.
 DR. PIXEL:  Running the show, skapi. Fast hands, calm face. Pick a lesson.	DR. PIXEL:  Şovu yönetmek, skapi. Hızlı eller, sakin yüz. Bir ders seç. Ben yine de seni izliyorum.
 LESSONS  -  PART TWO  -  WHO DO YOU FOLLOW?	DERSLER  -  İKİNCİ BÖLÜM  -  KİMİ İZLİYORSUN?
@@ -2212,3 +2212,5 @@ Nine years of live weather. Always click the tab.	Dokuz yıl canlı hava durumu.
 Click its tab, Deck 2. A new playlist waits until you choose it.	Sekmesine tıkla, Deck 2. Yeni liste, sen seçene kadar bekler.
 The lit tab gets the next cue. Like choosing which slide goes in the projector.	Yanan sekme sıradaki cue'yu alır. Projektöre hangi slaytın gireceğini seçmek gibi.
 Pick a deck. Any deck. ...Deck 2. Pick Deck 2.	Bir deste seçin. Herhangi biri. ...Deck 2. Deck 2'yi seçin.
+MENU	MENÜ
+VOLUME	SES

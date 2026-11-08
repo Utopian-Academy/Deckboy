@@ -1012,7 +1012,9 @@
       {
         int volPct = static_cast<int>(std::round(project_.masterVolume * 100.0));
         std::string volText = (faderAreaW > 160)
-          ? "VOLUME " + std::to_string(volPct) + "%"
+          // The word on its own goes through the catalogue: "VOLUME 100%" as a
+          // whole is in no catalogue, so it stayed English in every language.
+          ? deckboy::core::i18n::translate("VOLUME") + " " + std::to_string(volPct) + "%"
           : std::to_string(volPct) + "%";
         int volTextW = 0;
         textSizeShown(fontSmall_, volText.c_str(), 0, &volTextW, nullptr);

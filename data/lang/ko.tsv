@@ -501,7 +501,7 @@ HELLO	안녕
 Dobar den, skapi. I am Dr. Pixel. Five minutes, and you will run a show. Less, if you listen to me.	도바르 덴, 스카피. 나는 픽셀 박사야. 5분이면 쇼를 운영할 수 있어. 내 말을 잘 들으면 더 빨리.
 And I'm Professor Video. Synths first, then video. Mostly video now. Press START and we'll patch... we'll begin.	그리고 나는 비디오 교수. 처음엔 신스, 그다음엔 비디오. 요즘은 거의 비디오지. START를 누르면 패치를... 아니, 시작하지.
 TURN THE OUTPUT ON	출력을 켜
-Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	스카피, 화면이 비어 있어. 관객을 기다리게 하지 마. MENU를 열고 출력 끄기를 출력 켜기로 바꿔. 아이데!
+Skapi, the screen is empty. Don't keep them waiting. Open MENU and make OUTPUT OFF say OUTPUT ON. Aide!	스카피, 화면이 비어 있어. 관객을 기다리게 하지 마. 메뉴를 열고 출력 끄기를 출력 켜기로 바꿔. 아이데!
 Lesson one: nothing comes out until you patch the oscillator to the... the OUTPUT. It's video. I know.	첫 번째 수업: 오실레이터를... 그, 출력에 연결하기 전엔 아무것도 안 나와. 비디오야. 알아.
 BRING IN A CLIP	클립을 가져와
 Now a picture. Press I and pick a clip from your computer. No clip? SHOW ME, and I lend you one of mine.	이제 그림이야. I를 누르고 컴퓨터에서 클립을 골라. 클립이 없어? SHOW ME를 누르면 내 걸 빌려줄게.
@@ -523,7 +523,7 @@ Now save. Ctrl+S, or SAVE. Some programs lose your work and then blame you. I wo
 Save your patch. Your SHOW. Show. This practice one lives in Deckboy's own folder; yours is safe.	패치를 저장해. 아니 쇼를. 쇼. 이 연습용은 Deckboy 자기 폴더에 있어. 네 쇼는 안전해.
 THAT'S A SHOW	이게 쇼야
 That's a show! Output, cue, TAKE, crossfade, BLACK, save. Nazdrave, skapi. Rakia is on me.	이게 쇼야! 출력, 큐, TAKE, 크로스페이드, BLACK, 저장. 나즈드라베, 스카피. 라키야는 내가 쏠게.
-Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	수업 끝. 예제 쇼에서 레이어, 타이틀, 이펙트를 배울 수 있어. MENU > LEARN THE BASICS로 다시 볼 수 있고.
+Class dismissed. The example shows teach layers, titles and effects. MENU > LEARN THE BASICS runs this again.	수업 끝. 예제 쇼에서 레이어, 타이틀, 이펙트를 배울 수 있어. 메뉴 > LEARN THE BASICS로 다시 볼 수 있고.
 *shakes head* That means yes. Bravo.	*고개를 젓는다* 이건 '응'이라는 뜻이야. 브라보.
 Wonderful! Lovely signal flow.	훌륭해! 멋진 신호 흐름이야.
 Mm. I knew you had it in you.	음. 할 수 있을 줄 알았어.
@@ -536,7 +536,7 @@ your show could not be saved, so the lesson has not started. Save it (SAVE AS) a
 the practice show would not open	연습용 쇼가 열리지 않았어요
 could not start the practice show	연습용 쇼를 시작할 수 없어요
 learn the basics: Esc leaves, and it picks up here next time	learn the basics: Esc로 나가면 다음엔 여기서 이어져요
-that's the basics - MENU > LESSONS has part two	기초는 여기까지 - MENU > LESSONS에 2부가 있어요
+that's the basics - MENU > LESSONS has part two	기초는 여기까지 - 메뉴 > LESSONS에 2부가 있어요
 tour paused - LEARN THE BASICS picks up where you left off	투어 일시 정지 - LEARN THE BASICS에서 이어서 계속
 Mirrored screens, skapi. Press any key or click, and Dr. Pixel gives it back.	화면이 미러링돼 있어, 스카피. 아무 키나 누르거나 클릭하면 픽셀 박사가 돌려줄게.
 Wrong screen, skapi. Press any key or click, and Dr. Pixel gives it back.	화면이 틀렸어, 스카피. 아무 키나 누르거나 클릭하면 픽셀 박사가 돌려줄게.
@@ -715,7 +715,7 @@ A lighthouse, a ghost, and a keeper who has been alone with the lamp far too lon
 Projection mapping: bending the picture to fit the building. Warp, blend, slices.	프로젝션 매핑: 건물에 맞게 그림을 구부리는 거야. 워프, 블렌드, 슬라이스.
 Ye'll be wanting the ghost on the windows. Mind the lamp. The lamp is MINE.	유령을 창문에 띄우고 싶은 거지. 램프 조심해. 램프는 '내' 거야.
 THE OUTPUT'S GEOMETRY	출력의 지오메트리
-MENU, then Video Outputs, then Geometry. Where an output's shape lives.	MENU, 그다음 비디오 출력, 그다음 지오메트리. 출력의 모양은 여기 있어.
+MENU, then Video Outputs, then Geometry. Where an output's shape lives.	메뉴, 그다음 비디오 출력, 그다음 지오메트리. 출력의 모양은 여기 있어.
 Geometry: the projector-menu word for 'what shape is the picture'.	지오메트리: 프로젝터 메뉴에서 '그림이 어떤 모양인가'를 뜻하는 말.
 PIN A CORNER	모서리를 고정해
 Press warp edit, then drag a corner on the programme monitor. The window is not square. Neither is the keeper.	warp edit을 누르고 프로그램 모니터에서 모서리를 드래그해. 창문은 네모가 아니야. 등대지기도 네모반듯하지 않고.
@@ -756,7 +756,7 @@ Press the key. The cue fires, wherever the list is standing.	키를 눌러. 리�
 No mouse, no list, no looking. Just the key.	마우스 없이, 리스트 없이, 보지도 않고. 키 하나로.
 Buzz! We have a winner!	딩동댕! 우승자가 나왔습니다!
 FROM ANYWHERE	어디서든
-Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion, MIDI 노트, OSC 메시지: MENU, 그다음 네트워크에서 각각 어디로 연결되는지 알려 줘.
+Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.	Companion, MIDI 노트, OSC 메시지: 메뉴, 그다음 네트워크에서 각각 어디로 연결되는지 알려 줘.
 A Stream Deck in the next room can press GO. So can a keyboard synth. I prefer the synth.	옆방의 Stream Deck으로도 GO를 누를 수 있어. 키보드 신스로도. 나는 신스가 좋아.
 And for our viewers at home: you can play along too.	그리고 댁에 계신 시청자 여러분: 함께 즐기실 수 있습니다.
 THAT'S OUR SHOW	오늘 방송은 여기까지
@@ -809,7 +809,7 @@ Something's loose! Space holds the countdown. The clock shows it is held.	뭔가
 A hold is not a stop. Space again, and it carries on from where it was.	일시 정지는 정지가 아니야. 스페이스를 다시 누르면 멈춘 데서 이어 가.
 *holds up a spanner*	*스패너를 들어 올린다*
 THE PILOT'S VIEW	조종사의 뷰
-MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	MENU, 비디오 출력: 출력 종류를 PRESENTER로. 무대 위 사람은 타이머, 다음 큐, 메모를 보게 돼.
+MENU, Video Outputs: make an output's type PRESENTER. The person on stage gets the timer, the next cue and their notes.	메뉴, 비디오 출력: 출력 종류를 PRESENTER로. 무대 위 사람은 타이머, 다음 큐, 메모를 보게 돼.
 A presenter view is an output like any other. Point it at the confidence monitor.	발표자 뷰도 다른 출력과 똑같은 출력이야. 모니터 스피커 쪽 화면에 연결하면 돼.
 So the pilot can see the time. The pilot is Grommet.	조종사가 시간을 볼 수 있게. 조종사는 그로밋이야.
 TO THE MOON	달로
@@ -851,11 +851,11 @@ AND BACK	그리고 다시
 The fire's out. Press B again: the picture comes back, still running.	불이 꺼졌어. B를 다시 눌러: 그림이 돌아와, 여전히 재생 중.
 Nothing was lost. A mute on a mixer, for pictures.	잃은 건 없어. 그림용 믹서 뮤트야.
 Ta-da! Still cookin'!	짜잔! 아직 요리 중!
-Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	더 나쁠 땐: MENU, 시스템, SAFETY 카드: PANIC. 패닉 설정대로 전부 멈춰.
+Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.	더 나쁠 땐: 메뉴, 시스템, SAFETY 카드: PANIC. 패닉 설정대로 전부 멈춰.
 PANIC is the big red button. Use it when BLACK is not enough. Then breathe.	PANIC은 커다란 빨간 버튼이야. BLACK으로 부족할 때 써. 그리고 숨 쉬어.
 Bork bork BORK!	보크 보크 보크!
 GET IT BACK	되찾기
-Close MENU, select the souffle, and TAKE it. The show is back on.	MENU를 닫고, 수플레를 선택해서 TAKE. 쇼가 다시 시작돼.
+Close MENU, select the souffle, and TAKE it. The show is back on.	메뉴를 닫고, 수플레를 선택해서 TAKE. 쇼가 다시 시작돼.
 After a panic, the show is still there. Pick up where you meant to be.	패닉 뒤에도 쇼는 그대로 있어. 있으려던 곳에서 이어 가.
 Voila! De souffle, he is risen!	부알라! 수플레가 부풀었다!
 BON APPETIT	맛있게 드세요
@@ -919,7 +919,7 @@ Add a second: a bend, like crush. It damages the sound the way a broken file wou
 The bends are my favourite. Like a tape left in the sun. On purpose.	벤드는 내 최애야. 햇볕에 놔둔 테이프처럼. 일부러.
 > HARDER. BETTER. CRUNCHIER. LOUDER.	> 더 세게. 더 좋게. 더 바삭하게. 더 크게.
 THE PATCH	패치
-MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	MENU, 그다음 오디오: 플레이리스트마다 소리가 가는 곳, 그리고 이름 붙은 출력의 패치.
+MENU, then Audio: where each playlist's sound goes, and the patch for named outputs.	메뉴, 그다음 오디오: 플레이리스트마다 소리가 가는 곳, 그리고 이름 붙은 출력의 패치.
 Speakers, monitors, an in-ear for the drummer. The patch sends each its own.	스피커, 모니터, 드러머의 인이어. 패치가 각자에게 자기 걸 보내.
 > AROUND THE MIX. AROUND THE MIX. AROUND THE MIX.	> 믹스 한 바퀴. 믹스 한 바퀴. 믹스 한 바퀴.
 An effect, a bend and the patch. The robots approve, skapi. I think. Their faces are helmets.	이펙트, 벤드, 패치. 로봇들이 인정했어, 스카피. 아마도. 얼굴이 헬멧이라서.
@@ -931,11 +931,11 @@ The Bureau again, skapi. A glow on the horizon, and two agents who disagree abou
 The scopes measure a picture: brightness, colour, levels. Numbers, not opinions.	스코프는 그림을 측정해: 밝기, 색, 레벨. 숫자지, 의견이 아니야.
 It's them, Brandt. It's a craft. Look how it glows.	그들이야, 브랜트. 비행선이야. 저 빛나는 것 좀 봐.
 THE REAL SIGNAL	진짜 신호
-The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	스코프는 실제로 나가는 것만 읽어, 프리뷰는 절대 안 읽어. 출력을 켜: MENU, 비디오 출력, 출력 끄기.
+The scopes read only what really goes out, never a preview. Turn the output on: MENU, Video Outputs, OUTPUT OFF.	스코프는 실제로 나가는 것만 읽어, 프리뷰는 절대 안 읽어. 출력을 켜: 메뉴, 비디오 출력, 출력 끄기.
 Measuring a scaled-down preview would be measuring a photocopy. We measure the original.	축소된 프리뷰를 재는 건 복사본을 재는 거야. 우리는 원본을 재.
 Chain of evidence, Hollis. The real signal or nothing.	증거 보관 연속성이야, 홀리스. 진짜 신호 아니면 아무것도 아니야.
 THE SCOPES	스코프
-Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	MENU를 닫아. 모니터 위 PROGRAM 버튼: SCOPES나 BOTH가 될 때까지 눌러.
+Close MENU. Above the monitor, the PROGRAM button: press it until it says SCOPES or BOTH.	메뉴를 닫아. 모니터 위 PROGRAM 버튼: SCOPES나 BOTH가 될 때까지 눌러.
 Both shows the picture and its scopes side by side. Very civilised.	BOTH는 그림과 스코프를 나란히 보여 줘. 아주 교양 있지.
 Let the scopes decide, Hollis.	스코프가 결정하게 하자, 홀리스.
 THE WAVEFORM	파형
@@ -958,7 +958,7 @@ OUT OF THE BUILDING	건물 밖으로
 Pictures that leave by cable or network, skapi, not only a window on a screen. Press START.	케이블이나 네트워크로 나가는 그림이야, 스카피. 화면 속 창만이 아니라. START를 눌러.
 NDI over the network, SDI from a DeckLink card, ST 2110 for broadcast plants.	네트워크로 NDI, DeckLink 카드로 SDI, 방송 시설용 ST 2110.
 THE DEVICES PAGE	장치 페이지
-MENU, Video Outputs, then Devices: every way an output can leave this computer.	MENU, 비디오 출력, 그다음 장치: 출력이 이 컴퓨터를 떠나는 모든 방법.
+MENU, Video Outputs, then Devices: every way an output can leave this computer.	메뉴, 비디오 출력, 그다음 장치: 출력이 이 컴퓨터를 떠나는 모든 방법.
 Each one says whether this machine can do it, and what it needs if not.	각각 이 기기가 할 수 있는지, 못 하면 뭐가 필요한지 알려 줘.
 If this computer has NDI, switch NDI SENDING on: the picture is on the network. If not, SHOW ME moves on.	이 컴퓨터에 NDI가 있으면 NDI SENDING을 켜: 그림이 네트워크에 올라가. 없으면 SHOW ME가 넘어가.
 NDI finds itself on the network. No cables, only a good switch and patience.	NDI는 네트워크에서 알아서 찾아. 케이블 없이, 좋은 스위치와 인내심만.
@@ -1005,7 +1005,7 @@ Nearly there. I can feel it in my pixels.	거의 다 왔어. 내 픽셀로 느�
 You're good at this. I can tell. I'm the one doing it.	잘하는구나. 알 수 있어. 하는 건 나니까.
 Every click, I heard. Every single one.	클릭 하나하나, 다 들었어. 전부 다.
 The glowing one. I can see it from here. It's glowing for you.	빛나는 거. 여기서도 보여. 너를 위해 빛나고 있어.
-lesson paused - MENU > LESSONS picks up where you left off	수업 일시 정지 - MENU > LESSONS에서 이어서 계속
+lesson paused - MENU > LESSONS picks up where you left off	수업 일시 정지 - 메뉴 > LESSONS에서 이어서 계속
 PROF. VIDEO:  The signal: what the picture is made of, and how to bend it. Pick a lesson.	PROF. VIDEO:  신호: 그림은 무엇으로 만들어지고, 어떻게 구부리는가. 수업을 골라.
 DR. PIXEL:  Running the show, skapi. Fast hands, calm face. Pick a lesson.	DR. PIXEL:  쇼 운영이야, 스카피. 손은 빠르게, 얼굴은 침착하게. 수업을 골라.
 LESSONS  -  PART TWO  -  WHO DO YOU FOLLOW?	수업  -  2부  -  누구를 따라갈래?
@@ -2215,3 +2215,5 @@ Nine years of live weather. Always click the tab.	생방송 날씨 9년. 탭은 
 Click its tab, Deck 2. A new playlist waits until you choose it.	그 탭, Deck 2를 클릭해. 새 플레이리스트는 네가 고를 때까지 기다려.
 The lit tab gets the next cue. Like choosing which slide goes in the projector.	불 켜진 탭이 다음 큐를 받아. 프로젝터에 넣을 슬라이드를 고르는 것처럼.
 Pick a deck. Any deck. ...Deck 2. Pick Deck 2.	덱을 하나 고르세요. 아무거나. ...Deck 2. Deck 2를 고르세요.
+MENU	메뉴
+VOLUME	볼륨

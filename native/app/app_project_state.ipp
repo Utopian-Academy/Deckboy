@@ -3089,12 +3089,25 @@
   // shimmer a little instead of sitting mono.
   // ---------------------------------------------------------------------
   struct DmgNote {
-    int channel;      // 0 = pulse 1, 1 = pulse 2, 2 = noise
-    double freq;      // pulse: pitch Hz; noise: LFSR step rate Hz
+    int channel;      // 0 = pulse 1, 1 = pulse 2, 2 = noise, 3 = wave
+    double freq;      // pulse/wave: pitch Hz; noise: LFSR step rate Hz
     int startMs;
     int durMs;
     double duty;      // pulse only: 0.125 / 0.25 / 0.5 / 0.75
     int vol;          // 0..15, DMG envelope start volume
+    int table = 0;    // wave only: which wavetable (kDmgWaveTables)
+    double slideSemitones = 0.0;   // wave only: glide over the note
+  };
+
+  // THE WAVE CHANNEL'S TABLES: 32 steps of 4 bits, the DMG's wave RAM. Drawn
+  // from the harmonic levels measured in the reference James chose for the
+  // robot DJs ("Dubble Bath (DIY Remix)", 2026-11-07): 1 is the high voice
+  // (smooth, fundamental and second harmonic), 2 the low voice (strongest at
+  // the 4th and 5th harmonics, a vowel colour).
+  static constexpr int kDmgWaveTables[3][32] = {
+    {8, 10, 12, 13, 14, 15, 15, 15, 14, 13, 12, 10, 8, 7, 5, 3, 2, 1, 0, 0, 0, 1, 2, 3, 5, 7, 8, 8, 8, 8, 8, 8},
+    {7, 13, 15, 15, 15, 15, 14, 12, 10, 9, 7, 6, 6, 5, 6, 7, 7, 8, 9, 10, 9, 9, 8, 6, 5, 3, 1, 0, 0, 0, 0, 2},
+    {8, 15, 14, 9, 6, 5, 6, 8, 9, 9, 8, 8, 8, 7, 7, 7, 8, 8, 8, 8, 7, 7, 7, 6, 6, 7, 9, 10, 9, 6, 1, 0},
   };
 
   void queueDmgPattern(const std::vector<DmgNote>& notes, float level = 0.13f) {
@@ -3130,7 +3143,17 @@
         int envSteps = static_cast<int>(env * n.vol);
         double amp = static_cast<double>(envSteps) / 15.0;
         double sample;
-        if (n.channel == 2) {
+        if (n.channel == 3) {
+          // The wave channel: no 4-bit fade, just a clipped gate -- the
+          // chopped syllables are the point.
+          const double f = n.freq * std::pow(2.0, n.slideSemitones * t / 12.0);
+          phase += f / kAudioRate;
+          phase -= std::floor(phase);
+          const int step = std::clamp(static_cast<int>(phase * 32.0), 0, 31);
+          sample = kDmgWaveTables[std::clamp(n.table, 0, 2)][step] / 7.5 - 1.0;
+          const double gate = std::min({1.0, i / (0.004 * kAudioRate), (len - i) / (0.008 * kAudioRate)});
+          amp = gate * n.vol / 15.0;
+        } else if (n.channel == 2) {
           lfsrAcc += n.freq / kAudioRate;
           while (lfsrAcc >= 1.0) {
             lfsrAcc -= 1.0;
@@ -3155,6 +3178,14 @@
       float r = std::clamp(mixR[i] * level, -1.0f, 1.0f);
       pcm[static_cast<size_t>(i) * 2u] = static_cast<std::int16_t>(std::lround(l * 32767.0f));
       pcm[static_cast<size_t>(i) * 2u + 1u] = static_cast<std::int16_t>(std::lround(r * 32767.0f));
+    }
+    // For tests: DECKBOY_UI_SOUND_CAPTURE=<file> appends every pattern, as
+    // 16-bit stereo at kAudioRate, so a voice can be measured as played.
+    if (const char* capture = std::getenv("DECKBOY_UI_SOUND_CAPTURE"); capture && *capture) {
+      if (std::FILE* f = std::fopen(capture, "ab")) {
+        std::fwrite(pcm.data(), sizeof(std::int16_t), pcm.size(), f);
+        std::fclose(f);
+      }
     }
     SDL_PutAudioStreamData(uiAudioStream_, pcm.data(), static_cast<int>(pcm.size() * sizeof(std::int16_t)));
     deckboySetAudioPaused(uiAudioStream_, false);
