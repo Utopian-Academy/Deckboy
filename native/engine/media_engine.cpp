@@ -1273,6 +1273,9 @@ void MediaEngine::finalizeReachedEnd(bool keepVisibleFrame) {
 // This must be called every frame from the main thread (not a decode thread).
 // ---------------------------------------------------------------------------
 void MediaEngine::update() {
+#if DECKBOY_INPROC_DECODE
+  serviceInprocOpen();
+#endif
   // ── RELEASE THE PRIMED DEVICE ─────────────────────────────────────────
   //
   // Here rather than on the audio thread: the audio thread must not touch
@@ -7087,6 +7090,9 @@ size_t MediaEngine::queuedFrames() {
 // Also clears the frame queue and resets capture flags.
 // ---------------------------------------------------------------------------
 void MediaEngine::stopDecoderThreads() {
+#if DECKBOY_INPROC_DECODE
+  cancelInprocOpen();   // an open still running belongs to the decode being stopped
+#endif
   // A mic is a producer like the decoders, and goes with them: on a new
   // take, on stopAll and on the engine's destruction.
   stopMicCapture();
@@ -7368,7 +7374,7 @@ void MediaEngine::startDecoderThreads(const Cue& cue, double mediaStartSeconds, 
   // latency-sensitive open behavior). When the pipeline can't take the file
   // (rotation metadata, undecodable), fall through to the CLI pipe path —
   // the break-glass fallback is automatic.
-  if (!isLiveStream && !inprocDecodeDisabled() &&
+  if (!isLiveStream && !inprocDecodeDisabled() && !forceCliDecodeOnce_ &&
       startInprocDecoders(cue, mediaPath, mediaStartSeconds, cueStartSeconds,
                           decodeW, decodeH, decodeFormat, speed)) {
     return;
@@ -8759,38 +8765,118 @@ bool MediaEngine::startInprocDecoders(const Cue& cue, const std::string& mediaPa
                                       double mediaStartSeconds, double cueStartSeconds,
                                       int decodeW, int decodeH, FramePixelFormat decodeFormat,
                                       double speed) {
-  const bool wantVideo = cue.kind != CueKind::Audio;
-  if (wantVideo) {
-    deckboy::libav::VideoOpenParams videoParams;
-    videoParams.path = mediaPath;
-    videoParams.startSeconds = mediaStartSeconds;
-    videoParams.targetWidth = decodeW;
-    videoParams.targetHeight = decodeH;
-    videoParams.format = decodeFormat;
+  cancelInprocOpen();
+  auto pending = std::make_unique<PendingInprocOpen>();
+  pending->cue = cue;
+  pending->mediaPath = mediaPath;
+  pending->mediaStartSeconds = mediaStartSeconds;
+  pending->cueStartSeconds = cueStartSeconds;
+  pending->decodeW = decodeW;
+  pending->decodeH = decodeH;
+  pending->decodeFormat = decodeFormat;
+  pending->speed = speed;
+  pending->wantVideo = cue.kind != CueKind::Audio;
+  // Everything that reads the engine or the renderer is decided HERE, on the
+  // main thread; the helper thread only opens files.
+  if (pending->wantVideo) {
+    pending->videoParams.path = mediaPath;
+    pending->videoParams.startSeconds = mediaStartSeconds;
+    pending->videoParams.targetWidth = decodeW;
+    pending->videoParams.targetHeight = decodeH;
+    pending->videoParams.format = decodeFormat;
     // Withhold keyframes at decode; also forces software decode (see
     // VideoOpenParams::datamosh).
-    videoParams.datamosh = datamoshActiveForCue(cue);
-    if (decodeFormat == FramePixelFormat::NV12 && decodeDeviceProvider_ && !videoParams.datamosh) {
-      videoParams.d3dDevice = decodeDeviceProvider_();
+    pending->videoParams.datamosh = datamoshActiveForCue(cue);
+    if (decodeFormat == FramePixelFormat::NV12 && decodeDeviceProvider_ && !pending->videoParams.datamosh) {
+      pending->videoParams.d3dDevice = decodeDeviceProvider_();
     }
 #if defined(__linux__)
     // Zero-copy display, when the owner asked for it and this renderer can
     // import a decoder's buffers. Asked once: it queries the GL context.
-    if (zeroCopyImport_ && decodeFormat == FramePixelFormat::NV12 && !videoParams.datamosh) {
+    if (zeroCopyImport_ && decodeFormat == FramePixelFormat::NV12 && !pending->videoParams.datamosh) {
       if (zeroCopyImportCapable_ < 0) {
         const char* why = "";
         zeroCopyImportCapable_ =
           deckboy::engine::DrmPrimeImporter::rendererCanImport(outputRenderer_, &why) ? 1 : 0;
         SDL_Log("zero-copy display: %s (%s)", zeroCopyImportCapable_ == 1 ? "on" : "off", why);
       }
-      videoParams.drmPrime = zeroCopyImportCapable_ == 1;
+      pending->videoParams.drmPrime = zeroCopyImportCapable_ == 1;
     }
 #endif
-    videoPipeline_ = std::make_unique<deckboy::libav::VideoPipeline>();
-    if (!videoPipeline_->open(videoParams)) {
-      videoPipeline_.reset();
-      return false;
-    }
+    pending->video = std::make_unique<deckboy::libav::VideoPipeline>();
+  }
+  if (audioStream_ != nullptr && cue.hasAudio && cue.audioEnabled) {
+    pending->audioParams.sampleRate = audioRate_;
+    pending->audioParams.path = mediaPath;
+    pending->audioParams.startSeconds = mediaStartSeconds;
+    pending->audioParams.speed = speed;
+    pending->audioParams.audioTrack = std::max(0, cue.audioTrack);
+    pending->audio = std::make_unique<deckboy::libav::AudioPipeline>();
+  }
+  PendingInprocOpen* job = pending.get();
+  job->thread = std::thread([job]() {
+    job->videoOk = !job->video || job->video->open(job->videoParams);
+    // No sound is opened for a picture that failed: the cue falls back to the
+    // ffmpeg pipe, which opens both.
+    if (job->videoOk && job->audio) job->audioOk = job->audio->open(job->audioParams);
+    job->done.store(true);
+  });
+  inprocOpen_ = std::move(pending);
+  // The cue is decoding as far as the rest of the engine is concerned: a
+  // PLAY in the meantime must not start a second decode (see play()), and
+  // the stall watchdog counts from now.
+  inprocDecodeActive_ = true;
+  decodersRunning_ = true;
+  decoderEof_ = false;
+  decodeStallLatched_ = false;
+  lastFramePushMs_.store(SDL_GetTicks());
+  return true;
+}
+
+void MediaEngine::cancelInprocOpen() {
+  if (!inprocOpen_) return;
+  if (inprocOpen_->video) inprocOpen_->video->requestStop();
+  if (inprocOpen_->audio) inprocOpen_->audio->requestStop();
+  if (inprocOpen_->thread.joinable()) inprocOpen_->thread.join();
+  inprocOpen_.reset();
+}
+
+void MediaEngine::serviceInprocOpen() {
+  if (!inprocOpen_ || !inprocOpen_->done.load()) return;
+  if (inprocOpen_->thread.joinable()) inprocOpen_->thread.join();
+  std::unique_ptr<PendingInprocOpen> job = std::move(inprocOpen_);
+  if (!job->videoOk) {
+    // The pipeline cannot take this file (rotation, a codec it lacks...):
+    // the ffmpeg pipe, as the synchronous version fell through to.
+    decodersRunning_ = false;
+    inprocDecodeActive_ = false;
+    forceCliDecodeOnce_ = true;
+    startDecoderThreads(job->cue, job->mediaStartSeconds, job->cueStartSeconds);
+    forceCliDecodeOnce_ = false;
+    return;
+  }
+  if (job->audio && (!job->audioOk || audioStream_ == nullptr)) {
+    job->audio.reset();   // finishInprocDecoders says why
+  }
+  finishInprocDecoders(job->cue, job->mediaPath, job->mediaStartSeconds, job->cueStartSeconds,
+                       job->decodeW, job->decodeH, job->decodeFormat, job->speed,
+                       std::move(job->video), std::move(job->audio));
+}
+
+bool MediaEngine::finishInprocDecoders(const Cue& cue, const std::string& mediaPath,
+                                       double mediaStartSeconds, double cueStartSeconds,
+                                       int decodeW, int decodeH, FramePixelFormat decodeFormat,
+                                       double speed,
+                                       std::unique_ptr<deckboy::libav::VideoPipeline> openedVideo,
+                                       std::unique_ptr<deckboy::libav::AudioPipeline> openedAudio) {
+  (void)mediaPath;
+  (void)decodeW;
+  (void)decodeH;
+  (void)decodeFormat;
+  (void)mediaStartSeconds;
+  const bool wantVideo = cue.kind != CueKind::Audio;
+  if (wantVideo) {
+    videoPipeline_ = std::move(openedVideo);
     activeDecodeDevice_ = videoPipeline_->device();
     activeDecodeName_ = videoPipeline_->hardwareDecodeName();
     activeDecodeZeroCopy_ = videoPipeline_->zeroCopyActive();
@@ -8954,15 +9040,8 @@ bool MediaEngine::startInprocDecoders(const Cue& cue, const std::string& mediaPa
     latchAudioStartFailure("no audio device open on this deck");
   }
   if (audioStream_ != nullptr && cue.hasAudio && cue.audioEnabled) {
-    deckboy::libav::AudioOpenParams audioParams;
-    audioParams.sampleRate = audioRate_;
-    audioParams.path = mediaPath;
-    audioParams.startSeconds = mediaStartSeconds;
-    audioParams.speed = speed;
-    audioParams.audioTrack = std::max(0, cue.audioTrack);
-    audioPipeline_ = std::make_unique<deckboy::libav::AudioPipeline>();
-    if (!audioPipeline_->open(audioParams)) {
-      audioPipeline_.reset();
+    audioPipeline_ = std::move(openedAudio);
+    if (!audioPipeline_) {
       // Was a bare "run silent" comment. Silence that explains itself is a
       // fault you can fix; silence that does not is one you argue about.
       latchAudioStartFailure("could not open this file's audio stream");

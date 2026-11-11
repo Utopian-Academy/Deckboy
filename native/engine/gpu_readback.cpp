@@ -811,11 +811,15 @@ void destroyP010(HdrP010Readback* rb) {
   delete rb;
 }
 
-ID3D11ComputeShader* compileHdrP010Shader(ID3D11Device* device) {
+// Compiled once per run, like the scopes' (gpu_scopes.cpp): the bytecode
+// does not depend on the device, and compiling at full optimisation every
+// time an HDR output started held the frame it started in.
+std::vector<char> compileHdrP010Bytecode() {
+  std::vector<char> out;
   static HMODULE compiler = LoadLibraryW(L"d3dcompiler_47.dll");
-  if (!compiler) return nullptr;
+  if (!compiler) return out;
   auto compile = reinterpret_cast<D3DCompileFn>(GetProcAddress(compiler, "D3DCompile"));
-  if (!compile) return nullptr;
+  if (!compile) return out;
   ID3DBlob* code = nullptr;
   ID3DBlob* errors = nullptr;
   constexpr UINT kOptimise = 1u << 15;   // D3DCOMPILE_OPTIMIZATION_LEVEL3
@@ -828,12 +832,20 @@ ID3D11ComputeShader* compileHdrP010Shader(ID3D11Device* device) {
     }
     releaseCom(errors);
     releaseCom(code);
-    return nullptr;
+    return out;
   }
   releaseCom(errors);
-  ID3D11ComputeShader* shader = nullptr;
-  device->CreateComputeShader(code->GetBufferPointer(), code->GetBufferSize(), nullptr, &shader);
+  const char* bytes = static_cast<const char*>(code->GetBufferPointer());
+  out.assign(bytes, bytes + code->GetBufferSize());
   code->Release();
+  return out;
+}
+
+ID3D11ComputeShader* compileHdrP010Shader(ID3D11Device* device) {
+  static const std::vector<char> code = compileHdrP010Bytecode();   // thread-safe static init
+  if (code.empty()) return nullptr;
+  ID3D11ComputeShader* shader = nullptr;
+  device->CreateComputeShader(code.data(), code.size(), nullptr, &shader);
   return shader;
 }
 

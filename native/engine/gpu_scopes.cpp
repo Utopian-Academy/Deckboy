@@ -7,6 +7,10 @@
 #include <cstring>
 #include <deque>
 #include <iostream>
+#include <map>
+#include <mutex>
+#include <string>
+#include <vector>
 
 #ifdef _WIN32
 #include <d3d11.h>
@@ -79,11 +83,25 @@ template <typename T> void releaseCom(T*& p) {
   }
 }
 
-ID3D11ComputeShader* compileScopesShader(ID3D11Device* device, const char* entry) {
+// COMPILED ONCE PER RUN. The HLSL took about 50 ms to compile at full
+// optimisation, and it was compiled every time the scopes opened -- a hitch
+// on the outputs at each SCOPES press (measured 2026-11-11). The bytecode
+// does not depend on the device, so it is kept, and warmGpuScopesShaders
+// compiles it on a background thread at launch. A scopes open that arrives
+// while that is still running waits for it under the lock rather than
+// compiling a second copy.
+std::mutex gScopesCodeLock;
+std::map<std::string, std::vector<char>> gScopesCode;   // empty = did not compile
+
+const std::vector<char>& scopesBytecode(const char* entry) {
+  std::lock_guard<std::mutex> hold(gScopesCodeLock);
+  auto found = gScopesCode.find(entry);
+  if (found != gScopesCode.end()) return found->second;
+  std::vector<char>& out = gScopesCode[entry];
   static HMODULE compiler = LoadLibraryW(L"d3dcompiler_47.dll");
-  if (!compiler) return nullptr;
+  if (!compiler) return out;
   auto compile = reinterpret_cast<D3DCompileFn>(GetProcAddress(compiler, "D3DCompile"));
-  if (!compile) return nullptr;
+  if (!compile) return out;
   ID3DBlob* code = nullptr;
   ID3DBlob* errors = nullptr;
   constexpr UINT kOptimise = 1u << 15;   // D3DCOMPILE_OPTIMIZATION_LEVEL3
@@ -96,12 +114,20 @@ ID3D11ComputeShader* compileScopesShader(ID3D11Device* device, const char* entry
     }
     releaseCom(errors);
     releaseCom(code);
-    return nullptr;
+    return out;
   }
   releaseCom(errors);
-  ID3D11ComputeShader* shader = nullptr;
-  device->CreateComputeShader(code->GetBufferPointer(), code->GetBufferSize(), nullptr, &shader);
+  const char* bytes = static_cast<const char*>(code->GetBufferPointer());
+  out.assign(bytes, bytes + code->GetBufferSize());
   code->Release();
+  return out;
+}
+
+ID3D11ComputeShader* compileScopesShader(ID3D11Device* device, const char* entry) {
+  const std::vector<char>& code = scopesBytecode(entry);
+  if (code.empty()) return nullptr;
+  ID3D11ComputeShader* shader = nullptr;
+  device->CreateComputeShader(code.data(), code.size(), nullptr, &shader);
   return shader;
 }
 
@@ -835,4 +861,13 @@ bool collectGpuScopes(void* handle, GpuScopeCounts& out) {
   return h->d3d11 ? d3d11Collect(h->d3d11, out) : sdlCollect(h->sdl, out);
 }
 
+}  // namespace deckboy::gpu
+
+namespace deckboy::gpu {
+void warmGpuScopesShaders() {
+#ifdef _WIN32
+  scopesBytecode("columnsMain");
+  scopesBytecode("thumbMain");
+#endif
+}
 }  // namespace deckboy::gpu

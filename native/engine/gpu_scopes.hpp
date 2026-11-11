@@ -32,6 +32,10 @@
 
 namespace deckboy::gpu {
 
+// Compile the scopes' shaders now, so the first SCOPES does not. Safe on any
+// thread; the app calls it on a background thread at launch.
+void warmGpuScopesShaders();
+
 // What one analysis hands back: raw counts, unpacked off the render thread
 // by unpackGpuScopes.
 struct GpuScopeCounts {

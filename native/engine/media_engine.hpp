@@ -1083,10 +1083,27 @@ class MediaEngine {
   bool startSrtDecoder(const Cue& cue, const std::string& mediaPath, int decodeW,
                        int decodeH, FramePixelFormat decodeFormat, const char* pixFmt,
                        const std::string& scaleFilter);
+  //
+  // THE FILE IS OPENED OFF THE MAIN THREAD. Opening a video -- the container,
+  // the stream probe, the hardware decoder, and the same again for its sound
+  // -- took 20-45 ms at every TAKE (measured 2026-11-11), and it ran inside
+  // the frame, so every take held the desk and the outputs for that long.
+  // startInprocDecoders now starts the opens on a helper thread and returns;
+  // serviceInprocOpen (update(), every tick) runs finishInprocDecoders once
+  // they are done. The picture waits as it always did for its first frame:
+  // the video prime holds the clock until frames are queued.
   bool startInprocDecoders(const Cue& cue, const std::string& mediaPath,
                            double mediaStartSeconds, double cueStartSeconds,
                            int decodeW, int decodeH, FramePixelFormat decodeFormat,
                            double speed);
+  bool finishInprocDecoders(const Cue& cue, const std::string& mediaPath,
+                            double mediaStartSeconds, double cueStartSeconds,
+                            int decodeW, int decodeH, FramePixelFormat decodeFormat,
+                            double speed,
+                            std::unique_ptr<deckboy::libav::VideoPipeline> openedVideo,
+                            std::unique_ptr<deckboy::libav::AudioPipeline> openedAudio);
+  void serviceInprocOpen();
+  void cancelInprocOpen();
 #endif
   // Shared audio-thread tail: per-sample fade/volume/master gain, waveform
   // tap, queue to the SDL stream, advance the audio clock counters. Used by
@@ -1854,6 +1871,32 @@ class MediaEngine {
 #if DECKBOY_INPROC_DECODE
   std::unique_ptr<deckboy::libav::VideoPipeline> videoPipeline_;
   std::unique_ptr<deckboy::libav::AudioPipeline> audioPipeline_;
+  // An open in progress (see startInprocDecoders). The pipelines are made on
+  // the main thread and opened on `thread`, so a stop can trip their
+  // interrupt and join it.
+  struct PendingInprocOpen {
+    Cue cue;
+    std::string mediaPath;
+    double mediaStartSeconds = 0.0;
+    double cueStartSeconds = 0.0;
+    int decodeW = 0;
+    int decodeH = 0;
+    FramePixelFormat decodeFormat = FramePixelFormat::RGBA32;
+    double speed = 1.0;
+    bool wantVideo = true;
+    std::unique_ptr<deckboy::libav::VideoPipeline> video;
+    std::unique_ptr<deckboy::libav::AudioPipeline> audio;
+    deckboy::libav::VideoOpenParams videoParams;
+    deckboy::libav::AudioOpenParams audioParams;
+    bool videoOk = false;
+    bool audioOk = false;
+    std::atomic<bool> done {false};
+    std::thread thread;
+  };
+  std::unique_ptr<PendingInprocOpen> inprocOpen_;
+  // Set while the fallback runs: the open failed, so this one decode goes
+  // through the ffmpeg pipe instead.
+  bool forceCliDecodeOnce_ = false;
 #endif
   DecodeDeviceProvider decodeDeviceProvider_;
   OutputSizeProvider outputSizeProvider_;
