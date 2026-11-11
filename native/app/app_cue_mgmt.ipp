@@ -5164,10 +5164,45 @@
   // flag meant the first to finish cleared the card while the second was still
   // going -- so the operator watched the progress vanish and the app fall
   // silent for another half minute.
-  int slideRenderJobs_ = 0;
-  std::string slideRenderTitle_;
-  std::atomic<int> slideRenderPage_{0};
-  std::atomic<int> slideRenderTotal_{0};
+  //
+  // ONE RECORD PER IMPORT, shared with its worker. The worker writes the
+  // atomics; the main thread owns the list. CANCEL takes the job off the list
+  // at once, so the card goes the moment it is pressed, and sets `cancel`,
+  // which stops the converter or renderer the worker is waiting on. When the
+  // worker reports back, finishSlideJob finds its job gone and drops the result.
+  enum class SlideJobStage { Reading, Converting, Rendering };
+  struct SlideImportJob {
+    std::string title;
+    Uint64 startedMs = 0;
+    std::atomic<SlideJobStage> stage {SlideJobStage::Converting};
+    std::atomic<int> readPercent {0};
+    std::atomic<int> page {0};
+    std::atomic<int> total {0};
+    std::atomic<bool> cancel {false};
+  };
+  std::vector<std::shared_ptr<SlideImportJob>> slideJobs_;
+  SDL_Rect slideCardCancelRect_ {};
+
+  // False when the job was cancelled: its result must not land.
+  bool finishSlideJob(const std::shared_ptr<SlideImportJob>& job) {
+    const auto it = std::find(slideJobs_.begin(), slideJobs_.end(), job);
+    if (it == slideJobs_.end()) return false;
+    slideJobs_.erase(it);
+    return true;
+  }
+
+  void cancelSlideJobs() {
+    if (slideJobs_.empty()) return;
+    for (const auto& job : slideJobs_) {
+      job->cancel = true;
+      showLog("SLIDES", job->title + ": cancelled by the operator");
+    }
+    const std::size_t count = slideJobs_.size();
+    slideJobs_.clear();
+    slideCardCancelRect_ = {};
+    triggerToast(count == 1 ? std::string("slide import cancelled")
+                            : std::to_string(count) + " slide imports cancelled");
+  }
 
   // ── AN M3U CHANNEL LIST IS A PLAYLIST, NOT A CLIP ────────────────────────
   //
@@ -5342,12 +5377,12 @@
     // nobody can reach says afterwards where it stopped.
     showLog("SLIDES", "import \"" + document.string() + "\"" +
                         (needsConversion ? " (converting to PDF first)" : ""));
-    ++slideRenderJobs_;
-    slideRenderTitle_ = title;
-    slideRenderPage_.store(0, std::memory_order_relaxed);
-    slideRenderTotal_.store(0, std::memory_order_relaxed);
+    auto job = std::make_shared<SlideImportJob>();
+    job->title = title;
+    job->startedMs = SDL_GetTicks();
+    slideJobs_.push_back(job);
 
-    std::thread([this, document, pagesDir, title, needsConversion]() {
+    std::thread([this, job, document, pagesDir, title, needsConversion]() {
       // NOTHING MAY LEAVE THIS THREAD BY EXCEPTION.
       //
       // A std::thread whose function throws calls std::terminate: no crash
@@ -5365,13 +5400,39 @@
       // is the expensive half.
       fs::path source = document;
       std::string converter;
+      // A FILE THAT IS ONLY IN THE CLOUD IS DOWNLOADED FIRST, by reading it.
+      // PowerPoint handed a OneDrive "online only" deck waited a minute and
+      // gave up (E_ABORT, measured 2026-11-11), and Windows' PDF engine stops
+      // answering on one. Reading it here shows the download on the card and
+      // can be cancelled.
+      if (deckboy::platform::documentIsCloudOnly(document)) {
+        job->stage = SlideJobStage::Reading;
+        std::string readError;
+        const bool read = deckboy::platform::readThroughDocument(
+          document,
+          [job](std::uint64_t done, std::uint64_t total) {
+            job->readPercent = total ? static_cast<int>(done * 100 / total) : 0;
+          },
+          &job->cancel, readError);
+        if (!read) {
+          std::lock_guard<std::mutex> lock(sdlDialogMutex_);
+          sdlDialogActions_.emplace_back([this, job, readError, title]() {
+            if (!finishSlideJob(job)) return;
+            showLog("SLIDES", title + ": download failed: " + readError);
+            triggerToast(title + ": " + readError, ToastKind::Warning, kToastReadableMs);
+          });
+          return;
+        }
+        showLog("SLIDES", title + ": downloaded from the cloud");
+      }
+      job->stage = SlideJobStage::Converting;
       if (needsConversion) {
         auto converted =
-          deckboy::platform::convertPresentationToPdf(document, pagesDir);
+          deckboy::platform::convertPresentationToPdf(document, pagesDir, &job->cancel);
         if (!converted.ok()) {
           std::lock_guard<std::mutex> lock(sdlDialogMutex_);
-          sdlDialogActions_.emplace_back([this, converted, title]() {
-            slideRenderJobs_ = std::max(0, slideRenderJobs_ - 1);
+          sdlDialogActions_.emplace_back([this, job, converted, title]() {
+            if (!finishSlideJob(job)) return;
             showLog("SLIDES", title + ": conversion failed: " + converted.error);
             triggerToast(title + ": " + converted.error, ToastKind::Warning, kToastReadableMs);
           });
@@ -5387,11 +5448,13 @@
       // Straight into the atomics the card reads. Called once per page from
       // the render thread, which is why they are atomic and why nothing here
       // touches the renderer.
-      auto onProgress = [this](int page, int total) {
-        slideRenderTotal_.store(total, std::memory_order_relaxed);
-        slideRenderPage_.store(page, std::memory_order_relaxed);
+      job->stage = SlideJobStage::Rendering;
+      auto onProgress = [job](int page, int total) {
+        job->total.store(total, std::memory_order_relaxed);
+        job->page.store(page, std::memory_order_relaxed);
       };
-      auto result = deckboy::platform::rasterisePdf(source, pagesDir, 3840, onProgress);
+      auto result = deckboy::platform::rasterisePdf(source, pagesDir, 3840, onProgress,
+                                                    &job->cancel);
       // Read on this thread, beside the render, so the main thread never
       // touches the disk for it.
       // Against the DOCUMENT THE OPERATOR CHOSE, not against `source` -- which
@@ -5407,9 +5470,9 @@
       const std::vector<deckboy::platform::SlideTransition> slideTransitions =
         slideTransitionsForDocument(document, result.pagePaths.size());
       std::lock_guard<std::mutex> lock(sdlDialogMutex_);
-      sdlDialogActions_.emplace_back([this, result, title, converter, slideNotes,
+      sdlDialogActions_.emplace_back([this, job, result, title, converter, slideNotes,
                                      slideTransitions]() {
-        slideRenderJobs_ = std::max(0, slideRenderJobs_ - 1);
+        if (!finishSlideJob(job)) return;
         showLog("SLIDES", title + ": " + (result.ok()
                   ? std::to_string(result.pagePaths.size()) + " page(s) rendered" +
                       (converter.empty() ? std::string() : ", converted by " + converter)
@@ -5440,16 +5503,16 @@
       } catch (const std::exception& e) {
         const std::string what = e.what();
         std::lock_guard<std::mutex> lock(sdlDialogMutex_);
-        sdlDialogActions_.emplace_back([this, title, what]() {
-          slideRenderJobs_ = std::max(0, slideRenderJobs_ - 1);
+        sdlDialogActions_.emplace_back([this, job, title, what]() {
+          if (!finishSlideJob(job)) return;
           showLog("SLIDES", title + ": failed: " + what);
           triggerToast(title + ": " + what, ToastKind::Warning,
                        kToastReadableMs);
         });
       } catch (...) {
         std::lock_guard<std::mutex> lock(sdlDialogMutex_);
-        sdlDialogActions_.emplace_back([this, title]() {
-          slideRenderJobs_ = std::max(0, slideRenderJobs_ - 1);
+        sdlDialogActions_.emplace_back([this, job, title]() {
+          if (!finishSlideJob(job)) return;
           triggerToast(title + ": slide import failed", ToastKind::Warning, kToastReadableMs);
         });
       }

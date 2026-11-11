@@ -100,6 +100,12 @@
     if (handleCodeEditorClick(x, y)) {
       return;
     }
+    // The slide import card's CANCEL. The card does not block the rest of the
+    // window -- the show goes on around an import -- only its button.
+    if (!slideJobs_.empty() && pointInRect(x, y, slideCardCancelRect_)) {
+      cancelSlideJobs();
+      return;
+    }
     // Bug Swat's handheld takes every click while it is up.
     if (handleBugSwatClick(x, y)) {
       return;
@@ -2060,6 +2066,10 @@
       } else {
         konamiIndex_ = (key == kKonami[0]) ? 1 : 0;
       }
+    }
+    if (!slideJobs_.empty() && key == SDLK_ESCAPE && !keyRepeat) {
+      cancelSlideJobs();
+      return;
     }
     if (keyColorPickerArmed_ && key == SDLK_ESCAPE) {
       keyColorPickerArmed_ = false;

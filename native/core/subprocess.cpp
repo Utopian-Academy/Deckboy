@@ -761,7 +761,8 @@ bool spawnProcess(ChildProcess& process,
 //
 // So the capture is one function now, and readAllText is a thin wrapper that
 // keeps its old contract for the callers that only want the success case.
-ProcessCapture runCaptured(const std::vector<std::string>& args, int timeoutMs) {
+ProcessCapture runCaptured(const std::vector<std::string>& args, int timeoutMs,
+                           const std::atomic<bool>* cancel) {
   ProcessCapture result;
   if (args.empty()) {
     return result;
@@ -782,12 +783,21 @@ ProcessCapture runCaptured(const std::vector<std::string>& args, int timeoutMs) 
   bool watchDone = false;
   bool watchFired = false;
   std::thread watchdog;
-  if (timeoutMs > 0) {
+  if (timeoutMs > 0 || cancel) {
     watchdog = std::thread([&]() {
+      // In tenth-of-a-second slices, so a cancel lands as quickly as a
+      // timeout would. No limit and no cancel never starts this thread.
+      const auto deadline = std::chrono::steady_clock::now() +
+                            std::chrono::milliseconds(timeoutMs > 0 ? timeoutMs : 0);
       std::unique_lock<std::mutex> lock(watchMutex);
-      if (!watchWake.wait_for(lock, std::chrono::milliseconds(timeoutMs), [&] { return watchDone; })) {
-        watchFired = true;
-        proc.killProcessOnly();
+      for (;;) {
+        if (watchWake.wait_for(lock, std::chrono::milliseconds(100), [&] { return watchDone; })) return;
+        const bool cancelled = cancel && cancel->load();
+        if (cancelled || (timeoutMs > 0 && std::chrono::steady_clock::now() >= deadline)) {
+          watchFired = true;
+          proc.killProcessOnly();
+          return;
+        }
       }
     });
   }

@@ -4725,10 +4725,14 @@ class App {
   // the darkest thing in every light theme -- and keep doing it long enough to
   // be reported twice.
   void debugShowSlideRenderCard(int done, int total, std::string title) {
-    slideRenderJobs_ = std::max(1, slideRenderJobs_);
-    slideRenderTitle_ = std::move(title);
-    slideRenderPage_.store(std::max(0, done), std::memory_order_relaxed);
-    slideRenderTotal_.store(std::max(0, total), std::memory_order_relaxed);
+    auto job = std::make_shared<SlideImportJob>();
+    job->title = std::move(title);
+    job->startedMs = SDL_GetTicks();
+    job->stage = SlideJobStage::Rendering;
+    job->page.store(std::max(0, done), std::memory_order_relaxed);
+    job->total.store(std::max(0, total), std::memory_order_relaxed);
+    slideJobs_.clear();
+    slideJobs_.push_back(std::move(job));
   }
 
 

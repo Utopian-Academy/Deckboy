@@ -32,6 +32,8 @@
 #define DECKBOY_PLATFORM_PDF_IMPORT_HPP
 
 #include "core/fs.hpp"
+#include <atomic>
+#include <cstdint>
 #include <functional>
 #include <string>
 #include <vector>
@@ -83,8 +85,22 @@ bool presentationConvertAvailable(std::string& whyNot);
 // Export `source` to a PDF inside `outputDir` and return where it landed.
 // Blocking, and slow enough to matter -- Office can take tens of seconds on a
 // large deck -- so callers run it off the UI thread.
+//
+// `cancel`, when set, stops the converter it is running and returns "cancelled".
 PresentationConversion convertPresentationToPdf(
-  const dbfs::path& source, const dbfs::path& outputDir);
+  const dbfs::path& source, const dbfs::path& outputDir,
+  const std::atomic<bool>* cancel = nullptr);
+
+// A document that lives in the cloud and is not on this machine yet --
+// OneDrive's "available online only". PowerPoint waits about a minute for one
+// and gives up (E_ABORT), so the import downloads it first.
+bool documentIsCloudOnly(const dbfs::path& path);
+
+// Read the whole file once, which is what makes OneDrive (or any sync client)
+// download it. `onProgress(bytesDone, bytesTotal)` is called as it goes.
+bool readThroughDocument(const dbfs::path& path,
+                         const std::function<void(std::uint64_t, std::uint64_t)>& onProgress,
+                         const std::atomic<bool>* cancel, std::string& error);
 
 struct PdfRasterResult {
   std::vector<std::string> pagePaths;   // in page order
@@ -111,7 +127,8 @@ struct PdfRasterResult {
 PdfRasterResult rasterisePdf(const dbfs::path& pdfPath,
                              const dbfs::path& outputDir,
                              int targetWidthPixels,
-                             const std::function<void(int, int)>& onProgress);
+                             const std::function<void(int, int)>& onProgress,
+                             const std::atomic<bool>* cancel = nullptr);
 
 #ifdef _WIN32
 // The Windows rasteriser, run HERE rather than in a child process.

@@ -25,6 +25,9 @@
 #include <winrt/Windows.Storage.h>
 #include <winrt/Windows.Storage.Streams.h>
 #include <winrt/Windows.Data.Pdf.h>
+#ifndef ERROR_CLOUD_FILE_PROVIDER_NOT_RUNNING
+#define ERROR_CLOUD_FILE_PROVIDER_NOT_RUNNING 362L
+#endif
 #elif defined(__APPLE__)
 #include <CoreFoundation/CoreFoundation.h>
 #include <CoreGraphics/CoreGraphics.h>
@@ -124,9 +127,22 @@ fs::path convertedPdfPath(const fs::path& source, const fs::path& outputDir) {
 // ^1" names its fault exactly; losing it turned a five-minute diagnosis into
 // an hour. Output is captured rather than inherited so a converter cannot
 // print over the app's own console.
+// The operator's CANCEL for whatever import is running on this thread. Set for
+// the length of convertPresentationToPdf / rasterisePdf, so every converter
+// they call reaches it without each one growing a parameter.
+thread_local const std::atomic<bool>* tlsCancel = nullptr;
+
+struct CancelScope {
+  const std::atomic<bool>* saved;
+  explicit CancelScope(const std::atomic<bool>* cancel) : saved(tlsCancel) { tlsCancel = cancel; }
+  ~CancelScope() { tlsCancel = saved; }
+};
+
+bool cancelRequested() { return tlsCancel && tlsCancel->load(); }
+
 bool runQuietly(const std::vector<std::string>& args, std::string& output, int timeoutMs = 0,
                 bool* timedOut = nullptr) {
-  ProcessCapture captured = runCaptured(args, timeoutMs);
+  ProcessCapture captured = runCaptured(args, timeoutMs, tlsCancel);
   output = captured.output;
   if (timedOut) *timedOut = captured.timedOut;
   return captured.ok();
@@ -241,6 +257,10 @@ bool convertWithLibreOffice(const fs::path& soffice, const fs::path& source,
     soffice.string(), profileUrl, "--headless", "--norestore",
     "--convert-to", "pdf:impress_pdf_Export",
     "--outdir", outputDir.string(), source.string()}, output, kConvertTimeoutMs, &timedOut);
+  if (cancelRequested()) {
+    error = "cancelled";
+    return false;
+  }
   if (timedOut) {
     error = std::string("LibreOffice ") + kConvertTimeoutAdvice;
     return false;
@@ -291,6 +311,9 @@ bool convertWithPowerPoint(const fs::path& source, const fs::path& outputDir,
         << "$app=$null; $pres=$null\n"
         << "try {\n"
         << "  $app = New-Object -ComObject PowerPoint.Application\n"
+        // No alert boxes: under COM there is no window to show them in, so
+        // one would hold the export until the time limit.
+        << "  try { $app.DisplayAlerts = 1 } catch {}\n"
         // ReadOnly, not Untitled, and no window: the operator's own copy of
         // PowerPoint may be open on this very file during a show.
         << "  $pres = $app.Presentations.Open($Source, -1, 0, 0)\n"
@@ -314,7 +337,10 @@ bool convertWithPowerPoint(const fs::path& source, const fs::path& outputDir,
         << "  exit 1\n"
         << "} finally {\n"
         << "  if ($pres) { try { $pres.Close() } catch {} }\n"
-        << "  if ($app) { try { $app.Quit() } catch {} }\n"
+        // PowerPoint runs ONE copy. If the operator already had it open,
+        // New-Object handed us their copy, and Quit would close their decks.
+        // Quit only a PowerPoint that has nothing else open.
+        << "  if ($app) { try { if ($app.Presentations.Count -eq 0) { $app.Quit() } } catch {} }\n"
         << "}\n";
   }
   std::error_code ec;
@@ -336,6 +362,10 @@ bool convertWithPowerPoint(const fs::path& source, const fs::path& outputDir,
               "-Source", sourceNative.string(),
               "-Target", targetNative.string()}, output, kConvertTimeoutMs, &timedOut);
   fs::remove(script, ec);
+  if (cancelRequested()) {
+    error = "cancelled";
+    return false;
+  }
   if (timedOut) {
     error = std::string("PowerPoint ") + kConvertTimeoutAdvice;
     return false;
@@ -344,6 +374,15 @@ bool convertWithPowerPoint(const fs::path& source, const fs::path& outputDir,
     // PowerPoint's own words are more use than ours: it is the thing that
     // knows the file could not be opened, or that the deck is protected.
     const std::string said = toolMessage(output);
+    // E_ABORT is PowerPoint giving up on opening the file. Measured
+    // 2026-11-11 on a OneDrive deck that was only in the cloud: it waited
+    // about a minute for the download and then answered this.
+    if (said.find("0x80004004") != std::string::npos) {
+      error = "PowerPoint could not open the file (it gave up waiting for it). "
+              "If it is in OneDrive, right-click it and choose Always keep on "
+              "this device, then import it again";
+      return false;
+    }
     error = said.empty()
       ? std::string("PowerPoint could not export this file")
       : ("PowerPoint: " + said);
@@ -354,7 +393,16 @@ bool convertWithPowerPoint(const fs::path& source, const fs::path& outputDir,
 
 // The registered path for the executable, which is how Windows itself finds
 // it; a hard-coded Office16 path goes stale with every version.
+bool havePowerPointUncached();
+
+// Asked on the UI thread when an import starts, and the lookup starts
+// PowerShell (about half a second): answered once per run.
 bool havePowerPoint() {
+  static const bool found = havePowerPointUncached();
+  return found;
+}
+
+bool havePowerPointUncached() {
   std::string output;
   runQuietly({"powershell", "-NoProfile", "-NonInteractive", "-Command",
               "(Get-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\"
@@ -461,6 +509,86 @@ bool convertWithPowerPointMac(const fs::path& source, const fs::path& outputDir,
 }  // namespace
 #endif
 
+bool readThroughDocument(const fs::path& path,
+                         const std::function<void(std::uint64_t, std::uint64_t)>& onProgress,
+                         const std::atomic<bool>* cancel, std::string& error) {
+  std::error_code ec;
+  const std::uint64_t total = fs::file_size(path, ec);
+  if (ec) {
+    error = "cannot read the file: if it lives in OneDrive or iCloud, "
+            "open it once so it downloads, then import it";
+    return false;
+  }
+  std::vector<char> buffer(1 << 20);
+  std::uint64_t done = 0;
+#ifdef _WIN32
+  // Win32 rather than a stream, for the reason a read fails: a stream says
+  // only that it did, and the operator needs to know WHICH cloud problem it is.
+  HANDLE file = CreateFileW(path.wstring().c_str(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE,
+                            nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN, nullptr);
+  DWORD failure = file == INVALID_HANDLE_VALUE ? GetLastError() : ERROR_SUCCESS;
+  while (failure == ERROR_SUCCESS && done < total) {
+    if (cancel && cancel->load()) {
+      CloseHandle(file);
+      error = "cancelled";
+      return false;
+    }
+    DWORD got = 0;
+    if (!ReadFile(file, buffer.data(), static_cast<DWORD>(buffer.size()), &got, nullptr)) {
+      failure = GetLastError();
+      break;
+    }
+    if (got == 0) break;
+    done += got;
+    if (onProgress) onProgress(done, total);
+  }
+  if (file != INVALID_HANDLE_VALUE) CloseHandle(file);
+  if (failure == ERROR_CLOUD_FILE_PROVIDER_NOT_RUNNING) {
+    error = "this file is only in OneDrive, and OneDrive is not running. Start OneDrive, "
+            "or copy the file to this computer, then import it again";
+    return false;
+  }
+  if (failure != ERROR_SUCCESS) {
+    error = "could not download " + path.filename().string() + " (Windows error " +
+            std::to_string(failure) + "). Copy it to this computer and import it again";
+    return false;
+  }
+#else
+  std::ifstream in(path, std::ios::binary);
+  if (!in) {
+    error = "cannot open " + path.filename().string();
+    return false;
+  }
+  while (in) {
+    if (cancel && cancel->load()) {
+      error = "cancelled";
+      return false;
+    }
+    in.read(buffer.data(), static_cast<std::streamsize>(buffer.size()));
+    done += static_cast<std::uint64_t>(in.gcount());
+    if (onProgress) onProgress(done, total);
+  }
+#endif
+  if (done < total) {
+    error = "could not read all of " + path.filename().string() +
+            " (is it still downloading?)";
+    return false;
+  }
+  return true;
+}
+
+bool documentIsCloudOnly(const fs::path& path) {
+#ifdef _WIN32
+  const DWORD attributes = GetFileAttributesW(path.wstring().c_str());
+  if (attributes == INVALID_FILE_ATTRIBUTES) return false;
+  return (attributes & (FILE_ATTRIBUTE_RECALL_ON_DATA_ACCESS | FILE_ATTRIBUTE_RECALL_ON_OPEN |
+                        FILE_ATTRIBUTE_OFFLINE)) != 0;
+#else
+  (void)path;
+  return false;
+#endif
+}
+
 bool presentationConvertAvailable(std::string& whyNot) {
 #ifdef _WIN32
   if (havePowerPoint() || !findLibreOffice().empty()) {
@@ -488,7 +616,9 @@ bool presentationConvertAvailable(std::string& whyNot) {
 }
 
 PresentationConversion convertPresentationToPdf(const fs::path& source,
-                                                const fs::path& outputDir) {
+                                                const fs::path& outputDir,
+                                                const std::atomic<bool>* cancel) {
+  CancelScope cancelScope(cancel);
   PresentationConversion result;
   std::error_code ec;
   if (!fs::exists(source, ec)) {
@@ -754,7 +884,9 @@ PdfRasterResult rasterisePdfInProcess(const fs::path& pdfPath, const fs::path& o
 // COM call that does not return.
 PdfRasterResult rasterisePdf(const fs::path& pdfPath, const fs::path& outputDir,
                              int targetWidthPixels,
-                             const std::function<void(int, int)>& onProgress) {
+                             const std::function<void(int, int)>& onProgress,
+                             const std::atomic<bool>* cancel) {
+  CancelScope cancelScope(cancel);
   PdfRasterResult result;
   std::error_code ec;
   fs::create_directories(outputDir, ec);
@@ -796,11 +928,17 @@ PdfRasterResult rasterisePdf(const fs::path& pdfPath, const fs::path& outputDir,
   std::atomic<bool> readerDone {false};
   std::atomic<bool> killedSilent {false};
   std::thread watchdog([&]() {
+    // Not the thread CancelScope set, so it carries its own copy.
+    CancelScope watchdogCancel(cancel);
     constexpr long long kSilenceMs = 90 * 1000;
     while (!readerDone.load()) {
       std::this_thread::sleep_for(std::chrono::milliseconds(250));
       const long long now = std::chrono::duration_cast<std::chrono::milliseconds>(
         std::chrono::steady_clock::now().time_since_epoch()).count();
+      if (!readerDone.load() && cancelRequested()) {
+        child.killProcessOnly();
+        return;
+      }
       if (!readerDone.load() && now - lastHeardMs.load() > kSilenceMs) {
         killedSilent = true;
         child.killProcessOnly();
@@ -852,7 +990,10 @@ PdfRasterResult rasterisePdf(const fs::path& pdfPath, const fs::path& outputDir,
   watchdog.join();
   child.stop();
 
-  if (killedSilent) {
+  if (cancel && cancel->load()) {
+    result.pagePaths.clear();
+    result.error = "cancelled";
+  } else if (killedSilent) {
     result.pagePaths.clear();
     result.error = pageCount > 0
       ? "the PDF renderer stopped answering after " + std::to_string(pageCount) +
@@ -877,7 +1018,9 @@ bool pdfRasterAvailable(std::string& whyNot) {
 
 PdfRasterResult rasterisePdf(const fs::path& pdfPath, const fs::path& outputDir,
                              int targetWidthPixels,
-                             const std::function<void(int, int)>& onProgress) {
+                             const std::function<void(int, int)>& onProgress,
+                             const std::atomic<bool>* cancel) {
+  CancelScope cancelScope(cancel);
   PdfRasterResult result;
   std::error_code ec;
   fs::create_directories(outputDir, ec);
@@ -904,6 +1047,11 @@ PdfRasterResult rasterisePdf(const fs::path& pdfPath, const fs::path& outputDir,
   }
   CGColorSpaceRef space = CGColorSpaceCreateDeviceRGB();
   for (size_t i = 0; i < pageCount; ++i) {
+    if (cancelRequested()) {
+      result.pagePaths.clear();
+      result.error = "cancelled";
+      break;
+    }
     if (onProgress) {
       onProgress(static_cast<int>(i), static_cast<int>(pageCount));
     }
@@ -1015,7 +1163,9 @@ bool pdfRasterAvailable(std::string& whyNot) {
 
 PdfRasterResult rasterisePdf(const fs::path& pdfPath, const fs::path& outputDir,
                              int targetWidthPixels,
-                             const std::function<void(int, int)>& onProgress) {
+                             const std::function<void(int, int)>& onProgress,
+                             const std::atomic<bool>* cancel) {
+  CancelScope cancelScope(cancel);
   PdfRasterResult result;
   std::string whyNot;
   if (!pdfRasterAvailable(whyNot)) {
@@ -1052,7 +1202,11 @@ PdfRasterResult rasterisePdf(const fs::path& pdfPath, const fs::path& outputDir,
     "-cropbox", "-scale-dimension-before-rotation",
     "-scale-to-x", std::to_string(std::max(1, targetWidthPixels)),
     "-scale-to-y", "-1",
-    pdfPath.string(), prefix.string()}, 10 * 60 * 1000);
+    pdfPath.string(), prefix.string()}, 10 * 60 * 1000, cancel);
+  if (cancel && cancel->load()) {
+    result.error = "cancelled";
+    return result;
+  }
   if (run.timedOut) {
     result.error = "pdftoppm stopped answering on " + pdfPath.filename().string();
     return result;

@@ -3305,14 +3305,25 @@
   }
 
   void renderSlideRenderCard(int windowWidth, int windowHeight) {
-    if (slideRenderJobs_ <= 0) {
+    if (slideJobs_.empty()) {
+      slideCardCancelRect_ = {};
       return;
     }
-    const int done = slideRenderPage_.load(std::memory_order_relaxed);
-    const int total = slideRenderTotal_.load(std::memory_order_relaxed);
+    // DECKBOY_TEST_CANCEL_SLIDES_MS=<n>: press CANCEL n ms into the job, for
+    // a scripted check that a cancel stops the converter (no input reaches
+    // a hidden window).
+    static const char* testCancel = std::getenv("DECKBOY_TEST_CANCEL_SLIDES_MS");
+    if (testCancel && std::atoi(testCancel) > 0 && SDL_GetTicks() - slideJobs_.front()->startedMs >
+                        static_cast<Uint64>(std::atoi(testCancel))) {
+      cancelSlideJobs();
+      return;
+    }
+    const SlideImportJob& job = *slideJobs_.front();
+    const int done = job.page.load(std::memory_order_relaxed);
+    const int total = job.total.load(std::memory_order_relaxed);
 
-    const int cardW = std::min(uiScaled(360), std::max(uiScaled(220), windowWidth - uiScaled(80)));
-    const int cardH = uiScaled(112);
+    const int cardW = std::min(uiScaled(380), std::max(uiScaled(240), windowWidth - uiScaled(80)));
+    const int cardH = uiScaled(140);
     SDL_Rect card {(windowWidth - cardW) / 2, (windowHeight - cardH) / 2, cardW, cardH};
     Primitives::drawFramedPanel(controlRenderer_, card, pal.shellInner, pal.shellShadow, pal.mid);
 
@@ -3321,28 +3332,43 @@
     const SDL_Rect critterLane {card.x + uiScaled(12), card.y + uiScaled(8),
                                card.w - uiScaled(24), uiScaled(34)};
     markBusy("slide-render", nullptr, critterLane);
-    // Counting pages only once the renderer has reported one: before that the
-    // honest thing to say is that the converter is still running, because it
-    // is, and a "0 of 0" would look stuck.
+    // WHAT IS HAPPENING AND FOR HOW LONG. A converter waiting on something
+    // looks the same as one working; the seconds counting up are what tell
+    // the operator the app has not frozen, and CANCEL is what they do about it.
+    const int seconds = static_cast<int>((SDL_GetTicks() - job.startedMs) / 1000);
     std::string tip;
-    if (total > 0) {
-      tip = "rendering slide " + std::to_string(std::min(done + 1, total)) +
-            " of " + std::to_string(total);
-    } else {
-      tip = slideRenderTitle_.empty() ? std::string("converting the deck...")
-                                      : ("converting " + slideRenderTitle_ + "...");
+    switch (job.stage.load()) {
+      case SlideJobStage::Reading:
+        tip = deckboy::core::i18n::format("downloading {1}... {2}%", {job.title, std::to_string(job.readPercent.load())});
+        break;
+      case SlideJobStage::Converting:
+        tip = deckboy::core::i18n::format("converting {1}...", {job.title});
+        break;
+      case SlideJobStage::Rendering:
+        tip = total > 0
+          ? deckboy::core::i18n::format("rendering slide {1} of {2}", {std::to_string(std::min(done + 1, total)),
+                                                       std::to_string(total)})
+          : deckboy::core::i18n::format("converting {1}...", {job.title});
+        break;
     }
-    if (slideRenderJobs_ > 1) {
-      tip += "  (" + std::to_string(slideRenderJobs_) + " decks)";
+    tip += "  " + std::to_string(seconds / 60) + ":" + (seconds % 60 < 10 ? "0" : "") +
+           std::to_string(seconds % 60);
+    if (slideJobs_.size() > 1) {
+      tip += "  " + deckboy::core::i18n::format("({1} decks)", {std::to_string(slideJobs_.size())});
     }
     const SDL_Rect caption {card.x + uiScaled(12), card.y + uiScaled(44),
                             card.w - uiScaled(24), uiScaled(20)};
     drawCenteredTextSafe(controlRenderer_, fontSmall_, caption, tip, pal.fg);
 
-    // Taller than the old bar by the hop room the landing card needs.
-    const SDL_Rect bar {card.x + uiScaled(20), card.y + cardH - uiScaled(34),
+    const SDL_Rect bar {card.x + uiScaled(20), card.y + uiScaled(70),
                         card.w - uiScaled(40), uiScaled(18)};
     drawSlideProgressRow(bar, animationNow_, done, total);
+
+    const int buttonW = uiScaled(96);
+    slideCardCancelRect_ = {card.x + (card.w - buttonW) / 2, card.y + cardH - uiScaled(38),
+                            buttonW, uiScaled(28)};
+    drawUIPanel(slideCardCancelRect_, pal.mid, pal.deep, pal.light);
+    drawCenteredTextSafe(controlRenderer_, fontSmall_, slideCardCancelRect_, "CANCEL", pal.deep);
   }
 
   // INSTALL & RESTART's card, from the frame the press lands until the window

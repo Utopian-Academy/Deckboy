@@ -33,6 +33,7 @@
 
 #pragma once
 
+#include <atomic>
 #include <optional>
 #include <string>
 #include <vector>
@@ -261,7 +262,11 @@ struct ProcessCapture {
 // timedOut. A converter that waits on a prompt nobody can see (PowerPoint
 // asking about Protected View, under COM, with no window) otherwise holds its
 // caller for ever -- which is what a slide import stuck on loading was.
-ProcessCapture runCaptured(const std::vector<std::string>& args, int timeoutMs = 0);
+//
+// `cancel`, when given and set, stops the child the same way, within a tenth
+// of a second: the operator's CANCEL on a slide import reaches the converter.
+ProcessCapture runCaptured(const std::vector<std::string>& args, int timeoutMs = 0,
+                           const std::atomic<bool>* cancel = nullptr);
 
 // Execute command, capture all stdout+stderr, wait for exit.
 // Returns std::nullopt on failure or non-zero exit code -- so a caller that
