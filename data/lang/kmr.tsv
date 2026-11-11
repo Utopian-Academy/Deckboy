@@ -2343,3 +2343,235 @@ It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts 
 Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	Du ekran, skapi. Mase li ser vê dimîne, wêne diçe ser ya din: {1}. MENÛ veke û bike ku DERKETIN GIRTÎ bibe DERKETIN VEKIRÎ.
 It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	Mase xwar, skapi. Ekranên neynikî wêne li ser herduyan nîşan didin, loma min ew xist paceyeke biçûk, li paş. {1}, û ew dibe xwediyê ekraneke xwe.
 Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	Ekranên te neynikî ne, skapi: {1} tiştê ku ev nîşan dide nîşan dide, loma wêne dê li ser herduyan masê bigire. {2}, û ez wêne dixim ser ekraneke xwe. An jî MENÛ veke û bike ku DERKETIN GIRTÎ bibe DERKETIN VEKIRÎ.
++now	+niha
+CROP	BIRÎN
+Move	Tevger
+NEW 1	NÛ 1
+SELECT	HILBIJÊRE
+key on	bişkok çalak
+lfo on	lfo çalak
+hold on	bigire çalak
+key off	bişkok girtî
+lfo off	lfo girtî
+loop on	dubare çalak
+mesh on	mesh çalak
+ndi off	ndi girtî
+pan set	pan diyar bike
+hold off	bigire girtî
+loop off	dubare girtî
+mask off	maske girtî
+mesh off	mesh girtî
+new show	pêşandana nû
+no pages	rûpel tune
+warp off	warp girtî
+(default)	(pêşdanasîn)
+canvas on	kanvas çalak
+matte off	matte girtî
+notes set	têbînî hatin diyarkirin
+pin reset	pin hate vegerandin
+splash on	Ekrana destpêkê çalak
+tc jam on	tc hevdemkirin çalak
+tc run on	tc meşandin çalak
+timer set	demjimêr hate diyarkirin
+wiggle on	wiggle çalak
+VJ mode on	moda VJ çalak
+big screen	ekrana mezin
+canvas off	kanvas girtî
+cue loaded	cue hate barkirin
+display on	ekran çalak
+overlay on	serdan çalak
+scene live	dîmen zindî
+shuffle on	têkel çalak
+speaker up	hoparlor jor
+splash off	Ekrana destpêkê girtî
+tc jam off	tc hevdemkirin girtî
+tc run off	tc meşandin girtî
+timer held	demjimêr hatiye girtin
+trim reset	trim hate vegerandin
+vj mode on	moda VJ çalak
+warp reset	warp hate vegerandin
+wiggle off	wiggle girtî
+({1} decks)	({1} deck)
+4-bit steps	gavên 4-bit
+DATAMOSH on	DATAMOSH ÇALAK
+VJ mode off	moda VJ girtî
+blackout ON	reşkirin çalak
+blend reset	tevlihev hat vegerandin
+captions on	binnivîs çalak
+cue deleted	cue hat jêbirin
+display off	dîmen girtî
+driver held	ajokar hatiye girtin
+id: cleared	id: hat paqijkirin
+jumped to -	çû -
+monitor off	çavdêr girtî
+overlay off	serdan girtî
+path closed	rê hat girtin
+phrases set	hevok hatin danîn
+pip cleared	PIP hat paqijkirin
+point added	xal hat zêdekirin
+row deleted	rêz hat jêbirin
+seconds, 0-	çirke, 0-
+shuffle off	têkel bike girtî
+source live	çavkanî zindî
+sprites off	sprite girtî
+tc chase on	tc chase çalak
+timer reset	demjimêr hat vegerandin
+vj mode off	moda vj girtî
+all decks go	hemû deck dest pê dikin
+big screen @	ekrana mezin @
+blackout off	reşkirin girtî
+browser live	gerok zindî
+captions off	binnivîs girtî
+clip cleared	klîp hat paqijkirin
+datamosh off	datamosh girtî
+find cleared	lêgerîn hat paqijkirin
+hands-on off	hands-on girtî
+key+fill off	key+fill girtî
+multiview on	multiview çalak
+not watching	nayê dişopandin
+path removed	rê hat rakirin
+pip attached	PIP hat girêdan
+scene loaded	dîmen hat barkirin
+speaker down	speaker jêr
+subtitles on	binnivîs çalak
+tc chase off	tc chase girtî
+text mode on	moda nivîsê çalak
+trim cleared	trim hat paqijkirin
+beast mode on	moda cinawir çalak
+creatures off	zindî girtî
+cue reordered	cue ji nû ve hat rêzkirin
+dmx cue added	cue ya dmx hat zêdekirin
+hover tips on	şîretên ser çalak
+lfo runs free	lfo azad dimeşe
+lower sub set	lower sub hat diyarkirin
+mask inverted	maske hat berevajîkirin
+multiview off	multiview girtî
+no expression	îfade tune
+pip cue added	cue ya pip hat zêdekirin
+point removed	xal hat jêbirin
+source loaded	çavkanî hat barkirin
+stream failed	weşan têk çû
+subtitles off	binnivîs girtî
+system cursor	kursora pergalê
+tc trigger on	tc pêxistin çalak
+text mode off	moda nivîsê girtî
+timer running	demjimêr dixebite
+video dip off	video dip girtî
+view: invalid	nêrîn: nederbasdar
+warp grid off	tora warp girtî
+1-90 (percent)	1-90 (sedî)
+DRAW FPS: 1-60	XÊZ BIKE FPS: 1-60
+TCCUE: no deck	TCCUE: tu deck tune
+all decks play	hemû deck dibilîzin
+aspect link on	girêdana aspektê çalak
+atem tally off	tally ya ATEM girtî
+beast mode off	moda cinawir girtî
+browser parked	gerok hat sekinandin
+button deleted	bişkok hat jêbirin
+button removed	bişkok hat rakirin
+driver running	ajokar dixebite
+expression set	hevok hat danîn
+fade cue added	cue ya hêdîbûnê hat zêdekirin
+hotkey cleared	kurteriya klavyeyê hat paqijkirin
+hover tips off	şîretên ser girtî
+invalid number	hejmara nederbasdar
+lower text set	nivîsa jêrîn hat danîn
+mic fading out	mîkrofon hêdî derdikeve
+midi cue added	cue ya midi hat zêdekirin
+nothing broken	tiştek nehatiye şikandin
+overlay popped	serdan hat rakirin
+periodic noise	xişexişa demkî
+pip source set	çavkaniya pip hat danîn
+sequence ended	rêze qediya
+sequence loops	rêze dizivire
+stop when done	dema TEMAM bû rawestîne
+stream stopped	weşan rawestiya
+stream url set	url ya weşanê hat danîn
+tally: enabled	tally: çalak
+tc trigger off	pêxistina tc girtî
+timer logo set	logoya demjimêrê hat danîn
+, fetched once)	, carekê hat anîn)
+DMXCUE: no deck	DMXCUE: deck tune
+MATRIX: no deck	MATRIX: deck tune
+MIDI fires cues	MIDI cue dide destpêkirin
+MSC id: invalid	MSC id: nederbasdar
+NETCUE: no deck	NETCUE: deck tune
+all decks fired	hemû deck hatin destpêkirin
+animation saved	anîmasyon hat tomarkirin
+aspect link off	girêdana aspektê girtî
+audio input off	têketina dengê girtî
+canvas mode off	moda kanvasê girtî
+canvas: invalid	kanvas: nederbasdar
+cue audio: mono	cue deng: mono
+cue jumped live	cue çû zindî
+glitch text set	nivîsa glitch hate diyarkirin
+markers cleared	nîşan hatin paqijkirin
+miami cursor on	nîşanderê miami çalak
+ndi unavailable	ndi peyda nabe
+no marker ahead	li pêş nîşan tune
+nothing to redo	tiştek tune ku dubare bibe
+nothing to undo	tiştek tune ku vegere
+on every output	li ser her derketinê
+overlay cleared	serdan hate paqijkirin
+phrases cleared	hevok hatin paqijkirin
+preload cleared	pêşbarkirin hate paqijkirin
+progress bar on	darika pêşveçûnê çalak
+raster: invalid	raster: nederbasdar
+standby cleared	li bendê hate paqijkirin
+tally: disabled	tally: neçalak
+tc mark cleared	nîşana tc hate paqijkirin
+tempo is tapped	tempo hate tapkirin
+time overlay on	serdana demê çalak
+DMX over Art-Net	DMX li ser Art-Net
+MIDICUE: no deck	MIDICUE: deck tune
+TEXTCUE: no deck	TEXTCUE: deck tune
+all decks paused	hemû deck sekinî
+aoi: full raster	aoi: raster a tije
+browser loading…	gerok tê barkirin…
+driver free-runs	driver serbixwe dixebite
+driver restarted	driver ji nû ve dest pê kir
+find: empty deck	bibîne: deck vala
+in point cleared	xala ketinê hate paqijkirin
+leave it running	bila bixebite
+little bloops on	bloopên piçûk çalak
+ltc fps: invalid	ltc fps: nederbasdar
+mic not recorded	mîkrofon nehat tomarkirin
+no marker behind	li paş nîşan tune
+no plugins found	tu plugin nehat dîtin
+off every output	hemû derketin girtî
+phone haptics on	lerizîna têlefonê çalak
+playlist loop on	dubarekirina lîsteya lêxistinê çalak
+progress bar off	darika pêşketinê girtî
+refresh: invalid	nûkirin: nederbasdar
+schedule cleared	bernameya demê hat paqijkirin
+script cue added	cue ya skrîptê hat zêdekirin
+sequence stopped	rêze rawestiyayî
+stream cue added	cue ya weşanê hat zêdekirin
+target cue added	cue ya armancê hat zêdekirin
+time overlay off	serdana demê girtî
+warp/blend reset	warp/tevlihev hat vegerandin
+' is not a number	' ne jimar e
+MIDIFILE: no deck	MIDIFILE: deck tune
+RECORDING STOPPED	QEYDKIRIN RAWESTIYA
+all decks stopped	hemû deck rawestiyayî
+at the first step	li gava yekem
+browser refreshed	gerok hat nûkirin
+conversion failed	veguhertin têk çû
+converting {1}...	{1} tê veguhertin...
+cue fade: invalid	hêdîbûna cue: nederbasdar
+fullscreen failed	ekrana tijî têk çû
+hotkey: cancelled	bişkoja kurt: hat betalkirin
+invalid key color	rengê bişkokê nederbasdar
+little bloops off	bloopên biçûk girtî
+live captions off	binnivîsên zindî girtî
+lock to screen on	bi ekranê ve girê bide çalak
+mask not inverted	maske ne berevajî ye
+motion driver set	ajokerê tevgerê hat diyarkirin
+ndi sender failed	şandkera NDI têk çû
+network cue added	cue ya torê hat zêdekirin
+no cue to jump to	cue tune ye ji bo bazdanê
+out point cleared	xala derketinê hat paqijkirin
+output overlay on	serdana derketinê çalak
+phone haptics off	lerizîna têlefonê girtî
+pick a deck first	pêşî deck hilbijêre
+playlist loop off	dubarekirina lîsteya lêxistinê girtî

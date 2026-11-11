@@ -2362,3 +2362,258 @@ It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts 
 Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	شاشتان، skapi. تبقى الطاولة على هذه، والصورة تذهب إلى الأخرى: {1}. افتح القائمة واجعل الخرج متوقف يصبح الخرج يعمل.
 It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	أكل الطاولة، skapi. الشاشات المنعكسة تعرض الصورة على كلتيهما، لذا وضعتها في نافذة صغيرة في الخلف. {1}، وستحصل على شاشة خاصة بها.
 Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	شاشاتك منعكسة، skapi: {1} تعرض ما تعرضه هذه، لذا ستغطي الصورة الطاولة على كلتيهما. {2}، وسأضع الصورة على شاشة خاصة بها. أو افتح القائمة واجعل الخرج متوقف يصبح الخرج يعمل.
++now	+الآن
+CROP	قص
+Move	تحريك
+NEW 1	جديد 1
+SELECT	اختيار
+key on	مفتاح تشغيل
+lfo on	lfo تشغيل
+hold on	تثبيت تشغيل
+key off	مفتاح إيقاف
+lfo off	lfo إيقاف
+loop on	تكرار تشغيل
+mesh on	شبكة تشغيل
+ndi off	ndi إيقاف
+pan set	توازن تعيين
+hold off	تثبيت إيقاف
+loop off	تكرار إيقاف
+mask off	قناع إيقاف
+mesh off	شبكة إيقاف
+new show	عرض جديد
+no pages	لا صفحات
+warp off	التشويه: إيقاف
+(default)	(افتراضي)
+LOWERTEXT	نص سفلي
+canvas on	اللوحة: تشغيل
+matte off	القناع: إيقاف
+notes set	تم تعيين الملاحظات
+pin reset	إعادة ضبط PIN
+splash on	شاشة البداية: تشغيل
+tc jam on	مزامنة TC: تشغيل
+tc run on	تنفيذ TC: تشغيل
+timer set	تم تعيين المؤقّت
+wiggle on	اهتزاز: تشغيل
+VJ mode on	وضع VJ: تشغيل
+big screen	شاشة كبيرة
+canvas off	اللوحة: متوقفة
+cue loaded	حُمّل الكيو
+display on	الشاشة: تشغيل
+overlay on	التراكب: تشغيل
+scene live	المشهد مباشر
+shuffle on	عشوائي: تشغيل
+speaker up	مكبّر الصوت أعلى
+splash off	شاشة البداية: إيقاف
+tc jam off	مزامنة TC: إيقاف
+tc run off	تنفيذ TC: إيقاف
+timer held	المؤقّت مُثبَّت
+trim reset	إعادة ضبط القص
+vj mode on	وضع VJ: تشغيل
+warp reset	إعادة ضبط التشويه
+wiggle off	اهتزاز: إيقاف
+({1} decks)	({1} لوحات)
+4-bit steps	خطوات 4 بت
+DATAMOSH on	DATAMOSH: تشغيل
+VJ mode off	وضع VJ متوقف
+blackout ON	التعتيم يعمل
+blend reset	أُعيد ضبط المزج
+captions on	الترجمة تعمل
+cue deleted	حُذف cue
+display off	العرض متوقف
+driver held	المشغّل مُثبَّت
+id: cleared	id: أُزيل
+jumped to -	انتقال إلى -
+monitor off	المراقب متوقف
+overlay off	الطبقة متوقفة
+path closed	أُغلق المسار
+phrases set	عُيّنت العبارات
+pip cleared	أُزيل PIP
+point added	أُضيفت نقطة
+row deleted	حُذف الصف
+seconds, 0-	ثوانٍ، 0-
+shuffle off	العشوائي متوقف
+source live	المصدر مباشر
+sprites off	السبرايت متوقفة
+tc chase on	تعقّب TC يعمل
+timer reset	أُعيد ضبط المؤقّت
+vj mode off	وضع VJ متوقف
+all decks go	كل القوائم تنطلق
+big screen @	الشاشة الكبيرة @
+blackout off	التعتيم متوقف
+browser live	المتصفح مباشر
+captions off	الترجمة متوقفة
+clip cleared	أُزيل المقطع
+datamosh off	Datamosh متوقف
+find cleared	أُزيل البحث
+hands-on off	الوضع اليدوي متوقف
+key+fill off	KEY+FILL متوقف
+multiview on	Multiview يعمل
+not watching	لا يراقب
+path removed	أُزيل المسار
+pip attached	أُرفق PIP
+scene loaded	تم تحميل المشهد
+speaker down	السماعة أسفل
+st2110 8-bit	st2110 8 بت
+subtitles on	الترجمة تشغيل
+tc chase off	تتبع tc إيقاف
+text mode on	وضع النص تشغيل
+trim cleared	تم مسح القص
+beast mode on	وضع الوحش تشغيل
+creatures off	مخلوقات إيقاف
+cue reordered	أُعيد ترتيب الكيو
+dmx cue added	أُضيف cue لـ DMX
+hover tips on	تلميحات تشغيل
+lfo runs free	lfo تشغيل حر
+lower sub set	تم تعيين الفرعي السفلي
+mask inverted	القناع مقلوب
+multiview off	multiview إيقاف
+no expression	لا تعبير
+pip cue added	أُضيف cue لـ PIP
+point removed	أُزيلت النقطة
+source loaded	تم تحميل المصدر
+st2110 10-bit	st2110 10 بت
+stream failed	فشل البث
+subtitles off	الترجمة إيقاف
+system cursor	مؤشر النظام
+tc trigger on	إطلاق tc تشغيل
+text mode off	وضع النص إيقاف
+timer running	المؤقّت يعمل
+video dip off	غمس الفيديو: لا
+view: invalid	العرض: غير صالح
+warp grid off	شبكة التشويه إيقاف
+1-90 (percent)	1-90 (بالمئة)
+DRAW FPS: 1-60	FPS الرسم: 1-60
+TCCUE: no deck	TCCUE: لا ديك
+all decks play	كل الديكات تعزف
+aspect link on	ربط النسبة: تشغيل
+atem tally off	Tally من ATEM: إيقاف
+beast mode off	وضع الوحش: إيقاف
+browser parked	المتصفح مُعلَّق
+button deleted	حُذف الزر
+button removed	أُزيل الزر
+driver running	برنامج التشغيل يعمل
+expression set	تم تعيين التعبير
+fade cue added	أُضيف cue للتلاشي
+hotkey cleared	مُسح الاختصار
+hover tips off	تلميحات: إيقاف
+invalid number	رقم غير صالح
+lower text set	تم تعيين النص السفلي
+mic fading out	الميكروفون يخفت
+midi cue added	أُضيف cue لـ MIDI
+nothing broken	لا شيء معطّل
+overlay popped	أُزيلت الطبقة
+periodic noise	ضوضاء دورية
+pip source set	تم تعيين مصدر PIP
+sequence ended	انتهى التسلسل
+sequence loops	التسلسل يتكرر
+stop when done	إيقاف عند الانتهاء
+stream stopped	توقّف البث
+stream url set	تم تعيين عنوان البث
+tally: enabled	Tally: تشغيل
+tc trigger off	إطلاق TC: إيقاف
+timer logo set	تم تعيين شعار المؤقّت
+, fetched once)	، جُلب مرة واحدة)
+DMXCUE: no deck	DMXCUE: لا ديك
+MATRIX: no deck	MATRIX: لا ديك
+MIDI fires cues	MIDI أطلق الكيوهات
+MSC id: invalid	معرّف MSC: غير صالح
+NETCUE: no deck	NETCUE: لا ديك
+all decks fired	أُطلقت كل الديكات
+animation saved	حُفظت الحركة
+aspect link off	ربط النسبة: إيقاف
+audio input off	مدخل الصوت: إيقاف
+canvas mode off	وضع اللوحة: إيقاف
+canvas: invalid	اللوحة: غير صالح
+cue audio: mono	صوت الكيو: أحادي
+cue jumped live	انتقل الكيو إلى الهواء
+glitch text set	تم تعيين نص الغليتش
+markers cleared	تم مسح العلامات
+miami cursor on	مؤشر ميامي: تشغيل
+ndi unavailable	NDI غير متاح
+no marker ahead	لا توجد علامة لاحقة
+nothing to redo	لا شيء لإعادة التنفيذ
+nothing to undo	لا شيء للتراجع عنه
+on every output	على كل خرج
+overlay cleared	تمت إزالة الطبقة
+phrases cleared	تم مسح العبارات
+preload cleared	تم مسح التحميل المسبق
+progress bar on	شريط التقدم: تشغيل
+raster: invalid	الراستر: غير صالح
+standby cleared	تم مسح الاستعداد
+tally: disabled	Tally: معطّل
+tc mark cleared	تم مسح علامة TC
+tempo is tapped	تم ضبط الإيقاع بالنقر
+time overlay on	طبقة الوقت: تشغيل
+DMX over Art-Net	DMX عبر Art-Net
+MIDICUE: no deck	MIDICUE: لا ديك
+TEXTCUE: no deck	TEXTCUE: لا ديك
+all decks paused	كل الديكات متوقفة مؤقتًا
+aoi: full raster	AOI: راستر كامل
+browser loading…	جارٍ تحميل المتصفح…
+driver free-runs	المشغّل يعمل بحرية
+driver restarted	أُعيد تشغيل المشغّل
+find: empty deck	بحث: ديك فارغ
+in point cleared	تم مسح نقطة البداية
+leave it running	اتركه يعمل
+little bloops on	أصوات بلوب الصغيرة: تشغيل
+ltc fps: invalid	معدل إطارات LTC: غير صالح
+mic not recorded	لم يُسجَّل الميكروفون
+no marker behind	لا توجد علامة سابقة
+no plugins found	لا توجد إضافات
+off every output	إيقاف كل خرج
+phone haptics on	ارتعاش الهاتف: تشغيل
+playlist loop on	تكرار قائمة التشغيل: تشغيل
+progress bar off	شريط التقدم: إيقاف
+refresh: invalid	التحديث: غير صالح
+schedule cleared	تم مسح الجدول
+script cue added	أُضيف كيو برنامج نصي
+sequence stopped	توقف التسلسل
+stream cue added	أُضيف كيو بث
+target cue added	أُضيف كيو هدف
+time overlay off	تراكب الوقت: إيقاف
+warp/blend reset	أُعيد ضبط التشويه/المزج
+' is not a number	' ليس رقماً
+MIDIFILE: no deck	MIDIFILE: لا يوجد ديك
+RECORDING STOPPED	التسجيل متوقف
+all decks stopped	توقفت كل الديكات
+at the first step	عند الخطوة الأولى
+browser refreshed	حُدّث المتصفح
+conversion failed	فشل التحويل
+converting {1}...	جارٍ تحويل {1}...
+cue fade: invalid	تلاشي الكيو: غير صالح
+fullscreen failed	فشل ملء الشاشة
+hotkey: cancelled	المفتاح السريع: أُلغي
+invalid key color	لون المفتاح غير صالح
+little bloops off	أصوات صغيرة: إيقاف
+live captions off	ترجمة حية: إيقاف
+lock to screen on	قفل على الشاشة: تشغيل
+mask not inverted	القناع غير معكوس
+motion driver set	تم تعيين محرّك الحركة
+ndi sender failed	فشل مُرسل NDI
+network cue added	أُضيف كيو الشبكة
+no cue to jump to	لا يوجد كيو للانتقال إليه
+out point cleared	تم مسح نقطة الخروج
+output overlay on	تراكب الخرج: تشغيل
+phone haptics off	ارتعاش الهاتف: إيقاف
+pick a deck first	اختر ديك أولاً
+playlist loop off	تكرار قائمة التشغيل: إيقاف
+record folder set	تم تعيين مجلد التسجيل
+subtitle file set	تم تعيين ملف العنوان الفرعي
+subtitles cleared	تم مسح العناوين الفرعية
+take the mask off	إزالة القناع
+universe: 0-63999	يونيفرس: 0-63999
+video synth added	تمت إضافة مركّب فيديو
+warp preset saved	تم حفظ إعداد التشويه المسبق
+AUDIOALSO: no deck	AUDIOALSO: لا ديك
+DeckLink 10-bit ON	DeckLink 10 بت: تشغيل
+SCRIPTCUE: no deck	SCRIPTCUE: لا ديك
+assign route first	عيّن المسار أولاً
+bundle save failed	فشل حفظ الحزمة
+cue settings reset	تمت إعادة ضبط إعدادات الكيو
+file dialog failed	فشل مربع حوار الملف
+jumped to live cue	تم الانتقال إلى الكيو الذي على الهواء
+lock to screen off	قفل على الشاشة: إيقاف
+media probe failed	فشل فحص الوسائط
+nmos: invalid port	NMOS: منفذ غير صالح
+output overlay off	تراكب الخرج متوقف
+pip target cleared	تم مسح هدف PIP

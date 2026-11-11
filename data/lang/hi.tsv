@@ -2350,3 +2350,237 @@ It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts 
 Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	दो स्क्रीन, skapi. डेस्क इसी पर रहता है, चित्र दूसरी वाली पर जाता है: {1}। मेनू खोलो और आउटपुट बंद को आउटपुट चालू कर दो।
 It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	ये डेस्क खा गया, skapi. मिरर की हुई स्क्रीन दोनों पर चित्र दिखाती हैं, इसलिए मैंने इसे पीछे एक छोटी विंडो में रख दिया। {1}, और इसे अपनी अलग स्क्रीन मिल जाएगी।
 Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	तुम्हारी स्क्रीन मिरर हैं, skapi: {1} वही दिखाती है जो ये दिखाती है, इसलिए चित्र दोनों पर डेस्क को ढक देगा। {2}, और चित्र अपनी अलग स्क्रीन पर चला जाएगा। या मेनू खोलो और आउटपुट बंद को आउटपुट चालू कर दो।
++now	+अभी
+CROP	क्रॉप
+Move	ले जाएँ
+NEW 1	नया 1
+SELECT	चुनें
+key on	कुंजी चालू
+lfo on	lfo चालू
+hold on	रोकें चालू
+key off	कुंजी बंद
+lfo off	lfo बंद
+loop on	लूप चालू
+mesh on	mesh चालू
+ndi off	ndi बंद
+pan set	पैन तय करें
+hold off	रोकें बंद
+loop off	लूप बंद
+mask off	मास्क बंद
+mesh off	mesh बंद
+new show	नया शो
+no pages	कोई पेज नहीं
+warp off	विकृत बंद
+(default)	(डिफ़ॉल्ट)
+canvas on	कैनवास चालू
+matte off	मैट बंद
+notes set	नोट्स तय
+pin reset	पिन रीसेट
+splash on	आरंभ स्क्रीन चालू
+tc jam on	tc सिंक चालू
+tc run on	tc चलाएँ चालू
+timer set	टाइमर तय
+wiggle on	हिलना चालू
+VJ mode on	VJ मोड चालू
+big screen	बड़ी स्क्रीन
+canvas off	कैनवास बंद
+cue loaded	क्यू लोड हुआ
+display on	डिस्प्ले चालू
+overlay on	ओवरले चालू
+scene live	दृश्य लाइव
+shuffle on	यादृच्छिक चालू
+speaker up	स्पीकर ऊपर
+splash off	आरंभ स्क्रीन बंद
+tc jam off	tc सिंक बंद
+tc run off	tc चलाएँ बंद
+timer held	टाइमर रोका गया
+trim reset	ट्रिम रीसेट
+vj mode on	VJ मोड चालू
+warp reset	विकृत रीसेट
+wiggle off	हिलना बंद
+({1} decks)	({1} डेक)
+4-bit steps	4-बिट स्टेप
+DATAMOSH on	DATAMOSH चालू
+VJ mode off	VJ मोड बंद
+blackout ON	काला चालू
+blend reset	मिश्रण रीसेट
+captions on	कैप्शन चालू
+cue deleted	क्यू हटाया गया
+display off	डिस्प्ले बंद
+driver held	ड्राइवर रोका गया
+id: cleared	id: साफ़ किया
+jumped to -	- पर गया
+monitor off	मॉनिटर बंद
+overlay off	ओवरले बंद
+path closed	पथ बंद किया
+phrases set	वाक्यांश तय किए
+pip cleared	PIP हटाया
+point added	बिंदु जोड़ा
+row deleted	पंक्ति हटाई
+seconds, 0-	सेकंड, 0-
+shuffle off	यादृच्छिक बंद
+source live	स्रोत लाइव
+sprites off	स्प्राइट बंद
+tc chase on	tc चेज़ चालू
+timer reset	टाइमर रीसेट
+vj mode off	vj मोड बंद
+all decks go	सभी playlist चलाएँ
+big screen @	बड़ी स्क्रीन @
+blackout off	काला बंद
+browser live	ब्राउज़र लाइव
+captions off	कैप्शन बंद
+clip cleared	क्लिप हटाई
+datamosh off	datamosh बंद
+find cleared	खोज साफ़ की
+hands-on off	hands-on बंद
+key+fill off	key+fill बंद
+multiview on	मल्टीव्यू चालू
+not watching	देख नहीं रहा
+path removed	पथ हटाया
+pip attached	PIP जोड़ा गया
+scene loaded	दृश्य लोड हुआ
+speaker down	स्पीकर नीचे
+st2110 8-bit	st2110 8-बिट
+subtitles on	उपशीर्षक चालू
+tc chase off	tc चेज़ बंद
+text mode on	टेक्स्ट मोड चालू
+trim cleared	ट्रिम साफ़ किया
+beast mode on	बीस्ट मोड चालू
+creatures off	जीव बंद
+cue reordered	cue का क्रम बदला
+dmx cue added	DMX cue जोड़ा
+hover tips on	संकेत चालू
+lfo runs free	lfo स्वतंत्र चल रहा है
+lower sub set	निचला उपशीर्षक तय
+mask inverted	मास्क उलटा
+multiview off	मल्टीव्यू बंद
+no expression	कोई एक्सप्रेशन नहीं
+pip cue added	PIP cue जोड़ा
+point removed	बिंदु हटाया
+source loaded	स्रोत लोड हुआ
+st2110 10-bit	st2110 10-बिट
+stream failed	स्ट्रीम विफल
+subtitles off	उपशीर्षक बंद
+system cursor	सिस्टम कर्सर
+tc trigger on	tc ट्रिगर चालू
+text mode off	टेक्स्ट मोड बंद
+timer running	टाइमर चल रहा है
+video dip off	video dip: नहीं
+view: invalid	व्यू: अमान्य
+warp grid off	विकृत ग्रिड बंद
+1-90 (percent)	1-90 (प्रतिशत)
+DRAW FPS: 1-60	चित्रकारी FPS: 1-60
+TCCUE: no deck	TCCUE: कोई डेक नहीं
+all decks play	सभी डेक बजाएँ
+aspect link on	आस्पेक्ट लिंक चालू
+atem tally off	ATEM टैली बंद
+beast mode off	बीस्ट मोड बंद
+browser parked	ब्राउज़र पार्क किया
+button deleted	बटन मिटाया गया
+button removed	बटन हटाया गया
+driver running	ड्राइवर चल रहा है
+expression set	एक्सप्रेशन तय
+fade cue added	फ़ेड क्यू जोड़ा
+hotkey cleared	हॉटकी साफ़ की
+hover tips off	संकेत बंद
+invalid number	अमान्य संख्या
+lower text set	लोअर टेक्स्ट तय
+mic fading out	माइक फ़ेड-आउट हो रहा है
+midi cue added	MIDI क्यू जोड़ा
+nothing broken	कुछ नहीं टूटा
+overlay popped	ओवरले हटाया
+periodic noise	आवधिक नॉइज़
+pip source set	PIP स्रोत तय
+sequence ended	अनुक्रम समाप्त
+sequence loops	अनुक्रम लूप होता है
+stop when done	पूर्ण होने पर रोकें
+stream stopped	स्ट्रीम रुकी
+stream url set	स्ट्रीम URL तय
+tally: enabled	टैली: चालू
+tc trigger off	TC ट्रिगर बंद
+timer logo set	टाइमर लोगो तय
+, fetched once)	, एक बार लाया गया)
+DMXCUE: no deck	DMXCUE: कोई डेक नहीं
+MATRIX: no deck	MATRIX: कोई डेक नहीं
+MIDI fires cues	MIDI क्यू चलाता है
+MSC id: invalid	MSC id: अमान्य
+NETCUE: no deck	NETCUE: कोई डेक नहीं
+all decks fired	सभी डेक चलाए गए
+animation saved	एनिमेशन सहेजा गया
+aspect link off	आस्पेक्ट लिंक बंद
+audio input off	ऑडियो इनपुट बंद
+canvas mode off	कैनवास मोड बंद
+canvas: invalid	कैनवास: अमान्य
+cue audio: mono	क्यू ऑडियो: मोनो
+cue jumped live	क्यू लाइव पर कूदा
+glitch text set	glitch टेक्स्ट तय
+markers cleared	मार्कर हटाए गए
+miami cursor on	Miami कर्सर चालू
+ndi unavailable	NDI उपलब्ध नहीं
+no marker ahead	आगे कोई मार्कर नहीं
+nothing to redo	दोबारा करने को कुछ नहीं
+nothing to undo	पूर्ववत करने को कुछ नहीं
+on every output	हर आउटपुट पर
+overlay cleared	ओवरले हटाया गया
+phrases cleared	वाक्यांश हटाए गए
+preload cleared	प्रीलोड हटाया गया
+progress bar on	प्रगति पट्टी चालू
+raster: invalid	रास्टर: अमान्य
+standby cleared	तैयार हटाया गया
+tally: disabled	tally: बंद
+tc mark cleared	tc मार्क हटाया गया
+tempo is tapped	टेम्पो टैप हुआ
+time overlay on	समय ओवरले चालू
+DMX over Art-Net	Art-Net पर DMX
+MIDICUE: no deck	MIDICUE: कोई डेक नहीं
+TEXTCUE: no deck	TEXTCUE: कोई डेक नहीं
+all decks paused	सभी डेक ठहरे
+aoi: full raster	aoi: पूर्ण रास्टर
+browser loading…	ब्राउज़र लोड हो रहा है…
+driver free-runs	ड्राइवर स्वतंत्र चल रहा है
+driver restarted	ड्राइवर फिर शुरू हुआ
+find: empty deck	खोज: खाली डेक
+in point cleared	इन-पॉइंट हटाया गया
+leave it running	चलने दो
+little bloops on	छोटे ब्लूप चालू
+ltc fps: invalid	ltc fps: अमान्य
+mic not recorded	माइक रिकॉर्ड नहीं हुआ
+no marker behind	पीछे कोई मार्कर नहीं
+no plugins found	कोई प्लगइन नहीं मिला
+off every output	हर आउटपुट बंद
+phone haptics on	फ़ोन कंपन चालू
+playlist loop on	प्लेलिस्ट लूप चालू
+progress bar off	प्रगति पट्टी बंद
+refresh: invalid	रीफ़्रेश: अमान्य
+schedule cleared	शेड्यूल साफ़ किया
+script cue added	स्क्रिप्ट क्यू जोड़ा
+sequence stopped	अनुक्रम रुका
+stream cue added	स्ट्रीम क्यू जोड़ा
+target cue added	लक्ष्य क्यू जोड़ा
+time overlay off	समय ओवरले बंद
+warp/blend reset	विकृत/मिश्रण रीसेट
+' is not a number	' संख्या नहीं है
+MIDIFILE: no deck	MIDIFILE: कोई डेक नहीं
+RECORDING STOPPED	रिकॉर्डिंग रुकी
+all decks stopped	सभी डेक रुके
+at the first step	पहले चरण पर
+browser refreshed	ब्राउज़र रीफ़्रेश हुआ
+conversion failed	रूपांतरण विफल
+converting {1}...	{1} बदल रहा है...
+cue fade: invalid	क्यू फेड: अमान्य
+fullscreen failed	पूर्ण स्क्रीन विफल
+hotkey: cancelled	हॉटकी: रद्द
+invalid key color	अमान्य कुंजी रंग
+little bloops off	छोटे ब्लूप बंद
+live captions off	लाइव कैप्शन बंद
+lock to screen on	स्क्रीन पर लॉक चालू
+mask not inverted	मास्क उलटा नहीं
+motion driver set	गति ड्राइवर तय
+ndi sender failed	NDI भेजने वाला विफल
+network cue added	नेटवर्क क्यू जोड़ा
+no cue to jump to	कूदने के लिए कोई क्यू नहीं
+out point cleared	आउट पॉइंट साफ़ किया
+output overlay on	आउटपुट ओवरले चालू
+phone haptics off	फ़ोन कंपन बंद
+pick a deck first	पहले डेक चुनें
+playlist loop off	प्लेलिस्ट लूप बंद

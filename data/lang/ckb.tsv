@@ -2351,3 +2351,256 @@ It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts 
 Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	دوو شاشە، skapi. مێز لەسەر ئەمە دەمێنێتەوە، وێنە دەچێتە سەر ئەوی تر: {1}. مێنیو بکەرەوە و دەرچوون داخراو بکە بە دەرچوون کراوە.
 It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	مێزەکەی خوارد، skapi. شاشە ئاوێنەییەکان وێنە لەسەر هەردووکیان نیشان دەدەن، بۆیە خستمە ناو پەنجەرەیەکی بچووک، لە پشتەوە. {1}، و شاشەیەکی خۆی دەبێت.
 Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	شاشەکانت ئاوێنەیین، skapi: {1} هەمان ئەوە نیشان دەدات کە ئەمە نیشانی دەدات، بۆیە وێنە مێز لەسەر هەردووکیان دادەپۆشێت. {2}، و وێنە دەخەمە سەر شاشەیەکی خۆی. یان مێنیو بکەرەوە و دەرچوون داخراو بکە بە دەرچوون کراوە.
++now	+ئێستا
+CROP	بڕین
+Move	جوڵاندن
+NEW 1	نوێ 1
+SELECT	هەڵبژاردن
+key on	کلیل هەڵکراو
+lfo on	lfo هەڵکراو
+hold on	ڕاگرتن هەڵکراو
+key off	کلیل کوژاوە
+lfo off	lfo کوژاوە
+loop on	دووبارە هەڵکراو
+mesh on	mesh هەڵکراو
+ndi off	ndi کوژاوە
+pan set	pan دیاریکردن
+hold off	ڕاگرتن کوژاوە
+loop off	دووبارە کوژاوە
+mask off	ماسک کوژاوە
+mesh off	mesh کوژاوە
+new show	نمایشی نوێ
+no pages	هیچ لاپەڕەیەک نییە
+warp off	WARP کوژاوە
+(default)	(بنەڕەت)
+LOWERTEXT	دەقی خوارەوە
+canvas on	کانڤاس هەڵکراو
+matte off	matte کوژاوە
+notes set	تێبینیەکان دیاریکران
+pin reset	PIN ڕێکخرایەوە
+splash on	شاشەی سەرەتا هەڵکراو
+tc jam on	هاوکاتکردنی TC هەڵکراو
+tc run on	جێبەجێکردنی TC هەڵکراو
+timer set	کاتژمێر دیاریکرا
+wiggle on	لەرزین هەڵکراو
+VJ mode on	دۆخی VJ هەڵکراو
+big screen	شاشەی گەورە
+canvas off	کانڤاس داخراو
+cue loaded	cue بار کرا
+display on	شاشە هەڵکراو
+overlay on	سەرخستن هەڵکراو
+scene live	دیمەن ڕاستەوخۆ
+shuffle on	تێکەڵکردن هەڵکراو
+speaker up	بلندگۆ سەرەوە
+splash off	شاشەی سەرەتا کوژاوە
+tc jam off	هاوکاتکردنی TC کوژاوە
+tc run off	جێبەجێکردنی TC کوژاوە
+timer held	کاتژمێر ڕاگیرا
+trim reset	trim ڕێکخرایەوە
+vj mode on	دۆخی VJ هەڵکراو
+warp reset	WARP ڕێکخرایەوە
+wiggle off	لەرزین کوژاوە
+({1} decks)	({1} دێک)
+4-bit steps	هەنگاوەکانی 4-BIT
+DATAMOSH on	DATAMOSH هەڵکراو
+VJ mode off	دۆخی VJ کوژاوە
+blackout ON	ڕەشکردنەوە هەڵکراوە
+blend reset	تێکەڵ ڕێکخرایەوە
+captions on	ژێرنووسەکان هەڵکراون
+cue deleted	cue سڕایەوە
+display off	پیشاندەر کوژاوە
+driver held	درایڤەر ڕاگیراوە
+id: cleared	id: پاک کرایەوە
+jumped to -	بازدرا بۆ -
+monitor off	مۆنیتەر کوژاوە
+overlay off	سەرخستن کوژاوە
+path closed	ڕێڕەو داخرا
+phrases set	ڕستەکان دانران
+pip cleared	pip پاک کرایەوە
+point added	خاڵ زیاد کرا
+row deleted	ڕیز سڕایەوە
+seconds, 0-	چرکە، 0-
+shuffle off	تێکەڵکردن کوژاوە
+source live	سەرچاوە ڕاستەوخۆیە
+sprites off	sprite ەکان کوژاون
+tc chase on	tc chase هەڵکراوە
+timer reset	کاتژمێر ڕێکخرایەوە
+vj mode off	دۆخی VJ کوژاوە
+all decks go	هەموو playlist ەکان دەست پێ دەکەن
+big screen @	شاشەی گەورە @
+blackout off	ڕەشکردنەوە کوژاوە
+browser live	وێبگەڕ ڕاستەوخۆیە
+captions off	ژێرنووسەکان کوژاون
+clip cleared	کلیپ پاک کرایەوە
+datamosh off	datamosh کوژاوە
+find cleared	گەڕان پاک کرایەوە
+hands-on off	hands-on کوژاوە
+key+fill off	key+fill کوژاوە
+multiview on	multiview هەڵکراوە
+not watching	چاودێری ناکات
+path removed	ڕێڕەو لابرا
+pip attached	pip نووسێنرا
+scene loaded	دیمەن بار کرا
+speaker down	بەرزگۆ خوارەوە
+subtitles on	ژێرنووس هەڵکراو
+tc chase off	tc chase کوژاوە
+text mode on	دۆخی دەق هەڵکراو
+trim cleared	trim سڕایەوە
+beast mode on	دۆخی دڕندە هەڵکراو
+creatures off	گیاندارەکان کوژاوە
+cue reordered	cue ڕیزکرایەوە
+dmx cue added	dmx cue زیاد کرا
+hover tips on	ڕێنماییەکانی سەر هەڵکراو
+lfo runs free	lfo ئازادانە کار دەکات
+lower sub set	lower sub دیاریکرا
+mask inverted	ماسک پێچەوانە کرا
+multiview off	multiview کوژاوە
+no expression	هیچ دەربڕینێک نییە
+pip cue added	pip cue زیاد کرا
+point removed	خاڵ سڕایەوە
+source loaded	سەرچاوە بار کرا
+stream failed	پەخش شکستی هێنا
+subtitles off	ژێرنووس کوژاوە
+system cursor	تیرۆکی سیستەم
+tc trigger on	tc کارپێکردن هەڵکراو
+text mode off	دۆخی دەق کوژاوە
+timer running	کاتژمێر کار دەکات
+video dip off	video dip: داخراو
+view: invalid	بینین: نادروست
+warp grid off	تۆڕی warp کوژاوە
+1-90 (percent)	1-90 (لەسەدا)
+DRAW FPS: 1-60	FPS ی کێشان: 1-60
+TCCUE: no deck	TCCUE: هیچ دێکێک نییە
+all decks play	هەموو دێکەکان لێدەدەن
+aspect link on	بەستنەوەی ڕێژە: هەڵکراو
+atem tally off	Tally ی ATEM: کوژاوە
+beast mode off	دۆخی دڕندە: کوژاوە
+browser parked	وێبگەڕ ڕاگیراوە
+button deleted	دوگمە سڕایەوە
+button removed	دوگمە لابرا
+driver running	درایڤەر لە کاردایە
+expression set	دەربڕین دیاری کرا
+fade cue added	cue ی کاڵبوونەوە زیاد کرا
+hotkey cleared	کورتەکلیل پاک کرایەوە
+hover tips off	ڕێنماییەکانی سەر: کوژاوە
+invalid number	ژمارەی نادروست
+lower text set	دەقی خوارەوە دیاری کرا
+mic fading out	مایک کاڵ دەبێتەوە
+midi cue added	cue ی MIDI زیاد کرا
+nothing broken	هیچ شکاو نییە
+overlay popped	سەرخستن لابرا
+periodic noise	دەنگەدەنگی خولی
+pip source set	سەرچاوەی PIP دیاری کرا
+sequence ended	زنجیرە کۆتایی هات
+sequence loops	زنجیرە دووبارە دەبێتەوە
+stop when done	لە کۆتاییدا بوەستە
+stream stopped	پەخش وەستا
+stream url set	URL ی پەخش دیاری کرا
+tally: enabled	tally: هەڵکراو
+tc trigger off	هاندەری TC: کوژاوە
+timer logo set	لۆگۆی کاتژمێر دیاری کرا
+, fetched once)	، یەک جار هێنرا)
+DMXCUE: no deck	DMXCUE: دێک نییە
+MATRIX: no deck	MATRIX: دێک نییە
+MIDI fires cues	MIDI cue دەست پێ دەکات
+MSC id: invalid	MSC id: نادروست
+NETCUE: no deck	NETCUE: دێک نییە
+all decks fired	هەموو دێکەکان دەست پێکران
+animation saved	ئەنیمەیشن پاشەکەوت کرا
+aspect link off	بەستنەوەی ڕێژە: کوژاوە
+audio input off	دەرگای دەنگ: کوژاوە
+canvas mode off	دۆخی کانڤاس: کوژاوە
+canvas: invalid	کانڤاس: نادروست
+cue audio: mono	دەنگی cue: مۆنۆ
+cue jumped live	cue چووە سەر ڕاستەوخۆ
+glitch text set	دەقی glitch دانرا
+markers cleared	نیشانەکان پاک کرانەوە
+miami cursor on	نیشاندەری Miami هەڵکراو
+ndi unavailable	NDI بەردەست نییە
+no marker ahead	هیچ نیشانەیەک لە پێشەوە نییە
+nothing to redo	هیچ شتێک بۆ دووبارەکردنەوە نییە
+nothing to undo	هیچ شتێک بۆ گەڕانەوە نییە
+on every output	لەسەر هەموو دەرچوونێک
+overlay cleared	سەرخستنەکە پاک کرایەوە
+phrases cleared	ڕستەکان پاک کرانەوە
+preload cleared	پێشبارکردن پاک کرایەوە
+progress bar on	شریتی پێشکەوتن هەڵکراو
+raster: invalid	ڕاستەر: نادروست
+standby cleared	چاوەڕوان پاک کرایەوە
+tally: disabled	Tally: ناچالاک
+tc mark cleared	نیشانەی TC پاک کرایەوە
+tempo is tapped	تێمپۆ بە لێدان دیاری کرا
+time overlay on	سەرخستنی کات هەڵکراو
+DMX over Art-Net	DMX لە ڕێگەی Art-Net
+MIDICUE: no deck	MIDICUE: دێک نییە
+TEXTCUE: no deck	TEXTCUE: دێک نییە
+all decks paused	هەموو دێکەکان ڕاگیراون
+aoi: full raster	AOI: ڕاستەری پڕ
+browser loading…	وێبگەڕ بار دەکرێت…
+driver free-runs	درایڤەر بە ئازادی کار دەکات
+driver restarted	درایڤەر دووبارە دەستی پێکردەوە
+find: empty deck	دۆزینەوە: دێکی بەتاڵ
+in point cleared	خاڵی هاتن پاک کرایەوە
+leave it running	با بەردەوام بێت
+little bloops on	بلۆپی بچووک هەڵکراو
+ltc fps: invalid	LTC fps: نادروست
+mic not recorded	مایک تۆمار نەکرا
+no marker behind	هیچ نیشانەیەک لە دواوە نییە
+no plugins found	هیچ پێوەکراوێک نەدۆزرایەوە
+off every output	هەموو دەرچوونەکان کوژاوە
+phone haptics on	لەرزینی تەلەفۆن هەڵکراو
+playlist loop on	دووبارەی لیستی لێدان هەڵکراو
+progress bar off	شریتی پێشکەوتن کوژاوە
+refresh: invalid	نوێکردنەوە: نادروست
+schedule cleared	خشتە سڕایەوە
+script cue added	cue ی سکریپت زیاد کرا
+sequence stopped	زنجیرە وەستا
+stream cue added	cue ی پەخش زیاد کرا
+target cue added	cue ی ئامانج زیاد کرا
+time overlay off	سەرپۆشی کات کوژاوە
+warp/blend reset	WARP/تێکەڵ ڕێکخرایەوە
+' is not a number	' ژمارە نییە
+MIDIFILE: no deck	MIDIFILE: هیچ دێکێک نییە
+RECORDING STOPPED	تۆمارکردن وەستاوە
+all decks stopped	هەموو دێکەکان وەستاون
+at the first step	لە یەکەم هەنگاودا
+browser refreshed	وێبگەڕ نوێکرایەوە
+conversion failed	گۆڕین سەرکەوتوو نەبوو
+converting {1}...	گۆڕینی {1}...
+cue fade: invalid	کاڵبوونەوەی cue: نادروست
+fullscreen failed	پڕشاشە سەرکەوتوو نەبوو
+hotkey: cancelled	کلیلی خێرا: هەڵوەشێنرایەوە
+invalid key color	ڕەنگی کلیل نادروستە
+little bloops off	بلووپە بچووکەکان کوژاوە
+live captions off	ژێرنووسی ڕاستەوخۆ کوژاوە
+lock to screen on	ببەستە بە شاشەوە هەڵکراو
+mask not inverted	ماسک پێچەوانە نەکراوە
+motion driver set	درایڤەری جووڵە دیاری کرا
+ndi sender failed	نێرەری NDI سەرکەوتوو نەبوو
+network cue added	cue ی تۆڕ زیاد کرا
+no cue to jump to	هیچ cue یەک نییە بۆ باز دان
+out point cleared	خاڵی دەرچوون سڕایەوە
+output overlay on	سەرپۆشی دەرچوون هەڵکراو
+phone haptics off	لەرزینی تەلەفۆن کوژاوە
+pick a deck first	سەرەتا دێکێک هەڵبژێرە
+playlist loop off	دووبارەی لیستی لێدان کوژاوە
+record folder set	بوخچەی تۆمارکردن دیاری کرا
+subtitle file set	فایلی ژێرنووس دیاری کرا
+subtitles cleared	ژێرنووسەکان سڕانەوە
+take the mask off	ماسک لابە
+universe: 0-63999	یونیڤێرس: 0-63999
+video synth added	synth ی ڤیدیۆ زیاد کرا
+warp preset saved	پێشڕێکخستنی WARP پاشەکەوت کرا
+AUDIOALSO: no deck	AUDIOALSO: هیچ دێکێک نییە
+DeckLink 10-bit ON	DeckLink 10-BIT: هەڵکراو
+SCRIPTCUE: no deck	SCRIPTCUE: هیچ دێکێک نییە
+assign route first	سەرەتا ڕێڕەو دیاری بکە
+bundle save failed	پاشەکەوتکردنی کۆکردنەوە سەرکەوتوو نەبوو
+cue settings reset	ڕێکخستنەکانی cue ڕێکخرانەوە
+file dialog failed	پەنجەرەی فایل سەرکەوتوو نەبوو
+jumped to live cue	باز درا بۆ cue ی ڕاستەوخۆ
+lock to screen off	ببەستە بە شاشەوە: داخراو
+media probe failed	پشکنینی میدیا سەرکەوتوو نەبوو
+nmos: invalid port	NMOS: دەروازەی نادروست
+output overlay off	سەرخستنی دەرچوون داخراو
+pip target cleared	ئامانجی PIP پاک کرایەوە

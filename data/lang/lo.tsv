@@ -2346,3 +2346,235 @@ It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts 
 Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	ສອງໜ້າຈໍ, skapi. ໂຕະຢູ່ຈໍນີ້, ຮູບໄປອີກຈໍໜຶ່ງ: {1}. ເປີດ ເມນູ ແລ້ວປ່ຽນ OUTPUT ປິດ ເປັນ OUTPUT ເປີດ.
 It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	ມັນກິນໂຕະ, skapi. ໜ້າຈໍແບບສະທ້ອນສະແດງຮູບທັງສອງຈໍ, ສະນັ້ນຂ້ອຍໃສ່ມັນໃນໜ້າຕ່າງນ້ອຍຢູ່ທາງຫຼັງ. {1}, ແລ້ວມັນຈະມີໜ້າຈໍຂອງມັນເອງ.
 Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	ໜ້າຈໍຂອງເຈົ້າສະທ້ອນກັນ, skapi: {1} ສະແດງຄືກັບຈໍນີ້, ສະນັ້ນຮູບຈະບັງໂຕະທັງສອງຈໍ. {2}, ແລ້ວຂ້ອຍຈະໃສ່ຮູບໃນໜ້າຈໍຂອງມັນເອງ. ຫຼື ເປີດ ເມນູ ແລ້ວປ່ຽນ OUTPUT ປິດ ເປັນ OUTPUT ເປີດ.
++now	+ດຽວນີ້
+CROP	ຕັດ
+Move	ເຄື່ອນ
+NEW 1	ໃໝ່ 1
+SELECT	ເລືອກ
+key on	ປຸ່ມ ເປີດ
+lfo on	lfo ເປີດ
+hold on	ຄ້າງ ເປີດ
+key off	ປຸ່ມ ປິດ
+lfo off	lfo ປິດ
+loop on	ວົນ ເປີດ
+mesh on	mesh ເປີດ
+ndi off	ndi ປິດ
+pan set	pan ຕັ້ງ
+hold off	ຄ້າງ ປິດ
+loop off	ວົນ ປິດ
+mask off	ໜ້າກາກ ປິດ
+mesh off	mesh ປິດ
+new show	ໂຊໃໝ່
+no pages	ບໍ່ມີໜ້າ
+warp off	warp ປິດ
+(default)	(ຄ່າເລີ່ມຕົ້ນ)
+canvas on	canvas ເປີດ
+matte off	matte ປິດ
+notes set	ຕັ້ງບັນທຶກແລ້ວ
+pin reset	ຕັ້ງ pin ຄືນແລ້ວ
+splash on	ໜ້າຈໍເປີດ: ເປີດ
+tc jam on	tc ຊິງ ເປີດ
+tc run on	tc ແລ່ນ ເປີດ
+timer set	ຕັ້ງໂມງນັບແລ້ວ
+wiggle on	wiggle ເປີດ
+VJ mode on	ໂໝດ VJ ເປີດ
+big screen	ໜ້າຈໍໃຫຍ່
+canvas off	canvas ປິດ
+cue loaded	ໂຫຼດ cue ແລ້ວ
+display on	ໜ້າຈໍ ເປີດ
+overlay on	ຊັ້ນທັບ ເປີດ
+scene live	ສາກສົດ
+shuffle on	ສັບລຳດັບ ເປີດ
+speaker up	ລຳໂພງ ຂຶ້ນ
+splash off	ໜ້າຈໍເປີດ: ປິດ
+tc jam off	tc ຊິງ ປິດ
+tc run off	tc ແລ່ນ ປິດ
+timer held	ໂມງນັບ ຖື
+trim reset	ຕັ້ງ trim ຄືນແລ້ວ
+vj mode on	ໂໝດ VJ ເປີດ
+warp reset	ຕັ້ງ warp ຄືນແລ້ວ
+wiggle off	wiggle ປິດ
+({1} decks)	({1} deck)
+4-bit steps	ຂັ້ນ 4-bit
+DATAMOSH on	DATAMOSH ເປີດ
+VJ mode off	ໂໝດ VJ ປິດ
+blackout ON	ມືດ ເປີດ
+blend reset	ປະສົມ ຕັ້ງຄືນ
+captions on	ຄຳບັນຍາຍ ເປີດ
+cue deleted	ລຶບ cue ແລ້ວ
+display off	ຈໍສະແດງ ປິດ
+driver held	ໄດເວີ ຖື
+id: cleared	id: ລ້າງແລ້ວ
+jumped to -	ໂດດໄປ -
+monitor off	ຈໍມອນິເຕີ ປິດ
+overlay off	ຊັ້ນທັບ ປິດ
+path closed	ເສັ້ນທາງ ປິດ
+phrases set	ຕັ້ງປະໂຫຍກແລ້ວ
+pip cleared	ລ້າງ PIP ແລ້ວ
+point added	ເພີ່ມຈຸດແລ້ວ
+row deleted	ລຶບແຖວແລ້ວ
+seconds, 0-	ວິນາທີ, 0-
+shuffle off	ສັບລຳດັບ ປິດ
+source live	ແຫຼ່ງ ສົດ
+sprites off	ສະໄປຣຕ໌ ປິດ
+tc chase on	tc chase ເປີດ
+timer reset	ໂມງນັບ ຕັ້ງຄືນ
+vj mode off	ໂໝດ vj ປິດ
+all decks go	ທຸກ deck ເລີ່ມ
+big screen @	ໜ້າຈໍໃຫຍ່ @
+blackout off	ມືດ ປິດ
+browser live	ບຣາວເຊີ ສົດ
+captions off	ຄຳບັນຍາຍ ປິດ
+clip cleared	ລ້າງຄລິບແລ້ວ
+datamosh off	datamosh ປິດ
+find cleared	ລ້າງການຊອກຫາແລ້ວ
+hands-on off	hands-on ປິດ
+key+fill off	key+fill ປິດ
+multiview on	multiview ເປີດ
+not watching	ບໍ່ໄດ້ເຝົ້າເບິ່ງ
+path removed	ລຶບເສັ້ນທາງແລ້ວ
+pip attached	ຕິດ PIP ແລ້ວ
+scene loaded	ໂຫຼດສາກແລ້ວ
+speaker down	ລຳໂພງລົງ
+subtitles on	ຄຳບັນຍາຍ ເປີດ
+tc chase off	tc chase ປິດ
+text mode on	ໂໝດຂໍ້ຄວາມ ເປີດ
+trim cleared	ລຶບ trim ແລ້ວ
+beast mode on	ໂໝດສັດຮ້າຍ ເປີດ
+creatures off	ສັດນ້ອຍ ປິດ
+cue reordered	ຈັດລຳດັບ cue ໃໝ່ແລ້ວ
+dmx cue added	ເພີ່ມ cue dmx ແລ້ວ
+hover tips on	ຄຳແນະນຳເມື່ອຊີ້ ເປີດ
+lfo runs free	lfo ແລ່ນອິດສະຫຼະ
+lower sub set	ຕັ້ງ lower sub ແລ້ວ
+mask inverted	ສະລັບໜ້າກາກແລ້ວ
+multiview off	multiview ປິດ
+no expression	ບໍ່ມີ expression
+pip cue added	ເພີ່ມ cue pip ແລ້ວ
+point removed	ລຶບຈຸດແລ້ວ
+source loaded	ໂຫຼດແຫຼ່ງແລ້ວ
+stream failed	stream ລົ້ມເຫຼວ
+subtitles off	ຄຳບັນຍາຍ ປິດ
+system cursor	ເຄີເຊີລະບົບ
+tc trigger on	ກະຕຸ້ນ tc ເປີດ
+text mode off	ໂໝດຂໍ້ຄວາມ ປິດ
+timer running	ໂມງນັບກຳລັງແລ່ນ
+video dip off	video dip ປິດ
+view: invalid	ມຸມມອງ: ບໍ່ຖືກຕ້ອງ
+warp grid off	ຕາຕະລາງ warp ປິດ
+1-90 (percent)	1-90 (ເປີເຊັນ)
+DRAW FPS: 1-60	ແຕ້ມ FPS: 1-60
+TCCUE: no deck	TCCUE: ບໍ່ມີ deck
+all decks play	deck ທັງໝົດຫຼິ້ນ
+aspect link on	ການເຊື່ອມອັດຕາສ່ວນ ເປີດ
+atem tally off	Tally ATEM ປິດ
+beast mode off	ໂໝດສັດຮ້າຍ ປິດ
+browser parked	ບຣາວເຊີ ພັກໄວ້
+button deleted	ລຶບປຸ່ມແລ້ວ
+button removed	ເອົາປຸ່ມອອກແລ້ວ
+driver running	driver ກຳລັງແລ່ນ
+expression set	ຕັ້ງສູດຄຳນວນແລ້ວ
+fade cue added	ເພີ່ມ cue ຄ່ອຍໆແລ້ວ
+hotkey cleared	ລ້າງປຸ່ມລັດແລ້ວ
+hover tips off	ຄຳແນະນຳເມື່ອຊີ້ ປິດ
+invalid number	ຕົວເລກບໍ່ຖືກຕ້ອງ
+lower text set	ຕັ້ງຂໍ້ຄວາມລຸ່ມແລ້ວ
+mic fading out	ໄມກຳລັງຄ່ອຍໆອອກ
+midi cue added	ເພີ່ມ cue midi ແລ້ວ
+nothing broken	ບໍ່ມີຫຍັງເສຍ
+overlay popped	ເອົາສິ່ງທີ່ຊ້ອນອອກແລ້ວ
+periodic noise	ສຽງລົບກວນເປັນໄລຍະ
+pip source set	ຕັ້ງແຫຼ່ງ pip ແລ້ວ
+sequence ended	ລຳດັບຈົບແລ້ວ
+sequence loops	ລຳດັບວົນຊ້ຳ
+stop when done	ຢຸດເມື່ອແລ້ວ
+stream stopped	stream ຢຸດແລ້ວ
+stream url set	ຕັ້ງ URL stream ແລ້ວ
+tally: enabled	tally: ເປີດ
+tc trigger off	ກະຕຸ້ນ tc ປິດ
+timer logo set	ຕັ້ງໂລໂກໂມງນັບແລ້ວ
+, fetched once)	, ດຶງມາຄັ້ງດຽວ)
+DMXCUE: no deck	DMXCUE: ບໍ່ມີ deck
+MATRIX: no deck	MATRIX: ບໍ່ມີ deck
+MIDI fires cues	MIDI ເລີ່ມ cue
+MSC id: invalid	MSC id: ບໍ່ຖືກຕ້ອງ
+NETCUE: no deck	NETCUE: ບໍ່ມີ deck
+all decks fired	deck ທັງໝົດເລີ່ມແລ້ວ
+animation saved	ບັນທຶກແອນິເມຊັນແລ້ວ
+aspect link off	ການເຊື່ອມອັດຕາສ່ວນ ປິດ
+audio input off	ຂາເຂົ້າສຽງ ປິດ
+canvas mode off	ໂໝດ canvas ປິດ
+canvas: invalid	canvas: ບໍ່ຖືກຕ້ອງ
+cue audio: mono	cue ສຽງ: mono
+cue jumped live	cue ໂດດໄປສົດ
+glitch text set	ຕັ້ງຂໍ້ຄວາມ glitch ແລ້ວ
+markers cleared	ລ້າງເຄື່ອງໝາຍແລ້ວ
+miami cursor on	ຕົວຊີ້ Miami ເປີດ
+ndi unavailable	ບໍ່ມີ NDI
+no marker ahead	ບໍ່ມີເຄື່ອງໝາຍຂ້າງໜ້າ
+nothing to redo	ບໍ່ມີຫຍັງໃຫ້ເຮັດຄືນ
+nothing to undo	ບໍ່ມີຫຍັງໃຫ້ຍົກເລີກ
+on every output	ໃນທຸກ output
+overlay cleared	ລ້າງຊັ້ນທັບແລ້ວ
+phrases cleared	ລ້າງປະໂຫຍກແລ້ວ
+preload cleared	ລ້າງການໂຫຼດລ່ວງໜ້າແລ້ວ
+progress bar on	ແຖບຄວາມຄືບໜ້າ ເປີດ
+raster: invalid	raster: ບໍ່ຖືກຕ້ອງ
+standby cleared	ລ້າງການລໍຖ້າແລ້ວ
+tally: disabled	tally: ປິດໃຊ້ງານ
+tc mark cleared	ລ້າງເຄື່ອງໝາຍ tc ແລ້ວ
+tempo is tapped	ແຕະຈັງຫວະແລ້ວ
+time overlay on	ຊັ້ນທັບເວລາ ເປີດ
+DMX over Art-Net	DMX ຜ່ານ Art-Net
+MIDICUE: no deck	MIDICUE: ບໍ່ມີ deck
+TEXTCUE: no deck	TEXTCUE: ບໍ່ມີ deck
+all decks paused	ທຸກ deck ພັກໄວ້
+aoi: full raster	aoi: raster ເຕັມ
+browser loading…	ບຣາວເຊີກຳລັງໂຫຼດ…
+driver free-runs	driver ແລ່ນອິດສະຫຼະ
+driver restarted	driver ເລີ່ມໃໝ່ແລ້ວ
+find: empty deck	ຊອກ: deck ຫວ່າງ
+in point cleared	ລ້າງຈຸດເຂົ້າແລ້ວ
+leave it running	ປະໄວ້ໃຫ້ແລ່ນ
+little bloops on	ສຽງ bloop ນ້ອຍໆ ເປີດ
+ltc fps: invalid	ltc fps: ບໍ່ຖືກຕ້ອງ
+mic not recorded	ບໍ່ໄດ້ບັນທຶກໄມ
+no marker behind	ບໍ່ມີເຄື່ອງໝາຍຂ້າງຫຼັງ
+no plugins found	ບໍ່ພົບ plugin
+off every output	ປິດ output ທັງໝົດ
+phone haptics on	ການສັ່ນໂທລະສັບ ເປີດ
+playlist loop on	playlist ວົນ ເປີດ
+progress bar off	ແຖບຄວາມຄືບໜ້າ ປິດ
+refresh: invalid	ໂຫຼດໃໝ່: ບໍ່ຖືກຕ້ອງ
+schedule cleared	ລ້າງຕາຕະລາງເວລາແລ້ວ
+script cue added	ເພີ່ມ cue ສະຄຣິບແລ້ວ
+sequence stopped	ລຳດັບຢຸດແລ້ວ
+stream cue added	ເພີ່ມ cue stream ແລ້ວ
+target cue added	ເພີ່ມ cue ເປົ້າໝາຍແລ້ວ
+time overlay off	ຊັ້ນທັບເວລາ ປິດ
+warp/blend reset	ຕັ້ງຄືນ warp/ປະສົມ
+' is not a number	' ບໍ່ແມ່ນຕົວເລກ
+MIDIFILE: no deck	MIDIFILE: ບໍ່ມີ deck
+RECORDING STOPPED	ການອັດຢຸດແລ້ວ
+all decks stopped	ທຸກ deck ຢຸດແລ້ວ
+at the first step	ຢູ່ຂັ້ນທຳອິດ
+browser refreshed	ໂຫຼດບຣາວເຊີໃໝ່ແລ້ວ
+conversion failed	ການແປງລົ້ມເຫຼວ
+converting {1}...	ກຳລັງແປງ {1}...
+cue fade: invalid	cue ຄ່ອຍໆ: ບໍ່ຖືກຕ້ອງ
+fullscreen failed	ເຕັມຈໍລົ້ມເຫຼວ
+hotkey: cancelled	ປຸ່ມລັດ: ຍົກເລີກແລ້ວ
+invalid key color	ສີປຸ່ມບໍ່ຖືກຕ້ອງ
+little bloops off	ສຽງ bloop ນ້ອຍ ປິດ
+live captions off	ຄຳບັນຍາຍສົດ ປິດ
+lock to screen on	ລັອກກັບໜ້າຈໍ ເປີດ
+mask not inverted	ໜ້າກາກບໍ່ກັບດ້ານ
+motion driver set	ຕັ້ງໄດເວີການເຄື່ອນແລ້ວ
+ndi sender failed	NDI ຜູ້ສົ່ງລົ້ມເຫຼວ
+network cue added	ເພີ່ມ cue ເຄືອຂ່າຍແລ້ວ
+no cue to jump to	ບໍ່ມີ cue ໃຫ້ກະໂດດໄປ
+out point cleared	ລ້າງຈຸດອອກແລ້ວ
+output overlay on	ຊັ້ນທັບ output ເປີດ
+phone haptics off	ການສັ່ນໂທລະສັບ ປິດ
+pick a deck first	ເລືອກ deck ກ່ອນ
+playlist loop off	playlist ວົນ ປິດ

@@ -2370,3 +2370,237 @@ It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts 
 Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	Dua vekadekaku, skapi. Dekapata hali kae nakae, veka go una seto: {1}. Fesi MENU so seti SENA VAP go SENA PON.
 It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	Deka nirik, skapi. Velo vekadekaku veki veka kae dua, so mi lani kae kiso fena, dop. {1}, so veka guri una vekadeka.
 Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	Vekadekaku tu velo, skapi: {1} veki nakae veki, so veka hali dekapata kae dua. {2}, so mi lani veka kae una vekadeka. Pel tu fesi MENU so seti SENA VAP go SENA PON.
++now	+nakaetoka
+CROP	RANKISI
+Move	Tiriseti
+NEW 1	NOVA 1
+SELECT	PIKI
+VOLUME	SONA
+key on	bata pon
+lfo on	lfo pon
+hold on	hali pon
+key off	bata vap
+lfo off	lfo vap
+loop on	novtoki pon
+mesh on	reta pon
+ndi off	ndi vap
+pan set	seti sonakaea
+hold off	hali vap
+loop off	novtoki vap
+mask off	nirarana vap
+mesh off	reta vap
+new show	nova vekarana
+no pages	vapaga
+warp off	ranaseta vap
+(default)	(koro)
+canvas on	vekakae pon
+matte off	nirarana vap
+notes set	holaku seto
+pin reset	pin novaseto
+splash on	novaveka pon
+tc jam on	tc tokseti pon
+tc run on	tc zari pon
+timer set	tokawia seto
+wiggle on	tiriseta pon
+VJ mode on	VJ dopa pon
+big screen	tamo vekadeka
+canvas off	vekakae vap
+cue loaded	veka tiro
+display on	vekadeka pon
+overlay on	vekaluma pon
+scene live	sena lumo
+shuffle on	ranava pon
+speaker up	sonajana ala
+splash off	novaveka vap
+tc jam off	tc tokseti vap
+tc run off	tc zari vap
+timer held	tokawia halo
+trim reset	ranseti novaseto
+vj mode on	vj dopa pon
+warp reset	ranaseta novaseto
+wiggle off	tiriseta vap
+({1} decks)	({1} deka)
+4-bit steps	4-bit setaku
+DATAMOSH on	DATAMOSH PON
+VJ mode off	VJ dopa vap
+blackout ON	niratam pon
+blend reset	alaseti novaseti
+captions on	holavekaku pon
+cue deleted	veka vap
+display off	vekadeka vap
+driver held	tirwia halo
+id: cleared	id: niri
+jumped to -	go - tiriseto
+monitor off	mirajan vap
+overlay off	lana vap
+path closed	dor klu
+phrases set	holaku seto
+pip cleared	PIP niri
+point added	puna novi
+row deleted	rana vap
+seconds, 0-	sekunda, 0-
+shuffle off	ranava vap
+source live	munga lumo
+sprites off	spritaku vap
+tc chase on	tc chase pon
+timer reset	tokawia novaseti
+vj mode off	vj dopa vap
+all decks go	ala dekaku go
+big screen @	vekadeka tamo @
+blackout off	niratam vap
+browser live	retamira lumo
+captions off	holavekaku vap
+clip cleared	vekisa niri
+datamosh off	datamosh vap
+find cleared	seka niri
+hands-on off	hands-on vap
+key+fill off	key+fill vap
+multiview on	multiview pon
+not watching	vamiro
+path removed	dor vap
+pip attached	PIP lani
+scene loaded	kuloveka tiro
+speaker down	sonajana dopnira
+subtitles on	kishola pon
+tc chase off	tc chase vap
+text mode on	holadopa pon
+trim cleared	ranseta niri
+beast mode on	tamzaro taka pon
+creatures off	kisjanaku vap
+cue reordered	veka kaeseti
+dmx cue added	veka dmx novi
+hover tips on	hupaku pon
+lfo runs free	lfo zaro vahalo
+lower sub set	lower sub seto
+mask inverted	nirarana dopseto
+multiview off	multiview vap
+no expression	vaholseta
+pip cue added	veka PIP novi
+point removed	kisvek niri
+source loaded	munga tiro
+stream failed	retaseni ni
+subtitles off	kishola vap
+system cursor	korapata tirisetajana
+tc trigger on	tc bati pon
+text mode off	holadopa vap
+timer running	tokawia zaro
+video dip off	video dip klua
+view: invalid	mira: vatamo
+warp grid off	ranasetakara vap
+1-90 (percent)	1-90 (%)
+DRAW FPS: 1-60	VEKI FPS: 1-60
+TCCUE: no deck	TCCUE: vadeka
+all decks play	ala deka lumakori
+alpha: invalid	alpha: vatamo
+aspect link on	vekarangura pon
+atem tally off	tally ATEM vap
+beast mode off	tamzaro taka vap
+browser parked	retamira halpena
+button deleted	bata bra
+button removed	bata tira
+driver running	janawia zaro
+expression set	hola seti
+fade cue added	lumaveka novi
+hotkey cleared	batrana niri
+hover tips off	hupaku vap
+invalid number	vapelo numa
+lower text set	nirhola seti
+mic fading out	sonatira lum klui
+midi cue added	midi veka novi
+nothing broken	vaala vatamo
+overlay popped	lana bra
+periodic noise	tokasona
+pip source set	munga PIP seti
+sequence ended	tokrana tami
+sequence loops	tokrana novtok
+stop when done	hali kae tam
+stream stopped	retaseni halo
+stream url set	URL retaseni seti
+tally: enabled	tally: pon
+tc trigger off	TC bati vap
+timer logo set	tokawia lumdeka seti
+, fetched once)	, unatok tiri)
+DMXCUE: no deck	DMXCUE: vaala deka
+MATRIX: no deck	MATRIX: vaala deka
+MIDI fires cues	MIDI seni vekaku
+MSC id: invalid	MSC id: vapelo
+NETCUE: no deck	NETCUE: vaala deka
+all decks fired	ala dekaku seni
+animation saved	tiriveka buf
+aspect link off	vekarangura vap
+audio input off	sonadora vap
+canvas mode off	vekakae dopa vap
+canvas: invalid	vekakae: vapelo
+cue audio: mono	sona veka: mono
+cue jumped live	veka tiri go lumo
+glitch text set	glitch hola seti
+markers cleared	grakaeaku niri
+miami cursor on	Miami tirwia pon
+ndi unavailable	NDI vapelo
+no marker ahead	novtoko grakaea vaala
+nothing to redo	novpatakora vaala
+nothing to undo	vapatakora vaala
+on every output	kae ala senadoraku
+overlay cleared	lanveka niri
+phrases cleared	holaku niri
+preload cleared	ponbufa niri
+progress bar on	tiritirarana pon
+raster: invalid	kisvekadeka: vakulo
+standby cleared	peno niri
+tally: disabled	tally: vapon
+tc mark cleared	tc grakaea niri
+tempo is tapped	tempo bati
+time overlay on	toka lanveka pon
+DMX over Art-Net	DMX dora Art-Net
+MIDICUE: no deck	MIDICUE: deka vaala
+TEXTCUE: no deck	TEXTCUE: deka vaala
+all decks paused	ala deka halo kiso
+aoi: full raster	aoi: tamo kisvekadeka
+browser loading…	retamira poni…
+driver free-runs	driver zaro; vatokseti
+driver restarted	driver novtok tiri
+find: empty deck	miri: deka vaala
+in point cleared	tirirana niri
+leave it running	zaro gur
+little bloops on	kis blup sonaku pon
+ltc fps: invalid	ltc fps: vakulo
+mic not recorded	sonatira vabuf
+no marker behind	munako grakaea vaala
+no plugins found	Va pluginaku miro
+off every output	Vap ala senadoraku
+phone haptics on	telefona batlisa pon
+playlist loop on	vekaku novtoka pon
+progress bar off	tirarana vap
+refresh: invalid	novseti: vakulo
+schedule cleared	tokrana niro
+script cue added	veka korhola novi
+sequence stopped	tokrana halo
+stream cue added	veka retaseni novi
+target cue added	veka pikkaea novi
+time overlay off	toklana vap
+warp/blend reset	ranaseta/alaseti novaseti
+' is not a number	' va numa
+MIDIFILE: no deck	MIDIFILE: va deka
+RECORDING STOPPED	GRAO HALO
+all decks stopped	ala dekaku halo
+at the first step	kae beta una
+browser refreshed	retamira novseti
+conversion failed	seti vapelo
+converting {1}...	seti {1}...
+cue fade: invalid	veka lum: vakulo
+fullscreen failed	tamvekadeka vapelo
+hotkey: cancelled	batrana: klu
+invalid key color	bata kolora vakulo
+little bloops off	kis blopaku vap
+live captions off	holku lumso vap
+lock to screen on	hali fenako pon
+mask not inverted	nirarana va seto
+motion driver set	tiriseta jandora seto
+ndi sender failed	NDI senawia vapelo
+network cue added	veka reta novi
+no cue to jump to	va veka go tiri
+out point cleared	dor klua niro
+output overlay on	senadora lana pon
+phone haptics off	telefona batlisa vap
+pick a deck first	piki deka una
+playlist loop off	vekaku novtoka vap

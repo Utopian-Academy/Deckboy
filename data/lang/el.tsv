@@ -2345,3 +2345,256 @@ It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts 
 Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	Δύο οθόνες, skapi. Η κονσόλα μένει σε αυτή, η εικόνα πάει στην άλλη: {1}. Άνοιξε το ΜΕΝΟΥ και κάνε το ΕΞΟΔΟΣ ΕΚΤΟΣ να γράφει ΕΞΟΔΟΣ ΕΝΤΟΣ.
 It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	Έφαγε την κονσόλα, skapi. Οι καθρεφτισμένες οθόνες δείχνουν την εικόνα και στις δύο, γι' αυτό την έβαλα σε ένα μικρό παράθυρο, από πίσω. {1}, και θα πάρει δική της οθόνη.
 Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	Οι οθόνες σου είναι καθρεφτισμένες, skapi: η {1} δείχνει ό,τι δείχνει αυτή, οπότε η εικόνα θα καλύψει την κονσόλα και στις δύο. {2}, και θα βάλω την εικόνα σε δική της οθόνη. Ή άνοιξε το ΜΕΝΟΥ και κάνε το ΕΞΟΔΟΣ ΕΚΤΟΣ να γράφει ΕΞΟΔΟΣ ΕΝΤΟΣ.
++now	+τώρα
+CROP	ΚΟΨΙΜΟ
+Move	Μετακίνηση
+NEW 1	ΝΕΟ 1
+SELECT	ΕΠΙΛΟΓΗ
+key on	πλήκτρο εντός
+lfo on	lfo εντός
+hold on	κράτημα εντός
+key off	πλήκτρο εκτός
+lfo off	lfo εκτός
+loop on	βρόχος εντός
+mesh on	mesh εντός
+ndi off	ndi εκτός
+pan set	pan ορισμός
+hold off	κράτημα εκτός
+loop off	βρόχος εκτός
+mask off	μάσκα εκτός
+mesh off	mesh εκτός
+new show	νέα παράσταση
+no pages	καμία σελίδα
+warp off	παραμόρφωση εκτός
+(default)	(προεπιλογή)
+LOWERTEXT	ΚΑΤΩ ΚΕΙΜΕΝΟ
+canvas on	καμβάς εντός
+matte off	μάσκα εκτός
+notes set	σημειώσεις ορίστηκαν
+pin reset	επαναφορά PIN
+splash on	οθόνη εκκίνησης εντός
+tc jam on	TC συγχρ. εντός
+tc run on	εκτέλεση TC εντός
+timer set	χρονόμετρο ορίστηκε
+wiggle on	τρέμουλο εντός
+VJ mode on	λειτουργία VJ εντός
+big screen	μεγάλη οθόνη
+canvas off	καμβάς εκτός
+cue loaded	cue φορτώθηκε
+display on	οθόνη εντός
+overlay on	επικάλυψη εντός
+scene live	σκηνή ζωντανά
+shuffle on	τυχαία εντός
+speaker up	ηχείο πάνω
+splash off	οθόνη εκκίνησης εκτός
+tc jam off	TC συγχρ. εκτός
+tc run off	εκτέλεση TC εκτός
+timer held	χρονόμετρο σε αναμονή
+trim reset	επαναφορά περικοπής
+vj mode on	λειτουργία VJ εντός
+warp reset	επαναφορά παραμόρφωσης
+wiggle off	τρέμουλο εκτός
+({1} decks)	({1} κονσόλες)
+4-bit steps	βήματα 4-bit
+DATAMOSH on	DATAMOSH ΕΝΤΟΣ
+VJ mode off	λειτουργία VJ εκτός
+blackout ON	μαύρο εντός
+blend reset	επαναφορά μίξης
+captions on	υπότιτλοι ενεργοί
+cue deleted	το cue διαγράφηκε
+display off	οθόνη εκτός
+driver held	driver σε αναμονή
+id: cleared	id: καθαρίστηκε
+jumped to -	μετάβαση σε -
+monitor off	monitor εκτός
+overlay off	επικάλυψη εκτός
+path closed	διαδρομή κλειστή
+phrases set	φράσεις ορίστηκαν
+pip cleared	pip καθαρίστηκε
+point added	προστέθηκε σημείο
+row deleted	η γραμμή διαγράφηκε
+seconds, 0-	δευτερόλεπτα, 0-
+shuffle off	τυχαία εκτός
+source live	πηγή ζωντανά
+sprites off	sprites εκτός
+tc chase on	tc chase εντός
+timer reset	επαναφορά χρονομέτρου
+vj mode off	λειτουργία VJ εκτός
+all decks go	όλες οι λίστες ξεκινούν
+big screen @	μεγάλη οθόνη @
+blackout off	μαύρο εκτός
+browser live	περιηγητής ζωντανά
+captions off	υπότιτλοι εκτός
+clip cleared	καθαρίστηκε το κλιπ
+datamosh off	datamosh εκτός
+find cleared	καθαρίστηκε η αναζήτηση
+hands-on off	hands-on εκτός
+key+fill off	key+fill εκτός
+multiview on	multiview εντός
+not watching	δεν παρακολουθεί
+path removed	διαδρομή αφαιρέθηκε
+pip attached	pip επισυνάφθηκε
+scene loaded	η σκηνή φορτώθηκε
+speaker down	ηχείο κάτω
+subtitles on	υπότιτλοι ναι
+tc chase off	tc chase όχι
+text mode on	λειτουργία κειμένου ναι
+trim cleared	η περικοπή καθαρίστηκε
+beast mode on	λειτουργία θηρίου ναι
+creatures off	πλάσματα όχι
+cue reordered	το cue αναδιατάχθηκε
+dmx cue added	προστέθηκε cue dmx
+hover tips on	υποδείξεις ναι
+lfo runs free	lfo ελεύθερη λειτουργία
+lower sub set	κάτω υπότιτλος ορίστηκε
+mask inverted	η μάσκα αντιστράφηκε
+multiview off	multiview όχι
+no expression	καμία έκφραση
+pip cue added	προστέθηκε cue pip
+point removed	το σημείο αφαιρέθηκε
+source loaded	η πηγή φορτώθηκε
+stream failed	η ροή απέτυχε
+subtitles off	υπότιτλοι όχι
+system cursor	δείκτης συστήματος
+tc trigger on	tc ενεργοποίηση ναι
+text mode off	λειτουργία κειμένου όχι
+timer running	το χρονόμετρο τρέχει
+video dip off	video dip: όχι
+view: invalid	προβολή: μη έγκυρη
+warp grid off	πλέγμα παραμόρφωσης όχι
+1-90 (percent)	1-90 (ποσοστό)
+DRAW FPS: 1-60	FPS σχεδίου: 1-60
+TCCUE: no deck	TCCUE: κανένα deck
+all decks play	όλα τα deck παίζουν
+aspect link on	σύνδεση αναλογίας: ΝΑΙ
+atem tally off	Tally ATEM: ΟΧΙ
+beast mode off	Λειτουργία θηρίου: ΟΧΙ
+browser parked	περιηγητής σε αναμονή
+button deleted	το κουμπί διαγράφηκε
+button removed	το κουμπί αφαιρέθηκε
+driver running	το πρόγραμμα οδήγησης τρέχει
+expression set	η έκφραση ορίστηκε
+fade cue added	προστέθηκε cue σβησίματος
+hotkey cleared	η συντόμευση διαγράφηκε
+hover tips off	Υποδείξεις: ΟΧΙ
+invalid number	μη έγκυρος αριθμός
+lower text set	ορίστηκε το κάτω κείμενο
+mic fading out	το μικρόφωνο σβήνει
+midi cue added	προστέθηκε cue MIDI
+nothing broken	τίποτα χαλασμένο
+overlay popped	η επικάλυψη αφαιρέθηκε
+periodic noise	περιοδικός θόρυβος
+pip source set	ορίστηκε η πηγή PIP
+sequence ended	η ακολουθία τελείωσε
+sequence loops	η ακολουθία επαναλαμβάνεται
+stop when done	διακοπή όταν τελειώσει
+stream stopped	η μετάδοση σταμάτησε
+stream url set	ορίστηκε το URL μετάδοσης
+tally: enabled	tally: ΝΑΙ
+tc trigger off	ενεργοποίηση TC: ΟΧΙ
+timer logo set	ορίστηκε το λογότυπο χρονομέτρου
+, fetched once)	, ανακτήθηκε μία φορά)
+DMXCUE: no deck	DMXCUE: κανένα deck
+MATRIX: no deck	MATRIX: κανένα deck
+MIDI fires cues	MIDI ξεκινά cue
+MSC id: invalid	MSC id: μη έγκυρο
+NETCUE: no deck	NETCUE: κανένα deck
+all decks fired	όλα τα deck ξεκίνησαν
+animation saved	η κινούμενη εικόνα αποθηκεύτηκε
+aspect link off	σύνδεση αναλογίας: ΟΧΙ
+audio input off	είσοδος ήχου: ΟΧΙ
+canvas mode off	λειτουργία κάμβα: ΟΧΙ
+canvas: invalid	κάμβα: μη έγκυρο
+cue audio: mono	ήχος cue: μονοφωνικός
+cue jumped live	το cue πήγε ζωντανά
+glitch text set	ορίστηκε κείμενο glitch
+markers cleared	οι σημάνσεις καθαρίστηκαν
+miami cursor on	δείκτης Miami: ναι
+ndi unavailable	το NDI δεν είναι διαθέσιμο
+no marker ahead	καμία σήμανση μπροστά
+nothing to redo	τίποτα για επανάληψη
+nothing to undo	τίποτα για αναίρεση
+on every output	σε κάθε έξοδο
+overlay cleared	η επικάλυψη αφαιρέθηκε
+phrases cleared	οι φράσεις καθαρίστηκαν
+preload cleared	η προφόρτωση καθαρίστηκε
+progress bar on	μπάρα προόδου: ναι
+raster: invalid	ράστερ: μη έγκυρο
+standby cleared	η αναμονή καθαρίστηκε
+tally: disabled	tally: ανενεργό
+tc mark cleared	η σήμανση TC καθαρίστηκε
+tempo is tapped	το tempo δόθηκε με tap
+time overlay on	επικάλυψη ώρας: ναι
+DMX over Art-Net	DMX μέσω Art-Net
+MIDICUE: no deck	MIDICUE: κανένα deck
+TEXTCUE: no deck	TEXTCUE: κανένα deck
+all decks paused	όλα τα deck σε παύση
+aoi: full raster	AOI: πλήρες ράστερ
+browser loading…	ο περιηγητής φορτώνει…
+driver free-runs	ο driver τρέχει ελεύθερα
+driver restarted	ο driver επανεκκινήθηκε
+find: empty deck	αναζήτηση: κενό deck
+in point cleared	το σημείο εισόδου καθαρίστηκε
+leave it running	άφησέ το να τρέχει
+little bloops on	μικρά bloops: ναι
+ltc fps: invalid	LTC fps: μη έγκυρο
+mic not recorded	το μικρόφωνο δεν ηχογραφήθηκε
+no marker behind	καμία σήμανση πίσω
+no plugins found	δεν βρέθηκαν πρόσθετα
+off every output	όλες οι έξοδοι εκτός
+phone haptics on	τρέμουλο τηλεφώνου ενεργό
+playlist loop on	βρόχος playlist ενεργός
+progress bar off	μπάρα προόδου εκτός
+refresh: invalid	ανανέωση: μη έγκυρη
+schedule cleared	το πρόγραμμα καθαρίστηκε
+script cue added	προστέθηκε cue σεναρίου
+sequence stopped	η ακολουθία σταμάτησε
+stream cue added	προστέθηκε cue μετάδοσης
+target cue added	προστέθηκε cue στόχου
+time overlay off	επικάλυψη χρόνου εκτός
+warp/blend reset	η παραμόρφωση/μίξη επαναφέρθηκε
+' is not a number	' δεν είναι αριθμός
+MIDIFILE: no deck	MIDIFILE: κανένα deck
+RECORDING STOPPED	Η ΕΓΓΡΑΦΗ ΣΤΑΜΑΤΗΣΕ
+all decks stopped	όλα τα deck σταμάτησαν
+at the first step	στο πρώτο βήμα
+browser refreshed	ο περιηγητής ανανεώθηκε
+conversion failed	η μετατροπή απέτυχε
+converting {1}...	μετατροπή {1}...
+cue fade: invalid	σβήσιμο cue: μη έγκυρο
+fullscreen failed	η πλήρης οθόνη απέτυχε
+hotkey: cancelled	συντόμευση: ακυρώθηκε
+invalid key color	μη έγκυρο χρώμα κλειδιού
+little bloops off	μικρά bloops εκτός
+live captions off	ζωντανοί υπότιτλοι εκτός
+lock to screen on	κλείδωμα στην οθόνη ενεργό
+mask not inverted	η μάσκα δεν είναι αντεστραμμένη
+motion driver set	ορίστηκε το πρόγραμμα οδήγησης κίνησης
+ndi sender failed	ο αποστολέας NDI απέτυχε
+network cue added	προστέθηκε cue δικτύου
+no cue to jump to	δεν υπάρχει cue για μετάβαση
+out point cleared	το σημείο εξόδου καθαρίστηκε
+output overlay on	επικάλυψη εξόδου ενεργή
+phone haptics off	τρέμουλο τηλεφώνου εκτός
+pick a deck first	διάλεξε πρώτα ένα deck
+playlist loop off	βρόχος playlist εκτός
+record folder set	ο φάκελος εγγραφής ορίστηκε
+subtitle file set	το αρχείο υποτίτλων ορίστηκε
+subtitles cleared	οι υπότιτλοι καθαρίστηκαν
+take the mask off	αφαίρεση μάσκας
+universe: 0-63999	σύμπαν: 0-63999
+video synth added	προστέθηκε συνθεσάιζερ βίντεο
+warp preset saved	αποθηκεύτηκε η προεπιλογή παραμόρφωσης
+AUDIOALSO: no deck	AUDIOALSO: κανένα deck
+DeckLink 10-bit ON	DeckLink 10-BIT: ΕΝΤΟΣ
+SCRIPTCUE: no deck	SCRIPTCUE: κανένα deck
+assign route first	ορίστε πρώτα διαδρομή
+bundle save failed	αποτυχία αποθήκευσης συσκευασίας
+cue settings reset	επαναφορά ρυθμίσεων cue
+file dialog failed	αποτυχία διαλόγου αρχείου
+jumped to live cue	μετάβαση στο cue στον αέρα
+lock to screen off	κλείδωμα στην οθόνη: ΕΚΤΟΣ
+media probe failed	αποτυχία ανάλυσης μέσων
+nmos: invalid port	NMOS: μη έγκυρη θύρα
+output overlay off	επικάλυψη εξόδου: ΕΚΤΟΣ
+pip target cleared	ο στόχος PIP καθαρίστηκε

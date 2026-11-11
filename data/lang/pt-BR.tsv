@@ -2334,3 +2334,238 @@ It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts 
 Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	Duas telas, skapi. A mesa fica nesta, a imagem vai para a outra: {1}. Abra o MENU e faça SAÍDA DESLIGADA virar SAÍDA LIGADA.
 It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	Comeu a mesa, skapi. Telas espelhadas mostram a imagem nas duas, então coloquei a imagem numa janelinha, atrás. {1}, e ela ganha uma tela só dela.
 Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	Suas telas estão espelhadas, skapi: {1} mostra o mesmo que esta, então a imagem vai cobrir a mesa nas duas. {2}, e eu ponho a imagem numa tela só dela. Ou abra o MENU e faça SAÍDA DESLIGADA virar SAÍDA LIGADA.
++now	+agora
+CROP	CORTAR
+Move	Mover
+NEW 1	NOVO 1
+SELECT	SELECIONAR
+key on	tecla ligada
+lfo on	lfo ligado
+hold on	segurar ligado
+key off	tecla desligada
+lfo off	lfo desligado
+loop on	loop ligado
+mesh on	malha ligada
+ndi off	ndi desligado
+pan set	definir pan
+hold off	segurar desligado
+loop off	loop desligado
+mask off	máscara desligada
+mesh off	malha desligada
+new show	novo show
+no pages	sem páginas
+warp off	deformar desligado
+(default)	(padrão)
+LOWERTEXT	TARJA DE TEXTO
+canvas on	tela ligada
+matte off	máscara desligada
+notes set	notas definidas
+pin reset	PIN redefinido
+splash on	tela de abertura ligada
+tc jam on	tc sincronizar ligado
+tc run on	tc executar ligado
+timer set	temporizador definido
+wiggle on	tremor ligado
+VJ mode on	modo VJ ligado
+big screen	tela grande
+canvas off	tela desligada
+cue loaded	cue carregado
+display on	tela ligada
+overlay on	sobreposição ligada
+scene live	cena ao vivo
+shuffle on	aleatório ligado
+speaker up	alto-falante cima
+splash off	tela de abertura desligada
+tc jam off	tc sincronizar desligado
+tc run off	tc executar desligado
+timer held	temporizador retido
+trim reset	corte redefinido
+vj mode on	modo VJ ligado
+warp reset	deformar redefinido
+wiggle off	tremor desligado
+({1} decks)	({1} mesas)
+4-bit steps	passos de 4 bits
+DATAMOSH on	DATAMOSH LIGADO
+VJ mode off	modo VJ desligado
+blackout ON	preto LIGADO
+blend reset	mistura redefinida
+captions on	legendas ligadas
+cue deleted	cue excluído
+display off	tela desligada
+driver held	driver retido
+id: cleared	id: limpo
+jumped to -	salto para -
+monitor off	monitor desligado
+overlay off	sobreposição desligada
+path closed	caminho fechado
+phrases set	frases definidas
+pip cleared	PIP removido
+point added	ponto adicionado
+row deleted	linha excluída
+seconds, 0-	segundos, 0-
+shuffle off	aleatório desligado
+source live	fonte ao vivo
+sprites off	sprites desligados
+tc chase on	TC chase ligado
+timer reset	temporizador redefinido
+vj mode off	modo VJ desligado
+all decks go	todas as playlists iniciam
+big screen @	tela grande @
+blackout off	preto desligado
+browser live	navegador ao vivo
+captions off	legendas desligadas
+clip cleared	clipe removido
+datamosh off	datamosh desligado
+find cleared	busca limpa
+hands-on off	controle manual desligado
+key+fill off	key+fill desligado
+multiview on	multiview ligado
+not watching	não vigiando
+path removed	caminho removido
+pip attached	PIP anexado
+scene loaded	cena carregada
+speaker down	alto-falante para baixo
+st2110 8-bit	st2110 8 bits
+subtitles on	legendas ligadas
+tc chase off	tc chase desligado
+text mode on	modo texto ligado
+trim cleared	corte limpo
+beast mode on	modo fera ligado
+creatures off	criaturas desligadas
+cue reordered	cue reordenado
+dmx cue added	cue DMX adicionado
+hover tips on	dicas ao passar ligadas
+lfo runs free	lfo livre
+lower sub set	sub inferior definido
+mask inverted	máscara invertida
+multiview off	multiview desligado
+no expression	sem expressão
+pip cue added	cue PIP adicionado
+point removed	ponto removido
+source loaded	fonte carregada
+st2110 10-bit	st2110 10 bits
+stream failed	falha na transmissão
+subtitles off	legendas desligadas
+system cursor	cursor do sistema
+tc trigger on	disparo de tc ligado
+text mode off	modo texto desligado
+timer running	temporizador em execução
+video dip off	dip de vídeo: não
+view: invalid	visualização: inválida
+warp grid off	grade de deformação desligada
+1-90 (percent)	1-90 (porcentagem)
+DRAW FPS: 1-60	FPS DE DESENHO: 1-60
+TCCUE: no deck	TCCUE: sem deck
+all decks play	todos os decks tocam
+aspect link on	vínculo de proporção ligado
+atem tally off	tally ATEM desligado
+beast mode off	modo fera desligado
+browser parked	navegador em espera
+button deleted	botão excluído
+button removed	botão removido
+driver running	driver em execução
+expression set	expressão definida
+fade cue added	cue de fade adicionado
+hotkey cleared	atalho limpo
+hover tips off	dicas ao passar desligadas
+invalid number	número inválido
+lower text set	texto inferior definido
+mic fading out	microfone em fade de saída
+midi cue added	cue MIDI adicionado
+nothing broken	nada quebrado
+overlay popped	sobreposição removida
+periodic noise	ruído periódico
+pip source set	fonte PIP definida
+sequence ended	sequência encerrada
+sequence loops	sequência em loop
+stop when done	parar ao terminar
+stream stopped	fluxo parado
+stream url set	URL do fluxo definida
+tally: enabled	tally: ativado
+tc trigger off	gatilho TC desligado
+timer logo set	logo do temporizador definido
+, fetched once)	, obtido uma vez)
+DMXCUE: no deck	DMXCUE: sem deck
+MATRIX: no deck	MATRIX: sem deck
+MIDI fires cues	MIDI dispara cues
+MSC id: invalid	ID MSC: inválido
+NETCUE: no deck	NETCUE: sem deck
+all decks fired	todos os decks disparados
+animation saved	animação salva
+aspect link off	vínculo de proporção desligado
+audio input off	entrada de áudio desligada
+canvas mode off	modo tela desligado
+canvas: invalid	tela: inválido
+cue audio: mono	áudio do cue: mono
+cue jumped live	cue foi ao vivo
+glitch text set	texto glitch definido
+markers cleared	marcadores limpos
+miami cursor on	cursor Miami ligado
+ndi unavailable	ndi indisponível
+no marker ahead	sem marcador adiante
+nothing to redo	nada para refazer
+nothing to undo	nada para desfazer
+on every output	em todas as saídas
+overlay cleared	overlay removido
+phrases cleared	frases limpas
+preload cleared	pré-carga limpa
+progress bar on	barra de progresso ligada
+raster: invalid	raster: inválido
+standby cleared	em espera limpo
+tally: disabled	tally: desativado
+tc mark cleared	marca de tc removida
+tempo is tapped	andamento batido
+time overlay on	overlay de tempo ligado
+DMX over Art-Net	DMX sobre Art-Net
+MIDICUE: no deck	MIDICUE: sem deck
+TEXTCUE: no deck	TEXTCUE: sem deck
+all decks paused	todos os decks pausados
+aoi: full raster	aoi: raster cheio
+browser loading…	carregando navegador…
+driver free-runs	driver em execução livre
+driver restarted	driver reiniciado
+find: empty deck	buscar: deck vazio
+in point cleared	ponto de entrada limpo
+leave it running	deixe rodando
+little bloops on	bloopzinhos ligados
+ltc fps: invalid	fps do ltc: inválido
+mic not recorded	microfone não gravado
+no marker behind	sem marcador atrás
+no plugins found	nenhum plugin encontrado
+off every output	todas as saídas desligadas
+phone haptics on	vibração do celular ligada
+playlist loop on	loop da playlist ligado
+progress bar off	barra de progresso desligada
+refresh: invalid	atualização: inválida
+schedule cleared	agenda limpa
+script cue added	cue de script adicionado
+sequence stopped	sequência parada
+stream cue added	cue de transmissão adicionado
+target cue added	cue de alvo adicionado
+time overlay off	overlay de tempo desligado
+warp/blend reset	deformação/mistura redefinida
+' is not a number	' não é um número
+MIDIFILE: no deck	MIDIFILE: sem deck
+RECORDING STOPPED	GRAVAÇÃO PARADA
+all decks stopped	todos os decks parados
+at the first step	no primeiro passo
+browser refreshed	navegador atualizado
+conversion failed	falha na conversão
+converting {1}...	convertendo {1}...
+cue fade: invalid	fade do cue: inválido
+fullscreen failed	falha na tela cheia
+hotkey: cancelled	atalho: cancelado
+invalid key color	cor de key inválida
+little bloops off	sonzinhos desligados
+live captions off	legendas ao vivo desligadas
+lock to screen on	travar na tela ligado
+mask not inverted	máscara não invertida
+motion driver set	driver de movimento definido
+ndi sender failed	falha no emissor NDI
+network cue added	cue de rede adicionado
+no cue to jump to	nenhum cue para ir
+out point cleared	ponto out limpo
+output overlay on	overlay de saída ligado
+phone haptics off	vibração do celular desligada
+pick a deck first	escolha um deck primeiro
+playlist loop off	loop da playlist desligado

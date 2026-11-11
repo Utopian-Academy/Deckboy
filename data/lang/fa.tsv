@@ -2359,3 +2359,238 @@ It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts 
 Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	دو صفحه‌نمایش، skapi. میز روی همین می‌ماند، تصویر روی آن یکی می‌رود: {1}. منو را باز کن و کاری کن خروجی خاموش بشود خروجی روشن.
 It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	میز را خورد، skapi. صفحه‌های آینه‌ای تصویر را روی هر دو نشان می‌دهند، پس آن را در یک پنجره‌ی کوچک، پشت، گذاشتم. {1}، تا صفحه‌ی خودش را داشته باشد.
 Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	صفحه‌هایت آینه‌ای‌اند، skapi: {1} همان چیزی را نشان می‌دهد که این یکی، پس تصویر روی هر دو میز را می‌پوشاند. {2}، تا تصویر را روی صفحه‌ی خودش بگذارم. یا منو را باز کن و کاری کن خروجی خاموش بشود خروجی روشن.
++now	+اکنون
+CROP	برش
+Move	جابه‌جایی
+NEW 1	جدید 1
+SELECT	انتخاب
+key on	کلید روشن
+lfo on	lfo روشن
+hold on	نگه داشتن روشن
+key off	کلید خاموش
+lfo off	lfo خاموش
+loop on	حلقه روشن
+mesh on	مش روشن
+ndi off	ndi خاموش
+pan set	تراز تنظیم شد
+hold off	نگه داشتن خاموش
+loop off	حلقه خاموش
+mask off	ماسک خاموش
+mesh off	مش خاموش
+new show	نمایش جدید
+no pages	بدون صفحه
+warp off	تصحیح هندسی خاموش
+(default)	(پیش‌فرض)
+LOWERTEXT	متن پایین
+canvas on	بوم روشن
+matte off	مات خاموش
+notes set	یادداشت‌ها تنظیم شد
+pin reset	پین بازنشانی شد
+splash on	صفحهٔ آغاز روشن
+tc jam on	tc همگام‌سازی روشن
+tc run on	tc اجرا روشن
+timer set	زمان‌سنج تنظیم شد
+wiggle on	لرزش روشن
+VJ mode on	حالت VJ روشن
+big screen	صفحه‌نمایش بزرگ
+canvas off	بوم خاموش
+cue loaded	کیو بارگذاری شد
+display on	صفحه‌نمایش روشن
+overlay on	لایهٔ رویی روشن
+scene live	صحنه زنده
+shuffle on	تصادفی روشن
+speaker up	بلندگو بالا
+splash off	صفحهٔ آغاز خاموش
+tc jam off	tc همگام‌سازی خاموش
+tc run off	tc اجرا خاموش
+timer held	زمان‌سنج نگه‌داشته
+trim reset	برش بازنشانی شد
+vj mode on	حالت VJ روشن
+warp reset	تصحیح هندسی بازنشانی شد
+wiggle off	لرزش خاموش
+({1} decks)	({1} میز)
+4-bit steps	گام‌های 4 بیتی
+DATAMOSH on	DATAMOSH روشن
+VJ mode off	حالت VJ خاموش
+blackout ON	سیاه‌کردن تصویر روشن
+blend reset	ترکیب بازنشانی شد
+captions on	زیرنویس‌ها روشن
+cue deleted	cue حذف شد
+display off	نمایشگر خاموش
+driver held	درایور نگه‌داشته
+id: cleared	id: برداشته شد
+jumped to -	پرش به -
+monitor off	مانیتور خاموش
+overlay off	لایه خاموش
+path closed	مسیر بسته شد
+phrases set	عبارت‌ها تنظیم شد
+pip cleared	PIP برداشته شد
+point added	نقطه افزوده شد
+row deleted	ردیف حذف شد
+seconds, 0-	ثانیه، 0-
+shuffle off	تصادفی خاموش
+source live	منبع زنده
+sprites off	اسپرایت‌ها خاموش
+tc chase on	تعقیب TC روشن
+timer reset	زمان‌سنج بازنشانی شد
+vj mode off	حالت VJ خاموش
+all decks go	اجرای همه فهرست‌ها
+big screen @	صفحه‌نمایش بزرگ @
+blackout off	سیاه‌کردن تصویر خاموش
+browser live	مرورگر زنده
+captions off	زیرنویس‌ها خاموش
+clip cleared	کلیپ برداشته شد
+datamosh off	datamosh خاموش
+find cleared	جست‌وجو برداشته شد
+hands-on off	کنترل دستی خاموش
+key+fill off	key+fill خاموش
+multiview on	multiview روشن
+not watching	پایش نمی‌شود
+path removed	مسیر برداشته شد
+pip attached	PIP متصل شد
+scene loaded	صحنه بارگذاری شد
+speaker down	بلندگو پایین
+st2110 8-bit	st2110 8 بیت
+subtitles on	زیرنویس روشن
+tc chase off	تعقیب tc خاموش
+text mode on	حالت متن روشن
+trim cleared	برش پاک شد
+beast mode on	حالت هیولا روشن
+creatures off	جانوران خاموش
+cue reordered	ترتیب cue تغییر کرد
+dmx cue added	cue dmx افزوده شد
+hover tips on	راهنمای شناور روشن
+lfo runs free	lfo اجرای آزاد
+lower sub set	زیرنویس پایین تنظیم شد
+mask inverted	ماسک معکوس شد
+multiview off	multiview خاموش
+no expression	بدون عبارت
+pip cue added	cue pip افزوده شد
+point removed	نقطه حذف شد
+source loaded	منبع بارگذاری شد
+st2110 10-bit	st2110 10 بیت
+stream failed	استریم ناموفق بود
+subtitles off	زیرنویس خاموش
+system cursor	مکان‌نمای سیستم
+tc trigger on	راه‌انداز tc روشن
+text mode off	حالت متن خاموش
+timer running	زمان‌سنج در حال اجرا
+video dip off	فروافت ویدیو خاموش
+view: invalid	نما: نامعتبر
+warp grid off	شبکهٔ تصحیح هندسی خاموش
+1-90 (percent)	1-90 (درصد)
+DRAW FPS: 1-60	FPS نقاشی: 1-60
+TCCUE: no deck	TCCUE: بدون دک
+all decks play	همه دک‌ها می‌نوازند
+aspect link on	پیوند نسبت: روشن
+atem tally off	Tally از ATEM: خاموش
+beast mode off	حالت هیولا: خاموش
+browser parked	مرورگر پارک شد
+button deleted	دکمه حذف شد
+button removed	دکمه برداشته شد
+driver running	درایور در حال اجرا
+expression set	عبارت تنظیم شد
+fade cue added	کیوی محوشدن افزوده شد
+hotkey cleared	کلید میانبر پاک شد
+hover tips off	راهنمای شناور: خاموش
+invalid number	عدد نامعتبر
+lower text set	متن زیرین تنظیم شد
+mic fading out	میکروفون در حال محو شدن
+midi cue added	کیوی MIDI افزوده شد
+nothing broken	هیچ‌چیز خراب نیست
+overlay popped	لایه برداشته شد
+periodic noise	نویز دوره‌ای
+pip source set	منبع PIP تنظیم شد
+sequence ended	توالی تمام شد
+sequence loops	توالی تکرار می‌شود
+stop when done	توقف پس از پایان
+stream stopped	استریم متوقف شد
+stream url set	نشانی استریم تنظیم شد
+tally: enabled	Tally: فعال
+tc trigger off	محرک TC: خاموش
+timer logo set	لوگوی زمان‌سنج تنظیم شد
+, fetched once)	، یک بار دریافت شد)
+DMXCUE: no deck	DMXCUE: بدون دک
+MATRIX: no deck	MATRIX: بدون دک
+MIDI fires cues	MIDI کیوها را اجرا می‌کند
+MSC id: invalid	شناسهٔ MSC: نامعتبر
+NETCUE: no deck	NETCUE: بدون دک
+all decks fired	همه دک‌ها اجرا شدند
+animation saved	انیمیشن ذخیره شد
+aspect link off	پیوند نسبت: خاموش
+audio input off	ورودی صدا: خاموش
+canvas mode off	حالت بوم: خاموش
+canvas: invalid	بوم: نامعتبر
+cue audio: mono	صدای کیو: مونو
+cue jumped live	کیو به زنده پرید
+glitch text set	متن گلیچ تنظیم شد
+markers cleared	نشانه‌ها پاک شدند
+miami cursor on	نشانگر میامی روشن
+ndi unavailable	NDI در دسترس نیست
+no marker ahead	نشانه‌ای در جلو نیست
+nothing to redo	چیزی برای انجام دوباره نیست
+nothing to undo	چیزی برای واگرد نیست
+on every output	روی هر خروجی
+overlay cleared	لایه برداشته شد
+phrases cleared	عبارت‌ها پاک شدند
+preload cleared	پیش‌بارگذاری پاک شد
+progress bar on	نوار پیشرفت روشن
+raster: invalid	راستر: نامعتبر
+standby cleared	آماده پاک شد
+tally: disabled	Tally: غیرفعال
+tc mark cleared	علامت TC پاک شد
+tempo is tapped	تمپو ضرب‌گیری شد
+time overlay on	لایهٔ زمان روشن
+DMX over Art-Net	DMX روی Art-Net
+MIDICUE: no deck	MIDICUE: بدون دک
+TEXTCUE: no deck	TEXTCUE: بدون دک
+all decks paused	همهٔ دک‌ها مکث شدند
+aoi: full raster	aoi: راستر کامل
+browser loading…	مرورگر در حال بارگذاری…
+driver free-runs	درایور آزادانه اجرا می‌شود
+driver restarted	درایور دوباره راه‌اندازی شد
+find: empty deck	جست‌وجو: دک خالی
+in point cleared	نقطهٔ ورود پاک شد
+leave it running	بگذار اجرا شود
+little bloops on	بلوپ‌های کوچک روشن
+ltc fps: invalid	فریم/ث LTC: نامعتبر
+mic not recorded	میکروفون ضبط نشد
+no marker behind	نشانه‌ای در عقب نیست
+no plugins found	افزونه‌ای پیدا نشد
+off every output	همهٔ خروجی‌ها خاموش
+phone haptics on	لرزش گوشی روشن
+playlist loop on	حلقهٔ فهرست پخش روشن
+progress bar off	نوار پیشرفت خاموش
+refresh: invalid	تازه‌سازی: نامعتبر
+schedule cleared	زمان‌بندی پاک شد
+script cue added	کیوی اسکریپت افزوده شد
+sequence stopped	توالی متوقف شد
+stream cue added	کیوی استریم افزوده شد
+target cue added	کیوی هدف افزوده شد
+time overlay off	پوشش زمان خاموش
+warp/blend reset	تصحیح هندسی/ترکیب بازنشانی شد
+' is not a number	' عدد نیست
+MIDIFILE: no deck	MIDIFILE: بدون دک
+RECORDING STOPPED	ضبط متوقف شد
+all decks stopped	همهٔ دک‌ها متوقف شدند
+at the first step	در گام نخست
+browser refreshed	مرورگر تازه‌سازی شد
+conversion failed	تبدیل ناموفق بود
+converting {1}...	در حال تبدیل {1}...
+cue fade: invalid	محو شدن کیو: نامعتبر
+fullscreen failed	تمام‌صفحه ناموفق بود
+hotkey: cancelled	کلید میانبر: لغو شد
+invalid key color	رنگ کلید نامعتبر
+little bloops off	صدای بلوپ‌های کوچک خاموش
+live captions off	زیرنویس زنده خاموش
+lock to screen on	قفل روی صفحه روشن
+mask not inverted	ماسک معکوس نشده
+motion driver set	گرداننده حرکت تنظیم شد
+ndi sender failed	فرستنده NDI ناموفق بود
+network cue added	کیوی شبکه افزوده شد
+no cue to jump to	کیویی برای رفتن نیست
+out point cleared	نقطهٔ خروج پاک شد
+output overlay on	پوشش خروجی روشن
+phone haptics off	لرزش گوشی خاموش
+pick a deck first	اول یک دک انتخاب کنید
+playlist loop off	حلقهٔ فهرست پخش خاموش

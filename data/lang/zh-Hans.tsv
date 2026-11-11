@@ -2350,3 +2350,237 @@ It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts 
 Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	两个屏幕，skapi。控台留在这个上，画面放到另一个：{1}。打开菜单，把输出关切换成输出开。
 It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	它把台子吃掉了，skapi。镜像屏幕会在两个上都显示画面，所以我把它放进了后面的一个小窗口。{1}，它就会有自己的屏幕。
 Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	你的屏幕是镜像的，skapi：{1} 显示的和这个一样，所以画面会在两个屏幕上都盖住控台。{2}，我就把画面放到它自己的屏幕上。或者打开菜单，把输出关切换成输出开。
++now	+当前
+CROP	裁切
+Move	动作
+NEW 1	新建 1
+SELECT	选择
+key on	键 开
+lfo on	lfo 开
+hold on	保持 开
+key off	键 关
+lfo off	lfo 关
+loop on	循环 开
+mesh on	网格 开
+ndi off	ndi 关
+pan set	声像 设置
+hold off	保持 关
+loop off	循环 关
+mask off	遮罩 关
+mesh off	网格 关
+new show	新建演出
+no pages	无页面
+warp off	变形 关
+(default)	(默认)
+LOWERTEXT	Lower Third 文字
+canvas on	画布 开
+matte off	遮罩 关
+notes set	备注 已设置
+pin reset	PIN 已重置
+splash on	启动画面 开
+tc jam on	TC 同步 开
+tc run on	TC 运行 开
+timer set	计时器 已设置
+wiggle on	摇摆 开
+VJ mode on	VJ 模式 开
+big screen	大屏幕
+canvas off	画布 关
+cue loaded	CUE 已载入
+display on	显示 开
+overlay on	叠加 开
+scene live	场景 直播
+shuffle on	随机 开
+speaker up	扬声器 向上
+splash off	启动画面 关
+tc jam off	TC 同步 关
+tc run off	TC 运行 关
+timer held	计时器 已保持
+trim reset	修剪 已重置
+vj mode on	VJ 模式 开
+warp reset	变形 已重置
+wiggle off	摇摆 关
+({1} decks)	({1} 个播放器)
+4-bit steps	4 位步进
+DATAMOSH on	DATAMOSH 开
+VJ mode off	VJ 模式关
+blackout ON	黑场开
+blend reset	混合已重置
+captions on	字幕开
+cue deleted	已删除 cue
+display off	显示关
+driver held	驱动已保持
+id: cleared	id: 已清除
+jumped to -	已跳转到 -
+monitor off	监视器关
+overlay off	叠加关
+path closed	路径已关闭
+phrases set	已设置短语
+pip cleared	PIP 已清除
+point added	已添加点
+row deleted	已删除行
+seconds, 0-	秒，0-
+shuffle off	随机关
+source live	信号源直播
+sprites off	精灵关
+tc chase on	tc 追随开
+timer reset	计时器已重置
+vj mode off	VJ 模式关
+all decks go	全部 deck 启动
+big screen @	大屏幕 @
+blackout off	黑场关
+browser live	浏览器直播
+captions off	字幕关
+clip cleared	片段已清除
+datamosh off	datamosh 关
+find cleared	查找已清除
+hands-on off	hands-on 关
+key+fill off	key+fill 关
+multiview on	多画面开
+not watching	未监视
+path removed	路径已移除
+pip attached	PIP 已附加
+scene loaded	场景已载入
+speaker down	扬声器向下
+st2110 8-bit	st2110 8 位
+subtitles on	字幕开
+tc chase off	tc chase 关
+text mode on	文本模式开
+trim cleared	修剪已清除
+beast mode on	野兽模式开
+creatures off	小生物关
+cue reordered	cue 已重新排序
+dmx cue added	已添加DMX cue
+hover tips on	悬停提示开
+lfo runs free	lfo 自由运行
+lower sub set	下方字幕已设置
+mask inverted	遮罩已反转
+multiview off	多画面关
+no expression	无表达式
+pip cue added	已添加PIP cue
+point removed	点已移除
+source loaded	信号源已载入
+st2110 10-bit	st2110 10 位
+stream failed	推流失败
+subtitles off	字幕关
+system cursor	系统光标
+tc trigger on	tc 触发开
+text mode off	文本模式关
+timer running	计时器运行中
+video dip off	视频下沉：关
+view: invalid	视图：无效
+warp grid off	变形网格关
+1-90 (percent)	1-90（百分比）
+DRAW FPS: 1-60	绘画 FPS: 1-60
+TCCUE: no deck	TCCUE：无卡座
+all decks play	全部卡座演奏
+aspect link on	宽高比联动 开
+atem tally off	ATEM 提示灯 关
+beast mode off	野兽模式 关
+browser parked	浏览器已停放
+button deleted	按钮已删除
+button removed	按钮已移除
+driver running	驱动程序运行中
+expression set	表达式已设置
+fade cue added	已添加淡出cue
+hotkey cleared	热键已清除
+hover tips off	悬停提示 关
+invalid number	数字无效
+lower text set	下三分之一文字已设置
+mic fading out	麦克风淡出中
+midi cue added	已添加MIDI cue
+nothing broken	没有损坏
+overlay popped	叠加已弹出
+periodic noise	周期性噪声
+pip source set	PIP源已设置
+sequence ended	序列已结束
+sequence loops	序列循环
+stop when done	完成后停止
+stream stopped	推流已停止
+stream url set	推流URL已设置
+tally: enabled	提示灯：已启用
+tc trigger off	TC 触发 关
+timer logo set	计时器标志已设置
+, fetched once)	，仅获取一次）
+DMXCUE: no deck	DMXCUE：无卡座
+MATRIX: no deck	MATRIX：无卡座
+MIDI fires cues	MIDI 触发 cue
+MSC id: invalid	MSC id：无效
+NETCUE: no deck	NETCUE：无卡座
+all decks fired	全部卡座已触发
+animation saved	动画已保存
+aspect link off	宽高比联动 关
+audio input off	音频输入 关
+canvas mode off	画布模式 关
+canvas: invalid	画布：无效
+cue audio: mono	cue 音频：单声道
+cue jumped live	cue 已跳到直播
+glitch text set	故障文字已设置
+markers cleared	标记已清除
+miami cursor on	Miami 光标已开启
+ndi unavailable	NDI 不可用
+no marker ahead	前方没有标记
+nothing to redo	没有可重做的操作
+nothing to undo	没有可撤销的操作
+on every output	在每个输出上
+overlay cleared	叠加层已清除
+phrases cleared	短语已清除
+preload cleared	预加载已清除
+progress bar on	进度条已开启
+raster: invalid	光栅：无效
+standby cleared	待命已清除
+tally: disabled	Tally：已停用
+tc mark cleared	TC 标记已清除
+tempo is tapped	速度已打拍
+time overlay on	时间叠加层已开启
+MIDICUE: no deck	MIDICUE：无卡座
+TEXTCUE: no deck	TEXTCUE：无卡座
+all decks paused	所有卡座已暂停
+aoi: full raster	AOI：完整光栅
+browser loading…	浏览器加载中…
+driver free-runs	驱动器自由运行
+driver restarted	驱动器已重启
+find: empty deck	查找：卡座为空
+in point cleared	入点已清除
+leave it running	让它继续运行
+little bloops on	小哔声已开启
+ltc fps: invalid	LTC 帧率：无效
+mic not recorded	麦克风未录制
+no marker behind	后方没有标记
+no plugins found	未找到插件
+off every output	关闭所有输出
+phone haptics on	手机触感已开
+playlist loop on	播放列表循环已开
+progress bar off	进度条已关
+refresh: invalid	刷新：无效
+schedule cleared	日程已清除
+script cue added	已添加脚本cue
+sequence stopped	序列已停止
+stream cue added	已添加推流cue
+target cue added	已添加目标cue
+time overlay off	时间叠加层已关
+warp/blend reset	变形/混合已重置
+' is not a number	' 不是数字
+MIDIFILE: no deck	MIDIFILE: 没有卡座
+RECORDING STOPPED	录制已停止
+all decks stopped	所有卡座已停止
+at the first step	已在第一步
+browser refreshed	浏览器已刷新
+conversion failed	转换失败
+converting {1}...	正在转换 {1}...
+cue fade: invalid	cue 渐变：无效
+fullscreen failed	全屏失败
+hotkey: cancelled	快捷键：已取消
+invalid key color	无效的键色
+little bloops off	小提示音已关
+live captions off	实时字幕已关
+lock to screen on	锁定屏幕已开
+mask not inverted	遮罩未反转
+motion driver set	已设置运动驱动
+ndi sender failed	NDI 发送端失败
+network cue added	已添加网络cue
+no cue to jump to	没有可跳转的cue
+out point cleared	出点已清除
+output overlay on	输出叠加层已开
+phone haptics off	手机触感已关
+pick a deck first	请先选择卡座
+playlist loop off	播放列表循环已关

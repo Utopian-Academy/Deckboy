@@ -2343,3 +2343,238 @@ It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts 
 Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	Hai màn hình, skapi. Bàn ở lại màn này, hình ảnh sang cái còn lại: {1}. Mở DANH MỤC và chuyển OUTPUT TẮT thành OUTPUT BẬT.
 It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	Nó nuốt cả cái bàn, skapi. Màn hình nhân bản hiện hình ảnh trên cả hai, nên tôi đặt nó vào một cửa sổ nhỏ, phía sau. {1}, và nó sẽ có màn hình riêng.
 Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	Màn hình của bạn đang nhân bản, skapi: {1} hiện y như màn này, nên hình ảnh sẽ che bàn trên cả hai. {2}, và tôi đặt hình ảnh lên màn hình riêng. Hoặc mở DANH MỤC và chuyển OUTPUT TẮT thành OUTPUT BẬT.
++now	+hiện tại
+CROP	CẮT
+Move	Di chuyển
+NEW 1	MỚI 1
+SELECT	CHỌN
+key on	phím bật
+lfo on	lfo bật
+hold on	giữ bật
+key off	phím tắt
+lfo off	lfo tắt
+loop on	lặp bật
+mesh on	lưới bật
+ndi off	ndi tắt
+pan set	đặt pan
+hold off	giữ tắt
+loop off	lặp tắt
+mask off	mặt nạ tắt
+mesh off	lưới tắt
+new show	show mới
+no pages	không có trang
+warp off	warp tắt
+(default)	(mặc định)
+LOWERTEXT	CHỮ CHÂN MÀN
+canvas on	canvas bật
+matte off	matte tắt
+notes set	đã đặt ghi chú
+pin reset	đặt lại PIN
+splash on	màn hình chào bật
+tc jam on	tc đồng bộ bật
+tc run on	tc chạy bật
+timer set	đã đặt bộ đếm giờ
+wiggle on	rung bật
+VJ mode on	chế độ VJ bật
+big screen	màn hình lớn
+canvas off	canvas tắt
+cue loaded	đã nạp cue
+display on	màn hình bật
+overlay on	lớp phủ bật
+scene live	cảnh trực tiếp
+shuffle on	xáo trộn bật
+speaker up	loa lên
+splash off	màn hình chào tắt
+tc jam off	tc đồng bộ tắt
+tc run off	tc chạy tắt
+timer held	bộ đếm giờ giữ
+trim reset	đặt lại cắt
+vj mode on	chế độ VJ bật
+warp reset	đặt lại warp
+wiggle off	rung tắt
+({1} decks)	({1} deck)
+4-bit steps	bước 4-bit
+DATAMOSH on	DATAMOSH BẬT
+VJ mode off	chế độ VJ tắt
+blackout ON	tắt hình BẬT
+blend reset	đã đặt lại trộn
+captions on	phụ đề bật
+cue deleted	đã xóa cue
+display off	màn hình tắt
+driver held	giữ driver
+id: cleared	id: đã xóa
+jumped to -	đã nhảy tới -
+monitor off	monitor tắt
+overlay off	lớp phủ tắt
+path closed	đã đóng đường dẫn
+phrases set	đã đặt cụm từ
+pip cleared	đã gỡ PIP
+point added	đã thêm điểm
+row deleted	đã xóa hàng
+seconds, 0-	giây, 0-
+shuffle off	xáo trộn tắt
+source live	nguồn trực tiếp
+sprites off	sprite tắt
+tc chase on	TC chase bật
+timer reset	đã đặt lại bộ đếm giờ
+vj mode off	chế độ VJ tắt
+all decks go	tất cả playlist chạy
+big screen @	màn hình lớn @
+blackout off	tắt hình tắt
+browser live	trình duyệt trực tiếp
+captions off	phụ đề tắt
+clip cleared	đã gỡ clip
+datamosh off	datamosh tắt
+find cleared	đã xóa tìm kiếm
+hands-on off	điều khiển tay tắt
+key+fill off	key+fill tắt
+multiview on	multiview bật
+not watching	không theo dõi
+path removed	đã gỡ đường dẫn
+pip attached	đã gắn PIP
+scene loaded	đã nạp cảnh
+speaker down	loa xuống
+subtitles on	phụ đề bật
+tc chase off	tc chase tắt
+text mode on	chế độ chữ bật
+trim cleared	đã xóa cắt
+beast mode on	chế độ quái thú bật
+creatures off	sinh vật tắt
+cue reordered	đã sắp xếp lại cue
+dmx cue added	đã thêm cue DMX
+hover tips on	gợi ý khi rê chuột bật
+lfo runs free	lfo chạy tự do
+lower sub set	đã đặt phụ đề dưới
+mask inverted	mặt nạ đã đảo
+multiview off	multiview tắt
+no expression	không có biểu thức
+pip cue added	đã thêm cue PIP
+point removed	đã xóa điểm
+source loaded	đã nạp nguồn
+stream failed	stream thất bại
+subtitles off	phụ đề tắt
+system cursor	con trỏ hệ thống
+tc trigger on	kích hoạt tc bật
+text mode off	chế độ chữ tắt
+timer running	bộ đếm giờ đang chạy
+video dip off	dip video: không
+view: invalid	chế độ xem: không hợp lệ
+warp grid off	lưới warp tắt
+1-90 (percent)	1-90 (phần trăm)
+DRAW FPS: 1-60	FPS VẼ: 1-60
+TCCUE: no deck	TCCUE: không có deck
+all decks play	tất cả deck chơi
+alpha: invalid	alpha: không hợp lệ
+aspect link on	liên kết tỷ lệ bật
+atem tally off	tally ATEM tắt
+beast mode off	chế độ quái thú tắt
+browser parked	trình duyệt tạm dừng
+button deleted	đã xóa nút
+button removed	đã gỡ nút
+driver running	driver đang chạy
+expression set	đã đặt biểu thức
+fade cue added	đã thêm cue mờ dần
+hotkey cleared	đã xóa phím tắt
+hover tips off	gợi ý khi rê chuột tắt
+invalid number	số không hợp lệ
+lower text set	đã đặt chữ dưới
+mic fading out	micrô đang mờ dần
+midi cue added	đã thêm cue MIDI
+nothing broken	không có gì hỏng
+overlay popped	đã gỡ lớp phủ
+periodic noise	nhiễu định kỳ
+pip source set	đã đặt nguồn PIP
+sequence ended	chuỗi đã kết thúc
+sequence loops	chuỗi lặp lại
+stop when done	dừng khi xong
+stream stopped	stream đã dừng
+stream url set	đã đặt URL luồng
+tally: enabled	tally: đã bật
+tc trigger off	trigger TC tắt
+timer logo set	đã đặt logo bộ đếm giờ
+, fetched once)	, đã tải một lần)
+DMXCUE: no deck	DMXCUE: không có deck
+MATRIX: no deck	MATRIX: không có deck
+MIDI fires cues	MIDI chạy các cue
+MSC id: invalid	MSC id: không hợp lệ
+NETCUE: no deck	NETCUE: không có deck
+all decks fired	đã chạy tất cả deck
+animation saved	đã lưu hoạt ảnh
+aspect link off	liên kết tỷ lệ tắt
+audio input off	đầu vào âm thanh tắt
+canvas mode off	chế độ canvas tắt
+canvas: invalid	canvas: không hợp lệ
+cue audio: mono	âm cue: mono
+cue jumped live	cue đã nhảy sang trực tiếp
+glitch text set	đã đặt chữ glitch
+markers cleared	đã xóa các marker
+miami cursor on	đã bật con trỏ Miami
+ndi unavailable	ndi không khả dụng
+no marker ahead	phía trước không có marker
+nothing to redo	không có gì để làm lại
+nothing to undo	không có gì để hoàn tác
+on every output	trên mọi output
+overlay cleared	đã gỡ lớp phủ
+phrases cleared	đã xóa các cụm từ
+preload cleared	đã xóa nạp trước
+progress bar on	đã bật thanh tiến độ
+raster: invalid	raster: không hợp lệ
+standby cleared	đã xóa chờ sẵn
+tally: disabled	tally: đã tắt
+tc mark cleared	đã xóa dấu tc
+tempo is tapped	đã gõ nhịp
+time overlay on	đã bật lớp phủ thời gian
+DMX over Art-Net	DMX qua Art-Net
+MIDICUE: no deck	MIDICUE: không có deck
+TEXTCUE: no deck	TEXTCUE: không có deck
+all decks paused	tất cả deck đã tạm dừng
+aoi: full raster	aoi: raster đầy
+bitrate: invalid	bitrate: không hợp lệ
+browser loading…	đang tải trình duyệt…
+driver free-runs	driver chạy tự do
+driver restarted	driver đã khởi động lại
+find: empty deck	tìm: deck trống
+in point cleared	đã xóa điểm vào
+leave it running	cứ để chạy
+little bloops on	đã bật tiếng bloop nhỏ
+ltc fps: invalid	ltc fps: không hợp lệ
+mic not recorded	micrô không được ghi
+no marker behind	phía sau không có marker
+no plugins found	không tìm thấy plugin
+off every output	đã tắt mọi OUTPUT
+phone haptics on	rung điện thoại bật
+playlist loop on	lặp playlist bật
+progress bar off	thanh tiến trình tắt
+refresh: invalid	làm mới: không hợp lệ
+schedule cleared	đã xóa lịch
+script cue added	đã thêm cue kịch bản
+sequence stopped	chuỗi đã dừng
+stream cue added	đã thêm cue luồng
+target cue added	đã thêm cue đích
+time overlay off	lớp phủ thời gian tắt
+warp/blend reset	WARP/trộn đã đặt lại
+' is not a number	' không phải là số
+MIDIFILE: no deck	MIDIFILE: không có deck
+RECORDING STOPPED	ĐÃ DỪNG GHI
+all decks stopped	đã dừng tất cả deck
+at the first step	ở bước đầu tiên
+browser refreshed	đã làm mới trình duyệt
+conversion failed	chuyển đổi thất bại
+converting {1}...	đang chuyển đổi {1}...
+cue fade: invalid	mờ dần cue: không hợp lệ
+fullscreen failed	toàn màn hình thất bại
+hotkey: cancelled	phím tắt: đã hủy
+invalid key color	màu key không hợp lệ
+little bloops off	tiếng bíp nhỏ tắt
+live captions off	phụ đề trực tiếp tắt
+lock to screen on	khóa vào màn hình bật
+mask not inverted	mặt nạ không đảo
+motion driver set	đã đặt trình điều khiển chuyển động
+ndi sender failed	nguồn gửi NDI thất bại
+network cue added	đã thêm cue mạng
+no cue to jump to	không có cue để nhảy tới
+out point cleared	đã xóa điểm ra
+output overlay on	lớp phủ OUTPUT bật
+phone haptics off	rung điện thoại tắt
+pick a deck first	hãy chọn deck trước
+playlist loop off	lặp playlist tắt

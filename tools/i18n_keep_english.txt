@@ -167,3 +167,239 @@ vi	PROXY {n}p
 vi	Proxy {n}p
 zgh	Alpha
 zgh	Deck {n}
+ar	+10s
+ar	.PPTX
+bg	Cue
+bg	+10s
+bg	.PPTX
+ckb	Cue
+ckb	+10s
+ckb	.PPTX
+da	Cue
+da	+10s
+da	.PPTX
+de	Cue
+de	+10s
+de	.PPTX
+el	Cue
+el	+10s
+el	.PPTX
+es-CU	Cue
+es-CU	+10s
+es-CU	.PPTX
+es	Cue
+es	+10s
+es	.PPTX
+fa	+10s
+fa	.PPTX
+fi	Cue
+fi	+10s
+fi	.PPTX
+fr	Cue
+fr	+10s
+fr	.PPTX
+fr	VOLUME
+gd	Cue
+gd	+10s
+gd	.PPTX
+haw	Cue
+haw	JAM
+haw	OSC
+haw	+10s
+haw	CLIP
+haw	TAKE
+haw	.PPTX
+haw	PATCH
+haw	RTMPS
+haw	ANALOG
+haw	PRESET
+haw	STEREO
+haw	Twitch
+haw	Art-Net
+haw	YouTube
+hi	+10s
+hi	.PPTX
+is	Cue
+is	+10s
+is	.PPTX
+it	Cue
+it	+10s
+it	.PPTX
+it	VOLUME
+ja	+10s
+ja	.PPTX
+kab	Cue
+kab	+10s
+kab	.PPTX
+kmr	Cue
+kmr	+10s
+kmr	.PPTX
+ko	+10s
+ko	.PPTX
+lo	Cue
+lo	+10s
+lo	.PPTX
+lum	+10s
+lum	.PPTX
+nl	Cue
+nl	+10s
+nl	CROP
+nl	.PPTX
+nl	VOLUME
+pap-AW	Cue
+pap-AW	+10s
+pap-AW	Move
+pap-AW	.PPTX
+pl	Cue
+pl	+10s
+pl	.PPTX
+pt-BR	Cue
+pt-BR	+10s
+pt-BR	.PPTX
+pt-BR	VOLUME
+ru	Cue
+ru	+10s
+ru	.PPTX
+tr	Cue
+tr	+10s
+tr	.PPTX
+uk	Cue
+uk	+10s
+uk	.PPTX
+vi	Cue
+vi	+10s
+vi	.PPTX
+zgh	Cue
+zgh	+10s
+zgh	.PPTX
+zh-Hans	Cue
+zh-Hans	+10s
+zh-Hans	.PPTX
+zh-Hant	Cue
+zh-Hant	+10s
+zh-Hant	.PPTX
+zu	+10s
+zu	.PPTX
+ar	Deckboy Ag
+bg	Deckboy Ag
+ckb	Deckboy Ag
+da	Deckboy Ag
+da	scene live
+da	({1} decks)
+de	Deckboy Ag
+el	Deckboy Ag
+es-CU	Deckboy Ag
+es	Deckboy Ag
+fa	Deckboy Ag
+fi	Deckboy Ag
+fr	pin reset
+fr	Deckboy Ag
+fr	trim reset
+gd	Deckboy Ag
+haw	vMix API
+haw	DASHBOARD
+haw	LOWERTEXT
+haw	Deckboy Ag
+haw	PQ - HDR10
+hi	LOWERTEXT
+hi	Deckboy Ag
+is	LOWERTEXT
+is	Deckboy Ag
+it	LOWERTEXT
+it	Deckboy Ag
+ja	LOWERTEXT
+ja	Deckboy Ag
+kab	LOWERTEXT
+kab	Deckboy Ag
+kmr	LOWERTEXT
+kmr	Deckboy Ag
+ko	LOWERTEXT
+ko	Deckboy Ag
+lo	LOWERTEXT
+lo	Deckboy Ag
+lum	LOWERTEXT
+lum	Deckboy Ag
+nl	LOWERTEXT
+nl	Deckboy Ag
+nl	({1} decks)
+pap-AW	LOWERTEXT
+pap-AW	pin reset
+pap-AW	Deckboy Ag
+pap-AW	trim reset
+pap-AW	warp reset
+pl	Deckboy Ag
+pt-BR	Deckboy Ag
+ru	Deckboy Ag
+tr	Deckboy Ag
+uk	Deckboy Ag
+vi	Deckboy Ag
+zgh	Deckboy Ag
+zh-Hans	Deckboy Ag
+zh-Hant	Deckboy Ag
+zu	Deckboy Ag
+haw	Lower Third
+haw	4:2:2  8-BIT
+nl	browser live
+ckb	st2110 8-bit
+ckb	st2110 10-bit
+el	st2110 8-bit
+el	st2110 10-bit
+gd	st2110 8-bit
+gd	st2110 10-bit
+haw	sACN (E1.31)
+haw	st2110 8-bit
+haw	4:2:2  10-BIT
+haw	st2110 10-bit
+haw	Syphon / Spout
+kmr	st2110 8-bit
+kmr	st2110 10-bit
+ko	st2110 8-bit
+ko	st2110 10-bit
+lo	st2110 8-bit
+lo	st2110 10-bit
+lum	st2110 8-bit
+lum	st2110 10-bit
+nl	st2110 8-bit
+nl	st2110 10-bit
+pap-AW	st2110 8-bit
+pap-AW	st2110 10-bit
+vi	st2110 8-bit
+vi	st2110 10-bit
+zgh	st2110 8-bit
+zgh	st2110 10-bit
+zu	st2110 8-bit
+zu	st2110 10-bit
+ar	DECKBOY  POCKET
+bg	DECKBOY  POCKET
+da	DECKBOY  POCKET
+de	DECKBOY  POCKET
+el	DECKBOY  POCKET
+es-CU	DECKBOY  POCKET
+es	DECKBOY  POCKET
+fa	DECKBOY  POCKET
+fi	DECKBOY  POCKET
+fr	DECKBOY  POCKET
+haw	DECKBOY  POCKET
+hi	DECKBOY  POCKET
+is	DECKBOY  POCKET
+it	DECKBOY  POCKET
+ja	DECKBOY  POCKET
+ko	DECKBOY  POCKET
+nl	DECKBOY  POCKET
+pl	DECKBOY  POCKET
+pt-BR	DECKBOY  POCKET
+ru	DECKBOY  POCKET
+tr	DECKBOY  POCKET
+uk	DECKBOY  POCKET
+vi	DECKBOY  POCKET
+zgh	DECKBOY  POCKET
+zh-Hans	DECKBOY  POCKET
+zh-Hant	DECKBOY  POCKET
+da	DMX over Art-Net
+haw	25 fps (PAL/EBU)
+haw	29.97 fps (NTSC)
+haw	LEARN THE BASICS
+zgh	DMX over Art-Net
+zh-Hans	DMX over Art-Net
+zh-Hant	DMX over Art-Net
+zu	DMX over Art-Net

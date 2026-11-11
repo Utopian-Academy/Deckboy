@@ -2330,3 +2330,235 @@ It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts 
 Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	Twee schermen, skapi. De tafel blijft op dit scherm, het beeld gaat naar het andere: {1}. Open MENU en maak van UITGANG UIT UITGANG AAN.
 It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	Het at de regietafel op, skapi. Gespiegelde schermen tonen het beeld op allebei, dus ik zette het in een klein venster, erachter. {1}, en het krijgt een eigen scherm.
 Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	Je schermen zijn gespiegeld, skapi: {1} toont wat dit scherm toont, dus het beeld bedekt de tafel op allebei. {2}, en ik zet het beeld op een eigen scherm. Of open MENU en maak van UITGANG UIT UITGANG AAN.
++now	+nu
+Move	Verplaats
+NEW 1	NIEUW 1
+SELECT	KIES
+key on	toets aan
+lfo on	lfo aan
+hold on	vasthouden aan
+key off	toets uit
+lfo off	lfo uit
+loop on	lus aan
+mesh on	mesh aan
+ndi off	ndi uit
+pan set	pan instellen
+hold off	vasthouden uit
+loop off	lus uit
+mask off	masker uit
+mesh off	mesh uit
+new show	nieuwe show
+no pages	geen pagina's
+warp off	vervormen uit
+(default)	(standaard)
+canvas on	canvas aan
+matte off	masker uit
+notes set	notities ingesteld
+pin reset	pin gereset
+splash on	startscherm aan
+tc jam on	tc sync aan
+tc run on	tc uitvoeren aan
+timer set	timer ingesteld
+wiggle on	wiggle aan
+VJ mode on	VJ-modus aan
+big screen	groot scherm
+canvas off	canvas uit
+cue loaded	cue geladen
+display on	scherm aan
+overlay on	overlay aan
+scene live	scène live
+shuffle on	willekeurig aan
+speaker up	speaker omhoog
+splash off	startscherm uit
+tc jam off	tc sync uit
+tc run off	tc uitvoeren uit
+timer held	timer vastgehouden
+trim reset	trim gereset
+vj mode on	VJ-modus aan
+warp reset	vervormen gereset
+wiggle off	wiggle uit
+4-bit steps	4-bit-stappen
+DATAMOSH on	DATAMOSH aan
+VJ mode off	VJ-modus uit
+blackout ON	zwart aan
+blend reset	menging gereset
+captions on	ondertitels aan
+cue deleted	cue verwijderd
+display off	scherm uit
+driver held	driver vastgehouden
+id: cleared	id: gewist
+jumped to -	gesprongen naar -
+monitor off	monitor uit
+overlay off	overlay uit
+path closed	pad gesloten
+phrases set	zinnen ingesteld
+pip cleared	PIP gewist
+point added	punt toegevoegd
+row deleted	rij verwijderd
+seconds, 0-	seconden, 0-
+shuffle off	willekeurig uit
+source live	bron live
+sprites off	sprites uit
+tc chase on	tc chase aan
+timer reset	timer gereset
+vj mode off	vj-modus uit
+all decks go	alle decks starten
+big screen @	groot scherm @
+blackout off	zwart uit
+captions off	ondertitels uit
+clip cleared	clip gewist
+datamosh off	datamosh uit
+find cleared	zoekopdracht gewist
+hands-on off	hands-on uit
+key+fill off	key+fill uit
+multiview on	multiview aan
+not watching	bewaakt niet
+path removed	pad verwijderd
+pip attached	PIP gekoppeld
+scene loaded	scène geladen
+speaker down	speaker omlaag
+subtitles on	ondertiteling aan
+tc chase off	tc chase uit
+text mode on	tekstmodus aan
+trim cleared	trim gewist
+beast mode on	beestmodus aan
+creatures off	beestjes uit
+cue reordered	cue herordend
+dmx cue added	dmx-cue toegevoegd
+hover tips on	zweeftips aan
+lfo runs free	lfo loopt vrij
+lower sub set	lower sub ingesteld
+mask inverted	masker omgekeerd
+multiview off	multiview uit
+no expression	geen expressie
+pip cue added	pip-cue toegevoegd
+point removed	punt verwijderd
+source loaded	bron geladen
+stream failed	stream mislukt
+subtitles off	ondertiteling uit
+system cursor	systeemcursor
+tc trigger on	tc-trigger aan
+text mode off	tekstmodus uit
+timer running	timer loopt
+video dip off	video-dip uit
+view: invalid	weergave: ongeldig
+warp grid off	vervormraster uit
+1-90 (percent)	1-90 (procent)
+DRAW FPS: 1-60	TEKENEN FPS: 1-60
+TCCUE: no deck	TCCUE: geen deck
+all decks play	alle decks spelen
+alpha: invalid	alfa: ongeldig
+aspect link on	beeldverhoudingslink aan
+atem tally off	ATEM-tally uit
+beast mode off	beestmodus uit
+browser parked	browser geparkeerd
+button deleted	knop verwijderd
+button removed	knop weggehaald
+driver running	driver draait
+expression set	expressie ingesteld
+fade cue added	fadecue toegevoegd
+hotkey cleared	sneltoets gewist
+hover tips off	zweeftips uit
+invalid number	ongeldig getal
+lower text set	ondertekst ingesteld
+mic fading out	microfoon fadet uit
+midi cue added	MIDI-cue toegevoegd
+nothing broken	niets kapot
+overlay popped	overlay verwijderd
+periodic noise	periodieke ruis
+pip source set	PIP-bron ingesteld
+sequence ended	sequentie beëindigd
+sequence loops	sequentie herhaalt
+stop when done	stoppen als klaar
+stream stopped	stream gestopt
+stream url set	stream-URL ingesteld
+tally: enabled	tally: aan
+tc trigger off	TC-trigger uit
+timer logo set	timerlogo ingesteld
+, fetched once)	, eenmalig opgehaald)
+DMXCUE: no deck	DMXCUE: geen deck
+MATRIX: no deck	MATRIX: geen deck
+MIDI fires cues	MIDI start cues
+MSC id: invalid	MSC-id: ongeldig
+NETCUE: no deck	NETCUE: geen deck
+all decks fired	alle decks gestart
+animation saved	animatie opgeslagen
+aspect link off	beeldverhoudingslink uit
+audio input off	audio-ingang uit
+canvas mode off	canvasmodus uit
+canvas: invalid	canvas: ongeldig
+cue audio: mono	cue-audio: mono
+cue jumped live	cue naar live gesprongen
+glitch text set	glitchtekst ingesteld
+markers cleared	markers gewist
+miami cursor on	Miami-aanwijzer aan
+ndi unavailable	NDI niet beschikbaar
+no marker ahead	geen marker verderop
+nothing to redo	niets om opnieuw te doen
+nothing to undo	niets om ongedaan te maken
+on every output	op elke uitgang
+overlay cleared	overlay gewist
+phrases cleared	zinnen gewist
+preload cleared	voorladen gewist
+progress bar on	voortgangsbalk aan
+raster: invalid	raster: ongeldig
+standby cleared	stand-by gewist
+tally: disabled	tally: uitgeschakeld
+tc mark cleared	tc-markering gewist
+tempo is tapped	tempo getikt
+time overlay on	tijdoverlay aan
+DMX over Art-Net	DMX via Art-Net
+MIDICUE: no deck	MIDICUE: geen deck
+TEXTCUE: no deck	TEXTCUE: geen deck
+all decks paused	alle decks gepauzeerd
+aoi: full raster	aoi: volledig raster
+bitrate: invalid	bitrate: ongeldig
+browser loading…	browser laadt…
+driver free-runs	driver draait vrij
+driver restarted	driver herstart
+find: empty deck	zoeken: lege deck
+in point cleared	in-punt gewist
+leave it running	laat het lopen
+little bloops on	kleine bloops aan
+ltc fps: invalid	ltc fps: ongeldig
+mic not recorded	mic niet opgenomen
+no marker behind	geen marker terug
+no plugins found	geen plug-ins gevonden
+off every output	alle uitgangen uit
+phone haptics on	telefoontrilling aan
+playlist loop on	afspeellijst lus aan
+progress bar off	voortgangsbalk uit
+refresh: invalid	vernieuwen: ongeldig
+schedule cleared	schema gewist
+script cue added	scriptcue toegevoegd
+sequence stopped	sequentie gestopt
+stream cue added	streamcue toegevoegd
+target cue added	doelcue toegevoegd
+time overlay off	tijdoverlay uit
+warp/blend reset	vervorming/menging gereset
+' is not a number	' is geen getal
+MIDIFILE: no deck	MIDIFILE: geen deck
+RECORDING STOPPED	OPNAME GESTOPT
+all decks stopped	alle decks gestopt
+at the first step	bij de eerste stap
+browser refreshed	browser vernieuwd
+conversion failed	conversie mislukt
+converting {1}...	{1} converteren...
+cue fade: invalid	cue-fade: ongeldig
+fullscreen failed	volledig scherm mislukt
+hotkey: cancelled	sneltoets: geannuleerd
+invalid key color	ongeldige keykleur
+keyframe: invalid	keyframe: ongeldig
+little bloops off	kleine bloops uit
+live captions off	live ondertitels uit
+lock to screen on	vergrendel op scherm aan
+mask not inverted	masker niet omgekeerd
+motion driver set	bewegingsdriver ingesteld
+ndi sender failed	NDI-zender mislukt
+network cue added	netwerkcue toegevoegd
+no cue to jump to	geen cue om naar te springen
+out point cleared	uitpunt gewist
+output overlay on	uitgangsoverlay aan
+phone haptics off	telefoontrilling uit
+pick a deck first	kies eerst een deck
+playlist loop off	afspeellijst lus uit

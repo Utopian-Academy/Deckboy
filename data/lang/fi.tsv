@@ -2344,3 +2344,238 @@ It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts 
 Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	Kaksi näyttöä, skapi. Pöytä pysyy tässä, kuva menee toiseen: {1}. Avaa VALIKKO ja muuta ULOSTULO POIS muotoon ULOSTULO PÄÄLLE.
 It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	Se söi pöydän, skapi. Peilatut näytöt näyttävät kuvan molemmissa, joten laitoin sen pieneen ikkunaan taakse. {1}, niin se saa oman näytön.
 Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	Näyttösi on peilattu, skapi: {1} näyttää saman kuin tämä, joten kuva peittää pöydän molemmissa. {2}, niin laitan kuvan omalle näytölleen. Tai avaa VALIKKO ja muuta ULOSTULO POIS muotoon ULOSTULO PÄÄLLE.
++now	+nyt
+CROP	RAJAUS
+Move	Siirrä
+NEW 1	UUSI 1
+SELECT	VALITSE
+key on	näppäin päällä
+lfo on	lfo päällä
+hold on	pidä päällä
+key off	näppäin pois
+lfo off	lfo pois
+loop on	silmukka päällä
+mesh on	verkko päällä
+ndi off	ndi pois
+pan set	panorointi asetettu
+hold off	pidä pois
+loop off	silmukka pois
+mask off	maski pois
+mesh off	verkko pois
+new show	uusi esitys
+no pages	ei sivuja
+warp off	väännä pois
+(default)	(oletus)
+LOWERTEXT	ALATEKSTI
+canvas on	kangas päällä
+matte off	matta pois
+notes set	muistiinpanot asetettu
+pin reset	pin nollattu
+splash on	aloituskuva päällä
+tc jam on	tc tahdista päällä
+tc run on	tc suorita päällä
+timer set	ajastin asetettu
+wiggle on	heilunta päällä
+VJ mode on	VJ-tila päällä
+big screen	iso näyttö
+canvas off	kangas pois
+cue loaded	cue ladattu
+display on	näyttö päällä
+overlay on	peitto päällä
+scene live	kohtaus suorana
+shuffle on	sekoita päällä
+speaker up	kaiutin ylös
+splash off	aloituskuva pois
+tc jam off	tc tahdista pois
+tc run off	tc suorita pois
+timer held	ajastin pidossa
+trim reset	rajaus nollattu
+vj mode on	VJ-tila päällä
+warp reset	väännä nollattu
+wiggle off	heilunta pois
+({1} decks)	({1} deckiä)
+4-bit steps	4-bittiset askeleet
+DATAMOSH on	DATAMOSH PÄÄLLÄ
+VJ mode off	VJ-tila pois
+blackout ON	musta päällä
+blend reset	sekoitus nollattu
+captions on	tekstitys päällä
+cue deleted	cue poistettu
+display off	näyttö pois
+driver held	ohjain pidossa
+id: cleared	id: poistettu
+jumped to -	hyppäsi kohtaan -
+monitor off	monitori pois
+overlay off	peittokuva pois
+path closed	polku suljettu
+phrases set	fraasit asetettu
+pip cleared	PIP poistettu
+point added	piste lisätty
+row deleted	rivi poistettu
+seconds, 0-	sekuntia, 0-
+shuffle off	sekoitus pois
+source live	lähde suorana
+sprites off	spritet pois
+tc chase on	TC-seuranta päällä
+timer reset	ajastin nollattu
+vj mode off	VJ-tila pois
+all decks go	kaikki listat käyntiin
+big screen @	iso näyttö @
+blackout off	musta pois
+browser live	selain suorana
+captions off	tekstitys pois
+clip cleared	klippi poistettu
+datamosh off	datamosh pois
+find cleared	haku tyhjennetty
+hands-on off	käsiohjaus pois
+key+fill off	key+fill pois
+multiview on	multiview päällä
+not watching	ei valvota
+path removed	polku poistettu
+pip attached	PIP liitetty
+scene loaded	kohtaus ladattu
+speaker down	kaiutin alas
+st2110 8-bit	st2110 8 bittiä
+subtitles on	tekstitys päällä
+tc chase off	tc-seuranta pois
+text mode on	tekstitila päällä
+trim cleared	rajaus tyhjennetty
+beast mode on	petotila päällä
+creatures off	olennot pois
+cue reordered	cue järjestetty uudelleen
+dmx cue added	dmx-cue lisätty
+hover tips on	vinkit päällä
+lfo runs free	lfo käy vapaasti
+lower sub set	alatekstitys asetettu
+mask inverted	maski käännetty
+multiview off	multiview pois
+no expression	ei lauseketta
+pip cue added	pip-cue lisätty
+point removed	piste poistettu
+source loaded	lähde ladattu
+st2110 10-bit	st2110 10 bittiä
+stream failed	lähetys epäonnistui
+subtitles off	tekstitys pois
+system cursor	järjestelmän kohdistin
+tc trigger on	tc-laukaisu päällä
+text mode off	tekstitila pois
+timer running	ajastin käynnissä
+video dip off	video-dip pois
+view: invalid	näkymä: virheellinen
+warp grid off	vääntöruudukko pois
+1-90 (percent)	1-90 (prosenttia)
+DRAW FPS: 1-60	PIIRROS FPS: 1-60
+TCCUE: no deck	TCCUE: ei deckiä
+all decks play	kaikki deckit soittavat
+aspect link on	kuvasuhdelinkki: päällä
+atem tally off	ATEM-tally: pois
+beast mode off	petotila: pois
+browser parked	selain parkissa
+button deleted	painike poistettu
+button removed	painike otettu pois
+driver running	ajuri käynnissä
+expression set	lauseke asetettu
+fade cue added	häivytyscue lisätty
+hotkey cleared	pikanäppäin tyhjennetty
+hover tips off	vinkit: pois
+invalid number	virheellinen luku
+lower text set	alateksti asetettu
+mic fading out	mikrofoni häivytetään ulos
+midi cue added	MIDI-cue lisätty
+nothing broken	ei mitään rikki
+overlay popped	peittokuva poistettu
+periodic noise	jaksollinen kohina
+pip source set	PIP-lähde asetettu
+sequence ended	sekvenssi päättyi
+sequence loops	sekvenssi toistuu silmukkana
+stop when done	pysäytä valmistuttua
+stream stopped	virta pysäytetty
+stream url set	virran URL asetettu
+tally: enabled	tally: käytössä
+tc trigger off	TC-liipaisin: pois
+timer logo set	ajastimen logo asetettu
+, fetched once)	, haettu kerran)
+DMXCUE: no deck	DMXCUE: ei deckiä
+MATRIX: no deck	MATRIX: ei deckiä
+MIDI fires cues	MIDI käynnistää cueja
+MSC id: invalid	MSC-tunnus: virheellinen
+NETCUE: no deck	NETCUE: ei deckiä
+all decks fired	kaikki deckit käynnistetty
+animation saved	animaatio tallennettu
+aspect link off	kuvasuhdelinkki: pois
+audio input off	äänitulo: pois
+canvas mode off	kangastila: pois
+canvas: invalid	kangas: virheellinen
+cue audio: mono	cuen ääni: mono
+cue jumped live	cue hyppäsi lähetykseen
+glitch text set	glitch-teksti asetettu
+markers cleared	merkit poistettu
+miami cursor on	Miami-osoitin: päällä
+ndi unavailable	NDI ei saatavilla
+no marker ahead	ei merkkiä edessä
+nothing to redo	ei mitään tehtävää uudelleen
+nothing to undo	ei mitään kumottavaa
+on every output	jokaisella ulostulolla
+overlay cleared	peitto poistettu
+phrases cleared	fraasit poistettu
+preload cleared	esilataus poistettu
+progress bar on	edistymispalkki: päällä
+raster: invalid	raster: virheellinen
+standby cleared	valmiina poistettu
+tally: disabled	Tally: pois käytöstä
+tc mark cleared	TC-merkki poistettu
+tempo is tapped	tempo näpytetty
+time overlay on	aikapeitto: päällä
+DMX over Art-Net	DMX Art-Netin yli
+MIDICUE: no deck	MIDICUE: ei deckiä
+TEXTCUE: no deck	TEXTCUE: ei deckiä
+all decks paused	kaikki deckit tauolla
+aoi: full raster	aoi: täysi raster
+browser loading…	selain latautuu…
+driver free-runs	ajuri käy vapaasti
+driver restarted	ajuri käynnistetty uudelleen
+find: empty deck	etsi: tyhjä deck
+in point cleared	alkupiste poistettu
+leave it running	jätä käyntiin
+little bloops on	pienet bloopit: päällä
+ltc fps: invalid	LTC fps: virheellinen
+mic not recorded	mikrofonia ei tallennettu
+no marker behind	ei merkkiä takana
+no plugins found	ei laajennuksia
+off every output	kaikki ulostulot pois
+phone haptics on	puhelimen värinä päällä
+playlist loop on	soittolistan silmukka päällä
+progress bar off	edistymispalkki pois
+refresh: invalid	päivitys: virheellinen
+schedule cleared	aikataulu tyhjennetty
+script cue added	skripti-cue lisätty
+sequence stopped	sekvenssi pysäytetty
+stream cue added	suoratoisto-cue lisätty
+target cue added	kohde-cue lisätty
+time overlay off	aikapeitto pois
+warp/blend reset	vääntö/sekoitus nollattu
+' is not a number	' ei ole luku
+MIDIFILE: no deck	MIDIFILE: ei deckiä
+RECORDING STOPPED	TALLENNUS PYSÄYTETTY
+all decks stopped	kaikki deckit pysäytetty
+at the first step	ensimmäisessä askeleessa
+browser refreshed	selain päivitetty
+conversion failed	muunnos epäonnistui
+converting {1}...	muunnetaan {1}...
+cue fade: invalid	cuen häivytys: virheellinen
+fullscreen failed	koko näyttö epäonnistui
+hotkey: cancelled	pikanäppäin: peruttu
+invalid key color	virheellinen avainväri
+little bloops off	pienet bloopit pois
+live captions off	suoratekstitys pois
+lock to screen on	lukitse näyttöön päällä
+mask not inverted	maskia ei käännetty
+motion driver set	liikeohjain asetettu
+ndi sender failed	NDI-lähetin epäonnistui
+network cue added	verkko-cue lisätty
+no cue to jump to	ei cuea, johon hypätä
+out point cleared	ulospiste tyhjennetty
+output overlay on	ulostulopeitto päällä
+phone haptics off	puhelimen värinä pois
+pick a deck first	valitse ensin deck
+playlist loop off	soittolistan silmukka pois

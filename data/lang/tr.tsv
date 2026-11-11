@@ -2342,3 +2342,238 @@ It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts 
 Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	İki ekran, skapi. Masa bunda kalır, resim diğerine gider: {1}. MENÜ'yü aç ve ÇIKIŞ KAPALI'yı ÇIKIŞ AÇIK yap.
 It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	Masayı yedi, skapi. Yansıtılan ekranlar resmi ikisinde de gösterir, o yüzden onu arkada küçük bir pencereye koydum. {1}, böylece kendi ekranı olur.
 Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	Ekranların yansıtılıyor, skapi: {1} bununla aynı şeyi gösteriyor, yani resim ikisinde de masayı kaplayacak. {2}, ben de resmi kendi ekranına koyayım. Ya da MENÜ'yü aç ve ÇIKIŞ KAPALI'yı ÇIKIŞ AÇIK yap.
++now	+şimdi
+CROP	KIRP
+Move	Taşı
+NEW 1	YENİ 1
+SELECT	SEÇ
+key on	tuş açık
+lfo on	lfo açık
+hold on	bekle açık
+key off	tuş kapalı
+lfo off	lfo kapalı
+loop on	döngü açık
+mesh on	örgü açık
+ndi off	ndi kapalı
+pan set	pan ayarla
+hold off	bekle kapalı
+loop off	döngü kapalı
+mask off	maske kapalı
+mesh off	örgü kapalı
+new show	yeni gösteri
+no pages	sayfa yok
+warp off	biçim boz kapalı
+(default)	(varsayılan)
+LOWERTEXT	ALT METİN
+canvas on	tuval açık
+matte off	mat kapalı
+notes set	notlar ayarlandı
+pin reset	PIN sıfırlandı
+splash on	açılış ekranı açık
+tc jam on	tc eşle açık
+tc run on	tc çalıştır açık
+timer set	zamanlayıcı ayarlandı
+wiggle on	titreme açık
+VJ mode on	VJ modu açık
+big screen	büyük ekran
+canvas off	tuval kapalı
+cue loaded	cue yüklendi
+display on	ekran açık
+overlay on	kaplama açık
+scene live	sahne canlı
+shuffle on	karıştır açık
+speaker up	hoparlör yukarı
+splash off	açılış ekranı kapalı
+tc jam off	tc eşle kapalı
+tc run off	tc çalıştır kapalı
+timer held	zamanlayıcı tutuldu
+trim reset	kırpma sıfırlandı
+vj mode on	VJ modu açık
+warp reset	biçim boz sıfırlandı
+wiggle off	titreme kapalı
+({1} decks)	({1} masa)
+4-bit steps	4 bit adım
+DATAMOSH on	DATAMOSH AÇIK
+VJ mode off	VJ modu kapalı
+blackout ON	siyah AÇIK
+blend reset	karışım sıfırlandı
+captions on	altyazılar açık
+cue deleted	cue silindi
+display off	ekran kapalı
+driver held	sürücü tutuldu
+id: cleared	id: temizlendi
+jumped to -	- konumuna atlandı
+monitor off	monitör kapalı
+overlay off	katman kapalı
+path closed	yol kapatıldı
+phrases set	ifadeler ayarlandı
+pip cleared	PIP kaldırıldı
+point added	nokta eklendi
+row deleted	satır silindi
+seconds, 0-	saniye, 0-
+shuffle off	karıştır kapalı
+source live	kaynak canlı
+sprites off	sprite'lar kapalı
+tc chase on	TC chase açık
+timer reset	zamanlayıcı sıfırlandı
+vj mode off	VJ modu kapalı
+all decks go	tüm listeler başlıyor
+big screen @	büyük ekran @
+blackout off	siyah kapalı
+browser live	tarayıcı canlı
+captions off	altyazılar kapalı
+clip cleared	klip kaldırıldı
+datamosh off	datamosh kapalı
+find cleared	arama temizlendi
+hands-on off	elle kontrol kapalı
+key+fill off	key+fill kapalı
+multiview on	multiview açık
+not watching	izlemiyor
+path removed	yol kaldırıldı
+pip attached	PIP eklendi
+scene loaded	sahne yüklendi
+speaker down	hoparlör aşağı
+st2110 8-bit	st2110 8 bit
+subtitles on	altyazılar açık
+tc chase off	tc chase kapalı
+text mode on	metin modu açık
+trim cleared	kırpma temizlendi
+beast mode on	canavar modu açık
+creatures off	yaratıklar kapalı
+cue reordered	cue sırası değişti
+dmx cue added	DMX cue eklendi
+hover tips on	ipuçları açık
+lfo runs free	lfo serbest çalışıyor
+lower sub set	alt altyazı ayarlandı
+mask inverted	maske ters çevrildi
+multiview off	multiview kapalı
+no expression	ifade yok
+pip cue added	PIP cue eklendi
+point removed	nokta kaldırıldı
+source loaded	kaynak yüklendi
+st2110 10-bit	st2110 10 bit
+stream failed	yayın başarısız
+subtitles off	altyazılar kapalı
+system cursor	sistem imleci
+tc trigger on	tc tetikleme açık
+text mode off	metin modu kapalı
+timer running	zamanlayıcı çalışıyor
+video dip off	video geçişi: hayır
+view: invalid	görünüm: geçersiz
+warp grid off	biçim bozma ızgarası kapalı
+1-90 (percent)	1-90 (yüzde)
+DRAW FPS: 1-60	ÇİZİM FPS: 1-60
+TCCUE: no deck	TCCUE: deck yok
+all decks play	tüm deck'ler çalıyor
+aspect link on	en-boy bağlantısı açık
+atem tally off	ATEM tally kapalı
+beast mode off	canavar modu kapalı
+browser parked	tarayıcı beklemede
+button deleted	düğme silindi
+button removed	düğme kaldırıldı
+driver running	sürücü çalışıyor
+expression set	ifade ayarlandı
+fade cue added	solma cue'su eklendi
+hotkey cleared	kısayol temizlendi
+hover tips off	ipuçları kapalı
+invalid number	geçersiz sayı
+lower text set	alt metin ayarlandı
+mic fading out	mikrofon kısılıyor
+midi cue added	MIDI cue eklendi
+nothing broken	hiçbir şey bozuk değil
+overlay popped	katman kaldırıldı
+periodic noise	dönemsel gürültü
+pip source set	PIP kaynağı ayarlandı
+sequence ended	sekans bitti
+sequence loops	sekans döngüde
+stop when done	bitince dur
+stream stopped	yayın durdu
+stream url set	yayın URL'si ayarlandı
+tally: enabled	tally: etkin
+tc trigger off	TC tetiği kapalı
+timer logo set	zamanlayıcı logosu ayarlandı
+, fetched once)	, bir kez alındı)
+DMXCUE: no deck	DMXCUE: deck yok
+MATRIX: no deck	MATRIX: deck yok
+MIDI fires cues	MIDI cue'ları başlatır
+MSC id: invalid	MSC kimliği: geçersiz
+NETCUE: no deck	NETCUE: deck yok
+all decks fired	tüm deck'ler başlatıldı
+animation saved	animasyon kaydedildi
+aspect link off	en-boy bağlantısı kapalı
+audio input off	ses girişi kapalı
+canvas mode off	tuval modu kapalı
+canvas: invalid	tuval: geçersiz
+cue audio: mono	cue sesi: mono
+cue jumped live	cue canlıya atladı
+glitch text set	glitch metni ayarlandı
+markers cleared	işaretler temizlendi
+miami cursor on	Miami imleci açık
+ndi unavailable	ndi kullanılamıyor
+no marker ahead	ileride işaret yok
+nothing to redo	yinelenecek bir şey yok
+nothing to undo	geri alınacak bir şey yok
+on every output	her çıkışta
+overlay cleared	kaplama temizlendi
+phrases cleared	ifadeler temizlendi
+preload cleared	ön yükleme temizlendi
+progress bar on	ilerleme çubuğu açık
+raster: invalid	raster: geçersiz
+standby cleared	hazır temizlendi
+tally: disabled	tally: devre dışı
+tc mark cleared	tc işareti temizlendi
+tempo is tapped	tempo vuruldu
+time overlay on	süre kaplaması açık
+DMX over Art-Net	Art-Net üzerinden DMX
+MIDICUE: no deck	MIDICUE: deck yok
+TEXTCUE: no deck	TEXTCUE: deck yok
+all decks paused	tüm deck'ler duraklatıldı
+aoi: full raster	aoi: tam raster
+browser loading…	tarayıcı yükleniyor…
+driver free-runs	sürücü serbest çalışıyor
+driver restarted	sürücü yeniden başlatıldı
+find: empty deck	bul: boş deck
+in point cleared	giriş noktası temizlendi
+leave it running	çalışmaya bırak
+little bloops on	küçük bloop sesleri açık
+ltc fps: invalid	ltc fps: geçersiz
+mic not recorded	mikrofon kaydedilmedi
+no marker behind	geride işaret yok
+no plugins found	eklenti bulunamadı
+off every output	tüm çıkışlar kapalı
+phone haptics on	telefon titremesi açık
+playlist loop on	playlist döngüsü açık
+progress bar off	ilerleme çubuğu kapalı
+refresh: invalid	yenileme: geçersiz
+schedule cleared	program temizlendi
+script cue added	betik cue eklendi
+sequence stopped	sekans durdu
+stream cue added	yayın cue eklendi
+target cue added	hedef cue eklendi
+time overlay off	zaman kaplaması kapalı
+warp/blend reset	biçim bozma/karışım sıfırlandı
+' is not a number	' bir sayı değil
+MIDIFILE: no deck	MIDIFILE: deck yok
+RECORDING STOPPED	KAYIT DURDU
+all decks stopped	tüm deck'ler durdu
+at the first step	ilk adımda
+browser refreshed	tarayıcı yenilendi
+conversion failed	dönüştürme başarısız
+converting {1}...	{1} dönüştürülüyor...
+cue fade: invalid	cue solması: geçersiz
+fullscreen failed	tam ekran başarısız
+hotkey: cancelled	kısayol: iptal edildi
+invalid key color	geçersiz key rengi
+little bloops off	küçük bloplar kapalı
+live captions off	canlı altyazı kapalı
+lock to screen on	ekrana kilitle açık
+mask not inverted	maske ters çevrilmedi
+motion driver set	hareket sürücüsü ayarlandı
+ndi sender failed	NDI gönderen başarısız
+network cue added	ağ cue eklendi
+no cue to jump to	gidilecek cue yok
+out point cleared	çıkış noktası temizlendi
+output overlay on	çıkış kaplaması açık
+phone haptics off	telefon titremesi kapalı
+pick a deck first	önce bir deck seç
+playlist loop off	playlist döngüsü kapalı

@@ -2342,3 +2342,240 @@ It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts 
 Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	Sin igdilen, skapi. Ṭṭabla ad teqqim ɣef wagi, tugna ad teddu ɣer wayeḍ: {1}. Ldi UMUƔ, rr TUFFƔA TENSA d TUFFƔA TERMED.
 It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	Yečča ṭṭabla, skapi. Igdilen yemsaren sskanen tugna ɣef sin, ihi sersaɣ-tt deg usfaylu amecṭuḥ, deffir. {1}, ad tesɛu agdil-is.
 Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	Igdilen-ik msaren, skapi: {1} yesskan ayen yesskan wagi, ihi tugna ad tɣumm ṭṭabla ɣef sin. {2}, ad sserseɣ tugna ɣef ugdil-is. Neɣ ldi UMUƔ, rr TUFFƔA TENSA d TUFFƔA TERMED.
++now	+tura
+CROP	GZEM
+Move	Smenyef
+NEW 1	AMAYNUT 1
+SELECT	FREN
+key on	tasarut yermed
+lfo on	lfo yermed
+hold on	aṭṭaf yermed
+key off	tasarut yensa
+lfo off	lfo yensa
+loop on	tineḍt yermed
+mesh on	mesh yermed
+ndi off	ndi yensa
+pan set	sbadu tama
+hold off	aṭṭaf yensa
+loop off	tineḍt yensa
+mask off	taɣmist yensa
+mesh off	mesh yensa
+new show	askan amaynut
+no pages	ulac isebtar
+warp off	amedyan yensa
+(default)	(amezwer)
+canvas on	taɣawsa yermed
+matte off	matte yensa
+notes set	tizmilin yettwasbadun
+pin reset	pin yettwawennez
+splash on	agdil n ubdu yermed
+tc jam on	tc semtew yermed
+tc run on	tc sker yermed
+timer set	amakud yettwasbadu
+wiggle on	wiggle yermed
+VJ mode on	askar VJ yermed
+big screen	agdil ameqqran
+canvas off	taɣawsa tensa
+cue loaded	cue yuli
+display on	askan yermed
+overlay on	asnejmaɛ yermed
+scene live	asayes s tidet
+shuffle on	semxalaḍ yermed
+speaker up	aɣennan afella
+splash off	agdil n ubdu yensa
+tc jam off	tc semtew yensa
+tc run off	tc sker yensa
+timer held	amakud yeṭṭef
+trim reset	trim yettwawennez
+vj mode on	askar vj yermed
+warp reset	amedyan yettwawennez
+wiggle off	wiggle yensa
+({1} decks)	({1} deck)
+4-bit steps	isurifen 4-bit
+DATAMOSH on	DATAMOSH yermed
+VJ mode off	askar VJ yensa
+blackout ON	aberkan yermed
+blend reset	asemlili yewwennez
+captions on	iglamen yermden
+cue deleted	cue yettwakkes
+display off	askan yensa
+driver held	driver yeṭṭef
+id: cleared	id: yettwasfeḍ
+jumped to -	iɛedda ɣer -
+monitor off	monitor yensa
+overlay off	asnejmaɛ yensa
+path closed	abrid yettwamdel
+phrases set	tifyar yettwasbadent
+pip cleared	PIP yettwasfeḍ
+point added	tanqiṭt yettwarna
+row deleted	izirig yettwakkes
+seconds, 0-	tisinin, 0-
+shuffle off	semxalaḍ yensa
+source live	aɣbalu s tidet
+sprites off	sprites ensan
+tc chase on	tc chase yermed
+timer reset	amakud yewwennez
+vj mode off	askar vj yensa
+all decks go	akk playlist ttbeddunt
+big screen @	agdil ameqran @
+blackout off	aberkan yensa
+browser live	iminig s tidet
+captions off	iglamen ensan
+clip cleared	afmiz yettwasfeḍ
+datamosh off	datamosh yensa
+find cleared	anadi yettwasfeḍ
+hands-on off	hands-on yensa
+key+fill off	key+fill yensa
+multiview on	multiview yermed
+not watching	ur yettɣeṭṭef ara
+path removed	abrid yettwakkes
+pip attached	PIP yettwacudd
+scene loaded	asayes yuli
+speaker down	speaker adda
+st2110 8-bit	st2110 8 n ibiten
+subtitles on	aḍris n ddaw yermed
+tc chase off	tc chase yensa
+text mode on	askar n uḍris yermed
+trim cleared	trim yettwasfaḍ
+beast mode on	askar n uɣersiw yermed
+creatures off	imexluqen ensan
+cue reordered	amseddi n cue yettwabeddel
+dmx cue added	cue DMX yettwarna
+hover tips on	iwellihen yermed
+lfo runs free	lfo ilelli
+lower sub set	aḍris n ddaw yettwasbadu
+mask inverted	taɣmist tettwabeddel
+multiview off	multiview yensa
+no expression	ulac tazmilt
+pip cue added	cue PIP yettwarna
+point removed	tanqiḍt tettwakkes
+source loaded	aɣbalu yuli
+st2110 10-bit	st2110 10 n ibiten
+stream failed	asiɣel yecceḍ
+subtitles off	aḍris n ddaw yensa
+system cursor	cursor n unagraw
+tc trigger on	senker tc yermed
+text mode off	askar n uḍris yensa
+timer running	amakud yettedda
+video dip off	video dip: yensa
+view: invalid	tamuɣli: ur tṣeḥḥ
+warp grid off	grid n umedyan yensa
+1-90 (percent)	1-90 (ɣef meyya)
+DRAW FPS: 1-60	SUNEƔ FPS: 1-60
+TCCUE: no deck	TCCUE: ulac deck
+all decks play	akk deck tturaren
+alpha: invalid	alpha: ur iṣeḥḥ
+aspect link on	aseɣwen n uɣmis yermed
+atem tally off	tally ATEM insa
+beast mode off	askar n uɣersiw insa
+browser parked	iminig yeḥbes
+button deleted	tqeffalt tettwasfeḍ
+button removed	tqeffalt tettwakkes
+driver running	driver yettedda
+expression set	expression yettwasbadu
+fade cue added	cue n usader yettwarna
+hotkey cleared	hotkey yettwasfeḍ
+hover tips off	iwellihen insan
+invalid number	uṭṭun ur ṣeḥḥ
+lower text set	aḍris adday yettwasbadu
+mic fading out	amikru yettsader
+midi cue added	cue MIDI yettwarna
+nothing broken	ulac ayen yeṛẓan
+overlay popped	asnejmaɛ yettwakkes
+periodic noise	ṣṣut s tallit
+pip source set	aɣbalu PIP yettwasbadu
+sequence ended	azrar immed
+sequence loops	azrar yettuɣal
+stop when done	seḥbes mi immed
+stream stopped	siɣel yeḥbes
+stream url set	URL n usiɣel yettwasbadu
+tally: enabled	tally: yermed
+tc trigger off	imsenkar TC insa
+timer logo set	ulugu n umakud yettwasbadu
+, fetched once)	, yettwakcem yiwet n tikkelt)
+DMXCUE: no deck	DMXCUE: ulac deck
+MATRIX: no deck	MATRIX: ulac deck
+MIDI fires cues	MIDI yesnekkar cues
+MSC id: invalid	MSC id: ur ṣeḥḥ
+NETCUE: no deck	NETCUE: ulac deck
+all decks fired	akk decks ttwasnekkren
+animation saved	tanimeḍt tettwasekles
+aspect link off	aseɣwen n uɣmis insa
+audio input off	anekcum ameslaw insa
+canvas mode off	askar n tɣawsa insa
+canvas: invalid	tɣawsa: ur ṣeḥḥ
+cue audio: mono	ameslaw n cue: mono
+cue jumped live	cue yettneggiz s tidet
+glitch text set	aḍris glitch yettwasbadu
+markers cleared	marker ttwakksen
+miami cursor on	taḥnaccaṭ Miami yermed
+ndi unavailable	NDI ulac-it
+no marker ahead	ulac marker zdat
+nothing to redo	ulac ayen ara tgeḍ tikelt-nniḍen
+nothing to undo	ulac ayen ara tsefsex
+on every output	ɣef yal tuffɣa
+overlay cleared	asnejmaɛ yettwasfeḍ
+phrases cleared	tafyirin ttwasfeḍent
+preload cleared	asali uqbel yettwasfeḍ
+progress bar on	afeggag n usnerni yermed
+raster: invalid	raster: ur ṣeḥḥ ara
+standby cleared	di tuzzya yettwasfeḍ
+tally: disabled	tally: yensa
+tc mark cleared	tacreḍt tc tettwasfeḍ
+tempo is tapped	tempo yettwanqeḍ
+time overlay on	asnejmaɛ n wakud yermed
+DMX over Art-Net	DMX ɣef Art-Net
+MIDICUE: no deck	MIDICUE: ulac deck
+TEXTCUE: no deck	TEXTCUE: ulac deck
+all decks paused	akk deck ḥebsen
+aoi: full raster	aoi: raster ččuren
+bitrate: invalid	bitrate: ur ṣeḥḥ ara
+browser loading…	iminig yettali…
+driver free-runs	driver yettedu weḥd-s
+driver restarted	driver yennekker i tikelt-nniḍen
+find: empty deck	af: deck ilem
+in point cleared	tanqiḍt n unekcum tettwasfeḍ
+leave it running	eǧǧ-it yettedu
+little bloops on	bloops imecṭuḥen yermden
+ltc fps: invalid	ltc fps: ur ṣeḥḥ ara
+mic not recorded	amikru ur yettwaseklas ara
+no marker behind	ulac marker deffir
+no plugins found	ulac aseɣzan yettwafen
+off every output	insa akk tuffɣiwin
+phone haptics on	asemsusem n tilifun yermed
+playlist loop on	tineḍt n tebdart yermed
+progress bar off	afeggag n usnerni yensa
+refresh: invalid	ɛiwed asali: arameɣtu
+schedule cleared	tafrayt tettwasfeḍ
+script cue added	cue n uskript yettwarna
+sequence stopped	azrar yeḥbes
+stream cue added	cue n usiɣel yettwarna
+target cue added	cue n yiswi yettwarna
+time overlay off	asnejmaɛ n wakud yensa
+warp/blend reset	amedyan/asemlili ttwawennzen
+' is not a number	' mačči d uṭṭun
+MIDIFILE: no deck	MIDIFILE: ulac deck
+RECORDING STOPPED	ASEKLES YEḤBES
+all decks stopped	akk deck ḥebsen
+at the first step	deg usurif amezwaru
+browser refreshed	iminig yettwaɛiwed
+conversion failed	asenfel ur yeddi ara
+converting {1}...	asenfel n {1}...
+cue fade: invalid	asader n cue: arameɣtu
+fullscreen failed	agdil ačuran ur yeddi ara
+hotkey: cancelled	anegzum: yettwasefsex
+invalid key color	ini n tsarut arameɣtu
+keyframe: invalid	keyframe: arameɣtu
+little bloops off	bloop imecṭuḥen insan
+live captions off	iglamen s tidet ensan
+lock to screen on	qqen ɣer ugdil yermed
+mask not inverted	taɣmist ur tettwaqlib ara
+motion driver set	anuḍaf n umussu yettwasbadu
+ndi sender failed	amazan NDI ur yeddi ara
+network cue added	cue n uẓeṭṭa yettwarna
+no cue to jump to	ulac cue ara yettneggzen ɣer-s
+out point cleared	tanqiḍt n tuffɣa tettwasfeḍ
+output overlay on	asnejmaɛ n tuffɣa yermed
+phone haptics off	asemsusem n tilifun yensa
+pick a deck first	fren deck uqbel
+playlist loop off	tineḍt n tebdart yensa

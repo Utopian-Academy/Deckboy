@@ -2289,3 +2289,251 @@ It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts 
 Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	ʻElua papakaumaka, skapi. Noho ka papa ma kēia, hele ke kiʻi ma kēlā ʻē aʻe: {1}. E wehe i PAPA KUHIKUHI a hoʻololi i PUKA PIO i PUKA HOʻĀ.
 It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	Ua ʻai ia i ka papa, skapi. Hōʻike nā papakaumaka like i ke kiʻi ma nā mea ʻelua, no laila ua kau au iā ia i loko o kahi puka aniani liʻiliʻi, ma hope. {1}, a loaʻa iā ia kona papakaumaka ponoʻī.
 Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	Ua like kāu mau papakaumaka, skapi: hōʻike ʻo {1} i ka mea a kēia e hōʻike nei, no laila e uhi ke kiʻi i ka papa ma nā mea ʻelua. {2}, a kau au i ke kiʻi ma kona papakaumaka ponoʻī. A i ʻole e wehe i PAPA KUHIKUHI a hoʻololi i PUKA PIO i PUKA HOʻĀ.
++now	+ano
+CROP	ʻOKI
+Move	Hoʻoneʻe
+KEY L	KEY H
+NEW 1	HOU 1
+SELECT	KOHO
+cue id	ID cue
+key on	kī hoʻā
+lfo on	lfo hoʻā
+QR CODE	QR PĀʻĀLUA
+SHOW ME	HŌʻIKE MAI
+hold on	paʻa hoʻā
+key off	kī pio
+lfo off	lfo pio
+loop on	pōʻai hoʻā
+mesh on	mesh hoʻā
+ndi off	ndi pio
+pan set	hoʻonoho pan
+TCP port	Awa TCP
+hold off	paʻa pio
+loop off	pōʻai pio
+mask off	uhi pio
+mesh off	mesh pio
+new show	hōʻike hou
+no pages	ʻaʻohe ʻaoʻao
+warp off	hoʻokekeʻe pio
+(default)	(maʻamau)
+HTTP port	Awa HTTP
+canvas on	papa kiʻi ma
+lower 3rd	Lower Third
+matte off	matte pio
+notes set	nā memo hoʻonoho
+pin reset	pin hoʻihoʻi
+splash on	pakī ma
+tc jam on	tc jam ma
+tc run on	tc holo ma
+timer set	uaki hoʻonoho
+wiggle on	luliluli ma
+Tally port	Awa Tally
+VJ mode on	ʻano VJ ma
+big screen	papakaumaka nui
+canvas off	papa kiʻi pio
+cue loaded	cue i hoʻouka ʻia
+display on	hōʻike ma
+overlay on	uhi ma
+scene live	kiʻi ola
+shuffle on	kāwili ma
+speaker up	pahu leo i luna
+splash off	pakī pio
+tc jam off	tc jam pio
+tc run off	tc holo pio
+timer held	uaki paʻa
+trim reset	ʻoki hoʻihoʻi
+vj mode on	ʻano vj ma
+warp reset	hoʻokekeʻe hoʻihoʻi
+wiggle off	luliluli pio
+({1} decks)	({1} papa)
+4-bit steps	nā ʻanuʻu 4-bit
+DATAMOSH on	DATAMOSH ma
+VJ mode off	ʻano VJ pio
+blackout ON	pōʻele hoʻā
+blend reset	ua hoʻihoʻi ʻia ka hui
+captions on	nā huaʻōlelo hoʻā
+cue deleted	ua holoi ʻia ka cue
+display off	hōʻike pio
+driver held	paʻa ka driver
+id: cleared	id: ua holoi ʻia
+jumped to -	ua lele i -
+monitor off	pakuhi pio
+overlay off	uhi pio
+path closed	ua pani ʻia ka ala
+phrases set	ua hoʻonoho ʻia nā ʻōlelo
+pip cleared	ua holoi ʻia ka PIP
+point added	ua hoʻohui ʻia ke kiko
+row deleted	ua holoi ʻia ka lalani
+seconds, 0-	kekona, 0-
+shuffle off	kāwili pio
+source live	kumu ola
+sprites off	nā sprite pio
+tc chase on	tc chase hoʻā
+timer reset	ua hoʻihoʻi ʻia ka uaki
+vj mode off	ʻano vj pio
+Art-Net port	Awa Art-Net
+all decks go	holo a pau nā papa
+big screen @	papakaumaka nui @
+blackout off	pōʻele pio
+browser live	polokalamu kele ola
+captions off	nā huaʻōlelo pio
+clip cleared	ua holoi ʻia ka clip
+datamosh off	datamosh pio
+find cleared	ua holoi ʻia ka huli
+hands-on off	hands-on pio
+key+fill off	key+fill pio
+multiview on	multiview hoʻā
+not watching	ʻaʻole e nānā ana
+path removed	ua wehe ʻia ka ala
+pip attached	ua hoʻopili ʻia ka PIP
+scene loaded	ua hoʻouka ʻia ke kiʻi huipū
+speaker down	pahu leo i lalo
+subtitles on	nā huaʻōlelo unuhi: hoʻā
+tc chase off	alualu tc: pio
+text mode on	ʻano huaʻōlelo: hoʻā
+trim cleared	ua holoi ʻia ka ʻoki
+beast mode on	ʻano holoholona: hoʻā
+clock: analog	uaki: analog
+creatures off	nā holoholona: pio
+cue reordered	ua hoʻonohonoho hou ʻia ka cue
+dmx cue added	ua hoʻohui ʻia ka cue DMX
+hover tips on	nā ʻōlelo aʻoaʻo: hoʻā
+input: stereo	hoʻokomo: stereo
+lfo runs free	holo kūʻokoʻa ka LFO
+lower sub set	ua hoʻonoho ʻia ka huaʻōlelo unuhi lalo
+mask inverted	ua hoʻohuli ʻia ka uhi
+multiview off	multiview: pio
+no expression	ʻaʻohe ʻōlelo helu
+pip cue added	ua hoʻohui ʻia ka cue PIP
+point removed	ua wehe ʻia ke kiko
+source loaded	ua hoʻouka ʻia ke kumu
+stream failed	ua hāʻule ka kahe
+subtitles off	nā huaʻōlelo unuhi: pio
+system cursor	cursor ʻōnaehana
+tc trigger on	hoʻomaka tc: hoʻā
+text mode off	ʻano huaʻōlelo: pio
+timer running	ke holo nei ka uaki
+video dip off	hāʻule wikiō: pio
+view: invalid	nānā: pono ʻole
+warp grid off	pā hoʻokekeʻe: pio
+1-90 (percent)	1-90 (pākēneka)
+DRAW FPS: 1-60	KAHA FPS: 1-60
+TCCUE: no deck	TCCUE: ʻaʻohe papa
+all decks play	hoʻokani nā papa a pau
+alpha: invalid	alpha: pono ʻole
+aspect link on	loulou ʻaoʻao ma
+atem tally off	tally ATEM pio
+beast mode off	ʻano holoholona pio
+browser parked	polokalamu kele i waiho ʻia
+button deleted	ua holoi ʻia ke pihi
+button removed	ua wehe ʻia ke pihi
+driver running	ke holo nei ka driver
+expression set	ua hoʻonoho ʻia ka expression
+fade cue added	ua hoʻohui ʻia ka cue hala
+hotkey cleared	ua holoi ʻia ke kī wikiwiki
+hover tips off	nā ʻōlelo aʻoaʻo pio
+invalid number	helu pono ʻole
+lower text set	ua hoʻonoho ʻia ka huaʻōlelo lower
+mic fading out	ke hala aku nei ka mic
+midi cue added	ua hoʻohui ʻia ka cue MIDI
+nothing broken	ʻaʻohe mea i haki
+overlay popped	ua puka ka uhi
+periodic noise	walaʻau i kēlā me kēia manawa
+pip source set	ua hoʻonoho ʻia ke kumu PIP
+sequence ended	ua pau ke kaʻina
+sequence loops	hana hou ke kaʻina
+stop when done	hoʻōki i ka pau
+stream stopped	hoʻōki ʻia ke kahe
+stream url set	ua hoʻonoho ʻia ka URL kahe
+tally: enabled	tally: ua hoʻā ʻia
+tc trigger off	hoʻomaka TC pio
+timer logo set	ua hoʻonoho ʻia ka hōʻailona uaki
+, fetched once)	, ua loaʻa hoʻokahi manawa)
+DMXCUE: no deck	DMXCUE: ʻaʻohe papa
+MATRIX: no deck	MATRIX: ʻaʻohe papa
+MIDI fires cues	hoʻā ʻo MIDI i nā cue
+MSC id: invalid	MSC id: pono ʻole
+NETCUE: no deck	NETCUE: ʻaʻohe papa
+all decks fired	ua hoʻā ʻia nā papa a pau
+animation saved	ua mālama ʻia ka animation
+aspect link off	loulou ʻaoʻao pio
+audio input off	leo komo pio
+canvas mode off	ʻano papa pio
+canvas: invalid	canvas: pono ʻole
+cue audio: mono	leo cue: mono
+cue jumped live	lele ka cue i ka ola
+glitch text set	hoʻonoho ʻia ka huaʻōlelo glitch
+jam: not a time	jam: ʻaʻole he manawa
+markers cleared	holoi ʻia nā māka
+miami cursor on	kuhikuhi Miami ma
+ndi unavailable	ʻaʻole loaʻa ka NDI
+no marker ahead	ʻaʻohe māka ma mua
+nothing to redo	ʻaʻohe mea e hana hou
+nothing to undo	ʻaʻohe mea e hoʻihoʻi
+on every output	ma kēlā me kēia puka
+overlay cleared	holoi ʻia ka uhi
+phrases cleared	holoi ʻia nā ʻāpana ʻōlelo
+preload cleared	holoi ʻia ka preload
+progress bar on	ke kaola holomua ma
+raster: invalid	raster: pono ʻole
+standby cleared	holoi ʻia ka mākaukau
+tally: disabled	tally: hoʻopau ʻia
+tc mark cleared	holoi ʻia ka māka tc
+tempo is tapped	ua kaomi ʻia ka tempo
+time overlay on	ka uhi manawa ma
+DMX over Art-Net	DMX ma Art-Net
+MIDICUE: no deck	MIDICUE: ʻaʻohe papa
+TEXTCUE: no deck	TEXTCUE: ʻaʻohe papa
+all decks paused	hoʻomaha ʻia nā papa a pau
+aoi: full raster	aoi: raster piha
+bitrate: invalid	bitrate: pono ʻole
+browser loading…	ke hoʻouka nei ka polokalamu kele…
+driver free-runs	holo kūʻokoʻa ka driver
+driver restarted	hoʻomaka hou ʻia ka driver
+find: empty deck	ʻimi: papa nele
+in point cleared	holoi ʻia ka hoʻomaka
+leave it running	e waiho e holo
+little bloops on	nā bloop liʻiliʻi ma
+ltc fps: invalid	ltc fps: pono ʻole
+mic not recorded	ʻaʻole i hoʻopaʻa ʻia ka mic
+no marker behind	ʻaʻohe māka ma hope
+no plugins found	ʻaʻohe mea hoʻohui i loaʻa
+off every output	pio i nā puka a pau
+phone haptics on	ma ka haʻalulu o ke kelepona
+playlist loop on	ma ka pōʻai papa helu
+progress bar off	pio ke kaola holomua
+refresh: invalid	hōʻano hou: pono ʻole
+schedule cleared	ua holoi ʻia ka papa manawa
+script cue added	ua hoʻohui ʻia ka cue pāʻālua
+sequence stopped	ua hoʻōki ʻia ke kaʻina
+stream cue added	ua hoʻohui ʻia ka cue kahe
+target cue added	ua hoʻohui ʻia ka cue pahuhopu
+time overlay off	pio ka uhi manawa
+warp/blend reset	ua hoʻihoʻi ʻia ka hoʻokekeʻe/hui
+' is not a number	' ʻaʻole he helu
+MIDIFILE: no deck	MIDIFILE: ʻaʻohe papa
+RECORDING STOPPED	UA HOʻŌKI ʻIA KE HOʻOPAʻA
+all decks stopped	ua hoʻōki ʻia nā papa a pau
+at the first step	ma ke kaʻina mua
+browser refreshed	ua hōʻano hou ʻia ka polokalamu kele
+conversion failed	ua hāʻule ka hoʻololi
+converting {1}...	ke hoʻololi nei i {1}...
+cue audio: stereo	leo cue: stereo
+cue fade: invalid	hala cue: pono ʻole
+fullscreen failed	ua hāʻule ka piha pākaukau
+hotkey: cancelled	kī wikiwiki: ua kāpae ʻia
+invalid key color	waihoʻoluʻu kī pono ʻole
+keyframe: invalid	keyframe: pono ʻole
+little bloops off	pio nā bloop liʻiliʻi
+live captions off	pio nā huaʻōlelo ola
+lock to screen on	ma ka paʻa i ka papakaumaka
+mask not inverted	ʻaʻole i hoʻohuli ʻia ka uhi
+motion driver set	ua hoʻonoho ʻia ka mea hoʻokele neʻe
+ndi sender failed	ua hāʻule ka mea hoʻouna NDI
+network cue added	ua hoʻohui ʻia ka cue pūnaewele
+no cue to jump to	ʻaʻohe cue e lele ai
+out point cleared	ua holoi ʻia ka kiko puka
+output overlay on	ma ka uhi puka
+phone haptics off	pio ka haʻalulu o ke kelepona
+pick a deck first	koho mua i papa
+playlist loop off	pio ka pōʻai papa helu

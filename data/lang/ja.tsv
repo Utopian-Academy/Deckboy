@@ -2351,3 +2351,237 @@ It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts 
 Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	画面が2つだね、skapi。デスクはこっちに残って、映像はもう一方に出るよ：{1}。メニューを開いて出力オフを出力オンにしてね。
 It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	卓を食べちゃった、skapi。ミラーリングした画面だと両方に映像が出るから、後ろの小さなウィンドウに入れておいたよ。{1}と、映像専用の画面ができるよ。
 Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	画面がミラーリングされてるよ、skapi。{1}はこの画面と同じものを映すから、両方で映像がデスクを覆っちゃう。{2}と、映像を専用の画面に出すよ。それかメニューを開いて出力オフを出力オンにしてね。
++now	+現在
+CROP	クロップ
+Move	移動
+NEW 1	新規1
+SELECT	選択
+key on	キーオン
+lfo on	LFOオン
+hold on	保持オン
+key off	キーオフ
+lfo off	LFOオフ
+loop on	ループオン
+mesh on	メッシュオン
+ndi off	NDIオフ
+pan set	パン設定
+hold off	保持オフ
+loop off	ループオフ
+mask off	マスクオフ
+mesh off	メッシュオフ
+new show	新規ショー
+no pages	ページなし
+warp off	変形 オフ
+(default)	(既定)
+canvas on	キャンバス オン
+matte off	マット オフ
+notes set	メモ設定
+pin reset	ピンリセット
+splash on	起動画面 オン
+tc jam on	tc 同期 オン
+tc run on	tc 実行 オン
+timer set	タイマー設定
+wiggle on	ゆれ オン
+VJ mode on	VJモード オン
+big screen	大画面
+canvas off	キャンバス オフ
+cue loaded	キュー読み込み済み
+display on	ディスプレイ オン
+overlay on	オーバーレイ オン
+scene live	シーン ライブ
+shuffle on	シャッフル オン
+speaker up	スピーカー 上へ
+splash off	起動画面 オフ
+tc jam off	tc 同期 オフ
+tc run off	tc 実行 オフ
+timer held	タイマー保持中
+trim reset	トリムリセット
+vj mode on	VJモード オン
+warp reset	変形リセット
+wiggle off	ゆれ オフ
+({1} decks)	({1}デッキ)
+4-bit steps	4ビットステップ
+DATAMOSH on	DATAMOSH オン
+VJ mode off	VJモード オフ
+blackout ON	ブラック オン
+blend reset	合成リセット
+captions on	字幕オン
+cue deleted	キュー削除
+display off	ディスプレイオフ
+driver held	ドライバー保持中
+id: cleared	id: クリア
+jumped to -	-へジャンプ
+monitor off	モニターオフ
+overlay off	オーバーレイオフ
+path closed	パスを閉じた
+phrases set	フレーズ設定
+pip cleared	PIPクリア
+point added	ポイント追加
+row deleted	行削除
+seconds, 0-	秒、0-
+shuffle off	シャッフルオフ
+source live	ソースライブ
+sprites off	スプライトオフ
+tc chase on	tcチェイスオン
+timer reset	タイマーリセット
+vj mode off	vjモードオフ
+all decks go	全プレイリスト開始
+big screen @	大画面 @
+blackout off	ブラックオフ
+browser live	ブラウザーライブ
+captions off	字幕オフ
+clip cleared	クリップクリア
+datamosh off	datamoshオフ
+find cleared	検索クリア
+hands-on off	hands-onオフ
+key+fill off	key+fillオフ
+multiview on	マルチビューオン
+not watching	監視していません
+path removed	パス削除
+pip attached	PIP接続
+scene loaded	シーン読み込み済み
+speaker down	スピーカー下へ
+st2110 8-bit	st2110 8ビット
+subtitles on	字幕オン
+tc chase off	tcチェイス オフ
+text mode on	テキストモード オン
+trim cleared	トリムをクリア
+beast mode on	ビーストモード オン
+creatures off	生き物オフ
+cue reordered	キューを並べ替え
+dmx cue added	DMXキュー追加
+hover tips on	ヒント表示オン
+lfo runs free	LFOはフリーラン
+lower sub set	下段字幕を設定
+mask inverted	マスク反転
+multiview off	マルチビュー オフ
+no expression	式なし
+pip cue added	PIPキュー追加
+point removed	ポイント削除
+source loaded	ソース読み込み済み
+st2110 10-bit	st2110 10ビット
+stream failed	配信失敗
+subtitles off	字幕オフ
+system cursor	システムカーソル
+tc trigger on	tcトリガー オン
+text mode off	テキストモード オフ
+timer running	タイマー実行中
+video dip off	ビデオディップ：オフ
+view: invalid	ビュー: 無効
+warp grid off	変形グリッド オフ
+1-90 (percent)	1-90 (パーセント)
+DRAW FPS: 1-60	描画FPS: 1-60
+TCCUE: no deck	TCCUE: デッキなし
+all decks play	すべてのデッキを演奏
+aspect link on	アスペクトリンク オン
+atem tally off	ATEMタリー オフ
+beast mode off	ビーストモード オフ
+browser parked	ブラウザー待機中
+button deleted	ボタン削除
+button removed	ボタン除去
+driver running	ドライバー実行中
+expression set	式を設定
+fade cue added	フェードキュー追加
+hotkey cleared	ホットキー解除
+hover tips off	ヒント表示 オフ
+invalid number	無効な数値
+lower text set	ロワーテキスト設定
+mic fading out	マイク フェードアウト中
+midi cue added	MIDIキュー追加
+nothing broken	異常なし
+overlay popped	オーバーレイを解除
+periodic noise	周期ノイズ
+pip source set	PIPソース設定
+sequence ended	シーケンス終了
+sequence loops	シーケンスをループ
+stop when done	完了で停止
+stream stopped	配信停止
+stream url set	配信URL設定
+tally: enabled	タリー：有効
+tc trigger off	TCトリガー オフ
+timer logo set	タイマーロゴ設定
+, fetched once)	、1回取得）
+DMXCUE: no deck	DMXCUE：デッキなし
+MATRIX: no deck	MATRIX：デッキなし
+MIDI fires cues	MIDIでキューを発火
+MSC id: invalid	MSC id：無効
+NETCUE: no deck	NETCUE：デッキなし
+all decks fired	全デッキを発火
+animation saved	アニメーション保存
+aspect link off	アスペクトリンク オフ
+audio input off	オーディオ入力 オフ
+canvas mode off	キャンバスモード オフ
+canvas: invalid	キャンバス：無効
+cue audio: mono	キューの音声：モノラル
+cue jumped live	キューがライブにジャンプ
+glitch text set	グリッチテキスト設定
+markers cleared	マーカー消去
+miami cursor on	Miamiカーソル オン
+ndi unavailable	NDI利用不可
+no marker ahead	先にマーカーなし
+nothing to redo	やり直す操作なし
+nothing to undo	取り消す操作なし
+on every output	全出力に
+overlay cleared	オーバーレイ消去
+phrases cleared	フレーズ消去
+preload cleared	プリロード消去
+progress bar on	進行バー オン
+raster: invalid	ラスター：無効
+standby cleared	スタンバイ消去
+tally: disabled	タリー：無効
+tc mark cleared	TCマーク消去
+tempo is tapped	テンポをタップ
+time overlay on	時間オーバーレイ オン
+DMX over Art-Net	Art-Net経由のDMX
+MIDICUE: no deck	MIDICUE：デッキなし
+TEXTCUE: no deck	TEXTCUE：デッキなし
+all decks paused	すべてのデッキ一時停止
+aoi: full raster	aoi：全体ラスター
+browser loading…	ブラウザー読み込み中…
+driver free-runs	ドライバーはフリーラン
+driver restarted	ドライバー再起動
+find: empty deck	検索：空のデッキ
+in point cleared	インポイント消去
+leave it running	実行したままにする
+little bloops on	小さなブループ オン
+ltc fps: invalid	ltc fps：無効
+mic not recorded	マイク未録音
+no marker behind	後ろにマーカーなし
+no plugins found	プラグインが見つかりません
+off every output	すべての出力をオフ
+phone haptics on	スマホの触覚オン
+playlist loop on	プレイリストのループ オン
+progress bar off	プログレスバー オフ
+refresh: invalid	更新: 無効
+schedule cleared	スケジュールを消去
+script cue added	スクリプトキュー追加
+sequence stopped	シーケンス停止
+stream cue added	配信キュー追加
+target cue added	ターゲットキュー追加
+time overlay off	時刻オーバーレイ オフ
+warp/blend reset	変形/合成をリセット
+' is not a number	' は数値ではありません
+MIDIFILE: no deck	MIDIFILE: デッキなし
+RECORDING STOPPED	録画停止
+all decks stopped	すべてのデッキを停止
+at the first step	最初のステップです
+browser refreshed	ブラウザーを更新
+conversion failed	変換に失敗
+converting {1}...	{1} を変換中...
+cue fade: invalid	キューフェード: 無効
+fullscreen failed	全画面に失敗
+hotkey: cancelled	ホットキー: キャンセル
+invalid key color	キーの色が無効
+little bloops off	小さなブループ オフ
+live captions off	ライブ字幕 オフ
+lock to screen on	画面に同期 オン
+mask not inverted	マスク反転なし
+motion driver set	モーションドライバー設定
+ndi sender failed	NDI送信元に失敗
+network cue added	ネットワークキュー追加
+no cue to jump to	ジャンプ先のキューなし
+out point cleared	アウトポイント消去
+output overlay on	出力オーバーレイ オン
+phone haptics off	スマホの触覚オフ
+pick a deck first	先にデッキを選択
+playlist loop off	プレイリストのループ オフ

@@ -2371,3 +2371,236 @@ It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts 
 Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	ⵙⵉⵏ ⵉⴳⴷⵉⵍⵏ, skapi. ⵜⴰⴼⵉⵍⵓⵜ ⴰⴷ ⵜⵇⵇⵉⵎ ⵖ ⵡⴰ, ⵜⴰⵡⵍⴰⴼⵜ ⴰⴷ ⵜⴷⴷⵓ ⵖ ⵡⴰⵢⵢⴰⴹ: {1}. ⵕⵥⵎ ⵓⵎⵓⵖ ⵜⵔⴰⵔⴷ ⵜⵓⴼⴼⵖⴰ ⵉⵅⵙⴰ ⵖⵔ ⵜⵓⴼⴼⵖⴰ ⵉⵔⵎⴷ.
 It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	ⵉⴹⵕ ⵟⵟⴰⴱⵍⴰ, skapi. ⵉⴳⴷⵉⵍⵏ ⵉⵎⵙⴰⵙⴰⵏ ⴰⵔ ⵙⵙⴽⴰⵏⵏ ⵜⴰⵡⵍⴰⴼⵜ ⵖ ⵙⵉⵏ, ⵉⵅⵚ ⴰⴷ ⵜ ⴳⴳⵉⵖ ⵖ ⵢⴰⵏ ⵓⵙⴰⵜⵎ ⴰⵎⵥⵢⴰⵏ, ⴷⴼⴼⵉⵔ. {1}, ⴰⴷ ⵢⴰⵡⵉ ⴰⴳⴷⵉⵍ ⵏⵏⵙ.
 Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	ⵉⴳⴷⵉⵍⵏ ⵏⵏⴽ ⵎⵙⴰⵙⴰⵏ, skapi: {1} ⴰⵔ ⵉⵙⵙⴽⴰⵏ ⴰⵢⴷ ⵉⵙⵙⴽⴰⵏ ⵡⴰ, ⵉⵅⵚ ⵜⴰⵡⵍⴰⴼⵜ ⴰⴷ ⵜⴷⵍ ⵜⴰⴼⵉⵍⵓⵜ ⵖ ⵙⵉⵏ. {2}, ⴰⴷ ⴳⴳⵉⵖ ⵜⴰⵡⵍⴰⴼⵜ ⵖ ⵓⴳⴷⵉⵍ ⵏⵏⵙ. ⵏⵖ ⵕⵥⵎ ⵓⵎⵓⵖ ⵜⵔⴰⵔⴷ ⵜⵓⴼⴼⵖⴰ ⵉⵅⵙⴰ ⵖⵔ ⵜⵓⴼⴼⵖⴰ ⵉⵔⵎⴷ.
++now	+ⵖⵉⵍⴰ
+CROP	ⴰⵙⵎⵥⵥⵉ
+Move	ⴰⵙⵎⵓⵜⵜⵉ
+NEW 1	ⴰⵎⴰⵢⵏⵓ 1
+SELECT	ⵙⵜⵉ
+key on	ⵜⴰⵙⴰⵔⵓⵜ ⵉⵔⵎⴷ
+lfo on	lfo ⵉⵔⵎⴷ
+hold on	ⵟⵟⴼ ⵉⵔⵎⴷ
+key off	ⵜⴰⵙⴰⵔⵓⵜ ⵉⵅⵙⴰ
+lfo off	lfo ⵉⵅⵙⴰ
+loop on	ⴰⵙⵙⵓⵖⵍ ⵉⵔⵎⴷ
+mesh on	mesh ⵉⵔⵎⴷ
+ndi off	ndi ⵉⵅⵙⴰ
+pan set	pan ⵙⴱⴷⴷ
+hold off	ⵟⵟⴼ ⵉⵅⵙⴰ
+loop off	ⴰⵙⵙⵓⵖⵍ ⵉⵅⵙⴰ
+mask off	ⵜⴰⴳⵍⵎⵓⵙⵜ ⵉⵅⵙⴰ
+mesh off	mesh ⵉⵅⵙⴰ
+new show	ⴰⵙⵙⴽⴰⵏ ⴰⵎⴰⵢⵏⵓ
+no pages	ⵓⵔ ⵉⵍⵍⵉ ⵜⴰⵙⵏⴰ
+warp off	ⵙⵙⵏⴼⵍ ⵜⴰⵍⵖⴰ ⵉⵅⵙⴰ
+(default)	(ⴰⵎⵣⵡⴰⵔⵓ)
+LOWERTEXT	ⴰⴹⵕⵉⵚ ⵏ Lower Third
+canvas on	canvas ⵉⵔⵎⴷ
+matte off	ⴰⵎⴰⵜⵜ ⵉⵅⵙⴰ
+notes set	ⵜⵉⵣⵎⵉⵍⵉⵏ ⵜⵜⵓⵙⴱⴷⴷⵏ
+pin reset	pin ⵉⵜⵜⵓⵙⵙⵓⵖⵍ
+splash on	ⵜⴰⵡⵍⴰⴼⵜ ⵏ ⵓⴱⴷⵓ ⵉⵔⵎⴷ
+tc jam on	tc ⵙⴳⵔ ⵉⵔⵎⴷ
+tc run on	tc ⵙⵙⵍⴽⵎ ⵉⵔⵎⴷ
+timer set	ⴰⵙⵎⵣⴰⵢ ⵉⵜⵜⵓⵙⴱⴷⴷ
+wiggle on	ⴰⵙⵔⵣⵣⵓⵣ ⵉⵔⵎⴷ
+VJ mode on	ⴰⵙⴽⴰⵔ VJ ⵉⵔⵎⴷ
+big screen	ⴰⴳⴷⵉⵍ ⴰⵎⵇⵇⵔⴰⵏ
+canvas off	canvas ⵉⵅⵙⴰ
+cue loaded	cue ⵉⵜⵜⵓⵙⵎⵖⵔⵏ
+display on	ⴰⵙⴽⵏ ⵉⵔⵎⴷ
+overlay on	ⴰⴼⵍⵍⴰⵢ ⵉⵔⵎⴷ
+scene live	ⵜⴰⵎⵙⴽⵏⵜ ⵙ ⵜⵓⴷⵔⵜ
+shuffle on	ⴰⵙⵎⵎⵉⵥⵍ ⵏ ⵓⵏⵚⵚⴰ ⵉⵔⵎⴷ
+speaker up	ⴰⵎⵙⵍⵉ ⴰⴼⵍⵍⴰ
+splash off	ⵜⴰⵡⵍⴰⴼⵜ ⵏ ⵓⴱⴷⵓ ⵉⵅⵙⴰ
+tc jam off	tc ⵙⴳⵔ ⵉⵅⵙⴰ
+tc run off	tc ⵙⵙⵍⴽⵎ ⵉⵅⵙⴰ
+timer held	ⴰⵙⵎⵣⴰⵢ ⵉⵜⵜⵓⵟⵟⴼ
+trim reset	trim ⵉⵜⵜⵓⵙⵙⵓⵖⵍ
+vj mode on	ⴰⵙⴽⴰⵔ VJ ⵉⵔⵎⴷ
+warp reset	ⵙⵙⵏⴼⵍ ⵜⴰⵍⵖⴰ ⵉⵜⵜⵓⵙⵙⵓⵖⵍ
+wiggle off	ⴰⵙⵔⵣⵣⵓⵣ ⵉⵅⵙⴰ
+({1} decks)	({1} deck)
+4-bit steps	ⵉⵙⵏⵜⵉⵍⵏ 4-bit
+DATAMOSH on	DATAMOSH ⵉⵔⵎⴷ
+VJ mode off	ⴰⵙⴽⴰⵔ VJ ⵉⵅⵙⴰ
+blackout ON	ⵜⴰⵖⵍⴰⵍⵜ ⵉⵔⵎⴷ
+blend reset	ⴰⵙⵎⵓⵏ ⵉⵜⵜⵓⵙⵙⵓⵖⵍ
+captions on	ⵜⵉⵔⵔⴰ ⵉⵔⵎⴷ
+cue deleted	cue ⵉⵜⵜⵓⴽⴽⵙ
+display off	ⴰⴳⴷⵉⵍ ⵉⵅⵙⴰ
+driver held	driver ⵉⵜⵜⵓⵟⵟⴼ
+id: cleared	id: ⵉⵜⵜⵓⵙⴼⴹ
+jumped to -	ⴰⵙⵓⵜⵍ ⵙ -
+monitor off	monitor ⵉⵅⵙⴰ
+overlay off	ⴰⴼⵍⵍⴰⵢ ⵉⵅⵙⴰ
+path closed	ⴰⴱⵔⵉⴷ ⵉⵜⵜⵓⵔⴳⵍ
+phrases set	ⵜⵉⵏⵖⵎⵉⵙⵉⵏ ⵜⵜⵓⵙⴱⴷⴷⵏ
+pip cleared	PIP ⵉⵜⵜⵓⵙⴼⴹ
+point added	ⵜⴰⵏⵇⵇⵉⵟⵜ ⵜⵜⵢⴰⵔⵏⴰ
+row deleted	ⵉⵣⵉⵔⵉⴳ ⵉⵜⵜⵓⴽⴽⵙ
+seconds, 0-	ⵜⵉⵙⵉⵏⴰ, 0-
+shuffle off	ⴰⵙⵎⵎⵉⵥⵍ ⵏ ⵓⵏⵚⵚⴰ ⵉⵅⵙⴰ
+source live	ⴰⵖⴱⴰⵍⵓ ⵙ ⵜⵓⴷⵔⵜ
+sprites off	sprites ⵉⵅⵙⴰ
+tc chase on	tc chase ⵉⵔⵎⴷ
+timer reset	ⴰⵙⵎⵣⴰⵢ ⵉⵜⵜⵓⵙⵙⵓⵖⵍ
+vj mode off	ⴰⵙⴽⴰⵔ VJ ⵉⵅⵙⴰ
+all decks go	ⴰⴽⴽ decks ⴱⴷⴰⵏ
+big screen @	ⴰⴳⴷⵉⵍ ⴰⵎⵇⵇⵔⴰⵏ @
+blackout off	ⵜⴰⵖⵍⴰⵍⵜ ⵉⵅⵙⴰ
+browser live	ⴰⵙⵙⴰⵔⴰ ⵙ ⵜⵓⴷⵔⵜ
+captions off	ⵜⵉⵔⵔⴰ ⵉⵅⵙⴰ
+clip cleared	ⴰⵙⴳⵣⵓⵎ ⵉⵜⵜⵓⵙⴼⴹ
+datamosh off	datamosh ⵉⵅⵙⴰ
+find cleared	ⴰⵔⵣⵣⵓ ⵉⵜⵜⵓⵙⴼⴹ
+hands-on off	hands-on ⵉⵅⵙⴰ
+key+fill off	key+fill ⵉⵅⵙⴰ
+multiview on	multiview ⵉⵔⵎⴷ
+not watching	ⵓⵔ ⵉⵙⵡⵡⴰⴹ
+path removed	ⴰⴱⵔⵉⴷ ⵉⵜⵜⵓⴽⴽⵙ
+pip attached	PIP ⵉⵜⵜⵓⵔⴱⵟ
+scene loaded	ⴰⵎⵙⵙⵓⵔ ⵉⵜⵜⵓⵙⵎⵖⵔⵏ
+speaker down	ⴰⵎⵙⵙⵓⵍ ⴰⴷⴷⴰⵢ
+subtitles on	ⵉⵙⵏⵖⵍⵏ ⵉⵔⵎⴷ
+tc chase off	tc chase ⵉⵅⵙⴰ
+text mode on	ⴰⵙⴽⴰⵔ ⵏ ⵓⴹⵕⵉⵚ ⵉⵔⵎⴷ
+trim cleared	trim ⵉⵜⵜⵓⵙⵙⵉⵔⴷ
+beast mode on	ⴰⵙⴽⴰⵔ ⵏ ⵓⵖⵡⴰⵍ ⵉⵔⵎⴷ
+creatures off	ⵉⵎⵓⴷⴰⵔ ⵉⵅⵙⴰ
+cue reordered	ⴰⵙⵏⴼⵍ ⵏ ⵜⴰⵔⴰⵔⵜ ⵏ cue
+dmx cue added	cue ⵏ DMX ⵉⵜⵜⵢⴰⵔⵏⴰⵏ
+hover tips on	ⵉⵏⵖⵎⵉⵙⵏ ⵖ ⵓⴼⵍⵍⴰ ⵉⵔⵎⴷ
+lfo runs free	lfo ⵉⴷⴷⵓ ⵡⴰⵃⴷⵓⵜ
+lower sub set	ⴰⵙⵏⵖⵍ ⴰⴷⴷⴰⵢ ⵉⵙⴱⴷⴷ
+mask inverted	ⵜⴰⴳⵍⵎⵓⵙⵜ ⵜⵜⵓⵙⵍⵇⵍⵇ
+multiview off	multiview ⵉⵅⵙⴰ
+no expression	ⵓⵔ ⵉⵍⵍⵉ ⵓⵙⵏⵜⵉ
+pip cue added	cue ⵏ PIP ⵉⵜⵜⵢⴰⵔⵏⴰⵏ
+point removed	ⵜⴰⵏⵇⵉⵟⵜ ⵜⵜⵓⴽⵙ
+source loaded	ⴰⵖⴱⴰⵍⵓ ⵉⵜⵜⵓⵙⵎⵖⵔⵏ
+stream failed	ⴰⵙⵓⴷⴷⵎ ⵉⵣⵡⵉⵔ
+subtitles off	ⵉⵙⵏⵖⵍⵏ ⵉⵅⵙⴰ
+system cursor	ⴰⵎⵣⵔⴰⵢ ⵏ ⵓⵏⴰⴳⴰⵔⴰⵡ
+tc trigger on	tc ⵙⵏⴽⵔ ⵉⵔⵎⴷ
+text mode off	ⴰⵙⴽⴰⵔ ⵏ ⵓⴹⵕⵉⵚ ⵉⵅⵙⴰ
+timer running	ⴰⵙⵎⵣⴰⵢ ⵉⵜⴷⴷⵓ
+video dip off	video dip ⵉⵅⵙⴰ
+view: invalid	ⴰⵥⴷⴰⵔ: ⵓⵔ ⵉⵚⵃⵉⵃ
+warp grid off	ⵜⴰⵔⵓⴱⵜ ⵏ ⵙⵙⵏⴼⵍ ⵜⴰⵍⵖⴰ ⵉⵅⵙⴰ
+1-90 (percent)	1-90 (ⴳ ⵎⵉⵢⴰ)
+DRAW FPS: 1-60	ⴰⵥⵍⴰⵢ FPS: 1-60
+TCCUE: no deck	TCCUE: ⵓⵔ ⵉⵍⵍⵉ deck
+all decks play	ⵖⵔ ⴰⴽⴽ deck
+alpha: invalid	alpha: ⵓⵔ ⵉⵚⵃⵉⵃ
+aspect link on	ⴰⵙⵖⵓⵏⵓ ⵏ ⵜⵖⵉⵡⵙⵜ ⵉⵔⵎⴷ
+atem tally off	Tally ATEM ⵉⵅⵙⴰ
+beast mode off	ⴰⵙⴽⴰⵔ ⵏ ⵓⵖⵡⴰⵍ ⵉⵅⵙⴰ
+browser parked	ⴰⵙⵙⴰⵔⴰ ⵉⵜⵜⵓⴽⵍ
+button deleted	ⴰⵙⵉⵏⴰⴳ ⵉⵜⵜⵓⴽⴽⵙ
+button removed	ⴰⵙⵉⵏⴰⴳ ⵉⵜⵜⵓⵙⵙⵓⴼⵖ
+driver running	ⴰⵙⵓⴼⵖ ⵉⵜⴷⴷⵓ
+expression set	ⵜⴰⵎⵖⵔⵓⵙⵜ ⵜⵜⵓⵙⴱⴷⴷ
+fade cue added	cue ⵏ ⵓⵙⴼⵙⵉ ⵉⵜⵜⵢⴰⵔⵏⴰⵏ
+hotkey cleared	ⴰⵙⵓⵖⵍ ⵉⵜⵜⵓⴽⴽⵙ
+hover tips off	ⵉⵏⵖⵎⵉⵙⵏ ⵖ ⵓⴼⵍⵍⴰ ⵉⵅⵙⴰ
+invalid number	ⵓⵏⵎⴰⵔ ⵓⵔ ⵉⵎⵙⴰⵡⴰⵏ
+lower text set	ⴰⴹⵕⵉⵚ ⴰⴷⴷⴰⵢ ⵉⵜⵜⵓⵙⴱⴷⴷ
+mic fading out	ⴰⵙⵎⵖⵔ ⵏ ⵉⵎⵙⵍⵉ ⵉⵜⵜⵓⵙⴼⵙⵉ
+midi cue added	cue ⵏ MIDI ⵉⵜⵜⵢⴰⵔⵏⴰⵏ
+nothing broken	ⵡⴰⵍⵓ ⵓⵔ ⵉⵜⵜⵓⵙⴽⴽⵔ ⵉⵙⵙⵓⴼⵖ
+overlay popped	ⴰⵙⵎⵎⵓⵙⵙⴰ ⵉⵜⵜⵓⵙⵎⴰⵏⴰⵏ
+periodic noise	ⴰⵙⵎⴰⵏⵏⵙ ⵏ ⵜⴰⵎⵓⴷⵎⵜ
+pip source set	ⴰⵖⴱⴰⵍⵓ ⵏ PIP ⵉⵜⵜⵓⵙⴱⴷⴷ
+sequence ended	ⴰⵙⴹⴼⴰⵕ ⵉⴽⵎⵎⵍ
+sequence loops	ⴰⵙⴹⴼⴰⵕ ⴰⵔ ⵉⵙⵙⵓⵡⵓⵔ
+stop when done	ⵃⴱⵙ ⴷⴰ ⵉⴽⵎⵎⵍ
+stream stopped	ⴰⵙⵓⴷⴷⵎ ⵉⴱⴷⴷ
+stream url set	URL ⵏ ⵓⵙⵓⴷⴷⵎ ⵉⵜⵜⵓⵙⴱⴷⴷ
+tally: enabled	tally: ⵉⵔⵎⴷ
+tc trigger off	ⵙⵏⴽⵔ TC ⵉⵅⵙⴰ
+timer logo set	ⴰⵍⵓⴳⵓ ⵏ ⵓⵙⵎⵣⴰⵢ ⵉⵜⵜⵓⵙⴱⴷⴷ
+, fetched once)	, ⵢⴰⵜ ⵜⵉⴽⴽⵍⵜ ⵜⵜⵓⵙⵙⵓⴼⵖ)
+DMXCUE: no deck	DMXCUE: ⵡⴰⵍⵓ deck
+MATRIX: no deck	MATRIX: ⵡⴰⵍⵓ deck
+MIDI fires cues	MIDI ⵉⵙⵙⵉⴷⴷ cue
+MSC id: invalid	MSC id: ⵓⵔ ⵉⵎⵙⴰⵡⴰⵏ
+NETCUE: no deck	NETCUE: ⵡⴰⵍⵓ deck
+all decks fired	ⴰⴽⴽ deck ⵜⵜⵓⵙⵙⵉⴷⴷⵏ
+animation saved	ⴰⵙⵡⴰⵍ ⵉⵜⵜⵓⵙⵎⵏⴷⴰ
+aspect link off	ⴰⵙⵖⵓⵏⵓ ⵏ ⵜⵖⵉⵡⵙⵜ ⵉⵅⵙⴰ
+audio input off	ⴰⴽⵛⵓⵎ ⵏ ⵉⵎⵙⵍⵉ ⵉⵅⵙⴰ
+canvas mode off	ⴰⵙⴽⴰⵔ CANVAS ⵉⵅⵙⴰ
+canvas: invalid	canvas: ⵓⵔ ⵉⵎⵙⴰⵡⴰⵏ
+cue audio: mono	ⵉⵎⵙⵍⵉ ⵏ cue: mono
+cue jumped live	cue ⵉⵏⴳⵉⵣ ⵙ ⵜⵓⴷⵔⵜ
+glitch text set	ⴰⴹⵕⵉⵚ ⵏ ⵓⵣⵔⴼ ⵜⵜⵓⵙⴱⴷⴷ
+markers cleared	ⵉⵙⵎⴰⵍⵏ ⵜⵜⵓⵙⴼⴹ
+miami cursor on	ⴰⵏⴽⴰⴹ Miami ⵉⵔⵎⴷ
+ndi unavailable	NDI ⵓⵔ ⵉⵍⵍⵉ
+no marker ahead	ⵡⴰⵍⵓ ⵏ ⵓⵙⵎⴰⵍ ⵙ ⵜⵉⵣⵡⵓⵔⵉ
+nothing to redo	ⵡⴰⵍⵓ ⵉ ⵙⴽⵔ ⴷⴰⵖ
+nothing to undo	ⵡⴰⵍⵓ ⵉ ⵓⵙⵏⴼⵍ
+on every output	ⵖ ⴽⵔⴰⵢⴳⴰⵜ ⵜⵓⴼⴼⵖⴰ
+overlay cleared	ⴰⴼⵍⵍⴰⵢ ⵜⵜⵓⵙⴼⴹ
+phrases cleared	ⵜⵉⵏⵏⵉⵡⵉⵏ ⵜⵜⵓⵙⴼⴹ
+preload cleared	PRELOAD ⵜⵜⵓⵙⴼⴹ
+progress bar on	ⴰⴼⴳⴳ ⵏ ⵓⵙⵖⵓⵏ ⵉⵔⵎⴷ
+raster: invalid	ⵔⴰⵙⵜⵔ: ⵓⵔ ⵉⵍⵉⵇ
+standby cleared	ⵢⵓⵊⴰⴷ ⵜⵜⵓⵙⴼⴹ
+tally: disabled	Tally: ⵜⵜⵓⵙⵅⵙⵉ
+tc mark cleared	ⴰⵙⵎⴰⵍ TC ⵜⵜⵓⵙⴼⴹ
+tempo is tapped	ⵜⴰⵙⵖⵓⵏ ⵜⵜⵓⵜⵜⴰⵙ
+time overlay on	ⴰⴼⵍⵍⴰⵢ ⵏ ⵓⴽⵓⴷ ⵉⵔⵎⴷ
+MIDICUE: no deck	MIDICUE: ⵡⴰⵍⵓ deck
+TEXTCUE: no deck	TEXTCUE: ⵡⴰⵍⵓ deck
+all decks paused	ⴽⵔⴰⵢⴳⴰⵜ deck ⵉⵙⴳⵓⵏⴼⴰ
+aoi: full raster	AOI: ⵔⴰⵙⵜⵔ ⴰⴽⴽ
+browser loading…	ⴰⵙⵙⴰⵔⴰ ⴰⵔ ⵉⴳⴳⴰⵍ…
+driver free-runs	ⴰⵙⵙⵓⵜⵍ ⴰⵔ ⵉⴷⴷⵓ ⵙ ⵢⵉⵎⴰⵏ ⵏⵏⵙ
+driver restarted	ⴰⵙⵙⵓⵜⵍ ⵉⵙⵙⵓⵜⵍ ⴷⴰⵖ
+find: empty deck	ⴰⴼ: deck ⵉⵍⵓⵍⵍⵓ
+in point cleared	ⵜⵏⵇⵇⵉⴹⵜ ⵏ ⵓⴽⵛⵓⵎ ⵜⵜⵓⵙⴼⴹ
+leave it running	ⵊⵊⵉⵜ ⵜ ⵉⴷⴷⵓ
+little bloops on	ⵉⵙⵖⵓⵏⵏ ⵉⵎⵥⵉⵏⵏ ⵉⵔⵎⴷ
+ltc fps: invalid	LTC fps: ⵓⵔ ⵉⵍⵉⵇ
+mic not recorded	ⴰⵙⵎⵖⵔ ⵏ ⵉⵎⵙⵍⵉ ⵓⵔ ⵉⵜⵜⵓⵙⵖⵉⵍ
+no marker behind	ⵡⴰⵍⵓ ⵏ ⵓⵙⵎⴰⵍ ⵙ ⴷⴼⴼⵉⵔ
+no plugins found	ⵓⵔ ⵜⵜⵓⴼⴰ ⵜⵉⵎⵙⵏⵓⴱⴳⵉⵏ
+off every output	ⵜⵓⴼⴼⵖⴰ ⴰⴽⴽ: ⵉⵅⵙⴰ
+phone haptics on	ⴰⵙⵎⵓⵙⵙⵓ ⵏ ⵓⵜⵉⵍⵉⴼⵓⵏ: ⵉⵔⵎⴷ
+playlist loop on	ⴰⵙⵙⵓⵖⵍ ⵏ ⵜⴱⴷⴰⵔⵜ: ⵉⵔⵎⴷ
+progress bar off	ⴰⴼⴳⴳ ⵏ ⵓⵙⵎⵓⵜⵜⵉ: ⵉⵅⵙⴰ
+refresh: invalid	ⴰⵙⵙⵏⴼⵍ: ⵓⵔ ⵉⵙⵙⵉⵔⴷ
+schedule cleared	ⴰⵙⴽⵓⵍ ⵉⵜⵜⵓⵙⴼⴹ
+script cue added	cue ⵏ ⵓⵙⴽⵔⵉⴱⵜ ⵉⵜⵜⵢⴰⵔⵏⴰⵏ
+sequence stopped	ⴰⵙⴹⴼⴰⵕ ⵉⴱⴷⴷ
+stream cue added	cue ⵏ ⵓⵙⵓⴷⴷⵎ ⵉⵜⵜⵢⴰⵔⵏⴰⵏ
+target cue added	cue ⵏ ⵓⵏⵉⵛⵛⴰ ⵉⵜⵜⵢⴰⵔⵏⴰⵏ
+time overlay off	ⴰⴼⵍⵍⴰⵢ ⵏ ⵓⴽⵓⴷ: ⵉⵅⵙⴰ
+warp/blend reset	ⵙⵙⵏⴼⵍ ⵜⴰⵍⵖⴰ/ⴰⵙⵎⵓⵏ ⵉⵙⵙⵓⵖⵍ
+' is not a number	' ⵓⵔ ⵉⵍⵍⵉ ⴷ ⵓⵎⴹⴰⵏ
+MIDIFILE: no deck	MIDIFILE: ⵓⵔ ⵍⵍⵉ deck
+RECORDING STOPPED	ⴰⵙⴽⵍⵙ ⵉⴱⴷⴷ
+all decks stopped	deck ⴰⴽⴽ ⵉⴱⴷⴷⵏ
+at the first step	ⴳ ⵜⵙⵙⵔⴰⵡⵜ ⵜⴰⵎⵣⵡⴰⵔⵓⵜ
+browser refreshed	ⴰⵙⵙⴰⵔⴰ ⵉⵜⵜⵓⵙⵙⵏⴼⵍ
+conversion failed	ⴰⵙⵖⵍ ⵉⵣⵍⵉ
+converting {1}...	ⴰⵙⵖⵍ ⵏ {1}...
+cue fade: invalid	ⴰⵙⴼⵙⵉ ⵏ cue: ⵓⵔ ⵉⵙⵙⵉⵔⴷ
+fullscreen failed	ⴰⴳⴷⵉⵍ ⵉⵛⵛⵓⵔⵏ ⵉⵣⵍⵉ
+hotkey: cancelled	ⵜⴰⵙⴰⵔⵓⵜ ⵜⴰⵙⵡⴰⵢⵜ: ⵉⵜⵜⵓⵙⵔⴳⵍ
+invalid key color	ⴰⵍⵡⴰⵏ ⵏ ⵜⵙⴰⵔⵓⵜ ⵓⵔ ⵉⵙⵙⵉⵔⴷ
+little bloops off	ⵉⴱⵍⵓⴱⵏ ⵉⵎⵥⵥⵉⵢⵏ: ⵉⵅⵙⴰ
+live captions off	ⵜⵉⵔⵔⴰ ⵜⵓⵙⵔⵉⴷⵜ: ⵉⵅⵙⴰ
+lock to screen on	ⵙⴷⴷ ⴳ ⵓⴳⴷⵉⵍ: ⵉⵔⵎⴷ
+mask not inverted	ⵜⴰⴳⵍⵎⵓⵙⵜ ⵓⵔ ⵜⵜⵓⵙⵎⵖⵍ
+motion driver set	ⴰⵎⵏⴰⵢ ⵏ ⵓⵎⵓⵙⵙⵓ ⵉⵜⵜⵓⵙⴱⴷⴷ
+ndi sender failed	ⴰⵎⴰⵣⴰⵏ ⵏ NDI ⵉⵣⵍⵉ
+network cue added	cue ⵏ ⵓⵥⵟⵟⴰ ⵉⵜⵜⵢⴰⵔⵏⴰⵏ
+no cue to jump to	ⵓⵔ ⵍⵍⵉ cue ⵉ ⵓⵏⴳⵉⵣ
+out point cleared	ⵜⵏⵇⵇⵉⴹⵜ ⵏ ⵜⵓⴼⴼⵖⴰ ⵜⵜⵓⵙⴼⴹ
+output overlay on	ⴰⴼⵍⵍⴰⵢ ⵏ ⵜⵓⴼⴼⵖⴰ: ⵉⵔⵎⴷ
+phone haptics off	ⴰⵙⵎⵓⵙⵙⵓ ⵏ ⵓⵜⵉⵍⵉⴼⵓⵏ: ⵉⵅⵙⴰ
+pick a deck first	ⵙⵜⵉ deck ⵣⵡⴰⵔ
+playlist loop off	ⴰⵙⵙⵓⵖⵍ ⵏ ⵜⴱⴷⴰⵔⵜ: ⵉⵅⵙⴰ

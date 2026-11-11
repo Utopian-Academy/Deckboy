@@ -2348,3 +2348,258 @@ It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts 
 Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	Два екрана, skapi. Пултът остава на този, картината отива на другия: {1}. Отвори МЕНЮ и направи ИЗХОД ИЗКЛ. да стане ИЗХОД ВКЛ.
 It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	Изяде пулта, skapi. Огледалните екрани показват картината и на двата, затова я сложих в малък прозорец, отзад. {1} и тя ще получи свой екран.
 Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	Екраните ти са огледални, skapi: {1} показва същото като този, така че картината ще покрие пулта и на двата. {2} и ще сложа картината на отделен екран. Или отвори МЕНЮ и направи ИЗХОД ИЗКЛ. да стане ИЗХОД ВКЛ.
++now	+сега
+CROP	ИЗРЯЗВАНЕ
+Move	Премести
+NEW 1	НОВ 1
+SELECT	ИЗБОР
+key on	клавиш вкл
+lfo on	lfo вкл
+hold on	задръж вкл
+key off	клавиш изкл
+lfo off	lfo изкл
+loop on	цикъл вкл
+mesh on	мрежа вкл
+ndi off	ndi изкл
+pan set	пан задай
+hold off	задръж изкл
+loop off	цикъл изкл
+mask off	маска изкл
+mesh off	мрежа изкл
+new show	ново шоу
+no pages	няма страници
+warp off	изкривяване изкл
+(default)	(по подразбиране)
+LOWERTEXT	ДОЛЕН ТЕКСТ
+canvas on	платно вкл
+matte off	маска изкл
+notes set	бележките са зададени
+pin reset	PIN нулиран
+splash on	начален екран вкл
+tc jam on	TC синхр вкл
+tc run on	TC изпълнение вкл
+timer set	таймерът е зададен
+wiggle on	треперене вкл
+VJ mode on	VJ режим вкл
+big screen	голям екран
+canvas off	платно изкл
+cue loaded	cue заредено
+display on	екран вкл
+overlay on	наслойка вкл
+scene live	сцена на живо
+shuffle on	случайно вкл
+speaker up	говорител нагоре
+splash off	начален екран изкл
+tc jam off	TC синхр изкл
+tc run off	TC изпълнение изкл
+timer held	таймерът е задържан
+trim reset	изрязването е нулирано
+vj mode on	vj режим вкл
+warp reset	изкривяването е нулирано
+wiggle off	треперене изкл
+({1} decks)	({1} пулта)
+4-bit steps	4-битови стъпки
+DATAMOSH on	DATAMOSH ВКЛ
+VJ mode off	VJ режим изключен
+blackout ON	черно включено
+blend reset	смесването нулирано
+captions on	субтитрите включени
+cue deleted	cue изтрит
+display off	дисплеят изключен
+driver held	драйверът задържан
+id: cleared	id: изчистено
+jumped to -	прескочено до -
+monitor off	мониторът изключен
+overlay off	наслагването изключено
+path closed	пътят затворен
+phrases set	фрази зададени
+pip cleared	PIP изчистен
+point added	точка добавена
+row deleted	редът изтрит
+seconds, 0-	секунди, 0-
+shuffle off	случайно изключено
+source live	източникът е на живо
+sprites off	спрайтовете изключени
+tc chase on	tc следене включено
+timer reset	таймерът нулиран
+vj mode off	VJ режим изключен
+all decks go	всички плейлисти тръгват
+big screen @	голям екран @
+blackout off	черно изключено
+browser live	браузърът е на живо
+captions off	субтитрите изключени
+clip cleared	клипът изчистен
+datamosh off	datamosh изключен
+find cleared	търсенето изчистено
+hands-on off	ръчен режим изключен
+key+fill off	key+fill изключено
+multiview on	multiview включен
+not watching	не наблюдава
+path removed	пътят премахнат
+pip attached	PIP прикачен
+scene loaded	сцената е заредена
+speaker down	високоговорител надолу
+st2110 8-bit	st2110 8 бита
+subtitles on	субтитри вкл
+tc chase off	tc chase изкл
+text mode on	текстов режим вкл
+trim cleared	изрязването е изчистено
+beast mode on	режим звяр вкл
+creatures off	създания изкл
+cue reordered	cue пренаредено
+dmx cue added	добавен dmx cue
+hover tips on	подсказки вкл
+lfo runs free	lfo свободен ход
+lower sub set	долни субтитри зададени
+mask inverted	маската е обърната
+multiview off	multiview изкл
+no expression	няма израз
+pip cue added	добавен pip cue
+point removed	точката е премахната
+source loaded	източникът е зареден
+st2110 10-bit	st2110 10 бита
+stream failed	потокът не успя
+subtitles off	субтитри изкл
+system cursor	системен курсор
+tc trigger on	tc задействане вкл
+text mode off	текстов режим изкл
+timer running	таймерът работи
+video dip off	video dip: не
+view: invalid	изглед: невалиден
+warp grid off	мрежа за изкривяване изкл
+1-90 (percent)	1-90 (процента)
+DRAW FPS: 1-60	FPS на рисуване: 1-60
+TCCUE: no deck	TCCUE: няма дек
+all decks play	всички декове свирят
+aspect link on	връзка на съотношението: ВКЛ
+atem tally off	Tally ATEM: ИЗКЛ
+beast mode off	Режим звяр: ИЗКЛ
+browser parked	браузърът е паркиран
+button deleted	бутонът е изтрит
+button removed	бутонът е премахнат
+driver running	драйверът работи
+expression set	изразът е зададен
+fade cue added	добавен cue преливане
+hotkey cleared	клавишната комбинация е изчистена
+hover tips off	Подсказки: ИЗКЛ
+invalid number	невалидно число
+lower text set	долният текст е зададен
+mic fading out	микрофонът заглъхва
+midi cue added	добавен MIDI cue
+nothing broken	нищо не е счупено
+overlay popped	наслагването е махнато
+periodic noise	периодичен шум
+pip source set	PIP източникът е зададен
+sequence ended	последователността приключи
+sequence loops	последователността се повтаря
+stop when done	стоп при готово
+stream stopped	излъчването е спряно
+stream url set	URL на потока е зададен
+tally: enabled	tally: ВКЛ
+tc trigger off	задействане по TC: ИЗКЛ
+timer logo set	логото на таймера е зададено
+, fetched once)	, изтеглено веднъж)
+DMXCUE: no deck	DMXCUE: няма дек
+MATRIX: no deck	MATRIX: няма дек
+MIDI fires cues	MIDI задейства cue
+MSC id: invalid	MSC id: невалиден
+NETCUE: no deck	NETCUE: няма дек
+all decks fired	всички декове са задействани
+animation saved	анимацията е запазена
+aspect link off	връзка на съотношението: ИЗКЛ
+audio input off	аудиовход: ИЗКЛ
+canvas mode off	режим платно: ИЗКЛ
+canvas: invalid	платно: невалидно
+cue audio: mono	cue звук: моно
+cue jumped live	cue скочи на живо
+glitch text set	глич текстът е зададен
+markers cleared	маркерите са изчистени
+miami cursor on	Miami курсор вкл
+ndi unavailable	NDI не е налично
+no marker ahead	няма маркер напред
+nothing to redo	нищо за повтаряне
+nothing to undo	нищо за отмяна
+on every output	на всеки изход
+overlay cleared	наслагването е махнато
+phrases cleared	фразите са изчистени
+preload cleared	предзареждането е изчистено
+progress bar on	лентата за напредък вкл
+raster: invalid	растер: невалиден
+standby cleared	готовността е изчистена
+tally: disabled	Tally: изключено
+tc mark cleared	TC маркерът е изчистен
+tempo is tapped	темпото е отчетено
+time overlay on	наслагване на времето вкл
+DMX over Art-Net	DMX през Art-Net
+MIDICUE: no deck	MIDICUE: няма дек
+TEXTCUE: no deck	TEXTCUE: няма дек
+all decks paused	всички декове са на пауза
+aoi: full raster	AOI: пълен растер
+browser loading…	браузърът се зарежда…
+driver free-runs	драйверът работи свободно
+driver restarted	драйверът е рестартиран
+find: empty deck	търсене: празен дек
+in point cleared	входната точка е изчистена
+leave it running	остави го да работи
+little bloops on	малки блупове вкл
+ltc fps: invalid	LTC к/с: невалидни
+mic not recorded	микрофонът не е записан
+no marker behind	няма маркер назад
+no plugins found	няма намерени добавки
+off every output	всички изходи изкл.
+phone haptics on	трептене на телефона вкл.
+playlist loop on	цикъл на плейлиста вкл.
+progress bar off	лента за напредъка изкл.
+refresh: invalid	опресняване: невалидно
+schedule cleared	графикът е изчистен
+script cue added	добавено cue скрипт
+sequence stopped	последователността е спряна
+stream cue added	добавено cue поток
+target cue added	добавено cue цел
+time overlay off	наслагване на времето изкл.
+warp/blend reset	изкривяването/смесването е нулирано
+' is not a number	' не е число
+MIDIFILE: no deck	MIDIFILE: няма дек
+RECORDING STOPPED	ЗАПИСЪТ Е СПРЯН
+all decks stopped	всички декове са спрени
+at the first step	на първата стъпка
+browser refreshed	браузърът е опреснен
+conversion failed	преобразуването не успя
+converting {1}...	преобразуване на {1}...
+cue fade: invalid	преливане на cue: невалидно
+fullscreen failed	цял екран не успя
+hotkey: cancelled	клавишна комбинация: отказана
+invalid key color	невалиден цвят на ключ
+little bloops off	малките звукчета изкл.
+live captions off	субтитри на живо изкл.
+lock to screen on	заключи към екрана вкл.
+mask not inverted	маската не е обърната
+motion driver set	драйверът за движение е зададен
+ndi sender failed	NDI изпращачът не успя
+network cue added	добавено мрежово cue
+no cue to jump to	няма cue за прескачане
+out point cleared	изходната точка е изчистена
+output overlay on	наслагване на изхода вкл.
+phone haptics off	трептене на телефона изкл.
+pick a deck first	първо изберете дек
+playlist loop off	цикъл на плейлиста изкл.
+record folder set	папката за запис е зададена
+subtitle file set	файлът с подзаглавия е зададен
+subtitles cleared	подзаглавията са изчистени
+take the mask off	махни маската
+universe: 0-63999	юниверс: 0-63999
+video synth added	видео синтезаторът е добавен
+warp preset saved	преднастройката за изкривяване е запазена
+AUDIOALSO: no deck	AUDIOALSO: няма дек
+DeckLink 10-bit ON	DeckLink 10-БИТА: ВКЛ
+SCRIPTCUE: no deck	SCRIPTCUE: няма дек
+assign route first	първо задайте маршрут
+bundle save failed	запазването на пакета е неуспешно
+cue settings reset	настройките на cue са нулирани
+file dialog failed	файловият диалог е неуспешен
+jumped to live cue	прескочено до живото cue
+lock to screen off	заключи към екрана: ИЗКЛ
+media probe failed	анализът на медията е неуспешен
+nmos: invalid port	NMOS: невалиден порт
+output overlay off	наслагване на изхода: ИЗКЛ
+pip target cleared	целта на PIP е изчистена

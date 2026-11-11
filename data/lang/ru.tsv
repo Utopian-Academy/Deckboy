@@ -2349,3 +2349,238 @@ It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts 
 Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	Два экрана, skapi. Пульт остаётся на этом, изображение идёт на другой: {1}. Открой МЕНЮ и переключи ВЫХОД ВЫКЛ. на ВЫХОД ВКЛ.
 It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	Он съел пульт, skapi. Зеркальные экраны показывают изображение на обоих, поэтому оно теперь в маленьком окне, позади. {1}, и у него будет свой экран.
 Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	Твои экраны зеркалятся, skapi: {1} показывает то же, что этот, и изображение закроет пульт на обоих. {2}, и изображение получит свой экран. Или открой МЕНЮ и переключи ВЫХОД ВЫКЛ. на ВЫХОД ВКЛ.
++now	+сейчас
+CROP	ОБРЕЗКА
+Move	Переместить
+NEW 1	НОВЫЙ 1
+SELECT	ВЫБРАТЬ
+key on	клавиша вкл
+lfo on	lfo вкл
+hold on	удержание вкл
+key off	клавиша выкл
+lfo off	lfo выкл
+loop on	цикл вкл
+mesh on	сетка вкл
+ndi off	ndi выкл
+pan set	задать панораму
+hold off	удержание выкл
+loop off	цикл выкл
+mask off	маска выкл
+mesh off	сетка выкл
+new show	новое шоу
+no pages	нет страниц
+warp off	исказить выкл
+(default)	(по умолчанию)
+LOWERTEXT	НИЖНИЙ ТЕКСТ
+canvas on	холст вкл
+matte off	маска выкл
+notes set	заметки: задать
+pin reset	PIN: сброс
+splash on	заставка вкл
+tc jam on	tc синхр вкл
+tc run on	tc выполнить вкл
+timer set	таймер: задать
+wiggle on	дрожание вкл
+VJ mode on	режим VJ вкл
+big screen	большой экран
+canvas off	холст выкл
+cue loaded	cue загружено
+display on	экран вкл
+overlay on	накладка вкл
+scene live	сцена в эфире
+shuffle on	случайно вкл
+speaker up	динамик вверх
+splash off	заставка выкл
+tc jam off	tc синхр выкл
+tc run off	tc выполнить выкл
+timer held	таймер: удержано
+trim reset	обрезка: сброс
+vj mode on	режим VJ вкл
+warp reset	исказить: сброс
+wiggle off	дрожание выкл
+({1} decks)	({1} пультов)
+4-bit steps	4-битные шаги
+DATAMOSH on	DATAMOSH ВКЛ
+VJ mode off	режим VJ выкл.
+blackout ON	чёрное ВКЛ
+blend reset	смешивание сброшено
+captions on	субтитры вкл.
+cue deleted	cue удалён
+display off	экран выкл.
+driver held	драйвер удержан
+id: cleared	id: очищено
+jumped to -	переход к -
+monitor off	монитор выкл.
+overlay off	наложение выкл.
+path closed	путь замкнут
+phrases set	фразы заданы
+pip cleared	PIP убран
+point added	точка добавлена
+row deleted	строка удалена
+seconds, 0-	секунды, 0-
+shuffle off	случайно выкл.
+source live	источник в эфире
+sprites off	спрайты выкл.
+tc chase on	TC chase вкл.
+timer reset	таймер сброшен
+vj mode off	режим VJ выкл.
+all decks go	все плейлисты запущены
+big screen @	большой экран @
+blackout off	чёрное выкл.
+browser live	браузер в эфире
+captions off	субтитры выкл.
+clip cleared	клип убран
+datamosh off	datamosh выкл.
+find cleared	поиск очищен
+hands-on off	ручной режим выкл.
+key+fill off	key+fill выкл.
+multiview on	multiview вкл.
+not watching	не наблюдает
+path removed	путь удалён
+pip attached	PIP подключён
+scene loaded	сцена загружена
+speaker down	динамик вниз
+st2110 8-bit	st2110 8 бит
+subtitles on	субтитры вкл
+tc chase off	tc chase выкл
+text mode on	текстовый режим вкл
+trim cleared	обрезка сброшена
+beast mode on	режим зверя вкл
+creatures off	существа выкл
+cue reordered	порядок cue изменён
+dmx cue added	добавлен cue DMX
+hover tips on	подсказки вкл
+lfo runs free	lfo свободный ход
+lower sub set	нижние субтитры заданы
+mask inverted	маска инвертирована
+multiview off	multiview выкл
+no expression	нет выражения
+pip cue added	добавлен cue PIP
+point removed	точка удалена
+source loaded	источник загружен
+st2110 10-bit	st2110 10 бит
+stream failed	сбой трансляции
+subtitles off	субтитры выкл
+system cursor	системный курсор
+tc trigger on	запуск tc вкл
+text mode off	текстовый режим выкл
+timer running	таймер работает
+video dip off	видео-дип: выкл
+view: invalid	вид: недопустим
+warp grid off	сетка искажения выкл
+1-90 (percent)	1-90 (процентов)
+DRAW FPS: 1-60	FPS РИСОВАНИЯ: 1-60
+TCCUE: no deck	TCCUE: нет деки
+all decks play	все деки играют
+aspect link on	связь пропорций вкл
+atem tally off	tally ATEM выкл
+beast mode off	режим зверя выкл
+browser parked	браузер приостановлен
+button deleted	кнопка удалена
+button removed	кнопка убрана
+driver running	драйвер работает
+expression set	выражение задано
+fade cue added	добавлен cue затухания
+hotkey cleared	горячая клавиша очищена
+hover tips off	подсказки выкл
+invalid number	неверное число
+lower text set	нижний текст задан
+mic fading out	микрофон затухает
+midi cue added	добавлен cue MIDI
+nothing broken	ничего не сломано
+overlay popped	наложение снято
+periodic noise	периодический шум
+pip source set	источник PIP задан
+sequence ended	секвенция завершена
+sequence loops	секвенция зациклена
+stop when done	остановить по завершении
+stream stopped	трансляция остановлена
+stream url set	URL потока задан
+tally: enabled	tally: включено
+tc trigger off	триггер TC выкл
+timer logo set	логотип таймера задан
+, fetched once)	, загружено один раз)
+DMXCUE: no deck	DMXCUE: нет деки
+MATRIX: no deck	MATRIX: нет деки
+MIDI fires cues	MIDI запускает cue
+MSC id: invalid	ID MSC: неверный
+NETCUE: no deck	NETCUE: нет деки
+all decks fired	все деки запущены
+animation saved	анимация сохранена
+aspect link off	связь пропорций выкл
+audio input off	аудиовход выкл
+canvas mode off	режим холста выкл
+canvas: invalid	холст: неверно
+cue audio: mono	звук cue: моно
+cue jumped live	cue ушёл в эфир
+glitch text set	глитч-текст задан
+markers cleared	маркеры сброшены
+miami cursor on	курсор Miami вкл
+ndi unavailable	ndi недоступен
+no marker ahead	впереди нет маркера
+nothing to redo	нечего повторять
+nothing to undo	нечего отменять
+on every output	на каждом выходе
+overlay cleared	оверлей убран
+phrases cleared	фразы сброшены
+preload cleared	предзагрузка сброшена
+progress bar on	полоса прогресса вкл
+raster: invalid	растр: неверно
+standby cleared	готовность сброшена
+tally: disabled	tally: отключено
+tc mark cleared	метка tc сброшена
+tempo is tapped	темп отбит
+time overlay on	оверлей времени вкл
+DMX over Art-Net	DMX через Art-Net
+MIDICUE: no deck	MIDICUE: нет деки
+TEXTCUE: no deck	TEXTCUE: нет деки
+all decks paused	все деки на паузе
+aoi: full raster	aoi: полный растр
+browser loading…	загрузка браузера…
+driver free-runs	драйвер работает свободно
+driver restarted	драйвер перезапущен
+find: empty deck	поиск: пустая дека
+in point cleared	точка входа сброшена
+leave it running	пусть работает
+little bloops on	маленькие блупы вкл
+ltc fps: invalid	к/с ltc: неверно
+mic not recorded	микрофон не записан
+no marker behind	позади нет маркера
+no plugins found	плагины не найдены
+off every output	все выходы выключены
+phone haptics on	отклик телефона вкл
+playlist loop on	цикл плейлиста вкл
+progress bar off	полоса прогресса выкл
+refresh: invalid	обновление: неверно
+schedule cleared	расписание очищено
+script cue added	добавлен cue скрипта
+sequence stopped	секвенция остановлена
+stream cue added	добавлен cue потока
+target cue added	добавлен cue цели
+time overlay off	оверлей времени выкл
+warp/blend reset	искажение/смешивание сброшено
+' is not a number	' — не число
+MIDIFILE: no deck	MIDIFILE: нет деки
+RECORDING STOPPED	ЗАПИСЬ ОСТАНОВЛЕНА
+all decks stopped	все деки остановлены
+at the first step	на первом шаге
+browser refreshed	браузер обновлён
+conversion failed	ошибка конвертации
+converting {1}...	конвертация {1}...
+cue fade: invalid	затухание cue: неверно
+fullscreen failed	не удалось включить полный экран
+hotkey: cancelled	горячая клавиша: отменено
+invalid key color	неверный цвет key
+little bloops off	мелкие блипы выкл
+live captions off	прямые субтитры выкл
+lock to screen on	к частоте экрана вкл
+mask not inverted	маска не инвертирована
+motion driver set	драйвер движения задан
+ndi sender failed	ошибка источника NDI
+network cue added	добавлен cue сети
+no cue to jump to	нет cue для перехода
+out point cleared	точка выхода очищена
+output overlay on	оверлей выхода вкл
+phone haptics off	отклик телефона выкл
+pick a deck first	сначала выберите деку
+playlist loop off	цикл плейлиста выкл

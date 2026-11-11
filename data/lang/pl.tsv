@@ -2341,3 +2341,239 @@ It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts 
 Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	Dwa ekrany, skapi. Stół zostaje na tym, obraz idzie na drugi: {1}. Otwórz MENU i zmień WYJŚCIE WYŁ. na WYJŚCIE WŁ.
 It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	Zjadło stół, skapi. Ekrany w trybie lustrzanym pokazują obraz na obu, więc obraz trafił do małego okna, z tyłu. {1}, a dostanie własny ekran.
 Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	Twoje ekrany są w trybie lustrzanym, skapi: {1} pokazuje to samo co ten, więc obraz zakryje stół na obu. {2}, a obraz dostanie własny ekran. Albo otwórz MENU i zmień WYJŚCIE WYŁ. na WYJŚCIE WŁ.
++now	+teraz
+CROP	KADROWANIE
+Move	Przesuń
+NEW 1	NOWY 1
+SELECT	WYBIERZ
+key on	klawisz wł.
+lfo on	lfo wł.
+hold on	przytrzymaj wł.
+key off	klawisz wył.
+lfo off	lfo wył.
+loop on	pętla wł.
+mesh on	siatka wł.
+ndi off	ndi wył.
+pan set	ustaw panoramę
+hold off	przytrzymaj wył.
+loop off	pętla wył.
+mask off	maska wył.
+mesh off	siatka wył.
+new show	nowy spektakl
+no pages	brak stron
+warp off	zniekształć wył.
+(default)	(domyślny)
+LOWERTEXT	TEKST BELKI
+canvas on	płótno wl.
+matte off	maska wył.
+notes set	notatki: ustaw
+pin reset	PIN: resetuj
+splash on	ekran startowy wl.
+tc jam on	tc synchro wl.
+tc run on	tc wykonaj wl.
+timer set	minutnik: ustaw
+wiggle on	drżenie wl.
+VJ mode on	tryb VJ wl.
+big screen	duży ekran
+canvas off	płótno wył.
+cue loaded	wczytano cue
+display on	ekran wl.
+overlay on	nakładka wl.
+scene live	scena na żywo
+shuffle on	losowo wl.
+speaker up	głośnik: góra
+splash off	ekran startowy wył.
+tc jam off	tc synchro wył.
+tc run off	tc wykonaj wył.
+timer held	minutnik wstrzymany
+trim reset	przytnij: resetuj
+vj mode on	tryb VJ wl.
+warp reset	zniekształć: resetuj
+wiggle off	drżenie wył.
+({1} decks)	({1} decków)
+4-bit steps	kroki 4-bitowe
+DATAMOSH on	DATAMOSH WL.
+VJ mode off	tryb VJ wył.
+blackout ON	czerń WŁ.
+blend reset	mieszanie zresetowane
+captions on	napisy wł.
+cue deleted	usunięto cue
+display off	ekran wył.
+driver held	sterownik wstrzymany
+id: cleared	id: wyczyszczono
+jumped to -	skok do -
+monitor off	monitor wył.
+overlay off	nakładka wył.
+path closed	ścieżka zamknięta
+phrases set	ustawiono frazy
+pip cleared	PIP usunięto
+point added	dodano punkt
+row deleted	usunięto wiersz
+seconds, 0-	sekundy, 0-
+shuffle off	losowo wył.
+source live	źródło na żywo
+sprites off	sprajty wył.
+tc chase on	TC chase wł.
+timer reset	minutnik zresetowany
+vj mode off	tryb VJ wył.
+all decks go	wszystkie playlisty startują
+big screen @	duży ekran @
+blackout off	czerń wył.
+browser live	przeglądarka na żywo
+captions off	napisy wył.
+clip cleared	klip usunięty
+datamosh off	datamosh wył.
+find cleared	wyszukiwanie wyczyszczone
+hands-on off	ręczny tryb wył.
+key+fill off	key+fill wył.
+multiview on	multiview wł.
+not watching	nie obserwuje
+path removed	ścieżka usunięta
+pip attached	PIP podłączony
+scene loaded	wczytano scenę
+speaker down	głośnik w dół
+st2110 8-bit	st2110 8 bitów
+subtitles on	napisy wł.
+tc chase off	tc chase wył.
+text mode on	tryb tekstowy wł.
+trim cleared	przycięcie wyczyszczone
+beast mode on	tryb bestii wł.
+creatures off	stworzenia wył.
+cue reordered	zmieniono kolejność cue
+dmx cue added	dodano cue DMX
+hover tips on	podpowiedzi wł.
+lfo runs free	lfo swobodny
+lower sub set	dolny podtytuł ustawiony
+mask inverted	maska odwrócona
+multiview off	multiview wył.
+no expression	brak wyrażenia
+pip cue added	dodano cue PIP
+point removed	punkt usunięty
+source loaded	wczytano źródło
+st2110 10-bit	st2110 10 bitów
+stream failed	transmisja nie powiodła się
+subtitles off	napisy wył.
+system cursor	kursor systemowy
+tc trigger on	wyzwalanie tc wł.
+text mode off	tryb tekstowy wył.
+timer running	minutnik działa
+video dip off	przejście wideo: nie
+view: invalid	widok: nieprawidłowy
+warp grid off	siatka zniekształcenia wył.
+1-90 (percent)	1-90 (procent)
+DRAW FPS: 1-60	FPS RYSUNKU: 1-60
+TCCUE: no deck	TCCUE: brak decka
+all decks play	wszystkie decki grają
+aspect link on	powiązanie proporcji wł.
+atem tally off	tally ATEM wył.
+beast mode off	tryb bestii wył.
+browser parked	przeglądarka wstrzymana
+button deleted	przycisk skasowany
+button removed	przycisk usunięty
+driver running	sterownik działa
+expression set	ustawiono wyrażenie
+fade cue added	dodano cue wygaszenia
+hotkey cleared	skrót wyczyszczony
+hover tips off	podpowiedzi wył.
+invalid number	nieprawidłowa liczba
+lower text set	ustawiono dolny tekst
+mic fading out	mikrofon się wycisza
+midi cue added	dodano cue MIDI
+nothing broken	nic nie zepsute
+overlay popped	nakładka zdjęta
+periodic noise	szum okresowy
+pip source set	ustawiono źródło PIP
+sequence ended	sekwencja zakończona
+sequence loops	sekwencja zapętlona
+stop when done	zatrzymaj po zakończeniu
+stream stopped	transmisja zatrzymana
+stream url set	ustawiono URL strumienia
+tally: enabled	tally: włączone
+tc trigger off	wyzwalacz TC wył.
+timer logo set	ustawiono logo minutnika
+, fetched once)	, pobrano raz)
+DMXCUE: no deck	DMXCUE: brak decka
+MATRIX: no deck	MATRIX: brak decka
+MIDI fires cues	MIDI uruchamia cue
+MSC id: invalid	ID MSC: nieprawidłowe
+NETCUE: no deck	NETCUE: brak decka
+all decks fired	uruchomiono wszystkie decki
+animation saved	zapisano animację
+aspect link off	powiązanie proporcji wył.
+audio input off	wejście dźwięku wył.
+canvas mode off	tryb płótna wył.
+canvas: invalid	płótno: nieprawidłowe
+cue audio: mono	dźwięk cue: mono
+cue jumped live	cue przeskoczył na żywo
+glitch text set	tekst glitch ustawiony
+markers cleared	znaczniki usunięte
+miami cursor on	kursor Miami wł.
+ndi unavailable	ndi niedostępne
+no marker ahead	brak znacznika z przodu
+nothing to redo	nic do ponowienia
+nothing to undo	nic do cofnięcia
+on every output	na każdym wyjściu
+overlay cleared	nakładka usunięta
+phrases cleared	frazy usunięte
+preload cleared	wstępne ładowanie usunięte
+progress bar on	pasek postępu wł.
+raster: invalid	raster: nieprawidłowy
+standby cleared	gotowość wyczyszczona
+tally: disabled	tally: wyłączone
+tc mark cleared	znacznik tc usunięty
+tempo is tapped	tempo wystukane
+time overlay on	nakładka czasu wł.
+DMX over Art-Net	DMX przez Art-Net
+MIDICUE: no deck	MIDICUE: brak decka
+TEXTCUE: no deck	TEXTCUE: brak decka
+all decks paused	wszystkie decki wstrzymane
+aoi: full raster	aoi: pełny raster
+bitrate: invalid	bitrate: nieprawidłowy
+browser loading…	ładowanie przeglądarki…
+driver free-runs	sterownik działa swobodnie
+driver restarted	sterownik uruchomiony ponownie
+find: empty deck	szukaj: pusty deck
+in point cleared	punkt wejścia usunięty
+leave it running	niech działa
+little bloops on	małe bloopy wł.
+ltc fps: invalid	ltc kl./s: nieprawidłowe
+mic not recorded	mikrofon nie nagrany
+no marker behind	brak znacznika z tyłu
+no plugins found	nie znaleziono wtyczek
+off every output	wyłączono wszystkie wyjścia
+phone haptics on	drgania telefonu wł.
+playlist loop on	pętla playlisty wł.
+progress bar off	pasek postępu wył.
+refresh: invalid	odświeżanie: nieprawidłowe
+schedule cleared	harmonogram wyczyszczony
+script cue added	dodano cue skryptu
+sequence stopped	sekwencja zatrzymana
+stream cue added	dodano cue transmisji
+target cue added	dodano cue celu
+time overlay off	nakładka czasu wył.
+warp/blend reset	zniekształcenie/mieszanie zresetowane
+' is not a number	' nie jest liczbą
+MIDIFILE: no deck	MIDIFILE: brak decka
+RECORDING STOPPED	NAGRYWANIE ZATRZYMANE
+all decks stopped	wszystkie decki zatrzymane
+at the first step	na pierwszym kroku
+browser refreshed	przeglądarka odświeżona
+conversion failed	konwersja nie powiodła się
+converting {1}...	konwertowanie {1}...
+cue fade: invalid	wygaszenie cue: nieprawidłowe
+fullscreen failed	pełny ekran nie powiódł się
+hotkey: cancelled	skrót: anulowano
+invalid key color	nieprawidłowy kolor key
+little bloops off	małe bipy wył.
+live captions off	napisy na żywo wył.
+lock to screen on	zablokuj na ekranie wł.
+mask not inverted	maska nieodwrócona
+motion driver set	ustawiono sterownik ruchu
+ndi sender failed	błąd nadajnika NDI
+network cue added	dodano cue sieci
+no cue to jump to	brak cue do przejścia
+out point cleared	punkt wyjścia wyczyszczony
+output overlay on	nakładka wyjścia wł.
+phone haptics off	drgania telefonu wył.
+pick a deck first	najpierw wybierz deck
+playlist loop off	pętla playlisty wył.

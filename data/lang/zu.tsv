@@ -2347,3 +2347,236 @@ It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts 
 Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	Izikrini ezimbili, skapi. Ideski lihlala kulesi, isithombe siya kwesinye: {1}. Vula IMENYU bese wenza OKUPHUMAYO KUVALIWE kuthi OKUPHUMAYO KUVULIWE.
 It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	Kudle ideski, skapi. Izikrini ezikopishanayo zibonisa isithombe kuzo zombili, ngakho ngisibeke ewindini elincane, ngemuva. {1}, futhi sizothola isikrini saso.
 Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	Izikrini zakho ziyakopishana, skapi: {1} ibonisa okuboniswa yilesi, ngakho isithombe sizomboza ideski kuzo zombili. {2}, futhi ngizobeka isithombe esikrinini saso. Noma vula IMENYU bese wenza OKUPHUMAYO KUVALIWE kuthi OKUPHUMAYO KUVULIWE.
+Cue	I-cue
++now	+manje
+CROP	SIKA
+Move	Hambisa
+NEW 1	OKUSHA 1
+SELECT	KHETHA
+key on	inkinobho vuliwe
+lfo on	lfo vuliwe
+hold on	bamba vuliwe
+key off	inkinobho valiwe
+lfo off	lfo valiwe
+loop on	phinda vuliwe
+mesh on	i-mesh vuliwe
+ndi off	ndi valiwe
+pan set	i-pan setha
+hold off	bamba valiwe
+loop off	phinda valiwe
+mask off	imaski valiwe
+mesh off	i-mesh valiwe
+new show	umbukiso omusha
+no pages	awekho amakhasi
+warp off	goqoza kuvaliwe
+(default)	(okujwayelekile)
+LOWERTEXT	UMBHALO WE-LOWER THIRD
+canvas on	ikhanvasi kuvuliwe
+matte off	i-matte kuvaliwe
+notes set	amanothi asethiwe
+pin reset	i-pin isethwe kabusha
+splash on	isikrini sokuvula kuvuliwe
+tc jam on	i-tc vumelanisa kuvuliwe
+tc run on	i-tc sebenzisa kuvuliwe
+timer set	iwashi lisethiwe
+wiggle on	ukuzamazama kuvuliwe
+VJ mode on	indlela ye-VJ ivuliwe
+big screen	isikrini esikhulu
+canvas off	ikhanvasi kuvaliwe
+cue loaded	i-cue ifakiwe
+display on	isibonisi kuvuliwe
+overlay on	isembozo kuvuliwe
+scene live	isigcawu sibukhoma
+shuffle on	hlanganisa kuvuliwe
+speaker up	isipikha siphezulu
+splash off	isikrini sokuvula kuvaliwe
+tc jam off	i-tc vumelanisa kuvaliwe
+tc run off	i-tc sebenzisa kuvaliwe
+timer held	iwashi kubambile
+trim reset	i-trim isethwe kabusha
+vj mode on	indlela ye-VJ ivuliwe
+warp reset	goqoza kusethwe kabusha
+wiggle off	ukuzamazama kuvaliwe
+({1} decks)	(amadeki angu-{1})
+4-bit steps	izinyathelo ze-4-bit
+DATAMOSH on	DATAMOSH kuvuliwe
+VJ mode off	indlela ye-VJ kuvaliwe
+blackout ON	mnyama kuvuliwe
+blend reset	ukuhlanganisa kusethwe kabusha
+captions on	imibhalo ivuliwe
+cue deleted	i-cue isusiwe
+display off	isibonisi sivaliwe
+driver held	i-driver ibambile
+id: cleared	id: isusiwe
+jumped to -	yeqele ku -
+monitor off	i-monitor ivaliwe
+overlay off	isembozo sivaliwe
+path closed	indlela ivaliwe
+phrases set	amabinzana asethiwe
+pip cleared	i-pip isusiwe
+point added	iphoyinti yengeziwe
+row deleted	umugqa ususiwe
+seconds, 0-	imizuzwana, 0-
+shuffle off	hlanganisa kuvaliwe
+source live	umthombo ubukhoma
+sprites off	ama-sprite avaliwe
+tc chase on	tc chase ivuliwe
+timer reset	iwashi lisethwe kabusha
+vj mode off	indlela ye-VJ kuvaliwe
+all decks go	wonke ama-deck ayaqala
+big screen @	isikrini esikhulu @
+blackout off	mnyama kuvaliwe
+browser live	isiphequluli sibukhoma
+captions off	imibhalo ivaliwe
+clip cleared	iklip isusiwe
+datamosh off	datamosh ivaliwe
+find cleared	ukusesha kusuliwe
+hands-on off	hands-on kuvaliwe
+key+fill off	key+fill kuvaliwe
+multiview on	multiview ivuliwe
+not watching	ayibuki
+path removed	indlela isusiwe
+pip attached	i-pip inamathiselwe
+scene loaded	isigcawu sifakiwe
+speaker down	isipikha phansi
+subtitles on	imibhalo engezansi ivuliwe
+tc chase off	tc chase ivaliwe
+text mode on	indlela yombhalo ivuliwe
+trim cleared	i-trim isusiwe
+beast mode on	imodi yesilo ivuliwe
+creatures off	izidalwa zivaliwe
+cue reordered	i-cue ihlelwe kabusha
+dmx cue added	i-cue ye-DMX yengeziwe
+hover tips on	amacebo avuliwe
+lfo runs free	i-lfo iyazihambela
+lower sub set	i-sub ephansi isethiwe
+mask inverted	imaski iguqulwe
+multiview off	i-multiview ivaliwe
+no expression	akukho i-expression
+pip cue added	i-cue ye-PIP yengeziwe
+point removed	iphoyinti isusiwe
+source loaded	umthombo ufakiwe
+stream failed	ukusakaza kuhlulekile
+subtitles off	imibhalo engezansi ivaliwe
+system cursor	inkomba yesistimu
+tc trigger on	i-tc qalisa ivuliwe
+text mode off	indlela yombhalo ivaliwe
+timer running	iwashi liyagijima
+video dip off	video dip kuvaliwe
+view: invalid	ukubuka: akuvumelekile
+warp grid off	igridi ye-warp ivaliwe
+1-90 (percent)	1-90 (amaphesenti)
+DRAW FPS: 1-60	DWEBA FPS: 1-60
+TCCUE: no deck	TCCUE: ayikho deck
+all decks play	wonke ama-deck ayadlala
+aspect link on	ilinki yesilinganiso ivuliwe
+atem tally off	i-tally ye-ATEM ivaliwe
+beast mode off	imodi yesilo ivaliwe
+browser parked	isiphequluli sibekwe eceleni
+button deleted	inkinobho isusiwe
+button removed	inkinobho ikhishiwe
+driver running	isishayeli siyasebenza
+expression set	i-expression isethiwe
+fade cue added	i-cue yokufiphala yengeziwe
+hotkey cleared	i-hotkey isusiwe
+hover tips off	amacebo avaliwe
+invalid number	inombolo ayilungile
+lower text set	umbhalo ophansi usethiwe
+mic fading out	imakrofoni iyafiphala
+midi cue added	i-cue ye-MIDI yengeziwe
+nothing broken	akukho okwephukile
+overlay popped	okumbozayo kuveziwe
+periodic noise	umsindo ophindaphindayo
+pip source set	umthombo we-PIP usethiwe
+sequence ended	ukulandelana kuphelile
+sequence loops	ukulandelana kuyaphinda
+stop when done	misa uma kwenziwe
+stream stopped	ukusakaza kumisiwe
+stream url set	i-URL yokusakaza isethiwe
+tally: enabled	i-tally: ivuliwe
+tc trigger off	i-TC trigger ivaliwe
+timer logo set	ilogo yewashi isethiwe
+, fetched once)	, kulandwe kanye)
+DMXCUE: no deck	DMXCUE: ayikho i-deck
+MATRIX: no deck	MATRIX: ayikho i-deck
+MIDI fires cues	MIDI iqala ama-cue
+MSC id: invalid	MSC id: ayilungile
+NETCUE: no deck	NETCUE: ayikho i-deck
+all decks fired	wonke ama-deck aqalisiwe
+animation saved	i-animation ilondoloziwe
+aspect link off	ilinki yesilinganiso ivaliwe
+audio input off	okokufaka komsindo kuvaliwe
+canvas mode off	indlela yekhanvasi ivaliwe
+canvas: invalid	ikhanvasi: ayilungile
+cue audio: mono	umsindo we-cue: mono
+cue jumped live	i-cue yeqe yaya bukhoma
+glitch text set	umbhalo we-glitch usethiwe
+markers cleared	amamaka asusiwe
+miami cursor on	inkomba ye-Miami ivuliwe
+ndi unavailable	i-NDI ayitholakali
+no marker ahead	akukho maka ngaphambili
+nothing to redo	akukho okokwenza kabusha
+nothing to undo	akukho okokuhlehlisa
+on every output	kukho konke okuphumayo
+overlay cleared	isembozo sisusiwe
+phrases cleared	amabinzana asusiwe
+preload cleared	ukulayisha kusengaphambili kususiwe
+progress bar on	ibha yenqubekelaphambili ivuliwe
+raster: invalid	raster: akulungile
+standby cleared	kulindile kususiwe
+tally: disabled	tally: kukhutshaziwe
+tc mark cleared	uphawu lwe-tc lususiwe
+tempo is tapped	i-tempo ithephiwe
+time overlay on	isembozo sesikhathi sivuliwe
+MIDICUE: no deck	MIDICUE: ayikho i-deck
+TEXTCUE: no deck	TEXTCUE: ayikho i-deck
+all decks paused	wonke ama-deck amisiwe okwesikhashana
+aoi: full raster	aoi: i-raster egcwele
+browser loading…	isiphequluli siyalayisha…
+driver free-runs	i-driver iziqhubela yodwa
+driver restarted	i-driver iqalwe kabusha
+find: empty deck	thola: i-deck ayinalutho
+in point cleared	indawo yokungena isusiwe
+leave it running	yiyeke iqhubeke
+little bloops on	ama-bloop amancane avuliwe
+ltc fps: invalid	i-ltc fps: akulungile
+mic not recorded	imakrofoni ayirekhodiwe
+no marker behind	akukho maka ngemuva
+no plugins found	awekho ama-plugin atholakele
+off every output	konke okuphumayo kuvaliwe
+phone haptics on	ukudlidliza kwefoni kuvuliwe
+playlist loop on	ukuphinda uhlu kuvuliwe
+progress bar off	ibha yenqubekelaphambili ivaliwe
+refresh: invalid	vuselela: akulungile
+schedule cleared	ishejuli isusiwe
+script cue added	i-cue yesikripthi yengeziwe
+sequence stopped	ukulandelana kumisiwe
+stream cue added	i-cue yokusakaza yengeziwe
+target cue added	i-cue eqondiwe yengeziwe
+time overlay off	isembozo sesikhathi sivaliwe
+warp/blend reset	goqoza/hlanganisa kusethwe kabusha
+' is not a number	' akuyona inombolo
+MIDIFILE: no deck	MIDIFILE: akukho deck
+RECORDING STOPPED	IYAREKHODA KUMISIWE
+all decks stopped	wonke ama-deck amisiwe
+at the first step	esinyathelweni sokuqala
+browser refreshed	isiphequluli sivuselelwe
+conversion failed	ukuguqula kuhlulekile
+converting {1}...	iguqula {1}...
+cue fade: invalid	ukufiphala kwe-cue: akulungile
+fullscreen failed	isikrini sonke sihlulekile
+hotkey: cancelled	inkinobho esheshayo: ikhanseliwe
+invalid key color	umbala wenkinobho awulungile
+little bloops off	ama-bloop amancane avaliwe
+live captions off	amagama abhalwe bukhoma avaliwe
+lock to screen on	khiyela esikrinini kuvuliwe
+mask not inverted	imaski ayiphenduliwe
+motion driver set	umshayeli wokunyakaza usethiwe
+ndi sender failed	othumelayo we-NDI uhlulekile
+network cue added	i-cue yenethiwekhi yengeziwe
+no cue to jump to	ayikho i-cue yokweqela kuyo
+out point cleared	iphoyinti lokuphuma lisusiwe
+output overlay on	isembozo sokuphumayo sivuliwe
+phone haptics off	ukudlidliza kwefoni kuvaliwe
+pick a deck first	khetha i-deck kuqala
+playlist loop off	ukuphinda uhlu kuvaliwe

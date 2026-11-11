@@ -2351,3 +2351,235 @@ It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts 
 Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	스크린 두 개야, skapi. 데스크는 이쪽에 두고 영상은 다른 쪽에 띄워: {1}. 메뉴를 열고 출력 끄기를 출력 켜기로 바꿔.
 It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	데스크를 먹어 버렸어, skapi. 미러링된 스크린은 양쪽에 영상을 보여 줘서, 뒤쪽 작은 창에 넣어 뒀어. {1}, 그러면 영상이 자기 스크린을 갖게 돼.
 Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	스크린이 미러링돼 있어, skapi: {1}에 이 화면과 같은 게 나와서 영상이 양쪽 다 데스크를 가릴 거야. {2}, 그러면 영상을 따로 스크린에 띄울게. 아니면 메뉴를 열고 출력 끄기를 출력 켜기로 바꿔.
++now	+현재
+CROP	자르기
+Move	이동
+NEW 1	새로 만들기 1
+SELECT	선택
+key on	키 켜짐
+lfo on	lfo 켜짐
+hold on	유지 켜짐
+key off	키 꺼짐
+lfo off	lfo 꺼짐
+loop on	루프 켜짐
+mesh on	메시 켜짐
+ndi off	ndi 꺼짐
+pan set	팬 설정
+hold off	유지 꺼짐
+loop off	루프 꺼짐
+mask off	마스크 꺼짐
+mesh off	메시 꺼짐
+new show	새 쇼
+no pages	페이지 없음
+warp off	변형 꺼짐
+(default)	(기본값)
+canvas on	캔버스 켜짐
+matte off	매트 꺼짐
+notes set	메모 설정됨
+pin reset	핀 초기화됨
+splash on	시작 화면 켜짐
+tc jam on	tc 동기 켜짐
+tc run on	tc 실행 켜짐
+timer set	타이머 설정됨
+wiggle on	흔들림 켜짐
+VJ mode on	VJ 모드 켜짐
+big screen	대형 화면
+canvas off	캔버스 꺼짐
+cue loaded	큐 불러옴
+display on	화면 켜짐
+overlay on	오버레이 켜짐
+scene live	장면 라이브
+shuffle on	무작위 켜짐
+speaker up	스피커 위로
+splash off	시작 화면 꺼짐
+tc jam off	tc 동기 꺼짐
+tc run off	tc 실행 꺼짐
+timer held	타이머 유지됨
+trim reset	트림 초기화됨
+vj mode on	VJ 모드 켜짐
+warp reset	변형 초기화됨
+wiggle off	흔들림 꺼짐
+({1} decks)	({1}개 데크)
+4-bit steps	4비트 단계
+DATAMOSH on	DATAMOSH 켜짐
+VJ mode off	VJ 모드 꺼짐
+blackout ON	블랙 켜짐
+blend reset	혼합 초기화됨
+captions on	자막 켜짐
+cue deleted	큐 삭제됨
+display off	디스플레이 꺼짐
+driver held	드라이버 유지됨
+id: cleared	id: 지워짐
+jumped to -	- 로 이동함
+monitor off	모니터 꺼짐
+overlay off	오버레이 꺼짐
+path closed	경로 닫힘
+phrases set	문구 설정됨
+pip cleared	PIP 지워짐
+point added	점 추가됨
+row deleted	행 삭제됨
+seconds, 0-	초, 0-
+shuffle off	무작위 꺼짐
+source live	소스 라이브
+sprites off	스프라이트 꺼짐
+tc chase on	tc 추적 켜짐
+timer reset	타이머 초기화됨
+vj mode off	vj 모드 꺼짐
+all decks go	모든 덱 시작
+big screen @	큰 화면 @
+blackout off	블랙 꺼짐
+browser live	브라우저 라이브
+captions off	자막 꺼짐
+clip cleared	클립 지워짐
+datamosh off	datamosh 꺼짐
+find cleared	찾기 지워짐
+hands-on off	핸즈온 꺼짐
+key+fill off	key+fill 꺼짐
+multiview on	멀티뷰 켜짐
+not watching	감시 안 함
+path removed	경로 제거됨
+pip attached	PIP 연결됨
+scene loaded	장면 불러옴
+speaker down	speaker 아래로
+subtitles on	자막 켬
+tc chase off	tc chase 끔
+text mode on	텍스트 모드 켬
+trim cleared	트림 지움
+beast mode on	야수 모드 켬
+creatures off	생물 끔
+cue reordered	큐 순서 변경됨
+dmx cue added	dmx 큐 추가됨
+hover tips on	도구 설명 켬
+lfo runs free	lfo 프리런
+lower sub set	lower sub 설정됨
+mask inverted	마스크 반전됨
+multiview off	멀티뷰 끔
+no expression	표현식 없음
+pip cue added	pip 큐 추가됨
+point removed	점 제거됨
+source loaded	소스 불러옴
+stream failed	스트리밍 실패
+subtitles off	자막 끔
+system cursor	시스템 커서
+tc trigger on	tc 트리거 켬
+text mode off	텍스트 모드 끔
+timer running	타이머 실행 중
+video dip off	비디오 딥 끔
+view: invalid	보기: 잘못됨
+warp grid off	변형 그리드 끔
+1-90 (percent)	1-90 (퍼센트)
+DRAW FPS: 1-60	그리기 FPS: 1-60
+TCCUE: no deck	TCCUE: 덱 없음
+all decks play	모든 덱 연주
+aspect link on	비율 연결 켜짐
+atem tally off	ATEM 탈리 꺼짐
+beast mode off	야수 모드 꺼짐
+browser parked	브라우저 보류됨
+button deleted	버튼 삭제됨
+button removed	버튼 제거됨
+driver running	드라이버 실행 중
+expression set	표현식 설정됨
+fade cue added	페이드 큐 추가됨
+hotkey cleared	단축키 해제됨
+hover tips off	도구 설명 꺼짐
+invalid number	잘못된 숫자
+lower text set	하단 텍스트 설정됨
+mic fading out	마이크 페이드 아웃 중
+midi cue added	MIDI 큐 추가됨
+nothing broken	고장 없음
+overlay popped	오버레이 제거됨
+periodic noise	주기적 노이즈
+pip source set	PIP 소스 설정됨
+sequence ended	시퀀스 종료됨
+sequence loops	시퀀스 반복
+stop when done	완료 시 정지
+stream stopped	스트림 정지됨
+stream url set	스트림 URL 설정됨
+tally: enabled	탈리: 켜짐
+tc trigger off	TC 트리거 꺼짐
+timer logo set	타이머 로고 설정됨
+, fetched once)	, 한 번 가져옴)
+DMXCUE: no deck	DMXCUE: 덱 없음
+MATRIX: no deck	MATRIX: 덱 없음
+MIDI fires cues	MIDI 큐 실행
+MSC id: invalid	MSC id: 잘못됨
+NETCUE: no deck	NETCUE: 덱 없음
+all decks fired	덱 모두 실행됨
+animation saved	애니메이션 저장됨
+aspect link off	비율 연결 꺼짐
+audio input off	오디오 입력 꺼짐
+canvas mode off	캔버스 모드 꺼짐
+canvas: invalid	캔버스: 잘못됨
+cue audio: mono	큐 오디오: 모노
+cue jumped live	큐가 라이브로 이동
+glitch text set	글리치 텍스트 설정
+markers cleared	마커 지움
+miami cursor on	Miami 커서 켜짐
+ndi unavailable	NDI 사용 불가
+no marker ahead	앞에 마커 없음
+nothing to redo	다시 실행할 항목 없음
+nothing to undo	실행 취소할 항목 없음
+on every output	모든 출력에
+overlay cleared	오버레이 지움
+phrases cleared	문구 지움
+preload cleared	미리 불러오기 지움
+progress bar on	진행 막대 켜짐
+raster: invalid	래스터: 잘못됨
+standby cleared	대기 지움
+tally: disabled	Tally: 사용 안 함
+tc mark cleared	TC 마크 지움
+tempo is tapped	템포 탭 입력됨
+time overlay on	시간 오버레이 켜짐
+DMX over Art-Net	Art-Net 경유 DMX
+MIDICUE: no deck	MIDICUE: 덱 없음
+TEXTCUE: no deck	TEXTCUE: 덱 없음
+all decks paused	모든 덱 일시 정지
+aoi: full raster	aoi: 전체 래스터
+browser loading…	브라우저 불러오는 중…
+driver free-runs	드라이버 자유 실행
+driver restarted	드라이버 다시 시작됨
+find: empty deck	찾기: 빈 덱
+in point cleared	인 포인트 지움
+leave it running	계속 실행
+little bloops on	작은 블룹음 켜짐
+ltc fps: invalid	LTC fps: 잘못됨
+mic not recorded	마이크 녹음 안 됨
+no marker behind	뒤에 마커 없음
+no plugins found	플러그인 없음
+off every output	모든 출력 꺼짐
+phone haptics on	폰 햅틱 켜짐
+playlist loop on	플레이리스트 반복 켜짐
+progress bar off	진행 막대 꺼짐
+refresh: invalid	새로 고침: 잘못됨
+schedule cleared	스케줄 지움
+script cue added	스크립트 큐 추가됨
+sequence stopped	시퀀스 정지됨
+stream cue added	스트림 큐 추가됨
+target cue added	대상 큐 추가됨
+time overlay off	시간 오버레이 꺼짐
+warp/blend reset	변형/혼합 초기화됨
+' is not a number	'은(는) 숫자가 아닙니다
+MIDIFILE: no deck	MIDIFILE: 덱 없음
+RECORDING STOPPED	녹화 정지됨
+all decks stopped	모든 덱 정지됨
+at the first step	첫 스텝입니다
+browser refreshed	브라우저 새로 고침됨
+conversion failed	변환 실패
+converting {1}...	{1} 변환 중...
+cue fade: invalid	큐 페이드: 잘못됨
+fullscreen failed	전체 화면 실패
+hotkey: cancelled	단축키: 취소됨
+invalid key color	잘못된 키 색상
+little bloops off	작은 블룹 꺼짐
+live captions off	실시간 자막 꺼짐
+lock to screen on	화면에 고정 켜짐
+mask not inverted	마스크 반전 안 됨
+motion driver set	모션 드라이버 설정됨
+ndi sender failed	NDI 보내는 쪽 실패
+network cue added	네트워크 큐 추가됨
+no cue to jump to	이동할 큐 없음
+out point cleared	아웃 포인트 지움
+output overlay on	출력 오버레이 켜짐
+phone haptics off	폰 햅틱 꺼짐
+pick a deck first	먼저 덱을 선택하세요
+playlist loop off	플레이리스트 반복 꺼짐

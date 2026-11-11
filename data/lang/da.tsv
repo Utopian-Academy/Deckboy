@@ -2333,3 +2333,258 @@ It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts 
 Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	To skærme, skapi. Pulten bliver på denne, billedet kommer på den anden: {1}. Åbn MENU, og få UDGANG FRA til at sige UDGANG TIL.
 It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	Det åd pulten, skapi. Spejlede skærme viser billedet på begge, så jeg lagde det i et lille vindue bagved. {1}, så får det sin egen skærm.
 Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	Dine skærme er spejlet, skapi: {1} viser det samme som denne, så billedet vil dække pulten på begge. {2}, så lægger jeg billedet på sin egen skærm. Eller åbn MENU, og få UDGANG FRA til at sige UDGANG TIL.
++now	+nu
+CROP	BESKÆR
+Move	Flyt
+NEW 1	NY 1
+SELECT	VÆLG
+key on	tast til
+lfo on	lfo til
+hold on	hold til
+key off	tast fra
+lfo off	lfo fra
+loop on	løkke til
+mesh on	mesh til
+ndi off	ndi fra
+pan set	pan indstil
+hold off	hold fra
+loop off	løkke fra
+mask off	maske fra
+mesh off	mesh fra
+new show	nyt show
+no pages	ingen sider
+warp off	forvridning fra
+(default)	(standard)
+LOWERTEXT	BJÆLKETEKST
+canvas on	lærred til
+matte off	matte fra
+notes set	noter indstillet
+pin reset	PIN nulstillet
+splash on	startskærm til
+tc jam on	tc synk til
+tc run on	tc kør til
+timer set	timer indstillet
+wiggle on	wiggle til
+VJ mode on	VJ-tilstand til
+big screen	stor skærm
+canvas off	lærred fra
+cue loaded	cue indlæst
+display on	skærm til
+overlay on	overlay til
+shuffle on	tilfældig til
+speaker up	højttaler op
+splash off	startskærm fra
+tc jam off	tc synk fra
+tc run off	tc kør fra
+timer held	timer holdt
+trim reset	trim nulstillet
+vj mode on	vj-tilstand til
+warp reset	forvridning nulstillet
+wiggle off	wiggle fra
+4-bit steps	4-bit-trin
+DATAMOSH on	DATAMOSH TIL
+VJ mode off	VJ-tilstand fra
+blackout ON	sort til
+blend reset	blanding nulstillet
+captions on	undertekster til
+cue deleted	cue slettet
+display off	display fra
+driver held	driver holdt
+id: cleared	id: ryddet
+jumped to -	sprang til -
+monitor off	monitor fra
+overlay off	overlay fra
+path closed	sti lukket
+phrases set	fraser sat
+pip cleared	pip ryddet
+point added	punkt tilføjet
+row deleted	række slettet
+seconds, 0-	sekunder, 0-
+shuffle off	tilfældig fra
+source live	kilde direkte
+sprites off	sprites fra
+tc chase on	tc chase til
+timer reset	timer nulstillet
+vj mode off	VJ-tilstand fra
+all decks go	alle playlister starter
+big screen @	stor skærm @
+blackout off	sort fra
+browser live	browser direkte
+captions off	undertekster fra
+clip cleared	klip ryddet
+datamosh off	datamosh fra
+find cleared	søgning ryddet
+hands-on off	hands-on fra
+key+fill off	key+fill fra
+multiview on	multiview til
+not watching	overvåger ikke
+path removed	sti fjernet
+pip attached	pip tilknyttet
+scene loaded	scene indlæst
+speaker down	højttaler ned
+st2110 8-bit	st2110 8 bit
+subtitles on	undertekster til
+tc chase off	tc chase fra
+text mode on	teksttilstand til
+trim cleared	trim ryddet
+beast mode on	bæstetilstand til
+creatures off	væsener fra
+cue reordered	cue omarrangeret
+dmx cue added	dmx-cue tilføjet
+hover tips on	svævetips til
+lfo runs free	lfo kører frit
+lower sub set	nedre undertekst indstillet
+mask inverted	maske inverteret
+multiview off	multiview fra
+no expression	intet udtryk
+pip cue added	pip-cue tilføjet
+point removed	punkt fjernet
+source loaded	kilde indlæst
+st2110 10-bit	st2110 10 bit
+stream failed	stream mislykkedes
+subtitles off	undertekster fra
+system cursor	systemmarkør
+tc trigger on	tc-udløser til
+text mode off	teksttilstand fra
+timer running	timer kører
+video dip off	video-dip: nej
+view: invalid	visning: ugyldig
+warp grid off	forvrid-gitter fra
+1-90 (percent)	1-90 (procent)
+DRAW FPS: 1-60	Tegne-FPS: 1-60
+TCCUE: no deck	TCCUE: intet deck
+all decks play	alle decks spiller
+alpha: invalid	alfa: ugyldig
+aspect link on	billedformatlink: TIL
+atem tally off	ATEM-tally: FRA
+beast mode off	Bæstetilstand: FRA
+browser parked	browser parkeret
+button deleted	knap slettet
+button removed	knap fjernet
+driver running	driver kører
+expression set	udtryk indstillet
+fade cue added	fade-cue tilføjet
+hotkey cleared	genvejstast ryddet
+hover tips off	Svævetips: FRA
+invalid number	ugyldigt tal
+lower text set	nedre tekst indstillet
+mic fading out	mikrofon toner ud
+midi cue added	MIDI-cue tilføjet
+nothing broken	intet ødelagt
+overlay popped	overlay fjernet
+periodic noise	periodisk støj
+pip source set	PIP-kilde indstillet
+sequence ended	sekvens slut
+sequence loops	sekvens gentages
+stop when done	stop når færdig
+stream stopped	stream stoppet
+stream url set	stream-URL indstillet
+tally: enabled	tally: TIL
+tc trigger off	TC-udløser: FRA
+timer logo set	timer-logo indstillet
+, fetched once)	, hentet én gang)
+DMXCUE: no deck	DMXCUE: intet deck
+MATRIX: no deck	MATRIX: intet deck
+MIDI fires cues	MIDI starter cues
+MSC id: invalid	MSC-id: ugyldigt
+NETCUE: no deck	NETCUE: intet deck
+all decks fired	alle decks udløst
+animation saved	animation gemt
+aspect link off	billedformatlink: FRA
+audio input off	lydindgang: FRA
+canvas mode off	lærredstilstand: FRA
+canvas: invalid	lærred: ugyldigt
+cue audio: mono	cue-lyd: mono
+cue jumped live	cue hoppede live
+glitch text set	glitch-tekst indstillet
+markers cleared	markører ryddet
+miami cursor on	Miami-markør til
+ndi unavailable	NDI utilgængelig
+no marker ahead	ingen markør forude
+nothing to redo	intet at gentage
+nothing to undo	intet at fortryde
+on every output	på alle udgange
+overlay cleared	overlay ryddet
+phrases cleared	fraser ryddet
+preload cleared	forindlæsning ryddet
+progress bar on	fremdriftsbjælke til
+raster: invalid	raster: ugyldigt
+standby cleared	klar ryddet
+tally: disabled	tally: deaktiveret
+tc mark cleared	tc-mærke ryddet
+tempo is tapped	tempo er tappet
+time overlay on	tidsoverlay til
+MIDICUE: no deck	MIDICUE: intet deck
+TEXTCUE: no deck	TEXTCUE: intet deck
+all decks paused	alle decks pauset
+aoi: full raster	AOI: fuldt raster
+bitrate: invalid	bitrate: ugyldig
+browser loading…	browser indlæses…
+driver free-runs	driver kører frit
+driver restarted	driver genstartet
+find: empty deck	find: tomt deck
+in point cleared	ind-punkt ryddet
+leave it running	lad den køre
+little bloops on	små bloops til
+ltc fps: invalid	LTC fps: ugyldig
+mic not recorded	mikrofon ikke optaget
+no marker behind	ingen markør bagud
+no plugins found	ingen plugins fundet
+off every output	alle udgange fra
+phone haptics on	telefonrysten til
+playlist loop on	playlisteløkke til
+progress bar off	fremdriftslinje fra
+refresh: invalid	opdater: ugyldig
+schedule cleared	tidsplan ryddet
+script cue added	script-cue tilføjet
+sequence stopped	sekvens stoppet
+stream cue added	stream-cue tilføjet
+target cue added	mål-cue tilføjet
+time overlay off	tidsoverlay fra
+warp/blend reset	forvrid/blanding nulstillet
+' is not a number	' er ikke et tal
+MIDIFILE: no deck	MIDIFILE: intet deck
+RECORDING STOPPED	OPTAGELSE STOPPET
+all decks stopped	alle decks stoppet
+at the first step	ved første trin
+browser refreshed	browser opdateret
+conversion failed	konvertering mislykkedes
+converting {1}...	konverterer {1}...
+cue fade: invalid	cue-blænding: ugyldig
+fullscreen failed	fuldskærm mislykkedes
+hotkey: cancelled	genvejstast: annulleret
+invalid key color	ugyldig nøglefarve
+keyframe: invalid	keyframe: ugyldig
+little bloops off	små bloops fra
+live captions off	liveundertekster fra
+lock to screen on	lås til skærm til
+mask not inverted	maske ikke inverteret
+motion driver set	bevægelsesdriver indstillet
+ndi sender failed	NDI-afsender mislykkedes
+network cue added	netværks-cue tilføjet
+no cue to jump to	intet cue at hoppe til
+out point cleared	udpunkt ryddet
+output overlay on	udgangsoverlay til
+phone haptics off	telefonrysten fra
+pick a deck first	vælg et deck først
+playlist loop off	playlisteløkke fra
+record folder set	optagemappe indstillet
+subtitle file set	undertitelfil indstillet
+subtitles cleared	undertitler ryddet
+take the mask off	fjern masken
+universe: 0-63999	univers: 0-63999
+video synth added	videosynth tilføjet
+warp preset saved	forvrid-forvalg gemt
+AUDIOALSO: no deck	AUDIOALSO: intet deck
+DeckLink 10-bit ON	DeckLink 10 BIT: TIL
+SCRIPTCUE: no deck	SCRIPTCUE: intet deck
+assign route first	tildel først en rute
+bundle save failed	gem af samling mislykkedes
+cue settings reset	cue-indstillinger nulstillet
+file dialog failed	fildialog mislykkedes
+jumped to live cue	sprang til live-cue
+lock to screen off	lås til skærm: FRA
+media probe failed	medieanalyse mislykkedes
+nmos: invalid port	NMOS: ugyldig port
+output overlay off	udgangsoverlay: FRA
+pip target cleared	PIP-mål ryddet

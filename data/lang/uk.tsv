@@ -2349,3 +2349,238 @@ It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts 
 Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	Два екрани, skapi. Пульт лишається на цьому, зображення йде на інший: {1}. Відкрий МЕНЮ й переключи ВИХІД ВИМК. на ВИХІД УВІМК.
 It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	Він з'їв пульт, skapi. Дзеркальні екрани показують зображення на обох, тож воно тепер у маленькому вікні, позаду. {1}, і в нього буде власний екран.
 Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	Твої екрани віддзеркалені, skapi: {1} показує те саме, що цей, тож зображення закриє пульт на обох. {2}, і зображення отримає власний екран. Або відкрий МЕНЮ й переключи ВИХІД ВИМК. на ВИХІД УВІМК.
++now	+зараз
+CROP	ОБРІЗКА
+Move	Перемістити
+NEW 1	НОВИЙ 1
+SELECT	ВИБРАТИ
+key on	клавіша увімк.
+lfo on	lfo увімк.
+hold on	утримання увімк.
+key off	клавіша вимк.
+lfo off	lfo вимк.
+loop on	цикл увімк.
+mesh on	сітка увімк.
+ndi off	ndi вимк.
+pan set	задати панораму
+hold off	утримання вимк.
+loop off	цикл вимк.
+mask off	маска вимк.
+mesh off	сітка вимк.
+new show	нове шоу
+no pages	немає сторінок
+warp off	спотворити вим
+(default)	(типово)
+LOWERTEXT	НИЖНІЙ ТЕКСТ
+canvas on	полотно увім
+matte off	маска вим
+notes set	нотатки: задати
+pin reset	PIN: скинути
+splash on	заставка увім
+tc jam on	tc синхр увім
+tc run on	tc виконати увім
+timer set	таймер: задати
+wiggle on	тремтіння увім
+VJ mode on	режим VJ увім
+big screen	великий екран
+canvas off	полотно вим
+cue loaded	cue завантажено
+display on	екран увім
+overlay on	накладка увім
+scene live	сцена в ефірі
+shuffle on	випадково увім
+speaker up	динамік угору
+splash off	заставка вим
+tc jam off	tc синхр вим
+tc run off	tc виконати вим
+timer held	таймер: утримано
+trim reset	обрізка: скинути
+vj mode on	режим VJ увім
+warp reset	спотворити: скинути
+wiggle off	тремтіння вим
+({1} decks)	({1} пультів)
+4-bit steps	4-бітні кроки
+DATAMOSH on	DATAMOSH УВІМ
+VJ mode off	режим VJ вимк.
+blackout ON	чорне УВІМ
+blend reset	змішування скинуто
+captions on	субтитри увімк.
+cue deleted	cue видалено
+display off	екран вимк.
+driver held	драйвер утримано
+id: cleared	id: очищено
+jumped to -	перехід до -
+monitor off	монітор вимк.
+overlay off	накладання вимк.
+path closed	шлях замкнено
+phrases set	фрази задано
+pip cleared	PIP прибрано
+point added	точку додано
+row deleted	рядок видалено
+seconds, 0-	секунди, 0-
+shuffle off	випадково вимк.
+source live	джерело в ефірі
+sprites off	спрайти вимк.
+tc chase on	TC chase увімк.
+timer reset	таймер скинуто
+vj mode off	режим VJ вимк.
+all decks go	усі плейлисти запущено
+big screen @	великий екран @
+blackout off	чорне вимк.
+browser live	браузер в ефірі
+captions off	субтитри вимк.
+clip cleared	кліп прибрано
+datamosh off	datamosh вимк.
+find cleared	пошук очищено
+hands-on off	ручний режим вимк.
+key+fill off	key+fill вимк.
+multiview on	multiview увімк.
+not watching	не спостерігає
+path removed	шлях видалено
+pip attached	PIP підключено
+scene loaded	сцену завантажено
+speaker down	динамік униз
+st2110 8-bit	st2110 8 біт
+subtitles on	субтитри увімк.
+tc chase off	tc chase вимк.
+text mode on	текстовий режим увімк.
+trim cleared	обрізку скинуто
+beast mode on	режим звіра увімк.
+creatures off	створіння вимк.
+cue reordered	порядок cue змінено
+dmx cue added	додано cue DMX
+hover tips on	підказки увімк.
+lfo runs free	lfo вільний хід
+lower sub set	нижні субтитри задано
+mask inverted	маску інвертовано
+multiview off	multiview вимк.
+no expression	немає виразу
+pip cue added	додано cue PIP
+point removed	точку видалено
+source loaded	джерело завантажено
+st2110 10-bit	st2110 10 біт
+stream failed	збій трансляції
+subtitles off	субтитри вимк.
+system cursor	системний курсор
+tc trigger on	запуск tc увімк.
+text mode off	текстовий режим вимк.
+timer running	таймер працює
+video dip off	відео-діп: ні
+view: invalid	вигляд: недійсний
+warp grid off	сітка спотворення вимк.
+1-90 (percent)	1-90 (відсотків)
+DRAW FPS: 1-60	FPS МАЛЮВАННЯ: 1-60
+TCCUE: no deck	TCCUE: немає деки
+all decks play	усі деки грають
+aspect link on	зв’язок пропорцій увім
+atem tally off	tally ATEM вим
+beast mode off	режим звіра вим
+browser parked	браузер призупинено
+button deleted	кнопку видалено
+button removed	кнопку прибрано
+driver running	драйвер працює
+expression set	вираз задано
+fade cue added	додано cue згасання
+hotkey cleared	гарячу клавішу очищено
+hover tips off	підказки вим
+invalid number	хибне число
+lower text set	нижній текст задано
+mic fading out	мікрофон згасає
+midi cue added	додано cue MIDI
+nothing broken	нічого не зламано
+overlay popped	накладання знято
+periodic noise	періодичний шум
+pip source set	джерело PIP задано
+sequence ended	послідовність завершено
+sequence loops	послідовність зациклено
+stop when done	зупинити після завершення
+stream stopped	трансляцію зупинено
+stream url set	URL потоку задано
+tally: enabled	tally: увімкнено
+tc trigger off	тригер TC вим
+timer logo set	логотип таймера задано
+, fetched once)	, отримано один раз)
+DMXCUE: no deck	DMXCUE: немає деки
+MATRIX: no deck	MATRIX: немає деки
+MIDI fires cues	MIDI запускає cue
+MSC id: invalid	ID MSC: хибний
+NETCUE: no deck	NETCUE: немає деки
+all decks fired	усі деки запущено
+animation saved	анімацію збережено
+aspect link off	зв’язок пропорцій вим
+audio input off	аудіовхід вим
+canvas mode off	режим полотна вим
+canvas: invalid	полотно: хибне
+cue audio: mono	звук cue: моно
+cue jumped live	cue перейшов в ефір
+glitch text set	глітч-текст задано
+markers cleared	маркери скинуто
+miami cursor on	курсор Miami увімкнено
+ndi unavailable	ndi недоступний
+no marker ahead	попереду немає маркера
+nothing to redo	нічого повторювати
+nothing to undo	нічого скасовувати
+on every output	на кожному виході
+overlay cleared	накладку прибрано
+phrases cleared	фрази скинуто
+preload cleared	попереднє завантаження скинуто
+progress bar on	смуга прогресу увімкнена
+raster: invalid	растр: недійсний
+standby cleared	готовність скинуто
+tally: disabled	tally: вимкнено
+tc mark cleared	мітку tc скинуто
+tempo is tapped	темп відбито
+time overlay on	накладка часу увімкнена
+DMX over Art-Net	DMX через Art-Net
+MIDICUE: no deck	MIDICUE: немає деки
+TEXTCUE: no deck	TEXTCUE: немає деки
+all decks paused	усі деки на паузі
+aoi: full raster	aoi: повний растр
+browser loading…	завантаження браузера…
+driver free-runs	драйвер працює вільно
+driver restarted	драйвер перезапущено
+find: empty deck	пошук: порожня дека
+in point cleared	точку входу скинуто
+leave it running	нехай працює
+little bloops on	маленькі блупи увімкнені
+ltc fps: invalid	к/с ltc: недійсні
+mic not recorded	мікрофон не записано
+no marker behind	позаду немає маркера
+no plugins found	плагінів не знайдено
+off every output	усі виходи вимкнено
+phone haptics on	тремтіння телефона увім
+playlist loop on	цикл плейлиста увім
+progress bar off	смуга прогресу вим
+refresh: invalid	оновлення: некоректно
+schedule cleared	розклад очищено
+script cue added	додано cue скрипта
+sequence stopped	послідовність зупинено
+stream cue added	додано cue потоку
+target cue added	додано cue цілі
+time overlay off	накладка часу вим
+warp/blend reset	спотворення/змішування скинуто
+' is not a number	' — не число
+MIDIFILE: no deck	MIDIFILE: немає деки
+RECORDING STOPPED	ЗАПИС ЗУПИНЕНО
+all decks stopped	усі деки зупинено
+at the first step	на першому кроці
+browser refreshed	браузер оновлено
+conversion failed	помилка конвертації
+converting {1}...	конвертація {1}...
+cue fade: invalid	згасання cue: некоректно
+fullscreen failed	не вдалося ввімкнути повний екран
+hotkey: cancelled	гаряча клавіша: скасовано
+invalid key color	некоректний колір key
+little bloops off	дрібні блопи вим
+live captions off	прямі субтитри вим
+lock to screen on	закріпити на екрані увім
+mask not inverted	маска не інвертована
+motion driver set	драйвер руху задано
+ndi sender failed	помилка джерела NDI
+network cue added	додано cue мережі
+no cue to jump to	немає cue для переходу
+out point cleared	точку виходу очищено
+output overlay on	накладка виходу увім
+phone haptics off	тремтіння телефона вим
+pick a deck first	спершу виберіть деку
+playlist loop off	цикл плейлиста вим

@@ -2339,3 +2339,233 @@ It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts 
 Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	Dos pantaya, skapi. E mesa ta keda riba esaki, e portret ta bai riba e otro: {1}. Habri MENU i laga OUTPUT PAGA bira OUTPUT CENDE.
 It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	E a come e mesa, skapi. Pantayanan refleha ta mustra e portret riba tur dos, p'esei mi a pon'e den un bentana chikito, patras. {1}, i e ta haya su mes pantaya.
 Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	Bo pantayanan ta refleha, skapi: {1} ta mustra loke esaki ta mustra, p'esei e portret lo tapa e mesa riba tur dos. {2}, i mi ta pone e portret riba su mes pantaya. Of habri MENU i laga OUTPUT PAGA bira OUTPUT CENDE.
++now	+awor
+CROP	CORTA
+NEW 1	NOBO 1
+SELECT	SCOGI
+key on	tecla cende
+lfo on	lfo cende
+hold on	tene cende
+key off	tecla paga
+lfo off	lfo paga
+loop on	ripiti cende
+mesh on	mesh cende
+ndi off	ndi paga
+pan set	pan pone
+hold off	tene paga
+loop off	ripiti paga
+mask off	mascara paga
+mesh off	mesh paga
+new show	show nobo
+no pages	no tin pagina
+warp off	warp paga
+(default)	(standard)
+canvas on	canvas cende
+matte off	matte paga
+notes set	nota pone
+splash on	pantaya di cuminsamento cende
+tc jam on	tc sincronisa cende
+tc run on	tc core cende
+timer set	cronometro pone
+wiggle on	wiggle cende
+VJ mode on	modo VJ cende
+big screen	pantaya grandi
+canvas off	canvas paga
+cue loaded	cue carga
+display on	pantaya cende
+overlay on	capa cende
+scene live	scena bibu
+shuffle on	mescla cende
+speaker up	speaker ariba
+splash off	pantaya di cuminsamento paga
+tc jam off	tc sincronisa paga
+tc run off	tc core paga
+timer held	cronometro tene
+vj mode on	modo VJ cende
+wiggle off	wiggle paga
+({1} decks)	({1} deck)
+4-bit steps	pasonan di 4-bit
+DATAMOSH on	DATAMOSH cende
+VJ mode off	modo VJ paga
+blackout ON	scuro cende
+blend reset	mescla reset
+captions on	subtitulonan cende
+cue deleted	cue kita
+display off	pantaya paga
+driver held	driver tene
+id: cleared	id: kita
+jumped to -	a bula pa -
+monitor off	monitor paga
+overlay off	overlay paga
+path closed	caminda sera
+phrases set	frasenan a pone
+pip cleared	PIP kita
+point added	punto agrega
+row deleted	rij kita
+seconds, 0-	sekonde, 0-
+shuffle off	mescla paga
+source live	fuente bibu
+sprites off	spritenan paga
+tc chase on	tc chase cende
+timer reset	cronometro reset
+vj mode off	modo vj paga
+all decks go	tur deck ta cuminsa
+big screen @	pantaya grandi @
+blackout off	scuro paga
+browser live	browser bibu
+captions off	subtitulonan paga
+clip cleared	clip kita
+datamosh off	datamosh paga
+find cleared	buska kita
+hands-on off	hands-on paga
+key+fill off	key+fill paga
+multiview on	multiview cende
+not watching	no ta warda wowo
+path removed	caminda kita
+pip attached	PIP junta
+scene loaded	scena carga
+speaker down	speaker abou
+subtitles on	subtitulo cende
+tc chase off	tc chase paga
+text mode on	modo di texto cende
+trim cleared	trim kita
+beast mode on	modo di bestia cende
+creatures off	bestianan paga
+cue reordered	cue ordená di nobo
+dmx cue added	cue di dmx agrega
+hover tips on	sugerensia cu mouse cende
+lfo runs free	lfo ta core liber
+lower sub set	lower sub pone
+mask inverted	mascara invertí
+multiview off	multiview paga
+no expression	sin expresion
+pip cue added	cue di pip agrega
+point removed	punto kita
+source loaded	fuente carga
+stream failed	stream a faya
+subtitles off	subtitulo paga
+system cursor	cursor di sistema
+tc trigger on	tc dispara cende
+text mode off	modo di texto paga
+timer running	cronometro ta core
+video dip off	video dip paga
+view: invalid	vista: invalido
+warp grid off	grid di warp paga
+1-90 (percent)	1-90 (porcentahe)
+DRAW FPS: 1-60	DIBUHA FPS: 1-60
+TCCUE: no deck	TCCUE: ningun deck
+all decks play	tur deck ta toca
+aspect link on	link di aspect cende
+atem tally off	tally ATEM paga
+beast mode off	modo di bestia paga
+browser parked	browser parkea
+button deleted	boton eliminá
+button removed	boton kita
+driver running	driver ta core
+expression set	expresion pone
+fade cue added	cue di fade agrega
+hotkey cleared	hotkey limpia
+hover tips off	sugerensia cu mouse paga
+invalid number	number invalido
+lower text set	texto bao pone
+mic fading out	microfon ta sali poco poco
+midi cue added	cue di midi agrega
+nothing broken	nada kebra
+overlay popped	overlay kita
+periodic noise	ruido periodico
+pip source set	fuente PIP pone
+sequence ended	secuencia caba
+sequence loops	secuencia ta repiti
+stop when done	stop ora e ta CLA
+stream stopped	stream para
+stream url set	URL di stream pone
+tally: enabled	tally: cende
+tc trigger off	trigger di TC paga
+timer logo set	logo di cronometro pone
+, fetched once)	, buska un biaha)
+DMXCUE: no deck	DMXCUE: no tin deck
+MATRIX: no deck	MATRIX: no tin deck
+MIDI fires cues	MIDI ta cuminsa cues
+MSC id: invalid	MSC id: invalido
+NETCUE: no deck	NETCUE: no tin deck
+all decks fired	tur deck cuminsa
+animation saved	animacion warda
+aspect link off	link di aspect paga
+audio input off	entrada di audio paga
+canvas mode off	modo canvas paga
+canvas: invalid	canvas: invalido
+cue audio: mono	audio di cue: mono
+cue jumped live	cue a bula pa bibu
+glitch text set	texto di glitch pone
+markers cleared	marcador nan kita
+miami cursor on	cursor di miami cende
+ndi unavailable	ndi no ta disponibel
+no marker ahead	no tin marcador padilanti
+nothing to redo	nada pa hasi di nobo
+nothing to undo	nada pa deshaci
+on every output	riba tur output
+overlay cleared	overlay kita
+phrases cleared	frase nan kita
+preload cleared	preload kita
+progress bar on	barra di progreso cende
+raster: invalid	raster: invalido
+standby cleared	wardando kita
+tally: disabled	tally: deshabilita
+tc mark cleared	marca di tc kita
+tempo is tapped	tempo tap
+time overlay on	overlay di tempo cende
+DMX over Art-Net	DMX riba Art-Net
+MIDICUE: no deck	MIDICUE: sin deck
+TEXTCUE: no deck	TEXTCUE: sin deck
+all decks paused	tur deck pousa
+aoi: full raster	aoi: raster completo
+bitrate: invalid	bitrate: invalido
+browser loading…	browser ta carga…
+driver free-runs	driver ta core liber
+driver restarted	driver a restart
+find: empty deck	busca: deck bashi
+in point cleared	punto di drenta kita
+leave it running	laga e core
+little bloops on	bloop chikitu cende
+ltc fps: invalid	ltc fps: invalido
+mic not recorded	microfon no a grava
+no marker behind	no tin marcador patras
+no plugins found	no a haya plugin
+off every output	paga tur output
+phone haptics on	vibracion di telefon cende
+playlist loop on	playlist ripiti cende
+progress bar off	barra di progreso paga
+refresh: invalid	refresca: invalido
+schedule cleared	horario kita
+script cue added	cue di script agrega
+sequence stopped	secuencia para
+stream cue added	cue di stream agrega
+target cue added	cue di meta agrega
+time overlay off	overlay di tempo paga
+warp/blend reset	warp/mescla reset
+' is not a number	' no ta un number
+MIDIFILE: no deck	MIDIFILE: no tin deck
+RECORDING STOPPED	GRABACION PARA
+all decks stopped	tur deck para
+at the first step	na e prome paso
+browser refreshed	browser refresca
+conversion failed	conversion a faya
+converting {1}...	ta converti {1}...
+cue fade: invalid	fade di cue: invalido
+fullscreen failed	pantaya completo a faya
+hotkey: cancelled	hotkey: cancela
+invalid key color	color di tecla invalido
+keyframe: invalid	keyframe: invalido
+little bloops off	bloop chikí paga
+live captions off	subtitulo en bibo paga
+lock to screen on	pega na pantaya cende
+mask not inverted	mascara no invertí
+motion driver set	driver di movemento pone
+ndi sender failed	NDI mandado a faya
+network cue added	cue di red agrega
+no cue to jump to	no tin cue pa bula bai
+out point cleared	punto di pafo kita
+output overlay on	overlay di output cende
+phone haptics off	vibracion di telefon paga
+pick a deck first	cohe un deck promé
+playlist loop off	playlist ripiti paga

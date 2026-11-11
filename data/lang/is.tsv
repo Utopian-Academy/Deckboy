@@ -2345,3 +2345,237 @@ It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts 
 Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	Tveir skjáir, skapi. Borðið verður á þessum, myndin fer á hinn: {1}. Opnaðu VALMYND og láttu ÚTTAK AF segja ÚTTAK Á.
 It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	Það át borðið, skapi. Speglaðir skjáir sýna myndina á báðum, svo ég setti hana í lítinn glugga, fyrir aftan. {1}, og hún fær sinn eigin skjá.
 Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	Skjáirnir þínir eru speglaðir, skapi: {1} sýnir það sama og þessi, svo myndin hylur borðið á báðum. {2}, og ég set myndina á sinn eigin skjá. Eða opnaðu VALMYND og láttu ÚTTAK AF segja ÚTTAK Á.
++now	+núna
+CROP	KLIPPA
+Move	Færa
+NEW 1	NÝTT 1
+SELECT	VELJA
+key on	lykill á
+lfo on	lfo á
+hold on	halda á
+key off	lykill af
+lfo off	lfo af
+loop on	lykkja á
+mesh on	mesh á
+ndi off	ndi af
+pan set	hliðrun stillt
+hold off	halda af
+loop off	lykkja af
+mask off	gríma af
+mesh off	mesh af
+new show	ný sýning
+no pages	engar síður
+warp off	skekkja af
+(default)	(sjálfgefið)
+canvas on	myndflötur á
+matte off	matta af
+notes set	athugasemdir stilltar
+pin reset	pin endurstillt
+splash on	upphafsskjár á
+tc jam on	tc samstilla á
+tc run on	tc keyra á
+timer set	tímamælir stilltur
+wiggle on	vagg á
+VJ mode on	VJ-hamur á
+big screen	stór skjár
+canvas off	myndflötur af
+cue loaded	cue hlaðið
+display on	skjár á
+overlay on	yfirlag á
+scene live	sena í beinni
+shuffle on	handahófi á
+speaker up	hátalari upp
+splash off	upphafsskjár af
+tc jam off	tc samstilla af
+tc run off	tc keyra af
+timer held	tímamælir haldið
+trim reset	snyrting endurstillt
+vj mode on	VJ-hamur á
+warp reset	skekkja endurstillt
+wiggle off	vagg af
+({1} decks)	({1} borð)
+4-bit steps	4-bita skref
+DATAMOSH on	DATAMOSH á
+VJ mode off	VJ-hamur af
+blackout ON	svart á
+blend reset	blöndun endurstillt
+captions on	skjátextar á
+cue deleted	cue eytt
+display off	skjár af
+driver held	driver haldið
+id: cleared	id: hreinsað
+jumped to -	stokkið á -
+monitor off	eftirlitsskjár af
+overlay off	yfirlag af
+path closed	slóð lokuð
+phrases set	frasar stilltir
+pip cleared	PIP hreinsað
+point added	punkti bætt við
+row deleted	línu eytt
+seconds, 0-	sekúndur, 0-
+shuffle off	handahófi af
+source live	uppspretta í beinni
+sprites off	sprites af
+tc chase on	tc chase á
+timer reset	tímamælir endurstilltur
+vj mode off	vj-hamur af
+all decks go	allir listar í gang
+big screen @	stór skjár @
+blackout off	svart af
+browser live	vafri í beinni
+captions off	skjátextar af
+clip cleared	bútur hreinsaður
+datamosh off	datamosh af
+find cleared	leit hreinsuð
+hands-on off	hands-on af
+key+fill off	key+fill af
+multiview on	multiview á
+not watching	ekki að vakta
+path removed	slóð fjarlægð
+pip attached	PIP tengt
+scene loaded	sena hlaðin
+speaker down	hátalari niður
+st2110 8-bit	st2110 8 bita
+subtitles on	undirtextar á
+tc chase off	tc-elting af
+text mode on	textahamur á
+trim cleared	snyrting hreinsuð
+beast mode on	skrímslahamur á
+creatures off	kvikindi af
+cue reordered	cue endurraðað
+dmx cue added	dmx-cue bætt við
+hover tips on	svifvísbendingar á
+lfo runs free	lfo frírúllandi
+lower sub set	neðri undirtexti stilltur
+mask inverted	gríma umsnúin
+multiview off	multiview af
+no expression	engin segð
+pip cue added	pip-cue bætt við
+point removed	punktur fjarlægður
+source loaded	uppspretta hlaðin
+st2110 10-bit	st2110 10 bita
+stream failed	streymi mistókst
+subtitles off	undirtextar af
+system cursor	kerfismarkvísir
+tc trigger on	tc-kveikja á
+text mode off	textahamur af
+timer running	tímamælir í gangi
+video dip off	video dip: nei
+view: invalid	sýn: ógild
+warp grid off	skekkjunet af
+1-90 (percent)	1-90 (prósent)
+DRAW FPS: 1-60	TEIKNING FPS: 1-60
+TCCUE: no deck	TCCUE: ekkert deck
+all decks play	öll deck spila
+aspect link on	hlutfallstenging á
+atem tally off	ATEM-tally af
+beast mode off	Skrímslahamur af
+browser parked	vafri í bið
+button deleted	hnappi eytt
+button removed	hnappur fjarlægður
+driver running	rekill í gangi
+expression set	segð stillt
+fade cue added	deyficue bætt við
+hotkey cleared	flýtilykli eytt
+hover tips off	Svifvísbendingar af
+invalid number	ógild tala
+lower text set	neðri texti stilltur
+mic fading out	hljóðnemi deyfist út
+midi cue added	MIDI-cue bætt við
+nothing broken	ekkert bilað
+overlay popped	yfirlag fjarlægt
+periodic noise	reglubundinn hávaði
+pip source set	PIP-gjafi stilltur
+sequence ended	runu lokið
+sequence loops	runan endurtekur sig
+stop when done	stöðva þegar lokið
+stream stopped	straumur stöðvaður
+stream url set	straumslóð stillt
+tally: enabled	tally: virkt
+tc trigger off	TC-kveikja af
+timer logo set	tímamælismerki stillt
+, fetched once)	, sótt einu sinni)
+DMXCUE: no deck	DMXCUE: ekkert deck
+MATRIX: no deck	MATRIX: ekkert deck
+MIDI fires cues	MIDI ræsir cue
+MSC id: invalid	MSC id: ógilt
+NETCUE: no deck	NETCUE: ekkert deck
+all decks fired	öll deck ræst
+animation saved	hreyfimynd vistuð
+aspect link off	hlutfallstenging af
+audio input off	hljóðinntak af
+canvas mode off	myndflatarhamur af
+canvas: invalid	myndflötur: ógildur
+cue audio: mono	hljóð cue: mónó
+cue jumped live	cue hoppaði í beinni
+glitch text set	glitch-texti stilltur
+markers cleared	merki hreinsuð
+miami cursor on	Miami-bendill á
+ndi unavailable	NDI ekki tiltækt
+no marker ahead	ekkert merki framundan
+nothing to redo	ekkert til að endurgera
+nothing to undo	ekkert til að afturkalla
+on every output	á öllum úttökum
+overlay cleared	yfirlag hreinsað
+phrases cleared	setningar hreinsaðar
+preload cleared	forhleðsla hreinsuð
+progress bar on	framvindustika á
+raster: invalid	raster: ógilt
+standby cleared	tilbúið hreinsað
+tally: disabled	tally: óvirkt
+tc mark cleared	tc-merki hreinsað
+tempo is tapped	tempó slegið inn
+time overlay on	tímayfirlag á
+DMX over Art-Net	DMX yfir Art-Net
+MIDICUE: no deck	MIDICUE: ekkert deck
+TEXTCUE: no deck	TEXTCUE: ekkert deck
+all decks paused	öll deck í bið
+aoi: full raster	aoi: fullt raster
+browser loading…	vafri hleðst…
+driver free-runs	driver keyrir sjálfstætt
+driver restarted	driver endurræstur
+find: empty deck	leit: autt deck
+in point cleared	upphafspunktur hreinsaður
+leave it running	láta það keyra
+little bloops on	litlir bloopar á
+ltc fps: invalid	ltc fps: ógilt
+mic not recorded	hljóðnemi ekki tekinn upp
+no marker behind	ekkert merki fyrir aftan
+no plugins found	engar viðbætur fundust
+off every output	slökkt á öllum úttökum
+phone haptics on	símatitringur á
+playlist loop on	spilunarlistalykkja á
+progress bar off	framvindustika af
+refresh: invalid	endurnýja: ógilt
+schedule cleared	dagskrá hreinsuð
+script cue added	skriftu-cue bætt við
+sequence stopped	runa stöðvuð
+stream cue added	streymis-cue bætt við
+target cue added	marks-cue bætt við
+time overlay off	tímayfirlag af
+warp/blend reset	skekkja/blöndun endurstillt
+' is not a number	' er ekki tala
+MIDIFILE: no deck	MIDIFILE: ekkert deck
+RECORDING STOPPED	UPPTAKA STÖÐVUÐ
+all decks stopped	öll deck stöðvuð
+at the first step	á fyrsta skrefi
+browser refreshed	vafri endurnýjaður
+conversion failed	umbreyting mistókst
+converting {1}...	umbreyti {1}...
+cue fade: invalid	cue-deyfing: ógilt
+fullscreen failed	heilskjár mistókst
+hotkey: cancelled	flýtilykill: hætt við
+invalid key color	ógildur lykillitur
+little bloops off	litlir bloop af
+live captions off	bein textun af
+lock to screen on	læsa við skjá á
+mask not inverted	gríma ekki umsnúin
+motion driver set	hreyfidrifi stillt
+ndi sender failed	NDI sendandi mistókst
+network cue added	net-cue bætt við
+no cue to jump to	ekkert cue til að hoppa á
+out point cleared	út-punktur hreinsaður
+output overlay on	úttaksyfirlag á
+phone haptics off	símatitringur af
+pick a deck first	veldu deck fyrst
+playlist loop off	spilunarlistalykkja af

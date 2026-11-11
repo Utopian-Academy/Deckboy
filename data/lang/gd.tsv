@@ -2344,3 +2344,237 @@ It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts 
 Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	Dà sgrìn, skapi. Fanaidh an deasg air an tè seo, thèid an dealbh air an tè eile: {1}. Fosgail CLÀR agus dèan gun can ÀS-CHUR DHETH ÀS-CHUR AIR.
 It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	Dh'ith e an deasg, skapi. Seallaidh sgrìnichean sgàthanaichte an dealbh air an dà chuid, mar sin chuir mi ann an uinneag bheag e, air a chùlaibh. {1}, agus gheibh e sgrìn dha fhèin.
 Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	Tha na sgrìnichean agad sgàthanaichte, skapi: seallaidh {1} na tha an tè seo a' sealltainn, mar sin còmhdaichidh an dealbh an deasg air an dà chuid. {2}, agus cuiridh mi an dealbh air sgrìn dha fhèin. No fosgail CLÀR agus dèan gun can ÀS-CHUR DHETH ÀS-CHUR AIR.
++now	+a-nis
+CROP	BEÀRR
+Move	Gluais
+NEW 1	ÙR 1
+SELECT	TAGH
+key on	iuchair air
+lfo on	lfo air
+hold on	cùm air
+key off	iuchair dheth
+lfo off	lfo dheth
+loop on	lùb air
+mesh on	mogal air
+ndi off	ndi dheth
+pan set	pan suidhichte
+hold off	cùm dheth
+loop off	lùb dheth
+mask off	masg dheth
+mesh off	mogal dheth
+new show	taisbeanadh ùr
+no pages	gun duilleagan
+warp off	fiar dheth
+(default)	(bun-roghainn)
+LOWERTEXT	TEACSA ÌOSAL
+canvas on	canabhas air
+matte off	mata dheth
+notes set	nòtaichean suidhichte
+pin reset	pin ath-suidhichte
+splash on	sgrìn-fàilte air
+tc jam on	tc sioncronaich air
+tc run on	tc ruith air
+timer set	uaireadair suidhichte
+wiggle on	crith air
+VJ mode on	modh VJ air
+big screen	sgrìn mhòr
+canvas off	canabhas dheth
+cue loaded	cue air a luchdadh
+display on	sgrìn air
+overlay on	tar-chòmhdach air
+scene live	sealladh beò
+shuffle on	measgaich air
+speaker up	glaodhaire suas
+splash off	sgrìn-fàilte dheth
+tc jam off	tc sioncronaich dheth
+tc run off	tc ruith dheth
+timer held	uaireadair air chumail
+trim reset	trim ath-suidhichte
+vj mode on	modh VJ air
+warp reset	fiar ath-suidhichte
+wiggle off	crith dheth
+({1} decks)	({1} deic)
+4-bit steps	ceumannan 4-bit
+DATAMOSH on	DATAMOSH AIR
+VJ mode off	modh VJ dheth
+blackout ON	dubh air
+blend reset	measgachadh ath-shuidhichte
+captions on	fo-thiotalan air
+cue deleted	cue air a sguabadh às
+display off	sgrìn dheth
+driver held	dràibhear air chumail
+id: cleared	id: air a thoirt air falbh
+jumped to -	leum gu -
+monitor off	monatair dheth
+overlay off	thar-chòmhdach dheth
+path closed	slighe dùinte
+phrases set	abairtean suidhichte
+pip cleared	PiP air a ghlanadh
+point added	point air a chur ris
+row deleted	ràgh air a sguabadh às
+seconds, 0-	diogan, 0-
+shuffle off	measgachadh dheth
+source live	tùs beò
+sprites off	sprites dheth
+tc chase on	tòir TC air
+timer reset	uaireadair ath-shuidhichte
+vj mode off	modh VJ dheth
+all decks go	a h-uile liosta a' dol
+big screen @	sgrìn mhòr @
+blackout off	dubh dheth
+browser live	brabhsair beò
+captions off	fo-thiotalan dheth
+clip cleared	cliop air a ghlanadh
+datamosh off	datamosh dheth
+find cleared	lorg air a glanadh
+hands-on off	smachd làimhe dheth
+key+fill off	key+fill dheth
+multiview on	multiview air
+not watching	chan eil a' cumail sùil
+path removed	slighe air a toirt air falbh
+pip attached	PiP ceangailte
+scene loaded	sealladh air a luchdadh
+speaker down	glaodhaire sìos
+subtitles on	fo-thiotalan air
+tc chase off	tc chase dheth
+text mode on	modh teacsa air
+trim cleared	trim air a ghlanadh
+beast mode on	modh bèist air
+creatures off	creutairean dheth
+cue reordered	cue air ath-òrdachadh
+dmx cue added	cue dmx air a chur ris
+hover tips on	gliocasan air
+lfo runs free	lfo a' ruith saor
+lower sub set	fo-thiotal ìosal air a shuidheachadh
+mask inverted	masg air a thionndadh
+multiview off	multiview dheth
+no expression	gun abairt
+pip cue added	cue pip air a chur ris
+point removed	point air a thoirt air falbh
+source loaded	tùs air a luchdadh
+stream failed	sruth air fàiligeadh
+subtitles off	fo-thiotalan dheth
+system cursor	cursair an t-siostaim
+tc trigger on	brosnachadh tc air
+text mode off	modh teacsa dheth
+timer running	uaireadair a' ruith
+video dip off	video dip dheth
+view: invalid	sealladh: neo-dhligheach
+warp grid off	cliath fiar dheth
+1-90 (percent)	1-90 (sa cheud)
+DRAW FPS: 1-60	TARRAING FPS: 1-60
+TCCUE: no deck	TCCUE: gun deck
+all decks play	a h-uile deck a' cluich
+alpha: invalid	alpha: neo-dhligheach
+aspect link on	ceangal aspect: air
+atem tally off	tally ATEM: dheth
+beast mode off	modh bèist: dheth
+browser parked	brabhsair air a pharcadh
+button deleted	putan air a sguabadh às
+button removed	putan air a thoirt air falbh
+driver running	draibhear a' ruith
+expression set	abairt suidhichte
+fade cue added	cue seargaidh air a chur ris
+hotkey cleared	hotkey air a ghlanadh
+hover tips off	gliocasan: dheth
+invalid number	àireamh mì-dhligheach
+lower text set	teacsa ìosal suidhichte
+mic fading out	mic a' fadadh a-mach
+midi cue added	cue MIDI air a chur ris
+nothing broken	dad briste
+overlay popped	thar-chòmhdach air a thoirt air falbh
+periodic noise	fuaim ùineach
+pip source set	tùs PIP suidhichte
+sequence ended	sreath air crìochnachadh
+sequence loops	sreath a' lùbadh
+stop when done	stad nuair a bhios e deiseil
+stream stopped	sruth air stad
+stream url set	URL an t-sruth suidhichte
+tally: enabled	tally: air
+tc trigger off	briosgaid TC: dheth
+timer logo set	suaicheantas uaireadair suidhichte
+, fetched once)	, air fhaighinn aon turas)
+DMXCUE: no deck	DMXCUE: gun deck
+MATRIX: no deck	MATRIX: gun deck
+MIDI fires cues	Cuiridh MIDI cues
+MSC id: invalid	ID MSC: mì-dhligheach
+NETCUE: no deck	NETCUE: gun deck
+all decks fired	decks uile air an cur gu dol
+animation saved	beòthachadh air a shàbhaladh
+aspect link off	ceangal aspect: dheth
+audio input off	cur-a-steach fuaime: dheth
+canvas mode off	modh canabhais: dheth
+canvas: invalid	canabhas: mì-dhligheach
+cue audio: mono	fuaim a' cue: mono
+cue jumped live	leum an cue gu beò
+glitch text set	teacsa glitch air a shuidheachadh
+markers cleared	comharran air an glanadh
+miami cursor on	cùrsair Miami: air
+ndi unavailable	NDI chan eil e ri fhaighinn
+no marker ahead	gun chomharra air adhart
+nothing to redo	chan eil dad ri ath-dhèanamh
+nothing to undo	chan eil dad ri neo-dhèanamh
+on every output	air gach às-chur
+overlay cleared	còmhdach air a ghlanadh
+phrases cleared	abairtean air an glanadh
+preload cleared	ro-luchdadh air a ghlanadh
+progress bar on	bàr adhartais: air
+raster: invalid	raster: mì-dhligheach
+standby cleared	a' feitheamh air a ghlanadh
+tally: disabled	Tally: à comas
+tc mark cleared	comharra TC air a ghlanadh
+tempo is tapped	tempo air a thaipeadh
+time overlay on	còmhdach ùine: air
+DMX over Art-Net	DMX tro Art-Net
+MIDICUE: no deck	MIDICUE: gun deck
+TEXTCUE: no deck	TEXTCUE: gun deck
+all decks paused	na h-uile deck na thàmh
+aoi: full raster	aoi: raster làn
+browser loading…	brabhsair ga luchdadh…
+driver free-runs	draibhear a' ruith saor
+driver restarted	draibhear air ath-thòiseachadh
+find: empty deck	lorg: deck falamh
+in point cleared	puing a-steach air a glanadh
+leave it running	fàg a' ruith e
+little bloops on	bloopan beaga: air
+ltc fps: invalid	LTC fps: mì-dhligheach
+mic not recorded	mic gun chlàradh
+no marker behind	gun chomharra air ais
+no plugins found	cha deach plugain a lorg
+off every output	gach às-chur dheth
+phone haptics on	crith fòn air
+playlist loop on	lùb liosta air
+progress bar off	bàr adhartais dheth
+refresh: invalid	ath-nuadhachadh: mì-dhligheach
+schedule cleared	clàr-ama air a ghlanadh
+script cue added	cue sgriobt air a chur ris
+sequence stopped	sreath air stad
+stream cue added	cue sruth air a chur ris
+target cue added	cue targaid air a chur ris
+time overlay off	còmhdach ama dheth
+warp/blend reset	fiar/measgachadh air ath-shuidheachadh
+' is not a number	chan e àireamh a th' ann an '
+MIDIFILE: no deck	MIDIFILE: gun deck
+RECORDING STOPPED	A' CLÀRADH AIR STAD
+all decks stopped	gach deck air stad
+at the first step	aig a' chiad cheum
+browser refreshed	brabhsair air ath-nuadhachadh
+conversion failed	dh'fhàillig an tionndadh
+converting {1}...	a' tionndadh {1}...
+cue fade: invalid	fad cue: mì-dhligheach
+fullscreen failed	dh'fhàillig an làn-sgrìn
+hotkey: cancelled	iuchair-ghoirid: air a sgur
+invalid key color	dath iuchrach mì-dhligheach
+little bloops off	bloops beaga dheth
+live captions off	fo-thiotalan beò dheth
+lock to screen on	glas ris an sgrìn air
+mask not inverted	masg gun tionndadh
+motion driver set	draibhear gluasaid air a shuidheachadh
+ndi sender failed	dh'fhàillig cuiriche NDI
+network cue added	cue lìonra air a chur ris
+no cue to jump to	chan eil cue ann airson leum thuige
+out point cleared	puing a-mach air a glanadh
+output overlay on	còmhdach às-chuir air
+phone haptics off	crith fòn dheth
+pick a deck first	tagh deck an toiseach
+playlist loop off	lùb liosta dheth

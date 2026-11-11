@@ -2333,3 +2333,237 @@ It ate the desk, skapi. You have two screens: the output's DISPLAY in MENU puts 
 Two screens, skapi. The desk stays on this one, the picture goes on the other: {1}. Open MENU and make OUTPUT OFF say OUTPUT ON.	Deux écrans, skapi. La régie reste sur celui-ci, l'image va sur l'autre : {1}. Ouvre MENU et fais passer SORTIE COUPÉE à SORTIE ACTIVE.
 It ate the desk, skapi. Mirrored screens show the picture on both, so I put it in a little window, behind. {1}, and it gets a screen of its own.	Ça a mangé la régie, skapi. Des écrans en miroir montrent l'image sur les deux, alors je l'ai mise dans une petite fenêtre, derrière. {1}, et elle aura son propre écran.
 Your screens are mirrored, skapi: {1} shows what this one shows, so the picture will cover the desk on both. {2}, and I put the picture on its own screen. Or open MENU and make OUTPUT OFF say OUTPUT ON.	Tes écrans sont en miroir, skapi : {1} affiche la même chose que celui-ci, donc l'image couvrira la régie sur les deux. {2}, et je mets l'image sur son propre écran. Ou ouvre MENU et fais passer SORTIE COUPÉE à SORTIE ACTIVE.
++now	+maintenant
+CROP	RECADRER
+Move	Déplacer
+NEW 1	NOUVEAU 1
+SELECT	CHOISIR
+key on	touche active
+lfo on	lfo actif
+hold on	maintien actif
+key off	touche coupée
+lfo off	lfo coupé
+loop on	boucle active
+mesh on	maillage actif
+ndi off	ndi coupé
+pan set	pano défini
+hold off	maintien coupé
+loop off	boucle coupée
+mask off	masque coupé
+mesh off	maillage coupé
+new show	nouveau spectacle
+no pages	aucune page
+warp off	déformer coupé
+(default)	(défaut)
+LOWERTEXT	TEXTE BANDEAU
+canvas on	canevas actif
+matte off	cache coupé
+notes set	notes définies
+splash on	écran d'accueil actif
+tc jam on	tc caler actif
+tc run on	tc exécuter actif
+timer set	minuteur défini
+wiggle on	tremblement actif
+VJ mode on	mode VJ actif
+big screen	grand écran
+canvas off	canevas coupé
+cue loaded	top chargé
+display on	écran actif
+overlay on	overlay actif
+scene live	scène en direct
+shuffle on	aléatoire actif
+speaker up	haut-parleur haut
+splash off	écran d'accueil coupé
+tc jam off	tc caler coupé
+tc run off	tc exécuter coupé
+timer held	minuteur maintenu
+vj mode on	mode VJ actif
+warp reset	déformer reset
+wiggle off	tremblement coupé
+({1} decks)	({1} pupitres)
+4-bit steps	pas de 4 bits
+DATAMOSH on	DATAMOSH ACTIF
+VJ mode off	mode VJ désactivé
+blackout ON	noir activé
+blend reset	mélange reset
+captions on	sous-titres activés
+cue deleted	cue supprimé
+display off	affichage désactivé
+driver held	pilote maintenu
+id: cleared	id : retiré
+jumped to -	saut à -
+monitor off	moniteur désactivé
+overlay off	incrustation désactivée
+path closed	chemin fermé
+phrases set	phrases définies
+pip cleared	PiP retiré
+point added	point ajouté
+row deleted	ligne supprimée
+seconds, 0-	secondes, 0-
+shuffle off	aléatoire désactivé
+source live	source en direct
+sprites off	sprites désactivés
+tc chase on	poursuite TC activée
+timer reset	minuteur reset
+vj mode off	mode VJ désactivé
+all decks go	toutes les playlists partent
+big screen @	grand écran @
+blackout off	noir désactivé
+browser live	navigateur en direct
+captions off	sous-titres désactivés
+clip cleared	clip retiré
+datamosh off	datamosh désactivé
+find cleared	recherche effacée
+hands-on off	mode manuel désactivé
+key+fill off	key+fill coupé
+multiview on	multiview activé
+not watching	ne surveille pas
+path removed	chemin retiré
+pip attached	PiP attaché
+scene loaded	scène chargée
+speaker down	haut-parleur baissé
+st2110 8-bit	st2110 8 bits
+subtitles on	sous-titres activés
+tc chase off	suivi tc coupé
+text mode on	mode texte activé
+trim cleared	trim effacé
+beast mode on	mode bête activé
+creatures off	créatures coupées
+cue reordered	cue réordonné
+dmx cue added	cue dmx ajouté
+hover tips on	info-bulles activées
+lfo runs free	lfo libre
+lower sub set	sous-titre bas défini
+mask inverted	masque inversé
+multiview off	multiview coupé
+no expression	aucune expression
+pip cue added	cue pip ajouté
+point removed	point supprimé
+source loaded	source chargée
+st2110 10-bit	st2110 10 bits
+stream failed	diffusion échouée
+subtitles off	sous-titres coupés
+system cursor	curseur système
+tc trigger on	déclencheur tc activé
+text mode off	mode texte coupé
+timer running	minuteur en cours
+video dip off	dip vidéo coupé
+view: invalid	vue : invalide
+warp grid off	grille de déformation coupée
+1-90 (percent)	1-90 (pour cent)
+DRAW FPS: 1-60	FPS DESSIN : 1-60
+TCCUE: no deck	TCCUE : aucun deck
+all decks play	tous les decks jouent
+alpha: invalid	alpha : invalide
+aspect link on	lien d'aspect : oui
+atem tally off	tally ATEM : non
+beast mode off	mode bête : non
+browser parked	navigateur parqué
+button deleted	bouton supprimé
+button removed	bouton retiré
+driver running	driver en cours
+expression set	expression définie
+fade cue added	cue de fondu ajouté
+hotkey cleared	raccourci effacé
+hover tips off	info-bulles : non
+invalid number	nombre invalide
+lower text set	texte du bandeau défini
+mic fading out	micro en fondu de sortie
+midi cue added	cue MIDI ajouté
+nothing broken	rien de cassé
+overlay popped	incrustation retirée
+periodic noise	bruit périodique
+pip source set	source PIP définie
+sequence ended	séquence terminée
+sequence loops	séquence en boucle
+stop when done	arrêter à la fin
+stream stopped	flux arrêté
+stream url set	URL du flux définie
+tally: enabled	tally : activé
+tc trigger off	déclencheur TC : non
+timer logo set	logo du minuteur défini
+, fetched once)	, récupéré une fois)
+DMXCUE: no deck	DMXCUE : aucun deck
+MATRIX: no deck	MATRIX : aucun deck
+MIDI fires cues	MIDI déclenche les cues
+MSC id: invalid	ID MSC : invalide
+NETCUE: no deck	NETCUE : aucun deck
+all decks fired	tous les decks déclenchés
+animation saved	animation enregistrée
+aspect link off	lien d'aspect : non
+audio input off	entrée audio : non
+canvas mode off	mode canevas : non
+canvas: invalid	canevas : invalide
+cue audio: mono	audio du cue : mono
+cue jumped live	cue sauté en direct
+glitch text set	texte glitch défini
+markers cleared	marqueurs effacés
+miami cursor on	curseur Miami : oui
+ndi unavailable	NDI indisponible
+no marker ahead	aucun marqueur devant
+nothing to redo	rien à rétablir
+nothing to undo	rien à annuler
+on every output	sur chaque sortie
+overlay cleared	overlay retiré
+phrases cleared	phrases effacées
+preload cleared	préchargement effacé
+progress bar on	barre de progression : oui
+raster: invalid	raster : invalide
+standby cleared	en attente effacé
+tally: disabled	tally : désactivé
+tc mark cleared	marque TC effacée
+tempo is tapped	tempo tapé
+time overlay on	overlay de temps : oui
+DMX over Art-Net	DMX sur Art-Net
+MIDICUE: no deck	MIDICUE : pas de deck
+TEXTCUE: no deck	TEXTCUE : pas de deck
+all decks paused	tous les decks en pause
+aoi: full raster	aoi : raster plein
+browser loading…	navigateur en chargement…
+driver free-runs	driver en roue libre
+driver restarted	driver redémarré
+find: empty deck	chercher : deck vide
+in point cleared	point d'entrée effacé
+leave it running	laisse tourner
+little bloops on	petits bloops : oui
+ltc fps: invalid	i/s LTC : invalide
+mic not recorded	micro non enregistré
+no marker behind	aucun marqueur derrière
+no plugins found	aucun plugin trouvé
+off every output	toutes les sorties coupées
+phone haptics on	vibrations du téléphone activées
+playlist loop on	boucle de liste activée
+progress bar off	barre de progression coupée
+refresh: invalid	actualiser : invalide
+schedule cleared	planning effacé
+script cue added	cue script ajouté
+sequence stopped	séquence arrêtée
+stream cue added	cue flux ajouté
+target cue added	cue cible ajouté
+time overlay off	overlay d'heure coupé
+warp/blend reset	déformer/mélange : reset
+' is not a number	' n'est pas un nombre
+MIDIFILE: no deck	MIDIFILE : pas de deck
+RECORDING STOPPED	ENREGISTREMENT ARRÊTÉ
+all decks stopped	tous les decks arrêtés
+at the first step	au premier pas
+browser refreshed	navigateur actualisé
+conversion failed	échec de la conversion
+converting {1}...	conversion de {1}...
+cue fade: invalid	fondu du cue : invalide
+fullscreen failed	échec du plein écran
+hotkey: cancelled	raccourci : annulé
+invalid key color	couleur de clé invalide
+little bloops off	petits bloops coupés
+live captions off	sous-titres en direct coupés
+lock to screen on	caler sur l'écran activé
+mask not inverted	masque non inversé
+motion driver set	pilote de mouvement défini
+ndi sender failed	échec de l'émetteur NDI
+network cue added	cue réseau ajouté
+no cue to jump to	aucun cue où aller
+out point cleared	point out effacé
+output overlay on	overlay de sortie activé
+phone haptics off	vibrations du téléphone coupées
+pick a deck first	choisir d'abord un deck
+playlist loop off	boucle de liste coupée
