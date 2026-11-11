@@ -2348,10 +2348,10 @@ CROP	BIRÎN
 Move	Tevger
 NEW 1	NÛ 1
 SELECT	HILBIJÊRE
-key on	bişkok çalak
+key on	key çalak
 lfo on	lfo çalak
 hold on	bigire çalak
-key off	bişkok girtî
+key off	key girtî
 lfo off	lfo girtî
 loop on	dubare çalak
 mesh on	mesh çalak

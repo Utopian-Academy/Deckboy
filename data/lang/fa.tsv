@@ -2364,10 +2364,10 @@ CROP	برش
 Move	جابه‌جایی
 NEW 1	جدید 1
 SELECT	انتخاب
-key on	کلید روشن
+key on	key روشن
 lfo on	lfo روشن
 hold on	نگه داشتن روشن
-key off	کلید خاموش
+key off	key خاموش
 lfo off	lfo خاموش
 loop on	حلقه روشن
 mesh on	مش روشن

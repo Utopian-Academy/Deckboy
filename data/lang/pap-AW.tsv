@@ -2343,10 +2343,10 @@ Your screens are mirrored, skapi: {1} shows what this one shows, so the picture 
 CROP	CORTA
 NEW 1	NOBO 1
 SELECT	SCOGI
-key on	tecla cende
+key on	key cende
 lfo on	lfo cende
 hold on	tene cende
-key off	tecla paga
+key off	key paga
 lfo off	lfo paga
 loop on	ripiti cende
 mesh on	mesh cende
@@ -2569,3 +2569,7 @@ output overlay on	overlay di output cende
 phone haptics off	vibracion di telefon paga
 pick a deck first	cohe un deck promé
 playlist loop off	playlist ripiti paga
+Move	Muebe
+pin reset	pin resetá
+trim reset	trim resetá
+warp reset	warp resetá

@@ -2354,10 +2354,10 @@ CROP	ОБРІЗКА
 Move	Перемістити
 NEW 1	НОВИЙ 1
 SELECT	ВИБРАТИ
-key on	клавіша увімк.
+key on	key увімк.
 lfo on	lfo увімк.
 hold on	утримання увімк.
-key off	клавіша вимк.
+key off	key вимк.
 lfo off	lfo вимк.
 loop on	цикл увімк.
 mesh on	сітка увімк.

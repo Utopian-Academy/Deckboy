@@ -2376,10 +2376,10 @@ CROP	ⴰⵙⵎⵥⵥⵉ
 Move	ⴰⵙⵎⵓⵜⵜⵉ
 NEW 1	ⴰⵎⴰⵢⵏⵓ 1
 SELECT	ⵙⵜⵉ
-key on	ⵜⴰⵙⴰⵔⵓⵜ ⵉⵔⵎⴷ
+key on	key ⵉⵔⵎⴷ
 lfo on	lfo ⵉⵔⵎⴷ
 hold on	ⵟⵟⴼ ⵉⵔⵎⴷ
-key off	ⵜⴰⵙⴰⵔⵓⵜ ⵉⵅⵙⴰ
+key off	key ⵉⵅⵙⴰ
 lfo off	lfo ⵉⵅⵙⴰ
 loop on	ⴰⵙⵙⵓⵖⵍ ⵉⵔⵎⴷ
 mesh on	mesh ⵉⵔⵎⴷ

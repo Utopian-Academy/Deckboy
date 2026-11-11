@@ -2349,10 +2349,10 @@ CROP	RAJAUS
 Move	Siirrä
 NEW 1	UUSI 1
 SELECT	VALITSE
-key on	näppäin päällä
+key on	key päällä
 lfo on	lfo päällä
 hold on	pidä päällä
-key off	näppäin pois
+key off	key pois
 lfo off	lfo pois
 loop on	silmukka päällä
 mesh on	verkko päällä

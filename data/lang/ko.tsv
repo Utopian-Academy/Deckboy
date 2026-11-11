@@ -2356,10 +2356,10 @@ CROP	자르기
 Move	이동
 NEW 1	새로 만들기 1
 SELECT	선택
-key on	키 켜짐
+key on	크로마키 켜짐
 lfo on	lfo 켜짐
 hold on	유지 켜짐
-key off	키 꺼짐
+key off	크로마키 꺼짐
 lfo off	lfo 꺼짐
 loop on	루프 켜짐
 mesh on	메시 켜짐

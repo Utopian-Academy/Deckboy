@@ -2367,10 +2367,10 @@ CROP	قص
 Move	تحريك
 NEW 1	جديد 1
 SELECT	اختيار
-key on	مفتاح تشغيل
+key on	key يعمل
 lfo on	lfo تشغيل
 hold on	تثبيت تشغيل
-key off	مفتاح إيقاف
+key off	key إيقاف
 lfo off	lfo إيقاف
 loop on	تكرار تشغيل
 mesh on	شبكة تشغيل

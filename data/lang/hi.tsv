@@ -2355,10 +2355,10 @@ CROP	क्रॉप
 Move	ले जाएँ
 NEW 1	नया 1
 SELECT	चुनें
-key on	कुंजी चालू
+key on	key चालू
 lfo on	lfo चालू
 hold on	रोकें चालू
-key off	कुंजी बंद
+key off	key बंद
 lfo off	lfo बंद
 loop on	लूप चालू
 mesh on	mesh चालू

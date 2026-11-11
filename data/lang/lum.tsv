@@ -2376,10 +2376,10 @@ Move	Tiriseti
 NEW 1	NOVA 1
 SELECT	PIKI
 VOLUME	SONA
-key on	bata pon
+key on	key pon
 lfo on	lfo pon
 hold on	hali pon
-key off	bata vap
+key off	key vap
 lfo off	lfo vap
 loop on	novtoki pon
 mesh on	reta pon

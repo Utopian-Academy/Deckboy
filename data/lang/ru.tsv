@@ -2354,10 +2354,10 @@ CROP	ОБРЕЗКА
 Move	Переместить
 NEW 1	НОВЫЙ 1
 SELECT	ВЫБРАТЬ
-key on	клавиша вкл
+key on	key вкл.
 lfo on	lfo вкл
 hold on	удержание вкл
-key off	клавиша выкл
+key off	key выкл
 lfo off	lfo выкл
 loop on	цикл вкл
 mesh on	сетка вкл

@@ -2356,10 +2356,10 @@ CROP	クロップ
 Move	移動
 NEW 1	新規1
 SELECT	選択
-key on	キーオン
+key on	キー合成 オン
 lfo on	LFOオン
 hold on	保持オン
-key off	キーオフ
+key off	キー合成 オフ
 lfo off	LFOオフ
 loop on	ループオン
 mesh on	メッシュオン

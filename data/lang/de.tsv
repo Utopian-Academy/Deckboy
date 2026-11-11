@@ -2336,10 +2336,10 @@ CROP	ZUSCHNITT
 Move	Bewegen
 NEW 1	NEU 1
 SELECT	WÄHLEN
-key on	Taste ein
+key on	Key ein
 lfo on	lfo ein
 hold on	halten ein
-key off	Taste aus
+key off	Key aus
 lfo off	lfo aus
 loop on	Schleife ein
 mesh on	Mesh ein

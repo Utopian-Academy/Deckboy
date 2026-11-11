@@ -2356,10 +2356,10 @@ CROP	بڕین
 Move	جوڵاندن
 NEW 1	نوێ 1
 SELECT	هەڵبژاردن
-key on	کلیل هەڵکراو
+key on	key هەڵکراوە
 lfo on	lfo هەڵکراو
 hold on	ڕاگرتن هەڵکراو
-key off	کلیل کوژاوە
+key off	key کوژاوە
 lfo off	lfo کوژاوە
 loop on	دووبارە هەڵکراو
 mesh on	mesh هەڵکراو

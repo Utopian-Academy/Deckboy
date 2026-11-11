@@ -2353,10 +2353,10 @@ CROP	SIKA
 Move	Hambisa
 NEW 1	OKUSHA 1
 SELECT	KHETHA
-key on	inkinobho vuliwe
+key on	key ivuliwe
 lfo on	lfo vuliwe
 hold on	bamba vuliwe
-key off	inkinobho valiwe
+key off	key ivaliwe
 lfo off	lfo valiwe
 loop on	phinda vuliwe
 mesh on	i-mesh vuliwe

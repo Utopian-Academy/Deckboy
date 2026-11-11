@@ -2347,10 +2347,10 @@ CROP	KIRP
 Move	Taşı
 NEW 1	YENİ 1
 SELECT	SEÇ
-key on	tuş açık
+key on	key açık
 lfo on	lfo açık
 hold on	bekle açık
-key off	tuş kapalı
+key off	key kapalı
 lfo off	lfo kapalı
 loop on	döngü açık
 mesh on	örgü açık

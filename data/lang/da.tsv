@@ -2338,10 +2338,10 @@ CROP	BESKÆR
 Move	Flyt
 NEW 1	NY 1
 SELECT	VÆLG
-key on	tast til
+key on	key til
 lfo on	lfo til
 hold on	hold til
-key off	tast fra
+key off	key fra
 lfo off	lfo fra
 loop on	løkke til
 mesh on	mesh til
@@ -2588,3 +2588,4 @@ media probe failed	medieanalyse mislykkedes
 nmos: invalid port	NMOS: ugyldig port
 output overlay off	udgangsoverlay: FRA
 pip target cleared	PIP-mål ryddet
+scene live	scene direkte

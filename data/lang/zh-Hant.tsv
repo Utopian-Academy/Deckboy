@@ -2355,10 +2355,10 @@ CROP	裁切
 Move	動作
 NEW 1	新增 1
 SELECT	選取
-key on	鍵 開
+key on	去背開
 lfo on	lfo 開
 hold on	保持 開
-key off	鍵 關
+key off	去背關
 lfo off	lfo 關
 loop on	循環 開
 mesh on	網格 開

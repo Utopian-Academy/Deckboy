@@ -2349,10 +2349,10 @@ CROP	BEÀRR
 Move	Gluais
 NEW 1	ÙR 1
 SELECT	TAGH
-key on	iuchair air
+key on	key air
 lfo on	lfo air
 hold on	cùm air
-key off	iuchair dheth
+key off	key dheth
 lfo off	lfo dheth
 loop on	lùb air
 mesh on	mogal air

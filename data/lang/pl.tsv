@@ -2346,10 +2346,10 @@ CROP	KADROWANIE
 Move	Przesuń
 NEW 1	NOWY 1
 SELECT	WYBIERZ
-key on	klawisz wł.
+key on	key wł.
 lfo on	lfo wł.
 hold on	przytrzymaj wł.
-key off	klawisz wył.
+key off	key wył.
 lfo off	lfo wył.
 loop on	pętla wł.
 mesh on	siatka wł.

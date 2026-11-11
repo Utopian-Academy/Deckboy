@@ -198,7 +198,6 @@ fi	.PPTX
 fr	Cue
 fr	+10s
 fr	.PPTX
-fr	VOLUME
 gd	Cue
 gd	+10s
 gd	.PPTX
@@ -225,7 +224,6 @@ is	.PPTX
 it	Cue
 it	+10s
 it	.PPTX
-it	VOLUME
 ja	+10s
 ja	.PPTX
 kab	Cue
@@ -243,12 +241,9 @@ lum	+10s
 lum	.PPTX
 nl	Cue
 nl	+10s
-nl	CROP
 nl	.PPTX
-nl	VOLUME
 pap-AW	Cue
 pap-AW	+10s
-pap-AW	Move
 pap-AW	.PPTX
 pl	Cue
 pl	+10s
@@ -256,7 +251,6 @@ pl	.PPTX
 pt-BR	Cue
 pt-BR	+10s
 pt-BR	.PPTX
-pt-BR	VOLUME
 ru	Cue
 ru	+10s
 ru	.PPTX
@@ -284,17 +278,13 @@ ar	Deckboy Ag
 bg	Deckboy Ag
 ckb	Deckboy Ag
 da	Deckboy Ag
-da	scene live
-da	({1} decks)
 de	Deckboy Ag
 el	Deckboy Ag
 es-CU	Deckboy Ag
 es	Deckboy Ag
 fa	Deckboy Ag
 fi	Deckboy Ag
-fr	pin reset
 fr	Deckboy Ag
-fr	trim reset
 gd	Deckboy Ag
 haw	vMix API
 haw	DASHBOARD
@@ -321,12 +311,8 @@ lum	LOWERTEXT
 lum	Deckboy Ag
 nl	LOWERTEXT
 nl	Deckboy Ag
-nl	({1} decks)
 pap-AW	LOWERTEXT
-pap-AW	pin reset
 pap-AW	Deckboy Ag
-pap-AW	trim reset
-pap-AW	warp reset
 pl	Deckboy Ag
 pt-BR	Deckboy Ag
 ru	Deckboy Ag
@@ -339,7 +325,6 @@ zh-Hant	Deckboy Ag
 zu	Deckboy Ag
 haw	Lower Third
 haw	4:2:2  8-BIT
-nl	browser live
 ckb	st2110 8-bit
 ckb	st2110 10-bit
 el	st2110 8-bit
@@ -403,3 +388,9 @@ zgh	DMX over Art-Net
 zh-Hans	DMX over Art-Net
 zh-Hant	DMX over Art-Net
 zu	DMX over Art-Net
+da	({1} decks)
+fr	VOLUME
+it	VOLUME
+nl	VOLUME
+nl	({1} decks)
+pt-BR	VOLUME

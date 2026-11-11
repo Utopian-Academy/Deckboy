@@ -2334,10 +2334,10 @@ Your screens are mirrored, skapi: {1} shows what this one shows, so the picture 
 Move	Verplaats
 NEW 1	NIEUW 1
 SELECT	KIES
-key on	toets aan
+key on	key aan
 lfo on	lfo aan
 hold on	vasthouden aan
-key off	toets uit
+key off	key uit
 lfo off	lfo uit
 loop on	lus aan
 mesh on	mesh aan
@@ -2562,3 +2562,5 @@ output overlay on	uitgangsoverlay aan
 phone haptics off	telefoontrilling uit
 pick a deck first	kies eerst een deck
 playlist loop off	afspeellijst lus uit
+CROP	BIJSNIJDEN
+browser live	browser direct

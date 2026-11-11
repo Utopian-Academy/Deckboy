@@ -2350,10 +2350,10 @@ CROP	KLIPPA
 Move	Færa
 NEW 1	NÝTT 1
 SELECT	VELJA
-key on	lykill á
+key on	key á
 lfo on	lfo á
 hold on	halda á
-key off	lykill af
+key off	key af
 lfo off	lfo af
 loop on	lykkja á
 mesh on	mesh á

@@ -2350,10 +2350,10 @@ CROP	ΚΟΨΙΜΟ
 Move	Μετακίνηση
 NEW 1	ΝΕΟ 1
 SELECT	ΕΠΙΛΟΓΗ
-key on	πλήκτρο εντός
+key on	key εντός
 lfo on	lfo εντός
 hold on	κράτημα εντός
-key off	πλήκτρο εκτός
+key off	key εκτός
 lfo off	lfo εκτός
 loop on	βρόχος εντός
 mesh on	mesh εντός

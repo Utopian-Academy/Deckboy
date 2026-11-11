@@ -2346,10 +2346,10 @@ CROP	RECORTE
 Move	Mover
 NEW 1	NUEVO 1
 SELECT	ELEGIR
-key on	tecla activa
+key on	key activado
 lfo on	lfo activo
 hold on	mantener activo
-key off	tecla apagada
+key off	key desactivado
 lfo off	lfo apagado
 loop on	bucle activo
 mesh on	malla activa

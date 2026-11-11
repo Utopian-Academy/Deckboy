@@ -2353,10 +2353,10 @@ CROP	ИЗРЯЗВАНЕ
 Move	Премести
 NEW 1	НОВ 1
 SELECT	ИЗБОР
-key on	клавиш вкл
+key on	key включен
 lfo on	lfo вкл
 hold on	задръж вкл
-key off	клавиш изкл
+key off	key изкл
 lfo off	lfo изкл
 loop on	цикъл вкл
 mesh on	мрежа вкл

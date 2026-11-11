@@ -2351,10 +2351,10 @@ CROP	ຕັດ
 Move	ເຄື່ອນ
 NEW 1	ໃໝ່ 1
 SELECT	ເລືອກ
-key on	ປຸ່ມ ເປີດ
+key on	key ເປີດ
 lfo on	lfo ເປີດ
 hold on	ຄ້າງ ເປີດ
-key off	ປຸ່ມ ປິດ
+key off	key ປິດ
 lfo off	lfo ປິດ
 loop on	ວົນ ເປີດ
 mesh on	mesh ເປີດ

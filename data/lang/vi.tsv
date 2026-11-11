@@ -2348,10 +2348,10 @@ CROP	CẮT
 Move	Di chuyển
 NEW 1	MỚI 1
 SELECT	CHỌN
-key on	phím bật
+key on	key bật
 lfo on	lfo bật
 hold on	giữ bật
-key off	phím tắt
+key off	key tắt
 lfo off	lfo tắt
 loop on	lặp bật
 mesh on	lưới bật

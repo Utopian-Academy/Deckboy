@@ -2296,12 +2296,12 @@ KEY L	KEY H
 NEW 1	HOU 1
 SELECT	KOHO
 cue id	ID cue
-key on	kī hoʻā
+key on	key hoʻā
 lfo on	lfo hoʻā
 QR CODE	QR PĀʻĀLUA
 SHOW ME	HŌʻIKE MAI
 hold on	paʻa hoʻā
-key off	kī pio
+key off	key pio
 lfo off	lfo pio
 loop on	pōʻai hoʻā
 mesh on	mesh hoʻā

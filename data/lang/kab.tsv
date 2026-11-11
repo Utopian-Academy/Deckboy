@@ -2347,10 +2347,10 @@ CROP	GZEM
 Move	Smenyef
 NEW 1	AMAYNUT 1
 SELECT	FREN
-key on	tasarut yermed
+key on	key yermed
 lfo on	lfo yermed
 hold on	aṭṭaf yermed
-key off	tasarut yensa
+key off	key yensa
 lfo off	lfo yensa
 loop on	tineḍt yermed
 mesh on	mesh yermed

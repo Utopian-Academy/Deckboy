@@ -2338,10 +2338,10 @@ CROP	RECADRER
 Move	Déplacer
 NEW 1	NOUVEAU 1
 SELECT	CHOISIR
-key on	touche active
+key on	key activé
 lfo on	lfo actif
 hold on	maintien actif
-key off	touche coupée
+key off	key coupé
 lfo off	lfo coupé
 loop on	boucle active
 mesh on	maillage actif
@@ -2567,3 +2567,5 @@ output overlay on	overlay de sortie activé
 phone haptics off	vibrations du téléphone coupées
 pick a deck first	choisir d'abord un deck
 playlist loop off	boucle de liste coupée
+pin reset	pin réinitialisé
+trim reset	trim réinitialisé

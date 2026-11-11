@@ -2339,10 +2339,10 @@ CROP	CORTAR
 Move	Mover
 NEW 1	NOVO 1
 SELECT	SELECIONAR
-key on	tecla ligada
+key on	key ligado
 lfo on	lfo ligado
 hold on	segurar ligado
-key off	tecla desligada
+key off	key desligado
 lfo off	lfo desligado
 loop on	loop ligado
 mesh on	malha ligada

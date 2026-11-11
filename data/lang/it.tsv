@@ -2337,10 +2337,10 @@ CROP	RITAGLIA
 Move	Sposta
 NEW 1	NUOVO 1
 SELECT	SELEZIONA
-key on	tasto attivo
+key on	key attivo
 lfo on	lfo attivo
 hold on	tieni attivo
-key off	tasto spento
+key off	key spento
 lfo off	lfo spento
 loop on	ciclo attivo
 mesh on	mesh attivo
