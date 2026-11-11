@@ -479,38 +479,10 @@ fs::path newerProjectRecoveryFile(const fs::path& file) {
   return saving;
 }
 
-bool saveProject(const fs::path& projectFile, const Project& project, bool patient = true) {
-  fs::path resolved = projectFile.empty() ? Paths::defaultProjectFile() : projectFile;
-  if (resolved.has_parent_path()) {
-    std::error_code ec;
-    fs::create_directories(resolved.parent_path(), ec);
-    if (ec) return false;
-  }
-
-  // WRITE BESIDE IT, THEN RENAME OVER IT.
-  //
-  // This opened the operator's show with ios::trunc and wrote in place, so the
-  // file was empty from the instant the save began until it finished. Anything
-  // interrupting the write -- a crash, a power cut, a full disk, a USB stick
-  // pulled -- left a truncated show, and the previous good copy was already
-  // gone. That is not a rare window: the app writes this file 300ms after any
-  // edit, and after unattended metadata repairs, so it saves constantly during
-  // a show.
-  //
-  // A rename within one directory is atomic, so a reader sees either the whole
-  // old show or the whole new one, never a half-written file. The temp sits
-  // beside the target rather than in the system temp dir because a rename
-  // across volumes is a copy, which reopens the same window.
-  // Stage separately so a later short write cannot truncate a complete
-  // recovery copy left by an earlier failed replacement.
-  const fs::path saving = projectSavingFile(resolved);
-  fs::path temp = saving;
-  temp += ".tmp";
-  std::ofstream output(temp, std::ios::binary | std::ios::trunc);
-  if (!output) {
-    return false;
-  }
-
+// The whole show as the file holds it. saveProject writes it to disk; undo
+// compares it, so a snapshot is skipped only when the show truly has not
+// changed (see pushUndoSnapshot).
+void writeProjectRecords(std::ostream& output, const Project& project) {
   writeProjectScalars(output, project);
   // ONE LINE PER SLOT, and none at all when the dashboard is empty -- which is
   // every show that predates it. A key/value record rather than a positional
@@ -1167,6 +1139,42 @@ bool saveProject(const fs::path& projectFile, const Project& project, bool patie
   for (const Cue& step : project.trackerSteps) {
     writeCueRecord(-1, step);
   }
+
+}
+
+bool saveProject(const fs::path& projectFile, const Project& project, bool patient = true) {
+  fs::path resolved = projectFile.empty() ? Paths::defaultProjectFile() : projectFile;
+  if (resolved.has_parent_path()) {
+    std::error_code ec;
+    fs::create_directories(resolved.parent_path(), ec);
+    if (ec) return false;
+  }
+
+  // WRITE BESIDE IT, THEN RENAME OVER IT.
+  //
+  // This opened the operator's show with ios::trunc and wrote in place, so the
+  // file was empty from the instant the save began until it finished. Anything
+  // interrupting the write -- a crash, a power cut, a full disk, a USB stick
+  // pulled -- left a truncated show, and the previous good copy was already
+  // gone. That is not a rare window: the app writes this file 300ms after any
+  // edit, and after unattended metadata repairs, so it saves constantly during
+  // a show.
+  //
+  // A rename within one directory is atomic, so a reader sees either the whole
+  // old show or the whole new one, never a half-written file. The temp sits
+  // beside the target rather than in the system temp dir because a rename
+  // across volumes is a copy, which reopens the same window.
+  // Stage separately so a later short write cannot truncate a complete
+  // recovery copy left by an earlier failed replacement.
+  const fs::path saving = projectSavingFile(resolved);
+  fs::path temp = saving;
+  temp += ".tmp";
+  std::ofstream output(temp, std::ios::binary | std::ios::trunc);
+  if (!output) {
+    return false;
+  }
+
+  writeProjectRecords(output, project);
 
   // Everything above is buffered. Close BEFORE the rename and check the
   // stream: a disk that filled up reports it here, and the operator's

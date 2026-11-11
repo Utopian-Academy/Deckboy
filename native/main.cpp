@@ -10904,7 +10904,12 @@ class App {
     Project project;
     fs::path file;
     bool showSwap = false;
+    // projectEditSerial_ when this was pushed: see pushUndoSnapshot.
+    std::uint64_t editSerial = 0;
   };
+  // Counts every markProjectDirty, so undo can tell "nothing was edited"
+  // from "an edit kept the cue counts".
+  std::uint64_t projectEditSerial_ = 0;
   std::vector<UndoStep> undoStack_;
   std::vector<UndoStep> redoStack_;
   static constexpr int kMaxUndoLevels = 40;

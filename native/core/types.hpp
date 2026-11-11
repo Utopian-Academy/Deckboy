@@ -3780,6 +3780,8 @@ enum class QuickAction {
   MaskRemoveLast,
   MaskExportPng,
   MaskExportSvg,
+  MaskTakeOff,            // this target stops using the mask; the mask stays
+  MaskDelete,             // the mask leaves the show, and every place using it
   CueSectionMaskToggle,
   // The inspector's DRAW section (app_draw.ipp).
   DrawEditToggle,         // draw on the programme monitor

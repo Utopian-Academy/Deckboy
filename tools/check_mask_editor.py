@@ -256,6 +256,23 @@ def run(exe, work, show):
         b = desk.editor()["button"]
         desk.click(b[0] + b[2] // 2, b[1] + b[3] // 2)
         note("MASK closes the editor", desk.editor().get("open") is False, desk.editor())
+
+        print("  taking it off, and deleting it")
+        name = desk.info(mask).get("name", "")
+        note("REMOVE has its own row", desk.press("Stop masking this"), desk.rows()[:6])
+        note("...which takes the mask off the cue", not desk.editor().get("mask"), desk.editor())
+        note("...and leaves it in the library", mask in db.send("MASK LIST"), db.send("MASK LIST"))
+        shot = desk.snap()
+        note("...so the corner is no longer cut", not black(probe(shot, 0.04, 0.06)), probe(shot, 0.04, 0.06))
+        desk.press("Choose a mask from this show's library")
+        note("it can be put back from the library", desk.choose(name), desk.status().get("dropdown"))
+        note("...and is on the cue again", desk.editor().get("mask") == mask, desk.editor())
+        note("DELETE has its own row", desk.press("Delete this mask from the show"), desk.rows()[:8])
+        note("...which takes it out of the library", mask not in db.send("MASK LIST"), db.send("MASK LIST"))
+        note("...and off the cue", not desk.editor().get("mask"), desk.editor())
+        db.send("UNDO")
+        time.sleep(0.3)
+        note("undo brings it back", mask in db.send("MASK LIST"), db.send("MASK LIST"))
         note("the desk still answers", db.send("PING").startswith("OK"))
 
 

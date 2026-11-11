@@ -583,6 +583,17 @@
                           "Show the mask's points on the programme monitor, to move, add and remove them (MASK)",
                           -1, maskEditor_.open);
     if (!m) return y;
+    // TAKING A MASK OFF HAS ITS OWN ROWS. It used to be "none" at the top of
+    // the dropdown above, and deleting one from the show was a remote command
+    // only -- operators found neither (James, 2026-11-11).
+    y = inspDrawChoiceRow(ix, y, "remove", "take the mask off", QuickAction::MaskTakeOff,
+                          "Stop masking this. The mask stays in the show's library, to put back from the menu above");
+    const int usesNow = countMaskUses(m->id);
+    y = inspDrawChoiceRow(ix, y, "delete", usesNow > 1 ? "delete from the show (" + std::to_string(usesNow) + " uses)"
+                                                       : std::string("delete from the show"),
+                          QuickAction::MaskDelete,
+                          "Delete this mask from the show, and from every cue, playlist and output using it. "
+                          "Undo brings it back");
     y = inspDrawChoiceRow(ix, y, "tool", maskEditor_.tool == MaskTool::Pen ? "pen" : "move points",
                           QuickAction::MaskToolCycle,
                           "Pen: click for corners, drag for curves, click the first point to close (P). "
@@ -768,6 +779,25 @@
         return true;
       case QuickAction::MaskExportPng: exportFocusedMask(false); return true;
       case QuickAction::MaskExportSvg: exportFocusedMask(true); return true;
+      case QuickAction::MaskTakeOff:
+        if (m) {
+          pushUndoSnapshot();
+          openMaskEditor(false);
+          setMaskTargetId({});
+          markProjectDirty();
+          triggerToast("mask off -- it is still in the show's library");
+        }
+        return true;
+      case QuickAction::MaskDelete:
+        if (m) {
+          const std::string name = m->name;
+          pushUndoSnapshot();
+          openMaskEditor(false);
+          deleteMask(m->id);
+          markProjectDirty();
+          triggerToast("mask deleted: " + name + " (undo brings it back)");
+        }
+        return true;
       case QuickAction::CueSectionMaskToggle: cueSectionMaskOpen_ = !cueSectionMaskOpen_; return true;
       default: return false;
     }

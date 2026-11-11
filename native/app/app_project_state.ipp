@@ -1949,7 +1949,7 @@
     for (auto& output : snapshot.outputs) {
       output.enabled = false;
     }
-    undoStack_.push_back(UndoStep {std::move(snapshot), currentProjectFile_, true});
+    undoStack_.push_back(UndoStep {std::move(snapshot), currentProjectFile_, true, projectEditSerial_});
     if (static_cast<int>(undoStack_.size()) > kMaxUndoLevels) {
       undoStack_.erase(undoStack_.begin());
     }
@@ -2194,21 +2194,25 @@
     projectRecoveryPromptShown_ = true;
   }
 
-  // force: push even when the stack top looks the same. The comparison below
-  // looks only at cue counts and selection, so an edit that changes a field
-  // and nothing else -- clearing a trim point -- is invisible to it.
+  // force: push even when the show matches the stack top -- for a caller
+  // about to change something the file does not hold.
   void pushUndoSnapshot(bool force = false) {
-    // Debounce: don't push if the stack top already matches the current state.
+    // SKIP ONLY A SNAPSHOT OF A SHOW THAT HAS NOT CHANGED. Several controls
+    // push before they act, so a push that matches the top of the stack is
+    // dropped.
     //
-    // EVERY DECK, NOT DECK 0. This compared deck 0's cue count and selection
-    // and nothing else, so with more than one playlist an edit on deck 2 --
-    // adding a cue, deleting one, changing the selection -- left deck 0
-    // identical, the snapshot was skipped, and the edit became unundoable.
-    // Harmless while a show effectively had one deck; with Super Deckboy it is
-    // silent loss of an operator's last action on any playlist but the first.
+    // "Matches" used to mean only the same number of cues and the same
+    // selection on every playlist. Any edit that kept those -- a mask deleted,
+    // a fade changed, a cue renamed -- made right after another such edit was
+    // then not undoable: its snapshot looked like the one before it and was
+    // thrown away (found 2026-11-11, deleting a mask). Now it must also be
+    // true that nothing was edited since: every edit calls markProjectDirty,
+    // which counts. (Comparing the whole show as text is exact too, but cost
+    // 160 ms a push on a 3000-cue show.)
     if (!force && !undoStack_.empty()) {
       const Project& top = undoStack_.back().project;
-      bool identical = top.decks.size() == project_.decks.size() &&
+      bool identical = undoStack_.back().editSerial == projectEditSerial_ &&
+                       top.decks.size() == project_.decks.size() &&
                        top.trackerSteps.size() == project_.trackerSteps.size() &&
                        !top.decks.empty() && !project_.decks.empty();
       for (std::size_t d = 0; identical && d < project_.decks.size(); ++d) {
@@ -2219,7 +2223,7 @@
         return;
       }
     }
-    undoStack_.push_back(UndoStep {project_, currentProjectFile_, false});
+    undoStack_.push_back(UndoStep {project_, currentProjectFile_, false, projectEditSerial_});
     if (static_cast<int>(undoStack_.size()) > kMaxUndoLevels) {
       undoStack_.erase(undoStack_.begin());
     }
@@ -2458,7 +2462,7 @@
     resetTransientPreviewState();
     UndoStep step = std::move(undoStack_.back());
     undoStack_.pop_back();
-    redoStack_.push_back(UndoStep {project_, currentProjectFile_, step.showSwap});
+    redoStack_.push_back(UndoStep {project_, currentProjectFile_, step.showSwap, projectEditSerial_});
     restoreUndoStep(std::move(step.project), step.file, step.showSwap);
     triggerToast("undo");
     playUiSound(UiSoundEffect::Navigate);
@@ -2472,13 +2476,14 @@
     resetTransientPreviewState();
     UndoStep step = std::move(redoStack_.back());
     redoStack_.pop_back();
-    undoStack_.push_back(UndoStep {project_, currentProjectFile_, step.showSwap});
+    undoStack_.push_back(UndoStep {project_, currentProjectFile_, step.showSwap, projectEditSerial_});
     restoreUndoStep(std::move(step.project), step.file, step.showSwap);
     triggerToast("redo");
     playUiSound(UiSoundEffect::Navigate);
   }
 
   void markProjectDirty() {
+    ++projectEditSerial_;
     if (!projectDirty_) {
       projectDirty_ = true;
       projectDirtyAt_ = std::chrono::steady_clock::now();
