@@ -1754,21 +1754,22 @@
   //
   // Order is by how widely each is available on show hardware. Empty means no
   // hardware encoder, and the caller falls back to libx264.
-  const std::string& recordingVideoEncoder() const {
-    static bool probed = false;
-    static std::string chosen;
-    if (probed) {
-      return chosen;
-    }
-    probed = true;
-    if (auto text = readAllText({"ffmpeg", "-hide_banner", "-encoders"})) {
-      for (const char* candidate : {"h264_nvenc", "h264_qsv", "h264_amf"}) {
-        if (text->find(candidate) != std::string::npos) {
-          chosen = candidate;
-          break;
+  //
+  // Asked at launch on a background thread (warmRecordingEncoderProbe): the
+  // answer comes from running ffmpeg, and the first RECORD used to wait for it
+  // inside the frame. A static initialised once is thread-safe, so a RECORD
+  // that arrives while the probe is still running waits for that one.
+  static const std::string& recordingVideoEncoder() {
+    static const std::string chosen = [] {
+      if (auto text = readAllText({"ffmpeg", "-hide_banner", "-encoders"})) {
+        for (const char* candidate : {"h264_nvenc", "h264_qsv", "h264_amf"}) {
+          if (text->find(candidate) != std::string::npos) {
+            return std::string(candidate);
+          }
         }
       }
-    }
+      return std::string();
+    }();
     return chosen;
   }
 

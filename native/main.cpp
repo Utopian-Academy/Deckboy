@@ -4039,6 +4039,8 @@ class App {
     // The scopes' shaders compile in the background now, so the first SCOPES
     // press does not stall the outputs while they do (gpu_scopes.cpp).
     std::thread([] { deckboy::gpu::warmGpuScopesShaders(); }).detach();
+    // And which hardware encoder ffmpeg has, which the first RECORD needs.
+    std::thread([] { recordingVideoEncoder(); }).detach();
 
     // Pre-clamp the initial size to the primary display so we never create a
     // window larger than a screen. The defaults (1760x1020) overflow a laptop
