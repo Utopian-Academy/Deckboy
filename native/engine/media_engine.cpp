@@ -660,10 +660,12 @@ void MediaEngine::syncActiveCueSnapshot(const Cue& cue) {
   const bool bridge = cueDecodesAsRgba(cue);
   const bool wasBridge = liveRgbaBridge_.exchange(bridge);
   if (bridge && !wasBridge) {
+    // The two frames on screen now; the queued ones as each comes off the
+    // queue (update()). Converting the whole queue here -- six GPU downloads
+    // and conversions -- held the frame ~30 ms whenever an effect was added
+    // to a playing cue (measured 2026-11-11).
     if (displayFrame_) bridgeFrameToRgba(*displayFrame_);
     if (heldFrame_) bridgeFrameToRgba(*heldFrame_);
-    std::lock_guard<std::mutex> lock(frameMutex_);
-    for (DecodedFrame& queued : frameQueue_) bridgeFrameToRgba(queued);
   }
   lastRenderedFrameIndex_ = static_cast<std::uint64_t>(-1);
 }
@@ -1797,6 +1799,11 @@ void MediaEngine::update() {
       advancedDisplayFrame = true;
       advancedFrameIndex = displayFrame_->index;
     }
+  }
+  // A frame queued before the look needed RGBA, converted as it is shown
+  // (see syncActiveCueSnapshot). A no-op for a frame already in RGBA.
+  if (advancedDisplayFrame && displayFrame_ && liveRgbaBridge_.load()) {
+    bridgeFrameToRgba(*displayFrame_);
   }
 
   // ── DID THE PICTURE STALL? ───────────────────────────────────────────────
