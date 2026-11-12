@@ -2857,3 +2857,217 @@ DASH: the startup dialog is up	DASH: 啟動對話框已開啟
 LOWERSTYLE: select a cue first	LOWERSTYLE: 請先選取一個 cue
 MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: 應為 1-16
 PATTERN ADD needs a pattern id	PATTERN ADD 需要圖案 ID
+Lower Third attached	Lower Third 已附加
+DRAW ONION: ON or OFF	DRAW ONION：開 或 關
+DRAW EDITOR: ON or OFF	DRAW EDITOR：開 或 關
+FX PARAM: value is 0-1	FX PARAM：數值為 0-1
+OUTPUT AOI: no outputs	OUTPUT AOI：沒有輸出
+OUTPUT DECK: no outputs	OUTPUT DECK：沒有輸出
+DRAW HOLD: seconds, 0-60	DRAW HOLD：秒，0-60
+FADE EFFECT: expected 1-	FADE EFFECT：需要 1-
+MOTION MIRROR: ON or OFF	MOTION MIRROR：開 或 關
+TALLYEVENT wants ON or OFF	TALLYEVENT 需要 開 或 關
+TONECUE LFO: FREQ or LEVEL	TONECUE LFO：FREQ 或 LEVEL
+GOGUARD: OFF or 50-2000 (ms)	GOGUARD：關 或 50-2000 (ms)
+SLICE GRID SMOOTH: ON or OFF	SLICE GRID SMOOTH：開 或 關
+TRIGGER AT: HH:MM[:SS] or OFF	TRIGGER AT：HH:MM[:SS] 或 關
+PATTERN SET needs a pattern id	PATTERN SET 需要圖案 ID
+already the first tracker step	已經是第一個追蹤器步進
+cannot determine rendered size	無法確定算繪尺寸
+find: enter cue id/number/name	搜尋：請輸入 cue ID/編號/名稱
+no sprite sets in data/sprites	data/sprites 中沒有精靈集
+normalize: no measurable audio	標準化：沒有可測量的音訊
+recordings are left as written	錄製內容維持原樣
+reracked - holding first frame	已重新載入 - 保持第一格
+st 2110: clipboard unavailable	st 2110：剪貼簿無法使用
+stream url: unsupported scheme	串流網址：不支援的協定
+that button has no command yet	該按鈕尚無指令
+DMXCUE PROTOCOL: ARTNET or SACN	DMXCUE 協定：ARTNET 或 SACN
+FIXTURE DIP: 0-100 (%) or LEAVE	FIXTURE DIP：0-100 (%) 或 LEAVE
+FX LFO: no effect at that index	FX LFO：該索引處沒有效果
+MIDIMAP CLEAR: COMPUTER or SHOW	MIDIMAP CLEAR：COMPUTER 或 SHOW
+TEXTCUE SPEED: expected 0.05-20	TEXTCUE SPEED：應為 0.05-20
+an output needs a base playlist	輸出需要一個基礎播放清單
+audio input: device unavailable	音訊輸入：裝置無法使用
+expected crop percentages 0..90	裁切百分比應為 0..90
+media found - nothing to relink	已找到媒體 - 無需重新連結
+notestep: build out of range 1-	notestep：建置超出範圍 1-
+put it back when the ramp lands	斜坡結束時將其放回
+splitnotes: cue out of range 1-	splitnotes：cue 超出範圍 1-
+st 2110 SDP copied to clipboard	ST 2110 SDP 已複製到剪貼簿
+w00t! all ur cues r belong 2 us	耶！你所有的 cue 都歸我們了
+BROWSER TYPE: expected some text	BROWSER TYPE：應為一些文字
+CHECK: expected a problem number	CHECK：應為問題編號
+FADE RESTORE: expected on or off	FADE RESTORE：應為 on 或 off
+MIDICLOCK SIM: expected a number	MIDICLOCK SIM：應為數字
+MONITOR ROOM: expected ON or OFF	MONITOR ROOM：應為 ON 或 OFF
+MOTION ZONE ADD: already 8 zones	MOTION ZONE ADD：已有 8 個區域
+SLICE REMOVE: a slice number, 1-	SLICE REMOVE：切片編號，1-
+motion off: the camera is closed	運動關：攝影機已關閉
+no capture devices found (dshow)	找不到擷取裝置 (dshow)
+only accepted from this computer	僅接受來自這台電腦的請求
+reccodec: expected a codec token	reccodec：應為 codec 標記
+this build has no plugin support	此版本不支援外掛
+BROWSER SCROLL: expected a number	BROWSER SCROLL：應為數字
+DMXCUE UNIVERSE: expected 0-32767	DMXCUE UNIVERSE：應為 0-32767
+FADE DECK: expected a deck number	FADE DECK：應為卡座編號
+FX PARAM: no effect at that index	FX PARAM：該索引處沒有效果
+MIC GAIN: expected -40 to 40 (dB)	MIC GAIN：應為 -40 至 40 (dB)
+MOTION ZONE REMOVE: a zone number	MOTION ZONE REMOVE：區域編號
+NDI: this build has no NDI output	NDI：此版本沒有 NDI 輸出
+STING PITCH: expected 20-12000 Hz	STING PITCH：應為 20-12000 Hz
+TRIGGER MIDI: a note 0-127 or OFF	TRIGGER MIDI：音符 0-127 或 OFF
+could not open the Screens window	無法開啟 SCREENS視窗
+effects paste: copy a chain first	效果貼上：請先複製一條鏈
+expected pixels -1000000..1000000	應為像素值 -1000000..1000000
+marker: add | next | prev | clear	標記：新增 | 下一個 | 上一個 | 清除
+press again to delete this button	再按一次可刪除此按鈕
+warp grid: 2 to 9 points each way	變形網格：每個方向 2 到 9 個點
+AUDIOFX ADD: needs an effect token	AUDIOFX ADD：需要特效名稱
+BLEND LIFT: expected 0..20 percent	BLEND LIFT：應為 0..20 百分比
+BUGSWAT SHOWME: only in a briefing	BUGSWAT SHOWME：僅限簡報中使用
+CAPTIONS LINES: expected 1, 2 or 3	CAPTIONS LINES：應為 1、2 或 3
+DASH SET: slot number out of range	DASH SET：槽位編號超出範圍
+FX AMOUNT: no effect at that index	FX AMOUNT：該索引處沒有特效
+FX COLOUR: no effect at that index	FX COLOUR：該索引處沒有特效
+MIDICLOCK SIM: bpm must be 20..600	MIDICLOCK SIM：bpm 必須為 20..600
+OUTPUT ADD: expected a deck number	OUTPUT ADD：應為卡座編號
+SLICE FLIP: H or V, then ON or OFF	SLICE FLIP：H 或 V，然後 開 或 關
+a path needs three points: dropped	路徑需要三個點：已捨棄
+a show needs at least one playlist	演出至少需要一個播放清單
+display scan: no displays reported	顯示器掃描：未回報任何顯示器
+selection has no cue with geometry	所選內容中沒有帶幾何的 cue
+that cue cannot be fired by a step	該 cue 無法由步進觸發
+time: type it as HH:MM or HH:MM:SS	時間：請以 HH:MM 或 HH:MM:SS 輸入
+ASCII COLS: expected a column count	ASCII COLS：應為欄數
+Deckboy evolved into SUPER DECKBOY!	Deckboy 進化成了 SUPER DECKBOY！
+FX PARAM: slot must be A, B, C or D	FX PARAM：槽位必須為 A、B、C 或 D
+MIDI: a note number 0-127, or LEARN	MIDI：音符編號 0-127，或 學習
+MIDIMAP REMOVE: COMPUTER|SHOW <row>	MIDIMAP REMOVE：COMPUTER|SHOW <列>
+OUTPUT DECK: expected a deck number	OUTPUT DECK：應為卡座編號
+OUTPUTFX BYPASS: expected ON or OFF	OUTPUTFX BYPASS：應為 開 或 關
+SCOPES MATRIX: expected 709 or 2020	SCOPES MATRIX：應為 709 或 2020
+SHORTCUTS: the startup dialog is up	SHORTCUTS：啟動對話框已開啟
+STREAM HDR: expected SDR, PQ or HLG	STREAM HDR：應為 SDR、PQ 或 HLG
+an animation is already being saved	已有動畫正在儲存
+delete live cue: press delete again	刪除直播 cue：請再按一次刪除
+esc: output cleared - again to quit	esc：輸出已清除 - 再按一次退出
+no browser cue is live on this deck	本卡座上沒有直播的瀏覽器 cue
+notestep: nothing live on this deck	notestep：本卡座上沒有直播內容
+select the cue it should take first	請選取應最先 TAKE 的 cue
+DRAW EDITOR: select a Draw cue first	DRAW EDITOR：請先選取一個Draw cue
+DRAW SAVE: STILL or ANIMATION [file]	DRAW SAVE：STILL 或 ANIMATION [檔案]
+MIC CHANNEL: expected L, R or STEREO	MIC CHANNEL：應為 L、R 或 STEREO
+MULTIVIEW WINDOW: expected ON or OFF	MULTIVIEW WINDOW：應為 ON 或 OFF
+Page Down / Page Up step the tracker	Page Down / Page Up 步進追蹤器
+SUBTITLE CONVERT: nothing to convert	SUBTITLE CONVERT：沒有可轉換的內容
+TONECUE LFO: select a tone cue first	TONECUE LFO：請先選取一個音調 cue
+TRUST LAST: nothing has been refused	TRUST LAST：沒有被拒絕的項目
+atem tally on -- set the switcher IP	atem 提示燈已開啟 -- 請設定切換台 IP
+datamosh: subtle, self-heals (H.264)	datamosh：效果輕微，可自行恢復 (H.264)
+master vol: expected 0-200 (percent)	主控音量：應為 0-200（百分比）
+matrix off - back to the output pair	矩陣已關閉 - 返回輸出對
+monitor follows the focused playlist	監看跟隨目前聚焦的播放清單
+no MIDI output ports on this machine	本機沒有 MIDI 輸出連接埠
+splitnotes: could not split that cue	splitnotes：無法分割該 cue
+srt: passphrase needs 10+ characters	srt：通關語至少需要 10 個字元
+step deleted - ctrl+z brings it back	步驟已刪除 - ctrl+z 可復原
+timer face: select a timer cue first	計時器臉：請先選取一個計時器 cue
+timer font: select a timer cue first	計時器字型：請先選取一個計時器 cue
+16 slices is the most an output takes	每個輸出最多 16 個切片
+AUDIOGAIN BY: expected a number of dB	AUDIOGAIN BY：應為 dB 數值
+AUDITION: expected OFF, END or STATUS	AUDITION：應為 OFF、END 或 STATUS
+BROWSER CLICK: fractions must be 0..1	BROWSER CLICK：比例必須在 0..1 之間
+FX GET: expected an effect number, 1-	FX GET：應為特效編號，1-
+HLS playlist: added as one stream cue	HLS 播放清單：已新增為一個串流 cue
+MASTER BYPASS: expected a deck number	MASTER BYPASS：應為卡座編號
+MIDICLOCK: expected SIM <bpm> [beats]	MIDICLOCK：應為 SIM <bpm> [beats]
+OUTPUT HDR SIGNAL: expected PQ or HLG	OUTPUT HDR SIGNAL：應為 PQ 或 HLG
+STREAM HDR: select a stream cue first	STREAM HDR：請先選取一個串流 cue
+datamosh: file-backed video cues only	datamosh：僅限檔案型視訊 cue
+effects copy: this cue has no effects	效果複製：此 cue 沒有效果
+matrix on, routed as the patch had it	矩陣已開啟，依跳線原樣路由
+recovery could not be read; copy kept	無法讀取復原檔；已保留副本
+FIXTURE DIP: expected <name> <%>|LEAVE	FIXTURE DIP：應為 <name> <%>|LEAVE
+MONITOR: expected DEVICE, DECK or ROOM	MONITOR：應為 DEVICE、DECK 或 ROOM
+NETCUE PROTO: expected osc, udp or tcp	NETCUE PROTO：應為 osc、udp 或 tcp
+STING LENGTH: expected 0.05-10 seconds	STING LENGTH：應為 0.05-10 秒
+sprite sheet: select a video synth cue	sprite sheet：請選取一個視訊合成器 CUE
+AUDIOGAIN BY: no selected cue has audio	AUDIOGAIN BY：選取的 CUE 都沒有音訊
+CAPTIONS SHOW: expected <output> ON|OFF	CAPTIONS SHOW：應為 <output> ON|OFF
+CAPTIONS TRANSCRIPT: expected ON or OFF	CAPTIONS TRANSCRIPT：應為 ON 或 OFF
+COMPANIONPASS: use 8 or more characters	COMPANIONPASS：請使用 8 個或更多字元
+DEVAMP: nothing is playing on that deck	DEVAMP：該卡座上沒有正在播放的內容
+FX LFO ZONE: 0 (the whole picture) to 8	FX LFO ZONE：0（整個畫面）到 8
+MASK IMPORT: expected <file.svg> [name]	MASK IMPORT：應為 <file.svg> [name]
+MASK SET: expected <id> <param> <value>	MASK SET：應為 <id> <param> <value>
+MULTIVIEW WINDOW: the last window stays	MULTIVIEW WINDOW：最後一個視窗會保留
+OUTPUT AOI MODE: expected PIXEL or FILL	OUTPUT AOI MODE：應為 PIXEL 或 FILL
+SCOPES SOUND: expected nothing or RESET	SCOPES SOUND：應為無或 RESET
+Tabletop is in SOURCE > MADE BY DECKBOY	Tabletop 位於 訊號源 > 由 DECKBOY 製作
+can't read media - CONVERT in inspector	無法讀取媒體 - 在檢查器中點 轉換
+cleared: all decks stopped, outputs off	已清除：所有卡座已停止，輸出關閉
+datamosh: classic, full effect (MPEG-4)	datamosh：經典，完整效果 (MPEG-4)
+driver cleared - nothing left to puppet	驅動已清除 - 沒有可操控的對象
+key+fill on - now pick a Key out device	key+fill 已開啟 - 現在請選取 Key 輸出 裝置
+play the note that should fire this cue	請彈奏用來觸發此Cue的音符
+programme to MediaMTX: watch at http://	節目輸出到 MediaMTX：請在 http:// 觀看
+recformat: expected <WxH|program> [fps]	recformat：應為 <WxH|program> [fps]
+requested input missing - using default	所要求的輸入缺少 - 使用預設
+DRAW PLAYBACK: still, flipbook or replay	DRAW 播放：still、flipbook 或 replay
+FADE KNOB: expected amount, A, B, C or D	FADE KNOB：應為 amount、A、B、C 或 D
+MASK EXPORT: size is WxH, e.g. 1920x1080	MASK EXPORT：尺寸格式為 WxH，例如 1920x1080
+MOTION SOURCE: CAMERA [name] or DECK <n>	MOTION SOURCE：CAMERA [name] 或 DECK <n>
+NEW already starts from factory settings	NEW 已經是從原廠設定開始
+OUTPUT SELECT: expected an output number	OUTPUT SELECT：應為輸出編號
+TCCUE: expected NEW, ACTION, JAM or FIRE	TCCUE：應為 NEW、ACTION、JAM 或 FIRE
+hands-on: clicks and keys go to the page	hands-on：點擊和按鍵會傳給頁面
+record folder set - SAME DISK as Deckboy	錄製資料夾已設定 - 與 Deckboy 在同一磁碟
+sequence waiting - press it again for GO	序列等待中 - 再按一次以 GO
+this platform cannot capture that source	此平台無法擷取該訊號源
+timer backdrop: select a timer cue first	計時器背景：請先選取一個計時器 CUE
+BLEND CURVE: expected PROJECTOR or LINEAR	BLEND CURVE：應為 PROJECTOR 或 LINEAR
+CAPTIONS POSITION: expected TOP or BOTTOM	CAPTIONS POSITION：應為 TOP 或 BOTTOM
+CAPTIONS SIZE: expected 50..200 (percent)	CAPTIONS SIZE：應為 50..200（百分比）
+DMXCUE: the selected cue is not a dmx cue	DMXCUE: 選取的 cue 不是 DMX cue
+DRAW FRAME: ADD, DELETE, NEXT, PREV or 1-	DRAW FRAME: ADD, DELETE, NEXT, PREV 或 1-
+FADE OVER: expected a duration in seconds	FADE OVER: 需要以秒為單位的時間長度
+FADE TO: expected a percent from 0 to 100	FADE TO: 需要 0 到 100 的百分比
+MOTION SOURCE DECK: a playlist number, 1-	MOTION SOURCE DECK: 播放清單編號, 1-
+STING SWEEP: expected -24 to 24 semitones	STING SWEEP: 需要 -24 到 24 個半音
+TCCUE ACTION: expected start, stop or jam	TCCUE ACTION: 需要 start、stop 或 jam
+TCCUE JAM: expected a timecode or seconds	TCCUE JAM: 需要時間碼或秒數
+TRACKER VIEW: expected PATTERN or CLASSIC	TRACKER VIEW: 需要 PATTERN 或 CLASSIC
+Tabletop added - SOURCE > MADE BY DECKBOY	Tabletop 已新增 - 訊號源 > 由 DECKBOY 製作
+browser window open - click, type, log in	瀏覽器視窗已開啟 - 點擊、輸入、登入
+contrast check: something needs attention	對比檢查: 有項目需要注意
+drag the corners on the programme monitor	在節目監看器上拖曳四個角
+this browser backend cannot show a window	此瀏覽器後端無法顯示視窗
+BROWSER CLICK: expected two fractions 0..1	BROWSER CLICK: 需要兩個 0..1 的小數
+CHIP: the selected cue is not a chip synth	CHIP: 選取的 cue 不是晶片合成器
+DASH SET: a slot cannot fire the dashboard	DASH SET: 槽位無法觸發儀表板
+DRAW STROKE: x,y[,pressure] ... in percent	DRAW STROKE: x,y[,壓力] ... 以百分比表示
+OUTPUTFX REMOVE: expected an effect number	OUTPUTFX REMOVE: 需要特效編號
+SCRIPTCUE: expected NEW, ADD, CLEAR or RUN	SCRIPTCUE: 需要 NEW、ADD、CLEAR 或 RUN
+TEXTCUE WIGGLE: expected ON, OFF or TOGGLE	TEXTCUE WIGGLE: 需要 ON、OFF 或 TOGGLE
+TRIGGER KEY: F1-F10, F12, NUM0-NUM9 or OFF	TRIGGER KEY: F1-F10、F12、NUM0-NUM9 或 OFF
+auto-advance removed: cue end follows hold	已移除自動前進: cue 結束時跟隨保持
+choose RECOVER or KEEP SAVED before saving	儲存前請選擇 RECOVER 或 KEEP SAVED
+datamosh look: file-backed video cues only	datamosh 效果: 僅限以檔案為基礎的視訊 cue
+nmos: on - searching for a registry (mDNS)	nmos: 開 - 正在搜尋登錄檔 (mDNS)
+record folder: recordings/ beside the show	錄製資料夾: 演出旁的 recordings/
+recsegment: expected <minutes> [megabytes]	recsegment: 需要 <分鐘> [MB]
+the example shows are not in this download	此下載中不含範例演出
+warp point: expected <col> <row> <dx> <dy>	變形點: 需要 <欄> <列> <dx> <dy>
+warp point: no grid -- WARP GRID <n> first	變形點: 沒有網格 -- 請先執行 WARP GRID <n>
+DMXCUE FIXTURE: level is 0-100 (%) or LEAVE	DMXCUE FIXTURE: 電平為 0-100 (%) 或 LEAVE
+EDIT off: the keyboard only moves and fires	編輯 關: 鍵盤僅移動和觸發
+EDIT on: typing changes the tracker's cells	編輯 開: 鍵入會更改追蹤器的儲存格
+FIXTURE: expected LIST, ADD, FIND or REMOVE	FIXTURE: 需要 LIST、ADD、FIND 或 REMOVE
+LIMITER CEILING: a level from -40 to 0 dBFS	LIMITER CEILING: 從 -40 到 0 dBFS 的電平
+MIDICUE: the selected cue is not a midi cue	MIDICUE: 選取的 cue 不是 MIDI cue
+MOTION ZONE ADD: x y w h, percentages 0-100	MOTION ZONE ADD: x y w h, 百分比 0-100
+MOTION ZONE: ADD x y w h, REMOVE n or CLEAR	MOTION ZONE: ADD x y w h、REMOVE n 或 CLEAR
+mask off -- it is still in the show's library	遮罩 關 -- 仍在演出的庫中
+Stop masking this. The mask stays in the show's library, to put back from the menu above	停止使用此遮罩。遮罩仍保留在演出的庫中，可從上方選單放回
+Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	從演出中刪除此遮罩，並從使用它的所有 cue、播放清單和輸出中移除。復原可還原

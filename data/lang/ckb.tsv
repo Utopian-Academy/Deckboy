@@ -2859,3 +2859,253 @@ DASH: the startup dialog is up	DASH: دیالۆگی دەستپێکردن کرا�
 LOWERSTYLE: select a cue first	LOWERSTYLE: سەرەتا cue یەک هەڵبژێرە
 MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: چاوەڕوانکراو 1-16
 PATTERN ADD needs a pattern id	PATTERN ADD پێویستی بە ID ی نەخشێک هەیە
+find: run FIND first	find: سەرەتا FIND جێبەجێ بکە
+DRAW ONION: ON or OFF	DRAW ONION: ON یان OFF
+DRAW EDITOR: ON or OFF	DRAW EDITOR: ON یان OFF
+OUTPUT AOI: no outputs	OUTPUT AOI: هیچ دەرچوونێک نییە
+OUTPUT DECK: no outputs	OUTPUT DECK: هیچ دەرچوونێک نییە
+DRAW HOLD: seconds, 0-60	DRAW HOLD: چرکە، 0-60
+FADE EFFECT: expected 1-	FADE EFFECT: 1- پێویستە
+MOTION MIRROR: ON or OFF	MOTION MIRROR: ON یان OFF
+TALLYEVENT wants ON or OFF	TALLYEVENT ON یان OFF دەوێت
+TONECUE LFO: FREQ or LEVEL	TONECUE LFO: FREQ یان LEVEL
+GOGUARD: OFF or 50-2000 (ms)	GOGUARD: OFF یان 50-2000 (ms)
+SLICE GRID SMOOTH: ON or OFF	SLICE GRID SMOOTH: ON یان OFF
+PATTERN SET needs a pattern id	PATTERN SET پێویستی بە ID ی نەخش هەیە
+already the first tracker step	پێشتر یەکەم هەنگاوی بەدواداچووە
+cannot determine rendered size	ناتوانرێت قەبارەی ڕێندەرکراو دیاری بکرێت
+find: enter cue id/number/name	find: ID ی cue، ژمارە یان ناو بنووسە
+no sprite sets in data/sprites	هیچ کۆمەڵە سپرایتێک لە data/sprites نییە
+normalize: no measurable audio	normalize: هیچ دەنگێکی پێوانەکراو نییە
+recordings are left as written	تۆمارەکان وەک نووسراون دەمێننەوە
+reracked - holding first frame	reracked - یەکەم چوارچێوە ڕادەگیرێت
+st 2110: clipboard unavailable	st 2110: تەختەی بڕین بەردەست نییە
+stream url: unsupported scheme	stream url: سکیمی پشتگیرینەکراو
+that button has no command yet	ئەو دوگمەیە هێشتا هیچ فەرمانێکی نییە
+DMXCUE PROTOCOL: ARTNET or SACN	DMXCUE PROTOCOL: ARTNET یان SACN
+FIXTURE DIP: 0-100 (%) or LEAVE	FIXTURE DIP: 0-100 (%) یان LEAVE
+FX LFO: no effect at that index	FX LFO: هیچ کاریگەرییەک لەو پێڕستەدا نییە
+MIDIMAP CLEAR: COMPUTER or SHOW	MIDIMAP CLEAR: COMPUTER یان SHOW
+TEXTCUE SPEED: expected 0.05-20	TEXTCUE SPEED: 0.05-20 چاوەڕوانکراوە
+an output needs a base playlist	دەرچوونێک پێویستی بە لیستی لێدانی بنەڕەتی هەیە
+audio input: device unavailable	ورودی دەنگ: ئامێر بەردەست نییە
+expected crop percentages 0..90	ڕێژەی بڕین 0..90 چاوەڕوانکراوە
+media found - nothing to relink	میدیا دۆزرایەوە - هیچ شتێک نییە بۆ دووبارە بەستنەوە
+notestep: build out of range 1-	notestep: وەشان لە دەرەوەی مەودای 1- ە
+put it back when the ramp lands	کاتێک ڕامپ دەگات بیگەڕێنەوە
+splitnotes: cue out of range 1-	splitnotes: cue لە دەرەوەی مەودای 1- ە
+st 2110 SDP copied to clipboard	st 2110 SDP لەبەرگیرایەوە بۆ کلیپبۆرد
+w00t! all ur cues r belong 2 us	w00t! هەموو cue ەکانتان هی ئێمەن
+BROWSER TYPE: expected some text	BROWSER TYPE: دەقێک چاوەڕوانکراوە
+CHECK: expected a problem number	CHECK: ژمارەی کێشەیەک چاوەڕوانکراوە
+FADE RESTORE: expected on or off	FADE RESTORE: on یان off چاوەڕوانکراوە
+MIDICLOCK SIM: expected a number	MIDICLOCK SIM: ژمارەیەک چاوەڕوانکراوە
+MONITOR ROOM: expected ON or OFF	MONITOR ROOM: ON یان OFF چاوەڕوانکراوە
+MOTION ZONE ADD: already 8 zones	MOTION ZONE ADD: پێشتر 8 ناوچە هەیە
+SLICE REMOVE: a slice number, 1-	SLICE REMOVE: ژمارەی پارچەیەک، 1-
+motion off: the camera is closed	motion off: کامێرا داخراوە
+no capture devices found (dshow)	هیچ ئامێری گرتن نەدۆزرایەوە (dshow)
+only accepted from this computer	تەنها لەم کۆمپیوتەرەوە وەردەگیرێت
+reccodec: expected a codec token	reccodec: تۆکنی codec چاوەڕوانکراوە
+this build has no plugin support	ئەم وەشانە پشتگیری پێوەکراو ناکات
+BROWSER SCROLL: expected a number	BROWSER SCROLL: ژمارەیەک چاوەڕوانکراوە
+DMXCUE UNIVERSE: expected 0-32767	DMXCUE UNIVERSE: 0-32767 چاوەڕوانکراوە
+FADE DECK: expected a deck number	FADE DECK: ژمارەی دێکێک چاوەڕوانکراوە
+FX PARAM: no effect at that index	FX PARAM: هیچ کاریگەرییەک لەو پێڕستەدا نییە
+MIC GAIN: expected -40 to 40 (dB)	MIC GAIN: -40 تا 40 چاوەڕوانکراوە (dB)
+MOTION ZONE REMOVE: a zone number	MOTION ZONE REMOVE: ژمارەی ناوچەیەک
+NDI: this build has no NDI output	NDI: ئەم وەشانە دەرچوونی NDI ی نییە
+STING PITCH: expected 20-12000 Hz	STING PITCH: 20-12000 Hz چاوەڕوانکراوە
+TRIGGER MIDI: a note 0-127 or OFF	TRIGGER MIDI: نۆتێک 0-127 یان OFF
+could not open the Screens window	نەتوانرا پەنجەرەی SCREENS بکرێتەوە
+effects paste: copy a chain first	لکاندنی کاریگەریەکان: سەرەتا لەبەری بگرەوە
+expected pixels -1000000..1000000	چاوەڕوانکراو پیکسڵ -1000000..1000000
+press again to delete this button	دووبارە دابگرە بۆ سڕینەوەی ئەم دوگمەیە
+warp grid: 2 to 9 points each way	warp grid: لە 2 بۆ 9 خاڵ بۆ هەر ئاراستەیەک
+AUDIOFX ADD: needs an effect token	AUDIOFX ADD: پێویستی بە تۆکنی EFFECT ـێک هەیە
+BLEND LIFT: expected 0..20 percent	BLEND LIFT: چاوەڕوانکراو 0..20 لە سەد
+BUGSWAT SHOWME: only in a briefing	BUGSWAT SHOWME: تەنها لە briefing دا
+CAPTIONS LINES: expected 1, 2 or 3	CAPTIONS LINES: چاوەڕوانکراو 1، 2 یان 3
+DASH SET: slot number out of range	DASH SET: ژمارەی slot لە دەرەوەی ڕێژەیە
+FX AMOUNT: no effect at that index	FX AMOUNT: هیچ EFFECT ـێک نییە لەم پێڕستە
+FX COLOUR: no effect at that index	FX COLOUR: هیچ EFFECT ـێک نییە لەم پێڕستە
+MIDICLOCK SIM: bpm must be 20..600	MIDICLOCK SIM: bpm دەبێت 20..600 بێت
+OUTPUT ADD: expected a deck number	OUTPUT ADD: ژمارەی دێکێک چاوەڕوانکراوە
+SLICE FLIP: H or V, then ON or OFF	SLICE FLIP: H یان V، پاشان ON یان OFF
+a path needs three points: dropped	ڕێڕەو سێ خاڵی پێویستە: فڕێدرا
+a show needs at least one playlist	نمایشێک لانیکەم یەک لیستی لێدانی پێویستە
+display scan: no displays reported	display scan: هیچ شاشەیەک ڕاپۆرت نەکراوە
+selection has no cue with geometry	هەڵبژاردنەکە هیچ cue ـێکی ئەندازەداری نییە
+that cue cannot be fired by a step	ئەو cue ـە بە هەنگاو دەست پێ ناکرێت
+time: type it as HH:MM or HH:MM:SS	time: بە شێوەی HH:MM یان HH:MM:SS بینووسە
+ASCII COLS: expected a column count	ASCII COLS: ژمارەی ستوونێک چاوەڕوانکراوە
+Deckboy evolved into SUPER DECKBOY!	Deckboy گەشەی کرد بۆ SUPER DECKBOY!
+FX PARAM: slot must be A, B, C or D	FX PARAM: slot دەبێت A، B، C یان D بێت
+MIDI: a note number 0-127, or LEARN	MIDI: ژمارەی نۆتێک 0-127، یان LEARN
+MIDIMAP REMOVE: COMPUTER|SHOW <row>	MIDIMAP REMOVE: COMPUTER|SHOW <ڕیز>
+OUTPUT DECK: expected a deck number	OUTPUT DECK: ژمارەی دێکێک چاوەڕوانکراوە
+OUTPUTFX BYPASS: expected ON or OFF	OUTPUTFX BYPASS: چاوەڕوانکراو ON یان OFF
+SCOPES MATRIX: expected 709 or 2020	SCOPES MATRIX: چاوەڕوانکراو 709 یان 2020
+SHORTCUTS: the startup dialog is up	SHORTCUTS: دیالۆگی دەستپێکردن کراوەیە
+STREAM HDR: expected SDR, PQ or HLG	STREAM HDR: چاوەڕوانکراو SDR، PQ یان HLG
+an animation is already being saved	ئەنیمەیشنێک پێشتر پاشەکەوت دەکرێت
+delete live cue: press delete again	delete live cue: دووبارە Delete دابگرە
+esc: output cleared - again to quit	esc: دەرچوون پاک کرایەوە - دووبارە بۆ دەرچوون
+no browser cue is live on this deck	هیچ cue ی وێبگەڕێک ڕاستەوخۆ نییە لەسەر ئەم دێکە
+notestep: nothing live on this deck	notestep: هیچ شتێک ڕاستەوخۆ نییە لەسەر ئەم دێکە
+select the cue it should take first	ئەو cue ـە هەڵبژێرە کە پێویستە یەکەم جار بگیرێت
+DRAW EDITOR: select a Draw cue first	DRAW EDITOR: سەرەتا cue ی Draw هەڵبژێرە
+DRAW SAVE: STILL or ANIMATION [file]	DRAW SAVE: STILL یان ANIMATION [file]
+MIC CHANNEL: expected L, R or STEREO	MIC CHANNEL: چاوەڕوانکراو L، R یان STEREO
+MULTIVIEW WINDOW: expected ON or OFF	MULTIVIEW WINDOW: چاوەڕوانکراو ON یان OFF
+Page Down / Page Up step the tracker	Page Down / Page Up بەدواداچوو هەنگاو دەنێن
+SUBTITLE CONVERT: nothing to convert	SUBTITLE CONVERT: هیچ نییە بۆ گۆڕین
+TONECUE LFO: select a tone cue first	TONECUE LFO: سەرەتا cue ی تۆن هەڵبژێرە
+TRUST LAST: nothing has been refused	TRUST LAST: هیچ ڕەتنەکراوەتەوە
+atem tally on -- set the switcher IP	atem tally on -- IP ی سویچەر دیاری بکە
+datamosh: subtle, self-heals (H.264)	datamosh: ناڕوون، خۆی چاک دەکاتەوە (H.264)
+master vol: expected 0-200 (percent)	master vol: چاوەڕوانکراو 0-200 (لەسەدا)
+matrix off - back to the output pair	matrix off - گەڕانەوە بۆ جووتی دەرچوون
+monitor follows the focused playlist	مۆنیتەر شوێن لیستی لێدانی فۆکەسکراو دەکەوێت
+multiview: back to the automatic set	multiview: گەڕانەوە بۆ کۆمەڵەی خۆکار
+no MIDI output ports on this machine	هیچ پۆرتی دەرچوونی MIDI لەم ئامێرەدا نییە
+splitnotes: could not split that cue	splitnotes: نەتوانرا ئەو cue ـە دابەش بکرێت
+srt: passphrase needs 10+ characters	srt: دەستەواژەی نهێنی پێویستی بە 10+ پیتە
+step deleted - ctrl+z brings it back	هەنگاو سڕایەوە - ctrl+z دەیگەڕێنێتەوە
+timer face: select a timer cue first	timer face: سەرەتا cue ی کاتژمێر هەڵبژێرە
+timer font: select a timer cue first	timer font: سەرەتا cue ی کاتژمێر هەڵبژێرە
+16 slices is the most an output takes	16 پارچە زۆرترینەی یەک دەرچوونە
+AUDIOGAIN BY: expected a number of dB	AUDIOGAIN BY: چاوەڕوانکراو ژمارەیەک بە dB
+AUDITION: expected OFF, END or STATUS	AUDITION: چاوەڕوانکراو OFF، END یان STATUS
+BROWSER CLICK: fractions must be 0..1	BROWSER CLICK: دەبێت کەرتەکان 0..1 بن
+FX GET: expected an effect number, 1-	FX GET: چاوەڕوانکراو ژمارەی EFFECT ـێک، 1-
+HLS playlist: added as one stream cue	لیستی لێدانی HLS: وەک یەک cue ی پەخش زیادکرا
+MASTER BYPASS: expected a deck number	MASTER BYPASS: چاوەڕوانکراو ژمارەی دێکێک
+MIDICLOCK: expected SIM <bpm> [beats]	MIDICLOCK: چاوەڕوانکراو SIM <bpm> [beats]
+MULTIVIEW: expected ON, OFF or TOGGLE	MULTIVIEW: چاوەڕوانکراو ON، OFF یان TOGGLE
+OUTPUT HDR SIGNAL: expected PQ or HLG	OUTPUT HDR SIGNAL: چاوەڕوانکراو PQ یان HLG
+STREAM HDR: select a stream cue first	STREAM HDR: سەرەتا cue ی پەخش هەڵبژێرە
+datamosh: file-backed video cues only	datamosh: تەنها cue ی ڤیدیۆی فایلدار
+effects copy: this cue has no effects	effects copy: ئەم cue ـە کاریگەری نییە
+matrix on, routed as the patch had it	matrix on، وەک PATCH ـەکە ڕێڕەو کراوە
+recovery could not be read; copy kept	گەڕاندنەوەکە نەخوێنرایەوە؛ لەبەرگیراوەکە مایەوە
+FIXTURE DIP: expected <name> <%>|LEAVE	FIXTURE DIP: چاوەڕوانکراو <name> <%>|LEAVE
+MONITOR: expected DEVICE, DECK or ROOM	MONITOR: چاوەڕوانکراو DEVICE، DECK یان ROOM
+NETCUE PROTO: expected osc, udp or tcp	NETCUE PROTO: چاوەڕوانکراو osc، udp یان tcp
+STING LENGTH: expected 0.05-10 seconds	STING LENGTH: چاوەڕوانکراو 0.05-10 چرکە
+sprite sheet: select a video synth cue	sprite sheet: cue ی synth ی ڤیدیۆ هەڵبژێرە
+AUDIOGAIN BY: no selected cue has audio	AUDIOGAIN BY: هیچ cue ی هەڵبژێردراو دەنگی نییە
+CAPTIONS SHOW: expected <output> ON|OFF	CAPTIONS SHOW: چاوەڕوان دەکرێت <output> ON|OFF
+CAPTIONS TRANSCRIPT: expected ON or OFF	CAPTIONS TRANSCRIPT: چاوەڕوان دەکرێت ON یان OFF
+COMPANIONPASS: use 8 or more characters	COMPANIONPASS: ٨ پیت یان زیاتر بەکاربهێنە
+DEVAMP: nothing is playing on that deck	DEVAMP: هیچ لەو دێکەدا لێنادرێت
+FX LFO ZONE: 0 (the whole picture) to 8	FX LFO ZONE: لە 0 (هەموو وێنەکە) بۆ 8
+MASK IMPORT: expected <file.svg> [name]	MASK IMPORT: چاوەڕوان دەکرێت <file.svg> [name]
+MASK SET: expected <id> <param> <value>	MASK SET: چاوەڕوان دەکرێت <id> <param> <value>
+MULTIVIEW WINDOW: the last window stays	MULTIVIEW WINDOW: دوایین پەنجەرە دەمێنێتەوە
+OUTPUT AOI MODE: expected PIXEL or FILL	OUTPUT AOI MODE: چاوەڕوان دەکرێت PIXEL یان FILL
+SCOPES SOUND: expected nothing or RESET	SCOPES SOUND: چاوەڕوان دەکرێت هیچ یان RESET
+Tabletop is in SOURCE > MADE BY DECKBOY	Tabletop لە سەرچاوە > دروستکراوە بە Deckboy دایە
+can't read media - CONVERT in inspector	میدیا ناخوێندرێتەوە - لە پشکنەر گۆڕین بکە
+cleared: all decks stopped, outputs off	پاککرایەوە: هەموو دێکەکان وەستاون، دەرچوونەکان داخراو
+datamosh: classic, full effect (MPEG-4)	datamosh: کلاسیک، کاریگەری تەواو (MPEG-4)
+driver cleared - nothing left to puppet	driver پاککرایەوە - هیچ نەماوە بۆ جووڵاندن
+key+fill on - now pick a Key out device	key+fill چالاکە - ئێستا ئامێری دەرچوونی key هەڵبژێرە
+play the note that should fire this cue	ئەو نۆتەیە لێبدە کە دەبێت ئەم cue دەستپێبکات
+programme to MediaMTX: watch at http://	بەرنامە بۆ MediaMTX: لێرە ببینە http://
+recformat: expected <WxH|program> [fps]	recformat: چاوەڕوان دەکرێت <WxH|program> [fps]
+requested input missing - using default	دەرچوونی داواکراو ون بووە - بنەڕەت بەکاردێت
+DRAW PLAYBACK: still, flipbook or replay	DRAW PLAYBACK: وێنەی جێگیر، flipbook یان دووبارە
+FADE KNOB: expected amount, A, B, C or D	FADE KNOB: چاوەڕوان دەکرێت بڕ، A، B، C یان D
+LOWERANIM: this cue is not a Lower Third	LOWERANIM: ئەم cue ـە Lower Third نییە
+MASK EXPORT: size is WxH, e.g. 1920x1080	MASK EXPORT: قەبارە WxH ـە، وەک 1920x1080
+MOTION SOURCE: CAMERA [name] or DECK <n>	MOTION SOURCE: CAMERA [name] یان DECK <n>
+NEW already starts from factory settings	NEW پێشتر لە ڕێکخستنەکانی کارگە دەستپێدەکات
+OUTPUT SELECT: expected an output number	OUTPUT SELECT: چاوەڕوان دەکرێت ژمارەی دەرچوون
+TCCUE: expected NEW, ACTION, JAM or FIRE	TCCUE: چاوەڕوان دەکرێت NEW، ACTION، JAM یان FIRE
+hands-on: clicks and keys go to the page	hands-on: کلیک و دوگمەکان دەچنە لاپەڕەکە
+multiview: one window per playlist again	multiview: دیسان یەک پەنجەرە بۆ هەر لیستێکی لێدان
+record folder set - SAME DISK as Deckboy	بوخچەی تۆمارکردن دیاری کرا - هەمان دیسک وەک Deckboy
+sequence waiting - press it again for GO	زنجیرە چاوەڕێیە - دووبارە دایبگرە بۆ GO
+this platform cannot capture that source	ئەم پلاتفۆرمە ناتوانێت ئەو سەرچاوەیە بگرێت
+timer backdrop: select a timer cue first	پاشبنەمای کاتژمێر: سەرەتا cue ی کاتژمێر هەڵبژێرە
+BLEND CURVE: expected PROJECTOR or LINEAR	BLEND CURVE: چاوەڕوان دەکرێت PROJECTOR یان LINEAR
+CAPTIONS POSITION: expected TOP or BOTTOM	CAPTIONS POSITION: چاوەڕوان دەکرێت TOP یان BOTTOM
+CAPTIONS SIZE: expected 50..200 (percent)	CAPTIONS SIZE: چاوەڕوان دەکرێت 50..200 (لە سەد)
+DMXCUE: the selected cue is not a dmx cue	DMXCUE: cue ی هەڵبژێردراو cue ی dmx نییە
+DRAW FRAME: ADD, DELETE, NEXT, PREV or 1-	DRAW FRAME: ADD، DELETE، NEXT، PREV یان 1-
+FADE OVER: expected a duration in seconds	FADE OVER: چاوەڕوانی ماوەیەک بە چرکە
+FADE TO: expected a percent from 0 to 100	FADE TO: چاوەڕوانی ڕێژەیەک لە 0 بۆ 100
+LOWERSTYLE: this cue is not a Lower Third	LOWERSTYLE: ئەم cue Lower Third نییە
+MOTION SOURCE DECK: a playlist number, 1-	MOTION SOURCE DECK: ژمارەی لیستی لێدان، 1-
+STING SWEEP: expected -24 to 24 semitones	STING SWEEP: چاوەڕوانی -24 بۆ 24 نیوەتۆن
+TCCUE ACTION: expected start, stop or jam	TCCUE ACTION: چاوەڕوانی start، stop یان jam
+TCCUE JAM: expected a timecode or seconds	TCCUE JAM: چاوەڕوانی کۆدی کات یان چرکە
+TRACKER VIEW: expected PATTERN or CLASSIC	TRACKER VIEW: چاوەڕوانی PATTERN یان CLASSIC
+Tabletop added - SOURCE > MADE BY DECKBOY	Tabletop زیادکرا - سەرچاوە > دروستکراوە بە DECKBOY
+browser window open - click, type, log in	پەنجەرەی وێبگەڕ کراوەیە - کرتە بکە، بنووسە، بچۆ ژوورەوە
+contrast check: something needs attention	پشکنینی کۆنتراست: شتێک پێویستی بە سەرنجە
+drag the corners on the programme monitor	گۆشەکان ڕابکێشە لەسەر مۆنیتەری بەرنامە
+this browser backend cannot show a window	ئەم backend ـی وێبگەڕە ناتوانێت پەنجەرە پیشان بدات
+BROWSER CLICK: expected two fractions 0..1	BROWSER CLICK: چاوەڕوانی دوو کەسر 0..1
+CHIP: the selected cue is not a chip synth	CHIP: cue ی هەڵبژێردراو chip synth نییە
+DASH SET: a slot cannot fire the dashboard	DASH SET: سلۆتێک ناتوانێت داشبۆرد دەست پێ بکات
+DRAW STROKE: x,y[,pressure] ... in percent	DRAW STROKE: x,y[,pressure] ... بە ڕێژەی سەدی
+OUTPUTFX REMOVE: expected an effect number	OUTPUTFX REMOVE: چاوەڕوانی ژمارەی effect
+SCRIPTCUE: expected NEW, ADD, CLEAR or RUN	SCRIPTCUE: چاوەڕوانی NEW، ADD، CLEAR یان RUN
+TEXTCUE WIGGLE: expected ON, OFF or TOGGLE	TEXTCUE WIGGLE: چاوەڕوانی ON، OFF یان TOGGLE
+TRIGGER KEY: F1-F10, F12, NUM0-NUM9 or OFF	TRIGGER KEY: F1-F10، F12، NUM0-NUM9 یان OFF
+auto-advance removed: cue end follows hold	پێشخستنی خۆکار لابرا: کۆتایی cue شوێن ڕاگرتن دەکەوێت
+choose RECOVER or KEEP SAVED before saving	پێش پاشەکەوتکردن گەڕاندنەوە یان پاراستنی پاشەکەوتکراو هەڵبژێرە
+datamosh look: file-backed video cues only	look ی datamosh: تەنها cue ی ڤیدیۆی پشتبەستوو بە فایل
+nmos: on - searching for a registry (mDNS)	NMOS: کراوە - گەڕان بۆ تۆمارگە (mDNS)
+record folder: recordings/ beside the show	بوخچەی تۆمارکردن: recordings/ لە تەنیشت نمایشەکە
+recsegment: expected <minutes> [megabytes]	recsegment: چاوەڕوانی <خولەک> [مێگابایت]
+the example shows are not in this download	نمایشە نموونەکان لەم داگرتنەدا نین
+warp point: expected <col> <row> <dx> <dy>	warp point: چاوەڕوانی <col> <row> <dx> <dy>
+warp point: no grid -- WARP GRID <n> first	warp point: تۆڕ نییە -- سەرەتا WARP GRID <n>
+DMXCUE FIXTURE: level is 0-100 (%) or LEAVE	DMXCUE FIXTURE: ئاست 0-100 (%) یان LEAVE
+EDIT off: the keyboard only moves and fires	دەستکاری کوژاوە: کیبۆرد تەنها دەجووڵێنێت و دەست پێ دەکات
+EDIT on: typing changes the tracker's cells	دەستکاری کراوە: نووسین خانەکانی بەدواداچوو دەگۆڕێت
+FIXTURE: expected LIST, ADD, FIND or REMOVE	FIXTURE: چاوەڕوانی LIST، ADD، FIND یان REMOVE
+LIMITER CEILING: a level from -40 to 0 dBFS	LIMITER CEILING: ئاستێک لە -40 بۆ 0 dBFS
+MIDICUE: the selected cue is not a midi cue	MIDICUE: cue ی هەڵبژێردراو cue ی midi نییە
+MOTION ZONE ADD: x y w h, percentages 0-100	MOTION ZONE ADD: x y w h، ڕێژەی سەدی 0-100
+MOTION ZONE: ADD x y w h, REMOVE n or CLEAR	MOTION ZONE: ADD x y w h، REMOVE n یان CLEAR
+OUTPROBE: expected <output> <x 0-1> <y 0-1>	OUTPROBE: چاوەڕوانکراو <output> <x 0-1> <y 0-1>
+PORTS: expected an http port and a tcp port	PORTS: دەروازەی HTTP و دەروازەی TCP پێویستە
+SLICE ADD: already 16 slices on this output	SLICE ADD: پێشتر 16 پارچە لەسەر ئەم دەرچوونە هەن
+TEXTCUE: the selected cue is not a text cue	TEXTCUE: cue ی هەڵبژێردراو cue ی دەق نییە
+a step cannot fire the playlist it lives on	هەنگاو ناتوانێت ئەو لیستی لێدانە کاربخات کە تێیدایە
+atem tally on -- set which input Deckboy is	Tally ی ATEM کارایە -- دیاری بکە Deckboy کام هاتنەژوورەوەیە
+esc: control window - again to clear output	Esc: پەنجەرەی کۆنترۆڵ - دووبارە بۆ پاککردنەوەی دەرچوون
+recordings remux to MP4 when the take stops	تۆمارەکان دەگۆڕدرێن بۆ MP4 کاتێک تۆمارکردن دەوەستێت
+MATRIX SET: level is a percent from 0 to 100	MATRIX SET: ئاست ڕێژەیەکی سەدییە لە 0 تا 100
+SYNTH: the selected cue is not a video synth	SYNTH: cue ی هەڵبژێردراو synth ی ڤیدیۆ نییە
+group presets became master cues: use MASTER	پێشڕێکخستنەکانی گرووپ بوون بە cue ی سەرەکی: MASTER بەکاربهێنە
+on the dashboard - Ctrl+D or the DASH button	لە داشبۆرد - Ctrl+D یان دوگمەی DASH
+8 zones already: click one to remove it first	8 ناوچە هەیە: کلیک لە یەکێک بکە تاکو یەکەم جار بیسڕیتەوە
+AUDIOFX PLUGIN: this build has no plugin host	AUDIOFX PLUGIN: ئەم بنیاتنانە خانەخوێی پێوەکراوی نییە
+DASH SET: <n> <label> | <command> [| <glyph>]	DASH SET: <n> <ناونیشان> | <فەرمان> [| <گلیف>]
+DRAW SIZE: 0.1-20 (% of the picture's height)	DRAW SIZE: 0.1-20 (% ی بەرزی وێنە)
+FX LFO: slot must be A-D, or E for the amount	FX LFO: شوێن دەبێت A-D بێت، یان E بۆ بڕ
+MASK PATH: a path needs at least three points	MASK PATH: ڕێڕەو لانیکەم سێ خاڵی پێویستە
+NETCUE: the selected cue is not a network cue	NETCUE: cue ی هەڵبژێردراو cue ی تۆڕ نییە
+Page Down / Page Up step the focused playlist	Page Down / Page Up لە لیستی لێدانی چالاک هەنگاو دەنێن
+SCALEMODE: expected fit|fill|stretch|unscaled	SCALEMODE: fit|fill|stretch|unscaled پێویستە
+SUBTITLE CONVERT: the cue has no caption file	SUBTITLE CONVERT: cue فایلی ژێرنووسی نییە
+TCCUE: the selected cue is not a timecode cue	TCCUE: cue ی هەڵبژێردراو cue ی کۆدی کات نییە
+TEXTCUE ALIGN: expected left, centre or right	TEXTCUE ALIGN: چەپ، ناوەڕاست یان ڕاست پێویستە
+make a step first: a section starts at a step	سەرەتا هەنگاوێک دروست بکە: بەش لە هەنگاوێکەوە دەست پێدەکات
+mask off -- it is still in the show's library	ماسک کوژاوە -- هێشتا لە کتێبخانەی نمایشەکەدایە
+motion on: the camera is read, never recorded	جووڵە کارایە: کامێرا دەخوێنرێتەوە، هەرگیز تۆمار ناکرێت
+new show disarms all outputs: press new again	نمایشی نوێ هەموو دەرچوونەکان ناچالاک دەکات: دووبارە نمایشی نوێ دابگرە
+nmos: network is LOCAL ONLY - not registering	nmos: تۆڕ تەنیا ناوخۆییە - تۆمار ناکرێت
+normalize: selection has no file-backed audio	normalize: هەڵبژاردەکە دەنگی لە فایلەوەی نییە
+output recover failed: fullscreen unavailable	گەڕاندنەوەی دەرچوون سەرنەکەوت: پڕشاشە بەردەست نییە
+the background alpha belongs to a Lower Third	ئەلفای باکگراوند هی Lower Third ە
+this output's renderer could not cut the mask	ڕەندەرەری ئەم دەرچوونە نەیتوانی ماسکەکە ببڕێت
+unsaved changes will be lost: press new again	گۆڕانکارییە پاشەکەوتنەکراوەکان لەدەست دەچن: دووبارە نمایشی نوێ دابگرە
+zones cleared: Motion reads the whole picture	ناوچەکان پاککرانەوە: جووڵە هەموو وێنەکە دەخوێنێتەوە
+Stop masking this. The mask stays in the show's library, to put back from the menu above	ئەم ماسکە ڕابگرە. ماسکەکە لە کتێبخانەی نمایشەکەدا دەمێنێتەوە، لە مێنیوی سەرەوە بیگەڕێنەوە
+Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	ئەم ماسکە لە نمایشەکە و لە هەموو cue و لیستی لێدان و دەرچوونێک بسڕەوە کە بەکاری دەهێنن. گەڕانەوە دەیگەڕێنێتەوە

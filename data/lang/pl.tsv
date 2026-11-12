@@ -2851,3 +2851,219 @@ DASH: the startup dialog is up	DASH: okno startowe jest otwarte
 LOWERSTYLE: select a cue first	LOWERSTYLE: najpierw wybierz cue
 MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: oczekiwano 1-16
 PATTERN ADD needs a pattern id	PATTERN ADD wymaga ID wzoru
+Lower Third attached	dołączono Lower Third
+find: run FIND first	find: najpierw wykonaj FIND
+DRAW ONION: ON or OFF	DRAW ONION: ON lub OFF
+DRAW EDITOR: ON or OFF	DRAW EDITOR: ON lub OFF
+OUTPUT AOI: no outputs	OUTPUT AOI: brak wyjść
+OUTPUT DECK: no outputs	OUTPUT DECK: brak wyjść
+DRAW HOLD: seconds, 0-60	DRAW HOLD: sekundy, 0-60
+FADE EFFECT: expected 1-	FADE EFFECT: oczekiwano 1-
+MOTION MIRROR: ON or OFF	MOTION MIRROR: ON lub OFF
+TALLYEVENT wants ON or OFF	TALLYEVENT wymaga ON lub OFF
+TONECUE LFO: FREQ or LEVEL	TONECUE LFO: FREQ lub LEVEL
+GOGUARD: OFF or 50-2000 (ms)	GOGUARD: OFF lub 50-2000 (ms)
+SLICE GRID SMOOTH: ON or OFF	SLICE GRID SMOOTH: ON lub OFF
+PATTERN SET needs a pattern id	PATTERN SET wymaga ID wzoru
+already the first tracker step	to już pierwszy krok trackera
+cannot determine rendered size	nie można ustalić rozmiaru renderowania
+find: enter cue id/number/name	find: podaj ID cue/numer/nazwę
+no sprite sets in data/sprites	brak zestawów sprite w data/sprites
+normalize: no measurable audio	normalize: brak mierzalnego dźwięku
+recordings are left as written	nagrania pozostają bez zmian
+reracked - holding first frame	reracked - trzymanie pierwszej klatki
+st 2110: clipboard unavailable	st 2110: schowek niedostępny
+stream url: unsupported scheme	stream url: nieobsługiwany schemat
+that button has no command yet	ten przycisk nie ma jeszcze polecenia
+DMXCUE PROTOCOL: ARTNET or SACN	DMXCUE PROTOCOL: ARTNET lub SACN
+FIXTURE DIP: 0-100 (%) or LEAVE	FIXTURE DIP: 0-100 (%) lub ZOSTAW
+FX LFO: no effect at that index	FX LFO: brak efektu pod tym indeksem
+MIDIMAP CLEAR: COMPUTER or SHOW	MIDIMAP CLEAR: KOMPUTER lub SPEKTAKL
+TEXTCUE SPEED: expected 0.05-20	TEXTCUE SPEED: oczekiwano 0.05-20
+an output needs a base playlist	wyjście wymaga bazowej playlisty
+audio input: device unavailable	wejście dźwięku: urządzenie niedostępne
+expected crop percentages 0..90	oczekiwano procentów kadrowania 0..90
+media found - nothing to relink	znaleziono media – nic do ponownego połączenia
+notestep: build out of range 1-	notestep: build poza zakresem 1-
+put it back when the ramp lands	przywróć, gdy rampa dojdzie do celu
+splitnotes: cue out of range 1-	splitnotes: cue poza zakresem 1-
+st 2110 SDP copied to clipboard	ST 2110 SDP skopiowano do schowka
+w00t! all ur cues r belong 2 us	w00t! wszystkie wasze cue są nasze
+BROWSER TYPE: expected some text	BROWSER TYPE: oczekiwano tekstu
+CHECK: expected a problem number	CHECK: oczekiwano numeru problemu
+FADE RESTORE: expected on or off	FADE RESTORE: oczekiwano WL. lub WYŁ.
+MIDICLOCK SIM: expected a number	MIDICLOCK SIM: oczekiwano liczby
+MONITOR ROOM: expected ON or OFF	MONITOR ROOM: oczekiwano WL. lub WYŁ.
+MOTION ZONE ADD: already 8 zones	MOTION ZONE ADD: już 8 stref
+SLICE REMOVE: a slice number, 1-	SLICE REMOVE: numer wycinka, 1-
+motion off: the camera is closed	ruch wył.: kamera jest zamknięta
+no capture devices found (dshow)	nie znaleziono urządzeń przechwytujących (dshow)
+only accepted from this computer	akceptowane tylko tym komputerem
+reccodec: expected a codec token	reccodec: oczekiwano tokenu kodeka
+this build has no plugin support	ta wersja nie obsługuje wtyczek
+BROWSER SCROLL: expected a number	BROWSER SCROLL: oczekiwano liczby
+DMXCUE UNIVERSE: expected 0-32767	DMXCUE UNIVERSE: oczekiwano 0-32767
+FADE DECK: expected a deck number	FADE DECK: oczekiwano numeru decku
+FX PARAM: no effect at that index	FX PARAM: brak efektu pod tym indeksem
+MIC GAIN: expected -40 to 40 (dB)	MIC GAIN: oczekiwano od -40 do 40 (dB)
+MOTION ZONE REMOVE: a zone number	MOTION ZONE REMOVE: numer strefy
+NDI: this build has no NDI output	NDI: ta wersja nie ma wyjścia NDI
+STING PITCH: expected 20-12000 Hz	STING PITCH: oczekiwano 20-12000 Hz
+TRIGGER MIDI: a note 0-127 or OFF	TRIGGER MIDI: nuta 0-127 lub WYŁ.
+could not open the Screens window	nie można otworzyć okna SCREENS
+effects paste: copy a chain first	effects paste: najpierw skopiuj łańcuch
+expected pixels -1000000..1000000	oczekiwano pikseli -1000000..1000000
+marker: add | next | prev | clear	marker: dodaj | następny | poprzedni | wyczyść
+press again to delete this button	naciśnij ponownie, by usunąć ten przycisk
+warp grid: 2 to 9 points each way	siatka zniekształcenia: od 2 do 9 punktów w każdą stronę
+AUDIOFX ADD: needs an effect token	AUDIOFX ADD: potrzebny token efektu
+BLEND LIFT: expected 0..20 percent	BLEND LIFT: oczekiwano 0..20 procent
+BUGSWAT SHOWME: only in a briefing	BUGSWAT SHOWME: tylko w briefingu
+CAPTIONS LINES: expected 1, 2 or 3	CAPTIONS LINES: oczekiwano 1, 2 lub 3
+DASH SET: slot number out of range	DASH SET: numer slotu poza zakresem
+FX AMOUNT: no effect at that index	FX AMOUNT: brak efektu pod tym indeksem
+FX COLOUR: no effect at that index	FX COLOUR: brak efektu pod tym indeksem
+MIDICLOCK SIM: bpm must be 20..600	MIDICLOCK SIM: bpm musi mieścić się w 20..600
+OUTPUT ADD: expected a deck number	OUTPUT ADD: oczekiwano numeru decka
+SLICE FLIP: H or V, then ON or OFF	SLICE FLIP: H lub V, potem WL. lub WYŁ.
+a path needs three points: dropped	ścieżka wymaga trzech punktów: odrzucona
+a show needs at least one playlist	spektakl wymaga co najmniej jednej playlisty
+display scan: no displays reported	skan ekranów: brak zgłoszonych ekranów
+selection has no cue with geometry	zaznaczenie nie zawiera cue z geometrią
+that cue cannot be fired by a step	ten cue nie może być wyzwolony krokiem
+time: type it as HH:MM or HH:MM:SS	czas: wpisz jako HH:MM lub HH:MM:SS
+ASCII COLS: expected a column count	ASCII COLS: oczekiwano liczby kolumn
+Deckboy evolved into SUPER DECKBOY!	Deckboy przekształcił się w SUPER DECKBOY!
+FX PARAM: slot must be A, B, C or D	FX PARAM: slot musi być A, B, C lub D
+MIDI: a note number 0-127, or LEARN	MIDI: numer nuty 0-127 lub NAUCZ
+MIDIMAP REMOVE: COMPUTER|SHOW <row>	MIDIMAP REMOVE: KOMPUTER|SPEKTAKL <wiersz>
+OUTPUT DECK: expected a deck number	OUTPUT DECK: oczekiwano numeru decka
+OUTPUTFX BYPASS: expected ON or OFF	OUTPUTFX BYPASS: oczekiwano WL. lub WYŁ.
+SCOPES MATRIX: expected 709 or 2020	SCOPES MATRIX: oczekiwano 709 lub 2020
+SHORTCUTS: the startup dialog is up	SHORTCUTS: okno startowe jest otwarte
+STREAM HDR: expected SDR, PQ or HLG	STREAM HDR: oczekiwano SDR, PQ lub HLG
+an animation is already being saved	animacja jest już zapisywana
+delete live cue: press delete again	usuń cue na żywo: naciśnij usuń ponownie
+esc: output cleared - again to quit	esc: wyjście wyczyszczone - jeszcze raz, by zamknąć
+no browser cue is live on this deck	na tym decku nie ma cue przeglądarki na żywo
+notestep: nothing live on this deck	notestep: nic nie jest na żywo na tym decku
+select the cue it should take first	wybierz cue, które ma wykonać TAKE jako pierwsze
+DRAW EDITOR: select a Draw cue first	DRAW EDITOR: najpierw wybierz cue Draw
+DRAW SAVE: STILL or ANIMATION [file]	DRAW SAVE: STILL lub ANIMATION [file]
+MIC CHANNEL: expected L, R or STEREO	MIC CHANNEL: oczekiwano L, R lub STEREO
+MULTIVIEW WINDOW: expected ON or OFF	MULTIVIEW WINDOW: oczekiwano ON lub OFF
+Page Down / Page Up step the tracker	Page Down / Page Up przesuwają tracker
+SUBTITLE CONVERT: nothing to convert	SUBTITLE CONVERT: nic do konwersji
+TONECUE LFO: select a tone cue first	TONECUE LFO: najpierw wybierz cue Tone
+TRUST LAST: nothing has been refused	TRUST LAST: nic nie zostało odrzucone
+atem tally on -- set the switcher IP	atem tally włączone -- ustaw IP switchera
+datamosh: subtle, self-heals (H.264)	datamosh: subtelny, sam się naprawia (H.264)
+master vol: expected 0-200 (percent)	master vol: oczekiwano 0-200 (procent)
+matrix off - back to the output pair	matrix wyłączona - powrót do pary wyjść
+monitor follows the focused playlist	monitor podąża za aktywną playlistą
+multiview: back to the automatic set	multiview: powrót do zestawu automatycznego
+no MIDI output ports on this machine	brak portów wyjściowych MIDI na tym komputerze
+splitnotes: could not split that cue	splitnotes: nie udało się podzielić tego cue
+srt: passphrase needs 10+ characters	srt: hasło musi mieć 10+ znaków
+step deleted - ctrl+z brings it back	krok usunięty - ctrl+z go przywraca
+timer face: select a timer cue first	timer face: najpierw wybierz cue minutnika
+timer font: select a timer cue first	timer font: najpierw wybierz cue minutnika
+16 slices is the most an output takes	16 wycinków to maksimum dla jednego wyjścia
+AUDIOGAIN BY: expected a number of dB	AUDIOGAIN BY: oczekiwano liczby dB
+AUDITION: expected OFF, END or STATUS	AUDITION: oczekiwano OFF, END lub STATUS
+BROWSER CLICK: fractions must be 0..1	BROWSER CLICK: ułamki muszą mieścić się w 0..1
+FX GET: expected an effect number, 1-	FX GET: oczekiwano numeru efektu, 1-
+HLS playlist: added as one stream cue	playlista HLS: dodano jako jeden cue stream
+MASTER BYPASS: expected a deck number	MASTER BYPASS: oczekiwano numeru decka
+MIDICLOCK: expected SIM <bpm> [beats]	MIDICLOCK: oczekiwano SIM <bpm> [beats]
+MULTIVIEW: expected ON, OFF or TOGGLE	MULTIVIEW: oczekiwano ON, OFF lub TOGGLE
+OUTPUT HDR SIGNAL: expected PQ or HLG	OUTPUT HDR SIGNAL: oczekiwano PQ lub HLG
+STREAM HDR: select a stream cue first	STREAM HDR: najpierw wybierz cue stream
+datamosh: file-backed video cues only	datamosh: tylko cue wideo z plikiem
+effects copy: this cue has no effects	effects copy: ten cue nie ma efektów
+matrix on, routed as the patch had it	matrix włączona, routing jak w patchu
+recovery could not be read; copy kept	nie udało się odczytać pliku odzyskiwania; kopia zachowana
+FIXTURE DIP: expected <name> <%>|LEAVE	FIXTURE DIP: oczekiwano <name> <%>|LEAVE
+MONITOR: expected DEVICE, DECK or ROOM	MONITOR: oczekiwano DEVICE, DECK lub ROOM
+NETCUE PROTO: expected osc, udp or tcp	NETCUE PROTO: oczekiwano osc, udp lub tcp
+STING LENGTH: expected 0.05-10 seconds	STING LENGTH: oczekiwano 0.05-10 sekund
+sprite sheet: select a video synth cue	sprite sheet: wybierz cue syntezatora wideo
+AUDIOGAIN BY: no selected cue has audio	AUDIOGAIN BY: żaden wybrany cue nie ma dźwięku
+CAPTIONS SHOW: expected <output> ON|OFF	CAPTIONS SHOW: oczekiwano <output> ON|OFF
+CAPTIONS TRANSCRIPT: expected ON or OFF	CAPTIONS TRANSCRIPT: oczekiwano ON lub OFF
+COMPANIONPASS: use 8 or more characters	COMPANIONPASS: użyj 8 lub więcej znaków
+DEVAMP: nothing is playing on that deck	DEVAMP: nic nie odtwarza się na tym decku
+FX LFO ZONE: 0 (the whole picture) to 8	FX LFO ZONE: od 0 (cały obraz) do 8
+MASK IMPORT: expected <file.svg> [name]	MASK IMPORT: oczekiwano <file.svg> [name]
+MASK SET: expected <id> <param> <value>	MASK SET: oczekiwano <id> <param> <value>
+MULTIVIEW WINDOW: the last window stays	MULTIVIEW WINDOW: ostatnie okno zostaje
+OUTPUT AOI MODE: expected PIXEL or FILL	OUTPUT AOI MODE: oczekiwano PIXEL lub FILL
+SCOPES SOUND: expected nothing or RESET	SCOPES SOUND: oczekiwano nic lub RESET
+Tabletop is in SOURCE > MADE BY DECKBOY	Tabletop jest w ŹRÓDŁO > ZROBIONE W DECKBOY
+can't read media - CONVERT in inspector	nie można odczytać mediów - KONWERTUJ w inspektorze
+cleared: all decks stopped, outputs off	wyczyszczono: wszystkie decki zatrzymane, wyjścia wył.
+datamosh: classic, full effect (MPEG-4)	datamosh: klasyczny, pełny efekt (MPEG-4)
+driver cleared - nothing left to puppet	sterownik wyczyszczony - nie ma już czym sterować
+key+fill on - now pick a Key out device	key+fill wł. - teraz wybierz urządzenie Wyjście key
+play the note that should fire this cue	zagraj nutę, która ma odpalić ten cue
+programme to MediaMTX: watch at http://	program do MediaMTX: oglądaj pod http://
+recformat: expected <WxH|program> [fps]	recformat: oczekiwano <WxH|program> [fps]
+requested input missing - using default	brak żądanego wejścia - używam domyślnego
+DRAW PLAYBACK: still, flipbook or replay	DRAW PLAYBACK: stopklatka, flipbook lub replay
+FADE KNOB: expected amount, A, B, C or D	FADE KNOB: oczekiwano ilość, A, B, C lub D
+MASK EXPORT: size is WxH, e.g. 1920x1080	MASK EXPORT: rozmiar to WxH, np. 1920x1080
+MOTION SOURCE: CAMERA [name] or DECK <n>	MOTION SOURCE: CAMERA [name] lub DECK <n>
+NEW already starts from factory settings	NEW już zaczyna od ustawień fabrycznych
+OUTPUT SELECT: expected an output number	OUTPUT SELECT: oczekiwano numeru wyjścia
+TCCUE: expected NEW, ACTION, JAM or FIRE	TCCUE: oczekiwano NEW, ACTION, JAM lub FIRE
+hands-on: clicks and keys go to the page	hands-on: kliknięcia i klawisze trafiają na stronę
+multiview: one window per playlist again	multiview: znów jedno okno na playlistę
+record folder set - SAME DISK as Deckboy	folder nagrywania ustawiony - TEN SAM DYSK co Deckboy
+sequence waiting - press it again for GO	sekwencja czeka - naciśnij ją ponownie, by dać GO
+this platform cannot capture that source	ta platforma nie może przechwycić tego źródła
+timer backdrop: select a timer cue first	tło minutnika: najpierw wybierz cue minutnika
+BLEND CURVE: expected PROJECTOR or LINEAR	BLEND CURVE: oczekiwano PROJECTOR lub LINEAR
+CAPTIONS POSITION: expected TOP or BOTTOM	CAPTIONS POSITION: oczekiwano TOP lub BOTTOM
+CAPTIONS SIZE: expected 50..200 (percent)	CAPTIONS SIZE: oczekiwano 50..200 (procent)
+DMXCUE: the selected cue is not a dmx cue	DMXCUE: wybrane cue nie jest cue DMX
+DRAW FRAME: ADD, DELETE, NEXT, PREV or 1-	DRAW FRAME: ADD, DELETE, NEXT, PREV lub 1-
+FADE OVER: expected a duration in seconds	FADE OVER: oczekiwano czasu trwania w sekundach
+FADE TO: expected a percent from 0 to 100	FADE TO: oczekiwano procentu od 0 do 100
+MOTION SOURCE DECK: a playlist number, 1-	MOTION SOURCE DECK: numer playlisty, 1-
+STING SWEEP: expected -24 to 24 semitones	STING SWEEP: oczekiwano od -24 do 24 półtonów
+TCCUE ACTION: expected start, stop or jam	TCCUE ACTION: oczekiwano start, stop lub jam
+TCCUE JAM: expected a timecode or seconds	TCCUE JAM: oczekiwano kodu czasowego lub sekund
+TRACKER VIEW: expected PATTERN or CLASSIC	TRACKER VIEW: oczekiwano PATTERN lub CLASSIC
+Tabletop added - SOURCE > MADE BY DECKBOY	Tabletop dodany - ŹRÓDŁO > ZROBIONE W DECKBOY
+browser window open - click, type, log in	okno przeglądarki otwarte - klikaj, pisz, loguj się
+contrast check: something needs attention	kontrola kontrastu: coś wymaga uwagi
+drag the corners on the programme monitor	przeciągnij rogi na monitorze program
+this browser backend cannot show a window	ten backend przeglądarki nie może pokazać okna
+BROWSER CLICK: expected two fractions 0..1	BROWSER CLICK: oczekiwano dwóch ułamków 0..1
+CHIP: the selected cue is not a chip synth	CHIP: wybrane cue nie jest syntezatorem chip
+DASH SET: a slot cannot fire the dashboard	DASH SET: slot nie może uruchomić pulpitu
+DRAW STROKE: x,y[,pressure] ... in percent	DRAW STROKE: x,y[,pressure] ... w procentach
+OUTPUTFX REMOVE: expected an effect number	OUTPUTFX REMOVE: oczekiwano numeru efektu
+SCRIPTCUE: expected NEW, ADD, CLEAR or RUN	SCRIPTCUE: oczekiwano NEW, ADD, CLEAR lub RUN
+TEXTCUE WIGGLE: expected ON, OFF or TOGGLE	TEXTCUE WIGGLE: oczekiwano ON, OFF lub TOGGLE
+TRIGGER KEY: F1-F10, F12, NUM0-NUM9 or OFF	TRIGGER KEY: F1-F10, F12, NUM0-NUM9 lub OFF
+auto-advance removed: cue end follows hold	automatyczne przejście usunięte: koniec cue wynika z przytrzymaj
+choose RECOVER or KEEP SAVED before saving	wybierz RECOVER lub KEEP SAVED przed zapisem
+datamosh look: file-backed video cues only	wygląd datamosh: tylko cue wideo z pliku
+nmos: on - searching for a registry (mDNS)	nmos: wł. - szukam rejestru (mDNS)
+record folder: recordings/ beside the show	folder nagrań: recordings/ obok spektaklu
+recsegment: expected <minutes> [megabytes]	recsegment: oczekiwano <minut> [megabajtów]
+the example shows are not in this download	pokazów przykładowych nie ma w tym pobraniu
+warp point: expected <col> <row> <dx> <dy>	punkt zniekształcenia: oczekiwano <kol> <wiersz> <dx> <dy>
+warp point: no grid -- WARP GRID <n> first	punkt zniekształcenia: brak siatki -- najpierw WARP GRID <n>
+DMXCUE FIXTURE: level is 0-100 (%) or LEAVE	DMXCUE FIXTURE: poziom to 0-100 (%) lub LEAVE
+EDIT off: the keyboard only moves and fires	EDYTUJ wył.: klawiatura tylko przesuwa i uruchamia
+EDIT on: typing changes the tracker's cells	EDYTUJ wł.: pisanie zmienia komórki trackera
+FIXTURE: expected LIST, ADD, FIND or REMOVE	FIXTURE: oczekiwano LIST, ADD, FIND lub REMOVE
+LIMITER CEILING: a level from -40 to 0 dBFS	LIMITER CEILING: poziom od -40 do 0 dBFS
+MIDICUE: the selected cue is not a midi cue	MIDICUE: wybrane cue nie jest cue MIDI
+MOTION ZONE ADD: x y w h, percentages 0-100	MOTION ZONE ADD: x y w h, procenty 0-100
+MOTION ZONE: ADD x y w h, REMOVE n or CLEAR	MOTION ZONE: ADD x y w h, REMOVE n lub CLEAR
+mask off -- it is still in the show's library	maska wył. -- nadal jest w bibliotece spektaklu
+Stop masking this. The mask stays in the show's library, to put back from the menu above	Przestań maskować. Maska zostaje w bibliotece spektaklu, można ją przywrócić z menu powyżej
+Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	Usuń tę maskę ze spektaklu i z każdego cue, playlisty i wyjścia, które jej używają. Cofnij przywraca ją

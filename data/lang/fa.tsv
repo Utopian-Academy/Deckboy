@@ -2859,3 +2859,262 @@ DASH: the startup dialog is up	DASH: پنجرهٔ شروع باز است
 LOWERSTYLE: select a cue first	LOWERSTYLE: ابتدا یک کیو انتخاب کنید
 MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: انتظار 1-16 می‌رفت
 PATTERN ADD needs a pattern id	PATTERN ADD به شناسهٔ الگو نیاز دارد
+Lower Third attached	Lower Third پیوست شد
+DRAW ONION: ON or OFF	DRAW ONION: روشن یا خاموش
+DRAW EDITOR: ON or OFF	DRAW EDITOR: روشن یا خاموش
+FX PARAM: value is 0-1	FX PARAM: مقدار 0-1 است
+OUTPUT AOI: no outputs	OUTPUT AOI: بدون خروجی
+OUTPUT DECK: no outputs	OUTPUT DECK: بدون خروجی
+DRAW HOLD: seconds, 0-60	DRAW HOLD: ثانیه، 0-60
+FADE EFFECT: expected 1-	FADE EFFECT: مورد انتظار 1-
+MOTION MIRROR: ON or OFF	MOTION MIRROR: روشن یا خاموش
+WEBMONITOR PORT: 1-65535	درگاه WEBMONITOR: 1-65535
+TALLYEVENT wants ON or OFF	TALLYEVENT روشن یا خاموش می‌خواهد
+TONECUE LFO: FREQ or LEVEL	TONECUE LFO: فرکانس یا سطح
+VIDEODIP FADE: 0-30 seconds	VIDEODIP FADE: 0-30 ثانیه
+FX COLOUR: a grey has no hue	FX COLOUR: خاکستری فام ندارد
+GOGUARD: OFF or 50-2000 (ms)	GOGUARD: خاموش یا 50-2000 (ms)
+MASK RENAME: expected a name	MASK RENAME: نام مورد انتظار است
+SLICE GRID SMOOTH: ON or OFF	SLICE GRID SMOOTH: روشن یا خاموش
+SYNTH ADD takes no arguments	SYNTH ADD آرگومان نمی‌گیرد
+TEXTCUE CARD: expected 0-255	TEXTCUE CARD: مورد انتظار 0-255
+DMXCUE PORT: expected 1-65535	DMXCUE درگاه: مورد انتظار 1-65535
+FADE STOP: expected on or off	FADE STOP: روشن یا خاموش مورد انتظار است
+TRIGGER AT: HH:MM[:SS] or OFF	TRIGGER AT: HH:MM[:SS] یا خاموش
+PATTERN SET needs a pattern id	PATTERN SET به شناسه الگو نیاز دارد
+already the first tracker step	از قبل اولین گام ردیاب است
+cannot determine rendered size	اندازه رندر قابل تعیین نیست
+find: enter cue id/number/name	جست‌وجو: شناسه/شماره/نام cue را وارد کنید
+no sprite sets in data/sprites	مجموعه اسپرایتی در data/sprites نیست
+normalize: no measurable audio	normalize: صدای قابل اندازه‌گیری نیست
+recordings are left as written	ضبط‌ها همان‌طور که نوشته شده‌اند می‌مانند
+reracked - holding first frame	دوباره چیده شد - فریم اول نگه داشته می‌شود
+st 2110: clipboard unavailable	st 2110: کلیپ‌بورد در دسترس نیست
+stream url: unsupported scheme	نشانی استریم: طرح پشتیبانی نمی‌شود
+that button has no command yet	این دکمه هنوز فرمانی ندارد
+DMXCUE PROTOCOL: ARTNET or SACN	DMXCUE PROTOCOL: ARTNET یا SACN
+FIXTURE DIP: 0-100 (%) or LEAVE	FIXTURE DIP: 0-100 (%) یا LEAVE
+FX LFO: no effect at that index	FX LFO: هیچ افکتی در آن نمایه نیست
+MIDIMAP CLEAR: COMPUTER or SHOW	MIDIMAP CLEAR: COMPUTER یا SHOW
+TEXTCUE SPEED: expected 0.05-20	TEXTCUE SPEED: ‏0.05-20 مورد انتظار است
+an output needs a base playlist	خروجی به یک فهرست پخش پایه نیاز دارد
+audio input: device unavailable	ورودی صدا: دستگاه در دسترس نیست
+expected crop percentages 0..90	درصدهای برش 0..90 مورد انتظار است
+media found - nothing to relink	رسانه پیدا شد - چیزی برای پیوند مجدد نیست
+notestep: build out of range 1-	notestep: ‏build خارج از بازه 1-
+put it back when the ramp lands	وقتی شیب تمام شد آن را برگردان
+splitnotes: cue out of range 1-	splitnotes: ‏cue خارج از بازه 1-
+st 2110 SDP copied to clipboard	st 2110 SDP در کلیپ‌بورد کپی شد
+w00t! all ur cues r belong 2 us	w00t! همه‌ی کیوهای شما مال ما شد!
+BROWSER TYPE: expected some text	BROWSER TYPE: متنی مورد انتظار است
+CHECK: expected a problem number	CHECK: شماره‌ی یک مشکل مورد انتظار است
+FADE RESTORE: expected on or off	FADE RESTORE: ‏on یا off مورد انتظار است
+MIDICLOCK SIM: expected a number	MIDICLOCK SIM: یک عدد مورد انتظار است
+MONITOR ROOM: expected ON or OFF	MONITOR ROOM: ‏ON یا OFF مورد انتظار است
+MOTION ZONE ADD: already 8 zones	MOTION ZONE ADD: هم‌اکنون 8 ناحیه هست
+SLICE REMOVE: a slice number, 1-	SLICE REMOVE: شماره‌ی یک slice، ‏1-
+motion off: the camera is closed	motion off: دوربین بسته است
+no capture devices found (dshow)	دستگاه ضبطی پیدا نشد (dshow)
+only accepted from this computer	فقط از همین رایانه پذیرفته می‌شود
+reccodec: expected a codec token	reccodec: یک نشانه‌ی codec مورد انتظار است
+this build has no plugin support	این نسخه از افزونه پشتیبانی نمی‌کند
+BROWSER SCROLL: expected a number	BROWSER SCROLL: یک عدد مورد انتظار است
+DMXCUE UNIVERSE: expected 0-32767	DMXCUE UNIVERSE: ‏0-32767 مورد انتظار است
+FADE DECK: expected a deck number	FADE DECK: شماره‌ی دک مورد انتظار است
+FX PARAM: no effect at that index	FX PARAM: هیچ افکتی در آن نمایه نیست
+MIC GAIN: expected -40 to 40 (dB)	MIC GAIN: ‏-40 تا 40 (dB) مورد انتظار است
+MOTION ZONE REMOVE: a zone number	MOTION ZONE REMOVE: شماره‌ی یک ناحیه
+NDI: this build has no NDI output	NDI: این نسخه خروجی NDI ندارد
+STING PITCH: expected 20-12000 Hz	STING PITCH: ‏20-12000 Hz مورد انتظار است
+TRIGGER MIDI: a note 0-127 or OFF	TRIGGER MIDI: یک نوت 0-127 یا OFF
+could not open the Screens window	پنجره‌ی Screens باز نشد
+effects paste: copy a chain first	effects paste: ابتدا یک زنجیره کپی کنید
+expected pixels -1000000..1000000	پیکسل بین -1000000..1000000 لازم است
+marker: add | next | prev | clear	نشانگر: add | next | prev | clear
+press again to delete this button	برای حذف این دکمه دوباره فشار دهید
+warp grid: 2 to 9 points each way	شبکه تصحیح هندسی: 2 تا 9 نقطه در هر جهت
+AUDIOFX ADD: needs an effect token	AUDIOFX ADD: به یک توکن افکت نیاز دارد
+BLEND LIFT: expected 0..20 percent	BLEND LIFT: 0..20 درصد لازم است
+BUGSWAT SHOWME: only in a briefing	BUGSWAT SHOWME: فقط در جلسه توجیهی
+CAPTIONS LINES: expected 1, 2 or 3	CAPTIONS LINES: 1، 2 یا 3 لازم است
+DASH SET: slot number out of range	DASH SET: شماره اسلات خارج از محدوده است
+FX AMOUNT: no effect at that index	FX AMOUNT: هیچ افکتی در آن نمایه نیست
+FX COLOUR: no effect at that index	FX COLOUR: هیچ افکتی در آن نمایه نیست
+MIDICLOCK SIM: bpm must be 20..600	MIDICLOCK SIM: مقدار bpm باید 20..600 باشد
+OUTPUT ADD: expected a deck number	OUTPUT ADD: شماره دک لازم است
+SLICE FLIP: H or V, then ON or OFF	SLICE FLIP: H یا V، سپس ON یا OFF
+a path needs three points: dropped	مسیر به سه نقطه نیاز دارد: حذف شد
+a show needs at least one playlist	یک اجرا دست‌کم به یک فهرست پخش نیاز دارد
+display scan: no displays reported	اسکن نمایشگرها: نمایشگری گزارش نشد
+selection has no cue with geometry	در انتخاب هیچ کیویی با هندسه نیست
+that cue cannot be fired by a step	آن کیو را نمی‌توان با گام اجرا کرد
+time: type it as HH:MM or HH:MM:SS	زمان: آن را به صورت HH:MM یا HH:MM:SS بنویسید
+ASCII COLS: expected a column count	ASCII COLS: تعداد ستون لازم است
+Deckboy evolved into SUPER DECKBOY!	Deckboy به SUPER DECKBOY تکامل یافت!
+FX PARAM: slot must be A, B, C or D	FX PARAM: اسلات باید A، B، C یا D باشد
+MIDI: a note number 0-127, or LEARN	MIDI: شماره نوت 0-127، یا LEARN
+MIDIMAP REMOVE: COMPUTER|SHOW <row>	MIDIMAP REMOVE: COMPUTER|SHOW <ردیف>
+OUTPUT DECK: expected a deck number	OUTPUT DECK: شماره دک لازم است
+OUTPUTFX BYPASS: expected ON or OFF	OUTPUTFX BYPASS: ON یا OFF لازم است
+SCOPES MATRIX: expected 709 or 2020	SCOPES MATRIX: 709 یا 2020 لازم است
+SHORTCUTS: the startup dialog is up	SHORTCUTS: پنجره آغاز باز است
+STREAM HDR: expected SDR, PQ or HLG	STREAM HDR: SDR، PQ یا HLG لازم است
+an animation is already being saved	یک انیمیشن از قبل در حال ذخیره است
+delete live cue: press delete again	حذف کیوی زنده: دوباره حذف را فشار دهید
+esc: output cleared - again to quit	esc: خروجی پاک شد - برای خروج دوباره
+no browser cue is live on this deck	هیچ کیوی مرورگر روی این دک زنده نیست
+notestep: nothing live on this deck	notestep: هیچ‌چیز روی این دک زنده نیست
+select the cue it should take first	کیویی را که باید اول TAKE شود انتخاب کنید
+DRAW EDITOR: select a Draw cue first	DRAW EDITOR: ابتدا یک کیوی Draw انتخاب کنید
+DRAW SAVE: STILL or ANIMATION [file]	DRAW SAVE: STILL یا ANIMATION [file]
+MIC CHANNEL: expected L, R or STEREO	MIC CHANNEL: انتظار L، R یا STEREO
+MULTIVIEW WINDOW: expected ON or OFF	MULTIVIEW WINDOW: انتظار ON یا OFF
+Page Down / Page Up step the tracker	Page Down / Page Up ردیاب را گام‌به‌گام جابه‌جا می‌کنند
+SUBTITLE CONVERT: nothing to convert	SUBTITLE CONVERT: هیچ‌چیزی برای تبدیل نیست
+TONECUE LFO: select a tone cue first	TONECUE LFO: ابتدا یک کیوی تون انتخاب کنید
+TRUST LAST: nothing has been refused	TRUST LAST: هیچ‌چیز رد نشده است
+atem tally on -- set the switcher IP	Tally از ATEM روشن شد -- IP سوئیچر را تنظیم کنید
+datamosh: subtle, self-heals (H.264)	datamosh: ملایم، خودترمیم (H.264)
+master vol: expected 0-200 (percent)	حجم Master: انتظار 0-200 (درصد)
+matrix off - back to the output pair	ماتریس خاموش شد - بازگشت به جفت خروجی
+monitor follows the focused playlist	مانیتور فهرست پخش فعال را دنبال می‌کند
+multiview: back to the automatic set	multiview: بازگشت به مجموعه خودکار
+no MIDI output ports on this machine	هیچ پورت خروجی MIDI روی این رایانه نیست
+splitnotes: could not split that cue	splitnotes: این cue تقسیم نشد
+srt: passphrase needs 10+ characters	srt: گذرعبارت دست‌کم 10 نویسه لازم دارد
+step deleted - ctrl+z brings it back	گام حذف شد - ctrl+z آن را برمی‌گرداند
+timer face: select a timer cue first	چهره زمان‌سنج: ابتدا یک کیوی زمان‌سنج انتخاب کنید
+timer font: select a timer cue first	قلم زمان‌سنج: ابتدا یک کیوی زمان‌سنج انتخاب کنید
+16 slices is the most an output takes	16 برش بیشترین تعداد برای هر خروجی است
+AUDIOGAIN BY: expected a number of dB	AUDIOGAIN BY: انتظار یک عدد بر حسب dB
+AUDITION: expected OFF, END or STATUS	AUDITION: انتظار OFF، END یا STATUS
+BROWSER CLICK: fractions must be 0..1	BROWSER CLICK: کسرها باید 0..1 باشند
+FX GET: expected an effect number, 1-	FX GET: انتظار شماره افکت، 1-
+HLS playlist: added as one stream cue	فهرست پخش HLS: به‌عنوان یک کیوی استریم افزوده شد
+MASTER BYPASS: expected a deck number	MASTER BYPASS: انتظار شماره دک
+MIDICLOCK: expected SIM <bpm> [beats]	MIDICLOCK: انتظار SIM <bpm> [beats]
+MULTIVIEW: expected ON, OFF or TOGGLE	MULTIVIEW: انتظار ON، OFF یا TOGGLE
+OUTPUT HDR SIGNAL: expected PQ or HLG	OUTPUT HDR SIGNAL: انتظار PQ یا HLG
+STREAM HDR: select a stream cue first	STREAM HDR: ابتدا یک کیوی استریم انتخاب کنید
+datamosh: file-backed video cues only	datamosh: فقط کیوهای ویدیوی فایل‌محور
+effects copy: this cue has no effects	کپی افکت‌ها: این cue بدون افکت است
+matrix on, routed as the patch had it	ماتریس روشن شد، مسیرها مطابق پچ
+recovery could not be read; copy kept	بازیابی خوانده نشد؛ نسخه نگه داشته شد
+FIXTURE DIP: expected <name> <%>|LEAVE	FIXTURE DIP: انتظار <name> <%>|LEAVE
+MONITOR: expected DEVICE, DECK or ROOM	MONITOR: انتظار DEVICE، DECK یا ROOM
+NETCUE PROTO: expected osc, udp or tcp	NETCUE PROTO: انتظار osc، udp یا tcp
+STING LENGTH: expected 0.05-10 seconds	STING LENGTH: انتظار 0.05-10 ثانیه
+sprite sheet: select a video synth cue	sprite sheet: یک cue سینت ویدئو انتخاب کنید
+AUDIOGAIN BY: no selected cue has audio	AUDIOGAIN BY: هیچ cue انتخاب‌شده‌ای صدا ندارد
+CAPTIONS SHOW: expected <output> ON|OFF	CAPTIONS SHOW: انتظار می‌رفت <output> ON|OFF
+CAPTIONS TRANSCRIPT: expected ON or OFF	CAPTIONS TRANSCRIPT: انتظار می‌رفت ON یا OFF
+COMPANIONPASS: use 8 or more characters	COMPANIONPASS: از 8 نویسه یا بیشتر استفاده کنید
+DEVAMP: nothing is playing on that deck	DEVAMP: هیچ‌چیز روی آن دک در حال پخش نیست
+FX LFO ZONE: 0 (the whole picture) to 8	FX LFO ZONE: 0 (کل تصویر) تا 8
+MASK IMPORT: expected <file.svg> [name]	MASK IMPORT: انتظار می‌رفت <file.svg> [name]
+MASK SET: expected <id> <param> <value>	MASK SET: انتظار می‌رفت <id> <param> <value>
+MULTIVIEW WINDOW: the last window stays	MULTIVIEW WINDOW: آخرین پنجره می‌ماند
+OUTPUT AOI MODE: expected PIXEL or FILL	OUTPUT AOI MODE: انتظار می‌رفت PIXEL یا FILL
+SCOPES SOUND: expected nothing or RESET	SCOPES SOUND: انتظار می‌رفت هیچ‌چیز یا RESET
+Tabletop is in SOURCE > MADE BY DECKBOY	Tabletop در منبع > ساخته‌شده با Deckboy است
+can't read media - CONVERT in inspector	خواندن رسانه ممکن نیست - در بازرس تبدیل کنید
+cleared: all decks stopped, outputs off	پاک شد: همهٔ دک‌ها متوقف شدند، خروجی‌ها خاموش
+datamosh: classic, full effect (MPEG-4)	datamosh: کلاسیک، جلوهٔ کامل (MPEG-4)
+driver cleared - nothing left to puppet	درایور پاک شد - چیزی برای کنترل نمانده
+key+fill on - now pick a Key out device	key+fill روشن است - حالا یک دستگاه خروجی کلید انتخاب کنید
+play the note that should fire this cue	نتی را بزنید که باید این cue را اجرا کند
+programme to MediaMTX: watch at http://	برنامه به MediaMTX: تماشا در http://
+recformat: expected <WxH|program> [fps]	recformat: انتظار می‌رفت <WxH|program> [fps]
+requested input missing - using default	ورودی درخواستی ناموجود است - از پیش‌فرض استفاده می‌شود
+DRAW PLAYBACK: still, flipbook or replay	DRAW PLAYBACK: ثابت، flipbook یا replay
+FADE KNOB: expected amount, A, B, C or D	FADE KNOB: انتظار می‌رفت مقدار، A، B، C یا D
+LOWERANIM: this cue is not a Lower Third	LOWERANIM: این cue یک Lower Third نیست
+MASK EXPORT: size is WxH, e.g. 1920x1080	MASK EXPORT: اندازه WxH است، مثلاً 1920x1080
+MOTION SOURCE: CAMERA [name] or DECK <n>	MOTION SOURCE: CAMERA [name] یا DECK <n>
+NEW already starts from factory settings	NEW از قبل از تنظیمات کارخانه شروع می‌کند
+OUTPUT SELECT: expected an output number	OUTPUT SELECT: انتظار می‌رفت شمارهٔ خروجی
+TCCUE: expected NEW, ACTION, JAM or FIRE	TCCUE: انتظار می‌رفت NEW، ACTION، JAM یا FIRE
+hands-on: clicks and keys go to the page	hands-on: کلیک‌ها و کلیدها به صفحه می‌روند
+multiview: one window per playlist again	multiview: دوباره یک پنجره برای هر فهرست پخش
+record folder set - SAME DISK as Deckboy	پوشه ضبط تنظیم شد - همان دیسک Deckboy
+sequence waiting - press it again for GO	توالی منتظر است - برای GO دوباره فشار دهید
+this platform cannot capture that source	این سکو نمی‌تواند آن منبع را ضبط کند
+timer backdrop: select a timer cue first	پس‌زمینه زمان‌سنج: ابتدا یک cue زمان‌سنج انتخاب کنید
+BLEND CURVE: expected PROJECTOR or LINEAR	BLEND CURVE: انتظار می‌رفت PROJECTOR یا LINEAR
+CAPTIONS POSITION: expected TOP or BOTTOM	CAPTIONS POSITION: انتظار می‌رفت TOP یا BOTTOM
+CAPTIONS SIZE: expected 50..200 (percent)	CAPTIONS SIZE: انتظار می‌رفت 50..200 (درصد)
+DMXCUE: the selected cue is not a dmx cue	DMXCUE: cue انتخاب‌شده یک cue از نوع dmx نیست
+DRAW FRAME: ADD, DELETE, NEXT, PREV or 1-	DRAW FRAME: ADD، DELETE، NEXT، PREV یا 1-
+FADE OVER: expected a duration in seconds	FADE OVER: مدت به ثانیه مورد انتظار است
+FADE TO: expected a percent from 0 to 100	FADE TO: درصدی از 0 تا 100 مورد انتظار است
+MOTION SOURCE DECK: a playlist number, 1-	MOTION SOURCE DECK: شماره فهرست پخش، 1-
+STING SWEEP: expected -24 to 24 semitones	STING SWEEP: -24 تا 24 نیم‌پرده مورد انتظار است
+TCCUE ACTION: expected start, stop or jam	TCCUE ACTION: start، stop یا jam مورد انتظار است
+TCCUE JAM: expected a timecode or seconds	TCCUE JAM: تایم‌کد یا ثانیه مورد انتظار است
+TRACKER VIEW: expected PATTERN or CLASSIC	TRACKER VIEW: PATTERN یا CLASSIC مورد انتظار است
+Tabletop added - SOURCE > MADE BY DECKBOY	Tabletop اضافه شد - منبع > ساخته‌شده با DECKBOY
+browser window open - click, type, log in	پنجره مرورگر باز است - کلیک، تایپ، ورود
+contrast check: something needs attention	بررسی کنتراست: چیزی نیاز به توجه دارد
+drag the corners on the programme monitor	گوشه‌ها را روی مانیتور برنامه بکشید
+this browser backend cannot show a window	این بک‌اند مرورگر نمی‌تواند پنجره نشان دهد
+BROWSER CLICK: expected two fractions 0..1	BROWSER CLICK: دو کسر 0..1 مورد انتظار است
+CHIP: the selected cue is not a chip synth	CHIP: cue انتخاب‌شده یک سینتی‌سایزر chip نیست
+DASH SET: a slot cannot fire the dashboard	DASH SET: یک اسلات نمی‌تواند داشبورد را اجرا کند
+DRAW STROKE: x,y[,pressure] ... in percent	DRAW STROKE: x,y[,pressure] ... به درصد
+OUTPUTFX REMOVE: expected an effect number	OUTPUTFX REMOVE: شماره افکت مورد انتظار است
+SCRIPTCUE: expected NEW, ADD, CLEAR or RUN	SCRIPTCUE: NEW، ADD، CLEAR یا RUN مورد انتظار است
+TEXTCUE WIGGLE: expected ON, OFF or TOGGLE	TEXTCUE WIGGLE: ON، OFF یا TOGGLE مورد انتظار است
+TRIGGER KEY: F1-F10, F12, NUM0-NUM9 or OFF	TRIGGER KEY: F1-F10، F12، NUM0-NUM9 یا OFF
+auto-advance removed: cue end follows hold	پیشروی خودکار حذف شد: پایان cue از نگه داشتن پیروی می‌کند
+choose RECOVER or KEEP SAVED before saving	پیش از ذخیره، RECOVER یا KEEP SAVED را انتخاب کنید
+datamosh look: file-backed video cues only	ظاهر datamosh: فقط cueهای ویدیو مبتنی بر فایل
+nmos: on - searching for a registry (mDNS)	nmos: روشن - در جستجوی رجیستری (mDNS)
+record folder: recordings/ beside the show	پوشه ضبط: recordings/ کنار نمایش
+recsegment: expected <minutes> [megabytes]	recsegment: <دقیقه> [مگابایت] مورد انتظار است
+the example shows are not in this download	نمایش نمونه در این دانلود نیست
+warp point: expected <col> <row> <dx> <dy>	warp point: <ستون> <ردیف> <dx> <dy> مورد انتظار است
+warp point: no grid -- WARP GRID <n> first	warp point: شبکه‌ای نیست -- ابتدا WARP GRID <n>
+DMXCUE FIXTURE: level is 0-100 (%) or LEAVE	DMXCUE FIXTURE: سطح 0-100 (%) یا LEAVE است
+EDIT off: the keyboard only moves and fires	EDIT خاموش: صفحه‌کلید فقط حرکت می‌دهد و اجرا می‌کند
+EDIT on: typing changes the tracker's cells	EDIT روشن: تایپ، سلول‌های ردیاب را تغییر می‌دهد
+FIXTURE: expected LIST, ADD, FIND or REMOVE	FIXTURE: LIST، ADD، FIND یا REMOVE مورد انتظار است
+LIMITER CEILING: a level from -40 to 0 dBFS	LIMITER CEILING: سطحی از -40 تا 0 dBFS
+MIDICUE: the selected cue is not a midi cue	MIDICUE: cue انتخاب‌شده یک cue از نوع midi نیست
+MOTION ZONE ADD: x y w h, percentages 0-100	MOTION ZONE ADD: x y w h، درصدهای 0-100
+MOTION ZONE: ADD x y w h, REMOVE n or CLEAR	MOTION ZONE: ADD x y w h، REMOVE n یا CLEAR
+OUTPROBE: expected <output> <x 0-1> <y 0-1>	OUTPROBE: انتظار می‌رفت <خروجی> <x 0-1> <y 0-1>
+PORTS: expected an http port and a tcp port	PORTS: انتظار می‌رفت یک درگاه HTTP و یک درگاه TCP
+SLICE ADD: already 16 slices on this output	SLICE ADD: از قبل 16 برش روی این خروجی وجود دارد
+TEXTCUE: the selected cue is not a text cue	TEXTCUE: cue انتخاب‌شده یک cue متنی نیست
+a step cannot fire the playlist it lives on	یک گام نمی‌تواند فهرست پخشی را که در آن قرار دارد اجرا کند
+atem tally on -- set which input Deckboy is	tally ATEM روشن است -- تعیین کنید Deckboy کدام ورودی است
+esc: control window - again to clear output	esc: پنجره کنترل - دوباره بزنید تا خروجی پاک شود
+recordings remux to MP4 when the take stops	ضبط‌ها پس از توقف take به MP4 remux می‌شوند
+MATRIX SET: level is a percent from 0 to 100	MATRIX SET: سطح درصدی از 0 تا 100 است
+SYNTH: the selected cue is not a video synth	SYNTH: cue انتخاب‌شده سینت ویدئو نیست
+group presets became master cues: use MASTER	پیش‌تنظیم‌های گروه به cueهای master تبدیل شدند: از MASTER استفاده کنید
+on the dashboard - Ctrl+D or the DASH button	در داشبورد - Ctrl+D یا دکمه DASH
+8 zones already: click one to remove it first	از قبل 8 ناحیه وجود دارد: ابتدا روی یکی کلیک کنید تا حذف شود
+AUDIOFX PLUGIN: this build has no plugin host	AUDIOFX PLUGIN: این نسخه میزبان افزونه ندارد
+DASH SET: <n> <label> | <command> [| <glyph>]	DASH SET: <n> <برچسب> | <فرمان> [| <نماد>]
+DRAW SIZE: 0.1-20 (% of the picture's height)	DRAW SIZE: 0.1-20 (% ارتفاع تصویر)
+FX LFO: slot must be A-D, or E for the amount	FX LFO: اسلات باید A-D باشد، یا E برای مقدار
+MASK PATH: a path needs at least three points	MASK PATH: یک مسیر دست‌کم به سه نقطه نیاز دارد
+NETCUE: the selected cue is not a network cue	NETCUE: cue انتخاب‌شده یک cue شبکه‌ای نیست
+Page Down / Page Up step the focused playlist	Page Down / Page Up یک گام در فهرست پخش فعال حرکت می‌کنند
+SCALEMODE: expected fit|fill|stretch|unscaled	SCALEMODE: انتظار می‌رفت برازش|پر کردن|کشیدن|بدون مقیاس
+SUBTITLE CONVERT: the cue has no caption file	SUBTITLE CONVERT: cue فایل زیرنویس ندارد
+TCCUE: the selected cue is not a timecode cue	TCCUE: cue انتخاب‌شده یک cue تایم‌کد نیست
+TEXTCUE ALIGN: expected left, centre or right	TEXTCUE ALIGN: انتظار می‌رفت چپ، وسط یا راست
+make a step first: a section starts at a step	ابتدا یک گام بسازید: بخش از یک گام شروع می‌شود
+mask off -- it is still in the show's library	ماسک خاموش -- هنوز در کتابخانه نمایش است
+motion on: the camera is read, never recorded	حرکت روشن: دوربین خوانده می‌شود، هرگز ضبط نمی‌شود
+new show disarms all outputs: press new again	نمایش جدید همه خروجی‌ها را غیرفعال می‌کند: دوباره نمایش جدید را بزنید
+nmos: network is LOCAL ONLY - not registering	nmos: شبکه فقط محلی است - ثبت نمی‌شود
+normalize: selection has no file-backed audio	normalize: انتخاب صدای مبتنی بر فایل ندارد
+output recover failed: fullscreen unavailable	بازیابی خروجی ناموفق بود: تمام‌صفحه در دسترس نیست
+this output's renderer could not cut the mask	رندرر این خروجی نتوانست ماسک را برش دهد
+unsaved changes will be lost: press new again	تغییرات ذخیره‌نشده از بین می‌روند: دوباره نمایش جدید را بزنید
+zones cleared: Motion reads the whole picture	ناحیه‌ها پاک شدند: حرکت کل تصویر را می‌خواند
+Stop masking this. The mask stays in the show's library, to put back from the menu above	ماسک‌گذاری را متوقف کن. ماسک در کتابخانهٔ نمایش می‌ماند و از منوی بالا می‌توان آن را برگرداند
+Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	این ماسک را از نمایش و از هر کیو، فهرست پخش و خروجی که از آن استفاده می‌کند حذف کن. واگرد آن را برمی‌گرداند

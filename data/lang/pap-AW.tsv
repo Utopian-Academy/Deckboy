@@ -2852,3 +2852,216 @@ DASH: the startup dialog is up	DASH: e dialogo di cuminsamento ta habri
 LOWERSTYLE: select a cue first	LOWERSTYLE: scogi un cue promer
 MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: ta spera 1-16
 PATTERN ADD needs a pattern id	PATTERN ADD mester un id di patron
+DRAW ONION: ON or OFF	DRAW ONION: ON of OFF
+DRAW EDITOR: ON or OFF	DRAW EDITOR: ON of OFF
+DRAW HOLD: seconds, 0-60	DRAW HOLD: sekonde, 0-60
+FADE EFFECT: expected 1-	FADE EFFECT: mester 1-
+MOTION MIRROR: ON or OFF	MOTION MIRROR: ON of OFF
+FX COLOUR: a grey has no hue	FX COLOUR: gris no tin color
+GOGUARD: OFF or 50-2000 (ms)	GOGUARD: OFF of 50-2000 (ms)
+SLICE GRID SMOOTH: ON or OFF	SLICE GRID SMOOTH: ON of OFF
+TRIGGER AT: HH:MM[:SS] or OFF	TRIGGER AT: HH:MM[:SS] of OFF
+PATTERN SET needs a pattern id	PATTERN SET mester un id di patron
+already the first tracker step	ya ta e prome paso di rastreador
+cannot determine rendered size	no por determina e tamaño renderá
+find: enter cue id/number/name	busca: yena id/número/nomber di cue
+no sprite sets in data/sprites	no tin sprite sets den data/sprites
+normalize: no measurable audio	normalize: no tin audio midibel
+recordings are left as written	grabacionnan ta keda manera nan a wordo scirbi
+reracked - holding first frame	reracked - tene e prome imagen
+st 2110: clipboard unavailable	st 2110: clipboard no ta disponibel
+stream url: unsupported scheme	stream url: esquema no ta soportá
+that button has no command yet	e boton ei no tin orden ainda
+DMXCUE PROTOCOL: ARTNET or SACN	DMXCUE PROTOCOL: ARTNET of SACN
+FIXTURE DIP: 0-100 (%) or LEAVE	FIXTURE DIP: 0-100 (%) of LEAVE
+FX LFO: no effect at that index	FX LFO: no tin efecto na e indice ei
+MIDIMAP CLEAR: COMPUTER or SHOW	MIDIMAP CLEAR: COMPUTER of SHOW
+TEXTCUE SPEED: expected 0.05-20	TEXTCUE SPEED: ta spera 0.05-20
+an output needs a base playlist	un output tin mester di un playlist base
+audio input: device unavailable	input di audio: aparato no ta disponibel
+expected crop percentages 0..90	ta spera porcentahe di corta 0..90
+media found - nothing to relink	media a haya - nada pa conecta di nobo
+notestep: build out of range 1-	notestep: build for di rango 1-
+put it back when the ramp lands	pone bek ora e ramp yega
+splitnotes: cue out of range 1-	splitnotes: cue for di rango 1-
+st 2110 SDP copied to clipboard	st 2110 SDP copia den clipboard
+w00t! all ur cues r belong 2 us	w00t! tur bo cue ta di nos
+BROWSER TYPE: expected some text	BROWSER TYPE: ta spera texto
+CHECK: expected a problem number	CHECK: ta spera un number di problema
+FADE RESTORE: expected on or off	FADE RESTORE: ta spera on of off
+MIDICLOCK SIM: expected a number	MIDICLOCK SIM: ta spera un number
+MONITOR ROOM: expected ON or OFF	MONITOR ROOM: ta spera ON of OFF
+MOTION ZONE ADD: already 8 zones	MOTION ZONE ADD: ya tin 8 zona
+SLICE REMOVE: a slice number, 1-	SLICE REMOVE: un number di slice, 1-
+motion off: the camera is closed	movemento paga: e camara ta cera
+no capture devices found (dshow)	no a haya aparato di captura (dshow)
+only accepted from this computer	so ta aceptá for di e computer aki
+reccodec: expected a codec token	reccodec: ta spera un token di codec
+this build has no plugin support	e version aki no tin soporte pa plugin
+BROWSER SCROLL: expected a number	BROWSER SCROLL: ta spera un number
+DMXCUE UNIVERSE: expected 0-32767	DMXCUE UNIVERSE: ta spera 0-32767
+FADE DECK: expected a deck number	FADE DECK: ta spera un number di deck
+FX PARAM: no effect at that index	FX PARAM: no tin efecto na e indice ei
+MIC GAIN: expected -40 to 40 (dB)	MIC GAIN: ta spera -40 te 40 (dB)
+MOTION ZONE REMOVE: a zone number	MOTION ZONE REMOVE: un number di zona
+NDI: this build has no NDI output	NDI: e version aki no tin salida NDI
+STING PITCH: expected 20-12000 Hz	STING PITCH: ta spera 20-12000 Hz
+TRIGGER MIDI: a note 0-127 or OFF	TRIGGER MIDI: un nota 0-127 of OFF
+could not open the Screens window	no por a habri e bentana Screens
+effects paste: copy a chain first	pega efectonan: copia un cadena promé
+expected pixels -1000000..1000000	ta spera pixels -1000000..1000000
+press again to delete this button	primi di nobo pa kita e boton aki
+warp grid: 2 to 9 points each way	grid di warp: 2 te 9 punto pa cada direccion
+AUDIOFX ADD: needs an effect token	AUDIOFX ADD: mester un token di efecto
+BLEND LIFT: expected 0..20 percent	BLEND LIFT: ta spera 0..20 porciento
+BUGSWAT SHOWME: only in a briefing	BUGSWAT SHOWME: so den un briefing
+CAPTIONS LINES: expected 1, 2 or 3	CAPTIONS LINES: ta spera 1, 2 of 3
+DASH SET: slot number out of range	DASH SET: number di slot fo'i di rango
+FX AMOUNT: no effect at that index	FX AMOUNT: no tin efecto na e indice ei
+FX COLOUR: no effect at that index	FX COLOUR: no tin efecto na e indice ei
+MIDICLOCK SIM: bpm must be 20..600	MIDICLOCK SIM: bpm mester ta 20..600
+OUTPUT ADD: expected a deck number	OUTPUT ADD: ta spera un number di deck
+SLICE FLIP: H or V, then ON or OFF	SLICE FLIP: H of V, despues ON of OFF
+a path needs three points: dropped	un caminda ta mester tres punto: kitá
+a show needs at least one playlist	un show ta mester por lo menos un playlist
+display scan: no displays reported	display scan: no a reporta ningun display
+selection has no cue with geometry	e seleccion no tin ningun cue cu geometria
+that cue cannot be fired by a step	un paso no por core e cue ei
+time: type it as HH:MM or HH:MM:SS	ora: skirbi dje como HH:MM of HH:MM:SS
+ASCII COLS: expected a column count	ASCII COLS: ta spera un cantidad di columna
+Deckboy evolved into SUPER DECKBOY!	Deckboy a evolucioná den SUPER DECKBOY!
+FX PARAM: slot must be A, B, C or D	FX PARAM: slot mester ta A, B, C of D
+MIDI: a note number 0-127, or LEARN	MIDI: un number di nota 0-127, of SIÑA
+MIDIMAP REMOVE: COMPUTER|SHOW <row>	MIDIMAP REMOVE: COMPUTER|SHOW <liña>
+OUTPUT DECK: expected a deck number	OUTPUT DECK: ta spera un number di deck
+OUTPUTFX BYPASS: expected ON or OFF	OUTPUTFX BYPASS: ta spera ON of OFF
+SCOPES MATRIX: expected 709 or 2020	SCOPES MATRIX: ta spera 709 of 2020
+SHORTCUTS: the startup dialog is up	SHORTCUTS: e dialogo di cuminsamento ta habri
+STREAM HDR: expected SDR, PQ or HLG	STREAM HDR: ta spera SDR, PQ of HLG
+an animation is already being saved	un animacion ta wardá kaba
+delete live cue: press delete again	kita cue bibu: primi delete atrobe
+esc: output cleared - again to quit	esc: output limpia - atrobe pa sali
+no browser cue is live on this deck	no tin cue di browser bibu riba e deck aki
+notestep: nothing live on this deck	notestep: nada bibu riba e deck aki
+select the cue it should take first	scoge e cue cu mester TAKE promé
+DRAW EDITOR: select a Draw cue first	DRAW EDITOR: scogi un DRAW CUE promé
+DRAW SAVE: STILL or ANIMATION [file]	DRAW SAVE: STILL of ANIMATION [file]
+MIC CHANNEL: expected L, R or STEREO	MIC CHANNEL: ta spera L, R of STEREO
+MULTIVIEW WINDOW: expected ON or OFF	MULTIVIEW WINDOW: ta spera ON of OFF
+Page Down / Page Up step the tracker	Page Down / Page Up ta move e rastreador paso pa paso
+SUBTITLE CONVERT: nothing to convert	SUBTITLE CONVERT: nada pa converti
+TONECUE LFO: select a tone cue first	TONECUE LFO: scogi un cue di tono promé
+TRUST LAST: nothing has been refused	TRUST LAST: nada a wordu rechasá
+atem tally on -- set the switcher IP	Tally ATEM cende -- pone e IP di e switcher
+datamosh: subtle, self-heals (H.264)	datamosh: sutil, ta cura su mes (H.264)
+master vol: expected 0-200 (percent)	master vol: ta spera 0-200 (porcentahe)
+matrix off - back to the output pair	matrix paga - bek na e pareja di salida
+monitor follows the focused playlist	monitor ta sigui e playlist enfocá
+multiview: back to the automatic set	multiview: bek na e set automatico
+no MIDI output ports on this machine	no tin porto di salida MIDI riba e maquina aki
+splitnotes: could not split that cue	splitnotes: no por a parti e cue ei
+srt: passphrase needs 10+ characters	srt: frase di entrada ta pidi 10+ caracter
+step deleted - ctrl+z brings it back	paso a wordu eliminá - ctrl+z ta trece e bek
+timer face: select a timer cue first	timer face: scogi un cue di cronometro promé
+timer font: select a timer cue first	timer font: scogi un cue di cronometro promé
+16 slices is the most an output takes	16 pedasonan ta e máximo ku un output ta tuma
+AUDIOGAIN BY: expected a number of dB	AUDIOGAIN BY: ta spera un number di dB
+AUDITION: expected OFF, END or STATUS	AUDITION: ta spera OFF, END of STATUS
+BROWSER CLICK: fractions must be 0..1	BROWSER CLICK: fraccionnan mester ta 0..1
+FX GET: expected an effect number, 1-	FX GET: ta spera un number di efecto, 1-
+HLS playlist: added as one stream cue	playlist HLS: agregá como un cue di stream
+MASTER BYPASS: expected a deck number	MASTER BYPASS: ta spera un number di deck
+MIDICLOCK: expected SIM <bpm> [beats]	MIDICLOCK: ta spera SIM <bpm> [beats]
+MULTIVIEW: expected ON, OFF or TOGGLE	MULTIVIEW: ta spera ON, OFF of TOGGLE
+OUTPUT HDR SIGNAL: expected PQ or HLG	OUTPUT HDR SIGNAL: ta spera PQ of HLG
+STREAM HDR: select a stream cue first	STREAM HDR: scogi un cue di stream promé
+datamosh: file-backed video cues only	datamosh: solamente cue di video ku archivo
+effects copy: this cue has no effects	effects copy: e cue aki no tin efecto
+matrix on, routed as the patch had it	matrix cende, rutá manera e patch tabata
+recovery could not be read; copy kept	no por a lesa recovery; copia warda
+FIXTURE DIP: expected <name> <%>|LEAVE	FIXTURE DIP: ta spera <name> <%>|LEAVE
+MONITOR: expected DEVICE, DECK or ROOM	MONITOR: ta spera DEVICE, DECK of ROOM
+NETCUE PROTO: expected osc, udp or tcp	NETCUE PROTO: ta spera osc, udp of tcp
+STING LENGTH: expected 0.05-10 seconds	STING LENGTH: ta spera 0.05-10 segundo
+sprite sheet: select a video synth cue	sprite sheet: scogi un cue di synth di video
+AUDIOGAIN BY: no selected cue has audio	AUDIOGAIN BY: ningun cue selecciona tin audio
+CAPTIONS SHOW: expected <output> ON|OFF	CAPTIONS SHOW: ta spera <output> ON|OFF
+CAPTIONS TRANSCRIPT: expected ON or OFF	CAPTIONS TRANSCRIPT: ta spera ON o OFF
+COMPANIONPASS: use 8 or more characters	COMPANIONPASS: usa 8 caracter o mas
+DEVAMP: nothing is playing on that deck	DEVAMP: nada no ta toca riba e deck ey
+FX LFO ZONE: 0 (the whole picture) to 8	FX LFO ZONE: 0 (henter e portret) te 8
+MASK IMPORT: expected <file.svg> [name]	MASK IMPORT: ta spera <file.svg> [name]
+MASK SET: expected <id> <param> <value>	MASK SET: ta spera <id> <param> <value>
+MULTIVIEW WINDOW: the last window stays	MULTIVIEW WINDOW: ultimo bentana ta keda
+OUTPUT AOI MODE: expected PIXEL or FILL	OUTPUT AOI MODE: ta spera PIXEL o FILL
+SCOPES SOUND: expected nothing or RESET	SCOPES SOUND: ta spera nada o RESET
+Tabletop is in SOURCE > MADE BY DECKBOY	Tabletop ta den FUENTE > TRAHA PA DECKBOY
+can't read media - CONVERT in inspector	no por lesa media - CONVERTI den inspector
+cleared: all decks stopped, outputs off	limpia: tur deck para, salida paga
+datamosh: classic, full effect (MPEG-4)	datamosh: clasico, efecto completo (MPEG-4)
+driver cleared - nothing left to puppet	driver limpia - nada mas pa move
+key+fill on - now pick a Key out device	key+fill prendi - awor scogi un aparato di Saca fondo
+play the note that should fire this cue	toca e nota cu mester dispara e cue aki
+programme to MediaMTX: watch at http://	programa pa MediaMTX: wak na http://
+recformat: expected <WxH|program> [fps]	recformat: ta spera <WxH|program> [fps]
+requested input missing - using default	entrada pidi falta - usando standard
+DRAW PLAYBACK: still, flipbook or replay	DRAW PLAYBACK: portret, flipbook o replay
+FADE KNOB: expected amount, A, B, C or D	FADE KNOB: ta spera cantidad, A, B, C o D
+LOWERANIM: this cue is not a Lower Third	LOWERANIM: e cue aki no ta un Lower Third
+MASK EXPORT: size is WxH, e.g. 1920x1080	MASK EXPORT: tamano ta WxH, p.e. 1920x1080
+MOTION SOURCE: CAMERA [name] or DECK <n>	MOTION SOURCE: CAMERA [name] o DECK <n>
+NEW already starts from factory settings	NEW ya ta cuminsá for di ahustamento di fabrica
+OUTPUT SELECT: expected an output number	OUTPUT SELECT: ta spera un numero di output
+TCCUE: expected NEW, ACTION, JAM or FIRE	TCCUE: ta spera NEW, ACTION, JAM o FIRE
+hands-on: clicks and keys go to the page	hands-on: click i tecla ta bai pa e pagina
+multiview: one window per playlist again	multiview: un bentana pa playlist di nobo
+record folder set - SAME DISK as Deckboy	caha di graba pone - MESUN DISCO cu Deckboy
+sequence waiting - press it again for GO	secuencia ta warda - primi di nobo pa GO
+this platform cannot capture that source	e plataforma aki no por captura e fuente ey
+timer backdrop: select a timer cue first	fondo di cronometro: scogi un cue di cronometro promé
+BLEND CURVE: expected PROJECTOR or LINEAR	BLEND CURVE: ta spera PROJECTOR o LINEAR
+CAPTIONS POSITION: expected TOP or BOTTOM	CAPTIONS POSITION: ta spera TOP o BOTTOM
+CAPTIONS SIZE: expected 50..200 (percent)	CAPTIONS SIZE: ta spera 50..200 (porcentahe)
+DMXCUE: the selected cue is not a dmx cue	DMXCUE: e cue scogi no ta un cue dmx
+DRAW FRAME: ADD, DELETE, NEXT, PREV or 1-	DRAW FRAME: ADD, DELETE, NEXT, PREV of 1-
+FADE OVER: expected a duration in seconds	FADE OVER: ta spera un duracion den sekundo
+FADE TO: expected a percent from 0 to 100	FADE TO: ta spera un porcentahe di 0 te 100
+LOWERSTYLE: this cue is not a Lower Third	LOWERSTYLE: e cue aki no ta un Lower Third
+MOTION SOURCE DECK: a playlist number, 1-	MOTION SOURCE DECK: un number di playlist, 1-
+STING SWEEP: expected -24 to 24 semitones	STING SWEEP: ta spera -24 te 24 semitono
+TCCUE ACTION: expected start, stop or jam	TCCUE ACTION: ta spera start, stop of jam
+TCCUE JAM: expected a timecode or seconds	TCCUE JAM: ta spera un codigo di tempu of sekundo
+TRACKER VIEW: expected PATTERN or CLASSIC	TRACKER VIEW: ta spera PATTERN of CLASSIC
+Tabletop added - SOURCE > MADE BY DECKBOY	Tabletop agrega - FUENTE > TRAHA PA DECKBOY
+browser window open - click, type, log in	bentana di browser habri - click, skirbi, log in
+contrast check: something needs attention	verificacion di contraste: algo mester atencion
+drag the corners on the programme monitor	hala e skinanan riba e monitor di programa
+this browser backend cannot show a window	e backend di browser aki no por mustra un bentana
+BROWSER CLICK: expected two fractions 0..1	BROWSER CLICK: ta spera dos fraccion 0..1
+CHIP: the selected cue is not a chip synth	CHIP: e cue scogi no ta un chip synth
+DASH SET: a slot cannot fire the dashboard	DASH SET: un slot no por cuminsa e DASHBOARD
+DRAW STROKE: x,y[,pressure] ... in percent	DRAW STROKE: x,y[,pressure] ... den porcentahe
+OUTPUTFX REMOVE: expected an effect number	OUTPUTFX REMOVE: ta spera un number di efecto
+SCRIPTCUE: expected NEW, ADD, CLEAR or RUN	SCRIPTCUE: ta spera NEW, ADD, CLEAR of RUN
+TEXTCUE WIGGLE: expected ON, OFF or TOGGLE	TEXTCUE WIGGLE: ta spera ON, OFF of TOGGLE
+TRIGGER KEY: F1-F10, F12, NUM0-NUM9 or OFF	TRIGGER KEY: F1-F10, F12, NUM0-NUM9 of OFF
+auto-advance removed: cue end follows hold	auto-advance kita: fin di cue ta sigui tene
+choose RECOVER or KEEP SAVED before saving	coh RECOVER of KEEP SAVED promé cu salba
+datamosh look: file-backed video cues only	look di datamosh: solamente cue di video cu archivo
+nmos: on - searching for a registry (mDNS)	nmos: cende - ta buska un registro (mDNS)
+record folder: recordings/ beside the show	caha di grabacion: recordings/ banda di e show
+recsegment: expected <minutes> [megabytes]	recsegment: ta spera <minuut> [megabyte]
+the example shows are not in this download	e show di ehempel no ta den e download aki
+warp point: expected <col> <row> <dx> <dy>	warp point: ta spera <col> <row> <dx> <dy>
+warp point: no grid -- WARP GRID <n> first	warp point: no tin grid -- promé WARP GRID <n>
+DMXCUE FIXTURE: level is 0-100 (%) or LEAVE	DMXCUE FIXTURE: nivel ta 0-100 (%) of LEAVE
+EDIT off: the keyboard only moves and fires	EDITA paga: e teclado solamente ta move i cuminsa
+EDIT on: typing changes the tracker's cells	EDITA cende: skirbi ta cambia e celnan di e rastreador
+FIXTURE: expected LIST, ADD, FIND or REMOVE	FIXTURE: ta spera LIST, ADD, FIND of REMOVE
+LIMITER CEILING: a level from -40 to 0 dBFS	LIMITER CEILING: un nivel di -40 te 0 dBFS
+MIDICUE: the selected cue is not a midi cue	MIDICUE: e cue scogi no ta un cue midi
+MOTION ZONE ADD: x y w h, percentages 0-100	MOTION ZONE ADD: x y w h, porcentahe 0-100
+MOTION ZONE: ADD x y w h, REMOVE n or CLEAR	MOTION ZONE: ADD x y w h, REMOVE n of CLEAR
+mask off -- it is still in the show's library	mascara paga -- ainda den bibliotec di e show
+Stop masking this. The mask stays in the show's library, to put back from the menu above	Para di usa e mascara. E mascara ta keda den bibliotec di e show, pone bek for di e menu di ariba
+Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	Kita e mascara aki for di e show, i for di tur cue, playlist i output cu ta usa dje. Undo ta bolbe trese e bek

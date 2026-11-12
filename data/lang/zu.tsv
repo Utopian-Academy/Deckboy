@@ -2855,3 +2855,220 @@ DASH: the startup dialog is up	DASH: ibhokisi lokuqala liphakeme
 LOWERSTYLE: select a cue first	LOWERSTYLE: khetha i-cue kuqala
 MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: kulindeleke 1-16
 PATTERN ADD needs a pattern id	PATTERN ADD idinga i-id yephethini
+DRAW ONION: ON or OFF	DRAW ONION: VULIWE noma VALIWE
+DRAW EDITOR: ON or OFF	DRAW EDITOR: VULIWE noma VALIWE
+OUTPUT AOI: no outputs	OUTPUT AOI: akukho okuphumayo
+OUTPUT DECK: no outputs	OUTPUT DECK: akukho okuphumayo
+DRAW HOLD: seconds, 0-60	DRAW HOLD: imizuzwana, 0-60
+FADE EFFECT: expected 1-	FADE EFFECT: kulindeke 1-
+MOTION MIRROR: ON or OFF	MOTION MIRROR: VULIWE noma VALIWE
+TALLYEVENT wants ON or OFF	TALLYEVENT ifuna VULIWE noma VALIWE
+TONECUE LFO: FREQ or LEVEL	TONECUE LFO: FREQ noma LEVEL
+GOGUARD: OFF or 50-2000 (ms)	GOGUARD: VALIWE noma 50-2000 (ms)
+SLICE GRID SMOOTH: ON or OFF	SLICE GRID SMOOTH: VULIWE noma VALIWE
+TRIGGER AT: HH:MM[:SS] or OFF	TRIGGER AT: HH:MM[:SS] noma VALIWE
+PATTERN SET needs a pattern id	PATTERN SET idinga i-ID yephethini
+already the first tracker step	seyisesinyathelo sokuqala somlandeleli
+cannot determine rendered size	ayikwazi ukunquma usayizi odwetshiwe
+find: enter cue id/number/name	thola: faka i-ID/inombolo/igama le-cue
+no sprite sets in data/sprites	azikho izethi ze-sprite ku-data/sprites
+normalize: no measurable audio	normalize: awukho umsindo ongalinganiswa
+recordings are left as written	okuqoshiwe kushiyelwa kunjalo
+reracked - holding first frame	kubuyiselwe emuva - kubanjwe isithombe sokuqala
+st 2110: clipboard unavailable	st 2110: iklibhodi ayitholakali
+stream url: unsupported scheme	i-URL yesakaza: uhlobo olungasekelwe
+that button has no command yet	leli bhathini alinawo umyalo okwamanje
+DMXCUE PROTOCOL: ARTNET or SACN	DMXCUE iphrothokholi: ARTNET noma SACN
+FIXTURE DIP: 0-100 (%) or LEAVE	FIXTURE DIP: 0-100 (%) noma LEAVE
+FX LFO: no effect at that index	FX LFO: akukho umphumela kuleyo nkomba
+MIDIMAP CLEAR: COMPUTER or SHOW	MIDIMAP CLEAR: COMPUTER noma SHOW
+TEXTCUE SPEED: expected 0.05-20	TEXTCUE SPEED: kulindelwe 0.05-20
+an output needs a base playlist	okuphumayo kudinga uhlu olusisekelo
+audio input: device unavailable	okokufaka komsindo: idivayisi ayitholakali
+expected crop percentages 0..90	kulindelwe amaphesenti e-crop 0..90
+media found - nothing to relink	imidiya itholakele - akukho okokuxhuma kabusha
+notestep: build out of range 1-	notestep: sakha ngaphandle kohlu 1-
+put it back when the ramp lands	buyisela uma i-ramp isifikile
+splitnotes: cue out of range 1-	splitnotes: i-cue ingaphandle kohlu 1-
+st 2110 SDP copied to clipboard	i-ST 2110 SDP ikopishelwe ku-clipboard
+w00t! all ur cues r belong 2 us	w00t! zonke ama-cue akho ayakithi
+BROWSER TYPE: expected some text	BROWSER TYPE: kulindelwe umbhalo
+CHECK: expected a problem number	CHECK: kulindelwe inombolo yenkinga
+FADE RESTORE: expected on or off	FADE RESTORE: kulindelwe on noma off
+MIDICLOCK SIM: expected a number	MIDICLOCK SIM: kulindelwe inombolo
+MONITOR ROOM: expected ON or OFF	MONITOR ROOM: kulindelwe ON noma OFF
+MOTION ZONE ADD: already 8 zones	MOTION ZONE ADD: sezivele izindawo ezingu-8
+SLICE REMOVE: a slice number, 1-	SLICE REMOVE: inombolo ye-slice, 1-
+motion off: the camera is closed	ukunyakaza kuvaliwe: ikhamera ivaliwe
+no capture devices found (dshow)	awekho amadivayisi okuthwebula atholakele (dshow)
+only accepted from this computer	yamukelwa kule khompyutha kuphela
+reccodec: expected a codec token	reccodec: kulindelwe ithokheni ye-codec
+this build has no plugin support	lesi sakhiwo asinawo umsebenzi we-plugin
+BROWSER SCROLL: expected a number	BROWSER SCROLL: kulindelwe inombolo
+DMXCUE UNIVERSE: expected 0-32767	DMXCUE UNIVERSE: kulindelwe 0-32767
+FADE DECK: expected a deck number	FADE DECK: kulindelwe inombolo ye-deck
+FX PARAM: no effect at that index	FX PARAM: akukho umphumela kuleyo nkomba
+MIC GAIN: expected -40 to 40 (dB)	MIC GAIN: kulindelwe -40 kuya ku-40 (dB)
+MOTION ZONE REMOVE: a zone number	MOTION ZONE REMOVE: inombolo yendawo
+NDI: this build has no NDI output	NDI: lesi sakhiwo asinakho okukhiphayo kwe-NDI
+STING PITCH: expected 20-12000 Hz	STING PITCH: kulindelwe 20-12000 Hz
+TRIGGER MIDI: a note 0-127 or OFF	TRIGGER MIDI: inothi 0-127 noma OFF
+could not open the Screens window	ayikwazanga ukuvula iwindi le-Screens
+effects paste: copy a chain first	namathisela imiphumela: kopisha uchungechunge kuqala
+expected pixels -1000000..1000000	kulindeleke ama-pixel -1000000..1000000
+marker: add | next | prev | clear	uphawu: engeza | olandelayo | owedlule | sula
+press again to delete this button	cindezela futhi ukuze usule le nkinobho
+warp grid: 2 to 9 points each way	igridi yokugoqoza: amaphoyinti angu-2 kuya ku-9 ohlangothini ngalunye
+AUDIOFX ADD: needs an effect token	AUDIOFX ADD: kudinga uphawu lomphumela
+BLEND LIFT: expected 0..20 percent	BLEND LIFT: kulindeleke 0..20 ekhulwini
+BUGSWAT SHOWME: only in a briefing	BUGSWAT SHOWME: kuphela ku-briefing
+CAPTIONS LINES: expected 1, 2 or 3	CAPTIONS LINES: kulindeleke 1, 2 noma 3
+DASH SET: slot number out of range	DASH SET: inombolo yesilothi ingaphandle kwebanga
+FX AMOUNT: no effect at that index	FX AMOUNT: asikho umphumela kuleyo nkomba
+FX COLOUR: no effect at that index	FX COLOUR: asikho umphumela kuleyo nkomba
+MIDICLOCK SIM: bpm must be 20..600	MIDICLOCK SIM: i-bpm kumele ibe ngu-20..600
+OUTPUT ADD: expected a deck number	OUTPUT ADD: kulindeleke inombolo ye-deck
+SLICE FLIP: H or V, then ON or OFF	SLICE FLIP: H noma V, bese VULIWE noma VALIWE
+a path needs three points: dropped	indlela idinga amaphoyinti amathathu: kulahliwe
+a show needs at least one playlist	umbukiso udinga okungenani uhlu olulodwa
+display scan: no displays reported	ukuskena kwezibonisi: azikho izibonisi ezibikiwe
+selection has no cue with geometry	ukukhethwa akunayo i-cue enejiyomethri
+that cue cannot be fired by a step	leyo cue ayikwazi ukukhishwa yisinyathelo
+time: type it as HH:MM or HH:MM:SS	isikhathi: sibhale nge-HH:MM noma HH:MM:SS
+ASCII COLS: expected a column count	ASCII COLS: kulindeleke inani lamakholomu
+Deckboy evolved into SUPER DECKBOY!	I-Deckboy iguquke yaba yi-SUPER DECKBOY!
+FX PARAM: slot must be A, B, C or D	FX PARAM: isilothi kumele sibe ngu-A, B, C noma D
+MIDI: a note number 0-127, or LEARN	MIDI: inombolo yenothi 0-127, noma FUNDA
+MIDIMAP REMOVE: COMPUTER|SHOW <row>	MIDIMAP REMOVE: COMPUTER|SHOW <umugqa>
+OUTPUT DECK: expected a deck number	OUTPUT DECK: kulindeleke inombolo ye-deck
+OUTPUTFX BYPASS: expected ON or OFF	OUTPUTFX BYPASS: kulindeleke VULIWE noma VALIWE
+SCOPES MATRIX: expected 709 or 2020	SCOPES MATRIX: kulindeleke 709 noma 2020
+SHORTCUTS: the startup dialog is up	SHORTCUTS: ibhokisi lokuqala liphakeme
+STREAM HDR: expected SDR, PQ or HLG	STREAM HDR: kulindeleke SDR, PQ noma HLG
+an animation is already being saved	i-animation isilondolozwa kakade
+delete live cue: press delete again	susa i-cue ebukhoma: cindezela susa futhi
+esc: output cleared - again to quit	esc: okuphumayo kusulwe - cindezela futhi ukuze uphume
+no browser cue is live on this deck	ayikho i-cue yesiphequluli ebukhoma kule deck
+notestep: nothing live on this deck	notestep: akukho okubukhoma kule deck
+select the cue it should take first	khetha i-cue okufanele i-TAKE kuqala
+DRAW EDITOR: select a Draw cue first	DRAW EDITOR: qala ukhethe i-cue ka-Draw
+DRAW SAVE: STILL or ANIMATION [file]	DRAW SAVE: STILL noma ANIMATION [ifayela]
+MIC CHANNEL: expected L, R or STEREO	MIC CHANNEL: kulindeleke L, R noma STEREO
+MULTIVIEW WINDOW: expected ON or OFF	MULTIVIEW WINDOW: kulindeleke ON noma OFF
+Page Down / Page Up step the tracker	Page Down / Page Up zinyathelisa umlandeleli
+SUBTITLE CONVERT: nothing to convert	SUBTITLE CONVERT: akukho okufanele kuguqulwe
+TONECUE LFO: select a tone cue first	TONECUE LFO: qala ukhethe i-cue yethoni
+TRUST LAST: nothing has been refused	TRUST LAST: akukho okwenqatshiwe
+atem tally on -- set the switcher IP	i-tally ye-atem ivuliwe -- setha i-IP ye-switcher
+datamosh: subtle, self-heals (H.264)	datamosh: kuncane, kuyazilulama (H.264)
+master vol: expected 0-200 (percent)	master vol: kulindeleke 0-200 (amaphesenti)
+matrix off - back to the output pair	i-matrix ivaliwe - buyela kupheya yokuphuma
+monitor follows the focused playlist	i-monitor ilandela uhlu olugxilile
+multiview: back to the automatic set	multiview: buyela kusethi ezenzakalelayo
+no MIDI output ports on this machine	awekho amachweba e-MIDI okuphuma kule mishini
+splitnotes: could not split that cue	splitnotes: ayikwazanga ukuhlukanisa leyo cue
+srt: passphrase needs 10+ characters	srt: iphasiwedi idinga izinhlamvu eziyi-10+
+step deleted - ctrl+z brings it back	isinyathelo sisusiwe - ctrl+z siyasibuyisa
+timer face: select a timer cue first	ubuso bewashi: qala ukhethe i-cue yewashi
+timer font: select a timer cue first	ifonti yewashi: qala ukhethe i-cue yewashi
+16 slices is the most an output takes	izingcezu eziyi-16 yisona esiningi okuphumayo okusithatha
+AUDIOGAIN BY: expected a number of dB	AUDIOGAIN BY: kulindeleke inombolo ye-dB
+AUDITION: expected OFF, END or STATUS	AUDITION: kulindeleke OFF, END noma STATUS
+BROWSER CLICK: fractions must be 0..1	BROWSER CLICK: izingxenyana kumele zibe ngu-0..1
+FX GET: expected an effect number, 1-	FX GET: kulindeleke inombolo yomphumela, 1-
+HLS playlist: added as one stream cue	uhlu lwe-HLS: lungezwe njenge-cue eyodwa yokusakaza
+MASTER BYPASS: expected a deck number	MASTER BYPASS: kulindeleke inombolo ye-deck
+MIDICLOCK: expected SIM <bpm> [beats]	MIDICLOCK: kulindeleke SIM <bpm> [beats]
+MULTIVIEW: expected ON, OFF or TOGGLE	MULTIVIEW: kulindeleke ON, OFF noma TOGGLE
+OUTPUT HDR SIGNAL: expected PQ or HLG	OUTPUT HDR SIGNAL: kulindeleke PQ noma HLG
+STREAM HDR: select a stream cue first	STREAM HDR: qala ukhethe i-cue yokusakaza
+datamosh: file-backed video cues only	datamosh: ama-cue evidiyo asemafayelini kuphela
+effects copy: this cue has no effects	effects copy: le cue ayinayo imiphumela
+matrix on, routed as the patch had it	i-matrix ivuliwe, ihanjiswe njengoba i-patch ibinjalo
+recovery could not be read; copy kept	ukuvuselela akukwazanga ukufundwa; ikhophi igcinwe
+FIXTURE DIP: expected <name> <%>|LEAVE	FIXTURE DIP: kulindeleke <name> <%>|LEAVE
+MONITOR: expected DEVICE, DECK or ROOM	MONITOR: kulindeleke DEVICE, DECK noma ROOM
+NETCUE PROTO: expected osc, udp or tcp	NETCUE PROTO: kulindeleke osc, udp noma tcp
+STING LENGTH: expected 0.05-10 seconds	STING LENGTH: kulindeleke 0.05-10 amasekhondi
+sprite sheet: select a video synth cue	sprite sheet: khetha i-cue ye-synth yevidiyo
+AUDIOGAIN BY: no selected cue has audio	AUDIOGAIN BY: ayikho i-cue ekhethiwe enomsindo
+CAPTIONS SHOW: expected <output> ON|OFF	CAPTIONS SHOW: kulindeleke <output> ON|OFF
+CAPTIONS TRANSCRIPT: expected ON or OFF	CAPTIONS TRANSCRIPT: kulindeleke ON noma OFF
+COMPANIONPASS: use 8 or more characters	COMPANIONPASS: sebenzisa izinhlamvu eziyi-8 noma ngaphezulu
+DEVAMP: nothing is playing on that deck	DEVAMP: akukho okudlalayo ku-deck leyo
+FX LFO ZONE: 0 (the whole picture) to 8	FX LFO ZONE: 0 (isithombe sonke) kuya ku-8
+MASK IMPORT: expected <file.svg> [name]	MASK IMPORT: kulindeleke <file.svg> [name]
+MASK SET: expected <id> <param> <value>	MASK SET: kulindeleke <id> <param> <value>
+MULTIVIEW WINDOW: the last window stays	MULTIVIEW WINDOW: iwindi lokugcina liyahlala
+OUTPUT AOI MODE: expected PIXEL or FILL	OUTPUT AOI MODE: kulindeleke PIXEL noma FILL
+SCOPES SOUND: expected nothing or RESET	SCOPES SOUND: kulindeleke lutho noma RESET
+Tabletop is in SOURCE > MADE BY DECKBOY	I-Tabletopise-UMTHOMBO > YENZIWE YI-DECKBOY
+can't read media - CONVERT in inspector	ayikwazi ukufunda imidiya - GUQULA ku-inspector
+cleared: all decks stopped, outputs off	kuhlanjululwe: wonke ama-deck amisiwe, okuphumayo kuvaliwe
+datamosh: classic, full effect (MPEG-4)	datamosh: classic, umphumela ogcwele (MPEG-4)
+driver cleared - nothing left to puppet	isishayeli sihlanjululiwe - akusekho okokulawula
+key+fill on - now pick a Key out device	key+fill ivuliwe - manje khetha idivayisi yokuphuma kwe-key
+play the note that should fire this cue	dlala inothi okufanele liqalise le cue
+programme to MediaMTX: watch at http://	uhlelo ku-MediaMTX: bheka ku-http://
+recformat: expected <WxH|program> [fps]	recformat: kulindeleke <WxH|program> [fps]
+requested input missing - using default	okufakwayo okucelwe akukho - kusetshenziswa okujwayelekile
+DRAW PLAYBACK: still, flipbook or replay	DRAW PLAYBACK: still, flipbook noma replay
+FADE KNOB: expected amount, A, B, C or D	FADE KNOB: kulindeleke amount, A, B, C noma D
+LOWERANIM: this cue is not a Lower Third	LOWERANIM: le cue ayiyona Lower Third
+MASK EXPORT: size is WxH, e.g. 1920x1080	MASK EXPORT: usayizi ngu-WxH, isb. 1920x1080
+MOTION SOURCE: CAMERA [name] or DECK <n>	MOTION SOURCE: CAMERA [name] noma DECK <n>
+NEW already starts from factory settings	I-NEW isiqala kakade ngezilungiselelo zasefektri
+OUTPUT SELECT: expected an output number	OUTPUT SELECT: kulindeleke inombolo yokuphumayo
+TCCUE: expected NEW, ACTION, JAM or FIRE	TCCUE: kulindeleke NEW, ACTION, JAM noma FIRE
+hands-on: clicks and keys go to the page	hands-on: ukuchofoza nokhiye kuya ekhasini
+multiview: one window per playlist again	multiview: iwindi elilodwa ngoluhlu ngalunye futhi
+record folder set - SAME DISK as Deckboy	ifolda yokuqopha isethiwe - I-DISK EFANAYO ne-Deckboy
+sequence waiting - press it again for GO	ukulandelana kuyalinda - cindezela futhi ukuze uthole i-GO
+this platform cannot capture that source	le nkundla ayikwazi ukuthatha lowo mthombo
+timer backdrop: select a timer cue first	ingemuva lewashi: khetha i-cue yewashi kuqala
+BLEND CURVE: expected PROJECTOR or LINEAR	BLEND CURVE: kulindeleke PROJECTOR noma LINEAR
+CAPTIONS POSITION: expected TOP or BOTTOM	CAPTIONS POSITION: kulindeleke TOP noma BOTTOM
+CAPTIONS SIZE: expected 50..200 (percent)	CAPTIONS SIZE: kulindeleke 50..200 (amaphesenti)
+DMXCUE: the selected cue is not a dmx cue	DMXCUE: i-cue ekhethiwe ayiyona i-cue ye-DMX
+DRAW FRAME: ADD, DELETE, NEXT, PREV or 1-	DRAW FRAME: ADD, DELETE, NEXT, PREV noma 1-
+FADE OVER: expected a duration in seconds	FADE OVER: kulindeleke ubude ngamasekhondi
+FADE TO: expected a percent from 0 to 100	FADE TO: kulindeleke iphesenti elisuka ku-0 kuya ku-100
+LOWERSTYLE: this cue is not a Lower Third	LOWERSTYLE: le cue ayiyona Lower Third
+MOTION SOURCE DECK: a playlist number, 1-	MOTION SOURCE DECK: inombolo yohlu, 1-
+STING SWEEP: expected -24 to 24 semitones	STING SWEEP: kulindeleke -24 kuya ku-24 ama-semitone
+TCCUE ACTION: expected start, stop or jam	TCCUE ACTION: kulindeleke start, stop noma jam
+TCCUE JAM: expected a timecode or seconds	TCCUE JAM: kulindeleke ikhodi yesikhathi noma amasekhondi
+TRACKER VIEW: expected PATTERN or CLASSIC	TRACKER VIEW: kulindeleke PATTERN noma CLASSIC
+Tabletop added - SOURCE > MADE BY DECKBOY	Tabletop yengeziwe - UMTHOMBO > YENZIWE YI-DECKBOY
+browser window open - click, type, log in	iwindi lesiphequluli livuliwe - chofoza, thayipha, ngena
+contrast check: something needs attention	ukuhlola ukuhluka: kunento edinga ukunakwa
+drag the corners on the programme monitor	hudula amakhona kumonitha yohlelo
+this browser backend cannot show a window	lesi sisekelo sesiphequluli asikwazi ukukhombisa iwindi
+BROWSER CLICK: expected two fractions 0..1	BROWSER CLICK: kulindeleke izingxenyana ezimbili ezingu-0..1
+CHIP: the selected cue is not a chip synth	CHIP: i-cue ekhethiwe ayiyona i-chip synth
+DASH SET: a slot cannot fire the dashboard	DASH SET: isilothi asikwazi ukuqalisa ideshibhodi
+DRAW STROKE: x,y[,pressure] ... in percent	DRAW STROKE: x,y[,ingcindezi] ... ngamaphesenti
+OUTPUTFX REMOVE: expected an effect number	OUTPUTFX REMOVE: kulindeleke inombolo yomphumela
+SCRIPTCUE: expected NEW, ADD, CLEAR or RUN	SCRIPTCUE: kulindeleke NEW, ADD, CLEAR noma RUN
+TEXTCUE WIGGLE: expected ON, OFF or TOGGLE	TEXTCUE WIGGLE: kulindeleke ON, OFF noma TOGGLE
+TRIGGER KEY: F1-F10, F12, NUM0-NUM9 or OFF	TRIGGER KEY: F1-F10, F12, NUM0-NUM9 noma OFF
+auto-advance removed: cue end follows hold	ukuqhubekela phambili okuzenzakalelayo kususiwe: ukuphela kwe-cue kulandela ukubamba
+choose RECOVER or KEEP SAVED before saving	KHETHA RECOVER noma KEEP SAVED ngaphambi kokulondoloza
+datamosh look: file-backed video cues only	ukubukeka kwe-datamosh: kuphela ama-cue evidiyo asuselwa kufayela
+nmos: on - searching for a registry (mDNS)	nmos: kuvuliwe - kusesha i-registry (mDNS)
+record folder: recordings/ beside the show	ifolda yokuqopha: recordings/ eduze kombukiso
+recsegment: expected <minutes> [megabytes]	recsegment: kulindeleke <imizuzu> [MB]
+the example shows are not in this download	imibukiso eyizibonelo ayikho kulokhu okulandiwe
+warp point: expected <col> <row> <dx> <dy>	iphoyinti lokugoqoza: kulindeleke <ikholomu> <umugqa> <dx> <dy>
+warp point: no grid -- WARP GRID <n> first	iphoyinti lokugoqoza: alikho igridi -- qala nge-WARP GRID <n>
+DMXCUE FIXTURE: level is 0-100 (%) or LEAVE	DMXCUE FIXTURE: izinga ngu-0-100 (%) noma LEAVE
+EDIT off: the keyboard only moves and fires	HLELA VALIWE: ikhibhodi inyakaza futhi iqalisa kuphela
+EDIT on: typing changes the tracker's cells	HLELA KUVULIWE: ukuthayipha kushintsha amaseli omlandeleli
+FIXTURE: expected LIST, ADD, FIND or REMOVE	FIXTURE: kulindeleke LIST, ADD, FIND noma REMOVE
+LIMITER CEILING: a level from -40 to 0 dBFS	LIMITER CEILING: izinga ukusuka -40 kuya 0 dBFS
+MIDICUE: the selected cue is not a midi cue	MIDICUE: i-cue ekhethiwe ayiyona i-cue ye-MIDI
+MOTION ZONE ADD: x y w h, percentages 0-100	MOTION ZONE ADD: x y w h, amaphesenti 0-100
+MOTION ZONE: ADD x y w h, REMOVE n or CLEAR	MOTION ZONE: ADD x y w h, REMOVE n noma CLEAR
+mask off -- it is still in the show's library	imaski valiwe -- isese emtapweni womBukiso
+Stop masking this. The mask stays in the show's library, to put back from the menu above	Yeka ukufihla ngale maski. Imaski ihlala elabhulali yombukiso, ukuze ibuyiselwe kumenyu engenhla
+Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	Susa le maski kumbukiso, nakuzo zonke ama-cue, ama-playlist nokuphumayo okuyisebenzisayo. Ukuhlehlisa kuyibuyisa

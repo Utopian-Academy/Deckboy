@@ -2851,3 +2851,219 @@ DASH: the startup dialog is up	DASH: açılış penceresi açık
 LOWERSTYLE: select a cue first	LOWERSTYLE: önce bir cue seç
 MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: 1-16 bekleniyor
 PATTERN ADD needs a pattern id	PATTERN ADD için bir desen kimliği gerekir
+Lower Third attached	Lower Third bağlandı
+find: run FIND first	find: önce FIND çalıştır
+DRAW ONION: ON or OFF	DRAW ONION: ON veya OFF
+DRAW EDITOR: ON or OFF	DRAW EDITOR: ON veya OFF
+OUTPUT AOI: no outputs	OUTPUT AOI: çıkış yok
+OUTPUT DECK: no outputs	OUTPUT DECK: çıkış yok
+DRAW HOLD: seconds, 0-60	DRAW HOLD: saniye, 0-60
+FADE EFFECT: expected 1-	FADE EFFECT: 1- bekleniyordu
+MOTION MIRROR: ON or OFF	MOTION MIRROR: ON veya OFF
+TALLYEVENT wants ON or OFF	TALLYEVENT ON veya OFF ister
+TONECUE LFO: FREQ or LEVEL	TONECUE LFO: FREQ veya LEVEL
+GOGUARD: OFF or 50-2000 (ms)	GOGUARD: OFF veya 50-2000 (ms)
+SLICE GRID SMOOTH: ON or OFF	SLICE GRID SMOOTH: ON veya OFF
+PATTERN SET needs a pattern id	PATTERN SET için desen kimliği gerekir
+already the first tracker step	zaten ilk izleyici adımı
+cannot determine rendered size	işlenen boyut belirlenemiyor
+find: enter cue id/number/name	find: cue kimliği/numarası/adı girin
+no sprite sets in data/sprites	data/sprites içinde sprite seti yok
+normalize: no measurable audio	normalize: ölçülebilir ses yok
+recordings are left as written	kayıtlar yazıldığı gibi bırakılır
+reracked - holding first frame	reracked - ilk kare tutuluyor
+st 2110: clipboard unavailable	st 2110: pano kullanılamıyor
+stream url: unsupported scheme	stream url: desteklenmeyen şema
+that button has no command yet	bu düğmenin henüz komutu yok
+DMXCUE PROTOCOL: ARTNET or SACN	DMXCUE PROTOCOL: ARTNET veya SACN
+FIXTURE DIP: 0-100 (%) or LEAVE	FIXTURE DIP: 0-100 (%) veya BIRAK
+FX LFO: no effect at that index	FX LFO: bu dizinde efekt yok
+MIDIMAP CLEAR: COMPUTER or SHOW	MIDIMAP CLEAR: BİLGİSAYAR veya GÖSTERİ
+TEXTCUE SPEED: expected 0.05-20	TEXTCUE SPEED: 0.05-20 bekleniyor
+an output needs a base playlist	bir çıkış için temel çalma listesi gerekir
+audio input: device unavailable	ses girişi: aygıt kullanılamıyor
+expected crop percentages 0..90	kırpma yüzdeleri 0..90 bekleniyor
+media found - nothing to relink	ortam bulundu – yeniden bağlanacak bir şey yok
+notestep: build out of range 1-	notestep: build 1- aralığının dışında
+put it back when the ramp lands	rampa bitince geri koy
+splitnotes: cue out of range 1-	splitnotes: cue 1- aralığının dışında
+st 2110 SDP copied to clipboard	ST 2110 SDP panoya kopyalandı
+w00t! all ur cues r belong 2 us	w00t! bütün cue'larınız bizim
+BROWSER TYPE: expected some text	BROWSER TYPE: bir metin bekleniyor
+CHECK: expected a problem number	CHECK: bir sorun numarası bekleniyor
+FADE RESTORE: expected on or off	FADE RESTORE: AÇIK veya KAPALI bekleniyor
+MIDICLOCK SIM: expected a number	MIDICLOCK SIM: bir sayı bekleniyor
+MONITOR ROOM: expected ON or OFF	MONITOR ROOM: AÇIK veya KAPALI bekleniyor
+MOTION ZONE ADD: already 8 zones	MOTION ZONE ADD: zaten 8 bölge var
+SLICE REMOVE: a slice number, 1-	SLICE REMOVE: dilim numarası, 1-
+motion off: the camera is closed	hareket kapalı: kamera kapalı
+no capture devices found (dshow)	yakalama aygıtı bulunamadı (dshow)
+only accepted from this computer	yalnızca bu bilgisayardan kabul edilir
+reccodec: expected a codec token	reccodec: codec belirteci bekleniyor
+this build has no plugin support	bu yapıda eklenti desteği yok
+BROWSER SCROLL: expected a number	BROWSER SCROLL: bir sayı bekleniyor
+DMXCUE UNIVERSE: expected 0-32767	DMXCUE UNIVERSE: 0-32767 bekleniyor
+FADE DECK: expected a deck number	FADE DECK: bir deck numarası bekleniyor
+FX PARAM: no effect at that index	FX PARAM: bu dizinde efekt yok
+MIC GAIN: expected -40 to 40 (dB)	MIC GAIN: -40 ile 40 arası (dB) bekleniyor
+MOTION ZONE REMOVE: a zone number	MOTION ZONE REMOVE: bölge numarası
+NDI: this build has no NDI output	NDI: bu yapıda NDI çıkışı yok
+STING PITCH: expected 20-12000 Hz	STING PITCH: 20-12000 Hz bekleniyor
+TRIGGER MIDI: a note 0-127 or OFF	TRIGGER MIDI: nota 0-127 veya KAPALI
+could not open the Screens window	SCREENS penceresi açılamadı
+effects paste: copy a chain first	effects paste: önce bir zincir kopyalayın
+expected pixels -1000000..1000000	piksel -1000000..1000000 bekleniyordu
+marker: add | next | prev | clear	işaret: ekle | sonraki | önceki | temizle
+press again to delete this button	bu düğmeyi silmek için tekrar bas
+warp grid: 2 to 9 points each way	biçim bozma ızgarası: her yönde 2 ila 9 nokta
+AUDIOFX ADD: needs an effect token	AUDIOFX ADD: bir efekt belirteci gerekli
+BLEND LIFT: expected 0..20 percent	BLEND LIFT: 0..20 yüzde bekleniyordu
+BUGSWAT SHOWME: only in a briefing	BUGSWAT SHOWME: yalnızca brifingde
+CAPTIONS LINES: expected 1, 2 or 3	CAPTIONS LINES: 1, 2 veya 3 bekleniyordu
+DASH SET: slot number out of range	DASH SET: slot numarası aralık dışı
+FX AMOUNT: no effect at that index	FX AMOUNT: bu dizinde efekt yok
+FX COLOUR: no effect at that index	FX COLOUR: bu dizinde efekt yok
+MIDICLOCK SIM: bpm must be 20..600	MIDICLOCK SIM: bpm 20..600 olmalı
+OUTPUT ADD: expected a deck number	OUTPUT ADD: deck numarası bekleniyordu
+SLICE FLIP: H or V, then ON or OFF	SLICE FLIP: H veya V, sonra AÇIK veya KAPALI
+a path needs three points: dropped	yol için üç nokta gerekir: atıldı
+a show needs at least one playlist	bir gösteri için en az bir çalma listesi gerekir
+display scan: no displays reported	ekran taraması: bildirilen ekran yok
+selection has no cue with geometry	seçimde geometrili cue yok
+that cue cannot be fired by a step	bu cue bir adımla tetiklenemez
+time: type it as HH:MM or HH:MM:SS	zaman: HH:MM veya HH:MM:SS olarak yaz
+ASCII COLS: expected a column count	ASCII COLS: sütun sayısı bekleniyordu
+Deckboy evolved into SUPER DECKBOY!	Deckboy, SUPER DECKBOY'a dönüştü!
+FX PARAM: slot must be A, B, C or D	FX PARAM: slot A, B, C veya D olmalı
+MIDI: a note number 0-127, or LEARN	MIDI: 0-127 arası nota numarası veya ÖĞREN
+MIDIMAP REMOVE: COMPUTER|SHOW <row>	MIDIMAP REMOVE: BİLGİSAYAR|GÖSTERİ <satır>
+OUTPUT DECK: expected a deck number	OUTPUT DECK: deck numarası bekleniyordu
+OUTPUTFX BYPASS: expected ON or OFF	OUTPUTFX BYPASS: AÇIK veya KAPALI bekleniyordu
+SCOPES MATRIX: expected 709 or 2020	SCOPES MATRIX: 709 veya 2020 bekleniyordu
+SHORTCUTS: the startup dialog is up	SHORTCUTS: açılış penceresi açık
+STREAM HDR: expected SDR, PQ or HLG	STREAM HDR: SDR, PQ veya HLG bekleniyordu
+an animation is already being saved	bir animasyon zaten kaydediliyor
+delete live cue: press delete again	canlı cue'yu sil: sil'e tekrar bas
+esc: output cleared - again to quit	esc: çıkış temizlendi - çıkmak için tekrar
+no browser cue is live on this deck	bu deck'te canlı tarayıcı cue'su yok
+notestep: nothing live on this deck	notestep: bu deck'te canlı hiçbir şey yok
+select the cue it should take first	ilk alacağı cue'yu seç
+DRAW EDITOR: select a Draw cue first	DRAW EDITOR: önce bir Draw cue seçin
+DRAW SAVE: STILL or ANIMATION [file]	DRAW SAVE: STILL veya ANIMATION [file]
+MIC CHANNEL: expected L, R or STEREO	MIC CHANNEL: L, R veya STEREO bekleniyor
+MULTIVIEW WINDOW: expected ON or OFF	MULTIVIEW WINDOW: ON veya OFF bekleniyor
+Page Down / Page Up step the tracker	Page Down / Page Up izleyiciyi kaydırır
+SUBTITLE CONVERT: nothing to convert	SUBTITLE CONVERT: dönüştürülecek bir şey yok
+TONECUE LFO: select a tone cue first	TONECUE LFO: önce bir Ton cue seçin
+TRUST LAST: nothing has been refused	TRUST LAST: hiçbir şey reddedilmedi
+atem tally on -- set the switcher IP	atem tally açık -- switcher IP'sini ayarlayın
+datamosh: subtle, self-heals (H.264)	datamosh: ince, kendini onarır (H.264)
+master vol: expected 0-200 (percent)	master vol: 0-200 bekleniyor (yüzde)
+matrix off - back to the output pair	matrix kapalı - çıkış çiftine dönüldü
+monitor follows the focused playlist	monitör odaklanan çalma listesini izler
+multiview: back to the automatic set	multiview: otomatik takıma dönüldü
+no MIDI output ports on this machine	bu makinede MIDI çıkış portu yok
+splitnotes: could not split that cue	splitnotes: bu cue bölünemedi
+srt: passphrase needs 10+ characters	srt: parola 10+ karakter olmalı
+step deleted - ctrl+z brings it back	adım silindi - ctrl+z geri getirir
+timer face: select a timer cue first	timer face: önce bir zamanlayıcı cue seçin
+timer font: select a timer cue first	timer font: önce bir zamanlayıcı cue seçin
+16 slices is the most an output takes	bir çıkış en fazla 16 dilim alır
+AUDIOGAIN BY: expected a number of dB	AUDIOGAIN BY: dB cinsinden bir sayı bekleniyor
+AUDITION: expected OFF, END or STATUS	AUDITION: OFF, END veya STATUS bekleniyor
+BROWSER CLICK: fractions must be 0..1	BROWSER CLICK: kesirler 0..1 arasında olmalı
+FX GET: expected an effect number, 1-	FX GET: bir efekt numarası bekleniyor, 1-
+HLS playlist: added as one stream cue	HLS çalma listesi: tek bir yayın cue'su olarak eklendi
+MASTER BYPASS: expected a deck number	MASTER BYPASS: bir deck numarası bekleniyor
+MIDICLOCK: expected SIM <bpm> [beats]	MIDICLOCK: SIM <bpm> [beats] bekleniyor
+MULTIVIEW: expected ON, OFF or TOGGLE	MULTIVIEW: ON, OFF veya TOGGLE bekleniyor
+OUTPUT HDR SIGNAL: expected PQ or HLG	OUTPUT HDR SIGNAL: PQ veya HLG bekleniyor
+STREAM HDR: select a stream cue first	STREAM HDR: önce bir yayın cue'su seçin
+datamosh: file-backed video cues only	datamosh: yalnızca dosya tabanlı video cue'ları
+effects copy: this cue has no effects	effects copy: bu cue'da efekt yok
+matrix on, routed as the patch had it	matrix açık, patch'teki gibi yönlendirildi
+recovery could not be read; copy kept	kurtarma dosyası okunamadı; kopya korundu
+FIXTURE DIP: expected <name> <%>|LEAVE	FIXTURE DIP: <name> <%>|LEAVE bekleniyor
+MONITOR: expected DEVICE, DECK or ROOM	MONITOR: DEVICE, DECK veya ROOM bekleniyor
+NETCUE PROTO: expected osc, udp or tcp	NETCUE PROTO: osc, udp veya tcp bekleniyor
+STING LENGTH: expected 0.05-10 seconds	STING LENGTH: 0.05-10 saniye bekleniyor
+sprite sheet: select a video synth cue	sprite sheet: bir video sentezleyici cue'su seç
+AUDIOGAIN BY: no selected cue has audio	AUDIOGAIN BY: seçili hiçbir cue'da ses yok
+CAPTIONS SHOW: expected <output> ON|OFF	CAPTIONS SHOW: beklenen <output> ON|OFF
+CAPTIONS TRANSCRIPT: expected ON or OFF	CAPTIONS TRANSCRIPT: beklenen ON veya OFF
+COMPANIONPASS: use 8 or more characters	COMPANIONPASS: 8 veya daha fazla karakter kullan
+DEVAMP: nothing is playing on that deck	DEVAMP: o deck'te hiçbir şey oynatılmıyor
+FX LFO ZONE: 0 (the whole picture) to 8	FX LFO ZONE: 0 (tüm resim) ile 8 arası
+MASK IMPORT: expected <file.svg> [name]	MASK IMPORT: beklenen <file.svg> [name]
+MASK SET: expected <id> <param> <value>	MASK SET: beklenen <id> <param> <value>
+MULTIVIEW WINDOW: the last window stays	MULTIVIEW WINDOW: son pencere kalır
+OUTPUT AOI MODE: expected PIXEL or FILL	OUTPUT AOI MODE: beklenen PIXEL veya FILL
+SCOPES SOUND: expected nothing or RESET	SCOPES SOUND: beklenen hiçbir şey veya RESET
+Tabletop is in SOURCE > MADE BY DECKBOY	Tabletop, KAYNAK > DECKBOY İLE YAPILDI altında
+can't read media - CONVERT in inspector	ortam okunamıyor - inspector'da DÖNÜŞTÜR
+cleared: all decks stopped, outputs off	temizlendi: tüm deck'ler durdu, çıkışlar kapalı
+datamosh: classic, full effect (MPEG-4)	datamosh: klasik, tam etki (MPEG-4)
+driver cleared - nothing left to puppet	sürücü temizlendi - yönetilecek bir şey kalmadı
+key+fill on - now pick a Key out device	key+fill açık - şimdi bir Key çıkışı aygıtı seç
+play the note that should fire this cue	bu cue'yu tetikleyecek notayı çal
+programme to MediaMTX: watch at http://	program MediaMTX'e: http:// adresinden izle
+recformat: expected <WxH|program> [fps]	recformat: beklenen <WxH|program> [fps]
+requested input missing - using default	istenen giriş eksik - varsayılan kullanılıyor
+DRAW PLAYBACK: still, flipbook or replay	DRAW PLAYBACK: durağan, flipbook veya replay
+FADE KNOB: expected amount, A, B, C or D	FADE KNOB: beklenen miktar, A, B, C veya D
+MASK EXPORT: size is WxH, e.g. 1920x1080	MASK EXPORT: boyut WxH, örn. 1920x1080
+MOTION SOURCE: CAMERA [name] or DECK <n>	MOTION SOURCE: CAMERA [name] veya DECK <n>
+NEW already starts from factory settings	NEW zaten fabrika ayarlarından başlar
+OUTPUT SELECT: expected an output number	OUTPUT SELECT: beklenen bir çıkış numarası
+TCCUE: expected NEW, ACTION, JAM or FIRE	TCCUE: beklenen NEW, ACTION, JAM veya FIRE
+hands-on: clicks and keys go to the page	hands-on: tıklamalar ve tuşlar sayfaya gider
+multiview: one window per playlist again	multiview: yine çalma listesi başına bir pencere
+record folder set - SAME DISK as Deckboy	kayıt klasörü ayarlandı - Deckboy ile AYNI DİSK
+sequence waiting - press it again for GO	sekans bekliyor - GO için tekrar bas
+this platform cannot capture that source	bu platform o kaynağı yakalayamaz
+timer backdrop: select a timer cue first	zamanlayıcı arka planı: önce bir zamanlayıcı cue'su seç
+BLEND CURVE: expected PROJECTOR or LINEAR	BLEND CURVE: beklenen PROJECTOR veya LINEAR
+CAPTIONS POSITION: expected TOP or BOTTOM	CAPTIONS POSITION: beklenen TOP veya BOTTOM
+CAPTIONS SIZE: expected 50..200 (percent)	CAPTIONS SIZE: beklenen 50..200 (yüzde)
+DMXCUE: the selected cue is not a dmx cue	DMXCUE: seçili cue bir DMX cue değil
+DRAW FRAME: ADD, DELETE, NEXT, PREV or 1-	DRAW FRAME: ADD, DELETE, NEXT, PREV veya 1-
+FADE OVER: expected a duration in seconds	FADE OVER: saniye cinsinden bir süre bekleniyordu
+FADE TO: expected a percent from 0 to 100	FADE TO: 0 ile 100 arasında bir yüzde bekleniyordu
+MOTION SOURCE DECK: a playlist number, 1-	MOTION SOURCE DECK: bir çalma listesi numarası, 1-
+STING SWEEP: expected -24 to 24 semitones	STING SWEEP: -24 ile 24 arası yarım ton bekleniyordu
+TCCUE ACTION: expected start, stop or jam	TCCUE ACTION: start, stop veya jam bekleniyordu
+TCCUE JAM: expected a timecode or seconds	TCCUE JAM: bir zaman kodu veya saniye bekleniyordu
+TRACKER VIEW: expected PATTERN or CLASSIC	TRACKER VIEW: PATTERN veya CLASSIC bekleniyordu
+Tabletop added - SOURCE > MADE BY DECKBOY	Tabletop eklendi - KAYNAK > DECKBOY İLE YAPILDI
+browser window open - click, type, log in	tarayıcı penceresi açık - tıkla, yaz, giriş yap
+contrast check: something needs attention	kontrast kontrolü: bir şey dikkat gerektiriyor
+drag the corners on the programme monitor	köşeleri program monitöründe sürükle
+this browser backend cannot show a window	bu tarayıcı arka ucu pencere gösteremez
+BROWSER CLICK: expected two fractions 0..1	BROWSER CLICK: 0..1 arası iki kesir bekleniyordu
+CHIP: the selected cue is not a chip synth	CHIP: seçili cue bir chip synth değil
+DASH SET: a slot cannot fire the dashboard	DASH SET: bir slot panoyu tetikleyemez
+DRAW STROKE: x,y[,pressure] ... in percent	DRAW STROKE: x,y[,pressure] ... yüzde olarak
+OUTPUTFX REMOVE: expected an effect number	OUTPUTFX REMOVE: bir efekt numarası bekleniyordu
+SCRIPTCUE: expected NEW, ADD, CLEAR or RUN	SCRIPTCUE: NEW, ADD, CLEAR veya RUN bekleniyordu
+TEXTCUE WIGGLE: expected ON, OFF or TOGGLE	TEXTCUE WIGGLE: ON, OFF veya TOGGLE bekleniyordu
+TRIGGER KEY: F1-F10, F12, NUM0-NUM9 or OFF	TRIGGER KEY: F1-F10, F12, NUM0-NUM9 veya OFF
+auto-advance removed: cue end follows hold	otomatik ilerleme kaldırıldı: cue sonu bekle'yi izler
+choose RECOVER or KEEP SAVED before saving	kaydetmeden önce RECOVER veya KEEP SAVED seç
+datamosh look: file-backed video cues only	datamosh görünümü: yalnızca dosya tabanlı video cue'ları
+nmos: on - searching for a registry (mDNS)	nmos: açık - kayıt defteri aranıyor (mDNS)
+record folder: recordings/ beside the show	kayıt klasörü: recordings/ gösterinin yanında
+recsegment: expected <minutes> [megabytes]	recsegment: <dakika> [megabayt] bekleniyordu
+the example shows are not in this download	örnek gösteriler bu indirmede yok
+warp point: expected <col> <row> <dx> <dy>	warp noktası: <sütun> <satır> <dx> <dy> bekleniyordu
+warp point: no grid -- WARP GRID <n> first	warp noktası: ızgara yok -- önce WARP GRID <n>
+DMXCUE FIXTURE: level is 0-100 (%) or LEAVE	DMXCUE FIXTURE: seviye 0-100 (%) veya LEAVE
+EDIT off: the keyboard only moves and fires	DÜZENLE kapalı: klavye yalnızca hareket eder ve tetikler
+EDIT on: typing changes the tracker's cells	DÜZENLE açık: yazmak İZLEYİCİ hücrelerini değiştirir
+FIXTURE: expected LIST, ADD, FIND or REMOVE	FIXTURE: LIST, ADD, FIND veya REMOVE bekleniyordu
+LIMITER CEILING: a level from -40 to 0 dBFS	LIMITER CEILING: -40 ile 0 dBFS arası bir seviye
+MIDICUE: the selected cue is not a midi cue	MIDICUE: seçili cue bir MIDI cue değil
+MOTION ZONE ADD: x y w h, percentages 0-100	MOTION ZONE ADD: x y w h, yüzde 0-100
+MOTION ZONE: ADD x y w h, REMOVE n or CLEAR	MOTION ZONE: ADD x y w h, REMOVE n veya CLEAR
+mask off -- it is still in the show's library	maske kapalı -- hâlâ gösterinin kütüphanesinde
+Stop masking this. The mask stays in the show's library, to put back from the menu above	Bunu maskelemeyi bırak. Maske gösterinin kütüphanesinde kalır, yukarıdaki menüden geri konabilir
+Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	Bu maskeyi gösteriden ve onu kullanan tüm cue, playlist ve çıkışlardan sil. Geri al onu geri getirir

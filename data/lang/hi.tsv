@@ -2856,3 +2856,222 @@ DASH: the startup dialog is up	DASH: स्टार्टअप डायलॉ
 LOWERSTYLE: select a cue first	LOWERSTYLE: पहले क्यू चुनें
 MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: 1-16 अपेक्षित
 PATTERN ADD needs a pattern id	PATTERN ADD को पैटर्न ID चाहिए
+Lower Third attached	Lower Third जुड़ गया
+DRAW ONION: ON or OFF	DRAW ONION: चालू या बंद
+Lower Third cue added	Lower Third क्यू जोड़ा गया
+DRAW EDITOR: ON or OFF	DRAW EDITOR: चालू या बंद
+OUTPUT AOI: no outputs	OUTPUT AOI: कोई आउटपुट नहीं
+OUTPUT DECK: no outputs	OUTPUT DECK: कोई आउटपुट नहीं
+DRAW HOLD: seconds, 0-60	DRAW HOLD: सेकंड, 0-60
+FADE EFFECT: expected 1-	FADE EFFECT: 1- चाहिए
+MOTION MIRROR: ON or OFF	MOTION MIRROR: चालू या बंद
+TALLYEVENT wants ON or OFF	TALLYEVENT को चालू या बंद चाहिए
+TONECUE LFO: FREQ or LEVEL	TONECUE LFO: आवृत्ति या स्तर
+GOGUARD: OFF or 50-2000 (ms)	GOGUARD: बंद या 50-2000 (ms)
+SLICE GRID SMOOTH: ON or OFF	SLICE GRID SMOOTH: चालू या बंद
+TRIGGER AT: HH:MM[:SS] or OFF	TRIGGER AT: HH:MM[:SS] या बंद
+PATTERN SET needs a pattern id	PATTERN SET को पैटर्न ID चाहिए
+already the first tracker step	यह पहले से ट्रैकर का पहला चरण है
+cannot determine rendered size	रेंडर किया गया आकार तय नहीं हो सका
+find: enter cue id/number/name	find: cue ID/संख्या/नाम दर्ज करें
+no sprite sets in data/sprites	data/sprites में कोई स्प्राइट सेट नहीं
+normalize: no measurable audio	normalize: मापने योग्य ऑडियो नहीं
+recordings are left as written	रिकॉर्डिंग जैसी लिखी गई थीं वैसी ही रहती हैं
+reracked - holding first frame	दोबारा लोड - पहला फ़्रेम रोका गया
+st 2110: clipboard unavailable	st 2110: क्लिपबोर्ड उपलब्ध नहीं
+stream url: unsupported scheme	stream url: असमर्थित स्कीम
+that button has no command yet	उस बटन में अभी कोई कमांड नहीं
+DMXCUE PROTOCOL: ARTNET or SACN	DMXCUE PROTOCOL: ARTNET या SACN
+FIXTURE DIP: 0-100 (%) or LEAVE	FIXTURE DIP: 0-100 (%) या LEAVE
+FX LFO: no effect at that index	FX LFO: उस सूचकांक पर कोई प्रभाव नहीं
+MIDIMAP CLEAR: COMPUTER or SHOW	MIDIMAP CLEAR: COMPUTER या SHOW
+TEXTCUE SPEED: expected 0.05-20	TEXTCUE SPEED: 0.05-20 अपेक्षित
+an output needs a base playlist	आउटपुट के लिए एक बेस प्लेलिस्ट चाहिए
+audio input: device unavailable	ऑडियो इनपुट: डिवाइस उपलब्ध नहीं
+expected crop percentages 0..90	क्रॉप प्रतिशत 0..90 अपेक्षित
+media found - nothing to relink	मीडिया मिल गया - दोबारा लिंक करने को कुछ नहीं
+notestep: build out of range 1-	notestep: बिल्ड सीमा से बाहर 1-
+put it back when the ramp lands	रैंप पूरा होने पर इसे वापस रखें
+splitnotes: cue out of range 1-	splitnotes: cue सीमा से बाहर 1-
+st 2110 SDP copied to clipboard	st 2110 SDP क्लिपबोर्ड पर कॉपी की गई
+w00t! all ur cues r belong 2 us	w00t! तुम्हारे सारे cue अब हमारे हैं
+BROWSER TYPE: expected some text	BROWSER TYPE: कुछ टेक्स्ट अपेक्षित
+CHECK: expected a problem number	CHECK: समस्या संख्या अपेक्षित
+FADE RESTORE: expected on or off	FADE RESTORE: on या off अपेक्षित
+MIDICLOCK SIM: expected a number	MIDICLOCK SIM: संख्या अपेक्षित
+MONITOR ROOM: expected ON or OFF	MONITOR ROOM: ON या OFF अपेक्षित
+MOTION ZONE ADD: already 8 zones	MOTION ZONE ADD: पहले से 8 ज़ोन हैं
+SLICE REMOVE: a slice number, 1-	SLICE REMOVE: slice संख्या, 1-
+motion off: the camera is closed	गति बंद: कैमरा बंद है
+no capture devices found (dshow)	कोई कैप्चर डिवाइस नहीं मिला (dshow)
+only accepted from this computer	केवल इस कंप्यूटर से स्वीकार किया जाता है
+reccodec: expected a codec token	reccodec: codec टोकन अपेक्षित
+this build has no plugin support	इस बिल्ड में प्लगइन समर्थन नहीं है
+BROWSER SCROLL: expected a number	BROWSER SCROLL: संख्या अपेक्षित
+DMXCUE UNIVERSE: expected 0-32767	DMXCUE UNIVERSE: 0-32767 अपेक्षित
+FADE DECK: expected a deck number	FADE DECK: डेक संख्या अपेक्षित
+FX PARAM: no effect at that index	FX PARAM: उस सूचकांक पर कोई प्रभाव नहीं
+MIC GAIN: expected -40 to 40 (dB)	MIC GAIN: -40 से 40 (dB) अपेक्षित
+MOTION ZONE REMOVE: a zone number	MOTION ZONE REMOVE: ज़ोन संख्या
+NDI: this build has no NDI output	NDI: इस बिल्ड में NDI आउटपुट नहीं है
+STING PITCH: expected 20-12000 Hz	STING PITCH: 20-12000 Hz अपेक्षित
+TRIGGER MIDI: a note 0-127 or OFF	TRIGGER MIDI: नोट 0-127 या OFF
+could not open the Screens window	Screens विंडो नहीं खुल सकी
+effects paste: copy a chain first	प्रभाव चिपकाएँ: पहले एक चेन कॉपी करें
+expected pixels -1000000..1000000	अपेक्षित: पिक्सेल -1000000..1000000
+marker: add | next | prev | clear	मार्कर: add | next | prev | clear
+press again to delete this button	यह बटन हटाने के लिए फिर दबाएँ
+warp grid: 2 to 9 points each way	विकृत ग्रिड: हर दिशा में 2 से 9 बिंदु
+AUDIOFX ADD: needs an effect token	AUDIOFX ADD: इफ़ेक्ट टोकन चाहिए
+BLEND LIFT: expected 0..20 percent	BLEND LIFT: अपेक्षित 0..20 प्रतिशत
+BUGSWAT SHOWME: only in a briefing	BUGSWAT SHOWME: केवल ब्रीफ़िंग में
+CAPTIONS LINES: expected 1, 2 or 3	CAPTIONS LINES: अपेक्षित 1, 2 या 3
+DASH SET: slot number out of range	DASH SET: स्लॉट संख्या सीमा से बाहर
+FX AMOUNT: no effect at that index	FX AMOUNT: उस सूचकांक पर कोई इफ़ेक्ट नहीं
+FX COLOUR: no effect at that index	FX COLOUR: उस सूचकांक पर कोई इफ़ेक्ट नहीं
+MIDICLOCK SIM: bpm must be 20..600	MIDICLOCK SIM: bpm 20..600 होना चाहिए
+OUTPUT ADD: expected a deck number	OUTPUT ADD: डेक संख्या चाहिए
+SLICE FLIP: H or V, then ON or OFF	SLICE FLIP: H या V, फिर ON या OFF
+a path needs three points: dropped	पाथ के लिए तीन बिंदु चाहिए: हटाया गया
+a show needs at least one playlist	शो में कम से कम एक प्लेलिस्ट होनी चाहिए
+display scan: no displays reported	डिस्प्ले स्कैन: कोई डिस्प्ले नहीं मिला
+selection has no cue with geometry	चयन में ज्यामिति वाला कोई क्यू नहीं
+that cue cannot be fired by a step	वह क्यू चरण से नहीं चलाया जा सकता
+time: type it as HH:MM or HH:MM:SS	समय: HH:MM या HH:MM:SS में लिखें
+ASCII COLS: expected a column count	ASCII COLS: कॉलम संख्या चाहिए
+Deckboy evolved into SUPER DECKBOY!	Deckboy विकसित होकर SUPER DECKBOY बन गया!
+FX PARAM: slot must be A, B, C or D	FX PARAM: स्लॉट A, B, C या D होना चाहिए
+MIDI: a note number 0-127, or LEARN	MIDI: नोट संख्या 0-127, या LEARN
+MIDIMAP REMOVE: COMPUTER|SHOW <row>	MIDIMAP REMOVE: COMPUTER|SHOW <पंक्ति>
+OUTPUT DECK: expected a deck number	OUTPUT DECK: डेक संख्या चाहिए
+OUTPUTFX BYPASS: expected ON or OFF	OUTPUTFX BYPASS: अपेक्षित ON या OFF
+SCOPES MATRIX: expected 709 or 2020	SCOPES MATRIX: अपेक्षित 709 या 2020
+SHORTCUTS: the startup dialog is up	SHORTCUTS: स्टार्टअप डायलॉग खुला है
+STREAM HDR: expected SDR, PQ or HLG	STREAM HDR: अपेक्षित SDR, PQ या HLG
+an animation is already being saved	एनिमेशन पहले से सहेजा जा रहा है
+delete live cue: press delete again	लाइव क्यू हटाएँ: Delete फिर दबाएँ
+esc: output cleared - again to quit	Esc: आउटपुट साफ़ – बाहर निकलने के लिए फिर दबाएँ
+no browser cue is live on this deck	इस डेक पर कोई ब्राउज़र क्यू लाइव नहीं
+notestep: nothing live on this deck	notestep: इस डेक पर कुछ लाइव नहीं
+select the cue it should take first	वह क्यू चुनें जो पहले TAKE हो
+DRAW EDITOR: select a Draw cue first	DRAW EDITOR: पहले एक Draw cue चुनें
+DRAW SAVE: STILL or ANIMATION [file]	DRAW SAVE: STILL या ANIMATION [file]
+MIC CHANNEL: expected L, R or STEREO	MIC CHANNEL: L, R या STEREO चाहिए
+MULTIVIEW WINDOW: expected ON or OFF	MULTIVIEW WINDOW: ON या OFF चाहिए
+Page Down / Page Up step the tracker	Page Down / Page Up से ट्रैकर में आगे-पीछे जाएँ
+SUBTITLE CONVERT: nothing to convert	SUBTITLE CONVERT: बदलने के लिए कुछ नहीं
+TONECUE LFO: select a tone cue first	TONECUE LFO: पहले एक टोन cue चुनें
+TRUST LAST: nothing has been refused	TRUST LAST: कुछ भी अस्वीकार नहीं हुआ
+atem tally on -- set the switcher IP	ATEM टैली चालू -- स्विचर का IP तय करें
+datamosh: subtle, self-heals (H.264)	datamosh: हल्का, खुद ठीक हो जाता है (H.264)
+master vol: expected 0-200 (percent)	master वॉल्यूम: 0-200 चाहिए (प्रतिशत)
+matrix off - back to the output pair	matrix बंद - आउटपुट जोड़ी पर वापस
+monitor follows the focused playlist	मॉनिटर फ़ोकस वाली प्लेलिस्ट का अनुसरण करता है
+multiview: back to the automatic set	multiview: स्वचालित सेट पर वापस
+no MIDI output ports on this machine	इस मशीन पर कोई MIDI आउटपुट पोर्ट नहीं
+splitnotes: could not split that cue	splitnotes: उस cue को विभाजित नहीं कर सके
+srt: passphrase needs 10+ characters	srt: पासफ़्रेज़ में 10+ अक्षर चाहिए
+step deleted - ctrl+z brings it back	चरण हटाया गया - ctrl+z से वापस आएगा
+timer face: select a timer cue first	टाइमर चेहरा: पहले एक टाइमर cue चुनें
+timer font: select a timer cue first	टाइमर फ़ॉन्ट: पहले एक टाइमर cue चुनें
+16 slices is the most an output takes	एक आउटपुट में अधिकतम 16 स्लाइस हो सकते हैं
+AUDIOGAIN BY: expected a number of dB	AUDIOGAIN BY: dB में संख्या चाहिए
+AUDITION: expected OFF, END or STATUS	AUDITION: OFF, END या STATUS चाहिए
+BROWSER CLICK: fractions must be 0..1	BROWSER CLICK: भिन्न 0..1 के बीच होने चाहिए
+FX GET: expected an effect number, 1-	FX GET: प्रभाव की संख्या चाहिए, 1-
+HLS playlist: added as one stream cue	HLS प्लेलिस्ट: एक stream cue के रूप में जोड़ी गई
+MASTER BYPASS: expected a deck number	MASTER BYPASS: डेक संख्या चाहिए
+MIDICLOCK: expected SIM <bpm> [beats]	MIDICLOCK: SIM <bpm> [beats] चाहिए
+MULTIVIEW: expected ON, OFF or TOGGLE	MULTIVIEW: ON, OFF या TOGGLE चाहिए
+OUTPUT HDR SIGNAL: expected PQ or HLG	OUTPUT HDR SIGNAL: PQ या HLG चाहिए
+STREAM HDR: select a stream cue first	STREAM HDR: पहले एक stream cue चुनें
+datamosh: file-backed video cues only	datamosh: केवल फ़ाइल-आधारित वीडियो cue
+effects copy: this cue has no effects	प्रभाव प्रतिलिपि: इस cue में कोई प्रभाव नहीं
+matrix on, routed as the patch had it	matrix चालू, पैच जैसा था वैसा रूट किया
+recovery could not be read; copy kept	रिकवरी पढ़ी नहीं जा सकी; प्रतिलिपि रखी गई
+FIXTURE DIP: expected <name> <%>|LEAVE	FIXTURE DIP: <name> <%>|LEAVE चाहिए
+MONITOR: expected DEVICE, DECK or ROOM	MONITOR: DEVICE, DECK या ROOM चाहिए
+NETCUE PROTO: expected osc, udp or tcp	NETCUE PROTO: osc, udp या tcp चाहिए
+STING LENGTH: expected 0.05-10 seconds	STING LENGTH: 0.05-10 सेकंड चाहिए
+sprite sheet: select a video synth cue	स्प्राइट शीट: वीडियो सिंथ cue चुनें
+AUDIOGAIN BY: no selected cue has audio	AUDIOGAIN BY: चुने गए किसी cue में ऑडियो नहीं है
+CAPTIONS SHOW: expected <output> ON|OFF	CAPTIONS SHOW: अपेक्षित <output> ON|OFF
+CAPTIONS TRANSCRIPT: expected ON or OFF	CAPTIONS TRANSCRIPT: अपेक्षित ON या OFF
+COMPANIONPASS: use 8 or more characters	COMPANIONPASS: 8 या अधिक अक्षर रखें
+DEVAMP: nothing is playing on that deck	DEVAMP: उस डेक पर कुछ नहीं चल रहा
+FX LFO ZONE: 0 (the whole picture) to 8	FX LFO ZONE: 0 (पूरा चित्र) से 8
+MASK IMPORT: expected <file.svg> [name]	MASK IMPORT: अपेक्षित <file.svg> [name]
+MASK SET: expected <id> <param> <value>	MASK SET: अपेक्षित <id> <param> <value>
+MULTIVIEW WINDOW: the last window stays	MULTIVIEW WINDOW: आख़िरी विंडो बनी रहती है
+OUTPUT AOI MODE: expected PIXEL or FILL	OUTPUT AOI MODE: अपेक्षित PIXEL या FILL
+SCOPES SOUND: expected nothing or RESET	SCOPES SOUND: अपेक्षित कुछ नहीं या RESET
+Tabletop is in SOURCE > MADE BY DECKBOY	Tabletop यहाँ है: स्रोत > DECKBOY द्वारा बनाया गया
+can't read media - CONVERT in inspector	मीडिया पढ़ा नहीं जा सका - इंस्पेक्टर में बदलें
+cleared: all decks stopped, outputs off	साफ़ किया: सभी डेक रुके, आउटपुट बंद
+datamosh: classic, full effect (MPEG-4)	datamosh: क्लासिक, पूर्ण प्रभाव (MPEG-4)
+driver cleared - nothing left to puppet	ड्राइवर साफ़ किया - कठपुतली बनाने को कुछ नहीं बचा
+key+fill on - now pick a Key out device	key+fill चालू - अब की आउट डिवाइस चुनें
+play the note that should fire this cue	वह नोट बजाएँ जो इस cue को चलाए
+programme to MediaMTX: watch at http://	प्रोग्राम से MediaMTX: http:// पर देखें
+recformat: expected <WxH|program> [fps]	recformat: अपेक्षित <WxH|program> [fps]
+requested input missing - using default	अनुरोधित इनपुट अनुपलब्ध - डिफ़ॉल्ट उपयोग हो रहा है
+DRAW PLAYBACK: still, flipbook or replay	DRAW PLAYBACK: स्थिर चित्र, फ़्लिपबुक या रीप्ले
+FADE KNOB: expected amount, A, B, C or D	FADE KNOB: अपेक्षित मात्रा, A, B, C या D
+LOWERANIM: this cue is not a Lower Third	LOWERANIM: यह cue Lower Third नहीं है
+MASK EXPORT: size is WxH, e.g. 1920x1080	MASK EXPORT: आकार WxH है, जैसे 1920x1080
+MOTION SOURCE: CAMERA [name] or DECK <n>	MOTION SOURCE: CAMERA [name] या DECK <n>
+NEW already starts from factory settings	NEW पहले से फ़ैक्टरी सेटिंग से शुरू होता है
+OUTPUT SELECT: expected an output number	OUTPUT SELECT: अपेक्षित आउटपुट नंबर
+TCCUE: expected NEW, ACTION, JAM or FIRE	TCCUE: अपेक्षित NEW, ACTION, JAM या FIRE
+hands-on: clicks and keys go to the page	hands-on: क्लिक और कुंजियाँ पेज पर जाती हैं
+multiview: one window per playlist again	multiview: फिर से प्रति प्लेलिस्ट एक विंडो
+record folder set - SAME DISK as Deckboy	रिकॉर्ड फ़ोल्डर तय किया गया - Deckboy वाली ही डिस्क
+sequence waiting - press it again for GO	अनुक्रम प्रतीक्षा में - GO के लिए फिर दबाएँ
+this platform cannot capture that source	यह प्लेटफ़ॉर्म उस स्रोत को कैप्चर नहीं कर सकता
+timer backdrop: select a timer cue first	टाइमर पृष्ठभूमि: पहले टाइमर cue चुनें
+BLEND CURVE: expected PROJECTOR or LINEAR	BLEND CURVE: अपेक्षित PROJECTOR या LINEAR
+CAPTIONS POSITION: expected TOP or BOTTOM	CAPTIONS POSITION: अपेक्षित TOP या BOTTOM
+CAPTIONS SIZE: expected 50..200 (percent)	CAPTIONS SIZE: अपेक्षित 50..200 (प्रतिशत)
+DMXCUE: the selected cue is not a dmx cue	DMXCUE: चुना हुआ cue dmx cue नहीं है
+DRAW FRAME: ADD, DELETE, NEXT, PREV or 1-	DRAW FRAME: ADD, DELETE, NEXT, PREV या 1-
+FADE OVER: expected a duration in seconds	FADE OVER: सेकंड में अवधि अपेक्षित है
+FADE TO: expected a percent from 0 to 100	FADE TO: 0 से 100 तक प्रतिशत अपेक्षित है
+LOWERSTYLE: this cue is not a Lower Third	LOWERSTYLE: यह cue Lower Third नहीं है
+MOTION SOURCE DECK: a playlist number, 1-	MOTION SOURCE DECK: प्लेलिस्ट नंबर, 1-
+STING SWEEP: expected -24 to 24 semitones	STING SWEEP: -24 से 24 सेमीटोन अपेक्षित है
+TCCUE ACTION: expected start, stop or jam	TCCUE ACTION: start, stop या jam अपेक्षित है
+TCCUE JAM: expected a timecode or seconds	TCCUE JAM: टाइमकोड या सेकंड अपेक्षित है
+TRACKER VIEW: expected PATTERN or CLASSIC	TRACKER VIEW: PATTERN या CLASSIC अपेक्षित है
+Tabletop added - SOURCE > MADE BY DECKBOY	Tabletop जोड़ा गया - स्रोत > Deckboy द्वारा बनाया गया
+browser window open - click, type, log in	ब्राउज़र विंडो खुली है - क्लिक करें, टाइप करें, लॉग इन करें
+contrast check: something needs attention	कंट्रास्ट जाँच: कुछ ध्यान देने योग्य है
+drag the corners on the programme monitor	प्रोग्राम मॉनिटर पर कोने खींचें
+this browser backend cannot show a window	यह ब्राउज़र बैकएंड विंडो नहीं दिखा सकता
+BROWSER CLICK: expected two fractions 0..1	BROWSER CLICK: 0..1 के दो अंश अपेक्षित हैं
+CHIP: the selected cue is not a chip synth	CHIP: चुना हुआ cue chip synth नहीं है
+DASH SET: a slot cannot fire the dashboard	DASH SET: स्लॉट डैशबोर्ड नहीं चला सकता
+DRAW STROKE: x,y[,pressure] ... in percent	DRAW STROKE: x,y[,pressure] ... प्रतिशत में
+OUTPUTFX REMOVE: expected an effect number	OUTPUTFX REMOVE: इफ़ेक्ट नंबर अपेक्षित है
+SCRIPTCUE: expected NEW, ADD, CLEAR or RUN	SCRIPTCUE: NEW, ADD, CLEAR या RUN अपेक्षित है
+TEXTCUE WIGGLE: expected ON, OFF or TOGGLE	TEXTCUE WIGGLE: ON, OFF या TOGGLE अपेक्षित है
+TRIGGER KEY: F1-F10, F12, NUM0-NUM9 or OFF	TRIGGER KEY: F1-F10, F12, NUM0-NUM9 या OFF
+auto-advance removed: cue end follows hold	स्वतः-आगे बढ़ना हटाया गया: cue का अंत रोकें का पालन करता है
+choose RECOVER or KEEP SAVED before saving	सहेजने से पहले RECOVER या KEEP SAVED चुनें
+datamosh look: file-backed video cues only	datamosh लुक: केवल फ़ाइल-आधारित वीडियो cue
+nmos: on - searching for a registry (mDNS)	nmos: चालू - रजिस्ट्री खोज रहे हैं (mDNS)
+record folder: recordings/ beside the show	रिकॉर्ड फ़ोल्डर: शो के बगल में recordings/
+recsegment: expected <minutes> [megabytes]	recsegment: <मिनट> [मेगाबाइट] अपेक्षित है
+the example shows are not in this download	उदाहरण शो इस डाउनलोड में नहीं हैं
+warp point: expected <col> <row> <dx> <dy>	विकृत बिंदु: <col> <row> <dx> <dy> अपेक्षित है
+warp point: no grid -- WARP GRID <n> first	विकृत बिंदु: कोई ग्रिड नहीं -- पहले WARP GRID <n>
+DMXCUE FIXTURE: level is 0-100 (%) or LEAVE	DMXCUE FIXTURE: स्तर 0-100 (%) या LEAVE है
+EDIT off: the keyboard only moves and fires	संपादित करें बंद: कीबोर्ड केवल गति करता और चलाता है
+EDIT on: typing changes the tracker's cells	संपादित करें चालू: टाइप करने से ट्रैकर के सेल बदलते हैं
+FIXTURE: expected LIST, ADD, FIND or REMOVE	FIXTURE: LIST, ADD, FIND या REMOVE अपेक्षित है
+LIMITER CEILING: a level from -40 to 0 dBFS	LIMITER CEILING: -40 से 0 dBFS तक का स्तर
+MIDICUE: the selected cue is not a midi cue	MIDICUE: चुना हुआ cue midi cue नहीं है
+MOTION ZONE ADD: x y w h, percentages 0-100	MOTION ZONE ADD: x y w h, प्रतिशत 0-100
+MOTION ZONE: ADD x y w h, REMOVE n or CLEAR	MOTION ZONE: ADD x y w h, REMOVE n या CLEAR
+mask off -- it is still in the show's library	मास्क बंद -- यह अभी भी शो की लाइब्रेरी में है
+Stop masking this. The mask stays in the show's library, to put back from the menu above	इसे मास्क करना बंद करें। मास्क शो की लाइब्रेरी में रहता है, ऊपर के मेनू से वापस लगाएँ
+Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	इस मास्क को शो से और इसका उपयोग करने वाले हर क्यू, प्लेलिस्ट और आउटपुट से हटाएँ। पूर्ववत करें से यह वापस आ जाता है

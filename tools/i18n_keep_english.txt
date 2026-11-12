@@ -525,3 +525,14 @@ zgh	src=... | cmd=... | ...
 zh-Hans	src=... | cmd=... | ...
 zh-Hant	src=... | cmd=... | ...
 zu	src=... | cmd=... | ...
+*	DRAW OPACITY: 1-100 (%)
+*	SLICE OPACITY: 0-100
+*	SLICE SOURCE: PROGRAMME, or DECK 1-
+*	WEBMONITOR CLIENTS: 1-64
+*	WEBMONITOR PORT: 1-65535
+*	marker: add | next | prev | clear
+*	AUDIOFX: expected CLEAR, ADD or a slot number
+*	CLICK: expected x y [HOLD], or UP
+*	LESSONS TRACK: PIXEL or VIDEO
+*	VIDEODIP: expected ON, OFF or FADE <seconds>
+*	expected ON, OFF, TOGGLE or PORTS

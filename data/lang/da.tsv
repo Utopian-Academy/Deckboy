@@ -2844,3 +2844,252 @@ DASH: the startup dialog is up	DASH: opstartsdialogen er åben
 LOWERSTYLE: select a cue first	LOWERSTYLE: vælg en cue først
 MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: forventede 1-16
 PATTERN ADD needs a pattern id	PATTERN ADD kræver et mønster-id
+Lower Third attached	Lower Third tilknyttet
+DRAW ONION: ON or OFF	DRAW ONION: ON eller OFF
+Lower Third cue added	Lower Third-cue tilføjet
+DRAW EDITOR: ON or OFF	DRAW EDITOR: ON eller OFF
+OUTPUT AOI: no outputs	OUTPUT AOI: ingen udgange
+OUTPUT DECK: no outputs	OUTPUT DECK: ingen udgange
+DRAW HOLD: seconds, 0-60	DRAW HOLD: sekunder, 0-60
+FADE EFFECT: expected 1-	FADE EFFECT: forventede 1-
+MOTION MIRROR: ON or OFF	MOTION MIRROR: ON eller OFF
+WEBMONITOR CLIENTS: 1-64	WEBMONITOR-CLIENTS: 1-64
+TALLYEVENT wants ON or OFF	TALLYEVENT vil have ON eller OFF
+TONECUE LFO: FREQ or LEVEL	TONECUE LFO: FREQ eller LEVEL
+GOGUARD: OFF or 50-2000 (ms)	GOGUARD: OFF eller 50-2000 (ms)
+SLICE GRID SMOOTH: ON or OFF	SLICE GRID SMOOTH: ON eller OFF
+PATTERN SET needs a pattern id	PATTERN SET kræver et mønster-id
+already the first tracker step	allerede det første tracker-trin
+cannot determine rendered size	kan ikke bestemme gengivet størrelse
+find: enter cue id/number/name	find: indtast cue-id/nummer/navn
+no sprite sets in data/sprites	ingen sprite-sæt i data/sprites
+normalize: no measurable audio	normalize: ingen målbar lyd
+recordings are left as written	optagelser efterlades som skrevet
+reracked - holding first frame	reracked - holder første billede
+st 2110: clipboard unavailable	st 2110: udklipsholder utilgængelig
+stream url: unsupported scheme	stream url: ikke-understøttet skema
+that button has no command yet	den knap har ingen kommando endnu
+DMXCUE PROTOCOL: ARTNET or SACN	DMXCUE PROTOCOL: ARTNET eller SACN
+FIXTURE DIP: 0-100 (%) or LEAVE	FIXTURE DIP: 0-100 (%) eller LEAVE
+FX LFO: no effect at that index	FX LFO: ingen effekt ved det indeks
+MIDIMAP CLEAR: COMPUTER or SHOW	MIDIMAP CLEAR: COMPUTER eller SHOW
+TEXTCUE SPEED: expected 0.05-20	TEXTCUE SPEED: forventede 0.05-20
+an output needs a base playlist	en udgang kræver en basisplayliste
+audio input: device unavailable	lydindgang: enhed ikke tilgængelig
+expected crop percentages 0..90	forventede beskæringsprocenter 0..90
+media found - nothing to relink	medier fundet – intet at genkoble
+notestep: build out of range 1-	notestep: build uden for område 1-
+put it back when the ramp lands	sæt den tilbage når rampen lander
+splitnotes: cue out of range 1-	splitnotes: cue uden for område 1-
+st 2110 SDP copied to clipboard	st 2110 SDP kopieret til udklipsholder
+w00t! all ur cues r belong 2 us	w00t! alle jeres cues tilhører os
+BROWSER TYPE: expected some text	BROWSER TYPE: forventede en tekst
+CHECK: expected a problem number	CHECK: forventede et problemnummer
+FADE RESTORE: expected on or off	FADE RESTORE: forventede on eller off
+MIDICLOCK SIM: expected a number	MIDICLOCK SIM: forventede et tal
+MONITOR ROOM: expected ON or OFF	MONITOR ROOM: forventede ON eller OFF
+MOTION ZONE ADD: already 8 zones	MOTION ZONE ADD: allerede 8 zoner
+SLICE REMOVE: a slice number, 1-	SLICE REMOVE: et slicenummer, 1-
+motion off: the camera is closed	motion off: kameraet er lukket
+no capture devices found (dshow)	ingen optageenheder fundet (dshow)
+only accepted from this computer	kun accepteret fra denne computer
+reccodec: expected a codec token	reccodec: forventede et codec-token
+this build has no plugin support	denne build har ingen plugin-understøttelse
+BROWSER SCROLL: expected a number	BROWSER SCROLL: forventede et tal
+DMXCUE UNIVERSE: expected 0-32767	DMXCUE UNIVERSE: forventede 0-32767
+FADE DECK: expected a deck number	FADE DECK: forventede et decknummer
+FX PARAM: no effect at that index	FX PARAM: ingen effekt ved det indeks
+MIC GAIN: expected -40 to 40 (dB)	MIC GAIN: forventede -40 til 40 (dB)
+MOTION ZONE REMOVE: a zone number	MOTION ZONE REMOVE: et zonenummer
+NDI: this build has no NDI output	NDI: denne build har ingen NDI-udgang
+STING PITCH: expected 20-12000 Hz	STING PITCH: forventede 20-12000 Hz
+TRIGGER MIDI: a note 0-127 or OFF	TRIGGER MIDI: en node 0-127 eller OFF
+could not open the Screens window	kunne ikke åbne SCREENS-vinduet
+effects paste: copy a chain first	effekter sæt ind: kopiér først
+expected pixels -1000000..1000000	forventede pixels -1000000..1000000
+press again to delete this button	tryk igen for at slette denne knap
+warp grid: 2 to 9 points each way	warp grid: 2 til 9 punkter i hver retning
+AUDIOFX ADD: needs an effect token	AUDIOFX ADD: kræver et effekt-token
+BLEND LIFT: expected 0..20 percent	BLEND LIFT: forventede 0..20 procent
+BUGSWAT SHOWME: only in a briefing	BUGSWAT SHOWME: kun i en briefing
+CAPTIONS LINES: expected 1, 2 or 3	CAPTIONS LINES: forventede 1, 2 eller 3
+DASH SET: slot number out of range	DASH SET: slotnummer uden for område
+FX AMOUNT: no effect at that index	FX AMOUNT: ingen effekt på det indeks
+FX COLOUR: no effect at that index	FX COLOUR: ingen effekt på det indeks
+MIDICLOCK SIM: bpm must be 20..600	MIDICLOCK SIM: bpm skal være 20..600
+OUTPUT ADD: expected a deck number	OUTPUT ADD: forventede et decknummer
+SLICE FLIP: H or V, then ON or OFF	SLICE FLIP: H eller V, derefter ON eller OFF
+a path needs three points: dropped	en sti skal have tre punkter: droppet
+a show needs at least one playlist	et show skal have mindst én playliste
+display scan: no displays reported	display scan: ingen skærme rapporteret
+selection has no cue with geometry	markeringen har intet cue med geometri
+that cue cannot be fired by a step	det cue kan ikke udløses af et trin
+time: type it as HH:MM or HH:MM:SS	time: skriv det som HH:MM eller HH:MM:SS
+ASCII COLS: expected a column count	ASCII COLS: forventede et antal kolonner
+Deckboy evolved into SUPER DECKBOY!	Deckboy er blevet til SUPER DECKBOY!
+FX PARAM: slot must be A, B, C or D	FX PARAM: slot skal være A, B, C eller D
+MIDI: a note number 0-127, or LEARN	MIDI: et nodenummer 0-127 eller LEARN
+MIDIMAP REMOVE: COMPUTER|SHOW <row>	MIDIMAP REMOVE: COMPUTER|SHOW <række>
+OUTPUT DECK: expected a deck number	OUTPUT DECK: forventede et decknummer
+OUTPUTFX BYPASS: expected ON or OFF	OUTPUTFX BYPASS: forventede ON eller OFF
+SCOPES MATRIX: expected 709 or 2020	SCOPES MATRIX: forventede 709 eller 2020
+SHORTCUTS: the startup dialog is up	SHORTCUTS: startdialogen er åben
+STREAM HDR: expected SDR, PQ or HLG	STREAM HDR: forventede SDR, PQ eller HLG
+an animation is already being saved	en animation bliver allerede gemt
+delete live cue: press delete again	delete live cue: tryk på Delete igen
+esc: output cleared - again to quit	esc: udgangen er ryddet - igen for at afslutte
+no browser cue is live on this deck	intet browser-cue er live på dette deck
+notestep: nothing live on this deck	notestep: intet live på dette deck
+select the cue it should take first	vælg det cue, der skal tages først
+DRAW EDITOR: select a Draw cue first	DRAW EDITOR: vælg først en Draw-cue
+DRAW SAVE: STILL or ANIMATION [file]	DRAW SAVE: STILL eller ANIMATION [file]
+MIC CHANNEL: expected L, R or STEREO	MIC CHANNEL: forventede L, R eller STEREO
+MULTIVIEW WINDOW: expected ON or OFF	MULTIVIEW WINDOW: forventede ON eller OFF
+Page Down / Page Up step the tracker	Page Down / Page Up går trin i trackeren
+SUBTITLE CONVERT: nothing to convert	SUBTITLE CONVERT: intet at konvertere
+TONECUE LFO: select a tone cue first	TONECUE LFO: vælg først en tone-cue
+TRUST LAST: nothing has been refused	TRUST LAST: intet er blevet afvist
+atem tally on -- set the switcher IP	atem tally on -- indstil switcherens IP
+datamosh: subtle, self-heals (H.264)	datamosh: diskret, heler sig selv (H.264)
+master vol: expected 0-200 (percent)	master vol: forventede 0-200 (procent)
+matrix off - back to the output pair	matrix off - tilbage til udgangsparret
+monitor follows the focused playlist	monitor følger den fokuserede playliste
+multiview: back to the automatic set	multiview: tilbage til det automatiske sæt
+no MIDI output ports on this machine	ingen MIDI-udgangsporte på denne maskine
+splitnotes: could not split that cue	splitnotes: kunne ikke opdele den cue
+srt: passphrase needs 10+ characters	srt: adgangsfrase skal have 10+ tegn
+step deleted - ctrl+z brings it back	trin slettet - ctrl+z henter det tilbage
+timer face: select a timer cue first	timer face: vælg først en timer-cue
+timer font: select a timer cue first	timer font: vælg først en timer-cue
+16 slices is the most an output takes	16 udskæringer er det meste en udgang tager
+AUDIOGAIN BY: expected a number of dB	AUDIOGAIN BY: forventede et tal i dB
+AUDITION: expected OFF, END or STATUS	AUDITION: forventede OFF, END eller STATUS
+BROWSER CLICK: fractions must be 0..1	BROWSER CLICK: brøker skal være 0..1
+FX GET: expected an effect number, 1-	FX GET: forventede et effektnummer, 1-
+HLS playlist: added as one stream cue	HLS-playliste: tilføjet som én stream-cue
+MASTER BYPASS: expected a deck number	MASTER BYPASS: forventede et decknummer
+MIDICLOCK: expected SIM <bpm> [beats]	MIDICLOCK: forventede SIM <bpm> [beats]
+MULTIVIEW: expected ON, OFF or TOGGLE	MULTIVIEW: forventede ON, OFF eller TOGGLE
+OUTPUT HDR SIGNAL: expected PQ or HLG	OUTPUT HDR SIGNAL: forventede PQ eller HLG
+STREAM HDR: select a stream cue first	STREAM HDR: vælg først en stream-cue
+datamosh: file-backed video cues only	datamosh: kun filbaserede videocues
+effects copy: this cue has no effects	effects copy: denne cue har ingen effekter
+matrix on, routed as the patch had it	matrix on, routet som patchet havde det
+recovery could not be read; copy kept	gendannelsen kunne ikke læses; kopi bevaret
+FIXTURE DIP: expected <name> <%>|LEAVE	FIXTURE DIP: forventede <name> <%>|LEAVE
+MONITOR: expected DEVICE, DECK or ROOM	MONITOR: forventede DEVICE, DECK eller ROOM
+NETCUE PROTO: expected osc, udp or tcp	NETCUE PROTO: forventede osc, udp eller tcp
+STING LENGTH: expected 0.05-10 seconds	STING LENGTH: forventede 0.05-10 sekunder
+sprite sheet: select a video synth cue	sprite sheet: vælg en videosynth-cue
+AUDIOGAIN BY: no selected cue has audio	AUDIOGAIN BY: ingen valgt cue har lyd
+CAPTIONS SHOW: expected <output> ON|OFF	CAPTIONS SHOW: forventede <output> ON|OFF
+CAPTIONS TRANSCRIPT: expected ON or OFF	CAPTIONS TRANSCRIPT: forventede ON eller OFF
+COMPANIONPASS: use 8 or more characters	COMPANIONPASS: brug 8 tegn eller flere
+DEVAMP: nothing is playing on that deck	DEVAMP: intet afspilles på det deck
+FX LFO ZONE: 0 (the whole picture) to 8	FX LFO ZONE: 0 (hele billedet) til 8
+MASK IMPORT: expected <file.svg> [name]	MASK IMPORT: forventede <file.svg> [name]
+MASK SET: expected <id> <param> <value>	MASK SET: forventede <id> <param> <value>
+MULTIVIEW WINDOW: the last window stays	MULTIVIEW WINDOW: det sidste vindue bliver
+OUTPUT AOI MODE: expected PIXEL or FILL	OUTPUT AOI MODE: forventede PIXEL eller FILL
+SCOPES SOUND: expected nothing or RESET	SCOPES SOUND: forventede intet eller RESET
+Tabletop is in SOURCE > MADE BY DECKBOY	Tabletop findes i KILDE > LAVET MED DECKBOY
+can't read media - CONVERT in inspector	kan ikke læse medie - KONVERTER i inspektøren
+cleared: all decks stopped, outputs off	ryddet: alle decks stoppet, udgange fra
+datamosh: classic, full effect (MPEG-4)	datamosh: klassisk, fuld effekt (MPEG-4)
+driver cleared - nothing left to puppet	driver ryddet - intet tilbage at styre
+key+fill on - now pick a Key out device	key+fill til - vælg nu en Key-udgang
+play the note that should fire this cue	spil den node, der skal udløse denne cue
+programme to MediaMTX: watch at http://	program til MediaMTX: se på http://
+recformat: expected <WxH|program> [fps]	recformat: forventede <WxH|program> [fps]
+requested input missing - using default	ønsket indgang mangler - bruger standard
+DRAW PLAYBACK: still, flipbook or replay	DRAW PLAYBACK: stillbillede, flipbook eller genafspilning
+FADE KNOB: expected amount, A, B, C or D	FADE KNOB: forventede mængde, A, B, C eller D
+MASK EXPORT: size is WxH, e.g. 1920x1080	MASK EXPORT: størrelsen er WxH, fx 1920x1080
+MOTION SOURCE: CAMERA [name] or DECK <n>	MOTION SOURCE: CAMERA [name] eller DECK <n>
+NEW already starts from factory settings	NEW starter allerede fra fabriksindstillinger
+OUTPUT SELECT: expected an output number	OUTPUT SELECT: forventede et udgangsnummer
+TCCUE: expected NEW, ACTION, JAM or FIRE	TCCUE: forventede NEW, ACTION, JAM eller FIRE
+hands-on: clicks and keys go to the page	hands-on: klik og taster går til siden
+multiview: one window per playlist again	multiview: ét vindue pr. playliste igen
+record folder set - SAME DISK as Deckboy	optagemappe indstillet - SAMME DISK som Deckboy
+sequence waiting - press it again for GO	sekvens venter - tryk igen for GO
+this platform cannot capture that source	denne platform kan ikke optage den kilde
+timer backdrop: select a timer cue first	timer-baggrund: vælg først en timer-cue
+BLEND CURVE: expected PROJECTOR or LINEAR	BLEND CURVE: forventede PROJECTOR eller LINEAR
+CAPTIONS POSITION: expected TOP or BOTTOM	CAPTIONS POSITION: forventede TOP eller BOTTOM
+CAPTIONS SIZE: expected 50..200 (percent)	CAPTIONS SIZE: forventede 50..200 (procent)
+DMXCUE: the selected cue is not a dmx cue	DMXCUE: den valgte cue er ikke en dmx cue
+DRAW FRAME: ADD, DELETE, NEXT, PREV or 1-	DRAW FRAME: ADD, DELETE, NEXT, PREV eller 1-
+FADE OVER: expected a duration in seconds	FADE OVER: forventede en varighed i sekunder
+FADE TO: expected a percent from 0 to 100	FADE TO: forventede en procent fra 0 til 100
+MOTION SOURCE DECK: a playlist number, 1-	MOTION SOURCE DECK: et playlistenummer, 1-
+STING SWEEP: expected -24 to 24 semitones	STING SWEEP: forventede -24 til 24 halvtoner
+TCCUE ACTION: expected start, stop or jam	TCCUE ACTION: forventede start, stop eller jam
+TCCUE JAM: expected a timecode or seconds	TCCUE JAM: forventede en tidskode eller sekunder
+TRACKER VIEW: expected PATTERN or CLASSIC	TRACKER VIEW: forventede PATTERN eller CLASSIC
+Tabletop added - SOURCE > MADE BY DECKBOY	Tabletop tilføjet - KILDE > LAVET MED DECKBOY
+browser window open - click, type, log in	browservindue åbent - klik, skriv, log ind
+contrast check: something needs attention	kontrastkontrol: noget kræver opmærksomhed
+drag the corners on the programme monitor	træk i hjørnerne på programmonitoren
+this browser backend cannot show a window	denne browser-backend kan ikke vise et vindue
+BROWSER CLICK: expected two fractions 0..1	BROWSER CLICK: forventede to brøker 0..1
+CHIP: the selected cue is not a chip synth	CHIP: den valgte cue er ikke en chip-synth
+DASH SET: a slot cannot fire the dashboard	DASH SET: et slot kan ikke starte dashboardet
+DRAW STROKE: x,y[,pressure] ... in percent	DRAW STROKE: x,y[,pressure] ... i procent
+OUTPUTFX REMOVE: expected an effect number	OUTPUTFX REMOVE: forventede et effektnummer
+SCRIPTCUE: expected NEW, ADD, CLEAR or RUN	SCRIPTCUE: forventede NEW, ADD, CLEAR eller RUN
+TEXTCUE WIGGLE: expected ON, OFF or TOGGLE	TEXTCUE WIGGLE: forventede ON, OFF eller TOGGLE
+TRIGGER KEY: F1-F10, F12, NUM0-NUM9 or OFF	TRIGGER KEY: F1-F10, F12, NUM0-NUM9 eller OFF
+auto-advance removed: cue end follows hold	auto-fremrykning fjernet: cue-slut følger hold
+choose RECOVER or KEEP SAVED before saving	vælg GENOPRET eller BEHOLD GEMT før gemning
+datamosh look: file-backed video cues only	datamosh-look: kun filbaserede video-cues
+nmos: on - searching for a registry (mDNS)	NMOS: TIL - søger efter en registrering (mDNS)
+record folder: recordings/ beside the show	optagemappe: recordings/ ved siden af showet
+recsegment: expected <minutes> [megabytes]	recsegment: forventede <minutter> [megabyte]
+the example shows are not in this download	eksempelshowene er ikke i denne download
+warp point: expected <col> <row> <dx> <dy>	warp point: forventede <col> <row> <dx> <dy>
+warp point: no grid -- WARP GRID <n> first	warp point: intet gitter -- brug først WARP GRID <n>
+DMXCUE FIXTURE: level is 0-100 (%) or LEAVE	DMXCUE FIXTURE: niveau er 0-100 (%) eller LEAVE
+EDIT off: the keyboard only moves and fires	REDIGER FRA: tastaturet flytter og starter kun
+EDIT on: typing changes the tracker's cells	REDIGER TIL: tastning ændrer trackerens celler
+FIXTURE: expected LIST, ADD, FIND or REMOVE	FIXTURE: forventede LIST, ADD, FIND eller REMOVE
+LIMITER CEILING: a level from -40 to 0 dBFS	LIMITER CEILING: et niveau fra -40 til 0 dBFS
+MIDICUE: the selected cue is not a midi cue	MIDICUE: den valgte cue er ikke en midi cue
+MOTION ZONE ADD: x y w h, percentages 0-100	MOTION ZONE ADD: x y w h, procenter 0-100
+MOTION ZONE: ADD x y w h, REMOVE n or CLEAR	MOTION ZONE: ADD x y w h, REMOVE n eller CLEAR
+OUTPROBE: expected <output> <x 0-1> <y 0-1>	OUTPROBE: forventede <output> <x 0-1> <y 0-1>
+PORTS: expected an http port and a tcp port	PORTS: forventede en HTTP-port og en TCP-port
+SLICE ADD: already 16 slices on this output	SLICE ADD: der er allerede 16 udskæringer på denne udgang
+TEXTCUE: the selected cue is not a text cue	TEXTCUE: den valgte cue er ikke en tekst-cue
+a step cannot fire the playlist it lives on	et trin kan ikke affyre den playliste, det ligger i
+atem tally on -- set which input Deckboy is	ATEM-tally til -- angiv hvilken indgang Deckboy er
+esc: control window - again to clear output	Esc: kontrolvindue - igen for at rydde udgangen
+recordings remux to MP4 when the take stops	optagelser remuxes til MP4, når optagelsen stopper
+MATRIX SET: level is a percent from 0 to 100	MATRIX SET: niveau er en procent fra 0 til 100
+SYNTH: the selected cue is not a video synth	SYNTH: den valgte cue er ikke en videosynth
+group presets became master cues: use MASTER	gruppeforvalg er blevet til master-cues: brug MASTER
+on the dashboard - Ctrl+D or the DASH button	på DASHBOARD - Ctrl+D eller DASH-knappen
+8 zones already: click one to remove it first	allerede 8 zoner: klik på en for at fjerne den først
+AUDIOFX PLUGIN: this build has no plugin host	AUDIOFX PLUGIN: denne build har ingen plugin-host
+DASH SET: <n> <label> | <command> [| <glyph>]	DASH SET: <n> <etiket> | <kommando> [| <glyf>]
+DRAW SIZE: 0.1-20 (% of the picture's height)	DRAW SIZE: 0.1-20 (% af billedets højde)
+FX LFO: slot must be A-D, or E for the amount	FX LFO: slot skal være A-D, eller E for mængden
+MASK PATH: a path needs at least three points	MASK PATH: en sti skal have mindst tre punkter
+NETCUE: the selected cue is not a network cue	NETCUE: den valgte cue er ikke en netværks-cue
+Page Down / Page Up step the focused playlist	Page Down / Page Up træder gennem den fokuserede playliste
+SCALEMODE: expected fit|fill|stretch|unscaled	SCALEMODE: forventede fit|fill|stretch|unscaled
+SUBTITLE CONVERT: the cue has no caption file	SUBTITLE CONVERT: cuen har ingen billedtekstfil
+TCCUE: the selected cue is not a timecode cue	TCCUE: den valgte cue er ikke en tidskode-cue
+TEXTCUE ALIGN: expected left, centre or right	TEXTCUE ALIGN: forventede venstre, midt eller højre
+make a step first: a section starts at a step	lav et trin først: en sektion starter ved et trin
+mask off -- it is still in the show's library	maske fra -- den er stadig i showets bibliotek
+motion on: the camera is read, never recorded	bevægelse til: kameraet læses, aldrig optaget
+new show disarms all outputs: press new again	nyt show frakobler alle udgange: tryk nyt show igen
+nmos: network is LOCAL ONLY - not registering	nmos: netværket er KUN LOKALT - registrerer ikke
+normalize: selection has no file-backed audio	normalize: markeringen har ingen filbaseret lyd
+output recover failed: fullscreen unavailable	genopretning af udgang mislykkedes: fuldskærm er utilgængelig
+this output's renderer could not cut the mask	denne udgangs renderer kunne ikke klippe masken
+unsaved changes will be lost: press new again	ændringer, der ikke er gemt, går tabt: tryk nyt show igen
+zones cleared: Motion reads the whole picture	zoner ryddet: bevægelse læser hele billedet
+Stop masking this. The mask stays in the show's library, to put back from the menu above	Stop maskeringen. Masken bliver i showets bibliotek og kan sættes tilbage fra menuen ovenfor
+Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	Slet denne maske fra showet og fra hver cue, playliste og udgang, der bruger den. Fortryd henter den tilbage

@@ -2842,3 +2842,216 @@ DASH: the startup dialog is up	DASH: het startdialoogvenster is open
 LOWERSTYLE: select a cue first	LOWERSTYLE: kies eerst een cue
 MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: verwacht 1-16
 PATTERN ADD needs a pattern id	PATTERN ADD heeft een testbeeld-id nodig
+Lower Third attached	Lower Third gekoppeld
+DRAW ONION: ON or OFF	DRAW ONION: ON of OFF
+DRAW EDITOR: ON or OFF	DRAW EDITOR: ON of OFF
+OUTPUT AOI: no outputs	OUTPUT AOI: geen uitgangen
+OUTPUT DECK: no outputs	OUTPUT DECK: geen uitgangen
+DRAW HOLD: seconds, 0-60	DRAW HOLD: seconden, 0-60
+MOTION MIRROR: ON or OFF	MOTION MIRROR: ON of OFF
+GOGUARD: OFF or 50-2000 (ms)	GOGUARD: OFF of 50-2000 (ms)
+SLICE GRID SMOOTH: ON or OFF	SLICE GRID SMOOTH: ON of OFF
+TRIGGER AT: HH:MM[:SS] or OFF	TRIGGER AT: HH:MM[:SS] of OFF
+PATTERN SET needs a pattern id	PATTERN SET heeft een testbeeld-id nodig
+already the first tracker step	al de eerste trackerstap
+cannot determine rendered size	kan weergegeven grootte niet bepalen
+find: enter cue id/number/name	zoeken: voer cue-ID/nummer/naam in
+no sprite sets in data/sprites	geen spritesets in data/sprites
+normalize: no measurable audio	normalize: geen meetbare audio
+recordings are left as written	opnames blijven zoals ze zijn opgeslagen
+reracked - holding first frame	reracked - eerste beeld vastgehouden
+st 2110: clipboard unavailable	st 2110: klembord niet beschikbaar
+stream url: unsupported scheme	stream url: niet-ondersteund schema
+that button has no command yet	die knop heeft nog geen commando
+DMXCUE PROTOCOL: ARTNET or SACN	DMXCUE PROTOCOL: ARTNET of SACN
+FIXTURE DIP: 0-100 (%) or LEAVE	FIXTURE DIP: 0-100 (%) of LEAVE
+FX LFO: no effect at that index	FX LFO: geen effect op die index
+MIDIMAP CLEAR: COMPUTER or SHOW	MIDIMAP CLEAR: COMPUTER of SHOW
+TEXTCUE SPEED: expected 0.05-20	TEXTCUE SPEED: verwacht 0.05-20
+an output needs a base playlist	een uitgang heeft een basis-afspeellijst nodig
+audio input: device unavailable	audio-ingang: apparaat niet beschikbaar
+expected crop percentages 0..90	verwacht bijsnijdpercentages 0..90
+media found - nothing to relink	media gevonden - niets om opnieuw te koppelen
+notestep: build out of range 1-	notestep: build buiten bereik 1-
+put it back when the ramp lands	zet het terug zodra de ramp eindigt
+splitnotes: cue out of range 1-	splitnotes: cue buiten bereik 1-
+st 2110 SDP copied to clipboard	st 2110 SDP gekopieerd naar klembord
+w00t! all ur cues r belong 2 us	w00t! al je cues zijn van ons
+BROWSER TYPE: expected some text	BROWSER TYPE: verwacht tekst
+CHECK: expected a problem number	CHECK: verwacht een probleemnummer
+FADE RESTORE: expected on or off	FADE RESTORE: verwacht on of off
+MIDICLOCK SIM: expected a number	MIDICLOCK SIM: verwacht een getal
+MONITOR ROOM: expected ON or OFF	MONITOR ROOM: verwacht ON of OFF
+MOTION ZONE ADD: already 8 zones	MOTION ZONE ADD: al 8 zones
+SLICE REMOVE: a slice number, 1-	SLICE REMOVE: een slicenummer, 1-
+motion off: the camera is closed	beweging uit: de camera is gesloten
+no capture devices found (dshow)	geen opnameapparaten gevonden (dshow)
+only accepted from this computer	alleen geaccepteerd vanaf deze computer
+reccodec: expected a codec token	reccodec: verwacht een codec-token
+this build has no plugin support	deze build ondersteunt geen plug-ins
+BROWSER SCROLL: expected a number	BROWSER SCROLL: verwacht een getal
+DMXCUE UNIVERSE: expected 0-32767	DMXCUE UNIVERSE: verwacht 0-32767
+FADE DECK: expected a deck number	FADE DECK: verwacht een decknummer
+FX PARAM: no effect at that index	FX PARAM: geen effect op die index
+MIC GAIN: expected -40 to 40 (dB)	MIC GAIN: verwacht -40 tot 40 (dB)
+MOTION ZONE REMOVE: a zone number	MOTION ZONE REMOVE: een zonenummer
+NDI: this build has no NDI output	NDI: deze build heeft geen NDI-uitgang
+STING PITCH: expected 20-12000 Hz	STING PITCH: verwacht 20-12000 Hz
+TRIGGER MIDI: a note 0-127 or OFF	TRIGGER MIDI: een noot 0-127 of OFF
+could not open the Screens window	kon het Screens-venster niet openen
+effects paste: copy a chain first	effecten plakken: kopieer eerst een keten
+expected pixels -1000000..1000000	verwacht pixels -1000000..1000000
+press again to delete this button	druk nogmaals om deze knop te verwijderen
+warp grid: 2 to 9 points each way	vervormraster: 2 tot 9 punten per richting
+AUDIOFX ADD: needs an effect token	AUDIOFX ADD: effecttoken nodig
+BLEND LIFT: expected 0..20 percent	BLEND LIFT: verwacht 0..20 procent
+BUGSWAT SHOWME: only in a briefing	BUGSWAT SHOWME: alleen in een briefing
+CAPTIONS LINES: expected 1, 2 or 3	CAPTIONS LINES: verwacht 1, 2 of 3
+DASH SET: slot number out of range	DASH SET: slotnummer buiten bereik
+FX AMOUNT: no effect at that index	FX AMOUNT: geen effect op die index
+FX COLOUR: no effect at that index	FX COLOUR: geen effect op die index
+MIDICLOCK SIM: bpm must be 20..600	MIDICLOCK SIM: bpm moet 20..600 zijn
+OUTPUT ADD: expected a deck number	OUTPUT ADD: verwacht een decknummer
+SLICE FLIP: H or V, then ON or OFF	SLICE FLIP: H of V, dan ON of OFF
+a path needs three points: dropped	een pad heeft drie punten nodig: verwijderd
+a show needs at least one playlist	een show heeft minstens één afspeellijst nodig
+display scan: no displays reported	displayscan: geen displays gemeld
+selection has no cue with geometry	selectie bevat geen cue met geometrie
+that cue cannot be fired by a step	die cue kan niet door een stap worden gestart
+time: type it as HH:MM or HH:MM:SS	tijd: typ het als HH:MM of HH:MM:SS
+ASCII COLS: expected a column count	ASCII COLS: verwacht een aantal kolommen
+Deckboy evolved into SUPER DECKBOY!	Deckboy is geëvolueerd tot SUPER DECKBOY!
+FX PARAM: slot must be A, B, C or D	FX PARAM: slot moet A, B, C of D zijn
+MIDI: a note number 0-127, or LEARN	MIDI: een notennummer 0-127, of LEREN
+MIDIMAP REMOVE: COMPUTER|SHOW <row>	MIDIMAP REMOVE: COMPUTER|SHOW <rij>
+OUTPUT DECK: expected a deck number	OUTPUT DECK: verwacht een decknummer
+OUTPUTFX BYPASS: expected ON or OFF	OUTPUTFX BYPASS: verwacht ON of OFF
+SCOPES MATRIX: expected 709 or 2020	SCOPES MATRIX: verwacht 709 of 2020
+SHORTCUTS: the startup dialog is up	SHORTCUTS: het startdialoogvenster is open
+STREAM HDR: expected SDR, PQ or HLG	STREAM HDR: verwacht SDR, PQ of HLG
+an animation is already being saved	er wordt al een animatie opgeslagen
+delete live cue: press delete again	live cue verwijderen: druk nogmaals op delete
+esc: output cleared - again to quit	esc: uitgang gewist - nogmaals om af te sluiten
+no browser cue is live on this deck	geen browsercue is live op dit deck
+notestep: nothing live on this deck	notestep: niets live op dit deck
+select the cue it should take first	kies de cue die eerst moet worden gestart
+DRAW EDITOR: select a Draw cue first	DRAW EDITOR: kies eerst een Draw-cue
+DRAW SAVE: STILL or ANIMATION [file]	DRAW SAVE: STILL of ANIMATION [file]
+MIC CHANNEL: expected L, R or STEREO	MIC CHANNEL: verwacht L, R of STEREO
+MULTIVIEW WINDOW: expected ON or OFF	MULTIVIEW WINDOW: verwacht ON of OFF
+Page Down / Page Up step the tracker	Page Down / Page Up stappen door de tracker
+SUBTITLE CONVERT: nothing to convert	SUBTITLE CONVERT: niets om om te zetten
+TONECUE LFO: select a tone cue first	TONECUE LFO: kies eerst een toon-cue
+TRUST LAST: nothing has been refused	TRUST LAST: niets is geweigerd
+atem tally on -- set the switcher IP	ATEM-tally aan -- stel het IP van de switcher in
+datamosh: subtle, self-heals (H.264)	datamosh: subtiel, herstelt zichzelf (H.264)
+master vol: expected 0-200 (percent)	master vol: verwacht 0-200 (procent)
+matrix off - back to the output pair	matrix uit - terug naar het uitgangspaar
+monitor follows the focused playlist	monitor volgt de gefocuste afspeellijst
+multiview: back to the automatic set	multiview: terug naar de automatische set
+no MIDI output ports on this machine	geen MIDI-uitgangspoorten op deze machine
+splitnotes: could not split that cue	splitnotes: kon die cue niet splitsen
+srt: passphrase needs 10+ characters	srt: wachtwoordzin vereist 10+ tekens
+step deleted - ctrl+z brings it back	stap verwijderd - ctrl+z haalt hem terug
+timer face: select a timer cue first	timer face: kies eerst een timer-cue
+timer font: select a timer cue first	timer font: kies eerst een timer-cue
+16 slices is the most an output takes	16 uitsneden is het maximum voor een uitgang
+AUDIOGAIN BY: expected a number of dB	AUDIOGAIN BY: verwacht een aantal dB
+AUDITION: expected OFF, END or STATUS	AUDITION: verwacht OFF, END of STATUS
+BROWSER CLICK: fractions must be 0..1	BROWSER CLICK: breuken moeten 0..1 zijn
+FX GET: expected an effect number, 1-	FX GET: verwacht een effectnummer, 1-
+HLS playlist: added as one stream cue	HLS-afspeellijst: toegevoegd als één stream-cue
+MASTER BYPASS: expected a deck number	MASTER BYPASS: verwacht een decknummer
+MIDICLOCK: expected SIM <bpm> [beats]	MIDICLOCK: verwacht SIM <bpm> [beats]
+MULTIVIEW: expected ON, OFF or TOGGLE	MULTIVIEW: verwacht ON, OFF of TOGGLE
+OUTPUT HDR SIGNAL: expected PQ or HLG	OUTPUT HDR SIGNAL: verwacht PQ of HLG
+STREAM HDR: select a stream cue first	STREAM HDR: kies eerst een stream-cue
+datamosh: file-backed video cues only	datamosh: alleen videocues met bestand
+effects copy: this cue has no effects	effects copy: deze cue heeft geen effecten
+matrix on, routed as the patch had it	matrix aan, gerouteerd zoals de patch had
+recovery could not be read; copy kept	herstelbestand onleesbaar; kopie bewaard
+FIXTURE DIP: expected <name> <%>|LEAVE	FIXTURE DIP: verwacht <name> <%>|LEAVE
+MONITOR: expected DEVICE, DECK or ROOM	MONITOR: verwacht DEVICE, DECK of ROOM
+NETCUE PROTO: expected osc, udp or tcp	NETCUE PROTO: verwacht osc, udp of tcp
+STING LENGTH: expected 0.05-10 seconds	STING LENGTH: verwacht 0.05-10 seconden
+sprite sheet: select a video synth cue	spritesheet: kies een videosynth-cue
+AUDIOGAIN BY: no selected cue has audio	AUDIOGAIN BY: geen geselecteerde cue heeft audio
+CAPTIONS SHOW: expected <output> ON|OFF	CAPTIONS SHOW: verwacht <output> ON|OFF
+CAPTIONS TRANSCRIPT: expected ON or OFF	CAPTIONS TRANSCRIPT: verwacht ON of OFF
+COMPANIONPASS: use 8 or more characters	COMPANIONPASS: gebruik 8 of meer tekens
+DEVAMP: nothing is playing on that deck	DEVAMP: er speelt niets op die deck
+FX LFO ZONE: 0 (the whole picture) to 8	FX LFO ZONE: 0 (hele beeld) tot 8
+MASK IMPORT: expected <file.svg> [name]	MASK IMPORT: verwacht <file.svg> [name]
+MASK SET: expected <id> <param> <value>	MASK SET: verwacht <id> <param> <value>
+MULTIVIEW WINDOW: the last window stays	MULTIVIEW WINDOW: het laatste venster blijft
+OUTPUT AOI MODE: expected PIXEL or FILL	OUTPUT AOI MODE: verwacht PIXEL of FILL
+SCOPES SOUND: expected nothing or RESET	SCOPES SOUND: verwacht niets of RESET
+Tabletop is in SOURCE > MADE BY DECKBOY	Tabletop staat in BRON > GEMAAKT DOOR DECKBOY
+can't read media - CONVERT in inspector	media onleesbaar - OMZETTEN in de inspector
+cleared: all decks stopped, outputs off	gewist: alle decks gestopt, uitgangen uit
+datamosh: classic, full effect (MPEG-4)	datamosh: klassiek, vol effect (MPEG-4)
+driver cleared - nothing left to puppet	driver gewist - niets meer om aan te sturen
+key+fill on - now pick a Key out device	key+fill aan - kies nu een apparaat voor de Key-uitgang
+play the note that should fire this cue	speel de noot die deze cue moet starten
+programme to MediaMTX: watch at http://	programma naar MediaMTX: kijk op http://
+recformat: expected <WxH|program> [fps]	recformat: verwacht <WxH|program> [fps]
+requested input missing - using default	gevraagde ingang ontbreekt - standaard gebruikt
+DRAW PLAYBACK: still, flipbook or replay	DRAW PLAYBACK: stilstaand, flipbook of replay
+FADE KNOB: expected amount, A, B, C or D	FADE KNOB: verwacht sterkte, A, B, C of D
+LOWERANIM: this cue is not a Lower Third	LOWERANIM: deze cue is geen Lower Third
+MASK EXPORT: size is WxH, e.g. 1920x1080	MASK EXPORT: formaat is WxH, bijv. 1920x1080
+MOTION SOURCE: CAMERA [name] or DECK <n>	MOTION SOURCE: CAMERA [name] of DECK <n>
+NEW already starts from factory settings	NEW begint al met fabrieksinstellingen
+OUTPUT SELECT: expected an output number	OUTPUT SELECT: verwacht een uitgangsnummer
+TCCUE: expected NEW, ACTION, JAM or FIRE	TCCUE: verwacht NEW, ACTION, JAM of FIRE
+hands-on: clicks and keys go to the page	hands-on: klikken en toetsen gaan naar de pagina
+multiview: one window per playlist again	multiview: weer één venster per afspeellijst
+record folder set - SAME DISK as Deckboy	opnamemap ingesteld - DEZELFDE SCHIJF als Deckboy
+sequence waiting - press it again for GO	sequentie wacht - druk nogmaals voor GO
+this platform cannot capture that source	dit platform kan die bron niet vastleggen
+timer backdrop: select a timer cue first	timer-achtergrond: kies eerst een timer-cue
+BLEND CURVE: expected PROJECTOR or LINEAR	BLEND CURVE: verwacht PROJECTOR of LINEAR
+CAPTIONS POSITION: expected TOP or BOTTOM	CAPTIONS POSITION: verwacht TOP of BOTTOM
+CAPTIONS SIZE: expected 50..200 (percent)	CAPTIONS SIZE: verwacht 50..200 (procent)
+DMXCUE: the selected cue is not a dmx cue	DMXCUE: de gekozen cue is geen dmx-cue
+DRAW FRAME: ADD, DELETE, NEXT, PREV or 1-	DRAW FRAME: ADD, DELETE, NEXT, PREV of 1-
+FADE OVER: expected a duration in seconds	FADE OVER: verwacht een duur in seconden
+FADE TO: expected a percent from 0 to 100	FADE TO: verwacht een percentage van 0 tot 100
+MOTION SOURCE DECK: a playlist number, 1-	MOTION SOURCE DECK: een afspeellijstnummer, 1-
+STING SWEEP: expected -24 to 24 semitones	STING SWEEP: verwacht -24 tot 24 halve tonen
+TCCUE ACTION: expected start, stop or jam	TCCUE ACTION: verwacht start, stop of jam
+TCCUE JAM: expected a timecode or seconds	TCCUE JAM: verwacht een tijdcode of seconden
+TRACKER VIEW: expected PATTERN or CLASSIC	TRACKER VIEW: verwacht PATTERN of CLASSIC
+Tabletop added - SOURCE > MADE BY DECKBOY	Tabletop toegevoegd - BRON > GEMAAKT DOOR DECKBOY
+browser window open - click, type, log in	browservenster open - klik, typ, log in
+contrast check: something needs attention	contrastcontrole: er is aandacht nodig
+drag the corners on the programme monitor	sleep de hoeken in de programmamonitor
+this browser backend cannot show a window	deze browser-backend kan geen venster tonen
+BROWSER CLICK: expected two fractions 0..1	BROWSER CLICK: verwacht twee breuken 0..1
+CHIP: the selected cue is not a chip synth	CHIP: de gekozen cue is geen chip synth
+DASH SET: a slot cannot fire the dashboard	DASH SET: een slot kan het dashboard niet starten
+DRAW STROKE: x,y[,pressure] ... in percent	DRAW STROKE: x,y[,pressure] ... in procenten
+OUTPUTFX REMOVE: expected an effect number	OUTPUTFX REMOVE: verwacht een effectnummer
+SCRIPTCUE: expected NEW, ADD, CLEAR or RUN	SCRIPTCUE: verwacht NEW, ADD, CLEAR of RUN
+TEXTCUE WIGGLE: expected ON, OFF or TOGGLE	TEXTCUE WIGGLE: verwacht ON, OFF of TOGGLE
+TRIGGER KEY: F1-F10, F12, NUM0-NUM9 or OFF	TRIGGER KEY: F1-F10, F12, NUM0-NUM9 of OFF
+auto-advance removed: cue end follows hold	automatisch doorgaan verwijderd: cue-einde volgt vasthouden
+choose RECOVER or KEEP SAVED before saving	kies RECOVER of KEEP SAVED voor het opslaan
+datamosh look: file-backed video cues only	datamosh-look: alleen videocues met bestand
+nmos: on - searching for a registry (mDNS)	nmos: aan - zoekt naar een register (mDNS)
+record folder: recordings/ beside the show	opnamemap: recordings/ naast de show
+recsegment: expected <minutes> [megabytes]	recsegment: verwacht <minuten> [megabytes]
+the example shows are not in this download	de voorbeeldshows zitten niet in deze download
+warp point: expected <col> <row> <dx> <dy>	warp point: verwacht <col> <row> <dx> <dy>
+warp point: no grid -- WARP GRID <n> first	warp point: geen raster -- eerst WARP GRID <n>
+DMXCUE FIXTURE: level is 0-100 (%) or LEAVE	DMXCUE FIXTURE: niveau is 0-100 (%) of LEAVE
+EDIT off: the keyboard only moves and fires	BEWERKEN uit: het toetsenbord beweegt en start alleen
+EDIT on: typing changes the tracker's cells	BEWERKEN aan: typen wijzigt de cellen van de tracker
+FIXTURE: expected LIST, ADD, FIND or REMOVE	FIXTURE: verwacht LIST, ADD, FIND of REMOVE
+LIMITER CEILING: a level from -40 to 0 dBFS	LIMITER CEILING: een niveau van -40 tot 0 dBFS
+MIDICUE: the selected cue is not a midi cue	MIDICUE: de gekozen cue is geen midi-cue
+MOTION ZONE ADD: x y w h, percentages 0-100	MOTION ZONE ADD: x y w h, procenten 0-100
+MOTION ZONE: ADD x y w h, REMOVE n or CLEAR	MOTION ZONE: ADD x y w h, REMOVE n of CLEAR
+mask off -- it is still in the show's library	masker uit -- het staat nog in de bibliotheek van de show
+Stop masking this. The mask stays in the show's library, to put back from the menu above	Stop met maskeren. Het masker blijft in de bibliotheek van de show en kun je terugzetten via het menu hierboven
+Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	Verwijder dit masker uit de show en uit elke cue, playlist en uitgang die het gebruikt. Met Undo komt het terug

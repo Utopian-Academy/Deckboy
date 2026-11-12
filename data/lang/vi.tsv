@@ -2854,3 +2854,217 @@ DASH: the startup dialog is up	DASH: hộp thoại khởi động đang mở
 LOWERSTYLE: select a cue first	LOWERSTYLE: hãy chọn một cue trước
 MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: cần 1-16
 PATTERN ADD needs a pattern id	PATTERN ADD cần một ID mẫu
+Lower Third attached	đã gắn Lower Third
+find: run FIND first	find: hãy chạy FIND trước
+DRAW ONION: ON or OFF	DRAW ONION: ON hoặc OFF
+DRAW EDITOR: ON or OFF	DRAW EDITOR: ON hoặc OFF
+DRAW HOLD: seconds, 0-60	DRAW HOLD: giây, 0-60
+FADE EFFECT: expected 1-	FADE EFFECT: cần 1-
+MOTION MIRROR: ON or OFF	MOTION MIRROR: ON hoặc OFF
+TALLYEVENT wants ON or OFF	TALLYEVENT cần ON hoặc OFF
+TONECUE LFO: FREQ or LEVEL	TONECUE LFO: FREQ hoặc LEVEL
+GOGUARD: OFF or 50-2000 (ms)	GOGUARD: OFF hoặc 50-2000 (ms)
+SLICE GRID SMOOTH: ON or OFF	SLICE GRID SMOOTH: ON hoặc OFF
+PATTERN SET needs a pattern id	PATTERN SET cần một ID mẫu
+already the first tracker step	đã là bước tracker đầu tiên
+cannot determine rendered size	không xác định được kích thước kết xuất
+find: enter cue id/number/name	find: nhập ID cue/số/tên
+no sprite sets in data/sprites	không có bộ sprite trong data/sprites
+normalize: no measurable audio	normalize: không có âm thanh đo được
+recordings are left as written	bản ghi được giữ nguyên như đã ghi
+reracked - holding first frame	reracked - giữ khung đầu
+st 2110: clipboard unavailable	st 2110: không có clipboard
+stream url: unsupported scheme	stream url: scheme không được hỗ trợ
+that button has no command yet	nút đó chưa có lệnh
+DMXCUE PROTOCOL: ARTNET or SACN	DMXCUE PROTOCOL: ARTNET hoặc SACN
+FIXTURE DIP: 0-100 (%) or LEAVE	FIXTURE DIP: 0-100 (%) hoặc GIỮ NGUYÊN
+FX LFO: no effect at that index	FX LFO: không có hiệu ứng ở mục lục đó
+MIDIMAP CLEAR: COMPUTER or SHOW	MIDIMAP CLEAR: MÁY NÀY hoặc SHOW
+TEXTCUE SPEED: expected 0.05-20	TEXTCUE SPEED: cần 0.05-20
+an output needs a base playlist	một output cần playlist gốc
+audio input: device unavailable	đầu vào âm thanh: thiết bị không khả dụng
+expected crop percentages 0..90	cần phần trăm cắt 0..90
+media found - nothing to relink	đã tìm thấy media - không có gì để liên kết lại
+notestep: build out of range 1-	notestep: build ngoài phạm vi 1-
+put it back when the ramp lands	đặt lại khi ramp kết thúc
+splitnotes: cue out of range 1-	splitnotes: cue ngoài phạm vi 1-
+st 2110 SDP copied to clipboard	ST 2110 SDP đã chép vào bộ nhớ tạm
+w00t! all ur cues r belong 2 us	w00t! mọi cue của bạn là của bọn tôi
+BROWSER TYPE: expected some text	BROWSER TYPE: cần một đoạn chữ
+CHECK: expected a problem number	CHECK: cần một số vấn đề
+FADE RESTORE: expected on or off	FADE RESTORE: cần BẬT hoặc TẮT
+MIDICLOCK SIM: expected a number	MIDICLOCK SIM: cần một số
+MONITOR ROOM: expected ON or OFF	MONITOR ROOM: cần BẬT hoặc TẮT
+MOTION ZONE ADD: already 8 zones	MOTION ZONE ADD: đã có 8 vùng
+SLICE REMOVE: a slice number, 1-	SLICE REMOVE: số lát cắt, 1-
+motion off: the camera is closed	chuyển động tắt: máy quay đã đóng
+no capture devices found (dshow)	không tìm thấy thiết bị thu hình (dshow)
+only accepted from this computer	chỉ nhận từ máy này
+reccodec: expected a codec token	reccodec: cần một mã codec
+this build has no plugin support	bản dựng này không hỗ trợ phần bổ trợ
+BROWSER SCROLL: expected a number	BROWSER SCROLL: cần một số
+DMXCUE UNIVERSE: expected 0-32767	DMXCUE UNIVERSE: cần 0-32767
+FADE DECK: expected a deck number	FADE DECK: cần một số deck
+FX PARAM: no effect at that index	FX PARAM: không có hiệu ứng ở mục lục đó
+MIC GAIN: expected -40 to 40 (dB)	MIC GAIN: cần từ -40 đến 40 (dB)
+MOTION ZONE REMOVE: a zone number	MOTION ZONE REMOVE: số vùng
+NDI: this build has no NDI output	NDI: bản dựng này không có đầu ra NDI
+STING PITCH: expected 20-12000 Hz	STING PITCH: cần 20-12000 Hz
+TRIGGER MIDI: a note 0-127 or OFF	TRIGGER MIDI: một nốt 0-127 hoặc TẮT
+could not open the Screens window	không mở được cửa sổ SCREENS
+effects paste: copy a chain first	effects paste: hãy sao chép một chuỗi trước
+expected pixels -1000000..1000000	cần pixel -1000000..1000000
+marker: add | next | prev | clear	marker: thêm | tiếp | trước | xóa
+press again to delete this button	nhấn lại để xóa nút này
+warp grid: 2 to 9 points each way	lưới warp: 2 đến 9 điểm mỗi chiều
+AUDIOFX ADD: needs an effect token	AUDIOFX ADD: cần một token hiệu ứng
+BLEND LIFT: expected 0..20 percent	BLEND LIFT: cần 0..20 phần trăm
+BUGSWAT SHOWME: only in a briefing	BUGSWAT SHOWME: chỉ trong briefing
+CAPTIONS LINES: expected 1, 2 or 3	CAPTIONS LINES: cần 1, 2 hoặc 3
+DASH SET: slot number out of range	DASH SET: số slot ngoài phạm vi
+FX AMOUNT: no effect at that index	FX AMOUNT: không có hiệu ứng ở mục lục đó
+FX COLOUR: no effect at that index	FX COLOUR: không có hiệu ứng ở mục lục đó
+MIDICLOCK SIM: bpm must be 20..600	MIDICLOCK SIM: bpm phải từ 20..600
+OUTPUT ADD: expected a deck number	OUTPUT ADD: cần một số deck
+SLICE FLIP: H or V, then ON or OFF	SLICE FLIP: H hoặc V, rồi BẬT hoặc TẮT
+a path needs three points: dropped	đường dẫn cần ba điểm: đã bỏ
+a show needs at least one playlist	một show cần ít nhất một playlist
+display scan: no displays reported	quét màn hình: không có màn hình nào được báo
+selection has no cue with geometry	vùng chọn không có cue nào có hình học
+that cue cannot be fired by a step	cue đó không thể chạy bằng một bước
+time: type it as HH:MM or HH:MM:SS	thời gian: nhập dạng HH:MM hoặc HH:MM:SS
+ASCII COLS: expected a column count	ASCII COLS: cần một số cột
+Deckboy evolved into SUPER DECKBOY!	Deckboy đã tiến hóa thành SUPER DECKBOY!
+FX PARAM: slot must be A, B, C or D	FX PARAM: slot phải là A, B, C hoặc D
+MIDI: a note number 0-127, or LEARN	MIDI: một số nốt 0-127, hoặc HỌC
+MIDIMAP REMOVE: COMPUTER|SHOW <row>	MIDIMAP REMOVE: MÁY TÍNH|SHOW <hàng>
+OUTPUT DECK: expected a deck number	OUTPUT DECK: cần một số deck
+OUTPUTFX BYPASS: expected ON or OFF	OUTPUTFX BYPASS: cần BẬT hoặc TẮT
+SCOPES MATRIX: expected 709 or 2020	SCOPES MATRIX: cần 709 hoặc 2020
+SHORTCUTS: the startup dialog is up	SHORTCUTS: hộp thoại khởi động đang mở
+STREAM HDR: expected SDR, PQ or HLG	STREAM HDR: cần SDR, PQ hoặc HLG
+an animation is already being saved	một animation đang được lưu
+delete live cue: press delete again	xóa cue đang TRỰC TIẾP: nhấn xóa lần nữa
+esc: output cleared - again to quit	esc: đã xóa output - nhấn lại để thoát
+no browser cue is live on this deck	không có cue trình duyệt nào đang trực tiếp trên deck này
+notestep: nothing live on this deck	notestep: không có gì đang trực tiếp trên deck này
+select the cue it should take first	chọn cue mà nó sẽ TAKE đầu tiên
+DRAW EDITOR: select a Draw cue first	DRAW EDITOR: hãy chọn một cue Draw trước
+DRAW SAVE: STILL or ANIMATION [file]	DRAW SAVE: STILL hoặc ANIMATION [file]
+MIC CHANNEL: expected L, R or STEREO	MIC CHANNEL: cần L, R hoặc STEREO
+MULTIVIEW WINDOW: expected ON or OFF	MULTIVIEW WINDOW: cần ON hoặc OFF
+Page Down / Page Up step the tracker	Page Down / Page Up di chuyển tracker
+SUBTITLE CONVERT: nothing to convert	SUBTITLE CONVERT: không có gì để chuyển đổi
+TONECUE LFO: select a tone cue first	TONECUE LFO: hãy chọn một cue Âm thử trước
+TRUST LAST: nothing has been refused	TRUST LAST: không có gì bị từ chối
+atem tally on -- set the switcher IP	atem tally bật -- đặt IP của switcher
+datamosh: subtle, self-heals (H.264)	datamosh: tinh tế, tự phục hồi (H.264)
+master vol: expected 0-200 (percent)	master vol: cần 0-200 (phần trăm)
+matrix off - back to the output pair	matrix tắt - quay lại cặp đầu ra
+monitor follows the focused playlist	monitor theo playlist đang chọn
+multiview: back to the automatic set	multiview: quay lại bộ tự động
+no MIDI output ports on this machine	máy này không có cổng đầu ra MIDI
+splitnotes: could not split that cue	splitnotes: không thể chia cue đó
+srt: passphrase needs 10+ characters	srt: cụm mật khẩu cần 10+ ký tự
+step deleted - ctrl+z brings it back	đã xóa bước - ctrl+z sẽ khôi phục
+timer face: select a timer cue first	timer face: hãy chọn một cue bộ đếm giờ trước
+timer font: select a timer cue first	timer font: hãy chọn một cue bộ đếm giờ trước
+16 slices is the most an output takes	một output nhận tối đa 16 lát cắt
+AUDIOGAIN BY: expected a number of dB	AUDIOGAIN BY: cần một số dB
+AUDITION: expected OFF, END or STATUS	AUDITION: cần OFF, END hoặc STATUS
+BROWSER CLICK: fractions must be 0..1	BROWSER CLICK: phân số phải trong 0..1
+FX GET: expected an effect number, 1-	FX GET: cần một số hiệu ứng, 1-
+HLS playlist: added as one stream cue	playlist HLS: đã thêm thành một cue stream
+MASTER BYPASS: expected a deck number	MASTER BYPASS: cần một số deck
+MIDICLOCK: expected SIM <bpm> [beats]	MIDICLOCK: cần SIM <bpm> [beats]
+MULTIVIEW: expected ON, OFF or TOGGLE	MULTIVIEW: cần ON, OFF hoặc TOGGLE
+OUTPUT HDR SIGNAL: expected PQ or HLG	OUTPUT HDR SIGNAL: cần PQ hoặc HLG
+STREAM HDR: select a stream cue first	STREAM HDR: hãy chọn một cue stream trước
+datamosh: file-backed video cues only	datamosh: chỉ cue video từ tệp
+effects copy: this cue has no effects	effects copy: cue này không có hiệu ứng
+matrix on, routed as the patch had it	matrix bật, định tuyến như patch đã có
+recovery could not be read; copy kept	không đọc được bản phục hồi; đã giữ bản sao
+FIXTURE DIP: expected <name> <%>|LEAVE	FIXTURE DIP: cần <name> <%>|LEAVE
+MONITOR: expected DEVICE, DECK or ROOM	MONITOR: cần DEVICE, DECK hoặc ROOM
+NETCUE PROTO: expected osc, udp or tcp	NETCUE PROTO: cần osc, udp hoặc tcp
+STING LENGTH: expected 0.05-10 seconds	STING LENGTH: cần 0.05-10 giây
+sprite sheet: select a video synth cue	sprite sheet: chọn một cue bộ tổng hợp video
+AUDIOGAIN BY: no selected cue has audio	AUDIOGAIN BY: không có cue đang chọn nào có âm thanh
+CAPTIONS SHOW: expected <output> ON|OFF	CAPTIONS SHOW: cần <output> ON|OFF
+CAPTIONS TRANSCRIPT: expected ON or OFF	CAPTIONS TRANSCRIPT: cần ON hoặc OFF
+COMPANIONPASS: use 8 or more characters	COMPANIONPASS: dùng 8 ký tự trở lên
+DEVAMP: nothing is playing on that deck	DEVAMP: không có gì đang phát trên deck đó
+FX LFO ZONE: 0 (the whole picture) to 8	FX LFO ZONE: từ 0 (toàn bộ hình ảnh) đến 8
+MASK IMPORT: expected <file.svg> [name]	MASK IMPORT: cần <file.svg> [name]
+MASK SET: expected <id> <param> <value>	MASK SET: cần <id> <param> <value>
+MULTIVIEW WINDOW: the last window stays	MULTIVIEW WINDOW: cửa sổ cuối cùng được giữ lại
+OUTPUT AOI MODE: expected PIXEL or FILL	OUTPUT AOI MODE: cần PIXEL hoặc FILL
+SCOPES SOUND: expected nothing or RESET	SCOPES SOUND: cần không gì hoặc RESET
+Tabletop is in SOURCE > MADE BY DECKBOY	Tabletop nằm ở NGUỒN > LÀM BỞI DECKBOY
+can't read media - CONVERT in inspector	không đọc được media - CHUYỂN ĐỔI trong inspector
+cleared: all decks stopped, outputs off	đã xóa: tất cả deck đã dừng, output tắt
+datamosh: classic, full effect (MPEG-4)	datamosh: cổ điển, hiệu ứng đầy đủ (MPEG-4)
+driver cleared - nothing left to puppet	đã xóa driver - không còn gì để điều khiển
+key+fill on - now pick a Key out device	key+fill bật - giờ chọn thiết bị Tách nền
+play the note that should fire this cue	chơi nốt nhạc sẽ kích hoạt cue này
+programme to MediaMTX: watch at http://	chương trình tới MediaMTX: xem tại http://
+recformat: expected <WxH|program> [fps]	recformat: cần <WxH|program> [fps]
+requested input missing - using default	thiếu đầu vào đã yêu cầu - dùng mặc định
+DRAW PLAYBACK: still, flipbook or replay	DRAW PLAYBACK: ảnh tĩnh, flipbook hoặc replay
+FADE KNOB: expected amount, A, B, C or D	FADE KNOB: cần mức, A, B, C hoặc D
+MASK EXPORT: size is WxH, e.g. 1920x1080	MASK EXPORT: kích thước là WxH, ví dụ 1920x1080
+MOTION SOURCE: CAMERA [name] or DECK <n>	MOTION SOURCE: CAMERA [name] hoặc DECK <n>
+NEW already starts from factory settings	NEW đã bắt đầu từ cài đặt gốc
+OUTPUT SELECT: expected an output number	OUTPUT SELECT: cần số output
+TCCUE: expected NEW, ACTION, JAM or FIRE	TCCUE: cần NEW, ACTION, JAM hoặc FIRE
+hands-on: clicks and keys go to the page	hands-on: nhấp chuột và phím đi vào trang
+multiview: one window per playlist again	multiview: lại một cửa sổ cho mỗi playlist
+record folder set - SAME DISK as Deckboy	đã đặt thư mục ghi - CÙNG Ổ ĐĨA với Deckboy
+sequence waiting - press it again for GO	chuỗi đang chờ - nhấn lại để GO
+this platform cannot capture that source	nền tảng này không thể ghi hình nguồn đó
+timer backdrop: select a timer cue first	nền bộ đếm giờ: hãy chọn cue bộ đếm giờ trước
+BLEND CURVE: expected PROJECTOR or LINEAR	BLEND CURVE: cần PROJECTOR hoặc LINEAR
+CAPTIONS POSITION: expected TOP or BOTTOM	CAPTIONS POSITION: cần TOP hoặc BOTTOM
+CAPTIONS SIZE: expected 50..200 (percent)	CAPTIONS SIZE: cần 50..200 (phần trăm)
+DMXCUE: the selected cue is not a dmx cue	DMXCUE: cue đang chọn không phải cue DMX
+DRAW FRAME: ADD, DELETE, NEXT, PREV or 1-	DRAW FRAME: ADD, DELETE, NEXT, PREV hoặc 1-
+FADE OVER: expected a duration in seconds	FADE OVER: cần thời lượng tính bằng giây
+FADE TO: expected a percent from 0 to 100	FADE TO: cần phần trăm từ 0 đến 100
+MOTION SOURCE DECK: a playlist number, 1-	MOTION SOURCE DECK: số playlist, 1-
+STING SWEEP: expected -24 to 24 semitones	STING SWEEP: cần từ -24 đến 24 nửa cung
+TCCUE ACTION: expected start, stop or jam	TCCUE ACTION: cần start, stop hoặc jam
+TCCUE JAM: expected a timecode or seconds	TCCUE JAM: cần mã thời gian hoặc giây
+TRACKER VIEW: expected PATTERN or CLASSIC	TRACKER VIEW: cần PATTERN hoặc CLASSIC
+Tabletop added - SOURCE > MADE BY DECKBOY	Tabletop đã thêm - NGUỒN > LÀM BỞI DECKBOY
+browser window open - click, type, log in	cửa sổ trình duyệt đã mở - nhấp, gõ, đăng nhập
+contrast check: something needs attention	kiểm tra tương phản: có mục cần chú ý
+drag the corners on the programme monitor	kéo các góc trên màn hình chương trình
+this browser backend cannot show a window	backend trình duyệt này không thể hiện cửa sổ
+BROWSER CLICK: expected two fractions 0..1	BROWSER CLICK: cần hai phân số 0..1
+CHIP: the selected cue is not a chip synth	CHIP: cue đang chọn không phải chip synth
+DASH SET: a slot cannot fire the dashboard	DASH SET: một slot không thể kích hoạt bảng điều khiển
+DRAW STROKE: x,y[,pressure] ... in percent	DRAW STROKE: x,y[,pressure] ... tính theo phần trăm
+OUTPUTFX REMOVE: expected an effect number	OUTPUTFX REMOVE: cần số hiệu ứng
+SCRIPTCUE: expected NEW, ADD, CLEAR or RUN	SCRIPTCUE: cần NEW, ADD, CLEAR hoặc RUN
+TEXTCUE WIGGLE: expected ON, OFF or TOGGLE	TEXTCUE WIGGLE: cần ON, OFF hoặc TOGGLE
+TRIGGER KEY: F1-F10, F12, NUM0-NUM9 or OFF	TRIGGER KEY: F1-F10, F12, NUM0-NUM9 hoặc OFF
+auto-advance removed: cue end follows hold	đã bỏ tự động chuyển: cuối cue theo giữ
+choose RECOVER or KEEP SAVED before saving	chọn RECOVER hoặc KEEP SAVED trước khi lưu
+datamosh look: file-backed video cues only	kiểu datamosh: chỉ cue video có tệp
+nmos: on - searching for a registry (mDNS)	nmos: bật - đang tìm sổ đăng ký (mDNS)
+record folder: recordings/ beside the show	thư mục ghi: recordings/ cạnh show
+recsegment: expected <minutes> [megabytes]	recsegment: cần <phút> [megabyte]
+the example shows are not in this download	show mẫu không có trong bản tải này
+warp point: expected <col> <row> <dx> <dy>	điểm warp: cần <cột> <hàng> <dx> <dy>
+warp point: no grid -- WARP GRID <n> first	điểm warp: chưa có lưới -- hãy WARP GRID <n> trước
+DMXCUE FIXTURE: level is 0-100 (%) or LEAVE	DMXCUE FIXTURE: mức là 0-100 (%) hoặc LEAVE
+EDIT off: the keyboard only moves and fires	SỬA tắt: bàn phím chỉ di chuyển và kích hoạt
+EDIT on: typing changes the tracker's cells	SỬA bật: gõ sẽ đổi các ô của tracker
+FIXTURE: expected LIST, ADD, FIND or REMOVE	FIXTURE: cần LIST, ADD, FIND hoặc REMOVE
+LIMITER CEILING: a level from -40 to 0 dBFS	LIMITER CEILING: mức từ -40 đến 0 dBFS
+MIDICUE: the selected cue is not a midi cue	MIDICUE: cue đang chọn không phải cue MIDI
+MOTION ZONE ADD: x y w h, percentages 0-100	MOTION ZONE ADD: x y w h, phần trăm 0-100
+MOTION ZONE: ADD x y w h, REMOVE n or CLEAR	MOTION ZONE: ADD x y w h, REMOVE n hoặc CLEAR
+mask off -- it is still in the show's library	mặt nạ tắt -- vẫn còn trong thư viện của show
+Stop masking this. The mask stays in the show's library, to put back from the menu above	Ngừng che mặt nạ này. Mặt nạ vẫn ở trong thư viện của show, đặt lại từ menu phía trên
+Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	Xóa mặt nạ này khỏi show, và khỏi mọi cue, playlist và OUTPUT đang dùng nó. Hoàn tác sẽ đưa nó trở lại

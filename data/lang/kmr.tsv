@@ -2851,3 +2851,218 @@ DASH: the startup dialog is up	DASH: diyaloga destpêkê vekirî ye
 LOWERSTYLE: select a cue first	LOWERSTYLE: pêşî cue hilbijêre
 MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: 1-16 tê hêvîkirin
 PATTERN ADD needs a pattern id	PATTERN ADD id ya nexşeyê dixwaze
+DRAW ONION: ON or OFF	DRAW ONION: ON an OFF
+DRAW EDITOR: ON or OFF	DRAW EDITOR: ON an OFF
+OUTPUT DECK: no outputs	OUTPUT DECK: derketin tune
+DRAW HOLD: seconds, 0-60	DRAW HOLD: çirke, 0-60
+FADE EFFECT: expected 1-	FADE EFFECT: 1- lazim e
+MOTION MIRROR: ON or OFF	MOTION MIRROR: ON an OFF
+FX COLOUR: a grey has no hue	FX COLOUR: gewr reng nagire
+GOGUARD: OFF or 50-2000 (ms)	GOGUARD: OFF an 50-2000 (ms)
+SLICE GRID SMOOTH: ON or OFF	SLICE GRID SMOOTH: ON an OFF
+DMXCUE PORT: expected 1-65535	DMXCUE PORT: 1-65535 lazim e
+TRIGGER AT: HH:MM[:SS] or OFF	TRIGGER AT: HH:MM[:SS] an OFF
+PATTERN SET needs a pattern id	PATTERN SET id ya nexşeyê dixwaze
+already the first tracker step	jixwe gava yekem a şopînerê ye
+cannot determine rendered size	mezinahiya renderkirî nayê diyarkirin
+find: enter cue id/number/name	bibîne: id/hejmar/nav ya cue têkevin
+no sprite sets in data/sprites	di data/sprites de seta sprite tune
+normalize: no measurable audio	normalize: dengê pîvandinê tune
+recordings are left as written	tomar wekî hatine nivîsandin dimînin
+reracked - holding first frame	reracked - wêneyê yekem tê girtin
+st 2110: clipboard unavailable	st 2110: clipboard tune ye
+stream url: unsupported scheme	stream url: şemaya wê nayê piştgirtin
+that button has no command yet	ev bişkok hê ferman nagire
+DMXCUE PROTOCOL: ARTNET or SACN	DMXCUE PROTOCOL: ARTNET an SACN
+FIXTURE DIP: 0-100 (%) or LEAVE	FIXTURE DIP: 0-100 (%) an LEAVE
+FX LFO: no effect at that index	FX LFO: di wê pêristê de efekt tune ye
+MIDIMAP CLEAR: COMPUTER or SHOW	MIDIMAP CLEAR: COMPUTER an SHOW
+TEXTCUE SPEED: expected 0.05-20	TEXTCUE SPEED: 0.05-20 tê xwestin
+an output needs a base playlist	Derketinek lîsteya lêxistinê ya bingehîn dixwaze
+audio input: device unavailable	têketina dengê: amûr ne berdest e
+expected crop percentages 0..90	ji sedî yên birînê 0..90 tên xwestin
+media found - nothing to relink	medya hatin dîtin - tiştek ji bo girêdana nû tune
+notestep: build out of range 1-	notestep: build ji rêjeyê derketiye 1-
+put it back when the ramp lands	Dema ramp bigihîje dawiyê, vegerîne
+splitnotes: cue out of range 1-	splitnotes: cue ji rêjeyê derketiye 1-
+st 2110 SDP copied to clipboard	st 2110 SDP li panoyê hat kopîkirin
+w00t! all ur cues r belong 2 us	w00t! hemû cueyên te yên me ne!
+BROWSER TYPE: expected some text	BROWSER TYPE: nivîs tê xwestin
+CHECK: expected a problem number	CHECK: jimareya pirsgirêkê tê xwestin
+FADE RESTORE: expected on or off	FADE RESTORE: on an off tê xwestin
+MIDICLOCK SIM: expected a number	MIDICLOCK SIM: jimarek tê xwestin
+MONITOR ROOM: expected ON or OFF	MONITOR ROOM: ON an OFF tê xwestin
+MOTION ZONE ADD: already 8 zones	MOTION ZONE ADD: jixwe 8 herêm hene
+SLICE REMOVE: a slice number, 1-	SLICE REMOVE: jimareya slice, 1-
+motion off: the camera is closed	tevger girtî: kamera girtî ye
+no capture devices found (dshow)	amûrên girtinê nehatin dîtin (dshow)
+only accepted from this computer	tenê ji vê kompîterê tê qebûlkirin
+reccodec: expected a codec token	reccodec: tokenek codec tê xwestin
+this build has no plugin support	Di vê guhertoyê de piştgiriya pêvekê tune ye
+BROWSER SCROLL: expected a number	BROWSER SCROLL: jimarek tê xwestin
+DMXCUE UNIVERSE: expected 0-32767	DMXCUE UNIVERSE: 0-32767 tê xwestin
+FADE DECK: expected a deck number	FADE DECK: jimareya deckê tê xwestin
+FX PARAM: no effect at that index	FX PARAM: di wê pêristê de efekt tune ye
+MIC GAIN: expected -40 to 40 (dB)	MIC GAIN: -40 heta 40 (dB) tê xwestin
+MOTION ZONE REMOVE: a zone number	MOTION ZONE REMOVE: jimareya herêmê
+NDI: this build has no NDI output	NDI: di vê guhertoyê de derketina NDI tune ye
+STING PITCH: expected 20-12000 Hz	STING PITCH: 20-12000 Hz tê xwestin
+TRIGGER MIDI: a note 0-127 or OFF	TRIGGER MIDI: notek 0-127 an OFF
+could not open the Screens window	Pencereya Screens venebû
+effects paste: copy a chain first	pêvekirina efektan: pêşî zincîrek kopî bike
+expected pixels -1000000..1000000	pixel -1000000..1000000 hat hêvîkirin
+press again to delete this button	ji bo jêbirina vê bişkokê dîsa bitikîne
+warp grid: 2 to 9 points each way	tora warp: ji her aliyî 2 heta 9 xal
+AUDIOFX ADD: needs an effect token	AUDIOFX ADD: tokenek efektê divê
+BLEND LIFT: expected 0..20 percent	BLEND LIFT: 0..20 sed hat hêvîkirin
+BUGSWAT SHOWME: only in a briefing	BUGSWAT SHOWME: tenê di briefingê de
+CAPTIONS LINES: expected 1, 2 or 3	CAPTIONS LINES: 1, 2 an 3 hat hêvîkirin
+DASH SET: slot number out of range	DASH SET: hejmara slotê ji rêzê derketiye
+FX AMOUNT: no effect at that index	FX AMOUNT: li wê pêristê efekt tune
+FX COLOUR: no effect at that index	FX COLOUR: li wê pêristê efekt tune
+MIDICLOCK SIM: bpm must be 20..600	MIDICLOCK SIM: bpm divê 20..600 be
+OUTPUT ADD: expected a deck number	OUTPUT ADD: hejmareke deck hat hêvîkirin
+SLICE FLIP: H or V, then ON or OFF	SLICE FLIP: H an V, paşê ON an OFF
+a path needs three points: dropped	rê sê xal divê: hat avêtin
+a show needs at least one playlist	pêşandanek bi kêmanî lîsteyek lêxistinê divê
+display scan: no displays reported	display scan: tu display nehatiye ragihandin
+selection has no cue with geometry	di hilbijartinê de cueyek bi geometrî tune
+that cue cannot be fired by a step	ew cue ji hêla gavekê ve nayê destpêkirin
+time: type it as HH:MM or HH:MM:SS	dem: wekî HH:MM an HH:MM:SS binivîse
+ASCII COLS: expected a column count	ASCII COLS: hejmara stûnan hat hêvîkirin
+Deckboy evolved into SUPER DECKBOY!	Deckboy bû SUPER DECKBOY!
+FX PARAM: slot must be A, B, C or D	FX PARAM: slot divê A, B, C an D be
+MIDI: a note number 0-127, or LEARN	MIDI: hejmara notayê 0-127, an FÊR BIBE
+MIDIMAP REMOVE: COMPUTER|SHOW <row>	MIDIMAP REMOVE: COMPUTER|SHOW <rêz>
+OUTPUT DECK: expected a deck number	OUTPUT DECK: hejmareke deck hat hêvîkirin
+OUTPUTFX BYPASS: expected ON or OFF	OUTPUTFX BYPASS: ON an OFF hat hêvîkirin
+SCOPES MATRIX: expected 709 or 2020	SCOPES MATRIX: 709 an 2020 hat hêvîkirin
+SHORTCUTS: the startup dialog is up	SHORTCUTS: diyaloga destpêkê vekirî ye
+STREAM HDR: expected SDR, PQ or HLG	STREAM HDR: SDR, PQ an HLG hat hêvîkirin
+an animation is already being saved	anîmasyonek jixwe tê tomarkirin
+delete live cue: press delete again	cueya zindî jê bibe: dîsa delete bitikîne
+esc: output cleared - again to quit	esc: derketin hat paqijkirin - ji bo derketinê dîsa
+no browser cue is live on this deck	li ser vî deck cueyeke gerokê ya zindî tune
+notestep: nothing live on this deck	notestep: li ser vî deck tiştek zindî tune
+select the cue it should take first	cueya ku pêşî TAKE bibe hilbijêre
+DRAW EDITOR: select a Draw cue first	DRAW EDITOR: pêşî DRAW CUE hilbijêre
+DRAW SAVE: STILL or ANIMATION [file]	DRAW SAVE: STILL an ANIMATION [file]
+MIC CHANNEL: expected L, R or STEREO	MIC CHANNEL: L, R an STEREO tê hêvîkirin
+MULTIVIEW WINDOW: expected ON or OFF	MULTIVIEW WINDOW: ON an OFF tê hêvîkirin
+Page Down / Page Up step the tracker	Page Down / Page Up şopînerê gav bi gav dimeşînin
+SUBTITLE CONVERT: nothing to convert	SUBTITLE CONVERT: tiştek tune ku were veguhertin
+TONECUE LFO: select a tone cue first	TONECUE LFO: pêşî cue ya ton hilbijêre
+TRUST LAST: nothing has been refused	TRUST LAST: tiştek nehatiye redkirin
+atem tally on -- set the switcher IP	Tally ya ATEM çalak e -- IP ya switcher diyar bike
+datamosh: subtle, self-heals (H.264)	datamosh: nermik, bi xwe sax dibe (H.264)
+master vol: expected 0-200 (percent)	master vol: 0-200 (sedî) tê hêvîkirin
+matrix off - back to the output pair	matrix girtî ye - paş vegere cota derketinê
+monitor follows the focused playlist	monitor li pey lîsteya lêxistinê ya fokuskirî ye
+multiview: back to the automatic set	multiview: paş vegere seta otomatîk
+no MIDI output ports on this machine	li ser vê makîneyê porta derketinê ya MIDI tune
+splitnotes: could not split that cue	splitnotes: ev cue nehat parçekirin
+srt: passphrase needs 10+ characters	srt: hevoka şîfreyê 10+ nîşan divê
+step deleted - ctrl+z brings it back	gav hat jêbirin - ctrl+z vedigerîne
+timer face: select a timer cue first	timer face: pêşî cue ya demjimêr hilbijêre
+timer font: select a timer cue first	timer font: pêşî cue ya demjimêr hilbijêre
+16 slices is the most an output takes	16 perçe herî zêde ye ku derketinek digire
+AUDIOGAIN BY: expected a number of dB	AUDIOGAIN BY: hejmarek dB tê hêvîkirin
+AUDITION: expected OFF, END or STATUS	AUDITION: OFF, END an STATUS tê hêvîkirin
+BROWSER CLICK: fractions must be 0..1	BROWSER CLICK: dabeş divê 0..1 bin
+FX GET: expected an effect number, 1-	FX GET: hejmara efektekê tê hêvîkirin, 1-
+HLS playlist: added as one stream cue	lîsteya HLS: wekî cue ya weşanê ya yekane hat zêdekirin
+MASTER BYPASS: expected a deck number	MASTER BYPASS: hejmara deck tê hêvîkirin
+MIDICLOCK: expected SIM <bpm> [beats]	MIDICLOCK: SIM <bpm> [beats] tê hêvîkirin
+MULTIVIEW: expected ON, OFF or TOGGLE	MULTIVIEW: ON, OFF an TOGGLE tê hêvîkirin
+OUTPUT HDR SIGNAL: expected PQ or HLG	OUTPUT HDR SIGNAL: PQ an HLG tê hêvîkirin
+STREAM HDR: select a stream cue first	STREAM HDR: pêşî cue ya weşanê hilbijêre
+datamosh: file-backed video cues only	datamosh: tenê cue yên vîdyoyê yên bi pelê
+effects copy: this cue has no effects	effects copy: ev cue efekt tune
+matrix on, routed as the patch had it	matrix çalak e, mîna ku patch hebû hatiye rêvekirin
+recovery could not be read; copy kept	recovery nehat xwendin; kopî hat parastin
+FIXTURE DIP: expected <name> <%>|LEAVE	FIXTURE DIP: <name> <%>|LEAVE tê hêvîkirin
+MONITOR: expected DEVICE, DECK or ROOM	MONITOR: DEVICE, DECK an ROOM tê hêvîkirin
+NETCUE PROTO: expected osc, udp or tcp	NETCUE PROTO: osc, udp an tcp tê hêvîkirin
+STING LENGTH: expected 0.05-10 seconds	STING LENGTH: 0.05-10 çirke tê hêvîkirin
+sprite sheet: select a video synth cue	sprite sheet: cue-yek Synth a vîdyoyê hilbijêre
+AUDIOGAIN BY: no selected cue has audio	AUDIOGAIN BY: ti cue-yek hilbijartî deng tune
+CAPTIONS SHOW: expected <output> ON|OFF	CAPTIONS SHOW: <output> ON|OFF hewce ye
+CAPTIONS TRANSCRIPT: expected ON or OFF	CAPTIONS TRANSCRIPT: ON an OFF hewce ye
+COMPANIONPASS: use 8 or more characters	COMPANIONPASS: 8 an zêdetir tîp bikar bîne
+DEVAMP: nothing is playing on that deck	DEVAMP: li ser wî deck tiştek nayê lêxistin
+FX LFO ZONE: 0 (the whole picture) to 8	FX LFO ZONE: 0 (tevahiya wêneyê) heta 8
+MASK IMPORT: expected <file.svg> [name]	MASK IMPORT: <file.svg> [name] hewce ye
+MASK SET: expected <id> <param> <value>	MASK SET: <id> <param> <value> hewce ye
+MULTIVIEW WINDOW: the last window stays	MULTIVIEW WINDOW: paceya dawî dimîne
+OUTPUT AOI MODE: expected PIXEL or FILL	OUTPUT AOI MODE: PIXEL an FILL hewce ye
+SCOPES SOUND: expected nothing or RESET	SCOPES SOUND: tiştek tune an RESET hewce ye
+Tabletop is in SOURCE > MADE BY DECKBOY	Tabletop di ÇAVKANÎ > JI HÊLA DECKBOY VE HATIYE ÇÊKIRIN de ye
+can't read media - CONVERT in inspector	medya nayê xwendin - di inspector de VEGUHERÎNE
+cleared: all decks stopped, outputs off	paqijkirî: hemû deck rawestiyayî, derketin girtî
+datamosh: classic, full effect (MPEG-4)	datamosh: klasîk, bandora tije (MPEG-4)
+driver cleared - nothing left to puppet	driver paqij bû - tiştek nema ku bê kontrolkirin
+key+fill on - now pick a Key out device	key+fill vekirî - niha amûra Derketina key hilbijêre
+play the note that should fire this cue	notê bilêze ku ev cue bide destpêkirin
+programme to MediaMTX: watch at http://	bername ji bo MediaMTX: li http:// temaşe bike
+recformat: expected <WxH|program> [fps]	recformat: <WxH|program> [fps] hewce ye
+requested input missing - using default	têketina daxwazkirî winda ye - pêşdanasîn tê bikaranîn
+DRAW PLAYBACK: still, flipbook or replay	DRAW PLAYBACK: wêne, flipbook an dubare
+FADE KNOB: expected amount, A, B, C or D	FADE KNOB: mîqdar, A, B, C an D hewce ye
+LOWERANIM: this cue is not a Lower Third	LOWERANIM: ev cue ne Lower Third e
+MASK EXPORT: size is WxH, e.g. 1920x1080	MASK EXPORT: mezinahî WxH ye, mînak 1920x1080
+MOTION SOURCE: CAMERA [name] or DECK <n>	MOTION SOURCE: CAMERA [name] an DECK <n>
+NEW already starts from factory settings	NEW jixwe ji mîhengên kargehê dest pê dike
+OUTPUT SELECT: expected an output number	OUTPUT SELECT: jimareya derketinê hewce ye
+TCCUE: expected NEW, ACTION, JAM or FIRE	TCCUE: NEW, ACTION, JAM an FIRE hewce ye
+hands-on: clicks and keys go to the page	kontrola rasterast: klîk û bişkok diçin rûpelê
+multiview: one window per playlist again	multiview: dîsa pacek ji bo her lîsteya lêxistinê
+record folder set - SAME DISK as Deckboy	peldanka qeydê hate diyarkirin - HEMAN DÎSK wekî Deckboy
+sequence waiting - press it again for GO	rêze li bendê ye - ji bo GO dîsa bitikîne
+this platform cannot capture that source	ev platform nikare wê çavkaniyê bigire
+timer backdrop: select a timer cue first	paşxaneya demjimêrê: pêşî cue-ya demjimêrê hilbijêre
+BLEND CURVE: expected PROJECTOR or LINEAR	BLEND CURVE: PROJECTOR an LINEAR hewce ye
+CAPTIONS POSITION: expected TOP or BOTTOM	CAPTIONS POSITION: TOP an BOTTOM hewce ye
+CAPTIONS SIZE: expected 50..200 (percent)	CAPTIONS SIZE: 50..200 (ji sedî) hewce ye
+DMXCUE: the selected cue is not a dmx cue	DMXCUE: cue ya hilbijartî ne cue ya dmx e
+DRAW FRAME: ADD, DELETE, NEXT, PREV or 1-	DRAW FRAME: ADD, DELETE, NEXT, PREV an 1-
+FADE OVER: expected a duration in seconds	FADE OVER: dem bi çirkeyan hat hêvîkirin
+FADE TO: expected a percent from 0 to 100	FADE TO: sedî ji 0 heta 100 hat hêvîkirin
+LOWERSTYLE: this cue is not a Lower Third	LOWERSTYLE: ev cue ne Lower Third e
+MOTION SOURCE DECK: a playlist number, 1-	MOTION SOURCE DECK: hejmara lîsteya lêxistinê, 1-
+STING SWEEP: expected -24 to 24 semitones	STING SWEEP: -24 heta 24 nîvdeng hat hêvîkirin
+TCCUE ACTION: expected start, stop or jam	TCCUE ACTION: start, stop an jam hat hêvîkirin
+TCCUE JAM: expected a timecode or seconds	TCCUE JAM: koda demê an çirke hat hêvîkirin
+TRACKER VIEW: expected PATTERN or CLASSIC	TRACKER VIEW: PATTERN an CLASSIC hat hêvîkirin
+Tabletop added - SOURCE > MADE BY DECKBOY	Tabletop zêde bû - ÇAVKANÎ > JI HÊLA DECKBOY VE HATIYE ÇÊKIRIN
+browser window open - click, type, log in	pacoya gerokê vekirî ye - bitikîne, binivîse, têkeve
+contrast check: something needs attention	kontrol a kontrastê: tiştek bala te dixwaze
+drag the corners on the programme monitor	goşeyan li ser monîtora bernameyê bikişîne
+this browser backend cannot show a window	backenda vî gerokî nikare paceyekê nîşan bide
+BROWSER CLICK: expected two fractions 0..1	BROWSER CLICK: du perçeyên 0..1 hatin hêvîkirin
+CHIP: the selected cue is not a chip synth	CHIP: cue ya hilbijartî ne chip synth e
+DASH SET: a slot cannot fire the dashboard	DASH SET: slot nikare PANEL bide destpêkirin
+DRAW STROKE: x,y[,pressure] ... in percent	DRAW STROKE: x,y[,pressure] ... bi sedî
+OUTPUTFX REMOVE: expected an effect number	OUTPUTFX REMOVE: hejmara efektekê hat hêvîkirin
+SCRIPTCUE: expected NEW, ADD, CLEAR or RUN	SCRIPTCUE: NEW, ADD, CLEAR an RUN hat hêvîkirin
+TEXTCUE WIGGLE: expected ON, OFF or TOGGLE	TEXTCUE WIGGLE: ON, OFF an TOGGLE hat hêvîkirin
+TRIGGER KEY: F1-F10, F12, NUM0-NUM9 or OFF	TRIGGER KEY: F1-F10, F12, NUM0-NUM9 an OFF
+auto-advance removed: cue end follows hold	pêşveçûna otomatîk hate rakirin: dawiya cue li hold dişopîne
+choose RECOVER or KEEP SAVED before saving	berî tomarkirinê RECOVER an KEEP SAVED hilbijêre
+datamosh look: file-backed video cues only	awayê datamosh: tenê cue yên vîdyoyê yên bi pel
+nmos: on - searching for a registry (mDNS)	nmos: vekirî - li tomargehekê digere (mDNS)
+record folder: recordings/ beside the show	peldanka qeydê: recordings/ li kêleka pêşandanê
+recsegment: expected <minutes> [megabytes]	recsegment: <deqe> [megabayt] hat hêvîkirin
+the example shows are not in this download	pêşandanên mînak di vê daxistinê de nînin
+warp point: expected <col> <row> <dx> <dy>	warp point: <col> <row> <dx> <dy> hat hêvîkirin
+warp point: no grid -- WARP GRID <n> first	warp point: grid tune -- pêşî WARP GRID <n>
+DMXCUE FIXTURE: level is 0-100 (%) or LEAVE	DMXCUE FIXTURE: ast 0-100 (%) an LEAVE
+EDIT off: the keyboard only moves and fires	BIGUHERÎNE girtî: klavye tenê digere û dide destpêkirin
+EDIT on: typing changes the tracker's cells	BIGUHERÎNE vekirî: nivîsandin şaneyên şopînerê diguherîne
+FIXTURE: expected LIST, ADD, FIND or REMOVE	FIXTURE: LIST, ADD, FIND an REMOVE hat hêvîkirin
+LIMITER CEILING: a level from -40 to 0 dBFS	LIMITER CEILING: astek ji -40 heta 0 dBFS
+MIDICUE: the selected cue is not a midi cue	MIDICUE: cue ya hilbijartî ne cue ya midi ye
+MOTION ZONE ADD: x y w h, percentages 0-100	MOTION ZONE ADD: x y w h, sedî 0-100
+MOTION ZONE: ADD x y w h, REMOVE n or CLEAR	MOTION ZONE: ADD x y w h, REMOVE n an CLEAR
+mask off -- it is still in the show's library	maske girtî -- hê di pirtûkxaneya pêşandanê de ye
+Stop masking this. The mask stays in the show's library, to put back from the menu above	Maskekirinê rawestîne. Maske di pirtûkxaneya pêşandanê de dimîne, ji menûya jorîn vegerîne
+Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	Vê maskeyê ji pêşandanê û ji her cue, lîsteya lêxistinê û derketina ku wê bi kar tîne jê bibe. Undo wê vedigerîne

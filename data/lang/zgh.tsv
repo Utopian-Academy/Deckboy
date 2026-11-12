@@ -2879,3 +2879,218 @@ DASH: the startup dialog is up	DASH: ⵜⴰⵡⵡⵓⵔⵜ ⵏ ⵓⴱⴷⵓ ⵜ�
 LOWERSTYLE: select a cue first	LOWERSTYLE: ⵙⵜⵉ cue ⴷⴰⵜ
 MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: ⵉⵜⵜⵓⵔⴰⵊⴰ 1-16
 PATTERN ADD needs a pattern id	PATTERN ADD ⵉⵔⴰ ID ⵏ ⵓⵍⴳⵓⵖ
+DRAW ONION: ON or OFF	DRAW ONION: ⵉⵔⵎⴷ ⵏⵖ ⵉⵅⵙⴰ
+DRAW EDITOR: ON or OFF	DRAW EDITOR: ⵉⵔⵎⴷ ⵏⵖ ⵉⵅⵙⴰ
+OUTPUT AOI: no outputs	OUTPUT AOI: ⵓⵔ ⵍⵍⵉⵏ ⵜⵓⴼⴼⵖⴰⵜⵉⵏ
+OUTPUT DECK: no outputs	OUTPUT DECK: ⵓⵔ ⵍⵍⵉⵏ ⵜⵓⴼⴼⵖⴰⵜⵉⵏ
+DRAW HOLD: seconds, 0-60	DRAW HOLD: ⵜⵉⵙⵉⵏⴰ, 0-60
+FADE EFFECT: expected 1-	FADE EFFECT: ⵉⵙⵙⵓⵜⵔ 1-
+MOTION MIRROR: ON or OFF	MOTION MIRROR: ⵉⵔⵎⴷ ⵏⵖ ⵉⵅⵙⴰ
+TALLYEVENT wants ON or OFF	TALLYEVENT ⵉⵙⵙⵓⵜⵔ ⵉⵔⵎⴷ ⵏⵖ ⵉⵅⵙⴰ
+TONECUE LFO: FREQ or LEVEL	TONECUE LFO: FREQ ⵏⵖ LEVEL
+GOGUARD: OFF or 50-2000 (ms)	GOGUARD: ⵉⵅⵙⴰ ⵏⵖ 50-2000 (ms)
+SLICE GRID SMOOTH: ON or OFF	SLICE GRID SMOOTH: ⵉⵔⵎⴷ ⵏⵖ ⵉⵅⵙⴰ
+TRIGGER AT: HH:MM[:SS] or OFF	TRIGGER AT: HH:MM[:SS] ⵏⵖ ⵉⵅⵙⴰ
+PATTERN SET needs a pattern id	PATTERN SET ⵉⵙⵙⵓⵜⵔ ⴰⵙⵎⴰⴳ ⵏ ⵓⵍⴳⵓⵖ
+already the first tracker step	ⵉⴳⴰ ⵙⵖⵉⵍ ⵜⴰⵙⵙⵔⴰⵡⵜ ⵜⴰⵎⵣⵡⴰⵔⵓⵜ ⵏ ⵓⵎⴹⴼⴰⵔ
+cannot determine rendered size	ⵓⵔ ⵏⵣⵎⵎⴰⵔ ⴰⴷ ⵏⵙⵙⵏ ⵜⵉⴷⴷⵉ ⵏ ⵓⵙⵎⵓⵜⵜⵉ
+find: enter cue id/number/name	ⴰⵔⵣⵣⵓ: ⵙⴽⵛⵎ ⴰⵙⵎⴰⴳ ⵏ cue/ⵓⵟⵟⵓⵏ/ⵉⵙⵎ
+no sprite sets in data/sprites	ⵓⵔ ⵍⵍⵉⵏ ⵉⵎⵓⵔⵉⵡⵏ ⵏ sprite ⴷⵉ data/sprites
+normalize: no measurable audio	normalize: ⵓⵔ ⵍⵍⵉⵏ ⵉⵎⵙⵍⵉ ⵉⵜⵜⵓⵎⵉⵙⵏ
+recordings are left as written	ⵉⵙⵍⵉⵍⵏ ⵜⵜⵓⵜⵔⴽⵏ ⴰⵎⴰ ⵉⴳⴰⵏ
+reracked - holding first frame	ⵉⵜⵜⵓⵙⵙⵓⵍⵙ - ⵟⵟⴼ ⵜⴰⵡⵍⴰⴼⵜ ⵜⴰⵎⵣⵡⴰⵔⵓⵜ
+st 2110: clipboard unavailable	st 2110: clipboard ⵓⵔ ⵉⵍⵍⵉ
+stream url: unsupported scheme	ⴰⵙⵓⴷⴷⵎ url: ⵜⴰⵙⵏⵓⴼⵍⵜ ⵓⵔ ⵜⵜⵓⵙⵏⵜⴰⵔ
+that button has no command yet	ⴰⵙⵎⵙⵓⵔ ⴰⵏⵏ ⵓⵔ ⵖⵓⵔⵙ ⴰⵏⴹⴹⴰⵎ ⴰⵎⵎⴰ
+DMXCUE PROTOCOL: ARTNET or SACN	DMXCUE ⴰⵟⵓⵟⵓⴽⵓⵍ: ARTNET ⵏⵖ SACN
+FIXTURE DIP: 0-100 (%) or LEAVE	FIXTURE DIP: 0-100 (%) ⵏⵖ LEAVE
+FX LFO: no effect at that index	FX LFO: ⵡⴰⵍⵓ ⵏ ⵓⵙⵏⴼⴰⵍ ⵖ ⵓⵎⴰⵜⴰⵔ ⴰⵏⵏ
+MIDIMAP CLEAR: COMPUTER or SHOW	MIDIMAP CLEAR: COMPUTER ⵏⵖ SHOW
+TEXTCUE SPEED: expected 0.05-20	TEXTCUE SPEED: ⵉⵅⵚⵚⴰ 0.05-20
+an output needs a base playlist	ⵜⵓⴼⴼⵖⴰ ⵜⵅⵚⵚⴰ ⵜⴰⴱⴷⴰⵔⵜ ⵜⴰⵣⴷⴰⵢⵜ
+audio input: device unavailable	ⵜⵓⵔⴰⵔⵜ ⵏ ⵉⵎⵙⵍⵉ: ⴰⵍⵍⴰⵍ ⵓⵔ ⵉⵍⵍⵉ
+expected crop percentages 0..90	ⵉⵅⵚⵚⴰ ⴰⵙⵎⵥⵥⵉ (%) 0..90
+media found - nothing to relink	ⵜⵜⵓⴼⴰ ⵓⵎⵉⴷⵢⴰ - ⵡⴰⵍⵓ ⵏ ⵓⵙⵎⵏⴹ ⴰⵎⴰⵢⵏⵓ
+notestep: build out of range 1-	notestep: ⴰⴱⵏⵉ ⴱⵔⵔⴰ ⵏ ⵜⵏⴼⴰⵍⵜ 1-
+put it back when the ramp lands	ⵙⵙⵓⵖⵍ-ⵜ ⵎⵉ ⵜⵙⵎⵎⵓⴹ ⵜⵣⵖⵉⵎⵜ
+splitnotes: cue out of range 1-	splitnotes: cue ⴱⵔⵔⴰ ⵏ ⵜⵏⴼⴰⵍⵜ 1-
+st 2110 SDP copied to clipboard	ST 2110 SDP ⵉⵜⵜⵓⵙⵏⵖⵍ ⵖⵔ ⵜⴰⵙⵏⵉⵍⵜ
+w00t! all ur cues r belong 2 us	w00t! ⴰⴽⴽ cue ⵏⵏⴽ ⵜⴳⴰⵏⵜ ⵏⵏⵖ
+BROWSER TYPE: expected some text	BROWSER TYPE: ⵉⵅⵚⵚⴰ ⴰⴹⵕⵉⵚ
+CHECK: expected a problem number	CHECK: ⵉⵅⵚⵚⴰ ⵓⵟⵟⵓⵏ ⵏ ⵓⵙⵓⵔⵉⴼ
+FADE RESTORE: expected on or off	FADE RESTORE: ⵉⵅⵚⵚⴰ on ⵏⵖ off
+MIDICLOCK SIM: expected a number	MIDICLOCK SIM: ⵉⵅⵚⵚⴰ ⵓⵟⵟⵓⵏ
+MONITOR ROOM: expected ON or OFF	MONITOR ROOM: ⵉⵅⵚⵚⴰ ON ⵏⵖ OFF
+MOTION ZONE ADD: already 8 zones	MOTION ZONE ADD: ⵉⵍⵍⴰ ⵢⴰⴹ 8 ⵏ ⵜⵎⵏⴰⴹⵉⵏ
+SLICE REMOVE: a slice number, 1-	SLICE REMOVE: ⴰⵟⵟⵓⵏ ⵏ slice, 1-
+motion off: the camera is closed	ⴰⵎⵓⵙⵙⵓ ⵉⵅⵙⴰ: ⵜⴰⴽⴰⵎⵉⵕⵜ ⵜⵜⵓⵖⵍⵇ
+no capture devices found (dshow)	ⵓⵔ ⵜⵜⵓⴼⴰ ⵉⵍⵍⴰⵍⵏ ⵏ ⵓⵙⵎⵖⵔ (dshow)
+only accepted from this computer	ⵉⵜⵜⵓⵙⵎⴷⵢ ⴰⵔ ⵙⴳ ⵓⵙⵍⴽⵉⵎ ⴰⴷ
+reccodec: expected a codec token	reccodec: ⵉⵅⵚⵚⴰ ⴰⵟⵟⵓⵏ ⵏ codec
+this build has no plugin support	ⵓⴱⵏⵉ ⴰⴷ ⵓⵔ ⵉⵙⵙⵓⵜⵔ ⵉⵙⵎⵍⵉⵍⵏ
+BROWSER SCROLL: expected a number	BROWSER SCROLL: ⵉⵅⵚⵚⴰ ⵓⵟⵟⵓⵏ
+DMXCUE UNIVERSE: expected 0-32767	DMXCUE UNIVERSE: ⵉⵅⵚⵚⴰ 0-32767
+FADE DECK: expected a deck number	FADE DECK: ⵉⵅⵚⵚⴰ ⵓⵟⵟⵓⵏ ⵏ deck
+FX PARAM: no effect at that index	FX PARAM: ⵡⴰⵍⵓ ⵏ ⵓⵙⵏⴼⴰⵍ ⵖ ⵓⵎⴰⵜⴰⵔ ⴰⵏⵏ
+MIC GAIN: expected -40 to 40 (dB)	MIC GAIN: ⵉⵅⵚⵚⴰ -40 ⴰⵔ 40 (dB)
+MOTION ZONE REMOVE: a zone number	MOTION ZONE REMOVE: ⴰⵟⵟⵓⵏ ⵏ ⵜⵎⵏⴰⴹⵜ
+NDI: this build has no NDI output	NDI: ⵓⴱⵏⵉ ⴰⴷ ⵓⵔ ⵉⵍⵍⵉ ⵖⵔⵙ ⵜⵓⴼⴼⵖⴰ NDI
+STING PITCH: expected 20-12000 Hz	STING PITCH: ⵉⵅⵚⵚⴰ 20-12000 Hz
+TRIGGER MIDI: a note 0-127 or OFF	TRIGGER MIDI: ⵜⵉⵏⵓⵜ 0-127 ⵏⵖ OFF
+could not open the Screens window	ⵓⵔ ⵉⵎⴽⵏ ⵓⵔⵥⵎ ⵏ ⵓⵙⴰⵜⵎ SCREENS
+effects paste: copy a chain first	ⴰⵙⵏⵜⴹ ⵏ ⵉⵙⵏⴼⴰⵍⵏ: ⵙⵏⵖⵍ ⴰⵙⵎⵎⵏⴹ ⴷⴰⵜ
+expected pixels -1000000..1000000	ⵉⵜⵜⵓⵜⵔⴰ pixels -1000000..1000000
+marker: add | next | prev | clear	ⴰⵎⴰⵔⴽ: ⵔⵏⵓ | ⴰⴹⴼⴼⴰⵔ | ⴰⵣⵡⴰⵔ | ⵙⴼⴹ
+press again to delete this button	ⵙⵉⵜ ⵜⵉⴽⴽⵍ ⵏⴰⵜ ⵉ ⵓⴽⴽⵙ ⵏ ⵜⴰⵇⴼⴰⵍⵜ ⴰⴷ
+warp grid: 2 to 9 points each way	ⵙⵙⵏⴼⵍ ⵜⴰⵍⵖⴰ: 2 ⵖⴰⵔ 9 ⵏ ⵜⵉⵏⵇⵇⵉⴹⵉⵏ ⵖ ⴽⵓⵍⵍⵓ ⴰⵖⵉⵍ
+AUDIOFX ADD: needs an effect token	AUDIOFX ADD: ⵉⵅⵙⵙ ⴰⵙⵏⴼⵍ
+BLEND LIFT: expected 0..20 percent	BLEND LIFT: ⵉⵜⵜⵓⵜⵔⴰ 0..20 %
+BUGSWAT SHOWME: only in a briefing	BUGSWAT SHOWME: ⵖⵉⵙ ⴳ briefing
+CAPTIONS LINES: expected 1, 2 or 3	CAPTIONS LINES: ⵉⵜⵜⵓⵜⵔⴰ 1, 2 ⵏⵖ 3
+DASH SET: slot number out of range	DASH SET: ⵓⵟⵟⵓⵏ ⵏ slot ⴱⵔⵔⴰ ⵏ ⵓⵏⵖⵍⴰ
+FX AMOUNT: no effect at that index	FX AMOUNT: ⵡⴰⵍⵓ ⴰⵙⵏⴼⵍ ⵖ ⵓⵎⴰⵜⴰⵔ ⴰⵏⵏ
+FX COLOUR: no effect at that index	FX COLOUR: ⵡⴰⵍⵓ ⴰⵙⵏⴼⵍ ⵖ ⵓⵎⴰⵜⴰⵔ ⴰⵏⵏ
+MIDICLOCK SIM: bpm must be 20..600	MIDICLOCK SIM: bpm ⵉⵅⵚⵚ ⴰⴷ ⵉⴳⵍ 20..600
+OUTPUT ADD: expected a deck number	OUTPUT ADD: ⵉⵜⵜⵓⵜⵔⴰ ⵓⵟⵟⵓⵏ ⵏ deck
+SLICE FLIP: H or V, then ON or OFF	SLICE FLIP: H ⵏⵖ V, ⴷⵖⵉ ⵉⵔⵎⴷ ⵏⵖ ⵉⵅⵙⴰ
+a path needs three points: dropped	ⴰⴱⵔⵉⴷ ⵉⵅⵚⵚ ⵜⴰⵍⴰⵜ ⵏ ⵜⵉⵏⵇⵇⵉⴹⵉⵏ: ⵉⵜⵜⵓⴽⴽⵙ
+a show needs at least one playlist	ⴰⵙⵙⴽⴰⵏ ⵉⵅⵚⵚ ⵖⴰⵔ ⵢⴰⵜ ⵜⴰⴱⴷⴰⵔⵜ
+display scan: no displays reported	display scan: ⵓⵔ ⵉⵍⵍⵉ display
+selection has no cue with geometry	ⴰⵙⵜⵉ ⵓⵔ ⵉⵍⵍⵉ ⵢⴰⵏ cue ⵙ ⵜⴰⵍⵖⴰ
+that cue cannot be fired by a step	cue ⴰⵏⵏ ⵓⵔ ⵉⵊⵊ ⴰⴷ ⵜⵜⵓⵙⵙⵉⴷⴷ ⵙ ⵜⴰⵙⵙⵔⴰⵡⵜ
+time: type it as HH:MM or HH:MM:SS	ⴰⴽⵓⴷ: ⵔⵙⵎ ⵜ ⵙ HH:MM ⵏⵖ HH:MM:SS
+ASCII COLS: expected a column count	ASCII COLS: ⵉⵜⵜⵓⵜⵔⴰ ⵓⵟⵟⵓⵏ ⵏ columns
+Deckboy evolved into SUPER DECKBOY!	Deckboy ⵉⵙⵙⵏⴼⵍ ⴷ SUPER DECKBOY!
+FX PARAM: slot must be A, B, C or D	FX PARAM: slot ⵉⵅⵚⵚ ⴰⴷ ⵉⴳⵍ A, B, C ⵏⵖ D
+MIDI: a note number 0-127, or LEARN	MIDI: ⵓⵟⵟⵓⵏ ⵏ note 0-127, ⵏⵖ ⵍⵎⴷ
+MIDIMAP REMOVE: COMPUTER|SHOW <row>	MIDIMAP REMOVE: COMPUTER|SHOW <ⵉⵣⵉⵔⵉⴳ>
+OUTPUT DECK: expected a deck number	OUTPUT DECK: ⵉⵜⵜⵓⵜⵔⴰ ⵓⵟⵟⵓⵏ ⵏ deck
+OUTPUTFX BYPASS: expected ON or OFF	OUTPUTFX BYPASS: ⵉⵜⵜⵓⵜⵔⴰ ⵉⵔⵎⴷ ⵏⵖ ⵉⵅⵙⴰ
+SCOPES MATRIX: expected 709 or 2020	SCOPES MATRIX: ⵉⵜⵜⵓⵜⵔⴰ 709 ⵏⵖ 2020
+SHORTCUTS: the startup dialog is up	SHORTCUTS: ⴰⵙⴼⴰⵢⵍⵓ ⵏ ⵜⵎⵣⵡⴰⵔⵓⵜ ⵉⵍⵍⴰ ⴷⴰ
+STREAM HDR: expected SDR, PQ or HLG	STREAM HDR: ⵉⵜⵜⵓⵜⵔⴰ SDR, PQ ⵏⵖ HLG
+an animation is already being saved	ⵢⴰⵏ animation ⵉⵍⵍⴰ ⵉⵜⵜⵓⵃⴹⴰ
+delete live cue: press delete again	ⴽⴽⵙ cue ⵙ ⵜⵓⴷⵔⵜ: ⵙⵉⵜ ⴽⴽⵙ ⴷⵖⵉ
+esc: output cleared - again to quit	esc: ⵜⵓⴼⴼⵖⴰ ⵜⵙⴼⴹ - ⵙⵉⵜ ⴷⵖⵉ ⴰⴷ ⵜⴼⴼⵖⴹ
+no browser cue is live on this deck	ⵓⵔ ⵉⵍⵍⵉ cue ⵏ ⵓⵙⵙⴰⵔⴰ ⵙ ⵜⵓⴷⵔⵜ ⵖ deck ⴰⴷ
+notestep: nothing live on this deck	notestep: ⵡⴰⵍⵓ ⵙ ⵜⵓⴷⵔⵜ ⵖ deck ⴰⴷ
+select the cue it should take first	ⵙⵜⵉ cue ⵉ TAKE ⴷ ⴰⵎⵣⵡⴰⵔⵓ
+DRAW EDITOR: select a Draw cue first	DRAW EDITOR: ⵙⵜⵉ DRAW CUE ⴷⴷⴰⵡ
+DRAW SAVE: STILL or ANIMATION [file]	DRAW SAVE: ⵜⴰⵡⵍⴰⴼⵜ ⵏⵖ ANIMATION [ⴰⴼⴰⵢⵍⵓ]
+MIC CHANNEL: expected L, R or STEREO	MIC CHANNEL: ⵜⵜⴰⵔⴰⵊⵓ L, R ⵏⵖ STEREO
+MULTIVIEW WINDOW: expected ON or OFF	MULTIVIEW WINDOW: ⵜⵜⴰⵔⴰⵊⵓ ON ⵏⵖ OFF
+Page Down / Page Up step the tracker	Page Down / Page Up ⵜⵜⵣⵔⵉⵏ ⴰⵎⴹⴼⴰⵔ
+SUBTITLE CONVERT: nothing to convert	SUBTITLE CONVERT: ⵡⴰⵍⵓ ⵉ ⵙⵙⵏⴼⵍ
+TONECUE LFO: select a tone cue first	TONECUE LFO: ⵙⵜⵉ cue ⵏ ⵓⵎⵙⵍⵉ ⴷⴷⴰⵡ
+TRUST LAST: nothing has been refused	TRUST LAST: ⵡⴰⵍⵓ ⵓⵔ ⵉⵜⵜⵓⵔⴼⵓ
+atem tally on -- set the switcher IP	Tally ATEM ⵉⵔⵎⴷ -- ⵙⴱⴷⴷ IP ⵏ switcher
+datamosh: subtle, self-heals (H.264)	datamosh: ⵉⵖⵉⵍ ⵙ ⵜⵎⵙⵎⵓⵍⵜ, ⵉⵙⵙⴼⵔⵓ ⴰⵙⵙⵉⵏ (H.264)
+master vol: expected 0-200 (percent)	master vol: ⵜⵜⴰⵔⴰⵊⵓ 0-200 (%)
+matrix off - back to the output pair	matrix ⵉⵅⵙⴰ - ⵜⵓⵖⴰⵍⵉⵏ ⵉ ⵜⵓⴼⴼⵖⴰ ⵜⴰⵢⵓⴳⴰ
+monitor follows the focused playlist	monitor ⵉⴹⴼⵔ ⵜⴰⴱⴷⴰⵔⵜ ⵜⴰⵎⴰⵢⵏⵓⵜ
+multiview: back to the automatic set	multiview: ⵜⵓⵖⴰⵍⵉⵏ ⵉ ⵓⵙⵙⴱⴷⴷ ⴰⵙⵓⵍⴰⵏ
+no MIDI output ports on this machine	ⵡⴰⵍⵓ ⵏ port ⵏ ⵜⵓⴼⴼⵖⴰ MIDI ⵖ ⵓⵙⵏⵓⴱⴳ ⴰⴷ
+splitnotes: could not split that cue	splitnotes: ⵓⵔ ⵜⵣⵎⵎⵔ ⴰⴷ ⵜⴱⴹⵓ cue ⴰⵏⵏ
+srt: passphrase needs 10+ characters	srt: ⵜⴰⵡⴰⵍⵜ ⵏ ⵓⵣⵔⵉ ⵜⵅⵙⵙ 10+ ⵏ ⵉⵙⴼⵔⵏ
+step deleted - ctrl+z brings it back	ⵜⴰⵙⵙⵔⴰⵡⵜ ⵜⵜⵓⵙⵙⵉⵔⴷ - ctrl+z ⵜⵜⵓⵖⴰⵍ
+timer face: select a timer cue first	timer face: ⵙⵜⵉ cue ⵏ ⵓⵙⵎⵣⴰⵢ ⴷⴷⴰⵡ
+timer font: select a timer cue first	timer font: ⵙⵜⵉ cue ⵏ ⵓⵙⵎⵣⴰⵢ ⴷⴷⴰⵡ
+16 slices is the most an output takes	16 ⵏ ⵜⵉⵟⵡⵉⵕⵉⵏ ⵉⴳⴰ ⴰⵎⵇⵇⵔⴰⵏ ⵏ ⵜⵓⴼⴼⵖⴰ
+AUDIOGAIN BY: expected a number of dB	AUDIOGAIN BY: ⵜⵜⴰⵔⴰⵊⵓ ⴰⵎⴹⴰⵏ ⵏ dB
+AUDITION: expected OFF, END or STATUS	AUDITION: ⵜⵜⴰⵔⴰⵊⵓ OFF, END ⵏⵖ STATUS
+BROWSER CLICK: fractions must be 0..1	BROWSER CLICK: ⵉⵅⵙⵙ ⴰⴷ ⵜⴳⵍⵍⴰ ⵜⵉⵙⵏⴰⵜⵉⵏ ⴳ 0..1
+FX GET: expected an effect number, 1-	FX GET: ⵜⵜⴰⵔⴰⵊⵓ ⴰⵎⴹⴰⵏ ⵏ ⵓⵙⵏⴼⵍ, 1-
+HLS playlist: added as one stream cue	ⵜⴰⴱⴷⴰⵔⵜ HLS: ⵜⵜⵓⵔⵔⵉ ⴰⵙⵎⵎ ⵢⴰⵏ cue ⵏ ⵓⵙⵓⴷⴷⵎ
+MASTER BYPASS: expected a deck number	MASTER BYPASS: ⵜⵜⴰⵔⴰⵊⵓ ⴰⵎⴹⴰⵏ ⵏ deck
+MIDICLOCK: expected SIM <bpm> [beats]	MIDICLOCK: ⵜⵜⴰⵔⴰⵊⵓ SIM <bpm> [beats]
+MULTIVIEW: expected ON, OFF or TOGGLE	MULTIVIEW: ⵜⵜⴰⵔⴰⵊⵓ ON, OFF ⵏⵖ TOGGLE
+OUTPUT HDR SIGNAL: expected PQ or HLG	OUTPUT HDR SIGNAL: ⵜⵜⴰⵔⴰⵊⵓ PQ ⵏⵖ HLG
+STREAM HDR: select a stream cue first	STREAM HDR: ⵙⵜⵉ cue ⵏ ⵓⵙⵓⴷⴷⵎ ⴷⴷⴰⵡ
+datamosh: file-backed video cues only	datamosh: ⴰⴱⵉⴷⵢⵓ ⴰⵎⵙⴽⵯⵔⴰⵏ ⵙ ⵓⴼⴰⵢⵍⵓ ⴽⵏⵏⵓ
+effects copy: this cue has no effects	effects copy: cue ⴰⴷ ⵓⵔ ⵍⵍⵉⵏ ⵉⵙⵏⴼⴰⵍⵏ
+matrix on, routed as the patch had it	matrix ⵉⵔⵎⴷ, ⵉⵜⵜⵓⵙⵏⵓⴱⴳ ⵎⴰⵏⵉⵙ ⵉⵍⵍⴰ PATCH
+recovery could not be read; copy kept	ⵓⵔ ⵜⵜⵓⵖⵔ ⵓⵙⵎⵔⵙ ⵏ ⵓⵙⵙⴼⵔⵓ; ⵜⵜⵓⵃⴹⴰ ⵜⵙⵏⵖⵍⵜ
+FIXTURE DIP: expected <name> <%>|LEAVE	FIXTURE DIP: ⵜⵜⴰⵔⴰⵊⵓ <name> <%>|LEAVE
+MONITOR: expected DEVICE, DECK or ROOM	MONITOR: ⵜⵜⴰⵔⴰⵊⵓ DEVICE, DECK ⵏⵖ ROOM
+NETCUE PROTO: expected osc, udp or tcp	NETCUE PROTO: ⵜⵜⴰⵔⴰⵊⵓ osc, udp ⵏⵖ tcp
+STING LENGTH: expected 0.05-10 seconds	STING LENGTH: ⵜⵜⴰⵔⴰⵊⵓ 0.05-10 ⵏ ⵜⵙⵉⵏⵉⵏ
+sprite sheet: select a video synth cue	sprite sheet: ⵙⵜⵉ cue ⵏ synth ⵏ ⵜⴼⵉⴷⵢⵓⵜ
+AUDIOGAIN BY: no selected cue has audio	AUDIOGAIN BY: ⵡⴰⵍⵓ ⵏ cue ⵉⵜⵜⵓⵙⵜⴰⵢⵏ ⵉⵍⵍⴰⵏ ⴷ ⵉⵎⵙⵍⵉ
+CAPTIONS SHOW: expected <output> ON|OFF	CAPTIONS SHOW: ⵉⵜⵜⵓⵔⵊⴰ <output> ON|OFF
+CAPTIONS TRANSCRIPT: expected ON or OFF	CAPTIONS TRANSCRIPT: ⵉⵜⵜⵓⵔⵊⴰ ON ⵏⵖ OFF
+COMPANIONPASS: use 8 or more characters	COMPANIONPASS: ⵙⵙⵎⵔ 8 ⵏⵖ ⴰⴳⴳⴰⵔ ⵏ ⵉⵜⵓⵜⵍⴰⵢⵏ
+DEVAMP: nothing is playing on that deck	DEVAMP: ⵡⴰⵍⵓ ⵓⵔ ⵉⵜⵜⵓⵔⴰⵔ ⴳ deck ⵏⵏⴰ
+FX LFO ZONE: 0 (the whole picture) to 8	FX LFO ZONE: 0 (ⵜⴰⵡⵍⴰⴼⵜ ⵜⴰⴽⵓⵍⵍⵜ) ⴰⵔ 8
+MASK IMPORT: expected <file.svg> [name]	MASK IMPORT: ⵉⵜⵜⵓⵔⵊⴰ <file.svg> [name]
+MASK SET: expected <id> <param> <value>	MASK SET: ⵉⵜⵜⵓⵔⵊⴰ <id> <param> <value>
+MULTIVIEW WINDOW: the last window stays	MULTIVIEW WINDOW: ⴰⵙⴰⵜⵎ ⴰⵎⴳⴳⴰⵔⵓ ⵉⵇⵇⵉⵎ
+OUTPUT AOI MODE: expected PIXEL or FILL	OUTPUT AOI MODE: ⵉⵜⵜⵓⵔⵊⴰ PIXEL ⵏⵖ FILL
+SCOPES SOUND: expected nothing or RESET	SCOPES SOUND: ⵉⵜⵜⵓⵔⵊⴰ ⵡⴰⵍⵓ ⵏⵖ RESET
+Tabletop is in SOURCE > MADE BY DECKBOY	Tabletop ⵍⵍⴰⵏ ⴳ ⴰⵖⴱⴰⵍⵓ > ⵉⵙⴽⵔ ⵜ Deckboy
+can't read media - CONVERT in inspector	ⵓⵔ ⵜⵜⵓⵖⵔⴰ media - ⵙⵙⵏⴼⵍ ⴳ inspector
+cleared: all decks stopped, outputs off	ⵉⵜⵜⵓⵙⴼⴹ: deck ⴰⴽⴽ ⵉⴱⴷⴷⵏ, ⵜⵓⴼⴼⵖⵉⵡⵉⵏ ⵅⵙⴰⵏⵜ
+datamosh: classic, full effect (MPEG-4)	datamosh: classic, ⴰⵙⴽⵔ ⴰⴽⴽ (MPEG-4)
+driver cleared - nothing left to puppet	driver ⵉⵜⵜⵓⵙⴼⴹ - ⵡⴰⵍⵓ ⵉⵇⵇⵉⵎⵏ ⴰⴷ ⵜⵜⵓⵙⵙⵓⵍⵍⵉⵏ
+key+fill on - now pick a Key out device	key+fill ⵉⵜⵜⵓⴼⵜⵃ - ⴷⵖⵉ ⵙⵜⵉ ⴰⵍⵍⴰⵍ ⵏ ⵜⴰⵙⴰⵔⵓⵜ ⵜⴼⴼⵖ
+play the note that should fire this cue	ⵔⴰⵔ note ⵉⵙⵙⵓⴼⵖⵏ cue ⴰⴷ
+programme to MediaMTX: watch at http://	ⴰⵀⵉⵍ ⵖⵔ MediaMTX: ⵥⵕ ⴳ http://
+recformat: expected <WxH|program> [fps]	recformat: ⵉⵜⵜⵓⵔⵊⴰ <WxH|program> [fps]
+requested input missing - using default	input ⵉⵜⵜⵓⵙⵓⵍⵏ ⵓⵔ ⵉⵍⵍⵉ - ⵉⵜⵜⵓⵙⵙⵎⵔ ⴰⵎⵣⵡⴰⵔⵓ
+DRAW PLAYBACK: still, flipbook or replay	DRAW PLAYBACK: still, flipbook ⵏⵖ replay
+FADE KNOB: expected amount, A, B, C or D	FADE KNOB: ⵉⵜⵜⵓⵔⵊⴰ amount, A, B, C ⵏⵖ D
+MASK EXPORT: size is WxH, e.g. 1920x1080	MASK EXPORT: ⴰⵎⵇⵇⵔⴰⵏ ⴷ WxH, ⴰⵎⴷⵢⴰ: 1920x1080
+MOTION SOURCE: CAMERA [name] or DECK <n>	MOTION SOURCE: CAMERA [name] ⵏⵖ DECK <n>
+NEW already starts from factory settings	NEW ⵉⴱⴷⴰ ⵢⴰⴷⵏⵉ ⵙⴳ ⵜⵉⵙⵖⴰⵍ ⵏ ⵜⵎⴳⴳⵉⵜ
+OUTPUT SELECT: expected an output number	OUTPUT SELECT: ⵉⵜⵜⵓⵔⵊⴰ ⵓⵎⴹⴰⵏ ⵏ ⵜⵓⴼⴼⵖⴰ
+TCCUE: expected NEW, ACTION, JAM or FIRE	TCCUE: ⵉⵜⵜⵓⵔⵊⴰ NEW, ACTION, JAM ⵏⵖ FIRE
+hands-on: clicks and keys go to the page	hands-on: ⵜⵉⵙⵙⵉⵜⵉⵏ ⴷ ⵜⵉⵏⵉⵙⵉⵏ ⵉⵍⵍⴰ ⵖⵔ ⵜⴰⵙⵏⴰ
+multiview: one window per playlist again	multiview: ⴰⵙⴰⵜⵎ ⵢⴰⵏ ⵉ ⵜⴰⴱⴷⴰⵔⵜ ⵢⴰⵏⵜ, ⴷⵖⵉ
+record folder set - SAME DISK as Deckboy	ⴰⴽⴰⵔⴰⵎ ⵏ ⵓⵙⴽⵍⵙ ⵉⵙⴱⴷⴷ - disk ⵢⴰⵏ ⴷ Deckboy
+sequence waiting - press it again for GO	ⴰⵙⴹⴼⴰⵕ ⵉⵜⵜⵔⴰⵊⵓ - ⵙⵉⵜ ⴷⵖⵉ ⵉ GO
+this platform cannot capture that source	ⵜⴰⵖⵔⵖⵔⵜ ⴰⴷ ⵓⵔ ⵜⵣⵎⵉⵔ ⴰⴷ ⵜⵙⴽⵍⵙ ⴰⵖⴱⴰⵍⵓ ⵏⵏⴰ
+timer backdrop: select a timer cue first	ⴰⴳⵉⵍⴰⵍ ⵏ ⵓⵙⵎⵣⴰⵢ: ⵙⵜⵉ ⴰⵎⵣⵡⴰⵔⵓ cue ⵏ ⵓⵙⵎⵣⴰⵢ
+BLEND CURVE: expected PROJECTOR or LINEAR	BLEND CURVE: ⵉⵜⵜⵓⵔⵊⴰ PROJECTOR ⵏⵖ LINEAR
+CAPTIONS POSITION: expected TOP or BOTTOM	CAPTIONS POSITION: ⵉⵜⵜⵓⵔⵊⴰ TOP ⵏⵖ BOTTOM
+CAPTIONS SIZE: expected 50..200 (percent)	CAPTIONS SIZE: ⵉⵜⵜⵓⵔⵊⴰ 50..200 (%)
+DMXCUE: the selected cue is not a dmx cue	DMXCUE: cue ⵉⵜⵜⵓⵙⵜⴰⵢⵏ ⵓⵔ ⵉⴳⵉ cue ⵏ DMX
+DRAW FRAME: ADD, DELETE, NEXT, PREV or 1-	DRAW FRAME: ADD, DELETE, NEXT, PREV ⵏⵖ 1-
+FADE OVER: expected a duration in seconds	FADE OVER: ⵉⵜⵜⵓⵔⴰⵊⵓ ⴰⴽⵓⴷ ⵙ ⵜⵉⵙⵉⵏⵜⵉⵏ
+FADE TO: expected a percent from 0 to 100	FADE TO: ⵉⵜⵜⵓⵔⴰⵊⵓ ⵓⵟⵟⵓⵏ ⵏ % ⵣⵖ 0 ⴰⵔ 100
+MOTION SOURCE DECK: a playlist number, 1-	MOTION SOURCE DECK: ⵓⵟⵟⵓⵏ ⵏ ⵜⴱⴷⴰⵔⵜ, 1-
+STING SWEEP: expected -24 to 24 semitones	STING SWEEP: ⵉⵜⵜⵓⵔⴰⵊⵓ -24 ⴰⵔ 24 ⵏ ⵉⵙⵎⵉⵜⵓⵏⵏ
+TCCUE ACTION: expected start, stop or jam	TCCUE ACTION: ⵉⵜⵜⵓⵔⴰⵊⵓ start, stop ⵏⵖ jam
+TCCUE JAM: expected a timecode or seconds	TCCUE JAM: ⵉⵜⵜⵓⵔⴰⵊⵓ ⵜⴰⵏⴳⴰⵍⵜ ⵏ ⵓⴽⵓⴷ ⵏⵖ ⵜⵉⵙⵉⵏⵜⵉⵏ
+TRACKER VIEW: expected PATTERN or CLASSIC	TRACKER VIEW: ⵉⵜⵜⵓⵔⴰⵊⵓ PATTERN ⵏⵖ CLASSIC
+Tabletop added - SOURCE > MADE BY DECKBOY	Tabletop ⵉⵜⵜⵓⵔⵏⴰ - ⴰⵖⴱⴰⵍⵓ > ⵉⵙⴽⵔ ⵜ DECKBOY
+browser window open - click, type, log in	ⴰⵙⴰⵜⵎ ⵏ ⵓⵙⵙⴰⵔⴰ ⵉⵕⵥⵎ - ⵔⵙ, ⴰⵔⵔⵉ, ⴽⵛⵎ
+contrast check: something needs attention	ⴰⵙⵙⴰⵍ ⵏ ⵓⵎⴳⴰⵔⴰⴷ: ⵉⵍⵍⴰ ⵢⴰⵏ ⵉⵙⵙⵓⵜⵔ ⴰⴼⵔⴰⵔ
+drag the corners on the programme monitor	ⵣⵓⵖⵔ ⵉⵏⵖⵎⵉⵙⵏ ⵅⴼ monitor ⵏ ⴰⵀⵉⵍ
+this browser backend cannot show a window	ⴰⴱⴰⴽⴰⵏⴷ ⵏ ⵓⵙⵙⴰⵔⴰ ⴰⴷ ⵓⵔ ⵉⵣⵎⵉⵔ ⴰⴷ ⵉⵙⵙⴽⵏ ⴰⵙⴰⵜⵎ
+BROWSER CLICK: expected two fractions 0..1	BROWSER CLICK: ⵉⵜⵜⵓⵔⴰⵊⵓ ⵙⵉⵏ ⵉⵎⵓⵔⵏ 0..1
+CHIP: the selected cue is not a chip synth	CHIP: cue ⵉⵜⵜⵓⵙⵜⴰⵢⵏ ⵓⵔ ⵉⴳⵉ chip synth
+DASH SET: a slot cannot fire the dashboard	DASH SET: ⴰⵙⵍⵓⵜ ⵓⵔ ⵉⵣⵎⵉⵔ ⴰⴷ ⵙⵙⵉⴷⴷ ⵜⴰⴼⵉⵍⵓⵜ ⵏ ⵓⵙⵖⵍ
+DRAW STROKE: x,y[,pressure] ... in percent	DRAW STROKE: x,y[,ⴰⵙⵙⵓⵟⵟ] ... ⵙ %
+OUTPUTFX REMOVE: expected an effect number	OUTPUTFX REMOVE: ⵉⵜⵜⵓⵔⴰⵊⵓ ⵓⵟⵟⵓⵏ ⵏ ⵓⵙⵏⴼⵍ
+SCRIPTCUE: expected NEW, ADD, CLEAR or RUN	SCRIPTCUE: ⵉⵜⵜⵓⵔⴰⵊⵓ NEW, ADD, CLEAR ⵏⵖ RUN
+TEXTCUE WIGGLE: expected ON, OFF or TOGGLE	TEXTCUE WIGGLE: ⵉⵜⵜⵓⵔⴰⵊⵓ ON, OFF ⵏⵖ TOGGLE
+TRIGGER KEY: F1-F10, F12, NUM0-NUM9 or OFF	TRIGGER KEY: F1-F10, F12, NUM0-NUM9 ⵏⵖ OFF
+auto-advance removed: cue end follows hold	ⴰⵙⵙⴰⵔⴷ ⴰⵡⵓⵔⵎⴰⵏ ⵉⵜⵜⵓⴽⴽⵙ: ⵜⵉⴼⵔⴰⵜ ⵏ cue ⵜⵜⴼⵍⴰ ⵟⵟⴼ
+choose RECOVER or KEEP SAVED before saving	ⵙⵜⵉ RECOVER ⵏⵖ KEEP SAVED ⴷⴰⵜ ⵏ ⵓⵙⴼⵍⴷ
+datamosh look: file-backed video cues only	datamosh: ⵖⴰⵙ cue ⵏ ⵓⴱⵉⴷⵢⵓ ⵏ ⵓⴼⴰⵢⵍⵓ
+nmos: on - searching for a registry (mDNS)	nmos: ⵉⵔⵎⴷ - ⴰⵔ ⵜⵔⵣⵓ ⵅⴼ ⵓⵙⵉⵍ (mDNS)
+record folder: recordings/ beside the show	ⴰⴽⴰⵔⴰⵎ ⵏ ⵓⵙⴽⵍⵙ: recordings/ ⵖⵔ ⵓⵙⴰⵖⵓⵏ ⵏ ⵓⵙⵙⴽⴰⵏ
+recsegment: expected <minutes> [megabytes]	recsegment: ⵉⵜⵜⵓⵔⴰⵊⵓ <ⵜⵓⵙⴷⵉⴷⵉⵏ> [MB]
+the example shows are not in this download	ⵉⵎⴷⵢⴰⵜⵏ ⵏ ⵓⵙⵙⴽⴰⵏ ⵓⵔ ⵍⵍⵉⵏ ⴷⵉ ⵜⵙⵙⵉⴷⵔⵜ ⴰⴷ
+warp point: expected <col> <row> <dx> <dy>	ⵜⴰⵏⵙⴰⵜ ⵏ ⵓⵙⵙⵏⴼⵍ: ⵉⵜⵜⵓⵔⴰⵊⵓ <ⴰⵎⵓⴷ> <ⵉⵣⵉⵔⵉⴳ> <dx> <dy>
+warp point: no grid -- WARP GRID <n> first	ⵜⴰⵏⵙⴰⵜ ⵏ ⵓⵙⵙⵏⴼⵍ: ⵓⵔ ⵍⵍⵉ ⵜⴰⴱⵍⴰⵜ -- ⴱⴷⵓ ⵙ WARP GRID <n>
+DMXCUE FIXTURE: level is 0-100 (%) or LEAVE	DMXCUE FIXTURE: ⴰⵙⵡⵉⵔ ⵉⵍⵍⴰ ⵣⵖ 0-100 (%) ⵏⵖ LEAVE
+EDIT off: the keyboard only moves and fires	ⵙⵏⴼⵍ ⵉⵅⵙⴰ: ⵜⴰⵙⵖⵓⵏⵜ ⵜⵙⵙⵎⵓⵙⵙⵓ ⴷ ⵜⵙⵙⵉⴷⴷ ⵖⴰⵙ
+EDIT on: typing changes the tracker's cells	ⵙⵏⴼⵍ ⵉⵔⵎⴷ: ⴰⵔⵔⵉ ⵉⵙⵏⴼⵍ ⵜⵉⵙⴳⵎⵉⵏ ⵏ ⵓⵎⴹⴼⴰⵔ
+FIXTURE: expected LIST, ADD, FIND or REMOVE	FIXTURE: ⵉⵜⵜⵓⵔⴰⵊⵓ LIST, ADD, FIND ⵏⵖ REMOVE
+LIMITER CEILING: a level from -40 to 0 dBFS	LIMITER CEILING: ⴰⵙⵡⵉⵔ ⵣⵖ -40 ⴰⵔ 0 dBFS
+MIDICUE: the selected cue is not a midi cue	MIDICUE: cue ⵉⵜⵜⵓⵙⵜⴰⵢⵏ ⵓⵔ ⵉⴳⵉ cue ⵏ MIDI
+MOTION ZONE ADD: x y w h, percentages 0-100	MOTION ZONE ADD: x y w h, % 0-100
+MOTION ZONE: ADD x y w h, REMOVE n or CLEAR	MOTION ZONE: ADD x y w h, REMOVE n ⵏⵖ CLEAR
+mask off -- it is still in the show's library	ⵜⴰⴳⵍⵎⵓⵙⵜ ⵉⵅⵙⴰ - ⵜⵍⵍⴰ ⴷⴰⵖ ⴳ ⵜⵎⴽⴰⵔⴹⵉⵜ ⵏ ⵓⵙⵙⴽⴰⵏ
+Stop masking this. The mask stays in the show's library, to put back from the menu above	ⵃⴱⵙ ⴰⵙⵙⵓⵜⵜⵓ ⵏ ⵜⴰⴳⵍⵎⵓⵙⵜ ⴰⴷ. ⵜⴰⴳⵍⵎⵓⵙⵜ ⵜⵍⵍⴰ ⴳ ⵜⵎⴽⴰⵔⴹⵉⵜ ⵏ ⵓⵙⵙⴽⴰⵏ, ⴰⴷ ⵜⵙⵙⵓⵖⵍⴷ ⵣⵖ ⵓⵎⵓⵖ ⵏ ⵓⴼⵍⵍⴰ
+Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	ⴽⴽⵙ ⵜⴰⴳⵍⵎⵓⵙⵜ ⴰⴷ ⵣⵖ ⵓⵙⵙⴽⴰⵏ, ⴷ ⵣⵖ ⴽⵔⴰⵢⴳⴰⵜⵜ cue, ⵜⴱⴷⴰⵔⵜ ⴷ ⵜⵓⴼⴼⵖⴰ ⵉⵙⵙⵎⵔⴰⵙⵏ ⵜⴰ. ⴰⵙⵙⵓⵖⵍ ⵢⵙⵙⵓⵖⵍ-ⵜ ⴷ

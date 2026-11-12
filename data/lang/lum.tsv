@@ -2877,3 +2877,222 @@ DASH: the startup dialog is up	DASH: fena novtiri feso
 LOWERSTYLE: select a cue first	LOWERSTYLE: piki veka muna
 MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: peni 1-16
 PATTERN ADD needs a pattern id	PATTERN ADD peni ID vekareta
+find: run FIND first	mir: Zari FIND muna
+DRAW ONION: ON or OFF	DRAW ONION: ON nu OFF
+DRAW EDITOR: ON or OFF	DRAW EDITOR: ON nu OFF
+OUTPUT AOI: no outputs	OUTPUT AOI: va so senadoraku
+OUTPUT DECK: no outputs	OUTPUT DECK: va so senadoraku
+DRAW HOLD: seconds, 0-60	DRAW HOLD: sekunda, 0-60
+FADE EFFECT: expected 1-	FADE EFFECT: Mi peni 1-
+MOTION MIRROR: ON or OFF	MOTION MIRROR: ON nu OFF
+TALLYEVENT wants ON or OFF	TALLYEVENT peni ON nu OFF
+AUDIOFX ADD: chain full (8)	AUDIOFX ADD: rana tamo (8)
+GOGUARD: OFF or 50-2000 (ms)	GOGUARD: OFF nu 50-2000 (ms)
+SLICE GRID SMOOTH: ON or OFF	SLICE GRID SMOOTH: ON nu OFF
+DMXCUE PORT: expected 1-65535	DMXCUE PORT: Mi peni num 1-65535
+TRIGGER AT: HH:MM[:SS] or OFF	TRIGGER AT: HH:MM[:SS] nu OFF
+PATTERN SET needs a pattern id	PATTERN SET Mi peni vekaretanuma
+already the first tracker step	Tirwiabeta una muna
+cannot determine rendered size	Mi va pel tali tama
+find: enter cue id/number/name	mir: Gra vekanuma / num / hola
+no sprite sets in data/sprites	va so spritapataku dora data/sprites
+normalize: no measurable audio	normalize: va so sona talo
+recordings are left as written	Grakaku va seti
+reracked - holding first frame	reracked - hali veka una
+st 2110: clipboard unavailable	st 2110: bufkara va pono
+stream url: unsupported scheme	retaseni url: schema va hupo
+that button has no command yet	Bata va so korhola muna
+DMXCUE PROTOCOL: ARTNET or SACN	DMXCUE PROTOCOL: ARTNET nu SACN
+FIXTURE DIP: 0-100 (%) or LEAVE	FIXTURE DIP: 0-100 (%) nu LEAVE
+FX LFO: no effect at that index	FX LFO: vaala setapata kae numka
+MIDIMAP CLEAR: COMPUTER or SHOW	MIDIMAP CLEAR: COMPUTER nu SHOW
+TEXTCUE SPEED: expected 0.05-20	TEXTCUE SPEED: peni 0.05-20
+an output needs a base playlist	Senadora peni munvekaku
+audio input: device unavailable	sona tira: jana vapono
+expected crop percentages 0..90	peni rankisi % 0..90
+media found - nothing to relink	vekadora miro - vaala go nov rani
+notestep: build out of range 1-	notestep: grao bra ran 1-
+put it back when the ramp lands	Dopi kae rampa tami
+splitnotes: cue out of range 1-	splitnotes: veka bra ran 1-
+st 2110 SDP copied to clipboard	st 2110 SDP velo go lanakara
+w00t! all ur cues r belong 2 us	w00t! ala vekaku tu sov mi
+BROWSER TYPE: expected some text	BROWSER TYPE: peni hola
+CHECK: expected a problem number	CHECK: peni vahupa num
+FADE RESTORE: expected on or off	FADE RESTORE: peni on nu off
+MIDICLOCK SIM: expected a number	MIDICLOCK SIM: peni num
+MONITOR ROOM: expected ON or OFF	MONITOR ROOM: peni ON nu OFF
+MOTION ZONE ADD: already 8 zones	MOTION ZONE ADD: 8 kaeku muna
+SLICE REMOVE: a slice number, 1-	SLICE REMOVE: slica num, 1-
+motion off: the camera is closed	tiriseta vap: vekagrajana kluo
+no capture devices found (dshow)	vaala tirijanaku miro (dshow)
+only accepted from this computer	lisi una mun jana nakae
+reccodec: expected a codec token	reccodec: peni codec token
+this build has no plugin support	Grao nakae vaala novjana hupa
+timecode: type it as HH:MM:SS:FF	timecode: grai HH:MM:SS:FF
+BROWSER SCROLL: expected a number	BROWSER SCROLL: peni num
+DMXCUE UNIVERSE: expected 0-32767	DMXCUE UNIVERSE: peni 0-32767
+FADE DECK: expected a deck number	FADE DECK: peni deka num
+FX PARAM: no effect at that index	FX PARAM: vaala setapata kae numka
+MIC GAIN: expected -40 to 40 (dB)	MIC GAIN: peni -40 go 40 (dB)
+MOTION ZONE REMOVE: a zone number	MOTION ZONE REMOVE: kaea num
+NDI: this build has no NDI output	NDI: grao nakae vaala senadora NDI
+STING PITCH: expected 20-12000 Hz	STING PITCH: peni 20-12000 Hz
+TRIGGER MIDI: a note 0-127 or OFF	TRIGGER MIDI: nota 0-127 nu OFF
+could not open the Screens window	Vapel fesi SCREENS fena
+effects paste: copy a chain first	setapataku lani: veli rana muna
+expected pixels -1000000..1000000	Mi pen kisvekaku -1000000..1000000
+press again to delete this button	Bati novtok go niri bata nakae
+warp grid: 2 to 9 points each way	Ranaseta kaeku: 2 go 9 dop ala ran
+AUDIOFX ADD: needs an effect token	AUDIOFX ADD: pen EFFECT hola
+BLEND LIFT: expected 0..20 percent	BLEND LIFT: mi pen 0..20 sent
+BUGSWAT SHOWME: only in a briefing	BUGSWAT SHOWME: briefing dora tam
+CAPTIONS LINES: expected 1, 2 or 3	CAPTIONS LINES: mi pen 1, 2 nu 3
+DASH SET: slot number out of range	DASH SET: kae numa bra ran
+FX AMOUNT: no effect at that index	FX AMOUNT: effect vaala go numka nakae
+FX COLOUR: no effect at that index	FX COLOUR: effect vaala go numka nakae
+MIDICLOCK SIM: bpm must be 20..600	MIDICLOCK SIM: bpm 20..600 pon
+OUTPUT ADD: expected a deck number	OUTPUT ADD: mi pen deka numa
+SLICE FLIP: H or V, then ON or OFF	SLICE FLIP: H nu V, novtok ON nu OFF
+a path needs three points: dropped	Dora pen tria kae: niri
+a show needs at least one playlist	Vekarana pen una vekaku
+display scan: no displays reported	vekajana mira: vaala vekajana
+selection has no cue with geometry	Piki vaala veka go ranakora
+that cue cannot be fired by a step	Beta vapel zari veka nakae
+time: type it as HH:MM or HH:MM:SS	Tok: gra HH:MM nu HH:MM:SS
+ASCII COLS: expected a column count	ASCII COLS: mi pen kolnuma
+Deckboy evolved into SUPER DECKBOY!	Deckboy seti go SUPER DECKBOY!
+FX PARAM: slot must be A, B, C or D	FX PARAM: kae pata A, B, C nu D
+MIDI: a note number 0-127, or LEARN	MIDI: notnuma 0-127, nu PONMIRI
+MIDIMAP REMOVE: COMPUTER|SHOW <row>	MIDIMAP REMOVE: COMPUTER|SHOW <rana>
+OUTPUT DECK: expected a deck number	OUTPUT DECK: mi pen deka numa
+OUTPUTFX BYPASS: expected ON or OFF	OUTPUTFX BYPASS: mi pen ON nu OFF
+SCOPES MATRIX: expected 709 or 2020	SCOPES MATRIX: mi pen 709 nu 2020
+SHORTCUTS: the startup dialog is up	SHORTCUTS: fena novtiri feso
+STREAM HDR: expected SDR, PQ or HLG	STREAM HDR: mi pen SDR, PQ nu HLG
+an animation is already being saved	Vekaseta muna gura
+delete live cue: press delete again	Niri lumo veka: bati niri novtok
+esc: output cleared - again to quit	esc: senadora niri - novtok go gwani
+no browser cue is live on this deck	Vaala lumo retamira veka go deka nakae
+notestep: nothing live on this deck	notestep: vaala lumo go deka nakae
+select the cue it should take first	Piki veka seni muna
+DRAW EDITOR: select a Draw cue first	DRAW EDITOR: piki muna DRAW CUE
+DRAW SAVE: STILL or ANIMATION [file]	DRAW SAVE: STILL / ANIMATION [file]
+MIC CHANNEL: expected L, R or STEREO	MIC CHANNEL: peni L, R, STEREO
+MULTIVIEW WINDOW: expected ON or OFF	MULTIVIEW WINDOW: peni ON / OFF
+Page Down / Page Up step the tracker	Page Down / Page Up tiriseti tirwia beta
+SUBTITLE CONVERT: nothing to convert	SUBTITLE CONVERT: vaala go pataseti
+TONECUE LFO: select a tone cue first	TONECUE LFO: piki muna unasona veka
+TRUST LAST: nothing has been refused	TRUST LAST: vaala vapiko
+atem tally on -- set the switcher IP	Tally ATEM PON -- seti IP setiwia
+datamosh: subtle, self-heals (H.264)	datamosh: kiso, munhupo (H.264)
+master vol: expected 0-200 (percent)	master vol: peni 0-200 (%)
+matrix off - back to the output pair	matrix vap - dopi go senadoradua
+monitor follows the focused playlist	monitor dopi vekaku piko
+multiview: back to the automatic set	multiview: dopi go seta munpatakoro
+no MIDI output ports on this machine	Vaala poraku senadora MIDI kae jana nakae
+splitnotes: could not split that cue	splitnotes: va pel pati dua veka nakae
+srt: passphrase needs 10+ characters	srt: holkora peni grakaraku 10+
+step deleted - ctrl+z brings it back	Beta vaguro - ctrl+z tiri dopa
+timer face: select a timer cue first	timer face: piki muna tokawia veka
+timer font: select a timer cue first	timer font: piki muna tokawia veka
+16 slices is the most an output takes	16 kisvekaku, tamo senadora una pel gur
+AUDIOGAIN BY: expected a number of dB	AUDIOGAIN BY: peni numa dB
+AUDITION: expected OFF, END or STATUS	AUDITION: peni OFF / END / STATUS
+BROWSER CLICK: fractions must be 0..1	BROWSER CLICK: patiaku 0..1
+FX GET: expected an effect number, 1-	FX GET: peni numa setapata, 1-
+HLS playlist: added as one stream cue	HLS vekaku: lani una retaseni veka
+MASTER BYPASS: expected a deck number	MASTER BYPASS: peni numa deka
+MIDICLOCK: expected SIM <bpm> [beats]	MIDICLOCK: peni SIM <bpm> [beats]
+MULTIVIEW: expected ON, OFF or TOGGLE	MULTIVIEW: peni ON / OFF / TOGGLE
+OUTPUT HDR SIGNAL: expected PQ or HLG	OUTPUT HDR SIGNAL: peni PQ / HLG
+STREAM HDR: select a stream cue first	STREAM HDR: piki muna retaseni veka
+datamosh: file-backed video cues only	datamosh: veka bufmuno una
+effects copy: this cue has no effects	effects copy: veka nakae vasetapataku
+matrix on, routed as the patch had it	matrix pon, dori dop doradeka
+recovery could not be read; copy kept	recovery va pel miri; veli guro
+FIXTURE DIP: expected <name> <%>|LEAVE	FIXTURE DIP: peni <name> <%>|LEAVE
+MONITOR: expected DEVICE, DECK or ROOM	MONITOR: peni DEVICE / DECK / ROOM
+NETCUE PROTO: expected osc, udp or tcp	NETCUE PROTO: peni osc / udp / tcp
+STING LENGTH: expected 0.05-10 seconds	STING LENGTH: peni 0.05-10 sek
+sprite sheet: select a video synth cue	sprite sheet: piki veka go Synth veka
+AUDIOGAIN BY: no selected cue has audio	AUDIOGAIN BY: ala veka miro vasono
+CAPTIONS SHOW: expected <output> ON|OFF	CAPTIONS SHOW: grai <output> ON|OFF
+CAPTIONS TRANSCRIPT: expected ON or OFF	CAPTIONS TRANSCRIPT: grai ON / OFF
+COMPANIONPASS: use 8 or more characters	COMPANIONPASS: grai 8+ holaku
+DEVAMP: nothing is playing on that deck	DEVAMP: vaala lumo dek nakae
+FX LFO ZONE: 0 (the whole picture) to 8	FX LFO ZONE: 0 (tam veka) .. 8
+MASK IMPORT: expected <file.svg> [name]	MASK IMPORT: grai <file.svg> [name]
+MASK SET: expected <id> <param> <value>	MASK SET: grai <id> <param> <value>
+MULTIVIEW WINDOW: the last window stays	MULTIVIEW WINDOW: una fena guro
+OUTPUT AOI MODE: expected PIXEL or FILL	OUTPUT AOI MODE: grai PIXEL / FILL
+SCOPES SOUND: expected nothing or RESET	SCOPES SOUND: grai vaala / RESET
+Tabletop is in SOURCE > MADE BY DECKBOY	Tabletop kae MUNGA > GO DECKBOY GRAO
+can't read media - CONVERT in inspector	vekadora vapel miri - PATASETI mirjana kae
+cleared: all decks stopped, outputs off	novaseto: ala dekaku halo, senadoraku klua
+datamosh: classic, full effect (MPEG-4)	datamosh: klasiko, tamo efeka (MPEG-4)
+driver cleared - nothing left to puppet	tirijana novaseto - vaala gura
+key+fill on - now pick a Key out device	key+fill lumo - novtok piki Nirasena jana
+play the note that should fire this cue	lumi nota, veka nakae lumo
+programme to MediaMTX: watch at http://	koraveka seni MediaMTX: miri http://
+recformat: expected <WxH|program> [fps]	recformat: grai <WxH|program> [fps]
+requested input missing - using default	tirdora vakae - koro lani
+DRAW PLAYBACK: still, flipbook or replay	DRAW PLAYBACK: halveka, flipbook, novtok lumi
+FADE KNOB: expected amount, A, B, C or D	FADE KNOB: grai numa, A, B, C / D
+LOWERANIM: this cue is not a Lower Third	LOWERANIM: veka nakae va Lower Third
+MASK EXPORT: size is WxH, e.g. 1920x1080	MASK EXPORT: grai WxH, 1920x1080
+MOTION SOURCE: CAMERA [name] or DECK <n>	MOTION SOURCE: CAMERA [name] / DECK <n>
+NEW already starts from factory settings	NEW mun munsetaku
+OUTPUT SELECT: expected an output number	OUTPUT SELECT: grai senadora numa
+TCCUE: expected NEW, ACTION, JAM or FIRE	TCCUE: grai NEW / ACTION / JAM / FIRE
+hands-on: clicks and keys go to the page	hands-on: batiku, batku -> peja
+multiview: one window per playlist again	multiview: vekaku una fena, novtok
+record folder set - SAME DISK as Deckboy	Graikara seto - DISK SAMO Deckboy
+sequence waiting - press it again for GO	tokrana halpeno - bati novtok GO
+this platform cannot capture that source	kaejana nakae vapel tiri munga
+timer backdrop: select a timer cue first	tokawia munveka: piki tokawia veka muna
+BLEND CURVE: expected PROJECTOR or LINEAR	BLEND CURVE: grai PROJECTOR / LINEAR
+CAPTIONS POSITION: expected TOP or BOTTOM	CAPTIONS POSITION: grai TOP / BOTTOM
+CAPTIONS SIZE: expected 50..200 (percent)	CAPTIONS SIZE: grai 50..200 (%)
+DMXCUE: the selected cue is not a dmx cue	DMXCUE: veka piko vadmxo
+DRAW FRAME: ADD, DELETE, NEXT, PREV or 1-	DRAW FRAME: ADD, DELETE, NEXT, PREV o 1-
+FADE OVER: expected a duration in seconds	FADE OVER: mi pen tokanuma sekaku
+FADE TO: expected a percent from 0 to 100	FADE TO: mi pen numa 0 fe 100 pasenta
+LOWERSTYLE: this cue is not a Lower Third	LOWERSTYLE: veka nakae va Lower Third
+MOTION SOURCE DECK: a playlist number, 1-	MOTION SOURCE DECK: vekaku numa, 1-
+STING SWEEP: expected -24 to 24 semitones	STING SWEEP: mi pen -24 fe 24 semitonaku
+TCCUE ACTION: expected start, stop or jam	TCCUE ACTION: mi pen start, stop o jam
+TCCUE JAM: expected a timecode or seconds	TCCUE JAM: mi pen koratoka o sekaku
+TRACKER VIEW: expected PATTERN or CLASSIC	TRACKER VIEW: mi pen PATTERN o CLASSIC
+Tabletop added - SOURCE > MADE BY DECKBOY	Tabletop lani - MUNGA > go Deckboy grao
+browser window open - click, type, log in	retamira fena fesi - bati, gri, fesi-dora
+contrast check: something needs attention	niralum mira: ala pen mir
+drag the corners on the programme monitor	tiri ranaku na koraveka mirjana
+this browser backend cannot show a window	retamira patmun va pel veki fena
+BROWSER CLICK: expected two fractions 0..1	BROWSER CLICK: mi pen duaku 0..1
+CHIP: the selected cue is not a chip synth	CHIP: veka piko va chip synth
+DASH SET: a slot cannot fire the dashboard	DASH SET: kae va pel seni BATRANA
+DRAW STROKE: x,y[,pressure] ... in percent	DRAW STROKE: x,y[,pressure] ... pasenta
+OUTPUTFX REMOVE: expected an effect number	OUTPUTFX REMOVE: mi pen EFFECT numa
+SCRIPTCUE: expected NEW, ADD, CLEAR or RUN	SCRIPTCUE: mi pen NEW, ADD, CLEAR o RUN
+TEXTCUE WIGGLE: expected ON, OFF or TOGGLE	TEXTCUE WIGGLE: mi pen ON, OFF o TOGGLE
+TRIGGER KEY: F1-F10, F12, NUM0-NUM9 or OFF	TRIGGER KEY: F1-F10, F12, NUM0-NUM9 o OFF
+auto-advance removed: cue end follows hold	koro-novtok niri: veka ran hali
+choose RECOVER or KEEP SAVED before saving	piki RECOVER o KEEP SAVED muna buf
+datamosh look: file-backed video cues only	datamosh veka: vekaku go fela dek
+nmos: on - searching for a registry (mDNS)	nmos: pon - Korabufa mir (mDNS)
+record folder: recordings/ beside the show	grai kara: recordings/ vekarana ran
+recsegment: expected <minutes> [megabytes]	recsegment: mi pen <kistok> [megabyte]
+the example shows are not in this download	miravekaranaku va na retatiri
+warp point: expected <col> <row> <dx> <dy>	warp point: mi pen <col> <row> <dx> <dy>
+warp point: no grid -- WARP GRID <n> first	warp point: va grid -- muna WARP GRID <n>
+DMXCUE FIXTURE: level is 0-100 (%) or LEAVE	DMXCUE FIXTURE: numa 0-100 (%) o LEAVE
+EDIT off: the keyboard only moves and fires	SETI vap: bata pel tirisetaku seni
+EDIT on: typing changes the tracker's cells	SETI pon: gra seti TIRWIA kar
+FIXTURE: expected LIST, ADD, FIND or REMOVE	FIXTURE: mi pen LIST, ADD, FIND o REMOVE
+LIMITER CEILING: a level from -40 to 0 dBFS	LIMITER CEILING: numa -40 fe 0 dBFS
+MIDICUE: the selected cue is not a midi cue	MIDICUE: veka piko va midi veka
+MOTION ZONE ADD: x y w h, percentages 0-100	MOTION ZONE ADD: x y w h, pasenta 0-100
+MOTION ZONE: ADD x y w h, REMOVE n or CLEAR	MOTION ZONE: ADD x y w h, REMOVE n o CLEAR
+mask off -- it is still in the show's library	nirarana vap -- kae bufa vekarana nakae
+Stop masking this. The mask stays in the show's library, to put back from the menu above	Hali nirarana. Nirarana guri kae bufa vekarana, tiri dopi mun menu jora
+Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	Niri nirarana nakae mun vekarana, so mun ala veka, vekaku so senadoraku. Undo dopi

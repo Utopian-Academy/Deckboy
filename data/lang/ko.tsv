@@ -2859,3 +2859,214 @@ DASH: the startup dialog is up	DASH: 시작 대화상자가 열려 있습니다
 LOWERSTYLE: select a cue first	LOWERSTYLE: 먼저 큐를 선택하세요
 MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: 1-16 필요
 PATTERN ADD needs a pattern id	PATTERN ADD에는 패턴 id가 필요합니다
+Lower Third attached	Lower Third 연결됨
+DRAW ONION: ON or OFF	DRAW ONION: ON 또는 OFF
+DRAW EDITOR: ON or OFF	DRAW EDITOR: ON 또는 OFF
+OUTPUT AOI: no outputs	OUTPUT AOI: 출력 없음
+OUTPUT DECK: no outputs	OUTPUT DECK: 출력 없음
+DRAW HOLD: seconds, 0-60	DRAW HOLD: 초, 0-60
+FADE EFFECT: expected 1-	FADE EFFECT: 1- 필요
+MOTION MIRROR: ON or OFF	MOTION MIRROR: ON 또는 OFF
+GOGUARD: OFF or 50-2000 (ms)	GOGUARD: OFF 또는 50-2000 (ms)
+SLICE GRID SMOOTH: ON or OFF	SLICE GRID SMOOTH: ON 또는 OFF
+TRIGGER AT: HH:MM[:SS] or OFF	TRIGGER AT: HH:MM[:SS] 또는 OFF
+PATTERN SET needs a pattern id	PATTERN SET에는 패턴 ID가 필요해요
+already the first tracker step	이미 첫 트래커 스텝
+cannot determine rendered size	렌더링 크기를 확인할 수 없습니다
+find: enter cue id/number/name	찾기: 큐 ID/번호/이름 입력
+no sprite sets in data/sprites	data/sprites에 스프라이트 세트 없음
+normalize: no measurable audio	normalize: 측정 가능한 오디오 없음
+recordings are left as written	녹화본은 기록된 그대로 유지돼요
+reracked - holding first frame	reracked - 첫 프레임 유지
+st 2110: clipboard unavailable	st 2110: 클립보드를 사용할 수 없음
+stream url: unsupported scheme	stream url: 지원되지 않는 스킴
+that button has no command yet	이 버튼에는 아직 명령이 없어요
+DMXCUE PROTOCOL: ARTNET or SACN	DMXCUE PROTOCOL: ARTNET 또는 SACN
+FIXTURE DIP: 0-100 (%) or LEAVE	FIXTURE DIP: 0-100 (%) 또는 LEAVE
+FX LFO: no effect at that index	FX LFO: 해당 색인에 효과 없음
+MIDIMAP CLEAR: COMPUTER or SHOW	MIDIMAP CLEAR: COMPUTER 또는 SHOW
+TEXTCUE SPEED: expected 0.05-20	TEXTCUE SPEED: 0.05-20 필요
+an output needs a base playlist	출력에는 기본 플레이리스트 필요
+audio input: device unavailable	오디오 입력: 장치를 사용할 수 없음
+expected crop percentages 0..90	자르기 퍼센트는 0..90 필요
+media found - nothing to relink	미디어 찾음 - 다시 연결할 것 없음
+notestep: build out of range 1-	notestep: build 범위 초과 1-
+put it back when the ramp lands	램프가 끝나면 되돌림
+splitnotes: cue out of range 1-	splitnotes: 큐 범위 초과 1-
+st 2110 SDP copied to clipboard	st 2110 SDP를 클립보드에 복사함
+w00t! all ur cues r belong 2 us	w00t! 니 큐 전부 우리꺼 ㅋ
+BROWSER TYPE: expected some text	BROWSER TYPE: 텍스트 필요
+CHECK: expected a problem number	CHECK: 문제 번호 필요
+FADE RESTORE: expected on or off	FADE RESTORE: on 또는 off 필요
+MIDICLOCK SIM: expected a number	MIDICLOCK SIM: 숫자 필요
+MONITOR ROOM: expected ON or OFF	MONITOR ROOM: ON 또는 OFF 필요
+MOTION ZONE ADD: already 8 zones	MOTION ZONE ADD: 이미 영역 8개
+SLICE REMOVE: a slice number, 1-	SLICE REMOVE: slice 번호, 1-
+motion off: the camera is closed	모션 꺼짐: 카메라가 닫혀 있음
+no capture devices found (dshow)	캡처 장치를 찾을 수 없음 (dshow)
+only accepted from this computer	이 컴퓨터에서만 허용됨
+reccodec: expected a codec token	reccodec: 코덱 토큰 필요
+this build has no plugin support	이 빌드는 플러그인을 지원하지 않음
+BROWSER SCROLL: expected a number	BROWSER SCROLL: 숫자 필요
+DMXCUE UNIVERSE: expected 0-32767	DMXCUE UNIVERSE: 0-32767 필요
+FADE DECK: expected a deck number	FADE DECK: 덱 번호 필요
+FX PARAM: no effect at that index	FX PARAM: 해당 색인에 효과 없음
+MIC GAIN: expected -40 to 40 (dB)	MIC GAIN: -40~40 (dB) 필요
+MOTION ZONE REMOVE: a zone number	MOTION ZONE REMOVE: 영역 번호
+NDI: this build has no NDI output	NDI: 이 빌드에는 NDI 출력 없음
+STING PITCH: expected 20-12000 Hz	STING PITCH: 20-12000 Hz 필요
+TRIGGER MIDI: a note 0-127 or OFF	TRIGGER MIDI: 노트 0-127 또는 OFF
+could not open the Screens window	SCREENS 창을 열 수 없음
+effects paste: copy a chain first	효과 붙여넣기: 먼저 체인 복사
+expected pixels -1000000..1000000	픽셀 -1000000..1000000 필요
+press again to delete this button	이 버튼을 삭제하려면 한 번 더 누르세요
+warp grid: 2 to 9 points each way	변형 격자: 각 방향 2~9개 점
+AUDIOFX ADD: needs an effect token	AUDIOFX ADD: 이펙트 토큰 필요
+BLEND LIFT: expected 0..20 percent	BLEND LIFT: 0..20 퍼센트 필요
+BUGSWAT SHOWME: only in a briefing	BUGSWAT SHOWME: 브리핑에서만 가능
+CAPTIONS LINES: expected 1, 2 or 3	CAPTIONS LINES: 1, 2 또는 3 필요
+DASH SET: slot number out of range	DASH SET: 슬롯 번호 범위 초과
+FX AMOUNT: no effect at that index	FX AMOUNT: 해당 색인에 이펙트 없음
+FX COLOUR: no effect at that index	FX COLOUR: 해당 색인에 이펙트 없음
+MIDICLOCK SIM: bpm must be 20..600	MIDICLOCK SIM: bpm은 20..600이어야 함
+OUTPUT ADD: expected a deck number	OUTPUT ADD: 덱 번호 필요
+SLICE FLIP: H or V, then ON or OFF	SLICE FLIP: H 또는 V, 그다음 ON 또는 OFF
+a path needs three points: dropped	경로에는 점 세 개가 필요: 삭제됨
+a show needs at least one playlist	쇼에는 재생 목록이 하나 이상 필요
+display scan: no displays reported	디스플레이 검색: 보고된 디스플레이 없음
+selection has no cue with geometry	지오메트리가 있는 큐가 선택되지 않음
+that cue cannot be fired by a step	해당 큐는 스텝으로 실행할 수 없음
+time: type it as HH:MM or HH:MM:SS	시간: HH:MM 또는 HH:MM:SS로 입력
+ASCII COLS: expected a column count	ASCII COLS: 열 수 필요
+Deckboy evolved into SUPER DECKBOY!	Deckboy가 SUPER DECKBOY로 진화했어요!
+FX PARAM: slot must be A, B, C or D	FX PARAM: 슬롯은 A, B, C 또는 D
+MIDI: a note number 0-127, or LEARN	MIDI: 노트 번호 0-127 또는 학습
+MIDIMAP REMOVE: COMPUTER|SHOW <row>	MIDIMAP REMOVE: COMPUTER|SHOW <행>
+OUTPUT DECK: expected a deck number	OUTPUT DECK: 덱 번호 필요
+OUTPUTFX BYPASS: expected ON or OFF	OUTPUTFX BYPASS: ON 또는 OFF 필요
+SCOPES MATRIX: expected 709 or 2020	SCOPES MATRIX: 709 또는 2020 필요
+SHORTCUTS: the startup dialog is up	SHORTCUTS: 시작 대화상자가 열려 있음
+STREAM HDR: expected SDR, PQ or HLG	STREAM HDR: SDR, PQ 또는 HLG 필요
+an animation is already being saved	애니메이션을 이미 저장하는 중
+delete live cue: press delete again	라이브 큐 삭제: delete를 한 번 더 누르세요
+esc: output cleared - again to quit	esc: 출력 지움 - 한 번 더 누르면 종료
+no browser cue is live on this deck	이 덱에 라이브 중인 브라우저 큐 없음
+notestep: nothing live on this deck	notestep: 이 덱에 라이브 중인 것 없음
+select the cue it should take first	먼저 TAKE할 큐를 선택하세요
+DRAW EDITOR: select a Draw cue first	DRAW EDITOR: 먼저 Draw 큐를 선택
+DRAW SAVE: STILL or ANIMATION [file]	DRAW SAVE: STILL 또는 ANIMATION [file]
+MIC CHANNEL: expected L, R or STEREO	MIC CHANNEL: L, R 또는 STEREO 필요
+MULTIVIEW WINDOW: expected ON or OFF	MULTIVIEW WINDOW: ON 또는 OFF 필요
+Page Down / Page Up step the tracker	Page Down / Page Up으로 트래커 스텝 이동
+SUBTITLE CONVERT: nothing to convert	SUBTITLE CONVERT: 변환할 항목 없음
+TONECUE LFO: select a tone cue first	TONECUE LFO: 먼저 톤 큐를 선택
+TRUST LAST: nothing has been refused	TRUST LAST: 거부된 항목 없음
+atem tally on -- set the switcher IP	ATEM 탈리 켜짐 -- 스위처 IP를 설정
+datamosh: subtle, self-heals (H.264)	datamosh: 은은함, 저절로 복구됨 (H.264)
+master vol: expected 0-200 (percent)	master vol: 0-200 (퍼센트) 필요
+matrix off - back to the output pair	matrix 꺼짐 - 출력 페어로 복귀
+monitor follows the focused playlist	모니터는 포커스된 재생 목록을 따라감
+no MIDI output ports on this machine	이 컴퓨터에 MIDI 출력 포트 없음
+splitnotes: could not split that cue	splitnotes: 해당 큐를 분할할 수 없음
+srt: passphrase needs 10+ characters	srt: 암호문은 10자 이상 필요
+step deleted - ctrl+z brings it back	스텝 삭제됨 - ctrl+z로 복원
+timer face: select a timer cue first	timer face: 먼저 타이머 큐를 선택
+timer font: select a timer cue first	timer font: 먼저 타이머 큐를 선택
+16 slices is the most an output takes	출력당 슬라이스는 최대 16개
+AUDIOGAIN BY: expected a number of dB	AUDIOGAIN BY: dB 숫자 필요
+AUDITION: expected OFF, END or STATUS	AUDITION: OFF, END 또는 STATUS 필요
+BROWSER CLICK: fractions must be 0..1	BROWSER CLICK: 비율은 0..1이어야 함
+FX GET: expected an effect number, 1-	FX GET: 이펙트 번호 필요, 1-
+HLS playlist: added as one stream cue	HLS 재생 목록: 스트리밍 큐 하나로 추가됨
+MASTER BYPASS: expected a deck number	MASTER BYPASS: 덱 번호 필요
+MIDICLOCK: expected SIM <bpm> [beats]	MIDICLOCK: SIM <bpm> [beats] 필요
+OUTPUT HDR SIGNAL: expected PQ or HLG	OUTPUT HDR SIGNAL: PQ 또는 HLG 필요
+STREAM HDR: select a stream cue first	STREAM HDR: 먼저 스트리밍 큐를 선택
+datamosh: file-backed video cues only	datamosh: 파일 기반 비디오 큐만 가능
+effects copy: this cue has no effects	effects copy: 이 큐에 효과 없음
+matrix on, routed as the patch had it	matrix 켜짐, 패치 설정대로 라우팅됨
+recovery could not be read; copy kept	복구 파일을 읽을 수 없음; 사본 유지됨
+FIXTURE DIP: expected <name> <%>|LEAVE	FIXTURE DIP: <name> <%>|LEAVE 필요
+MONITOR: expected DEVICE, DECK or ROOM	MONITOR: DEVICE, DECK 또는 ROOM 필요
+NETCUE PROTO: expected osc, udp or tcp	NETCUE PROTO: osc, udp 또는 tcp 필요
+STING LENGTH: expected 0.05-10 seconds	STING LENGTH: 0.05-10초 필요
+sprite sheet: select a video synth cue	스프라이트 시트: 비디오 신시사이저 큐를 선택하세요
+AUDIOGAIN BY: no selected cue has audio	AUDIOGAIN BY: 선택된 큐에 오디오 없음
+CAPTIONS SHOW: expected <output> ON|OFF	CAPTIONS SHOW: <output> ON|OFF 필요
+CAPTIONS TRANSCRIPT: expected ON or OFF	CAPTIONS TRANSCRIPT: ON 또는 OFF 필요
+COMPANIONPASS: use 8 or more characters	COMPANIONPASS: 8자 이상 사용
+DEVAMP: nothing is playing on that deck	DEVAMP: 해당 덱에서 재생 중인 것이 없음
+FX LFO ZONE: 0 (the whole picture) to 8	FX LFO ZONE: 0 (영상 전체)부터 8까지
+MASK IMPORT: expected <file.svg> [name]	MASK IMPORT: <file.svg> [name] 필요
+MASK SET: expected <id> <param> <value>	MASK SET: <id> <param> <value> 필요
+MULTIVIEW WINDOW: the last window stays	MULTIVIEW WINDOW: 마지막 창은 유지됨
+OUTPUT AOI MODE: expected PIXEL or FILL	OUTPUT AOI MODE: PIXEL 또는 FILL 필요
+SCOPES SOUND: expected nothing or RESET	SCOPES SOUND: 없음 또는 RESET 필요
+Tabletop is in SOURCE > MADE BY DECKBOY	Tabletop은 소스 > Deckboy 제작에 있습니다
+can't read media - CONVERT in inspector	미디어를 읽을 수 없음 - 인스펙터에서 변환
+cleared: all decks stopped, outputs off	초기화됨: 모든 덱 정지됨, 출력 끔
+datamosh: classic, full effect (MPEG-4)	datamosh: 클래식, 전체 효과 (MPEG-4)
+driver cleared - nothing left to puppet	드라이버 해제됨 - 조종할 대상이 없음
+key+fill on - now pick a Key out device	key+fill 켜짐 - 이제 키 출력 장치를 선택하세요
+play the note that should fire this cue	이 큐를 실행할 노트를 연주하세요
+programme to MediaMTX: watch at http://	프로그램을 MediaMTX로: http:// 에서 시청
+recformat: expected <WxH|program> [fps]	recformat: <WxH|program> [fps] 필요
+requested input missing - using default	요청한 입력 누락됨 - 기본값 사용
+DRAW PLAYBACK: still, flipbook or replay	DRAW PLAYBACK: 정지 화면, 플립북 또는 리플레이
+FADE KNOB: expected amount, A, B, C or D	FADE KNOB: 양, A, B, C 또는 D 필요
+LOWERANIM: this cue is not a Lower Third	LOWERANIM: 이 큐는 Lower Third가 아님
+MASK EXPORT: size is WxH, e.g. 1920x1080	MASK EXPORT: 크기는 WxH, 예: 1920x1080
+MOTION SOURCE: CAMERA [name] or DECK <n>	MOTION SOURCE: CAMERA [name] 또는 DECK <n>
+NEW already starts from factory settings	NEW는 이미 공장 설정에서 시작합니다
+OUTPUT SELECT: expected an output number	OUTPUT SELECT: 출력 번호 필요
+TCCUE: expected NEW, ACTION, JAM or FIRE	TCCUE: NEW, ACTION, JAM 또는 FIRE 필요
+hands-on: clicks and keys go to the page	직접 조작: 클릭과 키가 페이지로 전달됨
+record folder set - SAME DISK as Deckboy	녹화 폴더 설정됨 - Deckboy와 같은 디스크
+sequence waiting - press it again for GO	시퀀스 대기 중 - GO: 다시 누르기
+this platform cannot capture that source	이 플랫폼은 해당 소스를 캡처할 수 없음
+timer backdrop: select a timer cue first	타이머 배경: 먼저 타이머 큐를 선택하세요
+BLEND CURVE: expected PROJECTOR or LINEAR	BLEND CURVE: PROJECTOR 또는 LINEAR 필요
+CAPTIONS POSITION: expected TOP or BOTTOM	CAPTIONS POSITION: TOP 또는 BOTTOM 필요
+CAPTIONS SIZE: expected 50..200 (percent)	CAPTIONS SIZE: 50..200 (퍼센트) 필요
+DMXCUE: the selected cue is not a dmx cue	DMXCUE: 선택한 큐가 dmx 큐가 아닙니다
+DRAW FRAME: ADD, DELETE, NEXT, PREV or 1-	DRAW FRAME: ADD, DELETE, NEXT, PREV 또는 1-
+FADE OVER: expected a duration in seconds	FADE OVER: 길이(초)가 필요합니다
+FADE TO: expected a percent from 0 to 100	FADE TO: 0~100 퍼센트가 필요합니다
+MOTION SOURCE DECK: a playlist number, 1-	MOTION SOURCE DECK: 재생 목록 번호, 1-
+STING SWEEP: expected -24 to 24 semitones	STING SWEEP: -24~24 반음이 필요합니다
+TCCUE ACTION: expected start, stop or jam	TCCUE ACTION: start, stop 또는 jam이 필요합니다
+TCCUE JAM: expected a timecode or seconds	TCCUE JAM: 타임코드 또는 초가 필요합니다
+TRACKER VIEW: expected PATTERN or CLASSIC	TRACKER VIEW: PATTERN 또는 CLASSIC이 필요합니다
+Tabletop added - SOURCE > MADE BY DECKBOY	Tabletop 추가됨 - 소스 > DECKBOY 제작
+browser window open - click, type, log in	브라우저 창 열림 - 클릭, 입력, 로그인
+contrast check: something needs attention	대비 확인: 확인이 필요한 항목이 있습니다
+drag the corners on the programme monitor	프로그램 모니터에서 모서리를 드래그하세요
+this browser backend cannot show a window	이 브라우저 백엔드는 창을 표시할 수 없습니다
+BROWSER CLICK: expected two fractions 0..1	BROWSER CLICK: 0..1 비율 두 개가 필요합니다
+CHIP: the selected cue is not a chip synth	CHIP: 선택한 큐가 chip synth 큐가 아닙니다
+DASH SET: a slot cannot fire the dashboard	DASH SET: 슬롯은 대시보드를 실행할 수 없습니다
+DRAW STROKE: x,y[,pressure] ... in percent	DRAW STROKE: x,y[,pressure] ... 퍼센트 단위
+OUTPUTFX REMOVE: expected an effect number	OUTPUTFX REMOVE: 이펙트 번호가 필요합니다
+SCRIPTCUE: expected NEW, ADD, CLEAR or RUN	SCRIPTCUE: NEW, ADD, CLEAR 또는 RUN이 필요합니다
+TEXTCUE WIGGLE: expected ON, OFF or TOGGLE	TEXTCUE WIGGLE: ON, OFF 또는 TOGGLE이 필요합니다
+TRIGGER KEY: F1-F10, F12, NUM0-NUM9 or OFF	TRIGGER KEY: F1-F10, F12, NUM0-NUM9 또는 OFF
+auto-advance removed: cue end follows hold	자동 진행 제거됨: 큐 종료는 유지를 따릅니다
+choose RECOVER or KEEP SAVED before saving	저장 전에 RECOVER 또는 KEEP SAVED를 선택하세요
+datamosh look: file-backed video cues only	datamosh 룩: 파일 기반 비디오 큐만 가능
+nmos: on - searching for a registry (mDNS)	nmos: 켜짐 - 레지스트리 검색 중 (mDNS)
+record folder: recordings/ beside the show	녹화 폴더: 쇼 옆의 recordings/
+recsegment: expected <minutes> [megabytes]	recsegment: <분> [메가바이트]가 필요합니다
+the example shows are not in this download	이 다운로드에는 예제 쇼가 없습니다
+warp point: expected <col> <row> <dx> <dy>	warp point: <col> <row> <dx> <dy>가 필요합니다
+warp point: no grid -- WARP GRID <n> first	warp point: 그리드 없음 -- 먼저 WARP GRID <n>
+DMXCUE FIXTURE: level is 0-100 (%) or LEAVE	DMXCUE FIXTURE: 레벨은 0-100 (%) 또는 LEAVE
+EDIT off: the keyboard only moves and fires	편집 꺼짐: 키보드는 이동과 실행만 합니다
+EDIT on: typing changes the tracker's cells	편집 켜짐: 입력하면 트래커의 셀이 바뀝니다
+FIXTURE: expected LIST, ADD, FIND or REMOVE	FIXTURE: LIST, ADD, FIND 또는 REMOVE가 필요합니다
+LIMITER CEILING: a level from -40 to 0 dBFS	LIMITER CEILING: -40~0 dBFS 레벨
+MIDICUE: the selected cue is not a midi cue	MIDICUE: 선택한 큐가 midi 큐가 아닙니다
+MOTION ZONE ADD: x y w h, percentages 0-100	MOTION ZONE ADD: x y w h, 퍼센트 0-100
+MOTION ZONE: ADD x y w h, REMOVE n or CLEAR	MOTION ZONE: ADD x y w h, REMOVE n 또는 CLEAR
+mask off -- it is still in the show's library	마스크 꺼짐 -- 쇼의 라이브러리에 아직 있습니다
+Stop masking this. The mask stays in the show's library, to put back from the menu above	마스크 적용을 중지합니다. 마스크는 쇼의 라이브러리에 남아 있으며, 위의 메뉴에서 다시 적용할 수 있습니다
+Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	이 마스크를 쇼에서, 그리고 이를 사용하는 모든 큐, 플레이리스트, 출력에서 삭제합니다. Undo로 되돌릴 수 있습니다

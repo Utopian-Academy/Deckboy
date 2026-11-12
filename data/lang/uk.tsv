@@ -2858,3 +2858,219 @@ DASH: the startup dialog is up	DASH: вікно запуску відкрите
 LOWERSTYLE: select a cue first	LOWERSTYLE: спершу виберіть cue
 MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: очікується 1-16
 PATTERN ADD needs a pattern id	PATTERN ADD потребує ID шаблону
+Lower Third attached	Lower Third прикріплено
+find: run FIND first	find: спочатку виконайте FIND
+DRAW ONION: ON or OFF	DRAW ONION: ON або OFF
+DRAW EDITOR: ON or OFF	DRAW EDITOR: ON або OFF
+OUTPUT AOI: no outputs	OUTPUT AOI: немає виходів
+OUTPUT DECK: no outputs	OUTPUT DECK: немає виходів
+DRAW HOLD: seconds, 0-60	DRAW HOLD: секунди, 0-60
+FADE EFFECT: expected 1-	FADE EFFECT: очікувалося 1-
+MOTION MIRROR: ON or OFF	MOTION MIRROR: ON або OFF
+TALLYEVENT wants ON or OFF	TALLYEVENT вимагає ON або OFF
+TONECUE LFO: FREQ or LEVEL	TONECUE LFO: FREQ або LEVEL
+GOGUARD: OFF or 50-2000 (ms)	GOGUARD: OFF або 50-2000 (мс)
+SLICE GRID SMOOTH: ON or OFF	SLICE GRID SMOOTH: ON або OFF
+PATTERN SET needs a pattern id	PATTERN SET вимагає ID шаблону
+already the first tracker step	це вже перший крок трекера
+cannot determine rendered size	не вдалося визначити розмір рендера
+find: enter cue id/number/name	find: введіть ID cue/номер/назву
+no sprite sets in data/sprites	немає наборів спрайтів у data/sprites
+normalize: no measurable audio	normalize: немає вимірюваного звуку
+recordings are left as written	записи залишаються як є
+reracked - holding first frame	reracked - утримую перший кадр
+st 2110: clipboard unavailable	st 2110: буфер обміну недоступний
+stream url: unsupported scheme	stream url: непідтримувана схема
+that button has no command yet	ця кнопка ще не має команди
+DMXCUE PROTOCOL: ARTNET or SACN	DMXCUE PROTOCOL: ARTNET або SACN
+FIXTURE DIP: 0-100 (%) or LEAVE	FIXTURE DIP: 0-100 (%) або ЗАЛИШИТИ
+FX LFO: no effect at that index	FX LFO: немає ефекту з таким покажчиком
+MIDIMAP CLEAR: COMPUTER or SHOW	MIDIMAP CLEAR: КОМП'ЮТЕР або ШОУ
+TEXTCUE SPEED: expected 0.05-20	TEXTCUE SPEED: очікується 0.05-20
+an output needs a base playlist	виходу потрібен базовий плейлист
+audio input: device unavailable	вхід звуку: пристрій недоступний
+expected crop percentages 0..90	очікуються відсотки обрізки 0..90
+media found - nothing to relink	медіа знайдено – немає що перепризначати
+notestep: build out of range 1-	notestep: build поза діапазоном 1-
+put it back when the ramp lands	поверніть, коли рампа завершиться
+splitnotes: cue out of range 1-	splitnotes: cue поза діапазоном 1-
+st 2110 SDP copied to clipboard	ST 2110 SDP скопійовано в буфер обміну
+w00t! all ur cues r belong 2 us	w00t! усі ваші cue належать нам
+BROWSER TYPE: expected some text	BROWSER TYPE: очікується текст
+CHECK: expected a problem number	CHECK: очікується номер проблеми
+FADE RESTORE: expected on or off	FADE RESTORE: очікується УВІМ або ВИМ
+MIDICLOCK SIM: expected a number	MIDICLOCK SIM: очікується число
+MONITOR ROOM: expected ON or OFF	MONITOR ROOM: очікується УВІМ або ВИМ
+MOTION ZONE ADD: already 8 zones	MOTION ZONE ADD: уже 8 зон
+SLICE REMOVE: a slice number, 1-	SLICE REMOVE: номер зрізу, 1-
+motion off: the camera is closed	рух вим: камера закрита
+no capture devices found (dshow)	пристроїв захоплення не знайдено (dshow)
+only accepted from this computer	приймається лише на цьому комп'ютері
+reccodec: expected a codec token	reccodec: очікується токен кодека
+this build has no plugin support	у цій збірці немає підтримки плагінів
+BROWSER SCROLL: expected a number	BROWSER SCROLL: очікується число
+DMXCUE UNIVERSE: expected 0-32767	DMXCUE UNIVERSE: очікується 0-32767
+FADE DECK: expected a deck number	FADE DECK: очікується номер деки
+FX PARAM: no effect at that index	FX PARAM: немає ефекту з таким покажчиком
+MIC GAIN: expected -40 to 40 (dB)	MIC GAIN: очікується від -40 до 40 (dB)
+MOTION ZONE REMOVE: a zone number	MOTION ZONE REMOVE: номер зони
+NDI: this build has no NDI output	NDI: у цій збірці немає виходу NDI
+STING PITCH: expected 20-12000 Hz	STING PITCH: очікується 20-12000 Hz
+TRIGGER MIDI: a note 0-127 or OFF	TRIGGER MIDI: нота 0-127 або ВИМ
+could not open the Screens window	не вдалося відкрити вікно SCREENS
+effects paste: copy a chain first	effects paste: спочатку скопіюйте ланцюг
+expected pixels -1000000..1000000	очікувались пікселі -1000000..1000000
+marker: add | next | prev | clear	маркер: додати | наступний | попередній | очистити
+press again to delete this button	натисніть ще раз, щоб видалити цю кнопку
+warp grid: 2 to 9 points each way	сітка спотворення: від 2 до 9 точок у кожному напрямку
+AUDIOFX ADD: needs an effect token	AUDIOFX ADD: потрібен токен ефекту
+BLEND LIFT: expected 0..20 percent	BLEND LIFT: очікувалось 0..20 відсотків
+BUGSWAT SHOWME: only in a briefing	BUGSWAT SHOWME: лише в брифінгу
+CAPTIONS LINES: expected 1, 2 or 3	CAPTIONS LINES: очікувалось 1, 2 або 3
+DASH SET: slot number out of range	DASH SET: номер слота поза межами
+FX AMOUNT: no effect at that index	FX AMOUNT: немає ефекту з таким покажчиком
+FX COLOUR: no effect at that index	FX COLOUR: немає ефекту з таким покажчиком
+MIDICLOCK SIM: bpm must be 20..600	MIDICLOCK SIM: bpm має бути 20..600
+OUTPUT ADD: expected a deck number	OUTPUT ADD: очікувався номер деки
+SLICE FLIP: H or V, then ON or OFF	SLICE FLIP: H або V, потім УВІМ або ВИМ
+a path needs three points: dropped	шлях потребує трьох точок: відкинуто
+a show needs at least one playlist	шоу потрібен щонайменше один плейлист
+display scan: no displays reported	пошук дисплеїв: дисплеїв не знайдено
+selection has no cue with geometry	у виборі немає cue з геометрією
+that cue cannot be fired by a step	цей cue не можна запустити кроком
+time: type it as HH:MM or HH:MM:SS	час: введіть як HH:MM або HH:MM:SS
+ASCII COLS: expected a column count	ASCII COLS: очікувалось число стовпців
+Deckboy evolved into SUPER DECKBOY!	Deckboy перетворився на SUPER DECKBOY!
+FX PARAM: slot must be A, B, C or D	FX PARAM: слот має бути A, B, C або D
+MIDI: a note number 0-127, or LEARN	MIDI: номер ноти 0-127 або ВИВЧИТИ
+MIDIMAP REMOVE: COMPUTER|SHOW <row>	MIDIMAP REMOVE: КОМП'ЮТЕР|ШОУ <рядок>
+OUTPUT DECK: expected a deck number	OUTPUT DECK: очікувався номер деки
+OUTPUTFX BYPASS: expected ON or OFF	OUTPUTFX BYPASS: очікувалось УВІМ або ВИМ
+SCOPES MATRIX: expected 709 or 2020	SCOPES MATRIX: очікувалось 709 або 2020
+SHORTCUTS: the startup dialog is up	SHORTCUTS: вікно запуску відкрите
+STREAM HDR: expected SDR, PQ or HLG	STREAM HDR: очікувалось SDR, PQ або HLG
+an animation is already being saved	анімація вже зберігається
+delete live cue: press delete again	видалити cue в ефірі: натисніть видалити ще раз
+esc: output cleared - again to quit	esc: вихід очищено - ще раз, щоб вийти
+no browser cue is live on this deck	на цій деці немає cue браузера в ефірі
+notestep: nothing live on this deck	notestep: на цій деці нічого немає в ефірі
+select the cue it should take first	виберіть cue, який він візьме першим
+DRAW EDITOR: select a Draw cue first	DRAW EDITOR: спершу виберіть cue Draw
+DRAW SAVE: STILL or ANIMATION [file]	DRAW SAVE: STILL або ANIMATION [file]
+MIC CHANNEL: expected L, R or STEREO	MIC CHANNEL: очікується L, R або STEREO
+MULTIVIEW WINDOW: expected ON or OFF	MULTIVIEW WINDOW: очікується ON або OFF
+Page Down / Page Up step the tracker	Page Down / Page Up рухають трекер
+SUBTITLE CONVERT: nothing to convert	SUBTITLE CONVERT: нічого перетворювати
+TONECUE LFO: select a tone cue first	TONECUE LFO: спершу виберіть cue Тон
+TRUST LAST: nothing has been refused	TRUST LAST: нічого не було відхилено
+atem tally on -- set the switcher IP	atem tally увімкнено -- задайте IP мікшера
+datamosh: subtle, self-heals (H.264)	datamosh: тонкий, виправляється сам (H.264)
+master vol: expected 0-200 (percent)	master vol: очікується 0-200 (відсотки)
+matrix off - back to the output pair	matrix вимк - повернення до пари виходів
+monitor follows the focused playlist	монітор слідує за активним плейлистом
+multiview: back to the automatic set	multiview: повернення до автоматичного набору
+no MIDI output ports on this machine	на цьому комп'ютері немає вихідних портів MIDI
+splitnotes: could not split that cue	splitnotes: не вдалося розділити цей cue
+srt: passphrase needs 10+ characters	srt: парольна фраза має містити 10+ символів
+step deleted - ctrl+z brings it back	крок видалено - ctrl+z поверне його
+timer face: select a timer cue first	timer face: спершу виберіть cue таймера
+timer font: select a timer cue first	timer font: спершу виберіть cue таймера
+16 slices is the most an output takes	16 зрізів - максимум для одного виходу
+AUDIOGAIN BY: expected a number of dB	AUDIOGAIN BY: очікується число в dB
+AUDITION: expected OFF, END or STATUS	AUDITION: очікується OFF, END або STATUS
+BROWSER CLICK: fractions must be 0..1	BROWSER CLICK: частки мають бути від 0..1
+FX GET: expected an effect number, 1-	FX GET: очікується номер ефекту, 1-
+HLS playlist: added as one stream cue	плейлист HLS: додано як один cue потоку
+MASTER BYPASS: expected a deck number	MASTER BYPASS: очікується номер деки
+MIDICLOCK: expected SIM <bpm> [beats]	MIDICLOCK: очікується SIM <bpm> [beats]
+MULTIVIEW: expected ON, OFF or TOGGLE	MULTIVIEW: очікується ON, OFF або TOGGLE
+OUTPUT HDR SIGNAL: expected PQ or HLG	OUTPUT HDR SIGNAL: очікується PQ або HLG
+STREAM HDR: select a stream cue first	STREAM HDR: спершу виберіть cue потоку
+datamosh: file-backed video cues only	datamosh: лише відео-cue з файлу
+effects copy: this cue has no effects	effects copy: цей cue не має ефектів
+matrix on, routed as the patch had it	matrix увімк, маршрут як у патчі
+recovery could not be read; copy kept	не вдалося прочитати відновлення; копію збережено
+FIXTURE DIP: expected <name> <%>|LEAVE	FIXTURE DIP: очікується <name> <%>|LEAVE
+MONITOR: expected DEVICE, DECK or ROOM	MONITOR: очікується DEVICE, DECK або ROOM
+NETCUE PROTO: expected osc, udp or tcp	NETCUE PROTO: очікується osc, udp або tcp
+STING LENGTH: expected 0.05-10 seconds	STING LENGTH: очікується 0.05-10 секунд
+sprite sheet: select a video synth cue	sprite sheet: оберіть cue відеосинтезатора
+AUDIOGAIN BY: no selected cue has audio	AUDIOGAIN BY: жоден обраний cue не має звуку
+CAPTIONS SHOW: expected <output> ON|OFF	CAPTIONS SHOW: очікувалося <output> ON|OFF
+CAPTIONS TRANSCRIPT: expected ON or OFF	CAPTIONS TRANSCRIPT: очікувалося ON або OFF
+COMPANIONPASS: use 8 or more characters	COMPANIONPASS: використайте 8 або більше символів
+DEVAMP: nothing is playing on that deck	DEVAMP: на цій деці нічого не грає
+FX LFO ZONE: 0 (the whole picture) to 8	FX LFO ZONE: від 0 (усе зображення) до 8
+MASK IMPORT: expected <file.svg> [name]	MASK IMPORT: очікувалося <file.svg> [name]
+MASK SET: expected <id> <param> <value>	MASK SET: очікувалося <id> <param> <value>
+MULTIVIEW WINDOW: the last window stays	MULTIVIEW WINDOW: останнє вікно залишається
+OUTPUT AOI MODE: expected PIXEL or FILL	OUTPUT AOI MODE: очікувалося PIXEL або FILL
+SCOPES SOUND: expected nothing or RESET	SCOPES SOUND: очікувалося нічого або RESET
+Tabletop is in SOURCE > MADE BY DECKBOY	Tabletop у ДЖЕРЕЛО > ЗРОБЛЕНО В DECKBOY
+can't read media - CONVERT in inspector	не вдається прочитати медіа - ПЕРЕТВОРИТИ в інспекторі
+cleared: all decks stopped, outputs off	очищено: усі деки зупинено, виходи вимк.
+datamosh: classic, full effect (MPEG-4)	datamosh: класичний, повний ефект (MPEG-4)
+driver cleared - nothing left to puppet	драйвер очищено - керувати більше нічим
+key+fill on - now pick a Key out device	key+fill увімк. - тепер оберіть пристрій Вихід key
+play the note that should fire this cue	зіграйте ноту, яка має запускати цей cue
+programme to MediaMTX: watch at http://	програма в MediaMTX: дивіться на http://
+recformat: expected <WxH|program> [fps]	recformat: очікувалося <WxH|program> [fps]
+requested input missing - using default	запитаний вхід відсутній - використано типовий
+DRAW PLAYBACK: still, flipbook or replay	DRAW PLAYBACK: стоп-кадр, flipbook або replay
+FADE KNOB: expected amount, A, B, C or D	FADE KNOB: очікувалося сила, A, B, C або D
+MASK EXPORT: size is WxH, e.g. 1920x1080	MASK EXPORT: розмір WxH, напр. 1920x1080
+MOTION SOURCE: CAMERA [name] or DECK <n>	MOTION SOURCE: CAMERA [name] або DECK <n>
+NEW already starts from factory settings	NEW уже починає із заводських налаштувань
+OUTPUT SELECT: expected an output number	OUTPUT SELECT: очікувався номер виходу
+TCCUE: expected NEW, ACTION, JAM or FIRE	TCCUE: очікувалося NEW, ACTION, JAM або FIRE
+hands-on: clicks and keys go to the page	hands-on: кліки й клавіші йдуть на сторінку
+multiview: one window per playlist again	multiview: знову одне вікно на плейлист
+record folder set - SAME DISK as Deckboy	тека запису задана - ТОЙ САМИЙ ДИСК, що й у Deckboy
+sequence waiting - press it again for GO	послідовність чекає - натисніть ще раз для GO
+this platform cannot capture that source	ця платформа не може захопити це джерело
+timer backdrop: select a timer cue first	тло таймера: спершу оберіть cue таймера
+BLEND CURVE: expected PROJECTOR or LINEAR	BLEND CURVE: очікувалося PROJECTOR або LINEAR
+CAPTIONS POSITION: expected TOP or BOTTOM	CAPTIONS POSITION: очікувалося TOP або BOTTOM
+CAPTIONS SIZE: expected 50..200 (percent)	CAPTIONS SIZE: очікувалося 50..200 (відсотки)
+DMXCUE: the selected cue is not a dmx cue	DMXCUE: вибраний cue не є cue DMX
+DRAW FRAME: ADD, DELETE, NEXT, PREV or 1-	DRAW FRAME: ADD, DELETE, NEXT, PREV або 1-
+FADE OVER: expected a duration in seconds	FADE OVER: очікувалась тривалість у секундах
+FADE TO: expected a percent from 0 to 100	FADE TO: очікувався відсоток від 0 до 100
+MOTION SOURCE DECK: a playlist number, 1-	MOTION SOURCE DECK: номер плейлиста, 1-
+STING SWEEP: expected -24 to 24 semitones	STING SWEEP: очікувалось від -24 до 24 півтонів
+TCCUE ACTION: expected start, stop or jam	TCCUE ACTION: очікувалось start, stop або jam
+TCCUE JAM: expected a timecode or seconds	TCCUE JAM: очікувався таймкод або секунди
+TRACKER VIEW: expected PATTERN or CLASSIC	TRACKER VIEW: очікувалось PATTERN або CLASSIC
+Tabletop added - SOURCE > MADE BY DECKBOY	Tabletop додано - ДЖЕРЕЛО > ЗРОБЛЕНО В DECKBOY
+browser window open - click, type, log in	вікно браузера відкрито - клацайте, друкуйте, входьте
+contrast check: something needs attention	перевірка контрасту: дещо потребує уваги
+drag the corners on the programme monitor	перетягніть кути на моніторі програми
+this browser backend cannot show a window	цей бекенд браузера не може показати вікно
+BROWSER CLICK: expected two fractions 0..1	BROWSER CLICK: очікувались дві частки 0..1
+CHIP: the selected cue is not a chip synth	CHIP: вибраний cue не є chip-синтезатором
+DASH SET: a slot cannot fire the dashboard	DASH SET: слот не може запустити панель
+DRAW STROKE: x,y[,pressure] ... in percent	DRAW STROKE: x,y[,pressure] ... у відсотках
+OUTPUTFX REMOVE: expected an effect number	OUTPUTFX REMOVE: очікувався номер ефекту
+SCRIPTCUE: expected NEW, ADD, CLEAR or RUN	SCRIPTCUE: очікувалось NEW, ADD, CLEAR або RUN
+TEXTCUE WIGGLE: expected ON, OFF or TOGGLE	TEXTCUE WIGGLE: очікувалось ON, OFF або TOGGLE
+TRIGGER KEY: F1-F10, F12, NUM0-NUM9 or OFF	TRIGGER KEY: F1-F10, F12, NUM0-NUM9 або OFF
+auto-advance removed: cue end follows hold	автоперехід вилучено: кінець cue йде за утриманням
+choose RECOVER or KEEP SAVED before saving	оберіть RECOVER або KEEP SAVED перед збереженням
+datamosh look: file-backed video cues only	вигляд datamosh: лише відео-cue з файлу
+nmos: on - searching for a registry (mDNS)	nmos: увімк. - пошук реєстру (mDNS)
+record folder: recordings/ beside the show	тека запису: recordings/ поруч із шоу
+recsegment: expected <minutes> [megabytes]	recsegment: очікувалось <хвилини> [мегабайти]
+the example shows are not in this download	прикладів шоу немає в цьому завантаженні
+warp point: expected <col> <row> <dx> <dy>	точка спотворення: очікувалось <кол> <рядок> <dx> <dy>
+warp point: no grid -- WARP GRID <n> first	точка спотворення: немає сітки -- спершу WARP GRID <n>
+DMXCUE FIXTURE: level is 0-100 (%) or LEAVE	DMXCUE FIXTURE: рівень 0-100 (%) або LEAVE
+EDIT off: the keyboard only moves and fires	РЕДАГУВАТИ вим: клавіатура лише рухає і запускає
+EDIT on: typing changes the tracker's cells	РЕДАГУВАТИ увімк.: введення змінює комірки трекера
+FIXTURE: expected LIST, ADD, FIND or REMOVE	FIXTURE: очікувалось LIST, ADD, FIND або REMOVE
+LIMITER CEILING: a level from -40 to 0 dBFS	LIMITER CEILING: рівень від -40 до 0 dBFS
+MIDICUE: the selected cue is not a midi cue	MIDICUE: вибраний cue не є cue MIDI
+MOTION ZONE ADD: x y w h, percentages 0-100	MOTION ZONE ADD: x y w h, відсотки 0-100
+MOTION ZONE: ADD x y w h, REMOVE n or CLEAR	MOTION ZONE: ADD x y w h, REMOVE n або CLEAR
+mask off -- it is still in the show's library	маска вимк. -- вона досі в бібліотеці шоу
+Stop masking this. The mask stays in the show's library, to put back from the menu above	Припинити маскування. Маска лишається в бібліотеці шоу, повернути її можна з меню вище
+Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	Видалити цю маску з шоу та з кожного cue, плейлиста і виходу, що її використовують. Скасування поверне її

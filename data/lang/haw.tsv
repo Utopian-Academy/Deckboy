@@ -2813,3 +2813,227 @@ DASH: the startup dialog is up	DASH: ke hōʻike ʻia nei ka pahu kūkā hoʻoma
 LOWERSTYLE: select a cue first	LOWERSTYLE: koho mua i cue
 MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: pono ka 1-16
 PATTERN ADD needs a pattern id	PATTERN ADD: pono i ID kāpoʻe
+DRAW ONION: ON or OFF	DRAW ONION: MA a i ʻole PIO
+DRAW EDITOR: ON or OFF	DRAW EDITOR: MA a i ʻole PIO
+OUTPUT AOI: no outputs	OUTPUT AOI: ʻaʻohe puka
+OUTPUT DECK: no outputs	OUTPUT DECK: ʻaʻohe puka
+DRAW HOLD: seconds, 0-60	DRAW HOLD: kekona, 0-60
+FADE EFFECT: expected 1-	FADE EFFECT: 1- ka mea i manaʻo ʻia
+MOTION MIRROR: ON or OFF	MOTION MIRROR: MA a i ʻole PIO
+TALLYEVENT wants ON or OFF	makemake ʻo TALLYEVENT i MA a i ʻole PIO
+TONECUE LFO: FREQ or LEVEL	TONECUE LFO: ALAPINE a i ʻole PAE
+FX COLOUR: a grey has no hue	FX COLOUR: ʻaʻohe ʻano waihoʻoluʻu o ka hina
+GOGUARD: OFF or 50-2000 (ms)	GOGUARD: PIO a i ʻole 50-2000 (ms)
+SLICE GRID SMOOTH: ON or OFF	SLICE GRID SMOOTH: MA a i ʻole PIO
+TRIGGER AT: HH:MM[:SS] or OFF	TRIGGER AT: HH:MM[:SS] a i ʻole PIO
+PATTERN SET needs a pattern id	makemake ʻo PATTERN SET i ID kāpoʻe
+already the first tracker step	ʻo ia nō ke kaʻina mua o ka tracker
+cannot determine rendered size	ʻAʻole hiki ke ʻike i ka nui i hoʻopuka ʻia
+find: enter cue id/number/name	find: hoʻokomo i ka ID/helu/inoa o ka cue
+no sprite sets in data/sprites	ʻaʻohe pūʻulu sprite ma data/sprites
+normalize: no measurable audio	normalize: ʻaʻohe leo hiki ke ana ʻia
+recordings are left as written	waiho ʻia nā hoʻopaʻa e like me ke kākau ʻia
+reracked - holding first frame	hoʻouka hou ʻia - paʻa i ke kiʻi mua
+st 2110: clipboard unavailable	st 2110: ʻaʻole loaʻa ka papa kope
+stream url: unsupported scheme	stream url: ʻaʻole kākoʻo ʻia ka scheme
+that button has no command yet	ʻaʻohe kauoha o kēlā pihi i kēia manawa
+DMXCUE PROTOCOL: ARTNET or SACN	DMXCUE PROTOCOL: ARTNET a i ʻole SACN
+FIXTURE DIP: 0-100 (%) or LEAVE	FIXTURE DIP: 0-100 (%) a i ʻole LEAVE
+FX LFO: no effect at that index	FX LFO: ʻaʻohe hopena ma kēlā papa kuhikuhi
+MIDIMAP CLEAR: COMPUTER or SHOW	MIDIMAP CLEAR: COMPUTER a i ʻole SHOW
+TEXTCUE SPEED: expected 0.05-20	TEXTCUE SPEED: manaʻo ʻia 0.05-20
+an output needs a base playlist	pono i ka puka kekahi papa helu kumu
+audio input: device unavailable	hoʻokomo leo: ʻaʻole loaʻa ka mea hana
+expected crop percentages 0..90	manaʻo ʻia nā pākēneka ʻoki 0..90
+media found - nothing to relink	loaʻa ka media - ʻaʻohe mea e hoʻohui hou ai
+notestep: build out of range 1-	notestep: kūkulu ma waho o ka laulā 1-
+put it back when the ramp lands	hoʻihoʻi ia i kona wahi ke pau ka ramp
+splitnotes: cue out of range 1-	splitnotes: cue ma waho o ka laulā 1-
+st 2110 SDP copied to clipboard	Ua kope ʻia ka SDP st 2110 i ka papa kāpili
+w00t! all ur cues r belong 2 us	w00t! ʻo kāu mau cue a pau na mākou!
+BROWSER TYPE: expected some text	BROWSER TYPE: manaʻo ʻia kekahi huaʻōlelo
+CHECK: expected a problem number	CHECK: manaʻo ʻia he helu pilikia
+FADE RESTORE: expected on or off	FADE RESTORE: manaʻo ʻia on a i ʻole off
+MIDICLOCK SIM: expected a number	MIDICLOCK SIM: manaʻo ʻia he helu
+MONITOR ROOM: expected ON or OFF	MONITOR ROOM: manaʻo ʻia ON a i ʻole OFF
+MOTION ZONE ADD: already 8 zones	MOTION ZONE ADD: 8 wahi ma mua
+PATCH: expected a deck number 1-	PATCH: manaʻo ʻia he helu papa 1-
+SLICE REMOVE: a slice number, 1-	SLICE REMOVE: he helu slice, 1-
+motion off: the camera is closed	neʻe pio: ua pani ʻia ka pahupaʻikiʻi
+no capture devices found (dshow)	ʻaʻohe mea hana hopu i loaʻa (dshow)
+only accepted from this computer	ʻae ʻia mai kēia kamepiula wale nō
+reccodec: expected a codec token	reccodec: manaʻo ʻia he hōʻailona codec
+this build has no plugin support	ʻaʻohe kākoʻo plugin ma kēia kūkulu
+timecode: type it as HH:MM:SS:FF	timecode: e kākau pēlā: HH:MM:SS:FF
+BROWSER SCROLL: expected a number	BROWSER SCROLL: manaʻo ʻia he helu
+DMXCUE UNIVERSE: expected 0-32767	DMXCUE UNIVERSE: manaʻo ʻia 0-32767
+FADE DECK: expected a deck number	FADE DECK: manaʻo ʻia he helu papa
+FX PARAM: no effect at that index	FX PARAM: ʻaʻohe hopena ma kēlā papa kuhikuhi
+MIC GAIN: expected -40 to 40 (dB)	MIC GAIN: manaʻo ʻia -40 a 40 (dB)
+MOTION ZONE REMOVE: a zone number	MOTION ZONE REMOVE: he helu wahi
+NDI: this build has no NDI output	NDI: ʻaʻohe puka NDI ma kēia kūkulu
+STING PITCH: expected 20-12000 Hz	STING PITCH: manaʻo ʻia 20-12000 Hz
+TRIGGER MIDI: a note 0-127 or OFF	TRIGGER MIDI: he nota 0-127 a i ʻole OFF
+could not open the Screens window	ʻaʻole hiki ke wehe i ka puka aniani Screens
+effects paste: copy a chain first	kāpili nā hopena: kope mua i kaulahao
+expected pixels -1000000..1000000	pono nā pikelā -1000000..1000000
+marker: add | next | prev | clear	hōʻailona: add | next | prev | clear
+press again to delete this button	kaomi hou e holoi i kēia pihi
+warp grid: 2 to 9 points each way	pā hoʻokekeʻe: 2 a 9 kiko ma kēlā me kēia ala
+AUDIOFX ADD: needs an effect token	AUDIOFX ADD: pono he hōʻailona hopena
+BLEND LIFT: expected 0..20 percent	BLEND LIFT: pono 0..20 pākēneka
+BUGSWAT SHOWME: only in a briefing	BUGSWAT SHOWME: ma ka hoʻolauna wale nō
+CAPTIONS LINES: expected 1, 2 or 3	CAPTIONS LINES: pono 1, 2 a i ʻole 3
+DASH SET: slot number out of range	DASH SET: ma waho o ka palena ka helu kahua
+FX AMOUNT: no effect at that index	FX AMOUNT: ʻaʻohe hopena ma kēlā papa kuhikuhi
+FX COLOUR: no effect at that index	FX COLOUR: ʻaʻohe hopena ma kēlā papa kuhikuhi
+MIDICLOCK SIM: bpm must be 20..600	MIDICLOCK SIM: pono ka bpm he 20..600
+OUTPUT ADD: expected a deck number	OUTPUT ADD: pono he helu papa
+SLICE FLIP: H or V, then ON or OFF	SLICE FLIP: H a i ʻole V, a laila ON a i ʻole OFF
+Twitch: paste your stream key next	Twitch: kāpili i kāu kī kahe ma hope
+a path needs three points: dropped	pono ʻekolu kiko no ke ala: kāpae ʻia
+a show needs at least one playlist	pono ka hōʻike i hoʻokahi papa helu iki loa
+display scan: no displays reported	ʻimi hōʻikeʻike: ʻaʻohe hōʻikeʻike i hōʻike ʻia
+selection has no cue with geometry	ʻaʻohe cue me ka ana ʻāina i ke koho ʻia
+that cue cannot be fired by a step	ʻaʻole hiki ke hoʻā ʻia kēlā cue e ke kaʻina
+time: type it as HH:MM or HH:MM:SS	manawa: kākau ma ke ʻano HH:MM a i ʻole HH:MM:SS
+ASCII COLS: expected a column count	ASCII COLS: pono he helu kolamu
+Deckboy evolved into SUPER DECKBOY!	Ua ulu ʻo Deckboy i SUPER DECKBOY!
+FX PARAM: slot must be A, B, C or D	FX PARAM: pono ke kahua he A, B, C a i ʻole D
+MIDI: a note number 0-127, or LEARN	MIDI: he helu nota 0-127, a i ʻole LEARN
+MIDIMAP REMOVE: COMPUTER|SHOW <row>	MIDIMAP REMOVE: COMPUTER|SHOW <lalani>
+OUTPUT DECK: expected a deck number	OUTPUT DECK: pono he helu papa
+OUTPUTFX BYPASS: expected ON or OFF	OUTPUTFX BYPASS: pono ON a i ʻole OFF
+SCOPES MATRIX: expected 709 or 2020	SCOPES MATRIX: pono 709 a i ʻole 2020
+SHORTCUTS: the startup dialog is up	SHORTCUTS: ke hōʻike ʻia nei ka pahu kūkā hoʻomaka
+STREAM HDR: expected SDR, PQ or HLG	STREAM HDR: pono SDR, PQ a i ʻole HLG
+YouTube: paste your stream key next	YouTube: kāpili i kāu kī kahe ma hope
+an animation is already being saved	ke mālama ʻia nei kekahi kiʻi ʻoni
+delete live cue: press delete again	holoi i ke cue ola: kaomi hou i ka Delete
+esc: output cleared - again to quit	Esc: ua holoi ʻia ka puka - kaomi hou e haʻalele
+no browser cue is live on this deck	ʻaʻohe cue polokalamu kele ola ma kēia papa
+notestep: nothing live on this deck	notestep: ʻaʻohe mea ola ma kēia papa
+select the cue it should take first	koho i ke cue e lawe mua ʻia
+vmix api: the two ports must differ	vmix api: pono e ʻokoʻa nā ʻawa ʻelua
+DRAW EDITOR: select a Draw cue first	DRAW EDITOR: koho mua i cue kaha
+DRAW SAVE: STILL or ANIMATION [file]	DRAW SAVE: STILL a i ʻole ANIMATION [file]
+MIC CHANNEL: expected L, R or STEREO	MIC CHANNEL: pono: L, R a i ʻole STEREO
+MULTIVIEW WINDOW: expected ON or OFF	MULTIVIEW WINDOW: pono: ON a i ʻole OFF
+Page Down / Page Up step the tracker	Hoʻoneʻe ʻo Page Down / Page Up i ka tracker
+SUBTITLE CONVERT: nothing to convert	SUBTITLE CONVERT: ʻaʻohe mea e hoʻololi ai
+TONECUE LFO: select a tone cue first	TONECUE LFO: koho mua i cue leo kani
+TRUST LAST: nothing has been refused	TRUST LAST: ʻaʻohe mea i hōʻole ʻia
+atem tally on -- set the switcher IP	tally ATEM ma -- hoʻonoho i ka IP switcher
+datamosh: subtle, self-heals (H.264)	datamosh: nāwaliwali, hoʻōla iā ia iho (H.264)
+master vol: expected 0-200 (percent)	master vol: pono 0-200 (pākēneka)
+matrix off - back to the output pair	matrix pio - hoʻi i ka pālua puka
+monitor follows the focused playlist	ukali ka monitor i ka papa helu i kālele ʻia
+multiview: back to the automatic set	multiview: hoʻi i ka hoʻonoho aunoa
+no MIDI output ports on this machine	ʻaʻohe ʻawa puka MIDI ma kēia mīkini
+splitnotes: could not split that cue	splitnotes: ʻaʻole i hiki ke māhele i kēlā cue
+srt: passphrase needs 10+ characters	srt: pono he 10+ hua ka huaʻōlelo hūnā
+step deleted - ctrl+z brings it back	ua holoi ʻia ke kaʻina - hoʻihoʻi mai ʻo ctrl+z
+timer face: select a timer cue first	maka uaki: koho mua i cue uaki
+timer font: select a timer cue first	kinona hua uaki: koho mua i cue uaki
+16 slices is the most an output takes	ʻO 16 nā ʻāpana ka palena nui o ka puka
+AUDIOGAIN BY: expected a number of dB	AUDIOGAIN BY: pono ka helu dB
+AUDITION: expected OFF, END or STATUS	AUDITION: pono: OFF, END a i ʻole STATUS
+BROWSER CLICK: fractions must be 0..1	BROWSER CLICK: pono 0..1 nā hakina
+FX GET: expected an effect number, 1-	FX GET: pono ka helu hopena, 1-
+HLS playlist: added as one stream cue	papa helu HLS: hoʻohui ʻia he cue kahe hoʻokahi
+MASTER BYPASS: expected a deck number	MASTER BYPASS: pono ka helu papa
+MIDICLOCK: expected SIM <bpm> [beats]	MIDICLOCK: pono SIM <bpm> [beats]
+MULTIVIEW: expected ON, OFF or TOGGLE	MULTIVIEW: pono: ON, OFF a i ʻole TOGGLE
+OUTPUT HDR SIGNAL: expected PQ or HLG	OUTPUT HDR SIGNAL: pono: PQ a i ʻole HLG
+STREAM HDR: select a stream cue first	STREAM HDR: koho mua i cue kahe
+datamosh: file-backed video cues only	datamosh: nā cue wikiō mai ka waihona wale nō
+effects copy: this cue has no effects	kope hopena: ʻaʻohe hopena o kēia cue
+matrix on, routed as the patch had it	matrix ma, ala e like me ka patch
+recovery could not be read; copy kept	ʻaʻole i heluhelu ʻia ka hoʻōla; mālama ʻia ka kope
+FIXTURE DIP: expected <name> <%>|LEAVE	FIXTURE DIP: pono <name> <%>|LEAVE
+MONITOR: expected DEVICE, DECK or ROOM	MONITOR: pono: DEVICE, DECK a i ʻole ROOM
+NETCUE PROTO: expected osc, udp or tcp	NETCUE PROTO: pono: osc, udp a i ʻole tcp
+STING LENGTH: expected 0.05-10 seconds	STING LENGTH: pono 0.05-10 kekona
+sprite sheet: select a video synth cue	sprite sheet: koho i kekahi cue synth wikiō
+vmix api: neither port could be opened	vmix api: ʻaʻole i wehe ʻia kekahi o nā awa ʻelua
+AUDIOGAIN BY: no selected cue has audio	AUDIOGAIN BY: ʻaʻohe leo o ke cue i koho ʻia
+CAPTIONS SHOW: expected <output> ON|OFF	CAPTIONS SHOW: makemake ʻia <output> ON|OFF
+CAPTIONS TRANSCRIPT: expected ON or OFF	CAPTIONS TRANSCRIPT: makemake ʻia ON a i ʻole OFF
+COMPANIONPASS: use 8 or more characters	COMPANIONPASS: e hoʻohana i 8 hōʻailona a ʻoi aku
+DEVAMP: nothing is playing on that deck	DEVAMP: ʻaʻohe mea e hoʻokani ana ma kēlā papa
+FX LFO ZONE: 0 (the whole picture) to 8	FX LFO ZONE: 0 (ke kiʻi holoʻokoʻa) a 8
+MASK IMPORT: expected <file.svg> [name]	MASK IMPORT: makemake ʻia <file.svg> [name]
+MASK SET: expected <id> <param> <value>	MASK SET: makemake ʻia <id> <param> <value>
+MULTIVIEW WINDOW: the last window stays	MULTIVIEW WINDOW: ke noho nei ka puka aniani hope loa
+OUTPUT AOI MODE: expected PIXEL or FILL	OUTPUT AOI MODE: makemake ʻia PIXEL a i ʻole FILL
+SCOPES SOUND: expected nothing or RESET	SCOPES SOUND: makemake ʻia ʻaʻohe mea a i ʻole RESET
+Tabletop is in SOURCE > MADE BY DECKBOY	Aia ʻo Tabletop ma KUMU > HANA ʻIA E DECKBOY
+can't read media - CONVERT in inspector	ʻaʻole hiki ke heluhelu i ka media - HOʻOLOLI ma ka inspector
+cleared: all decks stopped, outputs off	ua hoʻomaʻemaʻe ʻia: ua hoʻōki ʻia nā papa a pau, pio nā puka
+datamosh: classic, full effect (MPEG-4)	datamosh: kuʻuna, hopena piha (MPEG-4)
+driver cleared - nothing left to puppet	ua hoʻomaʻemaʻe ʻia ka driver - ʻaʻohe mea i koe e puppet
+key+fill on - now pick a Key out device	ua ʻā ke key+fill - koho i kekahi mea hana Kī i waho
+play the note that should fire this cue	e hoʻokani i ka note e hoʻā ai i kēia cue
+programme to MediaMTX: watch at http://	papahana i MediaMTX: nānā ma http://
+recformat: expected <WxH|program> [fps]	recformat: makemake ʻia <WxH|program> [fps]
+requested input missing - using default	ua nalowale ka hoʻokomo i noi ʻia - e hoʻohana ana i ka maʻamau
+DRAW PLAYBACK: still, flipbook or replay	DRAW PLAYBACK: paʻa, flipbook a i ʻole replay
+FADE KNOB: expected amount, A, B, C or D	FADE KNOB: makemake ʻia nui, A, B, C a i ʻole D
+LOWERANIM: this cue is not a Lower Third	LOWERANIM: ʻaʻole he Lower Third kēia cue
+MASK EXPORT: size is WxH, e.g. 1920x1080	MASK EXPORT: ʻo ka nui he WxH, e laʻa 1920x1080
+MOTION SOURCE: CAMERA [name] or DECK <n>	MOTION SOURCE: CAMERA [name] a i ʻole DECK <n>
+NEW already starts from factory settings	ua hoʻomaka ʻo NEW mai nā hoʻonoho mua
+OUTPUT SELECT: expected an output number	OUTPUT SELECT: makemake ʻia he helu puka
+TCCUE: expected NEW, ACTION, JAM or FIRE	TCCUE: makemake ʻia NEW, ACTION, JAM a i ʻole FIRE
+hands-on: clicks and keys go to the page	hands-on: ke hele nei nā kaomi a me nā pihi i ka ʻaoʻao
+multiview: one window per playlist again	multiview: hoʻi i hoʻokahi puka aniani no kēlā me kēia papa helu
+record folder set - SAME DISK as Deckboy	ua hoʻonoho ʻia ka waihona hoʻopaʻa - ka DISK like me Deckboy
+sequence waiting - press it again for GO	ke kali nei ke kaʻina - kaomi hou no GO
+this platform cannot capture that source	ʻaʻole hiki i kēia kahua ke hopu i kēlā kumu
+timer backdrop: select a timer cue first	kua uaki: koho mua i cue uaki
+BLEND CURVE: expected PROJECTOR or LINEAR	BLEND CURVE: makemake ʻia PROJECTOR a i ʻole LINEAR
+CAPTIONS POSITION: expected TOP or BOTTOM	CAPTIONS POSITION: makemake ʻia TOP a i ʻole BOTTOM
+CAPTIONS SIZE: expected 50..200 (percent)	CAPTIONS SIZE: makemake ʻia 50..200 (pākēneka)
+DMXCUE: the selected cue is not a dmx cue	DMXCUE: ʻaʻole he dmx cue ke cue i koho ʻia
+DRAW FRAME: ADD, DELETE, NEXT, PREV or 1-	DRAW FRAME: ADD, DELETE, NEXT, PREV a i ʻole 1-
+FADE OVER: expected a duration in seconds	FADE OVER: ua manaʻo ʻia he lōʻihi ma nā kekona
+FADE TO: expected a percent from 0 to 100	FADE TO: ua manaʻo ʻia he pākēneka mai 0 a 100
+LOWERSTYLE: this cue is not a Lower Third	LOWERSTYLE: ʻaʻole he Lower Third kēia cue
+MOTION SOURCE DECK: a playlist number, 1-	MOTION SOURCE DECK: he helu papa helu, 1-
+STING SWEEP: expected -24 to 24 semitones	STING SWEEP: ua manaʻo ʻia -24 a 24 semitone
+TCCUE ACTION: expected start, stop or jam	TCCUE ACTION: ua manaʻo ʻia start, stop a i ʻole jam
+TCCUE JAM: expected a timecode or seconds	TCCUE JAM: ua manaʻo ʻia he timecode a i ʻole nā kekona
+TRACKER VIEW: expected PATTERN or CLASSIC	TRACKER VIEW: ua manaʻo ʻia PATTERN a i ʻole CLASSIC
+Tabletop added - SOURCE > MADE BY DECKBOY	Ua hoʻohui ʻia ʻo Tabletop - KUMU > HANA ʻIA E DECKBOY
+browser window open - click, type, log in	ua wehe ʻia ka puka aniani polokalamu kele - kaomi, kikokiko, komo
+contrast check: something needs attention	nānā ʻokoʻa: pono kekahi mea i ka nānā
+drag the corners on the programme monitor	kauō i nā kihi ma ka mōnihina papahana
+this browser backend cannot show a window	ʻaʻole hiki i kēia backend polokalamu kele ke hōʻike i puka aniani
+BROWSER CLICK: expected two fractions 0..1	BROWSER CLICK: ua manaʻo ʻia ʻelua hakina 0..1
+CHIP: the selected cue is not a chip synth	CHIP: ʻaʻole he chip synth ke cue i koho ʻia
+DASH SET: a slot cannot fire the dashboard	DASH SET: ʻaʻole hiki i ka slot ke hoʻā i ka dashboard
+DRAW STROKE: x,y[,pressure] ... in percent	DRAW STROKE: x,y[,pressure] ... ma ka pākēneka
+OUTPUTFX REMOVE: expected an effect number	OUTPUTFX REMOVE: ua manaʻo ʻia he helu hopena
+SCRIPTCUE: expected NEW, ADD, CLEAR or RUN	SCRIPTCUE: ua manaʻo ʻia NEW, ADD, CLEAR a i ʻole RUN
+TEXTCUE WIGGLE: expected ON, OFF or TOGGLE	TEXTCUE WIGGLE: ua manaʻo ʻia ON, OFF a i ʻole TOGGLE
+TRIGGER KEY: F1-F10, F12, NUM0-NUM9 or OFF	TRIGGER KEY: F1-F10, F12, NUM0-NUM9 a i ʻole OFF
+auto-advance removed: cue end follows hold	ua wehe ʻia ka ʻakomi-holomua: ke hope o ke cue ke hahai nei i ka paʻa
+choose RECOVER or KEEP SAVED before saving	koho i RECOVER a i ʻole KEEP SAVED ma mua o ka mālama ʻana
+datamosh look: file-backed video cues only	ʻano datamosh: nā wikiō cue me ka waihona wale nō
+nmos: on - searching for a registry (mDNS)	nmos: hoʻā - ke ʻimi nei i ka waihona inoa (mDNS)
+record folder: recordings/ beside the show	waihona hoʻopaʻa: recordings/ ma ka ʻaoʻao o ka hōʻike
+recsegment: expected <minutes> [megabytes]	recsegment: ua manaʻo ʻia <minuke> [megabyte]
+the example shows are not in this download	ʻaʻole i loko o kēia hoʻoiho nā hōʻike laʻana
+warp point: expected <col> <row> <dx> <dy>	kiko hoʻokekeʻe: ua manaʻo ʻia <col> <row> <dx> <dy>
+warp point: no grid -- WARP GRID <n> first	kiko hoʻokekeʻe: ʻaʻohe grid -- WARP GRID <n> ma mua
+DMXCUE FIXTURE: level is 0-100 (%) or LEAVE	DMXCUE FIXTURE: he 0-100 (%) ka pae a i ʻole LEAVE
+EDIT off: the keyboard only moves and fires	HOʻOPONOPONO pio: neʻe a hoʻā wale ka papa kī
+EDIT on: typing changes the tracker's cells	HOʻOPONOPONO ma: ʻo ke kikokiko ʻana e hoʻololi i nā pahu o ka tracker
+FIXTURE: expected LIST, ADD, FIND or REMOVE	FIXTURE: ua manaʻo ʻia LIST, ADD, FIND a i ʻole REMOVE
+LIMITER CEILING: a level from -40 to 0 dBFS	LIMITER CEILING: he pae mai -40 a 0 dBFS
+MIDICUE: the selected cue is not a midi cue	MIDICUE: ʻaʻole he midi cue ke cue i koho ʻia
+MOTION ZONE ADD: x y w h, percentages 0-100	MOTION ZONE ADD: x y w h, nā pākēneka 0-100
+MOTION ZONE: ADD x y w h, REMOVE n or CLEAR	MOTION ZONE: ADD x y w h, REMOVE n a i ʻole CLEAR
+mask off -- it is still in the show's library	uhi pio -- aia nō ia ma ka waihona o ka hōʻike
+Stop masking this. The mask stays in the show's library, to put back from the menu above	Hoʻōki i ka uhi ʻana i kēia. Noho ka uhi ma ka waihona o ka hōʻike, e hoʻihoʻi mai ka papa kuhikuhi ma luna
+Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	Holoi i kēia uhi mai ka hōʻike, a mai kēlā me kēia cue, papa helu a me puka e hoʻohana ana iā ia. Hoʻihoʻi mai ʻo Undo ia mea

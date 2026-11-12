@@ -2857,3 +2857,219 @@ DASH: the startup dialog is up	DASH: 起動ダイアログが開いています
 LOWERSTYLE: select a cue first	LOWERSTYLE: 先にキューを選択
 MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: 1-16を指定
 PATTERN ADD needs a pattern id	PATTERN ADD にはパターンIDが必要
+Lower Third attached	Lower Thirdを添付しました
+DRAW ONION: ON or OFF	DRAW ONION: オン または オフ
+Lower Third cue added	Lower Thirdキューを追加しました
+DRAW EDITOR: ON or OFF	DRAW EDITOR: オン または オフ
+OUTPUT AOI: no outputs	OUTPUT AOI: 出力なし
+OUTPUT DECK: no outputs	OUTPUT DECK: 出力なし
+DRAW HOLD: seconds, 0-60	DRAW HOLD: 秒、0-60
+FADE EFFECT: expected 1-	FADE EFFECT: 1- を指定してください
+MOTION MIRROR: ON or OFF	MOTION MIRROR: オン または オフ
+TALLYEVENT wants ON or OFF	TALLYEVENT にはオン または オフを指定してください
+TONECUE LFO: FREQ or LEVEL	TONECUE LFO: 周波数 または レベル
+GOGUARD: OFF or 50-2000 (ms)	GOGUARD: オフ または 50-2000 (ms)
+SLICE GRID SMOOTH: ON or OFF	SLICE GRID SMOOTH: オン または オフ
+TRIGGER AT: HH:MM[:SS] or OFF	TRIGGER AT: HH:MM[:SS] または オフ
+PATTERN SET needs a pattern id	PATTERN SET にはパターンIDが必要です
+already the first tracker step	すでにトラッカーの最初のステップ
+cannot determine rendered size	レンダリングサイズを判定できません
+find: enter cue id/number/name	find: キューID/番号/名前を入力
+no sprite sets in data/sprites	data/sprites にスプライトセットなし
+normalize: no measurable audio	normalize: 測定可能なオーディオなし
+recordings are left as written	録画は書き込まれたまま残ります
+reracked - holding first frame	再装填 - 先頭フレームで保持
+st 2110: clipboard unavailable	st 2110: クリップボードを利用できません
+stream url: unsupported scheme	stream url: 未対応のスキーム
+that button has no command yet	このボタンにはまだコマンドがありません
+DMXCUE PROTOCOL: ARTNET or SACN	DMXCUE PROTOCOL：ARTNET または SACN
+FIXTURE DIP: 0-100 (%) or LEAVE	FIXTURE DIP：0-100 (%) または LEAVE
+FX LFO: no effect at that index	FX LFO：その索引にエフェクトはありません
+MIDIMAP CLEAR: COMPUTER or SHOW	MIDIMAP CLEAR：COMPUTER または SHOW
+TEXTCUE SPEED: expected 0.05-20	TEXTCUE SPEED：0.05-20 を指定してください
+an output needs a base playlist	出力にはベースのプレイリストが必要です
+audio input: device unavailable	オーディオ入力：デバイスを利用できません
+expected crop percentages 0..90	クロップの割合は 0..90 で指定してください
+media found - nothing to relink	メディアが見つかりました - 再リンクするものはありません
+notestep: build out of range 1-	notestep：ビルドが範囲外です 1-
+put it back when the ramp lands	ランプが終わったら元に戻します
+splitnotes: cue out of range 1-	splitnotes：キューが範囲外です 1-
+st 2110 SDP copied to clipboard	st 2110 SDP をクリップボードにコピーしました
+w00t! all ur cues r belong 2 us	w00t! おまえのキューは全部われわれがいただいた
+BROWSER TYPE: expected some text	BROWSER TYPE：テキストを指定してください
+CHECK: expected a problem number	CHECK：問題番号を指定してください
+FADE RESTORE: expected on or off	FADE RESTORE：on または off を指定してください
+MIDICLOCK SIM: expected a number	MIDICLOCK SIM：数値を指定してください
+MONITOR ROOM: expected ON or OFF	MONITOR ROOM：ON または OFF を指定してください
+MOTION ZONE ADD: already 8 zones	MOTION ZONE ADD：すでに8ゾーンあります
+SLICE REMOVE: a slice number, 1-	SLICE REMOVE：スライス番号、1-
+motion off: the camera is closed	モーション オフ：カメラが閉じています
+no capture devices found (dshow)	キャプチャデバイスが見つかりません (dshow)
+only accepted from this computer	このコンピューターからのみ受け付けます
+reccodec: expected a codec token	reccodec：コーデックのトークンを指定してください
+this build has no plugin support	このビルドはプラグインに対応していません
+BROWSER SCROLL: expected a number	BROWSER SCROLL：数値を指定してください
+DMXCUE UNIVERSE: expected 0-32767	DMXCUE UNIVERSE：0-32767 を指定してください
+FADE DECK: expected a deck number	FADE DECK：デッキ番号を指定してください
+FX PARAM: no effect at that index	FX PARAM：その索引にエフェクトはありません
+MIC GAIN: expected -40 to 40 (dB)	MIC GAIN：-40～40 (dB) で指定してください
+MOTION ZONE REMOVE: a zone number	MOTION ZONE REMOVE：ゾーン番号
+NDI: this build has no NDI output	NDI：このビルドには NDI 出力がありません
+STING PITCH: expected 20-12000 Hz	STING PITCH：20-12000 Hz を指定してください
+TRIGGER MIDI: a note 0-127 or OFF	TRIGGER MIDI：ノート 0-127 または OFF
+could not open the Screens window	Screensウィンドウを開けませんでした
+effects paste: copy a chain first	エフェクト貼り付け：先にチェーンをコピーしてください
+expected pixels -1000000..1000000	ピクセル値 -1000000..1000000 を指定
+marker: add | next | prev | clear	マーカー: add | next | prev | clear
+press again to delete this button	もう一度押すとこのボタンを削除
+warp grid: 2 to 9 points each way	変形グリッド: 縦横それぞれ2〜9点
+AUDIOFX ADD: needs an effect token	AUDIOFX ADD: エフェクトトークンが必要
+BLEND LIFT: expected 0..20 percent	BLEND LIFT: 0..20 パーセントを指定
+BUGSWAT SHOWME: only in a briefing	BUGSWAT SHOWME: ブリーフィング中のみ
+CAPTIONS LINES: expected 1, 2 or 3	CAPTIONS LINES: 1、2、3 のいずれか
+DASH SET: slot number out of range	DASH SET: スロット番号が範囲外
+FX AMOUNT: no effect at that index	FX AMOUNT: その索引にエフェクトなし
+FX COLOUR: no effect at that index	FX COLOUR: その索引にエフェクトなし
+MIDICLOCK SIM: bpm must be 20..600	MIDICLOCK SIM: bpm は 20..600
+OUTPUT ADD: expected a deck number	OUTPUT ADD: デッキ番号を指定
+SLICE FLIP: H or V, then ON or OFF	SLICE FLIP: H か V、続けて ON か OFF
+a path needs three points: dropped	パスには3点必要: 破棄
+a show needs at least one playlist	ショーにはプレイリストが1つ以上必要
+display scan: no displays reported	ディスプレイ検索: ディスプレイなし
+selection has no cue with geometry	ジオメトリを持つキューが選択にありません
+that cue cannot be fired by a step	そのキューはステップから送出できません
+time: type it as HH:MM or HH:MM:SS	時刻: HH:MM または HH:MM:SS で入力
+ASCII COLS: expected a column count	ASCII COLS: 列数を指定
+Deckboy evolved into SUPER DECKBOY!	Deckboy が SUPER DECKBOY に進化!
+FX PARAM: slot must be A, B, C or D	FX PARAM: スロットは A、B、C、D のいずれか
+MIDI: a note number 0-127, or LEARN	MIDI: ノート番号 0-127、または LEARN
+MIDIMAP REMOVE: COMPUTER|SHOW <row>	MIDIMAP REMOVE: COMPUTER|SHOW <行>
+OUTPUT DECK: expected a deck number	OUTPUT DECK: デッキ番号を指定
+OUTPUTFX BYPASS: expected ON or OFF	OUTPUTFX BYPASS: ON か OFF を指定
+SCOPES MATRIX: expected 709 or 2020	SCOPES MATRIX: 709 か 2020 を指定
+SHORTCUTS: the startup dialog is up	SHORTCUTS: 起動ダイアログが開いています
+STREAM HDR: expected SDR, PQ or HLG	STREAM HDR: SDR、PQ、HLG のいずれか
+an animation is already being saved	アニメーションは既に保存中です
+delete live cue: press delete again	ライブのキューを削除: もう一度 Delete を押す
+esc: output cleared - again to quit	Esc: 出力をクリア - もう一度で終了
+no browser cue is live on this deck	このデッキにライブのブラウザーキューなし
+notestep: nothing live on this deck	notestep: このデッキにライブなし
+select the cue it should take first	最初にTAKEするキューを選択
+DRAW EDITOR: select a Draw cue first	DRAW EDITOR：先にDrawのキューを選択
+DRAW SAVE: STILL or ANIMATION [file]	DRAW SAVE：STILL か ANIMATION [file]
+MIC CHANNEL: expected L, R or STEREO	MIC CHANNEL：L、R、STEREO のいずれかを指定
+MULTIVIEW WINDOW: expected ON or OFF	MULTIVIEW WINDOW：ON か OFF を指定
+Page Down / Page Up step the tracker	Page Down / Page Upでトラッカーをステップ移動
+SUBTITLE CONVERT: nothing to convert	SUBTITLE CONVERT：変換するものがありません
+TONECUE LFO: select a tone cue first	TONECUE LFO：先にトーンのキューを選択
+TRUST LAST: nothing has been refused	TRUST LAST：拒否されたものはなし
+atem tally on -- set the switcher IP	ATEMタリー オン -- スイッチャーのIPを設定
+datamosh: subtle, self-heals (H.264)	datamosh：控えめ、自然に回復（H.264）
+master vol: expected 0-200 (percent)	マスター音量：0-200（パーセント）
+matrix off - back to the output pair	マトリクス オフ - 出力ペアに戻る
+monitor follows the focused playlist	モニターはフォーカス中のプレイリストに追従
+no MIDI output ports on this machine	このマシンにMIDI出力ポートなし
+splitnotes: could not split that cue	splitnotes：そのキューを分割できません
+srt: passphrase needs 10+ characters	srt：パスフレーズは10文字以上が必要
+step deleted - ctrl+z brings it back	ステップを削除 - ctrl+zで戻せます
+timer face: select a timer cue first	タイマーの顔：先にタイマーのキューを選択
+timer font: select a timer cue first	タイマーのフォント：先にタイマーのキューを選択
+16 slices is the most an output takes	1つの出力は最大16スライス
+AUDIOGAIN BY: expected a number of dB	AUDIOGAIN BY：dB単位の数値を指定
+AUDITION: expected OFF, END or STATUS	AUDITION：OFF、END、STATUS のいずれかを指定
+BROWSER CLICK: fractions must be 0..1	BROWSER CLICK：小数は0..1の範囲
+FX GET: expected an effect number, 1-	FX GET：エフェクト番号を指定（1-）
+HLS playlist: added as one stream cue	HLSプレイリスト：1つの配信キューとして追加
+MASTER BYPASS: expected a deck number	MASTER BYPASS：デッキ番号を指定
+MIDICLOCK: expected SIM <bpm> [beats]	MIDICLOCK：SIM <bpm> [beats] を指定
+OUTPUT HDR SIGNAL: expected PQ or HLG	OUTPUT HDR SIGNAL：PQ か HLG を指定
+STREAM HDR: select a stream cue first	STREAM HDR：先に配信のキューを選択
+datamosh: file-backed video cues only	datamosh：ファイルベースのビデオキューのみ
+effects copy: this cue has no effects	エフェクトのコピー：このキューにエフェクトなし
+matrix on, routed as the patch had it	マトリクス オン、パッチどおりにルーティング
+recovery could not be read; copy kept	リカバリーを読み込めません。コピーは保持
+FIXTURE DIP: expected <name> <%>|LEAVE	FIXTURE DIP：<name> <%>|LEAVE を指定
+MONITOR: expected DEVICE, DECK or ROOM	MONITOR：DEVICE、DECK、ROOM のいずれかを指定
+NETCUE PROTO: expected osc, udp or tcp	NETCUE PROTO：osc、udp、tcp のいずれかを指定
+STING LENGTH: expected 0.05-10 seconds	STING LENGTH：0.05-10秒を指定
+sprite sheet: select a video synth cue	スプライトシート: ビデオシンセのキューを選択
+AUDIOGAIN BY: no selected cue has audio	AUDIOGAIN BY: 選択中のキューにオーディオがありません
+CAPTIONS SHOW: expected <output> ON|OFF	CAPTIONS SHOW: <output> ON|OFF が必要です
+CAPTIONS TRANSCRIPT: expected ON or OFF	CAPTIONS TRANSCRIPT: ON または OFF が必要です
+COMPANIONPASS: use 8 or more characters	COMPANIONPASS: 8文字以上にしてください
+DEVAMP: nothing is playing on that deck	DEVAMP: そのデッキで再生中のものはありません
+FX LFO ZONE: 0 (the whole picture) to 8	FX LFO ZONE: 0（映像全体）から8
+MASK IMPORT: expected <file.svg> [name]	MASK IMPORT: <file.svg> [name] が必要です
+MASK SET: expected <id> <param> <value>	MASK SET: <id> <param> <value> が必要です
+MULTIVIEW WINDOW: the last window stays	MULTIVIEW WINDOW: 最後のウィンドウは残ります
+OUTPUT AOI MODE: expected PIXEL or FILL	OUTPUT AOI MODE: PIXEL または FILL が必要です
+SCOPES SOUND: expected nothing or RESET	SCOPES SOUND: なし または RESET が必要です
+Tabletop is in SOURCE > MADE BY DECKBOY	Tabletop は ソース > Deckboyで作成 にあります
+can't read media - CONVERT in inspector	メディアを読み込めません - インスペクターで変換
+cleared: all decks stopped, outputs off	クリア: すべてのデッキを停止、出力オフ
+datamosh: classic, full effect (MPEG-4)	datamosh: クラシック、フルエフェクト (MPEG-4)
+driver cleared - nothing left to puppet	ドライバーをクリア - 操作するものがありません
+key+fill on - now pick a Key out device	キー+フィル オン - キー出力デバイスを選択
+play the note that should fire this cue	このキューを起動するノートを演奏
+programme to MediaMTX: watch at http://	プログラムをMediaMTXへ: http:// で視聴
+recformat: expected <WxH|program> [fps]	recformat: <WxH|program> [fps] が必要です
+requested input missing - using default	要求された入力が見つかりません - 既定を使用
+DRAW PLAYBACK: still, flipbook or replay	DRAW PLAYBACK: 静止画、フリップブック、またはリプレイ
+FADE KNOB: expected amount, A, B, C or D	FADE KNOB: 量、A、B、C、D のいずれかが必要です
+LOWERANIM: this cue is not a Lower Third	LOWERANIM: このキューはLower Thirdではありません
+MASK EXPORT: size is WxH, e.g. 1920x1080	MASK EXPORT: サイズは WxH 形式、例: 1920x1080
+MOTION SOURCE: CAMERA [name] or DECK <n>	MOTION SOURCE: CAMERA [name] または DECK <n>
+NEW already starts from factory settings	NEWはすでに工場設定から始まります
+OUTPUT SELECT: expected an output number	OUTPUT SELECT: 出力番号が必要です
+TCCUE: expected NEW, ACTION, JAM or FIRE	TCCUE: NEW、ACTION、JAM、FIRE のいずれかが必要です
+hands-on: clicks and keys go to the page	ハンズオン: クリックとキーはページに送られます
+record folder set - SAME DISK as Deckboy	録画フォルダーを設定しました - Deckboyと同じディスク
+sequence waiting - press it again for GO	シーケンス待機中 - もう一度押すと GO
+this platform cannot capture that source	このプラットフォームではそのソースをキャプチャできません
+timer backdrop: select a timer cue first	タイマー背景: 先にタイマーキューを選択
+BLEND CURVE: expected PROJECTOR or LINEAR	BLEND CURVE: PROJECTOR または LINEAR が必要です
+CAPTIONS POSITION: expected TOP or BOTTOM	CAPTIONS POSITION: TOP または BOTTOM が必要です
+CAPTIONS SIZE: expected 50..200 (percent)	CAPTIONS SIZE: 50..200（パーセント）が必要です
+DMXCUE: the selected cue is not a dmx cue	DMXCUE: 選択中のキューはdmxキューではありません
+DRAW FRAME: ADD, DELETE, NEXT, PREV or 1-	DRAW FRAME: ADD、DELETE、NEXT、PREV または 1-
+FADE OVER: expected a duration in seconds	FADE OVER: 秒単位の長さを指定してください
+FADE TO: expected a percent from 0 to 100	FADE TO: 0〜100のパーセントを指定してください
+LOWERSTYLE: this cue is not a Lower Third	LOWERSTYLE: このキューはLower Thirdではありません
+MOTION SOURCE DECK: a playlist number, 1-	MOTION SOURCE DECK: プレイリスト番号、1-
+STING SWEEP: expected -24 to 24 semitones	STING SWEEP: -24〜24セミトーンを指定してください
+TCCUE ACTION: expected start, stop or jam	TCCUE ACTION: start、stop、jam のいずれかを指定してください
+TCCUE JAM: expected a timecode or seconds	TCCUE JAM: タイムコードまたは秒を指定してください
+TRACKER VIEW: expected PATTERN or CLASSIC	TRACKER VIEW: PATTERN または CLASSIC を指定してください
+Tabletop added - SOURCE > MADE BY DECKBOY	Tabletopを追加しました - ソース > Deckboyで作成
+browser window open - click, type, log in	ブラウザーウィンドウが開いています - クリック、入力、ログイン
+contrast check: something needs attention	コントラストチェック: 確認が必要な項目があります
+drag the corners on the programme monitor	プログラムモニターの角をドラッグ
+this browser backend cannot show a window	このブラウザーバックエンドはウィンドウを表示できません
+BROWSER CLICK: expected two fractions 0..1	BROWSER CLICK: 0..1の分数を2つ指定してください
+CHIP: the selected cue is not a chip synth	CHIP: 選択中のキューはchipシンセではありません
+DASH SET: a slot cannot fire the dashboard	DASH SET: スロットはダッシュボードを発火できません
+DRAW STROKE: x,y[,pressure] ... in percent	DRAW STROKE: x,y[,pressure] ... パーセント
+OUTPUTFX REMOVE: expected an effect number	OUTPUTFX REMOVE: エフェクト番号を指定してください
+SCRIPTCUE: expected NEW, ADD, CLEAR or RUN	SCRIPTCUE: NEW、ADD、CLEAR、RUN のいずれかを指定してください
+TEXTCUE WIGGLE: expected ON, OFF or TOGGLE	TEXTCUE WIGGLE: ON、OFF、TOGGLE のいずれかを指定してください
+TRIGGER KEY: F1-F10, F12, NUM0-NUM9 or OFF	TRIGGER KEY: F1-F10、F12、NUM0-NUM9 または OFF
+auto-advance removed: cue end follows hold	自動送りを削除しました: キューの終了は保持に従います
+choose RECOVER or KEEP SAVED before saving	保存する前に RECOVER か KEEP SAVED を選択してください
+datamosh look: file-backed video cues only	datamoshルック: ファイルベースのビデオキューのみ
+nmos: on - searching for a registry (mDNS)	nmos: オン - レジストリを検索中 (mDNS)
+record folder: recordings/ beside the show	録画フォルダー: ショーの隣のrecordings/
+recsegment: expected <minutes> [megabytes]	recsegment: <分> [メガバイト] を指定してください
+the example shows are not in this download	サンプルショーはこのダウンロードに含まれていません
+warp point: expected <col> <row> <dx> <dy>	変形ポイント: <col> <row> <dx> <dy> を指定してください
+warp point: no grid -- WARP GRID <n> first	変形ポイント: グリッドがありません -- 先に WARP GRID <n>
+DMXCUE FIXTURE: level is 0-100 (%) or LEAVE	DMXCUE FIXTURE: レベルは0-100 (%) または LEAVE
+EDIT off: the keyboard only moves and fires	編集 オフ: キーボードは移動と発火のみ
+EDIT on: typing changes the tracker's cells	編集 オン: 入力でトラッカーのセルを変更します
+FIXTURE: expected LIST, ADD, FIND or REMOVE	FIXTURE: LIST、ADD、FIND、REMOVE のいずれかを指定してください
+LIMITER CEILING: a level from -40 to 0 dBFS	LIMITER CEILING: -40〜0 dBFSのレベル
+MIDICUE: the selected cue is not a midi cue	MIDICUE: 選択中のキューはmidiキューではありません
+MOTION ZONE ADD: x y w h, percentages 0-100	MOTION ZONE ADD: x y w h、パーセント 0-100
+MOTION ZONE: ADD x y w h, REMOVE n or CLEAR	MOTION ZONE: ADD x y w h、REMOVE n または CLEAR
+mask off -- it is still in the show's library	マスクオフ -- ショーのライブラリにはまだあります
+Stop masking this. The mask stays in the show's library, to put back from the menu above	マスクを止めます。マスクはショーのライブラリに残り、上のメニューから戻せます
+Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	このマスクをショーと、使用中のすべてのキュー、プレイリスト、出力から削除します。元に戻すで復元できます

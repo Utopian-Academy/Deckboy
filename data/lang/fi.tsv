@@ -2847,3 +2847,260 @@ DASH: the startup dialog is up	DASH: käynnistysikkuna on auki
 LOWERSTYLE: select a cue first	LOWERSTYLE: valitse ensin cue
 MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: odotettiin 1-16
 PATTERN ADD needs a pattern id	PATTERN ADD tarvitsee kuvion tunnuksen
+Lower Third attached	Lower Third liitetty
+DRAW ONION: ON or OFF	DRAW ONION: PÄÄLLÄ tai POIS
+DRAW EDITOR: ON or OFF	DRAW EDITOR: PÄÄLLÄ tai POIS
+OUTPUT AOI: no outputs	OUTPUT AOI: ei ulostuloja
+OUTPUT DECK: no outputs	OUTPUT DECK: ei ulostuloja
+DRAW HOLD: seconds, 0-60	DRAW HOLD: sekuntia, 0-60
+FADE EFFECT: expected 1-	FADE EFFECT: odotettiin 1-
+MOTION MIRROR: ON or OFF	MOTION MIRROR: PÄÄLLÄ tai POIS
+WEBMONITOR CLIENTS: 1-64	WEBMONITOR-ASIAKKAAT: 1-64
+TALLYEVENT wants ON or OFF	TALLYEVENT odottaa arvoa PÄÄLLÄ tai POIS
+TONECUE LFO: FREQ or LEVEL	TONECUE LFO: TAAJUUS tai TASO
+VIDEODIP FADE: 0-30 seconds	VIDEODIP FADE: 0-30 sekuntia
+FX COLOUR: a grey has no hue	FX COLOUR: harmaalla ei ole sävyä
+GOGUARD: OFF or 50-2000 (ms)	GOGUARD: POIS tai 50-2000 (ms)
+MASK RENAME: expected a name	MASK RENAME: odotettiin nimeä
+SLICE GRID SMOOTH: ON or OFF	SLICE GRID SMOOTH: PÄÄLLÄ tai POIS
+SYNTH ADD takes no arguments	SYNTH ADD ei ota argumentteja
+TEXTCUE CARD: expected 0-255	TEXTCUE CARD: odotettiin 0-255
+FADE STOP: expected on or off	FADE STOP: odotettiin päällä tai pois
+TRIGGER AT: HH:MM[:SS] or OFF	TRIGGER AT: HH:MM[:SS] tai POIS
+PATTERN SET needs a pattern id	PATTERN SET tarvitsee kuvion tunnuksen
+already the first tracker step	jo ensimmäinen seuranta-askel
+cannot determine rendered size	renderöityä kokoa ei voi määrittää
+find: enter cue id/number/name	etsi: anna cue-tunnus/numero/nimi
+no sprite sets in data/sprites	data/sprites-kansiossa ei ole sprite-sarjoja
+normalize: no measurable audio	normalize: ei mitattavaa ääntä
+recordings are left as written	tallenteet jätetään sellaisiksi kuin ne kirjoitettiin
+reracked - holding first frame	uudelleenasetettu - pidetään ensimmäistä ruutua
+st 2110: clipboard unavailable	st 2110: leikepöytä ei käytettävissä
+stream url: unsupported scheme	virran URL: ei tuettu skeema
+that button has no command yet	tällä painikkeella ei ole vielä komentoa
+DMXCUE PROTOCOL: ARTNET or SACN	DMXCUE PROTOCOL: ARTNET tai SACN
+FIXTURE DIP: 0-100 (%) or LEAVE	FIXTURE DIP: 0-100 (%) tai LEAVE
+FX LFO: no effect at that index	FX LFO: ei tehostetta tässä hakemistossa
+MIDIMAP CLEAR: COMPUTER or SHOW	MIDIMAP CLEAR: COMPUTER tai SHOW
+TEXTCUE SPEED: expected 0.05-20	TEXTCUE SPEED: odotettiin 0.05-20
+an output needs a base playlist	lähtö tarvitsee perussoittolistan
+audio input: device unavailable	äänitulo: laite ei ole käytettävissä
+expected crop percentages 0..90	odotettiin rajausprosentit 0..90
+media found - nothing to relink	media löytyi - ei mitään uudelleenlinkitettävää
+notestep: build out of range 1-	notestep: build alueen ulkopuolella 1-
+put it back when the ramp lands	laita se takaisin, kun ramppi päättyy
+splitnotes: cue out of range 1-	splitnotes: cue alueen ulkopuolella 1-
+st 2110 SDP copied to clipboard	st 2110 SDP kopioitu leikepöydälle
+w00t! all ur cues r belong 2 us	w00t! kaikki cuenne ovat meidän!
+BROWSER TYPE: expected some text	BROWSER TYPE: odotettiin tekstiä
+CHECK: expected a problem number	CHECK: odotettiin ongelman numeroa
+FADE RESTORE: expected on or off	FADE RESTORE: odotettiin on tai off
+MIDICLOCK SIM: expected a number	MIDICLOCK SIM: odotettiin numeroa
+MONITOR ROOM: expected ON or OFF	MONITOR ROOM: odotettiin ON tai OFF
+MOTION ZONE ADD: already 8 zones	MOTION ZONE ADD: vyöhykkeitä on jo 8
+SLICE REMOVE: a slice number, 1-	SLICE REMOVE: slicen numero, 1-
+motion off: the camera is closed	motion off: kamera on suljettu
+no capture devices found (dshow)	kaappauslaitteita ei löytynyt (dshow)
+only accepted from this computer	hyväksytään vain tästä koneesta
+reccodec: expected a codec token	reccodec: odotettiin codec-tunnusta
+this build has no plugin support	tässä versiossa ei ole liitännäistukea
+BROWSER SCROLL: expected a number	BROWSER SCROLL: odotettiin numeroa
+DMXCUE UNIVERSE: expected 0-32767	DMXCUE UNIVERSE: odotettiin 0-32767
+FADE DECK: expected a deck number	FADE DECK: odotettiin deckin numeroa
+FX PARAM: no effect at that index	FX PARAM: ei tehostetta tässä hakemistossa
+MIC GAIN: expected -40 to 40 (dB)	MIC GAIN: odotettiin -40...40 (dB)
+MOTION ZONE REMOVE: a zone number	MOTION ZONE REMOVE: vyöhykkeen numero
+NDI: this build has no NDI output	NDI: tässä versiossa ei ole NDI-lähtöä
+STING PITCH: expected 20-12000 Hz	STING PITCH: odotettiin 20-12000 Hz
+TRIGGER MIDI: a note 0-127 or OFF	TRIGGER MIDI: nuotti 0-127 tai OFF
+could not open the Screens window	Screens-ikkunaa ei voitu avata
+effects paste: copy a chain first	effects paste: kopioi ensin ketju
+expected pixels -1000000..1000000	odotettiin pikseleitä -1000000..1000000
+marker: add | next | prev | clear	merkki: add | next | prev | clear
+press again to delete this button	paina uudelleen poistaaksesi tämän painikkeen
+warp grid: 2 to 9 points each way	vääntöruudukko: 2–9 pistettä kumpaankin suuntaan
+AUDIOFX ADD: needs an effect token	AUDIOFX ADD: tarvitsee efektitunnisteen
+BLEND LIFT: expected 0..20 percent	BLEND LIFT: odotettiin 0..20 prosenttia
+BUGSWAT SHOWME: only in a briefing	BUGSWAT SHOWME: vain briefissä
+CAPTIONS LINES: expected 1, 2 or 3	CAPTIONS LINES: odotettiin 1, 2 tai 3
+DASH SET: slot number out of range	DASH SET: paikan numero alueen ulkopuolella
+FX AMOUNT: no effect at that index	FX AMOUNT: ei efektiä tuossa hakemistossa
+FX COLOUR: no effect at that index	FX COLOUR: ei efektiä tuossa hakemistossa
+MIDICLOCK SIM: bpm must be 20..600	MIDICLOCK SIM: bpm:n on oltava 20..600
+OUTPUT ADD: expected a deck number	OUTPUT ADD: odotettiin dekin numeroa
+SLICE FLIP: H or V, then ON or OFF	SLICE FLIP: H tai V, sitten ON tai OFF
+a path needs three points: dropped	polku tarvitsee kolme pistettä: hylätty
+a show needs at least one playlist	esitys tarvitsee vähintään yhden soittolistan
+display scan: no displays reported	näyttöjen haku: näyttöjä ei löytynyt
+selection has no cue with geometry	valinnassa ei ole geometrialla varustettua cuea
+that cue cannot be fired by a step	askel ei voi laukaista tuota cuea
+time: type it as HH:MM or HH:MM:SS	aika: kirjoita muodossa HH:MM tai HH:MM:SS
+ASCII COLS: expected a column count	ASCII COLS: odotettiin sarakemäärää
+Deckboy evolved into SUPER DECKBOY!	Deckboy kehittyi: nyt SUPER DECKBOY!
+FX PARAM: slot must be A, B, C or D	FX PARAM: paikan on oltava A, B, C tai D
+MIDI: a note number 0-127, or LEARN	MIDI: nuottinumero 0-127 tai LEARN
+MIDIMAP REMOVE: COMPUTER|SHOW <row>	MIDIMAP REMOVE: COMPUTER|SHOW <rivi>
+OUTPUT DECK: expected a deck number	OUTPUT DECK: odotettiin dekin numeroa
+OUTPUTFX BYPASS: expected ON or OFF	OUTPUTFX BYPASS: odotettiin ON tai OFF
+SCOPES MATRIX: expected 709 or 2020	SCOPES MATRIX: odotettiin 709 tai 2020
+SHORTCUTS: the startup dialog is up	SHORTCUTS: aloitusikkuna on auki
+STREAM HDR: expected SDR, PQ or HLG	STREAM HDR: odotettiin SDR, PQ tai HLG
+an animation is already being saved	animaatiota tallennetaan jo
+delete live cue: press delete again	poista suora cue: paina poista uudelleen
+esc: output cleared - again to quit	esc: ulostulo tyhjennetty - uudelleen poistuaksesi
+no browser cue is live on this deck	tällä dekillä ei ole suoraa selain-cuea
+notestep: nothing live on this deck	notestep: tällä dekillä ei ole mitään suorana
+select the cue it should take first	valitse cue, jolle TAKE tehdään ensin
+DRAW EDITOR: select a Draw cue first	DRAW EDITOR: valitse ensin DRAW-CUE
+DRAW SAVE: STILL or ANIMATION [file]	DRAW SAVE: STILL tai ANIMATION [file]
+MIC CHANNEL: expected L, R or STEREO	MIC CHANNEL: odotettu L, R tai STEREO
+MULTIVIEW WINDOW: expected ON or OFF	MULTIVIEW WINDOW: odotettu ON tai OFF
+Page Down / Page Up step the tracker	Page Down / Page Up siirtävät seurantaa askel kerrallaan
+SUBTITLE CONVERT: nothing to convert	SUBTITLE CONVERT: ei mitään muunnettavaa
+TONECUE LFO: select a tone cue first	TONECUE LFO: valitse ensin Ääni-cue
+TRUST LAST: nothing has been refused	TRUST LAST: mitään ei ole hylätty
+atem tally on -- set the switcher IP	ATEM-tally päällä -- aseta switcherin IP
+datamosh: subtle, self-heals (H.264)	datamosh: hienovarainen, korjaantuu itse (H.264)
+master vol: expected 0-200 (percent)	master-äänenvoimakkuus: odotettu 0-200 (prosenttia)
+matrix off - back to the output pair	matrix pois - takaisin ulostulopariin
+monitor follows the focused playlist	monitori seuraa kohdistettua soittolistaa
+multiview: back to the automatic set	multiview: takaisin automaattiseen asetukseen
+no MIDI output ports on this machine	tällä koneella ei ole MIDI-ulostuloportteja
+splitnotes: could not split that cue	splitnotes: cuen jakaminen ei onnistunut
+srt: passphrase needs 10+ characters	srt: tunnuslause tarvitsee vähintään 10 merkkiä
+step deleted - ctrl+z brings it back	askel poistettu - ctrl+z palauttaa sen
+timer face: select a timer cue first	ajastimen kasvot: valitse ensin ajastin-cue
+timer font: select a timer cue first	ajastimen fontti: valitse ensin ajastin-cue
+16 slices is the most an output takes	yhden ulostulon enimmäismäärä on 16 viipaletta
+AUDIOGAIN BY: expected a number of dB	AUDIOGAIN BY: odotettu dB-luku
+AUDITION: expected OFF, END or STATUS	AUDITION: odotettu OFF, END tai STATUS
+BROWSER CLICK: fractions must be 0..1	BROWSER CLICK: osuuksien on oltava 0..1
+FX GET: expected an effect number, 1-	FX GET: odotettu tehosteen numero, 1-
+HLS playlist: added as one stream cue	HLS-soittolista: lisätty yhtenä lähetys-cuena
+MASTER BYPASS: expected a deck number	MASTER BYPASS: odotettu deckin numero
+MIDICLOCK: expected SIM <bpm> [beats]	MIDICLOCK: odotettu SIM <bpm> [beats]
+MULTIVIEW: expected ON, OFF or TOGGLE	MULTIVIEW: odotettu ON, OFF tai TOGGLE
+OUTPUT HDR SIGNAL: expected PQ or HLG	OUTPUT HDR SIGNAL: odotettu PQ tai HLG
+STREAM HDR: select a stream cue first	STREAM HDR: valitse ensin lähetys-cue
+datamosh: file-backed video cues only	datamosh: vain tiedostopohjaiset video-cuet
+effects copy: this cue has no effects	tehosteiden kopiointi: tällä cuella ei ole tehosteita
+matrix on, routed as the patch had it	matrix päällä, reititetty kuten patch oli
+recovery could not be read; copy kept	palautusta ei voitu lukea; kopio säilytetty
+FIXTURE DIP: expected <name> <%>|LEAVE	FIXTURE DIP: odotettu <name> <%>|LEAVE
+MONITOR: expected DEVICE, DECK or ROOM	MONITOR: odotettu DEVICE, DECK tai ROOM
+NETCUE PROTO: expected osc, udp or tcp	NETCUE PROTO: odotettu osc, udp tai tcp
+STING LENGTH: expected 0.05-10 seconds	STING LENGTH: odotettu 0.05-10 sekuntia
+sprite sheet: select a video synth cue	sprite sheet: valitse videosyntetisaattori-cue
+AUDIOGAIN BY: no selected cue has audio	AUDIOGAIN BY: yhdessäkään valitussa cuessa ei ole ääntä
+CAPTIONS SHOW: expected <output> ON|OFF	CAPTIONS SHOW: odotettiin <output> ON|OFF
+CAPTIONS TRANSCRIPT: expected ON or OFF	CAPTIONS TRANSCRIPT: odotettiin ON tai OFF
+COMPANIONPASS: use 8 or more characters	COMPANIONPASS: käytä vähintään 8 merkkiä
+DEVAMP: nothing is playing on that deck	DEVAMP: tällä deckillä ei toistu mitään
+FX LFO ZONE: 0 (the whole picture) to 8	FX LFO ZONE: 0 (koko kuva) - 8
+MASK IMPORT: expected <file.svg> [name]	MASK IMPORT: odotettiin <file.svg> [name]
+MASK SET: expected <id> <param> <value>	MASK SET: odotettiin <id> <param> <value>
+MULTIVIEW WINDOW: the last window stays	MULTIVIEW WINDOW: viimeinen ikkuna jää
+OUTPUT AOI MODE: expected PIXEL or FILL	OUTPUT AOI MODE: odotettiin PIXEL tai FILL
+SCOPES SOUND: expected nothing or RESET	SCOPES SOUND: odotettiin ei mitään tai RESET
+Tabletop is in SOURCE > MADE BY DECKBOY	Tabletop on kohdassa LÄHDE > TEHTY DECKBOYLLA
+can't read media - CONVERT in inspector	mediaa ei voi lukea - MUUNNA tarkastimessa
+cleared: all decks stopped, outputs off	tyhjennetty: kaikki deckit pysäytetty, ulostulot pois
+datamosh: classic, full effect (MPEG-4)	datamosh: klassinen, täysi efekti (MPEG-4)
+driver cleared - nothing left to puppet	ohjain tyhjennetty - ei enää mitään ohjattavaa
+key+fill on - now pick a Key out device	key+fill päällä - valitse nyt Key-ulostulolaite
+play the note that should fire this cue	soita nuotti, jonka pitää laukaista tämä cue
+programme to MediaMTX: watch at http://	ohjelma MediaMTX:lle: katso osoitteessa http://
+recformat: expected <WxH|program> [fps]	recformat: odotettiin <WxH|program> [fps]
+requested input missing - using default	pyydettyä tuloa ei löydy - käytetään oletusta
+DRAW PLAYBACK: still, flipbook or replay	DRAW PLAYBACK: pysäytyskuva, flipbook tai replay
+FADE KNOB: expected amount, A, B, C or D	FADE KNOB: odotettiin määrä, A, B, C tai D
+LOWERANIM: this cue is not a Lower Third	LOWERANIM: tämä cue ei ole Lower Third
+MASK EXPORT: size is WxH, e.g. 1920x1080	MASK EXPORT: koko on WxH, esim. 1920x1080
+MOTION SOURCE: CAMERA [name] or DECK <n>	MOTION SOURCE: CAMERA [name] tai DECK <n>
+NEW already starts from factory settings	NEW aloittaa jo tehdasasetuksista
+OUTPUT SELECT: expected an output number	OUTPUT SELECT: odotettiin ulostulon numeroa
+TCCUE: expected NEW, ACTION, JAM or FIRE	TCCUE: odotettiin NEW, ACTION, JAM tai FIRE
+hands-on: clicks and keys go to the page	hands-on: klikkaukset ja näppäimet menevät sivulle
+multiview: one window per playlist again	multiview: taas yksi ikkuna per soittolista
+record folder set - SAME DISK as Deckboy	tallennuskansio asetettu - SAMA LEVY kuin Deckboy
+sequence waiting - press it again for GO	sekvenssi odottaa - paina uudelleen: GO
+this platform cannot capture that source	tämä alusta ei voi tallentaa tuota lähdettä
+timer backdrop: select a timer cue first	ajastimen tausta: valitse ensin ajastin-cue
+BLEND CURVE: expected PROJECTOR or LINEAR	BLEND CURVE: odotettiin PROJECTOR tai LINEAR
+CAPTIONS POSITION: expected TOP or BOTTOM	CAPTIONS POSITION: odotettiin TOP tai BOTTOM
+CAPTIONS SIZE: expected 50..200 (percent)	CAPTIONS SIZE: odotettiin 50..200 (prosenttia)
+DMXCUE: the selected cue is not a dmx cue	DMXCUE: valittu cue ei ole dmx-cue
+DRAW FRAME: ADD, DELETE, NEXT, PREV or 1-	DRAW FRAME: ADD, DELETE, NEXT, PREV tai 1-
+FADE OVER: expected a duration in seconds	FADE OVER: odotettiin kestoa sekunteina
+FADE TO: expected a percent from 0 to 100	FADE TO: odotettiin prosenttia väliltä 0-100
+MOTION SOURCE DECK: a playlist number, 1-	MOTION SOURCE DECK: soittolistan numero, 1-
+STING SWEEP: expected -24 to 24 semitones	STING SWEEP: odotettiin -24...24 puolisävelaskelta
+TCCUE ACTION: expected start, stop or jam	TCCUE ACTION: odotettiin start, stop tai jam
+TCCUE JAM: expected a timecode or seconds	TCCUE JAM: odotettiin aikakoodia tai sekunteja
+TRACKER VIEW: expected PATTERN or CLASSIC	TRACKER VIEW: odotettiin PATTERN tai CLASSIC
+Tabletop added - SOURCE > MADE BY DECKBOY	Tabletop lisätty - LÄHDE > TEHTY DECKBOYLLA
+browser window open - click, type, log in	selainikkuna auki - napsauta, kirjoita, kirjaudu sisään
+contrast check: something needs attention	kontrastitarkistus: jokin vaatii huomiota
+drag the corners on the programme monitor	vedä kulmia ohjelmamonitorissa
+this browser backend cannot show a window	tämä selaimen taustajärjestelmä ei voi näyttää ikkunaa
+BROWSER CLICK: expected two fractions 0..1	BROWSER CLICK: odotettiin kahta murtolukua 0..1
+CHIP: the selected cue is not a chip synth	CHIP: valittu cue ei ole chip-syntetisaattori
+DASH SET: a slot cannot fire the dashboard	DASH SET: paikka ei voi käynnistää kojelautaa
+DRAW STROKE: x,y[,pressure] ... in percent	DRAW STROKE: x,y[,pressure] ... prosentteina
+OUTPUTFX REMOVE: expected an effect number	OUTPUTFX REMOVE: odotettiin efektin numeroa
+SCRIPTCUE: expected NEW, ADD, CLEAR or RUN	SCRIPTCUE: odotettiin NEW, ADD, CLEAR tai RUN
+TEXTCUE WIGGLE: expected ON, OFF or TOGGLE	TEXTCUE WIGGLE: odotettiin ON, OFF tai TOGGLE
+TRIGGER KEY: F1-F10, F12, NUM0-NUM9 or OFF	TRIGGER KEY: F1-F10, F12, NUM0-NUM9 tai OFF
+auto-advance removed: cue end follows hold	automaattinen eteneminen poistettu: cuen loppu seuraa pitoa
+choose RECOVER or KEEP SAVED before saving	valitse RECOVER tai KEEP SAVED ennen tallennusta
+datamosh look: file-backed video cues only	datamosh-look: vain tiedostopohjaiset video-cuet
+nmos: on - searching for a registry (mDNS)	nmos: päällä - etsitään rekisteriä (mDNS)
+record folder: recordings/ beside the show	tallennuskansio: recordings/ esityksen vieressä
+recsegment: expected <minutes> [megabytes]	recsegment: odotettiin <minuuttia> [megatavua]
+the example shows are not in this download	esimerkkiesitykset eivät ole tässä latauksessa
+warp point: expected <col> <row> <dx> <dy>	warp point: odotettiin <sar> <rivi> <dx> <dy>
+warp point: no grid -- WARP GRID <n> first	warp point: ei ruudukkoa -- anna ensin WARP GRID <n>
+DMXCUE FIXTURE: level is 0-100 (%) or LEAVE	DMXCUE FIXTURE: taso on 0-100 (%) tai LEAVE
+EDIT off: the keyboard only moves and fires	EDIT pois: näppäimistö vain liikuttaa ja käynnistää
+EDIT on: typing changes the tracker's cells	EDIT päällä: kirjoittaminen muuttaa seurannan soluja
+FIXTURE: expected LIST, ADD, FIND or REMOVE	FIXTURE: odotettiin LIST, ADD, FIND tai REMOVE
+LIMITER CEILING: a level from -40 to 0 dBFS	LIMITER CEILING: taso väliltä -40...0 dBFS
+MIDICUE: the selected cue is not a midi cue	MIDICUE: valittu cue ei ole midi-cue
+MOTION ZONE ADD: x y w h, percentages 0-100	MOTION ZONE ADD: x y w h, prosentit 0-100
+MOTION ZONE: ADD x y w h, REMOVE n or CLEAR	MOTION ZONE: ADD x y w h, REMOVE n tai CLEAR
+OUTPROBE: expected <output> <x 0-1> <y 0-1>	OUTPROBE: odotettiin <ulostulo> <x 0-1> <y 0-1>
+PORTS: expected an http port and a tcp port	PORTS: odotettiin HTTP-porttia ja TCP-porttia
+SLICE ADD: already 16 slices on this output	SLICE ADD: tässä ulostulossa on jo 16 viipaletta
+TEXTCUE: the selected cue is not a text cue	TEXTCUE: valittu cue ei ole teksticue
+a step cannot fire the playlist it lives on	askel ei voi laukaista soittolistaa, jolla se on
+atem tally on -- set which input Deckboy is	ATEM-tally päällä -- aseta, mikä tulo Deckboy on
+esc: control window - again to clear output	esc: ohjausikkuna - uudelleen tyhjentää ulostulon
+recordings remux to MP4 when the take stops	tallenteet remuxataan MP4-muotoon, kun take loppuu
+MATRIX SET: level is a percent from 0 to 100	MATRIX SET: taso on prosentti välillä 0-100
+SYNTH: the selected cue is not a video synth	SYNTH: valittu cue ei ole videosyntetisaattori
+group presets became master cues: use MASTER	ryhmäesiasetuksista tuli master-cuet: käytä MASTER
+on the dashboard - Ctrl+D or the DASH button	kojelaudalla - Ctrl+D tai DASH-painike
+8 zones already: click one to remove it first	vyöhykkeitä on jo 8: poista ensin yksi napsauttamalla
+AUDIOFX PLUGIN: this build has no plugin host	AUDIOFX PLUGIN: tässä versiossa ei ole liitännäisalustaa
+DASH SET: <n> <label> | <command> [| <glyph>]	DASH SET: <n> <nimike> | <komento> [| <symboli>]
+DRAW SIZE: 0.1-20 (% of the picture's height)	DRAW SIZE: 0.1-20 (% kuvan korkeudesta)
+FX LFO: slot must be A-D, or E for the amount	FX LFO: paikan on oltava A-D, tai E määrälle
+MASK PATH: a path needs at least three points	MASK PATH: polku tarvitsee vähintään kolme pistettä
+NETCUE: the selected cue is not a network cue	NETCUE: valittu cue ei ole verkkocue
+Page Down / Page Up step the focused playlist	Page Down / Page Up siirtävät askeleen kohdistetussa soittolistassa
+SCALEMODE: expected fit|fill|stretch|unscaled	SCALEMODE: odotettiin sovita|täytä|venytä|skaalaamaton
+SUBTITLE CONVERT: the cue has no caption file	SUBTITLE CONVERT: cuella ei ole kuvatekstitiedostoa
+TCCUE: the selected cue is not a timecode cue	TCCUE: valittu cue ei ole aikakoodicue
+TEXTCUE ALIGN: expected left, centre or right	TEXTCUE ALIGN: odotettiin vasen, keski tai oikea
+make a step first: a section starts at a step	tee ensin askel: osio alkaa askeleesta
+mask off -- it is still in the show's library	maski pois -- se on yhä esityksen kirjastossa
+motion on: the camera is read, never recorded	liike päällä: kamera luetaan, ei koskaan tallenneta
+new show disarms all outputs: press new again	uusi esitys kytkee kaikki ulostulot pois: paina uusi uudelleen
+nmos: network is LOCAL ONLY - not registering	nmos: verkko on VAIN PAIKALLINEN - ei rekisteröidä
+normalize: selection has no file-backed audio	normalize: valinnassa ei ole tiedostopohjaista ääntä
+output recover failed: fullscreen unavailable	ulostulon palautus epäonnistui: koko näyttö ei ole käytettävissä
+this output's renderer could not cut the mask	tämän ulostulon renderöijä ei voinut leikata maskia
+unsaved changes will be lost: press new again	tallentamattomat muutokset menetetään: paina uusi uudelleen
+zones cleared: Motion reads the whole picture	vyöhykkeet tyhjennetty: Liike lukee koko kuvan
+Stop masking this. The mask stays in the show's library, to put back from the menu above	Lopeta maskaus. Maski pysyy esityksen kirjastossa, ja sen voi palauttaa yllä olevasta valikosta
+Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	Poista tämä maski esityksestä sekä kaikista sitä käyttävistä cueista, soittolistoista ja ulostuloista. Kumoa palauttaa sen

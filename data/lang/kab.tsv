@@ -2854,3 +2854,220 @@ DASH: the startup dialog is up	DASH: asfaylu n usekker yeldi
 LOWERSTYLE: select a cue first	LOWERSTYLE: fren cue uqbel
 MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: yettraju 1-16
 PATTERN ADD needs a pattern id	PATTERN ADD yebɣa asulay n umudel
+DRAW ONION: ON or OFF	DRAW ONION: YERMED neɣ INSA
+DRAW EDITOR: ON or OFF	DRAW EDITOR: YERMED neɣ INSA
+OUTPUT AOI: no outputs	OUTPUT AOI: ulac tuffɣiwin
+OUTPUT DECK: no outputs	OUTPUT DECK: ulac tuffɣiwin
+DRAW HOLD: seconds, 0-60	DRAW HOLD: tisinin, 0-60
+FADE EFFECT: expected 1-	FADE EFFECT: yettwaṛǧa 1-
+MOTION MIRROR: ON or OFF	MOTION MIRROR: YERMED neɣ INSA
+TALLYEVENT wants ON or OFF	TALLYEVENT yebɣa YERMED neɣ INSA
+TONECUE LFO: FREQ or LEVEL	TONECUE LFO: AMḌIQ neɣ ASWIR
+GOGUARD: OFF or 50-2000 (ms)	GOGUARD: INSA neɣ 50-2000 (ms)
+SLICE GRID SMOOTH: ON or OFF	SLICE GRID SMOOTH: YERMED neɣ INSA
+TRIGGER AT: HH:MM[:SS] or OFF	TRIGGER AT: HH:MM[:SS] neɣ INSA
+PATTERN SET needs a pattern id	PATTERN SET yessefk asulay n umudel
+already the first tracker step	d asurif amezwaru n umeḍfar yakan
+cannot determine rendered size	ur nezmir ara ad nẓer tiddi yettwasuddsen
+find: enter cue id/number/name	find: sekcem asulay/uṭṭun/isem n cue
+no sprite sets in data/sprites	ulac tigrumma n sprite deg data/sprites
+normalize: no measurable audio	normalize: ulac ameslaw yezmer ad yettwaḥseb
+recordings are left as written	tisekkilin qqimen akken ttwaruyant
+reracked - holding first frame	yettwasali daɣen - yeṭṭef tugna tamezwarut
+st 2110: clipboard unavailable	st 2110: clipboard ur yelli ara
+stream url: unsupported scheme	stream url: tasenfart ur yettwasefrak ara
+that button has no command yet	taqeffalt-nni ulac taladna akka tura
+DMXCUE PROTOCOL: ARTNET or SACN	DMXCUE PROTOCOL: ARTNET neɣ SACN
+FIXTURE DIP: 0-100 (%) or LEAVE	FIXTURE DIP: 0-100 (%) neɣ LEAVE
+FX LFO: no effect at that index	FX LFO: ulac asemda deg umatar-nni
+MIDIMAP CLEAR: COMPUTER or SHOW	MIDIMAP CLEAR: COMPUTER neɣ SHOW
+TEXTCUE SPEED: expected 0.05-20	TEXTCUE SPEED: yettwarǧa 0.05-20
+an output needs a base playlist	tuffɣa tebɣa tabdart tagejdant
+audio input: device unavailable	anekcum n umeslaw: ibenk ulac-it
+expected crop percentages 0..90	yettwarǧa ipirsenten n ugzam 0..90
+media found - nothing to relink	yettwaf yimidyaten - ulac ayen ara d-yettuqqen daɣen
+notestep: build out of range 1-	notestep: lqem berra n uzilal 1-
+put it back when the ramp lands	err-it ɣer wadeg-is mi ara tfakk tarampt
+splitnotes: cue out of range 1-	splitnotes: cue berra n uzilal 1-
+st 2110 SDP copied to clipboard	SDP st 2110 yettwanɣel ɣer clipboard
+w00t! all ur cues r belong 2 us	w00t! akk cue-nnek d ayla-nneɣ
+BROWSER TYPE: expected some text	BROWSER TYPE: yettwarǧa uḍris
+CHECK: expected a problem number	CHECK: yettwarǧa uṭṭun n ugur
+FADE RESTORE: expected on or off	FADE RESTORE: yettwarǧa on neɣ off
+MIDICLOCK SIM: expected a number	MIDICLOCK SIM: yettwarǧa uṭṭun
+MONITOR ROOM: expected ON or OFF	MONITOR ROOM: yettwarǧa ON neɣ OFF
+MOTION ZONE ADD: already 8 zones	MOTION ZONE ADD: yella yakan 8 n timnaḍin
+SLICE REMOVE: a slice number, 1-	SLICE REMOVE: uṭṭun n slice, 1-
+motion off: the camera is closed	amussu yensa: takamirat tmedlen
+no capture devices found (dshow)	ulac ibenkan n tuṭṭfa i yettwafen (dshow)
+only accepted from this computer	yettwaqbel kan seg usselkim-agi
+reccodec: expected a codec token	reccodec: yettwarǧa usulay n codec
+this build has no plugin support	lqem-agi ur isteɛmal ara isiɣzaf
+BROWSER SCROLL: expected a number	BROWSER SCROLL: yettwarǧa uṭṭun
+DMXCUE UNIVERSE: expected 0-32767	DMXCUE UNIVERSE: yettwarǧa 0-32767
+FADE DECK: expected a deck number	FADE DECK: yettwarǧa uṭṭun n deck
+FX PARAM: no effect at that index	FX PARAM: ulac asemda deg umatar-nni
+MIC GAIN: expected -40 to 40 (dB)	MIC GAIN: yettwarǧa -40 ɣer 40 (dB)
+MOTION ZONE REMOVE: a zone number	MOTION ZONE REMOVE: uṭṭun n tmnaḍt
+NDI: this build has no NDI output	NDI: lqem-agi ulac deg-s tuffɣa NDI
+STING PITCH: expected 20-12000 Hz	STING PITCH: yettwarǧa 20-12000 Hz
+TRIGGER MIDI: a note 0-127 or OFF	TRIGGER MIDI: tazmilt 0-127 neɣ OFF
+could not open the Screens window	ulamek ad ldiɣ asfaylu Screens
+effects paste: copy a chain first	senṭeḍ isemda: nɣel tazrart qbel
+expected pixels -1000000..1000000	ilaq ipiksilen -1000000..1000000
+marker: add | next | prev | clear	tacreṭ: add | next | prev | clear
+press again to delete this button	sit tikkelt nniḍen akken ad tekkseḍ taqeffalt-agi
+warp grid: 2 to 9 points each way	tablat n umedyan: seg 2 ɣer 9 n tenqiḍin deg yal tama
+AUDIOFX ADD: needs an effect token	AUDIOFX ADD: yesra token n usemda
+BLEND LIFT: expected 0..20 percent	BLEND LIFT: ilaq 0..20 ɣef meyya
+BUGSWAT SHOWME: only in a briefing	BUGSWAT SHOWME: kan deg briefing
+CAPTIONS LINES: expected 1, 2 or 3	CAPTIONS LINES: ilaq 1, 2 neɣ 3
+DASH SET: slot number out of range	DASH SET: uṭṭun n slot yeffeɣ azrar
+FX AMOUNT: no effect at that index	FX AMOUNT: ulac asemda deg umatar-nni
+FX COLOUR: no effect at that index	FX COLOUR: ulac asemda deg umatar-nni
+MIDICLOCK SIM: bpm must be 20..600	MIDICLOCK SIM: bpm ilaq ad yili gar 20 d 600
+OUTPUT ADD: expected a deck number	OUTPUT ADD: ilaq uṭṭun n deck
+SLICE FLIP: H or V, then ON or OFF	SLICE FLIP: H neɣ V, sakin ON neɣ OFF
+a path needs three points: dropped	abrid yesra kraḍ n tneqqiḍin: yettwakkes
+a show needs at least one playlist	askan yesra ma drus yiwet n tebdart
+display scan: no displays reported	anadi n display: ulac display yettwafen
+selection has no cue with geometry	tafrayt ulac deg-s cue s tsengama
+that cue cannot be fired by a step	cue-nni ur yezmir ara ad yettwasnekker s usurif
+time: type it as HH:MM or HH:MM:SS	akud: aru-t am HH:MM neɣ HH:MM:SS
+ASCII COLS: expected a column count	ASCII COLS: ilaq uṭṭun n tgejdiyin
+Deckboy evolved into SUPER DECKBOY!	Deckboy yuɣal d SUPER DECKBOY!
+FX PARAM: slot must be A, B, C or D	FX PARAM: slot ilaq ad yili A, B, C neɣ D
+MIDI: a note number 0-127, or LEARN	MIDI: uṭṭun n note 0-127, neɣ LEARN
+MIDIMAP REMOVE: COMPUTER|SHOW <row>	MIDIMAP REMOVE: COMPUTER|SHOW <izirig>
+OUTPUT DECK: expected a deck number	OUTPUT DECK: ilaq uṭṭun n deck
+OUTPUTFX BYPASS: expected ON or OFF	OUTPUTFX BYPASS: ilaq ON neɣ OFF
+SCOPES MATRIX: expected 709 or 2020	SCOPES MATRIX: ilaq 709 neɣ 2020
+SHORTCUTS: the startup dialog is up	SHORTCUTS: asfaylu n usekker yeldi
+STREAM HDR: expected SDR, PQ or HLG	STREAM HDR: ilaq SDR, PQ neɣ HLG
+an animation is already being saved	tanimasyon tettwasekles yakan
+delete live cue: press delete again	kkes cue s tidet: sit tikkelt nniḍen ɣef Delete
+esc: output cleared - again to quit	Esc: tuffɣa tettwasfeḍ - tikkelt nniḍen akken ad teffɣeḍ
+no browser cue is live on this deck	ulac cue n yiminig s tidet ɣef deck-agi
+notestep: nothing live on this deck	notestep: ulac ayen s tidet ɣef deck-agi
+select the cue it should take first	fren cue ara yeddu s TAKE deg tazwara
+DRAW EDITOR: select a Draw cue first	DRAW EDITOR: fren uqbel yiwen DRAW CUE
+DRAW SAVE: STILL or ANIMATION [file]	DRAW SAVE: STILL neɣ ANIMATION [file]
+MIC CHANNEL: expected L, R or STEREO	MIC CHANNEL: ilaq: L, R neɣ STEREO
+MULTIVIEW WINDOW: expected ON or OFF	MULTIVIEW WINDOW: ilaq: ON neɣ OFF
+Page Down / Page Up step the tracker	Page Down / Page Up ddan s asurif deg umeḍfar
+SUBTITLE CONVERT: nothing to convert	SUBTITLE CONVERT: ulac d acu ara tbeddel
+TONECUE LFO: select a tone cue first	TONECUE LFO: fren uqbel cue n yimesli
+TRUST LAST: nothing has been refused	TRUST LAST: ulac ayen yettwagi
+atem tally on -- set the switcher IP	Tally ATEM yermed -- sbadu IP n switcher
+datamosh: subtle, self-heals (H.264)	datamosh: d amectuḥ, yeṣleḥ iman-is (H.264)
+master vol: expected 0-200 (percent)	master vol: ilaq 0-200 (ɣef tmeyya)
+matrix off - back to the output pair	matrix insa - uɣal ɣer tyuga n tuffɣa
+monitor follows the focused playlist	monitor yeḍfer tabdart yettwafren
+multiview: back to the automatic set	multiview: uɣal ɣer tegrumma tawurmant
+no MIDI output ports on this machine	ulac tiwwura n tuffɣa MIDI ɣef tmacint-agi
+splitnotes: could not split that cue	splitnotes: ur izmir ara ad bḍu cue-nni
+srt: passphrase needs 10+ characters	srt: tafyirt n uɛessi teḥwaǧ 10+ n yisekkilen
+step deleted - ctrl+z brings it back	asurif yettwakkes - ctrl+z ad t-id-yuɣal
+timer face: select a timer cue first	udem n umakud: fren uqbel cue n umakud
+timer font: select a timer cue first	tasefsit n umakud: fren uqbel cue n umakud
+16 slices is the most an output takes	16 n yiceqfan d afellay i yezmer ad yawi yiwen n tuffɣa
+AUDIOGAIN BY: expected a number of dB	AUDIOGAIN BY: ilaq uṭṭun n dB
+AUDITION: expected OFF, END or STATUS	AUDITION: ilaq: OFF, END neɣ STATUS
+BROWSER CLICK: fractions must be 0..1	BROWSER CLICK: ifrayen ilaq ad ilin 0..1
+FX GET: expected an effect number, 1-	FX GET: ilaq uṭṭun n usemda, 1-
+HLS playlist: added as one stream cue	tabdart HLS: tettwarna d yiwen n stream cue
+MASTER BYPASS: expected a deck number	MASTER BYPASS: ilaq uṭṭun n deck
+MIDICLOCK: expected SIM <bpm> [beats]	MIDICLOCK: ilaq SIM <bpm> [beats]
+MULTIVIEW: expected ON, OFF or TOGGLE	MULTIVIEW: ilaq: ON, OFF neɣ TOGGLE
+OUTPUT HDR SIGNAL: expected PQ or HLG	OUTPUT HDR SIGNAL: ilaq PQ neɣ HLG
+STREAM HDR: select a stream cue first	STREAM HDR: fren uqbel stream cue
+datamosh: file-backed video cues only	datamosh: kan cue n tvidyut seg ufaylu
+effects copy: this cue has no effects	anɣal n yisemda: cue-agi ulac isemda
+matrix on, routed as the patch had it	matrix yermed, yettwasuddes am akken yella PATCH
+recovery could not be read; copy kept	tiririt ur tezmir ara ad tettwaɣer; anɣal yettwaḥrez
+FIXTURE DIP: expected <name> <%>|LEAVE	FIXTURE DIP: ilaq <name> <%>|LEAVE
+MONITOR: expected DEVICE, DECK or ROOM	MONITOR: ilaq: DEVICE, DECK neɣ ROOM
+NETCUE PROTO: expected osc, udp or tcp	NETCUE PROTO: ilaq: osc, udp neɣ tcp
+STING LENGTH: expected 0.05-10 seconds	STING LENGTH: ilaq 0.05-10 n tasinin
+sprite sheet: select a video synth cue	sprite sheet: fren cue n usinti n tvidyut
+AUDIOGAIN BY: no selected cue has audio	AUDIOGAIN BY: ulac cue yettwafernen yesɛan ameslaw
+CAPTIONS SHOW: expected <output> ON|OFF	CAPTIONS SHOW: yettwarǧa <output> ON|OFF
+CAPTIONS TRANSCRIPT: expected ON or OFF	CAPTIONS TRANSCRIPT: yettwarǧa ON neɣ OFF
+COMPANIONPASS: use 8 or more characters	COMPANIONPASS: seqdec 8 n isekkilen neɣ ugar
+DEVAMP: nothing is playing on that deck	DEVAMP: ulac acu i yettwaurar deg deck-nni
+FX LFO ZONE: 0 (the whole picture) to 8	FX LFO ZONE: seg 0 (tugna meṛṛa) ɣer 8
+MASK IMPORT: expected <file.svg> [name]	MASK IMPORT: yettwarǧa <file.svg> [name]
+MASK SET: expected <id> <param> <value>	MASK SET: yettwarǧa <id> <param> <value>
+MULTIVIEW WINDOW: the last window stays	MULTIVIEW WINDOW: asfaylu aneggaru yeqqim
+OUTPUT AOI MODE: expected PIXEL or FILL	OUTPUT AOI MODE: yettwarǧa PIXEL neɣ FILL
+SCOPES SOUND: expected nothing or RESET	SCOPES SOUND: yettwarǧa ulac neɣ RESET
+Tabletop is in SOURCE > MADE BY DECKBOY	Tabletop yella deg AƔBALU > YETTWAXDEM S DECKBOY
+can't read media - CONVERT in inspector	ur izmir ara ad yeɣri amidya - ABDIL deg inspector
+cleared: all decks stopped, outputs off	yettwasfeḍ: akk deck ḥebsen, tuffɣiwin nsant
+datamosh: classic, full effect (MPEG-4)	datamosh: aklasik, yeččur (MPEG-4)
+driver cleared - nothing left to puppet	driver yettwasfeḍ - ulac ayen d-yeqqimen ad yettwaḥkem
+key+fill on - now pick a Key out device	key+fill yermed - fren tura ibenk n Tuffɣa n key
+play the note that should fire this cue	ssewwi note ara yesker cue-agi
+programme to MediaMTX: watch at http://	ahil ɣer MediaMTX: wali ɣef http://
+recformat: expected <WxH|program> [fps]	recformat: yettwarǧa <WxH|program> [fps]
+requested input missing - using default	anekcum yettwasuter yuɣal ixuṣ - seqdec amezwer
+DRAW PLAYBACK: still, flipbook or replay	DRAW PLAYBACK: tugna, flipbook neɣ replay
+FADE KNOB: expected amount, A, B, C or D	FADE KNOB: yettwarǧa tanecta, A, B, C neɣ D
+LOWERANIM: this cue is not a Lower Third	LOWERANIM: cue-agi mačči d Lower Third
+MASK EXPORT: size is WxH, e.g. 1920x1080	MASK EXPORT: teɣzi d WxH, amedya 1920x1080
+MOTION SOURCE: CAMERA [name] or DECK <n>	MOTION SOURCE: CAMERA [name] neɣ DECK <n>
+NEW already starts from factory settings	NEW yebda yakan seg iɣewwaren n tfabrikt
+OUTPUT SELECT: expected an output number	OUTPUT SELECT: yettwarǧa uṭṭun n tuffɣa
+TCCUE: expected NEW, ACTION, JAM or FIRE	TCCUE: yettwarǧa NEW, ACTION, JAM neɣ FIRE
+hands-on: clicks and keys go to the page	hands-on: ticlikin d tqeffalin ddan ɣer usebter
+multiview: one window per playlist again	multiview: yiwen usfaylu i yal tabdart tikkelt-nniḍen
+record folder set - SAME DISK as Deckboy	akaram n usekles yettwasbadu - AKKEN DISK am Deckboy
+sequence waiting - press it again for GO	azrar yettṛaju - ssiti tikkelt-nniḍen i GO
+this platform cannot capture that source	tiɣerɣert-agi ur tezmir ara ad tṭṭef aɣbalu-nni
+timer backdrop: select a timer cue first	agilal n umakud: fren tazwara cue n umakud
+BLEND CURVE: expected PROJECTOR or LINEAR	BLEND CURVE: yettwarǧa PROJECTOR neɣ LINEAR
+CAPTIONS POSITION: expected TOP or BOTTOM	CAPTIONS POSITION: yettwarǧa TOP neɣ BOTTOM
+CAPTIONS SIZE: expected 50..200 (percent)	CAPTIONS SIZE: yettwarǧa 50..200 (afrisan)
+DMXCUE: the selected cue is not a dmx cue	DMXCUE: cue yettwafernen mačči d cue dmx
+DRAW FRAME: ADD, DELETE, NEXT, PREV or 1-	DRAW FRAME: ADD, DELETE, NEXT, PREV neɣ 1-
+FADE OVER: expected a duration in seconds	FADE OVER: yettraǧu tanzagt s tasinin
+FADE TO: expected a percent from 0 to 100	FADE TO: yettraǧu afesdi seg 0 ɣer 100
+LOWERSTYLE: this cue is not a Lower Third	LOWERSTYLE: cue-agi mačči d Lower Third
+MOTION SOURCE DECK: a playlist number, 1-	MOTION SOURCE DECK: uṭṭun n tebdart, 1-
+STING SWEEP: expected -24 to 24 semitones	STING SWEEP: ttraǧun -24 ɣer 24 n semitones
+TCCUE ACTION: expected start, stop or jam	TCCUE ACTION: yettraǧu start, stop neɣ jam
+TCCUE JAM: expected a timecode or seconds	TCCUE JAM: yettraǧu tangalt n wakud neɣ tisinin
+TRACKER VIEW: expected PATTERN or CLASSIC	TRACKER VIEW: yettraǧu PATTERN neɣ CLASSIC
+Tabletop added - SOURCE > MADE BY DECKBOY	Tabletop yettwarna - AƔBALU > YETTWAXDEM S DECKBOY
+browser window open - click, type, log in	asfaylu n yiminig yeldi - ssed, aru, kcem
+contrast check: something needs attention	askan n umgirred: kra yesra tamawt
+drag the corners on the programme monitor	zuɣer iɣuraf ɣef umeẓẓi n wahil
+this browser backend cannot show a window	backend-agi n yiminig ur yezmir ara ad d-yesken asfaylu
+BROWSER CLICK: expected two fractions 0..1	BROWSER CLICK: ttraǧun sin n yifesdiyen 0..1
+CHIP: the selected cue is not a chip synth	CHIP: cue yettwafernen mačči d chip synth
+DASH SET: a slot cannot fire the dashboard	DASH SET: tallunt ur tezmir ara ad tsenker tafelwit
+DRAW STROKE: x,y[,pressure] ... in percent	DRAW STROKE: x,y[,pressure] ... s afesdi
+OUTPUTFX REMOVE: expected an effect number	OUTPUTFX REMOVE: yettraǧu uṭṭun n useɣwen n usemda
+SCRIPTCUE: expected NEW, ADD, CLEAR or RUN	SCRIPTCUE: yettraǧu NEW, ADD, CLEAR neɣ RUN
+TEXTCUE WIGGLE: expected ON, OFF or TOGGLE	TEXTCUE WIGGLE: yettraǧu ON, OFF neɣ TOGGLE
+TRIGGER KEY: F1-F10, F12, NUM0-NUM9 or OFF	TRIGGER KEY: F1-F10, F12, NUM0-NUM9 neɣ OFF
+auto-advance removed: cue end follows hold	awurman-ihi yettwakkes: taggara n cue ttaba aṭṭaf
+choose RECOVER or KEEP SAVED before saving	fren RECOVER neɣ KEEP SAVED send ad teskelseḍ
+datamosh look: file-backed video cues only	udem datamosh: kan cue n tvidyut seg ufaylu
+nmos: on - searching for a registry (mDNS)	nmos: yermed - anadi n ujerred (mDNS)
+record folder: recordings/ beside the show	akaram n usekles: recordings/ ɣer tama n usekan
+recsegment: expected <minutes> [megabytes]	recsegment: ttraǧun <tisdidin> [megabytes]
+the example shows are not in this download	iskanen n yimedyaten ulac-iten deg usader-agi
+warp point: expected <col> <row> <dx> <dy>	tafekka n umedyan: ttraǧun <col> <row> <dx> <dy>
+warp point: no grid -- WARP GRID <n> first	tafekka n umedyan: ulac azrar -- WARP GRID <n> send
+DMXCUE FIXTURE: level is 0-100 (%) or LEAVE	DMXCUE FIXTURE: aswir d 0-100 (%) neɣ LEAVE
+EDIT off: the keyboard only moves and fires	ẒREG insa: unasiw yettmussu kan yerna yesnekker
+EDIT on: typing changes the tracker's cells	ẒREG yermed: tira tbeddel tiqqitin n useɣwen n umeḍfar
+FIXTURE: expected LIST, ADD, FIND or REMOVE	FIXTURE: yettraǧu LIST, ADD, FIND neɣ REMOVE
+LIMITER CEILING: a level from -40 to 0 dBFS	LIMITER CEILING: aswir seg -40 ɣer 0 dBFS
+MIDICUE: the selected cue is not a midi cue	MIDICUE: cue yettwafernen mačči d cue midi
+MOTION ZONE ADD: x y w h, percentages 0-100	MOTION ZONE ADD: x y w h, ifesdiyen 0-100
+MOTION ZONE: ADD x y w h, REMOVE n or CLEAR	MOTION ZONE: ADD x y w h, REMOVE n neɣ CLEAR
+mask off -- it is still in the show's library	taɣmist insa -- mazal-it deg temkarḍit n uskan
+Stop masking this. The mask stays in the show's library, to put back from the menu above	Ḥbes aseqdec n taɣmist-agi. Taɣmist tqqim deg temkarḍit n uskan, err-it seg wumuɣ ufella
+Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	Kkes taɣmist-agi seg uskan, d seg yal cue, tabdart d tuffɣa i tt-yesseqdacen. Sefsex ad tt-id-yerr

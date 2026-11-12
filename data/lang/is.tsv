@@ -2851,3 +2851,222 @@ DASH: the startup dialog is up	DASH: upphafsglugginn er opinn
 LOWERSTYLE: select a cue first	LOWERSTYLE: veldu cue fyrst
 MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: búist við 1-16
 PATTERN ADD needs a pattern id	PATTERN ADD þarf auðkenni mynsturs
+Lower Third attached	Lower Third tengt
+DRAW ONION: ON or OFF	DRAW ONION: Á eða AF
+Lower Third cue added	Lower Third cue bætt við
+DRAW EDITOR: ON or OFF	DRAW EDITOR: Á eða AF
+OUTPUT AOI: no outputs	OUTPUT AOI: engin úttök
+OUTPUT DECK: no outputs	OUTPUT DECK: engin úttök
+DRAW HOLD: seconds, 0-60	DRAW HOLD: sekúndur, 0-60
+FADE EFFECT: expected 1-	FADE EFFECT: búist við 1-
+MOTION MIRROR: ON or OFF	MOTION MIRROR: Á eða AF
+TALLYEVENT wants ON or OFF	TALLYEVENT vill Á eða AF
+TONECUE LFO: FREQ or LEVEL	TONECUE LFO: TÍÐNI eða STIG
+GOGUARD: OFF or 50-2000 (ms)	GOGUARD: AF eða 50-2000 (ms)
+SLICE GRID SMOOTH: ON or OFF	SLICE GRID SMOOTH: Á eða AF
+TRIGGER AT: HH:MM[:SS] or OFF	TRIGGER AT: HH:MM[:SS] eða AF
+PATTERN SET needs a pattern id	PATTERN SET þarf mynstur-auðkenni
+already the first tracker step	þegar fyrsta skref raknara
+cannot determine rendered size	ekki tókst að ákvarða stærð á úttaki
+find: enter cue id/number/name	find: sláðu inn cue-auðkenni/númer/nafn
+no sprite sets in data/sprites	engin sprite-sett í data/sprites
+normalize: no measurable audio	normalize: ekkert mælanlegt hljóð
+recordings are left as written	upptökur haldast eins og þær voru skrifaðar
+reracked - holding first frame	endurhlaðið - heldur fyrsta ramma
+st 2110: clipboard unavailable	st 2110: klippiborð ekki tiltækt
+stream url: unsupported scheme	stream url: óstutt forskeyti
+that button has no command yet	sá hnappur hefur enga skipun enn
+DMXCUE PROTOCOL: ARTNET or SACN	DMXCUE PROTOCOL: ARTNET eða SACN
+FIXTURE DIP: 0-100 (%) or LEAVE	FIXTURE DIP: 0-100 (%) eða LEAVE
+FX LFO: no effect at that index	FX LFO: engin áhrif á þeirri skrá
+MIDIMAP CLEAR: COMPUTER or SHOW	MIDIMAP CLEAR: COMPUTER eða SHOW
+TEXTCUE SPEED: expected 0.05-20	TEXTCUE SPEED: búist við 0.05-20
+an output needs a base playlist	úttak þarf grunnspilunarlista
+audio input: device unavailable	hljóðinntak: tæki ekki tiltækt
+expected crop percentages 0..90	búist við klippiprósentum 0..90
+media found - nothing to relink	miðlar fundust - ekkert til að endurtengja
+notestep: build out of range 1-	notestep: útgáfa utan marka 1-
+put it back when the ramp lands	settu það til baka þegar rampinum lýkur
+splitnotes: cue out of range 1-	splitnotes: cue utan marka 1-
+st 2110 SDP copied to clipboard	st 2110 SDP afritað á klippiborð
+w00t! all ur cues r belong 2 us	w00t! öll cue-in þín tilheyra okkur
+BROWSER TYPE: expected some text	BROWSER TYPE: búist við einhverjum texta
+CHECK: expected a problem number	CHECK: búist við vandamálsnúmeri
+FADE RESTORE: expected on or off	FADE RESTORE: búist við on eða off
+MIDICLOCK SIM: expected a number	MIDICLOCK SIM: búist við tölu
+MONITOR ROOM: expected ON or OFF	MONITOR ROOM: búist við ON eða OFF
+MOTION ZONE ADD: already 8 zones	MOTION ZONE ADD: þegar 8 svæði
+SLICE REMOVE: a slice number, 1-	SLICE REMOVE: slice-númer, 1-
+motion off: the camera is closed	hreyfing af: myndavélin er lokuð
+no capture devices found (dshow)	engin upptökutæki fundust (dshow)
+only accepted from this computer	aðeins samþykkt frá þessari tölvu
+reccodec: expected a codec token	reccodec: búist við codec-tákni
+this build has no plugin support	þessi útgáfa styður ekki viðbætur
+BROWSER SCROLL: expected a number	BROWSER SCROLL: búist við tölu
+DMXCUE UNIVERSE: expected 0-32767	DMXCUE UNIVERSE: búist við 0-32767
+FADE DECK: expected a deck number	FADE DECK: búist við deck-númeri
+FX PARAM: no effect at that index	FX PARAM: engin áhrif á þeirri skrá
+MIC GAIN: expected -40 to 40 (dB)	MIC GAIN: búist við -40 til 40 (dB)
+MOTION ZONE REMOVE: a zone number	MOTION ZONE REMOVE: svæðisnúmer
+NDI: this build has no NDI output	NDI: þessi útgáfa er án NDI-úttaks
+STING PITCH: expected 20-12000 Hz	STING PITCH: búist við 20-12000 Hz
+TRIGGER MIDI: a note 0-127 or OFF	TRIGGER MIDI: nóta 0-127 eða OFF
+could not open the Screens window	gat ekki opnað Screens-gluggann
+effects paste: copy a chain first	líma áhrif: afritaðu keðju fyrst
+expected pixels -1000000..1000000	búist við pixlum -1000000..1000000
+marker: add | next | prev | clear	merki: add | next | prev | clear
+press again to delete this button	ýttu aftur til að eyða þessum hnappi
+warp grid: 2 to 9 points each way	skekkjunet: 2 til 9 punktar í hvora átt
+AUDIOFX ADD: needs an effect token	AUDIOFX ADD: þarf tákn fyrir áhrif
+BLEND LIFT: expected 0..20 percent	BLEND LIFT: búist við 0..20 prósentum
+BUGSWAT SHOWME: only in a briefing	BUGSWAT SHOWME: aðeins í kynningu
+CAPTIONS LINES: expected 1, 2 or 3	CAPTIONS LINES: búist við 1, 2 eða 3
+DASH SET: slot number out of range	DASH SET: raufarnúmer utan marka
+FX AMOUNT: no effect at that index	FX AMOUNT: engin áhrif á þeirri skrá
+FX COLOUR: no effect at that index	FX COLOUR: engin áhrif á þeirri skrá
+MIDICLOCK SIM: bpm must be 20..600	MIDICLOCK SIM: bpm verður að vera 20..600
+OUTPUT ADD: expected a deck number	OUTPUT ADD: búist við deck-númeri
+SLICE FLIP: H or V, then ON or OFF	SLICE FLIP: H eða V, síðan ON eða OFF
+a path needs three points: dropped	ferill þarf þrjá punkta: fellt niður
+a show needs at least one playlist	sýning þarf að minnsta kosti einn spilunarlista
+display scan: no displays reported	skjáleit: engir skjáir fundust
+selection has no cue with geometry	valið inniheldur ekkert cue með rúmfræði
+that cue cannot be fired by a step	skref getur ekki kveikt á þessu cue
+time: type it as HH:MM or HH:MM:SS	tími: sláðu inn sem HH:MM eða HH:MM:SS
+ASCII COLS: expected a column count	ASCII COLS: búist við dálkafjölda
+Deckboy evolved into SUPER DECKBOY!	Deckboy þróaðist í SUPER DECKBOY!
+FX PARAM: slot must be A, B, C or D	FX PARAM: rauf verður að vera A, B, C eða D
+MIDI: a note number 0-127, or LEARN	MIDI: nótunúmer 0-127, eða LEARN
+MIDIMAP REMOVE: COMPUTER|SHOW <row>	MIDIMAP REMOVE: COMPUTER|SHOW <lína>
+OUTPUT DECK: expected a deck number	OUTPUT DECK: búist við deck-númeri
+OUTPUTFX BYPASS: expected ON or OFF	OUTPUTFX BYPASS: búist við ON eða OFF
+SCOPES MATRIX: expected 709 or 2020	SCOPES MATRIX: búist við 709 eða 2020
+SHORTCUTS: the startup dialog is up	SHORTCUTS: ræsiglugginn er opinn
+STREAM HDR: expected SDR, PQ or HLG	STREAM HDR: búist við SDR, PQ eða HLG
+an animation is already being saved	hreyfimynd er þegar í vistun
+delete live cue: press delete again	eyða cue í beinni: ýttu aftur á Delete
+esc: output cleared - again to quit	Esc: úttak hreinsað - aftur til að hætta
+no browser cue is live on this deck	ekkert vafra-cue er í beinni á þessum spilara
+notestep: nothing live on this deck	notestep: ekkert í beinni á þessum spilara
+select the cue it should take first	veldu cue sem á að fara fyrst í TAKE
+DRAW EDITOR: select a Draw cue first	DRAW EDITOR: veldu fyrst DRAW-CUE
+DRAW SAVE: STILL or ANIMATION [file]	DRAW SAVE: STILL eða ANIMATION [file]
+MIC CHANNEL: expected L, R or STEREO	MIC CHANNEL: búist við L, R eða STEREO
+MULTIVIEW WINDOW: expected ON or OFF	MULTIVIEW WINDOW: búist við ON eða OFF
+Page Down / Page Up step the tracker	Page Down / Page Up stíga í raknaranum
+SUBTITLE CONVERT: nothing to convert	SUBTITLE CONVERT: ekkert til að umbreyta
+TONECUE LFO: select a tone cue first	TONECUE LFO: veldu fyrst tón-cue
+TRUST LAST: nothing has been refused	TRUST LAST: engu hefur verið hafnað
+atem tally on -- set the switcher IP	ATEM-tally á -- stilltu IP-tölu skiptarans
+datamosh: subtle, self-heals (H.264)	datamosh: lúmskt, lagar sig sjálft (H.264)
+master vol: expected 0-200 (percent)	master vol: búist við 0-200 (prósent)
+matrix off - back to the output pair	matrix af - aftur á úttakaparið
+monitor follows the focused playlist	monitor fylgir virka spilunarlistanum
+multiview: back to the automatic set	multiview: aftur í sjálfvirku uppsetninguna
+no MIDI output ports on this machine	engin MIDI-úttakstengi á þessari vél
+splitnotes: could not split that cue	splitnotes: gat ekki skipt því cue
+srt: passphrase needs 10+ characters	srt: aðgangsfrasi þarf 10+ stafi
+step deleted - ctrl+z brings it back	skref eytt - ctrl+z færir það aftur
+timer face: select a timer cue first	andlit tímamælis: veldu fyrst tímamælis-cue
+timer font: select a timer cue first	letur tímamælis: veldu fyrst tímamælis-cue
+16 slices is the most an output takes	16 sneiðar er hámark fyrir eitt úttak
+AUDIOGAIN BY: expected a number of dB	AUDIOGAIN BY: búist við tölu í dB
+AUDITION: expected OFF, END or STATUS	AUDITION: búist við OFF, END eða STATUS
+BROWSER CLICK: fractions must be 0..1	BROWSER CLICK: brot verða að vera 0..1
+FX GET: expected an effect number, 1-	FX GET: búist við númeri áhrifa, 1-
+HLS playlist: added as one stream cue	HLS spilunarlisti: bætt við sem eitt streymis-cue
+MASTER BYPASS: expected a deck number	MASTER BYPASS: búist við deck-númeri
+MIDICLOCK: expected SIM <bpm> [beats]	MIDICLOCK: búist við SIM <bpm> [beats]
+MULTIVIEW: expected ON, OFF or TOGGLE	MULTIVIEW: búist við ON, OFF eða TOGGLE
+OUTPUT HDR SIGNAL: expected PQ or HLG	OUTPUT HDR SIGNAL: búist við PQ eða HLG
+STREAM HDR: select a stream cue first	STREAM HDR: veldu fyrst streymis-cue
+datamosh: file-backed video cues only	datamosh: aðeins vídeó-cue úr skrá
+effects copy: this cue has no effects	áhrifaafritun: þetta cue hefur engin áhrif
+matrix on, routed as the patch had it	matrix á, beint eins og patchið var
+recovery could not be read; copy kept	ekki tókst að lesa endurheimtina; afrit geymt
+FIXTURE DIP: expected <name> <%>|LEAVE	FIXTURE DIP: búist við <name> <%>|LEAVE
+MONITOR: expected DEVICE, DECK or ROOM	MONITOR: búist við DEVICE, DECK eða ROOM
+NETCUE PROTO: expected osc, udp or tcp	NETCUE PROTO: búist við osc, udp eða tcp
+STING LENGTH: expected 0.05-10 seconds	STING LENGTH: búist við 0.05-10 sekúndum
+sprite sheet: select a video synth cue	sprite sheet: veldu cue með myndgervli
+AUDIOGAIN BY: no selected cue has audio	AUDIOGAIN BY: ekkert valið cue hefur hljóð
+CAPTIONS SHOW: expected <output> ON|OFF	CAPTIONS SHOW: búist við <output> ON|OFF
+CAPTIONS TRANSCRIPT: expected ON or OFF	CAPTIONS TRANSCRIPT: búist við ON eða OFF
+COMPANIONPASS: use 8 or more characters	COMPANIONPASS: notaðu 8 stafi eða fleiri
+DEVAMP: nothing is playing on that deck	DEVAMP: ekkert er í spilun á því deck
+FX LFO ZONE: 0 (the whole picture) to 8	FX LFO ZONE: 0 (öll myndin) upp í 8
+MASK IMPORT: expected <file.svg> [name]	MASK IMPORT: búist við <file.svg> [name]
+MASK SET: expected <id> <param> <value>	MASK SET: búist við <id> <param> <value>
+MULTIVIEW WINDOW: the last window stays	MULTIVIEW WINDOW: síðasti glugginn helst
+OUTPUT AOI MODE: expected PIXEL or FILL	OUTPUT AOI MODE: búist við PIXEL eða FILL
+SCOPES SOUND: expected nothing or RESET	SCOPES SOUND: búist við ekkert eða RESET
+Tabletop is in SOURCE > MADE BY DECKBOY	Tabletop er í UPPSPRETTA > GERT MEÐ DECKBOY
+can't read media - CONVERT in inspector	get ekki lesið miðil - UMBREYTA í skoðara
+cleared: all decks stopped, outputs off	hreinsað: öll deck stöðvuð, úttök af
+datamosh: classic, full effect (MPEG-4)	datamosh: klassískt, full áhrif (MPEG-4)
+driver cleared - nothing left to puppet	driver hreinsaður - ekkert eftir til að stýra
+key+fill on - now pick a Key out device	key+fill á - veldu nú Key-úttak tæki
+play the note that should fire this cue	spilaðu nótuna sem á að ræsa þetta cue
+programme to MediaMTX: watch at http://	dagskrá á MediaMTX: horfðu á http://
+recformat: expected <WxH|program> [fps]	recformat: búist við <WxH|program> [fps]
+requested input missing - using default	umbeðið inntak vantar - nota sjálfgefið
+DRAW PLAYBACK: still, flipbook or replay	DRAW PLAYBACK: kyrrmynd, flettibók eða endurspilun
+FADE KNOB: expected amount, A, B, C or D	FADE KNOB: búist við magn, A, B, C eða D
+LOWERANIM: this cue is not a Lower Third	LOWERANIM: þetta cue er ekki Lower Third
+MASK EXPORT: size is WxH, e.g. 1920x1080	MASK EXPORT: stærð er WxH, t.d. 1920x1080
+MOTION SOURCE: CAMERA [name] or DECK <n>	MOTION SOURCE: CAMERA [name] eða DECK <n>
+NEW already starts from factory settings	NEW byrjar nú þegar á verksmiðjustillingum
+OUTPUT SELECT: expected an output number	OUTPUT SELECT: búist við númeri úttaks
+TCCUE: expected NEW, ACTION, JAM or FIRE	TCCUE: búist við NEW, ACTION, JAM eða FIRE
+hands-on: clicks and keys go to the page	hands-on: smellir og lyklar fara á síðuna
+multiview: one window per playlist again	multiview: aftur einn gluggi fyrir hvern spilunarlista
+record folder set - SAME DISK as Deckboy	upptökumappa stillt - SAMI DISKUR og Deckboy
+sequence waiting - press it again for GO	runa bíður - ýttu aftur fyrir GO
+this platform cannot capture that source	þetta stýrikerfi getur ekki fangað þá uppsprettu
+timer backdrop: select a timer cue first	tímamælir bakgrunnur: veldu fyrst tímamælis-cue
+BLEND CURVE: expected PROJECTOR or LINEAR	BLEND CURVE: búist við PROJECTOR eða LINEAR
+CAPTIONS POSITION: expected TOP or BOTTOM	CAPTIONS POSITION: búist við TOP eða BOTTOM
+CAPTIONS SIZE: expected 50..200 (percent)	CAPTIONS SIZE: búist við 50..200 (prósent)
+DMXCUE: the selected cue is not a dmx cue	DMXCUE: valið cue er ekki dmx cue
+DRAW FRAME: ADD, DELETE, NEXT, PREV or 1-	DRAW FRAME: ADD, DELETE, NEXT, PREV eða 1-
+FADE OVER: expected a duration in seconds	FADE OVER: búist var við lengd í sekúndum
+FADE TO: expected a percent from 0 to 100	FADE TO: búist var við prósentu frá 0 til 100
+LOWERSTYLE: this cue is not a Lower Third	LOWERSTYLE: þetta cue er ekki Lower Third
+MOTION SOURCE DECK: a playlist number, 1-	MOTION SOURCE DECK: númer spilunarlista, 1-
+STING SWEEP: expected -24 to 24 semitones	STING SWEEP: búist var við -24 til 24 tónbilum
+TCCUE ACTION: expected start, stop or jam	TCCUE ACTION: búist var við start, stop eða jam
+TCCUE JAM: expected a timecode or seconds	TCCUE JAM: búist var við tímakóða eða sekúndum
+TRACKER VIEW: expected PATTERN or CLASSIC	TRACKER VIEW: búist var við PATTERN eða CLASSIC
+Tabletop added - SOURCE > MADE BY DECKBOY	Tabletop bætt við - UPPSPRETTA > GERT MEÐ DECKBOY
+browser window open - click, type, log in	vafraglugginn er opinn - smelltu, skrifaðu, skráðu þig inn
+contrast check: something needs attention	birtuskilaathugun: eitthvað þarfnast athygli
+drag the corners on the programme monitor	dragðu hornin á dagskrárskjánum
+this browser backend cannot show a window	þessi vafrabakendi getur ekki sýnt glugga
+BROWSER CLICK: expected two fractions 0..1	BROWSER CLICK: búist var við tveimur brotum 0..1
+CHIP: the selected cue is not a chip synth	CHIP: valið cue er ekki chip synth
+DASH SET: a slot cannot fire the dashboard	DASH SET: rauf getur ekki ræst mælaborðið
+DRAW STROKE: x,y[,pressure] ... in percent	DRAW STROKE: x,y[,pressure] ... í prósentum
+OUTPUTFX REMOVE: expected an effect number	OUTPUTFX REMOVE: búist var við númeri áhrifa
+SCRIPTCUE: expected NEW, ADD, CLEAR or RUN	SCRIPTCUE: búist var við NEW, ADD, CLEAR eða RUN
+TEXTCUE WIGGLE: expected ON, OFF or TOGGLE	TEXTCUE WIGGLE: búist var við ON, OFF eða TOGGLE
+TRIGGER KEY: F1-F10, F12, NUM0-NUM9 or OFF	TRIGGER KEY: F1-F10, F12, NUM0-NUM9 eða OFF
+auto-advance removed: cue end follows hold	sjálfv. áfram fjarlægt: endir cue fylgir halda
+choose RECOVER or KEEP SAVED before saving	veldu RECOVER eða KEEP SAVED áður en vistað er
+datamosh look: file-backed video cues only	datamosh-útlit: aðeins skráarbyggð vídeó-cue
+nmos: on - searching for a registry (mDNS)	nmos: á - leita að skrásetningu (mDNS)
+record folder: recordings/ beside the show	upptökumappa: recordings/ við hlið sýningarinnar
+recsegment: expected <minutes> [megabytes]	recsegment: búist var við <mínútur> [megabæti]
+the example shows are not in this download	dæmisýningarnar eru ekki í þessu niðurhali
+warp point: expected <col> <row> <dx> <dy>	skekkjupunktur: búist var við <col> <row> <dx> <dy>
+warp point: no grid -- WARP GRID <n> first	skekkjupunktur: ekkert rist -- fyrst WARP GRID <n>
+DMXCUE FIXTURE: level is 0-100 (%) or LEAVE	DMXCUE FIXTURE: stig er 0-100 (%) eða LEAVE
+EDIT off: the keyboard only moves and fires	BREYTA af: lyklaborðið hreyfir og ræsir aðeins
+EDIT on: typing changes the tracker's cells	BREYTA á: innsláttur breytir reitum raknarans
+FIXTURE: expected LIST, ADD, FIND or REMOVE	FIXTURE: búist var við LIST, ADD, FIND eða REMOVE
+LIMITER CEILING: a level from -40 to 0 dBFS	LIMITER CEILING: stig frá -40 til 0 dBFS
+MIDICUE: the selected cue is not a midi cue	MIDICUE: valið cue er ekki midi cue
+MOTION ZONE ADD: x y w h, percentages 0-100	MOTION ZONE ADD: x y w h, prósentur 0-100
+MOTION ZONE: ADD x y w h, REMOVE n or CLEAR	MOTION ZONE: ADD x y w h, REMOVE n eða CLEAR
+mask off -- it is still in the show's library	gríma af -- hún er enn í safni sýningarinnar
+Stop masking this. The mask stays in the show's library, to put back from the menu above	Hætta að nota grímuna. Gríman er áfram í safni sýningarinnar, settu hana aftur á úr valmyndinni hér að ofan
+Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	Eyða þessari grímu úr sýningunni og úr öllum cue, listum og úttökum sem nota hana. Afturkalla færir hana aftur

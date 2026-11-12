@@ -2856,3 +2856,252 @@ DASH: the startup dialog is up	DASH: диалогът при стартиран�
 LOWERSTYLE: select a cue first	LOWERSTYLE: първо изберете cue
 MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: очаква се 1-16
 PATTERN ADD needs a pattern id	PATTERN ADD иска ID на шаблон
+Lower Third attached	Lower Third е прикачен
+find: run FIND first	find: първо изпълнете FIND
+DRAW ONION: ON or OFF	DRAW ONION: ON или OFF
+Lower Third cue added	Добавен е cue Lower Third
+DRAW EDITOR: ON or OFF	DRAW EDITOR: ON или OFF
+OUTPUT AOI: no outputs	OUTPUT AOI: няма изходи
+OUTPUT DECK: no outputs	OUTPUT DECK: няма изходи
+DRAW HOLD: seconds, 0-60	DRAW HOLD: секунди, 0-60
+FADE EFFECT: expected 1-	FADE EFFECT: очаква се 1-
+MOTION MIRROR: ON or OFF	MOTION MIRROR: ON или OFF
+TALLYEVENT wants ON or OFF	TALLYEVENT изисква ON или OFF
+TONECUE LFO: FREQ or LEVEL	TONECUE LFO: FREQ или LEVEL
+GOGUARD: OFF or 50-2000 (ms)	GOGUARD: OFF или 50-2000 (ms)
+SLICE GRID SMOOTH: ON or OFF	SLICE GRID SMOOTH: ON или OFF
+PATTERN SET needs a pattern id	PATTERN SET изисква id на шаблон
+already the first tracker step	вече е първата стъпка на тракера
+cannot determine rendered size	размерът на рендиране не може да се определи
+find: enter cue id/number/name	find: въведете ID, номер или име на cue
+no sprite sets in data/sprites	няма набори спрайтове в data/sprites
+normalize: no measurable audio	normalize: няма измерим звук
+recordings are left as written	записите се оставят както са записани
+reracked - holding first frame	reracked - задържане на първия кадър
+st 2110: clipboard unavailable	st 2110: клипбордът не е достъпен
+stream url: unsupported scheme	stream url: неподдържана схема
+that button has no command yet	този бутон още няма команда
+DMXCUE PROTOCOL: ARTNET or SACN	DMXCUE PROTOCOL: ARTNET или SACN
+FIXTURE DIP: 0-100 (%) or LEAVE	FIXTURE DIP: 0-100 (%) или LEAVE
+FX LFO: no effect at that index	FX LFO: няма ефект на този индекс
+MIDIMAP CLEAR: COMPUTER or SHOW	MIDIMAP CLEAR: COMPUTER или SHOW
+TEXTCUE SPEED: expected 0.05-20	TEXTCUE SPEED: очаква се 0.05-20
+an output needs a base playlist	изходът изисква основен плейлист
+audio input: device unavailable	звуков вход: устройството не е налично
+expected crop percentages 0..90	очакват се проценти за изрязване 0..90
+media found - nothing to relink	медията е намерена – няма какво да се свърже отново
+notestep: build out of range 1-	notestep: версията е извън обхват 1-
+put it back when the ramp lands	върни го, когато рампата приключи
+splitnotes: cue out of range 1-	splitnotes: cue извън обхват 1-
+st 2110 SDP copied to clipboard	st 2110 SDP е копиран в клипборда
+w00t! all ur cues r belong 2 us	w00t! всичките ви cue-та са наши
+BROWSER TYPE: expected some text	BROWSER TYPE: очаква се текст
+CHECK: expected a problem number	CHECK: очаква се номер на проблем
+FADE RESTORE: expected on or off	FADE RESTORE: очаква се on или off
+MIDICLOCK SIM: expected a number	MIDICLOCK SIM: очаква се число
+MONITOR ROOM: expected ON or OFF	MONITOR ROOM: очаква се ON или OFF
+MOTION ZONE ADD: already 8 zones	MOTION ZONE ADD: вече има 8 зони
+SLICE REMOVE: a slice number, 1-	SLICE REMOVE: номер на сегмент, 1-
+motion off: the camera is closed	motion off: камерата е затворена
+no capture devices found (dshow)	не са намерени устройства за заснемане (dshow)
+only accepted from this computer	приема се само от този компютър
+reccodec: expected a codec token	reccodec: очаква се codec токен
+this build has no plugin support	тази версия няма поддръжка на плъгини
+BROWSER SCROLL: expected a number	BROWSER SCROLL: очаква се число
+DMXCUE UNIVERSE: expected 0-32767	DMXCUE UNIVERSE: очаква се 0-32767
+FADE DECK: expected a deck number	FADE DECK: очаква се номер на дек
+FX PARAM: no effect at that index	FX PARAM: няма ефект на този индекс
+MIC GAIN: expected -40 to 40 (dB)	MIC GAIN: очаква се от -40 до 40 (dB)
+MOTION ZONE REMOVE: a zone number	MOTION ZONE REMOVE: номер на зона
+NDI: this build has no NDI output	NDI: тази версия няма изход NDI
+STING PITCH: expected 20-12000 Hz	STING PITCH: очаква се 20-12000 Hz
+TRIGGER MIDI: a note 0-127 or OFF	TRIGGER MIDI: нота 0-127 или OFF
+could not open the Screens window	прозорецът SCREENS не можа да се отвори
+effects paste: copy a chain first	поставяне на ефекти: първо копирайте
+expected pixels -1000000..1000000	очакват се пиксели -1000000..1000000
+press again to delete this button	натиснете пак, за да изтриете този бутон
+warp grid: 2 to 9 points each way	warp grid: от 2 до 9 точки във всяка посока
+AUDIOFX ADD: needs an effect token	AUDIOFX ADD: нужен е токен на ефект
+BLEND LIFT: expected 0..20 percent	BLEND LIFT: очаква се 0..20 процента
+BUGSWAT SHOWME: only in a briefing	BUGSWAT SHOWME: само в брифинг
+CAPTIONS LINES: expected 1, 2 or 3	CAPTIONS LINES: очаква се 1, 2 или 3
+DASH SET: slot number out of range	DASH SET: номерът на слота е извън обхват
+FX AMOUNT: no effect at that index	FX AMOUNT: няма ефект на този индекс
+FX COLOUR: no effect at that index	FX COLOUR: няма ефект на този индекс
+MIDICLOCK SIM: bpm must be 20..600	MIDICLOCK SIM: bpm трябва да е 20..600
+OUTPUT ADD: expected a deck number	OUTPUT ADD: очаква се номер на дек
+SLICE FLIP: H or V, then ON or OFF	SLICE FLIP: H или V, после ON или OFF
+a path needs three points: dropped	пътят иска три точки: отхвърлен
+a show needs at least one playlist	шоуто се нуждае поне от един плейлист
+display scan: no displays reported	display scan: няма докладвани дисплеи
+selection has no cue with geometry	избраното няма cue с геометрия
+that cue cannot be fired by a step	това cue не може да се задейства от стъпка
+time: type it as HH:MM or HH:MM:SS	time: въведете го като HH:MM или HH:MM:SS
+ASCII COLS: expected a column count	ASCII COLS: очаква се брой колони
+Deckboy evolved into SUPER DECKBOY!	Deckboy се превърна в SUPER DECKBOY!
+FX PARAM: slot must be A, B, C or D	FX PARAM: слотът трябва да е A, B, C или D
+MIDI: a note number 0-127, or LEARN	MIDI: номер на нота 0-127 или LEARN
+MIDIMAP REMOVE: COMPUTER|SHOW <row>	MIDIMAP REMOVE: COMPUTER|SHOW <ред>
+OUTPUT DECK: expected a deck number	OUTPUT DECK: очаква се номер на дек
+OUTPUTFX BYPASS: expected ON or OFF	OUTPUTFX BYPASS: очаква се ON или OFF
+SCOPES MATRIX: expected 709 or 2020	SCOPES MATRIX: очаква се 709 или 2020
+SHORTCUTS: the startup dialog is up	SHORTCUTS: диалогът за стартиране е отворен
+STREAM HDR: expected SDR, PQ or HLG	STREAM HDR: очаква се SDR, PQ или HLG
+an animation is already being saved	вече се записва анимация
+delete live cue: press delete again	delete live cue: натиснете Delete отново
+esc: output cleared - again to quit	esc: изходът е изчистен - пак за изход
+no browser cue is live on this deck	няма браузър cue на живо на този дек
+notestep: nothing live on this deck	notestep: нищо на живо на този дек
+select the cue it should take first	изберете cue, което да се пусне първо
+DRAW EDITOR: select a Draw cue first	DRAW EDITOR: първо изберете cue Draw
+DRAW SAVE: STILL or ANIMATION [file]	DRAW SAVE: STILL или ANIMATION [file]
+MIC CHANNEL: expected L, R or STEREO	MIC CHANNEL: очаква се L, R или STEREO
+MULTIVIEW WINDOW: expected ON or OFF	MULTIVIEW WINDOW: очаква се ON или OFF
+Page Down / Page Up step the tracker	Page Down / Page Up движат тракера
+SUBTITLE CONVERT: nothing to convert	SUBTITLE CONVERT: няма какво да се конвертира
+TONECUE LFO: select a tone cue first	TONECUE LFO: първо изберете cue с тон
+TRUST LAST: nothing has been refused	TRUST LAST: нищо не е отказано
+atem tally on -- set the switcher IP	atem tally on -- задайте IP на суича
+datamosh: subtle, self-heals (H.264)	datamosh: фин, самолекува се (H.264)
+master vol: expected 0-200 (percent)	master vol: очаква се 0-200 (процент)
+matrix off - back to the output pair	matrix off - обратно към изходната двойка
+monitor follows the focused playlist	мониторът следва фокусирания плейлист
+multiview: back to the automatic set	multiview: обратно към автоматичния набор
+no MIDI output ports on this machine	няма MIDI изходни портове на тази машина
+splitnotes: could not split that cue	splitnotes: този cue не можа да се раздели
+srt: passphrase needs 10+ characters	srt: паролата иска 10+ знака
+step deleted - ctrl+z brings it back	стъпката е изтрита - ctrl+z я връща
+timer face: select a timer cue first	timer face: първо изберете cue с таймер
+timer font: select a timer cue first	timer font: първо изберете cue с таймер
+16 slices is the most an output takes	16 среза е максимумът за един изход
+AUDIOGAIN BY: expected a number of dB	AUDIOGAIN BY: очаква се число в dB
+AUDITION: expected OFF, END or STATUS	AUDITION: очаква се OFF, END или STATUS
+BROWSER CLICK: fractions must be 0..1	BROWSER CLICK: дробите трябва да са 0..1
+FX GET: expected an effect number, 1-	FX GET: очаква се номер на ефект, 1-
+HLS playlist: added as one stream cue	HLS плейлист: добавен като един cue за поток
+MASTER BYPASS: expected a deck number	MASTER BYPASS: очаква се номер на дек
+MIDICLOCK: expected SIM <bpm> [beats]	MIDICLOCK: очаква се SIM <bpm> [beats]
+MULTIVIEW: expected ON, OFF or TOGGLE	MULTIVIEW: очаква се ON, OFF или TOGGLE
+OUTPUT HDR SIGNAL: expected PQ or HLG	OUTPUT HDR SIGNAL: очаква се PQ или HLG
+STREAM HDR: select a stream cue first	STREAM HDR: първо изберете cue за поток
+datamosh: file-backed video cues only	datamosh: само видео cue-ове от файл
+effects copy: this cue has no effects	effects copy: този cue няма ефекти
+matrix on, routed as the patch had it	matrix on, насочена както в пачъ
+recovery could not be read; copy kept	възстановяването не можа да се прочете; копието е запазено
+FIXTURE DIP: expected <name> <%>|LEAVE	FIXTURE DIP: очаква се <name> <%>|LEAVE
+MONITOR: expected DEVICE, DECK or ROOM	MONITOR: очаква се DEVICE, DECK или ROOM
+NETCUE PROTO: expected osc, udp or tcp	NETCUE PROTO: очаква се osc, udp или tcp
+STING LENGTH: expected 0.05-10 seconds	STING LENGTH: очаква се 0.05-10 секунди
+sprite sheet: select a video synth cue	sprite sheet: изберете cue за видео синтезатор
+AUDIOGAIN BY: no selected cue has audio	AUDIOGAIN BY: никой избран cue няма звук
+CAPTIONS SHOW: expected <output> ON|OFF	CAPTIONS SHOW: очаква се <output> ON|OFF
+CAPTIONS TRANSCRIPT: expected ON or OFF	CAPTIONS TRANSCRIPT: очаква се ON или OFF
+COMPANIONPASS: use 8 or more characters	COMPANIONPASS: използвайте 8 или повече знака
+DEVAMP: nothing is playing on that deck	DEVAMP: нищо не се възпроизвежда в този дек
+FX LFO ZONE: 0 (the whole picture) to 8	FX LFO ZONE: от 0 (цялата картина) до 8
+MASK IMPORT: expected <file.svg> [name]	MASK IMPORT: очаква се <file.svg> [name]
+MASK SET: expected <id> <param> <value>	MASK SET: очаква се <id> <param> <value>
+MULTIVIEW WINDOW: the last window stays	MULTIVIEW WINDOW: последният прозорец остава
+OUTPUT AOI MODE: expected PIXEL or FILL	OUTPUT AOI MODE: очаква се PIXEL или FILL
+SCOPES SOUND: expected nothing or RESET	SCOPES SOUND: очаква се нищо или RESET
+Tabletop is in SOURCE > MADE BY DECKBOY	Tabletop е в ИЗТОЧНИК > НАПРАВЕНО С DECKBOY
+can't read media - CONVERT in inspector	медията не може да се прочете - КОНВЕРТИРАЙ в инспектора
+cleared: all decks stopped, outputs off	изчистено: всички декове са спрени, изходи изкл.
+datamosh: classic, full effect (MPEG-4)	datamosh: класически, пълен ефект (MPEG-4)
+driver cleared - nothing left to puppet	driver е изчистен - няма какво да се управлява
+key+fill on - now pick a Key out device	key+fill е включен - сега изберете устройство за Key изход
+play the note that should fire this cue	изсвирете нотата, която да задейства този cue
+programme to MediaMTX: watch at http://	програма към MediaMTX: гледайте на http://
+recformat: expected <WxH|program> [fps]	recformat: очаква се <WxH|program> [fps]
+requested input missing - using default	заявеният вход липсва - използва се по подразбиране
+DRAW PLAYBACK: still, flipbook or replay	DRAW PLAYBACK: стоп кадър, flipbook или повторение
+FADE KNOB: expected amount, A, B, C or D	FADE KNOB: очаква се сила, A, B, C или D
+MASK EXPORT: size is WxH, e.g. 1920x1080	MASK EXPORT: размерът е WxH, напр. 1920x1080
+MOTION SOURCE: CAMERA [name] or DECK <n>	MOTION SOURCE: CAMERA [name] или DECK <n>
+NEW already starts from factory settings	NEW вече започва от фабрични настройки
+OUTPUT SELECT: expected an output number	OUTPUT SELECT: очаква се номер на изход
+TCCUE: expected NEW, ACTION, JAM or FIRE	TCCUE: очаква се NEW, ACTION, JAM или FIRE
+hands-on: clicks and keys go to the page	hands-on: кликовете и клавишите отиват към страницата
+multiview: one window per playlist again	multiview: отново един прозорец на плейлист
+record folder set - SAME DISK as Deckboy	папката за запис е зададена - СЪЩИЯТ ДИСК като Deckboy
+sequence waiting - press it again for GO	последователността чака - натисни пак за GO
+this platform cannot capture that source	тази платформа не може да заснеме този източник
+timer backdrop: select a timer cue first	фон на таймера: първо изберете cue таймер
+BLEND CURVE: expected PROJECTOR or LINEAR	BLEND CURVE: очаква се PROJECTOR или LINEAR
+CAPTIONS POSITION: expected TOP or BOTTOM	CAPTIONS POSITION: очаква се TOP или BOTTOM
+CAPTIONS SIZE: expected 50..200 (percent)	CAPTIONS SIZE: очаква се 50..200 (процента)
+DMXCUE: the selected cue is not a dmx cue	DMXCUE: избраният cue не е dmx cue
+DRAW FRAME: ADD, DELETE, NEXT, PREV or 1-	DRAW FRAME: ADD, DELETE, NEXT, PREV или 1-
+FADE OVER: expected a duration in seconds	FADE OVER: очаква се времетраене в секунди
+FADE TO: expected a percent from 0 to 100	FADE TO: очаква се процент от 0 до 100
+MOTION SOURCE DECK: a playlist number, 1-	MOTION SOURCE DECK: номер на плейлист, 1-
+STING SWEEP: expected -24 to 24 semitones	STING SWEEP: очакват се от -24 до 24 полутона
+TCCUE ACTION: expected start, stop or jam	TCCUE ACTION: очаква се start, stop или jam
+TCCUE JAM: expected a timecode or seconds	TCCUE JAM: очаква се тайм код или секунди
+TRACKER VIEW: expected PATTERN or CLASSIC	TRACKER VIEW: очаква се PATTERN или CLASSIC
+Tabletop added - SOURCE > MADE BY DECKBOY	Добавена е Tabletop - ИЗТОЧНИК > НАПРАВЕНО С DECKBOY
+browser window open - click, type, log in	прозорецът на браузъра е отворен - кликнете, пишете, влезте
+contrast check: something needs attention	проверка на контраста: нещо иска внимание
+drag the corners on the programme monitor	плъзнете ъглите върху монитора на програмата
+this browser backend cannot show a window	този браузър бекенд не може да покаже прозорец
+BROWSER CLICK: expected two fractions 0..1	BROWSER CLICK: очакват се две дроби 0..1
+CHIP: the selected cue is not a chip synth	CHIP: избраният cue не е chip синтезатор
+DASH SET: a slot cannot fire the dashboard	DASH SET: слотът не може да пусне таблото
+DRAW STROKE: x,y[,pressure] ... in percent	DRAW STROKE: x,y[,pressure] ... в проценти
+OUTPUTFX REMOVE: expected an effect number	OUTPUTFX REMOVE: очаква се номер на ефект
+SCRIPTCUE: expected NEW, ADD, CLEAR or RUN	SCRIPTCUE: очаква се NEW, ADD, CLEAR или RUN
+TEXTCUE WIGGLE: expected ON, OFF or TOGGLE	TEXTCUE WIGGLE: очаква се ON, OFF или TOGGLE
+TRIGGER KEY: F1-F10, F12, NUM0-NUM9 or OFF	TRIGGER KEY: F1-F10, F12, NUM0-NUM9 или OFF
+auto-advance removed: cue end follows hold	авто-преминаването е премахнато: краят на cue следва задържането
+choose RECOVER or KEEP SAVED before saving	изберете ВЪЗСТАНОВИ или ЗАДРЪЖ ЗАПАЗЕНОТО преди запазване
+datamosh look: file-backed video cues only	datamosh изглед: само за видео cue от файл
+nmos: on - searching for a registry (mDNS)	NMOS: ВКЛ. - търсене на регистър (mDNS)
+record folder: recordings/ beside the show	папка за запис: recordings/ до шоуто
+recsegment: expected <minutes> [megabytes]	recsegment: очаква се <минути> [мегабайти]
+the example shows are not in this download	примерните шоута не са в това изтегляне
+warp point: expected <col> <row> <dx> <dy>	warp point: очаква се <col> <row> <dx> <dy>
+warp point: no grid -- WARP GRID <n> first	warp point: няма мрежа -- първо WARP GRID <n>
+DMXCUE FIXTURE: level is 0-100 (%) or LEAVE	DMXCUE FIXTURE: нивото е 0-100 (%) или LEAVE
+EDIT off: the keyboard only moves and fires	РЕДАКТИРАЙ ИЗКЛ: клавиатурата само движи и пуска
+EDIT on: typing changes the tracker's cells	РЕДАКТИРАЙ ВКЛ: писането променя клетките на тракера
+FIXTURE: expected LIST, ADD, FIND or REMOVE	FIXTURE: очаква се LIST, ADD, FIND или REMOVE
+LIMITER CEILING: a level from -40 to 0 dBFS	LIMITER CEILING: ниво от -40 до 0 dBFS
+MIDICUE: the selected cue is not a midi cue	MIDICUE: избраният cue не е midi cue
+MOTION ZONE ADD: x y w h, percentages 0-100	MOTION ZONE ADD: x y w h, проценти 0-100
+MOTION ZONE: ADD x y w h, REMOVE n or CLEAR	MOTION ZONE: ADD x y w h, REMOVE n или CLEAR
+OUTPROBE: expected <output> <x 0-1> <y 0-1>	OUTPROBE: очаква се <output> <x 0-1> <y 0-1>
+PORTS: expected an http port and a tcp port	PORTS: очакват се HTTP порт и TCP порт
+SLICE ADD: already 16 slices on this output	SLICE ADD: вече има 16 среза на този изход
+TEXTCUE: the selected cue is not a text cue	TEXTCUE: избраният cue не е текстов cue
+a step cannot fire the playlist it lives on	стъпка не може да задейства плейлиста, в който се намира
+atem tally on -- set which input Deckboy is	Tally ATEM вкл -- задайте кой вход е Deckboy
+esc: control window - again to clear output	Esc: прозорец за управление - пак, за да изчистите изхода
+recordings remux to MP4 when the take stops	записите се ремуксват в MP4, когато записът спре
+MATRIX SET: level is a percent from 0 to 100	MATRIX SET: нивото е процент от 0 до 100
+SYNTH: the selected cue is not a video synth	SYNTH: избраният cue не е видео синтезатор
+group presets became master cues: use MASTER	груповите преднастройки станаха master cue: ползвайте MASTER
+on the dashboard - Ctrl+D or the DASH button	в таблото - Ctrl+D или бутона DASH
+8 zones already: click one to remove it first	вече 8 зони: щракнете върху една, за да я премахнете първо
+AUDIOFX PLUGIN: this build has no plugin host	AUDIOFX PLUGIN: тази версия няма хост за плъгини
+DASH SET: <n> <label> | <command> [| <glyph>]	DASH SET: <n> <етикет> | <команда> [| <глиф>]
+DRAW SIZE: 0.1-20 (% of the picture's height)	DRAW SIZE: 0.1-20 (% от височината на картината)
+FX LFO: slot must be A-D, or E for the amount	FX LFO: слотът трябва да е A-D или E за силата
+MASK PATH: a path needs at least three points	MASK PATH: пътят изисква поне три точки
+NETCUE: the selected cue is not a network cue	NETCUE: избраният cue не е мрежов cue
+Page Down / Page Up step the focused playlist	Page Down / Page Up местят стъпка във фокусирания плейлист
+SCALEMODE: expected fit|fill|stretch|unscaled	SCALEMODE: очаква се fit|fill|stretch|unscaled
+SUBTITLE CONVERT: the cue has no caption file	SUBTITLE CONVERT: cue няма файл с надписи
+TCCUE: the selected cue is not a timecode cue	TCCUE: избраният cue не е cue с тайм код
+TEXTCUE ALIGN: expected left, centre or right	TEXTCUE ALIGN: очаква се ляво, център или дясно
+make a step first: a section starts at a step	първо направете стъпка: секцията започва от стъпка
+mask off -- it is still in the show's library	маска изкл -- още е в библиотеката на шоуто
+motion on: the camera is read, never recorded	движение вкл: камерата се чете, никога не се записва
+new show disarms all outputs: press new again	ново шоу деактивира всички изходи: натиснете ново шоу отново
+nmos: network is LOCAL ONLY - not registering	nmos: мрежата е само ЛОКАЛНА - без регистрация
+normalize: selection has no file-backed audio	normalize: избраното няма аудио от файл
+output recover failed: fullscreen unavailable	възстановяването на изхода пропадна: цял екран не е наличен
+this output's renderer could not cut the mask	рендерът на този изход не успя да изреже маската
+unsaved changes will be lost: press new again	незапазените промени ще бъдат загубени: натиснете ново шоу отново
+zones cleared: Motion reads the whole picture	зоните са изчистени: движение чете цялата картина
+Stop masking this. The mask stays in the show's library, to put back from the menu above	Спри маскирането. Маската остава в библиотеката на шоуто и се връща от менюто по-горе
+Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	Изтрий тази маска от шоуто и от всеки cue, плейлист и изход, които я ползват. Отмяната я връща

@@ -2858,3 +2858,215 @@ DASH: the startup dialog is up	DASH: ກ່ອງເລີ່ມຕົ້ນເ�
 LOWERSTYLE: select a cue first	LOWERSTYLE: ເລືອກ cue ກ່ອນ
 MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: ຕ້ອງເປັນ 1-16
 PATTERN ADD needs a pattern id	PATTERN ADD ຕ້ອງມີ ID ຂອງຮູບແບບ
+DRAW ONION: ON or OFF	DRAW ONION: ON ຫຼື OFF
+DRAW EDITOR: ON or OFF	DRAW EDITOR: ON ຫຼື OFF
+DRAW HOLD: seconds, 0-60	DRAW HOLD: ວິນາທີ, 0-60
+FADE EFFECT: expected 1-	FADE EFFECT: ຕ້ອງມີ 1-
+MOTION MIRROR: ON or OFF	MOTION MIRROR: ON ຫຼື OFF
+GOGUARD: OFF or 50-2000 (ms)	GOGUARD: OFF ຫຼື 50-2000 (ms)
+SLICE GRID SMOOTH: ON or OFF	SLICE GRID SMOOTH: ON ຫຼື OFF
+TRIGGER AT: HH:MM[:SS] or OFF	TRIGGER AT: HH:MM[:SS] ຫຼື OFF
+PATTERN SET needs a pattern id	PATTERN SET ຕ້ອງມີ ID ຮູບແບບ
+already the first tracker step	ເປັນຂັ້ນທຳອິດຂອງຕົວຕິດຕາມແລ້ວ
+cannot determine rendered size	ບໍ່ສາມາດກຳນົດຂະໜາດທີ່ເຣັນເດີໄດ້
+find: enter cue id/number/name	ຊອກ: ໃສ່ ID/ເລກ/ຊື່ cue
+no sprite sets in data/sprites	ບໍ່ມີຊຸດ sprite ໃນ data/sprites
+normalize: no measurable audio	normalize: ບໍ່ມີສຽງທີ່ວັດໄດ້
+recordings are left as written	ການບັນທຶກຖືກປະໄວ້ຕາມທີ່ຂຽນ
+reracked - holding first frame	reracked - ຄ້າງພາບທຳອິດ
+st 2110: clipboard unavailable	st 2110: ໃຊ້ clipboard ບໍ່ໄດ້
+stream url: unsupported scheme	stream url: ບໍ່ຮອງຮັບ scheme ນີ້
+that button has no command yet	ປຸ່ມນັ້ນຍັງບໍ່ມີຄຳສັ່ງ
+DMXCUE PROTOCOL: ARTNET or SACN	DMXCUE PROTOCOL: ARTNET ຫຼື SACN
+FIXTURE DIP: 0-100 (%) or LEAVE	FIXTURE DIP: 0-100 (%) ຫຼື LEAVE
+FX LFO: no effect at that index	FX LFO: ບໍ່ມີເອັບເຟັກທີ່ດັດຊະນີນັ້ນ
+MIDIMAP CLEAR: COMPUTER or SHOW	MIDIMAP CLEAR: COMPUTER ຫຼື SHOW
+TEXTCUE SPEED: expected 0.05-20	TEXTCUE SPEED: ຕ້ອງການ 0.05-20
+an output needs a base playlist	ຂາອອກຕ້ອງມີ playlist ຫຼັກ
+audio input: device unavailable	ຂາເຂົ້າສຽງ: ອຸປະກອນບໍ່ພ້ອມໃຊ້
+expected crop percentages 0..90	ຕ້ອງການເປີເຊັນຕັດ 0..90
+media found - nothing to relink	ພົບສື່ແລ້ວ - ບໍ່ມີຫຍັງໃຫ້ເຊື່ອມໃໝ່
+notestep: build out of range 1-	notestep: build ເກີນຂອບເຂດ 1-
+put it back when the ramp lands	ວາງຄືນເມື່ອ ramp ຮອດ
+splitnotes: cue out of range 1-	splitnotes: cue ເກີນຂອບເຂດ 1-
+st 2110 SDP copied to clipboard	ສຳເນົາ st 2110 SDP ໄປ clipboard ແລ້ວ
+w00t! all ur cues r belong 2 us	w00t! cue ທັງໝົດຂອງເຈົ້າເປັນຂອງພວກເຮົາ
+BROWSER TYPE: expected some text	BROWSER TYPE: ຕ້ອງການຂໍ້ຄວາມ
+CHECK: expected a problem number	CHECK: ຕ້ອງການເລກບັນຫາ
+FADE RESTORE: expected on or off	FADE RESTORE: ຕ້ອງການ on ຫຼື off
+MIDICLOCK SIM: expected a number	MIDICLOCK SIM: ຕ້ອງການຕົວເລກ
+MONITOR ROOM: expected ON or OFF	MONITOR ROOM: ຕ້ອງການ ON ຫຼື OFF
+MOTION ZONE ADD: already 8 zones	MOTION ZONE ADD: ມີ 8 ເຂດແລ້ວ
+SLICE REMOVE: a slice number, 1-	SLICE REMOVE: ເລກ slice, 1-
+motion off: the camera is closed	ການເຄື່ອນປິດ: ກ້ອງປິດຢູ່
+no capture devices found (dshow)	ບໍ່ພົບອຸປະກອນຈັບພາບ (dshow)
+only accepted from this computer	ຮັບສະເພາະຈາກຄອມພິວເຕີນີ້
+reccodec: expected a codec token	reccodec: ຕ້ອງການ codec token
+this build has no plugin support	ລຸ້ນນີ້ບໍ່ຮອງຮັບ plugin
+BROWSER SCROLL: expected a number	BROWSER SCROLL: ຕ້ອງການຕົວເລກ
+DMXCUE UNIVERSE: expected 0-32767	DMXCUE UNIVERSE: ຕ້ອງການ 0-32767
+FADE DECK: expected a deck number	FADE DECK: ຕ້ອງການເລກ deck
+FX PARAM: no effect at that index	FX PARAM: ບໍ່ມີເອັບເຟັກທີ່ດັດຊະນີນັ້ນ
+MIC GAIN: expected -40 to 40 (dB)	MIC GAIN: ຕ້ອງການ -40 ເຖິງ 40 (dB)
+MOTION ZONE REMOVE: a zone number	MOTION ZONE REMOVE: ເລກເຂດ
+NDI: this build has no NDI output	NDI: ລຸ້ນນີ້ບໍ່ມີຂາອອກ NDI
+STING PITCH: expected 20-12000 Hz	STING PITCH: ຕ້ອງການ 20-12000 Hz
+TRIGGER MIDI: a note 0-127 or OFF	TRIGGER MIDI: note 0-127 ຫຼື OFF
+could not open the Screens window	ເປີດໜ້າຕ່າງ SCREENS ບໍ່ໄດ້
+effects paste: copy a chain first	ວາງເອັບເຟັກ: ສຳເນົາສາຍກ່ອນ
+expected pixels -1000000..1000000	ຕ້ອງການ pixel -1000000..1000000
+press again to delete this button	ກົດອີກຄັ້ງເພື່ອລຶບປຸ່ມນີ້
+warp grid: 2 to 9 points each way	warp grid: 2 ຫາ 9 ຈຸດໃນແຕ່ລະທິດ
+AUDIOFX ADD: needs an effect token	AUDIOFX ADD: ຕ້ອງມີ token ຂອງ effect
+BLEND LIFT: expected 0..20 percent	BLEND LIFT: ຕ້ອງການ 0..20 ເປີເຊັນ
+BUGSWAT SHOWME: only in a briefing	BUGSWAT SHOWME: ໃຊ້ໄດ້ສະເພາະໃນ briefing
+CAPTIONS LINES: expected 1, 2 or 3	CAPTIONS LINES: ຕ້ອງການ 1, 2 ຫຼື 3
+DASH SET: slot number out of range	DASH SET: ໝາຍເລກ slot ເກີນຂອບເຂດ
+FX AMOUNT: no effect at that index	FX AMOUNT: ບໍ່ມີ effect ຢູ່ດັດຊະນີນັ້ນ
+FX COLOUR: no effect at that index	FX COLOUR: ບໍ່ມີ effect ຢູ່ດັດຊະນີນັ້ນ
+MIDICLOCK SIM: bpm must be 20..600	MIDICLOCK SIM: bpm ຕ້ອງເປັນ 20..600
+OUTPUT ADD: expected a deck number	OUTPUT ADD: ຕ້ອງການໝາຍເລກ deck
+SLICE FLIP: H or V, then ON or OFF	SLICE FLIP: H ຫຼື V, ແລ້ວ ON ຫຼື OFF
+a path needs three points: dropped	ເສັ້ນທາງຕ້ອງມີສາມຈຸດ: ຖືກຖິ້ມ
+a show needs at least one playlist	ໂຊຕ້ອງມີຢ່າງໜ້ອຍໜຶ່ງ playlist
+display scan: no displays reported	display scan: ບໍ່ພົບຈໍສະແດງຜົນ
+selection has no cue with geometry	ການເລືອກບໍ່ມີ cue ທີ່ມີເລຂາຄະນິດ
+that cue cannot be fired by a step	ຂັ້ນບໍ່ສາມາດແລ່ນ cue ນັ້ນໄດ້
+time: type it as HH:MM or HH:MM:SS	ເວລາ: ພິມເປັນ HH:MM ຫຼື HH:MM:SS
+ASCII COLS: expected a column count	ASCII COLS: ຕ້ອງການຈຳນວນຖັນ
+Deckboy evolved into SUPER DECKBOY!	Deckboy ວິວັດເປັນ SUPER DECKBOY!
+FX PARAM: slot must be A, B, C or D	FX PARAM: slot ຕ້ອງເປັນ A, B, C ຫຼື D
+MIDI: a note number 0-127, or LEARN	MIDI: ໝາຍເລກໂນດ 0-127 ຫຼື ຮຽນຮູ້
+MIDIMAP REMOVE: COMPUTER|SHOW <row>	MIDIMAP REMOVE: COMPUTER|SHOW <ແຖວ>
+OUTPUT DECK: expected a deck number	OUTPUT DECK: ຕ້ອງການໝາຍເລກ deck
+OUTPUTFX BYPASS: expected ON or OFF	OUTPUTFX BYPASS: ຕ້ອງການ ON ຫຼື OFF
+SCOPES MATRIX: expected 709 or 2020	SCOPES MATRIX: ຕ້ອງການ 709 ຫຼື 2020
+SHORTCUTS: the startup dialog is up	SHORTCUTS: ກ່ອງເລີ່ມຕົ້ນເປີດຢູ່
+STREAM HDR: expected SDR, PQ or HLG	STREAM HDR: ຕ້ອງການ SDR, PQ ຫຼື HLG
+an animation is already being saved	ກຳລັງບັນທຶກ animation ຢູ່ແລ້ວ
+delete live cue: press delete again	ລຶບ cue ສົດ: ກົດ delete ອີກຄັ້ງ
+esc: output cleared - again to quit	esc: ລ້າງ output ແລ້ວ - ກົດອີກເພື່ອອອກ
+no browser cue is live on this deck	ບໍ່ມີ cue ບຣາວເຊີທີ່ສົດຢູ່ໃນ deck ນີ້
+notestep: nothing live on this deck	notestep: ບໍ່ມີຫຍັງສົດຢູ່ໃນ deck ນີ້
+select the cue it should take first	ເລືອກ cue ທີ່ຕ້ອງ TAKE ກ່ອນ
+DRAW EDITOR: select a Draw cue first	DRAW EDITOR: ເລືອກ DRAW CUE ກ່ອນ
+DRAW SAVE: STILL or ANIMATION [file]	DRAW SAVE: STILL ຫຼື ANIMATION [file]
+MIC CHANNEL: expected L, R or STEREO	MIC CHANNEL: ຄາດວ່າ L, R ຫຼື STEREO
+MULTIVIEW WINDOW: expected ON or OFF	MULTIVIEW WINDOW: ຄາດວ່າ ON ຫຼື OFF
+Page Down / Page Up step the tracker	Page Down / Page Up ຍ້າຍຕົວຕິດຕາມເທື່ອລະຂັ້ນ
+SUBTITLE CONVERT: nothing to convert	SUBTITLE CONVERT: ບໍ່ມີຫຍັງໃຫ້ແປງ
+TONECUE LFO: select a tone cue first	TONECUE LFO: ເລືອກ tone cue ກ່ອນ
+TRUST LAST: nothing has been refused	TRUST LAST: ບໍ່ມີຫຍັງຖືກປະຕິເສດ
+atem tally on -- set the switcher IP	Tally ATEM ເປີດ -- ຕັ້ງ IP ຂອງ switcher
+datamosh: subtle, self-heals (H.264)	datamosh: ອ່ອນໆ, ແກ້ໄຂຕົວເອງ (H.264)
+master vol: expected 0-200 (percent)	master vol: ຄາດວ່າ 0-200 (ເປີເຊັນ)
+matrix off - back to the output pair	matrix ປິດ - ກັບໄປຄູ່ OUTPUT
+monitor follows the focused playlist	monitor ຕາມ playlist ທີ່ເລືອກຢູ່
+multiview: back to the automatic set	multiview: ກັບໄປຊຸດອັດຕະໂນມັດ
+no MIDI output ports on this machine	ບໍ່ມີ port ຂາອອກ MIDI ໃນເຄື່ອງນີ້
+splitnotes: could not split that cue	splitnotes: ແຍກ cue ນັ້ນບໍ່ໄດ້
+srt: passphrase needs 10+ characters	srt: ວະລີລະຫັດຕ້ອງມີ 10+ ຕົວອັກສອນ
+step deleted - ctrl+z brings it back	ລຶບຂັ້ນແລ້ວ - ctrl+z ເອົາກັບຄືນ
+timer face: select a timer cue first	timer face: ເລືອກ timer cue ກ່ອນ
+timer font: select a timer cue first	timer font: ເລືອກ timer cue ກ່ອນ
+16 slices is the most an output takes	OUTPUT ໜຶ່ງຮັບໄດ້ສູງສຸດ 16 ຊິ້ນ
+AUDIOGAIN BY: expected a number of dB	AUDIOGAIN BY: ຄາດວ່າເປັນຕົວເລກ dB
+AUDITION: expected OFF, END or STATUS	AUDITION: ຄາດວ່າ OFF, END ຫຼື STATUS
+BROWSER CLICK: fractions must be 0..1	BROWSER CLICK: ເສດສ່ວນຕ້ອງເປັນ 0..1
+FX GET: expected an effect number, 1-	FX GET: ຄາດວ່າເປັນເລກ effect, 1-
+HLS playlist: added as one stream cue	HLS playlist: ເພີ່ມເປັນ stream cue ໜຶ່ງອັນ
+MASTER BYPASS: expected a deck number	MASTER BYPASS: ຄາດວ່າເປັນເລກ deck
+MIDICLOCK: expected SIM <bpm> [beats]	MIDICLOCK: ຄາດວ່າ SIM <bpm> [beats]
+MULTIVIEW: expected ON, OFF or TOGGLE	MULTIVIEW: ຄາດວ່າ ON, OFF ຫຼື TOGGLE
+OUTPUT HDR SIGNAL: expected PQ or HLG	OUTPUT HDR SIGNAL: ຄາດວ່າ PQ ຫຼື HLG
+STREAM HDR: select a stream cue first	STREAM HDR: ເລືອກ stream cue ກ່ອນ
+datamosh: file-backed video cues only	datamosh: ສະເພາະ video cue ທີ່ອີງໃສ່ໄຟລ໌
+effects copy: this cue has no effects	effects copy: cue ນີ້ບໍ່ມີເອັບເຟັກ
+matrix on, routed as the patch had it	matrix ເປີດ, ສົ່ງສັນຍານຕາມທີ່ PATCH ກຳນົດ
+recovery could not be read; copy kept	ອ່ານໄຟລ໌ recovery ບໍ່ໄດ້; ເກັບສຳເນົາໄວ້
+FIXTURE DIP: expected <name> <%>|LEAVE	FIXTURE DIP: ຄາດວ່າ <name> <%>|LEAVE
+MONITOR: expected DEVICE, DECK or ROOM	MONITOR: ຄາດວ່າ DEVICE, DECK ຫຼື ROOM
+NETCUE PROTO: expected osc, udp or tcp	NETCUE PROTO: ຄາດວ່າ osc, udp ຫຼື tcp
+STING LENGTH: expected 0.05-10 seconds	STING LENGTH: ຄາດວ່າ 0.05-10 ວິນາທີ
+sprite sheet: select a video synth cue	sprite sheet: ເລືອກ cue synth ວິດີໂອ
+AUDIOGAIN BY: no selected cue has audio	AUDIOGAIN BY: ບໍ່ມີ cue ທີ່ເລືອກທີ່ມີສຽງ
+CAPTIONS SHOW: expected <output> ON|OFF	CAPTIONS SHOW: ຕ້ອງໃສ່ <output> ON|OFF
+CAPTIONS TRANSCRIPT: expected ON or OFF	CAPTIONS TRANSCRIPT: ຕ້ອງໃສ່ ON ຫຼື OFF
+COMPANIONPASS: use 8 or more characters	COMPANIONPASS: ໃຊ້ 8 ຕົວອັກສອນຂຶ້ນໄປ
+DEVAMP: nothing is playing on that deck	DEVAMP: ບໍ່ມີຫຍັງກຳລັງຫຼິ້ນຢູ່ໃນ deck ນັ້ນ
+FX LFO ZONE: 0 (the whole picture) to 8	FX LFO ZONE: 0 (ຮູບທັງໝົດ) ຫາ 8
+MASK IMPORT: expected <file.svg> [name]	MASK IMPORT: ຕ້ອງໃສ່ <file.svg> [name]
+MASK SET: expected <id> <param> <value>	MASK SET: ຕ້ອງໃສ່ <id> <param> <value>
+MULTIVIEW WINDOW: the last window stays	MULTIVIEW WINDOW: ໜ້າຕ່າງສຸດທ້າຍຍັງຢູ່
+OUTPUT AOI MODE: expected PIXEL or FILL	OUTPUT AOI MODE: ຕ້ອງໃສ່ PIXEL ຫຼື FILL
+SCOPES SOUND: expected nothing or RESET	SCOPES SOUND: ຕ້ອງໃສ່ ບໍ່ມີຫຍັງ ຫຼື RESET
+Tabletop is in SOURCE > MADE BY DECKBOY	Tabletop ຢູ່ໃນ ແຫຼ່ງ > ສ້າງໂດຍ DECKBOY
+can't read media - CONVERT in inspector	ອ່ານສື່ບໍ່ໄດ້ - ແປງ ໃນຕົວກວດສອບ
+cleared: all decks stopped, outputs off	ລ້າງແລ້ວ: ທຸກ deck ຢຸດແລ້ວ, ຂາອອກປິດ
+datamosh: classic, full effect (MPEG-4)	datamosh: ຄລາສສິກ, FX ເຕັມ (MPEG-4)
+driver cleared - nothing left to puppet	ລ້າງ driver ແລ້ວ - ບໍ່ມີຫຍັງເຫຼືອໃຫ້ຄວບຄຸມ
+key+fill on - now pick a Key out device	key+fill ເປີດແລ້ວ - ຕອນນີ້ເລືອກອຸປະກອນຕັດພື້ນອອກ
+play the note that should fire this cue	ຫຼິ້ນໂນດທີ່ຈະເລີ່ມ cue ນີ້
+programme to MediaMTX: watch at http://	ໂປຣແກຣມໄປ MediaMTX: ເບິ່ງທີ່ http://
+recformat: expected <WxH|program> [fps]	recformat: ຕ້ອງໃສ່ <WxH|program> [fps]
+requested input missing - using default	ຂາເຂົ້າທີ່ຮ້ອງຂໍຂາດໄປ - ໃຊ້ຄ່າເລີ່ມຕົ້ນ
+DRAW PLAYBACK: still, flipbook or replay	DRAW PLAYBACK: ຮູບນິ່ງ, flipbook ຫຼື ຫຼິ້ນຄືນ
+FADE KNOB: expected amount, A, B, C or D	FADE KNOB: ຕ້ອງໃສ່ ປະລິມານ, A, B, C ຫຼື D
+LOWERANIM: this cue is not a Lower Third	LOWERANIM: CUE ນີ້ບໍ່ແມ່ນ Lower Third
+MASK EXPORT: size is WxH, e.g. 1920x1080	MASK EXPORT: ຂະໜາດແມ່ນ WxH, ເຊັ່ນ 1920x1080
+MOTION SOURCE: CAMERA [name] or DECK <n>	MOTION SOURCE: CAMERA [name] ຫຼື DECK <n>
+NEW already starts from factory settings	NEW ເລີ່ມຈາກການຕັ້ງຄ່າໂຮງງານຢູ່ແລ້ວ
+OUTPUT SELECT: expected an output number	OUTPUT SELECT: ຕ້ອງໃສ່ເລກຂາອອກ
+TCCUE: expected NEW, ACTION, JAM or FIRE	TCCUE: ຕ້ອງໃສ່ NEW, ACTION, JAM ຫຼື FIRE
+hands-on: clicks and keys go to the page	ຄວບຄຸມດ້ວຍມື: ການຄລິກ ແລະ ປຸ່ມ ໄປທີ່ໜ້າເວັບ
+multiview: one window per playlist again	multiview: ໜຶ່ງໜ້າຕ່າງຕໍ່ playlist ອີກຄັ້ງ
+record folder set - SAME DISK as Deckboy	ຕັ້ງໂຟນເດີອັດແລ້ວ - DISK ດຽວກັນກັບ Deckboy
+sequence waiting - press it again for GO	ລຳດັບລໍຖ້າ - ກົດອີກຄັ້ງເພື່ອ GO
+this platform cannot capture that source	ແພລດຟອມນີ້ບໍ່ສາມາດຈັບພາບແຫຼ່ງນັ້ນໄດ້
+timer backdrop: select a timer cue first	ພື້ນຫຼັງໂມງນັບ: ເລືອກ cue ໂມງນັບກ່ອນ
+BLEND CURVE: expected PROJECTOR or LINEAR	BLEND CURVE: ຕ້ອງໃສ່ PROJECTOR ຫຼື LINEAR
+CAPTIONS POSITION: expected TOP or BOTTOM	CAPTIONS POSITION: ຕ້ອງໃສ່ TOP ຫຼື BOTTOM
+CAPTIONS SIZE: expected 50..200 (percent)	CAPTIONS SIZE: ຕ້ອງໃສ່ 50..200 (ເປີເຊັນ)
+DMXCUE: the selected cue is not a dmx cue	DMXCUE: cue ທີ່ເລືອກບໍ່ແມ່ນ dmx cue
+DRAW FRAME: ADD, DELETE, NEXT, PREV or 1-	DRAW FRAME: ADD, DELETE, NEXT, PREV ຫຼື 1-
+FADE OVER: expected a duration in seconds	FADE OVER: ຕ້ອງການໄລຍະເວລາເປັນວິນາທີ
+FADE TO: expected a percent from 0 to 100	FADE TO: ຕ້ອງການເປີເຊັນ 0 ຫາ 100
+LOWERSTYLE: this cue is not a Lower Third	LOWERSTYLE: cue ນີ້ບໍ່ແມ່ນ Lower Third
+MOTION SOURCE DECK: a playlist number, 1-	MOTION SOURCE DECK: ເລກ PLAYLIST, 1-
+STING SWEEP: expected -24 to 24 semitones	STING SWEEP: ຕ້ອງການ -24 ຫາ 24 semitones
+TCCUE ACTION: expected start, stop or jam	TCCUE ACTION: ຕ້ອງການ start, stop ຫຼື jam
+TCCUE JAM: expected a timecode or seconds	TCCUE JAM: ຕ້ອງການລະຫັດເວລາ ຫຼື ວິນາທີ
+TRACKER VIEW: expected PATTERN or CLASSIC	TRACKER VIEW: ຕ້ອງການ PATTERN ຫຼື CLASSIC
+Tabletop added - SOURCE > MADE BY DECKBOY	ເພີ່ມ Tabletop ແລ້ວ - ແຫຼ່ງ > ສ້າງໂດຍ DECKBOY
+browser window open - click, type, log in	ເປີດໜ້າຕ່າງບຣາວເຊີແລ້ວ - ກົດ, ພິມ, ເຂົ້າສູ່ລະບົບ
+contrast check: something needs attention	ກວດຄວາມຄົມຊັດ: ມີບາງຢ່າງຕ້ອງເອົາໃຈໃສ່
+drag the corners on the programme monitor	ລາກແຈຢູ່ໜ້າຈໍໂປຣແກຣມ
+this browser backend cannot show a window	backend ຂອງບຣາວເຊີນີ້ສະແດງໜ້າຕ່າງບໍ່ໄດ້
+BROWSER CLICK: expected two fractions 0..1	BROWSER CLICK: ຕ້ອງການສອງເສດສ່ວນ 0..1
+CHIP: the selected cue is not a chip synth	CHIP: cue ທີ່ເລືອກບໍ່ແມ່ນ chip synth
+DASH SET: a slot cannot fire the dashboard	DASH SET: slot ບໍ່ສາມາດເລີ່ມແຜງຄວບຄຸມໄດ້
+DRAW STROKE: x,y[,pressure] ... in percent	DRAW STROKE: x,y[,pressure] ... ເປັນເປີເຊັນ
+OUTPUTFX REMOVE: expected an effect number	OUTPUTFX REMOVE: ຕ້ອງການເລກ EFFECT
+SCRIPTCUE: expected NEW, ADD, CLEAR or RUN	SCRIPTCUE: ຕ້ອງການ NEW, ADD, CLEAR ຫຼື RUN
+TEXTCUE WIGGLE: expected ON, OFF or TOGGLE	TEXTCUE WIGGLE: ຕ້ອງການ ON, OFF ຫຼື TOGGLE
+TRIGGER KEY: F1-F10, F12, NUM0-NUM9 or OFF	TRIGGER KEY: F1-F10, F12, NUM0-NUM9 ຫຼື OFF
+auto-advance removed: cue end follows hold	ລຶບອັດຕະໂນມັດແລ້ວ: ທ້າຍ cue ຕາມການຄ້າງ
+choose RECOVER or KEEP SAVED before saving	ເລືອກ RECOVER ຫຼື KEEP SAVED ກ່ອນບັນທຶກ
+datamosh look: file-backed video cues only	ລຸກ datamosh: ສະເພາະ video cue ທີ່ມີໄຟລ໌
+nmos: on - searching for a registry (mDNS)	nmos: ເປີດ - ກຳລັງຄົ້ນຫາທະບຽນລະບົບ (mDNS)
+record folder: recordings/ beside the show	ໂຟນເດີອັດ: recordings/ ຂ້າງໂຊ
+recsegment: expected <minutes> [megabytes]	recsegment: ຕ້ອງການ <ນາທີ> [ເມກາໄບຕ໌]
+the example shows are not in this download	ການດາວໂຫຼດນີ້ບໍ່ມີໂຊຕົວຢ່າງ
+warp point: expected <col> <row> <dx> <dy>	warp point: ຕ້ອງການ <col> <row> <dx> <dy>
+warp point: no grid -- WARP GRID <n> first	warp point: ບໍ່ມີ grid -- ໃຊ້ WARP GRID <n> ກ່ອນ
+DMXCUE FIXTURE: level is 0-100 (%) or LEAVE	DMXCUE FIXTURE: ລະດັບແມ່ນ 0-100 (%) ຫຼື LEAVE
+EDIT off: the keyboard only moves and fires	ແກ້ໄຂ ປິດ: ແປ້ນພິມພຽງແຕ່ຍ້າຍ ແລະ ເລີ່ມ
+EDIT on: typing changes the tracker's cells	ແກ້ໄຂ ເປີດ: ການພິມປ່ຽນຕາລາງຂອງຕົວຕິດຕາມ
+FIXTURE: expected LIST, ADD, FIND or REMOVE	FIXTURE: ຕ້ອງການ LIST, ADD, FIND ຫຼື REMOVE
+LIMITER CEILING: a level from -40 to 0 dBFS	LIMITER CEILING: ລະດັບຈາກ -40 ຫາ 0 dBFS
+MIDICUE: the selected cue is not a midi cue	MIDICUE: cue ທີ່ເລືອກບໍ່ແມ່ນ midi cue
+MOTION ZONE ADD: x y w h, percentages 0-100	MOTION ZONE ADD: x y w h, ເປີເຊັນ 0-100
+MOTION ZONE: ADD x y w h, REMOVE n or CLEAR	MOTION ZONE: ADD x y w h, REMOVE n ຫຼື CLEAR
+mask off -- it is still in the show's library	ໜ້າກາກ ປິດ -- ຍັງຢູ່ໃນຫ້ອງສະໝຸດຂອງໂຊ
+Stop masking this. The mask stays in the show's library, to put back from the menu above	ຢຸດໃຊ້ໜ້າກາກນີ້. ໜ້າກາກຍັງຢູ່ໃນຫ້ອງສະໝຸດຂອງໂຊ, ເອົາຄືນໄດ້ຈາກເມນູຂ້າງເທິງ
+Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	ລຶບໜ້າກາກນີ້ອອກຈາກໂຊ ແລະ ຈາກທຸກ cue, playlist ແລະ output ທີ່ໃຊ້ມັນ. Undo ເອົາຄືນມາໄດ້

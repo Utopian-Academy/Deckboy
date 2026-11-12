@@ -2851,3 +2851,252 @@ DASH: the startup dialog is up	DASH: το παράθυρο εκκίνησης ε
 LOWERSTYLE: select a cue first	LOWERSTYLE: επιλέξτε πρώτα ένα cue
 MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: αναμένεται 1-16
 PATTERN ADD needs a pattern id	PATTERN ADD χρειάζεται ID μοτίβου
+Lower Third attached	Lower Third επισυνάφθηκε
+find: run FIND first	find: εκτελέστε πρώτα FIND
+DRAW ONION: ON or OFF	DRAW ONION: ON ή OFF
+Lower Third cue added	Προστέθηκε cue Lower Third
+DRAW EDITOR: ON or OFF	DRAW EDITOR: ON ή OFF
+OUTPUT AOI: no outputs	OUTPUT AOI: χωρίς εξόδους
+OUTPUT DECK: no outputs	OUTPUT DECK: χωρίς εξόδους
+DRAW HOLD: seconds, 0-60	DRAW HOLD: δευτερόλεπτα, 0-60
+FADE EFFECT: expected 1-	FADE EFFECT: αναμενόταν 1-
+MOTION MIRROR: ON or OFF	MOTION MIRROR: ON ή OFF
+TALLYEVENT wants ON or OFF	TALLYEVENT θέλει ON ή OFF
+TONECUE LFO: FREQ or LEVEL	TONECUE LFO: FREQ ή LEVEL
+GOGUARD: OFF or 50-2000 (ms)	GOGUARD: OFF ή 50-2000 (ms)
+SLICE GRID SMOOTH: ON or OFF	SLICE GRID SMOOTH: ON ή OFF
+PATTERN SET needs a pattern id	PATTERN SET θέλει id μοτίβου
+already the first tracker step	ήδη το πρώτο βήμα του tracker
+cannot determine rendered size	αδύνατος ο προσδιορισμός του μεγέθους απόδοσης
+find: enter cue id/number/name	find: εισάγετε id/αριθμό/όνομα cue
+no sprite sets in data/sprites	δεν υπάρχουν σετ sprite στο data/sprites
+normalize: no measurable audio	normalize: δεν υπάρχει μετρήσιμος ήχος
+recordings are left as written	οι εγγραφές μένουν όπως γράφτηκαν
+reracked - holding first frame	reracked - κράτημα του πρώτου καρέ
+st 2110: clipboard unavailable	st 2110: το πρόχειρο δεν είναι διαθέσιμο
+stream url: unsupported scheme	stream url: μη υποστηριζόμενο σχήμα
+that button has no command yet	αυτό το κουμπί δεν έχει ακόμη εντολή
+DMXCUE PROTOCOL: ARTNET or SACN	DMXCUE PROTOCOL: ARTNET ή SACN
+FIXTURE DIP: 0-100 (%) or LEAVE	FIXTURE DIP: 0-100 (%) ή LEAVE
+FX LFO: no effect at that index	FX LFO: κανένα εφέ σε αυτό το ευρετήριο
+MIDIMAP CLEAR: COMPUTER or SHOW	MIDIMAP CLEAR: COMPUTER ή SHOW
+TEXTCUE SPEED: expected 0.05-20	TEXTCUE SPEED: αναμένεται 0.05-20
+an output needs a base playlist	μια έξοδος χρειάζεται βασική λίστα
+audio input: device unavailable	είσοδος ήχου: η συσκευή δεν είναι διαθέσιμη
+expected crop percentages 0..90	αναμένονται ποσοστά κοψίματος 0..90
+media found - nothing to relink	τα μέσα βρέθηκαν – τίποτα για επανασύνδεση
+notestep: build out of range 1-	notestep: έκδοση εκτός εύρους 1-
+put it back when the ramp lands	βάλ' το πίσω όταν τελειώσει η ράμπα
+splitnotes: cue out of range 1-	splitnotes: cue εκτός εύρους 1-
+st 2110 SDP copied to clipboard	το st 2110 SDP αντιγράφηκε στο πρόχειρο
+w00t! all ur cues r belong 2 us	w00t! όλα τα cue σας είναι δικά μας
+BROWSER TYPE: expected some text	BROWSER TYPE: αναμένεται κείμενο
+CHECK: expected a problem number	CHECK: αναμένεται αριθμός προβλήματος
+FADE RESTORE: expected on or off	FADE RESTORE: αναμένεται on ή off
+MIDICLOCK SIM: expected a number	MIDICLOCK SIM: αναμένεται αριθμός
+MONITOR ROOM: expected ON or OFF	MONITOR ROOM: αναμένεται ON ή OFF
+MOTION ZONE ADD: already 8 zones	MOTION ZONE ADD: ήδη 8 ζώνες
+SLICE REMOVE: a slice number, 1-	SLICE REMOVE: αριθμός slice, 1-
+motion off: the camera is closed	motion off: η κάμερα είναι κλειστή
+no capture devices found (dshow)	δεν βρέθηκαν συσκευές λήψης (dshow)
+only accepted from this computer	γίνεται δεκτό μόνο από αυτόν τον υπολογιστή
+reccodec: expected a codec token	reccodec: αναμένεται token codec
+this build has no plugin support	αυτή η έκδοση δεν υποστηρίζει πρόσθετα
+BROWSER SCROLL: expected a number	BROWSER SCROLL: αναμένεται αριθμός
+DMXCUE UNIVERSE: expected 0-32767	DMXCUE UNIVERSE: αναμένεται 0-32767
+FADE DECK: expected a deck number	FADE DECK: αναμένεται αριθμός deck
+FX PARAM: no effect at that index	FX PARAM: κανένα εφέ σε αυτό το ευρετήριο
+MIC GAIN: expected -40 to 40 (dB)	MIC GAIN: αναμένεται -40 έως 40 (dB)
+MOTION ZONE REMOVE: a zone number	MOTION ZONE REMOVE: αριθμός ζώνης
+NDI: this build has no NDI output	NDI: αυτή η έκδοση δεν έχει έξοδο NDI
+STING PITCH: expected 20-12000 Hz	STING PITCH: αναμένεται 20-12000 Hz
+TRIGGER MIDI: a note 0-127 or OFF	TRIGGER MIDI: νότα 0-127 ή OFF
+could not open the Screens window	δεν ήταν δυνατό το άνοιγμα του παραθύρου SCREENS
+effects paste: copy a chain first	επικόλληση εφέ: αντιγράψτε πρώτα
+expected pixels -1000000..1000000	αναμένονται pixel -1000000..1000000
+press again to delete this button	πατήστε ξανά για διαγραφή αυτού του κουμπιού
+warp grid: 2 to 9 points each way	warp grid: 2 έως 9 σημεία σε κάθε διεύθυνση
+AUDIOFX ADD: needs an effect token	AUDIOFX ADD: χρειάζεται token εφέ
+BLEND LIFT: expected 0..20 percent	BLEND LIFT: αναμένεται 0..20 τοις εκατό
+BUGSWAT SHOWME: only in a briefing	BUGSWAT SHOWME: μόνο σε briefing
+CAPTIONS LINES: expected 1, 2 or 3	CAPTIONS LINES: αναμένεται 1, 2 ή 3
+DASH SET: slot number out of range	DASH SET: ο αριθμός slot είναι εκτός εύρους
+FX AMOUNT: no effect at that index	FX AMOUNT: κανένα εφέ σε αυτό το ευρετήριο
+FX COLOUR: no effect at that index	FX COLOUR: κανένα εφέ σε αυτό το ευρετήριο
+MIDICLOCK SIM: bpm must be 20..600	MIDICLOCK SIM: το bpm πρέπει να είναι 20..600
+OUTPUT ADD: expected a deck number	OUTPUT ADD: αναμένεται αριθμός deck
+SLICE FLIP: H or V, then ON or OFF	SLICE FLIP: H ή V, μετά ON ή OFF
+a path needs three points: dropped	μια διαδρομή θέλει τρία σημεία: απορρίφθηκε
+a show needs at least one playlist	μια παράσταση χρειάζεται τουλάχιστον μία λίστα
+display scan: no displays reported	display scan: δεν αναφέρθηκαν οθόνες
+selection has no cue with geometry	η επιλογή δεν έχει cue με γεωμετρία
+that cue cannot be fired by a step	αυτό το cue δεν μπορεί να ενεργοποιηθεί από βήμα
+time: type it as HH:MM or HH:MM:SS	time: πληκτρολογήστε το ως HH:MM ή HH:MM:SS
+ASCII COLS: expected a column count	ASCII COLS: αναμένεται αριθμός στηλών
+Deckboy evolved into SUPER DECKBOY!	Το Deckboy εξελίχθηκε σε SUPER DECKBOY!
+FX PARAM: slot must be A, B, C or D	FX PARAM: το slot πρέπει να είναι A, B, C ή D
+MIDI: a note number 0-127, or LEARN	MIDI: αριθμός νότας 0-127 ή LEARN
+MIDIMAP REMOVE: COMPUTER|SHOW <row>	MIDIMAP REMOVE: COMPUTER|SHOW <γραμμή>
+OUTPUT DECK: expected a deck number	OUTPUT DECK: αναμένεται αριθμός deck
+OUTPUTFX BYPASS: expected ON or OFF	OUTPUTFX BYPASS: αναμένεται ON ή OFF
+SCOPES MATRIX: expected 709 or 2020	SCOPES MATRIX: αναμένεται 709 ή 2020
+SHORTCUTS: the startup dialog is up	SHORTCUTS: το παράθυρο εκκίνησης είναι ανοιχτό
+STREAM HDR: expected SDR, PQ or HLG	STREAM HDR: αναμένεται SDR, PQ ή HLG
+an animation is already being saved	ένα animation αποθηκεύεται ήδη
+delete live cue: press delete again	delete live cue: πατήστε ξανά Delete
+esc: output cleared - again to quit	esc: η έξοδος καθαρίστηκε - ξανά για έξοδο
+no browser cue is live on this deck	κανένα cue περιηγητή δεν είναι ζωντανό σε αυτό το deck
+notestep: nothing live on this deck	notestep: τίποτα ζωντανό σε αυτό το deck
+select the cue it should take first	επιλέξτε το cue που πρέπει να παίξει πρώτο
+DRAW EDITOR: select a Draw cue first	DRAW EDITOR: επίλεξε πρώτα ένα cue Draw
+DRAW SAVE: STILL or ANIMATION [file]	DRAW SAVE: STILL ή ANIMATION [file]
+MIC CHANNEL: expected L, R or STEREO	MIC CHANNEL: αναμένεται L, R ή STEREO
+MULTIVIEW WINDOW: expected ON or OFF	MULTIVIEW WINDOW: αναμένεται ON ή OFF
+Page Down / Page Up step the tracker	Page Down / Page Up προχωρούν τον tracker
+SUBTITLE CONVERT: nothing to convert	SUBTITLE CONVERT: τίποτα για μετατροπή
+TONECUE LFO: select a tone cue first	TONECUE LFO: επίλεξε πρώτα ένα cue τόνου
+TRUST LAST: nothing has been refused	TRUST LAST: τίποτα δεν έχει απορριφθεί
+atem tally on -- set the switcher IP	atem tally on -- όρισε το IP του switcher
+datamosh: subtle, self-heals (H.264)	datamosh: διακριτικό, αυτοθεραπεύεται (H.264)
+master vol: expected 0-200 (percent)	master vol: αναμένεται 0-200 (ποσοστό)
+matrix off - back to the output pair	matrix off - επιστροφή στο ζεύγος εξόδων
+monitor follows the focused playlist	το monitor ακολουθεί την εστιασμένη λίστα
+multiview: back to the automatic set	multiview: επιστροφή στο αυτόματο σύνολο
+no MIDI output ports on this machine	δεν υπάρχουν θύρες εξόδου MIDI σε αυτό το μηχάνημα
+splitnotes: could not split that cue	splitnotes: δεν χωρίστηκε αυτό το cue
+srt: passphrase needs 10+ characters	srt: η φράση πρόσβασης θέλει 10+ χαρακτήρες
+step deleted - ctrl+z brings it back	το βήμα διαγράφηκε - το ctrl+z το επαναφέρει
+timer face: select a timer cue first	timer face: επίλεξε πρώτα ένα cue χρονομέτρου
+timer font: select a timer cue first	timer font: επίλεξε πρώτα ένα cue χρονομέτρου
+16 slices is the most an output takes	16 τμήματα είναι το μέγιστο για μία έξοδο
+AUDIOGAIN BY: expected a number of dB	AUDIOGAIN BY: αναμένεται αριθμός σε dB
+AUDITION: expected OFF, END or STATUS	AUDITION: αναμένεται OFF, END ή STATUS
+BROWSER CLICK: fractions must be 0..1	BROWSER CLICK: τα κλάσματα πρέπει να είναι 0..1
+FX GET: expected an effect number, 1-	FX GET: αναμένεται αριθμός εφέ, 1-
+HLS playlist: added as one stream cue	λίστα HLS: προστέθηκε ως ένα cue ροής
+MASTER BYPASS: expected a deck number	MASTER BYPASS: αναμένεται αριθμός deck
+MIDICLOCK: expected SIM <bpm> [beats]	MIDICLOCK: αναμένεται SIM <bpm> [beats]
+MULTIVIEW: expected ON, OFF or TOGGLE	MULTIVIEW: αναμένεται ON, OFF ή TOGGLE
+OUTPUT HDR SIGNAL: expected PQ or HLG	OUTPUT HDR SIGNAL: αναμένεται PQ ή HLG
+STREAM HDR: select a stream cue first	STREAM HDR: επίλεξε πρώτα ένα cue ροής
+datamosh: file-backed video cues only	datamosh: μόνο cue βίντεο από αρχείο
+effects copy: this cue has no effects	effects copy: αυτό το cue δεν έχει εφέ
+matrix on, routed as the patch had it	matrix on, δρομολογημένο όπως το είχε το πατς
+recovery could not be read; copy kept	η ανάκτηση δεν διαβάστηκε· κρατήθηκε αντίγραφο
+FIXTURE DIP: expected <name> <%>|LEAVE	FIXTURE DIP: αναμένεται <name> <%>|LEAVE
+MONITOR: expected DEVICE, DECK or ROOM	MONITOR: αναμένεται DEVICE, DECK ή ROOM
+NETCUE PROTO: expected osc, udp or tcp	NETCUE PROTO: αναμένεται osc, udp ή tcp
+STING LENGTH: expected 0.05-10 seconds	STING LENGTH: αναμένεται 0.05-10 δευτερόλεπτα
+sprite sheet: select a video synth cue	sprite sheet: επίλεξε cue συνθεσάιζερ βίντεο
+AUDIOGAIN BY: no selected cue has audio	AUDIOGAIN BY: κανένα επιλεγμένο cue δεν έχει ήχο
+CAPTIONS SHOW: expected <output> ON|OFF	CAPTIONS SHOW: αναμένεται <output> ON|OFF
+CAPTIONS TRANSCRIPT: expected ON or OFF	CAPTIONS TRANSCRIPT: αναμένεται ON ή OFF
+COMPANIONPASS: use 8 or more characters	COMPANIONPASS: χρησιμοποίησε 8 ή περισσότερους χαρακτήρες
+DEVAMP: nothing is playing on that deck	DEVAMP: τίποτα δεν παίζει σε αυτό το deck
+FX LFO ZONE: 0 (the whole picture) to 8	FX LFO ZONE: από 0 (όλη η εικόνα) έως 8
+MASK IMPORT: expected <file.svg> [name]	MASK IMPORT: αναμένεται <file.svg> [name]
+MASK SET: expected <id> <param> <value>	MASK SET: αναμένεται <id> <param> <value>
+MULTIVIEW WINDOW: the last window stays	MULTIVIEW WINDOW: το τελευταίο παράθυρο μένει
+OUTPUT AOI MODE: expected PIXEL or FILL	OUTPUT AOI MODE: αναμένεται PIXEL ή FILL
+SCOPES SOUND: expected nothing or RESET	SCOPES SOUND: αναμένεται τίποτα ή RESET
+Tabletop is in SOURCE > MADE BY DECKBOY	Το Tabletop είναι στο ΠΗΓΗ > ΦΤΙΑΓΜΕΝΟ ΜΕ DECKBOY
+can't read media - CONVERT in inspector	δεν διαβάζεται το μέσο - ΜΕΤΑΤΡΟΠΗ στον επιθεωρητή
+cleared: all decks stopped, outputs off	καθαρίστηκε: όλα τα deck σταμάτησαν, έξοδοι σβηστές
+datamosh: classic, full effect (MPEG-4)	datamosh: κλασικό, πλήρες εφέ (MPEG-4)
+driver cleared - nothing left to puppet	το driver καθαρίστηκε - δεν έμεινε τίποτα να κινηθεί
+key+fill on - now pick a Key out device	key+fill ενεργό - τώρα διάλεξε συσκευή για Έξοδος key
+play the note that should fire this cue	παίξε τη νότα που θα ενεργοποιεί αυτό το cue
+programme to MediaMTX: watch at http://	πρόγραμμα προς MediaMTX: δες στο http://
+recformat: expected <WxH|program> [fps]	recformat: αναμένεται <WxH|program> [fps]
+requested input missing - using default	λείπει η ζητούμενη είσοδος - χρήση προεπιλογής
+DRAW PLAYBACK: still, flipbook or replay	DRAW PLAYBACK: ακίνητη εικόνα, flipbook ή επανάληψη
+FADE KNOB: expected amount, A, B, C or D	FADE KNOB: αναμένεται ποσότητα, A, B, C ή D
+MASK EXPORT: size is WxH, e.g. 1920x1080	MASK EXPORT: το μέγεθος είναι WxH, π.χ. 1920x1080
+MOTION SOURCE: CAMERA [name] or DECK <n>	MOTION SOURCE: CAMERA [name] ή DECK <n>
+NEW already starts from factory settings	Το NEW ξεκινά ήδη από εργοστασιακές ρυθμίσεις
+OUTPUT SELECT: expected an output number	OUTPUT SELECT: αναμένεται αριθμός εξόδου
+TCCUE: expected NEW, ACTION, JAM or FIRE	TCCUE: αναμένεται NEW, ACTION, JAM ή FIRE
+hands-on: clicks and keys go to the page	hands-on: τα κλικ και τα πλήκτρα πάνε στη σελίδα
+multiview: one window per playlist again	multiview: πάλι ένα παράθυρο ανά λίστα
+record folder set - SAME DISK as Deckboy	ο φάκελος εγγραφής ορίστηκε - ΙΔΙΟΣ ΔΙΣΚΟΣ με το Deckboy
+sequence waiting - press it again for GO	η ακολουθία περιμένει - πάτησε ξανά για GO
+this platform cannot capture that source	αυτή η πλατφόρμα δεν μπορεί να καταγράψει αυτή την πηγή
+timer backdrop: select a timer cue first	φόντο χρονομέτρου: επίλεξε πρώτα cue χρονομέτρου
+BLEND CURVE: expected PROJECTOR or LINEAR	BLEND CURVE: αναμένεται PROJECTOR ή LINEAR
+CAPTIONS POSITION: expected TOP or BOTTOM	CAPTIONS POSITION: αναμένεται TOP ή BOTTOM
+CAPTIONS SIZE: expected 50..200 (percent)	CAPTIONS SIZE: αναμένεται 50..200 (τοις εκατό)
+DMXCUE: the selected cue is not a dmx cue	DMXCUE: το επιλεγμένο cue δεν είναι dmx cue
+DRAW FRAME: ADD, DELETE, NEXT, PREV or 1-	DRAW FRAME: ADD, DELETE, NEXT, PREV ή 1-
+FADE OVER: expected a duration in seconds	FADE OVER: αναμενόταν διάρκεια σε δευτερόλεπτα
+FADE TO: expected a percent from 0 to 100	FADE TO: αναμενόταν ποσοστό από 0 έως 100
+MOTION SOURCE DECK: a playlist number, 1-	MOTION SOURCE DECK: ένας αριθμός λίστας, 1-
+STING SWEEP: expected -24 to 24 semitones	STING SWEEP: αναμενόταν -24 έως 24 ημιτόνια
+TCCUE ACTION: expected start, stop or jam	TCCUE ACTION: αναμενόταν start, stop ή jam
+TCCUE JAM: expected a timecode or seconds	TCCUE JAM: αναμενόταν χρονοκώδικας ή δευτερόλεπτα
+TRACKER VIEW: expected PATTERN or CLASSIC	TRACKER VIEW: αναμενόταν PATTERN ή CLASSIC
+Tabletop added - SOURCE > MADE BY DECKBOY	Προστέθηκε Tabletop - ΠΗΓΗ > ΦΤΙΑΓΜΕΝΟ ΜΕ DECKBOY
+browser window open - click, type, log in	παράθυρο περιηγητή ανοιχτό - κλικ, πληκτρολόγηση, σύνδεση
+contrast check: something needs attention	έλεγχος αντίθεσης: κάτι θέλει προσοχή
+drag the corners on the programme monitor	σύρετε τις γωνίες στο μόνιτορ του προγράμματος
+this browser backend cannot show a window	αυτό το backend περιηγητή δεν μπορεί να εμφανίσει παράθυρο
+BROWSER CLICK: expected two fractions 0..1	BROWSER CLICK: αναμένονταν δύο κλάσματα 0..1
+CHIP: the selected cue is not a chip synth	CHIP: το επιλεγμένο cue δεν είναι chip synth
+DASH SET: a slot cannot fire the dashboard	DASH SET: μια υποδοχή δεν μπορεί να εκκινήσει τον πίνακα
+DRAW STROKE: x,y[,pressure] ... in percent	DRAW STROKE: x,y[,pressure] ... σε ποσοστό
+OUTPUTFX REMOVE: expected an effect number	OUTPUTFX REMOVE: αναμενόταν αριθμός εφέ
+SCRIPTCUE: expected NEW, ADD, CLEAR or RUN	SCRIPTCUE: αναμενόταν NEW, ADD, CLEAR ή RUN
+TEXTCUE WIGGLE: expected ON, OFF or TOGGLE	TEXTCUE WIGGLE: αναμενόταν ON, OFF ή TOGGLE
+TRIGGER KEY: F1-F10, F12, NUM0-NUM9 or OFF	TRIGGER KEY: F1-F10, F12, NUM0-NUM9 ή OFF
+auto-advance removed: cue end follows hold	η αυτόματη προώθηση αφαιρέθηκε: το τέλος του cue ακολουθεί το κράτημα
+choose RECOVER or KEEP SAVED before saving	επιλέξτε ΑΝΑΚΤΗΣΗ ή ΚΡΑΤΗΣΗ ΑΠΟΘΗΚΕΥΜΕΝΟΥ πριν την αποθήκευση
+datamosh look: file-backed video cues only	look datamosh: μόνο cue βίντεο από αρχείο
+nmos: on - searching for a registry (mDNS)	NMOS: ΕΝΤΟΣ - αναζήτηση μητρώου (mDNS)
+record folder: recordings/ beside the show	φάκελος εγγραφής: recordings/ δίπλα στην παράσταση
+recsegment: expected <minutes> [megabytes]	recsegment: αναμενόταν <λεπτά> [megabytes]
+the example shows are not in this download	οι παραστάσεις παράδειγμα δεν περιλαμβάνονται σε αυτή τη λήψη
+warp point: expected <col> <row> <dx> <dy>	warp point: αναμενόταν <col> <row> <dx> <dy>
+warp point: no grid -- WARP GRID <n> first	warp point: δεν υπάρχει πλέγμα -- πρώτα WARP GRID <n>
+DMXCUE FIXTURE: level is 0-100 (%) or LEAVE	DMXCUE FIXTURE: η στάθμη είναι 0-100 (%) ή LEAVE
+EDIT off: the keyboard only moves and fires	ΕΠΕΞΕΡΓΑΣΙΑ ΟΧΙ: το πληκτρολόγιο μόνο κινεί και εκκινεί
+EDIT on: typing changes the tracker's cells	ΕΠΕΞΕΡΓΑΣΙΑ ΕΝΤΟΣ: η πληκτρολόγηση αλλάζει τα κελιά του tracker
+FIXTURE: expected LIST, ADD, FIND or REMOVE	FIXTURE: αναμενόταν LIST, ADD, FIND ή REMOVE
+LIMITER CEILING: a level from -40 to 0 dBFS	LIMITER CEILING: στάθμη από -40 έως 0 dBFS
+MIDICUE: the selected cue is not a midi cue	MIDICUE: το επιλεγμένο cue δεν είναι midi cue
+MOTION ZONE ADD: x y w h, percentages 0-100	MOTION ZONE ADD: x y w h, ποσοστά 0-100
+MOTION ZONE: ADD x y w h, REMOVE n or CLEAR	MOTION ZONE: ADD x y w h, REMOVE n ή CLEAR
+OUTPROBE: expected <output> <x 0-1> <y 0-1>	OUTPROBE: αναμένεται <output> <x 0-1> <y 0-1>
+PORTS: expected an http port and a tcp port	PORTS: αναμένονται θύρα HTTP και θύρα TCP
+SLICE ADD: already 16 slices on this output	SLICE ADD: ήδη 16 τμήματα σε αυτή την έξοδο
+TEXTCUE: the selected cue is not a text cue	TEXTCUE: το επιλεγμένο cue δεν είναι cue κειμένου
+a step cannot fire the playlist it lives on	ένα βήμα δεν μπορεί να ενεργοποιήσει τη λίστα στην οποία ανήκει
+atem tally on -- set which input Deckboy is	Tally ATEM ενεργό -- ορίστε ποια είσοδος είναι το Deckboy
+esc: control window - again to clear output	Esc: παράθυρο ελέγχου - ξανά για καθαρισμό της εξόδου
+recordings remux to MP4 when the take stops	οι εγγραφές γίνονται remux σε MP4 όταν σταματά η εγγραφή
+MATRIX SET: level is a percent from 0 to 100	MATRIX SET: η στάθμη είναι ποσοστό από 0 έως 100
+SYNTH: the selected cue is not a video synth	SYNTH: το επιλεγμένο cue δεν είναι συνθεσάιζερ βίντεο
+group presets became master cues: use MASTER	οι προεπιλογές ομάδων έγιναν master cue: χρησιμοποιήστε MASTER
+on the dashboard - Ctrl+D or the DASH button	στον πίνακα - Ctrl+D ή το κουμπί DASH
+8 zones already: click one to remove it first	ήδη 8 ζώνες: κάντε κλικ σε μία για να την αφαιρέσετε πρώτα
+AUDIOFX PLUGIN: this build has no plugin host	AUDIOFX PLUGIN: αυτή η έκδοση δεν έχει host πρόσθετων
+DASH SET: <n> <label> | <command> [| <glyph>]	DASH SET: <n> <ετικέτα> | <εντολή> [| <γλύφος>]
+DRAW SIZE: 0.1-20 (% of the picture's height)	DRAW SIZE: 0.1-20 (% του ύψους της εικόνας)
+FX LFO: slot must be A-D, or E for the amount	FX LFO: η θέση πρέπει να είναι A-D, ή E για την ποσότητα
+MASK PATH: a path needs at least three points	MASK PATH: μια διαδρομή θέλει τουλάχιστον τρία σημεία
+NETCUE: the selected cue is not a network cue	NETCUE: το επιλεγμένο cue δεν είναι cue δικτύου
+Page Down / Page Up step the focused playlist	Page Down / Page Up προχωρούν βήμα στη λίστα που έχει εστίαση
+SCALEMODE: expected fit|fill|stretch|unscaled	SCALEMODE: αναμένεται fit|fill|stretch|unscaled
+SUBTITLE CONVERT: the cue has no caption file	SUBTITLE CONVERT: το cue δεν έχει αρχείο λεζάντας
+TCCUE: the selected cue is not a timecode cue	TCCUE: το επιλεγμένο cue δεν είναι cue χρονοκώδικα
+TEXTCUE ALIGN: expected left, centre or right	TEXTCUE ALIGN: αναμένεται αριστερά, κέντρο ή δεξιά
+make a step first: a section starts at a step	φτιάξτε πρώτα ένα βήμα: μια ενότητα ξεκινά από ένα βήμα
+mask off -- it is still in the show's library	μάσκα εκτός -- είναι ακόμα στη βιβλιοθήκη της παράστασης
+motion on: the camera is read, never recorded	κίνηση ενεργή: η κάμερα διαβάζεται, δεν εγγράφεται ποτέ
+new show disarms all outputs: press new again	η νέα παράσταση αφοπλίζει όλες τις εξόδους: πατήστε ξανά νέα παράσταση
+nmos: network is LOCAL ONLY - not registering	nmos: το δίκτυο είναι ΜΟΝΟ ΤΟΠΙΚΟ - δεν γίνεται εγγραφή
+normalize: selection has no file-backed audio	normalize: η επιλογή δεν έχει ήχο από αρχείο
+output recover failed: fullscreen unavailable	η ανάκτηση εξόδου απέτυχε: η πλήρης οθόνη δεν είναι διαθέσιμη
+this output's renderer could not cut the mask	ο renderer αυτής της εξόδου δεν μπόρεσε να κόψει τη μάσκα
+unsaved changes will be lost: press new again	οι μη αποθηκευμένες αλλαγές θα χαθούν: πατήστε ξανά νέα παράσταση
+zones cleared: Motion reads the whole picture	οι ζώνες καθαρίστηκαν: η κίνηση διαβάζει όλη την εικόνα
+Stop masking this. The mask stays in the show's library, to put back from the menu above	Σταμάτα τη μάσκα. Η μάσκα μένει στη βιβλιοθήκη της παράστασης και τη βάζεις πίσω από το μενού παραπάνω
+Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	Διαγραφή αυτής της μάσκας από την παράσταση και από κάθε cue, playlist και έξοδο που τη χρησιμοποιεί. Η αναίρεση την επαναφέρει

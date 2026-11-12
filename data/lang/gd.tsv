@@ -2847,3 +2847,261 @@ DASH: the startup dialog is up	DASH: tha an còmhradh tòiseachaidh fosgailte
 LOWERSTYLE: select a cue first	LOWERSTYLE: tagh cue an toiseach
 MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: dùil ri 1-16
 PATTERN ADD needs a pattern id	tha feum aig PATTERN ADD air id pàtran
+DRAW ONION: ON or OFF	DRAW ONION: AIR no DHETH
+DRAW EDITOR: ON or OFF	DRAW EDITOR: AIR no DHETH
+OUTPUT AOI: no outputs	OUTPUT AOI: chan eil às-chur ann
+OUTPUT DECK: no outputs	OUTPUT DECK: chan eil às-chur ann
+DRAW HOLD: seconds, 0-60	DRAW HOLD: diogan, 0-60
+FADE EFFECT: expected 1-	FADE EFFECT: dùil ri 1-
+MOTION MIRROR: ON or OFF	MOTION MIRROR: AIR no DHETH
+WEBMONITOR CLIENTS: 1-64	LUCHD-CLEACHDAIDH WEBMONITOR: 1-64
+TALLYEVENT wants ON or OFF	tha TALLYEVENT ag iarraidh AIR no DHETH
+TONECUE LFO: FREQ or LEVEL	TONECUE LFO: TRICEAD no ÌRE
+VIDEODIP FADE: 0-30 seconds	VIDEODIP FADE: 0-30 diogan
+FX COLOUR: a grey has no hue	FX COLOUR: chan eil dath aig liath
+GOGUARD: OFF or 50-2000 (ms)	GOGUARD: DHETH no 50-2000 (ms)
+MASK RENAME: expected a name	MASK RENAME: dùil ri ainm
+SLICE GRID SMOOTH: ON or OFF	SLICE GRID SMOOTH: AIR no DHETH
+SYNTH ADD takes no arguments	chan eil SYNTH ADD a' gabhail argamaidean
+TEXTCUE CARD: expected 0-255	TEXTCUE CARD: dùil ri 0-255
+FADE STOP: expected on or off	FADE STOP: dùil ri air no dheth
+TRIGGER AT: HH:MM[:SS] or OFF	TRIGGER AT: HH:MM[:SS] no DHETH
+PATTERN SET needs a pattern id	tha feum aig PATTERN SET air ID pàtran
+already the first tracker step	's e seo a' chiad cheum lorgair mu thràth
+cannot determine rendered size	cha ghabh am meud rendaichte a dhearbhadh
+find: enter cue id/number/name	lorg: cuir a-steach ID/àireamh/ainm cue
+no sprite sets in data/sprites	chan eil seataichean sprite ann an data/sprites
+normalize: no measurable audio	normalize: chan eil fuaim ann ris an gabh tomhas
+recordings are left as written	tha na clàraidhean air am fàgail mar a chaidh an sgrìobhadh
+reracked - holding first frame	air ath-chuir - a' cumail a' chiad fhrèam
+st 2110: clipboard unavailable	st 2110: chan eil an clipboard ri fhaighinn
+stream url: unsupported scheme	URL an t-sruth: chan eil an sgeama taiceil
+that button has no command yet	chan eil àithne aig a' phutan sin fhathast
+DMXCUE PROTOCOL: ARTNET or SACN	DMXCUE PROTOCOL: ARTNET no SACN
+FIXTURE DIP: 0-100 (%) or LEAVE	FIXTURE DIP: 0-100 (%) no LEAVE
+FX LFO: no effect at that index	FX LFO: chan eil èifeachd sam bith aig a' chlàr-amais sin
+MIDIMAP CLEAR: COMPUTER or SHOW	MIDIMAP CLEAR: COMPUTER no SHOW
+TEXTCUE SPEED: expected 0.05-20	TEXTCUE SPEED: bhathar an dùil ri 0.05-20
+an output needs a base playlist	tha feum aig às-chur air liosta bhunasach
+audio input: device unavailable	in-chur fuaime: chan eil an t-uidheam ri fhaighinn
+expected crop percentages 0..90	bhathar an dùil ri ceudadan beàrraidh 0..90
+media found - nothing to relink	meadhanan air an lorg - chan eil dad ri ath-cheangal
+notestep: build out of range 1-	notestep: build taobh a-muigh raon 1-
+put it back when the ramp lands	cuir air ais e nuair a ruigeas an rampa an deireadh
+splitnotes: cue out of range 1-	splitnotes: cue taobh a-muigh raon 1-
+st 2110 SDP copied to clipboard	st 2110 SDP air a lethbhreacadh dhan chlàr-chlìpe
+w00t! all ur cues r belong 2 us	w00t! 's ann leinn-ne na cues agad uile!
+BROWSER TYPE: expected some text	BROWSER TYPE: bhathar an dùil ri teacsa
+CHECK: expected a problem number	CHECK: bhathar an dùil ri àireamh duilgheadais
+FADE RESTORE: expected on or off	FADE RESTORE: bhathar an dùil ri on no off
+MIDICLOCK SIM: expected a number	MIDICLOCK SIM: bhathar an dùil ri àireamh
+MONITOR ROOM: expected ON or OFF	MONITOR ROOM: bhathar an dùil ri ON no OFF
+MOTION ZONE ADD: already 8 zones	MOTION ZONE ADD: tha 8 raointean ann mu thràth
+SLICE REMOVE: a slice number, 1-	SLICE REMOVE: àireamh slice, 1-
+motion off: the camera is closed	motion off: tha a' chamara dùinte
+no capture devices found (dshow)	cha deach uidheam glacaidh a lorg (dshow)
+only accepted from this computer	chan eil e air a ghabhail ach on choimpiutair seo
+reccodec: expected a codec token	reccodec: bhathar an dùil ri token codec
+this build has no plugin support	chan eil taic plugan san togail seo
+BROWSER SCROLL: expected a number	BROWSER SCROLL: bhathar an dùil ri àireamh
+DMXCUE UNIVERSE: expected 0-32767	DMXCUE UNIVERSE: bhathar an dùil ri 0-32767
+FADE DECK: expected a deck number	FADE DECK: bhathar an dùil ri àireamh deck
+FX PARAM: no effect at that index	FX PARAM: chan eil èifeachd sam bith aig a' chlàr-amais sin
+MIC GAIN: expected -40 to 40 (dB)	MIC GAIN: bhathar an dùil ri -40 gu 40 (dB)
+MOTION ZONE REMOVE: a zone number	MOTION ZONE REMOVE: àireamh raoin
+NDI: this build has no NDI output	NDI: chan eil às-chur NDI san togail seo
+STING PITCH: expected 20-12000 Hz	STING PITCH: bhathar an dùil ri 20-12000 Hz
+TRIGGER MIDI: a note 0-127 or OFF	TRIGGER MIDI: nota 0-127 no OFF
+could not open the Screens window	cha b' urrainn an uinneag Screens fhosgladh
+effects paste: copy a chain first	effects paste: dèan lethbhreac de shreath an toiseach
+expected pixels -1000000..1000000	bha dùil ri piogsailean -1000000..1000000
+marker: add | next | prev | clear	comharra: add | next | prev | clear
+press again to delete this button	brùth a-rithist gus am putan seo a sguabadh às
+warp grid: 2 to 9 points each way	cliath fiaraidh: 2 gu 9 puingean gach taobh
+AUDIOFX ADD: needs an effect token	AUDIOFX ADD: feumaidh e token buaidh
+BLEND LIFT: expected 0..20 percent	BLEND LIFT: bha dùil ri 0..20 sa cheud
+BUGSWAT SHOWME: only in a briefing	BUGSWAT SHOWME: dìreach ann am briefing
+CAPTIONS LINES: expected 1, 2 or 3	CAPTIONS LINES: bha dùil ri 1, 2 no 3
+DASH SET: slot number out of range	DASH SET: àireamh an slot taobh a-muigh na rainse
+FX AMOUNT: no effect at that index	FX AMOUNT: chan eil buaidh aig a' chlàr-amais sin
+FX COLOUR: no effect at that index	FX COLOUR: chan eil buaidh aig a' chlàr-amais sin
+MIDICLOCK SIM: bpm must be 20..600	MIDICLOCK SIM: feumaidh bpm a bhith 20..600
+OUTPUT ADD: expected a deck number	OUTPUT ADD: bha dùil ri àireamh deck
+SLICE FLIP: H or V, then ON or OFF	SLICE FLIP: H no V, an uairsin ON no OFF
+a path needs three points: dropped	feumaidh slighe trì puingean: air a leigeil seachad
+a show needs at least one playlist	feumaidh taisbeanadh aon liosta air a char as lugha
+display scan: no displays reported	sganadh sgrìn: cha deach sgrìn sam bith aithris
+selection has no cue with geometry	chan eil cue le geoimeatraidh sa thaghadh
+that cue cannot be fired by a step	chan urrainn do cheum an cue sin a losgadh
+time: type it as HH:MM or HH:MM:SS	àm: sgrìobh e mar HH:MM no HH:MM:SS
+ASCII COLS: expected a column count	ASCII COLS: bha dùil ri cunntas cholbhan
+Deckboy evolved into SUPER DECKBOY!	Dh'fhàs Deckboy gu SUPER DECKBOY!
+FX PARAM: slot must be A, B, C or D	FX PARAM: feumaidh an slot a bhith A, B, C no D
+MIDI: a note number 0-127, or LEARN	MIDI: àireamh nòta 0-127, no LEARN
+MIDIMAP REMOVE: COMPUTER|SHOW <row>	MIDIMAP REMOVE: COMPUTER|SHOW <ràgh>
+OUTPUT DECK: expected a deck number	OUTPUT DECK: bha dùil ri àireamh deck
+OUTPUTFX BYPASS: expected ON or OFF	OUTPUTFX BYPASS: bha dùil ri ON no OFF
+SCOPES MATRIX: expected 709 or 2020	SCOPES MATRIX: bha dùil ri 709 no 2020
+SHORTCUTS: the startup dialog is up	SHORTCUTS: tha an còmhradh tòiseachaidh fosgailte
+STREAM HDR: expected SDR, PQ or HLG	STREAM HDR: bha dùil ri SDR, PQ no HLG
+an animation is already being saved	tha beòthachadh ga shàbhaladh mu thràth
+delete live cue: press delete again	sguab às cue beò: brùth sguab às a-rithist
+esc: output cleared - again to quit	esc: chaidh an t-às-chur a ghlanadh - a-rithist gus fàgail
+no browser cue is live on this deck	chan eil cue brabhsair beò air an deck seo
+notestep: nothing live on this deck	notestep: chan eil dad beò air an deck seo
+select the cue it should take first	tagh an cue air am bu chòir TAKE an toiseach
+DRAW EDITOR: select a Draw cue first	DRAW EDITOR: tagh cue DRAW an toiseach
+DRAW SAVE: STILL or ANIMATION [file]	DRAW SAVE: STILL no ANIMATION [file]
+MIC CHANNEL: expected L, R or STEREO	MIC CHANNEL: bha dùil ri L, R no STEREO
+MULTIVIEW WINDOW: expected ON or OFF	MULTIVIEW WINDOW: bha dùil ri ON no OFF
+Page Down / Page Up step the tracker	Tha Page Down / Page Up a' gluasad na lorgair ceum air cheum
+SUBTITLE CONVERT: nothing to convert	SUBTITLE CONVERT: chan eil dad ri iompachadh
+TONECUE LFO: select a tone cue first	TONECUE LFO: tagh cue tòna an toiseach
+TRUST LAST: nothing has been refused	TRUST LAST: cha deach dad a dhiùltadh
+atem tally on -- set the switcher IP	Tally ATEM air -- suidhich IP an switcher
+datamosh: subtle, self-heals (H.264)	datamosh: fìnealta, a' slànachadh fhèin (H.264)
+master vol: expected 0-200 (percent)	fuaim Maighstir: bha dùil ri 0-200 (sa cheud)
+matrix off - back to the output pair	matrix dheth - air ais dhan phaidhir às-chuir
+monitor follows the focused playlist	tha am monitor a' leantainn na liosta fòcasaichte
+multiview: back to the automatic set	multiview: air ais dhan t-seata fèin-obrachail
+no MIDI output ports on this machine	chan eil port às-chuir MIDI air an inneal seo
+splitnotes: could not split that cue	splitnotes: cha b' urrainn dhomh an cue sin a sgoltadh
+srt: passphrase needs 10+ characters	srt: feumaidh am facal-faire 10+ caractar
+step deleted - ctrl+z brings it back	ceum air a sguabadh às - bheir ctrl+z air ais e
+timer face: select a timer cue first	aodann an uaireadair: tagh cue uaireadair an toiseach
+timer font: select a timer cue first	cruth-clò an uaireadair: tagh cue uaireadair an toiseach
+16 slices is the most an output takes	's e 16 sliseagan as motha a ghabhas às-chur
+AUDIOGAIN BY: expected a number of dB	AUDIOGAIN BY: bha dùil ri àireamh de dB
+AUDITION: expected OFF, END or STATUS	AUDITION: bha dùil ri OFF, END no STATUS
+BROWSER CLICK: fractions must be 0..1	BROWSER CLICK: feumaidh na bloighean a bhith 0..1
+FX GET: expected an effect number, 1-	FX GET: bha dùil ri àireamh èifeachd, 1-
+HLS playlist: added as one stream cue	liosta HLS: air a chur ris mar aon cue sruth
+MASTER BYPASS: expected a deck number	MASTER BYPASS: bha dùil ri àireamh deck
+MIDICLOCK: expected SIM <bpm> [beats]	MIDICLOCK: bha dùil ri SIM <bpm> [beats]
+MULTIVIEW: expected ON, OFF or TOGGLE	MULTIVIEW: bha dùil ri ON, OFF no TOGGLE
+OUTPUT HDR SIGNAL: expected PQ or HLG	OUTPUT HDR SIGNAL: bha dùil ri PQ no HLG
+STREAM HDR: select a stream cue first	STREAM HDR: tagh cue sruth an toiseach
+datamosh: file-backed video cues only	datamosh: cue bhidio le faidhle a-mhàin
+effects copy: this cue has no effects	lethbhreac èifeachdan: chan eil èifeachd sam bith aig an cue seo
+matrix on, routed as the patch had it	matrix air, air a stiùireadh mar a bha am patch
+recovery could not be read; copy kept	cha b' urrainn an ath-bheothachadh a leughadh; lethbhreac air a ghleidheadh
+FIXTURE DIP: expected <name> <%>|LEAVE	FIXTURE DIP: bha dùil ri <name> <%>|LEAVE
+MONITOR: expected DEVICE, DECK or ROOM	MONITOR: bha dùil ri DEVICE, DECK no ROOM
+NETCUE PROTO: expected osc, udp or tcp	NETCUE PROTO: bha dùil ri osc, udp no tcp
+STING LENGTH: expected 0.05-10 seconds	STING LENGTH: bha dùil ri 0.05-10 diogan
+sprite sheet: select a video synth cue	sprite sheet: tagh cue synth bhidio
+AUDIOGAIN BY: no selected cue has audio	AUDIOGAIN BY: chan eil fuaim aig cue air a thaghadh sam bith
+CAPTIONS SHOW: expected <output> ON|OFF	CAPTIONS SHOW: bha dùil ri <output> ON|OFF
+CAPTIONS TRANSCRIPT: expected ON or OFF	CAPTIONS TRANSCRIPT: bha dùil ri ON no OFF
+COMPANIONPASS: use 8 or more characters	COMPANIONPASS: cleachd 8 caractaran no barrachd
+DEVAMP: nothing is playing on that deck	DEVAMP: chan eil dad a' cluich air an deck sin
+FX LFO ZONE: 0 (the whole picture) to 8	FX LFO ZONE: 0 (an dealbh gu lèir) gu 8
+MASK IMPORT: expected <file.svg> [name]	MASK IMPORT: bha dùil ri <file.svg> [name]
+MASK SET: expected <id> <param> <value>	MASK SET: bha dùil ri <id> <param> <value>
+MULTIVIEW WINDOW: the last window stays	MULTIVIEW WINDOW: fuirichidh an uinneag mu dheireadh
+OUTPUT AOI MODE: expected PIXEL or FILL	OUTPUT AOI MODE: bha dùil ri PIXEL no FILL
+SCOPES SOUND: expected nothing or RESET	SCOPES SOUND: bha dùil ri dad no RESET
+Tabletop is in SOURCE > MADE BY DECKBOY	Tha Tabletop ann an TÙS > AIR A DHÈANAMH LE DECKBOY
+can't read media - CONVERT in inspector	chan urrainn dhuinn na meadhanan a leughadh - IOMPAICH san inspector
+cleared: all decks stopped, outputs off	air a ghlanadh: gach deck air stad, às-chuir dheth
+datamosh: classic, full effect (MPEG-4)	datamosh: clasaigeach, buaidh làn (MPEG-4)
+driver cleared - nothing left to puppet	driver air a ghlanadh - chan eil dad air fhàgail ri smachdachadh
+key+fill on - now pick a Key out device	key+fill air - tagh uidheam Key a-mach a-nis
+play the note that should fire this cue	cluich an nota a bu chòir an cue seo a losgadh
+programme to MediaMTX: watch at http://	prògram gu MediaMTX: coimhead aig http://
+recformat: expected <WxH|program> [fps]	recformat: bha dùil ri <WxH|program> [fps]
+requested input missing - using default	tha an cuir-a-steach a chaidh iarraidh a dhìth - a' cleachdadh a' bhun-roghainn
+DRAW PLAYBACK: still, flipbook or replay	DRAW PLAYBACK: dealbh, flipbook no replay
+FADE KNOB: expected amount, A, B, C or D	FADE KNOB: bha dùil ri uiread, A, B, C no D
+LOWERANIM: this cue is not a Lower Third	LOWERANIM: chan eil an cue seo na Lower Third
+MASK EXPORT: size is WxH, e.g. 1920x1080	MASK EXPORT: 's e WxH am meud, m.e. 1920x1080
+MOTION SOURCE: CAMERA [name] or DECK <n>	MOTION SOURCE: CAMERA [name] no DECK <n>
+NEW already starts from factory settings	tha NEW a' tòiseachadh o roghainnean factaraidh mu thràth
+OUTPUT SELECT: expected an output number	OUTPUT SELECT: bha dùil ri àireamh às-chuir
+TCCUE: expected NEW, ACTION, JAM or FIRE	TCCUE: bha dùil ri NEW, ACTION, JAM no FIRE
+hands-on: clicks and keys go to the page	hands-on: bidh briogan agus iuchraichean a' dol dhan duilleag
+multiview: one window per playlist again	multiview: aon uinneag gach liosta a-rithist
+record folder set - SAME DISK as Deckboy	pasgan clàraidh suidhichte - an DISC CHÈANA ri Deckboy
+sequence waiting - press it again for GO	sreath a' feitheamh - brùth a-rithist airson GO
+this platform cannot capture that source	chan urrainn dhan ùrlar seo an tùs sin a ghlacadh
+timer backdrop: select a timer cue first	cùl-raon uaireadair: tagh cue uaireadair an toiseach
+BLEND CURVE: expected PROJECTOR or LINEAR	BLEND CURVE: bha dùil ri PROJECTOR no LINEAR
+CAPTIONS POSITION: expected TOP or BOTTOM	CAPTIONS POSITION: bha dùil ri TOP no BOTTOM
+CAPTIONS SIZE: expected 50..200 (percent)	CAPTIONS SIZE: bha dùil ri 50..200 (sa cheud)
+DMXCUE: the selected cue is not a dmx cue	DMXCUE: chan eil an cue taghte na cue dmx
+DRAW FRAME: ADD, DELETE, NEXT, PREV or 1-	DRAW FRAME: ADD, DELETE, NEXT, PREV no 1-
+FADE OVER: expected a duration in seconds	FADE OVER: bha dùil ri fad ann an diogan
+FADE TO: expected a percent from 0 to 100	FADE TO: bha dùil ri sa cheud eadar 0 agus 100
+LOWERSTYLE: this cue is not a Lower Third	LOWERSTYLE: chan eil an cue seo na Lower Third
+MOTION SOURCE DECK: a playlist number, 1-	MOTION SOURCE DECK: àireamh liosta, 1-
+STING SWEEP: expected -24 to 24 semitones	STING SWEEP: bha dùil ri -24 gu 24 semitone
+TCCUE ACTION: expected start, stop or jam	TCCUE ACTION: bha dùil ri start, stop no jam
+TCCUE JAM: expected a timecode or seconds	TCCUE JAM: bha dùil ri còd-ama no diogan
+TRACKER VIEW: expected PATTERN or CLASSIC	TRACKER VIEW: bha dùil ri PATTERN no CLASSIC
+Tabletop added - SOURCE > MADE BY DECKBOY	Tabletop air a chur ris - TÙS > AIR A DHÈANAMH LE DECKBOY
+browser window open - click, type, log in	uinneag brabhsair fosgailte - briog, taidhp, log a-steach
+contrast check: something needs attention	sgrùdadh iomsgaraidh: tha rudeigin feumach air aire
+drag the corners on the programme monitor	slaod na h-oiseanan air monatair a' phrògraim
+this browser backend cannot show a window	chan urrainn don bhackend brabhsair seo uinneag a shealltainn
+BROWSER CLICK: expected two fractions 0..1	BROWSER CLICK: bha dùil ri dà bhloigh 0..1
+CHIP: the selected cue is not a chip synth	CHIP: chan eil an cue taghte na chip synth
+DASH SET: a slot cannot fire the dashboard	DASH SET: chan urrainn do slot an deasca a chur
+DRAW STROKE: x,y[,pressure] ... in percent	DRAW STROKE: x,y[,pressure] ... sa cheud
+OUTPUTFX REMOVE: expected an effect number	OUTPUTFX REMOVE: bha dùil ri àireamh buaidh
+SCRIPTCUE: expected NEW, ADD, CLEAR or RUN	SCRIPTCUE: bha dùil ri NEW, ADD, CLEAR no RUN
+TEXTCUE WIGGLE: expected ON, OFF or TOGGLE	TEXTCUE WIGGLE: bha dùil ri ON, OFF no TOGGLE
+TRIGGER KEY: F1-F10, F12, NUM0-NUM9 or OFF	TRIGGER KEY: F1-F10, F12, NUM0-NUM9 no OFF
+auto-advance removed: cue end follows hold	adhartas fèin-obrachail air a thoirt air falbh: tha deireadh an cue a' leantainn cùm
+choose RECOVER or KEEP SAVED before saving	tagh RECOVER no KEEP SAVED mus sàbhail thu
+datamosh look: file-backed video cues only	sealladh datamosh: cue bhidio stèidhichte air faidhle a-mhàin
+nmos: on - searching for a registry (mDNS)	nmos: air - a' lorg clàr-lann (mDNS)
+record folder: recordings/ beside the show	pasgan clàraidh: recordings/ ri taobh an taisbeanaidh
+recsegment: expected <minutes> [megabytes]	recsegment: bha dùil ri <mionaidean> [megabytes]
+the example shows are not in this download	chan eil na taisbeanaidhean eisimpleir san luchdachadh a-nuas seo
+warp point: expected <col> <row> <dx> <dy>	warp point: bha dùil ri <colbh> <ràgh> <dx> <dy>
+warp point: no grid -- WARP GRID <n> first	warp point: gun ghriod -- WARP GRID <n> an toiseach
+DMXCUE FIXTURE: level is 0-100 (%) or LEAVE	DMXCUE FIXTURE: tha an ìre 0-100 (%) no LEAVE
+EDIT off: the keyboard only moves and fires	EDIT dheth: chan eil am meur-chlàr ach a' gluasad is a' cur
+EDIT on: typing changes the tracker's cells	EDIT air: tha taidhpeadh ag atharrachadh ceallan an lorgair
+FIXTURE: expected LIST, ADD, FIND or REMOVE	FIXTURE: bha dùil ri LIST, ADD, FIND no REMOVE
+LIMITER CEILING: a level from -40 to 0 dBFS	LIMITER CEILING: ìre bho -40 gu 0 dBFS
+MIDICUE: the selected cue is not a midi cue	MIDICUE: chan eil an cue taghte na cue midi
+MOTION ZONE ADD: x y w h, percentages 0-100	MOTION ZONE ADD: x y w h, ceudadan 0-100
+MOTION ZONE: ADD x y w h, REMOVE n or CLEAR	MOTION ZONE: ADD x y w h, REMOVE n no CLEAR
+OUTPROBE: expected <output> <x 0-1> <y 0-1>	OUTPROBE: bha <às-chur> <x 0-1> <y 0-1> an dùil
+PORTS: expected an http port and a tcp port	PORTS: bha port HTTP agus port TCP an dùil
+SLICE ADD: already 16 slices on this output	SLICE ADD: tha 16 sliseagan air an às-chur seo mu thràth
+TEXTCUE: the selected cue is not a text cue	TEXTCUE: chan eil an cue taghte na cue teacsa
+a step cannot fire the playlist it lives on	chan urrainn do cheum an liosta anns a bheil e a thòiseachadh
+atem tally on -- set which input Deckboy is	tally ATEM air -- suidhich dè an cuir-a-steach a tha Deckboy
+esc: control window - again to clear output	esc: uinneag-smachd - a-rithist airson an às-chur a ghlanadh
+recordings remux to MP4 when the take stops	thèid clàraidhean ath-mhuxadh gu MP4 nuair a stadas an take
+MATRIX SET: level is a percent from 0 to 100	MATRIX SET: is e sa cheud eadar 0 agus 100 an ìre
+SYNTH: the selected cue is not a video synth	SYNTH: chan eil an cue taghte na synth bhidio
+group presets became master cues: use MASTER	dh'fhàs ro-shuidheachaidhean buidhne nan cues maighstir: cleachd MASTER
+on the dashboard - Ctrl+D or the DASH button	air an deasca - Ctrl+D no putan DASH
+8 zones already: click one to remove it first	tha 8 raointean ann mu thràth: briog air fear gus a thoirt air falbh an toiseach
+AUDIOFX PLUGIN: this build has no plugin host	AUDIOFX PLUGIN: chan eil òstair plugan sa bhuild seo
+DASH SET: <n> <label> | <command> [| <glyph>]	DASH SET: <n> <leubail> | <àithne> [| <glyph>]
+DRAW SIZE: 0.1-20 (% of the picture's height)	DRAW SIZE: 0.1-20 (% de àirde an deilbh)
+FX LFO: slot must be A-D, or E for the amount	FX LFO: feumaidh an slot a bhith A-D, no E airson an uiread
+MASK PATH: a path needs at least three points	MASK PATH: feumaidh slighe trì puingean air a char as lugha
+NETCUE: the selected cue is not a network cue	NETCUE: chan eil an cue taghte na cue lìonra
+Page Down / Page Up step the focused playlist	bidh Page Down / Page Up a' gluasad ceum san liosta fòcasaichte
+SCALEMODE: expected fit|fill|stretch|unscaled	SCALEMODE: bha fit|lìon|sìn|gun sgèileadh an dùil
+SUBTITLE CONVERT: the cue has no caption file	SUBTITLE CONVERT: chan eil faidhle fo-thiotal aig an cue
+TCCUE: the selected cue is not a timecode cue	TCCUE: chan eil an cue taghte na cue còd-ama
+TEXTCUE ALIGN: expected left, centre or right	TEXTCUE ALIGN: bha clì, meadhan no deas an dùil
+make a step first: a section starts at a step	dèan ceum an toiseach: tòisichidh earrann aig ceum
+mask off -- it is still in the show's library	masg dheth -- tha e fhathast ann an leabharlann an taisbeanaidh
+motion on: the camera is read, never recorded	gluasad air: thathar a' leughadh a' chamara, gun chlàradh gu bràth
+new show disarms all outputs: press new again	bidh taisbeanadh ùr a' dì-armachadh gach às-chur: brùth ùr a-rithist
+nmos: network is LOCAL ONLY - not registering	nmos: tha an lìonra LOCAL A-MHÀIN - gun chlàradh
+normalize: selection has no file-backed audio	normalize: chan eil fuaim stèidhichte air faidhle san taghadh
+output recover failed: fullscreen unavailable	dh'fhairtlich ath-bheothachadh an às-chuir: chan eil làn-sgrìn ri fhaighinn
+the background alpha belongs to a Lower Third	buinidh an alpha cùlaibh do Lower Third
+this output's renderer could not cut the mask	cha b' urrainn do renderer an às-chuir seo am masg a ghearradh
+unsaved changes will be lost: press new again	caillear atharraichean gun sàbhaladh: brùth ùr a-rithist
+zones cleared: Motion reads the whole picture	raointean air an glanadh: leughaidh Gluasad an dealbh gu lèir
+Stop masking this. The mask stays in the show's library, to put back from the menu above	Sguir de mhasgadh seo. Fuirichidh am masg ann an leabharlann an taisbeanaidh, airson a chur air ais on chlàr gu h-àrd
+Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	Sguab às am masg seo on taisbeanadh, agus o gach cue, liosta is às-chur a tha ga chleachdadh. Bheir neo-dhèanamh air ais e
