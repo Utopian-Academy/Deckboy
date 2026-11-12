@@ -5893,6 +5893,12 @@
     runtime.layerFxShrinkUsed.clear();
     runtime.layerGpuFxTextures.clear();
     runtime.layerGpuLooks.clear();
+    for (auto& [kept, texture] : runtime.heldGpuLookTextures) {
+      (void) kept;
+      if (texture) SDL_DestroyTexture(texture);
+    }
+    runtime.heldGpuLookTextures.clear();
+    releaseTransitionGpuWraps(runtime);
     runtime.layerGpuFxRan.clear();
 #if DECKBOY_INPROC_DECODE
     // The pixel-buffer wraps go too. They hold a Metal view of an IOSurface
@@ -6006,6 +6012,12 @@
       runtime.gpuEffectsTried = false;
       runtime.layerGpuFxTextures.clear();
       runtime.layerGpuLooks.clear();
+      for (auto& [kept, texture] : runtime.heldGpuLookTextures) {
+        (void) kept;
+        if (texture) SDL_DestroyTexture(texture);
+      }
+      runtime.heldGpuLookTextures.clear();
+      releaseTransitionGpuWraps(runtime);
       runtime.layerGpuFxRan.clear();
       SDL_DestroyRenderer(runtime.outputRenderer);
       runtime.outputRenderer = nullptr;

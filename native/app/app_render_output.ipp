@@ -4142,11 +4142,17 @@
   // wrap or the NV12 upload). The result texture, or null when they cannot
   // run here -- the caller then takes the CPU path rather than show the
   // picture without its look.
+  // nv12 null: from the decoder's own surface (frame.gpuTexture), which also
+  // takes 10-bit SDR P010 -- the frames SDL cannot wrap.
   SDL_Texture* runLayerEffectsFromNv12(OutputRuntime& runtime, int deckIndex, const Cue& cue,
                                        const DecodedFrame& frame, SDL_Texture* nv12, const SDL_Rect& target,
                                        const OutputLayer* layerWarp) {
-    if (!nv12 || frame.format != FramePixelFormat::NV12 || cueHasPixelEffects(cue) ||
-        cueAudioChainNeedsPicture(cue)) {
+    const bool fromDecoder = !nv12 && frame.isGpu() && frame.gpuKind == DecodedFrame::GpuKind::D3D11Texture;
+    const SDL_TransferCharacteristics transfer = SDL_COLORSPACETRANSFER(frameColorspace(frame));
+    const bool sdr = transfer != SDL_TRANSFER_CHARACTERISTICS_PQ && transfer != SDL_TRANSFER_CHARACTERISTICS_HLG;
+    if ((!nv12 && !fromDecoder) ||
+        !(frame.format == FramePixelFormat::NV12 || (fromDecoder && frame.format == FramePixelFormat::P010 && sdr)) ||
+        cueHasPixelEffects(cue) || cueAudioChainNeedsPicture(cue)) {
       return nullptr;
     }
     const DeckRuntime* deckRuntime = runtimeForDeck(deckIndex);
@@ -4173,9 +4179,13 @@
     ctx.seconds = lfoSeconds_;
     ctx.pixelScale = 1.0 / shrink;
     const auto began = std::chrono::steady_clock::now();
-    SDL_Texture* done = deckboy::gpu::runGpuEffectsNv12(runtime.gpuEffects, deckIndex, nv12, frame.width,
-                                                        frame.height, shrink,
-                                                        static_cast<unsigned>(frameColorspace(frame)), stack, ctx);
+    SDL_Texture* done =
+      fromDecoder ? deckboy::gpu::runGpuEffectsDecoded(runtime.gpuEffects, deckIndex, frame.gpuTexture,
+                                                       frame.gpuSubresource, frame.width, frame.height, shrink,
+                                                       static_cast<unsigned>(frameColorspace(frame)), stack, ctx)
+                  : deckboy::gpu::runGpuEffectsNv12(runtime.gpuEffects, deckIndex, nv12, frame.width,
+                                                    frame.height, shrink,
+                                                    static_cast<unsigned>(frameColorspace(frame)), stack, ctx);
     noteEffectChainCost(deckIndex, std::chrono::duration<double, std::milli>(
                                      std::chrono::steady_clock::now() - began).count());
     if (!done) {
@@ -4191,6 +4201,35 @@
     look.logicalWidth = frame.width;
     look.logicalHeight = frame.height;
     return done;
+  }
+
+  void releaseHeldGpuLook(OutputRuntime& runtime, int deckIndex) {
+    if (auto it = runtime.heldGpuLookTextures.find(deckIndex); it != runtime.heldGpuLookTextures.end()) {
+      if (it->second) SDL_DestroyTexture(it->second);
+      runtime.heldGpuLookTextures.erase(it);
+    }
+  }
+
+  // The held look's texture when `frame` is the descriptor of one (no pixels,
+  // and a GPU copy is kept for this deck); null otherwise.
+  SDL_Texture* heldGpuLookFor(OutputRuntime& runtime, int deckIndex, const DecodedFrame& frame) {
+    if (!frame.pixels.empty()) return nullptr;
+    auto it = runtime.heldGpuLookTextures.find(deckIndex);
+    return it == runtime.heldGpuLookTextures.end() ? nullptr : it->second;
+  }
+
+  // For a style that needs the outgoing look's pixels: read the kept copy
+  // back into its descriptor, once. False when there is nothing to read.
+  bool heldGpuLookPixels(OutputRuntime& runtime, int deckIndex) {
+    auto look = runtime.heldLookFrames.find(deckIndex);
+    if (look == runtime.heldLookFrames.end()) return false;
+    if (!look->second.second.pixels.empty()) return true;
+    SDL_Texture* kept = heldGpuLookFor(runtime, deckIndex, look->second.second);
+    int rw = 0, rh = 0;
+    if (!kept || !deckboy::gpu::readGpuEffectsTexture(runtime.gpuEffects, kept, look->second.second.pixels, rw, rh)) {
+      return false;
+    }
+    return true;
   }
 
   // True when some output drew this deck's effects on the GPU last time.
@@ -4216,7 +4255,7 @@
       return e && *e && *e != '0';
     }();
     if (fullSize || (frame.format != FramePixelFormat::RGBA32 && !nv12) || frame.width < 16 || frame.height < 16 ||
-        !(cueHasPixelEffects(cue) || deckboy::effects::cueEffectStackActive(cue.effects))) {
+        (!nv12 && !(cueHasPixelEffects(cue) || deckboy::effects::cueEffectStackActive(cue.effects)))) {
       return 1;
     }
     auto seen = layerFxShrinkFrame_.find(deckIndex);
@@ -4275,6 +4314,7 @@
     const OutputLayer* layerWarp = layerRecordFor(stackOutputIndex, sourceDeckIndex);
     if (auto old = outputRuntime->layerLookFrames.find(sourceDeckIndex);
         old != outputRuntime->layerLookFrames.end() && old->second.first != cuePreviewCacheKey(*sourceCue)) {
+      releaseHeldGpuLook(*outputRuntime, sourceDeckIndex);   // the look held now has its pixels
       outputRuntime->heldLookFrames[sourceDeckIndex] = std::move(old->second);
       outputRuntime->layerLookFrames.erase(old);
     }
@@ -4282,9 +4322,24 @@
     // are read back now, once, for the transition out of it.
     if (auto old = outputRuntime->layerGpuLooks.find(sourceDeckIndex);
         old != outputRuntime->layerGpuLooks.end() && old->second.key != cuePreviewCacheKey(*sourceCue)) {
+      // Kept ON THE CARD: a copy the transition draws as it is. Reading 4K
+      // back here held the frame the cue changed in (~40 ms, measured). The
+      // descriptor below has no pixels; heldGpuLookPixels fills them for the
+      // styles that need them.
       DecodedFrame look;
       int rw = 0, rh = 0;
-      if (deckboy::gpu::readGpuEffectsResult(outputRuntime->gpuEffects, sourceDeckIndex, look.pixels, rw, rh)) {
+      releaseHeldGpuLook(*outputRuntime, sourceDeckIndex);
+      SDL_Texture* kept = deckboy::gpu::copyGpuEffectsResult(outputRuntime->gpuEffects, sourceDeckIndex);
+      float keptW = 0.0f, keptH = 0.0f;
+      if (kept && SDL_GetTextureSize(kept, &keptW, &keptH)) {
+        outputRuntime->heldGpuLookTextures[sourceDeckIndex] = kept;
+        rw = static_cast<int>(keptW);
+        rh = static_cast<int>(keptH);
+      } else if (kept) {
+        SDL_DestroyTexture(kept);
+        kept = nullptr;
+      }
+      if (kept || deckboy::gpu::readGpuEffectsResult(outputRuntime->gpuEffects, sourceDeckIndex, look.pixels, rw, rh)) {
         look.width = rw;
         look.height = rh;
         look.index = old->second.index;
@@ -4467,6 +4522,57 @@
           SDL_SetTextureAlphaMod(zeroCopyDraw, 255);
           return;
           }
+        }
+      }
+      // NO WRAP (10-bit SDR P010, which SDL cannot draw): through the video
+      // processor on the decoder's own surface -- with the effects, or with
+      // none, as a plain picture -- so the frame never comes back to the CPU.
+      // It used to download every frame (~12 ms at 4K).
+      if (sourceFrame->gpuDevice && sourceFrame->gpuDevice == outputRuntime->rendererD3DDevice) {
+        SDL_Texture* done = nullptr;
+        if (deckboy::effects::cueEffectStackActive(sourceCue->effects)) {
+          done = runLayerEffectsFromNv12(*outputRuntime, sourceDeckIndex, *sourceCue, *sourceFrame, nullptr,
+                                         target, layerWarp);
+        } else if (!cueHasPixelEffects(*sourceCue) && !cueAudioChainNeedsPicture(*sourceCue) &&
+                   ensureGpuEffects(*outputRuntime)) {
+          const SDL_TransferCharacteristics transfer = SDL_COLORSPACETRANSFER(frameColorspace(*sourceFrame));
+          if (transfer != SDL_TRANSFER_CHARACTERISTICS_PQ && transfer != SDL_TRANSFER_CHARACTERISTICS_HLG) {
+            auto& ran = outputRuntime->layerGpuFxRan[sourceDeckIndex];
+            const std::string plainKey = "plain:" + cuePreviewCacheKey(*sourceCue);
+            auto cached = outputRuntime->layerGpuFxTextures.find(sourceDeckIndex);
+            if (cached != outputRuntime->layerGpuFxTextures.end() && cached->second &&
+                ran.first == sourceFrame->index && ran.second == plainKey) {
+              done = cached->second;
+            } else {
+              deckboy::effects::CueEffectContext plainCtx;
+              plainCtx.frameIndex = sourceFrame->index;
+              done = deckboy::gpu::runGpuEffectsDecoded(
+                outputRuntime->gpuEffects, sourceDeckIndex, sourceFrame->gpuTexture, sourceFrame->gpuSubresource,
+                sourceFrame->width, sourceFrame->height,
+                layerFxShrinkFor(sourceDeckIndex, *sourceFrame, *sourceCue, target, layerWarp, true),
+                static_cast<unsigned>(frameColorspace(*sourceFrame)), {}, plainCtx);
+              if (done) {
+                outputRuntime->layerGpuFxTextures[sourceDeckIndex] = done;
+                ran = {sourceFrame->index, plainKey};
+              }
+            }
+          }
+        }
+        if (done) {
+          float doneOpacity = std::clamp(project_.decks[sourceDeckIndex].playlistOpacity, 0.0f, 1.0f);
+          const float doneFade = static_cast<float>(sourceRuntime->mediaEngine->currentVisualFadeGain());
+          SDL_BlendMode doneBlend = SDL_BLENDMODE_BLEND;
+          doneOpacity *= static_cast<float>(outputCrossfadeGain(stackOutputIndex, stackIndex, doneBlend));
+          float doneW = 0.0f, doneH = 0.0f;
+          SDL_GetTextureSize(done, &doneW, &doneH);
+          SDL_SetTextureBlendMode(done, doneBlend);
+          SDL_SetTextureAlphaMod(done, static_cast<Uint8>(std::lround(doneOpacity * doneFade * 255.0f)));
+          renderTextureWithCueGeometry(outputRuntime->outputRenderer, done, static_cast<int>(doneW),
+                                       static_cast<int>(doneH), sourceCue, target, doneBlend, layerWarp, 0,
+                                       sourceFrame->width, sourceFrame->height);
+          SDL_SetTextureBlendMode(done, SDL_BLENDMODE_BLEND);
+          SDL_SetTextureAlphaMod(done, 255);
+          return;
         }
       }
       // Different device (secondary output) or wrap failure: download the
@@ -4849,8 +4955,9 @@
     const double seconds = engine.outgoingSeconds();
     if (seconds <= 0.0001) return;                  // a cut has nothing to draw
     const DecodedFrame* out = cpuFrameForTransition(rt, engine.outgoingFrame(),
-                                                    sourceDeckIndex, "out");
-    if (!out || out->width <= 0 || out->height <= 0 || out->pixels.empty()) return;
+                                                    sourceDeckIndex, "out", true);
+    if (!out || out->width <= 0 || out->height <= 0) return;
+    if (out->pixels.empty() && !out->isGpu() && !heldGpuLookFor(rt, sourceDeckIndex, *out)) return;
 
     const double progress = engine.outgoingProgress01();
     if (progress >= 1.0) {
@@ -4999,6 +5106,19 @@
           build = &MediaEngine::buildGhastlyTransition; cacheKey = "ghastly"; break;
         default: break;
       }
+      // These build new pixels from the outgoing look: a decoded frame on the
+      // card is downloaded for them, and a look kept on the card is read back,
+      // once (heldGpuLookPixels).
+      if (build && out->isGpu()) {
+        out = cpuFrameForTransition(rt, engine.outgoingFrame(), sourceDeckIndex, "out");
+        if (!out) return;
+      }
+      if (build && out->pixels.empty() && !heldGpuLookPixels(rt, sourceDeckIndex)) {
+        build = nullptr;
+      }
+      if (build && out->pixels.empty()) {
+        build = nullptr;
+      }
       if (build) {
         std::vector<std::uint8_t>& pixels = rt.portalTransitionPixels;
         build(*out, pixels, progress, progress * seconds,
@@ -5105,8 +5225,10 @@
   // GPU surfaces with no pixels, and a transition from one drew NOTHING -- so
   // every transition was silently a cut wherever GPU decode was on. Downloaded
   // once per frame and kept: a held outgoing frame does not change.
+  // allowGpu: a zero-copy frame on this output's own device comes back as it
+  // is, for renderTransitionFrame to draw from the card (canDrawGpuFrame).
   const DecodedFrame* cpuFrameForTransition(OutputRuntime& runtime, const DecodedFrame* frame,
-                                            int deckIndex, const char* role) {
+                                            int deckIndex, const char* role, bool allowGpu = false) {
     if (frame) {
       const bool outgoing = std::string(role) == "out";
       const Cue* look = activeCuePtr(deckIndex);
@@ -5134,6 +5256,9 @@
     if (!frame || !frame->isGpu()) {
       return frame;
     }
+    if (allowGpu && canDrawGpuFrame(runtime, *frame)) {
+      return frame;
+    }
 #if DECKBOY_INPROC_DECODE
     const std::string key = std::string(role) + ":" + std::to_string(deckIndex);
     auto& cached = runtime.transitionCpuFrames[key];
@@ -5154,6 +5279,30 @@
     (void)runtime; (void)deckIndex; (void)role;
     return nullptr;
 #endif
+  }
+
+  // Whether a GPU frame can be drawn straight from this output's device: a
+  // Direct3D 11 NV12 surface on the same device (the zero-copy case).
+  bool canDrawGpuFrame(const OutputRuntime& runtime, const DecodedFrame& frame) const {
+#if DECKBOY_INPROC_DECODE && defined(_WIN32)
+    return frame.isGpu() && frame.gpuKind == DecodedFrame::GpuKind::D3D11Texture &&
+           frame.format == FramePixelFormat::NV12 && frame.gpuDevice &&
+           frame.gpuDevice == runtime.rendererD3DDevice;
+#else
+    (void) runtime; (void) frame;
+    return false;
+#endif
+  }
+
+  void releaseTransitionGpuWraps(OutputRuntime& runtime) {
+    for (auto& [deck, wrap] : runtime.transitionGpuWraps) {
+      (void) deck;
+      if (wrap.texture) SDL_DestroyTexture(wrap.texture);
+#if DECKBOY_INPROC_DECODE
+      if (wrap.texture2D) deckboy::libav::releaseD3D11Texture(wrap.texture2D);
+#endif
+    }
+    runtime.transitionGpuWraps.clear();
   }
 
   // Blit one held frame at a given alpha, through its own bridge texture so it
@@ -5253,8 +5402,28 @@
     SDL_Rect clip = target;
     if (hadClip && !SDL_GetRectIntersection(&previousClip, &target, &clip)) return;
     SDL_SetRenderClipRect(output->outputRenderer, &clip);
+    const Uint64 deckT0 = uiProfileEnabled_ ? SDL_GetTicksNS() : 0;
     renderDeckLayerIntoOutput(outputIndex, deckIndex, incoming, compositionIndex);
+    const Uint64 transitionT0 = uiProfileEnabled_ ? SDL_GetTicksNS() : 0;
     renderDeckTransitionIntoOutput(outputIndex, deckIndex, target, compositionIndex);
+    // The outgoing picture's share, while a transition runs (DECKBOY_UI_PROFILE).
+    if (uiProfileEnabled_) {
+      const double layerMs = static_cast<double>(transitionT0 - deckT0) / 1e6;
+      if (layerMs > 3.0) {
+        std::ostringstream line;
+        line << std::fixed << std::setprecision(2) << "deck " << (deckIndex + 1) << " layer draw=" << layerMs << "ms";
+        uiProfileLog(line.str());
+      }
+    }
+    if (uiProfileEnabled_ && deck->mediaEngine->outgoingSeconds() > 0.0001) {
+      const double ms = static_cast<double>(SDL_GetTicksNS() - transitionT0) / 1e6;
+      if (ms > 3.0) {
+        std::ostringstream line;
+        line << std::fixed << std::setprecision(2) << "transition " << (deckIndex + 1) << " outgoing="
+             << ms << "ms style=" << static_cast<int>(deck->mediaEngine->outgoingStyle());
+        uiProfileLog(line.str());
+      }
+    }
     SDL_SetRenderClipRect(output->outputRenderer, hadClip ? &previousClip : nullptr);
   }
 
@@ -5269,6 +5438,63 @@
                              int deckIndex, const SDL_Rect& target, Uint8 alpha,
                               const char* key = "transition", const OutputLayer* layerWarp = nullptr,
                               SDL_BlendMode blendMode = SDL_BLENDMODE_BLEND, int rasterW = 0) {
+#if DECKBOY_INPROC_DECODE
+    // A decoded frame still on this device: GPU-copied into a wrap of its own
+    // (once per frame) and drawn from there, as the zero-copy layer path does.
+    if (canDrawGpuFrame(outputRuntime, frame)) {
+      auto& wrap = outputRuntime.transitionGpuWraps[deckIndex];
+      const int ww = frame.width & ~1;
+      const int wh = frame.height & ~1;
+      if (!wrap.texture || wrap.width != ww || wrap.height != wh) {
+        if (wrap.texture) SDL_DestroyTexture(wrap.texture);
+        if (wrap.texture2D) deckboy::libav::releaseD3D11Texture(wrap.texture2D);
+        wrap = {};
+        wrap.texture = deckboy::libav::createWrappedVideoTexture(outputRuntime.outputRenderer, ww, wh,
+                                                                 FramePixelFormat::NV12, &wrap.texture2D,
+                                                                 frameColorspace(frame));
+        wrap.width = ww;
+        wrap.height = wh;
+      }
+      if (!wrap.texture) return;
+      const std::uintptr_t stamp = reinterpret_cast<std::uintptr_t>(frame.gpuTexture) ^
+                                   (static_cast<std::uintptr_t>(frame.index) << 1) ^
+                                   (static_cast<std::uintptr_t>(frame.gpuSubresource) << 20);
+      if (wrap.stamp != stamp) {
+        SDL_FlushRenderer(outputRuntime.outputRenderer);   // SDL's queued reads of the wrap first
+        if (deckboy::libav::copyGpuFrameToTexture(frame, wrap.texture2D)) wrap.stamp = stamp;
+      }
+      Cue wrapGeometry;
+      const Cue* wrapCue = nullptr;
+      if (DeckRuntime* drt = runtimeForDeck(deckIndex); drt && drt->mediaEngine) {
+        wrapGeometry = drt->mediaEngine->outgoingGeometryCue();
+        wrapCue = &wrapGeometry;
+      }
+      SDL_SetTextureBlendMode(wrap.texture, blendMode);
+      SDL_SetTextureAlphaMod(wrap.texture, alpha);
+      renderTextureWithCueGeometry(outputRuntime.outputRenderer, wrap.texture, frame.width, frame.height,
+                                   wrapCue, target, blendMode, layerWarp, rasterW);
+      SDL_SetTextureAlphaMod(wrap.texture, 255);
+      return;
+    }
+#endif
+    // A look kept on the card (its descriptor has no pixels): drawn as it is.
+    if (SDL_Texture* kept = heldGpuLookFor(outputRuntime, deckIndex, frame)) {
+      Cue keptGeometry;
+      const Cue* keptCue = nullptr;
+      if (DeckRuntime* drt = runtimeForDeck(deckIndex); drt && drt->mediaEngine) {
+        keptGeometry = drt->mediaEngine->outgoingGeometryCue();
+        keptCue = &keptGeometry;
+      }
+      float keptW = 0.0f, keptH = 0.0f;
+      SDL_GetTextureSize(kept, &keptW, &keptH);
+      SDL_SetTextureBlendMode(kept, blendMode);
+      SDL_SetTextureAlphaMod(kept, alpha);
+      renderTextureWithCueGeometry(outputRuntime.outputRenderer, kept, static_cast<int>(keptW),
+                                   static_cast<int>(keptH), keptCue, target, blendMode, layerWarp, rasterW,
+                                   frame.placedWidth(), frame.placedHeight());
+      SDL_SetTextureAlphaMod(kept, 255);
+      return;
+    }
     const Uint32 format = sdlPixelFormat(frame.format);
     const std::string bridgeKey = std::string(key) + ":" + std::to_string(deckIndex);
     SDL_Texture* tex = ensureOverlayBridgeTexture(

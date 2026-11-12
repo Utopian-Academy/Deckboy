@@ -27,6 +27,7 @@ from example_show_runtime import Runtime  # noqa: E402
 from check_mixed_stress import import_clip  # noqa: E402
 
 SEED = "update_check\t0\nui_sounds\t0\nui_scale\t1.0\n"
+STYLE = ["crossfade"]   # --style: the transition out of the look (portal reads it back)
 CASES = [
     # name, scale, x, y, effects
     ("quarter, invert+vignette", 0.25, -500, -250, ["invert", "vignette"]),
@@ -38,6 +39,9 @@ CASES = [
     # must fall inside where the layer is).
     ("small, scanlines+posterise", 0.3, -400, 220, ["scanlines", "posterise"]),
     ("rotated, kaleidoscope", 0.3, 300, -200, ["kaleidoscope"]),
+    # No effects at all: a 10-bit clip still goes through the video processor
+    # (--tenbit), and must look as the CPU download path draws it.
+    ("plain, no effects", 0.3, -300, -200, []),
 ]
 
 
@@ -128,7 +132,7 @@ def snap(exe, work, tag, clip, case, full, visible, against="full"):
         out["still"] = still
         # A slow crossfade to the plain cue: the outgoing look must survive.
         db.send("TRANSITION 4")
-        db.send("TRANSITIONSTYLE crossfade")
+        db.send("TRANSITIONSTYLE " + STYLE[0])
         db.send("DECK 2")
         db.send("SELECT 2")   # not GOTO: that is a jump, which cuts
         db.send("TAKE")
@@ -145,16 +149,22 @@ def main():
     ap.add_argument("--exe", default=str(ROOT / "build/windows/Release/Deckboy.exe"))
     ap.add_argument("--work", default=str(ROOT / "build/fx-shrink"))
     ap.add_argument("--visible", action="store_true")
+    ap.add_argument("--style", default="crossfade", help="the transition out of the look")
+    ap.add_argument("--tenbit", action="store_true",
+                    help="a 10-bit HEVC clip (P010 on the GPU decoder: the video processor path)")
     ap.add_argument("--against", choices=["full", "cpu"], default="full",
                     help="full: reduced vs full size; cpu: the GPU effects vs the CPU ones")
     args = ap.parse_args()
+    STYLE[0] = args.style
     work = Path(args.work)
     work.mkdir(parents=True, exist_ok=True)
-    clip = work / "clip.mp4"
+    clip = work / ("clip10.mkv" if args.tenbit else "clip.mp4")
     if not clip.exists():
+        codec = (["-c:v", "libx265", "-preset", "ultrafast", "-pix_fmt", "yuv420p10le",
+                  "-x265-params", "log-level=error"] if args.tenbit
+                 else ["-c:v", "libx264", "-pix_fmt", "yuv420p"])
         subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i",
-                        "testsrc2=s=1920x1080:r=30:d=6", "-c:v", "libx264", "-pix_fmt", "yuv420p",
-                        str(clip)], check=True)
+                        "testsrc2=s=1920x1080:r=30:d=6", *codec, str(clip)], check=True)
     fails = 0
     for i, case in enumerate(CASES):
         full = snap(args.exe, work, "c%d-full" % i, clip, case, True, args.visible, args.against)

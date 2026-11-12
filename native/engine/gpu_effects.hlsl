@@ -49,7 +49,8 @@ BINDING(0, 2) cbuffer Params : register(b0 SPACE(2)) {
   float f7; float f8; float f9; float f10;
   float f11; float f12; float f13; float f14;
   uint4 lut[48];      // 768 bytes: three 256-entry channel tables
-  float4 tab[512];    // 2048 floats: whatever an effect tabulates
+  float4 tab[64];     // 256 floats: glow's knee (kept small: 9 KB of uniforms
+                      // a pass came through Vulkan cut short)
 };
 
 // Kinds (gpu_effects.cpp, GpuKind).
@@ -82,6 +83,20 @@ float smoothstep01(float e0, float e1, float x) {
   return t * t * (3.0 - 2.0 * t);
 }
 uint xorshift(uint h) { h ^= h << 13; h ^= h >> 17; h ^= h << 5; return h; }
+// Lightspeed's two radial tables, one entry each, as the CPU builds them
+// (1024 entries, i / 1023 of the way out): where the light came from, and its
+// Doppler gain. f6 beta, f7 gamma, f8 half the field of view, f2 maxR.
+float boostRadius(int i) {
+  const float cosSeen = cos(float(i) / 1023.0 * f8);
+  const float denom = 1.0 - f6 * cosSeen;
+  const float cosRest = clamp((cosSeen - f6) / (abs(denom) < 1e-6 ? 1e-6 : denom), -1.0, 1.0);
+  return acos(cosRest) / f8 * f2;
+}
+float boostGain(int i) {
+  const float cosSeen = cos(float(i) / 1023.0 * f8);
+  const float doppler = 1.0 / max(1e-6, f7 * (1.0 - f6 * cosSeen));
+  return tanh((doppler - 1.0) * 1.2) * pB;
+}
 // std::lround: halves away from zero (HLSL's round() goes to even).
 int lroundf(float v) { return int(sign(v) * floor(abs(v) + 0.5)); }
 
@@ -250,7 +265,7 @@ void pointMain(uint3 id : SV_DispatchThreadID) {
         const int s0 = int(slot);
         const int s1 = min(1023, s0 + 1);
         const float fr = slot - s0;
-        const float srcR = tabAt(s0) * (1.0 - fr) + tabAt(s1) * fr;
+        const float srcR = boostRadius(s0) * (1.0 - fr) + boostRadius(s1) * fr;
         sxf = f0 + ax / ar * srcR;
         syf = f1 + ay / ar * srcR;
       }
@@ -280,7 +295,7 @@ void pointMain(uint3 id : SV_DispatchThreadID) {
     if (i0 == 2 && pB > 0.0005) {
       const float bx = x - f0, by = y - f1;
       const float br = clamp(sqrt(bx * bx + by * by) / max(1.0, f2), 0.0, 1.0);
-      const float shift = tabAt(1024 + int(br * 1023.0));
+      const float shift = boostGain(int(br * 1023.0));
       const float gain = 1.0 + shift * 0.6;
       o.r = floor(clamp(s.r * gain * (1.0 - shift * 0.55), 0.0, 255.0));
       o.g = floor(clamp(s.g * gain, 0.0, 255.0));

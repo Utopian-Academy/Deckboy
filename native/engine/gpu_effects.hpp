@@ -52,6 +52,15 @@ SDL_Texture* runGpuEffects(GpuEffects* g, int slot, const std::uint8_t* rgba, in
 SDL_Texture* runGpuEffectsNv12(GpuEffects* g, int slot, SDL_Texture* nv12, int srcW, int srcH, int shrink,
                                unsigned colorspace, const std::vector<deckboy::effects::CueEffect>& stack,
                                const deckboy::effects::CueEffectContext& ctx);
+// The same, straight from the DECODER's surface (`texture2D`: its
+// ID3D11Texture2D array, `subresource` the slice), NV12 or 10-bit P010: the
+// slice is GPU-copied into a texture of the effects' own. For the 10-bit SDR
+// frames SDL cannot wrap, which otherwise came back to the CPU every frame
+// (~12 ms at 4K). Direct3D 11 only; null elsewhere.
+SDL_Texture* runGpuEffectsDecoded(GpuEffects* g, int slot, void* texture2D, int subresource, int srcW, int srcH,
+                                  int shrink, unsigned colorspace,
+                                  const std::vector<deckboy::effects::CueEffect>& stack,
+                                  const deckboy::effects::CueEffectContext& ctx);
 // Whether runGpuEffectsNv12 can run on this one.
 bool gpuEffectsTakeNv12(const GpuEffects* g);
 
@@ -59,6 +68,13 @@ bool gpuEffectsTakeNv12(const GpuEffects* g);
 // needs the outgoing picture's pixels). Waits for the GPU; once per cue change.
 bool readGpuEffectsResult(GpuEffects* g, int slot, std::vector<std::uint8_t>& rgba, int& w, int& h);
 void releaseGpuEffectsSlot(GpuEffects* g, int slot);
+
+// A copy of `slot`'s last result in a texture of its own, made on the card
+// (no wait): the outgoing look a transition draws while the slot moves on to
+// the next cue. Owned by the caller (SDL_DestroyTexture). Null on failure.
+SDL_Texture* copyGpuEffectsResult(GpuEffects* g, int slot);
+// Any texture this made (a result or a copy), read back to the CPU. Waits.
+bool readGpuEffectsTexture(GpuEffects* g, SDL_Texture* texture, std::vector<std::uint8_t>& rgba, int& w, int& h);
 
 // Compile the Direct3D 11 shaders now, on any thread, so the first effect does
 // not. The app calls it on a background thread at launch.

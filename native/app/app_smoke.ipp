@@ -5786,6 +5786,9 @@
         const char* forced = std::getenv("DECKBOY_OUTPUT_RENDERER");
         renderer = (forced && *forced) ? SDL_CreateRenderer(window, forced) : deckboyCreateRenderer(window);
       }
+      if (!renderer) {
+        std::cerr << "gpu-effect-dump: no renderer: " << SDL_GetError() << std::endl;
+      }
       deckboy::gpu::GpuEffects* g = renderer ? deckboy::gpu::createGpuEffects(renderer) : nullptr;
       if (!g) {
         std::cerr << "gpu-effect-dump: no GPU effects on this renderer\n";

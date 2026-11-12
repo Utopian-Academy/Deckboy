@@ -475,6 +475,23 @@ struct OutputRuntime {
   // Which frame (index, cue key) the GPU effects last ran on from the NV12
   // picture, so an unchanged frame with a still stack is not run again.
   std::map<int, std::pair<std::uint64_t, std::string>> layerGpuFxRan;
+  // An outgoing look still on the GPU: a copy of the last GPU result, drawn
+  // by the transition as it is. heldLookFrames carries its descriptor (size,
+  // index, key) with NO pixels; a style that needs pixels (portal, shatter,
+  // clouds, ghastly) reads it back the first time it asks. Destroyed with the
+  // descriptor or the renderer.
+  std::map<int, SDL_Texture*> heldGpuLookTextures;
+  // A decoded outgoing frame still on this output's device (a cue playing on
+  // through its transition), copied on the card into a wrap of its own and
+  // drawn from there -- downloading it every frame cost ~10 ms a frame.
+  struct TransitionGpuWrap {
+    SDL_Texture* texture = nullptr;
+    void* texture2D = nullptr;   // owned reference (deckboy::libav::releaseD3D11Texture)
+    int width = 0;
+    int height = 0;
+    std::uintptr_t stamp = 0;
+  };
+  std::map<int, TransitionGpuWrap> transitionGpuWraps;
   // The Portal transition's picture: the outgoing frame with the holes melted
   // through it, rebuilt every frame the transition runs.
   std::vector<std::uint8_t> portalTransitionPixels;

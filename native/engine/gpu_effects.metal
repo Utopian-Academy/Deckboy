@@ -20,7 +20,7 @@ struct Params {
   float f7; float f8; float f9; float f10;
   float f11; float f12; float f13; float f14;
   uint4 lut[48];
-  float4 tab[512];
+  float4 tab[64];
 };
 
 #define K_LUT 1
@@ -59,6 +59,17 @@ static float smoothstep01(float e0, float e1, float x) {
   return t * t * (3.0f - 2.0f * t);
 }
 static uint xorshift(uint h) { h ^= h << 13; h ^= h >> 17; h ^= h << 5; return h; }
+static float boostRadius(constant Params& p, int i) {
+  const float cosSeen = cos(float(i) / 1023.0f * p.f8);
+  const float denom = 1.0f - p.f6 * cosSeen;
+  const float cosRest = clamp((cosSeen - p.f6) / (fabs(denom) < 1e-6f ? 1e-6f : denom), -1.0f, 1.0f);
+  return acos(cosRest) / p.f8 * p.f2;
+}
+static float boostGain(constant Params& p, int i) {
+  const float cosSeen = cos(float(i) / 1023.0f * p.f8);
+  const float doppler = 1.0f / max(1e-6f, p.f7 * (1.0f - p.f6 * cosSeen));
+  return tanh((doppler - 1.0f) * 1.2f) * p.pB;
+}
 static int lroundf(float v) { return int(sign(v) * floor(fabs(v) + 0.5f)); }
 static int luma8(SRC t, int x, int y) {
   const uint4 q = texel(t, x, y);
@@ -224,7 +235,7 @@ kernel void pointMain(ARGS) {
         const int s0 = int(slot);
         const int s1 = min(1023, s0 + 1);
         const float fr = slot - s0;
-        const float srcR = tabAt(p, s0) * (1.0f - fr) + tabAt(p, s1) * fr;
+        const float srcR = boostRadius(p, s0) * (1.0f - fr) + boostRadius(p, s1) * fr;
         sxf = p.f0 + ax / ar * srcR;
         syf = p.f1 + ay / ar * srcR;
       }
@@ -253,7 +264,7 @@ kernel void pointMain(ARGS) {
     if (p.i0 == 2 && pB > 0.0005f) {
       const float bx = x - p.f0, by = y - p.f1;
       const float br = clamp(sqrt(bx * bx + by * by) / max(1.0f, p.f2), 0.0f, 1.0f);
-      const float shift = tabAt(p, 1024 + int(br * 1023.0f));
+      const float shift = boostGain(p, int(br * 1023.0f));
       const float gain = 1.0f + shift * 0.6f;
       o.r = floor(c255(s.r * gain * (1.0f - shift * 0.55f)));
       o.g = floor(c255(s.g * gain));

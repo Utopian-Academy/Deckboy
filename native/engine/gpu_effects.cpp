@@ -15,7 +15,7 @@
 #include "../core/sdl_compat.hpp"
 
 #ifdef _WIN32
-#include <d3d11.h>
+#include <d3d11_3.h>
 #endif
 
 namespace deckboy::gpu {
@@ -38,9 +38,9 @@ struct alignas(16) Params {
   float f7 = 0, f8 = 0, f9 = 0, f10 = 0;
   float f11 = 0, f12 = 0, f13 = 0, f14 = 0;
   std::uint8_t lut[768] = {};
-  float tab[2048] = {};
+  float tab[256] = {};
 };
-static_assert(sizeof(Params) == 128 + 768 + 8192, "Params must match gpu_effects.hlsl");
+static_assert(sizeof(Params) == 128 + 768 + 1024, "Params must match gpu_effects.hlsl");
 
 enum GpuKind : std::uint32_t {
   K_LUT = 1, K_THRESHOLD, K_COLOUR, K_COLOUR_REPLACE, K_VIGNETTE, K_GRAIN, K_CHANNEL_OFFSET,
@@ -51,7 +51,9 @@ const char* const kEntryNames[E_COUNT] = {"pointMain", "downMain", "boxMain", "s
 
 // The NV12 kernel's constants for a frame's colour space: its matrix (BT.601,
 // 709 or 2020) and its range, as SDL's own YCbCr conversion takes them.
-void nv12Constants(unsigned colorspace, int width, Params& p) {
+// tenBit: P010, whose 10-bit codes sit in the top of 16-bit samples, so
+// normalised black, white and mid-chroma land a little off 8-bit's.
+void nv12Constants(unsigned colorspace, int width, Params& p, bool tenBit = false) {
   const SDL_Colorspace cs = static_cast<SDL_Colorspace>(colorspace);
   double kr = 0.2126, kb = 0.0722;   // BT.709
   switch (SDL_COLORSPACEMATRIX(cs)) {
@@ -68,10 +70,15 @@ void nv12Constants(unsigned colorspace, int width, Params& p) {
   }
   const bool full = SDL_COLORSPACERANGE(cs) == SDL_COLOR_RANGE_FULL;
   const double kg = 1.0 - kr - kb;
-  const double yScale = full ? 1.0 : 255.0 / 219.0;
-  const double cScale = full ? 1.0 : 255.0 / 224.0;
-  p.f0 = static_cast<float>(full ? 0.0 : -16.0 / 255.0);
-  p.f1 = static_cast<float>(-128.0 / 255.0);
+  // The sample as read (0-1) back to code values, then the range.
+  const double codeMax = tenBit ? 65535.0 / 64.0 : 255.0;   // 1023.98 or 255
+  const double black = tenBit ? 64.0 : 16.0, lumaSpan = tenBit ? 876.0 : 219.0;
+  const double mid = tenBit ? 512.0 : 128.0, chromaSpan = tenBit ? 896.0 : 224.0;
+  const double fullMax = tenBit ? 1023.0 : 255.0;
+  const double yScale = full ? codeMax / fullMax : codeMax / lumaSpan;
+  const double cScale = full ? codeMax / fullMax : codeMax / chromaSpan;
+  p.f0 = static_cast<float>(full ? 0.0 : -black / codeMax);
+  p.f1 = static_cast<float>(-mid / codeMax);
   p.f2 = static_cast<float>(yScale);
   p.f3 = static_cast<float>(cScale * (2.0 - 2.0 * kr));
   p.f4 = static_cast<float>(cScale * (2.0 * kb * (1.0 - kb) / kg));
@@ -368,16 +375,12 @@ bool planEffect(std::vector<Pass>& plan, const fx::CueEffect& e, int w, int h, c
         const double beta = amt * 0.995;
         const double gamma = 1.0 / std::sqrt(std::max(1e-6, 1.0 - beta * beta));
         const double halfFov = (12.0 + pA * 68.0) * 0.017453292519943295;
+        // The shader works out the two table entries it needs (boostRadius,
+        // boostGain) from these, the CPU effect's own constants.
         p.f5 = static_cast<float>(pC * cx * 0.8);
-        for (int i = 0; i < 1024; ++i) {
-          const double frac = static_cast<double>(i) / 1023;
-          const double cosSeen = std::cos(frac * halfFov);
-          const double denom = 1.0 - beta * cosSeen;
-          const double cosRest = std::clamp((cosSeen - beta) / (std::fabs(denom) < 1e-6 ? 1e-6 : denom), -1.0, 1.0);
-          p.tab[i] = static_cast<float>((std::acos(cosRest) / halfFov) * maxR);
-          const double doppler = 1.0 / std::max(1e-6, gamma * denom);
-          p.tab[1024 + i] = static_cast<float>(std::tanh((doppler - 1.0) * 1.2) * pB);
-        }
+        p.f6 = static_cast<float>(beta);
+        p.f7 = static_cast<float>(gamma);
+        p.f8 = static_cast<float>(halfFov);
       }
       plan.push_back(point(p, w, h));
       return true;
@@ -593,6 +596,17 @@ struct D3DBuf {
 struct D3DSlot : SlotBase {
   D3DBuf buf[BUF_COUNT];
   ID3D11Texture2D* nv12 = nullptr;          // the input the two views below are of (borrowed)
+  ID3D11Texture2D* decoded = nullptr;       // our copy of a decoder slice (owned; unused now)
+  // The decoder's frame through Direct3D 11's VIDEO PROCESSOR (runGpuEffectsDecoded).
+  ID3D11VideoProcessorEnumerator* vpEnum = nullptr;
+  ID3D11VideoProcessor* vp = nullptr;
+  ID3D11Texture2D* vpOut = nullptr;
+  ID3D11VideoProcessorOutputView* vpOutView = nullptr;
+  int vpInW = 0, vpInH = 0, vpOutW = 0, vpOutH = 0;
+  DXGI_FORMAT vpInFormat = DXGI_FORMAT_UNKNOWN;
+  unsigned vpColorspace = 0;
+  ID3D11Texture2D* vpSource = nullptr;      // the decoder array the views below are of (borrowed)
+  std::map<int, ID3D11VideoProcessorInputView*> vpInViews;   // by array slice
   ID3D11ShaderResourceView* nv12Luma = nullptr;
   ID3D11ShaderResourceView* nv12Chroma = nullptr;
   ID3D11Texture2D* displayTex = nullptr;   // SDL's, borrowed
@@ -726,14 +740,32 @@ bool d3d11Create(GpuEffects* g) {
   return true;
 }
 
+void releaseVp(D3DSlot& s) {
+  for (auto& [slice, view] : s.vpInViews) {
+    (void) slice;
+    releaseCom(view);
+  }
+  s.vpInViews.clear();
+  s.vpSource = nullptr;
+  releaseCom(s.vpOutView);
+  releaseCom(s.vpOut);
+  releaseCom(s.vp);
+  releaseCom(s.vpEnum);
+  s.vpInW = s.vpInH = s.vpOutW = s.vpOutH = 0;
+  s.vpInFormat = DXGI_FORMAT_UNKNOWN;
+  s.vpColorspace = 0;
+}
+
 void releaseNv12Views(D3DSlot& s) {
   releaseCom(s.nv12Luma);
   releaseCom(s.nv12Chroma);
   s.nv12 = nullptr;
+  releaseCom(s.decoded);
 }
 
 void d3d11Destroy(GpuEffects* g) {
   for (auto& [slot, s] : g->d3dSlots) {
+    releaseVp(s);
     releaseNv12Views(s);
     for (auto& b : s.buf) releaseBuf(b);
     releaseCom(s.staging);
@@ -749,7 +781,7 @@ void d3d11Destroy(GpuEffects* g) {
 // NV12 texture, converted and reduced into CUR by the first pass.
 SDL_Texture* d3d11Run(GpuEffects* g, int slotIndex, const std::uint8_t* rgba, int w, int h,
                       const std::vector<Pass>& plan, ID3D11Texture2D* nv12 = nullptr,
-                      const Params* nv12Params = nullptr) {
+                      const Params* nv12Params = nullptr, ID3D11Texture2D* rgbaOnCard = nullptr) {
   D3DSlot& slot = g->d3dSlots[slotIndex];
   for (int b = 0; b < BUF_COUNT; ++b) {
     int bw = 0, bh = 0;
@@ -767,18 +799,53 @@ SDL_Texture* d3d11Run(GpuEffects* g, int slotIndex, const std::uint8_t* rgba, in
   if (nv12 && nv12Params) {
     if (slot.nv12 != nv12) {
       releaseNv12Views(slot);
+      // Keep our own decoded copy alive across the view rebuild.
+      ID3D11Texture2D* keep = slot.decoded;
+      if (keep) keep->AddRef();
+      releaseNv12Views(slot);
+      slot.decoded = keep;
       D3D11_TEXTURE2D_DESC desc {};
       nv12->GetDesc(&desc);
-      if (desc.Format != DXGI_FORMAT_NV12) return nullptr;
-      D3D11_SHADER_RESOURCE_VIEW_DESC view {};
-      view.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-      view.Texture2D.MipLevels = 1;
-      view.Format = DXGI_FORMAT_R8_UNORM;     // the luma plane
-      if (FAILED(g->device->CreateShaderResourceView(nv12, &view, &slot.nv12Luma))) return nullptr;
-      view.Format = DXGI_FORMAT_R8G8_UNORM;   // the chroma plane
-      if (FAILED(g->device->CreateShaderResourceView(nv12, &view, &slot.nv12Chroma))) {
-        releaseNv12Views(slot);
-        return nullptr;
+      // NV12 planes read as R8 / R8G8; 10-bit P010's as R16 / R16G16, whose
+      // normalised values are on the same 0-1 scale, so one kernel takes both.
+      const bool tenBit = desc.Format == DXGI_FORMAT_P010;
+      if (desc.Format != DXGI_FORMAT_NV12 && !tenBit) return nullptr;
+      // One view per PLANE, named by its slice (Direct3D 11.3): the format
+      // alone picks the plane on NV12, but creating a P010 view that way
+      // crashed inside the NVIDIA driver (2026-11-12).
+      ID3D11Device3* device3 = nullptr;
+      if (SUCCEEDED(g->device->QueryInterface(__uuidof(ID3D11Device3), reinterpret_cast<void**>(&device3)))) {
+        D3D11_SHADER_RESOURCE_VIEW_DESC1 view {};
+        view.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+        view.Texture2D.MipLevels = 1;
+        view.Format = tenBit ? DXGI_FORMAT_R16_UNORM : DXGI_FORMAT_R8_UNORM;     // the luma plane
+        view.Texture2D.PlaneSlice = 0;
+        ID3D11ShaderResourceView1* luma = nullptr;
+        ID3D11ShaderResourceView1* chroma = nullptr;
+        const bool made = SUCCEEDED(device3->CreateShaderResourceView1(nv12, &view, &luma)) &&
+                          (view.Format = tenBit ? DXGI_FORMAT_R16G16_UNORM : DXGI_FORMAT_R8G8_UNORM,
+                           view.Texture2D.PlaneSlice = 1,
+                           SUCCEEDED(device3->CreateShaderResourceView1(nv12, &view, &chroma)));
+        device3->Release();
+        slot.nv12Luma = luma;
+        slot.nv12Chroma = chroma;
+        if (!made) {
+          releaseNv12Views(slot);
+          return nullptr;
+        }
+      } else if (tenBit) {
+        return nullptr;   // no 11.3: P010 stays on the CPU path
+      } else {
+        D3D11_SHADER_RESOURCE_VIEW_DESC view {};
+        view.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+        view.Texture2D.MipLevels = 1;
+        view.Format = DXGI_FORMAT_R8_UNORM;     // the luma plane
+        if (FAILED(g->device->CreateShaderResourceView(nv12, &view, &slot.nv12Luma))) return nullptr;
+        view.Format = DXGI_FORMAT_R8G8_UNORM;   // the chroma plane
+        if (FAILED(g->device->CreateShaderResourceView(nv12, &view, &slot.nv12Chroma))) {
+          releaseNv12Views(slot);
+          return nullptr;
+        }
       }
       slot.nv12 = nv12;
     }
@@ -796,6 +863,8 @@ SDL_Texture* d3d11Run(GpuEffects* g, int slotIndex, const std::uint8_t* rgba, in
     ID3D11UnorderedAccessView* noOut = nullptr;
     g->context->CSSetUnorderedAccessViews(0, 1, &noOut, nullptr);
     g->context->CSSetShaderResources(0, 2, noViews);
+  } else if (rgbaOnCard) {
+    g->context->CopyResource(slot.buf[CUR].tex, rgbaOnCard);   // same size, same format
   } else {
     g->context->UpdateSubresource(slot.buf[CUR].tex, 0, nullptr, rgba, static_cast<UINT>(w * 4), 0);
   }
@@ -862,7 +931,12 @@ namespace {
 bool sdlCreate(GpuEffects* g) {
   g->gpu = static_cast<SDL_GPUDevice*>(
     SDL_GetPointerProperty(SDL_GetRendererProperties(g->renderer), SDL_PROP_RENDERER_GPU_DEVICE_POINTER, nullptr));
-  if (!g->gpu) return false;
+  if (!g->gpu) {
+    const char* name = SDL_GetRendererName(g->renderer);
+    std::cerr << "gpu-effects: renderer " << (name ? name : "?") << " has neither Direct3D 11 nor SDL_GPU -- CPU effects"
+              << std::endl;
+    return false;
+  }
   const SDL_GPUShaderFormat formats = SDL_GetGPUShaderFormats(g->gpu);
   const unsigned char* dxil[E_COUNT] = {kEffectsPointDxil, kEffectsDownDxil, kEffectsBoxDxil, kEffectsStreakDxil,
                                         kEffectsTileDxil, kEffectsNv12Dxil};
@@ -890,6 +964,7 @@ bool sdlCreate(GpuEffects* g) {
       info.code = dxil[e];
       info.code_size = dxilSize[e];
     } else {
+      std::cerr << "gpu-effects: no shader this GPU device takes (formats " << formats << ") -- CPU effects" << std::endl;
       return false;
     }
     info.num_samplers = 2;
@@ -1158,6 +1233,185 @@ SDL_Texture* runGpuEffectsNv12(GpuEffects* g, int slot, SDL_Texture* nv12, int s
 #endif
 }
 
+// The decoder's frame (NV12 or 10-bit P010) through the VIDEO PROCESSOR: the
+// fixed-function block players use to show it, which reads the decode surface
+// in place -- an input view on the array slice, no copy -- and converts it to
+// RGB with the frame's own matrix and range, scaled to the size the effects
+// run at. (A shader view on a P010 texture crashed inside the NVIDIA driver,
+// 2026-11-12; this is the path the driver is built for.)
+#ifdef _WIN32
+namespace {
+DXGI_COLOR_SPACE_TYPE vpInputColorSpace(unsigned colorspace, int width) {
+  const SDL_Colorspace cs = static_cast<SDL_Colorspace>(colorspace);
+  const bool full = SDL_COLORSPACERANGE(cs) == SDL_COLOR_RANGE_FULL;
+  switch (SDL_COLORSPACEMATRIX(cs)) {
+    case SDL_MATRIX_COEFFICIENTS_BT601:
+    case SDL_MATRIX_COEFFICIENTS_BT470BG:
+      return full ? DXGI_COLOR_SPACE_YCBCR_FULL_G22_LEFT_P601 : DXGI_COLOR_SPACE_YCBCR_STUDIO_G22_LEFT_P601;
+    case SDL_MATRIX_COEFFICIENTS_BT2020_NCL:
+      return full ? DXGI_COLOR_SPACE_YCBCR_FULL_G22_LEFT_P2020 : DXGI_COLOR_SPACE_YCBCR_STUDIO_G22_LEFT_P2020;
+    case SDL_MATRIX_COEFFICIENTS_BT709:
+      return full ? DXGI_COLOR_SPACE_YCBCR_FULL_G22_LEFT_P709 : DXGI_COLOR_SPACE_YCBCR_STUDIO_G22_LEFT_P709;
+    default:
+      if (width < 1280) {
+        return full ? DXGI_COLOR_SPACE_YCBCR_FULL_G22_LEFT_P601 : DXGI_COLOR_SPACE_YCBCR_STUDIO_G22_LEFT_P601;
+      }
+      return full ? DXGI_COLOR_SPACE_YCBCR_FULL_G22_LEFT_P709 : DXGI_COLOR_SPACE_YCBCR_STUDIO_G22_LEFT_P709;
+  }
+}
+
+// Converts slice `subresource` of `source` into slot.vpOut (w x h, RGBA8).
+bool videoProcess(GpuEffects* g, D3DSlot& slot, ID3D11Texture2D* source, int subresource, DXGI_FORMAT format,
+                  int cw, int ch, int w, int h, unsigned colorspace) {
+  ID3D11VideoDevice* videoDevice = nullptr;
+  ID3D11VideoContext* videoContext = nullptr;
+  if (FAILED(g->device->QueryInterface(__uuidof(ID3D11VideoDevice), reinterpret_cast<void**>(&videoDevice))) ||
+      FAILED(g->context->QueryInterface(__uuidof(ID3D11VideoContext), reinterpret_cast<void**>(&videoContext)))) {
+    releaseCom(videoDevice);
+    return false;
+  }
+  bool ok = true;
+  if (!slot.vp || slot.vpInW != cw || slot.vpInH != ch || slot.vpOutW != w || slot.vpOutH != h ||
+      slot.vpInFormat != format) {
+    releaseVp(slot);
+    D3D11_VIDEO_PROCESSOR_CONTENT_DESC content {};
+    content.InputFrameFormat = D3D11_VIDEO_FRAME_FORMAT_PROGRESSIVE;
+    content.InputFrameRate = {30, 1};
+    content.InputWidth = static_cast<UINT>(cw);
+    content.InputHeight = static_cast<UINT>(ch);
+    content.OutputFrameRate = {30, 1};
+    content.OutputWidth = static_cast<UINT>(w);
+    content.OutputHeight = static_cast<UINT>(h);
+    content.Usage = D3D11_VIDEO_USAGE_PLAYBACK_NORMAL;
+    UINT inSupport = 0, outSupport = 0;
+    ok = SUCCEEDED(videoDevice->CreateVideoProcessorEnumerator(&content, &slot.vpEnum)) &&
+         SUCCEEDED(slot.vpEnum->CheckVideoProcessorFormat(format, &inSupport)) &&
+         (inSupport & D3D11_VIDEO_PROCESSOR_FORMAT_SUPPORT_INPUT) &&
+         SUCCEEDED(slot.vpEnum->CheckVideoProcessorFormat(DXGI_FORMAT_R8G8B8A8_UNORM, &outSupport)) &&
+         (outSupport & D3D11_VIDEO_PROCESSOR_FORMAT_SUPPORT_OUTPUT) &&
+         SUCCEEDED(videoDevice->CreateVideoProcessor(slot.vpEnum, 0, &slot.vp));
+    if (ok) {
+      D3D11_TEXTURE2D_DESC out {};
+      out.Width = static_cast<UINT>(w);
+      out.Height = static_cast<UINT>(h);
+      out.MipLevels = 1;
+      out.ArraySize = 1;
+      out.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+      out.SampleDesc.Count = 1;
+      out.Usage = D3D11_USAGE_DEFAULT;
+      out.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+      D3D11_VIDEO_PROCESSOR_OUTPUT_VIEW_DESC outView {};
+      outView.ViewDimension = D3D11_VPOV_DIMENSION_TEXTURE2D;
+      ok = SUCCEEDED(g->device->CreateTexture2D(&out, nullptr, &slot.vpOut)) &&
+           SUCCEEDED(videoDevice->CreateVideoProcessorOutputView(slot.vpOut, slot.vpEnum, &outView, &slot.vpOutView));
+    }
+    if (ok) {
+      slot.vpInW = cw;
+      slot.vpInH = ch;
+      slot.vpOutW = w;
+      slot.vpOutH = h;
+      slot.vpInFormat = format;
+      const RECT sourceRect {0, 0, cw, ch};   // the decode surface is padded (2176 rows for 2160)
+      const RECT destRect {0, 0, w, h};
+      videoContext->VideoProcessorSetStreamFrameFormat(slot.vp, 0, D3D11_VIDEO_FRAME_FORMAT_PROGRESSIVE);
+      videoContext->VideoProcessorSetStreamAutoProcessingMode(slot.vp, 0, FALSE);
+      videoContext->VideoProcessorSetStreamSourceRect(slot.vp, 0, TRUE, &sourceRect);
+      videoContext->VideoProcessorSetStreamDestRect(slot.vp, 0, TRUE, &destRect);
+      videoContext->VideoProcessorSetOutputTargetRect(slot.vp, TRUE, &destRect);
+    } else {
+      releaseVp(slot);
+    }
+  }
+  if (ok && slot.vpColorspace != colorspace) {
+    ID3D11VideoContext1* videoContext1 = nullptr;
+    if (SUCCEEDED(videoContext->QueryInterface(__uuidof(ID3D11VideoContext1), reinterpret_cast<void**>(&videoContext1)))) {
+      videoContext1->VideoProcessorSetStreamColorSpace1(slot.vp, 0, vpInputColorSpace(colorspace, cw));
+      videoContext1->VideoProcessorSetOutputColorSpace1(slot.vp, DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709);
+      videoContext1->Release();
+    } else {
+      const SDL_Colorspace cs = static_cast<SDL_Colorspace>(colorspace);
+      D3D11_VIDEO_PROCESSOR_COLOR_SPACE in {};
+      in.YCbCr_Matrix = SDL_COLORSPACEMATRIX(cs) == SDL_MATRIX_COEFFICIENTS_BT601 ? 0 : 1;
+      in.Nominal_Range = SDL_COLORSPACERANGE(cs) == SDL_COLOR_RANGE_FULL ? D3D11_VIDEO_PROCESSOR_NOMINAL_RANGE_0_255
+                                                                         : D3D11_VIDEO_PROCESSOR_NOMINAL_RANGE_16_235;
+      videoContext->VideoProcessorSetStreamColorSpace(slot.vp, 0, &in);
+      D3D11_VIDEO_PROCESSOR_COLOR_SPACE out {};
+      out.Nominal_Range = D3D11_VIDEO_PROCESSOR_NOMINAL_RANGE_0_255;
+      videoContext->VideoProcessorSetOutputColorSpace(slot.vp, &out);
+    }
+    slot.vpColorspace = colorspace;
+  }
+  ID3D11VideoProcessorInputView* inView = nullptr;
+  if (ok) {
+    if (slot.vpSource != source || slot.vpInViews.size() > 128) {
+      for (auto& [slice, view] : slot.vpInViews) {
+        (void) slice;
+        releaseCom(view);
+      }
+      slot.vpInViews.clear();
+      slot.vpSource = source;
+    }
+    auto found = slot.vpInViews.find(subresource);
+    if (found != slot.vpInViews.end()) {
+      inView = found->second;
+    } else {
+      D3D11_VIDEO_PROCESSOR_INPUT_VIEW_DESC inDesc {};
+      inDesc.ViewDimension = D3D11_VPIV_DIMENSION_TEXTURE2D;
+      inDesc.Texture2D.ArraySlice = static_cast<UINT>(subresource);
+      if (SUCCEEDED(videoDevice->CreateVideoProcessorInputView(source, slot.vpEnum, &inDesc, &inView))) {
+        slot.vpInViews[subresource] = inView;
+      } else {
+        ok = false;
+      }
+    }
+  }
+  if (ok) {
+    D3D11_VIDEO_PROCESSOR_STREAM stream {};
+    stream.Enable = TRUE;
+    stream.pInputSurface = inView;
+    ok = SUCCEEDED(videoContext->VideoProcessorBlt(slot.vp, slot.vpOutView, 0, 1, &stream));
+  }
+  releaseCom(videoContext);
+  releaseCom(videoDevice);
+  return ok;
+}
+}  // namespace
+#endif
+
+SDL_Texture* runGpuEffectsDecoded(GpuEffects* g, int slot, void* texture2D, int subresource, int srcW, int srcH,
+                                  int shrink, unsigned colorspace, const std::vector<fx::CueEffect>& stack,
+                                  const fx::CueEffectContext& ctx) {
+  if (!gpuEffectsTakeNv12(g) || !texture2D || srcW < 4 || srcH < 4) return nullptr;
+#ifdef _WIN32
+  auto* source = static_cast<ID3D11Texture2D*>(texture2D);
+  ID3D11Device* sourceDevice = nullptr;
+  source->GetDevice(&sourceDevice);
+  const bool sameDevice = sourceDevice == g->device;
+  releaseCom(sourceDevice);
+  if (!sameDevice) return nullptr;
+  D3D11_TEXTURE2D_DESC desc {};
+  source->GetDesc(&desc);
+  if (desc.Format != DXGI_FORMAT_NV12 && desc.Format != DXGI_FORMAT_P010) return nullptr;
+  const int cw = srcW & ~1;
+  const int ch = srcH & ~1;
+  shrink = std::clamp(shrink, 1, 8);
+  const int w = std::max(2, cw / shrink);
+  const int h = std::max(2, ch / shrink);
+  bool ok = false;
+  fx::CueEffectContext sized = ctx;
+  sized.width = w;
+  sized.height = h;
+  const std::vector<Pass> plan = makePlan(stack, w, h, sized, ok);
+  if (!ok) return nullptr;
+  D3DSlot& s = g->d3dSlots[slot];
+  if (!videoProcess(g, s, source, subresource, desc.Format, cw, ch, w, h, colorspace)) return nullptr;
+  return d3d11Run(g, slot, nullptr, w, h, plan, nullptr, nullptr, s.vpOut);
+#else
+  (void) slot; (void) subresource; (void) shrink; (void) colorspace; (void) stack; (void) ctx;
+  return nullptr;
+#endif
+}
+
 bool readGpuEffectsResult(GpuEffects* g, int slot, std::vector<std::uint8_t>& rgba, int& w, int& h) {
   if (!g) return false;
 #ifdef _WIN32
@@ -1169,10 +1423,151 @@ bool readGpuEffectsResult(GpuEffects* g, int slot, std::vector<std::uint8_t>& rg
   return false;
 }
 
+SDL_Texture* copyGpuEffectsResult(GpuEffects* g, int slot) {
+  if (!g) return nullptr;
+  SDL_Texture* display = nullptr;
+  int w = 0, h = 0;
+#ifdef _WIN32
+  if (g->device) {
+    auto it = g->d3dSlots.find(slot);
+    if (it == g->d3dSlots.end() || !it->second.displayTex) return nullptr;
+    display = it->second.display;
+    w = it->second.w;
+    h = it->second.h;
+  }
+#endif
+#if SDL_VERSION_ATLEAST(3, 4, 0)
+  if (g->gpu) {
+    auto it = g->sdlSlots.find(slot);
+    if (it == g->sdlSlots.end() || !it->second.display) return nullptr;
+    display = it->second.display;
+    w = it->second.w;
+    h = it->second.h;
+  }
+#endif
+  if (!display || w <= 0 || h <= 0) return nullptr;
+  SDL_Texture* copy = deckboyCreateTexture(g->renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STATIC, w, h);
+  if (!copy) return nullptr;
+  bool ok = false;
+#ifdef _WIN32
+  if (g->device) {
+    auto* from = static_cast<ID3D11Texture2D*>(
+      SDL_GetPointerProperty(SDL_GetTextureProperties(display), SDL_PROP_TEXTURE_D3D11_TEXTURE_POINTER, nullptr));
+    auto* to = static_cast<ID3D11Texture2D*>(
+      SDL_GetPointerProperty(SDL_GetTextureProperties(copy), SDL_PROP_TEXTURE_D3D11_TEXTURE_POINTER, nullptr));
+    if (from && to) {
+      SDL_FlushRenderer(g->renderer);
+      g->context->CopyResource(to, from);
+      ok = true;
+    }
+  }
+#endif
+#if SDL_VERSION_ATLEAST(3, 4, 0)
+  if (g->gpu) {
+    auto* from = static_cast<SDL_GPUTexture*>(
+      SDL_GetPointerProperty(SDL_GetTextureProperties(display), SDL_PROP_TEXTURE_GPU_TEXTURE_POINTER, nullptr));
+    auto* to = static_cast<SDL_GPUTexture*>(
+      SDL_GetPointerProperty(SDL_GetTextureProperties(copy), SDL_PROP_TEXTURE_GPU_TEXTURE_POINTER, nullptr));
+    SDL_GPUCommandBuffer* cmd = (from && to) ? SDL_AcquireGPUCommandBuffer(g->gpu) : nullptr;
+    if (cmd) {
+      SDL_GPUCopyPass* pass = SDL_BeginGPUCopyPass(cmd);
+      SDL_GPUTextureLocation src {};
+      src.texture = from;
+      SDL_GPUTextureLocation dst {};
+      dst.texture = to;
+      SDL_CopyGPUTextureToTexture(pass, &src, &dst, static_cast<Uint32>(w), static_cast<Uint32>(h), 1, false);
+      SDL_EndGPUCopyPass(pass);
+      ok = SDL_SubmitGPUCommandBuffer(cmd);
+    }
+  }
+#endif
+  if (!ok) {
+    SDL_DestroyTexture(copy);
+    return nullptr;
+  }
+  return copy;
+}
+
+bool readGpuEffectsTexture(GpuEffects* g, SDL_Texture* texture, std::vector<std::uint8_t>& rgba, int& w, int& h) {
+  if (!g || !texture) return false;
+  float fw = 0.0f, fh = 0.0f;
+  if (!SDL_GetTextureSize(texture, &fw, &fh) || fw < 1.0f || fh < 1.0f) return false;
+  w = static_cast<int>(fw);
+  h = static_cast<int>(fh);
+#ifdef _WIN32
+  if (g->device) {
+    auto* tex = static_cast<ID3D11Texture2D*>(
+      SDL_GetPointerProperty(SDL_GetTextureProperties(texture), SDL_PROP_TEXTURE_D3D11_TEXTURE_POINTER, nullptr));
+    if (!tex) return false;
+    D3D11_TEXTURE2D_DESC desc {};
+    tex->GetDesc(&desc);
+    desc.Usage = D3D11_USAGE_STAGING;
+    desc.BindFlags = 0;
+    desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+    desc.MiscFlags = 0;
+    ID3D11Texture2D* staging = nullptr;
+    if (FAILED(g->device->CreateTexture2D(&desc, nullptr, &staging))) return false;
+    SDL_FlushRenderer(g->renderer);
+    g->context->CopyResource(staging, tex);
+    D3D11_MAPPED_SUBRESOURCE mapped {};
+    bool ok = SUCCEEDED(g->context->Map(staging, 0, D3D11_MAP_READ, 0, &mapped));
+    if (ok) {
+      rgba.resize(static_cast<std::size_t>(w) * h * 4);
+      for (int y = 0; y < h; ++y) {
+        std::memcpy(rgba.data() + static_cast<std::size_t>(y) * w * 4,
+                    static_cast<const std::uint8_t*>(mapped.pData) + static_cast<std::size_t>(y) * mapped.RowPitch,
+                    static_cast<std::size_t>(w) * 4);
+      }
+      g->context->Unmap(staging, 0);
+    }
+    staging->Release();
+    return ok;
+  }
+#endif
+#if SDL_VERSION_ATLEAST(3, 4, 0)
+  if (g->gpu) {
+    auto* tex = static_cast<SDL_GPUTexture*>(
+      SDL_GetPointerProperty(SDL_GetTextureProperties(texture), SDL_PROP_TEXTURE_GPU_TEXTURE_POINTER, nullptr));
+    if (!tex) return false;
+    const Uint32 bytes = static_cast<Uint32>(w * h * 4);
+    SDL_GPUTransferBufferCreateInfo info {};
+    info.usage = SDL_GPU_TRANSFERBUFFERUSAGE_DOWNLOAD;
+    info.size = bytes;
+    SDL_GPUTransferBuffer* down = SDL_CreateGPUTransferBuffer(g->gpu, &info);
+    if (!down) return false;
+    bool ok = false;
+    if (SDL_GPUCommandBuffer* cmd = SDL_AcquireGPUCommandBuffer(g->gpu)) {
+      SDL_GPUCopyPass* pass = SDL_BeginGPUCopyPass(cmd);
+      SDL_GPUTextureRegion region {};
+      region.texture = tex;
+      region.w = static_cast<Uint32>(w);
+      region.h = static_cast<Uint32>(h);
+      region.d = 1;
+      SDL_GPUTextureTransferInfo to {down, 0, static_cast<Uint32>(w), static_cast<Uint32>(h)};
+      SDL_DownloadFromGPUTexture(pass, &region, &to);
+      SDL_EndGPUCopyPass(pass);
+      if (SDL_GPUFence* fence = SDL_SubmitGPUCommandBufferAndAcquireFence(cmd)) {
+        SDL_WaitForGPUFences(g->gpu, true, &fence, 1);
+        SDL_ReleaseGPUFence(g->gpu, fence);
+        if (void* mapped = SDL_MapGPUTransferBuffer(g->gpu, down, false)) {
+          rgba.assign(static_cast<const std::uint8_t*>(mapped), static_cast<const std::uint8_t*>(mapped) + bytes);
+          SDL_UnmapGPUTransferBuffer(g->gpu, down);
+          ok = true;
+        }
+      }
+    }
+    SDL_ReleaseGPUTransferBuffer(g->gpu, down);
+    return ok;
+  }
+#endif
+  return false;
+}
+
 void releaseGpuEffectsSlot(GpuEffects* g, int slot) {
   if (!g) return;
 #ifdef _WIN32
   if (auto it = g->d3dSlots.find(slot); it != g->d3dSlots.end()) {
+    releaseVp(it->second);
     releaseNv12Views(it->second);
     for (auto& b : it->second.buf) releaseBuf(b);
     releaseCom(it->second.staging);
