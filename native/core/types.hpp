@@ -3202,6 +3202,15 @@ enum class FramePixelFormat {
 struct DecodedFrame {
   int width = 0;                       // frame width in pixels
   int height = 0;                      // frame height in pixels
+  // THE PICTURE THIS FRAME STANDS IN FOR, when it is a reduced copy of a
+  // bigger one (0 = its own size). A layer's effects run at the size the
+  // output draws it (see layerFxShrink_), and the result is PLACED as the
+  // full-size frame would be -- Unscaled, crop and offsets all count source
+  // pixels -- so whoever draws it places by this, not by width/height.
+  int logicalWidth = 0;
+  int logicalHeight = 0;
+  int placedWidth() const { return logicalWidth > 0 ? logicalWidth : width; }
+  int placedHeight() const { return logicalHeight > 0 ? logicalHeight : height; }
   std::uint64_t index = 0;             // display-order index (time * fps) for scheduling
   double presentationSeconds = -1.0;   // decoded PTS in seconds (-1 = unknown); used so
                                        // telecined / variable-rate video schedules by its

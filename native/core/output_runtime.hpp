@@ -446,6 +446,10 @@ struct OutputRuntime {
   std::map<int, std::pair<std::string, DecodedFrame>> layerLookFrames;
   std::map<int, std::pair<std::string, DecodedFrame>> heldLookFrames;
   std::vector<std::uint8_t> layerBridgeScratchPixels;
+  // The reduction each deck's bridge texture was last filled at (see
+  // layerFxShrinkFor): a change makes a new, empty texture, which must be
+  // filled again even when the frame itself has not changed.
+  std::map<int, int> layerFxShrinkUsed;
   // The Portal transition's picture: the outgoing frame with the holes melted
   // through it, rebuilt every frame the transition runs.
   std::vector<std::uint8_t> portalTransitionPixels;

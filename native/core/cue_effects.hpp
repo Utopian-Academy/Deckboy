@@ -1507,6 +1507,98 @@ inline unsigned effectWorkers() {
   return workers;
 }
 
+// THE WORKERS, KEPT. parallelRows used to start its threads on every call and
+// join them at the end. One effect on one frame is fine that way; a show is
+// not one effect. Fifteen layers with two effects each (and blur and glow
+// split each pass) started several hundred threads a frame, and with fifteen
+// decoders also wanting the cores, starting them cost more than the work:
+// blur took 2.2 ms on a 480x270 frame and 5.8 ms on one sixteen times the
+// size (measured 2026-11-11). These threads are made once and wait.
+//
+// Correctness rules, because a race here would be in every picture:
+//  - One job at a time (callerLock). A second caller waits its turn.
+//  - Bands are handed out under the lock, with the job's own task pointer,
+//    and the job is cleared only when every band has FINISHED -- so a worker
+//    that wakes late cannot run a band of a job that has already returned.
+//  - A call from inside a job (a worker, or the caller while it helps) runs
+//    inline: waiting for the pool from inside the pool would never end.
+//  - The pool is never destroyed. Its threads sleep on a condition variable
+//    and the process ends around them, with no static-destruction order to
+//    get wrong.
+class RowPool {
+ public:
+  static RowPool& instance() {
+    static RowPool* pool = new RowPool(effectWorkers() > 1 ? effectWorkers() - 1 : 0);
+    return *pool;
+  }
+
+  static bool& insideJob() {
+    static thread_local bool inside = false;
+    return inside;
+  }
+
+  // task(i) for every i in [0, count), on the pool and the calling thread.
+  void run(int count, const std::function<void(int)>& task) {
+    if (count <= 0) return;
+    if (threads_.empty() || count == 1 || insideJob()) {
+      for (int i = 0; i < count; ++i) task(i);
+      return;
+    }
+    std::lock_guard<std::mutex> turn(callerLock_);
+    insideJob() = true;
+    std::unique_lock<std::mutex> lock(mutex_);
+    task_ = &task;
+    count_ = count;
+    next_ = 0;
+    remaining_ = count;
+    wake_.notify_all();
+    while (next_ < count_) {
+      const int i = next_++;
+      lock.unlock();
+      task(i);
+      lock.lock();
+      --remaining_;
+    }
+    done_.wait(lock, [this] { return remaining_ == 0; });
+    task_ = nullptr;
+    count_ = 0;
+    lock.unlock();
+    insideJob() = false;
+  }
+
+ private:
+  explicit RowPool(unsigned workers) {
+    threads_.reserve(workers);
+    for (unsigned k = 0; k < workers; ++k) {
+      threads_.emplace_back([this] { work(); });
+    }
+  }
+
+  void work() {
+    insideJob() = true;
+    std::unique_lock<std::mutex> lock(mutex_);
+    for (;;) {
+      wake_.wait(lock, [this] { return task_ != nullptr && next_ < count_; });
+      const int i = next_++;
+      const std::function<void(int)>* task = task_;
+      lock.unlock();
+      (*task)(i);
+      lock.lock();
+      if (--remaining_ == 0) done_.notify_all();
+    }
+  }
+
+  std::mutex callerLock_;
+  std::mutex mutex_;
+  std::condition_variable wake_;
+  std::condition_variable done_;
+  const std::function<void(int)>* task_ = nullptr;
+  int count_ = 0;
+  int next_ = 0;
+  int remaining_ = 0;
+  std::vector<std::thread> threads_;
+};
+
 // Run `fn(firstRow, lastRow)` over the frame, split into bands.
 //
 // Every effect here writes each output row from inputs that are either in that
@@ -1515,36 +1607,26 @@ inline unsigned effectWorkers() {
 // are not row-independent (block glitch, which shifts overlapping random bands
 // in a fixed RNG order) simply do not use this.
 //
-// Threads are created per call rather than pooled. A pool would save roughly
-// two tenths of a millisecond per effect, and the effects it matters for take
-// tens of milliseconds; a race in the render path would cost far more than that
-// is worth. The size gate keeps the hand-off from dominating small frames.
+// The bands run on RowPool's kept threads. The size gate keeps the hand-off
+// from dominating tiny frames; with no threads to start it is far cheaper
+// than it was, so the gate is lower than the 120000 pixels it used to be.
 template <typename Fn>
 inline void parallelRows(int height, int width, Fn fn) {
   const unsigned workers = effectWorkers();
   if (workers < 2 || height < 2 ||
-      static_cast<long long>(height) * width < 120000) {
+      static_cast<long long>(height) * width < 40000) {
     fn(0, height);
     return;
   }
   const int bands = static_cast<int>(std::min<unsigned>(
     workers, static_cast<unsigned>(height)));
   const int rowsPerBand = (height + bands - 1) / bands;
-  std::vector<std::thread> helpers;
-  helpers.reserve(static_cast<std::size_t>(bands - 1));
-  for (int band = 1; band < bands; ++band) {
-    const int first = band * rowsPerBand;
+  const std::function<void(int)> band = [&fn, height, rowsPerBand](int b) {
+    const int first = b * rowsPerBand;
     const int last = std::min(height, first + rowsPerBand);
-    if (first >= last) {
-      break;
-    }
-    helpers.emplace_back([&fn, first, last] { fn(first, last); });
-  }
-  // The calling thread takes the first band instead of idling.
-  fn(0, std::min(height, rowsPerBand));
-  for (std::thread& helper : helpers) {
-    helper.join();
-  }
+    if (first < last) fn(first, last);
+  };
+  RowPool::instance().run(bands, band);
 }
 
 // A 256-entry table for any effect whose output channel depends only on its
@@ -2001,6 +2083,47 @@ inline void applyBlockGlitch(std::uint8_t* pixels, int w, int h, double amount,
 // uses. Every effect here is channel-symmetric except ChannelOffset, which
 // says in its own comment what it assumes.
 // ---------------------------------------------------------------------------
+// AN RGBA PICTURE MADE `factor` TIMES SMALLER, each pixel the average of the
+// factor x factor block it covers. Colour is weighted by alpha, so the clear
+// part of a keyed or alpha clip does not bleed its (meaningless) colour into
+// the edge. Edge columns and rows that do not fill a block are dropped: less
+// than one output pixel.
+inline void shrinkRgbaBox(const std::uint8_t* src, int width, int height, int factor,
+                          std::vector<std::uint8_t>& out, int& outW, int& outH) {
+  outW = std::max(1, width / factor);
+  outH = std::max(1, height / factor);
+  out.resize(static_cast<std::size_t>(outW) * outH * 4);
+  const std::size_t stride = static_cast<std::size_t>(width) * 4;
+  const std::uint32_t area = static_cast<std::uint32_t>(factor * factor);
+  detail::parallelRows(outH, outW * factor, [&](int firstRow, int lastRow) {
+    for (int y = firstRow; y < lastRow; ++y) {
+      std::uint8_t* row = out.data() + static_cast<std::size_t>(y) * outW * 4;
+      for (int x = 0; x < outW; ++x) {
+        std::uint32_t r = 0, g = 0, b = 0, a = 0;
+        for (int j = 0; j < factor; ++j) {
+          const std::uint8_t* p = src + (static_cast<std::size_t>(y) * factor + j) * stride +
+                                  static_cast<std::size_t>(x) * factor * 4;
+          for (int i = 0; i < factor; ++i, p += 4) {
+            r += p[0] * p[3];
+            g += p[1] * p[3];
+            b += p[2] * p[3];
+            a += p[3];
+          }
+        }
+        std::uint8_t* d = row + static_cast<std::size_t>(x) * 4;
+        if (a == 0) {
+          d[0] = d[1] = d[2] = d[3] = 0;
+        } else {
+          d[0] = static_cast<std::uint8_t>((r + a / 2) / a);
+          d[1] = static_cast<std::uint8_t>((g + a / 2) / a);
+          d[2] = static_cast<std::uint8_t>((b + a / 2) / a);
+          d[3] = static_cast<std::uint8_t>((a + area / 2) / area);
+        }
+      }
+    }
+  });
+}
+
 inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
                                 const std::vector<CueEffect>& stack,
                                 const CueEffectContext& ctx) {

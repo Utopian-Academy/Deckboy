@@ -550,12 +550,22 @@
                                     const OutputLayer* layerWarp = nullptr,
                                     // The output raster `target` previews, if
                                     // it is a preview; see cuePlacementFor.
-                                    int rasterW = 0) {
+                                    int rasterW = 0,
+                                    // The size the texture STANDS IN FOR, when
+                                    // it is a reduced copy (DecodedFrame::
+                                    // logicalWidth). 0 = the texture's own.
+                                    int placedWidth = 0,
+                                    int placedHeight = 0) {
     if (!renderer || !texture || textureWidth <= 0 || textureHeight <= 0) {
       return;
     }
-    const CuePlacement placed = cuePlacementFor(cue, textureWidth, textureHeight, target, rasterW);
-    const SDL_Rect& source = placed.source;
+    if (placedWidth <= 0 || placedHeight <= 0) {
+      placedWidth = textureWidth;
+      placedHeight = textureHeight;
+    }
+    const bool reduced = placedWidth != textureWidth || placedHeight != textureHeight;
+    const CuePlacement placed = cuePlacementFor(cue, placedWidth, placedHeight, target, rasterW);
+    const SDL_Rect& source = placed.source;   // in PLACED pixels
     const SDL_Rect& destination = placed.destination;
     const float rotationDegrees = placed.rotationDegrees;
     SDL_SetTextureBlendMode(texture, blendMode);
@@ -617,12 +627,12 @@
                      dy + dh + layerWarp->warpBottomRightY * dh};
       SDL_FPoint p3 {dx + layerWarp->warpBottomLeftX * dw,
                      dy + dh + layerWarp->warpBottomLeftY * dh};
-      const float u0 = static_cast<float>(source.x) / static_cast<float>(textureWidth);
-      const float v0 = static_cast<float>(source.y) / static_cast<float>(textureHeight);
+      const float u0 = static_cast<float>(source.x) / static_cast<float>(placedWidth);
+      const float v0 = static_cast<float>(source.y) / static_cast<float>(placedHeight);
       const float u1 = static_cast<float>(source.x + source.w) /
-                       static_cast<float>(textureWidth);
+                       static_cast<float>(placedWidth);
       const float v1 = static_cast<float>(source.y + source.h) /
-                       static_cast<float>(textureHeight);
+                       static_cast<float>(placedHeight);
       const SDL_FColor kOpaque {1.0f, 1.0f, 1.0f, 1.0f};
       SDL_Vertex verts[4] {
         {p0, kOpaque, SDL_FPoint {u0, v0}},
@@ -653,7 +663,18 @@
       // visible -- and visible beats a black layer nobody can diagnose.
     }
     SDL_Point center {destination.w / 2, destination.h / 2};
-    SDL_RenderTextureRotated(renderer, texture, &source, &destination, rotationDegrees, &center, SDL_FLIP_NONE);
+    if (reduced) {
+      // The same source rectangle, in the reduced texture's own pixels.
+      const float sx = static_cast<float>(textureWidth) / static_cast<float>(placedWidth);
+      const float sy = static_cast<float>(textureHeight) / static_cast<float>(placedHeight);
+      const SDL_FRect srcF {source.x * sx, source.y * sy, source.w * sx, source.h * sy};
+      const SDL_FRect dstF {static_cast<float>(destination.x), static_cast<float>(destination.y),
+                            static_cast<float>(destination.w), static_cast<float>(destination.h)};
+      const SDL_FPoint centerF {destination.w / 2.0f, destination.h / 2.0f};
+      ::SDL_RenderTextureRotated(renderer, texture, &srcF, &dstF, rotationDegrees, &centerF, SDL_FLIP_NONE);
+    } else {
+      SDL_RenderTextureRotated(renderer, texture, &source, &destination, rotationDegrees, &center, SDL_FLIP_NONE);
+    }
     SDL_SetRenderClipRect(renderer, hadClip ? &prevClip : nullptr);
   }
 
@@ -4057,6 +4078,73 @@
     SDL_RenderFillRect(renderer, &area);
   }
 
+  // EFFECTS RUN AT THE SIZE THE AUDIENCE SEES.
+  //
+  // A layer's colour controls and effect stack run on the CPU, and they ran on
+  // the decoded frame: a 4K clip scaled to a quarter of a 1080p output put
+  // sixteen times the pixels through every effect that the output could
+  // show. Measured 2026-11-11 (tools/check_mixed_stress.py): fifteen decks
+  // with two effects each cost ~185 ms a frame -- one deck alone, HEVC 4K
+  // drawn at 480x270, 52 ms -- and the whole app ran at 4 fps.
+  //
+  // So the frame is first reduced by a power of two, the largest that still
+  // leaves at least one source pixel per output pixel, and placed as the full
+  // frame would be (DecodedFrame::logicalWidth). The effects size themselves
+  // from the frame they are given (blur, glow and mosaic from its short side),
+  // so they look the same; pitch-in-pixels effects (scanlines, grain) now land
+  // on the output's pixels instead of being shrunk to mush.
+  //
+  // Chosen once per deck per frame by the FIRST output to draw it, and reused
+  // by the others: the effect memory (feedback, time cube) is the deck's, and
+  // two outputs at two sizes would reset it every frame. Steps only with a
+  // margin, so a layer whose size is being moved by an LFO does not flip
+  // between two sizes (and reset that memory) at the boundary.
+  std::unordered_map<int, int> layerFxShrink_;
+  std::unordered_map<int, std::uint64_t> layerFxShrinkFrame_;
+  int layerFxShrinkFor(int deckIndex, const DecodedFrame& frame, const Cue& cue,
+                       const SDL_Rect& target, const OutputLayer* layerWarp) {
+    // DECKBOY_FX_FULL_SIZE=1 turns this off, so a check can compare the two.
+    static const bool fullSize = [] {
+      const char* e = std::getenv("DECKBOY_FX_FULL_SIZE");
+      return e && *e && *e != '0';
+    }();
+    if (fullSize || frame.format != FramePixelFormat::RGBA32 || frame.width < 16 || frame.height < 16 ||
+        !(cueHasPixelEffects(cue) || deckboy::effects::cueEffectStackActive(cue.effects))) {
+      return 1;
+    }
+    auto seen = layerFxShrinkFrame_.find(deckIndex);
+    if (seen != layerFxShrinkFrame_.end() && seen->second == motionDriverFrameCounter_) {
+      return layerFxShrink_[deckIndex];
+    }
+    layerFxShrinkFrame_[deckIndex] = motionDriverFrameCounter_;
+    int& held = layerFxShrink_[deckIndex];
+    // A pinned or meshed layer can be stretched past its rectangle: full size.
+    if ((layerWarp && layerWarp->warpEnabled) || (cue.meshEnabled && cue.meshHeight > 0.001f)) {
+      held = 1;
+      return held;
+    }
+    const CuePlacement placed = cuePlacementFor(&cue, frame.width, frame.height, target, 0);
+    if (placed.destination.w <= 0 || placed.destination.h <= 0 || placed.source.w <= 0 ||
+        placed.source.h <= 0) {
+      held = 1;
+      return held;
+    }
+    // Source pixels per output pixel, on the tighter axis.
+    const double ratio = std::min(
+      static_cast<double>(placed.source.w) / static_cast<double>(placed.destination.w),
+      static_cast<double>(placed.source.h) / static_cast<double>(placed.destination.h));
+    int ideal = 1;
+    while (ideal < 8 && ratio >= ideal * 2.0) ideal *= 2;
+    if (held < 1) {
+      held = ideal;
+    } else if (ideal > held && ratio >= ideal * 1.1) {
+      held = ideal;                       // clearly smaller now
+    } else if (ideal < held && ratio < held * 0.9) {
+      held = ideal;                       // clearly bigger now
+    }
+    return held;
+  }
+
   void renderDeckLayerIntoOutput(int outputIndex, int sourceDeckIndex, const SDL_Rect& target,
                                  int layerSourceOutputIndex = -1) {
     OutputRuntime* outputRuntime = runtimeForOutput(outputIndex);
@@ -4258,12 +4346,18 @@
     }
 #endif
     const Uint32 sourceFormat = sdlPixelFormat(sourceFrame->format);
+    const int fxShrink = layerFxShrinkFor(sourceDeckIndex, *sourceFrame, *sourceCue, target, layerWarp);
+    const int texW = fxShrink > 1 ? std::max(1, sourceFrame->width / fxShrink) : sourceFrame->width;
+    const int texH = fxShrink > 1 ? std::max(1, sourceFrame->height / fxShrink) : sourceFrame->height;
     SDL_Texture* bridgeTexture = ensureLayerBridgeTexture(
       *outputRuntime, sourceDeckIndex,
-      sourceFrame->width, sourceFrame->height, sourceFormat, frameColorspace(*sourceFrame));
+      texW, texH, sourceFormat, frameColorspace(*sourceFrame));
     if (!bridgeTexture) {
       return;
     }
+    int& shrinkUsed = outputRuntime->layerFxShrinkUsed[sourceDeckIndex];
+    const bool shrinkChanged = shrinkUsed != fxShrink;
+    shrinkUsed = fxShrink;
     std::string cueKey = cuePreviewCacheKey(*sourceCue);
     auto frameIt = outputRuntime->layerBridgeFrameIndices.find(sourceDeckIndex);
     auto cueIt = outputRuntime->layerBridgeCueKeys.find(sourceDeckIndex);
@@ -4291,7 +4385,8 @@
       frameIt->second != sourceFrame->index ||
       cueIt->second != cueKey ||
       newPixels ||
-      stackAnimates;
+      stackAnimates ||
+      shrinkChanged;
     if (needsUpload) {
       if (sourceFrame->format == FramePixelFormat::NV12 || sourceFrame->format == FramePixelFormat::P010) {
         // NV12 cues never carry CPU effects — MediaEngine only chooses NV12
@@ -4307,8 +4402,16 @@
       } else {
         const std::uint8_t* uploadPixels = sourceFrame->pixels.data();
         const bool wantsStack = deckboy::effects::cueEffectStackActive(sourceCue->effects);
+        int fxW = sourceFrame->width;
+        int fxH = sourceFrame->height;
         if (cueHasPixelEffects(*sourceCue) || wantsStack) {
-          outputRuntime->layerBridgeScratchPixels = sourceFrame->pixels;
+          if (fxShrink > 1) {
+            deckboy::effects::shrinkRgbaBox(sourceFrame->pixels.data(), sourceFrame->width,
+                                            sourceFrame->height, fxShrink,
+                                            outputRuntime->layerBridgeScratchPixels, fxW, fxH);
+          } else {
+            outputRuntime->layerBridgeScratchPixels = sourceFrame->pixels;
+          }
           applyCueVisualEffectsToPixels(outputRuntime->layerBridgeScratchPixels, *sourceCue);
           if (wantsStack) {
             // Effects run AFTER the colour controls, on the graded picture --
@@ -4316,8 +4419,8 @@
             // few remaining levels around, which is not what either control is
             // for. The frame index drives anything that advances per frame.
             deckboy::effects::CueEffectContext fxCtx;
-            fxCtx.width = sourceFrame->width;
-            fxCtx.height = sourceFrame->height;
+            fxCtx.width = fxW;
+            fxCtx.height = fxH;
             // The SOURCE frame drives the look, so a given frame of a clip
             // always grades the same way and a recording is reproducible. A
             // still has no frame progression to offer, so an animating stack on
@@ -4375,19 +4478,19 @@
             // deck would each publish, and the second would read as no motion.
             if (!fxCtx.stateHold) {
               sourceRuntime->mediaEngine->publishPostEffectStats(
-                outputRuntime->layerBridgeScratchPixels.data(),
-                sourceFrame->width, sourceFrame->height);
+                outputRuntime->layerBridgeScratchPixels.data(), fxW, fxH);
             }
           }
           uploadPixels = outputRuntime->layerBridgeScratchPixels.data();
         }
-        updateVideoTextureRGBA(bridgeTexture, uploadPixels, sourceFrame->width * 4,
-                               sourceFrame->width, sourceFrame->height);
+        updateVideoTextureRGBA(bridgeTexture, uploadPixels, fxW * 4, fxW, fxH);
         if (cueHasPixelEffects(*sourceCue) || wantsStack) {
           auto& saved = outputRuntime->layerLookFrames[sourceDeckIndex];
           saved.first = cuePreviewCacheKey(*sourceCue);
-          saved.second.width = sourceFrame->width;
-          saved.second.height = sourceFrame->height;
+          saved.second.width = fxW;
+          saved.second.height = fxH;
+          saved.second.logicalWidth = fxShrink > 1 ? sourceFrame->width : 0;
+          saved.second.logicalHeight = fxShrink > 1 ? sourceFrame->height : 0;
           saved.second.index = sourceFrame->index;
           saved.second.colorspace = SDL_COLORSPACE_SRGB;
           saved.second.format = FramePixelFormat::RGBA32;
@@ -4412,7 +4515,8 @@
     Uint8 alpha = static_cast<Uint8>(std::lround(deckOpacity * fadeGain * 255.0f));
     SDL_SetTextureBlendMode(bridgeTexture, layerBlend);
     SDL_SetTextureAlphaMod(bridgeTexture, alpha);
-    renderTextureWithCueGeometry(outputRuntime->outputRenderer, bridgeTexture, sourceFrame->width, sourceFrame->height, sourceCue, target, layerBlend, layerWarp);
+    renderTextureWithCueGeometry(outputRuntime->outputRenderer, bridgeTexture, texW, texH, sourceCue,
+                                 target, layerBlend, layerWarp, 0, sourceFrame->width, sourceFrame->height);
     // Left as found: this texture is reused, and a mix must not leak into
     // whatever draws with it next.
     SDL_SetTextureBlendMode(bridgeTexture, SDL_BLENDMODE_BLEND);
@@ -4648,7 +4752,8 @@
             const Cue* geometry = &outgoingGeometry;
             renderTextureWithCueGeometry(rt.outputRenderer, tex,
                                          out->width, out->height, geometry,
-                                         target, transitionBlend, layerWarp, rasterW);
+                                         target, transitionBlend, layerWarp, rasterW,
+                                         out->placedWidth(), out->placedHeight());
             return;
           }
         }
@@ -4705,7 +4810,7 @@
       // placed rectangle. Filling under the picture too darkened the middle
       // of every dissolve.
       const Cue geometry = engine.outgoingGeometryCue();
-      const SDL_Rect pic = cuePlacementFor(&geometry, out->width, out->height, target, rasterW).destination;
+      const SDL_Rect pic = cuePlacementFor(&geometry, out->placedWidth(), out->placedHeight(), target, rasterW).destination;
       if (std::abs(geometry.outputRotationDegrees) < 0.01f) {
         SDL_SetRenderDrawBlendMode(rt.outputRenderer, SDL_BLENDMODE_BLEND);
         SDL_SetRenderDrawColor(rt.outputRenderer, 0, 0, 0,
@@ -4749,7 +4854,8 @@
         const auto saved = frames.find(deckIndex);
         if (look && saved != frames.end() && saved->second.first == cuePreviewCacheKey(*look) &&
             saved->second.second.index == frame->index &&
-            saved->second.second.width == frame->width && saved->second.second.height == frame->height)
+            saved->second.second.placedWidth() == frame->width &&
+            saved->second.second.placedHeight() == frame->height)
           return &saved->second.second;
         return nullptr;
       };
@@ -4921,7 +5027,8 @@
     auto drawPlaced = [&]() {
       SDL_SetTextureAlphaMod(tex, alpha);
       renderTextureWithCueGeometry(outputRuntime.outputRenderer, tex, frame.width, frame.height,
-                                   geometry, target, blendMode, layerWarp, rasterW);
+                                   geometry, target, blendMode, layerWarp, rasterW,
+                                   frame.placedWidth(), frame.placedHeight());
       SDL_SetTextureAlphaMod(tex, 255);
     };
     if (!needUpload) {

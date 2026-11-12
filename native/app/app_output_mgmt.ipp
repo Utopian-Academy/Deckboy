@@ -5890,6 +5890,7 @@
     runtime.layerLookFrames.clear();
     runtime.heldLookFrames.clear();
     runtime.layerBridgeScratchPixels.clear();
+    runtime.layerFxShrinkUsed.clear();
 #if DECKBOY_INPROC_DECODE
     // The pixel-buffer wraps go too. They hold a Metal view of an IOSurface
     // the decoder owns; outliving this renderer is a use-after-free, and the
@@ -9824,6 +9825,8 @@
     remapDeckKeys(effectStateBuffers_, oldToNew);
     remapDeckKeys(previewEffectStateBuffers_, oldToNew);
     remapDeckKeys(effectChainCostMs_, oldToNew);
+    remapDeckKeys(layerFxShrink_, oldToNew);
+    remapDeckKeys(layerFxShrinkFrame_, oldToNew);
     remapDeckKeys(feedbackAdvancedFrame_, oldToNew);
     remapDeckKeys(timecodeTriggeredCueIds_, oldToNew);
     remapDeckKeys(presenterNoteStep_, oldToNew);

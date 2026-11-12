@@ -170,8 +170,10 @@ Three rules, all of them learned by measuring:
   not independent (block glitch is the only one: it shifts overlapping random
   bands in RNG order). Any per-row scratch buffer must move INSIDE the band --
   a shared one is a race.
-- **Match the threading to the shape of the work.** `parallelRows` creates its
-  threads per call, which suits one pass over a frame. For many small DEPENDENT
+- **Match the threading to the shape of the work.** `parallelRows` hands its
+  bands to `detail::RowPool`, threads made once and kept (2026-11-11: starting
+  them per call cost more than the work once a show had a dozen layers with
+  effects), which suits one pass over a frame. For many small DEPENDENT
   steps use `detail::iteratedBands`, which creates them once and parks them on a
   barrier: reaction-diffusion with per-step dispatch was 1.8x SLOWER than a
   single core.
@@ -186,6 +188,13 @@ Three rules, all of them learned by measuring:
   and the third-resolution result is visually indistinguishable. Sample the
   small buffer BILINEARLY on the way back up — wavefront read its grid per cell
   and put visible squares across the picture.
+- **A layer's effects run at the size the output draws it**, not the decoded
+  size (`layerFxShrinkFor`, `app_render_output.ipp`): the frame is reduced by
+  a power of two first and placed by `DecodedFrame::logicalWidth`. So size
+  anything from `ctx.width`/`ctx.height` (blur, glow and mosaic use the short
+  side) unless a pitch in OUTPUT pixels is what you mean (scanlines, grain).
+  `DECKBOY_FX_FULL_SIZE=1` turns it off; `tools/check_fx_shrink.py` compares
+  the two.
 - **An effect that needs to remember something** takes a slot from
   `CueEffectContext::effectState`, indexed by its position in the stack (so two
   stateful effects in one chain cannot tread on each other), and honours
