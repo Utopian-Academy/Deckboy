@@ -854,7 +854,17 @@
       if (!engine) {
         continue;
       }
+      const Uint64 engineT0 = uiProfileEnabled_ ? SDL_GetTicksNS() : 0;
       engine->update();
+      // A playlist's engine that held the frame up, named, under DECKBOY_UI_PROFILE.
+      if (uiProfileEnabled_) {
+        const double ms = static_cast<double>(SDL_GetTicksNS() - engineT0) / 1e6;
+        if (ms > 3.0) {
+          std::ostringstream line;
+          line << std::fixed << std::setprecision(2) << "engine " << (deckIndex + 1) << " update=" << ms << "ms";
+          uiProfileLog(line.str());
+        }
+      }
       // The cue this deck was playing when the current one was taken, if it
       // is still playing out under the transition (handOffToOutgoingTail).
       serviceOutgoingTail(deckIndex);

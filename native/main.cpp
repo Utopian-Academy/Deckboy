@@ -101,6 +101,7 @@
 #include "engine/hap_decoder.hpp"
 #include "engine/gpu_readback.hpp"
 #include "engine/gpu_scopes.hpp"
+#include "engine/gpu_effects.hpp"
 #include "engine/motion_field.hpp"
 #include "platform/capture_backend.hpp"
 #include "platform/display_topology.hpp"
@@ -4039,6 +4040,7 @@ class App {
     // The scopes' shaders compile in the background now, so the first SCOPES
     // press does not stall the outputs while they do (gpu_scopes.cpp).
     std::thread([] { deckboy::gpu::warmGpuScopesShaders(); }).detach();
+    std::thread([] { deckboy::gpu::warmGpuEffectsShaders(); }).detach();
     // And which hardware encoder ffmpeg has, which the first RECORD needs.
     std::thread([] { recordingVideoEncoder(); }).detach();
 
@@ -13430,7 +13432,7 @@ constexpr CliFlagHelp kCliOptionHelp[] = {
 constexpr const char* kCliModeFlags[] = {
   "--version", "--self-check", "--smoke", "--autosave-check", "--sync-pop-test",
   "--pattern-bench", "--pattern-dump", "--code-dump", "--code-check",
-  "--effect-dump", "--effect-bench", "--image-check", "--transition-dump", "--lower-third-bench",
+  "--effect-dump", "--gpu-effect-dump", "--effect-bench", "--image-check", "--transition-dump", "--lower-third-bench",
   "--decode-bench", "--ltc-generate", "--audio-fx-check", "--mtc-check", "--colour-check",
   "--hap-probe", "--asio-probe", "--asio-tone", "--sheet-probe", "--timer-dump",
   "--motion-probe", "--pdf-probe", "--pdf-render", "--pptx-notes", "--atem-probe",
@@ -13861,6 +13863,13 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
     const int dumpFrame = ops.size() > 3 ? std::atoi(ops[3].c_str()) : 0;
     const int dumpPasses = ops.size() > 4 ? std::atoi(ops[4].c_str()) : 1;
     return App::runEffectDump(ops[0], ops[1], ops[2], dumpFrame, dumpPasses);
+  }
+  if (mode == "--gpu-effect-dump") {
+    if (ops.size() < 3) {
+      return missing("<token[:amount[:a[:b]]]> <in.ppm> <out.ppm> [frame]");
+    }
+    const int dumpFrame = ops.size() > 3 ? std::atoi(ops[3].c_str()) : 0;
+    return App::runEffectDump(ops[0], ops[1], ops[2], dumpFrame, 1, true);
   }
   // What notes Deckboy would take out of a slide deck, and which slide each
   // lands on. The mapping is the part worth checking: notesSlide7 is usually

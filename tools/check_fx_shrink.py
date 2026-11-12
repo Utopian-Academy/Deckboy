@@ -79,11 +79,15 @@ def compare(a, b):
     return total / n, 100.0 * big / n, box
 
 
-def snap(exe, work, tag, clip, case, full, visible):
+def snap(exe, work, tag, clip, case, full, visible, against="full"):
     name, scale, x, y, fx = case
     show = work / ("%s.deckboy" % tag)
     show.write_text(SEED, encoding="utf8")
-    env = {"DECKBOY_FX_FULL_SIZE": "1" if full else None}
+    if against == "cpu":
+        # Both reduced; the first on the CPU, the second wherever it lands (the GPU).
+        env = {"DECKBOY_CPU_EFFECTS": "1" if full else None, "DECKBOY_FX_FULL_SIZE": None}
+    else:
+        env = {"DECKBOY_FX_FULL_SIZE": "1" if full else None}
     out = {}
     with Runtime(exe, work / ("run-" + tag), show, env=env, visible=visible) as db:
         db.send("MASTERVOL 0")
@@ -141,6 +145,8 @@ def main():
     ap.add_argument("--exe", default=str(ROOT / "build/windows/Release/Deckboy.exe"))
     ap.add_argument("--work", default=str(ROOT / "build/fx-shrink"))
     ap.add_argument("--visible", action="store_true")
+    ap.add_argument("--against", choices=["full", "cpu"], default="full",
+                    help="full: reduced vs full size; cpu: the GPU effects vs the CPU ones")
     args = ap.parse_args()
     work = Path(args.work)
     work.mkdir(parents=True, exist_ok=True)
@@ -151,11 +157,11 @@ def main():
                         str(clip)], check=True)
     fails = 0
     for i, case in enumerate(CASES):
-        full = snap(args.exe, work, "c%d-full" % i, clip, case, True, args.visible)
-        small = snap(args.exe, work, "c%d-small" % i, clip, case, False, args.visible)
+        full = snap(args.exe, work, "c%d-full" % i, clip, case, True, args.visible, args.against)
+        small = snap(args.exe, work, "c%d-small" % i, clip, case, False, args.visible, args.against)
         for key, limit_mean in (("still", 6.0), ("mid", 8.0)):
             mean, big, box = compare(full[key], small[key])
-            if "scanlines" in case[0]:
+            if "scanlines" in case[0] and args.against == "full":
                 # The layer: 0.3 of the 1920x1080 frame, centred at the offset.
                 cx, cy, w, h = 960 + case[2], 540 + case[3], 1920 * case[1], 1080 * case[1]
                 inside = box[2] < 0 or (box[0] >= cx - w / 2 - 6 and box[2] <= cx + w / 2 + 6 and

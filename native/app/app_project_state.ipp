@@ -954,7 +954,8 @@
       }
       // What its effect chain costs per frame on this machine (the inspector
       // shows the same number), so a check can say which layer is the slow one.
-      output << ",\"fxMs\":" << effectChainCostForDeck(static_cast<int>(deckIndex));
+      output << ",\"fxMs\":" << effectChainCostForDeck(static_cast<int>(deckIndex))
+             << ",\"fxGpu\":" << (deckEffectsOnGpu(static_cast<int>(deckIndex)) ? "true" : "false");
       output << "}";
     }
     output << "]}\n";

@@ -622,6 +622,9 @@ add_executable(deckboy-native
   native/engine/gpu_readback.cpp
   # The scopes' analysis as a compute shader (D3D11; stubs elsewhere).
   native/engine/gpu_scopes.cpp
+  # Picture effects as compute shaders (D3D11 and SDL_GPU); the CPU effects
+  # stay the reference and the fallback.
+  native/engine/gpu_effects.cpp
   # Always compiled; the libav half is guarded inside, so a build without
   # in-process decode gets stubs rather than a link error.
   native/engine/motion_field.cpp

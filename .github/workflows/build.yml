@@ -451,6 +451,7 @@ jobs:
       - name: Scopes on the GPU
         run: |
           python3 tools/build_scopes_shaders.py --check
+          python3 tools/build_effects_shaders.py --check
           xvfb-run -a ./build/deckboy-scopes-gpu-check
 
       # Slide import renders through pdftoppm here, CoreGraphics on a Mac and

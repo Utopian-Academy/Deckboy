@@ -36,6 +36,10 @@
 #include <mutex>
 #include <string>
 #include <thread>
+
+namespace deckboy::gpu {
+struct GpuEffects;
+}
 #include <vector>
 
 #include "core/sdl_compat.hpp"
@@ -450,6 +454,24 @@ struct OutputRuntime {
   // layerFxShrinkFor): a change makes a new, empty texture, which must be
   // filled again even when the frame itself has not changed.
   std::map<int, int> layerFxShrinkUsed;
+  // PICTURE EFFECTS ON THE GPU (engine/gpu_effects), made for this output's
+  // renderer the first time a layer wants them. Null where the renderer is
+  // not one they run on, and then the CPU path runs, as it always did.
+  deckboy::gpu::GpuEffects* gpuEffects = nullptr;
+  bool gpuEffectsTried = false;
+  // What a deck's effects left on the GPU, drawn again while its frame has
+  // not changed. Present only while the GPU path is the one in use.
+  std::map<int, SDL_Texture*> layerGpuFxTextures;
+  // What that result was of. A transition needs the outgoing look as PIXELS,
+  // so when the cue changes it is read back once (layerLookFrames' job on the
+  // CPU path, which keeps the pixels every frame).
+  struct GpuLook {
+    std::string key;
+    std::uint64_t index = 0;
+    int logicalWidth = 0;
+    int logicalHeight = 0;
+  };
+  std::map<int, GpuLook> layerGpuLooks;
   // The Portal transition's picture: the outgoing frame with the holes melted
   // through it, rebuilt every frame the transition runs.
   std::vector<std::uint8_t> portalTransitionPixels;

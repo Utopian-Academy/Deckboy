@@ -5891,6 +5891,8 @@
     runtime.heldLookFrames.clear();
     runtime.layerBridgeScratchPixels.clear();
     runtime.layerFxShrinkUsed.clear();
+    runtime.layerGpuFxTextures.clear();
+    runtime.layerGpuLooks.clear();
 #if DECKBOY_INPROC_DECODE
     // The pixel-buffer wraps go too. They hold a Metal view of an IOSurface
     // the decoder owns; outliving this renderer is a use-after-free, and the
@@ -5997,6 +5999,12 @@
       }
     }
     if (runtime.outputRenderer) {
+      // The GPU effects live on this renderer's device: they go first.
+      deckboy::gpu::destroyGpuEffects(runtime.gpuEffects);
+      runtime.gpuEffects = nullptr;
+      runtime.gpuEffectsTried = false;
+      runtime.layerGpuFxTextures.clear();
+      runtime.layerGpuLooks.clear();
       SDL_DestroyRenderer(runtime.outputRenderer);
       runtime.outputRenderer = nullptr;
     }

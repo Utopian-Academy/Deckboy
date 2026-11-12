@@ -5697,9 +5697,13 @@
   // effect but feedback wants; feedback needs at least two before there is
   // anything to see, because the first only fills the buffer.
   // ---------------------------------------------------------------------------
+  // gpu: the same effect through engine/gpu_effects on a hidden window's
+  // output renderer (Direct3D 11; SDL_GPU with DECKBOY_OUTPUT_RENDERER=gpu),
+  // read back -- `--gpu-effect-dump`, which tools/check_gpu_effects.py
+  // compares with this.
   static int runEffectDump(const std::string& spec, const std::string& inPath,
                            const std::string& outPath, int frameIndex,
-                           int passes = 1) {
+                           int passes = 1, bool gpu = false) {
     // token:amount:paramA:paramB — everything after the token is optional.
     std::vector<std::string> parts;
     std::size_t start = 0;
@@ -5770,7 +5774,50 @@
     // One scratch slot per effect in the chain, exactly as the app gives it.
     std::vector<std::vector<std::uint8_t>> effectState(1);
     double ms = 0.0;
-    const int passCount = std::max(1, passes);
+    const int passCount = gpu ? 0 : std::max(1, passes);
+    if (gpu) {
+      if (!SDL_Init(SDL_INIT_VIDEO)) {
+        std::cerr << "gpu-effect-dump: no video: " << SDL_GetError() << '\n';
+        return 1;
+      }
+      SDL_Window* window = SDL_CreateWindow("gpu-effect-dump", 64, 64, SDL_WINDOW_HIDDEN);
+      SDL_Renderer* renderer = nullptr;
+      if (window) {
+        const char* forced = std::getenv("DECKBOY_OUTPUT_RENDERER");
+        renderer = (forced && *forced) ? SDL_CreateRenderer(window, forced) : deckboyCreateRenderer(window);
+      }
+      deckboy::gpu::GpuEffects* g = renderer ? deckboy::gpu::createGpuEffects(renderer) : nullptr;
+      if (!g) {
+        std::cerr << "gpu-effect-dump: no GPU effects on this renderer\n";
+        return 3;
+      }
+      if (!deckboy::gpu::gpuEffectsSupportStack({fx})) {
+        std::cerr << "gpu-effect-dump: " << deckboy::effects::cueEffectToken(fx.kind) << " has no GPU version\n";
+        return 4;
+      }
+      deckboy::effects::CueEffectContext ctx;
+      ctx.width = w;
+      ctx.height = h;
+      ctx.frameIndex = static_cast<std::uint64_t>(std::max(0, frameIndex));
+      if (const char* scale = std::getenv("DECKBOY_FX_PIXEL_SCALE"); scale && *scale) {
+        ctx.pixelScale = std::clamp(std::atof(scale), 0.05, 1.0);
+      }
+      const auto began = std::chrono::steady_clock::now();
+      SDL_Texture* result = deckboy::gpu::runGpuEffects(g, 0, pixels.data(), w, h, {fx}, ctx);
+      int rw = 0, rh = 0;
+      std::vector<std::uint8_t> back;
+      const bool read = result && deckboy::gpu::readGpuEffectsResult(g, 0, back, rw, rh);
+      ms = std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - began).count();
+      if (!read || rw != w || rh != h) {
+        std::cerr << "gpu-effect-dump: the GPU run failed\n";
+        return 5;
+      }
+      pixels.swap(back);
+      std::cout << "gpu-effect-dump: on " << deckboy::gpu::gpuEffectsBackend(g) << '\n';
+      deckboy::gpu::destroyGpuEffects(g);
+      SDL_DestroyRenderer(renderer);
+      SDL_DestroyWindow(window);
+    }
     for (int pass = 0; pass < passCount; ++pass) {
       deckboy::effects::CueEffectContext ctx;
       ctx.width = w;

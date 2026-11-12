@@ -236,9 +236,10 @@ def main():
             dts, passes = summarise(log, mark, end)
             report(name, dts, passes)
             st = json.loads(db.send("STATUS JSON"))
-            costs = ["%d:%.0f/%.0f" % (i + 1, d.get("fxMs", 0), d.get("decodeFps", 0))
+            costs = ["%d:%.0f/%.0f%s" % (i + 1, d.get("fxMs", 0), d.get("decodeFps", 0),
+                                         "g" if d.get("fxGpu") else "")
                      for i, d in enumerate(st.get("decks", []))]
-            print("      deck fx ms / decode fps: " + "  ".join(costs), flush=True)
+            print("      deck fx ms / decode fps (g = on the GPU): " + "  ".join(costs), flush=True)
             states = deck_states(db)
             stopped = [i + 1 for i, s in enumerate(states) if s[0] != "Playing"]
             if stopped:

@@ -4099,6 +4099,29 @@
   // two outputs at two sizes would reset it every frame. Steps only with a
   // margin, so a layer whose size is being moved by an LFO does not flip
   // between two sizes (and reset that memory) at the boundary.
+  // The GPU effects for this output's renderer, made the first time a layer
+  // wants them. False where they do not run (the CPU path then).
+  bool ensureGpuEffects(OutputRuntime& runtime) {
+    if (!runtime.gpuEffectsTried) {
+      runtime.gpuEffectsTried = true;
+      runtime.gpuEffects = deckboy::gpu::createGpuEffects(runtime.outputRenderer);
+    }
+    return runtime.gpuEffects != nullptr;
+  }
+
+  // True when some output drew this deck's effects on the GPU last time.
+  bool deckEffectsOnGpu(int deckIndex) const {
+    for (const auto& runtime : outputRuntimes_) {
+      if (runtime.layerGpuFxTextures.count(deckIndex) != 0) return true;
+    }
+    return false;
+  }
+
+  struct LayerProfile {
+    double prep = 0, fx = 0, upload = 0;
+    int gpu = 0, frames = 0;
+  };
+  std::unordered_map<int, LayerProfile> layerProfile_;
   std::unordered_map<int, int> layerFxShrink_;
   std::unordered_map<int, std::uint64_t> layerFxShrinkFrame_;
   int layerFxShrinkFor(int deckIndex, const DecodedFrame& frame, const Cue& cue,
@@ -4170,6 +4193,26 @@
         old != outputRuntime->layerLookFrames.end() && old->second.first != cuePreviewCacheKey(*sourceCue)) {
       outputRuntime->heldLookFrames[sourceDeckIndex] = std::move(old->second);
       outputRuntime->layerLookFrames.erase(old);
+    }
+    // The same for a look made on the GPU: its pixels are on the card, so they
+    // are read back now, once, for the transition out of it.
+    if (auto old = outputRuntime->layerGpuLooks.find(sourceDeckIndex);
+        old != outputRuntime->layerGpuLooks.end() && old->second.key != cuePreviewCacheKey(*sourceCue)) {
+      DecodedFrame look;
+      int rw = 0, rh = 0;
+      if (deckboy::gpu::readGpuEffectsResult(outputRuntime->gpuEffects, sourceDeckIndex, look.pixels, rw, rh)) {
+        look.width = rw;
+        look.height = rh;
+        look.index = old->second.index;
+        look.format = FramePixelFormat::RGBA32;
+        look.colorspace = SDL_COLORSPACE_SRGB;
+        if (old->second.logicalWidth != rw || old->second.logicalHeight != rh) {
+          look.logicalWidth = old->second.logicalWidth;
+          look.logicalHeight = old->second.logicalHeight;
+        }
+        outputRuntime->heldLookFrames[sourceDeckIndex] = {old->second.key, std::move(look)};
+      }
+      outputRuntime->layerGpuLooks.erase(old);
     }
     // WHERE THIS DECK SITS IN THAT OUTPUT'S STACK, which is what the
     // crossfader works on. Taken from the COMPOSITION output for the same
@@ -4387,7 +4430,14 @@
       newPixels ||
       stackAnimates ||
       shrinkChanged;
+    bool drewOnGpu = false;
+    // WHERE A LAYER'S TIME GOES, under DECKBOY_UI_PROFILE: preparing the
+    // picture (reduce, grade), the effects, the upload. Logged per playlist
+    // every 120 frames, so a slow layer names its own cost.
+    const Uint64 layerT0 = uiProfileEnabled_ ? SDL_GetTicksNS() : 0;
+    Uint64 layerTPrep = layerT0, layerTFx = layerT0;
     if (needsUpload) {
+      outputRuntime->layerGpuFxTextures.erase(sourceDeckIndex);
       if (sourceFrame->format == FramePixelFormat::NV12 || sourceFrame->format == FramePixelFormat::P010) {
         // NV12 cues never carry CPU effects — MediaEngine only chooses NV12
         // when the cue has no chroma key or color controls. Upload directly.
@@ -4413,6 +4463,7 @@
             outputRuntime->layerBridgeScratchPixels = sourceFrame->pixels;
           }
           applyCueVisualEffectsToPixels(outputRuntime->layerBridgeScratchPixels, *sourceCue);
+          if (uiProfileEnabled_) layerTPrep = SDL_GetTicksNS();
           if (wantsStack) {
             // Effects run AFTER the colour controls, on the graded picture --
             // grading a posterised image would quantise first and then push the
@@ -4466,9 +4517,28 @@
             // should not have to answer by deleting effects one at a time. This
             // is the REAL cost on this machine at this raster, not an estimate.
             const auto fxBegan = std::chrono::steady_clock::now();
-            deckboy::effects::applyCueEffectStack(
-              outputRuntime->layerBridgeScratchPixels,
-              moving ? modulated : sourceCue->effects, fxCtx);
+            const auto& stackToRun = moving ? modulated : sourceCue->effects;
+            // ON THE GPU when every effect in the chain has a GPU version and
+            // this output's renderer runs them (engine/gpu_effects); the CPU
+            // otherwise, and on any GPU failure, exactly as before. Not when
+            // the deck's sound reads the finished picture (Ouroboros): that
+            // needs the pixels here every frame.
+            const bool soundReadsPicture = std::any_of(
+              sourceCue->audioEffects.begin(), sourceCue->audioEffects.end(), [](const auto& a) {
+                return a.kind == deckboy::audiofx::AudioEffectKind::Ouroboros && !a.bypassed;
+              });
+            if (!soundReadsPicture && deckboy::gpu::gpuEffectsSupportStack(stackToRun) &&
+                ensureGpuEffects(*outputRuntime)) {
+              if (SDL_Texture* done = deckboy::gpu::runGpuEffects(
+                    outputRuntime->gpuEffects, sourceDeckIndex, outputRuntime->layerBridgeScratchPixels.data(),
+                    fxW, fxH, stackToRun, fxCtx)) {
+                outputRuntime->layerGpuFxTextures[sourceDeckIndex] = done;
+                drewOnGpu = true;
+              }
+            }
+            if (!drewOnGpu) {
+              deckboy::effects::applyCueEffectStack(outputRuntime->layerBridgeScratchPixels, stackToRun, fxCtx);
+            }
             noteEffectChainCost(
               sourceDeckIndex,
               std::chrono::duration<double, std::milli>(
@@ -4477,15 +4547,26 @@
             // Ouroboros. Only by the FIRST consumer this frame -- the same rule
             // stateHold keeps for the effects -- or two outputs showing one
             // deck would each publish, and the second would read as no motion.
-            if (!fxCtx.stateHold) {
+            if (!fxCtx.stateHold && !drewOnGpu) {
               sourceRuntime->mediaEngine->publishPostEffectStats(
                 outputRuntime->layerBridgeScratchPixels.data(), fxW, fxH);
             }
           }
           uploadPixels = outputRuntime->layerBridgeScratchPixels.data();
         }
-        updateVideoTextureRGBA(bridgeTexture, uploadPixels, fxW * 4, fxW, fxH);
-        if (cueHasPixelEffects(*sourceCue) || wantsStack) {
+        if (uiProfileEnabled_) layerTFx = SDL_GetTicksNS();
+        if (!drewOnGpu) {
+          updateVideoTextureRGBA(bridgeTexture, uploadPixels, fxW * 4, fxW, fxH);
+        }
+        if (drewOnGpu) {
+          outputRuntime->layerLookFrames.erase(sourceDeckIndex);
+          auto& gpuLook = outputRuntime->layerGpuLooks[sourceDeckIndex];
+          gpuLook.key = cuePreviewCacheKey(*sourceCue);
+          gpuLook.index = sourceFrame->index;
+          gpuLook.logicalWidth = sourceFrame->width;
+          gpuLook.logicalHeight = sourceFrame->height;
+        } else if (cueHasPixelEffects(*sourceCue) || wantsStack) {
+          outputRuntime->layerGpuLooks.erase(sourceDeckIndex);
           auto& saved = outputRuntime->layerLookFrames[sourceDeckIndex];
           saved.first = cuePreviewCacheKey(*sourceCue);
           saved.second.width = fxW;
@@ -4498,6 +4579,7 @@
           saved.second.pixels.swap(outputRuntime->layerBridgeScratchPixels);
         } else {
           outputRuntime->layerLookFrames.erase(sourceDeckIndex);
+          outputRuntime->layerGpuLooks.erase(sourceDeckIndex);
         }
       }
       outputRuntime->layerBridgeFrameIndices[sourceDeckIndex] = sourceFrame->index;
@@ -4514,14 +4596,36 @@
     deckOpacity *= static_cast<float>(
       outputCrossfadeGain(stackOutputIndex, stackIndex, layerBlend));
     Uint8 alpha = static_cast<Uint8>(std::lround(deckOpacity * fadeGain * 255.0f));
-    SDL_SetTextureBlendMode(bridgeTexture, layerBlend);
-    SDL_SetTextureAlphaMod(bridgeTexture, alpha);
-    renderTextureWithCueGeometry(outputRuntime->outputRenderer, bridgeTexture, texW, texH, sourceCue,
+    if (uiProfileEnabled_ && needsUpload) {
+      const Uint64 now = SDL_GetTicksNS();
+      auto& acc = layerProfile_[sourceDeckIndex];
+      acc.prep += static_cast<double>(std::max(layerTPrep, layerT0) - layerT0) / 1e6;
+      acc.fx += static_cast<double>(std::max(layerTFx, layerTPrep) - std::max(layerTPrep, layerT0)) / 1e6;
+      acc.upload += static_cast<double>(now - std::max(layerTFx, layerT0)) / 1e6;
+      acc.gpu += drewOnGpu ? 1 : 0;
+      if (++acc.frames == 120) {
+        std::ostringstream line;
+        line << std::fixed << std::setprecision(2) << "layer " << (sourceDeckIndex + 1) << " "
+             << sourceFrame->width << "x" << sourceFrame->height << " /" << fxShrink
+             << " prep=" << acc.prep / 120 << "ms fx=" << acc.fx / 120 << "ms (" << acc.gpu << "/120 on gpu)"
+             << " upload+=" << acc.upload / 120 << "ms";
+        uiProfileLog(line.str());
+        acc = {};
+      }
+    }
+    SDL_Texture* drawTexture = bridgeTexture;
+    if (auto onGpu = outputRuntime->layerGpuFxTextures.find(sourceDeckIndex);
+        onGpu != outputRuntime->layerGpuFxTextures.end() && onGpu->second) {
+      drawTexture = onGpu->second;
+    }
+    SDL_SetTextureBlendMode(drawTexture, layerBlend);
+    SDL_SetTextureAlphaMod(drawTexture, alpha);
+    renderTextureWithCueGeometry(outputRuntime->outputRenderer, drawTexture, texW, texH, sourceCue,
                                  target, layerBlend, layerWarp, 0, sourceFrame->width, sourceFrame->height);
     // Left as found: this texture is reused, and a mix must not leak into
     // whatever draws with it next.
-    SDL_SetTextureBlendMode(bridgeTexture, SDL_BLENDMODE_BLEND);
-    SDL_SetTextureAlphaMod(bridgeTexture, 255);
+    SDL_SetTextureBlendMode(drawTexture, SDL_BLENDMODE_BLEND);
+    SDL_SetTextureAlphaMod(drawTexture, 255);
   }
 
   // Draw the OUTGOING picture over the incoming one, at whatever the chosen
