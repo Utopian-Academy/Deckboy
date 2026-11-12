@@ -76,6 +76,10 @@ def main():
     ap.add_argument("--work", default=str(ROOT / "build/first-use"))
     ap.add_argument("--ms", type=float, default=60.0, help="slow-frame threshold")
     ap.add_argument("--settle", type=float, default=2.5, help="seconds to wait after each run")
+    ap.add_argument("--visible", action="store_true",
+                    help="run on the real screen (takes it over for a few minutes)")
+    ap.add_argument("--only", action="append", default=[],
+                    help="run only the actions whose name contains this (repeatable)")
     args = ap.parse_args()
 
     env = {"DECKBOY_UI_PROFILE": str(args.ms)}
@@ -87,10 +91,12 @@ def main():
     shutil.copytree(SHOW.parent, copy)
     show = copy / SHOW.name
     results = []
-    with Runtime(args.exe, work / "run", show, env=env) as db:
+    with Runtime(args.exe, work / "run", show, env=env, visible=args.visible) as db:
         log = db.log.name
         time.sleep(4.0)    # boot work is not what this measures
         for name, run, undo in ACTIONS:
+            if args.only and not any(o in name for o in args.only):
+                continue
             worst = []
             for attempt in range(2):
                 mark = len(Path(log).read_text(encoding="utf-8", errors="replace"))
@@ -134,8 +140,8 @@ def main():
             print("  %-30s first %7.1f ms   second %7.1f ms   %s" % (name, first[0], second[0], flag), flush=True)
             if first[0] < 0:
                 print("      %s" % first[1][:200], flush=True)
-            if flag:
-                print("      %s" % first[1][:200], flush=True)
+            if flag or args.only:
+                print("      %s" % first[1][:300], flush=True)
     return 0
 
 

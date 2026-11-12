@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class Runtime:
-    def __init__(self, exe, work, show, extra=(), env=None):
+    def __init__(self, exe, work, show, extra=(), env=None, visible=False):
         self.exe, self.work, self.show = Path(exe).resolve(), Path(work).resolve(), Path(show).resolve()
         self.extra = extra
         # Changes to the app's environment; None removes a variable (so a
@@ -21,6 +21,9 @@ class Runtime:
         self.env_changes = env or {}
         self.proc = None
         self.desktop = None
+        # On the operator's own screen, for timings a hidden window cannot
+        # give (hidden outputs are throttled). Ask before using it.
+        self.visible = visible
 
     def __enter__(self):
         self.work.mkdir(parents=True, exist_ok=True)
@@ -48,7 +51,9 @@ class Runtime:
             else:
                 env[key] = value
         kwargs = {}
-        if os.name == "nt":
+        if self.visible:
+            env.pop("DECKBOY_HIDE_WINDOWS", None)
+        if os.name == "nt" and not self.visible:
             # WebView may create visible children: keep the entire process on
             # a private desktop, never switch the user's desktop.
             self.user32 = ctypes.WinDLL("user32", use_last_error=True)
