@@ -34,18 +34,9 @@ Free and open source, for Windows, macOS and Linux.
 **If Deckboy is useful to you, ⭐ star this repository** (top right): it is how the next
 operator finds it, and how you find it again.
 
-### New in 0.99.427
+### New in 0.99.425
 
-[Release notes and downloads](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.427)
-
-- **40 new themes**, from Amber CRT and Teletext to Risograph, Deep Sea and Synthwave. Every label
-  stays easy to read.
-- **Lessons** point at every control they name, and Esc closes whatever is open first.
-- **A second playlist** appears beside the first as soon as you add it.
-- **In 0.99.426:** 40 layer blend modes for each layer on an output, and Deckboy in Cherokee and
-  Hawaiian.
-
-**In 0.99.425:**
+[Release notes and downloads](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.425)
 
 <img src="docs/images/readme/release-425/feathered-mask.gif" width="49%" alt="A feathered heart mask on a playing clip"> <img src="docs/images/readme/release-425/draw-replay.gif" width="49%" alt="A drawing that replays on a layer above a playing clip">
 
