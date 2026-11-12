@@ -46,8 +46,38 @@ enum GpuKind : std::uint32_t {
   K_LUT = 1, K_THRESHOLD, K_COLOUR, K_COLOUR_REPLACE, K_VIGNETTE, K_GRAIN, K_CHANNEL_OFFSET,
   K_MIRROR, K_LUMA_KEY, K_EDGES, K_WARP, K_MOSAIC, K_MIX
 };
-enum Entry { E_POINT = 0, E_DOWN, E_BOX, E_STREAK, E_TILE, E_COUNT };
-const char* const kEntryNames[E_COUNT] = {"pointMain", "downMain", "boxMain", "streakMain", "tileMain"};
+enum Entry { E_POINT = 0, E_DOWN, E_BOX, E_STREAK, E_TILE, E_NV12, E_COUNT };
+const char* const kEntryNames[E_COUNT] = {"pointMain", "downMain", "boxMain", "streakMain", "tileMain", "nv12Main"};
+
+// The NV12 kernel's constants for a frame's colour space: its matrix (BT.601,
+// 709 or 2020) and its range, as SDL's own YCbCr conversion takes them.
+void nv12Constants(unsigned colorspace, int width, Params& p) {
+  const SDL_Colorspace cs = static_cast<SDL_Colorspace>(colorspace);
+  double kr = 0.2126, kb = 0.0722;   // BT.709
+  switch (SDL_COLORSPACEMATRIX(cs)) {
+    case SDL_MATRIX_COEFFICIENTS_BT601:
+    case SDL_MATRIX_COEFFICIENTS_BT470BG:
+      kr = 0.299; kb = 0.114; break;
+    case SDL_MATRIX_COEFFICIENTS_BT2020_NCL:
+      kr = 0.2627; kb = 0.0593; break;
+    case SDL_MATRIX_COEFFICIENTS_BT709:
+      break;
+    default:
+      if (width < 1280) { kr = 0.299; kb = 0.114; }   // unspecified: SD is 601
+      break;
+  }
+  const bool full = SDL_COLORSPACERANGE(cs) == SDL_COLOR_RANGE_FULL;
+  const double kg = 1.0 - kr - kb;
+  const double yScale = full ? 1.0 : 255.0 / 219.0;
+  const double cScale = full ? 1.0 : 255.0 / 224.0;
+  p.f0 = static_cast<float>(full ? 0.0 : -16.0 / 255.0);
+  p.f1 = static_cast<float>(-128.0 / 255.0);
+  p.f2 = static_cast<float>(yScale);
+  p.f3 = static_cast<float>(cScale * (2.0 - 2.0 * kr));
+  p.f4 = static_cast<float>(cScale * (2.0 * kb * (1.0 - kb) / kg));
+  p.f5 = static_cast<float>(cScale * (2.0 * kr * (1.0 - kr) / kg));
+  p.f6 = static_cast<float>(cScale * (2.0 - 2.0 * kb));
+}
 
 // The buffers a plan reads and writes. CUR/ALT ping-pong at full size and
 // hold the picture; F1/F2 are full-size scratch; S1/S2 are scratch at up to
@@ -562,6 +592,9 @@ struct D3DBuf {
 
 struct D3DSlot : SlotBase {
   D3DBuf buf[BUF_COUNT];
+  ID3D11Texture2D* nv12 = nullptr;          // the input the two views below are of (borrowed)
+  ID3D11ShaderResourceView* nv12Luma = nullptr;
+  ID3D11ShaderResourceView* nv12Chroma = nullptr;
   ID3D11Texture2D* displayTex = nullptr;   // SDL's, borrowed
   int result = CUR;                         // which buffer held the last result
   ID3D11Texture2D* staging = nullptr;
@@ -693,8 +726,15 @@ bool d3d11Create(GpuEffects* g) {
   return true;
 }
 
+void releaseNv12Views(D3DSlot& s) {
+  releaseCom(s.nv12Luma);
+  releaseCom(s.nv12Chroma);
+  s.nv12 = nullptr;
+}
+
 void d3d11Destroy(GpuEffects* g) {
   for (auto& [slot, s] : g->d3dSlots) {
+    releaseNv12Views(s);
     for (auto& b : s.buf) releaseBuf(b);
     releaseCom(s.staging);
     if (s.display) SDL_DestroyTexture(s.display);
@@ -705,8 +745,11 @@ void d3d11Destroy(GpuEffects* g) {
   releaseCom(g->context);
 }
 
+// The picture comes in as RGBA bytes, or (nv12 non-null) as the decoder's
+// NV12 texture, converted and reduced into CUR by the first pass.
 SDL_Texture* d3d11Run(GpuEffects* g, int slotIndex, const std::uint8_t* rgba, int w, int h,
-                      const std::vector<Pass>& plan) {
+                      const std::vector<Pass>& plan, ID3D11Texture2D* nv12 = nullptr,
+                      const Params* nv12Params = nullptr) {
   D3DSlot& slot = g->d3dSlots[slotIndex];
   for (int b = 0; b < BUF_COUNT; ++b) {
     int bw = 0, bh = 0;
@@ -720,9 +763,43 @@ SDL_Texture* d3d11Run(GpuEffects* g, int slotIndex, const std::uint8_t* rgba, in
   if (!slot.displayTex) return nullptr;
   // SDL batches its draws: anything it has queued runs before this, in order.
   SDL_FlushRenderer(g->renderer);
-  g->context->UpdateSubresource(slot.buf[CUR].tex, 0, nullptr, rgba, static_cast<UINT>(w * 4), 0);
-  bool swapped = false;
   g->context->CSSetConstantBuffers(0, 1, &g->constants);
+  if (nv12 && nv12Params) {
+    if (slot.nv12 != nv12) {
+      releaseNv12Views(slot);
+      D3D11_TEXTURE2D_DESC desc {};
+      nv12->GetDesc(&desc);
+      if (desc.Format != DXGI_FORMAT_NV12) return nullptr;
+      D3D11_SHADER_RESOURCE_VIEW_DESC view {};
+      view.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+      view.Texture2D.MipLevels = 1;
+      view.Format = DXGI_FORMAT_R8_UNORM;     // the luma plane
+      if (FAILED(g->device->CreateShaderResourceView(nv12, &view, &slot.nv12Luma))) return nullptr;
+      view.Format = DXGI_FORMAT_R8G8_UNORM;   // the chroma plane
+      if (FAILED(g->device->CreateShaderResourceView(nv12, &view, &slot.nv12Chroma))) {
+        releaseNv12Views(slot);
+        return nullptr;
+      }
+      slot.nv12 = nv12;
+    }
+    D3D11_MAPPED_SUBRESOURCE mapped {};
+    if (FAILED(g->context->Map(g->constants, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped))) return nullptr;
+    std::memcpy(mapped.pData, nv12Params, sizeof(Params));
+    g->context->Unmap(g->constants, 0);
+    ID3D11ShaderResourceView* views[2] = {slot.nv12Luma, slot.nv12Chroma};
+    ID3D11UnorderedAccessView* out = slot.buf[CUR].uav;
+    g->context->CSSetShader(g->shaders[E_NV12], nullptr, 0);
+    g->context->CSSetShaderResources(0, 2, views);
+    g->context->CSSetUnorderedAccessViews(0, 1, &out, nullptr);
+    g->context->Dispatch(static_cast<UINT>((w + 7) / 8), static_cast<UINT>((h + 7) / 8), 1);
+    ID3D11ShaderResourceView* noViews[2] = {nullptr, nullptr};
+    ID3D11UnorderedAccessView* noOut = nullptr;
+    g->context->CSSetUnorderedAccessViews(0, 1, &noOut, nullptr);
+    g->context->CSSetShaderResources(0, 2, noViews);
+  } else {
+    g->context->UpdateSubresource(slot.buf[CUR].tex, 0, nullptr, rgba, static_cast<UINT>(w * 4), 0);
+  }
+  bool swapped = false;
   for (const Pass& pass : plan) {
     D3D11_MAPPED_SUBRESOURCE mapped {};
     if (FAILED(g->context->Map(g->constants, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped))) return nullptr;
@@ -788,14 +865,15 @@ bool sdlCreate(GpuEffects* g) {
   if (!g->gpu) return false;
   const SDL_GPUShaderFormat formats = SDL_GetGPUShaderFormats(g->gpu);
   const unsigned char* dxil[E_COUNT] = {kEffectsPointDxil, kEffectsDownDxil, kEffectsBoxDxil, kEffectsStreakDxil,
-                                        kEffectsTileDxil};
+                                        kEffectsTileDxil, kEffectsNv12Dxil};
   const std::size_t dxilSize[E_COUNT] = {sizeof(kEffectsPointDxil), sizeof(kEffectsDownDxil), sizeof(kEffectsBoxDxil),
-                                         sizeof(kEffectsStreakDxil), sizeof(kEffectsTileDxil)};
+                                         sizeof(kEffectsStreakDxil), sizeof(kEffectsTileDxil),
+                                         sizeof(kEffectsNv12Dxil)};
   const unsigned char* spirv[E_COUNT] = {kEffectsPointSpirv, kEffectsDownSpirv, kEffectsBoxSpirv,
-                                         kEffectsStreakSpirv, kEffectsTileSpirv};
+                                         kEffectsStreakSpirv, kEffectsTileSpirv, kEffectsNv12Spirv};
   const std::size_t spirvSize[E_COUNT] = {sizeof(kEffectsPointSpirv), sizeof(kEffectsDownSpirv),
                                           sizeof(kEffectsBoxSpirv), sizeof(kEffectsStreakSpirv),
-                                          sizeof(kEffectsTileSpirv)};
+                                          sizeof(kEffectsTileSpirv), sizeof(kEffectsNv12Spirv)};
   for (int e = 0; e < E_COUNT; ++e) {
     SDL_GPUComputePipelineCreateInfo info {};
     info.entrypoint = kEntryNames[e];
@@ -1040,6 +1118,46 @@ SDL_Texture* runGpuEffects(GpuEffects* g, int slot, const std::uint8_t* rgba, in
   return nullptr;
 }
 
+bool gpuEffectsTakeNv12(const GpuEffects* g) {
+#ifdef _WIN32
+  return g && g->device != nullptr;
+#else
+  (void) g;
+  return false;
+#endif
+}
+
+SDL_Texture* runGpuEffectsNv12(GpuEffects* g, int slot, SDL_Texture* nv12, int srcW, int srcH, int shrink,
+                               unsigned colorspace, const std::vector<fx::CueEffect>& stack,
+                               const fx::CueEffectContext& ctx) {
+  if (!gpuEffectsTakeNv12(g) || !nv12 || srcW < 4 || srcH < 4) return nullptr;
+#ifdef _WIN32
+  shrink = std::clamp(shrink, 1, 8);
+  const int w = std::max(2, srcW / shrink);
+  const int h = std::max(2, srcH / shrink);
+  auto* texture = static_cast<ID3D11Texture2D*>(
+    SDL_GetPointerProperty(SDL_GetTextureProperties(nv12), SDL_PROP_TEXTURE_D3D11_TEXTURE_POINTER, nullptr));
+  if (!texture) return nullptr;
+  bool ok = false;
+  fx::CueEffectContext sized = ctx;
+  sized.width = w;
+  sized.height = h;
+  const std::vector<Pass> plan = makePlan(stack, w, h, sized, ok);
+  if (!ok) return nullptr;
+  Params in;
+  in.width = static_cast<std::uint32_t>(w);
+  in.height = static_cast<std::uint32_t>(h);
+  in.srcW = static_cast<std::uint32_t>(srcW);
+  in.srcH = static_cast<std::uint32_t>(srcH);
+  in.i0 = shrink;
+  nv12Constants(colorspace, srcW, in);
+  return d3d11Run(g, slot, nullptr, w, h, plan, texture, &in);
+#else
+  (void) slot; (void) shrink; (void) colorspace; (void) stack; (void) ctx;
+  return nullptr;
+#endif
+}
+
 bool readGpuEffectsResult(GpuEffects* g, int slot, std::vector<std::uint8_t>& rgba, int& w, int& h) {
   if (!g) return false;
 #ifdef _WIN32
@@ -1055,6 +1173,7 @@ void releaseGpuEffectsSlot(GpuEffects* g, int slot) {
   if (!g) return;
 #ifdef _WIN32
   if (auto it = g->d3dSlots.find(slot); it != g->d3dSlots.end()) {
+    releaseNv12Views(it->second);
     for (auto& b : it->second.buf) releaseBuf(b);
     releaseCom(it->second.staging);
     if (it->second.display) SDL_DestroyTexture(it->second.display);

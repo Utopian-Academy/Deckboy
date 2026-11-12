@@ -5893,6 +5893,7 @@
     runtime.layerFxShrinkUsed.clear();
     runtime.layerGpuFxTextures.clear();
     runtime.layerGpuLooks.clear();
+    runtime.layerGpuFxRan.clear();
 #if DECKBOY_INPROC_DECODE
     // The pixel-buffer wraps go too. They hold a Metal view of an IOSurface
     // the decoder owns; outliving this renderer is a use-after-free, and the
@@ -6005,6 +6006,7 @@
       runtime.gpuEffectsTried = false;
       runtime.layerGpuFxTextures.clear();
       runtime.layerGpuLooks.clear();
+      runtime.layerGpuFxRan.clear();
       SDL_DestroyRenderer(runtime.outputRenderer);
       runtime.outputRenderer = nullptr;
     }

@@ -854,6 +854,14 @@
       if (!engine) {
         continue;
       }
+      // Effects on the GPU from the decoded picture, when they can be (see
+      // deckEffectsCanStayOnGpu): the decode then stays NV12, zero-copy.
+      const bool effectsOnGpu = deckEffectsCanStayOnGpu(deckIndex);
+      if (effectsOnGpu != engine->effectsOnGpu()) {
+        std::cerr << "gpu-effects: playlist " << (deckIndex + 1) << " effects from the decoded picture "
+                  << (effectsOnGpu ? "on" : "off") << std::endl;
+      }
+      engine->setEffectsOnGpu(effectsOnGpu);
       const Uint64 engineT0 = uiProfileEnabled_ ? SDL_GetTicksNS() : 0;
       engine->update();
       // A playlist's engine that held the frame up, named, under DECKBOY_UI_PROFILE.

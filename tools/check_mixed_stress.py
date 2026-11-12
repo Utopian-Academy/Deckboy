@@ -291,7 +291,7 @@ def main():
             if t >= state["next"]:
                 state["cue"] = 2 if state["cue"] == 1 else 1
                 db.send("DECK 1")
-                db.send("GOTO %d" % state["cue"])
+                db.send("SELECT %d" % state["cue"])   # not GOTO: a jump would take it twice
                 db.send("TAKE")
                 state["next"] = t + 2.5
         stage("+ transitions on the base", flip)

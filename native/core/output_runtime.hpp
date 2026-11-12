@@ -472,6 +472,9 @@ struct OutputRuntime {
     int logicalHeight = 0;
   };
   std::map<int, GpuLook> layerGpuLooks;
+  // Which frame (index, cue key) the GPU effects last ran on from the NV12
+  // picture, so an unchanged frame with a still stack is not run again.
+  std::map<int, std::pair<std::uint64_t, std::string>> layerGpuFxRan;
   // The Portal transition's picture: the outgoing frame with the holes melted
   // through it, rebuilt every frame the transition runs.
   std::vector<std::uint8_t> portalTransitionPixels;

@@ -369,3 +369,19 @@ kernel void tileMain(ARGS) {
   }
   put(dst, id, float4(sum / uint((y1 - y0) * (x1 - x0))));
 }
+
+kernel void nv12Main(ARGS) {
+  if (id.x >= p.width || id.y >= p.height) return;
+  float3 acc = float3(0, 0, 0);
+  for (int j = 0; j < p.i0; ++j) {
+    for (int i = 0; i < p.i0; ++i) {
+      const int x = min(int(id.x) * p.i0 + i, int(p.srcW) - 1);
+      const int y = min(int(id.y) * p.i0 + j, int(p.srcH) - 1);
+      const float luma = src.read(uint2(x, y)).r;
+      const float2 chroma = aux.read(uint2(x / 2, y / 2)).rg + p.f1;
+      const float yv = (luma + p.f0) * p.f2;
+      acc += saturate(float3(yv + p.f3 * chroma.y, yv - p.f4 * chroma.x - p.f5 * chroma.y, yv + p.f6 * chroma.x));
+    }
+  }
+  put(dst, id, float4(floor(acc / float(p.i0 * p.i0) * 255.0f + 0.5f), 255.0f));
+}

@@ -101,6 +101,15 @@ struct DrmPrimeImporterDeleter { void operator()(DrmPrimeImporter* importer) con
 class MediaEngine {
  public:
   void setForcePixelFrames(bool on) { forcePixelFrames_ = on; }
+  // EFFECTS CAN RUN ON THE GPU, FROM THE DECODED PICTURE: the app says so per
+  // playlist when every live output runs GPU effects from NV12. Then a cue
+  // whose every effect has a GPU version no longer asks for RGBA: its decode
+  // stays NV12 -- zero-copy on Windows -- and the effects take that picture
+  // as it is. Without this a 4K frame came back from the card and was
+  // converted on one core, ~30 ms a frame (measured 2026-11-12). Decided per
+  // CUE, from its own stack, so a cue is opened right at its TAKE.
+  void setEffectsOnGpu(bool on);
+  bool effectsOnGpu() const { return effectsOnGpu_; }
   // Callback to tap decoded audio samples (for waveform display / VU meter).
   using AudioTapCallback = std::function<void(const std::vector<std::int16_t>&)>;
   // Optional resolver to transform cue paths before decode (e.g. relative→absolute).
@@ -1938,6 +1947,7 @@ class MediaEngine {
   // Set while VJ mode is on: decode to CPU pixels so the control window can
   // build A and B previews from them. Takes effect on the next take.
   bool forcePixelFrames_ = false;
+  bool effectsOnGpu_ = false;
 
   // -- State: browser capture --------------------------------------------------
   bool isBrowserCapturing_ = false;          // browser backend is sending frames

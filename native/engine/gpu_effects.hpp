@@ -44,6 +44,17 @@ SDL_Texture* runGpuEffects(GpuEffects* g, int slot, const std::uint8_t* rgba, in
                            const std::vector<deckboy::effects::CueEffect>& stack,
                            const deckboy::effects::CueEffectContext& ctx);
 
+// The same, straight from a decoded NV12 picture already on the GPU (`nv12`,
+// an SDL NV12 texture on the output's renderer: the zero-copy wrap, or an
+// NV12 upload). It is converted with `colorspace`'s own matrix and range and
+// reduced by `shrink` on the card, so the frame never comes back to the CPU.
+// Direct3D 11 only for now; null elsewhere (the caller then uses RGBA).
+SDL_Texture* runGpuEffectsNv12(GpuEffects* g, int slot, SDL_Texture* nv12, int srcW, int srcH, int shrink,
+                               unsigned colorspace, const std::vector<deckboy::effects::CueEffect>& stack,
+                               const deckboy::effects::CueEffectContext& ctx);
+// Whether runGpuEffectsNv12 can run on this one.
+bool gpuEffectsTakeNv12(const GpuEffects* g);
+
 // The last result for `slot`, read back to the CPU (for a transition, which
 // needs the outgoing picture's pixels). Waits for the GPU; once per cue change.
 bool readGpuEffectsResult(GpuEffects* g, int slot, std::vector<std::uint8_t>& rgba, int& w, int& h);

@@ -62,6 +62,7 @@ void deckboy::engine::DrmPrimeImporterDeleter::operator()(DrmPrimeImporter* impo
 #include <string>
 
 #include "core/cue_effects.hpp"     // detail::parallelRows
+#include "engine/gpu_effects.hpp"   // gpuEffectsSupportStack
 #include "core/cue_helpers.hpp"       // isSourceCueKind, resolvedCueEndAction
 #include "core/io_utils.hpp"          // readExact, readSome (pipe I/O)
 #include "core/pattern_helpers.hpp"   // normalizePatternTypeId, patternTypeIsAnimated
@@ -646,6 +647,19 @@ void MediaEngine::loadCue(const Cue* cue, bool autoplay, double transitionSecond
   }
 }
 
+void MediaEngine::setEffectsOnGpu(bool on) {
+  if (effectsOnGpu_ == on) {
+    return;
+  }
+  effectsOnGpu_ = on;
+  // Whether the live decode needs the RGBA bridge has just changed: the same
+  // decision a look edit makes (syncActiveCueSnapshot), on the same cue.
+  if (activeCueSnapshot_) {
+    const Cue same = *activeCueSnapshot_;
+    syncActiveCueSnapshot(same);
+  }
+}
+
 // Replace the owned active-cue snapshot in place. The optional stays engaged,
 // so activeCue_ remains stable across the assignment. Publishes fresh fade
 // params to the audio-thread mirrors.
@@ -687,7 +701,8 @@ bool MediaEngine::cueDecodesAsRgba(const Cue& cue) const {
          // A clip with alpha: NV12 has nowhere to keep it.
          cue.sourceHasAlpha ||
          colorControlsActive(cue.brightness, cue.contrast, cue.saturation, cue.hueShift) ||
-         deckboy::effects::cueEffectStackActive(cue.effects) ||
+         (deckboy::effects::cueEffectStackActive(cue.effects) &&
+          !(effectsOnGpu_ && deckboy::gpu::gpuEffectsSupportStack(cue.effects))) ||
          // The audio chain can need the picture too -- see audioChainNeedsPicture.
          deckboy::audiofx::audioChainNeedsPicture(cue.audioEffects) ||
          forcePixelFrames_;

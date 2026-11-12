@@ -4109,6 +4109,78 @@
     return runtime.gpuEffects != nullptr;
   }
 
+  // Whether this playlist's effects CAN run on the GPU straight from its
+  // decoded NV12 picture: EVERY live output runs GPU effects from NV12. The
+  // engine decides per cue, at its TAKE, whether that cue's stack does
+  // (MediaEngine::setEffectsOnGpu); a grade, a key or a sound that reads the
+  // picture keeps a cue on RGBA there as before. Asked every tick.
+  bool deckEffectsCanStayOnGpu(int deckIndex) {
+    (void) deckIndex;
+    bool any = false;
+    for (int i = 0; i < static_cast<int>(project_.outputs.size()); ++i) {
+      OutputRuntime* runtime = runtimeForOutput(i);
+      if (!project_.outputs[static_cast<std::size_t>(i)].enabled || !runtime || !runtime->outputRenderer) continue;
+      if (!ensureGpuEffects(*runtime) || !deckboy::gpu::gpuEffectsTakeNv12(runtime->gpuEffects)) return false;
+      any = true;
+    }
+    return any;
+  }
+
+  // A layer's effects from its NV12 picture on the GPU (`nv12`: the zero-copy
+  // wrap or the NV12 upload). The result texture, or null when they cannot
+  // run here -- the caller then takes the CPU path rather than show the
+  // picture without its look.
+  SDL_Texture* runLayerEffectsFromNv12(OutputRuntime& runtime, int deckIndex, const Cue& cue,
+                                       const DecodedFrame& frame, SDL_Texture* nv12, const SDL_Rect& target,
+                                       const OutputLayer* layerWarp) {
+    if (!nv12 || frame.format != FramePixelFormat::NV12 || cueHasPixelEffects(cue) ||
+        cueAudioChainNeedsPicture(cue)) {
+      return nullptr;
+    }
+    const DeckRuntime* deckRuntime = runtimeForDeck(deckIndex);
+    std::vector<deckboy::effects::CueEffect> modulated;
+    const bool moving = deckboy::effects::modulateCueEffectStack(
+      cue.effects, lfoSeconds_, lfoBeats_, modulated,
+      deckRuntime && deckRuntime->mediaEngine ? deckRuntime->mediaEngine->programAudioLevel01() : 0.0);
+    const auto& stack = moving ? modulated : cue.effects;
+    if (!deckboy::gpu::gpuEffectsSupportStack(stack) || !ensureGpuEffects(runtime) ||
+        !deckboy::gpu::gpuEffectsTakeNv12(runtime.gpuEffects)) {
+      return nullptr;
+    }
+    const std::string key = cuePreviewCacheKey(cue);
+    const bool animates = deckboy::effects::cueEffectStackAnimates(cue.effects) || moving;
+    auto& ran = runtime.layerGpuFxRan[deckIndex];
+    if (auto cached = runtime.layerGpuFxTextures.find(deckIndex);
+        !animates && cached != runtime.layerGpuFxTextures.end() && cached->second &&
+        ran.first == frame.index && ran.second == key) {
+      return cached->second;
+    }
+    const int shrink = layerFxShrinkFor(deckIndex, frame, cue, target, layerWarp, true);
+    deckboy::effects::CueEffectContext ctx;
+    ctx.frameIndex = frame.index;
+    ctx.seconds = lfoSeconds_;
+    ctx.pixelScale = 1.0 / shrink;
+    const auto began = std::chrono::steady_clock::now();
+    SDL_Texture* done = deckboy::gpu::runGpuEffectsNv12(runtime.gpuEffects, deckIndex, nv12, frame.width,
+                                                        frame.height, shrink,
+                                                        static_cast<unsigned>(frameColorspace(frame)), stack, ctx);
+    noteEffectChainCost(deckIndex, std::chrono::duration<double, std::milli>(
+                                     std::chrono::steady_clock::now() - began).count());
+    if (!done) {
+      runtime.layerGpuFxTextures.erase(deckIndex);
+      return nullptr;
+    }
+    runtime.layerGpuFxTextures[deckIndex] = done;
+    ran = {frame.index, key};
+    runtime.layerLookFrames.erase(deckIndex);
+    auto& look = runtime.layerGpuLooks[deckIndex];
+    look.key = key;
+    look.index = frame.index;
+    look.logicalWidth = frame.width;
+    look.logicalHeight = frame.height;
+    return done;
+  }
+
   // True when some output drew this deck's effects on the GPU last time.
   bool deckEffectsOnGpu(int deckIndex) const {
     for (const auto& runtime : outputRuntimes_) {
@@ -4125,13 +4197,13 @@
   std::unordered_map<int, int> layerFxShrink_;
   std::unordered_map<int, std::uint64_t> layerFxShrinkFrame_;
   int layerFxShrinkFor(int deckIndex, const DecodedFrame& frame, const Cue& cue,
-                       const SDL_Rect& target, const OutputLayer* layerWarp) {
+                       const SDL_Rect& target, const OutputLayer* layerWarp, bool nv12 = false) {
     // DECKBOY_FX_FULL_SIZE=1 turns this off, so a check can compare the two.
     static const bool fullSize = [] {
       const char* e = std::getenv("DECKBOY_FX_FULL_SIZE");
       return e && *e && *e != '0';
     }();
-    if (fullSize || frame.format != FramePixelFormat::RGBA32 || frame.width < 16 || frame.height < 16 ||
+    if (fullSize || (frame.format != FramePixelFormat::RGBA32 && !nv12) || frame.width < 16 || frame.height < 16 ||
         !(cueHasPixelEffects(cue) || deckboy::effects::cueEffectStackActive(cue.effects))) {
       return 1;
     }
@@ -4316,6 +4388,7 @@
           sourceFrame->format, frameColorspace(*sourceFrame));
         if (gpuTexture) {
           auto gpuFrameIt = outputRuntime->layerGpuFrameIndices.find(sourceDeckIndex);
+          const Uint64 zeroCopyT0 = uiProfileEnabled_ ? SDL_GetTicksNS() : 0;
           if (gpuFrameIt == outputRuntime->layerGpuFrameIndices.end() ||
               gpuFrameIt->second != sourceFrame->index) {
             // External D3D writes must retire SDL's queued reads of this texture.
@@ -4325,6 +4398,33 @@
               outputRuntime->layerGpuFrameIndices[sourceDeckIndex] = sourceFrame->index;
             }
           }
+          // WITH ITS EFFECTS, run on the GPU from this very texture: the
+          // decode stayed NV12 for it (MediaEngine::setEffectsOnGpu). If they
+          // cannot run here, the frame goes down the CPU bridge below instead
+          // -- it is never drawn without its look.
+          SDL_Texture* zeroCopyDraw = gpuTexture;
+          const Uint64 zeroCopyT1 = uiProfileEnabled_ ? SDL_GetTicksNS() : 0;
+          if (deckboy::effects::cueEffectStackActive(sourceCue->effects)) {
+            zeroCopyDraw = runLayerEffectsFromNv12(*outputRuntime, sourceDeckIndex, *sourceCue, *sourceFrame,
+                                                   gpuTexture, target, layerWarp);
+          }
+          if (uiProfileEnabled_) {
+            // The zero-copy layer's share: the GPU copy of the decoded slice,
+            // then its effects (submitting them; the card runs them later).
+            auto& acc = layerProfile_[sourceDeckIndex];
+            acc.prep += static_cast<double>(zeroCopyT1 - zeroCopyT0) / 1e6;
+            acc.fx += static_cast<double>(SDL_GetTicksNS() - zeroCopyT1) / 1e6;
+            acc.gpu += zeroCopyDraw && zeroCopyDraw != gpuTexture ? 1 : 0;
+            if (++acc.frames == 120) {
+              std::ostringstream line;
+              line << std::fixed << std::setprecision(2) << "layer " << (sourceDeckIndex + 1) << " "
+                   << sourceFrame->width << "x" << sourceFrame->height << " zero-copy copy=" << acc.prep / 120
+                   << "ms fx=" << acc.fx / 120 << "ms (" << acc.gpu << "/120 on gpu)";
+              uiProfileLog(line.str());
+              acc = {};
+            }
+          }
+          if (zeroCopyDraw) {
           float gpuDeckOpacity = std::clamp(project_.decks[sourceDeckIndex].playlistOpacity, 0.0f, 1.0f);
           float gpuFadeGain = static_cast<float>(sourceRuntime->mediaEngine->currentVisualFadeGain());
           // THE CROSSFADER, on the zero-copy path as well.
@@ -4337,14 +4437,24 @@
           gpuDeckOpacity *= static_cast<float>(
             outputCrossfadeGain(stackOutputIndex, stackIndex, gpuBlend));
           Uint8 gpuAlpha = static_cast<Uint8>(std::lround(gpuDeckOpacity * gpuFadeGain * 255.0f));
-          SDL_SetTextureBlendMode(gpuTexture, gpuBlend);
-          SDL_SetTextureAlphaMod(gpuTexture, gpuAlpha);
-          renderTextureWithCueGeometry(outputRuntime->outputRenderer, gpuTexture,
-                                       sourceFrame->width, sourceFrame->height, sourceCue,
-                                       target, gpuBlend, layerWarp);
-          SDL_SetTextureBlendMode(gpuTexture, SDL_BLENDMODE_BLEND);
-          SDL_SetTextureAlphaMod(gpuTexture, 255);
+          SDL_SetTextureBlendMode(zeroCopyDraw, gpuBlend);
+          SDL_SetTextureAlphaMod(zeroCopyDraw, gpuAlpha);
+          if (zeroCopyDraw == gpuTexture) {
+            renderTextureWithCueGeometry(outputRuntime->outputRenderer, gpuTexture,
+                                         sourceFrame->width, sourceFrame->height, sourceCue,
+                                         target, gpuBlend, layerWarp);
+          } else {
+            // The effects' result, at the size they ran at, placed as the frame.
+            float resultW = 0.0f, resultH = 0.0f;
+            SDL_GetTextureSize(zeroCopyDraw, &resultW, &resultH);
+            renderTextureWithCueGeometry(outputRuntime->outputRenderer, zeroCopyDraw,
+                                         static_cast<int>(resultW), static_cast<int>(resultH), sourceCue,
+                                         target, gpuBlend, layerWarp, 0, sourceFrame->width, sourceFrame->height);
+          }
+          SDL_SetTextureBlendMode(zeroCopyDraw, SDL_BLENDMODE_BLEND);
+          SDL_SetTextureAlphaMod(zeroCopyDraw, 255);
           return;
+          }
         }
       }
       // Different device (secondary output) or wrap failure: download the
@@ -4388,6 +4498,29 @@
       }
     }
 #endif
+    // AN NV12 PICTURE WITH EFFECTS. The decode stays NV12 when the effects can
+    // run on the GPU (MediaEngine::setEffectsOnGpu); when they cannot run on
+    // THIS output after all, it is converted here, so the CPU path below runs
+    // them -- the NV12 branch would otherwise upload it without its look.
+    DecodedFrame nv12AsRgba;
+    if (!sourceFrame->isGpu() && sourceFrame->format == FramePixelFormat::NV12 && !sourceFrame->pixels.empty() &&
+        deckboy::effects::cueEffectStackActive(sourceCue->effects) &&
+        (cueHasPixelEffects(*sourceCue) || cueAudioChainNeedsPicture(*sourceCue) ||
+         !deckboy::gpu::gpuEffectsSupportStack(sourceCue->effects) || !ensureGpuEffects(*outputRuntime) ||
+         !deckboy::gpu::gpuEffectsTakeNv12(outputRuntime->gpuEffects))) {
+      nv12AsRgba.width = sourceFrame->width;
+      nv12AsRgba.height = sourceFrame->height;
+      nv12AsRgba.index = sourceFrame->index;
+      nv12AsRgba.format = FramePixelFormat::RGBA32;
+      nv12AsRgba.colorspace = SDL_COLORSPACE_SRGB;
+      nv12AsRgba.pixels.resize(static_cast<std::size_t>(sourceFrame->width) * sourceFrame->height * 4);
+      if (SDL_ConvertPixelsAndColorspace(sourceFrame->width, sourceFrame->height, SDL_PIXELFORMAT_NV12,
+                                         frameColorspace(*sourceFrame), 0, sourceFrame->pixels.data(),
+                                         sourceFrame->width, SDL_PIXELFORMAT_RGBA32, SDL_COLORSPACE_SRGB, 0,
+                                         nv12AsRgba.pixels.data(), sourceFrame->width * 4)) {
+        sourceFrame = &nv12AsRgba;
+      }
+    }
     const Uint32 sourceFormat = sdlPixelFormat(sourceFrame->format);
     const int fxShrink = layerFxShrinkFor(sourceDeckIndex, *sourceFrame, *sourceCue, target, layerWarp);
     const int texW = fxShrink > 1 ? std::max(1, sourceFrame->width / fxShrink) : sourceFrame->width;
@@ -4449,6 +4582,13 @@
         updateVideoTextureNV(bridgeTexture, y, sourceFrame->width * bytesPerSample,
                              uv, sourceFrame->width * bytesPerSample,
                              sourceFrame->width, sourceFrame->height, bytesPerSample);
+        // With effects: run from the upload on the GPU (an NV12 picture with
+        // effects reaches here only when they can -- see nv12AsRgba above).
+        if (sourceFrame->format == FramePixelFormat::NV12 &&
+            deckboy::effects::cueEffectStackActive(sourceCue->effects)) {
+          drewOnGpu = runLayerEffectsFromNv12(*outputRuntime, sourceDeckIndex, *sourceCue, *sourceFrame,
+                                              bridgeTexture, target, layerWarp) != nullptr;
+        }
       } else {
         const std::uint8_t* uploadPixels = sourceFrame->pixels.data();
         const bool wantsStack = deckboy::effects::cueEffectStackActive(sourceCue->effects);
@@ -4618,9 +4758,19 @@
         onGpu != outputRuntime->layerGpuFxTextures.end() && onGpu->second) {
       drawTexture = onGpu->second;
     }
+    int drawW = texW;
+    int drawH = texH;
+    if (drawTexture != bridgeTexture) {
+      // A GPU result: at the size the effects ran at, whichever path made it.
+      float resultW = 0.0f, resultH = 0.0f;
+      if (SDL_GetTextureSize(drawTexture, &resultW, &resultH)) {
+        drawW = static_cast<int>(resultW);
+        drawH = static_cast<int>(resultH);
+      }
+    }
     SDL_SetTextureBlendMode(drawTexture, layerBlend);
     SDL_SetTextureAlphaMod(drawTexture, alpha);
-    renderTextureWithCueGeometry(outputRuntime->outputRenderer, drawTexture, texW, texH, sourceCue,
+    renderTextureWithCueGeometry(outputRuntime->outputRenderer, drawTexture, drawW, drawH, sourceCue,
                                  target, layerBlend, layerWarp, 0, sourceFrame->width, sourceFrame->height);
     // Left as found: this texture is reused, and a mix must not leak into
     // whatever draws with it next.

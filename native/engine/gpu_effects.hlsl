@@ -409,3 +409,26 @@ void tileMain(uint3 id : SV_DispatchThreadID) {
   }
   put(id.xy, float4(sum / uint((y1 - y0) * (x1 - x0))));
 }
+
+// ---- the decoder's NV12 picture, as RGB, reduced by i0 ----------------------
+// src: the luma plane (R8), aux: the chroma plane (R8G8), both straight off
+// the decode. f0/f1: luma and chroma offsets; f2: luma scale; f3 Cr->R,
+// f4 Cb->G, f5 Cr->G, f6 Cb->B (the frame's own matrix and range, from
+// gpu_effects.cpp). Each output pixel averages its i0 x i0 block, each sample
+// with its own chroma, as the CPU path's conversion then reduction does.
+[numthreads(8, 8, 1)]
+void nv12Main(uint3 id : SV_DispatchThreadID) {
+  if (id.x >= width || id.y >= height) return;
+  float3 acc = float3(0, 0, 0);
+  for (int j = 0; j < i0; ++j) {
+    for (int i = 0; i < i0; ++i) {
+      const int x = min(int(id.x) * i0 + i, int(srcW) - 1);
+      const int y = min(int(id.y) * i0 + j, int(srcH) - 1);
+      const float luma = src.Load(int3(x, y, 0)).r;
+      const float2 chroma = aux.Load(int3(x / 2, y / 2, 0)).rg + f1;
+      const float yv = (luma + f0) * f2;
+      acc += saturate(float3(yv + f3 * chroma.y, yv - f4 * chroma.x - f5 * chroma.y, yv + f6 * chroma.x));
+    }
+  }
+  put(id.xy, float4(floor(acc / float(i0 * i0) * 255.0 + 0.5), 255.0));
+}

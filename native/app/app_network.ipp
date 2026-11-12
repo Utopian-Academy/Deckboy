@@ -6165,7 +6165,18 @@ bool looksLikeHttpRequestLine(const std::string& line) {
       // command is checked against this in handleRemoteCommand.
       remoteCallerIsNetwork_ = command.fromNetworkPeer || command.webReply != nullptr;
       const bool refusedBeforeRunning = !remoteCommandError_.empty();
+      const Uint64 commandT0 = uiProfileEnabled_ ? SDL_GetTicksNS() : 0;
       if (remoteCommandError_.empty()) handleRemoteCommand(command.text);
+      // A remote command that held the frame up, named (DECKBOY_UI_PROFILE).
+      if (uiProfileEnabled_) {
+        const double ms = static_cast<double>(SDL_GetTicksNS() - commandT0) / 1e6;
+        if (ms > 5.0) {
+          std::ostringstream line;
+          line << std::fixed << std::setprecision(2) << "command \"" << command.text.substr(0, 40)
+               << "\" took " << ms << "ms";
+          uiProfileLog(line.str());
+        }
+      }
       remoteCallerIsNetwork_ = false;
       if (!command.monitorKind.empty()) recordInputMonitorOutcome(command, refusedBeforeRunning);
       // A phone reads the state straight after its command answers; refresh
