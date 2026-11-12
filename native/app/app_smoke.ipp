@@ -5776,6 +5776,10 @@
       ctx.width = w;
       ctx.height = h;
       ctx.frameIndex = static_cast<std::uint64_t>(std::max(0, frameIndex) + pass);
+      // A reduced copy, as a layer's effects get one (check_fx_scale.py).
+      if (const char* scale = std::getenv("DECKBOY_FX_PIXEL_SCALE"); scale && *scale) {
+        ctx.pixelScale = std::clamp(std::atof(scale), 0.05, 1.0);
+      }
       ctx.effectState = &effectState;
       const auto began = std::chrono::steady_clock::now();
       deckboy::effects::applyCueEffectStack(pixels, {fx}, ctx);

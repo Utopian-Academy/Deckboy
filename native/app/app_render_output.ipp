@@ -4421,6 +4421,7 @@
             deckboy::effects::CueEffectContext fxCtx;
             fxCtx.width = fxW;
             fxCtx.height = fxH;
+            fxCtx.pixelScale = 1.0 / fxShrink;
             // The SOURCE frame drives the look, so a given frame of a clip
             // always grades the same way and a recording is reproducible. A
             // still has no frame progression to offer, so an animating stack on

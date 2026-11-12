@@ -1412,6 +1412,13 @@ struct CueEffectContext {
   // clock (a dump, a bench); an effect that keeps time then counts frames at
   // thirty a second.
   double seconds = -1.0;
+  // THIS FRAME'S PIXELS PER PIXEL OF THE PICTURE IT STANDS FOR. 1 normally;
+  // 0.5 when a layer's effects run on a copy reduced by two to the size the
+  // output draws it (layerFxShrinkFor). An effect whose constants are in
+  // pixels -- a 24-pixel ripple, a 50-pixel crystal -- multiplies them by
+  // this, so it looks the same at either size. tools/check_fx_scale.py finds
+  // the ones that do not.
+  double pixelScale = 1.0;
   // The driver clip's motion for THIS frame, when one is armed. Null the rest
   // of the time, which is almost always -- so MotionPuppet costs nothing on a
   // cue that has not been given a driver.
@@ -2017,9 +2024,11 @@ inline void applyPixelSort(std::uint8_t* pixels, int w, int h, double amount,
 // Displaced scanline bands plus red/blue separation: the corrupted-frame look.
 // Bands are whole rows because that is how real decode corruption presents --
 // a block row loses sync and the rest of the line arrives shifted.
+// pixelScale: as CueEffectContext::pixelScale. The tears are drawn in the
+// full picture's pixels and scaled, so a reduced copy tears in the same places.
 inline void applyBlockGlitch(std::uint8_t* pixels, int w, int h, double amount,
                              std::uint32_t seed, double bandScale = 0.5,
-                             double tearScale = 0.0) {
+                             double tearScale = 0.0, double pixelScale = 1.0) {
   if (!pixels || w <= 2 || h <= 0 || amount <= 0.01) {
     return;
   }
@@ -2034,14 +2043,20 @@ inline void applyBlockGlitch(std::uint8_t* pixels, int w, int h, double amount,
   const int bands = std::max(1, static_cast<int>(
     (1.0 + amount * 14.0) * (0.5 + std::clamp(bandScale, 0.0, 1.0))));
   const double tearWidth = 1.0 + std::clamp(tearScale, 0.0, 1.0) * 2.0;
+  const double ps = std::clamp(pixelScale, 0.01, 1.0);
+  const int fullW = static_cast<int>(std::lround(w / ps));
+  const int fullH = static_cast<int>(std::lround(h / ps));
   std::vector<std::uint8_t> rowCopy(static_cast<std::size_t>(w) * 4);
   for (int b = 0; b < bands; ++b) {
-    const int y0 = static_cast<int>(rnd() % static_cast<std::uint32_t>(std::max(1, h)));
-    const int hgt = 1 + static_cast<int>(rnd() % static_cast<std::uint32_t>(
-      std::max(1, static_cast<int>(h * amount / 8) + 1)));
-    const int shift = static_cast<int>(
-      (static_cast<int>(rnd() % static_cast<std::uint32_t>(std::max(1, w / 3))) -
-       (w / 6)) * tearWidth);
+    const int fy0 = static_cast<int>(rnd() % static_cast<std::uint32_t>(std::max(1, fullH)));
+    const int fhgt = 1 + static_cast<int>(rnd() % static_cast<std::uint32_t>(
+      std::max(1, static_cast<int>(fullH * amount / 8) + 1)));
+    const int fshift = static_cast<int>(
+      (static_cast<int>(rnd() % static_cast<std::uint32_t>(std::max(1, fullW / 3))) -
+       (fullW / 6)) * tearWidth);
+    const int y0 = static_cast<int>(fy0 * ps);
+    const int hgt = std::max(1, static_cast<int>(std::lround(fhgt * ps)));
+    const int shift = static_cast<int>(std::lround(fshift * ps));
     for (int y = y0; y < std::min(h, y0 + hgt); ++y) {
       std::uint8_t* row = pixels + static_cast<std::size_t>(y) * w * 4;
       std::memcpy(rowCopy.data(), row, rowCopy.size());
@@ -2063,7 +2078,7 @@ inline void applyBlockGlitch(std::uint8_t* pixels, int w, int h, double amount,
       }
     }
   }
-  const int sep = static_cast<int>(amount * (w / 60.0)) + 1;
+  const int sep = static_cast<int>(std::lround((static_cast<int>(amount * (fullW / 60.0)) + 1) * ps));
   for (int y = 0; y < h; ++y) {
     std::uint8_t* row = pixels + static_cast<std::size_t>(y) * w * 4;
     std::memcpy(rowCopy.data(), row, rowCopy.size());
@@ -3167,7 +3182,7 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         // you saw, not a new one.
         applyBlockGlitch(pixels.data(), ctx.width, ctx.height, amt,
                          static_cast<std::uint32_t>(ctx.frameIndex * 2654435761u),
-                         pA, pB);
+                         pA, pB, ctx.pixelScale);
         break;
       case CueEffectKind::PolarWarp:
       case CueEffectKind::LumaDisplace:
@@ -3371,7 +3386,8 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
                   // frequency and speed. At paramA 0.5 the spacing is the 0.06
                 // this had, and at paramB 0 the rings travel at the 3.0 it had.
                 const double wave =
-                  std::sin(r * (0.06 * pA * 2.0) - t * (3.0 + pB * 9.0)) * amt * 24.0;
+                  std::sin(r / ctx.pixelScale * (0.06 * pA * 2.0) - t * (3.0 + pB * 9.0)) *
+                  amt * 24.0 * ctx.pixelScale;
                   const double inv = r > 0.001 ? 1.0 / r : 0.0;
                   sxf = x + dx * inv * wave;
                   syf = y + dy * inv * wave;
@@ -3449,8 +3465,9 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         // toward its own fixed point and stops being about the picture;
         // re-deriving the field every frame means the flow always describes
         // what is on screen NOW, and it moves because the picture does.
-        const int gw = std::clamp(ctx.width / 8, 8, 256);
-        const int gh = std::clamp(ctx.height / 8, 8, 256);
+        // Sized from the picture this stands for, so a reduced copy flows the same.
+        const int gw = std::clamp(static_cast<int>(ctx.width / ctx.pixelScale) / 8, 8, 256);
+        const int gh = std::clamp(static_cast<int>(ctx.height / ctx.pixelScale) / 8, 8, 256);
         std::vector<float> luma(static_cast<std::size_t>(gw) * gh, 0.0f);
         for (int gy = 0; gy < gh; ++gy) {
           const int sy = std::min(ctx.height - 1, gy * ctx.height / gh);
@@ -3551,8 +3568,8 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         // grows -- at a few dozen it has only blurred the seed, which is what
         // the first version of this did, and it looked like a coloured haze
         // because that is all it was. Cells are cheap; steps are the effect.
-        const int gw = std::clamp(ctx.width / 6, 32, 192);
-        const int gh = std::clamp(ctx.height / 6, 32, 192);
+        const int gw = std::clamp(static_cast<int>(ctx.width / ctx.pixelScale) / 6, 32, 192);
+        const int gh = std::clamp(static_cast<int>(ctx.height / ctx.pixelScale) / 6, 32, 192);
         const std::size_t cells = static_cast<std::size_t>(gw) * gh;
         const float seedDensity = static_cast<float>(0.30 + pC * 0.55);
         std::vector<float> u(cells, 1.0f), v(cells, 0.0f);
@@ -4411,7 +4428,8 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         // Each grain then gets a facet NORMAL from the direction back to its
         // own seed, so the light catches it. That is what separates this from
         // a blur into blobs: the grains have faces, and faces have angles.
-        const int cell = std::max(4, static_cast<int>(6 + pA * 90.0));
+        const int cell = std::max(2, static_cast<int>(std::lround(
+          std::max(4, static_cast<int>(6 + pA * 90.0)) * ctx.pixelScale)));
         const double facet = pB;
         const double wobble = pC;
         const double edgeDark = pD;
@@ -4937,7 +4955,8 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         // sampling the picture from where it USED to be. The seams are the
         // point: a shard that has moved shows a piece of somewhere else, so
         // the image stays readable while visibly coming apart.
-        const int shard = std::max(4, static_cast<int>(8 + (1.0 - pA) * 120.0));
+        const int shard = std::max(2, static_cast<int>(std::lround(
+          std::max(4, static_cast<int>(8 + (1.0 - pA) * 120.0)) * ctx.pixelScale)));
         // A DROPPED PANE IS BROKEN BEFORE ANYTHING IS ASKED OF IT. Drift and
         // spin used to be pB and pC outright, so an effect added with its
         // arriving values -- A=0.5, B=0, C=0 -- computed a grid of shards and
@@ -5319,8 +5338,9 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         // millisecond; scaling the bent picture back up would soften the
         // original, so the bend's DIFFERENCE is what gets scaled and added.
         // The frame keeps its own detail and gains the damage.
-        const int bw = std::clamp(ctx.width / 4, 8, 480);
-        const int bh = std::clamp(ctx.height / 4, 8, 270);
+        // Sized from the picture this stands for: a reduced copy is the same signal.
+        const int bw = std::clamp(static_cast<int>(ctx.width / ctx.pixelScale) / 4, 8, 480);
+        const int bh = std::clamp(static_cast<int>(ctx.height / ctx.pixelScale) / 4, 8, 270);
         const std::size_t plane = static_cast<std::size_t>(bw) * bh;
         std::vector<float> dry(plane * 3);
         for (int y = 0; y < bh; ++y) {
