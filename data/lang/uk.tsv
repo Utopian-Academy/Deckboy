@@ -2584,3 +2584,277 @@ output overlay on	накладка виходу увім
 phone haptics off	тремтіння телефона вим
 pick a deck first	спершу виберіть деку
 playlist loop off	цикл плейлиста вим
+record folder set	тека запису задана
+subtitle file set	файл підзаголовків заданий
+subtitles cleared	підзаголовки прибрано
+take the mask off	зніми маску
+universe: 0-63999	юніверс: 0-63999
+video synth added	відеосинтезатор додано
+warp preset saved	пресет спотворення збережено
+AUDIOALSO: no deck	AUDIOALSO: немає деки
+DeckLink 10-bit ON	DeckLink 10-bit УВІМ
+SCRIPTCUE: no deck	SCRIPTCUE: немає деки
+assign route first	спершу признач маршрут
+bundle save failed	не вдалося зберегти пакет
+cue settings reset	налаштування cue скинуто
+file dialog failed	збій діалогу файлів
+jumped to live cue	перехід до cue в ефірі
+lock to screen off	закріпити на екрані вимк.
+media probe failed	збій аналізу медіа
+nmos: invalid port	nmos: недійсний порт
+output overlay off	накладання виходу вимк.
+pip target cleared	ціль pip прибрано
+select a cue first	спершу вибери cue
+source unavailable	джерело недоступне
+spare (also spare)	запас (теж запас)
+stream key cleared	ключ потоку прибрано
+timecode cue added	cue таймкоду додано
+timer face: blocky	обличчя таймера: блокове
+timer logo cleared	логотип таймера прибрано
+vmix port: invalid	порт vmix: недійсний
+, not a plugin slot	, не слот плагіна
+. Your show is back	. Твоє шоу повернулось
+DeckLink 10-bit off	DeckLink 10-bit вимк.
+HOVER: expected x y	HOVER: очікувалось x y
+Lower Third cleared	Lower Third прибрано
+NDI\xc2\xae NETWORK	NDI\xc2\xae МЕРЕЖА
+OSC trigger cleared	запуск OSC прибрано
+Show file not found	файл шоу не знайдено
+audio chain cleared	ланцюг звуку прибрано
+audio switch failed	збій перемикання звуку
+browser jumped live	браузер перейшов в ефір
+browser url updated	URL браузера оновлено
+bundle media failed	не вдалося упакувати медіа
+choose a show first	спершу виберіть шоу
+composite cue added	додано складене cue
+cue numbers cleared	номери cue очищено
+cue settings copied	налаштування cue скопійовано
+cue settings pasted	налаштування cue вставлено
+double-GO guard off	захист від подвійного GO вимкнено
+effect chain pasted	ланцюг ефектів вставлено
+end of the sequence	кінець послідовності
+pattern motion: n/a	рух шаблону: н/д
+plugin slot cleared	слот плагіна очищено
+splitnotes: no deck	splitnotes: немає деки
+sprite sheet loaded	аркуш спрайтів завантажено
+takes are immediate	TAKE виконується миттєво
+ui motion always on	рух інтерфейсу завжди увімкнено
+-10 seconds from end	-10 секунд до кінця
+-20 seconds from end	-20 секунд до кінця
+-30 seconds from end	-30 секунд до кінця
+. — skip to next cue	. — пропустити до наступного cue
+MIDI plays the synth	MIDI грає на синтезаторі
+MIDI trigger cleared	запуск MIDI очищено
+NDI source cue added	додано cue джерела NDI
+audio chain full (8)	ланцюг звуку заповнений (8)
+browser url required	потрібен URL браузера
+bundle export failed	не вдалося експортувати пакет
+bundle folder failed	помилка теки пакета
+cue copy: select cue	копія cue: виберіть cue
+cue settings reset x	налаштування cue скинуто x
+delete from the show	видалити з шоу
+encoder queue paused	черга кодувальника: пауза
+find: token required	пошук: потрібен токен
+first port available	перший вільний порт
+identifying displays	визначення екранів
+marker: nothing live	маркер: нічого в ефірі
+marker: select a cue	маркер: виберіть cue
+no midi input device	немає пристрою входу MIDI
+no overlays to clear	немає накладок для очищення
+no synth cue is live	немає cue синтезатора в ефірі
+output create failed	не вдалося створити вихід
+output remove failed	не вдалося видалити вихід
+pause points cleared	точки паузи очищено
+presenter view reset	вигляд ведучого скинуто
+renumber: empty deck	нумерація: порожня дека
+sprite sheet cleared	спрайт-лист очищено
+stream url unchanged	URL потоку не змінено
+stream url: required	URL потоку: обов’язковий
+time trigger cleared	запуск за часом очищено
+update: checking off	оновлення: перевірка вим
+warp settings copied	налаштування спотворення скопійовано
+warp settings pasted	налаштування спотворення вставлено
+DMX over sACN (E1.31)	DMX через sACN (E1.31)
+Lower Third cue added	додано cue Lower Third
+already the last step	це вже останній крок
+analyzing loudness...	аналіз гучності...
+arcade always wiggles	аркада завжди тремтить
+browser window closed	вікно браузера закрито
+canvas width: invalid	ширина полотна: недійсна
+computer keyboard off	клавіатура комп’ютера вим
+contrast check: saved	перевірка контрасту: збережено
+cue paste: copy first	вставлення cue: спершу скопіюйте
+cue paste: no targets	вставлення cue: немає цілей
+cue paste: select cue	вставлення cue: виберіть cue
+cue reset: no targets	скидання cue: немає цілей
+cue reset: select cue	скидання cue: виберіть cue
+cue settings pasted x	налаштування cue вставлено x
+display switch failed	не вдалося перемкнути дисплей
+effect chain pasted x	ланцюг ефектів вставлено x
+encoder queue running	черга кодувальника працює
+lfo follows the tempo	LFO слідує за темпом
+motion driver cleared	драйвер руху очищено
+ndi tally trigger off	тригер tally NDI вим
+ndi unsupported build	NDI недоступний у цій збірці
+no Lower Third on air	немає Lower Third в ефірі
+no audio cue selected	не вибрано звуковий cue
+playlist fps: invalid	fps плейлиста: недійсно
+presenter: no outputs	presenter: немає виходів
+scene slot source set	джерело слота сцени задано
+st 2110: invalid port	st 2110: недійсний порт
+timer face: 7-segment	обличчя таймера: 7 сегментів
+' is not a deck number	' — не номер деки
+FX PARAM: value is 0-1	FX PARAM: значення 0-1
+already the first step	це вже перший крок
+audio bitrate: invalid	бітрейт звуку: недійсний
+browser capture failed	захоплення браузера не вдалося
+canvas height: invalid	висота полотна: недійсна
+datamosh: select a cue	datamosh: виберіть cue
+effect stack full (12)	стек ефектів повний (12)
+jumped to selected cue	перехід до вибраного cue
+layer command: removed	команда layer: видалена
+listens to any channel	слухає будь-який канал
+nmos: node not running	nmos: вузол не працює
+output effects back in	ефекти виходу знову ввімкнено
+presenter layout: wide	розкладка presenter: широка
+route command: removed	команда route: видалена
+save failed - retrying	збій збереження - повтор
+schedule: select a cue	розклад: виберіть cue
+slide import cancelled	імпорт слайдів скасовано
+takes land on the beat	take потрапляють у біт
+warp paste: copy first	вставлення warp: спершу скопіюйте
+2 \xC2\xB7 WHAT IT RUNS	2 \xC2\xB7 ЩО ВИКОНУЄ
+Chladni stops listening	Chladni перестає слухати
+could not add an output	не вдалося додати вихід
+downloading {1}... {2}%	завантаження {1}... {2}%
+driver restarts on take	драйвер перезапускається при take
+encoder destination set	призначення кодувальника задано
+expected factor 0.25..4	очікувався коефіцієнт 0.25..4
+expected finite numbers	очікувалися скінченні числа
+hyperdeck emulation off	емуляція HyperDeck вим
+key color sample failed	не вдалося взяти зразок кольору ключа
+leave it where it lands	залишити там, де опиниться
+no playlist column here	тут немає стовпця плейлиста
+osc query port: invalid	порт запиту OSC: недійсний
+playlist start: invalid	старт плейлиста: недійсний
+still duration: invalid	тривалість стоп-кадру: недійсна
+synth cue has no engine	у синтезаторного cue немає рушія
+, its place in the stack	, його місце в стеку
+1 \xC2\xB7 WHAT COMES IN	1 \xC2\xB7 ЩО НАДХОДИТЬ
+An output whose Shows is	Вихід, у якого Показати —
+DeckLink input cue added	додано cue входу DeckLink
+already on the dashboard	уже на панелі
+expected an alpha, 0-255	очікувалася альфа, 0-255
+expected positive pixels	очікувалися додатні пікселі
+find: press Ctrl+F first	пошук: спершу натисніть Ctrl+F
+glyphs: the built-in set	гліфи: вбудований набір
+keep at least one output	залиште принаймні один вихід
+marker: none on this cue	маркер: немає на цьому cue
+mic mixed into recording	мікрофон змішано із записом
+not a playable MIDI file	не відтворюваний MIDI-файл
+relink: folder not found	relink: теку не знайдено
+select a moire cue first	спершу виберіть cue Муар
+tempo follows MIDI clock	темп іде за MIDI clock
+the tracker has no steps	у трекері немає кроків
+typeface (the app's own)	гарнітура (власна застосунку)
+. Set displays to Extend.	. Задайте дисплеям режим Extend.
+Language reset to English	Мову скинуто на англійську
+PUSH expects a cue number	PUSH очікує номер cue
+SLICE: there is no output	SLICE: немає виходу
+TCCUE: select a cue first	TCCUE: спершу виберіть cue
+effects paste: no targets	вставлення ефектів: немає цілей
+follows the whole picture	іде за всім зображенням
+key color picker canceled	вибір кольору ключа скасовано
+listening for captions...	прийом субтитрів...
+monitor: pick a row first	монітор: спершу виберіть рядок
+moshlook: smooth | chunky	moshlook: м'яко | грубо
+no trimmable cue selected	не вибрано cue для обрізання
+output type change failed	не вдалося змінити тип виходу
+select a master cue first	спершу виберіть cue Master
+sequence stops at the end	послідовність зупиняється в кінці
+web monitor port: invalid	порт вебмонітора: недійсний
+3 \xC2\xB7 WHAT IT RUNS ON	3 · ДІЄ НА
+ASCII CHAOS: expected 0..1	ASCII CHAOS: очікується 0..1
+DATAMOSH on - preparing...	DATAMOSH УВІМ - підготовка...
+DMXCUE: select a cue first	DMXCUE: спершу виберіть cue
+GEOLFO: select a cue first	GEOLFO: спершу виберіть cue
+MATRIX: select a cue first	MATRIX: спершу виберіть cue
+MEMOCUE: expected the note	MEMOCUE: очікується нотатка
+NETCUE: select a cue first	NETCUE: спершу виберіть cue
+STING BODY: expected 0-100	STING BODY: очікується 0-100
+could not load that plugin	не вдалося завантажити цей плагін
+effects copy: select a cue	копія ефектів: виберіть cue
+expected degrees -180..180	очікуються градуси -180..180
+expression is at its limit	вираз досяг межі
+multiview - every playlist	multiview - кожен плейлист
+new show, from my defaults	нове шоу з моїх типових
+no cue with audio selected	не вибрано cue зі звуком
+osc feedback rate: invalid	частота звор. зв'язку OSC: недійсна
+panic: outputs already off	panic: виходи вже ВИМ
+pick from screen cancelled	взяти з екрана скасовано
+rendering slide {1} of {2}	рендеринг слайда {1} з {2}
+schedule: HH:MM[:SS] | off	розклад: HH:MM[:SS] | вим
+update: nothing to install	оновлення: нічого встановлювати
+warp preset: name required	пресет спотворення: потрібна назва
+1 cue imported (probing...)	1 cue імпортовано (аналіз...)
+ASCII WOBBLE: expected 0..1	ASCII WOBBLE: очікується 0..1
+AUDIOFX ADD: chain full (8)	AUDIOFX ADD: ланцюг повний (8)
+CLICK: expected two numbers	CLICK: очікуються два числа
+HOVER: expected two numbers	HOVER: очікуються два числа
+MIDICUE: select a cue first	MIDICUE: спершу виберіть cue
+TEXTCUE: select a cue first	TEXTCUE: спершу виберіть cue
+VIDEODIP FADE: 0-30 seconds	VIDEODIP FADE: 0-30 секунд
+browser stopped - deck dark	браузер зупинено - дека темна
+could not save the defaults	не вдалося зберегти типові налаштування
+datamosh look: select a cue	look datamosh: виберіть cue
+datamosh: already preparing	datamosh: уже готується
+effects paste: select a cue	вставлення ефектів: виберіть cue
+matrix on, routed as it was	matrix увімк., маршрут як був
+nmos: clipboard unavailable	nmos: буфер обміну недоступний
+nmos: need http://host:port	nmos: потрібен http://host:port
+skip back: nothing previous	пропуск назад: попереднього немає
+FX COLOUR: a grey has no hue	FX COLOUR: у сірого немає відтінку
+MASK RENAME: expected a name	MASK RENAME: очікувалася назва
+MIDIFILE: select a cue first	MIDIFILE: спершу виберіть cue
+SCALEMODE: expected one mode	SCALEMODE: очікувався один режим
+SYNTH ADD takes no arguments	SYNTH ADD не приймає аргументів
+TEXTCUE CARD: expected 0-255	TEXTCUE CARD: очікувалося 0-255
+UISNAP: expected a .bmp path	UISNAP: очікувався шлях до .bmp
+av jumps: counting from zero	av jumps: відлік від нуля
+cannot reorder a running job	не можна змінити порядок працюючого завдання
+expected a number of seconds	очікувалося число секунд
+master scene rename: removed	перейменування master scene: вилучено
+motion driver would not open	драйвер руху не відкрився
+no steps yet - Ins makes one	кроків ще немає - Ins створює крок
+selected cue has no geometry	вибраний cue не має геометрії
+skip back: playlist is empty	пропуск назад: плейлист порожній
+sprite set could not be read	не вдалося прочитати набір спрайтів
+st2110 sdp written to stdout	st2110 sdp записано в stdout
+the clicker advances the cue	пульт просуває cue
+video dip fade: 0-30 seconds	згасання відео-діпа: 0-30 секунд
+warp point: expected numbers	точка спотворення: очікувалися числа
+* KONAMI * terrarium unlocked	* KONAMI * тераріум розблоковано
+DMXCUE PORT: expected 1-65535	DMXCUE PORT: очікувалося 1-65535
+ENDACTION: select a cue first	ENDACTION: спершу виберіть cue
+FADE STOP: expected on or off	FADE STOP: очікувалося увімк. або вимк.
+LOWERANIM: select a cue first	LOWERANIM: спершу виберіть cue
+MATRIX SET: destination is 1-	MATRIX SET: призначення 1-
+NETCUE PORT: expected 1-65535	NETCUE PORT: очікується 1-65535
+OUTSNAP: expected a .bmp path	OUTSNAP: очікується шлях до .bmp
+SCRIPTCUE: select a cue first	SCRIPTCUE: спершу виберіть cue
+TEXTCUE SCALE: expected 0.5-2	TEXTCUE SCALE: очікується 0.5-2
+TRIGGER AT: HH:MM[:SS] or OFF	TRIGGER AT: HH:MM[:SS] або OFF
+WARP AT: expected two numbers	WARP AT: очікуються два числа
+could not remove the defaults	не вдалося видалити типові
+lights dip when a video rolls	світло притемнюється, коли йде відео
+no refresh choices for raster	немає варіантів оновлення для растра
+output recovered: auto native	вихід відновлено: авто рідний
+overlay on -- choose an image	накладка увім -- виберіть зображення
+stopped - deck dark, reracked	зупинено - дека темна, завантажена заново
+this file has one sound track	у цьому файлі одна звукова доріжка
+update: will check at startup	оновлення: перевірка при запуску
+web monitor connections: 1-64	підключення вебмонітора: 1-64
+DASH: the startup dialog is up	DASH: вікно запуску відкрите
+LOWERSTYLE: select a cue first	LOWERSTYLE: спершу виберіть cue
+MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: очікується 1-16
+PATTERN ADD needs a pattern id	PATTERN ADD потребує ID шаблону

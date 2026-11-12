@@ -2585,3 +2585,275 @@ output overlay on	出力オーバーレイ オン
 phone haptics off	スマホの触覚オフ
 pick a deck first	先にデッキを選択
 playlist loop off	プレイリストのループ オフ
+record folder set	録画フォルダーを設定しました
+subtitle file set	サブタイトルファイルを設定しました
+subtitles cleared	サブタイトルをクリアしました
+take the mask off	マスクを外す
+universe: 0-63999	ユニバース: 0-63999
+video synth added	ビデオシンセを追加しました
+warp preset saved	変形プリセットを保存しました
+AUDIOALSO: no deck	AUDIOALSO: デッキなし
+DeckLink 10-bit ON	DeckLink 10-bit オン
+SCRIPTCUE: no deck	SCRIPTCUE: デッキなし
+assign route first	先にルートを割り当ててください
+bundle save failed	まとめて保存に失敗しました
+cue settings reset	キュー設定をリセットしました
+file dialog failed	ファイルダイアログに失敗しました
+jumped to live cue	ライブキューへジャンプしました
+lock to screen off	画面に同期オフ
+media probe failed	メディア解析に失敗しました
+nmos: invalid port	nmos: ポートが無効
+output overlay off	出力オーバーレイオフ
+pip target cleared	pipターゲットをクリアしました
+select a cue first	先にキューを選択してください
+source unavailable	ソースが利用できません
+spare (also spare)	予備（予備も）
+stream key cleared	ストリームキーをクリアしました
+timecode cue added	タイムコードキューを追加しました
+timer face: blocky	タイマーの顔: ブロック調
+timer logo cleared	タイマーロゴをクリアしました
+vmix port: invalid	vmixポート: 無効
+, not a plugin slot	、プラグインスロットではありません
+. Your show is back	。ショーが戻りました
+DeckLink 10-bit off	DeckLink 10-bit オフ
+HOVER: expected x y	HOVER: x y が必要
+Lower Third cleared	Lower Thirdをクリアしました
+NDI\xc2\xae NETWORK	NDI\xc2\xae ネットワーク
+OSC trigger cleared	OSCトリガーをクリアしました
+Show file not found	ショーファイルが見つかりません
+audio chain cleared	オーディオチェーンをクリアしました
+audio switch failed	オーディオ切り替えに失敗しました
+browser jumped live	ブラウザーがライブにジャンプしました
+browser url updated	ブラウザの URL を更新
+bundle media failed	メディアのまとめて保存に失敗
+choose a show first	先にショーを選択
+composite cue added	合成キューを追加
+cue numbers cleared	キュー番号をクリア
+cue settings copied	キュー設定をコピー
+cue settings pasted	キュー設定をペースト
+double-GO guard off	GO二重押し防止オフ
+effect chain pasted	エフェクトチェーンをペースト
+end of the sequence	シーケンスの終わり
+pattern motion: n/a	パターンモーション: 該当なし
+plugin slot cleared	プラグインスロットをクリア
+splitnotes: no deck	splitnotes: デッキなし
+sprite sheet loaded	スプライトシートを読み込み
+takes are immediate	TAKEは即時
+ui motion always on	UIモーション常にオン
+-10 seconds from end	終了から -10秒
+-20 seconds from end	終了から -20秒
+-30 seconds from end	終了から -30秒
+. — skip to next cue	. — 次のキューへスキップ
+MIDI plays the synth	MIDIでシンセを演奏
+MIDI trigger cleared	MIDIトリガーをクリア
+NDI source cue added	NDIソースキューを追加
+audio chain full (8)	オーディオチェーンが満杯 (8)
+browser url required	ブラウザの URL が必要
+bundle export failed	まとめて保存の書き出しに失敗
+bundle folder failed	まとめて保存のフォルダーに失敗
+cue copy: select cue	キューコピー: キューを選択
+cue settings reset x	キュー設定をリセット x
+delete from the show	ショーから削除
+encoder queue paused	エンコーダーキューを一時停止
+find: run FIND first	find: 先に FIND を実行
+find: token required	find: トークンが必要
+first port available	最初に空いているポート
+identifying displays	ディスプレイを識別中
+marker: nothing live	marker: ライブなし
+marker: select a cue	マーカー：キューを選択
+no midi input device	MIDI入力デバイスなし
+no overlays to clear	クリアするオーバーレイなし
+no synth cue is live	本番中のシンセキューなし
+output create failed	出力の作成に失敗
+output remove failed	出力の削除に失敗
+pause points cleared	一時停止ポイントをクリア
+presenter view reset	発表者ビューをリセット
+renumber: empty deck	番号振り直し：デッキが空
+sprite sheet cleared	スプライトシートをクリア
+stream url unchanged	配信URLは変更なし
+stream url: required	配信URL：必須
+time trigger cleared	時刻トリガーをクリア
+update: checking off	更新：確認オフ
+warp settings copied	変形設定をコピー
+warp settings pasted	変形設定を貼り付け
+already the last step	すでに最後のステップです
+analyzing loudness...	ラウドネスを解析中...
+arcade always wiggles	アーケードは常に揺れる
+browser window closed	ブラウザーウィンドウを閉じました
+canvas width: invalid	キャンバス幅：無効
+computer keyboard off	コンピューターキーボードオフ
+contrast check: saved	コントラストチェック：保存
+cue paste: copy first	キュー貼り付け：先にコピー
+cue paste: no targets	キュー貼り付け：対象なし
+cue paste: select cue	キュー貼り付け：キューを選択
+cue reset: no targets	キューリセット：対象なし
+cue reset: select cue	キューリセット：キューを選択
+cue settings pasted x	キュー設定を貼り付け x
+display switch failed	ディスプレイ切替に失敗
+effect chain pasted x	エフェクトチェーンを貼り付け x
+encoder queue running	エンコーダーキュー実行中
+lfo follows the tempo	LFOはテンポに追従
+motion driver cleared	モーションドライバーをクリア
+ndi tally trigger off	NDIタリートリガーオフ
+ndi unsupported build	NDI非対応のビルド
+no Lower Third on air	オンエア中のLower Thirdなし
+no audio cue selected	オーディオキューが未選択
+playlist fps: invalid	プレイリストfps：無効
+presenter: no outputs	presenter：出力なし
+scene slot source set	シーンスロットのソースを設定
+st 2110: invalid port	st 2110：無効なポート
+timer face: 7-segment	タイマーの顔：7セグメント
+' is not a deck number	'はデッキ番号ではありません
+FX PARAM: value is 0-1	FX PARAM：値は0-1
+already the first step	すでに最初のステップ
+audio bitrate: invalid	オーディオビットレート：無効
+browser capture failed	ブラウザーのキャプチャに失敗
+canvas height: invalid	キャンバスの高さ：無効
+datamosh: select a cue	datamosh：キューを選択
+effect stack full (12)	エフェクトスタックが満杯（12）
+jumped to selected cue	選択中のキューへジャンプ
+layer command: removed	layerコマンド：削除済み
+listens to any channel	全チャンネルを受信
+nmos: node not running	nmos：ノードは停止中
+output effects back in	出力エフェクトを復帰
+presenter layout: wide	presenterレイアウト：ワイド
+route command: removed	routeコマンド：削除済み
+save failed - retrying	保存に失敗 - 再試行中
+schedule: select a cue	schedule：キューを選択
+slide import cancelled	スライドの読み込みをキャンセル
+takes land on the beat	テイクはビートに合わせて入る
+warp paste: copy first	warp貼り付け：先にコピー
+2 \xC2\xB7 WHAT IT RUNS	2 \xC2\xB7 実行する内容
+Chladni stops listening	Chladniは聞くのをやめる
+could not add an output	出力を追加できませんでした
+downloading {1}... {2}%	{1}をダウンロード中... {2}%
+driver restarts on take	テイクでドライバーを再起動
+encoder destination set	エンコーダーの送信先を設定
+expected factor 0.25..4	係数は0.25..4を指定
+expected finite numbers	有限の数値が必要
+hyperdeck emulation off	HyperDeckエミュレーション オフ
+key color sample failed	キーカラーのサンプル取得に失敗
+leave it where it lands	落とした場所に置く
+no playlist column here	ここにプレイリスト列はありません
+osc query port: invalid	OSCクエリポート：無効
+playlist start: invalid	プレイリスト開始：無効
+still duration: invalid	静止画の長さ：無効
+synth cue has no engine	シンセキューにエンジンがありません
+, its place in the stack	、スタック内での位置
+1 \xC2\xB7 WHAT COMES IN	1 \xC2\xB7 入ってくるもの
+An output whose Shows is	表示が次になっている出力
+DeckLink input cue added	DeckLink入力キューを追加しました
+already on the dashboard	すでにダッシュボードにあります
+expected an alpha, 0-255	アルファ（0-255）を指定してください
+expected positive pixels	正のピクセル数を指定してください
+find: press Ctrl+F first	検索：先にCtrl+Fを押してください
+glyphs: the built-in set	グリフ：内蔵セット
+keep at least one output	出力は最低1つ残してください
+marker: none on this cue	マーカー：このキューにはなし
+mic mixed into recording	マイクを録画にミックス
+not a playable MIDI file	再生できるMIDIファイルではありません
+relink: folder not found	リリンク：フォルダーが見つかりません
+select a moire cue first	先にモアレキューを選択
+tempo follows MIDI clock	テンポはMIDIクロックに追従
+the tracker has no steps	トラッカーにステップがありません
+typeface (the app's own)	書体（アプリ独自）
+. Set displays to Extend.	。ディスプレイを拡張に設定してください。
+Language reset to English	言語を英語にリセットしました
+PUSH expects a cue number	PUSHにはキュー番号が必要です
+SLICE: there is no output	SLICE：出力なし
+TCCUE: select a cue first	TCCUE：先にキューを選択
+effects paste: no targets	エフェクトの貼り付け：対象なし
+follows the whole picture	画像全体に追従
+key color picker canceled	キーカラーのピッカーをキャンセルしました
+listening for captions...	字幕を待機中...
+monitor: pick a row first	モニター：先に行を選択
+moshlook: smooth | chunky	moshlook：なめらか | 粗い
+no trimmable cue selected	トリミングできるキューが選択されていません
+output type change failed	出力種類の変更に失敗
+select a master cue first	先にマスターキューを選択
+sequence stops at the end	シーケンスは最後で停止
+web monitor port: invalid	ウェブモニターのポート：無効
+3 \xC2\xB7 WHAT IT RUNS ON	3 · 対象
+ASCII CHAOS: expected 0..1	ASCII CHAOS：0..1 を指定
+DATAMOSH on - preparing...	DATAMOSH オン - 準備中...
+DMXCUE: select a cue first	DMXCUE：先にキューを選択
+GEOLFO: select a cue first	GEOLFO：先にキューを選択
+MATRIX: select a cue first	MATRIX：先にキューを選択
+MEMOCUE: expected the note	MEMOCUE：ノートが必要
+NETCUE: select a cue first	NETCUE：先にキューを選択
+STING BODY: expected 0-100	STING BODY：0-100 を指定
+could not load that plugin	そのプラグインを読み込めませんでした
+effects copy: select a cue	エフェクトコピー：キューを選択
+expected degrees -180..180	-180..180 の度数を指定
+expression is at its limit	式が上限です
+multiview - every playlist	マルチビュー - すべてのプレイリスト
+new show, from my defaults	新規ショー（既定値から）
+no cue with audio selected	オーディオのあるキューが未選択
+osc feedback rate: invalid	osc フィードバックのレート：無効
+panic: outputs already off	panic：出力はすでにオフ
+pick from screen cancelled	画面から取得をキャンセルしました
+rendering slide {1} of {2}	スライド {1}/{2} をレンダリング中
+schedule: HH:MM[:SS] | off	スケジュール：HH:MM[:SS] | オフ
+update: nothing to install	アップデート：インストールするものはありません
+warp preset: name required	変形プリセット：名前が必要
+1 cue imported (probing...)	キュー1件を読み込み（解析中...）
+ASCII WOBBLE: expected 0..1	ASCII WOBBLE：0..1 を指定
+AUDIOFX ADD: chain full (8)	AUDIOFX ADD：チェーンが満杯（8）
+CLICK: expected two numbers	CLICK：数値2つが必要
+HOVER: expected two numbers	HOVER：数値2つが必要
+MIDICUE: select a cue first	MIDICUE: 先にキューを選択してください
+TEXTCUE: select a cue first	TEXTCUE: 先にキューを選択してください
+VIDEODIP FADE: 0-30 seconds	VIDEODIP FADE: 0〜30秒
+browser stopped - deck dark	ブラウザー停止中 - デッキは暗転
+could not save the defaults	既定値を保存できませんでした
+datamosh look: select a cue	datamosh look: キューを選択
+datamosh: already preparing	datamosh: すでに準備中
+effects paste: select a cue	effects paste: キューを選択
+matrix on, routed as it was	マトリクスをオン。ルーティングは元のまま
+nmos: clipboard unavailable	nmos: クリップボードを利用できません
+nmos: need http://host:port	nmos: http://host:port が必要です
+skip back: nothing previous	skip back: 前のものはありません
+FX COLOUR: a grey has no hue	FX COLOUR: グレーに色相はありません
+MASK RENAME: expected a name	MASK RENAME: 名前を指定してください
+MIDIFILE: select a cue first	MIDIFILE: 先にキューを選択してください
+SCALEMODE: expected one mode	SCALEMODE: モードを1つ指定してください
+SYNTH ADD takes no arguments	SYNTH ADD に引数は不要です
+TEXTCUE CARD: expected 0-255	TEXTCUE CARD: 0-255 を指定してください
+UISNAP: expected a .bmp path	UISNAP: .bmp のパスを指定してください
+av jumps: counting from zero	av jumps: 0から数えます
+cannot reorder a running job	実行中のジョブは並べ替えできません
+expected a number of seconds	秒数を指定してください
+master scene rename: removed	master scene rename: 削除しました
+motion driver would not open	モーションドライバーを開けませんでした
+no steps yet - Ins makes one	ステップはまだありません - Ins で作成
+selected cue has no geometry	選択中のキューにジオメトリがありません
+skip back: playlist is empty	skip back: プレイリストが空です
+sprite set could not be read	スプライトセットを読み込めませんでした
+st2110 sdp written to stdout	st2110 sdp を stdout に書き出しました
+the clicker advances the cue	プレゼンターでキューを進めます
+video dip fade: 0-30 seconds	ビデオディップ フェード: 0〜30秒
+warp point: expected numbers	warp point: 数値を指定してください
+* KONAMI * terrarium unlocked	* KONAMI * テラリウムが解放されました
+DMXCUE PORT: expected 1-65535	DMXCUE PORT: 1-65535 を指定してください
+ENDACTION: select a cue first	ENDACTION: 先にキューを選択してください
+FADE STOP: expected on or off	FADE STOP: オン または オフ を指定してください
+LOWERANIM: select a cue first	LOWERANIM: 先にキューを選択してください
+MATRIX SET: destination is 1-	MATRIX SET: 送信先は1-
+NETCUE PORT: expected 1-65535	NETCUE PORT: 1-65535を指定
+OUTSNAP: expected a .bmp path	OUTSNAP: .bmpのパスを指定
+SCRIPTCUE: select a cue first	SCRIPTCUE: 先にキューを選択
+TEXTCUE SCALE: expected 0.5-2	TEXTCUE SCALE: 0.5-2を指定
+WARP AT: expected two numbers	WARP AT: 数値を2つ指定
+could not remove the defaults	既定値を削除できませんでした
+lights dip when a video rolls	ビデオ再生中は照明が暗くなる
+no refresh choices for raster	ラスターに使えるリフレッシュ選択肢はありません
+output recovered: auto native	出力を復旧: 自動 ネイティブ
+overlay on -- choose an image	オーバーレイ オン -- 画像を選択
+stopped - deck dark, reracked	停止中 - デッキは暗転、再ラック済み
+this file has one sound track	このファイルのサウンドトラックは1つ
+update: will check at startup	更新: 起動時に確認します
+web monitor connections: 1-64	ウェブモニター接続数: 1-64
+DASH: the startup dialog is up	DASH: 起動ダイアログが開いています
+LOWERSTYLE: select a cue first	LOWERSTYLE: 先にキューを選択
+MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: 1-16を指定
+PATTERN ADD needs a pattern id	PATTERN ADD にはパターンIDが必要

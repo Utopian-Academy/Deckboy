@@ -2564,3 +2564,281 @@ pick a deck first	kies eerst een deck
 playlist loop off	afspeellijst lus uit
 CROP	BIJSNIJDEN
 browser live	browser direct
+record folder set	opnamemap ingesteld
+subtitle file set	ondertitelbestand ingesteld
+subtitles cleared	ondertitels gewist
+take the mask off	masker uitzetten
+universe: 0-63999	universum: 0-63999
+video synth added	videosynth toegevoegd
+warp preset saved	vervorm-voorinstelling opgeslagen
+AUDIOALSO: no deck	AUDIOALSO: geen deck
+DeckLink 10-bit ON	DeckLink 10-bit AAN
+SCRIPTCUE: no deck	SCRIPTCUE: geen deck
+assign route first	wijs eerst een route toe
+bundle save failed	bundel opslaan mislukt
+cue settings reset	cue-instellingen gereset
+file dialog failed	bestandsdialoog mislukt
+jumped to live cue	naar live cue gesprongen
+lock to screen off	vergrendel op scherm uit
+media probe failed	mediaprobe mislukt
+nmos: invalid port	nmos: ongeldige poort
+output overlay off	uitgangsoverlay uit
+pip target cleared	pip-doel gewist
+select a cue first	kies eerst een cue
+source unavailable	bron niet beschikbaar
+spare (also spare)	reserve (ook reserve)
+stream key cleared	streamsleutel gewist
+timecode cue added	tijdcodecue toegevoegd
+timer face: blocky	timergezicht: blokkerig
+timer logo cleared	timerlogo gewist
+vmix port: invalid	vmix-poort: ongeldig
+, not a plugin slot	, geen plug-inslot
+. Your show is back	. Je show is terug
+DeckLink 10-bit off	DeckLink 10-bit uit
+HOVER: expected x y	HOVER: x y verwacht
+Lower Third cleared	Lower Third gewist
+NDI\xc2\xae NETWORK	NDI® NETWERK
+OSC trigger cleared	OSC-activering gewist
+Show file not found	Showbestand niet gevonden
+audio chain cleared	audioketen gewist
+audio switch failed	audio-omschakeling mislukt
+browser jumped live	browser live gesprongen
+browser url updated	browser-URL bijgewerkt
+bundle media failed	media bundelen mislukt
+choose a show first	kies eerst een show
+composite cue added	samengestelde cue toegevoegd
+cue numbers cleared	cue-nummers gewist
+cue settings copied	cue-instellingen gekopieerd
+cue settings pasted	cue-instellingen geplakt
+double-GO guard off	dubbele-GO-beveiliging uit
+effect chain pasted	effectketen geplakt
+end of the sequence	einde van de sequentie
+pattern motion: n/a	testbeeldbeweging: n.v.t.
+plugin slot cleared	plug-in-slot gewist
+splitnotes: no deck	splitnotes: geen deck
+sprite sheet loaded	spritesheet geladen
+takes are immediate	takes gaan direct
+ui motion always on	ui-beweging altijd aan
+-10 seconds from end	-10 seconden vanaf einde
+-20 seconds from end	-20 seconden vanaf einde
+-30 seconds from end	-30 seconden vanaf einde
+. — skip to next cue	. — naar volgende cue overslaan
+MIDI plays the synth	MIDI speelt de synth
+MIDI trigger cleared	MIDI-trigger gewist
+NDI source cue added	NDI-broncue toegevoegd
+audio chain full (8)	audioketen vol (8)
+browser url required	browser-URL vereist
+bundle export failed	bundel exporteren mislukt
+bundle folder failed	bundelmap mislukt
+cue copy: select cue	cue kopiëren: kies een cue
+cue settings reset x	cue-instellingen gereset x
+delete from the show	verwijderen uit de show
+encoder queue paused	encoderwachtrij gepauzeerd
+find: run FIND first	zoeken: voer eerst FIND uit
+find: token required	zoeken: token vereist
+first port available	eerste poort beschikbaar
+identifying displays	displays worden geïdentificeerd
+marker: nothing live	marker: niets live
+marker: select a cue	marker: kies een cue
+no midi input device	geen MIDI-ingangsapparaat
+no overlays to clear	geen overlays om te wissen
+no synth cue is live	geen synthcue live
+output create failed	uitgang maken mislukt
+output remove failed	uitgang verwijderen mislukt
+pause points cleared	pauzepunten gewist
+presenter view reset	presentatorweergave gereset
+renumber: empty deck	hernummeren: leeg deck
+sprite sheet cleared	spritesheet gewist
+stream url unchanged	stream-url ongewijzigd
+stream url: required	stream-url: verplicht
+time trigger cleared	tijdactivering gewist
+update: checking off	update: controle uit
+warp settings copied	vervormingsinstellingen gekopieerd
+warp settings pasted	vervormingsinstellingen geplakt
+DMX over sACN (E1.31)	DMX via sACN (E1.31)
+Lower Third cue added	Lower Third-cue toegevoegd
+already the last step	al de laatste stap
+analyzing loudness...	luidheid analyseren...
+arcade always wiggles	arcade wiebelt altijd
+browser window closed	browservenster gesloten
+canvas width: invalid	canvasbreedte: ongeldig
+computer keyboard off	computertoetsenbord uit
+contrast check: saved	contrastcontrole: opgeslagen
+cue paste: copy first	cue plakken: kopieer eerst
+cue paste: no targets	cue plakken: geen doelen
+cue paste: select cue	cue plakken: kies een cue
+cue reset: no targets	cue resetten: geen doelen
+cue reset: select cue	cue resetten: kies een cue
+cue settings pasted x	cue-instellingen geplakt x
+display switch failed	display wisselen mislukt
+effect chain pasted x	effectketen geplakt x
+encoder queue running	encoderwachtrij loopt
+lfo follows the tempo	lfo volgt het tempo
+motion driver cleared	beweging-driver gewist
+ndi tally trigger off	NDI-tallytrigger uit
+ndi unsupported build	NDI niet ondersteund in deze build
+no Lower Third on air	geen Lower Third in de lucht
+no audio cue selected	geen audiocue geselecteerd
+playlist fps: invalid	playlist fps: ongeldig
+presenter: no outputs	presenter: geen uitgangen
+scene slot source set	bron van scene-slot ingesteld
+st 2110: invalid port	st 2110: ongeldige poort
+timer face: 7-segment	timer-gezicht: 7-segment
+' is not a deck number	' is geen decknummer
+FX PARAM: value is 0-1	FX PARAM: waarde is 0-1
+already the first step	al de eerste stap
+audio bitrate: invalid	audiobitrate: ongeldig
+browser capture failed	browseropname mislukt
+canvas height: invalid	canvashoogte: ongeldig
+datamosh: select a cue	datamosh: kies een cue
+effect stack full (12)	effectenstapel vol (12)
+jumped to selected cue	naar geselecteerde cue gesprongen
+layer command: removed	layer-commando: verwijderd
+listens to any channel	luistert naar elk kanaal
+nmos: node not running	nmos: node loopt niet
+output effects back in	uitgangseffecten weer aan
+presenter layout: wide	presenter-indeling: breed
+route command: removed	route-commando: verwijderd
+save failed - retrying	opslaan mislukt - opnieuw proberen
+schedule: select a cue	schedule: kies een cue
+slide import cancelled	slide-import geannuleerd
+takes land on the beat	takes vallen op de beat
+warp paste: copy first	warp plakken: kopieer eerst
+2 \xC2\xB7 WHAT IT RUNS	2 \xC2\xB7 WAT HET UITVOERT
+Chladni stops listening	Chladni luistert niet meer
+could not add an output	kon geen uitgang toevoegen
+downloading {1}... {2}%	{1} downloaden... {2}%
+driver restarts on take	driver herstart bij take
+encoder destination set	encoderbestemming ingesteld
+expected factor 0.25..4	factor 0.25..4 verwacht
+expected finite numbers	eindige getallen verwacht
+hyperdeck emulation off	HyperDeck-emulatie uit
+key color sample failed	kleurstaal voor key mislukt
+leave it where it lands	laat het liggen waar het landt
+no playlist column here	hier geen afspeellijstkolom
+osc query port: invalid	OSC-querypoort: ongeldig
+playlist start: invalid	start van afspeellijst: ongeldig
+still duration: invalid	duur stilstaand beeld: ongeldig
+synth cue has no engine	synthcue heeft geen engine
+, its place in the stack	, zijn plek in de stapel
+1 \xC2\xB7 WHAT COMES IN	1 · WAT BINNENKOMT
+An output whose Shows is	Een uitgang waarvan Toon
+DeckLink input cue added	DeckLink-ingangscue toegevoegd
+FADE EFFECT: expected 1-	FADE-EFFECT: verwacht 1-
+already on the dashboard	staat al op het dashboard
+expected an alpha, 0-255	alfa verwacht, 0-255
+expected positive pixels	positieve pixels verwacht
+find: press Ctrl+F first	zoeken: druk eerst op Ctrl+F
+glyphs: the built-in set	glyphs: de ingebouwde set
+keep at least one output	houd minstens één uitgang
+marker: none on this cue	marker: geen op deze cue
+mic mixed into recording	microfoon gemengd in opname
+not a playable MIDI file	geen afspeelbaar MIDI-bestand
+relink: folder not found	relink: map niet gevonden
+select a moire cue first	kies eerst een moirécue
+tempo follows MIDI clock	tempo volgt MIDI-klok
+the tracker has no steps	de tracker heeft geen stappen
+typeface (the app's own)	lettertype (dat van de app)
+. Set displays to Extend.	. Zet schermen op Uitbreiden.
+Language reset to English	Taal teruggezet naar Engels
+PUSH expects a cue number	PUSH verwacht een cuenummer
+SLICE: there is no output	SLICE: er is geen uitgang
+TCCUE: select a cue first	TCCUE: kies eerst een cue
+effects paste: no targets	effecten plakken: geen doelen
+follows the whole picture	volgt het hele beeld
+key color picker canceled	Keuze sleutelkleur geannuleerd
+listening for captions...	Luisteren naar ondertitels...
+monitor: pick a row first	monitor: kies eerst een rij
+moshlook: smooth | chunky	moshlook: zacht | grof
+no trimmable cue selected	Geen trimbare cue gekozen
+output type change failed	Uitgangstype wijzigen mislukt
+select a master cue first	Kies eerst een mastercue
+sequence stops at the end	Sequentie stopt aan het einde
+web monitor port: invalid	Poort webmonitor: ongeldig
+3 \xC2\xB7 WHAT IT RUNS ON	3 · WAAROP HET WERKT
+ASCII CHAOS: expected 0..1	ASCII CHAOS: 0..1 verwacht
+DATAMOSH on - preparing...	DATAMOSH aan - voorbereiden...
+DMXCUE: select a cue first	DMXCUE: kies eerst een cue
+GEOLFO: select a cue first	GEOLFO: kies eerst een cue
+MATRIX: select a cue first	MATRIX: kies eerst een cue
+MEMOCUE: expected the note	MEMOCUE: notitie verwacht
+NETCUE: select a cue first	NETCUE: kies eerst een cue
+STING BODY: expected 0-100	STING BODY: 0-100 verwacht
+TALLYEVENT wants ON or OFF	TALLYEVENT wil ON of OFF
+TONECUE LFO: FREQ or LEVEL	TONECUE LFO: FREQ of LEVEL
+could not load that plugin	Kon die plug-in niet laden
+effects copy: select a cue	Effecten kopiëren: kies een cue
+expected degrees -180..180	Graden -180..180 verwacht
+expression is at its limit	Expressie zit op de limiet
+multiview - every playlist	multiview - elke playlist
+new show, from my defaults	Nieuwe show, van mijn standaarden
+no cue with audio selected	Geen cue met audio gekozen
+osc feedback rate: invalid	Snelheid osc-terugkoppeling: ongeldig
+panic: outputs already off	panic: uitgangen staan al uit
+pick from screen cancelled	Pik van scherm geannuleerd
+rendering slide {1} of {2}	Slide {1} van {2} renderen
+schedule: HH:MM[:SS] | off	Schema: HH:MM[:SS] | uit
+update: nothing to install	Update: niets te installeren
+warp preset: name required	Vervorm-voorinstelling: naam vereist
+1 cue imported (probing...)	1 cue geïmporteerd (analyseren...)
+ASCII WOBBLE: expected 0..1	ASCII WOBBLE: 0..1 verwacht
+AUDIOFX ADD: chain full (8)	AUDIOFX ADD: keten vol (8)
+CLICK: expected two numbers	CLICK: twee getallen verwacht
+HOVER: expected two numbers	HOVER: twee getallen verwacht
+MIDICUE: select a cue first	MIDICUE: kies eerst een cue
+TEXTCUE: select a cue first	TEXTCUE: kies eerst een cue
+VIDEODIP FADE: 0-30 seconds	VIDEODIP FADE: 0-30 seconden
+browser stopped - deck dark	browser gestopt - deck donker
+could not save the defaults	kon de standaarden niet opslaan
+datamosh look: select a cue	datamosh look: kies een cue
+datamosh: already preparing	datamosh: al bezig met voorbereiden
+effects paste: select a cue	effecten plakken: kies een cue
+matrix on, routed as it was	matrix aan, gerouteerd zoals het was
+nmos: clipboard unavailable	nmos: klembord niet beschikbaar
+nmos: need http://host:port	nmos: http://host:port nodig
+skip back: nothing previous	skip back: niets eerder
+FX COLOUR: a grey has no hue	FX COLOUR: grijs heeft geen tint
+MASK RENAME: expected a name	MASK RENAME: naam verwacht
+MIDIFILE: select a cue first	MIDIFILE: kies eerst een cue
+SCALEMODE: expected one mode	SCALEMODE: één modus verwacht
+SYNTH ADD takes no arguments	SYNTH ADD heeft geen argumenten
+TEXTCUE CARD: expected 0-255	TEXTCUE CARD: 0-255 verwacht
+UISNAP: expected a .bmp path	UISNAP: .bmp-pad verwacht
+av jumps: counting from zero	av jumps: telt vanaf nul
+cannot reorder a running job	een lopende taak kan niet worden herordend
+expected a number of seconds	aantal seconden verwacht
+master scene rename: removed	master scene rename: verwijderd
+motion driver would not open	de motion-driver ging niet open
+no steps yet - Ins makes one	nog geen stappen - Ins maakt er een
+selected cue has no geometry	gekozen cue heeft geen geometrie
+skip back: playlist is empty	skip back: playlist is leeg
+sprite set could not be read	spriteset kon niet worden gelezen
+st2110 sdp written to stdout	st2110 sdp naar stdout geschreven
+the clicker advances the cue	de presenter zet de cue door
+video dip fade: 0-30 seconds	video-dip fade: 0-30 seconden
+warp point: expected numbers	warp point: getallen verwacht
+* KONAMI * terrarium unlocked	* KONAMI * terrarium ontgrendeld
+DMXCUE PORT: expected 1-65535	DMXCUE PORT: 1-65535 verwacht
+ENDACTION: select a cue first	ENDACTION: kies eerst een cue
+FADE STOP: expected on or off	FADE STOP: aan of uit verwacht
+LESSONS TRACK: PIXEL or VIDEO	LESSONS TRACK: PIXEL of VIDEO
+LOWERANIM: select a cue first	LOWERANIM: kies eerst een cue
+MATRIX SET: destination is 1-	MATRIX SET: bestemming is 1-
+NETCUE PORT: expected 1-65535	NETCUE PORT: verwacht 1-65535
+OUTSNAP: expected a .bmp path	OUTSNAP: verwacht een .bmp-pad
+SCRIPTCUE: select a cue first	SCRIPTCUE: kies eerst een cue
+TEXTCUE SCALE: expected 0.5-2	TEXTCUE SCALE: verwacht 0.5-2
+WARP AT: expected two numbers	WARP AT: verwacht twee getallen
+could not remove the defaults	kon de standaarden niet verwijderen
+lights dip when a video rolls	lichten dimmen als een video start
+no refresh choices for raster	geen verversingsopties voor raster
+output recovered: auto native	uitgang hersteld: auto natief
+overlay on -- choose an image	overlay aan -- kies een afbeelding
+stopped - deck dark, reracked	gestopt - deck donker, opnieuw opgebouwd
+this file has one sound track	dit bestand heeft één geluidsspoor
+update: will check at startup	update: wordt gecontroleerd bij opstarten
+web monitor connections: 1-64	webmonitor-verbindingen: 1-64
+DASH: the startup dialog is up	DASH: het startdialoogvenster is open
+LOWERSTYLE: select a cue first	LOWERSTYLE: kies eerst een cue
+MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: verwacht 1-16
+PATTERN ADD needs a pattern id	PATTERN ADD heeft een testbeeld-id nodig

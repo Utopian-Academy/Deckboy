@@ -2589,3 +2589,259 @@ media probe failed	Medienanalyse fehlgeschlagen
 nmos: invalid port	NMOS: ungültiger Port
 output overlay off	Ausgangs-Overlay aus
 pip target cleared	PIP-Ziel geleert
+select a cue first	zuerst Cue wählen
+source unavailable	Quelle nicht verfügbar
+spare (also spare)	Reserve (auch Reserve)
+stream key cleared	Stream-Schlüssel geleert
+timecode cue added	Timecode-Cue hinzugefügt
+timer face: blocky	Timer-Gesicht: blockig
+timer logo cleared	Timer-Logo geleert
+vmix port: invalid	VMIX: ungültiger Port
+, not a plugin slot	, kein Plugin-Slot
+. Your show is back	. Ihre Show ist zurück
+DeckLink 10-bit off	DeckLink 10 BIT: AUS
+HOVER: expected x y	HOVER: x y erwartet
+Lower Third cleared	Lower Third geleert
+NDI\xc2\xae NETWORK	NDI® NETZWERK
+OSC trigger cleared	OSC-Auslöser geleert
+Show file not found	Show-Datei nicht gefunden
+audio chain cleared	Audiokette geleert
+audio switch failed	Audio-Umschaltung fehlgeschlagen
+browser jumped live	Browser auf Live gesprungen
+browser url updated	Browser-URL aktualisiert
+bundle media failed	Medien bündeln fehlgeschlagen
+choose a show first	zuerst eine Show wählen
+composite cue added	COMPOSITE-Cue hinzugefügt
+cue numbers cleared	Cue-Nummern geleert
+cue settings copied	Cue-Einstellungen kopiert
+cue settings pasted	Cue-Einstellungen eingefügt
+double-GO guard off	Doppel-GO-Schutz aus
+effect chain pasted	Effektkette eingefügt
+end of the sequence	Ende der Sequenz
+pattern motion: n/a	Testbild-Bewegung: n. v.
+plugin slot cleared	Plugin-Slot geleert
+splitnotes: no deck	splitnotes: kein Deck
+sprite sheet loaded	Sprite-Sheet geladen
+takes are immediate	TAKE erfolgt sofort
+ui motion always on	UI-Bewegung immer ein
+-10 seconds from end	-10 Sekunden vor Ende
+-20 seconds from end	-20 Sekunden vor Ende
+-30 seconds from end	-30 Sekunden vor Ende
+. — skip to next cue	. — zum nächsten Cue springen
+MIDI plays the synth	MIDI spielt den Synth
+MIDI trigger cleared	MIDI-Auslöser geleert
+NDI source cue added	NDI-Quellen-Cue hinzugefügt
+audio chain full (8)	Audio-Kette voll (8)
+browser url required	Browser-URL erforderlich
+bundle export failed	Bündel-Export fehlgeschlagen
+bundle folder failed	Bündel-Ordner fehlgeschlagen
+cue copy: select cue	Cue-Kopie: Cue wählen
+cue settings reset x	Cue-Einstellungen zurückgesetzt x
+delete from the show	aus der Show löschen
+encoder queue paused	Encoder-Warteschlange pausiert
+find: token required	suchen: Token erforderlich
+first port available	erster verfügbarer Port
+identifying displays	Displays werden identifiziert
+marker: nothing live	Marker: nichts live
+marker: select a cue	Marker: Cue wählen
+no midi input device	kein MIDI-Eingangsgerät
+no overlays to clear	keine Overlays zu leeren
+no synth cue is live	kein Synth-Cue läuft
+output create failed	Ausgang erstellen fehlgeschlagen
+output remove failed	Ausgang entfernen fehlgeschlagen
+pause points cleared	Pausenpunkte geleert
+presenter view reset	Referentenansicht zurückgesetzt
+renumber: empty deck	Neu nummerieren: leeres Deck
+sprite sheet cleared	Spritesheet geleert
+stream url unchanged	Stream-URL unverändert
+stream url: required	Stream-URL: erforderlich
+time trigger cleared	Zeit-Auslöser geleert
+update: checking off	Update: Prüfung aus
+warp settings copied	Verzerr-Einstellungen kopiert
+warp settings pasted	Verzerr-Einstellungen eingefügt
+DMX over sACN (E1.31)	DMX über sACN (E1.31)
+already the last step	schon der letzte Schritt
+analyzing loudness...	Lautheit wird analysiert...
+arcade always wiggles	Arcade wackelt immer
+browser window closed	Browser-Fenster geschlossen
+canvas width: invalid	Canvas-Breite: ungültig
+computer keyboard off	Computertastatur aus
+contrast check: saved	Kontrastprüfung: gespeichert
+cue paste: copy first	Cue einfügen: erst kopieren
+cue paste: no targets	Cue einfügen: keine Ziele
+cue paste: select cue	Cue einfügen: Cue wählen
+cue reset: no targets	Cue-Reset: keine Ziele
+cue reset: select cue	Cue-Reset: Cue wählen
+cue settings pasted x	Cue-Einstellungen eingefügt x
+display switch failed	Anzeigenwechsel fehlgeschlagen
+effect chain pasted x	Effektkette eingefügt x
+encoder queue running	Encoder-Warteschlange läuft
+lfo follows the tempo	LFO folgt dem Tempo
+motion driver cleared	Bewegungstreiber geleert
+ndi tally trigger off	NDI-Tally-Auslöser aus
+ndi unsupported build	NDI in diesem Build nicht unterstützt
+no Lower Third on air	kein Lower Third auf Sendung
+no audio cue selected	kein Audio-Cue gewählt
+playlist fps: invalid	Playlist-fps: ungültig
+presenter: no outputs	Presenter: keine Ausgänge
+scene slot source set	Slot-Quelle der Szene gesetzt
+st 2110: invalid port	st 2110: ungültiger Port
+timer face: 7-segment	Timer-Gesicht: 7-Segment
+' is not a deck number	' ist keine Deck-Nummer
+FX PARAM: value is 0-1	FX PARAM: Wert ist 0-1
+already the first step	schon der erste Schritt
+audio bitrate: invalid	Audio-Bitrate: ungültig
+browser capture failed	Browser-Aufnahme fehlgeschlagen
+canvas height: invalid	Canvas-Höhe: ungültig
+datamosh: select a cue	datamosh: Cue wählen
+effect stack full (12)	Effektstapel voll (12)
+jumped to selected cue	zum gewählten Cue gesprungen
+layer command: removed	Layer-Befehl: entfernt
+listens to any channel	hört auf jedem Kanal
+nmos: node not running	nmos: Node läuft nicht
+output effects back in	Ausgangseffekte wieder eingeschaltet
+presenter layout: wide	Presenter-Anordnung: breit
+route command: removed	Route-Befehl: entfernt
+save failed - retrying	Sichern fehlgeschlagen - neuer Versuch
+schedule: select a cue	Zeitplan: Cue wählen
+slide import cancelled	Folienimport abgebrochen
+takes land on the beat	Takes landen auf dem Beat
+warp paste: copy first	Warp-Einfügen: erst kopieren
+2 \xC2\xB7 WHAT IT RUNS	2 \xC2\xB7 WAS ES AUSFÜHRT
+Chladni stops listening	Chladni hört nicht mehr zu
+could not add an output	Ausgang konnte nicht hinzugefügt werden
+downloading {1}... {2}%	lädt {1} herunter... {2}%
+driver restarts on take	Treiber startet bei Take neu
+encoder destination set	Encoder-Ziel gesetzt
+expected factor 0.25..4	Faktor 0.25..4 erwartet
+expected finite numbers	endliche Zahlen erwartet
+hyperdeck emulation off	HyperDeck-Emulation aus
+key color sample failed	Key-Farbprobe fehlgeschlagen
+leave it where it lands	dort lassen, wo es landet
+no playlist column here	hier keine Playlist-Spalte
+osc query port: invalid	OSC-Abfrage-Port: ungültig
+playlist start: invalid	Playlist-Start: ungültig
+still duration: invalid	Standbilddauer: ungültig
+synth cue has no engine	Synth-Cue hat keine Engine
+, its place in the stack	, sein Platz im Stapel
+1 \xC2\xB7 WHAT COMES IN	1 \xC2\xB7 WAS HEREINKOMMT
+An output whose Shows is	Ein Ausgang, dessen Zeigt
+DeckLink input cue added	DeckLink-Eingang-Cue hinzugefügt
+WEBMONITOR CLIENTS: 1-64	WEBMONITOR-CLIENTS: 1-64
+WEBMONITOR PORT: 1-65535	WEBMONITOR-PORT: 1-65535
+already on the dashboard	bereits im Dashboard
+expected an alpha, 0-255	Alpha erwartet, 0-255
+expected positive pixels	positive Pixel erwartet
+find: press Ctrl+F first	Suchen: zuerst Ctrl+F drücken
+glyphs: the built-in set	Glyphen: der eingebaute Satz
+keep at least one output	mindestens einen Ausgang behalten
+marker: none on this cue	Marker: keiner an diesem Cue
+mic mixed into recording	Mikro in die Aufnahme gemischt
+not a playable MIDI file	keine abspielbare MIDI-Datei
+relink: folder not found	Relink: Ordner nicht gefunden
+select a moire cue first	zuerst einen Moiré-Cue wählen
+tempo follows MIDI clock	Tempo folgt MIDI-Clock
+the tracker has no steps	der Tracker hat keine Schritte
+typeface (the app's own)	Schriftart (die eigene der App)
+. Set displays to Extend.	. Displays auf Erweitern stellen.
+Language reset to English	Sprache auf Englisch zurückgesetzt
+PUSH expects a cue number	PUSH erwartet eine Cue-Nummer
+SLICE: there is no output	SLICE: es gibt keinen Ausgang
+TCCUE: select a cue first	TCCUE: zuerst einen Cue wählen
+effects paste: no targets	Effekte einfügen: keine Ziele
+follows the whole picture	folgt dem ganzen Bild
+key color picker canceled	Auswahl der Key-Farbe abgebrochen
+listening for captions...	höre auf Untertitel...
+monitor: pick a row first	Monitor: zuerst eine Zeile wählen
+moshlook: smooth | chunky	moshlook: weich | grob
+no trimmable cue selected	kein trimmbares Cue gewählt
+output type change failed	Ändern des Ausgangstyps fehlgeschlagen
+select a master cue first	zuerst ein Master-Cue wählen
+sequence stops at the end	Sequenz stoppt am Ende
+web monitor port: invalid	Webmonitor-Port: ungültig
+3 \xC2\xB7 WHAT IT RUNS ON	3 · WORAUF ES WIRKT
+ASCII CHAOS: expected 0..1	ASCII CHAOS: erwartet 0..1
+DATAMOSH on - preparing...	DATAMOSH EIN - Vorbereitung...
+DMXCUE: select a cue first	DMXCUE: zuerst ein Cue wählen
+GEOLFO: select a cue first	GEOLFO: zuerst ein Cue wählen
+MATRIX: select a cue first	MATRIX: zuerst ein Cue wählen
+MEMOCUE: expected the note	MEMOCUE: Notiz erwartet
+NETCUE: select a cue first	NETCUE: zuerst ein Cue wählen
+STING BODY: expected 0-100	STING BODY: erwartet 0-100
+could not load that plugin	dieses Plugin ließ sich nicht laden
+effects copy: select a cue	Effekte kopieren: Cue wählen
+expected degrees -180..180	erwartet Grad -180..180
+expression is at its limit	Ausdruck ist am Limit
+multiview - every playlist	multiview - jede Playlist
+new show, from my defaults	neue Show, aus meinen Vorgaben
+no cue with audio selected	kein Cue mit Audio gewählt
+osc feedback rate: invalid	OSC-Rückkopplungsrate: ungültig
+panic: outputs already off	panic: Ausgänge bereits aus
+pick from screen cancelled	Vom Bildschirm wählen abgebrochen
+rendering slide {1} of {2}	Folie {1} von {2} wird gerendert
+schedule: HH:MM[:SS] | off	Zeitplan: HH:MM[:SS] | aus
+update: nothing to install	Update: nichts zu installieren
+warp preset: name required	Verzerren-Vorlage: Name erforderlich
+1 cue imported (probing...)	1 Cue importiert (Analyse...)
+ASCII WOBBLE: expected 0..1	ASCII WOBBLE: erwartet 0..1
+AUDIOFX ADD: chain full (8)	AUDIOFX ADD: Kette voll (8)
+CLICK: expected two numbers	CLICK: zwei Zahlen erwartet
+HOVER: expected two numbers	HOVER: zwei Zahlen erwartet
+MIDICUE: select a cue first	MIDICUE: erst ein Cue wählen
+TEXTCUE: select a cue first	TEXTCUE: erst ein Cue wählen
+VIDEODIP FADE: 0-30 seconds	VIDEODIP FADE: 0-30 Sekunden
+browser stopped - deck dark	Browser gestoppt - Deck dunkel
+could not save the defaults	Vorgaben konnten nicht gesichert werden
+datamosh look: select a cue	datamosh look: Cue wählen
+datamosh: already preparing	datamosh: wird bereits vorbereitet
+effects paste: select a cue	effects paste: Cue wählen
+matrix on, routed as it was	Matrix ein, geroutet wie zuvor
+nmos: clipboard unavailable	nmos: Zwischenablage nicht verfügbar
+nmos: need http://host:port	nmos: http://host:port nötig
+skip back: nothing previous	Zurückspringen: kein Vorheriges
+FX COLOUR: a grey has no hue	FX COLOUR: Grau hat keinen Farbton
+MASK RENAME: expected a name	MASK RENAME: Name erwartet
+MIDIFILE: select a cue first	MIDIFILE: erst ein Cue wählen
+SCALEMODE: expected one mode	SCALEMODE: ein Modus erwartet
+SYNTH ADD takes no arguments	SYNTH ADD erwartet keine Argumente
+TEXTCUE CARD: expected 0-255	TEXTCUE CARD: 0-255 erwartet
+UISNAP: expected a .bmp path	UISNAP: .bmp-Pfad erwartet
+av jumps: counting from zero	av jumps: Zählung ab null
+cannot reorder a running job	laufender Job lässt sich nicht umsortieren
+expected a number of seconds	Anzahl Sekunden erwartet
+master scene rename: removed	master scene rename: entfernt
+motion driver would not open	Bewegungstreiber ließ sich nicht öffnen
+no steps yet - Ins makes one	noch keine Schritte - Ins legt einen an
+selected cue has no geometry	gewähltes Cue hat keine Geometrie
+skip back: playlist is empty	Zurückspringen: Playlist ist leer
+sprite set could not be read	Sprite-Set ließ sich nicht lesen
+st2110 sdp written to stdout	st2110 sdp auf stdout geschrieben
+the clicker advances the cue	der Presenter schaltet das Cue weiter
+video dip fade: 0-30 seconds	Video-Dip-Blende: 0-30 Sekunden
+warp point: expected numbers	warp point: Zahlen erwartet
+* KONAMI * terrarium unlocked	* KONAMI * Terrarium freigeschaltet
+DMXCUE PORT: expected 1-65535	DMXCUE PORT: 1-65535 erwartet
+ENDACTION: select a cue first	ENDACTION: erst ein Cue wählen
+FADE STOP: expected on or off	FADE STOP: EIN oder AUS erwartet
+LESSONS TRACK: PIXEL or VIDEO	LESSONS TRACK: PIXEL oder VIDEO
+LOWERANIM: select a cue first	LOWERANIM: erst ein Cue wählen
+MATRIX SET: destination is 1-	MATRIX SET: Ziel ist 1-
+NETCUE PORT: expected 1-65535	NETCUE PORT: erwartet 1-65535
+OUTSNAP: expected a .bmp path	OUTSNAP: erwartet einen .bmp-Pfad
+SCRIPTCUE: select a cue first	SCRIPTCUE: zuerst einen Cue wählen
+TEXTCUE SCALE: expected 0.5-2	TEXTCUE SCALE: erwartet 0.5-2
+TRIGGER AT: HH:MM[:SS] or OFF	TRIGGER AT: HH:MM[:SS] oder OFF
+WARP AT: expected two numbers	WARP AT: erwartet zwei Zahlen
+could not remove the defaults	Vorgaben konnten nicht entfernt werden
+lights dip when a video rolls	Licht wird gedimmt, wenn ein Video läuft
+no refresh choices for raster	keine Bildwiederholraten für Raster
+output recovered: auto native	Ausgang wiederhergestellt: auto nativ
+overlay on -- choose an image	Überlagerung ein -- Bild wählen
+stopped - deck dark, reracked	gestoppt - Deck dunkel, neu aufgebaut
+this file has one sound track	diese Datei hat eine Tonspur
+update: will check at startup	Update: prüft beim Start
+web monitor connections: 1-64	Webmonitor-Verbindungen: 1-64
+DASH: the startup dialog is up	DASH: Startdialog ist offen
+LOWERSTYLE: select a cue first	LOWERSTYLE: zuerst einen Cue wählen
+MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: erwartet 1-16
+PATTERN ADD needs a pattern id	PATTERN ADD braucht eine Testbild-ID

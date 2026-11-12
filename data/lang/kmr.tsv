@@ -2575,3 +2575,279 @@ output overlay on	serdana derketinê çalak
 phone haptics off	lerizîna têlefonê girtî
 pick a deck first	pêşî deck hilbijêre
 playlist loop off	dubarekirina lîsteya lêxistinê girtî
+record folder set	peldanka qeydê hate diyarkirin
+subtitle file set	pelê binnivîsê hate diyarkirin
+subtitles cleared	binnivîs hatin paqijkirin
+take the mask off	maskeyê rake
+universe: 0-63999	unîvers: 0-63999
+video synth added	synth a vîdyoyê hate zêdekirin
+warp preset saved	pêşsaza warp hate tomarkirin
+AUDIOALSO: no deck	AUDIOALSO: deck tune
+DeckLink 10-bit ON	DeckLink 10-bit ÇALAK
+SCRIPTCUE: no deck	SCRIPTCUE: deck tune
+assign route first	pêşî rê diyar bike
+bundle save failed	tomarkirina bipêçeyê têk çû
+cue settings reset	mîhengên cue vegeriyan
+file dialog failed	qutiya pelê têk çû
+jumped to live cue	çû cue ya zindî
+lock to screen off	bi ekranê ve girêdan girtî
+media probe failed	probeya medyayê têk çû
+nmos: invalid port	nmos: dergeha nederbasdar
+output overlay off	serdana derketinê girtî
+pip target cleared	armanca pip hate paqijkirin
+select a cue first	pêşî cue hilbijêre
+source unavailable	çavkanî tune ye
+spare (also spare)	yedek (herwiha yedek)
+stream key cleared	kilîta weşanê hate paqijkirin
+timecode cue added	cue ya koda demê hate zêdekirin
+timer face: blocky	rûyê demjimêrê: blok
+timer logo cleared	logoya demjimêrê hate paqijkirin
+vmix port: invalid	vmix dergeh: nederbasdar
+, not a plugin slot	, ne cihê pêvekê ye
+. Your show is back	. Pêşandana te vegeriya
+DeckLink 10-bit off	DeckLink 10-bit girtî
+HOVER: expected x y	HOVER: x y hat hêvîkirin
+Lower Third cleared	Lower Third hate paqijkirin
+NDI\xc2\xae NETWORK	TORA NDI®
+OSC trigger cleared	pêxistina OSC hate paqijkirin
+Show file not found	Pelê pêşandanê nehat dîtin
+audio chain cleared	zincîra dengê hate paqijkirin
+audio switch failed	guhertina dengê têk çû
+browser jumped live	gerok çû zindî
+browser url updated	URL ya gerokê hat nûkirin
+bundle media failed	bipêçandina medyayê têk çû
+choose a show first	pêşî pêşandanekê hilbijêre
+composite cue added	cue ya hevbeş hat zêdekirin
+cue numbers cleared	hejmarên cue hatin paqijkirin
+cue settings copied	mîhengên cue hatin kopîkirin
+cue settings pasted	mîhengên cue hatin danîn
+double-GO guard off	parastina GO ya dubare GIRTÎ ye
+effect chain pasted	zincîra efektan hat danîn
+end of the sequence	dawiya rêzeyê
+pattern motion: n/a	tevgera nexşeyê: tune
+plugin slot cleared	cihê pêvekê hat paqijkirin
+splitnotes: no deck	splitnotes: deck tune
+sprite sheet loaded	sprite sheet hat barkirin
+takes are immediate	TAKE yekser in
+ui motion always on	tevgera UI hergav çalak e
+-10 seconds from end	-10 çirke ji dawiyê
+-20 seconds from end	-20 çirke ji dawiyê
+-30 seconds from end	-30 çirke ji dawiyê
+. — skip to next cue	. — derbasî cue ya din be
+Lower Third attached	Lower Third hat girêdan
+MIDI plays the synth	MIDI synth lê dide
+MIDI trigger cleared	pêxistina MIDI hat paqijkirin
+NDI source cue added	cue ya çavkaniya NDI hat zêdekirin
+audio chain full (8)	zincîra dengê tije ye (8)
+browser url required	URL ya gerokê pêwist e
+bundle export failed	derxistina bipêçê têk çû
+bundle folder failed	peldanka bipêçê têk çû
+cue copy: select cue	kopîkirina cue: cue hilbijêre
+cue settings reset x	mîhengên cue hatin vegerandin x
+delete from the show	ji pêşandanê jê bibe
+encoder queue paused	rêza kodkerê sekinî
+find: run FIND first	bibîne: pêşî FIND bimeşîne
+find: token required	bibîne: token pêwist e
+first port available	yekem dergeh heye
+identifying displays	dîsplay têne naskirin
+marker: nothing live	marker: tiştek zindî tune
+marker: select a cue	nîşank: cue hilbijêre
+no midi input device	amûra têketina MIDI tune ye
+no overlays to clear	serdan ji bo paqijkirinê tune ne
+no synth cue is live	cue ya synth ya zindî tune ye
+output create failed	afirandina derketinê têk çû
+output remove failed	rakirina derketinê têk çû
+pause points cleared	xalên bisekinînê hatin paqijkirin
+presenter view reset	dîtina pêşkêşker hat vegerandin
+renumber: empty deck	ji nû ve jimare bike: deck vala ye
+sprite sheet cleared	sprite sheet hat paqijkirin
+stream url unchanged	url ya weşanê nehat guherandin
+stream url: required	url ya weşanê: pêwîst e
+time trigger cleared	pêxistina demê hat paqijkirin
+update: checking off	nûvekirin: kontrolkirin girtî ye
+warp settings copied	mîhengên warp hatin kopîkirin
+warp settings pasted	mîhengên warp hatin pêvekirin
+DMX over sACN (E1.31)	DMX bi sACN (E1.31)
+Lower Third cue added	cue ya Lower Third hat zêdekirin
+already the last step	jixwe gava dawî ye
+analyzing loudness...	bilindahiya deng tê analîzkirin...
+arcade always wiggles	arcade hergav dihejîne
+browser window closed	pacaya gerokê hat girtin
+canvas width: invalid	firehiya canvas: nederbasdar
+computer keyboard off	klavyeya komputerê girtî ye
+contrast check: saved	kontrola kontrastê: hat tomarkirin
+cue paste: copy first	pêvekirina cue: pêşî kopî bike
+cue paste: no targets	pêvekirina cue: armanc tune ne
+cue paste: select cue	pêvekirina cue: cue hilbijêre
+cue reset: no targets	vegerandina cue: armanc tune ne
+cue reset: select cue	vegerandina cue: cue hilbijêre
+cue settings pasted x	mîhengên cue hatin pêvekirin x
+display switch failed	guhertina dîmenderê têk çû
+effect chain pasted x	zincîra effect hat pêvekirin x
+encoder queue running	rêzika kodker dixebite
+lfo follows the tempo	lfo li pey tempoyê dimeşe
+motion driver cleared	ajokerê tevgerê hat paqijkirin
+ndi tally trigger off	pêxistina tally ya NDI girtî ye
+ndi unsupported build	NDI di vê guhertoyê de nayê piştgirîkirin
+no Lower Third on air	Lower Third li çapê tune
+no audio cue selected	cue ya dengê nehatiye hilbijartin
+playlist fps: invalid	fps ya lîsteya lêxistinê: nederbasdar
+presenter: no outputs	presenter: derketin tune
+scene slot source set	çavkaniya slota scene hate diyarkirin
+st 2110: invalid port	st 2110: dergeh nederbasdar
+timer face: 7-segment	rûyê demjimêrê: 7-segment
+' is not a deck number	' ne hejmara deck e
+FX PARAM: value is 0-1	FX PARAM: nirx 0-1 e
+OUTPUT AOI: no outputs	OUTPUT AOI: derketin tune
+already the first step	jixwe gava yekem e
+audio bitrate: invalid	rêjeya bitan a dengê: nederbasdar
+browser capture failed	girtina gerokê têk çû
+canvas height: invalid	bilindahiya canvas: nederbasdar
+datamosh: select a cue	datamosh: cue yekê hilbijêre
+effect stack full (12)	stûna efektan tije ye (12)
+jumped to selected cue	çû ser cue ya hilbijartî
+layer command: removed	fermana layer: hate rakirin
+listens to any channel	her kanalê guhdar dike
+nmos: node not running	nmos: node naxebite
+output effects back in	bandorên derketinê vegeriyan
+presenter layout: wide	rêkxistina presenter: fireh
+route command: removed	fermana route: hate rakirin
+save failed - retrying	tomarkirin têk çû - dîsa tê ceribandin
+schedule: select a cue	schedule: cue yekê hilbijêre
+slide import cancelled	anîna slaydê betal bû
+takes land on the beat	take li ser rîtmê diqewimin
+warp paste: copy first	warp pêvekirin: pêşî kopî bike
+2 \xC2\xB7 WHAT IT RUNS	2 \xC2\xB7 ÇI DIMEŞE
+Chladni stops listening	Chladni êdî guhdarî nake
+could not add an output	derketinek zêde nebû
+downloading {1}... {2}%	{1} tê daxistin... {2}%
+driver restarts on take	ajoker di take de ji nû ve dest pê dike
+encoder destination set	armanca kodkerê hat diyarkirin
+expected factor 0.25..4	faktor 0.25..4 tê xwestin
+expected finite numbers	hejmarên bi sînor tên xwestin
+hyperdeck emulation off	teqlîda hyperdeck girtî
+key color sample failed	nimûneya rengê key têk çû
+leave it where it lands	bihêle li ku ku ket
+no playlist column here	li vir stûna lîsteyê tune
+osc query port: invalid	dergeha pirsa osc: nederbasdar
+playlist start: invalid	destpêka lîsteyê: nederbasdar
+still duration: invalid	dema wêneyê: nederbasdar
+synth cue has no engine	cue ya synth motor nîne
+, its place in the stack	, cihê wê di komê de
+1 \xC2\xB7 WHAT COMES IN	1 · ÇI TÊ NAV
+An output whose Shows is	Derketinek ku Nîşan dide
+DeckLink input cue added	Cue ya ketina DeckLink hat zêdekirin
+already on the dashboard	jixwe li ser PANEL e
+expected an alpha, 0-255	alfayek tê xwestin, 0-255
+expected positive pixels	pîkselên erênî tên xwestin
+find: press Ctrl+F first	bibîne: pêşî Ctrl+F bitikîne
+glyphs: the built-in set	glîf: komeya çêkirî
+keep at least one output	herî kêm yek derketin bihêle
+marker: none on this cue	marker: li ser vê cue tune
+mic mixed into recording	mîkrofon di tomarkirinê de tevlihev e
+not a playable MIDI file	ne pela MIDI ya lêdanê ye
+relink: folder not found	relink: peldank nehat dîtin
+select a moire cue first	pêşî cue ya moiré hilbijêre
+tempo follows MIDI clock	tempo li pey MIDI clock e
+the tracker has no steps	şopîner tu gav nîne
+typeface (the app's own)	tîpa nivîsê (ya bernameyê)
+. Set displays to Extend.	. Dîsplayan li Extend diyar bike.
+Language reset to English	Ziman vegeriya Îngilîzî
+PUSH expects a cue number	PUSH hejmareke cue dixwaze
+SLICE: there is no output	SLICE: derketin tune
+TCCUE: select a cue first	TCCUE: pêşî cue hilbijêre
+effects paste: no targets	pêvekirina efektan: armanc tune
+follows the whole picture	li pey tevahiya wêneyê dikeve
+key color picker canceled	Hilbijartina rengê ya key hate betalkirin
+listening for captions...	Li binnivîsan guhdarî dike...
+monitor: pick a row first	monitor: pêşî rêzekê hilbijêre
+moshlook: smooth | chunky	moshlook: nerm | qalind
+no trimmable cue selected	Cueyek a birînê nehatiye hilbijartin
+output type change failed	Guherîna cureyê derketinê têk çû
+select a master cue first	Pêşî cueyek a master hilbijêre
+sequence stops at the end	Rêze li dawiyê disekine
+web monitor port: invalid	Dergeha çavdêrê webê: nederbasdar
+3 \xC2\xB7 WHAT IT RUNS ON	3 · LI SER ÇI DIMEŞE
+ASCII CHAOS: expected 0..1	ASCII CHAOS: 0..1 dihat hêvîkirin
+DATAMOSH on - preparing...	DATAMOSH ÇALAK - tê amadekirin...
+DMXCUE: select a cue first	DMXCUE: pêşî cueyek hilbijêre
+GEOLFO: select a cue first	GEOLFO: pêşî cueyek hilbijêre
+MATRIX: select a cue first	MATRIX: pêşî cueyek hilbijêre
+MEMOCUE: expected the note	MEMOCUE: nîşe dihat hêvîkirin
+NETCUE: select a cue first	NETCUE: pêşî cueyek hilbijêre
+STING BODY: expected 0-100	STING BODY: 0-100 dihat hêvîkirin
+TALLYEVENT wants ON or OFF	TALLYEVENT ON an OFF dixwaze
+TONECUE LFO: FREQ or LEVEL	TONECUE LFO: FREQ an LEVEL
+could not load that plugin	Ew pêvek nehat barkirin
+effects copy: select a cue	Kopîkirina efektan: cueyek hilbijêre
+expected degrees -180..180	Derece -180..180 dihat hêvîkirin
+expression is at its limit	Îfade gihîştiye sînor
+multiview - every playlist	multiview - her lîsteya lêxistinê
+new show, from my defaults	Pêşandana nû, ji pêşdanasînên min
+no cue with audio selected	Cueyek bi deng nehatiye hilbijartin
+osc feedback rate: invalid	Rêjeya bersivê ya osc: nederbasdar
+panic: outputs already off	panic: derketin jixwe girtî ne
+pick from screen cancelled	Hilbijartina ji ekranê hate betalkirin
+rendering slide {1} of {2}	Slayda {1} ji {2} tê renderkirin
+schedule: HH:MM[:SS] | off	Bername: HH:MM[:SS] | girtî
+update: nothing to install	Nûvekirin: tiştek tune ku were sazkirin
+warp preset: name required	Pêşsaza warp: nav pêwîst e
+1 cue imported (probing...)	1 cue hate anîn (tê analîzkirin...)
+ASCII WOBBLE: expected 0..1	ASCII WOBBLE: 0..1 dihat hêvîkirin
+AUDIOFX ADD: chain full (8)	AUDIOFX ADD: zincîr tije ye (8)
+CLICK: expected two numbers	CLICK: du hejmar dihatin hêvîkirin
+HOVER: expected two numbers	HOVER: du hejmar dihatin hêvîkirin
+MIDICUE: select a cue first	MIDICUE: pêşî cue hilbijêre
+TEXTCUE: select a cue first	TEXTCUE: pêşî cue hilbijêre
+VIDEODIP FADE: 0-30 seconds	VIDEODIP FADE: 0-30 çirke
+browser stopped - deck dark	gerok rawestiyayî - deck tarî
+could not save the defaults	pêşdanasîn nehatin tomarkirin
+datamosh look: select a cue	datamosh look: cue hilbijêre
+datamosh: already preparing	datamosh: jixwe amade dibe
+effects paste: select a cue	efekt pêve bike: cue hilbijêre
+matrix on, routed as it was	matrix çalak, wekî berê hat rêvekirin
+nmos: clipboard unavailable	nmos: clipboard tune
+nmos: need http://host:port	nmos: http://host:port lazim e
+skip back: nothing previous	skip back: ya berê tune
+MASK RENAME: expected a name	MASK RENAME: nav lazim e
+MIDIFILE: select a cue first	MIDIFILE: pêşî cue hilbijêre
+SCALEMODE: expected one mode	SCALEMODE: yek mod lazim e
+SYNTH ADD takes no arguments	SYNTH ADD argûman nagire
+TEXTCUE CARD: expected 0-255	TEXTCUE CARD: 0-255 lazim e
+UISNAP: expected a .bmp path	UISNAP: rêya .bmp lazim e
+av jumps: counting from zero	av jumps: ji sifirê dihejmêre
+cannot reorder a running job	karê dixebite nayê rêzkirin
+expected a number of seconds	hejmara çirkeyan lazim e
+master scene rename: removed	master scene rename: hat rakirin
+motion driver would not open	ajokerê tevgerê venebû
+no steps yet - Ins makes one	hêj gav tune - Ins yekê çêdike
+selected cue has no geometry	cue hilbijartî geometrî tune
+skip back: playlist is empty	skip back: lîsteya lêxistinê vala ye
+sprite set could not be read	sprite set nehat xwendin
+st2110 sdp written to stdout	st2110 sdp li stdout hat nivîsandin
+the clicker advances the cue	kontrola dûr cue pêş dixe
+video dip fade: 0-30 seconds	video dip fade: 0-30 çirke
+warp point: expected numbers	warp point: hejmar lazim in
+* KONAMI * terrarium unlocked	* KONAMI * terrarium vebû
+ENDACTION: select a cue first	ENDACTION: pêşî cue hilbijêre
+FADE STOP: expected on or off	FADE STOP: on an off lazim e
+LOWERANIM: select a cue first	LOWERANIM: pêşî cue hilbijêre
+MATRIX SET: destination is 1-	MATRIX SET: armanc 1-
+NETCUE PORT: expected 1-65535	NETCUE PORT: 1-65535 tê hêvîkirin
+OUTSNAP: expected a .bmp path	OUTSNAP: rêyeke .bmp tê hêvîkirin
+SCRIPTCUE: select a cue first	SCRIPTCUE: pêşî cue hilbijêre
+TEXTCUE SCALE: expected 0.5-2	TEXTCUE SCALE: 0.5-2 tê hêvîkirin
+WARP AT: expected two numbers	WARP AT: du hejmar tên hêvîkirin
+could not remove the defaults	pêşdanasîn nehatin rakirin
+lights dip when a video rolls	ronahî kêm dibe dema vîdyoyek dest pê dike
+no refresh choices for raster	ji bo raster vebijarkên nûkirinê tune
+output recovered: auto native	derketin sax bû: otomatîk xwecî
+overlay on -- choose an image	serdan çalak -- wêneyek hilbijêre
+stopped - deck dark, reracked	rawestiyayî - deck tarî ye, ji nû ve hat rêzkirin
+this file has one sound track	ev pel yek şopa dengê heye
+update: will check at startup	nûvekirin: dê di destpêkê de kontrol bike
+web monitor connections: 1-64	girêdanên çavdêrê webê: 1-64
+DASH: the startup dialog is up	DASH: diyaloga destpêkê vekirî ye
+LOWERSTYLE: select a cue first	LOWERSTYLE: pêşî cue hilbijêre
+MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: 1-16 tê hêvîkirin
+PATTERN ADD needs a pattern id	PATTERN ADD id ya nexşeyê dixwaze

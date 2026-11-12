@@ -2594,3 +2594,268 @@ output overlay on	پوشش خروجی روشن
 phone haptics off	لرزش گوشی خاموش
 pick a deck first	اول یک دک انتخاب کنید
 playlist loop off	حلقهٔ فهرست پخش خاموش
+record folder set	پوشه ضبط تنظیم شد
+subtitle file set	فایل زیرعنوان تنظیم شد
+subtitles cleared	زیرعنوان‌ها پاک شد
+take the mask off	ماسک را خاموش کن
+universe: 0-63999	یونیورس: 0-63999
+video synth added	سینت ویدئو اضافه شد
+warp preset saved	پیش‌تنظیم تصحیح هندسی ذخیره شد
+AUDIOALSO: no deck	AUDIOALSO: بدون دک
+DeckLink 10-bit ON	DeckLink 10-bit روشن
+SCRIPTCUE: no deck	SCRIPTCUE: بدون دک
+assign route first	ابتدا مسیر را تعیین کنید
+bundle save failed	ذخیره بسته‌بندی ناموفق بود
+cue settings reset	تنظیمات کیو بازنشانی شد
+file dialog failed	پنجرهٔ فایل باز نشد
+jumped to live cue	به کیوی زنده پرید
+lock to screen off	قفل روی صفحه خاموش
+media probe failed	بررسی رسانه ناموفق بود
+nmos: invalid port	nmos: درگاه نامعتبر
+output overlay off	لایه خروجی خاموش
+pip target cleared	هدف pip پاک شد
+select a cue first	ابتدا یک کیو انتخاب کنید
+source unavailable	منبع در دسترس نیست
+spare (also spare)	یدک (همچنین یدک)
+stream key cleared	کلید استریم پاک شد
+timecode cue added	کیو تایم‌کد اضافه شد
+timer face: blocky	چهرهٔ زمان‌سنج: بلوکی
+timer logo cleared	لوگوی زمان‌سنج پاک شد
+vmix port: invalid	درگاه vmix: نامعتبر
+, not a plugin slot	، شکاف افزونه نیست
+. Your show is back	. نمایش شما برگشت
+DeckLink 10-bit off	DeckLink 10-bit خاموش
+HOVER: expected x y	HOVER: انتظار x y می‌رفت
+Lower Third cleared	Lower Third پاک شد
+NDI\xc2\xae NETWORK	NDI® شبکه
+OSC trigger cleared	راه‌انداز OSC پاک شد
+Show file not found	فایل نمایش پیدا نشد
+audio chain cleared	زنجیره صدا پاک شد
+audio switch failed	تغییر صدا ناموفق بود
+browser jumped live	مرورگر به زنده پرید
+browser url updated	نشانی مرورگر به‌روز شد
+bundle media failed	بسته‌بندی رسانه ناموفق بود
+choose a show first	ابتدا یک نمایش انتخاب کنید
+composite cue added	کیوی ترکیبی افزوده شد
+cue numbers cleared	شمارهٔ کیوها پاک شد
+cue settings copied	تنظیمات کیو کپی شد
+cue settings pasted	تنظیمات کیو جای‌گذاری شد
+double-GO guard off	حفاظت GO دوباره: خاموش
+effect chain pasted	زنجیرهٔ افکت جای‌گذاری شد
+end of the sequence	پایان توالی
+pattern motion: n/a	حرکت الگو: ندارد
+plugin slot cleared	جایگاه افزونه پاک شد
+splitnotes: no deck	splitnotes: بدون دک
+sprite sheet loaded	اسپرایت شیت بارگذاری شد
+takes are immediate	TAKEها فوری‌اند
+ui motion always on	حرکت رابط همیشه روشن
+-10 seconds from end	-10 ثانیه تا پایان
+-20 seconds from end	-20 ثانیه تا پایان
+-30 seconds from end	-30 ثانیه تا پایان
+. — skip to next cue	. — رد کردن به کیوی بعدی
+MIDI plays the synth	MIDI سینتی‌سایزر را می‌نوازد
+MIDI trigger cleared	راه‌انداز MIDI پاک شد
+NDI source cue added	کیوی منبع NDI افزوده شد
+audio chain full (8)	زنجیرهٔ صدا پر است (8)
+browser url required	نشانی مرورگر لازم است
+bundle export failed	خروجی گرفتن از بسته ناموفق بود
+bundle folder failed	پوشهٔ بسته ناموفق بود
+cue copy: select cue	کپی کیو: یک کیو انتخاب کنید
+cue settings reset x	تنظیمات کیو بازنشانی شد x
+delete from the show	حذف از نمایش
+encoder queue paused	صف رمزگذار در مکث
+find: run FIND first	جست‌وجو: ابتدا FIND را اجرا کنید
+find: token required	جست‌وجو: نشانه لازم است
+first port available	اولین درگاه موجود
+identifying displays	شناسایی نمایشگرها
+marker: nothing live	نشانگر: هیچ‌چیز زنده نیست
+marker: select a cue	نشانگر: یک کیو انتخاب کنید
+no midi input device	دستگاه ورودی MIDI نیست
+no overlays to clear	لایه‌ای برای پاک‌کردن نیست
+no synth cue is live	هیچ کیوی synth زنده نیست
+output create failed	ساخت خروجی ناموفق بود
+output remove failed	حذف خروجی ناموفق بود
+pause points cleared	نقطه‌های مکث پاک شد
+presenter view reset	نمای ارائه‌دهنده بازنشانی شد
+renumber: empty deck	شماره‌گذاری مجدد: دک خالی
+sprite sheet cleared	اسپرایت‌شیت پاک شد
+stream url unchanged	نشانی استریم تغییری نکرد
+stream url: required	نشانی استریم: لازم است
+time trigger cleared	راه‌انداز زمانی پاک شد
+update: checking off	به‌روزرسانی: بررسی خاموش
+warp settings copied	تنظیمات تصحیح هندسی کپی شد
+warp settings pasted	تنظیمات تصحیح هندسی چسبانده شد
+Lower Third cue added	کیوی Lower Third افزوده شد
+already the last step	این از قبل آخرین گام است
+analyzing loudness...	در حال تحلیل بلندی صدا...
+arcade always wiggles	آرکید همیشه تکان می‌خورد
+browser window closed	پنجرهٔ مرورگر بسته شد
+canvas width: invalid	عرض بوم: نامعتبر
+computer keyboard off	صفحه‌کلید رایانه خاموش
+contrast check: saved	بررسی کنتراست: ذخیره شد
+cue paste: copy first	چسباندن کیو: ابتدا کپی کنید
+cue paste: no targets	چسباندن کیو: مقصدی نیست
+cue paste: select cue	چسباندن کیو: یک کیو انتخاب کنید
+cue reset: no targets	بازنشانی کیو: مقصدی نیست
+cue reset: select cue	بازنشانی کیو: یک کیو انتخاب کنید
+cue settings pasted x	تنظیمات کیو چسبانده شد x
+display switch failed	تعویض نمایشگر ناموفق بود
+effect chain pasted x	زنجیرهٔ افکت چسبانده شد x
+encoder queue running	صف رمزگذار در حال اجراست
+lfo follows the tempo	lfo از تمپو پیروی می‌کند
+motion driver cleared	گرداننده حرکت پاک شد
+ndi tally trigger off	راه‌انداز تالی NDI خاموش
+ndi unsupported build	NDI در این نسخه پشتیبانی نمی‌شود
+no Lower Third on air	هیچ Lower Third روی آنتن نیست
+no audio cue selected	هیچ کیوی صوتی انتخاب نشده
+playlist fps: invalid	fps فهرست پخش: نامعتبر
+presenter: no outputs	ارائه‌دهنده: بدون خروجی
+scene slot source set	منبع جایگاه صحنه تنظیم شد
+st 2110: invalid port	st 2110: درگاه نامعتبر
+timer face: 7-segment	چهره زمان‌سنج: 7 بخشی
+' is not a deck number	' یک شماره دک نیست
+already the first step	از قبل اولین گام است
+audio bitrate: invalid	نرخ بیت صدا: نامعتبر
+browser capture failed	ضبط مرورگر ناموفق بود
+canvas height: invalid	ارتفاع بوم: نامعتبر
+datamosh: select a cue	datamosh: یک کیو انتخاب کنید
+effect stack full (12)	پشته افکت پر است (12)
+jumped to selected cue	به کیو انتخاب‌شده پرید
+layer command: removed	فرمان لایه: حذف شد
+listens to any channel	به هر کانالی گوش می‌دهد
+nmos: node not running	nmos: نود در حال اجرا نیست
+output effects back in	افکت‌های خروجی دوباره فعال شد
+presenter layout: wide	چیدمان ارائه‌دهنده: عریض
+route command: removed	فرمان مسیر: حذف شد
+save failed - retrying	ذخیره ناموفق بود - تلاش دوباره
+schedule: select a cue	زمان‌بندی: یک کیو انتخاب کنید
+slide import cancelled	وارد کردن اسلاید لغو شد
+takes land on the beat	TAKEها روی بیت می‌نشینند
+warp paste: copy first	چسباندن تصحیح هندسی: اول کپی کنید
+2 \xC2\xB7 WHAT IT RUNS	2 \xC2\xB7 آنچه اجرا می‌کند
+Chladni stops listening	Chladni دیگر گوش نمی‌دهد
+could not add an output	افزودن خروجی ممکن نشد
+downloading {1}... {2}%	در حال دانلود {1}... {2}%
+driver restarts on take	گرداننده با TAKE دوباره شروع می‌شود
+encoder destination set	مقصد رمزگذار تنظیم شد
+expected factor 0.25..4	ضریب 0.25..4 انتظار می‌رفت
+expected finite numbers	اعداد متناهی انتظار می‌رفت
+hyperdeck emulation off	شبیه‌سازی HyperDeck خاموش
+key color sample failed	نمونه‌برداری از رنگ کلید ناموفق بود
+leave it where it lands	همان‌جا که می‌افتد بماند
+no playlist column here	اینجا ستون فهرست پخش نیست
+osc query port: invalid	درگاه پرس‌وجوی OSC: نامعتبر
+playlist start: invalid	شروع فهرست پخش: نامعتبر
+still duration: invalid	مدت تصویر ثابت: نامعتبر
+synth cue has no engine	کیوی سینتی‌سایزر موتور ندارد
+, its place in the stack	، جایگاه آن در پشته
+1 \xC2\xB7 WHAT COMES IN	1 \xC2\xB7 آنچه وارد می‌شود
+An output whose Shows is	خروجی‌ای که نمایش آن
+DeckLink input cue added	کیو ورودی DeckLink افزوده شد
+already on the dashboard	از قبل در داشبورد است
+expected an alpha, 0-255	آلفا انتظار می‌رفت، 0-255
+expected positive pixels	پیکسل مثبت انتظار می‌رفت
+find: press Ctrl+F first	جستجو: ابتدا Ctrl+F را فشار دهید
+glyphs: the built-in set	گلیف‌ها: مجموعهٔ داخلی
+keep at least one output	دست‌کم یک خروجی نگه دارید
+marker: none on this cue	نشانگر: هیچ‌کدام در این کیو
+mic mixed into recording	میکروفون در ضبط ترکیب شد
+not a playable MIDI file	فایل MIDI قابل پخش نیست
+relink: folder not found	اتصال دوباره: پوشه پیدا نشد
+select a moire cue first	ابتدا یک کیو موآره انتخاب کنید
+tempo follows MIDI clock	تمپو از ساعت MIDI پیروی می‌کند
+the tracker has no steps	ردیاب هیچ گامی ندارد
+typeface (the app's own)	قلم (قلم خود برنامه)
+. Set displays to Extend.	. نمایشگرها را روی Extend بگذارید.
+Language reset to English	زبان به انگلیسی بازنشانی شد
+PUSH expects a cue number	PUSH یک شمارهٔ کیو می‌خواهد
+SLICE: there is no output	SLICE: بدون خروجی
+TCCUE: select a cue first	TCCUE: ابتدا یک کیو انتخاب کنید
+effects paste: no targets	چسباندن افکت‌ها: بدون هدف
+follows the whole picture	همهٔ تصویر را دنبال می‌کند
+key color picker canceled	انتخاب رنگ کلید لغو شد
+listening for captions...	در حال گوش دادن به زیرنویس‌ها...
+monitor: pick a row first	مانیتور: ابتدا یک ردیف انتخاب کنید
+moshlook: smooth | chunky	moshlook: نرم | درشت
+no trimmable cue selected	هیچ کیوی قابل برش انتخاب نشده
+output type change failed	تغییر نوع خروجی ناموفق بود
+select a master cue first	ابتدا یک کیو Master انتخاب کنید
+sequence stops at the end	توالی در انتها متوقف می‌شود
+web monitor port: invalid	درگاه مانیتور وب: نامعتبر
+3 \xC2\xB7 WHAT IT RUNS ON	3 · روی
+ASCII CHAOS: expected 0..1	ASCII CHAOS: مقدار 0..1 لازم است
+DATAMOSH on - preparing...	DATAMOSH روشن - در حال آماده‌سازی...
+DMXCUE: select a cue first	DMXCUE: ابتدا یک کیو انتخاب کنید
+GEOLFO: select a cue first	GEOLFO: ابتدا یک کیو انتخاب کنید
+MATRIX: select a cue first	MATRIX: ابتدا یک کیو انتخاب کنید
+MEMOCUE: expected the note	MEMOCUE: یادداشت لازم است
+NETCUE: select a cue first	NETCUE: ابتدا یک کیو انتخاب کنید
+STING BODY: expected 0-100	STING BODY: مقدار 0-100 لازم است
+could not load that plugin	آن افزونه بارگذاری نشد
+effects copy: select a cue	کپی افکت‌ها: یک کیو انتخاب کنید
+expected degrees -180..180	درجه بین -180..180 لازم است
+expression is at its limit	عبارت به حد خود رسیده است
+multiview - every playlist	multiview - هر فهرست پخش
+new show, from my defaults	نمایش جدید، از پیش‌فرض‌های من
+no cue with audio selected	هیچ کیوی با صدا انتخاب نشده
+osc feedback rate: invalid	نرخ بازخورد OSC: نامعتبر
+panic: outputs already off	اضطراری: خروجی‌ها از قبل خاموش‌اند
+pick from screen cancelled	برداشتن از صفحه لغو شد
+rendering slide {1} of {2}	در حال رندر اسلاید {1} از {2}
+schedule: HH:MM[:SS] | off	زمان‌بندی: HH:MM[:SS] | خاموش
+update: nothing to install	به‌روزرسانی: چیزی برای نصب نیست
+warp preset: name required	پیش‌تنظیم تصحیح هندسی: نام لازم است
+1 cue imported (probing...)	1 کیو وارد شد (در حال بررسی...)
+ASCII WOBBLE: expected 0..1	ASCII WOBBLE: مقدار 0..1 لازم است
+AUDIOFX ADD: chain full (8)	AUDIOFX ADD: زنجیره پر است (8)
+CLICK: expected two numbers	CLICK: دو عدد لازم است
+HOVER: expected two numbers	HOVER: دو عدد لازم است
+MIDICUE: select a cue first	MIDICUE: ابتدا یک کیو انتخاب کنید
+TEXTCUE: select a cue first	TEXTCUE: ابتدا یک کیو انتخاب کنید
+browser stopped - deck dark	مرورگر متوقف شد - دک تاریک
+could not save the defaults	پیش‌فرض‌ها ذخیره نشدند
+datamosh look: select a cue	ظاهر datamosh: یک کیو انتخاب کنید
+datamosh: already preparing	datamosh: از قبل در حال آماده‌سازی است
+effects paste: select a cue	چسباندن افکت‌ها: یک کیو انتخاب کنید
+matrix on, routed as it was	ماتریس روشن شد، مسیریابی مثل قبل
+nmos: clipboard unavailable	nmos: کلیپ‌بورد در دسترس نیست
+nmos: need http://host:port	nmos: به http://host:port نیاز است
+skip back: nothing previous	رد کردن به عقب: هیچ‌چیز قبلی نیست
+MIDIFILE: select a cue first	MIDIFILE: ابتدا یک کیو انتخاب کنید
+SCALEMODE: expected one mode	SCALEMODE: یک حالت لازم است
+UISNAP: expected a .bmp path	UISNAP: مسیر .bmp لازم است
+av jumps: counting from zero	پرش‌های av: شمارش از صفر
+cannot reorder a running job	کار در حال اجرا را نمی‌توان جابه‌جا کرد
+expected a number of seconds	تعداد ثانیه لازم است
+master scene rename: removed	تغییر نام صحنهٔ Master: حذف شد
+motion driver would not open	گردانندهٔ حرکت باز نشد
+no steps yet - Ins makes one	هنوز گامی نیست - Ins یکی می‌سازد
+selected cue has no geometry	کیوی انتخاب‌شده هندسه ندارد
+skip back: playlist is empty	رد کردن به عقب: فهرست پخش خالی است
+sprite set could not be read	مجموعهٔ اسپرایت خوانده نشد
+st2110 sdp written to stdout	sdp st2110 در stdout نوشته شد
+the clicker advances the cue	کنترل از راه دور کیو را جلو می‌برد
+video dip fade: 0-30 seconds	محو شدن فروافت ویدیو: 0-30 ثانیه
+warp point: expected numbers	نقطهٔ تصحیح هندسی: عدد لازم است
+* KONAMI * terrarium unlocked	* KONAMI * تراریوم باز شد
+ENDACTION: select a cue first	ENDACTION: ابتدا یک کیو انتخاب کنید
+LOWERANIM: select a cue first	LOWERANIM: ابتدا یک کیو انتخاب کنید
+MATRIX SET: destination is 1-	MATRIX SET: مقصد 1- است
+NETCUE PORT: expected 1-65535	NETCUE PORT: انتظار 1-65535 می‌رفت
+OUTSNAP: expected a .bmp path	OUTSNAP: مسیر .bmp انتظار می‌رفت
+SCRIPTCUE: select a cue first	SCRIPTCUE: ابتدا یک کیو انتخاب کنید
+TEXTCUE SCALE: expected 0.5-2	TEXTCUE SCALE: انتظار 0.5-2 می‌رفت
+WARP AT: expected two numbers	WARP AT: دو عدد انتظار می‌رفت
+could not remove the defaults	پیش‌فرض‌ها حذف نشدند
+lights dip when a video rolls	نور هنگام پخش ویدیو کم می‌شود
+no refresh choices for raster	گزینهٔ نرخ تازه‌سازی برای raster نیست
+output recovered: auto native	خروجی بازیابی شد: خودکار بومی
+overlay on -- choose an image	لایهٔ رویی روشن -- یک تصویر انتخاب کنید
+stopped - deck dark, reracked	متوقف - دک تاریک، دوباره چیده شد
+this file has one sound track	این فایل یک مسیر صدا دارد
+update: will check at startup	به‌روزرسانی: هنگام شروع بررسی می‌شود
+web monitor connections: 1-64	اتصال‌های مانیتور وب: 1-64
+DASH: the startup dialog is up	DASH: پنجرهٔ شروع باز است
+LOWERSTYLE: select a cue first	LOWERSTYLE: ابتدا یک کیو انتخاب کنید
+MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: انتظار 1-16 می‌رفت
+PATTERN ADD needs a pattern id	PATTERN ADD به شناسهٔ الگو نیاز دارد

@@ -2577,3 +2577,277 @@ output overlay on	nakładka wyjścia wł.
 phone haptics off	drgania telefonu wył.
 pick a deck first	najpierw wybierz deck
 playlist loop off	pętla playlisty wył.
+record folder set	folder nagrywania ustawiony
+subtitle file set	plik podtytułów ustawiony
+subtitles cleared	podtytuły usunięte
+take the mask off	zdejmij maskę
+universe: 0-63999	uniwersum: 0-63999
+video synth added	dodano syntezator wideo
+warp preset saved	ustawienie zniekształcenia zapisane
+AUDIOALSO: no deck	AUDIOALSO: brak deck
+DeckLink 10-bit ON	DeckLink 10-bit WL.
+SCRIPTCUE: no deck	SCRIPTCUE: brak deck
+assign route first	najpierw przypisz trasę
+bundle save failed	zapis paczki nie powiódł się
+cue settings reset	ustawienia cue zresetowane
+file dialog failed	błąd okna wyboru pliku
+jumped to live cue	skok do cue na żywo
+lock to screen off	zablokuj na ekranie wył.
+media probe failed	błąd analizy mediów
+nmos: invalid port	nmos: nieprawidłowy port
+output overlay off	nakładka wyjścia wył.
+pip target cleared	cel pip usunięty
+select a cue first	najpierw wybierz cue
+source unavailable	źródło niedostępne
+spare (also spare)	zapas (też zapas)
+stream key cleared	klucz strumienia usunięty
+timecode cue added	dodano cue kodu czasowego
+timer face: blocky	twarz minutnika: blokowa
+timer logo cleared	logo minutnika usunięte
+vmix port: invalid	port vmix: nieprawidłowy
+, not a plugin slot	, to nie slot wtyczki
+. Your show is back	. Twój spektakl wrócił
+DeckLink 10-bit off	DeckLink 10-bit wył.
+HOVER: expected x y	HOVER: oczekiwano x y
+Lower Third cleared	Lower Third usunięty
+NDI\xc2\xae NETWORK	NDI\xc2\xae SIEĆ
+OSC trigger cleared	wyzwalacz OSC usunięty
+Show file not found	nie znaleziono pliku spektaklu
+audio chain cleared	łańcuch dźwięku usunięty
+audio switch failed	zmiana dźwięku nie powiodła się
+browser jumped live	przeglądarka przeskoczyła na żywo
+browser url updated	zaktualizowano adres URL przeglądarki
+bundle media failed	spakowanie mediów nie powiodło się
+choose a show first	najpierw wybierz spektakl
+composite cue added	dodano cue złożone
+cue numbers cleared	wyczyszczono numery cue
+cue settings copied	skopiowano ustawienia cue
+cue settings pasted	wklejono ustawienia cue
+double-GO guard off	ochrona podwójnego GO wyłączona
+effect chain pasted	wklejono łańcuch efektów
+end of the sequence	koniec sekwencji
+pattern motion: n/a	ruch wzoru: n/d
+plugin slot cleared	wyczyszczono slot wtyczki
+splitnotes: no deck	splitnotes: brak decka
+sprite sheet loaded	wczytano arkusz sprite'ów
+takes are immediate	TAKE działa natychmiast
+ui motion always on	ruch interfejsu zawsze włączony
+-10 seconds from end	-10 sekund od końca
+-20 seconds from end	-20 sekund od końca
+-30 seconds from end	-30 sekund od końca
+. — skip to next cue	. — pomiń do następnego cue
+MIDI plays the synth	MIDI gra na syntezatorze
+MIDI trigger cleared	wyczyszczono wyzwalacz MIDI
+NDI source cue added	dodano cue źródła NDI
+audio chain full (8)	łańcuch dźwięku pełny (8)
+browser url required	wymagany adres URL przeglądarki
+bundle export failed	nie udało się wyeksportować paczki
+bundle folder failed	błąd folderu paczki
+cue copy: select cue	kopiowanie cue: wybierz cue
+cue settings reset x	ustawienia cue zresetowane x
+delete from the show	usuń ze spektaklu
+encoder queue paused	kolejka kodera wstrzymana
+find: token required	szukaj: wymagany token
+first port available	pierwszy dostępny port
+identifying displays	rozpoznawanie ekranów
+marker: nothing live	marker: nic na żywo
+marker: select a cue	znacznik: wybierz cue
+no midi input device	brak urządzenia z wejściem MIDI
+no overlays to clear	brak nakładek do wyczyszczenia
+no synth cue is live	żaden cue syntezatora nie jest na żywo
+output create failed	nie udało się utworzyć wyjścia
+output remove failed	nie udało się usunąć wyjścia
+pause points cleared	punkty pauzy wyczyszczone
+presenter view reset	widok prezentera zresetowany
+renumber: empty deck	renumeracja: pusty deck
+sprite sheet cleared	arkusz sprite'ów wyczyszczony
+stream url unchanged	adres URL transmisji bez zmian
+stream url: required	adres URL transmisji: wymagany
+time trigger cleared	wyzwalacz czasowy wyczyszczony
+update: checking off	aktualizacje: sprawdzanie wył.
+warp settings copied	skopiowano ustawienia zniekształcenia
+warp settings pasted	wklejono ustawienia zniekształcenia
+DMX over sACN (E1.31)	DMX przez sACN (E1.31)
+Lower Third cue added	dodano cue Lower Third
+already the last step	to już ostatni krok
+analyzing loudness...	analiza głośności...
+arcade always wiggles	arcade zawsze drży
+browser window closed	okno przeglądarki zamknięte
+canvas width: invalid	szerokość płótna: nieprawidłowa
+computer keyboard off	klawiatura komputera wył.
+contrast check: saved	sprawdzenie kontrastu: zapisano
+cue paste: copy first	wklejanie cue: najpierw skopiuj
+cue paste: no targets	wklejanie cue: brak celów
+cue paste: select cue	wklejanie cue: wybierz cue
+cue reset: no targets	reset cue: brak celów
+cue reset: select cue	reset cue: wybierz cue
+cue settings pasted x	wklejono ustawienia cue x
+display switch failed	nie udało się przełączyć wyświetlacza
+effect chain pasted x	wklejono łańcuch efektów x
+encoder queue running	kolejka kodera działa
+lfo follows the tempo	LFO podąża za tempem
+motion driver cleared	sterownik ruchu wyczyszczony
+ndi tally trigger off	wyzwalacz tally NDI wył.
+ndi unsupported build	NDI: brak w tej wersji
+no Lower Third on air	brak Lower Third na antenie
+no audio cue selected	nie wybrano cue dźwięku
+playlist fps: invalid	fps playlisty: nieprawidłowy
+presenter: no outputs	presenter: brak wyjść
+scene slot source set	źródło slotu sceny ustawione
+st 2110: invalid port	st 2110: nieprawidłowy port
+timer face: 7-segment	twarz minutnika: 7-segmentowa
+' is not a deck number	' to nie numer decku
+FX PARAM: value is 0-1	FX PARAM: wartość 0-1
+already the first step	to już pierwszy krok
+audio bitrate: invalid	bitrate dźwięku: nieprawidłowy
+browser capture failed	przechwycenie z przeglądarki nie powiodło się
+canvas height: invalid	wysokość kanwy: nieprawidłowa
+datamosh: select a cue	datamosh: wybierz cue
+effect stack full (12)	stos efektów pełny (12)
+jumped to selected cue	przeskoczono do wybranego cue
+layer command: removed	polecenie layer: usunięte
+listens to any channel	nasłuchuje na dowolnym kanale
+nmos: node not running	nmos: węzeł nie działa
+output effects back in	efekty wyjścia znów włączone
+presenter layout: wide	układ presentera: szeroki
+route command: removed	polecenie route: usunięte
+save failed - retrying	zapis nie powiódł się - ponawiam
+schedule: select a cue	harmonogram: wybierz cue
+slide import cancelled	import slajdów anulowany
+takes land on the beat	take'i wchodzą na bit
+warp paste: copy first	wklejanie warp: najpierw kopiuj
+2 \xC2\xB7 WHAT IT RUNS	2 \xC2\xB7 CO URUCHAMIA
+Chladni stops listening	Chladni przestaje nasłuchiwać
+could not add an output	nie udało się dodać wyjścia
+downloading {1}... {2}%	pobieranie {1}... {2}%
+driver restarts on take	sterownik uruchamia się ponownie przy take
+encoder destination set	miejsce docelowe kodera ustawione
+expected factor 0.25..4	oczekiwano współczynnika 0.25..4
+expected finite numbers	oczekiwano liczb skończonych
+hyperdeck emulation off	emulacja HyperDeck wyłączona
+key color sample failed	pobranie koloru klucza nie powiodło się
+leave it where it lands	zostaw tam, gdzie wyląduje
+no playlist column here	brak tu kolumny playlisty
+osc query port: invalid	port zapytania OSC: nieprawidłowy
+playlist start: invalid	start playlisty: nieprawidłowy
+still duration: invalid	czas trwania stopklatki: nieprawidłowy
+synth cue has no engine	cue syntezatora nie ma silnika
+, its place in the stack	, jego miejsce w stosie
+1 \xC2\xB7 WHAT COMES IN	1 \xC2\xB7 CO WCHODZI
+An output whose Shows is	Wyjście, w którym Pokaż jest
+DeckLink input cue added	dodano cue wejścia DeckLink
+already on the dashboard	już na pulpicie
+expected an alpha, 0-255	oczekiwano alfy, 0-255
+expected positive pixels	oczekiwano dodatnich pikseli
+find: press Ctrl+F first	szukaj: najpierw naciśnij Ctrl+F
+glyphs: the built-in set	glify: wbudowany zestaw
+keep at least one output	zostaw co najmniej jedno wyjście
+marker: none on this cue	znacznik: brak w tym cue
+mic mixed into recording	mikrofon mieszany do nagrywania
+not a playable MIDI file	to nie jest odtwarzalny plik MIDI
+relink: folder not found	relink: nie znaleziono folderu
+select a moire cue first	najpierw wybierz cue mora
+tempo follows MIDI clock	tempo podąża za zegarem MIDI
+the tracker has no steps	tracker nie ma kroków
+typeface (the app's own)	krój pisma (własny aplikacji)
+. Set displays to Extend.	. Ustaw wyświetlacze na Rozszerz.
+Language reset to English	Język zresetowany do angielskiego
+PUSH expects a cue number	PUSH oczekuje numeru cue
+SLICE: there is no output	SLICE: brak wyjścia
+TCCUE: select a cue first	TCCUE: najpierw wybierz cue
+effects paste: no targets	wklejanie efektów: brak celów
+follows the whole picture	podąża za całym obrazem
+key color picker canceled	wybór koloru klucza anulowany
+listening for captions...	nasłuchiwanie napisów...
+monitor: pick a row first	monitor: najpierw wybierz wiersz
+moshlook: smooth | chunky	moshlook: miękkie | blokowe
+no trimmable cue selected	nie wybrano cue do przycięcia
+output type change failed	zmiana typu wyjścia nie powiodła się
+select a master cue first	najpierw wybierz cue Master
+sequence stops at the end	sekwencja zatrzymuje się na końcu
+web monitor port: invalid	port monitora WWW: nieprawidłowy
+3 \xC2\xB7 WHAT IT RUNS ON	3 · DZIAŁA NA
+ASCII CHAOS: expected 0..1	ASCII CHAOS: oczekiwano 0..1
+DATAMOSH on - preparing...	DATAMOSH WL. - przygotowanie...
+DMXCUE: select a cue first	DMXCUE: najpierw wybierz cue
+GEOLFO: select a cue first	GEOLFO: najpierw wybierz cue
+MATRIX: select a cue first	MATRIX: najpierw wybierz cue
+MEMOCUE: expected the note	MEMOCUE: oczekiwano notatki
+NETCUE: select a cue first	NETCUE: najpierw wybierz cue
+STING BODY: expected 0-100	STING BODY: oczekiwano 0-100
+could not load that plugin	nie udało się wczytać tej wtyczki
+effects copy: select a cue	kopiuj efekty: wybierz cue
+expected degrees -180..180	oczekiwano stopni -180..180
+expression is at its limit	wyrażenie osiągnęło limit
+multiview - every playlist	multiview - każda playlista
+new show, from my defaults	nowy spektakl z moich domyślnych
+no cue with audio selected	nie wybrano cue z dźwiękiem
+osc feedback rate: invalid	częstotliwość sprzężenia OSC: nieprawidłowa
+panic: outputs already off	panic: wyjścia już wył.
+pick from screen cancelled	pobierz z ekranu: anulowano
+rendering slide {1} of {2}	renderowanie slajdu {1} z {2}
+schedule: HH:MM[:SS] | off	harmonogram: HH:MM[:SS] | wył.
+update: nothing to install	aktualizacja: nic do zainstalowania
+warp preset: name required	zniekształć, ustawienie: podaj nazwę
+1 cue imported (probing...)	1 cue zaimportowane (sprawdzanie...)
+ASCII WOBBLE: expected 0..1	ASCII WOBBLE: oczekiwano 0..1
+AUDIOFX ADD: chain full (8)	AUDIOFX ADD: łańcuch pełny (8)
+CLICK: expected two numbers	CLICK: oczekiwano dwóch liczb
+HOVER: expected two numbers	HOVER: oczekiwano dwóch liczb
+MIDICUE: select a cue first	MIDICUE: najpierw wybierz cue
+TEXTCUE: select a cue first	TEXTCUE: najpierw wybierz cue
+VIDEODIP FADE: 0-30 seconds	VIDEODIP FADE: 0-30 sekund
+browser stopped - deck dark	przeglądarka zatrzymana - deck ciemny
+could not save the defaults	nie udało się zapisać ustawień domyślnych
+datamosh look: select a cue	look datamosh: wybierz cue
+datamosh: already preparing	datamosh: już się przygotowuje
+effects paste: select a cue	wklejanie efektów: wybierz cue
+matrix on, routed as it was	matrix wł., routing jak był
+nmos: clipboard unavailable	nmos: schowek niedostępny
+nmos: need http://host:port	nmos: potrzebny http://host:port
+skip back: nothing previous	pomiń wstecz: brak poprzedniego
+FX COLOUR: a grey has no hue	FX COLOUR: szarość nie ma odcienia
+MASK RENAME: expected a name	MASK RENAME: oczekiwano nazwy
+MIDIFILE: select a cue first	MIDIFILE: najpierw wybierz cue
+SCALEMODE: expected one mode	SCALEMODE: oczekiwano jednego trybu
+SYNTH ADD takes no arguments	SYNTH ADD nie przyjmuje argumentów
+TEXTCUE CARD: expected 0-255	TEXTCUE CARD: oczekiwano 0-255
+UISNAP: expected a .bmp path	UISNAP: oczekiwano ścieżki .bmp
+av jumps: counting from zero	av jumps: liczone od zera
+cannot reorder a running job	nie można zmienić kolejności działającego zadania
+expected a number of seconds	oczekiwano liczby sekund
+master scene rename: removed	zmiana nazwy master scene: usunięto
+motion driver would not open	sterownik ruchu się nie otworzył
+no steps yet - Ins makes one	jeszcze brak kroków - Ins dodaje krok
+selected cue has no geometry	wybrany cue nie ma geometrii
+skip back: playlist is empty	pomiń wstecz: playlista jest pusta
+sprite set could not be read	nie udało się odczytać zestawu sprite'ów
+st2110 sdp written to stdout	st2110 sdp zapisano na stdout
+the clicker advances the cue	pilot przesuwa cue dalej
+video dip fade: 0-30 seconds	wygaszenie przejścia wideo: 0-30 sekund
+warp point: expected numbers	punkt zniekształcenia: oczekiwano liczb
+* KONAMI * terrarium unlocked	* KONAMI * terrarium odblokowane
+DMXCUE PORT: expected 1-65535	DMXCUE PORT: oczekiwano 1-65535
+ENDACTION: select a cue first	ENDACTION: najpierw wybierz cue
+FADE STOP: expected on or off	FADE STOP: oczekiwano wł. lub wył.
+LOWERANIM: select a cue first	LOWERANIM: najpierw wybierz cue
+MATRIX SET: destination is 1-	MATRIX SET: miejsce docelowe to 1-
+NETCUE PORT: expected 1-65535	NETCUE PORT: oczekiwano 1-65535
+OUTSNAP: expected a .bmp path	OUTSNAP: oczekiwano ścieżki .bmp
+SCRIPTCUE: select a cue first	SCRIPTCUE: najpierw wybierz cue
+TEXTCUE SCALE: expected 0.5-2	TEXTCUE SCALE: oczekiwano 0.5-2
+TRIGGER AT: HH:MM[:SS] or OFF	TRIGGER AT: HH:MM[:SS] lub OFF
+WARP AT: expected two numbers	WARP AT: oczekiwano dwóch liczb
+could not remove the defaults	nie udało się usunąć domyślnych
+lights dip when a video rolls	światła przygasają, gdy rusza wideo
+no refresh choices for raster	brak opcji odświeżania dla rastra
+output recovered: auto native	wyjście odzyskane: auto natywny
+overlay on -- choose an image	nakładka wl. -- wybierz obraz
+stopped - deck dark, reracked	zatrzymany - deck ciemny, wczytany ponownie
+this file has one sound track	ten plik ma jedną ścieżkę dźwięku
+update: will check at startup	aktualizacja: sprawdzanie przy starcie
+web monitor connections: 1-64	połączenia monitora WWW: 1-64
+DASH: the startup dialog is up	DASH: okno startowe jest otwarte
+LOWERSTYLE: select a cue first	LOWERSTYLE: najpierw wybierz cue
+MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: oczekiwano 1-16
+PATTERN ADD needs a pattern id	PATTERN ADD wymaga ID wzoru

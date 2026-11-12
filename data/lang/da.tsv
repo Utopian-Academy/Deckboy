@@ -2589,3 +2589,258 @@ nmos: invalid port	NMOS: ugyldig port
 output overlay off	udgangsoverlay: FRA
 pip target cleared	PIP-mål ryddet
 scene live	scene direkte
+select a cue first	vælg først en cue
+source unavailable	kilde utilgængelig
+spare (also spare)	reserve (også reserve)
+stream key cleared	streamnøgle ryddet
+timecode cue added	tidskode-cue tilføjet
+timer face: blocky	timeransigt: blokagtigt
+timer logo cleared	timerlogo ryddet
+vmix port: invalid	VMIX: ugyldig port
+, not a plugin slot	, ikke en plugin-plads
+. Your show is back	. Dit show er tilbage
+DeckLink 10-bit off	DeckLink 10 BIT: FRA
+HOVER: expected x y	HOVER: forventede x y
+Lower Third cleared	Lower Third ryddet
+NDI\xc2\xae NETWORK	NDI® NETVÆRK
+OSC trigger cleared	OSC-udløser ryddet
+Show file not found	Showfil ikke fundet
+audio chain cleared	lydkæde ryddet
+audio switch failed	lydskift mislykkedes
+browser jumped live	browser sprang til live
+browser url updated	Browser-URL opdateret
+bundle media failed	samling af medier mislykkedes
+choose a show first	vælg først et show
+composite cue added	sammensat cue tilføjet
+cue numbers cleared	cue-numre ryddet
+cue settings copied	cue-indstillinger kopieret
+cue settings pasted	cue-indstillinger indsat
+double-GO guard off	Dobbelt-GO-værn fra
+effect chain pasted	effektkæde indsat
+end of the sequence	slutningen af sekvensen
+pattern motion: n/a	mønsterbevægelse: ikke tilgængelig
+plugin slot cleared	plugin-slot ryddet
+splitnotes: no deck	splitnotes: intet deck
+sprite sheet loaded	spritesheet indlæst
+takes are immediate	TAKE sker straks
+ui motion always on	UI-bevægelse altid til
+-10 seconds from end	-10 sekunder fra slut
+-20 seconds from end	-20 sekunder fra slut
+-30 seconds from end	-30 sekunder fra slut
+. — skip to next cue	. — spring til næste cue
+MIDI plays the synth	MIDI spiller synthen
+MIDI trigger cleared	MIDI-udløser ryddet
+NDI source cue added	NDI-kilde-cue tilføjet
+audio chain full (8)	lydkæde fuld (8)
+browser url required	Browser-URL påkrævet
+bundle export failed	eksport af samling mislykkedes
+bundle folder failed	samlingsmappe mislykkedes
+cue copy: select cue	cue-kopi: vælg cue
+cue settings reset x	cue-indstillinger nulstillet x
+delete from the show	slet fra showet
+encoder queue paused	koder-kø pauset
+find: run FIND first	find: kør FIND først
+find: token required	find: token påkrævet
+first port available	første ledige port
+identifying displays	identificerer skærme
+marker: nothing live	markør: intet direkte
+marker: select a cue	markør: vælg et cue
+no midi input device	ingen MIDI-indgangsenhed
+no overlays to clear	ingen overlays at rydde
+no synth cue is live	intet synth-cue er live
+output create failed	oprettelse af udgang mislykkedes
+output remove failed	fjernelse af udgang mislykkedes
+pause points cleared	pausepunkter ryddet
+presenter view reset	oplægsholdervisning nulstillet
+renumber: empty deck	omnummerér: tomt deck
+sprite sheet cleared	spritesheet ryddet
+stream url unchanged	stream-url uændret
+stream url: required	stream-url: påkrævet
+time trigger cleared	tidsudløser ryddet
+update: checking off	opdatering: tjek er slået fra
+warp settings copied	forvrid-indstillinger kopieret
+warp settings pasted	forvrid-indstillinger indsat
+already the last step	allerede sidste trin
+analyzing loudness...	analyserer lydstyrke...
+arcade always wiggles	arkade vrikker altid
+browser window closed	browservindue lukket
+canvas width: invalid	lærredsbredde: ugyldig
+computer keyboard off	computertastatur slået fra
+contrast check: saved	kontrasttjek: gemt
+cue paste: copy first	indsæt cue: kopiér først
+cue paste: no targets	indsæt cue: ingen mål
+cue paste: select cue	indsæt cue: vælg et cue
+cue reset: no targets	nulstil cue: ingen mål
+cue reset: select cue	nulstil cue: vælg et cue
+cue settings pasted x	cue-indstillinger indsat x
+display switch failed	skærmskift mislykkedes
+effect chain pasted x	effektkæde indsat x
+encoder queue running	encoder-kø kører
+lfo follows the tempo	LFO følger tempoet
+motion driver cleared	bevægelsesdriver ryddet
+ndi tally trigger off	NDI tally-udløser slået fra
+ndi unsupported build	NDI understøttes ikke i denne build
+no Lower Third on air	intet Lower Third på luften
+no audio cue selected	intet lyd-cue valgt
+playlist fps: invalid	playliste-fps: ugyldig
+presenter: no outputs	presenter: ingen udgange
+scene slot source set	scenens slotkilde indstillet
+st 2110: invalid port	st 2110: ugyldig port
+timer face: 7-segment	timer-ansigt: 7-segment
+' is not a deck number	' er ikke et deck-nummer
+FX PARAM: value is 0-1	FX PARAM: værdien er 0-1
+already the first step	allerede det første trin
+audio bitrate: invalid	lydbitrate: ugyldig
+browser capture failed	browseroptagelse mislykkedes
+canvas height: invalid	lærredshøjde: ugyldig
+datamosh: select a cue	datamosh: vælg et cue
+effect stack full (12)	effektstakken er fuld (12)
+jumped to selected cue	sprang til valgt cue
+layer command: removed	lagkommando: fjernet
+listens to any channel	lytter på enhver kanal
+nmos: node not running	nmos: node kører ikke
+output effects back in	udgangseffekter er tilbage
+presenter layout: wide	presenter-layout: bredt
+route command: removed	rutekommando: fjernet
+save failed - retrying	gem mislykkedes - prøver igen
+schedule: select a cue	tidsplan: vælg et cue
+slide import cancelled	slideimport annulleret
+takes land on the beat	takes lander på beatet
+warp paste: copy first	warp-indsæt: kopiér først
+2 \xC2\xB7 WHAT IT RUNS	2 \xC2\xB7 HVAD DET KØRER
+Chladni stops listening	Chladni holder op med at lytte
+could not add an output	kunne ikke tilføje en udgang
+downloading {1}... {2}%	henter {1}... {2}%
+driver restarts on take	driveren genstarter ved take
+encoder destination set	koderens destination indstillet
+expected factor 0.25..4	forventede faktor 0.25..4
+expected finite numbers	forventede endelige tal
+hyperdeck emulation off	HyperDeck-emulering fra
+key color sample failed	prøvetagning af nøglefarve mislykkedes
+leave it where it lands	lad den blive, hvor den lander
+no playlist column here	ingen playlistekolonne her
+osc query port: invalid	OSC-forespørgselsport: ugyldig
+playlist start: invalid	playlistestart: ugyldig
+still duration: invalid	varighed af stillbillede: ugyldig
+synth cue has no engine	synth-cue har ingen motor
+, its place in the stack	, dens plads i stakken
+1 \xC2\xB7 WHAT COMES IN	1 \xC2\xB7 HVAD DER KOMMER IND
+An output whose Shows is	En udgang, hvis Vis er
+DeckLink input cue added	DeckLink-indgangscue tilføjet
+WEBMONITOR PORT: 1-65535	WEBMONITOR-PORT: 1-65535
+already on the dashboard	allerede på dashboardet
+expected an alpha, 0-255	forventede en alfa, 0-255
+expected positive pixels	forventede positive pixels
+find: press Ctrl+F first	find: tryk Ctrl+F først
+glyphs: the built-in set	glyffer: det indbyggede sæt
+keep at least one output	behold mindst én udgang
+marker: none on this cue	markør: ingen på denne cue
+mic mixed into recording	mikrofon mixet ind i optagelsen
+not a playable MIDI file	ikke en afspilbar MIDI-fil
+relink: folder not found	relink: mappen blev ikke fundet
+select a moire cue first	vælg først en moiré-cue
+tempo follows MIDI clock	tempo følger MIDI-clock
+the tracker has no steps	trackeren har ingen trin
+typeface (the app's own)	skrifttype (appens egen)
+. Set displays to Extend.	. Sæt skærmene til Udvid.
+Language reset to English	Sproget er nulstillet til engelsk
+PUSH expects a cue number	PUSH forventer et cuenummer
+SLICE: there is no output	SLICE: der er ingen udgang
+TCCUE: select a cue first	TCCUE: vælg først en cue
+effects paste: no targets	indsæt effekter: ingen mål
+follows the whole picture	følger hele billedet
+key color picker canceled	valg af nøglefarve annulleret
+listening for captions...	lytter efter undertekster...
+monitor: pick a row first	monitor: vælg først en række
+moshlook: smooth | chunky	moshlook: blød | grov
+no trimmable cue selected	intet cue der kan trimmes er valgt
+output type change failed	skift af udgangstype mislykkedes
+select a master cue first	vælg først et master-cue
+sequence stops at the end	sekvensen stopper ved slutningen
+web monitor port: invalid	webmonitor-port: ugyldig
+3 \xC2\xB7 WHAT IT RUNS ON	3 · HVAD DEN VIRKER PÅ
+ASCII CHAOS: expected 0..1	ASCII CHAOS: forventet 0..1
+DATAMOSH on - preparing...	DATAMOSH TIL - forbereder...
+DMXCUE: select a cue first	DMXCUE: vælg først et cue
+GEOLFO: select a cue first	GEOLFO: vælg først et cue
+MATRIX: select a cue first	MATRIX: vælg først et cue
+MEMOCUE: expected the note	MEMOCUE: forventede noten
+NETCUE: select a cue first	NETCUE: vælg først et cue
+STING BODY: expected 0-100	STING BODY: forventet 0-100
+could not load that plugin	kunne ikke indlæse det plugin
+effects copy: select a cue	kopiér effekter: vælg et cue
+expected degrees -180..180	forventede grader -180..180
+expression is at its limit	udtrykket er ved sin grænse
+multiview - every playlist	multiview - hver playliste
+new show, from my defaults	nyt show, fra mine standarder
+no cue with audio selected	intet cue med lyd er valgt
+osc feedback rate: invalid	osc-feedbackhastighed: ugyldig
+panic: outputs already off	panic: udgange er allerede fra
+pick from screen cancelled	hent fra skærm annulleret
+rendering slide {1} of {2}	renderer slide {1} af {2}
+schedule: HH:MM[:SS] | off	tidsplan: HH:MM[:SS] | fra
+update: nothing to install	opdatering: intet at installere
+warp preset: name required	forvalg til forvrid: navn påkrævet
+1 cue imported (probing...)	1 cue importeret (analyserer...)
+ASCII WOBBLE: expected 0..1	ASCII WOBBLE: forventet 0..1
+AUDIOFX ADD: chain full (8)	AUDIOFX ADD: kæden er fuld (8)
+CLICK: expected two numbers	CLICK: forventede to tal
+HOVER: expected two numbers	HOVER: forventede to tal
+MIDICUE: select a cue first	MIDICUE: vælg et cue først
+TEXTCUE: select a cue first	TEXTCUE: vælg et cue først
+VIDEODIP FADE: 0-30 seconds	VIDEODIP FADE: 0-30 sekunder
+browser stopped - deck dark	browser stoppet - deck mørkt
+could not save the defaults	standarderne kunne ikke gemmes
+datamosh look: select a cue	datamosh look: vælg et cue
+datamosh: already preparing	datamosh: forbereder allerede
+effects paste: select a cue	effects paste: vælg et cue
+matrix on, routed as it was	matrix til, routet som før
+nmos: clipboard unavailable	nmos: udklipsholder ikke tilgængelig
+nmos: need http://host:port	nmos: kræver http://host:port
+skip back: nothing previous	spring tilbage: intet forrige
+FX COLOUR: a grey has no hue	FX COLOUR: en grå har ingen farvetone
+MASK RENAME: expected a name	MASK RENAME: forventede et navn
+MIDIFILE: select a cue first	MIDIFILE: vælg et cue først
+SCALEMODE: expected one mode	SCALEMODE: forventede én tilstand
+SYNTH ADD takes no arguments	SYNTH ADD tager ingen argumenter
+TEXTCUE CARD: expected 0-255	TEXTCUE CARD: forventede 0-255
+UISNAP: expected a .bmp path	UISNAP: forventede en .bmp-sti
+av jumps: counting from zero	av jumps: tæller fra nul
+cannot reorder a running job	et kørende job kan ikke omordnes
+expected a number of seconds	forventede et antal sekunder
+master scene rename: removed	master scene rename: fjernet
+motion driver would not open	bevægelsesdriveren ville ikke åbne
+no steps yet - Ins makes one	ingen trin endnu - Ins laver et
+selected cue has no geometry	det valgte cue har ingen geometri
+skip back: playlist is empty	spring tilbage: playlisten er tom
+sprite set could not be read	spritesættet kunne ikke læses
+st2110 sdp written to stdout	st2110 sdp skrevet til stdout
+the clicker advances the cue	presenteren rykker cuet frem
+video dip fade: 0-30 seconds	video dip fade: 0-30 sekunder
+warp point: expected numbers	warp point: forventede tal
+* KONAMI * terrarium unlocked	* KONAMI * terrarium låst op
+DMXCUE PORT: expected 1-65535	DMXCUE PORT: forventede 1-65535
+ENDACTION: select a cue first	ENDACTION: vælg et cue først
+FADE STOP: expected on or off	FADE STOP: forventede TIL eller FRA
+LESSONS TRACK: PIXEL or VIDEO	LESSONS TRACK: PIXEL eller VIDEO
+LOWERANIM: select a cue first	LOWERANIM: vælg et cue først
+MATRIX SET: destination is 1-	MATRIX SET: destination er 1-
+NETCUE PORT: expected 1-65535	NETCUE PORT: forventede 1-65535
+OUTSNAP: expected a .bmp path	OUTSNAP: forventede en .bmp-sti
+SCRIPTCUE: select a cue first	SCRIPTCUE: vælg en cue først
+TEXTCUE SCALE: expected 0.5-2	TEXTCUE SCALE: forventede 0.5-2
+TRIGGER AT: HH:MM[:SS] or OFF	TRIGGER AT: HH:MM[:SS] eller OFF
+WARP AT: expected two numbers	WARP AT: forventede to tal
+could not remove the defaults	kunne ikke fjerne standarderne
+lights dip when a video rolls	lys dæmpes, når en video kører
+no refresh choices for raster	ingen opdateringsvalg til raster
+output recovered: auto native	udgang gendannet: auto nativ
+overlay on -- choose an image	overlay til -- vælg et billede
+stopped - deck dark, reracked	stoppet - deck mørkt, genopstillet
+this file has one sound track	denne fil har ét lydspor
+update: will check at startup	opdatering: tjekker ved opstart
+web monitor connections: 1-64	webmonitor-forbindelser: 1-64
+DASH: the startup dialog is up	DASH: opstartsdialogen er åben
+LOWERSTYLE: select a cue first	LOWERSTYLE: vælg en cue først
+MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: forventede 1-16
+PATTERN ADD needs a pattern id	PATTERN ADD kræver et mønster-id

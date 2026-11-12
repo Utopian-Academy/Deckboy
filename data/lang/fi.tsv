@@ -2579,3 +2579,271 @@ output overlay on	ulostulopeitto päällä
 phone haptics off	puhelimen värinä pois
 pick a deck first	valitse ensin deck
 playlist loop off	soittolistan silmukka pois
+record folder set	tallennuskansio asetettu
+subtitle file set	alaotsikkotiedosto asetettu
+subtitles cleared	alaotsikot tyhjennetty
+take the mask off	maski pois
+universe: 0-63999	universumi: 0-63999
+video synth added	videosyntetisaattori lisätty
+warp preset saved	vääntöesiasetus tallennettu
+AUDIOALSO: no deck	AUDIOALSO: ei deckiä
+DeckLink 10-bit ON	DeckLink 10-bit PÄÄLLÄ
+SCRIPTCUE: no deck	SCRIPTCUE: ei deckiä
+assign route first	aseta ensin reitti
+bundle save failed	nipun tallennus epäonnistui
+cue settings reset	cuen asetukset nollattu
+file dialog failed	tiedostoikkuna epäonnistui
+jumped to live cue	hyppäsi suora-cueen
+lock to screen off	lukitse näyttöön pois
+media probe failed	median tutkinta epäonnistui
+nmos: invalid port	nmos: virheellinen portti
+output overlay off	ulostulon peittokuva pois
+pip target cleared	pip-kohde tyhjennetty
+select a cue first	valitse ensin cue
+source unavailable	lähde ei ole saatavilla
+spare (also spare)	vara (myös vara)
+stream key cleared	lähetysavain tyhjennetty
+timecode cue added	aikakoodicue lisätty
+timer face: blocky	ajastimen kasvot: lohkomainen
+timer logo cleared	ajastimen logo tyhjennetty
+vmix port: invalid	vmix-portti: virheellinen
+, not a plugin slot	, ei ole liitännäispaikka
+. Your show is back	. Esityksesi on takaisin
+DeckLink 10-bit off	DeckLink 10-bit pois
+HOVER: expected x y	HOVER: odotettiin x y
+Lower Third cleared	Lower Third tyhjennetty
+NDI\xc2\xae NETWORK	NDI® VERKKO
+OSC trigger cleared	OSC-laukaisin tyhjennetty
+Show file not found	Esitystiedostoa ei löytynyt
+audio chain cleared	ääniketju tyhjennetty
+audio switch failed	äänen vaihto epäonnistui
+browser jumped live	selain hyppäsi suoraan
+browser url updated	Selaimen URL päivitetty
+bundle media failed	Median niputus epäonnistui
+choose a show first	Valitse ensin esitys
+composite cue added	yhdistelmäcue lisätty
+cue numbers cleared	Cue-numerot tyhjennetty
+cue settings copied	Cuen asetukset kopioitu
+cue settings pasted	Cuen asetukset liitetty
+double-GO guard off	Kaksois-GO-suoja pois
+effect chain pasted	tehosteketju liitetty
+end of the sequence	sekvenssin loppu
+pattern motion: n/a	kuvion liike: ei saatavilla
+plugin slot cleared	liitännäispaikka tyhjennetty
+splitnotes: no deck	splitnotes: ei deckiä
+sprite sheet loaded	sprite-arkki ladattu
+takes are immediate	TAKEt ovat välittömiä
+ui motion always on	käyttöliittymän liike aina päällä
+-10 seconds from end	-10 sekuntia lopusta
+-20 seconds from end	-20 sekuntia lopusta
+-30 seconds from end	-30 sekuntia lopusta
+. — skip to next cue	. — ohita seuraavaan cueen
+MIDI plays the synth	MIDI soittaa syntikkaa
+MIDI trigger cleared	MIDI-laukaisin tyhjennetty
+NDI source cue added	NDI-lähde-cue lisätty
+audio chain full (8)	äänen ketju täynnä (8)
+browser url required	Selaimen URL vaaditaan
+bundle export failed	Niputuksen vienti epäonnistui
+bundle folder failed	Niputuksen kansio epäonnistui
+cue copy: select cue	cuen kopiointi: valitse cue
+cue settings reset x	cuen asetukset nollattu x
+delete from the show	poista esityksestä
+encoder queue paused	enkooderin jono tauolla
+find: run FIND first	etsi: suorita ensin FIND
+find: token required	etsi: tunnus vaaditaan
+first port available	ensimmäinen vapaa portti
+identifying displays	tunnistetaan näyttöjä
+marker: nothing live	merkki: ei mitään suorana
+marker: select a cue	merkki: valitse cue
+no midi input device	ei MIDI-tulolaitetta
+no overlays to clear	ei tyhjennettäviä peittoja
+no synth cue is live	mikään synth-cue ei ole lähetyksessä
+output create failed	ulostulon luonti epäonnistui
+output remove failed	ulostulon poisto epäonnistui
+pause points cleared	taukokohdat tyhjennetty
+presenter view reset	esittäjän näkymä nollattu
+renumber: empty deck	uudelleennumerointi: tyhjä deck
+sprite sheet cleared	sprite-arkki tyhjennetty
+stream url unchanged	lähetyksen URL ei muuttunut
+stream url: required	lähetyksen URL: pakollinen
+time trigger cleared	aikalaukaisin tyhjennetty
+update: checking off	päivitys: tarkistus pois
+warp settings copied	vääntöasetukset kopioitu
+warp settings pasted	vääntöasetukset liitetty
+Lower Third cue added	Lower Third -cue lisätty
+already the last step	jo viimeinen askel
+analyzing loudness...	analysoidaan äänekkyyttä...
+arcade always wiggles	pelihalli vipeltää aina
+browser window closed	selainikkuna suljettu
+canvas width: invalid	canvaksen leveys: virheellinen
+computer keyboard off	tietokoneen näppäimistö pois
+contrast check: saved	kontrastitarkistus: tallennettu
+cue paste: copy first	cuen liitos: kopioi ensin
+cue paste: no targets	cuen liitos: ei kohteita
+cue paste: select cue	cuen liitos: valitse cue
+cue reset: no targets	cuen nollaus: ei kohteita
+cue reset: select cue	cuen nollaus: valitse cue
+cue settings pasted x	cuen asetukset liitetty x
+display switch failed	näytön vaihto epäonnistui
+effect chain pasted x	efektiketju liitetty x
+encoder queue running	enkooderin jono käynnissä
+lfo follows the tempo	lfo seuraa tempoa
+motion driver cleared	liikeohjain tyhjennetty
+ndi tally trigger off	NDI-tally-laukaisin pois
+ndi unsupported build	NDI ei tuettu tässä versiossa
+no Lower Third on air	ei Lower Thirdiä lähetyksessä
+no audio cue selected	äänicueta ei ole valittu
+playlist fps: invalid	soittolistan fps: virheellinen
+presenter: no outputs	esittäjä: ei ulostuloja
+scene slot source set	kohtauksen paikan lähde asetettu
+st 2110: invalid port	st 2110: virheellinen portti
+timer face: 7-segment	ajastimen kasvot: 7-segmenttinen
+' is not a deck number	' ei ole deck-numero
+FX PARAM: value is 0-1	FX PARAM: arvo on 0-1
+already the first step	jo ensimmäinen askel
+audio bitrate: invalid	äänen bittinopeus: virheellinen
+browser capture failed	selaimen kaappaus epäonnistui
+canvas height: invalid	kankaan korkeus: virheellinen
+datamosh: select a cue	datamosh: valitse cue
+effect stack full (12)	tehostepino täynnä (12)
+jumped to selected cue	hypättiin valittuun cueen
+layer command: removed	tasokomento: poistettu
+listens to any channel	kuuntelee mitä tahansa kanavaa
+nmos: node not running	nmos: solmu ei käynnissä
+output effects back in	ulostulon tehosteet takaisin käytössä
+presenter layout: wide	esittäjän asettelu: leveä
+route command: removed	reittikomento: poistettu
+save failed - retrying	tallennus epäonnistui - yritetään uudelleen
+schedule: select a cue	aikataulu: valitse cue
+slide import cancelled	diojen tuonti peruttu
+takes land on the beat	TAKEt osuvat biittiin
+warp paste: copy first	liitä vääntö: kopioi ensin
+2 \xC2\xB7 WHAT IT RUNS	2 \xC2\xB7 MITÄ SE AJAA
+Chladni stops listening	Chladni lopettaa kuuntelun
+could not add an output	ulostulon lisääminen ei onnistunut
+downloading {1}... {2}%	ladataan {1}... {2}%
+driver restarts on take	ohjain käynnistyy uudelleen TAKEssa
+encoder destination set	enkooderin kohde asetettu
+expected factor 0.25..4	odotettiin kerrointa 0.25..4
+expected finite numbers	odotettiin äärellisiä lukuja
+hyperdeck emulation off	HyperDeck-emulointi pois
+key color sample failed	avainvärin näytteenotto epäonnistui
+leave it where it lands	jätä se siihen, mihin se putoaa
+no playlist column here	ei soittolistasaraketta tässä
+osc query port: invalid	OSC-kyselyn portti: virheellinen
+playlist start: invalid	soittolistan alku: virheellinen
+still duration: invalid	pysäytyskuvan kesto: virheellinen
+synth cue has no engine	synth-cuella ei ole moottoria
+, its place in the stack	, sen paikka pinossa
+1 \xC2\xB7 WHAT COMES IN	1 \xC2\xB7 MITÄ TULEE SISÄÄN
+An output whose Shows is	Ulostulo, jonka Näytä-asetus on
+DeckLink input cue added	DeckLink-tulo-cue lisätty
+WEBMONITOR PORT: 1-65535	WEBMONITOR-PORTTI: 1-65535
+already on the dashboard	on jo kojelaudalla
+expected an alpha, 0-255	odotettiin alfaa, 0-255
+expected positive pixels	odotettiin positiivisia pikseleitä
+find: press Ctrl+F first	etsi: paina ensin Ctrl+F
+glyphs: the built-in set	glyfit: sisäänrakennettu joukko
+keep at least one output	säilytä vähintään yksi ulostulo
+marker: none on this cue	merkki: ei mitään tässä cuessa
+mic mixed into recording	mikrofoni sekoitettu tallenteeseen
+not a playable MIDI file	ei toistettava MIDI-tiedosto
+relink: folder not found	linkitä uudelleen: kansiota ei löydy
+select a moire cue first	valitse ensin moiré-cue
+tempo follows MIDI clock	tempo seuraa MIDI-kelloa
+the tracker has no steps	seurannassa ei ole askelia
+typeface (the app's own)	kirjasin (sovelluksen oma)
+. Set displays to Extend.	. Aseta näytöt tilaan Laajenna.
+Language reset to English	Kieli palautettu englanniksi
+PUSH expects a cue number	PUSH odottaa cue-numeroa
+SLICE: there is no output	SLICE: ei ulostuloa
+TCCUE: select a cue first	TCCUE: valitse ensin cue
+effects paste: no targets	tehosteiden liittäminen: ei kohteita
+follows the whole picture	seuraa koko kuvaa
+key color picker canceled	avainvärin valinta peruttu
+listening for captions...	kuunnellaan tekstitystä...
+monitor: pick a row first	monitori: valitse ensin rivi
+moshlook: smooth | chunky	moshlook: pehmeä | karkea
+no trimmable cue selected	ei leikattavaa cuea valittuna
+output type change failed	ulostulon tyypin vaihto epäonnistui
+select a master cue first	valitse ensin master-cue
+sequence stops at the end	sekvenssi pysähtyy loppuun
+web monitor port: invalid	webmonitorin portti: virheellinen
+3 \xC2\xB7 WHAT IT RUNS ON	3 · KOHDE
+ASCII CHAOS: expected 0..1	ASCII CHAOS: odotettiin 0..1
+DATAMOSH on - preparing...	DATAMOSH PÄÄLLÄ - valmistellaan...
+DMXCUE: select a cue first	DMXCUE: valitse ensin cue
+GEOLFO: select a cue first	GEOLFO: valitse ensin cue
+MATRIX: select a cue first	MATRIX: valitse ensin cue
+MEMOCUE: expected the note	MEMOCUE: odotettiin muistiinpanoa
+NETCUE: select a cue first	NETCUE: valitse ensin cue
+STING BODY: expected 0-100	STING BODY: odotettiin 0-100
+could not load that plugin	liitännäistä ei voitu ladata
+effects copy: select a cue	tehosteiden kopiointi: valitse cue
+expected degrees -180..180	odotettiin asteita -180..180
+expression is at its limit	lauseke on rajallaan
+multiview - every playlist	multiview - jokainen soittolista
+new show, from my defaults	uusi esitys, omista oletuksista
+no cue with audio selected	ääntä sisältävää cuea ei valittu
+osc feedback rate: invalid	OSC takaisinkytk. taajuus: virheellinen
+panic: outputs already off	paniikki: ulostulot jo pois
+pick from screen cancelled	poiminta näytöltä peruttu
+rendering slide {1} of {2}	renderöidään diaa {1} / {2}
+schedule: HH:MM[:SS] | off	ajastus: HH:MM[:SS] | pois
+update: nothing to install	päivitys: ei asennettavaa
+warp preset: name required	vääntöesiasetus: nimi puuttuu
+1 cue imported (probing...)	1 cue tuotu (tutkitaan...)
+ASCII WOBBLE: expected 0..1	ASCII WOBBLE: odotettiin 0..1
+AUDIOFX ADD: chain full (8)	AUDIOFX ADD: ketju täynnä (8)
+CLICK: expected two numbers	CLICK: odotettiin kahta lukua
+HOVER: expected two numbers	HOVER: odotettiin kahta lukua
+MIDICUE: select a cue first	MIDICUE: valitse ensin cue
+TEXTCUE: select a cue first	TEXTCUE: valitse ensin cue
+browser stopped - deck dark	selain pysäytetty - deck pimeänä
+could not save the defaults	oletuksia ei voitu tallentaa
+datamosh look: select a cue	datamosh-look: valitse cue
+datamosh: already preparing	datamosh: valmistelu on jo käynnissä
+effects paste: select a cue	tehosteiden liitäntä: valitse cue
+matrix on, routed as it was	matriisi päällä, reititys kuten ennen
+nmos: clipboard unavailable	nmos: leikepöytä ei käytettävissä
+nmos: need http://host:port	nmos: tarvitaan http://host:port
+skip back: nothing previous	ohita takaisin: ei edellistä
+MIDIFILE: select a cue first	MIDIFILE: valitse ensin cue
+SCALEMODE: expected one mode	SCALEMODE: odotettiin yhtä tilaa
+UISNAP: expected a .bmp path	UISNAP: odotettiin .bmp-polkua
+av jumps: counting from zero	av-hypyt: lasketaan nollasta
+cannot reorder a running job	käynnissä olevaa työtä ei voi järjestää uudelleen
+expected a number of seconds	odotettiin sekuntien määrää
+master scene rename: removed	master-scenen nimeäminen: poistettu
+motion driver would not open	liikeohjain ei auennut
+no steps yet - Ins makes one	ei vielä vaiheita - Ins luo yhden
+selected cue has no geometry	valitulla cuella ei ole geometriaa
+skip back: playlist is empty	ohita takaisin: soittolista on tyhjä
+sprite set could not be read	sprite-settiä ei voitu lukea
+st2110 sdp written to stdout	st2110-sdp kirjoitettu stdoutiin
+the clicker advances the cue	esitysohjain siirtää cuen eteenpäin
+video dip fade: 0-30 seconds	video-dipin häivytys: 0-30 sekuntia
+warp point: expected numbers	vääntöpiste: odotettiin numeroita
+* KONAMI * terrarium unlocked	* KONAMI * terraario avattu
+DMXCUE PORT: expected 1-65535	DMXCUE PORTTI: odotettiin 1-65535
+ENDACTION: select a cue first	ENDACTION: valitse ensin cue
+LOWERANIM: select a cue first	LOWERANIM: valitse ensin cue
+MATRIX SET: destination is 1-	MATRIX SET: kohde on 1-
+NETCUE PORT: expected 1-65535	NETCUE PORT: odotettiin 1-65535
+OUTSNAP: expected a .bmp path	OUTSNAP: odotettiin .bmp-polkua
+SCRIPTCUE: select a cue first	SCRIPTCUE: valitse ensin cue
+TEXTCUE SCALE: expected 0.5-2	TEXTCUE SCALE: odotettiin 0.5-2
+WARP AT: expected two numbers	WARP AT: odotettiin kaksi lukua
+could not remove the defaults	oletuksia ei voitu poistaa
+lights dip when a video rolls	valot himmenevät, kun video rullaa
+no refresh choices for raster	ei virkistystaajuusvaihtoehtoja rasterille
+output recovered: auto native	ulostulo palautui: auto natiivi
+overlay on -- choose an image	peitto päällä -- valitse kuva
+stopped - deck dark, reracked	pysäytetty - deck pimeänä, asetettu uudelleen
+this file has one sound track	tiedostossa on yksi ääniraita
+update: will check at startup	päivitys: tarkistetaan käynnistyksessä
+web monitor connections: 1-64	web-monitorin yhteydet: 1-64
+DASH: the startup dialog is up	DASH: käynnistysikkuna on auki
+LOWERSTYLE: select a cue first	LOWERSTYLE: valitse ensin cue
+MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: odotettiin 1-16
+PATTERN ADD needs a pattern id	PATTERN ADD tarvitsee kuvion tunnuksen

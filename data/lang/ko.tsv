@@ -2583,3 +2583,279 @@ output overlay on	출력 오버레이 켜짐
 phone haptics off	폰 햅틱 꺼짐
 pick a deck first	먼저 덱을 선택하세요
 playlist loop off	플레이리스트 반복 꺼짐
+record folder set	녹화 폴더 설정됨
+subtitle file set	부제 파일 설정됨
+subtitles cleared	부제 지워짐
+take the mask off	마스크 끄기
+universe: 0-63999	유니버스: 0-63999
+video synth added	비디오 신시사이저 추가됨
+warp preset saved	변형 프리셋 저장됨
+AUDIOALSO: no deck	AUDIOALSO: 덱 없음
+DeckLink 10-bit ON	DeckLink 10-bit 켜짐
+SCRIPTCUE: no deck	SCRIPTCUE: 덱 없음
+assign route first	먼저 라우트를 지정하세요
+bundle save failed	묶어 저장 실패
+cue settings reset	큐 설정 초기화됨
+file dialog failed	파일 대화상자 실패
+jumped to live cue	라이브 큐로 이동함
+lock to screen off	화면에 고정 꺼짐
+media probe failed	미디어 프로브 실패
+nmos: invalid port	nmos: 잘못된 포트
+output overlay off	출력 오버레이 꺼짐
+pip target cleared	pip 대상 지워짐
+select a cue first	먼저 큐를 선택하세요
+source unavailable	소스를 사용할 수 없음
+spare (also spare)	여분 (여분도)
+stream key cleared	스트림 키 지워짐
+timecode cue added	타임코드 큐 추가됨
+timer face: blocky	타이머 얼굴: 블록형
+timer logo cleared	타이머 로고 지워짐
+vmix port: invalid	vmix 포트: 잘못됨
+, not a plugin slot	, 플러그인 슬롯이 아님
+. Your show is back	. 쇼가 복구되었습니다
+DeckLink 10-bit off	DeckLink 10-bit 꺼짐
+HOVER: expected x y	HOVER: x y 필요
+Lower Third cleared	Lower Third 지워짐
+NDI\xc2\xae NETWORK	NDI® 네트워크
+OSC trigger cleared	OSC 트리거 지워짐
+Show file not found	쇼 파일을 찾을 수 없음
+audio chain cleared	오디오 체인 지워짐
+audio switch failed	오디오 전환 실패
+browser jumped live	브라우저가 라이브로 이동함
+browser url updated	브라우저 URL 업데이트됨
+bundle media failed	미디어 묶어 저장 실패
+choose a show first	먼저 쇼를 선택하세요
+composite cue added	합성 큐 추가됨
+cue numbers cleared	큐 번호 지워짐
+cue settings copied	큐 설정 복사됨
+cue settings pasted	큐 설정 붙여넣음
+double-GO guard off	GO 두 번 방지 꺼짐
+effect chain pasted	이펙트 체인 붙여넣음
+end of the sequence	시퀀스의 끝
+pattern motion: n/a	패턴 모션: 해당 없음
+plugin slot cleared	플러그인 슬롯 비워짐
+splitnotes: no deck	splitnotes: 덱 없음
+sprite sheet loaded	스프라이트 시트 불러옴
+takes are immediate	TAKE는 즉시 실행됨
+ui motion always on	UI 모션 항상 켜짐
+-10 seconds from end	끝에서 -10초
+-20 seconds from end	끝에서 -20초
+-30 seconds from end	끝에서 -30초
+. — skip to next cue	. — 다음 큐로 건너뛰기
+MIDI plays the synth	MIDI로 신디사이저 연주
+MIDI trigger cleared	MIDI 트리거 지워짐
+NDI source cue added	NDI 소스 큐 추가됨
+audio chain full (8)	오디오 체인 가득 참 (8)
+browser url required	브라우저 URL 필요
+bundle export failed	묶어 저장 내보내기 실패
+bundle folder failed	묶어 저장 폴더 실패
+cue copy: select cue	큐 복사: 큐를 선택하세요
+cue settings reset x	큐 설정 초기화됨 x
+delete from the show	쇼에서 삭제
+encoder queue paused	인코더 대기열 일시 정지
+find: run FIND first	찾기: 먼저 FIND 실행
+find: token required	찾기: 토큰 필요
+first port available	첫 번째 포트 사용 가능
+identifying displays	디스플레이 확인 중
+marker: nothing live	마커: 라이브 없음
+marker: select a cue	마커: 큐 선택
+no midi input device	MIDI 입력 장치 없음
+no overlays to clear	지울 오버레이 없음
+no synth cue is live	라이브 중인 신스 큐 없음
+output create failed	출력 생성 실패
+output remove failed	출력 제거 실패
+pause points cleared	일시 정지 지점 지워짐
+presenter view reset	발표자 보기 초기화됨
+renumber: empty deck	번호 다시 매기기: 빈 덱
+sprite sheet cleared	스프라이트 시트 지워짐
+stream url unchanged	스트림 URL 변경 없음
+stream url: required	스트림 URL: 필수
+time trigger cleared	시간 트리거 지워짐
+update: checking off	업데이트: 확인 꺼짐
+warp settings copied	변형 설정 복사됨
+warp settings pasted	변형 설정 붙여넣어짐
+DMX over sACN (E1.31)	sACN (E1.31)을 통한 DMX
+Lower Third cue added	Lower Third 큐 추가됨
+already the last step	이미 마지막 스텝입니다
+analyzing loudness...	음량 분석 중...
+arcade always wiggles	아케이드는 항상 흔들림
+browser window closed	브라우저 창 닫힘
+canvas width: invalid	캔버스 너비: 올바르지 않음
+computer keyboard off	컴퓨터 키보드 꺼짐
+contrast check: saved	대비 확인: 저장됨
+cue paste: copy first	큐 붙여넣기: 먼저 복사
+cue paste: no targets	큐 붙여넣기: 대상 없음
+cue paste: select cue	큐 붙여넣기: 큐 선택
+cue reset: no targets	큐 초기화: 대상 없음
+cue reset: select cue	큐 초기화: 큐 선택
+cue settings pasted x	큐 설정 붙여넣어짐 x
+display switch failed	디스플레이 전환 실패
+effect chain pasted x	이펙트 체인 붙여넣어짐 x
+encoder queue running	인코더 대기열 실행 중
+lfo follows the tempo	lfo가 템포를 따라감
+motion driver cleared	모션 드라이버 지워짐
+ndi tally trigger off	NDI 탤리 트리거 꺼짐
+ndi unsupported build	NDI 미지원 빌드
+no Lower Third on air	온에어 중인 Lower Third 없음
+no audio cue selected	선택된 오디오 큐 없음
+playlist fps: invalid	플레이리스트 fps: 잘못됨
+presenter: no outputs	presenter: 출력 없음
+scene slot source set	씬 슬롯 소스 설정됨
+st 2110: invalid port	st 2110: 잘못된 포트
+timer face: 7-segment	타이머 얼굴: 7세그먼트
+' is not a deck number	'는 덱 번호가 아님
+FX PARAM: value is 0-1	FX PARAM: 값은 0-1
+already the first step	이미 첫 스텝
+audio bitrate: invalid	오디오 비트레이트: 잘못됨
+browser capture failed	브라우저 캡처 실패
+canvas height: invalid	캔버스 높이: 잘못됨
+datamosh: select a cue	datamosh: 큐를 선택하세요
+effect stack full (12)	효과 스택 가득 참 (12)
+jumped to selected cue	선택된 큐로 이동함
+layer command: removed	레이어 명령: 제거됨
+listens to any channel	모든 채널을 수신
+nmos: node not running	nmos: 노드 실행 중 아님
+output effects back in	출력 효과 다시 켜짐
+presenter layout: wide	presenter 레이아웃: 와이드
+route command: removed	route 명령: 제거됨
+save failed - retrying	저장 실패 - 다시 시도 중
+schedule: select a cue	스케줄: 큐를 선택하세요
+slide import cancelled	슬라이드 가져오기 취소됨
+takes land on the beat	TAKE는 비트에 맞춰 실행
+warp paste: copy first	변형 붙여넣기: 먼저 복사하세요
+2 \xC2\xB7 WHAT IT RUNS	2 \xC2\xB7 실행 내용
+Chladni stops listening	Chladni가 수신을 멈춤
+could not add an output	출력을 추가할 수 없음
+downloading {1}... {2}%	{1} 다운로드 중... {2}%
+driver restarts on take	TAKE 시 드라이버 재시작
+encoder destination set	인코더 대상 설정됨
+expected factor 0.25..4	배율 0.25..4 필요
+expected finite numbers	유한한 숫자가 필요
+hyperdeck emulation off	HyperDeck 에뮬레이션 꺼짐
+key color sample failed	키 색상 샘플링 실패
+leave it where it lands	떨어진 자리에 그대로 두기
+no playlist column here	여기에는 재생 목록 열이 없음
+osc query port: invalid	OSC 질의 포트: 올바르지 않음
+playlist start: invalid	재생 목록 시작: 올바르지 않음
+still duration: invalid	정지 화면 길이: 올바르지 않음
+synth cue has no engine	신스 큐에 엔진이 없음
+, its place in the stack	, 스택에서의 위치
+1 \xC2\xB7 WHAT COMES IN	1 · 들어오는 것
+An output whose Shows is	표시가 다음과 같은 출력은
+DeckLink input cue added	DeckLink 입력 큐 추가됨
+already on the dashboard	이미 대시보드에 있음
+expected an alpha, 0-255	알파 값 필요, 0-255
+expected positive pixels	양의 픽셀 값 필요
+find: press Ctrl+F first	찾기: 먼저 Ctrl+F 누르기
+glyphs: the built-in set	글리프: 내장 세트
+keep at least one output	출력은 최소 하나 유지
+marker: none on this cue	마커: 이 큐에 없음
+mic mixed into recording	마이크가 녹화에 혼합됨
+not a playable MIDI file	재생할 수 없는 MIDI 파일
+relink: folder not found	다시 연결: 폴더를 찾을 수 없음
+select a moire cue first	먼저 무아레 큐 선택
+tempo follows MIDI clock	템포가 MIDI 클럭을 따름
+the tracker has no steps	트래커에 스텝이 없음
+typeface (the app's own)	서체 (앱 자체 서체)
+. Set displays to Extend.	. 디스플레이를 확장으로 설정.
+Language reset to English	언어가 영어로 초기화됨
+PUSH expects a cue number	PUSH에는 큐 번호가 필요
+SLICE: there is no output	SLICE: 출력 없음
+TCCUE: select a cue first	TCCUE: 먼저 큐 선택
+effects paste: no targets	효과 붙여넣기: 대상 없음
+follows the whole picture	화면 전체를 따름
+key color picker canceled	키 색상 선택을 취소했어요
+listening for captions...	자막 듣는 중...
+monitor: pick a row first	모니터: 먼저 행을 선택하세요
+moshlook: smooth | chunky	moshlook: 부드럽게 | 굵게
+no trimmable cue selected	트림할 수 있는 큐가 선택되지 않았어요
+output type change failed	출력 유형 변경에 실패했어요
+select a master cue first	먼저 마스터 큐를 선택하세요
+sequence stops at the end	시퀀스가 끝에서 멈춰요
+web monitor port: invalid	웹 모니터 포트: 올바르지 않아요
+3 \xC2\xB7 WHAT IT RUNS ON	3 · 실행 대상
+ASCII CHAOS: expected 0..1	ASCII CHAOS: 0..1 범위여야 해요
+DATAMOSH on - preparing...	DATAMOSH 켜짐 - 준비 중...
+DMXCUE: select a cue first	DMXCUE: 먼저 큐를 선택하세요
+GEOLFO: select a cue first	GEOLFO: 먼저 큐를 선택하세요
+MATRIX: select a cue first	MATRIX: 먼저 큐를 선택하세요
+MEMOCUE: expected the note	MEMOCUE: 메모가 필요해요
+NETCUE: select a cue first	NETCUE: 먼저 큐를 선택하세요
+STING BODY: expected 0-100	STING BODY: 0-100 범위여야 해요
+TALLYEVENT wants ON or OFF	TALLYEVENT에는 ON 또는 OFF가 필요해요
+TONECUE LFO: FREQ or LEVEL	TONECUE LFO: FREQ 또는 LEVEL
+could not load that plugin	해당 플러그인을 불러올 수 없어요
+effects copy: select a cue	효과 복사: 큐를 선택하세요
+expected degrees -180..180	-180..180 도 범위여야 해요
+expression is at its limit	표현식이 한계에 도달했어요
+multiview - every playlist	멀티뷰 - 모든 재생 목록
+new show, from my defaults	새 쇼, 내 기본값으로
+no cue with audio selected	오디오가 있는 큐가 선택되지 않았어요
+osc feedback rate: invalid	OSC 피드백 레이트: 올바르지 않아요
+panic: outputs already off	panic: 출력이 이미 꺼져 있어요
+pick from screen cancelled	화면에서 가져오기를 취소했어요
+rendering slide {1} of {2}	슬라이드 {1}/{2} 렌더링 중
+schedule: HH:MM[:SS] | off	일정: HH:MM[:SS] | 꺼짐
+update: nothing to install	업데이트: 설치할 항목이 없어요
+warp preset: name required	변형 프리셋: 이름이 필요해요
+1 cue imported (probing...)	큐 1개를 가져왔어요 (분석 중...)
+ASCII WOBBLE: expected 0..1	ASCII WOBBLE: 0..1 범위여야 해요
+AUDIOFX ADD: chain full (8)	AUDIOFX ADD: 체인이 가득 찼어요 (8)
+CLICK: expected two numbers	CLICK: 숫자 두 개가 필요해요
+HOVER: expected two numbers	HOVER: 숫자 두 개가 필요해요
+MIDICUE: select a cue first	MIDICUE: 먼저 큐를 선택하세요
+TEXTCUE: select a cue first	TEXTCUE: 먼저 큐를 선택하세요
+VIDEODIP FADE: 0-30 seconds	VIDEODIP FADE: 0-30초
+browser stopped - deck dark	브라우저 정지됨 - 덱 어두움
+could not save the defaults	기본값을 저장할 수 없습니다
+datamosh look: select a cue	datamosh look: 큐를 선택하세요
+datamosh: already preparing	datamosh: 이미 준비 중입니다
+effects paste: select a cue	효과 붙여넣기: 큐를 선택하세요
+matrix on, routed as it was	매트릭스 켜짐, 기존 라우팅 유지
+nmos: clipboard unavailable	nmos: 클립보드를 사용할 수 없습니다
+nmos: need http://host:port	nmos: http://host:port 필요
+skip back: nothing previous	skip back: 이전 항목 없음
+FX COLOUR: a grey has no hue	FX COLOUR: 회색에는 색조가 없습니다
+MASK RENAME: expected a name	MASK RENAME: 이름이 필요합니다
+MIDIFILE: select a cue first	MIDIFILE: 먼저 큐를 선택하세요
+SCALEMODE: expected one mode	SCALEMODE: 모드 하나가 필요합니다
+SYNTH ADD takes no arguments	SYNTH ADD는 인수를 받지 않습니다
+TEXTCUE CARD: expected 0-255	TEXTCUE CARD: 0-255 필요
+UISNAP: expected a .bmp path	UISNAP: .bmp 경로가 필요합니다
+av jumps: counting from zero	av jumps: 0부터 셉니다
+cannot reorder a running job	실행 중인 작업은 순서를 바꿀 수 없습니다
+expected a number of seconds	초 단위의 숫자가 필요합니다
+master scene rename: removed	master scene rename: 제거됨
+motion driver would not open	모션 드라이버를 열 수 없었습니다
+no steps yet - Ins makes one	아직 단계 없음 - Ins로 만드세요
+selected cue has no geometry	선택된 큐에 지오메트리가 없습니다
+skip back: playlist is empty	skip back: 재생 목록이 비어 있습니다
+sprite set could not be read	스프라이트 세트를 읽을 수 없었습니다
+st2110 sdp written to stdout	st2110 sdp를 stdout으로 출력했습니다
+the clicker advances the cue	프레젠터로 큐를 넘깁니다
+video dip fade: 0-30 seconds	video dip fade: 0-30초
+warp point: expected numbers	warp point: 숫자가 필요합니다
+* KONAMI * terrarium unlocked	* KONAMI * 테라리움 해금
+DMXCUE PORT: expected 1-65535	DMXCUE PORT: 1-65535 필요
+ENDACTION: select a cue first	ENDACTION: 먼저 큐를 선택하세요
+FADE STOP: expected on or off	FADE STOP: on 또는 off 필요
+LOWERANIM: select a cue first	LOWERANIM: 먼저 큐를 선택하세요
+MATRIX SET: destination is 1-	MATRIX SET: 대상은 1-
+NETCUE PORT: expected 1-65535	NETCUE PORT: 1-65535 필요
+OUTSNAP: expected a .bmp path	OUTSNAP: .bmp 경로 필요
+SCRIPTCUE: select a cue first	SCRIPTCUE: 먼저 큐를 선택하세요
+TEXTCUE SCALE: expected 0.5-2	TEXTCUE SCALE: 0.5-2 필요
+WARP AT: expected two numbers	WARP AT: 숫자 두 개 필요
+could not remove the defaults	기본값을 제거할 수 없습니다
+lights dip when a video rolls	비디오가 재생되면 조명이 어두워집니다
+no refresh choices for raster	래스터에 사용할 새로고침 옵션이 없습니다
+output recovered: auto native	출력 복구됨: 자동 네이티브
+overlay on -- choose an image	오버레이 켜짐 -- 이미지를 선택하세요
+stopped - deck dark, reracked	정지됨 - 덱 어두움, 재배치됨
+this file has one sound track	이 파일에는 사운드 트랙이 하나 있습니다
+update: will check at startup	업데이트: 시작할 때 확인합니다
+web monitor connections: 1-64	웹 모니터 연결 수: 1-64
+DASH: the startup dialog is up	DASH: 시작 대화상자가 열려 있습니다
+LOWERSTYLE: select a cue first	LOWERSTYLE: 먼저 큐를 선택하세요
+MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: 1-16 필요
+PATTERN ADD needs a pattern id	PATTERN ADD에는 패턴 id가 필요합니다

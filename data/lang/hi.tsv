@@ -2584,3 +2584,275 @@ output overlay on	आउटपुट ओवरले चालू
 phone haptics off	फ़ोन कंपन बंद
 pick a deck first	पहले डेक चुनें
 playlist loop off	प्लेलिस्ट लूप बंद
+record folder set	रिकॉर्ड फ़ोल्डर तय किया गया
+subtitle file set	उपशीर्षक फ़ाइल तय की गई
+subtitles cleared	उपशीर्षक हटाए गए
+take the mask off	मास्क बंद करें
+universe: 0-63999	यूनिवर्स: 0-63999
+video synth added	वीडियो सिंथ जोड़ा गया
+warp preset saved	विकृत प्रीसेट सहेजा गया
+AUDIOALSO: no deck	AUDIOALSO: कोई डेक नहीं
+DeckLink 10-bit ON	DeckLink 10-bit चालू
+SCRIPTCUE: no deck	SCRIPTCUE: कोई डेक नहीं
+assign route first	पहले रूट असाइन करें
+bundle save failed	बंडल सहेजना विफल
+cue settings reset	क्यू सेटिंग्स रीसेट हुईं
+file dialog failed	फ़ाइल डायलॉग विफल
+jumped to live cue	लाइव क्यू पर पहुँचे
+lock to screen off	स्क्रीन पर लॉक बंद
+media probe failed	मीडिया जाँच विफल
+nmos: invalid port	nmos: अमान्य पोर्ट
+output overlay off	आउटपुट ओवरले बंद
+pip target cleared	pip लक्ष्य हटाया गया
+select a cue first	पहले क्यू चुनें
+source unavailable	स्रोत उपलब्ध नहीं
+spare (also spare)	स्पेयर (स्पेयर भी)
+stream key cleared	स्ट्रीम कुंजी हटाई गई
+timecode cue added	टाइमकोड क्यू जोड़ा गया
+timer face: blocky	टाइमर चेहरा: ब्लॉकी
+timer logo cleared	टाइमर लोगो हटाया गया
+vmix port: invalid	vmix पोर्ट: अमान्य
+, not a plugin slot	, प्लगइन स्लॉट नहीं है
+. Your show is back	। आपका शो वापस आ गया
+DeckLink 10-bit off	DeckLink 10-bit बंद
+HOVER: expected x y	HOVER: x y अपेक्षित
+Lower Third cleared	Lower Third हटाया गया
+NDI\xc2\xae NETWORK	NDI\xc2\xae नेटवर्क
+OSC trigger cleared	OSC ट्रिगर हटाया गया
+Show file not found	शो फ़ाइल नहीं मिली
+audio chain cleared	ऑडियो चेन हटाई गई
+audio switch failed	ऑडियो स्विच विफल
+browser jumped live	ब्राउज़र लाइव पर पहुँचा
+browser url updated	ब्राउज़र URL अपडेट हुआ
+bundle media failed	मीडिया बाँधना विफल
+choose a show first	पहले शो चुनें
+composite cue added	मिश्रित क्यू जोड़ा
+cue numbers cleared	क्यू संख्या साफ़ की गईं
+cue settings copied	क्यू सेटिंग्स कॉपी हुईं
+cue settings pasted	क्यू सेटिंग्स पेस्ट हुईं
+double-GO guard off	दोहरे GO से सुरक्षा बंद
+effect chain pasted	इफ़ेक्ट चेन पेस्ट हुई
+end of the sequence	अनुक्रम का अंत
+pattern motion: n/a	पैटर्न गति: लागू नहीं
+plugin slot cleared	प्लगइन स्लॉट साफ़
+splitnotes: no deck	splitnotes: कोई डेक नहीं
+sprite sheet loaded	स्प्राइट शीट लोड हुई
+takes are immediate	take तुरंत होते हैं
+ui motion always on	UI गति हमेशा चालू
+-10 seconds from end	अंत से -10 सेकंड
+-20 seconds from end	अंत से -20 सेकंड
+-30 seconds from end	अंत से -30 सेकंड
+. — skip to next cue	. — अगले क्यू पर जाएँ
+MIDI plays the synth	MIDI सिंथ बजाता है
+MIDI trigger cleared	MIDI ट्रिगर साफ़
+NDI source cue added	NDI स्रोत क्यू जोड़ा
+audio chain full (8)	ऑडियो चेन भरी (8)
+browser url required	ब्राउज़र URL ज़रूरी
+bundle export failed	बंडल निर्यात विफल
+bundle folder failed	बंडल फ़ोल्डर विफल
+cue copy: select cue	क्यू कॉपी: क्यू चुनें
+cue settings reset x	क्यू सेटिंग्स रीसेट x
+delete from the show	शो से हटाएँ
+encoder queue paused	एनकोडर कतार ठहरी
+find: run FIND first	find: पहले FIND चलाएँ
+find: token required	find: टोकन ज़रूरी
+first port available	पहला पोर्ट उपलब्ध
+identifying displays	डिस्प्ले पहचाने जा रहे हैं
+marker: nothing live	marker: कुछ लाइव नहीं
+marker: select a cue	मार्कर: क्यू चुनें
+no midi input device	कोई MIDI इनपुट डिवाइस नहीं
+no overlays to clear	साफ़ करने के लिए कोई ओवरले नहीं
+no synth cue is live	कोई सिंथ क्यू लाइव नहीं है
+output create failed	आउटपुट बनाना विफल
+output remove failed	आउटपुट हटाना विफल
+pause points cleared	विराम बिंदु साफ़ किए गए
+presenter view reset	प्रस्तुतकर्ता दृश्य रीसेट हुआ
+renumber: empty deck	क्रमांक फिर से: डेक खाली
+sprite sheet cleared	स्प्राइट शीट साफ़ की गई
+stream url unchanged	स्ट्रीम URL अपरिवर्तित
+stream url: required	स्ट्रीम URL: आवश्यक
+time trigger cleared	समय ट्रिगर साफ़ किया गया
+update: checking off	अपडेट: जाँच बंद
+warp settings copied	विकृत करें सेटिंग्स की प्रतिलिपि बनाई गई
+warp settings pasted	विकृत करें सेटिंग्स चिपकाई गईं
+already the last step	यह पहले से आख़िरी चरण है
+analyzing loudness...	लाउडनेस का विश्लेषण हो रहा है...
+arcade always wiggles	आर्केड हमेशा हिलता है
+browser window closed	ब्राउज़र विंडो बंद हुई
+canvas width: invalid	कैनवास चौड़ाई: अमान्य
+computer keyboard off	कंप्यूटर कीबोर्ड बंद
+contrast check: saved	कंट्रास्ट जाँच: सहेजी गई
+cue paste: copy first	क्यू चिपकाना: पहले प्रतिलिपि करें
+cue paste: no targets	क्यू चिपकाना: कोई लक्ष्य नहीं
+cue paste: select cue	क्यू चिपकाना: क्यू चुनें
+cue reset: no targets	क्यू रीसेट: कोई लक्ष्य नहीं
+cue reset: select cue	क्यू रीसेट: क्यू चुनें
+cue settings pasted x	क्यू सेटिंग्स चिपकाई गईं x
+display switch failed	डिस्प्ले बदलना विफल
+effect chain pasted x	इफ़ेक्ट चेन चिपकाई गई x
+encoder queue running	एनकोडर कतार चल रही है
+lfo follows the tempo	lfo टेम्पो का अनुसरण करता है
+motion driver cleared	गति ड्राइवर साफ़ किया गया
+ndi tally trigger off	ndi टैली ट्रिगर बंद
+ndi unsupported build	ndi इस बिल्ड में समर्थित नहीं
+no Lower Third on air	ऑन एयर में कोई Lower Third नहीं
+no audio cue selected	कोई ऑडियो क्यू नहीं चुना गया
+playlist fps: invalid	प्लेलिस्ट fps: अमान्य
+presenter: no outputs	presenter: कोई आउटपुट नहीं
+scene slot source set	सीन स्लॉट स्रोत तय हुआ
+st 2110: invalid port	st 2110: अमान्य पोर्ट
+timer face: 7-segment	टाइमर चेहरा: 7-segment
+' is not a deck number	' डेक संख्या नहीं है
+FX PARAM: value is 0-1	FX PARAM: मान 0-1 है
+already the first step	यह पहले से पहला चरण है
+audio bitrate: invalid	ऑडियो बिटरेट: अमान्य
+browser capture failed	ब्राउज़र कैप्चर विफल
+canvas height: invalid	कैनवास ऊँचाई: अमान्य
+datamosh: select a cue	datamosh: क्यू चुनें
+effect stack full (12)	प्रभाव स्टैक भरा है (12)
+jumped to selected cue	चुने हुए क्यू पर गया
+layer command: removed	layer कमांड: हटाया गया
+listens to any channel	कोई भी चैनल सुनता है
+nmos: node not running	nmos: नोड नहीं चल रहा
+output effects back in	आउटपुट प्रभाव वापस चालू
+presenter layout: wide	presenter लेआउट: चौड़ा
+route command: removed	route कमांड: हटाया गया
+save failed - retrying	सहेजना विफल - फिर कोशिश हो रही है
+schedule: select a cue	schedule: क्यू चुनें
+slide import cancelled	स्लाइड आयात रद्द
+takes land on the beat	take बीट पर लगते हैं
+warp paste: copy first	warp चिपकाएँ: पहले प्रतिलिपि करें
+2 \xC2\xB7 WHAT IT RUNS	2 \xC2\xB7 यह क्या चलाता है
+Chladni stops listening	Chladni सुनना बंद कर देता है
+could not add an output	आउटपुट जोड़ा नहीं जा सका
+downloading {1}... {2}%	{1} डाउनलोड हो रहा है... {2}%
+driver restarts on take	take पर ड्राइवर रीस्टार्ट होता है
+encoder destination set	एनकोडर गंतव्य तय हुआ
+expected factor 0.25..4	गुणक 0.25..4 होना चाहिए
+expected finite numbers	सीमित संख्याएँ अपेक्षित हैं
+hyperdeck emulation off	HyperDeck अनुकरण बंद
+key color sample failed	की-रंग का नमूना विफल रहा
+leave it where it lands	जहाँ गिरे, वहीं रहने दें
+no playlist column here	यहाँ कोई प्लेलिस्ट कॉलम नहीं
+osc query port: invalid	OSC क्वेरी पोर्ट: अमान्य
+playlist start: invalid	प्लेलिस्ट शुरू करें: अमान्य
+still duration: invalid	स्थिर चित्र अवधि: अमान्य
+synth cue has no engine	synth क्यू में कोई इंजन नहीं
+, its place in the stack	, स्टैक में इसकी जगह
+1 \xC2\xB7 WHAT COMES IN	1 \xC2\xB7 जो अंदर आता है
+An output whose Shows is	ऐसा आउटपुट जिसका दिखाएँ
+DeckLink input cue added	DeckLink इनपुट क्यू जोड़ा गया
+already on the dashboard	डैशबोर्ड पर पहले से है
+expected an alpha, 0-255	अल्फ़ा अपेक्षित, 0-255
+expected positive pixels	धनात्मक पिक्सेल अपेक्षित
+find: press Ctrl+F first	खोज: पहले Ctrl+F दबाएँ
+glyphs: the built-in set	ग्लिफ़: अंतर्निहित सेट
+keep at least one output	कम से कम एक आउटपुट रखें
+marker: none on this cue	मार्कर: इस क्यू पर कोई नहीं
+mic mixed into recording	माइक रिकॉर्डिंग में मिश्रित
+not a playable MIDI file	चलाने योग्य MIDI फ़ाइल नहीं
+relink: folder not found	रीलिंक: फ़ोल्डर नहीं मिला
+select a moire cue first	पहले एक मोआरे क्यू चुनें
+tempo follows MIDI clock	टेम्पो MIDI क्लॉक का अनुसरण करता है
+the tracker has no steps	ट्रैकर में कोई स्टेप नहीं
+typeface (the app's own)	टाइपफ़ेस (ऐप का अपना)
+. Set displays to Extend.	. डिस्प्ले को Extend पर सेट करें।
+Language reset to English	भाषा अंग्रेज़ी पर रीसेट हुई
+PUSH expects a cue number	PUSH को क्यू संख्या चाहिए
+SLICE: there is no output	SLICE: कोई आउटपुट नहीं
+TCCUE: select a cue first	TCCUE: पहले एक क्यू चुनें
+effects paste: no targets	प्रभाव चिपकाएँ: कोई लक्ष्य नहीं
+follows the whole picture	पूरे चित्र का अनुसरण करता है
+key color picker canceled	कुंजी रंग पिकर रद्द किया गया
+listening for captions...	कैप्शन सुन रहा है...
+monitor: pick a row first	मॉनिटर: पहले एक पंक्ति चुनें
+moshlook: smooth | chunky	moshlook: नरम | खुरदरा
+no trimmable cue selected	ट्रिम करने योग्य कोई cue चुना नहीं गया
+output type change failed	आउटपुट प्रकार बदलना विफल
+select a master cue first	पहले एक Master cue चुनें
+sequence stops at the end	अनुक्रम अंत पर रुकता है
+web monitor port: invalid	वेब मॉनिटर पोर्ट: अमान्य
+3 \xC2\xB7 WHAT IT RUNS ON	3 · किस पर चलता है
+ASCII CHAOS: expected 0..1	ASCII CHAOS: 0..1 अपेक्षित
+DATAMOSH on - preparing...	DATAMOSH चालू - तैयार हो रहा है...
+DMXCUE: select a cue first	DMXCUE: पहले एक cue चुनें
+GEOLFO: select a cue first	GEOLFO: पहले एक cue चुनें
+MATRIX: select a cue first	MATRIX: पहले एक cue चुनें
+MEMOCUE: expected the note	MEMOCUE: नोट अपेक्षित
+NETCUE: select a cue first	NETCUE: पहले एक cue चुनें
+STING BODY: expected 0-100	STING BODY: 0-100 अपेक्षित
+could not load that plugin	वह प्लगइन लोड नहीं हो सका
+effects copy: select a cue	प्रभाव प्रतिलिपि: एक cue चुनें
+expected degrees -180..180	-180..180 अंश अपेक्षित
+expression is at its limit	एक्सप्रेशन अपनी सीमा पर है
+multiview - every playlist	multiview - हर प्लेलिस्ट
+new show, from my defaults	नया शो, मेरे डिफ़ॉल्ट से
+no cue with audio selected	ऑडियो वाला कोई cue चुना नहीं गया
+osc feedback rate: invalid	osc फ़ीडबैक दर: अमान्य
+panic: outputs already off	panic: आउटपुट पहले से बंद हैं
+pick from screen cancelled	स्क्रीन से चुनना रद्द किया गया
+rendering slide {1} of {2}	{2} में से स्लाइड {1} रेंडर हो रही है
+schedule: HH:MM[:SS] | off	शेड्यूल: HH:MM[:SS] | बंद
+update: nothing to install	अपडेट: इंस्टॉल करने को कुछ नहीं
+warp preset: name required	warp प्रीसेट: नाम आवश्यक
+1 cue imported (probing...)	1 cue आयात हुआ (जाँच हो रही है...)
+ASCII WOBBLE: expected 0..1	ASCII WOBBLE: 0..1 अपेक्षित
+AUDIOFX ADD: chain full (8)	AUDIOFX ADD: चेन भरी है (8)
+CLICK: expected two numbers	CLICK: दो संख्याएँ अपेक्षित
+HOVER: expected two numbers	HOVER: दो संख्याएँ अपेक्षित
+MIDICUE: select a cue first	MIDICUE: पहले क्यू चुनें
+TEXTCUE: select a cue first	TEXTCUE: पहले क्यू चुनें
+VIDEODIP FADE: 0-30 seconds	VIDEODIP FADE: 0-30 सेकंड
+browser stopped - deck dark	ब्राउज़र रुका - डेक अँधेरा
+could not save the defaults	डिफ़ॉल्ट सहेजे नहीं जा सके
+datamosh look: select a cue	datamosh look: क्यू चुनें
+datamosh: already preparing	datamosh: तैयारी पहले से जारी है
+effects paste: select a cue	effects paste: क्यू चुनें
+matrix on, routed as it was	matrix चालू, पहले जैसी रूटिंग के साथ
+nmos: clipboard unavailable	nmos: क्लिपबोर्ड उपलब्ध नहीं
+nmos: need http://host:port	nmos: http://host:port चाहिए
+skip back: nothing previous	skip back: पहले कुछ नहीं
+FX COLOUR: a grey has no hue	FX COLOUR: ग्रे में रंगत नहीं होती
+MASK RENAME: expected a name	MASK RENAME: नाम चाहिए
+MIDIFILE: select a cue first	MIDIFILE: पहले क्यू चुनें
+SCALEMODE: expected one mode	SCALEMODE: एक मोड चाहिए
+SYNTH ADD takes no arguments	SYNTH ADD में कोई आर्ग्युमेंट नहीं लगता
+TEXTCUE CARD: expected 0-255	TEXTCUE CARD: 0-255 चाहिए
+UISNAP: expected a .bmp path	UISNAP: .bmp पाथ चाहिए
+av jumps: counting from zero	av jumps: गिनती शून्य से
+cannot reorder a running job	चल रहे जॉब का क्रम नहीं बदला जा सकता
+expected a number of seconds	सेकंड की संख्या चाहिए
+master scene rename: removed	master scene rename: हटाया गया
+motion driver would not open	गति ड्राइवर नहीं खुला
+no steps yet - Ins makes one	अभी कोई चरण नहीं - Ins से एक बनाएँ
+selected cue has no geometry	चुने गए क्यू में ज्यामिति नहीं है
+skip back: playlist is empty	skip back: प्लेलिस्ट खाली है
+sprite set could not be read	स्प्राइट सेट पढ़ा नहीं जा सका
+st2110 sdp written to stdout	st2110 sdp stdout पर लिखा गया
+the clicker advances the cue	क्लिकर क्यू को आगे बढ़ाता है
+video dip fade: 0-30 seconds	video dip फ़ेड: 0-30 सेकंड
+warp point: expected numbers	warp point: संख्याएँ चाहिए
+* KONAMI * terrarium unlocked	* KONAMI * terrarium खुल गया
+DMXCUE PORT: expected 1-65535	DMXCUE PORT: 1-65535 चाहिए
+ENDACTION: select a cue first	ENDACTION: पहले क्यू चुनें
+FADE STOP: expected on or off	FADE STOP: चालू या बंद चाहिए
+LOWERANIM: select a cue first	LOWERANIM: पहले क्यू चुनें
+MATRIX SET: destination is 1-	MATRIX SET: गंतव्य 1- है
+NETCUE PORT: expected 1-65535	NETCUE PORT: 1-65535 अपेक्षित
+OUTSNAP: expected a .bmp path	OUTSNAP: .bmp पथ चाहिए
+SCRIPTCUE: select a cue first	SCRIPTCUE: पहले क्यू चुनें
+TEXTCUE SCALE: expected 0.5-2	TEXTCUE SCALE: 0.5-2 अपेक्षित
+WARP AT: expected two numbers	WARP AT: दो संख्याएँ चाहिए
+could not remove the defaults	डिफ़ॉल्ट नहीं हटाए जा सके
+lights dip when a video rolls	वीडियो चलने पर लाइटें मद्धम होती हैं
+no refresh choices for raster	raster के लिए रिफ़्रेश विकल्प नहीं
+output recovered: auto native	आउटपुट बहाल: स्वतः मूल
+overlay on -- choose an image	ओवरले चालू -- कोई छवि चुनें
+stopped - deck dark, reracked	रुका - डेक अंधेरा, फिर से रैक किया
+this file has one sound track	इस फ़ाइल में एक ध्वनि ट्रैक है
+update: will check at startup	अपडेट: शुरू होने पर जाँचेगा
+web monitor connections: 1-64	वेब मॉनिटर कनेक्शन: 1-64
+DASH: the startup dialog is up	DASH: स्टार्टअप डायलॉग खुला है
+LOWERSTYLE: select a cue first	LOWERSTYLE: पहले क्यू चुनें
+MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: 1-16 अपेक्षित
+PATTERN ADD needs a pattern id	PATTERN ADD को पैटर्न ID चाहिए

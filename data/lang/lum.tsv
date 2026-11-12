@@ -2604,3 +2604,276 @@ output overlay on	senadora lana pon
 phone haptics off	telefona batlisa vap
 pick a deck first	piki deka una
 playlist loop off	vekaku novtoka vap
+record folder set	Graikara seto
+subtitle file set	Kisholakara seto
+subtitles cleared	Kisholaku niro
+take the mask off	Seti nirarana vap
+universe: 0-63999	Universa: 0-63999
+video synth added	Synth veka novo
+warp preset saved	Ranaseta setagura guro
+AUDIOALSO: no deck	AUDIOALSO: vadeka
+DeckLink 10-bit ON	DeckLink 10-bit PON
+SCRIPTCUE: no deck	SCRIPTCUE: vadeka
+assign route first	Muna seti kana
+bundle save failed	Alaklu guri: va pel
+cue settings reset	Vekasetaku novaseto
+file dialog failed	Kara fena: va pel
+jumped to live cue	Go lumo veka
+lock to screen off	Hali fenako vap
+media probe failed	Vekadora mira: va pel
+nmos: invalid port	nmos: vapono pora
+output overlay off	Senadora lana vap
+pip target cleared	PIP pikkaea niro
+select a cue first	Muna piki veka
+source unavailable	Munga vapono
+spare (also spare)	Halpen (novtok halpen)
+stream key cleared	Retabata niro
+timecode cue added	Tokatala veka novo
+timer face: blocky	Tokawia mira: karo
+timer logo cleared	Tokawia lumdeka niro
+vmix port: invalid	vmix pora: vapono
+, not a plugin slot	, va novjana kaea
+. Your show is back	. Tu vekarana dopo
+DeckLink 10-bit off	DeckLink 10-bit vap
+HOVER: expected x y	HOVER: x y pono
+Lower Third cleared	Lower Third niro
+NDI\xc2\xae NETWORK	NDI® RETA
+OSC trigger cleared	OSC bati niro
+Show file not found	Vekarana kara vamiro
+audio chain cleared	Sona rana niro
+audio switch failed	Sona seta: va pel
+browser jumped live	Retamira go lumo
+browser url updated	URL fena seti
+bundle media failed	alaklu vekadora vapo
+choose a show first	piki vekarana muna
+composite cue added	alaveka novi
+cue numbers cleared	vekanumaku niri
+cue settings copied	setaku veka veli
+cue settings pasted	setaku veka lani
+double-GO guard off	halwia GO dua vap
+effect chain pasted	rana efeka lani
+end of the sequence	tokrana ran
+pattern motion: n/a	vekareta tirisa: vaala
+plugin slot cleared	novjana kae niri
+splitnotes: no deck	splitnotes: vaala deka
+sprite sheet loaded	sprite kara lani
+takes are immediate	TAKEku zaro
+ui motion always on	UI tirisa alatoka PON
+-10 seconds from end	-10 zartoka mun ran
+-20 seconds from end	-20 zartoka mun ran
+-30 seconds from end	-30 zartoka mun ran
+. — skip to next cue	. — rani go veka novtoko
+Lower Third attached	Lower Third lani
+MIDI plays the synth	MIDI soni sinta
+MIDI trigger cleared	bati MIDI niri
+NDI source cue added	veka munga NDI novi
+audio chain full (8)	rana sona tamo (8)
+browser url required	gra URL fena
+bundle export failed	seni alaklu vapo
+bundle folder failed	kara alaklu vapo
+cue copy: select cue	veli veka: piki veka
+cue settings reset x	setaku veka novaseti x
+delete from the show	niri mun vekarana
+encoder queue paused	grawia rana halo kiso
+find: token required	miri: token gra
+first port available	pora fesa una
+identifying displays	fenaku miri
+marker: nothing live	marka: vaala lumo
+marker: select a cue	marka: piki veka
+no midi input device	midi tira vajana
+no overlays to clear	valana go niri
+no synth cue is live	sinta veka valumo
+output create failed	senadora novi vapelo
+output remove failed	senadora niri vapelo
+pause points cleared	tokispen kaeku niri
+presenter view reset	holawia mira novaseti
+renumber: empty deck	numi novtok: deka vagura
+sprite sheet cleared	sprite sheet niri
+stream url unchanged	retaseni dora vaseti
+stream url: required	retaseni dora: pelo
+time trigger cleared	toka bati niri
+update: checking off	novseti: miri vap
+warp settings copied	ranaseta setaku veli
+warp settings pasted	ranaseta setaku lani
+DMX over sACN (E1.31)	DMX dor sACN (E1.31)
+Lower Third cue added	veka Lower Third novi
+already the last step	beta rano nu
+analyzing loudness...	sona tali...
+arcade always wiggles	sokakae alatoka tiriseti
+browser window closed	retamira fena klui
+canvas width: invalid	vekakara ran: vapelo
+computer keyboard off	komputa batkara vap
+contrast check: saved	niralum miri: guro
+cue paste: copy first	veka lani: veli muna
+cue paste: no targets	veka lani: vadopa
+cue paste: select cue	veka lani: piki veka
+cue reset: no targets	veka novaseti: vadopa
+cue reset: select cue	veka novaseti: piki veka
+cue settings pasted x	veka setaku lani x
+display switch failed	mirajana seti vapelo
+effect chain pasted x	efeta rana lani x
+encoder queue running	grawia penaku zaro
+lfo follows the tempo	lfo tempo dopi
+motion driver cleared	tiriseta jandora niri
+ndi tally trigger off	ndi tali bati vap
+ndi unsupported build	ndi vakae go grao nakae
+no Lower Third on air	Lower Third va kae luma
+no audio cue selected	sona veka vamiro
+playlist fps: invalid	vekaku fps: vapelo
+presenter: no outputs	presenter: vasenadoraku
+scene slot source set	kae scene munga seto
+st 2110: invalid port	st 2110: pora vapelo
+timer face: 7-segment	tokawiamira: 7-segment
+' is not a deck number	' va deknuma
+FX PARAM: value is 0-1	FX PARAM: numa 0-1
+already the first step	Beta una muna
+audio bitrate: invalid	sona zarnuma: vapelo
+browser capture failed	retamira tira vapelo
+canvas height: invalid	kanvas bilo: vapelo
+datamosh: select a cue	datamosh: piki veka
+effect stack full (12)	setapataku bufa tamo (12)
+jumped to selected cue	Tiri go veka miro
+layer command: removed	layer korhola: tirio
+listens to any channel	lisi ala kana piko
+nmos: node not running	nmos: node vazaro
+output effects back in	Senasetapataku dopo dora
+presenter layout: wide	presenter kaepata: feso
+route command: removed	route korhola: tirio
+save failed - retrying	guri vapelo - novtok
+schedule: select a cue	schedule: piki veka
+slide import cancelled	slide tira kluo
+takes land on the beat	seniku kae sona-tala
+warp paste: copy first	ranaseta lani: veli muna
+2 \xC2\xB7 WHAT IT RUNS	2 \xC2\xB7 TIRA
+Chladni stops listening	Chladni va lisi
+could not add an output	senadora lani vapelo
+downloading {1}... {2}%	{1} tiri... {2}%
+driver restarts on take	jandora zari novtok kae seni
+encoder destination set	grawia senakae seto
+expected factor 0.25..4	Pen faktora 0.25..4
+expected finite numbers	pen tamo numaku
+hyperdeck emulation off	HyperDeck mirapata vap
+key color sample failed	Bata kolora vela vapelo
+leave it where it lands	Guri kae lana
+no playlist column here	Vekaku kana vaala nakae
+osc query port: invalid	OSC mira pora: vapelo
+playlist start: invalid	Vekaku tira: vapelo
+still duration: invalid	Halveka toka: vapelo
+synth cue has no engine	Synth veka jana vaala
+, its place in the stack	, kae dora staka
+1 \xC2\xB7 WHAT COMES IN	1 · MUNGA
+An output whose Shows is	Senadora Veki:
+DeckLink input cue added	Munga DeckLink veka lano
+already on the dashboard	Muna dora batrana
+expected an alpha, 0-255	Alfa penso, 0-255
+expected positive pixels	Kisvekaku pono penso
+find: press Ctrl+F first	Miri: bati Ctrl+F muna
+glyphs: the built-in set	Glifaku: dora seta
+keep at least one output	Guri kis una senadora
+marker: none on this cue	Marka: vaala dora veka nakae
+mic mixed into recording	Sonatira ranavo dora grao
+not a playable MIDI file	MIDI gura vapelo
+relink: folder not found	Relink: kara vamiro
+select a moire cue first	Piki Moiré veka muna
+tempo follows MIDI clock	Tempo dop MIDI klok
+the tracker has no steps	Tirwia tiriseta vaala
+typeface (the app's own)	Grapata (apa mun)
+. Set displays to Extend.	. Seti vekajanaku go Extend.
+Language reset to English	Hola novaseti go English
+PUSH expects a cue number	PUSH vekanuma pen
+SLICE: there is no output	SLICE: vasenadora
+TCCUE: select a cue first	TCCUE: piki veka muna
+effects paste: no targets	Setapataku lani: vaala kaeku
+follows the whole picture	dop veka tama
+key color picker canceled	Piki kolora bata klui
+listening for captions...	Lisi holavekaku...
+monitor: pick a row first	Miradora: piki rana muna
+moshlook: smooth | chunky	moshlook: lumiso | kisvekako
+no trimmable cue selected	Va veka kisipelo piko
+output type change failed	Seti pata senadora vapel
+select a master cue first	Piki veka kora muna
+sequence stops at the end	Tokrana hali kae rana
+web monitor port: invalid	Pora miradora reta: vapelo
+3 \xC2\xB7 WHAT IT RUNS ON	3 · TIRI KAE
+ASCII CHAOS: expected 0..1	ASCII CHAOS: 0..1 pelo
+DATAMOSH on - preparing...	DATAMOSH PON - poni...
+DMXCUE: select a cue first	DMXCUE: piki veka muna
+GEOLFO: select a cue first	GEOLFO: piki veka muna
+MATRIX: select a cue first	MATRIX: piki veka muna
+MEMOCUE: expected the note	MEMOCUE: gra hola
+NETCUE: select a cue first	NETCUE: piki veka muna
+STING BODY: expected 0-100	STING BODY: 0-100 pelo
+TONECUE LFO: FREQ or LEVEL	TONECUE LFO: FREQ / LEVEL
+could not load that plugin	Novjana nakae vatiri
+effects copy: select a cue	Veli setaku: piki veka
+expected degrees -180..180	-180..180 gradaku
+expression is at its limit	Ekspresa kae ran
+multiview - every playlist	multiview - ala vekaku
+new show, from my defaults	Nova vekarana, mun koro setaku mi
+no cue with audio selected	Veka sona vapiko
+osc feedback rate: invalid	OSC dopsona zara: vapelo
+panic: outputs already off	Ni: senadoraku muna vap
+pick from screen cancelled	Piki fena klui
+rendering slide {1} of {2}	Tira {1} sov {2} veki
+schedule: HH:MM[:SS] | off	Kistokrana: HH:MM[:SS] | vap
+update: nothing to install	Nova: vaala lani
+warp preset: name required	Ranaseta setagura: pen hola
+1 cue imported (probing...)	1 veka tira (miri...)
+ASCII WOBBLE: expected 0..1	ASCII WOBBLE: 0..1 pelo
+CLICK: expected two numbers	CLICK: numaku dua
+HOVER: expected two numbers	HOVER: numaku dua
+MIDICUE: select a cue first	MIDICUE: Piki veka muna
+TEXTCUE: select a cue first	TEXTCUE: Piki veka muna
+VIDEODIP FADE: 0-30 seconds	VIDEODIP FADE: 0-30 sek
+browser stopped - deck dark	Retamira halo - deka niro
+could not save the defaults	Vapel guri koro setaku
+datamosh look: select a cue	datamosh look: Piki veka
+datamosh: already preparing	datamosh: muna poni
+effects paste: select a cue	Setapataku lani: piki veka
+matrix on, routed as it was	matrix pon, tira kae muna
+nmos: clipboard unavailable	nmos: velkara vapono
+nmos: need http://host:port	nmos: Mi peni http://host:port
+skip back: nothing previous	dopa rani: vaala muna
+FX COLOUR: a grey has no hue	FX COLOUR: Nirlumo va so lumadopa
+MASK RENAME: expected a name	MASK RENAME: Mi peni hola
+MIDIFILE: select a cue first	MIDIFILE: Piki veka muna
+SCALEMODE: expected one mode	SCALEMODE: Mi peni dopa una
+SYNTH ADD takes no arguments	SYNTH ADD va so hola
+TEXTCUE CARD: expected 0-255	TEXTCUE CARD: Mi peni num 0-255
+UISNAP: expected a .bmp path	UISNAP: Mi peni dora .bmp
+av jumps: counting from zero	av jumps: tali mun 0
+cannot reorder a running job	Va pel seti kae patakora zaro
+expected a number of seconds	Mi peni num sek
+master scene rename: removed	master scene rename: tiro
+motion driver would not open	Tiriseta jandora vafesi
+no steps yet - Ins makes one	Vadoraku muna - Ins lani una
+selected cue has no geometry	Veka miro va so ranakora
+skip back: playlist is empty	dopa rani: vekaku vaala
+sprite set could not be read	Sprite seta vapel mira
+st2110 sdp written to stdout	st2110 sdp grao go stdout
+the clicker advances the cue	Batjana seti veka go novtok
+video dip fade: 0-30 seconds	video dip fade: 0-30 sek
+warp point: expected numbers	warp point: Mi peni numaku
+* KONAMI * terrarium unlocked	* KONAMI * terrarium feso
+ENDACTION: select a cue first	ENDACTION: Piki veka muna
+FADE STOP: expected on or off	FADE STOP: Mi peni on nu off
+LOWERANIM: select a cue first	LOWERANIM: Piki veka muna
+MATRIX SET: destination is 1-	MATRIX SET: senakae 1-
+NETCUE PORT: expected 1-65535	NETCUE PORT: peni 1-65535
+OUTSNAP: expected a .bmp path	OUTSNAP: peni dora .bmp
+SCRIPTCUE: select a cue first	SCRIPTCUE: piki veka muna
+TEXTCUE SCALE: expected 0.5-2	TEXTCUE SCALE: peni 0.5-2
+WARP AT: expected two numbers	WARP AT: peni dua numaku
+could not remove the defaults	koro setaku vaniri
+lights dip when a video rolls	lumaku niri kae veka seni
+no refresh choices for raster	vapikaku novtiri sov raster
+output recovered: auto native	senadora novponi: koro koro
+overlay on -- choose an image	vekaluma pon -- piki veka
+stopped - deck dark, reracked	halo - deka niro, novponi
+this file has one sound track	gura nakae so una sona rana
+update: will check at startup	novseta: miri tok novtiri
+web monitor connections: 1-64	miradora reta doraku: 1-64
+DASH: the startup dialog is up	DASH: fena novtiri feso
+LOWERSTYLE: select a cue first	LOWERSTYLE: piki veka muna
+MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: peni 1-16
+PATTERN ADD needs a pattern id	PATTERN ADD peni ID vekareta

@@ -2578,3 +2578,283 @@ output overlay on	ຊັ້ນທັບ output ເປີດ
 phone haptics off	ການສັ່ນໂທລະສັບ ປິດ
 pick a deck first	ເລືອກ deck ກ່ອນ
 playlist loop off	playlist ວົນ ປິດ
+record folder set	ຕັ້ງໂຟນເດີອັດແລ້ວ
+subtitle file set	ຕັ້ງໄຟລ໌ຄຳບັນຍາຍແລ້ວ
+subtitles cleared	ລ້າງຄຳບັນຍາຍແລ້ວ
+take the mask off	ເອົາໜ້າກາກອອກ
+universe: 0-63999	ຢູນິເວີສ: 0-63999
+video synth added	ເພີ່ມ synth ວິດີໂອແລ້ວ
+warp preset saved	ບັນທຶກ preset warp ແລ້ວ
+AUDIOALSO: no deck	AUDIOALSO: ບໍ່ມີ deck
+DeckLink 10-bit ON	DeckLink 10-bit ເປີດ
+SCRIPTCUE: no deck	SCRIPTCUE: ບໍ່ມີ deck
+assign route first	ກຳນົດເສັ້ນທາງກ່ອນ
+bundle save failed	ບັນທຶກການມັດລວມບໍ່ສຳເລັດ
+cue settings reset	ຕັ້ງຄືນການຕັ້ງຄ່າ cue ແລ້ວ
+file dialog failed	ກ່ອງໂຕ້ຕອບໄຟລ໌ລົ້ມເຫຼວ
+jumped to live cue	ໄປຍັງ cue ສົດແລ້ວ
+lock to screen off	ລັອກກັບໜ້າຈໍ ປິດ
+media probe failed	ກວດສື່ບໍ່ສຳເລັດ
+nmos: invalid port	nmos: ພອດບໍ່ຖືກຕ້ອງ
+output overlay off	ຊັ້ນທັບ OUTPUT ປິດ
+pip target cleared	ລ້າງເປົ້າໝາຍ pip ແລ້ວ
+select a cue first	ເລືອກ cue ກ່ອນ
+source unavailable	ແຫຼ່ງໃຊ້ບໍ່ໄດ້
+spare (also spare)	ສຳຮອງ (ສຳຮອງຄືກັນ)
+stream key cleared	ລ້າງລະຫັດ Stream ແລ້ວ
+timecode cue added	ເພີ່ມ cue ລະຫັດເວລາແລ້ວ
+timer face: blocky	ໃບໜ້າໂມງນັບ: ແບບບລັອກ
+timer logo cleared	ລ້າງໂລໂກໂມງນັບແລ້ວ
+vmix port: invalid	vmix ພອດ: ບໍ່ຖືກຕ້ອງ
+, not a plugin slot	, ບໍ່ແມ່ນຊ່ອງ plugin
+. Your show is back	. ໂຊຂອງທ່ານກັບມາແລ້ວ
+DeckLink 10-bit off	DeckLink 10-bit ປິດ
+HOVER: expected x y	HOVER: ຄາດຫວັງ x y
+Lower Third cleared	ລ້າງ Lower Third ແລ້ວ
+NDI\xc2\xae NETWORK	ເຄືອຂ່າຍ NDI®
+OSC trigger cleared	ລ້າງການກະຕຸ້ນ OSC ແລ້ວ
+Show file not found	ບໍ່ພົບໄຟລ໌ໂຊ
+audio chain cleared	ລ້າງສາຍສຽງແລ້ວ
+audio switch failed	ສະຫຼັບສຽງບໍ່ສຳເລັດ
+browser jumped live	ບຣາວເຊີໄປຍັງສົດແລ້ວ
+browser url updated	ອັບເດດ URL ບຣາວເຊີແລ້ວ
+bundle media failed	ມັດລວມສື່ບໍ່ສຳເລັດ
+choose a show first	ເລືອກໂຊກ່ອນ
+composite cue added	ເພີ່ມ cue ປະສົມແລ້ວ
+cue numbers cleared	ລຶບເລກ cue ແລ້ວ
+cue settings copied	ສຳເນົາການຕັ້ງຄ່າ cue ແລ້ວ
+cue settings pasted	ວາງການຕັ້ງຄ່າ cue ແລ້ວ
+double-GO guard off	ປ້ອງກັນ GO ສອງເທື່ອ ປິດ
+effect chain pasted	ວາງສາຍ effect ແລ້ວ
+end of the sequence	ທ້າຍລຳດັບ
+pattern motion: n/a	ການເຄື່ອນຮູບແບບ: ບໍ່ມີ
+plugin slot cleared	ລຶບຊ່ອງ plugin ແລ້ວ
+splitnotes: no deck	splitnotes: ບໍ່ມີ deck
+sprite sheet loaded	ໂຫຼດ sprite sheet ແລ້ວ
+takes are immediate	TAKE ເຮັດທັນທີ
+ui motion always on	ການເຄື່ອນ UI ເປີດຕະຫຼອດ
+-10 seconds from end	-10 ວິນາທີຈາກທ້າຍ
+-20 seconds from end	-20 ວິນາທີຈາກທ້າຍ
+-30 seconds from end	-30 ວິນາທີຈາກທ້າຍ
+. — skip to next cue	. — ຂ້າມໄປ cue ຕໍ່ໄປ
+Lower Third attached	ແນບ Lower Third ແລ້ວ
+MIDI plays the synth	MIDI ຫຼິ້ນ synth
+MIDI trigger cleared	ລຶບ MIDI ກະຕຸ້ນແລ້ວ
+NDI source cue added	ເພີ່ມ cue ແຫຼ່ງ NDI ແລ້ວ
+audio chain full (8)	ສາຍສຽງເຕັມ (8)
+browser url required	ຕ້ອງມີ URL ບຣາວເຊີ
+bundle export failed	ສົ່ງອອກມັດລວມບໍ່ສຳເລັດ
+bundle folder failed	ໂຟນເດີມັດລວມບໍ່ສຳເລັດ
+cue copy: select cue	ສຳເນົາ cue: ເລືອກ cue
+cue settings reset x	ຕັ້ງຄືນການຕັ້ງຄ່າ cue ແລ້ວ x
+delete from the show	ລຶບອອກຈາກໂຊ
+encoder queue paused	ຄິວຕົວເຂົ້າລະຫັດພັກໄວ້
+find: run FIND first	ຊອກ: ແລ່ນ FIND ກ່ອນ
+find: token required	ຊອກ: ຕ້ອງມີ token
+first port available	ພອດທຳອິດທີ່ວ່າງ
+identifying displays	ກຳລັງລະບຸຈໍສະແດງຜົນ
+marker: nothing live	marker: ບໍ່ມີຫຍັງສົດ
+marker: select a cue	ເຄື່ອງໝາຍ: ເລືອກ cue
+no midi input device	ບໍ່ມີອຸປະກອນຂາເຂົ້າ MIDI
+no overlays to clear	ບໍ່ມີຊັ້ນທັບໃຫ້ລ້າງ
+no synth cue is live	ບໍ່ມີ cue synth ສົດ
+output create failed	ສ້າງ OUTPUT ບໍ່ສຳເລັດ
+output remove failed	ລຶບ OUTPUT ບໍ່ສຳເລັດ
+pause points cleared	ລ້າງຈຸດພັກແລ້ວ
+presenter view reset	ຕັ້ງໜ້າຈໍຜູ້ນຳສະເໜີຄືນແລ້ວ
+renumber: empty deck	ກຳນົດເລກໃໝ່: deck ຫວ່າງ
+sprite sheet cleared	ລ້າງ sprite sheet ແລ້ວ
+stream url unchanged	stream url ບໍ່ປ່ຽນ
+stream url: required	stream url: ຈຳເປັນ
+time trigger cleared	ລ້າງຕົວກະຕຸ້ນເວລາແລ້ວ
+update: checking off	ອັບເດດ: ການກວດສອບປິດ
+warp settings copied	ສຳເນົາການຕັ້ງຄ່າ warp ແລ້ວ
+warp settings pasted	ວາງການຕັ້ງຄ່າ warp ແລ້ວ
+DMX over sACN (E1.31)	DMX ຜ່ານ sACN (E1.31)
+Lower Third cue added	ເພີ່ມ cue Lower Third ແລ້ວ
+already the last step	ເປັນຂັ້ນສຸດທ້າຍແລ້ວ
+analyzing loudness...	ກຳລັງວິເຄາະຄວາມດັງ...
+arcade always wiggles	arcade ສັ່ນຕະຫຼອດ
+browser window closed	ປິດໜ້າຕ່າງບຣາວເຊີແລ້ວ
+canvas width: invalid	ຄວາມກວ້າງ canvas: ບໍ່ຖືກຕ້ອງ
+computer keyboard off	ແປ້ນພິມຄອມພິວເຕີປິດ
+contrast check: saved	ກວດຄວາມຄົມຊັດ: ບັນທຶກແລ້ວ
+cue paste: copy first	ວາງ cue: ສຳເນົາກ່ອນ
+cue paste: no targets	ວາງ cue: ບໍ່ມີເປົ້າໝາຍ
+cue paste: select cue	ວາງ cue: ເລືອກ cue
+cue reset: no targets	ຕັ້ງ cue ຄືນ: ບໍ່ມີເປົ້າໝາຍ
+cue reset: select cue	ຕັ້ງ cue ຄືນ: ເລືອກ cue
+cue settings pasted x	ວາງການຕັ້ງຄ່າ cue ແລ້ວ x
+display switch failed	ສະຫຼັບຈໍບໍ່ສຳເລັດ
+effect chain pasted x	ວາງສາຍ effect ແລ້ວ x
+encoder queue running	ຄິວຕົວເຂົ້າລະຫັດກຳລັງແລ່ນ
+lfo follows the tempo	lfo ຕາມຈັງຫວະ
+motion driver cleared	ລ້າງ driver ການເຄື່ອນແລ້ວ
+ndi tally trigger off	trigger tally NDI ປິດ
+ndi unsupported build	NDI ບໍ່ຮອງຮັບໃນລຸ້ນນີ້
+no Lower Third on air	ບໍ່ມີ Lower Third ສົດ
+no audio cue selected	ບໍ່ໄດ້ເລືອກ cue ສຽງ
+playlist fps: invalid	fps ຂອງ playlist: ບໍ່ຖືກຕ້ອງ
+presenter: no outputs	presenter: ບໍ່ມີຂາອອກ
+scene slot source set	ຕັ້ງແຫຼ່ງຊ່ອງ scene ແລ້ວ
+st 2110: invalid port	st 2110: ພອດບໍ່ຖືກຕ້ອງ
+timer face: 7-segment	ໃບໜ້າໂມງນັບ: 7-segment
+' is not a deck number	' ບໍ່ແມ່ນເລກ deck
+FX PARAM: value is 0-1	FX PARAM: ຄ່າແມ່ນ 0-1
+OUTPUT AOI: no outputs	OUTPUT AOI: ບໍ່ມີຂາອອກ
+already the first step	ເປັນຂັ້ນທຳອິດແລ້ວ
+audio bitrate: invalid	ອັດຕາບິດສຽງ: ບໍ່ຖືກຕ້ອງ
+browser capture failed	ຈັບພາບບຣາວເຊີບໍ່ສຳເລັດ
+canvas height: invalid	ຄວາມສູງ canvas: ບໍ່ຖືກຕ້ອງ
+datamosh: select a cue	datamosh: ເລືອກ cue
+effect stack full (12)	ສະແຕັກເອັບເຟັກເຕັມ (12)
+jumped to selected cue	ໂດດໄປ cue ທີ່ເລືອກ
+layer command: removed	ຄຳສັ່ງ layer: ຖືກລຶບແລ້ວ
+listens to any channel	ຟັງຊ່ອງໃດກໍໄດ້
+nmos: node not running	nmos: node ບໍ່ໄດ້ແລ່ນ
+output effects back in	ເອັບເຟັກຂາອອກກັບມາແລ້ວ
+presenter layout: wide	ການຈັດວາງ presenter: ກວ້າງ
+route command: removed	ຄຳສັ່ງ route: ຖືກລຶບແລ້ວ
+save failed - retrying	ບັນທຶກບໍ່ສຳເລັດ - ກຳລັງລອງໃໝ່
+schedule: select a cue	schedule: ເລືອກ cue
+slide import cancelled	ຍົກເລີກການນຳເຂົ້າສະໄລ້
+takes land on the beat	TAKE ລົງຕາມຈັງຫວະ
+warp paste: copy first	ວາງ warp: ສຳເນົາກ່ອນ
+2 \xC2\xB7 WHAT IT RUNS	2 \xC2\xB7 ມັນແລ່ນຫຍັງ
+Chladni stops listening	Chladni ຢຸດຟັງ
+OUTPUT DECK: no outputs	OUTPUT DECK: ບໍ່ມີຂາອອກ
+could not add an output	ເພີ່ມຂາອອກບໍ່ໄດ້
+downloading {1}... {2}%	ກຳລັງດາວໂຫຼດ {1}... {2}%
+driver restarts on take	ໄດເວີເລີ່ມໃໝ່ເມື່ອ TAKE
+encoder destination set	ຕັ້ງປາຍທາງຕົວເຂົ້າລະຫັດແລ້ວ
+expected factor 0.25..4	ຄາດວ່າຕົວຄູນ 0.25..4
+expected finite numbers	ຄາດວ່າຕົວເລກຈຳກັດ
+hyperdeck emulation off	ຈຳລອງ HyperDeck ປິດ
+key color sample failed	ເກັບຕົວຢ່າງສີ key ບໍ່ສຳເລັດ
+leave it where it lands	ປ່ອຍໄວ້ບ່ອນທີ່ມັນຕົກ
+no playlist column here	ບໍ່ມີຖັນ playlist ຢູ່ນີ້
+osc query port: invalid	ພອດ OSC Query: ບໍ່ຖືກຕ້ອງ
+playlist start: invalid	ເລີ່ມ playlist: ບໍ່ຖືກຕ້ອງ
+still duration: invalid	ໄລຍະເວລາຮູບນິ່ງ: ບໍ່ຖືກຕ້ອງ
+synth cue has no engine	cue synth ບໍ່ມີ engine
+, its place in the stack	, ຕຳແໜ່ງຂອງມັນໃນ stack
+1 \xC2\xB7 WHAT COMES IN	1 · ສິ່ງທີ່ເຂົ້າມາ
+An output whose Shows is	output ທີ່ສະແດງ
+DeckLink input cue added	ເພີ່ມ cue ຂາເຂົ້າ DeckLink ແລ້ວ
+already on the dashboard	ຢູ່ໃນແຜງຄວບຄຸມແລ້ວ
+expected an alpha, 0-255	ຕ້ອງການອັນຟາ, 0-255
+expected positive pixels	ຕ້ອງການພິກເຊວທີ່ເປັນບວກ
+find: press Ctrl+F first	ຊອກ: ກົດ Ctrl+F ກ່ອນ
+glyphs: the built-in set	glyph: ຊຸດໃນຕົວ
+keep at least one output	ຮັກສາ output ຢ່າງໜ້ອຍໜຶ່ງ
+marker: none on this cue	marker: ບໍ່ມີໃນ cue ນີ້
+mic mixed into recording	ໄມປົນເຂົ້າໃນການອັດ
+not a playable MIDI file	ບໍ່ແມ່ນໄຟລ໌ MIDI ທີ່ຫຼິ້ນໄດ້
+relink: folder not found	relink: ບໍ່ພົບໂຟນເດີ
+select a moire cue first	ເລືອກ cue moiré ກ່ອນ
+tempo follows MIDI clock	tempo ຕາມ MIDI clock
+the tracker has no steps	ຕົວຕິດຕາມບໍ່ມີ step
+typeface (the app's own)	ຟອນ (ຂອງແອັບເອງ)
+. Set displays to Extend.	. ຕັ້ງຈໍສະແດງຜົນເປັນ Extend.
+Language reset to English	ຕັ້ງພາສາຄືນເປັນອັງກິດແລ້ວ
+PUSH expects a cue number	PUSH ຕ້ອງການເລກ cue
+SLICE: there is no output	SLICE: ບໍ່ມີ output
+TCCUE: select a cue first	TCCUE: ເລືອກ cue ກ່ອນ
+effects paste: no targets	ວາງເອັບເຟັກ: ບໍ່ມີເປົ້າໝາຍ
+follows the whole picture	ຕາມຮູບທັງໝົດ
+key color picker canceled	ຍົກເລີກການເລືອກສີ key
+listening for captions...	ກຳລັງຟັງຄຳບັນຍາຍ...
+monitor: pick a row first	ຈໍຕິດຕາມ: ເລືອກແຖວກ່ອນ
+moshlook: smooth | chunky	moshlook: ລຽບ | ຫຍາບ
+no trimmable cue selected	ບໍ່ໄດ້ເລືອກ cue ທີ່ຕັດໄດ້
+output type change failed	ປ່ຽນປະເພດ output ບໍ່ສຳເລັດ
+select a master cue first	ເລືອກ cue ຫຼັກກ່ອນ
+sequence stops at the end	ລຳດັບຢຸດຢູ່ທ້າຍ
+web monitor port: invalid	ພອດຈໍຕິດຕາມເວັບ: ບໍ່ຖືກຕ້ອງ
+3 \xC2\xB7 WHAT IT RUNS ON	3 · ແລ່ນເທິງຫຍັງ
+ASCII CHAOS: expected 0..1	ASCII CHAOS: ຕ້ອງເປັນ 0..1
+DATAMOSH on - preparing...	DATAMOSH ເປີດ - ກຳລັງກະກຽມ...
+DMXCUE: select a cue first	DMXCUE: ເລືອກ cue ກ່ອນ
+GEOLFO: select a cue first	GEOLFO: ເລືອກ cue ກ່ອນ
+MATRIX: select a cue first	MATRIX: ເລືອກ cue ກ່ອນ
+MEMOCUE: expected the note	MEMOCUE: ຕ້ອງໃສ່ບັນທຶກ
+NETCUE: select a cue first	NETCUE: ເລືອກ cue ກ່ອນ
+STING BODY: expected 0-100	STING BODY: ຕ້ອງເປັນ 0-100
+TALLYEVENT wants ON or OFF	TALLYEVENT ຕ້ອງການ ON ຫຼື OFF
+TONECUE LFO: FREQ or LEVEL	TONECUE LFO: FREQ ຫຼື LEVEL
+could not load that plugin	ໂຫຼດ plugin ນັ້ນບໍ່ໄດ້
+effects copy: select a cue	ສຳເນົາເອັບເຟັກ: ເລືອກ cue
+expected degrees -180..180	ຕ້ອງເປັນອົງສາ -180..180
+expression is at its limit	ນິພົດຮອດຂີດຈຳກັດແລ້ວ
+multiview - every playlist	multiview - ທຸກ playlist
+new show, from my defaults	ໂຊໃໝ່, ຈາກຄ່າເລີ່ມຕົ້ນຂອງຂ້ອຍ
+no cue with audio selected	ບໍ່ໄດ້ເລືອກ cue ທີ່ມີສຽງ
+osc feedback rate: invalid	ອັດຕາສຽງສະທ້ອນ osc: ບໍ່ຖືກຕ້ອງ
+panic: outputs already off	panic: ຂາອອກປິດຢູ່ແລ້ວ
+pick from screen cancelled	ຍົກເລີກການເລືອກຈາກໜ້າຈໍແລ້ວ
+rendering slide {1} of {2}	ກຳລັງ render ສະໄລດ໌ {1} ຈາກ {2}
+schedule: HH:MM[:SS] | off	ກຳນົດເວລາ: HH:MM[:SS] | ປິດ
+update: nothing to install	ອັບເດດ: ບໍ່ມີຫຍັງໃຫ້ຕິດຕັ້ງ
+warp preset: name required	WARP preset: ຕ້ອງມີຊື່
+1 cue imported (probing...)	ນຳເຂົ້າ 1 cue ແລ້ວ (ກຳລັງກວດ...)
+ASCII WOBBLE: expected 0..1	ASCII WOBBLE: ຕ້ອງເປັນ 0..1
+AUDIOFX ADD: chain full (8)	AUDIOFX ADD: ສາຍເຕັມ (8)
+CLICK: expected two numbers	CLICK: ຕ້ອງການຕົວເລກສອງຕົວ
+HOVER: expected two numbers	HOVER: ຕ້ອງການຕົວເລກສອງຕົວ
+MIDICUE: select a cue first	MIDICUE: ເລືອກ cue ກ່ອນ
+TEXTCUE: select a cue first	TEXTCUE: ເລືອກ cue ກ່ອນ
+VIDEODIP FADE: 0-30 seconds	VIDEODIP FADE: 0-30 ວິນາທີ
+browser stopped - deck dark	ບຣາວເຊີຢຸດແລ້ວ - deck ມືດ
+could not save the defaults	ບັນທຶກຄ່າເລີ່ມຕົ້ນບໍ່ໄດ້
+datamosh look: select a cue	datamosh look: ເລືອກ cue
+datamosh: already preparing	datamosh: ກຳລັງກຽມຢູ່ແລ້ວ
+effects paste: select a cue	ວາງເອັບເຟັກ: ເລືອກ cue
+matrix on, routed as it was	matrix ເປີດ, ເສັ້ນທາງຄືເກົ່າ
+nmos: clipboard unavailable	nmos: ໃຊ້ clipboard ບໍ່ໄດ້
+nmos: need http://host:port	nmos: ຕ້ອງມີ http://host:port
+skip back: nothing previous	skip back: ບໍ່ມີອັນກ່ອນ
+FX COLOUR: a grey has no hue	FX COLOUR: ສີເທົາບໍ່ມີສີ
+MASK RENAME: expected a name	MASK RENAME: ຕ້ອງມີຊື່
+MIDIFILE: select a cue first	MIDIFILE: ເລືອກ cue ກ່ອນ
+SCALEMODE: expected one mode	SCALEMODE: ຕ້ອງມີໜຶ່ງໂໝດ
+SYNTH ADD takes no arguments	SYNTH ADD ບໍ່ຮັບຄ່າ
+TEXTCUE CARD: expected 0-255	TEXTCUE CARD: ຕ້ອງມີ 0-255
+UISNAP: expected a .bmp path	UISNAP: ຕ້ອງມີເສັ້ນທາງ .bmp
+av jumps: counting from zero	av jumps: ນັບຈາກສູນ
+cannot reorder a running job	ຈັດລຳດັບວຽກທີ່ກຳລັງແລ່ນບໍ່ໄດ້
+expected a number of seconds	ຕ້ອງມີຈຳນວນວິນາທີ
+master scene rename: removed	master scene rename: ລຶບອອກແລ້ວ
+motion driver would not open	ເປີດໄດເວີການເຄື່ອນບໍ່ໄດ້
+no steps yet - Ins makes one	ຍັງບໍ່ມີຂັ້ນ - ກົດ Ins ເພື່ອສ້າງ
+selected cue has no geometry	cue ທີ່ເລືອກບໍ່ມີເລຂາຄະນິດ
+skip back: playlist is empty	skip back: playlist ວ່າງ
+sprite set could not be read	ອ່ານ sprite set ບໍ່ໄດ້
+st2110 sdp written to stdout	st2110 sdp ຂຽນໄປ stdout ແລ້ວ
+the clicker advances the cue	ຣີໂມດນຳສະເໜີເລື່ອນ cue ໄປຕໍ່
+video dip fade: 0-30 seconds	video dip fade: 0-30 ວິນາທີ
+warp point: expected numbers	warp point: ຕ້ອງມີຕົວເລກ
+* KONAMI * terrarium unlocked	* KONAMI * ປົດລັອກ terrarium ແລ້ວ
+DMXCUE PORT: expected 1-65535	DMXCUE PORT: ຕ້ອງມີ 1-65535
+ENDACTION: select a cue first	ENDACTION: ເລືອກ cue ກ່ອນ
+FADE STOP: expected on or off	FADE STOP: ຕ້ອງມີ on ຫຼື off
+LESSONS TRACK: PIXEL or VIDEO	LESSONS TRACK: PIXEL ຫຼື VIDEO
+LOWERANIM: select a cue first	LOWERANIM: ເລືອກ cue ກ່ອນ
+MATRIX SET: destination is 1-	MATRIX SET: ປາຍທາງແມ່ນ 1-
+NETCUE PORT: expected 1-65535	NETCUE PORT: ຕ້ອງເປັນ 1-65535
+OUTSNAP: expected a .bmp path	OUTSNAP: ຕ້ອງເປັນເສັ້ນທາງ .bmp
+SCRIPTCUE: select a cue first	SCRIPTCUE: ເລືອກ cue ກ່ອນ
+TEXTCUE SCALE: expected 0.5-2	TEXTCUE SCALE: ຕ້ອງເປັນ 0.5-2
+WARP AT: expected two numbers	WARP AT: ຕ້ອງໃສ່ເລກສອງຕົວ
+could not remove the defaults	ລຶບຄ່າເລີ່ມຕົ້ນບໍ່ໄດ້
+lights dip when a video rolls	ໄຟຫຼຸດລົງເມື່ອວິດີໂອເລີ່ມຫຼິ້ນ
+no refresh choices for raster	ບໍ່ມີຕົວເລືອກ refresh ສຳລັບ raster
+output recovered: auto native	output ກູ້ຄືນແລ້ວ: ອັດຕະໂນມັດ ຕົ້ນສະບັບ
+overlay on -- choose an image	ຊັ້ນທັບ ເປີດ -- ເລືອກຮູບ
+stopped - deck dark, reracked	ຢຸດແລ້ວ - deck ມືດ, ຈັດໃໝ່ແລ້ວ
+this file has one sound track	ໄຟລ໌ນີ້ມີແທຣັກສຽງໜຶ່ງ
+update: will check at startup	ອັບເດດ: ຈະກວດເມື່ອເປີດເຄື່ອງ
+web monitor connections: 1-64	ການເຊື່ອມຕໍ່ຈໍຕິດຕາມເວັບ: 1-64
+DASH: the startup dialog is up	DASH: ກ່ອງເລີ່ມຕົ້ນເປີດຢູ່
+LOWERSTYLE: select a cue first	LOWERSTYLE: ເລືອກ cue ກ່ອນ
+MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: ຕ້ອງເປັນ 1-16
+PATTERN ADD needs a pattern id	PATTERN ADD ຕ້ອງມີ ID ຂອງຮູບແບບ

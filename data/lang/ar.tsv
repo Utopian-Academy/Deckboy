@@ -2617,3 +2617,256 @@ media probe failed	فشل فحص الوسائط
 nmos: invalid port	NMOS: منفذ غير صالح
 output overlay off	تراكب الخرج متوقف
 pip target cleared	تم مسح هدف PIP
+select a cue first	اختر كيو أولاً
+source unavailable	المصدر غير متاح
+spare (also spare)	احتياطي (أيضاً احتياطي)
+stream key cleared	تم مسح مفتاح البث
+timecode cue added	تمت إضافة كيو الكود الزمني
+timer face: blocky	وجه المؤقّت: مربّعات
+timer logo cleared	تم مسح شعار المؤقّت
+vmix port: invalid	VMIX: منفذ غير صالح
+, not a plugin slot	، ليست خانة إضافة
+. Your show is back	. عاد عرضك
+DeckLink 10-bit off	DeckLink 10 بت: إيقاف
+HOVER: expected x y	HOVER: المتوقع x y
+Lower Third cleared	تم مسح Lower Third
+NDI\xc2\xae NETWORK	NDI® الشبكة
+OSC trigger cleared	تم مسح إطلاق OSC
+Show file not found	ملف العرض غير موجود
+audio chain cleared	تم مسح سلسلة الصوت
+audio switch failed	فشل تبديل الصوت
+browser jumped live	تم نقل المتصفح إلى المباشر
+browser url updated	تم تحديث عنوان المتصفح
+bundle media failed	فشلت حزمة الوسائط
+choose a show first	اختر العرض أولاً
+composite cue added	أُضيف كيو مركّب
+cue numbers cleared	تم مسح أرقام الكيو
+cue settings copied	تم نسخ إعدادات الكيو
+cue settings pasted	تم لصق إعدادات الكيو
+double-GO guard off	حماية GO المزدوج: إيقاف
+effect chain pasted	تم لصق سلسلة التأثيرات
+end of the sequence	نهاية التسلسل
+pattern motion: n/a	حركة نمط الاختبار: غير متاح
+plugin slot cleared	تم مسح خانة الإضافة
+splitnotes: no deck	splitnotes: لا ديك
+sprite sheet loaded	تم تحميل ورقة السبرايت
+takes are immediate	TAKE فوري
+ui motion always on	حركة الواجهة دائماً: تشغيل
+-10 seconds from end	-10 ثوانٍ من النهاية
+-20 seconds from end	-20 ثانية من النهاية
+-30 seconds from end	-30 ثانية من النهاية
+. — skip to next cue	. — تخطّي إلى الكيو التالي
+MIDI plays the synth	MIDI يعزف السينث
+MIDI trigger cleared	تم مسح إطلاق MIDI
+NDI source cue added	أُضيف كيو مصدر NDI
+audio chain full (8)	سلسلة الصوت ممتلئة (8)
+browser url required	عنوان المتصفح مطلوب
+bundle export failed	فشل تصدير الحزمة
+bundle folder failed	تعذّر إنشاء مجلد الحزمة
+cue copy: select cue	نسخ الكيو: اختر كيو
+cue settings reset x	تمت إعادة ضبط إعدادات الكيو x
+delete from the show	حذف من العرض
+encoder queue paused	تم إيقاف طابور المُرمِّز مؤقتاً
+find: token required	بحث: الرمز مطلوب
+first port available	أول منفذ متاح
+identifying displays	جارٍ تحديد الشاشات
+marker: nothing live	العلامة: لا شيء مباشر
+marker: select a cue	علامة: اختر cue
+no midi input device	لا يوجد جهاز دخل MIDI
+no overlays to clear	لا توجد طبقات لإزالتها
+no synth cue is live	لا يوجد cue سينث على الهواء
+output create failed	فشل إنشاء الخرج
+output remove failed	فشل حذف الخرج
+pause points cleared	تم مسح نقاط الإيقاف المؤقت
+presenter view reset	أُعيد ضبط عرض المُقدّم
+renumber: empty deck	إعادة الترقيم: الدك فارغ
+sprite sheet cleared	تم مسح ورقة السبرايت
+stream url unchanged	رابط البث لم يتغيّر
+stream url: required	رابط البث: مطلوب
+time trigger cleared	تم مسح إطلاق الوقت
+update: checking off	التحديث: الفحص متوقف
+warp settings copied	نُسخت إعدادات التشويه
+warp settings pasted	لُصقت إعدادات التشويه
+DMX over sACN (E1.31)	DMX عبر sACN (E1.31)
+already the last step	هذه هي الخطوة الأخيرة بالفعل
+analyzing loudness...	جارٍ تحليل شدة الصوت...
+arcade always wiggles	الأركيد يهتز دائماً
+browser window closed	أُغلقت نافذة المتصفح
+canvas width: invalid	عرض الكانفاس: غير صالح
+computer keyboard off	لوحة مفاتيح الكمبيوتر متوقفة
+contrast check: saved	فحص التباين: تم الحفظ
+cue paste: copy first	لصق cue: انسخ أولاً
+cue paste: no targets	لصق cue: لا أهداف
+cue paste: select cue	لصق cue: اختر cue
+cue reset: no targets	إعادة ضبط cue: لا أهداف
+cue reset: select cue	إعادة ضبط cue: اختر cue
+cue settings pasted x	لُصقت إعدادات cue x
+display switch failed	فشل تبديل العرض
+effect chain pasted x	لُصقت سلسلة المؤثرات x
+encoder queue running	قائمة انتظار المُرمِّز تعمل
+lfo follows the tempo	LFO يتبع الإيقاع
+motion driver cleared	تم مسح محرّك الحركة
+ndi tally trigger off	إطلاق NDI tally متوقف
+ndi unsupported build	NDI غير مدعوم في هذه النسخة
+no Lower Third on air	لا يوجد Lower Third على الهواء
+no audio cue selected	لم يُحدَّد كيو صوتي
+playlist fps: invalid	قائمة التشغيل fps: غير صالح
+presenter: no outputs	العارض: لا توجد مخارج
+scene slot source set	تم تعيين مصدر خانة المشهد
+st 2110: invalid port	st 2110: منفذ غير صالح
+timer face: 7-segment	وجه المؤقّت: 7 مقاطع
+' is not a deck number	' ليس رقم ديك
+FX PARAM: value is 0-1	FX PARAM: القيمة 0-1
+already the first step	هذه الخطوة الأولى بالفعل
+audio bitrate: invalid	معدل بت الصوت: غير صالح
+browser capture failed	فشل التقاط المتصفح
+canvas height: invalid	ارتفاع اللوحة: غير صالح
+datamosh: select a cue	datamosh: اختر كيو
+effect stack full (12)	حزمة المؤثرات ممتلئة (12)
+jumped to selected cue	تم الانتقال إلى الكيو المحدد
+layer command: removed	أمر الطبقة: تمت إزالته
+listens to any channel	يستمع إلى أي قناة
+nmos: node not running	nmos: العقدة لا تعمل
+output effects back in	مؤثرات الخرج عادت إلى المسار
+presenter layout: wide	تخطيط العارض: عريض
+route command: removed	أمر المسار: تمت إزالته
+save failed - retrying	فشل الحفظ - إعادة المحاولة
+schedule: select a cue	الجدولة: اختر كيو
+slide import cancelled	أُلغي استيراد الشرائح
+takes land on the beat	تنطلق عمليات TAKE على الإيقاع
+warp paste: copy first	لصق التشويه: انسخ أولاً
+2 \xC2\xB7 WHAT IT RUNS	2 \xC2\xB7 ما الذي يشغّله
+Chladni stops listening	Chladni يتوقف عن الاستماع
+could not add an output	تعذّرت إضافة خرج
+downloading {1}... {2}%	جارٍ تنزيل {1}... {2}%
+driver restarts on take	يُعاد تشغيل المحرّك عند TAKE
+encoder destination set	تم تعيين وجهة المُرمِّز
+expected factor 0.25..4	المتوقع معامل 0.25..4
+expected finite numbers	المتوقع أعداد منتهية
+hyperdeck emulation off	محاكاة HyperDeck متوقفة
+key color sample failed	فشل أخذ عينة لون المفتاح
+leave it where it lands	اتركه حيث يستقر
+no playlist column here	لا يوجد عمود قائمة التشغيل هنا
+osc query port: invalid	منفذ استعلام OSC: غير صالح
+playlist start: invalid	بدء قائمة التشغيل: غير صالح
+still duration: invalid	مدة الصورة الثابتة: غير صالحة
+synth cue has no engine	كيو المُركّب بلا محرك
+, its place in the stack	، موضعه في التسلسل
+1 \xC2\xB7 WHAT COMES IN	1 \xC2\xB7 ما يدخل
+An output whose Shows is	خرج عرضه
+DeckLink input cue added	أُضيف كيو دخل DeckLink
+already on the dashboard	موجود بالفعل في لوحة التحكم
+expected an alpha, 0-255	المتوقع قيمة ألفا، 0-255
+expected positive pixels	المتوقع بكسلات موجبة
+find: press Ctrl+F first	بحث: اضغط Ctrl+F أولًا
+glyphs: the built-in set	الحروف: المجموعة المدمجة
+keep at least one output	أبقِ خرجًا واحدًا على الأقل
+marker: none on this cue	العلامة: لا شيء في هذا الكيو
+mic mixed into recording	الميكروفون مختلط في التسجيل
+not a playable MIDI file	ليس ملف MIDI قابلًا للتشغيل
+relink: folder not found	إعادة الربط: المجلد غير موجود
+select a moire cue first	اختر كيو تموّج أولًا
+tempo follows MIDI clock	الإيقاع يتبع ساعة MIDI
+the tracker has no steps	المتتبع بلا خطوات
+typeface (the app's own)	الخط (خط التطبيق نفسه)
+. Set displays to Extend.	. اضبط الشاشات على التمديد.
+Language reset to English	أُعيدت اللغة إلى الإنجليزية
+PUSH expects a cue number	PUSH يتوقع رقم كيو
+SLICE: there is no output	SLICE: لا يوجد خرج
+TCCUE: select a cue first	TCCUE: اختر كيو أولًا
+effects paste: no targets	لصق المؤثرات: لا أهداف
+follows the whole picture	يتبع الصورة كلها
+key color picker canceled	تم إلغاء منتقي لون المفتاح
+listening for captions...	جارٍ الاستماع إلى الترجمة...
+monitor: pick a row first	المراقب: اختر صفًا أولًا
+moshlook: smooth | chunky	moshlook: ناعم | خشن
+no trimmable cue selected	لم يتم اختيار كيو قابل للقص
+output type change failed	فشل تغيير نوع الخرج
+select a master cue first	اختر كيو Master أولًا
+sequence stops at the end	التسلسل يتوقف عند النهاية
+web monitor port: invalid	منفذ مراقب ويب: غير صالح
+3 \xC2\xB7 WHAT IT RUNS ON	3 · ما يعمل عليه
+ASCII CHAOS: expected 0..1	ASCII CHAOS: المتوقع 0..1
+DATAMOSH on - preparing...	DATAMOSH: تشغيل - جارٍ التحضير...
+DMXCUE: select a cue first	DMXCUE: اختر كيو أولًا
+GEOLFO: select a cue first	GEOLFO: اختر كيو أولًا
+MATRIX: select a cue first	MATRIX: اختر كيو أولًا
+MEMOCUE: expected the note	MEMOCUE: المتوقع هو الملاحظة
+NETCUE: select a cue first	NETCUE: اختر كيو أولًا
+STING BODY: expected 0-100	STING BODY: المتوقع 0-100
+could not load that plugin	تعذّر تحميل تلك الإضافة
+effects copy: select a cue	نسخ المؤثرات: اختر كيو
+expected degrees -180..180	المتوقع درجات -180..180
+expression is at its limit	التعبير وصل إلى حدّه
+multiview - every playlist	multiview - كل قائمة تشغيل
+new show, from my defaults	عرض جديد، من الافتراضيات الخاصة بي
+no cue with audio selected	لم يتم اختيار كيو يحتوي على صوت
+osc feedback rate: invalid	معدل التغذية الراجعة لـ OSC: غير صالح
+panic: outputs already off	panic: المخارج متوقفة بالفعل
+pick from screen cancelled	أُلغي التقاط من الشاشة
+rendering slide {1} of {2}	جارٍ عرض الشريحة {1} من {2}
+schedule: HH:MM[:SS] | off	الجدولة: HH:MM[:SS] | إيقاف
+update: nothing to install	التحديث: لا شيء للتثبيت
+warp preset: name required	إعداد التشويه المسبق: الاسم مطلوب
+1 cue imported (probing...)	تم استيراد كيو واحد (جارٍ الفحص...)
+ASCII WOBBLE: expected 0..1	ASCII WOBBLE: المتوقع 0..1
+AUDIOFX ADD: chain full (8)	AUDIOFX ADD: السلسلة كاملة (8)
+CLICK: expected two numbers	CLICK: المتوقع رقمان
+HOVER: expected two numbers	HOVER: المتوقع رقمان
+MIDICUE: select a cue first	MIDICUE: اختر كيو أولاً
+TEXTCUE: select a cue first	TEXTCUE: اختر كيو أولاً
+VIDEODIP FADE: 0-30 seconds	VIDEODIP FADE: من 0 إلى 30 ثانية
+browser stopped - deck dark	توقف المتصفح - الديك مظلم
+could not save the defaults	تعذّر حفظ الافتراضيات
+datamosh look: select a cue	datamosh look: اختر كيو
+datamosh: already preparing	datamosh: قيد التحضير بالفعل
+effects paste: select a cue	effects paste: اختر كيو
+matrix on, routed as it was	المصفوفة: تشغيل، بالتوجيه السابق
+nmos: clipboard unavailable	nmos: الحافظة غير متاحة
+nmos: need http://host:port	nmos: المطلوب http://host:port
+skip back: nothing previous	تخطّي للخلف: لا يوجد سابق
+FX COLOUR: a grey has no hue	FX COLOUR: الرمادي بلا درجة لون
+MASK RENAME: expected a name	MASK RENAME: المطلوب اسم
+MIDIFILE: select a cue first	MIDIFILE: اختر كيو أولاً
+SCALEMODE: expected one mode	SCALEMODE: المطلوب وضع واحد
+SYNTH ADD takes no arguments	SYNTH ADD لا يقبل وسائط
+TEXTCUE CARD: expected 0-255	TEXTCUE CARD: المطلوب 0-255
+UISNAP: expected a .bmp path	UISNAP: المطلوب مسار .bmp
+av jumps: counting from zero	av jumps: العدّ من الصفر
+cannot reorder a running job	لا يمكن إعادة ترتيب مهمة قيد العمل
+expected a number of seconds	المطلوب عدد من الثواني
+master scene rename: removed	master scene rename: أُزيل
+motion driver would not open	تعذّر فتح محرّك الحركة
+no steps yet - Ins makes one	لا خطوات بعد - Ins ينشئ واحدة
+selected cue has no geometry	الكيو المحدد بلا هندسة
+skip back: playlist is empty	تخطّي للخلف: قائمة التشغيل فارغة
+sprite set could not be read	تعذّرت قراءة مجموعة السبرايت
+st2110 sdp written to stdout	st2110 sdp كُتب إلى stdout
+the clicker advances the cue	جهاز التحكم يقدّم الكيو
+video dip fade: 0-30 seconds	video dip fade: 0-30 ثانية
+warp point: expected numbers	warp point: المطلوب أرقام
+* KONAMI * terrarium unlocked	* KONAMI * فُتح التيراريوم
+DMXCUE PORT: expected 1-65535	DMXCUE PORT: المطلوب 1-65535
+ENDACTION: select a cue first	ENDACTION: اختر كيو أولاً
+FADE STOP: expected on or off	FADE STOP: المطلوب تشغيل أو إيقاف
+LOWERANIM: select a cue first	LOWERANIM: اختر كيو أولاً
+MATRIX SET: destination is 1-	MATRIX SET: الوجهة هي 1-
+NETCUE PORT: expected 1-65535	NETCUE PORT: المتوقع 1-65535
+OUTSNAP: expected a .bmp path	OUTSNAP: المتوقع مسار .bmp
+SCRIPTCUE: select a cue first	SCRIPTCUE: اختر كيو أولًا
+TEXTCUE SCALE: expected 0.5-2	TEXTCUE SCALE: المتوقع 0.5-2
+TRIGGER AT: HH:MM[:SS] or OFF	TRIGGER AT: HH:MM[:SS] أو OFF
+WARP AT: expected two numbers	WARP AT: المتوقع رقمان
+could not remove the defaults	تعذّرت إزالة الافتراضيات
+lights dip when a video rolls	الإضاءة تخفت عند تشغيل الفيديو
+no refresh choices for raster	لا خيارات تحديث للراستر
+output recovered: auto native	تمت استعادة الخرج: تلقائي أصلي
+overlay on -- choose an image	التراكب: تشغيل -- اختر صورة
+stopped - deck dark, reracked	متوقف - الديك مظلم، أُعيد ترتيبه
+this file has one sound track	يحتوي هذا الملف على مسار صوتي واحد
+update: will check at startup	التحديث: سيتم التحقق عند البدء
+web monitor connections: 1-64	اتصالات مراقب ويب: 1-64
+DASH: the startup dialog is up	DASH: حوار البدء ظاهر
+LOWERSTYLE: select a cue first	LOWERSTYLE: اختر كيو أولًا
+MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: المتوقع 1-16
+PATTERN ADD needs a pattern id	PATTERN ADD يحتاج معرّف نمط اختبار

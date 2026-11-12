@@ -2537,3 +2537,279 @@ output overlay on	ma ka uhi puka
 phone haptics off	pio ka haʻalulu o ke kelepona
 pick a deck first	koho mua i papa
 playlist loop off	pio ka pōʻai papa helu
+record folder set	ua hoʻonoho ʻia ka waihona hoʻopaʻa
+subtitle file set	ua hoʻonoho ʻia ka waihona lalani lua
+subtitles cleared	ua holoi ʻia nā lalani lua
+take the mask off	hoʻopio i ka uhi
+universe: 0-63999	ao holoʻokoʻa: 0-63999
+video synth added	ua hoʻohui ʻia ka synth wikiō
+warp preset saved	ua mālama ʻia ka preset hoʻokekeʻe
+AUDIOALSO: no deck	AUDIOALSO: ʻaʻohe papa
+DeckLink 10-bit ON	DeckLink 10-bit MA
+SCRIPTCUE: no deck	SCRIPTCUE: ʻaʻohe papa
+assign route first	e hoʻonoho mua i ke ala
+bundle save failed	ʻaʻole i kūleʻa ka mālama ʻana i ka hoʻopūʻolo
+cue settings reset	ua hoʻihoʻi ʻia nā hoʻonohonoho cue
+file dialog failed	ʻaʻole i kūleʻa ka puka waihona
+jumped to live cue	ua lele i ka cue ola
+lock to screen off	pio ka paʻa i ka papakaumaka
+media probe failed	ʻaʻole i kūleʻa ka nānā media
+nmos: invalid port	nmos: awa kūpono ʻole
+output overlay off	uhi puka pio
+pip target cleared	ua holoi ʻia ka pahuhopu pip
+select a cue first	e koho mua i cue
+source unavailable	ʻaʻole loaʻa ke kumu
+spare (also spare)	ʻē aʻe (ʻē aʻe hoʻi)
+stream key cleared	ua holoi ʻia ke kī kahe
+timecode cue added	ua hoʻohui ʻia ka cue timecode
+timer face: blocky	maka uaki: poloka
+timer logo cleared	ua holoi ʻia ka hōʻailona uaki
+vmix port: invalid	vmix awa: kūpono ʻole
+, not a plugin slot	, ʻaʻole he slot plugin
+. Your show is back	. Ua hoʻi mai kāu hōʻike
+DeckLink 10-bit off	DeckLink 10-bit PIO
+HOVER: expected x y	HOVER: x y i manaʻo ʻia
+Lower Third cleared	ua holoi ʻia ka Lower Third
+NDI\xc2\xae NETWORK	NDI\xc2\xae PŪNAEWELE
+OSC trigger cleared	ua holoi ʻia ka hoʻomaka OSC
+Show file not found	ʻaʻole loaʻa ka waihona hōʻike
+audio chain cleared	ua holoi ʻia ke kaulahao leo
+audio switch failed	ʻaʻole i kūleʻa ka hoʻololi leo
+browser jumped live	ua lele ka polokalamu kele i ka ola
+browser url updated	ua hoʻohou ʻia ka URL polokalamu kele
+bundle media failed	ʻaʻole i lanakila ka hoʻopūʻolo media
+choose a show first	koho mua i hōʻike
+composite cue added	ua hoʻohui ʻia ka cue huipū
+cue numbers cleared	ua holoi ʻia nā helu cue
+cue settings copied	ua kope ʻia nā hoʻonohonoho cue
+cue settings pasted	ua hoʻopili ʻia nā hoʻonohonoho cue
+double-GO guard off	pio ke kiaʻi GO pālua
+effect chain pasted	ua hoʻopili ʻia ke kaulahao hopena
+end of the sequence	ka hopena o ke kaʻina
+jam: not a timecode	jam: ʻaʻole he timecode
+pattern motion: n/a	kāpoʻe neʻe: n/a
+plugin slot cleared	ua holoi ʻia ke kahua plugin
+splitnotes: no deck	splitnotes: ʻaʻohe papa
+sprite sheet loaded	ua hoʻouka ʻia ka sprite sheet
+takes are immediate	koke nā take
+ui motion always on	mau ka neʻe UI
+-10 seconds from end	-10 kekona mai ka hopena
+-20 seconds from end	-20 kekona mai ka hopena
+-30 seconds from end	-30 kekona mai ka hopena
+. — skip to next cue	. — lele i ka cue aʻe
+Companion / OSC port	Awa Companion / OSC
+Lower Third attached	ua hoʻopili ʻia ka Lower Third
+MIDI plays the synth	hoʻokani ka MIDI i ka synth
+MIDI trigger cleared	ua holoi ʻia ka hoʻomaka MIDI
+NDI source cue added	ua hoʻohui ʻia ka cue kumu NDI
+audio chain full (8)	piha ke kaulahao leo (8)
+browser url required	pono ka URL polokalamu kele
+bundle export failed	ʻaʻole i lanakila ka hoʻopuka hoʻopūʻolo
+bundle folder failed	ʻaʻole i lanakila ka waihona hoʻopūʻolo
+cue copy: select cue	kope cue: koho i cue
+cue settings reset x	ua hoʻihoʻi ʻia nā hoʻonohonoho cue x
+delete from the show	holoi mai ka hōʻike
+encoder queue paused	hoʻomaha ʻia ka laina o ka mea hoʻopāʻālua
+find: run FIND first	find: holo mua i FIND
+find: token required	find: pono ka hōʻailona
+first port available	awa mua i loaʻa
+identifying displays	e ʻike ana i nā pale
+marker: nothing live	marker: ʻaʻohe mea ola
+marker: select a cue	marker: koho i cue
+no midi input device	ʻaʻohe mea hana MIDI komo
+no overlays to clear	ʻaʻohe uhi e holoi
+no synth cue is live	ʻaʻohe cue synth e ola ana
+output create failed	ua hāʻule ka hana ʻana i ka puka
+output remove failed	ua hāʻule ka wehe ʻana i ka puka
+pause points cleared	ua holoi ʻia nā wahi hoʻomaha
+presenter view reset	ua hoʻihoʻi ʻia ka nānā o ka mea hōʻike
+renumber: empty deck	hoʻonumero hou: papa hakahaka
+sprite sheet cleared	ua holoi ʻia ka pepa sprite
+stream url unchanged	ʻaʻole i loli ka url kahe
+stream url: required	url kahe: pono
+time trigger cleared	ua holoi ʻia ka hoʻomaka manawa
+update: checking off	hōʻano hou: ua pio ka nānā
+warp settings copied	ua kope ʻia nā hoʻonohonoho hoʻokekeʻe
+warp settings pasted	ua kāpili ʻia nā hoʻonohonoho hoʻokekeʻe
+Lower Third cue added	ua hoʻohui ʻia ka cue Lower Third
+already the last step	ʻo ia nō ke kaʻina hope
+analyzing loudness...	ke loiloi nei i ka leo nui...
+arcade always wiggles	naue mau ka pāʻani kālā
+browser window closed	ua pani ʻia ka puka aniani polokalamu kele
+canvas width: invalid	ākea canvas: pono ʻole
+computer keyboard off	pio ka papa kī kamepiula
+contrast check: saved	loiloi ʻokoʻa: ua mālama ʻia
+cue paste: copy first	kāpili cue: kope mua
+cue paste: no targets	kāpili cue: ʻaʻohe kumu
+cue paste: select cue	kāpili cue: koho i cue
+cue reset: no targets	hoʻihoʻi cue: ʻaʻohe kumu
+cue reset: select cue	hoʻihoʻi cue: koho i cue
+cue settings pasted x	ua kāpili ʻia nā hoʻonohonoho cue x
+display switch failed	ua hāʻule ka hoʻololi hōʻike
+effect chain pasted x	ua kāpili ʻia ke kaulahao hopena x
+encoder queue running	ke holo nei ka lālani mea hoʻopāʻālua
+lfo follows the tempo	hahai ka lfo i ka tempo
+motion driver cleared	ua holoi ʻia ka mea hoʻokele neʻe
+ndi tally trigger off	pio ka hoʻomaka ndi tally
+ndi unsupported build	ʻaʻole kākoʻo ʻia ka kūkulu ndi
+no Lower Third on air	ʻAʻohe Lower Third ma ka lewa
+no audio cue selected	ʻAʻohe cue leo i koho ʻia
+playlist fps: invalid	papa helu fps: pono ʻole
+presenter: no outputs	presenter: ʻaʻohe puka
+scene slot source set	Ua hoʻonoho ʻia ke kumu slot o ka scene
+st 2110: invalid port	st 2110: awa pono ʻole
+timer face: 7-segment	maka uaki: 7-segment
+' is not a deck number	' ʻaʻole he helu papa
+FX PARAM: value is 0-1	FX PARAM: ʻo ka waiwai he 0-1
+already the first step	ʻO ia nō ke kaʻina mua
+audio bitrate: invalid	bitrate leo: pono ʻole
+browser capture failed	Ua hāʻule ka hopu polokalamu kele
+canvas height: invalid	ke kiʻekiʻe canvas: pono ʻole
+datamosh: select a cue	datamosh: koho i cue
+effect stack full (12)	piha ka hōʻuluʻulu hopena (12)
+jumped to selected cue	Ua lele i ka cue i koho ʻia
+layer command: removed	kauoha layer: ua wehe ʻia
+listens to any channel	hoʻolohe i kekahi kahawai
+nmos: node not running	nmos: ʻaʻole e holo ana ka node
+output effects back in	Ua hoʻihoʻi ʻia mai nā hopena puka
+presenter layout: wide	hoʻonohonoho presenter: ākea
+route command: removed	kauoha route: ua wehe ʻia
+save failed - retrying	Ua hāʻule ka mālama - e hoʻāʻo hou ana
+schedule: select a cue	schedule: koho i cue
+slide import cancelled	Ua kāpae ʻia ka hoʻokomo paheʻe
+takes land on the beat	Hiki nā take ma ka paʻi
+warp paste: copy first	warp kāpili: kope mua
+2 \xC2\xB7 WHAT IT RUNS	2 \xC2\xB7 HE AHA KĀNA E HOLO AI
+Chladni stops listening	Hoʻōki ʻo Chladni i ka hoʻolohe
+could not add an output	ʻAʻole hiki ke hoʻohui i puka
+downloading {1}... {2}%	ke hoʻoiho nei {1}... {2}%
+driver restarts on take	hoʻomaka hou ka mea hoʻokele ma ka take
+encoder destination set	Ua hoʻonoho ʻia ke wahi e hiki ai o ka mea hoʻopāʻālua
+expected factor 0.25..4	Manaʻo ʻia ka hoʻonui 0.25..4
+expected finite numbers	Manaʻo ʻia nā helu palena
+hyperdeck emulation off	Hoʻohālike HyperDeck pio
+key color sample failed	hāʻule ka laʻana kala kī
+leave it where it lands	e waiho i kahi e pae ai
+no playlist column here	ʻaʻohe kolamu papa helu ma ʻaneʻi
+osc query port: invalid	awa nīnau OSC: ʻaʻole kūpono
+playlist start: invalid	hoʻomaka papa helu: ʻaʻole kūpono
+still duration: invalid	lōʻihi paʻa: ʻaʻole kūpono
+synth cue has no engine	ʻaʻohe ʻenekini ko ka synth cue
+, its place in the stack	, kona wahi ma ka pūʻulu
+1 \xC2\xB7 WHAT COMES IN	1 \xC2\xB7 KA MEA E KOMO MAI ANA
+An output whose Shows is	He puka a kāna Nā hōʻike ʻo
+DeckLink input cue added	Ua hoʻohui ʻia ka cue komo DeckLink
+already on the dashboard	ua ma ka dashboard ma mua
+expected an alpha, 0-255	e manaʻo ʻia he alpha, 0-255
+expected positive pixels	e manaʻo ʻia nā pika pōmaikaʻi
+find: press Ctrl+F first	ʻimi: kaomi mua iā Ctrl+F
+glyphs: the built-in set	nā glyph: ka pūʻulu i hoʻokomo ʻia
+keep at least one output	e mālama i hoʻokahi puka ma ka liʻiliʻi loa
+marker: none on this cue	māka: ʻaʻohe ma kēia cue
+mic mixed into recording	ua huikau ka mic i loko o ka hoʻopaʻa
+not a playable MIDI file	ʻaʻole he waihona MIDI hiki ke hoʻokani ʻia
+relink: folder not found	relink: ʻaʻole loaʻa ka waihona
+select a moire cue first	koho mua i cue moire
+tempo follows MIDI clock	hahai ka tempo i ka MIDI clock
+the tracker has no steps	ʻaʻohe ʻanuʻu o ka tracker
+typeface (the app's own)	ke ʻano hua (ʻo ka polokalamu ponoʻī)
+. Set displays to Extend.	. Hoʻonoho i nā hōʻikeʻike i Extend.
+Language reset to English	Ua hoʻihoʻi ʻia ka ʻŌlelo i ka Pelekānia
+PUSH expects a cue number	manaʻo ʻo PUSH i helu cue
+SLICE: there is no output	SLICE: ʻaʻohe puka
+TCCUE: select a cue first	TCCUE: koho mua i cue
+effects paste: no targets	kāpili hopena: ʻaʻohe pahuhopu
+follows the whole picture	hahai i ke kiʻi holoʻokoʻa
+key color picker canceled	Ua hoʻopau ʻia ka mea koho kala kī
+listening for captions...	e hoʻolohe ana i nā huaʻōlelo...
+monitor: pick a row first	nānā: koho mua i lalani
+moshlook: smooth | chunky	moshlook: mālie | mānoanoa
+no trimmable cue selected	ʻaʻohe cue hiki ke ʻoki i koho ʻia
+output type change failed	ua hāʻule ka hoʻololi ʻana i ke ʻano puka
+select a master cue first	koho mua i cue haku
+sequence stops at the end	kū ke kaʻina ma ka hopena
+web monitor port: invalid	awa nānā pūnaewele: kūpono ʻole
+3 \xC2\xB7 WHAT IT RUNS ON	3 · HOLO MA
+ASCII CHAOS: expected 0..1	ASCII CHAOS: ke manaʻo ʻia he 0..1
+DATAMOSH on - preparing...	DATAMOSH ma - e hoʻomākaukau ana...
+DMXCUE: select a cue first	DMXCUE: koho mua i cue
+GEOLFO: select a cue first	GEOLFO: koho mua i cue
+MATRIX: select a cue first	MATRIX: koho mua i cue
+MEMOCUE: expected the note	MEMOCUE: pono ka palapala
+Moire (interference bands)	Moire (nā ʻaoʻao keʻakeʻa)
+NETCUE: select a cue first	NETCUE: koho mua i cue
+STING BODY: expected 0-100	STING BODY: ke manaʻo ʻia he 0-100
+could not load that plugin	ʻaʻole hiki ke hoʻouka i kēlā plugin
+effects copy: select a cue	kope hopena: koho i cue
+expected degrees -180..180	ke manaʻo ʻia nā degere -180..180
+expression is at its limit	ua hōʻea ka expression i kona palena
+multiview - every playlist	multiview - kēlā me kēia papa helu
+new show, from my defaults	hōʻike hou, mai nā maʻamau oʻu
+no cue with audio selected	ʻaʻohe cue me ka leo i koho ʻia
+osc feedback rate: invalid	māmā hoʻihoʻi osc: kūpono ʻole
+panic: outputs already off	panic: ua pio mua nā puka
+pick from screen cancelled	ua hoʻopau ʻia ka koho mai ka papakaumaka
+rendering slide {1} of {2}	e hana ana i ka paheʻe {1} o {2}
+schedule: HH:MM[:SS] | off	papa hana: HH:MM[:SS] | pio
+update: nothing to install	hōʻano hou: ʻaʻohe mea e hoʻokomo
+warp preset: name required	preset hoʻokekeʻe: pono ka inoa
+1 cue imported (probing...)	1 cue i hoʻokomo ʻia (e nānā ana...)
+ASCII WOBBLE: expected 0..1	ASCII WOBBLE: ke manaʻo ʻia he 0..1
+AUDIOFX ADD: chain full (8)	AUDIOFX ADD: piha ke kaulahao (8)
+CLICK: expected two numbers	CLICK: ke manaʻo ʻia ʻelua helu
+HOVER: expected two numbers	HOVER: ke manaʻo ʻia ʻelua helu
+MIDICUE: select a cue first	MIDICUE: koho mua i cue
+TEXTCUE: select a cue first	TEXTCUE: koho mua i cue
+VIDEODIP FADE: 0-30 seconds	VIDEODIP FADE: 0-30 kekona
+browser stopped - deck dark	ua hoʻōki ʻia ka polokalamu kele - pōʻeleʻele ka papa
+could not save the defaults	ʻaʻole i mālama ʻia nā maʻamau
+datamosh look: select a cue	datamosh look: koho i cue
+datamosh: already preparing	datamosh: ke hoʻomākaukau ʻia nei
+effects paste: select a cue	effects paste: koho i cue
+matrix on, routed as it was	matrix ma, alakaʻi ʻia e like me ka mua
+nmos: clipboard unavailable	nmos: ʻaʻole loaʻa ka papa kāpili
+nmos: need http://host:port	nmos: pono http://host:port
+skip back: nothing previous	lele hoʻi: ʻaʻohe mea ma mua
+MASK RENAME: expected a name	MASK RENAME: he inoa ka mea i manaʻo ʻia
+MIDIFILE: select a cue first	MIDIFILE: koho mua i cue
+SCALEMODE: expected one mode	SCALEMODE: hoʻokahi ʻano ka mea i manaʻo ʻia
+SYNTH ADD takes no arguments	ʻAʻole pono ʻo SYNTH ADD i nā mea hoʻokomo
+TEXTCUE CARD: expected 0-255	TEXTCUE CARD: 0-255 ka mea i manaʻo ʻia
+UISNAP: expected a .bmp path	UISNAP: he ala .bmp ka mea i manaʻo ʻia
+av jumps: counting from zero	av jumps: helu mai ka ʻole
+cannot reorder a running job	ʻaʻole hiki ke hoʻonohonoho hou i ka hana e holo nei
+expected a number of seconds	he helu kekona ka mea i manaʻo ʻia
+master scene rename: removed	master scene rename: ua wehe ʻia
+motion driver would not open	ʻaʻole i wehe ka mea hoʻokele neʻe
+no steps yet - Ins makes one	ʻaʻohe kaʻina - hana ʻo Ins i hoʻokahi
+selected cue has no geometry	ʻaʻohe ana ʻāina o ka cue i koho ʻia
+skip back: playlist is empty	lele hoʻi: ʻaʻohe mea ma ka papa helu
+sprite set could not be read	ʻaʻole i heluhelu ʻia ka pūʻulu sprite
+st2110 sdp written to stdout	st2110 sdp i kākau ʻia i stdout
+the clicker advances the cue	hoʻomua ka mea kaomi i ka cue
+video dip fade: 0-30 seconds	hala hāʻule wikiō: 0-30 kekona
+warp point: expected numbers	kiko hoʻokekeʻe: he mau helu ka mea i manaʻo ʻia
+* KONAMI * terrarium unlocked	* KONAMI * ua wehe ʻia ka terrarium
+DMXCUE PORT: expected 1-65535	DMXCUE PORT: 1-65535 ka mea i manaʻo ʻia
+ENDACTION: select a cue first	ENDACTION: koho mua i cue
+FADE STOP: expected on or off	FADE STOP: ma a i ʻole pio ka mea i manaʻo ʻia
+LOWERANIM: select a cue first	LOWERANIM: koho mua i cue
+MATRIX SET: destination is 1-	MATRIX SET: ke wahi e hiki ai he 1-
+NETCUE PORT: expected 1-65535	NETCUE PORT: pono ka 1-65535
+OUTSNAP: expected a .bmp path	OUTSNAP: pono he ala .bmp
+SCRIPTCUE: select a cue first	SCRIPTCUE: koho mua i cue
+TEXTCUE SCALE: expected 0.5-2	TEXTCUE SCALE: pono ka 0.5-2
+WARP AT: expected two numbers	WARP AT: pono ʻelua helu
+could not remove the defaults	ʻaʻole hiki ke wehe i nā maʻamau
+lights dip when a video rolls	hāʻule nā kukui ke holo ka wikiō
+no refresh choices for raster	ʻaʻohe koho hoʻohou no ka raster
+output recovered: auto native	ua hoʻihoʻi ʻia ka puka: ʻakomi kumu
+overlay on -- choose an image	uhi ma -- koho i kiʻi
+stopped - deck dark, reracked	hoʻōki ʻia - pōʻeleʻele ka papa, hoʻonoho hou ʻia
+this file has one sound track	hoʻokahi meheu leo kēia waihona
+update: will check at startup	hōʻano hou: e nānā i ka hoʻomaka ʻana
+web monitor connections: 1-64	nā pili nānā pūnaewele: 1-64
+DASH: the startup dialog is up	DASH: ke hōʻike ʻia nei ka pahu kūkā hoʻomaka
+LOWERSTYLE: select a cue first	LOWERSTYLE: koho mua i cue
+MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: pono ka 1-16
+PATTERN ADD needs a pattern id	PATTERN ADD: pono i ID kāpoʻe

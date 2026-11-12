@@ -2578,3 +2578,272 @@ output overlay on	còmhdach às-chuir air
 phone haptics off	crith fòn dheth
 pick a deck first	tagh deck an toiseach
 playlist loop off	lùb liosta dheth
+record folder set	pasgan clàraidh suidhichte
+subtitle file set	faidhle fo-thiotal suidhichte
+subtitles cleared	fo-thiotail air an glanadh
+take the mask off	masg dheth
+universe: 0-63999	cruinne-cè: 0-63999
+video synth added	synth bhidio air a chur ris
+warp preset saved	ro-shuidheachadh fiar air a shàbhaladh
+AUDIOALSO: no deck	AUDIOALSO: gun deck
+DeckLink 10-bit ON	DeckLink 10-bit AIR
+SCRIPTCUE: no deck	SCRIPTCUE: gun deck
+assign route first	sònraich slighe an toiseach
+bundle save failed	cha deach pasgan comhla a shàbhaladh
+cue settings reset	roghainnean cue air an ath-shuidheachadh
+file dialog failed	dh'fhàillig an còmhradh faidhle
+jumped to live cue	leum gun cue beò
+lock to screen off	glas ris an sgrìn dheth
+media probe failed	dh'fhàillig sgrùdadh nam meadhanan
+nmos: invalid port	nmos: port mì-dhligheach
+output overlay off	thar-chòmhdach às-chuir dheth
+pip target cleared	targaid pip air a glanadh
+select a cue first	tagh cue an toiseach
+source unavailable	chan eil an tùs ri fhaighinn
+spare (also spare)	spàr (cuideachd spàr)
+stream key cleared	iuchair an t-srutha air a glanadh
+timecode cue added	cue còd-ama air a chur ris
+timer face: blocky	aodann an uaireadair: bloca
+timer logo cleared	suaicheantas an uaireadair air a ghlanadh
+vmix port: invalid	port vmix: mì-dhligheach
+, not a plugin slot	, chan e slot plugain a th' ann
+. Your show is back	. Tha do thaisbeanadh air ais
+DeckLink 10-bit off	DeckLink 10-bit dheth
+HOVER: expected x y	HOVER: bhathar an dùil x y
+Lower Third cleared	Lower Third air a ghlanadh
+NDI\xc2\xae NETWORK	NDI® LÌONRA
+OSC trigger cleared	trigear OSC air a ghlanadh
+Show file not found	Cha deach faidhle an taisbeanaidh a lorg
+audio chain cleared	sreath fuaime air a glanadh
+audio switch failed	dh'fhàillig atharrachadh na fuaime
+browser jumped live	leum am brabhsair gu beò
+browser url updated	URL a' bhrabhsair air ùrachadh
+bundle media failed	dh'fhàillig pasgan comhla nam meadhanan
+choose a show first	tagh taisbeanadh an toiseach
+composite cue added	cue co-dhèanta air a chur ris
+cue numbers cleared	àireamhan cue air am falamhachadh
+cue settings copied	roghainnean cue air an lethbhreacadh
+cue settings pasted	roghainnean cue air an cur a-steach
+double-GO guard off	dìon GO dùbailte: DHETH
+effect chain pasted	sreath èifeachdan air a cur a-steach
+end of the sequence	deireadh na sreath
+pattern motion: n/a	gluasad pàtran: n/a
+plugin slot cleared	slot plugan air fhalamhachadh
+splitnotes: no deck	splitnotes: gun deck
+sprite sheet loaded	duilleag sprite air a luchdadh
+takes are immediate	tha TAKE sa mhòmaid
+ui motion always on	gluasad UI an-còmhnaidh air
+-10 seconds from end	-10 diog bhon deireadh
+-20 seconds from end	-20 diog bhon deireadh
+-30 seconds from end	-30 diog bhon deireadh
+. — skip to next cue	. — leum thairis dhan ath chue
+Lower Third attached	Lower Third ceangailte
+MIDI plays the synth	cluichidh MIDI an synth
+MIDI trigger cleared	trigger MIDI air fhalamhachadh
+NDI source cue added	cue tùs NDI air a chur ris
+audio chain full (8)	sreath fuaime làn (8)
+browser url required	feumar URL brabhsair
+bundle export failed	dh'fhàillig às-phortadh a' phasgain comhla
+bundle folder failed	dh'fhàillig pasgan a' phasgain comhla
+cue copy: select cue	lethbhreac cue: tagh cue
+cue settings reset x	roghainnean cue air an ath-shuidheachadh x
+delete from the show	sguab às on thaisbeanadh
+encoder queue paused	ciudha a' chòdaiche na thàmh
+find: run FIND first	lorg: ruith FIND an toiseach
+find: token required	lorg: feumar token
+first port available	a' chiad phort ri fhaighinn
+identifying displays	a' comharrachadh scrionaichean
+marker: nothing live	comharra: dad beò
+marker: select a cue	comharra: tagh cue
+no midi input device	gun uidheam ion-chur MIDI
+no overlays to clear	gun thar-chòmhdaichean ri ghlanadh
+no synth cue is live	chan eil cue synth air an èadhar
+output create failed	dh'fhàillig cruthachadh an às-chuir
+output remove failed	dh'fhàillig toirt air falbh an às-chuir
+pause points cleared	puingean-stad air an glanadh
+presenter view reset	sealladh an taisbeanaiche air ath-shuidheachadh
+renumber: empty deck	ath-àireamhachadh: deck falamh
+sprite sheet cleared	duilleag sprite air a glanadh
+stream url unchanged	URL an t-srutha gun atharrachadh
+stream url: required	URL an t-srutha: riatanach
+time trigger cleared	brosnachadh ùine air a ghlanadh
+update: checking off	ùrachadh: sgrùdadh dheth
+warp settings copied	roghainnean fiaraidh air an lethbhreacadh
+warp settings pasted	roghainnean fiaraidh air an cur ann
+Lower Third cue added	cue Lower Third air a chur ris
+already the last step	is e seo an ceum mu dheireadh mu thràth
+analyzing loudness...	a' mion-sgrùdadh àirde fuaim...
+arcade always wiggles	bidh an arcàid an-còmhnaidh a' crathadh
+browser window closed	uinneag a' bhrabhsair dùinte
+canvas width: invalid	leud a' chanabhais: mì-dhligheach
+computer keyboard off	meur-chlàr a' choimpiutair dheth
+contrast check: saved	sgrùdadh iomsgaraidh: air a shàbhaladh
+cue paste: copy first	cur ann cue: dèan lethbhreac an toiseach
+cue paste: no targets	cur ann cue: gun targaidean
+cue paste: select cue	cur ann cue: tagh cue
+cue reset: no targets	ath-shuidheachadh cue: gun targaidean
+cue reset: select cue	ath-shuidheachadh cue: tagh cue
+cue settings pasted x	roghainnean cue air an cur ann x
+display switch failed	dh'fhàillig atharrachadh an sgrìn
+effect chain pasted x	sreath buaidh air a cur ann x
+encoder queue running	ciudha a' chòdaiche a' ruith
+lfo follows the tempo	tha an lfo a' leantainn an tempo
+motion driver cleared	draibhear gluasaid air a ghlanadh
+ndi tally trigger off	brosnachadh tally NDI dheth
+ndi unsupported build	chan eil NDI le taic san togail seo
+no Lower Third on air	chan eil Lower Third air an adhar
+no audio cue selected	cha deach cue fuaime a thaghadh
+playlist fps: invalid	fps na liosta: mì-dhligheach
+presenter: no outputs	taisbeanair: gun às-chuir
+scene slot source set	tùs slot seallaidh air a shuidheachadh
+st 2110: invalid port	st 2110: port mì-dhligheach
+timer face: 7-segment	aodann an uaireadair: 7 earrannan
+' is not a deck number	' chan e àireamh deck a th' ann
+FX PARAM: value is 0-1	FX PARAM: tha an luach 0-1
+already the first step	's e seo a' chiad cheum mu thràth
+audio bitrate: invalid	reat bhìdean fuaime: mì-dhligheach
+browser capture failed	dh'fhàillig glacadh a' bhrabhsair
+canvas height: invalid	àirde a' chanabhais: mì-dhligheach
+datamosh: select a cue	datamosh: tagh cue
+effect stack full (12)	stac èifeachdan làn (12)
+jumped to selected cue	leum chun an cue taghte
+layer command: removed	àithne còmhdaich: air a toirt air falbh
+listens to any channel	èisdidh e ri seanail sam bith
+nmos: node not running	nmos: chan eil an nód a' ruith
+output effects back in	èifeachdan às-chuir air ais a-steach
+presenter layout: wide	co-dhealbhachd an taisbeanair: farsaing
+route command: removed	àithne slighe: air a toirt air falbh
+save failed - retrying	dh'fhàillig an sàbhaladh - a' feuchainn a-rithist
+schedule: select a cue	clàr-ama: tagh cue
+slide import cancelled	chaidh toirt a-steach nan sleamhnagan a chuir dheth
+takes land on the beat	tuitidh na TAKE air a' bhuille
+warp paste: copy first	cuir ann fiar: dèan lethbhreac an toiseach
+2 \xC2\xB7 WHAT IT RUNS	2 \xC2\xB7 DÈ A RUITHEAS E
+Chladni stops listening	stadaidh Chladni de dh'èisteachd
+could not add an output	cha b' urrainn às-chur a chur ris
+downloading {1}... {2}%	a' luchdadh a-nuas {1}... {2}%
+driver restarts on take	ath-thòisichidh an draibhear air TAKE
+encoder destination set	ceann-uidhe a' chòdaiche air a shuidheachadh
+expected factor 0.25..4	bha dùil ri factar 0.25..4
+expected finite numbers	bha dùil ri àireamhan crìochnaichte
+hyperdeck emulation off	aithris HyperDeck dheth
+key color sample failed	dh'fhàillig sampaladh dath na h-iuchrach
+leave it where it lands	fàg e far an laigh e
+no playlist column here	chan eil colbh liosta an seo
+osc query port: invalid	port ceist OSC: mì-dhligheach
+playlist start: invalid	toiseach na liosta: mì-dhligheach
+still duration: invalid	fad an deilbh: mì-dhligheach
+synth cue has no engine	chan eil einnsean aig cue synth
+, its place in the stack	, an àite san stac
+1 \xC2\xB7 WHAT COMES IN	1 \xC2\xB7 CO A THIG A-STEACH
+An output whose Shows is	Às-chur aig a bheil Seallaidh na
+DeckLink input cue added	chaidh cue inntrigidh DeckLink a chur ris
+WEBMONITOR PORT: 1-65535	PORT WEBMONITOR: 1-65535
+already on the dashboard	air an deasca mu thràth
+expected an alpha, 0-255	bhathar an dùil ri alpha, 0-255
+expected positive pixels	bhathar an dùil ri piogsailean adhartach
+find: press Ctrl+F first	lorg: brùth Ctrl+F an toiseach
+glyphs: the built-in set	glifean: an seata a-staigh
+keep at least one output	cùm co-dhiù aon às-chur
+marker: none on this cue	comharra: chan eil gin air an cue seo
+mic mixed into recording	mic measgaichte a-steach dhan chlàradh
+not a playable MIDI file	chan e faidhle MIDI so-chluiche a th' ann
+relink: folder not found	ath-cheangail: pasgan gun lorg
+select a moire cue first	tagh cue moiré an toiseach
+tempo follows MIDI clock	tha an tempo a' leantainn cloc MIDI
+the tracker has no steps	chan eil ceumannan aig an lorgair
+typeface (the app's own)	clò-sheòrsa (an tè aig an aplacaid)
+. Set displays to Extend.	. Suidhich na sgrìnichean gu Extend.
+Language reset to English	Chaidh an cànan ath-shuidheachadh gu Beurla
+PUSH expects a cue number	tha PUSH an dùil ri àireamh cue
+SLICE: there is no output	SLICE: gun às-chur
+TCCUE: select a cue first	TCCUE: tagh cue an toiseach
+effects paste: no targets	cuir ann èifeachdan: gun targaidean
+follows the whole picture	a' leantainn an deilbh slàn
+key color picker canceled	sguireadh de thaghadh dath-iuchrach
+listening for captions...	ag èisteachd ri fo-thiotalan...
+monitor: pick a row first	sgrùdair: tagh ràgh an toiseach
+moshlook: smooth | chunky	moshlook: rèidh | garbh
+no trimmable cue selected	gun cue so-ghearraidh air a thaghadh
+output type change failed	dh'fhàillig atharrachadh seòrsa an às-chuir
+select a master cue first	tagh cue maighstir an toiseach
+sequence stops at the end	stadaidh an sreath aig an deireadh
+web monitor port: invalid	port sgrùdair lìn: mì-dhligheach
+3 \xC2\xB7 WHAT IT RUNS ON	3 · RUITH AIR
+ASCII CHAOS: expected 0..1	ASCII CHAOS: bhathar an dùil ri 0..1
+DATAMOSH on - preparing...	DATAMOSH AIR - ag ullachadh...
+DMXCUE: select a cue first	DMXCUE: tagh cue an toiseach
+GEOLFO: select a cue first	GEOLFO: tagh cue an toiseach
+MATRIX: select a cue first	MATRIX: tagh cue an toiseach
+MEMOCUE: expected the note	MEMOCUE: bhathar an dùil ris an nòta
+NETCUE: select a cue first	NETCUE: tagh cue an toiseach
+STING BODY: expected 0-100	STING BODY: bhathar an dùil ri 0-100
+could not load that plugin	cha b' urrainn am plugan sin a luchdadh
+effects copy: select a cue	lethbhreac èifeachdan: tagh cue
+expected degrees -180..180	bhathar an dùil ri ceumannan -180..180
+expression is at its limit	tha an abairt aig a crìoch
+multiview - every playlist	multiview - gach liosta-cluiche
+new show, from my defaults	taisbeanadh ùr, bho mo bhun-roghainnean
+no cue with audio selected	cha deach cue le fuaim a thaghadh
+osc feedback rate: invalid	reat ais-bhiadhaidh OSC: mì-dhligheach
+panic: outputs already off	clisgeadh: às-chuir dheth mu thràth
+pick from screen cancelled	sguireadh de thaghadh bhon sgrìn
+rendering slide {1} of {2}	a' reandaradh sleamhnag {1} à {2}
+schedule: HH:MM[:SS] | off	clàr-ama: HH:MM[:SS] | dheth
+update: nothing to install	ùrachadh: chan eil dad ri stàladh
+warp preset: name required	ro-shuidheachadh fiar: feumar ainm
+1 cue imported (probing...)	1 cue air a thoirt a-steach (a' sgrùdadh...)
+ASCII WOBBLE: expected 0..1	ASCII WOBBLE: bhathar an dùil ri 0..1
+AUDIOFX ADD: chain full (8)	AUDIOFX ADD: sreath làn (8)
+CLICK: expected two numbers	CLICK: bhathar an dùil ri dà àireamh
+HOVER: expected two numbers	HOVER: bhathar an dùil ri dà àireamh
+MIDICUE: select a cue first	MIDICUE: tagh cue an toiseach
+TEXTCUE: select a cue first	TEXTCUE: tagh cue an toiseach
+browser stopped - deck dark	brabhsair stad - deck dorcha
+could not save the defaults	cha b' urrainn na bun-roghainnean a shàbhaladh
+datamosh look: select a cue	look datamosh: tagh cue
+datamosh: already preparing	datamosh: ga ullachadh mar-thà
+effects paste: select a cue	cuir ann èifeachdan: tagh cue
+matrix on, routed as it was	matrix air, air a ròiteadh mar a bha
+nmos: clipboard unavailable	nmos: chan eil an clipboard ri fhaighinn
+nmos: need http://host:port	nmos: feumar http://host:port
+skip back: nothing previous	leum thairis air ais: dad roimhe
+MIDIFILE: select a cue first	MIDIFILE: tagh cue an toiseach
+SCALEMODE: expected one mode	SCALEMODE: dùil ri aon mhodh
+UISNAP: expected a .bmp path	UISNAP: dùil ri slighe .bmp
+av jumps: counting from zero	leumaidhean av: a' cunntadh bho neoni
+cannot reorder a running job	chan urrainnear obair a tha a' ruith ath-òrdachadh
+expected a number of seconds	dùil ri àireamh diogan
+master scene rename: removed	ath-ainmeachadh seallaidh Maighstir: air a thoirt air falbh
+motion driver would not open	cha do dh'fhosgail an draibhear gluasaid
+no steps yet - Ins makes one	gun cheuman fhathast - cruthaichidh Ins fear
+selected cue has no geometry	chan eil geoimeatraidh aig an cue taghte
+skip back: playlist is empty	leum thairis air ais: tha an liosta falamh
+sprite set could not be read	cha ghabhadh an seata sprite a leughadh
+st2110 sdp written to stdout	sdp st2110 sgrìobhte gu stdout
+the clicker advances the cue	bidh an cliceair a' gluasad an cue air adhart
+video dip fade: 0-30 seconds	fad video dip: 0-30 diogan
+warp point: expected numbers	puing fhiar: dùil ri àireamhan
+* KONAMI * terrarium unlocked	* KONAMI * terrarium air fhuasgladh
+DMXCUE PORT: expected 1-65535	DMXCUE PORT: dùil ri 1-65535
+ENDACTION: select a cue first	ENDACTION: tagh cue an toiseach
+LOWERANIM: select a cue first	LOWERANIM: tagh cue an toiseach
+MATRIX SET: destination is 1-	MATRIX SET: tha an ceann-uidhe 1-
+NETCUE PORT: expected 1-65535	NETCUE PORT: dùil ri 1-65535
+OUTSNAP: expected a .bmp path	OUTSNAP: dùil ri slighe .bmp
+SCRIPTCUE: select a cue first	SCRIPTCUE: tagh cue an toiseach
+TEXTCUE SCALE: expected 0.5-2	TEXTCUE SCALE: dùil ri 0.5-2
+WARP AT: expected two numbers	WARP AT: dùil ri dà àireamh
+could not remove the defaults	cha b' urrainn na bun-roghainnean a thoirt air falbh
+lights dip when a video rolls	tha na solais a' dol sìos nuair a ruitheas bhidio
+no refresh choices for raster	gun roghainnean ath-nuadhachaidh airson raster
+output recovered: auto native	às-chur air ath-fhaighinn: fèin-obrachail dùthchasach
+overlay on -- choose an image	tar-chòmhdach air -- tagh dealbh
+stopped - deck dark, reracked	stad - deck dorcha, air ath-rèiceadh
+this file has one sound track	tha aon slighe fuaime san fhaidhle seo
+update: will check at startup	ùrachadh: thèid sùil a thoirt aig an toiseach
+web monitor connections: 1-64	ceanglaichean sgrùdair lìn: 1-64
+DASH: the startup dialog is up	DASH: tha an còmhradh tòiseachaidh fosgailte
+LOWERSTYLE: select a cue first	LOWERSTYLE: tagh cue an toiseach
+MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: dùil ri 1-16
+PATTERN ADD needs a pattern id	tha feum aig PATTERN ADD air id pàtran

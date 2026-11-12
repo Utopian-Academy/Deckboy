@@ -2604,3 +2604,258 @@ media probe failed	پشکنینی میدیا سەرکەوتوو نەبوو
 nmos: invalid port	NMOS: دەروازەی نادروست
 output overlay off	سەرخستنی دەرچوون داخراو
 pip target cleared	ئامانجی PIP پاک کرایەوە
+select a cue first	سەرەتا cue هەڵبژێرە
+source unavailable	سەرچاوە بەردەست نییە
+spare (also spare)	یەدەگ (هەروەها یەدەگ)
+stream key cleared	کلیلی پەخش سڕایەوە
+timecode cue added	cue ی کۆدی کات زیاد کرا
+timer face: blocky	ڕووخساری کاتژمێر: بلۆکی
+timer logo cleared	لۆگۆی کاتژمێر سڕایەوە
+vmix port: invalid	VMIX: دەروازەی نادروست
+, not a plugin slot	، خانەی پێوەکراو نییە
+. Your show is back	. شۆکەت گەڕایەوە
+DeckLink 10-bit off	DeckLink 10-BIT: کوژاوە
+HOVER: expected x y	HOVER: چاوەڕوانکراو x y
+Lower Third cleared	Lower Third سڕایەوە
+NDI\xc2\xae NETWORK	NDI® تۆڕ
+OSC trigger cleared	کارپێکردنی OSC سڕایەوە
+Show file not found	فایلی شۆ نەدۆزرایەوە
+audio chain cleared	زنجیرەی دەنگ سڕایەوە
+audio switch failed	گۆڕینی دەنگ سەرکەوتوو نەبوو
+browser jumped live	وێبگەڕ باز درا بۆ ڕاستەوخۆ
+browser url updated	URLی وێبگەڕ نوێکرایەوە
+bundle media failed	کۆکردنەوەی میدیا سەرکەوتوو نەبوو
+choose a show first	سەرەتا نمایشێک هەڵبژێرە
+composite cue added	cue ی تێکەڵ زیاد کرا
+cue numbers cleared	ژمارەی cue سڕایەوە
+cue settings copied	ڕێکخستنەکانی cue لەبەرگیرایەوە
+cue settings pasted	ڕێکخستنەکانی cue لکێنران
+double-GO guard off	پاراستنی GO ی دووجار کوژاوە
+effect chain pasted	زنجیرەی کاریگەری لکێنرا
+end of the sequence	کۆتایی زنجیرە
+pattern motion: n/a	جووڵەی نەخش: بەردەست نییە
+plugin slot cleared	شوێنی پێوەکراو سڕایەوە
+splitnotes: no deck	splitnotes: دێک نییە
+sprite sheet loaded	شیتی سپرایت بار کرا
+takes are immediate	TAKE دەستبەجێیە
+ui motion always on	جووڵەی ڕووکار: هەمیشە هەڵکراو
+-10 seconds from end	-10 چرکە لە کۆتاییەوە
+-20 seconds from end	-20 چرکە لە کۆتاییەوە
+-30 seconds from end	-30 چرکە لە کۆتاییەوە
+. — skip to next cue	. — تێپەڕە بۆ cue ی داهاتوو
+Lower Third attached	Lower Third لکێنرا
+MIDI plays the synth	MIDI سینتەسایزەر لێ دەدات
+MIDI trigger cleared	کارپێکردنی MIDI سڕایەوە
+NDI source cue added	cue ی سەرچاوەی NDI زیاد کرا
+audio chain full (8)	زنجیرەی دەنگ پڕە (8)
+browser url required	URLی وێبگەڕ پێویستە
+bundle export failed	هەناردەکردنی کۆکردنەوە سەرکەوتوو نەبوو
+bundle folder failed	بوخچەی کۆکردنەوە سەرکەوتوو نەبوو
+cue copy: select cue	لەبەرگرتنەوەی cue: cue هەڵبژێرە
+cue settings reset x	ڕێکخستنەکانی cue ڕێکخرانەوە x
+delete from the show	لە نمایشەکە بیسڕەوە
+encoder queue paused	ڕیزی کۆدکەر ڕاگیرا
+find: token required	دۆزینەوە: تۆکن پێویستە
+first port available	یەکەم دەروازەی بەردەست
+identifying displays	ناسینەوەی شاشەکان
+marker: nothing live	نیشانە: هیچ ڕاستەوخۆ نییە
+marker: select a cue	نیشانە: cue هەڵبژێرە
+no midi input device	ئامێری MIDIی هاتوو نییە
+no overlays to clear	چینی سەرەوە نییە بۆ پاککردنەوە
+no synth cue is live	هیچ synth cue یەکی ڕاستەوخۆ نییە
+output create failed	دروستکردنی دەرچوون سەرکەوتوو نەبوو
+output remove failed	لابردنی دەرچوون سەرکەوتوو نەبوو
+pause points cleared	خاڵەکانی ڕاگرتن پاککرانەوە
+presenter view reset	بینینی پێشکەشکار ڕێکخرایەوە
+renumber: empty deck	ژمارەکردنەوە: دێک بەتاڵە
+sprite sheet cleared	sprite sheet پاککرایەوە
+stream url unchanged	URLی پەخش نەگۆڕاوە
+stream url: required	URLی پەخش: پێویستە
+time trigger cleared	کارپێکردنی کات پاککرایەوە
+update: checking off	نوێکردنەوە: پشکنین کوژاوەیە
+warp settings copied	ڕێکخستنەکانی WARP لەبەرگیرانەوە
+warp settings pasted	ڕێکخستنەکانی WARP لکێنران
+DMX over sACN (E1.31)	DMX بە sACN (E1.31)
+Lower Third cue added	cue ی Lower Third زیاد کرا
+already the last step	پێشتر دوایین هەنگاوە
+analyzing loudness...	شیکردنەوەی بەرزی دەنگ...
+arcade always wiggles	ئارکەید هەمیشە دەلەرزێت
+browser window closed	پەنجەرەی وێبگەڕ داخرا
+canvas width: invalid	پانی canvas: نادروستە
+computer keyboard off	کیبۆردی کۆمپیوتەر کوژاوەیە
+contrast check: saved	پشکنینی کۆنتراست: پاشەکەوتکرا
+cue paste: copy first	لکاندنی cue: سەرەتا لەبەری بگرەوە
+cue paste: no targets	لکاندنی cue: ئامانج نییە
+cue paste: select cue	لکاندنی cue: cue هەڵبژێرە
+cue reset: no targets	ڕێکخستنەوەی cue: ئامانج نییە
+cue reset: select cue	ڕێکخستنەوەی cue: cue هەڵبژێرە
+cue settings pasted x	ڕێکخستنەکانی cue لکێنران x
+display switch failed	گۆڕینی نمایشکەر سەرکەوتوو نەبوو
+effect chain pasted x	زنجیرەی ئەفێکت لکێنرا x
+encoder queue running	ڕیزی کۆدکەر لە کاردایە
+lfo follows the tempo	LFO بەدوای تێمپۆدا دەڕوات
+motion driver cleared	درایڤەری جووڵە پاککرایەوە
+ndi tally trigger off	کارپێکردنی NDI tally کوژاوەیە
+ndi unsupported build	NDI لەم وەشانەدا پشتگیری ناکرێت
+no Lower Third on air	هیچ Lower Third لە پەخش نییە
+no audio cue selected	هیچ cue ی دەنگ هەڵنەبژێردراوە
+playlist fps: invalid	fps ی لیستی لێدان: نادروستە
+presenter: no outputs	پێشکەشکار: هیچ دەرچوونێک نییە
+scene slot source set	سەرچاوەی slot ی دیمەن دیاری کرا
+st 2110: invalid port	st 2110: دەروازەی نادروست
+timer face: 7-segment	ڕووخساری کاتژمێر: 7 بەش
+' is not a deck number	' ژمارەی دێک نییە
+FX PARAM: value is 0-1	FX PARAM: بەها 0-1 بێت
+already the first step	پێشتر یەکەم هەنگاوە
+audio bitrate: invalid	ڕێژەی بیتی دەنگ: نادروستە
+browser capture failed	گرتنی وێبگەڕ سەرکەوتوو نەبوو
+canvas height: invalid	بەرزی کانڤاس: نادروستە
+datamosh: select a cue	datamosh: cue یەک هەڵبژێرە
+effect stack full (12)	کەڵەکەی کاریگەری پڕە (12)
+jumped to selected cue	بازدرا بۆ cue ی هەڵبژێردراو
+layer command: removed	فەرمانی چین: لابرا
+listens to any channel	گوێ لە هەر کەناڵێک دەگرێت
+nmos: node not running	nmos: گرێ لە کاردا نییە
+output effects back in	کاریگەرییەکانی دەرچوون گەڕانەوە
+presenter layout: wide	ڕێکخستنی پێشکەشکار: پان
+route command: removed	فەرمانی ڕێڕەو: لابرا
+save failed - retrying	پاشەکەوتکردن سەرکەوتوو نەبوو - دووبارە هەوڵدەدرێتەوە
+schedule: select a cue	خشتە: cue یەک هەڵبژێرە
+slide import cancelled	هاوردەکردنی سلایدەکان هەڵوەشێنرایەوە
+takes land on the beat	TAKE ەکان لەسەر ڕیتم دەکەون
+warp paste: copy first	لکاندنی WARP: سەرەتا لەبەری بگرەوە
+2 \xC2\xB7 WHAT IT RUNS	2 \xC2\xB7 چی کار دەکات
+Chladni stops listening	Chladni وازدەهێنێت لە گوێگرتن
+could not add an output	نەتوانرا دەرچوونێک زیاد بکرێت
+downloading {1}... {2}%	دابەزاندنی {1}... {2}%
+driver restarts on take	درایڤەر لە TAKE دا دووبارە دەست پێدەکاتەوە
+encoder destination set	شوێنی مەبەستی کۆدکەر دیاری کرا
+expected factor 0.25..4	فاکتەری 0.25..4 چاوەڕوانکراوە
+expected finite numbers	ژمارەی کۆتایی چاوەڕوانکراون
+hyperdeck emulation off	لاساییکردنەوەی HyperDeck کوژاوەیە
+key color sample failed	نموونەوەرگرتنی ڕەنگی کلیل سەرنەکەوت
+leave it where it lands	لەو شوێنەی دەکەوێت جێی بهێڵە
+no playlist column here	لێرە ستوونی لیستی لێدان نییە
+osc query port: invalid	دەروازەی پرسیاری OSC: نادروستە
+playlist start: invalid	دەستپێکردنی لیستی لێدان: نادروستە
+still duration: invalid	ماوەی وێنەی جێگیر: نادروستە
+synth cue has no engine	cue ی synth هیچ بزوێنەرێکی نییە
+, its place in the stack	، شوێنی لە ڕیزەکەدا
+1 \xC2\xB7 WHAT COMES IN	1 \xC2\xB7 ئەوەی دێتە ژوورەوە
+An output whose Shows is	دەرچوونێک کە نیشان دەدات
+DeckLink input cue added	cue ی هاتنی DeckLink زیادکرا
+already on the dashboard	پێشتر لەسەر داشبۆردە
+expected an alpha, 0-255	ئەلفایەک چاوەڕوانکراوە، 0-255
+expected positive pixels	پیکسڵی ئەرێنی چاوەڕوانکراوە
+find: press Ctrl+F first	دۆزینەوە: سەرەتا Ctrl+F دابگرە
+glyphs: the built-in set	نووسەکان: کۆمەڵەی ناوەکی
+keep at least one output	لانیکەم یەک دەرچوون بهێڵەرەوە
+marker: none on this cue	نیشانە: هیچ لەم cue یەدا نییە
+mic mixed into recording	مایک لە تۆمارکردندا تێکەڵ کراوە
+not a playable MIDI file	پەڕگەیەکی MIDI نییە کە بلێدرێت
+relink: folder not found	دووبارە بەستنەوە: بوخچە نەدۆزرایەوە
+select a moire cue first	سەرەتا cue ی Moiré هەڵبژێرە
+tempo follows MIDI clock	تێمپۆ لە MIDI clock دەکەوێت
+the tracker has no steps	بەدواداچوو هیچ هەنگاوێکی نییە
+typeface (the app's own)	فۆنت (هی خودی بەرنامەکە)
+. Set displays to Extend.	. شاشەکان لەسەر Extend دابنێ.
+Language reset to English	زمان گەڕایەوە بۆ ئینگلیزی
+PUSH expects a cue number	PUSH ژمارەی cue چاوەڕێ دەکات
+SLICE: there is no output	SLICE: دەرچوون نییە
+TCCUE: select a cue first	TCCUE: سەرەتا cue یەک هەڵبژێرە
+effects paste: no targets	لکاندنی کاریگەریەکان: ئامانج نییە
+follows the whole picture	دەکەوێتە دوای هەموو وێنەکە
+key color picker canceled	هەڵبژاردنی ڕەنگی کلیل هەڵوەشێنرایەوە
+listening for captions...	گوێگرتن بۆ ژێرنووسەکان...
+monitor: pick a row first	چاودێری: سەرەتا ڕیزێک هەڵبژێرە
+moshlook: smooth | chunky	moshlook: نەرم | ئەستوور
+no trimmable cue selected	هیچ cueیەکی بڕینکراو هەڵنەبژێردراوە
+output type change failed	گۆڕینی جۆری دەرچوون سەرنەکەوت
+select a master cue first	سەرەتا cueی سەرەکی هەڵبژێرە
+sequence stops at the end	زنجیرە لە کۆتاییدا دەوەستێت
+web monitor port: invalid	دەروازەی چاودێری وێب: نادروستە
+3 \xC2\xB7 WHAT IT RUNS ON	3 · لەسەر چی کار دەکات
+ASCII CHAOS: expected 0..1	ASCII CHAOS: چاوەڕوانکراو 0..1
+DATAMOSH on - preparing...	DATAMOSH هەڵکراو - ئامادەدەکرێت...
+DMXCUE: select a cue first	DMXCUE: سەرەتا cue هەڵبژێرە
+GEOLFO: select a cue first	GEOLFO: سەرەتا cue هەڵبژێرە
+MATRIX: select a cue first	MATRIX: سەرەتا cue هەڵبژێرە
+MEMOCUE: expected the note	MEMOCUE: تێبینی چاوەڕوانکراوە
+NETCUE: select a cue first	NETCUE: سەرەتا cue هەڵبژێرە
+STING BODY: expected 0-100	STING BODY: چاوەڕوانکراو 0-100
+could not load that plugin	نەتوانرا ئەو پێوەکراوە بار بکرێت
+effects copy: select a cue	لەبەرگرتنەوەی کاریگەریەکان: cueیەک هەڵبژێرە
+expected degrees -180..180	چاوەڕوانکراو پلە -180..180
+expression is at its limit	دەربڕین گەیشتووەتە سنوورەکەی
+multiview - every playlist	multiview - هەر لیستێکی لێدان
+new show, from my defaults	نمایشی نوێ، لە بنەڕەتەکانی خۆمەوە
+no cue with audio selected	هیچ cueیەکی خاوەن دەنگ هەڵنەبژێردراوە
+osc feedback rate: invalid	ڕێژەی وەڵامی OSC: نادروستە
+panic: outputs already off	panic: دەرچوونەکان پێشتر کوژاونەتەوە
+pick from screen cancelled	هەڵبژاردن لە شاشەوە هەڵوەشێنرایەوە
+rendering slide {1} of {2}	ڕەندەرکردنی سلاید {1} لە {2}
+schedule: HH:MM[:SS] | off	خشتە: HH:MM[:SS] | کوژاوە
+update: nothing to install	نوێکردنەوە: هیچ شتێک بۆ دامەزراندن نییە
+warp preset: name required	پێشڕێکخستنی WARP: ناو پێویستە
+1 cue imported (probing...)	1 cue هاوردەکرا (پشکنین...)
+ASCII WOBBLE: expected 0..1	ASCII WOBBLE: چاوەڕوانکراو 0..1
+AUDIOFX ADD: chain full (8)	AUDIOFX ADD: زنجیرە پڕە (8)
+CLICK: expected two numbers	CLICK: دوو ژمارە چاوەڕوانکراوە
+HOVER: expected two numbers	HOVER: دوو ژمارە چاوەڕوانکراوە
+MIDICUE: select a cue first	MIDICUE: سەرەتا cue یەک هەڵبژێرە
+TEXTCUE: select a cue first	TEXTCUE: سەرەتا cue یەک هەڵبژێرە
+VIDEODIP FADE: 0-30 seconds	VIDEODIP FADE: 0-30 چرکە
+browser stopped - deck dark	وێبگەڕ وەستا - دێک تاریکە
+could not save the defaults	بنەڕەتەکان پاشەکەوت نەکران
+datamosh look: select a cue	datamosh look: cue یەک هەڵبژێرە
+datamosh: already preparing	datamosh: پێشتر ئامادە دەکرێت
+effects paste: select a cue	effects paste: cue یەک هەڵبژێرە
+matrix on, routed as it was	matrix هەڵکراوە، وەک خۆی ڕێڕەو کراوە
+nmos: clipboard unavailable	nmos: کلیپبۆرد بەردەست نییە
+nmos: need http://host:port	nmos: http://host:port پێویستە
+skip back: nothing previous	تێپەڕاندن بۆ دواوە: هیچ پێشوو نییە
+FX COLOUR: a grey has no hue	FX COLOUR: خۆڵەمێشی ڕەنگی نییە
+MASK RENAME: expected a name	MASK RENAME: ناوێک پێویستە
+MIDIFILE: select a cue first	MIDIFILE: سەرەتا cue یەک هەڵبژێرە
+SCALEMODE: expected one mode	SCALEMODE: یەک دۆخ پێویستە
+SYNTH ADD takes no arguments	SYNTH ADD هیچ ئارگومێنتێک وەرناگرێت
+TEXTCUE CARD: expected 0-255	TEXTCUE CARD: 0-255 پێویستە
+UISNAP: expected a .bmp path	UISNAP: ڕێگای .bmp پێویستە
+av jumps: counting from zero	av jumps: ژماردن لە سفرەوە
+cannot reorder a running job	ناتوانرێت کارێکی لە کاردا ڕیز بکرێتەوە
+expected a number of seconds	ژمارەی چرکە پێویستە
+master scene rename: removed	master scene rename: لابرا
+motion driver would not open	درایڤەری جووڵە نەکرایەوە
+no steps yet - Ins makes one	هێشتا هیچ هەنگاوێک نییە - Ins یەکێک دروست دەکات
+selected cue has no geometry	cue ی هەڵبژێردراو ئەندازەی نییە
+skip back: playlist is empty	تێپەڕاندن بۆ دواوە: لیستی لێدان بەتاڵە
+sprite set could not be read	سێتی sprite نەخوێندرایەوە
+st2110 sdp written to stdout	st2110 sdp نووسرا بۆ stdout
+the clicker advances the cue	کۆنترۆڵی دوور cue پێش دەخات
+video dip fade: 0-30 seconds	video dip fade: 0-30 چرکە
+warp point: expected numbers	warp point: ژمارە پێویستە
+* KONAMI * terrarium unlocked	* KONAMI * تێراریۆم کرایەوە
+DMXCUE PORT: expected 1-65535	DMXCUE PORT: 1-65535 پێویستە
+ENDACTION: select a cue first	ENDACTION: سەرەتا cue یەک هەڵبژێرە
+FADE STOP: expected on or off	FADE STOP: هەڵکراو یان کوژاوە پێویستە
+LOWERANIM: select a cue first	LOWERANIM: سەرەتا cue یەک هەڵبژێرە
+MATRIX SET: destination is 1-	MATRIX SET: شوێنی مەبەست: 1-
+NETCUE PORT: expected 1-65535	NETCUE PORT: چاوەڕوانکراو 1-65535
+OUTSNAP: expected a .bmp path	OUTSNAP: چاوەڕوانی ڕێڕەوی .bmp
+SCRIPTCUE: select a cue first	SCRIPTCUE: سەرەتا cue یەک هەڵبژێرە
+TEXTCUE SCALE: expected 0.5-2	TEXTCUE SCALE: چاوەڕوانکراو 0.5-2
+TRIGGER AT: HH:MM[:SS] or OFF	TRIGGER AT: HH:MM[:SS] یان OFF
+WARP AT: expected two numbers	WARP AT: چاوەڕوانی دوو ژمارە
+could not remove the defaults	نەتوانرا بنەڕەتەکان لابەرێن
+lights dip when a video rolls	ڕووناکییەکان کەم دەبنەوە کاتێک ڤیدیۆ دەست پێدەکات
+no refresh choices for raster	هیچ هەڵبژاردنێکی نوێکردنەوە بۆ raster نییە
+output recovered: auto native	دەرچوون گەڕایەوە: خۆکار ڕەسەن
+overlay on -- choose an image	سەرخستن هەڵکراو -- وێنەیەک هەڵبژێرە
+stopped - deck dark, reracked	وەستاوە - دێک تاریکە، دووبارە ڕیز کرایەوە
+this file has one sound track	ئەم فایلە یەک تراکی دەنگی هەیە
+update: will check at startup	نوێکردنەوە: لە دەستپێکردندا دەپشکنێت
+web monitor connections: 1-64	پەیوەندییەکانی چاودێری وێب: 1-64
+DASH: the startup dialog is up	DASH: دیالۆگی دەستپێکردن کراوەیە
+LOWERSTYLE: select a cue first	LOWERSTYLE: سەرەتا cue یەک هەڵبژێرە
+MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: چاوەڕوانکراو 1-16
+PATTERN ADD needs a pattern id	PATTERN ADD پێویستی بە ID ی نەخشێک هەیە

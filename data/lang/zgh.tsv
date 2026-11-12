@@ -2604,3 +2604,278 @@ output overlay on	ⴰⴼⵍⵍⴰⵢ ⵏ ⵜⵓⴼⴼⵖⴰ: ⵉⵔⵎⴷ
 phone haptics off	ⴰⵙⵎⵓⵙⵙⵓ ⵏ ⵓⵜⵉⵍⵉⴼⵓⵏ: ⵉⵅⵙⴰ
 pick a deck first	ⵙⵜⵉ deck ⵣⵡⴰⵔ
 playlist loop off	ⴰⵙⵙⵓⵖⵍ ⵏ ⵜⴱⴷⴰⵔⵜ: ⵉⵅⵙⴰ
+record folder set	ⴰⴽⴰⵔⴰⵎ ⵏ ⵓⵙⴽⵍⵙ ⵉⵙⴱⴷⴷ
+subtitle file set	ⴰⴼⴰⵢⵍⵓ ⵏ ⵓⵣⵡⵍ ⴰⵎⵣⵢⴰⵏ ⵉⵙⴱⴷⴷ
+subtitles cleared	ⵉⵙⴼⴹ ⵉⵣⵡⵍⵏ ⵉⵎⵣⵢⴰⵏⵏ
+take the mask off	ⵙⵙⵅⵙ ⵜⴰⴳⵍⵎⵓⵙⵜ
+universe: 0-63999	ⴰⴽⵓⵏ: 0-63999
+video synth added	ⴰⵙⵏⴼⵍⵓⵍ ⵏ ⵜⴼⵉⴷⵢⵓⵜ ⵉⵔⵏⴰ
+warp preset saved	ⴰⵎⵣⵡⴰⵔⵓ ⵏ ⵙⵙⵏⴼⵍ ⵜⴰⵍⵖⴰ ⵉⵃⴹⴰ
+AUDIOALSO: no deck	AUDIOALSO: ⵓⵔ ⵉⵍⵍⵉ deck
+DeckLink 10-bit ON	DeckLink 10-bit ⵉⵔⵎⴷ
+SCRIPTCUE: no deck	SCRIPTCUE: ⵓⵔ ⵉⵍⵍⵉ deck
+assign route first	ⵙⴱⴷⴷ ⴰⵙⵉⵔ ⴷⴰⵜ
+bundle save failed	ⴰⵃⴹⵓ ⵏ ⵓⴽⴰⵔⴰⵎ ⵓⵔ ⵉⵙⵙⵓⴼⵖ
+cue settings reset	ⵜⵉⵙⵖⴰⵍ ⵏ cue ⵉⵙⵙⵓⵖⵍ
+file dialog failed	ⴰⵎⵙⴰⵡⴰⵍ ⵏ ⵓⴼⴰⵢⵍⵓ ⵓⵔ ⵉⵙⵙⵓⴼⵖ
+jumped to live cue	ⵉⵣⵣⵍ ⵙ cue ⵙ ⵜⵓⴷⵔⵜ
+lock to screen off	ⵙⴷⴷ ⴳ ⵓⴳⴷⵉⵍ ⵉⵅⵙⴰ
+media probe failed	ⴰⵙⵙⴰⵔⴷ ⵏ ⵓⵎⵉⴷⵢⴰ ⵓⵔ ⵉⵙⵙⵓⴼⵖ
+nmos: invalid port	nmos: ⵜⴰⵡⵡⵓⵔⵜ ⵓⵔ ⵜⵙⵡⵉⵔ
+output overlay off	ⴰⴼⵍⵍⴰⵢ ⵏ ⵜⵓⴼⴼⵖⴰ ⵉⵅⵙⴰ
+pip target cleared	ⴰⵏⵉⵛⵛⴰ ⵏ PIP ⵉⵙⴼⴹ
+select a cue first	ⵙⵜⵉ cue ⴷⴰⵜ
+source unavailable	ⴰⵖⴱⴰⵍⵓ ⵓⵔ ⵉⵍⵍⵉ
+spare (also spare)	ⴰⵙⵎⵔⵔⵉ (ⴷⴰⵖ ⴰⵙⵎⵔⵔⵉ)
+stream key cleared	ⵜⴰⵙⴰⵔⵓⵜ ⵏ ⵓⵙⵓⴷⴷⵎ ⵉⵙⴼⴹ
+timecode cue added	cue ⵏ ⵜⴰⵏⴳⴰⵍⵜ ⵏ ⵓⴽⵓⴷ ⵉⵔⵏⴰ
+timer face: blocky	ⵓⴷⵎ ⵏ ⵓⵙⵎⵣⴰⵢ: ⴰⴱⵍⵓⴽ
+timer logo cleared	ⴰⵍⵓⴳⵓ ⵏ ⵓⵙⵎⵣⴰⵢ ⵉⵙⴼⴹ
+vmix port: invalid	ⵜⴰⵡⵡⵓⵔⵜ ⵏ vmix: ⵓⵔ ⵜⵙⵡⵉⵔ
+, not a plugin slot	, ⵓⵔ ⵉⴳⵉ ⵜⴰⵙⵍⴰⵜ ⵏ ⵓⵙⵎⵍⵉⵍ
+. Your show is back	. ⴰⵙⵙⴽⴰⵏ ⵏⵏⴽ ⵉⵓⵖⴰⵍ
+DeckLink 10-bit off	DeckLink 10-bit ⵉⵅⵙⴰ
+HOVER: expected x y	HOVER: ⵉⵜⵜⵓⵔⵊⴰ x y
+Lower Third cleared	Lower Third ⵉⵙⴼⴹ
+NDI\xc2\xae NETWORK	NDI® ⴰⵥⵟⵟⴰ
+OSC trigger cleared	ⵙⵏⴽⵔ OSC ⵉⵙⴼⴹ
+Show file not found	ⴰⴼⴰⵢⵍⵓ ⵏ ⵓⵙⵙⴽⴰⵏ ⵓⵔ ⵉⵜⵜⵓⴼⴰ
+audio chain cleared	ⴰⵙⵎⵎⵏⴹ ⵏ ⵉⵎⵙⵍⵉ ⵉⵙⴼⴹ
+audio switch failed	ⴰⵙⵏⴼⵍ ⵏ ⵉⵎⵙⵍⵉ ⵓⵔ ⵉⵙⵙⵓⴼⵖ
+browser jumped live	ⴰⵙⵙⴰⵔⴰ ⵉⵣⵣⵍ ⵙ ⵜⵓⴷⵔⵜ
+browser url updated	URL ⵏ ⵓⵎⵢⴰⴳⵉ ⵉⵜⵜⵓⵙⵏⴼⵍ
+bundle media failed	ⴰⴽⴰⵔⴰⵎ ⵏ ⵓⵎⵉⴷⵢⴰ ⵓⵔ ⵉⵙⵓⵍⵉ
+choose a show first	ⵙⵜⵉ ⴰⵙⵙⴽⴰⵏ ⴷⵉ ⵜⵣⵡⴰⵔⵜ
+composite cue added	cue ⴰⵎⵙⴷⵓⵙ ⵉⵜⵜⵢⴰⵔⵏⴰⵏ
+cue numbers cleared	ⵓⵟⵟⵓⵏⵏ ⵏ cue ⵉⵜⵜⵓⴽⴽⵙⵏ
+cue settings copied	ⵜⵉⵙⵖⴰⵍ ⵏ cue ⵉⵜⵜⵓⵙⵏⵖⵍⵏ
+cue settings pasted	ⵜⵉⵙⵖⴰⵍ ⵏ cue ⵉⵜⵜⵓⵙⵙⵔⵙⵏ
+double-GO guard off	ⴰⵃⴹⴹⴰ ⵏ ⵙⵉⵏ GO ⵉⵅⵙⴰ
+effect chain pasted	ⴰⵙⵎⵎⵏⴹ ⵏ ⵉⵙⵏⴼⴰⵍⵏ ⵉⵜⵜⵓⵙⵙⵔⵙⵏ
+end of the sequence	ⵜⴰⴳⴰⵔⴰ ⵏ ⵓⵙⴹⴼⴰⵕ
+pattern motion: n/a	ⴰⵍⴳⵓⵖ ⴰⵎⵓⵙⵙⵓ: ⵓⵔ ⵉⵍⵍⵉ
+plugin slot cleared	ⵜⴰⵙⴷⴰ ⵏ ⵓⵙⵎⵍⵉⵍ ⵉⵜⵜⵓⴽⴽⵙⵏ
+splitnotes: no deck	splitnotes: ⵡⴰⵍⵓ deck
+sprite sheet loaded	sprite sheet ⵉⵜⵜⵓⵙⵙⵓⴼⵍⴷ
+takes are immediate	TAKE ⴷⵖⵢⴰ
+ui motion always on	ⴰⵎⵓⵙⵙⵓ ⵏ UI ⴷⵉⵎⴰ ⵉⵔⵎⴷ
+-10 seconds from end	-10 ⵜⵉⵙⵉⵏⵉⵏ ⵣⵖ ⵜⴳⴰⵔⴰ
+-20 seconds from end	-20 ⵜⵉⵙⵉⵏⵉⵏ ⵣⵖ ⵜⴳⴰⵔⴰ
+-30 seconds from end	-30 ⵜⵉⵙⵉⵏⵉⵏ ⵣⵖ ⵜⴳⴰⵔⴰ
+. — skip to next cue	. — ⵣⵔⵉ ⵖⵔ cue ⵢⴰⴹⵏ
+Lower Third attached	Lower Third ⵉⵜⵜⵓⵙⵎⵓⵏ
+MIDI plays the synth	MIDI ⵉⵜⵜⵖⵔⴰ synth
+MIDI trigger cleared	ⵙⵏⴽⵔ MIDI ⵉⵜⵜⵓⴽⴽⵙ
+NDI source cue added	cue ⵏ ⵓⵖⴱⴰⵍⵓ NDI ⵉⵜⵜⵢⴰⵔⵏⴰⵏ
+audio chain full (8)	ⴰⵙⵎⵎⵏⴹ ⵏ ⵉⵎⵙⵍⵉ ⴰⴽⴽ (8)
+browser url required	URL ⵏ ⵓⵎⵢⴰⴳⵉ ⵉⵙⵙⵓⵙⵎ
+bundle export failed	ⵙⵙⵓⴼⵖ ⵏ ⵓⴽⴰⵔⴰⵎ ⵓⵔ ⵉⵙⵓⵍⵉ
+bundle folder failed	ⴰⴽⴰⵔⴰⵎ ⵏ ⵓⴽⴰⵔⴰⵎ ⵓⵔ ⵉⵙⵓⵍⵉ
+cue copy: select cue	ⵙⵏⵖⵍ cue: ⵙⵜⵉ cue
+cue settings reset x	ⵜⵉⵙⵖⴰⵍ ⵏ cue ⵉⵜⵜⵓⵙⵙⵓⵖⵍⵏ x
+delete from the show	ⴽⴽⵙ ⵣⵖ ⵓⵙⵙⴽⴰⵏ
+encoder queue paused	ⵜⴰⵎⵏⵜⵉⵍⵜ ⵏ ⵓⵙⵏⴳⵍⵎ ⵉⵙⴳⵓⵏⴼⴰ
+find: run FIND first	ⴰⵔⵣⵣⵓ: ⵙⵙⵍⴽⵎ FIND ⴷⵉ ⵜⵣⵡⴰⵔⵜ
+find: token required	ⴰⵔⵣⵣⵓ: ⴰⵟⵟⵓⵏ ⵉⵙⵙⵓⵙⵎ
+first port available	ⵜⴰⵡⵡⵓⵔⵜ ⵜⴰⵣⵡⴰⵔⵜ ⵜⵍⵍⴰ
+identifying displays	ⵜⵜⵓⵙⵙⵏ ⵉⵎⵙⵙⵓⵍⵏ
+marker: nothing live	ⴰⵙⵙⴰⵖ: ⵡⴰⵍⵓ ⵙ ⵜⵓⴷⵔⵜ
+marker: select a cue	ⴰⵎⵙⴽⴰⵏ: ⵙⵜⵉ cue
+no midi input device	ⵓⵔ ⵉⵍⵍⵉ ⵡⴰⵍⵍⴰⵍ ⵏ ⵓⴽⵛⵓⵎ MIDI
+no overlays to clear	ⵓⵔ ⵉⵍⵍⵉ ⵓⴼⵍⵍⴰⵢ ⵉ ⵓⵙⴼⴹ
+no synth cue is live	ⵓⵔ ⵉⵍⵍⵉ cue ⵏ synth ⵙ ⵜⵓⴷⵔⵜ
+output create failed	ⵜⵓⴼⴼⵖⴰ: ⴰⵙⵏⵓⵍⴼⵓ ⵓⵔ ⵉⵙⵙⵉⵡⴹ
+output remove failed	ⵜⵓⴼⴼⵖⴰ: ⴰⵙⴼⴹ ⵓⵔ ⵉⵙⵙⵉⵡⴹ
+pause points cleared	ⵜⵉⵏⵇⵇⴰⴹ ⵏ ⵓⵃⴱⴰⵙ ⵜⵜⵓⵙⴼⴹⵏ
+presenter view reset	ⵜⵉⵎⵎⵉ ⵏ ⵓⵎⵙⴳⵔⵉ ⵜⵜⵓⵙⵙⵓⵖⵍ
+renumber: empty deck	ⴰⵙⵏⴼⵍ ⵏ ⵓⵎⵏⵉⴷ: deck ⵉⴳⵔ
+sprite sheet cleared	sprite sheet ⵉⵜⵜⵓⵙⴼⴹ
+stream url unchanged	URL ⵏ ⵓⵙⵓⴷⴷⵎ ⵓⵔ ⵉⵙⵏⴼⵍ
+stream url: required	URL ⵏ ⵓⵙⵓⴷⴷⵎ: ⵉⵙⵙⵓⴼⵖ
+time trigger cleared	ⴰⵙⵏⴽⵔ ⵏ ⵡⴰⴽⵓⴷ ⵜⵜⵓⵙⴼⴹ
+update: checking off	ⴰⵙⵎⴰⵢⵏⵓ: ⴰⵙⴱⴹ ⵉⵅⵙⴰ
+warp settings copied	ⵜⵉⵙⵖⴰⵍ ⵏ ⵙⵙⵏⴼⵍ ⵜⴰⵍⵖⴰ ⵜⵜⵓⵙⵏⵖⵍⵏ
+warp settings pasted	ⵜⵉⵙⵖⴰⵍ ⵏ ⵙⵙⵏⴼⵍ ⵜⴰⵍⵖⴰ ⵜⵜⵓⵙⵏⵜⴹⵏ
+DMX over sACN (E1.31)	DMX ⴼ sACN (E1.31)
+Lower Third cue added	cue ⵏ Lower Third ⵉⵜⵜⵢⴰⵔⵏⴰⵏ
+already the last step	ⴳ ⵜⵙⵙⵔⴰⵡⵜ ⵜⴰⴳⴰⵔⴰⵜ
+analyzing loudness...	ⴰⵙⵙⵏⵓⵔ ⵏ ⵜⵓⵙⵙⵉⵜ...
+arcade always wiggles	ⴰⵙⴰⴳⴳⵡ ⴰⵔ ⵉⵜⵔⵓⵔⵓ ⴷⵉⵎⴰ
+browser window closed	ⴰⵙⴰⵜⵎ ⵏ ⵓⵙⵙⴰⵔⴰ ⵉⵜⵜⵓⴳⵍⵍ
+canvas width: invalid	ⵜⴰⵍⴱⴰⴹⵜ ⵏ canvas: ⵓⵔ ⵉⵎⵓⵔⴷ
+computer keyboard off	keyboard ⵏ ⵓⴽⵎⴱⵢⵓⵜⵔ ⵉⵅⵙⴰ
+contrast check: saved	ⴰⵙⴱⴹ ⵏ ⵓⵎⴳⴰⵔⴰⴷ: ⵉⵃⴹⴰ
+cue paste: copy first	cue ⵙⵏⵜⴹ: ⵙⵏⵖⵍ ⴷⴰⵜ
+cue paste: no targets	cue ⵙⵏⵜⴹ: ⵓⵔ ⵉⵍⵍⵉ ⵓⵙⵏⵜⵍ
+cue paste: select cue	cue ⵙⵏⵜⴹ: ⵙⵜⵉ cue
+cue reset: no targets	cue ⵙⵙⵓⵖⵍ: ⵓⵔ ⵉⵍⵍⵉ ⵓⵙⵏⵜⵍ
+cue reset: select cue	cue ⵙⵙⵓⵖⵍ: ⵙⵜⵉ cue
+cue settings pasted x	ⵜⵉⵙⵖⴰⵍ ⵏ cue ⵜⵜⵓⵙⵏⵜⴹⵏ x
+display switch failed	ⴰⵙⵏⴼⵍ ⵏ ⵓⵙⵎⵉⵍ ⵓⵔ ⵉⵙⵙⵉⵡⴹ
+effect chain pasted x	ⴰⵙⵎⵎⵏⴹ ⵏ effect ⵉⵜⵜⵓⵙⵏⵜⴹ x
+encoder queue running	ⵜⴰⵙⵓⴼⵜ ⵏ ⵓⵙⵏⴳⵍⵎ ⵉⵜⴷⴷⵓ
+lfo follows the tempo	LFO ⴰⵔ ⵉⴷⴼⵔ tempo
+motion driver cleared	ⴰⵎⵏⴰⵢ ⵏ ⵓⵎⵓⵙⵙⵓ ⵉⵜⵜⵓⵙⴼⴹ
+ndi tally trigger off	NDI tally ⵙⵏⴽⵔ ⵉⵅⵙⴰ
+ndi unsupported build	NDI ⵓⵔ ⵉⵍⵍⵉ ⴳ ⵓⴱⵏⵉ ⴰⴷ
+no Lower Third on air	ⵓⵔ ⵍⵍⵉ Lower Third ⵖ ⵜⵓⴼⴼⵖⴰ
+no audio cue selected	ⵓⵔ ⵉⵜⵜⵓⵙⵜⴰⵢⵏ cue ⵏ ⵉⵎⵙⵍⵉ
+playlist fps: invalid	ⵜⴰⴱⴷⴰⵔⵜ fps: ⵓⵔ ⵉⵙⵡⵉⵔ
+presenter: no outputs	presenter: ⵓⵔ ⵍⵍⵉ ⵜⵓⴼⴼⵖⴰⵜⵉⵏ
+scene slot source set	ⴰⵖⴱⴰⵍⵓ ⵏ slot ⵏ scene ⵉⵜⵜⵓⵙⴱⴷⴷ
+st 2110: invalid port	st 2110: ⵜⴰⵡⵡⵓⵔⵜ ⵓⵔ ⵜⵙⵡⵉⵔ
+timer face: 7-segment	ⵓⴷⵎ ⵏ ⵓⵙⵎⵣⴰⵢ: 7-segment
+' is not a deck number	' ⵓⵔ ⵉⴳⵉ ⵓⵟⵟⵓⵏ ⵏ deck
+FX PARAM: value is 0-1	FX PARAM: ⴰⵜⵟⵟⵓⵏ ⵉⴳⴰ 0-1
+already the first step	ⵉⴳⴰ ⵙⵖⵉⵍ ⵜⴰⵙⵙⵔⴰⵡⵜ ⵜⴰⵎⵣⵡⴰⵔⵓⵜ
+audio bitrate: invalid	ⵜⴰⵖⴰⵡⵍⵉ ⵏ bit ⵏ ⵉⵎⵙⵍⵉ: ⵓⵔ ⵜⵙⵡⵉⵔ
+browser capture failed	ⵜⵎⵥⵉ ⵏ ⵓⵙⵙⴰⵔⴰ ⵓⵔ ⵜⵙⵙⵉⵡⴹ
+canvas height: invalid	ⴰⵏⵥⵉ ⵏ canvas: ⵓⵔ ⵉⵙⵡⵉⵔ
+datamosh: select a cue	datamosh: ⵙⵜⵉ cue
+effect stack full (12)	stack ⵏ ⵉⵙⵏⴼⴰⵍⵏ ⵉⵎⵍⵍⴰ (12)
+jumped to selected cue	ⵉⵣⵍⴰ ⵙ cue ⵉⵜⵜⵓⵙⵜⴰⵢⵏ
+layer command: removed	ⴰⵏⴹⴹⴰⵎ ⵏ layer: ⵉⵜⵜⵓⴽⵙ
+listens to any channel	ⵉⵙⵍⴰ ⵙ ⴽⵔⴰ ⵏ ⵓⴱⴰⴷⵓ
+nmos: node not running	nmos: node ⵓⵔ ⵉⵜⴷⴷⵓ
+output effects back in	ⵉⵙⵏⴼⴰⵍⵏ ⵏ ⵜⵓⴼⴼⵖⴰ ⵜⵓⵖⴰⵍⵉⵏ
+presenter layout: wide	ⴰⵙⵔⵔⵙ ⵏ presenter: ⴰⵎⵇⵇⵔⴰⵏ
+route command: removed	ⴰⵏⴹⴹⴰⵎ ⵏ route: ⵉⵜⵜⵓⴽⵙ
+save failed - retrying	ⵃⴹⵓ ⵓⵔ ⵉⵙⵙⵉⵡⴹ - ⴰⵍⵙ ⴰⵔⴰⵎ
+schedule: select a cue	schedule: ⵙⵜⵉ cue
+slide import cancelled	ⴰⵙⵙⵏⴽⵔ ⵏ ⵓⵎⵓⵜⵜⵉ ⵉⵜⵜⵓⵙⴼⴹ
+takes land on the beat	TAKE ⵜⵜⴰⵔⴰⵏ ⵖ ⵓⵔⵉⵟⵎ
+warp paste: copy first	ⵙⵏⵜⴹ ⵙⵙⵏⴼⵍ ⵜⴰⵍⵖⴰ: ⵙⵏⵖⵍ ⴷⴰⵜ
+2 \xC2\xB7 WHAT IT RUNS	2 \xC2\xB7 ⵎⴰ ⵉⵜⴷⴷⵓ
+Chladni stops listening	Chladni ⵉⴼⴽⴽⴰ ⴰⵙⵍⴰ
+could not add an output	ⵓⵔ ⵜⵜⵓⵔⵏⵓ ⵢⴰⵜ ⵜⵓⴼⴼⵖⴰ
+downloading {1}... {2}%	ⴰⵙⵙⵉⴷ {1}... {2}%
+driver restarts on take	ⴰⵎⵏⴰⵢ ⵉⵙⵙⵓⵖⵍ ⵖ TAKE
+encoder destination set	ⴰⵙⴰⴹⵓⴼ ⵏ ⵓⵙⵏⴳⵍⵎ ⵉⵜⵜⵓⵙⴱⴷⴷ
+expected factor 0.25..4	ⵉⵜⵜⵓⵔⵊⵓ ⴰⴼⴰⴽⵜⵓⵔ 0.25..4
+expected finite numbers	ⵉⵜⵜⵓⵔⵊⵓⵏ ⵉⵟⵟⵓⵏⵏ ⵉⵎⴳⴳⵓⵔⵏ
+hyperdeck emulation off	ⴰⵎⵙⵔⵡⴰⵙ ⵏ HyperDeck ⵉⵅⵙⴰ
+key color sample failed	ⴰⵙⵖⵍ ⵏ ⵜⵍⵡⵉⵏⵜ ⵏ ⵜⵙⴰⵔⵓⵜ ⵓⵔ ⵉⵏⵊⵎ
+leave it where it lands	ⵊⵊⵓ ⵜ ⵖ ⵎⴰⵏⵉ ⵜⵣⴷⴰ
+no playlist column here	ⵓⵔ ⵜⵍⵍⵉ ⵜⵎⴰⵢⵜ ⵏ ⵜⴱⴷⴰⵔⵜ ⵖⵉⴷ
+osc query port: invalid	ⵜⴰⵡⵡⵓⵔⵜ ⵏ ⵓⵙⵓⵜⴻⵔ OSC: ⵓⵔ ⵉⵙⵖⴰ
+playlist start: invalid	ⴱⴷⵓ ⵏ ⵜⴱⴷⴰⵔⵜ: ⵓⵔ ⵉⵙⵖⴰ
+still duration: invalid	ⴰⴽⵓⴷ ⵏ ⵜⵡⵍⴰⴼⵜ: ⵓⵔ ⵉⵙⵖⴰ
+synth cue has no engine	cue ⵏ synth ⵓⵔ ⵖⵓⵔⵙ ⴰⵎⵓⵜⵓⵔ
+, its place in the stack	, ⴰⴷⵖⴰⵔ ⵏⵏⵙ ⵖ ⵜⵎⵙⵔⵜ
+1 \xC2\xB7 WHAT COMES IN	1 \xC2\xB7 ⵎⴰ ⵉⴽⵛⵎⵏ
+An output whose Shows is	ⵜⵓⴼⴼⵖⴰ ⵉⵙⵙⴽⴰⵏⵏ ⵏⵏⵙ ⵉⴳⴰ
+DeckLink input cue added	ⵜⵜⵓⵔⵔⵓⴹⵍ cue ⵏ ⵓⴽⵛⵛⵓⵎ DeckLink
+already on the dashboard	ⵖⵓⵔ ⵜⴰⴼⵉⵍⵓⵜ ⵏ ⵓⵙⵖⵍ ⵢⴰⴹⵏ
+expected an alpha, 0-255	ⵜⵜⵓⵔⵊⴰ alpha, 0-255
+expected positive pixels	ⵜⵜⵓⵔⵊⴰⵏ ⵉⴱⵉⴽⵙⵍⵏ ⵉⵎⵓⵙⵏⵉⵏ
+find: press Ctrl+F first	ⴰⴼ: ⵙⵉⵜ Ctrl+F ⴷⴰⵜ
+glyphs: the built-in set	ⵉⵖⵓⵍⵓⴼⵏ: ⴰⵙⵖⵍ ⵉⵍⵍⴰⵏ ⴷⴰⵅⵍ
+keep at least one output	ⴽⴽⵙ ⵜⵓⴼⴼⵖⴰ ⵢⴰⵏⵜ ⵖⴰⵙ
+marker: none on this cue	ⴰⵙⵏⵜⵍ: ⵡⴰⵍⵓ ⵖ cue ⴰⴷ
+mic mixed into recording	ⴰⵙⵎⵖⵔ ⵏ ⵉⵎⵙⵍⵉ ⵉⵜⵜⵓⵎⵙⴷⴰⵏ ⵖ ⵓⵙⴽⵍⵙ
+not a playable MIDI file	ⵓⵔ ⴳⵉ ⴰⴼⴰⵢⵍⵓ MIDI ⵉⵜⵜⵓⵙⵙⵓⵏⴼⵓⵏ
+relink: folder not found	ⵙⵏⴽⵔ ⴰⵎⴰⵢⵏⵓ: ⴰⴽⴰⵔⴰⵎ ⵓⵔ ⵉⵍⵍⵉ
+select a moire cue first	ⵙⵜⵉ cue ⵏ ⵎⵡⴰⵔⵉ ⴷⴰⵜ
+tempo follows MIDI clock	ⵜⵉⵎⵙⵓⵍⵜ ⵜⵜⴰⴹⴼⴰⵔ ⵜⴰⵙⵓⵏⵜ ⵏ MIDI
+the tracker has no steps	ⴰⵎⴹⴼⴰⵔ ⵓⵔ ⵖⵓⵔⵙ ⵉⵙⵎⵔⵙⵏ
+typeface (the app's own)	ⴰⵏⵎⵎⵍ ⵏ ⵜⵉⵔⵉ (ⵏ ⵜⵙⵏⵙⵍⵜ ⵏⵏⵙ)
+. Set displays to Extend.	. ⵙⴱⴷⴷ ⵉⵙⵙⴽⴰⵏⵏ ⵙ Extend.
+Language reset to English	ⵜⵓⵜⵍⴰⵢⵜ ⵜⵙⵙⵓⵖⵍ ⵙ ⵜⴰⴳⵍⵉⵣⵉⵜ
+PUSH expects a cue number	PUSH ⵉⵜⵔⵊⴰ ⵓⵟⵟⵓⵏ ⵏ cue
+SLICE: there is no output	SLICE: ⵓⵔ ⵜⵍⵍⵉ ⵜⵓⴼⴼⵖⴰ
+TCCUE: select a cue first	TCCUE: ⵙⵜⵉ cue ⴷⴰⵜ
+effects paste: no targets	ⵙⵏⵜⴹ ⵏ ⵉⵙⵏⴼⴰⵍⵏ: ⵡⴰⵍⵓ ⵉⵎⵏⵉⴷⵏ
+follows the whole picture	ⵜⵜⴰⴹⴼⴰⵔ ⵜⴰⵡⵍⴰⴼⵜ ⴰⴽⴽ
+key color picker canceled	ⴰⵙⵜⵉ ⵏ ⵓⵍⵓⵏ ⵏ ⵜⵙⴰⵔⵓⵜ ⵉⵜⵜⵓⵙⴼⵙⵅ
+listening for captions...	ⵉⵜⵜⵙⵍⴰ ⵉ ⵜⵉⵔⵔⴰ...
+monitor: pick a row first	ⴰⵀⵉⵍ: ⵙⵜⵉ ⵉⵣⵉⵔⵉⴳ ⴷⴰⵜ
+moshlook: smooth | chunky	moshlook: ⵉⵍⴰⵏ | ⵉⵎⵇⵇⵓⵔⵏ
+no trimmable cue selected	ⵓⵔ ⵉⵍⵍⵉ cue ⵉⵜⵜⵓⵙⵜⴰⵢⵏ ⵉ ⵓⵙⵎⵥⵉ
+output type change failed	ⴰⵙⵏⴼⵍ ⵏ ⵡⴰⵏⴰⵡ ⵏ ⵜⵓⴼⴼⵖⴰ ⵓⵔ ⵉⵙⵙⴽⵔ
+select a master cue first	ⵙⵜⵉ cue Master ⴷⴰⵜ
+sequence stops at the end	ⴰⵙⴹⴼⴰⵕ ⵉⵙⵙⵓⵙⵎ ⵖ ⵜⴳⴰⵔⴰ
+web monitor port: invalid	ⵜⴰⵡⵡⵓⵔⵜ ⵏ ⵓⴳⴷⵉⵍ ⵏ ⵡⵉⴱ: ⵓⵔ ⵉⵣⴷⵉ
+3 \xC2\xB7 WHAT IT RUNS ON	3 · ⵉⵜⴷⴷⵓ ⵖ
+ASCII CHAOS: expected 0..1	ASCII CHAOS: ⵉⵜⵜⵓⵔⵊⴰ 0..1
+DATAMOSH on - preparing...	DATAMOSH ⵉⵔⵎⴷ - ⵉⵜⵜⵓⵙⵙⵓⴼⵍ...
+DMXCUE: select a cue first	DMXCUE: ⵙⵜⵉ cue ⴷⴰⵜ
+GEOLFO: select a cue first	GEOLFO: ⵙⵜⵉ cue ⴷⴰⵜ
+MATRIX: select a cue first	MATRIX: ⵙⵜⵉ cue ⴷⴰⵜ
+MEMOCUE: expected the note	MEMOCUE: ⵉⵜⵜⵓⵔⵊⴰ ⵜⴰⵏⵓⵜⵜ
+NETCUE: select a cue first	NETCUE: ⵙⵜⵉ cue ⴷⴰⵜ
+STING BODY: expected 0-100	STING BODY: ⵉⵜⵜⵓⵔⵊⴰ 0-100
+could not load that plugin	ⴰⵙⴰⵍⵉ ⵏ ⵓⵙⵎⵍⵉⵍ ⴰⵏⵏ ⵓⵔ ⵉⵙⵙⴽⵔ
+effects copy: select a cue	ⴰⵙⵏⵖⵍ ⵏ ⵉⵙⵏⴼⴰⵍⵏ: ⵙⵜⵉ cue
+expected degrees -180..180	ⵉⵜⵜⵓⵔⵊⴰ ⴷⵉⴳⵔⵉ -180..180
+expression is at its limit	ⵜⴰⵙⴽⵏⵜ ⵜⵍⵍⴰ ⵖ ⵜⴳⴰⵔⴰ ⵏⵏⵙ
+multiview - every playlist	multiview - ⴽⵔⴰⵢⴳⴰⵜ ⵜⴰⴱⴷⴰⵔⵜ
+new show, from my defaults	ⴰⵙⵙⴽⴰⵏ ⴰⵎⴰⵢⵏⵓ, ⵣⵖ ⵉⵎⵣⵡⵓⵔⴰ ⵏⵏⵉ
+no cue with audio selected	ⵓⵔ ⵉⵍⵍⵉ cue ⵙ ⵉⵎⵙⵍⵉ ⵉⵜⵜⵓⵙⵜⴰⵢⵏ
+osc feedback rate: invalid	ⴰⵙⵡⵉⵔ ⵏ ⵜⵓⴼⵔⵏⵜ ⵏ OSC: ⵓⵔ ⵉⵣⴷⵉ
+panic: outputs already off	panic: ⵜⵓⴼⴼⵖⴰⵜⵉⵏ ⵉⵅⵙⴰ ⵖⴰⵙ
+pick from screen cancelled	ⴰⵙⵜⵉ ⵣⵖ ⵓⴳⴷⵉⵍ ⵉⵜⵜⵓⵙⴼⵙⵅ
+rendering slide {1} of {2}	ⴰⵙⵙⴽⵏ ⵏ ⵓⵎⵓⵜⵜⵉ {1} ⵣⵖ {2}
+schedule: HH:MM[:SS] | off	ⴰⵙⵓⴷⵙ: HH:MM[:SS] | ⵉⵅⵙⴰ
+update: nothing to install	ⴰⵙⵎⴰⵢⵏⵓ: ⵡⴰⵍⵓ ⵉ ⵓⵙⵙⵉⵍⵉ
+warp preset: name required	ⴰⵎⵣⵡⴰⵔⵓ ⵏ ⵙⵙⵏⴼⵍ ⵜⴰⵍⵖⴰ: ⵉⵙⵎ ⵉⵜⵜⵓⵔⵊⴰ
+1 cue imported (probing...)	1 cue ⵉⵜⵜⵓⵙⵙⵏⴽⵔ (ⵉⵜⵜⵓⵔⵣⵓ...)
+ASCII WOBBLE: expected 0..1	ASCII WOBBLE: ⵉⵜⵜⵓⵔⵊⴰ 0..1
+AUDIOFX ADD: chain full (8)	AUDIOFX ADD: ⴰⵙⵎⵎⵏⴹ ⴰⴽⴽ (8)
+CLICK: expected two numbers	CLICK: ⵉⵜⵜⵓⵔⵊⴰ ⵙⵉⵏ ⵉⵎⵓⴹⴰⵏ
+HOVER: expected two numbers	HOVER: ⵉⵜⵜⵓⵔⵊⴰ ⵙⵉⵏ ⵉⵎⵓⴹⴰⵏ
+MIDICUE: select a cue first	MIDICUE: ⵙⵜⵉ cue ⴷⴰⵜ
+TEXTCUE: select a cue first	TEXTCUE: ⵙⵜⵉ cue ⴷⴰⵜ
+VIDEODIP FADE: 0-30 seconds	VIDEODIP FADE: 0-30 ⵜⵉⵙⵉⵏⵉⵢⵉⵏ
+browser stopped - deck dark	ⴰⵙⵙⴰⵔⴰ ⵉⴱⴷⴷ - deck ⵉⴹⵍⵎ
+could not save the defaults	ⵓⵔ ⵉⵣⵎⵉⵔ ⵓⵃⴹⵓ ⵏ ⵉⵎⵣⵡⵓⵔⴰ
+datamosh look: select a cue	datamosh ⴰⵎⵏⵉⴷ: ⵙⵜⵉ cue
+datamosh: already preparing	datamosh: ⵉⵜⵜⵓⵙⵙⵓⴼⴷ ⵢⴰⴹⵏⵉ
+effects paste: select a cue	ⵙⵏⵜⴹ ⵉⵙⵏⴼⴰⵍⵏ: ⵙⵜⵉ cue
+matrix on, routed as it was	matrix ⵉⵔⵎⴷ, ⵉⵜⵜⵓⵙⵙⵓⴷⵓ ⴽⵎⴰ ⵉⴳⴰ
+nmos: clipboard unavailable	nmos: ⴰⵎⵙⵏⵜⴹ ⵓⵔ ⵉⵍⵍⵉ
+nmos: need http://host:port	nmos: ⵉⵙⵙⵓⵜⵔ http://host:port
+skip back: nothing previous	ⵣⵔⵉ ⵜⵓⵖⴰⵍⵉⵏ: ⵡⴰⵍⵓ ⵉ ⴷⴰⵜ
+FX COLOUR: a grey has no hue	FX COLOUR: grey ⵓⵔ ⵖⵓⵔⵙ ⵉⵏⵉ
+MASK RENAME: expected a name	MASK RENAME: ⵉⵙⵙⵓⵜⵔ ⵉⵙⵎ
+MIDIFILE: select a cue first	MIDIFILE: ⵙⵜⵉ cue ⴷⴰⵜ
+SCALEMODE: expected one mode	SCALEMODE: ⵉⵙⵙⵓⵜⵔ ⵢⴰⵏ ⵓⵙⴽⴰⵔ
+SYNTH ADD takes no arguments	SYNTH ADD ⵓⵔ ⵉⵙⵙⵓⵜⵔ ⴽⵔⴰ
+TEXTCUE CARD: expected 0-255	TEXTCUE CARD: ⵉⵙⵙⵓⵜⵔ 0-255
+UISNAP: expected a .bmp path	UISNAP: ⵉⵙⵙⵓⵜⵔ ⴰⵖⴰⵔⴰⵙ .bmp
+av jumps: counting from zero	av jumps: ⴰⵎⵎⴰⵙ ⵙⴳ 0
+cannot reorder a running job	ⵓⵔ ⵉⵣⵎⵉⵔ ⵓⵙⵏⴼⵍ ⵏ ⵓⵎⵙⵓⵍⵜ ⵉⵜⴷⴷⵓ
+expected a number of seconds	ⵉⵙⵙⵓⵜⵔ ⵓⵟⵟⵓⵏ ⵏ ⵜⵉⵙⵉⵏⵉⵢⵉⵏ
+master scene rename: removed	ⴰⵙⵏⴼⵍ ⵏ ⵉⵙⵎ ⵏ master scene: ⵉⵜⵜⵓⴽⵙ
+motion driver would not open	ⴰⵎⵏⴰⵢ ⴰⵎⵓⵙⵙⵓ ⵓⵔ ⵉⵕⵥⵉⵎ
+no steps yet - Ins makes one	ⵓⵔ ⵍⵍⵉⵏ ⵉⵙⵓⵔⵉⴼⵏ ⴰⵔ ⴷⵖⵉ - Ins ⵉⵔⵏⵓ ⵢⴰⵏ
+selected cue has no geometry	cue ⵉⵜⵜⵓⵙⵜⴰⵢⵏ ⵓⵔ ⵖⵓⵔⵙ ⵜⴰⵍⵖⴰ
+skip back: playlist is empty	ⵣⵔⵉ ⵜⵓⵖⴰⵍⵉⵏ: ⵜⴰⴱⴷⴰⵔⵜ ⵓⵔ ⵖⵓⵔⵙ ⴽⵔⴰ
+sprite set could not be read	ⵓⵔ ⵉⵣⵎⵉⵔ ⵓⵖⵔⵉ ⵏ sprite set
+st2110 sdp written to stdout	st2110 sdp ⵉⵜⵜⵓⴽⵜⴱ ⵖ stdout
+the clicker advances the cue	ⴰⵙⵓⴷⴷⵓ ⵏ ⵜⵉⴳⴳⵓⴷⵉ ⵉⵙⵙⵉⴷⴷ cue
+video dip fade: 0-30 seconds	video dip fade: 0-30 ⵜⵉⵙⵉⵏⵉⵢⵉⵏ
+warp point: expected numbers	ⵜⴰⵏⵇⵇⵉⴹⵜ ⵏ ⵙⵙⵏⴼⵍ: ⵉⵙⵙⵓⵜⵔ ⵉⵟⵟⵓⵏⵏ
+* KONAMI * terrarium unlocked	* KONAMI * terrarium ⵉⵕⵥⵎ
+DMXCUE PORT: expected 1-65535	DMXCUE PORT: ⵉⵙⵙⵓⵜⵔ 1-65535
+ENDACTION: select a cue first	ENDACTION: ⵙⵜⵉ cue ⴷⴰⵜ
+FADE STOP: expected on or off	FADE STOP: ⵉⵙⵙⵓⵜⵔ ⵉⵔⵎⴷ ⵏⵖ ⵉⵅⵙⴰ
+LOWERANIM: select a cue first	LOWERANIM: ⵙⵜⵉ cue ⴷⴰⵜ
+MATRIX SET: destination is 1-	MATRIX SET: ⴰⵙⴰⴹⵓⴼ ⵉⴳⴰ 1-
+NETCUE PORT: expected 1-65535	NETCUE PORT: ⵉⵜⵜⵓⵔⴰⵊⴰ 1-65535
+OUTSNAP: expected a .bmp path	OUTSNAP: ⵉⵜⵜⵓⵔⴰⵊⴰ ⴰⴱⵔⵉⴷ .bmp
+SCRIPTCUE: select a cue first	SCRIPTCUE: ⵙⵜⵉ cue ⴷⴰⵜ
+TEXTCUE SCALE: expected 0.5-2	TEXTCUE SCALE: ⵉⵜⵜⵓⵔⴰⵊⴰ 0.5-2
+WARP AT: expected two numbers	WARP AT: ⵉⵜⵜⵓⵔⴰⵊⴰ ⵙⵏⴰⵜ ⵏ ⵉⵎⵓⴹⴰⵏ
+could not remove the defaults	ⵓⵔ ⵉⵎⴽⵏ ⵓⴽⴽⵙ ⵏ ⵉⵎⵣⵡⵓⵔⴰ
+lights dip when a video rolls	ⵜⵉⵣⵉⵔⵉ ⵜⵜⵓⵙⵙⵓⴼⵍ ⵎⵍ ⵉⴽⵛⵎ ⴰⴱⵉⴷⵢⵓ
+no refresh choices for raster	ⵓⵔ ⵉⵍⵍⵉ ⵓⵙⵜⵉ ⵏ ⵓⵙⵏⴼⵍ ⵉ raster
+output recovered: auto native	ⵜⵓⴼⴼⵖⴰ ⵜⵓⵇⵇⵏ ⴷⴰⵖ: ⴰⵡⵓⵔⵎⴰⵏ ⴰⵖⵚⴰⵏ
+overlay on -- choose an image	ⴰⴼⵍⵍⴰⵢ ⵉⵔⵎⴷ -- ⵙⵜⵉ ⵜⴰⵡⵍⴰⴼⵉⵜ
+stopped - deck dark, reracked	ⵉⴱⴷⴷ - deck ⴰⵎⵔⵔⴰⵔ, ⵉⵜⵜⵓⵙⵙⵓⵡⵊⴷ ⴷⴰⵖ
+this file has one sound track	ⴰⴼⴰⵢⵍⵓ ⴰⴷ ⵖⵓⵔⵙ ⵢⴰⵏ ⵓⴱⵔⵉⴷ ⵏ ⵉⵎⵙⵍⵉ
+update: will check at startup	ⴰⵙⵏⴼⵍ: ⴰⵔ ⵉⵙⴰⵡⵍ ⴳ ⵓⴱⴷⵓ
+web monitor connections: 1-64	ⵉⵎⵙⵍⵉⵡⵏ ⵏ ⵓⴳⴷⵉⵍ ⵏ ⵡⵉⴱ: 1-64
+DASH: the startup dialog is up	DASH: ⵜⴰⵡⵡⵓⵔⵜ ⵏ ⵓⴱⴷⵓ ⵜⵔⵎⴷ
+LOWERSTYLE: select a cue first	LOWERSTYLE: ⵙⵜⵉ cue ⴷⴰⵜ
+MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: ⵉⵜⵜⵓⵔⴰⵊⴰ 1-16
+PATTERN ADD needs a pattern id	PATTERN ADD ⵉⵔⴰ ID ⵏ ⵓⵍⴳⵓⵖ

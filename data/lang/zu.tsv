@@ -2580,3 +2580,278 @@ output overlay on	isembozo sokuphumayo sivuliwe
 phone haptics off	ukudlidliza kwefoni kuvaliwe
 pick a deck first	khetha i-deck kuqala
 playlist loop off	ukuphinda uhlu kuvaliwe
+record folder set	ifolda yokuqopha isethiwe
+subtitle file set	ifayela lombhalo ongezansi lisethiwe
+subtitles cleared	umbhalo ongezansi ususiwe
+take the mask off	susa imaski
+universe: 0-63999	i-universe: 0-63999
+video synth added	i-synth yevidiyo ingeziwe
+warp preset saved	okumisiwe kokugoqoza kulondoloziwe
+AUDIOALSO: no deck	AUDIOALSO: alikho i-deck
+DeckLink 10-bit ON	DeckLink 10-bit VULIWE
+SCRIPTCUE: no deck	SCRIPTCUE: alikho i-deck
+assign route first	nikeza indlela kuqala
+bundle save failed	ukulondoloza ukuhlanganisa kwehlulekile
+cue settings reset	izilungiselelo ze-cue zisethwe kabusha
+file dialog failed	ibhokisi lefayela lehlulekile
+jumped to live cue	kweqelwe ku-cue ebukhoma
+lock to screen off	khiyela esikrinini valiwe
+media probe failed	ukuhlola imidiya kwehlulekile
+nmos: invalid port	nmos: imbobo ayivumelekile
+output overlay off	isembozo sokuphumayo sivaliwe
+pip target cleared	okuqondiwe kwe-PIP kususiwe
+select a cue first	khetha i-cue kuqala
+source unavailable	umthombo awutholakali
+spare (also spare)	okuyisipele (futhi okuyisipele)
+stream key cleared	ukhiye wokusakaza ususiwe
+timecode cue added	i-cue yekhodi yesikhathi ingeziwe
+timer face: blocky	ubuso bewashi: izigaxa
+timer logo cleared	ilogo yewashi isusiwe
+vmix port: invalid	imbobo ye-vmix: ayivumelekile
+, not a plugin slot	, akuyona isilothi se-plugin
+. Your show is back	. Umbukiso wakhoubuyile
+DeckLink 10-bit off	DeckLink 10-bit valiwe
+HOVER: expected x y	HOVER: kulindeleke x y
+Lower Third cleared	Lower Third isusiwe
+NDI\xc2\xae NETWORK	NDI® INETHIWEKHI
+OSC trigger cleared	isiqalisi se-OSC sisusiwe
+Show file not found	ifayela lombukiso alitholakali
+audio chain cleared	uchungechunge lomsindo lususiwe
+audio switch failed	ukushintsha umsindo kwehlulekile
+browser jumped live	isiphequluli siqhubekele ebukhoma
+browser url updated	I-URL yesiphequluli ibuyekeziwe
+bundle media failed	Ukuhlanganisa imidiya kuhlulekile
+choose a show first	Qala ukhethe umbukiso
+composite cue added	i-cue ehlanganisiwe yengeziwe
+cue numbers cleared	Izinombolo ze-cue zisusiwe
+cue settings copied	Izilungiselelo ze-cue zikopishiwe
+cue settings pasted	Izilungiselelo ze-cue ziphawulwe
+double-GO guard off	Ukuvikela kwe-GO kabili kuvaliwe
+effect chain pasted	Uchungechunge lwemithelela lunamathiselwe
+end of the sequence	Ukuphela kokulandelana
+pattern motion: n/a	iphethini yokunyakaza: akukho
+plugin slot cleared	isikhala se-plugin sisusiwe
+splitnotes: no deck	splitnotes: ayikho i-deck
+sprite sheet loaded	ishidi lama-sprite lilayishiwe
+takes are immediate	Ama-TAKE aqala ngokushesha
+ui motion always on	Ukunyakaza kwe-UI njalo kuvuliwe
+-10 seconds from end	-10 amasekhondi kusuka ekugcineni
+-20 seconds from end	-20 amasekhondi kusuka ekugcineni
+-30 seconds from end	-30 amasekhondi kusuka ekugcineni
+. — skip to next cue	. — yeqa uye ku-cue elandelayo
+Lower Third attached	I-Lower Third inamathiselwe
+MIDI plays the synth	I-MIDI idlala i-synth
+MIDI trigger cleared	Qalisa ye-MIDI isusiwe
+NDI source cue added	i-cue yomthombo we-NDI yengeziwe
+audio chain full (8)	Uchungechunge lomsindo lugcwele (8)
+browser url required	I-URL yesiphequluli iyadingeka
+bundle export failed	Ukukhipha uhlanganiso kuhlulekile
+bundle folder failed	Ifolda yohlanganiso ihlulekile
+cue copy: select cue	kopisha i-cue: khetha i-cue
+cue settings reset x	Izilungiselelo ze-cue zisethwe kabusha x
+delete from the show	Susa kumbukiso
+encoder queue paused	Umugqa wesibhali umiswe okwesikhashana
+find: run FIND first	thola: qala usebenzise i-FIND
+find: token required	thola: ithokheni iyadingeka
+first port available	Imbobo yokuqala etholakalayo
+identifying displays	Ukubona izibonisi
+marker: nothing live	uphawu: akukho okubukhomayo
+marker: select a cue	uphawu: khetha i-cue
+no midi input device	akukho idivayisi yokufaka ye-MIDI
+no overlays to clear	azikho izembozo zokusula
+no synth cue is live	akukho i-cue ye-synth esemoyeni
+output create failed	ukwenza okuphumayo kuhlulekile
+output remove failed	ukususa okuphumayo kuhlulekile
+pause points cleared	amaphoyinti okumisa asusiwe
+presenter view reset	ukubuka komethuli kusethwe kabusha
+renumber: empty deck	ukunombolisa kabusha: deck ayinalutho
+sprite sheet cleared	ishidi le-sprite lisusiwe
+stream url unchanged	i-url yokusakaza ayiguquliwe
+stream url: required	i-url yokusakaza: iyadingeka
+time trigger cleared	isiqalisi sesikhathi sisusiwe
+update: checking off	ukubuyekeza: ukuhlola kuvaliwe
+warp settings copied	izilungiselelo ze-warp zikopishiwe
+warp settings pasted	izilungiselelo ze-warp zinamathiselwe
+DMX over sACN (E1.31)	i-DMX nge-sACN (E1.31)
+Lower Third cue added	i-cue ye-Lower Third yengeziwe
+already the last step	sesisinyathelo sokugcina
+analyzing loudness...	kuhlaziywa ukuqina komsindo...
+arcade always wiggles	i-arcade iyanyakaza njalo
+browser window closed	iwindi lesiphequluli livaliwe
+canvas width: invalid	ububanzi be-canvas: akulungile
+computer keyboard off	ikhibhodi yekhompyutha ivaliwe
+contrast check: saved	ukuhlola ukuhluka: kulondoloziwe
+cue paste: copy first	namathisela i-cue: kopisha kuqala
+cue paste: no targets	namathisela i-cue: azikho izinhloso
+cue paste: select cue	namathisela i-cue: khetha i-cue
+cue reset: no targets	setha kabusha i-cue: azikho izinhloso
+cue reset: select cue	setha kabusha i-cue: khetha i-cue
+cue settings pasted x	izilungiselelo ze-cue zinamathiselwe x
+display switch failed	ukushintsha isibonisi kuhlulekile
+effect chain pasted x	uchungechunge lwemithelela lunamathiselwe x
+encoder queue running	umugqa wesibhali uyasebenza
+lfo follows the tempo	i-LFO ilandela i-tempo
+motion driver cleared	umshayeli wokunyakaza ususiwe
+ndi tally trigger off	isiqalisi se-tally ye-NDI sivaliwe
+ndi unsupported build	i-NDI ayisekelwa kulesi sakhiwo
+no Lower Third on air	Alikho i-Lower Third emoyeni
+no audio cue selected	ayikho i-cue yomsindo ekhethiwe
+playlist fps: invalid	fps ye-playlist: ayivumelekile
+presenter: no outputs	umethuli: akukho okuphumayo
+scene slot source set	umthombo wesilotho sesigcawu usethiwe
+st 2110: invalid port	st 2110: imbobo ayivumelekile
+timer face: 7-segment	ubuso bewashi: 7-segment
+' is not a deck number	' akuyona inombolo ye-deck
+FX PARAM: value is 0-1	FX PARAM: inani ngu-0-1
+already the first step	seyisesinyathelo sokuqala
+audio bitrate: invalid	i-bitrate yomsindo: ayivumelekile
+browser capture failed	ukuthwebula kwesiphequluli kwehlulekile
+canvas height: invalid	ukuphakama kwekhanvasi: akuvumelekile
+datamosh: select a cue	datamosh: khetha i-cue
+effect stack full (12)	isitaki semiphumela sigcwele (12)
+jumped to selected cue	ugxumele ku-cue ekhethiwe
+layer command: removed	umyalo wongqimba: ususiwe
+listens to any channel	ilalela noma yisiphi isiteshi
+nmos: node not running	nmos: i-node ayisebenzi
+output effects back in	imiphumela yokuphuma ibuyele ngaphakathi
+presenter layout: wide	isakhiwo somethuli: banzi
+route command: removed	umyalo wendlela: ususiwe
+save failed - retrying	ukulondoloza kwehlulekile - iyazama futhi
+schedule: select a cue	ishedyuli: khetha i-cue
+slide import cancelled	ukungenisa shelela kukhanseliwe
+takes land on the beat	ama-take awela esigqini
+warp paste: copy first	goqoza ukunamathisela: kopisha kuqala
+2 \xC2\xB7 WHAT IT RUNS	2 \xC2\xB7 OKUGIJIMAYO
+Chladni stops listening	I-Chladni iyayeka ukulalela
+could not add an output	ayikwazanga ukwengeza okuphumayo
+downloading {1}... {2}%	ilanda {1}... {2}%
+driver restarts on take	umshayeli uqala kabusha ku-take
+encoder destination set	Okuyiwa kuyo kwesibhali kusethiwe
+expected factor 0.25..4	kulindeleke isici 0.25..4
+expected finite numbers	kulindeleke izinombolo ezinomkhawulo
+hyperdeck emulation off	Ukulingisa i-HyperDeck kuvaliwe
+key color sample failed	Ukuthatha isampula yombala wokhiye kuhlulekile
+leave it where it lands	yishiye lapho ifika khona
+no playlist column here	akukho ikholomu yohlu lapha
+osc query port: invalid	imbobo yombuzo we-OSC: ayivumelekile
+playlist start: invalid	ukuqala kohlu: akuvumelekile
+still duration: invalid	ubude besithombe: akuvumelekile
+synth cue has no engine	i-cue ye-synth ayinayo injini
+, its place in the stack	, indawo yayo kusitaki
+1 \xC2\xB7 WHAT COMES IN	1 \xC2\xB7 OKUNGENAYO
+An output whose Shows is	Okuphumayo okuthi Ibonisa lakho yi
+DeckLink input cue added	I-cue yokungena kwe-DeckLink ingeziwe
+already on the dashboard	sekuse-deshibhodini
+expected an alpha, 0-255	kulindeleke i-alpha, 0-255
+expected positive pixels	kulindeleke amaphikseli aphozithivu
+find: press Ctrl+F first	thola: cindezela Ctrl+F kuqala
+glyphs: the built-in set	amaglifu: isethi eyakhelwe ngaphakathi
+keep at least one output	gcina okungenani okuphumayo okukodwa
+marker: none on this cue	inkomba: ayikho kule cue
+mic mixed into recording	imakrofoni ixutshwe ekurekhodeni
+not a playable MIDI file	akulona ifayela le-MIDI elidlalekayo
+relink: folder not found	xhumanisa kabusha: ifolda ayitholakali
+select a moire cue first	khetha i-cue ye-Moiré kuqala
+tempo follows MIDI clock	isivinini silandela iwashi le-MIDI
+the tracker has no steps	umlandeleli akanazinyathelo
+typeface (the app's own)	uhlobo lwamagama (olwe-app uqobo)
+. Set displays to Extend.	. Setha izibonisi zibe Extend.
+Language reset to English	Ulimi lusethwe kabusha lube IsiNgisi
+PUSH expects a cue number	I-PUSH ilindele inombolo ye-cue
+SLICE: there is no output	SLICE: akukho okuphumayo
+TCCUE: select a cue first	TCCUE: khetha i-cue kuqala
+effects paste: no targets	ukunamathisela imiphumela: azikho izinhloso
+follows the whole picture	ilandela isithombe sonke
+key color picker canceled	ukukhetha umbala we-key kukhanselwe
+listening for captions...	ilalele imibhalo...
+monitor: pick a row first	i-monitor: khetha umugqa kuqala
+moshlook: smooth | chunky	moshlook: bushelele | izigaxa
+no trimmable cue selected	ayikho i-cue enqunywayo ekhethiwe
+output type change failed	ukushintsha uhlobo lokuphumayo kwehlulekile
+select a master cue first	khetha i-cue yenhloko kuqala
+sequence stops at the end	ukulandelana kuyama ekugcineni
+web monitor port: invalid	imbobo yesiqaphi sewebhu: ayivumelekile
+3 \xC2\xB7 WHAT IT RUNS ON	3 · ISEBENZA KU-
+ASCII CHAOS: expected 0..1	ASCII CHAOS: kulindeleke 0..1
+DATAMOSH on - preparing...	DATAMOSH kuvuliwe - iyalungiselela...
+DMXCUE: select a cue first	DMXCUE: khetha i-cue kuqala
+GEOLFO: select a cue first	GEOLFO: khetha i-cue kuqala
+MATRIX: select a cue first	MATRIX: khetha i-cue kuqala
+MEMOCUE: expected the note	MEMOCUE: kulindeleke inothi
+NETCUE: select a cue first	NETCUE: khetha i-cue kuqala
+STING BODY: expected 0-100	STING BODY: kulindeleke 0-100
+could not load that plugin	ayikwazanga ukulayisha leyo i-plugin
+effects copy: select a cue	ukukopisha imiphumela: khetha i-cue
+expected degrees -180..180	kulindeleke amadigrii -180..180
+expression is at its limit	i-expression isekugcineni kwayo okuphezulu
+multiview - every playlist	multiview - uhlu ngalunye
+new show, from my defaults	umbukiso omusha, okokujwayelekile kwami
+no cue with audio selected	ayikho i-cue enomsindo ekhethiwe
+osc feedback rate: invalid	izinga lempendulo ye-OSC: ayivumelekile
+panic: outputs already off	panic: okuphumayo kuvaliwe kakade
+pick from screen cancelled	ukukhetha esikrinini kukhanselwe
+rendering slide {1} of {2}	ukudweba shelela {1} ku-{2}
+schedule: HH:MM[:SS] | off	ishejuli: HH:MM[:SS] | valiwe
+update: nothing to install	isibuyekezo: akukho okufanele kufakwe
+warp preset: name required	okumisiwe kokugoqoza: igama liyadingeka
+1 cue imported (probing...)	i-cue e-1 ingeniswe (iyahlola...)
+ASCII WOBBLE: expected 0..1	ASCII WOBBLE: kulindeleke 0..1
+AUDIOFX ADD: chain full (8)	AUDIOFX ADD: uchungechunge lugcwele (8)
+CLICK: expected two numbers	CLICK: kulindeleke izinombolo ezimbili
+HOVER: expected two numbers	HOVER: kulindeleke izinombolo ezimbili
+MIDICUE: select a cue first	MIDICUE: khetha i-cue kuqala
+TEXTCUE: select a cue first	TEXTCUE: khetha i-cue kuqala
+VIDEODIP FADE: 0-30 seconds	VIDEODIP FADE: imizuzwana engu-0-30
+browser stopped - deck dark	isiphequluli simisiwe - deck imnyama
+could not save the defaults	ayikwazanga ukulondoloza okujwayelekile
+datamosh look: select a cue	datamosh ukubukeka: khetha i-cue
+datamosh: already preparing	datamosh: sekuyalungiswa kakade
+effects paste: select a cue	namathisela imiphumela: khetha i-cue
+matrix on, routed as it was	matrix ivuliwe, ihanjiswe njengakuqala
+nmos: clipboard unavailable	nmos: ibhodi lokunamathisela alitholakali
+nmos: need http://host:port	nmos: kudingeka http://host:port
+skip back: nothing previous	yeqa emuva: akukho okwangaphambilini
+FX COLOUR: a grey has no hue	FX COLOUR: i-grey ayinawo umbala
+MASK RENAME: expected a name	MASK RENAME: kulindeke igama
+MIDIFILE: select a cue first	MIDIFILE: khetha i-cue kuqala
+SCALEMODE: expected one mode	SCALEMODE: kulindeke indlela eyodwa
+SYNTH ADD takes no arguments	SYNTH ADD ayithathi zimpikiswano
+TEXTCUE CARD: expected 0-255	TEXTCUE CARD: kulindeke 0-255
+UISNAP: expected a .bmp path	UISNAP: kulindeke indlela ye-.bmp
+av jumps: counting from zero	av jumps: kubalwa kusuka ku-zero
+cannot reorder a running job	akukwazi ukuhlela kabusha umsebenzi osebenzayo
+expected a number of seconds	kulindeke inombolo yemizuzwana
+master scene rename: removed	ukuqamba kabusha isigcawu esiyinhloko: kususiwe
+motion driver would not open	umshayeli we-motion awuvulekanga
+no steps yet - Ins makes one	akukabi nezinyathelo - Ins yenza eyodwa
+selected cue has no geometry	i-cue ekhethiwe ayinayo ijiyomethri
+skip back: playlist is empty	yeqa emuva: uhlu alunalutho
+sprite set could not be read	isethi ye-sprite ayikwazanga ukufundwa
+st2110 sdp written to stdout	st2110 sdp ibhalwe ku-stdout
+the clicker advances the cue	isichofozi siqhubekisela i-cue
+video dip fade: 0-30 seconds	video dip fade: imizuzwana engu-0-30
+warp point: expected numbers	warp point: kulindeke izinombolo
+* KONAMI * terrarium unlocked	* KONAMI * i-terrarium ivuliwe
+DMXCUE PORT: expected 1-65535	DMXCUE PORT: kulindeke 1-65535
+ENDACTION: select a cue first	ENDACTION: khetha i-cue kuqala
+FADE STOP: expected on or off	FADE STOP: kulindeke VULIWE noma VALIWE
+LOWERANIM: select a cue first	LOWERANIM: khetha i-cue kuqala
+MATRIX SET: destination is 1-	MATRIX SET: okuyiwa kuyo ngu-1-
+NETCUE PORT: expected 1-65535	NETCUE PORT: kulindeleke 1-65535
+OUTSNAP: expected a .bmp path	OUTSNAP: kulindeleke indlela ye-.bmp
+SCRIPTCUE: select a cue first	SCRIPTCUE: khetha i-cue kuqala
+TEXTCUE SCALE: expected 0.5-2	TEXTCUE SCALE: kulindeleke 0.5-2
+WARP AT: expected two numbers	WARP AT: kulindeleke izinombolo ezimbili
+could not remove the defaults	ayikwazanga ukususa okujwayelekile
+lights dip when a video rolls	amalambu ayehla uma ividiyo iqala
+no refresh choices for raster	azikho izinketho zokuvuselela ze-raster
+output recovered: auto native	okuphumayo kubuyisiwe: okuzenzakalelayo okwangempela
+overlay on -- choose an image	isembozo kuvuliwe -- khetha isithombe
+stopped - deck dark, reracked	kumisiwe - deck imnyama, ilungiswe kabusha
+this file has one sound track	leli fayela linomzila womsindo owodwa
+update: will check at startup	isibuyekezo: sizohlola ekuqaleni
+web monitor connections: 1-64	uxhumano lwesiqaphi sewebhu: 1-64
+DASH: the startup dialog is up	DASH: ibhokisi lokuqala liphakeme
+LOWERSTYLE: select a cue first	LOWERSTYLE: khetha i-cue kuqala
+MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: kulindeleke 1-16
+PATTERN ADD needs a pattern id	PATTERN ADD idinga i-id yephethini

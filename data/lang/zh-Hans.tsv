@@ -2584,3 +2584,276 @@ output overlay on	输出叠加层已开
 phone haptics off	手机触感已关
 pick a deck first	请先选择卡座
 playlist loop off	播放列表循环已关
+record folder set	录制文件夹已设置
+subtitle file set	副标题文件已设置
+subtitles cleared	副标题已清除
+take the mask off	关闭遮罩
+universe: 0-63999	Universe: 0-63999
+video synth added	视频合成器已添加
+warp preset saved	变形预设已保存
+AUDIOALSO: no deck	AUDIOALSO: 无卡座
+DeckLink 10-bit ON	DeckLink 10-bit 开
+SCRIPTCUE: no deck	SCRIPTCUE: 无卡座
+assign route first	请先分配路由
+bundle save failed	打包保存失败
+cue settings reset	cue 设置已重置
+file dialog failed	文件对话框失败
+jumped to live cue	已跳转到直播 cue
+lock to screen off	锁定屏幕 关
+media probe failed	媒体探测失败
+nmos: invalid port	nmos: 端口无效
+output overlay off	输出叠加关
+pip target cleared	PIP 目标已清除
+select a cue first	请先选择一个 cue
+source unavailable	信号源不可用
+spare (also spare)	备用（也是备用）
+stream key cleared	推流密钥已清除
+timecode cue added	时间码 cue 已添加
+timer face: blocky	计时器脸：方块状
+timer logo cleared	计时器标志已清除
+vmix port: invalid	vmix 端口：无效
+, not a plugin slot	，不是插件槽位
+. Your show is back	。您的演出已恢复
+DeckLink 10-bit off	DeckLink 10-bit 关
+HOVER: expected x y	HOVER: 需要 x y
+Lower Third cleared	Lower Third 已清除
+NDI\xc2\xae NETWORK	NDI® 网络
+OSC trigger cleared	OSC 触发已清除
+Show file not found	未找到演出文件
+audio chain cleared	音频链已清除
+audio switch failed	音频切换失败
+browser jumped live	浏览器已跳转到直播
+browser url updated	浏览器网址已更新
+bundle media failed	打包媒体失败
+choose a show first	请先选择演出
+composite cue added	已添加合成 cue
+cue numbers cleared	cue 编号已清除
+cue settings copied	cue 设置已复制
+cue settings pasted	cue 设置已粘贴
+double-GO guard off	GO 双击保护已关
+effect chain pasted	效果链已粘贴
+end of the sequence	序列结束
+pattern motion: n/a	图案运动：不适用
+plugin slot cleared	插件槽已清除
+splitnotes: no deck	splitnotes：无卡座
+sprite sheet loaded	精灵图已加载
+takes are immediate	TAKE 立即生效
+ui motion always on	界面运动始终开启
+-10 seconds from end	距结尾 -10 秒
+-20 seconds from end	距结尾 -20 秒
+-30 seconds from end	距结尾 -30 秒
+. — skip to next cue	. — 跳到下一个 cue
+MIDI plays the synth	MIDI 演奏合成器
+MIDI trigger cleared	MIDI 触发已清除
+NDI source cue added	已添加 NDI 信号源 cue
+audio chain full (8)	音频链已满 (8)
+browser url required	需要浏览器网址
+bundle export failed	打包导出失败
+bundle folder failed	打包文件夹失败
+cue copy: select cue	cue 复制：请选择 cue
+cue settings reset x	cue 设置已重置 x
+delete from the show	从演出中删除
+encoder queue paused	编码器队列已暂停
+find: run FIND first	查找：请先运行 FIND
+find: token required	查找：需要标记
+first port available	第一个可用端口
+identifying displays	正在识别显示器
+marker: nothing live	标记：无直播内容
+marker: select a cue	标记：选择一个 cue
+no midi input device	无 MIDI 输入设备
+no overlays to clear	没有可清除的叠加层
+no synth cue is live	没有正在播出的合成器 cue
+output create failed	创建输出失败
+output remove failed	移除输出失败
+pause points cleared	暂停点已清除
+presenter view reset	演讲者视图已重置
+renumber: empty deck	重新编号：卡座为空
+sprite sheet cleared	精灵图已清除
+stream url unchanged	推流地址未更改
+stream url: required	推流地址：必填
+time trigger cleared	时间触发已清除
+update: checking off	更新：检查已关闭
+warp settings copied	变形设置已复制
+warp settings pasted	变形设置已粘贴
+DMX over sACN (E1.31)	通过 sACN (E1.31) 传输 DMX
+Lower Third cue added	已添加 Lower Third cue
+already the last step	已是最后一步
+analyzing loudness...	正在分析响度...
+arcade always wiggles	街机始终在晃动
+browser window closed	浏览器窗口已关闭
+canvas width: invalid	画布宽度：无效
+computer keyboard off	电脑键盘已关闭
+contrast check: saved	对比度检查：已保存
+cue paste: copy first	cue 粘贴：请先复制
+cue paste: no targets	cue 粘贴：没有目标
+cue paste: select cue	cue 粘贴：请选择 cue
+cue reset: no targets	cue 重置：没有目标
+cue reset: select cue	cue 重置：请选择 cue
+cue settings pasted x	cue 设置已粘贴 x
+display switch failed	切换显示器失败
+effect chain pasted x	效果链已粘贴 x
+encoder queue running	编码器队列运行中
+lfo follows the tempo	LFO 跟随速度
+motion driver cleared	运动驱动已清除
+ndi tally trigger off	NDI tally 触发已关闭
+ndi unsupported build	此版本不支持 NDI
+no Lower Third on air	播出中没有 Lower Third
+no audio cue selected	未选择音频 cue
+playlist fps: invalid	播放列表 fps：无效
+presenter: no outputs	演示者：无输出
+scene slot source set	场景槽位信号源已设置
+st 2110: invalid port	st 2110：端口无效
+timer face: 7-segment	计时器脸：7 段
+' is not a deck number	' 不是卡座编号
+already the first step	已经是第一个步进
+audio bitrate: invalid	音频码率：无效
+browser capture failed	浏览器捕获失败
+canvas height: invalid	画布高度：无效
+datamosh: select a cue	datamosh：请选择一个 cue
+effect stack full (12)	效果堆栈已满 (12)
+jumped to selected cue	已跳到选中的 cue
+layer command: removed	图层命令：已移除
+listens to any channel	监听任意通道
+nmos: node not running	nmos：节点未运行
+output effects back in	输出效果已重新接入
+presenter layout: wide	演示者布局：宽
+route command: removed	路由命令：已移除
+save failed - retrying	保存失败 - 正在重试
+schedule: select a cue	排程：请选择一个 cue
+slide import cancelled	滑动导入已取消
+takes land on the beat	播出落在节拍上
+warp paste: copy first	变形粘贴：请先复制
+2 \xC2\xB7 WHAT IT RUNS	2 \xC2\xB7 执行内容
+Chladni stops listening	Chladni 停止监听
+could not add an output	无法添加输出
+downloading {1}... {2}%	正在下载 {1}... {2}%
+driver restarts on take	驱动在播出时重新开始
+encoder destination set	编码器目标已设置
+expected factor 0.25..4	需要系数 0.25..4
+expected finite numbers	需要有限数值
+hyperdeck emulation off	HyperDeck 模拟已关
+key color sample failed	键色取样失败
+leave it where it lands	落在哪就留在哪
+no playlist column here	此处没有播放列表列
+osc query port: invalid	OSC 查询端口：无效
+playlist start: invalid	播放列表开始：无效
+still duration: invalid	静帧时长：无效
+synth cue has no engine	合成 cue 没有引擎
+, its place in the stack	，它在堆栈中的位置
+1 \xC2\xB7 WHAT COMES IN	1 \xC2\xB7 输入内容
+An output whose Shows is	显示为 的输出
+DeckLink input cue added	已添加 DeckLink 输入 cue
+already on the dashboard	已在仪表板上
+expected an alpha, 0-255	应为 Alpha 通道值，0-255
+expected positive pixels	应为正数像素
+find: press Ctrl+F first	查找：请先按 Ctrl+F
+glyphs: the built-in set	字形：内置集
+keep at least one output	至少保留一个输出
+marker: none on this cue	标记：此 cue 无
+mic mixed into recording	麦克风混合到录制中
+not a playable MIDI file	不是可播放的 MIDI文件
+relink: folder not found	重新链接：未找到文件夹
+select a moire cue first	请先选择一个摩尔纹 cue
+tempo follows MIDI clock	速度跟随 MIDI 时钟
+the tracker has no steps	追踪器没有步骤
+typeface (the app's own)	字体（应用自带）
+. Set displays to Extend.	。请将显示器设为扩展。
+Language reset to English	语言已重置为英语
+PUSH expects a cue number	PUSH 需要 Cue 编号
+SLICE: there is no output	SLICE：无输出
+TCCUE: select a cue first	TCCUE：请先选择一个 cue
+effects paste: no targets	效果粘贴：没有目标
+follows the whole picture	跟随整幅画面
+key color picker canceled	取色已取消
+listening for captions...	正在监听字幕...
+monitor: pick a row first	监视器：请先选一行
+moshlook: smooth | chunky	moshlook：平滑 | 粗块
+no trimmable cue selected	未选择可修剪的 cue
+output type change failed	输出类型更改失败
+select a master cue first	请先选择主控 cue
+sequence stops at the end	序列在末尾停止
+web monitor port: invalid	网页监看端口：无效
+3 \xC2\xB7 WHAT IT RUNS ON	3 · 作用于
+ASCII CHAOS: expected 0..1	ASCII CHAOS：应为 0..1
+DATAMOSH on - preparing...	DATAMOSH 开 - 准备中...
+DMXCUE: select a cue first	DMXCUE：请先选择 cue
+GEOLFO: select a cue first	GEOLFO：请先选择 cue
+MATRIX: select a cue first	MATRIX：请先选择 cue
+MEMOCUE: expected the note	MEMOCUE：应输入备注
+NETCUE: select a cue first	NETCUE：请先选择 cue
+STING BODY: expected 0-100	STING BODY：应为 0-100
+could not load that plugin	无法加载该插件
+effects copy: select a cue	效果复制：请选择 cue
+expected degrees -180..180	应为 -180..180 度
+expression is at its limit	表达式已达上限
+multiview - every playlist	多画面 - 每个播放列表
+new show, from my defaults	新建演出，使用我的默认值
+no cue with audio selected	未选择带音频的 cue
+osc feedback rate: invalid	OSC 反馈速率：无效
+panic: outputs already off	紧急：输出已关
+pick from screen cancelled	屏幕取色已取消
+rendering slide {1} of {2}	正在渲染滑动 {1}/{2}
+schedule: HH:MM[:SS] | off	定时：HH:MM[:SS] | 关
+update: nothing to install	更新：无可安装内容
+warp preset: name required	变形预设：需要名称
+1 cue imported (probing...)	已导入 1 个 cue（探测中...）
+ASCII WOBBLE: expected 0..1	ASCII WOBBLE：应为 0..1
+AUDIOFX ADD: chain full (8)	AUDIOFX ADD：链已满 (8)
+CLICK: expected two numbers	CLICK：应为两个数字
+HOVER: expected two numbers	HOVER：应为两个数字
+MIDICUE: select a cue first	MIDICUE：请先选择一个 cue
+TEXTCUE: select a cue first	TEXTCUE：请先选择一个 cue
+VIDEODIP FADE: 0-30 seconds	VIDEODIP FADE：0-30 秒
+browser stopped - deck dark	浏览器已停止 - 卡座已黑屏
+could not save the defaults	无法保存默认值
+datamosh look: select a cue	datamosh 外观：请选择一个 cue
+datamosh: already preparing	datamosh：已在准备中
+effects paste: select a cue	效果粘贴：请选择一个 cue
+matrix on, routed as it was	矩阵已开，路由保持原样
+nmos: clipboard unavailable	nmos：剪贴板不可用
+nmos: need http://host:port	nmos：需要 http://host:port
+skip back: nothing previous	跳回：没有上一项
+FX COLOUR: a grey has no hue	FX COLOUR：灰色没有色相
+MASK RENAME: expected a name	MASK RENAME：需要一个名称
+MIDIFILE: select a cue first	MIDIFILE：请先选择一个 cue
+SCALEMODE: expected one mode	SCALEMODE：需要一个模式
+SYNTH ADD takes no arguments	SYNTH ADD 不带参数
+TEXTCUE CARD: expected 0-255	TEXTCUE CARD：需要 0-255
+UISNAP: expected a .bmp path	UISNAP：需要 .bmp 路径
+av jumps: counting from zero	av jumps：从零开始计数
+cannot reorder a running job	无法对运行中的任务重新排序
+expected a number of seconds	需要秒数
+master scene rename: removed	主控场景重命名：已移除
+motion driver would not open	运动驱动打不开
+no steps yet - Ins makes one	还没有步骤 - 按 Ins 添加一个
+selected cue has no geometry	选中的 cue 没有几何
+skip back: playlist is empty	跳回：播放列表为空
+sprite set could not be read	无法读取精灵集
+st2110 sdp written to stdout	st2110 sdp 已写入 stdout
+the clicker advances the cue	翻页笔可推进 cue
+video dip fade: 0-30 seconds	video dip fade：0-30 秒
+warp point: expected numbers	变形点：需要数字
+* KONAMI * terrarium unlocked	* KONAMI * 生态瓶已解锁
+DMXCUE PORT: expected 1-65535	DMXCUE PORT：需要 1-65535
+ENDACTION: select a cue first	ENDACTION：请先选择一个 cue
+FADE STOP: expected on or off	FADE STOP：需要 开 或 关
+LOWERANIM: select a cue first	LOWERANIM：请先选择一个 cue
+MATRIX SET: destination is 1-	MATRIX SET: 目标为 1-
+NETCUE PORT: expected 1-65535	NETCUE PORT: 应为 1-65535
+OUTSNAP: expected a .bmp path	OUTSNAP: 应为 .bmp 路径
+SCRIPTCUE: select a cue first	SCRIPTCUE: 请先选择一个 cue
+TEXTCUE SCALE: expected 0.5-2	TEXTCUE SCALE: 应为 0.5-2
+WARP AT: expected two numbers	WARP AT: 应为两个数字
+could not remove the defaults	无法移除默认值
+lights dip when a video rolls	播放视频时灯光变暗
+no refresh choices for raster	光栅没有可选的刷新率
+output recovered: auto native	输出已恢复：自动 原生
+overlay on -- choose an image	叠加 开 -- 请选择一张图片
+stopped - deck dark, reracked	已停止 - 卡座变暗，已重新排列
+this file has one sound track	此文件有一条音轨
+update: will check at startup	更新：将在启动时检查
+web monitor connections: 1-64	网页监看连接数：1-64
+DASH: the startup dialog is up	DASH: 启动对话框已打开
+LOWERSTYLE: select a cue first	LOWERSTYLE: 请先选择一个 cue
+MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: 应为 1-16
+PATTERN ADD needs a pattern id	PATTERN ADD 需要图案 ID

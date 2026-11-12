@@ -2578,3 +2578,279 @@ output overlay on	lớp phủ OUTPUT bật
 phone haptics off	rung điện thoại tắt
 pick a deck first	hãy chọn deck trước
 playlist loop off	lặp playlist tắt
+record folder set	đã đặt thư mục ghi
+subtitle file set	đã đặt tệp tiêu đề phụ
+subtitles cleared	đã xóa tiêu đề phụ
+take the mask off	gỡ mặt nạ
+video synth added	đã thêm bộ tổng hợp video
+warp preset saved	đã lưu preset warp
+AUDIOALSO: no deck	AUDIOALSO: không có deck
+DeckLink 10-bit ON	DeckLink 10-bit BẬT
+SCRIPTCUE: no deck	SCRIPTCUE: không có deck
+assign route first	gán tuyến trước
+bundle save failed	lưu bản đóng gói thất bại
+cue settings reset	đã đặt lại cài đặt cue
+file dialog failed	hộp thoại tệp thất bại
+jumped to live cue	đã nhảy tới cue trực tiếp
+lock to screen off	khóa vào màn hình tắt
+media probe failed	dò media thất bại
+nmos: invalid port	nmos: cổng không hợp lệ
+output overlay off	lớp phủ output tắt
+pip target cleared	đã xóa đích pip
+select a cue first	hãy chọn một cue trước
+source unavailable	nguồn không khả dụng
+spare (also spare)	dự phòng (cũng dự phòng)
+stream key cleared	đã xóa khóa stream
+timecode cue added	đã thêm cue mã thời gian
+timer face: blocky	khuôn mặt bộ đếm giờ: dạng khối
+timer logo cleared	đã xóa logo bộ đếm giờ
+vmix port: invalid	cổng vmix: không hợp lệ
+, not a plugin slot	, không phải ô phần bổ trợ
+. Your show is back	. Show của bạn đã trở lại
+DeckLink 10-bit off	DeckLink 10-bit tắt
+HOVER: expected x y	HOVER: cần x y
+Lower Third cleared	đã xóa Lower Third
+NDI\xc2\xae NETWORK	NDI\xc2\xae MẠNG
+OSC trigger cleared	đã xóa kích hoạt OSC
+Show file not found	không tìm thấy tệp show
+audio chain cleared	đã xóa chuỗi âm thanh
+audio switch failed	chuyển âm thanh thất bại
+browser jumped live	trình duyệt đã nhảy lên trực tiếp
+browser url updated	đã cập nhật URL trình duyệt
+bundle media failed	đóng gói media thất bại
+choose a show first	hãy chọn show trước
+composite cue added	đã thêm cue ghép
+cue numbers cleared	đã xóa số cue
+cue settings copied	đã sao chép cài đặt cue
+cue settings pasted	đã dán cài đặt cue
+double-GO guard off	chống GO hai lần đã tắt
+effect chain pasted	đã dán chuỗi hiệu ứng
+end of the sequence	hết chuỗi
+pattern motion: n/a	chuyển động mẫu: không có
+plugin slot cleared	đã xóa khe phần bổ trợ
+splitnotes: no deck	splitnotes: không có deck
+sprite sheet loaded	đã tải sprite sheet
+takes are immediate	TAKE diễn ra tức thì
+ui motion always on	chuyển động giao diện luôn bật
+-10 seconds from end	-10 giây từ cuối
+-20 seconds from end	-20 giây từ cuối
+-30 seconds from end	-30 giây từ cuối
+. — skip to next cue	. — bỏ qua tới cue kế tiếp
+MIDI plays the synth	MIDI chơi bộ synth
+MIDI trigger cleared	đã xóa kích hoạt MIDI
+NDI source cue added	đã thêm cue nguồn NDI
+audio chain full (8)	chuỗi âm thanh đã đầy (8)
+browser url required	cần URL trình duyệt
+bundle export failed	xuất gói thất bại
+bundle folder failed	thư mục gói thất bại
+cue copy: select cue	sao chép cue: hãy chọn cue
+cue settings reset x	đã đặt lại cài đặt cue x
+delete from the show	xóa khỏi show
+encoder queue paused	hàng đợi bộ mã hóa tạm dừng
+find: token required	tìm: cần mã
+first port available	cổng khả dụng đầu tiên
+identifying displays	đang nhận diện màn hình
+marker: nothing live	điểm đánh dấu: không gì trực tiếp
+marker: select a cue	điểm đánh dấu: chọn một cue
+no midi input device	không có thiết bị đầu vào MIDI
+no overlays to clear	không có lớp phủ nào để xóa
+no synth cue is live	không có cue synth nào đang trực tiếp
+output create failed	tạo output thất bại
+output remove failed	gỡ output thất bại
+pause points cleared	đã xóa các điểm tạm dừng
+presenter view reset	đã đặt lại màn hình người dẫn
+renumber: empty deck	đánh số lại: deck trống
+sprite sheet cleared	đã xóa sprite sheet
+stream url unchanged	URL stream không đổi
+stream url: required	URL stream: bắt buộc
+time trigger cleared	đã xóa kích hoạt theo giờ
+update: checking off	cập nhật: kiểm tra đang tắt
+warp settings copied	đã sao chép cài đặt warp
+warp settings pasted	đã dán cài đặt warp
+DMX over sACN (E1.31)	DMX qua sACN (E1.31)
+Lower Third cue added	đã thêm cue Lower Third
+already the last step	đã là bước cuối
+analyzing loudness...	đang phân tích độ lớn âm thanh...
+arcade always wiggles	arcade luôn lắc
+browser window closed	đã đóng cửa sổ trình duyệt
+canvas width: invalid	độ rộng canvas: không hợp lệ
+computer keyboard off	bàn phím máy tính tắt
+contrast check: saved	kiểm tra tương phản: đã lưu
+cue paste: copy first	dán cue: hãy sao chép trước
+cue paste: no targets	dán cue: không có đích
+cue paste: select cue	dán cue: chọn một cue
+cue reset: no targets	đặt lại cue: không có đích
+cue reset: select cue	đặt lại cue: chọn một cue
+cue settings pasted x	đã dán cài đặt cue x
+display switch failed	chuyển màn hình thất bại
+effect chain pasted x	đã dán chuỗi hiệu ứng x
+encoder queue running	hàng đợi bộ mã hóa đang chạy
+lfo follows the tempo	LFO theo nhịp độ
+motion driver cleared	đã xóa trình điều khiển chuyển động
+ndi tally trigger off	kích hoạt tally NDI tắt
+ndi unsupported build	bản dựng này không hỗ trợ NDI
+no Lower Third on air	không có Lower Third lên sóng
+no audio cue selected	chưa chọn cue âm thanh
+playlist fps: invalid	fps playlist: không hợp lệ
+presenter: no outputs	presenter: không có output
+scene slot source set	đã đặt nguồn ô cảnh
+st 2110: invalid port	st 2110: cổng không hợp lệ
+timer face: 7-segment	khuôn mặt bộ đếm giờ: 7 đoạn
+' is not a deck number	' không phải số deck
+FX PARAM: value is 0-1	FX PARAM: giá trị là 0-1
+OUTPUT AOI: no outputs	AOI OUTPUT: không có output
+already the first step	đã là bước đầu tiên
+audio bitrate: invalid	bitrate âm thanh: không hợp lệ
+browser capture failed	chụp trình duyệt thất bại
+canvas height: invalid	chiều cao canvas: không hợp lệ
+datamosh: select a cue	datamosh: chọn một cue
+effect stack full (12)	chồng hiệu ứng đã đầy (12)
+jumped to selected cue	đã nhảy tới cue đang chọn
+layer command: removed	lệnh layer: đã bị xóa
+listens to any channel	nghe kênh bất kỳ
+nmos: node not running	nmos: node không chạy
+output effects back in	hiệu ứng output đã bật lại
+presenter layout: wide	bố cục presenter: rộng
+route command: removed	lệnh route: đã bị xóa
+save failed - retrying	lưu thất bại - đang thử lại
+schedule: select a cue	lịch: chọn một cue
+slide import cancelled	đã hủy nhập slide
+takes land on the beat	take rơi đúng nhịp
+warp paste: copy first	dán warp: hãy sao chép trước
+2 \xC2\xB7 WHAT IT RUNS	2 \xC2\xB7 NÓ CHẠY GÌ
+Chladni stops listening	Chladni ngừng nghe
+OUTPUT DECK: no outputs	DECK OUTPUT: không có output
+could not add an output	không thể thêm output
+downloading {1}... {2}%	đang tải {1}... {2}%
+driver restarts on take	driver khởi động lại khi take
+encoder destination set	đã đặt nơi đến của bộ mã hóa
+expected factor 0.25..4	cần hệ số 0.25..4
+expected finite numbers	cần số hữu hạn
+hyperdeck emulation off	giả lập HyperDeck tắt
+key color sample failed	lấy mẫu màu key thất bại
+leave it where it lands	để nguyên chỗ nó rơi xuống
+no playlist column here	không có cột playlist ở đây
+osc query port: invalid	cổng OSC Query: không hợp lệ
+playlist start: invalid	bắt đầu playlist: không hợp lệ
+still duration: invalid	thời lượng ảnh tĩnh: không hợp lệ
+synth cue has no engine	cue synth không có engine
+, its place in the stack	, vị trí của nó trong stack
+1 \xC2\xB7 WHAT COMES IN	1 \xC2\xB7 CÁI GÌ ĐI VÀO
+An output whose Shows is	Một output có Hiện là
+DeckLink input cue added	đã thêm cue đầu vào DeckLink
+already on the dashboard	đã có trên bảng điều khiển
+expected an alpha, 0-255	cần một alpha, 0-255
+expected positive pixels	cần số pixel dương
+find: press Ctrl+F first	tìm: nhấn Ctrl+F trước
+glyphs: the built-in set	glyph: bộ có sẵn
+keep at least one output	giữ ít nhất một output
+marker: none on this cue	marker: không có trên cue này
+mic mixed into recording	micrô được trộn vào bản ghi
+not a playable MIDI file	không phải tệp MIDI phát được
+relink: folder not found	relink: không tìm thấy thư mục
+select a moire cue first	chọn một cue moiré trước
+tempo follows MIDI clock	tempo theo MIDI clock
+the tracker has no steps	tracker không có bước nào
+typeface (the app's own)	kiểu chữ (của chính ứng dụng)
+. Set displays to Extend.	. Đặt màn hình thành Mở rộng.
+Language reset to English	Đã đặt lại ngôn ngữ về Tiếng Anh
+PUSH expects a cue number	PUSH cần một số cue
+SLICE: there is no output	SLICE: không output
+TCCUE: select a cue first	TCCUE: chọn một cue trước
+effects paste: no targets	dán hiệu ứng: không có đích
+follows the whole picture	theo toàn ảnh
+key color picker canceled	đã hủy chọn màu key
+listening for captions...	đang nghe phụ đề...
+monitor: pick a row first	monitor: chọn một hàng trước
+moshlook: smooth | chunky	moshlook: mềm | thô
+no trimmable cue selected	chưa chọn cue nào có thể cắt
+output type change failed	đổi loại output thất bại
+select a master cue first	chọn một cue Master trước
+sequence stops at the end	chuỗi dừng ở cuối
+web monitor port: invalid	cổng màn hình web: không hợp lệ
+3 \xC2\xB7 WHAT IT RUNS ON	3 · CHẠY TRÊN
+ASCII CHAOS: expected 0..1	ASCII CHAOS: cần 0..1
+DATAMOSH on - preparing...	DATAMOSH BẬT - đang chuẩn bị...
+DMXCUE: select a cue first	DMXCUE: chọn một cue trước
+GEOLFO: select a cue first	GEOLFO: chọn một cue trước
+MATRIX: select a cue first	MATRIX: chọn một cue trước
+MEMOCUE: expected the note	MEMOCUE: cần ghi chú
+NETCUE: select a cue first	NETCUE: chọn một cue trước
+STING BODY: expected 0-100	STING BODY: cần 0-100
+could not load that plugin	không nạp được phần bổ trợ đó
+effects copy: select a cue	sao chép hiệu ứng: chọn một cue
+expected degrees -180..180	cần độ -180..180
+expression is at its limit	biểu thức đã chạm giới hạn
+multiview - every playlist	multiview - mọi playlist
+new show, from my defaults	show mới, từ mặc định của tôi
+no cue with audio selected	chưa chọn cue nào có âm thanh
+osc feedback rate: invalid	tốc độ hồi tiếp OSC: không hợp lệ
+panic: outputs already off	panic: output đã TẮT
+pick from screen cancelled	lấy từ màn hình đã hủy
+rendering slide {1} of {2}	đang dựng slide {1} / {2}
+schedule: HH:MM[:SS] | off	lịch: HH:MM[:SS] | tắt
+update: nothing to install	cập nhật: không có gì để cài
+warp preset: name required	preset WARP: cần tên
+1 cue imported (probing...)	đã nhập 1 cue (đang dò...)
+ASCII WOBBLE: expected 0..1	ASCII WOBBLE: cần 0..1
+AUDIOFX ADD: chain full (8)	AUDIOFX ADD: chuỗi đầy (8)
+CLICK: expected two numbers	CLICK: cần hai số
+HOVER: expected two numbers	HOVER: cần hai số
+MIDICUE: select a cue first	MIDICUE: hãy chọn một cue trước
+TEXTCUE: select a cue first	TEXTCUE: hãy chọn một cue trước
+VIDEODIP FADE: 0-30 seconds	VIDEODIP FADE: 0-30 giây
+browser stopped - deck dark	trình duyệt đã dừng - deck tối
+could not save the defaults	không lưu được mặc định
+datamosh look: select a cue	look datamosh: chọn một cue
+datamosh: already preparing	datamosh: đang chuẩn bị rồi
+effects paste: select a cue	dán hiệu ứng: chọn một cue
+matrix on, routed as it was	matrix bật, định tuyến như cũ
+nmos: clipboard unavailable	nmos: không dùng được clipboard
+nmos: need http://host:port	nmos: cần http://host:port
+skip back: nothing previous	bỏ qua lùi: không có cue trước
+FX COLOUR: a grey has no hue	FX COLOUR: màu xám không có sắc độ
+MASK RENAME: expected a name	MASK RENAME: cần một tên
+MIDIFILE: select a cue first	MIDIFILE: hãy chọn một cue trước
+SCALEMODE: expected one mode	SCALEMODE: cần một chế độ
+SYNTH ADD takes no arguments	SYNTH ADD không nhận đối số
+TEXTCUE CARD: expected 0-255	TEXTCUE CARD: cần 0-255
+UISNAP: expected a .bmp path	UISNAP: cần đường dẫn .bmp
+av jumps: counting from zero	av jumps: đếm từ không
+cannot reorder a running job	không thể sắp xếp lại job đang chạy
+expected a number of seconds	cần một số giây
+master scene rename: removed	đổi tên master scene: đã xóa
+motion driver would not open	không mở được trình điều khiển chuyển động
+no steps yet - Ins makes one	chưa có bước nào - Ins tạo một bước
+selected cue has no geometry	cue đang chọn không có hình học
+skip back: playlist is empty	bỏ qua lùi: playlist trống
+sprite set could not be read	không đọc được bộ sprite
+st2110 sdp written to stdout	st2110 sdp đã ghi ra stdout
+the clicker advances the cue	bút trình chiếu chuyển cue tiếp
+video dip fade: 0-30 seconds	mờ dần dip video: 0-30 giây
+warp point: expected numbers	điểm warp: cần số
+* KONAMI * terrarium unlocked	* KONAMI * đã mở khóa terrarium
+DMXCUE PORT: expected 1-65535	DMXCUE PORT: cần 1-65535
+ENDACTION: select a cue first	ENDACTION: hãy chọn một cue trước
+FADE STOP: expected on or off	FADE STOP: cần bật hoặc tắt
+LESSONS TRACK: PIXEL or VIDEO	LESSONS TRACK: PIXEL hoặc VIDEO
+LOWERANIM: select a cue first	LOWERANIM: hãy chọn một cue trước
+MATRIX SET: destination is 1-	MATRIX SET: nơi đến là 1-
+NETCUE PORT: expected 1-65535	NETCUE PORT: cần 1-65535
+OUTSNAP: expected a .bmp path	OUTSNAP: cần đường dẫn .bmp
+SCRIPTCUE: select a cue first	SCRIPTCUE: hãy chọn một cue trước
+TEXTCUE SCALE: expected 0.5-2	TEXTCUE SCALE: cần 0.5-2
+TRIGGER AT: HH:MM[:SS] or OFF	TRIGGER AT: HH:MM[:SS] hoặc OFF
+WARP AT: expected two numbers	WARP AT: cần hai số
+could not remove the defaults	không xóa được các mặc định
+lights dip when a video rolls	đèn giảm sáng khi video chạy
+no refresh choices for raster	không có lựa chọn tần số quét cho raster
+output recovered: auto native	output đã phục hồi: tự động gốc
+overlay on -- choose an image	lớp phủ bật -- hãy chọn một ảnh
+stopped - deck dark, reracked	đã dừng - deck tối, nạp lại
+this file has one sound track	tệp này có một đường âm
+update: will check at startup	cập nhật: sẽ kiểm tra khi khởi động
+web monitor connections: 1-64	kết nối màn hình web: 1-64
+DASH: the startup dialog is up	DASH: hộp thoại khởi động đang mở
+LOWERSTYLE: select a cue first	LOWERSTYLE: hãy chọn một cue trước
+MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: cần 1-16
+PATTERN ADD needs a pattern id	PATTERN ADD cần một ID mẫu

@@ -2579,3 +2579,275 @@ output overlay on	úttaksyfirlag á
 phone haptics off	símatitringur af
 pick a deck first	veldu deck fyrst
 playlist loop off	spilunarlistalykkja af
+record folder set	upptökumappa stillt
+subtitle file set	undirtitlaskrá stillt
+subtitles cleared	undirtitlar hreinsaðir
+take the mask off	taka grímuna af
+universe: 0-63999	svið: 0-63999
+video synth added	myndgervli bætt við
+warp preset saved	skekkjuforstilling vistuð
+AUDIOALSO: no deck	AUDIOALSO: ekkert deck
+DeckLink 10-bit ON	DeckLink 10-bit Á
+SCRIPTCUE: no deck	SCRIPTCUE: ekkert deck
+assign route first	úthlutaðu fyrst leið
+bundle save failed	vistun pakka mistókst
+cue settings reset	cue-stillingar endurstilltar
+file dialog failed	skráargluggi mistókst
+jumped to live cue	stökk á cue í beinni
+lock to screen off	læsa við skjá af
+media probe failed	miðlagreining mistókst
+nmos: invalid port	nmos: ógilt tengi
+output overlay off	úttaksyfirlag af
+pip target cleared	pip-mark hreinsað
+select a cue first	veldu cue fyrst
+source unavailable	uppspretta ekki tiltæk
+spare (also spare)	vara (líka vara)
+stream key cleared	streymislykill hreinsaður
+timecode cue added	tímakóða-cue bætt við
+timer face: blocky	andlit tímamælis: kubbað
+timer logo cleared	merki tímamælis hreinsað
+vmix port: invalid	vmix tengi: ógilt
+, not a plugin slot	, ekki viðbótarrauf
+. Your show is back	. Sýningin þín er komin aftur
+DeckLink 10-bit off	DeckLink 10-bit af
+HOVER: expected x y	HOVER: bjóst við x y
+Lower Third cleared	Lower Third hreinsað
+NDI\xc2\xae NETWORK	NDI\xc2\xae NET
+OSC trigger cleared	OSC kveikja hreinsuð
+Show file not found	Sýningarskrá fannst ekki
+audio chain cleared	hljóðkeðja hreinsuð
+audio switch failed	hljóðskipting mistókst
+browser jumped live	vafri stökk í beinni
+browser url updated	Vefslóð vafra uppfærð
+bundle media failed	Pökkun miðla mistókst
+choose a show first	Veldu sýningu fyrst
+composite cue added	Samsettu cue bætt við
+cue numbers cleared	Cue-númer hreinsuð
+cue settings copied	Cue-stillingar afritaðar
+cue settings pasted	Cue-stillingar límdar
+double-GO guard off	Vörn gegn tvöföldu GO slökkt
+effect chain pasted	Áhrifakeðja límd
+end of the sequence	Endir runu
+pattern motion: n/a	mynstur hreyfing: á ekki við
+plugin slot cleared	Viðbótarrauf hreinsuð
+splitnotes: no deck	splitnotes: ekkert deck
+sprite sheet loaded	Sprite sheet hlaðið
+takes are immediate	take gerast strax
+ui motion always on	Hreyfing viðmóts alltaf á
+-10 seconds from end	-10 sekúndur frá enda
+-20 seconds from end	-20 sekúndur frá enda
+-30 seconds from end	-30 sekúndur frá enda
+. — skip to next cue	. — sleppa yfir í næsta cue
+MIDI plays the synth	MIDI spilar hljóðgervilinn
+MIDI trigger cleared	MIDI-kveikja hreinsuð
+NDI source cue added	NDI-gjafa-cue bætt við
+audio chain full (8)	Hljóðkeðja full (8)
+browser url required	Vefslóð vafra nauðsynleg
+bundle export failed	Útflutningur pakka mistókst
+bundle folder failed	Pakkamappa mistókst
+cue copy: select cue	cue-afritun: veldu cue
+cue settings reset x	Cue-stillingar endurstilltar x
+delete from the show	Eyða úr sýningunni
+encoder queue paused	Biðröð kóðara í bið
+find: run FIND first	find: keyrðu FIND fyrst
+find: token required	find: tákn nauðsynlegt
+first port available	Fyrsta tengi laust
+identifying displays	Auðkenni skjái
+marker: nothing live	marker: ekkert í beinni
+marker: select a cue	merki: veldu cue
+no midi input device	ekkert MIDI-inntakstæki
+no overlays to clear	engin yfirlög til að hreinsa
+no synth cue is live	ekkert synth-cue er í loftinu
+output create failed	stofnun úttaks mistókst
+output remove failed	fjarlæging úttaks mistókst
+pause points cleared	hlépunktar hreinsaðir
+presenter view reset	sýn flytjanda endurstillt
+renumber: empty deck	endurnúmera: tómt deck
+sprite sheet cleared	sprite-blað hreinsað
+stream url unchanged	streymisslóð óbreytt
+stream url: required	streymisslóð: nauðsynleg
+time trigger cleared	tímakveikja hreinsuð
+update: checking off	uppfærsla: athugun af
+warp settings copied	skekkju-stillingar afritaðar
+warp settings pasted	skekkju-stillingar límdar
+already the last step	þegar síðasta skref
+analyzing loudness...	greini hljóðstyrk...
+arcade always wiggles	spilakassi hristist alltaf
+browser window closed	vafraglugga lokað
+canvas width: invalid	breidd striga: ógild
+computer keyboard off	tölvulyklaborð af
+contrast check: saved	birtuskilaprófun: vistað
+cue paste: copy first	líma cue: afritaðu fyrst
+cue paste: no targets	líma cue: engin skotmörk
+cue paste: select cue	líma cue: veldu cue
+cue reset: no targets	endurstilla cue: engin skotmörk
+cue reset: select cue	endurstilla cue: veldu cue
+cue settings pasted x	cue-stillingar límdar x
+display switch failed	skjáskipti mistókust
+effect chain pasted x	áhrifakeðja límd x
+encoder queue running	kóðararöð í gangi
+lfo follows the tempo	lfo fylgir hraðanum
+motion driver cleared	hreyfidrifi hreinsað
+ndi tally trigger off	ndi tally-kveikja af
+ndi unsupported build	ndi óstudd útgáfa
+no Lower Third on air	enginn Lower Third í loftinu
+no audio cue selected	ekkert hljóð-cue valið
+playlist fps: invalid	spilunarlisti fps: ógilt
+presenter: no outputs	presenter: engin úttök
+scene slot source set	uppspretta senuraufar stillt
+st 2110: invalid port	st 2110: ógilt tengi
+timer face: 7-segment	andlit tímamælis: 7-segment
+' is not a deck number	' er ekki deck-númer
+FX PARAM: value is 0-1	FX PARAM: gildið er 0-1
+already the first step	þegar fyrsta skref
+audio bitrate: invalid	hljóðbitahraði: ógilt
+browser capture failed	upptaka úr vafra mistókst
+canvas height: invalid	hæð striga: ógilt
+datamosh: select a cue	datamosh: veldu cue
+effect stack full (12)	áhrifastafli fullur (12)
+jumped to selected cue	stökk á valið cue
+layer command: removed	layer-skipun: fjarlægð
+listens to any channel	hlustar á hvaða rás sem er
+nmos: node not running	nmos: hnútur ekki í gangi
+output effects back in	úttaksáhrif aftur inn
+presenter layout: wide	presenter uppsetning: breið
+route command: removed	route-skipun: fjarlægð
+save failed - retrying	vistun mistókst - reyni aftur
+schedule: select a cue	schedule: veldu cue
+slide import cancelled	innflutningi renna aflýst
+takes land on the beat	take lenda á taktinum
+warp paste: copy first	warp líma: afritaðu fyrst
+2 \xC2\xB7 WHAT IT RUNS	2 \xC2\xB7 HVAÐ ÞAÐ KEYRIR
+Chladni stops listening	Chladni hættir að hlusta
+could not add an output	gat ekki bætt við úttaki
+downloading {1}... {2}%	sæki {1}... {2}%
+driver restarts on take	drifið endurræsir við take
+encoder destination set	áfangastaður kóðara stilltur
+expected factor 0.25..4	býst við stuðli 0.25..4
+expected finite numbers	býst við endanlegum tölum
+hyperdeck emulation off	HyperDeck-eftirlíking af
+key color sample failed	sýnataka lykillitar mistókst
+leave it where it lands	láttu það vera þar sem það lendir
+no playlist column here	enginn spilunarlistadálkur hér
+osc query port: invalid	OSC-fyrirspurnartengi: ógilt
+playlist start: invalid	ræsing spilunarlista: ógild
+still duration: invalid	lengd kyrrmyndar: ógild
+synth cue has no engine	synth-cue hefur enga vél
+, its place in the stack	, sæti þess í staflanum
+1 \xC2\xB7 WHAT COMES IN	1 \xC2\xB7 HVAÐ KEMUR INN
+An output whose Shows is	Úttak þar sem Sýna er
+DeckLink input cue added	DeckLink-inntaks-cue bætt við
+already on the dashboard	þegar á mælaborðinu
+expected an alpha, 0-255	búist við alfa, 0-255
+expected positive pixels	búist við jákvæðum pixlum
+find: press Ctrl+F first	leita: ýttu fyrst á Ctrl+F
+glyphs: the built-in set	tákn: innbyggða settið
+keep at least one output	haltu að minnsta kosti einu úttaki
+marker: none on this cue	merki: ekkert á þessu cue
+mic mixed into recording	hljóðnemi blandaður í upptökuna
+not a playable MIDI file	ekki spilanleg MIDI-skrá
+relink: folder not found	relink: mappa fannst ekki
+select a moire cue first	veldu fyrst moiré-cue
+tempo follows MIDI clock	tempó fylgir MIDI-klukku
+the tracker has no steps	raknarinn hefur engin skref
+typeface (the app's own)	leturgerð (sú sem appið á)
+. Set displays to Extend.	. Stilltu skjái á Extend.
+Language reset to English	Tungumál endurstillt á ensku
+PUSH expects a cue number	PUSH býst við cue-númeri
+SLICE: there is no output	SLICE: ekkert úttak
+TCCUE: select a cue first	TCCUE: veldu fyrst cue
+effects paste: no targets	líma áhrif: engin skotmörk
+follows the whole picture	fylgir allri myndinni
+key color picker canceled	litaval lykils hætt við
+listening for captions...	hlusta eftir skjátextum...
+monitor: pick a row first	skjár: veldu línu fyrst
+moshlook: smooth | chunky	moshlook: mjúkt | gróft
+no trimmable cue selected	ekkert cue valið sem hægt er að stytta
+output type change failed	breyting á gerð úttaks mistókst
+select a master cue first	veldu Master cue fyrst
+sequence stops at the end	runa stöðvast í lokin
+web monitor port: invalid	tengi vefskjás: ógilt
+3 \xC2\xB7 WHAT IT RUNS ON	3 · KEYRIR Á
+ASCII CHAOS: expected 0..1	ASCII CHAOS: bjóst við 0..1
+DATAMOSH on - preparing...	DATAMOSH á - undirbý...
+DMXCUE: select a cue first	DMXCUE: veldu cue fyrst
+GEOLFO: select a cue first	GEOLFO: veldu cue fyrst
+MATRIX: select a cue first	MATRIX: veldu cue fyrst
+MEMOCUE: expected the note	MEMOCUE: bjóst við glósunni
+NETCUE: select a cue first	NETCUE: veldu cue fyrst
+STING BODY: expected 0-100	STING BODY: bjóst við 0-100
+could not load that plugin	gat ekki hlaðið þessari viðbót
+effects copy: select a cue	afritun áhrifa: veldu cue
+expected degrees -180..180	bjóst við gráðum -180..180
+expression is at its limit	segðin er á mörkum
+multiview - every playlist	multiview - hver spilunarlisti
+new show, from my defaults	ný sýning, úr mínu sjálfgefna
+no cue with audio selected	ekkert cue með hljóði valið
+osc feedback rate: invalid	endurgjafartíðni osc: ógild
+panic: outputs already off	panic: úttök þegar slökkt
+pick from screen cancelled	hætt við að taka af skjá
+rendering slide {1} of {2}	teikna rennu {1} af {2}
+schedule: HH:MM[:SS] | off	áætlun: HH:MM[:SS] | af
+update: nothing to install	uppfærsla: ekkert til að setja upp
+warp preset: name required	skekkju-forstilling: nafn vantar
+1 cue imported (probing...)	1 cue flutt inn (kanna...)
+ASCII WOBBLE: expected 0..1	ASCII WOBBLE: bjóst við 0..1
+AUDIOFX ADD: chain full (8)	AUDIOFX ADD: keðjan full (8)
+CLICK: expected two numbers	CLICK: bjóst við tveimur tölum
+HOVER: expected two numbers	HOVER: bjóst við tveimur tölum
+MIDICUE: select a cue first	MIDICUE: veldu cue fyrst
+TEXTCUE: select a cue first	TEXTCUE: veldu cue fyrst
+VIDEODIP FADE: 0-30 seconds	VIDEODIP FADE: 0-30 sekúndur
+browser stopped - deck dark	vafri stöðvaður - deck dökkt
+could not save the defaults	ekki tókst að vista sjálfgefin gildi
+datamosh look: select a cue	datamosh look: veldu cue
+datamosh: already preparing	datamosh: þegar í undirbúningi
+effects paste: select a cue	effects paste: veldu cue
+matrix on, routed as it was	matrix á, leiðað eins og áður
+nmos: clipboard unavailable	nmos: klippiborð ekki tiltækt
+nmos: need http://host:port	nmos: þarf http://host:port
+skip back: nothing previous	skip back: ekkert fyrra
+FX COLOUR: a grey has no hue	FX COLOUR: grátt hefur engan litblæ
+MASK RENAME: expected a name	MASK RENAME: búist við nafni
+MIDIFILE: select a cue first	MIDIFILE: veldu cue fyrst
+SCALEMODE: expected one mode	SCALEMODE: búist við einum ham
+SYNTH ADD takes no arguments	SYNTH ADD tekur engin viðföng
+TEXTCUE CARD: expected 0-255	TEXTCUE CARD: búist við 0-255
+UISNAP: expected a .bmp path	UISNAP: búist við .bmp slóð
+av jumps: counting from zero	av jumps: talið frá núlli
+cannot reorder a running job	ekki hægt að endurraða keyrandi verki
+expected a number of seconds	búist við fjölda sekúndna
+master scene rename: removed	master scene rename: fjarlægt
+motion driver would not open	hreyfidrifið opnaðist ekki
+no steps yet - Ins makes one	engin skref enn - Ins býr til eitt
+selected cue has no geometry	valið cue hefur enga rúmfræði
+skip back: playlist is empty	skip back: spilunarlisti er tómur
+sprite set could not be read	ekki tókst að lesa sprite-safn
+st2110 sdp written to stdout	st2110 sdp skrifað á stdout
+the clicker advances the cue	fjarstýringin færir cue áfram
+video dip fade: 0-30 seconds	video dip deyfing: 0-30 sekúndur
+warp point: expected numbers	warp point: búist við tölum
+* KONAMI * terrarium unlocked	* KONAMI * terrarium opnað
+DMXCUE PORT: expected 1-65535	DMXCUE PORT: búist við 1-65535
+ENDACTION: select a cue first	ENDACTION: veldu cue fyrst
+FADE STOP: expected on or off	FADE STOP: búist við á eða af
+LOWERANIM: select a cue first	LOWERANIM: veldu cue fyrst
+MATRIX SET: destination is 1-	MATRIX SET: áfangastaður er 1-
+NETCUE PORT: expected 1-65535	NETCUE PORT: búist við 1-65535
+OUTSNAP: expected a .bmp path	OUTSNAP: búist við .bmp slóð
+SCRIPTCUE: select a cue first	SCRIPTCUE: veldu cue fyrst
+TEXTCUE SCALE: expected 0.5-2	TEXTCUE SCALE: búist við 0.5-2
+WARP AT: expected two numbers	WARP AT: búist við tveimur tölum
+could not remove the defaults	gat ekki fjarlægt sjálfgefnu gildin
+lights dip when a video rolls	ljós dofna þegar vídeó spilast
+no refresh choices for raster	engir endurnýjunarvalkostir fyrir raster
+output recovered: auto native	úttak endurheimt: sjálfv. innbyggt
+overlay on -- choose an image	yfirlag á -- veldu mynd
+stopped - deck dark, reracked	stöðvað - deck dökkt, raðað aftur
+this file has one sound track	þessi skrá hefur eina hljóðrás
+update: will check at startup	uppfærsla: athugar við upphaf
+web monitor connections: 1-64	vefskjátengingar: 1-64
+DASH: the startup dialog is up	DASH: upphafsglugginn er opinn
+LOWERSTYLE: select a cue first	LOWERSTYLE: veldu cue fyrst
+MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: búist við 1-16
+PATTERN ADD needs a pattern id	PATTERN ADD þarf auðkenni mynsturs

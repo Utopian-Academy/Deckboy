@@ -2573,3 +2573,282 @@ Move	Muebe
 pin reset	pin resetá
 trim reset	trim resetá
 warp reset	warp resetá
+record folder set	caha di graba pone
+subtitle file set	file di subtitulo pone
+subtitles cleared	subtitulonan a wordo kita
+take the mask off	kita mascara
+universe: 0-63999	universo: 0-63999
+video synth added	synth di video agrega
+warp preset saved	preset di warp warda
+AUDIOALSO: no deck	AUDIOALSO: no tin deck
+DeckLink 10-bit ON	DeckLink 10-bit CENDE
+SCRIPTCUE: no deck	SCRIPTCUE: no tin deck
+assign route first	pone ruta promé
+bundle save failed	paketa warda a faya
+cue settings reset	settings di cue reset
+file dialog failed	dialogo di file a faya
+jumped to live cue	a bula pa cue bibu
+lock to screen off	pega na pantaya paga
+media probe failed	probe di media a faya
+nmos: invalid port	nmos: porta invalido
+output overlay off	overlay di output paga
+pip target cleared	meta di pip kita
+select a cue first	scoge un cue promé
+source unavailable	fuente no ta disponibel
+spare (also spare)	di reserva (tambe di reserva)
+stream key cleared	clave di stream kita
+timecode cue added	cue di codigo di tempu agrega
+timer face: blocky	cara di cronometro: blokinan
+timer logo cleared	logo di cronometro kita
+vmix port: invalid	vmix porta: invalido
+, not a plugin slot	, no ta un slot di plugin
+. Your show is back	. Bo show a bini bek
+DeckLink 10-bit off	DeckLink 10-bit paga
+HOVER: expected x y	HOVER: ta spera x y
+Lower Third cleared	Lower Third kita
+NDI\xc2\xae NETWORK	NDI® RED
+OSC trigger cleared	dispara di OSC kita
+Show file not found	File di show no a haya
+audio chain cleared	cadena di audio kita
+audio switch failed	cambio di audio a faya
+browser jumped live	browser a bula pa bibu
+browser url updated	URL di browser aktualisá
+bundle media failed	pakete di media a fayá
+choose a show first	scoge un show promé
+composite cue added	cue combina agrega
+cue numbers cleared	number di cue kita
+cue settings copied	configuracion di cue copia
+cue settings pasted	configuracion di cue pega
+double-GO guard off	proteccion contra GO dobel paga
+effect chain pasted	cadena di efecto pega
+end of the sequence	final di e secuencia
+pattern motion: n/a	movemento di patron: nada
+plugin slot cleared	slot di plugin kita
+splitnotes: no deck	splitnotes: no tin deck
+sprite sheet loaded	sprite sheet cargá
+takes are immediate	takes ta inmediato
+ui motion always on	movemento di UI semper cende
+-10 seconds from end	-10 segundo for di final
+-20 seconds from end	-20 segundo for di final
+-30 seconds from end	-30 segundo for di final
+. — skip to next cue	. — salta pa e siguiente cue
+Lower Third attached	Lower Third pegá
+MIDI plays the synth	MIDI ta toca e synth
+MIDI trigger cleared	dispara di MIDI kita
+NDI source cue added	cue di fuente NDI agrega
+audio chain full (8)	cadena di audio yen (8)
+browser url required	URL di browser ta necesario
+bundle export failed	exporta di pakete a fayá
+bundle folder failed	caha di pakete a fayá
+cue copy: select cue	copia di cue: scogi cue
+cue settings reset x	configuracion di cue reset x
+delete from the show	kita for di e show
+encoder queue paused	cola di codificado pousa
+find: run FIND first	busca: core FIND promé
+find: token required	busca: token ta necesario
+first port available	promé porta disponibel
+identifying displays	identificando displays
+marker: nothing live	marker: nada bibu
+marker: select a cue	marker: scogi un cue
+no midi input device	no tin aparato di entrada MIDI
+no overlays to clear	no tin overlay pa limpia
+no synth cue is live	no tin cue di synth bibu
+output create failed	crea output a faya
+output remove failed	kita output a faya
+pause points cleared	punto di pousa limpia
+presenter view reset	vista di presentado reset
+renumber: empty deck	renumera: deck bashí
+sprite sheet cleared	sprite sheet limpia
+stream url unchanged	url di stream no a cambia
+stream url: required	url di stream: ta nesesario
+time trigger cleared	trigger di tempo limpia
+update: checking off	update: verificacion paga
+warp settings copied	configuracion di warp copia
+warp settings pasted	configuracion di warp pega
+DMX over sACN (E1.31)	DMX riba sACN (E1.31)
+Lower Third cue added	cue di Lower Third agrega
+already the last step	ya ta e ultimo paso
+analyzing loudness...	analisando volumen...
+arcade always wiggles	arcade semper ta tembla
+browser window closed	bentana di browser serra
+canvas width: invalid	anchura di canvas: no ta valido
+computer keyboard off	teclado di computer paga
+contrast check: saved	verificacion di contraste: warda
+cue paste: copy first	pega cue: copia promé
+cue paste: no targets	pega cue: no tin destino
+cue paste: select cue	pega cue: scogi un cue
+cue reset: no targets	reset cue: no tin destino
+cue reset: select cue	reset cue: scogi un cue
+cue settings pasted x	configuracion di cue pega x
+display switch failed	cambio di display a faya
+effect chain pasted x	cadena di efecto pega x
+encoder queue running	cola di codificado ta coriendo
+lfo follows the tempo	lfo ta sigui e tempo
+motion driver cleared	driver di movemento limpia
+ndi tally trigger off	trigger di tally NDI paga
+ndi unsupported build	NDI no ta soportá den e version aki
+no Lower Third on air	ningun Lower Third bibu
+no audio cue selected	ningun audio cue selecciona
+playlist fps: invalid	playlist fps: invalido
+presenter: no outputs	presenter: no tin salidanan
+scene slot source set	fuente di slot di scene pone
+st 2110: invalid port	st 2110: porta invalido
+timer face: 7-segment	cara di cronometro: 7-segment
+' is not a deck number	' no ta number di deck
+FX PARAM: value is 0-1	FX PARAM: valor ta 0-1
+OUTPUT AOI: no outputs	OUTPUT AOI: no tin salidanan
+already the first step	ya ta e promé paso
+audio bitrate: invalid	bitrate di audio: invalido
+browser capture failed	captura di browser a faya
+canvas height: invalid	altura di canvas: invalido
+datamosh: select a cue	datamosh: scogi un cue
+effect stack full (12)	stack di efectonan yen (12)
+jumped to selected cue	a bula pa e cue selecciona
+layer command: removed	orden di layer: kita
+listens to any channel	ta skucha cualkier canal
+nmos: node not running	nmos: node no ta corre
+output effects back in	efectonan di salida bek paden
+presenter layout: wide	distribucion di presenter: ancho
+route command: removed	orden di route: kita
+save failed - retrying	warda a faya - ta purba di nobo
+schedule: select a cue	schedule: scogi un cue
+slide import cancelled	import di slide cancela
+takes land on the beat	take ta cai riba e ritmo
+warp paste: copy first	warp pega: copia promé
+2 \xC2\xB7 WHAT IT RUNS	2 \xC2\xB7 LO CU TA CORE
+Chladni stops listening	Chladni ta stop di skucha
+OUTPUT DECK: no outputs	OUTPUT DECK: no tin salidanan
+could not add an output	no a logra agrega un salida
+downloading {1}... {2}%	ta download {1}... {2}%
+driver restarts on take	driver ta start di nobo ku take
+encoder destination set	destino di encoder pone
+expected factor 0.25..4	ta spera factor 0.25..4
+expected finite numbers	ta spera number finito
+hyperdeck emulation off	emulacion di HyperDeck paga
+key color sample failed	muestra di color di key a fayá
+leave it where it lands	laga e unda e cai
+no playlist column here	no tin kolom di playlist aki
+osc query port: invalid	porta di OSC Query: no valido
+playlist start: invalid	cuminsa di playlist: no valido
+still duration: invalid	duracion di portret: no valido
+synth cue has no engine	cue di synth no tin motor
+, its place in the stack	, su lugar den e stack
+1 \xC2\xB7 WHAT COMES IN	1 · LO KU TA DRENTA
+An output whose Shows is	Un output cu Ta mustra
+DeckLink input cue added	Cue di entrada DeckLink agregá
+already on the dashboard	ya ta riba e DASHBOARD
+expected an alpha, 0-255	ta spera un alfa, 0-255
+expected positive pixels	ta spera pixel positivo
+find: press Ctrl+F first	busca: primi Ctrl+F promé
+glyphs: the built-in set	glifo: e set integrá
+keep at least one output	tene a lo menos un output
+marker: none on this cue	marker: ningun riba e cue aki
+mic mixed into recording	microfon mescla den grabacion
+not a playable MIDI file	no ta un archivo MIDI cu por toca
+relink: folder not found	relink: caha no a haya
+select a moire cue first	scoge un cue di moiré promé
+tempo follows MIDI clock	tempo ta sigui MIDI clock
+the tracker has no steps	e rastreador no tin pasonan
+typeface (the app's own)	tipo di letter (esun di e app mes)
+. Set displays to Extend.	. Pone e displays riba Extend.
+Language reset to English	Idioma a reset pa Ingles
+PUSH expects a cue number	PUSH ta spera un number di cue
+SLICE: there is no output	SLICE: no tin output
+TCCUE: select a cue first	TCCUE: scoge un cue promé
+effects paste: no targets	pega efectonan: no tin target
+follows the whole picture	ta sigui henter e imagen
+key color picker canceled	Selector di color key a keda cancela
+listening for captions...	Ta scucha pa subtitulonan...
+monitor: pick a row first	monitor: scoge un rij promer
+moshlook: smooth | chunky	moshlook: suave | grueso
+no trimmable cue selected	Ningun cue trimable selecta
+output type change failed	Cambio di tipo di output a fayá
+select a master cue first	Scoge un cue master promer
+sequence stops at the end	Secuencia ta stop na final
+web monitor port: invalid	Porta di monitor web: invalido
+3 \xC2\xB7 WHAT IT RUNS ON	3 · RIBA CUA E TA CORE
+ASCII CHAOS: expected 0..1	ASCII CHAOS: ta spera 0..1
+DATAMOSH on - preparing...	DATAMOSH cende - ta prepara...
+DMXCUE: select a cue first	DMXCUE: scoge un cue promer
+GEOLFO: select a cue first	GEOLFO: scoge un cue promer
+MATRIX: select a cue first	MATRIX: scoge un cue promer
+MEMOCUE: expected the note	MEMOCUE: ta spera e nota
+NETCUE: select a cue first	NETCUE: scoge un cue promer
+STING BODY: expected 0-100	STING BODY: ta spera 0-100
+TALLYEVENT wants ON or OFF	TALLYEVENT ke ON of OFF
+TONECUE LFO: FREQ or LEVEL	TONECUE LFO: FREQ of LEVEL
+could not load that plugin	No por a carga e plugin ei
+effects copy: select a cue	Copia di efectonan: scoge un cue
+expected degrees -180..180	Ta spera grado -180..180
+expression is at its limit	Expresion ta na su limite
+multiview - every playlist	multiview - tur playlist
+new show, from my defaults	Show nobo, for di mi valor standard
+no cue with audio selected	Ningun cue cu audio selecta
+osc feedback rate: invalid	Velocidad di feedback osc: invalido
+panic: outputs already off	panic: salidanan ta paga caba
+pick from screen cancelled	Scoge for di pantaya a cancela
+rendering slide {1} of {2}	Ta render slide {1} di {2}
+schedule: HH:MM[:SS] | off	Horario: HH:MM[:SS] | paga
+update: nothing to install	Update: nada pa instala
+warp preset: name required	Preset di warp: nomber ta necesario
+1 cue imported (probing...)	1 cue importa (ta proba...)
+ASCII WOBBLE: expected 0..1	ASCII WOBBLE: ta spera 0..1
+AUDIOFX ADD: chain full (8)	AUDIOFX ADD: cadena completo (8)
+CLICK: expected two numbers	CLICK: ta spera dos número
+HOVER: expected two numbers	HOVER: ta spera dos número
+MIDICUE: select a cue first	MIDICUE: scogi un cue prome
+TEXTCUE: select a cue first	TEXTCUE: scogi un cue prome
+VIDEODIP FADE: 0-30 seconds	VIDEODIP FADE: 0-30 sekundo
+browser stopped - deck dark	browser para - deck scur
+could not save the defaults	no a por warda e valor standard
+datamosh look: select a cue	datamosh look: scogi un cue
+datamosh: already preparing	datamosh: ya ta prepara
+effects paste: select a cue	efectonan pega: scogi un cue
+matrix on, routed as it was	matrix cende, routing manera e tabata
+nmos: clipboard unavailable	nmos: clipboard no disponibel
+nmos: need http://host:port	nmos: mester http://host:port
+skip back: nothing previous	skip back: no tin anterior
+MASK RENAME: expected a name	MASK RENAME: mester un nomber
+MIDIFILE: select a cue first	MIDIFILE: scogi un cue prome
+SCALEMODE: expected one mode	SCALEMODE: mester un modo
+SYNTH ADD takes no arguments	SYNTH ADD no ta tuma argumento
+TEXTCUE CARD: expected 0-255	TEXTCUE CARD: mester 0-255
+UISNAP: expected a .bmp path	UISNAP: mester un caminda .bmp
+av jumps: counting from zero	av jumps: ta cuenta for di sero
+cannot reorder a running job	no por cambia orden di un trabou cu ta core
+expected a number of seconds	mester un cantidad di sekundo
+master scene rename: removed	master scene rename: kita
+motion driver would not open	e driver di movemento no a habri
+no steps yet - Ins makes one	tocavia no tin paso - Ins ta traha un
+selected cue has no geometry	e cue scogi no tin geometria
+skip back: playlist is empty	skip back: e playlist ta bashí
+sprite set could not be read	e sprite set no por a wordo lesa
+st2110 sdp written to stdout	st2110 sdp scirbi na stdout
+the clicker advances the cue	e control remoto ta avansa e cue
+video dip fade: 0-30 seconds	video dip fade: 0-30 sekundo
+warp point: expected numbers	warp point: mester number
+* KONAMI * terrarium unlocked	* KONAMI * terrarium habri
+DMXCUE PORT: expected 1-65535	DMXCUE PORTA: mester 1-65535
+ENDACTION: select a cue first	ENDACTION: scogi un cue prome
+FADE STOP: expected on or off	FADE STOP: mester on of off
+LESSONS TRACK: PIXEL or VIDEO	LESSONS TRACK: PIXEL of VIDEO
+LOWERANIM: select a cue first	LOWERANIM: scogi un cue prome
+MATRIX SET: destination is 1-	MATRIX SET: destino ta 1-
+NETCUE PORT: expected 1-65535	NETCUE PORT: ta spera 1-65535
+OUTSNAP: expected a .bmp path	OUTSNAP: ta spera un ruta .bmp
+SCRIPTCUE: select a cue first	SCRIPTCUE: scogi un cue promer
+TEXTCUE SCALE: expected 0.5-2	TEXTCUE SCALE: ta spera 0.5-2
+WARP AT: expected two numbers	WARP AT: ta spera dos number
+could not remove the defaults	no a logra kita e valor standard
+lights dip when a video rolls	luz ta baha ora un video ta cuminsa
+no refresh choices for raster	no tin opcion di refresh pa raster
+output recovered: auto native	output recupera: auto original
+overlay on -- choose an image	capa cende -- scogi un imagen
+stopped - deck dark, reracked	para - deck scur, ordena di nobo
+this file has one sound track	e archivo aki tin un pista di zonido
+update: will check at startup	update: lo check ora e cuminsa
+web monitor connections: 1-64	conexion di monitor web: 1-64
+DASH: the startup dialog is up	DASH: e dialogo di cuminsamento ta habri
+LOWERSTYLE: select a cue first	LOWERSTYLE: scogi un cue promer
+MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: ta spera 1-16
+PATTERN ADD needs a pattern id	PATTERN ADD mester un id di patron

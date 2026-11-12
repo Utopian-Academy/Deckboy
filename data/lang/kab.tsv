@@ -2579,3 +2579,278 @@ output overlay on	asnejmaɛ n tuffɣa yermed
 phone haptics off	asemsusem n tilifun yensa
 pick a deck first	fren deck uqbel
 playlist loop off	tineḍt n tebdart yensa
+record folder set	akaram n usekles yettwasbadu
+subtitle file set	afaylu n uddad n ddaw yettwasbadu
+subtitles cleared	iddaden n ddaw ttwasfeḍen
+take the mask off	kkes taɣmist
+universe: 0-63999	amaḍal: 0-63999
+video synth added	Asinti n tvidyut yettwarna
+warp preset saved	aheggi n umedyan yettwasekles
+AUDIOALSO: no deck	AUDIOALSO: ulac deck
+DeckLink 10-bit ON	DeckLink 10-bit YERMED
+SCRIPTCUE: no deck	SCRIPTCUE: ulac deck
+assign route first	efk abrid qbel
+bundle save failed	asekles n usedduy ur yeddi ara
+cue settings reset	iɣewwaren n cue ttwawennzen
+file dialog failed	tankult n ufaylu ur teddi ara
+jumped to live cue	yuɣal ɣer cue s tidet
+lock to screen off	qqen ɣer ugdil yensa
+media probe failed	tasleḍt n yimidyaten ur teddi ara
+nmos: invalid port	nmos: tawwurt ur tṣeḥḥa ara
+output overlay off	asnejmaɛ n tuffɣa yensa
+pip target cleared	iswi pip yettwasfeḍ
+select a cue first	fren cue qbel
+source unavailable	aɣbalu ulac-it
+spare (also spare)	asenṭel (daɣen asenṭel)
+stream key cleared	tasarut n usiɣel tettwasfeḍ
+timecode cue added	cue n tangalt n wakud yettwarna
+timer face: blocky	udem n umakud: iblukan
+timer logo cleared	ulugu n umakud yettwasfeḍ
+vmix port: invalid	vmix tawwurt: ur tṣeḥḥa ara
+, not a plugin slot	, mačči d asiɣzef n tegnit
+. Your show is back	. Askan-ik yuɣal
+DeckLink 10-bit off	DeckLink 10-bit insa
+HOVER: expected x y	HOVER: yettwarǧa x y
+Lower Third cleared	Lower Third yettwasfeḍ
+NDI\xc2\xae NETWORK	NDI\xc2\xae AẒEṬṬA
+OSC trigger cleared	asenker OSC yettwasfeḍ
+Show file not found	afaylu n uskan ulac-it
+audio chain cleared	tazrart n umeslaw tettwasfeḍ
+audio switch failed	abeddel n umeslaw ur yeddi ara
+browser jumped live	iminig yuɣal s tidet
+browser url updated	URL n yiminig yettwaleqqem
+bundle media failed	Aseddu n yimidyaten ur yeddi ara
+choose a show first	Fren askan send
+composite cue added	Cue amsuddem yettwarna
+cue numbers cleared	Uṭṭunen n cue ttwasfaḍen
+cue settings copied	Iɣewwaren n cue ttwanɣalen
+cue settings pasted	Iɣewwaren n cue ttwasenṭeḍen
+double-GO guard off	Aḥraz n GO snat n tikkal insa
+effect chain pasted	Tazrart n effect tettwasenṭeḍ
+end of the sequence	Taggara n uzrar
+pattern motion: n/a	amudel amussu: ulac
+plugin slot cleared	Tallunt n usiɣzef tettwasfeḍ
+splitnotes: no deck	splitnotes: ulac deck
+sprite sheet loaded	Sprite sheet yettwasali
+takes are immediate	Take ur ttrajun ara
+ui motion always on	Amussu n UI yermed i dima
+-10 seconds from end	-10 tisinin seg taggara
+-20 seconds from end	-20 tisinin seg taggara
+-30 seconds from end	-30 tisinin seg taggara
+. — skip to next cue	. — zgel ɣer cue yeḍfaren
+Lower Third attached	Lower Third yettwaqqen
+MIDI plays the synth	MIDI yurar synth
+MIDI trigger cleared	Senker MIDI yettwasfeḍ
+NDI source cue added	Cue n uɣbalu NDI yettwarna
+SLICE OPACITY: 0-100	OPACITY SLICE: 0-100
+audio chain full (8)	Tazrart n umeslaw teččur (8)
+browser url required	URL n yiminig yettwasra
+bundle export failed	Asifeḍ n useddu ur yeddi ara
+bundle folder failed	Akaram n useddu ur yeddi ara
+cue copy: select cue	nɣel cue: fren cue
+cue settings reset x	Iɣewwaren n cue ttwawennzen x
+delete from the show	Kkes seg uskan
+encoder queue paused	Tasertit n usettengal tesstɛfa
+find: run FIND first	find: sker FIND send
+find: token required	find: asulay yettwasra
+first port available	Tawwurt tamezwarut illan
+identifying displays	Asesmel n yiskan
+marker: nothing live	marker: ulac ayen yellan s tidet
+marker: select a cue	asmal: fren cue
+no midi input device	ulac ibenk n unekcum MIDI
+no overlays to clear	ulac asnejmaɛen ara yettwasfeḍen
+no synth cue is live	ulac cue synth s tidet
+output create failed	timerna n tuffɣa ur teddi ara
+output remove failed	tukksa n tuffɣa ur teddi ara
+pause points cleared	tinqiḍin n usteɛfu ttwasfeḍent
+presenter view reset	timeẓri n umesskan tettwawennez
+renumber: empty deck	ales amḍan: deck ilem
+sprite sheet cleared	tafelwit sprite tettwasfeḍ
+stream url unchanged	url n usiɣel ur yettwabeddel ara
+stream url: required	url n usiɣel: yettwasra
+time trigger cleared	asenker n wakud yettwasfeḍ
+update: checking off	anya: askan insa
+warp settings copied	iɣewwaren n umedyan ttwanɣelen
+warp settings pasted	iɣewwaren n umedyan ttwasenṭeḍen
+Lower Third cue added	cue Lower Third yettwarna
+already the last step	d asurif aneggaru yakan
+analyzing loudness...	tasleḍt n tezmert n yimesli...
+arcade always wiggles	urar yettḥerrik dima
+browser window closed	asfaylu n yiminig yettwemdel
+canvas width: invalid	tehri n canvas: ur tṣeḥḥ ara
+computer keyboard off	keyboard n uselkim insa
+contrast check: saved	askan n umgirred: yettwasekles
+cue paste: copy first	senṭeḍ cue: nɣel qbel
+cue paste: no targets	senṭeḍ cue: ulac iswiyen
+cue paste: select cue	senṭeḍ cue: fren cue
+cue reset: no targets	wennez cue: ulac iswiyen
+cue reset: select cue	wennez cue: fren cue
+cue settings pasted x	iɣewwaren n cue ttwasenṭeḍen x
+display switch failed	abeddel n uskan ur yeddi ara
+effect chain pasted x	tazrart n yisemmaten tettwasenṭeḍ x
+encoder queue running	tarect n usettengal tettedu
+lfo follows the tempo	lfo yeḍfer tempo
+motion driver cleared	anuḍaf n umussu yettwasfeḍ
+ndi tally trigger off	asenker ndi tally insa
+ndi unsupported build	lqem ur yessefrak ara ndi
+no Lower Third on air	ulac Lower Third deg tuffɣa
+no audio cue selected	ulac cue n umeslaw yettwafernen
+playlist fps: invalid	fps n tbdart: ur ṣeḥḥ ara
+presenter: no outputs	presenter: ulac tuffɣiwin
+scene slot source set	aɣbalu n slot n scene yettwasbadu
+st 2110: invalid port	st 2110: tawwurt ur ṣeḥḥ ara
+timer face: 7-segment	udem n umakud: 7-segment
+' is not a deck number	' mačči d uṭṭun n deck
+FX PARAM: value is 0-1	FX PARAM: azal d 0-1
+already the first step	d asurif amezwaru yakan
+audio bitrate: invalid	bitrate n umeslaw: ur ṣeḥḥ ara
+browser capture failed	tuṭṭfa n yiminig ur teddi ara
+canvas height: invalid	teɣzi n canvas: ur ṣeḥḥ ara
+datamosh: select a cue	datamosh: fren cue
+effect stack full (12)	tagrumma n yisemda teččur (12)
+jumped to selected cue	yeɛda ɣer cue yettwafernen
+layer command: removed	taladna layer: tettwakkes
+listens to any channel	yesla i yal abadu
+nmos: node not running	nmos: node ur yetteddu ara
+output effects back in	isemda n tuffɣa uɣalen
+presenter layout: wide	taɣessa n presenter: tawesɛant
+route command: removed	taladna route: tettwakkes
+save failed - retrying	asekles yecceḍ - ad ɛerḍeɣ tikelt-nniḍen
+schedule: select a cue	schedule: fren cue
+slide import cancelled	kter n uzleg yettwasefsex
+takes land on the beat	take ttwaqqnen ɣef riṭm
+warp paste: copy first	warp senṭeḍ: nɣel qbel
+2 \xC2\xB7 WHAT IT RUNS	2 \xC2\xB7 ACU YESNEKKAR
+Chladni stops listening	Chladni yeḥbes asel
+could not add an output	ur izmir ara ad yernu tuffɣa
+downloading {1}... {2}%	asader n {1}... {2}%
+driver restarts on take	anuḍaf yales asnekker deg take
+encoder destination set	asawaḍ n usettengal yettwasbadu
+expected factor 0.25..4	yettraju azal 0.25..4
+expected finite numbers	yettraju uṭṭunen yettwasbadden
+hyperdeck emulation off	asefrek n HyperDeck insa
+key color sample failed	amedya n yini n tsarut ur yeddi ara
+leave it where it lands	eǧǧ-it anda ara d-yewwet
+no playlist column here	ulac ajgu n tebdart dagi
+osc query port: invalid	tawwurt n usuter OSC: ur ṣeḥḥi ara
+playlist start: invalid	tazwara n tebdart: ur ṣeḥḥi ara
+still duration: invalid	tanzagt n tugna: ur ṣeḥḥi ara
+synth cue has no engine	cue synth ulac aḥerrek-is
+, its place in the stack	, amkan-is deg tgrumma
+1 \xC2\xB7 WHAT COMES IN	1 \xC2\xB7 AYEN D-YEKCEMEN
+An output whose Shows is	Tuffɣa ideg Yesskan d
+DeckLink input cue added	Yerna cue n unekcum DeckLink
+already on the dashboard	yella yakan deg tfelwit
+expected an alpha, 0-255	yettwarǧa alfa, 0-255
+expected positive pixels	yettwarǧan pixel imsaḍen
+find: press Ctrl+F first	asiti ɣef Ctrl+F zwaru
+glyphs: the built-in set	izamulen: tagrumma yettwarna
+keep at least one output	eǧǧ ma drus yiwet n tuffɣa
+marker: none on this cue	ticreḍt: ulac deg cue-agi
+mic mixed into recording	amikru yemxalaḍ deg useklas
+not a playable MIDI file	mačči d afaylu MIDI i yezmer ad yettwaɣer
+relink: folder not found	relink: ur yettwaf ara wakaram
+select a moire cue first	fren cue moiré zwaru
+tempo follows MIDI clock	tempo yettaḍfar MIDI clock
+the tracker has no steps	ulac isurifen deg umeḍfar
+typeface (the app's own)	anaw n isekkilen (n usnas)
+. Set displays to Extend.	. Sbadu isnifilen ɣer Extend.
+Language reset to English	Tutlayt tuɣal ɣer Taglizit
+PUSH expects a cue number	PUSH yetṛaǧu uṭṭun n cue
+SLICE: there is no output	SLICE: ulac tuffɣa
+TCCUE: select a cue first	TCCUE: fren cue zwaru
+effects paste: no targets	senṭeḍ isemda: ulac iswiyen
+follows the whole picture	yettaḍfar tugna akk
+key color picker canceled	afran n yini n tsarut yettwasefsex
+listening for captions...	ssaram i iglamen...
+monitor: pick a row first	amwali: fren izirig uqbel
+moshlook: smooth | chunky	moshlook: leqqaq | ameqqran
+no trimmable cue selected	ulac cue yettwafernen i izemren ad yettwagzem
+output type change failed	abeddel n unaw n tuffɣa ur yeddi ara
+select a master cue first	fren cue agejdan uqbel
+sequence stops at the end	azrar yeḥbes deg taggara
+web monitor port: invalid	tawwurt n umwali web: ur tṣeḥḥ ara
+3 \xC2\xB7 WHAT IT RUNS ON	3 · YETTEDDU ƔEF WACU
+ASCII CHAOS: expected 0..1	ASCII CHAOS: yettwarǧa 0..1
+DATAMOSH on - preparing...	DATAMOSH yermed - yettwaheggi...
+DMXCUE: select a cue first	DMXCUE: fren cue uqbel
+GEOLFO: select a cue first	GEOLFO: fren cue uqbel
+MATRIX: select a cue first	MATRIX: fren cue uqbel
+MEMOCUE: expected the note	MEMOCUE: yettwarǧa tazmilt
+NETCUE: select a cue first	NETCUE: fren cue uqbel
+STING BODY: expected 0-100	STING BODY: yettwarǧa 0-100
+could not load that plugin	ulamek ad yettwasali usiɣzef-nni
+effects copy: select a cue	nɣel isemda: fren cue
+expected degrees -180..180	yettwarǧa ddreǧ -180..180
+expression is at its limit	tafyirt tewweḍ ɣer talast-is
+multiview - every playlist	multiview - yal tabdart
+new show, from my defaults	askan amaynut, seg yimezwura-inu
+no cue with audio selected	ulac cue s umeslaw yettwafernen
+osc feedback rate: invalid	aktum n tuɣalin osc: ur iṣeḥḥ ara
+panic: outputs already off	panic: tuffɣiwin ttwansen yakan
+pick from screen cancelled	afran seg ugdil yettwasefsex
+rendering slide {1} of {2}	asuddes n slide {1} ɣef {2}
+schedule: HH:MM[:SS] | off	aɣawas: HH:MM[:SS] | insa
+update: nothing to install	aleqqem: ulac ayen ara yettwasbedd
+warp preset: name required	aheggi n umedyan: isem yettwasra
+1 cue imported (probing...)	1 cue yettwakter (asenqed...)
+ASCII WOBBLE: expected 0..1	ASCII WOBBLE: yettwarǧa 0..1
+AUDIOFX ADD: chain full (8)	AUDIOFX ADD: tazrart tččur (8)
+CLICK: expected two numbers	CLICK: yettwarǧa sin n yimḍanen
+HOVER: expected two numbers	HOVER: yettwarǧa sin n yimḍanen
+MIDICUE: select a cue first	MIDICUE: fren cue qbel
+TEXTCUE: select a cue first	TEXTCUE: fren cue qbel
+VIDEODIP FADE: 0-30 seconds	VIDEODIP FADE: 0-30 n tasinin
+browser stopped - deck dark	iminig yeḥbes - deck d aberkan
+could not save the defaults	ur izmir ara ad yeskles imezwura
+datamosh look: select a cue	datamosh look: fren cue
+datamosh: already preparing	datamosh: yettuheyya yakan
+effects paste: select a cue	effects paste: fren cue
+matrix on, routed as it was	matrix yermed, abrid am zik
+nmos: clipboard unavailable	nmos: afeggag n usenṭeḍ ulac-it
+nmos: need http://host:port	nmos: yeḥwaj http://host:port
+skip back: nothing previous	skip back: ulac win yezrin
+FX COLOUR: a grey has no hue	FX COLOUR: aɣezfan ulac ini-s
+MASK RENAME: expected a name	MASK RENAME: yettwaṛǧa isem
+MIDIFILE: select a cue first	MIDIFILE: fren cue qbel
+SCALEMODE: expected one mode	SCALEMODE: yettwaṛǧa yiwen n uskar
+SYNTH ADD takes no arguments	SYNTH ADD ur yeṭṭef ara iɣewwaren
+TEXTCUE CARD: expected 0-255	TEXTCUE CARD: yettwaṛǧa 0-255
+UISNAP: expected a .bmp path	UISNAP: yettwaṛǧa abrid .bmp
+av jumps: counting from zero	av jumps: amḍan seg ulac
+cannot reorder a running job	ur nezmir ara ad neɛdel tawuri yettedun
+expected a number of seconds	yettwaṛǧa uṭṭun n tasinin
+master scene rename: removed	master scene rename: yettwakkes
+motion driver would not open	anuḍaf n umussu ur yeldi ara
+no steps yet - Ins makes one	ulac amecwaṛ ar tura - Ins ad yeg yiwen
+selected cue has no geometry	cue yettwafernen ur d-yesɛi ara tasengama
+skip back: playlist is empty	skip back: tabdart d tilemt
+sprite set could not be read	ur yezmir ara ad yettwaɣer ugraw n sprite
+st2110 sdp written to stdout	st2110 sdp yettwaru deg stdout
+the clicker advances the cue	anneqqar yesnerni cue
+video dip fade: 0-30 seconds	video dip asader: 0-30 n tasinin
+warp point: expected numbers	warp point: yettwaṛǧa yimḍanen
+* KONAMI * terrarium unlocked	* KONAMI * terrarium yeldi
+DMXCUE PORT: expected 1-65535	DMXCUE PORT: yettwaṛǧa 1-65535
+ENDACTION: select a cue first	ENDACTION: fren cue qbel
+FADE STOP: expected on or off	FADE STOP: yettwaṛǧa yermed neɣ yensa
+LOWERANIM: select a cue first	LOWERANIM: fren cue qbel
+MATRIX SET: destination is 1-	MATRIX SET: asawaḍ d 1-
+NETCUE PORT: expected 1-65535	NETCUE PORT: yettraju 1-65535
+OUTSNAP: expected a .bmp path	OUTSNAP: yettraju abrid .bmp
+SCRIPTCUE: select a cue first	SCRIPTCUE: fren cue uqbel
+TEXTCUE SCALE: expected 0.5-2	TEXTCUE SCALE: yettraju 0.5-2
+WARP AT: expected two numbers	WARP AT: yettraju sin n yimuḍan
+could not remove the defaults	ur izmir ara ad yekkes imezwura
+lights dip when a video rolls	tafat tettnaqqes mi ara teddu tvidyut
+no refresh choices for raster	ulac afran n uɛiwed i raster
+output recovered: auto native	tuffɣa tuɣal: awurman aẓar
+overlay on -- choose an image	asnejmaɛ yermed -- fren tugna
+stopped - deck dark, reracked	yeḥbes - deck d aberkan, yuɣal yettwaseddi
+this file has one sound track	afaylu-agi yesɛa yiwen n yimesli kan
+update: will check at startup	asleqqem: ad isenqed deg usekker
+web monitor connections: 1-64	tuqqniwin n umwali web: 1-64
+DASH: the startup dialog is up	DASH: asfaylu n usekker yeldi
+LOWERSTYLE: select a cue first	LOWERSTYLE: fren cue uqbel
+MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: yettraju 1-16
+PATTERN ADD needs a pattern id	PATTERN ADD yebɣa asulay n umudel

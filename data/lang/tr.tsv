@@ -2577,3 +2577,277 @@ output overlay on	çıkış kaplaması açık
 phone haptics off	telefon titremesi kapalı
 pick a deck first	önce bir deck seç
 playlist loop off	playlist döngüsü kapalı
+record folder set	kayıt klasörü ayarlandı
+subtitle file set	alt başlık dosyası ayarlandı
+subtitles cleared	alt başlıklar temizlendi
+take the mask off	maskeyi kaldır
+universe: 0-63999	evren: 0-63999
+video synth added	video sentezleyici eklendi
+warp preset saved	biçim bozma önayarı kaydedildi
+AUDIOALSO: no deck	AUDIOALSO: deck yok
+DeckLink 10-bit ON	DeckLink 10-bit AÇIK
+SCRIPTCUE: no deck	SCRIPTCUE: deck yok
+assign route first	önce rota ata
+bundle save failed	paket kaydedilemedi
+cue settings reset	cue ayarları sıfırlandı
+file dialog failed	dosya penceresi açılamadı
+jumped to live cue	canlı cue'ya atlandı
+lock to screen off	ekrana kilitle kapalı
+media probe failed	ortam incelemesi başarısız
+nmos: invalid port	nmos: geçersiz bağlantı noktası
+output overlay off	çıkış katmanı kapalı
+pip target cleared	pip hedefi temizlendi
+select a cue first	önce bir cue seç
+source unavailable	kaynak kullanılamıyor
+spare (also spare)	yedek (yedek de)
+stream key cleared	yayın anahtarı temizlendi
+timecode cue added	zaman kodu cue'su eklendi
+timer face: blocky	zamanlayıcı yüzü: blok
+timer logo cleared	zamanlayıcı logosu temizlendi
+vmix port: invalid	vmix bağlantı noktası: geçersiz
+, not a plugin slot	, bir eklenti yuvası değil
+. Your show is back	. Gösterin geri geldi
+DeckLink 10-bit off	DeckLink 10-bit kapalı
+HOVER: expected x y	HOVER: x y bekleniyordu
+Lower Third cleared	Lower Third temizlendi
+NDI\xc2\xae NETWORK	NDI\xc2\xae AĞ
+OSC trigger cleared	OSC tetikleyicisi temizlendi
+Show file not found	Gösteri dosyası bulunamadı
+audio chain cleared	ses zinciri temizlendi
+audio switch failed	ses geçişi başarısız
+browser jumped live	tarayıcı canlıya atladı
+browser url updated	tarayıcı URL'si güncellendi
+bundle media failed	ortam paketleme başarısız
+choose a show first	önce bir gösteri seç
+composite cue added	birleşik cue eklendi
+cue numbers cleared	cue numaraları temizlendi
+cue settings copied	cue ayarları kopyalandı
+cue settings pasted	cue ayarları yapıştırıldı
+double-GO guard off	çift GO koruması kapalı
+effect chain pasted	efekt zinciri yapıştırıldı
+end of the sequence	sekansın sonu
+pattern motion: n/a	desen hareketi: yok
+plugin slot cleared	eklenti yuvası temizlendi
+splitnotes: no deck	splitnotes: deck yok
+sprite sheet loaded	sprite sayfası yüklendi
+takes are immediate	TAKE anında gerçekleşir
+ui motion always on	arayüz hareketi her zaman açık
+-10 seconds from end	sondan -10 saniye
+-20 seconds from end	sondan -20 saniye
+-30 seconds from end	sondan -30 saniye
+. — skip to next cue	. — sonraki cue'ya atla
+MIDI plays the synth	MIDI synth'i çalar
+MIDI trigger cleared	MIDI tetikleyici temizlendi
+NDI source cue added	NDI kaynak cue'su eklendi
+audio chain full (8)	ses zinciri dolu (8)
+browser url required	tarayıcı URL'si gerekli
+bundle export failed	paket dışa aktarımı başarısız
+bundle folder failed	paket klasörü başarısız
+cue copy: select cue	cue kopyala: cue seç
+cue settings reset x	cue ayarları sıfırlandı x
+delete from the show	gösteriden sil
+encoder queue paused	kodlayıcı kuyruğu duraklatıldı
+find: token required	ara: belirteç gerekli
+first port available	ilk uygun bağlantı noktası
+identifying displays	ekranlar tanımlanıyor
+marker: nothing live	işaretçi: canlı hiçbir şey yok
+marker: select a cue	işaretçi: bir cue seç
+no midi input device	MIDI giriş aygıtı yok
+no overlays to clear	temizlenecek kaplama yok
+no synth cue is live	canlı synth cue yok
+output create failed	çıkış oluşturulamadı
+output remove failed	çıkış kaldırılamadı
+pause points cleared	duraklatma noktaları temizlendi
+presenter view reset	sunucu görünümü sıfırlandı
+renumber: empty deck	yeniden numaralandır: boş deck
+sprite sheet cleared	sprite sayfası temizlendi
+stream url unchanged	yayın URL'si değişmedi
+stream url: required	yayın URL'si: gerekli
+time trigger cleared	zaman tetikleyicisi temizlendi
+update: checking off	güncelleme: denetim kapalı
+warp settings copied	biçim bozma ayarları kopyalandı
+warp settings pasted	biçim bozma ayarları yapıştırıldı
+DMX over sACN (E1.31)	sACN (E1.31) üzerinden DMX
+Lower Third cue added	Lower Third cue eklendi
+already the last step	zaten son adım
+analyzing loudness...	ses seviyesi analiz ediliyor...
+arcade always wiggles	atari hep titrer
+browser window closed	tarayıcı penceresi kapandı
+canvas width: invalid	tuval genişliği: geçersiz
+computer keyboard off	bilgisayar klavyesi kapalı
+contrast check: saved	kontrast denetimi: kaydedildi
+cue paste: copy first	cue yapıştır: önce kopyala
+cue paste: no targets	cue yapıştır: hedef yok
+cue paste: select cue	cue yapıştır: cue seç
+cue reset: no targets	cue sıfırla: hedef yok
+cue reset: select cue	cue sıfırla: cue seç
+cue settings pasted x	cue ayarları yapıştırıldı x
+display switch failed	ekran değiştirilemedi
+effect chain pasted x	efekt zinciri yapıştırıldı x
+encoder queue running	kodlayıcı kuyruğu çalışıyor
+lfo follows the tempo	LFO tempoyu izler
+motion driver cleared	hareket sürücüsü temizlendi
+ndi tally trigger off	NDI tally tetikleyicisi kapalı
+ndi unsupported build	NDI bu yapıda desteklenmiyor
+no Lower Third on air	yayında Lower Third yok
+no audio cue selected	ses cue'su seçilmedi
+playlist fps: invalid	playlist fps: geçersiz
+presenter: no outputs	presenter: çıkış yok
+scene slot source set	sahne yuvası kaynağı ayarlandı
+st 2110: invalid port	st 2110: geçersiz bağlantı noktası
+timer face: 7-segment	zamanlayıcı yüzü: 7 segment
+' is not a deck number	' bir deck numarası değil
+FX PARAM: value is 0-1	FX PARAM: değer 0-1
+already the first step	zaten ilk adım
+audio bitrate: invalid	ses bit hızı: geçersiz
+browser capture failed	tarayıcı yakalama başarısız
+canvas height: invalid	tuval yüksekliği: geçersiz
+datamosh: select a cue	datamosh: bir cue seç
+effect stack full (12)	efekt yığını dolu (12)
+jumped to selected cue	seçili cue'ya atlandı
+layer command: removed	layer komutu: kaldırıldı
+listens to any channel	herhangi bir kanalı dinler
+nmos: node not running	nmos: düğüm çalışmıyor
+output effects back in	çıkış efektleri geri döndü
+presenter layout: wide	presenter yerleşimi: geniş
+route command: removed	route komutu: kaldırıldı
+save failed - retrying	kaydetme başarısız - yeniden deneniyor
+schedule: select a cue	zamanlama: bir cue seç
+slide import cancelled	slayt içe aktarma iptal edildi
+takes land on the beat	take'ler ritme oturur
+warp paste: copy first	warp yapıştır: önce kopyala
+2 \xC2\xB7 WHAT IT RUNS	2 \xC2\xB7 NE ÇALIŞTIRIR
+Chladni stops listening	Chladni dinlemeyi bırakır
+could not add an output	çıkış eklenemedi
+downloading {1}... {2}%	{1} indiriliyor... {2}%
+driver restarts on take	sürücü take'te yeniden başlar
+encoder destination set	kodlayıcı hedefi ayarlandı
+expected factor 0.25..4	0.25..4 arası çarpan bekleniyordu
+expected finite numbers	sonlu sayılar bekleniyordu
+hyperdeck emulation off	HyperDeck benzetimi kapalı
+key color sample failed	anahtar rengi örneklenemedi
+leave it where it lands	düştüğü yerde bırak
+no playlist column here	burada çalma listesi sütunu yok
+osc query port: invalid	OSC sorgusu bağlantı noktası: geçersiz
+playlist start: invalid	çalma listesi başlangıcı: geçersiz
+still duration: invalid	durağan süre: geçersiz
+synth cue has no engine	sentezleyici cue'sunun motoru yok
+, its place in the stack	, yığındaki yeri
+1 \xC2\xB7 WHAT COMES IN	1 \xC2\xB7 GİREN NE
+An output whose Shows is	Göster'i şu olan bir çıkış
+DeckLink input cue added	DeckLink giriş cue'su eklendi
+already on the dashboard	zaten panoda
+expected an alpha, 0-255	alfa bekleniyor, 0-255
+expected positive pixels	pozitif piksel bekleniyor
+find: press Ctrl+F first	ara: önce Ctrl+F bas
+glyphs: the built-in set	glifler: yerleşik set
+keep at least one output	en az bir çıkış tut
+marker: none on this cue	işaret: bu cue'da yok
+mic mixed into recording	mikrofon kayda karışık
+not a playable MIDI file	çalınabilir bir MIDI dosyası değil
+relink: folder not found	relink: klasör bulunamadı
+select a moire cue first	önce bir Hare cue'su seç
+tempo follows MIDI clock	tempo MIDI clock'u izler
+the tracker has no steps	izleyicinin adımı yok
+typeface (the app's own)	yazı tipi (uygulamanın kendisi)
+. Set displays to Extend.	. Ekranları Genişlet olarak ayarla.
+Language reset to English	Dil İngilizce'ye sıfırlandı
+PUSH expects a cue number	PUSH bir cue numarası bekler
+SLICE: there is no output	SLICE: çıkış yok
+TCCUE: select a cue first	TCCUE: önce bir cue seç
+effects paste: no targets	efekt yapıştırma: hedef yok
+follows the whole picture	tüm görüntüyü izler
+key color picker canceled	anahtar rengi seçici iptal edildi
+listening for captions...	altyazılar dinleniyor...
+monitor: pick a row first	monitör: önce bir satır seç
+moshlook: smooth | chunky	moshlook: yumuşak | iri bloklu
+no trimmable cue selected	kırpılabilir cue seçilmedi
+output type change failed	çıkış türü değiştirilemedi
+select a master cue first	önce bir Master cue seç
+sequence stops at the end	sekans sonda durur
+web monitor port: invalid	web monitörü bağlantı noktası: geçersiz
+3 \xC2\xB7 WHAT IT RUNS ON	3 · ÜZERİNDE
+ASCII CHAOS: expected 0..1	ASCII CHAOS: 0..1 bekleniyor
+DATAMOSH on - preparing...	DATAMOSH AÇIK - hazırlanıyor...
+DMXCUE: select a cue first	DMXCUE: önce bir cue seç
+GEOLFO: select a cue first	GEOLFO: önce bir cue seç
+MATRIX: select a cue first	MATRIX: önce bir cue seç
+MEMOCUE: expected the note	MEMOCUE: not bekleniyor
+NETCUE: select a cue first	NETCUE: önce bir cue seç
+STING BODY: expected 0-100	STING BODY: 0-100 bekleniyor
+could not load that plugin	bu eklenti yüklenemedi
+effects copy: select a cue	efektleri kopyala: bir cue seç
+expected degrees -180..180	-180..180 derece bekleniyor
+expression is at its limit	ifade sınırında
+multiview - every playlist	multiview - her çalma listesi
+new show, from my defaults	yeni gösteri, varsayılanlarımdan
+no cue with audio selected	sesli cue seçilmedi
+osc feedback rate: invalid	OSC geri besleme oranı: geçersiz
+panic: outputs already off	panik: çıkışlar zaten KAPALI
+pick from screen cancelled	ekrandan al iptal edildi
+rendering slide {1} of {2}	slayt {1} / {2} işleniyor
+schedule: HH:MM[:SS] | off	zamanlama: HH:MM[:SS] | kapalı
+update: nothing to install	güncelleme: yüklenecek bir şey yok
+warp preset: name required	biçim boz önayarı: ad gerekli
+1 cue imported (probing...)	1 cue içe aktarıldı (inceleniyor...)
+ASCII WOBBLE: expected 0..1	ASCII WOBBLE: 0..1 bekleniyor
+AUDIOFX ADD: chain full (8)	AUDIOFX ADD: zincir tam (8)
+CLICK: expected two numbers	CLICK: iki sayı bekleniyor
+HOVER: expected two numbers	HOVER: iki sayı bekleniyor
+MIDICUE: select a cue first	MIDICUE: önce bir cue seç
+TEXTCUE: select a cue first	TEXTCUE: önce bir cue seç
+VIDEODIP FADE: 0-30 seconds	VIDEODIP FADE: 0-30 saniye
+browser stopped - deck dark	tarayıcı durdu - deck karanlık
+could not save the defaults	varsayılanlar kaydedilemedi
+datamosh look: select a cue	datamosh görünümü: bir cue seç
+datamosh: already preparing	datamosh: zaten hazırlanıyor
+effects paste: select a cue	efekt yapıştır: bir cue seç
+matrix on, routed as it was	matrix açık, eskisi gibi yönlendirildi
+nmos: clipboard unavailable	nmos: pano kullanılamıyor
+nmos: need http://host:port	nmos: http://host:port gerekli
+skip back: nothing previous	geri atla: önceki yok
+FX COLOUR: a grey has no hue	FX COLOUR: griyin renk tonu yok
+MASK RENAME: expected a name	MASK RENAME: bir ad bekleniyordu
+MIDIFILE: select a cue first	MIDIFILE: önce bir cue seç
+SCALEMODE: expected one mode	SCALEMODE: tek bir mod bekleniyordu
+SYNTH ADD takes no arguments	SYNTH ADD bağımsız değişken almaz
+TEXTCUE CARD: expected 0-255	TEXTCUE CARD: 0-255 bekleniyordu
+UISNAP: expected a .bmp path	UISNAP: .bmp yolu bekleniyordu
+av jumps: counting from zero	av jumps: sıfırdan sayılır
+cannot reorder a running job	çalışan işin sırası değiştirilemez
+expected a number of seconds	saniye sayısı bekleniyordu
+master scene rename: removed	master scene yeniden adlandırma: kaldırıldı
+motion driver would not open	hareket sürücüsü açılmadı
+no steps yet - Ins makes one	henüz adım yok - Ins bir adım ekler
+selected cue has no geometry	seçili cue'nun geometrisi yok
+skip back: playlist is empty	geri atla: playlist boş
+sprite set could not be read	sprite seti okunamadı
+st2110 sdp written to stdout	st2110 sdp stdout'a yazıldı
+the clicker advances the cue	sunum kumandası cue'yu ilerletir
+video dip fade: 0-30 seconds	video geçişi solması: 0-30 saniye
+warp point: expected numbers	biçim bozma noktası: sayı bekleniyordu
+* KONAMI * terrarium unlocked	* KONAMI * teraryum açıldı
+DMXCUE PORT: expected 1-65535	DMXCUE PORT: 1-65535 bekleniyordu
+ENDACTION: select a cue first	ENDACTION: önce bir cue seç
+FADE STOP: expected on or off	FADE STOP: açık veya kapalı bekleniyordu
+LOWERANIM: select a cue first	LOWERANIM: önce bir cue seç
+MATRIX SET: destination is 1-	MATRIX SET: hedef 1-
+NETCUE PORT: expected 1-65535	NETCUE PORT: 1-65535 bekleniyor
+OUTSNAP: expected a .bmp path	OUTSNAP: .bmp yolu bekleniyor
+SCRIPTCUE: select a cue first	SCRIPTCUE: önce bir cue seç
+TEXTCUE SCALE: expected 0.5-2	TEXTCUE SCALE: 0.5-2 bekleniyor
+TRIGGER AT: HH:MM[:SS] or OFF	TRIGGER AT: HH:MM[:SS] veya OFF
+WARP AT: expected two numbers	WARP AT: iki sayı bekleniyor
+could not remove the defaults	varsayılanlar kaldırılamadı
+lights dip when a video rolls	video başlayınca ışıklar kısılır
+no refresh choices for raster	raster için yenileme seçeneği yok
+output recovered: auto native	çıkış kurtarıldı: otomatik yerli
+overlay on -- choose an image	kaplama açık -- bir görüntü seç
+stopped - deck dark, reracked	durdu - deck karardı, yeniden yüklendi
+this file has one sound track	bu dosyada tek ses izi var
+update: will check at startup	güncelleme: açılışta denetlenecek
+web monitor connections: 1-64	web monitörü bağlantıları: 1-64
+DASH: the startup dialog is up	DASH: açılış penceresi açık
+LOWERSTYLE: select a cue first	LOWERSTYLE: önce bir cue seç
+MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: 1-16 bekleniyor
+PATTERN ADD needs a pattern id	PATTERN ADD için bir desen kimliği gerekir

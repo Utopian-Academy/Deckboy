@@ -394,3 +394,134 @@ it	VOLUME
 nl	VOLUME
 nl	({1} decks)
 pt-BR	VOLUME
+haw	DECKLINK SDI / HDMI
+vi	universe: 0-63999
+ar	st 2110: 4:2:2 8-bit
+bg	st 2110: 4:2:2 8-bit
+ckb	st 2110: 4:2:2 8-bit
+da	st 2110: 4:2:2 8-bit
+da	DMX over sACN (E1.31)
+de	st 2110: 4:2:2 8-bit
+el	st 2110: 4:2:2 8-bit
+es-CU	st 2110: 4:2:2 8-bit
+es-CU	DMX over sACN (E1.31)
+es	st 2110: 4:2:2 8-bit
+es	DMX over sACN (E1.31)
+fa	st 2110: 4:2:2 8-bit
+fa	DMX over sACN (E1.31)
+fi	st 2110: 4:2:2 8-bit
+fi	DMX over sACN (E1.31)
+fr	st 2110: 4:2:2 8-bit
+fr	DMX over sACN (E1.31)
+gd	st 2110: 4:2:2 8-bit
+gd	DMX over sACN (E1.31)
+haw	st 2110: 4:2:2 8-bit
+haw	DMX over sACN (E1.31)
+hi	st 2110: 4:2:2 8-bit
+hi	DMX over sACN (E1.31)
+is	st 2110: 4:2:2 8-bit
+is	DMX over sACN (E1.31)
+it	st 2110: 4:2:2 8-bit
+it	DMX over sACN (E1.31)
+ja	st 2110: 4:2:2 8-bit
+ja	DMX over sACN (E1.31)
+kab	st 2110: 4:2:2 8-bit
+kab	DMX over sACN (E1.31)
+kmr	st 2110: 4:2:2 8-bit
+ko	st 2110: 4:2:2 8-bit
+lo	st 2110: 4:2:2 8-bit
+lum	st 2110: 4:2:2 8-bit
+nl	st 2110: 4:2:2 8-bit
+pap-AW	st 2110: 4:2:2 8-bit
+pl	st 2110: 4:2:2 8-bit
+pt-BR	st 2110: 4:2:2 8-bit
+ru	st 2110: 4:2:2 8-bit
+tr	st 2110: 4:2:2 8-bit
+uk	st 2110: 4:2:2 8-bit
+vi	st 2110: 4:2:2 8-bit
+zgh	st 2110: 4:2:2 8-bit
+zh-Hans	st 2110: 4:2:2 8-bit
+zh-Hant	st 2110: 4:2:2 8-bit
+zu	st 2110: 4:2:2 8-bit
+ar	st 2110: 4:2:2 10-bit
+bg	st 2110: 4:2:2 10-bit
+ckb	st 2110: 4:2:2 10-bit
+da	st 2110: 4:2:2 10-bit
+de	st 2110: 4:2:2 10-bit
+el	st 2110: 4:2:2 10-bit
+es-CU	st 2110: 4:2:2 10-bit
+es	st 2110: 4:2:2 10-bit
+fa	st 2110: 4:2:2 10-bit
+fi	st 2110: 4:2:2 10-bit
+fr	st 2110: 4:2:2 10-bit
+gd	st 2110: 4:2:2 10-bit
+haw	st 2110: 4:2:2 10-bit
+hi	st 2110: 4:2:2 10-bit
+is	st 2110: 4:2:2 10-bit
+it	st 2110: 4:2:2 10-bit
+ja	st 2110: 4:2:2 10-bit
+kab	st 2110: 4:2:2 10-bit
+kmr	st 2110: 4:2:2 10-bit
+ko	st 2110: 4:2:2 10-bit
+lo	st 2110: 4:2:2 10-bit
+lum	st 2110: 4:2:2 10-bit
+nl	st 2110: 4:2:2 10-bit
+pap-AW	st 2110: 4:2:2 10-bit
+pl	st 2110: 4:2:2 10-bit
+pt-BR	st 2110: 4:2:2 10-bit
+ru	st 2110: 4:2:2 10-bit
+tr	st 2110: 4:2:2 10-bit
+uk	st 2110: 4:2:2 10-bit
+vi	st 2110: 4:2:2 10-bit
+zgh	st 2110: 4:2:2 10-bit
+zh-Hans	st 2110: 4:2:2 10-bit
+zh-Hant	st 2110: 4:2:2 10-bit
+zu	st 2110: 4:2:2 10-bit
+ar	src=... | cmd=... | ...
+bg	src=... | cmd=... | ...
+ckb	src=... | cmd=... | ...
+da	src=... | cmd=... | ...
+de	src=... | cmd=... | ...
+el	src=... | cmd=... | ...
+es-CU	src=... | cmd=... | ...
+es	src=... | cmd=... | ...
+fa	src=... | cmd=... | ...
+fi	src=... | cmd=... | ...
+fr	src=... | cmd=... | ...
+gd	src=... | cmd=... | ...
+haw	src=... | cmd=... | ...
+haw	AMWA NMOS  IS-04 / IS-05
+hi	src=... | cmd=... | ...
+is	src=... | cmd=... | ...
+it	src=... | cmd=... | ...
+ja	src=... | cmd=... | ...
+kab	src=... | cmd=... | ...
+kmr	src=... | cmd=... | ...
+kmr	WEBMONITOR CLIENTS: 1-64
+kmr	WEBMONITOR PORT: 1-65535
+ko	src=... | cmd=... | ...
+ko	WEBMONITOR CLIENTS: 1-64
+ko	WEBMONITOR PORT: 1-65535
+lo	src=... | cmd=... | ...
+lo	WEBMONITOR CLIENTS: 1-64
+lo	WEBMONITOR PORT: 1-65535
+lum	src=... | cmd=... | ...
+lum	WEBMONITOR CLIENTS: 1-64
+lum	WEBMONITOR PORT: 1-65535
+nl	src=... | cmd=... | ...
+nl	WEBMONITOR CLIENTS: 1-64
+nl	WEBMONITOR PORT: 1-65535
+pap-AW	src=... | cmd=... | ...
+pap-AW	WEBMONITOR CLIENTS: 1-64
+pap-AW	WEBMONITOR PORT: 1-65535
+pl	src=... | cmd=... | ...
+pl	WEBMONITOR PORT: 1-65535
+pt-BR	src=... | cmd=... | ...
+ru	src=... | cmd=... | ...
+tr	src=... | cmd=... | ...
+uk	src=... | cmd=... | ...
+vi	src=... | cmd=... | ...
+zgh	src=... | cmd=... | ...
+zh-Hans	src=... | cmd=... | ...
+zh-Hant	src=... | cmd=... | ...
+zu	src=... | cmd=... | ...

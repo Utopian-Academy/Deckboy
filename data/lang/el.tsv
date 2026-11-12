@@ -2598,3 +2598,256 @@ media probe failed	αποτυχία ανάλυσης μέσων
 nmos: invalid port	NMOS: μη έγκυρη θύρα
 output overlay off	επικάλυψη εξόδου: ΕΚΤΟΣ
 pip target cleared	ο στόχος PIP καθαρίστηκε
+select a cue first	επιλέξτε πρώτα cue
+source unavailable	η πηγή δεν είναι διαθέσιμη
+spare (also spare)	εφεδρικό (επίσης εφεδρικό)
+stream key cleared	το κλειδί ροής καθαρίστηκε
+timecode cue added	προστέθηκε cue χρονοκώδικα
+timer face: blocky	πρόσωπο χρονομέτρου: τετράγωνο
+timer logo cleared	το λογότυπο χρονομέτρου καθαρίστηκε
+vmix port: invalid	VMIX: μη έγκυρη θύρα
+, not a plugin slot	, δεν είναι υποδοχή πρόσθετου
+. Your show is back	. Το σόου σας επέστρεψε
+DeckLink 10-bit off	DeckLink 10-BIT: ΕΚΤΟΣ
+HOVER: expected x y	HOVER: αναμένεται x y
+Lower Third cleared	το Lower Third καθαρίστηκε
+NDI\xc2\xae NETWORK	NDI® ΔΙΚΤΥΟ
+OSC trigger cleared	η ενεργοποίηση OSC καθαρίστηκε
+Show file not found	Το αρχείο σόου δεν βρέθηκε
+audio chain cleared	η αλυσίδα ήχου καθαρίστηκε
+audio switch failed	αποτυχία εναλλαγής ήχου
+browser jumped live	ο περιηγητής μετέβη στα ζωντανά
+browser url updated	το URL προγράμματος περιήγησης ενημερώθηκε
+bundle media failed	η συσκευασία μέσων απέτυχε
+choose a show first	επιλέξτε πρώτα παράσταση
+composite cue added	προστέθηκε σύνθετο cue
+cue numbers cleared	οι αριθμοί cue εκκαθαρίστηκαν
+cue settings copied	αντιγράφηκαν οι ρυθμίσεις cue
+cue settings pasted	επικολλήθηκαν οι ρυθμίσεις cue
+double-GO guard off	Προστασία διπλού GO: ΟΧΙ
+effect chain pasted	επικολλήθηκε η αλυσίδα εφέ
+end of the sequence	τέλος της ακολουθίας
+pattern motion: n/a	κίνηση μοτίβου: μη διαθέσιμο
+plugin slot cleared	το slot πρόσθετου εκκαθαρίστηκε
+splitnotes: no deck	splitnotes: κανένα deck
+sprite sheet loaded	φορτώθηκε το sprite sheet
+takes are immediate	το TAKE είναι άμεσο
+ui motion always on	κίνηση UI: πάντα ΝΑΙ
+-10 seconds from end	-10 δευτερόλεπτα από το τέλος
+-20 seconds from end	-20 δευτερόλεπτα από το τέλος
+-30 seconds from end	-30 δευτερόλεπτα από το τέλος
+. — skip to next cue	. — παράλειψη στο επόμενο cue
+MIDI plays the synth	Το MIDI παίζει το synth
+MIDI trigger cleared	η ενεργοποίηση MIDI εκκαθαρίστηκε
+NDI source cue added	προστέθηκε cue πηγής NDI
+audio chain full (8)	αλυσίδα ήχου πλήρης (8)
+browser url required	απαιτείται URL προγράμματος περιήγησης
+bundle export failed	η εξαγωγή συσκευασίας απέτυχε
+bundle folder failed	ο φάκελος συσκευασίας απέτυχε
+cue copy: select cue	αντιγραφή cue: επιλέξτε cue
+cue settings reset x	επαναφορά ρυθμίσεων cue x
+delete from the show	διαγραφή από την παράσταση
+encoder queue paused	η ουρά κωδικοποιητή σε παύση
+find: token required	αναζήτηση: απαιτείται token
+first port available	πρώτη διαθέσιμη θύρα
+identifying displays	αναγνώριση οθονών
+marker: nothing live	δείκτης: τίποτα ζωντανά
+marker: select a cue	δείκτης: επίλεξε cue
+no midi input device	καμία συσκευή εισόδου MIDI
+no overlays to clear	καμία επικάλυψη για καθαρισμό
+no synth cue is live	κανένα synth cue στον αέρα
+output create failed	αποτυχία δημιουργίας εξόδου
+output remove failed	αποτυχία αφαίρεσης εξόδου
+pause points cleared	τα σημεία παύσης καθαρίστηκαν
+presenter view reset	επαναφορά προβολής παρουσιαστή
+renumber: empty deck	αρίθμηση: κενό deck
+sprite sheet cleared	το sprite sheet καθαρίστηκε
+stream url unchanged	το url ροής δεν άλλαξε
+stream url: required	url ροής: απαιτείται
+time trigger cleared	ο χρονικός ενεργοποιητής καθαρίστηκε
+update: checking off	ενημέρωση: ο έλεγχος είναι ανενεργός
+warp settings copied	αντιγράφηκαν οι ρυθμίσεις παραμόρφωσης
+warp settings pasted	επικολλήθηκαν οι ρυθμίσεις παραμόρφωσης
+DMX over sACN (E1.31)	DMX μέσω sACN (E1.31)
+already the last step	ήδη το τελευταίο βήμα
+analyzing loudness...	ανάλυση ακουστότητας...
+arcade always wiggles	το arcade κουνιέται πάντα
+browser window closed	το παράθυρο browser έκλεισε
+canvas width: invalid	πλάτος καμβά: μη έγκυρο
+computer keyboard off	πληκτρολόγιο υπολογιστή ανενεργό
+contrast check: saved	έλεγχος αντίθεσης: αποθηκεύτηκε
+cue paste: copy first	επικόλληση cue: αντίγραψε πρώτα
+cue paste: no targets	επικόλληση cue: κανένας στόχος
+cue paste: select cue	επικόλληση cue: επίλεξε cue
+cue reset: no targets	επαναφορά cue: κανένας στόχος
+cue reset: select cue	επαναφορά cue: επίλεξε cue
+cue settings pasted x	επικολλήθηκαν ρυθμίσεις cue x
+display switch failed	αποτυχία αλλαγής οθόνης
+effect chain pasted x	επικολλήθηκε αλυσίδα εφέ x
+encoder queue running	η ουρά κωδικοποιητή τρέχει
+lfo follows the tempo	το LFO ακολουθεί το τέμπο
+motion driver cleared	ο οδηγός κίνησης καθαρίστηκε
+ndi tally trigger off	ο ενεργοποιητής ndi tally είναι ανενεργός
+ndi unsupported build	το NDI δεν υποστηρίζεται σε αυτή την έκδοση
+no Lower Third on air	κανένα Lower Third στον αέρα
+no audio cue selected	δεν επιλέχθηκε cue ήχου
+playlist fps: invalid	fps playlist: μη έγκυρο
+presenter: no outputs	παρουσιαστής: καμία έξοδος
+scene slot source set	ορίστηκε η πηγή του slot σκηνής
+st 2110: invalid port	st 2110: μη έγκυρη θύρα
+timer face: 7-segment	πρόσωπο χρονομέτρου: 7 τμημάτων
+' is not a deck number	το ' δεν είναι αριθμός deck
+FX PARAM: value is 0-1	FX PARAM: η τιμή είναι 0-1
+already the first step	ήδη το πρώτο βήμα
+audio bitrate: invalid	ρυθμός bit ήχου: μη έγκυρος
+browser capture failed	η λήψη του περιηγητή απέτυχε
+canvas height: invalid	ύψος καμβά: μη έγκυρο
+datamosh: select a cue	datamosh: επιλέξτε ένα cue
+effect stack full (12)	η στοίβα εφέ είναι γεμάτη (12)
+jumped to selected cue	μετάβαση στο επιλεγμένο cue
+layer command: removed	εντολή επιπέδου: αφαιρέθηκε
+listens to any channel	ακούει οποιοδήποτε κανάλι
+nmos: node not running	nmos: ο κόμβος δεν τρέχει
+output effects back in	τα εφέ εξόδου είναι ξανά ενεργά
+presenter layout: wide	διάταξη παρουσιαστή: πλατιά
+route command: removed	εντολή διαδρομής: αφαιρέθηκε
+save failed - retrying	η αποθήκευση απέτυχε - νέα προσπάθεια
+schedule: select a cue	πρόγραμμα: επιλέξτε ένα cue
+slide import cancelled	η εισαγωγή διαφανειών ακυρώθηκε
+takes land on the beat	τα take πέφτουν στον ρυθμό
+warp paste: copy first	επικόλληση παραμόρφωσης: αντιγράψτε πρώτα
+2 \xC2\xB7 WHAT IT RUNS	2 \xC2\xB7 ΤΙ ΕΚΤΕΛΕΙ
+Chladni stops listening	Το Chladni σταματά να ακούει
+could not add an output	δεν ήταν δυνατή η προσθήκη εξόδου
+downloading {1}... {2}%	λήψη {1}... {2}%
+driver restarts on take	ο οδηγός επανεκκινείται στο take
+encoder destination set	ορίστηκε ο προορισμός του κωδικοποιητή
+expected factor 0.25..4	αναμένεται παράγοντας 0.25..4
+expected finite numbers	αναμένονται πεπερασμένοι αριθμοί
+hyperdeck emulation off	Η εξομοίωση HyperDeck είναι ανενεργή
+key color sample failed	η δειγματοληψία χρώματος κλειδιού απέτυχε
+leave it where it lands	άφησέ το εκεί που θα πέσει
+no playlist column here	δεν υπάρχει στήλη λίστας εδώ
+osc query port: invalid	θύρα ερωτήματος OSC: μη έγκυρη
+playlist start: invalid	έναρξη λίστας: μη έγκυρη
+still duration: invalid	διάρκεια ακίνητης εικόνας: μη έγκυρη
+synth cue has no engine	το synth cue δεν έχει μηχανή
+, its place in the stack	, η θέση του στη στοίβα
+1 \xC2\xB7 WHAT COMES IN	1 \xC2\xB7 ΤΙ ΜΠΑΙΝΕΙ
+An output whose Shows is	Μια έξοδος της οποίας το Εμφάνιση είναι
+DeckLink input cue added	Προστέθηκε cue εισόδου DeckLink
+already on the dashboard	ήδη στον πίνακα
+expected an alpha, 0-255	αναμένεται άλφα, 0-255
+expected positive pixels	αναμένονται θετικά pixel
+find: press Ctrl+F first	αναζήτηση: πάτησε πρώτα Ctrl+F
+glyphs: the built-in set	γλυφές: το ενσωματωμένο σετ
+keep at least one output	κράτησε τουλάχιστον μία έξοδο
+marker: none on this cue	σημάδι: κανένα σε αυτό το cue
+mic mixed into recording	μικρόφωνο αναμεμειγμένο στην εγγραφή
+not a playable MIDI file	όχι αρχείο MIDI που να παίζεται
+relink: folder not found	επανασύνδεση: ο φάκελος δεν βρέθηκε
+select a moire cue first	επίλεξε πρώτα ένα cue μουαρέ
+tempo follows MIDI clock	το τέμπο ακολουθεί το MIDI clock
+the tracker has no steps	ο tracker δεν έχει βήματα
+typeface (the app's own)	γραμματοσειρά (αυτή της εφαρμογής)
+. Set displays to Extend.	. Ρύθμισε τις οθόνες σε Επέκταση.
+Language reset to English	Η γλώσσα επανήλθε στα Αγγλικά
+PUSH expects a cue number	το PUSH περιμένει αριθμό cue
+SLICE: there is no output	SLICE: δεν υπάρχει έξοδος
+TCCUE: select a cue first	TCCUE: επίλεξε πρώτα ένα cue
+effects paste: no targets	επικόλληση εφέ: δεν υπάρχουν στόχοι
+follows the whole picture	ακολουθεί ολόκληρη την εικόνα
+key color picker canceled	η επιλογή χρώματος key ακυρώθηκε
+listening for captions...	ακρόαση για υπότιτλους...
+monitor: pick a row first	monitor: επιλέξτε πρώτα μια γραμμή
+moshlook: smooth | chunky	moshlook: απαλό | χοντρό
+no trimmable cue selected	δεν επιλέχθηκε cue για περικοπή
+output type change failed	η αλλαγή τύπου εξόδου απέτυχε
+select a master cue first	επιλέξτε πρώτα ένα master cue
+sequence stops at the end	η ακολουθία σταματά στο τέλος
+web monitor port: invalid	θύρα web monitor: μη έγκυρη
+3 \xC2\xB7 WHAT IT RUNS ON	3 · ΣΕ ΤΙ ΔΡΑ
+ASCII CHAOS: expected 0..1	ASCII CHAOS: αναμένεται 0..1
+DATAMOSH on - preparing...	DATAMOSH ΕΝΤΟΣ - προετοιμασία...
+DMXCUE: select a cue first	DMXCUE: επιλέξτε πρώτα ένα cue
+GEOLFO: select a cue first	GEOLFO: επιλέξτε πρώτα ένα cue
+MATRIX: select a cue first	MATRIX: επιλέξτε πρώτα ένα cue
+MEMOCUE: expected the note	MEMOCUE: αναμένεται η σημείωση
+NETCUE: select a cue first	NETCUE: επιλέξτε πρώτα ένα cue
+STING BODY: expected 0-100	STING BODY: αναμένεται 0-100
+could not load that plugin	δεν ήταν δυνατή η φόρτωση αυτού του πρόσθετου
+effects copy: select a cue	αντιγραφή εφέ: επιλέξτε ένα cue
+expected degrees -180..180	αναμένονται μοίρες -180..180
+expression is at its limit	η έκφραση βρίσκεται στο όριό της
+multiview - every playlist	multiview - κάθε λίστα
+new show, from my defaults	νέα παράσταση, από τις προεπιλογές μου
+no cue with audio selected	δεν επιλέχθηκε cue με ήχο
+osc feedback rate: invalid	ρυθμός ανάδρασης OSC: μη έγκυρος
+panic: outputs already off	panic: οι έξοδοι είναι ήδη εκτός
+pick from screen cancelled	πάρε από την οθόνη: ακυρώθηκε
+rendering slide {1} of {2}	απόδοση διαφάνειας {1} από {2}
+schedule: HH:MM[:SS] | off	πρόγραμμα: HH:MM[:SS] | όχι
+update: nothing to install	ενημέρωση: τίποτα για εγκατάσταση
+warp preset: name required	προεπιλογή παραμόρφωσης: απαιτείται όνομα
+1 cue imported (probing...)	1 cue εισήχθη (ανάλυση...)
+ASCII WOBBLE: expected 0..1	ASCII WOBBLE: αναμένεται 0..1
+AUDIOFX ADD: chain full (8)	AUDIOFX ADD: η αλυσίδα είναι πλήρης (8)
+CLICK: expected two numbers	CLICK: αναμένονται δύο αριθμοί
+HOVER: expected two numbers	HOVER: αναμένονται δύο αριθμοί
+MIDICUE: select a cue first	MIDICUE: επιλέξτε πρώτα ένα cue
+TEXTCUE: select a cue first	TEXTCUE: επιλέξτε πρώτα ένα cue
+VIDEODIP FADE: 0-30 seconds	VIDEODIP FADE: 0-30 δευτερόλεπτα
+browser stopped - deck dark	ο περιηγητής σταμάτησε - deck σκοτεινό
+could not save the defaults	οι προεπιλογές δεν αποθηκεύτηκαν
+datamosh look: select a cue	datamosh look: επιλέξτε cue
+datamosh: already preparing	datamosh: ήδη σε προετοιμασία
+effects paste: select a cue	effects paste: επιλέξτε cue
+matrix on, routed as it was	matrix ναι, δρομολογημένο όπως πριν
+nmos: clipboard unavailable	nmos: το πρόχειρο δεν είναι διαθέσιμο
+nmos: need http://host:port	nmos: απαιτείται http://host:port
+skip back: nothing previous	παράλειψη πίσω: δεν υπάρχει προηγούμενο
+FX COLOUR: a grey has no hue	FX COLOUR: το γκρι δεν έχει απόχρωση
+MASK RENAME: expected a name	MASK RENAME: αναμενόταν όνομα
+MIDIFILE: select a cue first	MIDIFILE: επιλέξτε πρώτα ένα cue
+SCALEMODE: expected one mode	SCALEMODE: αναμενόταν μία λειτουργία
+SYNTH ADD takes no arguments	SYNTH ADD δεν δέχεται ορίσματα
+TEXTCUE CARD: expected 0-255	TEXTCUE CARD: αναμενόταν 0-255
+UISNAP: expected a .bmp path	UISNAP: αναμενόταν διαδρομή .bmp
+av jumps: counting from zero	av jumps: μέτρηση από το μηδέν
+cannot reorder a running job	δεν γίνεται αναδιάταξη εργασίας που τρέχει
+expected a number of seconds	αναμενόταν αριθμός δευτερολέπτων
+master scene rename: removed	master scene rename: αφαιρέθηκε
+motion driver would not open	ο οδηγός κίνησης δεν άνοιξε
+no steps yet - Ins makes one	κανένα βήμα ακόμα - το Ins φτιάχνει ένα
+selected cue has no geometry	το επιλεγμένο cue δεν έχει γεωμετρία
+skip back: playlist is empty	παράλειψη πίσω: το playlist είναι κενό
+sprite set could not be read	το σετ sprite δεν διαβάστηκε
+st2110 sdp written to stdout	st2110 sdp γράφτηκε στο stdout
+the clicker advances the cue	το τηλεχειριστήριο προχωρά το cue
+video dip fade: 0-30 seconds	video dip fade: 0-30 δευτερόλεπτα
+warp point: expected numbers	warp point: αναμένονταν αριθμοί
+* KONAMI * terrarium unlocked	* KONAMI * το terrarium ξεκλειδώθηκε
+DMXCUE PORT: expected 1-65535	DMXCUE PORT: αναμενόταν 1-65535
+ENDACTION: select a cue first	ENDACTION: επιλέξτε πρώτα ένα cue
+FADE STOP: expected on or off	FADE STOP: αναμενόταν ΝΑΙ ή ΟΧΙ
+LOWERANIM: select a cue first	LOWERANIM: επιλέξτε πρώτα ένα cue
+MATRIX SET: destination is 1-	MATRIX SET: ο προορισμός είναι 1-
+NETCUE PORT: expected 1-65535	NETCUE PORT: αναμένεται 1-65535
+OUTSNAP: expected a .bmp path	OUTSNAP: αναμένεται διαδρομή .bmp
+SCRIPTCUE: select a cue first	SCRIPTCUE: επιλέξτε πρώτα ένα cue
+TEXTCUE SCALE: expected 0.5-2	TEXTCUE SCALE: αναμένεται 0.5-2
+TRIGGER AT: HH:MM[:SS] or OFF	TRIGGER AT: HH:MM[:SS] ή OFF
+WARP AT: expected two numbers	WARP AT: αναμένονται δύο αριθμοί
+could not remove the defaults	δεν ήταν δυνατή η αφαίρεση των προεπιλογών
+lights dip when a video rolls	τα φώτα χαμηλώνουν όταν παίζει βίντεο
+no refresh choices for raster	καμία επιλογή ανανέωσης για raster
+output recovered: auto native	η έξοδος ανακτήθηκε: αυτόματο εγγενές
+overlay on -- choose an image	επικάλυψη εντός -- επιλέξτε εικόνα
+stopped - deck dark, reracked	σταματημένο - deck σκοτεινό, ξαναστήθηκε
+this file has one sound track	αυτό το αρχείο έχει ένα κανάλι ήχου
+update: will check at startup	ενημέρωση: θα ελέγξει στην εκκίνηση
+web monitor connections: 1-64	συνδέσεις web monitor: 1-64
+DASH: the startup dialog is up	DASH: το παράθυρο εκκίνησης είναι ανοιχτό
+LOWERSTYLE: select a cue first	LOWERSTYLE: επιλέξτε πρώτα ένα cue
+MIDICUE CHANNEL: expected 1-16	MIDICUE CHANNEL: αναμένεται 1-16
+PATTERN ADD needs a pattern id	PATTERN ADD χρειάζεται ID μοτίβου
