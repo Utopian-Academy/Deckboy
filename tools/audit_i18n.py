@@ -131,6 +131,9 @@ def drawn_strings():
             for name in files:
                 if not name.endswith((".cpp", ".hpp", ".ipp")):
                     continue
+                if name == "app_smoke.ipp":
+                    continue      # the self-checks' INPUTS, not interface text: translating
+                                  # "spare (also spare)" broke the check that it stays as written
                 path = os.path.join(dirpath, name)
                 text = open(path, encoding="utf-8", errors="replace").read()
                 for m in call.finditer(text):
@@ -203,6 +206,9 @@ def option_labels():
             for name in files:
                 if not name.endswith((".cpp", ".hpp", ".ipp")):
                     continue
+                if name == "app_smoke.ipp":
+                    continue      # the self-checks' INPUTS, not interface text: translating
+                                  # "spare (also spare)" broke the check that it stays as written
                 path = os.path.join(dirpath, name)
                 text = open(path, encoding="utf-8", errors="replace").read()
                 rel = os.path.relpath(path, ROOT).replace("\\", "/")

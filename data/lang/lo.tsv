@@ -2600,7 +2600,6 @@ output overlay off	ຊັ້ນທັບ OUTPUT ປິດ
 pip target cleared	ລ້າງເປົ້າໝາຍ pip ແລ້ວ
 select a cue first	ເລືອກ cue ກ່ອນ
 source unavailable	ແຫຼ່ງໃຊ້ບໍ່ໄດ້
-spare (also spare)	ສຳຮອງ (ສຳຮອງຄືກັນ)
 stream key cleared	ລ້າງລະຫັດ Stream ແລ້ວ
 timecode cue added	ເພີ່ມ cue ລະຫັດເວລາແລ້ວ
 timer face: blocky	ໃບໜ້າໂມງນັບ: ແບບບລັອກ
