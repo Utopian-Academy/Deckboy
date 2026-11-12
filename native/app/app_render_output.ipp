@@ -4115,7 +4115,19 @@
   // (MediaEngine::setEffectsOnGpu); a grade, a key or a sound that reads the
   // picture keeps a cue on RGBA there as before. Asked every tick.
   bool deckEffectsCanStayOnGpu(int deckIndex) {
-    (void) deckIndex;
+    // Only for a playlist that HAS a cue with effects: asking the outputs
+    // makes their GPU effects, and making them on a show with none -- the
+    // shaders compiled on this thread if the launch warm-up had not finished
+    // -- held the picture at the start of playback (a loop seam check caught
+    // it). The whole playlist, not just the live cue, so a cue with effects
+    // is opened NV12 at its own TAKE.
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) return false;
+    const auto& cues = project_.decks[static_cast<std::size_t>(deckIndex)].cues;
+    if (std::none_of(cues.begin(), cues.end(), [](const Cue& c) {
+          return deckboy::effects::cueEffectStackActive(c.effects);
+        })) {
+      return false;
+    }
     bool any = false;
     for (int i = 0; i < static_cast<int>(project_.outputs.size()); ++i) {
       OutputRuntime* runtime = runtimeForOutput(i);
