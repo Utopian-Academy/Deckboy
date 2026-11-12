@@ -34,29 +34,20 @@ Free and open source, for Windows, macOS and Linux.
 **If Deckboy is useful to you, ⭐ star this repository** (top right): it is how the next
 operator finds it, and how you find it again.
 
-### New in 0.99.425
+### New in 0.99.427
 
-[Release notes and downloads](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.425)
+[Release notes and downloads](https://github.com/Utopian-Academy/Deckboy/releases/tag/v0.99.427)
 
 <img src="docs/images/readme/release-425/feathered-mask.gif" width="49%" alt="A feathered heart mask on a playing clip"> <img src="docs/images/readme/release-425/draw-replay.gif" width="49%" alt="A drawing that replays on a layer above a playing clip">
 
 <sub>Masks and Draw in 0.99.425. Footage: [Tears of Steel](https://mango.blender.org/), Blender Foundation, [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).</sub>
 
-- **MIDI map.** Run any Deckboy command from any MIDI controller or OSC message. Press LEARN, then
-  move a knob or press a key to connect it. The lights on the controller follow the show. Ready-made
-  maps are included for the KORG nanoKONTROL2, Novation Launch Control XL, AKAI APC mini mk2 and AKAI
-  APC40 mkII.
-- **Masks.** Cut the picture to a shape: a circle, a heart, a star, or a shape that you draw with the
-  pen. Put a mask on one cue, one playlist or a whole output. You can make its edges soft, move it
-  over time, and import or export it as an SVG file.
-- **Slices.** Send different parts of the picture to different places on an output, for LED walls and
-  screens of unusual shapes. Drag each slice into place in the new Screens window.
-- **Draw.** Draw on the picture with a mouse or a pen. Save the drawing as a still or as a video with
-  transparency, or replay it as it was drawn.
-- **Motion.** A camera can control Deckboy: movement in front of it changes any control that you
-  choose. Bug Swat, a short game, teaches you how.
-- **Also new:** seventeen more lessons, a Chladni effect that follows the pitch of the sound, a motion
-  trails effect, new multiview layouts, Vietnamese, Lao and Papiamento (Aruba), and Beast mode.
+- **40 new themes**, from Amber CRT and Teletext to Risograph, Deep Sea and Synthwave. Every label
+  stays easy to read.
+- **Lessons** point at every control they name, and Esc closes whatever is open first.
+- **A second playlist** appears beside the first as soon as you add it.
+- **In 0.99.426:** 40 layer blend modes for each layer on an output, and Deckboy in Cherokee and
+  Hawaiian. **In 0.99.425:** masks and Draw (above), a MIDI map for any controller, slices, and Motion.
 - **Known issue (Windows):** when two screens run at different refresh rates, for example 59.94 Hz and
   60 Hz, an output drops or repeats a frame about every 15 seconds. Deckboy warns you when this
   happens. For now, set the screens to the same rate
