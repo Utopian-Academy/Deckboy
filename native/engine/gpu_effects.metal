@@ -515,3 +515,89 @@ kernel void transMain(ARGS) {
   }
   put(dst, id, o);
 }
+
+#define STEREO_MAX 3840
+#define STEREO_THREADS 64
+
+kernel void stereoMain(SRC src [[texture(0)]], sampler srcSampler [[sampler(0)]],
+                       SRC aux [[texture(1)]], sampler auxSampler [[sampler(1)]],
+                       DST dst [[texture(2)]], constant Params& p [[buffer(0)]],
+                       uint2 group [[threadgroup_position_in_grid]],
+                       uint2 local [[thread_position_in_threadgroup]]) {
+  threadgroup uint sLink[STEREO_MAX];
+  threadgroup uint sCol[STEREO_MAX];
+  threadgroup atomic_uint sHidden[STEREO_MAX / 32];
+  const int y = int(group.y);
+  const int W = int(p.width);
+  const int lane = int(local.x);
+  for (int x = lane; x < W; x += STEREO_THREADS) {
+    const uint4 q = texel(src, x, y);
+    sCol[x] = (54 * q.r + 183 * q.g + 19 * q.b) >> 8;
+    sLink[x] = uint(x);
+  }
+  for (int b = lane; b < STEREO_MAX / 32; b += STEREO_THREADS) atomic_store_explicit(&sHidden[b], 0u, memory_order_relaxed);
+  threadgroup_barrier(mem_flags::mem_threadgroup);
+  if (p.f0 > 0.0f) {
+    for (int x = lane; x < W; x += STEREO_THREADS) {
+      const float v = float(sCol[x]);
+      const float rise = 255.0f * 2.0f * (2.0f - p.f0 * v / 255.0f) / (p.f0 * p.f1);
+      bool visible = true;
+      float zt = v + rise;
+      for (int t = 1; visible && zt < 255.0f; ++t) {
+        visible = (x - t < 0 || float(sCol[x - t]) < zt) && (x + t >= W || float(sCol[x + t]) < zt);
+        zt += rise;
+      }
+      if (!visible) atomic_fetch_or_explicit(&sHidden[x >> 5], 1u << uint(x & 31), memory_order_relaxed);
+    }
+  }
+  threadgroup_barrier(mem_flags::mem_threadgroup);
+  if (lane == 0) {
+    for (int x = 0; x < W; ++x) {
+      const float z = float(sCol[x]) / 255.0f;
+      const int sep = int(floor((1.0f - p.f0 * z) * p.f1 / (2.0f - p.f0 * z) + 0.5f));
+      int left = x - sep / 2;
+      int right = left + sep;
+      if (left < 0 || right >= W) continue;
+      if (((atomic_load_explicit(&sHidden[x >> 5], memory_order_relaxed) >> uint(x & 31)) & 1u) != 0) continue;
+      int k = int(sLink[left]);
+      while (k != left && k != right) {
+        if (k < right) {
+          left = k;
+        } else {
+          sLink[left] = uint(right);
+          left = right;
+          right = k;
+        }
+        k = int(sLink[left]);
+      }
+      sLink[left] = uint(right);
+    }
+    const uint cy = uint(y / p.i0);
+    for (int x = W - 1; x >= 0; --x) {
+      const int link = int(sLink[x]);
+      if (link != x) {
+        sCol[x] = sCol[link];
+        continue;
+      }
+      uint h = (uint(x / p.i0) * 0x9E3779B1u) ^ (cy * 0x85EBCA77u) ^ (uint(p.i1) * 0xC2B2AE3Du);
+      h ^= h >> 15;
+      h *= 0x2C1B3C6Du;
+      h ^= h >> 12;
+      h *= 0x297A2D39u;
+      h ^= h >> 15;
+      const float grey = (h & 1u) != 0 ? 235.0f : 20.0f;
+      const float3 c = floor(grey + (float3(float((h >> 8) & 255u), float((h >> 16) & 255u), float((h >> 24) & 255u)) - grey) * p.f2);
+      sCol[x] = uint(c.r) | (uint(c.g) << 8) | (uint(c.b) << 16);
+    }
+  }
+  threadgroup_barrier(mem_flags::mem_threadgroup);
+  const int a = int(floor(p.amt * 256.0f + 0.5f));
+  for (int x = lane; x < W; x += STEREO_THREADS) {
+    const uint c = sCol[x];
+    const int3 o = int3(int(c & 255u), int((c >> 8) & 255u), int((c >> 16) & 255u));
+    const uint4 px = texel(src, x, y);
+    int3 d = int3(px.rgb);
+    d = p.amt >= 0.9995f ? o : d + (((o - d) * a) >> 8);
+    put(dst, uint2(x, y), float4(float3(d), float(px.a)));
+  }
+}

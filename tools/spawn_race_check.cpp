@@ -11,7 +11,13 @@
 // the sleeper's whole life. That is how live captions' helper, which lives all
 // session, once left Deckboy waiting forever on an ffmpeg query.
 //
-// Exit 0 when every short command was read within 600 ms; 1 otherwise.
+// Exit 0 when every short command was read within 1.5 s; 1 otherwise.
+//
+// THE TWO FAILURES ARE FAR APART ON PURPOSE. A stolen pipe holds a read for
+// the sleeper's whole life (3 s); a clean read takes tens of milliseconds,
+// and a busy CI runner has stretched one to 709 ms (2026-11-13, Windows) --
+// which the old 600 ms limit called a stolen pipe when the sleepers lived
+// only 1.5 s. Half the stolen time, twice the slowest clean one.
 
 #include "core/paths.hpp"
 #include "core/subprocess.hpp"
@@ -26,7 +32,7 @@
 
 int main(int argc, char** argv) {
   if (argc > 1 && std::strcmp(argv[1], "--sleep") == 0) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(1500));
+    std::this_thread::sleep_for(std::chrono::milliseconds(3000));
     return 0;
   }
   if (argc > 1 && std::strcmp(argv[1], "--echo") == 0) {
@@ -38,7 +44,7 @@ int main(int argc, char** argv) {
   std::atomic<bool> done {false};
   std::thread sleepers([&] {
     // Enough slots that a sleeper is never killed early to make room: a
-    // stolen pipe is then held for the sleeper's whole 1.5 s.
+    // stolen pipe is then held for the sleeper's whole 3 s (400 x 8 ms).
     std::vector<ChildProcess> live(400);
     std::size_t next = 0;
     SpawnOptions quiet;
@@ -48,7 +54,7 @@ int main(int argc, char** argv) {
     while (!done.load()) {
       spawnProcess(live[next], {self, "--sleep"}, quiet);   // stops the one it replaces
       next = (next + 1) % live.size();
-      std::this_thread::sleep_for(std::chrono::milliseconds(4));
+      std::this_thread::sleep_for(std::chrono::milliseconds(8));
     }
     for (auto& child : live) child.stop();
   });
@@ -61,7 +67,7 @@ int main(int argc, char** argv) {
     const double ms = std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - start).count();
     // A clean run takes tens of milliseconds; a stolen pipe holds it until
     // the sleeper that took it exits.
-    if (ms > 600.0 || got.output.find("echo") == std::string::npos) {
+    if (ms > 1500.0 || got.output.find("echo") == std::string::npos) {
       ++slow;
       std::printf("run %d: %.0f ms -- a sleeper held its pipe\n", i, ms);
     }

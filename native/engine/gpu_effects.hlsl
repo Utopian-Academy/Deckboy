@@ -579,3 +579,95 @@ void transMain(uint3 id : SV_DispatchThreadID) {
   }
   put(id.xy, o);
 }
+
+// ---- stereogram: one workgroup per row -------------------------------------
+// core/cue_effects.hpp's Stereogram, step for step. A row is a chain of links
+// worked left to right, so it cannot be split by pixel: each group takes one
+// row, holds its links and colours in group memory, reads and writes the
+// pixels across all its threads and checks hidden surfaces (independent per
+// pixel) across them too; one thread walks the links. i0 the dot size, i1 the
+// dot roll; f0 mu (depth of field), f1 the eye separation, f2 colour; amt.
+// Rows up to STEREO_MAX pixels; gpu_effects.cpp leaves wider ones to the CPU.
+#define STEREO_MAX 3840
+#define STEREO_THREADS 64
+groupshared uint sLink[STEREO_MAX];
+groupshared uint sCol[STEREO_MAX];
+groupshared uint sHidden[STEREO_MAX / 32];
+
+[numthreads(STEREO_THREADS, 1, 1)]
+void stereoMain(uint3 group : SV_GroupID, uint3 local : SV_GroupThreadID) {
+  const int y = int(group.y);
+  const int W = int(width);
+  const int lane = int(local.x);
+  for (int x = lane; x < W; x += STEREO_THREADS) {
+    const uint4 q = texel(x, y);
+    sCol[x] = (54 * q.r + 183 * q.g + 19 * q.b) >> 8;
+    sLink[x] = uint(x);
+  }
+  for (int b = lane; b < STEREO_MAX / 32; b += STEREO_THREADS) sHidden[b] = 0;
+  GroupMemoryBarrierWithGroupSync();
+  // Hidden surfaces: a point one eye cannot see past a nearer edge stays unlinked.
+  if (f0 > 0.0) {
+    for (int x = lane; x < W; x += STEREO_THREADS) {
+      const float v = float(sCol[x]);
+      const float rise = 255.0 * 2.0 * (2.0 - f0 * v / 255.0) / (f0 * f1);
+      bool visible = true;
+      float zt = v + rise;
+      for (int t = 1; visible && zt < 255.0; ++t) {
+        visible = (x - t < 0 || float(sCol[x - t]) < zt) && (x + t >= W || float(sCol[x + t]) < zt);
+        zt += rise;
+      }
+      if (!visible) InterlockedOr(sHidden[x >> 5], 1u << uint(x & 31));
+    }
+  }
+  GroupMemoryBarrierWithGroupSync();
+  if (lane == 0) {
+    for (int x = 0; x < W; ++x) {
+      const float z = float(sCol[x]) / 255.0;
+      const int sep = int(floor((1.0 - f0 * z) * f1 / (2.0 - f0 * z) + 0.5));
+      int left = x - sep / 2;
+      int right = left + sep;
+      if (left < 0 || right >= W) continue;
+      if (((sHidden[x >> 5] >> uint(x & 31)) & 1u) != 0) continue;
+      int k = int(sLink[left]);
+      while (k != left && k != right) {
+        if (k < right) {
+          left = k;
+        } else {
+          sLink[left] = uint(right);
+          left = right;
+          right = k;
+        }
+        k = int(sLink[left]);
+      }
+      sLink[left] = uint(right);
+    }
+    const uint cy = uint(y / i0);
+    for (int x = W - 1; x >= 0; --x) {
+      const int link = int(sLink[x]);
+      if (link != x) {
+        sCol[x] = sCol[link];
+        continue;
+      }
+      uint h = (uint(x / i0) * 0x9E3779B1u) ^ (cy * 0x85EBCA77u) ^ (uint(i1) * 0xC2B2AE3Du);
+      h ^= h >> 15;
+      h *= 0x2C1B3C6Du;
+      h ^= h >> 12;
+      h *= 0x297A2D39u;
+      h ^= h >> 15;
+      const float grey = (h & 1u) != 0 ? 235.0 : 20.0;
+      const float3 c = floor(grey + (float3(float((h >> 8) & 255u), float((h >> 16) & 255u), float((h >> 24) & 255u)) - grey) * f2);
+      sCol[x] = uint(c.r) | (uint(c.g) << 8) | (uint(c.b) << 16);
+    }
+  }
+  GroupMemoryBarrierWithGroupSync();
+  const int a = int(floor(amt * 256.0 + 0.5));
+  for (int x = lane; x < W; x += STEREO_THREADS) {
+    const uint c = sCol[x];
+    const int3 o = int3(int(c & 255u), int((c >> 8) & 255u), int((c >> 16) & 255u));
+    const uint4 px = texel(x, y);
+    int3 d = int3(px.rgb);
+    d = amt >= 0.9995 ? o : d + (((o - d) * a) >> 8);
+    put(uint2(x, y), float4(float3(d), float(px.a)));
+  }
+}

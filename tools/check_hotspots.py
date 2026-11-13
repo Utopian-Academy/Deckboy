@@ -43,6 +43,7 @@ SCENARIOS = [
     ("+ chroma key on the base", [], {"chromaKeyEnabled": "1"}, None),
     ("+ feedback on the base", ["DECK 1", "SELECT 1", "FX ADD feedback"], {}, None),
     ("+ caustics on the base", ["DECK 1", "SELECT 1", "FX ADD caustics"], {}, None),
+    ("+ stereogram on the base", ["DECK 1", "SELECT 1", "FX ADD stereogram"], {}, None),
     ("transitions: crossfade", [], {}, "crossfade"),
     ("transitions: portal", [], {}, "portal"),
     ("transitions: shatter", [], {}, "shatter"),

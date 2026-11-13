@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Effects
-- New effect: **Stereogram**. It turns any cue into a random-dot stereogram that shows the picture in 3D when you look through the screen. Bright parts come forward. A video or a camera becomes moving 3D; a Text cue becomes a hidden message. Controls: depth, repeat width, colour and dots move, each with an LFO. It costs about 1.2 ms a 1080p frame and 4 ms at 4K.
+- New effect: **Stereogram**. It turns any cue into a random-dot stereogram that shows the picture in 3D when you look through the screen. Bright parts come forward. A video or a camera becomes moving 3D; a Text cue becomes a hidden message. Controls: depth, repeat width, colour and dots move, each with an LFO. It runs on the graphics card, so a 4K video with it stays at 60 fps; without a graphics card that can run it, it costs about 1.2 ms a 1080p frame and 4 ms at 4K on the processor.
 
 ### Performance: effects on the graphics card
 - 25 picture effects now run on the GPU: invert, posterise, solarise, levels, curves, strobe, scanlines, threshold, colour, colour replace, vignette, grain, channel offset, mirror, luma key, edges, polar warp, luma displace, lightspeed, ripple, kaleidoscope, mosaic, blur, glow and sharpen.

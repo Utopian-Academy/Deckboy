@@ -46,9 +46,13 @@ enum GpuKind : std::uint32_t {
   K_LUT = 1, K_THRESHOLD, K_COLOUR, K_COLOUR_REPLACE, K_VIGNETTE, K_GRAIN, K_CHANNEL_OFFSET,
   K_MIRROR, K_LUMA_KEY, K_EDGES, K_WARP, K_MOSAIC, K_MIX
 };
-enum Entry { E_POINT = 0, E_DOWN, E_BOX, E_STREAK, E_TILE, E_NV12, E_TRANS, E_COUNT };
+enum Entry { E_POINT = 0, E_DOWN, E_BOX, E_STREAK, E_TILE, E_NV12, E_TRANS, E_STEREO, E_COUNT };
 const char* const kEntryNames[E_COUNT] = {"pointMain", "downMain", "boxMain", "streakMain", "tileMain", "nv12Main",
-                                          "transMain"};
+                                          "transMain", "stereoMain"};
+// Threads per group: 8 x 8 for every kernel but the stereogram's, which is
+// one row of 64 (stereoMain in gpu_effects.hlsl).
+constexpr int kStereoThreads = 64;
+constexpr int kStereoMaxWidth = 3840;   // its row buffers (STEREO_MAX)
 
 // A transition's flat `aux` array as RGBA32F texels, kAuxRow to a row
 // (transMain's auxAt reads it back the same way).
@@ -117,6 +121,8 @@ struct Pass {
   int aux = CUR;
   int dst = ALT;
   int w = 0, h = 0;
+  // Groups to dispatch; 0 = one 8 x 8 group per 8 x 8 pixels.
+  int groupsX = 0, groupsY = 0;
 };
 
 // ---------------------------------------------------------------------------
@@ -354,6 +360,30 @@ bool planEffect(std::vector<Pass>& plan, const fx::CueEffect& e, int w, int h, c
       plan.push_back(point(p, w, h));
       return true;
     }
+    case CueEffectKind::Stereogram: {
+      // The CPU effect's own numbers (core/cue_effects.hpp), one row a group.
+      if (w > kStereoMaxWidth) return false;
+      const double strips = 12.0 - 6.0 * pB;
+      const double farSeparation = std::max(16.0, w / strips);
+      const std::uint64_t interval = static_cast<std::uint64_t>(std::max(8L, std::lround(64.0 - 56.0 * pD)));
+      p.i0 = std::max(1, static_cast<int>(std::lround(w / 480.0)));
+      p.i1 = pD > 0.001 ? static_cast<std::int32_t>(1u + static_cast<std::uint32_t>(ctx.frameIndex / interval)) : 0;
+      p.f0 = static_cast<float>(pA / 3.0);
+      p.f1 = static_cast<float>(farSeparation * 2.0);
+      p.f2 = static_cast<float>(pC);
+      Pass s;
+      s.entry = E_STEREO;
+      s.params = p;
+      s.src = CUR;
+      s.aux = CUR;
+      s.dst = ALT;
+      s.w = w;
+      s.h = h;
+      s.groupsX = 1;
+      s.groupsY = h;
+      plan.push_back(s);
+      return true;
+    }
     case CueEffectKind::Mirror:
       p.kind = K_MIRROR;
       p.i0 = std::min(7, static_cast<int>(pA * 8));
@@ -522,7 +552,7 @@ bool supportedKind(CueEffectKind k) {
     case CueEffectKind::Edges: case CueEffectKind::PolarWarp: case CueEffectKind::LumaDisplace:
     case CueEffectKind::Relativistic: case CueEffectKind::Ripple: case CueEffectKind::Kaleidoscope:
     case CueEffectKind::Mosaic: case CueEffectKind::Blur: case CueEffectKind::Glow:
-    case CueEffectKind::Sharpen:
+    case CueEffectKind::Sharpen: case CueEffectKind::Stereogram:
       return true;
     default:
       return false;
@@ -915,7 +945,8 @@ SDL_Texture* d3d11Run(GpuEffects* g, int slotIndex, const std::uint8_t* rgba, in
     g->context->CSSetShader(g->shaders[pass.entry], nullptr, 0);
     g->context->CSSetShaderResources(0, 2, views);
     g->context->CSSetUnorderedAccessViews(0, 1, &out, nullptr);
-    g->context->Dispatch(static_cast<UINT>((pass.w + 7) / 8), static_cast<UINT>((pass.h + 7) / 8), 1);
+    g->context->Dispatch(static_cast<UINT>(pass.groupsX > 0 ? pass.groupsX : (pass.w + 7) / 8),
+                         static_cast<UINT>(pass.groupsY > 0 ? pass.groupsY : (pass.h + 7) / 8), 1);
     ID3D11ShaderResourceView* noViews[2] = {nullptr, nullptr};
     ID3D11UnorderedAccessView* noOut = nullptr;
     g->context->CSSetUnorderedAccessViews(0, 1, &noOut, nullptr);
@@ -974,17 +1005,18 @@ bool sdlCreate(GpuEffects* g) {
   }
   const SDL_GPUShaderFormat formats = SDL_GetGPUShaderFormats(g->gpu);
   const unsigned char* dxil[E_COUNT] = {kEffectsPointDxil, kEffectsDownDxil, kEffectsBoxDxil, kEffectsStreakDxil,
-                                        kEffectsTileDxil, kEffectsNv12Dxil, kEffectsTransDxil};
+                                        kEffectsTileDxil, kEffectsNv12Dxil, kEffectsTransDxil, kEffectsStereoDxil};
   const std::size_t dxilSize[E_COUNT] = {sizeof(kEffectsPointDxil), sizeof(kEffectsDownDxil), sizeof(kEffectsBoxDxil),
                                          sizeof(kEffectsStreakDxil), sizeof(kEffectsTileDxil),
-                                         sizeof(kEffectsNv12Dxil), sizeof(kEffectsTransDxil)};
+                                         sizeof(kEffectsNv12Dxil), sizeof(kEffectsTransDxil),
+                                         sizeof(kEffectsStereoDxil)};
   const unsigned char* spirv[E_COUNT] = {kEffectsPointSpirv, kEffectsDownSpirv, kEffectsBoxSpirv,
                                          kEffectsStreakSpirv, kEffectsTileSpirv, kEffectsNv12Spirv,
-                                         kEffectsTransSpirv};
+                                         kEffectsTransSpirv, kEffectsStereoSpirv};
   const std::size_t spirvSize[E_COUNT] = {sizeof(kEffectsPointSpirv), sizeof(kEffectsDownSpirv),
                                           sizeof(kEffectsBoxSpirv), sizeof(kEffectsStreakSpirv),
                                           sizeof(kEffectsTileSpirv), sizeof(kEffectsNv12Spirv),
-                                          sizeof(kEffectsTransSpirv)};
+                                          sizeof(kEffectsTransSpirv), sizeof(kEffectsStereoSpirv)};
   for (int e = 0; e < E_COUNT; ++e) {
     SDL_GPUComputePipelineCreateInfo info {};
     info.entrypoint = kEntryNames[e];
@@ -1007,8 +1039,8 @@ bool sdlCreate(GpuEffects* g) {
     info.num_samplers = 2;
     info.num_readwrite_storage_textures = 1;
     info.num_uniform_buffers = 1;
-    info.threadcount_x = 8;
-    info.threadcount_y = 8;
+    info.threadcount_x = e == E_STEREO ? kStereoThreads : 8;
+    info.threadcount_y = e == E_STEREO ? 1 : 8;
     info.threadcount_z = 1;
     g->pipelines[e] = SDL_CreateGPUComputePipeline(g->gpu, &info);
     if (!g->pipelines[e]) {
@@ -1124,7 +1156,8 @@ SDL_Texture* sdlRun(GpuEffects* g, int slotIndex, const std::uint8_t* rgba, int 
                                                    {slot.buf[physical(pass.aux, swapped)], g->sampler}};
     SDL_BindGPUComputeSamplers(cp, 0, views, 2);
     SDL_PushGPUComputeUniformData(cmd, 0, &pass.params, sizeof(Params));
-    SDL_DispatchGPUCompute(cp, static_cast<Uint32>((pass.w + 7) / 8), static_cast<Uint32>((pass.h + 7) / 8), 1);
+    SDL_DispatchGPUCompute(cp, static_cast<Uint32>(pass.groupsX > 0 ? pass.groupsX : (pass.w + 7) / 8),
+                           static_cast<Uint32>(pass.groupsY > 0 ? pass.groupsY : (pass.h + 7) / 8), 1);
     SDL_EndGPUComputePass(cp);
     if (pass.dst == ALT) swapped = !swapped;
   }
