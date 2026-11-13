@@ -34,8 +34,13 @@
 // Do NOT compile this file separately.
 // ============================================================================
 
-  // Enable or disable the focused output. When enabling a window output,
-  // automatically enables display-follow mode and applies fullscreen.
+  // Enable or disable the focused output. A window output goes fullscreen.
+  // It LEAVES THE VIDEO SIZE ALONE (James, 2026-11-13). It used to switch a
+  // show with a fixed size (VIDEO 1920X1080) to the display's own size
+  // ("auto native"), which re-sized every output mid-show: a recording was
+  // fed frames of a new size, NDI and streams changed resolution, and a 4K
+  // screen made the show render 4K nobody asked for. The fixed-size picture
+  // is shown scaled to the screen, as it is whenever the two differ.
   bool setFocusedOutputEnabled(bool enabled, bool autoFullscreenWhenEnabling = true) {
     normalizeProject(project_);
     if (project_.outputs.empty()) {
@@ -44,19 +49,11 @@
     int outputIndex = std::clamp(project_.focusedOutputIndex, 0, static_cast<int>(project_.outputs.size()) - 1);
     OutputTarget& output = project_.outputs[outputIndex];
     bool windowOutput = normalizeOutputType(output.outputType) == "window";
-    bool autoSwitchedToNative = false;
-    if (enabled && windowOutput && !project_.outputFollowDisplay) {
-      project_.outputFollowDisplay = true;
-      autoSwitchedToNative = true;
-    }
 
     if (output.enabled == enabled) {
       if (enabled) {
         setOutputHealthState(outputIndex, OutputHealthState::Recovering,
                              windowOutput ? "reasserting fullscreen" : "restarting egress");
-        if (autoSwitchedToNative) {
-          applyOutputDisplaySelectionAllOutputs(true, true);
-        }
         setOutputRecoveryPausedByEscape(outputIndex, false);
         if (windowOutput) {
           bool recovered = recoverWindowOutputIfNeeded(outputIndex, true);
@@ -70,9 +67,6 @@
               triggerToast("output recover failed: fullscreen unavailable");
             }
           }
-          if (autoSwitchedToNative) {
-            triggerToast("output recovered: auto native");
-          }
         } else {
           stopOutputStream(outputIndex);
           if (auto* runtime = runtimeForOutput(outputIndex)) {
@@ -83,9 +77,6 @@
           triggerToast("output recovering: stream");
         }
         playUiSound(UiSoundEffect::Toggle);
-        if (autoSwitchedToNative) {
-          markProjectDirty();
-        }
         return true;
       }
       setOutputHealthState(outputIndex, OutputHealthState::Off);
@@ -113,11 +104,7 @@
       setOutputHealthState(outputIndex, OutputHealthState::Armed);
     }
     
-    if (autoSwitchedToNative) {
-      applyOutputDisplaySelectionAllOutputs(true, true);
-    } else {
-      applyOutputDisplaySelection(outputIndex, !enabled);
-    }
+    applyOutputDisplaySelection(outputIndex, !enabled);
 
     if (enabled && autoFullscreenWhenEnabling && windowOutput) {
       // Defer fullscreen by one event loop tick so macOS commits the window to
@@ -131,7 +118,7 @@
         runtime->lastRecoveryAttemptMs = SDL_GetTicks();
       }
       setOutputHealthState(outputIndex, OutputHealthState::Recovering, "entering fullscreen");
-      triggerToast("output on: " + currentDisplayLabel() + (autoSwitchedToNative ? "  auto native" : ""));
+      triggerToast("output on: " + currentDisplayLabel());
     } else {
       if (!enabled) {
         setOutputHealthState(outputIndex, OutputHealthState::Off);
@@ -4815,10 +4802,15 @@
         outputAddsItsOwnPicture(source)) {
       return -1;
     }
-    // The raster this recording would composite at must be the one the
-    // source draws, or its picture would be scaled rather than the same.
+    // The source must draw the picture at the SHAPE this recording would
+    // composite at. Its size may differ -- a show fixed at 1920x1080 on a
+    // fullscreen 4K window composites at 4K, the same picture, sharper -- and
+    // the capture scales it to the recording's own raster
+    // (egressProgrammeRaster), so the file is the size it always was.
     const auto [rasterW, rasterH] = outputRenderSizeForOutput(source);
-    if (srt.compositorWidth != rasterW || srt.compositorHeight != rasterH) return -1;
+    const long long across = static_cast<long long>(srt.compositorWidth) * rasterH;
+    const long long down = static_cast<long long>(srt.compositorHeight) * rasterW;
+    if (rasterW <= 0 || rasterH <= 0 || std::llabs(across - down) * 200 > down) return -1;   // > 0.5% apart
     return source;
   }
 
@@ -4999,13 +4991,25 @@
       // fitted into it, letterboxed if its shape changed.
       const bool takeRunning = !webEgress && runtime.streamToFile && !runtime.streamSpec.empty() &&
                                runtime.streamFrameWidth > 0 && runtime.streamFrameHeight > 0;
+      // Read from another output's composite (egressProgrammeSource): the
+      // recording's own raster, which is what it would have composited at,
+      // not the size the source happens to draw.
+      int ownW = captureW, ownH = captureH;
+      if (gpuFrom) {
+        const auto [rasterW, rasterH] = outputRenderSizeForOutput(
+          project_.outputs[static_cast<std::size_t>(outputIndex)].mirrorSourceOutputIndex);
+        if (rasterW > 0 && rasterH > 0) {
+          ownW = rasterW;
+          ownH = rasterH;
+        }
+      }
       const int targetW = webEgress
         ? std::max(2, static_cast<int>(std::lround(static_cast<double>(captureW) * webHeight / captureH / 2.0)) * 2)
         : takeRunning ? runtime.streamFrameWidth
-        : project_.recordingWidth > 0 ? project_.recordingWidth : captureW;
+        : project_.recordingWidth > 0 ? project_.recordingWidth : ownW;
       const int targetH = webEgress ? std::max(2, webHeight / 2 * 2)
         : takeRunning ? runtime.streamFrameHeight
-        : project_.recordingHeight > 0 ? project_.recordingHeight : captureH;
+        : project_.recordingHeight > 0 ? project_.recordingHeight : ownH;
       if (runtime.egressScaleTexture &&
           (runtime.egressScaleW != targetW || runtime.egressScaleH != targetH)) {
         SDL_DestroyTexture(runtime.egressScaleTexture);
@@ -10554,11 +10558,7 @@
     OutputTarget& output = focusedOutputMutable();
     output.displayIndex = (output.displayIndex + direction + displayCount) % displayCount;
     recordOutputDisplayName(output);
-    bool autoSwitchedToNative = false;
-    if (!project_.outputFollowDisplay) {
-      project_.outputFollowDisplay = true;
-      autoSwitchedToNative = true;
-    }
+    // The video size stays as chosen (see setFocusedOutputEnabled).
     Uint64 now = SDL_GetTicks();
     bool queuedRuntimeRebuild = false;
     if (output.enabled && normalizeOutputType(output.outputType) == "window") {
@@ -10580,8 +10580,7 @@
     std::string label = (labelPtr && *labelPtr) ? labelPtr : "";
     triggerToast("display: "
       + (label.empty() ? std::to_string(output.displayIndex + 1) : label)
-      + "  " + outputRequestedResolutionLabel(project_.focusedOutputIndex)
-      + (autoSwitchedToNative ? "  auto native" : ""));
+      + "  " + outputRequestedResolutionLabel(project_.focusedOutputIndex));
     playUiSound(UiSoundEffect::Toggle);
     markProjectDirty();
   }
@@ -10594,11 +10593,7 @@
     OutputTarget& output = focusedOutputMutable();
     output.displayIndex = index;
     recordOutputDisplayName(output);
-    bool autoSwitchedToNative = false;
-    if (!project_.outputFollowDisplay) {
-      project_.outputFollowDisplay = true;
-      autoSwitchedToNative = true;
-    }
+    // The video size stays as chosen (see setFocusedOutputEnabled).
     Uint64 now = SDL_GetTicks();
     bool queuedRuntimeRebuild = false;
     if (output.enabled && normalizeOutputType(output.outputType) == "window") {
@@ -10617,8 +10612,7 @@
       }
     }
     triggerToast("display: " + currentDisplayLabel() + "  "
-      + outputRequestedResolutionLabel(project_.focusedOutputIndex)
-      + (autoSwitchedToNative ? "  auto native" : ""));
+      + outputRequestedResolutionLabel(project_.focusedOutputIndex));
     warnIfOutputMirrorsControl(project_.focusedOutputIndex);
     markProjectDirty();
     return true;

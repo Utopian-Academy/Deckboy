@@ -16,6 +16,9 @@
 - An outgoing cue's effects stay on through the transition, on the GPU too.
 - `DECKBOY_CPU_TRANSITIONS=1` keeps these four transitions on the CPU.
 
+### Outputs
+- Turning an output on, or moving it to another screen, no longer changes the video size. With a fixed size (`VIDEO 1920X1080`) it used to switch the whole show to the screen's own size ("auto native"), which changed the size of every output, recording and stream in the middle of a show. The fixed-size picture is now shown scaled to the screen.
+
 ### Recording
 - Fixed: recording a 4K output made about a third of the output's frames late. A recording that copies an output now takes that output's finished picture instead of drawing the whole show a second time. At 4K the output stays at 60 fps while it records.
 - This applies when neither the recording nor the output it copies adds anything of its own (time overlay, opacity, matte, overlay, live captions or key+fill), and the recording sends nowhere else. Otherwise the recording draws its own picture, as before. `DECKBOY_RECORD_OWN_COMPOSITE=1` always draws its own.
