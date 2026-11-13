@@ -13336,6 +13336,50 @@ void MediaEngine::buildPortal(DecodedFrame& frame, double t, const PortalSetting
 // Deterministic in (progress, elapsed, seed): two outputs showing one deck
 // draw the same frame.
 // ---------------------------------------------------------------------------
+// THE OUTGOING PICTURE IN RGBA, KEPT. A held frame does not change for the
+// length of its transition (a playing one changes once per new frame), and
+// portal, shatter, clouds and ghastly converted it from NV12 or P010 with
+// SDL's converter -- one core, ~25 ms at 4K -- on EVERY frame they drew
+// (check_hotspots.py, 2026-11-12). The same conversion, done once per frame
+// and kept: four entries, for a few transitions at once.
+std::shared_ptr<const std::vector<std::uint8_t>> outgoingRgba(const DecodedFrame& f) {
+  const int w = f.width;
+  const int h = f.height;
+  const std::size_t n = static_cast<std::size_t>(std::max(0, w)) * static_cast<std::size_t>(std::max(0, h));
+  if (w <= 0 || h <= 0 || (w % 2) != 0 || (h % 2) != 0) return nullptr;
+  const bool nv12 = f.format == FramePixelFormat::NV12 && f.pixels.size() >= n + n / 2;
+  const bool p010 = f.format == FramePixelFormat::P010 && f.pixels.size() >= n * 3u;
+  if (!nv12 && !p010) return nullptr;
+  struct Entry {
+    const void* data = nullptr;
+    std::size_t size = 0;
+    std::uint64_t index = 0;
+    int w = 0, h = 0;
+    FramePixelFormat format = FramePixelFormat::RGBA32;
+    SDL_Colorspace colorspace = SDL_COLORSPACE_UNKNOWN;
+    std::shared_ptr<const std::vector<std::uint8_t>> rgba;
+  };
+  static std::mutex lock;
+  static Entry kept[4];
+  static int next = 0;
+  std::lock_guard<std::mutex> hold(lock);
+  for (const Entry& e : kept) {
+    if (e.rgba && e.data == f.pixels.data() && e.size == f.pixels.size() && e.index == f.index && e.w == w &&
+        e.h == h && e.format == f.format && e.colorspace == frameColorspace(f)) {
+      return e.rgba;
+    }
+  }
+  auto rgba = std::make_shared<std::vector<std::uint8_t>>(n * 4u);
+  const bool ok = SDL_ConvertPixelsAndColorspace(w, h, nv12 ? SDL_PIXELFORMAT_NV12 : SDL_PIXELFORMAT_P010,
+    frameColorspace(f), 0, f.pixels.data(), nv12 ? w : w * 2, SDL_PIXELFORMAT_RGBA32,
+    SDL_COLORSPACE_SRGB, 0, rgba->data(), w * 4);
+  if (!ok) return nullptr;
+  Entry& e = kept[next];
+  next = (next + 1) % 4;
+  e = {f.pixels.data(), f.pixels.size(), f.index, w, h, f.format, frameColorspace(f), rgba};
+  return rgba;
+}
+
 void MediaEngine::buildPortalTransition(const DecodedFrame& outgoing,
                                         std::vector<std::uint8_t>& dst,
                                         double progress, double elapsedSeconds,
@@ -13360,16 +13404,14 @@ void MediaEngine::buildPortalTransition(const DecodedFrame& outgoing,
   }
   dst.resize(bytes);
   const std::uint8_t* src = outgoing.pixels.data();
-  std::vector<std::uint8_t> converted;
+  std::shared_ptr<const std::vector<std::uint8_t>> converted;
   if (nv12) {
-    converted.resize(bytes);
-    if (!SDL_ConvertPixelsAndColorspace(W, H, SDL_PIXELFORMAT_NV12,
-        frameColorspace(outgoing), 0, src, W, SDL_PIXELFORMAT_RGBA32,
-        SDL_COLORSPACE_SRGB, 0, converted.data(), W * 4)) {
+    converted = outgoingRgba(outgoing);
+    if (!converted) {
       dst.clear();
       return;
     }
-    src = converted.data();
+    src = converted->data();
   }
   auto fetch = [&](int x, int y, std::uint8_t* o) {
     std::memcpy(o, src + (static_cast<std::size_t>(y) * W + x) * 4u, 4);
@@ -13676,7 +13718,7 @@ namespace {
 // more than one caller; this is the shared one, and Portal is deliberately left
 // alone rather than rewritten under a shipped transition.
 struct OutgoingPicture {
-  std::vector<std::uint8_t> converted;
+  std::shared_ptr<const std::vector<std::uint8_t>> converted;   // outgoingRgba's, kept
   const std::uint8_t* rgba = nullptr;
   int w = 0;
   int h = 0;
@@ -13699,21 +13741,12 @@ OutgoingPicture openOutgoing(const DecodedFrame& f) {
   if (f.format == FramePixelFormat::RGBA32 && f.pixels.size() >= n * 4u) {
     p.rgba = f.pixels.data();
     p.ok = true;
-  } else if (f.format == FramePixelFormat::NV12 && (p.w % 2) == 0 && (p.h % 2) == 0 &&
-             f.pixels.size() >= n + n / 2) {
-    p.converted.resize(n * 4u);
-    p.ok = SDL_ConvertPixelsAndColorspace(p.w, p.h, SDL_PIXELFORMAT_NV12,
-      frameColorspace(f), 0, f.pixels.data(), p.w, SDL_PIXELFORMAT_RGBA32,
-      SDL_COLORSPACE_SRGB, 0, p.converted.data(), p.w * 4);
-    if (p.ok) p.rgba = p.converted.data();
-  } else if (f.format == FramePixelFormat::P010 && (p.w % 2) == 0 && (p.h % 2) == 0 &&
-             f.pixels.size() >= n * 3u) {
-    // An HDR stream's frame: SDL converts it, PQ to SDR, like NV12 above.
-    p.converted.resize(n * 4u);
-    p.ok = SDL_ConvertPixelsAndColorspace(p.w, p.h, SDL_PIXELFORMAT_P010,
-      frameColorspace(f), 0, f.pixels.data(), p.w * 2, SDL_PIXELFORMAT_RGBA32,
-      SDL_COLORSPACE_SRGB, 0, p.converted.data(), p.w * 4);
-    if (p.ok) p.rgba = p.converted.data();
+  } else if (f.format == FramePixelFormat::NV12 || f.format == FramePixelFormat::P010) {
+    // NV12, or an HDR stream's P010 (PQ to SDR): SDL converts it, once per
+    // frame (outgoingRgba).
+    p.converted = outgoingRgba(f);
+    p.ok = p.converted != nullptr;
+    if (p.ok) p.rgba = p.converted->data();
   }
   return p;
 }
