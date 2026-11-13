@@ -3807,23 +3807,42 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
               0.35, 1.85));
           }
         }
-        std::vector<std::uint8_t> source(pixels.begin(),
-                                         pixels.begin() + static_cast<std::ptrdiff_t>(count * 4));
+        // The picture it samples from: a copy, since the pass writes in place.
+        // Kept per thread and reused -- a fresh 33 MB allocation at 4K every
+        // frame was a few milliseconds by itself.
+        // (Read through `src` below: the rows run on the effect workers, and a
+        // thread_local named inside the loop would be each worker's own, empty.)
+        static thread_local std::vector<std::uint8_t> source;
+        source.assign(pixels.begin(), pixels.begin() + static_cast<std::ptrdiff_t>(count * 4));
+        const std::uint8_t* const src = source.data();
         const double gxScale = static_cast<double>(gw) / ctx.width;
         const double gyScale = static_cast<double>(gh) / ctx.height;
+        // EACH CELL'S BEND AS WHOLE PIXELS, worked out once per cell. The pass
+        // did two std::lround calls per pixel for a value that is the same for
+        // every pixel of the cell: lround(x + c) is x + floor(c + 0.5) wherever
+        // x + c >= 0, and below zero both clamp to column 0 -- so the same
+        // bytes for a fraction of the work (4K: 23 ms -> see check, 2026-11-13).
+        std::vector<int> cellDx(static_cast<std::size_t>(gw) * gh);
+        std::vector<int> cellDy(static_cast<std::size_t>(gw) * gh);
+        for (std::size_t i = 0; i < cellDx.size(); ++i) {
+          cellDx[i] = static_cast<int>(std::floor(dxField[i] * bend + 0.5));
+          cellDy[i] = static_cast<int>(std::floor(dyField[i] * bend + 0.5));
+        }
+        // Which cell each column falls in, once per frame rather than per row.
+        std::vector<int> columnCell(static_cast<std::size_t>(ctx.width));
+        for (int x = 0; x < ctx.width; ++x) {
+          columnCell[static_cast<std::size_t>(x)] = std::clamp(static_cast<int>(x * gxScale), 0, gw - 1);
+        }
         detail::parallelRows(ctx.height, ctx.width, [&](int firstRow, int lastRow) {
           for (int y = firstRow; y < lastRow; ++y) {
             std::uint8_t* dstRow = pixels.data() + static_cast<std::size_t>(y) * ctx.width * 4;
             const int gy = std::clamp(static_cast<int>(y * gyScale), 0, gh - 1);
+            const std::size_t rowBase = static_cast<std::size_t>(gy) * gw;
             for (int x = 0; x < ctx.width; ++x) {
-              const int gx = std::clamp(static_cast<int>(x * gxScale), 0, gw - 1);
-              const std::size_t i = static_cast<std::size_t>(gy) * gw + gx;
-              const int sx = std::clamp(
-                static_cast<int>(std::lround(x + dxField[i] * bend)), 0, ctx.width - 1);
-              const int sy = std::clamp(
-                static_cast<int>(std::lround(y + dyField[i] * bend)), 0, ctx.height - 1);
-              const std::uint8_t* sp =
-                source.data() + (static_cast<std::size_t>(sy) * ctx.width + sx) * 4;
+              const std::size_t i = rowBase + static_cast<std::size_t>(columnCell[static_cast<std::size_t>(x)]);
+              const int sx = std::clamp(x + cellDx[i], 0, ctx.width - 1);
+              const int sy = std::clamp(y + cellDy[i], 0, ctx.height - 1);
+              const std::uint8_t* sp = src + (static_cast<std::size_t>(sy) * ctx.width + sx) * 4;
               std::uint8_t* dp = dstRow + static_cast<std::size_t>(x) * 4;
               const double gain = light[i];
               dp[0] = detail::clamp8(sp[0] * gain);
