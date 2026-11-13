@@ -31,6 +31,7 @@
 #include <cstdint>
 #include <vector>
 #include "types.hpp"
+#include "cue_effects.hpp"   // detail::parallelRows
 
 // Check if any color control parameter deviates from its neutral value.
 // Neutral = brightness 1.0, contrast 1.0, saturation 1.0, hue shift 0.0.
@@ -76,7 +77,15 @@ inline void applyChromaKeyToPixels(std::vector<std::uint8_t>& pixels,
   float inner = std::max(0.0f, tolerance - softness);
   float outer = tolerance + softness;
   float span = std::max(0.0001f, outer - inner);
-  for (size_t i = 0; i + 3 < pixels.size(); i += 4) {
+  // In bands across the effect workers: a 4K frame took ~40 ms on one core
+  // (tools/check_hotspots.py, 2026-11-12). The same arithmetic per pixel, so
+  // the same bytes.
+  const std::size_t count = pixels.size() / 4;
+  constexpr int kBand = 8192;
+  const int bands = static_cast<int>((count + kBand - 1) / kBand);
+  deckboy::effects::detail::parallelRows(bands, kBand, [&](int firstBand, int lastBand) {
+  const std::size_t end = std::min(count, static_cast<std::size_t>(lastBand) * kBand) * 4;
+  for (size_t i = static_cast<std::size_t>(firstBand) * kBand * 4; i < end; i += 4) {
     float dr = static_cast<float>(pixels[i + 0]) - static_cast<float>(keyColor.r);
     float dg = static_cast<float>(pixels[i + 1]) - static_cast<float>(keyColor.g);
     float db = static_cast<float>(pixels[i + 2]) - static_cast<float>(keyColor.b);
@@ -92,6 +101,7 @@ inline void applyChromaKeyToPixels(std::vector<std::uint8_t>& pixels,
       0,
       255));
   }
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -134,18 +144,26 @@ inline void applyColorControlsToPixels(std::vector<std::uint8_t>& pixels,
     return static_cast<std::uint8_t>(std::lround(clamped * 255.0f));
   };
 
-  for (size_t i = 0; i + 3 < pixels.size(); i += 4) {
-    float r = static_cast<float>(pixels[i + 0]) / 255.0f;
-    float g = static_cast<float>(pixels[i + 1]) / 255.0f;
-    float b = static_cast<float>(pixels[i + 2]) / 255.0f;
-
-    r *= brightness;
-    g *= brightness;
-    b *= brightness;
-
-    r = (r - 0.5f) * contrast + 0.5f;
-    g = (g - 0.5f) * contrast + 0.5f;
-    b = (b - 0.5f) * contrast + 0.5f;
+  // Brightness then contrast depend on the channel alone: a 256-entry table
+  // of the very same float steps, so the result is the same to the bit. The
+  // rest per pixel, in bands across the effect workers -- this whole function
+  // took ~110 ms on a 4K frame on one core (check_hotspots.py, 2026-11-12).
+  float lift[256];
+  for (int v = 0; v < 256; ++v) {
+    float x = static_cast<float>(v) / 255.0f;
+    x *= brightness;
+    x = (x - 0.5f) * contrast + 0.5f;
+    lift[v] = x;
+  }
+  const std::size_t count = pixels.size() / 4;
+  constexpr int kBand = 8192;
+  const int bands = static_cast<int>((count + kBand - 1) / kBand);
+  deckboy::effects::detail::parallelRows(bands, kBand, [&](int firstBand, int lastBand) {
+  const std::size_t end = std::min(count, static_cast<std::size_t>(lastBand) * kBand) * 4;
+  for (size_t i = static_cast<std::size_t>(firstBand) * kBand * 4; i < end; i += 4) {
+    float r = lift[pixels[i + 0]];
+    float g = lift[pixels[i + 1]];
+    float b = lift[pixels[i + 2]];
 
     float luma = 0.2126f * r + 0.7152f * g + 0.0722f * b;
     r = luma + (r - luma) * saturation;
@@ -167,6 +185,7 @@ inline void applyColorControlsToPixels(std::vector<std::uint8_t>& pixels,
     pixels[i + 1] = toByte(g);
     pixels[i + 2] = toByte(b);
   }
+  });
 }
 
 // ---------------------------------------------------------------------------
