@@ -36,6 +36,15 @@
     // A button registers only while it is on screen, so the page is paged
     // down until it does.
     int seekSetting = 0;
+    // A guest who answers what the operator did (James, 2026-11-13: guests
+    // should react). Returns one of the step's own fixed lines -- never
+    // built text, so each still has a whole-line translation -- or nullptr
+    // for the step's usual line. Set after the step list, by index.
+    std::function<const char*()> react;
+    // A step the operator has already learned elsewhere: on arrival its
+    // SHOW ME runs and the lesson moves on. Used for "make a second
+    // playlist" once the magic show has taught it.
+    std::function<bool()> skip;
   };
 
   struct LessonDef {
@@ -53,6 +62,7 @@
   bool lessonsListOpen_ = false;
   bool lessonsTrackVideo_ = true;    // whom the operator follows: the list's open column
   int lessonCount_ = 0;              // a step's baseline, set by its enter
+  Uint64 lessonHeldSinceMs_ = 0;     // when a step's result first held (the magic show)
   SDL_Rect lessonsCardRect_ {}, lessonsPixelTabRect_ {}, lessonsVideoTabRect_ {}, lessonsBasicsRect_ {},
            lessonsCloseRect_ {};
   std::vector<std::pair<SDL_Rect, int>> lessonsRowRects_;
@@ -217,9 +227,25 @@
             [this] { return project_.decks.size() >= 2 && project_.focusedDeckIndex >= 1; },
             [this] {
               if (project_.decks.size() < 2) addDeck();
+              lessonLayerSecondDeck();
               setFocusedDeckIndex(1);
             },
-            [this] { return lessonDeckTabRect(1); }, nullptr};
+            [this] { return lessonDeckTabRect(1); },
+            [this] { lessonLayerSecondDeck(); }};
+  }
+
+  // A new playlist reaches no output until it is routed (its tab's chip
+  // says "no output"), so every lesson built on a second layer -- the ink
+  // over the replay, the chicken in the trunk, the name over the map --
+  // showed nothing of that layer on the air. The lesson routes playlist 2
+  // over playlist 1 on playlist 1's output, and the magic show says so.
+  void lessonLayerSecondDeck() {
+    if (project_.decks.size() < 2 || project_.outputs.empty()) return;
+    for (int o = 0; o < static_cast<int>(project_.outputs.size()); ++o) {
+      if (assignmentIndexForDeckOutput(1, o).has_value()) return;
+    }
+    const int out = std::max(0, outputIndexForHostDeck(0));
+    assignDeckToOutput(1, out);
   }
 
   // The cue a match finds is live on its playlist.
@@ -261,6 +287,495 @@
     return type != "draw" && type != "code";
   }
   static bool lessonIsSynth(const Cue& c) { return c.kind == CueKind::VideoSynth; }
+
+  // ── The practice shows' pictures ─────────────────────────────────────────
+  //
+  // Each show draws its own premise (James, 2026-11-13: "the lessons have
+  // good ideas, but the implementation falls short"). Eight shows used to be
+  // stock patterns with new names -- the "rubber chicken" was Fireside, full
+  // frame. Code-source expressions, so nothing ships but text; each was
+  // looked at with --code-dump before it went in. The chicken has alpha, so
+  // it stands in the trunk on the layer above.
+  static const char* lessonPictureExpr(const std::string& id) {
+    struct Pic { const char* id; const char* expr; };
+    static const Pic kPics[] = {
+      {"replay",
+        "p = fract(t/5);"
+        "ex = p*p*(3 - 2*p);"
+        "rx = 0.18 + ex*0.62;"
+        "ry = 0.62 - sin(ex*3.14159)*0.26;"
+        "stripe = step(0.5, fract(x*10));"
+        "yl = 1 - step(0.012, abs(fract(x*10 + 0.5) - 0.5));"
+        "side = step(y, 0.1) + step(0.92, y);"
+        "w = (1 - smoothstep(0.0176, 0.022, length((x - (0.55 + sin(t*1.3 + 0)*0.01))*1.78, y - (0.34)))) + (1 - smoothstep(0.0176, 0.022, length((x - (0.6 + sin(t*1.3 + 1)*0.01))*1.78, y - (0.5)))) + (1 - smoothstep(0.0176, 0.022, length((x - (0.66 + sin(t*1.3 + 2)*0.01))*1.78, y - (0.66)))) + (1 - smoothstep(0.0176, 0.022, length((x - (0.72 + sin(t*1.3 + 3)*0.01))*1.78, y - (0.42)))) + (1 - smoothstep(0.0176, 0.022, length((x - (0.5 + sin(t*1.3 + 4)*0.01))*1.78, y - (0.78))));"
+        "rd = (1 - smoothstep(0.0176, 0.022, length((x - (0.3 + p*0.08))*1.78, y - (0.32)))) + (1 - smoothstep(0.0176, 0.022, length((x - (0.27 + p*0.08))*1.78, y - (0.5)))) + (1 - smoothstep(0.0176, 0.022, length((x - (0.33 + p*0.08))*1.78, y - (0.7))));"
+        "run = (1 - smoothstep(0.0208, 0.026, length((x - (rx))*1.78, y - (ry))));"
+        "ball = (1 - smoothstep(0.0072, 0.009, length((x - (rx + 0.012))*1.78, y - (ry - 0.012))));"
+        "gr = 0.10 + stripe*0.03;"
+        "gg = 0.42 + stripe*0.06;"
+        "gb = 0.14;"
+        "r1 = mix(gr, 0.9, yl*0.8);"
+        "g1 = mix(gg, 0.95, yl*0.8);"
+        "b1 = mix(gb, 0.9, yl*0.8);"
+        "r2 = mix(r1, 0.08, side);"
+        "g2 = mix(g1, 0.1, side);"
+        "b2 = mix(b1, 0.14, side);"
+        "r3 = mix(mix(mix(r2, 0.95, w), 0.85, rd), 1.0, run);"
+        "g3 = mix(mix(mix(g2, 0.95, w), 0.15, rd), 0.85, run);"
+        "b3 = mix(mix(mix(b2, 0.95, w), 0.12, rd), 0.1, run);"
+        "mix(r3, 0.45, ball), mix(g3, 0.25, ball), mix(b3, 0.1, ball)"},
+      {"trunk_closed",
+        "cur = step(x, 0.16) + step(0.84, x);"
+        "fold = 0.55 + 0.45*sin(x*90);"
+        "flr = step(0.8, y);"
+        "spot = 1 - smoothstep(0.18, 0.42, length((x - 0.5)*1.78*0.6, y - 0.62));"
+        "br = 0.06 + spot*0.32;"
+        "bg = 0.04 + spot*0.22;"
+        "bb = 0.10 + spot*0.14;"
+        "br2 = mix(br, 0.26 + spot*0.2, flr);"
+        "bg2 = mix(bg, 0.14 + spot*0.12, flr);"
+        "bb2 = mix(bb, 0.06, flr);"
+        "sr = mix(br2, 0.45*fold, cur);"
+        "sg = mix(bg2, 0.05*fold, cur);"
+        "sb = mix(bb2, 0.08*fold, cur);"
+        "body = (step(0.4, x)*step(x, 0.6)*step(0.62, y)*step(y, 0.84));"
+        "band = body*(step(0.66, y)*step(y, 0.68) + step(0.78, y)*step(y, 0.80));"
+        "clasp = (step(0.49, x)*step(x, 0.51)*step(0.62, y)*step(y, 0.66));"
+        "lid = (step(0.39, x)*step(x, 0.61)*step(0.56, y)*step(y, 0.62));"
+        "r1 = mix(mix(sr, 0.42, body), 0.78, band + clasp);"
+        "g1 = mix(mix(sg, 0.22, body), 0.6, band + clasp);"
+        "b1 = mix(mix(sb, 0.1, body), 0.2, band + clasp);"
+        "mix(r1, 0.36, lid), mix(g1, 0.19, lid), mix(b1, 0.09, lid)"},
+      {"trunk_open",
+        "cur = step(x, 0.16) + step(0.84, x);"
+        "fold = 0.55 + 0.45*sin(x*90);"
+        "flr = step(0.8, y);"
+        "spot = 1 - smoothstep(0.18, 0.42, length((x - 0.5)*1.78*0.6, y - 0.62));"
+        "br = 0.06 + spot*0.32;"
+        "bg = 0.04 + spot*0.22;"
+        "bb = 0.10 + spot*0.14;"
+        "br2 = mix(br, 0.26 + spot*0.2, flr);"
+        "bg2 = mix(bg, 0.14 + spot*0.12, flr);"
+        "bb2 = mix(bb, 0.06, flr);"
+        "sr = mix(br2, 0.45*fold, cur);"
+        "sg = mix(bg2, 0.05*fold, cur);"
+        "sb = mix(bb2, 0.08*fold, cur);"
+        "body = (step(0.4, x)*step(x, 0.6)*step(0.62, y)*step(y, 0.84));"
+        "band = body*(step(0.66, y)*step(y, 0.68) + step(0.78, y)*step(y, 0.80));"
+        "clasp = (step(0.49, x)*step(x, 0.51)*step(0.62, y)*step(y, 0.66));"
+        "lid = (step(0.4, x)*step(x, 0.6)*step(0.47, y)*step(y, 0.6));"
+        "lidband = lid*step(0.52, y)*step(y, 0.54);"
+        "hole = (step(0.41, x)*step(x, 0.59)*step(0.6, y)*step(y, 0.65));"
+        "r0 = mix(mix(sr, 0.3, lid), 0.6, lidband);"
+        "g0 = mix(mix(sg, 0.16, lid), 0.45, lidband);"
+        "b0 = mix(mix(sb, 0.07, lid), 0.15, lidband);"
+        "r1 = mix(mix(r0, 0.42, body), 0.78, band);"
+        "g1 = mix(mix(g0, 0.22, body), 0.6, band);"
+        "b1 = mix(mix(b0, 0.1, body), 0.2, band);"
+        "mix(r1, 0.05, hole), mix(g1, 0.03, hole), mix(b1, 0.03, hole)"},
+      {"chicken",
+        "bob = sin(t*3)*0.008;"
+        "body = 1 - smoothstep(0.085, 0.095, length((x - 0.49)*1.78*0.75, y - 0.500 - bob));"
+        "neck = step(abs(x - 0.525 - (0.5 - y)*0.12), 0.022)*step(0.26, y)*step(y, 0.48);"
+        "head = 1 - smoothstep(0.05, 0.058, length((x - 0.545)*1.78, y - 0.250 - bob));"
+        "comb = (1 - smoothstep(0.016, 0.024, length((x - 0.535)*1.78, y - 0.190 - bob))) + (1 - smoothstep(0.016, 0.024, length((x - 0.555)*1.78, y - 0.195 - bob)));"
+        "beak = step(0.585, x)*step(x, 0.635)*step(abs(y - 0.255 - bob)*3.0, 0.635 - x);"
+        "eye = 1 - smoothstep(0.006, 0.01, length((x - 0.56)*1.78, y - 0.240 - bob));"
+        "yel = max(max(body, neck), head);"
+        "al = clamp(yel + comb + beak, 0, 1);"
+        "cr = mix(mix(0.98, 0.9, comb), 1.0, beak);"
+        "cg = mix(mix(0.86, 0.12, comb), 0.55, beak);"
+        "cb = mix(0.2, 0.1, max(comb, beak));"
+        "cr*(1 - eye), cg*(1 - eye), cb*(1 - eye), al"},
+      {"contestant1",
+        "tx = floor(x*24);"
+        "ty = floor(y*14);"
+        "inb = step(0.06, y)*step(y, 0.42)*step(0.1, x)*step(x, 0.9);"
+        "gx = fract(x*24);"
+        "gy = fract(y*14);"
+        "tile = step(0.08, gx)*step(gx, 0.92)*step(0.08, gy)*step(gy, 0.92)*inb;"
+        "word = step(0.5, fract(sin(tx*12.9 + ty*78.2)*437.5))*step(2, ty)*step(ty, 4);"
+        "bulbs = step(0.5, fract(x*48 + t*2))*(step(0.43, y)*step(y, 0.45) + step(0.04, y)*step(y, 0.06))*step(0.1, x)*step(x, 0.9);"
+        "pod = (step(0.19, x)*step(x, 0.35)*step(0.66, y)*step(y, 0.92)) + (step(0.42, x)*step(x, 0.58)*step(0.66, y)*step(y, 0.92)) + (step(0.65, x)*step(x, 0.81)*step(0.66, y)*step(y, 0.92));"
+        "litpod = (step(0.19, x)*step(x, 0.35)*step(0.66, y)*step(y, 0.92));"
+        "spot = (1 - smoothstep(0.08, 0.2, length((x - 0.27)*1.78*0.7, y - 0.66)))*0.6;"
+        "light = (step(0.2, x)*step(x, 0.34)*step(0.68, y)*step(y, 0.72));"
+        "bgr = 0.10 + y*0.12 + spot;"
+        "bgg = 0.04 + y*0.06 + spot*0.8;"
+        "bgb = 0.22 + y*0.08 + spot*0.4;"
+        "r1 = mix(bgr, mix(0.1, 0.95, word), tile);"
+        "g1 = mix(bgg, mix(0.5, 0.95, word), tile);"
+        "b1 = mix(bgb, mix(0.3, 0.95, word), tile);"
+        "r2 = mix(r1, 1.0, bulbs);"
+        "g2 = mix(g1, 0.85, bulbs);"
+        "b2 = mix(b1, 0.4, bulbs);"
+        "r3 = mix(r2, 0.22 + litpod*0.4, pod);"
+        "g3 = mix(g2, 0.12 + litpod*0.25, pod);"
+        "b3 = mix(b2, 0.35 + litpod*0.2, pod);"
+        "mix(r3, 1.0, light), mix(g3, 0.9, light), mix(b3, 0.3, light)"},
+      {"contestant2",
+        "tx = floor(x*24);"
+        "ty = floor(y*14);"
+        "inb = step(0.06, y)*step(y, 0.42)*step(0.1, x)*step(x, 0.9);"
+        "gx = fract(x*24);"
+        "gy = fract(y*14);"
+        "tile = step(0.08, gx)*step(gx, 0.92)*step(0.08, gy)*step(gy, 0.92)*inb;"
+        "word = step(0.5, fract(sin(tx*12.9 + ty*78.2)*437.5))*step(2, ty)*step(ty, 4);"
+        "bulbs = step(0.5, fract(x*48 + t*2))*(step(0.43, y)*step(y, 0.45) + step(0.04, y)*step(y, 0.06))*step(0.1, x)*step(x, 0.9);"
+        "pod = (step(0.19, x)*step(x, 0.35)*step(0.66, y)*step(y, 0.92)) + (step(0.42, x)*step(x, 0.58)*step(0.66, y)*step(y, 0.92)) + (step(0.65, x)*step(x, 0.81)*step(0.66, y)*step(y, 0.92));"
+        "litpod = (step(0.42, x)*step(x, 0.58)*step(0.66, y)*step(y, 0.92));"
+        "spot = (1 - smoothstep(0.08, 0.2, length((x - 0.5)*1.78*0.7, y - 0.66)))*0.6;"
+        "light = (step(0.43, x)*step(x, 0.57)*step(0.68, y)*step(y, 0.72));"
+        "bgr = 0.10 + y*0.12 + spot;"
+        "bgg = 0.04 + y*0.06 + spot*0.8;"
+        "bgb = 0.22 + y*0.08 + spot*0.4;"
+        "r1 = mix(bgr, mix(0.1, 0.95, word), tile);"
+        "g1 = mix(bgg, mix(0.5, 0.95, word), tile);"
+        "b1 = mix(bgb, mix(0.3, 0.95, word), tile);"
+        "r2 = mix(r1, 1.0, bulbs);"
+        "g2 = mix(g1, 0.85, bulbs);"
+        "b2 = mix(b1, 0.4, bulbs);"
+        "r3 = mix(r2, 0.22 + litpod*0.4, pod);"
+        "g3 = mix(g2, 0.12 + litpod*0.25, pod);"
+        "b3 = mix(b2, 0.35 + litpod*0.2, pod);"
+        "mix(r3, 1.0, light), mix(g3, 0.9, light), mix(b3, 0.3, light)"},
+      {"contestant3",
+        "tx = floor(x*24);"
+        "ty = floor(y*14);"
+        "inb = step(0.06, y)*step(y, 0.42)*step(0.1, x)*step(x, 0.9);"
+        "gx = fract(x*24);"
+        "gy = fract(y*14);"
+        "tile = step(0.08, gx)*step(gx, 0.92)*step(0.08, gy)*step(gy, 0.92)*inb;"
+        "word = step(0.5, fract(sin(tx*12.9 + ty*78.2)*437.5))*step(2, ty)*step(ty, 4);"
+        "bulbs = step(0.5, fract(x*48 + t*2))*(step(0.43, y)*step(y, 0.45) + step(0.04, y)*step(y, 0.06))*step(0.1, x)*step(x, 0.9);"
+        "pod = (step(0.19, x)*step(x, 0.35)*step(0.66, y)*step(y, 0.92)) + (step(0.42, x)*step(x, 0.58)*step(0.66, y)*step(y, 0.92)) + (step(0.65, x)*step(x, 0.81)*step(0.66, y)*step(y, 0.92));"
+        "litpod = (step(0.65, x)*step(x, 0.81)*step(0.66, y)*step(y, 0.92));"
+        "spot = (1 - smoothstep(0.08, 0.2, length((x - 0.73)*1.78*0.7, y - 0.66)))*0.6;"
+        "light = (step(0.66, x)*step(x, 0.8)*step(0.68, y)*step(y, 0.72));"
+        "bgr = 0.10 + y*0.12 + spot;"
+        "bgg = 0.04 + y*0.06 + spot*0.8;"
+        "bgb = 0.22 + y*0.08 + spot*0.4;"
+        "r1 = mix(bgr, mix(0.1, 0.95, word), tile);"
+        "g1 = mix(bgg, mix(0.5, 0.95, word), tile);"
+        "b1 = mix(bgb, mix(0.3, 0.95, word), tile);"
+        "r2 = mix(r1, 1.0, bulbs);"
+        "g2 = mix(g1, 0.85, bulbs);"
+        "b2 = mix(b1, 0.4, bulbs);"
+        "r3 = mix(r2, 0.22 + litpod*0.4, pod);"
+        "g3 = mix(g2, 0.12 + litpod*0.25, pod);"
+        "b3 = mix(b2, 0.35 + litpod*0.2, pod);"
+        "mix(r3, 1.0, light), mix(g3, 0.9, light), mix(b3, 0.3, light)"},
+      {"rocket",
+        "u = 0;"
+        "sky = 0.04 + y*0.12;"
+        "star = step(0.995, fract(sin(floor(x*160)*91.7 + floor(y*90)*47.3)*9134.1))*step(y, 0.7);"
+        "moon = 1 - smoothstep(0.075, 0.08, length((x - 0.8)*1.78, y - 0.2));"
+        "holes = (1 - smoothstep(0.012, 0.016, length((x - 0.79)*1.78, y - 0.18))) + (1 - smoothstep(0.009, 0.013, length((x - 0.82)*1.78, y - 0.23)));"
+        "ground = step(0.86, y);"
+        "gantry = (step(0.58, x)*step(x, 0.6)*step(0.4, y)*step(y, 0.86)) + (step(0.53, x)*step(x, 0.58)*step(0.5, y)*step(y, 0.51)) + (step(0.53, x)*step(x, 0.58)*step(0.64, y)*step(y, 0.65));"
+        "ry = y + u;"
+        "body = step(0.475, x)*step(x, 0.525)*step(0.42, ry)*step(ry, 0.8);"
+        "nose = step(0.3, ry)*step(ry, 0.42)*step(abs(x - 0.5)*2.4, (ry - 0.3));"
+        "fins = step(0.72, ry)*step(ry, 0.84)*step(abs(x - 0.5), 0.025 + (ry - 0.72)*0.5)*(1 - body);"
+        "win = 1 - smoothstep(0.012, 0.016, length((x - 0.5)*1.78, ry - 0.52));"
+        "fl = 0;"
+        "smoke = 0;"
+        "r1 = mix(sky + star*0.8, 0.95, moon*(1 - holes*0.4));"
+        "g1 = mix(sky*1.1 + star*0.8, 0.85, moon*(1 - holes*0.4));"
+        "b1 = mix(sky*2.0 + star*0.8, 0.35, moon*(1 - holes*0.4));"
+        "r2 = mix(mix(r1, 0.2, ground), 0.55, gantry);"
+        "g2 = mix(mix(g1, 0.18, ground), 0.2, gantry);"
+        "b2 = mix(mix(b1, 0.16, ground), 0.15, gantry);"
+        "r3 = mix(mix(mix(r2, 0.92, body), 0.85, nose + fins), 0.3, win*body);"
+        "g3 = mix(mix(mix(g2, 0.9, body), 0.15, nose + fins), 0.6, win*body);"
+        "b3 = mix(mix(mix(b2, 0.86, body), 0.12, nose + fins), 0.8, win*body);"
+        "r4 = mix(r3, 1.0, fl);"
+        "g4 = mix(g3, 0.6 + 0.3*fract(t*7), fl);"
+        "b4 = mix(b3, 0.1, fl);"
+        "mix(r4, 0.75, smoke), mix(g4, 0.72, smoke), mix(b4, 0.7, smoke)"},
+      {"liftoff",
+        "u = min(0.9, t*t*0.03);"
+        "sky = 0.04 + y*0.12;"
+        "star = step(0.995, fract(sin(floor(x*160)*91.7 + floor(y*90)*47.3)*9134.1))*step(y, 0.7);"
+        "moon = 1 - smoothstep(0.075, 0.08, length((x - 0.8)*1.78, y - 0.2));"
+        "holes = (1 - smoothstep(0.012, 0.016, length((x - 0.79)*1.78, y - 0.18))) + (1 - smoothstep(0.009, 0.013, length((x - 0.82)*1.78, y - 0.23)));"
+        "ground = step(0.86, y);"
+        "gantry = (step(0.58, x)*step(x, 0.6)*step(0.4, y)*step(y, 0.86)) + (step(0.53, x)*step(x, 0.58)*step(0.5, y)*step(y, 0.51)) + (step(0.53, x)*step(x, 0.58)*step(0.64, y)*step(y, 0.65));"
+        "ry = y + u;"
+        "body = step(0.475, x)*step(x, 0.525)*step(0.42, ry)*step(ry, 0.8);"
+        "nose = step(0.3, ry)*step(ry, 0.42)*step(abs(x - 0.5)*2.4, (ry - 0.3));"
+        "fins = step(0.72, ry)*step(ry, 0.84)*step(abs(x - 0.5), 0.025 + (ry - 0.72)*0.5)*(1 - body);"
+        "win = 1 - smoothstep(0.012, 0.016, length((x - 0.5)*1.78, ry - 0.52));"
+        "fl = step(0.8, ry)*step(ry, 0.8 + 0.12 + 0.03*sin(t*40))*step(abs(x - 0.5)*3.0, 0.92 - ry + 0.03*noise(x*40, t*20));"
+        "smoke = smoothstep(0.55, 0.75, noise(x*8 + t*0.5, y*6))*step(0.74, y)*(1 - smoothstep(0.2, 0.45, abs(x - 0.5)))*min(1, t*0.5);"
+        "r1 = mix(sky + star*0.8, 0.95, moon*(1 - holes*0.4));"
+        "g1 = mix(sky*1.1 + star*0.8, 0.85, moon*(1 - holes*0.4));"
+        "b1 = mix(sky*2.0 + star*0.8, 0.35, moon*(1 - holes*0.4));"
+        "r2 = mix(mix(r1, 0.2, ground), 0.55, gantry);"
+        "g2 = mix(mix(g1, 0.18, ground), 0.2, gantry);"
+        "b2 = mix(mix(b1, 0.16, ground), 0.15, gantry);"
+        "r3 = mix(mix(mix(r2, 0.92, body), 0.85, nose + fins), 0.3, win*body);"
+        "g3 = mix(mix(mix(g2, 0.9, body), 0.15, nose + fins), 0.6, win*body);"
+        "b3 = mix(mix(mix(b2, 0.86, body), 0.12, nose + fins), 0.8, win*body);"
+        "r4 = mix(r3, 1.0, fl);"
+        "g4 = mix(g3, 0.6 + 0.3*fract(t*7), fl);"
+        "b4 = mix(b3, 0.1, fl);"
+        "mix(r4, 0.75, smoke), mix(g4, 0.72, smoke), mix(b4, 0.7, smoke)"},
+      {"kitchen_fire",
+        "tile = step(0.06, fract(x*16))*step(0.06, fract(y*12));"
+        "wall = step(y, 0.62);"
+        "counter = (step(0, x)*step(x, 1)*step(0.62, y)*step(y, 0.66));"
+        "cab = step(0.66, y);"
+        "kr = mix(0.32 + cab*0.1, mix(0.6, 0.8, tile), wall);"
+        "kg = mix(0.2 + cab*0.06, mix(0.62, 0.82, tile), wall);"
+        "kb = mix(0.12, mix(0.62, 0.8, tile), wall);"
+        "kr2 = mix(kr, 0.75, counter);"
+        "kg2 = mix(kg, 0.72, counter);"
+        "kb2 = mix(kb, 0.68, counter);"
+        "doors = step(0.985, fract(x*5))*cab;"
+        "kr3 = mix(kr2, 0.15, doors);"
+        "kg3 = mix(kg2, 0.1, doors);"
+        "kb3 = mix(kb2, 0.08, doors);"
+        "pan = (step(0.36, x)*step(x, 0.62)*step(0.58, y)*step(y, 0.62)) + (step(0.62, x)*step(x, 0.78)*step(0.595, y)*step(y, 0.605));"
+        "n = noise(x*12, y*8 + t*3)*0.5 + noise(x*24, y*16 + t*6)*0.25;"
+        "h = (0.58 - y)/0.5;"
+        "env = clamp(1 - abs(x - 0.49)/0.15, 0, 1);"
+        "fire = step(0, h)*step(h, env*env*(0.25 + n*1.3));"
+        "hot = fire*(1 - h*1.6);"
+        "smoke = smoothstep(0.5, 0.8, noise(x*5 + t*0.3, y*5 - t*0.5))*step(y, 0.4);"
+        "glow = (1 - smoothstep(0.0, 0.5, length((x - 0.49)*1.78, y - 0.5)))*(0.8 + 0.2*sin(t*13));"
+        "r1 = kr3 + glow*0.35;"
+        "g1 = kg3 + glow*0.15;"
+        "b1 = kb3;"
+        "r2 = mix(r1, 0.1, pan);"
+        "g2 = mix(g1, 0.1, pan);"
+        "b2 = mix(b1, 0.1, pan);"
+        "r3 = mix(r2, 1.0, fire);"
+        "g3 = mix(g2, 0.35 + hot*0.6, fire);"
+        "b3 = mix(b2, 0.05 + hot*0.3, fire);"
+        "mix(r3, 0.25, smoke*0.8), mix(g3, 0.24, smoke*0.8), mix(b3, 0.25, smoke*0.8)"},
+      {"souffle",
+        "tile = step(0.06, fract(x*16))*step(0.06, fract(y*12));"
+        "wall = step(y, 0.62);"
+        "counter = (step(0, x)*step(x, 1)*step(0.62, y)*step(y, 0.66));"
+        "cab = step(0.66, y);"
+        "kr = mix(0.32 + cab*0.1, mix(0.6, 0.8, tile), wall);"
+        "kg = mix(0.2 + cab*0.06, mix(0.62, 0.82, tile), wall);"
+        "kb = mix(0.12, mix(0.62, 0.8, tile), wall);"
+        "kr2 = mix(kr, 0.75, counter);"
+        "kg2 = mix(kg, 0.72, counter);"
+        "kb2 = mix(kb, 0.68, counter);"
+        "doors = step(0.985, fract(x*5))*cab;"
+        "kr3 = mix(kr2, 0.15, doors);"
+        "kg3 = mix(kg2, 0.1, doors);"
+        "kb3 = mix(kb2, 0.08, doors);"
+        "dish = (step(0.42, x)*step(x, 0.58)*step(0.5, y)*step(y, 0.62));"
+        "ridges = step(0.5, fract(x*60))*dish;"
+        "dome = (1 - smoothstep(0.1, 0.11, length((x - 0.5)*1.78*0.9, (y - 0.5)*1.4)))*step(y, 0.5);"
+        "crust = smoothstep(0.03, 0.1, length((x - 0.5)*1.78*0.9, (y - 0.5)*1.4));"
+        "steam = smoothstep(0.62, 0.8, noise(x*10, y*6 + t*0.6))*step(y, 0.4)*(1 - smoothstep(0.05, 0.15, abs(x - 0.5)));"
+        "r1 = mix(mix(kr3, 0.95, dish), 0.85, ridges);"
+        "g1 = mix(mix(kg3, 0.95, dish), 0.85, ridges);"
+        "b1 = mix(mix(kb3, 0.92, dish), 0.85, ridges);"
+        "r2 = mix(r1, 0.98 - crust*0.25, dome);"
+        "g2 = mix(g1, 0.82 - crust*0.3, dome);"
+        "b2 = mix(b1, 0.45 - crust*0.3, dome);"
+        "mix(r2, 0.95, steam*0.6), mix(g2, 0.95, steam*0.6), mix(b2, 0.95, steam*0.6)"},
+      {"titles",
+        "st = step(0.996, fract(sin(floor(x*220)*12.9 + floor(y*124)*78.2)*43758.5));"
+        "neb = noise(x*3, y*3)*0.12;"
+        "bars = step(y, 0.12) + step(0.88, y);"
+        "flare = exp(-length((x - 0.5)*1.78*0.25, (y - 0.5)*6.0)*3.0)*(0.8 + 0.2*sin(t*2));"
+        "streak = exp(-abs(y - 0.5)*120.0)*(1 - smoothstep(0.0, 0.5, abs(x - 0.5)));"
+        "tr = st + neb*0.6 + flare*0.6 + streak*0.4;"
+        "tg = st + neb*0.3 + flare*0.7 + streak*0.6;"
+        "tb = st + neb + flare + streak;"
+        "tr*(1 - bars), tg*(1 - bars), tb*(1 - bars)"},
+      {"planet",
+        "st = step(0.996, fract(sin(floor(x*220)*12.9 + floor(y*124)*78.2)*43758.5));"
+        "neb = noise(x*3, y*3)*0.12;"
+        "d = length((x - 0.5)*1.78, y - 0.55);"
+        "ball = 1 - smoothstep(0.3, 0.305, d);"
+        "lit = clamp(0.3 + ((x - 0.5)*1.78*(-0.6) + (y - 0.55)*(-0.6))/0.3*0.9, 0.05, 1.2);"
+        "bands = 0.5 + 0.5*sin(y*60 + noise(x*6, y*6)*4);"
+        "rx = (x - 0.5)*1.78;"
+        "ry = (y - 0.55)*4.2 - rx*0.9;"
+        "rd = length(rx, ry);"
+        "ring = step(0.45, rd)*step(rd, 0.62)*(1 - ball*step(ry, 0));"
+        "r1 = mix(st + neb*0.5, (0.75 + bands*0.2)*lit, ball);"
+        "g1 = mix(st + neb*0.3, (0.5 + bands*0.2)*lit, ball);"
+        "b1 = mix(st + neb, (0.3 + bands*0.1)*lit, ball);"
+        "mix(r1, 0.85, ring*0.8), mix(g1, 0.78, ring*0.8), mix(b1, 0.6, ring*0.8)"},
+      {"battle",
+        "st = step(0.996, fract(sin(floor(x*220)*12.9 + floor(y*124)*78.2)*43758.5));"
+        "neb = noise(x*3, y*3)*0.12;"
+        "s1 = step(abs(y - 0.35 - (x - 0.2)*0.1), 0.02 - abs(x - 0.22)*0.25)*step(0.12, x)*step(x, 0.3);"
+        "s2 = step(abs(y - 0.62), 0.03 - abs(x - 0.75)*0.3)*step(0.66, x)*step(x, 0.84);"
+        "k = fract(t*1.5);"
+        "laser = step(abs(y - (0.36 + (x - 0.3)*0.58)), 0.003)*step(0.3, x)*step(x, 0.3 + k*0.4)*step(0.3 + k*0.4 - 0.12, x);"
+        "laser2 = step(abs(y - (0.6 - (0.68 - x)*0.4)), 0.003)*step(x, 0.68)*step(0.68 - fract(t*1.1 + 0.4)*0.38, x)*step(x, 0.68 - fract(t*1.1 + 0.4)*0.38 + 0.1);"
+        "ex = noise(x*14 + t, y*14)*(1 - smoothstep(0.02, 0.12, length((x - 0.5)*1.78, y - 0.48)))*(0.6 + 0.4*sin(t*9));"
+        "r1 = st + neb*0.4 + ex*1.6;"
+        "g1 = st + neb*0.2 + ex*0.9;"
+        "b1 = st + neb*0.8 + ex*0.2;"
+        "r2 = mix(mix(r1, 0.7, s1), 0.55, s2);"
+        "g2 = mix(mix(g1, 0.72, s1), 0.5, s2);"
+        "b2 = mix(mix(b1, 0.78, s1), 0.5, s2);"
+        "mix(mix(r2, 1.0, laser), 0.3, laser2), mix(mix(g2, 0.2, laser), 1.0, laser2), mix(mix(b2, 0.2, laser), 0.3, laser2)"},
+      {"nebula",
+        "st = step(0.996, fract(sin(floor(x*220)*12.9 + floor(y*124)*78.2)*43758.5));"
+        "neb = noise(x*3, y*3)*0.12;"
+        "n = noise(x*3 + t*0.02, y*3)*0.6 + noise(x*7, y*7 - t*0.03)*0.3 + noise(x*15, y*15)*0.1;"
+        "st + n*n*0.9 + 0.03, st + n*0.35, st + n*1.1 + 0.08"},
+      {"engine",
+        "d = length((x - 0.5)*1.78, y - 0.5);"
+        "rings = 0.5 + 0.5*sin(d*60 - t*6);"
+        "core = exp(-d*9)*(0.85 + 0.15*sin(t*8));"
+        "pipe = step(0.5, fract(y*8))*(step(x, 0.12) + step(0.88, x));"
+        "0.08 + core*1.3 + rings*exp(-d*4)*0.35 + pipe*0.25, 0.05 + core*0.8 + rings*exp(-d*4)*0.15 + pipe*0.2, 0.04 + core*0.3 + pipe*0.18"},
+      {"deck3",
+        "persp = abs(x - 0.5)*2.0;"
+        "wall = step(abs(y - 0.5)*2.0, persp*0.7 + 0.1);"
+        "lights = step(0.85, fract(x*12))*step(0.48, y)*step(y, 0.52);"
+        "mx = fract(t*0.07)*1.4 - 0.2;"
+        "m = 1 - smoothstep(0.06, 0.09, length((x - mx)*1.78*0.8, (y - 0.56 - 0.02*sin(t*5))*1.0));"
+        "eyes = (1 - smoothstep(0.006, 0.01, length((x - mx - 0.015)*1.78, y - 0.52))) + (1 - smoothstep(0.006, 0.01, length((x - mx + 0.015)*1.78, y - 0.52)));"
+        "r1 = 0.06 + (1 - wall)*0.05 + lights*0.4;"
+        "g1 = 0.08 + (1 - wall)*0.07 + lights*0.4;"
+        "b1 = 0.1 + (1 - wall)*0.1 + lights*0.3;"
+        "mix(mix(r1, 0.15, m), 1.0, eyes*m), mix(mix(g1, 0.55, m), 0.2, eyes*m), mix(mix(b1, 0.2, m), 0.1, eyes*m)"},
+      {"sickbay",
+        "bed = (step(0.2, x)*step(x, 0.8)*step(0.6, y)*step(y, 0.7));"
+        "pillow = (step(0.22, x)*step(x, 0.32)*step(0.55, y)*step(y, 0.6));"
+        "mon = (step(0.62, x)*step(x, 0.9)*step(0.12, y)*step(y, 0.4));"
+        "px = (x - 0.62)/0.28;"
+        "ph = fract(px*2 - t*0.8);"
+        "beat = exp(-pow((ph - 0.5)*30, 2))*0.1 - exp(-pow((ph - 0.56)*30, 2))*0.04;"
+        "trace = step(abs(y - (0.28 - beat)), 0.004)*mon;"
+        "r1 = 0.75 - y*0.2;"
+        "g1 = 0.88 - y*0.15;"
+        "b1 = 0.88 - y*0.1;"
+        "r2 = mix(mix(r1, 0.9, bed), 0.98, pillow);"
+        "g2 = mix(mix(g1, 0.92, bed), 0.98, pillow);"
+        "b2 = mix(mix(b1, 0.95, bed), 0.98, pillow);"
+        "r3 = mix(r2, 0.04, mon);"
+        "g3 = mix(g2, 0.08, mon);"
+        "b3 = mix(b2, 0.08, mon);"
+        "mix(r3, 0.2, trace), mix(g3, 1.0, trace), mix(b3, 0.4, trace)"},
+      {"look_one",
+        "run = step(0.7, y)*step(abs(x - 0.5)*2.0, 0.3 + (y - 0.7)*1.6);"
+        "spot = 1 - smoothstep(0.1, 0.35, length((x - 0.5)*1.78*0.8, y - 0.45));"
+        "head = 1 - smoothstep(0.03, 0.035, length((x - 0.5)*1.78, y - 0.25));"
+        "torso = step(abs(x - 0.5)*2.0, 0.05 + (y - 0.3)*0.1)*step(0.29, y)*step(y, 0.52);"
+        "legs = step(0.52, y)*step(y, 0.74)*(step(abs(x - 0.488), 0.009) + step(abs(x - 0.512), 0.009));"
+        "body = max(max(head, torso), legs);"
+        "cape = 0;"
+        "lr = 0.25;"
+        "lg = 0.45;"
+        "lb = 0.9;"
+        "r1 = 0.03 + spot*lr*0.6;"
+        "g1 = 0.03 + spot*lg*0.6;"
+        "b1 = 0.04 + spot*lb*0.6;"
+        "r2 = mix(r1, 0.14 + spot*0.2, run);"
+        "g2 = mix(g1, 0.12 + spot*0.2, run);"
+        "b2 = mix(b1, 0.13 + spot*0.2, run);"
+        "r3 = mix(r2, 0.06, body);"
+        "g3 = mix(g2, 0.06, body);"
+        "b3 = mix(b2, 0.08, body);"
+        "mix(r3, 0.85, cape), mix(g3, 0.05, cape), mix(b3, 0.1, cape)"},
+      {"look_two",
+        "run = step(0.7, y)*step(abs(x - 0.5)*2.0, 0.3 + (y - 0.7)*1.6);"
+        "spot = 1 - smoothstep(0.1, 0.35, length((x - 0.5)*1.78*0.8, y - 0.45));"
+        "head = 1 - smoothstep(0.03, 0.035, length((x - 0.5)*1.78, y - 0.25));"
+        "torso = step(abs(x - 0.5)*2.0, 0.05 + (y - 0.3)*0.1)*step(0.29, y)*step(y, 0.52);"
+        "legs = step(0.52, y)*step(y, 0.74)*(step(abs(x - 0.488), 0.009) + step(abs(x - 0.512), 0.009));"
+        "body = max(max(head, torso), legs);"
+        "cape = step(0.29, y)*step(y, 0.72)*step(abs(x - 0.5 - sin(y*12 + t*3)*0.01)*2.0, 0.07 + (y - 0.29)*0.35)*(1 - body);"
+        "lr = 0.9;"
+        "lg = 0.15;"
+        "lb = 0.75;"
+        "r1 = 0.03 + spot*lr*0.6;"
+        "g1 = 0.03 + spot*lg*0.6;"
+        "b1 = 0.04 + spot*lb*0.6;"
+        "r2 = mix(r1, 0.14 + spot*0.2, run);"
+        "g2 = mix(g1, 0.12 + spot*0.2, run);"
+        "b2 = mix(b1, 0.13 + spot*0.2, run);"
+        "r3 = mix(r2, 0.95, body);"
+        "g3 = mix(g2, 0.8, body);"
+        "b3 = mix(b2, 0.2, body);"
+        "mix(r3, 0.85, cape), mix(g3, 0.05, cape), mix(b3, 0.1, cape)"},
+      {"bus",
+        "sun = 1 - smoothstep(0.08, 0.09, length((x - 0.75)*1.78, y - 0.5));"
+        "skyr = 0.95 - y*0.5;"
+        "skyg = 0.55 - y*0.3 + (1 - y)*0.1;"
+        "skyb = 0.35 + (0.5 - y)*0.4;"
+        "hills = step(0.55 + 0.04*sin(x*9) + 0.02*sin(x*23), y);"
+        "road = step(0.78, y)*step(abs(x - 0.5)*2.0, 0.2 + (y - 0.78)*4.0);"
+        "dash = road*step(abs(x - 0.5), 0.004 + (y - 0.78)*0.02)*step(0.5, fract(y*30 - t*2));"
+        "bx = 0.18 + fract(t*0.03)*0.0;"
+        "bus = (step(0.12, x)*step(x, 0.42)*step(0.56, y)*step(y, 0.72));"
+        "wins = (step(0.14, x)*step(x, 0.4)*step(0.58, y)*step(y, 0.63))*step(0.15, fract(x*24));"
+        "wheels = (1 - smoothstep(0.022, 0.026, length((x - 0.18)*1.78, y - 0.72))) + (1 - smoothstep(0.022, 0.026, length((x - 0.36)*1.78, y - 0.72)));"
+        "stripe = (step(0.12, x)*step(x, 0.42)*step(0.66, y)*step(y, 0.675));"
+        "r1 = mix(mix(skyr, 1.0, sun), 0.22, hills);"
+        "g1 = mix(mix(skyg, 0.85, sun), 0.18, hills);"
+        "b1 = mix(mix(skyb, 0.4, sun), 0.15, hills);"
+        "r2 = mix(mix(r1, 0.28, road), 0.95, dash);"
+        "g2 = mix(mix(g1, 0.26, road), 0.85, dash);"
+        "b2 = mix(mix(b1, 0.26, road), 0.4, dash);"
+        "r3 = mix(mix(mix(r2, 0.92, bus), 0.25, wins), 0.85, stripe);"
+        "g3 = mix(mix(mix(g2, 0.88, bus), 0.35, wins), 0.2, stripe);"
+        "b3 = mix(mix(mix(b2, 0.8, bus), 0.45, wins), 0.45, stripe);"
+        "mix(r3, 0.08, wheels), mix(g3, 0.08, wheels), mix(b3, 0.08, wheels)"},
+      {"earth",
+        "st = step(0.996, fract(sin(floor(x*220)*12.9 + floor(y*124)*78.2)*43758.5));"
+        "neb = noise(x*3, y*3)*0.12;"
+        "d = length((x - 0.5)*1.78, y - 1.55);"
+        "planet = 1 - smoothstep(1.0, 1.004, d);"
+        "atm = exp(-abs(d - 1.0)*40.0)*0.8;"
+        "cl = smoothstep(0.5, 0.7, noise(x*6 + t*0.01, y*14));"
+        "land = smoothstep(0.55, 0.6, noise(x*3 + 4, y*7));"
+        "win = smoothstep(0.38, 0.4, length((x - 0.5)*1.78*0.62, (y - 0.5)*1.0));"
+        "pr = mix(0.05, 0.25, land) + cl*0.7;"
+        "pg = mix(0.2, 0.4, land) + cl*0.7;"
+        "pb = mix(0.55, 0.15, land) + cl*0.7;"
+        "r1 = mix(st, pr, planet) + atm*0.3;"
+        "g1 = mix(st, pg, planet) + atm*0.55;"
+        "b1 = mix(st, pb, planet) + atm;"
+        "mix(r1, 0.18, win), mix(g1, 0.18, win), mix(b1, 0.2, win)"},
+    };
+    for (const Pic& p : kPics) {
+      if (id == p.id) return p.expr;
+    }
+    return "0.1, 0.1, 0.1";
+  }
+
+  // The magic show is where layers are taught. Once it is done, the other
+  // lessons make their second playlist for the operator (James, 2026-11-13:
+  // "once it's been established").
+  bool lessonLayersKnown() const { return readLessonsProgress().done.count("layers") > 0; }
+
+  // One playlist off the air, the others untouched.
+  void lessonClearDeck(int d) {
+    if (d < 0 || d >= static_cast<int>(project_.decks.size())) return;
+    Deck& deck = project_.decks[static_cast<std::size_t>(d)];
+    deck.overlayActiveIndices.clear();
+    syncPipOverlayRuntimesForDeck(d, SDL_GetTicks());
+    deck.activeIndex = -1;
+    if (MediaEngine* engine = mediaEngineForDeck(d)) engine->clear();
+  }
+
+  // Strokes drawn on the first Draw cue, for Coach Marv to judge.
+  int lessonDrawStrokes() const {
+    int d = -1;
+    const int i = lessonFindCue(lessonIsDraw, &d);
+    if (i < 0) return 0;
+    int n = 0;
+    for (const auto& frame : project_.decks[static_cast<std::size_t>(d)].cues[static_cast<std::size_t>(i)].drawing.frames) {
+      n += static_cast<int>(frame.strokes.size());
+    }
+    return n;
+  }
 
   // A code-source cue of the practice show's own, on the focused playlist.
   void lessonAddCodeCue(const char* name, const char* expression) {
@@ -674,6 +1189,78 @@
          ".KKKKKKKKKKKKKK.",
          ".KKKKKKKKKKKKKK."},
         -1, {-1, -1, -1, -1, -1, -1}, 6, {4, 6, 8, 10}},
+      // The three plain lessons' guests (James, 2026-11-13: "surprise me"):
+      // Polly Carton (Dolly Parton) on the road, Edda Mod (Edna Mode) on
+      // presets, and Major Tomasina (Major Tom) out of the building.
+      {"POLLY CARTON",
+        {
+         "..YYYYYYYYYYYY..",
+         ".YYYYYYYYYYYYYY.",
+         "YYYYYYYYYYYYYYYY",
+         "YYYYYYYYYYYYYYYY",
+         "YYYYSSSSSSSSYYYY",
+         "YYYSHHSSSSHHSYYY",
+         "YYYSWESSSSWESYYY",
+         "YYYSSSSSSSSSSYYY",
+         "YYYSSSSDDSSSSYYY",
+         "YYYSBSSSSSSBSYYY",
+         ".YYSSRRRRRRSSYY.",
+         ".YYYSSSSSSSSYYY.",
+         "..YYY.SSSS.YYY..",
+         "......SSSS......",
+         "...BBBBAABBBB...",
+         "..BBABBBBBBABB..",
+         ".BBBBBBABBBBBBB.",
+         ".BABBBBBBBBBABB.",
+         ".BBBBBABBBBBBBB.",
+         ".BBBBBBBBBBBBBB."},
+        6, {4, 5, 10, 11, -1, -1}, 10, {6, 7, 8, 9}},
+      {"EDDA MOD",
+        {
+         "................",
+         "...KKKKKKKKKK...",
+         "..KKKKKKKKKKKK..",
+         ".KKKKKKKKKKKKKK.",
+         ".KKKSSSSSSSSKKK.",
+         ".KKSSSSSSSSSSKK.",
+         ".KGGGGGSSGGGGGK.",
+         ".KGWEWGSSGWEWGK.",
+         ".KGWWWGSSGWWWGK.",
+         ".KKGGGSDDSGGGKK.",
+         "..KSSSSSSSSSSK..",
+         "..KSSSMMMMSSSK..",
+         "...SSSSSSSSSS...",
+         ".....SSSSSS.....",
+         "......SSSS......",
+         "....KKKAAKKK....",
+         "..KKKKKAAKKKKK..",
+         ".KKKKKKAAKKKKKK.",
+         ".KKKKKKKKKKKKKK.",
+         ".KKKKKKKKKKKKKK."},
+        7, {4, 11, -1, -1, -1, -1}, 11, {6, 7, 8, 9}},
+      {"MAJOR TOMASINA",
+        {
+         "....AAAAAAAA....",
+         "..AAAAAAAAAAAA..",
+         ".AAAKKKKKKKKAAA.",
+         ".AAKNNNNNNNNKAA.",
+         "AAKNNSSSSSSNNKAA",
+         "AAKNSSSSSSSSNKAA",
+         "AAKSHHSSSSHHSKAA",
+         "AAKSWESSSSWESKAA",
+         "AAKSSSSSSSSSSKAA",
+         "AAKSSSSDDSSSSKAA",
+         "AAKSSSMMMMSSSKAA",
+         ".AAKSSSSSSSSKAA.",
+         ".AAAKKKKKKKKAAA.",
+         "..AAAAAAAAAAAA..",
+         "....AAAAAAAA....",
+         "..UUUUUUUUUUUU..",
+         ".UUUURUUUUUUUUU.",
+         ".UUUUUUUUAAUUUU.",
+         ".UUUUUUUUUUUUUU.",
+         ".UUUUUUUUUUUUUU."},
+        7, {4, 5, 10, 11, -1, -1}, 10, {6, 7, 8, 9}},
     };
     if (!name) return nullptr;
     for (const GuestFace& face : kFaces) {
@@ -762,7 +1349,11 @@
     const LessonDef* def = lessonDef(index);
     if (!def || def->steps.empty()) return TutorialLine {"", nullptr, "", ""};
     const LessonStep& s = def->steps[static_cast<std::size_t>(std::clamp(step, 0, static_cast<int>(def->steps.size()) - 1))];
-    return TutorialLine {s.title, s.key, s.pixel, s.video, s.guestName, s.guest};
+    const char* guest = s.guest;
+    if (s.react) {
+      if (const char* said = s.react()) guest = said;
+    }
+    return TutorialLine {s.title, s.key, s.pixel, s.video, s.guestName, guest};
   }
 
   const LessonStep* currentLessonStep() const {
@@ -785,11 +1376,12 @@
       l.videoTrack = false;
       l.title = "Taking it on the road";
       l.about = "CHECK a show before it travels, fix what it finds, and bundle it with its media.";
-      l.show = "";
+      l.show = "The tour bus, with Polly Carton";
       l.setup = [this] {
-        addGeneratorCue("swirl");
+        lessonAddCodeCue("Opener (the bus at dawn)", lessonPictureExpr("bus"));
+        selectCueInDeck(project_.focusedDeckIndex, 0, false, false);
+        jumpSelectedCue();
         Deck& deck = focusedDeckMutable();
-        if (!deck.cues.empty()) deck.cues.back().name = "Opener";
         Cue lost;
         lost.kind = CueKind::Video;
         lost.name = "Intro video (left on the office PC)";
@@ -803,13 +1395,13 @@
       auto isLost = [](const Cue& c) { return c.name == "Intro video (left on the office PC)"; };
       l.steps = {
         {"ON THE ROAD", nullptr,
-         "A show you built here, skapi, running on a laptop somewhere else tonight. Press START.",
-         "Before it travels: check it, fix it, bundle it.",
-         nullptr, nullptr, std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; }, nullptr},
+         "Polly Carton's tour bus leaves at six, skapi, and this show goes with it. Press START.",
+         "A show that travels needs three things first: a check, a fix and a bundle.",
+         "POLLY CARTON", "Honey, I've played four thousand towns. Not one of them had my laptop.", std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; }, nullptr},
         {"CHECK", nullptr,
          "See CHECK in the top bar? It only appears when something is wrong. Press it.",
-         "It lists everything a show would trip over: missing files, empty cues, unreachable outputs.",
-         nullptr, nullptr,
+         "It lists what the show would trip over: missing files, empty cues, outputs it cannot reach.",
+         "POLLY CARTON", "Every show has a problem. Find yours before the audience does.",
          [this] { return showProblemListOpens_ > lessonCount_; },
          [this] { openShowProblemList(); },
          [this] { return fileCheckBtnRect_; },
@@ -818,9 +1410,9 @@
            lastShowCheckMs_ = 0;   // CHECK appears now, not on the next rescan
          }},
         {"FIX IT", "DEL",
-         "The intro video is on another computer. Select it and delete it, or RELINK it if you have the file.",
-         "Fix it at home, where it is easy. Not at the venue, where it is not.",
-         nullptr, nullptr,
+         "The intro video is on the office computer. Select it and delete it, or RELINK it if you have the file.",
+         "Fix it here, with time and coffee. Not at the venue, with neither.",
+         "POLLY CARTON", "Leave it behind, sugar. I left a whole wig in Tulsa and the show went on.",
          [this, isLost] {
            int d = -1;
            const int i = lessonFindCue(isLost, &d);
@@ -840,9 +1432,9 @@
            return i < 0 ? SDL_Rect {} : lessonCueRowRect(d, i);
          }, nullptr},
         {"BUNDLE IT", nullptr,
-         "Press BUNDLE and choose where: a USB stick, a shared folder. The show and all its media, together.",
+         "Press BUNDLE and choose where: a USB stick, a shared folder. The show and all its media, in one folder.",
          "The copy finds its media beside it, wherever the folder goes.",
-         nullptr, nullptr,
+         "POLLY CARTON", "Pack it like a wig box. Everything inside, nothing loose.",
          [this] { return bundlesWritten_ > lessonCount_; },
          [this] {
            const fs::path dir = Paths::stateDir() / "lesson-road-bundle";
@@ -853,9 +1445,9 @@
          [this] { return fileBundleBtnRect_; },
          [this] { lessonCount_ = bundlesWritten_; }},
         {"SAFE TRAVELS", nullptr,
-         "Checked, fixed, bundled. On the other machine, open the bundle's show: everything is where it should be.",
-         "A show file is only text, so it travels light. The media is the heavy part.",
-         nullptr, nullptr, std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; }, nullptr},
+         "Checked, fixed, bundled. On the other computer, open the show in the bundle and everything is there.",
+         "The show file is only text, so it travels light. The media is the luggage.",
+         "POLLY CARTON", "Bus leaves at six. Show starts at eight. Hair takes until seven.", std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; }, nullptr},
       };
       lessons_.push_back(std::move(l));
     }
@@ -898,7 +1490,7 @@
          std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; }, nullptr},
         {"AN EFFECT", nullptr,
          "In the inspector's EFFECTS section, + adds one. Edges is a good start: it draws the outlines.",
-         "There are dozens. Every one runs on the CPU in a few milliseconds. Mostly.",
+         "There are dozens, and most of them run on the graphics card, so you can stack them.",
          "MR. SALTY", "Take a risk! Bad art is fine. Boring art is a crime.",
          anyEffect,
          [this] { handleRemoteCommand("FX ADD edges 1"); },
@@ -952,10 +1544,19 @@
          },
          [this] { return lessonQuickRect(QuickAction::EffectColourPick); }, openEffects},
         {"THE VERDICT", nullptr,
-         "An effect, a ~ and a colour. The critic is crying, skapi. Good crying, I think.",
-         "Stack a few. Each has its own ~ on every knob. That is how a look becomes a performance.",
+         "An effect, a ~ and a colour. The critic is crying. Good crying, I think.",
+         "Stack a few more. Order matters: each effect works on the picture the one above it made.",
          "MR. SALTY", "It's still a square. But it's YOUR square. Post it.",
          std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; }, nullptr},
+      };
+      // Mr. Salty counts the stack.
+      l.steps[4].react = [this]() -> const char* {
+        const Cue* cue = selectedCuePtr();
+        int n = 0;
+        if (cue) {
+          for (const auto& fx : cue->effects) n += fx.kind != deckboy::effects::CueEffectKind::None ? 1 : 0;
+        }
+        return n >= 3 ? "Three effects! It's a mess! It's ALIVE! Post it." : nullptr;
       };
       lessons_.push_back(std::move(l));
     }
@@ -966,50 +1567,62 @@
       l.id = "draw";
       l.videoTrack = true;
       l.title = "Patterns, synths and Draw";
-      l.about = "A test pattern, the video synth, and drawing on the picture, saved as a still.";
+      l.about = "A test pattern, drawing on a replay, a still, and the video synth at halftime.";
       l.show = "The telestrator booth, with Coach Marv";
-      l.setup = [] {};
+      // Marv's want: explain ONE play to the folks at home before the break.
+      // His comedy is Madden's: the obvious, stated as insight; drawing until
+      // the field disappears; food. The synth is the halftime show, where "no
+      // camera" is the point, and the ink staying up over halftime is what
+      // teaches that each playlist changes on its own.
+      l.setup = [this] {
+        lessonAddCodeCue("The replay", lessonPictureExpr("replay"));
+        selectCueInDeck(project_.focusedDeckIndex, 0, false, false);
+      };
+      auto isReplay = [](const Cue& c) { return c.name == "The replay"; };
+      auto synthOnDeckOne = [this] {
+        if (project_.decks.empty()) return false;
+        for (const Cue& c : project_.decks[0].cues) {
+          if (lessonIsSynth(c)) return true;
+        }
+        return false;
+      };
       l.steps = {
         {"THE TELESTRATOR BOOTH", nullptr,
-         "Coach Marv explains sport by drawing circles on it. Once he circled the sun. Ten minutes, skapi.",
-         "Tonight: test patterns, the video synth, and drawing on the picture. Press START.",
-         "COACH MARV", "Get me a picture and a pen. BOOM.", none, nullptr, noTarget, nullptr},
-        {"A TEST PATTERN", nullptr,
-         "Line up the screens BEFORE the show. Not during. I learned this in Plovdiv.",
-         "Every desk needs a test pattern. PATTERN adds Pocket Test: checked against real meters.",
-         nullptr, nullptr,
+         "Coach Marv has two minutes of airtime, one replay and a pen, skapi. He will use all three. Press START.",
+         "Tonight: a test pattern, drawing on the picture, and the video synth.",
+         "COACH MARV", "Folks, I've watched this play forty times. It's still a play.", none, nullptr, noTarget, nullptr},
+        {"CHECK THE MONITORS", nullptr,
+         "PATTERN adds Pocket Test. If its circles are not round, a screen is stretched. Find out now, not on air.",
+         "Its bars and steps are checked against real meters, so a wrong screen looks wrong at once.",
+         "COACH MARV", "That's a test pattern. You test with it. That's why they call it that.",
          [this] { return lessonCountCues(lessonIsTestPattern) > 0; },
          [this] { addKawaiiPatternCue(); },
          [this] { return tutorialButtonRect("PATTERN"); }, nullptr},
-        {"A VIDEO SYNTH", nullptr,
-         "He says 'no camera needed' like it is a feature. It is a feature.",
-         "My favourite. SOURCE, then Video Synth: oscillators, mirrors and feedback. No camera needed.",
-         nullptr, nullptr,
-         [this] { return lessonCountCues(lessonIsSynth) > 0; },
-         [this] { addVideoSynthCue(); },
-         [this] { return tutorialButtonRect("SOURCE"); }, nullptr},
-        {"TAKE THE SYNTH", "ENTER",
-         "Select it, then TAKE. Confident operators press Enter.",
-         "That's our replay. Every replay needs a pundit.",
-         "COACH MARV", "Now here's a replay. And here's a guy. And BOOM, he's in it.",
-         [this] { return lessonCueLive(lessonIsSynth); },
-         [this] { lessonTake(lessonIsSynth); },
-         [this] { return lessonTakeTarget(lessonIsSynth); }, nullptr},
+        {"ROLL THE REPLAY", "ENTER",
+         "Select The replay and TAKE it.",
+         "A replay loops, so the pundit can talk over it for as long as he likes. He likes.",
+         "COACH MARV", "Here's number 22. Number 22 has the ball. That's important, because the ball is how you score.",
+         [this, isReplay] { return lessonCueLive(isReplay); },
+         [this, isReplay] { lessonTake(isReplay); },
+         [this, isReplay] { return lessonTakeTarget(isReplay); }, nullptr},
         {"A SECOND PLAYLIST", nullptr,
-         "Ink goes on top, on its own layer. Press the + at the end of the playlist tabs.",
-         "A second playlist is a layer over the first. Like a second oscillator, mixed on top.",
-         nullptr, nullptr,
+         "The pen goes over the replay, on its own layer. Press the + at the end of the playlist tabs.",
+         "A second playlist is a layer over the first.",
+         "COACH MARV", "Over it. Not under it. Under it, you can't see it. That's football.",
          [this] { return project_.decks.size() >= 2; },
-         [this] { addDeck(); },
+         [this] {
+           if (project_.decks.size() < 2) addDeck();
+           setFocusedDeckIndex(1);
+         },
          [this] { return deckAddTabRect_; }, nullptr},
         lessonSelectSecondDeckStep(
           "Now click its tab, Deck 2. A new playlist is not the selected one until you click it.",
-          "The lit tab is where SOURCE puts things. Skip this and the ink lands under the synth.",
-          "COACH MARV", "See that tab? Click it. Now you're on Deck 2. BOOM. Fundamentals."),
+          "The lit tab is where SOURCE puts things. Skip this and the ink lands under the replay.",
+          "COACH MARV", "See that tab? Click it. Fundamentals."),
         {"A DRAW CUE", nullptr,
-         "In the new playlist: SOURCE, then Draw. Clear everywhere you have not drawn.",
-         "A Draw cue is transparent outside the ink, so the synth shows through.",
-         nullptr, nullptr,
+         "In playlist 2: SOURCE, then Draw.",
+         "A Draw cue is clear wherever there is no ink, so the replay shows through.",
+         "COACH MARV", "Give me the pen. I've waited all season for the pen.",
          [this] { return lessonCueInDeckFrom(lessonIsDraw, 1); },
          [this] {
            if (project_.decks.size() < 2) addDeck();
@@ -1019,24 +1632,16 @@
          [this] { return lessonOnSecondDeck(tutorialButtonRect("SOURCE")); }, nullptr},
         {"TAKE THE INK", "ENTER",
          "Select the Draw cue and TAKE it. Two playlists, two layers, one picture.",
-         "Now both are live: the synth underneath, the ink on top.",
-         nullptr, nullptr,
+         "Both are live now: the replay underneath, the ink on top.",
+         "COACH MARV", "We're on the air. Nobody touches the pen but me.",
          [this] { return lessonCueLive(lessonIsDraw); },
          [this] { lessonTake(lessonIsDraw); },
          [this] { return lessonTakeTarget(lessonIsDraw); }, nullptr},
-        {"CIRCLE SOMETHING", nullptr,
-         "Press DRAW in the inspector, then draw on the programme monitor. Mouse, or a pen if you have one.",
-         "A pen's pressure makes the line thicker. A mouse presses at one strength. Like me.",
-         "COACH MARV", "Circle him! No, bigger. BOOM. That's a cloud. Fine. Circle the cloud.",
-         [this] {
-           int d = -1;
-           const int i = lessonFindCue(lessonIsDraw, &d);
-           if (i < 0) return false;
-           for (const auto& frame : project_.decks[static_cast<std::size_t>(d)].cues[static_cast<std::size_t>(i)].drawing.frames) {
-             if (!frame.strokes.empty()) return true;
-           }
-           return false;
-         },
+        {"CIRCLE HIM", nullptr,
+         "Press DRAW in the inspector, then circle number 22 on the programme monitor. He is the yellow one.",
+         "A pen's pressure makes the line thicker. A mouse presses at one strength.",
+         "COACH MARV", "Circle him! The yellow one! There's only one yellow one. Circle that one.",
+         [this] { return lessonDrawStrokes() > 0; },
          [this] {
            int d = -1;
            const int i = lessonFindCue(lessonIsDraw, &d);
@@ -1050,8 +1655,8 @@
            stroke.size = 0.014f;
            for (int k = 0; k <= 48; ++k) {
              const double a = k / 48.0 * 6.283185307;
-             stroke.points.push_back({static_cast<float>(0.5 + 0.13 * std::cos(a)),
-                                      static_cast<float>(0.5 + 0.22 * std::sin(a)), 1.0f, k * 0.02f});
+             stroke.points.push_back({static_cast<float>(0.5 + 0.08 * std::cos(a)),
+                                      static_cast<float>(0.5 + 0.14 * std::sin(a)), 1.0f, k * 0.02f});
            }
            auto& frames = cue.drawing.frames;
            if (frames.empty()) frames.emplace_back();
@@ -1063,9 +1668,9 @@
          [this] { return drawEditor_.open ? SDL_Rect {} : lessonQuickRect(QuickAction::DrawEditToggle); },
          [this] { openInspectorSection(QuickAction::CueSectionDrawToggle); }},
         {"SAVE A STILL", nullptr,
-         "SAVE STILL keeps the drawing as a picture with a clear background, and adds it to the playlist.",
-         "For next week's show. Coach Marv will want the cloud again.",
-         nullptr, nullptr,
+         "Draw as much as you like. Then SAVE STILL keeps the drawing as a picture with a clear background, in the playlist.",
+         "For next week's show. He will want that circle again.",
+         "COACH MARV", "Put that in the Hall of Fame. Next to the turducken.",
          [this] { return lessonCountCues([](const Cue& c) { return c.kind == CueKind::Image; }) > lessonCount_; },
          [this] {
            int d = -1;
@@ -1080,10 +1685,35 @@
            lessonCount_ = lessonCountCues([](const Cue& c) { return c.kind == CueKind::Image; });
            openInspectorSection(QuickAction::CueSectionDrawToggle);
          }},
+        {"HALFTIME", nullptr,
+         "Halftime. Click the Deck 1 tab, then SOURCE, then Video Synth.",
+         "My favourite source: oscillators, mirrors and feedback. A halftime show with no camera at all.",
+         "COACH MARV", "Halftime! Somebody get me some lights. And a band. And a sandwich.",
+         synthOnDeckOne,
+         [this] {
+           setFocusedDeckIndex(0);
+           addVideoSynthCue();
+         },
+         [this] { return project_.focusedDeckIndex != 0 ? lessonDeckTabRect(0) : tutorialButtonRect("SOURCE"); },
+         nullptr},
+        {"TAKE HALFTIME", "ENTER",
+         "Select the synth and TAKE it. Then look at the monitor: your ink is still up.",
+         "Playlist 2 did not change, so its ink stays over whatever playlist 1 shows. Each playlist changes on its own.",
+         "COACH MARV", "Leave the circle up. It's a good circle. It goes with everything.",
+         [this] { return lessonCueLive(lessonIsSynth); },
+         [this] { lessonTake(lessonIsSynth); },
+         [this] { return lessonTakeTarget(lessonIsSynth); }, nullptr},
         {"THAT'S THE BOOTH", nullptr,
-         "Patterns, the synth, a layer, ink, a still. Nazdrave, skapi.",
-         "Try Replay in the Draw section: it draws your lines back the way you drew them.",
-         "COACH MARV", "Same time next week. Bring a bigger pen. And a turducken.", none, nullptr, noTarget, nullptr},
+         "A test pattern, a replay, ink on a layer, a still, and halftime. That's the booth.",
+         "Replay in the Draw section draws your lines back the way you drew them. He will love that.",
+         "COACH MARV", "Same time next week. Bring a bigger pen.", none, nullptr, noTarget, nullptr},
+      };
+      // Skipped once the magic show has taught layers.
+      l.steps[3].skip = [this] { return lessonLayersKnown(); };
+      l.steps[4].skip = [this] { return lessonLayersKnown(); };
+      // Marv judges the ink.
+      l.steps[8].react = [this]() -> const char* {
+        return lessonDrawStrokes() >= 4 ? "Now THAT is a busy play. I can't see the field. I love it." : nullptr;
       };
       lessons_.push_back(std::move(l));
     }
@@ -1265,7 +1895,7 @@
          kSettingsActionOutputWarpEdit},
         {"TWO SOFT EDGES", nullptr,
          "Back in Geometry: edge blend, + on the left and + on the right.",
-         "Two projectors overlap; each fades its edge so the overlap is not twice as bright.",
+         "Two projectors overlap, and each fades its edge so the overlap is not twice as bright. Watch the sides of the monitor go soft.",
          nullptr, nullptr,
          [this] { return focusedOutput().edgeBlendLeft > 0.0f && focusedOutput().edgeBlendRight > 0.0f; },
          [this] {
@@ -1321,12 +1951,14 @@
       l.title = "GO from anywhere";
       l.about = "Cue numbers, GOTO, a hotkey, and where Companion, MIDI and OSC come in.";
       l.show = "The game show, with Donna Wheel";
+      // Donna (Vanna White) turned the letters for forty years; tonight the
+      // host is missing and she has the microphone. Each contestant is the
+      // stage with that one's podium lit.
       l.setup = [this] {
-        const char* gens[3] = {"swirl", "fireside", "pocket-test"};
+        const char* pics[3] = {"contestant1", "contestant2", "contestant3"};
         for (int i = 0; i < 3; ++i) {
-          addGeneratorCue(gens[i]);
-          Deck& deck = focusedDeckMutable();
-          if (!deck.cues.empty()) deck.cues.back().name = "Contestant " + std::to_string(i + 1);
+          const std::string name = "Contestant " + std::to_string(i + 1);
+          lessonAddCodeCue(name.c_str(), lessonPictureExpr(pics[i]));
         }
         selectCueInDeck(project_.focusedDeckIndex, 0, false, false);
       };
@@ -1344,14 +1976,14 @@
       };
       l.steps = {
         {"THE GAME SHOW", nullptr,
-         "A game show, skapi. Three contestants, one buzzer, and cues that fire from anywhere. Press START.",
-         "Cue numbers, hotkeys, and GO from other machines. Like a sequencer you can play from any key.",
-         "DONNA WHEEL", "Welcome to the show! Let's spin that wheel!", std::function<bool()> {}, nullptr,
+         "A game show, skapi. Three contestants, one buzzer, and a host who is not here tonight. Press START.",
+         "Cue numbers, hotkeys, and GO from other machines.",
+         "DONNA WHEEL", "Forty years I turned the letters. Tonight they gave me the microphone. Nobody panic.", std::function<bool()> {}, nullptr,
          [] { return SDL_Rect {}; }, nullptr},
         {"A CUE NUMBER", nullptr,
          "Contestant 3 is selected. In the inspector's metadata, give it a cue number: 3.",
-         "Theatre numbers its cues. Q3, Q3.5, Q12A. Deckboy reads them all.",
-         "DONNA WHEEL", "I'd like to buy a number, please.",
+         "Theatre numbers its cues: Q3, Q3.5, Q12A. Deckboy reads them all.",
+         "DONNA WHEEL", "Numbers! I know letters. Numbers are letters that went to college.",
          [this, contestant] {
            int d = -1;
            const int i = lessonFindCue(contestant(3), &d);
@@ -1368,7 +2000,7 @@
          [selectContestant] { selectContestant(3, QuickAction::CueSectionMetadataToggle); }},
         {"GO TO IT", "CTRL+G",
          "Ctrl+G, type the number, Enter. It goes live wherever the list happens to be standing.",
-         "GOTO. The fastest way across a long list. Faster than scrolling. Much faster than me.",
+         "GOTO crosses a long list faster than scrolling. Much faster.",
          "DONNA WHEEL", "And the number is... three!",
          [this, contestant] { return lessonCueLive(contestant(3)); },
          [this, contestant] {
@@ -1383,8 +2015,8 @@
          [this] { selectCueInDeck(project_.focusedDeckIndex, 0, false, false); }},
         {"A BUZZER", "F5",
          "Contestant 1 is selected. In TRIGGERS, press key, then F5. That key now fires this cue.",
-         "F1 to F10, F12, or the number pad. Each one, a buzzer.",
-         "DONNA WHEEL", "Every contestant gets a buzzer.",
+         "F1 to F10, F12, or the number pad. Each one is a buzzer.",
+         "DONNA WHEEL", "Every contestant gets a buzzer. I get the letters. It's fine. It's fine.",
          [this] { return lessonCountCues([](const Cue& c) { return !c.triggerHotkey.empty(); }) > 0; },
          [this, contestant] {
            int d = -1;
@@ -1397,23 +2029,31 @@
          [selectContestant] { selectContestant(1, QuickAction::CueSectionTriggersToggle); }},
         {"BUZZ IN", nullptr,
          "Press the key. The cue fires, wherever the list is standing.",
-         "No mouse, no list, no looking. Just the key.",
-         "DONNA WHEEL", "Buzz! We have a winner!",
+         "No mouse, no list, no looking. Only the key.",
+         "DONNA WHEEL", "Buzz! A winner! I've never said that. I've only pointed at it.",
          [this] { return lessonCueLive([](const Cue& c) { return !c.triggerHotkey.empty(); }); },
          [this] { lessonTake([](const Cue& c) { return !c.triggerHotkey.empty(); }); },
          [] { return SDL_Rect {}; }, nullptr},
         {"FROM ANYWHERE", nullptr,
          "Companion, a MIDI note, an OSC message: MENU, then Network, says where each one connects.",
          "A Stream Deck in the next room can press GO. So can a keyboard synth. I prefer the synth.",
-         "DONNA WHEEL", "And for our viewers at home: you can play along too.",
+         "DONNA WHEEL", "And for our viewers at home: yes, you can push the buttons too.",
          [this] { return settingsOpen_ && settingsTab_ == 2; },
          [this] { debugOpenSettings(2); },
          [this] { return settingsOpen_ ? SDL_Rect {} : tutorialButtonRect("MENU"); }, nullptr},
         {"THAT'S OUR SHOW", nullptr,
-         "Numbers, GOTO, a buzzer, and GO from anywhere. You are a game show now, skapi.",
+         "Numbers, GOTO, a buzzer, and GO from anywhere. You could host a game show now.",
          "A cue can have a key, a MIDI note and an OSC address at once. Belt, braces and a second belt.",
-         "DONNA WHEEL", "Goodnight, everybody! Keep spinning!", std::function<bool()> {}, nullptr,
+         "DONNA WHEEL", "Goodnight, everybody! Tomorrow I go back to the letters. I'll miss you.", std::function<bool()> {}, nullptr,
          [] { return SDL_Rect {}; }, nullptr},
+      };
+      // Donna reads the number off the card.
+      l.steps[2].react = [this, contestant]() -> const char* {
+        int d = -1;
+        const int i = lessonFindCue(contestant(3), &d);
+        if (i < 0) return nullptr;
+        const std::string& n = project_.decks[static_cast<std::size_t>(d)].cues[static_cast<std::size_t>(i)].cueNumber;
+        return !n.empty() && n != "3" ? "And the number is... not three. I'll allow it. I turn anything." : nullptr;
       };
       lessons_.push_back(std::move(l));
     }
@@ -1445,10 +2085,13 @@
          nullptr, [] { return SDL_Rect {}; }, nullptr},
         {"A LAYER FOR WORDS", nullptr,
          "Words go on their own layer: press the + at the end of the playlist tabs.",
-         "A second playlist is a layer over the map. The lizard stays underneath. Mostly.",
+         "A second playlist is a layer over the map. The lizard stays underneath. For now.",
          "JUNE O'NEIL", "Words on top. Always on top.",
          [this] { return project_.decks.size() >= 2; },
-         [this] { addDeck(); },
+         [this] {
+           if (project_.decks.size() < 2) addDeck();
+           setFocusedDeckIndex(1);
+         },
          [this] { return deckAddTabRect_; }, nullptr},
         lessonSelectSecondDeckStep(
           "Click its tab, Deck 2. The lit tab is the playlist SOURCE adds to.",
@@ -1524,10 +2167,22 @@
            return lessonCountCues(isTitle) == 0 ? tutorialButtonRect("SOURCE") : lessonQuickRect(QuickAction::CueBackdropPreset);
          }, nullptr},
         {"BACK TO YOU", nullptr,
-         "A Lower Third, a name, a title card, a backdrop. The lizard has left the studio, skapi.",
+         "A Lower Third, a name, a title card, a backdrop. The lizard has left the studio.",
          "Lower Thirds can wait, slide and leave on their own. Their section has every setting.",
          "JUNE O'NEIL", "That's the weather. Back to you, guys. Run.", std::function<bool()> {}, nullptr,
          [] { return SDL_Rect {}; }, nullptr},
+      };
+      // Skipped once the magic show has taught layers.
+      l.steps[1].skip = [this] { return lessonLayersKnown(); };
+      l.steps[2].skip = [this] { return lessonLayersKnown(); };
+      // June reads her own name.
+      l.steps[5].react = [this, isLowerThird]() -> const char* {
+        int d = -1;
+        const int i = lessonFindCue(isLowerThird, &d);
+        if (i < 0) return nullptr;
+        const std::string& body = project_.decks[static_cast<std::size_t>(d)].cues[static_cast<std::size_t>(i)].textBody;
+        return body.rfind("June", 0) == 0 ? nullptr
+                                          : "That's not my name. It's a lovely name. Now, about that lizard...";
       };
       lessons_.push_back(std::move(l));
     }
@@ -1538,30 +2193,58 @@
       l.id = "timers";
       l.videoTrack = false;
       l.title = "Keeping time";
-      l.about = "A stage timer counting down, held, and a presenter view for the person on stage.";
+      l.about = "A stage timer over a picture, held, a presenter view for the person on stage, and a launch.";
       l.show = "A grand day out, with Wallis and Grommet";
-      l.setup = [] {};
+      // The rocket is on playlist 1 and the clock goes on playlist 2, over
+      // it, with its backdrop cleared: a countdown that counts down TO
+      // something. The launch is the payoff (James, 2026-11-13: the show put
+      // nothing on screen at all).
+      l.setup = [this] {
+        lessonAddCodeCue("The rocket (on the pad)", lessonPictureExpr("rocket"));
+        lessonAddCodeCue("The rocket (lift-off)", lessonPictureExpr("liftoff"));
+        selectCueInDeck(project_.focusedDeckIndex, 0, false, false);
+        jumpSelectedCue();
+        addDeck();
+        lessonLayerSecondDeck();
+        setFocusedDeckIndex(1);
+        lessonEvolveSeen_ = superDeckboyEvolveAt_;   // the show was built with two; not this lesson's joke
+      };
       auto isTimer = [](const Cue& c) { return c.kind == CueKind::Timer; };
+      auto isLiftOff = [](const Cue& c) { return c.name == "The rocket (lift-off)"; };
       l.steps = {
         {"A GRAND DAY OUT", nullptr,
-         "A rocket built in a basement, skapi, and an inventor who wants cheese. Press START.",
-         "Stage timers: countdowns, clocks, and a presenter view for the person on stage.",
+         "A rocket built in a basement, skapi, an inventor who wants cheese, and a dog who does the real work. Press START.",
+         "Stage timers: a countdown over a picture, a hold, and a view for the person on stage.",
          "WALLIS", "Cheese, Grommet! The moon's made of it. We'll need a countdown.", std::function<bool()> {},
          nullptr, [] { return SDL_Rect {}; }, nullptr},
         {"A COUNTDOWN", nullptr,
-         "SOURCE, then Stage Timer. A clock that counts down, in big friendly numbers.",
+         "Playlist 2 is selected, over the rocket. SOURCE, then Stage Timer.",
          "Its colours change as it runs out: white, amber, red. Like a VU meter for time.",
-         "GROMMET", "*raises an eyebrow*",
+         "GROMMET", "*checks his watch, then the rocket, then his watch*",
          [this, isTimer] { return lessonCountCues(isTimer) > 0; },
-         [this] { addTimerCue(10); },
-         [this] { return tutorialButtonRect("SOURCE"); }, nullptr},
-        {"LIFT OFF", "ENTER",
-         "Select the timer and TAKE it. The countdown starts.",
-         "Past zero it keeps going, counting the overtime. Very honest. Slightly rude.",
+         [this] {
+           if (project_.decks.size() >= 2) setFocusedDeckIndex(1);
+           addTimerCue(10);
+         },
+         [this] { return project_.decks.size() >= 2 ? lessonOnSecondDeck(tutorialButtonRect("SOURCE"))
+                                                     : tutorialButtonRect("SOURCE"); }, nullptr},
+        {"COUNT IT DOWN", "ENTER",
+         "Select the timer and TAKE it. I have cleared its backdrop, so the rocket shows behind the numbers.",
+         "Past zero it keeps going and counts the overtime. Very honest. Slightly rude.",
          "WALLIS", "Ten... nine... ooh, I do love a countdown.",
          [this, isTimer] { return lessonCueLive(isTimer); },
          [this, isTimer] { lessonTake(isTimer); },
-         [this, isTimer] { return lessonTakeTarget(isTimer); }, nullptr},
+         [this, isTimer] { return lessonTakeTarget(isTimer); },
+         // A clock over a picture needs no backdrop. The timer section has
+         // the switch; the lesson flips it so the countdown sits on the rocket.
+         [this, isTimer] {
+           for (Deck& deck : project_.decks) {
+             for (Cue& cue : deck.cues) {
+               if (isTimer(cue)) cue.timer.colorBackground = kTimerBackdropTransparent;
+             }
+           }
+           markProjectDirty();
+         }},
         {"HOLD!", "SPACE",
          "Something's loose! Space holds the countdown. The clock shows it is held.",
          "A hold is not a stop. Space again, and it carries on from where it was.",
@@ -1601,10 +2284,23 @@
            if (!settingsOpen_) return tutorialButtonRect("MENU");
            return lessonSettingRect(kSettingsActionOutputTypeCycle);
          }, nullptr},
+        {"LIFT-OFF", "ENTER",
+         "Close MENU, click the Deck 1 tab, then select 'The rocket (lift-off)' and TAKE it.",
+         "The clock is on playlist 2, so it stays up while the rocket changes underneath it.",
+         "WALLIS", "We have lift-off, Grommet! ...Grommet? Who's flying it?",
+         [this, isLiftOff] { return lessonCueLive(isLiftOff); },
+         [this, isLiftOff] {
+           settingsOpen_ = false;
+           lessonTake(isLiftOff);
+         },
+         [this, isLiftOff] {
+           if (settingsOpen_) return SDL_Rect {};
+           return project_.focusedDeckIndex != 0 ? lessonDeckTabRect(0) : lessonTakeTarget(isLiftOff);
+         }, nullptr},
         {"TO THE MOON", nullptr,
-         "A countdown, a hold, and a view for the pilot. Nazdrave, skapi. Bring crackers.",
+         "A countdown, a hold, a pilot's view and a launch. Bring crackers.",
          "Timers can also count up, or show the time of day. Their section has the lot.",
-         "WALLIS", "A grand day out, Grommet! Pass the crackers.", std::function<bool()> {}, nullptr,
+         "GROMMET", "*waves from the window*", std::function<bool()> {}, nullptr,
          [] { return SDL_Rect {}; }, nullptr},
       };
       lessons_.push_back(std::move(l));
@@ -1616,28 +2312,47 @@
       l.id = "layers";
       l.videoTrack = false;
       l.title = "Two playlists and TAKE ALL";
-      l.about = "A second playlist as a layer, and TAKE ALL so two things change on one beat.";
+      l.about = "A second playlist as a layer, TAKE ALL so two things change on one beat, and a playlist's opacity.";
       l.show = "The magic show, with Turnip Top";
+      // James, 2026-11-13: "is there any magic in the show?" There was not:
+      // the trunk was a test card and the chicken was Fireside, full frame.
+      // Now there are three tricks, and the first goes wrong on purpose --
+      // two TAKEs leave the trunk open and empty for a moment -- so TAKE ALL
+      // is seen fixing something rather than described.
       l.setup = [this] {
-        addGeneratorCue("pocket-test");
-        addGeneratorCue("swirl");
-        Deck& deck = focusedDeckMutable();
-        if (deck.cues.size() >= 2) {
-          deck.cues[0].name = "The trunk (closed)";
-          deck.cues[1].name = "The trunk (open)";
-        }
+        lessonAddCodeCue("The trunk (closed)", lessonPictureExpr("trunk_closed"));
+        lessonAddCodeCue("The trunk (open)", lessonPictureExpr("trunk_open"));
         selectCueInDeck(project_.focusedDeckIndex, 0, false, false);
         jumpSelectedCue();
       };
       auto isOpenTrunk = [](const Cue& c) { return c.name == "The trunk (open)"; };
+      auto isClosedTrunk = [](const Cue& c) { return c.name == "The trunk (closed)"; };
+      auto isChicken = [](const Cue& c) { return c.name == "The rubber chicken"; };
+      // Playlist 1 shows the open trunk and playlist 2 the chicken.
+      auto revealed = [this, isOpenTrunk, isChicken] {
+        if (project_.decks.size() < 2) return false;
+        const Deck& one = project_.decks[0];
+        const Deck& two = project_.decks[1];
+        return one.activeIndex >= 0 && one.activeIndex < static_cast<int>(one.cues.size()) &&
+               isOpenTrunk(one.cues[static_cast<std::size_t>(one.activeIndex)]) &&
+               two.activeIndex >= 0 && two.activeIndex < static_cast<int>(two.cues.size()) &&
+               isChicken(two.cues[static_cast<std::size_t>(two.activeIndex)]);
+      };
+      auto chickenOpacity = [this] {
+        return project_.decks.size() >= 2 ? project_.decks[1].playlistOpacity : 1.0f;
+      };
+      auto faderTarget = [this] {
+        if (project_.decks.size() < 2 || deckOpacityFaderRects_.size() < 2) return SDL_Rect {};
+        return deckOpacityFaderRects_[1];
+      };
       l.steps = {
         {"THE MAGIC SHOW", nullptr,
-         "A magic show, skapi. A trunk, a prop, and one beat where everything changes at once. Press START.",
-         "Two playlists are two layers. TAKE ALL changes both together.",
+         "A magic show, skapi. A trunk, a rubber chicken, and one beat where everything changes at once. Press START.",
+         "Two playlists are two layers, and TAKE ALL changes both together. Tonight you will see why that matters.",
          "TURNIP TOP", "Every trick needs two things happening at once. And a rubber chicken.",
          std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; }, nullptr},
         {"A SECOND PLAYLIST", nullptr,
-         "The prop goes on its own layer. Press the + at the end of the playlist tabs.",
+         "The chicken goes on its own layer. Press the + at the end of the playlist tabs.",
          "Playlist 2 sits on top of playlist 1. Like a transparency on an overhead projector.",
          "TURNIP TOP", "Nothing up my sleeve. Everything in my trunk.",
          [this] { return project_.decks.size() >= 2; },
@@ -1645,54 +2360,97 @@
          [this] { return deckAddTabRect_; }, nullptr},
         lessonSelectSecondDeckStep(
           "Click its tab, Deck 2. A new playlist waits until you choose it.",
-          "The lit tab gets the next cue. Like choosing which slide goes in the projector.",
+          "The lit tab is the playlist that gets the next cue. Its chip now says 'to Out 1': it is layered over playlist 1 on that output.",
           "TURNIP TOP", "Pick a deck. Any deck. ...Deck 2. Pick Deck 2."),
-        {"THE PROP", nullptr,
-         "In the new playlist, add anything: PATTERN will do. That is the prop.",
-         "Whatever it is, it will appear the instant the trunk opens.",
+        {"TRICK ONE", nullptr,
+         "Turnip Top has put the chicken in playlist 2. In playlist 1, TAKE 'The trunk (open)'. Then in playlist 2, TAKE the chicken.",
+         "The chicken is clear all round, so it covers only itself. Watch the monitor between the two TAKEs.",
          "TURNIP TOP", "Is it a rubber chicken? It's always a rubber chicken.",
-         [this] { return project_.decks.size() >= 2 && !project_.decks[1].cues.empty(); },
-         [this] {
+         // Held a moment, so the chicken is seen before the trick resets.
+         [this, revealed] {
+           if (!revealed()) {
+             lessonHeldSinceMs_ = 0;
+             return false;
+           }
+           const Uint64 now = SDL_GetTicks();
+           if (lessonHeldSinceMs_ == 0) lessonHeldSinceMs_ = now;
+           return now - lessonHeldSinceMs_ >= 1500;
+         },
+         [this, isOpenTrunk, isChicken] {
+           lessonTake(isOpenTrunk);
+           lessonTake(isChicken);
+         },
+         [this, isOpenTrunk, isChicken] {
+           if (!lessonCueLive(isOpenTrunk)) {
+             return project_.focusedDeckIndex != 0 ? lessonDeckTabRect(0) : lessonTakeTarget(isOpenTrunk);
+           }
+           return project_.focusedDeckIndex != 1 ? lessonDeckTabRect(1) : lessonTakeTarget(isChicken);
+         },
+         [this, isChicken] {
            if (project_.decks.size() < 2) addDeck();
-           project_.focusedDeckIndex = 1;
-           addGeneratorCue("fireside");
-           Deck& deck = focusedDeckMutable();
-           if (!deck.cues.empty()) deck.cues.back().name = "The prop (rubber chicken)";
-         },
-         [this] { return lessonOnSecondDeck(tutorialButtonRect("PATTERN")); }, nullptr},
+           if (lessonCountCues(isChicken) == 0) {
+             const int was = project_.focusedDeckIndex;
+             project_.focusedDeckIndex = 1;
+             lessonAddCodeCue("The rubber chicken", lessonPictureExpr("chicken"));
+             project_.focusedDeckIndex = was;
+           }
+         }},
         {"TA-DA", "CTRL+ENTER",
-         "Select 'The trunk (open)' in playlist 1 and the prop in playlist 2. Then TAKE ALL: both on one beat.",
-         "One press, every playlist's selected cue. The audience never sees the seam.",
-         "TURNIP TOP", "Ta-daaa! ...Hold for applause. Hold. Hold.",
-         [this, isOpenTrunk] {
-           if (project_.decks.size() < 2) return false;
-           const Deck& one = project_.decks[0];
-           const bool trunk = one.activeIndex >= 0 && one.activeIndex < static_cast<int>(one.cues.size()) &&
-                              isOpenTrunk(one.cues[static_cast<std::size_t>(one.activeIndex)]);
-           return trunk && project_.decks[1].activeIndex >= 0;
-         },
-         [this, isOpenTrunk] {
-           if (project_.decks.size() < 2 || project_.decks[1].cues.empty()) return;
+         "Did you see it? For a moment the trunk was open and empty: two TAKEs are two moments. The trick is reset. Now select the open trunk in playlist 1 and the chicken in playlist 2, then TAKE ALL.",
+         "TAKE ALL takes every playlist's selected cue on one beat. No gap, no empty trunk.",
+         "TURNIP TOP", "The chicken was late. They saw an empty trunk. In magic we call that a trunk.",
+         revealed,
+         [this, isOpenTrunk, isChicken] {
            int d = -1;
-           const int i = lessonFindCue(isOpenTrunk, &d);
-           if (i < 0) return;
-           selectCueInDeck(0, i, false, false);
-           selectCueInDeck(1, 0, false, false);
+           const int open = lessonFindCue(isOpenTrunk, &d);
+           const int chicken = lessonFindCue(isChicken, &d);
+           if (open < 0 || chicken < 0 || project_.decks.size() < 2) return;
+           selectCueInDeck(0, open, false, false);
+           selectCueInDeck(1, chicken, false, false);
            takeAllDecks(true);
          },
-         [this, isOpenTrunk] {
+         [this, isOpenTrunk, isChicken] {
            int d = -1;
-           const int i = lessonFindCue(isOpenTrunk, &d);
-           if (i >= 0 && project_.decks[0].selectedIndex != i) return lessonCueRowRect(0, i);
-           if (project_.decks.size() >= 2 && !project_.decks[1].cues.empty() && project_.decks[1].selectedIndex < 0) {
-             return lessonCueRowRect(1, 0);
+           const int open = lessonFindCue(isOpenTrunk, &d);
+           if (open >= 0 && project_.decks[0].selectedIndex != open) return lessonCueRowRect(0, open);
+           const int chicken = lessonFindCue(isChicken, &d);
+           if (chicken >= 0 && project_.decks.size() >= 2 && project_.decks[1].selectedIndex != chicken) {
+             return lessonCueRowRect(1, chicken);
            }
            return tutorialButtonRect("TAKE ALL");
-         }, nullptr},
+         },
+         // The reset: the trunk closed and the chicken off the air, so the
+         // trick can be done again, properly.
+         [this, isClosedTrunk] {
+           const int was = project_.focusedDeckIndex;
+           int d = -1;
+           const int closed = lessonFindCue(isClosedTrunk, &d);
+           if (closed >= 0) {
+             project_.focusedDeckIndex = 0;
+             selectCueInDeck(0, closed, false, false);
+             jumpSelectedCue();
+           }
+           lessonClearDeck(1);
+           project_.focusedDeckIndex = was;
+         }},
+        {"THE VANISH", nullptr,
+         "Trick two. Drag playlist 2's opacity fader down to nothing. The chicken fades away.",
+         "Every playlist has its own opacity. Down is a fade out, with no cue at all.",
+         "TURNIP TOP", "Ta-daaa! ...Hold for applause. Hold. Now watch it go.",
+         [chickenOpacity] { return chickenOpacity() <= 0.05f; },
+         [this] { setDeckPlaylistOpacity(1, 0.0f, false); },
+         faderTarget, nullptr},
         {"THE PRESTIGE", nullptr,
-         "Two layers, one beat. Every playlist has its own opacity and can sit on any output. Nazdrave, skapi.",
+         "Trick three. Bring it back: playlist 2's opacity all the way up.",
          "A magician never reveals. A playlist never minds being revealed.",
-         "TURNIP TOP", "Thank you! I'm here all week! The chicken is here forever.",
+         "TURNIP TOP", "Where did it go? Back in the trunk. Everything goes back in the trunk.",
+         [chickenOpacity] { return chickenOpacity() >= 0.95f; },
+         [this] { setDeckPlaylistOpacity(1, 1.0f, false); },
+         faderTarget, nullptr},
+        {"THAT'S MAGIC", nullptr,
+         "An appearance done wrong, then right, a vanish and a return. Nazdrave.",
+         "A playlist can also sit on any output. Two layers, a great many tricks.",
+         "TURNIP TOP", "It's back! Thank you! I'm here all week! The chicken is here forever.",
          std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; }, nullptr},
       };
       lessons_.push_back(std::move(l));
@@ -1707,20 +2465,15 @@
       l.about = "BLACK against PANIC, and getting a show back.";
       l.show = "The cooking show, with Chef Bork";
       l.setup = [this] {
-        addGeneratorCue("fireside");
-        addGeneratorCue("swirl");
-        Deck& deck = focusedDeckMutable();
-        if (deck.cues.size() >= 2) {
-          deck.cues[0].name = "The kitchen (on fire)";
-          deck.cues[1].name = "A lovely souffle";
-        }
+        lessonAddCodeCue("The kitchen (on fire)", lessonPictureExpr("kitchen_fire"));
+        lessonAddCodeCue("A lovely souffle", lessonPictureExpr("souffle"));
         selectCueInDeck(project_.focusedDeckIndex, 0, false, false);
         jumpSelectedCue();
       };
       auto isSouffle = [](const Cue& c) { return c.name == "A lovely souffle"; };
       l.steps = {
         {"THE COOKING SHOW", nullptr,
-         "A cooking show, skapi. Live. Everything is on fire. Press START.",
+         "A cooking show, skapi. Live. The kitchen is on fire. Press START.",
          "BLACK hides the picture and keeps the show running. PANIC stops everything. Know which you need.",
          "CHEF BORK", "Bork bork! Hurdy-flurdy, de kitchen is fire-a-flurdy!", std::function<bool()> {}, nullptr,
          [] { return SDL_Rect {}; }, nullptr},
@@ -1734,14 +2487,14 @@
         {"AND BACK", "B",
          "The fire's out. Press B again: the picture comes back, still running.",
          "Nothing was lost. A mute on a mixer, for pictures.",
-         "CHEF BORK", "Ta-da! Still cookin'!",
+         "CHEF BORK", "Ta-da! Still cookin'! ...Still burnin'.",
          [this] { return masterDimmerTarget_ > 0.5; },
          [this] { masterDimmerTarget_ = 1.0; },
          [this] { return tutorialButtonRect("BLACK"); }, nullptr},
         {"PANIC", nullptr,
          "Worse: MENU, System, the SAFETY card: PANIC. Everything stops, the way the panic setting says.",
          "PANIC is the big red button. Use it when BLACK is not enough. Then breathe.",
-         "CHEF BORK", "Bork bork BORK!",
+         "CHEF BORK", "Bork! De fire extinguisher is also on fire!",
          [this] {
            for (int d = 0; d < static_cast<int>(project_.decks.size()); ++d) {
              if (deckIsRunning(d)) return false;
@@ -1764,7 +2517,7 @@
          },
          [this, isSouffle] { return settingsOpen_ ? SDL_Rect {} : lessonTakeTarget(isSouffle); }, nullptr},
         {"BON APPETIT", nullptr,
-         "BLACK to hide, PANIC to stop, TAKE to come back. You will survive any kitchen, skapi.",
+         "BLACK to hide, PANIC to stop, TAKE to come back. You will survive any kitchen.",
          "The panic setting chooses what PANIC does: fade out, cut, or just the outputs.",
          "CHEF BORK", "Bork bork bork! Goodnight!", std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; },
          nullptr},
@@ -1779,15 +2532,10 @@
       l.videoTrack = false;
       l.title = "Presets";
       l.about = "Capture a look on a DASH button, change everything, and get it back with one press.";
-      l.show = "";
+      l.show = "The fashion show, with Edda Mod";
       l.setup = [this] {
-        addGeneratorCue("swirl");
-        addGeneratorCue("fireside");
-        Deck& deck = focusedDeckMutable();
-        if (deck.cues.size() >= 2) {
-          deck.cues[0].name = "Look one";
-          deck.cues[1].name = "Look two";
-        }
+        lessonAddCodeCue("Look one", lessonPictureExpr("look_one"));
+        lessonAddCodeCue("Look two", lessonPictureExpr("look_two"));
         selectCueInDeck(project_.focusedDeckIndex, 0, false, false);
         jumpSelectedCue();
       };
@@ -1805,20 +2553,20 @@
       };
       l.steps = {
         {"PRESETS", nullptr,
-         "Presets, skapi. A whole look, remembered, and back with one button. Press START.",
-         "Like the patch memory on a synth: store, then recall.",
-         nullptr, nullptr, std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; }, nullptr},
+         "A fashion show, skapi. One designer, one runway, and a look she will want back. Press START.",
+         "A preset stores a whole look and brings it back with one button.",
+         "EDDA MOD", "Darling. A look is not a look until you can get it back.", std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; }, nullptr},
         {"THE DASH", "CTRL+D",
          "Press DASH: buttons of your own, for anything at all.",
          "Ctrl+D also works. Very fast. Very professional.",
-         nullptr, nullptr,
+         "EDDA MOD", "Buttons. Good. I design with buttons.",
          [this] { return dashboardOverlayOpen_; },
          [this] { dashboardOverlayOpen_ = true; },
          [this] { return dashboardOverlayOpen_ ? SDL_Rect {} : tutorialButtonRect("DASH"); }, nullptr},
         {"A PRESET BUTTON", nullptr,
          "Press +, then 'preset - a new preset from what is on now'. The button remembers this look.",
          "Store. Like saving the patch before the drummer leans on the synth.",
-         nullptr, nullptr,
+         "EDDA MOD", "Store it. Before somebody has ideas.",
          [this, presetSlot] { return !project_.presets.empty() && presetSlot() >= 0; },
          [this] {
            dashboardOverlayOpen_ = true;
@@ -1832,9 +2580,9 @@
          },
          [dashRect] { return dashRect(QuickAction::DashSlotAdd, -1); }, nullptr},
         {"CHANGE EVERYTHING", "ENTER",
-         "Close the DASH (Esc), then select Look two and TAKE it. A different look.",
+         "Close the DASH (Esc), then select Look two and TAKE it.",
          "Change it all. Don't worry. It remembers.",
-         nullptr, nullptr,
+         "EDDA MOD", "A cape. On my runway. Someone will trip, darling. Someone always trips.",
          [this] { return focusedDeck().activeIndex >= 0 && focusedDeck().activeIndex != lessonCount_; },
          [this] {
            dashboardOverlayOpen_ = false;
@@ -1860,8 +2608,8 @@
          [this] { lessonCount_ = focusedDeck().activeIndex; }},
         {"ONE PRESS", nullptr,
          "Open the DASH and press your preset button. The first look comes back.",
-         "Recall. The patch memory, returning. Beautiful.",
-         nullptr, nullptr,
+         "Recall: the whole look comes back at once.",
+         "EDDA MOD", "Thank you. We will never speak of the cape again.",
          [this] { return focusedDeck().activeIndex == lessonCount_; },
          [this, presetSlot] {
            const int at = presetSlot();
@@ -1874,7 +2622,7 @@
         {"REMEMBERED", nullptr,
          "A look, stored and recalled. A preset can keep cues, positions, effects, levels and routing; its button's menu chooses which.",
          "And a DASH button can run any command at all. Any. Even the exciting ones.",
-         nullptr, nullptr, std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; }, nullptr},
+         "EDDA MOD", "Simple. Timeless. Recallable. Now go, darling. I have a fitting.", std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; }, nullptr},
       };
       lessons_.push_back(std::move(l));
     }
@@ -1888,15 +2636,9 @@
       l.about = "The styles beyond the crossfade: an iris, a shatter, and their times.";
       l.show = "The space-opera trailer, with Optimus Primetime";
       l.setup = [this] {
-        addGeneratorCue("pocket-test");
-        addGeneratorCue("swirl");
-        addGeneratorCue("fireside");
-        Deck& deck = focusedDeckMutable();
-        if (deck.cues.size() >= 3) {
-          deck.cues[0].name = "Opening titles";
-          deck.cues[1].name = "The planet";
-          deck.cues[2].name = "The battle";
-        }
+        lessonAddCodeCue("Opening titles", lessonPictureExpr("titles"));
+        lessonAddCodeCue("The planet", lessonPictureExpr("planet"));
+        lessonAddCodeCue("The battle", lessonPictureExpr("battle"));
         selectCueInDeck(project_.focusedDeckIndex, 0, false, false);
         jumpSelectedCue();
       };
@@ -1933,7 +2675,7 @@
          std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; }, nullptr},
         {"A STYLE", nullptr,
          "'The planet' is selected. In the inspector, its transition style: choose iris.",
-         "Pushes, wipes, iris, dip to white. Even a portal. I wrote half of them. On a Tuesday.",
+         "Pushes, wipes, iris, dip to white, and more. I wrote half of them. On a Tuesday.",
          "OPTIMUS PRIMETIME", "The planet deserves... a dramatic entrance.",
          [this, named, fancy] {
            int d = -1;
@@ -1958,7 +2700,7 @@
         {"ROLL IT", "ENTER",
          "TAKE the planet. Watch it arrive.",
          "The transition belongs to the cue arriving. Each cue chooses its own entrance.",
-         "OPTIMUS PRIMETIME", "Autobots... roll the transition.",
+         "OPTIMUS PRIMETIME", "Operators... roll the transition.",
          [this, named] { return lessonCueLive(named("The planet")); },
          [this, named] { lessonTake(named("The planet")); },
          [this, named] { return lessonTakeTarget(named("The planet")); }, nullptr},
@@ -1985,10 +2727,18 @@
          },
          [selectNamed] { selectNamed("The battle"); }},
         {"IN CINEMAS NOW", nullptr,
-         "A style, a time, and two very dramatic entrances. Nazdrave, skapi.",
+         "A style, a time, and two very dramatic entrances. Roll credits.",
          "A playlist has a default style too, for every cue that does not choose its own.",
          "OPTIMUS PRIMETIME", "Coming soon... to a desk near you.",
          std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; }, nullptr},
+      };
+      // The narrator notices a style that is not the one he asked for.
+      l.steps[3].react = [this, named]() -> const char* {
+        int d = -1;
+        const int i = lessonFindCue(named("The planet"), &d);
+        if (i < 0) return nullptr;
+        const std::string& style = project_.decks[static_cast<std::size_t>(d)].cues[static_cast<std::size_t>(i)].cueTransitionStyle;
+        return !style.empty() && style != "iris" ? "That is not an iris. ...It is better. I will allow it." : nullptr;
       };
       lessons_.push_back(std::move(l));
     }
@@ -2044,7 +2794,7 @@
          [this] { debugOpenSettings(1); },
          [this] { return settingsOpen_ ? SDL_Rect {} : tutorialButtonRect("MENU"); }, nullptr},
         {"ENCORE", nullptr,
-         "An effect, a bend and the patch. The robots approve, skapi. I think. Their faces are helmets.",
+         "An effect, a bend and the patch. The robots approve, I think. Their faces are helmets.",
          "Every audio effect can follow a ~ too, even Motion. Wave at the delay. It's wonderful.",
          "DEFT FUNK (SILVER)", "> THANK YOU. GOOD NIGHT. WE ARE ROBOTS.",
          std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; }, nullptr},
@@ -2118,7 +2868,7 @@
          [this] { return scopesBig_ == kScopeFalseColour ? SDL_Rect {} : scopesPanelRects_[scopesBig_ >= 0 ? scopesBig_ : kScopeFalseColour]; },
          nullptr},
         {"THE TRUTH", nullptr,
-         "Waveform, vectorscope, false colour. The scopes settled it, skapi. The agents did not.",
+         "Waveform, vectorscope, false colour. The scopes settled it. The agents did not.",
          "SCOPES SOURCE reads any output, and the matrix can be 709 or 2020. For the curious.",
          "AGENT HOLLIS", "Too bright for a streetlight, Brandt. Too bright for anything. ...I want to believe.",
          std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; }, nullptr},
@@ -2135,27 +2885,28 @@
       l.videoTrack = true;
       l.title = "Out of the building";
       l.about = "Where NDI, SDI and ST 2110 live, and NDI switched on where this computer has it.";
-      l.show = "";
+      l.show = "Ground control, with Major Tomasina";
       l.setup = [this] {
-        addGeneratorCue("pocket-test");
+        lessonAddCodeCue("The view from the capsule", lessonPictureExpr("earth"));
         selectCueInDeck(project_.focusedDeckIndex, 0, false, false);
+        jumpSelectedCue();
       };
       l.steps = {
         {"OUT OF THE BUILDING", nullptr,
-         "Pictures that leave by cable or network, skapi, not only a window on a screen. Press START.",
-         "NDI over the network, SDI from a DeckLink card, ST 2110 for broadcast plants.",
-         nullptr, nullptr, std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; }, nullptr},
+         "Major Tomasina is in orbit, skapi, and her picture has to reach the ground. Press START.",
+         "Pictures leave by cable or network: NDI, SDI from a DeckLink card, ST 2110 for broadcast plants.",
+         "MAJOR TOMASINA", "Ground control, this is Major Tomasina. Can you see my picture?", std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; }, nullptr},
         {"THE DEVICES PAGE", nullptr,
          "MENU, Video Outputs, then Devices: every way an output can leave this computer.",
          "Each one says whether this machine can do it, and what it needs if not.",
-         nullptr, nullptr,
+         "MAJOR TOMASINA", "Every way down, on one page. Good. Space has very few cables.",
          [this] { return settingsOpen_ && settingsTab_ == 3 && settingsVideoSubTab_ == 2; },
          [this] { debugOpenSettings(3, 2); },
          [this] { return settingsOpen_ ? SDL_Rect {} : tutorialButtonRect("MENU"); }, nullptr},
         {"NDI", nullptr,
          "If this computer has NDI, switch NDI SENDING on: the picture is on the network. If not, SHOW ME moves on.",
          "NDI finds itself on the network. No cables, only a good switch and patience.",
-         nullptr, nullptr,
+         "MAJOR TOMASINA", "Sending now. If nobody answers, I'll just float here.",
          [this] { return focusedOutput().ndiEnabled; },
          [this] {
            if (ndiRuntimeAvailable()) {
@@ -2168,7 +2919,11 @@
         {"OUT THERE", nullptr,
          "The output's own page has the rest: a DeckLink card's SDI, ST 2110 with NMOS, Spout and Syphon.",
          "Every one is just an output. The show does not know or care how it leaves.",
-         nullptr, nullptr, std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; }, nullptr},
+         "MAJOR TOMASINA", "Ground control, signing off. Tell my mother I waved.", std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; }, nullptr},
+      };
+      // Ground control answers, where this computer has NDI on.
+      l.steps[3].react = [this]() -> const char* {
+        return focusedOutput().ndiEnabled ? "Ground control can see me! I can see my house from here." : nullptr;
       };
       lessons_.push_back(std::move(l));
     }
@@ -2194,14 +2949,12 @@
       l.about = "Windows, the ... menu, what each one shows, layouts, and tally.";
       l.show = "Mystery on the starship Cathode, with Lt. Haila and Ensign Jinkley";
       l.setup = [this] {
-        const char* gens[4] = {"swirl", "fireside", "checkerboard-motion", "pocket-test"};
+        const char* gens[4] = {"nebula", "engine", "deck3", "sickbay"};
         const char* feeds[4] = {"Nebula ahead", "Engine room", "Deck 3: something moving", "Sickbay"};
         for (int d = 0; d < 4; ++d) {
           if (d > 0) addDeck();
           project_.focusedDeckIndex = d;
-          addGeneratorCue(gens[d]);
-          Deck& deck = focusedDeckMutable();
-          if (!deck.cues.empty()) deck.cues.back().name = feeds[d];
+          lessonAddCodeCue(feeds[d], lessonPictureExpr(gens[d]));
         }
         project_.focusedDeckIndex = 0;
         selectCueInDeck(0, 0, false, false);
@@ -2237,7 +2990,7 @@
          },
          chip, nullptr},
         {"A CLOCK", nullptr,
-         "And one more window, showing the clock. Operators who watch a clock are never late. Mostly.",
+         "And one more window, showing the clock. Operators who watch a clock are never late.",
          "Time of day, big. Stardates are just very long timecode.",
          "ENSIGN JINKLEY", "The monster only shows up at midnight. We're going to need a clock.",
          [tileShows] { return tileShows("clock"); },
@@ -2248,7 +3001,7 @@
          chip, nullptr},
         {"ONE BIG ONE", nullptr,
          "Any window's ... menu, then a layout: one big, the rest small.",
-         "The big window is window one. Usually the programme. Usually.",
+         "The big window is window one, which is usually the programme.",
          "LT. HAILA", "Main viewer big. The captain likes it big.",
          [this] { return project_.multiviewLayout != deckboy::multiview::Layout::Grid; },
          [this] { handleRemoteCommand("MULTIVIEW LAYOUT BIG"); },
@@ -2270,7 +3023,7 @@
            return tutorialButtonRect("TAKE");
          }, nullptr},
         {"THAT'S A WRAP", nullptr,
-         "Windows, the ... menu, NEXT, the clock, a layout, tally. Mystery solved, skapi.",
+         "Windows, the ... menu, NEXT, the clock, a layout, tally. Mystery solved.",
          "A window can also show an output, with its warp and slices. Handy when it's a lighthouse.",
          "ENSIGN JINKLEY", "And the monster was... the ship's cook, all along. Jinkys.", none, nullptr, noTarget, nullptr},
       };
@@ -2396,6 +3149,12 @@
     p.at[def->id] = tutorial_.step;
     writeLessonsProgress(p);
     if (const LessonStep* s = currentLessonStep()) {
+      if (s->skip && s->skip() && tutorial_.step + 1 < tutorialStepCount()) {
+        if (s->showMe) s->showMe();
+        triggerToast("playlist 2 is ready: you built one in the magic show", ToastKind::Help);
+        enterTutorialStep(tutorial_.step + 1);
+        return;
+      }
       if (s->enter) s->enter();
     }
     // The face drops in on the second step and on the one before the end.

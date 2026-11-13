@@ -126,7 +126,7 @@ def run(exe, work, keep):
             after = db.saved()
             motion = lambda t: next((l for l in t.splitlines() if l.startswith("motion\t")), "")
             note("the operator's show is handed back as it was", motion(after) == motion(before) and
-                 "Nebula ahead" not in after and "Look two" not in after and "Contestant" not in after and "Weather map" not in after and "The trunk" not in after and "souffle" not in after and "The planet" not in after and "The beat" not in after and "office PC" not in after and "evidence #2" not in after and "Saucer" not in after and "Student work" not in after and "ghost" not in after.lower(),
+                 "Nebula ahead" not in after and "Look two" not in after and "Contestant" not in after and "Weather map" not in after and "The trunk" not in after and "souffle" not in after and "The planet" not in after and "The beat" not in after and "office PC" not in after and "evidence #2" not in after and "The replay" not in after and "The rocket" not in after and "capsule" not in after and "Saucer" not in after and "Student work" not in after and "ghost" not in after.lower(),
                  (motion(before), motion(after)))
 
         # James, 2026-11-07: the lessons never said to select the new
@@ -148,14 +148,18 @@ def run(exe, work, keep):
         time.sleep(0.8)
         step3, _, reply = step_of(db)
         note("clicking Deck 2 passes it", step3 == step + 1, reply)
-        db.send("DECK 1 PATTERN ADD checkerboard")
-        time.sleep(0.8)
+        # TRICK ONE (2026-11-13): both TAKEs pass it, but only once the
+        # chicken has been on screen a moment -- the next step resets the
+        # trick, and moving on at once hid the chicken as it appeared.
+        note("the chicken is in playlist 2", "chicken" in db.send("TUTORIAL STATUS").lower() and
+             "TRICK ONE" in db.send("TUTORIAL STATUS"))
+        db.send("TUTORIAL SHOWME")
+        time.sleep(0.5)
         step4, _, reply = step_of(db)
-        note("the prop added to playlist 1 does not pass THE PROP", step4 == step3, reply)
-        db.send("DECK 2 PATTERN ADD checkerboard")
-        time.sleep(0.8)
+        note("the chicken holds before the trick resets", step4 == step3, reply)
+        time.sleep(2.0)
         step5, _, reply = step_of(db)
-        note("the prop added to Deck 2 passes it", step5 == step3 + 1, reply)
+        note("...then TA-DA", step5 == step3 + 1 and "TA-DA" in reply, reply)
         db.send("TUTORIAL EXIT")
         time.sleep(1.0)
         db.send("LESSONS CLOSE")

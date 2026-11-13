@@ -1767,8 +1767,12 @@
     // Buttons, right-aligned. The first and last steps have their own pair.
     const bool first = tutorial_.step == 0;
     const bool last = tutorial_.step == stepCount - 1;
+    // A lesson step with nothing to do but read moves on with NEXT: SHOW ME
+    // would promise a demonstration that never comes.
+    const LessonStep* readOnly = tutorial_.lesson > 0 ? currentLessonStep() : nullptr;
+    const bool justRead = readOnly && !readOnly->done && !readOnly->showMe;
     const char* primary = first ? "START" : (last ? (tutorial_.lesson > 0 ? "LESSON LIST" : "OPEN EXAMPLE SHOWS")
-                                                  : "SHOW ME");
+                                                  : (justRead ? "NEXT" : "SHOW ME"));
     const char* exitLabel = last ? "CLOSE" : "EXIT (Esc)";
     auto buttonW = [&](const char* label) {
       return std::max(uiScaled(96), measuredTextWidth(fontBase_, label) + uiScaled(28));
