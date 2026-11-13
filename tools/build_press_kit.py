@@ -40,7 +40,7 @@ images/master-tracker.png: v0.99.417 pattern tracker, sections and action cells.
 images/phone-controller.png: complete v0.99.417 phone controller.
 images/social-card.png: 1280 x 640 sharing card with the current desk capture.
 images/social-card-performance.png: 1280 x 640 sharing card for the GPU effects and
-transitions: a real output frame, a Portal transition half way.
+transitions: a real output frame, a Shatter transition half way.
 demos/: v0.99.419 video playback, effects and scopes; earlier fixture and Mic captures.
 CAPTURE-NOTES.md: dates, source versions and descriptions for each capture.
 

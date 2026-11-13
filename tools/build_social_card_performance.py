@@ -4,14 +4,14 @@
 """Build the performance social card (1280 x 640) beside the main one.
 
 Same layout, palette and font as tools/build_social_card.py. The picture is a
-real output frame: a portal transition half way out of a cue with a
+real output frame: a Shatter transition half way out of a cue with a
 kaleidoscope and a glow on it, captured with OUTSNAP from a GPU build.
 
-    python tools/build_social_card_performance.py --frame build/perf-card/mid-1.bmp
+    python tools/build_social_card_performance.py --frame build/perf-card/shatter-1.bmp
 
-Every number on the card is measured: 4K portal outgoing draw 46-55 ms a frame
-before, 3.4-5.8 ms after (tools/check_hotspots.py --visible --only transitions,
-2026-11-12, RTX 4070 Laptop).
+Every number on the card is measured: at a 4K output with Shatter takes, the
+mean frame interval was 24.26 ms before and 16.82 ms after (Codex's run,
+docs/images/perf/NOTES.md on branch media-perf, 2026-11-12, RTX 4070 Laptop).
 """
 import argparse
 import io
@@ -47,7 +47,7 @@ def build(frame):
     text(66, 254, "Effects and transitions", 27, INK)
     text(66, 291, "now run on the GPU.", 27, INK)
     text(66, 374, "4K output at 60 fps.", 21, MUTED)
-    text(66, 406, "Portal at 4K: 50 ms -> 4 ms.", 21, MUTED)
+    text(66, 406, "Shatter at 4K: 24 -> 17 ms.", 21, MUTED)
     text(66, 438, "Older machines use the CPU.", 21, MUTED)
     text(66, 494, "Windows  macOS  Linux", 23, INK)
 
