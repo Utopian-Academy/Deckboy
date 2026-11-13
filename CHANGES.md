@@ -11,6 +11,7 @@
 ### Outputs and lessons
 - Video Outputs: the output picker is a list of the outputs by name. Before, each click moved to the next output. ADD OUTPUT is now beside the picker.
 - After you removed an output, the outputs after it kept their old numbers ("Output 3", "Output 4") while the playlist tag, the routing chips and Companion called them 1 and 2. An output with its default name now takes its new number. A name you chose does not change.
+- **Fireside** is a room now. The fireplace stands on a wooden floor with a stone hearth in front of it (it used to float half way up a brick wall). Logs burn in it with taller flames. The mantel has candles and a clock (its hands show how long the cue has run), and a painting hangs above it. A rug, an armchair and a log basket stand on the floor, and the firelight flickers over all of it. Intensity, sparks and the window views work as before.
 - In a lesson, an open menu no longer goes under the lesson card. The card moves beside the menu. Before, in Coach Marv's lesson, the card covered SOURCE's Video Synth row.
 
 ### Performance: effects on the graphics card

@@ -2906,8 +2906,9 @@ than test cards, so they are added from SOURCE > MADE BY DECKBOY, and their
 inspector says "made by Deckboy" in place of a pattern picker.
 
 - **Fireside** — a hearth that burns, for a fireside chat. Set dressing rather
-  than a test card: an arched stone fireplace with a mantel, sconces, andirons
-  and embers riding the draught. The fire is simulated rather than looped, so
+  than a test card: a room with a stone fireplace standing on a wooden floor,
+  logs burning in it, candles and a clock on the mantel, a painting above, a
+  rug, an armchair and a log basket, all lit by the fire. The fire is simulated rather than looped, so
   it never repeats and adds nothing to the download. It is always animated.
 - **Swirl** — a slow spiral of melting pixel greens with a yellow crest, the
   look of Deckboy's own trailer. Set dressing for a holding screen or a backdrop

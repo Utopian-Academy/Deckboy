@@ -14621,21 +14621,36 @@ void MediaEngine::buildFireside(DecodedFrame& frame, double t,
   if (W <= 0 || H <= 0 || frame.pixels.empty()) {
     return;
   }
+  const int stride = W * 4;
+  auto box = [&](int x, int y, int w, int h, SDL_Color c) { fillPixelRect(frame, x, y, w, h, c); };
+  // One pixel of the artwork. Everything in the room is drawn in these, so
+  // the furniture has the same chunky pixels as the fire at any raster.
+  const int u = std::max(1, W / 320);
 
-  const SDL_Color kNight   {14, 10, 14, 255};
-  const SDL_Color kBrick   {58, 26, 26, 255};
-  const SDL_Color kBrickHi {84, 38, 32, 255};
-  const SDL_Color kMortar  {30, 16, 18, 255};
-  const SDL_Color kStone   {40, 20, 22, 255};
+  // ── THE ROOM ───────────────────────────────────────────────────────────
+  //
+  // A ROOM HAS A FLOOR, and the hearth stands on it. The first version was
+  // brick from the top of the frame to the bottom with the fireplace
+  // floating half way up (James, 2026-11-13: "i also hate how the fireplace
+  // isnt on the bottom on the floor"). The fire opening now ends AT the
+  // floor line, the hearth slab lies on the boards in front of it, and the
+  // rug, the chair and the basket all stand on the same floor.
+  const int floorY = H * 80 / 100;
+  const int wainTop = floorY - H * 20 / 100;
 
-  fillPixelRect(frame, 0, 0, W, H, kNight);
-
-  // Hearth opening: a tall arch, centred.
-  const int openW = std::max(16, W / 3);
-  const int openH = std::max(16, (H * 55) / 100);
+  const int openW = std::max(16, W * 30 / 100);
+  const int openH = std::max(16, H * 42 / 100);
   const int openX = (W - openW) / 2;
-  const int openY = (H - openH) - H / 8;
+  const int openY = floorY - openH;
   const int archR = openW / 2;
+  const int jamb = std::max(4, openW / 12);
+  const int mh = std::max(6, H / 30);
+  const int mantelY = std::max(1, openY - jamb - 8);
+  const int mantelW = openW + jamb * 4;
+  const int mantelX = openX - jamb * 2;
+  // The chimney breast: brick, a little narrower than the shelf it carries.
+  const int cbX = mantelX + jamb / 2;
+  const int cbW = mantelW - jamb;
 
   auto insideOpening = [&](int x, int y) {
     if (x < openX || x >= openX + openW || y >= openY + openH || y < openY) {
@@ -14650,26 +14665,125 @@ void MediaEngine::buildFireside(DecodedFrame& frame, double t,
     return dx * dx + dy * dy <= archR * archR;
   };
 
-  // Brick courses, offset every other row so it reads as masonry rather than
-  // graph paper, with the tone varied per brick so the wall is not flat.
-  const int bh = std::max(4, H / 26);
-  const int bw = std::max(8, W / 14);
-  for (int y = 0; y < H; y += bh) {
-    const int row = y / bh;
-    const int off = (row & 1) ? bw / 2 : 0;
-    for (int x = -off; x < W; x += bw) {
-      const unsigned h = static_cast<unsigned>(row * 73856093) ^
-                         static_cast<unsigned>((x + off) * 19349663);
-      const int tone = static_cast<int>((h >> 13) % 3u);
-      const SDL_Color c = (tone == 0) ? kBrick : (tone == 1) ? kBrickHi : kStone;
-      fillPixelRect(frame, x, y, bw - 1, bh - 1, c);
-      fillPixelRect(frame, x + bw - 1, y, 1, bh, kMortar);
+  // The wall: a deep warm paper with a fine stripe, then wood panelling up
+  // to the dado rail. Brick only where a chimney is.
+  const SDL_Color kPaper     {62, 30, 28, 255};
+  const SDL_Color kPaperLine {74, 38, 32, 255};
+  const SDL_Color kPaperDot  {96, 58, 40, 255};
+  box(0, 0, W, floorY, kPaper);
+  const int stripeStep = std::max(u * 6, W / 26);
+  for (int x = stripeStep / 2; x < W; x += stripeStep) {
+    box(x, 0, u * 2, wainTop, kPaperLine);
+    // A small motif down each stripe, so the paper is paper and not bars.
+    for (int y = stripeStep / 2; y < wainTop - u * 4; y += stripeStep) {
+      box(x - u, y, u * 4, u * 2, kPaperDot);
+      box(x, y - u, u * 2, u * 4, kPaperDot);
     }
-    fillPixelRect(frame, 0, y + bh - 1, W, 1, kMortar);
+  }
+  const SDL_Color kWoodHi {104, 64, 38, 255};
+  const SDL_Color kWood   {76, 44, 26, 255};
+  const SDL_Color kWoodLo {48, 26, 16, 255};
+  box(0, wainTop, W, floorY - wainTop, kWood);
+  box(0, wainTop, W, u * 3, kWoodHi);                 // the dado rail
+  box(0, wainTop + u * 3, W, u, kWoodLo);
+  {
+    const int panelW = std::max(u * 20, W / 9);
+    const int py0 = wainTop + u * 8;
+    const int ph = floorY - py0 - u * 8;
+    for (int x = u * 6; x + panelW < W; x += panelW + u * 6) {
+      box(x, py0, panelW, ph, kWoodLo);               // a recessed panel:
+      box(x + u, py0 + u, panelW - u * 2, ph - u * 2, kWood);
+      box(x + u, py0 + u, panelW - u * 2, u, kWoodHi);  // lit along the top
+    }
+  }
+  box(0, floorY - u * 4, W, u * 4, kWoodLo);          // the skirting board
+  box(0, floorY - u * 4, W, u, kWoodHi);
+
+  // The floor: boards running across, each course a little deeper than the
+  // one behind it, so the floor lies down rather than standing up.
+  {
+    const SDL_Color kBoardA {84, 50, 28, 255};
+    const SDL_Color kBoardB {72, 42, 24, 255};
+    const SDL_Color kBoardC {92, 56, 32, 255};
+    const SDL_Color kSeam   {34, 18, 10, 255};
+    box(0, floorY, W, H - floorY, kSeam);   // under the boards: no gap shows anything else
+    double rowH = std::max(2.0, H / 70.0);
+    int row = 0;
+    for (double y = floorY; y < H; y += rowH, rowH *= 1.22, ++row) {
+      const int y0 = static_cast<int>(y);
+      const int h = std::max(1, static_cast<int>(y + rowH) - y0);
+      const int boardW = std::max(u * 16, W / 5);
+      const int shift = static_cast<int>((static_cast<unsigned>(row) * 2654435761u >> 8) % static_cast<unsigned>(boardW));
+      for (int x = -shift, b = 0; x < W; x += boardW, ++b) {
+        const unsigned hsh = static_cast<unsigned>(row * 92821 + b * 68917);
+        const int tone = static_cast<int>((hsh >> 5) % 3u);
+        box(x, y0, boardW - 1, h, tone == 0 ? kBoardA : tone == 1 ? kBoardB : kBoardC);
+        box(x + boardW - 1, y0, std::max(1, u / 2), h, kSeam);
+      }
+      box(0, y0 + h - 1, W, 1, kSeam);
+    }
   }
 
+  // The window, on the wall to the left of the chimney.
   buildFiresideWindow(frame, t, view);
 
+  // The chimney breast in brick, from the ceiling down to the floor.
+  {
+    const SDL_Color kBrick   {88, 38, 30, 255};
+    const SDL_Color kBrickHi {108, 50, 36, 255};
+    const SDL_Color kBrickLo {70, 30, 26, 255};
+    const SDL_Color kMortar  {44, 24, 22, 255};
+    const int bh = std::max(4, H / 34);
+    const int bw = std::max(8, W / 22);
+    box(cbX, 0, cbW, floorY, kMortar);
+    for (int y = 0; y < floorY; y += bh) {
+      const int r = y / bh;
+      const int off = (r & 1) ? bw / 2 : 0;
+      for (int x = cbX - off; x < cbX + cbW; x += bw) {
+        const unsigned hsh = static_cast<unsigned>(r * 73856093) ^ static_cast<unsigned>((x + off) * 19349663);
+        const int tone = static_cast<int>((hsh >> 13) % 3u);
+        const int x0 = std::max(cbX, x);
+        const int x1 = std::min(cbX + cbW, x + bw - 1);
+        if (x1 > x0) {
+          box(x0, y, x1 - x0, std::min(bh - 1, floorY - y),
+              tone == 0 ? kBrick : tone == 1 ? kBrickHi : kBrickLo);
+        }
+      }
+    }
+    // Its edges in shadow, so it stands forward from the wall.
+    box(cbX, 0, u * 2, floorY, kWoodLo);
+    box(cbX + cbW - u * 2, 0, u * 2, floorY, kWoodLo);
+  }
+
+  // A painting over the mantel: moonlit hills, in a gilt frame.
+  {
+    const int pw = std::min(cbW * 50 / 100, W * 20 / 100);
+    const int pTop = std::max(u * 4, H * 6 / 100);
+    const int ph = std::max(u * 8, mantelY - pTop - H * 13 / 100);
+    const int px = W / 2 - pw / 2;
+    const SDL_Color kGilt {168, 124, 58, 255};
+    const SDL_Color kGiltLo {110, 76, 34, 255};
+    box(px - u * 4, pTop - u * 4, pw + u * 8, ph + u * 8, kGiltLo);
+    box(px - u * 3, pTop - u * 3, pw + u * 6, ph + u * 6, kGilt);
+    box(px - u, pTop - u, pw + u * 2, ph + u * 2, kGiltLo);
+    for (int y = 0; y < ph; y += u) {
+      const double v = static_cast<double>(y) / ph;
+      for (int x = 0; x < pw; x += u) {
+        const double s = static_cast<double>(x) / pw;
+        SDL_Color c {static_cast<Uint8>(26 + v * 30), static_cast<Uint8>(34 + v * 30), static_cast<Uint8>(58 + v * 20), 255};
+        const double farHill = 0.58 + 0.08 * std::sin(s * 7.0 + 1.0);
+        const double nearHill = 0.74 + 0.10 * std::sin(s * 4.0 + 2.6);
+        if (v > nearHill) c = SDL_Color {22, 34, 26, 255};
+        else if (v > farHill) c = SDL_Color {36, 52, 44, 255};
+        const double mx = s - 0.72, my = v - 0.24;
+        if (mx * mx * 3.0 + my * my < 0.006) c = SDL_Color {226, 220, 186, 255};   // the moon
+        box(px + x, pTop + y, std::min(u, pw - x), std::min(u, ph - y), c);
+      }
+    }
+  }
+
+  // ── THE FIRE ───────────────────────────────────────────────────────────
+  //
   // The opening is dark; the fire is drawn into it next.
   //
   // THE PER-PIXEL PASSES RUN ON EVERY CORE: each pixel is written from its own
@@ -14689,34 +14803,28 @@ void MediaEngine::buildFireside(DecodedFrame& frame, double t,
     });
   }
 
-  const int kCell = std::max(2, W / 150);
-  const int gw = std::max(8, openW / kCell);
-  const int gh = std::max(8, openH / kCell);
-
-  // Held between frames -- reseeding every frame gives static, not fire.
-  //
-  // thread_local rather than a member, because the pattern builders are static
-  // and called from whichever decoder thread owns the deck. That is exactly the
-  // ownership we want: two decks showing a hearth each get their own fire
-  // instead of sharing one buffer across threads.
   // THE FIRE IS A PURE FUNCTION OF THE CLOCK, rebuilt from nothing each frame.
   //
   // It used to carry its heat grid between calls, which is the obvious way to
   // write a fire and was wrong here. `--pattern-dump` runs a whole process per
   // frame, and tools/build_test_patterns.py renders a clip by calling it in a
   // loop -- so every frame got a freshly primed grid and the "animation" would
-  // have been incoherent flicker rather than a flame. The live path would have
-  // looked right and the rendered clip would not.
+  // have been incoherent flicker rather than a flame. Instead each frame
+  // replays a fixed window of history whose randomness is keyed to the frame
+  // index. Consecutive frames share all but one step of that window, so they
+  // evolve smoothly, and any frame can be rendered alone, in any order, in any
+  // process, and come out identical.
   //
-  // Instead each frame replays a fixed window of history whose randomness is
-  // keyed to the frame index. Consecutive frames share all but one step of that
-  // window, so they evolve smoothly, and any frame can be rendered alone, in
-  // any order, in any process, and come out identical. It also means no state
-  // to own and nothing shared between decks or threads.
-  const int kWarm = 20;
+  // The window is as long as the flame is tall: heat climbs one cell a step,
+  // so a shorter history cannot grow a flame higher than its own length. With
+  // twenty steps the fire was a low mound however hot the bed was.
+  const int kCell = std::max(2, W / 200);
+  const int gw = std::max(8, openW / kCell);
+  const int gh = std::max(8, openH / kCell);
+  const int kWarm = gh + 4;
   const int frameIndex = static_cast<int>(t * 60.0);
-  std::vector<std::uint8_t> heat(static_cast<std::size_t>(gw) *
-                                 static_cast<std::size_t>(gh), 0);
+  std::vector<std::uint8_t> heat(static_cast<std::size_t>(gw) * static_cast<std::size_t>(gh), 0);
+  std::vector<std::uint8_t> next(heat.size(), 0);
 
   std::uint32_t seed = 1u;
   auto rnd = [&seed]() -> std::uint32_t {
@@ -14727,345 +14835,403 @@ void MediaEngine::buildFireside(DecodedFrame& frame, double t,
   };
 
   // The bed breathes at two rates, so the fire surges and settles rather than
-  // roaring flat. Sampled at the frame being drawn, for the light and sparks.
-  // INTENSITY RIDES THE BREATH rather than replacing it, so embers still
-  // surge and settle instead of sitting at a flat low -- a fire that does not
-  // move reads as a photograph of a fire.
-  const double breath = (0.72 + 0.28 * std::sin(t * 1.7) * std::sin(t * 0.63))
-                        * intensity;
+  // roaring flat. INTENSITY RIDES THE BREATH rather than replacing it.
+  const double breath = (0.72 + 0.28 * std::sin(t * 1.7) * std::sin(t * 0.63)) * intensity;
 
   for (int step = 0; step <= kWarm; ++step) {
-  const int stepFrame = frameIndex - (kWarm - step);
-  const double stepT = stepFrame / 60.0;
-  // Keyed to the ABSOLUTE frame, so a given frame of history is the same
-  // whichever frame is asking for it -- that is what makes the sequence
-  // continuous across independent renders.
-  seed = static_cast<std::uint32_t>(stepFrame) * 2654435761u + 1u;
-  const double stepBreath =
-    0.72 + 0.28 * std::sin(stepT * 1.7) * std::sin(stepT * 0.63);
-  for (int x = 0; x < gw; ++x) {
-    // The fuel bed is the middle of the grate, not the whole opening -- fire
-    // comes off the logs, and seeding edge to edge is what made it a dome.
-    const double dx = (x - gw * 0.5) / (gw * 0.34);
-    if (std::abs(dx) > 1.0) {
-      heat[static_cast<std::size_t>(gh - 1) * gw + x] = 0;
-      continue;
-    }
-    // Hot spots along the bed rather than an even glow, so tongues form where
-    // the logs actually are.
-    const double lumps = 0.62 + 0.38 * std::sin(x * 1.9 + stepT * 0.8) *
-                                       std::sin(x * 0.7 - stepT * 1.3);
-    const double bed = (1.0 - dx * dx * 0.55) * stepBreath * lumps;
-    const int base = std::clamp(static_cast<int>(bed * 255.0), 0, 255);
-    const int jitter = static_cast<int>(rnd() % 60u);
-    heat[static_cast<std::size_t>(gh - 1) * gw + x] =
-      static_cast<std::uint8_t>(std::clamp(base - jitter, 0, 255));
-  }
-
-  for (int y = 0; y < gh - 1; ++y) {
+    const int stepFrame = frameIndex - (kWarm - step);
+    const double stepT = stepFrame / 60.0;
+    seed = static_cast<std::uint32_t>(stepFrame) * 2654435761u + 1u;
+    const double stepBreath = (0.72 + 0.28 * std::sin(stepT * 1.7) * std::sin(stepT * 0.63)) * intensity;
     for (int x = 0; x < gw; ++x) {
-      const int xl = std::max(0, x - 1);
-      const int xr = std::min(gw - 1, x + 1);
-      const std::size_t below = static_cast<std::size_t>(y + 1) * gw;
-      const int sum = heat[below + xl] + heat[below + x] + heat[below + xr];
-      int v = sum / 3;
-      // Cooling rises near the top, so the flame has a tip rather than a
-      // ceiling of colour.
-      // Cooling scales with how far up the cell is, which is what gives the
-      // flame a tapering tip instead of a ceiling.
-      const int height = gh - y;
-      v -= 1 + static_cast<int>(rnd() % 4u) + (height * 5) / std::max(1, gh);
-      const int drift = static_cast<int>(rnd() % 3u) - 1;
-      const int dst = std::clamp(x + drift, 0, gw - 1);
-      heat[static_cast<std::size_t>(y) * gw + dst] =
-        static_cast<std::uint8_t>(std::clamp(v, 0, 255));
+      // The fuel is the logs, in the middle of the hearth -- not the whole
+      // opening, which is what made it a dome.
+      const double dx = (x - gw * 0.5) / (gw * 0.31);
+      std::uint8_t& bed = heat[static_cast<std::size_t>(gh - 1) * gw + x];
+      if (std::abs(dx) > 1.0) {
+        bed = 0;
+        continue;
+      }
+      // Tongues: hot columns that wander along the logs and flare, which is
+      // what makes flame rather than glow.
+      const double tongues = 0.55 + 0.45 * std::sin(x * 0.9 + stepT * 2.1) * std::sin(x * 0.37 - stepT * 1.4);
+      const double v = (1.0 - dx * dx * 0.45) * stepBreath * (0.7 + 0.6 * tongues);
+      const int jitter = static_cast<int>(rnd() % 70u);
+      bed = static_cast<std::uint8_t>(std::clamp(static_cast<int>(v * 255.0) - jitter + 30, 0, 255));
     }
-  }
+    // Every cell takes the heat of the cells below it (mostly straight below)
+    // and cools a little -- more near the top, so the flame tapers to a tip.
+    for (int y = 0; y < gh - 1; ++y) {
+      const std::size_t below = static_cast<std::size_t>(y + 1) * gw;
+      for (int x = 0; x < gw; ++x) {
+        const int drift = static_cast<int>(rnd() % 3u) - 1;
+        const int sx = std::clamp(x + drift, 0, gw - 1);
+        const int xl = std::max(0, sx - 1);
+        const int xr = std::min(gw - 1, sx + 1);
+        int v = (heat[below + xl] + heat[below + sx] * 2 + heat[below + xr]) / 4;
+        const int height = gh - y;
+        // And more at the sides, so the flame gathers into a point over the
+        // logs instead of filling the opening wall to wall.
+        const int side = std::abs(2 * x - gw) * 10 / std::max(1, gw);
+        v -= static_cast<int>(rnd() % 7u) + (height * 4) / std::max(1, gh) + side;
+        next[static_cast<std::size_t>(y) * gw + x] = static_cast<std::uint8_t>(std::clamp(v, 0, 255));
+      }
+    }
+    for (int x = 0; x < gw; ++x) {
+      next[static_cast<std::size_t>(gh - 1) * gw + x] = heat[static_cast<std::size_t>(gh - 1) * gw + x];
+    }
+    heat.swap(next);
   }
 
-  static const SDL_Color kFlame[6] = {
+  // The glow at the back of the hearth, lit by what burns in front of it.
+  {
+    const int hx = openX + openW / 2;
+    const int hy = openY + openH - openH / 6;
+    const int hr = std::max(6, openH * 3 / 4);
+    const int gy0 = std::max(0, hy - hr);
+    const int gy1 = std::min(H, hy + hr);
+    deckboy::effects::detail::parallelRows(std::max(0, gy1 - gy0), hr * 2 * 4, [&](int r0, int r1) {
+      for (int y = gy0 + r0; y < gy0 + r1; ++y) {
+        for (int x = std::max(0, hx - hr); x < std::min(W, hx + hr); ++x) {
+          if (!insideOpening(x, y)) continue;
+          const double ddx = static_cast<double>(x - hx) / hr;
+          const double ddy = static_cast<double>(y - hy) / hr;
+          const double dd = ddx * ddx + ddy * ddy;
+          if (dd >= 1.0) continue;
+          const double g = (1.0 - dd) * (1.0 - dd) * 0.9 * breath;
+          writePixel(frame, x, y, SDL_Color {
+            static_cast<Uint8>(std::min(255.0, 14 + 110.0 * g)),
+            static_cast<Uint8>(std::min(255.0, 8 + 40.0 * g)),
+            static_cast<Uint8>(std::min(255.0, 10 + 16.0 * g)), 255});
+        }
+      }
+    });
+  }
+
+  static const SDL_Color kFlame[7] = {
     { 10,   6,   8, 255},
     { 96,  18,  12, 255},
-    {178,  44,  16, 255},
-    {232,  96,  22, 255},
-    {250, 168,  52, 255},
-    {255, 232, 150, 255},
+    {170,  40,  16, 255},
+    {226,  84,  20, 255},
+    {248, 142,  40, 255},
+    {253, 196,  84, 255},
+    {255, 238, 168, 255},
   };
-
   const int fireY = openY + openH - gh * kCell;
   for (int gy = 0; gy < gh; ++gy) {
     for (int gx = 0; gx < gw; ++gx) {
       const int v = heat[static_cast<std::size_t>(gy) * gw + gx];
-      if (v < 24) {
-        continue;                       // the back of the hearth stays dark
-      }
-      // Gamma, not a linear split. Linearly, almost every live cell landed in
-      // the bottom two steps and the whole hearth read as a dull red mound --
-      // the top of the ramp existed and was never reached.
+      if (v < 28) continue;               // the back of the hearth stays dark
+      // Gamma, not a linear split, so the hot end of the ramp is reached.
       const double n = v / 255.0;
-      const int step = std::clamp(static_cast<int>(std::pow(n, 0.62) * 5.99), 0, 5);
+      const int stepIx = std::clamp(static_cast<int>(std::pow(n, 0.6) * 6.99), 1, 6);
       const int px0 = openX + gx * kCell;
       const int py0 = fireY + gy * kCell;
       for (int oy = 0; oy < kCell; ++oy) {
         for (int ox = 0; ox < kCell; ++ox) {
-          const int sx = px0 + ox;
-          const int sy = py0 + oy;
-          // Clipped to the arch, so flame never paints over the masonry.
-          if (insideOpening(sx, sy)) {
-            writePixel(frame, sx, sy, kFlame[step]);
-          }
+          if (insideOpening(px0 + ox, py0 + oy)) writePixel(frame, px0 + ox, py0 + oy, kFlame[stepIx]);
         }
       }
     }
   }
 
-  // The back of the hearth, lit by what is burning in front of it. Without
-  // this the flame floats in a black void, which is the one thing a real fire
-  // never does.
+  // THE LOGS, across a pair of firedogs, in front of the flame's root: a
+  // fire with nothing burning reads as a gas effect.
   {
-    const int hx = openX + openW / 2;
-    const int hy = openY + openH - openH / 5;
-    const int hr = std::max(6, openH * 3 / 4);
-    const int stride0 = W * 4;
-    const int gy0 = std::max(0, hy - hr);
-    const int gy1 = std::min(H, hy + hr);
-    deckboy::effects::detail::parallelRows(std::max(0, gy1 - gy0), hr * 2 * 4, [&](int r0, int r1) {
-    for (int y = gy0 + r0; y < gy0 + r1; ++y) {
-      for (int x = std::max(0, hx - hr); x < std::min(W, hx + hr); ++x) {
-        if (!insideOpening(x, y)) {
-          continue;
-        }
-        const double ddx = static_cast<double>(x - hx) / hr;
-        const double ddy = static_cast<double>(y - hy) / hr;
-        const double dd = ddx * ddx + ddy * ddy;
-        if (dd >= 1.0) {
-          continue;
-        }
-        const std::size_t i0 = static_cast<std::size_t>(y) * stride0 +
-                               static_cast<std::size_t>(x) * 4;
-        if (i0 + 2 >= frame.pixels.size() || frame.pixels[i0] > 40) {
-          continue;                       // already flame; leave it alone
-        }
-        const double g = (1.0 - dd) * (1.0 - dd) * 0.9 * breath;
-        writePixel(frame, x, y, SDL_Color {
-          static_cast<Uint8>(std::min(255.0, 14 + 96.0 * g)),
-          static_cast<Uint8>(std::min(255.0, 8 + 34.0 * g)),
-          static_cast<Uint8>(std::min(255.0, 10 + 16.0 * g)),
-          255});
+    const SDL_Color kBark   {54, 32, 22, 255};
+    const SDL_Color kBarkHi {78, 48, 30, 255};
+    const SDL_Color kEnd    {150, 104, 64, 255};
+    const SDL_Color kRing   {112, 74, 44, 255};
+    const SDL_Color kIron   {26, 20, 22, 255};
+    const int logH = std::max(u * 3, openH / 11);
+    const int baseY = openY + openH - u * 2;
+    const int logL = openX + openW * 22 / 100;
+    const int logR = openX + openW * 78 / 100;
+    // The firedogs.
+    for (int side = 0; side < 2; ++side) {
+      const int ax = side ? logR - u * 6 : logL + u * 3;
+      box(ax, baseY - logH * 2 - u * 2, u * 3, logH * 2 + u * 2, kIron);
+      box(ax - u, baseY - logH * 2 - u * 4, u * 5, u * 2, SDL_Color {150, 112, 54, 255});
+    }
+    // Three logs, round: shaded top to bottom like a cylinder, ends sawn
+    // and ringed, the back two higher. Square-cut slabs read as a bench.
+    struct Log { int x0, x1, y; };
+    const Log logs[3] = {{logL + u * 10, logR - u * 4, baseY - logH * 2 + u},
+                         {logL + u * 2, logL + (logR - logL) * 55 / 100, baseY - logH},
+                         {logL + (logR - logL) * 45 / 100, logR + u * 2, baseY - logH + u * 2}};
+    const double glow = std::clamp(0.45 + 0.55 * breath, 0.0, 1.3);
+    for (int li = 0; li < 3; ++li) {
+      const Log& lg = logs[li];
+      for (int y = 0; y < logH; ++y) {
+        const double v = (y + 0.5) / logH;                 // 0 top .. 1 underside
+        // The round: trim the corners of each end by the circle's depth.
+        const double c = std::sqrt(std::max(0.0, 1.0 - (2.0 * v - 1.0) * (2.0 * v - 1.0)));
+        const int trim = static_cast<int>((1.0 - c) * logH * 0.35);
+        const SDL_Color bark = v < 0.25 ? kBarkHi : v < 0.7 ? kBark : SDL_Color {36, 20, 14, 255};
+        box(lg.x0 + trim, lg.y + y, std::max(0, lg.x1 - lg.x0 - trim * 2), 1, bark);
+        // The sawn end facing us, on the right, as an oval of end grain.
+        const int endW = static_cast<int>(c * logH * 0.35);
+        box(lg.x1 - trim - endW, lg.y + y, endW, 1, kEnd);
+        if (std::abs(v - 0.5) < 0.18) box(lg.x1 - trim - endW * 2 / 3, lg.y + y, std::max(1, endW / 3), 1, kRing);
+      }
+      // Glowing cracks along the underside, breathing with the fire.
+      for (int x = lg.x0 + u * 4; x < lg.x1 - logH / 2; x += u * 4) {
+        const unsigned hsh = static_cast<unsigned>(x) * 2654435761u + static_cast<unsigned>(li) * 97u;
+        if ((hsh >> 9) % 3u == 0) continue;
+        const double f = glow * (0.6 + 0.4 * std::sin(t * 3.0 + x * 0.05));
+        box(x, lg.y + logH * 3 / 4, u * 2, std::max(1, u / 2 + 1),
+            SDL_Color {static_cast<Uint8>(std::min(255.0, 200 * f + 40)), static_cast<Uint8>(std::min(255.0, 80 * f + 10)), 20, 255});
       }
     }
-    });
-  }
-
-  // Grate.
-  const int grateY = openY + openH - std::max(2, openH / 10);
-  for (int x = openX + 2; x < openX + openW - 2; x += std::max(3, openW / 14)) {
-    for (int y = grateY; y < openY + openH; ++y) {
-      if (insideOpening(x, y)) {
-        writePixel(frame, x, y, SDL_Color {22, 14, 16, 255});
-      }
-    }
-  }
-  fillPixelRect(frame, openX + 1, grateY, openW - 2, 1, SDL_Color {30, 18, 18, 255});
-
-  // Firelight thrown onto the brick, breathing with the fire so the whole room
-  // flickers together rather than the hearth flickering inside a static wall.
-  const int glowR = std::max(8, openW);
-  const int cx = openX + openW / 2;
-  const int cy = openY + openH - openH / 4;
-  const double lift = 0.35 + 0.35 * breath;
-  const int stride = W * 4;
-  const int ly0 = std::max(0, cy - glowR);
-  const int ly1 = std::min(H, cy + glowR);
-  deckboy::effects::detail::parallelRows(std::max(0, ly1 - ly0), glowR * 2 * 4, [&](int r0, int r1) {
-  for (int y = ly0 + r0; y < ly0 + r1; ++y) {
-    for (int x = std::max(0, cx - glowR); x < std::min(W, cx + glowR); ++x) {
-      if (insideOpening(x, y)) {
-        continue;
-      }
-      const double dx = static_cast<double>(x - cx) / glowR;
-      const double dy = static_cast<double>(y - cy) / glowR;
-      const double d = dx * dx + dy * dy;
-      if (d >= 1.0) {
-        continue;
-      }
-      const double f = (1.0 - d) * (1.0 - d) * lift;
-      const std::size_t i = static_cast<std::size_t>(y) * stride +
-                            static_cast<std::size_t>(x) * 4;
-      if (i + 2 >= frame.pixels.size()) {
-        continue;
-      }
-      writePixel(frame, x, y, SDL_Color {
-        static_cast<Uint8>(std::min(255.0, frame.pixels[i + 0] + 150.0 * f)),
-        static_cast<Uint8>(std::min(255.0, frame.pixels[i + 1] +  62.0 * f)),
-        static_cast<Uint8>(std::min(255.0, frame.pixels[i + 2] +  24.0 * f)),
-        255});
-    }
-  }
-  });
-
-  // ---- Sparks -------------------------------------------------------------
-  //
-  // Stateless on purpose: an ember's whole life is a function of its index and
-  // the clock, so there is no particle list to own, grow, or keep in step with
-  // a resized raster. Cheap, deterministic, and it cannot leak.
-  const int kSparks = sparks;
-  for (int i = 0; i < kSparks; ++i) {
-    const std::uint32_t sh = static_cast<std::uint32_t>(i + 1) * 2654435761u;
-    const double life = 1.4 + ((sh >> 3) % 100u) / 100.0 * 1.8;   // 1.4-3.2s
-    const double birth = ((sh >> 11) % 1000u) / 1000.0 * life;
-    const double age = std::fmod(t + birth, life);
-    const double k = age / life;
-    if (k > 0.98) {
-      continue;
-    }
-    // Rises fast then slows as it cools, wandering on the draught.
-    const double rise = 1.0 - (1.0 - k) * (1.0 - k);
-    const double sway = std::sin(t * 1.9 + i * 1.7) * (6.0 + (sh % 9u));
-    const double sx = openX + openW * (0.28 + ((sh >> 17) % 45u) / 100.0) + sway * k;
-    const double sy = (openY + openH - openH * 0.18) - rise * (openH * 0.85 + (sh % 40u));
-    if (sy < 1.0) {
-      continue;
-    }
-    const double heatK = 1.0 - k;
-    const SDL_Color sc = (heatK > 0.66) ? SDL_Color {255, 236, 176, 255}
-                       : (heatK > 0.33) ? SDL_Color {250, 158, 52, 255}
-                                        : SDL_Color {168, 52, 18, 255};
-    const int size = (k < 0.5 && (sh % 5u) == 0) ? 2 : 1;
-    for (int oy = 0; oy < size; ++oy) {
-      for (int ox = 0; ox < size; ++ox) {
-        writePixel(frame, static_cast<int>(sx) + ox, static_cast<int>(sy) + oy, sc);
-      }
+    // Embers under the logs.
+    for (int x = logL; x < logR; x += u * 2) {
+      const unsigned hsh = static_cast<unsigned>(x) * 2246822519u;
+      const double f = 0.5 + 0.5 * std::sin(t * (2.0 + (hsh % 7u) * 0.4) + (hsh >> 8) % 100u);
+      box(x, baseY, u * 2, u * 2, SDL_Color {static_cast<Uint8>(120 + 120 * f * std::min(1.0, breath)),
+                                             static_cast<Uint8>(30 + 60 * f * std::min(1.0, breath)), 12, 255});
     }
   }
 
-  // ---- The posh part ------------------------------------------------------
-  //
-  // A mantel with real moulding, a keystone, andirons and a pair of sconces.
-  // Without them this is a hole in a wall with a fire in it; with them it is a
-  // room somebody chose to sit in.
-  const SDL_Color kStoneL {96, 74, 66, 255};
-  const SDL_Color kStoneM {74, 52, 48, 255};
-  const SDL_Color kStoneD {48, 32, 32, 255};
+  // ── THE FIREPLACE ITSELF ───────────────────────────────────────────────
+  const SDL_Color kStoneL {132, 112, 96, 255};
+  const SDL_Color kStoneM {104, 86, 74, 255};
+  const SDL_Color kStoneD {64, 52, 46, 255};
   const SDL_Color kGold   {186, 140, 62, 255};
-
-  const int jamb = std::max(4, openW / 12);
-  fillPixelRect(frame, openX - jamb, openY, jamb, openH, kStoneM);
-  fillPixelRect(frame, openX + openW, openY, jamb, openH, kStoneM);
-  fillPixelRect(frame, openX - jamb, openY, 2, openH, kStoneL);
-  fillPixelRect(frame, openX + openW, openY, 2, openH, kStoneL);
-
-  // Voussoirs round the arch, so the opening is built rather than cut.
+  box(openX - jamb, openY, jamb, openH, kStoneM);
+  box(openX + openW, openY, jamb, openH, kStoneM);
+  box(openX - jamb, openY, u * 2, openH, kStoneL);
+  box(openX + openW, openY, u * 2, openH, kStoneL);
   for (int a = 0; a <= 180; a += 10) {
     const double rr = archR + jamb * 0.5;
     const double rad = a * 3.14159265358979 / 180.0;
     const int vx = static_cast<int>(openX + archR - std::cos(rad) * rr);
     const int vy = static_cast<int>(openY + archR - std::sin(rad) * rr);
-    fillPixelRect(frame, vx - 2, vy - 2, 5, 5, ((a / 10) % 2) ? kStoneM : kStoneL);
-  }
-  fillPixelRect(frame, openX + archR - 4, openY - jamb - 2, 9, jamb + 4, kStoneL);
-  fillPixelRect(frame, openX + archR - 2, openY - jamb, 5, jamb + 2, kStoneM);
-
-  // Mantel shelf: three bands of moulding, overhanging the surround.
-  const int mantelY = std::max(1, openY - jamb - 8);
-  const int mantelW = openW + jamb * 4;
-  const int mantelX = openX - jamb * 2;
-  const int mh = std::max(6, H / 30);
-  fillPixelRect(frame, mantelX, mantelY, mantelW, mh, kStoneM);
-  fillPixelRect(frame, mantelX, mantelY, mantelW, std::max(2, mh / 3), kStoneL);
-  fillPixelRect(frame, mantelX + 2, mantelY + mh, mantelW - 4, std::max(2, mh / 3), kStoneD);
-  fillPixelRect(frame, mantelX, mantelY, mantelW, 1, kGold);
-  fillPixelRect(frame, mantelX, mantelY + mh - 1, mantelW, 1, kGold);
-
-  // Andirons, standing in front of the flame.
-  for (int side = 0; side < 2; ++side) {
-    const int ax = side ? openX + openW - openW / 5 : openX + openW / 5;
-    const int top = grateY - openH / 9;
-    for (int y = top; y < openY + openH - 2; ++y) {
-      if (insideOpening(ax, y)) {
-        writePixel(frame, ax, y, SDL_Color {30, 22, 24, 255});
-        writePixel(frame, ax + 1, y, SDL_Color {44, 32, 30, 255});
+    const SDL_Color sc = ((a / 10) % 2) ? kStoneM : kStoneL;
+    for (int y = vy - jamb / 2; y < vy + jamb / 2; ++y) {
+      for (int x = vx - jamb / 2; x < vx + jamb / 2; ++x) {
+        if (!insideOpening(x, y)) writePixel(frame, x, y, sc);   // round the arch, not into it
       }
     }
-    writePixel(frame, ax, top - 1, kGold);
-    writePixel(frame, ax + 1, top - 1, kGold);
+  }
+  box(openX + archR - jamb / 2 - u, openY - jamb - u * 2, jamb + u * 2, jamb + u * 4, kStoneL);   // keystone
+  // The mantel shelf.
+  box(mantelX, mantelY, mantelW, mh, kStoneM);
+  box(mantelX, mantelY, mantelW, std::max(2, mh / 3), kStoneL);
+  box(mantelX + u * 2, mantelY + mh, mantelW - u * 4, std::max(2, mh / 3), kStoneD);
+  box(mantelX, mantelY + mh - 1, mantelW, 1, kGold);
+  // The hearth slab, lying on the floor in front of the opening.
+  const int slabH = std::max(3, H / 34);
+  box(mantelX - u * 4, floorY, mantelW + u * 8, slabH, kStoneM);
+  box(mantelX - u * 4, floorY, mantelW + u * 8, u, kStoneL);
+  box(mantelX - u * 4, floorY + slabH - u, mantelW + u * 8, u, kStoneD);
+
+  // On the mantel: two candles and a clock.
+  {
+    const SDL_Color kWax  {226, 212, 182, 255};
+    const SDL_Color kWaxLo{188, 170, 140, 255};
+    for (int side = 0; side < 2; ++side) {
+      const int cx = side ? mantelX + mantelW * 76 / 100 : mantelX + mantelW * 24 / 100;
+      const int ch = u * (side ? 12 : 16);
+      box(cx - u * 3, mantelY - u * 2, u * 6, u * 2, kGold);            // the holder
+      box(cx - u, mantelY - u * 2 - ch, u * 3, ch, kWax);
+      box(cx + u, mantelY - u * 2 - ch, u, ch, kWaxLo);
+      const double fl = 0.8 + 0.2 * std::sin(t * 9.0 + side * 1.7) * std::sin(t * 3.1 + side);
+      const int sway = static_cast<int>(std::lround(std::sin(t * 2.3 + side) * u * 0.6));
+      box(cx + sway, mantelY - u * 2 - ch - u * 4, u, u * 4,
+          SDL_Color {255, static_cast<Uint8>(200 * fl), static_cast<Uint8>(90 * fl), 255});
+      box(cx + sway, mantelY - u * 2 - ch - u * 2, u, u * 2, SDL_Color {255, 246, 200, 255});
+    }
+    // The clock: a dome-topped case, a face, and hands that tell the time
+    // the cue has been running.
+    const int kw = u * 14, kh = u * 16;
+    const int kx = W / 2 - kw / 2, ky = mantelY - kh;
+    box(kx, ky + u * 3, kw, kh - u * 3, kWoodLo);
+    box(kx + u * 2, ky, kw - u * 4, u * 3, kWoodLo);
+    box(kx + u, ky + u * 4, kw - u * 2, kh - u * 5, kWood);
+    const int fcx = kx + kw / 2, fcy = ky + u * 8, fr = u * 4;
+    for (int dy = -fr; dy <= fr; dy += u) {
+      for (int dx = -fr; dx <= fr; dx += u) {
+        if (dx * dx + dy * dy <= fr * fr) box(fcx + dx - u / 2, fcy + dy - u / 2, u, u, kWax);
+      }
+    }
+    const double minutes = std::fmod(t / 60.0, 60.0) / 60.0;
+    for (int hand = 0; hand < 2; ++hand) {
+      const double a = (hand ? minutes : 10.0 / 12.0 + minutes / 12.0) * 6.283185307 - 1.5707963;
+      const int len = hand ? fr - u : fr / 2;
+      for (int s = 0; s <= len; s += std::max(1, u / 2)) {
+        box(fcx + static_cast<int>(std::cos(a) * s), fcy + static_cast<int>(std::sin(a) * s),
+            std::max(1, u / 2 + 1), std::max(1, u / 2 + 1), SDL_Color {30, 22, 18, 255});
+      }
+    }
   }
 
-  // Sconces, one each side, each throwing its own pool of light.
+  // Sconces on the chimney breast, each side of the painting.
   for (int side = 0; side < 2; ++side) {
-    const int lx = side ? (openX + openW + jamb + (W - openX - openW) / 3)
-                        : (openX - jamb - openX / 3);
-    const int ly = std::max(6, mantelY - H / 7);
-    if (lx < 8 || lx > W - 8) {
-      continue;
-    }
-    const double flick = 0.78 + 0.22 * std::sin(t * 6.1 + side * 2.0);
-    // Bracket, then the lantern, sized off the raster so it reads at any size.
-    const int sw = std::max(7, W / 52);
-    fillPixelRect(frame, lx - 1, ly, 3, H / 9, SDL_Color {36, 28, 22, 255});
-    fillPixelRect(frame, lx - sw / 2 - 1, ly - sw, sw + 2, sw + 2,
-                  SDL_Color {52, 40, 28, 255});
-    fillPixelRect(frame, lx - sw / 2, ly - sw + 1, sw, sw,
-                  SDL_Color {static_cast<Uint8>(250 * flick),
-                             static_cast<Uint8>(198 * flick),
-                             static_cast<Uint8>(108 * flick), 255});
-    fillPixelRect(frame, lx - sw / 2 - 2, ly - sw - 1, sw + 4, 2, kGold);
-    fillPixelRect(frame, lx - 2, ly - sw - 4, 5, 3, SDL_Color {40, 32, 24, 255});
-
-    const int gr = std::max(10, W / 9);
+    const int lx = side ? cbX + cbW * 86 / 100 : cbX + cbW * 14 / 100;
+    const int ly = std::max(u * 8, mantelY - H * 15 / 100);
+    const double flick = 0.8 + 0.2 * std::sin(t * 6.1 + side * 2.0);
+    const int sw = std::max(u * 3, W / 70);
+    box(lx - u, ly, u * 2, H / 16, SDL_Color {40, 30, 22, 255});
+    box(lx - sw / 2 - u, ly - sw, sw + u * 2, sw + u * 2, SDL_Color {52, 40, 28, 255});
+    box(lx - sw / 2, ly - sw + u, sw, sw,
+        SDL_Color {static_cast<Uint8>(250 * flick), static_cast<Uint8>(198 * flick), static_cast<Uint8>(108 * flick), 255});
+    box(lx - sw / 2 - u * 2, ly - sw - u, sw + u * 4, u * 2, kGold);
+    const int gr = std::max(10, W / 10);
     const int sy0 = std::max(0, ly - gr);
     const int sy1 = std::min(H, ly + gr);
     deckboy::effects::detail::parallelRows(std::max(0, sy1 - sy0), gr * 2 * 4, [&](int r0, int r1) {
-    for (int y = sy0 + r0; y < sy0 + r1; ++y) {
-      for (int x = std::max(0, lx - gr); x < std::min(W, lx + gr); ++x) {
-        const double ddx = static_cast<double>(x - lx) / gr;
-        const double ddy = static_cast<double>(y - ly) / gr;
-        const double dd = ddx * ddx + ddy * ddy;
-        if (dd >= 1.0 || insideOpening(x, y)) {
-          continue;
+      for (int y = sy0 + r0; y < sy0 + r1; ++y) {
+        for (int x = std::max(0, lx - gr); x < std::min(W, lx + gr); ++x) {
+          const double ddx = static_cast<double>(x - lx) / gr;
+          const double ddy = static_cast<double>(y - ly) / gr;
+          const double dd = ddx * ddx + ddy * ddy;
+          if (dd >= 1.0) continue;
+          const double g = (1.0 - dd) * (1.0 - dd) * 0.45 * flick;
+          const std::size_t i = static_cast<std::size_t>(y) * stride + static_cast<std::size_t>(x) * 4;
+          writePixel(frame, x, y, SDL_Color {
+            static_cast<Uint8>(std::min(255.0, frame.pixels[i + 0] + 110.0 * g)),
+            static_cast<Uint8>(std::min(255.0, frame.pixels[i + 1] + 70.0 * g)),
+            static_cast<Uint8>(std::min(255.0, frame.pixels[i + 2] + 30.0 * g)), 255});
         }
-        const double g = (1.0 - dd) * (1.0 - dd) * 0.5 * flick;
-        const std::size_t i2 = static_cast<std::size_t>(y) * stride +
-                               static_cast<std::size_t>(x) * 4;
-        if (i2 + 2 >= frame.pixels.size()) {
-          continue;
-        }
-        writePixel(frame, x, y, SDL_Color {
-          static_cast<Uint8>(std::min(255.0, frame.pixels[i2 + 0] + 120.0 * g)),
-          static_cast<Uint8>(std::min(255.0, frame.pixels[i2 + 1] +  76.0 * g)),
-          static_cast<Uint8>(std::min(255.0, frame.pixels[i2 + 2] +  34.0 * g)),
-          255});
       }
-    }
     });
   }
 
-  // Hearth slab, then a vignette so the corners fall away into the room.
-  fillPixelRect(frame, mantelX, openY + openH, mantelW, std::max(3, H / 40), kStoneD);
-  fillPixelRect(frame, mantelX, openY + openH, mantelW, 1, kStoneM);
-  deckboy::effects::detail::parallelRows(H, W * 4, [&](int r0, int r1) {
-  for (int y = r0; y < r1; ++y) {
-    for (int x = 0; x < W; ++x) {
-      const double ddx = (x - W * 0.5) / (W * 0.5);
-      const double ddy = (y - H * 0.5) / (H * 0.5);
-      const double dd = ddx * ddx + ddy * ddy;
-      if (dd <= 0.55) {
-        continue;
+  // ── THE FLOOR'S FURNITURE ──────────────────────────────────────────────
+  //
+  // A rug in front of the hearth, an armchair turned to the fire and a
+  // basket of logs: the things that make it a room somebody sits in.
+  {
+    const int rcx = W / 2;
+    const int rcy = floorY + (H - floorY) * 62 / 100;
+    const int rx = W * 23 / 100;
+    const int ry = std::max(u * 6, (H - floorY) * 34 / 100);
+    const SDL_Color kRugEdge {54, 18, 20, 255};
+    const SDL_Color kRugBand {118, 78, 38, 255};
+    const SDL_Color kRugMid  {86, 26, 26, 255};
+    const SDL_Color kRugHeart{128, 92, 46, 255};
+    for (int y = rcy - ry; y <= rcy + ry; y += u) {
+      for (int x = rcx - rx; x <= rcx + rx; x += u) {
+        const double ex = static_cast<double>(x - rcx) / rx;
+        const double ey = static_cast<double>(y - rcy) / ry;
+        const double d = std::sqrt(ex * ex + ey * ey);
+        if (d > 1.0) continue;
+        SDL_Color c = d > 0.9 ? kRugEdge : d > 0.8 ? kRugBand : d > 0.3 ? kRugMid : kRugHeart;
+        // A diamond pattern in the field.
+        if (d > 0.36 && d < 0.76) {
+          const int px = (x - rcx) / (u * 6), py = (y - rcy) / (u * 3);
+          if (((px + py) & 3) == 0) c = kRugBand;
+        }
+        box(x, y, u, u, c);
       }
-      const double v = std::min(1.0, dd - 0.55) * 0.55;
-      const std::size_t i3 = static_cast<std::size_t>(y) * stride +
-                             static_cast<std::size_t>(x) * 4;
-      if (i3 + 2 >= frame.pixels.size()) {
-        continue;
-      }
-      writePixel(frame, x, y, SDL_Color {
-        static_cast<Uint8>(frame.pixels[i3 + 0] * (1.0 - v)),
-        static_cast<Uint8>(frame.pixels[i3 + 1] * (1.0 - v)),
-        static_cast<Uint8>(frame.pixels[i3 + 2] * (1.0 - v)),
-        255});
     }
   }
-  });
+  {
+    // The armchair, on the right, angled towards the fire.
+    const SDL_Color kVel   {58, 70, 50, 255};
+    const SDL_Color kVelHi {84, 96, 66, 255};
+    const SDL_Color kVelLo {34, 42, 30, 255};
+    const SDL_Color kLeg   {40, 24, 14, 255};
+    const int cw = W * 14 / 100;
+    const int cx = W * 80 / 100;
+    const int feet = floorY + (H - floorY) * 45 / 100;
+    const int seatY = feet - H * 12 / 100;
+    const int backTop = seatY - H * 20 / 100;
+    box(cx + cw * 15 / 100, backTop + u * 4, cw * 70 / 100, seatY - backTop, kVel);        // the back
+    box(cx + cw * 15 / 100 + u * 2, backTop, cw * 70 / 100 - u * 4, u * 4, kVel);
+    box(cx + cw * 15 / 100, backTop + u * 4, u * 3, seatY - backTop, kVelHi);             // lit side
+    for (int b = 0; b < 3; ++b) {                                                             // buttons
+      box(cx + cw * (30 + b * 20) / 100, backTop + (seatY - backTop) / 3, u * 2, u * 2, kVelLo);
+    }
+    box(cx, seatY - u * 4, cw, feet - seatY - u * 2, kVel);                                 // the seat
+    box(cx, seatY - u * 4, cw, u * 3, kVelHi);
+    box(cx - u * 2, seatY - H * 7 / 100, cw * 20 / 100, feet - seatY + H * 7 / 100 - u * 4, kVelHi);  // arms
+    box(cx + cw - cw * 18 / 100 + u * 2, seatY - H * 7 / 100, cw * 18 / 100, feet - seatY + H * 7 / 100 - u * 4, kVelLo);
+    box(cx + u * 2, feet - u * 3, u * 3, u * 5, kLeg);
+    box(cx + cw - u * 4, feet - u * 3, u * 3, u * 5, kLeg);
+  }
+  {
+    // The log basket, on the left.
+    const SDL_Color kWicker  {120, 84, 44, 255};
+    const SDL_Color kWickerLo{84, 56, 28, 255};
+    const int bw = W * 9 / 100;
+    const int bx = W * 13 / 100;
+    const int bBot = floorY + (H - floorY) * 40 / 100;
+    const int bTop = bBot - H * 8 / 100;
+    // Log ends poking out of the top.
+    for (int i = 0; i < 4; ++i) {
+      const int lx = bx + u * 2 + i * (bw - u * 4) / 4;
+      const int ly = bTop - u * 5 + (i % 2) * u * 2;
+      box(lx, ly, u * 7, u * 7, SDL_Color {150, 104, 64, 255});
+      box(lx + u * 2, ly + u * 2, u * 3, u * 3, SDL_Color {112, 74, 44, 255});
+    }
+    box(bx, bTop, bw, bBot - bTop, kWicker);
+    for (int y = bTop + u; y < bBot; y += u * 3) box(bx, y, bw, u, kWickerLo);   // the weave
+    for (int x = bx + u * 3; x < bx + bw; x += u * 6) box(x, bTop, u, bBot - bTop, kWickerLo);
+  }
+
+  // ── FIRELIGHT ──────────────────────────────────────────────────────────
+  //
+  // One warm light from the fire over the whole room, breathing with it, so
+  // the wall, the floor, the rug and the chair flicker together. Wider than
+  // tall, because the fire sits low and lights the floor.
+  {
+    const int fx = openX + openW / 2;
+    const int fy = floorY - openH / 6;
+    const double rx = W * 0.62, ry = H * 0.75;
+    const double lift = 0.30 + 0.32 * breath;
+    deckboy::effects::detail::parallelRows(H, W * 4, [&](int r0, int r1) {
+      for (int y = r0; y < r1; ++y) {
+        for (int x = 0; x < W; ++x) {
+          // A vignette in the same pass, so the corners fall away into the
+          // room: one walk over the frame instead of two.
+          const double vx = (x - W * 0.5) / (W * 0.5);
+          const double vy = (y - H * 0.55) / (H * 0.55);
+          const double vd = vx * vx + vy * vy;
+          const double keep = vd <= 0.6 ? 1.0 : 1.0 - std::min(1.0, vd - 0.6) * 0.6;
+          const double ddx = (x - fx) / rx;
+          const double ddy = (y - fy) / ry;
+          const double d = ddx * ddx + ddy * ddy;
+          if ((d >= 1.0 || insideOpening(x, y)) && keep >= 1.0) continue;
+          const double f = (d >= 1.0 || insideOpening(x, y)) ? 0.0 : (1.0 - d) * (1.0 - d) * lift;
+          const std::size_t i = static_cast<std::size_t>(y) * stride + static_cast<std::size_t>(x) * 4;
+          // Warm the colour that is there, rather than adding a flat orange:
+          // dark stays dark, and a lit board looks lit, not painted over.
+          writePixel(frame, x, y, SDL_Color {
+            static_cast<Uint8>(std::min(255.0, (frame.pixels[i + 0] * (1.0 + 0.95 * f) + 34.0 * f) * keep)),
+            static_cast<Uint8>(std::min(255.0, (frame.pixels[i + 1] * (1.0 + 0.5 * f) + 12.0 * f) * keep)),
+            static_cast<Uint8>(std::min(255.0, frame.pixels[i + 2] * (1.0 + 0.2 * f) * keep)), 255});
+        }
+      }
+    });
+  }
+
+  // ---- Sparks -------------------------------------------------------------
+  //
+  // Stateless on purpose: an ember's whole life is a function of its index and
+  // the clock, so there is no particle list to own, grow, or keep in step with
+  // a resized raster. They rise from the logs, and the arch stops them: a
+  // spark goes up the chimney, not through the brick.
+  for (int i = 0; i < sparks; ++i) {
+    const std::uint32_t sh = static_cast<std::uint32_t>(i + 1) * 2654435761u;
+    const double life = 1.4 + ((sh >> 3) % 100u) / 100.0 * 1.8;   // 1.4-3.2s
+    const double birth = ((sh >> 11) % 1000u) / 1000.0 * life;
+    const double age = std::fmod(t + birth, life);
+    const double k = age / life;
+    if (k > 0.98) continue;
+    const double rise = 1.0 - (1.0 - k) * (1.0 - k);
+    const double sway = std::sin(t * 1.9 + i * 1.7) * (6.0 + (sh % 9u)) * u * 0.5;
+    const double sx = openX + openW * (0.30 + ((sh >> 17) % 40u) / 100.0) + sway * k;
+    const double sy = (floorY - openH * 0.16) - rise * (openH * 0.9);
+    if (!insideOpening(static_cast<int>(sx), static_cast<int>(sy))) continue;
+    const double heatK = 1.0 - k;
+    const SDL_Color sc = (heatK > 0.66) ? SDL_Color {255, 236, 176, 255}
+                       : (heatK > 0.33) ? SDL_Color {250, 158, 52, 255}
+                                        : SDL_Color {168, 52, 18, 255};
+    const int size = std::max(1, u / 2) * ((k < 0.5 && (sh % 5u) == 0) ? 2 : 1);
+    box(static_cast<int>(sx), static_cast<int>(sy), size, size, sc);
+  }
+
 }
 
 void MediaEngine::buildTestClock(DecodedFrame& frame, double t) {
