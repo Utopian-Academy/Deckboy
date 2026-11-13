@@ -97,6 +97,9 @@ def main():
     parser.add_argument("--seconds", type=float, default=20.0)
     parser.add_argument("--port", type=int, default=5602)
     parser.add_argument("--keep", action="store_true", help="keep the recording")
+    parser.add_argument("--pre", action="append", default=[], metavar="COMMAND",
+                        help="a remote command sent before the test; for a quiet run, route the sound to an "
+                             "output nobody hears: --pre \"AUDIO Speakers (Steam Streaming Speakers)\"")
     args = parser.parse_args()
     if not args.exe and not args.analyze and not args.write_clip:
         parser.error("--exe is needed unless --analyze or --write-clip is given")
@@ -142,6 +145,8 @@ def main():
                 except OSError:
                     time.sleep(0.5)
             # Master volume must stay UP: the beep has to reach the recording.
+            for command in args.pre:
+                send(args.port, command)
             send(args.port, "OUTPUT ON")
             send(args.port, "RECFORMAT %s %s" % (raster, rate_text))
             send(args.port, "SELECT 1")
