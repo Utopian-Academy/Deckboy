@@ -3064,3 +3064,5 @@ MOTION ZONE: ADD x y w h, REMOVE n or CLEAR	MOTION ZONE: ADD x y w h, REMOVE n o
 mask off -- it is still in the show's library	mascara paga -- ainda den bibliotec di e show
 Stop masking this. The mask stays in the show's library, to put back from the menu above	Para di usa e mascara. E mascara ta keda den bibliotec di e show, pone bek for di e menu di ariba
 Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	Kita e mascara aki for di e show, i for di tur cue, playlist i output cu ta usa dje. Undo ta bolbe trese e bek
+FX PARAM: slot must be A-F	FX PARAM: slot mester ta A te F
+FX LFO: slot must be A-D, E for the amount, or F/G for the fifth and sixth sliders	FX LFO: slot mester ta A te D, E pa cantidad, of F/G pa e di cinco i di seis slider

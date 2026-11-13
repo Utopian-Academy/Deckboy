@@ -2505,12 +2505,23 @@ std::string serializeCueEffects(const std::vector<deckboy::effects::CueEffect>& 
     //
     // Semicolons between the LFOs and commas inside them: the colon and the
     // pipe are already spoken for one and two levels up.
-    const bool hasLfo = deckboy::effects::cueEffectStackHasLfo({fx});
+    // ITS OWN LFOs, bypassed or not. This asked cueEffectStackHasLfo, which
+    // skips a bypassed effect (right for running the stack, wrong here), so a
+    // bypassed effect lost its LFOs at every save -- while BYPASS promises to
+    // keep the settings. Found by the round-trip smoke test, 2026-11-13.
+    const bool hasLfo = std::any_of(std::begin(fx.lfo), std::end(fx.lfo),
+                                    [](const deckboy::effects::ParamLfo& l) { return l.on; });
     const bool hasColour = (fx.colour & 0xFFFFFF) != 0xFFFFFF;
-    if (hasLfo || hasColour) {
+    // E and F (and their LFOs) after the colour, when either is in use. A
+    // build that predates them stops at the colour; one that predates the
+    // colour ignores an empty field there.
+    const bool hasEF = fx.paramE != 0.0f || fx.paramF != 0.0f || fx.lfo[5].on || fx.lfo[6].on;
+    if (hasLfo || hasColour || hasEF) {
       one << ':';
       if (hasLfo) {
-        for (int i = 0; i < 5; ++i) {
+        // Seven when E or F carries one, five otherwise (as every show before them).
+        const int count = fx.lfo[5].on || fx.lfo[6].on ? 7 : 5;
+        for (int i = 0; i < count; ++i) {
           if (i) one << ';';
           writeParamLfo(one, fx.lfo[i]);
         }
@@ -2519,11 +2530,15 @@ std::string serializeCueEffects(const std::vector<deckboy::effects::CueEffect>& 
     // The picked colour after the LFOs, and only when it is not the white
     // every effect had before it. An empty LFO field before it reads as "no
     // oscillators" here and in every build that predates the colour.
-    if (hasColour) {
-      char hex[8];
-      std::snprintf(hex, sizeof(hex), "%06x", static_cast<unsigned>(fx.colour & 0xFFFFFF));
-      one << ':' << hex;
+    if (hasColour || hasEF) {
+      one << ':';
+      if (hasColour) {
+        char hex[8];
+        std::snprintf(hex, sizeof(hex), "%06x", static_cast<unsigned>(fx.colour & 0xFFFFFF));
+        one << hex;
+      }
     }
+    if (hasEF) one << ':' << fx.paramE << ':' << fx.paramF;
     out += one.str();
   }
   return out;
@@ -2563,7 +2578,7 @@ std::vector<deckboy::effects::CueEffect> parseCueEffects(const std::string& text
         // shows meant.
         if (parts.size() > 7 && !parts[7].empty()) {
           std::size_t at = 0;
-          for (int i = 0; i < 5 && at != std::string::npos; ++i) {
+          for (int i = 0; i < 7 && at != std::string::npos; ++i) {
             const std::size_t semi = parts[7].find(';', at);
             readParamLfo(parts[7].substr(
                            at, semi == std::string::npos ? std::string::npos : semi - at),
@@ -2574,6 +2589,8 @@ std::vector<deckboy::effects::CueEffect> parseCueEffects(const std::string& text
         if (parts.size() > 8 && parts[8].size() == 6) {
           fx.colour = static_cast<std::uint32_t>(std::strtoul(parts[8].c_str(), nullptr, 16)) & 0xFFFFFF;
         }
+        if (parts.size() > 9) fx.paramE = static_cast<float>(std::atof(parts[9].c_str()));
+        if (parts.size() > 10) fx.paramF = static_cast<float>(std::atof(parts[10].c_str()));
         stack.push_back(fx);
       }
     }
@@ -7351,6 +7368,15 @@ class App {
         default: break;
       }
     }
+    // Chladni's style by name, and the sand's grain in pixels.
+    if (fx.kind == deckboy::effects::CueEffectKind::Chladni) {
+      if (which == 4) {
+        return raw < 1.0f / 3.0f ? "original" : raw < 2.0f / 3.0f ? "sand" : "fluid";
+      }
+      if (which == 5 && deckboy::effects::chladniStyle(fx) == 1) {
+        return std::to_string(1 + static_cast<int>(std::lround(raw * 15.0f))) + " px";
+      }
+    }
     // The grading basics read in the units a levels tool uses, and curves'
     // channel says WHICH channel -- "30%" of a channel is not a channel.
     if (fx.kind == deckboy::effects::CueEffectKind::Curves && which == 1) {
@@ -7492,44 +7518,39 @@ class App {
       // not use one draws no row for it, so the inspector never shows a
       // control that cannot do anything -- and one that DOES use it is no
       // longer stuck at whatever the default happened to be.
-      for (int which = 0; which < 4; ++which) {
+      for (int which = 0; which < deckboy::effects::kCueEffectParamSlots; ++which) {
         const char* paramLabel =
-          deckboy::effects::cueEffectParamLabel(fx.kind, which);
+          deckboy::effects::cueEffectParamLabelFor(fx, which);
         if (!paramLabel) {
           continue;
         }
-        const float rawParam = which == 0 ? fx.paramA : which == 1 ? fx.paramB
-                             : which == 2 ? fx.paramC : fx.paramD;
+        static constexpr QuickAction kDec[6] = {QuickAction::EffectParamADec, QuickAction::EffectParamBDec,
+          QuickAction::EffectParamCDec, QuickAction::EffectParamDDec, QuickAction::EffectParamEDec,
+          QuickAction::EffectParamFDec};
+        static constexpr QuickAction kInc[6] = {QuickAction::EffectParamAInc, QuickAction::EffectParamBInc,
+          QuickAction::EffectParamCInc, QuickAction::EffectParamDInc, QuickAction::EffectParamEInc,
+          QuickAction::EffectParamFInc};
+        static constexpr QuickAction kEdit[6] = {QuickAction::EffectParamAEdit, QuickAction::EffectParamBEdit,
+          QuickAction::EffectParamCEdit, QuickAction::EffectParamDEdit, QuickAction::EffectParamEEdit,
+          QuickAction::EffectParamFEdit};
+        const int lfoSlot = deckboy::effects::cueEffectLfoIndex(which);
+        const float rawParam = deckboy::effects::cueEffectParam(fx, which);
         const std::string paramText =
           inspEffectParamValueText(cue, fx, which, rawParam);
         const std::optional<std::uint32_t> chip = effectChipColour(fx, which);
-        inspDrawQuickRow(ix, rowY, paramLabel,
-                         which == 0 ? QuickAction::EffectParamADec
-                         : which == 1 ? QuickAction::EffectParamBDec
-                         : which == 2 ? QuickAction::EffectParamCDec
-                                      : QuickAction::EffectParamDDec,
-                         paramText,
-                         which == 0 ? QuickAction::EffectParamAInc
-                         : which == 1 ? QuickAction::EffectParamBInc
-                         : which == 2 ? QuickAction::EffectParamCInc
-                                      : QuickAction::EffectParamDInc,
+        inspDrawQuickRow(ix, rowY, paramLabel, kDec[which], paramText, kInc[which],
                          QuickAction::ToggleLoop, false, false,
-                         deckboy::effects::cueEffectParamTip(fx.kind, which),
-                         true,
-                         which == 0 ? QuickAction::EffectParamAEdit
-                         : which == 1 ? QuickAction::EffectParamBEdit
-                         : which == 2 ? QuickAction::EffectParamCEdit
-                                      : QuickAction::EffectParamDEdit,
-                         i,
-                         QuickAction::EffectLfoToggle, fx.lfo[which].on,
-                         i * 8 + which, "~",
+                         deckboy::effects::cueEffectParamTipFor(fx, which),
+                         true, kEdit[which], i,
+                         QuickAction::EffectLfoToggle, fx.lfo[lfoSlot].on,
+                         i * 8 + lfoSlot, "~",
                          "Hand this parameter to an oscillator so it moves on "
                          "its own",
                          chip ? QuickAction::EffectColourPick : QuickAction::ToggleLoop,
                          chip ? sdlColourOf(*chip) : SDL_Color {}, i * 8 + which,
                          colourPicker_.open && colourPicker_.effect == i && colourPicker_.slot == which);
         rowY += ix.rowStep;
-        rowY = inspDrawLfoRow(ix, rowY, fx, which, i);
+        rowY = inspDrawLfoRow(ix, rowY, fx, lfoSlot, i);
       }
       // Chladni can LISTEN: its mode follows the sound's pitch.
       if (fx.kind == deckboy::effects::CueEffectKind::Chladni) {

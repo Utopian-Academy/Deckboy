@@ -3118,3 +3118,5 @@ unsaved changes will be lost: press new again	ستفقد التغييرات غي
 zones cleared: Motion reads the whole picture	تم مسح المناطق: حركة تقرأ الصورة كاملة
 Stop masking this. The mask stays in the show's library, to put back from the menu above	أوقف إخفاء هذا القناع. يبقى القناع في مكتبة العرض، لإعادته من القائمة أعلاه
 Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	احذف هذا القناع من العرض ومن كل كيو وقائمة تشغيل وخرج يستخدمه. يعيده التراجع
+FX PARAM: slot must be A-F	FX PARAM: يجب أن تكون الخانة من A إلى F
+FX LFO: slot must be A-D, E for the amount, or F/G for the fifth and sixth sliders	FX LFO: يجب أن تكون الخانة من A إلى D، أو E للمقدار، أو F/G للمنزلقين الخامس والسادس

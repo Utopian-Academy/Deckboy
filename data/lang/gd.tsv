@@ -3104,3 +3104,5 @@ unsaved changes will be lost: press new again	caillear atharraichean gun sàbhal
 zones cleared: Motion reads the whole picture	raointean air an glanadh: leughaidh Gluasad an dealbh gu lèir
 Stop masking this. The mask stays in the show's library, to put back from the menu above	Sguir de mhasgadh seo. Fuirichidh am masg ann an leabharlann an taisbeanaidh, airson a chur air ais on chlàr gu h-àrd
 Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	Sguab às am masg seo on taisbeanadh, agus o gach cue, liosta is às-chur a tha ga chleachdadh. Bheir neo-dhèanamh air ais e
+FX PARAM: slot must be A-F	FX PARAM: feumaidh an slot a bhith A-F
+FX LFO: slot must be A-D, E for the amount, or F/G for the fifth and sixth sliders	FX LFO: feumaidh an slot a bhith A-D, E airson an uiread, no F/G airson a' chòigeamh agus an t-siathamh sleamhnag

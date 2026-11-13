@@ -3100,3 +3100,5 @@ unsaved changes will be lost: press new again	los cambios sin guardar se perder�
 zones cleared: Motion reads the whole picture	zonas limpiadas: Movimiento lee toda la imagen
 Stop masking this. The mask stays in the show's library, to put back from the menu above	Dejar de enmascarar esto. La máscara sigue en la biblioteca del show, para volver a ponerla desde el menú de arriba
 Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	Borrar esta máscara del show, y de todos los cues, listas y salidas que la usan. Deshacer la recupera
+FX PARAM: slot must be A-F	FX PARAM: la ranura debe ser A-F
+FX LFO: slot must be A-D, E for the amount, or F/G for the fifth and sixth sliders	FX LFO: la ranura debe ser A-D, E para la cantidad, o F/G para los sliders quinto y sexto

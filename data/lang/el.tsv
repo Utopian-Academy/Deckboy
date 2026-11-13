@@ -3099,3 +3099,5 @@ unsaved changes will be lost: press new again	οι μη αποθηκευμένε
 zones cleared: Motion reads the whole picture	οι ζώνες καθαρίστηκαν: η κίνηση διαβάζει όλη την εικόνα
 Stop masking this. The mask stays in the show's library, to put back from the menu above	Σταμάτα τη μάσκα. Η μάσκα μένει στη βιβλιοθήκη της παράστασης και τη βάζεις πίσω από το μενού παραπάνω
 Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	Διαγραφή αυτής της μάσκας από την παράσταση και από κάθε cue, playlist και έξοδο που τη χρησιμοποιεί. Η αναίρεση την επαναφέρει
+FX PARAM: slot must be A-F	FX PARAM: το slot πρέπει να είναι A-F
+FX LFO: slot must be A-D, E for the amount, or F/G for the fifth and sixth sliders	FX LFO: το slot πρέπει να είναι A-D, E για την ποσότητα ή F/G για το πέμπτο και το έκτο slider

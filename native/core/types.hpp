@@ -3807,7 +3807,14 @@ enum class QuickAction {
   DrawUndoStroke,
   DrawSaveStill,
   DrawSaveAnimation,
-  CueSectionDrawToggle
+  CueSectionDrawToggle,
+  // An effect's fifth and sixth sliders (CueEffect::paramE / paramF).
+  EffectParamEDec,
+  EffectParamEInc,
+  EffectParamEEdit,
+  EffectParamFDec,
+  EffectParamFInc,
+  EffectParamFEdit
 };
 
 // ---------------------------------------------------------------------------

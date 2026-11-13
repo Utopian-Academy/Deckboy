@@ -6006,8 +6006,8 @@
           return;
         }
         const std::string slotName = toUpper(parts[3]);
-        if (slotName.size() != 1 || slotName[0] < 'A' || slotName[0] > 'D') {
-          failRemoteCommand("FX PARAM: slot must be A, B, C or D");
+        if (slotName.size() != 1 || slotName[0] < 'A' || slotName[0] > 'F') {
+          failRemoteCommand("FX PARAM: slot must be A-F");
           return;
         }
         const int slot = slotName[0] - 'A';
@@ -6022,26 +6022,26 @@
         }
         // Named here too, so a script gets told when it is setting a slot the
         // effect does not use rather than writing into nothing.
-        if (!deckboy::effects::cueEffectParamLabel(fx.kind, slot)) {
+        if (!deckboy::effects::cueEffectParamLabelFor(fx, slot)) {
           failRemoteCommand(std::string("FX PARAM: ") +
                             deckboy::effects::cueEffectToken(fx.kind) +
                             " has no " + slotName + " parameter");
           return;
         }
         const bool wasNeeded = cueNeedsCpuPixelPath(*cue);
-        float* slots[4] = {&fx.paramA, &fx.paramB, &fx.paramC, &fx.paramD};
-        *slots[slot] = static_cast<float>(value);
+        float& target = deckboy::effects::cueEffectParam(fx, slot);
+        target = static_cast<float>(value);
         markProjectDirty();
         refreshLiveCueIfPixelPathChanged(wasNeeded);
         // The SAME words the inspector shows. This echoed the raw 0-1 it had
         // just been handed, which tells the operator what they typed rather
         // than what it did: "glyph set 0.40" instead of "glyph set symbols".
         const std::string shown =
-          inspEffectParamValueText(*cue, fx, slot, *slots[slot]);
-        triggerToast(std::string(deckboy::effects::cueEffectParamLabel(fx.kind, slot)) +
+          inspEffectParamValueText(*cue, fx, slot, target);
+        triggerToast(std::string(deckboy::effects::cueEffectParamLabelFor(fx, slot)) +
                      " " + shown);
         remoteCommandDetail_ =
-          std::string(deckboy::effects::cueEffectParamLabel(fx.kind, slot)) + " = " + shown;
+          std::string(deckboy::effects::cueEffectParamLabelFor(fx, slot)) + " = " + shown;
         return;
       }
       // COLOUR <n> [A-D] <#rrggbb> -- what the inspector's colour chips set.
@@ -6106,8 +6106,10 @@
           return;
         }
         const std::string slotName = toUpper(parts[3]);
-        if (slotName.size() != 1 || slotName[0] < 'A' || slotName[0] > 'E') {
-          failRemoteCommand("FX LFO: slot must be A-D, or E for the amount");
+        // The LFO's own letter: A-D, E the amount, F and G the fifth and sixth
+        // sliders (E stayed the amount so every script that used it still does).
+        if (slotName.size() != 1 || slotName[0] < 'A' || slotName[0] > 'G') {
+          failRemoteCommand("FX LFO: slot must be A-D, E for the amount, or F/G for the fifth and sixth sliders");
           return;
         }
         auto& lfo = cue->effects[idx].lfo[slotName[0] - 'A'];
@@ -6117,7 +6119,7 @@
         return;
       }
       failRemoteCommand("FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | "
-                        "PARAM <n> <A-D> <0-1> | LFO <n> <A-E> ... | "
+                        "PARAM <n> <A-F> <0-1> | LFO <n> <A-G> ... | "
                         "COPY | PASTE | CLEAR");
       return;
     }

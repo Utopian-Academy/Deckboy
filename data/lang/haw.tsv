@@ -3036,3 +3036,5 @@ MOTION ZONE: ADD x y w h, REMOVE n or CLEAR	MOTION ZONE: ADD x y w h, REMOVE n a
 mask off -- it is still in the show's library	uhi pio -- aia nō ia ma ka waihona o ka hōʻike
 Stop masking this. The mask stays in the show's library, to put back from the menu above	Hoʻōki i ka uhi ʻana i kēia. Noho ka uhi ma ka waihona o ka hōʻike, e hoʻihoʻi mai ka papa kuhikuhi ma luna
 Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	Holoi i kēia uhi mai ka hōʻike, a mai kēlā me kēia cue, papa helu a me puka e hoʻohana ana iā ia. Hoʻihoʻi mai ʻo Undo ia mea
+FX PARAM: slot must be A-F	FX PARAM: pono ke kahua he A a i F
+FX LFO: slot must be A-D, E for the amount, or F/G for the fifth and sixth sliders	FX LFO: pono ke kahua he A a D, E no ka nui, a i ʻole F/G no ka ʻelima a me ka ʻeono o nā slider

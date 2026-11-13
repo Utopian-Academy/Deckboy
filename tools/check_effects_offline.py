@@ -100,7 +100,10 @@ EFFECTS = [
 # Feedback bloom is the same argument as feedback: the first pass is the
 # picture with a faint tinted copy on it, and the hue walk and the melt
 # only exist once the loop has gone round enough times to compound.
-PASSES = {"feedback": 12, "feedback_bloom": 12, "scotopic": 6}
+PASSES = {"feedback": 12, "feedback_bloom": 12, "scotopic": 6,
+          # Chladni's Sand and Fluid carry the plate from frame to frame; a
+          # control's effect builds up over the frames, as it does on stage.
+          "chladni@sand": 30, "chladni@fluid": 30}
 
 # Effects that look different from one frame to the next on an unchanging
 # picture -- mirroring cueEffectKindAnimates in cue_effects.hpp, which the
@@ -189,7 +192,12 @@ PARAM_SLOTS = {
     "motion_trails":   ["sensitivity", "let go", "blocks", "trail"],
     "stereogram":      ["depth", "repeat width", "colour", "dots move"],
     "schlieren":       ["knife angle", "sensitivity", "colour"],
-    "chladni":         ["mode", "second mode", "gather", "line glow"],
+    "chladni":         ["mode", "second mode", "gather", "line glow", "style"],
+    # The same effect in its other two styles (slot E picks one; see
+    # chladniStyle). A key "token@variant" dumps "token" from its PARAM_BASE
+    # row; None is a slot the style does not use.
+    "chladni@sand":    ["mode", "second mode", "flow", "shake", None, "grain"],
+    "chladni@fluid":   ["mode", "second mode", "wave height", "light", None, "settle"],
     "wavefront":       ["stiffness", "steps", "damping", "relief"],
     "crystallise":     ["grain size", "facet light", "irregularity", "edges"],
     "scotopic":        ["colour lag", "rod bias", "purkinje"],
@@ -203,7 +211,7 @@ PARAM_SLOTS = {
 
 # What a show saved before a parameter existed carries, and what it must still
 # mean. Moving one of these breaks every show that already used the effect.
-NEUTRAL = [0.5, 0.0, 0.0, 0.0]
+NEUTRAL = [0.5, 0.0, 0.0, 0.0, 0.0, 0.0]
 
 # Where a parameter can only do anything once ANOTHER one is engaged, the check
 # starts from here instead of from neutral.
@@ -234,6 +242,10 @@ PARAM_BASE = {
     # report a working control dead. Engage the feedback and the smear is what
     # decides how far the damage drags.
     "databend": [0.5, 0.6, 0.0, 0.0],
+    # Sand and Fluid are chosen by slot E. Grain starts at 0.3 (5 px) so
+    # moving it has whole grains to change; settle starts at 0.4.
+    "chladni@sand": [0.25, 0.5, 0.5, 0.5, 0.5, 0.3],
+    "chladni@fluid": [0.25, 0.5, 0.5, 0.5, 0.9, 0.4],
 }
 
 # Parameters whose whole subject is what happens BETWEEN frames, on a picture
@@ -245,7 +257,7 @@ PARAM_BASE = {
 TEMPORAL_PARAMS = {
     ("scotopic", "colour lag"),
 }
-MOVED = [0.9, 0.8, 0.8, 0.8]
+MOVED = [0.9, 0.8, 0.8, 0.8, 0.5, 0.8]
 
 # Neither is a pixel operation, so neither can be dumped. Datamosh happens at
 # the DECODER and motion puppet needs a driver clip's vectors.
@@ -298,11 +310,12 @@ def check_params(exe, src, base, work):
     """Every named parameter should change the picture, and the neutral
     position should leave it exactly as it was."""
     def base_for(token):
-        return list(PARAM_BASE.get(token, NEUTRAL))
+        return (list(PARAM_BASE.get(token, NEUTRAL)) + [0.0, 0.0])[:6]
 
     def render(token, params, frame=7):
         out = os.path.join(work, "param.ppm")
-        spec = "%s:0.9:%g:%g:%g:%g" % ((token,) + tuple(params))
+        # Slots E and F come after the colour, which stays empty here.
+        spec = "%s:0.9:%g:%g:%g:%g::%g:%g" % ((token.split("@")[0],) + tuple(params))
         subprocess.run([exe, "--effect-dump", spec, src, out, str(frame),
                         str(PASSES.get(token, 1))], capture_output=True)
         return raster(out) if os.path.exists(out) else b""
@@ -326,13 +339,20 @@ def check_params(exe, src, base, work):
             dead += 1
             continue
         for slot, name in enumerate(names):
+            if name is None:
+                continue
             if (token, name) in TEMPORAL_PARAMS:
                 print("%-16s %-15s %-6s %s"
                       % (token, name, "n/a",
                          "only shows on a picture that is changing"))
                 continue
             params = base_for(token)
-            params[slot] = MOVED[slot]
+            # A real move: where the start already sits near MOVED (scotopic
+            # starts rod bias at 0.85), go the other way instead.
+            if abs(MOVED[slot] - params[slot]) >= 0.25:
+                params[slot] = MOVED[slot]
+            else:
+                params[slot] = 0.1 if params[slot] > 0.5 else 0.9
             # A parameter on an effect that moves with the frame index has to
             # be compared at more than one frame. Edge ignite's flicker is an
             # OSCILLATION, and frame 7 -- the single frame this check used to
@@ -368,7 +388,7 @@ def check_params(exe, src, base, work):
     for token in COLOUR_EFFECTS:
         def coloured(colour, frame):
             out = os.path.join(work, "param.ppm")
-            spec = "%s:0.9:%g:%g:%g:%g:%s" % ((token,) + tuple(base_for(token)) + (colour,))
+            spec = "%s:0.9:%g:%g:%g:%g:%s" % ((token,) + tuple(base_for(token)[:4]) + (colour,))
             subprocess.run([exe, "--effect-dump", spec, src, out, str(frame)],
                            capture_output=True)
             return raster(out) if os.path.exists(out) else b""

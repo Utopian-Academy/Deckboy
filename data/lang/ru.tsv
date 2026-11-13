@@ -3073,3 +3073,5 @@ MOTION ZONE: ADD x y w h, REMOVE n or CLEAR	MOTION ZONE: ADD x y w h, REMOVE n �
 mask off -- it is still in the show's library	маска выкл -- она всё ещё в библиотеке шоу
 Stop masking this. The mask stays in the show's library, to put back from the menu above	Прекратить маскирование. Маска остаётся в библиотеке шоу, вернуть её можно из меню выше
 Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	Удалить эту маску из шоу и из каждого cue, плейлиста и выхода, где она используется. Отмена вернёт её
+FX PARAM: slot must be A-F	FX PARAM: слот должен быть A-F
+FX LFO: slot must be A-D, E for the amount, or F/G for the fifth and sixth sliders	FX LFO: слот должен быть A-D, E для силы или F/G для пятого и шестого ползунков

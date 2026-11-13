@@ -4,6 +4,9 @@
 
 ### Effects
 - New effect: **Stereogram**. It turns any cue into a random-dot stereogram that shows the picture in 3D when you look through the screen. Bright parts come forward. A video or a camera becomes moving 3D; a Text cue becomes a hidden message. Controls: depth, repeat width, colour and dots move, each with an LFO. It runs on the graphics card, so a 4K video with it stays at 60 fps; without a graphics card that can run it, it costs about 1.2 ms a 1080p frame and 4 ms at 4K on the processor.
+- **Chladni** has three styles. **Original** is the effect as before. **Sand** is real sand: each grain keeps the colour of the picture where it started, runs to the still lines and shakes where the plate moves. Change the note and the sand pours into the new figure. A grain slider sets the grain size from 1 to 16 pixels, so the sand can be fine or blocky. **Fluid** puts the picture under water on the plate: waves ring in the plate's figure, bend the picture and focus the light. Settle sets how long the old waves last after the note changes.
+- Effects can have up to six controls. Each one has its own LFO, and Companion's FX PARAM accepts A to F (FX LFO accepts A to G, where E is the amount).
+- An effect that was bypassed kept its LFOs only until the show was saved. It keeps them now.
 
 ### Performance: effects on the graphics card
 - 25 picture effects now run on the GPU: invert, posterise, solarise, levels, curves, strobe, scanlines, threshold, colour, colour replace, vignette, grain, channel offset, mirror, luma key, edges, polar warp, luma displace, lightspeed, ripple, kaleidoscope, mosaic, blur, glow and sharpen.

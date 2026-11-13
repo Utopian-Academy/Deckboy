@@ -1056,7 +1056,7 @@ deckboy::effects::ParamLfo* effectLfoAt(int packed) {
   auto* stack = selectedEffectStack();
   const int index = packed / 8;
   const int slot = packed % 8;
-  if (!effectIndexValid(stack, index) || slot < 0 || slot > 4) {
+  if (!effectIndexValid(stack, index) || slot < 0 || slot > 6) {
     return nullptr;
   }
   return &(*stack)[index].lfo[slot];
@@ -1190,8 +1190,7 @@ void effectStackNudgeParam(int index, int which, float delta) {
     return;
   }
   auto& fx = (*stack)[index];
-  float& value = which == 0 ? fx.paramA : which == 1 ? fx.paramB
-               : which == 2 ? fx.paramC : fx.paramD;
+  float& value = deckboy::effects::cueEffectParam(fx, which);
   value = std::clamp(value + delta, 0.0f, 1.0f);
   markProjectDirty();
 }
@@ -1202,7 +1201,7 @@ void effectStackEditParam(int index, int which) {
     return;
   }
   const auto& fx = (*stack)[index];
-  const char* label = deckboy::effects::cueEffectParamLabel(fx.kind, which);
+  const char* label = deckboy::effects::cueEffectParamLabelFor(fx, which);
   if (!label) {
     return;   // this effect has no such parameter; nothing to type into
   }
@@ -1214,8 +1213,7 @@ void effectStackEditParam(int index, int which) {
   const bool percentUnits =
     !(fx.kind == deckboy::effects::CueEffectKind::TextMode &&
       (which == 0 || which == 2 || which == 3));
-  const float raw = which == 0 ? fx.paramA : which == 1 ? fx.paramB
-                  : which == 2 ? fx.paramC : fx.paramD;
+  const float raw = deckboy::effects::cueEffectParam(fx, which);
   std::ostringstream current;
   if (percentUnits) {
     current << static_cast<int>(std::lround(raw * 100.0f));
@@ -1224,7 +1222,8 @@ void effectStackEditParam(int index, int which) {
   }
   openInlineNumericExpressionEditor(
     which == 0 ? "cue.effect.paramA" : which == 1 ? "cue.effect.paramB"
-    : which == 2 ? "cue.effect.paramC" : "cue.effect.paramD", label,
+    : which == 2 ? "cue.effect.paramC" : which == 3 ? "cue.effect.paramD"
+    : which == 4 ? "cue.effect.paramE" : "cue.effect.paramF", label,
     percentUnits ? "0-100% (supports + - * / and ())"
                  : "0-1 (supports + - * / and ())",
     current.str(),
@@ -1234,8 +1233,7 @@ void effectStackEditParam(int index, int which) {
         return;   // the selection moved while the editor was open
       }
       auto& target = (*live)[index];
-      (which == 0 ? target.paramA : which == 1 ? target.paramB
-       : which == 2 ? target.paramC : target.paramD) =
+      deckboy::effects::cueEffectParam(target, which) =
         std::clamp(static_cast<float>(percentUnits ? value / 100.0 : value),
                    0.0f, 1.0f);
       markProjectDirty();

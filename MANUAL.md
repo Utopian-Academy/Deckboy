@@ -1667,6 +1667,20 @@ picture is the sand. The two mode numbers are the note: whole numbers give the
 clean classical figures, and between them the plate is being driven at a
 frequency it does not want.
 
+Chladni has three **styles**:
+
+- **Original** moves every pixel of the picture onto the lines.
+- **Sand** is real sand. Each grain keeps the colour of the picture where it
+  began, so a video plays on through the sand. Grains run to the still lines
+  and shake where the plate moves; where they pile up deep, the pile catches
+  the light. Change the note and the sand pours into the new figure. **Grain**
+  sets the grain size from 1 to 16 pixels: low is fine sand, high is blocky.
+  **Flow** is how fast the sand runs; **shake** is how hard the plate throws it.
+- **Fluid** puts the picture under water on the plate. The water rings in the
+  plate's figure, bends the picture and focuses the light. **Wave height**
+  sets the bend, **light** the brightness of the focused light, and
+  **settle** how long the old waves last after the note changes.
+
 **Wavefront** solves the actual wave equation, seeded from the picture's own
 brightness — so unlike every sine-based ripple it has *inertia*. Waves leave
 their source and keep going, pass through each other and interfere, and reflect

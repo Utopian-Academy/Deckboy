@@ -3066,3 +3066,5 @@ MOTION ZONE: ADD x y w h, REMOVE n or CLEAR	MOTION ZONE: ADD x y w h, REMOVE n l
 mask off -- it is still in the show's library	maska wył. -- nadal jest w bibliotece spektaklu
 Stop masking this. The mask stays in the show's library, to put back from the menu above	Przestań maskować. Maska zostaje w bibliotece spektaklu, można ją przywrócić z menu powyżej
 Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	Usuń tę maskę ze spektaklu i z każdego cue, playlisty i wyjścia, które jej używają. Cofnij przywraca ją
+FX PARAM: slot must be A-F	FX PARAM: slot musi być A-F
+FX LFO: slot must be A-D, E for the amount, or F/G for the fifth and sixth sliders	FX LFO: slot musi być A-D, E dla ilości albo F/G dla piątego i szóstego suwaka

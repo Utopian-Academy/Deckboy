@@ -3066,3 +3066,5 @@ MOTION ZONE: ADD x y w h, REMOVE n or CLEAR	MOTION ZONE: ADD x y w h, REMOVE n v
 mask off -- it is still in the show's library	maske kapalı -- hâlâ gösterinin kütüphanesinde
 Stop masking this. The mask stays in the show's library, to put back from the menu above	Bunu maskelemeyi bırak. Maske gösterinin kütüphanesinde kalır, yukarıdaki menüden geri konabilir
 Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	Bu maskeyi gösteriden ve onu kullanan tüm cue, playlist ve çıkışlardan sil. Geri al onu geri getirir
+FX PARAM: slot must be A-F	FX PARAM: slot A-F olmalı
+FX LFO: slot must be A-D, E for the amount, or F/G for the fifth and sixth sliders	FX LFO: slot A-D olmalı, miktar için E, beşinci ve altıncı kaydırıcılar için F/G

@@ -1963,6 +1963,14 @@
         puppet.kind = deckboy::effects::CueEffectKind::MotionPuppet;
         puppet.amount = 0.6f;
         puppet.bypassed = true;
+        // The fifth and sixth sliders and their LFOs (5 and 6), with the
+        // amount's LFO (4) armed too, so a slip in the index mapping shows.
+        puppet.paramE = 0.7f;
+        puppet.paramF = 0.15f;
+        puppet.lfo[4].on = true;
+        puppet.lfo[4].rateHz = 0.5f;
+        puppet.lfo[6].on = true;
+        puppet.lfo[6].rateHz = 2.0f;
         cue.effects.push_back(puppet);
         cue.motionDriverPath = "smoke-driver.mp4";
         cue.motionDriverSpeed = 1.75f;
@@ -2975,6 +2983,14 @@
                loadedCue.effects[1].kind == deckboy::effects::CueEffectKind::MotionPuppet &&
                loadedCue.effects[1].bypassed,
                "effect stack persisted with all four parameters and bypass");
+        expect(loadedCue.effects.size() == 2 &&
+               std::abs(loadedCue.effects[1].paramE - 0.7f) < 0.01f &&
+               std::abs(loadedCue.effects[1].paramF - 0.15f) < 0.01f &&
+               loadedCue.effects[1].lfo[4].on && std::abs(loadedCue.effects[1].lfo[4].rateHz - 0.5f) < 0.01f &&
+               !loadedCue.effects[1].lfo[5].on &&
+               loadedCue.effects[1].lfo[6].on && std::abs(loadedCue.effects[1].lfo[6].rateHz - 2.0f) < 0.01f &&
+               loadedCue.effects[0].paramE == 0.0f && loadedCue.effects[0].paramF == 0.0f,
+               "effect stack persisted the fifth and sixth sliders and their LFOs");
         // The positional record, checked field by field. One assertion per
         // field rather than one for the block: a skew shifts a RUN of them,
         // and naming the first one that moved says immediately where the
@@ -5738,6 +5754,10 @@
     if (parts.size() > 6 && !parts[6].empty()) {
       fx.colour = static_cast<std::uint32_t>(std::strtoul(parts[6].c_str(), nullptr, 16)) & 0xFFFFFF;
     }
+    // Then the fifth and sixth sliders: strobe:1:0:0:0.4:0:ff2040:0.5:0.2
+    // (an empty colour field leaves it white).
+    if (parts.size() > 7) fx.paramE = static_cast<float>(std::atof(parts[7].c_str()));
+    if (parts.size() > 8) fx.paramF = static_cast<float>(std::atof(parts[8].c_str()));
 
     std::ifstream in(inPath, std::ios::binary);
     if (!in) {
@@ -5821,7 +5841,11 @@
       SDL_DestroyRenderer(renderer);
       SDL_DestroyWindow(window);
     }
+    // Every pass starts from the SAME picture, as every frame of a still cue
+    // does in the app; only the effect's own state carries over.
+    const std::vector<std::uint8_t> input = passCount > 1 ? pixels : std::vector<std::uint8_t>{};
     for (int pass = 0; pass < passCount; ++pass) {
+      if (pass > 0) pixels = input;
       deckboy::effects::CueEffectContext ctx;
       ctx.width = w;
       ctx.height = h;

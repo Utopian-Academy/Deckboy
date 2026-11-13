@@ -3104,3 +3104,5 @@ unsaved changes will be lost: press new again	незапазените пром�
 zones cleared: Motion reads the whole picture	зоните са изчистени: движение чете цялата картина
 Stop masking this. The mask stays in the show's library, to put back from the menu above	Спри маскирането. Маската остава в библиотеката на шоуто и се връща от менюто по-горе
 Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	Изтрий тази маска от шоуто и от всеки cue, плейлист и изход, които я ползват. Отмяната я връща
+FX PARAM: slot must be A-F	FX PARAM: слотът трябва да е от A до F
+FX LFO: slot must be A-D, E for the amount, or F/G for the fifth and sixth sliders	FX LFO: слотът трябва да е A-D, E за силата или F/G за петия и шестия плъзгач

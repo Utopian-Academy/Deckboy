@@ -3069,3 +3069,5 @@ MOTION ZONE: ADD x y w h, REMOVE n or CLEAR	MOTION ZONE: ADD x y w h, REMOVE n e
 mask off -- it is still in the show's library	gríma af -- hún er enn í safni sýningarinnar
 Stop masking this. The mask stays in the show's library, to put back from the menu above	Hætta að nota grímuna. Gríman er áfram í safni sýningarinnar, settu hana aftur á úr valmyndinni hér að ofan
 Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	Eyða þessari grímu úr sýningunni og úr öllum cue, listum og úttökum sem nota hana. Afturkalla færir hana aftur
+FX PARAM: slot must be A-F	FX PARAM: rauf verður að vera A–F
+FX LFO: slot must be A-D, E for the amount, or F/G for the fifth and sixth sliders	FX LFO: rauf verður að vera A–D, E fyrir magn, eða F/G fyrir fimmta og sjötta sleðann

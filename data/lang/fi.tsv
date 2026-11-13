@@ -3103,3 +3103,5 @@ unsaved changes will be lost: press new again	tallentamattomat muutokset menetet
 zones cleared: Motion reads the whole picture	vyöhykkeet tyhjennetty: Liike lukee koko kuvan
 Stop masking this. The mask stays in the show's library, to put back from the menu above	Lopeta maskaus. Maski pysyy esityksen kirjastossa, ja sen voi palauttaa yllä olevasta valikosta
 Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	Poista tämä maski esityksestä sekä kaikista sitä käyttävistä cueista, soittolistoista ja ulostuloista. Kumoa palauttaa sen
+FX PARAM: slot must be A-F	FX PARAM: paikan on oltava A-F
+FX LFO: slot must be A-D, E for the amount, or F/G for the fifth and sixth sliders	FX LFO: paikan on oltava A-D, E määrälle tai F/G viidennelle ja kuudennelle liukusäätimelle

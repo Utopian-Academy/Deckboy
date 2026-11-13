@@ -3093,3 +3093,5 @@ unsaved changes will be lost: press new again	les modifications non enregistrée
 zones cleared: Motion reads the whole picture	zones effacées : Mouvement lit toute l'image
 Stop masking this. The mask stays in the show's library, to put back from the menu above	Arrêter de masquer ceci. Le masque reste dans la bibliothèque du spectacle, à remettre depuis le menu ci-dessus
 Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	Supprimer ce masque du spectacle, et de chaque cue, playlist et sortie qui l'utilise. Annuler le rétablit
+FX PARAM: slot must be A-F	FX PARAM : l'emplacement doit être A-F
+FX LFO: slot must be A-D, E for the amount, or F/G for the fifth and sixth sliders	FX LFO : l'emplacement doit être A-D, E pour la quantité, ou F/G pour les cinquième et sixième curseurs

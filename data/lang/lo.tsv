@@ -3069,3 +3069,5 @@ MOTION ZONE: ADD x y w h, REMOVE n or CLEAR	MOTION ZONE: ADD x y w h, REMOVE n �
 mask off -- it is still in the show's library	ໜ້າກາກ ປິດ -- ຍັງຢູ່ໃນຫ້ອງສະໝຸດຂອງໂຊ
 Stop masking this. The mask stays in the show's library, to put back from the menu above	ຢຸດໃຊ້ໜ້າກາກນີ້. ໜ້າກາກຍັງຢູ່ໃນຫ້ອງສະໝຸດຂອງໂຊ, ເອົາຄືນໄດ້ຈາກເມນູຂ້າງເທິງ
 Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	ລຶບໜ້າກາກນີ້ອອກຈາກໂຊ ແລະ ຈາກທຸກ cue, playlist ແລະ output ທີ່ໃຊ້ມັນ. Undo ເອົາຄືນມາໄດ້
+FX PARAM: slot must be A-F	FX PARAM: slot ຕ້ອງເປັນ A ຫາ F
+FX LFO: slot must be A-D, E for the amount, or F/G for the fifth and sixth sliders	FX LFO: slot ຕ້ອງເປັນ A ຫາ D, E ສຳລັບປະລິມານ, ຫຼື F/G ສຳລັບແຖບເລື່ອນທີຫ້າ ແລະ ທີຫົກ

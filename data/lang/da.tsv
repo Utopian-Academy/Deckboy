@@ -3092,3 +3092,5 @@ unsaved changes will be lost: press new again	ændringer, der ikke er gemt, går
 zones cleared: Motion reads the whole picture	zoner ryddet: bevægelse læser hele billedet
 Stop masking this. The mask stays in the show's library, to put back from the menu above	Stop maskeringen. Masken bliver i showets bibliotek og kan sættes tilbage fra menuen ovenfor
 Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	Slet denne maske fra showet og fra hver cue, playliste og udgang, der bruger den. Fortryd henter den tilbage
+FX PARAM: slot must be A-F	FX PARAM: slot skal være A-F
+FX LFO: slot must be A-D, E for the amount, or F/G for the fifth and sixth sliders	FX LFO: slot skal være A-D, E for mængden eller F/G for den femte og sjette skyder

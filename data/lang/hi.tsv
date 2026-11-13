@@ -3074,3 +3074,5 @@ MOTION ZONE: ADD x y w h, REMOVE n or CLEAR	MOTION ZONE: ADD x y w h, REMOVE n �
 mask off -- it is still in the show's library	मास्क बंद -- यह अभी भी शो की लाइब्रेरी में है
 Stop masking this. The mask stays in the show's library, to put back from the menu above	इसे मास्क करना बंद करें। मास्क शो की लाइब्रेरी में रहता है, ऊपर के मेनू से वापस लगाएँ
 Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	इस मास्क को शो से और इसका उपयोग करने वाले हर क्यू, प्लेलिस्ट और आउटपुट से हटाएँ। पूर्ववत करें से यह वापस आ जाता है
+FX PARAM: slot must be A-F	FX PARAM: स्लॉट A से F तक होना चाहिए
+FX LFO: slot must be A-D, E for the amount, or F/G for the fifth and sixth sliders	FX LFO: स्लॉट A से D तक हो, मात्रा के लिए E, और पाँचवें व छठे स्लाइडर के लिए F/G

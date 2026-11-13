@@ -3069,3 +3069,5 @@ MOTION ZONE: ADD x y w h, REMOVE n or CLEAR	MOTION ZONE: ADD x y w h, REMOVE n �
 mask off -- it is still in the show's library	마스크 꺼짐 -- 쇼의 라이브러리에 아직 있습니다
 Stop masking this. The mask stays in the show's library, to put back from the menu above	마스크 적용을 중지합니다. 마스크는 쇼의 라이브러리에 남아 있으며, 위의 메뉴에서 다시 적용할 수 있습니다
 Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	이 마스크를 쇼에서, 그리고 이를 사용하는 모든 큐, 플레이리스트, 출력에서 삭제합니다. Undo로 되돌릴 수 있습니다
+FX PARAM: slot must be A-F	FX PARAM: 슬롯은 A~F여야 합니다
+FX LFO: slot must be A-D, E for the amount, or F/G for the fifth and sixth sliders	FX LFO: 슬롯은 A~D, 양은 E, 다섯 번째와 여섯 번째 슬라이더는 F/G여야 합니다

@@ -3117,3 +3117,5 @@ unsaved changes will be lost: press new again	تغییرات ذخیره‌نشد
 zones cleared: Motion reads the whole picture	ناحیه‌ها پاک شدند: حرکت کل تصویر را می‌خواند
 Stop masking this. The mask stays in the show's library, to put back from the menu above	ماسک‌گذاری را متوقف کن. ماسک در کتابخانهٔ نمایش می‌ماند و از منوی بالا می‌توان آن را برگرداند
 Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	این ماسک را از نمایش و از هر کیو، فهرست پخش و خروجی که از آن استفاده می‌کند حذف کن. واگرد آن را برمی‌گرداند
+FX PARAM: slot must be A-F	FX PARAM: اسلات باید A-F باشد
+FX LFO: slot must be A-D, E for the amount, or F/G for the fifth and sixth sliders	FX LFO: اسلات باید A-D باشد، E برای مقدار، یا F/G برای اسلایدر پنجم و ششم

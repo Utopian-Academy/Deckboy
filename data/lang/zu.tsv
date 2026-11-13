@@ -3071,3 +3071,5 @@ MOTION ZONE: ADD x y w h, REMOVE n or CLEAR	MOTION ZONE: ADD x y w h, REMOVE n n
 mask off -- it is still in the show's library	imaski valiwe -- isese emtapweni womBukiso
 Stop masking this. The mask stays in the show's library, to put back from the menu above	Yeka ukufihla ngale maski. Imaski ihlala elabhulali yombukiso, ukuze ibuyiselwe kumenyu engenhla
 Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	Susa le maski kumbukiso, nakuzo zonke ama-cue, ama-playlist nokuphumayo okuyisebenzisayo. Ukuhlehlisa kuyibuyisa
+FX PARAM: slot must be A-F	FX PARAM: isilothi kumele sibe ngu-A kuya ku-F
+FX LFO: slot must be A-D, E for the amount, or F/G for the fifth and sixth sliders	FX LFO: isilothi kumele sibe ngu-A kuya ku-D, u-E wenani, noma u-F/G wezilayidi zesihlanu nezesithupha

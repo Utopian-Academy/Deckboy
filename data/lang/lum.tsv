@@ -3095,3 +3095,5 @@ MOTION ZONE: ADD x y w h, REMOVE n or CLEAR	MOTION ZONE: ADD x y w h, REMOVE n o
 mask off -- it is still in the show's library	nirarana vap -- kae bufa vekarana nakae
 Stop masking this. The mask stays in the show's library, to put back from the menu above	Hali nirarana. Nirarana guri kae bufa vekarana, tiri dopi mun menu jora
 Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	Niri nirarana nakae mun vekarana, so mun ala veka, vekaku so senadoraku. Undo dopi
+FX PARAM: slot must be A-F	FX PARAM: kae pata A .. F
+FX LFO: slot must be A-D, E for the amount, or F/G for the fifth and sixth sliders	FX LFO: kae pata A .. D, E go numa, nu F/G go slida 5 so 6

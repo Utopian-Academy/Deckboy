@@ -3070,3 +3070,5 @@ MOTION ZONE: ADD x y w h, REMOVE n or CLEAR	MOTION ZONE: ADD x y w h, REMOVE n n
 mask off -- it is still in the show's library	taɣmist insa -- mazal-it deg temkarḍit n uskan
 Stop masking this. The mask stays in the show's library, to put back from the menu above	Ḥbes aseqdec n taɣmist-agi. Taɣmist tqqim deg temkarḍit n uskan, err-it seg wumuɣ ufella
 Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	Kkes taɣmist-agi seg uskan, d seg yal cue, tabdart d tuffɣa i tt-yesseqdacen. Sefsex ad tt-id-yerr
+FX PARAM: slot must be A-F	FX PARAM: slot ilaq ad yili seg A ɣer F
+FX LFO: slot must be A-D, E for the amount, or F/G for the fifth and sixth sliders	FX LFO: slot ilaq ad yili seg A ɣer D, E i tanecta, neɣ F/G i wis-semmus d wis-sdis n yisemlalen

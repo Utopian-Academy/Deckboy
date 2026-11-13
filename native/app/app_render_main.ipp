@@ -7713,7 +7713,7 @@
             if (knob > 0) knobLabel = deckboy::audiofx::audioEffectParamLabel(playing->audioEffects[index].kind, knob - 1);
           } else if (playing && !audioKnob && index < playing->effects.size()) {
             effectName = deckboy::effects::cueEffectLabel(playing->effects[index].kind);
-            if (knob > 0) knobLabel = deckboy::effects::cueEffectParamLabel(playing->effects[index].kind, knob - 1);
+            if (knob > 0) knobLabel = deckboy::effects::cueEffectParamLabelFor(playing->effects[index], knob - 1);
           }
           drawQuickRow(fdY, "effect", QuickAction::FadeEffectSlotPrev,
                        std::to_string(slot) + "  " + (effectName.empty() ? std::string("(none playing now)") : effectName),

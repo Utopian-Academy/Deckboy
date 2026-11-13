@@ -3070,3 +3070,5 @@ MOTION ZONE: ADD x y w h, REMOVE n or CLEAR	MOTION ZONE: ADD x y w h、REMOVE n 
 mask off -- it is still in the show's library	遮罩 关 -- 仍在演出的库中
 Stop masking this. The mask stays in the show's library, to put back from the menu above	停止使用此遮罩。遮罩仍保留在演出的库中，可从上方菜单放回
 Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	从演出中删除此遮罩，并从使用它的所有 cue、播放列表和输出中移除。撤销可恢复
+FX PARAM: slot must be A-F	FX PARAM：槽位必须为 A 到 F
+FX LFO: slot must be A-D, E for the amount, or F/G for the fifth and sixth sliders	FX LFO：槽位必须为 A 到 D，E 表示强度，F/G 表示第五和第六个滑块

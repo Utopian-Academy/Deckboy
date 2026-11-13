@@ -400,6 +400,9 @@ inline std::uint32_t hueColour(double hue01) {
 }
 
 inline const char* cueEffectParamLabel(CueEffectKind kind, int which) {
+  // The fifth and sixth sliders exist only where an effect names them; the
+  // chains below were written for four and some end in a catch-all.
+  if (which >= 4 && kind != CueEffectKind::Chladni) return nullptr;
   switch (kind) {
     case CueEffectKind::Invert:
       return which == 0 ? "pivot" : which == 1 ? "channel spread" : nullptr;
@@ -495,8 +498,9 @@ inline const char* cueEffectParamLabel(CueEffectKind kind, int which) {
       return which == 0 ? "knife angle" : which == 1 ? "sensitivity"
            : which == 2 ? "colour" : nullptr;
     case CueEffectKind::Chladni:
+      // As Original draws it; cueEffectParamLabelFor names them per style.
       return which == 0 ? "mode" : which == 1 ? "second mode"
-           : which == 2 ? "gather" : which == 3 ? "line glow" : nullptr;
+           : which == 2 ? "gather" : which == 3 ? "line glow" : which == 4 ? "style" : nullptr;
     case CueEffectKind::Wavefront:
       return which == 0 ? "stiffness" : which == 1 ? "steps"
            : which == 2 ? "damping" : which == 3 ? "relief" : nullptr;
@@ -549,6 +553,7 @@ inline const char* cueEffectParamLabel(CueEffectKind kind, int which) {
 
 // The one-line explanation the inspector shows for that parameter.
 inline const char* cueEffectParamTip(CueEffectKind kind, int which) {
+  if (which >= 4 && kind != CueEffectKind::Chladni) return nullptr;
   switch (kind) {
     case CueEffectKind::Invert:
       return which == 0
@@ -909,8 +914,12 @@ inline const char* cueEffectParamTip(CueEffectKind kind, int which) {
           "nothing; far apart gives a dense lattice."
         : which == 2
         ? "How hard the picture is pulled onto the still lines."
-        : "Lights the nodal lines themselves, the way sand piled on a plate "
-          "catches the light.";
+        : which == 3
+        ? "Lights the nodal lines themselves, the way sand piled on a plate "
+          "catches the light."
+        : which == 4
+        ? "Original, Sand or Fluid."
+        : nullptr;
     case CueEffectKind::Wavefront:
       return which == 0
         ? "How fast the wave travels. Faster spreads further in the same time "
@@ -1402,6 +1411,11 @@ struct CueEffect {
   float paramB = 0.0f;
   float paramC = 0.0f;
   float paramD = 0.0f;
+  // Two more, for an effect with more to say than four sliders (Chladni's
+  // styles, 2026-11-13). Saved after everything else, so an older show reads
+  // them as 0 and an older build ignores them.
+  float paramE = 0.0f;
+  float paramF = 0.0f;
   // BYPASS is not the same as amount 0. Turning an effect down to nothing
   // loses the setting you spent time on; bypass takes it out of the chain and
   // gives it back. Every serious tool has both and they are not
@@ -1422,9 +1436,85 @@ struct CueEffect {
   // first.
   //
   // Index 0-3 is paramA-paramD, and index 4 is the AMOUNT, because "how much of
-  // this effect" is the parameter people want breathing most of all.
-  ParamLfo lfo[5];
+  // this effect" is the parameter people want breathing most of all. 5 and 6
+  // are paramE and paramF: added after the amount, which keeps index 4 where
+  // every saved show put it (cueEffectLfoIndex).
+  ParamLfo lfo[7];
 };
+
+// The six parameter slots by number (0-5 = A-F), and the LFO each one uses.
+constexpr int kCueEffectParamSlots = 6;
+inline int cueEffectLfoIndex(int which) { return which < 4 ? which : which + 1; }
+inline float& cueEffectParam(CueEffect& fx, int which) {
+  switch (which) {
+    case 0: return fx.paramA;
+    case 1: return fx.paramB;
+    case 2: return fx.paramC;
+    case 3: return fx.paramD;
+    case 4: return fx.paramE;
+    default: return fx.paramF;
+  }
+}
+inline float cueEffectParam(const CueEffect& fx, int which) {
+  return cueEffectParam(const_cast<CueEffect&>(fx), which);
+}
+
+// CHLADNI'S STYLE, in its fifth slider (James, 2026-11-13: "the original,
+// this, and one that looks more like proper fluid simulation"). A show saved
+// before the styles reads 0 there, which is Original: what it always drew.
+inline int chladniStyle(const CueEffect& fx) {
+  return fx.paramE < 1.0f / 3.0f ? 0 : fx.paramE < 2.0f / 3.0f ? 1 : 2;
+}
+
+// The label for slider `which` of THIS effect, which can depend on its
+// settings: Chladni's sliders mean different things in each style. Use this
+// wherever an effect's values are to hand; cueEffectParamLabel(kind) is for
+// asking what a kind has at all.
+inline const char* cueEffectParamLabelFor(const CueEffect& fx, int which) {
+  if (fx.kind == CueEffectKind::Chladni) {
+    const int st = chladniStyle(fx);
+    switch (which) {
+      case 0: return "mode";
+      case 1: return "second mode";
+      case 2: return st == 0 ? "gather" : st == 1 ? "flow" : "wave height";
+      case 3: return st == 0 ? "line glow" : st == 1 ? "shake" : "light";
+      case 4: return "style";
+      case 5: return st == 0 ? nullptr : st == 1 ? "grain" : "settle";
+      default: return nullptr;
+    }
+  }
+  return cueEffectParamLabel(fx.kind, which);
+}
+
+inline const char* cueEffectParamTipFor(const CueEffect& fx, int which) {
+  if (fx.kind == CueEffectKind::Chladni) {
+    const int st = chladniStyle(fx);
+    if (which == 4) {
+      return "Original: the picture pulled onto the figure. Sand: the picture as grains that are thrown off "
+             "the moving parts and pour into each new figure. Fluid: the picture under water on the plate, "
+             "bent and lit by its standing waves.";
+    }
+    if (st == 1) {
+      switch (which) {
+        case 2: return "How fast the sand travels to the still lines.";
+        case 3: return "How hard the moving parts throw sand. More shake clears the plate faster and makes "
+                       "the lines thinner.";
+        case 5: return "Grain size: one pixel at the left, big blocky grains at the right.";
+        default: break;
+      }
+    } else if (st == 2) {
+      switch (which) {
+        case 2: return "How strongly the water bends the picture.";
+        case 3: return "The bright net the waves focus onto the picture.";
+        case 5: return "How long the old waves linger when the note changes. Left: they die at once. Right: "
+                       "they slosh for a while.";
+        default: break;
+      }
+    }
+  }
+  return cueEffectParamTip(fx.kind, which);
+}
+
 
 // What an effect needs beyond the pixels. Kept in one struct so adding a
 // context-dependent effect does not change every call site.
@@ -2192,7 +2282,9 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
     const double pB = std::clamp(static_cast<double>(fx.paramB), 0.0, 1.0);
     const double pC = std::clamp(static_cast<double>(fx.paramC), 0.0, 1.0);
     const double pD = std::clamp(static_cast<double>(fx.paramD), 0.0, 1.0);
-    (void) pC; (void) pD;
+    const double pE = std::clamp(static_cast<double>(fx.paramE), 0.0, 1.0);
+    const double pF = std::clamp(static_cast<double>(fx.paramF), 0.0, 1.0);
+    (void) pC; (void) pD; (void) pE; (void) pF;
     if (fx.kind == CueEffectKind::None || fx.bypassed || amt <= 0.0005) {
       continue;   // zero and bypass both cost nothing
     }
@@ -4217,6 +4309,262 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
       }
 
       case CueEffectKind::Chladni: {
+        if (chladniStyle(fx) == 1 || chladniStyle(fx) == 2) {
+          // Sand and Fluid: the plate carried from frame to frame.
+          const bool sand = chladniStyle(fx) == 1;
+          const int W = ctx.width;
+          const int H = ctx.height;
+          const double m = 1.0 + pA * 8.0;
+          const double n = 1.0 + pB * 8.0;
+          const double kPi = 3.141592653589793;
+          // sin(k.pi.t) for t in [0, 1], tabled finely and read linearly: the
+          // grains and the waves sample the plate at arbitrary places.
+          constexpr int kTab = 4096;
+          static thread_local std::vector<float> sinM, sinN;
+          sinM.resize(kTab + 2);
+          sinN.resize(kTab + 2);
+          for (int i = 0; i <= kTab + 1; ++i) {
+            const double t = static_cast<double>(i) / kTab;
+            sinM[static_cast<std::size_t>(i)] = static_cast<float>(std::sin(m * kPi * t));
+            sinN[static_cast<std::size_t>(i)] = static_cast<float>(std::sin(n * kPi * t));
+          }
+          const float* tm = sinM.data();
+          const float* tn = sinN.data();
+          auto lookup = [](const float* tab, float t) {
+            t = std::clamp(t, 0.0f, 1.0f) * static_cast<float>(kTab);
+            const int i = static_cast<int>(t);
+            const float f = t - static_cast<float>(i);
+            return tab[i] + (tab[i + 1] - tab[i]) * f;
+          };
+          // The plate: sin(m.pi.u)sin(n.pi.v) - sin(n.pi.u)sin(m.pi.v), as Original.
+          auto plate = [&](float u, float v) {
+            return lookup(tm, u) * lookup(tn, v) - lookup(tn, u) * lookup(tm, v);
+          };
+          if (!state) break;   // no memory from this caller: nothing to carry
+          std::vector<std::uint8_t>& store = *state;
+          const bool hold = ctx.stateHold;
+          if (sand) {
+            // SAND. Every grain is a cell of the picture `grain` pixels across,
+            // and keeps the colour of where it began, read from the picture as
+            // it is NOW -- so a video plays on through the sand. Each frame
+            // moves it a step downhill on |plate| (towards the still lines) and
+            // throws it a little where the plate moves; then the grains are
+            // dropped onto the dark plate in order, and a cell where several
+            // pile up is lit.
+            const int grainOut = 1 + static_cast<int>(std::lround(pF * 15.0));
+            const int grain = std::max(1, static_cast<int>(std::lround(grainOut * ctx.pixelScale)));
+            const int GW = (W + grain - 1) / grain;
+            const int GH = (H + grain - 1) / grain;
+            const std::size_t N = static_cast<std::size_t>(GW) * GH;
+            // [GW, GH, frame] then u[N], v[N], all floats.
+            const std::size_t bytes = (3 + 2 * N) * sizeof(float);
+            float* head = nullptr;
+            if (store.size() != bytes ||
+                reinterpret_cast<const float*>(store.data())[0] != static_cast<float>(GW) ||
+                reinterpret_cast<const float*>(store.data())[1] != static_cast<float>(GH)) {
+              store.assign(bytes, 0);
+              head = reinterpret_cast<float*>(store.data());
+              head[0] = static_cast<float>(GW);
+              head[1] = static_cast<float>(GH);
+              float* u0 = head + 3;
+              float* v0 = u0 + N;
+              for (std::size_t i = 0; i < N; ++i) {
+                u0[i] = (static_cast<float>(i % static_cast<std::size_t>(GW)) + 0.5f) / GW;
+                v0[i] = (static_cast<float>(i / static_cast<std::size_t>(GW)) + 0.5f) / GH;
+              }
+            }
+            head = reinterpret_cast<float*>(store.data());
+            float* gu = head + 3;
+            float* gv = gu + N;
+            if (!hold) {
+              const float flowK = static_cast<float>((0.15 + pC * 1.6) * 1.8e-4);
+              const float shakeK = static_cast<float>(pD * 2.2 * 0.011);
+              const std::uint32_t frame = static_cast<std::uint32_t>(ctx.frameIndex);
+              constexpr float kH = 0.003f;
+              detail::parallelRows(GH, GW * 8, [&](int firstRow, int lastRow) {
+                for (std::size_t i = static_cast<std::size_t>(firstRow) * GW;
+                     i < static_cast<std::size_t>(lastRow) * GW; ++i) {
+                  const float u = gu[i], v = gv[i];
+                  const float a = std::fabs(plate(u, v));
+                  const float du = (std::fabs(plate(u + kH, v)) - std::fabs(plate(u - kH, v))) / (2.0f * kH);
+                  const float dv = (std::fabs(plate(u, v + kH)) - std::fabs(plate(u, v - kH))) / (2.0f * kH);
+                  // The throw, a fixed hash of the grain and the frame, so two
+                  // runs of one frame agree.
+                  std::uint32_t h = static_cast<std::uint32_t>(i) * 0x9E3779B1u ^ frame * 0x85EBCA77u;
+                  h ^= h >> 15; h *= 0x2C1B3C6Du; h ^= h >> 12; h *= 0x297A2D39u; h ^= h >> 15;
+                  const float r1 = static_cast<float>(h & 0xFFFF) / 65535.0f - 0.5f;
+                  const float r2 = static_cast<float>(h >> 16) / 65535.0f - 0.5f;
+                  // Downhill on |plate| at the board's speed, in plate units, so
+                  // the sand travels as fast whatever the grain size.
+                  // Plus a small throw everywhere, so a line is a few grains
+                  // thick rather than one: real sand keeps bouncing on it.
+                  const float t = shakeK * (a + 0.06f) + 0.0008f;
+                  gu[i] = std::clamp(u - du * flowK + r1 * t, 0.0f, 0.99999f);
+                  gv[i] = std::clamp(v - dv * flowK + r2 * t, 0.0f, 0.99999f);
+                }
+              });
+            }
+            // Drop the grains, in order (so the last one in a cell is always
+            // the same one), counting the piles.
+            static thread_local std::vector<std::int32_t> owner;
+            static thread_local std::vector<std::uint16_t> pile;
+            owner.assign(N, -1);
+            pile.assign(N, 0);
+            for (std::size_t i = 0; i < N; ++i) {
+              const std::size_t cell = static_cast<std::size_t>(gv[i] * GH) * GW +
+                                       static_cast<std::size_t>(gu[i] * GW);
+              owner[cell] = static_cast<std::int32_t>(i);
+              if (pile[cell] < 60000) ++pile[cell];
+            }
+            // Each grain's colour: the picture at the centre of its own cell.
+            static thread_local std::vector<std::uint32_t> colour;
+            colour.resize(N);
+            for (std::size_t i = 0; i < N; ++i) {
+              const int cx = std::min(W - 1, static_cast<int>(i % static_cast<std::size_t>(GW)) * grain + grain / 2);
+              const int cy = std::min(H - 1, static_cast<int>(i / static_cast<std::size_t>(GW)) * grain + grain / 2);
+              std::uint32_t c;
+              std::memcpy(&c, pixels.data() + (static_cast<std::size_t>(cy) * W + cx) * 4, 4);
+              colour[i] = c;
+            }
+            const std::int32_t* own = owner.data();
+            const std::uint16_t* piles = pile.data();
+            const std::uint32_t* col = colour.data();
+            const int a256 = static_cast<int>(std::lround(amt * 256.0));
+            detail::parallelRows(H, W, [&](int firstRow, int lastRow) {
+              for (int y = firstRow; y < lastRow; ++y) {
+                std::uint8_t* row = pixels.data() + static_cast<std::size_t>(y) * W * 4;
+                const std::size_t base = static_cast<std::size_t>(y / grain) * GW;
+                for (int x = 0; x < W; ++x) {
+                  const std::size_t cell = base + static_cast<std::size_t>(x / grain);
+                  int r = 10, g = 18, b = 10;   // the bare plate
+                  if (own[cell] >= 0) {
+                    std::uint8_t c[4];
+                    std::memcpy(c, &col[static_cast<std::size_t>(own[cell])], 4);
+                    // A deep pile catches the light, but never so much that
+                    // the grain loses its colour to white.
+                    const int lift = piles[cell] > 2 ? std::min(60, (piles[cell] - 2) * 8) : 0;
+                    r = std::min(255, c[0] + lift);
+                    g = std::min(255, c[1] + lift);
+                    b = std::min(255, c[2] + lift);
+                  }
+                  std::uint8_t* d = row + static_cast<std::size_t>(x) * 4;
+                  d[0] = static_cast<std::uint8_t>(d[0] + (((r - d[0]) * a256) >> 8));
+                  d[1] = static_cast<std::uint8_t>(d[1] + (((g - d[1]) * a256) >> 8));
+                  d[2] = static_cast<std::uint8_t>(d[2] + (((b - d[2]) * a256) >> 8));
+                }
+              }
+            });
+            break;
+          }
+          // FLUID. The picture under water on the plate: the wave equation on a
+          // fixed grid (the same behaviour at any raster), driven in the
+          // plate's own pattern at that pattern's own frequency so it rings in
+          // that shape, then the picture seen through the surface -- bent by
+          // its slope and lit where it focuses the light. A new note drives a
+          // new pattern and the water reorganises; settle is how long the old
+          // waves last.
+          constexpr int FW = 256;
+          const int FH = std::max(16, static_cast<int>(std::lround(FW * static_cast<double>(H) / W)));
+          const std::size_t cells = static_cast<std::size_t>(FW) * FH;
+          // [FW, FH, step] then h[cells], vel[cells].
+          const std::size_t bytes = (3 + 2 * cells) * sizeof(float);
+          if (store.size() != bytes || reinterpret_cast<const float*>(store.data())[1] != static_cast<float>(FH)) {
+            store.assign(bytes, 0);
+            float* head = reinterpret_cast<float*>(store.data());
+            head[0] = static_cast<float>(FW);
+            head[1] = static_cast<float>(FH);
+          }
+          float* head = reinterpret_cast<float*>(store.data());
+          float* hgt = head + 3;
+          float* vel = hgt + cells;
+          if (!hold) {
+            constexpr float c2 = 0.22f;
+            const float damp = static_cast<float>(1.0 - (0.004 + (1.0 - pF) * 0.06));
+            const double w = std::sqrt(static_cast<double>(c2)) * kPi * std::hypot(m / FW, n / FH);
+            // Drive so the ringing settles near unit height whatever the mode
+            // and the settle time: a damped oscillator driven at resonance
+            // holds vel ~ drive / loss, and height ~ vel / w.
+            const double driveK = w * (1.0 - static_cast<double>(damp));
+            static thread_local std::vector<float> drivePattern;
+            drivePattern.resize(cells);
+            for (int y = 0; y < FH; ++y)
+              for (int x = 0; x < FW; ++x)
+                drivePattern[static_cast<std::size_t>(y) * FW + x] =
+                  plate(static_cast<float>(x) / FW, static_cast<float>(y) / FH);
+            for (int sub = 0; sub < 4; ++sub) {
+              head[2] += 1.0f;
+              const float drive = static_cast<float>(driveK * std::sin(w * head[2]));
+              for (int y = 1; y < FH - 1; ++y) {
+                for (int x = 1; x < FW - 1; ++x) {
+                  const std::size_t i = static_cast<std::size_t>(y) * FW + x;
+                  const float lap = hgt[i - 1] + hgt[i + 1] + hgt[i - FW] + hgt[i + FW] - 4.0f * hgt[i];
+                  vel[i] = (vel[i] + c2 * lap + drive * drivePattern[i]) * damp;
+                }
+              }
+              for (std::size_t i = 0; i < cells; ++i) hgt[i] += vel[i];
+            }
+          }
+          // Slope and curvature per cell, then read bilinearly per pixel.
+          static thread_local std::vector<float> slopeX, slopeY, curve;
+          slopeX.assign(cells, 0.0f);
+          slopeY.assign(cells, 0.0f);
+          curve.assign(cells, 0.0f);
+          for (int y = 1; y < FH - 1; ++y) {
+            for (int x = 1; x < FW - 1; ++x) {
+              const std::size_t i = static_cast<std::size_t>(y) * FW + x;
+              slopeX[i] = hgt[i + 1] - hgt[i - 1];
+              slopeY[i] = hgt[i + FW] - hgt[i - FW];
+              curve[i] = hgt[i - 1] + hgt[i + 1] + hgt[i - FW] + hgt[i + FW] - 4.0f * hgt[i];
+            }
+          }
+          static thread_local std::vector<std::uint8_t> under;
+          under.assign(pixels.begin(), pixels.begin() + static_cast<std::ptrdiff_t>(count * 4));
+          const std::uint8_t* src = under.data();
+          const float* sx = slopeX.data();
+          const float* sy = slopeY.data();
+          const float* cv = curve.data();
+          // The surface's own scale: a unit wave of this mode has slope
+          // (over two cells) about 2k and curvature about k^2. Dividing by
+          // those makes wave height and light mean the same at every note.
+          const float kCell = static_cast<float>(kPi * std::hypot(m / FW, n / FH));
+          const float slopeNorm = 1.0f / (2.0f * kCell);
+          const float curveNorm = 1.0f / (kCell * kCell);
+          // Bend in output pixels: up to ~3% of the width at full wave height.
+          const float refr = static_cast<float>(W * (0.002 + pC * 0.03));
+          const float light = static_cast<float>(pD * 0.75);
+          const int a256 = static_cast<int>(std::lround(amt * 256.0));
+          detail::parallelRows(H, W, [&](int firstRow, int lastRow) {
+            for (int y = firstRow; y < lastRow; ++y) {
+              const float gy = (static_cast<float>(y) + 0.5f) * FH / H - 0.5f;
+              const int y0 = std::clamp(static_cast<int>(std::floor(gy)), 0, FH - 2);
+              const float fy = std::clamp(gy - static_cast<float>(y0), 0.0f, 1.0f);
+              std::uint8_t* row = pixels.data() + static_cast<std::size_t>(y) * W * 4;
+              for (int x = 0; x < W; ++x) {
+                const float gx = (static_cast<float>(x) + 0.5f) * FW / W - 0.5f;
+                const int x0 = std::clamp(static_cast<int>(std::floor(gx)), 0, FW - 2);
+                const float fx2 = std::clamp(gx - static_cast<float>(x0), 0.0f, 1.0f);
+                const std::size_t i = static_cast<std::size_t>(y0) * FW + x0;
+                auto bil = [&](const float* f) {
+                  const float top = f[i] + (f[i + 1] - f[i]) * fx2;
+                  const float bot = f[i + FW] + (f[i + FW + 1] - f[i + FW]) * fx2;
+                  return top + (bot - top) * fy;
+                };
+                // tanh: a wave that rings up past unit height bends and lights
+                // a little more, never without limit.
+                const int rx = std::clamp(static_cast<int>(std::lround(x + std::tanh(bil(sx) * slopeNorm) * refr)), 0, W - 1);
+                const int ry = std::clamp(static_cast<int>(std::lround(y + std::tanh(bil(sy) * slopeNorm) * refr)), 0, H - 1);
+                const float gain = 1.0f - std::tanh(bil(cv) * curveNorm) * light;
+                const std::uint8_t* s = src + (static_cast<std::size_t>(ry) * W + rx) * 4;
+                std::uint8_t* d = row + static_cast<std::size_t>(x) * 4;
+                for (int ch = 0; ch < 3; ++ch) {
+                  const int lit = std::min(255, static_cast<int>(s[ch] * gain));
+                  d[ch] = static_cast<std::uint8_t>(d[ch] + (((lit - d[ch]) * a256) >> 8));
+                }
+              }
+            }
+          });
+          break;
+        }
         // CHLADNI -- the shape a sound makes.
         //
         // Bow the edge of a metal plate with sand on it and the sand runs away
@@ -6099,6 +6447,11 @@ inline bool cueEffectStackAnimates(const std::vector<CueEffect>& stack) {
     if (!fx.bypassed && cueEffectKindAnimates(fx.kind)) {
       return true;
     }
+    // Chladni's Sand and Fluid move on their own (they carry the plate from
+    // frame to frame); Original is a function of its sliders alone.
+    if (!fx.bypassed && fx.kind == CueEffectKind::Chladni && chladniStyle(fx) != 0) {
+      return true;
+    }
   }
   return false;
 }
@@ -6139,8 +6492,9 @@ inline bool modulateCueEffectStack(const std::vector<CueEffect>& stack,
   out = stack;
   for (CueEffect& fx : out) {
     if (fx.bypassed) continue;
-    float* slots[5] = {&fx.paramA, &fx.paramB, &fx.paramC, &fx.paramD, &fx.amount};
-    for (int i = 0; i < 5; ++i) {
+    // In LFO order: A-D, the amount, then E and F.
+    float* slots[7] = {&fx.paramA, &fx.paramB, &fx.paramC, &fx.paramD, &fx.amount, &fx.paramE, &fx.paramF};
+    for (int i = 0; i < 7; ++i) {
       *slots[i] = lfoApply(fx.lfo[i], *slots[i], seconds, beats01, audio01);
     }
   }
