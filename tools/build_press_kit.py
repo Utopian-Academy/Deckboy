@@ -15,6 +15,7 @@ FILES = {
     "images/master-tracker.png": "docs/images/readme/master-tracker.png",
     "images/phone-controller.png": "docs/images/readme/phone-controller.png",
     "images/social-card.png": "docs/images/social-card.png",
+    "images/social-card-performance.png": "docs/images/social-card-performance.png",
     "demos/video-playback.gif": "docs/images/readme/release-419/deckboy-video-playback.gif",
     "demos/live-effects.gif": "docs/images/readme/release-419/live-effects.gif",
     "demos/picture-scopes.gif": "docs/images/readme/release-419/picture-scopes.gif",
@@ -38,6 +39,8 @@ images/desk-*.png: v0.99.419, three themes, the bundled layers and titles exampl
 images/master-tracker.png: v0.99.417 pattern tracker, sections and action cells.
 images/phone-controller.png: complete v0.99.417 phone controller.
 images/social-card.png: 1280 x 640 sharing card with the current desk capture.
+images/social-card-performance.png: 1280 x 640 sharing card for the GPU effects and
+transitions: a real output frame, a Portal transition half way.
 demos/: v0.99.419 video playback, effects and scopes; earlier fixture and Mic captures.
 CAPTURE-NOTES.md: dates, source versions and descriptions for each capture.
 
