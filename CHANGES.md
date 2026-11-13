@@ -2,6 +2,53 @@
 
 ## Unreleased
 
+### Performance: effects on the graphics card
+- 25 picture effects now run on the GPU: invert, posterise, solarise, levels, curves, strobe, scanlines, threshold, colour, colour replace, vignette, grain, channel offset, mirror, luma key, edges, polar warp, luma displace, lightspeed, ripple, kaleidoscope, mosaic, blur, glow and sharpen.
+- A layer's stack runs on the GPU when every effect in it has a GPU version and the output runs on Direct3D 11, Direct3D 12, Metal or Vulkan. Any other stack, renderer or GPU fault uses the CPU, as before. The CPU result is the reference: the GPU result matches it (mean difference 0.00 of 255).
+- On Windows (Direct3D 11), a cue with GPU effects stays zero-copy: the decoded video does not come back to the CPU. This includes 10-bit SDR video.
+- A layer's effects now run at the size the layer is drawn. A 4K clip in a quarter-size picture-in-picture costs about a sixteenth of what it did.
+- Measured on a 4K output (RTX 4070 Laptop): a 4K base with four mixed-format layers, two effects on each layer, eight on the base and LFOs on all of them, holds 60 fps. Fifteen mixed-format layers with two effects each: 106 ms -> 53 ms a frame (the rest is the CPU decoding a dozen software codecs). Eight effects on the 4K base: 130 ms -> 8 ms a frame.
+- `DECKBOY_CPU_EFFECTS=1` keeps every effect on the CPU.
+- Known limit: Metal (macOS) is not yet tested on a Mac. If its shaders do not build, the effects run on the CPU.
+
+### Transitions
+- Fixed: the Portal, Shatter, Clouds and Ghastly transitions dropped frames at 4K. They now hold 60 fps, like a crossfade. At 4K the outgoing picture took 46-55 ms a frame and now takes 3.4-5.8 ms. They now draw on the GPU; the picture is the same.
+- An outgoing cue's effects stay on through the transition, on the GPU too.
+- `DECKBOY_CPU_TRANSITIONS=1` keeps these four transitions on the CPU.
+
+### Colour and key
+- Fixed: colour controls (brightness, contrast, saturation, hue) on a 4K cue dropped the output to about 9 fps. A 4K frame took 114 ms and now takes 17 ms.
+- Fixed: the chroma key on a 4K cue dropped the output below 30 fps (42 ms a frame, now 17 ms).
+- The picture is exactly the same as before.
+
+### Desk
+- Fixed: the desk and the outputs held for up to 60 ms at a TAKE, most on the first TAKE of a video.
+- Fixed: opening the scopes held the desk for about 50 ms the first time.
+- Fixed: the first RECORD held the desk while it looked for hardware encoders.
+- Fixed: adding an effect to a playing cue held the frame for about 30 ms.
+
+### Slide import
+- The import card has a CANCEL button (Esc works too). It stops the import and drops what was made.
+- The card shows the step it is on and how long it has run.
+- A OneDrive "online only" deck is downloaded first, with its progress on the card. If OneDrive cannot download it, the import says so at once.
+- Fixed: a PowerPoint deck import waited a minute and failed when OneDrive was not running.
+- Fixed: importing a deck closed a PowerPoint window you already had open.
+
+### Masks
+- The inspector's MASK section has two new rows: **remove** takes the mask off the cue (it stays in the show), and **delete** removes it from the show and from every cue that uses it. Undo brings a deleted mask back.
+- Fixed: undo skipped an edit made right after another edit when neither changed the number of cues, such as a deleted mask or a changed fade.
+
+### Linux
+- The GPU effects and the GPU scopes now run on Vulkan.
+
+### Interface translations
+- About 17,000 more translated lines across the full languages. Full languages are now about 81% complete.
+- Typed command words (CLICK, SLICE, DRAW, ON/OFF/TOGGLE and others) stay in English in every language, because you type them.
+
+### Remote protocol and diagnostics
+- STATUS JSON reports each playlist's effect cost per frame as `fxMs`.
+- `DECKBOY_FX_FULL_SIZE=1` runs layer effects at the decoded size, as before.
+
 ### Creatures
 - Seven new creatures that react to each other and to you: starlings that fly as one flock and scatter from the mouse pointer, a school of koi, a snake whose body follows its head, an octopus that jets away from the pointer, an owl that turns its head to watch the pointer, bats that roost until the pointer comes near, and ants that walk in a line.
 - A cat and a mouse on the same theme now play: the cat wakes, creeps up, pounces, and misses. The mouse also runs from the pointer.
