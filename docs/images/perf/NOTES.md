@@ -1,173 +1,123 @@
-# Performance images, 12 November 2026
+# Performance captures, round three, 13 November 2026
 
-James asked for "a new set of gifs and images for the update, showcasing the new performance gains". These are review assets for Claude and James. Nothing was published. No source, version, release text, or existing documentation was changed.
+All four GIFs were re-recorded with the supplied NEW Deckboy.exe (build supplied as commit ce7b90fe). Changes are confined to docs/images/perf/ and left uncommitted for Claude. No external network access, push, merge or tag was used. Loopback TCP controlled isolated app instances. No Portal was used.
 
-## Files
+## Moving pictures
 
-| File | What it shows | Bytes |
-| --- | --- | ---: |
-| frame-timings.png | Measured mean app frame intervals, OLD and NEW. | 105110 |
-| four-layers.png | 4K base with four mixed-codec picture layers and effect LFOs. | 276242 |
-| decoder-effects.png | 4K 10-bit HEVC source with eight GPU effects. | 2005034 |
-| portal.png | Portal transition, NEW build, a still from the output. | 389431 |
-| shatter.png | Shatter transition, NEW build, a still from the output. | 303892 |
-| measurements.csv | Every sampled frame interval used for the table; stack and decoder samples too. | 162186 |
+| File | Bytes | Dimensions | Seconds | Badge: app-loop fps |
+| --- | ---: | --- | ---: | ---: |
+| four-layers.gif | 869777 | 640 x 470 | 3.800000 | 60.2 |
+| shatter.gif | 1104945 | 640 x 470 | 2.500000 | 57.5 |
+| clouds.gif | 627013 | 640 x 470 | 2.500000 | 58.1 |
+| decoder-effects.gif | 1655802 | 480 x 380 | 3.000000 | 58.4 |
 
-## Conditions and metric
+Every source was recorded at 1920x1080 with RECFORMAT 1920x1080 60. Retained STATUS replies confirm window_px=1920x1080 and render_px=1920x1080 for output and recorder. Each GIF says Recorded at 1080p. The GIF encoding clock is 10 fps; the badge is the measured app-loop rate, calculated as 1000 divided by the arithmetic mean of frame dt in record-profile.log from that same recording. It covers the recording window, including the parts subsequently trimmed, and is not a claim of sustained throughput or minimum frame rate.
 
-The app reported a 3840 x 2160 render and window on display 1 at 60 Hz. The attached primary display reported VG279QM, scale 1.5; the brief identifies the GPU as an RTX 4070 Laptop. This is one PC, one short run per condition. It is not a long-duration stability test or a measurement across platforms.
+| Capture | Profile samples | Mean frame interval, ms | Unrounded app-loop fps |
+| --- | ---: | ---: | ---: |
+| four-layers.gif | 312 | 16.623269230769246 | 60.15663863213053 |
+| shatter.gif | 309 | 17.377864077669905 | 57.544471261285416 |
+| clouds.gif | 311 | 17.19961414790998 | 58.14083917234362 |
+| decoder-effects.gif | 302 | 17.133145695364245 | 58.36639796220097 |
 
-The timing card uses the arithmetic mean of every logged `frame dt=...ms` in each measurement window. This is the app loop's frame interval, including pacing and the rest of the app. It is not the isolated outgoing-transition draw cost or CPU grade cost quoted in the brief. OLD does not emit the detailed outgoing draw log, so those unlike metrics were not compared. No published brief number was copied onto an image.
+Shatter and Clouds are trimmed to contiguous 2.5-second excerpts: approximately 0.2 seconds before TAKE, the complete two-second transition, and 0.3 seconds afterward. Command-response latency and recording startup may shift these holds slightly. No speed change, interpolation or fabricated loop dissolve is used. Four Layers retains seconds 1.5 through 5.3; Decoder Effects retains the first three seconds. New contact sheets sample at four frames per second, with unused cells padded. All four new contact sheets were opened and visually reviewed for badges, content and transition coverage. The Four Layers sheet shows the first three seconds of its 3.8-second loop.
 
-Transition windows contain four alternating takes, each with a 2-second transition and a 2.2-second wait after TAKE, plus protocol overhead and a 1-second lead-in. Short gaps between transitions are included. Grade/key windows begin after a warm-up and span six waits of 2 seconds plus six STATUS queries. Log timestamps, sample counts, and unrounded measurements are in measurements.csv. The mean is rounded to two decimal places for the image. A frame interval can vary inside a run; the card does not claim every frame met the 60 Hz budget.
+Four Layers uses a base picture plus four mixed-codec PIPs: H.264/blur, HEVC/glow, ProRes/kaleidoscope and MJPEG/mosaic. Each effect parameter A has a 0.25 Hz LFO. Decoder Effects uses a 3840x2160 HEVC yuv420p10le source and curves, glow, blur, ripple, vignette, grain, levels and sharpen, with a 0.2 Hz ripple LFO. The output is SDR. Decoder Effects is encoded at 480 pixels wide with 64 palette colours; the other GIFs at 640 pixels with 128 colours.
 
-Windows were shown, not hidden or minimized. Primary-display STATUS sometimes reported windows above the output (an input-indicator overlay); gdigrab also exposed unrelated desktop windows. These are app timing runs, not proof of unobstructed screen playback. The two builds ran sequentially for the table. Clip generation and image encoding were outside those measurement windows. No RECORD command was used. OUTSNAP stills were requested after the timed windows. The transition illustration snapshots were taken in a separate run.
+## Capture evidence
 
-## Builds
+### four-layers.gif
 
-Both binaries ran from their own Release directory, with all state and shows redirected into this worktree's build/media-perf. Neither binary was rebuilt or edited.
+Composite reuse confirmed in app.log: `recording-capture: output 2 reads output 1's composite`.
 
-- OLD: `C:/Users/james/deckboy-baseline-1112/build/windows/Release/Deckboy.exe`
-  SHA-256: `063938e4f099637090c993569ccc9fd700a1e6f453786e06e9573731929a872f`
-- NEW: `C:/Users/james/deckboy-audit-1111/build/windows/Release/Deckboy.exe`
-  SHA-256: `96eda6955a3aebbf7f886e272bbc314a3d845d10283e8e4b3568bdd1124771b3`
+Above 55 fps in this short recording. Slowest frame profile lines are retained here for review.
 
-## Exact runs and numbers on the timing card
+```text
+[DECKBOY_UI_PROFILE 25481ms] frame dt=22.64ms events=0.01ms update=1.05ms layout=0.01ms render=1.55ms (present=0.16ms) render+outputs=21.58ms
+[DECKBOY_UI_PROFILE 25279ms] frame dt=20.06ms events=0.01ms update=1.28ms layout=0.02ms render=1.38ms (present=0.17ms) render+outputs=18.77ms
+[DECKBOY_UI_PROFILE 24227ms] frame dt=17.64ms events=0.01ms update=1.95ms layout=0.03ms render=2.00ms (present=0.23ms) render+outputs=15.68ms
+[DECKBOY_UI_PROFILE 21260ms] frame dt=17.61ms events=0.01ms update=1.39ms layout=0.01ms render=2.08ms (present=0.25ms) render+outputs=16.21ms
+[DECKBOY_UI_PROFILE 23976ms] frame dt=17.26ms events=0.01ms update=1.13ms layout=0.01ms render=1.63ms (present=0.33ms) render+outputs=16.13ms
+```
 
-Commands ran in this worktree. Node is used because neither python nor py had an installed Python available in this session. Local run scripts and complete logs remain under build/media-perf (ignored by git).
+### shatter.gif
 
-`node build/media-perf/run.cjs generate` generated the H.264 base. A second ffmpeg pass applied `hue=h=130` to make the incoming picture distinguishable.
+Composite reuse confirmed in app.log: `recording-capture: output 2 reads output 1's composite`.
 
-`node build/media-perf/run.cjs measure old` and `node build/media-perf/run.cjs measure new` measured both transition styles.
+Above 55 fps in this short recording. Slowest frame profile lines are retained here for review.
 
-`node build/media-perf/suite.cjs` generated the other silent clips and ran grade/key on OLD then NEW, then stack/decoder on NEW. Decoder was repeated alone with `node build/media-perf/run.cjs decoder new`; only this final decoder run is retained in the evidence CSV. `node build/media-perf/analyze.cjs` extracted the frame intervals and calculated arithmetic means. `node build/media-perf/art.cjs` rendered the five PNGs with ffmpeg drawtext and Segoe UI.
+```text
+[DECKBOY_UI_PROFILE 9980ms] frame dt=48.68ms events=0.02ms update=19.68ms layout=0.03ms render=2.57ms (present=0.44ms) render+outputs=28.98ms
+[DECKBOY_UI_PROFILE 9680ms] frame dt=48.56ms events=0.01ms update=1.77ms layout=0.01ms render=2.23ms (present=0.26ms) render+outputs=46.79ms
+[DECKBOY_UI_PROFILE 9742ms] frame dt=43.73ms events=0.01ms update=0.89ms layout=0.01ms render=0.87ms (present=0.21ms) render+outputs=42.83ms
+[DECKBOY_UI_PROFILE 9894ms] frame dt=38.78ms events=0.33ms update=1.40ms layout=0.04ms render=2.33ms (present=0.54ms) render+outputs=37.05ms
+[DECKBOY_UI_PROFILE 9817ms] frame dt=37.87ms events=0.01ms update=1.19ms layout=0.02ms render=2.22ms (present=0.49ms) render+outputs=36.66ms
+```
 
-Every app process received `SDL_AUDIODRIVER=dummy` and `SDL_AUDIO_DRIVER=dummy`. The first state-changing TCP command was `MASTERVOL 0`. Seed shows set `ui_sounds 0` and `update_check 0`. The app received `DECKBOY_ROOT`, `DECKBOY_STATE_DIR`, `DECKBOY_PROJECT`, and `DECKBOY_COMPANION_PORT` for isolated local runs, plus `DECKBOY_UI_PROFILE=2` and `DECKBOY_HIDE_WINDOWS=0`. Some later runs enabled `DECKBOY_OUTPUT_ON_TOP=1`; on display 1 with the control window also there, the app reported `on_top=0` and this option did not take effect.
+### clouds.gif
 
-Common TCP setup after importing: `DECK 1; SELECT 1; LOOP ON; SELECT 2; LOOP ON; OUTPUT SELECT 1; OUTPUT ON; VIDEO 3840X2160; SELECT 1; TAKE`. Semicolons here separate commands; each was sent on its own TCP connection. Imports used `DROPTEST <local text file listing the clip>` and polled `DROPTEST` until pending/probes were zero.
+Composite reuse confirmed in app.log: `recording-capture: output 2 reads output 1's composite`.
 
-Transition setup: `TRANSITION 2`, `TRANSITIONSTYLE portal` or `shatter`, alternating `SELECT 2 / SELECT 1` and `TAKE` four times. Grade: brightness 1.25, contrast 1.2, saturation 1.3 on cue 1. Key: chromaKeyEnabled=1, all other key values left at their saved defaults. Grade and key were authored into cue fields 50/51/52 and 46 respectively (record has deck index in column 1, offset=2; verified against project_file.ipp), before launching the app. Base source: generated H.264 3840x2160, 60/1 fps, yuv420p, 8 seconds, looped.
+Above 55 fps in this short recording. Slowest frame profile lines are retained here for review.
+
+```text
+[DECKBOY_UI_PROFILE 9773ms] frame dt=53.00ms events=0.01ms update=0.88ms layout=0.01ms render=5.63ms (present=0.39ms) render+outputs=52.11ms
+[DECKBOY_UI_PROFILE 9882ms] frame dt=36.76ms events=0.02ms update=1.33ms layout=0.03ms render=1.82ms (present=0.53ms) render+outputs=35.42ms
+[DECKBOY_UI_PROFILE 9679ms] frame dt=36.71ms events=0.01ms update=2.58ms layout=0.01ms render=1.56ms (present=0.20ms) render+outputs=34.12ms
+[DECKBOY_UI_PROFILE 9809ms] frame dt=36.24ms events=0.01ms update=1.05ms layout=0.02ms render=2.71ms (present=1.69ms) render+outputs=35.18ms
+[DECKBOY_UI_PROFILE 9845ms] frame dt=35.58ms events=0.01ms update=1.24ms layout=0.02ms render=1.89ms (present=0.53ms) render+outputs=34.33ms
+```
+
+### decoder-effects.gif
+
+Composite reuse confirmed in app.log: `recording-capture: output 2 reads output 1's composite`.
+
+Above 55 fps in this short recording. Slowest frame profile lines are retained here for review.
+
+```text
+[DECKBOY_UI_PROFILE 15382ms] frame dt=35.58ms events=0.01ms update=1.30ms layout=0.01ms render=1.15ms (present=0.40ms) render+outputs=34.28ms
+[DECKBOY_UI_PROFILE 14713ms] frame dt=33.66ms events=0.21ms update=1.19ms layout=0.01ms render=0.67ms (present=0.13ms) render+outputs=32.26ms
+[DECKBOY_UI_PROFILE 15613ms] frame dt=33.61ms events=0.01ms update=1.02ms layout=0.02ms render=1.03ms (present=0.13ms) render+outputs=32.59ms
+[DECKBOY_UI_PROFILE 12463ms] frame dt=33.50ms events=0.01ms update=0.93ms layout=0.01ms render=0.72ms (present=0.16ms) render+outputs=32.56ms
+[DECKBOY_UI_PROFILE 12363ms] frame dt=33.49ms events=0.01ms update=0.99ms layout=0.01ms render=0.73ms (present=0.15ms) render+outputs=32.49ms
+```
+
+## Reproduction and provenance
+
+Run from the worktree root:
+
+`node docs/images/perf/record-gifs.cjs`
+
+`node docs/images/perf/make-gifs.cjs`
+
+`node docs/images/perf/finalize.cjs`
+
+The recorder checks the composite-reuse log line in every run and fails if absent. Raw MP4s, app.log, record-profile.log, complete commands/replies, elapsed metadata and isolated shows are under recordings/round3/<scene>/. The profile slice starts after RECORD on replies and ends before RECORD off. All four recording processes exit before GIF encoding begins. Earlier recordings remain separately under recordings/final/.
+
+Each app uses MASTERVOL 0, SDL_AUDIODRIVER=dummy, SDL_AUDIO_DRIVER=dummy, update_check=0 and ui_sounds=0, with isolated root, state, project and loopback port. Recording has no overlay, matte, captions or NDI of its own. Exact environment, setup, import, effect, transition and recording commands are in record-gifs.cjs and commands.log. make-gifs.cjs holds the exact trims, drawtext badges, palette settings and contact-sheet commands. gif-manifest.json includes hashes, source paths, dimensions, trim intervals and measured values.
+
+Executable: C:/Users/james/deckboy-audit-1111/build/windows/Release/Deckboy.exe
+
+SHA-256: e975d13fb55a993df88e8a53ac663f47e07e1d6e91e7028f19b11fd38c11f20c
+
+The three stills, measurements.csv and earlier timing card are retained from the previous round; they were not remeasured for these GIFs.
+
+## Retained stills and timing card
+
+four-layers.png (276242 bytes), decoder-effects.png (2005034 bytes), and shatter.png (303892 bytes) are unchanged from the earlier still run. Their 4K labels describe that earlier output; they do not describe these 1080p GIFs. The decoder source was verified with ffprobe codec_name,pix_fmt,width,height,r_frame_rate. The four-layer still's 60.0 fps badge came from its STATUS output; the earlier decoder still has no retained valid STATUS line supporting its 60.0 badge, so it must not be reused as performance evidence.
+
+frame-timings.png was rebuilt in the same style with three rows. Bytes: 95371. Its earlier measurements are unchanged:
 
 | Condition | OLD samples | OLD mean ms | NEW samples | NEW mean ms |
 | --- | ---: | ---: | ---: | ---: |
-| portal | 475 | 25.79 | 725 | 16.89 |
-| shatter | 505 | 24.26 | 728 | 16.82 |
-| grade | 97 | 129.32 | 695 | 17.92 |
-| key | 281 | 44.44 | 724 | 17.21 |
+| Shatter | 505 | 24.26 | 728 | 16.82 |
+| Colour grade | 97 | 129.32 | 695 | 17.92 |
+| Chroma key | 281 | 44.44 | 724 | 17.21 |
 
-Raw first and last app lines for each table cell (all intervening frame samples are in measurements.csv):
+These are arithmetic mean app-loop intervals from the earlier 3840x2160 run, including pacing and the rest of the app. Transition windows contain four alternating two-second takes with 2.2-second waits, protocol overhead and a one-second lead-in, including short gaps. Grade/key windows follow warm-up and include six two-second waits plus STATUS queries. They are not isolated shader costs. measurements.csv retains the applicable original frame samples. This is one PC and short runs, not a cross-platform or long-duration stability result.
 
-OLD portal, command as above, measure-old/portal-profile.log:
+Earlier commands: node build/media-perf/run.cjs generate; measure old; measure new; node build/media-perf/suite.cjs; node build/media-perf/run.cjs decoder new; node build/media-perf/analyze.cjs. Earlier raw logs and scripts remain in ignored build/media-perf. The rebuilt card is generated by make-gifs.cjs without rerunning those measurements. Grade cue fields 50/51/52 were 1.25/1.2/1.3; key cue field 46 was enabled. No recorder ran in those timing windows.
 
-```text
-[DECKBOY_UI_PROFILE 8136ms] frame dt=17.02ms events=0.01ms update=0.78ms layout=0.01ms render=0.67ms (present=0.12ms) render+outputs=16.23ms
-[DECKBOY_UI_PROFILE 20385ms] frame dt=16.71ms events=0.00ms update=0.81ms layout=0.01ms render=0.59ms (present=0.10ms) render+outputs=15.90ms
-```
+All source clips were generated locally with ffmpeg testsrc2; no downloaded footage or generated audio. Base: testsrc2=s=3840x2160:r=60:d=8, libx264 ultrafast, crf=20, yuv420p; incoming variant: hue=h=130. PIPs: 1280x720, six seconds; H.264 60 fps/libx264; HEVC 30 fps/libx265/hue=90; ProRes 30 fps/prores_ks profile 1/yuv422p10le/hue=180; MJPEG 30 fps/q=5/hue=260. Ten-bit: 3840x2160/30 fps/six seconds/libx265 ultrafast/yuv420p10le. x265 used log-level=error:pools=4. All generation commands used -an.
 
-OLD shatter, command as above, measure-old/shatter-profile.log:
-
-```text
-[DECKBOY_UI_PROFILE 20769ms] frame dt=16.66ms events=0.00ms update=0.85ms layout=0.01ms render=0.60ms (present=0.10ms) render+outputs=15.80ms
-[DECKBOY_UI_PROFILE 33019ms] frame dt=16.91ms events=0.01ms update=0.88ms layout=0.01ms render=0.70ms (present=0.12ms) render+outputs=16.02ms
-```
-
-OLD grade, command as above, grade-old/measured-profile.log:
-
-```text
-[DECKBOY_UI_PROFILE 9805ms] frame dt=122.28ms events=0.01ms update=4.02ms layout=0.01ms render=1.06ms (present=0.13ms) render+outputs=118.24ms
-[DECKBOY_UI_PROFILE 22230ms] frame dt=121.90ms events=0.01ms update=3.77ms layout=0.01ms render=0.65ms (present=0.13ms) render+outputs=118.12ms
-```
-
-OLD key, command as above, key-old/measured-profile.log:
-
-```text
-[DECKBOY_UI_PROFILE 9874ms] frame dt=46.88ms events=0.01ms update=2.42ms layout=0.01ms render=1.08ms (present=0.15ms) render+outputs=44.45ms
-[DECKBOY_UI_PROFILE 22324ms] frame dt=48.46ms events=0.01ms update=1.75ms layout=0.01ms render=0.60ms (present=0.12ms) render+outputs=46.70ms
-```
-
-NEW portal, command as above, measure-new/portal-profile.log:
-
-```text
-[DECKBOY_UI_PROFILE 7763ms] frame dt=16.75ms events=0.01ms update=0.88ms layout=0.02ms render=0.77ms (present=0.14ms) render+outputs=15.86ms
-[DECKBOY_UI_PROFILE 20012ms] frame dt=16.69ms events=0.00ms update=0.88ms layout=0.02ms render=1.50ms (present=0.12ms) render+outputs=15.80ms
-```
-
-NEW shatter, command as above, measure-new/shatter-profile.log:
-
-```text
-[DECKBOY_UI_PROFILE 20396ms] frame dt=16.98ms events=0.01ms update=0.94ms layout=0.01ms render=0.89ms (present=0.14ms) render+outputs=16.03ms
-[DECKBOY_UI_PROFILE 32646ms] frame dt=16.61ms events=0.01ms update=0.81ms layout=0.01ms render=0.61ms (present=0.10ms) render+outputs=15.79ms
-```
-
-NEW grade, command as above, grade-new/measured-profile.log:
-
-```text
-[DECKBOY_UI_PROFILE 9685ms] frame dt=16.76ms events=0.01ms update=0.83ms layout=0.01ms render=1.17ms (present=0.18ms) render+outputs=15.92ms
-[DECKBOY_UI_PROFILE 22152ms] frame dt=11.16ms events=0.01ms update=1.28ms layout=0.01ms render=1.48ms (present=0.30ms) render+outputs=9.87ms
-```
-
-NEW key, command as above, key-new/measured-profile.log:
-
-```text
-[DECKBOY_UI_PROFILE 9682ms] frame dt=16.60ms events=0.01ms update=0.80ms layout=0.01ms render=0.69ms (present=0.14ms) render+outputs=15.79ms
-[DECKBOY_UI_PROFILE 22148ms] frame dt=16.94ms events=0.00ms update=1.97ms layout=0.01ms render=0.69ms (present=0.12ms) render+outputs=14.96ms
-```
-
-## Numbers and content on the scene stills
-
-four-layers.png: the 4K H.264 base plus four 1280x720 sources. Top left H.264/blur, top right HEVC/glow, bottom left ProRes/kaleidoscope, bottom right MJPEG/mosaic. Each has `FX LFO 1 A on`, `FX LFO 1 A rate 0.25`, `SCALE 0.36`, offsets X +/-1000 and Y +/-560, and `VIDEO OUTPUT ASSIGN`. Each was taken, looped, and visible in OUTSNAP. The screenshot shows those four layers. The 60.0 fps badge is a sampled output presentation rate, not a source frame rate or a minimum over the run. Command: `node build/media-perf/run.cjs stack new` (also invoked by suite.cjs).
-
-decoder-effects.png: generated HEVC 3840x2160, yuv420p10le, 30/1 fps, confirmed by `ffprobe -v error -select_streams v:0 -show_entries stream=codec_name,pix_fmt,width,height,r_frame_rate -of json build/media-perf/tenbit.mkv`. Eight `FX ADD` commands added curves, glow, blur, ripple, vignette, grain, levels and sharpen; ripple parameter A has a 0.2 Hz LFO. The 60.0 fps badge is the output presentation rate (the source is 30 fps). Command: `node build/media-perf/run.cjs decoder new`. The app logged:
-
-```text
-gpu-effects: on direct3d11
-gpu-effects: playlist 1 effects from the decoded picture on
-```
-
-The source is 10-bit SDR; the output is not claimed as HDR or 10-bit. The project STATUS depth label reports the output setting, not the source pixel format.
-
-Raw final STATUS output lines supplying the 60.0 fps labels:
-
-STACK (NEW), stack-new-results.txt:
-
-```text
-OUTPUT 1 name="Output 1" id="out-87735c2a3f680a83" enabled=on health=live type=window host=1 display=1 layers=1 mirror=off stream=off proto=srt bitrate=6000 url="srt://127.0.0.1:9000" ndi=off ndi_name="Deckboy - Deck 1" ndi_rx=0 ndi_key=off ndi_key_name="Deckboy - Deck 1 Key" ndi_key_rx=0 alpha=100 delay_ms=0 overlay=off color_space=auto layout=span orientation=0 test_card=off output_fps=60.0 presents=1911 hitches=19 missed=45 target_hz=60 worst_gap_ms=259 window_px=3840x2160 render_px=3840x2160 fullscreen=1 paced_hz=60.001 compositor_hz=60.001 dxgi_mode=composed same_gpu=yes covers_screen=1 windows_above=-1 on_top=0 raised=0 stream_fps=--.- stream_q=0 stream_sent=0 stream_vbytes=0 stream_abytes=0 backend=window[ok]
-```
-
-DECODER (NEW), decoder-new-results.txt:
-
-```text
-undefined
-```
-
-portal.png and shatter.png contain no performance number. Their 4K labels refer to the verified 3840x2160 output snapshots. Command: `node build/media-perf/run.cjs stills new`; TAKE the incoming colour variant, wait 650 ms, then `OUTSNAP <style>.bmp`. These illustrate the transition, not its motion cadence.
-
-## Media generation
-
-Only ffmpeg-generated testsrc2 clips were used; no footage was downloaded and no audio stream was generated. Base command:
-
-```text
-ffmpeg -v error -y -f lavfi -i testsrc2=s=3840x2160:r=60:d=8 -an -c:v libx264 -preset ultrafast -crf 20 -pix_fmt yuv420p build/media-perf/base.mp4
-ffmpeg -v error -y -i build/media-perf/base.mp4 -an -vf hue=h=130 -c:v libx264 -preset ultrafast -crf 20 build/media-perf/second.mp4
-```
-
-PIPs: testsrc2 at 1280x720, six seconds. H.264 uses 60 fps/libx264 ultrafast; HEVC uses 30 fps/libx265 ultrafast and hue=90; ProRes uses 30 fps/prores_ks profile 1/yuv422p10le and hue=180; MJPEG uses 30 fps/mjpeg q=5 and hue=260. The 10-bit source uses testsrc2 at 3840x2160, 30 fps, six seconds, libx265 ultrafast with yuv420p10le. x265 generation used log-level=error:pools=4. All ffmpeg commands use -an.
-
-## Capture limits and unfinished GIFs
-
-No GIF or MP4 is delivered. gdigrab of `title=Deckboy Output - Output 1` on the primary display captured unrelated desktop windows rather than a clean output. Its logs included `Couldn't get cursor info (error 5)`. Those captures are rejected and remain only in ignored run folders; none are staged.
-
-The installed computer-use helper could not connect its native pipe (os error 2), so it could not select or activate the output. ffmpeg gfxcapture failed with `Failed to setup graphics capture for window (0x80070424)`. A separate attempt used display 2 and the app's existing DECKBOY_OUTPUT_ON_TOP option; STATUS then confirmed windows_above=0/on_top=1, but gdigrab returned black frames. Switching display also reset that attempted run to a 1280x720 render. That run is excluded from all delivered numbers. ffmpeg ddagrab on output_idx=1 failed with `Desktop duplication access denied` / `Operation not permitted`. No access settings were changed.
-
-Some early capture attempts briefly overlapped a second app instance. Those runs are excluded from the comparison table. The final decoder timing run was repeated alone after capture testing ended. The primary table's measure/grade/key runs and the stack measurement ran sequentially, without capture or clip encoding alongside them.
-
-For the requested motion assets, a session with working window capture is still needed. Do not make the OLD side stutter by retiming a NEW recording, or turn OUTSNAP sequences into a claim about live performance. The delivered stills do not assert visible smoothness. No 25-effect count, zero-copy throughput measurement, clouds/ghastly result, or all-platform result was measured here.
-
-## Review
-
-All five final PNGs were opened and checked: readable labels, full output picture, correct effects, no desktop content. No GIF exists, so there is no GIF contact sheet. Assets are 1200 pixels wide; the table is 800 pixels high and scene cards are 900 pixels high. The PNGs have no audio. All test app processes launched by these scripts were terminated. The supplied builds and existing documentation were left untouched. No external network access, publication, push, merge, or tag was used. Local TCP controlled only the test app instances.
-
-## Commit status
-
-The requested named-file staging attempt failed: Git could not create C:/Users/james/deckboy/.git/worktrees/deckboy-media-perf/index.lock (Permission denied). The linked worktree's Git metadata is outside this session's writable paths. No commit was created. The seven delivered files remain untracked for Claude to review and commit on media-perf. No permissions were changed and no lock file was removed.
-
+Assets are left for Claude's review and commit. No commit was attempted in this round.
