@@ -13432,7 +13432,8 @@ constexpr CliFlagHelp kCliOptionHelp[] = {
 constexpr const char* kCliModeFlags[] = {
   "--version", "--self-check", "--smoke", "--autosave-check", "--sync-pop-test",
   "--pattern-bench", "--pattern-dump", "--code-dump", "--code-check",
-  "--effect-dump", "--gpu-effect-dump", "--effect-bench", "--image-check", "--transition-dump", "--lower-third-bench",
+  "--effect-dump", "--gpu-effect-dump", "--effect-bench", "--image-check", "--transition-dump", "--gpu-transition-dump",
+  "--lower-third-bench",
   "--decode-bench", "--ltc-generate", "--audio-fx-check", "--mtc-check", "--colour-check",
   "--hap-probe", "--asio-probe", "--asio-tone", "--sheet-probe", "--timer-dump",
   "--motion-probe", "--pdf-probe", "--pdf-render", "--pptx-notes", "--atem-probe",
@@ -13855,6 +13856,16 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
     const double p = ops.size() > 4 ? std::atof(ops[4].c_str()) : 0.5;
     const double secs = ops.size() > 5 ? std::atof(ops[5].c_str()) : 1.0;
     return App::runTransitionDump(ops[0], ops[1], ops[2], ops[3], p, secs);
+  }
+  // The same through the GPU kernel (engine/gpu_effects, transMain) on a
+  // hidden window's renderer -- tools/check_gpu_transitions.py compares the two.
+  if (mode == "--gpu-transition-dump") {
+    if (ops.size() < 4) {
+      return missing("<style> <outgoing.ppm> <incoming.ppm> <dst.ppm> [progress] [seconds]");
+    }
+    const double p = ops.size() > 4 ? std::atof(ops[4].c_str()) : 0.5;
+    const double secs = ops.size() > 5 ? std::atof(ops[5].c_str()) : 1.0;
+    return App::runTransitionDump(ops[0], ops[1], ops[2], ops[3], p, secs, true);
   }
   if (mode == "--effect-dump") {
     if (ops.size() < 3) {

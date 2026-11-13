@@ -46,6 +46,7 @@
 #include <cstdio>
 #include <deque>
 #include <functional>
+#include <memory>
 #include <mutex>
 #include <optional>
 #include <string>
@@ -66,6 +67,8 @@
 
 #if DECKBOY_INPROC_DECODE
 #include "engine/libav_decoder.hpp"
+
+namespace deckboy::gpu { struct TransitionPlan; }
 #endif
 
 // Compute the outgoing cue's fade gain at the moment a transition begins.
@@ -847,6 +850,15 @@ class MediaEngine {
                                      std::vector<std::uint8_t>& dst,
                                      double progress, double elapsedSeconds,
                                      std::uint64_t seed);
+  // The same four for the GPU kernel (engine/gpu_effects, runGpuTransition):
+  // each frame's small inputs, from the code the builders above run, for an
+  // outgoing picture `width` x `height`. False for any other style.
+  static bool planGpuTransition(TransitionStyle style, int width, int height,
+                                double progress, double elapsedSeconds,
+                                std::uint64_t seed, deckboy::gpu::TransitionPlan& plan);
+  // A held NV12 or P010 frame as RGBA, converted once per frame and kept
+  // (the builders' own conversion). Null for any other frame.
+  static std::shared_ptr<const std::vector<std::uint8_t>> outgoingRgbaPixels(const DecodedFrame& frame);
 
   // The outgoing cue's geometry (captured at beginTransition), as a Cue the
   // output's placement code can read. The OUTPUT draws transitions itself, and

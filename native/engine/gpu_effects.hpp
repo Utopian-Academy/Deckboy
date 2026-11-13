@@ -76,6 +76,38 @@ SDL_Texture* copyGpuEffectsResult(GpuEffects* g, int slot);
 // Any texture this made (a result or a copy), read back to the CPU. Waits.
 bool readGpuEffectsTexture(GpuEffects* g, SDL_Texture* texture, std::vector<std::uint8_t>& rgba, int& w, int& h);
 
+// ---------------------------------------------------------------------------
+// TRANSITIONS: portal, shatter, clouds and ghastly's per-pixel pass (transMain).
+// The CPU works out each frame's small inputs -- MediaEngine::planGpuTransition,
+// the same code its builders run -- and the kernel does the pixels. The CPU
+// builders stay the reference: --gpu-transition-dump against --transition-dump.
+struct TransitionPlan {
+  enum Style : int { None = 0, Portal = 1, Shatter = 2, Clouds = 3, Ghastly = 4 };
+  int style = None;
+  int width = 0, height = 0;      // the outgoing picture's size, and the result's
+  std::int32_t i[4] = {};
+  float f[8] = {};
+  std::vector<float> aux;         // read by the kernel as one flat array
+};
+
+// The outgoing picture, width x height, from one of three places. `stamp`
+// non-zero and the same as last time for this slot: the picture on the card
+// is still current and is not fetched again (a held frame, every frame of a
+// transition).
+struct TransitionSource {
+  SDL_Texture* texture = nullptr;        // RGBA on this renderer (a kept GPU look)
+  void* decoderTexture2D = nullptr;      // Direct3D 11: the decoder's NV12/P010 array
+  int decoderSubresource = 0;
+  unsigned colorspace = 0;               // the decoder frame's
+  const std::uint8_t* rgba = nullptr;    // RGBA bytes in memory
+  std::uint64_t stamp = 0;
+};
+
+// The outgoing layer, RGBA with its alpha, in a texture owned by `g` and valid
+// until the next run for the same slot. Null on any failure: the caller then
+// builds it on the CPU.
+SDL_Texture* runGpuTransition(GpuEffects* g, int slot, const TransitionSource& source, const TransitionPlan& plan);
+
 // Compile the Direct3D 11 shaders now, on any thread, so the first effect does
 // not. The app calls it on a background thread at launch.
 void warmGpuEffectsShaders();

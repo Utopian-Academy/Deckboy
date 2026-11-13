@@ -13380,43 +13380,29 @@ std::shared_ptr<const std::vector<std::uint8_t>> outgoingRgba(const DecodedFrame
   return rgba;
 }
 
-void MediaEngine::buildPortalTransition(const DecodedFrame& outgoing,
-                                        std::vector<std::uint8_t>& dst,
-                                        double progress, double elapsedSeconds,
-                                        std::uint64_t seed) {
-  const int W = outgoing.width;
-  const int H = outgoing.height;
-  const std::size_t pixelsN = static_cast<std::size_t>(std::max(0, W)) *
-                              static_cast<std::size_t>(std::max(0, H));
-  const std::size_t bytes = pixelsN * 4u;
-  const bool rgba = outgoing.format == FramePixelFormat::RGBA32 &&
-                    outgoing.pixels.size() >= bytes;
-  // A video cue's held frame is very often NV12 -- the pipe hands it over that
-  // way whenever the cue needs no CPU work -- so it is converted here rather
-  // than turned away; turning it away would make the Portal a dissolve on
-  // exactly the cues it is most likely to be used on.
-  const bool nv12 = outgoing.format == FramePixelFormat::NV12 &&
-                    (W % 2) == 0 && (H % 2) == 0 &&
-                    outgoing.pixels.size() >= pixelsN + pixelsN / 2;
-  if (W <= 0 || H <= 0 || (!rgba && !nv12)) {
-    dst.clear();
-    return;
-  }
-  dst.resize(bytes);
-  const std::uint8_t* src = outgoing.pixels.data();
-  std::shared_ptr<const std::vector<std::uint8_t>> converted;
-  if (nv12) {
-    converted = outgoingRgba(outgoing);
-    if (!converted) {
-      dst.clear();
-      return;
-    }
-    src = converted->data();
-  }
-  auto fetch = [&](int x, int y, std::uint8_t* o) {
-    std::memcpy(o, src + (static_cast<std::size_t>(y) * W + x) * 4u, 4);
-  };
+// ---------------------------------------------------------------------------
+// THE TRANSITIONS' SMALL INPUTS. Portal, shatter, clouds and ghastly each work
+// out a little per frame -- the blob field, the shard table, the cloud field,
+// the wisp line -- and then one pass per pixel. The CPU builders below and the
+// GPU kernel (engine/gpu_effects, transMain) both start from these, so the two
+// cannot drift apart; only the per-pixel pass is written twice.
+namespace {
 
+// Portal: the field and its hue on a coarse grid, the edge's profile and the
+// colour wheel, in one array in that order (the GPU reads it as one texture).
+struct PortalPrep {
+  int step = 0, gw = 0, gh = 0;
+  bool live = false;               // any hole open at all
+  float outsideCut = 0, insideCut = 0, profileScale = 0;
+  static constexpr int kProfileN = 2048;
+  std::vector<float> aux;          // field[gw*gh] | hue[gw*gh] | profile[2048*4] | wheel[256*3]
+  float* field() { return aux.data(); }
+  float* hue() { return aux.data() + static_cast<std::size_t>(gw) * gh; }
+  float* profile() { return hue() + static_cast<std::size_t>(gw) * gh; }
+  float* wheel() { return profile() + kProfileN * 4; }
+};
+
+void preparePortal(int W, int H, double progress, double elapsedSeconds, std::uint64_t seed, PortalPrep& prep) {
   const double p = std::clamp(progress, 0.0, 1.0);
   const double t = std::max(0.0, elapsedSeconds);
   const double unit = static_cast<double>(std::min(W, H));
@@ -13443,8 +13429,8 @@ void MediaEngine::buildPortalTransition(const DecodedFrame& outgoing,
     // progress 1, while the shading takes `spaceW` -- nearer forty at 1080p --
     // to bring alpha down to nothing. So the four corners still held a little
     // of the outgoing picture on the last frame: --transition-dump measured
-    // maxAlpha 85 of 255 there, against the promise three paragraphs up that
-    // this ends on the incoming picture and never on an island of the old one.
+    // maxAlpha 85 of 255 there, against the promise that this ends on the
+    // incoming picture and never on an island of the old one.
     //
     // The overshoot is now DERIVED from the ramp that has to complete inside
     // it, plus a couple of pixels, rather than being a constant that happened
@@ -13486,9 +13472,16 @@ void MediaEngine::buildPortalTransition(const DecodedFrame& outgoing,
   const int step = unit >= 1400.0 ? 8 : (unit >= 480.0 ? 4 : 2);
   const int gw = W / step + 2;
   const int gh = H / step + 2;
+  prep.step = step;
+  prep.gw = gw;
+  prep.gh = gh;
+  prep.live = !live.empty();
+  const std::size_t cells = static_cast<std::size_t>(gw) * gh;
+  prep.aux.assign(cells * 2 + PortalPrep::kProfileN * 4 + 256 * 3, 0.0f);
   const float outOfReach = static_cast<float>(unit * 4.0);
-  std::vector<float> field(static_cast<std::size_t>(gw) * gh, outOfReach);
-  std::vector<float> hueField(static_cast<std::size_t>(gw) * gh, 0.0f);
+  float* field = prep.field();
+  float* hueField = prep.hue();
+  std::fill(field, field + cells, outOfReach);
   const float meltK = static_cast<float>(unit * 0.08);
   // A slow ripple on every edge, so a growing circle never looks like a
   // compass drew it.
@@ -13530,42 +13523,100 @@ void MediaEngine::buildPortalTransition(const DecodedFrame& outgoing,
 
   float wheel[256][3];
   portalWheel(wheel);
+  std::memcpy(prep.wheel(), wheel, sizeof(wheel));
   const float rimW = static_cast<float>(unit * 0.0065);
   const float glowW = rimW * 3.5f + static_cast<float>(unit * 0.006);
   const float spaceW = rimW * 16.0f;
   // Where each side's light has fallen below a level of the eight bits.
   const float outsideCut = glowW * 3.5f;
   const float insideCut = std::max(spaceW, glowW * 3.5f);
+  prep.outsideCut = outsideCut;
+  prep.insideCut = insideCut;
+
+  // THE EDGE'S PROFILE, TABLED. Everything the shading needs except the
+  // picture and the colour depends only on the distance to the edge, and the
+  // band is a few hundred pixels wide -- so it is worked out once per frame
+  // rather than three divisions per pixel, which was most of the 4K cost.
+  // Four floats an entry: core, hot, light, space.
+  constexpr int kProfileN = PortalPrep::kProfileN;
+  float* profile = prep.profile();
+  const float profileSpan = insideCut + outsideCut;
+  const float profileScale = static_cast<float>(kProfileN - 1) / profileSpan;
+  prep.profileScale = profileScale;
+  for (int i = 0; i < kProfileN; ++i) {
+    const float d = -insideCut + static_cast<float>(i) / profileScale;
+    float* pr = profile + static_cast<std::size_t>(i) * 4;
+    pr[0] = portalBell(d / rimW);
+    pr[1] = portalBell(d / (rimW * 0.45f)) * 0.55f;
+    if (d >= 0.0f) {
+      pr[2] = 0.6f * portalBell(d / glowW);   // glow over the old picture
+      pr[3] = 0.0f;
+    } else {
+      pr[2] = std::max(pr[0], 0.45f * portalBell(d / glowW));
+      const float sp = std::clamp(1.0f + d / spaceW, 0.0f, 1.0f);
+      pr[3] = sp * sp * 0.8f;
+    }
+  }
+}
+
+}  // namespace
+
+void MediaEngine::buildPortalTransition(const DecodedFrame& outgoing,
+                                        std::vector<std::uint8_t>& dst,
+                                        double progress, double elapsedSeconds,
+                                        std::uint64_t seed) {
+  const int W = outgoing.width;
+  const int H = outgoing.height;
+  const std::size_t pixelsN = static_cast<std::size_t>(std::max(0, W)) *
+                              static_cast<std::size_t>(std::max(0, H));
+  const std::size_t bytes = pixelsN * 4u;
+  const bool rgba = outgoing.format == FramePixelFormat::RGBA32 &&
+                    outgoing.pixels.size() >= bytes;
+  // A video cue's held frame is very often NV12 -- the pipe hands it over that
+  // way whenever the cue needs no CPU work -- so it is converted here rather
+  // than turned away; turning it away would make the Portal a dissolve on
+  // exactly the cues it is most likely to be used on.
+  const bool nv12 = outgoing.format == FramePixelFormat::NV12 &&
+                    (W % 2) == 0 && (H % 2) == 0 &&
+                    outgoing.pixels.size() >= pixelsN + pixelsN / 2;
+  if (W <= 0 || H <= 0 || (!rgba && !nv12)) {
+    dst.clear();
+    return;
+  }
+  dst.resize(bytes);
+  const std::uint8_t* src = outgoing.pixels.data();
+  std::shared_ptr<const std::vector<std::uint8_t>> converted;
+  if (nv12) {
+    converted = outgoingRgba(outgoing);
+    if (!converted) {
+      dst.clear();
+      return;
+    }
+    src = converted->data();
+  }
+  auto fetch = [&](int x, int y, std::uint8_t* o) {
+    std::memcpy(o, src + (static_cast<std::size_t>(y) * W + x) * 4u, 4);
+  };
+
+  PortalPrep prep;
+  preparePortal(W, H, progress, elapsedSeconds, seed, prep);
+  const int step = prep.step;
+  const int gw = prep.gw;
+  const int gh = prep.gh;
+  const float* field = prep.field();
+  const float* hueField = prep.hue();
+  const float* wheel = prep.wheel();
+  const float* profile = prep.profile();
+  constexpr int kProfileN = PortalPrep::kProfileN;
+  const float outsideCut = prep.outsideCut;
+  const float insideCut = prep.insideCut;
+  const float profileScale = prep.profileScale;
   const float invStep = 1.0f / static_cast<float>(step);
   // Deep space just inside the edge, the source's navy, fading into the
   // incoming picture.
   const float navyR = 12.0f;
   const float navyG = 10.0f;
   const float navyB = 58.0f;
-
-  // THE EDGE'S PROFILE, TABLED. Everything the shading needs except the
-  // picture and the colour depends only on the distance to the edge, and the
-  // band is a few hundred pixels wide -- so it is worked out once per frame
-  // rather than three divisions per pixel, which was most of the 4K cost.
-  struct Profile { float core, hot, light, space; };
-  constexpr int kProfileN = 2048;
-  std::array<Profile, kProfileN> profile {};
-  const float profileSpan = insideCut + outsideCut;
-  const float profileScale = static_cast<float>(kProfileN - 1) / profileSpan;
-  for (int i = 0; i < kProfileN; ++i) {
-    const float d = -insideCut + static_cast<float>(i) / profileScale;
-    Profile& pr = profile[static_cast<std::size_t>(i)];
-    pr.core = portalBell(d / rimW);
-    pr.hot = portalBell(d / (rimW * 0.45f)) * 0.55f;
-    if (d >= 0.0f) {
-      pr.light = 0.6f * portalBell(d / glowW);   // glow over the old picture
-      pr.space = 0.0f;
-    } else {
-      pr.light = std::max(pr.core, 0.45f * portalBell(d / glowW));
-      const float sp = std::clamp(1.0f + d / spaceW, 0.0f, 1.0f);
-      pr.space = sp * sp * 0.8f;
-    }
-  }
 
   // ── WHICH CELLS NEED SHADING ─────────────────────────────────────────
   //
@@ -13578,7 +13629,7 @@ void MediaEngine::buildPortalTransition(const DecodedFrame& outgoing,
   const int cw = gw - 1;
   const int ch = gh - 1;
   std::vector<std::uint8_t> cellKind(static_cast<std::size_t>(cw) * ch, kKeep);
-  if (!live.empty()) {
+  if (prep.live) {
     deckboy::effects::detail::parallelRows(ch, cw * 8, [&](int y0, int y1) {
       for (int gy = y0; gy < y1; ++gy) {
         for (int gx = 0; gx < cw; ++gx) {
@@ -13645,11 +13696,11 @@ void MediaEngine::buildPortalTransition(const DecodedFrame& outgoing,
           const float h1 = hueField[a + gw] + (hueField[a + gw + 1] - hueField[a + gw]) * fx;
           float hu = h0 + (h1 - h0) * fy;
           hu -= std::floor(hu);
-          const float* wc = wheel[std::min(255, static_cast<int>(hu * 256.0f))];
-          const Profile& pr = profile[static_cast<std::size_t>(std::clamp(
-            static_cast<int>((d + insideCut) * profileScale + 0.5f), 0, kProfileN - 1))];
-          const float core = pr.core;
-          const float hot = pr.hot;
+          const float* wc = wheel + std::min(255, static_cast<int>(hu * 256.0f)) * 3;
+          const float* pr = profile + static_cast<std::size_t>(std::clamp(
+            static_cast<int>((d + insideCut) * profileScale + 0.5f), 0, kProfileN - 1)) * 4;
+          const float core = pr[0];
+          const float hot = pr[1];
           const float rimR = wc[0] + (255.0f - wc[0]) * hot;
           const float rimG = wc[1] + (255.0f - wc[1]) * hot;
           const float rimB = wc[2] + (255.0f - wc[2]) * hot;
@@ -13658,7 +13709,7 @@ void MediaEngine::buildPortalTransition(const DecodedFrame& outgoing,
             // as light.
             std::uint8_t s[4];
             fetch(x, y, s);
-            const float glow = pr.light;
+            const float glow = pr[2];
             const float r = s[0] + (rimR - s[0]) * core + rimR * glow * 0.6f;
             const float g = s[1] + (rimG - s[1]) * core + rimG * glow * 0.6f;
             const float b = s[2] + (rimB - s[2]) * core + rimB * glow * 0.6f;
@@ -13670,8 +13721,8 @@ void MediaEngine::buildPortalTransition(const DecodedFrame& outgoing,
           }
           // Through the hole: space, then the rim's light over it, both with
           // their own alpha so the incoming picture shows through what is left.
-          const float space = pr.space;
-          const float light = pr.light;
+          const float space = pr[3];
+          const float light = pr[2];
           const float alpha = light + space * (1.0f - light);
           if (alpha <= 0.002f) {
             px[0] = px[1] = px[2] = px[3] = 0;
@@ -13788,36 +13839,15 @@ inline float tFbm(std::uint64_t seed, float x, float y) {
          0.12f * tNoise(seed ^ 0x5A5Aull, x * 4.07f, y * 4.13f);
 }
 
-}  // namespace
+// Shatter: one set of numbers per shard (see buildShatterTransition).
+struct ShatterShard { double gone, ox, oy, ca, sa, ccx, ccy; };
+struct ShatterPrep {
+  int shard = 0, shardsX = 0, shardsY = 0;
+  double glintDen = 1.0;   // the glint fades over this many pixels from a shard's edge
+  std::vector<ShatterShard> shards;
+};
 
-// ---------------------------------------------------------------------------
-// buildShatterTransition - the outgoing picture as a dropped pane.
-//
-// The SHATTER effect breaks a picture up and keeps every pixel: shards slide
-// and turn and sample from where they used to be, and the frame stays opaque
-// because an effect has nowhere to go. A transition does: the shards have to
-// LEAVE, so each one flies off on its own line, turning as it goes, and takes
-// its alpha down with it.
-//
-// Shards go in waves rather than all at once -- a pane does not leave the frame
-// as one sheet -- and the wave a shard belongs to comes from its own hash, so
-// the same shard leaves at the same moment every time the transition runs.
-//
-// The last wave finishes at p=0.92 rather than 1.0. Rule 1 is not "arrive at
-// zero", it is "be at zero before the end": the alpha curve of the slowest
-// shard has to have bottomed out with frames to spare, or the final frame of a
-// short transition still has glass in it.
-// ---------------------------------------------------------------------------
-void MediaEngine::buildShatterTransition(const DecodedFrame& outgoing,
-                                         std::vector<std::uint8_t>& dst,
-                                         double progress, double elapsedSeconds,
-                                         std::uint64_t seed) {
-  const OutgoingPicture pic = openOutgoing(outgoing);
-  if (!pic.ok) { dst.clear(); return; }
-  const int W = pic.w;
-  const int H = pic.h;
-  dst.resize(static_cast<std::size_t>(W) * H * 4u);
-
+void prepareShatter(int W, int H, double progress, double elapsedSeconds, std::uint64_t seed, ShatterPrep& prep) {
   const double p = std::clamp(progress, 0.0, 1.0);
   const double t = std::max(0.0, elapsedSeconds);
   const double unit = static_cast<double>(std::min(W, H));
@@ -13836,13 +13866,16 @@ void MediaEngine::buildShatterTransition(const DecodedFrame& outgoing,
   // A 2-second Shatter cost 18-20 ms a frame and dropped frames at 60 Hz
   // (found 2026-11-08 measuring Ghastly's sister builders). Same expressions,
   // computed once per shard, so the pixels are identical.
-  struct Shard { double gone, ox, oy, ca, sa, ccx, ccy; };
   const int shardsX = (W + shard - 1) / shard;
   const int shardsY = (H + shard - 1) / shard;
-  std::vector<Shard> shards(static_cast<std::size_t>(shardsX) * shardsY);
+  prep.shard = shard;
+  prep.shardsX = shardsX;
+  prep.shardsY = shardsY;
+  prep.glintDen = std::max(1.0, unit * 0.010);
+  prep.shards.assign(static_cast<std::size_t>(shardsX) * shardsY, ShatterShard{});
   for (int gy = 0; gy < shardsY; ++gy) {
     for (int gx = 0; gx < shardsX; ++gx) {
-      Shard& sh = shards[static_cast<std::size_t>(gy) * shardsX + gx];
+      ShatterShard& sh = prep.shards[static_cast<std::size_t>(gy) * shardsX + gx];
       const std::uint64_t h = portalHash(salt +
         static_cast<std::uint64_t>(gx) * 73856093ull +
         static_cast<std::uint64_t>(gy) * 19349663ull);
@@ -13878,13 +13911,157 @@ void MediaEngine::buildShatterTransition(const DecodedFrame& outgoing,
       sh.sa = std::sin(spin);
     }
   }
+}
+
+// Clouds: the noise field on a coarse lattice (see buildCloudsTransition).
+struct CloudsPrep {
+  int step = 0, gw = 0, gh = 0;
+  float cut = 0, band = 0;
+  std::vector<float> field;
+};
+
+void prepareClouds(int W, int H, double progress, double elapsedSeconds, std::uint64_t seed, CloudsPrep& prep) {
+  const double p = std::clamp(progress, 0.0, 1.0);
+  const float t = static_cast<float>(std::max(0.0, elapsedSeconds));
+  const double unit = static_cast<double>(std::min(W, H));
+
+  // THE FIELD IS COMPUTED SMALL and read back bilinearly, the way the grain
+  // and wavefront effects do it: cloud is a smear, and a smear does not need
+  // to be evaluated per pixel at 4K. A quarter-scale lattice is visually
+  // identical here and a quarter of the arithmetic.
+  const int step = unit >= 1400.0 ? 4 : (unit >= 480.0 ? 2 : 1);
+  const int gw = W / step + 2;
+  const int gh = H / step + 2;
+  prep.step = step;
+  prep.gw = gw;
+  prep.gh = gh;
+  const float scale = static_cast<float>(3.4 / unit) * static_cast<float>(step);
+  const std::uint64_t salt = portalHash(seed ^ 0xC10D5ull);
+  prep.field.assign(static_cast<std::size_t>(gw) * gh, 0.0f);
+  float* field = prep.field.data();
+  deckboy::effects::detail::parallelRows(gh, gw * 4, [&](int y0, int y1) {
+    for (int gy = y0; gy < y1; ++gy) {
+      for (int gx = 0; gx < gw; ++gx) {
+        const float nx = gx * scale;
+        const float ny = gy * scale - t * 0.22f;     // the weather comes up
+        field[static_cast<std::size_t>(gy) * gw + gx] =
+          tFbm(salt, nx + 0.13f * t, ny);
+      }
+    }
+  });
+
+  // The threshold sweeps past the whole range of the field with a margin at
+  // each end, so p=0 opens nothing and p=1 opens everything -- rule 1 by
+  // construction rather than by hoping the noise never peaks.
+  prep.cut = static_cast<float>(-0.12 + 1.24 * p);
+  prep.band = 0.16f;                 // how soft the cloud edge is
+}
+
+// Ghastly: the wisp line, one per column, and the frame's constants (see
+// buildGhastlyTransition).
+struct GhastlyPrep {
+  float drain = 0, lift = 0, thin = 0, wispSoft = 0;
+  std::vector<float> columnLine;
+};
+
+void prepareGhastly(int W, int H, double progress, double elapsedSeconds, std::uint64_t seed, GhastlyPrep& prep) {
+  const double p = std::clamp(progress, 0.0, 1.0);
+  const float t = static_cast<float>(std::max(0.0, elapsedSeconds));
+  const double unit = static_cast<double>(std::min(W, H));
+  const std::uint64_t salt = portalHash(seed ^ 0x6405Full);
+
+  prep.drain = static_cast<float>(tSmooth(0.0, 0.72, p));   // colour out
+  prep.lift = static_cast<float>(unit * 0.55 * p * p);      // smear up
+  // The wisp line rises past the top with margin, so by p=1 every row is
+  // inside it -- rule 1 without relying on the noise.
+  // WHERE THE WISP LINE STARTS AND ENDS, IN PIXELS, DERIVED.
+  //
+  // It has to begin far enough below the frame that no column's wobble and no
+  // part of the soft edge reaches the bottom row, and end far enough above it
+  // that none of either is left on the top row. Written as fractions of H
+  // (1.22 down to -0.12) it was neither: check_transitions measured
+  // fromOutgoing=0.0031 at progress 0, which is the bottom row already
+  // slightly see-through before the transition had begun. Deriving both ends
+  // from the two widths that actually intrude also keeps it right when the
+  // frame is portrait, where `unit` is the WIDTH and a fraction of H means
+  // something different.
+  const float wispSoft = static_cast<float>(unit * 0.16);
+  const float wispWob = static_cast<float>(unit * 0.34);
+  prep.wispSoft = wispSoft;
+  const float lineAtStart = static_cast<float>(H) + wispSoft + wispWob;
+  const float lineAtEnd = -(wispSoft + wispWob);
+  const float wispLine = lineAtStart + (lineAtEnd - lineAtStart) * static_cast<float>(p);
+  // TWO FREQUENCIES, or it is not a wisp.
+  //
+  // At one low frequency this was a single smooth wave rolling up the frame --
+  // fog, not a ghost. The slow term still does the big shape; the fast one, at
+  // roughly forty cycles across the picture, is what makes neighbouring columns
+  // reach different heights and read as separate tendrils.
+  const float wispSlow = static_cast<float>(7.0 / unit);
+  const float wispFast = static_cast<float>(41.0 / unit);
+
+  // ONE WISP LINE PER COLUMN, NOT PER PIXEL. The wobble depends on x and t
+  // only, and it was evaluated inside the row loop: two fBm calls for every
+  // pixel, ~16 million a 4K frame for 7680 distinct values. That made a
+  // 2-second Ghastly take 18-22 ms a frame and drop frames at 60 Hz (James,
+  // 2026-11-08, TAKE ALL with a Lower Third on deck 2). Same expression,
+  // computed once per column, so the pixels are identical.
+  prep.columnLine.assign(static_cast<std::size_t>(W), 0.0f);
+  float* columnLine = prep.columnLine.data();
+  deckboy::effects::detail::parallelRows(W, 1, [&](int x0, int x1) {
+    for (int x = x0; x < x1; ++x) {
+      const float slow = tFbm(salt, x * wispSlow, t * 0.6f) - 0.5f;
+      const float fast = tFbm(salt ^ 0x77ull, x * wispFast, t * 1.9f) - 0.5f;
+      const float wob = slow * 0.62f + fast * 0.38f;
+      columnLine[static_cast<std::size_t>(x)] = wispLine + wob * wispWob;
+    }
+  });
+  // Constant for the whole frame.
+  prep.thin = static_cast<float>(1.0 - tSmooth(0.35, 1.0, p) * 0.55);
+}
+
+}  // namespace
+
+// ---------------------------------------------------------------------------
+// buildShatterTransition - the outgoing picture as a dropped pane.
+//
+// The SHATTER effect breaks a picture up and keeps every pixel: shards slide
+// and turn and sample from where they used to be, and the frame stays opaque
+// because an effect has nowhere to go. A transition does: the shards have to
+// LEAVE, so each one flies off on its own line, turning as it goes, and takes
+// its alpha down with it.
+//
+// Shards go in waves rather than all at once -- a pane does not leave the frame
+// as one sheet -- and the wave a shard belongs to comes from its own hash, so
+// the same shard leaves at the same moment every time the transition runs.
+//
+// The last wave finishes at p=0.92 rather than 1.0. Rule 1 is not "arrive at
+// zero", it is "be at zero before the end": the alpha curve of the slowest
+// shard has to have bottomed out with frames to spare, or the final frame of a
+// short transition still has glass in it.
+// ---------------------------------------------------------------------------
+void MediaEngine::buildShatterTransition(const DecodedFrame& outgoing,
+                                         std::vector<std::uint8_t>& dst,
+                                         double progress, double elapsedSeconds,
+                                         std::uint64_t seed) {
+  const OutgoingPicture pic = openOutgoing(outgoing);
+  if (!pic.ok) { dst.clear(); return; }
+  const int W = pic.w;
+  const int H = pic.h;
+  dst.resize(static_cast<std::size_t>(W) * H * 4u);
+
+  ShatterPrep prep;
+  prepareShatter(W, H, progress, elapsedSeconds, seed, prep);
+  const int shard = prep.shard;
+  const int shardsX = prep.shardsX;
+  const std::vector<ShatterShard>& shards = prep.shards;
 
   // The glint's falloff by whole pixels from the shard's edge: the same
   // expression the pixel loop used, so the result is identical.
   std::vector<double> glintFalloff(static_cast<std::size_t>(shard));
   for (int e = 0; e < shard; ++e) {
     glintFalloff[static_cast<std::size_t>(e)] =
-      std::clamp(1.0 - static_cast<double>(e) / std::max(1.0, unit * 0.010), 0.0, 1.0);
+      std::clamp(1.0 - static_cast<double>(e) / prep.glintDen, 0.0, 1.0);
   }
   // std::lround, inline. It was a library call twice per pixel. The fraction
   // v - trunc(v) is exact in double, so this rounds half away from zero exactly
@@ -13899,7 +14076,7 @@ void MediaEngine::buildShatterTransition(const DecodedFrame& outgoing,
     for (int y = y0; y < y1; ++y) {
       std::uint8_t* row = dst.data() + static_cast<std::size_t>(y) * W * 4u;
       const int gy = y / shard;
-      const Shard* shardRow = shards.data() + static_cast<std::size_t>(gy) * shardsX;
+      const ShatterShard* shardRow = shards.data() + static_cast<std::size_t>(gy) * shardsX;
       const int edgeY = std::min(y - gy * shard, (gy + 1) * shard - 1 - y);
       // ONE SHARD'S RUN OF THIS ROW AT A TIME, so what is constant across the
       // shard is read once per run rather than once per pixel.
@@ -13907,7 +14084,7 @@ void MediaEngine::buildShatterTransition(const DecodedFrame& outgoing,
         const int xa = gx * shard;
         const int xb = std::min(W, xa + shard);
         std::uint8_t* run = row + static_cast<std::size_t>(xa) * 4u;
-        const Shard& sh = shardRow[gx];
+        const ShatterShard& sh = shardRow[gx];
         const double gone = sh.gone;
         if (gone >= 1.0) {
           std::memset(run, 0, static_cast<std::size_t>(xb - xa) * 4u);
@@ -13991,36 +14168,14 @@ void MediaEngine::buildCloudsTransition(const DecodedFrame& outgoing,
   const int H = pic.h;
   dst.resize(static_cast<std::size_t>(W) * H * 4u);
 
-  const double p = std::clamp(progress, 0.0, 1.0);
-  const float t = static_cast<float>(std::max(0.0, elapsedSeconds));
-  const double unit = static_cast<double>(std::min(W, H));
-
-  // THE FIELD IS COMPUTED SMALL and read back bilinearly, the way the grain
-  // and wavefront effects do it: cloud is a smear, and a smear does not need
-  // to be evaluated per pixel at 4K. A quarter-scale lattice is visually
-  // identical here and a quarter of the arithmetic.
-  const int step = unit >= 1400.0 ? 4 : (unit >= 480.0 ? 2 : 1);
-  const int gw = W / step + 2;
-  const int gh = H / step + 2;
-  const float scale = static_cast<float>(3.4 / unit) * static_cast<float>(step);
-  const std::uint64_t salt = portalHash(seed ^ 0xC10D5ull);
-  std::vector<float> field(static_cast<std::size_t>(gw) * gh, 0.0f);
-  deckboy::effects::detail::parallelRows(gh, gw * 4, [&](int y0, int y1) {
-    for (int gy = y0; gy < y1; ++gy) {
-      for (int gx = 0; gx < gw; ++gx) {
-        const float nx = gx * scale;
-        const float ny = gy * scale - t * 0.22f;     // the weather comes up
-        field[static_cast<std::size_t>(gy) * gw + gx] =
-          tFbm(salt, nx + 0.13f * t, ny);
-      }
-    }
-  });
-
-  // The threshold sweeps past the whole range of the field with a margin at
-  // each end, so p=0 opens nothing and p=1 opens everything -- rule 1 by
-  // construction rather than by hoping the noise never peaks.
-  const float cut = static_cast<float>(-0.12 + 1.24 * p);
-  const float band = 0.16f;                 // how soft the cloud edge is
+  CloudsPrep prep;
+  prepareClouds(W, H, progress, elapsedSeconds, seed, prep);
+  const int step = prep.step;
+  const int gw = prep.gw;
+  const int gh = prep.gh;
+  const float* field = prep.field.data();
+  const float cut = prep.cut;
+  const float band = prep.band;
   const float invStep = 1.0f / static_cast<float>(step);
 
   // ── WHICH CELLS NEED SHADING (as the Portal does it) ──────────────────
@@ -14142,57 +14297,13 @@ void MediaEngine::buildGhastlyTransition(const DecodedFrame& outgoing,
   const int H = pic.h;
   dst.resize(static_cast<std::size_t>(W) * H * 4u);
 
-  const double p = std::clamp(progress, 0.0, 1.0);
-  const float t = static_cast<float>(std::max(0.0, elapsedSeconds));
-  const double unit = static_cast<double>(std::min(W, H));
-  const std::uint64_t salt = portalHash(seed ^ 0x6405Full);
-
-  const float drain = static_cast<float>(tSmooth(0.0, 0.72, p));   // colour out
-  const float lift = static_cast<float>(unit * 0.55 * p * p);      // smear up
-  // The wisp line rises past the top with margin, so by p=1 every row is
-  // inside it -- rule 1 without relying on the noise.
-  // WHERE THE WISP LINE STARTS AND ENDS, IN PIXELS, DERIVED.
-  //
-  // It has to begin far enough below the frame that no column's wobble and no
-  // part of the soft edge reaches the bottom row, and end far enough above it
-  // that none of either is left on the top row. Written as fractions of H
-  // (1.22 down to -0.12) it was neither: check_transitions measured
-  // fromOutgoing=0.0031 at progress 0, which is the bottom row already
-  // slightly see-through before the transition had begun. Deriving both ends
-  // from the two widths that actually intrude also keeps it right when the
-  // frame is portrait, where `unit` is the WIDTH and a fraction of H means
-  // something different.
-  const float wispSoft = static_cast<float>(unit * 0.16);
-  const float wispWob = static_cast<float>(unit * 0.34);
-  const float lineAtStart = static_cast<float>(H) + wispSoft + wispWob;
-  const float lineAtEnd = -(wispSoft + wispWob);
-  const float wispLine = lineAtStart + (lineAtEnd - lineAtStart) * static_cast<float>(p);
-  // TWO FREQUENCIES, or it is not a wisp.
-  //
-  // At one low frequency this was a single smooth wave rolling up the frame --
-  // fog, not a ghost. The slow term still does the big shape; the fast one, at
-  // roughly forty cycles across the picture, is what makes neighbouring columns
-  // reach different heights and read as separate tendrils.
-  const float wispSlow = static_cast<float>(7.0 / unit);
-  const float wispFast = static_cast<float>(41.0 / unit);
-
-  // ONE WISP LINE PER COLUMN, NOT PER PIXEL. The wobble depends on x and t
-  // only, and it was evaluated inside the row loop: two fBm calls for every
-  // pixel, ~16 million a 4K frame for 7680 distinct values. That made a
-  // 2-second Ghastly take 18-22 ms a frame and drop frames at 60 Hz (James,
-  // 2026-11-08, TAKE ALL with a Lower Third on deck 2). Same expression,
-  // computed once per column, so the pixels are identical.
-  std::vector<float> columnLine(static_cast<std::size_t>(W));
-  deckboy::effects::detail::parallelRows(W, 1, [&](int x0, int x1) {
-    for (int x = x0; x < x1; ++x) {
-      const float slow = tFbm(salt, x * wispSlow, t * 0.6f) - 0.5f;
-      const float fast = tFbm(salt ^ 0x77ull, x * wispFast, t * 1.9f) - 0.5f;
-      const float wob = slow * 0.62f + fast * 0.38f;
-      columnLine[static_cast<std::size_t>(x)] = wispLine + wob * wispWob;
-    }
-  });
-  // Constant for the whole frame.
-  const float thin = static_cast<float>(1.0 - tSmooth(0.35, 1.0, p) * 0.55);
+  GhastlyPrep prep;
+  prepareGhastly(W, H, progress, elapsedSeconds, seed, prep);
+  const float drain = prep.drain;
+  const float lift = prep.lift;
+  const float wispSoft = prep.wispSoft;
+  const float thin = prep.thin;
+  const float* columnLine = prep.columnLine.data();
 
   deckboy::effects::detail::parallelRows(H, W * 5, [&](int y0, int y1) {
     for (int y = y0; y < y1; ++y) {
@@ -14248,6 +14359,86 @@ void MediaEngine::buildGhastlyTransition(const DecodedFrame& outgoing,
       }
     }
   });
+}
+
+// ---------------------------------------------------------------------------
+// planGpuTransition - the four builders' small inputs, packed for transMain
+// (engine/gpu_effects.hlsl), which reads `aux` as one flat array of floats.
+// ---------------------------------------------------------------------------
+bool MediaEngine::planGpuTransition(TransitionStyle style, int width, int height,
+                                    double progress, double elapsedSeconds,
+                                    std::uint64_t seed, deckboy::gpu::TransitionPlan& plan) {
+  using Plan = deckboy::gpu::TransitionPlan;
+  if (width < 2 || height < 2) return false;
+  plan = Plan{};
+  plan.width = width;
+  plan.height = height;
+  switch (style) {
+    case TransitionStyle::Portal: {
+      PortalPrep prep;
+      preparePortal(width, height, progress, elapsedSeconds, seed, prep);
+      plan.style = Plan::Portal;
+      plan.i[0] = prep.step;
+      plan.i[1] = prep.gw;
+      plan.i[2] = prep.gh;
+      plan.f[0] = prep.outsideCut;
+      plan.f[1] = prep.insideCut;
+      plan.f[2] = prep.profileScale;
+      plan.aux = std::move(prep.aux);
+      return true;
+    }
+    case TransitionStyle::Shatter: {
+      ShatterPrep prep;
+      prepareShatter(width, height, progress, elapsedSeconds, seed, prep);
+      plan.style = Plan::Shatter;
+      plan.i[0] = prep.shard;
+      plan.i[1] = prep.shardsX;
+      plan.f[0] = static_cast<float>(prep.glintDen);
+      // Eight floats a shard: gone, ox, oy, cos, sin, centre x, centre y, 0.
+      plan.aux.resize(prep.shards.size() * 8u, 0.0f);
+      for (std::size_t k = 0; k < prep.shards.size(); ++k) {
+        const ShatterShard& sh = prep.shards[k];
+        float* o = plan.aux.data() + k * 8u;
+        o[0] = static_cast<float>(sh.gone);
+        o[1] = static_cast<float>(sh.ox);
+        o[2] = static_cast<float>(sh.oy);
+        o[3] = static_cast<float>(sh.ca);
+        o[4] = static_cast<float>(sh.sa);
+        o[5] = static_cast<float>(sh.ccx);
+        o[6] = static_cast<float>(sh.ccy);
+      }
+      return true;
+    }
+    case TransitionStyle::Clouds: {
+      CloudsPrep prep;
+      prepareClouds(width, height, progress, elapsedSeconds, seed, prep);
+      plan.style = Plan::Clouds;
+      plan.i[0] = prep.step;
+      plan.i[1] = prep.gw;
+      plan.i[2] = prep.gh;
+      plan.f[0] = prep.cut;
+      plan.f[1] = prep.band;
+      plan.aux = std::move(prep.field);
+      return true;
+    }
+    case TransitionStyle::Ghastly: {
+      GhastlyPrep prep;
+      prepareGhastly(width, height, progress, elapsedSeconds, seed, prep);
+      plan.style = Plan::Ghastly;
+      plan.f[0] = prep.lift;
+      plan.f[1] = prep.drain;
+      plan.f[2] = prep.thin;
+      plan.f[3] = prep.wispSoft;
+      plan.aux = std::move(prep.columnLine);
+      return true;
+    }
+    default:
+      return false;
+  }
+}
+
+std::shared_ptr<const std::vector<std::uint8_t>> MediaEngine::outgoingRgbaPixels(const DecodedFrame& frame) {
+  return outgoingRgba(frame);
 }
 
 // ---------------------------------------------------------------------------

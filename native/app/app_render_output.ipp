@@ -5106,9 +5106,16 @@
           build = &MediaEngine::buildGhastlyTransition; cacheKey = "ghastly"; break;
         default: break;
       }
-      // These build new pixels from the outgoing look: a decoded frame on the
-      // card is downloaded for them, and a look kept on the card is read back,
-      // once (heldGpuLookPixels).
+      // On the card when the output can (drawGpuTransitionLayer); not for a
+      // preview, which has no GPU effects of its own.
+      if (build && rasterW == 0 &&
+          drawGpuTransitionLayer(rt, sourceDeckIndex, engine, *out, style, progress, seconds, heldGain,
+                                 target, transitionBlend, layerWarp)) {
+        return;
+      }
+      // Otherwise built on the CPU from the outgoing look: a decoded frame on
+      // the card is downloaded for them, and a look kept on the card is read
+      // back, once (heldGpuLookPixels).
       if (build && out->isGpu()) {
         out = cpuFrameForTransition(rt, engine.outgoingFrame(), sourceDeckIndex, "out");
         if (!out) return;
@@ -5292,6 +5299,131 @@
     (void) runtime; (void) frame;
     return false;
 #endif
+  }
+
+  // ── PORTAL, SHATTER, CLOUDS AND GHASTLY ON THE CARD ─────────────────
+  //
+  // Their per-pixel pass as a compute shader (runGpuTransition); each frame's
+  // small inputs come from the code the CPU builders run
+  // (MediaEngine::planGpuTransition). The outgoing picture goes to the card
+  // once, not every frame: a look kept on the card is copied there, a decoded
+  // frame on this device goes through the video processor, and pixels in
+  // memory are uploaded only when they change. At 4K the CPU path cost a
+  // download (~8.5 ms), a build on every core (~7-10 ms) and a 33 MB upload
+  // a frame (check_hotspots.py, 2026-11-12). False when it cannot run here:
+  // the caller builds the layer on the CPU as before.
+  static constexpr int kGpuTransitionSlotBase = 1 << 20;   // clear of the playlists' own slots
+
+  // A decoded frame still on this output's device that the video processor
+  // can convert: NV12, or 10-bit SDR (an HDR frame's tone mapping is SDL's,
+  // on the CPU path).
+  bool decoderFrameOnCard(const OutputRuntime& runtime, const DecodedFrame& frame) const {
+#if DECKBOY_INPROC_DECODE && defined(_WIN32)
+    if (!frame.isGpu() || frame.gpuKind != DecodedFrame::GpuKind::D3D11Texture || !frame.gpuTexture ||
+        !frame.gpuDevice || frame.gpuDevice != runtime.rendererD3DDevice) {
+      return false;
+    }
+    if (frame.format == FramePixelFormat::NV12) return true;
+    const SDL_TransferCharacteristics transfer = SDL_COLORSPACETRANSFER(frameColorspace(frame));
+    return frame.format == FramePixelFormat::P010 && transfer != SDL_TRANSFER_CHARACTERISTICS_PQ &&
+           transfer != SDL_TRANSFER_CHARACTERISTICS_HLG;
+#else
+    (void) runtime; (void) frame;
+    return false;
+#endif
+  }
+
+  bool drawGpuTransitionLayer(OutputRuntime& rt, int deckIndex, MediaEngine& engine, const DecodedFrame& out,
+                              TransitionStyle style, double progress, double seconds, float heldGain,
+                              const SDL_Rect& target, SDL_BlendMode transitionBlend, const OutputLayer* layerWarp) {
+    // DECKBOY_CPU_TRANSITIONS=1: the CPU builders only (DECKBOY_CPU_EFFECTS=1
+    // turns these off with the rest of the GPU effects).
+    static const bool cpuOnly = [] {
+      const char* v = std::getenv("DECKBOY_CPU_TRANSITIONS");
+      return v && *v && *v != '0';
+    }();
+    if (cpuOnly || !ensureGpuEffects(rt)) return false;
+    // `out` is a look kept for the transition (with its effects in it), or
+    // the held frame itself.
+    auto isSavedLook = [&](const DecodedFrame* f) {
+      for (const auto* frames : {&rt.heldLookFrames, &rt.layerLookFrames}) {
+        auto it = frames->find(deckIndex);
+        if (it != frames->end() && &it->second.second == f) return true;
+      }
+      return false;
+    };
+    deckboy::gpu::TransitionSource source;
+    std::shared_ptr<const std::vector<std::uint8_t>> converted;   // alive until the upload
+    const DecodedFrame* picture = &out;
+    const DecodedFrame* held = engine.outgoingFrame();
+    int w = 0, h = 0;
+    std::uint64_t stamp = 0;
+    SDL_Texture* kept = heldGpuLookFor(rt, deckIndex, out);
+    if (!isSavedLook(&out) && held && decoderFrameOnCard(rt, *held)) {
+      picture = held;
+      source.decoderTexture2D = held->gpuTexture;
+      source.decoderSubresource = held->gpuSubresource;
+      source.colorspace = static_cast<unsigned>(frameColorspace(*held));
+      w = held->width & ~1;
+      h = held->height & ~1;
+      stamp = reinterpret_cast<std::uintptr_t>(held->gpuTexture) ^ (static_cast<std::uint64_t>(held->index) << 1) ^
+              (static_cast<std::uint64_t>(held->gpuSubresource) << 40);
+    } else if (kept) {
+      float kw = 0.0f, kh = 0.0f;
+      if (!SDL_GetTextureSize(kept, &kw, &kh)) return false;
+      source.texture = kept;
+      w = static_cast<int>(kw);
+      h = static_cast<int>(kh);
+      stamp = reinterpret_cast<std::uintptr_t>(kept) ^ (static_cast<std::uint64_t>(out.index) << 1);
+    } else if (!out.isGpu() && !out.pixels.empty()) {
+      w = out.width;
+      h = out.height;
+      if (out.format == FramePixelFormat::RGBA32 &&
+          out.pixels.size() >= static_cast<std::size_t>(std::max(0, w)) * std::max(0, h) * 4u) {
+        source.rgba = out.pixels.data();
+      } else {
+        converted = MediaEngine::outgoingRgbaPixels(out);
+        if (!converted) return false;
+        source.rgba = converted->data();
+      }
+      stamp = reinterpret_cast<std::uintptr_t>(out.pixels.data()) ^ (static_cast<std::uint64_t>(out.index) << 1);
+    } else {
+      return false;
+    }
+    if (w < 2 || h < 2) return false;
+    auto& slot = rt.gpuTransitionSlots[deckIndex];
+    if (progress < slot.lastProgress) ++slot.generation;   // a new transition
+    slot.lastProgress = progress;
+    source.stamp = (stamp ^ (slot.generation * 0x9E3779B97F4A7C15ull)) | 1u;
+    deckboy::gpu::TransitionPlan plan;
+    // The seed is the frame's index, as the CPU path's is.
+    if (!MediaEngine::planGpuTransition(style, w, h, progress, progress * seconds,
+                                        static_cast<std::uint64_t>(picture->index), plan)) {
+      return false;
+    }
+    SDL_Texture* tex =
+      deckboy::gpu::runGpuTransition(rt.gpuEffects, kGpuTransitionSlotBase + deckIndex, source, plan);
+    if (!tex) return false;
+    SDL_SetTextureBlendMode(tex, SDL_BLENDMODE_BLEND);
+    SDL_SetTextureAlphaMod(tex, static_cast<Uint8>(std::lround(255 * heldGain)));
+    const Cue outgoingGeometry = engine.outgoingGeometryCue();
+    renderTextureWithCueGeometry(rt.outputRenderer, tex, w, h, &outgoingGeometry, target, transitionBlend,
+                                 layerWarp, 0, picture->placedWidth(), picture->placedHeight());
+    return true;
+  }
+
+  // Frees a deck's transition slot once its transition is over (the buffers
+  // are the outgoing picture's size: ~100 MB at 4K).
+  void sweepGpuTransitionSlots(OutputRuntime& rt) {
+    for (auto it = rt.gpuTransitionSlots.begin(); it != rt.gpuTransitionSlots.end();) {
+      const DeckRuntime* deck = runtimeForDeck(it->first);
+      if (deck && deck->mediaEngine && deck->mediaEngine->outgoingProgress01() < 1.0) {
+        ++it;
+        continue;
+      }
+      deckboy::gpu::releaseGpuEffectsSlot(rt.gpuEffects, kGpuTransitionSlotBase + it->first);
+      it = rt.gpuTransitionSlots.erase(it);
+    }
   }
 
   void releaseTransitionGpuWraps(OutputRuntime& runtime) {
@@ -6207,6 +6339,7 @@
     if (!runtime || !runtime->outputRenderer) {
       return;
     }
+    if (!runtime->gpuTransitionSlots.empty()) sweepGpuTransitionSlots(*runtime);
     const OutputTarget& output = project_.outputs[outputIndex];
     if (!output.enabled) {
       if (outputIndex == scopesOutputIndex() && scopesCaptureRenderer_) releaseScopesCapture();

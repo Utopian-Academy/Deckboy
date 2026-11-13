@@ -5889,7 +5889,7 @@
                               const std::string& outgoingPath,
                               const std::string& incomingPath,
                               const std::string& dstPath,
-                              double progress, double seconds) {
+                              double progress, double seconds, bool gpu = false) {
     bool recognised = false;
     const TransitionStyle style =
       deckboy::core::utils::parseTransitionStyleToken(styleToken, &recognised);
@@ -5974,7 +5974,45 @@
           return false;
       }
     };
-    if (!build()) {
+    // gpu: the same frame through the GPU kernel, read back. The small inputs
+    // come from the same code (MediaEngine::planGpuTransition).
+    SDL_Window* gpuWindow = nullptr;
+    SDL_Renderer* gpuRenderer = nullptr;
+    deckboy::gpu::GpuEffects* g = nullptr;
+    if (gpu) {
+      if (!SDL_Init(SDL_INIT_VIDEO)) {
+        std::cerr << "gpu-transition-dump: no video: " << SDL_GetError() << '\n';
+        return 1;
+      }
+      gpuWindow = SDL_CreateWindow("gpu-transition-dump", 64, 64, SDL_WINDOW_HIDDEN);
+      if (gpuWindow) {
+        const char* forced = std::getenv("DECKBOY_OUTPUT_RENDERER");
+        gpuRenderer = (forced && *forced) ? SDL_CreateRenderer(gpuWindow, forced) : deckboyCreateRenderer(gpuWindow);
+      }
+      g = gpuRenderer ? deckboy::gpu::createGpuEffects(gpuRenderer) : nullptr;
+      if (!g) {
+        std::cerr << "gpu-transition-dump: no GPU effects on this renderer\n";
+        return 3;
+      }
+    }
+    const auto gpuBuild = [&]() -> bool {
+      deckboy::gpu::TransitionPlan plan;
+      if (!MediaEngine::planGpuTransition(style, ow, oh, progress, elapsed, seed, plan)) return false;
+      deckboy::gpu::TransitionSource source;
+      source.rgba = outgoing.pixels.data();
+      source.stamp = 1;   // the same picture on every run
+      if (!deckboy::gpu::runGpuTransition(g, 0, source, plan)) return false;
+      int rw = 0, rh = 0;
+      return deckboy::gpu::readGpuEffectsResult(g, 0, layer, rw, rh) && rw == ow && rh == oh;
+    };
+    const auto run = [&]() { return gpu ? gpuBuild() : build(); };
+    if (gpu && !gpuBuild()) {
+      std::cerr << "gpu-transition-dump: the GPU run failed (or "
+                << deckboy::core::utils::transitionStyleToken(style) << " has no GPU version)\n";
+      return 5;
+    }
+    if (gpu) std::cout << "gpu-transition-dump: on " << deckboy::gpu::gpuEffectsBackend(g) << '\n';
+    if (!gpu && !build()) {
       std::cerr << "transition-dump: "
                 << deckboy::core::utils::transitionStyleToken(style)
                 << " is drawn by the renderer rather than built on the CPU, so"
@@ -5991,7 +6029,7 @@
       std::vector<double> ms;
       for (int i = 0; i < runs; ++i) {
         const auto t0 = std::chrono::steady_clock::now();
-        build();
+        run();
         ms.push_back(std::chrono::duration<double, std::milli>(
           std::chrono::steady_clock::now() - t0).count());
       }
@@ -5999,6 +6037,11 @@
       std::printf("transition-bench: %s %dx%d p=%.2f median %.2f ms, min %.2f, max %.2f (%d runs)\n",
                   deckboy::core::utils::transitionStyleToken(style).c_str(), ow, oh,
                   progress, ms[ms.size() / 2], ms.front(), ms.back(), runs);
+    }
+    if (g) {
+      deckboy::gpu::destroyGpuEffects(g);
+      SDL_DestroyRenderer(gpuRenderer);
+      SDL_DestroyWindow(gpuWindow);
     }
     if (layer.size() < count * 4u) {
       std::cerr << "transition-dump: the builder produced nothing (the frame"

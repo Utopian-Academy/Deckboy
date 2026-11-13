@@ -492,6 +492,15 @@ struct OutputRuntime {
     std::uintptr_t stamp = 0;
   };
   std::map<int, TransitionGpuWrap> transitionGpuWraps;
+  // Portal, shatter, clouds and ghastly drawn on the card (runGpuTransition),
+  // by deck: how far the last frame was, to tell a new transition from the
+  // next frame of this one, and a count of transitions, so a new one never
+  // reuses the outgoing picture of the last. Released when it ends.
+  struct GpuTransitionSlot {
+    double lastProgress = 2.0;
+    std::uint64_t generation = 0;
+  };
+  std::map<int, GpuTransitionSlot> gpuTransitionSlots;
   // The Portal transition's picture: the outgoing frame with the holes melted
   // through it, rebuilt every frame the transition runs.
   std::vector<std::uint8_t> portalTransitionPixels;

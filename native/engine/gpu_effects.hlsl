@@ -447,3 +447,135 @@ void nv12Main(uint3 id : SV_DispatchThreadID) {
   }
   put(id.xy, float4(floor(acc / float(i0 * i0) * 255.0 + 0.5), 255.0));
 }
+
+// ---- portal, shatter, clouds and ghastly: the outgoing layer ----------------
+// engine/media_engine.cpp's transition builders, per pixel. kind: 1 portal,
+// 2 shatter, 3 clouds, 4 ghastly. aux: each frame's small inputs
+// (MediaEngine::planGpuTransition) as one flat array of floats, four to a
+// texel and auxW texels to a row. The output is the layer with its alpha,
+// drawn over the incoming cue.
+float auxAt(int i) {
+  const int t = i >> 2;
+  const float4 v = aux.Load(int3(t % int(auxW), t / int(auxW), 0));
+  const int c = i & 3;
+  return c == 0 ? v.x : (c == 1 ? v.y : (c == 2 ? v.z : v.w));
+}
+// Shatter's roundHalfAway: std::lround, half away from zero.
+int roundHalfAway(float v) {
+  const float whole = trunc(v);
+  const float frac = v - whole;
+  return int(whole) + (frac >= 0.5 ? 1 : (frac <= -0.5 ? -1 : 0));
+}
+
+[numthreads(8, 8, 1)]
+void transMain(uint3 id : SV_DispatchThreadID) {
+  if (id.x >= width || id.y >= height) return;
+  const int x = int(id.x), y = int(id.y);
+  const int W = int(width), H = int(height);
+  float4 o = float4(0, 0, 0, 0);
+  if (kind == 1) {
+    // PORTAL. i0 the grid step, i1/i2 its size; aux: the field, its hue, the
+    // edge's profile (2048 x core, hot, light, space), the wheel (256 x RGB).
+    // f0/f1: where the light has gone outside and inside; f2 the profile's scale.
+    const int step = i0, gw = i1, gh = i2;
+    const float invStep = 1.0 / float(step);
+    const float gyf = float(y) * invStep;
+    const int gy = min(gh - 2, int(gyf));
+    const float fy = gyf - float(gy);
+    const int cgx = min(gw - 2, x / step);
+    const float fx = float(x) * invStep - float(cgx);
+    const int a = gy * gw + cgx;
+    const float d0 = auxAt(a) + (auxAt(a + 1) - auxAt(a)) * fx;
+    const float d1 = auxAt(a + gw) + (auxAt(a + gw + 1) - auxAt(a + gw)) * fx;
+    const float d = d0 + (d1 - d0) * fy;
+    if (d > f0) {
+      o = float4(texel(x, y));   // untouched old picture
+    } else if (d >= -f1) {
+      const int hb = gw * gh;
+      const float h0 = auxAt(hb + a) + (auxAt(hb + a + 1) - auxAt(hb + a)) * fx;
+      const float h1 = auxAt(hb + a + gw) + (auxAt(hb + a + gw + 1) - auxAt(hb + a + gw)) * fx;
+      float hu = h0 + (h1 - h0) * fy;
+      hu -= floor(hu);
+      const int pb = hb * 2;
+      const int wb = pb + 2048 * 4 + min(255, int(hu * 256.0)) * 3;
+      const float3 wc = float3(auxAt(wb), auxAt(wb + 1), auxAt(wb + 2));
+      const int pi = pb + clamp(int((d + f1) * f2 + 0.5), 0, 2047) * 4;
+      const float core = auxAt(pi), hot = auxAt(pi + 1), light = auxAt(pi + 2), space = auxAt(pi + 3);
+      const float3 rim = wc + (255.0 - wc) * hot;
+      if (d >= 0.0) {
+        const float3 s = float3(texel(x, y).rgb);
+        o = float4(floor(min(255.0, s + (rim - s) * core + rim * light * 0.6)), 255.0);
+      } else {
+        const float alpha = light + space * (1.0 - light);
+        if (alpha > 0.002) {
+          const float under = space * (1.0 - light);
+          const float inv = 1.0 / alpha;
+          o = float4(floor(min(255.0, (rim * light + float3(12.0, 10.0, 58.0) * under) * inv)),
+                     floor(clamp(alpha * 255.0, 0.0, 255.0)));
+        }
+      }
+    }
+  } else if (kind == 2) {
+    // SHATTER. i0 the shard size, i1 shards across; aux: eight floats a shard
+    // (gone, offset x/y, cos, sin, centre x/y). f0: the glint's falloff.
+    const int shard = i0;
+    const int gx = x / shard, gy = y / shard;
+    const int b = (gy * i1 + gx) * 8;
+    const float gone = auxAt(b);
+    if (gone <= 0.0) {
+      o = float4(float3(texel(x, y).rgb), 255.0);
+    } else if (gone < 1.0) {
+      const float ox = auxAt(b + 1), oy = auxAt(b + 2), ca = auxAt(b + 3), sa = auxAt(b + 4);
+      const float ccx = auxAt(b + 5), ccy = auxAt(b + 6);
+      const float rx = float(x) - ccx, ry = float(y) - ccy;
+      const int sx = roundHalfAway(ccx + rx * ca - ry * sa - ox);
+      const int sy = roundHalfAway(ccy + rx * sa + ry * ca - oy);
+      if (sx >= 0 && sx < W && sy >= 0 && sy < H) {
+        const float3 s = float3(texel(sx, sy).rgb);
+        const int edgeY = min(y - gy * shard, (gy + 1) * shard - 1 - y);
+        const int edge = min(edgeY, min(x - gx * shard, (gx + 1) * shard - 1 - x));
+        const float glint = clamp(1.0 - float(edge) / f0, 0.0, 1.0) * (0.55 * gone);
+        o = float4(floor(min(255.0, s + (255.0 - s) * glint)), floor(clamp((1.0 - gone) * 255.0, 0.0, 255.0)));
+      }
+    }
+  } else if (kind == 3) {
+    // CLOUDS. i0 the lattice step, i1 its width; aux: the field. f0 the cut,
+    // f1 the band.
+    const int step = i0, gw = i1;
+    const float invStep = 1.0 / float(step);
+    const float fy = float(y) * invStep;
+    const int gy = int(fy);
+    const float wy = fy - float(gy);
+    const float fx = float(x) * invStep;
+    const int gx = int(fx);
+    const float wx = fx - float(gx);
+    const int at = gy * gw + gx;
+    const float c0 = auxAt(at), c1 = auxAt(at + 1), c2 = auxAt(at + gw), c3 = auxAt(at + gw + 1);
+    const float top = c0 + (c1 - c0) * wx;
+    const float bot = c2 + (c3 - c2) * wx;
+    const float density = top + (bot - top) * wy;
+    const float open = clamp((f0 - density) / f1 + 0.5, 0.0, 1.0);
+    const float keep = 1.0 - open;
+    if (keep > 0.0) {
+      const float3 s = float3(texel(x, y).rgb);
+      const float fringe = 4.0 * open * (1.0 - open) * 0.55;
+      o = float4(floor(min(255.0, s + (255.0 - s) * fringe)), floor(clamp(keep * 255.0, 0.0, 255.0)));
+    }
+  } else if (kind == 4) {
+    // GHASTLY. aux: the wisp line per column. f0 the lift, f1 the drain,
+    // f2 the thinning, f3 the wisp's soft edge.
+    const float wisp = auxAt(x);
+    const float keep = clamp((wisp - float(y)) / f3, 0.0, 1.0);
+    const int sy = lroundf(float(y) + f0);
+    if (keep > 0.0 && sy < H) {
+      const float3 s = float3(texel(x, clamp(sy, 0, H - 1)).rgb);
+      const float luma = 0.299 * s.r + 0.587 * s.g + 0.114 * s.b;
+      const float3 cold = float3(luma * 0.82, luma * 0.90, min(255.0, luma * 1.12 + 10.0));
+      float3 c = s + (cold - s) * f1;
+      const float bite = 4.0 * keep * (1.0 - keep) * 0.5;
+      c += (float3(235.0, 240.0, 255.0) - c) * bite;
+      o = float4(floor(clamp(c, 0.0, 255.0)), floor(clamp(keep * f2 * 255.0, 0.0, 255.0)));
+    }
+  }
+  put(id.xy, o);
+}

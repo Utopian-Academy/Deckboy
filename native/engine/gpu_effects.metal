@@ -396,3 +396,122 @@ kernel void nv12Main(ARGS) {
   }
   put(dst, id, float4(floor(acc / float(p.i0 * p.i0) * 255.0f + 0.5f), 255.0f));
 }
+
+static float auxAt(SRC aux, constant Params& p, int i) {
+  const int t = i >> 2;
+  const float4 v = aux.read(uint2(t % int(p.auxW), t / int(p.auxW)));
+  const int c = i & 3;
+  return c == 0 ? v.x : (c == 1 ? v.y : (c == 2 ? v.z : v.w));
+}
+static int roundHalfAway(float v) {
+  const float whole = trunc(v);
+  const float frac = v - whole;
+  return int(whole) + (frac >= 0.5f ? 1 : (frac <= -0.5f ? -1 : 0));
+}
+
+kernel void transMain(ARGS) {
+  if (id.x >= p.width || id.y >= p.height) return;
+  const int x = int(id.x), y = int(id.y);
+  const int W = int(p.width), H = int(p.height);
+  float4 o = float4(0.0f);
+  if (p.kind == 1) {
+    const int step = p.i0, gw = p.i1, gh = p.i2;
+    const float invStep = 1.0f / float(step);
+    const float gyf = float(y) * invStep;
+    const int gy = min(gh - 2, int(gyf));
+    const float fy = gyf - float(gy);
+    const int cgx = min(gw - 2, x / step);
+    const float fx = float(x) * invStep - float(cgx);
+    const int a = gy * gw + cgx;
+    const float d0 = auxAt(aux, p, a) + (auxAt(aux, p, a + 1) - auxAt(aux, p, a)) * fx;
+    const float d1 = auxAt(aux, p, a + gw) + (auxAt(aux, p, a + gw + 1) - auxAt(aux, p, a + gw)) * fx;
+    const float d = d0 + (d1 - d0) * fy;
+    if (d > p.f0) {
+      o = float4(texel(src, x, y));
+    } else if (d >= -p.f1) {
+      const int hb = gw * gh;
+      const float h0 = auxAt(aux, p, hb + a) + (auxAt(aux, p, hb + a + 1) - auxAt(aux, p, hb + a)) * fx;
+      const float h1 = auxAt(aux, p, hb + a + gw) + (auxAt(aux, p, hb + a + gw + 1) - auxAt(aux, p, hb + a + gw)) * fx;
+      float hu = h0 + (h1 - h0) * fy;
+      hu -= floor(hu);
+      const int pb = hb * 2;
+      const int wb = pb + 2048 * 4 + min(255, int(hu * 256.0f)) * 3;
+      const float3 wc = float3(auxAt(aux, p, wb), auxAt(aux, p, wb + 1), auxAt(aux, p, wb + 2));
+      const int pi = pb + clamp(int((d + p.f1) * p.f2 + 0.5f), 0, 2047) * 4;
+      const float core = auxAt(aux, p, pi), hot = auxAt(aux, p, pi + 1);
+      const float light = auxAt(aux, p, pi + 2), space = auxAt(aux, p, pi + 3);
+      const float3 rim = wc + (255.0f - wc) * hot;
+      if (d >= 0.0f) {
+        const float3 s = float3(texel(src, x, y).rgb);
+        o = float4(floor(min(float3(255.0f), s + (rim - s) * core + rim * light * 0.6f)), 255.0f);
+      } else {
+        const float alpha = light + space * (1.0f - light);
+        if (alpha > 0.002f) {
+          const float under = space * (1.0f - light);
+          const float inv = 1.0f / alpha;
+          o = float4(floor(min(float3(255.0f), (rim * light + float3(12.0f, 10.0f, 58.0f) * under) * inv)),
+                     floor(clamp(alpha * 255.0f, 0.0f, 255.0f)));
+        }
+      }
+    }
+  } else if (p.kind == 2) {
+    const int shard = p.i0;
+    const int gx = x / shard, gy = y / shard;
+    const int b = (gy * p.i1 + gx) * 8;
+    const float gone = auxAt(aux, p, b);
+    if (gone <= 0.0f) {
+      o = float4(float3(texel(src, x, y).rgb), 255.0f);
+    } else if (gone < 1.0f) {
+      const float ox = auxAt(aux, p, b + 1), oy = auxAt(aux, p, b + 2);
+      const float ca = auxAt(aux, p, b + 3), sa = auxAt(aux, p, b + 4);
+      const float ccx = auxAt(aux, p, b + 5), ccy = auxAt(aux, p, b + 6);
+      const float rx = float(x) - ccx, ry = float(y) - ccy;
+      const int sx = roundHalfAway(ccx + rx * ca - ry * sa - ox);
+      const int sy = roundHalfAway(ccy + rx * sa + ry * ca - oy);
+      if (sx >= 0 && sx < W && sy >= 0 && sy < H) {
+        const float3 s = float3(texel(src, sx, sy).rgb);
+        const int edgeY = min(y - gy * shard, (gy + 1) * shard - 1 - y);
+        const int edge = min(edgeY, min(x - gx * shard, (gx + 1) * shard - 1 - x));
+        const float glint = clamp(1.0f - float(edge) / p.f0, 0.0f, 1.0f) * (0.55f * gone);
+        o = float4(floor(min(float3(255.0f), s + (255.0f - s) * glint)),
+                   floor(clamp((1.0f - gone) * 255.0f, 0.0f, 255.0f)));
+      }
+    }
+  } else if (p.kind == 3) {
+    const int step = p.i0, gw = p.i1;
+    const float invStep = 1.0f / float(step);
+    const float fy = float(y) * invStep;
+    const int gy = int(fy);
+    const float wy = fy - float(gy);
+    const float fx = float(x) * invStep;
+    const int gx = int(fx);
+    const float wx = fx - float(gx);
+    const int at = gy * gw + gx;
+    const float c0 = auxAt(aux, p, at), c1 = auxAt(aux, p, at + 1);
+    const float c2 = auxAt(aux, p, at + gw), c3 = auxAt(aux, p, at + gw + 1);
+    const float top = c0 + (c1 - c0) * wx;
+    const float bot = c2 + (c3 - c2) * wx;
+    const float density = top + (bot - top) * wy;
+    const float open = clamp((p.f0 - density) / p.f1 + 0.5f, 0.0f, 1.0f);
+    const float keep = 1.0f - open;
+    if (keep > 0.0f) {
+      const float3 s = float3(texel(src, x, y).rgb);
+      const float fringe = 4.0f * open * (1.0f - open) * 0.55f;
+      o = float4(floor(min(float3(255.0f), s + (255.0f - s) * fringe)), floor(clamp(keep * 255.0f, 0.0f, 255.0f)));
+    }
+  } else if (p.kind == 4) {
+    const float wisp = auxAt(aux, p, x);
+    const float keep = clamp((wisp - float(y)) / p.f3, 0.0f, 1.0f);
+    const int sy = lroundf(float(y) + p.f0);
+    if (keep > 0.0f && sy < H) {
+      const float3 s = float3(texel(src, x, clamp(sy, 0, H - 1)).rgb);
+      const float luma = 0.299f * s.r + 0.587f * s.g + 0.114f * s.b;
+      const float3 cold = float3(luma * 0.82f, luma * 0.90f, min(255.0f, luma * 1.12f + 10.0f));
+      float3 c = s + (cold - s) * p.f1;
+      const float bite = 4.0f * keep * (1.0f - keep) * 0.5f;
+      c += (float3(235.0f, 240.0f, 255.0f) - c) * bite;
+      o = float4(floor(clamp(c, float3(0.0f), float3(255.0f))), floor(clamp(keep * p.f2 * 255.0f, 0.0f, 255.0f)));
+    }
+  }
+  put(dst, id, o);
+}

@@ -171,6 +171,16 @@ def main():
         small = snap(args.exe, work, "c%d-small" % i, clip, case, False, args.visible, args.against)
         for key, limit_mean in (("still", 6.0), ("mid", 8.0)):
             mean, big, box = compare(full[key], small[key])
+            if (key == "mid" and args.against == "cpu" and args.style in ("shatter", "clouds")
+                    and case[4]):
+                # Shatter and clouds are seeded by the outgoing frame's index,
+                # and with CPU effects the look on the same paused frame carries
+                # an index one lower (2026-11-12: 60 against 61), so the two runs
+                # draw different shards or clouds. tools/check_gpu_transitions.py
+                # compares the kernel itself; here only the plain case can.
+                print("  %-28s %-5s skipped: seeded by a frame index the two runs do not share"
+                      % (case[0], key), flush=True)
+                continue
             if "scanlines" in case[0] and args.against == "full":
                 # The layer: 0.3 of the 1920x1080 frame, centred at the offset.
                 cx, cy, w, h = 960 + case[2], 540 + case[3], 1920 * case[1], 1080 * case[1]

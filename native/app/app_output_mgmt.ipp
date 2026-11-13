@@ -5900,6 +5900,7 @@
     runtime.heldGpuLookTextures.clear();
     releaseTransitionGpuWraps(runtime);
     runtime.layerGpuFxRan.clear();
+    runtime.gpuTransitionSlots.clear();
 #if DECKBOY_INPROC_DECODE
     // The pixel-buffer wraps go too. They hold a Metal view of an IOSurface
     // the decoder owns; outliving this renderer is a use-after-free, and the
@@ -6019,6 +6020,7 @@
       runtime.heldGpuLookTextures.clear();
       releaseTransitionGpuWraps(runtime);
       runtime.layerGpuFxRan.clear();
+      runtime.gpuTransitionSlots.clear();   // their slots went with the GPU effects
       SDL_DestroyRenderer(runtime.outputRenderer);
       runtime.outputRenderer = nullptr;
     }
