@@ -65,10 +65,9 @@
 #include "core/code_source.hpp"
 #include "core/types.hpp"
 
+namespace deckboy::gpu { struct TransitionPlan; }
 #if DECKBOY_INPROC_DECODE
 #include "engine/libav_decoder.hpp"
-
-namespace deckboy::gpu { struct TransitionPlan; }
 #endif
 
 // Compute the outgoing cue's fade gain at the moment a transition begins.
