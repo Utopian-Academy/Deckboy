@@ -4892,9 +4892,16 @@
     const double captureIntervalMs = 1000.0 / std::max(1.0, captureFps);
     const double now = static_cast<double>(nowMs);
     const OutputRuntime::CapturedFrame& held = hdrOnly ? runtime.hdrRecordFrame : runtime.latestCapturedFrame;
+    // THE FRAME NEAREST THE DEADLINE, not the first one after it. With the
+    // output and the recording at the same rate the frames land right ON the
+    // deadline, and present jitter put each one a hair before or after it:
+    // the recording took one frame twice and skipped the next, all through
+    // the take (check_loop_seam: "117, 117, 119, 119", 2026-11-13). Half an
+    // interval early is still the nearest frame, so a 60 Hz output records
+    // one frame for one.
     if (held.width > 0 && held.height > 0 && !held.empty() &&
         runtime.nextEgressCaptureDueMs > 0.0 &&
-        now < runtime.nextEgressCaptureDueMs) {
+        now < runtime.nextEgressCaptureDueMs - captureIntervalMs * 0.5) {
       return true;
     }
     // Late by more than a whole interval (a stall, the first frame): start

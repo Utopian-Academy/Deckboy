@@ -152,6 +152,10 @@ def main():
     parser.add_argument("--report-sound", action="store_true",
                         help="print the sound's verdict but judge only the picture (CI: its stand-in "
                              "sound device runs off true time, so the sound measures the machine)")
+    parser.add_argument("--pre", action="append", default=[], metavar="COMMAND",
+                        help="a remote command sent before the test starts; repeat for more. For a quiet run: "
+                             "--pre \"AUDIO Speakers (Steam Streaming Speakers)\" (any output nobody hears, which "
+                             "keeps a real audio clock, unlike SDL's dummy driver)")
     parser.add_argument("--app-arg", action="append", default=[],
                         help="extra Deckboy argument (repeatable), e.g. --no-inproc-decode")
     args = parser.parse_args()
@@ -208,6 +212,8 @@ def main():
                     break
                 except OSError:
                     time.sleep(0.5)
+            for command in args.pre:
+                send(args.port, command)
             send(args.port, "OUTPUT ON")
             # The programme at the recording's own size: the check reads bar codes,
             # not detail, and a full-size composite on a software renderer is more
