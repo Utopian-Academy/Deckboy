@@ -3073,3 +3073,175 @@ Stop masking this. The mask stays in the show's library, to put back from the me
 Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	Susa le maski kumbukiso, nakuzo zonke ama-cue, ama-playlist nokuphumayo okuyisebenzisayo. Ukuhlehlisa kuyibuyisa
 FX PARAM: slot must be A-F	FX PARAM: isilothi kumele sibe ngu-A kuya ku-F
 FX LFO: slot must be A-D, E for the amount, or F/G for the fifth and sixth sliders	FX LFO: isilothi kumele sibe ngu-A kuya ku-D, u-E wenani, noma u-F/G wezilayidi zesihlanu nezesithupha
+playlist 2 is ready: you built one in the magic show	uhlu lokudlala 2 selulungile: ulwenzile embukisweni wemilingo
+FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR	FX: sebenzisa LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR
+BLACK	mnyama
+COACH MARV	COACH MARV
+JUNE O'NEIL	JUNE O'NEIL
+TURNIP TOP	TURNIP TOP
+CHEF BORK	CHEF BORK
+DONNA WHEEL	DONNA WHEEL
+KEEPER ROOK	KEEPER ROOK
+AGENT BRANDT	AGENT BRANDT
+AGENT HOLLIS	AGENT HOLLIS
+MR. SALTY	MR. SALTY
+OPTIMUS PRIMETIME	OPTIMUS PRIMETIME
+DEFT FUNK	DEFT FUNK
+LT. HAILA	LT. HAILA
+ENSIGN JINKLEY	ENSIGN JINKLEY
+The tour bus, with Polly Carton	Ibhasi lohambo, noPolly Carton
+A test pattern, drawing on a replay, a still, and the video synth at halftime.	Iphethini lokuhlola, ukudweba phezu kwempinda, isithombe esimile, ne-synth yevidiyo ngekhefu.
+A stage timer over a picture, held, a presenter view for the person on stage, and a launch.	Isibali-sikhathi sesiteji phezu kwesithombe, ukubamba, umbono womuntu osesiteji, nokwethula.
+A second playlist as a layer, TAKE ALL so two things change on one beat, and a playlist's opacity.	Uhlu lokudlala lwesibili luwungqimba, TAKE ALL ishintsha izinto ezimbili kanye, nokufiphala kohlu.
+The fashion show, with Edda Mod	Umbukiso wemfashini, noEdda Mod
+Ground control, with Major Tomasina	Abalawuli basemhlabeni, noMajor Tomasina
+0.1, 0.1, 0.1	0.1, 0.1, 0.1
+Opener (the bus at dawn)	Opener (the bus at dawn)
+Polly Carton's tour bus leaves at six, skapi, and this show goes with it. Press START.	Ibhasi likaPolly Carton lihamba ngehora lesithupha, skapi, nalo mbukiso uyahamba. Cindezela QALA.
+A show that travels needs three things first: a check, a fix and a bundle.	Umbukiso ohambayo uqala ngezinto ezintathu: ukuhlola, ukulungisa nokuhlanganisa.
+Honey, I've played four thousand towns. Not one of them had my laptop.	S'thandwa, ngicule emadolobheni ayizinkulungwane ezine. Alikho ebelinelaptop yami.
+It lists what the show would trip over: missing files, empty cues, outputs it cannot reach.	Libala okungakhuba umbukiso: amafayela alahlekile, ama-cue angenalutho, nezindawo zokukhipha ezingafinyeleleki.
+Every show has a problem. Find yours before the audience does.	Yonke imibukiso inenkinga. Thola eyakho ngaphambi kwezethameli.
+The intro video is on the office computer. Select it and delete it, or RELINK it if you have the file.	Ividiyo yesingeniso ikukhompyutha yasehhovisi. Yikhethe uyisuse, noma usebenzise RELINK uma unefayela.
+Fix it here, with time and coffee. Not at the venue, with neither.	Lungisa lapha, kusekhona isikhathi nekhofi. Hhayi endaweni yombukiso, sekungekho kokubili.
+Leave it behind, sugar. I left a whole wig in Tulsa and the show went on.	Yishiye, s'thandwa. Ngashiya iwigi yonke eTulsa, umbukiso waqhubeka.
+Press BUNDLE and choose where: a USB stick, a shared folder. The show and all its media, in one folder.	Cindezela HLANGANISA ukhethe indawo: i-USB noma ifolda eyabiwe. Umbukiso nayo yonke imidiya kufolda eyodwa.
+Pack it like a wig box. Everything inside, nothing loose.	Pakisha njengebhokisi lewigi. Konke ngaphakathi, kungasali nalunwele ngaphandle.
+Checked, fixed, bundled. On the other computer, open the show in the bundle and everything is there.	Kuhloliwe, kwalungiswa, kwahlanganiswa. Kwenye ikhompyutha vula umbukiso osephaketheni; konke kukhona.
+The show file is only text, so it travels light. The media is the luggage.	Ifayela lombukiso liwumbhalo nje, lihamba lilula. Imidiya yimithwalo.
+Bus leaves at six. Show starts at eight. Hair takes until seven.	Ibhasi lihamba ngesithupha. Umbukiso uqala ngesishiyagalombili. Izinwele ziphela ngesikhombisa.
+There are dozens, and most of them run on the graphics card, so you can stack them.	Kunenqwaba, iningi lisebenza ekhadini lezithombe, ngakho ungazinqwabelanisa.
+An effect, a ~ and a colour. The critic is crying. Good crying, I think.	Umphumela, i-~, nombala. Umgxeki uyakhala. Ezenjabulo, ngicabanga.
+Stack a few more. Order matters: each effect works on the picture the one above it made.	Nqwabelanisa eminye. Ukuhleleka kubalulekile: umphumela ngamunye usebenza esithombeni esenziwe ongaphezulu kwawo.
+Three effects! It's a mess! It's ALIVE! Post it.	Imiphumela emithathu! Isiphithiphithi! KUYAPHILA! Kushicilele.
+The replay	The replay
+Coach Marv has two minutes of airtime, one replay and a pen, skapi. He will use all three. Press START.	UCoach Marv unemizuzu emibili yokusakaza, impinda nepeni, skapi. Uzosebenzisa konke. Cindezela QALA.
+Tonight: a test pattern, drawing on the picture, and the video synth.	Namuhla: iphethini lokuhlola, ukudweba esithombeni, ne-synth yevidiyo.
+Folks, I've watched this play forty times. It's still a play.	Bakithi, ngibuke lo mnyakazo izikhathi ezingamashumi amane. Usengumnyakazo.
+CHECK THE MONITORS	HLOLA IZIQAPHI
+PATTERN adds Pocket Test. If its circles are not round, a screen is stretched. Find out now, not on air.	IPHETHINI yengeza i-Pocket Test. Uma izindingilizi zingeyindilinga, isikrini sinwetshiwe. Thola manje, ungakabi semoyeni.
+Its bars and steps are checked against real meters, so a wrong screen looks wrong at once.	Imigqa nezinyathelo kuhlolwe ngamamitha angempela, ngakho isikrini esingalungile siyabonakala masinyane.
+That's a test pattern. You test with it. That's why they call it that.	Lelo yiphethini lokuhlola. Uhlola ngalo. Yingakho libizwa kanjalo.
+ROLL THE REPLAY	DLALA IMPINDA
+Select The replay and TAKE it.	Khetha The replay, usebenzise TAKE.
+A replay loops, so the pundit can talk over it for as long as he likes. He likes.	Impinda iyaziphinda ukuze umhlaziyi akhulume ngokuthanda kwakhe. Uthanda kakhulu.
+Here's number 22. Number 22 has the ball. That's important, because the ball is how you score.	Nangu unombolo 22. Unombolo 22 unebhola. Kubalulekile, ngoba ushaya ngebhola.
+The pen goes over the replay, on its own layer. Press the + at the end of the playlist tabs.	Ipeni lingaphezu kwempinda, kungqimba lalo. Cindezela + ekugcineni kwamathebhu ohlu lokudlala.
+A second playlist is a layer over the first.	Uhlu lokudlala lwesibili luwungqimba phezu kolokuqala.
+Over it. Not under it. Under it, you can't see it. That's football.	Phezu kwalo. Hhayi ngaphansi. Ngaphansi ngeke ulubone. Yibhola lelo.
+The lit tab is where SOURCE puts things. Skip this and the ink lands under the replay.	Ithebhu ekhanyayo yilapho UMTHOMBO ufaka khona izinto. Yeqa lokhu, uyinki ube ngaphansi kwempinda.
+See that tab? Click it. Fundamentals.	Uyabona lelo thebhu? Lichofoze. Izisekelo.
+In playlist 2: SOURCE, then Draw.	Ohlwini lokudlala 2: UMTHOMBO, bese DWEBA.
+A Draw cue is clear wherever there is no ink, so the replay shows through.	I-cue ye-DWEBA isobala lapho kungekho uyinki, ngakho impinda iyabonakala ngaphansi.
+Give me the pen. I've waited all season for the pen.	Nginike ipeni. Ngililinde isizini yonke.
+Both are live now: the replay underneath, the ink on top.	Kokubili kusemoyeni manje: impinda ngaphansi, uyinki ngaphezulu.
+We're on the air. Nobody touches the pen but me.	Sisemoyeni. Akekho othinta ipeni ngaphandle kwami.
+CIRCLE HIM	MZUNGEZISE
+Press DRAW in the inspector, then circle number 22 on the programme monitor. He is the yellow one.	Cindezela DWEBA kumhloli, uzungezise unombolo 22 esiqaphini sohlelo. Yilowo ophuzi.
+A pen's pressure makes the line thicker. A mouse presses at one strength.	Ukucindezela kwepeni kushubisa umugqa. Igundane licindezela ngamandla afanayo kuphela.
+Circle him! The yellow one! There's only one yellow one. Circle that one.	Mzungezise! Ophuzi! Munye kuphela ophuzi. Zungezisa yena!
+Draw as much as you like. Then SAVE STILL keeps the drawing as a picture with a clear background, in the playlist.	Dweba ngokuthanda kwakho. Bese londoloza isithombe igcina umdwebo njengesithombe esinengemuva esobala ohlwini lokudlala.
+For next week's show. He will want that circle again.	Ombukisweni wesonto elizayo. Uzophinde ayifune leyo ndingilizi.
+Put that in the Hall of Fame. Next to the turducken.	Kubeke ehholo lodumo. Eceleni kwe-turducken.
+Halftime. Click the Deck 1 tab, then SOURCE, then Video Synth.	Ikhefu. Chofoza ithebhu I-deck 1, bese UMTHOMBO, bese I-synth yevidiyo.
+My favourite source: oscillators, mirrors and feedback. A halftime show with no camera at all.	Umthombo engiwuthandayo: ama-oscillator, izibuko nempendulo. Umbukiso wekhefu ongenakhamera nhlobo.
+Halftime! Somebody get me some lights. And a band. And a sandwich.	Ikhefu! Omunye akangilethele izibani. Nebhendi. Nesemishi.
+TAKE HALFTIME	TAKE IKHEFU
+Select the synth and TAKE it. Then look at the monitor: your ink is still up.	Khetha i-synth usebenzise TAKE. Buka isiqaphi: uyinki wakho usekhona.
+Playlist 2 did not change, so its ink stays over whatever playlist 1 shows. Each playlist changes on its own.	Uhlu lokudlala 2 alushintshanga, ngakho uyinki uhlala phezu kwanoma yini evezwa uhlu 1. Uhlu ngalunye luzishintsha lodwa.
+Leave the circle up. It's a good circle. It goes with everything.	Shiya indingilizi. Yinhle. Ihambisana nakho konke.
+A test pattern, a replay, ink on a layer, a still, and halftime. That's the booth.	Iphethini lokuhlola, impinda, uyinki kungqimba, isithombe esimile nekhefu. Yilo ibhokisi labahlaziyi.
+Replay in the Draw section draws your lines back the way you drew them. He will love that.	I-Replay engxenyeni ye-DWEBA iphinda imigqa ngendlela oyidwebe ngayo. Uzokuthanda lokho.
+Same time next week. Bring a bigger pen.	Ngesikhathi esifanayo ngesonto elizayo. Letha ipeni elikhulu.
+Now THAT is a busy play. I can't see the field. I love it.	Hhawu lo mnyakazo umatasa! Angisaboni inkundla. Ngiyawuthanda.
+Two projectors overlap, and each fades its edge so the overlap is not twice as bright. Watch the sides of the monitor go soft.	Amaphrojektha amabili ayagqagqana, elinye lifiphaza unqenqema lwalo ukuze ukukhanya kungaphindeki kabili. Buka izinhlangothi zesiqaphi zithamba.
+A game show, skapi. Three contestants, one buzzer, and a host who is not here tonight. Press START.	Umbukiso wemibuzo, skapi. Abathathu abancintisanayo, insimbi eyodwa, nomphathi ongekho namuhla. Cindezela QALA.
+Cue numbers, hotkeys, and GO from other machines.	Izinombolo zama-cue, okhiye abasheshayo, ne-GO evela kweminye imishini.
+Forty years I turned the letters. Tonight they gave me the microphone. Nobody panic.	Iminyaka engamashumi amane ngiphendula izinhlamvu. Namuhla banginike umbhobho. Ningatatazeli.
+Theatre numbers its cues: Q3, Q3.5, Q12A. Deckboy reads them all.	Ithiyetha ifaka izinombolo zama-cue: Q3, Q3.5, Q12A. I-Deckboy ifunda zonke.
+Numbers! I know letters. Numbers are letters that went to college.	Izinombolo! Mina ngazi izinhlamvu. Izinombolo yizinhlamvu ezaya enyuvesi.
+GOTO crosses a long list faster than scrolling. Much faster.	I-GOTO iwela uhlu olude ngokushesha kunokuskrola. Ngokushesha kakhulu.
+F1 to F10, F12, or the number pad. Each one is a buzzer.	F1 kuya ku-F10, F12, noma ikhiphedi yezinombolo. Ukhiye ngamunye uyinsimbi.
+Every contestant gets a buzzer. I get the letters. It's fine. It's fine.	Umncintisani ngamunye uthola insimbi. Mina izinhlamvu. Kulungile. Kulungile.
+No mouse, no list, no looking. Only the key.	Akukho gundane, akukho hlu, akukho kubheka. Ukhiye kuphela.
+Buzz! A winner! I've never said that. I've only pointed at it.	Ding! Onqobile! Angikaze ngikusho lokho. Bengikhomba nje.
+And for our viewers at home: yes, you can push the buttons too.	Nakubabukeli basekhaya: yebo, nani ningacindezela izinkinobho.
+Numbers, GOTO, a buzzer, and GO from anywhere. You could host a game show now.	Izinombolo, GOTO, insimbi, ne-GO noma ukuphi. Usungaphatha umbukiso wemibuzo.
+Goodnight, everybody! Tomorrow I go back to the letters. I'll miss you.	Nilale kahle nonke! Kusasa ngibuyela ezinhlamvini. Ngizonikhumbula.
+And the number is... not three. I'll allow it. I turn anything.	Inombolo ithi... hhayi kuthathu. Ngiyakuvuma. Mina ngiphendula noma yini.
+A second playlist is a layer over the map. The lizard stays underneath. For now.	Uhlu lokudlala lwesibili luwungqimba phezu kwemephu. Isibankwa sihlala ngaphansi. Okwamanje.
+A Lower Third, a name, a title card, a backdrop. The lizard has left the studio.	I-Lower Third, igama, ikhadi lesihloko, ingemuva. Isibankwa siphumile estudiyo.
+That's not my name. It's a lovely name. Now, about that lizard...	Akulona igama lami. Lihle kodwa. Manje, ngaleso sibankwa...
+The rocket (on the pad)	The rocket (on the pad)
+The rocket (lift-off)	The rocket (lift-off)
+A rocket built in a basement, skapi, an inventor who wants cheese, and a dog who does the real work. Press START.	Irokhethi elakhiwe egumbini elingaphansi, skapi, umsunguli ofuna ushizi, nenja eyenza umsebenzi wangempela. Cindezela QALA.
+Stage timers: a countdown over a picture, a hold, and a view for the person on stage.	Izibali-sikhathi zesiteji: ukubala wehle phezu kwesithombe, ukubamba, nombono womuntu osesiteji.
+Playlist 2 is selected, over the rocket. SOURCE, then Stage Timer.	Uhlu lokudlala 2 lukhethiwe, phezu kwerokhethi. UMTHOMBO, bese Stage Timer.
+*checks his watch, then the rocket, then his watch*	*ubheka iwashi, irokhethi, aphinde abheke iwashi*
+COUNT IT DOWN	BALA WEHLE
+Select the timer and TAKE it. I have cleared its backdrop, so the rocket shows behind the numbers.	Khetha isibali-sikhathi usebenzise TAKE. Ngisuse ingemuva ukuze irokhethi ibonakale ngemuva kwezinombolo.
+Past zero it keeps going and counts the overtime. Very honest. Slightly rude.	Sidlula uziro sibale isikhathi eseqile. Sithembeke kakhulu. Sedelela kancane.
+Close MENU, click the Deck 1 tab, then select 'The rocket (lift-off)' and TAKE it.	Vala IMENYU, chofoza ithebhu I-deck 1, ukhethe 'The rocket (lift-off)' usebenzise TAKE.
+The clock is on playlist 2, so it stays up while the rocket changes underneath it.	Iwashi lisohlwini lokudlala 2, ngakho lihlala likhona irokhethi lishintsha ngaphansi.
+We have lift-off, Grommet! ...Grommet? Who's flying it?	Sesindiza, Grommet! ...Grommet? Ubani olishayelayo?
+A countdown, a hold, a pilot's view and a launch. Bring crackers.	Ukubala wehle, ukubamba, umbono womshayeli nokwethula. Letha amabhisikidi.
+*waves from the window*	*uvalelisa efasiteleni*
+The rubber chicken	The rubber chicken
+A magic show, skapi. A trunk, a rubber chicken, and one beat where everything changes at once. Press START.	Umbukiso womlingo, skapi. Ibhokisi, inkukhu yerabha, nomzuzu lapho konke kushintsha kanye. Cindezela QALA.
+Two playlists are two layers, and TAKE ALL changes both together. Tonight you will see why that matters.	Izinhlu zokudlala ezimbili ziyizingqimba ezimbili, TAKE ALL ishintsha zombili kanye. Namuhla uzobona ukuthi kubaluleke ngani.
+The chicken goes on its own layer. Press the + at the end of the playlist tabs.	Inkukhu iba kungqimba lwayo. Cindezela + ekugcineni kwamathebhu ohlu lokudlala.
+The lit tab is the playlist that gets the next cue. Its chip now says 'to Out 1': it is layered over playlist 1 on that output.	Ithebhu ekhanyayo iluhlu oluthola i-cue elandelayo. Ilebula yalo manje ithi 'kuya ku-Okuphumayo 1': liphezu kohlu 1 kulokho kukhipha.
+TRICK ONE	IQHINGA LOKUQALA
+Turnip Top has put the chicken in playlist 2. In playlist 1, TAKE 'The trunk (open)'. Then in playlist 2, TAKE the chicken.	UTurnip Top ufake inkukhu ohlwini lokudlala 2. Ohlwini 1 sebenzisa TAKE ku-'The trunk (open)'. Bese ohlwini 2 sebenzisa TAKE enkukhwini.
+The chicken is clear all round, so it covers only itself. Watch the monitor between the two TAKEs.	Inkukhu isobala nxazonke, imboza indawo yayo kuphela. Buka isiqaphi phakathi kwama-TAKE amabili.
+Did you see it? For a moment the trunk was open and empty: two TAKEs are two moments. The trick is reset. Now select the open trunk in playlist 1 and the chicken in playlist 2, then TAKE ALL.	Ukubonile? Isikhashana ibhokisi belivulekile lingenalutho: ama-TAKE amabili ayizikhathi ezimbili. Iqhinga seliqaliwe kabusha. Khetha ibhokisi elivulekile ohlwini 1 nenkukhu ohlwini 2, bese TAKE ALL.
+TAKE ALL takes every playlist's selected cue on one beat. No gap, no empty trunk.	TAKE ALL iveza i-cue ekhethiwe yohlu ngalunye kanye. Akukho sikhala, akukho bhokisi elingenalutho.
+The chicken was late. They saw an empty trunk. In magic we call that a trunk.	Inkukhu ibambezelekile. Babone ibhokisi elingenalutho. Emilingweni sikubiza ngokuthi ibhokisi.
+TAKE ALL	TAKE ALL
+THE VANISH	UKUNYAMALALA
+Trick two. Drag playlist 2's opacity fader down to nothing. The chicken fades away.	Iqhinga lesibili. Hudulela ifeyida yokufiphala yohlu lokudlala 2 kuziro. Inkukhu iyanyamalala.
+Every playlist has its own opacity. Down is a fade out, with no cue at all.	Uhlu ngalunye lunokufiphala kwalo. Ukwehlisa kuyanyamalalisa ngaphandle kwe-cue.
+Ta-daaa! ...Hold for applause. Hold. Now watch it go.	Ta-daaa! ...Linda ihlombe. Linda. Manje yibuke ihamba.
+Trick three. Bring it back: playlist 2's opacity all the way up.	Iqhinga lesithathu. Yibuyise: phakamisa ukufiphala kohlu lokudlala 2 kuze kube phezulu.
+Where did it go? Back in the trunk. Everything goes back in the trunk.	Iyephi? Ibuyele ebhokisini. Konke kubuyela ebhokisini.
+THAT'S MAGIC	NGUMLINGO LOWO
+An appearance done wrong, then right, a vanish and a return. Nazdrave.	Ukuvela okubi, bese okuhle, ukunyamalala nokubuya. Nazdrave.
+A playlist can also sit on any output. Two layers, a great many tricks.	Uhlu lokudlala lungaba kunoma yikuphi okukhiphayo. Izingqimba ezimbili, amaqhinga amaningi.
+It's back! Thank you! I'm here all week! The chicken is here forever.	Ibuyile! Ngiyabonga! Ngilapha isonto lonke! Inkukhu ilapha kuze kube phakade!
+A cooking show, skapi. Live. The kitchen is on fire. Press START.	Umbukiso wokupheka, skapi. Bukhoma. Ikhishi liyasha. Cindezela QALA.
+Ta-da! Still cookin'! ...Still burnin'.	Ta-da! Sisapheka! ...Sisasha.
+PANIC	PANIC
+Bork! De fire extinguisher is also on fire!	Bork! De sicishamlilo naso siyasha-flurdi!
+BLACK to hide, PANIC to stop, TAKE to come back. You will survive any kitchen.	mnyama ukufihla, PANIC ukumisa, TAKE ukubuyisa. Uzosinda kunoma yiliphi ikhishi.
+A fashion show, skapi. One designer, one runway, and a look she will want back. Press START.	Umbukiso wemfashini, skapi. Umsiki oyedwa, umzila owodwa, nokubukeka azophinde akufune. Cindezela QALA.
+A preset stores a whole look and brings it back with one button.	I-preset igcina ukubukeka okuphelele ikubuyise ngenkinobho eyodwa.
+Darling. A look is not a look until you can get it back.	S'thandwa. Ukubukeka akusikho ukubukeka uma ungeke ukubuyise.
+Buttons. Good. I design with buttons.	Izinkinobho. Kuhle. Ngiklama ngezinkinobho.
+Store it. Before somebody has ideas.	Kugcine. Kungakafiki omunye nemibono.
+Close the DASH (Esc), then select Look two and TAKE it.	Vala DASH (Esc), ukhethe Look two usebenzise TAKE.
+A cape. On my runway. Someone will trip, darling. Someone always trips.	Ikhephu. Emzileni wami. Kukhona ozowa, s'thandwa. Kuhlale kuwa othile.
+Recall: the whole look comes back at once.	Ukubuyisa: konke ukubukeka kubuya kanye.
+Thank you. We will never speak of the cape again.	Ngiyabonga. Ngeke siphinde sikhulume ngekhephu.
+Simple. Timeless. Recallable. Now go, darling. I have a fitting.	Kulula. Akugugi. Kuyabuyiseka. Hamba s'thandwa. Nginesilinganiso sezingubo.
+Pushes, wipes, iris, dip to white, and more. I wrote half of them. On a Tuesday.	Ukusunduza, ukusula, i-iris, ukufiphala kube mhlophe nokunye. Ingxenye ngayibhala mina. NgoLwesibili.
+Operators... roll the transition.	Baphathi... dlalani ushintsho.
+A style, a time, and two very dramatic entrances. Roll credits.	Isitayela, isikhathi, nokungena okubili okukhulu. Veza amagama okuphetha.
+That is not an iris. ...It is better. I will allow it.	Akuyona i-iris leyo. ...Ingcono. Ngiyakuvuma.
+An effect, a bend and the patch. The robots approve, I think. Their faces are helmets.	Umphumela, ukugoba ne-patch. Amarobhothi ayavuma, ngicabanga. Ubuso bawo yizigqoko.
+Waveform, vectorscope, false colour. The scopes settled it. The agents did not.	I-waveform, i-vectorscope, umbala mbumbulu. Izilinganiso ziqedile. Amaphoyisa awaqedanga.
+The view from the capsule	Umbono ovela kukhepsuli
+Major Tomasina is in orbit, skapi, and her picture has to reach the ground. Press START.	UMajor Tomasina usemzileni womkhathi, skapi, isithombe sakhe sifanele sifike emhlabeni. Cindezela QALA.
+Pictures leave by cable or network: NDI, SDI from a DeckLink card, ST 2110 for broadcast plants.	Izithombe ziphuma ngekhebula noma inethiwekhi: NDI, SDI ekhadini DeckLink, ST 2110 ezikhungweni zokusakaza.
+Ground control, this is Major Tomasina. Can you see my picture?	Balawuli basemhlabeni, nguMajor Tomasina lo. Niyasibona isithombe sami?
+Every way down, on one page. Good. Space has very few cables.	Zonke izindlela zokwehla ekhasini elilodwa. Kuhle. Emkhathini amakhebula ayingcosana.
+NDI	NDI
+Sending now. If nobody answers, I'll just float here.	Ngiyathumela manje. Uma kungaphenduli muntu, ngizontanta lapha nje.
+Ground control, signing off. Tell my mother I waved.	Balawuli basemhlabeni, sengiyavala. Tshelani umama ukuthi ngiphakamisile isandla.
+Ground control can see me! I can see my house from here.	Abalawuli basemhlabeni bayangibona! Ngibona umuzi wami ngilapha.
+MULTI ON	MULTI ON
+And one more window, showing the clock. Operators who watch a clock are never late.	Elinye ifasitela elibonisa iwashi. Abaphathi ababuka iwashi abaphuzi.
+The big window is window one, which is usually the programme.	Ifasitela elikhulu liyifasitela lokuqala, ngokuvamile kuba wuhlelo.
+Windows, the ... menu, NEXT, the clock, a layout, tally. Mystery solved.	Amafasitela, imenyu ..., NEXT, iwashi, ukuhleleka, tally. Imfihlakalo ixazululiwe.
+FX CHOICE: choice must be A or B	FX CHOICE: ukukhetha kufanele kube A noma B
+FX CHOICE: no effect at that index	FX CHOICE: awukho umphumela kuleyo nkomba
+whole picture	isithombe sonke

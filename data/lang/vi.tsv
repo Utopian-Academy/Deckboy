@@ -3069,3 +3069,173 @@ Stop masking this. The mask stays in the show's library, to put back from the me
 Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	Xóa mặt nạ này khỏi show, và khỏi mọi cue, playlist và OUTPUT đang dùng nó. Hoàn tác sẽ đưa nó trở lại
 FX PARAM: slot must be A-F	FX PARAM: slot phải là A-F
 FX LFO: slot must be A-D, E for the amount, or F/G for the fifth and sixth sliders	FX LFO: slot phải là A-D, E cho mức, hoặc F/G cho thanh trượt thứ năm và thứ sáu
+playlist 2 is ready: you built one in the magic show	playlist 2 đã sẵn sàng: bạn đã tạo nó trong màn ảo thuật
+FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR	FX: dùng LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR
+BLACK	đen
+COACH MARV	COACH MARV
+JUNE O'NEIL	JUNE O'NEIL
+TURNIP TOP	TURNIP TOP
+CHEF BORK	CHEF BORK
+DONNA WHEEL	DONNA WHEEL
+KEEPER ROOK	KEEPER ROOK
+AGENT BRANDT	AGENT BRANDT
+AGENT HOLLIS	AGENT HOLLIS
+MR. SALTY	MR. SALTY
+OPTIMUS PRIMETIME	OPTIMUS PRIMETIME
+DEFT FUNK	DEFT FUNK
+LT. HAILA	LT. HAILA
+ENSIGN JINKLEY	ENSIGN JINKLEY
+The tour bus, with Polly Carton	Xe lưu diễn cùng Polly Carton
+A test pattern, drawing on a replay, a still, and the video synth at halftime.	Mẫu thử, vẽ lên cảnh phát lại, ảnh tĩnh và bộ tổng hợp video lúc nghỉ giữa hiệp.
+A stage timer over a picture, held, a presenter view for the person on stage, and a launch.	Đồng hồ sân khấu trên hình, tạm giữ, màn hình cho người trên sân khấu, rồi phóng tên lửa.
+A second playlist as a layer, TAKE ALL so two things change on one beat, and a playlist's opacity.	Dùng playlist thứ hai làm lớp, TAKE ALL để hai thứ đổi cùng một nhịp, rồi chỉnh độ đục của playlist.
+The fashion show, with Edda Mod	Sàn diễn cùng Edda Mod
+Ground control, with Major Tomasina	Trạm mặt đất cùng Major Tomasina
+0.1, 0.1, 0.1	0.1, 0.1, 0.1
+Opener (the bus at dawn)	Mở màn (xe lúc bình minh)
+Polly Carton's tour bus leaves at six, skapi, and this show goes with it. Press START.	Xe lưu diễn của Polly Carton đi lúc sáu giờ, skapi. Show này cũng phải lên xe. Bấm Bắt đầu.
+A show that travels needs three things first: a check, a fix and a bundle.	Show đi xa cần ba việc trước: kiểm tra, sửa và đóng gói.
+Honey, I've played four thousand towns. Not one of them had my laptop.	Cưng à, chị diễn ở bốn nghìn thị trấn rồi. Chẳng nơi nào có sẵn laptop của chị.
+It lists what the show would trip over: missing files, empty cues, outputs it cannot reach.	Nó liệt kê những chỗ show dễ vấp: thiếu tệp, cue rỗng, đầu ra không kết nối được.
+Every show has a problem. Find yours before the audience does.	Show nào cũng có trục trặc. Tìm ra trước khán giả nhé.
+The intro video is on the office computer. Select it and delete it, or RELINK it if you have the file.	Video mở màn nằm ở máy văn phòng. Chọn rồi xóa, hoặc dùng RELINK nếu bạn có tệp.
+Fix it here, with time and coffee. Not at the venue, with neither.	Sửa ngay ở đây, còn thời gian và cà phê. Đến nơi diễn thì chẳng còn cả hai.
+Leave it behind, sugar. I left a whole wig in Tulsa and the show went on.	Để lại đi, cưng. Chị từng bỏ quên cả bộ tóc giả ở Tulsa mà show vẫn chạy.
+Press BUNDLE and choose where: a USB stick, a shared folder. The show and all its media, in one folder.	Bấm ĐÓNG GÓI rồi chọn nơi lưu: USB hay thư mục chia sẻ. Show và toàn bộ media nằm trong một thư mục.
+Pack it like a wig box. Everything inside, nothing loose.	Xếp như hộp tóc giả ấy. Cho hết vào trong, đừng để món nào rơi rớt.
+Checked, fixed, bundled. On the other computer, open the show in the bundle and everything is there.	Kiểm tra, sửa, đóng gói xong. Trên máy khác, mở show trong gói là có đủ mọi thứ.
+The show file is only text, so it travels light. The media is the luggage.	Tệp show chỉ là chữ nên đi rất nhẹ. Media mới là hành lý.
+Bus leaves at six. Show starts at eight. Hair takes until seven.	Xe đi lúc sáu giờ. Show bắt đầu lúc tám. Làm tóc đến bảy giờ mới xong.
+There are dozens, and most of them run on the graphics card, so you can stack them.	Có hàng chục loại. Hầu hết chạy trên card đồ họa nên bạn có thể xếp chồng.
+An effect, a ~ and a colour. The critic is crying. Good crying, I think.	Một hiệu ứng, một ~ và một màu. Nhà phê bình khóc rồi. Chắc là khóc vì hay.
+Stack a few more. Order matters: each effect works on the picture the one above it made.	Xếp thêm vài cái. Thứ tự rất quan trọng: mỗi hiệu ứng xử lý hình do cái phía trên tạo ra.
+Three effects! It's a mess! It's ALIVE! Post it.	Ba hiệu ứng! Loạn cả lên! Nó SỐNG rồi! Đăng đi!
+The replay	The replay
+Coach Marv has two minutes of airtime, one replay and a pen, skapi. He will use all three. Press START.	Coach Marv có hai phút lên sóng, một cảnh phát lại và một cây bút, skapi. Ông ấy sẽ dùng hết cả ba. Bấm Bắt đầu.
+Tonight: a test pattern, drawing on the picture, and the video synth.	Tối nay: mẫu thử, vẽ lên hình và bộ tổng hợp video.
+Folks, I've watched this play forty times. It's still a play.	Bà con ơi, tôi xem pha này bốn mươi lần rồi. Nó vẫn là một pha bóng.
+CHECK THE MONITORS	KIỂM TRA MÀN HÌNH
+PATTERN adds Pocket Test. If its circles are not round, a screen is stretched. Find out now, not on air.	MẪU thêm Pocket Test. Nếu các vòng tròn không tròn thì màn hình bị kéo giãn. Kiểm tra ngay, đừng đợi lên sóng.
+Its bars and steps are checked against real meters, so a wrong screen looks wrong at once.	Các thanh màu và bậc sáng được kiểm bằng máy đo thật. Màn hình sai là lộ ngay.
+That's a test pattern. You test with it. That's why they call it that.	Đó là mẫu thử. Dùng để thử. Bởi vậy mới gọi là mẫu thử.
+ROLL THE REPLAY	CHẠY CẢNH PHÁT LẠI
+Select The replay and TAKE it.	Chọn The replay rồi TAKE.
+A replay loops, so the pundit can talk over it for as long as he likes. He likes.	Cảnh phát lại chạy vòng, để bình luận viên nói bao lâu tùy thích. Ông ấy thích lắm.
+Here's number 22. Number 22 has the ball. That's important, because the ball is how you score.	Đây là số 22. Số 22 đang giữ bóng. Rất quan trọng, vì muốn ghi điểm thì phải có bóng.
+The pen goes over the replay, on its own layer. Press the + at the end of the playlist tabs.	Nét bút nằm trên cảnh phát lại, ở lớp riêng. Bấm dấu + cuối hàng tab playlist.
+A second playlist is a layer over the first.	Playlist thứ hai là một lớp nằm trên playlist đầu.
+Over it. Not under it. Under it, you can't see it. That's football.	Ở trên. Không phải dưới. Ở dưới thì chẳng nhìn thấy. Bóng bầu dục là thế.
+The lit tab is where SOURCE puts things. Skip this and the ink lands under the replay.	NGUỒN thêm nội dung vào tab đang sáng. Bỏ qua bước này thì nét bút nằm dưới cảnh phát lại.
+See that tab? Click it. Fundamentals.	Thấy tab đó không? Bấm đi. Kỹ thuật cơ bản đấy.
+In playlist 2: SOURCE, then Draw.	Trong playlist 2: NGUỒN, rồi Vẽ.
+A Draw cue is clear wherever there is no ink, so the replay shows through.	Cue Vẽ trong suốt ở chỗ không có nét bút, nên cảnh phát lại hiện qua.
+Give me the pen. I've waited all season for the pen.	Đưa bút đây. Tôi chờ cây bút này cả mùa giải rồi.
+Both are live now: the replay underneath, the ink on top.	Cả hai đang lên sóng: cảnh phát lại ở dưới, nét bút ở trên.
+We're on the air. Nobody touches the pen but me.	Đang lên sóng rồi. Ngoài tôi ra, không ai được đụng vào bút.
+CIRCLE HIM	KHOANH ANH ẤY
+Press DRAW in the inspector, then circle number 22 on the programme monitor. He is the yellow one.	Bấm Vẽ trong inspector, rồi khoanh số 22 trên màn hình program. Người mặc áo vàng ấy.
+A pen's pressure makes the line thicker. A mouse presses at one strength.	Bút càng ấn mạnh thì nét càng dày. Chuột chỉ có một mức lực.
+Circle him! The yellow one! There's only one yellow one. Circle that one.	Khoanh đi! Người áo vàng! Chỉ có một người áo vàng thôi. Khoanh đúng người đó.
+Draw as much as you like. Then SAVE STILL keeps the drawing as a picture with a clear background, in the playlist.	Cứ vẽ thỏa thích. Sau đó dùng lưu ảnh tĩnh để giữ hình vẽ với nền trong suốt trong playlist.
+For next week's show. He will want that circle again.	Để dành cho show tuần sau. Ông ấy sẽ lại muốn cái vòng đó.
+Put that in the Hall of Fame. Next to the turducken.	Đưa nó vào nhà lưu danh. Cạnh món gà nhồi vịt nhồi gà tây ấy.
+Halftime. Click the Deck 1 tab, then SOURCE, then Video Synth.	Nghỉ giữa hiệp. Bấm tab Deck 1, rồi NGUỒN, rồi Bộ tổng hợp video.
+My favourite source: oscillators, mirrors and feedback. A halftime show with no camera at all.	Nguồn tôi thích nhất: bộ dao động, gương và hồi tiếp. Một show giữa hiệp chẳng cần máy quay nào.
+Halftime! Somebody get me some lights. And a band. And a sandwich.	Giữa hiệp rồi! Ai cho tôi ít đèn nào. Một ban nhạc nữa. Và bánh mì kẹp.
+TAKE HALFTIME	TAKE SHOW GIỮA HIỆP
+Select the synth and TAKE it. Then look at the monitor: your ink is still up.	Chọn bộ tổng hợp rồi TAKE. Nhìn màn hình xem: nét bút vẫn còn.
+Playlist 2 did not change, so its ink stays over whatever playlist 1 shows. Each playlist changes on its own.	Playlist 2 không đổi nên nét bút vẫn nằm trên bất cứ hình gì playlist 1 đang chiếu. Mỗi playlist đổi riêng.
+Leave the circle up. It's a good circle. It goes with everything.	Cứ để cái vòng đó. Vòng đẹp đấy. Ghép với gì cũng hợp.
+A test pattern, a replay, ink on a layer, a still, and halftime. That's the booth.	Mẫu thử, cảnh phát lại, nét bút trên một lớp, ảnh tĩnh và giữa hiệp. Đó là phòng bình luận.
+Replay in the Draw section draws your lines back the way you drew them. He will love that.	Replay trong phần Vẽ sẽ vẽ lại các nét theo cách bạn đã vẽ. Ông ấy sẽ mê lắm.
+Same time next week. Bring a bigger pen.	Tuần sau, giờ này nhé. Nhớ mang bút to hơn.
+Now THAT is a busy play. I can't see the field. I love it.	THẾ mới là pha bóng đông vui. Tôi chẳng thấy sân đâu nữa. Thích quá.
+Two projectors overlap, and each fades its edge so the overlap is not twice as bright. Watch the sides of the monitor go soft.	Hai máy chiếu chồng hình, mỗi máy làm mờ mép để vùng chồng không sáng gấp đôi. Xem hai bên màn hình dịu xuống.
+A game show, skapi. Three contestants, one buzzer, and a host who is not here tonight. Press START.	Một trò chơi truyền hình, skapi. Ba thí sinh, một chuông bấm, còn người dẫn tối nay vắng mặt. Bấm Bắt đầu.
+Cue numbers, hotkeys, and GO from other machines.	Số cue, phím tắt và lệnh GO từ máy khác.
+Forty years I turned the letters. Tonight they gave me the microphone. Nobody panic.	Bốn mươi năm tôi lật ô chữ. Tối nay họ mới đưa micro cho tôi. Mọi người cứ bình tĩnh.
+Theatre numbers its cues: Q3, Q3.5, Q12A. Deckboy reads them all.	Sân khấu đánh số cue: Q3, Q3.5, Q12A. Deckboy đọc được hết.
+Numbers! I know letters. Numbers are letters that went to college.	Số à! Tôi biết chữ. Số là chữ đã học đại học đấy.
+GOTO crosses a long list faster than scrolling. Much faster.	GOTO đi qua danh sách dài nhanh hơn cuộn. Nhanh hơn nhiều.
+F1 to F10, F12, or the number pad. Each one is a buzzer.	F1 đến F10, F12 hoặc bàn phím số. Mỗi phím là một chuông bấm.
+Every contestant gets a buzzer. I get the letters. It's fine. It's fine.	Thí sinh nào cũng có chuông. Tôi thì có ô chữ. Ổn mà. Ổn lắm.
+No mouse, no list, no looking. Only the key.	Không chuột, không danh sách, không cần nhìn. Chỉ một phím.
+Buzz! A winner! I've never said that. I've only pointed at it.	Kính coong! Có người thắng rồi! Tôi chưa từng nói câu đó. Trước giờ chỉ đứng chỉ tay thôi.
+And for our viewers at home: yes, you can push the buttons too.	Còn khán giả ở nhà: đúng rồi, các bạn cũng được bấm nút.
+Numbers, GOTO, a buzzer, and GO from anywhere. You could host a game show now.	Số, GOTO, chuông bấm và GO từ bất cứ đâu. Giờ bạn dẫn trò chơi truyền hình được rồi.
+Goodnight, everybody! Tomorrow I go back to the letters. I'll miss you.	Chúc mọi người ngủ ngon! Mai tôi lại về với ô chữ. Tôi sẽ nhớ mọi người.
+And the number is... not three. I'll allow it. I turn anything.	Và con số là... không phải ba. Được thôi. Gì tôi cũng lật được.
+A second playlist is a layer over the map. The lizard stays underneath. For now.	Playlist thứ hai là lớp nằm trên bản đồ. Con thằn lằn vẫn ở dưới. Tạm thời thôi.
+A Lower Third, a name, a title card, a backdrop. The lizard has left the studio.	Chữ chân màn hình, một cái tên, một thẻ tiêu đề, một phông nền. Con thằn lằn đã rời trường quay.
+That's not my name. It's a lovely name. Now, about that lizard...	Đó không phải tên tôi. Tên đẹp đấy. Giờ nói về con thằn lằn kia...
+The rocket (on the pad)	The rocket (on the pad)
+The rocket (lift-off)	The rocket (lift-off)
+A rocket built in a basement, skapi, an inventor who wants cheese, and a dog who does the real work. Press START.	Tên lửa chế dưới tầng hầm, skapi, nhà phát minh thèm phô mai và chú chó lo hết việc thật. Bấm Bắt đầu.
+Stage timers: a countdown over a picture, a hold, and a view for the person on stage.	Đồng hồ sân khấu: đếm ngược trên hình, tạm giữ và màn hình cho người trên sân khấu.
+Playlist 2 is selected, over the rocket. SOURCE, then Stage Timer.	Playlist 2 đã được chọn, nằm trên tên lửa. NGUỒN, rồi Stage Timer.
+*checks his watch, then the rocket, then his watch*	*nhìn đồng hồ, nhìn tên lửa, rồi lại nhìn đồng hồ*
+COUNT IT DOWN	BẮT ĐẦU ĐẾM NGƯỢC
+Select the timer and TAKE it. I have cleared its backdrop, so the rocket shows behind the numbers.	Chọn đồng hồ rồi TAKE. Tôi đã bỏ phông nền để tên lửa hiện sau các con số.
+Past zero it keeps going and counts the overtime. Very honest. Slightly rude.	Qua số không nó vẫn đếm tiếp phần quá giờ. Rất thật thà. Hơi vô duyên.
+Close MENU, click the Deck 1 tab, then select 'The rocket (lift-off)' and TAKE it.	Đóng DANH MỤC, bấm tab Deck 1, rồi chọn 'The rocket (lift-off)' và TAKE.
+The clock is on playlist 2, so it stays up while the rocket changes underneath it.	Đồng hồ nằm trên playlist 2 nên vẫn hiện khi tên lửa đổi ở bên dưới.
+We have lift-off, Grommet! ...Grommet? Who's flying it?	Phóng rồi, Grommet! ...Grommet? Ai đang lái thế?
+A countdown, a hold, a pilot's view and a launch. Bring crackers.	Đếm ngược, tạm giữ, màn hình phi công và phóng. Nhớ mang bánh quy.
+*waves from the window*	*vẫy tay qua cửa sổ*
+The rubber chicken	The rubber chicken
+A magic show, skapi. A trunk, a rubber chicken, and one beat where everything changes at once. Press START.	Một show ảo thuật, skapi. Chiếc rương, gà cao su và một nhịp khiến mọi thứ đổi cùng lúc. Bấm Bắt đầu.
+Two playlists are two layers, and TAKE ALL changes both together. Tonight you will see why that matters.	Hai playlist là hai lớp, TAKE ALL đổi cả hai cùng lúc. Tối nay bạn sẽ thấy vì sao việc đó quan trọng.
+The chicken goes on its own layer. Press the + at the end of the playlist tabs.	Con gà có lớp riêng. Bấm dấu + cuối hàng tab playlist.
+The lit tab is the playlist that gets the next cue. Its chip now says 'to Out 1': it is layered over playlist 1 on that output.	Tab sáng là playlist nhận cue tiếp theo. Nhãn giờ ghi 'đến Ra 1': nó chồng lên playlist 1 ở đầu ra đó.
+TRICK ONE	MÀN THỨ NHẤT
+Turnip Top has put the chicken in playlist 2. In playlist 1, TAKE 'The trunk (open)'. Then in playlist 2, TAKE the chicken.	Turnip Top đã cho gà vào playlist 2. Ở playlist 1, TAKE 'The trunk (open)'. Rồi ở playlist 2, TAKE con gà.
+The chicken is clear all round, so it covers only itself. Watch the monitor between the two TAKEs.	Quanh con gà là trong suốt nên nó chỉ che đúng phần thân. Nhìn màn hình giữa hai lần TAKE.
+Did you see it? For a moment the trunk was open and empty: two TAKEs are two moments. The trick is reset. Now select the open trunk in playlist 1 and the chicken in playlist 2, then TAKE ALL.	Thấy không? Có lúc rương mở mà trống trơn: hai lần TAKE là hai thời điểm. Màn diễn đã đặt lại. Giờ chọn rương mở trong playlist 1, con gà trong playlist 2, rồi TAKE ALL.
+TAKE ALL takes every playlist's selected cue on one beat. No gap, no empty trunk.	TAKE ALL đưa cue đang chọn của mọi playlist lên cùng một nhịp. Không hở, không rương trống.
+The chicken was late. They saw an empty trunk. In magic we call that a trunk.	Gà đến muộn! Khán giả thấy cái rương trống. Dân ảo thuật gọi đó là cái rương!
+TAKE ALL	TAKE ALL
+THE VANISH	BIẾN MẤT
+Trick two. Drag playlist 2's opacity fader down to nothing. The chicken fades away.	Màn thứ hai. Kéo cần độ đục của playlist 2 xuống hết. Con gà mờ dần rồi mất.
+Every playlist has its own opacity. Down is a fade out, with no cue at all.	Mỗi playlist có độ đục riêng. Kéo xuống là mờ đi, chẳng cần cue nào.
+Ta-daaa! ...Hold for applause. Hold. Now watch it go.	Ta-daaa! ...Đợi vỗ tay. Đợi tiếp. Giờ xem nó biến mất!
+Trick three. Bring it back: playlist 2's opacity all the way up.	Màn thứ ba. Gọi nó lại: kéo độ đục playlist 2 lên hết.
+Where did it go? Back in the trunk. Everything goes back in the trunk.	Đi đâu rồi? Về rương! Cái gì cuối cùng cũng về rương!
+THAT'S MAGIC	ĐÚNG LÀ ẢO THUẬT
+An appearance done wrong, then right, a vanish and a return. Nazdrave.	Hiện ra hụt, rồi hiện ra đúng, biến mất và trở lại. Nazdrave.
+A playlist can also sit on any output. Two layers, a great many tricks.	Playlist còn có thể nằm trên bất kỳ đầu ra nào. Hai lớp, rất nhiều trò.
+It's back! Thank you! I'm here all week! The chicken is here forever.	Nó về rồi! Cảm ơn! Tôi diễn cả tuần! Con gà thì diễn mãi mãi!
+A cooking show, skapi. Live. The kitchen is on fire. Press START.	Show nấu ăn, skapi. Trực tiếp. Bếp đang cháy. Bấm Bắt đầu.
+Ta-da! Still cookin'! ...Still burnin'.	Ta-da! Vẫn nấu! ...Vẫn cháy.
+PANIC	PANIC
+Bork! De fire extinguisher is also on fire!	Bork! Bình chữa cháy cũng cháy rùi-smơrđi!
+BLACK to hide, PANIC to stop, TAKE to come back. You will survive any kitchen.	đen để che, PANIC để dừng, TAKE để trở lại. Bếp nào bạn cũng sống sót.
+A fashion show, skapi. One designer, one runway, and a look she will want back. Press START.	Show thời trang, skapi. Một nhà thiết kế, một sàn diễn, một bộ hình cô ấy sẽ muốn gọi lại. Bấm Bắt đầu.
+A preset stores a whole look and brings it back with one button.	Preset lưu cả bộ hình rồi gọi lại bằng một nút.
+Darling. A look is not a look until you can get it back.	Cưng à. Một bộ hình chưa đáng gọi là bộ hình nếu không gọi lại được.
+Buttons. Good. I design with buttons.	Nút. Tốt. Tôi cũng thiết kế bằng nút áo.
+Store it. Before somebody has ideas.	Lưu đi. Trước khi ai đó nảy ra ý tưởng.
+Close the DASH (Esc), then select Look two and TAKE it.	Đóng DASH (Esc), rồi chọn Look two và TAKE.
+A cape. On my runway. Someone will trip, darling. Someone always trips.	Áo choàng. Trên sàn diễn của tôi. Sẽ có người vấp, cưng à. Lúc nào cũng có người vấp.
+Recall: the whole look comes back at once.	Gọi lại: cả bộ hình trở về cùng lúc.
+Thank you. We will never speak of the cape again.	Cảm ơn. Ta sẽ không nhắc đến chiếc áo choàng nữa.
+Simple. Timeless. Recallable. Now go, darling. I have a fitting.	Đơn giản. Bền với thời gian. Gọi lại được. Đi đi, cưng. Tôi còn buổi thử đồ.
+Pushes, wipes, iris, dip to white, and more. I wrote half of them. On a Tuesday.	Đẩy, quét, iris, nhúng trắng và nhiều nữa. Tôi viết một nửa đấy. Vào một ngày thứ Ba.
+Operators... roll the transition.	Các kỹ thuật viên... chạy chuyển cảnh.
+A style, a time, and two very dramatic entrances. Roll credits.	Một kiểu, một khoảng thời gian, hai màn xuất hiện rất kịch tính. Chạy danh đề cuối phim.
+That is not an iris. ...It is better. I will allow it.	Đó không phải iris. ...Còn đẹp hơn. Tôi cho phép.
+An effect, a bend and the patch. The robots approve, I think. Their faces are helmets.	Một hiệu ứng, một bend và patch. Chắc các robot hài lòng. Mặt họ là mũ bảo hiểm mà.
+Waveform, vectorscope, false colour. The scopes settled it. The agents did not.	Dạng sóng, vectorscope, màu giả. Máy đo đã thống nhất. Các đặc vụ thì chưa.
+The view from the capsule	Nhìn từ khoang tàu
+Major Tomasina is in orbit, skapi, and her picture has to reach the ground. Press START.	Major Tomasina đang trên quỹ đạo, skapi. Hình của cô ấy phải về mặt đất. Bấm Bắt đầu.
+Pictures leave by cable or network: NDI, SDI from a DeckLink card, ST 2110 for broadcast plants.	Hình đi qua cáp hay mạng: NDI, SDI từ card DeckLink, ST 2110 cho cơ sở phát sóng.
+Ground control, this is Major Tomasina. Can you see my picture?	Trạm mặt đất, đây là Major Tomasina. Có thấy hình của tôi không?
+Every way down, on one page. Good. Space has very few cables.	Mọi đường xuống đều trên một trang. Tốt. Trên vũ trụ ít cáp lắm.
+NDI	NDI
+Sending now. If nobody answers, I'll just float here.	Bắt đầu gửi. Nếu không ai trả lời, tôi cứ trôi ở đây thôi.
+Ground control, signing off. Tell my mother I waved.	Trạm mặt đất, kết thúc liên lạc. Nhắn mẹ tôi là tôi có vẫy tay nhé.
+Ground control can see me! I can see my house from here.	Trạm mặt đất thấy tôi rồi! Từ đây thấy cả nhà tôi.
+MULTI ON	MULTI ON
+And one more window, showing the clock. Operators who watch a clock are never late.	Thêm một cửa sổ hiện đồng hồ. Kỹ thuật viên xem đồng hồ chẳng bao giờ trễ.
+The big window is window one, which is usually the programme.	Cửa sổ lớn là cửa sổ một, thường là hình program.
+Windows, the ... menu, NEXT, the clock, a layout, tally. Mystery solved.	Cửa sổ, menu ..., NEXT, đồng hồ, bố cục, tally. Bí ẩn đã giải.
+DECKBOY  POCKET	DECKBOY  POCKET

@@ -3096,3 +3096,174 @@ Stop masking this. The mask stays in the show's library, to put back from the me
 Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	Diese Maske aus der Show löschen, auch aus jedem Cue, jeder Playlist und jedem Ausgang, die sie nutzen. Rückgängig holt sie zurück
 FX PARAM: slot must be A-F	FX PARAM: Slot muss A-F sein
 FX LFO: slot must be A-D, E for the amount, or F/G for the fifth and sixth sliders	FX LFO: Slot muss A-D sein, E für die Stärke oder F/G für den fünften und sechsten Regler
+playlist 2 is ready: you built one in the magic show	Playlist 2 ist bereit: Du hast sie in der Zaubershow angelegt
+FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR	FX: verwende LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR
+BLACK	schwarz
+COACH MARV	COACH MARV
+JUNE O'NEIL	JUNE O'NEIL
+TURNIP TOP	TURNIP TOP
+CHEF BORK	CHEF BORK
+DONNA WHEEL	DONNA WHEEL
+KEEPER ROOK	KEEPER ROOK
+AGENT BRANDT	AGENT BRANDT
+AGENT HOLLIS	AGENT HOLLIS
+MR. SALTY	MR. SALTY
+OPTIMUS PRIMETIME	OPTIMUS PRIMETIME
+DEFT FUNK	DEFT FUNK
+LT. HAILA	LT. HAILA
+ENSIGN JINKLEY	ENSIGN JINKLEY
+The tour bus, with Polly Carton	Der Tourbus, mit Polly Carton
+A test pattern, drawing on a replay, a still, and the video synth at halftime.	Ein Testbild, auf einer Wiederholung zeichnen, ein Standbild und der Videosynth in der Halbzeit.
+A stage timer over a picture, held, a presenter view for the person on stage, and a launch.	Ein Bühnentimer über einem Bild, Anhalten, eine Ansicht für die Person auf der Bühne und ein Raketenstart.
+A second playlist as a layer, TAKE ALL so two things change on one beat, and a playlist's opacity.	Eine zweite Playlist als Ebene, TAKE ALL für zwei Wechsel auf einen Schlag und die Deckkraft einer Playlist.
+Presets	Presets
+The fashion show, with Edda Mod	Die Modenschau, mit Edda Mod
+Ground control, with Major Tomasina	Bodenkontrolle, mit Major Tomasina
+0.1, 0.1, 0.1	0.1, 0.1, 0.1
+Opener (the bus at dawn)	Opener (the bus at dawn)
+Polly Carton's tour bus leaves at six, skapi, and this show goes with it. Press START.	Polly Cartons Tourbus fährt um sechs, skapi, und diese Show fährt mit. Drück Start.
+A show that travels needs three things first: a check, a fix and a bundle.	Eine Show auf Reisen braucht vorher drei Dinge: prüfen, reparieren und bündeln.
+Honey, I've played four thousand towns. Not one of them had my laptop.	Schätzchen, ich habe in viertausend Städten gesungen. In keiner stand mein Laptop.
+It lists what the show would trip over: missing files, empty cues, outputs it cannot reach.	Hier stehen die Stolperfallen der Show: fehlende Dateien, leere Cues und unerreichbare Ausgänge.
+Every show has a problem. Find yours before the audience does.	Jede Show hat ein Problem. Finde deins, bevor das Publikum es findet.
+The intro video is on the office computer. Select it and delete it, or RELINK it if you have the file.	Das Introvideo liegt auf dem Bürocomputer. Wähl es aus und lösch es, oder nutze RELINK, wenn du die Datei hast.
+Fix it here, with time and coffee. Not at the venue, with neither.	Beheb es hier, mit Zeit und Kaffee. Am Spielort fehlt dir beides.
+Leave it behind, sugar. I left a whole wig in Tulsa and the show went on.	Lass es liegen, Süße. Ich habe mal eine ganze Perücke in Tulsa vergessen. Die Show ging trotzdem weiter.
+Press BUNDLE and choose where: a USB stick, a shared folder. The show and all its media, in one folder.	Drück BÜNDELN und wähl das Ziel: USB-Stick, gemeinsamer Ordner. Die Show und alle Medien in einem Ordner.
+Pack it like a wig box. Everything inside, nothing loose.	Pack es wie einen Perückenkoffer. Alles rein, nichts lose.
+Checked, fixed, bundled. On the other computer, open the show in the bundle and everything is there.	Geprüft, repariert, gebündelt. Öffne auf dem anderen Computer die Show im Paket, dann ist alles da.
+The show file is only text, so it travels light. The media is the luggage.	Die Showdatei ist nur Text, die reist leicht. Die Medien sind das Gepäck.
+Bus leaves at six. Show starts at eight. Hair takes until seven.	Der Bus fährt um sechs. Die Show beginnt um acht. Die Frisur braucht bis sieben.
+There are dozens, and most of them run on the graphics card, so you can stack them.	Es gibt Dutzende. Die meisten laufen auf der Grafikkarte, also kannst du sie stapeln.
+An effect, a ~ and a colour. The critic is crying. Good crying, I think.	Ein Effekt, ein ~ und eine Farbe. Der Kritiker weint. Vor Freude, glaube ich.
+Stack a few more. Order matters: each effect works on the picture the one above it made.	Stapel noch ein paar drauf. Die Reihenfolge zählt: Jeder Effekt bearbeitet das Bild des Effekts darüber.
+Three effects! It's a mess! It's ALIVE! Post it.	Drei Effekte! Ein Chaos! Es LEBT! Ab ins Netz damit.
+The replay	The replay
+Coach Marv has two minutes of airtime, one replay and a pen, skapi. He will use all three. Press START.	Coach Marv hat zwei Minuten Sendezeit, eine Wiederholung und einen Stift, skapi. Er nutzt alle drei. Drück Start.
+Tonight: a test pattern, drawing on the picture, and the video synth.	Heute Abend: ein Testbild, aufs Bild zeichnen und der Videosynth.
+Folks, I've watched this play forty times. It's still a play.	Leute, ich habe diesen Spielzug vierzigmal gesehen. Es ist immer noch ein Spielzug.
+CHECK THE MONITORS	MONITORE PRÜFEN
+PATTERN adds Pocket Test. If its circles are not round, a screen is stretched. Find out now, not on air.	TESTBILD fügt Pocket Test hinzu. Sind die Kreise nicht rund, ist ein Bildschirm verzerrt. Merk das jetzt, nicht auf Sendung.
+Its bars and steps are checked against real meters, so a wrong screen looks wrong at once.	Balken und Stufen sind mit echten Messgeräten geprüft. Ein falsch eingestellter Bildschirm fällt sofort auf.
+That's a test pattern. You test with it. That's why they call it that.	Das ist ein Testbild. Damit testet man. Daher der Name.
+ROLL THE REPLAY	WIEDERHOLUNG AB
+Select The replay and TAKE it.	Wähl The replay und drück TAKE.
+A replay loops, so the pundit can talk over it for as long as he likes. He likes.	Die Wiederholung läuft in Schleife, damit der Experte reden kann, so lange er will. Er will.
+Here's number 22. Number 22 has the ball. That's important, because the ball is how you score.	Hier ist die Nummer 22. Nummer 22 hat den Ball. Das ist wichtig, denn ohne Ball kein Tor.
+The pen goes over the replay, on its own layer. Press the + at the end of the playlist tabs.	Der Stift kommt über die Wiederholung, auf eine eigene Ebene. Drück das + am Ende der Playlist-Tabs.
+A second playlist is a layer over the first.	Eine zweite Playlist ist eine Ebene über der ersten.
+Over it. Not under it. Under it, you can't see it. That's football.	Darüber. Nicht darunter. Darunter sieht man nichts. So geht Fußball.
+The lit tab is where SOURCE puts things. Skip this and the ink lands under the replay.	QUELLE legt alles im leuchtenden Tab ab. Überspringst du das, landet die Tinte unter der Wiederholung.
+See that tab? Click it. Fundamentals.	Siehst du den Tab? Draufklicken. Grundlagen.
+In playlist 2: SOURCE, then Draw.	In Playlist 2: QUELLE, dann Zeichnen.
+A Draw cue is clear wherever there is no ink, so the replay shows through.	Ein Zeichnen-Cue ist durchsichtig, wo keine Tinte ist. Dort sieht man die Wiederholung durch.
+Give me the pen. I've waited all season for the pen.	Gib mir den Stift. Ich warte die ganze Saison auf diesen Stift.
+Both are live now: the replay underneath, the ink on top.	Jetzt sind beide auf Sendung: die Wiederholung unten, die Tinte oben.
+We're on the air. Nobody touches the pen but me.	Wir sind auf Sendung. Diesen Stift fasse nur ich an.
+CIRCLE HIM	KREIS IHN EIN
+Press DRAW in the inspector, then circle number 22 on the programme monitor. He is the yellow one.	Drück Zeichnen im Inspector und kreise Nummer 22 auf dem Programm-Monitor ein. Er ist der Gelbe.
+A pen's pressure makes the line thicker. A mouse presses at one strength.	Mehr Stiftdruck macht den Strich dicker. Eine Maus drückt immer gleich stark.
+Circle him! The yellow one! There's only one yellow one. Circle that one.	Kreis ihn ein! Den Gelben! Es gibt nur einen Gelben. Genau den.
+Draw as much as you like. Then SAVE STILL keeps the drawing as a picture with a clear background, in the playlist.	Zeichne, so viel du willst. Standbild sichern speichert die Zeichnung dann als Bild mit durchsichtigem Hintergrund in der Playlist.
+For next week's show. He will want that circle again.	Für die Sendung nächste Woche. Er wird diesen Kreis wiederhaben wollen.
+Put that in the Hall of Fame. Next to the turducken.	Ab in die Ruhmeshalle damit. Neben den Truthahn mit Ente mit Huhn drin.
+Halftime. Click the Deck 1 tab, then SOURCE, then Video Synth.	Halbzeit. Klick auf den Tab Deck 1, dann QUELLE, dann Videosynth.
+My favourite source: oscillators, mirrors and feedback. A halftime show with no camera at all.	Meine Lieblingsquelle: Oszillatoren, Spiegel und Rückkopplung. Eine Halbzeitshow ganz ohne Kamera.
+Halftime! Somebody get me some lights. And a band. And a sandwich.	Halbzeit! Jemand soll Licht holen. Und eine Band. Und ein Sandwich.
+TAKE HALFTIME	HALBZEIT AUF SENDUNG
+Select the synth and TAKE it. Then look at the monitor: your ink is still up.	Wähl den Synth und drück TAKE. Schau auf den Monitor: Deine Tinte ist noch da.
+Playlist 2 did not change, so its ink stays over whatever playlist 1 shows. Each playlist changes on its own.	Playlist 2 hat nicht gewechselt. Ihre Tinte bleibt über allem, was Playlist 1 zeigt. Jede Playlist wechselt für sich.
+Leave the circle up. It's a good circle. It goes with everything.	Lass den Kreis stehen. Ein guter Kreis. Passt zu allem.
+A test pattern, a replay, ink on a layer, a still, and halftime. That's the booth.	Testbild, Wiederholung, Tinte auf einer Ebene, Standbild und Halbzeit. Das ist die Kommentatorenkabine.
+Replay in the Draw section draws your lines back the way you drew them. He will love that.	Replay im Bereich Zeichnen zeichnet deine Linien genau so nach, wie du sie gezeichnet hast. Das wird er lieben.
+Same time next week. Bring a bigger pen.	Nächste Woche, gleiche Zeit. Bring einen größeren Stift mit.
+Now THAT is a busy play. I can't see the field. I love it.	DAS ist mal ein bewegter Spielzug. Ich sehe das Spielfeld nicht. Herrlich.
+Two projectors overlap, and each fades its edge so the overlap is not twice as bright. Watch the sides of the monitor go soft.	Zwei Projektoren überlappen. Jeder blendet seinen Rand ab, damit die Überlappung nicht doppelt so hell ist. Schau, wie die Monitorseiten weich werden.
+A game show, skapi. Three contestants, one buzzer, and a host who is not here tonight. Press START.	Eine Spielshow, skapi. Drei Kandidaten, ein Buzzer und ein Moderator, der heute nicht da ist. Drück Start.
+Cue numbers, hotkeys, and GO from other machines.	Cue-Nummern, Hotkeys und GO von anderen Rechnern.
+Forty years I turned the letters. Tonight they gave me the microphone. Nobody panic.	Vierzig Jahre habe ich Buchstaben umgedreht. Heute gab man mir das Mikrofon. Keine Panik.
+Theatre numbers its cues: Q3, Q3.5, Q12A. Deckboy reads them all.	Das Theater nummeriert seine Cues: Q3, Q3.5, Q12A. Deckboy liest sie alle.
+Numbers! I know letters. Numbers are letters that went to college.	Zahlen! Ich kenne Buchstaben. Zahlen sind Buchstaben mit Hochschulabschluss.
+GOTO crosses a long list faster than scrolling. Much faster.	GOTO durchquert lange Listen schneller als Scrollen. Viel schneller.
+F1 to F10, F12, or the number pad. Each one is a buzzer.	F1 bis F10, F12 oder der Ziffernblock. Jede Taste ist ein Buzzer.
+Every contestant gets a buzzer. I get the letters. It's fine. It's fine.	Jeder Kandidat bekommt einen Buzzer. Ich bekomme die Buchstaben. Schon gut. Schon gut.
+No mouse, no list, no looking. Only the key.	Keine Maus, keine Liste, kein Hinsehen. Nur die Taste.
+Buzz! A winner! I've never said that. I've only pointed at it.	Bing! Ein Gewinner! Das habe ich noch nie gesagt. Nur draufgezeigt.
+And for our viewers at home: yes, you can push the buttons too.	Und für die Zuschauer zu Hause: Ja, ihr dürft auch Knöpfe drücken.
+Numbers, GOTO, a buzzer, and GO from anywhere. You could host a game show now.	Zahlen, GOTO, ein Buzzer und GO von überall. Jetzt könntest du eine Spielshow moderieren.
+Goodnight, everybody! Tomorrow I go back to the letters. I'll miss you.	Gute Nacht, alle zusammen! Morgen bin ich wieder bei den Buchstaben. Ihr werdet mir fehlen.
+And the number is... not three. I'll allow it. I turn anything.	Und die Zahl ist... nicht drei. Lass ich gelten. Ich drehe alles um.
+A second playlist is a layer over the map. The lizard stays underneath. For now.	Eine zweite Playlist ist eine Ebene über der Karte. Die Echse bleibt darunter. Vorerst.
+A Lower Third, a name, a title card, a backdrop. The lizard has left the studio.	Eine Bauchbinde, ein Name, eine Titelkarte, ein Hintergrund. Die Echse hat das Studio verlassen.
+That's not my name. It's a lovely name. Now, about that lizard...	Das ist nicht mein Name. Ein schöner Name. Nun, wegen dieser Echse...
+The rocket (on the pad)	The rocket (on the pad)
+The rocket (lift-off)	The rocket (lift-off)
+A rocket built in a basement, skapi, an inventor who wants cheese, and a dog who does the real work. Press START.	Eine Rakete aus dem Keller, skapi, ein Erfinder mit Käsehunger und ein Hund, der die eigentliche Arbeit macht. Drück Start.
+Stage timers: a countdown over a picture, a hold, and a view for the person on stage.	Bühnentimer: Countdown über einem Bild, Anhalten und eine Ansicht für die Person auf der Bühne.
+Playlist 2 is selected, over the rocket. SOURCE, then Stage Timer.	Playlist 2 ist ausgewählt, über der Rakete. QUELLE, dann Stage Timer.
+*checks his watch, then the rocket, then his watch*	*schaut auf die Uhr, dann zur Rakete, dann auf die Uhr*
+COUNT IT DOWN	COUNTDOWN
+Select the timer and TAKE it. I have cleared its backdrop, so the rocket shows behind the numbers.	Wähl den Timer und drück TAKE. Ich habe den Hintergrund entfernt, damit die Rakete hinter den Zahlen zu sehen ist.
+Past zero it keeps going and counts the overtime. Very honest. Slightly rude.	Nach null zählt er weiter und zeigt die Überziehung. Sehr ehrlich. Etwas unhöflich.
+Close MENU, click the Deck 1 tab, then select 'The rocket (lift-off)' and TAKE it.	Schließ MENÜ, klick auf den Tab Deck 1, wähl 'The rocket (lift-off)' und drück TAKE.
+The clock is on playlist 2, so it stays up while the rocket changes underneath it.	Die Uhr liegt auf Playlist 2. Sie bleibt stehen, während die Rakete darunter wechselt.
+We have lift-off, Grommet! ...Grommet? Who's flying it?	Wir sind gestartet, Grommet! ...Grommet? Wer fliegt das Ding?
+A countdown, a hold, a pilot's view and a launch. Bring crackers.	Countdown, Anhalten, Pilotenansicht und Start. Bring Cracker mit.
+*waves from the window*	*winkt aus dem Fenster*
+The rubber chicken	The rubber chicken
+A magic show, skapi. A trunk, a rubber chicken, and one beat where everything changes at once. Press START.	Eine Zaubershow, skapi. Eine Truhe, ein Gummihuhn und ein Schlag, auf dem sich alles zugleich ändert. Drück Start.
+Two playlists are two layers, and TAKE ALL changes both together. Tonight you will see why that matters.	Zwei Playlists sind zwei Ebenen. TAKE ALL wechselt beide zugleich. Heute siehst du, warum das zählt.
+The chicken goes on its own layer. Press the + at the end of the playlist tabs.	Das Huhn bekommt eine eigene Ebene. Drück das + am Ende der Playlist-Tabs.
+The lit tab is the playlist that gets the next cue. Its chip now says 'to Out 1': it is layered over playlist 1 on that output.	Der leuchtende Tab bekommt das nächste Cue. Sein Chip sagt jetzt 'an Ausg. 1': Die Ebene liegt auf diesem Ausgang über Playlist 1.
+TRICK ONE	ERSTER TRICK
+Turnip Top has put the chicken in playlist 2. In playlist 1, TAKE 'The trunk (open)'. Then in playlist 2, TAKE the chicken.	Turnip Top hat das Huhn in Playlist 2 gelegt. Starte in Playlist 1 'The trunk (open)' mit TAKE. Dann starte in Playlist 2 das Huhn mit TAKE.
+The chicken is clear all round, so it covers only itself. Watch the monitor between the two TAKEs.	Rund ums Huhn ist alles durchsichtig. Es verdeckt also nur seine eigene Fläche. Beobachte den Monitor zwischen den beiden TAKEs.
+Did you see it? For a moment the trunk was open and empty: two TAKEs are two moments. The trick is reset. Now select the open trunk in playlist 1 and the chicken in playlist 2, then TAKE ALL.	Gesehen? Kurz war die Truhe offen und leer: Zwei TAKEs sind zwei Momente. Der Trick ist zurückgesetzt. Wähl die offene Truhe in Playlist 1 und das Huhn in Playlist 2, dann TAKE ALL.
+TAKE ALL takes every playlist's selected cue on one beat. No gap, no empty trunk.	TAKE ALL startet das ausgewählte Cue jeder Playlist auf einen Schlag. Keine Lücke, keine leere Truhe.
+The chicken was late. They saw an empty trunk. In magic we call that a trunk.	Das Huhn kam zu spät. Sie sahen eine leere Truhe. In der Zauberei nennt man das eine Truhe.
+TAKE ALL	TAKE ALL
+THE VANISH	DAS VERSCHWINDEN
+Trick two. Drag playlist 2's opacity fader down to nothing. The chicken fades away.	Zweiter Trick. Zieh den Deckkraftregler von Playlist 2 ganz herunter. Das Huhn blendet aus.
+Every playlist has its own opacity. Down is a fade out, with no cue at all.	Jede Playlist hat ihre eigene Deckkraft. Herunterziehen blendet aus, ganz ohne Cue.
+Ta-daaa! ...Hold for applause. Hold. Now watch it go.	Ta-daaa! ...Auf Applaus warten. Weiter warten. Jetzt schau, wie es verschwindet.
+Trick three. Bring it back: playlist 2's opacity all the way up.	Dritter Trick. Hol es zurück: Deckkraft von Playlist 2 ganz hoch.
+Where did it go? Back in the trunk. Everything goes back in the trunk.	Wo ist es hin? Zurück in die Truhe. Alles kommt zurück in die Truhe.
+THAT'S MAGIC	DAS IST MAGIE
+An appearance done wrong, then right, a vanish and a return. Nazdrave.	Ein Auftritt falsch, dann richtig, ein Verschwinden und eine Rückkehr. Nazdrave.
+A playlist can also sit on any output. Two layers, a great many tricks.	Eine Playlist kann auch auf jedem Ausgang liegen. Zwei Ebenen, jede Menge Tricks.
+It's back! Thank you! I'm here all week! The chicken is here forever.	Es ist zurück! Danke! Ich bin die ganze Woche hier! Das Huhn ist für immer hier.
+A cooking show, skapi. Live. The kitchen is on fire. Press START.	Eine Kochshow, skapi. Live. Die Küche brennt. Drück Start.
+Ta-da! Still cookin'! ...Still burnin'.	Ta-da! Es köchelt noch! ...Es kokelt noch.
+PANIC	PANIC
+Bork! De fire extinguisher is also on fire!	Bork! De Feuerlöschör brennt auch, flördi flördi!
+BLACK to hide, PANIC to stop, TAKE to come back. You will survive any kitchen.	schwarz zum Verstecken, PANIC zum Stoppen, TAKE zum Zurückkommen. So überlebst du jede Küche.
+A fashion show, skapi. One designer, one runway, and a look she will want back. Press START.	Eine Modenschau, skapi. Eine Designerin, ein Laufsteg und ein Look, den sie zurückhaben will. Drück Start.
+A preset stores a whole look and brings it back with one button.	Ein Preset speichert einen ganzen Look und holt ihn mit einem Knopf zurück.
+Darling. A look is not a look until you can get it back.	Schätzchen. Ein Look ist erst ein Look, wenn du ihn zurückholen kannst.
+Buttons. Good. I design with buttons.	Knöpfe. Gut. Ich entwerfe mit Knöpfen.
+Store it. Before somebody has ideas.	Speichern. Bevor jemand auf Ideen kommt.
+Close the DASH (Esc), then select Look two and TAKE it.	Schließ DASH (Esc), wähl Look two und drück TAKE.
+A cape. On my runway. Someone will trip, darling. Someone always trips.	Ein Umhang. Auf meinem Laufsteg. Jemand wird stolpern, Schätzchen. Es stolpert immer jemand.
+Recall: the whole look comes back at once.	Abrufen: Der ganze Look kommt auf einmal zurück.
+Thank you. We will never speak of the cape again.	Danke. Wir werden nie wieder über den Umhang reden.
+Simple. Timeless. Recallable. Now go, darling. I have a fitting.	Schlicht. Zeitlos. Abrufbar. Geh jetzt, Schätzchen. Ich habe eine Anprobe.
+Pushes, wipes, iris, dip to white, and more. I wrote half of them. On a Tuesday.	Schieben, Wischen, Iris, über Weiß und mehr. Die Hälfte habe ich geschrieben. An einem Dienstag.
+Operators... roll the transition.	Operatoren... Übergang ab.
+A style, a time, and two very dramatic entrances. Roll credits.	Ein Stil, eine Zeit und zwei sehr dramatische Auftritte. Abspann ab.
+That is not an iris. ...It is better. I will allow it.	Das ist keine Iris. ...Es ist besser. Ich lasse es zu.
+An effect, a bend and the patch. The robots approve, I think. Their faces are helmets.	Ein Effekt, eine Verbiegung und der Patch. Die Roboter sind wohl einverstanden. Ihre Gesichter sind Helme.
+Waveform, vectorscope, false colour. The scopes settled it. The agents did not.	Wellenform, Vektorskop, Falschfarben. Die Messgeräte haben es geklärt. Die Agenten nicht.
+The view from the capsule	Der Blick aus der Kapsel
+Major Tomasina is in orbit, skapi, and her picture has to reach the ground. Press START.	Major Tomasina ist im Orbit, skapi, und ihr Bild muss zur Erde. Drück Start.
+Pictures leave by cable or network: NDI, SDI from a DeckLink card, ST 2110 for broadcast plants.	Bilder gehen per Kabel oder Netzwerk raus: NDI, SDI aus einer DeckLink-Karte, ST 2110 für Sendeanlagen.
+Ground control, this is Major Tomasina. Can you see my picture?	Bodenkontrolle, hier Major Tomasina. Könnt ihr mein Bild sehen?
+Every way down, on one page. Good. Space has very few cables.	Alle Wege nach unten auf einer Seite. Gut. Im All gibt es kaum Kabel.
+NDI	NDI
+Sending now. If nobody answers, I'll just float here.	Ich sende. Wenn niemand antwortet, schwebe ich eben hier weiter.
+Ground control, signing off. Tell my mother I waved.	Bodenkontrolle, Ende. Sagt meiner Mutter, ich habe gewinkt.
+Ground control can see me! I can see my house from here.	Die Bodenkontrolle sieht mich! Von hier sehe ich mein Haus.
+MULTI ON	MULTI AN
+And one more window, showing the clock. Operators who watch a clock are never late.	Und noch ein Fenster mit der Uhr. Operatoren, die auf die Uhr schauen, sind nie zu spät.
+The big window is window one, which is usually the programme.	Das große Fenster ist Fenster eins. Das ist meistens das Programm.
+Windows, the ... menu, NEXT, the clock, a layout, tally. Mystery solved.	Fenster, das Menü ..., NEXT, die Uhr, ein Layout, Tally. Rätsel gelöst.
+DECKBOY  POCKET	DECKBOY  POCKET

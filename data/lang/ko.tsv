@@ -3071,3 +3071,173 @@ Stop masking this. The mask stays in the show's library, to put back from the me
 Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	이 마스크를 쇼에서, 그리고 이를 사용하는 모든 큐, 플레이리스트, 출력에서 삭제합니다. Undo로 되돌릴 수 있습니다
 FX PARAM: slot must be A-F	FX PARAM: 슬롯은 A~F여야 합니다
 FX LFO: slot must be A-D, E for the amount, or F/G for the fifth and sixth sliders	FX LFO: 슬롯은 A~D, 양은 E, 다섯 번째와 여섯 번째 슬라이더는 F/G여야 합니다
+playlist 2 is ready: you built one in the magic show	플레이리스트 2는 준비됐어. 마술 쇼에서 만들었지
+FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR	FX: 사용법 LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR
+BLACK	검정
+COACH MARV	COACH MARV
+JUNE O'NEIL	JUNE O'NEIL
+TURNIP TOP	TURNIP TOP
+CHEF BORK	CHEF BORK
+DONNA WHEEL	DONNA WHEEL
+KEEPER ROOK	KEEPER ROOK
+AGENT BRANDT	AGENT BRANDT
+AGENT HOLLIS	AGENT HOLLIS
+MR. SALTY	MR. SALTY
+OPTIMUS PRIMETIME	OPTIMUS PRIMETIME
+DEFT FUNK	DEFT FUNK
+LT. HAILA	LT. HAILA
+ENSIGN JINKLEY	ENSIGN JINKLEY
+The tour bus, with Polly Carton	Polly Carton과 함께하는 투어 버스
+A test pattern, drawing on a replay, a still, and the video synth at halftime.	테스트 패턴, 리플레이 위에 그리기, 스틸 이미지, 하프타임의 비디오 신시사이저.
+A stage timer over a picture, held, a presenter view for the person on stage, and a launch.	영상 위에 띄우는 무대 타이머, 일시 정지, 무대 위 사람을 위한 화면, 그리고 발사.
+A second playlist as a layer, TAKE ALL so two things change on one beat, and a playlist's opacity.	두 번째 플레이리스트를 레이어로 쓰고, TAKE ALL로 둘을 동시에 바꾸고, 플레이리스트 불투명도를 조절하기.
+The fashion show, with Edda Mod	Edda Mod의 패션쇼
+Ground control, with Major Tomasina	Major Tomasina와 지상 관제
+0.1, 0.1, 0.1	0.1, 0.1, 0.1
+Opener (the bus at dawn)	오프닝 (새벽의 버스)
+Polly Carton's tour bus leaves at six, skapi, and this show goes with it. Press START.	Polly Carton의 투어 버스가 6시에 떠나, skapi. 이 쇼도 함께 가야 해. 시작을 눌러.
+A show that travels needs three things first: a check, a fix and a bundle.	길을 떠날 쇼에 먼저 필요한 건 세 가지야. 점검, 수정, 묶어 저장.
+Honey, I've played four thousand towns. Not one of them had my laptop.	얘야, 난 4천 개 도시에서 공연했어. 내 노트북이 있던 도시는 하나도 없더라.
+It lists what the show would trip over: missing files, empty cues, outputs it cannot reach.	쇼가 걸려 넘어질 것들을 보여 줘. 없는 파일, 빈 큐, 연결할 수 없는 출력.
+Every show has a problem. Find yours before the audience does.	모든 쇼에는 문제가 있어. 관객보다 먼저 찾아내자.
+The intro video is on the office computer. Select it and delete it, or RELINK it if you have the file.	오프닝 영상은 사무실 컴퓨터에 있어. 선택해서 지우거나, 파일이 있으면 RELINK로 다시 연결해.
+Fix it here, with time and coffee. Not at the venue, with neither.	시간도 커피도 있는 여기서 고쳐. 둘 다 없는 공연장에 가서 말고.
+Leave it behind, sugar. I left a whole wig in Tulsa and the show went on.	두고 가렴, 자기야. 나도 털사에 가발 하나를 통째로 두고 왔지만 공연은 했어.
+Press BUNDLE and choose where: a USB stick, a shared folder. The show and all its media, in one folder.	묶어 저장을 누르고 USB 메모리나 공유 폴더처럼 저장할 곳을 골라. 쇼와 모든 미디어가 한 폴더에 담겨.
+Pack it like a wig box. Everything inside, nothing loose.	가발 상자처럼 싸야지. 전부 안에 넣고, 삐져나오는 건 없이.
+Checked, fixed, bundled. On the other computer, open the show in the bundle and everything is there.	점검하고, 고치고, 묶었어. 다른 컴퓨터에서 묶음 속 쇼를 열면 전부 있어.
+The show file is only text, so it travels light. The media is the luggage.	쇼 파일은 글자뿐이라 가볍게 떠나. 짐은 미디어 쪽이지.
+Bus leaves at six. Show starts at eight. Hair takes until seven.	버스는 6시에 떠나. 공연은 8시에 시작해. 머리는 7시까지 해야 해.
+There are dozens, and most of them run on the graphics card, so you can stack them.	수십 가지가 있어. 대부분 그래픽 카드에서 돌아가니까 여러 개 쌓아도 돼.
+An effect, a ~ and a colour. The critic is crying. Good crying, I think.	효과 하나, ~ 하나, 색 하나. 평론가가 울고 있어. 감동의 눈물이겠지, 아마.
+Stack a few more. Order matters: each effect works on the picture the one above it made.	몇 개 더 쌓아 봐. 순서가 중요해. 각 효과는 바로 위 효과가 만든 영상에 작용해.
+Three effects! It's a mess! It's ALIVE! Post it.	효과 세 개! 엉망이야! 살아 있어! 올려 버려!
+The replay	The replay
+Coach Marv has two minutes of airtime, one replay and a pen, skapi. He will use all three. Press START.	Coach Marv에게 방송 시간 2분, 리플레이 하나, 펜 하나가 있어, skapi. 셋 다 쓸 거야. 시작을 눌러.
+Tonight: a test pattern, drawing on the picture, and the video synth.	오늘 밤은 테스트 패턴, 영상 위에 그리기, 그리고 비디오 신시사이저.
+Folks, I've watched this play forty times. It's still a play.	여러분, 이 플레이를 마흔 번 봤습니다. 여전히 플레이군요.
+CHECK THE MONITORS	모니터 확인
+PATTERN adds Pocket Test. If its circles are not round, a screen is stretched. Find out now, not on air.	테스트 패턴으로 Pocket Test를 추가해. 원이 둥글지 않으면 화면이 늘어난 거야. 방송 전에 확인하자.
+Its bars and steps are checked against real meters, so a wrong screen looks wrong at once.	막대와 계조는 실제 계측기로 검증했어. 화면이 잘못됐으면 바로 티가 나.
+That's a test pattern. You test with it. That's why they call it that.	이게 테스트 패턴입니다. 테스트할 때 쓰죠. 그래서 그런 이름입니다.
+ROLL THE REPLAY	리플레이 재생
+Select The replay and TAKE it.	The replay를 선택하고 TAKE해.
+A replay loops, so the pundit can talk over it for as long as he likes. He likes.	리플레이는 반복돼. 해설자는 마음껏 떠들 수 있지. 아주 좋아해.
+Here's number 22. Number 22 has the ball. That's important, because the ball is how you score.	여기 22번입니다. 22번이 공을 가지고 있죠. 중요합니다. 득점하려면 공이 필요하니까요.
+The pen goes over the replay, on its own layer. Press the + at the end of the playlist tabs.	펜은 별도 레이어로 리플레이 위에 올라가. 플레이리스트 탭 끝의 +를 눌러.
+A second playlist is a layer over the first.	두 번째 플레이리스트는 첫 번째 위에 얹는 레이어야.
+Over it. Not under it. Under it, you can't see it. That's football.	위입니다. 아래가 아닙니다. 아래에 있으면 안 보이죠. 그게 풋볼입니다.
+The lit tab is where SOURCE puts things. Skip this and the ink lands under the replay.	소스는 불이 켜진 탭에 들어가. 이걸 건너뛰면 잉크가 리플레이 아래에 깔려.
+See that tab? Click it. Fundamentals.	저 탭 보이죠? 클릭하세요. 기본기입니다.
+In playlist 2: SOURCE, then Draw.	플레이리스트 2에서 소스, 그다음 그리기.
+A Draw cue is clear wherever there is no ink, so the replay shows through.	그리기 큐는 잉크가 없는 곳이 투명해서 밑의 리플레이가 보여.
+Give me the pen. I've waited all season for the pen.	펜 주세요. 이 펜을 시즌 내내 기다렸습니다.
+Both are live now: the replay underneath, the ink on top.	둘 다 방송 중이야. 아래에는 리플레이, 위에는 잉크.
+We're on the air. Nobody touches the pen but me.	방송 중입니다. 펜은 저만 만집니다.
+CIRCLE HIM	선수를 동그라미로 표시
+Press DRAW in the inspector, then circle number 22 on the programme monitor. He is the yellow one.	인스펙터에서 그리기를 누르고 프로그램 모니터의 22번에 동그라미를 그려. 노란 선수야.
+A pen's pressure makes the line thicker. A mouse presses at one strength.	펜은 세게 누르면 선이 굵어져. 마우스는 압력이 일정해.
+Circle him! The yellow one! There's only one yellow one. Circle that one.	동그라미! 노란 선수요! 노란 선수는 딱 한 명입니다. 그 선수를 표시하세요.
+Draw as much as you like. Then SAVE STILL keeps the drawing as a picture with a clear background, in the playlist.	마음껏 그려. 스틸 저장을 누르면 투명한 배경의 그림으로 플레이리스트에 남아.
+For next week's show. He will want that circle again.	다음 주 방송용이야. 그 동그라미를 또 찾을 테니까.
+Put that in the Hall of Fame. Next to the turducken.	명예의 전당에 넣읍시다. 그 삼단 고기 샌드위치 옆에요.
+Halftime. Click the Deck 1 tab, then SOURCE, then Video Synth.	하프타임이야. 덱 1 탭을 클릭하고 소스, 그다음 비디오 신시사이저.
+My favourite source: oscillators, mirrors and feedback. A halftime show with no camera at all.	내가 좋아하는 소스야. 오실레이터, 거울, 피드백. 카메라 없이 하프타임 쇼를 하지.
+Halftime! Somebody get me some lights. And a band. And a sandwich.	하프타임! 조명 좀 주세요. 밴드도요. 샌드위치도요.
+TAKE HALFTIME	하프타임 TAKE
+Select the synth and TAKE it. Then look at the monitor: your ink is still up.	신시사이저를 선택하고 TAKE해. 모니터를 봐. 잉크가 아직 남아 있어.
+Playlist 2 did not change, so its ink stays over whatever playlist 1 shows. Each playlist changes on its own.	플레이리스트 2는 바뀌지 않았어. 그래서 1이 뭘 보여도 잉크는 그 위에 남아. 각자 따로 바뀌는 거야.
+Leave the circle up. It's a good circle. It goes with everything.	동그라미는 놔두세요. 좋은 동그라미입니다. 어디에나 어울리죠.
+A test pattern, a replay, ink on a layer, a still, and halftime. That's the booth.	테스트 패턴, 리플레이, 레이어에 그린 잉크, 스틸, 하프타임. 이게 중계석이야.
+Replay in the Draw section draws your lines back the way you drew them. He will love that.	그리기 섹션의 Replay는 네가 그린 순서대로 선을 다시 그려 줘. 아주 좋아하겠지.
+Same time next week. Bring a bigger pen.	다음 주 같은 시간에 봅시다. 더 큰 펜 가져오세요.
+Now THAT is a busy play. I can't see the field. I love it.	이거야말로 복잡한 플레이군요. 경기장이 안 보입니다. 마음에 들어요.
+Two projectors overlap, and each fades its edge so the overlap is not twice as bright. Watch the sides of the monitor go soft.	프로젝터 두 대가 겹치는 곳은 밝기가 두 배가 되지 않도록 각자 가장자리를 어둡게 해. 모니터 양옆이 부드러워지는 걸 봐.
+A game show, skapi. Three contestants, one buzzer, and a host who is not here tonight. Press START.	퀴즈 쇼야, skapi. 참가자 셋, 버저 하나, 오늘 밤 자리를 비운 진행자. 시작을 눌러.
+Cue numbers, hotkeys, and GO from other machines.	큐 번호, 단축키, 다른 기계에서 보내는 GO.
+Forty years I turned the letters. Tonight they gave me the microphone. Nobody panic.	40년 동안 글자판을 뒤집었어요. 오늘은 마이크를 줬네요. 다들 진정하세요.
+Theatre numbers its cues: Q3, Q3.5, Q12A. Deckboy reads them all.	극장에서는 큐에 번호를 붙여. Q3, Q3.5, Q12A. Deckboy는 다 읽어.
+Numbers! I know letters. Numbers are letters that went to college.	숫자요! 난 글자는 알아요. 숫자는 대학 다녀온 글자잖아요.
+GOTO crosses a long list faster than scrolling. Much faster.	긴 목록에서는 스크롤보다 GOTO가 빨라. 훨씬 빨라.
+F1 to F10, F12, or the number pad. Each one is a buzzer.	F1부터 F10, F12, 또는 숫자 키패드. 하나하나가 버저야.
+Every contestant gets a buzzer. I get the letters. It's fine. It's fine.	참가자는 버저를 받고, 난 글자판을 받죠. 괜찮아요. 괜찮다니까요.
+No mouse, no list, no looking. Only the key.	마우스도 목록도 볼 필요도 없어. 키 하나면 돼.
+Buzz! A winner! I've never said that. I've only pointed at it.	띵동! 우승자입니다! 처음 말해 봐요. 늘 손으로 가리키기만 했거든요.
+And for our viewers at home: yes, you can push the buttons too.	집에서 보시는 시청자 여러분도, 네, 버튼 누르셔도 돼요.
+Numbers, GOTO, a buzzer, and GO from anywhere. You could host a game show now.	번호, GOTO, 버저, 어디서든 GO. 이제 퀴즈 쇼를 진행할 수 있겠네.
+Goodnight, everybody! Tomorrow I go back to the letters. I'll miss you.	모두 안녕히 주무세요! 내일은 다시 글자판으로 돌아가요. 보고 싶을 거예요.
+And the number is... not three. I'll allow it. I turn anything.	번호는... 3번은 아니네요. 좋아요. 전 뭐든 뒤집으니까요.
+A second playlist is a layer over the map. The lizard stays underneath. For now.	두 번째 플레이리스트가 지도 위에 얹혀. 도마뱀은 아래에 있어. 아직은.
+A Lower Third, a name, a title card, a backdrop. The lizard has left the studio.	하단 자막, 이름, 타이틀 카드, 배경. 도마뱀은 스튜디오를 떠났어.
+That's not my name. It's a lovely name. Now, about that lizard...	제 이름은 아니네요. 예쁜 이름이긴 해요. 그런데 그 도마뱀 말인데요...
+The rocket (on the pad)	The rocket (on the pad)
+The rocket (lift-off)	The rocket (lift-off)
+A rocket built in a basement, skapi, an inventor who wants cheese, and a dog who does the real work. Press START.	지하실에서 만든 로켓이야, skapi. 치즈를 찾는 발명가와 실무를 다 하는 개도 있어. 시작을 눌러.
+Stage timers: a countdown over a picture, a hold, and a view for the person on stage.	무대 타이머. 영상 위의 카운트다운, 일시 정지, 무대 위 사람을 위한 화면.
+Playlist 2 is selected, over the rocket. SOURCE, then Stage Timer.	로켓 위에 얹힌 플레이리스트 2가 선택돼 있어. 소스, 그다음 Stage Timer.
+*checks his watch, then the rocket, then his watch*	*시계를 보고, 로켓을 보고, 다시 시계를 본다*
+COUNT IT DOWN	카운트다운 시작
+Select the timer and TAKE it. I have cleared its backdrop, so the rocket shows behind the numbers.	타이머를 선택하고 TAKE해. 배경은 지워 뒀으니 숫자 뒤로 로켓이 보여.
+Past zero it keeps going and counts the overtime. Very honest. Slightly rude.	0을 지나도 멈추지 않고 초과 시간을 세어. 아주 솔직하지. 조금 무례하고.
+Close MENU, click the Deck 1 tab, then select 'The rocket (lift-off)' and TAKE it.	메뉴를 닫고 덱 1 탭을 클릭해. 'The rocket (lift-off)'를 선택하고 TAKE해.
+The clock is on playlist 2, so it stays up while the rocket changes underneath it.	시계는 플레이리스트 2에 있어. 아래에서 로켓이 바뀌어도 계속 보여.
+We have lift-off, Grommet! ...Grommet? Who's flying it?	발사 성공이야, Grommet! ...Grommet? 조종은 누가 해?
+A countdown, a hold, a pilot's view and a launch. Bring crackers.	카운트다운, 일시 정지, 조종사용 화면, 발사. 크래커도 챙겨.
+*waves from the window*	*창문에서 손을 흔든다*
+The rubber chicken	The rubber chicken
+A magic show, skapi. A trunk, a rubber chicken, and one beat where everything changes at once. Press START.	마술 쇼야, skapi. 트렁크, 고무 닭, 모든 게 한 박자에 바뀌는 순간. 시작을 눌러.
+Two playlists are two layers, and TAKE ALL changes both together. Tonight you will see why that matters.	플레이리스트 둘은 레이어 둘이야. TAKE ALL은 둘을 함께 바꿔. 오늘 그게 왜 중요한지 알게 될 거야.
+The chicken goes on its own layer. Press the + at the end of the playlist tabs.	닭은 별도 레이어에 올려. 플레이리스트 탭 끝의 +를 눌러.
+The lit tab is the playlist that gets the next cue. Its chip now says 'to Out 1': it is layered over playlist 1 on that output.	불이 켜진 탭이 다음 큐를 받아. 표시가 '출력 1로'로 바뀌었어. 그 출력에서 플레이리스트 1 위에 얹힌다는 뜻이야.
+TRICK ONE	마술 하나
+Turnip Top has put the chicken in playlist 2. In playlist 1, TAKE 'The trunk (open)'. Then in playlist 2, TAKE the chicken.	Turnip Top이 닭을 플레이리스트 2에 넣었어. 1에서 'The trunk (open)'를 TAKE해. 그다음 2에서 닭을 TAKE해.
+The chicken is clear all round, so it covers only itself. Watch the monitor between the two TAKEs.	닭 주변은 투명해서 닭 몸만 가려. 두 번의 TAKE 사이에 모니터를 봐.
+Did you see it? For a moment the trunk was open and empty: two TAKEs are two moments. The trick is reset. Now select the open trunk in playlist 1 and the chicken in playlist 2, then TAKE ALL.	봤어? 잠깐 트렁크가 열린 채 비어 있었지. 두 번의 TAKE는 두 순간이야. 마술은 초기화했어. 이제 1에서 열린 트렁크를, 2에서 닭을 선택하고 TAKE ALL.
+TAKE ALL takes every playlist's selected cue on one beat. No gap, no empty trunk.	TAKE ALL은 모든 플레이리스트의 선택한 큐를 한 박자에 내보내. 틈도, 빈 트렁크도 없어.
+The chicken was late. They saw an empty trunk. In magic we call that a trunk.	닭이 지각했네! 관객이 빈 트렁크를 봤어. 마술계에서는 그걸 트렁크라고 해!
+TAKE ALL	TAKE ALL
+THE VANISH	사라지기
+Trick two. Drag playlist 2's opacity fader down to nothing. The chicken fades away.	마술 둘. 플레이리스트 2의 불투명도 페이더를 끝까지 내려. 닭이 서서히 사라져.
+Every playlist has its own opacity. Down is a fade out, with no cue at all.	플레이리스트마다 불투명도가 있어. 내리면 큐 없이도 페이드아웃이 돼.
+Ta-daaa! ...Hold for applause. Hold. Now watch it go.	짜자잔! ...박수 기다립니다. 계속 기다립니다. 자, 사라집니다!
+Trick three. Bring it back: playlist 2's opacity all the way up.	마술 셋. 다시 불러오자. 플레이리스트 2의 불투명도를 끝까지 올려.
+Where did it go? Back in the trunk. Everything goes back in the trunk.	어디 갔지? 트렁크로! 뭐든 결국 트렁크로 돌아가!
+THAT'S MAGIC	이게 마술이지
+An appearance done wrong, then right, a vanish and a return. Nazdrave.	실패한 등장, 성공한 등장, 사라지기와 돌아오기. Nazdrave.
+A playlist can also sit on any output. Two layers, a great many tricks.	플레이리스트는 어느 출력에나 놓을 수 있어. 레이어 둘이면 마술이 아주 많아져.
+It's back! Thank you! I'm here all week! The chicken is here forever.	돌아왔다! 고마워요! 전 이번 주 내내 있어요! 닭은 영원히 있어요!
+A cooking show, skapi. Live. The kitchen is on fire. Press START.	요리 방송이야, skapi. 생방송. 주방에 불이 났어. 시작을 눌러.
+Ta-da! Still cookin'! ...Still burnin'.	짜잔! 아직 요리 중! ...아직 불타는 중.
+PANIC	PANIC
+Bork! De fire extinguisher is also on fire!	보르크! 소화기도 불타욘 스뫼르크!
+BLACK to hide, PANIC to stop, TAKE to come back. You will survive any kitchen.	검정으로 숨기고, PANIC으로 멈추고, TAKE로 돌아와. 어느 주방에서든 살아남을 거야.
+A fashion show, skapi. One designer, one runway, and a look she will want back. Press START.	패션쇼야, skapi. 디자이너 한 명, 런웨이 하나, 다시 불러올 룩 하나. 시작을 눌러.
+A preset stores a whole look and brings it back with one button.	프리셋은 룩 전체를 저장하고 버튼 하나로 다시 불러와.
+Darling. A look is not a look until you can get it back.	달링. 다시 불러올 수 없는 룩은 룩도 아니야.
+Buttons. Good. I design with buttons.	단추. 좋아. 나도 단추로 디자인하거든.
+Store it. Before somebody has ideas.	저장해. 누가 쓸데없는 생각을 하기 전에.
+Close the DASH (Esc), then select Look two and TAKE it.	DASH를 닫고(Esc), Look two를 선택해서 TAKE해.
+A cape. On my runway. Someone will trip, darling. Someone always trips.	망토. 내 런웨이에. 누군가 넘어질 거야, 달링. 늘 누군가는 넘어지지.
+Recall: the whole look comes back at once.	불러오기. 룩 전체가 한 번에 돌아와.
+Thank you. We will never speak of the cape again.	고마워. 망토 이야기는 다시는 하지 말자.
+Simple. Timeless. Recallable. Now go, darling. I have a fitting.	단순해. 시대를 안 타. 다시 부를 수 있어. 자, 가 봐, 달링. 가봉해야 해.
+Pushes, wipes, iris, dip to white, and more. I wrote half of them. On a Tuesday.	밀기, 와이프, 아이리스, 흰색으로 전환 등등. 절반은 내가 썼지. 어느 화요일에.
+Operators... roll the transition.	오퍼레이터들... 전환을 돌려라.
+A style, a time, and two very dramatic entrances. Roll credits.	스타일 하나, 시간 하나, 극적인 등장 두 번. 엔딩 크레디트 올려.
+That is not an iris. ...It is better. I will allow it.	아이리스는 아니군. ...이게 낫네. 허락하지.
+An effect, a bend and the patch. The robots approve, I think. Their faces are helmets.	효과, 벤드, 패치. 로봇도 만족한 것 같아. 얼굴이 헬멧이라 모르겠네.
+Waveform, vectorscope, false colour. The scopes settled it. The agents did not.	파형, 벡터스코프, 거짓 색상. 스코프는 결론을 냈어. 요원들은 못 냈고.
+The view from the capsule	캡슐에서 본 풍경
+Major Tomasina is in orbit, skapi, and her picture has to reach the ground. Press START.	Major Tomasina가 궤도에 있어, skapi. 영상을 지상으로 보내야 해. 시작을 눌러.
+Pictures leave by cable or network: NDI, SDI from a DeckLink card, ST 2110 for broadcast plants.	영상은 케이블이나 네트워크로 나가. NDI, DeckLink 카드의 SDI, 방송 시설용 ST 2110.
+Ground control, this is Major Tomasina. Can you see my picture?	지상 관제, 여기는 Major Tomasina. 제 영상 보입니까?
+Every way down, on one page. Good. Space has very few cables.	지상으로 가는 길이 한 페이지에. 좋습니다. 우주에는 케이블이 별로 없거든요.
+NDI	NDI
+Sending now. If nobody answers, I'll just float here.	송신 시작. 아무도 답이 없으면 여기서 계속 떠 있겠습니다.
+Ground control, signing off. Tell my mother I waved.	지상 관제, 통신 종료. 엄마한테 손 흔들었다고 전해 주세요.
+Ground control can see me! I can see my house from here.	지상 관제에서 절 봤어요! 여기서 우리 집이 보여요.
+MULTI ON	MULTI ON
+And one more window, showing the clock. Operators who watch a clock are never late.	시계를 보여 줄 창도 하나 더. 시계 보는 오퍼레이터는 늦지 않아.
+The big window is window one, which is usually the programme.	큰 창이 창 1이야. 보통 프로그램 영상이지.
+Windows, the ... menu, NEXT, the clock, a layout, tally. Mystery solved.	창, ... 메뉴, NEXT, 시계, 레이아웃, 탤리. 수수께끼 해결.
+DECKBOY  POCKET	DECKBOY  POCKET

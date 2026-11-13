@@ -3074,3 +3074,173 @@ Stop masking this. The mask stays in the show's library, to put back from the me
 Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	このマスクをショーと、使用中のすべてのキュー、プレイリスト、出力から削除します。元に戻すで復元できます
 FX PARAM: slot must be A-F	FX PARAM: スロットは A～F のいずれか
 FX LFO: slot must be A-D, E for the amount, or F/G for the fifth and sixth sliders	FX LFO: スロットは A～D、量は E、5番目と6番目のスライダーは F/G
+playlist 2 is ready: you built one in the magic show	プレイリスト2は準備済み。手品のショーで作ったね
+FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR	FX: 使い方 LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR
+BLACK	黒
+COACH MARV	COACH MARV
+JUNE O'NEIL	JUNE O'NEIL
+TURNIP TOP	TURNIP TOP
+CHEF BORK	CHEF BORK
+DONNA WHEEL	DONNA WHEEL
+KEEPER ROOK	KEEPER ROOK
+AGENT BRANDT	AGENT BRANDT
+AGENT HOLLIS	AGENT HOLLIS
+MR. SALTY	MR. SALTY
+OPTIMUS PRIMETIME	OPTIMUS PRIMETIME
+DEFT FUNK	DEFT FUNK
+LT. HAILA	LT. HAILA
+ENSIGN JINKLEY	ENSIGN JINKLEY
+The tour bus, with Polly Carton	Polly Cartonと巡るツアーバス
+A test pattern, drawing on a replay, a still, and the video synth at halftime.	テストパターン、リプレイへの描画、静止画、ハーフタイムのビデオシンセ。
+A stage timer over a picture, held, a presenter view for the person on stage, and a launch.	映像に重ねるステージタイマー、一時停止、登壇者用の画面、そして発射。
+A second playlist as a layer, TAKE ALL so two things change on one beat, and a playlist's opacity.	2つ目のプレイリストをレイヤーに。TAKE ALLで2つを同時に切り替え、プレイリストの不透明度も操作。
+The fashion show, with Edda Mod	Edda Modのファッションショー
+Ground control, with Major Tomasina	Major Tomasinaと地上管制
+0.1, 0.1, 0.1	0.1, 0.1, 0.1
+Opener (the bus at dawn)	オープニング（夜明けのバス）
+Polly Carton's tour bus leaves at six, skapi, and this show goes with it. Press START.	Polly Cartonのツアーバスは6時発だよ、skapi。このショーも乗せていく。開始を押して。
+A show that travels needs three things first: a check, a fix and a bundle.	旅に出るショーには、まず3つ。確認、修正、まとめて保存。
+Honey, I've played four thousand towns. Not one of them had my laptop.	ねえ、あたしは4千もの町で歌ったの。あたしのノートPCが置いてあった町は、ひとつもないわ。
+It lists what the show would trip over: missing files, empty cues, outputs it cannot reach.	ショーがつまずく原因の一覧だよ。見つからないファイル、空のキュー、届かない出力。
+Every show has a problem. Find yours before the audience does.	どんなショーにも問題はある。お客さんより先に見つけよう。
+The intro video is on the office computer. Select it and delete it, or RELINK it if you have the file.	イントロ動画は事務所のPCにある。選んで削除するか、ファイルがあるならRELINKでつなぎ直して。
+Fix it here, with time and coffee. Not at the venue, with neither.	時間もコーヒーもある今、ここで直そう。会場ではどちらもないからね。
+Leave it behind, sugar. I left a whole wig in Tulsa and the show went on.	置いていきなさい、いい子。あたしもタルサにカツラを丸ごと忘れたけど、ショーは続いたわ。
+Press BUNDLE and choose where: a USB stick, a shared folder. The show and all its media, in one folder.	まとめて保存を押して、USBメモリや共有フォルダーなど保存先を選んで。ショーと全メディアが1つのフォルダーに入る。
+Pack it like a wig box. Everything inside, nothing loose.	カツラの箱と同じよ。全部中に入れて、はみ出させない。
+Checked, fixed, bundled. On the other computer, open the show in the bundle and everything is there.	確認、修正、まとめて保存。別のPCでそのフォルダーのショーを開けば、全部そろっている。
+The show file is only text, so it travels light. The media is the luggage.	ショーファイルは文字だけ。身軽に旅をする。荷物はメディアのほうだね。
+Bus leaves at six. Show starts at eight. Hair takes until seven.	バスは6時発。ショーは8時開演。髪のセットは7時までかかるわ。
+There are dozens, and most of them run on the graphics card, so you can stack them.	何十種類もあるよ。大半はグラフィックカードで動くから、重ねて使える。
+An effect, a ~ and a colour. The critic is crying. Good crying, I think.	エフェクトと~と色。批評家が泣いてる。たぶん、うれし泣きだね。
+Stack a few more. Order matters: each effect works on the picture the one above it made.	もう少し重ねよう。順番が大事。各エフェクトは、その上のエフェクトが作った映像に作用する。
+Three effects! It's a mess! It's ALIVE! Post it.	エフェクト3つ！ めちゃくちゃだ！ 生きてるぞ！ 投稿だ！
+The replay	The replay
+Coach Marv has two minutes of airtime, one replay and a pen, skapi. He will use all three. Press START.	Coach Marvの持ち時間は2分。リプレイとペンが1本あるよ、skapi。全部使うつもりだ。開始を押して。
+Tonight: a test pattern, drawing on the picture, and the video synth.	今夜はテストパターン、映像へのお絵描き、そしてビデオシンセ。
+Folks, I've watched this play forty times. It's still a play.	みなさん、このプレーは40回見ました。やはりプレーですね。
+CHECK THE MONITORS	モニターを確認
+PATTERN adds Pocket Test. If its circles are not round, a screen is stretched. Find out now, not on air.	テストパターンでPocket Testを追加。円が丸くなければ、画面が引き伸ばされている。本番前の今、調べよう。
+Its bars and steps are checked against real meters, so a wrong screen looks wrong at once.	バーや階調は実際の計測器で検証済み。画面の異常がすぐにわかる。
+That's a test pattern. You test with it. That's why they call it that.	これがテストパターンです。テストに使います。だからテストパターンなんですね。
+ROLL THE REPLAY	リプレイを再生
+Select The replay and TAKE it.	The replayを選んでTAKEして。
+A replay loops, so the pundit can talk over it for as long as he likes. He likes.	リプレイはループする。解説者は好きなだけ話せる。大好きなんだ。
+Here's number 22. Number 22 has the ball. That's important, because the ball is how you score.	22番です。22番がボールを持っています。大事ですね。点を取るにはボールが必要ですから。
+The pen goes over the replay, on its own layer. Press the + at the end of the playlist tabs.	ペンは専用レイヤーでリプレイに重ねる。プレイリストのタブの末尾にある+を押して。
+A second playlist is a layer over the first.	2つ目のプレイリストは、1つ目に重なるレイヤーだよ。
+Over it. Not under it. Under it, you can't see it. That's football.	上です。下ではありません。下だと見えません。これがフットボールです。
+The lit tab is where SOURCE puts things. Skip this and the ink lands under the replay.	ソースは光っているタブに追加される。ここを飛ばすと、インクがリプレイの下に入ってしまう。
+See that tab? Click it. Fundamentals.	あのタブが見えますね。クリックです。基本が大事。
+In playlist 2: SOURCE, then Draw.	プレイリスト2で、ソース、次に描画。
+A Draw cue is clear wherever there is no ink, so the replay shows through.	描画キューはインクのない場所が透明。下のリプレイが見えるよ。
+Give me the pen. I've waited all season for the pen.	ペンをください。このペンをシーズン中ずっと待っていました。
+Both are live now: the replay underneath, the ink on top.	両方とも放送中。リプレイが下、インクが上。
+We're on the air. Nobody touches the pen but me.	本番です。ペンを触っていいのは私だけです。
+CIRCLE HIM	選手を囲む
+Press DRAW in the inspector, then circle number 22 on the programme monitor. He is the yellow one.	インスペクターの描画を押して、プログラムモニターで22番を囲んで。黄色の選手だよ。
+A pen's pressure makes the line thicker. A mouse presses at one strength.	ペンは筆圧を強めると線が太くなる。マウスの筆圧は一定だよ。
+Circle him! The yellow one! There's only one yellow one. Circle that one.	囲んで！ 黄色の選手！ 黄色は1人しかいません。その人を囲むんです。
+Draw as much as you like. Then SAVE STILL keeps the drawing as a picture with a clear background, in the playlist.	好きなだけ描いてね。静止画を保存で、背景が透明な画像としてプレイリストに残せる。
+For next week's show. He will want that circle again.	来週の番組用に。きっとまたこの丸が欲しくなる。
+Put that in the Hall of Fame. Next to the turducken.	殿堂入りにしましょう。あの特大三段重ねサンドの隣に。
+Halftime. Click the Deck 1 tab, then SOURCE, then Video Synth.	ハーフタイムだよ。デッキ 1のタブをクリックして、ソース、次にビデオシンセ。
+My favourite source: oscillators, mirrors and feedback. A halftime show with no camera at all.	私の好きなソース。発振器、ミラー、フィードバック。カメラなしでハーフタイムショーができる。
+Halftime! Somebody get me some lights. And a band. And a sandwich.	ハーフタイム！ 照明をお願いします。バンドも。それからサンドイッチも。
+TAKE HALFTIME	ハーフタイムをTAKE
+Select the synth and TAKE it. Then look at the monitor: your ink is still up.	シンセを選んでTAKEして。モニターを見ると、インクはまだ残っている。
+Playlist 2 did not change, so its ink stays over whatever playlist 1 shows. Each playlist changes on its own.	プレイリスト2は変わっていない。だから1が何を映しても、その上にインクが残る。それぞれ別々に切り替わるんだ。
+Leave the circle up. It's a good circle. It goes with everything.	丸は残しましょう。いい丸です。何にでも合います。
+A test pattern, a replay, ink on a layer, a still, and halftime. That's the booth.	テストパターン、リプレイ、レイヤーのインク、静止画、ハーフタイム。これが実況席だね。
+Replay in the Draw section draws your lines back the way you drew them. He will love that.	描画セクションのReplayは、描いた順に線を再生する。気に入るだろうね。
+Same time next week. Bring a bigger pen.	また来週、同じ時間に。もっと大きなペンを持ってきてください。
+Now THAT is a busy play. I can't see the field. I love it.	これは盛りだくさんのプレーだ。グラウンドが見えない。最高です。
+Two projectors overlap, and each fades its edge so the overlap is not twice as bright. Watch the sides of the monitor go soft.	プロジェクター2台の映像を重ね、各端を暗くして重なりが倍の明るさになるのを防ぐ。モニターの両端が柔らかくなるよ。
+A game show, skapi. Three contestants, one buzzer, and a host who is not here tonight. Press START.	クイズ番組だよ、skapi。挑戦者3人、早押しボタン1つ。今夜は司会者がお休みだ。開始を押して。
+Cue numbers, hotkeys, and GO from other machines.	キュー番号、ホットキー、別の機械からのGO。
+Forty years I turned the letters. Tonight they gave me the microphone. Nobody panic.	40年間、文字パネルをめくってきたの。今夜はマイクをもらったわ。みんな、落ち着いて。
+Theatre numbers its cues: Q3, Q3.5, Q12A. Deckboy reads them all.	劇場ではQ3、Q3.5、Q12Aとキューに番号をつける。Deckboyは全部読めるよ。
+Numbers! I know letters. Numbers are letters that went to college.	数字！ 文字ならわかるわ。数字って、大学に行った文字でしょ。
+GOTO crosses a long list faster than scrolling. Much faster.	長いリストはスクロールよりGOTOで移動するほうが速い。ずっと速い。
+F1 to F10, F12, or the number pad. Each one is a buzzer.	F1からF10、F12、またはテンキー。どれも早押しボタンになる。
+Every contestant gets a buzzer. I get the letters. It's fine. It's fine.	挑戦者には早押しボタン。私には文字パネル。いいの。いいのよ。
+No mouse, no list, no looking. Only the key.	マウスもリストも、見る必要もない。キーだけ。
+Buzz! A winner! I've never said that. I've only pointed at it.	ピンポーン！ 正解者です！ 初めて言ったわ。今までは指さすだけだったの。
+And for our viewers at home: yes, you can push the buttons too.	テレビの前のみなさんも、そう、ボタンを押せるのよ。
+Numbers, GOTO, a buzzer, and GO from anywhere. You could host a game show now.	番号、GOTO、早押しボタン、どこからでもGO。もうクイズ番組の司会ができるね。
+Goodnight, everybody! Tomorrow I go back to the letters. I'll miss you.	みなさん、おやすみなさい！ 明日は文字パネルに戻るの。寂しくなるわ。
+And the number is... not three. I'll allow it. I turn anything.	番号は…3じゃないのね。いいわ。何でもめくるから。
+A second playlist is a layer over the map. The lizard stays underneath. For now.	2つ目のプレイリストは地図に重なるレイヤー。トカゲは下のまま。今のところは。
+A Lower Third, a name, a title card, a backdrop. The lizard has left the studio.	ローワーサード、名前、タイトルカード、背景。トカゲはスタジオから退場したよ。
+That's not my name. It's a lovely name. Now, about that lizard...	私の名前じゃないわね。素敵な名前だけど。それで、あのトカゲの話なんだけど…
+The rocket (on the pad)	The rocket (on the pad)
+The rocket (lift-off)	The rocket (lift-off)
+A rocket built in a basement, skapi, an inventor who wants cheese, and a dog who does the real work. Press START.	地下室で作ったロケットだよ、skapi。チーズ好きの発明家と、実務担当の犬がいる。開始を押して。
+Stage timers: a countdown over a picture, a hold, and a view for the person on stage.	ステージタイマー。映像に重ねるカウントダウン、一時停止、登壇者用の画面。
+Playlist 2 is selected, over the rocket. SOURCE, then Stage Timer.	ロケットに重なるプレイリスト2を選択済み。ソース、次にStage Timer。
+*checks his watch, then the rocket, then his watch*	*時計を見て、ロケットを見て、また時計を見る*
+COUNT IT DOWN	カウントダウン開始
+Select the timer and TAKE it. I have cleared its backdrop, so the rocket shows behind the numbers.	タイマーを選んでTAKEして。背景は消してあるから、数字の後ろにロケットが見える。
+Past zero it keeps going and counts the overtime. Very honest. Slightly rude.	ゼロを過ぎても止まらず、超過時間を数える。正直だね。ちょっと失礼だけど。
+Close MENU, click the Deck 1 tab, then select 'The rocket (lift-off)' and TAKE it.	メニューを閉じてデッキ 1のタブをクリック。'The rocket (lift-off)'を選んでTAKEして。
+The clock is on playlist 2, so it stays up while the rocket changes underneath it.	時計はプレイリスト2にある。下のロケットが切り替わっても表示されたままだよ。
+We have lift-off, Grommet! ...Grommet? Who's flying it?	発射成功だ、Grommet！ …Grommet？ 誰が操縦してるんだ？
+A countdown, a hold, a pilot's view and a launch. Bring crackers.	カウントダウン、一時停止、操縦士の画面、そして発射。クラッカーも忘れずに。
+*waves from the window*	*窓から手を振る*
+The rubber chicken	The rubber chicken
+A magic show, skapi. A trunk, a rubber chicken, and one beat where everything changes at once. Press START.	手品のショーだよ、skapi。トランク、ゴムのニワトリ、全部が同時に変わる瞬間。開始を押して。
+Two playlists are two layers, and TAKE ALL changes both together. Tonight you will see why that matters.	プレイリスト2つはレイヤー2枚。TAKE ALLなら両方が同時に変わる。今夜はその大切さがわかるよ。
+The chicken goes on its own layer. Press the + at the end of the playlist tabs.	ニワトリには専用のレイヤーを。プレイリストのタブの末尾にある+を押して。
+The lit tab is the playlist that gets the next cue. Its chip now says 'to Out 1': it is layered over playlist 1 on that output.	光っているタブが次のキューの追加先だよ。表示が「アウト 1 へ」になった。同じ出力でプレイリスト1に重なるんだ。
+TRICK ONE	手品その1
+Turnip Top has put the chicken in playlist 2. In playlist 1, TAKE 'The trunk (open)'. Then in playlist 2, TAKE the chicken.	Turnip Topがニワトリをプレイリスト2に入れたよ。1で'The trunk (open)'をTAKE。次に2でニワトリをTAKEして。
+The chicken is clear all round, so it covers only itself. Watch the monitor between the two TAKEs.	ニワトリの周りは透明だから、隠すのは体の部分だけ。2回のTAKEの間のモニターを見て。
+Did you see it? For a moment the trunk was open and empty: two TAKEs are two moments. The trick is reset. Now select the open trunk in playlist 1 and the chicken in playlist 2, then TAKE ALL.	見えた？ 一瞬、トランクが開いて空っぽだった。2回のTAKEには時間差がある。手品はリセット済み。今度は1で開いたトランク、2でニワトリを選んでTAKE ALL。
+TAKE ALL takes every playlist's selected cue on one beat. No gap, no empty trunk.	TAKE ALLは全プレイリストの選択キューを同時に出す。時間差なし、空のトランクもなし。
+The chicken was late. They saw an empty trunk. In magic we call that a trunk.	ニワトリが遅れた。空のトランクが見えちゃった。手品の世界では、それをトランクと呼ぶ！
+TAKE ALL	TAKE ALL
+THE VANISH	消失マジック
+Trick two. Drag playlist 2's opacity fader down to nothing. The chicken fades away.	手品その2。プレイリスト2の不透明度フェーダーをゼロまで下げて。ニワトリが消えていく。
+Every playlist has its own opacity. Down is a fade out, with no cue at all.	プレイリストごとに不透明度がある。下げるだけでフェードアウト。キューもいらない。
+Ta-daaa! ...Hold for applause. Hold. Now watch it go.	ジャジャーン！ …拍手待ちです。まだ待ちます。さあ、消えるところを見て！
+Trick three. Bring it back: playlist 2's opacity all the way up.	手品その3。戻そう。プレイリスト2の不透明度を一番上まで。
+Where did it go? Back in the trunk. Everything goes back in the trunk.	どこへ消えた？ トランクの中！ 何でも最後はトランクの中！
+THAT'S MAGIC	これぞマジック
+An appearance done wrong, then right, a vanish and a return. Nazdrave.	登場に失敗、やり直して成功、消失、再登場。Nazdrave。
+A playlist can also sit on any output. Two layers, a great many tricks.	プレイリストはどの出力にも置ける。レイヤー2枚で、手品は山ほど。
+It's back! Thank you! I'm here all week! The chicken is here forever.	戻った！ ありがとう！ 私は今週いっぱい出演！ ニワトリは永久出演です！
+A cooking show, skapi. Live. The kitchen is on fire. Press START.	料理番組だよ、skapi。生放送。キッチンが燃えてる。開始を押して。
+Ta-da! Still cookin'! ...Still burnin'.	ジャーン！ まだ料理中！ …まだ炎上中。
+PANIC	PANIC
+Bork! De fire extinguisher is also on fire!	ボルク！ 消火器も燃えてるスモルゲン！
+BLACK to hide, PANIC to stop, TAKE to come back. You will survive any kitchen.	黒で隠し、PANICで止め、TAKEで復帰。どんなキッチンでも生き延びられる。
+A fashion show, skapi. One designer, one runway, and a look she will want back. Press START.	ファッションショーだよ、skapi。デザイナー1人、ランウェイ1本、あとで呼び戻したいルック。開始を押して。
+A preset stores a whole look and brings it back with one button.	プリセットはルック全体を保存して、ボタン1つで呼び戻す。
+Darling. A look is not a look until you can get it back.	ダーリン。呼び戻せないルックは、ルックとは言わないわ。
+Buttons. Good. I design with buttons.	ボタン。結構。私もボタンで服を作るわ。
+Store it. Before somebody has ideas.	保存して。誰かが余計なことを思いつく前に。
+Close the DASH (Esc), then select Look two and TAKE it.	DASHを閉じて（Esc）、Look twoを選んでTAKEして。
+A cape. On my runway. Someone will trip, darling. Someone always trips.	マント。私のランウェイに。誰かが転ぶわ、ダーリン。必ず誰かが転ぶの。
+Recall: the whole look comes back at once.	呼び出し。ルック全体が一度に戻る。
+Thank you. We will never speak of the cape again.	ありがとう。マントの話は二度としないわ。
+Simple. Timeless. Recallable. Now go, darling. I have a fitting.	シンプル。時代を超える。呼び戻せる。さあ行って、ダーリン。仮縫いがあるの。
+Pushes, wipes, iris, dip to white, and more. I wrote half of them. On a Tuesday.	プッシュ、ワイプ、アイリス、白へのディップなど。半分は私が書いた。ある火曜日にね。
+Operators... roll the transition.	オペレーター諸君…トランジションを回して。
+A style, a time, and two very dramatic entrances. Roll credits.	スタイル、時間、そして劇的な登場が2回。エンドロールをどうぞ。
+That is not an iris. ...It is better. I will allow it.	アイリスじゃないわね。…こっちのほうがいい。許可するわ。
+An effect, a bend and the patch. The robots approve, I think. Their faces are helmets.	エフェクト、ベンド、パッチ。ロボットも満足そう。たぶんね。顔がヘルメットだから。
+Waveform, vectorscope, false colour. The scopes settled it. The agents did not.	波形、ベクトルスコープ、フォルスカラー。スコープの結論は一致。捜査官は不一致。
+The view from the capsule	カプセルからの眺め
+Major Tomasina is in orbit, skapi, and her picture has to reach the ground. Press START.	Major Tomasinaは軌道上だよ、skapi。映像を地上に届けよう。開始を押して。
+Pictures leave by cable or network: NDI, SDI from a DeckLink card, ST 2110 for broadcast plants.	映像はケーブルやネットワークで送り出す。NDI、DeckLinkカードのSDI、放送設備向けのST 2110。
+Ground control, this is Major Tomasina. Can you see my picture?	地上管制、こちらMajor Tomasina。映像は見えますか？
+Every way down, on one page. Good. Space has very few cables.	地上への経路が全部1ページに。よし。宇宙にはケーブルが少ないから。
+NDI	NDI
+Sending now. If nobody answers, I'll just float here.	送信開始。返事がなければ、ここで浮いています。
+Ground control, signing off. Tell my mother I waved.	地上管制、通信終了。母には手を振ったと伝えて。
+Ground control can see me! I can see my house from here.	地上管制に映った！ ここから家が見える！
+MULTI ON	MULTI ON
+And one more window, showing the clock. Operators who watch a clock are never late.	もう1つ、時計のウィンドウも。時計を見るオペレーターは遅刻しない。
+The big window is window one, which is usually the programme.	大きいのがウィンドウ1。通常はプログラム映像だよ。
+Windows, the ... menu, NEXT, the clock, a layout, tally. Mystery solved.	ウィンドウ、...メニュー、NEXT、時計、レイアウト、タリー。謎は解けたね。
+DECKBOY  POCKET	DECKBOY  POCKET

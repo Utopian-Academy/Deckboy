@@ -3095,3 +3095,177 @@ Stop masking this. The mask stays in the show's library, to put back from the me
 Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	ⴽⴽⵙ ⵜⴰⴳⵍⵎⵓⵙⵜ ⴰⴷ ⵣⵖ ⵓⵙⵙⴽⴰⵏ, ⴷ ⵣⵖ ⴽⵔⴰⵢⴳⴰⵜⵜ cue, ⵜⴱⴷⴰⵔⵜ ⴷ ⵜⵓⴼⴼⵖⴰ ⵉⵙⵙⵎⵔⴰⵙⵏ ⵜⴰ. ⴰⵙⵙⵓⵖⵍ ⵢⵙⵙⵓⵖⵍ-ⵜ ⴷ
 FX PARAM: slot must be A-F	FX PARAM: slot ⵉⵅⵚⵚ ⴰⴷ ⵉⴳⵍ A-F
 FX LFO: slot must be A-D, E for the amount, or F/G for the fifth and sixth sliders	FX LFO: slot ⵉⵅⵚⵚ ⴰⴷ ⵉⴳⵍ A-D, E ⵉ ⴰⵏⵛⵜ, ⵏⵖ F/G ⵉ ⵉⵙⵍⵉⴷⵏ ⵏ 5 ⴷ 6
+playlist 2 is ready: you built one in the magic show	ⵜⴰⴱⴷⴰⵔⵜ 2 ⵜⵓⵊⴷ: ⵜⵙⵏⵓⵍⴼⴰⴷ ⵢⴰⵜ ⴳ ⵓⵙⴽⴰⵏ ⵏ ⵜⵙⵃⵃⴰⵔⵜ
+FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR	FX: ⵙⵎⵔⵙ LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR
+BLACK	ⴰⵙⴳⵏⵓ
+COACH MARV	COACH MARV
+JUNE O'NEIL	JUNE O'NEIL
+TURNIP TOP	TURNIP TOP
+CHEF BORK	CHEF BORK
+DONNA WHEEL	DONNA WHEEL
+KEEPER ROOK	KEEPER ROOK
+AGENT BRANDT	AGENT BRANDT
+AGENT HOLLIS	AGENT HOLLIS
+MR. SALTY	MR. SALTY
+OPTIMUS PRIMETIME	OPTIMUS PRIMETIME
+DEFT FUNK	DEFT FUNK
+LT. HAILA	LT. HAILA
+ENSIGN JINKLEY	ENSIGN JINKLEY
+The tour bus, with Polly Carton	ⴰⵟⵓⴱⵉⵙ ⵏ ⵓⵙⵉⴽⵍ, ⴷ Polly Carton
+A test pattern, drawing on a replay, a still, and the video synth at halftime.	ⴰⵍⴳⵓⵖ ⵏ ⵓⵔⵎ, ⴰⵙⵓⵏⵉ ⵖ ⵓⵍⵍⴰⵙ, ⵜⴰⵡⵍⴰⴼⵜ ⵉⴱⴷⴷⵏ, ⴷ ⵓⵙⵏⴼⵍⵓⵍ ⵏ ⵜⴼⵉⴷⵢⵓⵜ ⴳ ⵓⵙⵜⵉⵢ.
+A stage timer over a picture, held, a presenter view for the person on stage, and a launch.	ⴰⵎⵙⵉⴹⵏ ⵏ ⵓⵙⴰⵔⴰⴳ ⵖ ⵜⵡⵍⴰⴼⵜ, ⴰⴱⴷⴷⵉ, ⵜⴰⵎⵓⵖⵍⵉ ⵉ ⵡⵉⵏ ⵉⵍⵍⴰⵏ ⵖ ⵓⵙⴰⵔⴰⴳ, ⴷ ⵓⴼⵔⴳ.
+A second playlist as a layer, TAKE ALL so two things change on one beat, and a playlist's opacity.	ⵜⴰⴱⴷⴰⵔⵜ ⵜⵉⵙ ⵙⵏⴰⵜ ⴷ ⵜⴰⵙⴷⴰⵔⵜ, TAKE ALL ⴰⵔ ⵉⵙⵏⴼⴰⵍ ⵙⵉⵏ ⵙ ⵢⴰⵏ ⵓⵙⵏⵇⵔ, ⴷ ⵜⵓⴷⵙⵉ ⵏ ⵜⴱⴷⴰⵔⵜ.
+Presets	ⵉⵎⵣⵡⵓⵔⴰ
+The fashion show, with Edda Mod	ⴰⵙⴽⴰⵏ ⵏ ⵓⴼⵔⵓⴽ, ⴷ Edda Mod
+Ground control, with Major Tomasina	ⴰⵙⵏⵇⴷ ⵏ ⵡⴰⴽⴰⵍ, ⴷ Major Tomasina
+0.1, 0.1, 0.1	0.1, 0.1, 0.1
+Opener (the bus at dawn)	Opener (the bus at dawn)
+Polly Carton's tour bus leaves at six, skapi, and this show goes with it. Press START.	ⴰⵟⵓⴱⵉⵙ ⵏ Polly Carton ⴰⴷ ⵉⴷⴷⵓ ⵖ ⵚⴹⵉⵚ, skapi, ⴰⵙⴽⴰⵏ ⴰⴷ ⴰⴷ ⵉⴷⴷⵓ ⵉⴷⵙ. ⴰⴹⴼ ⴱⴷⵓ.
+A show that travels needs three things first: a check, a fix and a bundle.	ⴰⵙⴽⴰⵏ ⵉⵜⵜⴷⴷⵓⵏ ⵉⵃⵜⴰⵊⵊⴰ ⴽⵕⴰⴹ ⴳ ⵜⵉⵣⵡⵉⵔⵉ: ⴰⵙⵏⵇⴷ, ⴰⵙⴳⴳⵎ, ⴷ ⵓⴽⴰⵔⴰⵎ.
+Honey, I've played four thousand towns. Not one of them had my laptop.	ⴰ ⵎⴰ ⵉⵏⵓ, ⵖⵏⵏⵉⵖ ⴳ ⴽⴽⵓⵥ ⵏ ⵉⴳⵉⵎ ⵏ ⵜⵎⴷⵉⵏⵉⵏ. ⵓⵔ ⵜⵍⵍⵉ ⵢⴰⵜ ⵉⵙⵄⴰⵏ ⴰⵙⵍⴽⵉⵎ ⵉⵏⵓ.
+It lists what the show would trip over: missing files, empty cues, outputs it cannot reach.	ⴰⵔ ⵉⵙⴽⴰⵏ ⴰⵢⵏⵏⴰ ⵉⵣⵎⵔⵏ ⴰⴷ ⵉⵙⴱⴷⴷ ⴰⵙⴽⴰⵏ: ⵉⴼⵓⵢⵍⴰ ⵉⵔⵓⵃⵏ, cue ⵉⵅⵡⴰⵏ, ⴷ ⵜⵓⴼⴼⵖⵉⵏ ⵓⵔ ⵉⵣⵎⵉⵔ ⴰⴷ ⵉⵍⴽⵎ.
+Every show has a problem. Find yours before the audience does.	ⴽⵓ ⴰⵙⴽⴰⵏ ⵉⵙⵄⴰ ⵜⴰⵎⵓⴽⵔⵉⵙⵜ. ⴰⴼ ⵜⵉⵏⵏⴽ ⵇⴱⵍ ⴰⵏⵎⴰⵖⵓⵔ.
+The intro video is on the office computer. Select it and delete it, or RELINK it if you have the file.	ⵜⴰⴼⵉⴷⵢⵓⵜ ⵏ ⵜⵉⵣⵡⵉⵔⵉ ⴳ ⵓⵙⵍⴽⵉⵎ ⵏ ⵍⴱⵉⵔⵓ. ⵙⵜⵉ ⵜⵜ ⵜⴽⴽⵙⴷ ⵜⵜ, ⵏⵖ RELINK ⵎⴰ ⵜⵙⵄⵉⴷ ⴰⴼⴰⵢⵍⵓ.
+Fix it here, with time and coffee. Not at the venue, with neither.	ⵙⴳⴳⵎ ⵜ ⴷⴰ, ⵙ ⵡⴰⴽⵓⴷ ⴷ ⵍⵇⵀⵡⴰ. ⵎⴰⵛⵛⵉ ⴳ ⵓⴷⵖⴰⵔ ⵏ ⵓⵙⴽⴰⵏ, ⵡⴰⵔ ⵙⵉⵏ.
+Leave it behind, sugar. I left a whole wig in Tulsa and the show went on.	ⴰⵊⵊ ⵜ, ⴰ ⵎⴰ ⵉⵏⵓ. ⴰⵊⵊⵉⵖ ⵢⴰⵏ ⵓⵛⵓⵡⵡⴰⴼ ⵏ ⵓⴽⵔⴽⴰⵙ ⴳ Tulsa, ⴰⵙⴽⴰⵏ ⵉⴽⵎⵎⵍ.
+Press BUNDLE and choose where: a USB stick, a shared folder. The show and all its media, in one folder.	ⴰⴹⴼ ⴰⴽⴰⵔⴰⵎ ⵜⵙⵜⵉⴷ ⴰⴷⵖⴰⵔ: USB ⵏⵖ ⴰⴽⴰⵔⴰⵎ ⵉⵛⵛⵔⴽⵏ. ⴰⵙⴽⴰⵏ ⴷ ⵎⴰⵕⵕⴰ ⵉⵎⵉⴷⵢⴰⵜⵏ ⵏⵏⵙ ⴳ ⵢⴰⵏ ⵓⴽⴰⵔⴰⵎ.
+Pack it like a wig box. Everything inside, nothing loose.	ⴽⴰⵔⵎ ⵜ ⵣⵓⵏ ⴰⵎ ⵜⴱⵡⴰⵟ ⵏ ⵓⵛⵓⵡⵡⴰⴼ. ⴽⵓⵍⵍⵓ ⴳ ⵓⴳⵏⵙ, ⵡⴰⵍⵓ ⵙ ⴱⵕⵕⴰ.
+Checked, fixed, bundled. On the other computer, open the show in the bundle and everything is there.	ⵉⵜⵜⵓⵙⵏⵇⴷ, ⵉⵜⵜⵓⵙⴳⴳⵎ, ⵉⵜⵜⵓⴽⴰⵔⵎ. ⴳ ⵓⵙⵍⴽⵉⵎ ⵢⴰⴹⵏ, ⵕⵥⵎ ⴰⵙⴽⴰⵏ ⵏ ⵓⴽⴰⵔⴰⵎ; ⴽⵓⵍⵍⵓ ⴷⵉⵏ.
+The show file is only text, so it travels light. The media is the luggage.	ⴰⴼⴰⵢⵍⵓ ⵏ ⵓⵙⴽⴰⵏ ⴷ ⴰⴹⵕⵉⵚ ⴽⴰⵏ, ⴰⵔ ⵉⵜⵜⴷⴷⵓ ⵉⴼⵙⵙⵓⵙ. ⵉⵎⵉⴷⵢⴰⵜⵏ ⴷ ⵜⵉⵚⵏⵚⴰⵕⵉⵏ.
+Bus leaves at six. Show starts at eight. Hair takes until seven.	ⴰⵟⵓⴱⵉⵙ ⵖ ⵚⴹⵉⵚ. ⴰⵙⴽⴰⵏ ⵖ ⵜⴰⵎ. ⴰⵛⵓⵡⵡⴰⴼ ⵉⵏⵓ ⴰⵔ ⵙⴰ.
+There are dozens, and most of them run on the graphics card, so you can stack them.	ⵍⵍⴰⵏ ⴷ ⵜⵉⵔⴱⴱⴰⵄ, ⵜⵓⴳⵜ ⴰⵔ ⵜⵙⵡⵓⵔⵉ ⵖ ⵜⴽⴰⵕⴹⴰ ⵏ ⵓⴷⵍⵉⴼ; ⵜⵣⵎⵔⴷ ⴰⴷ ⵜⵏ ⵜⵙⵔⵙⴷ ⴼ ⵡⴰ ⴼ ⵡⴰ.
+An effect, a ~ and a colour. The critic is crying. Good crying, I think.	ⴰⵙⵎⴷⵓ, ~, ⴷ ⵢⴰⵏ ⵢⵉⵏⵉ. ⴰⵎⵙⵖⵔⴰⵏ ⴰⵔ ⵉⵜⵜⵔⵓ. ⵙⴳ ⵓⵔⴼⵓⴼⵏ ⴰⵢ ⵙⵙⵉⵏⵖ.
+Stack a few more. Order matters: each effect works on the picture the one above it made.	ⵔⵏⵓ ⴽⵔⴰ ⵢⴰⴹⵏ. ⴰⵎⵉⵣⵡⴰⵔ ⵉⵅⴰⵜⵔ: ⴽⵓ ⴰⵙⵎⴷⵓ ⴰⵔ ⵉⵙⵡⵓⵔⵉ ⵖ ⵜⵡⵍⴰⴼⵜ ⵉⵙⵏⵓⵍⴼⴰ ⵡⵉⵏ ⵉⵍⵍⴰⵏ ⵏⵏⵉⴳⵙ.
+Three effects! It's a mess! It's ALIVE! Post it.	ⴽⵕⴰⴹ ⵏ ⵉⵙⵎⴷⴰ! ⴷ ⴰⵅⵔⴱⵉⵇ! ⵉⴷⴷⵔ! ⵙⵙⵓⴼⵖ ⵜ.
+The replay	The replay
+Coach Marv has two minutes of airtime, one replay and a pen, skapi. He will use all three. Press START.	Coach Marv ⵉⵙⵄⴰ ⵙⵏⴰⵜ ⵜⵓⵙⴷⵉⴷⵉⵏ ⵏ ⵓⵣⵣⵏⵣⵔ, ⴰⵍⵍⴰⵙ ⴷ ⵓⵇⵍⴰⵎ, skapi. ⴰⴷ ⵉⵙⵙⵎⵔⵙ ⴽⵕⴰⴹ. ⴰⴹⴼ ⴱⴷⵓ.
+Tonight: a test pattern, drawing on the picture, and the video synth.	ⴰⵙⵙⴰ: ⴰⵍⴳⵓⵖ ⵏ ⵓⵔⵎ, ⴰⵙⵓⵏⵉ ⵖ ⵜⵡⵍⴰⴼⵜ, ⴷ ⵓⵙⵏⴼⵍⵓⵍ ⵏ ⵜⴼⵉⴷⵢⵓⵜ.
+Folks, I've watched this play forty times. It's still a play.	ⴰ ⵉⵎⴷⴰⵏⵏ, ⵥⵕⵉⵖ ⵜⵉⵔⵉⵔⵉⵜ ⴰⴷ ⴽⴽⵓⵥⵜ ⵜⵎⵔⴰⵡⵉⵏ ⵏ ⵜⵉⴽⴽⴰⵍ. ⵎⴰⵣⴰⵍ ⴷ ⵜⵉⵔⵉⵔⵉⵜ.
+CHECK THE MONITORS	ⵙⵏⵇⴷ ⵉⴳⴷⵉⵍⵏ
+PATTERN adds Pocket Test. If its circles are not round, a screen is stretched. Find out now, not on air.	ⴰⵍⴳⵓⵖ ⴰⵔ ⵉⵔⵏⵏⵓ Pocket Test. ⵎⴰ ⵜⵉⵡⵉⵏⴰⵙ ⵏⵏⵙ ⵓⵔ ⴳⵉⵏⵜ ⵜⵉⵎⴷⵡⵔⵉⵏ, ⴰⴳⴷⵉⵍ ⵉⵜⵜⵓⵥⵥⵍ. ⵉⵙⵙⵉⵏ ⴰⵢⴰ ⴷⵖⵉ, ⵎⴰⵛⵛⵉ ⴳ ⵓⵣⵣⵏⵣⵔ.
+Its bars and steps are checked against real meters, so a wrong screen looks wrong at once.	ⵉⵣⵉⵔⵉⴳⵏ ⴷ ⵜⵉⵙⴷⴰⴷ ⵏⵏⵙ ⵜⵜⵓⵙⵏⵇⴷⵏ ⵙ ⵉⵎⵙⴽⵓⴷⵏ ⵏ ⵜⵉⴷⵜ; ⴰⴳⴷⵉⵍ ⵉⵅⵛⵏ ⴰⴷ ⵉⴱⴰⵏ ⴷⵖⵉ.
+That's a test pattern. You test with it. That's why they call it that.	ⵡⴰⵏⵏⴰ ⴷ ⴰⵍⴳⵓⵖ ⵏ ⵓⵔⵎ. ⴰⵔ ⵜⵜⴰⵔⴰⵎⴷ ⵙⵔⵙ. ⵖⴼ ⴰⵢⴰ ⵉ ⵜ ⵙⵎⵎⴰⵏ ⴰⴽⴽⴰ.
+ROLL THE REPLAY	ⵙⵙⴷⵓ ⴰⵍⵍⴰⵙ
+Select The replay and TAKE it.	ⵙⵜⵉ The replay ⵜⴰⴹⴼⴷ TAKE.
+A replay loops, so the pundit can talk over it for as long as he likes. He likes.	ⴰⵍⵍⴰⵙ ⴰⵔ ⵉⵜⵜⴰⵍⴰⵙ ⵎⴰⵔ ⴰⴷ ⵉⵙⴰⵡⵍ ⵓⵎⵙⵙⵏⴰⵡ ⵎⵛⵃⴰⵍ ⵉⵔⴰ. ⵉⵔⴰ ⴱⴰⵀⵔⴰ.
+Here's number 22. Number 22 has the ball. That's important, because the ball is how you score.	ⵡⴰⴷ ⴷ ⵓⵟⵟⵓⵏ 22. 22 ⵉⵙⵄⴰ ⵜⴰⴽⵓⵔⵜ. ⴰⵢⴰ ⵉⵅⴰⵜⵔ, ⴰⵛⴽⵓ ⵙ ⵜⴽⵓⵔⵜ ⴰⵔ ⵜⵙⴽⴰⵔⴷ ⵉⵙⵡⵉ.
+The pen goes over the replay, on its own layer. Press the + at the end of the playlist tabs.	ⴰⵇⵍⴰⵎ ⵏⵏⵉⴳ ⵓⵍⵍⴰⵙ, ⴳ ⵜⵙⴷⴰⵔⵜ ⵏⵏⵙ. ⴰⴹⴼ + ⴳ ⵜⴳⵉⵔⴰ ⵏ ⵜⵉⵛⵛⴰⵔ ⵏ ⵜⴱⴷⴰⵔⵜ.
+A second playlist is a layer over the first.	ⵜⴰⴱⴷⴰⵔⵜ ⵜⵉⵙ ⵙⵏⴰⵜ ⴷ ⵜⴰⵙⴷⴰⵔⵜ ⵏⵏⵉⴳ ⵜⴰⵎⵣⵡⴰⵔⵓⵜ.
+Over it. Not under it. Under it, you can't see it. That's football.	ⵏⵏⵉⴳⵙ. ⵎⴰⵛⵛⵉ ⴷⴷⴰⵡⵙ. ⴷⴷⴰⵡⵙ ⵓⵔ ⵜⵜ ⵜⵥⵕⵕⴰⴷ. ⵜⴰⴽⵓⵔⵜ ⴷ ⴰⵢⴰ.
+The lit tab is where SOURCE puts things. Skip this and the ink lands under the replay.	ⵜⵉⵛⵛⵔⵜ ⵉⵔⴳⵖⵏ ⴰⴷ ⴳ ⵉⵙⵔⵙⴰ ⴰⵖⴱⴰⵍⵓ ⵜⵉⵖⴰⵡⵙⵉⵡⵉⵏ. ⵎⴰ ⵜⵣⴳⵔⴷ ⴰⵢⴰ, ⵍⵃⵉⴱⵔ ⴰⴷ ⵉⵍⵉ ⴷⴷⴰⵡ ⵓⵍⵍⴰⵙ.
+See that tab? Click it. Fundamentals.	ⵜⵥⵕⵉⴷ ⵜⵉⵛⵛⵔⵜ ⴰⵏⵏ? ⴰⴹⴼ ⴼⵍⵍⴰⵙ. ⵉⵙⵉⵍⵏ.
+In playlist 2: SOURCE, then Draw.	ⴳ ⵜⴱⴷⴰⵔⵜ 2: ⴰⵖⴱⴰⵍⵓ, ⵙⵓⵍ ⴰⵥⵍⴰⵢ.
+A Draw cue is clear wherever there is no ink, so the replay shows through.	cue ⵏ ⴰⵥⵍⴰⵢ ⴷ ⴰⴼⵔⴰⵡⴰⵏ ⵎⴰⵏⵉ ⵓⵔ ⵉⵍⵍⵉ ⵍⵃⵉⴱⵔ, ⴰⵍⵍⴰⵙ ⴰⵔ ⵉⵜⵜⴱⴰⵏ ⴷⴷⴰⵡⵙ.
+Give me the pen. I've waited all season for the pen.	ⴼⴽⴰⵜ ⵉⵢⵉ ⴰⵇⵍⴰⵎ. ⵔⵊⵊⵉⵖ ⵜ ⴰⵣⵎⵣ ⴰⴷ ⴽⵓⵍⵍⵓ.
+Both are live now: the replay underneath, the ink on top.	ⴷⵖⵉ ⵙⵉⵏ ⴳ ⵓⵣⵣⵏⵣⵔ: ⴰⵍⵍⴰⵙ ⴷⴷⴰⵡ, ⵍⵃⵉⴱⵔ ⵏⵏⵉⴳ.
+We're on the air. Nobody touches the pen but me.	ⵏⵍⵍⴰ ⴳ ⵓⵣⵣⵏⵣⵔ. ⵓⵔ ⵉⵜⵜⴰⵡⵉ ⵢⴰⵏ ⴰⵇⵍⴰⵎ ⴱⵍⴰ ⵏⴽⴽ.
+CIRCLE HIM	ⵙⵓⵏⵉ ⵜⴰⵡⵉⵏⵙⵜ ⴼⵍⵍⴰⵙ
+Press DRAW in the inspector, then circle number 22 on the programme monitor. He is the yellow one.	ⴰⴹⴼ ⴰⵥⵍⴰⵢ ⴳ ⵓⵎⵙⵏⵇⴷ, ⵙⵓⵍ ⵙⵓⵏⵉ ⵜⴰⵡⵉⵏⵙⵜ ⵉ 22 ⵖ ⵓⴳⴷⵉⵍ ⵏ ⵓⵖⴰⵡⴰⵙ. ⴷ ⵡⵉⵏ ⵉⵡⵔⵖⵏ.
+A pen's pressure makes the line thicker. A mouse presses at one strength.	ⴰⵟⴹⴰⴼ ⵏ ⵓⵇⵍⴰⵎ ⴰⵔ ⵉⵙⵙⵉⵥⵉⵕ ⴰⵣⵉⵔⵉⴳ. ⴰⵖⵔⴷⴰ ⵉⵙⵄⴰ ⵢⴰⵜ ⵜⴼⵔⵜ ⴽⴰⵏ.
+Circle him! The yellow one! There's only one yellow one. Circle that one.	ⵙⵓⵏⵉ ⴼⵍⵍⴰⵙ! ⴰⵡⵔⴰⵖ! ⵢⴰⵏ ⴽⴰⵏ ⵉⵡⵔⵖⵏ. ⵙⵓⵏⵉ ⵉ ⵡⴰⵏⵏⴰ!
+Draw as much as you like. Then SAVE STILL keeps the drawing as a picture with a clear background, in the playlist.	ⵙⵓⵏⵉ ⵎⵛⵃⴰⵍ ⵜⵔⵉⴷ. ⵙⵓⵍ ⵃⴹⵓ ⵜⴰⵡⵍⴰⴼⵜ ⴰⵔ ⵉⵃⵟⵟⵓ ⴰⵙⵓⵏⵉ ⴷ ⵜⴰⵡⵍⴰⴼⵜ ⵙ ⵓⴳⵉⵍⴰⵍ ⴰⴼⵔⴰⵡⴰⵏ ⴳ ⵜⴱⴷⴰⵔⵜ.
+For next week's show. He will want that circle again.	ⵉ ⵓⵙⴽⴰⵏ ⵏ ⵉⵎⴰⵍⴰⵙⵙ ⵉⴷⴷⴰⵏ. ⴰⴷ ⵉⵔⵉ ⵜⴰⵡⵉⵏⵙⵜ ⴰⵏⵏ ⴷⴰⵖ.
+Put that in the Hall of Fame. Next to the turducken.	ⵙⵔⵙ ⵜⵜ ⴳ ⵜⵣⵇⵇⴰ ⵏ ⵉⵏⴰⴼⵓⵍⵏ. ⵖⵔ ⵜⴰⵎⴰ ⵏ ⵓⴼⵓⵍⵍⵓⵙ ⵏ ⵉⵍⵍ ⵢⴰⵊⵊⵓⵕⵏ ⵙ ⵓⴱⵕⴰⴽ ⵢⴰⵊⵊⵓⵕⵏ ⵙ ⵓⴼⵓⵍⵍⵓⵙ.
+Halftime. Click the Deck 1 tab, then SOURCE, then Video Synth.	ⴰⵙⵜⵉⵢ. ⴰⴹⴼ ⵜⵉⵛⵛⵔⵜ Deck 1, ⵙⵓⵍ ⴰⵖⴱⴰⵍⵓ, ⵙⵓⵍ ⴰⵙⵏⴼⵍⵓⵍ ⵏ ⵜⴼⵉⴷⵢⵓⵜ.
+My favourite source: oscillators, mirrors and feedback. A halftime show with no camera at all.	ⴰⵖⴱⴰⵍⵓ ⵉⵏⵓ ⴰⵎⴰⵔⴰⵡ: ⵉⵎⵙⵍⴰⵡⴰⵍⵏ, ⵉⵎⵔⴰⵢⵏ ⴷ ⵜⵓⵖⴰⵍⵉⵏ. ⴰⵙⴽⴰⵏ ⵏ ⵓⵙⵜⵉⵢ ⵡⴰⵔ ⴽⴰⵎⵉⵔⴰ.
+Halftime! Somebody get me some lights. And a band. And a sandwich.	ⴰⵙⵜⵉⵢ! ⴰⵡⵉⵎ ⴷ ⵜⵉⴼⴰⵡⵉⵏ. ⴷ ⵜⵔⴰⴱⴱⵓⵜ ⵏ ⵓⵥⴰⵡⴰⵏ. ⴷ ⵢⴰⵏ ⵓⵙⴰⵏⴷⵡⵉⵛ.
+TAKE HALFTIME	TAKE ⵏ ⵓⵙⵜⵉⵢ
+Select the synth and TAKE it. Then look at the monitor: your ink is still up.	ⵙⵜⵉ ⴰⵙⵏⴼⵍⵓⵍ ⵜⴰⴹⴼⴷ TAKE. ⵥⵕ ⴰⴳⴷⵉⵍ: ⵍⵃⵉⴱⵔ ⵏⵏⴽ ⵎⴰⵣⴰⵍ ⴷⵉⵏ.
+Playlist 2 did not change, so its ink stays over whatever playlist 1 shows. Each playlist changes on its own.	ⵜⴰⴱⴷⴰⵔⵜ 2 ⵓⵔ ⵜⵙⵏⴼⵉⵍ, ⵍⵃⵉⴱⵔ ⵏⵏⵙ ⴰⵔ ⵉⵇⵇⵉⵎ ⵏⵏⵉⴳ ⴰⵢⵏⵏⴰ ⵜⵙⴽⴰⵏ ⵜⴰⴱⴷⴰⵔⵜ 1. ⴽⵓ ⵜⴰⴱⴷⴰⵔⵜ ⴰⵔ ⵜⵙⵏⴼⴰⵍ ⵉⵅⴼ ⵏⵏⵙ.
+Leave the circle up. It's a good circle. It goes with everything.	ⴰⵊⵊ ⵜⴰⵡⵉⵏⵙⵜ. ⴷ ⵜⴰⵡⵉⵏⵙⵜ ⵉⴼⵓⵍⴽⵉⵏ. ⵜⴷⴷⴰ ⴷ ⴽⵓⵍⵍⵓ.
+A test pattern, a replay, ink on a layer, a still, and halftime. That's the booth.	ⴰⵍⴳⵓⵖ, ⴰⵍⵍⴰⵙ, ⵍⵃⵉⴱⵔ ⵖ ⵜⵙⴷⴰⵔⵜ, ⵜⴰⵡⵍⴰⴼⵜ ⵉⴱⴷⴷⵏ, ⴷ ⵓⵙⵜⵉⵢ. ⴷ ⵜⴰⵣⵇⵇⴰ ⵏ ⵓⵣⵣⵏⵣⵔ.
+Replay in the Draw section draws your lines back the way you drew them. He will love that.	Replay ⴳ ⵓⴳⵣⵣⵓⵎ ⵏ ⴰⵥⵍⴰⵢ ⴰⵔ ⵉⵜⵜⴰⵍⴰⵙ ⵉⵣⵉⵔⵉⴳⵏ ⵏⵏⴽ ⵎⴽ ⵜⵏ ⵜⵙⵓⵏⵉⴷ. ⴰⴷ ⴰⵙ ⵉⵄⵊⴱ ⴰⵢⴰ.
+Same time next week. Bring a bigger pen.	ⵉⵎⴰⵍⴰⵙⵙ ⵉⴷⴷⴰⵏ, ⴰⴽⵓⴷ ⴰⵏⵏ. ⴰⵡⵉ ⴷ ⴰⵇⵍⴰⵎ ⵉⵅⴰⵜⵔⵏ ⵓⴳⴰⵔ.
+Now THAT is a busy play. I can't see the field. I love it.	ⴷ ⵜⵉⵔⵉⵔⵉⵜ ⵢⴰⵊⵊⵓⵕⵏ! ⵓⵔ ⵥⵕⵉⵖ ⴰⵏⵏⴰⵔ. ⵜⵄⵊⴱ ⵉⵢⵉ.
+Two projectors overlap, and each fades its edge so the overlap is not twice as bright. Watch the sides of the monitor go soft.	ⵙⵉⵏ ⵉⵎⵙⵙⵓⴼⵖⵏ ⴰⵔ ⵜⵜⵎⵢⴰⵖⴰⵏ, ⴽⵓ ⵢⴰⵏ ⴰⵔ ⵉⵙⵙⵉⴷⵙⵉ ⵉⵔⵉ ⵏⵏⵙ ⵎⴰⵔ ⵓⵔ ⵜⴷⵔⵓⵙ ⵜⴼⴰⵡⵜ. ⵥⵕ ⵉⵔⵉⵡⵏ ⵏ ⵓⴳⴷⵉⵍ ⴰⵔ ⵜⵜⵍⵎⵓⵎⵏ.
+A game show, skapi. Three contestants, one buzzer, and a host who is not here tonight. Press START.	ⴰⵙⴽⴰⵏ ⵏ ⵉⵙⵇⵙⵉⵜⵏ, skapi. ⴽⵕⴰⴹ ⵉⵎⵜⵜⴽⵉⵏ, ⵢⴰⵏ ⵓⵏⴰⵇⵓⵚ, ⴷ ⵓⵏⵎⴰⵍⴰ ⵓⵔ ⵉⵍⵍⵉⵏ ⴰⵙⵙⴰ. ⴰⴹⴼ ⴱⴷⵓ.
+Cue numbers, hotkeys, and GO from other machines.	ⵓⵟⵟⵓⵏⵏ ⵏ cue, ⵜⵉⵙⴰⵔ ⵏ ⵓⵣⵣⵔⴱ, ⴷ GO ⵙⴳ ⵉⵙⵍⴽⵉⵎⵏ ⵢⴰⴹⵏ.
+Forty years I turned the letters. Tonight they gave me the microphone. Nobody panic.	ⴽⴽⵓⵥⵜ ⵜⵎⵔⴰⵡⵉⵏ ⵏ ⵉⵙⴳⴳⵯⴰⵙⵏ ⴰⵔ ⵙⵙⵓⵜⵓⵢⵖ ⵉⵙⴽⴽⵉⵍⵏ. ⴰⵙⵙⴰ ⴼⴽⴰⵏ ⵉⵢⵉ ⴰⵎⵉⴽⵕⵓⴼⵓⵏ. ⵓⵔ ⵜⵜⴰⴳⴳⴰⴷⵎ.
+Theatre numbers its cues: Q3, Q3.5, Q12A. Deckboy reads them all.	ⴰⵎⵣⴳⵓⵏ ⴰⵔ ⵉⵙⵙⵓⵟⵟⵓⵏ cue: Q3, Q3.5, Q12A. Deckboy ⴰⵔ ⵜⵏ ⵉⵇⵇⴰⵔ ⴽⵓⵍⵍⵓ.
+Numbers! I know letters. Numbers are letters that went to college.	ⵓⵟⵟⵓⵏⵏ! ⵙⵙⵏⵖ ⵉⵙⴽⴽⵉⵍⵏ. ⵓⵟⵟⵓⵏⵏ ⴷ ⵉⵙⴽⴽⵉⵍⵏ ⵉⴷⴷⴰⵏ ⵖⵔ ⵜⵙⴷⴰⵡⵉⵜ.
+GOTO crosses a long list faster than scrolling. Much faster.	GOTO ⴰⵔ ⵉⵣⴳⴰⵔ ⵜⴰⴱⴷⴰⵔⵜ ⵉⵖⵣⵣⵉⴼⵏ ⵙ ⵜⴰⵣⵣⵍⴰ ⵏⵏⵉⴳ ⵓⵙⴷⵔⵓⵔⵉ. ⵙ ⵓⴳⴰⵔ.
+F1 to F10, F12, or the number pad. Each one is a buzzer.	F1 ⴰⵔ F10, F12, ⵏⵖ ⵜⴰⵏⴰⵙⵜ ⵏ ⵓⵟⵟⵓⵏⵏ. ⴽⵓ ⵢⴰⵜ ⴷ ⴰⵏⴰⵇⵓⵚ.
+Every contestant gets a buzzer. I get the letters. It's fine. It's fine.	ⴽⵓ ⴰⵎⵜⵜⴽⵉ ⵉⵙⵄⴰ ⴰⵏⴰⵇⵓⵚ. ⵏⴽⴽ ⵙⵄⵉⵖ ⵉⵙⴽⴽⵉⵍⵏ. ⵉⵖⵓⴷⴰ. ⵉⵖⵓⴷⴰ.
+No mouse, no list, no looking. Only the key.	ⵡⴰⵔ ⴰⵖⵔⴷⴰ, ⵡⴰⵔ ⵜⴰⴱⴷⴰⵔⵜ, ⵡⴰⵔ ⵜⴰⵎⵓⵖⵍⵉ. ⵜⴰⵙⴰⵔⵓⵜ ⴽⴰⵏ.
+Buzz! A winner! I've never said that. I've only pointed at it.	ⴱⵉⴱ! ⴰⵏⵔⵏⵏⵉ! ⵓⵔ ⴷ ⵏⵏⵉⵖ ⴰⵢⴰ ⵣⵉⴽ. ⴰⵔ ⵜ ⵙⵙⴽⴰⵏⵖ ⴽⴰⵏ.
+And for our viewers at home: yes, you can push the buttons too.	ⵉ ⵉⵏⵎⴰⵖⵓⵔⵏ ⴳ ⵜⴳⵎⵎⵉ: ⵢⴰⵀ, ⵜⵣⵎⵔⵎ ⴰⴷ ⵜⴰⴹⴼⵎ ⵜⵉⵇⴼⴰⵍ ⴰⵡⴷ ⴽⵏⵏⵉ.
+Numbers, GOTO, a buzzer, and GO from anywhere. You could host a game show now.	ⵓⵟⵟⵓⵏⵏ, GOTO, ⴰⵏⴰⵇⵓⵚ, ⴷ GO ⵙⴳ ⴽⵓ ⴰⴷⵖⴰⵔ. ⵜⵣⵎⵔⴷ ⴰⴷ ⵜⵏⵎⴰⵍⴰⴷ ⴰⵙⴽⴰⵏ ⵏ ⵉⵙⵇⵙⵉⵜⵏ ⴷⵖⵉ.
+Goodnight, everybody! Tomorrow I go back to the letters. I'll miss you.	ⵜⵉⵎⵏⵙⵉⵡⵉⵏ ⴽⵓⵍⵍⵓ! ⴰⵣⴽⴽⴰ ⴰⴷ ⵖⵓⵍⵖ ⵖⵔ ⵉⵙⴽⴽⵉⵍⵏ. ⴰⴷ ⵉⵢⵉ ⵜⵡⵃⵛⵎ.
+And the number is... not three. I'll allow it. I turn anything.	ⵓⵟⵟⵓⵏ ⴷ... ⵎⴰⵛⵛⵉ ⴽⵕⴰⴹ. ⵇⴱⵍⵖ. ⴰⵔ ⵙⵙⵓⵜⵓⵢⵖ ⴽⵓⵍⵍⵓ.
+A second playlist is a layer over the map. The lizard stays underneath. For now.	ⵜⴰⴱⴷⴰⵔⵜ ⵜⵉⵙ ⵙⵏⴰⵜ ⴷ ⵜⴰⵙⴷⴰⵔⵜ ⵏⵏⵉⴳ ⵜⴽⴰⵕⴹⴰ. ⵜⴰⵣⵍⵎⵎⵓⵎⵜ ⴰⵔ ⵜⵇⵇⵉⵎ ⴷⴷⴰⵡ. ⵉ ⴷⵖⵉ.
+A Lower Third, a name, a title card, a backdrop. The lizard has left the studio.	Lower Third, ⵉⵙⵎ, ⵜⴰⴽⴰⵕⴹⴰ ⵏ ⵓⵣⵡⵍ, ⴰⴳⵉⵍⴰⵍ. ⵜⴰⵣⵍⵎⵎⵓⵎⵜ ⵜⴼⴼⵖ ⵙⴳ ⵙⵜⵓⴷⵢⵓ.
+That's not my name. It's a lovely name. Now, about that lizard...	ⵎⴰⵛⵛⵉ ⴷ ⵉⵙⵎ ⵉⵏⵓ. ⴷ ⵉⵙⵎ ⵉⴼⵓⵍⴽⵉⵏ. ⴷⵖⵉ, ⵅⴼ ⵜⵣⵍⵎⵎⵓⵎⵜ ⴰⵏⵏ...
+The rocket (on the pad)	The rocket (on the pad)
+The rocket (lift-off)	The rocket (lift-off)
+A rocket built in a basement, skapi, an inventor who wants cheese, and a dog who does the real work. Press START.	ⴰⵕⴰⴽⵉⵜ ⵉⵜⵜⵓⵙⴽⴰⵔⵏ ⴷⴷⴰⵡ ⵜⴳⵎⵎⵉ, skapi, ⴰⵎⵙⵏⵓⵍⴼⵓ ⵉⵔⴰⵏ ⴰⴳⵓⵯⵏⵉ, ⴷ ⵓⵢⴷⵉ ⵉⵙⴽⴰⵔⵏ ⵜⴰⵡⵓⵔⵉ ⵏ ⵜⵉⴷⵜ. ⴰⴹⴼ ⴱⴷⵓ.
+Stage timers: a countdown over a picture, a hold, and a view for the person on stage.	ⵉⵎⵙⵉⴹⴰⵏ ⵏ ⵓⵙⴰⵔⴰⴳ: ⴰⵙⵉⴹⵏ ⵖⵔ ⴷⴼⴼⵉⵔ ⵖ ⵜⵡⵍⴰⴼⵜ, ⴰⴱⴷⴷⵉ, ⴷ ⵜⵎⵓⵖⵍⵉ ⵉ ⵡⵉⵏ ⵉⵍⵍⴰⵏ ⵖ ⵓⵙⴰⵔⴰⴳ.
+Playlist 2 is selected, over the rocket. SOURCE, then Stage Timer.	ⵜⴰⴱⴷⴰⵔⵜ 2 ⵜⵜⵓⵙⵜⴰⵢ ⵏⵏⵉⴳ ⵓⵕⴰⴽⵉⵜ. ⴰⵖⴱⴰⵍⵓ, ⵙⵓⵍ Stage Timer.
+*checks his watch, then the rocket, then his watch*	*ⴰⵔ ⵉⵥⵕⵕⴰ ⵜⴰⵙⵔⴰⴳⵜ ⵏⵏⵙ, ⴰⵕⴰⴽⵉⵜ, ⵙⵓⵍ ⵜⴰⵙⵔⴰⴳⵜ ⵏⵏⵙ*
+COUNT IT DOWN	ⵙⵉⴹⵏ ⵖⵔ ⵢⵉⵍⵎ
+Select the timer and TAKE it. I have cleared its backdrop, so the rocket shows behind the numbers.	ⵙⵜⵉ ⴰⵎⵙⵉⴹⵏ ⵜⴰⴹⴼⴷ TAKE. ⴽⴽⵙⵖ ⴰⴳⵉⵍⴰⵍ ⵏⵏⵙ ⵎⴰⵔ ⴰⴷ ⵉⴱⴰⵏ ⵓⵕⴰⴽⵉⵜ ⴷⴼⴼⵉⵔ ⵓⵟⵟⵓⵏⵏ.
+Past zero it keeps going and counts the overtime. Very honest. Slightly rude.	ⴰⵔ ⵉⵜⵜⴽⵎⵎⴰⵍ ⴷⴼⴼⵉⵔ ⵢⵉⵍⵎ, ⴰⵔ ⵉⵙⵉⴹⵉⵏ ⴰⴽⵓⴷ ⵉⵔⵏⴰⵏ. ⴰⵎⵣⴷⴰⴳ ⴱⴰⵀⵔⴰ. ⵉⵎⵉⴽⴽ ⵓⵔ ⵢⴰⴷⵉⴱ.
+Close MENU, click the Deck 1 tab, then select 'The rocket (lift-off)' and TAKE it.	ⵇⵇⵏ ⵓⵎⵓⵖ, ⴰⴹⴼ ⵜⵉⵛⵛⵔⵜ Deck 1, ⵙⵜⵉ 'The rocket (lift-off)' ⵜⴰⴹⴼⴷ TAKE.
+The clock is on playlist 2, so it stays up while the rocket changes underneath it.	ⵜⴰⵙⵔⴰⴳⵜ ⴳ ⵜⴱⴷⴰⵔⵜ 2, ⴰⵔ ⵜⵇⵇⵉⵎ ⵎⴽ ⵉⵙⵏⴼⴰⵍ ⵓⵕⴰⴽⵉⵜ ⴷⴷⴰⵡⵙ.
+We have lift-off, Grommet! ...Grommet? Who's flying it?	ⵏⴼⵔⴳ, Grommet! ...Grommet? ⵎⴰ ⵜ ⵉⵜⵜⴰⵡⵉⵏ?
+A countdown, a hold, a pilot's view and a launch. Bring crackers.	ⴰⵙⵉⴹⵏ ⵖⵔ ⴷⴼⴼⵉⵔ, ⴰⴱⴷⴷⵉ, ⵜⴰⵎⵓⵖⵍⵉ ⵏ ⵓⵎⵙⵉⴼⵔⴳ, ⴷ ⵓⴼⵔⴳ. ⴰⵡⵉ ⴷ ⴰⴱⵉⵙⴽⵡⵉ.
+*waves from the window*	*ⴰⵔ ⵉⵜⵜⵙⵙⵍⴰⵎ ⵙⴳ ⵓⵟⵟⴰⵇ*
+The rubber chicken	The rubber chicken
+A magic show, skapi. A trunk, a rubber chicken, and one beat where everything changes at once. Press START.	ⴰⵙⴽⴰⵏ ⵏ ⵜⵙⵃⵃⴰⵔⵜ, skapi. ⴰⵙⵏⴷⵓⵇ, ⵜⴰⴼⵓⵍⵍⵓⵙⵜ ⵏ ⵓⴽⴰⵡⵛⵓ, ⴷ ⵢⴰⵏ ⵓⵙⵏⵇⵔ ⴳ ⵉⵙⵏⴼⴰⵍ ⴽⵓⵍⵍⵓ. ⴰⴹⴼ ⴱⴷⵓ.
+Two playlists are two layers, and TAKE ALL changes both together. Tonight you will see why that matters.	ⵙⵏⴰⵜ ⵜⵉⴱⴷⴰⵔⵉⵏ ⴷ ⵙⵏⴰⵜ ⵜⵉⵙⴷⴰⵔⵉⵏ; TAKE ALL ⴰⵔ ⵜⵏⵜ ⵉⵙⵏⴼⴰⵍ ⵉⵎⵢⴰⵏ. ⴰⵙⵙⴰ ⴰⴷ ⵜⵥⵕⴷ ⵎⴰⵖⴼ ⵉⵅⴰⵜⵔ ⴰⵢⴰ.
+The chicken goes on its own layer. Press the + at the end of the playlist tabs.	ⵜⴰⴼⵓⵍⵍⵓⵙⵜ ⴳ ⵜⵙⴷⴰⵔⵜ ⵏⵏⵙ. ⴰⴹⴼ + ⴳ ⵜⴳⵉⵔⴰ ⵏ ⵜⵉⵛⵛⴰⵔ ⵏ ⵜⴱⴷⴰⵔⵜ.
+The lit tab is the playlist that gets the next cue. Its chip now says 'to Out 1': it is layered over playlist 1 on that output.	ⵜⵉⵛⵛⵔⵜ ⵉⵔⴳⵖⵏ ⴷ ⵜⴰⴱⴷⴰⵔⵜ ⵏ cue ⵉⴷⴷⴰⵏ. ⵜⴰⵎⴰⵜⴰⵔⵜ ⵏⵏⵙ ⴰⵔ ⵜⵇⵇⴰⵔ 'ⵙ ⵜⵓⴼⴼⵖⴰ 1': ⵜⵍⵍⴰ ⵏⵏⵉⴳ ⵜⴱⴷⴰⵔⵜ 1 ⴳ ⵜⵓⴼⴼⵖⴰ ⴰⵏⵏ.
+TRICK ONE	ⵜⴰⵃⵉⵍⴰ ⵜⴰⵎⵣⵡⴰⵔⵓⵜ
+Turnip Top has put the chicken in playlist 2. In playlist 1, TAKE 'The trunk (open)'. Then in playlist 2, TAKE the chicken.	Turnip Top ⵉⵙⵔⵙ ⵜⴰⴼⵓⵍⵍⵓⵙⵜ ⴳ ⵜⴱⴷⴰⵔⵜ 2. ⴳ ⵜⴱⴷⴰⵔⵜ 1, TAKE 'The trunk (open)'. ⵙⵓⵍ ⴳ ⵜⴱⴷⴰⵔⵜ 2, TAKE ⵜⴰⴼⵓⵍⵍⵓⵙⵜ.
+The chicken is clear all round, so it covers only itself. Watch the monitor between the two TAKEs.	ⵜⴰⴼⵓⵍⵍⵓⵙⵜ ⴷ ⵜⴰⴼⵔⴰⵡⴰⵏⵜ ⴳ ⵉⵔⵉⵡⵏ ⵏⵏⵙ; ⴰⵔ ⵜⴷⵍ ⵉⵅⴼ ⵏⵏⵙ ⴽⴰⵏ. ⵥⵕ ⴰⴳⴷⵉⵍ ⴳⵔ ⵙⵉⵏ TAKE.
+Did you see it? For a moment the trunk was open and empty: two TAKEs are two moments. The trick is reset. Now select the open trunk in playlist 1 and the chicken in playlist 2, then TAKE ALL.	ⵜⵥⵕⵉⴷ? ⵢⴰⵜ ⵜⵉⵙⵉ, ⴰⵙⵏⴷⵓⵇ ⵉⵕⵥⵎ ⵉⵅⵡⴰ: ⵙⵉⵏ TAKE ⴷ ⵙⵏⴰⵜ ⵜⵉⵙⵉⵡⵉⵏ. ⵜⴰⵃⵉⵍⴰ ⵜⵖⵓⵍ. ⵙⵜⵉ ⴰⵙⵏⴷⵓⵇ ⵉⵕⵥⵎⵏ ⴳ ⵜⴱⴷⴰⵔⵜ 1 ⴷ ⵜⴼⵓⵍⵍⵓⵙⵜ ⴳ 2, ⵙⵓⵍ TAKE ALL.
+TAKE ALL takes every playlist's selected cue on one beat. No gap, no empty trunk.	TAKE ALL ⴰⵔ ⵉⵙⵙⴷⵓ cue ⵉⵜⵜⵓⵙⵜⴰⵢⵏ ⵏ ⴽⵓ ⵜⴰⴱⴷⴰⵔⵜ ⵙ ⵢⴰⵏ ⵓⵙⵏⵇⵔ. ⵡⴰⵔ ⴰⵙⵓⴳⵏ, ⵡⴰⵔ ⴰⵙⵏⴷⵓⵇ ⵉⵅⵡⴰⵏ.
+The chicken was late. They saw an empty trunk. In magic we call that a trunk.	ⵜⴰⴼⵓⵍⵍⵓⵙⵜ ⵜⵄⵟⵟⵍ. ⵥⵕⴰⵏ ⴰⵙⵏⴷⵓⵇ ⵉⵅⵡⴰⵏ. ⴳ ⵜⵙⵃⵃⴰⵔⵜ, ⴰⵔ ⴰⵙ ⵏⵇⵇⴰⵔ ⴰⵙⵏⴷⵓⵇ.
+TAKE ALL	TAKE ALL
+THE VANISH	ⴰⴼⵏⵓ
+Trick two. Drag playlist 2's opacity fader down to nothing. The chicken fades away.	ⵜⴰⵃⵉⵍⴰ ⵜⵉⵙ ⵙⵏⴰⵜ. ⵣⵓⵖⵔ ⴰⵎⵣⵍⵓⴹ ⵏ ⵜⵓⴷⵙⵉ ⵏ ⵜⴱⴷⴰⵔⵜ 2 ⵖⵔ ⵢⵉⵍⵎ. ⵜⴰⴼⵓⵍⵍⵓⵙⵜ ⴰⵔ ⵜⵜⴼⵏⵓ.
+Every playlist has its own opacity. Down is a fade out, with no cue at all.	ⴽⵓ ⵜⴰⴱⴷⴰⵔⵜ ⵜⵙⵄⴰ ⵜⵓⴷⵙⵉ ⵏⵏⵙ. ⴰⵙⴰⴷⵔ ⴷ ⴰⴼⵏⵓ ⵡⴰⵔ ⵢⴰⵏ cue.
+Ta-daaa! ...Hold for applause. Hold. Now watch it go.	ⵜⴰ ⴷⴰⴰⴰ! ...ⵔⵊⵓ ⴰⴼⵓⵙ. ⵔⵊⵓ. ⴷⵖⵉ ⵥⵕ ⵎⴽ ⵜⵜⴼⴼⵓⵖ.
+Trick three. Bring it back: playlist 2's opacity all the way up.	ⵜⴰⵃⵉⵍⴰ ⵜⵉⵙ ⴽⵕⴰⴹ. ⵔⴰⵔ ⵜⵜ: ⵜⵓⴷⵙⵉ ⵏ ⵜⴱⴷⴰⵔⵜ 2 ⵖⵔ ⵓⴼⵍⵍⴰ ⴽⵓⵍⵍⵓ.
+Where did it go? Back in the trunk. Everything goes back in the trunk.	ⵎⴰⵏⵉ ⵜⴷⴷⴰ? ⵜⵖⵓⵍ ⵖⵔ ⵓⵙⵏⴷⵓⵇ. ⴽⵓⵍⵍⵓ ⴰⵔ ⵉⵜⵜⵖⴰⵍ ⵖⵔ ⵓⵙⵏⴷⵓⵇ.
+THAT'S MAGIC	ⵜⴰⵙⵃⵃⴰⵔⵜ ⴷ ⴰⵢⴰ
+An appearance done wrong, then right, a vanish and a return. Nazdrave.	ⴰⴱⴰⵏ ⵉⵅⵛⵏ, ⵙⵓⵍ ⵉⵖⵓⴷⴰⵏ, ⴰⴼⵏⵓ ⴷ ⵜⵓⵖⴰⵍⵉⵏ. Nazdrave.
+A playlist can also sit on any output. Two layers, a great many tricks.	ⵜⴰⴱⴷⴰⵔⵜ ⵜⵣⵎⵔ ⴰⴷ ⵜⵉⵍⵉ ⴳ ⴽⵓ ⵜⵓⴼⴼⵖⴰ. ⵙⵏⴰⵜ ⵜⵉⵙⴷⴰⵔⵉⵏ, ⴱⴰⵀⵔⴰ ⵏ ⵜⵃⵉⵍⴰ.
+It's back! Thank you! I'm here all week! The chicken is here forever.	ⵜⵖⵓⵍ! ⵜⴰⵏⵎⵎⵉⵔⵜ! ⵏⴽⴽ ⴷⴰ ⵉⵎⴰⵍⴰⵙⵙ ⴽⵓⵍⵍⵓ! ⵜⴰⴼⵓⵍⵍⵓⵙⵜ ⴷⴰ ⵉ ⵍⵉⴱⴷⴰ!
+A cooking show, skapi. Live. The kitchen is on fire. Press START.	ⴰⵙⴽⴰⵏ ⵏ ⵓⵣⵏⵡⵉ, skapi. ⵓⵙⵔⵉⴷ. ⴰⵏⵡⴰⵍ ⴰⵔ ⵉⵔⵇⵇⴰ. ⴰⴹⴼ ⴱⴷⵓ.
+Ta-da! Still cookin'! ...Still burnin'.	ⵜⴰ ⴷⴰ! ⵎⴰⵣⴰⵍ ⵏⵣⵏⵡⴰ! ...ⵎⴰⵣⴰⵍ ⵏⵔⵇⵇⴰ.
+PANIC	PANIC
+Bork! De fire extinguisher is also on fire!	ⴱⵓⵔⴽ! ⴰⵙⵙⵅⵙⴰⵢ ⵏ ⵜⵎⵙ ⴰⵡⴷ ⵏⵜⵜⴰ ⴰⵔ ⵉⵔⵇⵇⴰ ⴼⵍⵓⵔⴽ!
+BLACK to hide, PANIC to stop, TAKE to come back. You will survive any kitchen.	ⴰⵙⴳⵏⵓ ⵉ ⵜⵓⴼⴼⵔⴰ, PANIC ⵉ ⵓⴱⴷⴷⵉ, TAKE ⵉ ⵜⵓⵖⴰⵍⵉⵏ. ⴰⴷ ⵜⵏⴰⵊⵎⴷ ⵙⴳ ⴽⵓ ⴰⵏⵡⴰⵍ.
+A fashion show, skapi. One designer, one runway, and a look she will want back. Press START.	ⴰⵙⴽⴰⵏ ⵏ ⵓⴼⵔⵓⴽ, skapi. ⵢⴰⵜ ⵜⴰⵎⵙⵏⵖⵉⴼⵜ, ⵢⴰⵏ ⵓⴱⵔⵉⴷ, ⴷ ⵓⴷⵎ ⵔⴰⴷ ⵜⵔⵉ ⴷⴰⵖ. ⴰⴹⴼ ⴱⴷⵓ.
+A preset stores a whole look and brings it back with one button.	ⴰⵙⵖⵍ ⵓⵣⵡⵉⵔ ⴰⵔ ⵉⵃⵟⵟⵓ ⵓⴷⵎ ⴽⵓⵍⵍⵓ, ⴰⵔ ⵜ ⵉⵙⵙⵖⴰⵍ ⵙ ⵢⴰⵜ ⵜⵇⴼⵍⵜ.
+Darling. A look is not a look until you can get it back.	ⴰ ⵎⴰ ⵉⵏⵓ. ⵓⴷⵎ ⵓⵔ ⵉⴳⵉ ⵓⴷⵎ ⵎⴰ ⵓⵔ ⵜⵣⵎⵉⵔⴷ ⴰⴷ ⵜ ⵜⵙⵙⵖⵍⴷ.
+Buttons. Good. I design with buttons.	ⵜⵉⵇⴼⴰⵍ. ⵉⵖⵓⴷⴰ. ⴰⵔ ⵙⵏⵖⵉⴼⵖ ⵙ ⵜⵇⴼⴰⵍ.
+Store it. Before somebody has ideas.	ⵃⵟⵟⵓ ⵜ. ⵇⴱⵍ ⴰⴷ ⴷ ⴰⵙⵏⵜ ⵜⵉⴽⵜⵉⵡⵉⵏ ⵉ ⵢⴰⵏ.
+Close the DASH (Esc), then select Look two and TAKE it.	ⵇⵇⵏ DASH (Esc), ⵙⵓⵍ ⵙⵜⵉ Look two ⵜⴰⴹⴼⴷ TAKE.
+A cape. On my runway. Someone will trip, darling. Someone always trips.	ⴰⵙⵍⵀⴰⵎ. ⵖ ⵓⴱⵔⵉⴷ ⵉⵏⵓ. ⵢⴰⵏ ⴰⴷ ⵉⴹⵕ, ⴰ ⵎⴰ ⵉⵏⵓ. ⴽⵓ ⵜⵉⴽⴽⵍⵜ ⴰⵔ ⵉⴹⵕ ⵢⴰⵏ.
+Recall: the whole look comes back at once.	ⴰⵙⵙⵖⵍ: ⵓⴷⵎ ⴽⵓⵍⵍⵓ ⴰⵔ ⵉⵜⵜⵖⴰⵍ ⵙ ⵢⴰⵜ ⵜⵉⴽⴽⵍⵜ.
+Thank you. We will never speak of the cape again.	ⵜⴰⵏⵎⵎⵉⵔⵜ. ⵓⵔ ⵙⵓⵍ ⵔⴰⴷ ⵏⵙⴰⵡⵍ ⵅⴼ ⵓⵙⵍⵀⴰⵎ.
+Simple. Timeless. Recallable. Now go, darling. I have a fitting.	ⴰⵃⵔⴼⵉ. ⵓⵔ ⵉⵙⵏⴼⴰⵍ. ⵉⵣⵎⵔ ⴰⴷ ⵉⵖⵓⵍ. ⴷⴷⵓ, ⴰ ⵎⴰ ⵉⵏⵓ. ⵙⵄⵉⵖ ⴰⵔⴰⵎ ⵏ ⵉⵍⵙⴰ.
+Pushes, wipes, iris, dip to white, and more. I wrote half of them. On a Tuesday.	ⴰⴷⴷⴰⵖ, ⴰⵙⴼⴰⴹ, iris, ⴰⴼⵏⵓ ⵖⵔ ⵓⵎⵍⵍⴰⵍ, ⴷ ⵡⴰⵢⵢⴰⴹ. ⵓⵔⵉⵖ ⴰⵣⴳⵏ ⵏⵏⵙⵏ. ⴳ ⵢⴰⵏ ⵡⴰⵙⵙ ⵏ ⴽⵕⴰⴹⵢⵓⵔ.
+Operators... roll the transition.	ⴰ ⵉⵎⵙⵡⵓⵔⴰ... ⵙⵙⴷⵓⵎ ⴰⵙⵏⴼⵍ.
+A style, a time, and two very dramatic entrances. Roll credits.	ⴰⵖⴰⵏⵉⴱ, ⴰⴽⵓⴷ, ⴷ ⵙⵏⴰⵜ ⵜⵉⴽⵛⵎⵉⵏ ⵅⴰⵜⵔⵏⵉⵏ. ⵙⵙⴷⵓⵎ ⵉⵙⵎⴰⵡⵏ ⵏ ⵜⴳⵉⵔⴰ.
+That is not an iris. ...It is better. I will allow it.	ⵎⴰⵛⵛⵉ ⴷ iris. ...ⵢⵓⴼ ⵜ. ⵇⴱⵍⵖ.
+An effect, a bend and the patch. The robots approve, I think. Their faces are helmets.	ⴰⵙⵎⴷⵓ, ⴰⵄⵡⴰⵊ, ⴷ patch. ⵉⵕⵓⴱⵓⵜⵏ ⵇⴱⵍⵏ, ⴰⵢ ⵙⵙⵉⵏⵖ. ⵓⴷⵎⴰⵡⵏ ⵏⵏⵙⵏ ⴷ ⵉⴽⴰⵙⴽⵉⵡⵏ.
+Waveform, vectorscope, false colour. The scopes settled it. The agents did not.	Waveform, vectorscope, ⵉⵏⵉ ⵏ ⵓⴽⵔⴽⴰⵙ. ⵉⵎⵙⴽⵓⴷⵏ ⴼⵔⴰⵏ ⵜⵜ. ⵉⵎⴰⵥⵍⴰⵢⵏ ⴰⵍⴰ.
+The view from the capsule	ⵜⴰⵎⵓⵖⵍⵉ ⵙⴳ ⵜⴽⴰⴱⵙⵓⵍⵜ
+Major Tomasina is in orbit, skapi, and her picture has to reach the ground. Press START.	Major Tomasina ⴳ ⵓⵙⵓⵜⴳ, skapi, ⵜⴰⵡⵍⴰⴼⵜ ⵏⵏⵙ ⵉⵇⵇⴰⵏ ⴰⴷ ⵜⵍⴽⵎ ⴰⴽⴰⵍ. ⴰⴹⴼ ⴱⴷⵓ.
+Pictures leave by cable or network: NDI, SDI from a DeckLink card, ST 2110 for broadcast plants.	ⵜⵉⵡⵍⴰⴼⵉⵏ ⴰⵔ ⵜⵜⴼⴼⵓⵖⵏⵜ ⵙ ⵓⴳⴰⵜⵓ ⵏⵖ ⵓⵥⵟⵟⴰ: NDI, SDI ⵙⴳ ⵜⴽⴰⵕⴹⴰ DeckLink, ST 2110 ⵉ ⵉⵙⵏⵜⵉⵜⵏ ⵏ ⵓⵣⵣⵏⵣⵔ.
+Ground control, this is Major Tomasina. Can you see my picture?	ⴰⵙⵏⵇⴷ ⵏ ⵡⴰⴽⴰⵍ, ⴷⴰ Major Tomasina. ⵜⵥⵕⴰⵎ ⵜⴰⵡⵍⴰⴼⵜ ⵉⵏⵓ?
+Every way down, on one page. Good. Space has very few cables.	ⵉⴱⵔⴷⴰⵏ ⵖⵔ ⴷⴷⴰⵡ ⴽⵓⵍⵍⵓ ⴳ ⵢⴰⵜ ⵜⵙⵏⴰ. ⵉⵖⵓⴷⴰ. ⴳ ⵜⵉⵏⵉⴳⵜ ⴷⵔⵓⵙ ⵏ ⵉⴳⴰⵜⵓⵜⵏ.
+NDI	NDI
+Sending now. If nobody answers, I'll just float here.	ⴰⵔ ⵙⴰⵣⴰⵏⵖ ⴷⵖⵉ. ⵎⴰ ⵓⵔ ⴷ ⵉⵔⴰⵔ ⵢⴰⵏ, ⴰⴷ ⵇⵇⵉⵎⵖ ⴰⵔ ⵜⵜⴰⵡⴰⵎⵖ ⴷⴰ.
+Ground control, signing off. Tell my mother I waved.	ⴰⵙⵏⵇⴷ ⵏ ⵡⴰⴽⴰⵍ, ⵙⵙⴽⵔⵖ ⴰⴱⴷⴷⵉ. ⵉⵏⵉⵎ ⵉ ⵉⵎⵎⴰ ⵉⵙ ⵙⵙⵍⵎⵖ.
+Ground control can see me! I can see my house from here.	ⴰⵙⵏⵇⴷ ⵏ ⵡⴰⴽⴰⵍ ⴰⵔ ⵉⵢⵉ ⵉⵜⵜⵥⵕⵕⴰ! ⴰⵔ ⵥⵕⵕⴰⵖ ⵜⴰⴳⵎⵎⵉ ⵉⵏⵓ ⵙⴳ ⴷⴰ.
+MULTI ON	MULTI ON
+And one more window, showing the clock. Operators who watch a clock are never late.	ⴷ ⵢⴰⵏ ⵓⵟⵟⴰⵇ ⵢⴰⴹⵏ ⵉ ⵜⵙⵔⴰⴳⵜ. ⴰⵎⵙⵡⵓⵔ ⵉⵥⵕⵕⴰⵏ ⵜⴰⵙⵔⴰⴳⵜ ⵓⵔ ⵉⵜⵜⵄⵟⵟⴰⵍ.
+The big window is window one, which is usually the programme.	ⴰⵟⵟⴰⵇ ⴰⵎⵇⵔⴰⵏ ⴷ ⴰⵟⵟⴰⵇ 1, ⴷ ⴰⵖⴰⵡⴰⵙ ⵙ ⵜⵓⴳⵜ.
+Windows, the ... menu, NEXT, the clock, a layout, tally. Mystery solved.	ⵉⵟⵟⴰⵇⵏ, ⵓⵎⵓⵖ ..., NEXT, ⵜⴰⵙⵔⴰⴳⵜ, ⴰⵙⴳⴳⵎ, tally. ⵜⵓⴼⴼⵉⵔⵜ ⵜⴼⵔⴰ.
+DECKBOY  POCKET	DECKBOY  POCKET
+FX CHOICE: choice must be A or B	FX CHOICE: ⴰⵙⵜⴰⵢ ⵉⵇⵇⴰⵏ ⴰⴷ ⵉⴳ A ⵏⵖ B
+FX CHOICE: no effect at that index	FX CHOICE: ⵓⵔ ⵉⵍⵍⵉ ⵓⵙⵎⴷⵓ ⴳ ⵓⵎⴰⵜⴰⵔ ⴰⵏⵏ
+whole picture	ⵜⴰⵡⵍⴰⴼⵜ ⴽⵓⵍⵍⵓ

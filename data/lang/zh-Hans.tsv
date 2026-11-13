@@ -3072,3 +3072,173 @@ Stop masking this. The mask stays in the show's library, to put back from the me
 Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	从演出中删除此遮罩，并从使用它的所有 cue、播放列表和输出中移除。撤销可恢复
 FX PARAM: slot must be A-F	FX PARAM：槽位必须为 A 到 F
 FX LFO: slot must be A-D, E for the amount, or F/G for the fifth and sixth sliders	FX LFO：槽位必须为 A 到 D，E 表示强度，F/G 表示第五和第六个滑块
+playlist 2 is ready: you built one in the magic show	播放列表2已就绪：你在魔术秀里建过一个
+FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR	FX：用法 LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR
+BLACK	黑
+COACH MARV	COACH MARV
+JUNE O'NEIL	JUNE O'NEIL
+TURNIP TOP	TURNIP TOP
+CHEF BORK	CHEF BORK
+DONNA WHEEL	DONNA WHEEL
+KEEPER ROOK	KEEPER ROOK
+AGENT BRANDT	AGENT BRANDT
+AGENT HOLLIS	AGENT HOLLIS
+MR. SALTY	MR. SALTY
+OPTIMUS PRIMETIME	OPTIMUS PRIMETIME
+DEFT FUNK	DEFT FUNK
+LT. HAILA	LT. HAILA
+ENSIGN JINKLEY	ENSIGN JINKLEY
+The tour bus, with Polly Carton	跟着Polly Carton坐巡演大巴
+A test pattern, drawing on a replay, a still, and the video synth at halftime.	测试图、在回放上画图、静帧，还有中场的视频合成器。
+A stage timer over a picture, held, a presenter view for the person on stage, and a launch.	在画面上叠加舞台计时器、暂停计时、给台上人看的屏幕，再来一次发射。
+A second playlist as a layer, TAKE ALL so two things change on one beat, and a playlist's opacity.	用第二个播放列表叠一层，用TAKE ALL让两层同时切换，再调播放列表的不透明度。
+The fashion show, with Edda Mod	Edda Mod的时装秀
+Ground control, with Major Tomasina	与Major Tomasina联系地面控制
+0.1, 0.1, 0.1	0.1, 0.1, 0.1
+Opener (the bus at dawn)	开场（黎明的大巴）
+Polly Carton's tour bus leaves at six, skapi, and this show goes with it. Press START.	Polly Carton的巡演大巴六点发车，skapi。这场演出也得一起走。按开始。
+A show that travels needs three things first: a check, a fix and a bundle.	演出要出远门，先做三件事：检查、修复、打包。
+Honey, I've played four thousand towns. Not one of them had my laptop.	亲爱的，我去过四千座城演出。没一座城里放着我的笔记本。
+It lists what the show would trip over: missing files, empty cues, outputs it cannot reach.	这里列出演出会绊倒的地方：丢失的文件、空cue、连不上的输出。
+Every show has a problem. Find yours before the audience does.	每场演出都有问题。要赶在观众前面发现它。
+The intro video is on the office computer. Select it and delete it, or RELINK it if you have the file.	开场视频在办公室电脑上。选中后删掉；如果你有文件，就用RELINK重新链接。
+Fix it here, with time and coffee. Not at the venue, with neither.	趁现在有时间、有咖啡，在这里修好。到了现场，这两样都没有。
+Leave it behind, sugar. I left a whole wig in Tulsa and the show went on.	丢下吧，宝贝。我还在塔尔萨落过一整顶假发呢，演出照样继续。
+Press BUNDLE and choose where: a USB stick, a shared folder. The show and all its media, in one folder.	按打包，选个地方：U盘、共享文件夹都行。演出和所有媒体一起放进一个文件夹。
+Pack it like a wig box. Everything inside, nothing loose.	像装假发盒一样。全塞进去，别让什么散在外头。
+Checked, fixed, bundled. On the other computer, open the show in the bundle and everything is there.	检查过、修好、打包了。在另一台电脑上打开包里的演出，东西就都在。
+The show file is only text, so it travels light. The media is the luggage.	演出文件只有文字，轻装上路。媒体才是行李。
+Bus leaves at six. Show starts at eight. Hair takes until seven.	大巴六点发车，演出八点开始。头发得做到七点。
+There are dozens, and most of them run on the graphics card, so you can stack them.	有几十种，大多数在显卡上运行，可以叠着用。
+An effect, a ~ and a colour. The critic is crying. Good crying, I think.	一个效果、一个~、一种颜色。评论家哭了。我猜是感动的。
+Stack a few more. Order matters: each effect works on the picture the one above it made.	再叠几个。顺序很重要：每个效果都处理上一个效果做出的画面。
+Three effects! It's a mess! It's ALIVE! Post it.	三个效果！ 乱套了！ 活过来了！ 发出去！
+The replay	The replay
+Coach Marv has two minutes of airtime, one replay and a pen, skapi. He will use all three. Press START.	Coach Marv有两分钟播出时间、一段回放和一支笔，skapi。他打算全用上。按开始。
+Tonight: a test pattern, drawing on the picture, and the video synth.	今晚内容：测试图、在画面上画图，还有视频合成器。
+Folks, I've watched this play forty times. It's still a play.	各位，这个战术我看了四十遍。它还是个战术。
+CHECK THE MONITORS	检查监视器
+PATTERN adds Pocket Test. If its circles are not round, a screen is stretched. Find out now, not on air.	测试图会添加Pocket Test。圆圈不圆，说明屏幕拉伸了。现在查，别等播出时查。
+Its bars and steps are checked against real meters, so a wrong screen looks wrong at once.	色条和灰阶都用真正的仪表核验过。屏幕不对，一眼就看出来。
+That's a test pattern. You test with it. That's why they call it that.	这叫测试图。是拿来测试的。所以才叫这个名字。
+ROLL THE REPLAY	播放回放
+Select The replay and TAKE it.	选中The replay，然后TAKE。
+A replay loops, so the pundit can talk over it for as long as he likes. He likes.	回放会循环，解说员想说多久就说多久。他可太想了。
+Here's number 22. Number 22 has the ball. That's important, because the ball is how you score.	这是22号。22号拿着球。这很重要，因为得有球才能得分。
+The pen goes over the replay, on its own layer. Press the + at the end of the playlist tabs.	笔迹要放在单独一层，叠在回放上面。按播放列表标签末尾的+。
+A second playlist is a layer over the first.	第二个播放列表，就是叠在第一个上面的图层。
+Over it. Not under it. Under it, you can't see it. That's football.	在上面，不是下面。在下面你就看不见了。这就是橄榄球。
+The lit tab is where SOURCE puts things. Skip this and the ink lands under the replay.	信号源会把东西加到亮着的标签里。跳过这步，笔迹就落在回放下面。
+See that tab? Click it. Fundamentals.	看见那个标签了吗？点它。基本功。
+In playlist 2: SOURCE, then Draw.	在播放列表2里：信号源，然后绘画。
+A Draw cue is clear wherever there is no ink, so the replay shows through.	绘画cue没有笔迹的地方是透明的，能透出底下的回放。
+Give me the pen. I've waited all season for the pen.	把笔给我。我等这支笔等了一整个赛季。
+Both are live now: the replay underneath, the ink on top.	两个都播出了：回放在下，笔迹在上。
+We're on the air. Nobody touches the pen but me.	我们在直播。除了我，谁都别碰笔。
+CIRCLE HIM	圈出他
+Press DRAW in the inspector, then circle number 22 on the programme monitor. He is the yellow one.	在检查器里按绘画，再到节目监视器上圈出22号。就是穿黄色的那个。
+A pen's pressure makes the line thicker. A mouse presses at one strength.	压感笔越用力，线越粗。鼠标的力度始终一样。
+Circle him! The yellow one! There's only one yellow one. Circle that one.	圈他！ 黄色那个！ 只有一个黄色的。就圈那一个。
+Draw as much as you like. Then SAVE STILL keeps the drawing as a picture with a clear background, in the playlist.	想画多少就画多少。然后用保存静帧，把画存成透明背景的图片，留在播放列表里。
+For next week's show. He will want that circle again.	留给下周的节目。他还会想要那个圈。
+Put that in the Hall of Fame. Next to the turducken.	放进名人堂。就放在那只三禽套娃烤鸡旁边。
+Halftime. Click the Deck 1 tab, then SOURCE, then Video Synth.	中场休息。点卡座 1标签，再选信号源，然后视频合成器。
+My favourite source: oscillators, mirrors and feedback. A halftime show with no camera at all.	我最爱的信号源：振荡器、镜像和反馈。不用一台摄像机，也能做中场秀。
+Halftime! Somebody get me some lights. And a band. And a sandwich.	中场了！ 谁给我弄点灯光来。再来支乐队。还有三明治。
+TAKE HALFTIME	TAKE中场秀
+Select the synth and TAKE it. Then look at the monitor: your ink is still up.	选中合成器，然后TAKE。再看监视器：笔迹还在。
+Playlist 2 did not change, so its ink stays over whatever playlist 1 shows. Each playlist changes on its own.	播放列表2没变，所以不管列表1放什么，笔迹都叠在上面。每个播放列表各自切换。
+Leave the circle up. It's a good circle. It goes with everything.	圈留着吧。好圈。配什么都合适。
+A test pattern, a replay, ink on a layer, a still, and halftime. That's the booth.	测试图、回放、一层笔迹、静帧、中场秀。这就是解说席。
+Replay in the Draw section draws your lines back the way you drew them. He will love that.	绘画区的Replay会按你当时的画法重画笔迹。他一定喜欢。
+Same time next week. Bring a bigger pen.	下周同一时间见。带支更大的笔。
+Now THAT is a busy play. I can't see the field. I love it.	这才叫热闹的战术。球场都看不见了。我喜欢。
+Two projectors overlap, and each fades its edge so the overlap is not twice as bright. Watch the sides of the monitor go soft.	两台投影仪的画面重叠，各自淡化边缘，免得重叠区亮一倍。看监视器两侧变柔和。
+A game show, skapi. Three contestants, one buzzer, and a host who is not here tonight. Press START.	一场游戏节目，skapi。三位选手、一个抢答铃，今晚主持人还不在。按开始。
+Cue numbers, hotkeys, and GO from other machines.	cue编号、快捷键，以及从别的机器发来的GO。
+Forty years I turned the letters. Tonight they gave me the microphone. Nobody panic.	我翻了四十年字牌。今晚他们给了我麦克风。大家别慌。
+Theatre numbers its cues: Q3, Q3.5, Q12A. Deckboy reads them all.	剧场会给cue编号：Q3、Q3.5、Q12A。Deckboy都认得。
+Numbers! I know letters. Numbers are letters that went to college.	数字！ 我懂字母。数字就是上过大学的字母嘛。
+GOTO crosses a long list faster than scrolling. Much faster.	穿过长列表，用GOTO比滚动快。快多了。
+F1 to F10, F12, or the number pad. Each one is a buzzer.	F1到F10、F12，或者数字小键盘。每个键都是抢答铃。
+Every contestant gets a buzzer. I get the letters. It's fine. It's fine.	每位选手都有抢答铃。我有字牌。挺好。挺好的。
+No mouse, no list, no looking. Only the key.	不用鼠标，不用列表，不用看。只要一个键。
+Buzz! A winner! I've never said that. I've only pointed at it.	叮！ 有赢家了！ 我从没说过这句。以前我只负责指。
+And for our viewers at home: yes, you can push the buttons too.	电视机前的观众朋友：没错，你们也能按按钮。
+Numbers, GOTO, a buzzer, and GO from anywhere. You could host a game show now.	编号、GOTO、抢答铃、随处发来的GO。现在你能主持游戏节目了。
+Goodnight, everybody! Tomorrow I go back to the letters. I'll miss you.	各位晚安！ 明天我又得去翻字牌了。我会想你们的。
+And the number is... not three. I'll allow it. I turn anything.	号码是……反正不是三。行吧。我什么都能翻。
+A second playlist is a layer over the map. The lizard stays underneath. For now.	第二个播放列表叠在地图上面。蜥蜴还在下面。暂时而已。
+A Lower Third, a name, a title card, a backdrop. The lizard has left the studio.	一条下三分之一字幕、一个名字、一张标题卡、一个背景。蜥蜴离开演播室了。
+That's not my name. It's a lovely name. Now, about that lizard...	那不是我的名字。是个好名字。现在，说说那只蜥蜴……
+The rocket (on the pad)	The rocket (on the pad)
+The rocket (lift-off)	The rocket (lift-off)
+A rocket built in a basement, skapi, an inventor who wants cheese, and a dog who does the real work. Press START.	地下室里造的火箭，skapi。想吃奶酪的发明家，还有真正干活的狗。按开始。
+Stage timers: a countdown over a picture, a hold, and a view for the person on stage.	舞台计时器：叠在画面上的倒计时、暂停计时、给台上人看的屏幕。
+Playlist 2 is selected, over the rocket. SOURCE, then Stage Timer.	已选中火箭上方的播放列表2。信号源，然后Stage Timer。
+*checks his watch, then the rocket, then his watch*	*看看表，看看火箭，再看看表*
+COUNT IT DOWN	开始倒计时
+Select the timer and TAKE it. I have cleared its backdrop, so the rocket shows behind the numbers.	选中计时器，然后TAKE。我清掉了背景，数字后面能看见火箭。
+Past zero it keeps going and counts the overtime. Very honest. Slightly rude.	过了零还继续，开始数超时。很诚实。有点不客气。
+Close MENU, click the Deck 1 tab, then select 'The rocket (lift-off)' and TAKE it.	关掉菜单，点卡座 1标签，选中'The rocket (lift-off)'，然后TAKE。
+The clock is on playlist 2, so it stays up while the rocket changes underneath it.	时钟在播放列表2上，所以底下火箭切换时，它还留在画面上。
+We have lift-off, Grommet! ...Grommet? Who's flying it?	升空了，Grommet！ ……Grommet？ 谁在驾驶？
+A countdown, a hold, a pilot's view and a launch. Bring crackers.	倒计时、暂停、驾驶员视图、发射。带点饼干来。
+*waves from the window*	*从窗口挥手*
+The rubber chicken	The rubber chicken
+A magic show, skapi. A trunk, a rubber chicken, and one beat where everything changes at once. Press START.	一场魔术秀，skapi。箱子、橡胶鸡，还有万物同时变化的一拍。按开始。
+Two playlists are two layers, and TAKE ALL changes both together. Tonight you will see why that matters.	两个播放列表就是两层，TAKE ALL让它们一起变。今晚你会明白这有多重要。
+The chicken goes on its own layer. Press the + at the end of the playlist tabs.	给鸡单独一层。按播放列表标签末尾的+。
+The lit tab is the playlist that gets the next cue. Its chip now says 'to Out 1': it is layered over playlist 1 on that output.	亮着的标签就是下一个cue的去处。标记现在写着“到输出 1”：它在这个输出上叠在播放列表1上方。
+TRICK ONE	第一招
+Turnip Top has put the chicken in playlist 2. In playlist 1, TAKE 'The trunk (open)'. Then in playlist 2, TAKE the chicken.	Turnip Top把鸡放进了播放列表2。在列表1里TAKE 'The trunk (open)'，再到列表2里TAKE那只鸡。
+The chicken is clear all round, so it covers only itself. Watch the monitor between the two TAKEs.	鸡四周是透明的，所以只遮住它自身那块。留意两次TAKE之间的监视器。
+Did you see it? For a moment the trunk was open and empty: two TAKEs are two moments. The trick is reset. Now select the open trunk in playlist 1 and the chicken in playlist 2, then TAKE ALL.	看见了吗？ 有一瞬间箱子开着，里面却是空的：两次TAKE是两个时刻。魔术已复位。现在在列表1选开箱子，在列表2选鸡，然后TAKE ALL。
+TAKE ALL takes every playlist's selected cue on one beat. No gap, no empty trunk.	TAKE ALL让每个播放列表选中的cue同一拍上场。没有空隙，也没有空箱子。
+The chicken was late. They saw an empty trunk. In magic we call that a trunk.	鸡迟到了。观众看见了空箱子。我们魔术行管这叫箱子！
+TAKE ALL	TAKE ALL
+THE VANISH	大变消失
+Trick two. Drag playlist 2's opacity fader down to nothing. The chicken fades away.	第二招。把播放列表2的不透明度推子拉到零。鸡就淡出消失了。
+Every playlist has its own opacity. Down is a fade out, with no cue at all.	每个播放列表都有自己的不透明度。往下拉就淡出，连cue都不用。
+Ta-daaa! ...Hold for applause. Hold. Now watch it go.	当当！ ……等掌声。再等。现在看它消失！
+Trick three. Bring it back: playlist 2's opacity all the way up.	第三招。把它变回来：把播放列表2的不透明度拉到顶。
+Where did it go? Back in the trunk. Everything goes back in the trunk.	去哪儿了？ 回箱子里了！ 什么最后都回箱子里！
+THAT'S MAGIC	这就是魔术
+An appearance done wrong, then right, a vanish and a return. Nazdrave.	先失手、再成功的登场，消失，再回来。Nazdrave。
+A playlist can also sit on any output. Two layers, a great many tricks.	播放列表也能放到任何输出上。两层，能变好多魔术。
+It's back! Thank you! I'm here all week! The chicken is here forever.	回来了！ 谢谢！ 我这星期都在！ 这只鸡永远都在！
+A cooking show, skapi. Live. The kitchen is on fire. Press START.	烹饪节目，skapi。直播。厨房着火了。按开始。
+Ta-da! Still cookin'! ...Still burnin'.	当当！ 还在做饭！ ……还在烧。
+PANIC	PANIC
+Bork! De fire extinguisher is also on fire!	博尔克！ 灭火器也着火噜斯莫尔克！
+BLACK to hide, PANIC to stop, TAKE to come back. You will survive any kitchen.	用黑藏起来，PANIC停下来，TAKE再回来。什么厨房你都能活着出来。
+A fashion show, skapi. One designer, one runway, and a look she will want back. Press START.	时装秀，skapi。一位设计师、一条T台，还有她想再次调出的造型。按开始。
+A preset stores a whole look and brings it back with one button.	预设能存下整套造型，一个按钮就调回来。
+Darling. A look is not a look until you can get it back.	亲爱的。调不回来的造型，算什么造型。
+Buttons. Good. I design with buttons.	纽扣。好。我也用纽扣做设计。
+Store it. Before somebody has ideas.	存起来。趁还没人冒出什么主意。
+Close the DASH (Esc), then select Look two and TAKE it.	关闭DASH（Esc），选中Look two，然后TAKE。
+A cape. On my runway. Someone will trip, darling. Someone always trips.	披风。上我的T台。有人会绊倒的，亲爱的。总有人要绊倒。
+Recall: the whole look comes back at once.	调出：整套造型一齐回来。
+Thank you. We will never speak of the cape again.	谢谢。以后谁都别再提那件披风。
+Simple. Timeless. Recallable. Now go, darling. I have a fitting.	简洁。经典。调得回来。去吧，亲爱的。我还得试衣。
+Pushes, wipes, iris, dip to white, and more. I wrote half of them. On a Tuesday.	推移、擦除、光圈、白场过渡，还有好多。一半是我写的。某个星期二。
+Operators... roll the transition.	操作员们……开始转场。
+A style, a time, and two very dramatic entrances. Roll credits.	一种样式、一段时间、两次戏剧性的登场。放片尾字幕。
+That is not an iris. ...It is better. I will allow it.	那不是光圈。……更好。我批准了。
+An effect, a bend and the patch. The robots approve, I think. Their faces are helmets.	一个效果、一个弯折、还有补丁。机器人应该满意了。只能猜，毕竟脸都是头盔。
+Waveform, vectorscope, false colour. The scopes settled it. The agents did not.	波形、矢量示波器、伪彩色。示波器有定论。探员们没有。
+The view from the capsule	太空舱里的风景
+Major Tomasina is in orbit, skapi, and her picture has to reach the ground. Press START.	Major Tomasina在轨道上，skapi。她的画面得传回地面。按开始。
+Pictures leave by cable or network: NDI, SDI from a DeckLink card, ST 2110 for broadcast plants.	画面走线缆或网络：NDI、DeckLink卡输出的SDI、广播设施用的ST 2110。
+Ground control, this is Major Tomasina. Can you see my picture?	地面控制，我是Major Tomasina。能看见我的画面吗？
+Every way down, on one page. Good. Space has very few cables.	所有下行路线都在一页上。好。太空里的线缆可不多。
+NDI	NDI
+Sending now. If nobody answers, I'll just float here.	开始发送。要是没人回答，我就接着在这儿飘。
+Ground control, signing off. Tell my mother I waved.	地面控制，通信结束。告诉我妈，我挥过手了。
+Ground control can see me! I can see my house from here.	地面看见我了！ 我在这儿能看见我家。
+MULTI ON	MULTI ON
+And one more window, showing the clock. Operators who watch a clock are never late.	再添一个显示时钟的窗口。看着钟的操作员从不迟到。
+The big window is window one, which is usually the programme.	大窗口是一号窗口，通常显示节目画面。
+Windows, the ... menu, NEXT, the clock, a layout, tally. Mystery solved.	窗口、...菜单、NEXT、时钟、布局、tally。谜底揭晓。
+DECKBOY  POCKET	DECKBOY  POCKET

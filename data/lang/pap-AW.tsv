@@ -3066,3 +3066,175 @@ Stop masking this. The mask stays in the show's library, to put back from the me
 Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	Kita e mascara aki for di e show, i for di tur cue, playlist i output cu ta usa dje. Undo ta bolbe trese e bek
 FX PARAM: slot must be A-F	FX PARAM: slot mester ta A te F
 FX LFO: slot must be A-D, E for the amount, or F/G for the fifth and sixth sliders	FX LFO: slot mester ta A te D, E pa cantidad, of F/G pa e di cinco i di seis slider
+playlist 2 is ready: you built one in the magic show	playlist 2 ta cla: bo a crea un den e show di magia
+FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR	FX: uza LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR
+BLACK	preto
+COACH MARV	COACH MARV
+JUNE O'NEIL	JUNE O'NEIL
+TURNIP TOP	TURNIP TOP
+CHEF BORK	CHEF BORK
+DONNA WHEEL	DONNA WHEEL
+KEEPER ROOK	KEEPER ROOK
+AGENT BRANDT	AGENT BRANDT
+AGENT HOLLIS	AGENT HOLLIS
+MR. SALTY	MR. SALTY
+OPTIMUS PRIMETIME	OPTIMUS PRIMETIME
+DEFT FUNK	DEFT FUNK
+LT. HAILA	LT. HAILA
+ENSIGN JINKLEY	ENSIGN JINKLEY
+The tour bus, with Polly Carton	E bus di tour, cu Polly Carton
+A test pattern, drawing on a replay, a still, and the video synth at halftime.	Un patron di prueba, dibuha riba un replay, un portret fiho, i e synth di video den pausa.
+A stage timer over a picture, held, a presenter view for the person on stage, and a launch.	Un timer di escenario riba un portret, un pousa, un vista pa e persona riba escenario, i un lansamento.
+A second playlist as a layer, TAKE ALL so two things change on one beat, and a playlist's opacity.	Un di dos playlist como layer, TAKE ALL pa cambia dos cos den un golpi, i opacidad di un playlist.
+The fashion show, with Edda Mod	E show di moda, cu Edda Mod
+Ground control, with Major Tomasina	Control na tera, cu Major Tomasina
+0.1, 0.1, 0.1	0.1, 0.1, 0.1
+Opener (the bus at dawn)	Opener (the bus at dawn)
+Polly Carton's tour bus leaves at six, skapi, and this show goes with it. Press START.	E bus di tour di Polly Carton ta sali seis or, skapi, i e show aki ta bai cu ne. Primi CUMINSA.
+A show that travels needs three things first: a check, a fix and a bundle.	Un show cu ta biaha tin mester di tres cos prome: controla, drecha i paketa.
+Honey, I've played four thousand towns. Not one of them had my laptop.	Dushi, mi a canta den cuater mil pueblo. Niun di nan tabatin mi laptop.
+It lists what the show would trip over: missing files, empty cues, outputs it cannot reach.	E ta lista loke por stroba e show: file perdi, cue bashi, output cu e no por alcanza.
+Every show has a problem. Find yours before the audience does.	Cada show tin un problema. Haña esun di bo prome cu publico.
+The intro video is on the office computer. Select it and delete it, or RELINK it if you have the file.	E video di introduccion ta riba e computer di oficina. Cohe i kita e, of uza RELINK si bo tin e file.
+Fix it here, with time and coffee. Not at the venue, with neither.	Drecha e aki, cu tempo i koffie. No na e luga di show, sin niun di dos.
+Leave it behind, sugar. I left a whole wig in Tulsa and the show went on.	Laga e atras, dushi. Mi a laga un peluca completo na Tulsa i e show a sigui.
+Press BUNDLE and choose where: a USB stick, a shared folder. The show and all its media, in one folder.	Primi PAKETA i scoge unda: un USB of un folder comparti. E show i tur su media den un folder.
+Pack it like a wig box. Everything inside, nothing loose.	Paketa manera un caha di peluca. Tur cos paden, niun cabey los.
+Checked, fixed, bundled. On the other computer, open the show in the bundle and everything is there.	Controla, drecha, paketa. Riba e otro computer, habri e show den e pakete i tur cos ta ei.
+The show file is only text, so it travels light. The media is the luggage.	E file di show ta texto so, e ta biaha lihe. E media ta e maletanan.
+Bus leaves at six. Show starts at eight. Hair takes until seven.	Bus ta sali seis or. Show ta cuminsa ocho or. Cabey ta tuma te siete or.
+There are dozens, and most of them run on the graphics card, so you can stack them.	Tin docena, i mayoria ta core riba e carta grafico, p'esei bo por pone nan riba otro.
+An effect, a ~ and a colour. The critic is crying. Good crying, I think.	Un efecto, un ~ i un color. E critico ta yora. Di felicidad, mi ta kere.
+Stack a few more. Order matters: each effect works on the picture the one above it made.	Pone algun mas. Orden ta conta: cada efecto ta traha riba e portret cu esun riba dje a haci.
+Three effects! It's a mess! It's ALIVE! Post it.	Tres efecto! Un caos! E ta BIBU! Publica e.
+The replay	The replay
+Coach Marv has two minutes of airtime, one replay and a pen, skapi. He will use all three. Press START.	Coach Marv tin dos minuut di transmision, un replay i un pen, skapi. E lo uza tur tres. Primi CUMINSA.
+Tonight: a test pattern, drawing on the picture, and the video synth.	Awe nochi: un patron di prueba, dibuha riba e portret, i e synth di video.
+Folks, I've watched this play forty times. It's still a play.	Hende, mi a mira e jugada aki cuarenta biaha. E ta un jugada ainda.
+CHECK THE MONITORS	CONTROLA E MONITORNAN
+PATTERN adds Pocket Test. If its circles are not round, a screen is stretched. Find out now, not on air.	PATRON ta agrega Pocket Test. Si su sirculonan no ta rondo, un pantaya ta rek. Haña sa awor, no den transmision.
+Its bars and steps are checked against real meters, so a wrong screen looks wrong at once.	Su baranan i pasonan ta controla cu medidor real, p'esei un pantaya robes ta mustra robes mesora.
+That's a test pattern. You test with it. That's why they call it that.	Esei ta un patron di prueba. Bo ta prueba cu ne. P'esei nan ta yama e asina.
+ROLL THE REPLAY	CORE E REPLAY
+Select The replay and TAKE it.	Cohe The replay i primi TAKE.
+A replay loops, so the pundit can talk over it for as long as he likes. He likes.	Un replay ta ripiti pa e experto por papia cuanto e ke. I e ke hopi.
+Here's number 22. Number 22 has the ball. That's important, because the ball is how you score.	Ata number 22. Number 22 tin e bala. Esaki ta importante, pasobra cu bala bo ta scoor.
+The pen goes over the replay, on its own layer. Press the + at the end of the playlist tabs.	E pen ta bai riba e replay, den su mes layer. Primi + na final di e tabnan di playlist.
+A second playlist is a layer over the first.	Un di dos playlist ta un layer riba e prome.
+Over it. Not under it. Under it, you can't see it. That's football.	Riba dje. No bou dje. Bou dje bo no ta mira e. Esei ta futbol.
+The lit tab is where SOURCE puts things. Skip this and the ink lands under the replay.	E tab cu ta lombra ta caminda FUENTE ta pone cos. Salta esaki i e tinta ta keda bou e replay.
+See that tab? Click it. Fundamentals.	Bo ta mira e tab? Click riba dje. Base.
+In playlist 2: SOURCE, then Draw.	Den playlist 2: FUENTE, despues DIBUHA.
+A Draw cue is clear wherever there is no ink, so the replay shows through.	Un cue di DIBUHA ta transparente unda no tin tinta, p'esei bo ta mira e replay dor di dje.
+Give me the pen. I've waited all season for the pen.	Duna mi e pen. Mi a warda henter temporada pa e pen.
+Both are live now: the replay underneath, the ink on top.	Tur dos ta bibu awor: e replay bou, e tinta riba.
+We're on the air. Nobody touches the pen but me.	Nos ta den transmision. Niun hende no ta toca e pen sino ami.
+CIRCLE HIM	HACI UN SIRCULO ROND DI DJE
+Press DRAW in the inspector, then circle number 22 on the programme monitor. He is the yellow one.	Primi DIBUHA den inspector, despues haci un sirculo rond di number 22 riba monitor di programa. Ta esun geel.
+A pen's pressure makes the line thicker. A mouse presses at one strength.	Presion di pen ta haci e liña mas diki. Un mouse tin un solo fuerza.
+Circle him! The yellow one! There's only one yellow one. Circle that one.	Rond di dje! Esun geel! Tin un geel so. Rond di esey!
+Draw as much as you like. Then SAVE STILL keeps the drawing as a picture with a clear background, in the playlist.	Dibuha cuanto bo ke. Despues warda portret ta warda e dibuho como un portret cu fondo transparente den playlist.
+For next week's show. He will want that circle again.	Pa e show di otro siman. E lo ke e sirculo atrobe.
+Put that in the Hall of Fame. Next to the turducken.	Pone esey den sala di fama. Banda di e turducken.
+Halftime. Click the Deck 1 tab, then SOURCE, then Video Synth.	Pausa. Click riba e tab Deck 1, despues FUENTE, despues Synth di video.
+My favourite source: oscillators, mirrors and feedback. A halftime show with no camera at all.	Mi fuente favorito: oscillator, spiegel i feedback. Un show di pausa sin niun camera.
+Halftime! Somebody get me some lights. And a band. And a sandwich.	Pausa! Un hende trese luz pa mi. I un banda. I un sandwich.
+TAKE HALFTIME	TAKE PAUSA
+Select the synth and TAKE it. Then look at the monitor: your ink is still up.	Cohe e synth i primi TAKE. Mira e monitor: bo tinta ta ei ainda.
+Playlist 2 did not change, so its ink stays over whatever playlist 1 shows. Each playlist changes on its own.	Playlist 2 no a cambia, p'esei su tinta ta keda riba loke playlist 1 ta mustra. Cada playlist ta cambia pa su cuenta.
+Leave the circle up. It's a good circle. It goes with everything.	Laga e sirculo. Un bon sirculo. E ta pas cu tur cos.
+A test pattern, a replay, ink on a layer, a still, and halftime. That's the booth.	Patron di prueba, replay, tinta riba un layer, portret fiho i pausa. Esei ta e cabina.
+Replay in the Draw section draws your lines back the way you drew them. He will love that.	Replay den e seccion DIBUHA ta dibuha bo liñanan atrobe manera bo a haci. E lo gusta esey.
+Same time next week. Bring a bigger pen.	Mismo ora otro siman. Trese un pen mas grandi.
+Now THAT is a busy play. I can't see the field. I love it.	ESEY ta un jugada yen! Mi no ta mira e cancha. Mi ta stima e.
+Two projectors overlap, and each fades its edge so the overlap is not twice as bright. Watch the sides of the monitor go soft.	Dos projector ta tapa un parti di otro, i cada un ta sua su rand pa e luz no dobla. Mira e bandanan di monitor bira suave.
+A game show, skapi. Three contestants, one buzzer, and a host who is not here tonight. Press START.	Un show di pregunta, skapi. Tres participante, un buzzer, i un presentado cu no ta aki awe nochi. Primi CUMINSA.
+Cue numbers, hotkeys, and GO from other machines.	Number di cue, tecla rapido, i GO for di otro maquina.
+Forty years I turned the letters. Tonight they gave me the microphone. Nobody panic.	Cuarenta aña mi a bira letter. Awe nochi nan a duna mi e microfon. Ningun panico.
+Theatre numbers its cues: Q3, Q3.5, Q12A. Deckboy reads them all.	Teatro ta number su cue: Q3, Q3.5, Q12A. Deckboy ta lesa tur.
+Numbers! I know letters. Numbers are letters that went to college.	Number! Mi conoce letter. Number ta letter cu a bai universidad.
+GOTO crosses a long list faster than scrolling. Much faster.	GOTO ta cruza un lista largo mas lihe cu scroll. Hopi mas lihe.
+F1 to F10, F12, or the number pad. Each one is a buzzer.	F1 te F10, F12, of e teclado numerico. Cada un ta un buzzer.
+Every contestant gets a buzzer. I get the letters. It's fine. It's fine.	Cada participante ta haya un buzzer. Mi ta haya e letternan. Ta bon. Ta bon.
+No mouse, no list, no looking. Only the key.	Sin mouse, sin lista, sin wak. E tecla so.
+Buzz! A winner! I've never said that. I've only pointed at it.	Bzz! Un ganador! Nunca mi a bisa esey. Mi a mustra e so.
+And for our viewers at home: yes, you can push the buttons too.	I pa nos publico na cas: si, boso tambe por primi e botonnan.
+Numbers, GOTO, a buzzer, and GO from anywhere. You could host a game show now.	Number, GOTO, un buzzer i GO for di tur caminda. Awor bo por presenta un show di pregunta.
+Goodnight, everybody! Tomorrow I go back to the letters. I'll miss you.	Bon nochi, tur hende! Mañan mi ta bolbe na e letternan. Lo mi sinti falta di boso.
+And the number is... not three. I'll allow it. I turn anything.	I e number ta... no tres. Mi ta acepta. Mi ta bira tur cos.
+A second playlist is a layer over the map. The lizard stays underneath. For now.	Un di dos playlist ta un layer riba e mapa. E lagadishi ta keda bou. Pa awor.
+A Lower Third, a name, a title card, a backdrop. The lizard has left the studio.	Un Lower Third, un nomber, un carchi di titulo, un fondo. E lagadishi a sali for di studio.
+That's not my name. It's a lovely name. Now, about that lizard...	Esey no ta mi nomber. Un nomber bunita. Awor, tocante e lagadishi...
+The rocket (on the pad)	The rocket (on the pad)
+The rocket (lift-off)	The rocket (lift-off)
+A rocket built in a basement, skapi, an inventor who wants cheese, and a dog who does the real work. Press START.	Un raket traha den kelder, skapi, un inventor cu ke keshi, i un cacho cu ta haci e trabao di berdad. Primi CUMINSA.
+Stage timers: a countdown over a picture, a hold, and a view for the person on stage.	Timer di escenario: conta abou riba un portret, un pousa, i un vista pa e persona riba escenario.
+Playlist 2 is selected, over the rocket. SOURCE, then Stage Timer.	Playlist 2 ta selecta, riba e raket. FUENTE, despues Stage Timer.
+*checks his watch, then the rocket, then his watch*	*ta wak su oloshi, e raket, i su oloshi atrobe*
+COUNT IT DOWN	CONTA ABOU
+Select the timer and TAKE it. I have cleared its backdrop, so the rocket shows behind the numbers.	Cohe e timer i primi TAKE. Mi a kita su fondo pa e raket mustra atras di e numbernan.
+Past zero it keeps going and counts the overtime. Very honest. Slightly rude.	Pasa cero e ta sigui conta e tempo extra. Masha honesto. Un tiki bruto.
+Close MENU, click the Deck 1 tab, then select 'The rocket (lift-off)' and TAKE it.	Cera MENU, click riba e tab Deck 1, cohe 'The rocket (lift-off)' i primi TAKE.
+The clock is on playlist 2, so it stays up while the rocket changes underneath it.	E oloshi ta riba playlist 2, p'esei e ta keda mientras e raket ta cambia bou dje.
+We have lift-off, Grommet! ...Grommet? Who's flying it?	Nos a lanta, Grommet! ...Grommet? Ken ta stuur e?
+A countdown, a hold, a pilot's view and a launch. Bring crackers.	Conta abou, pousa, vista di piloto i lansamento. Trese cracker.
+*waves from the window*	*ta zwaai for di bentana*
+The rubber chicken	The rubber chicken
+A magic show, skapi. A trunk, a rubber chicken, and one beat where everything changes at once. Press START.	Un show di magia, skapi. Un caha, un galiña di rubber, i un golpi cu ta cambia tur cos huntu. Primi CUMINSA.
+Two playlists are two layers, and TAKE ALL changes both together. Tonight you will see why that matters.	Dos playlist ta dos layer, i TAKE ALL ta cambia tur dos huntu. Awe nochi bo ta mira dicon esey ta conta.
+The chicken goes on its own layer. Press the + at the end of the playlist tabs.	E galiña ta bai riba su mes layer. Primi + na final di e tabnan di playlist.
+The lit tab is the playlist that gets the next cue. Its chip now says 'to Out 1': it is layered over playlist 1 on that output.	E tab cu ta lombra ta e playlist cu ta haya e siguiente cue. Su chip ta bisa 'pa Out 1': e ta riba playlist 1 na e output ey.
+TRICK ONE	TRUCO UN
+Turnip Top has put the chicken in playlist 2. In playlist 1, TAKE 'The trunk (open)'. Then in playlist 2, TAKE the chicken.	Turnip Top a pone e galiña den playlist 2. Den playlist 1, TAKE 'The trunk (open)'. Despues den playlist 2, TAKE e galiña.
+The chicken is clear all round, so it covers only itself. Watch the monitor between the two TAKEs.	E galiña ta transparente rond di dje, p'esei e ta tapa su mes so. Mira e monitor entre e dos TAKE.
+Did you see it? For a moment the trunk was open and empty: two TAKEs are two moments. The trick is reset. Now select the open trunk in playlist 1 and the chicken in playlist 2, then TAKE ALL.	Bo a mira? Un momento e caha tabata habri i bashi: dos TAKE ta dos momento. E truco ta cla atrobe. Cohe e caha habri den playlist 1 i e galiña den playlist 2, despues TAKE ALL.
+TAKE ALL takes every playlist's selected cue on one beat. No gap, no empty trunk.	TAKE ALL ta lansa e cue selecta di cada playlist den un golpi. Sin espacio, sin caha bashi.
+The chicken was late. They saw an empty trunk. In magic we call that a trunk.	E galiña tabata laat. Nan a mira un caha bashi. Den magia nos ta yama esey un caha.
+TAKE ALL	TAKE ALL
+THE VANISH	E DESAPARICION
+Trick two. Drag playlist 2's opacity fader down to nothing. The chicken fades away.	Truco dos. Hala e fader di opacidad di playlist 2 abou te cero. E galiña ta desaparece suave.
+Every playlist has its own opacity. Down is a fade out, with no cue at all.	Cada playlist tin su mes opacidad. Abou ta un fade out, sin niun cue.
+Ta-daaa! ...Hold for applause. Hold. Now watch it go.	Ta-daaa! ...Warda pa aplauso. Warda. Awor mira e bai.
+Trick three. Bring it back: playlist 2's opacity all the way up.	Truco tres. Trese bek: opacidad di playlist 2 henter ariba.
+Where did it go? Back in the trunk. Everything goes back in the trunk.	Unda el a bai? Bek den e caha. Tur cos ta bolbe den e caha.
+THAT'S MAGIC	ESEY TA MAGIA
+An appearance done wrong, then right, a vanish and a return. Nazdrave.	Un aparicion robes, despues bon, un desaparicion i un regreso. Nazdrave.
+A playlist can also sit on any output. Two layers, a great many tricks.	Un playlist por sinta riba cualkier output tambe. Dos layer, hopi truco.
+It's back! Thank you! I'm here all week! The chicken is here forever.	El a bolbe! Danki! Mi ta aki henter siman! E galiña ta aki pa semper!
+A cooking show, skapi. Live. The kitchen is on fire. Press START.	Un show di cushina, skapi. Bibu. E cushina ta na candela. Primi CUMINSA.
+Ta-da! Still cookin'! ...Still burnin'.	Ta-da! Ainda ta cushina! ...Ainda ta kima.
+PANIC	PANIC
+Bork! De fire extinguisher is also on fire!	Bork! De extinguidor tambe ta na candela-flurdy!
+BLACK to hide, PANIC to stop, TAKE to come back. You will survive any kitchen.	preto pa sconde, PANIC pa stop, TAKE pa bolbe. Bo lo sobrebibi cualkier cushina.
+A fashion show, skapi. One designer, one runway, and a look she will want back. Press START.	Un show di moda, skapi. Un diseñador, un pasarela, i un look cu e lo ke bek. Primi CUMINSA.
+A preset stores a whole look and brings it back with one button.	Un preset ta warda un look completo i ta trese bek cu un boton.
+Darling. A look is not a look until you can get it back.	Dushi. Un look no ta un look te ora bo por trese bek.
+Buttons. Good. I design with buttons.	Boton. Bon. Mi ta diseña cu boton.
+Store it. Before somebody has ideas.	Warda e. Prome cu un hende haya idea.
+Close the DASH (Esc), then select Look two and TAKE it.	Cera DASH (Esc), cohe Look two i primi TAKE.
+A cape. On my runway. Someone will trip, darling. Someone always trips.	Un capa. Riba mi pasarela. Un hende lo struikel, dushi. Semper un hende ta struikel.
+Recall: the whole look comes back at once.	Recall: e look completo ta bolbe mesora.
+Thank you. We will never speak of the cape again.	Danki. Nunca mas nos ta papia di e capa.
+Simple. Timeless. Recallable. Now go, darling. I have a fitting.	Simpel. Sin edad. Por trese bek. Bai dushi. Mi tin un prueba di paña.
+Pushes, wipes, iris, dip to white, and more. I wrote half of them. On a Tuesday.	Push, wipe, iris, dip pa blanco i mas. Mi a scirbi mitar. Riba un diamars.
+Operators... roll the transition.	Operadornan... core e transicion.
+A style, a time, and two very dramatic entrances. Roll credits.	Un estilo, un tempo, i dos entrada masha dramatico. Core e creditonan.
+That is not an iris. ...It is better. I will allow it.	Esey no ta un iris. ...E ta miho. Mi ta acepta.
+An effect, a bend and the patch. The robots approve, I think. Their faces are helmets.	Un efecto, un bend i e patch. E robotnan ta aproba, mi ta kere. Nan cara ta helm.
+Waveform, vectorscope, false colour. The scopes settled it. The agents did not.	Waveform, vectorscope, color falsu. E scopenan a disidi. E agentenan no.
+The view from the capsule	E vista for di capsula
+Major Tomasina is in orbit, skapi, and her picture has to reach the ground. Press START.	Major Tomasina ta den orbita, skapi, i su portret mester yega tera. Primi CUMINSA.
+Pictures leave by cable or network: NDI, SDI from a DeckLink card, ST 2110 for broadcast plants.	Portret ta sali via cabel of red: NDI, SDI for di un carta DeckLink, ST 2110 pa centro di transmision.
+Ground control, this is Major Tomasina. Can you see my picture?	Control na tera, aki Major Tomasina. Boso ta mira mi portret?
+Every way down, on one page. Good. Space has very few cables.	Tur caminda pa abou riba un pagina. Bon. Spacio tin masha poco cabel.
+NDI	NDI
+Sending now. If nobody answers, I'll just float here.	Mi ta manda awor. Si ningun hende contesta, mi ta keda flota aki.
+Ground control, signing off. Tell my mother I waved.	Control na tera, mi ta cera. Bisa mi mama cu mi a zwaai.
+Ground control can see me! I can see my house from here.	Control na tera por mira mi! Mi por mira mi cas for di aki.
+MULTI ON	MULTI ON
+And one more window, showing the clock. Operators who watch a clock are never late.	I un bentana mas pa e oloshi. Operador cu ta wak oloshi nunca ta laat.
+The big window is window one, which is usually the programme.	E bentana grandi ta bentana un, normalmente e programa.
+Windows, the ... menu, NEXT, the clock, a layout, tally. Mystery solved.	Bentana, e menu ..., NEXT, e oloshi, un layout, tally. Misterio resolvi.
+FX CHOICE: choice must be A or B	FX CHOICE: e opcion mester ta A of B
+FX CHOICE: no effect at that index	FX CHOICE: no tin efecto na e indice ey
+whole picture	henter e portret

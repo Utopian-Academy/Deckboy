@@ -3094,3 +3094,174 @@ Stop masking this. The mask stays in the show's library, to put back from the me
 Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	Slet denne maske fra showet og fra hver cue, playliste og udgang, der bruger den. Fortryd henter den tilbage
 FX PARAM: slot must be A-F	FX PARAM: slot skal være A-F
 FX LFO: slot must be A-D, E for the amount, or F/G for the fifth and sixth sliders	FX LFO: slot skal være A-D, E for mængden eller F/G for den femte og sjette skyder
+playlist 2 is ready: you built one in the magic show	playliste 2 er klar: du lavede en i trylleshowet
+FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR	FX: brug LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR
+BLACK	sort
+COACH MARV	COACH MARV
+JUNE O'NEIL	JUNE O'NEIL
+TURNIP TOP	TURNIP TOP
+CHEF BORK	CHEF BORK
+DONNA WHEEL	DONNA WHEEL
+KEEPER ROOK	KEEPER ROOK
+AGENT BRANDT	AGENT BRANDT
+AGENT HOLLIS	AGENT HOLLIS
+MR. SALTY	MR. SALTY
+OPTIMUS PRIMETIME	OPTIMUS PRIMETIME
+DEFT FUNK	DEFT FUNK
+LT. HAILA	LT. HAILA
+ENSIGN JINKLEY	ENSIGN JINKLEY
+The tour bus, with Polly Carton	Turnébussen med Polly Carton
+A test pattern, drawing on a replay, a still, and the video synth at halftime.	Et testbillede, tegning på en genudsendelse, et stillbillede og videosynthen i pausen.
+A stage timer over a picture, held, a presenter view for the person on stage, and a launch.	En scenetimer over et billede, en pause, en visning til personen på scenen og en opsendelse.
+A second playlist as a layer, TAKE ALL so two things change on one beat, and a playlist's opacity.	En anden playliste som lag, TAKE ALL til to skift på ét slag og en playlistes opacitet.
+Presets	Forudindstillinger
+The fashion show, with Edda Mod	Modeshowet med Edda Mod
+Ground control, with Major Tomasina	Jordkontrollen med Major Tomasina
+0.1, 0.1, 0.1	0.1, 0.1, 0.1
+Opener (the bus at dawn)	Opener (the bus at dawn)
+Polly Carton's tour bus leaves at six, skapi, and this show goes with it. Press START.	Polly Cartons turnébus kører klokken seks, skapi, og dette show skal med. Tryk Start.
+A show that travels needs three things first: a check, a fix and a bundle.	Et show på tur skal først have tre ting: et tjek, en rettelse og en samlet pakke.
+Honey, I've played four thousand towns. Not one of them had my laptop.	Skat, jeg har sunget i fire tusind byer. Ingen af dem havde min bærbare.
+It lists what the show would trip over: missing files, empty cues, outputs it cannot reach.	Den viser showets snubletråde: manglende filer, tomme cues og udgange, det ikke kan nå.
+Every show has a problem. Find yours before the audience does.	Ethvert show har et problem. Find dit, før publikum gør det.
+The intro video is on the office computer. Select it and delete it, or RELINK it if you have the file.	Introvideoen ligger på kontorets computer. Vælg den og slet den, eller brug RELINK, hvis du har filen.
+Fix it here, with time and coffee. Not at the venue, with neither.	Ret det her, med tid og kaffe. På spillestedet mangler du begge dele.
+Leave it behind, sugar. I left a whole wig in Tulsa and the show went on.	Lad den ligge, søde. Jeg glemte en hel paryk i Tulsa, og showet fortsatte.
+Press BUNDLE and choose where: a USB stick, a shared folder. The show and all its media, in one folder.	Tryk SAMLE og vælg hvor: en USB-nøgle, en delt mappe. Showet og alle dets medier i én mappe.
+Pack it like a wig box. Everything inside, nothing loose.	Pak det som en parykæske. Alt indeni, intet løst.
+Checked, fixed, bundled. On the other computer, open the show in the bundle and everything is there.	Tjekket, rettet, samlet. Åbn showet i pakken på den anden computer, så er alt der.
+The show file is only text, so it travels light. The media is the luggage.	Showfilen er kun tekst, så den rejser let. Medierne er bagagen.
+Bus leaves at six. Show starts at eight. Hair takes until seven.	Bussen kører klokken seks. Showet starter klokken otte. Håret er færdigt klokken syv.
+There are dozens, and most of them run on the graphics card, so you can stack them.	Der er snesevis, og de fleste kører på grafikkortet, så du kan stable dem.
+An effect, a ~ and a colour. The critic is crying. Good crying, I think.	En effekt, en ~ og en farve. Kritikeren græder. Af glæde, tror jeg.
+Stack a few more. Order matters: each effect works on the picture the one above it made.	Læg et par stykker mere på. Rækkefølgen tæller: hver effekt arbejder på billedet fra den ovenover.
+Three effects! It's a mess! It's ALIVE! Post it.	Tre effekter! Sikke et rod! Det LEVER! Læg det op.
+The replay	The replay
+Coach Marv has two minutes of airtime, one replay and a pen, skapi. He will use all three. Press START.	Coach Marv har to minutters sendetid, en genudsendelse og en pen, skapi. Han bruger alle tre. Tryk Start.
+Tonight: a test pattern, drawing on the picture, and the video synth.	I aften: et testbillede, tegning på billedet og videosynthen.
+Folks, I've watched this play forty times. It's still a play.	Folkens, jeg har set det her angreb fyrre gange. Det er stadig et angreb.
+CHECK THE MONITORS	TJEK MONITORERNE
+PATTERN adds Pocket Test. If its circles are not round, a screen is stretched. Find out now, not on air.	TESTBILLEDE tilføjer Pocket Test. Er cirklerne ikke runde, er en skærm strakt. Opdag det nu, før du er på.
+Its bars and steps are checked against real meters, so a wrong screen looks wrong at once.	Søjlerne og trinene er tjekket med rigtige måleinstrumenter. En forkert skærm ser straks forkert ud.
+That's a test pattern. You test with it. That's why they call it that.	Det er et testbillede. Man tester med det. Derfor hedder det det.
+ROLL THE REPLAY	KØR GENUDSENDELSEN
+Select The replay and TAKE it.	Vælg The replay og tryk TAKE.
+A replay loops, so the pundit can talk over it for as long as he likes. He likes.	En genudsendelse kører i løkke, så eksperten kan tale hen over den, så længe han vil. Og det vil han.
+Here's number 22. Number 22 has the ball. That's important, because the ball is how you score.	Her er nummer 22. Nummer 22 har bolden. Det er vigtigt, for det er med bolden, man scorer.
+The pen goes over the replay, on its own layer. Press the + at the end of the playlist tabs.	Pennen ligger over genudsendelsen på sit eget lag. Tryk på + efter playlistens faner.
+A second playlist is a layer over the first.	En anden playliste er et lag over den første.
+Over it. Not under it. Under it, you can't see it. That's football.	Over. Ikke under. Under kan man ikke se det. Det er fodbold.
+The lit tab is where SOURCE puts things. Skip this and the ink lands under the replay.	KILDE lægger tingene på den oplyste fane. Springer du over her, lander blækket under genudsendelsen.
+See that tab? Click it. Fundamentals.	Ser du den fane? Klik på den. Grundspillet.
+In playlist 2: SOURCE, then Draw.	I playliste 2: KILDE, så Tegning.
+A Draw cue is clear wherever there is no ink, so the replay shows through.	Et Tegning-cue er gennemsigtigt, hvor der ikke er blæk. Der kan man se genudsendelsen igennem.
+Give me the pen. I've waited all season for the pen.	Giv mig pennen. Jeg har ventet hele sæsonen på den pen.
+Both are live now: the replay underneath, the ink on top.	Nu er begge på: genudsendelsen nederst, blækket øverst.
+We're on the air. Nobody touches the pen but me.	Vi sender. Ingen rører pennen undtagen mig.
+CIRCLE HIM	SLÅ EN CIRKEL OM HAM
+Press DRAW in the inspector, then circle number 22 on the programme monitor. He is the yellow one.	Tryk Tegning i inspektøren, og slå en cirkel om nummer 22 på programmonitoren. Han er den gule.
+A pen's pressure makes the line thicker. A mouse presses at one strength.	Pennens tryk gør stregen tykkere. En mus trykker altid lige hårdt.
+Circle him! The yellow one! There's only one yellow one. Circle that one.	En cirkel om ham! Den gule! Der er kun én gul. Den der.
+Draw as much as you like. Then SAVE STILL keeps the drawing as a picture with a clear background, in the playlist.	Tegn alt det, du vil. gem stillbillede gemmer bagefter tegningen som et billede med gennemsigtig baggrund i playlisten.
+For next week's show. He will want that circle again.	Til næste uges udsendelse. Han vil have den cirkel igen.
+Put that in the Hall of Fame. Next to the turducken.	Sæt den i æresgalleriet. Ved siden af kalkunen med and med kylling indeni.
+Halftime. Click the Deck 1 tab, then SOURCE, then Video Synth.	Pause. Klik på fanen Deck 1, så KILDE, så Videosynth.
+My favourite source: oscillators, mirrors and feedback. A halftime show with no camera at all.	Min yndlingskilde: oscillatorer, spejle og feedback. Et pauseshow helt uden kamera.
+Halftime! Somebody get me some lights. And a band. And a sandwich.	Pause! Skaf mig noget lys. Og et orkester. Og en sandwich.
+TAKE HALFTIME	SEND PAUSESHOWET
+Select the synth and TAKE it. Then look at the monitor: your ink is still up.	Vælg synthen og tryk TAKE. Se så på monitoren: dit blæk er der stadig.
+Playlist 2 did not change, so its ink stays over whatever playlist 1 shows. Each playlist changes on its own.	Playliste 2 skiftede ikke, så blækket bliver over alt, hvad playliste 1 viser. Hver playliste skifter for sig.
+Leave the circle up. It's a good circle. It goes with everything.	Lad cirklen stå. Det er en god cirkel. Den passer til alt.
+A test pattern, a replay, ink on a layer, a still, and halftime. That's the booth.	Testbillede, genudsendelse, blæk på et lag, stillbillede og pause. Det er kommentatorboksen.
+Replay in the Draw section draws your lines back the way you drew them. He will love that.	Replay i sektionen Tegning tegner dine streger igen, som du tegnede dem. Det vil han elske.
+Same time next week. Bring a bigger pen.	Samme tid i næste uge. Tag en større pen med.
+Now THAT is a busy play. I can't see the field. I love it.	DET er et travlt angreb. Jeg kan ikke se banen. Jeg elsker det.
+Two projectors overlap, and each fades its edge so the overlap is not twice as bright. Watch the sides of the monitor go soft.	To projektorer overlapper, og hver toner sin kant ned, så overlappet ikke lyser dobbelt så meget. Se monitorens sider blive bløde.
+A game show, skapi. Three contestants, one buzzer, and a host who is not here tonight. Press START.	Et gameshow, skapi. Tre deltagere, én buzzer og en vært, som ikke er her i aften. Tryk Start.
+Cue numbers, hotkeys, and GO from other machines.	Cue-numre, genvejstaster og GO fra andre maskiner.
+Forty years I turned the letters. Tonight they gave me the microphone. Nobody panic.	I fyrre år vendte jeg bogstaver. I aften fik jeg mikrofonen. Ingen panik.
+Theatre numbers its cues: Q3, Q3.5, Q12A. Deckboy reads them all.	Teatret nummererer sine cues: Q3, Q3.5, Q12A. Deckboy læser dem alle.
+Numbers! I know letters. Numbers are letters that went to college.	Tal! Jeg kender bogstaver. Tal er bogstaver med en universitetsgrad.
+GOTO crosses a long list faster than scrolling. Much faster.	GOTO kommer gennem en lang liste hurtigere end at rulle. Meget hurtigere.
+F1 to F10, F12, or the number pad. Each one is a buzzer.	F1 til F10, F12 eller det numeriske tastatur. Hver tast er en buzzer.
+Every contestant gets a buzzer. I get the letters. It's fine. It's fine.	Hver deltager får en buzzer. Jeg får bogstaverne. Det er fint. Det er fint.
+No mouse, no list, no looking. Only the key.	Ingen mus, ingen liste, intet kig. Kun tasten.
+Buzz! A winner! I've never said that. I've only pointed at it.	Ding! En vinder! Det har jeg aldrig sagt før. Jeg har kun peget på det.
+And for our viewers at home: yes, you can push the buttons too.	Og til seerne derhjemme: ja, I må også trykke på knapperne.
+Numbers, GOTO, a buzzer, and GO from anywhere. You could host a game show now.	Tal, GOTO, en buzzer og GO fra alle steder. Nu kunne du være vært på et gameshow.
+Goodnight, everybody! Tomorrow I go back to the letters. I'll miss you.	Godnat, allesammen! I morgen vender jeg tilbage til bogstaverne. Jeg vil savne jer.
+And the number is... not three. I'll allow it. I turn anything.	Og tallet er... ikke tre. Jeg godkender det. Jeg vender hvad som helst.
+A second playlist is a layer over the map. The lizard stays underneath. For now.	En anden playliste er et lag over kortet. Firbenet bliver nedenunder. Indtil videre.
+A Lower Third, a name, a title card, a backdrop. The lizard has left the studio.	Et navneskilt, et navn, et titelkort og en baggrund. Firbenet har forladt studiet.
+That's not my name. It's a lovely name. Now, about that lizard...	Det er ikke mit navn. Det er et dejligt navn. Nå, det firben...
+The rocket (on the pad)	The rocket (on the pad)
+The rocket (lift-off)	The rocket (lift-off)
+A rocket built in a basement, skapi, an inventor who wants cheese, and a dog who does the real work. Press START.	En raket bygget i en kælder, skapi, en opfinder, der vil have ost, og en hund, der gør det rigtige arbejde. Tryk Start.
+Stage timers: a countdown over a picture, a hold, and a view for the person on stage.	Scenetimere: nedtælling over et billede, pause og en visning til personen på scenen.
+Playlist 2 is selected, over the rocket. SOURCE, then Stage Timer.	Playliste 2 er valgt, over raketten. KILDE, så Stage Timer.
+*checks his watch, then the rocket, then his watch*	*ser på sit ur, så raketten, så sit ur*
+COUNT IT DOWN	TÆL NED
+Select the timer and TAKE it. I have cleared its backdrop, so the rocket shows behind the numbers.	Vælg timeren og tryk TAKE. Jeg har fjernet baggrunden, så raketten ses bag tallene.
+Past zero it keeps going and counts the overtime. Very honest. Slightly rude.	Efter nul fortsætter den og tæller overtiden. Meget ærligt. Lidt flabet.
+Close MENU, click the Deck 1 tab, then select 'The rocket (lift-off)' and TAKE it.	Luk MENU, klik på fanen Deck 1, vælg 'The rocket (lift-off)' og tryk TAKE.
+The clock is on playlist 2, so it stays up while the rocket changes underneath it.	Uret er på playliste 2, så det bliver stående, mens raketten skifter nedenunder.
+We have lift-off, Grommet! ...Grommet? Who's flying it?	Vi er lettet, Grommet! ...Grommet? Hvem flyver den?
+A countdown, a hold, a pilot's view and a launch. Bring crackers.	En nedtælling, en pause, en pilotvisning og en opsendelse. Tag kiks med.
+*waves from the window*	*vinker fra vinduet*
+The rubber chicken	The rubber chicken
+A magic show, skapi. A trunk, a rubber chicken, and one beat where everything changes at once. Press START.	Et trylleshow, skapi. En kuffert, en gummikylling og ét slag, hvor alt skifter samtidig. Tryk Start.
+Two playlists are two layers, and TAKE ALL changes both together. Tonight you will see why that matters.	To playlister er to lag, og TAKE ALL skifter begge sammen. I aften ser du, hvorfor det betyder noget.
+The chicken goes on its own layer. Press the + at the end of the playlist tabs.	Kyllingen får sit eget lag. Tryk på + efter playlistens faner.
+The lit tab is the playlist that gets the next cue. Its chip now says 'to Out 1': it is layered over playlist 1 on that output.	Den oplyste fane får næste cue. Dens mærke siger nu 'til udg. 1': den ligger over playliste 1 på den udgang.
+TRICK ONE	FØRSTE TRICK
+Turnip Top has put the chicken in playlist 2. In playlist 1, TAKE 'The trunk (open)'. Then in playlist 2, TAKE the chicken.	Turnip Top har lagt kyllingen i playliste 2. Send 'The trunk (open)' med TAKE i playliste 1. Send så kyllingen med TAKE i playliste 2.
+The chicken is clear all round, so it covers only itself. Watch the monitor between the two TAKEs.	Rundt om kyllingen er alt gennemsigtigt, så den dækker kun sin egen form. Se på monitoren mellem de to TAKE.
+Did you see it? For a moment the trunk was open and empty: two TAKEs are two moments. The trick is reset. Now select the open trunk in playlist 1 and the chicken in playlist 2, then TAKE ALL.	Så du det? Et øjeblik var kufferten åben og tom: to TAKE er to øjeblikke. Tricket er nulstillet. Vælg den åbne kuffert i playliste 1 og kyllingen i playliste 2, så TAKE ALL.
+TAKE ALL takes every playlist's selected cue on one beat. No gap, no empty trunk.	TAKE ALL sender hver playlistes valgte cue på ét slag. Intet mellemrum, ingen tom kuffert.
+The chicken was late. They saw an empty trunk. In magic we call that a trunk.	Kyllingen kom for sent. De så en tom kuffert. I tryllefaget kalder vi det en kuffert.
+TAKE ALL	TAKE ALL
+THE VANISH	FORSVINDINGEN
+Trick two. Drag playlist 2's opacity fader down to nothing. The chicken fades away.	Andet trick. Træk opacitetsfaderen for playliste 2 helt ned. Kyllingen toner væk.
+Every playlist has its own opacity. Down is a fade out, with no cue at all.	Hver playliste har sin egen opacitet. Ned er en udtoning, helt uden cue.
+Ta-daaa! ...Hold for applause. Hold. Now watch it go.	Ta-daaa! ...Vent på bifald. Vent. Se den nu forsvinde.
+Trick three. Bring it back: playlist 2's opacity all the way up.	Tredje trick. Få den tilbage: opaciteten for playliste 2 helt op.
+Where did it go? Back in the trunk. Everything goes back in the trunk.	Hvor blev den af? Tilbage i kufferten. Alt skal tilbage i kufferten.
+THAT'S MAGIC	DET ER MAGI
+An appearance done wrong, then right, a vanish and a return. Nazdrave.	En forkert fremkomst, så en rigtig, en forsvinding og en tilbagekomst. Nazdrave.
+A playlist can also sit on any output. Two layers, a great many tricks.	En playliste kan også ligge på enhver udgang. To lag, en masse tricks.
+It's back! Thank you! I'm here all week! The chicken is here forever.	Den er tilbage! Tak! Jeg er her hele ugen! Kyllingen er her for evigt.
+A cooking show, skapi. Live. The kitchen is on fire. Press START.	Et madlavningsprogram, skapi. Live. Køkkenet brænder. Tryk Start.
+Ta-da! Still cookin'! ...Still burnin'.	Ta-da! Vi laver stadig mad! ...Det brænder stadig.
+PANIC	PANIC
+Bork! De fire extinguisher is also on fire!	Bork! Brandslukkören brænder også, flördi flördi!
+BLACK to hide, PANIC to stop, TAKE to come back. You will survive any kitchen.	sort for at skjule, PANIC for at stoppe, TAKE for at vende tilbage. Så overlever du ethvert køkken.
+A fashion show, skapi. One designer, one runway, and a look she will want back. Press START.	Et modeshow, skapi. Én designer, én catwalk og et look, hun vil have tilbage. Tryk Start.
+A preset stores a whole look and brings it back with one button.	En forudindstilling gemmer et helt look og henter det tilbage med én knap.
+Darling. A look is not a look until you can get it back.	Skat. Et look er ikke et look, før du kan få det tilbage.
+Buttons. Good. I design with buttons.	Knapper. Godt. Jeg designer med knapper.
+Store it. Before somebody has ideas.	Gem det. Før nogen får idéer.
+Close the DASH (Esc), then select Look two and TAKE it.	Luk DASH (Esc), vælg Look two og tryk TAKE.
+A cape. On my runway. Someone will trip, darling. Someone always trips.	En kappe. På min catwalk. Nogen snubler, skat. Der er altid nogen, der snubler.
+Recall: the whole look comes back at once.	Hent igen: hele looket kommer tilbage på én gang.
+Thank you. We will never speak of the cape again.	Tak. Vi taler aldrig om kappen igen.
+Simple. Timeless. Recallable. Now go, darling. I have a fitting.	Enkelt. Tidløst. Til at hente igen. Gå nu, skat. Jeg har en prøvning.
+Pushes, wipes, iris, dip to white, and more. I wrote half of them. On a Tuesday.	Skub, wipes, iris, via hvid og mere. Jeg skrev halvdelen. På en tirsdag.
+Operators... roll the transition.	Operatører... kør overgangen.
+A style, a time, and two very dramatic entrances. Roll credits.	En stil, en tid og to meget dramatiske entréer. Kør rulleteksterne.
+That is not an iris. ...It is better. I will allow it.	Det er ikke en iris. ...Det er bedre. Jeg tillader det.
+An effect, a bend and the patch. The robots approve, I think. Their faces are helmets.	En effekt, en forvrængning og patchen. Robotterne godkender det, tror jeg. Deres ansigter er hjelme.
+Waveform, vectorscope, false colour. The scopes settled it. The agents did not.	Bølgeform, vektorskop, falske farver. Målerne afgjorde det. Agenterne gjorde ikke.
+The view from the capsule	Udsigten fra kapslen
+Major Tomasina is in orbit, skapi, and her picture has to reach the ground. Press START.	Major Tomasina er i kredsløb, skapi, og hendes billede skal ned på jorden. Tryk Start.
+Pictures leave by cable or network: NDI, SDI from a DeckLink card, ST 2110 for broadcast plants.	Billeder sendes via kabel eller netværk: NDI, SDI fra et DeckLink-kort, ST 2110 til tv-anlæg.
+Ground control, this is Major Tomasina. Can you see my picture?	Jordkontrol, her er Major Tomasina. Kan I se mit billede?
+Every way down, on one page. Good. Space has very few cables.	Alle veje ned på én side. Godt. Rummet har meget få kabler.
+NDI	NDI
+Sending now. If nobody answers, I'll just float here.	Jeg sender nu. Hvis ingen svarer, svæver jeg bare her.
+Ground control, signing off. Tell my mother I waved.	Jordkontrol, jeg slutter. Sig til min mor, at jeg vinkede.
+Ground control can see me! I can see my house from here.	Jordkontrollen kan se mig! Jeg kan se mit hus herfra.
+MULTI ON	MULTI TIL
+And one more window, showing the clock. Operators who watch a clock are never late.	Og endnu et vindue med uret. Operatører, der holder øje med tiden, kommer aldrig for sent.
+The big window is window one, which is usually the programme.	Det store vindue er vindue ét, som normalt er programmet.
+Windows, the ... menu, NEXT, the clock, a layout, tally. Mystery solved.	Vinduer, menuen ..., NEXT, uret, et layout, tally. Mysteriet er løst.
+DECKBOY  POCKET	DECKBOY  POCKET

@@ -3106,3 +3106,172 @@ Stop masking this. The mask stays in the show's library, to put back from the me
 Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	Sguab às am masg seo on taisbeanadh, agus o gach cue, liosta is às-chur a tha ga chleachdadh. Bheir neo-dhèanamh air ais e
 FX PARAM: slot must be A-F	FX PARAM: feumaidh an slot a bhith A-F
 FX LFO: slot must be A-D, E for the amount, or F/G for the fifth and sixth sliders	FX LFO: feumaidh an slot a bhith A-D, E airson an uiread, no F/G airson a' chòigeamh agus an t-siathamh sleamhnag
+playlist 2 is ready: you built one in the magic show	tha liosta-cluiche 2 deiseil: rinn thu fear san taisbeanadh draoidheachd
+FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR	FX: cleachd LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR
+BLACK	dubh
+COACH MARV	COACH MARV
+JUNE O'NEIL	JUNE O'NEIL
+TURNIP TOP	TURNIP TOP
+CHEF BORK	CHEF BORK
+DONNA WHEEL	DONNA WHEEL
+KEEPER ROOK	KEEPER ROOK
+AGENT BRANDT	AGENT BRANDT
+AGENT HOLLIS	AGENT HOLLIS
+MR. SALTY	MR. SALTY
+OPTIMUS PRIMETIME	OPTIMUS PRIMETIME
+DEFT FUNK	DEFT FUNK
+LT. HAILA	LT. HAILA
+ENSIGN JINKLEY	ENSIGN JINKLEY
+The tour bus, with Polly Carton	Am bus-cuairte, còmhla ri Polly Carton
+A test pattern, drawing on a replay, a still, and the video synth at halftime.	Pàtran-deuchainn, tarraing air ath-chluich, dealbh sàbhailte, agus an synth bhidio aig leth-ùine.
+A stage timer over a picture, held, a presenter view for the person on stage, and a launch.	Uaireadair àrd-ùrlair air dealbh, stad, sealladh dhan neach air an àrd-ùrlar, agus cur air bhog.
+A second playlist as a layer, TAKE ALL so two things change on one beat, and a playlist's opacity.	Dàrna liosta-cluiche mar fhilleadh, TAKE ALL gus an dà rud atharrachadh còmhla, agus neo-thrìd-shoilleireachd na liosta.
+The fashion show, with Edda Mod	An taisbeanadh fasan, còmhla ri Edda Mod
+Ground control, with Major Tomasina	Smachd air an talamh, còmhla ri Major Tomasina
+0.1, 0.1, 0.1	0.1, 0.1, 0.1
+Opener (the bus at dawn)	Fosgladh (am bus aig briseadh an latha)
+Polly Carton's tour bus leaves at six, skapi, and this show goes with it. Press START.	Falbhaidh bus-cuairte Polly Carton aig sia, skapi, agus falbhaidh an taisbeanadh seo leis. Brùth TÒISICH.
+A show that travels needs three things first: a check, a fix and a bundle.	Feumaidh taisbeanadh air an rathad trì rudan an toiseach: sgrùdadh, càradh agus pasgan.
+Honey, I've played four thousand towns. Not one of them had my laptop.	A ghràidh, chluich mi ann an ceithir mìle baile. Cha robh an laptop agam ann an gin dhiubh.
+It lists what the show would trip over: missing files, empty cues, outputs it cannot reach.	Seo na rudan a chuireadh an taisbeanadh air a bheul: faidhlichean a dhìth, cue falamh, agus às-chuir nach gabh ruigsinn.
+Every show has a problem. Find yours before the audience does.	Tha duilgheadas aig gach taisbeanadh. Lorg do chuid fhèin mus lorg an luchd-amhairc e.
+The intro video is on the office computer. Select it and delete it, or RELINK it if you have the file.	Tha a' bhidio tòiseachaidh air coimpiutair na h-oifise. Tagh i agus sguab às i, no cleachd RELINK ma tha am faidhle agad.
+Fix it here, with time and coffee. Not at the venue, with neither.	Càraich an seo e, le ùine agus cofaidh. Aig an ionad cha bhi gin dhiubh agad.
+Leave it behind, sugar. I left a whole wig in Tulsa and the show went on.	Fàg às do dhèidh e, a shiùcair. Dh'fhàg mise gruag-shìnte slàn ann an Tulsa agus lean an taisbeanadh air.
+Press BUNDLE and choose where: a USB stick, a shared folder. The show and all its media, in one folder.	Brùth PASGAN COMHLA agus tagh àite: maide USB no pasgan co-roinnte. An taisbeanadh agus a mheadhanan uile ann an aon phasgan.
+Pack it like a wig box. Everything inside, nothing loose.	Pacaich e mar bhogsa gruag-shìnte. A h-uile rud a-staigh, gun dad sgaoilte.
+Checked, fixed, bundled. On the other computer, open the show in the bundle and everything is there.	Air a sgrùdadh, air a chàradh, air a phacadh. Air a' choimpiutair eile, fosgail an taisbeanadh sa phasgan. Tha a h-uile rud ann.
+The show file is only text, so it travels light. The media is the luggage.	Chan eil ann am faidhle an taisbeanaidh ach teacsa. Siubhailidh e aotrom. 'S iad na meadhanan na màileidean.
+Bus leaves at six. Show starts at eight. Hair takes until seven.	Falbhaidh am bus aig sia. Tòisichidh an taisbeanadh aig ochd. Bheir am falt gu seachd.
+There are dozens, and most of them run on the graphics card, so you can stack them.	Tha dusanan ann. Ruithidh a' mhòr-chuid air a' chairt ghrafaigs, agus mar sin faodaidh tu an càrnadh.
+An effect, a ~ and a colour. The critic is crying. Good crying, I think.	Buaidh, ~ agus dath. Tha am breitheamh a' caoineadh. Le toileachas, tha mi an dùil.
+Stack a few more. Order matters: each effect works on the picture the one above it made.	Cuir beagan eile air a' chàrn. Tha an t-òrdugh cudromach: obraichidh gach buaidh air an dealbh a rinn an tè os a cionn.
+Three effects! It's a mess! It's ALIVE! Post it.	Trì buaidhean! Abair bùrach! Tha e BEÒ! Cuir air an lìon e.
+The replay	The replay
+Coach Marv has two minutes of airtime, one replay and a pen, skapi. He will use all three. Press START.	Tha dà mhionaid air an èadhar, aon ath-chluich agus peann aig Coach Marv, skapi. Cleachdaidh e na trì. Brùth TÒISICH.
+Tonight: a test pattern, drawing on the picture, and the video synth.	A-nochd: pàtran-deuchainn, tarraing air an dealbh, agus an synth bhidio.
+Folks, I've watched this play forty times. It's still a play.	A chàirdean, choimhead mi air a' ghluasad seo dà fhichead turas. 'S e gluasad a th' ann fhathast.
+CHECK THE MONITORS	THOIR SÙIL AIR NA MONITORS
+PATTERN adds Pocket Test. If its circles are not round, a screen is stretched. Find out now, not on air.	Cuiridh PÀTRAN Pocket Test ris. Mura h-eil na cearcaill cruinn, tha sgrìn a' sìneadh an deilbh. Faigh a-mach a-nis, mus tèid thu air an èadhar.
+Its bars and steps are checked against real meters, so a wrong screen looks wrong at once.	Chaidh na bàraichean agus na ceumannan aige a dhearbhadh le fìor mheatairean. Chì thu sa bhad ma tha sgrìn ceàrr.
+That's a test pattern. You test with it. That's why they call it that.	'S e pàtran-deuchainn a tha sin. Nì thu deuchainn leis. Sin as adhbhar dhan ainm.
+ROLL THE REPLAY	CUIR AN ATH-CHLUICH AIR
+Select The replay and TAKE it.	Tagh The replay agus brùth TAKE.
+A replay loops, so the pundit can talk over it for as long as he likes. He likes.	Ruithidh an ath-chluich ann an lùb. Faodaidh an t-eòlaiche bruidhinn cho fada 's a thogras e. Agus tha sin a' còrdadh ris.
+Here's number 22. Number 22 has the ball. That's important, because the ball is how you score.	Seo àireamh 22. Tha am ball aig àireamh 22. Tha sin cudromach: 's ann leis a' bhall a gheibh thu tadhal.
+The pen goes over the replay, on its own layer. Press the + at the end of the playlist tabs.	Thèid am peann os cionn na h-ath-chluiche, air a fhilleadh fhèin. Brùth + aig deireadh thabaichean nan liostaichean-cluiche.
+A second playlist is a layer over the first.	'S e filleadh os cionn na ciad tè a th' ann an dàrna liosta-cluiche.
+Over it. Not under it. Under it, you can't see it. That's football.	Os a cionn. Chan ann fodha. Fodha, chan fhaic thu e. Sin ball-coise.
+The lit tab is where SOURCE puts things. Skip this and the ink lands under the replay.	Cuiridh TÙS rudan san taba shoilleir. Leum thairis air seo agus thèid an inc fon ath-chluich.
+See that tab? Click it. Fundamentals.	Am faic thu an taba? Briog air. Na bunaitean.
+In playlist 2: SOURCE, then Draw.	Ann an liosta-cluiche 2: TÙS, an uair sin Draw.
+A Draw cue is clear wherever there is no ink, so the replay shows through.	Tha cue Draw trìd-shoilleir far nach eil inc, agus mar sin chì thu an ath-chluich troimhe.
+Give me the pen. I've waited all season for the pen.	Thoir dhomh am peann. Bha mi a' feitheamh ris a' pheann fad an t-seusain.
+Both are live now: the replay underneath, the ink on top.	Tha an dà rud air an èadhar a-nis: an ath-chluich fodha, an inc os a cionn.
+We're on the air. Nobody touches the pen but me.	Tha sinn air an èadhar. Cha bhean duine ris a' pheann ach mise.
+CIRCLE HIM	CUIR CEARCALL MU THIMCHEALL AIR
+Press DRAW in the inspector, then circle number 22 on the programme monitor. He is the yellow one.	Brùth TARRAING san neach-sgrùdaidh, agus cuir cearcall mu àireamh 22 air monitor a' phrògraim. 'S esan am fear buidhe.
+A pen's pressure makes the line thicker. A mouse presses at one strength.	Nì brùthadh nas cruaidhe air a' pheann loidhne nas tighe. Cha bhrùth luchag ach le aon neart.
+Circle him! The yellow one! There's only one yellow one. Circle that one.	Cearcall mu thimcheall air! Am fear buidhe! Chan eil ach aon fhear buidhe ann. Am fear sin.
+Draw as much as you like. Then SAVE STILL keeps the drawing as a picture with a clear background, in the playlist.	Tarraing na thogras tu. An uair sin cumaidh sàbhail dealbh an dealbh san liosta-cluiche, le cùl-raon trìd-shoilleir.
+For next week's show. He will want that circle again.	Airson taisbeanadh na h-ath sheachdain. Bidh e ag iarraidh a' chearcaill sin a-rithist.
+Put that in the Hall of Fame. Next to the turducken.	Cuir sin ann an Talla nan Gaisgeach. Ri taobh na ceapaire trì-feòla.
+Halftime. Click the Deck 1 tab, then SOURCE, then Video Synth.	Leth-ùine. Briog air taba Deck 1, an uair sin TÙS, an uair sin Synth bhidio.
+My favourite source: oscillators, mirrors and feedback. A halftime show with no camera at all.	An tùs as fheàrr leam: oscillators, sgàthanan agus fios-air-ais. Taisbeanadh leth-ùine gun aon chamara.
+Halftime! Somebody get me some lights. And a band. And a sandwich.	Leth-ùine! Thoiribh solais dhomh. Agus còmhlan. Agus ceapaire.
+TAKE HALFTIME	TAKE AIG LETH-ÙINE
+Select the synth and TAKE it. Then look at the monitor: your ink is still up.	Tagh an synth agus brùth TAKE. An uair sin coimhead air a' monitor: tha an inc fhathast ann.
+Playlist 2 did not change, so its ink stays over whatever playlist 1 shows. Each playlist changes on its own.	Cha do dh'atharraich liosta-cluiche 2. Fanaidh an inc aice os cionn rud sam bith a sheallas liosta-cluiche 1. Atharraichidh gach liosta leatha fhèin.
+Leave the circle up. It's a good circle. It goes with everything.	Fàg an cearcall ann. Cearcall math. Thèid e leis a h-uile rud.
+A test pattern, a replay, ink on a layer, a still, and halftime. That's the booth.	Pàtran-deuchainn, ath-chluich, inc air filleadh, dealbh agus leth-ùine. Sin am bogsa-aithris.
+Replay in the Draw section draws your lines back the way you drew them. He will love that.	Tarraingidh Replay san earrann Draw na loidhnichean agad a-rithist mar a rinn thu iad. Còrdaidh sin ris.
+Same time next week. Bring a bigger pen.	An aon àm an-ath-sheachdain. Thoir peann nas motha leat.
+Now THAT is a busy play. I can't see the field. I love it.	SEO gluasad trang. Chan fhaic mi an raon. Tha gaol agam air.
+Two projectors overlap, and each fades its edge so the overlap is not twice as bright. Watch the sides of the monitor go soft.	Tha dà phroiseactair a' dol thairis air a chèile. Lùghdaichidh gach fear a oir fhèin gus nach bi an t-àite còmhla dà uair cho soilleir. Coimhead air taobhan a' monitor a' fàs bog.
+A game show, skapi. Three contestants, one buzzer, and a host who is not here tonight. Press START.	Taisbeanadh-ceiste, skapi. Trì farpaisich, aon chlag, agus fear-an-taighe nach eil an seo a-nochd. Brùth TÒISICH.
+Cue numbers, hotkeys, and GO from other machines.	Àireamhan cue, iuchraichean-luatha, agus GO bho innealan eile.
+Forty years I turned the letters. Tonight they gave me the microphone. Nobody panic.	Dà fhichead bliadhna a' tionndadh nan litrichean. A-nochd thug iad am micreofon dhomh. Na gabhaibh clisgeadh.
+Theatre numbers its cues: Q3, Q3.5, Q12A. Deckboy reads them all.	Tha àireamhan air cue san taigh-cluiche: Q3, Q3.5, Q12A. Leughaidh Deckboy iad uile.
+Numbers! I know letters. Numbers are letters that went to college.	Àireamhan! 'S aithne dhomh litrichean. 'S e litrichean le ceum oilthighe a th' ann an àireamhan.
+GOTO crosses a long list faster than scrolling. Much faster.	Thèid GOTO tro liosta fhada nas luaithe na sgroladh. Fada nas luaithe.
+F1 to F10, F12, or the number pad. Each one is a buzzer.	F1 gu F10, F12, no am meur-chlàr àireamhach. 'S e clag a th' anns gach iuchair.
+Every contestant gets a buzzer. I get the letters. It's fine. It's fine.	Gheibh gach farpaiseach clag. Gheibh mise na litrichean. Tha sin ceart gu leòr. Ceart gu leòr.
+No mouse, no list, no looking. Only the key.	Gun luchag, gun liosta, gun sùil. Dìreach an iuchair.
+Buzz! A winner! I've never said that. I've only pointed at it.	Ding! Buannaiche! Cha tuirt mi sin riamh. Cha do rinn mi ach comharrachadh air.
+And for our viewers at home: yes, you can push the buttons too.	Agus dhan luchd-amhairc aig an taigh: seadh, faodaidh sibhse na putanan a bhrùthadh cuideachd.
+Numbers, GOTO, a buzzer, and GO from anywhere. You could host a game show now.	Àireamhan, GOTO, clag agus GO à àite sam bith. Dh'fhaodadh tu taisbeanadh-ceiste a stiùireadh a-nis.
+Goodnight, everybody! Tomorrow I go back to the letters. I'll miss you.	Oidhche mhath dhuibh uile! Tillidh mi dha na litrichean a-màireach. Bidh mi gad ionndrainn.
+And the number is... not three. I'll allow it. I turn anything.	Agus 's e an àireamh... chan e trì. Gabhaidh mi ris. Tionndaidhidh mi rud sam bith.
+A second playlist is a layer over the map. The lizard stays underneath. For now.	'S e filleadh os cionn a' mhapa a th' ann an dàrna liosta-cluiche. Fanaidh an dearc-luachrach fodha. An-dràsta co-dhiù.
+A Lower Third, a name, a title card, a backdrop. The lizard has left the studio.	Lower Third, ainm, cairt-tiotal agus cùl-raon. Tha an dearc-luachrach air an stiùidio fhàgail.
+That's not my name. It's a lovely name. Now, about that lizard...	Chan e sin m' ainm. Ainm àlainn. Nise, mun dearc-luachrach sin...
+The rocket (on the pad)	The rocket (on the pad)
+The rocket (lift-off)	The rocket (lift-off)
+A rocket built in a basement, skapi, an inventor who wants cheese, and a dog who does the real work. Press START.	Rocaid a chaidh a thogail ann an seilear, skapi, innleadair ag iarraidh càise, agus cù a nì an obair. Brùth TÒISICH.
+Stage timers: a countdown over a picture, a hold, and a view for the person on stage.	Uaireadairean àrd-ùrlair: cunntadh sìos air dealbh, stad agus sealladh dhan neach air an àrd-ùrlar.
+Playlist 2 is selected, over the rocket. SOURCE, then Stage Timer.	Tha liosta-cluiche 2 taghte, os cionn na rocaid. TÙS, an uair sin Stage Timer.
+*checks his watch, then the rocket, then his watch*	*coimheadaidh e air an uaireadair, air an rocaid, agus air an uaireadair a-rithist*
+COUNT IT DOWN	CUNNT SÌOS
+Select the timer and TAKE it. I have cleared its backdrop, so the rocket shows behind the numbers.	Tagh an t-uaireadair agus brùth TAKE. Thug mi an cùl-raon aige air falbh, agus chì thu an rocaid air cùl nan àireamhan.
+Past zero it keeps going and counts the overtime. Very honest. Slightly rude.	An dèidh neoni cumaidh e air agus cunntaidh e an ùine a bharrachd. Glè onarach. Beagan mì-mhodhail.
+Close MENU, click the Deck 1 tab, then select 'The rocket (lift-off)' and TAKE it.	Dùin CLÀR, briog air taba Deck 1, tagh 'The rocket (lift-off)' agus brùth TAKE.
+The clock is on playlist 2, so it stays up while the rocket changes underneath it.	Tha an t-uaireadair air liosta-cluiche 2. Fanaidh e suas fhad 's a dh'atharraicheas an rocaid fodha.
+We have lift-off, Grommet! ...Grommet? Who's flying it?	Tha sinn air falbh, Grommet! ...Grommet? Cò tha ga stiùireadh?
+A countdown, a hold, a pilot's view and a launch. Bring crackers.	Cunntadh sìos, stad, sealladh a' phìleit agus cur air bhog. Thoir briosgaidean leat.
+*waves from the window*	*smèididh e bhon uinneig*
+The rubber chicken	The rubber chicken
+A magic show, skapi. A trunk, a rubber chicken, and one beat where everything changes at once. Press START.	Taisbeanadh draoidheachd, skapi. Ciste, cearc rubair agus aon bhuille far an atharraich a h-uile rud còmhla. Brùth TÒISICH.
+Two playlists are two layers, and TAKE ALL changes both together. Tonight you will see why that matters.	'S e dà fhilleadh a th' ann an dà liosta-cluiche. Atharraichidh TAKE ALL an dà chuid còmhla. Chì thu a-nochd carson a tha sin cudromach.
+The chicken goes on its own layer. Press the + at the end of the playlist tabs.	Thèid a' chearc air a filleadh fhèin. Brùth + aig deireadh thabaichean nan liostaichean-cluiche.
+The lit tab is the playlist that gets the next cue. Its chip now says 'to Out 1': it is layered over playlist 1 on that output.	'S i an taba shoilleir an liosta-cluiche a gheibh an ath cue. Tha 'gu A-mach 1' air a' chomharra a-nis: tha i os cionn liosta-cluiche 1 air an às-chur sin.
+TRICK ONE	A' CHIAD CHLEAS
+Turnip Top has put the chicken in playlist 2. In playlist 1, TAKE 'The trunk (open)'. Then in playlist 2, TAKE the chicken.	Chuir Turnip Top a' chearc ann an liosta-cluiche 2. Ann an liosta-cluiche 1, cuir 'The trunk (open)' air le TAKE. An uair sin ann an liosta-cluiche 2, cuir a' chearc air le TAKE.
+The chicken is clear all round, so it covers only itself. Watch the monitor between the two TAKEs.	Tha a h-uile rud timcheall na circe trìd-shoilleir. Cha chòmhdaich i ach a h-àite fhèin. Coimhead air a' monitor eadar an dà TAKE.
+Did you see it? For a moment the trunk was open and empty: two TAKEs are two moments. The trick is reset. Now select the open trunk in playlist 1 and the chicken in playlist 2, then TAKE ALL.	Am faca tu? Bha a' chiste fosgailte agus falamh car tiota: dà TAKE, dà mhionaid eadar-dhealaichte. Tha an cleas air ais aig an toiseach. Tagh a' chiste fhosgailte ann an liosta-cluiche 1 agus a' chearc ann an liosta-cluiche 2, agus brùth TAKE ALL.
+TAKE ALL takes every playlist's selected cue on one beat. No gap, no empty trunk.	Cuiridh TAKE ALL an cue taghte aig gach liosta-cluiche air aig an aon bhuille. Gun bheàrn, gun chiste fhalamh.
+The chicken was late. They saw an empty trunk. In magic we call that a trunk.	Bha a' chearc fadalach. Chunnaic iad ciste fhalamh. Ann an draoidheachd canaidh sinn ciste ri sin.
+TAKE ALL	TAKE ALL
+THE VANISH	AN DOL À SEALLADH
+Trick two. Drag playlist 2's opacity fader down to nothing. The chicken fades away.	An dàrna cleas. Slaod fader neo-thrìd-shoilleireachd liosta-cluiche 2 sìos gu neoni. Thèid a' chearc à sealladh.
+Every playlist has its own opacity. Down is a fade out, with no cue at all.	Tha a neo-thrìd-shoilleireachd fhèin aig gach liosta-cluiche. Sìos, agus seargaidh an dealbh às gun cue sam bith.
+Ta-daaa! ...Hold for applause. Hold. Now watch it go.	Ta-daaa! ...Fuirich ris a' bhualadh-bhas. Fuirich. Nise coimhead oirre a' falbh.
+Trick three. Bring it back: playlist 2's opacity all the way up.	An treas cleas. Thoir air ais i: neo-thrìd-shoilleireachd liosta-cluiche 2 fad na slighe suas.
+Where did it go? Back in the trunk. Everything goes back in the trunk.	Càit an deach i? Air ais dhan chiste. Thèid a h-uile rud air ais dhan chiste.
+THAT'S MAGIC	SIN DRAOIDHEACHD
+An appearance done wrong, then right, a vanish and a return. Nazdrave.	Nochdadh ceàrr, an uair sin ceart, dol à sealladh agus tilleadh. Nazdrave.
+A playlist can also sit on any output. Two layers, a great many tricks.	Faodaidh liosta-cluiche a bhith air às-chur sam bith cuideachd. Dà fhilleadh, iomadh cleas.
+It's back! Thank you! I'm here all week! The chicken is here forever.	Tha i air ais! Tapadh leibh! Tha mise an seo fad na seachdain! Tha a' chearc an seo gu bràth.
+A cooking show, skapi. Live. The kitchen is on fire. Press START.	Taisbeanadh còcaireachd, skapi. Beò. Tha an cidsin na theine. Brùth TÒISICH.
+Ta-da! Still cookin'! ...Still burnin'.	Ta-da! Fhathast a' còcaireachd! ...Fhathast a' losgadh.
+PANIC	PANIC
+Bork! De fire extinguisher is also on fire!	Bork! Tha an t-inneal-smàlaidh na theine cuideachd, sgiùrdi-bùrk!
+BLACK to hide, PANIC to stop, TAKE to come back. You will survive any kitchen.	dubh gus falach, PANIC gus stad, TAKE gus tilleadh. Thig thu beò à cidsin sam bith.
+A fashion show, skapi. One designer, one runway, and a look she will want back. Press START.	Taisbeanadh fasan, skapi. Aon dealbhaiche, aon àrd-ùrlar agus coltas a bhios i ag iarraidh air ais. Brùth TÒISICH.
+A preset stores a whole look and brings it back with one button.	Sàbhailidh ro-shuidheachadh coltas slàn agus bheir e air ais e le aon phutan.
+Darling. A look is not a look until you can get it back.	A ghràidh. Chan e coltas a th' ann mura faigh thu air ais e.
+Buttons. Good. I design with buttons.	Putanan. Math. Bidh mise a' dealbhadh le putanan.
+Store it. Before somebody has ideas.	Sàbhail e. Mus tig beachdan gu duine.
+Close the DASH (Esc), then select Look two and TAKE it.	Dùin DASH (Esc), tagh Look two agus brùth TAKE.
+A cape. On my runway. Someone will trip, darling. Someone always trips.	Clòca. Air m' àrd-ùrlar-sa. Tuislichidh cuideigin, a ghràidh. Tuislichidh cuideigin an-còmhnaidh.
+Recall: the whole look comes back at once.	Ath-ghairm: tillidh an coltas slàn aig an aon àm.
+Thank you. We will never speak of the cape again.	Tapadh leat. Cha bhruidhinn sinn air a' chlòca a-rithist.
+Simple. Timeless. Recallable. Now go, darling. I have a fitting.	Sìmplidh. Gun aois. Gabhaidh fhaighinn air ais. Falbh a-nis, a ghràidh. Tha aodach ri fheuchainn agam.
+Pushes, wipes, iris, dip to white, and more. I wrote half of them. On a Tuesday.	Brùthaidhean, sguaban, iris, dol tro gheal agus eile. Sgrìobh mi leth dhiubh. Air Dimàirt.
+Operators... roll the transition.	A luchd-stiùiridh... cuiribh an gluasad air.
+A style, a time, and two very dramatic entrances. Roll credits.	Stoidhle, ùine agus dà inntrigeadh glè dhràmadach. Na creideasan, mas e do thoil e.
+That is not an iris. ...It is better. I will allow it.	Chan e iris a tha sin. ...Tha e nas fheàrr. Leigidh mi leis.
+An effect, a bend and the patch. The robots approve, I think. Their faces are helmets.	Buaidh, lùbadh agus am patch. Tha na robotairean toilichte, tha mi an dùil. 'S e clogaidean an aghaidhean.
+Waveform, vectorscope, false colour. The scopes settled it. The agents did not.	Cruth-tonn, vectorscope, dath-brèige. Rinn na meatairean co-dhùnadh. Cha do rinn na h-àidseantan.
+The view from the capsule	An sealladh bhon chapsal
+Major Tomasina is in orbit, skapi, and her picture has to reach the ground. Press START.	Tha Major Tomasina ann an reul-chuairt, skapi, agus feumaidh an dealbh aice an talamh a ruigsinn. Brùth TÒISICH.
+Pictures leave by cable or network: NDI, SDI from a DeckLink card, ST 2110 for broadcast plants.	Falbhaidh dealbhan tro chàball no lìonra: NDI, SDI bho chairt DeckLink, ST 2110 airson ionadan craolaidh.
+Ground control, this is Major Tomasina. Can you see my picture?	Smachd air an talamh, seo Major Tomasina. Am faic sibh an dealbh agam?
+Every way down, on one page. Good. Space has very few cables.	A h-uile slighe sìos air aon duilleag. Math. Chan eil mòran chàball san fhànais.
+NDI	NDI
+Sending now. If nobody answers, I'll just float here.	A' cur a-nis. Mura freagair duine, fanaidh mi a' fleòdradh an seo.
+Ground control, signing off. Tell my mother I waved.	Smachd air an talamh, tha mi a' fàgail. Innsibh dha mo mhàthair gun do smèid mi.
+Ground control can see me! I can see my house from here.	Chì smachd air an talamh mi! Chì mi an taigh agam às an seo.
+MULTI ON	MULTI AIR
+And one more window, showing the clock. Operators who watch a clock are never late.	Agus aon uinneag eile leis an uaireadair. Cha bhi luchd-stiùiridh a choimheadas air uaireadair fadalach.
+The big window is window one, which is usually the programme.	'S i an uinneag mhòr uinneag a h-aon. Mar as trice 's e am prògram a tha innte.
+Windows, the ... menu, NEXT, the clock, a layout, tally. Mystery solved.	Uinneagan, an clàr ..., NEXT, an t-uaireadair, cruth agus tally. Dìomhaireachd air fhuasgladh.

@@ -3067,3 +3067,176 @@ Stop masking this. The mask stays in the show's library, to put back from the me
 Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	Vê maskeyê ji pêşandanê û ji her cue, lîsteya lêxistinê û derketina ku wê bi kar tîne jê bibe. Undo wê vedigerîne
 FX PARAM: slot must be A-F	FX PARAM: slot divê A heta F be
 FX LFO: slot must be A-D, E for the amount, or F/G for the fifth and sixth sliders	FX LFO: slot divê A heta D be, E ji bo mîqdarê, an jî F/G ji bo slîdera pêncem û şeşem
+playlist 2 is ready: you built one in the magic show	lîsteya lêxistinê 2 amade ye: te yek di şanoya sêrbaziyê de çêkir
+FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR	FX: bi kar bîne LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR
+BLACK	reş
+COACH MARV	COACH MARV
+JUNE O'NEIL	JUNE O'NEIL
+TURNIP TOP	TURNIP TOP
+CHEF BORK	CHEF BORK
+DONNA WHEEL	DONNA WHEEL
+KEEPER ROOK	KEEPER ROOK
+AGENT BRANDT	AGENT BRANDT
+AGENT HOLLIS	AGENT HOLLIS
+MR. SALTY	MR. SALTY
+OPTIMUS PRIMETIME	OPTIMUS PRIMETIME
+DEFT FUNK	DEFT FUNK
+LT. HAILA	LT. HAILA
+ENSIGN JINKLEY	ENSIGN JINKLEY
+The tour bus, with Polly Carton	Otobusa gerê, bi Polly Carton re
+A test pattern, drawing on a replay, a still, and the video synth at halftime.	Nexşeya testê, xêzkirina li ser dubareyê, wêneyek sabît û synth a vîdyoyê di navberê de.
+A stage timer over a picture, held, a presenter view for the person on stage, and a launch.	Demjimêra sehneyê li ser wêneyê, rawestandin, dîmen ji bo kesê li ser sehneyê û firîn.
+A second playlist as a layer, TAKE ALL so two things change on one beat, and a playlist's opacity.	Lîsteya lîstinê ya duyem wek qat, TAKE ALL ji bo du guhertinên bi yek lêdanê û nezelaliya lîsteyê.
+The fashion show, with Edda Mod	Pêşandana modayê, bi Edda Mod re
+Ground control, with Major Tomasina	Kontrola erdê, bi Major Tomasina re
+0.1, 0.1, 0.1	0.1, 0.1, 0.1
+Opener (the bus at dawn)	Opener (the bus at dawn)
+Polly Carton's tour bus leaves at six, skapi, and this show goes with it. Press START.	Otobusa Polly Carton saet şeşan diçe, skapi, û ev pêşandan jî pê re ye. DEST PÊ BIKE bitikîne.
+A show that travels needs three things first: a check, a fix and a bundle.	Pêşandana rêwî pêşî sê tiştan dixwaze: kontrol, tamîr û pakêt.
+Honey, I've played four thousand towns. Not one of them had my laptop.	Şîrînê min, min li çar hezar bajarokan stran gotiye. Laptopa min li tu yekê nebû.
+It lists what the show would trip over: missing files, empty cues, outputs it cannot reach.	Astengên pêşandanê rêz dike: pelên winda, cueyên vala û derketinên negihîştbar.
+Every show has a problem. Find yours before the audience does.	Her pêşandan pirsgirêkek heye. Berî temaşevanan ya xwe bibîne.
+The intro video is on the office computer. Select it and delete it, or RELINK it if you have the file.	Vîdyoya destpêkê li kompûtera ofîsê ye. Hilbijêre û jê bibe, an heke pel li cem te ye RELINK bike.
+Fix it here, with time and coffee. Not at the venue, with neither.	Li vir sererast bike, bi dem û qehweyê. Ne li salona bê herduyan.
+Leave it behind, sugar. I left a whole wig in Tulsa and the show went on.	Bihêle, şîrînê. Min li Tulsa perûkek tevahî hişt û pêşandan berdewam kir.
+Press BUNDLE and choose where: a USB stick, a shared folder. The show and all its media, in one folder.	BIPÊÇE bitikîne û cih hilbijêre: USB an peldanka hevpar. Pêşandan û hemû medyaya wê di yek peldankê de.
+Pack it like a wig box. Everything inside, nothing loose.	Wek qutiya perûkê bipêçe. Hemû tê de, tu por derve nemîne.
+Checked, fixed, bundled. On the other computer, open the show in the bundle and everything is there.	Kontrolkirî, tamîrkirî, pêçayî. Li kompûtera din pêşandana di pakêtê de veke; her tişt li wir e.
+The show file is only text, so it travels light. The media is the luggage.	Pelê pêşandanê tenê nivîs e, sivik digere. Medya bar û ben e.
+Bus leaves at six. Show starts at eight. Hair takes until seven.	Otobus şeşan diçe. Pêşandan heştan e. Por heta heftan dixwaze.
+There are dozens, and most of them run on the graphics card, so you can stack them.	Bi dehan hene û piraniya wan li ser karta grafîkê dixebitin, lewma dikarî li ser hev deynî.
+An effect, a ~ and a colour. The critic is crying. Good crying, I think.	Efektek, ~ û rengek. Rexnegir digirî. Ez dibêjim ji kêfxweşiyê ye.
+Stack a few more. Order matters: each effect works on the picture the one above it made.	Çendên din lê zêde bike. Rêz girîng e: her efekt li ser wêneya ya li jor çêkiriye dixebite.
+Three effects! It's a mess! It's ALIVE! Post it.	Sê efekt! Çi tevlihevî! ZINDÎ ye! Biweşîne.
+The replay	The replay
+Coach Marv has two minutes of airtime, one replay and a pen, skapi. He will use all three. Press START.	Coach Marv du deqe dema weşanê, dubareyek û pênûsek heye, skapi. Her sêyan bikar tîne. DEST PÊ BIKE bitikîne.
+Tonight: a test pattern, drawing on the picture, and the video synth.	Îşev: nexşeya testê, xêzkirina li ser wêneyê û synth a vîdyoyê.
+Folks, I've watched this play forty times. It's still a play.	Gelî hevalan, min ev tevger çil caran dît. Hê jî tevger e.
+CHECK THE MONITORS	MONÎTORAN KONTROL BIKE
+PATTERN adds Pocket Test. If its circles are not round, a screen is stretched. Find out now, not on air.	NEXŞE, Pocket Test zêde dike. Heke bazinên wê gilover nînin, ekran hatiye dirêjkirin. Niha bizane, ne di weşanê de.
+Its bars and steps are checked against real meters, so a wrong screen looks wrong at once.	Şerît û gavên wê bi pîvanên rast hatine kontrolkirin; ekranê şaş yekser xwe dide der.
+That's a test pattern. You test with it. That's why they call it that.	Ew nexşeya testê ye. Pê test dikî. Ji ber vê navê wê ev e.
+ROLL THE REPLAY	DUBAREYÊ BILÎZE
+Select The replay and TAKE it.	The replay hilbijêre û TAKE bike.
+A replay loops, so the pundit can talk over it for as long as he likes. He likes.	Dubare dizivire da şîrovekar bi qasî dilê xwe biaxive. Dilê wî gelek dixwaze.
+Here's number 22. Number 22 has the ball. That's important, because the ball is how you score.	Va ye hejmara 22. Top li cem hejmara 22 ye. Girîng e, çimkî xal bi topê tê.
+The pen goes over the replay, on its own layer. Press the + at the end of the playlist tabs.	Pênûs di qata xwe de li ser dubareyê ye. + li dawiya tabên lîsteya lîstinê bitikîne.
+A second playlist is a layer over the first.	Lîsteya lîstinê ya duyem qatek li ser ya yekem e.
+Over it. Not under it. Under it, you can't see it. That's football.	Li ser. Ne li bin. Li bin tu nabînî. Futbol ev e.
+The lit tab is where SOURCE puts things. Skip this and the ink lands under the replay.	ÇAVKANÎ tiştan dixe taba ronî. Vê derbas bikî, hibr dikeve bin dubareyê.
+See that tab? Click it. Fundamentals.	Wê tabê dibînî? Bitikîne. Bingeh.
+In playlist 2: SOURCE, then Draw.	Di lîsteya lîstinê 2 de: ÇAVKANÎ, paşê XÊZ BIKE.
+A Draw cue is clear wherever there is no ink, so the replay shows through.	Cueya XÊZ BIKE li cihên bê hibr şefaf e, lewma dubare ji bin ve xuya dike.
+Give me the pen. I've waited all season for the pen.	Pênûsê bide min. Tevahiya demsalê ez li benda wê bûm.
+Both are live now: the replay underneath, the ink on top.	Niha herdu zindî ne: dubare li bin, hibr li ser.
+We're on the air. Nobody touches the pen but me.	Em di weşanê de ne. Ji min pê ve kes dest nade pênûsê.
+CIRCLE HIM	BAZINEK LI DORA WÎ BIKE
+Press DRAW in the inspector, then circle number 22 on the programme monitor. He is the yellow one.	Di lêkolînerê de XÊZ BIKE bitikîne, paşê li monîtora bernameyê dora hejmara 22 bazinek bike. Yê zer e.
+A pen's pressure makes the line thicker. A mouse presses at one strength.	Zexta pênûsê xêzê stûrtir dike. Mişk tenê bi yek hêzê dide.
+Circle him! The yellow one! There's only one yellow one. Circle that one.	Dora wî bike! Yê zer! Tenê yek zer heye. Dora wî bike!
+Draw as much as you like. Then SAVE STILL keeps the drawing as a picture with a clear background, in the playlist.	Bi qasî dilê xwe xêz bike. Paşê wêneyê tomar bike wêneyê bi paşxaneya şefaf di lîsteya lîstinê de diparêze.
+For next week's show. He will want that circle again.	Ji bo pêşandana hefteya bê. Ew ê dîsa wê bazinê bixwaze.
+Put that in the Hall of Fame. Next to the turducken.	Bixe salona navdaran. Li kêleka elokê tijî ordekê tijî mirîşkê.
+Halftime. Click the Deck 1 tab, then SOURCE, then Video Synth.	Navber. Taba Deck 1 bitikîne, paşê ÇAVKANÎ, paşê Synth a vîdyoyê.
+My favourite source: oscillators, mirrors and feedback. A halftime show with no camera at all.	Çavkaniya hezkirî: osîlator, neynik û vegerandin. Pêşandana navberê bê tu kamerayê.
+Halftime! Somebody get me some lights. And a band. And a sandwich.	Navber! Yek ronahiyan bîne. Û komek muzîkê. Û sandwîçek.
+TAKE HALFTIME	NAVBERÊ TAKE BIKE
+Select the synth and TAKE it. Then look at the monitor: your ink is still up.	Synth hilbijêre û TAKE bike. Niha li monîtorê binêre: hibrê te hê li wir e.
+Playlist 2 did not change, so its ink stays over whatever playlist 1 shows. Each playlist changes on its own.	Lîsteya lîstinê 2 neguherî, lewma hibrê wê li ser her tiştê lîsteya 1 nîşan dide dimîne. Her lîste bi xwe diguhere.
+Leave the circle up. It's a good circle. It goes with everything.	Bazin bimîne. Bazinek baş e. Li her tiştî tê.
+A test pattern, a replay, ink on a layer, a still, and halftime. That's the booth.	Nexşeya testê, dubare, hibr li ser qat, wêneyek sabît û navber. Kabîn ev e.
+Replay in the Draw section draws your lines back the way you drew them. He will love that.	Replay di beşa XÊZ BIKE de xêzan wek te xêz kiribûn vedixêze. Ew ê hez bike.
+Same time next week. Bring a bigger pen.	Hefteya bê heman dem. Pênûseke mezintir bîne.
+Now THAT is a busy play. I can't see the field. I love it.	Va tevgera qelebalix! Qadê nabînim. Ez hez dikim.
+Two projectors overlap, and each fades its edge so the overlap is not twice as bright. Watch the sides of the monitor go soft.	Du projektor li ser hev dikevin û her yek kenara xwe dimirîne da ronahiya hevpar du qat nebe. Nermbûna aliyên monîtorê bibîne.
+A game show, skapi. Three contestants, one buzzer, and a host who is not here tonight. Press START.	Pêşandana pirsan, skapi. Sê beşdar, yek dengder û mêvandarek ku îşev ne li vir e. DEST PÊ BIKE bitikîne.
+Cue numbers, hotkeys, and GO from other machines.	Hejmarên cueyan, bişkokên kurt û GO ji makîneyên din.
+Forty years I turned the letters. Tonight they gave me the microphone. Nobody panic.	Çil salan min tîp dizivirandin. Îşev mîkrofon dan min. Kes netirse.
+Theatre numbers its cues: Q3, Q3.5, Q12A. Deckboy reads them all.	Şano cueyan hejmar dike: Q3, Q3.5, Q12A. Deckboy hemûyan dixwîne.
+Numbers! I know letters. Numbers are letters that went to college.	Hejmar! Ez tîpan dizanim. Hejmar tîpên çûne zanîngehê ne.
+GOTO crosses a long list faster than scrolling. Much faster.	GOTO ji gerandina lîsteyeke dirêj lezgîntir e. Gelek lezgîntir.
+F1 to F10, F12, or the number pad. Each one is a buzzer.	F1 heta F10, F12 an klavyeya hejmaran. Her yek dengderek e.
+Every contestant gets a buzzer. I get the letters. It's fine. It's fine.	Her beşdar dengderek distîne. Ez tîpan distînim. Baş e. Baş e.
+No mouse, no list, no looking. Only the key.	Bê mişk, bê lîste, bê nêrîn. Tenê bişkok.
+Buzz! A winner! I've never said that. I've only pointed at it.	Bîp! Serketî! Min ev qet negotibû. Tenê min nîşan dabû.
+And for our viewers at home: yes, you can push the buttons too.	Û ji temaşevanên li malê re: erê, hûn jî dikarin bişkokan bikirtînin.
+Numbers, GOTO, a buzzer, and GO from anywhere. You could host a game show now.	Hejmar, GOTO, dengder û GO ji her derê. Niha tu dikarî mêvandarê pêşandana pirsan bî.
+Goodnight, everybody! Tomorrow I go back to the letters. I'll miss you.	Şev baş, hemûyan! Sibê ez vedigerim tîpan. Ez ê bêriya we bikim.
+And the number is... not three. I'll allow it. I turn anything.	Û hejmar... ne sê ye. Qebûl e. Ez her tiştî dizivirînim.
+A second playlist is a layer over the map. The lizard stays underneath. For now.	Lîsteya lîstinê ya duyem qatek li ser nexşeyê ye. Kezî li bin dimîne. Heya niha.
+A Lower Third, a name, a title card, a backdrop. The lizard has left the studio.	Lower Third, nav, karta sernavê, paşxane. Kezî ji studyoyê derket.
+That's not my name. It's a lovely name. Now, about that lizard...	Ew ne navê min e. Navek xweş e. Niha, derbarê wê kezîyê de...
+The rocket (on the pad)	The rocket (on the pad)
+The rocket (lift-off)	The rocket (lift-off)
+A rocket built in a basement, skapi, an inventor who wants cheese, and a dog who does the real work. Press START.	Roketeke li jêrzemînê çêkirî, skapi, dahênerê penîrxwaz û kûçikek ku karê rast dike. DEST PÊ BIKE bitikîne.
+Stage timers: a countdown over a picture, a hold, and a view for the person on stage.	Demjimêrên sehneyê: hejmartina paşve li ser wêneyê, rawestandin û dîmen ji bo kesê li ser sehneyê.
+Playlist 2 is selected, over the rocket. SOURCE, then Stage Timer.	Lîsteya lîstinê 2 li ser roketê hat hilbijartin. ÇAVKANÎ, paşê Stage Timer.
+*checks his watch, then the rocket, then his watch*	*li saeta xwe dinêre, paşê roketê, paşê saeta xwe*
+COUNT IT DOWN	BER BI SIFIRÊ BIHEJMÊRE
+Select the timer and TAKE it. I have cleared its backdrop, so the rocket shows behind the numbers.	Demjimêrê hilbijêre û TAKE bike. Min paşxane jê biriye da roket li pişt hejmaran xuya bike.
+Past zero it keeps going and counts the overtime. Very honest. Slightly rude.	Piştî sifirê jî diçe û dema zêde dihejmêre. Pir rastgo ye. Hinek bêedeb.
+Close MENU, click the Deck 1 tab, then select 'The rocket (lift-off)' and TAKE it.	MENÛ bigire, taba Deck 1 bitikîne, paşê 'The rocket (lift-off)' hilbijêre û TAKE bike.
+The clock is on playlist 2, so it stays up while the rocket changes underneath it.	Saet li lîsteya lîstinê 2 ye, lewma dimîne dema roket li bin diguhere.
+We have lift-off, Grommet! ...Grommet? Who's flying it?	Em firiyan, Grommet! ...Grommet? Kî wê diajo?
+A countdown, a hold, a pilot's view and a launch. Bring crackers.	Hejmartina paşve, rawestandin, dîmena pîlot û firîn. Biskuwît bîne.
+*waves from the window*	*ji pencereyê dest dihejîne*
+The rubber chicken	The rubber chicken
+A magic show, skapi. A trunk, a rubber chicken, and one beat where everything changes at once. Press START.	Pêşandana efsûnê, skapi. Sindoq, mirîşka lastîkî û lêdanek ku her tişt pê re diguhere. DEST PÊ BIKE bitikîne.
+Two playlists are two layers, and TAKE ALL changes both together. Tonight you will see why that matters.	Du lîsteyên lîstinê du qat in û TAKE ALL herduyan bi hev diguherîne. Îşev tu ê girîngiya wê bibînî.
+The chicken goes on its own layer. Press the + at the end of the playlist tabs.	Mirîşk di qata xwe de ye. + li dawiya tabên lîsteya lîstinê bitikîne.
+The lit tab is the playlist that gets the next cue. Its chip now says 'to Out 1': it is layered over playlist 1 on that output.	Taba ronî lîsteya cueya bê distîne ye. Nîşana wê niha 'ji bo Derketin 1' dibêje: li wê derketinê li ser lîsteya 1 ye.
+TRICK ONE	FÊLA YEKEM
+Turnip Top has put the chicken in playlist 2. In playlist 1, TAKE 'The trunk (open)'. Then in playlist 2, TAKE the chicken.	Turnip Top mirîşk xistiye lîsteya lîstinê 2. Di lîsteya 1 de 'The trunk (open)' TAKE bike. Paşê di lîsteya 2 de mirîşk TAKE bike.
+The chicken is clear all round, so it covers only itself. Watch the monitor between the two TAKEs.	Dora mirîşkê şefaf e, tenê cihê xwe digire. Di navbera du TAKE de li monîtorê binêre.
+Did you see it? For a moment the trunk was open and empty: two TAKEs are two moments. The trick is reset. Now select the open trunk in playlist 1 and the chicken in playlist 2, then TAKE ALL.	Dîtî? Demekê sindoq vekirî û vala bû: du TAKE du dem in. Fêl hat nûkirin. Niha sindoqa vekirî di lîsteya 1 û mirîşk di lîsteya 2 de hilbijêre, paşê TAKE ALL.
+TAKE ALL takes every playlist's selected cue on one beat. No gap, no empty trunk.	TAKE ALL cueya hilbijartî ya her lîsteyê bi yek lêdanê tîne. Bê navber, bê sindoqa vala.
+The chicken was late. They saw an empty trunk. In magic we call that a trunk.	Mirîşk dereng ma. Sindoqa vala dîtin. Di efsûnê de em jê re sindoq dibêjin.
+TAKE ALL	TAKE ALL
+THE VANISH	WINDAKIRIN
+Trick two. Drag playlist 2's opacity fader down to nothing. The chicken fades away.	Fêla duyem. Fadera nezelaliya lîsteya lîstinê 2 heta sifirê bikişîne xwarê. Mirîşk dimire.
+Every playlist has its own opacity. Down is a fade out, with no cue at all.	Her lîste nezelaliya xwe heye. Ber bi xwarê windabûn e, bê tu cueyê.
+Ta-daaa! ...Hold for applause. Hold. Now watch it go.	Ta-daaa! ...Li benda çepikan bimîne. Bimîne. Niha çûyîna wê bibîne.
+Trick three. Bring it back: playlist 2's opacity all the way up.	Fêla sêyem. Vegerîne: nezelaliya lîsteya lîstinê 2 heta dawî bilind bike.
+Where did it go? Back in the trunk. Everything goes back in the trunk.	Çû ku? Vegeriya sindoqê. Her tişt vedigere sindoqê.
+THAT'S MAGIC	EFSÛN EV E
+An appearance done wrong, then right, a vanish and a return. Nazdrave.	Xuyabûna şaş, paşê rast, windabûn û veger. Nazdrave.
+A playlist can also sit on any output. Two layers, a great many tricks.	Lîsteya lîstinê dikare li her derketinê jî be. Du qat, gelek fêl.
+It's back! Thank you! I'm here all week! The chicken is here forever.	Vegeriya! Spas! Ez tevahiya hefteyê li vir im! Mirîşk her û her li vir e!
+A cooking show, skapi. Live. The kitchen is on fire. Press START.	Pêşandana çêkirina xwarinê, skapi. Zindî. Metbex dişewite. DEST PÊ BIKE bitikîne.
+Ta-da! Still cookin'! ...Still burnin'.	Ta-da! Hê dipêjin! ...Hê dişewitin.
+PANIC	PANIC
+Bork! De fire extinguisher is also on fire!	Bork! Agirkuj jî dişewite-flûrke!
+BLACK to hide, PANIC to stop, TAKE to come back. You will survive any kitchen.	reş ji bo veşartinê, PANIC ji bo rawestandinê, TAKE ji bo vegerê. Tu ji her metbexê sax derdikevî.
+PRESETS	Preset
+A fashion show, skapi. One designer, one runway, and a look she will want back. Press START.	Pêşandana modayê, skapi. Dîzaynerek, rêyek û dîmenek ku wê dîsa bixwaze. DEST PÊ BIKE bitikîne.
+A preset stores a whole look and brings it back with one button.	Pêşsaz dîmenek tevahî diparêze û bi yek bişkokê vedigerîne.
+Darling. A look is not a look until you can get it back.	Delalê. Dîmen ne dîmen e heta tu bikaribî vegerînî.
+Buttons. Good. I design with buttons.	Bişkok. Baş e. Ez bi bişkokan dîzayn dikim.
+Store it. Before somebody has ideas.	Biparêze. Berî ku fikrek bikeve serê yekî.
+Close the DASH (Esc), then select Look two and TAKE it.	DASH bigire (Esc), paşê Look two hilbijêre û TAKE bike.
+A cape. On my runway. Someone will trip, darling. Someone always trips.	Pelerin. Li ser rêya min. Yek ê bikeve, delalê. Her car yek dikeve.
+Recall: the whole look comes back at once.	Vexwendin: dîmena tevahî bi carekê vedigere.
+Thank you. We will never speak of the cape again.	Spas. Em ê êdî qet qala pelerinê nekin.
+Simple. Timeless. Recallable. Now go, darling. I have a fitting.	Hêsan. Bêdem. Vegerbar. Niha here, delalê. Ez pîvana cilê dikim.
+Pushes, wipes, iris, dip to white, and more. I wrote half of them. On a Tuesday.	Paldayîn, paqijkirin, îrîs, çûna spî û zêdetir. Min nîvê wan nivîsî. Roja sêşemê.
+Operators... roll the transition.	Operator... derbasbûnê bilîzin.
+A style, a time, and two very dramatic entrances. Roll credits.	Şêwaz, dem û du hatinên pir dramatîk. Navên dawiyê bilîzin.
+That is not an iris. ...It is better. I will allow it.	Ew ne îrîs e. ...Baştir e. Ez qebûl dikim.
+An effect, a bend and the patch. The robots approve, I think. Their faces are helmets.	Efekt, bend û patch. Ez dibêjim robot razî ne. Rûyên wan helmet in.
+Waveform, vectorscope, false colour. The scopes settled it. The agents did not.	Şêweya pêlê, vektorskop, rengê derewîn. Pîvanan çareser kir. Ajanan nekir.
+The view from the capsule	Dîmena ji kapsulê
+Major Tomasina is in orbit, skapi, and her picture has to reach the ground. Press START.	Major Tomasina di gergehê de ye, skapi, û wêneya wê divê bigihîje erdê. DEST PÊ BIKE bitikîne.
+Pictures leave by cable or network: NDI, SDI from a DeckLink card, ST 2110 for broadcast plants.	Wêne bi kablo an torê diçin: NDI, SDI ji karta DeckLink û ST 2110 ji bo navendên weşanê.
+Ground control, this is Major Tomasina. Can you see my picture?	Kontrola erdê, li vir Major Tomasina ye. Wêneya min dibînin?
+Every way down, on one page. Good. Space has very few cables.	Hemû rêyên xwarê li yek rûpelê. Baş e. Valahî gelek kêm kablo heye.
+NDI	NDI
+Sending now. If nobody answers, I'll just float here.	Niha dişînim. Heke kes bersiv nede, ez ê li vir biherikim.
+Ground control, signing off. Tell my mother I waved.	Kontrola erdê, ez diqetînim. Ji diya min re bêjin min dest hejand.
+Ground control can see me! I can see my house from here.	Kontrola erdê min dibîne! Ji vir mala xwe dibînim.
+MULTI ON	MULTI ON
+And one more window, showing the clock. Operators who watch a clock are never late.	Û pencereyek din ji bo saetê. Operatorê li saetê dinêre dereng namîne.
+The big window is window one, which is usually the programme.	Pencereya mezin pencereya yek e, bi gelemperî bername ye.
+Windows, the ... menu, NEXT, the clock, a layout, tally. Mystery solved.	Pencere, menûya ..., NEXT, saet, rêzkirin, tally. Sir hat çareserkirin.
+FX CHOICE: choice must be A or B	FX CHOICE: hilbijartin divê A an B be
+FX CHOICE: no effect at that index	FX CHOICE: li wê rêzê efekt tune
+whole picture	wêneya tevahî

@@ -3076,3 +3076,173 @@ Stop masking this. The mask stays in the show's library, to put back from the me
 Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	इस मास्क को शो से और इसका उपयोग करने वाले हर क्यू, प्लेलिस्ट और आउटपुट से हटाएँ। पूर्ववत करें से यह वापस आ जाता है
 FX PARAM: slot must be A-F	FX PARAM: स्लॉट A से F तक होना चाहिए
 FX LFO: slot must be A-D, E for the amount, or F/G for the fifth and sixth sliders	FX LFO: स्लॉट A से D तक हो, मात्रा के लिए E, और पाँचवें व छठे स्लाइडर के लिए F/G
+playlist 2 is ready: you built one in the magic show	प्लेलिस्ट 2 तैयार है: जादू के शो में तुमने एक बनाई थी
+FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR	FX: इस्तेमाल करो LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR
+BLACK	काला
+COACH MARV	COACH MARV
+JUNE O'NEIL	JUNE O'NEIL
+TURNIP TOP	TURNIP TOP
+CHEF BORK	CHEF BORK
+DONNA WHEEL	DONNA WHEEL
+KEEPER ROOK	KEEPER ROOK
+AGENT BRANDT	AGENT BRANDT
+AGENT HOLLIS	AGENT HOLLIS
+MR. SALTY	MR. SALTY
+OPTIMUS PRIMETIME	OPTIMUS PRIMETIME
+DEFT FUNK	DEFT FUNK
+LT. HAILA	LT. HAILA
+ENSIGN JINKLEY	ENSIGN JINKLEY
+The tour bus, with Polly Carton	Polly Carton की टूर बस
+A test pattern, drawing on a replay, a still, and the video synth at halftime.	टेस्ट पैटर्न, रीप्ले पर चित्रकारी, स्थिर चित्र और हाफटाइम में वीडियो सिंथ।
+A stage timer over a picture, held, a presenter view for the person on stage, and a launch.	तस्वीर पर स्टेज टाइमर, उसे रोकना, स्टेज वाले व्यक्ति का अलग व्यू और फिर उड़ान।
+A second playlist as a layer, TAKE ALL so two things change on one beat, and a playlist's opacity.	दूसरी प्लेलिस्ट को परत बनाना, TAKE ALL से दोनों को एक ताल पर बदलना और प्लेलिस्ट का अपारदर्शीपन घटाना-बढ़ाना।
+The fashion show, with Edda Mod	Edda Mod का फ़ैशन शो
+Ground control, with Major Tomasina	Major Tomasina के साथ ग्राउंड कंट्रोल
+0.1, 0.1, 0.1	0.1, 0.1, 0.1
+Opener (the bus at dawn)	शुरुआत (भोर में बस)
+Polly Carton's tour bus leaves at six, skapi, and this show goes with it. Press START.	Polly Carton की टूर बस छह बजे चलेगी, skapi। यह शो भी साथ जाएगा। शुरू करें दबाओ।
+A show that travels needs three things first: a check, a fix and a bundle.	सफ़र पर जाने वाले शो को पहले तीन चीज़ें चाहिए: जाँच, मरम्मत और बंडल।
+Honey, I've played four thousand towns. Not one of them had my laptop.	अरे प्यारे, मैंने चार हज़ार शहरों में शो किए हैं। किसी के पास मेरा लैपटॉप नहीं था।
+It lists what the show would trip over: missing files, empty cues, outputs it cannot reach.	इसमें शो को अटकाने वाली चीज़ें दिखती हैं: गायब फ़ाइलें, खाली cue और ऐसे आउटपुट जहाँ पहुँच नहीं पा रहे।
+Every show has a problem. Find yours before the audience does.	हर शो में कोई दिक्कत होती है। दर्शकों से पहले उसे ढूँढ़ लो।
+The intro video is on the office computer. Select it and delete it, or RELINK it if you have the file.	शुरुआती वीडियो ऑफ़िस के कंप्यूटर पर है। उसे चुनकर मिटा दो, या फ़ाइल पास है तो RELINK से फिर जोड़ो।
+Fix it here, with time and coffee. Not at the venue, with neither.	यहीं ठीक कर लो, जब वक़्त और कॉफ़ी दोनों हैं। आयोजन स्थल पर दोनों नहीं मिलेंगे।
+Leave it behind, sugar. I left a whole wig in Tulsa and the show went on.	छोड़ दो, प्यारे। मैं तो टल्सा में पूरी विग छोड़ आई थी, फिर भी शो चला।
+Press BUNDLE and choose where: a USB stick, a shared folder. The show and all its media, in one folder.	एक साथ बाँधें दबाओ और जगह चुनो: USB स्टिक या साझा फ़ोल्डर। शो और उसकी सारी मीडिया, एक फ़ोल्डर में।
+Pack it like a wig box. Everything inside, nothing loose.	विग के डिब्बे की तरह पैक करो। सब अंदर, कुछ भी खुला नहीं।
+Checked, fixed, bundled. On the other computer, open the show in the bundle and everything is there.	जाँच हुई, ठीक हुआ, बंडल बना। दूसरे कंप्यूटर पर बंडल वाला शो खोलो, सब वहीं मिलेगा।
+The show file is only text, so it travels light. The media is the luggage.	शो फ़ाइल में बस लिखावट है, इसलिए सफ़र हल्का है। असली सामान तो मीडिया है।
+Bus leaves at six. Show starts at eight. Hair takes until seven.	बस छह बजे चलेगी। शो आठ बजे शुरू होगा। बाल सँवारते-सँवारते सात बजेंगे।
+There are dozens, and most of them run on the graphics card, so you can stack them.	दर्जनों हैं। ज़्यादातर ग्राफ़िक्स कार्ड पर चलते हैं, इसलिए कई एक साथ लगा सकते हो।
+An effect, a ~ and a colour. The critic is crying. Good crying, I think.	एक इफ़ेक्ट, एक ~ और एक रंग। समीक्षक रो रहा है। शायद खुशी के आँसू हैं।
+Stack a few more. Order matters: each effect works on the picture the one above it made.	कुछ और लगाओ। क्रम ज़रूरी है: हर इफ़ेक्ट अपने ऊपर वाले की बनाई तस्वीर पर काम करता है।
+Three effects! It's a mess! It's ALIVE! Post it.	तीन इफ़ेक्ट! क्या खिचड़ी है! इसमें जान आ गई! पोस्ट करो!
+The replay	The replay
+Coach Marv has two minutes of airtime, one replay and a pen, skapi. He will use all three. Press START.	Coach Marv के पास दो मिनट का प्रसारण, एक रीप्ले और एक पेन है, skapi। तीनों का पूरा इस्तेमाल होगा। शुरू करें दबाओ।
+Tonight: a test pattern, drawing on the picture, and the video synth.	आज रात: टेस्ट पैटर्न, तस्वीर पर चित्रकारी और वीडियो सिंथ।
+Folks, I've watched this play forty times. It's still a play.	दोस्तो, यह चाल मैं चालीस बार देख चुका हूँ। अब भी चाल ही है।
+CHECK THE MONITORS	मॉनिटर जाँचो
+PATTERN adds Pocket Test. If its circles are not round, a screen is stretched. Find out now, not on air.	नमूना से Pocket Test जुड़ता है। उसके गोले गोल न हों तो स्क्रीन खिंची हुई है। अभी पता करो, प्रसारण में नहीं।
+Its bars and steps are checked against real meters, so a wrong screen looks wrong at once.	इसकी पट्टियाँ और सीढ़ीदार स्तर असली मीटरों से जाँचे गए हैं। गलत स्क्रीन तुरंत गलत दिखती है।
+That's a test pattern. You test with it. That's why they call it that.	यह टेस्ट पैटर्न है। इससे टेस्ट करते हैं। इसीलिए इसका यह नाम है।
+ROLL THE REPLAY	रीप्ले चलाओ
+Select The replay and TAKE it.	The replay चुनो और TAKE करो।
+A replay loops, so the pundit can talk over it for as long as he likes. He likes.	रीप्ले बार-बार चलता है, ताकि टिप्पणीकार जितनी देर चाहे बोल सके। और वह चाहता है।
+Here's number 22. Number 22 has the ball. That's important, because the ball is how you score.	यह रहा नंबर 22। गेंद नंबर 22 के पास है। यह ज़रूरी है, क्योंकि अंक गेंद से बनते हैं।
+The pen goes over the replay, on its own layer. Press the + at the end of the playlist tabs.	पेन की अपनी परत होगी, रीप्ले के ऊपर। प्लेलिस्ट टैब के आखिर में + दबाओ।
+A second playlist is a layer over the first.	दूसरी प्लेलिस्ट पहली के ऊपर एक परत है।
+Over it. Not under it. Under it, you can't see it. That's football.	ऊपर। नीचे नहीं। नीचे होगा तो दिखेगा नहीं। यही फ़ुटबॉल है।
+The lit tab is where SOURCE puts things. Skip this and the ink lands under the replay.	स्रोत से चीज़ें रोशन टैब में आती हैं। इसे छोड़ा तो स्याही रीप्ले के नीचे चली जाएगी।
+See that tab? Click it. Fundamentals.	वह टैब दिखा? क्लिक करो। यही बुनियाद है।
+In playlist 2: SOURCE, then Draw.	प्लेलिस्ट 2 में: स्रोत, फिर चित्रकारी।
+A Draw cue is clear wherever there is no ink, so the replay shows through.	चित्रकारी cue में जहाँ स्याही नहीं है, वहाँ सब पारदर्शी है। पीछे का रीप्ले दिखता है।
+Give me the pen. I've waited all season for the pen.	पेन मुझे दो। इस पेन का इंतज़ार पूरे सीज़न किया है।
+Both are live now: the replay underneath, the ink on top.	अब दोनों ऑन एयर हैं: नीचे रीप्ले, ऊपर स्याही।
+We're on the air. Nobody touches the pen but me.	हम ऑन एयर हैं। मेरे अलावा कोई पेन नहीं छुएगा।
+CIRCLE HIM	उसे घेरो
+Press DRAW in the inspector, then circle number 22 on the programme monitor. He is the yellow one.	इंस्पेक्टर में चित्रकारी दबाओ, फिर प्रोग्राम मॉनिटर पर नंबर 22 के चारों ओर गोला बनाओ। पीले वाला खिलाड़ी।
+A pen's pressure makes the line thicker. A mouse presses at one strength.	पेन का दबाव बढ़ने से रेखा मोटी होती है। माउस का दबाव एक जैसा रहता है।
+Circle him! The yellow one! There's only one yellow one. Circle that one.	घेरो उसे! पीले वाले को! पीले रंग में एक ही है। उसी को घेरो।
+Draw as much as you like. Then SAVE STILL keeps the drawing as a picture with a clear background, in the playlist.	जितना चाहो बनाओ। फिर स्थिर चित्र सहेजें से यह चित्र पारदर्शी पृष्ठभूमि के साथ प्लेलिस्ट में सहेज लो।
+For next week's show. He will want that circle again.	अगले हफ़्ते के शो के लिए। उसे यह गोला फिर चाहिए होगा।
+Put that in the Hall of Fame. Next to the turducken.	इसे हॉल ऑफ़ फ़ेम में रखो। उस तीन परत वाले मीट सैंडविच के बगल में।
+Halftime. Click the Deck 1 tab, then SOURCE, then Video Synth.	हाफटाइम। डेक 1 टैब पर क्लिक करो, फिर स्रोत, फिर वीडियो सिंथ।
+My favourite source: oscillators, mirrors and feedback. A halftime show with no camera at all.	मेरा पसंदीदा स्रोत: ऑसिलेटर, शीशे और फ़ीडबैक। बिना एक भी कैमरे के हाफटाइम शो।
+Halftime! Somebody get me some lights. And a band. And a sandwich.	हाफटाइम! कोई लाइटें लाओ। एक बैंड भी। और सैंडविच भी।
+TAKE HALFTIME	हाफटाइम TAKE करो
+Select the synth and TAKE it. Then look at the monitor: your ink is still up.	सिंथ चुनो और TAKE करो। फिर मॉनिटर देखो: स्याही अब भी है।
+Playlist 2 did not change, so its ink stays over whatever playlist 1 shows. Each playlist changes on its own.	प्लेलिस्ट 2 नहीं बदली, इसलिए प्लेलिस्ट 1 कुछ भी दिखाए, स्याही उसके ऊपर रहेगी। हर प्लेलिस्ट अलग बदलती है।
+Leave the circle up. It's a good circle. It goes with everything.	गोला रहने दो। अच्छा गोला है। सब पर जँचता है।
+A test pattern, a replay, ink on a layer, a still, and halftime. That's the booth.	टेस्ट पैटर्न, रीप्ले, परत पर स्याही, स्थिर चित्र और हाफटाइम। यही कमेंट्री बॉक्स है।
+Replay in the Draw section draws your lines back the way you drew them. He will love that.	चित्रकारी भाग का Replay तुम्हारी रेखाएँ उसी तरह फिर बनाता है, जैसे तुमने बनाई थीं। उसे बहुत पसंद आएगा।
+Same time next week. Bring a bigger pen.	अगले हफ़्ते इसी वक़्त। बड़ा पेन लाना।
+Now THAT is a busy play. I can't see the field. I love it.	अब हुई न भरपूर चाल। मैदान दिख ही नहीं रहा। मज़ा आ गया।
+Two projectors overlap, and each fades its edge so the overlap is not twice as bright. Watch the sides of the monitor go soft.	दो प्रोजेक्टरों की तस्वीरें मिलती हैं। दोनों अपना किनारा हल्का करते हैं, ताकि साझा हिस्सा दोगुना चमकीला न हो। मॉनिटर के किनारे नरम होते देखो।
+A game show, skapi. Three contestants, one buzzer, and a host who is not here tonight. Press START.	एक गेम शो, skapi। तीन प्रतियोगी, एक बज़र और आज रात गायब मेज़बान। शुरू करें दबाओ।
+Cue numbers, hotkeys, and GO from other machines.	cue नंबर, हॉटकी और दूसरी मशीनों से GO।
+Forty years I turned the letters. Tonight they gave me the microphone. Nobody panic.	चालीस साल मैंने अक्षरों की तख्तियाँ पलटीं। आज माइक दिया है। कोई घबराए नहीं।
+Theatre numbers its cues: Q3, Q3.5, Q12A. Deckboy reads them all.	थिएटर में cue को नंबर देते हैं: Q3, Q3.5, Q12A। Deckboy सब पढ़ लेता है।
+Numbers! I know letters. Numbers are letters that went to college.	अंक! मुझे अक्षर आते हैं। अंक तो कॉलेज से पढ़कर आए अक्षर हैं।
+GOTO crosses a long list faster than scrolling. Much faster.	लंबी सूची में GOTO से जाना स्क्रॉल करने से तेज़ है। बहुत तेज़।
+F1 to F10, F12, or the number pad. Each one is a buzzer.	F1 से F10, F12 या नंबर पैड। हर कुंजी एक बज़र है।
+Every contestant gets a buzzer. I get the letters. It's fine. It's fine.	हर प्रतियोगी को बज़र मिलता है। मुझे अक्षर। ठीक है। बिल्कुल ठीक है।
+No mouse, no list, no looking. Only the key.	न माउस, न सूची, न देखना। बस कुंजी।
+Buzz! A winner! I've never said that. I've only pointed at it.	टन! विजेता मिल गया! यह मैंने कभी नहीं कहा। बस उँगली से दिखाया है।
+And for our viewers at home: yes, you can push the buttons too.	और घर बैठे दर्शको: हाँ, आप भी बटन दबा सकते हैं।
+Numbers, GOTO, a buzzer, and GO from anywhere. You could host a game show now.	नंबर, GOTO, बज़र और कहीं से भी GO। अब तुम गेम शो चला सकते हो।
+Goodnight, everybody! Tomorrow I go back to the letters. I'll miss you.	शुभ रात्रि, सबको! कल मैं फिर अक्षरों के पास जाऊँगी। आपकी याद आएगी।
+And the number is... not three. I'll allow it. I turn anything.	और नंबर है... तीन नहीं। चलो, मंज़ूर। मैं कुछ भी पलट देती हूँ।
+A second playlist is a layer over the map. The lizard stays underneath. For now.	दूसरी प्लेलिस्ट नक्शे के ऊपर की परत है। छिपकली नीचे ही है। फ़िलहाल।
+A Lower Third, a name, a title card, a backdrop. The lizard has left the studio.	एक लोअर थर्ड, एक नाम, एक शीर्षक कार्ड, एक पृष्ठभूमि। छिपकली स्टूडियो छोड़ गई।
+That's not my name. It's a lovely name. Now, about that lizard...	यह मेरा नाम नहीं है। अच्छा नाम है। अब उस छिपकली की बात करें...
+The rocket (on the pad)	The rocket (on the pad)
+The rocket (lift-off)	The rocket (lift-off)
+A rocket built in a basement, skapi, an inventor who wants cheese, and a dog who does the real work. Press START.	तहखाने में बना रॉकेट है, skapi। चीज़ माँगने वाला आविष्कारक और असली काम करने वाला कुत्ता। शुरू करें दबाओ।
+Stage timers: a countdown over a picture, a hold, and a view for the person on stage.	स्टेज टाइमर: तस्वीर पर उल्टी गिनती, उसे रोकना और स्टेज वाले व्यक्ति के लिए व्यू।
+Playlist 2 is selected, over the rocket. SOURCE, then Stage Timer.	रॉकेट के ऊपर प्लेलिस्ट 2 चुनी हुई है। स्रोत, फिर Stage Timer।
+*checks his watch, then the rocket, then his watch*	*घड़ी देखता है, फिर रॉकेट, फिर घड़ी*
+COUNT IT DOWN	उल्टी गिनती शुरू करो
+Select the timer and TAKE it. I have cleared its backdrop, so the rocket shows behind the numbers.	टाइमर चुनो और TAKE करो। मैंने उसकी पृष्ठभूमि हटा दी है, इसलिए अंकों के पीछे रॉकेट दिखता है।
+Past zero it keeps going and counts the overtime. Very honest. Slightly rude.	शून्य के बाद भी चलता है और अतिरिक्त समय गिनता है। बहुत ईमानदार। थोड़ा बदतमीज़।
+Close MENU, click the Deck 1 tab, then select 'The rocket (lift-off)' and TAKE it.	मेनू बंद करो, डेक 1 टैब पर क्लिक करो, फिर 'The rocket (lift-off)' चुनकर TAKE करो।
+The clock is on playlist 2, so it stays up while the rocket changes underneath it.	घड़ी प्लेलिस्ट 2 पर है, इसलिए नीचे रॉकेट बदलने पर भी दिखती रहती है।
+We have lift-off, Grommet! ...Grommet? Who's flying it?	उड़ चले, Grommet! ...Grommet? उड़ा कौन रहा है?
+A countdown, a hold, a pilot's view and a launch. Bring crackers.	उल्टी गिनती, विराम, पायलट का व्यू और उड़ान। नमकीन बिस्कुट लाना।
+*waves from the window*	*खिड़की से हाथ हिलाता है*
+The rubber chicken	The rubber chicken
+A magic show, skapi. A trunk, a rubber chicken, and one beat where everything changes at once. Press START.	जादू का शो है, skapi। एक संदूक, रबड़ की मुर्गी और एक ताल पर बदलता सब कुछ। शुरू करें दबाओ।
+Two playlists are two layers, and TAKE ALL changes both together. Tonight you will see why that matters.	दो प्लेलिस्ट यानी दो परतें। TAKE ALL दोनों को साथ बदलता है। आज समझोगे कि यह क्यों ज़रूरी है।
+The chicken goes on its own layer. Press the + at the end of the playlist tabs.	मुर्गी की अपनी परत होगी। प्लेलिस्ट टैब के आखिर में + दबाओ।
+The lit tab is the playlist that gets the next cue. Its chip now says 'to Out 1': it is layered over playlist 1 on that output.	रोशन टैब वाली प्लेलिस्ट में अगला cue आएगा। अब उसके चिप पर 'आउट 1 पर' लिखा है: उस आउटपुट में यह प्लेलिस्ट 1 के ऊपर है।
+TRICK ONE	पहला करतब
+Turnip Top has put the chicken in playlist 2. In playlist 1, TAKE 'The trunk (open)'. Then in playlist 2, TAKE the chicken.	Turnip Top ने मुर्गी प्लेलिस्ट 2 में रख दी है। प्लेलिस्ट 1 में 'The trunk (open)' को TAKE करो। फिर प्लेलिस्ट 2 में मुर्गी को TAKE करो।
+The chicken is clear all round, so it covers only itself. Watch the monitor between the two TAKEs.	मुर्गी के चारों ओर पारदर्शी है, इसलिए सिर्फ़ उसका शरीर ढकता है। दोनों TAKE के बीच मॉनिटर देखो।
+Did you see it? For a moment the trunk was open and empty: two TAKEs are two moments. The trick is reset. Now select the open trunk in playlist 1 and the chicken in playlist 2, then TAKE ALL.	देखा? एक पल संदूक खुला और खाली था: दो TAKE यानी दो अलग पल। करतब फिर तैयार है। अब प्लेलिस्ट 1 में खुला संदूक और 2 में मुर्गी चुनो, फिर TAKE ALL।
+TAKE ALL takes every playlist's selected cue on one beat. No gap, no empty trunk.	TAKE ALL हर प्लेलिस्ट का चुना cue एक ही ताल पर चलाता है। न अंतराल, न खाली संदूक।
+The chicken was late. They saw an empty trunk. In magic we call that a trunk.	मुर्गी देर से आई! लोगों ने खाली संदूक देख लिया। जादू की दुनिया में इसे संदूक कहते हैं!
+TAKE ALL	TAKE ALL
+THE VANISH	गायब होने का करतब
+Trick two. Drag playlist 2's opacity fader down to nothing. The chicken fades away.	दूसरा करतब। प्लेलिस्ट 2 का अपारदर्शीपन फ़ेडर पूरा नीचे खींचो। मुर्गी धीरे-धीरे गायब होगी।
+Every playlist has its own opacity. Down is a fade out, with no cue at all.	हर प्लेलिस्ट का अपना अपारदर्शीपन है। नीचे करो तो फ़ेड आउट, बिना किसी cue के।
+Ta-daaa! ...Hold for applause. Hold. Now watch it go.	टा-डा! ...तालियों का इंतज़ार। और इंतज़ार। अब इसे जाते देखो!
+Trick three. Bring it back: playlist 2's opacity all the way up.	तीसरा करतब। वापस लाओ: प्लेलिस्ट 2 का अपारदर्शीपन पूरा ऊपर करो।
+Where did it go? Back in the trunk. Everything goes back in the trunk.	कहाँ गई? वापस संदूक में! सब कुछ वापस संदूक में जाता है!
+THAT'S MAGIC	यही है जादू
+An appearance done wrong, then right, a vanish and a return. Nazdrave.	पहले गलत, फिर सही प्रवेश, फिर गायब और फिर वापसी। Nazdrave।
+A playlist can also sit on any output. Two layers, a great many tricks.	प्लेलिस्ट किसी भी आउटपुट पर रख सकते हो। दो परतें, ढेरों करतब।
+It's back! Thank you! I'm here all week! The chicken is here forever.	लौट आई! धन्यवाद! मैं पूरे हफ़्ते यहाँ हूँ! मुर्गी हमेशा रहेगी!
+A cooking show, skapi. Live. The kitchen is on fire. Press START.	खाना पकाने का शो, skapi। लाइव। रसोई में आग लगी है। शुरू करें दबाओ।
+Ta-da! Still cookin'! ...Still burnin'.	टा-डा! अब भी पक रहा है! ...अब भी जल रहा है।
+PANIC	PANIC
+Bork! De fire extinguisher is also on fire!	बोर्क! आग बुझाने वाला भी जलता है स्मोर्गी-बोर्गी!
+BLACK to hide, PANIC to stop, TAKE to come back. You will survive any kitchen.	काला से छिपाओ, PANIC से रोको, TAKE से लौटो। किसी भी रसोई में बच जाओगे।
+A fashion show, skapi. One designer, one runway, and a look she will want back. Press START.	फ़ैशन शो है, skapi। एक डिज़ाइनर, एक रैंप और एक लुक जिसे वह वापस चाहेगी। शुरू करें दबाओ।
+A preset stores a whole look and brings it back with one button.	प्रीसेट पूरा लुक सहेजता है और एक बटन से वापस लाता है।
+Darling. A look is not a look until you can get it back.	डार्लिंग। वापस न ला सको तो लुक, लुक ही नहीं है।
+Buttons. Good. I design with buttons.	बटन। अच्छा। मैं भी बटनों से डिज़ाइन करती हूँ।
+Store it. Before somebody has ideas.	सहेजो। किसी को कोई ख़याल आने से पहले।
+Close the DASH (Esc), then select Look two and TAKE it.	DASH बंद करो (Esc), फिर Look two चुनो और TAKE करो।
+A cape. On my runway. Someone will trip, darling. Someone always trips.	केप। मेरे रैंप पर। कोई गिरेगा, डार्लिंग। कोई न कोई हमेशा गिरता है।
+Recall: the whole look comes back at once.	वापस बुलाओ: पूरा लुक एक साथ लौट आता है।
+Thank you. We will never speak of the cape again.	शुक्रिया। उस केप की बात फिर कभी नहीं करेंगे।
+Simple. Timeless. Recallable. Now go, darling. I have a fitting.	सादा। सदाबहार। वापस बुला सकते हैं। अब जाओ, डार्लिंग। मुझे फ़िटिंग करनी है।
+Pushes, wipes, iris, dip to white, and more. I wrote half of them. On a Tuesday.	पुश, वाइप, आइरिस, सफ़ेद में डिप और भी बहुत कुछ। आधे मैंने लिखे हैं। एक मंगलवार को।
+Operators... roll the transition.	ऑपरेटरों... ट्रांज़िशन चलाओ।
+A style, a time, and two very dramatic entrances. Roll credits.	एक शैली, एक अवधि और दो बेहद नाटकीय प्रवेश। आखिरी क्रेडिट चलाओ।
+That is not an iris. ...It is better. I will allow it.	यह आइरिस नहीं है। ...इससे बेहतर है। मंज़ूर है।
+An effect, a bend and the patch. The robots approve, I think. Their faces are helmets.	एक इफ़ेक्ट, एक बेंड और पैच। शायद रोबोट खुश हैं। उनके चेहरे तो हेलमेट हैं।
+Waveform, vectorscope, false colour. The scopes settled it. The agents did not.	वेवफ़ॉर्म, वेक्टरस्कोप, झूठे रंग। स्कोप का फ़ैसला हो गया। एजेंटों का नहीं।
+The view from the capsule	कैप्सूल से नज़ारा
+Major Tomasina is in orbit, skapi, and her picture has to reach the ground. Press START.	Major Tomasina कक्षा में है, skapi। उसकी तस्वीर ज़मीन तक पहुँचानी है। शुरू करें दबाओ।
+Pictures leave by cable or network: NDI, SDI from a DeckLink card, ST 2110 for broadcast plants.	तस्वीरें केबल या नेटवर्क से निकलती हैं: NDI, DeckLink कार्ड से SDI, प्रसारण केंद्रों के लिए ST 2110।
+Ground control, this is Major Tomasina. Can you see my picture?	ग्राउंड कंट्रोल, मैं Major Tomasina। मेरी तस्वीर दिख रही है?
+Every way down, on one page. Good. Space has very few cables.	नीचे जाने के सारे रास्ते, एक ही पन्ने पर। अच्छा। अंतरिक्ष में केबल बहुत कम हैं।
+NDI	NDI
+Sending now. If nobody answers, I'll just float here.	भेजना शुरू। किसी ने जवाब न दिया तो यहीं तैरती रहूँगी।
+Ground control, signing off. Tell my mother I waved.	ग्राउंड कंट्रोल, संपर्क समाप्त। मेरी माँ से कहना, मैंने हाथ हिलाया था।
+Ground control can see me! I can see my house from here.	ग्राउंड कंट्रोल मुझे देख सकता है! यहाँ से मेरा घर दिखता है।
+MULTI ON	MULTI ON
+And one more window, showing the clock. Operators who watch a clock are never late.	एक और विंडो, घड़ी दिखाने के लिए। घड़ी देखने वाले ऑपरेटर कभी देर नहीं करते।
+The big window is window one, which is usually the programme.	बड़ी विंडो पहली है, जिसमें आम तौर पर प्रोग्राम दिखता है।
+Windows, the ... menu, NEXT, the clock, a layout, tally. Mystery solved.	विंडो, ... मेनू, NEXT, घड़ी, लेआउट, टैली। रहस्य सुलझ गया।
+DECKBOY  POCKET	DECKBOY  POCKET

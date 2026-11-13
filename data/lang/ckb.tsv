@@ -3110,3 +3110,176 @@ Stop masking this. The mask stays in the show's library, to put back from the me
 Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	ئەم ماسکە لە نمایشەکە و لە هەموو cue و لیستی لێدان و دەرچوونێک بسڕەوە کە بەکاری دەهێنن. گەڕانەوە دەیگەڕێنێتەوە
 FX PARAM: slot must be A-F	FX PARAM: slot دەبێت لە A تا F بێت
 FX LFO: slot must be A-D, E for the amount, or F/G for the fifth and sixth sliders	FX LFO: slot دەبێت A-D بێت، یان E بۆ بڕ، یان F/G بۆ سلایدەری پێنجەم و شەشەم
+playlist 2 is ready: you built one in the magic show	لیستی لێدانی 2 ئامادەیە: لە شانۆی جادوودا یەکێکت دروست کرد
+FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR	FX: بەکاری بهێنە LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR
+BLACK	ڕەش
+COACH MARV	COACH MARV
+JUNE O'NEIL	JUNE O'NEIL
+TURNIP TOP	TURNIP TOP
+CHEF BORK	CHEF BORK
+DONNA WHEEL	DONNA WHEEL
+KEEPER ROOK	KEEPER ROOK
+AGENT BRANDT	AGENT BRANDT
+AGENT HOLLIS	AGENT HOLLIS
+MR. SALTY	MR. SALTY
+OPTIMUS PRIMETIME	OPTIMUS PRIMETIME
+DEFT FUNK	DEFT FUNK
+LT. HAILA	LT. HAILA
+ENSIGN JINKLEY	ENSIGN JINKLEY
+The tour bus, with Polly Carton	پاسی گەشت، لەگەڵ Polly Carton
+A test pattern, drawing on a replay, a still, and the video synth at halftime.	نەخشی تاقیکردنەوە، کێشان لەسەر دووبارەپێدانەوە، وێنەیەکی جێگیر و synth ی ڤیدیۆ لە نێوان دوو نیوەدا.
+A stage timer over a picture, held, a presenter view for the person on stage, and a launch.	کاتژمێری شانۆ لەسەر وێنە، ڕاگرتن، دیمەن بۆ کەسی سەر شانۆ و هەڵفڕین.
+A second playlist as a layer, TAKE ALL so two things change on one beat, and a playlist's opacity.	لیستی پەخشی دووەم وەک چین، TAKE ALL بۆ گۆڕینی دوو شت بە یەک لێدان، و ناڕوونی لیست.
+The fashion show, with Edda Mod	نمایشی مۆد، لەگەڵ Edda Mod
+Ground control, with Major Tomasina	کۆنترۆڵی زەوی، لەگەڵ Major Tomasina
+0.1, 0.1, 0.1	0.1, 0.1, 0.1
+Opener (the bus at dawn)	Opener (the bus at dawn)
+Polly Carton's tour bus leaves at six, skapi, and this show goes with it. Press START.	پاسی گەشتی Polly Carton کاتژمێر شەش دەڕوات، skapi، ئەم نمایشەش لەگەڵیدا. دەستپێکردن دابگرە.
+A show that travels needs three things first: a check, a fix and a bundle.	نمایشی گەڕۆک سەرەتا سێ شت دەوێت: پشکنین، چاککردنەوە و کۆکردنەوە.
+Honey, I've played four thousand towns. Not one of them had my laptop.	گیانەکەم، لە چوار هەزار شارۆچکە گۆرانیم گوتووە. لە هیچ کامیان لاپتۆپەکەم نەبوو.
+It lists what the show would trip over: missing files, empty cues, outputs it cannot reach.	بەربەستەکان لیست دەکات: فایلی ون، کیوی بەتاڵ و دەرچوونی دەستپێنەگەیشتوو.
+Every show has a problem. Find yours before the audience does.	هەر نمایشێک کێشەیەکی هەیە. پێش بینەرەکان کێشەکەی خۆت بدۆزەرەوە.
+The intro video is on the office computer. Select it and delete it, or RELINK it if you have the file.	ڤیدیۆی پێشەکی لە کۆمپیوتەری ئۆفیسە. هەڵیبژێرە و بیسڕەوە، یان ئەگەر فایلەکەت هەیە RELINK بکە.
+Fix it here, with time and coffee. Not at the venue, with neither.	لێرە چاکی بکەرەوە، بە کات و قاوە. نەک لە شوێنی نمایش، بێ هەردووکیان.
+Leave it behind, sugar. I left a whole wig in Tulsa and the show went on.	جێی بهێڵە، شیرینەکەم. من لە تولسا تەواوی کڵاوەپەرچەیەکم جێهێشت و نمایش بەردەوام بوو.
+Press BUNDLE and choose where: a USB stick, a shared folder. The show and all its media, in one folder.	کۆکردنەوە دابگرە و شوێن هەڵبژێرە: USB یان بوخچەی هاوبەش. نمایش و هەموو میدیاکانی لە یەک بوخچە.
+Pack it like a wig box. Everything inside, nothing loose.	وەک سندووقی کڵاوەپەرچە بیپێچەوە. هەمووی لەناو، هیچ تاڵێک دەرەوە نەبێت.
+Checked, fixed, bundled. On the other computer, open the show in the bundle and everything is there.	پشکنرا، چاککرا، کۆکرایەوە. لە کۆمپیوتەرەکەی تر نمایشەکەی ناو پاکەتەکە بکەرەوە؛ هەمووی لەوێیە.
+The show file is only text, so it travels light. The media is the luggage.	فایلی نمایش تەنیا دەقە، سووک دەگەڕێت. میدیاکان باروبنەن.
+Bus leaves at six. Show starts at eight. Hair takes until seven.	پاس شەش دەڕوات. نمایش هەشت دەست پێدەکات. قژەکەم تا حەوت کاتی دەوێت.
+There are dozens, and most of them run on the graphics card, so you can stack them.	دەیان هەن و زۆربەیان لەسەر کارتی گرافیک کار دەکەن، بۆیە دەتوانیت کۆیان بکەیتەوە.
+An effect, a ~ and a colour. The critic is crying. Good crying, I think.	کاریگەرییەک، ~ و ڕەنگێک. ڕەخنەگرەکە دەگری. پێم وایە لە خۆشییە.
+Stack a few more. Order matters: each effect works on the picture the one above it made.	چەندێکی تر بخەرە سەری. ڕیز گرنگە: هەر کاریگەرییەک وێنەی دروستکراوی ئەوەی سەرەوە دەگۆڕێت.
+Three effects! It's a mess! It's ALIVE! Post it.	سێ کاریگەری! شێواوە! زیندووە! بڵاوی بکەرەوە.
+The replay	The replay
+Coach Marv has two minutes of airtime, one replay and a pen, skapi. He will use all three. Press START.	Coach Marv دوو خولەکی پەخش، دووبارەپێدانەوەیەک و قەڵەمێکی هەیە، skapi. هەرسێکیان بەکاردەهێنێت. دەستپێکردن دابگرە.
+Tonight: a test pattern, drawing on the picture, and the video synth.	ئەمشەو: نەخشی تاقیکردنەوە، کێشان لەسەر وێنە و synth ی ڤیدیۆ.
+Folks, I've watched this play forty times. It's still a play.	خەڵکینە، چل جار ئەم یارییەم بینیوە. هێشتا یارییە.
+CHECK THE MONITORS	پشکنینی مۆنیتۆرەکان
+PATTERN adds Pocket Test. If its circles are not round, a screen is stretched. Find out now, not on air.	نەخش، Pocket Test زیاد دەکات. ئەگەر بازنەکانی خڕ نین، شاشەکە ڕاکێشراوە. ئێستا بیزانە، نەک لەسەر هەوا.
+Its bars and steps are checked against real meters, so a wrong screen looks wrong at once.	هێڵ و پلەکانی بە پێوەری ڕاستەقینە پشکنراون، بۆیە شاشەی هەڵە یەکسەر دیارە.
+That's a test pattern. You test with it. That's why they call it that.	ئەوە نەخشی تاقیکردنەوەیە. پێی تاقی دەکەیتەوە. بۆیە ناوی وایە.
+ROLL THE REPLAY	دووبارەپێدانەوە بخەرە کار
+Select The replay and TAKE it.	The replay هەڵبژێرە و TAKE بکە.
+A replay loops, so the pundit can talk over it for as long as he likes. He likes.	دووبارەپێدانەوە دەخولێتەوە تا شارەزاکە هەتا بیەوێت قسە بکات. زۆری دەوێت.
+Here's number 22. Number 22 has the ball. That's important, because the ball is how you score.	ئەوە ژمارە 22 ـە. تۆپەکە لای ژمارە 22 ـە. گرنگە، چونکە بە تۆپ خاڵ دەهێنیت.
+The pen goes over the replay, on its own layer. Press the + at the end of the playlist tabs.	قەڵەم لە چینی خۆیدا دەچێتە سەر دووبارەپێدانەوە. + لە کۆتایی تابەکانی لیستی پەخش دابگرە.
+A second playlist is a layer over the first.	لیستی پەخشی دووەم چینێکە لەسەر یەکەم.
+Over it. Not under it. Under it, you can't see it. That's football.	لەسەری. نەک لەژێری. لەژێری نابینیت. تۆپی پێ ئەوەیە.
+The lit tab is where SOURCE puts things. Skip this and the ink lands under the replay.	سەرچاوە شتەکان دەخاتە تابی ڕووناک. ئەمە جێبهێڵیت، مەرەکەب دەکەوێتە ژێر دووبارەپێدانەوە.
+See that tab? Click it. Fundamentals.	ئەو تابە دەبینیت؟ کلیکی بکە. بنەماکان.
+In playlist 2: SOURCE, then Draw.	لە لیستی پەخشی 2: سەرچاوە، پاشان کێشان.
+A Draw cue is clear wherever there is no ink, so the replay shows through.	کیوی کێشان لە هەر شوێنێکی بێ مەرەکەب شەفافە، بۆیە دووبارەپێدانەوە لە پشتەوە دیارە.
+Give me the pen. I've waited all season for the pen.	قەڵەمەکەم بدەرێ. تەواوی وەرز چاوەڕێی قەڵەم بووم.
+Both are live now: the replay underneath, the ink on top.	ئێستا هەردووکیان زیندوون: دووبارەپێدانەوە لەژێر، مەرەکەب لەسەر.
+We're on the air. Nobody touches the pen but me.	لەسەر هەواین. جگە لە من کەس دەست لە قەڵەم نادات.
+CIRCLE HIM	بازنەی بە دەوردا بکێشە
+Press DRAW in the inspector, then circle number 22 on the programme monitor. He is the yellow one.	لە پشکنەردا کێشان دابگرە، پاشان بازنە بە دەوری ژمارە 22 لە مۆنیتۆری بەرنامە بکێشە. ئەو زەردەیە.
+A pen's pressure makes the line thicker. A mouse presses at one strength.	فشاری قەڵەم هێڵ ئەستوور دەکات. ماوس تەنیا یەک هێزی هەیە.
+Circle him! The yellow one! There's only one yellow one. Circle that one.	بازنەی بکە! زەردەکە! تەنیا یەک زەرد هەیە. ئەوە بازنە بکە!
+Draw as much as you like. Then SAVE STILL keeps the drawing as a picture with a clear background, in the playlist.	هەتا دەتەوێت بکێشە. پاشان پاشەکەوتی وێنە وێنەکێشانەکە بە پاشبنەمای شەفاف لە لیستی پەخش هەڵدەگرێت.
+For next week's show. He will want that circle again.	بۆ بەرنامەی هەفتەی داهاتوو. ئەو بازنەیەی دووبارە دەوێت.
+Put that in the Hall of Fame. Next to the turducken.	بیخەرە هۆڵی ناوداران. تەنیشت قەڵەمونی پڕکراو بە مراوی پڕکراو بە مریشک.
+Halftime. Click the Deck 1 tab, then SOURCE, then Video Synth.	نێوان دوو نیوە. تابی دێک 1 دابگرە، پاشان سەرچاوە، پاشان synth ی ڤیدیۆ.
+My favourite source: oscillators, mirrors and feedback. A halftime show with no camera at all.	سەرچاوەی دڵخوازم: شەپۆلساز، ئاوێنە و فیدباک. نمایشی نێوان دوو نیوە بێ هیچ کامێرایەک.
+Halftime! Somebody get me some lights. And a band. And a sandwich.	پشووی نێوان دوو نیوە! کەسێک ڕووناکی بهێنێت. و تیپی مۆسیقا. و ساندویچێک.
+TAKE HALFTIME	TAKE بۆ پشووی نیوە
+Select the synth and TAKE it. Then look at the monitor: your ink is still up.	synth هەڵبژێرە و TAKE بکە. ئێستا مۆنیتۆر ببینە: مەرەکەبەکەت هێشتا هەیە.
+Playlist 2 did not change, so its ink stays over whatever playlist 1 shows. Each playlist changes on its own.	لیستی پەخشی 2 نەگۆڕا، بۆیە مەرەکەبەکەی لەسەر هەرچی لیستی 1 پیشانی دەدات دەمێنێت. هەر لیستێک جیا دەگۆڕێت.
+Leave the circle up. It's a good circle. It goes with everything.	بازنەکە بهێڵەوە. بازنەیەکی باشە. لەگەڵ هەموو شتێک دەگونجێت.
+A test pattern, a replay, ink on a layer, a still, and halftime. That's the booth.	نەخشی تاقیکردنەوە، دووبارەپێدانەوە، مەرەکەب لەسەر چین، وێنەی جێگیر و پشووی نیوە. کابینە ئەوەیە.
+Replay in the Draw section draws your lines back the way you drew them. He will love that.	Replay لە بەشی کێشان هێڵەکانت وەک خۆت دووبارە دەکێشێت. حەزی پێ دەبێت.
+Same time next week. Bring a bigger pen.	هەفتەی داهاتوو هەمان کات. قەڵەمی گەورەتر بهێنە.
+Now THAT is a busy play. I can't see the field. I love it.	ئەمە یارییەکی قەرەباڵغە! یاریگاکە نابینم. زۆر خۆشە.
+Two projectors overlap, and each fades its edge so the overlap is not twice as bright. Watch the sides of the monitor go soft.	دوو پرۆژێکتەر دەکەونە سەر یەک و هەریەکە لێواری خۆی کاڵ دەکاتەوە تا ڕووناکی دووهێندە نەبێت. نەرمبوونی لاکانی مۆنیتۆر ببینە.
+A game show, skapi. Three contestants, one buzzer, and a host who is not here tonight. Press START.	مسابقەی تەلەفزیۆنی، skapi. سێ بەشداربوو، یەک زەنگ و خانەخوێیەک کە ئەمشەو نییە. دەستپێکردن دابگرە.
+Cue numbers, hotkeys, and GO from other machines.	ژمارەی کیو، کلیلە خێراکان و GO لە ئامێری ترەوە.
+Forty years I turned the letters. Tonight they gave me the microphone. Nobody panic.	چل ساڵ پیتەکانم دەسووڕاندەوە. ئەمشەو مایکرۆفۆنیان دامێ. کەس مەترسێت.
+Theatre numbers its cues: Q3, Q3.5, Q12A. Deckboy reads them all.	شانۆ کیوەکان ژمارە دەکات: Q3، Q3.5، Q12A. Deckboy هەموویان دەخوێنێتەوە.
+Numbers! I know letters. Numbers are letters that went to college.	ژمارە! من پیت دەزانم. ژمارە پیتە کە چووەتە زانکۆ.
+GOTO crosses a long list faster than scrolling. Much faster.	GOTO لیستێکی درێژ خێراتر لە سکڕۆڵ تێدەپەڕێت. زۆر خێراتر.
+F1 to F10, F12, or the number pad. Each one is a buzzer.	F1 تا F10، F12 یان تەختەی ژمارە. هەریەکەیان زەنگێکە.
+Every contestant gets a buzzer. I get the letters. It's fine. It's fine.	هەر بەشداربووێک زەنگێکی هەیە. من پیتەکانم هەیە. باشە. زۆر باشە.
+No mouse, no list, no looking. Only the key.	بێ ماوس، بێ لیست، بێ سەیرکردن. تەنیا کلیل.
+Buzz! A winner! I've never said that. I've only pointed at it.	زەنگ! براوە! هەرگیز ئەمە نەگوتووە. تەنیا ئاماژەم پێکردووە.
+And for our viewers at home: yes, you can push the buttons too.	بۆ بینەرانی ماڵەوە: بەڵێ، ئێوەش دەتوانن دوگمە دابگرن.
+Numbers, GOTO, a buzzer, and GO from anywhere. You could host a game show now.	ژمارە، GOTO، زەنگ و GO لە هەر شوێنێک. ئێستا دەتوانیت خانەخوێی مسابقە بیت.
+Goodnight, everybody! Tomorrow I go back to the letters. I'll miss you.	شەوتان باش! سبەی دەگەڕێمەوە بۆ پیتەکان. بیرتان دەکەم.
+And the number is... not three. I'll allow it. I turn anything.	ژمارەکەش... سێ نییە. قبووڵە. من هەر شتێک دەسووڕێنمەوە.
+A second playlist is a layer over the map. The lizard stays underneath. For now.	لیستی پەخشی دووەم چینێکە لەسەر نەخشە. مارمێلکەکە لەژێر دەمێنێت. تا ئێستا.
+A Lower Third, a name, a title card, a backdrop. The lizard has left the studio.	Lower Third، ناو، کارتی ناونیشان، پاشبنەما. مارمێلکەکە ستودیۆی جێهێشت.
+That's not my name. It's a lovely name. Now, about that lizard...	ئەوە ناوی من نییە. ناوێکی جوانە. ئێستا، دەربارەی مارمێلکەکە...
+The rocket (on the pad)	The rocket (on the pad)
+The rocket (lift-off)	The rocket (lift-off)
+A rocket built in a basement, skapi, an inventor who wants cheese, and a dog who does the real work. Press START.	مووشەکێکی دروستکراوی ژێرزەمین، skapi، داهێنەرێکی پەنیرخواز و سەگێک کە کاری ڕاستەقینە دەکات. دەستپێکردن دابگرە.
+Stage timers: a countdown over a picture, a hold, and a view for the person on stage.	کاتژمێری شانۆ: ژماردنەوەی پێچەوانە لەسەر وێنە، ڕاگرتن و دیمەن بۆ کەسی سەر شانۆ.
+Playlist 2 is selected, over the rocket. SOURCE, then Stage Timer.	لیستی پەخشی 2 هەڵبژێردراوە، لەسەر مووشەک. سەرچاوە، پاشان Stage Timer.
+*checks his watch, then the rocket, then his watch*	*سەیری کاتژمێرەکەی دەکات، پاشان مووشەک، پاشان کاتژمێر*
+COUNT IT DOWN	بەرەو سفر بژمێرە
+Select the timer and TAKE it. I have cleared its backdrop, so the rocket shows behind the numbers.	کاتژمێرەکە هەڵبژێرە و TAKE بکە. پاشبنەماکەم سڕیوەتەوە تا مووشەک لە پشت ژمارەکان دیار بێت.
+Past zero it keeps going and counts the overtime. Very honest. Slightly rude.	دوای سفر بەردەوامە و کاتی زیادە دەژمێرێت. زۆر ڕاستگۆیە. کەمێک بێ‌ئەدەب.
+Close MENU, click the Deck 1 tab, then select 'The rocket (lift-off)' and TAKE it.	مێنیو دابخە، تابی دێک 1 دابگرە، پاشان 'The rocket (lift-off)' هەڵبژێرە و TAKE بکە.
+The clock is on playlist 2, so it stays up while the rocket changes underneath it.	کاتژمێر لە لیستی پەخشی 2 ـە، بۆیە دەمێنێت کاتێک مووشەک لەژێری دەگۆڕێت.
+We have lift-off, Grommet! ...Grommet? Who's flying it?	هەڵفڕین، Grommet! ...Grommet؟ کێ لێی دەخوڕێت؟
+A countdown, a hold, a pilot's view and a launch. Bring crackers.	ژماردنەوە، ڕاگرتن، دیمەنی فڕۆکەوان و هەڵفڕین. بسکیت بهێنە.
+*waves from the window*	*لە پەنجەرەوە دەست ڕادەوەشێنێت*
+The rubber chicken	The rubber chicken
+A magic show, skapi. A trunk, a rubber chicken, and one beat where everything changes at once. Press START.	نمایشی جادوو، skapi. سندووق، مریشکی لاستیکی و یەک لێدان کە هەموو شت پێکەوە دەگۆڕێت. دەستپێکردن دابگرە.
+Two playlists are two layers, and TAKE ALL changes both together. Tonight you will see why that matters.	دوو لیستی پەخش دوو چینن، TAKE ALL هەردووکیان پێکەوە دەگۆڕێت. ئەمشەو گرنگییەکەی دەبینیت.
+The chicken goes on its own layer. Press the + at the end of the playlist tabs.	مریشکەکە چینی خۆی هەیە. + لە کۆتایی تابەکانی لیستی پەخش دابگرە.
+The lit tab is the playlist that gets the next cue. Its chip now says 'to Out 1': it is layered over playlist 1 on that output.	تابی ڕووناک ئەو لیستەیە کە کیوی داهاتوو وەردەگرێت. نیشانەکەی ئێستا 'بۆ دەرچوون 1' ـە: لەو دەرچوونە لەسەر لیستی 1 چین کراوە.
+TRICK ONE	فێڵی یەکەم
+Turnip Top has put the chicken in playlist 2. In playlist 1, TAKE 'The trunk (open)'. Then in playlist 2, TAKE the chicken.	Turnip Top مریشکەکەی خستووەتە لیستی پەخشی 2. لە لیستی 1، 'The trunk (open)' TAKE بکە. پاشان لە لیستی 2 مریشکەکە TAKE بکە.
+The chicken is clear all round, so it covers only itself. Watch the monitor between the two TAKEs.	دەوری مریشکەکە شەفافە، تەنیا خۆی دادەپۆشێت. لە نێوان دوو TAKE مۆنیتۆر ببینە.
+Did you see it? For a moment the trunk was open and empty: two TAKEs are two moments. The trick is reset. Now select the open trunk in playlist 1 and the chicken in playlist 2, then TAKE ALL.	بینیت؟ بۆ ساتێک سندووقەکە کراوە و بەتاڵ بوو: دوو TAKE دوو ساتن. فێڵەکە نوێکرایەوە. ئێستا سندووقی کراوە لە لیستی 1 و مریشک لە لیستی 2 هەڵبژێرە، پاشان TAKE ALL.
+TAKE ALL takes every playlist's selected cue on one beat. No gap, no empty trunk.	TAKE ALL کیوی هەڵبژێردراوی هەر لیستێک بە یەک لێدان دەخاتە کار. بێ بۆشایی، بێ سندووقی بەتاڵ.
+The chicken was late. They saw an empty trunk. In magic we call that a trunk.	مریشک درەنگ هات. سندووقی بەتاڵیان بینی. لە جادوودا بەوە دەڵێین سندووق.
+TAKE ALL	TAKE ALL
+THE VANISH	ونبوون
+Trick two. Drag playlist 2's opacity fader down to nothing. The chicken fades away.	فێڵی دووەم. فەیدەری ناڕوونی لیستی پەخشی 2 تا سفر دابەزێنە. مریشکەکە کاڵ دەبێتەوە.
+Every playlist has its own opacity. Down is a fade out, with no cue at all.	هەر لیستێک ناڕوونی خۆی هەیە. دابەزاندنی کاڵکردنەوەیە، بێ هیچ کیوێک.
+Ta-daaa! ...Hold for applause. Hold. Now watch it go.	تا دااا! ...چاوەڕێی چەپڵە بکە. چاوەڕێ بکە. ئێستا ونبوونەکە ببینە.
+Trick three. Bring it back: playlist 2's opacity all the way up.	فێڵی سێیەم. بیهێنەرەوە: ناڕوونی لیستی پەخشی 2 تا سەرەوە بەرز بکەرەوە.
+Where did it go? Back in the trunk. Everything goes back in the trunk.	بۆ کوێ چوو؟ ناو سندووق. هەموو شت دەگەڕێتەوە ناو سندووق.
+THAT'S MAGIC	جادوو ئەوەیە
+An appearance done wrong, then right, a vanish and a return. Nazdrave.	دەرکەوتنی هەڵە، پاشان ڕاست، ونبوون و گەڕانەوە. Nazdrave.
+A playlist can also sit on any output. Two layers, a great many tricks.	لیستی پەخش لە هەر دەرچوونێک دادەنرێت. دوو چین، زۆر فێڵ.
+It's back! Thank you! I'm here all week! The chicken is here forever.	گەڕایەوە! سوپاس! من تەواوی هەفتە لێرەم! مریشکەکە هەتاهەتایە لێرەیە!
+A cooking show, skapi. Live. The kitchen is on fire. Press START.	بەرنامەی چێشتلێنان، skapi. ڕاستەوخۆ. چێشتخانەکە ئاگری گرتووە. دەستپێکردن دابگرە.
+Ta-da! Still cookin'! ...Still burnin'.	تا دا! هێشتا لێدەکەین! ...هێشتا دەسووتێین.
+PANIC	PANIC
+Bork! De fire extinguisher is also on fire!	بۆرک! ئاگرکوژێنەوەکەش ئاگرە-فلۆرکە!
+BLACK to hide, PANIC to stop, TAKE to come back. You will survive any kitchen.	ڕەش بۆ شاردنەوە، PANIC بۆ وەستان، TAKE بۆ گەڕانەوە. لە هەر چێشتخانەیەک ڕزگارت دەبێت.
+PRESETS	Preset
+A fashion show, skapi. One designer, one runway, and a look she will want back. Press START.	نمایشی مۆد، skapi. دیزاینەرێک، ڕێڕەوێک و دیمەنێک کە دووبارەی دەوێت. دەستپێکردن دابگرە.
+A preset stores a whole look and brings it back with one button.	پێش‌ڕێکخستن دیمەنێکی تەواو هەڵدەگرێت و بە یەک دوگمە دەیهێنێتەوە.
+Darling. A look is not a look until you can get it back.	گیانەکەم. دیمەن دیمەن نییە تا نەتوانیت بیهێنیتەوە.
+Buttons. Good. I design with buttons.	دوگمە. باشە. من بە دوگمە دیزاین دەکەم.
+Store it. Before somebody has ideas.	هەڵیگرە. پێش ئەوەی کەسێک بیرۆکەیەکی بۆ بێت.
+Close the DASH (Esc), then select Look two and TAKE it.	DASH دابخە (Esc)، پاشان Look two هەڵبژێرە و TAKE بکە.
+A cape. On my runway. Someone will trip, darling. Someone always trips.	کەپێک. لەسەر ڕێڕەوی من. کەسێک دەکەوێت، گیانەکەم. هەمیشە کەسێک دەکەوێت.
+Recall: the whole look comes back at once.	بانگکردنەوە: تەواوی دیمەن یەکجار دەگەڕێتەوە.
+Thank you. We will never speak of the cape again.	سوپاس. هەرگیز باسی کەپەکە ناکەینەوە.
+Simple. Timeless. Recallable. Now go, darling. I have a fitting.	سادە. هەمیشەیی. بانگکراوە. بڕۆ گیانەکەم. پێوانەی جلم هەیە.
+Pushes, wipes, iris, dip to white, and more. I wrote half of them. On a Tuesday.	پاڵنان، سڕین، ئایریس، کاڵبوونەوە بۆ سپی و زیاتر. نیوەیانم نووسیوە. سێشەممەیەک.
+Operators... roll the transition.	ئۆپەراتۆرەکان... گواستنەوە بخەنە کار.
+A style, a time, and two very dramatic entrances. Roll credits.	شێوازێک، کاتێک و دوو هاتنەژوورەوەی زۆر شانۆیی. ناوەکانی کۆتایی بێنن.
+That is not an iris. ...It is better. I will allow it.	ئەوە ئایریس نییە. ...باشترە. ڕێی پێدەدەم.
+An effect, a bend and the patch. The robots approve, I think. Their faces are helmets.	کاریگەری، چەمانەوە و پاتچ. پێم وایە ڕۆبۆتەکان ڕازین. ڕووخساریان کڵاوخۆیە.
+Waveform, vectorscope, false colour. The scopes settled it. The agents did not.	شێوەشەپۆل، ڤێکتۆرسکۆپ، ڕەنگی ساختە. پێوەرەکان یەکلاییان کردەوە. بریکارەکان نا.
+The view from the capsule	دیمەن لە کەپسوولەوە
+Major Tomasina is in orbit, skapi, and her picture has to reach the ground. Press START.	Major Tomasina لە خولگەدایە، skapi، و وێنەکەی دەبێت بگاتە زەوی. دەستپێکردن دابگرە.
+Pictures leave by cable or network: NDI, SDI from a DeckLink card, ST 2110 for broadcast plants.	وێنە بە کابڵ یان تۆڕ دەڕوات: NDI، SDI لە کارتی DeckLink و ST 2110 بۆ ناوەندی پەخش.
+Ground control, this is Major Tomasina. Can you see my picture?	کۆنترۆڵی زەوی، لێرە Major Tomasina ـە. وێنەکەم دەبینن؟
+Every way down, on one page. Good. Space has very few cables.	هەموو ڕێگاکانی خوارەوە لە یەک لاپەڕە. باشە. بۆشایی کابڵی زۆر کەمە.
+NDI	NDI
+Sending now. If nobody answers, I'll just float here.	ئێستا دەنێرم. ئەگەر کەس وەڵام نەدات، هەر لێرە هەڵدەواسێم.
+Ground control, signing off. Tell my mother I waved.	کۆنترۆڵی زەوی، پەیوەندی تەواو. بە دایکم بڵێن دەستم ڕاوەشاند.
+Ground control can see me! I can see my house from here.	کۆنترۆڵی زەوی من دەبینێت! لێرەوە ماڵەکەم دەبینم.
+MULTI ON	MULTI ON
+And one more window, showing the clock. Operators who watch a clock are never late.	پەنجەرەیەکی تریش بۆ کاتژمێر. ئۆپەراتۆری چاودێری کاتژمێر هەرگیز دوا ناکەوێت.
+The big window is window one, which is usually the programme.	پەنجەرە گەورەکە پەنجەرەی یەکە، کە زۆرجار بەرنامەیە.
+Windows, the ... menu, NEXT, the clock, a layout, tally. Mystery solved.	پەنجەرە، مێنیوی ...، NEXT، کاتژمێر، ڕێکخستن، tally. نهێنی چارەسەر کرا.
+FX CHOICE: choice must be A or B	FX CHOICE: هەڵبژاردە دەبێت A یان B بێت
+FX CHOICE: no effect at that index	FX CHOICE: لەو پێڕستە هیچ کاریگەرییەک نییە
+whole picture	تەواوی وێنە

@@ -3075,3 +3075,173 @@ Stop masking this. The mask stays in the show's library, to put back from the me
 Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	Удалить эту маску из шоу и из каждого cue, плейлиста и выхода, где она используется. Отмена вернёт её
 FX PARAM: slot must be A-F	FX PARAM: слот должен быть A-F
 FX LFO: slot must be A-D, E for the amount, or F/G for the fifth and sixth sliders	FX LFO: слот должен быть A-D, E для силы или F/G для пятого и шестого ползунков
+playlist 2 is ready: you built one in the magic show	плейлист 2 готов: ты создал его на шоу фокусов
+FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR	FX: используй LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR
+BLACK	чёрный
+COACH MARV	COACH MARV
+JUNE O'NEIL	JUNE O'NEIL
+TURNIP TOP	TURNIP TOP
+CHEF BORK	CHEF BORK
+DONNA WHEEL	DONNA WHEEL
+KEEPER ROOK	KEEPER ROOK
+AGENT BRANDT	AGENT BRANDT
+AGENT HOLLIS	AGENT HOLLIS
+MR. SALTY	MR. SALTY
+OPTIMUS PRIMETIME	OPTIMUS PRIMETIME
+DEFT FUNK	DEFT FUNK
+LT. HAILA	LT. HAILA
+ENSIGN JINKLEY	ENSIGN JINKLEY
+The tour bus, with Polly Carton	Гастрольный автобус с Polly Carton
+A test pattern, drawing on a replay, a still, and the video synth at halftime.	Тестовая таблица, рисунок поверх повтора, сохранённый кадр и видеосинтезатор в перерыве.
+A stage timer over a picture, held, a presenter view for the person on stage, and a launch.	Сценический таймер поверх картинки, пауза, экран для выступающего и запуск.
+A second playlist as a layer, TAKE ALL so two things change on one beat, and a playlist's opacity.	Второй плейлист как слой, TAKE ALL для одновременной смены и непрозрачность плейлиста.
+The fashion show, with Edda Mod	Показ мод с Edda Mod
+Ground control, with Major Tomasina	Центр управления с Major Tomasina
+0.1, 0.1, 0.1	0.1, 0.1, 0.1
+Opener (the bus at dawn)	Вступление (автобус на рассвете)
+Polly Carton's tour bus leaves at six, skapi, and this show goes with it. Press START.	Гастрольный автобус Polly Carton уезжает в шесть, skapi. Это шоу едет с ним. Нажми Старт.
+A show that travels needs three things first: a check, a fix and a bundle.	Перед дорогой шоу нужны три вещи: проверка, починка и упаковка.
+Honey, I've played four thousand towns. Not one of them had my laptop.	Милый, я выступала в четырёх тысячах городов. Моего ноутбука не было ни в одном.
+It lists what the show would trip over: missing files, empty cues, outputs it cannot reach.	Здесь всё, обо что споткнётся шоу: пропавшие файлы, пустые cue, недоступные выходы.
+Every show has a problem. Find yours before the audience does.	У каждого шоу есть проблема. Найди её раньше зрителей.
+The intro video is on the office computer. Select it and delete it, or RELINK it if you have the file.	Вступительное видео осталось на офисном компьютере. Выбери его и удали. Если файл у тебя есть, используй RELINK.
+Fix it here, with time and coffee. Not at the venue, with neither.	Исправь всё здесь, пока есть время и кофе. На площадке не будет ни того ни другого.
+Leave it behind, sugar. I left a whole wig in Tulsa and the show went on.	Оставь его, сладкий. Я как-то оставила в Талсе целый парик. Шоу продолжилось.
+Press BUNDLE and choose where: a USB stick, a shared folder. The show and all its media, in one folder.	Нажми УПАКОВАТЬ и выбери место: флешку или общую папку. Шоу и все медиа окажутся в одной папке.
+Pack it like a wig box. Everything inside, nothing loose.	Укладывай как парик в коробку. Всё внутри, ничего не торчит.
+Checked, fixed, bundled. On the other computer, open the show in the bundle and everything is there.	Проверили, исправили, упаковали. На другом компьютере открой шоу из этой папки. Всё на месте.
+The show file is only text, so it travels light. The media is the luggage.	Файл шоу — просто текст. Он путешествует налегке. Медиа — его багаж.
+Bus leaves at six. Show starts at eight. Hair takes until seven.	Автобус в шесть. Шоу в восемь. Причёска — до семи.
+There are dozens, and most of them run on the graphics card, so you can stack them.	Их десятки. Большинство работает на видеокарте, так что можно ставить несколько подряд.
+An effect, a ~ and a colour. The critic is crying. Good crying, I think.	Эффект, ~ и цвет. Критик плачет. Кажется, от счастья.
+Stack a few more. Order matters: each effect works on the picture the one above it made.	Добавь ещё несколько. Порядок важен: каждый эффект обрабатывает картинку после того, что стоит выше.
+Three effects! It's a mess! It's ALIVE! Post it.	Три эффекта! Какой кошмар! Оно ЖИВОЕ! Выкладывай.
+The replay	The replay
+Coach Marv has two minutes of airtime, one replay and a pen, skapi. He will use all three. Press START.	У Coach Marv две минуты эфира, один повтор и перо, skapi. В ход пойдут все три. Нажми Старт.
+Tonight: a test pattern, drawing on the picture, and the video synth.	Сегодня: тестовая таблица, рисунок поверх картинки и видеосинтезатор.
+Folks, I've watched this play forty times. It's still a play.	Друзья, я пересмотрел этот момент сорок раз. Всё ещё момент.
+CHECK THE MONITORS	ПРОВЕРЬ МОНИТОРЫ
+PATTERN adds Pocket Test. If its circles are not round, a screen is stretched. Find out now, not on air.	ТАБЛИЦА добавляет Pocket Test. Если круги не круглые, экран растягивает картинку. Выясни это сейчас, до эфира.
+Its bars and steps are checked against real meters, so a wrong screen looks wrong at once.	Её полосы и ступени проверены настоящими приборами. Неправильный экран сразу выдаст себя.
+That's a test pattern. You test with it. That's why they call it that.	Это тестовая таблица. Ею тестируют. Отсюда и название.
+ROLL THE REPLAY	ВКЛЮЧАЙ ПОВТОР
+Select The replay and TAKE it.	Выбери The replay и нажми TAKE.
+A replay loops, so the pundit can talk over it for as long as he likes. He likes.	Повтор идёт по кругу. Комментатор может говорить сколько захочет. А он захочет.
+Here's number 22. Number 22 has the ball. That's important, because the ball is how you score.	Вот номер 22. У номера 22 мяч. Это важно: без мяча не забьёшь.
+The pen goes over the replay, on its own layer. Press the + at the end of the playlist tabs.	Перо рисует поверх повтора, на отдельном слое. Нажми + в конце вкладок плейлистов.
+A second playlist is a layer over the first.	Второй плейлист — слой поверх первого.
+Over it. Not under it. Under it, you can't see it. That's football.	Поверх. Не снизу. Снизу не видно. Вот такой футбол.
+The lit tab is where SOURCE puts things. Skip this and the ink lands under the replay.	ИСТОЧНИК добавляет элементы на подсвеченную вкладку. Пропустишь это — рисунок окажется под повтором.
+See that tab? Click it. Fundamentals.	Видишь вкладку? Нажми. Основы игры.
+In playlist 2: SOURCE, then Draw.	В плейлисте 2: ИСТОЧНИК, затем Рисование.
+A Draw cue is clear wherever there is no ink, so the replay shows through.	Cue Рисование прозрачен там, где нет линий. Сквозь него виден повтор.
+Give me the pen. I've waited all season for the pen.	Дай перо. Я весь сезон ждал этого пера.
+Both are live now: the replay underneath, the ink on top.	Теперь оба в эфире: повтор снизу, рисунок сверху.
+We're on the air. Nobody touches the pen but me.	Мы в эфире. Перо трогаю только я.
+CIRCLE HIM	ОБВЕДИ ЕГО
+Press DRAW in the inspector, then circle number 22 on the programme monitor. He is the yellow one.	Нажми Рисование в инспекторе и обведи номер 22 на программном мониторе. Он в жёлтом.
+A pen's pressure makes the line thicker. A mouse presses at one strength.	Чем сильнее нажим пера, тем толще линия. У мыши сила нажатия одна.
+Circle him! The yellow one! There's only one yellow one. Circle that one.	Обведи его! В жёлтом! Тут один в жёлтом. Вот его и обведи.
+Draw as much as you like. Then SAVE STILL keeps the drawing as a picture with a clear background, in the playlist.	Рисуй сколько хочешь. Затем сохранить кадр оставит рисунок в плейлисте как картинку с прозрачным фоном.
+For next week's show. He will want that circle again.	Для следующей недели. Этот круг ему ещё понадобится.
+Put that in the Hall of Fame. Next to the turducken.	В Зал славы его. Рядом с уткой в курице в индейке.
+Halftime. Click the Deck 1 tab, then SOURCE, then Video Synth.	Перерыв. Нажми вкладку Дека 1, затем ИСТОЧНИК и Видеосинтезатор.
+My favourite source: oscillators, mirrors and feedback. A halftime show with no camera at all.	Мой любимый источник: генераторы, зеркала и обратная связь. Шоу в перерыве без единой камеры.
+Halftime! Somebody get me some lights. And a band. And a sandwich.	Перерыв! Дайте мне свет. И оркестр. И бутерброд.
+TAKE HALFTIME	TAKE ДЛЯ ПЕРЕРЫВА
+Select the synth and TAKE it. Then look at the monitor: your ink is still up.	Выбери синтезатор и нажми TAKE. Посмотри на монитор: рисунок всё ещё здесь.
+Playlist 2 did not change, so its ink stays over whatever playlist 1 shows. Each playlist changes on its own.	Плейлист 2 не менялся. Его рисунок остаётся поверх любой картинки плейлиста 1. Плейлисты переключаются независимо.
+Leave the circle up. It's a good circle. It goes with everything.	Оставь круг. Хороший круг. Ко всему подходит.
+A test pattern, a replay, ink on a layer, a still, and halftime. That's the booth.	Таблица, повтор, рисунок на слое, кадр и перерыв. Вот и вся комментаторская.
+Replay in the Draw section draws your lines back the way you drew them. He will love that.	Replay в разделе Рисование заново прорисует линии, как ты их рисовал. Ему понравится.
+Same time next week. Bring a bigger pen.	Через неделю в то же время. Принеси перо побольше.
+Now THAT is a busy play. I can't see the field. I love it.	ВОТ это насыщенный момент. Поля не видно. Обожаю.
+Two projectors overlap, and each fades its edge so the overlap is not twice as bright. Watch the sides of the monitor go soft.	Два проектора перекрывают друг друга. Каждый затемняет свой край, чтобы стык не был вдвое ярче. Смотри, как смягчаются края монитора.
+A game show, skapi. Three contestants, one buzzer, and a host who is not here tonight. Press START.	Телеигра, skapi. Три участника, одна кнопка и ведущий, который сегодня не пришёл. Нажми Старт.
+Cue numbers, hotkeys, and GO from other machines.	Номера cue, горячие клавиши и GO с других устройств.
+Forty years I turned the letters. Tonight they gave me the microphone. Nobody panic.	Сорок лет я переворачивала буквы. Сегодня дали микрофон. Без паники.
+Theatre numbers its cues: Q3, Q3.5, Q12A. Deckboy reads them all.	В театре у cue есть номера: Q3, Q3.5, Q12A. Deckboy понимает все.
+Numbers! I know letters. Numbers are letters that went to college.	Цифры! Я-то знаю буквы. Цифры — это буквы с высшим образованием.
+GOTO crosses a long list faster than scrolling. Much faster.	GOTO проходит длинный список быстрее прокрутки. Намного быстрее.
+F1 to F10, F12, or the number pad. Each one is a buzzer.	F1–F10, F12 или цифровой блок. Каждая клавиша — кнопка участника.
+Every contestant gets a buzzer. I get the letters. It's fine. It's fine.	У каждого участника кнопка. У меня буквы. Всё хорошо. Всё хорошо.
+No mouse, no list, no looking. Only the key.	Без мыши, без списка, не глядя. Одна клавиша.
+Buzz! A winner! I've never said that. I've only pointed at it.	Дзынь! Победитель! Никогда этого не говорила. Только показывала.
+And for our viewers at home: yes, you can push the buttons too.	А зрителям у экранов: да, вы тоже можете нажимать кнопки.
+Numbers, GOTO, a buzzer, and GO from anywhere. You could host a game show now.	Номера, GOTO, кнопка и GO откуда угодно. Теперь можешь вести телеигру.
+Goodnight, everybody! Tomorrow I go back to the letters. I'll miss you.	Всем доброй ночи! Завтра снова к буквам. Буду скучать.
+And the number is... not three. I'll allow it. I turn anything.	И наш номер... не три. Сойдёт. Я всё переворачиваю.
+A second playlist is a layer over the map. The lizard stays underneath. For now.	Второй плейлист — слой поверх карты. Ящерица остаётся снизу. Пока.
+A Lower Third, a name, a title card, a backdrop. The lizard has left the studio.	Нижний титр, имя, титульная карточка и фон. Ящерица покинула студию.
+That's not my name. It's a lovely name. Now, about that lizard...	Это не моё имя. Красивое имя. Так вот, насчёт ящерицы...
+The rocket (on the pad)	The rocket (on the pad)
+The rocket (lift-off)	The rocket (lift-off)
+A rocket built in a basement, skapi, an inventor who wants cheese, and a dog who does the real work. Press START.	Ракета из подвала, skapi, изобретатель, которому нужен сыр, и пёс, который всё делает за него. Нажми Старт.
+Stage timers: a countdown over a picture, a hold, and a view for the person on stage.	Сценические таймеры: отсчёт поверх картинки, пауза и экран для выступающего.
+Playlist 2 is selected, over the rocket. SOURCE, then Stage Timer.	Выбран плейлист 2, поверх ракеты. ИСТОЧНИК, затем Stage Timer.
+*checks his watch, then the rocket, then his watch*	*смотрит на часы, на ракету и снова на часы*
+COUNT IT DOWN	НАЧИНАЙ ОТСЧЁТ
+Select the timer and TAKE it. I have cleared its backdrop, so the rocket shows behind the numbers.	Выбери таймер и нажми TAKE. Я убрал его фон, чтобы за цифрами была видна ракета.
+Past zero it keeps going and counts the overtime. Very honest. Slightly rude.	После нуля он продолжает считать превышение времени. Очень честно. Слегка бестактно.
+Close MENU, click the Deck 1 tab, then select 'The rocket (lift-off)' and TAKE it.	Закрой МЕНЮ, нажми вкладку Дека 1, выбери 'The rocket (lift-off)' и нажми TAKE.
+The clock is on playlist 2, so it stays up while the rocket changes underneath it.	Часы в плейлисте 2. Они остаются на экране, пока ракета меняется под ними.
+We have lift-off, Grommet! ...Grommet? Who's flying it?	Взлетаем, Grommet! ...Grommet? А кто за штурвалом?
+A countdown, a hold, a pilot's view and a launch. Bring crackers.	Отсчёт, пауза, экран пилота и старт. Захвати крекеры.
+*waves from the window*	*машет из окна*
+The rubber chicken	The rubber chicken
+A magic show, skapi. A trunk, a rubber chicken, and one beat where everything changes at once. Press START.	Шоу фокусов, skapi. Сундук, резиновая курица и миг, когда всё меняется разом. Нажми Старт.
+Two playlists are two layers, and TAKE ALL changes both together. Tonight you will see why that matters.	Два плейлиста — два слоя. TAKE ALL переключает оба разом. Сегодня увидишь, почему это важно.
+The chicken goes on its own layer. Press the + at the end of the playlist tabs.	Курица будет на своём слое. Нажми + в конце вкладок плейлистов.
+The lit tab is the playlist that gets the next cue. Its chip now says 'to Out 1': it is layered over playlist 1 on that output.	Подсвеченная вкладка — плейлист для следующего cue. Теперь на ней «на вых. 1»: на этом выходе она лежит поверх плейлиста 1.
+TRICK ONE	ПЕРВЫЙ ФОКУС
+Turnip Top has put the chicken in playlist 2. In playlist 1, TAKE 'The trunk (open)'. Then in playlist 2, TAKE the chicken.	Turnip Top поместил курицу в плейлист 2. В плейлисте 1 запусти 'The trunk (open)' через TAKE. Затем в плейлисте 2 запусти курицу через TAKE.
+The chicken is clear all round, so it covers only itself. Watch the monitor between the two TAKEs.	Вокруг курицы всё прозрачно. Она закрывает только место под собой. Следи за монитором между двумя TAKE.
+Did you see it? For a moment the trunk was open and empty: two TAKEs are two moments. The trick is reset. Now select the open trunk in playlist 1 and the chicken in playlist 2, then TAKE ALL.	Заметил? На миг сундук был открытым и пустым: два TAKE — два разных момента. Фокус сброшен. Теперь выбери открытый сундук в плейлисте 1 и курицу в плейлисте 2, затем TAKE ALL.
+TAKE ALL takes every playlist's selected cue on one beat. No gap, no empty trunk.	TAKE ALL запускает выбранные cue всех плейлистов в один миг. Без паузы и пустого сундука.
+The chicken was late. They saw an empty trunk. In magic we call that a trunk.	Курица опоздала. Зрители увидели пустой сундук. У фокусников это называется сундук.
+TAKE ALL	TAKE ALL
+THE VANISH	ИСЧЕЗНОВЕНИЕ
+Trick two. Drag playlist 2's opacity fader down to nothing. The chicken fades away.	Второй фокус. Опусти фейдер непрозрачности плейлиста 2 до нуля. Курица исчезает.
+Every playlist has its own opacity. Down is a fade out, with no cue at all.	У каждого плейлиста своя непрозрачность. Убавляешь — картинка гаснет, без всякого cue.
+Ta-daaa! ...Hold for applause. Hold. Now watch it go.	Та-дам! ...Ждём аплодисментов. Ждём. А теперь смотри, как она исчезает.
+Trick three. Bring it back: playlist 2's opacity all the way up.	Третий фокус. Верни её: непрозрачность плейлиста 2 до упора вверх.
+Where did it go? Back in the trunk. Everything goes back in the trunk.	Куда делась? Обратно в сундук. Всё возвращается в сундук.
+THAT'S MAGIC	ВОТ ТАКАЯ МАГИЯ
+An appearance done wrong, then right, a vanish and a return. Nazdrave.	Неудачное появление, удачное, исчезновение и возвращение. Nazdrave.
+A playlist can also sit on any output. Two layers, a great many tricks.	Плейлист можно направить на любой выход. Два слоя, уйма фокусов.
+It's back! Thank you! I'm here all week! The chicken is here forever.	Вернулась! Спасибо! Я тут всю неделю! А курица — навсегда.
+A cooking show, skapi. Live. The kitchen is on fire. Press START.	Кулинарное шоу, skapi. Прямой эфир. Кухня горит. Нажми Старт.
+Ta-da! Still cookin'! ...Still burnin'.	Та-дам! Всё ещё жарим! ...Всё ещё горим.
+PANIC	PANIC
+Bork! De fire extinguisher is also on fire!	Борк! Огнетушитель-шмёр тоже горит!
+BLACK to hide, PANIC to stop, TAKE to come back. You will survive any kitchen.	чёрный скрывает, PANIC останавливает, TAKE возвращает. Выживешь на любой кухне.
+A fashion show, skapi. One designer, one runway, and a look she will want back. Press START.	Показ мод, skapi. Дизайнер, подиум и образ, который она захочет вернуть. Нажми Старт.
+A preset stores a whole look and brings it back with one button.	Пресет сохраняет весь образ и возвращает его одной кнопкой.
+Darling. A look is not a look until you can get it back.	Дорогуша. Образ — не образ, если его нельзя вернуть.
+Buttons. Good. I design with buttons.	Кнопки. Хорошо. Я тоже работаю с пуговицами.
+Store it. Before somebody has ideas.	Сохрани. Пока у кого-нибудь не появились идеи.
+Close the DASH (Esc), then select Look two and TAKE it.	Закрой DASH (Esc), выбери Look two и нажми TAKE.
+A cape. On my runway. Someone will trip, darling. Someone always trips.	Плащ. На моём подиуме. Кто-нибудь споткнётся, дорогуша. Всегда кто-нибудь спотыкается.
+Recall: the whole look comes back at once.	Вызов пресета: весь образ возвращается разом.
+Thank you. We will never speak of the cape again.	Спасибо. О плаще больше ни слова.
+Simple. Timeless. Recallable. Now go, darling. I have a fitting.	Просто. Вечно. Воспроизводимо. А теперь ступай, дорогуша. У меня примерка.
+Pushes, wipes, iris, dip to white, and more. I wrote half of them. On a Tuesday.	Сдвиги, шторки, ирис, уход в белое и многое другое. Половину я написал во вторник.
+Operators... roll the transition.	Операторы... запускайте переход.
+A style, a time, and two very dramatic entrances. Roll credits.	Стиль, время и два очень эффектных выхода. Давайте титры.
+That is not an iris. ...It is better. I will allow it.	Это не ирис. ...Это лучше. Разрешаю.
+An effect, a bend and the patch. The robots approve, I think. Their faces are helmets.	Эффект, искажение и патч. Роботы вроде довольны. У них вместо лиц шлемы.
+Waveform, vectorscope, false colour. The scopes settled it. The agents did not.	Осциллограмма, вектороскоп, ложные цвета. Приборы всё выяснили. Агенты — нет.
+The view from the capsule	Вид из капсулы
+Major Tomasina is in orbit, skapi, and her picture has to reach the ground. Press START.	Major Tomasina на орбите, skapi. Её картинка должна добраться до Земли. Нажми Старт.
+Pictures leave by cable or network: NDI, SDI from a DeckLink card, ST 2110 for broadcast plants.	Картинка уходит по кабелю или сети: NDI, SDI с карты DeckLink, ST 2110 для телецентров.
+Ground control, this is Major Tomasina. Can you see my picture?	Центр управления, это Major Tomasina. Видите мою картинку?
+Every way down, on one page. Good. Space has very few cables.	Все пути вниз на одной странице. Хорошо. В космосе мало кабелей.
+NDI	NDI
+Sending now. If nobody answers, I'll just float here.	Передаю. Если никто не ответит, так и буду тут плавать.
+Ground control, signing off. Tell my mother I waved.	Центр управления, конец связи. Скажите маме, что я помахала.
+Ground control can see me! I can see my house from here.	Центр управления меня видит! Отсюда видно мой дом.
+MULTI ON	MULTI ВКЛ.
+And one more window, showing the clock. Operators who watch a clock are never late.	И ещё одно окно с часами. Операторы, которые следят за часами, не опаздывают.
+The big window is window one, which is usually the programme.	Большое окно — первое. Обычно в нём программа.
+Windows, the ... menu, NEXT, the clock, a layout, tally. Mystery solved.	Окна, меню ..., NEXT, часы, раскладка, tally. Загадка раскрыта.
+DECKBOY  POCKET	DECKBOY  POCKET

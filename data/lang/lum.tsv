@@ -3097,3 +3097,175 @@ Stop masking this. The mask stays in the show's library, to put back from the me
 Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	Niri nirarana nakae mun vekarana, so mun ala veka, vekaku so senadoraku. Undo dopi
 FX PARAM: slot must be A-F	FX PARAM: kae pata A .. F
 FX LFO: slot must be A-D, E for the amount, or F/G for the fifth and sixth sliders	FX LFO: kae pata A .. D, E go numa, nu F/G go slida 5 so 6
+playlist 2 is ready: you built one in the magic show	vekaku 2 pono: tu kari una kae gul-show
+FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR	FX: kari LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR
+BLACK	nira
+COACH MARV	COACH MARV
+JUNE O'NEIL	JUNE O'NEIL
+TURNIP TOP	TURNIP TOP
+CHEF BORK	CHEF BORK
+DONNA WHEEL	DONNA WHEEL
+KEEPER ROOK	KEEPER ROOK
+AGENT BRANDT	AGENT BRANDT
+AGENT HOLLIS	AGENT HOLLIS
+MR. SALTY	MR. SALTY
+OPTIMUS PRIMETIME	OPTIMUS PRIMETIME
+DEFT FUNK	DEFT FUNK
+LT. HAILA	LT. HAILA
+ENSIGN JINKLEY	ENSIGN JINKLEY
+The tour bus, with Polly Carton	Tirajana, pel Polly Carton
+A test pattern, drawing on a replay, a still, and the video synth at halftime.	Mireta, gra kae novveka, halveka, so synth veka kae halpen.
+A stage timer over a picture, held, a presenter view for the person on stage, and a launch.	Tokajana kae veka, hala, vekamira go holawia, so tirisena.
+A second playlist as a layer, TAKE ALL so two things change on one beat, and a playlist's opacity.	Vekaku dua kae pata, TAKE ALL seti dua kae unatok, so vekaku lumanuma.
+The fashion show, with Edda Mod	Pataveka, pel Edda Mod
+Ground control, with Major Tomasina	Kae-kora, pel Major Tomasina
+0.1, 0.1, 0.1	0.1, 0.1, 0.1
+Opener (the bus at dawn)	Opener (the bus at dawn)
+Polly Carton's tour bus leaves at six, skapi, and this show goes with it. Press START.	Tirajana Polly Carton tiri kae toka 6, skapi, so show nakae pel. Bati TIRI.
+A show that travels needs three things first: a check, a fix and a bundle.	Tiro show hup tria muna: miri, seti, alaklui.
+Honey, I've played four thousand towns. Not one of them had my laptop.	Lumami, mi soni kae kaeku 4000. Vauna guri laptop mi.
+It lists what the show would trip over: missing files, empty cues, outputs it cannot reach.	Veki show-ranku: niru vekadoraku, vaka vekaku, vapon senadoraku.
+Every show has a problem. Find yours before the audience does.	Ala show guri rana. Miri tu rana muna mirawiaku.
+The intro video is on the office computer. Select it and delete it, or RELINK it if you have the file.	Munveka kae office korajana. Piki so niri, nu RELINK si tu guri vekadora.
+Fix it here, with time and coffee. Not at the venue, with neither.	Seti nakae, pel toka so lumsona. Vakae show-kae, kae vatoka so valumsona.
+Leave it behind, sugar. I left a whole wig in Tulsa and the show went on.	Hali dop, lumami. Mi hali tam porpata kae Tulsa so show tiri.
+Press BUNDLE and choose where: a USB stick, a shared folder. The show and all its media, in one folder.	Bati ALAKLU so piki kae: USB nu velbufa. Show so ala vekadoraku kae una bufa.
+Pack it like a wig box. Everything inside, nothing loose.	Klui sui porpata-kara. Ala kae kor, vapata kae dor.
+Checked, fixed, bundled. On the other computer, open the show in the bundle and everything is there.	Miro, seto, kluo. Kae seto korajana, fesi show kae alakara: ala nakae.
+The show file is only text, so it travels light. The media is the luggage.	Show-bufa hola una, tiri kiso. Vekadoraku tamkara.
+Bus leaves at six. Show starts at eight. Hair takes until seven.	Tirajana tiri kae 6. Show tiri kae 8. Porpata pono kae 7.
+There are dozens, and most of them run on the graphics card, so you can stack them.	Guri numaku, ala-kora kari kae vekajana, so tu pel lani pataku.
+An effect, a ~ and a colour. The critic is crying. Good crying, I think.	Effect, ~ so kolora. Mirawia soni-ni. Lumo ni, mi miri.
+Stack a few more. Order matters: each effect works on the picture the one above it made.	Lani nov pataku. Reta koro: una effect kari kae veka mun effect jora.
+Three effects! It's a mess! It's ALIVE! Post it.	Tria effect! Vareta! LUMO! Seni!
+The replay	The replay
+Coach Marv has two minutes of airtime, one replay and a pen, skapi. He will use all three. Press START.	Coach Marv guri kistok dua, novveka una, so grapata una, skapi. Kari tria. Bati TIRI.
+Tonight: a test pattern, drawing on the picture, and the video synth.	Nirtok nakae: mireta, gra kae veka, so synth veka.
+Folks, I've watched this play forty times. It's still a play.	Pelku, mi miri nakae sporta tok 40. Hae sporta.
+CHECK THE MONITORS	MIRI VEKAFENAKU
+PATTERN adds Pocket Test. If its circles are not round, a screen is stretched. Find out now, not on air.	VEKARETA lani Pocket Test. Si rodwenku varodwo, vekafena tiro. Miri novtok, vamuna seni.
+Its bars and steps are checked against real meters, so a wrong screen looks wrong at once.	Rana so talaku miro pel istotalajana, so vavekafena veki vava zar.
+That's a test pattern. You test with it. That's why they call it that.	Nakae mireta. Tu miri pel nakae. Go nakae, hola mireta.
+ROLL THE REPLAY	TIRI NOVVEKA
+Select The replay and TAKE it.	Piki The replay so SENI.
+A replay loops, so the pundit can talk over it for as long as he likes. He likes.	Novveka novtoki, so holawia pel holi ala toka gura. Guri tamtoka.
+Here's number 22. Number 22 has the ball. That's important, because the ball is how you score.	Nakae numa 22. Numa 22 guri sporta-rodwa. Koro: sporta-rodwa kari numa.
+The pen goes over the replay, on its own layer. Press the + at the end of the playlist tabs.	Grapata jora novveka, kae una pata. Bati + kae rana vekaku-tabku.
+A second playlist is a layer over the first.	Vekaku dua kae pata jora vekaku una.
+Over it. Not under it. Under it, you can't see it. That's football.	Jora. Vadop. Dop, tu vamiri. Nakae sporta.
+The lit tab is where SOURCE puts things. Skip this and the ink lands under the replay.	Lumo taba kae MUNGA lani pataku. Vatiri nakae, graluma lani dop novveka.
+See that tab? Click it. Fundamentals.	Tu miri taba? Bati. Munkora.
+In playlist 2: SOURCE, then Draw.	Kae vekaku 2: MUNGA, novtok VEKI.
+A Draw cue is clear wherever there is no ink, so the replay shows through.	VEKI veka feno kae vagraluma, so novveka miri dop.
+Give me the pen. I've waited all season for the pen.	Seni grapata go mi. Mi peni tam sporttoka go grapata.
+Both are live now: the replay underneath, the ink on top.	Dua lumo novtok: novveka dop, graluma jora.
+We're on the air. Nobody touches the pen but me.	Mi so tu seni novtok. Mi una bati grapata.
+CIRCLE HIM	GRA RODWA KAE NA
+Press DRAW in the inspector, then circle number 22 on the programme monitor. He is the yellow one.	Bati VEKI kae mirakara, novtok gra rodwa kae numa 22 kae KORAVEKA mirajana. Na koloro-lumsono.
+A pen's pressure makes the line thicker. A mouse presses at one strength.	Grapata batnuma kari tamo grarana. Mouse bati una numo.
+Circle him! The yellow one! There's only one yellow one. Circle that one.	Gra rodwa! Lumsono! Una lumsono! Gra kae una na!
+Draw as much as you like. Then SAVE STILL keeps the drawing as a picture with a clear background, in the playlist.	Gra ala tu guri. Novtok guri halveka guri grakana sui veka pel feno dop, kae vekaku.
+For next week's show. He will want that circle again.	Go show kae nov heptoka. Na guri novtok nakae rodwa.
+Put that in the Hall of Fame. Next to the turducken.	Lani kae lumowiakara. Pel tria-korpata-sona.
+Halftime. Click the Deck 1 tab, then SOURCE, then Video Synth.	Halpen. Bati taba Deka 1, novtok MUNGA, novtok Synth veka.
+My favourite source: oscillators, mirrors and feedback. A halftime show with no camera at all.	Mi lumo munga: tokalumaku, velmiraku, novsenaku. Halpen show vaguri mirajana.
+Halftime! Somebody get me some lights. And a band. And a sandwich.	Halpen! Seni lumaku go mi. So sonapela. So kisveka.
+TAKE HALFTIME	SENI HALPEN
+Select the synth and TAKE it. Then look at the monitor: your ink is still up.	Piki synth so SENI. Novtok miri mirajana: graluma tu hae nakae.
+Playlist 2 did not change, so its ink stays over whatever playlist 1 shows. Each playlist changes on its own.	Vekaku 2 vaseti, so graluma hali jora ala veka mun vekaku 1. Una vekaku seti una.
+Leave the circle up. It's a good circle. It goes with everything.	Hali rodwa. Lumo rodwa. Pel ala pataku.
+A test pattern, a replay, ink on a layer, a still, and halftime. That's the booth.	Mireta, novveka, graluma kae pata, halveka, halpen. Nakae holakara.
+Replay in the Draw section draws your lines back the way you drew them. He will love that.	Replay kae VEKI gra novtok graranaku sui tu gra. Na lumi go nakae.
+Same time next week. Bring a bigger pen.	Unatok kae nov heptoka. Seni tamo grapata.
+Now THAT is a busy play. I can't see the field. I love it.	Nakae TAMO sporta. Mi vamiri kaepata. Mi lumi.
+Two projectors overlap, and each fades its edge so the overlap is not twice as bright. Watch the sides of the monitor go soft.	Senjanaku dua lani velkae, una niri rana luma so velkae vadua lumo. Miri mirajana ranku kiso lumo.
+A game show, skapi. Three contestants, one buzzer, and a host who is not here tonight. Press START.	Numshow, skapi. Pikwiaku tria, sonabata una, so holawia vakae nirtok nakae. Bati TIRI.
+Cue numbers, hotkeys, and GO from other machines.	Veka numaku, batranaku, so GO mun seto janaku.
+Forty years I turned the letters. Tonight they gave me the microphone. Nobody panic.	Tokoraku 40 mi tiriseti holpataku. Nirtok nakae seni sonajana go mi. Vani.
+Theatre numbers its cues: Q3, Q3.5, Q12A. Deckboy reads them all.	Show numi vekaku: Q3, Q3.5, Q12A. Deckboy miri ala.
+Numbers! I know letters. Numbers are letters that went to college.	Numaku! Mi lisi holpataku. Numaku holpataku mun tamo lisikara.
+GOTO crosses a long list faster than scrolling. Much faster.	GOTO tiri kae tamo reta zaro mun rantiri. Tam zaro.
+F1 to F10, F12, or the number pad. Each one is a buzzer.	F1 go F10, F12, nu numabata. Una sonabata.
+Every contestant gets a buzzer. I get the letters. It's fine. It's fine.	Una pikwia guri sonabata. Mi guri holpataku. Lumo. Lumo.
+No mouse, no list, no looking. Only the key.	Vamouse, vareta, vamiri. Bat una.
+Buzz! A winner! I've never said that. I've only pointed at it.	Sona! Lumiwa! Mi vaholi nakae muna. Mi veki una.
+And for our viewers at home: yes, you can push the buttons too.	So mirawiaku kae bufakae: isto, tu pel bati batku pel.
+Numbers, GOTO, a buzzer, and GO from anywhere. You could host a game show now.	Numaku, GOTO, sonabata, GO mun alakae. Tu pel holi numshow novtok.
+Goodnight, everybody! Tomorrow I go back to the letters. I'll miss you.	Lumtok, ala! Novlumtok mi dopi holpataku. Mi peni tu.
+And the number is... not three. I'll allow it. I turn anything.	So numa... vatria. Mi poni. Mi tiriseti ala.
+A second playlist is a layer over the map. The lizard stays underneath. For now.	Vekaku dua kae pata jora kaeveka. Korpata hali dop. Novtok una.
+A Lower Third, a name, a title card, a backdrop. The lizard has left the studio.	Lower Third, hola, holaveka, dopveka. Korpata tiri mun vekakara.
+That's not my name. It's a lovely name. Now, about that lizard...	Vahola mi. Lumo hola. Novtok, sov korpata nakae...
+The rocket (on the pad)	The rocket (on the pad)
+The rocket (lift-off)	The rocket (lift-off)
+A rocket built in a basement, skapi, an inventor who wants cheese, and a dog who does the real work. Press START.	Senajana karo kae dopbufa, skapi, karawia guri sonapena, so korpata kari isto kara. Bati TIRI.
+Stage timers: a countdown over a picture, a hold, and a view for the person on stage.	Tokajanaku: doptali kae veka, hala, so mira go holawia kae patakae.
+Playlist 2 is selected, over the rocket. SOURCE, then Stage Timer.	Vekaku 2 piko, jora senajana. MUNGA, novtok Stage Timer.
+*checks his watch, then the rocket, then his watch*	*miri toka, novtok senajana, novtok toka*
+COUNT IT DOWN	DOPTALI
+Select the timer and TAKE it. I have cleared its backdrop, so the rocket shows behind the numbers.	Piki tokajana so SENI. Mi niri dopveka, so senajana miri dop numaku.
+Past zero it keeps going and counts the overtime. Very honest. Slightly rude.	Tiri dop 0 so tali zartoka. Tam isto. Kis vadelem.
+Close MENU, click the Deck 1 tab, then select 'The rocket (lift-off)' and TAKE it.	Klui MENU, bati taba Deka 1, piki 'The rocket (lift-off)' so SENI.
+The clock is on playlist 2, so it stays up while the rocket changes underneath it.	Toka kae vekaku 2, so hali kae senajana seti dop.
+We have lift-off, Grommet! ...Grommet? Who's flying it?	Mi so tu tiri, Grommet! ...Grommet? Kena tiri na?
+A countdown, a hold, a pilot's view and a launch. Bring crackers.	Doptala, hala, tirmira so tirisena. Seni kisveka.
+*waves from the window*	*tiriseti pata mun fena*
+The rubber chicken	The rubber chicken
+A magic show, skapi. A trunk, a rubber chicken, and one beat where everything changes at once. Press START.	Gul-show, skapi. Kara, falo korpata, so una toka kae ala seti. Bati TIRI.
+Two playlists are two layers, and TAKE ALL changes both together. Tonight you will see why that matters.	Vekaku dua pataku dua, so TAKE ALL seti dua unatok. Nirtok nakae tu miri kora.
+The chicken goes on its own layer. Press the + at the end of the playlist tabs.	Korpata kae una pata. Bati + kae rana vekaku-tabku.
+The lit tab is the playlist that gets the next cue. Its chip now says 'to Out 1': it is layered over playlist 1 on that output.	Lumo taba vekaku go nov veka. Chip novtok holi 'go Sena 1': pata jora vekaku 1 kae nakae senador.
+TRICK ONE	GUL UNA
+Turnip Top has put the chicken in playlist 2. In playlist 1, TAKE 'The trunk (open)'. Then in playlist 2, TAKE the chicken.	Turnip Top lani korpata kae vekaku 2. Kae vekaku 1, SENI 'The trunk (open)'. Novtok kae vekaku 2, SENI korpata.
+The chicken is clear all round, so it covers only itself. Watch the monitor between the two TAKEs.	Korpata feno kae ala rana, so hali una na. Miri mirajana kae toka mun SENI dua.
+Did you see it? For a moment the trunk was open and empty: two TAKEs are two moments. The trick is reset. Now select the open trunk in playlist 1 and the chicken in playlist 2, then TAKE ALL.	Tu miri? Kistoka kara feso so vaka: SENI dua tokaku dua. Gul pono novtok. Piki feso kara kae vekaku 1 so korpata kae vekaku 2, novtok TAKE ALL.
+TAKE ALL takes every playlist's selected cue on one beat. No gap, no empty trunk.	TAKE ALL seni piko veka mun ala vekaku kae unatok. Varanka, vakara vaka.
+The chicken was late. They saw an empty trunk. In magic we call that a trunk.	Korpata tok-dopo. Na miri vaka kara. Kae gul, mi so tu holi nakae kara.
+TAKE ALL	TAKE ALL
+THE VANISH	VAVEKA
+Trick two. Drag playlist 2's opacity fader down to nothing. The chicken fades away.	Gul dua. Tiri vekaku 2 lumanuma rana go 0. Korpata niri kistok.
+Every playlist has its own opacity. Down is a fade out, with no cue at all.	Una vekaku guri una lumanuma. Dop niri kistok, vaveka nova.
+Ta-daaa! ...Hold for applause. Hold. Now watch it go.	Ta-daaa! ...Peni patasona. Peni. Novtok miri tiri.
+Trick three. Bring it back: playlist 2's opacity all the way up.	Gul tria. Dopi na: vekaku 2 lumanuma tam jora.
+Where did it go? Back in the trunk. Everything goes back in the trunk.	Na tiri kae kena? Dop kae kara. Ala dopi kae kara.
+THAT'S MAGIC	NAKAE GUL
+An appearance done wrong, then right, a vanish and a return. Nazdrave.	Fesi vavo, novtok isto, niri so dopi. Nazdrave.
+A playlist can also sit on any output. Two layers, a great many tricks.	Vekaku pel lani kae ala senador. Pataku dua, gulaku tam.
+It's back! Thank you! I'm here all week! The chicken is here forever.	Na dopi! Lumi! Mi nakae tam heptoka! Korpata nakae tamtoka!
+A cooking show, skapi. Live. The kitchen is on fire. Press START.	Sonapena-show, skapi. Lumo. Sonapenakara nirlumi. Bati TIRI.
+Ta-da! Still cookin'! ...Still burnin'.	Ta-da! Hae sonapeni! ...Hae nirlumi.
+PANIC	PANIC
+Bork! De fire extinguisher is also on fire!	Bork! De nirlumaniro jî nirlumo-flurdi!
+BLACK to hide, PANIC to stop, TAKE to come back. You will survive any kitchen.	nira go niri, PANIC go hali, SENI go dopi. Tu pel tiri mun ala sonapenakara.
+A fashion show, skapi. One designer, one runway, and a look she will want back. Press START.	Pataveka-show, skapi. Karawia una, rana una, so mira na guri novtok. Bati TIRI.
+A preset stores a whole look and brings it back with one button.	Mungura guri tam mira so dopi pel una bat.
+Darling. A look is not a look until you can get it back.	Lumami. Mira vamira si tu vapel dopi.
+Buttons. Good. I design with buttons.	Batku. Lumo. Mi kari pel batku.
+Store it. Before somebody has ideas.	Guri. Muna kena guri nov holaku.
+Close the DASH (Esc), then select Look two and TAKE it.	Klui DASH (Esc), piki Look two so SENI.
+A cape. On my runway. Someone will trip, darling. Someone always trips.	Doppata. Kae mi rana. Kena niri, lumami. Kena niri ala tok.
+Recall: the whole look comes back at once.	Dopi: tam mira dopi unatok.
+Thank you. We will never speak of the cape again.	Lumi. Mi so tu vaholi sov doppata novtok.
+Simple. Timeless. Recallable. Now go, darling. I have a fitting.	Kiso. Tamtoko. Dopipelo. Tiri, lumami. Mi guri patamira.
+Pushes, wipes, iris, dip to white, and more. I wrote half of them. On a Tuesday.	Tiri, niri, iris, dopi go lumtamo, so novku. Mi gra kora mun na. Kae lumtok tria.
+Operators... roll the transition.	Senwiaku... tiri setiveka.
+A style, a time, and two very dramatic entrances. Roll credits.	Mira, toka, so tiraku dua tam holako. Tiri ranaholaku.
+That is not an iris. ...It is better. I will allow it.	Vairis. ...Tam lumo. Mi poni.
+An effect, a bend and the patch. The robots approve, I think. Their faces are helmets.	Effect, rhaw so patch. Korpata poni, mi miri. Na mivku korakaraku.
+Waveform, vectorscope, false colour. The scopes settled it. The agents did not.	Waveform, vectorscope, luma-va. Scope piki. Mirawiaku vapiki.
+The view from the capsule	Mira mun kisfenakara
+Major Tomasina is in orbit, skapi, and her picture has to reach the ground. Press START.	Major Tomasina tiri rodwo, skapi, so na veka hup sena go kaepata. Bati TIRI.
+Pictures leave by cable or network: NDI, SDI from a DeckLink card, ST 2110 for broadcast plants.	Vekaku tiri pel lina va reta: NDI, SDI mun DeckLink karta, ST 2110 go tam senkaraku.
+Ground control, this is Major Tomasina. Can you see my picture?	Kae-kora, nakae Major Tomasina. Tu pel miri mi veka?
+Every way down, on one page. Good. Space has very few cables.	Ala dorku dop kae una holapena. Lumo. Niro-kara guri kis linaku.
+NDI	NDI
+Sending now. If nobody answers, I'll just float here.	Seni novtok. Si kena vaholi, mi hali tiro nakae.
+Ground control, signing off. Tell my mother I waved.	Kae-kora, mi klui. Holi go mi muna mi tiriseti pata.
+Ground control can see me! I can see my house from here.	Kae-kora pel miri mi! Mi pel miri mi bufa mun nakae.
+MULTI ON	MULTI ON
+And one more window, showing the clock. Operators who watch a clock are never late.	So una nov fena, veki toka. Senwia miri toka vatok-dopi.
+The big window is window one, which is usually the programme.	Tamo fena una fena, ala-kora KORAVEKA.
+Windows, the ... menu, NEXT, the clock, a layout, tally. Mystery solved.	Fenaku, ... menu, NEXT, toka, layout, tally. Isto feso.
+FX CHOICE: choice must be A or B	FX CHOICE: pika hup A va B
+FX CHOICE: no effect at that index	FX CHOICE: vaeffect kae nakae numa
+whole picture	tam veka

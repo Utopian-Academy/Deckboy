@@ -3056,3 +3056,174 @@ Stop masking this. The mask stays in the show's library, to put back from the me
 Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	Verwijder dit masker uit de show en uit elke cue, playlist en uitgang die het gebruikt. Met Undo komt het terug
 FX PARAM: slot must be A-F	FX PARAM: slot moet A-F zijn
 FX LFO: slot must be A-D, E for the amount, or F/G for the fifth and sixth sliders	FX LFO: slot moet A-D zijn, E voor de sterkte, of F/G voor de vijfde en zesde schuif
+playlist 2 is ready: you built one in the magic show	playlist 2 is klaar: je hebt er een gemaakt in de goochelshow
+FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR	FX: gebruik LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR
+BLACK	zwart
+COACH MARV	COACH MARV
+JUNE O'NEIL	JUNE O'NEIL
+TURNIP TOP	TURNIP TOP
+CHEF BORK	CHEF BORK
+DONNA WHEEL	DONNA WHEEL
+KEEPER ROOK	KEEPER ROOK
+AGENT BRANDT	AGENT BRANDT
+AGENT HOLLIS	AGENT HOLLIS
+MR. SALTY	MR. SALTY
+OPTIMUS PRIMETIME	OPTIMUS PRIMETIME
+DEFT FUNK	DEFT FUNK
+LT. HAILA	LT. HAILA
+ENSIGN JINKLEY	ENSIGN JINKLEY
+The tour bus, with Polly Carton	De tourbus, met Polly Carton
+A test pattern, drawing on a replay, a still, and the video synth at halftime.	Een testbeeld, tekenen op een herhaling, een stilstaand beeld en de videosynth in de rust.
+A stage timer over a picture, held, a presenter view for the person on stage, and a launch.	Een podiumtimer over een beeld, stilzetten, een presentatorweergave voor op het podium en een lancering.
+A second playlist as a layer, TAKE ALL so two things change on one beat, and a playlist's opacity.	Een tweede afspeellijst als laag, TAKE ALL om twee dingen op één tel te veranderen en de dekking van een afspeellijst.
+Presets	Voorinstellingen
+The fashion show, with Edda Mod	De modeshow, met Edda Mod
+Ground control, with Major Tomasina	Grondcontrole, met Major Tomasina
+0.1, 0.1, 0.1	0.1, 0.1, 0.1
+Opener (the bus at dawn)	Opener (the bus at dawn)
+Polly Carton's tour bus leaves at six, skapi, and this show goes with it. Press START.	De tourbus van Polly Carton vertrekt om zes uur, skapi. Deze show gaat mee. Druk op Starten.
+A show that travels needs three things first: a check, a fix and a bundle.	Een reizende show heeft eerst drie dingen nodig: controleren, herstellen en bundelen.
+Honey, I've played four thousand towns. Not one of them had my laptop.	Schat, ik heb in vierduizend plaatsen gezongen. Mijn laptop stond in geen ervan.
+It lists what the show would trip over: missing files, empty cues, outputs it cannot reach.	Hier staan de struikelblokken van de show: ontbrekende bestanden, lege cues en onbereikbare uitgangen.
+Every show has a problem. Find yours before the audience does.	Elke show heeft een probleem. Vind het jouwe voordat het publiek dat doet.
+The intro video is on the office computer. Select it and delete it, or RELINK it if you have the file.	De openingsvideo staat op de kantoorcomputer. Selecteer en verwijder hem, of gebruik RELINK als je het bestand hebt.
+Fix it here, with time and coffee. Not at the venue, with neither.	Los het hier op, met tijd en koffie. Op locatie heb je geen van beide.
+Leave it behind, sugar. I left a whole wig in Tulsa and the show went on.	Laat maar liggen, lieverd. Ik liet een hele pruik in Tulsa achter en de show ging gewoon door.
+Press BUNDLE and choose where: a USB stick, a shared folder. The show and all its media, in one folder.	Druk op BUNDELEN en kies waar: een USB-stick, een gedeelde map. De show en alle media, in één map.
+Pack it like a wig box. Everything inside, nothing loose.	Pak het in als een pruikendoos. Alles erin, niets los.
+Checked, fixed, bundled. On the other computer, open the show in the bundle and everything is there.	Gecontroleerd, hersteld, gebundeld. Open op de andere computer de show uit de bundel en alles is er.
+The show file is only text, so it travels light. The media is the luggage.	Het showbestand is alleen tekst en reist dus licht. De media zijn de bagage.
+Bus leaves at six. Show starts at eight. Hair takes until seven.	De bus vertrekt om zes uur. De show begint om acht uur. Het haar is om zeven uur klaar.
+There are dozens, and most of them run on the graphics card, so you can stack them.	Er zijn er tientallen en de meeste draaien op de videokaart. Je kunt ze dus stapelen.
+An effect, a ~ and a colour. The critic is crying. Good crying, I think.	Een effect, een ~ en een kleur. De criticus huilt. Van geluk, denk ik.
+Stack a few more. Order matters: each effect works on the picture the one above it made.	Stapel er nog een paar op. De volgorde telt: elk effect bewerkt het beeld van het effect erboven.
+Three effects! It's a mess! It's ALIVE! Post it.	Drie effecten! Wat een puinhoop! Het LEEFT! Zet het online.
+The replay	The replay
+Coach Marv has two minutes of airtime, one replay and a pen, skapi. He will use all three. Press START.	Coach Marv heeft twee minuten zendtijd, één herhaling en een pen, skapi. Hij gebruikt ze alle drie. Druk op Starten.
+Tonight: a test pattern, drawing on the picture, and the video synth.	Vanavond: een testbeeld, tekenen op het beeld en de videosynth.
+Folks, I've watched this play forty times. It's still a play.	Mensen, ik heb deze actie veertig keer gezien. Het blijft een actie.
+CHECK THE MONITORS	CONTROLEER DE MONITOREN
+PATTERN adds Pocket Test. If its circles are not round, a screen is stretched. Find out now, not on air.	TESTBEELD voegt Pocket Test toe. Zijn de cirkels niet rond, dan is een scherm uitgerekt. Ontdek dat nu, vóór de uitzending.
+Its bars and steps are checked against real meters, so a wrong screen looks wrong at once.	De balken en trappen zijn getoetst aan echte meters. Een verkeerd scherm valt meteen op.
+That's a test pattern. You test with it. That's why they call it that.	Dat is een testbeeld. Daar test je mee. Vandaar de naam.
+ROLL THE REPLAY	Starten DE HERHALING
+Select The replay and TAKE it.	Selecteer The replay en druk op TAKE.
+A replay loops, so the pundit can talk over it for as long as he likes. He likes.	Een herhaling loopt door, zodat de commentator zo lang kan praten als hij wil. En hij wil.
+Here's number 22. Number 22 has the ball. That's important, because the ball is how you score.	Daar is nummer 22. Nummer 22 heeft de bal. Dat is belangrijk, want zonder bal scoor je niet.
+The pen goes over the replay, on its own layer. Press the + at the end of the playlist tabs.	De pen komt over de herhaling, op een eigen laag. Druk op de + achter de tabbladen van de afspeellijsten.
+A second playlist is a layer over the first.	Een tweede afspeellijst is een laag over de eerste.
+Over it. Not under it. Under it, you can't see it. That's football.	Erboven. Niet eronder. Eronder zie je hem niet. Dat is voetbal.
+The lit tab is where SOURCE puts things. Skip this and the ink lands under the replay.	BRON zet alles op het verlichte tabblad. Sla je dit over, dan komt de inkt onder de herhaling.
+See that tab? Click it. Fundamentals.	Zie je dat tabblad? Klik erop. De basis.
+In playlist 2: SOURCE, then Draw.	In afspeellijst 2: BRON, dan Tekenen.
+A Draw cue is clear wherever there is no ink, so the replay shows through.	Een Tekenen-cue is transparant waar geen inkt staat. Daar zie je de herhaling doorheen.
+Give me the pen. I've waited all season for the pen.	Geef me de pen. Ik wacht al het hele seizoen op die pen.
+Both are live now: the replay underneath, the ink on top.	Beide zijn nu live: de herhaling onderop, de inkt bovenop.
+We're on the air. Nobody touches the pen but me.	We zijn in de lucht. Niemand raakt die pen aan behalve ik.
+CIRCLE HIM	OMCIRKEL HEM
+Press DRAW in the inspector, then circle number 22 on the programme monitor. He is the yellow one.	Druk op Tekenen in de inspector en omcirkel nummer 22 op de programmamonitor. Hij is de gele.
+A pen's pressure makes the line thicker. A mouse presses at one strength.	Meer pendruk maakt de lijn dikker. Een muis drukt altijd even hard.
+Circle him! The yellow one! There's only one yellow one. Circle that one.	Omcirkel hem! De gele! Er is maar één gele. Die dus.
+Draw as much as you like. Then SAVE STILL keeps the drawing as a picture with a clear background, in the playlist.	Teken zoveel je wilt. beeld opslaan bewaart de tekening daarna als beeld met transparante achtergrond in de afspeellijst.
+For next week's show. He will want that circle again.	Voor de uitzending van volgende week. Dan wil hij die cirkel weer.
+Put that in the Hall of Fame. Next to the turducken.	Die mag in de eregalerij. Naast de kalkoen met eend met kip erin.
+Halftime. Click the Deck 1 tab, then SOURCE, then Video Synth.	Rust. Klik op het tabblad Deck 1, dan BRON, dan Videosynth.
+My favourite source: oscillators, mirrors and feedback. A halftime show with no camera at all.	Mijn favoriete bron: oscillatoren, spiegels en terugkoppeling. Een rustshow zonder ook maar één camera.
+Halftime! Somebody get me some lights. And a band. And a sandwich.	Rust! Haal wat lampen. En een band. En een broodje.
+TAKE HALFTIME	Starten DE RUSTSHOW
+Select the synth and TAKE it. Then look at the monitor: your ink is still up.	Selecteer de synth en druk op TAKE. Kijk dan naar de monitor: je inkt staat er nog.
+Playlist 2 did not change, so its ink stays over whatever playlist 1 shows. Each playlist changes on its own.	Afspeellijst 2 veranderde niet. De inkt blijft dus over alles van afspeellijst 1 staan. Elke afspeellijst verandert apart.
+Leave the circle up. It's a good circle. It goes with everything.	Laat die cirkel staan. Het is een goede cirkel. Past overal bij.
+A test pattern, a replay, ink on a layer, a still, and halftime. That's the booth.	Testbeeld, herhaling, inkt op een laag, stilstaand beeld en rust. Dat is de commentaarcabine.
+Replay in the Draw section draws your lines back the way you drew them. He will love that.	Replay in de sectie Tekenen tekent je lijnen opnieuw zoals jij ze tekende. Dat vindt hij prachtig.
+Same time next week. Bring a bigger pen.	Volgende week dezelfde tijd. Neem een grotere pen mee.
+Now THAT is a busy play. I can't see the field. I love it.	DAT is pas een drukke actie. Ik zie het veld niet meer. Geweldig.
+Two projectors overlap, and each fades its edge so the overlap is not twice as bright. Watch the sides of the monitor go soft.	Twee projectoren overlappen. Elk vervaagt zijn rand, zodat de overlap niet dubbel zo helder is. Kijk hoe de zijkanten van de monitor zachter worden.
+A game show, skapi. Three contestants, one buzzer, and a host who is not here tonight. Press START.	Een spelshow, skapi. Drie kandidaten, één zoemer en een presentator die er vanavond niet is. Druk op Starten.
+Cue numbers, hotkeys, and GO from other machines.	Cuenummers, sneltoetsen en GO vanaf andere machines.
+Forty years I turned the letters. Tonight they gave me the microphone. Nobody panic.	Veertig jaar draaide ik de letters om. Vanavond kreeg ik de microfoon. Geen paniek.
+Theatre numbers its cues: Q3, Q3.5, Q12A. Deckboy reads them all.	Het theater nummert cues: Q3, Q3.5, Q12A. Deckboy leest ze allemaal.
+Numbers! I know letters. Numbers are letters that went to college.	Cijfers! Ik ken letters. Cijfers zijn letters die hebben doorgestudeerd.
+GOTO crosses a long list faster than scrolling. Much faster.	GOTO gaat sneller door een lange lijst dan scrollen. Veel sneller.
+F1 to F10, F12, or the number pad. Each one is a buzzer.	F1 tot F10, F12 of het numerieke toetsenblok. Elke toets is een zoemer.
+Every contestant gets a buzzer. I get the letters. It's fine. It's fine.	Elke kandidaat krijgt een zoemer. Ik krijg de letters. Prima. Helemaal prima.
+No mouse, no list, no looking. Only the key.	Geen muis, geen lijst, niet kijken. Alleen de toets.
+Buzz! A winner! I've never said that. I've only pointed at it.	Ping! Een winnaar! Dat heb ik nog nooit gezegd. Alleen maar aangewezen.
+And for our viewers at home: yes, you can push the buttons too.	En voor de kijkers thuis: ja, jullie mogen ook op de knoppen drukken.
+Numbers, GOTO, a buzzer, and GO from anywhere. You could host a game show now.	Cijfers, GOTO, een zoemer en GO vanaf overal. Nu kun je een spelshow presenteren.
+Goodnight, everybody! Tomorrow I go back to the letters. I'll miss you.	Welterusten, allemaal! Morgen ga ik terug naar de letters. Ik zal jullie missen.
+And the number is... not three. I'll allow it. I turn anything.	En het nummer is... geen drie. Ik keur het goed. Ik draai alles om.
+A second playlist is a layer over the map. The lizard stays underneath. For now.	Een tweede afspeellijst is een laag over de kaart. De hagedis blijft eronder. Voorlopig.
+A Lower Third, a name, a title card, a backdrop. The lizard has left the studio.	Een naambalk, een naam, een titelkaart, een achtergrond. De hagedis heeft de studio verlaten.
+That's not my name. It's a lovely name. Now, about that lizard...	Dat is mijn naam niet. Het is een prachtige naam. Maar die hagedis...
+The rocket (on the pad)	The rocket (on the pad)
+The rocket (lift-off)	The rocket (lift-off)
+A rocket built in a basement, skapi, an inventor who wants cheese, and a dog who does the real work. Press START.	Een raket uit een kelder, skapi, een uitvinder die kaas wil en een hond die het echte werk doet. Druk op Starten.
+Stage timers: a countdown over a picture, a hold, and a view for the person on stage.	Podiumtimers: aftellen over een beeld, stilzetten en een weergave voor wie op het podium staat.
+Playlist 2 is selected, over the rocket. SOURCE, then Stage Timer.	Afspeellijst 2 is geselecteerd, boven de raket. BRON, dan Stage Timer.
+*checks his watch, then the rocket, then his watch*	*kijkt op zijn horloge, naar de raket, weer op zijn horloge*
+COUNT IT DOWN	AFTELLEN
+Select the timer and TAKE it. I have cleared its backdrop, so the rocket shows behind the numbers.	Selecteer de timer en druk op TAKE. Ik heb de achtergrond gewist, zodat je de raket achter de cijfers ziet.
+Past zero it keeps going and counts the overtime. Very honest. Slightly rude.	Na nul telt hij door en toont de uitloop. Heel eerlijk. Wel wat brutaal.
+Close MENU, click the Deck 1 tab, then select 'The rocket (lift-off)' and TAKE it.	Sluit MENU, klik op het tabblad Deck 1, selecteer 'The rocket (lift-off)' en druk op TAKE.
+The clock is on playlist 2, so it stays up while the rocket changes underneath it.	De klok staat op afspeellijst 2 en blijft dus staan terwijl de raket eronder verandert.
+We have lift-off, Grommet! ...Grommet? Who's flying it?	We zijn los, Grommet! ...Grommet? Wie bestuurt dat ding?
+A countdown, a hold, a pilot's view and a launch. Bring crackers.	Aftellen, stilzetten, een pilotenweergave en een lancering. Neem crackers mee.
+*waves from the window*	*zwaait vanuit het raam*
+The rubber chicken	The rubber chicken
+A magic show, skapi. A trunk, a rubber chicken, and one beat where everything changes at once. Press START.	Een goochelshow, skapi. Een kist, een rubberen kip en één tel waarop alles tegelijk verandert. Druk op Starten.
+Two playlists are two layers, and TAKE ALL changes both together. Tonight you will see why that matters.	Twee afspeellijsten zijn twee lagen. TAKE ALL verandert beide tegelijk. Vanavond zie je waarom dat telt.
+The chicken goes on its own layer. Press the + at the end of the playlist tabs.	De kip krijgt een eigen laag. Druk op de + achter de tabbladen van de afspeellijsten.
+The lit tab is the playlist that gets the next cue. Its chip now says 'to Out 1': it is layered over playlist 1 on that output.	Het verlichte tabblad krijgt de volgende cue. Het label zegt nu 'naar Uitgang 1': deze laag ligt boven afspeellijst 1 op die uitgang.
+TRICK ONE	EERSTE TRUC
+Turnip Top has put the chicken in playlist 2. In playlist 1, TAKE 'The trunk (open)'. Then in playlist 2, TAKE the chicken.	Turnip Top heeft de kip in afspeellijst 2 gezet. Start in afspeellijst 1 'The trunk (open)' met TAKE. Start daarna in afspeellijst 2 de kip met TAKE.
+The chicken is clear all round, so it covers only itself. Watch the monitor between the two TAKEs.	Rond de kip is alles transparant, dus alleen haar eigen vorm dekt iets af. Kijk tussen de twee TAKE-acties naar de monitor.
+Did you see it? For a moment the trunk was open and empty: two TAKEs are two moments. The trick is reset. Now select the open trunk in playlist 1 and the chicken in playlist 2, then TAKE ALL.	Gezien? Even stond de kist open en leeg: twee TAKE-acties zijn twee momenten. De truc is teruggezet. Selecteer de open kist in afspeellijst 1 en de kip in afspeellijst 2. Dan TAKE ALL.
+TAKE ALL takes every playlist's selected cue on one beat. No gap, no empty trunk.	TAKE ALL start de geselecteerde cue van elke afspeellijst op dezelfde tel. Geen gat, geen lege kist.
+The chicken was late. They saw an empty trunk. In magic we call that a trunk.	De kip was te laat. Ze zagen een lege kist. In de goochelwereld noemen we dat een kist.
+TAKE ALL	TAKE ALL
+THE VANISH	DE VERDWIJNTRUC
+Trick two. Drag playlist 2's opacity fader down to nothing. The chicken fades away.	Tweede truc. Sleep de dekkingsfader van afspeellijst 2 helemaal omlaag. De kip vervaagt.
+Every playlist has its own opacity. Down is a fade out, with no cue at all.	Elke afspeellijst heeft een eigen dekking. Omlaag is uitfaden, zonder cue.
+Ta-daaa! ...Hold for applause. Hold. Now watch it go.	Ta-daaa! ...Wacht op applaus. Nog even. Kijk nu hoe ze verdwijnt.
+Trick three. Bring it back: playlist 2's opacity all the way up.	Derde truc. Haal haar terug: dekking van afspeellijst 2 helemaal omhoog.
+Where did it go? Back in the trunk. Everything goes back in the trunk.	Waar is ze gebleven? Terug in de kist. Alles gaat terug in de kist.
+THAT'S MAGIC	DAT IS MAGIE
+An appearance done wrong, then right, a vanish and a return. Nazdrave.	Een verschijning verkeerd, dan goed, een verdwijning en een terugkeer. Nazdrave.
+A playlist can also sit on any output. Two layers, a great many tricks.	Een afspeellijst kan ook op elke uitgang staan. Twee lagen, heel veel trucs.
+It's back! Thank you! I'm here all week! The chicken is here forever.	Ze is terug! Bedankt! Ik ben hier de hele week! De kip is hier voor altijd.
+A cooking show, skapi. Live. The kitchen is on fire. Press START.	Een kookprogramma, skapi. Live. De keuken staat in brand. Druk op Starten.
+Ta-da! Still cookin'! ...Still burnin'.	Ta-da! We koken nog! ...Het brandt ook nog.
+PANIC	PANIC
+Bork! De fire extinguisher is also on fire!	Bork! De blussör staat ook in de fik, flördi!
+BLACK to hide, PANIC to stop, TAKE to come back. You will survive any kitchen.	zwart om te verbergen, PANIC om te stoppen, TAKE om terug te komen. Zo overleef je elke keuken.
+A fashion show, skapi. One designer, one runway, and a look she will want back. Press START.	Een modeshow, skapi. Eén ontwerper, één catwalk en een look die ze terug wil. Druk op Starten.
+A preset stores a whole look and brings it back with one button.	Een voorinstelling bewaart een hele look en haalt hem met één knop terug.
+Darling. A look is not a look until you can get it back.	Schat. Een look is pas een look als je hem terug kunt halen.
+Buttons. Good. I design with buttons.	Knopen. Goed. Ik ontwerp met knopen.
+Store it. Before somebody has ideas.	Sla het op. Voordat iemand ideeën krijgt.
+Close the DASH (Esc), then select Look two and TAKE it.	Sluit DASH (Esc), selecteer Look two en druk op TAKE.
+A cape. On my runway. Someone will trip, darling. Someone always trips.	Een cape. Op mijn catwalk. Iemand gaat struikelen, schat. Er struikelt altijd iemand.
+Recall: the whole look comes back at once.	Terughalen: de hele look is er in één keer weer.
+Thank you. We will never speak of the cape again.	Dank je. We hebben het nooit meer over die cape.
+Simple. Timeless. Recallable. Now go, darling. I have a fitting.	Eenvoudig. Tijdloos. Terug te halen. Ga nu, schat. Ik heb een pasafspraak.
+Pushes, wipes, iris, dip to white, and more. I wrote half of them. On a Tuesday.	Schuiven, vegen, iris, via wit en meer. De helft heb ik geschreven. Op een dinsdag.
+Operators... roll the transition.	Operators... start de overgang.
+A style, a time, and two very dramatic entrances. Roll credits.	Een stijl, een tijd en twee heel dramatische opkomsten. Start de aftiteling.
+That is not an iris. ...It is better. I will allow it.	Dat is geen iris. ...Het is beter. Ik sta het toe.
+An effect, a bend and the patch. The robots approve, I think. Their faces are helmets.	Een effect, een vervorming en de patch. De robots keuren het goed, denk ik. Hun gezichten zijn helmen.
+Waveform, vectorscope, false colour. The scopes settled it. The agents did not.	Golfvorm, vectorscoop, valse kleuren. De meetinstrumenten waren eruit. De agenten niet.
+The view from the capsule	Het uitzicht vanuit de capsule
+Major Tomasina is in orbit, skapi, and her picture has to reach the ground. Press START.	Major Tomasina draait om de aarde, skapi. Haar beeld moet naar de grond. Druk op Starten.
+Pictures leave by cable or network: NDI, SDI from a DeckLink card, ST 2110 for broadcast plants.	Beelden gaan via kabel of netwerk: NDI, SDI vanaf een DeckLink-kaart en ST 2110 voor omroepinstallaties.
+Ground control, this is Major Tomasina. Can you see my picture?	Grondcontrole, hier Major Tomasina. Ontvangen jullie mijn beeld?
+Every way down, on one page. Good. Space has very few cables.	Alle routes naar beneden op één pagina. Goed. De ruimte heeft weinig kabels.
+NDI	NDI
+Sending now. If nobody answers, I'll just float here.	Ik zend. Als niemand antwoordt, blijf ik hier maar zweven.
+Ground control, signing off. Tell my mother I waved.	Grondcontrole, ik sluit af. Zeg tegen mijn moeder dat ik gezwaaid heb.
+Ground control can see me! I can see my house from here.	Grondcontrole ziet me! Ik kan mijn huis zien van hieruit.
+MULTI ON	MULTI AAN
+And one more window, showing the clock. Operators who watch a clock are never late.	En nog een venster met de klok. Operators die op de klok kijken, komen nooit te laat.
+The big window is window one, which is usually the programme.	Het grote venster is venster één. Meestal staat daar het programma.
+Windows, the ... menu, NEXT, the clock, a layout, tally. Mystery solved.	Vensters, het menu ..., NEXT, de klok, een indeling, tally. Mysterie opgelost.
+DECKBOY  POCKET	DECKBOY  POCKET

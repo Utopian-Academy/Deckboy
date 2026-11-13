@@ -3068,3 +3068,173 @@ Stop masking this. The mask stays in the show's library, to put back from the me
 Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	Bu maskeyi gösteriden ve onu kullanan tüm cue, playlist ve çıkışlardan sil. Geri al onu geri getirir
 FX PARAM: slot must be A-F	FX PARAM: slot A-F olmalı
 FX LFO: slot must be A-D, E for the amount, or F/G for the fifth and sixth sliders	FX LFO: slot A-D olmalı, miktar için E, beşinci ve altıncı kaydırıcılar için F/G
+playlist 2 is ready: you built one in the magic show	çalma listesi 2 hazır: sihir gösterisinde bir tane oluşturmuştun
+FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR	FX: şunu kullan LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR
+BLACK	siyah
+COACH MARV	COACH MARV
+JUNE O'NEIL	JUNE O'NEIL
+TURNIP TOP	TURNIP TOP
+CHEF BORK	CHEF BORK
+DONNA WHEEL	DONNA WHEEL
+KEEPER ROOK	KEEPER ROOK
+AGENT BRANDT	AGENT BRANDT
+AGENT HOLLIS	AGENT HOLLIS
+MR. SALTY	MR. SALTY
+OPTIMUS PRIMETIME	OPTIMUS PRIMETIME
+DEFT FUNK	DEFT FUNK
+LT. HAILA	LT. HAILA
+ENSIGN JINKLEY	ENSIGN JINKLEY
+The tour bus, with Polly Carton	Polly Carton ile turne otobüsü
+A test pattern, drawing on a replay, a still, and the video synth at halftime.	Test deseni, tekrarın üstüne çizim, kaydedilmiş bir kare ve devre arasında video sentezleyici.
+A stage timer over a picture, held, a presenter view for the person on stage, and a launch.	Görüntü üstünde sahne sayacı, bekletme, sahnedeki kişi için bir görünüm ve fırlatma.
+A second playlist as a layer, TAKE ALL so two things change on one beat, and a playlist's opacity.	Katman olarak ikinci çalma listesi, ikisini aynı anda değiştiren TAKE ALL ve liste opaklığı.
+The fashion show, with Edda Mod	Edda Mod ile defile
+Ground control, with Major Tomasina	Major Tomasina ile yer kontrol
+0.1, 0.1, 0.1	0.1, 0.1, 0.1
+Opener (the bus at dawn)	Açılış (şafakta otobüs)
+Polly Carton's tour bus leaves at six, skapi, and this show goes with it. Press START.	Polly Carton'ın turne otobüsü altıda kalkıyor, skapi. Bu gösteri de onunla gidiyor. Başlat düğmesine bas.
+A show that travels needs three things first: a check, a fix and a bundle.	Yola çıkacak bir gösteriye önce üç şey gerek: kontrol, düzeltme ve paket.
+Honey, I've played four thousand towns. Not one of them had my laptop.	Canım, dört bin şehirde sahneye çıktım. Hiçbirinde benim dizüstü bilgisayarım yoktu.
+It lists what the show would trip over: missing files, empty cues, outputs it cannot reach.	Gösterinin ayağına dolanacakları listeler: eksik dosyalar, boş cue'lar, erişilemeyen çıkışlar.
+Every show has a problem. Find yours before the audience does.	Her gösterinin bir derdi vardır. Seninkini seyirciden önce bul.
+The intro video is on the office computer. Select it and delete it, or RELINK it if you have the file.	Giriş videosu ofisteki bilgisayarda. Seçip sil ya da dosya elindeyse RELINK kullan.
+Fix it here, with time and coffee. Not at the venue, with neither.	Burada düzelt. Vakit de var, kahve de. Mekânda ikisi de olmayacak.
+Leave it behind, sugar. I left a whole wig in Tulsa and the show went on.	Bırak gitsin, şekerim. Tulsa'da koca bir peruk bıraktım, gösteri yine devam etti.
+Press BUNDLE and choose where: a USB stick, a shared folder. The show and all its media, in one folder.	PAKETLE düğmesine bas ve yer seç: USB bellek ya da paylaşılan klasör. Gösteri ve tüm medyası tek klasörde.
+Pack it like a wig box. Everything inside, nothing loose.	Peruk kutusu gibi paketle. Her şey içeride, ortalıkta bir şey kalmasın.
+Checked, fixed, bundled. On the other computer, open the show in the bundle and everything is there.	Kontrol edildi, düzeltildi, paketlendi. Diğer bilgisayarda paketin içindeki gösteriyi aç. Her şey orada.
+The show file is only text, so it travels light. The media is the luggage.	Gösteri dosyası yalnızca metin. Hafif seyahat eder. Medya ise bagajıdır.
+Bus leaves at six. Show starts at eight. Hair takes until seven.	Otobüs altıda. Gösteri sekizde. Saçlar yediye kadar sürer.
+There are dozens, and most of them run on the graphics card, so you can stack them.	Onlarcası var. Çoğu ekran kartında çalışır, yani üst üste ekleyebilirsin.
+An effect, a ~ and a colour. The critic is crying. Good crying, I think.	Bir efekt, bir ~ ve bir renk. Eleştirmen ağlıyor. Sevinçten sanırım.
+Stack a few more. Order matters: each effect works on the picture the one above it made.	Birkaç tane daha ekle. Sıra önemli: her efekt, üstündekinin oluşturduğu görüntüyle çalışır.
+Three effects! It's a mess! It's ALIVE! Post it.	Üç efekt! Ortalık karıştı! YAŞIYOR! Paylaş.
+The replay	The replay
+Coach Marv has two minutes of airtime, one replay and a pen, skapi. He will use all three. Press START.	Coach Marv'ın iki dakika yayın süresi, bir tekrarı ve bir kalemi var, skapi. Üçünü de kullanacak. Başlat düğmesine bas.
+Tonight: a test pattern, drawing on the picture, and the video synth.	Bu akşam: test deseni, görüntünün üstüne çizim ve video sentezleyici.
+Folks, I've watched this play forty times. It's still a play.	Arkadaşlar, bu pozisyonu kırk kez izledim. Hâlâ bir pozisyon.
+CHECK THE MONITORS	MONİTÖRLERİ KONTROL ET
+PATTERN adds Pocket Test. If its circles are not round, a screen is stretched. Find out now, not on air.	TEST DESENİ, Pocket Test ekler. Daireler yuvarlak değilse ekran görüntüyü esnetiyordur. Bunu şimdi öğren, yayında değil.
+Its bars and steps are checked against real meters, so a wrong screen looks wrong at once.	Çubukları ve basamakları gerçek ölçüm cihazlarıyla doğrulandı. Yanlış ayarlı ekran hemen belli olur.
+That's a test pattern. You test with it. That's why they call it that.	Bu bir test deseni. Test etmek için kullanılır. Adı da oradan gelir.
+ROLL THE REPLAY	TEKRARI OYNAT
+Select The replay and TAKE it.	The replay öğesini seç ve TAKE düğmesine bas.
+A replay loops, so the pundit can talk over it for as long as he likes. He likes.	Tekrar döngüde oynar. Yorumcu istediği kadar konuşabilir. İstiyor da.
+Here's number 22. Number 22 has the ball. That's important, because the ball is how you score.	İşte 22 numara. Top 22 numarada. Bu önemli, çünkü gol atmak için top gerekir.
+The pen goes over the replay, on its own layer. Press the + at the end of the playlist tabs.	Kalem tekrarın üstüne, kendi katmanına çizer. Çalma listesi sekmelerinin sonundaki + düğmesine bas.
+A second playlist is a layer over the first.	İkinci çalma listesi, birincinin üstünde bir katmandır.
+Over it. Not under it. Under it, you can't see it. That's football.	Üstünde. Altında değil. Altında göremezsin. Futbol budur.
+The lit tab is where SOURCE puts things. Skip this and the ink lands under the replay.	KAYNAK, öğeleri yanan sekmeye koyar. Bunu atlarsan çizim tekrarın altında kalır.
+See that tab? Click it. Fundamentals.	Sekmeyi görüyor musun? Tıkla. İşin temeli.
+In playlist 2: SOURCE, then Draw.	Çalma listesi 2'de: KAYNAK, ardından Çizim.
+A Draw cue is clear wherever there is no ink, so the replay shows through.	Çizim cue'su, mürekkep olmayan yerlerde saydamdır. Tekrar alttan görünür.
+Give me the pen. I've waited all season for the pen.	Kalemi ver. Bütün sezon bu kalemi bekledim.
+Both are live now: the replay underneath, the ink on top.	İkisi de artık yayında: tekrar altta, çizim üstte.
+We're on the air. Nobody touches the pen but me.	Yayındayız. Kaleme benden başka kimse dokunmasın.
+CIRCLE HIM	ETRAFINI ÇİZ
+Press DRAW in the inspector, then circle number 22 on the programme monitor. He is the yellow one.	Denetçide Çizim düğmesine bas, sonra program monitöründe 22 numaranın etrafına daire çiz. Sarılı olan.
+A pen's pressure makes the line thicker. A mouse presses at one strength.	Kaleme daha çok bastırınca çizgi kalınlaşır. Fare hep aynı güçte basar.
+Circle him! The yellow one! There's only one yellow one. Circle that one.	Etrafını çiz! Sarılı olanın! Bir tane sarılı var. Onun etrafını çiz.
+Draw as much as you like. Then SAVE STILL keeps the drawing as a picture with a clear background, in the playlist.	İstediğin kadar çiz. Ardından resmi kaydet, çizimi saydam arka planlı bir görüntü olarak çalma listesinde saklar.
+For next week's show. He will want that circle again.	Gelecek haftaki program için. O daireyi yine isteyecek.
+Put that in the Hall of Fame. Next to the turducken.	Bunu şöhretler salonuna koy. Üç etli sandviçin yanına.
+Halftime. Click the Deck 1 tab, then SOURCE, then Video Synth.	Devre arası. Deck 1 sekmesine, sonra KAYNAK ve Video sentezleyici öğelerine tıkla.
+My favourite source: oscillators, mirrors and feedback. A halftime show with no camera at all.	En sevdiğim kaynak: osilatörler, aynalar ve geri besleme. Tek kamera olmadan devre arası şovu.
+Halftime! Somebody get me some lights. And a band. And a sandwich.	Devre arası! Biri bana ışık getirsin. Bir de orkestra. Bir de sandviç.
+TAKE HALFTIME	DEVRE ARASINA TAKE
+Select the synth and TAKE it. Then look at the monitor: your ink is still up.	Sentezleyiciyi seç ve TAKE düğmesine bas. Sonra monitöre bak: çizimin hâlâ orada.
+Playlist 2 did not change, so its ink stays over whatever playlist 1 shows. Each playlist changes on its own.	Çalma listesi 2 değişmedi. Bu yüzden çizimi, liste 1 ne gösterirse göstersin üstünde kalır. Her liste bağımsız değişir.
+Leave the circle up. It's a good circle. It goes with everything.	Daireyi bırak. Güzel daire. Her şeye yakışıyor.
+A test pattern, a replay, ink on a layer, a still, and halftime. That's the booth.	Test deseni, tekrar, katmanda çizim, kaydedilmiş kare ve devre arası. İşte yorumcu kabini.
+Replay in the Draw section draws your lines back the way you drew them. He will love that.	Çizim bölümündeki Replay, çizgilerini çizdiğin gibi yeniden çizer. Buna bayılacak.
+Same time next week. Bring a bigger pen.	Gelecek hafta aynı saatte. Daha büyük bir kalem getir.
+Now THAT is a busy play. I can't see the field. I love it.	İŞTE dolu dolu bir pozisyon. Sahayı göremiyorum. Bayıldım.
+Two projectors overlap, and each fades its edge so the overlap is not twice as bright. Watch the sides of the monitor go soft.	İki projektörün görüntüsü örtüşür. Örtüşen yer iki kat parlak olmasın diye her biri kendi kenarını karartır. Monitörün yanlarının yumuşamasını izle.
+A game show, skapi. Three contestants, one buzzer, and a host who is not here tonight. Press START.	Bir yarışma programı, skapi. Üç yarışmacı, bir zil ve bu akşam burada olmayan bir sunucu. Başlat düğmesine bas.
+Cue numbers, hotkeys, and GO from other machines.	Cue numaraları, kısayol tuşları ve başka makinelerden GO.
+Forty years I turned the letters. Tonight they gave me the microphone. Nobody panic.	Kırk yıl harfleri çevirdim. Bu akşam mikrofonu verdiler. Kimse paniklemesin.
+Theatre numbers its cues: Q3, Q3.5, Q12A. Deckboy reads them all.	Tiyatroda cue'lar numaralanır: Q3, Q3.5, Q12A. Deckboy hepsini okur.
+Numbers! I know letters. Numbers are letters that went to college.	Sayılar! Ben harfleri bilirim. Sayılar üniversite bitirmiş harflerdir.
+GOTO crosses a long list faster than scrolling. Much faster.	GOTO uzun listeyi kaydırmaktan daha hızlı geçer. Çok daha hızlı.
+F1 to F10, F12, or the number pad. Each one is a buzzer.	F1 ile F10 arası, F12 veya sayısal tuş takımı. Her biri bir yarışma zili.
+Every contestant gets a buzzer. I get the letters. It's fine. It's fine.	Her yarışmacıya bir zil. Bana harfler. Sorun yok. Hiç yok.
+No mouse, no list, no looking. Only the key.	Fare yok, liste yok, bakmak yok. Yalnızca tuş.
+Buzz! A winner! I've never said that. I've only pointed at it.	Ding! Bir kazanan! Bunu hiç söylememiştim. Yalnızca işaret etmiştim.
+And for our viewers at home: yes, you can push the buttons too.	Ekran başındaki seyircilerimiz: evet, siz de düğmelere basabilirsiniz.
+Numbers, GOTO, a buzzer, and GO from anywhere. You could host a game show now.	Numaralar, GOTO, bir zil ve her yerden GO. Artık yarışma programı sunabilirsin.
+Goodnight, everybody! Tomorrow I go back to the letters. I'll miss you.	İyi geceler herkese! Yarın yine harflere dönüyorum. Sizi özleyeceğim.
+And the number is... not three. I'll allow it. I turn anything.	Ve sayı... üç değil. Kabul. Ben her şeyi çeviririm.
+A second playlist is a layer over the map. The lizard stays underneath. For now.	İkinci çalma listesi haritanın üstünde bir katmandır. Kertenkele altta kalır. Şimdilik.
+A Lower Third, a name, a title card, a backdrop. The lizard has left the studio.	Alt bant, bir isim, başlık kartı ve arka plan. Kertenkele stüdyodan ayrıldı.
+That's not my name. It's a lovely name. Now, about that lizard...	Benim adım bu değil. Güzel isim. Neyse, şu kertenkele meselesi...
+The rocket (on the pad)	The rocket (on the pad)
+The rocket (lift-off)	The rocket (lift-off)
+A rocket built in a basement, skapi, an inventor who wants cheese, and a dog who does the real work. Press START.	Bodrumda yapılmış bir roket, skapi, peynir isteyen bir mucit ve asıl işi yapan bir köpek. Başlat düğmesine bas.
+Stage timers: a countdown over a picture, a hold, and a view for the person on stage.	Sahne sayaçları: görüntü üstünde geri sayım, bekletme ve sahnedeki kişi için bir görünüm.
+Playlist 2 is selected, over the rocket. SOURCE, then Stage Timer.	Roketin üstündeki çalma listesi 2 seçili. KAYNAK, ardından Stage Timer.
+*checks his watch, then the rocket, then his watch*	*saatine, rokete, sonra yine saatine bakar*
+COUNT IT DOWN	GERİ SAYIMI BAŞLAT
+Select the timer and TAKE it. I have cleared its backdrop, so the rocket shows behind the numbers.	Sayacı seç ve TAKE düğmesine bas. Arka planını kaldırdım, roket sayıların arkasında görünüyor.
+Past zero it keeps going and counts the overtime. Very honest. Slightly rude.	Sıfırdan sonra da devam edip aşan süreyi sayar. Çok dürüst. Biraz kaba.
+Close MENU, click the Deck 1 tab, then select 'The rocket (lift-off)' and TAKE it.	MENÜ öğesini kapat, Deck 1 sekmesine tıkla, 'The rocket (lift-off)' öğesini seç ve TAKE düğmesine bas.
+The clock is on playlist 2, so it stays up while the rocket changes underneath it.	Saat çalma listesi 2'de. Altındaki roket değişirken o ekranda kalır.
+We have lift-off, Grommet! ...Grommet? Who's flying it?	Havalandık, Grommet! ...Grommet? Kim kullanıyor?
+A countdown, a hold, a pilot's view and a launch. Bring crackers.	Geri sayım, bekletme, pilot görünümü ve fırlatma. Kraker getir.
+*waves from the window*	*pencereden el sallar*
+The rubber chicken	The rubber chicken
+A magic show, skapi. A trunk, a rubber chicken, and one beat where everything changes at once. Press START.	Bir sihir gösterisi, skapi. Bir sandık, lastik tavuk ve her şeyin aynı anda değiştiği bir an. Başlat düğmesine bas.
+Two playlists are two layers, and TAKE ALL changes both together. Tonight you will see why that matters.	İki çalma listesi iki katmandır. TAKE ALL ikisini birlikte değiştirir. Bu akşam bunun neden önemli olduğunu göreceksin.
+The chicken goes on its own layer. Press the + at the end of the playlist tabs.	Tavuk kendi katmanına gidecek. Çalma listesi sekmelerinin sonundaki + düğmesine bas.
+The lit tab is the playlist that gets the next cue. Its chip now says 'to Out 1': it is layered over playlist 1 on that output.	Yanan sekme, sıradaki cue'nun ekleneceği çalma listesidir. İşaretinde artık 'çıkış 1 hedefine' yazıyor: bu çıkışta liste 1'in üstünde.
+TRICK ONE	BİRİNCİ NUMARA
+Turnip Top has put the chicken in playlist 2. In playlist 1, TAKE 'The trunk (open)'. Then in playlist 2, TAKE the chicken.	Turnip Top tavuğu çalma listesi 2'ye koydu. Liste 1'de 'The trunk (open)' öğesini TAKE ile oynat. Sonra liste 2'de tavuğu TAKE ile oynat.
+The chicken is clear all round, so it covers only itself. Watch the monitor between the two TAKEs.	Tavuğun çevresi saydamdır. Yalnızca kendi yerini kapatır. İki TAKE arasında monitörü izle.
+Did you see it? For a moment the trunk was open and empty: two TAKEs are two moments. The trick is reset. Now select the open trunk in playlist 1 and the chicken in playlist 2, then TAKE ALL.	Gördün mü? Sandık bir an açık ve boştu: iki TAKE, iki ayrı an demektir. Numara başa alındı. Şimdi liste 1'de açık sandığı, liste 2'de tavuğu seç, ardından TAKE ALL.
+TAKE ALL takes every playlist's selected cue on one beat. No gap, no empty trunk.	TAKE ALL her çalma listesinin seçili cue'sunu aynı anda oynatır. Arada boşluk yok, boş sandık yok.
+The chicken was late. They saw an empty trunk. In magic we call that a trunk.	Tavuk gecikti. Boş sandık gördüler. Sihirbazlıkta buna sandık deriz.
+TAKE ALL	TAKE ALL
+THE VANISH	KAYBOLUŞ
+Trick two. Drag playlist 2's opacity fader down to nothing. The chicken fades away.	İkinci numara. Çalma listesi 2'nin opaklık sürgüsünü sıfıra indir. Tavuk silinip gider.
+Every playlist has its own opacity. Down is a fade out, with no cue at all.	Her çalma listesinin kendi opaklığı vardır. Sürgüyü indirince hiçbir cue olmadan görüntü silinip gider.
+Ta-daaa! ...Hold for applause. Hold. Now watch it go.	Ta-daaa! ...Alkışları bekleyelim. Bekleyelim. Şimdi gidişini izle.
+Trick three. Bring it back: playlist 2's opacity all the way up.	Üçüncü numara. Geri getir: çalma listesi 2'nin opaklığını sonuna kadar aç.
+Where did it go? Back in the trunk. Everything goes back in the trunk.	Nereye gitti? Sandığa geri döndü. Her şey sandığa geri döner.
+THAT'S MAGIC	İŞTE SİHİR
+An appearance done wrong, then right, a vanish and a return. Nazdrave.	Önce yanlış, sonra doğru bir beliriş, bir kayboluş ve bir dönüş. Nazdrave.
+A playlist can also sit on any output. Two layers, a great many tricks.	Çalma listesi herhangi bir çıkışta da durabilir. İki katman, bir sürü numara.
+It's back! Thank you! I'm here all week! The chicken is here forever.	Geri geldi! Teşekkürler! Ben bütün hafta buradayım! Tavuk sonsuza dek burada.
+A cooking show, skapi. Live. The kitchen is on fire. Press START.	Bir yemek programı, skapi. Canlı yayın. Mutfak yanıyor. Başlat düğmesine bas.
+Ta-da! Still cookin'! ...Still burnin'.	Ta-da! Hâlâ pişiyor! ...Hâlâ yanıyor.
+PANIC	PANIC
+Bork! De fire extinguisher is also on fire!	Bork! Yangın söndürücü de yanıyör, şördi-börk!
+BLACK to hide, PANIC to stop, TAKE to come back. You will survive any kitchen.	siyah gizler, PANIC durdurur, TAKE geri getirir. Her mutfaktan sağ çıkarsın.
+A fashion show, skapi. One designer, one runway, and a look she will want back. Press START.	Bir defile, skapi. Bir tasarımcı, bir podyum ve geri isteyeceği bir görünüm. Başlat düğmesine bas.
+A preset stores a whole look and brings it back with one button.	Bir önayar, bütün görünümü saklar ve tek düğmeyle geri getirir.
+Darling. A look is not a look until you can get it back.	Canım. Geri getiremediğin görünüm, görünüm değildir.
+Buttons. Good. I design with buttons.	Düğmeler. Güzel. Ben düğmelerle tasarlarım.
+Store it. Before somebody has ideas.	Kaydet. Birinin aklına fikir gelmeden.
+Close the DASH (Esc), then select Look two and TAKE it.	DASH öğesini kapat (Esc), Look two öğesini seç ve TAKE düğmesine bas.
+A cape. On my runway. Someone will trip, darling. Someone always trips.	Pelerin. Benim podyumumda. Biri takılıp düşecek, canım. Hep biri düşer.
+Recall: the whole look comes back at once.	Geri çağırma: bütün görünüm aynı anda geri gelir.
+Thank you. We will never speak of the cape again.	Teşekkürler. Pelerinden bir daha söz etmeyeceğiz.
+Simple. Timeless. Recallable. Now go, darling. I have a fitting.	Sade. Zamansız. Geri çağrılabilir. Şimdi git, canım. Provam var.
+Pushes, wipes, iris, dip to white, and more. I wrote half of them. On a Tuesday.	İtmeler, silmeler, iris, beyaza geçiş ve dahası. Yarısını ben yazdım. Bir salı günü.
+Operators... roll the transition.	Operatörler... geçişi oynatın.
+A style, a time, and two very dramatic entrances. Roll credits.	Bir stil, bir süre ve iki çok gösterişli giriş. Jenerik aksın.
+That is not an iris. ...It is better. I will allow it.	Bu iris değil. ...Daha iyi. İzin veriyorum.
+An effect, a bend and the patch. The robots approve, I think. Their faces are helmets.	Bir efekt, bir bükme ve patch. Robotlar onayladı galiba. Yüzleri kask.
+Waveform, vectorscope, false colour. The scopes settled it. The agents did not.	Dalga biçimi, vektörskop, sahte renk. Ölçüm cihazları meseleyi çözdü. Ajanlar çözemedi.
+The view from the capsule	Kapsülden manzara
+Major Tomasina is in orbit, skapi, and her picture has to reach the ground. Press START.	Major Tomasina yörüngede, skapi. Görüntüsünün yere ulaşması gerek. Başlat düğmesine bas.
+Pictures leave by cable or network: NDI, SDI from a DeckLink card, ST 2110 for broadcast plants.	Görüntüler kabloyla veya ağla gider: NDI, DeckLink kartından SDI, yayın tesisleri için ST 2110.
+Ground control, this is Major Tomasina. Can you see my picture?	Yer kontrol, burası Major Tomasina. Görüntümü alıyor musunuz?
+Every way down, on one page. Good. Space has very few cables.	Aşağıya giden tüm yollar tek sayfada. Güzel. Uzayda pek kablo yok.
+NDI	NDI
+Sending now. If nobody answers, I'll just float here.	Şimdi gönderiyorum. Kimse cevap vermezse burada süzülür dururum.
+Ground control, signing off. Tell my mother I waved.	Yer kontrol, bağlantıyı kesiyorum. Anneme el salladığımı söyleyin.
+Ground control can see me! I can see my house from here.	Yer kontrol beni görüyor! Buradan evimi görebiliyorum.
+MULTI ON	MULTI AÇIK
+And one more window, showing the clock. Operators who watch a clock are never late.	Bir pencere daha, saati gösteriyor. Saate bakan operatörler asla geç kalmaz.
+The big window is window one, which is usually the programme.	Büyük pencere birinci penceredir. Genellikle programı gösterir.
+Windows, the ... menu, NEXT, the clock, a layout, tally. Mystery solved.	Pencereler, ... menüsü, NEXT, saat, düzen, tally. Gizem çözüldü.
+DECKBOY  POCKET	DECKBOY  POCKET

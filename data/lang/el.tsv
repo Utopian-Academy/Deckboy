@@ -3101,3 +3101,173 @@ Stop masking this. The mask stays in the show's library, to put back from the me
 Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	Διαγραφή αυτής της μάσκας από την παράσταση και από κάθε cue, playlist και έξοδο που τη χρησιμοποιεί. Η αναίρεση την επαναφέρει
 FX PARAM: slot must be A-F	FX PARAM: το slot πρέπει να είναι A-F
 FX LFO: slot must be A-D, E for the amount, or F/G for the fifth and sixth sliders	FX LFO: το slot πρέπει να είναι A-D, E για την ποσότητα ή F/G για το πέμπτο και το έκτο slider
+playlist 2 is ready: you built one in the magic show	η λίστα αναπαραγωγής 2 είναι έτοιμη: έφτιαξες μία στην παράσταση μαγείας
+FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR	FX: χρησιμοποίησε LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR
+BLACK	μαύρο
+COACH MARV	COACH MARV
+JUNE O'NEIL	JUNE O'NEIL
+TURNIP TOP	TURNIP TOP
+CHEF BORK	CHEF BORK
+DONNA WHEEL	DONNA WHEEL
+KEEPER ROOK	KEEPER ROOK
+AGENT BRANDT	AGENT BRANDT
+AGENT HOLLIS	AGENT HOLLIS
+MR. SALTY	MR. SALTY
+OPTIMUS PRIMETIME	OPTIMUS PRIMETIME
+DEFT FUNK	DEFT FUNK
+LT. HAILA	LT. HAILA
+ENSIGN JINKLEY	ENSIGN JINKLEY
+The tour bus, with Polly Carton	Το λεωφορείο της περιοδείας, με την Polly Carton
+A test pattern, drawing on a replay, a still, and the video synth at halftime.	Δοκιμαστική εικόνα, σχέδιο πάνω σε επανάληψη, αποθηκευμένη εικόνα και συνθεσάιζερ βίντεο στο ημίχρονο.
+A stage timer over a picture, held, a presenter view for the person on stage, and a launch.	Χρονόμετρο σκηνής πάνω σε εικόνα, παύση, προβολή για τον ομιλητή και εκτόξευση.
+A second playlist as a layer, TAKE ALL so two things change on one beat, and a playlist's opacity.	Δεύτερη λίστα αναπαραγωγής ως στρώση, TAKE ALL για ταυτόχρονη αλλαγή και αδιαφάνεια της λίστας.
+The fashion show, with Edda Mod	Η επίδειξη μόδας, με την Edda Mod
+Ground control, with Major Tomasina	Κέντρο ελέγχου, με τη Major Tomasina
+0.1, 0.1, 0.1	0.1, 0.1, 0.1
+Opener (the bus at dawn)	Εισαγωγή (το λεωφορείο την αυγή)
+Polly Carton's tour bus leaves at six, skapi, and this show goes with it. Press START.	Το λεωφορείο της Polly Carton φεύγει στις έξι, skapi. Η παράσταση ταξιδεύει μαζί του. Πάτησε Έναρξη.
+A show that travels needs three things first: a check, a fix and a bundle.	Μια παράσταση που ταξιδεύει χρειάζεται πρώτα τρία πράγματα: έλεγχο, διόρθωση και πακέτο.
+Honey, I've played four thousand towns. Not one of them had my laptop.	Χρυσό μου, έχω τραγουδήσει σε τέσσερις χιλιάδες πόλεις. Καμία δεν είχε το λάπτοπ μου.
+It lists what the show would trip over: missing files, empty cues, outputs it cannot reach.	Εδώ φαίνονται όσα θα σκοντάψουν την παράσταση: αρχεία που λείπουν, άδεια cue, απρόσιτες έξοδοι.
+Every show has a problem. Find yours before the audience does.	Κάθε παράσταση έχει ένα πρόβλημα. Βρες το δικό σου πριν το κοινό.
+The intro video is on the office computer. Select it and delete it, or RELINK it if you have the file.	Το εισαγωγικό βίντεο είναι στον υπολογιστή του γραφείου. Επίλεξέ το και σβήσ' το. Αν έχεις το αρχείο, χρησιμοποίησε RELINK.
+Fix it here, with time and coffee. Not at the venue, with neither.	Διόρθωσέ το εδώ, με χρόνο και καφέ. Στον χώρο δεν θα έχεις τίποτε από τα δύο.
+Leave it behind, sugar. I left a whole wig in Tulsa and the show went on.	Άσ' το πίσω, γλυκό μου. Άφησα ολόκληρη περούκα στην Τάλσα και η παράσταση συνεχίστηκε.
+Press BUNDLE and choose where: a USB stick, a shared folder. The show and all its media, in one folder.	Πάτησε ΣΥΣΚΕΥΑΣΙΑ και διάλεξε πού: στικάκι ή κοινόχρηστος φάκελος. Η παράσταση και όλα τα πολυμέσα της, σε έναν φάκελο.
+Pack it like a wig box. Everything inside, nothing loose.	Πακέταρέ το σαν περούκα. Όλα μέσα στο κουτί, τίποτα να μη φεύγει.
+Checked, fixed, bundled. On the other computer, open the show in the bundle and everything is there.	Έλεγχος, διόρθωση, συσκευασία. Στον άλλο υπολογιστή άνοιξε την παράσταση μέσα από το πακέτο. Όλα είναι εκεί.
+The show file is only text, so it travels light. The media is the luggage.	Το αρχείο της παράστασης είναι μόνο κείμενο. Ταξιδεύει ελαφρύ. Τα πολυμέσα είναι οι βαλίτσες.
+Bus leaves at six. Show starts at eight. Hair takes until seven.	Το λεωφορείο στις έξι. Η παράσταση στις οκτώ. Το μαλλί θέλει μέχρι τις επτά.
+There are dozens, and most of them run on the graphics card, so you can stack them.	Υπάρχουν δεκάδες. Τα περισσότερα τρέχουν στην κάρτα γραφικών, οπότε μπορείς να τα στοιβάξεις.
+An effect, a ~ and a colour. The critic is crying. Good crying, I think.	Ένα εφέ, ένα ~ κι ένα χρώμα. Ο κριτικός κλαίει. Από χαρά, νομίζω.
+Stack a few more. Order matters: each effect works on the picture the one above it made.	Πρόσθεσε μερικά ακόμα. Η σειρά μετράει: κάθε εφέ δουλεύει πάνω στην εικόνα που έφτιαξε το προηγούμενο.
+Three effects! It's a mess! It's ALIVE! Post it.	Τρία εφέ! Χαμός! Είναι ΖΩΝΤΑΝΟ! Ανέβασέ το.
+The replay	The replay
+Coach Marv has two minutes of airtime, one replay and a pen, skapi. He will use all three. Press START.	Ο Coach Marv έχει δύο λεπτά στον αέρα, μία επανάληψη κι ένα πενάκι, skapi. Θα τα χρησιμοποιήσει όλα. Πάτησε Έναρξη.
+Tonight: a test pattern, drawing on the picture, and the video synth.	Απόψε: δοκιμαστική εικόνα, σχέδιο πάνω στην εικόνα και συνθεσάιζερ βίντεο.
+Folks, I've watched this play forty times. It's still a play.	Παιδιά, είδα αυτή τη φάση σαράντα φορές. Παραμένει φάση.
+CHECK THE MONITORS	ΕΛΕΓΞΕ ΤΑ ΜΟΝΙΤΟΡ
+PATTERN adds Pocket Test. If its circles are not round, a screen is stretched. Find out now, not on air.	Το ΜΟΤΙΒΟ προσθέτει Pocket Test. Αν οι κύκλοι δεν είναι στρογγυλοί, μια οθόνη τεντώνει την εικόνα. Βρες το τώρα, πριν τον αέρα.
+Its bars and steps are checked against real meters, so a wrong screen looks wrong at once.	Οι μπάρες και οι διαβαθμίσεις έχουν ελεγχθεί με πραγματικά όργανα. Μια λάθος οθόνη φαίνεται αμέσως.
+That's a test pattern. You test with it. That's why they call it that.	Αυτή είναι δοκιμαστική εικόνα. Κάνεις δοκιμές μ' αυτή. Γι' αυτό τη λένε έτσι.
+ROLL THE REPLAY	ΠΑΙΞΕ ΤΗΝ ΕΠΑΝΑΛΗΨΗ
+Select The replay and TAKE it.	Επίλεξε The replay και πάτησε TAKE.
+A replay loops, so the pundit can talk over it for as long as he likes. He likes.	Η επανάληψη παίζει σε βρόχο. Ο σχολιαστής μιλάει όσο θέλει. Και θέλει.
+Here's number 22. Number 22 has the ball. That's important, because the ball is how you score.	Να το 22. Το 22 έχει την μπάλα. Σημαντικό αυτό: με την μπάλα βάζεις γκολ.
+The pen goes over the replay, on its own layer. Press the + at the end of the playlist tabs.	Το πενάκι γράφει πάνω από την επανάληψη, στη δική του στρώση. Πάτησε το + στο τέλος των καρτελών των λιστών.
+A second playlist is a layer over the first.	Η δεύτερη λίστα αναπαραγωγής είναι μια στρώση πάνω από την πρώτη.
+Over it. Not under it. Under it, you can't see it. That's football.	Από πάνω. Όχι από κάτω. Από κάτω δεν το βλέπεις. Αυτό είναι το ποδόσφαιρο.
+The lit tab is where SOURCE puts things. Skip this and the ink lands under the replay.	Η ΠΗΓΗ βάζει τα στοιχεία στη φωτισμένη καρτέλα. Αν το προσπεράσεις, το σχέδιο θα πάει κάτω από την επανάληψη.
+See that tab? Click it. Fundamentals.	Βλέπεις την καρτέλα; Πάτησέ την. Τα βασικά.
+In playlist 2: SOURCE, then Draw.	Στη λίστα αναπαραγωγής 2: ΠΗΓΗ, μετά Σχέδιο.
+A Draw cue is clear wherever there is no ink, so the replay shows through.	Ένα cue Σχέδιο είναι διάφανο όπου δεν έχει μελάνι. Έτσι φαίνεται η επανάληψη από κάτω.
+Give me the pen. I've waited all season for the pen.	Δώσε μου το πενάκι. Όλη τη σεζόν περίμενα το πενάκι.
+Both are live now: the replay underneath, the ink on top.	Τώρα είναι και τα δύο στον αέρα: η επανάληψη κάτω, το μελάνι πάνω.
+We're on the air. Nobody touches the pen but me.	Είμαστε στον αέρα. Μόνο εγώ αγγίζω το πενάκι.
+CIRCLE HIM	ΚΥΚΛΩΣΕ ΤΟΝ
+Press DRAW in the inspector, then circle number 22 on the programme monitor. He is the yellow one.	Πάτησε Σχέδιο στον επιθεωρητή και κύκλωσε το 22 στο μόνιτορ προγράμματος. Είναι ο κίτρινος.
+A pen's pressure makes the line thicker. A mouse presses at one strength.	Η πίεση στο πενάκι παχαίνει τη γραμμή. Το ποντίκι πιέζει πάντα το ίδιο.
+Circle him! The yellow one! There's only one yellow one. Circle that one.	Κύκλωσέ τον! Τον κίτρινο! Ένας είναι κίτρινος. Αυτόν κύκλωσε.
+Draw as much as you like. Then SAVE STILL keeps the drawing as a picture with a clear background, in the playlist.	Ζωγράφισε όσο θέλεις. Μετά το αποθήκευση εικόνας κρατά το σχέδιο στη λίστα ως εικόνα με διάφανο φόντο.
+For next week's show. He will want that circle again.	Για την εκπομπή της άλλης εβδομάδας. Θα ξαναθέλει αυτόν τον κύκλο.
+Put that in the Hall of Fame. Next to the turducken.	Στο πάνθεον του αθλητισμού. Δίπλα στο τριπλό σάντουιτς.
+Halftime. Click the Deck 1 tab, then SOURCE, then Video Synth.	Ημίχρονο. Πάτησε την καρτέλα Deck 1, μετά ΠΗΓΗ και Συνθεσάιζερ βίντεο.
+My favourite source: oscillators, mirrors and feedback. A halftime show with no camera at all.	Η αγαπημένη μου πηγή: ταλαντωτές, καθρέφτες και ανάδραση. Θέαμα ημιχρόνου χωρίς κάμερα.
+Halftime! Somebody get me some lights. And a band. And a sandwich.	Ημίχρονο! Φέρτε μου φώτα. Και ορχήστρα. Κι ένα σάντουιτς.
+TAKE HALFTIME	TAKE ΣΤΟ ΗΜΙΧΡΟΝΟ
+Select the synth and TAKE it. Then look at the monitor: your ink is still up.	Επίλεξε το συνθεσάιζερ και πάτησε TAKE. Κοίτα το μόνιτορ: το μελάνι είναι ακόμα εκεί.
+Playlist 2 did not change, so its ink stays over whatever playlist 1 shows. Each playlist changes on its own.	Η λίστα αναπαραγωγής 2 δεν άλλαξε. Το σχέδιό της μένει πάνω από ό,τι δείχνει η λίστα 1. Κάθε λίστα αλλάζει ανεξάρτητα.
+Leave the circle up. It's a good circle. It goes with everything.	Άσε τον κύκλο. Καλός κύκλος. Ταιριάζει με όλα.
+A test pattern, a replay, ink on a layer, a still, and halftime. That's the booth.	Δοκιμαστική εικόνα, επανάληψη, μελάνι σε στρώση, αποθηκευμένη εικόνα και ημίχρονο. Αυτό είναι το μπουθ.
+Replay in the Draw section draws your lines back the way you drew them. He will love that.	Το Replay στην ενότητα Σχέδιο ξανασχεδιάζει τις γραμμές όπως τις έκανες. Θα το λατρέψει.
+Same time next week. Bring a bigger pen.	Την άλλη εβδομάδα, ίδια ώρα. Φέρε μεγαλύτερο πενάκι.
+Now THAT is a busy play. I can't see the field. I love it.	ΑΥΤΗ είναι γεμάτη φάση. Δεν βλέπω το γήπεδο. Το λατρεύω.
+Two projectors overlap, and each fades its edge so the overlap is not twice as bright. Watch the sides of the monitor go soft.	Δύο προβολείς επικαλύπτονται. Ο καθένας σβήνει την άκρη του, για να μη γίνει η ένωση διπλά φωτεινή. Δες τις πλευρές του μόνιτορ να μαλακώνουν.
+A game show, skapi. Three contestants, one buzzer, and a host who is not here tonight. Press START.	Τηλεπαιχνίδι, skapi. Τρεις διαγωνιζόμενοι, ένα κουμπί κι ένας παρουσιαστής που λείπει απόψε. Πάτησε Έναρξη.
+Cue numbers, hotkeys, and GO from other machines.	Αριθμοί cue, πλήκτρα συντόμευσης και GO από άλλες συσκευές.
+Forty years I turned the letters. Tonight they gave me the microphone. Nobody panic.	Σαράντα χρόνια γύριζα τα γράμματα. Απόψε μου έδωσαν μικρόφωνο. Ψυχραιμία όλοι.
+Theatre numbers its cues: Q3, Q3.5, Q12A. Deckboy reads them all.	Το θέατρο αριθμεί τα cue: Q3, Q3.5, Q12A. Το Deckboy τα διαβάζει όλα.
+Numbers! I know letters. Numbers are letters that went to college.	Αριθμοί! Εγώ ξέρω γράμματα. Οι αριθμοί είναι γράμματα με πτυχίο.
+GOTO crosses a long list faster than scrolling. Much faster.	Το GOTO διασχίζει μια μεγάλη λίστα πιο γρήγορα από την κύλιση. Πολύ πιο γρήγορα.
+F1 to F10, F12, or the number pad. Each one is a buzzer.	F1 έως F10, F12 ή το αριθμητικό πληκτρολόγιο. Κάθε πλήκτρο είναι κουμπί διαγωνιζόμενου.
+Every contestant gets a buzzer. I get the letters. It's fine. It's fine.	Κάθε διαγωνιζόμενος παίρνει κουμπί. Εγώ παίρνω τα γράμματα. Εντάξει. Εντάξει.
+No mouse, no list, no looking. Only the key.	Χωρίς ποντίκι, χωρίς λίστα, χωρίς να κοιτάς. Μόνο το πλήκτρο.
+Buzz! A winner! I've never said that. I've only pointed at it.	Ντιν! Νικητής! Ποτέ δεν το είχα πει. Μόνο το έδειχνα.
+And for our viewers at home: yes, you can push the buttons too.	Και για τους θεατές στο σπίτι: ναι, μπορείτε κι εσείς να πατάτε τα κουμπιά.
+Numbers, GOTO, a buzzer, and GO from anywhere. You could host a game show now.	Αριθμοί, GOTO, κουμπί και GO από παντού. Τώρα μπορείς να παρουσιάσεις τηλεπαιχνίδι.
+Goodnight, everybody! Tomorrow I go back to the letters. I'll miss you.	Καληνύχτα σε όλους! Αύριο επιστρέφω στα γράμματα. Θα μου λείψετε.
+And the number is... not three. I'll allow it. I turn anything.	Και ο αριθμός είναι... όχι τρία. Το δέχομαι. Εγώ τα γυρίζω όλα.
+A second playlist is a layer over the map. The lizard stays underneath. For now.	Η δεύτερη λίστα αναπαραγωγής είναι στρώση πάνω από τον χάρτη. Η σαύρα μένει από κάτω. Προς το παρόν.
+A Lower Third, a name, a title card, a backdrop. The lizard has left the studio.	Κάτω τίτλος, όνομα, κάρτα τίτλου και φόντο. Η σαύρα έφυγε από το στούντιο.
+That's not my name. It's a lovely name. Now, about that lizard...	Δεν είναι το όνομά μου. Ωραίο όνομα. Λοιπόν, για εκείνη τη σαύρα...
+The rocket (on the pad)	The rocket (on the pad)
+The rocket (lift-off)	The rocket (lift-off)
+A rocket built in a basement, skapi, an inventor who wants cheese, and a dog who does the real work. Press START.	Ένας πύραυλος φτιαγμένος στο υπόγειο, skapi, ένας εφευρέτης που θέλει τυρί κι ένας σκύλος που κάνει όλη τη δουλειά. Πάτησε Έναρξη.
+Stage timers: a countdown over a picture, a hold, and a view for the person on stage.	Χρονόμετρα σκηνής: αντίστροφη μέτρηση πάνω σε εικόνα, παύση και προβολή για τον ομιλητή.
+Playlist 2 is selected, over the rocket. SOURCE, then Stage Timer.	Είναι επιλεγμένη η λίστα αναπαραγωγής 2, πάνω από τον πύραυλο. ΠΗΓΗ, μετά Stage Timer.
+*checks his watch, then the rocket, then his watch*	*κοιτάζει το ρολόι, τον πύραυλο και πάλι το ρολόι*
+COUNT IT DOWN	ΞΕΚΙΝΑ ΤΗ ΜΕΤΡΗΣΗ
+Select the timer and TAKE it. I have cleared its backdrop, so the rocket shows behind the numbers.	Επίλεξε το χρονόμετρο και πάτησε TAKE. Έβγαλα το φόντο του, για να φαίνεται ο πύραυλος πίσω από τους αριθμούς.
+Past zero it keeps going and counts the overtime. Very honest. Slightly rude.	Μετά το μηδέν συνεχίζει και μετρά την υπέρβαση. Πολύ ειλικρινές. Λίγο αγενές.
+Close MENU, click the Deck 1 tab, then select 'The rocket (lift-off)' and TAKE it.	Κλείσε το ΜΕΝΟΥ, πάτησε την καρτέλα Deck 1, επίλεξε 'The rocket (lift-off)' και πάτησε TAKE.
+The clock is on playlist 2, so it stays up while the rocket changes underneath it.	Το ρολόι είναι στη λίστα αναπαραγωγής 2. Μένει στην οθόνη όσο αλλάζει ο πύραυλος από κάτω.
+We have lift-off, Grommet! ...Grommet? Who's flying it?	Απογειωθήκαμε, Grommet! ...Grommet; Ποιος το πιλοτάρει;
+A countdown, a hold, a pilot's view and a launch. Bring crackers.	Μέτρηση, παύση, οθόνη πιλότου και εκτόξευση. Φέρε κρακεράκια.
+*waves from the window*	*χαιρετά από το παράθυρο*
+The rubber chicken	The rubber chicken
+A magic show, skapi. A trunk, a rubber chicken, and one beat where everything changes at once. Press START.	Παράσταση μαγείας, skapi. Μπαούλο, λαστιχένιο κοτόπουλο και μια στιγμή που όλα αλλάζουν μαζί. Πάτησε Έναρξη.
+Two playlists are two layers, and TAKE ALL changes both together. Tonight you will see why that matters.	Δύο λίστες αναπαραγωγής είναι δύο στρώσεις. Το TAKE ALL αλλάζει και τις δύο μαζί. Απόψε θα δεις γιατί μετράει αυτό.
+The chicken goes on its own layer. Press the + at the end of the playlist tabs.	Το κοτόπουλο πάει στη δική του στρώση. Πάτησε το + στο τέλος των καρτελών των λιστών.
+The lit tab is the playlist that gets the next cue. Its chip now says 'to Out 1': it is layered over playlist 1 on that output.	Η φωτισμένη καρτέλα είναι η λίστα για το επόμενο cue. Τώρα γράφει «στην έξ. 1»: σ' αυτή την έξοδο είναι πάνω από τη λίστα 1.
+TRICK ONE	ΠΡΩΤΟ ΚΟΛΠΟ
+Turnip Top has put the chicken in playlist 2. In playlist 1, TAKE 'The trunk (open)'. Then in playlist 2, TAKE the chicken.	Ο Turnip Top έβαλε το κοτόπουλο στη λίστα 2. Στη λίστα 1 παίξε 'The trunk (open)' με TAKE. Μετά στη λίστα 2 παίξε το κοτόπουλο με TAKE.
+The chicken is clear all round, so it covers only itself. Watch the monitor between the two TAKEs.	Γύρω από το κοτόπουλο όλα είναι διάφανα. Καλύπτει μόνο τη θέση του. Κοίτα το μόνιτορ ανάμεσα στα δύο TAKE.
+Did you see it? For a moment the trunk was open and empty: two TAKEs are two moments. The trick is reset. Now select the open trunk in playlist 1 and the chicken in playlist 2, then TAKE ALL.	Το είδες; Για λίγο το μπαούλο ήταν ανοιχτό κι άδειο: δύο TAKE είναι δύο στιγμές. Το κόλπο επανήλθε στην αρχή. Τώρα επίλεξε το ανοιχτό μπαούλο στη λίστα 1 και το κοτόπουλο στη λίστα 2, μετά TAKE ALL.
+TAKE ALL takes every playlist's selected cue on one beat. No gap, no empty trunk.	Το TAKE ALL παίζει το επιλεγμένο cue κάθε λίστας την ίδια στιγμή. Χωρίς κενό, χωρίς άδειο μπαούλο.
+The chicken was late. They saw an empty trunk. In magic we call that a trunk.	Το κοτόπουλο άργησε. Είδαν ένα άδειο μπαούλο. Στη μαγεία αυτό το λέμε μπαούλο.
+TAKE ALL	TAKE ALL
+THE VANISH	Η ΕΞΑΦΑΝΙΣΗ
+Trick two. Drag playlist 2's opacity fader down to nothing. The chicken fades away.	Δεύτερο κόλπο. Κατέβασε στο μηδέν τον ολισθητή αδιαφάνειας της λίστας 2. Το κοτόπουλο σβήνει.
+Every playlist has its own opacity. Down is a fade out, with no cue at all.	Κάθε λίστα έχει τη δική της αδιαφάνεια. Χαμηλώνεις και η εικόνα σβήνει, χωρίς κανένα cue.
+Ta-daaa! ...Hold for applause. Hold. Now watch it go.	Τα-ντααα! ...Περιμένουμε χειροκρότημα. Περιμένουμε. Τώρα δες το να φεύγει.
+Trick three. Bring it back: playlist 2's opacity all the way up.	Τρίτο κόλπο. Φέρ' το πίσω: η αδιαφάνεια της λίστας 2 τέρμα πάνω.
+Where did it go? Back in the trunk. Everything goes back in the trunk.	Πού πήγε; Πίσω στο μπαούλο. Όλα επιστρέφουν στο μπαούλο.
+THAT'S MAGIC	ΑΥΤΟ ΕΙΝΑΙ ΜΑΓΕΙΑ
+An appearance done wrong, then right, a vanish and a return. Nazdrave.	Μια εμφάνιση λάθος, μετά σωστά, μια εξαφάνιση και μια επιστροφή. Nazdrave.
+A playlist can also sit on any output. Two layers, a great many tricks.	Μια λίστα μπορεί να πάει σε οποιαδήποτε έξοδο. Δύο στρώσεις, αμέτρητα κόλπα.
+It's back! Thank you! I'm here all week! The chicken is here forever.	Γύρισε! Ευχαριστώ! Εγώ είμαι εδώ όλη την εβδομάδα! Το κοτόπουλο για πάντα.
+A cooking show, skapi. Live. The kitchen is on fire. Press START.	Εκπομπή μαγειρικής, skapi. Ζωντανά. Η κουζίνα καίγεται. Πάτησε Έναρξη.
+Ta-da! Still cookin'! ...Still burnin'.	Τα-ντα! Ακόμα ψήνουμε! ...Ακόμα καιγόμαστε.
+PANIC	PANIC
+Bork! De fire extinguisher is also on fire!	Μπορκ! Και ο πυροσβεστήρας φλόγκα-μπόργκα πήρε φωτιά!
+BLACK to hide, PANIC to stop, TAKE to come back. You will survive any kitchen.	μαύρο για απόκρυψη, PANIC για σταμάτημα, TAKE για επιστροφή. Θα επιζήσεις σε κάθε κουζίνα.
+A fashion show, skapi. One designer, one runway, and a look she will want back. Press START.	Επίδειξη μόδας, skapi. Μια σχεδιάστρια, μια πασαρέλα και μια εμφάνιση που θα θελήσει πίσω. Πάτησε Έναρξη.
+A preset stores a whole look and brings it back with one button.	Μια προρύθμιση αποθηκεύει όλη την εμφάνιση και τη φέρνει πίσω με ένα κουμπί.
+Darling. A look is not a look until you can get it back.	Χρυσό μου. Μια εμφάνιση δεν είναι εμφάνιση αν δεν μπορείς να την ξαναφέρεις.
+Buttons. Good. I design with buttons.	Κουμπιά. Ωραία. Εγώ σχεδιάζω με κουμπιά.
+Store it. Before somebody has ideas.	Αποθήκευσέ το. Πριν κατεβάσει κανείς ιδέες.
+Close the DASH (Esc), then select Look two and TAKE it.	Κλείσε το DASH (Esc), επίλεξε Look two και πάτησε TAKE.
+A cape. On my runway. Someone will trip, darling. Someone always trips.	Κάπα. Στη δική μου πασαρέλα. Κάποιος θα σκοντάψει, χρυσό μου. Πάντα κάποιος σκοντάφτει.
+Recall: the whole look comes back at once.	Ανάκληση: όλη η εμφάνιση επιστρέφει μαζί.
+Thank you. We will never speak of the cape again.	Ευχαριστώ. Δεν θα ξαναμιλήσουμε για την κάπα.
+Simple. Timeless. Recallable. Now go, darling. I have a fitting.	Απλό. Διαχρονικό. Ανακαλείται. Τώρα φύγε, χρυσό μου. Έχω πρόβα ρούχων.
+Pushes, wipes, iris, dip to white, and more. I wrote half of them. On a Tuesday.	Σπρωξίματα, σαρώσεις, ίριδα, πέρασμα από λευκό και άλλα. Τα μισά τα έγραψα μια Τρίτη.
+Operators... roll the transition.	Χειριστές... παίξτε τη μετάβαση.
+A style, a time, and two very dramatic entrances. Roll credits.	Ένα στυλ, μια διάρκεια και δύο πολύ θεαματικές είσοδοι. Πάμε τίτλους.
+That is not an iris. ...It is better. I will allow it.	Αυτό δεν είναι ίριδα. ...Είναι καλύτερο. Το επιτρέπω.
+An effect, a bend and the patch. The robots approve, I think. Their faces are helmets.	Ένα εφέ, μια στρέβλωση και το patch. Τα ρομπότ μάλλον εγκρίνουν. Φοράνε κράνη αντί για πρόσωπα.
+Waveform, vectorscope, false colour. The scopes settled it. The agents did not.	Κυματομορφή, διανυσματοσκόπιο, ψευδοχρώματα. Τα όργανα έλυσαν τη διαφορά. Οι πράκτορες όχι.
+The view from the capsule	Η θέα από την κάψουλα
+Major Tomasina is in orbit, skapi, and her picture has to reach the ground. Press START.	Η Major Tomasina είναι σε τροχιά, skapi. Η εικόνα της πρέπει να φτάσει στη Γη. Πάτησε Έναρξη.
+Pictures leave by cable or network: NDI, SDI from a DeckLink card, ST 2110 for broadcast plants.	Η εικόνα φεύγει με καλώδιο ή δίκτυο: NDI, SDI από κάρτα DeckLink, ST 2110 για τηλεοπτικές εγκαταστάσεις.
+Ground control, this is Major Tomasina. Can you see my picture?	Κέντρο ελέγχου, εδώ Major Tomasina. Βλέπετε την εικόνα μου;
+Every way down, on one page. Good. Space has very few cables.	Όλοι οι δρόμοι προς τα κάτω, σε μία σελίδα. Ωραία. Στο διάστημα τα καλώδια σπανίζουν.
+NDI	NDI
+Sending now. If nobody answers, I'll just float here.	Εκπέμπω. Αν δεν απαντήσει κανείς, θα αιωρούμαι εδώ.
+Ground control, signing off. Tell my mother I waved.	Κέντρο ελέγχου, τέλος επικοινωνίας. Πείτε στη μαμά μου ότι χαιρέτησα.
+Ground control can see me! I can see my house from here.	Το κέντρο ελέγχου με βλέπει! Βλέπω το σπίτι μου από εδώ.
+MULTI ON	MULTI ΕΝΕΡΓΟ
+And one more window, showing the clock. Operators who watch a clock are never late.	Κι άλλο ένα παράθυρο με το ρολόι. Οι χειριστές που κοιτάζουν το ρολόι δεν αργούν.
+The big window is window one, which is usually the programme.	Το μεγάλο παράθυρο είναι το πρώτο. Συνήθως δείχνει το πρόγραμμα.
+Windows, the ... menu, NEXT, the clock, a layout, tally. Mystery solved.	Παράθυρα, το μενού ..., NEXT, ρολόι, διάταξη, tally. Το μυστήριο λύθηκε.
+DECKBOY  POCKET	DECKBOY  POCKET

@@ -3119,3 +3119,176 @@ Stop masking this. The mask stays in the show's library, to put back from the me
 Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	این ماسک را از نمایش و از هر کیو، فهرست پخش و خروجی که از آن استفاده می‌کند حذف کن. واگرد آن را برمی‌گرداند
 FX PARAM: slot must be A-F	FX PARAM: اسلات باید A-F باشد
 FX LFO: slot must be A-D, E for the amount, or F/G for the fifth and sixth sliders	FX LFO: اسلات باید A-D باشد، E برای مقدار، یا F/G برای اسلایدر پنجم و ششم
+playlist 2 is ready: you built one in the magic show	فهرست ۲ آماده است: در نمایش شعبده یکی ساختی
+FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR	FX: استفاده کن LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR
+BLACK	سیاه
+COACH MARV	COACH MARV
+JUNE O'NEIL	JUNE O'NEIL
+TURNIP TOP	TURNIP TOP
+CHEF BORK	CHEF BORK
+DONNA WHEEL	DONNA WHEEL
+KEEPER ROOK	KEEPER ROOK
+AGENT BRANDT	AGENT BRANDT
+AGENT HOLLIS	AGENT HOLLIS
+MR. SALTY	MR. SALTY
+OPTIMUS PRIMETIME	OPTIMUS PRIMETIME
+DEFT FUNK	DEFT FUNK
+LT. HAILA	LT. HAILA
+ENSIGN JINKLEY	ENSIGN JINKLEY
+The tour bus, with Polly Carton	اتوبوس تور، با Polly Carton
+A test pattern, drawing on a replay, a still, and the video synth at halftime.	الگوی آزمایش، نقاشی روی بازپخش، یک تصویر ثابت، و سینت ویدئو در بین دو نیمه.
+A stage timer over a picture, held, a presenter view for the person on stage, and a launch.	زمان‌سنج صحنه روی تصویر، نگه‌داشتن، نمایی برای فرد روی صحنه، و پرتاب.
+A second playlist as a layer, TAKE ALL so two things change on one beat, and a playlist's opacity.	فهرست پخش دوم به صورت لایه، TAKE ALL برای تغییر هم‌زمان دو چیز، و کدری فهرست پخش.
+The fashion show, with Edda Mod	نمایش مد، با Edda Mod
+Ground control, with Major Tomasina	مرکز کنترل، با Major Tomasina
+0.1, 0.1, 0.1	0.1, 0.1, 0.1
+Opener (the bus at dawn)	Opener (the bus at dawn)
+Polly Carton's tour bus leaves at six, skapi, and this show goes with it. Press START.	اتوبوس تور Polly Carton ساعت شش راه می‌افتد، skapi، و این نمایش هم همراهش است. شروع را بزن.
+A show that travels needs three things first: a check, a fix and a bundle.	نمایش مسافر اول سه چیز می‌خواهد: بررسی، تعمیر، بسته‌بندی.
+Honey, I've played four thousand towns. Not one of them had my laptop.	عزیزم، در چهار هزار شهر اجرا کرده‌ام. لپ‌تاپم در هیچ‌کدام منتظرم نبود.
+It lists what the show would trip over: missing files, empty cues, outputs it cannot reach.	گیرهای نمایش را فهرست می‌کند: فایل گمشده، کیوی خالی، خروجی دور از دسترس.
+Every show has a problem. Find yours before the audience does.	هر نمایشی مشکلی دارد. قبل از تماشاگر پیدایش کن.
+The intro video is on the office computer. Select it and delete it, or RELINK it if you have the file.	ویدئوی مقدمه روی رایانهٔ دفتر است. انتخاب و حذفش کن، یا اگر فایل را داری RELINK کن.
+Fix it here, with time and coffee. Not at the venue, with neither.	همین‌جا درستش کن، با وقت و قهوه. نه در سالن، بدون هردو.
+Leave it behind, sugar. I left a whole wig in Tulsa and the show went on.	بگذار بماند، قندم. من یک کلاه‌گیس کامل در تولسا جا گذاشتم و اجرا ادامه داشت.
+Press BUNDLE and choose where: a USB stick, a shared folder. The show and all its media, in one folder.	بسته‌بندی را بزن و جا را انتخاب کن: فلش USB یا پوشهٔ مشترک. نمایش و همهٔ رسانه‌هایش در یک پوشه.
+Pack it like a wig box. Everything inside, nothing loose.	مثل جعبهٔ کلاه‌گیس ببندش. همه‌چیز داخل، حتی یک تار هم بیرون نماند.
+Checked, fixed, bundled. On the other computer, open the show in the bundle and everything is there.	بررسی شد، تعمیر شد، بسته شد. روی رایانهٔ دیگر نمایش داخل بسته را باز کن؛ همه‌چیز حاضر است.
+The show file is only text, so it travels light. The media is the luggage.	فایل نمایش فقط متن است، سبک سفر می‌کند. رسانه‌ها چمدان‌اند.
+Bus leaves at six. Show starts at eight. Hair takes until seven.	اتوبوس ساعت شش. اجرا ساعت هشت. موها تا هفت کار دارند.
+There are dozens, and most of them run on the graphics card, so you can stack them.	ده‌ها مورد هست و بیشترشان روی کارت گرافیک اجرا می‌شوند، پس می‌توانی روی هم بچینی.
+An effect, a ~ and a colour. The critic is crying. Good crying, I think.	یک افکت، یک ~ و یک رنگ. منتقد گریه می‌کند. فکر کنم از خوشحالی است.
+Stack a few more. Order matters: each effect works on the picture the one above it made.	چند تای دیگر بچین. ترتیب مهم است: هر افکت روی تصویر ساختهٔ افکت بالایی کار می‌کند.
+Three effects! It's a mess! It's ALIVE! Post it.	سه افکت! چه شلوغی‌ای! زنده است! منتشرش کن.
+The replay	The replay
+Coach Marv has two minutes of airtime, one replay and a pen, skapi. He will use all three. Press START.	Coach Marv دو دقیقه وقت پخش دارد، یک بازپخش و یک قلم، skapi. از هر سه استفاده می‌کند. شروع را بزن.
+Tonight: a test pattern, drawing on the picture, and the video synth.	امشب: الگوی آزمایش، نقاشی روی تصویر، و سینت ویدئو.
+Folks, I've watched this play forty times. It's still a play.	رفقا، این حرکت را چهل بار دیده‌ام. هنوز هم یک حرکت است.
+CHECK THE MONITORS	نمایشگرها را بررسی کن
+PATTERN adds Pocket Test. If its circles are not round, a screen is stretched. Find out now, not on air.	الگو، Pocket Test را اضافه می‌کند. اگر دایره‌هایش گرد نیستند، نمایشگر کشیده شده. حالا بفهم، نه روی آنتن.
+Its bars and steps are checked against real meters, so a wrong screen looks wrong at once.	نوارها و پله‌هایش با دستگاه واقعی سنجیده شده‌اند؛ نمایشگر نادرست فوراً خودش را لو می‌دهد.
+That's a test pattern. You test with it. That's why they call it that.	این الگوی آزمایش است. با آن آزمایش می‌کنی. برای همین اسمش این است.
+ROLL THE REPLAY	بازپخش را راه بینداز
+Select The replay and TAKE it.	The replay را انتخاب کن و TAKE بزن.
+A replay loops, so the pundit can talk over it for as long as he likes. He likes.	بازپخش تکرار می‌شود تا کارشناس هرقدر خواست حرف بزند. خیلی هم می‌خواهد.
+Here's number 22. Number 22 has the ball. That's important, because the ball is how you score.	این شمارهٔ 22 است. توپ دست شمارهٔ 22 است. مهم است، چون با توپ امتیاز می‌گیرند.
+The pen goes over the replay, on its own layer. Press the + at the end of the playlist tabs.	قلم روی بازپخش می‌آید، در لایهٔ خودش. + انتهای زبانه‌های فهرست پخش را بزن.
+A second playlist is a layer over the first.	فهرست پخش دوم لایه‌ای روی اولی است.
+Over it. Not under it. Under it, you can't see it. That's football.	رویش. نه زیرش. زیرش دیده نمی‌شود. فوتبال همین است.
+The lit tab is where SOURCE puts things. Skip this and the ink lands under the replay.	منبع چیزها را در زبانهٔ روشن می‌گذارد. این را جا بیندازی، جوهر زیر بازپخش می‌رود.
+See that tab? Click it. Fundamentals.	آن زبانه را می‌بینی؟ کلیکش کن. اصول اولیه.
+In playlist 2: SOURCE, then Draw.	در فهرست پخش 2: منبع، بعد نقاشی.
+A Draw cue is clear wherever there is no ink, so the replay shows through.	کیوی نقاشی هرجا جوهر نباشد شفاف است، پس بازپخش از پشتش دیده می‌شود.
+Give me the pen. I've waited all season for the pen.	قلم را بده. تمام فصل منتظر قلم بودم.
+Both are live now: the replay underneath, the ink on top.	حالا هردو زنده‌اند: بازپخش زیر، جوهر رو.
+We're on the air. Nobody touches the pen but me.	روی آنتن هستیم. جز من کسی به قلم دست نمی‌زند.
+CIRCLE HIM	دورش دایره بکش
+Press DRAW in the inspector, then circle number 22 on the programme monitor. He is the yellow one.	در بازرس نقاشی را بزن، بعد دور شمارهٔ 22 در نمایشگر برنامه دایره بکش. همان زردپوش.
+A pen's pressure makes the line thicker. A mouse presses at one strength.	فشار قلم خط را ضخیم‌تر می‌کند. ماوس فقط یک فشار دارد.
+Circle him! The yellow one! There's only one yellow one. Circle that one.	دورش بکش! زردپوش! فقط یکی زرد است. دور همان بکش!
+Draw as much as you like. Then SAVE STILL keeps the drawing as a picture with a clear background, in the playlist.	هرقدر خواستی بکش. بعد ذخیره تصویر نقاشی را با پس‌زمینهٔ شفاف در فهرست پخش ذخیره می‌کند.
+For next week's show. He will want that circle again.	برای برنامهٔ هفتهٔ بعد. باز آن دایره را می‌خواهد.
+Put that in the Hall of Fame. Next to the turducken.	بگذارش در تالار افتخارات. کنار بوقلمونِ پر از اردکِ پر از مرغ.
+Halftime. Click the Deck 1 tab, then SOURCE, then Video Synth.	بین دو نیمه. زبانهٔ دک 1 را بزن، بعد منبع، بعد سینت ویدئو.
+My favourite source: oscillators, mirrors and feedback. A halftime show with no camera at all.	منبع محبوبم: نوسان‌ساز، آینه و بازخورد. نمایش بین دو نیمه بدون حتی یک دوربین.
+Halftime! Somebody get me some lights. And a band. And a sandwich.	بین دو نیمه! یکی نور بیاورد. و گروه موسیقی. و ساندویچ.
+TAKE HALFTIME	TAKE بین دو نیمه
+Select the synth and TAKE it. Then look at the monitor: your ink is still up.	سینت را انتخاب کن و TAKE بزن. حالا نمایشگر را ببین: جوهر هنوز هست.
+Playlist 2 did not change, so its ink stays over whatever playlist 1 shows. Each playlist changes on its own.	فهرست پخش 2 عوض نشد، پس جوهرش روی هر تصویر فهرست 1 می‌ماند. هر فهرست جدا تغییر می‌کند.
+Leave the circle up. It's a good circle. It goes with everything.	دایره بماند. دایرهٔ خوبی است. به همه‌چیز می‌آید.
+A test pattern, a replay, ink on a layer, a still, and halftime. That's the booth.	الگوی آزمایش، بازپخش، جوهر روی لایه، تصویر ثابت و بین دو نیمه. این هم اتاق گزارش.
+Replay in the Draw section draws your lines back the way you drew them. He will love that.	Replay در بخش نقاشی خط‌ها را درست مثل خودت دوباره می‌کشد. عاشقش می‌شود.
+Same time next week. Bring a bigger pen.	هفتهٔ بعد همین ساعت. قلم بزرگ‌تر بیاور.
+Now THAT is a busy play. I can't see the field. I love it.	این دیگر واقعاً حرکت شلوغی است. زمین را نمی‌بینم. عالی است.
+Two projectors overlap, and each fades its edge so the overlap is not twice as bright. Watch the sides of the monitor go soft.	دو پروژکتور هم‌پوشانی دارند و هرکدام لبه‌اش را محو می‌کند تا روشنایی آن قسمت دوبرابر نشود. نرم شدن دو طرف نمایشگر را ببین.
+A game show, skapi. Three contestants, one buzzer, and a host who is not here tonight. Press START.	مسابقهٔ تلویزیونی، skapi. سه شرکت‌کننده، یک زنگ، و مجری‌ای که امشب نیست. شروع را بزن.
+Cue numbers, hotkeys, and GO from other machines.	شمارهٔ کیو، کلید میان‌بر، و GO از دستگاه‌های دیگر.
+Forty years I turned the letters. Tonight they gave me the microphone. Nobody panic.	چهل سال حروف را چرخاندم. امشب میکروفون دادند دستم. کسی نترسد.
+Theatre numbers its cues: Q3, Q3.5, Q12A. Deckboy reads them all.	تئاتر کیوها را شماره می‌زند: Q3، Q3.5، Q12A. Deckboy همه را می‌خواند.
+Numbers! I know letters. Numbers are letters that went to college.	عدد! من حرف بلدم. عددها حرف‌هایی‌اند که دانشگاه رفته‌اند.
+GOTO crosses a long list faster than scrolling. Much faster.	GOTO از پیمایش فهرست بلند سریع‌تر است. خیلی سریع‌تر.
+F1 to F10, F12, or the number pad. Each one is a buzzer.	F1 تا F10، یا F12، یا صفحه‌کلید عددی. هرکدام یک زنگ است.
+Every contestant gets a buzzer. I get the letters. It's fine. It's fine.	هر شرکت‌کننده زنگ می‌گیرد. من حروف را می‌گیرم. خوب است. خیلی خوب است.
+No mouse, no list, no looking. Only the key.	نه ماوس، نه فهرست، نه نگاه. فقط کلید.
+Buzz! A winner! I've never said that. I've only pointed at it.	دینگ! برنده! تابه‌حال نگفته بودمش. فقط به آن اشاره کرده بودم.
+And for our viewers at home: yes, you can push the buttons too.	و برای بینندگان خانه: بله، شما هم می‌توانید دکمه بزنید.
+Numbers, GOTO, a buzzer, and GO from anywhere. You could host a game show now.	عدد، GOTO، زنگ، و GO از هرجا. حالا می‌توانی مجری مسابقه باشی.
+Goodnight, everybody! Tomorrow I go back to the letters. I'll miss you.	شب خوش، همه! فردا برمی‌گردم سر حروف. دلم برایتان تنگ می‌شود.
+And the number is... not three. I'll allow it. I turn anything.	و عدد ما... سه نیست. قبول است. من هرچیزی را می‌چرخانم.
+A second playlist is a layer over the map. The lizard stays underneath. For now.	فهرست پخش دوم لایه‌ای روی نقشه است. مارمولک زیرش می‌ماند. فعلاً.
+A Lower Third, a name, a title card, a backdrop. The lizard has left the studio.	زیرنویس معرفی، نام، کارت عنوان، پس‌زمینه. مارمولک استودیو را ترک کرد.
+That's not my name. It's a lovely name. Now, about that lizard...	اسم من نیست. اسم قشنگی است. حالا دربارهٔ آن مارمولک...
+The rocket (on the pad)	The rocket (on the pad)
+The rocket (lift-off)	The rocket (lift-off)
+A rocket built in a basement, skapi, an inventor who wants cheese, and a dog who does the real work. Press START.	موشکی ساختهٔ زیرزمین، skapi، مخترعی دنبال پنیر، و سگی که کار واقعی را می‌کند. شروع را بزن.
+Stage timers: a countdown over a picture, a hold, and a view for the person on stage.	زمان‌سنج صحنه: شمارش معکوس روی تصویر، نگه‌داشتن، و نمای فرد روی صحنه.
+Playlist 2 is selected, over the rocket. SOURCE, then Stage Timer.	فهرست پخش 2 انتخاب شده، روی موشک. منبع، بعد Stage Timer.
+*checks his watch, then the rocket, then his watch*	*ساعتش را نگاه می‌کند، بعد موشک، بعد ساعتش را*
+COUNT IT DOWN	معکوس بشمار
+Select the timer and TAKE it. I have cleared its backdrop, so the rocket shows behind the numbers.	زمان‌سنج را انتخاب کن و TAKE بزن. پس‌زمینه‌اش را پاک کرده‌ام تا موشک پشت عددها دیده شود.
+Past zero it keeps going and counts the overtime. Very honest. Slightly rude.	از صفر رد می‌شود و وقت اضافه را می‌شمارد. خیلی صادق. کمی بی‌ادب.
+Close MENU, click the Deck 1 tab, then select 'The rocket (lift-off)' and TAKE it.	منو را ببند، زبانهٔ دک 1 را بزن، بعد 'The rocket (lift-off)' را انتخاب کن و TAKE بزن.
+The clock is on playlist 2, so it stays up while the rocket changes underneath it.	ساعت روی فهرست پخش 2 است، پس با تغییر موشک در زیرش سر جایش می‌ماند.
+We have lift-off, Grommet! ...Grommet? Who's flying it?	پرتاب شدیم، Grommet! ...Grommet؟ کی دارد هدایتش می‌کند؟
+A countdown, a hold, a pilot's view and a launch. Bring crackers.	شمارش معکوس، نگه‌داشتن، نمای خلبان و پرتاب. بیسکویت بیاور.
+*waves from the window*	*از پنجره دست تکان می‌دهد*
+The rubber chicken	The rubber chicken
+A magic show, skapi. A trunk, a rubber chicken, and one beat where everything changes at once. Press START.	نمایش شعبده، skapi. صندوق، مرغ لاستیکی، و ضربی که همه‌چیز با هم عوض می‌شود. شروع را بزن.
+Two playlists are two layers, and TAKE ALL changes both together. Tonight you will see why that matters.	دو فهرست پخش دو لایه‌اند و TAKE ALL هردو را با هم عوض می‌کند. امشب می‌بینی چرا مهم است.
+The chicken goes on its own layer. Press the + at the end of the playlist tabs.	مرغ لایهٔ خودش را دارد. + انتهای زبانه‌های فهرست پخش را بزن.
+The lit tab is the playlist that gets the next cue. Its chip now says 'to Out 1': it is layered over playlist 1 on that output.	زبانهٔ روشن، فهرستی است که کیوی بعدی را می‌گیرد. نشانش حالا 'به خروجی 1' است: روی آن خروجی بالای فهرست 1 قرار دارد.
+TRICK ONE	حقهٔ اول
+Turnip Top has put the chicken in playlist 2. In playlist 1, TAKE 'The trunk (open)'. Then in playlist 2, TAKE the chicken.	Turnip Top مرغ را در فهرست پخش 2 گذاشته. در فهرست 1، 'The trunk (open)' را TAKE کن. بعد در فهرست 2 مرغ را TAKE کن.
+The chicken is clear all round, so it covers only itself. Watch the monitor between the two TAKEs.	اطراف مرغ شفاف است، پس فقط جای خودش را می‌پوشاند. بین دو TAKE نمایشگر را ببین.
+Did you see it? For a moment the trunk was open and empty: two TAKEs are two moments. The trick is reset. Now select the open trunk in playlist 1 and the chicken in playlist 2, then TAKE ALL.	دیدی؟ لحظه‌ای صندوق باز و خالی بود: دو TAKE یعنی دو لحظه. حقه از نو آماده است. صندوق باز را در فهرست 1 و مرغ را در فهرست 2 انتخاب کن، بعد TAKE ALL.
+TAKE ALL takes every playlist's selected cue on one beat. No gap, no empty trunk.	TAKE ALL کیوی انتخاب‌شدهٔ هر فهرست را در یک ضرب می‌آورد. بدون فاصله، بدون صندوق خالی.
+The chicken was late. They saw an empty trunk. In magic we call that a trunk.	مرغ دیر رسید. صندوق خالی را دیدند. در شعبده به این می‌گوییم صندوق.
+TAKE ALL	TAKE ALL
+THE VANISH	ناپدید شدن
+Trick two. Drag playlist 2's opacity fader down to nothing. The chicken fades away.	حقهٔ دوم. فیدر کدری فهرست پخش 2 را تا صفر پایین بکش. مرغ محو می‌شود.
+Every playlist has its own opacity. Down is a fade out, with no cue at all.	هر فهرست کدری خودش را دارد. پایین بردنش بدون هیچ کیویی محوش می‌کند.
+Ta-daaa! ...Hold for applause. Hold. Now watch it go.	تا دااا! ...منتظر تشویق بمان. بمان. حالا رفتنش را ببین.
+Trick three. Bring it back: playlist 2's opacity all the way up.	حقهٔ سوم. برش گردان: کدری فهرست پخش 2 را تا آخر بالا ببر.
+Where did it go? Back in the trunk. Everything goes back in the trunk.	کجا رفت؟ توی صندوق. همه‌چیز برمی‌گردد توی صندوق.
+THAT'S MAGIC	این است شعبده
+An appearance done wrong, then right, a vanish and a return. Nazdrave.	ظهور غلط، بعد درست، ناپدید شدن و برگشتن. Nazdrave.
+A playlist can also sit on any output. Two layers, a great many tricks.	فهرست پخش روی هر خروجی هم می‌نشیند. دو لایه، یک دنیا حقه.
+It's back! Thank you! I'm here all week! The chicken is here forever.	برگشت! ممنون! تمام هفته اینجایم! مرغ تا ابد اینجاست!
+A cooking show, skapi. Live. The kitchen is on fire. Press START.	برنامهٔ آشپزی، skapi. زنده. آشپزخانه آتش گرفته. شروع را بزن.
+Ta-da! Still cookin'! ...Still burnin'.	تا دا! هنوز می‌پزیم! ...هنوز می‌سوزیم.
+PANIC	PANIC
+Bork! De fire extinguisher is also on fire!	بورک! آتش‌خاموش‌کن هم آتیشا-فلوش شده!
+BLACK to hide, PANIC to stop, TAKE to come back. You will survive any kitchen.	سیاه برای پنهان شدن، PANIC برای توقف، TAKE برای برگشتن. از هر آشپزخانه‌ای جان سالم می‌بری.
+A fashion show, skapi. One designer, one runway, and a look she will want back. Press START.	نمایش مد، skapi. یک طراح، یک صحنه، و ظاهری که دوباره می‌خواهد. شروع را بزن.
+A preset stores a whole look and brings it back with one button.	پیش‌تنظیم ظاهر کامل را ذخیره می‌کند و با یک دکمه برمی‌گرداند.
+Darling. A look is not a look until you can get it back.	عزیزم. ظاهری که نتوانی برگردانی، ظاهر نیست.
+Buttons. Good. I design with buttons.	دکمه. خوب است. من با دکمه طراحی می‌کنم.
+Store it. Before somebody has ideas.	ذخیره‌اش کن. قبل از اینکه کسی فکر تازه‌ای بکند.
+Close the DASH (Esc), then select Look two and TAKE it.	DASH را ببند (Esc)، بعد Look two را انتخاب کن و TAKE بزن.
+A cape. On my runway. Someone will trip, darling. Someone always trips.	شنل. روی صحنهٔ من. یکی زمین می‌خورد، عزیزم. همیشه یکی زمین می‌خورد.
+Recall: the whole look comes back at once.	فراخوانی: کل ظاهر یک‌باره برمی‌گردد.
+Thank you. We will never speak of the cape again.	ممنون. دیگر هرگز دربارهٔ شنل حرف نمی‌زنیم.
+Simple. Timeless. Recallable. Now go, darling. I have a fitting.	ساده. ماندگار. قابل فراخوانی. برو عزیزم. پرو دارم.
+Pushes, wipes, iris, dip to white, and more. I wrote half of them. On a Tuesday.	هل دادن، جاروب، عنبیه، محوشدن به سفید و بیشتر. نصفشان را خودم نوشتم. یک سه‌شنبه.
+Operators... roll the transition.	اپراتورها... گذار را راه بیندازید.
+A style, a time, and two very dramatic entrances. Roll credits.	یک سبک، یک زمان و دو ورود خیلی نمایشی. تیتراژ پایانی.
+That is not an iris. ...It is better. I will allow it.	عنبیه نیست. ...بهتر است. قبولش می‌کنم.
+An effect, a bend and the patch. The robots approve, I think. Their faces are helmets.	یک افکت، یک خم و پچ. فکر کنم ربات‌ها موافق‌اند. صورتشان کلاه‌خود است.
+Waveform, vectorscope, false colour. The scopes settled it. The agents did not.	شکل موج، بردارسنج، رنگ کاذب. ابزارها به نتیجه رسیدند. مأمورها نه.
+The view from the capsule	نما از کپسول
+Major Tomasina is in orbit, skapi, and her picture has to reach the ground. Press START.	Major Tomasina در مدار است، skapi، و تصویرش باید به زمین برسد. شروع را بزن.
+Pictures leave by cable or network: NDI, SDI from a DeckLink card, ST 2110 for broadcast plants.	تصویر با کابل یا شبکه می‌رود: NDI، خروجی SDI از کارت DeckLink، و ST 2110 برای مراکز پخش.
+Ground control, this is Major Tomasina. Can you see my picture?	مرکز کنترل، اینجا Major Tomasina. تصویرم را می‌بینید؟
+Every way down, on one page. Good. Space has very few cables.	همهٔ راه‌های پایین در یک صفحه. خوب است. فضا کابل کم دارد.
+NDI	NDI
+Sending now. If nobody answers, I'll just float here.	دارم می‌فرستم. اگر کسی جواب ندهد همین‌جا شناور می‌مانم.
+Ground control, signing off. Tell my mother I waved.	مرکز کنترل، پایان تماس. به مادرم بگویید دست تکان دادم.
+Ground control can see me! I can see my house from here.	مرکز کنترل مرا می‌بیند! از اینجا خانه‌ام را می‌بینم.
+MULTI ON	MULTI ON
+And one more window, showing the clock. Operators who watch a clock are never late.	یک پنجرهٔ دیگر هم برای ساعت. اپراتوری که ساعت را بپاید دیر نمی‌کند.
+The big window is window one, which is usually the programme.	پنجرهٔ بزرگ پنجرهٔ یک است، که معمولاً برنامه است.
+Windows, the ... menu, NEXT, the clock, a layout, tally. Mystery solved.	پنجره‌ها، منوی ...، NEXT، ساعت، چیدمان، تالی. معما حل شد.
+DECKBOY  POCKET	DECKBOY  POCKET
+FX CHOICE: choice must be A or B	FX CHOICE: گزینه باید A یا B باشد
+FX CHOICE: no effect at that index	FX CHOICE: در آن اندیس افکتی نیست
+whole picture	کل تصویر

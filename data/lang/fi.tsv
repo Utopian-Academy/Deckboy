@@ -3105,3 +3105,173 @@ Stop masking this. The mask stays in the show's library, to put back from the me
 Delete this mask from the show, and from every cue, playlist and output using it. Undo brings it back	Poista tämä maski esityksestä sekä kaikista sitä käyttävistä cueista, soittolistoista ja ulostuloista. Kumoa palauttaa sen
 FX PARAM: slot must be A-F	FX PARAM: paikan on oltava A-F
 FX LFO: slot must be A-D, E for the amount, or F/G for the fifth and sixth sliders	FX LFO: paikan on oltava A-D, E määrälle tai F/G viidennelle ja kuudennelle liukusäätimelle
+playlist 2 is ready: you built one in the magic show	soittolista 2 on valmis: loit sen taikashow'ssa
+FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR	FX: käytä LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR
+BLACK	musta
+COACH MARV	COACH MARV
+JUNE O'NEIL	JUNE O'NEIL
+TURNIP TOP	TURNIP TOP
+CHEF BORK	CHEF BORK
+DONNA WHEEL	DONNA WHEEL
+KEEPER ROOK	KEEPER ROOK
+AGENT BRANDT	AGENT BRANDT
+AGENT HOLLIS	AGENT HOLLIS
+MR. SALTY	MR. SALTY
+OPTIMUS PRIMETIME	OPTIMUS PRIMETIME
+DEFT FUNK	DEFT FUNK
+LT. HAILA	LT. HAILA
+ENSIGN JINKLEY	ENSIGN JINKLEY
+The tour bus, with Polly Carton	Kiertuebussissa Polly Cartonin kanssa
+A test pattern, drawing on a replay, a still, and the video synth at halftime.	Testikuva, piirtämistä uusinnan päälle, tallennettu kuva ja videosyntetisaattori puoliajalla.
+A stage timer over a picture, held, a presenter view for the person on stage, and a launch.	Näyttämöajastin kuvan päällä, pito, esiintyjän näkymä ja laukaisu.
+A second playlist as a layer, TAKE ALL so two things change on one beat, and a playlist's opacity.	Toinen soittolista kerroksena, TAKE ALL vaihtaa molemmat kerralla ja soittolistan peittävyys.
+The fashion show, with Edda Mod	Muotinäytös Edda Modin kanssa
+Ground control, with Major Tomasina	Lennonjohto ja Major Tomasina
+0.1, 0.1, 0.1	0.1, 0.1, 0.1
+Opener (the bus at dawn)	Avaus (bussi aamunkoitteessa)
+Polly Carton's tour bus leaves at six, skapi, and this show goes with it. Press START.	Polly Cartonin kiertuebussi lähtee kuudelta, skapi. Tämä esitys lähtee mukaan. Paina Aloita.
+A show that travels needs three things first: a check, a fix and a bundle.	Matkalle lähtevä esitys tarvitsee ensin kolme asiaa: tarkistuksen, korjauksen ja paketin.
+Honey, I've played four thousand towns. Not one of them had my laptop.	Kultaseni, olen esiintynyt neljässätuhannessa kaupungissa. Yhdessäkään ei ollut minun läppäriäni.
+It lists what the show would trip over: missing files, empty cues, outputs it cannot reach.	Tässä ovat esityksen kompastuskivet: puuttuvat tiedostot, tyhjät cuet ja ulostulot, joita ei tavoiteta.
+Every show has a problem. Find yours before the audience does.	Jokaisessa esityksessä on ongelma. Löydä omasi ennen yleisöä.
+The intro video is on the office computer. Select it and delete it, or RELINK it if you have the file.	Alkuvideo on toimiston koneella. Valitse ja poista se, tai käytä RELINK, jos sinulla on tiedosto.
+Fix it here, with time and coffee. Not at the venue, with neither.	Korjaa se täällä, kun on aikaa ja kahvia. Keikkapaikalla ei ole kumpaakaan.
+Leave it behind, sugar. I left a whole wig in Tulsa and the show went on.	Jätä se, muruseni. Jätin kerran kokonaisen peruukin Tulsaan. Esitys jatkui silti.
+Press BUNDLE and choose where: a USB stick, a shared folder. The show and all its media, in one folder.	Paina NIPUTA ja valitse paikka: muistitikku tai jaettu kansio. Esitys ja kaikki sen media samaan kansioon.
+Pack it like a wig box. Everything inside, nothing loose.	Pakkaa kuin peruukki rasiaan. Kaikki sisään, mitään ei jätetä irralliseksi.
+Checked, fixed, bundled. On the other computer, open the show in the bundle and everything is there.	Tarkistettu, korjattu, niputettu. Avaa toisella koneella esitys paketista. Kaikki on mukana.
+The show file is only text, so it travels light. The media is the luggage.	Esitystiedosto on pelkkää tekstiä, joten se matkustaa kevyesti. Media on matkatavaraa.
+Bus leaves at six. Show starts at eight. Hair takes until seven.	Bussi lähtee kuudelta. Esitys alkaa kahdeksalta. Kampaus vie seitsemään.
+There are dozens, and most of them run on the graphics card, so you can stack them.	Niitä on kymmeniä. Useimmat toimivat näytönohjaimella, joten niitä voi pinota.
+An effect, a ~ and a colour. The critic is crying. Good crying, I think.	Efekti, ~ ja väri. Kriitikko itkee. Ilosta kai.
+Stack a few more. Order matters: each effect works on the picture the one above it made.	Lisää vielä muutama. Järjestys ratkaisee: jokainen efekti käsittelee ylemmän tekemää kuvaa.
+Three effects! It's a mess! It's ALIVE! Post it.	Kolme efektiä! Mikä sotku! Se ELÄÄ! Julkaise.
+The replay	The replay
+Coach Marv has two minutes of airtime, one replay and a pen, skapi. He will use all three. Press START.	Coach Marvilla on kaksi minuuttia lähetysaikaa, yksi uusinta ja kynä, skapi. Kaikki kolme tulevat käyttöön. Paina Aloita.
+Tonight: a test pattern, drawing on the picture, and the video synth.	Tänään: testikuva, piirtämistä kuvan päälle ja videosyntetisaattori.
+Folks, I've watched this play forty times. It's still a play.	Hyvä yleisö, olen katsonut tämän tilanteen neljäkymmentä kertaa. Tilanne se on yhä.
+CHECK THE MONITORS	TARKISTA MONITORIT
+PATTERN adds Pocket Test. If its circles are not round, a screen is stretched. Find out now, not on air.	TESTIKUVA lisää Pocket Testin. Jos ympyrät eivät ole pyöreitä, näyttö venyttää kuvaa. Selvitä se nyt, ennen lähetystä.
+Its bars and steps are checked against real meters, so a wrong screen looks wrong at once.	Sen palkit ja portaat on tarkistettu oikeilla mittareilla. Väärin säädetty näyttö paljastuu heti.
+That's a test pattern. You test with it. That's why they call it that.	Tämä on testikuva. Sillä testataan. Siitä se nimikin tulee.
+ROLL THE REPLAY	UUSINTA PYÖRIMÄÄN
+Select The replay and TAKE it.	Valitse The replay ja paina TAKE.
+A replay loops, so the pundit can talk over it for as long as he likes. He likes.	Uusinta toistuu silmukkana. Kommentaattori saa puhua niin kauan kuin haluaa. Ja hän haluaa.
+Here's number 22. Number 22 has the ball. That's important, because the ball is how you score.	Tässä numero 22. Numerolla 22 on pallo. Se on tärkeää, sillä pallolla tehdään maalit.
+The pen goes over the replay, on its own layer. Press the + at the end of the playlist tabs.	Kynä piirtää uusinnan päälle omalle kerrokselleen. Paina + soittolistojen välilehtien lopussa.
+A second playlist is a layer over the first.	Toinen soittolista on kerros ensimmäisen päällä.
+Over it. Not under it. Under it, you can't see it. That's football.	Päälle. Ei alle. Alta sitä ei näe. Sellaista on jalkapallo.
+The lit tab is where SOURCE puts things. Skip this and the ink lands under the replay.	LÄHDE lisää asiat valaistulle välilehdelle. Jos ohitat tämän, piirros jää uusinnan alle.
+See that tab? Click it. Fundamentals.	Näetkö välilehden? Napsauta sitä. Perusasiat kuntoon.
+In playlist 2: SOURCE, then Draw.	Soittolistassa 2: LÄHDE, sitten Piirros.
+A Draw cue is clear wherever there is no ink, so the replay shows through.	Piirros-cue on läpinäkyvä siellä, missä ei ole mustetta. Uusinta näkyy läpi.
+Give me the pen. I've waited all season for the pen.	Anna kynä. Olen odottanut kynää koko kauden.
+Both are live now: the replay underneath, the ink on top.	Molemmat ovat nyt lähetyksessä: uusinta alla, piirros päällä.
+We're on the air. Nobody touches the pen but me.	Olemme lähetyksessä. Kynään ei koske kukaan muu kuin minä.
+CIRCLE HIM	YMPYRÖI HÄNET
+Press DRAW in the inspector, then circle number 22 on the programme monitor. He is the yellow one.	Paina tarkastajassa Piirros ja ympyröi numero 22 ohjelmamonitorissa. Hän on se keltainen.
+A pen's pressure makes the line thicker. A mouse presses at one strength.	Kynän painaminen vahvemmin paksuntaa viivaa. Hiiri painaa aina samalla voimalla.
+Circle him! The yellow one! There's only one yellow one. Circle that one.	Ympyröi hänet! Keltainen! Keltaisia on vain yksi. Ympyröi se.
+Draw as much as you like. Then SAVE STILL keeps the drawing as a picture with a clear background, in the playlist.	Piirrä niin paljon kuin haluat. Sitten tallenna kuva säilyttää piirroksen soittolistassa kuvana, jonka tausta on läpinäkyvä.
+For next week's show. He will want that circle again.	Ensi viikon lähetystä varten. Hän haluaa tuon ympyrän uudelleen.
+Put that in the Hall of Fame. Next to the turducken.	Kunniagalleriaan. Kolmen lihan voileivän viereen.
+Halftime. Click the Deck 1 tab, then SOURCE, then Video Synth.	Puoliaika. Napsauta Deck 1 -välilehteä, sitten LÄHDE ja Videosyntetisaattori.
+My favourite source: oscillators, mirrors and feedback. A halftime show with no camera at all.	Suosikkilähteeni: oskillaattorit, peilit ja takaisinkytkentä. Puoliaikashow ilman yhtäkään kameraa.
+Halftime! Somebody get me some lights. And a band. And a sandwich.	Puoliaika! Tuokaa valoja. Ja bändi. Ja voileipä.
+TAKE HALFTIME	TAKE PUOLIAJALLE
+Select the synth and TAKE it. Then look at the monitor: your ink is still up.	Valitse syntetisaattori ja paina TAKE. Katso monitoria: piirros on yhä siellä.
+Playlist 2 did not change, so its ink stays over whatever playlist 1 shows. Each playlist changes on its own.	Soittolista 2 ei muuttunut. Sen piirros pysyy kaiken soittolistan 1 kuvan päällä. Jokainen soittolista vaihtuu erikseen.
+Leave the circle up. It's a good circle. It goes with everything.	Jätä ympyrä näkyviin. Hyvä ympyrä. Sopii kaikkeen.
+A test pattern, a replay, ink on a layer, a still, and halftime. That's the booth.	Testikuva, uusinta, piirros kerroksella, tallennettu kuva ja puoliaika. Siinä selostuskoppi.
+Replay in the Draw section draws your lines back the way you drew them. He will love that.	Piirros-osion Replay piirtää viivat uudelleen siinä järjestyksessä kuin piirsit ne. Hän ihastuu.
+Same time next week. Bring a bigger pen.	Ensi viikolla samaan aikaan. Tuo isompi kynä.
+Now THAT is a busy play. I can't see the field. I love it.	NYT on tapahtumarikas tilanne. Kenttää ei näe. Rakastan sitä.
+Two projectors overlap, and each fades its edge so the overlap is not twice as bright. Watch the sides of the monitor go soft.	Kaksi projektoria näyttää osin päällekkäin. Kumpikin himmentää reunaansa, jotta liitos ei olisi tuplasti kirkkaampi. Katso monitorin reunojen pehmenevän.
+A game show, skapi. Three contestants, one buzzer, and a host who is not here tonight. Press START.	Tietovisa, skapi. Kolme kilpailijaa, yksi summeri ja juontaja, joka ei ole täällä tänään. Paina Aloita.
+Cue numbers, hotkeys, and GO from other machines.	Cue-numerot, pikanäppäimet ja GO muilta koneilta.
+Forty years I turned the letters. Tonight they gave me the microphone. Nobody panic.	Neljäkymmentä vuotta käänsin kirjaimia. Tänään sain mikrofonin. Ei paniikkia.
+Theatre numbers its cues: Q3, Q3.5, Q12A. Deckboy reads them all.	Teatterissa cuet numeroidaan: Q3, Q3.5, Q12A. Deckboy lukee ne kaikki.
+Numbers! I know letters. Numbers are letters that went to college.	Numeroita! Minä tunnen kirjaimet. Numerot ovat kirjaimia, joilla on tutkinto.
+GOTO crosses a long list faster than scrolling. Much faster.	GOTO kulkee pitkän listan läpi vierittämistä nopeammin. Paljon nopeammin.
+F1 to F10, F12, or the number pad. Each one is a buzzer.	F1–F10, F12 tai numeronäppäimistö. Jokainen näppäin on summeri.
+Every contestant gets a buzzer. I get the letters. It's fine. It's fine.	Jokainen kilpailija saa summerin. Minä saan kirjaimet. Ei se mitään. Ei mitään.
+No mouse, no list, no looking. Only the key.	Ei hiirtä, ei listaa, ei vilkaisua. Vain näppäin.
+Buzz! A winner! I've never said that. I've only pointed at it.	Pim! Voittaja! En ole koskaan sanonut noin. Olen vain osoittanut sitä.
+And for our viewers at home: yes, you can push the buttons too.	Ja kotikatsojille: kyllä, tekin saatte painaa nappeja.
+Numbers, GOTO, a buzzer, and GO from anywhere. You could host a game show now.	Numerot, GOTO, summeri ja GO mistä vain. Voisit nyt juontaa tietovisaa.
+Goodnight, everybody! Tomorrow I go back to the letters. I'll miss you.	Hyvää yötä kaikille! Huomenna palaan kirjainten pariin. Teitä tulee ikävä.
+And the number is... not three. I'll allow it. I turn anything.	Ja numero on... ei kolme. Hyväksytään. Minä käännän mitä vain.
+A second playlist is a layer over the map. The lizard stays underneath. For now.	Toinen soittolista on kerros kartan päällä. Lisko jää alle. Toistaiseksi.
+A Lower Third, a name, a title card, a backdrop. The lizard has left the studio.	Nimipalkki, nimi, otsikkokuva ja tausta. Lisko on poistunut studiosta.
+That's not my name. It's a lovely name. Now, about that lizard...	Ei se ole minun nimeni. Kaunis nimi kyllä. Mutta siitä liskosta...
+The rocket (on the pad)	The rocket (on the pad)
+The rocket (lift-off)	The rocket (lift-off)
+A rocket built in a basement, skapi, an inventor who wants cheese, and a dog who does the real work. Press START.	Kellarissa rakennettu raketti, skapi, juustoa haluava keksijä ja koira, joka tekee oikeat työt. Paina Aloita.
+Stage timers: a countdown over a picture, a hold, and a view for the person on stage.	Näyttämöajastimet: lähtölaskenta kuvan päällä, pito ja esiintyjän näkymä.
+Playlist 2 is selected, over the rocket. SOURCE, then Stage Timer.	Soittolista 2 on valittuna raketin päällä. LÄHDE, sitten Stage Timer.
+*checks his watch, then the rocket, then his watch*	*katsoo kelloa, sitten rakettia, sitten kelloa*
+COUNT IT DOWN	LÄHTÖLASKENTA KÄYNTIIN
+Select the timer and TAKE it. I have cleared its backdrop, so the rocket shows behind the numbers.	Valitse ajastin ja paina TAKE. Poistin sen taustan, joten raketti näkyy numeroiden takana.
+Past zero it keeps going and counts the overtime. Very honest. Slightly rude.	Nollan jälkeen se jatkaa ja laskee ylitystä. Hyvin rehellistä. Hieman töykeää.
+Close MENU, click the Deck 1 tab, then select 'The rocket (lift-off)' and TAKE it.	Sulje VALIKKO, napsauta Deck 1 -välilehteä, valitse 'The rocket (lift-off)' ja paina TAKE.
+The clock is on playlist 2, so it stays up while the rocket changes underneath it.	Kello on soittolistassa 2. Se pysyy näkyvissä, kun raketti vaihtuu sen alla.
+We have lift-off, Grommet! ...Grommet? Who's flying it?	Lähdimme, Grommet! ...Grommet? Kuka tätä ohjaa?
+A countdown, a hold, a pilot's view and a launch. Bring crackers.	Lähtölaskenta, pito, pilotin näkymä ja laukaisu. Tuo suolakeksejä.
+*waves from the window*	*vilkuttaa ikkunasta*
+The rubber chicken	The rubber chicken
+A magic show, skapi. A trunk, a rubber chicken, and one beat where everything changes at once. Press START.	Taikashow, skapi. Arkku, kumikana ja hetki, jolloin kaikki vaihtuu kerralla. Paina Aloita.
+Two playlists are two layers, and TAKE ALL changes both together. Tonight you will see why that matters.	Kaksi soittolistaa on kaksi kerrosta. TAKE ALL vaihtaa molemmat yhdessä. Tänään näet, miksi se merkitsee.
+The chicken goes on its own layer. Press the + at the end of the playlist tabs.	Kana saa oman kerroksensa. Paina + soittolistojen välilehtien lopussa.
+The lit tab is the playlist that gets the next cue. Its chip now says 'to Out 1': it is layered over playlist 1 on that output.	Valaistu välilehti on soittolista, johon seuraava cue tulee. Siinä lukee nyt 'kohteeseen Ulos 1': se on tässä ulostulossa soittolistan 1 päällä.
+TRICK ONE	ENSIMMÄINEN TEMPPU
+Turnip Top has put the chicken in playlist 2. In playlist 1, TAKE 'The trunk (open)'. Then in playlist 2, TAKE the chicken.	Turnip Top laittoi kanan soittolistaan 2. Käynnistä soittolistassa 1 'The trunk (open)' painamalla TAKE. Käynnistä sitten kana soittolistassa 2 painamalla TAKE.
+The chicken is clear all round, so it covers only itself. Watch the monitor between the two TAKEs.	Kanan ympärillä on läpinäkyvää. Se peittää vain oman kohtansa. Katso monitoria kahden TAKE-painalluksen välissä.
+Did you see it? For a moment the trunk was open and empty: two TAKEs are two moments. The trick is reset. Now select the open trunk in playlist 1 and the chicken in playlist 2, then TAKE ALL.	Huomasitko? Arkku oli hetken auki ja tyhjä: kaksi TAKE-painallusta on kaksi hetkeä. Temppu on palautettu alkuun. Valitse nyt avoin arkku soittolistassa 1 ja kana soittolistassa 2, sitten TAKE ALL.
+TAKE ALL takes every playlist's selected cue on one beat. No gap, no empty trunk.	TAKE ALL käynnistää jokaisen soittolistan valitun cuen samalla hetkellä. Ei väliä, ei tyhjää arkkua.
+The chicken was late. They saw an empty trunk. In magic we call that a trunk.	Kana myöhästyi. He näkivät tyhjän arkun. Taikurien kielellä se on arkku.
+TAKE ALL	TAKE ALL
+THE VANISH	KATOAMINEN
+Trick two. Drag playlist 2's opacity fader down to nothing. The chicken fades away.	Toinen temppu. Vedä soittolistan 2 peittävyysliukusäädin nollaan. Kana häipyy.
+Every playlist has its own opacity. Down is a fade out, with no cue at all.	Jokaisella soittolistalla on oma peittävyys. Alas vetäminen häivyttää kuvan ilman yhtäkään cueta.
+Ta-daaa! ...Hold for applause. Hold. Now watch it go.	Ta-daaa! ...Odotetaan aplodeja. Odotetaan. Nyt katso, kun se katoaa.
+Trick three. Bring it back: playlist 2's opacity all the way up.	Kolmas temppu. Tuo se takaisin: soittolistan 2 peittävyys täysille.
+Where did it go? Back in the trunk. Everything goes back in the trunk.	Minne se meni? Takaisin arkkuun. Kaikki palaa arkkuun.
+THAT'S MAGIC	SE ON TAIKAA
+An appearance done wrong, then right, a vanish and a return. Nazdrave.	Ensin pieleen mennyt ilmestyminen, sitten onnistunut, katoaminen ja paluu. Nazdrave.
+A playlist can also sit on any output. Two layers, a great many tricks.	Soittolistan voi myös sijoittaa mihin tahansa ulostuloon. Kaksi kerrosta, paljon temppuja.
+It's back! Thank you! I'm here all week! The chicken is here forever.	Se palasi! Kiitos! Olen täällä koko viikon! Kana on täällä ikuisesti.
+A cooking show, skapi. Live. The kitchen is on fire. Press START.	Kokkausohjelma, skapi. Suorana. Keittiö on tulessa. Paina Aloita.
+Ta-da! Still cookin'! ...Still burnin'.	Ta-daa! Vielä paistuu! ...Vielä palaa.
+PANIC	PANIC
+Bork! De fire extinguisher is also on fire!	Bork! Sammutin on myös tulessa, höpöti-pörk!
+BLACK to hide, PANIC to stop, TAKE to come back. You will survive any kitchen.	musta piilottaa, PANIC pysäyttää, TAKE palauttaa. Selviät mistä keittiöstä vain.
+A fashion show, skapi. One designer, one runway, and a look she will want back. Press START.	Muotinäytös, skapi. Suunnittelija, catwalk ja asu, jonka hän haluaa takaisin. Paina Aloita.
+A preset stores a whole look and brings it back with one button.	Esiasetus tallentaa koko ilmeen ja palauttaa sen yhdellä napilla.
+Darling. A look is not a look until you can get it back.	Kultaseni. Ilme ei ole ilme, ellet saa sitä takaisin.
+Buttons. Good. I design with buttons.	Nappeja. Hyvä. Minä suunnittelen napeilla.
+Store it. Before somebody has ideas.	Tallenna se. Ennen kuin joku saa ideoita.
+Close the DASH (Esc), then select Look two and TAKE it.	Sulje DASH (Esc), valitse Look two ja paina TAKE.
+A cape. On my runway. Someone will trip, darling. Someone always trips.	Viitta. Minun catwalkillani. Joku kompastuu, kultaseni. Aina joku kompastuu.
+Recall: the whole look comes back at once.	Palautus: koko ilme palaa kerralla.
+Thank you. We will never speak of the cape again.	Kiitos. Viitasta ei puhuta enää koskaan.
+Simple. Timeless. Recallable. Now go, darling. I have a fitting.	Yksinkertainen. Ajaton. Palautettava. Mene nyt, kultaseni. Minulla on sovitus.
+Pushes, wipes, iris, dip to white, and more. I wrote half of them. On a Tuesday.	Työntöjä, pyyhkäisyjä, iiris, valkoisen kautta ja muuta. Kirjoitin puolet niistä. Eräänä tiistaina.
+Operators... roll the transition.	Operaattorit... siirtymä käyntiin.
+A style, a time, and two very dramatic entrances. Roll credits.	Tyyli, kesto ja kaksi hyvin dramaattista sisääntuloa. Lopputekstit.
+That is not an iris. ...It is better. I will allow it.	Tuo ei ole iiris. ...Se on parempi. Sallin sen.
+An effect, a bend and the patch. The robots approve, I think. Their faces are helmets.	Efekti, vääntö ja patch. Robotit kai hyväksyvät. Niillä on kypärät kasvoina.
+Waveform, vectorscope, false colour. The scopes settled it. The agents did not.	Aaltomuoto, vektoriskooppi, väärävärit. Mittarit ratkaisivat asian. Agentit eivät.
+The view from the capsule	Näkymä kapselista
+Major Tomasina is in orbit, skapi, and her picture has to reach the ground. Press START.	Major Tomasina on kiertoradalla, skapi. Hänen kuvansa on päästävä maahan. Paina Aloita.
+Pictures leave by cable or network: NDI, SDI from a DeckLink card, ST 2110 for broadcast plants.	Kuva lähtee kaapelia tai verkkoa pitkin: NDI, SDI DeckLink-kortilta, ST 2110 lähetyskeskuksiin.
+Ground control, this is Major Tomasina. Can you see my picture?	Lennonjohto, täällä Major Tomasina. Näettekö kuvani?
+Every way down, on one page. Good. Space has very few cables.	Kaikki reitit alas yhdellä sivulla. Hyvä. Avaruudessa on vähän kaapeleita.
+NDI	NDI
+Sending now. If nobody answers, I'll just float here.	Lähetän nyt. Jos kukaan ei vastaa, jään tähän leijumaan.
+Ground control, signing off. Tell my mother I waved.	Lennonjohto, kuittaan. Kertokaa äidille, että vilkutin.
+Ground control can see me! I can see my house from here.	Lennonjohto näkee minut! Näen täältä taloni.
+MULTI ON	MULTI PÄÄLLÄ
+And one more window, showing the clock. Operators who watch a clock are never late.	Ja vielä yksi ikkuna kellolle. Kelloa katsovat operaattorit eivät myöhästy.
+The big window is window one, which is usually the programme.	Iso ikkuna on ikkuna yksi. Se näyttää yleensä ohjelman.
+Windows, the ... menu, NEXT, the clock, a layout, tally. Mystery solved.	Ikkunat, ...-valikko, NEXT, kello, asettelu ja tally. Mysteeri ratkaistu.
+DECKBOY  POCKET	DECKBOY  POCKET
