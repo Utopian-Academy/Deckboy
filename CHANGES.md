@@ -19,6 +19,7 @@
 ### Recording
 - Fixed: recording a 4K output made about a third of the output's frames late. A recording that copies an output now takes that output's finished picture instead of drawing the whole show a second time. At 4K the output stays at 60 fps while it records.
 - This applies when neither the recording nor the output it copies adds anything of its own (time overlay, opacity, matte, overlay, live captions or key+fill), and the recording sends nowhere else. Otherwise the recording draws its own picture, as before. `DECKBOY_RECORD_OWN_COMPOSITE=1` always draws its own.
+- Fixed: turning a window output off and on during a recording, while the show had a fixed video size, made the recording fall further behind every second, and RECORD OFF then stopped responding. A take now keeps the size it started at; a picture that changes shape is letterboxed into it.
 
 ### Colour and key
 - Fixed: colour controls (brightness, contrast, saturation, hue) on a 4K cue dropped the output to about 9 fps. A 4K frame took 114 ms and now takes 17 ms.
