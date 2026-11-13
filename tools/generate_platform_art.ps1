@@ -186,7 +186,7 @@ public static class DeckboyPlatformArt {
     Rect(b,Mid,290*scale,228*scale,48*scale,12*scale);
     Poly(b,Mid,new Point(330*scale,212*scale),new Point(352*scale,234*scale),new Point(330*scale,256*scale));
     Rect(b,Mid,32*scale,336*scale,576*scale,scale);
-    Text(b,"READY TO PLAY.",250*scale,402*scale,12*scale,Ink);return b;
+    Text(b,"PLAY WITH VIDEO.",250*scale,402*scale,12*scale,Ink);return b;
   }
   public static void Run(string baseDir) {
     root=Path.GetFullPath(baseDir); master=new Bitmap(Path.Combine(root,"art/windows/icons/deckboy_app_master.png"));
