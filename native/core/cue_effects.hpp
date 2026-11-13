@@ -143,6 +143,13 @@ enum class CueEffectKind : int {
   // An effect rather than a source, so any cue -- a video, a camera, a Text
   // cue, a drawing -- becomes one.
   Stereogram,
+  // Added 2026-11-13 (James: "love all", board 4P4zHNp7AP1K5FJMnetFdk).
+  // The picture holds and drips run out of it: a few channels, pinched into
+  // necks with glossy heads.
+  Melt,
+  // VHS from its causes: tape age, head wear, tracking, deck age, colour-
+  // under, copies, tape speed, interference. Our own model.
+  Tape,
   Count,
 };
 
@@ -202,6 +209,8 @@ inline const char* cueEffectLabel(CueEffectKind kind) {
     case CueEffectKind::Strobe:         return "strobe";
     case CueEffectKind::MotionTrails:   return "motion trails";
     case CueEffectKind::Stereogram:     return "stereogram";
+    case CueEffectKind::Melt:           return "melt";
+    case CueEffectKind::Tape:           return "tape";
     default:                            return "none";
   }
 }
@@ -264,6 +273,8 @@ inline const char* cueEffectToken(CueEffectKind kind) {
     case CueEffectKind::Strobe:         return "strobe";
     case CueEffectKind::MotionTrails:   return "motion_trails";
     case CueEffectKind::Stereogram:     return "stereogram";
+    case CueEffectKind::Melt:           return "melt";
+    case CueEffectKind::Tape:           return "tape";
     default:                            return "none";
   }
 }
@@ -327,6 +338,10 @@ inline bool cueEffectKindAnimates(CueEffectKind kind) {
     case CueEffectKind::MotionTrails:
     // Its dots re-roll with the frame when "dots move" is up.
     case CueEffectKind::Stereogram:
+    // Holds what has dripped, and keeps dripping on a still.
+    case CueEffectKind::Melt:
+    // The tape's wobble, noise and dropouts move with the frame.
+    case CueEffectKind::Tape:
       return true;
     default:
       return false;
@@ -494,6 +509,12 @@ inline const char* cueEffectParamLabel(CueEffectKind kind, int which) {
     case CueEffectKind::Stereogram:
       return which == 0 ? "depth" : which == 1 ? "repeat width"
            : which == 2 ? "colour" : which == 3 ? "dots move" : nullptr;
+    case CueEffectKind::Melt:
+      return which == 0 ? "drip" : which == 1 ? "drips"
+           : which == 2 ? "pinch" : which == 3 ? "set" : nullptr;
+    case CueEffectKind::Tape:
+      return which == 0 ? "tape age" : which == 1 ? "head wear"
+           : which == 2 ? "tracking" : which == 3 ? "deck age" : nullptr;
     case CueEffectKind::Schlieren:
       return which == 0 ? "knife angle" : which == 1 ? "sensitivity"
            : which == 2 ? "colour" : nullptr;
@@ -845,6 +866,29 @@ inline const char* cueEffectParamTip(CueEffectKind kind, int which) {
         : "How often the dots change. At the left they stay put and only the "
           "hidden picture moves; at the right they shimmer, about eight times "
           "a second at most.";
+    case CueEffectKind::Melt:
+      return which == 0
+        ? "How fast the drips run. At the left the picture only sags."
+        : which == 1
+        ? "How many places drip: a few big drips at the left, many thin ones "
+          "at the right."
+        : which == 2
+        ? "How much the material draws in towards each drip, so it runs as a "
+          "thin neck with a heavier head."
+        : "How fast what has dripped hardens away. At the left the drips "
+          "stay until the cue changes.";
+    case CueEffectKind::Tape:
+      return which == 0
+        ? "An old tape loses bits of its oxide: dropouts flick white and "
+          "repeat the line above, and the colour fizzes."
+        : which == 1
+        ? "A worn or dirty head: softer, with noise that streaks along the "
+          "lines."
+        : which == 2
+        ? "The head drifting off the track: a band of noise rolls through "
+          "the picture."
+        : "An old deck: the picture wobbles, bends at the top of the frame and "
+          "carries hum bars.";
     case CueEffectKind::MotionTrails:
       return which == 0
         ? "How much a part of the picture must change to count as moving. "
@@ -1416,6 +1460,9 @@ struct CueEffect {
   // them as 0 and an older build ignores them.
   float paramE = 0.0f;
   float paramF = 0.0f;
+  // Two CHOICES (cueEffectChoiceLabel), saved after E and F.
+  int choiceA = 0;
+  int choiceB = 0;
   // BYPASS is not the same as amount 0. Turning an effect down to nothing
   // loses the setting you spent time on; bypass takes it out of the chain and
   // gives it back. Every serious tool has both and they are not
@@ -1470,6 +1517,64 @@ inline int chladniStyle(const CueEffect& fx) {
 // settings: Chladni's sliders mean different things in each style. Use this
 // wherever an effect's values are to hand; cueEffectParamLabel(kind) is for
 // asking what a kind has at all.
+// An effect's CHOICES: a setting that is one of a list, not a slider (Melt's
+// direction, Tape's speed and interference). Drawn as a dropdown row; no
+// oscillator, because an LFO through "SP, LP, EP" is not a performance.
+inline const char* cueEffectChoiceLabel(CueEffectKind kind, int which) {
+  switch (kind) {
+    case CueEffectKind::Melt: return which == 0 ? "direction" : which == 1 ? "material" : nullptr;
+    case CueEffectKind::Tape: return which == 0 ? "speed" : which == 1 ? "interference" : nullptr;
+    default: return nullptr;
+  }
+}
+
+inline std::vector<const char*> cueEffectChoiceOptions(CueEffectKind kind, int which) {
+  switch (kind) {
+    case CueEffectKind::Melt:
+      if (which == 0) return {"down", "up", "sideways"};
+      if (which == 1) return {"bright", "whole picture"};
+      break;
+    case CueEffectKind::Tape:
+      if (which == 0) return {"SP", "LP", "EP"};
+      if (which == 1) return {"none", "phone", "dimmer", "radio"};
+      break;
+    default: break;
+  }
+  return {};
+}
+
+inline const char* cueEffectChoiceTip(CueEffectKind kind, int which) {
+  if (kind == CueEffectKind::Melt && which == 0) return "Which way it drips.";
+  if (kind == CueEffectKind::Melt && which == 1) {
+    return "Bright: bright things drip over the dark, as text and logos do. Whole picture: everything "
+           "is wax, and the picture itself runs down in its own colours.";
+  }
+  if (kind == CueEffectKind::Tape && which == 0) {
+    return "Tape speed: SP is the best picture, LP and EP fit more on a tape and lose detail and colour.";
+  }
+  if (kind == CueEffectKind::Tape && which == 1) {
+    return "Something near the deck: a phone's buzz, a light dimmer's herringbone, a radio's slow bars.";
+  }
+  return nullptr;
+}
+
+// What a NEW effect arrives set to. The struct's values exist so an old show
+// means what it meant; these are what looks right the moment it is added.
+// (The same split as audioEffectDefaults.)
+inline void applyCueEffectArrivalDefaults(CueEffect& fx) {
+  fx.paramA = 0.5f;
+  switch (fx.kind) {
+    case CueEffectKind::Melt:
+      fx.paramA = 0.5f; fx.paramB = 0.35f; fx.paramC = 0.6f; fx.paramD = 0.04f; fx.paramE = 0.6f;
+      break;
+    case CueEffectKind::Tape:
+      fx.paramA = 0.3f; fx.paramB = 0.3f; fx.paramC = 0.2f; fx.paramD = 0.3f; fx.paramE = 0.4f; fx.paramF = 0.0f;
+      break;
+    default:
+      break;
+  }
+}
+
 inline const char* cueEffectParamLabelFor(const CueEffect& fx, int which) {
   if (fx.kind == CueEffectKind::Chladni) {
     const int st = chladniStyle(fx);
@@ -1483,10 +1588,29 @@ inline const char* cueEffectParamLabelFor(const CueEffect& fx, int which) {
       default: return nullptr;
     }
   }
+  if (fx.kind == CueEffectKind::Melt) {
+    if (which == 4) return "sheen";
+    if (which == 5) return nullptr;
+  }
+  if (fx.kind == CueEffectKind::Tape) {
+    if (which == 4) return "colour drift";
+    if (which == 5) return "copies";
+  }
   return cueEffectParamLabel(fx.kind, which);
 }
 
 inline const char* cueEffectParamTipFor(const CueEffect& fx, int which) {
+  if (fx.kind == CueEffectKind::Melt && which == 4) {
+    return "Light on the drips, as on something wet: a gloss where it faces the light, "
+           "darker where it curls away.";
+  }
+  if (fx.kind == CueEffectKind::Tape && which == 4) {
+    return "Colour is recorded at a fraction of the detail: it smears sideways, lands late "
+           "and its hue wanders.";
+  }
+  if (fx.kind == CueEffectKind::Tape && which == 5) {
+    return "Copies of copies: none at the left, four at the right. Each one loses more.";
+  }
   if (fx.kind == CueEffectKind::Chladni) {
     const int st = chladniStyle(fx);
     if (which == 4) {
@@ -6170,6 +6294,304 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
               for (int ch = 0; ch < 3; ++ch) {
                 dp[ch] = detail::clamp8(dp[ch] * (1.0 - amt) + sp[ch] * amt);
               }
+            }
+          }
+        });
+        break;
+      }
+
+      case CueEffectKind::Melt: {
+        // MELT (board 4P4zHNp7, James 2026-11-13: "melt is sik").
+        //
+        // The picture holds, and drips run out of it. A few narrow channels
+        // run fast ("drips" says how many) and most of the picture barely
+        // moves; the material is drawn in towards each channel ("pinch"), so
+        // a drip is a thin neck with a heavier head; drips run in surges,
+        // which beads them; "set" is how fast they harden away. The first
+        // prototype moved everything at one speed and read as wavy trails.
+        //
+        // What has run is KEPT, at half size -- a drip is smooth, so nothing
+        // visible is lost, and it costs a quarter. 16 bits a channel, because
+        // a slow fade in 8 bits rounds back to where it started.
+        if (!state) break;
+        const int W = ctx.width, H = ctx.height;
+        const int KW = std::max(2, W / 2), KH = std::max(2, H / 2);
+        const int dir = std::clamp(fx.choiceA, 0, 2);   // 0 down, 1 up, 2 sideways
+        const std::size_t kcount = static_cast<std::size_t>(KW) * KH;
+        const std::size_t bytes = 16 + kcount * 3 * sizeof(std::uint16_t);
+        std::vector<std::uint8_t>& store = *state;
+        auto header = [&](int i) { std::int32_t v; std::memcpy(&v, store.data() + i * 4, 4); return v; };
+        auto shrunk = [&](int kx, int ky, int c) {   // the picture now, at the kept size
+          const int x = std::min(W - 1, kx * 2), y = std::min(H - 1, ky * 2);
+          const int x1 = std::min(W - 1, x + 1), y1 = std::min(H - 1, y + 1);
+          const std::uint8_t* p = pixels.data();
+          return (p[(static_cast<std::size_t>(y) * W + x) * 4 + c] + p[(static_cast<std::size_t>(y) * W + x1) * 4 + c] +
+                  p[(static_cast<std::size_t>(y1) * W + x) * 4 + c] + p[(static_cast<std::size_t>(y1) * W + x1) * 4 + c]) * 64;
+        };
+        if (store.size() != bytes || header(0) != KW || header(1) != KH || header(2) != dir) {
+          store.assign(bytes, 0);
+          const std::int32_t h[4] = {KW, KH, dir, 0};
+          std::memcpy(store.data(), h, 16);
+          std::uint16_t* k0 = reinterpret_cast<std::uint16_t*>(store.data() + 16);
+          for (int ky = 0; ky < KH; ++ky)
+            for (int kx = 0; kx < KW; ++kx)
+              for (int c = 0; c < 3; ++c) k0[(static_cast<std::size_t>(ky) * KW + kx) * 3 + c] = static_cast<std::uint16_t>(shrunk(kx, ky, c));
+        }
+        std::uint16_t* kept = reinterpret_cast<std::uint16_t*>(store.data() + 16);
+        // Along the fall (a) and across it (b), in kept pixels.
+        const int along = dir == 2 ? KW : KH, across = dir == 2 ? KH : KW;
+        auto toXY = [&](int a, int b, int& kx, int& ky) {
+          if (dir == 0) { kx = b; ky = a; }
+          else if (dir == 1) { kx = b; ky = KH - 1 - a; }
+          else { kx = a; ky = b; }
+        };
+        // The board's numbers are for a 480-wide picture; scale them.
+        const double unitAlong = along / (dir == 2 ? 480.0 : 270.0);   // kept px per board px
+        const double t = static_cast<double>(ctx.frameIndex) / 60.0;
+        static thread_local std::vector<float> speed, slope;
+        speed.assign(static_cast<std::size_t>(across), 0.0f);
+        slope.assign(static_cast<std::size_t>(across), 0.0f);
+        const double freq = (0.05 + pB * 0.22) * 480.0 / across;   // radians per kept pixel
+        for (int b = 0; b < across; ++b) {
+          const double n = 0.5 + 0.5 * (std::sin(b * freq + t * 0.03) * 0.5 + std::sin(b * freq * 2.31 + 1.7 - t * 0.02) * 0.3 +
+                                        std::sin(b * freq * 5.17 + 4.2 + t * 0.01) * 0.2);
+          // Whole picture: wider channels, or a uniform area slides into
+          // itself and only the thinnest edges show any melt.
+          const double floorN = fx.choiceB == 1 ? 0.35 : 0.5;
+          const double ch = std::pow(std::max(0.0, (n - floorN) / (1.0 - floorN)), 2.0);
+          const double surge = 0.45 + 0.55 * std::max(0.0, std::sin(t * 1.7 + b * 0.37 * 480.0 / across));
+          speed[static_cast<std::size_t>(b)] = static_cast<float>(pA * (0.03 + ch * 4.0 * surge));
+        }
+        for (int b = 0; b < across; ++b) {
+          slope[static_cast<std::size_t>(b)] = (speed[static_cast<std::size_t>(std::min(across - 1, b + 1))] -
+                                                speed[static_cast<std::size_t>(std::max(0, b - 1))]) * 0.5f;
+        }
+        const double hold = 1.0 - pD * 0.08;
+        const double pinch = pC * 6.0 * across / 480.0;
+        const bool wholePicture = fx.choiceB == 1;
+        static thread_local std::vector<std::uint16_t> nextBuf;
+        nextBuf.resize(kcount * 3);
+        // RAW POINTERS into the worker threads: a thread_local named inside
+        // the band is that worker's own, empty copy (caustics crashed that way).
+        std::uint16_t* next = nextBuf.data();
+        const float* speedP = speed.data();
+        const float* slopeP = slope.data();
+        auto keptAt = [&](double a, double b, int c) {
+          int x0, y0;
+          a = std::clamp(a, 0.0, along - 1.001);
+          b = std::clamp(b, 0.0, across - 1.001);
+          const int ia = static_cast<int>(a), ib = static_cast<int>(b);
+          const double fa = a - ia, fb = b - ib;
+          double v = 0.0;
+          for (int da = 0; da < 2; ++da)
+            for (int db = 0; db < 2; ++db) {
+              toXY(ia + da, ib + db, x0, y0);
+              v += kept[(static_cast<std::size_t>(y0) * KW + x0) * 3 + c] * (da ? fa : 1 - fa) * (db ? fb : 1 - fb);
+            }
+          return v;
+        };
+        const std::uint16_t* keptC = kept;
+        detail::parallelRows(along, across * 12, [&](int a0, int a1) {
+          for (int a = a0; a < a1; ++a) {
+            for (int b = 0; b < across; ++b) {
+              int kx, ky;
+              toXY(a, b, kx, ky);
+              const std::size_t o = (static_cast<std::size_t>(ky) * KW + kx) * 3;
+              // Material that is there moves; empty space barely does.
+              int ax, ay;
+              toXY(std::max(0, a - 1), b, ax, ay);
+              const std::size_t up = (static_cast<std::size_t>(ay) * KW + ax) * 3;
+              const double m = (keptC[up] + keptC[up + 1] + keptC[up + 2]) / (3.0 * 65535.0);
+              const double v = speedP[b] * (0.35 + 0.65 * std::min(1.0, m * 2.0));
+              const double bs = b - slopeP[b] * pinch;
+              if (wholePicture) {
+                // WHOLE PICTURE: everything is wax. In a channel the picture
+                // flows down in its own colours; "set" pulls it back to the
+                // picture. Max (below) poured a bright sky over the hill as
+                // grey stripes -- a curtain, not a melt.
+                const double w = std::min(1.0, v * 1.5);
+                for (int c = 0; c < 3; ++c) {
+                  const double now = shrunk(kx, ky, c);
+                  const double moved = keptAt(a - v * unitAlong, bs, c);
+                  const double settled = moved + (now - moved) * (1.0 - hold);
+                  next[o + c] = static_cast<std::uint16_t>(std::clamp(now + (settled - now) * w, 0.0, 65535.0));
+                }
+              } else {
+                // BRIGHT: bright things drip over the dark (text, logos, the
+                // board's green code). The brighter of what is here and what
+                // has run down onto it.
+                const double dim = 1.0 - std::min(1.0, v * 0.25);
+                for (int c = 0; c < 3; ++c) {
+                  const double moved = keptAt(a - v * unitAlong, bs, c) * hold;
+                  const double now = shrunk(kx, ky, c) * dim;
+                  next[o + c] = static_cast<std::uint16_t>(std::min(65535.0, std::max(now, moved)));
+                }
+              }
+            }
+          }
+        });
+        if (!ctx.stateHold) std::memcpy(kept, next, kcount * 3 * sizeof(std::uint16_t));
+        const std::uint16_t* show = ctx.stateHold ? kept : next;
+        // Lit like a liquid: a gloss where the surface faces the light (from
+        // above), darker where it curls away, so the heads look round.
+        const double sheen = pE;
+        const int a256 = static_cast<int>(std::lround(amt * 256.0));
+        detail::parallelRows(H, W * 4, [&](int r0, int r1) {
+          for (int y = r0; y < r1; ++y) {
+            std::uint8_t* row = pixels.data() + static_cast<std::size_t>(y) * W * 4;
+            const double gyk = std::min(KH - 1.001, y * 0.5);
+            const int ky = static_cast<int>(gyk);
+            const double fy = gyk - ky;
+            for (int x = 0; x < W; ++x) {
+              const double gxk = std::min(KW - 1.001, x * 0.5);
+              const int kx = static_cast<int>(gxk);
+              const double fx2 = gxk - kx;
+              auto K = [&](int xx, int yy, int c) {
+                xx = std::clamp(xx, 0, KW - 1); yy = std::clamp(yy, 0, KH - 1);
+                return static_cast<double>(show[(static_cast<std::size_t>(yy) * KW + xx) * 3 + c]);
+              };
+              auto L = [&](int xx, int yy) { return (K(xx, yy, 0) + K(xx, yy, 1) + K(xx, yy, 2)) / (3.0 * 65535.0); };
+              double kv[3];
+              for (int c = 0; c < 3; ++c) {
+                kv[c] = ((K(kx, ky, c) * (1 - fx2) + K(kx + 1, ky, c) * fx2) * (1 - fy) +
+                         (K(kx, ky + 1, c) * (1 - fx2) + K(kx + 1, ky + 1, c) * fx2) * fy) / 257.0;
+              }
+              const double gy = (L(kx, ky + 1) - L(kx, ky - 1)) * 3.0, gx = (L(kx + 1, ky) - L(kx - 1, ky)) * 3.0;
+              const double face = std::max(0.0, -gy * 0.8 - gx * 0.3);
+              const double spec = std::pow(std::min(1.0, face * 1.4), 3.0) * sheen * 255.0;
+              const double shade = 1.0 - std::min(0.5, std::fabs(gx) * 0.35 * sheen);
+              std::uint8_t* p = row + static_cast<std::size_t>(x) * 4;
+              for (int c = 0; c < 3; ++c) {
+                const int out = detail::clamp8(kv[c] * shade + spec * (0.55 + kv[c] / 255.0 * 0.45));
+                p[c] = static_cast<std::uint8_t>(p[c] + (((out - p[c]) * a256) >> 8));
+              }
+            }
+          }
+        });
+        break;
+      }
+
+      case CueEffectKind::Tape: {
+        // TAPE: VHS from its causes (board 4P4zHNp7, James 2026-11-13: "write
+        // our own" -- vhs-phys's licence forbids using its code, and none of
+        // it is here). Each control is a condition and the faults follow:
+        // brightness rides an FM carrier (soft, rings at edges, noisy as the
+        // head wears), colour is recorded "under" at a fraction of the detail
+        // (smeared, late, drifting in hue), two heads on a drum (wobble, the
+        // bend at the top, the tear at the head switch), the tape itself
+        // (dropouts patched from the line above), tracking (a rolling band),
+        // the supply (hum bars). A function of the frame index: the same tape
+        // plays the same way twice.
+        const int W = ctx.width, H = ctx.height;
+        const double s = W / 480.0;                       // the board's numbers are for 480 wide
+        const double t = static_cast<double>(ctx.frameIndex) / 60.0;
+        const std::uint32_t frame = static_cast<std::uint32_t>(ctx.frameIndex);
+        const double age = pA, wear = pB, track = pC, deck = pD, colour = pE;
+        const int gens = static_cast<int>(std::lround(pF * 4.0));
+        const int speedMode = std::clamp(fx.choiceA, 0, 2);   // SP, LP, EP
+        const int interference = std::clamp(fx.choiceB, 0, 3);   // none, phone, dimmer, radio
+        const double speedK = speedMode == 0 ? 1.0 : speedMode == 1 ? 1.35 : 1.75;
+        const double gen = 1.0 + gens * 0.45;
+        auto hash = [](std::uint32_t n) {
+          n = (n ^ 61u) ^ (n >> 16); n = n + (n << 3); n = n ^ (n >> 4); n *= 0x27d4eb2du; n = n ^ (n >> 15);
+          return static_cast<double>(n) / 4294967296.0;
+        };
+        const int blurY = static_cast<int>(std::lround((1 + (wear * 2 + (speedK - 1) * 2) * gen * 0.8) * s));
+        const double ring = 0.35 + wear * 0.2;
+        const int ringOff = std::max(1, static_cast<int>(std::lround(3 * s)));
+        const double noiseY = (0.008 + wear * 0.05 + age * 0.03) * speedK * gen;
+        const int blurC = static_cast<int>(std::lround((4 + (speedK * 3 + gens * 3) * (0.6 + colour)) * s));
+        const int lag = static_cast<int>(std::lround((2 + colour * 4 + gens) * s));
+        const double hue = colour * 0.25 * std::sin(t * 0.37) + gens * 0.05;
+        const double chh = std::cos(hue), shh = std::sin(hue);
+        // Starts on screen: from the top edge it showed nothing for two seconds.
+        const double bandY = (std::fmod(t * 0.08 + 0.45, 1.3) - 0.15) * H;
+        const double bandH = H * (0.03 + track * 0.05);
+        const double hum = deck * 0.08;
+        const int noiseCell = std::max(1, static_cast<int>(std::lround(8 * s)));
+        const int noiseCell2 = std::max(1, static_cast<int>(std::lround(2 * s)));
+        static thread_local std::vector<std::uint8_t> clean;
+        clean.assign(pixels.begin(), pixels.begin() + static_cast<std::ptrdiff_t>(count * 4));
+        const std::uint8_t* src = clean.data();
+        const int a256 = static_cast<int>(std::lround(amt * 256.0));
+        detail::parallelRows(H, W * 12, [&](int r0, int r1) {
+          std::vector<double> lY(static_cast<std::size_t>(W)), lI(static_cast<std::size_t>(W)), lQ(static_cast<std::size_t>(W));
+          std::vector<double> sY(static_cast<std::size_t>(W) + 1), sI(static_cast<std::size_t>(W) + 1), sQ(static_cast<std::size_t>(W) + 1);
+          std::vector<double> yb(static_cast<std::size_t>(W));
+          for (int y = r0; y < r1; ++y) {
+            // Timebase: this line lands early or late.
+            const double wobble = std::sin(t * 2.1 + y * 0.03 / s) * 0.6 + std::sin(t * 0.7 + y * 0.011 / s) * 0.8;
+            double sh = wobble * (0.3 + deck * 2.5) * speedK;
+            const double top = std::max(0.0, 1.0 - y / (H * 0.12));
+            sh += top * top * (2 + deck * 14) * std::sin(t * 0.9);
+            if (y > H - 7 * s) sh += (6 + wear * 18) * (0.5 + 0.5 * hash(frame * 31u + static_cast<std::uint32_t>(y)));
+            sh *= s;
+            // The line as brightness and two colour signals, read with its error.
+            const std::uint8_t* line = src + static_cast<std::size_t>(y) * W * 4;
+            sY[0] = sI[0] = sQ[0] = 0.0;
+            for (int x = 0; x < W; ++x) {
+              const int sx = std::clamp(static_cast<int>(std::lround(x - sh)), 0, W - 1);
+              const double r = line[sx * 4] / 255.0, g = line[sx * 4 + 1] / 255.0, b = line[sx * 4 + 2] / 255.0;
+              const double Y = 0.299 * r + 0.587 * g + 0.114 * b;
+              sY[static_cast<std::size_t>(x) + 1] = sY[static_cast<std::size_t>(x)] + Y;
+              // Colour is read from the UNshifted line and shifted later with its lag.
+              const double r2 = line[x * 4] / 255.0, g2 = line[x * 4 + 1] / 255.0, b2 = line[x * 4 + 2] / 255.0;
+              sI[static_cast<std::size_t>(x) + 1] = sI[static_cast<std::size_t>(x)] + (0.596 * r2 - 0.274 * g2 - 0.322 * b2);
+              sQ[static_cast<std::size_t>(x) + 1] = sQ[static_cast<std::size_t>(x)] + (0.211 * r2 - 0.523 * g2 + 0.312 * b2);
+            }
+            auto boxSum = [&](const std::vector<double>& sum, int x0, int x1) {
+              x0 = std::clamp(x0, 0, W - 1); x1 = std::clamp(x1, 0, W - 1);
+              return (sum[static_cast<std::size_t>(x1) + 1] - sum[static_cast<std::size_t>(x0)]) / (x1 - x0 + 1);
+            };
+            for (int x = 0; x < W; ++x) yb[static_cast<std::size_t>(x)] = boxSum(sY, x - blurY, x + blurY);
+            for (int x = 0; x < W; ++x) {
+              const double l = yb[static_cast<std::size_t>(std::max(0, x - ringOff))];
+              const double r = yb[static_cast<std::size_t>(std::min(W - 1, x + ringOff))];
+              lY[static_cast<std::size_t>(x)] = yb[static_cast<std::size_t>(x)] + (yb[static_cast<std::size_t>(x)] - (l + r) * 0.5) * ring * 2.0;
+              const int cx = static_cast<int>(std::lround(x - sh - lag));
+              const double a = boxSum(sI, cx - blurC, cx + blurC), b = boxSum(sQ, cx - blurC, cx + blurC);
+              lI[static_cast<std::size_t>(x)] = a * chh - b * shh;
+              lQ[static_cast<std::size_t>(x)] = a * shh + b * chh;
+            }
+            const double inBand = std::max(0.0, 1.0 - std::fabs(y - bandY) / bandH) * track;
+            const double humK = 1.0 - hum * (0.5 + 0.5 * std::sin(static_cast<double>(y) / H * 6.2831853 * 1.5 - t * 1.2));
+            const bool drop = hash(frame * 977u + static_cast<std::uint32_t>(y) * 131u) < age * age * 0.25 * speedK;
+            const int dStart = static_cast<int>(hash(frame * 13u + static_cast<std::uint32_t>(y) * 7u) * W);
+            const int dLen = static_cast<int>((6 + hash(frame * 3u + static_cast<std::uint32_t>(y)) * 60 * (0.3 + age)) * s);
+            const std::uint8_t* above = src + static_cast<std::size_t>(std::max(0, y - 1)) * W * 4;
+            std::uint8_t* out = pixels.data() + static_cast<std::size_t>(y) * W * 4;
+            for (int x = 0; x < W; ++x) {
+              const std::uint32_t p = static_cast<std::uint32_t>(y) * static_cast<std::uint32_t>(W) + static_cast<std::uint32_t>(x);
+              double yy = lY[static_cast<std::size_t>(x)];
+              const double keep = (1.0 - inBand * 0.8) * (1.0 - gens * 0.08);
+              double ii = lI[static_cast<std::size_t>(x)] * keep, qq = lQ[static_cast<std::size_t>(x)] * keep;
+              // Tape noise streaks along the line, with a little fine snow.
+              const double n1 = (hash(frame * 7919u + static_cast<std::uint32_t>(y) * 1009u + static_cast<std::uint32_t>(x / noiseCell)) - 0.5) * 0.55 +
+                                (hash(frame * 7919u + static_cast<std::uint32_t>(y) * 1009u + static_cast<std::uint32_t>(x / noiseCell2) + 50000u) - 0.5) * 0.3 +
+                                (hash(frame * 131u + p * 3u) - 0.5) * 0.15;
+              yy += n1 * noiseY * 2.0 + n1 * inBand * 0.9;
+              const double cn = (hash(frame * 104729u + (p >> 2)) - 0.5) * (0.02 + age * 0.06) * speedK * gen;
+              ii += cn; qq -= cn * 0.7;
+              if (drop && x >= dStart && x < dStart + dLen) {
+                yy = (0.299 * above[x * 4] + 0.587 * above[x * 4 + 1] + 0.114 * above[x * 4 + 2]) / 255.0;
+                if (x < dStart + 3 * s) yy = 1.0;
+              }
+              if (interference == 1) {
+                const double burst = std::sin(t * 3.0) > 0.6 ? 1.0 : 0.0;
+                yy += burst * 0.12 * std::sin(x * 0.9 / s + y * 2.3 / s + t * 90) * (hash(static_cast<std::uint32_t>(y / std::max(1.0, 2 * s)) + frame) > 0.4 ? 1.0 : 0.0);
+              } else if (interference == 2) {
+                yy += 0.05 * std::sin((x + y * 1.7) * 0.55 / s + t * 40) * std::sin(y * 0.2 / s);
+              } else if (interference == 3) {
+                yy += 0.07 * std::sin(x * 0.3 / s + t * 8 + std::sin(y * 0.05 / s + t) * 4);
+              }
+              yy *= humK;
+              const double r = yy + 0.956 * ii + 0.621 * qq, g = yy - 0.272 * ii - 0.647 * qq, b = yy - 1.106 * ii + 1.703 * qq;
+              std::uint8_t* d = out + static_cast<std::size_t>(x) * 4;
+              const std::uint8_t* o = src + (static_cast<std::size_t>(y) * W + x) * 4;
+              const int rv = detail::clamp8(r * 255.0), gv = detail::clamp8(g * 255.0), bv = detail::clamp8(b * 255.0);
+              d[0] = static_cast<std::uint8_t>(o[0] + (((rv - o[0]) * a256) >> 8));
+              d[1] = static_cast<std::uint8_t>(o[1] + (((gv - o[1]) * a256) >> 8));
+              d[2] = static_cast<std::uint8_t>(o[2] + (((bv - o[2]) * a256) >> 8));
             }
           }
         });

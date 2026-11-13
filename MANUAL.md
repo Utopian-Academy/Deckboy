@@ -1596,7 +1596,7 @@ setting you spent time on, bypass takes it out of the chain and gives it back.
 | edge ignite | Edges catch and burn, the flame guttering frame to frame. Low sets the whole picture alight, high only the hardest lines |
 | relight | Brightness is treated as height and lit from the side, with the light walking around the frame |
 | depth split | Brightness is read as nearness and the two eyes disagree, with a slow rock that makes the depth read without glasses |
-| schlieren, chladni, wavefront, crystallise, night eyes, grain flow | See below |
+| schlieren, chladni, melt, tape, wavefront, crystallise, night eyes, grain flow | See below |
 
 There are **52** of them; the basics (levels, curves, colour and the nine
 from colour replace to strobe) come first in the list. Timed one at a time at 1080p on a laptop processor,
@@ -1680,6 +1680,21 @@ Chladni has three **styles**:
   plate's figure, bends the picture and focuses the light. **Wave height**
   sets the bend, **light** the brightness of the focused light, and
   **settle** how long the old waves last after the note changes.
+
+**Melt** drips the picture. A few channels run (**drips** sets how many) while the rest holds, the material
+draws in towards each channel (**pinch**), so a drip is a thin neck with a heavier head, and drips run in
+surges. **Set** is how fast what has run hardens away; at zero it stays. **Material**: *bright* lets bright
+things drip over the dark, which suits text, logos and graphics; *whole picture* makes everything wax, so
+the picture itself runs down in its own colours. **Direction** is down, up or sideways.
+
+**Tape** is VHS from its causes. Each control is a condition of the tape or the deck, and the faults
+follow: **tape age** gives dropouts (a white flick, then a streak of the line above) and colour fizz;
+**head wear** softens the picture and streaks noise along the lines; **tracking** rolls a band of noise
+through; **deck age** wobbles the picture, bends the top of the frame and puts hum bars through it;
+**colour drift** smears the colour sideways and late, as colour-under recording does; **copies** is
+generation loss. **Speed** is SP, LP or EP, each rougher. **Interference** adds a phone's buzz, a dimmer's
+herringbone or a radio's slow bars. A tape is a function of the frame number, so the same tape plays the
+same way twice.
 
 **Wavefront** solves the actual wave equation, seeded from the picture's own
 brightness — so unlike every sine-based ripple it has *inertia*. Waves leave

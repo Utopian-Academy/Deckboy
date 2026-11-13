@@ -90,6 +90,9 @@ EFFECTS = [
     ("strobe",          "1.0:0.0:0.0"),
     # Depth 0.6, middle repeat width, half colour, dots moving.
     ("stereogram",      "1.0:0.6:0.5:0.5:1.0"),
+    # Melt holds what has run, so it needs frames (PASSES) to show anything.
+    ("melt",            "1.0:0.6:0.4:0.6:0.04::0.6:0:0:1"),
+    ("tape",            "1.0:0.6:0.6:0.5:0.5::0.6:0.5:1:0"),
 ]
 
 # Effects whose whole subject is what happens ACROSS frames need more than one
@@ -100,7 +103,7 @@ EFFECTS = [
 # Feedback bloom is the same argument as feedback: the first pass is the
 # picture with a faint tinted copy on it, and the hue walk and the melt
 # only exist once the loop has gone round enough times to compound.
-PASSES = {"feedback": 12, "feedback_bloom": 12, "scotopic": 6,
+PASSES = {"feedback": 12, "feedback_bloom": 12, "scotopic": 6, "melt": 40,
           # Chladni's Sand and Fluid carry the plate from frame to frame; a
           # control's effect builds up over the frames, as it does on stage.
           "chladni@sand": 30, "chladni@fluid": 30}
@@ -128,7 +131,9 @@ ANIMATES_BY_INDEX = {"grain", "temporal_dither", "block_glitch", "ripple",
                      # index at thirty a second.
                      "strobe",
                      # Its dots re-roll with the frame ("dots move" up).
-                     "stereogram"}
+                     "stereogram",
+                     # The tape's wobble, noise and dropouts.
+                     "tape"}
 ANIMATES_BY_STATE = {"feedback", "feedback_bloom", "motion_puppet",
                     "scotopic", "text_mode",
                      # Holds the swept frame between calls.
@@ -139,7 +144,9 @@ ANIMATES_BY_STATE = {"feedback", "feedback_bloom", "motion_puppet",
                      # Holds the last few seconds as a block of time.
                      "time_cube",
                      # Holds the picture it built and the last motion grid.
-                     "motion_trails"}
+                     "motion_trails",
+                     # Holds what has dripped.
+                     "melt"}
 
 # Every named parameter slot, mirroring cueEffectParamLabel in cue_effects.hpp.
 # Kept here rather than parsed, so the two diverging fails loudly: --params
@@ -191,6 +198,8 @@ PARAM_SLOTS = {
     "strobe":          ["rate", "flash to", "flash length"],
     "motion_trails":   ["sensitivity", "let go", "blocks", "trail"],
     "stereogram":      ["depth", "repeat width", "colour", "dots move"],
+    "melt":            ["drip", "drips", "pinch", "set", "sheen"],
+    "tape":            ["tape age", "head wear", "tracking", "deck age", "colour drift", "copies"],
     "schlieren":       ["knife angle", "sensitivity", "colour"],
     "chladni":         ["mode", "second mode", "gather", "line glow", "style"],
     # The same effect in its other two styles (slot E picks one; see
@@ -245,6 +254,10 @@ PARAM_BASE = {
     # Sand and Fluid are chosen by slot E. Grain starts at 0.3 (5 px) so
     # moving it has whole grains to change; settle starts at 0.4.
     "chladni@sand": [0.25, 0.5, 0.5, 0.5, 0.5, 0.3],
+    # Melt and Tape start where they arrive (applyCueEffectArrivalDefaults):
+    # at neutral, Melt has no sheen and Tape no wear to change.
+    "melt": [0.5, 0.35, 0.6, 0.04, 0.6, 0.0],
+    "tape": [0.3, 0.3, 0.2, 0.3, 0.4, 0.0],
     "chladni@fluid": [0.25, 0.5, 0.5, 0.5, 0.9, 0.4],
 }
 
@@ -414,6 +427,38 @@ def check_params(exe, src, base, work):
     return 1 if dead else 0
 
 
+# An effect's CHOICES (cueEffectChoiceLabel): how many options each has.
+CHOICES = {"melt": [3, 2], "tape": [3, 4]}
+
+
+def check_choices(exe, src, work):
+    """Every option of every choice changes the picture from option 0."""
+    dead = 0
+    for token, counts in CHOICES.items():
+        base = PARAM_BASE.get(token, NEUTRAL)
+        def render(ca, cb, frame):
+            out = os.path.join(work, "choice.ppm")
+            spec = "%s:0.9:%g:%g:%g:%g::%g:%g:%d:%d" % ((token,) + tuple(base) + (ca, cb))
+            subprocess.run([exe, "--effect-dump", spec, src, out, str(frame), str(PASSES.get(token, 1))],
+                           capture_output=True)
+            return raster(out) if os.path.exists(out) else b""
+        # Several frames for an effect that moves with the clock: the phone's
+        # buzz comes in bursts, and one frame can fall between them.
+        frames = (0, 7, 13, 40) if token in ANIMATES_BY_INDEX else (7,)
+        refs = {f: render(0, 0, f) for f in frames}
+        for which, n in enumerate(counts):
+            for opt in range(1, n):
+                pct = 0.0
+                for f in frames:
+                    shot = render(opt if which == 0 else 0, opt if which == 1 else 0, f)
+                    changed = sum(1 for a, b in zip(refs[f][::53], shot[::53]) if abs(a - b) > 6)
+                    pct = max(pct, 100.0 * changed / max(1, len(refs[f][::53])))
+                verdict = "ok" if pct >= 0.5 else "DEAD"
+                dead += verdict == "DEAD"
+                print("%-16s %-15s %-6s %.1f%% of the picture moved" % (token, "choice %s=%d" % ("AB"[which], opt), verdict, pct))
+    return dead
+
+
 def check_animation(exe, src, work):
     """Does each effect move over time exactly when the header says it does?"""
     frames = (0, 1, 2, 3, 5, 8, 13, 40, 97)
@@ -488,7 +533,12 @@ def main():
     if args.animation:
         return check_animation(exe, src, work)
     if args.params:
-        return check_params(exe, src, base, work)
+        failed = check_params(exe, src, base, work)
+        print()
+        dead = check_choices(exe, src, work)
+        if dead:
+            print("FAIL: %d choice(s) do nothing" % dead)
+        return 1 if (failed or dead) else 0
 
     rows, outputs, failures = [], [], 0
     for token, params in EFFECTS:

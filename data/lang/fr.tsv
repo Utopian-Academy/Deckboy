@@ -3266,3 +3266,6 @@ Windows, the ... menu, NEXT, the clock, a layout, tally. Mystery solved.	Les fen
 playlist 2 is ready: you built one in the magic show	la playlist 2 est prête : tu en as créé une dans le spectacle de magie
 DECKBOY  POCKET	DECKBOY  POCKET
 FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR	FX : utiliser LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR
+whole picture	toute l'image
+FX CHOICE: choice must be A or B	FX CHOICE : le choix doit être A ou B
+FX CHOICE: no effect at that index	FX CHOICE : aucun effet à cet index

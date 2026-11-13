@@ -1967,6 +1967,9 @@
         // amount's LFO (4) armed too, so a slip in the index mapping shows.
         puppet.paramE = 0.7f;
         puppet.paramF = 0.15f;
+        // And both choices (Melt's direction, Tape's speed), after E and F.
+        puppet.choiceA = 2;
+        puppet.choiceB = 1;
         puppet.lfo[4].on = true;
         puppet.lfo[4].rateHz = 0.5f;
         puppet.lfo[6].on = true;
@@ -2991,6 +2994,9 @@
                loadedCue.effects[1].lfo[6].on && std::abs(loadedCue.effects[1].lfo[6].rateHz - 2.0f) < 0.01f &&
                loadedCue.effects[0].paramE == 0.0f && loadedCue.effects[0].paramF == 0.0f,
                "effect stack persisted the fifth and sixth sliders and their LFOs");
+        expect(loadedCue.effects.size() == 2 && loadedCue.effects[1].choiceA == 2 && loadedCue.effects[1].choiceB == 1 &&
+               loadedCue.effects[0].choiceA == 0 && loadedCue.effects[0].choiceB == 0,
+               "effect stack persisted both choices");
         // The positional record, checked field by field. One assertion per
         // field rather than one for the block: a skew shifts a RUN of them,
         // and naming the first one that moved says immediately where the
@@ -5779,6 +5785,9 @@
     // (an empty colour field leaves it white).
     if (parts.size() > 7) fx.paramE = static_cast<float>(std::atof(parts[7].c_str()));
     if (parts.size() > 8) fx.paramF = static_cast<float>(std::atof(parts[8].c_str()));
+    // Then the choices: melt:1:0.5:0.35:0.6:0.04::0.6:0:2 drips sideways.
+    if (parts.size() > 9) fx.choiceA = std::max(0, std::atoi(parts[9].c_str()));
+    if (parts.size() > 10) fx.choiceB = std::max(0, std::atoi(parts[10].c_str()));
 
     std::ifstream in(inPath, std::ios::binary);
     if (!in) {

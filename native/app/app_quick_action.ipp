@@ -463,6 +463,8 @@
       case QuickAction::EffectParamFDec:  effectStackNudgeParam(param, 5, -0.05f); return;
       case QuickAction::EffectParamFInc:  effectStackNudgeParam(param, 5, +0.05f); return;
       case QuickAction::EffectParamFEdit: effectStackEditParam(param, 5); return;
+      case QuickAction::EffectChoiceA:    effectStackOpenChoice(param, 0); return;
+      case QuickAction::EffectChoiceB:    effectStackOpenChoice(param, 1); return;
       case QuickAction::CueSectionCodeToggle:
         cueSectionCodeOpen_ = !cueSectionCodeOpen_; return;
       case QuickAction::AudioEffectAdd:         audioEffectStackAdd(); return;

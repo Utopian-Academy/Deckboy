@@ -103,6 +103,7 @@ EFFECTS = [
     ("edges",           "1:0.5"),
     ("luma_key",        "1:0.6"),
     ("stereogram",      "1:0.6:0.5:0:0.5:0"),
+    ("tape",            "1:0.6:0.6:0.5:0.5"),
 ]
 
 # Both need something a paused frame cannot give them.

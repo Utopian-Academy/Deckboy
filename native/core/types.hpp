@@ -3814,7 +3814,10 @@ enum class QuickAction {
   EffectParamEEdit,
   EffectParamFDec,
   EffectParamFInc,
-  EffectParamFEdit
+  EffectParamFEdit,
+  // An effect's choices (cueEffectChoiceLabel): open its list.
+  EffectChoiceA,
+  EffectChoiceB
 };
 
 // ---------------------------------------------------------------------------

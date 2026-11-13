@@ -5951,7 +5951,7 @@
         fx.kind = kind;
         fx.amount = parts.size() >= 4
           ? std::clamp(static_cast<float>(std::atof(parts[3].c_str())), 0.0f, 1.0f) : 1.0f;
-        fx.paramA = 0.5f;
+        deckboy::effects::applyCueEffectArrivalDefaults(fx);
         cue->effects.push_back(fx);
         markProjectDirty();
         syncDatamoshFromStack();
@@ -5999,6 +5999,44 @@
       // playing -- could not be driven by a controller, a script or a test. The
       // amount was reachable and the four things that decide what the effect
       // actually looks like were not.
+      // FX CHOICE <n> <A|B> <name or number>: an effect's choice (Melt's
+      // direction, Tape's speed and interference), by its name or its place.
+      if (sub == "CHOICE" && parts.size() >= 5) {
+        const int idx = std::atoi(parts[2].c_str()) - 1;
+        if (idx < 0 || idx >= static_cast<int>(cue->effects.size())) {
+          failRemoteCommand("FX CHOICE: no effect at that index");
+          return;
+        }
+        const std::string which = toUpper(parts[3]);
+        if (which != "A" && which != "B") {
+          failRemoteCommand("FX CHOICE: choice must be A or B");
+          return;
+        }
+        auto& fx = cue->effects[idx];
+        const int w = which == "A" ? 0 : 1;
+        const auto options = deckboy::effects::cueEffectChoiceOptions(fx.kind, w);
+        if (options.empty()) {
+          failRemoteCommand(std::string("FX CHOICE: ") + deckboy::effects::cueEffectToken(fx.kind) + " has no choice " + which);
+          return;
+        }
+        int pickAt = -1;
+        const std::string want = toLower(joinParts(parts, 4));
+        for (int k = 0; k < static_cast<int>(options.size()); ++k) {
+          if (toLower(options[static_cast<std::size_t>(k)]) == want) pickAt = k;
+        }
+        if (pickAt < 0 && !want.empty() && std::all_of(want.begin(), want.end(), ::isdigit)) pickAt = std::atoi(want.c_str());
+        if (pickAt < 0 || pickAt >= static_cast<int>(options.size())) {
+          std::string list;
+          for (const char* o : options) list += (list.empty() ? "" : ", ") + std::string(o);
+          failRemoteCommand("FX CHOICE: one of " + list);
+          return;
+        }
+        pushUndoSnapshot();
+        (w == 0 ? fx.choiceA : fx.choiceB) = pickAt;
+        markProjectDirty();
+        remoteCommandDetail_ = std::string(options[static_cast<std::size_t>(pickAt)]);
+        return;
+      }
       if (sub == "PARAM" && parts.size() >= 5) {
         const int idx = std::atoi(parts[2].c_str()) - 1;
         if (idx < 0 || idx >= static_cast<int>(cue->effects.size())) {

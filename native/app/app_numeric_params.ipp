@@ -907,7 +907,7 @@ void effectStackAdd() {
       return;
     }
     fx.amount = 1.0f;
-    fx.paramA = 0.5f;
+    deckboy::effects::applyCueEffectArrivalDefaults(fx);
     Cue* liveCue = selectedCueMutable();
     const bool wasNeeded = liveCue ? cueNeedsCpuPixelPath(*liveCue) : false;
     live->push_back(fx);
@@ -916,6 +916,32 @@ void effectStackAdd() {
     syncDatamoshFromStack();
     refreshLiveCueIfPixelPathChanged(wasNeeded);
   });
+}
+
+// An effect's choice row: the list of what it can be, the current one picked.
+void effectStackOpenChoice(int index, int which) {
+  auto* stack = selectedEffectStack();
+  if (!stack || index < 0 || index >= static_cast<int>(stack->size())) return;
+  const auto kind = (*stack)[static_cast<std::size_t>(index)].kind;
+  const auto options = deckboy::effects::cueEffectChoiceOptions(kind, which);
+  if (options.empty()) return;
+  SDL_Rect anchor {};
+  const QuickAction action = which == 0 ? QuickAction::EffectChoiceA : QuickAction::EffectChoiceB;
+  for (const auto& qb : quickButtons_) {
+    if (qb.action == action && qb.param == index && qb.rect.w > anchor.w) anchor = qb.rect;
+  }
+  std::vector<std::pair<std::string, std::string>> choices;
+  for (int k = 0; k < static_cast<int>(options.size()); ++k) choices.emplace_back(std::to_string(k), options[static_cast<std::size_t>(k)]);
+  const auto& fx = (*stack)[static_cast<std::size_t>(index)];
+  openDropdown("effect.choice", anchor, choices, std::to_string(which == 0 ? fx.choiceA : fx.choiceB),
+               [this, index, which](const std::string& value) {
+                 auto* live = selectedEffectStack();
+                 if (!live || index >= static_cast<int>(live->size())) return;
+                 pushUndoSnapshot();
+                 auto& target = (*live)[static_cast<std::size_t>(index)];
+                 (which == 0 ? target.choiceA : target.choiceB) = std::atoi(value.c_str());
+                 markProjectDirty();
+               });
 }
 
 bool effectIndexValid(const std::vector<deckboy::effects::CueEffect>* stack, int index) {

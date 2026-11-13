@@ -2515,7 +2515,9 @@ std::string serializeCueEffects(const std::vector<deckboy::effects::CueEffect>& 
     // E and F (and their LFOs) after the colour, when either is in use. A
     // build that predates them stops at the colour; one that predates the
     // colour ignores an empty field there.
-    const bool hasEF = fx.paramE != 0.0f || fx.paramF != 0.0f || fx.lfo[5].on || fx.lfo[6].on;
+    // The choices after E and F, so a choice also writes E and F.
+    const bool hasChoice = fx.choiceA != 0 || fx.choiceB != 0;
+    const bool hasEF = fx.paramE != 0.0f || fx.paramF != 0.0f || fx.lfo[5].on || fx.lfo[6].on || hasChoice;
     if (hasLfo || hasColour || hasEF) {
       one << ':';
       if (hasLfo) {
@@ -2539,6 +2541,7 @@ std::string serializeCueEffects(const std::vector<deckboy::effects::CueEffect>& 
       }
     }
     if (hasEF) one << ':' << fx.paramE << ':' << fx.paramF;
+    if (hasChoice) one << ':' << fx.choiceA << ':' << fx.choiceB;
     out += one.str();
   }
   return out;
@@ -2591,6 +2594,8 @@ std::vector<deckboy::effects::CueEffect> parseCueEffects(const std::string& text
         }
         if (parts.size() > 9) fx.paramE = static_cast<float>(std::atof(parts[9].c_str()));
         if (parts.size() > 10) fx.paramF = static_cast<float>(std::atof(parts[10].c_str()));
+        if (parts.size() > 11) fx.choiceA = std::max(0, std::atoi(parts[11].c_str()));
+        if (parts.size() > 12) fx.choiceB = std::max(0, std::atoi(parts[12].c_str()));
         stack.push_back(fx);
       }
     }
@@ -7551,6 +7556,18 @@ class App {
                          colourPicker_.open && colourPicker_.effect == i && colourPicker_.slot == which);
         rowY += ix.rowStep;
         rowY = inspDrawLfoRow(ix, rowY, fx, lfoSlot, i);
+      }
+      // The effect's choices: one of a list, as a dropdown row.
+      for (int which = 0; which < 2; ++which) {
+        const char* choiceLabel = deckboy::effects::cueEffectChoiceLabel(fx.kind, which);
+        if (!choiceLabel) continue;
+        const auto options = deckboy::effects::cueEffectChoiceOptions(fx.kind, which);
+        const int at = std::clamp(which == 0 ? fx.choiceA : fx.choiceB, 0,
+                                  std::max(0, static_cast<int>(options.size()) - 1));
+        const char* tip = deckboy::effects::cueEffectChoiceTip(fx.kind, which);
+        rowY = inspDrawChoiceRow(ix, rowY, choiceLabel, options.empty() ? std::string() : std::string(options[at]),
+                                 which == 0 ? QuickAction::EffectChoiceA : QuickAction::EffectChoiceB,
+                                 tip ? tip : "", i);
       }
       // Chladni can LISTEN: its mode follows the sound's pitch.
       if (fx.kind == deckboy::effects::CueEffectKind::Chladni) {
