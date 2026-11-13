@@ -3511,6 +3511,27 @@
     }
 
     {
+      // AN OUTPUT CALLED BY ITS NUMBER KEEPS THE NUMBER EVERYTHING ELSE SAYS.
+      // Remove outputs 1 and 2 of four: the two left are outputs 1 and 2 to
+      // the playlist tag, the routing chips and Companion, so their names
+      // must say so too. A name the operator chose is kept.
+      App app;
+      Deck deck;
+      app.project_.decks = {deck};
+      app.project_.outputs.assign(4, OutputTarget {});
+      for (int i = 0; i < 4; ++i) {
+        app.project_.outputs[static_cast<std::size_t>(i)].name = outputDefaultName(i);
+        app.project_.outputs[static_cast<std::size_t>(i)].enabled = false;
+      }
+      app.project_.outputs[3].name = "Lobby";
+      app.removeOutput(0);
+      app.removeOutput(0);
+      expect(app.project_.outputs.size() == 2 && app.project_.outputs[0].name == "Output 1" &&
+             app.project_.outputs[1].name == "Lobby",
+             "removing outputs renumbers the ones still named by number, keeps chosen names");
+    }
+
+    {
       // UNDO NEVER MOVES AN OUTPUT. The snapshot is taken before a cue edit;
       // the display is picked afterwards, which takes no snapshot; Ctrl+Z
       // must take the cue edit back and leave the screen where it was put.

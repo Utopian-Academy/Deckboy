@@ -3014,11 +3014,19 @@
       };
 
       // ─── Header: Output Selector + Enable Toggle ───
-      int headerBtnW = std::min(uiScaled(240), (availW - uiScaled(12) * 4) / 5);
+      // ADD OUTPUT sits against the picker it adds to (James, 2026-11-13: it
+      // was two sections down, under the playlist buttons).
+      const int addOutW = measuredTextWidth(fontSmall_, "ADD OUTPUT") + uiScaled(24);
+      int headerBtnW = std::min(uiScaled(240), (availW - uiScaled(12) * 4 - addOutW - kCtlGap) / 5);
       SDL_Rect outSelectRect {cx, cy, headerBtnW, std::max(sTallH, uiScaled(32))};
+      // A list of the outputs by name, not a click that steps to the next
+      // one: with four outputs, reaching the third took two clicks and a
+      // guess at which way round it went.
       drawUIDropdown(outSelectRect, "Output", outputLabel(focusedOutputIndex), "settings.focused_output");
-      settingsBtns_.push_back({outSelectRect, 251, "cycle_output"});
-      SDL_Rect enableBtn {cx + headerBtnW + uiScaled(12), cy, headerBtnW, std::max(sTallH, uiScaled(32))};
+      settingsBtns_.push_back({outSelectRect, 251, "choose_output"});
+      SDL_Rect addOutBtn {outSelectRect.x + outSelectRect.w + kCtlGap, cy, addOutW, outSelectRect.h};
+      drawActionBtn(addOutBtn, "ADD OUTPUT", kSettingsActionOutputAdd, false);
+      SDL_Rect enableBtn {addOutBtn.x + addOutBtn.w + uiScaled(12), cy, headerBtnW, std::max(sTallH, uiScaled(32))};
       drawActionBtn(enableBtn, outputTarget.enabled ? "OUTPUT ON" : "OUTPUT OFF", kSettingsActionOutputToggle, outputTarget.enabled);
       // THE TEST CARD, where Mitti keeps its button: up on this output in one
       // click, on every sub-tab, and down again in one. It replaces this
@@ -3240,29 +3248,14 @@
                         ? "ADD ANOTHER PLAYLIST" : "ADD A SECOND PLAYLIST",
                       kSettingsActionDeckAdd, false);
 
-        // ADD and REMOVE, side by side. Adding an output was reachable only
-        // from the network protocol, which from inside the app meant a second
-        // deck could not be given a screen at all.
-        {
-          SDL_Rect addRow = dLayout.takeFixed(kRowH);
-          // REMOVE IS NOT DRAWN WHEN IT CANNOT WORK. The last output has to
-          // stay -- an app with no outputs has no picture and no way back to
-          // one, because this card is drawn FROM the focused output -- and a
-          // greyed button that still looks live is the control-that-does-
-          // nothing bug wearing a disabled coat. ADD simply takes the width.
-          const bool canRemove = project_.outputs.size() > 1;
-          if (canRemove) {
-            const int half = (addRow.w - kCtlGap) / 2;
-            SDL_Rect addBtn {addRow.x, addRow.y, half, addRow.h};
-            SDL_Rect remBtn {addRow.x + half + kCtlGap, addRow.y,
-                             addRow.w - half - kCtlGap, addRow.h};
-            drawActionBtn(addBtn, "ADD OUTPUT", kSettingsActionOutputAdd, false);
-            // 269 and removeOutput() already existed -- reusing them rather
-            // than adding a second path to the same thing.
-            drawActionBtn(remBtn, "REMOVE OUTPUT", kSettingsActionOutputRemove, false);
-          } else {
-            drawActionBtn(addRow, "ADD OUTPUT", kSettingsActionOutputAdd, false);
-          }
+        // REMOVE, for this output. (ADD is beside the output picker at the
+        // top.) REMOVE IS NOT DRAWN WHEN IT CANNOT WORK. The last output has
+        // to stay -- an app with no outputs has no picture and no way back to
+        // one, because this card is drawn FROM the focused output -- and a
+        // greyed button that still looks live is the control-that-does-
+        // nothing bug wearing a disabled coat.
+        if (project_.outputs.size() > 1) {
+          drawActionBtn(dLayout.takeFixed(kRowH), "REMOVE OUTPUT", kSettingsActionOutputRemove, false);
         }
 
         SDL_Rect typeBtn = settingsRowIn(dLayout.takeFixed(kRowH), "Shows");
@@ -5980,7 +5973,17 @@
   // if-else-if chain short enough for MSVC's block-nesting limit.
   void handleSettingsClickPart2(const SettingsButton& sb) {
     if (sb.action == 251) {
-        cycleFocusedOutput(1);
+        std::vector<std::pair<std::string, std::string>> choices;
+        for (int o = 0; o < static_cast<int>(project_.outputs.size()); ++o) {
+          choices.emplace_back(std::to_string(o), outputLabel(o));
+        }
+        openDropdown("settings.focused_output", sb.rect, choices,
+                     std::to_string(project_.focusedOutputIndex),
+                     [this](const std::string& value) {
+                       if (setFocusedOutputIndex(std::atoi(value.c_str()))) {
+                         playUiSound(UiSoundEffect::Navigate);
+                       }
+                     });
       } else if (sb.action == kSettingsActionOutputRemove) {
         removeOutput(project_.focusedOutputIndex);
       } else if (sb.action == kSettingsActionStreamKeyPrompt) {

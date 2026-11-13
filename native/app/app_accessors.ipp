@@ -1639,6 +1639,18 @@
       outputRuntimes_.erase(outputRuntimes_.begin() + outputIndex);
     }
     project_.outputs.erase(project_.outputs.begin() + outputIndex);
+    // An output still called by its number moves up with its number. Every
+    // other place says an output's POSITION (the playlist's "Out 1+2" tag,
+    // the routing chips, Companion and OSC addresses, test cards), so with
+    // outputs 1 and 2 removed the two left were named "Output 3" and
+    // "Output 4" while everything else called them 1 and 2 -- and the next
+    // one added was a second "Output 3". A name the operator chose stays.
+    for (int i = outputIndex; i < static_cast<int>(project_.outputs.size()); ++i) {
+      OutputTarget& moved = project_.outputs[static_cast<std::size_t>(i)];
+      if (moved.name == outputDefaultName(i + 1)) {
+        moved.name = outputDefaultName(i);
+      }
+    }
 
     for (OutputTarget& output : project_.outputs) {
       if (output.mirrorSourceOutputIndex == outputIndex) {

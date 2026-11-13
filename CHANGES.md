@@ -8,6 +8,11 @@
 - Effects can have up to six controls. Each one has its own LFO, and Companion's FX PARAM accepts A to F (FX LFO accepts A to G, where E is the amount).
 - An effect that was bypassed kept its LFOs only until the show was saved. It keeps them now.
 
+### Outputs and lessons
+- Video Outputs: the output picker is a list of the outputs by name. Before, each click moved to the next output. ADD OUTPUT is now beside the picker.
+- After you removed an output, the outputs after it kept their old numbers ("Output 3", "Output 4") while the playlist tag, the routing chips and Companion called them 1 and 2. An output with its default name now takes its new number. A name you chose does not change.
+- In a lesson, an open menu no longer goes under the lesson card. The card moves beside the menu. Before, in Coach Marv's lesson, the card covered SOURCE's Video Synth row.
+
 ### Performance: effects on the graphics card
 - 25 picture effects now run on the GPU: invert, posterise, solarise, levels, curves, strobe, scanlines, threshold, colour, colour replace, vignette, grain, channel offset, mirror, luma key, edges, polar warp, luma displace, lightspeed, ripple, kaleidoscope, mosaic, blur, glow and sharpen.
 - A layer's stack runs on the GPU when every effect in it has a GPU version and the output runs on Direct3D 11, Direct3D 12, Metal or Vulkan. Any other stack, renderer or GPU fault uses the CPU, as before. The CPU result is the reference: the GPU result matches it (mean difference 0.00 of 255).

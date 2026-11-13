@@ -1477,7 +1477,19 @@
     if (!tutorial_.active) return;
     const TutorialLine line = tutorialLineNow();
     const int stepCount = tutorialStepCount();
-    const SDL_Rect target = tutorialTargetRect();
+    // An open menu is where the next click goes, whatever the step pointed at
+    // to open it. The card is drawn after the menu and swallows clicks, so in
+    // Coach Marv's lesson it sat on SOURCE's "Video Synth" row and the row
+    // could not be clicked. While a menu is open it is the target: undimmed,
+    // and the card goes beside it (menuTarget below).
+    SDL_Rect menuOpenRect {};
+    if (contextMenuOpen_ && contextMenuRect_.w > 0) {
+      menuOpenRect = contextMenuRect_;
+    } else if (dropdown_.open && dropdown_.popoverRect.w > 0) {
+      menuOpenRect = dropdown_.popoverRect;
+    }
+    const bool menuTarget = menuOpenRect.w > 0;
+    const SDL_Rect target = menuTarget ? menuOpenRect : tutorialTargetRect();
     tutorial_.targetRect = target;
 
     // The dim, with a hole round the target.
@@ -1611,6 +1623,17 @@
     if (target.w > 0) {
       cardX = std::clamp(target.x + target.w / 2 - cardW / 2, uiScaled(8),
                          std::max(uiScaled(8), width - cardW - uiScaled(8)));
+    }
+    // A menu is tall, so above or below it often does not fit: beside it,
+    // on whichever side has the room.
+    if (menuTarget) {
+      const int gap = uiScaled(18);
+      const int roomRight = width - (target.x + target.w) - gap - uiScaled(8);
+      const int roomLeft = target.x - gap - uiScaled(8);
+      if (roomRight >= cardW || roomLeft >= cardW) {
+        cardX = roomRight >= cardW ? target.x + target.w + gap : target.x - gap - cardW;
+        cardY = std::clamp(target.y, uiScaled(8), std::max(uiScaled(8), height - cardH - uiScaled(8)));
+      }
     }
     // Rakia sways the card: gently at first, then less gently.
     if (rakia && !rakiaDry) {
