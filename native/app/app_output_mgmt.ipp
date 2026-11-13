@@ -4987,10 +4987,17 @@
       // 0 means "follow the input", which is the default and the sane one: a
       // recording should look like what went in unless someone says otherwise.
       const int webHeight = std::min(captureH, webEncodeHeight());
+      // A take already writing keeps the size it opened at, whatever the
+      // programme does meanwhile (see sendOutputStreamFrame): the picture is
+      // fitted into it, letterboxed if its shape changed.
+      const bool takeRunning = !webEgress && runtime.streamToFile && !runtime.streamSpec.empty() &&
+                               runtime.streamFrameWidth > 0 && runtime.streamFrameHeight > 0;
       const int targetW = webEgress
         ? std::max(2, static_cast<int>(std::lround(static_cast<double>(captureW) * webHeight / captureH / 2.0)) * 2)
+        : takeRunning ? runtime.streamFrameWidth
         : project_.recordingWidth > 0 ? project_.recordingWidth : captureW;
       const int targetH = webEgress ? std::max(2, webHeight / 2 * 2)
+        : takeRunning ? runtime.streamFrameHeight
         : project_.recordingHeight > 0 ? project_.recordingHeight : captureH;
       if (runtime.egressScaleTexture &&
           (runtime.egressScaleW != targetW || runtime.egressScaleH != targetH)) {
@@ -5022,8 +5029,16 @@
                              static_cast<float>(captureRect.y),
                              static_cast<float>(captureW),
                              static_cast<float>(captureH)};
-        SDL_RenderTexture(g.outputRenderer, g.compositorTexture,
-                          &src, nullptr);
+        // Fitted, not stretched: the same shape fills the target exactly, and
+        // a picture whose shape changed mid-take is letterboxed in black.
+        const double fit = std::min(static_cast<double>(targetW) / captureW,
+                                    static_cast<double>(targetH) / captureH);
+        const float fitW = static_cast<float>(captureW * fit);
+        const float fitH = static_cast<float>(captureH * fit);
+        const SDL_FRect dst {(static_cast<float>(targetW) - fitW) * 0.5f,
+                             (static_cast<float>(targetH) - fitH) * 0.5f, fitW, fitH};
+        const bool sameShape = static_cast<long long>(targetW) * captureH == static_cast<long long>(targetH) * captureW;
+        SDL_RenderTexture(g.outputRenderer, g.compositorTexture, &src, sameShape ? nullptr : &dst);
         SDL_SetRenderTarget(g.outputRenderer, savedTarget);
         readbackTarget = runtime.egressScaleTexture;
         readbackRect = SDL_Rect {0, 0, targetW, targetH};
@@ -5408,6 +5423,26 @@
       return;
     }
     runtime = runtimeForOutput(outputIndex);
+    // A FILE KEEPS THE SIZE IT OPENED AT. A recording never restarts mid-take
+    // (ensureOutputStreamRunning), so its encoder still expects the take's
+    // first raster -- and when the programme changed size under it (turning a
+    // window output back on switches the show to the display's own size), the
+    // frames that followed went down the pipe at the new size with nothing to
+    // stop them: the recording fell further behind every second and RECORD
+    // OFF never came back (found 2026-11-13; in released builds too). The
+    // usual capture now scales into the take's size (captureOutputFrameForEgress);
+    // a frame of another size that still gets here starts the next segment at
+    // its own size, as the size cap does, with the timecode carried on.
+    if (runtime && runtime->streamToFile && !runtime->streamHdr && runtime->streamFrameWidth > 0 &&
+        (frame->width != runtime->streamFrameWidth || frame->height != runtime->streamFrameHeight)) {
+      std::cerr << "recording: output " << (outputIndex + 1) << " changed size mid-take ("
+                << runtime->streamFrameWidth << "x" << runtime->streamFrameHeight << " -> " << frame->width
+                << "x" << frame->height << "); continuing in a new segment" << std::endl;
+      showLog("RECORD SEGMENT", "the picture changed size: new file at " + std::to_string(frame->width) + "x" +
+                                  std::to_string(frame->height));
+      stopOutputStreamRuntime(*runtime, /*rollingSegment=*/true);
+      return;
+    }
     // Starting the encoder may have just made it an HDR one, AFTER the frame
     // above was chosen: the first packet of every HDR take was a BGRA frame,
     // two thirds of an rgb48 one, and every frame after it landed 1440 rows
