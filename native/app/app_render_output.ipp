@@ -6330,6 +6330,55 @@
     return t * t * (3.0 - 2.0 * t);
   }
 
+  // A recording whose frame the programme output captures for it
+  // (egressProgrammeSource): what is left of its pass is its encoder. The
+  // rate is worked out as the full pass does it, from the same layers.
+  void renderEgressFromProgramme(int outputIndex, OutputRuntime& runtime, int compositionOutputIndex,
+                                 const OutputBackendRuntimeRoute& backendRoute, int width, int height,
+                                 Uint64 outputPassStartNs) {
+    const OutputTarget& output = project_.outputs[static_cast<std::size_t>(outputIndex)];
+    const bool streamRouteActive = output.streamEnabled && backendRoute.streamSupported;
+    if (output.streamEnabled && !backendRoute.streamSupported) {
+      setOutputHealthState(outputIndex, OutputHealthState::Error, "stream backend unavailable");
+    }
+    const double displayHz = outputDisplayRefreshHz(outputIndex);
+    double fpsHint = displayHz > 1.0 ? displayHz : 30.0;
+    const auto layers = layeredDeckEntriesForOutput(compositionOutputIndex);
+    for (auto it = layers.rbegin(); it != layers.rend(); ++it) {
+      const Cue* layerCue = activeCuePtr(it->second);
+      if (layerCue && layerCue->kind == CueKind::Video) {
+        fpsHint = std::max(1.0, layerCue->fps);
+        break;
+      }
+    }
+    if (runtime.streamLockedFps > 1.0 && streamRouteActive && !runtime.streamToFile) {
+      fpsHint = runtime.streamLockedFps;
+    }
+    const Uint64 beforeSendNs = SDL_GetTicksNS();
+    if (streamRouteActive) {
+      sendOutputStreamFrame(outputIndex, width, height, fpsHint);
+      recordOutputStreamFrameWritten(outputIndex);
+    } else {
+      stopOutputStreamRuntime(runtime);
+      resetOutputStreamFpsTelemetry(runtime);
+    }
+    shutdownOutputDeckLink(runtime);
+    shutdownOutputSpout(runtime);
+    shutdownOutputSt2110(runtime);
+    recordOutputFramePresented(outputIndex);
+    if (uiProfileEnabled_) {
+      const Uint64 endNs = SDL_GetTicksNS();
+      const double totalMs = static_cast<double>(endNs - outputPassStartNs) / 1.0e6;
+      if (totalMs > uiProfileSlowFrameMs_ * 0.6) {
+        std::ostringstream line;
+        line << std::fixed << std::setprecision(2) << "output " << (outputIndex + 1)
+             << " pass=" << totalMs << "ms (reads the programme) send="
+             << static_cast<double>(endNs - beforeSendNs) / 1.0e6 << "ms";
+        uiProfileLog(line.str());
+      }
+    }
+  }
+
   void renderOutputWindow(int outputIndex) {
     if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) {
       return;
@@ -6395,6 +6444,24 @@
       auto [canvasW, canvasH] = outputCanvasRenderSize();
       targetCompositorW = canvasW;
       targetCompositorH = canvasH;
+    }
+    // A recording that reads another output's composite draws nothing itself.
+    {
+      const int programme = egressProgrammeSource(outputIndex);
+      if (runtime->egressProgrammeLogged != programme) {
+        runtime->egressProgrammeLogged = programme;
+        if (programme >= 0) {
+          std::cerr << "recording-capture: output " << (outputIndex + 1) << " reads output "
+                    << (programme + 1) << "'s composite (no second composite)" << std::endl;
+        } else {
+          std::cerr << "recording-capture: output " << (outputIndex + 1) << " draws its own composite" << std::endl;
+        }
+      }
+      if (programme >= 0) {
+        renderEgressFromProgramme(outputIndex, *runtime, compositionOutputIndex, backendRoute, width, height,
+                                  outputPassStartNs);
+        return;
+      }
     }
     if (!runtime->compositorTexture
         || runtime->compositorWidth != targetCompositorW
@@ -6800,6 +6867,17 @@
     } else {
       runtime->latestCapturedFrame = {};
       runtime->delayFrames.clear();
+    }
+    // Recordings that read this output's composite rather than drawing their
+    // own (egressProgrammeSource): captured here, from this very picture.
+    if (usingCompositor) {
+      for (int i = 0; i < static_cast<int>(outputRuntimes_.size()); ++i) {
+        if (i == outputIndex || egressProgrammeSource(i) != outputIndex) continue;
+        OutputRuntime& recording = outputRuntimes_[static_cast<std::size_t>(i)];
+        const double recordingFpsHint =
+          recording.streamLockedFps > 1.0 && !recording.streamToFile ? recording.streamLockedFps : fpsHint;
+        captureOutputFrameForEgress(i, recording, egressRect, recordingFpsHint, false, runtime);
+      }
     }
     if (scopesRouteActive) {
       scopesCaptureFrame(outputIndex, *runtime, egressRect);

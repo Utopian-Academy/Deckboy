@@ -1551,6 +1551,7 @@
       runtime.monitorAudioStream = nullptr;
     }
     if (runtime.outputRenderer) {
+      releaseEgressGpuOn(runtime.outputRenderer);
       SDL_DestroyRenderer(runtime.outputRenderer);
       runtime.outputRenderer = nullptr;
     }
@@ -4756,6 +4757,98 @@
   std::vector<std::shared_ptr<std::vector<std::uint8_t>>> hdrFramePool_;   // readHdrCompositorSignal
   std::array<int, 2> hdrRecordEncoderWhite_ {};
 
+  // ---- A recording that reads the programme instead of drawing it ---------
+  //
+  // A recording is a stream output with its own renderer, and every output
+  // but the main one is on a graphics device of its own. So it drew the whole
+  // show a second time, and a decoded 4K frame -- zero-copy on the programme
+  // output's device -- was downloaded and uploaded again for it: ~21 ms a
+  // frame at 4K, 31% of the programme's frames late (check_hotspots.py,
+  // 2026-11-12). When it mirrors an output that already draws exactly that
+  // picture, it now reads that output's composite instead.
+  //
+  // EXACTLY the same picture, or not at all. A recording's composite carries
+  // its OWN per-output extras, not its source's (time overlay, opacity, matte,
+  // overlay, live captions, the lesson caption, key+fill), so the source and
+  // the recording must both have none; anything else on the recording (NDI,
+  // DeckLink, Spout, ST 2110, a delay, a rotation, the web monitor, scopes,
+  // the control monitor's tap) keeps the old path. The source by number, or
+  // -1 for "draw your own".
+  bool outputAddsItsOwnPicture(int outputIndex) const {
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size())) return true;
+    const OutputTarget& o = project_.outputs[static_cast<std::size_t>(outputIndex)];
+    const bool matte = o.matteAspect != "off" && !o.matteAspect.empty() && o.matteOpacity > 0.001;
+    const bool overlay = o.overlayEnabled && !o.overlayImagePath.empty() && o.overlayOpacity > 0.001;
+    return o.outputTimeOverlayEnabled || o.outputAlpha < 0.999f || matte || overlay ||
+           o.deckLinkKeyFill || liveCaptionsShownOn(outputIndex) ||
+           (tutorial_.active && tutorial_.deskEatenOutput == outputIndex);
+  }
+
+  int egressProgrammeSource(int outputIndex) {
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size()) ||
+        outputIndex >= static_cast<int>(outputRuntimes_.size())) {
+      return -1;
+    }
+    if (const char* off = std::getenv("DECKBOY_RECORD_OWN_COMPOSITE"); off && *off && *off != '0') return -1;
+    const OutputTarget& o = project_.outputs[static_cast<std::size_t>(outputIndex)];
+    const OutputRuntime& rt = outputRuntimes_[static_cast<std::size_t>(outputIndex)];
+    if (!o.enabled || !o.streamEnabled || normalizeOutputType(o.outputType) != "stream" || rt.streamHdr ||
+        outputStreamProtocolIsWeb(normalizeOutputStreamProtocol(o.streamProtocol))) {
+      return -1;
+    }
+    if (o.ndiEnabled || o.ndiKeyEnabled || o.deckLinkEnabled || o.spoutEnabled || o.st2110Enabled ||
+        std::clamp(o.outputDelayMs, 0, 5000) > 0 ||
+        normalizeOutputOrientationDegrees(o.outputOrientationDegrees) != 0 ||
+        webMonitorWatching(outputIndex) || scopesWatching(outputIndex) || outputAddsItsOwnPicture(outputIndex)) {
+      return -1;
+    }
+    if (std::optional<int> tap = previewTapOutputIndex(); tap && *tap == outputIndex) return -1;
+    const int source = o.mirrorSourceOutputIndex;
+    if (source < 0 || source == outputIndex || source >= static_cast<int>(project_.outputs.size()) ||
+        source >= static_cast<int>(outputRuntimes_.size()) || project_.outputCanvasEnabled) {
+      return -1;
+    }
+    const OutputTarget& src = project_.outputs[static_cast<std::size_t>(source)];
+    const OutputRuntime& srt = outputRuntimes_[static_cast<std::size_t>(source)];
+    if (!src.enabled || normalizeOutputType(src.outputType) == "stream" || !srt.outputRenderer ||
+        !srt.compositorTexture || srt.hdr || src.outputTestCardEnabled || src.deckLinkKeyFill ||
+        outputAddsItsOwnPicture(source)) {
+      return -1;
+    }
+    // The raster this recording would composite at must be the one the
+    // source draws, or its picture would be scaled rather than the same.
+    const auto [rasterW, rasterH] = outputRenderSizeForOutput(source);
+    if (srt.compositorWidth != rasterW || srt.compositorHeight != rasterH) return -1;
+    return source;
+  }
+
+  // An output's recording objects made on `renderer` (its own or another's),
+  // released before that renderer goes: SDL frees a renderer's textures with
+  // it, and the pointers here would dangle.
+  void releaseEgressGpu(OutputRuntime& runtime) {
+    if (runtime.egressScaleTexture) {
+      SDL_DestroyTexture(runtime.egressScaleTexture);
+      runtime.egressScaleTexture = nullptr;
+    }
+    runtime.egressScaleW = 0;
+    runtime.egressScaleH = 0;
+    if (runtime.egressReadback) {
+      deckboy::gpu::destroyStagingReadback(runtime.egressReadback);
+      runtime.egressReadback = nullptr;
+    }
+    runtime.egressReadbackW = 0;
+    runtime.egressReadbackH = 0;
+    runtime.egressReadbackUnavailable = false;
+    runtime.egressReadbackMisses = 0;
+    runtime.egressGpuRenderer = nullptr;
+  }
+  void releaseEgressGpuOn(SDL_Renderer* renderer) {
+    if (!renderer) return;
+    for (OutputRuntime& other : outputRuntimes_) {
+      if (other.egressGpuRenderer == renderer) releaseEgressGpu(other);
+    }
+  }
+
   // hdrOnly: the HDR stream or recording is this output's ONLY consumer, so
   // its own SDR picture would be read back and thrown away. MEASURED: that
   // was 8-12 ms of a 1080p frame's render thread, and what held a 60 Hz HDR
@@ -4764,9 +4857,20 @@
                                    OutputRuntime& runtime,
                                    const SDL_Rect& requestedRect,
                                    double fpsHint,
-                                   bool hdrOnly = false) {
-    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size()) || !runtime.outputRenderer) {
+                                   bool hdrOnly = false,
+                                   OutputRuntime* gpuFrom = nullptr) {
+    // `g` holds the picture: this output, or the output whose composite a
+    // recording reads (egressProgrammeSource). Everything else -- the frame,
+    // the pacer, the misses -- is this output's own.
+    OutputRuntime& g = gpuFrom ? *gpuFrom : runtime;
+    if (outputIndex < 0 || outputIndex >= static_cast<int>(project_.outputs.size()) || !g.outputRenderer) {
       return false;
+    }
+    if (runtime.egressGpuRenderer != g.outputRenderer) {
+      // Made on the other renderer: remade on this one, and the held frame
+      // (from the old one) is kept until a new frame replaces it.
+      releaseEgressGpu(runtime);
+      runtime.egressGpuRenderer = g.outputRenderer;
     }
     Uint64 nowMs = SDL_GetTicks();
     // A recording captures at ITS OWN rate. This used the stream rate, which
@@ -4814,9 +4918,9 @@
     captureRect.h = std::max(1, captureRect.h);
     captureRect.x = std::max(0, captureRect.x);
     captureRect.y = std::max(0, captureRect.y);
-    if (runtime.compositorTexture) {
-      int texW = std::max(1, runtime.compositorWidth);
-      int texH = std::max(1, runtime.compositorHeight);
+    if (g.compositorTexture) {
+      int texW = std::max(1, g.compositorWidth);
+      int texH = std::max(1, g.compositorHeight);
       if (captureRect.x >= texW || captureRect.y >= texH) {
         return false;
       }
@@ -4841,7 +4945,7 @@
     //
     // Only the file-recording output takes this path. NDI, DeckLink and Spout
     // read the same captured frame and must keep the programme raster.
-    SDL_Texture* readbackTarget = runtime.compositorTexture;
+    SDL_Texture* readbackTarget = g.compositorTexture;
     SDL_Rect readbackRect = captureRect;
     // EVERY file recording takes this path, including the default one that
     // follows the input raster. It was gated on an explicit recording size,
@@ -4877,7 +4981,7 @@
       (outputStreamProtocolIsFile(
         normalizeOutputStreamProtocol(egressOutput.streamProtocol)) || webEgress) &&
       !sharedWithOtherEgress &&
-      runtime.compositorTexture;
+      g.compositorTexture;
     const int readbackMode = egressReadbackMode();
     if (scaledEgress) {
       // 0 means "follow the input", which is the default and the sane one: a
@@ -4904,23 +5008,23 @@
         // BGRA32 so the staging readback lands in exactly the byte order the
         // encoder is fed (-pix_fmt bgra) and no conversion pass is needed.
         runtime.egressScaleTexture = deckboyCreateTexture(
-          runtime.outputRenderer, SDL_PIXELFORMAT_BGRA32,
+          g.outputRenderer, SDL_PIXELFORMAT_BGRA32,
           SDL_TEXTUREACCESS_TARGET, targetW, targetH);
         runtime.egressScaleW = targetW;
         runtime.egressScaleH = targetH;
       }
       if (runtime.egressScaleTexture) {
-        SDL_Texture* savedTarget = SDL_GetRenderTarget(runtime.outputRenderer);
-        SDL_SetRenderTarget(runtime.outputRenderer, runtime.egressScaleTexture);
-        SDL_SetRenderDrawColor(runtime.outputRenderer, 0, 0, 0, 255);
-        SDL_RenderClear(runtime.outputRenderer);
+        SDL_Texture* savedTarget = SDL_GetRenderTarget(g.outputRenderer);
+        SDL_SetRenderTarget(g.outputRenderer, runtime.egressScaleTexture);
+        SDL_SetRenderDrawColor(g.outputRenderer, 0, 0, 0, 255);
+        SDL_RenderClear(g.outputRenderer);
         const SDL_FRect src {static_cast<float>(captureRect.x),
                              static_cast<float>(captureRect.y),
                              static_cast<float>(captureW),
                              static_cast<float>(captureH)};
-        SDL_RenderTexture(runtime.outputRenderer, runtime.compositorTexture,
+        SDL_RenderTexture(g.outputRenderer, g.compositorTexture,
                           &src, nullptr);
-        SDL_SetRenderTarget(runtime.outputRenderer, savedTarget);
+        SDL_SetRenderTarget(g.outputRenderer, savedTarget);
         readbackTarget = runtime.egressScaleTexture;
         readbackRect = SDL_Rect {0, 0, targetW, targetH};
         captureW = targetW;
@@ -4982,7 +5086,7 @@
       }
       if (!runtime.egressReadback && !runtime.egressReadbackUnavailable) {
         runtime.egressReadback = deckboy::gpu::createStagingReadback(
-          runtime.outputRenderer, captureW, captureH);
+          g.outputRenderer, captureW, captureH);
         runtime.egressReadbackW = captureW;
         runtime.egressReadbackH = captureH;
         // A renderer with no asynchronous path says so once. Without this the
@@ -5075,15 +5179,15 @@
       }
       runtime.latestCapturedFrame.shared = nullptr;
     }
-    SDL_Texture* previousTarget = SDL_GetRenderTarget(runtime.outputRenderer);
+    SDL_Texture* previousTarget = SDL_GetRenderTarget(g.outputRenderer);
     if (!asyncCaptured && readbackTarget) {
-      SDL_SetRenderTarget(runtime.outputRenderer, readbackTarget);
+      SDL_SetRenderTarget(g.outputRenderer, readbackTarget);
     }
     // SDL3: read into a temporary surface, then convert into the persistent
     // BGRA egress buffer (SDL2 wrote the requested format directly).
     if (SDL_Surface* captured = asyncCaptured
           ? nullptr
-          : SDL_RenderReadPixels(runtime.outputRenderer, &readbackRect)) {
+          : SDL_RenderReadPixels(g.outputRenderer, &readbackRect)) {
       if (SDL_ISPIXELFORMAT_FLOAT(captured->format)) {
         // An HDR output's float compositor. Plain SDL_ConvertPixels assumes a
         // default HDR headroom for linear float and tonemaps: measured, SDR
@@ -5112,7 +5216,7 @@
       SDL_DestroySurface(captured);
     }
     if (!asyncCaptured && readbackTarget) {
-      SDL_SetRenderTarget(runtime.outputRenderer, previousTarget);
+      SDL_SetRenderTarget(g.outputRenderer, previousTarget);
     }
     if (!ok) {
       return false;
@@ -5950,18 +6054,7 @@
       runtime.testCardPatch = nullptr;
       runtime.testCardPatchCell = 0;
     }
-    if (runtime.egressScaleTexture) {
-      SDL_DestroyTexture(runtime.egressScaleTexture);
-      runtime.egressScaleTexture = nullptr;
-      runtime.egressScaleW = 0;
-      runtime.egressScaleH = 0;
-    }
-    if (runtime.egressReadback) {
-      deckboy::gpu::destroyStagingReadback(runtime.egressReadback);
-      runtime.egressReadback = nullptr;
-      runtime.egressReadbackW = 0;
-      runtime.egressReadbackH = 0;
-    }
+    releaseEgressGpu(runtime);
     if (runtime.hdrReadback) {
       deckboy::gpu::destroyStagingReadback(runtime.hdrReadback);
       runtime.hdrReadback = nullptr;
@@ -6021,6 +6114,7 @@
       releaseTransitionGpuWraps(runtime);
       runtime.layerGpuFxRan.clear();
       runtime.gpuTransitionSlots.clear();   // their slots went with the GPU effects
+      releaseEgressGpuOn(runtime.outputRenderer);   // recordings reading this one's composite
       SDL_DestroyRenderer(runtime.outputRenderer);
       runtime.outputRenderer = nullptr;
     }

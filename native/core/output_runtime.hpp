@@ -309,6 +309,14 @@ struct OutputRuntime {
   SDL_Texture* egressScaleTexture = nullptr;
   int egressScaleW = 0;
   int egressScaleH = 0;
+  // The renderer egressScaleTexture and egressReadback were made on. Not
+  // always this output's own: a recording that reads another output's
+  // composite (egressProgrammeSource) keeps them on THAT output's renderer,
+  // and they are released before that renderer goes (releaseEgressGpuOn).
+  SDL_Renderer* egressGpuRenderer = nullptr;
+  // Which programme this output's recording last read (-1: its own
+  // composite), so the path is logged once whenever it changes.
+  int egressProgrammeLogged = -2;
   // Staging ring for the asynchronous readback (see gpu_readback.hpp). Null on
   // a non-D3D11 renderer, where the path falls back to SDL_RenderReadPixels.
   void* egressReadback = nullptr;
