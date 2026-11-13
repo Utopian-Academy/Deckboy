@@ -1824,6 +1824,24 @@ moving thing leaves itself behind.
 It works on movement, so a still picture passes through unchanged. Try it on a
 camera, or on a playlist whose picture moves.
 
+### Stereogram
+
+**Stereogram** turns the picture into a random-dot stereogram: a field of dots
+that shows the picture in 3D. Look *through* the screen, as if at something far
+behind it, until the dots line up. Bright parts of the picture come forward and
+dark parts stay back, so any cue works: a video or camera becomes moving 3D, a
+Text cue becomes a hidden message, a drawing becomes a hidden drawing.
+
+- **depth**: how far the picture stands out. At the left it is flat;
+- **repeat width**: how wide each repeat of the dots is. Wider is easier from
+  far away, narrower suits a small screen up close;
+- **colour**: black and white dots at the left, full colour at the right;
+- **dots move**: at the left the dots stay put and only the hidden picture
+  moves. Turned up, the dots shimmer too, about eight times a second at most.
+
+Without 3D viewing the dots show nothing of the picture. A soft, bright shape on
+a dark ground reads best; fine detail and small text do not survive.
+
 ### Motion puppet
 
 **Motion puppet** drives this cue's pixels with a *different* clip's movement.

@@ -88,6 +88,8 @@ EFFECTS = [
     ("luma_key",        "1.0:0.6:0.1"),
     # Half a flash a second, so frame 7 (0.23 s) is inside the first flash.
     ("strobe",          "1.0:0.0:0.0"),
+    # Depth 0.6, middle repeat width, half colour, dots moving.
+    ("stereogram",      "1.0:0.6:0.5:0.5:1.0"),
 ]
 
 # Effects whose whole subject is what happens ACROSS frames need more than one
@@ -121,7 +123,9 @@ ANIMATES_BY_INDEX = {"grain", "temporal_dither", "block_glitch", "ripple",
                      "databend",
                      # Flashes on the clock; a dump's clock is the frame
                      # index at thirty a second.
-                     "strobe"}
+                     "strobe",
+                     # Its dots re-roll with the frame ("dots move" up).
+                     "stereogram"}
 ANIMATES_BY_STATE = {"feedback", "feedback_bloom", "motion_puppet",
                     "scotopic", "text_mode",
                      # Holds the swept frame between calls.
@@ -183,6 +187,7 @@ PARAM_SLOTS = {
     "luma_key":        ["cut dark", "softness", "cut bright"],
     "strobe":          ["rate", "flash to", "flash length"],
     "motion_trails":   ["sensitivity", "let go", "blocks", "trail"],
+    "stereogram":      ["depth", "repeat width", "colour", "dots move"],
     "schlieren":       ["knife angle", "sensitivity", "colour"],
     "chladni":         ["mode", "second mode", "gather", "line glow"],
     "wavefront":       ["stiffness", "steps", "damping", "relief"],

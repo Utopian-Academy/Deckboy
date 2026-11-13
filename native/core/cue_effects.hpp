@@ -137,6 +137,12 @@ enum class CueEffectKind : int {
   // was there, so whatever moves leaves itself behind. The motion is read on
   // a grid that runs from fine to the patch's chunky 40 x 30.
   MotionTrails,
+  // Added 2026-11-13 (James: "custom animated stereograms or turn things into
+  // them"). The picture's brightness as DEPTH, drawn as a random-dot
+  // stereogram: look through the screen and the picture floats out in 3D.
+  // An effect rather than a source, so any cue -- a video, a camera, a Text
+  // cue, a drawing -- becomes one.
+  Stereogram,
   Count,
 };
 
@@ -195,6 +201,7 @@ inline const char* cueEffectLabel(CueEffectKind kind) {
     case CueEffectKind::LumaKey:        return "luma key";
     case CueEffectKind::Strobe:         return "strobe";
     case CueEffectKind::MotionTrails:   return "motion trails";
+    case CueEffectKind::Stereogram:     return "stereogram";
     default:                            return "none";
   }
 }
@@ -256,6 +263,7 @@ inline const char* cueEffectToken(CueEffectKind kind) {
     case CueEffectKind::LumaKey:        return "luma_key";
     case CueEffectKind::Strobe:         return "strobe";
     case CueEffectKind::MotionTrails:   return "motion_trails";
+    case CueEffectKind::Stereogram:     return "stereogram";
     default:                            return "none";
   }
 }
@@ -317,6 +325,8 @@ inline bool cueEffectKindAnimates(CueEffectKind kind) {
     case CueEffectKind::Strobe:
     // Holds the picture it has built and the last frame's motion grid.
     case CueEffectKind::MotionTrails:
+    // Its dots re-roll with the frame when "dots move" is up.
+    case CueEffectKind::Stereogram:
       return true;
     default:
       return false;
@@ -478,6 +488,9 @@ inline const char* cueEffectParamLabel(CueEffectKind kind, int which) {
     case CueEffectKind::MotionTrails:
       return which == 0 ? "sensitivity" : which == 1 ? "let go"
            : which == 2 ? "blocks" : which == 3 ? "trail" : nullptr;
+    case CueEffectKind::Stereogram:
+      return which == 0 ? "depth" : which == 1 ? "repeat width"
+           : which == 2 ? "colour" : which == 3 ? "dots move" : nullptr;
     case CueEffectKind::Schlieren:
       return which == 0 ? "knife angle" : which == 1 ? "sensitivity"
            : which == 2 ? "colour" : nullptr;
@@ -815,6 +828,18 @@ inline const char* cueEffectParamTip(CueEffectKind kind, int which) {
         ? "How gradually the key cuts in. Hard at the left."
         : "Takes out everything brighter than this as well. Left takes out "
           "nothing.";
+    case CueEffectKind::Stereogram:
+      return which == 0
+        ? "How far the picture stands out. Bright parts come forward, dark "
+          "parts stay back. At the left it is flat."
+        : which == 1
+        ? "How wide each repeat of the dots is. Wider is easier to see from "
+          "far away; narrower suits a small screen up close."
+        : which == 2
+        ? "Black and white dots at the left, full colour at the right."
+        : "How often the dots change. At the left they stay put and only the "
+          "hidden picture moves; at the right they shimmer, about eight times "
+          "a second at most.";
     case CueEffectKind::MotionTrails:
       return which == 0
         ? "How much a part of the picture must change to count as moving. "
@@ -5796,6 +5821,147 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
               const std::uint8_t* sp = src + static_cast<std::size_t>(x) * 4;
               for (int ch = 0; ch < 3; ++ch) {
                 dp[ch] = detail::clamp8(dp[ch] * (1.0 - amt) + sp[ch] * amt);
+              }
+            }
+          }
+        });
+        break;
+      }
+
+      case CueEffectKind::Stereogram: {
+        // A RANDOM-DOT STEREOGRAM of the picture. Each pixel is LINKED to the
+        // one a separation away that the two eyes see as the same point; the
+        // separation is shorter where the picture is bright, so eyes looking
+        // through the screen (parallel viewing) see those parts nearer. The
+        // depth is the picture's own brightness, so anything on a cue --
+        // footage, a camera, text, a drawing -- comes out of the dots in 3D.
+        //
+        // LINKED ABOUT THE MIDPOINT (Thimbleby, Inglis and Witten, 1994), not
+        // copied from a strip to the left: the copy duplicates a run of dots
+        // wherever the depth jumps, and those runs draw the hidden shape's
+        // outline for anyone, 3D viewing or not (seen in the first version).
+        // And WITH HIDDEN-SURFACE REMOVAL: a point one eye cannot see past a
+        // nearer edge is left unlinked. Without it the edges of a raised
+        // shape still streaked into a visible band (text, 2026-11-13); the
+        // usual remedy, softening the depth, made the band WORSE (measured on
+        // a reference implementation), so the depth is used as it is.
+        //
+        // THE DOTS STAY PUT unless asked (dots move, paramD): each is a fixed
+        // hash of where it is, so a moving picture reads as moving depth
+        // rather than as noise. Re-rolled at most about eight times a second.
+        const int W = ctx.width;
+        const int H = ctx.height;
+        const double strips = 12.0 - 6.0 * pB;                       // 12 narrow .. 6 wide
+        const double farSeparation = std::max(16.0, W / strips);      // the far plane ("far" is a Windows macro)
+        const double eye = farSeparation * 2.0;
+        const double mu = pA / 3.0;                                   // depth of field, at most a third
+        // Dots about a 480th of the picture across: 8 px at 4K, 4 at 1080p.
+        const int dot = std::max(1, static_cast<int>(std::lround(W / 480.0)));
+        const std::uint64_t interval = static_cast<std::uint64_t>(
+          std::max(8L, std::lround(64.0 - 56.0 * pD)));             // frames per re-roll (>= 8)
+        // Moving dots run their own sequence from 1, so turning it up changes
+        // the dots at once rather than only at the first re-roll.
+        const std::uint32_t roll = pD > 0.001
+          ? 1u + static_cast<std::uint32_t>(ctx.frameIndex / interval) : 0u;
+        const double colourful = pC;
+        // Separation for each depth level, once per frame.
+        // How far apart a point's two dots are, and how fast (in levels per
+        // pixel) the eyes' lines to it climb away from it, per depth level.
+        int separation[256];
+        double climb[256];
+        for (int v = 0; v < 256; ++v) {
+          const double z = v / 255.0;
+          separation[v] = static_cast<int>(std::lround((1.0 - mu * z) * eye / (2.0 - mu * z)));
+          climb[v] = mu > 0.0 ? 255.0 * 2.0 * (2.0 - mu * z) / (mu * eye) : 255.0;
+        }
+        detail::parallelRows(H, W, [&](int firstRow, int lastRow) {
+          // Per band, reused for every row in it.
+          std::vector<int> level(static_cast<std::size_t>(W));
+          std::vector<int> same(static_cast<std::size_t>(W));
+          std::vector<std::uint8_t> out(static_cast<std::size_t>(W) * 3);
+          for (int y = firstRow; y < lastRow; ++y) {
+            std::uint8_t* row = pixels.data() + static_cast<std::size_t>(y) * W * 4;
+            const std::uint8_t* q = row;
+            int rowTop = 0;
+            for (int x = 0; x < W; ++x, q += 4) {
+              const int v = (54 * q[0] + 183 * q[1] + 19 * q[2]) >> 8;
+              level[static_cast<std::size_t>(x)] = v;
+              rowTop = std::max(rowTop, v);
+            }
+            for (int x = 0; x < W; ++x) same[static_cast<std::size_t>(x)] = x;
+            for (int x = 0; x < W; ++x) {
+              const int v = level[static_cast<std::size_t>(x)];
+              const int sep = separation[v];
+              int left = x - sep / 2;
+              int right = left + sep;
+              if (left < 0 || right >= W) continue;
+              // Hidden surface: is anything within reach tall enough to stand
+              // in one eye's line to this point? The line climbs `climb[v]`
+              // levels per pixel out from it; nothing in this row reaching
+              // its first step means nothing can block it, which is every
+              // pixel of a flat row and every pixel at the row's top.
+              if (rowTop > v && mu > 0.0) {
+                const double rise = climb[v];
+                bool visible = true;
+                double zt = v + rise;
+                for (int t = 1; visible && zt < 255.0; ++t, zt += rise) {
+                  visible = (x - t < 0 || level[static_cast<std::size_t>(x - t)] < zt) &&
+                            (x + t >= W || level[static_cast<std::size_t>(x + t)] < zt);
+                }
+                if (!visible) continue;
+              }
+              // Join the two chains these pixels already belong to.
+              int k = same[static_cast<std::size_t>(left)];
+              while (k != left && k != right) {
+                if (k < right) {
+                  left = k;
+                } else {
+                  same[static_cast<std::size_t>(left)] = right;
+                  left = right;
+                  right = k;
+                }
+                k = same[static_cast<std::size_t>(left)];
+              }
+              same[static_cast<std::size_t>(left)] = right;
+            }
+            const std::uint32_t cy = static_cast<std::uint32_t>(y / dot);
+            for (int x = W - 1; x >= 0; --x) {
+              std::uint8_t* o = out.data() + static_cast<std::size_t>(x) * 3;
+              const int link = same[static_cast<std::size_t>(x)];
+              if (link != x) {
+                const std::uint8_t* f = out.data() + static_cast<std::size_t>(link) * 3;
+                o[0] = f[0];
+                o[1] = f[1];
+                o[2] = f[2];
+                continue;
+              }
+              // A free pixel: a dot per cell, fixed by where it is.
+              std::uint32_t h = static_cast<std::uint32_t>(x / dot) * 0x9E3779B1u ^ cy * 0x85EBCA77u ^
+                                roll * 0xC2B2AE3Du;
+              h ^= h >> 15;
+              h *= 0x2C1B3C6Du;
+              h ^= h >> 12;
+              h *= 0x297A2D39u;
+              h ^= h >> 15;
+              const std::uint8_t grey = (h & 1u) ? 235 : 20;
+              o[0] = detail::clamp8(grey + (static_cast<int>((h >> 8) & 0xFF) - grey) * colourful);
+              o[1] = detail::clamp8(grey + (static_cast<int>((h >> 16) & 0xFF) - grey) * colourful);
+              o[2] = detail::clamp8(grey + (static_cast<int>((h >> 24) & 0xFF) - grey) * colourful);
+            }
+            std::uint8_t* d = row;
+            const std::uint8_t* o = out.data();
+            if (amt >= 0.9995) {
+              for (int x = 0; x < W; ++x, d += 4, o += 3) {
+                d[0] = o[0];
+                d[1] = o[1];
+                d[2] = o[2];
+              }
+            } else {
+              const int a = static_cast<int>(std::lround(amt * 256.0));
+              for (int x = 0; x < W; ++x, d += 4, o += 3) {
+                d[0] = static_cast<std::uint8_t>(d[0] + (((o[0] - d[0]) * a) >> 8));
+                d[1] = static_cast<std::uint8_t>(d[1] + (((o[1] - d[1]) * a) >> 8));
+                d[2] = static_cast<std::uint8_t>(d[2] + (((o[2] - d[2]) * a) >> 8));
               }
             }
           }
