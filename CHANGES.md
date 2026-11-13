@@ -16,6 +16,10 @@
 - An outgoing cue's effects stay on through the transition, on the GPU too.
 - `DECKBOY_CPU_TRANSITIONS=1` keeps these four transitions on the CPU.
 
+### Recording
+- Fixed: recording a 4K output made about a third of the output's frames late. A recording that copies an output now takes that output's finished picture instead of drawing the whole show a second time. At 4K the output stays at 60 fps while it records.
+- This applies when neither the recording nor the output it copies adds anything of its own (time overlay, opacity, matte, overlay, live captions or key+fill), and the recording sends nowhere else. Otherwise the recording draws its own picture, as before. `DECKBOY_RECORD_OWN_COMPOSITE=1` always draws its own.
+
 ### Colour and key
 - Fixed: colour controls (brightness, contrast, saturation, hue) on a 4K cue dropped the output to about 9 fps. A 4K frame took 114 ms and now takes 17 ms.
 - Fixed: the chroma key on a 4K cue dropped the output below 30 fps (42 ms a frame, now 17 ms).
