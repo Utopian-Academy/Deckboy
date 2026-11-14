@@ -193,11 +193,103 @@ def main():
         check("cancel stops it and removes the partial file", "cancelled" in after and not big.exists(), after)
         db.send("RENDER CLOSE")
 
+        # 5c. TRANSITIONS between cues: cue 3 (Lumia, 1 s) arrives over cue 2 (Moire) through a 1 s transition.
+        def raw_frame(path, n):
+            data = subprocess.run(["ffmpeg", "-v", "error", "-i", str(path), "-vf", "select=eq(n\\,%d)" % n, "-frames:v", "1",
+                                   "-f", "rawvideo", "-pix_fmt", "rgb24", "-"], capture_output=True).stdout
+            return data
+
+        def render_pair(tag, style):
+            db.send("TRANSITION STYLE " + style if style != "cut" else "TRANSITION CUT")
+            out = []
+            for n in (1, 2):
+                f = work / ("tr-%s-%d.mov" % (tag, n))
+                f.unlink(missing_ok=True)
+                status = render(db, "CUES 2-3 OUTPUT 30 PRORES", f)
+                if "saved" not in status:
+                    check("transition %s renders" % tag, False, status)
+                out.append(f)
+            return out
+
+        db.send("TRANSITION 1")
+        cut = render_pair("cut", "cut")
+        cut_hashes = frame_hashes(cut[0])
+        check("cut: 90 frames (60 + 30)", len(cut_hashes) == 90, str(len(cut_hashes)))
+        db.send("TRANSITION 1")
+        pair = render_pair("crossfade", "crossfade")
+        h1, h2 = frame_hashes(pair[0]), frame_hashes(pair[1])
+        check("crossfade: 90 frames, identical across two renders", len(h1) == 90 and h1 == h2, "%d vs %d" % (len(h1), len(h2)))
+        check("crossfade: the file is byte for byte the same twice",
+              hashlib.sha256(pair[0].read_bytes()).digest() == hashlib.sha256(pair[1].read_bytes()).digest())
+        check("crossfade: frames before the cue are the cut's", h1[:60] == cut_hashes[:60])
+        a = raw_frame(cut[0], 59)    # the held outgoing picture
+        b = raw_frame(cut[0], 75)    # the incoming one, half way
+        m = raw_frame(pair[0], 75)   # half way through the crossfade
+        if a and len(a) == len(b) == len(m):
+            err_mix = sum(abs(m[i] - (a[i] + b[i]) / 2) for i in range(0, len(m), 7)) / (len(m) / 7)
+            err_a = sum(abs(m[i] - a[i]) for i in range(0, len(m), 7)) / (len(m) / 7)
+            err_b = sum(abs(m[i] - b[i]) for i in range(0, len(m), 7)) / (len(m) / 7)
+            check("crossfade: the middle frame is a mix of the two", err_mix < 4 and err_a > 12 and err_b > 12,
+                  "off the mix %.1f, off A %.1f, off B %.1f" % (err_mix, err_a, err_b))
+        else:
+            check("crossfade: the middle frame could be read", False)
+        for style in ("dipblack", "dipwhite", "push-left", "push-up", "wipe-left", "wipe-down", "iris",
+                      "portal", "shatter", "clouds", "ghastly"):
+            files = render_pair(style, style)
+            x, y = frame_hashes(files[0]), frame_hashes(files[1])
+            check("%s: 90 frames, identical across two renders" % style, len(x) == 90 and x == y, "%d vs %d" % (len(x), len(y)))
+            check("%s: differs from a cut during the transition" % style, x[75] != cut_hashes[75] or x[62] != cut_hashes[62])
+        db.send("TRANSITION CUT")
+
         # 6. the dialog, for the screenshot
         db.send("RENDER DIALOG")
         time.sleep(0.6)
         shot = db.snapshot(work / "dialog.bmp")
         check("the dialog draws (snapshot written)", shot.exists() and shot.stat().st_size > 1000)
+
+    # 7. LAYERS: an output whose whole show is two playlists, the second laid over the first.
+    show2 = work / "show2.deckboy"
+    show2.write_text("update_check\t0\nui_sounds\t0\nui_scale\t1.0\n", encoding="utf-8")
+    with Runtime(args.exe, work / "run2", show2) as db:
+        db.send("MASTERVOL 0")
+        db.send("DECK 1")
+        db.send("PATTERN ADD moire-field")
+        db.send("SELECT 1")
+        db.send("STILLDUR 2")
+        db.send("VIDEO 640X360")
+        db.send("DECKADD")
+        db.send("DECK 2")
+        db.send("PATTERN ADD lumia")
+        db.send("SELECT 1")
+        db.send("STILLDUR 1")
+        db.send("OUTPUT SELECT 1")
+        db.send("VIDEO OUTPUT ASSIGN")
+        stack = db.send("VIDEO OUTPUT LAYER")
+        check("the output has two layers", "|" in stack, stack)
+        solo = work / "layer-solo.mov"
+        solo.unlink(missing_ok=True)
+        db.send("DECK 1")
+        db.send("SELECT 1")
+        render(db, "CUE OUTPUT 30 PRORES", solo)
+        both = []
+        for n in (1, 2):
+            f = work / ("layers-%d.mov" % n)
+            f.unlink(missing_ok=True)
+            status = render(db, "OUTPUT OUTPUT 30 PRORES", f)
+            check("layers render %d finished" % n, "saved" in status, status)
+            both.append(f)
+        s, a, b = frame_hashes(solo), frame_hashes(both[0]), frame_hashes(both[1])
+        check("layers: 60 frames (the longest layer), identical across two renders", len(a) == 60 and a == b, "%d vs %d" % (len(a), len(b)))
+        check("layers: the second layer is drawn over the first while it lasts", a[:30] != s[:30] and len(set(a[:30])) > 10)
+        check("layers: after it ends the first layer is alone, as in its own render", a[35:] == s[35:])
+        check("layers: byte for byte the same twice",
+              hashlib.sha256(both[0].read_bytes()).digest() == hashlib.sha256(both[1].read_bytes()).digest())
+        db.send("DECK 2")
+        db.send("VIDEO OUTPUT LAYERBLEND add")
+        added = work / "layers-add.mov"
+        added.unlink(missing_ok=True)
+        render(db, "OUTPUT OUTPUT 30 PRORES", added)
+        check("layers: a blend mode changes the picture", frame_hashes(added)[10] != a[10])
     print("render to file: %s" % ("FAIL (%d)" % failures if failures else "all ok"))
     return 1 if failures else 0
 

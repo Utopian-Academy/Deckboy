@@ -21,8 +21,9 @@
 // NOT FRAME-EXACT YET, and refused with a reason in the dialog rather than
 // drawn wrong: live sources (camera, window, NDI, stream, capture), browser
 // pages, Timer, Terrarium (its simulation keeps its own clock), rotation and
-// geometry LFOs, text mode, the motion puppet and Audioprint. Not drawn at all:
-// sound, transitions (cuts between cues), layers, masks, slices.
+// geometry LFOs, text mode, the motion puppet and Audioprint, masks, slices, a
+// layer's corner pin and the output's crossfader. Not drawn at all: sound.
+// Transitions between cues and an output's layers ARE drawn (see RenderLayerRunner).
 // ============================================================================
 
   // ---- What a job is made of ------------------------------------------------
@@ -32,16 +33,28 @@
     Cue cue;
     int frames = 0;
     int cueNumber = 0;   // 1-based, as the list shows it
+    // How the picture arrives, from the cue before it in its layer: this cue's
+    // own style and length, else its playlist's, as a live TAKE would use them.
+    TransitionStyle trans = TransitionStyle::Cut;
+    double transSeconds = 0.0;
+  };
+  // One playlist on the output: its cues in order, and how it lies on the others.
+  struct RenderFileLayer {
+    std::vector<RenderFileSegment> segments;
+    long long frames = 0;
+    float opacity = 1.0f;                 // the playlist's own opacity
+    std::string blend = "dissolve";
+    float x = 0.0f, y = 0.0f, w = 1.0f, h = 1.0f;   // the layer's rect, as a share of the output
   };
   struct RenderFilePlan {
-    std::vector<RenderFileSegment> segments;
+    std::vector<RenderFileLayer> layers;   // bottom first
     int width = 1920;
     int height = 1080;
     int fps = 30;
     RenderCodec codec = RenderCodec::ProRes4444;
     std::string path;    // the file; for PNG frames, the folder
     double bpm = 120.0;  // the beat the LFOs count in
-    long long totalFrames = 0;
+    long long totalFrames = 0;   // the longest layer
   };
   struct RenderFileJob {
     std::atomic<long long> done {0};
@@ -109,6 +122,7 @@
       default:
         return cueKindLabel(cue.kind) + " cues cannot be drawn by frames yet";
     }
+    if (!cue.maskId.empty()) return "its mask is not drawn by a render yet";
     if (std::fabs(cue.outputRotationDegrees) > 0.001f) return "its rotation is not drawn by a render yet";
     if (cueHasGeometryLfo(cue)) return "its size and position oscillators are not drawn by a render yet";
     for (const deckboy::effects::CueEffect& fx : cue.effects) {
@@ -121,6 +135,41 @@
   }
 
   // ---- The plan: what to draw, how many frames --------------------------------
+  // One playlist's cues first..last as a layer. False with `why` when a cue in
+  // it cannot be drawn by frames.
+  bool planRenderLayer(const Deck& deck, int first, int last, int fps, RenderFileLayer& layer, std::string& why) {
+    layer = RenderFileLayer {};
+    layer.opacity = std::clamp(deck.playlistOpacity, 0.0f, 1.0f);
+    for (int i = first; i <= last; ++i) {
+      const Cue& cue = deck.cues[static_cast<std::size_t>(i)];
+      if (cue.kind == CueKind::Audio || cue.kind == CueKind::Tone) continue;   // no picture
+      const std::string refusal = renderRefusal(cue);
+      if (!refusal.empty()) {
+        why = "Cue " + std::to_string(i + 1) + ": " + refusal;
+        return false;
+      }
+      double seconds = 0.0;
+      if (cue.kind == CueKind::Video) {
+        const double end = cue.outPointSeconds > 0.0 ? cue.outPointSeconds : cue.duration;
+        seconds = std::max(0.0, end - cue.inPointSeconds) / std::clamp(cue.playbackSpeed, 0.1, 4.0);
+      } else {
+        seconds = cue.stillDurationSeconds > 0.0 ? cue.stillDurationSeconds
+                                                 : std::max(1.0, deck.playlistDefaultStillDurationSeconds);
+      }
+      RenderFileSegment seg;
+      seg.cue = cue;
+      seg.cueNumber = i + 1;
+      seg.frames = std::max(1, static_cast<int>(std::lround(seconds * fps)));
+      if (!layer.segments.empty()) {
+        seg.transSeconds = std::clamp(cue.cueTransitionSeconds >= 0.0 ? cue.cueTransitionSeconds : deck.transitionSeconds, 0.0, 10.0);
+        seg.trans = parseTransitionStyleToken(!cue.cueTransitionStyle.empty() ? cue.cueTransitionStyle : deck.transitionStyle);
+      }
+      layer.frames += seg.frames;
+      layer.segments.push_back(std::move(seg));
+    }
+    return true;
+  }
+
   bool planRenderFile(int what, int from, int to, int sizeChoice, int fps, int codec, const std::string& pathIn,
                       RenderFilePlan& plan, std::string& why) {
     plan = RenderFilePlan {};
@@ -171,37 +220,62 @@
     }
     plan.width = std::max(16, plan.width & ~1);
     plan.height = std::max(16, plan.height & ~1);
-    for (int i = first; i <= last; ++i) {
-      const Cue& cue = deck.cues[static_cast<std::size_t>(i)];
-      if (cue.kind == CueKind::Audio || cue.kind == CueKind::Tone) continue;   // no picture
-      const std::string refusal = renderRefusal(cue);
-      if (!refusal.empty()) {
-        why = "Cue " + std::to_string(i + 1) + ": " + refusal;
+
+    // The base playlist, then (an output's whole show) every layer over it.
+    RenderFileLayer base;
+    if (!planRenderLayer(deck, first, last, fps, base, why)) return false;
+    if (!base.segments.empty()) plan.layers.push_back(std::move(base));
+    if (what == 2 && haveOutput) {
+      const OutputTarget& output = project_.outputs[static_cast<std::size_t>(outputIndex)];
+      if (output.crossfadeEnabled && !output.layerDecks.empty()) {
+        why = "the output's crossfader is not drawn by a render yet";
         return false;
       }
-      double seconds = 0.0;
-      if (cue.kind == CueKind::Video) {
-        const double end = cue.outPointSeconds > 0.0 ? cue.outPointSeconds : cue.duration;
-        seconds = std::max(0.0, end - cue.inPointSeconds) / std::clamp(cue.playbackSpeed, 0.1, 4.0);
-      } else {
-        seconds = cue.stillDurationSeconds > 0.0 ? cue.stillDurationSeconds
-                                                 : std::max(1.0, deck.playlistDefaultStillDurationSeconds);
+      if (!output.maskId.empty()) {
+        why = "the output's mask is not drawn by a render yet";
+        return false;
       }
-      RenderFileSegment seg;
-      seg.cue = cue;
-      seg.cueNumber = i + 1;
-      seg.frames = std::max(1, static_cast<int>(std::lround(seconds * fps)));
-      plan.totalFrames += seg.frames;
-      plan.segments.push_back(std::move(seg));
+      if (!output.slices.empty()) {
+        why = "the output's slices are not drawn by a render yet";
+        return false;
+      }
+      for (std::size_t li = 0; li < output.layerDecks.size(); ++li) {
+        const OutputLayer& over = output.layerDecks[li];
+        if (over.deckIndex < 0 || over.deckIndex >= static_cast<int>(project_.decks.size())) continue;
+        const std::string name = "Layer " + std::to_string(li + 2);
+        if (!over.maskId.empty()) {
+          why = name + ": its mask is not drawn by a render yet";
+          return false;
+        }
+        if (over.warpEnabled) {
+          why = name + ": its corner pin is not drawn by a render yet";
+          return false;
+        }
+        const Deck& layerDeck = project_.decks[static_cast<std::size_t>(over.deckIndex)];
+        RenderFileLayer layer;
+        std::string layerWhy;
+        if (!planRenderLayer(layerDeck, 0, static_cast<int>(layerDeck.cues.size()) - 1, fps, layer, layerWhy)) {
+          why = name + ", " + layerWhy;
+          return false;
+        }
+        if (layer.segments.empty()) continue;
+        layer.blend = over.blendMode.empty() ? "dissolve" : over.blendMode;
+        layer.x = over.x;
+        layer.y = over.y;
+        layer.w = over.w;
+        layer.h = over.h;
+        plan.layers.push_back(std::move(layer));
+      }
     }
-    if (plan.segments.empty()) {
+    if (plan.layers.empty()) {
       why = "there is no picture in that range";
       return false;
     }
+    for (const RenderFileLayer& layer : plan.layers) plan.totalFrames = std::max(plan.totalFrames, layer.frames);
     std::string path = pathIn;
     if (path.empty()) {
       fs::path dir = project_.recordingDir.empty() ? Paths::stateDir() / "renders" : fs::u8path(project_.recordingDir);
-      std::string stem = what == 0 ? drawFileStem(plan.segments.front().cue) : "render";
+      std::string stem = what == 0 ? drawFileStem(plan.layers.front().segments.front().cue) : "render";
       stem += "-" + std::to_string(plan.width) + "x" + std::to_string(plan.height) + "-" + std::to_string(fps) + "fps";
       path = (dir / stem).string();
     }
@@ -217,12 +291,15 @@
     return true;
   }
 
-  // ---- The picture of one frame, placed in the output -------------------------
-  // The cue's crop, scale mode, size and offset, as cuePlacementFor works them
-  // out, drawn with a bilinear sample. Rotation and the oscillators are refused
-  // before a job starts, so they are not here.
-  static void renderPlaceInCanvas(const Cue& cue, const std::vector<std::uint8_t>& src, int sw, int sh,
-                                  std::vector<std::uint8_t>& canvas, int W, int H) {
+  // ---- Pictures: place, lay over, blend ---------------------------------------
+  using RenderBytes = std::vector<std::uint8_t>;
+
+  // The cue's crop, scale mode, size and offset inside `target` (the output, or a
+  // layer's rect), as cuePlacementFor works them out, drawn with a bilinear
+  // sample into a transparent W x H canvas. Rotation and the oscillators are
+  // refused before a job starts, so they are not here.
+  static void renderPlaceInCanvas(const Cue& cue, const RenderBytes& src, int sw, int sh, RenderBytes& canvas,
+                                  int W, int H, const SDL_Rect& target) {
     canvas.assign(static_cast<std::size_t>(W) * H * 4, 0);
     const int cropL = std::clamp(static_cast<int>(std::lround(sw * cue.cropLeft)), 0, sw - 1);
     const int cropR = std::clamp(static_cast<int>(std::lround(sw * cue.cropRight)), 0, sw - 1);
@@ -232,23 +309,24 @@
     const int srcH = std::max(1, sh - cropT - cropB);
     double bx = 1.0, by = 1.0;
     if (cue.scaleMode == ScaleMode::Fit) {
-      bx = by = std::min(static_cast<double>(W) / srcW, static_cast<double>(H) / srcH);
+      bx = by = std::min(static_cast<double>(target.w) / srcW, static_cast<double>(target.h) / srcH);
     } else if (cue.scaleMode == ScaleMode::Fill) {
-      bx = by = std::max(static_cast<double>(W) / srcW, static_cast<double>(H) / srcH);
+      bx = by = std::max(static_cast<double>(target.w) / srcW, static_cast<double>(target.h) / srcH);
     } else if (cue.scaleMode == ScaleMode::Stretch) {
-      bx = static_cast<double>(W) / srcW;
-      by = static_cast<double>(H) / srcH;
+      bx = static_cast<double>(target.w) / srcW;
+      by = static_cast<double>(target.h) / srcH;
     }
     const int drawW = std::max(1, static_cast<int>(std::round(srcW * bx * cue.outputScaleX)));
     const int drawH = std::max(1, static_cast<int>(std::round(srcH * by * cue.outputScaleY)));
-    const int dx0 = (W - drawW) / 2 + static_cast<int>(cue.outputOffsetX);
-    const int dy0 = (H - drawH) / 2 + static_cast<int>(cue.outputOffsetY);
+    const int dx0 = target.x + (target.w - drawW) / 2 + static_cast<int>(cue.outputOffsetX);
+    const int dy0 = target.y + (target.h - drawH) / 2 + static_cast<int>(cue.outputOffsetY);
     if (drawW == srcW && drawH == srcH && cropL == 0 && cropT == 0 && dx0 == 0 && dy0 == 0 && sw == W && sh == H) {
       canvas = src;   // the common case: the picture already is the output
       return;
     }
-    const int y0 = std::max(0, dy0), y1 = std::min(H, dy0 + drawH);
-    const int x0 = std::max(0, dx0), x1 = std::min(W, dx0 + drawW);
+    // Never outside the target: a layer's rect clips what it holds.
+    const int y0 = std::max(std::max(0, dy0), target.y), y1 = std::min(std::min(H, dy0 + drawH), target.y + target.h);
+    const int x0 = std::max(std::max(0, dx0), target.x), x1 = std::min(std::min(W, dx0 + drawW), target.x + target.w);
     if (y1 <= y0 || x1 <= x0) return;
     deckboy::effects::detail::parallelRows(y1 - y0, x1 - x0, [&](int firstRow, int lastRow) {
       for (int row = firstRow; row < lastRow; ++row) {
@@ -274,6 +352,379 @@
       }
     });
   }
+
+  // `src` laid over `dst`, straight alpha, its alpha scaled by alphaMul / 255,
+  // inside `region` (the whole canvas when null).
+  static void renderOver(RenderBytes& dst, const RenderBytes& src, unsigned alphaMul, int W, int H,
+                         const SDL_Rect* region = nullptr) {
+    const int y0 = region ? std::max(0, region->y) : 0, y1 = region ? std::min(H, region->y + region->h) : H;
+    const int x0 = region ? std::max(0, region->x) : 0, x1 = region ? std::min(W, region->x + region->w) : W;
+    if (y1 <= y0 || x1 <= x0 || alphaMul == 0) return;
+    deckboy::effects::detail::parallelRows(y1 - y0, x1 - x0, [&](int firstRow, int lastRow) {
+      for (int row = firstRow; row < lastRow; ++row) {
+        for (int x = x0; x < x1; ++x) {
+          const std::size_t i = (static_cast<std::size_t>(y0 + row) * W + x) * 4;
+          const double sa = src[i + 3] * (alphaMul / 255.0) / 255.0;
+          if (sa <= 0.0) continue;
+          const double da = dst[i + 3] / 255.0;
+          const double oa = sa + da * (1.0 - sa);
+          for (int c = 0; c < 3; ++c) {
+            dst[i + c] = static_cast<std::uint8_t>(std::lround(
+              std::clamp((src[i + c] * sa + dst[i + c] * da * (1.0 - sa)) / oa, 0.0, 255.0)));
+          }
+          dst[i + 3] = static_cast<std::uint8_t>(std::lround(oa * 255.0));
+        }
+      }
+    });
+  }
+
+  // A flat colour over the whole picture (the dips).
+  static void renderOverlay(RenderBytes& dst, std::uint8_t grey, unsigned alpha, int W, int H) {
+    RenderBytes flat(dst.size());
+    for (std::size_t i = 0; i < flat.size(); i += 4) {
+      flat[i] = flat[i + 1] = flat[i + 2] = grey;
+      flat[i + 3] = 255;
+    }
+    renderOver(dst, flat, alpha, W, H);
+  }
+
+  // The picture moved by (dx, dy), what leaves the frame gone and what comes in clear.
+  static void renderShift(RenderBytes& pic, int W, int H, int dx, int dy) {
+    RenderBytes moved(pic.size(), 0);
+    for (int y = 0; y < H; ++y) {
+      const int sy = y - dy;
+      if (sy < 0 || sy >= H) continue;
+      const int xa = std::max(0, dx), xb = std::min(W, W + dx);
+      if (xb <= xa) continue;
+      std::memcpy(&moved[(static_cast<std::size_t>(y) * W + xa) * 4], &pic[(static_cast<std::size_t>(sy) * W + (xa - dx)) * 4],
+                  static_cast<std::size_t>(xb - xa) * 4);
+    }
+    pic.swap(moved);
+  }
+
+  // A layer laid on the ones below it, with the blend its output gives it: the
+  // arithmetic of vjBlendModeFor's SDL blend factors, in straight alpha.
+  static void renderBlendLayer(RenderBytes& dst, const RenderBytes& src, const std::string& mode, double opacity,
+                               int W, int H) {
+    enum Mode { Normal, Add, Multiply, Screen, Lighten, Darken, Subtract, Undercut, Infiltrate, Ember };
+    const Mode m = mode == "add" ? Add : mode == "multiply" ? Multiply : mode == "screen" ? Screen
+                 : mode == "lighten" ? Lighten : mode == "darken" ? Darken : mode == "subtract" ? Subtract
+                 : mode == "undercut" ? Undercut : mode == "infiltrate" ? Infiltrate : mode == "ember" ? Ember : Normal;
+    if (m == Normal) {
+      renderOver(dst, src, static_cast<unsigned>(std::lround(std::clamp(opacity, 0.0, 1.0) * 255.0)), W, H);
+      return;
+    }
+    deckboy::effects::detail::parallelRows(H, W, [&](int firstRow, int lastRow) {
+      for (int y = firstRow; y < lastRow; ++y) {
+        for (int x = 0; x < W; ++x) {
+          const std::size_t i = (static_cast<std::size_t>(y) * W + x) * 4;
+          const double sa = src[i + 3] / 255.0 * opacity;
+          if (sa <= 0.0) continue;
+          const double da = dst[i + 3] / 255.0;
+          for (int c = 0; c < 3; ++c) {
+            const double s = src[i + c] / 255.0, d = dst[i + c] / 255.0;
+            double r = d;
+            switch (m) {
+              case Add: r = s * sa + d; break;
+              case Multiply: r = s * d + d * (1.0 - sa); break;
+              case Screen: r = s * (1.0 - d) + d; break;
+              case Lighten: r = std::max(s * sa, d); break;
+              case Darken: r = std::min(s * sa, d); break;
+              case Subtract: r = s * sa - d; break;
+              case Undercut: r = d - s * sa; break;
+              case Infiltrate: r = s * (1.0 - d) + d * (1.0 - sa); break;
+              case Ember: r = s * d + d; break;
+              default: break;
+            }
+            dst[i + c] = static_cast<std::uint8_t>(std::lround(std::clamp(r, 0.0, 1.0) * 255.0));
+          }
+          dst[i + 3] = static_cast<std::uint8_t>(std::lround((sa + da * (1.0 - sa)) * 255.0));
+        }
+      }
+    });
+  }
+
+  // ---- One layer, stepped a frame at a time -----------------------------------
+  // The layer's cues in order. `step(g)` draws global frame g of this layer:
+  // the cue that owns it, then (in the first seconds of a cue) the transition
+  // from the one before, which is that cue's last picture held still -- the
+  // way a live TAKE holds a finished cue.
+  struct RenderLayerRunner {
+    const RenderFilePlan* plan = nullptr;
+    const RenderFileLayer* layer = nullptr;
+    SDL_Rect target {};
+    int serial = 0;
+    int layerNo = 0;
+    std::size_t seg = 0;
+    int local = 0;
+    bool opened = false;
+    Cue cue;
+    ChildProcess decoder;
+    RenderBytes src, still, held, outCanvas;
+    DecodedFrame pattern;
+    std::vector<std::vector<std::uint8_t>> effectState;
+    bool gradeOn = false, effectsOn = false, isVideo = false, isImage = false;
+    int sw = 0, sh = 0;
+    RenderBytes prevSrc;
+    int prevW = 0, prevH = 0;
+    Cue prevCue;
+    std::uint64_t prevIndex = 0;
+    bool havePrev = false;
+    std::string error;
+
+    bool finished() const { return seg >= layer->segments.size(); }
+
+    bool open() {
+      const RenderFileSegment& segment = layer->segments[seg];
+      cue = segment.cue;
+      // A key of its own: the generators keep per-cue state by id, and a render
+      // must neither start from the live deck's state nor leave any in it.
+      cue.id = "render-" + std::to_string(serial) + "-" + std::to_string(layerNo) + "-" + std::to_string(seg);
+      sw = cue.width;
+      sh = cue.height;
+      isVideo = cue.kind == CueKind::Video;
+      isImage = cue.kind == CueKind::Image;
+      if (isVideo || isImage) {
+        std::vector<std::string> dec = {"ffmpeg", "-v", "error"};
+        if (isVideo && cue.inPointSeconds > 0.0) {
+          char at[32];
+          std::snprintf(at, sizeof at, "%.6f", cue.inPointSeconds);
+          dec.push_back("-ss");
+          dec.push_back(at);
+        }
+        dec.push_back("-i");
+        dec.push_back(cue.path);
+        std::string filter;
+        if (isVideo) {
+          const double speed = std::clamp(cue.playbackSpeed, 0.1, 4.0);
+          if (std::fabs(speed - 1.0) > 1e-6) {
+            char s[48];
+            std::snprintf(s, sizeof s, "setpts=PTS/%.6f,", speed);
+            filter += s;
+          }
+          filter += "fps=" + std::to_string(plan->fps) + ",";
+        }
+        filter += "format=rgba";
+        for (const char* a : {"-an", "-sn", "-vf"}) dec.push_back(a);
+        dec.push_back(filter);
+        dec.push_back("-frames:v");
+        dec.push_back(std::to_string(isVideo ? segment.frames : 1));
+        for (const char* a : {"-f", "rawvideo", "-pix_fmt", "rgba", "-"}) dec.push_back(a);
+        if (!spawnProcess(decoder, dec, SpawnOptions::pipedStdout()) || decoder.readFd < 0) {
+          error = "could not start ffmpeg to read " + cue.name;
+          return false;
+        }
+        if (isImage) {
+          still.resize(static_cast<std::size_t>(sw) * sh * 4);
+          if (!readExact(decoder.readFd, still.data(), still.size())) {
+            error = "could not read the picture " + cue.name;
+            return false;
+          }
+          decoder.stop();
+        }
+      }
+      effectState.assign(std::max<std::size_t>(1, cue.effects.size()), std::vector<std::uint8_t>());
+      gradeOn = cueHasPixelEffects(cue);
+      effectsOn = deckboy::effects::cueEffectStackActive(cue.effects);
+      held.clear();
+      opened = true;
+      return true;
+    }
+
+    // Draws global frame g into `out` (a W x H canvas). False on a fault (`error`).
+    bool step(long long g, RenderBytes& out) {
+      const int W = plan->width, H = plan->height, fps = plan->fps;
+      const RenderFileSegment& segment = layer->segments[seg];
+      if (!opened && !open()) return false;
+      const double tCue = static_cast<double>(local) / fps;
+      const double tShow = static_cast<double>(g) / fps;
+      const deckboy::effects::LfoClockSample clock {tShow, tShow * plan->bpm / 60.0, 0.0};
+      if (cue.kind == CueKind::Pattern) {
+        MediaEngine::buildPatternFrameInto(pattern, cue, tCue, target.w, target.h);
+        if (pattern.pixels.empty()) {
+          error = "the source made no picture";
+          return false;
+        }
+        src = pattern.pixels;
+        sw = pattern.width;
+        sh = pattern.height;
+      } else if (isImage) {
+        src = still;
+      } else {
+        src.resize(static_cast<std::size_t>(sw) * sh * 4);
+        if (readExact(decoder.readFd, src.data(), src.size())) {
+          held = src;
+        } else if (!held.empty()) {
+          src = held;   // the file ran a frame short: hold its last
+        } else {
+          error = "ffmpeg gave no picture for " + cue.name;
+          return false;
+        }
+      }
+      if (gradeOn) applyCueVisualEffectsToPixels(src, cue);
+      if (effectsOn) {
+        deckboy::effects::CueEffectContext ctx;
+        ctx.width = sw;
+        ctx.height = sh;
+        ctx.frameIndex = static_cast<std::uint64_t>(local);
+        ctx.seconds = tShow;
+        ctx.effectState = &effectState;
+        std::vector<deckboy::effects::CueEffect> modulated;
+        const bool moving = deckboy::effects::modulateCueEffectStack(cue.effects, clock.seconds, clock.beats, modulated, 0.0);
+        deckboy::effects::applyCueEffectStack(src, moving ? modulated : cue.effects, ctx);
+      }
+      renderPlaceInCanvas(cue, src, sw, sh, out, W, H, target);
+      // The cue's own fades, on the alpha: there is nothing underneath to fade to.
+      double gain = 1.0;
+      const double length = static_cast<double>(segment.frames) / fps;
+      if (cue.fadeInSeconds > 0.0 && tCue < cue.fadeInSeconds) gain = tCue / cue.fadeInSeconds;
+      if (cue.fadeOutSeconds > 0.0 && length - tCue < cue.fadeOutSeconds) {
+        gain = std::min(gain, std::max(0.0, (length - tCue) / cue.fadeOutSeconds));
+      }
+      if (gain < 0.9999) {
+        for (std::size_t p = 3; p < out.size(); p += 4) {
+          out[p] = static_cast<std::uint8_t>(std::lround(out[p] * gain));
+        }
+      }
+      // The way in, from the cue before.
+      if (havePrev && segment.trans != TransitionStyle::Cut && segment.transSeconds > 0.0) {
+        const double p = tCue / segment.transSeconds;
+        if (p < 1.0) transition(segment, p, out);
+      }
+      ++local;
+      if (local >= segment.frames) {   // this cue is done: keep its last picture for the next
+        prevSrc = src;
+        prevW = sw;
+        prevH = sh;
+        prevCue = cue;
+        prevIndex = static_cast<std::uint64_t>(local - 1);
+        havePrev = true;
+        decoder.stop();
+        ++seg;
+        local = 0;
+        opened = false;
+      }
+      return true;
+    }
+
+    // The outgoing cue's held picture, drawn over (or away from) the incoming
+    // one in `canvas`, as the live compositor draws each style.
+    void transition(const RenderFileSegment& segment, double p, RenderBytes& canvas) {
+      const int W = plan->width, H = plan->height;
+      TransitionStyle style = segment.trans;
+      using Builder = void (*)(const DecodedFrame&, std::vector<std::uint8_t>&, double, double, std::uint64_t);
+      Builder build = nullptr;
+      switch (style) {
+        case TransitionStyle::Portal: build = &MediaEngine::buildPortalTransition; break;
+        case TransitionStyle::Shatter: build = &MediaEngine::buildShatterTransition; break;
+        case TransitionStyle::Clouds: build = &MediaEngine::buildCloudsTransition; break;
+        case TransitionStyle::Ghastly: build = &MediaEngine::buildGhastlyTransition; break;
+        default: break;
+      }
+      bool built = false;
+      if (build) {
+        DecodedFrame held;
+        held.width = prevW;
+        held.height = prevH;
+        held.format = FramePixelFormat::RGBA32;
+        held.colorspace = SDL_COLORSPACE_SRGB;
+        held.pixels = prevSrc;
+        held.index = prevIndex;
+        std::vector<std::uint8_t> pixels;
+        build(held, pixels, p, p * segment.transSeconds, prevIndex);
+        if (!pixels.empty()) {
+          renderPlaceInCanvas(prevCue, pixels, prevW, prevH, outCanvas, W, H, target);
+          built = true;
+        } else {
+          style = TransitionStyle::Crossfade;   // the live fallback: dissolve
+        }
+      }
+      if (!built) renderPlaceInCanvas(prevCue, prevSrc, prevW, prevH, outCanvas, W, H, target);
+      const SDL_Rect t = target;
+      switch (style) {
+        case TransitionStyle::Portal:
+        case TransitionStyle::Shatter:
+        case TransitionStyle::Clouds:
+        case TransitionStyle::Ghastly:
+          renderOver(canvas, outCanvas, 255, W, H);
+          break;
+        case TransitionStyle::DipBlack:
+        case TransitionStyle::DipWhite: {
+          const std::uint8_t grey = style == TransitionStyle::DipWhite ? 255 : 0;
+          unsigned a;
+          if (p < 0.5) {
+            renderOver(canvas, outCanvas, 255, W, H);
+            a = static_cast<unsigned>(std::clamp(p * 2.0, 0.0, 1.0) * 255.0);
+          } else {
+            a = static_cast<unsigned>(std::clamp(1.0 - (p - 0.5) * 2.0, 0.0, 1.0) * 255.0);
+          }
+          renderOverlay(canvas, grey, a, W, H);
+          break;
+        }
+        case TransitionStyle::PushLeft:
+        case TransitionStyle::PushRight:
+        case TransitionStyle::PushUp:
+        case TransitionStyle::PushDown: {
+          const SDL_Point shift = pushTransitionOffset(style, p, t);
+          int ix = shift.x, iy = shift.y;
+          switch (style) {
+            case TransitionStyle::PushLeft: ix += t.w; break;
+            case TransitionStyle::PushRight: ix -= t.w; break;
+            case TransitionStyle::PushUp: iy += t.h; break;
+            default: iy -= t.h; break;
+          }
+          renderShift(canvas, W, H, ix, iy);
+          renderShift(outCanvas, W, H, shift.x, shift.y);
+          renderOver(canvas, outCanvas, 255, W, H);
+          break;
+        }
+        case TransitionStyle::WipeLeft:
+        case TransitionStyle::WipeRight:
+        case TransitionStyle::WipeUp:
+        case TransitionStyle::WipeDown: {
+          SDL_Rect keep = t;
+          const int travelled = static_cast<int>(p * t.w);
+          const int travelledY = static_cast<int>(p * t.h);
+          switch (style) {
+            case TransitionStyle::WipeLeft: keep.x += travelled; keep.w = std::max(0, t.w - travelled); break;
+            case TransitionStyle::WipeRight: keep.w = std::max(0, t.w - travelled); break;
+            case TransitionStyle::WipeUp: keep.y += travelledY; keep.h = std::max(0, t.h - travelledY); break;
+            default: keep.h = std::max(0, t.h - travelledY); break;
+          }
+          if (keep.w > 0 && keep.h > 0) renderOver(canvas, outCanvas, 255, W, H, &keep);
+          break;
+        }
+        case TransitionStyle::Iris: {
+          // The live iris draws bands (a clipped draw each) round a growing hole.
+          const double radius = p * std::sqrt(static_cast<double>(t.w * t.w + t.h * t.h)) * 0.5;
+          const int cx = t.x + t.w / 2, cy = t.y + t.h / 2;
+          const int band = std::max(6, t.h / 32);
+          for (int y = t.y; y < t.y + t.h && y < H; y += band) {
+            const double dy = (y + band * 0.5) - cy;
+            const double inside = radius * radius - dy * dy;
+            const int half = inside > 0.0 ? static_cast<int>(std::sqrt(inside)) : -1;
+            if (half >= t.w / 2) continue;
+            const int rows = std::min(band, std::min(H, t.y + t.h) - y);
+            if (half < 0) {
+              const SDL_Rect whole {t.x, y, t.w, rows};
+              renderOver(canvas, outCanvas, 255, W, H, &whole);
+              continue;
+            }
+            const SDL_Rect left {t.x, y, std::max(0, cx - half - t.x), rows};
+            const SDL_Rect right {cx + half, y, std::max(0, t.x + t.w - (cx + half)), rows};
+            renderOver(canvas, outCanvas, 255, W, H, &left);
+            renderOver(canvas, outCanvas, 255, W, H, &right);
+          }
+          break;
+        }
+        default: {   // Crossfade
+          const unsigned a = static_cast<unsigned>(std::clamp(1.0 - p, 0.0, 1.0) * 255.0);
+          renderOver(canvas, outCanvas, a, W, H);
+          break;
+        }
+      }
+    }
+  };
 
   // ---- The worker -----------------------------------------------------------
   // Runs on its own thread and reads nothing of the App: the plan is a copy.
@@ -307,143 +758,68 @@
     if (!spawnProcess(encoder, args, SpawnOptions::pipedStdin()) || encoder.writeFd < 0) {
       return "failed: could not start ffmpeg";
     }
-    std::string error;
-    bool ok = true;
-    long long globalFrame = 0;
-    int segmentNumber = 0;
     static std::atomic<int> jobSerial {0};
     const int serial = ++jobSerial;
-    std::vector<std::uint8_t> src, canvas, still, held;
-    DecodedFrame patternFrame;
-    for (const RenderFileSegment& segment : plan.segments) {
-      if (!ok || job.cancel.load()) break;
-      ++segmentNumber;
-      Cue cue = segment.cue;
-      // A key of its own: the generators keep per-cue state by id, and a render
-      // must neither start from the live deck's state nor leave any in it.
-      cue.id = "render-" + std::to_string(serial) + "-" + std::to_string(segmentNumber);
-      ChildProcess decoder;
-      int sw = cue.width, sh = cue.height;
-      const bool isVideo = cue.kind == CueKind::Video, isImage = cue.kind == CueKind::Image;
-      if (isVideo || isImage) {
-        std::vector<std::string> dec = {"ffmpeg", "-v", "error"};
-        if (isVideo && cue.inPointSeconds > 0.0) {
-          char at[32];
-          std::snprintf(at, sizeof at, "%.6f", cue.inPointSeconds);
-          dec.push_back("-ss");
-          dec.push_back(at);
-        }
-        dec.push_back("-i");
-        dec.push_back(cue.path);
-        std::string filter;
-        if (isVideo) {
-          const double speed = std::clamp(cue.playbackSpeed, 0.1, 4.0);
-          if (std::fabs(speed - 1.0) > 1e-6) {
-            char s[48];
-            std::snprintf(s, sizeof s, "setpts=PTS/%.6f,", speed);
-            filter += s;
-          }
-          filter += "fps=" + std::to_string(plan.fps) + ",";
-        }
-        filter += "format=rgba";
-        for (const char* a : {"-an", "-sn", "-vf"}) dec.push_back(a);
-        dec.push_back(filter);
-        dec.push_back("-frames:v");
-        dec.push_back(std::to_string(isVideo ? segment.frames : 1));
-        for (const char* a : {"-f", "rawvideo", "-pix_fmt", "rgba", "-"}) dec.push_back(a);
-        if (!spawnProcess(decoder, dec, SpawnOptions::pipedStdout()) || decoder.readFd < 0) {
+    std::vector<std::unique_ptr<RenderLayerRunner>> runners;
+    for (std::size_t li = 0; li < plan.layers.size(); ++li) {
+      auto runner = std::make_unique<RenderLayerRunner>();
+      runner->plan = &plan;
+      runner->layer = &plan.layers[li];
+      runner->serial = serial;
+      runner->layerNo = static_cast<int>(li);
+      const RenderFileLayer& l = plan.layers[li];
+      runner->target = SDL_Rect {static_cast<int>(std::lround(l.x * W)), static_cast<int>(std::lround(l.y * H)),
+                                 std::max(1, static_cast<int>(std::lround(l.w * W))),
+                                 std::max(1, static_cast<int>(std::lround(l.h * H)))};
+      runners.push_back(std::move(runner));
+    }
+    std::string error;
+    bool ok = true;
+    RenderBytes comp, layerCanvas;
+    for (long long g = 0; g < plan.totalFrames && ok; ++g) {
+      if (job.cancel.load()) break;
+      // The show's clock for this frame, for everything on this thread.
+      const double tShow = static_cast<double>(g) / plan.fps;
+      const deckboy::effects::LfoClockSample clock {tShow, tShow * plan.bpm / 60.0, 0.0};
+      deckboy::effects::lfoClockThreadOverride() = &clock;
+      bool have = false;
+      for (std::size_t li = 0; li < runners.size() && ok; ++li) {
+        RenderLayerRunner& r = *runners[li];
+        if (r.finished()) continue;   // a layer whose cues are done draws nothing
+        if (!r.step(g, layerCanvas)) {
           ok = false;
-          error = "could not start ffmpeg to read " + cue.name;
+          error = r.error;
           break;
         }
-        if (isImage) {
-          still.resize(static_cast<std::size_t>(sw) * sh * 4);
-          if (!readExact(decoder.readFd, still.data(), still.size())) {
-            ok = false;
-            error = "could not read the picture " + cue.name;
-            break;
-          }
-          decoder.stop();
-        }
-      }
-      std::vector<std::vector<std::uint8_t>> effectState(std::max<std::size_t>(1, cue.effects.size()));
-      const bool gradeOn = cueHasPixelEffects(cue);
-      const bool effectsOn = deckboy::effects::cueEffectStackActive(cue.effects);
-      held.clear();
-      for (int i = 0; i < segment.frames && ok; ++i) {
-        if (job.cancel.load()) break;
-        const double tCue = static_cast<double>(i) / plan.fps;
-        const double tShow = static_cast<double>(globalFrame) / plan.fps;
-        // The show's clock for this frame, for everything on this thread.
-        deckboy::effects::LfoClockSample clock {tShow, tShow * plan.bpm / 60.0, 0.0};
-        deckboy::effects::lfoClockThreadOverride() = &clock;
-        if (cue.kind == CueKind::Pattern) {
-          MediaEngine::buildPatternFrameInto(patternFrame, cue, tCue, W, H);
-          if (patternFrame.pixels.empty()) {
-            ok = false;
-            error = "the source made no picture";
-            break;
-          }
-          src = patternFrame.pixels;
-          sw = patternFrame.width;
-          sh = patternFrame.height;
-        } else if (isImage) {
-          src = still;
+        const RenderFileLayer& l = plan.layers[li];
+        if (!have && l.opacity >= 0.9999f) {
+          comp.swap(layerCanvas);   // the common case: the bottom layer at full
+          have = true;
         } else {
-          src.resize(static_cast<std::size_t>(sw) * sh * 4);
-          if (readExact(decoder.readFd, src.data(), src.size())) {
-            held = src;
-          } else if (!held.empty()) {
-            src = held;   // the file ran a frame short: hold its last
-          } else {
-            ok = false;
-            error = "ffmpeg gave no picture for " + cue.name;
-            break;
-          }
+          if (!have) comp.assign(frameBytes, 0);
+          renderBlendLayer(comp, layerCanvas, l.blend, l.opacity, W, H);
+          have = true;
         }
-        if (gradeOn) applyCueVisualEffectsToPixels(src, cue);
-        if (effectsOn) {
-          deckboy::effects::CueEffectContext ctx;
-          ctx.width = sw;
-          ctx.height = sh;
-          ctx.frameIndex = static_cast<std::uint64_t>(i);
-          ctx.seconds = tShow;
-          ctx.effectState = &effectState;
-          std::vector<deckboy::effects::CueEffect> modulated;
-          const bool moving = deckboy::effects::modulateCueEffectStack(cue.effects, clock.seconds, clock.beats, modulated, 0.0);
-          deckboy::effects::applyCueEffectStack(src, moving ? modulated : cue.effects, ctx);
-        }
-        renderPlaceInCanvas(cue, src, sw, sh, canvas, W, H);
-        // The cue's own fades, on the alpha: there is nothing underneath to fade to.
-        double gain = 1.0;
-        const double length = static_cast<double>(segment.frames) / plan.fps;
-        if (cue.fadeInSeconds > 0.0 && tCue < cue.fadeInSeconds) gain = tCue / cue.fadeInSeconds;
-        if (cue.fadeOutSeconds > 0.0 && length - tCue < cue.fadeOutSeconds) {
-          gain = std::min(gain, std::max(0.0, (length - tCue) / cue.fadeOutSeconds));
-        }
-        const bool opaqueOut = plan.codec == RenderCodec::H264;
-        if (gain < 0.9999 || opaqueOut) {
-          for (std::size_t p = 0; p + 3 < canvas.size(); p += 4) {
-            unsigned a = static_cast<unsigned>(std::lround(canvas[p + 3] * gain));
-            if (opaqueOut) {   // no alpha in the file: lay the picture over black
-              for (int c = 0; c < 3; ++c) canvas[p + c] = static_cast<std::uint8_t>(canvas[p + c] * a / 255u);
-              a = 255;
-            }
-            canvas[p + 3] = static_cast<std::uint8_t>(a);
-          }
-        }
-        if (!writeAllToFd(encoder.writeFd, canvas.data(), frameBytes)) {
-          ok = false;
-          error = png ? "ffmpeg stopped taking frames" : "ffmpeg stopped taking frames (is the codec in this ffmpeg?)";
-          break;
-        }
-        ++globalFrame;
-        job.done.store(globalFrame);
       }
       deckboy::effects::lfoClockThreadOverride() = nullptr;
-      decoder.stop();
+      if (!ok) break;
+      if (!have) comp.assign(frameBytes, 0);
+      if (plan.codec == RenderCodec::H264) {   // no alpha in the file: lay the picture over black
+        for (std::size_t p = 0; p + 3 < comp.size(); p += 4) {
+          const unsigned a = comp[p + 3];
+          for (int c = 0; c < 3; ++c) comp[p + c] = static_cast<std::uint8_t>(comp[p + c] * a / 255u);
+          comp[p + 3] = 255;
+        }
+      }
+      if (!writeAllToFd(encoder.writeFd, comp.data(), frameBytes)) {
+        ok = false;
+        error = png ? "ffmpeg stopped taking frames" : "ffmpeg stopped taking frames (is the codec in this ffmpeg?)";
+        break;
+      }
+      job.done.store(g + 1);
     }
     deckboy::effects::lfoClockThreadOverride() = nullptr;
+    for (auto& r : runners) r->decoder.stop();
     if (job.cancel.load()) {
       encoder.stop();
       std::error_code gone;

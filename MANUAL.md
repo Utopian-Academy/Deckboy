@@ -1557,7 +1557,7 @@ perfect.
 The dialog asks for five things:
 
 - **What.** This cue; from cue N to M (the playlist in focus); or an output's
-  whole show (every cue of the playlist that output plays).
+  whole show: the output's playlist and every layer over it, each laid on the ones below with its own opacity, blend and rect.
 - **Size.** 1080p, 4K, or the output's own size.
 - **Frames a second.** 25, 30, 50 or 60.
 - **File.** ProRes 4444 (keeps alpha), H.264 (over black), or PNG frames (a
@@ -1580,10 +1580,23 @@ decoded frames and the bytes.
 **Not frame-exact yet.** The dialog refuses these, and says which cue and why:
 live inputs (camera, window, NDI, stream, capture card), browser pages, timers,
 the Terrarium (its simulation keeps its own clock), rotation and the size and
-position oscillators, Text mode, the motion puppet, and Audioprint.
+position oscillators, Text mode, the motion puppet, Audioprint, masks, slices, a
+layer's corner pin, and an output's crossfader.
 
-**Not drawn at all.** Sound (the file has no audio track), transitions (cues
-join with a cut), layers, masks and slices. Audio-only cues are skipped.
+**Transitions.** Each cue arrives by its own transition style and length, or its
+playlist's, from the cue before it: crossfade, dip to black or white, push, wipe,
+iris, and the portal, shatter, clouds and ghastly builders. The transition fills
+the first seconds of the new cue (the file is not made longer), and the cue it
+leaves is held on its last picture, as a live take holds a finished cue. The bars
+round a letterboxed picture are clear, not black.
+
+**Layers.** An output's whole show draws every playlist the output shows, bottom
+first, with each playlist's opacity, its layer's blend (dissolve, add, multiply,
+screen, lighten, darken, subtract, undercut, infiltrate, ember) and its rect.
+Each playlist runs its own cues from cue 1; a layer whose cues are done draws
+nothing. A render is the programme before the output's warp and edge blend.
+
+**Not drawn at all.** Sound (the file has no audio track). Audio-only cues are skipped.
 A still or a generated cue lasts its still duration; with none set it lasts the
 playlist's default still time.
 
