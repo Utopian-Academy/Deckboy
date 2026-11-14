@@ -23,7 +23,7 @@
 - Companion: `RENDER START <CUE|CUES a-b|OUTPUT> <1080P|4K|OUTPUT> <25|30|50|60> <PRORES|H264|PNG> <file>`, `RENDER STATUS`, `RENDER CANCEL`, `RENDER DIALOG`.
 
 ### Playback
-- New: **direction** on a video cue: **forward**, **reverse** or **bounce** (there and back, no frame shown twice at the turns). Deckboy makes a reversed or bounced copy of the cue's trimmed range once, in the background, and plays it; until then the cue plays forwards and the row shows how far the copy has got. A new trim makes a new copy. The sound is reversed too. Companion: `DIRECTION [FORWARD|REVERSE|BOUNCE|STATUS]`.
+- New: **direction** on a video cue: **forward**, **reverse** or **bounce** (there and back, no frame shown twice at the turns). Deckboy makes a reversed or bounced copy of the cue's trimmed range once, in the background, and plays it; until then the cue plays forwards and the row shows how far the copy has got. A new trim makes a new copy. The sound is reversed too. A clip whose every frame is a whole picture (ProRes, HAP, DNxHR, MJPEG, PNG...) gets a lossless copy in seconds, in its own codec; others (H.264, H.265...) are encoded, and choosing reverse says which. Companion: `DIRECTION [FORWARD|REVERSE|BOUNCE|STATUS]`.
 
 ### Deckboy Mini
 - Fixed: resizing the terminal left copies of the status panel down the window. The panel now draws on a screen of its own, from the top, and clears once when the size changes.

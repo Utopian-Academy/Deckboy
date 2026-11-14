@@ -7270,6 +7270,55 @@
   // The steps of core/direction_bake.hpp, one ffmpeg at a time, on the
   // encoder's worker. Progress is the share of the source's seconds done; a
   // cancel stops the running step. The pieces are deleted either way.
+  // One ffmpeg, to its end. False when it could not start or was cancelled.
+  static bool runFfmpegStep(std::vector<std::string> args, const std::shared_ptr<std::atomic<bool>>& cancel) {
+    args.insert(args.begin() + 1, "-nostdin");
+    args.insert(args.begin() + 2, "-loglevel");
+    args.insert(args.begin() + 3, "error");
+    ChildProcess proc;
+    if (!spawnPipeProcess(proc, args)) return false;
+    std::array<char, 4096> chunk {};
+    while (true) {
+      if (cancel->load()) { proc.stop(); return false; }
+      if (readSome(proc.readFd, chunk.data(), chunk.size()) <= 0) break;
+    }
+    return proc.finish(15000);
+  }
+
+  // THE LOSSLESS COPY, for a file whose every frame stands alone: the
+  // picture's packets in reverse order (engine/direction_remux), the sound
+  // reversed, the two joined. NotIntra and Failed fall back to the encoded
+  // copy; only a cancel stops there.
+  static deckboy::engine::RemuxResult runLosslessDirection(const deckboy::core::DirectionBakeInput& input,
+                                                           const std::shared_ptr<std::atomic<double>>& progress,
+                                                           const std::shared_ptr<std::atomic<bool>>& cancel) {
+    using deckboy::engine::RemuxResult;
+    std::error_code ec;
+    const std::string video = input.workDir + "/picture.mov";
+    const std::string wav = input.workDir + "/sound.wav";
+    std::string why;
+    RemuxResult r = deckboy::engine::reverseIntraVideo(input.source, input.audio ? video : input.dest, input.in,
+                                                       input.out, input.bounce, progress.get(), cancel.get(), &why);
+    if (r == RemuxResult::Done && input.audio) {
+      if (!runFfmpegStep(deckboy::core::planDirectionSound(input, wav), cancel) ||
+          !runFfmpegStep(deckboy::core::planDirectionJoin(video, wav, input.dest), cancel) ||
+          !fs::exists(fs::u8path(input.dest), ec)) {
+        r = cancel->load() ? RemuxResult::Cancelled : RemuxResult::Failed;
+      }
+    }
+    fs::remove(fs::u8path(video), ec);
+    fs::remove(fs::u8path(wav), ec);
+    if (r != RemuxResult::Done) {
+      fs::remove(fs::u8path(input.dest), ec);
+      if (r != RemuxResult::Cancelled) {
+        std::fprintf(stderr, "direction: no lossless copy of %s (%s); encoding one\n", input.source.c_str(), why.c_str());
+      }
+    } else {
+      std::fprintf(stderr, "direction: lossless copy of %s\n", input.source.c_str());
+    }
+    return r;
+  }
+
   static bool runDirectionBake(const deckboy::core::DirectionBakeInput& input,
                                const std::shared_ptr<std::atomic<double>>& progress,
                                const std::shared_ptr<std::atomic<bool>>& cancel) {
@@ -7277,6 +7326,18 @@
     if (!plan.problem.empty()) return false;
     std::error_code ec;
     fs::create_directories(fs::u8path(input.workDir), ec);
+    switch (runLosslessDirection(input, progress, cancel)) {
+      case deckboy::engine::RemuxResult::Done:
+        fs::remove(fs::u8path(input.workDir), ec);
+        progress->store(1.0);
+        return true;
+      case deckboy::engine::RemuxResult::Cancelled:
+        fs::remove(fs::u8path(input.workDir), ec);
+        return false;
+      default:
+        progress->store(0.0);
+        break;   // the encoded copy, below
+    }
     {
       std::ofstream list(fs::u8path(plan.listFile), std::ios::binary);
       list << plan.listText;
@@ -7287,19 +7348,8 @@
     double done = 0.0;
     bool ok = true;
     for (std::size_t i = 0; i < plan.steps.size() && ok; ++i) {
-      std::vector<std::string> args = plan.steps[i];
-      args.insert(args.begin() + 1, "-nostdin");
-      args.insert(args.begin() + 2, "-loglevel");
-      args.insert(args.begin() + 3, "error");
-      ChildProcess proc;
-      if (!spawnPipeProcess(proc, args)) { ok = false; break; }
-      std::array<char, 4096> chunk {};
-      while (true) {
-        if (cancel->load()) { proc.stop(); ok = false; break; }
-        if (readSome(proc.readFd, chunk.data(), chunk.size()) <= 0) break;
-      }
       // A failed piece shows as a missing copy after the join.
-      if (ok && !proc.finish(15000)) ok = false;
+      if (!runFfmpegStep(plan.steps[i], cancel)) ok = false;
       done += plan.stepSeconds[i];
       if (total > 0.0) progress->store(std::clamp(done / total, 0.0, 0.99));
     }

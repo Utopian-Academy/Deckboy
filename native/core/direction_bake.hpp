@@ -149,4 +149,30 @@ inline DirectionBakePlan planDirectionBake(const DirectionBakeInput& in) {
   return plan;
 }
 
+// THE LOSSLESS COPY's other two steps (engine/direction_remux.hpp writes the
+// picture): the range's sound reversed (bounce: forwards then backwards, less
+// the turnaround frames, as the picture) to a WAV, then picture and sound
+// joined by stream copy. The sound is small enough for areverse to hold.
+inline std::vector<std::string> planDirectionSound(const DirectionBakeInput& in, const std::string& wav) {
+  const double fps = in.fps > 1.0 && in.fps < 1000.0 ? in.fps : 30.0;
+  const double frame = 1.0 / fps;
+  const double length = in.out - in.in;
+  std::vector<std::string> a {"ffmpeg", "-y", "-ss", directionBakeNumber(in.in), "-t", directionBakeNumber(length),
+                              "-i", in.source, "-vn"};
+  if (in.bounce) {
+    a.insert(a.end(), {"-filter_complex",
+                       "[0:a]asplit[f][b];[b]atrim=start=" + directionBakeNumber(frame) + ":end=" +
+                         directionBakeNumber(length - frame) + ",asetpts=PTS-STARTPTS,areverse[r];[f][r]concat=n=2:v=0:a=1"});
+  } else {
+    a.insert(a.end(), {"-af", "areverse"});
+  }
+  a.insert(a.end(), {"-c:a", "pcm_s16le", "-ar", "48000", "-ac", "2", wav});
+  return a;
+}
+
+inline std::vector<std::string> planDirectionJoin(const std::string& video, const std::string& wav, const std::string& dest) {
+  return {"ffmpeg", "-y", "-i", video, "-i", wav, "-map", "0:v:0", "-map", "1:a:0", "-c", "copy",
+          "-movflags", "+faststart", dest};
+}
+
 }  // namespace deckboy::core

@@ -508,8 +508,15 @@ trim and a new copy is made a moment after you let go. Copies sit in
 show is opened somewhere they are missing. The sound is reversed with the
 picture.
 
-The copy is H.264 (ProRes 4444 for a clip with alpha), at a quality that does
-not show the second generation. A ten-bit or HDR clip comes back eight-bit.
+A clip whose every frame is a whole picture (ProRes, HAP, DNxHR, MJPEG, PNG
+and similar) gets a **lossless** copy: the same frames in another order, made
+in seconds, in the same codec, alpha and all. Any other clip (H.264, H.265 and
+most camera and web files, which store frames as changes from the ones before)
+is encoded: H.264 (ProRes 4444 for a clip with alpha), at a quality that does
+not show the second generation; a ten-bit or HDR clip comes back eight-bit.
+Choosing reverse or bounce says which it will be. For a long clip played
+backwards often, converting it to ProRes or HAP first makes every later copy
+instant.
 
 Companion: `DIRECTION [FORWARD|REVERSE|BOUNCE|STATUS]` on the selected cue.
 STATUS answers with the direction, whether the copy is `ready`, `making` or

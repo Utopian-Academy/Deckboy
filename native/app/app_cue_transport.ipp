@@ -10054,7 +10054,11 @@
     refreshFocusedLiveCueRuntimeIfSelected();
     // THE HEADS-UP: say that a copy is being made, and why, before the
     // operator wonders why the cue still plays forwards.
-    if (direction != kCueForward && !directionCopyReady(*cue)) {
+    if (direction != kCueForward && !directionCopyReady(*cue) && codecFramesStandAlone(cue->videoCodec)) {
+      triggerToast(deckboy::core::i18n::format(
+                     "{1}: making a lossless copy ({2} frames stand alone), ready in seconds.",
+                     {deckboy::core::i18n::translate(direction == kCueBounce ? "bounce" : "reverse"), toUpper(cue->videoCodec)}));
+    } else if (direction != kCueForward && !directionCopyReady(*cue)) {
       const std::string codec = cue->videoCodec.empty() ? std::string("this file") : toUpper(cue->videoCodec);
       const double seconds = cueDirectionOut(*cue) - cueDirectionIn(*cue);
       triggerToast(deckboy::core::i18n::format(

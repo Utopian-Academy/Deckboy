@@ -85,6 +85,7 @@
 #include "core/single_instance_guard.hpp"
 #include "core/cue_helpers.hpp"
 #include "core/direction_bake.hpp"
+#include "engine/direction_remux.hpp"
 #include "core/pixel_effects.hpp"
 #include "core/pattern_helpers.hpp"
 #include "core/lava_lamp.hpp"

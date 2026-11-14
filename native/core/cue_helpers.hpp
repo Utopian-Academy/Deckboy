@@ -497,6 +497,19 @@ inline const char* cueDirectionLabel(int direction) {
   return direction == kCueReverse ? "REVERSE" : direction == kCueBounce ? "BOUNCE" : "FORWARD";
 }
 
+// A codec whose every frame is a whole picture, so a reversed copy is the
+// same frames in another order: seconds, and lossless. Only the heads-up asks
+// this; the copy itself asks libav and checks every frame (direction_remux).
+inline bool codecFramesStandAlone(std::string codec) {
+  for (char& c : codec) c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+  static const char* const kWhole[] = {"prores", "hap", "dnxhd", "mjpeg", "png", "cfhd", "utvideo",
+                                       "magicyuv", "huffyuv", "v210", "rawvideo", "jpeg2000", "dpx", "tiff"};
+  for (const char* w : kWhole) {
+    if (codec == w) return true;
+  }
+  return false;
+}
+
 inline bool cueDirectionApplies(const Cue& cue) {
   return cue.kind == CueKind::Video && !cue.path.empty();
 }
