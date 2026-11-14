@@ -1856,6 +1856,18 @@ class RowPool {
 // The bands run on RowPool's kept threads. The size gate keeps the hand-off
 // from dominating tiny frames; with no threads to start it is far cheaper
 // than it was, so the gate is lower than the 120000 pixels it used to be.
+// std::lround, exactly (half away from zero), without the library call MSVC
+// makes for it -- two a pixel in the warps. Truncate, then step by the part
+// left over: v - trunc(v) is exact for any |v| an int can hold, which the
+// clamp keeps it to (a position that far off the picture clamps to an edge
+// either way).
+inline int roundHalfAway(double v) {
+  v = v < -1.0e9 ? -1.0e9 : (v > 1.0e9 ? 1.0e9 : v);
+  const int i = static_cast<int>(v);
+  const double rest = v - i;
+  return rest >= 0.5 ? i + 1 : (rest <= -0.5 ? i - 1 : i);
+}
+
 template <typename Fn>
 inline void parallelRows(int height, int width, Fn fn) {
   const unsigned workers = effectWorkers();
@@ -3516,9 +3528,12 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         // These all RESAMPLE: every output pixel is fetched from somewhere else
         // in the source, so they need an untouched copy to read from. Written
         // as one block because the only thing that differs is where each pixel
-        // looks, and near-identical loops would drift apart.
-        std::vector<std::uint8_t> source(pixels.begin(),
-                                         pixels.begin() + static_cast<std::ptrdiff_t>(count * 4));
+        // looks, and near-identical loops would drift apart. The copy goes in
+        // a buffer kept by this thread: a fresh 8 MB allocation a frame paid
+        // its page faults every time.
+        static thread_local std::vector<std::uint8_t> warpSource;
+        warpSource.assign(pixels.begin(), pixels.begin() + static_cast<std::ptrdiff_t>(count * 4));
+        const std::vector<std::uint8_t>& source = warpSource;
         const double cx = ctx.width * 0.5;
         const double cy = ctx.height * 0.5;
         const double maxR = std::sqrt(cx * cx + cy * cy);
@@ -3676,8 +3691,8 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
                   break;
                 }
               }
-              const int sx = std::clamp(static_cast<int>(std::lround(sxf)), 0, ctx.width - 1);
-              const int sy = std::clamp(static_cast<int>(std::lround(syf)), 0, ctx.height - 1);
+              const int sx = std::clamp(detail::roundHalfAway(sxf), 0, ctx.width - 1);
+              const int sy = std::clamp(detail::roundHalfAway(syf), 0, ctx.height - 1);
               const std::uint8_t* sp =
                 source.data() + (static_cast<std::size_t>(sy) * ctx.width + sx) * 4;
               std::uint8_t* dp = dstRow + static_cast<std::size_t>(x) * 4;
@@ -6397,20 +6412,6 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         std::uint16_t* next = nextBuf.data();
         const float* speedP = speed.data();
         const float* slopeP = slope.data();
-        auto keptAt = [&](double a, double b, int c) {
-          int x0, y0;
-          a = std::clamp(a, 0.0, along - 1.001);
-          b = std::clamp(b, 0.0, across - 1.001);
-          const int ia = static_cast<int>(a), ib = static_cast<int>(b);
-          const double fa = a - ia, fb = b - ib;
-          double v = 0.0;
-          for (int da = 0; da < 2; ++da)
-            for (int db = 0; db < 2; ++db) {
-              toXY(ia + da, ib + db, x0, y0);
-              v += kept[(static_cast<std::size_t>(y0) * KW + x0) * 3 + c] * (da ? fa : 1 - fa) * (db ? fb : 1 - fb);
-            }
-          return v;
-        };
         const std::uint16_t* keptC = kept;
         detail::parallelRows(along, across * 12, [&](int a0, int a1) {
           for (int a = a0; a < a1; ++a) {
@@ -6425,6 +6426,31 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
               const double m = (keptC[up] + keptC[up + 1] + keptC[up + 2]) / (3.0 * 65535.0);
               const double v = speedP[b] * (0.35 + 0.65 * std::min(1.0, m * 2.0));
               const double bs = b - slopeP[b] * pinch;
+              // Where the moved material comes from: the four taps and their
+              // weights, worked out once for the three channels (keptAt's
+              // arithmetic, in its order).
+              std::size_t tapAt[4];
+              double tapWa[4], tapWb[4];
+              {
+                const double sa = std::clamp(a - v * unitAlong, 0.0, along - 1.001);
+                const double sb = std::clamp(bs, 0.0, across - 1.001);
+                const int ia = static_cast<int>(sa), ib = static_cast<int>(sb);
+                const double fa = sa - ia, fb = sb - ib;
+                int k = 0;
+                for (int da = 0; da < 2; ++da)
+                  for (int db = 0; db < 2; ++db, ++k) {
+                    int tx, ty;
+                    toXY(ia + da, ib + db, tx, ty);
+                    tapAt[k] = (static_cast<std::size_t>(ty) * KW + tx) * 3;
+                    tapWa[k] = da ? fa : 1 - fa;
+                    tapWb[k] = db ? fb : 1 - fb;
+                  }
+              }
+              auto movedAt = [&](int c) {
+                double sum = 0.0;
+                for (int k = 0; k < 4; ++k) sum += keptC[tapAt[k] + c] * tapWa[k] * tapWb[k];
+                return sum;
+              };
               if (wholePicture) {
                 // WHOLE PICTURE: everything is wax. In a channel the picture
                 // flows down in its own colours; "set" pulls it back to the
@@ -6433,7 +6459,7 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
                 const double w = std::min(1.0, v * 1.5);
                 for (int c = 0; c < 3; ++c) {
                   const double now = shrunk(kx, ky, c);
-                  const double moved = keptAt(a - v * unitAlong, bs, c);
+                  const double moved = movedAt(c);
                   const double settled = moved + (now - moved) * (1.0 - hold);
                   next[o + c] = static_cast<std::uint16_t>(std::clamp(now + (settled - now) * w, 0.0, 65535.0));
                 }
@@ -6443,7 +6469,7 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
                 // has run down onto it.
                 const double dim = 1.0 - std::min(1.0, v * 0.25);
                 for (int c = 0; c < 3; ++c) {
-                  const double moved = keptAt(a - v * unitAlong, bs, c) * hold;
+                  const double moved = movedAt(c) * hold;
                   const double now = shrunk(kx, ky, c) * dim;
                   next[o + c] = static_cast<std::uint16_t>(std::min(65535.0, std::max(now, moved)));
                 }
@@ -6457,6 +6483,30 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         // above), darker where it curls away, so the heads look round.
         const double sheen = pE;
         const int a256 = static_cast<int>(std::lround(amt * 256.0));
+        // The gloss and the shade depend only on the kept pixel, which four
+        // output pixels share: worked out once each, in a pass over the kept
+        // picture (the same arithmetic, so the same bytes).
+        static thread_local std::vector<double> specBuf, shadeBuf;
+        specBuf.resize(kcount);
+        shadeBuf.resize(kcount);
+        double* specP = specBuf.data();
+        double* shadeP = shadeBuf.data();
+        detail::parallelRows(KH, KW * 8, [&](int k0, int k1) {
+          auto K = [&](int xx, int yy, int c) {
+            xx = std::clamp(xx, 0, KW - 1); yy = std::clamp(yy, 0, KH - 1);
+            return static_cast<double>(show[(static_cast<std::size_t>(yy) * KW + xx) * 3 + c]);
+          };
+          auto L = [&](int xx, int yy) { return (K(xx, yy, 0) + K(xx, yy, 1) + K(xx, yy, 2)) / (3.0 * 65535.0); };
+          for (int ky = k0; ky < k1; ++ky) {
+            for (int kx = 0; kx < KW; ++kx) {
+              const double gy = (L(kx, ky + 1) - L(kx, ky - 1)) * 3.0, gx = (L(kx + 1, ky) - L(kx - 1, ky)) * 3.0;
+              const double face = std::max(0.0, -gy * 0.8 - gx * 0.3);
+              const std::size_t i = static_cast<std::size_t>(ky) * KW + kx;
+              specP[i] = std::pow(std::min(1.0, face * 1.4), 3.0) * sheen * 255.0;
+              shadeP[i] = 1.0 - std::min(0.5, std::fabs(gx) * 0.35 * sheen);
+            }
+          }
+        });
         detail::parallelRows(H, W * 4, [&](int r0, int r1) {
           for (int y = r0; y < r1; ++y) {
             std::uint8_t* row = pixels.data() + static_cast<std::size_t>(y) * W * 4;
@@ -6471,16 +6521,14 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
                 xx = std::clamp(xx, 0, KW - 1); yy = std::clamp(yy, 0, KH - 1);
                 return static_cast<double>(show[(static_cast<std::size_t>(yy) * KW + xx) * 3 + c]);
               };
-              auto L = [&](int xx, int yy) { return (K(xx, yy, 0) + K(xx, yy, 1) + K(xx, yy, 2)) / (3.0 * 65535.0); };
               double kv[3];
               for (int c = 0; c < 3; ++c) {
                 kv[c] = ((K(kx, ky, c) * (1 - fx2) + K(kx + 1, ky, c) * fx2) * (1 - fy) +
                          (K(kx, ky + 1, c) * (1 - fx2) + K(kx + 1, ky + 1, c) * fx2) * fy) / 257.0;
               }
-              const double gy = (L(kx, ky + 1) - L(kx, ky - 1)) * 3.0, gx = (L(kx + 1, ky) - L(kx - 1, ky)) * 3.0;
-              const double face = std::max(0.0, -gy * 0.8 - gx * 0.3);
-              const double spec = std::pow(std::min(1.0, face * 1.4), 3.0) * sheen * 255.0;
-              const double shade = 1.0 - std::min(0.5, std::fabs(gx) * 0.35 * sheen);
+              const std::size_t ki = static_cast<std::size_t>(ky) * KW + kx;
+              const double spec = specP[ki];
+              const double shade = shadeP[ki];
               std::uint8_t* p = row + static_cast<std::size_t>(x) * 4;
               for (int c = 0; c < 3; ++c) {
                 const int out = detail::clamp8(kv[c] * shade + spec * (0.55 + kv[c] / 255.0 * 0.45));
