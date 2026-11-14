@@ -156,9 +156,23 @@ def main():
         until = time.monotonic() + 20
         while http_reply(phone_url)[0] is None and time.monotonic() < until:
             time.sleep(0.3)
+        # Since 2026-10-16 (James, on a real phone) a phone needs the passphrase
+        # or its pairing key, not a place on the trusted-controller list: the
+        # page itself loads anywhere, and a command without the passphrase is
+        # refused.
         status, body = http_reply(phone_url)
-        expect(status == 403 and "not a trusted controller" in body,
-               "the phone remote refuses an untrusted machine", f"{status} {body.strip()}")
+        expect(status == 200, "the phone page loads (it asks for the passphrase)", f"{status} {body.strip()[:80]}")
+        req = urllib.request.Request(f"http://{web_host}:{ports['web']}/remote/command", data=b"DECK 1 GO",
+                                     headers={"X-Deckboy-Pin": "wrong-passphrase", "Content-Type": "text/plain"},
+                                     method="POST")
+        try:
+            with urllib.request.urlopen(req, timeout=3) as response:
+                cmd_status = response.status
+        except urllib.error.HTTPError as error:
+            cmd_status = error.code
+        except Exception:
+            cmd_status = None
+        expect(cmd_status == 401, "a phone command without the passphrase is refused", str(cmd_status))
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as udp:
             udp.sendto(b"COMPANIONPASS changedbyudp\n", (lan, ports["companion"]))
         time.sleep(0.5)
