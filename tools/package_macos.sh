@@ -271,7 +271,7 @@ if [ -d "$REPO_ROOT/data" ]; then
   # output. Only the Windows packager had learned _converted, and none of the
   # three had ever heard of recordings, so this is the same drift the list above
   # documents being fixed twice. Keep all three in step.
-  for stale_dir in _converted recordings renders updates test-cards; do
+  for stale_dir in _converted recordings renders my-shaders updates test-cards; do
     if [ -d "$RESOURCES_DIR/data/$stale_dir" ]; then
       stale_mb=$(du -sm "$RESOURCES_DIR/data/$stale_dir" 2>/dev/null | cut -f1)
       rm -rf "$RESOURCES_DIR/data/$stale_dir"

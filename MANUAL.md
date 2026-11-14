@@ -3119,7 +3119,7 @@ inspector says "made by Deckboy" in place of a pattern picker.
 
   The cue's inspector has a **SHADER** section. It names the file, says what the
   shader is, and has three buttons: **LOAD .FS** (pick another file),
-  **SHADER FOLDER** (opens the folder for your own shaders, `shaders` in the
+  **SHADER FOLDER** (opens the folder for your own shaders, `my-shaders` in the
   folder where Deckboy keeps your data) and **EDIT** (opens the file in your
   editor; save it and the picture follows). Below them is one row for each
   **input** the shader's header names:
@@ -3150,7 +3150,7 @@ inspector says "made by Deckboy" in place of a pattern picker.
   graphics card: with the software renderer, or with a grade, a key or an
   effect on the cue, the cue shows a card that says so instead.
 
-  **Writing one.** Start from any `.fs` in the data folder's `shaders` folder:
+  **Writing one.** Start from a copy of any `.fs` in the data folder's `shaders` folder:
   a `/*{ ... }*/` header with `INPUTS`, then GLSL with a `main()` that sets
   `gl_FragColor`. The shader is compiled when the file is first used (a
   moment) and again when the file changes. A Deckboy build made without

@@ -242,7 +242,7 @@ if (Test-Path $DataSrc) {
     # output, gitignored, and never taught to ANY of the three packagers. Found
     # while building an isolated instance for demo capture -- a copied data/
     # brought both directories along.
-    foreach ($StaleDir in @("_converted", "recordings", "renders", "updates", "test-cards")) {
+    foreach ($StaleDir in @("_converted", "recordings", "renders", "my-shaders", "updates", "test-cards")) {
         $StaleDirPath = Join-Path (Join-Path $StageDir "data") $StaleDir
         if (Test-Path $StaleDirPath) {
             $StaleMB = [math]::Round(((Get-ChildItem $StaleDirPath -Recurse -File -ErrorAction SilentlyContinue | Measure-Object Length -Sum).Sum) / 1MB)

@@ -30,7 +30,10 @@
 
   // Shaders shipped with Deckboy, and the folder the operator's own live in.
   static dbfs::path shippedShaderFolder() { return Paths::dataDir() / "shaders"; }
-  static dbfs::path userShaderFolder() { return Paths::stateDir() / "shaders"; }
+  // Not "shaders": in a portable install the state dir IS the data dir, and
+  // the operator's own files must never share a folder with the ones we ship
+  // (the packagers strip this one by name).
+  static dbfs::path userShaderFolder() { return Paths::stateDir() / "my-shaders"; }
 
   struct ShaderEntry {
     std::string name;

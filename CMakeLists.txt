@@ -1207,6 +1207,24 @@ if(DECKBOY_ISF)
     GIT_TAG vulkan-sdk-1.4.350.1
     GIT_SHALLOW ON)
   FetchContent_MakeAvailable(glslang spirv_cross)
+  # A Mac below 10.15 has no std::filesystem, and glslang uses it in exactly
+  # one place: InfoSink::location makes a file name absolute when the caller
+  # asks for absolute paths (EShMsgAbsolutePath). Deckboy never asks and passes
+  # no file name, so there the name is used as given -- the same text we get
+  # on every other platform. The Intel bundle's floor is 10.13.
+  if(APPLE AND CMAKE_OSX_DEPLOYMENT_TARGET AND CMAKE_OSX_DEPLOYMENT_TARGET VERSION_LESS "10.15")
+    set(_isf_sink "${glslang_SOURCE_DIR}/glslang/Include/InfoSink.h")
+    file(READ "${_isf_sink}" _isf_text)
+    string(REPLACE "std::filesystem::absolute(shaderFileName).string()" "std::string(shaderFileName)"
+           _isf_text "${_isf_text}")
+    string(REPLACE "std::filesystem::absolute(location).string()" "location" _isf_text "${_isf_text}")
+    if(_isf_text MATCHES "std::filesystem::")
+      message(FATAL_ERROR "glslang's InfoSink.h uses std::filesystem somewhere new: "
+                          "look again before building for macOS ${CMAKE_OSX_DEPLOYMENT_TARGET}")
+    endif()
+    file(WRITE "${_isf_sink}" "${_isf_text}")
+    message(STATUS "ISF shaders: glslang's absolute-path messages off for macOS ${CMAKE_OSX_DEPLOYMENT_TARGET}")
+  endif()
   # Their warnings are theirs: the build-log audit reads ours only.
   foreach(_isf_target glslang SPIRV OSDependent GenericCodeGen MachineIndependent
                       glslang-default-resource-limits spirv-cross-core spirv-cross-glsl
