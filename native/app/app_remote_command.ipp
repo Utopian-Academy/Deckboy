@@ -7610,6 +7610,96 @@
       markProjectDirty();
       return;
     }
+    // LUMIA: the selected Lumia cue. STATUS; a control and a value in the
+    // units the inspector shows (percent, a panel count, a palette or mode by
+    // number or name, ON or OFF for the two switches); or LFO <control> ...
+    // as MOIRE does.
+    if (command == "LUMIA") {
+      Cue* cue = selectedCueMutable();
+      if (!cue || cue->kind != CueKind::Pattern || normalizePatternTypeId(cue->path) != "lumia") {
+        failRemoteCommand("select a lumia cue first");
+        return;
+      }
+      static const std::pair<const char*, NumericParam> kControls[] = {
+        {"PALETTE", NumericParam::LumiaPalette}, {"MODE", NumericParam::LumiaMode},
+        {"TOPBOTTOM", NumericParam::LumiaTopBottom}, {"LISTENS", NumericParam::LumiaListens},
+        {"FLOW", NumericParam::LumiaFlow}, {"WATER", NumericParam::LumiaWater},
+        {"RIPPLE", NumericParam::LumiaRipple}, {"JET", NumericParam::LumiaJet},
+        {"PRISM", NumericParam::LumiaPrism}, {"SPLIT", NumericParam::LumiaSplit},
+        {"FOCUS", NumericParam::LumiaFocus}, {"SHIMMER", NumericParam::LumiaShimmer},
+        {"MIRRORS", NumericParam::LumiaMirrors}, {"ANGLE", NumericParam::LumiaAngle},
+        {"SPIN", NumericParam::LumiaSpin}, {"LENS", NumericParam::LumiaLens},
+        {"GLOW", NumericParam::LumiaGlow}, {"BRIGHT", NumericParam::LumiaBright},
+        {"TRAIL", NumericParam::LumiaTrail},
+      };
+      auto controlFor = [&](const std::string& word) {
+        for (const auto& c : kControls) if (word == c.first) return c.second;
+        return NumericParam::None;
+      };
+      const std::string sub = parts.size() > 1 ? toUpper(parts[1]) : "STATUS";
+      const LumiaSettings& l = cue->lumia;
+      if (sub == "STATUS" && parts.size() <= 2) {
+        std::ostringstream status;
+        status << "lumia palette=" << lumiaPaletteName(l.palette) << " mode=" << lumiaModeName(l.mode)
+               << " topbottom=" << (l.topBottom ? "on" : "off") << " listens=" << (l.listens ? "on" : "off")
+               << " flow=" << l.flow << " water=" << l.water << " ripple=" << l.ripple << " jet=" << l.jet
+               << " prism=" << l.prism << " split=" << l.split << " focus=" << l.focus
+               << " shimmer=" << l.shimmer << " mirrors=" << l.mirrors << " angle=" << l.angle
+               << " spin=" << l.spin << " lens=" << l.lens << " glow=" << l.glow
+               << " bright=" << l.bright << " trail=" << l.trail << " moving=";
+        int moving = 0;
+        for (int slot = 0; slot < kLumiaLfoCount; ++slot) moving += l.lfo[static_cast<std::size_t>(slot)].on ? 1 : 0;
+        status << moving;
+        remoteCommandDetail_ = status.str();
+        return;
+      }
+      if (sub == "LFO") {
+        const NumericParam id = parts.size() > 2 ? controlFor(toUpper(parts[2])) : NumericParam::None;
+        const int slot = lumiaLfoSlotFor(id);
+        if (slot < 0) {
+          failRemoteCommand("LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, "
+                            "angle, spin, lens, glow, bright or trail");
+          return;
+        }
+        if (setLfoFromRemote(cue->lumia.lfo[static_cast<std::size_t>(slot)], parts, 3, "LFO")) {
+          markProjectDirty();
+          remoteCommandDetail_ = toLower(parts[2]) +
+            (cue->lumia.lfo[static_cast<std::size_t>(slot)].on ? " moving" : " still");
+        }
+        return;
+      }
+      const NumericParam id = controlFor(sub);
+      const NumericParamSpec* spec = numericParamSpec(id);
+      std::optional<double> value;
+      if (parts.size() == 3 && id != NumericParam::None) {
+        const std::string word = toUpper(parts[2]);
+        if (id == NumericParam::LumiaTopBottom || id == NumericParam::LumiaListens) {
+          if (word == "ON") value = 1.0;
+          else if (word == "OFF") value = 0.0;
+        } else if (id == NumericParam::LumiaPalette || id == NumericParam::LumiaMode) {
+          const int count = id == NumericParam::LumiaPalette ? kLumiaPaletteCount : kLumiaModeCount;
+          for (int i = 0; i < count; ++i) {
+            const char* name = id == NumericParam::LumiaPalette ? lumiaPaletteName(i) : lumiaModeName(i);
+            if (word == toUpper(name)) value = static_cast<double>(i);
+          }
+        }
+        if (!value) value = parseNumber(2);
+      }
+      if (parts.size() != 3 || !spec || !value || !std::isfinite(*value) ||
+          *value < spec->lo || *value > spec->hi ||
+          (spec->integral && std::floor(*value) != *value)) {
+        failRemoteCommand("STATUS | PALETTE <0-5 or name> | MODE <0-2 or name> | TOPBOTTOM|LISTENS ON|OFF | "
+                          "FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL "
+                          "<0-100> | MIRRORS <0-12> | LFO <control> <setting>");
+        return;
+      }
+      forEachFocusedSelectedCueMutable([&](Cue& each, int) {
+        double ignored = 0.0;
+        if (readNumericParam(each, id, ignored)) writeNumericParam(each, id, *value);
+      });
+      markProjectDirty();
+      return;
+    }
     // Bug Swat, the Motion lesson's game (app_bugswat.ipp).
     if (command == "BUGSWAT") {
       handleBugSwatCommand(parts);

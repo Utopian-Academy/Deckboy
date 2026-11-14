@@ -3742,6 +3742,13 @@
         key << '|' << m.shape << '|' << m.palette << '|' << m.density << '|' << m.speed << '|'
             << m.warp << '|' << m.turn << '|' << m.centreX << '|' << m.centreY << '|' << m.grey
             << '|' << m.hue << '|' << serializeGeometryLfos(m.lfo);
+      } else if (type == "lumia") {
+        const LumiaSettings& l = cue.lumia;
+        key << '|' << l.palette << '|' << l.mode << '|' << l.topBottom << '|' << l.listens << '|'
+            << l.flow << '|' << l.water << '|' << l.ripple << '|' << l.jet << '|' << l.prism << '|'
+            << l.split << '|' << l.focus << '|' << l.shimmer << '|' << l.mirrors << '|' << l.angle
+            << '|' << l.spin << '|' << l.lens << '|' << l.glow << '|' << l.bright << '|' << l.trail
+            << '|' << serializeGeometryLfos(l.lfo);
       } else if (type == "code") {
         key << '|' << cue.width << '|' << cue.height << '|' << cue.codeExpression;
       } else if (type == "draw") {

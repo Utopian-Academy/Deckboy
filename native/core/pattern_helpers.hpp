@@ -126,7 +126,7 @@ inline bool patternTypeSupportsMotion(const std::string& typeId) {
 // which made the desk look like nobody had decided what either one was.
 inline bool patternTypeIsGenerator(const std::string& typeId) {
   const std::string t = normalizePatternTypeId(typeId);
-  return t == "fireside" || t == "portal" || t == "swirl" || t == "code" || t == "moire-field" || t == "draw" ||
+  return t == "fireside" || t == "portal" || t == "swirl" || t == "code" || t == "moire-field" || t == "lumia" || t == "draw" ||
          t == "terrarium" || t == "terrarium-pico" || deckboy::extras::findGenerator(t) != nullptr;
 }
 
@@ -139,6 +139,7 @@ inline std::string generatorPatternName(const std::string& typeId) {
   if (t == "draw") return "Draw";
   if (t == "swirl") return "Swirl";
   if (t == "moire-field") return "Moire";
+  if (t == "lumia") return "Lumia";
   if (t == "code") return "Code";
   if (t == "terrarium") return "Terrarium";
   if (t == "terrarium-pico") return "Terrarium Pico";
@@ -171,6 +172,7 @@ inline bool patternTypeIsAnimated(const std::string& typeId) {
          normalized == "code" ||
          normalized == "swirl" ||                      // turning, melting greens
          normalized == "moire-field" ||                // scrolling interference bands
+         normalized == "lumia" ||                      // moving water, lasers and mirrors
          normalized == "portal" ||                     // born, drifting, melting
          // A DRAWING is rebuilt as it is drawn on and as it replays; the
          // engine skips the rebuild when nothing has changed (see

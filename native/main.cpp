@@ -2304,7 +2304,8 @@ void readParamLfo(const std::string& one, deckboy::effects::ParamLfo& lfo) {
 // rate, depth, shape and drawn curve; writing nothing for it handed back the
 // defaults on reopening, so switching it on again gave a different look
 // (Codex audit #3, found on the Moire cue, which shares this field format).
-std::string serializeGeometryLfos(const std::array<deckboy::effects::ParamLfo, 9>& lfos) {
+template <std::size_t N>
+std::string serializeGeometryLfos(const std::array<deckboy::effects::ParamLfo, N>& lfos) {
   const deckboy::effects::ParamLfo fresh;
   bool any = false;
   for (const auto& lfo : lfos) {
@@ -2424,8 +2425,9 @@ std::vector<CueFixtureLevel> parseFixtureLevels(const std::string& text) {
   return levels;
 }
 
-std::array<deckboy::effects::ParamLfo, 9> parseGeometryLfos(const std::string& text) {
-  std::array<deckboy::effects::ParamLfo, 9> lfos {};
+template <std::size_t N>
+std::array<deckboy::effects::ParamLfo, N> parseLfoList(const std::string& text) {
+  std::array<deckboy::effects::ParamLfo, N> lfos {};
   std::size_t at = 0;
   for (std::size_t i = 0; i < lfos.size() && !text.empty() && at != std::string::npos; ++i) {
     const std::size_t semi = text.find(';', at);
@@ -2434,6 +2436,15 @@ std::array<deckboy::effects::ParamLfo, 9> parseGeometryLfos(const std::string& t
     at = semi == std::string::npos ? std::string::npos : semi + 1;
   }
   return lfos;
+}
+
+std::array<deckboy::effects::ParamLfo, 9> parseGeometryLfos(const std::string& text) {
+  return parseLfoList<9>(text);
+}
+
+// A Lumia cue's fifteen oscillators, in the same spelling.
+std::array<deckboy::effects::ParamLfo, kLumiaLfoCount> parseLumiaLfos(const std::string& text) {
+  return parseLfoList<kLumiaLfoCount>(text);
 }
 
 // A tone cue's two oscillators, in the geometry field's spelling (the first

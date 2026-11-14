@@ -5764,6 +5764,92 @@
         finishInspectorSection(moSection, moY);
         ry = moY + kInspectorSectionGap;
       }
+      if (selectedCue->kind == CueKind::Pattern &&
+          normalizePatternTypeId(selectedCue->path) == "lumia") {
+        // Shares the Moire section's open flag: a cue is only ever one of them.
+        auto luSection = beginInspectorSection(ry, "LUMIA", cueSectionMoireOpen_,
+          QuickAction::CueSectionMoireToggle, "Collapse/expand the lumia's controls");
+        int luY = luSection.bodyStartY;
+        if (cueSectionMoireOpen_) {
+          const LumiaSettings& l = selectedCue->lumia;
+          // A group header has no control (id None): a small label over its rows.
+          struct LumiaRow { const char* label; NumericParam id; const char* tip; };
+          const LumiaRow rows[] = {
+            {"WATER", NumericParam::None, ""},
+            {"flow", NumericParam::LumiaFlow, "How fast the water moves"},
+            {"water", NumericParam::LumiaWater, "How bright the water's pale light is"},
+            {"ripple size", NumericParam::LumiaRipple, "Broad ripples at 0, fine and busy at 100"},
+            {"second jet", NumericParam::LumiaJet, "A second jet of water crossing the first"},
+            {"PRISM", NumericParam::None, ""},
+            {"lasers", NumericParam::LumiaPalette, "The laser colours: rgb, rainbow, floyd, warm, cool or green"},
+            {"prism", NumericParam::LumiaPrism, "How bright the laser lines are"},
+            {"split", NumericParam::LumiaSplit, "How far the colours fan apart"},
+            {"focus", NumericParam::LumiaFocus, "How hard the lines are bent"},
+            {"shimmer", NumericParam::LumiaShimmer, "Laser speckle: the focus trembles"},
+            {"MIRRORS", NumericParam::None, ""},
+            {"mode", NumericParam::LumiaMode, "Tube, mandala or none"},
+            {"mirrors", NumericParam::LumiaMirrors, "How many mirror panels, 0 to 12"},
+            {"panel angle", NumericParam::LumiaAngle, "How far each panel tilts from the one before"},
+            {"top / bottom", NumericParam::LumiaTopBottom, "The top mirrors the bottom round a dark seam"},
+            {"spin", NumericParam::LumiaSpin, "Turn the whole picture"},
+            {"LIGHT", NumericParam::None, ""},
+            {"lens", NumericParam::LumiaLens, "The round lens: a curved picture and a dark rim"},
+            {"glow", NumericParam::LumiaGlow, "The halo round the lines"},
+            {"brightness", NumericParam::LumiaBright, "How bright the picture is"},
+            {"trail", NumericParam::LumiaTrail, "How long light lingers on the screen"},
+            {"listens", NumericParam::LumiaListens, "The flow surges with the programme sound"},
+          };
+          for (const auto& row : rows) {
+            if (row.id == NumericParam::None) {
+              const SDL_Rect head {ix.ctrl.x + ix.inset, luY, ix.ctrlW - ix.inset * 2, ix.rowH};
+              drawTextSafe(controlRenderer_, fontSmall_, head, row.label, pal.fgSoft);
+              luY += kInspectorRowStep;
+              continue;
+            }
+            // Hide only what the picture ignores (buildLumia): none has no
+            // panels to count or tilt; the mandala's wedges neither tilt nor
+            // fold top to bottom. Top / bottom still acts with mode none.
+            const bool unused =
+              (l.mode == 2 && (row.id == NumericParam::LumiaMirrors || row.id == NumericParam::LumiaAngle)) ||
+              (l.mode == 1 && (row.id == NumericParam::LumiaAngle || row.id == NumericParam::LumiaTopBottom));
+            if (unused) {
+              continue;
+            }
+            double value = 0.0;
+            readNumericParam(*selectedCue, row.id, value);
+            char text[24];
+            if (row.id == NumericParam::LumiaPalette)
+              std::snprintf(text, sizeof(text), "%s", lumiaPaletteName(l.palette));
+            else if (row.id == NumericParam::LumiaMode)
+              std::snprintf(text, sizeof(text), "%s", lumiaModeName(l.mode));
+            else if (row.id == NumericParam::LumiaTopBottom || row.id == NumericParam::LumiaListens)
+              std::snprintf(text, sizeof(text), "%s", value >= 0.5 ? "on" : "off");
+            else if (row.id == NumericParam::LumiaMirrors)
+              std::snprintf(text, sizeof(text), "%.0f", value);
+            else std::snprintf(text, sizeof(text), "%.0f%%", value);
+            const int slot = lumiaLfoSlotFor(row.id);
+            if (slot < 0) {
+              inspDrawQuickRow(ix, luY, row.label, QuickAction::NumericParamDec, text,
+                QuickAction::NumericParamInc, QuickAction::ToggleLoop, false, false,
+                row.tip, true, QuickAction::EditNumericParam, static_cast<int>(row.id));
+              luY += kInspectorRowStep;
+              continue;
+            }
+            const auto& lfo = l.lfo[static_cast<std::size_t>(slot)];
+            inspDrawQuickRow(ix, luY, row.label, QuickAction::NumericParamDec, text,
+              QuickAction::NumericParamInc, QuickAction::ToggleLoop, false, false,
+              row.tip, true, QuickAction::EditNumericParam, static_cast<int>(row.id),
+              QuickAction::EffectLfoToggle, lfo.on, kLumiaLfoPackBase + slot, "~",
+              "Put this control on an oscillator");
+            luY += kInspectorRowStep;
+            if (lfo.on) {
+              luY = inspDrawLfoRowFor(ix, luY, lfo, kLumiaLfoPackBase + slot);
+            }
+          }
+        }
+        finishInspectorSection(luSection, luY);
+        ry = luY + kInspectorSectionGap;
+      }
       // FIRESIDE: how hard it burns. Only on a fireside cue -- these controls
       // mean nothing on a colour-bars pattern and drawing them there would be
       // two more things that cannot do anything. FIRST, like Swirl's and Code's:

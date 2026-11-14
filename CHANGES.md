@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Sources
+- New source: **Lumia**. Laser light through moving water, a prism and a tube of mirrors, like the light-art machines of the 1960s and 70s. Controls in four groups: water (flow, water, ripple size, second jet), prism (lasers, prism, split, focus, shimmer), mirrors (tube, mandala or none; 0 to 12 mirrors, panel angle, top / bottom, spin) and light (lens, glow, brightness, trail). Every number has an LFO, and it can listen to the programme sound. Add it from SOURCE > MADE BY DECKBOY. Companion: `LUMIA`.
+
 ### Effects
 - New effect: **Stereogram**. It turns any cue into a random-dot stereogram that shows the picture in 3D when you look through the screen. Bright parts come forward. A video or a camera becomes moving 3D; a Text cue becomes a hidden message. Controls: depth, repeat width, colour and dots move, each with an LFO. It runs on the graphics card, so a 4K video with it stays at 60 fps; without a graphics card that can run it, it costs about 1.2 ms a 1080p frame and 4 ms at 4K on the processor.
 - New effect: **Melt**. The picture holds and drips run out of it: a few channels run, the material pinches into thin necks with glossy heads, and drips run in surges. Controls: drip, drips, pinch, set (how fast drips harden away) and sheen, each with an LFO, and two choices: direction (down, up, sideways) and material (bright: bright things drip over the dark, as text and logos do; whole picture: everything is wax).

@@ -279,7 +279,7 @@ All of them are on the `SOURCE` menu.
   Metadata is probed asynchronously (`probing…` shows on the row until done).
 - **Add a source cue:** the SOURCE menu has four parts. LIVE PICTURE adds a
   window, camera, Syphon/Spout, browser, stream or NDI source. MADE BY DECKBOY
-  adds everything Deckboy makes itself: Fireside, Portal, Swirl, Moire, Video Synth,
+  adds everything Deckboy makes itself: Fireside, Portal, Swirl, Moire, Lumia, Video Synth,
   Code, Text, Lower Third, Stage Timer and the 2A03 and FDS synths. TEST
   SIGNALS adds a test pattern or a test tone, and CUES THAT DO THINGS adds the
   cues that act on the show rather than putting a picture up.
@@ -2916,7 +2916,7 @@ Pattern cues generate their pixels live and auto-scale to the selected output
 raster and refresh rate (unless the project overrides it). All motion is slow,
 smooth, and diagonal; full-frame solid colours have no motion option.
 
-Fireside, Portal, Swirl and Moire are drawn the same way but are set dressing rather
+Fireside, Portal, Swirl, Moire and Lumia are drawn the same way but are set dressing rather
 than test cards, so they are added from SOURCE > MADE BY DECKBOY, and their
 inspector says "made by Deckboy" in place of a pattern picker.
 
@@ -2972,6 +2972,28 @@ inspector says "made by Deckboy" in place of a pattern picker.
   `MOIRE SHAPE <0-5>`, `MOIRE PALETTE <0-3>`,
   `MOIRE DENSITY|SPEED|WARP|GREY|CENTREX|CENTREY <0-100>`,
   `MOIRE TURN|HUE <0-360>`, and `MOIRE LFO <control> ON|OFF|SHAPE|RATE|DEPTH|PHASE|SYNC [value]`.
+- **Lumia** — laser light through moving water, a prism and a tube of mirrors,
+  like the light-art machines of the 1960s and 70s. Deckboy draws the light,
+  then the mirrors and the lens decide what each pixel shows. Its inspector
+  has four groups:
+  - **water** — **flow** (how fast it moves), **water** (how bright it is),
+    **ripple size** (broad to fine) and **second jet** (a jet crossing the first);
+  - **prism** — **lasers** (rgb, rainbow, floyd, warm, cool or green),
+    **prism** (how bright the lines are), **split** (how far the colours fan
+    apart), **focus** (how hard the lines bend) and **shimmer** (laser speckle);
+  - **mirrors** — **mode** (tube, mandala or none), **mirrors** (0 to 12
+    panels), **panel angle**, **top / bottom** (the top mirrors the bottom round
+    a dark seam) and **spin**. With mode none, mirrors and panel angle are
+    hidden; with mandala, panel angle and top / bottom are hidden;
+  - **light** — **lens** (a round lens with a dark rim), **glow**,
+    **brightness** and **trail** (light lingers on the screen).
+
+  **Listens** makes the flow surge with the programme sound. Every number has a
+  **~**, the same oscillator as an effect parameter. Over the wire:
+  `LUMIA [STATUS]`, `LUMIA PALETTE <0-5 or name>`, `LUMIA MODE <0-2 or name>`,
+  `LUMIA TOPBOTTOM|LISTENS ON|OFF`,
+  `LUMIA FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100>`,
+  `LUMIA MIRRORS <0-12>`, and `LUMIA LFO <control> ON|OFF|SHAPE|RATE|DEPTH|PHASE|SYNC [value]`.
 - **Pocket Test** — a PM5544-style test card with a bouncing scene-porthole
   ball, a sync beacon, and an audio sync pop at the top of each second (use it
   to dial the A/V delay offset).

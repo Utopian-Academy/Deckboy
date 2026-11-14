@@ -787,6 +787,62 @@
     };
 
     {
+      // LUMIA: add the source, drive every control from the wire, and read
+      // each back through the inspector's own numeric path.
+      App app;
+      app.showSplashOverlay_ = false;
+      app.showStartupDialog_ = false;
+      app.project_.decks = {Deck {}};
+      expect(app.isKnownPatternType("lumia"), "lumia is a known source");
+      expect(patternTypeIsAnimated("lumia") && patternTypeIsGenerator("lumia"),
+             "lumia animates and is a generator");
+      app.addLumiaCue();
+      expect(app.project_.decks[0].cues.size() == 1 &&
+             normalizePatternTypeId(app.project_.decks[0].cues[0].path) == "lumia" &&
+             app.project_.decks[0].cues[0].name == "Lumia", "the SOURCE entry adds a lumia cue");
+      app.project_.decks[0].selectedIndex = 0;
+      const auto run = [&](const std::string& line) {
+        app.handleRemoteCommand(line);
+        return app.remoteCommandError_.empty();
+      };
+      expect(run("LUMIA PALETTE floyd") && run("LUMIA MODE mandala") &&
+             run("LUMIA TOPBOTTOM OFF") && run("LUMIA LISTENS ON") &&
+             run("LUMIA FLOW 10") && run("LUMIA WATER 20") && run("LUMIA RIPPLE 30") &&
+             run("LUMIA JET 40") && run("LUMIA PRISM 50") && run("LUMIA SPLIT 60") &&
+             run("LUMIA FOCUS 70") && run("LUMIA SHIMMER 80") && run("LUMIA MIRRORS 6") &&
+             run("LUMIA ANGLE 90") && run("LUMIA SPIN 15") && run("LUMIA LENS 25") &&
+             run("LUMIA GLOW 35") && run("LUMIA BRIGHT 45") && run("LUMIA TRAIL 55"),
+             "every LUMIA control is accepted from the wire");
+      const LumiaSettings& l = app.project_.decks[0].cues[0].lumia;
+      expect(l.palette == 2 && l.mode == 1 && !l.topBottom && l.listens &&
+             std::fabs(l.flow - 0.10) < 1e-9 && std::fabs(l.water - 0.20) < 1e-9 &&
+             std::fabs(l.ripple - 0.30) < 1e-9 && std::fabs(l.jet - 0.40) < 1e-9 &&
+             std::fabs(l.prism - 0.50) < 1e-9 && std::fabs(l.split - 0.60) < 1e-9 &&
+             std::fabs(l.focus - 0.70) < 1e-9 && std::fabs(l.shimmer - 0.80) < 1e-9 &&
+             std::fabs(l.mirrors - 0.5) < 1e-9 && std::fabs(l.angle - 0.90) < 1e-9 &&
+             std::fabs(l.spin - 0.15) < 1e-9 && std::fabs(l.lens - 0.25) < 1e-9 &&
+             std::fabs(l.glow - 0.35) < 1e-9 && std::fabs(l.bright - 0.45) < 1e-9 &&
+             std::fabs(l.trail - 0.55) < 1e-9, "LUMIA values land in the cue");
+      double back = 0.0;
+      expect(app.readNumericParam(app.project_.decks[0].cues[0], NumericParam::LumiaMirrors, back) &&
+             back == 6.0, "the mirrors read back as a panel count");
+      expect(!run("LUMIA FLOW 101") && !run("LUMIA PALETTE 6") && !run("LUMIA MIRRORS 13") &&
+             !run("LUMIA TOPBOTTOM maybe") && !run("LUMIA NOPE 1"),
+             "LUMIA refuses a value out of range");
+      expect(run("LUMIA LFO flow ON") && l.lfo[kLumiaLfoFlow].on &&
+             run("LUMIA LFO flow OFF") && !l.lfo[kLumiaLfoFlow].on, "a LUMIA oscillator switches on and off");
+      app.project_.decks[0].cues[0].lumia.lfo[kLumiaLfoGlow].on = true;
+      expect(app.effectLfoAt(kLumiaLfoPackBase + kLumiaLfoGlow) ==
+             &app.project_.decks[0].cues[0].lumia.lfo[kLumiaLfoGlow],
+             "the packed oscillator id reaches the lumia's own");
+      Cue other;
+      other.kind = CueKind::Pattern;
+      other.path = "pattern://bars";
+      double ignored = 0.0;
+      expect(!app.readNumericParam(other, NumericParam::LumiaFlow, ignored), "a lumia control reads nothing on another source");
+    }
+
+    {
       App app;
       app.showSplashOverlay_ = false;
       app.showStartupDialog_ = false;
@@ -2411,6 +2467,27 @@
         seq.moire.themeInks = {0x102030u, 0x405060u, 0x708090u, 0xA0B0C0u};
         seq.moire.lfo[kMoireLfoHue].on = true;
         seq.moire.lfo[kMoireLfoHue].rateHz = 2.0f;
+        seq.lumia.palette = 3;
+        seq.lumia.mode = 1;
+        seq.lumia.topBottom = false;
+        seq.lumia.listens = true;
+        seq.lumia.flow = 0.61;
+        seq.lumia.water = 0.62;
+        seq.lumia.ripple = 0.63;
+        seq.lumia.jet = 0.64;
+        seq.lumia.prism = 0.65;
+        seq.lumia.split = 0.66;
+        seq.lumia.focus = 0.67;
+        seq.lumia.shimmer = 0.68;
+        seq.lumia.mirrors = 0.5;
+        seq.lumia.angle = 0.69;
+        seq.lumia.spin = 0.71;
+        seq.lumia.lens = 0.72;
+        seq.lumia.glow = 0.73;
+        seq.lumia.bright = 0.74;
+        seq.lumia.trail = 0.75;
+        seq.lumia.lfo[kLumiaLfoTrail].on = true;
+        seq.lumia.lfo[kLumiaLfoTrail].rateHz = 1.5f;
         // A preset, with a playlist and an output in it.
         ShowPreset preset;
         preset.id = "preset-smoke";
@@ -2519,13 +2596,13 @@
           // twelve Moire fields, then the fade cue's effect, knob and
           // restore at end, then the backdrop, then lock to screen, then the
           // cue's mask, then a tone's oscillators, then a drawing, then
-          // whether its pixels carry alpha. The
+          // whether its pixels carry alpha, then the twenty Lumia fields. The
           // older-show checks below trim this many and then their own, so a
           // field appended to the record is counted here once. When the
           // Moire fields went in, only two of five checks were bumped, and the
           // other three trimmed nothing but Moire -- passing without testing
           // the show they were named for.
-          constexpr int kAfterTrackerFields = 21;
+          constexpr int kAfterTrackerFields = 41;
           // A show from immediately before the fixture patch (one tail field
           // fewer) keeps its mic channel and has no fixture levels.
           {
@@ -2634,6 +2711,19 @@
                std::fabs(loadedCue.moire.lfo[kMoireLfoHue].rateHz - 2.0f) < 1e-4f &&
                !loadedCue.moire.lfo[kMoireLfoDensity].on,
                "a moire's controls, inks and oscillators persist");
+        {
+          const LumiaSettings& l = loadedCue.lumia;
+          const auto closeTo = [](double a, double b) { return std::fabs(a - b) < 1e-6; };
+          expect(l.palette == 3 && l.mode == 1 && !l.topBottom && l.listens &&
+                 closeTo(l.flow, 0.61) && closeTo(l.water, 0.62) && closeTo(l.ripple, 0.63) &&
+                 closeTo(l.jet, 0.64) && closeTo(l.prism, 0.65) && closeTo(l.split, 0.66) &&
+                 closeTo(l.focus, 0.67) && closeTo(l.shimmer, 0.68) && closeTo(l.mirrors, 0.5) &&
+                 closeTo(l.angle, 0.69) && closeTo(l.spin, 0.71) && closeTo(l.lens, 0.72) &&
+                 closeTo(l.glow, 0.73) && closeTo(l.bright, 0.74) && closeTo(l.trail, 0.75) &&
+                 l.lfo[kLumiaLfoTrail].on && std::fabs(l.lfo[kLumiaLfoTrail].rateHz - 1.5f) < 1e-4f &&
+                 !l.lfo[kLumiaLfoFlow].on,
+                 "a lumia's controls, switches and oscillators persist");
+        }
         expect(loaded.presets.size() == 1 && loaded.presets[0].name == "Smoke preset" &&
                  loaded.presets[0].scope == (kPresetPosition | kPresetLevels) &&
                  std::fabs(loaded.presets[0].masterVolume - 0.8) < 1e-6,
@@ -2663,7 +2753,7 @@
         // the spine and trimming 3 stopped reaching preWaitSeconds -- the test
         // failed loudly, which is the only reason this comment exists rather
         // than a silent hole in the backward-compatibility check.
-        constexpr int kSpineTailFields = 114;  // preWait, postWait, continue, masters,
+        constexpr int kSpineTailFields = 134;  // preWait, postWait, continue, masters,
                                               // target id/deck/verb, armed, panel w/h,
                                               // fade secs/to/what/curve/stop,
                                               // fireside view, overlay lower-third
@@ -2676,7 +2766,8 @@
                                               // the fixture levels, stream HDR, tracker jump and section, the twelve Moire fields,
                                               // a fade cue's effect, knob and restore at end,
                                               // the backdrop, lock to screen, the mask,
-                                              // a tone's oscillators, a drawing, alpha
+                                              // a tone's oscillators, a drawing, alpha,
+                                              // the twenty Lumia fields
         {
           std::ifstream in(smokePath);
           std::ostringstream older;
@@ -5632,6 +5723,43 @@
           else if (key == "cy") m.centreY = v;
           else if (key == "grey") m.grey = v;
           else if (key == "hue") m.hue = v;
+        }
+      } else if (id == "lumia") {
+        // `lumia:mandala,palette=3,flow=0.8` -- a mode by name, and any
+        // control as its stored 0-1 value.
+        std::stringstream parts(variant);
+        std::string part;
+        while (std::getline(parts, part, ',')) {
+          const std::size_t eq = part.find('=');
+          if (eq == std::string::npos) {
+            for (int m = 0; m < kLumiaModeCount; ++m)
+              if (part == lumiaModeName(m)) cue.lumia.mode = m;
+            for (int pl = 0; pl < kLumiaPaletteCount; ++pl)
+              if (part == lumiaPaletteName(pl)) cue.lumia.palette = pl;
+            continue;
+          }
+          const std::string key = part.substr(0, eq);
+          const double v = std::atof(part.substr(eq + 1).c_str());
+          LumiaSettings& l = cue.lumia;
+          if (key == "palette") l.palette = std::clamp(static_cast<int>(v), 0, kLumiaPaletteCount - 1);
+          else if (key == "mode") l.mode = std::clamp(static_cast<int>(v), 0, kLumiaModeCount - 1);
+          else if (key == "topbottom") l.topBottom = v >= 0.5;
+          else if (key == "listens") l.listens = v >= 0.5;
+          else if (key == "flow") l.flow = v;
+          else if (key == "water") l.water = v;
+          else if (key == "ripple") l.ripple = v;
+          else if (key == "jet") l.jet = v;
+          else if (key == "prism") l.prism = v;
+          else if (key == "split") l.split = v;
+          else if (key == "focus") l.focus = v;
+          else if (key == "shimmer") l.shimmer = v;
+          else if (key == "mirrors") l.mirrors = v;
+          else if (key == "angle") l.angle = v;
+          else if (key == "spin") l.spin = v;
+          else if (key == "lens") l.lens = v;
+          else if (key == "glow") l.glow = v;
+          else if (key == "bright") l.bright = v;
+          else if (key == "trail") l.trail = v;
         }
       } else {
         cue.firesideView = firesideViewFromToken(variant);

@@ -3118,6 +3118,11 @@
       {0, 0, 0, 0},
       [this]() { addMoireCue(); }
     });
+    contextItems_.push_back({
+      "  Lumia (laser light and mirrors)",
+      {0, 0, 0, 0},
+      [this]() { addLumiaCue(); }
+    });
     // The Konami secret, once this save has unlocked it.
     if (project_.terrariumUnlocked) {
       contextItems_.push_back({
@@ -3485,6 +3490,7 @@
       list.emplace_back("draw",           "Draw (what you draw on the monitor)");
       list.emplace_back("swirl",          "Swirl (melting pixel greens)");
       list.emplace_back("moire-field",    "Moire (interference bands)");
+      list.emplace_back("lumia",          "Lumia (laser light and mirrors)");
       list.emplace_back("code",           "Code (live expression)");
       list.emplace_back("terrarium",      "Terrarium (living ecosystem)");
       list.emplace_back("terrarium-pico", "Terrarium Pico (1px per cell)");
@@ -4333,6 +4339,17 @@
       Cue& cue = deck.cues.back();
       cue.name = "Moire";
       cue.color = {150, 60, 170, 255};
+      markProjectDirty();
+    }
+  }
+
+  void addLumiaCue() {
+    addPatternCue("lumia");
+    Deck& deck = focusedDeckMutable();
+    if (!deck.cues.empty()) {
+      Cue& cue = deck.cues.back();
+      cue.name = "Lumia";
+      cue.color = {40, 120, 190, 255};
       markProjectDirty();
     }
   }

@@ -731,6 +731,67 @@ struct MoireSettings {
   std::array<deckboy::effects::ParamLfo, 9> lfo {};   // [kMoireLfo*]; 8 unused
 };
 
+// A LUMIA source: laser light through moving water, a prism and a tube of
+// mirrors, as the light-art machines of the 1960s and 70s made it. Light is
+// traced into a small source picture each frame; the mirrors and the lens then
+// decide which point of it each output pixel sees. See buildLumia.
+//
+// Every number is 0-1 so an oscillator can swing it, as with Moire.
+enum LumiaLfoSlot : int {
+  kLumiaLfoFlow = 0,
+  kLumiaLfoWater,
+  kLumiaLfoRipple,
+  kLumiaLfoJet,
+  kLumiaLfoPrism,
+  kLumiaLfoSplit,
+  kLumiaLfoFocus,
+  kLumiaLfoShimmer,
+  kLumiaLfoMirrors,
+  kLumiaLfoAngle,
+  kLumiaLfoSpin,
+  kLumiaLfoLens,
+  kLumiaLfoGlow,
+  kLumiaLfoBright,
+  kLumiaLfoTrail,
+  kLumiaLfoCount
+};
+inline constexpr int kLumiaPaletteCount = 6;
+inline constexpr int kLumiaModeCount = 3;
+inline const char* lumiaPaletteName(int palette) {
+  static const char* kNames[kLumiaPaletteCount] = {"rgb", "rainbow", "floyd", "warm", "cool", "green"};
+  return kNames[palette >= 0 && palette < kLumiaPaletteCount ? palette : 0];
+}
+inline const char* lumiaModeName(int mode) {
+  static const char* kNames[kLumiaModeCount] = {"tube", "mandala", "none"};
+  return kNames[mode >= 0 && mode < kLumiaModeCount ? mode : 0];
+}
+struct LumiaSettings {
+  int palette = 0;          // the lasers: rgb
+  int mode = 0;             // the mirrors: tube
+  bool topBottom = true;    // top mirrors bottom round a dark seam
+  bool listens = false;     // the flow surges with the programme sound
+  // Water
+  double flow = 0.35;       // how fast the water moves
+  double water = 0.5;       // how bright the water's pale light is
+  double ripple = 0.5;      // ripple size: 0 fine and busy, 1 broad
+  double jet = 0.3;         // a second jet crossing the first
+  // Prism
+  double prism = 0.7;       // how bright the laser lines are
+  double split = 0.5;       // how far the colours fan apart
+  double focus = 0.5;       // how hard the lines are bent
+  double shimmer = 0.3;     // laser speckle: the focus trembles
+  // Mirrors
+  double mirrors = 0.33;    // 0-12 panels; 0.33 = 4
+  double angle = 0.4;       // how far each panel tilts from the one before
+  double spin = 0.0;        // the whole picture turns
+  // Light
+  double lens = 0.6;        // the round lens: barrel and dark rim
+  double glow = 0.5;        // the halo round the lines
+  double bright = 0.5;
+  double trail = 0.3;       // light lingers on the screen
+  std::array<deckboy::effects::ParamLfo, kLumiaLfoCount> lfo {};
+};
+
 struct PortalSettings {
   int blobs = 18;        // how many are alive at once, 3-48
   double size = 0.5;     // how big a blob grows, 0-1
@@ -1288,6 +1349,8 @@ constexpr int kMaskLfoPackBase = 1 << 23;
 constexpr int kToneLfoPackBase = 1 << 24;
 // The draw brush's two oscillators: base + 0 size, base + 1 opacity.
 constexpr int kDrawLfoPackBase = 1 << 25;
+// A Lumia cue's oscillators: base + LumiaLfoSlot.
+constexpr int kLumiaLfoPackBase = 1 << 26;
 constexpr int kToneLfoFreq = 0;
 constexpr int kToneLfoLevel = 1;
 constexpr int kToneLfoCount = 2;
@@ -1975,6 +2038,7 @@ struct Cue {
   SwirlSettings swirl;
   // A Moire source's controls. Only meaningful on a "moire-field" pattern cue.
   MoireSettings moire;
+  LumiaSettings lumia;
   // A text cue laid out as a lower third. Off on every other cue.
   LowerThirdDesign lowerThird;
   // Clip whose MOTION drives the motion-puppet effect. Its pictures are never

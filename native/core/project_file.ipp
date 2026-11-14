@@ -1061,6 +1061,28 @@ void writeProjectRecords(std::ostream& output, const Project& project) {
         << '\t' << escapeField(serializeToneLfos(cue.toneLfo))   // vs + 168: a tone's oscillators
         << '\t' << escapeField(serializeCueDrawing(cue))          // vs + 169: a Draw cue's strokes
         << '\t' << (cue.sourceHasAlpha ? 1 : 0)                    // vs + 170: its pixels carry alpha
+        // vs + 171..190: a Lumia source -- palette, mode, the two switches, the
+        // fifteen 0-1 controls (flow to trail), and its oscillators.
+        << '\t' << cue.lumia.palette
+        << '\t' << cue.lumia.mode
+        << '\t' << (cue.lumia.topBottom ? 1 : 0)
+        << '\t' << (cue.lumia.listens ? 1 : 0)
+        << '\t' << cue.lumia.flow
+        << '\t' << cue.lumia.water
+        << '\t' << cue.lumia.ripple
+        << '\t' << cue.lumia.jet
+        << '\t' << cue.lumia.prism
+        << '\t' << cue.lumia.split
+        << '\t' << cue.lumia.focus
+        << '\t' << cue.lumia.shimmer
+        << '\t' << cue.lumia.mirrors
+        << '\t' << cue.lumia.angle
+        << '\t' << cue.lumia.spin
+        << '\t' << cue.lumia.lens
+        << '\t' << cue.lumia.glow
+        << '\t' << cue.lumia.bright
+        << '\t' << cue.lumia.trail
+        << '\t' << escapeField(serializeGeometryLfos(cue.lumia.lfo))
         << '\n';
   };
   for (size_t deckIndex = 0; deckIndex < project.decks.size(); ++deckIndex) {
@@ -2863,6 +2885,31 @@ Project loadProject(const fs::path& projectFile,
         // Absent before it: no alpha, which is how every clip decoded.
         if (fields.size() >= static_cast<std::size_t>(vs + 171)) {
           cue.sourceHasAlpha = safeBool(fields, vs + 170, false);
+        }
+        // Absent before Lumia: every control at its default.
+        if (fields.size() >= static_cast<std::size_t>(vs + 191)) {
+          const LumiaSettings fresh;
+          LumiaSettings& l = cue.lumia;
+          l.palette = std::clamp(safeInt(fields, vs + 171, fresh.palette), 0, kLumiaPaletteCount - 1);
+          l.mode = std::clamp(safeInt(fields, vs + 172, fresh.mode), 0, kLumiaModeCount - 1);
+          l.topBottom = safeBool(fields, vs + 173, fresh.topBottom);
+          l.listens = safeBool(fields, vs + 174, fresh.listens);
+          l.flow = std::clamp(safeDouble(fields, vs + 175, fresh.flow), 0.0, 1.0);
+          l.water = std::clamp(safeDouble(fields, vs + 176, fresh.water), 0.0, 1.0);
+          l.ripple = std::clamp(safeDouble(fields, vs + 177, fresh.ripple), 0.0, 1.0);
+          l.jet = std::clamp(safeDouble(fields, vs + 178, fresh.jet), 0.0, 1.0);
+          l.prism = std::clamp(safeDouble(fields, vs + 179, fresh.prism), 0.0, 1.0);
+          l.split = std::clamp(safeDouble(fields, vs + 180, fresh.split), 0.0, 1.0);
+          l.focus = std::clamp(safeDouble(fields, vs + 181, fresh.focus), 0.0, 1.0);
+          l.shimmer = std::clamp(safeDouble(fields, vs + 182, fresh.shimmer), 0.0, 1.0);
+          l.mirrors = std::clamp(safeDouble(fields, vs + 183, fresh.mirrors), 0.0, 1.0);
+          l.angle = std::clamp(safeDouble(fields, vs + 184, fresh.angle), 0.0, 1.0);
+          l.spin = std::clamp(safeDouble(fields, vs + 185, fresh.spin), 0.0, 1.0);
+          l.lens = std::clamp(safeDouble(fields, vs + 186, fresh.lens), 0.0, 1.0);
+          l.glow = std::clamp(safeDouble(fields, vs + 187, fresh.glow), 0.0, 1.0);
+          l.bright = std::clamp(safeDouble(fields, vs + 188, fresh.bright), 0.0, 1.0);
+          l.trail = std::clamp(safeDouble(fields, vs + 189, fresh.trail), 0.0, 1.0);
+          l.lfo = parseLumiaLfos(safeString(fields, vs + 190));
         }
       }
       // A MASTER CUE HAS NO PATH, and this gate would have dropped it on load

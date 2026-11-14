@@ -82,6 +82,26 @@ enum class NumericParam : int {
   MoireCentreY,
   MoireGrey,
   MoireHue,
+  // Lumia source, mapped like Moire.
+  LumiaPalette,
+  LumiaMode,
+  LumiaTopBottom,
+  LumiaListens,
+  LumiaFlow,
+  LumiaWater,
+  LumiaRipple,
+  LumiaJet,
+  LumiaPrism,
+  LumiaSplit,
+  LumiaFocus,
+  LumiaShimmer,
+  LumiaMirrors,
+  LumiaAngle,
+  LumiaSpin,
+  LumiaLens,
+  LumiaGlow,
+  LumiaBright,
+  LumiaTrail,
   // Panel Map: one LED tile, in pixels.
   LedPanelWidth,
   LedPanelHeight,
@@ -112,6 +132,28 @@ inline int moireLfoSlotFor(NumericParam id) {
     case NumericParam::MoireCentreY: return kMoireLfoCentreY;
     case NumericParam::MoireGrey: return kMoireLfoGrey;
     case NumericParam::MoireHue: return kMoireLfoHue;
+    default: return -1;
+  }
+}
+
+// Which oscillator slot a Lumia row's ~ drives, or -1 for a picker or a toggle.
+inline int lumiaLfoSlotFor(NumericParam id) {
+  switch (id) {
+    case NumericParam::LumiaFlow: return kLumiaLfoFlow;
+    case NumericParam::LumiaWater: return kLumiaLfoWater;
+    case NumericParam::LumiaRipple: return kLumiaLfoRipple;
+    case NumericParam::LumiaJet: return kLumiaLfoJet;
+    case NumericParam::LumiaPrism: return kLumiaLfoPrism;
+    case NumericParam::LumiaSplit: return kLumiaLfoSplit;
+    case NumericParam::LumiaFocus: return kLumiaLfoFocus;
+    case NumericParam::LumiaShimmer: return kLumiaLfoShimmer;
+    case NumericParam::LumiaMirrors: return kLumiaLfoMirrors;
+    case NumericParam::LumiaAngle: return kLumiaLfoAngle;
+    case NumericParam::LumiaSpin: return kLumiaLfoSpin;
+    case NumericParam::LumiaLens: return kLumiaLfoLens;
+    case NumericParam::LumiaGlow: return kLumiaLfoGlow;
+    case NumericParam::LumiaBright: return kLumiaLfoBright;
+    case NumericParam::LumiaTrail: return kLumiaLfoTrail;
     default: return -1;
   }
 }
@@ -209,6 +251,82 @@ const NumericParamSpec* numericParamSpec(NumericParam id) {
     }
     case NumericParam::MoireHue: {
       static const NumericParamSpec s {"moire.hue", "Hue", "Degrees round the colour wheel, 0-360", 0, 360, 0, false, 5};
+      return &s;
+    }
+    case NumericParam::LumiaPalette: {
+      static const NumericParamSpec s {"lumia.palette", "Lasers", "0 rgb, 1 rainbow, 2 floyd, 3 warm, 4 cool, 5 green", 0, 5, 0, true, 1};
+      return &s;
+    }
+    case NumericParam::LumiaMode: {
+      static const NumericParamSpec s {"lumia.mode", "Mirrors", "0 tube, 1 mandala, 2 none", 0, 2, 0, true, 1};
+      return &s;
+    }
+    case NumericParam::LumiaTopBottom: {
+      static const NumericParamSpec s {"lumia.topbottom", "Top / bottom", "0 off, 1 on: the top mirrors the bottom round a dark seam", 0, 1, 0, true, 1};
+      return &s;
+    }
+    case NumericParam::LumiaListens: {
+      static const NumericParamSpec s {"lumia.listens", "Listens", "0 off, 1 on: the flow surges with the programme sound", 0, 1, 0, true, 1};
+      return &s;
+    }
+    case NumericParam::LumiaFlow: {
+      static const NumericParamSpec s {"lumia.flow", "Flow", "0-100%: how fast the water moves", 0, 100, 0, false, 2};
+      return &s;
+    }
+    case NumericParam::LumiaWater: {
+      static const NumericParamSpec s {"lumia.water", "Water", "0-100%: how bright the water is", 0, 100, 0, false, 2};
+      return &s;
+    }
+    case NumericParam::LumiaRipple: {
+      static const NumericParamSpec s {"lumia.ripple", "Ripple size", "0-100%: 0 broad, 100 fine and busy", 0, 100, 0, false, 2};
+      return &s;
+    }
+    case NumericParam::LumiaJet: {
+      static const NumericParamSpec s {"lumia.jet", "Second jet", "0-100%: a second jet crossing the first", 0, 100, 0, false, 2};
+      return &s;
+    }
+    case NumericParam::LumiaPrism: {
+      static const NumericParamSpec s {"lumia.prism", "Prism", "0-100%: how bright the laser lines are", 0, 100, 0, false, 2};
+      return &s;
+    }
+    case NumericParam::LumiaSplit: {
+      static const NumericParamSpec s {"lumia.split", "Split", "0-100%: how far the colours fan apart", 0, 100, 0, false, 2};
+      return &s;
+    }
+    case NumericParam::LumiaFocus: {
+      static const NumericParamSpec s {"lumia.focus", "Focus", "0-100%: how hard the lines are bent", 0, 100, 0, false, 2};
+      return &s;
+    }
+    case NumericParam::LumiaShimmer: {
+      static const NumericParamSpec s {"lumia.shimmer", "Shimmer", "0-100%: laser speckle", 0, 100, 0, false, 2};
+      return &s;
+    }
+    case NumericParam::LumiaMirrors: {
+      static const NumericParamSpec s {"lumia.mirrors", "Mirrors", "Panels, 0-12", 0, 12, 0, true, 1};
+      return &s;
+    }
+    case NumericParam::LumiaAngle: {
+      static const NumericParamSpec s {"lumia.angle", "Panel angle", "0-100%: how far each panel tilts from the one before", 0, 100, 0, false, 2};
+      return &s;
+    }
+    case NumericParam::LumiaSpin: {
+      static const NumericParamSpec s {"lumia.spin", "Spin", "0-100%: the whole picture turns", 0, 100, 0, false, 2};
+      return &s;
+    }
+    case NumericParam::LumiaLens: {
+      static const NumericParamSpec s {"lumia.lens", "Lens", "0-100%: the round lens, barrel and dark rim", 0, 100, 0, false, 2};
+      return &s;
+    }
+    case NumericParam::LumiaGlow: {
+      static const NumericParamSpec s {"lumia.glow", "Glow", "0-100%: the halo round the lines", 0, 100, 0, false, 2};
+      return &s;
+    }
+    case NumericParam::LumiaBright: {
+      static const NumericParamSpec s {"lumia.bright", "Brightness", "0-100%: overall brightness", 0, 100, 0, false, 2};
+      return &s;
+    }
+    case NumericParam::LumiaTrail: {
+      static const NumericParamSpec s {"lumia.trail", "Trail", "0-100%: light lingers on the screen", 0, 100, 0, false, 2};
       return &s;
     }
     case NumericParam::CodeWidth:
@@ -498,6 +616,51 @@ bool readNumericParam(const Cue& cue, NumericParam id, double& out) {
           : m.hue * 360.0;
       return true;
     }
+    case NumericParam::LumiaPalette:
+    case NumericParam::LumiaMode:
+    case NumericParam::LumiaTopBottom:
+    case NumericParam::LumiaListens:
+    case NumericParam::LumiaFlow:
+    case NumericParam::LumiaWater:
+    case NumericParam::LumiaRipple:
+    case NumericParam::LumiaJet:
+    case NumericParam::LumiaPrism:
+    case NumericParam::LumiaSplit:
+    case NumericParam::LumiaFocus:
+    case NumericParam::LumiaShimmer:
+    case NumericParam::LumiaMirrors:
+    case NumericParam::LumiaAngle:
+    case NumericParam::LumiaSpin:
+    case NumericParam::LumiaLens:
+    case NumericParam::LumiaGlow:
+    case NumericParam::LumiaBright:
+    case NumericParam::LumiaTrail: {
+      if (cue.kind != CueKind::Pattern || normalizePatternTypeId(cue.path) != "lumia") return false;
+      const LumiaSettings& l = cue.lumia;
+      switch (id) {
+        case NumericParam::LumiaPalette: out = l.palette; break;
+        case NumericParam::LumiaMode: out = l.mode; break;
+        case NumericParam::LumiaTopBottom: out = l.topBottom ? 1.0 : 0.0; break;
+        case NumericParam::LumiaListens: out = l.listens ? 1.0 : 0.0; break;
+        case NumericParam::LumiaFlow: out = l.flow * 100.0; break;
+        case NumericParam::LumiaWater: out = l.water * 100.0; break;
+        case NumericParam::LumiaRipple: out = l.ripple * 100.0; break;
+        case NumericParam::LumiaJet: out = l.jet * 100.0; break;
+        case NumericParam::LumiaPrism: out = l.prism * 100.0; break;
+        case NumericParam::LumiaSplit: out = l.split * 100.0; break;
+        case NumericParam::LumiaFocus: out = l.focus * 100.0; break;
+        case NumericParam::LumiaShimmer: out = l.shimmer * 100.0; break;
+        case NumericParam::LumiaMirrors: out = std::round(l.mirrors * 12.0); break;
+        case NumericParam::LumiaAngle: out = l.angle * 100.0; break;
+        case NumericParam::LumiaSpin: out = l.spin * 100.0; break;
+        case NumericParam::LumiaLens: out = l.lens * 100.0; break;
+        case NumericParam::LumiaGlow: out = l.glow * 100.0; break;
+        case NumericParam::LumiaBright: out = l.bright * 100.0; break;
+        case NumericParam::LumiaTrail: out = l.trail * 100.0; break;
+        default: break;
+      }
+      return true;
+    }
     case NumericParam::CodeWidth:
     case NumericParam::CodeHeight:
       if (!cueIsCodeSource(cue)) return false;
@@ -611,6 +774,25 @@ void writeNumericParam(Cue& cue, NumericParam id, double value) {
     case NumericParam::MoireCentreY: cue.moire.centreY = std::clamp(value / 100.0, 0.0, 1.0); break;
     case NumericParam::MoireGrey: cue.moire.grey = std::clamp(value / 100.0, 0.0, 1.0); break;
     case NumericParam::MoireHue: cue.moire.hue = std::clamp(value / 360.0, 0.0, 1.0); break;
+    case NumericParam::LumiaPalette: cue.lumia.palette = std::clamp(static_cast<int>(std::lround(value)), 0, kLumiaPaletteCount - 1); break;
+    case NumericParam::LumiaMode: cue.lumia.mode = std::clamp(static_cast<int>(std::lround(value)), 0, kLumiaModeCount - 1); break;
+    case NumericParam::LumiaTopBottom: cue.lumia.topBottom = value >= 0.5; break;
+    case NumericParam::LumiaListens: cue.lumia.listens = value >= 0.5; break;
+    case NumericParam::LumiaFlow: cue.lumia.flow = std::clamp(value / 100.0, 0.0, 1.0); break;
+    case NumericParam::LumiaWater: cue.lumia.water = std::clamp(value / 100.0, 0.0, 1.0); break;
+    case NumericParam::LumiaRipple: cue.lumia.ripple = std::clamp(value / 100.0, 0.0, 1.0); break;
+    case NumericParam::LumiaJet: cue.lumia.jet = std::clamp(value / 100.0, 0.0, 1.0); break;
+    case NumericParam::LumiaPrism: cue.lumia.prism = std::clamp(value / 100.0, 0.0, 1.0); break;
+    case NumericParam::LumiaSplit: cue.lumia.split = std::clamp(value / 100.0, 0.0, 1.0); break;
+    case NumericParam::LumiaFocus: cue.lumia.focus = std::clamp(value / 100.0, 0.0, 1.0); break;
+    case NumericParam::LumiaShimmer: cue.lumia.shimmer = std::clamp(value / 100.0, 0.0, 1.0); break;
+    case NumericParam::LumiaMirrors: cue.lumia.mirrors = std::clamp(value / 12.0, 0.0, 1.0); break;
+    case NumericParam::LumiaAngle: cue.lumia.angle = std::clamp(value / 100.0, 0.0, 1.0); break;
+    case NumericParam::LumiaSpin: cue.lumia.spin = std::clamp(value / 100.0, 0.0, 1.0); break;
+    case NumericParam::LumiaLens: cue.lumia.lens = std::clamp(value / 100.0, 0.0, 1.0); break;
+    case NumericParam::LumiaGlow: cue.lumia.glow = std::clamp(value / 100.0, 0.0, 1.0); break;
+    case NumericParam::LumiaBright: cue.lumia.bright = std::clamp(value / 100.0, 0.0, 1.0); break;
+    case NumericParam::LumiaTrail: cue.lumia.trail = std::clamp(value / 100.0, 0.0, 1.0); break;
     case NumericParam::CodeWidth: cue.width = static_cast<int>(std::lround(value)); break;
     case NumericParam::CodeHeight: cue.height = static_cast<int>(std::lround(value)); break;
     case NumericParam::VsSpeed:      v.speed = value; break;
@@ -1033,7 +1215,14 @@ void effectStackNudge(int index, float delta) {
 // Every one of these takes the PACKED id described on the QuickAction enum:
 // effectIndex * 8 + slot, slot 0-3 for paramA-D and 4 for the amount.
 deckboy::effects::ParamLfo* effectLfoAt(int packed) {
-  // The draw brush's size and opacity: the highest range, tested first.
+  // A Lumia cue's oscillators: the highest range, so it is tested first.
+  if (packed >= kLumiaLfoPackBase) {
+    const int slot = packed - kLumiaLfoPackBase;
+    Cue* cue = selectedCueMutable();
+    if (!cue || slot < 0 || slot >= kLumiaLfoCount) return nullptr;
+    return &cue->lumia.lfo[static_cast<std::size_t>(slot)];
+  }
+  // The draw brush's size and opacity: the next range down.
   if (packed >= kDrawLfoPackBase) {
     const int slot = packed - kDrawLfoPackBase;
     if (slot < 0 || slot > 1) return nullptr;
@@ -1053,7 +1242,7 @@ deckboy::effects::ParamLfo* effectLfoAt(int packed) {
     if (!m || slot < 0 || slot >= deckboy::masks::kMaskLfoCount) return nullptr;
     return &m->lfo[static_cast<std::size_t>(slot)];
   }
-  // A Moire cue's oscillators: the highest range, so it is tested first.
+  // A Moire cue's oscillators: the next range down.
   if (packed >= kMoireLfoPackBase) {
     const int slot = packed - kMoireLfoPackBase;
     Cue* cue = selectedCueMutable();

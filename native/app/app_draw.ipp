@@ -991,6 +991,9 @@
         if (t == "draw") return QuickAction::CueSectionDrawToggle;
         if (t == "swirl") return QuickAction::CueSectionSwirlToggle;
         if (t == "moire-field") return QuickAction::CueSectionMoireToggle;
+        // Lumia shares the Moire section flag: a cue is only ever one of them,
+        // and the toggle enum lives in types.hpp.
+        if (t == "lumia") return QuickAction::CueSectionMoireToggle;
         if (deckboy::extras::findGenerator(t)) return QuickAction::CueSectionExtraToggle;
         return QuickAction::CueSectionPlaybackToggle;
       }
