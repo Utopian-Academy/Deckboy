@@ -4539,3 +4539,15 @@ Drag, click to type, or put it on an oscillator	Slaod, briog airson sgrìobhadh 
 select a shader cue first (SHADER LOAD <path> makes one)	tagh cue sgàileadair an toiseach (cruthaichidh SHADER LOAD <path> fear)
 Open this file in your editor; save it and the picture follows	Fosgail am faidhle san deasaiche agad; sàbhail e agus ùraichidh an dealbh
 Open the folder where your own shaders live; they appear in SOURCE	Fosgail pasgan nan sgàileadairean agad fhèin; nochdaidh iad ann an SOURCE
+BOUNCE	PING-PONG
+FORWARD	AIR ADHART
+{1} ready	{1} deiseil
+{1}: queued	{1}: sa chiudha
+{1}: not made	{1}: gun dèanamh
+{1}: making {2}%	{1}: ga dhèanamh {2}%
+select a video file cue first	tagh cue faidhle bhidio an toiseach
+could not make the reversed copy	cha b’ urrainn dhuinn an lethbhreac cùil a dhèanamh
+FORWARD, REVERSE, BOUNCE or STATUS	FORWARD, REVERSE, BOUNCE no STATUS
+A long clip: watch the Encoder tab.	Criomag fhada: cùm sùil air taba Còdaiche.
+{1}: making a copy first ({2} decodes only forwards). It plays forwards until the copy is ready.	{1}: a’ dèanamh lethbhreac an toiseach (cha dì-chòdaich {2} ach air adhart). Cluichidh e air adhart gus am bi an lethbhreac deiseil.
+Forward, reverse, or bounce (there and back). Reverse and bounce play a copy Deckboy makes once; it plays forwards until the copy is ready	Air adhart, air ais, no a-null ’s a-nall. Cluichidh air ais agus ping-pong lethbhreac a nì Deckboy aon turas; cluichidh e air adhart gus am bi an lethbhreac deiseil

@@ -4556,3 +4556,15 @@ Open this file in your editor; save it and the picture follows	ⵕⵥⵎ ⴰⴼ�
 Open the folder where your own shaders live; they appear in SOURCE	ⵕⵥⵎ ⴰⴽⴰⵔⴰⵎ ⵏ ⵉⵎⵙⵉⵖⵏ ⵏⵏⴽ; ⴰⴷ ⴱⴰⵏⵏ ⴳ SOURCE
 STATUS | LOAD <path> | SET <input> <value...> | LFO <input> ON|OFF|SHAPE|RATE|DEPTH|PHASE|SYNC [value]	STATUS | LOAD <ⴰⴱⵔⵉⴷ> | SET <ⴰⵏⴽⵛⵓⵎ> <ⴰⵣⴰⵍ...> | LFO <ⴰⵏⴽⵛⵓⵎ> ON|OFF|SHAPE|RATE|DEPTH|PHASE|SYNC [ⴰⵣⴰⵍ]
 STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <control> <setting>	STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <ⴰⵙⵏⵇⴷ> <ⴰⵙⵖⵍ>
+BOUNCE	ⴷⴷⵓ-ⴷ ⵓⵖⵓⵍ
+FORWARD	ⵖⵔ ⵣⴷⴰⵜ
+{1} ready	{1} ⵢⵓⵊⴰⴷ
+{1}: queued	{1}: ⴳ ⵓⵎⵙⵔⵉⵔ
+{1}: not made	{1}: ⵓⵔ ⵉⵜⵜⵓⵙⴽⵔ ⵢⴰⴷ
+{1}: making {2}%	{1}: ⴰⵙⴽⵔ {2}%
+select a video file cue first	ⴼⵔⵏ ⵇⴱⵍ ⴰⵏⴱⴷ ⵏ ⵓⴼⴰⵢⵍⵓ ⵏ ⵓⴼⵉⴷⵢⵓ
+could not make the reversed copy	ⵓⵔ ⵉⵣⵎⵉⵔ ⴰⴷ ⵉⵙⴽⵔ ⴰⵏⵖⴰⵍ ⵉⵜⵜⵉⵏ
+FORWARD, REVERSE, BOUNCE or STATUS	FORWARD, REVERSE, BOUNCE ⵏⵖ STATUS
+A long clip: watch the Encoder tab.	ⴰⴽⵍⵉⴱ ⵉⵖⵣⵣⵉⴼⵏ: ⵥⵕ ⵜⴰⴱⵓⵜ ⵏ ⵓⵙⵏⴳⵍⵎ.
+{1}: making a copy first ({2} decodes only forwards). It plays forwards until the copy is ready.	{1}: ⴰⵙⴽⵔ ⵏ ⵓⵏⵖⴰⵍ ⵇⴱⵍ ({2} ⵉⵙⵙⵓⴼⵓⵖ ⵜⴰⵏⴳⴰⵍⵜ ⵖⵔ ⵣⴷⴰⵜ ⴽⴰⵏ). ⴰⴷ ⵉⵍⴰⵍ ⵖⵔ ⵣⴷⴰⵜ ⴰⵔ ⴷ ⵉⵡⵊⴷ ⵓⵏⵖⴰⵍ.
+Forward, reverse, or bounce (there and back). Reverse and bounce play a copy Deckboy makes once; it plays forwards until the copy is ready	ⵖⵔ ⵣⴷⴰⵜ, ⵖⵔ ⴹⴰⵕⵜ, ⵏⵖ ⴷⴷⵓ-ⴷ ⵓⵖⵓⵍ (ⴰⴷⴷⵓ ⴷ ⵜⵓⵖⴰⵍⵉⵏ). ⴰⵍⴰⵍ ⵖⵔ ⴹⴰⵕⵜ ⴷ ⴷⴷⵓ-ⴷ ⵓⵖⵓⵍ ⵙⵙⵎⵔⴰⵙⵏ ⴰⵏⵖⴰⵍ ⵉⵙⴽⵔ Deckboy ⵢⴰⵜ ⵜⵉⴽⴽⵍⵜ; ⴰⴷ ⵉⵍⴰⵍ ⵖⵔ ⵣⴷⴰⵜ ⴰⵔ ⴷ ⵉⵡⵊⴷ ⵓⵏⵖⴰⵍ

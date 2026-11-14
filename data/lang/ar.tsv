@@ -4558,3 +4558,15 @@ Drag, click to type, or put it on an oscillator	اسحب، أو انقر للك�
 select a shader cue first (SHADER LOAD <path> makes one)	اختر كيو مظلّل أولاً (ينشئ SHADER LOAD <path> واحداً)
 Open this file in your editor; save it and the picture follows	افتح هذا الملف في محرّرك؛ احفظه فتتحدّث الصورة
 Open the folder where your own shaders live; they appear in SOURCE	افتح مجلد مظلّلاتك؛ ستظهر في SOURCE
+BOUNCE	ذهاب وإياب
+FORWARD	للأمام
+{1} ready	{1} جاهز
+{1}: queued	{1}: في قائمة الانتظار
+{1}: not made	{1}: لم تُنشأ النسخة
+{1}: making {2}%	{1}: جارٍ الإنشاء {2}%
+select a video file cue first	اختر أولاً إشارة تشغيل لملف فيديو
+could not make the reversed copy	تعذّر إنشاء النسخة المعكوسة
+A long clip: watch the Encoder tab.	المقطع طويل: راقب علامة تبويب المُرمِّز.
+{1}: making a copy first ({2} decodes only forwards). It plays forwards until the copy is ready.	{1}: جارٍ إنشاء نسخة أولاً ({2} يفك الترميز للأمام فقط). يستمر التشغيل للأمام حتى تصبح النسخة جاهزة.
+Forward, reverse, or bounce (there and back). Reverse and bounce play a copy Deckboy makes once; it plays forwards until the copy is ready	للأمام أو للخلف أو ذهاب وإياب. يستخدم التشغيل للخلف والذهاب والإياب نسخة ينشئها Deckboy مرة واحدة؛ يستمر التشغيل للأمام حتى تصبح النسخة جاهزة
+FORWARD, REVERSE, BOUNCE or STATUS	FORWARD, REVERSE, BOUNCE أو STATUS

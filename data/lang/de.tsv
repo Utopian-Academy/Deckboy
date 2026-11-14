@@ -4512,3 +4512,15 @@ Drag, click to type, or put it on an oscillator	Ziehen, zur Eingabe klicken oder
 select a shader cue first (SHADER LOAD <path> makes one)	Zuerst einen Shader-Cue w?hlen (SHADER LOAD <path> erstellt einen)
 Open this file in your editor; save it and the picture follows	Diese Datei im Editor ?ffnen; nach dem Speichern folgt das Bild
 Open the folder where your own shaders live; they appear in SOURCE	Den Ordner mit eigenen Shadern ?ffnen; sie erscheinen unter SOURCE
+BOUNCE	PENDELN
+FORWARD	VORW?RTS
+{1} ready	{1} bereit
+{1}: queued	{1}: eingereiht
+{1}: not made	{1}: nicht erstellt
+{1}: making {2}%	{1}: wird erstellt {2}%
+select a video file cue first	zuerst einen Videodatei-Cue ausw?hlen
+could not make the reversed copy	die R?ckw?rtskopie konnte nicht erstellt werden
+FORWARD, REVERSE, BOUNCE or STATUS	FORWARD, REVERSE, BOUNCE oder STATUS
+A long clip: watch the Encoder tab.	Ein langer Clip: den Tab Encoder beobachten.
+{1}: making a copy first ({2} decodes only forwards). It plays forwards until the copy is ready.	{1}: zuerst wird eine Kopie erstellt ({2} decodiert nur vorw?rts). Bis die Kopie bereit ist, l?uft der Clip vorw?rts.
+Forward, reverse, or bounce (there and back). Reverse and bounce play a copy Deckboy makes once; it plays forwards until the copy is ready	Vorw?rts, r?ckw?rts oder pendelnd (hin und zur?ck). R?ckw?rts und Pendeln nutzen eine Kopie, die Deckboy einmal erstellt; bis sie bereit ist, l?uft der Clip vorw?rts

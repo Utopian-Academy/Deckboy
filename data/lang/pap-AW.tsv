@@ -4521,3 +4521,15 @@ Open this file in your editor; save it and the picture follows	Habri e archivo a
 Open the folder where your own shaders live; they appear in SOURCE	Habri e caha cu bo mes shaders; nan ta aparece den SOURCE
 STATUS | LOAD <path> | SET <input> <value...> | LFO <input> ON|OFF|SHAPE|RATE|DEPTH|PHASE|SYNC [value]	STATUS | LOAD <ruta> | SET <entrada> <valor...> | LFO <entrada> ON|OFF|SHAPE|RATE|DEPTH|PHASE|SYNC [valor]
 STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <control> <setting>	STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <control> <configuracion>
+BOUNCE	BAI BIN
+FORWARD	DILANTI
+{1} ready	{1} cla
+{1}: queued	{1}: den rij
+{1}: not made	{1}: no traha ainda
+{1}: making {2}%	{1}: trahando {2}%
+select a video file cue first	selecta un cue di un file di video prome
+could not make the reversed copy	no por a traha e copia na reversa
+FORWARD, REVERSE, BOUNCE or STATUS	FORWARD, REVERSE, BOUNCE of STATUS
+A long clip: watch the Encoder tab.	Un clip largo: wak e tab Codificado.
+{1}: making a copy first ({2} decodes only forwards). It plays forwards until the copy is ready.	{1}: ta traha un copia prome ({2} ta decodifica solamente dilanti). E ta toca dilanti te ora e copia ta cla.
+Forward, reverse, or bounce (there and back). Reverse and bounce play a copy Deckboy makes once; it plays forwards until the copy is ready	Dilanti, reversa, of bai bin (bai y bolbe). Reversa y bai bin ta toca un copia cu Deckboy ta traha un biaha; e ta toca dilanti te ora e copia ta cla

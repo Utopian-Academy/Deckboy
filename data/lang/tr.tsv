@@ -4536,3 +4536,15 @@ Drag, click to type, or put it on an oscillator	Sürükleyin, yazmak için tıkl
 select a shader cue first (SHADER LOAD <path> makes one)	önce bir gölgelendirici cue seçin (SHADER LOAD <path> bir tane oluşturur)
 Open this file in your editor; save it and the picture follows	Bu dosyayı düzenleyicinizde açın; kaydedince görüntü güncellenir
 Open the folder where your own shaders live; they appear in SOURCE	Kendi gölgelendiricilerinizin klasörünü açın; SOURCE içinde görünürler
+BOUNCE	GİT-GEL
+FORWARD	İLERİ
+{1} ready	{1} hazır
+{1}: queued	{1}: sırada
+{1}: not made	{1}: oluşturulmadı
+{1}: making {2}%	{1}: oluşturuluyor {2}%
+select a video file cue first	önce bir video dosyası cue'su seç
+could not make the reversed copy	ters oynatma kopyası oluşturulamadı
+FORWARD, REVERSE, BOUNCE or STATUS	FORWARD, REVERSE, BOUNCE veya STATUS
+A long clip: watch the Encoder tab.	Uzun bir klip: Kodlayıcı sekmesini izle.
+{1}: making a copy first ({2} decodes only forwards). It plays forwards until the copy is ready.	{1}: önce bir kopya oluşturuluyor ({2} yalnızca ileri yönde çözer). Kopya hazır olana kadar ileri oynatılır.
+Forward, reverse, or bounce (there and back). Reverse and bounce play a copy Deckboy makes once; it plays forwards until the copy is ready	İleri, geri veya git-gel. Geri ve git-gel, Deckboy'un bir kez oluşturduğu kopyayı oynatır; kopya hazır olana kadar ileri oynatılır

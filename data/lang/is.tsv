@@ -4537,3 +4537,15 @@ Drag, click to type, or put it on an oscillator	Dragðu, smelltu til að slá in
 select a shader cue first (SHADER LOAD <path> makes one)	veldu fyrst cue með skyggi (SHADER LOAD <path> býr það til)
 Open this file in your editor; save it and the picture follows	Opnaðu skrána í ritlinum þínum; vistaðu hana og myndin uppfærist
 Open the folder where your own shaders live; they appear in SOURCE	Opnaðu möppuna með þínum eigin skyggjum; þeir birtast í SOURCE
+BOUNCE	SVEIFLA
+FORWARD	ÁFRAM
+{1} ready	{1} tilbúið
+{1}: queued	{1}: í biðröð
+{1}: not made	{1}: ekki búið til
+{1}: making {2}%	{1}: vinnsla {2}%
+select a video file cue first	veldu fyrst cue með myndskeiðsskrá
+could not make the reversed copy	ekki tókst að búa til afrit fyrir afturábakspilun
+FORWARD, REVERSE, BOUNCE or STATUS	FORWARD, REVERSE, BOUNCE eða STATUS
+A long clip: watch the Encoder tab.	Langt myndskeið: fylgstu með flipanum Kóðari.
+{1}: making a copy first ({2} decodes only forwards). It plays forwards until the copy is ready.	{1}: fyrst er búið til afrit ({2} afkóðar aðeins áfram). Spilað er áfram þar til afritið er tilbúið.
+Forward, reverse, or bounce (there and back). Reverse and bounce play a copy Deckboy makes once; it plays forwards until the copy is ready	Áfram, afturábak eða fram og til baka. Afturábakspilun og sveifla nota afrit sem Deckboy býr til einu sinni; spilað er áfram þar til afritið er tilbúið

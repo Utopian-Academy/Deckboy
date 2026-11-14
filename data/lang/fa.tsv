@@ -4556,3 +4556,15 @@ Drag, click to type, or put it on an oscillator	بکشید، برای تایپ �
 select a shader cue first (SHADER LOAD <path> makes one)	ابتدا یک کیوی شیدر انتخاب کنید (SHADER LOAD <path> یکی می‌سازد)
 Open this file in your editor; save it and the picture follows	این فایل را در ویرایشگر خود باز کنید؛ با ذخیره‌کردن، تصویر به‌روز می‌شود
 Open the folder where your own shaders live; they appear in SOURCE	پوشهٔ شیدرهای خود را باز کنید؛ در SOURCE ظاهر می‌شوند
+BOUNCE	رفت‌وبرگشت
+FORWARD	رو به جلو
+{1} ready	{1} آماده است
+{1}: queued	{1}: در صف
+{1}: not made	{1}: ساخته نشده
+{1}: making {2}%	{1}: در حال ساخت {2}%
+select a video file cue first	ابتدا یک کیوی فایل ویدیویی انتخاب کنید
+could not make the reversed copy	ساخت نسخهٔ معکوس ممکن نشد
+A long clip: watch the Encoder tab.	کلیپ طولانی است: زبانهٔ رمزگذار را دنبال کنید.
+{1}: making a copy first ({2} decodes only forwards). It plays forwards until the copy is ready.	{1}: ابتدا یک نسخه ساخته می‌شود ({2} فقط رو به جلو رمزگشایی می‌کند). تا آماده‌شدن نسخه، پخش رو به جلو ادامه دارد.
+Forward, reverse, or bounce (there and back). Reverse and bounce play a copy Deckboy makes once; it plays forwards until the copy is ready	رو به جلو، معکوس یا رفت‌وبرگشت. پخش معکوس و رفت‌وبرگشت از نسخه‌ای استفاده می‌کنند که Deckboy یک بار می‌سازد؛ تا آماده‌شدن نسخه، پخش رو به جلو ادامه دارد
+FORWARD, REVERSE, BOUNCE or STATUS	FORWARD, REVERSE, BOUNCE یا STATUS

@@ -4545,3 +4545,15 @@ Drag, click to type, or put it on an oscillator	ڕایبکێشە، بۆ نووس
 select a shader cue first (SHADER LOAD <path> makes one)	سەرەتا کیوی شەیدەر هەڵبژێرە (SHADER LOAD <path> یەکێک دروست دەکات)
 Open this file in your editor; save it and the picture follows	ئەم پەڕگەیە لە دەستکاریکەرەکەت بکەرەوە؛ پاشەکەوتی بکە و وێنەکە نوێ دەبێتەوە
 Open the folder where your own shaders live; they appear in SOURCE	بوخچەی شەیدەرەکانی خۆت بکەرەوە؛ لە SOURCE دەردەکەون
+BOUNCE	چوون و هاتنەوە
+FORWARD	بۆ پێشەوە
+{1} ready	{1} ئامادەیە
+{1}: queued	{1}: لە ڕیزدایە
+{1}: not made	{1}: دروست نەکراوە
+{1}: making {2}%	{1}: لە دروستکردندایە {2}%
+select a video file cue first	سەرەتا کیوێکی فایلی ڤیدیۆ هەڵبژێرە
+could not make the reversed copy	نەتوانرا کۆپیی پێچەوانە دروست بکرێت
+A long clip: watch the Encoder tab.	کلیپەکە درێژە: چاودێری تابی کۆدکەر بکە.
+{1}: making a copy first ({2} decodes only forwards). It plays forwards until the copy is ready.	{1}: سەرەتا کۆپییەک دروست دەکرێت ({2} تەنها بۆ پێشەوە کۆد دەکاتەوە). تا کۆپییەکە ئامادە دەبێت، بۆ پێشەوە لێ دەدرێت.
+Forward, reverse, or bounce (there and back). Reverse and bounce play a copy Deckboy makes once; it plays forwards until the copy is ready	بۆ پێشەوە، پێچەوانە، یان چوون و هاتنەوە. لێدانی پێچەوانە و چوون و هاتنەوە کۆپییەک بەکاردەهێنن کە Deckboy جارێک دروستی دەکات؛ تا کۆپییەکە ئامادە دەبێت، بۆ پێشەوە لێ دەدرێت
+FORWARD, REVERSE, BOUNCE or STATUS	FORWARD, REVERSE, BOUNCE یان STATUS

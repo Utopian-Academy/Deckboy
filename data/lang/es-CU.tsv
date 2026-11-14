@@ -4511,3 +4511,15 @@ Drag, click to type, or put it on an oscillator	Arrastra, pulsa para escribir o 
 select a shader cue first (SHADER LOAD <path> makes one)	primero escoge un cue de shader (SHADER LOAD <path> crea uno)
 Open this file in your editor; save it and the picture follows	Abre este archivo en tu editor; al salvarlo, la imagen se actualiza
 Open the folder where your own shaders live; they appear in SOURCE	Abre la carpeta de tus shaders; aparecen en SOURCE
+BOUNCE	VAIV?N
+FORWARD	ADELANTE
+{1} ready	{1} listo
+{1}: queued	{1}: en cola
+{1}: not made	{1}: sin hacer
+{1}: making {2}%	{1}: haciendo {2}%
+select a video file cue first	escoge primero un cue de archivo de video
+could not make the reversed copy	no se pudo hacer la copia invertida
+FORWARD, REVERSE, BOUNCE or STATUS	FORWARD, REVERSE, BOUNCE o STATUS
+A long clip: watch the Encoder tab.	Clip largo: mira la pesta?a Codificador.
+{1}: making a copy first ({2} decodes only forwards). It plays forwards until the copy is ready.	{1}: primero se hace una copia ({2} solo decodifica hacia delante). Se reproduce hacia delante hasta que la copia est? lista.
+Forward, reverse, or bounce (there and back). Reverse and bounce play a copy Deckboy makes once; it plays forwards until the copy is ready	Hacia delante, en reversa o en vaiv?n (ida y vuelta). Reversa y vaiv?n reproducen una copia que Deckboy hace una sola vez; se reproduce hacia delante hasta que la copia est? lista

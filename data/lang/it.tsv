@@ -4508,3 +4508,15 @@ Drag, click to type, or put it on an oscillator	Trascina, clicca per digitare o 
 select a shader cue first (SHADER LOAD <path> makes one)	seleziona prima un cue shader (SHADER LOAD <path> ne crea uno)
 Open this file in your editor; save it and the picture follows	Apri questo file nel tuo editor; salvandolo, l'immagine si aggiorna
 Open the folder where your own shaders live; they appear in SOURCE	Apri la cartella dei tuoi shader; compaiono in SOURCE
+BOUNCE	PING-PONG
+FORWARD	AVANTI
+{1} ready	{1} pronto
+{1}: queued	{1}: in coda
+{1}: not made	{1}: non creata
+{1}: making {2}%	{1}: creazione {2}%
+select a video file cue first	seleziona prima un cue con un file video
+could not make the reversed copy	impossibile creare la copia al contrario
+FORWARD, REVERSE, BOUNCE or STATUS	FORWARD, REVERSE, BOUNCE o STATUS
+A long clip: watch the Encoder tab.	Clip lunga: controlla la scheda Codificatore.
+{1}: making a copy first ({2} decodes only forwards). It plays forwards until the copy is ready.	{1}: prima viene creata una copia ({2} decodifica solo in avanti). La riproduzione prosegue in avanti finch? la copia non ? pronta.
+Forward, reverse, or bounce (there and back). Reverse and bounce play a copy Deckboy makes once; it plays forwards until the copy is ready	Avanti, indietro o ping-pong (andata e ritorno). Indietro e ping-pong riproducono una copia che Deckboy crea una sola volta; la riproduzione prosegue in avanti finch? la copia non ? pronta

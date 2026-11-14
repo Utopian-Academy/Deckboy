@@ -4544,3 +4544,15 @@ Drag, click to type, or put it on an oscillator	Плъзнете, щракнет
 select a shader cue first (SHADER LOAD <path> makes one)	първо изберете кю с шейдър (SHADER LOAD <path> създава такова)
 Open this file in your editor; save it and the picture follows	Отворете файла в редактора; запазете го и картината ще се обнови
 Open the folder where your own shaders live; they appear in SOURCE	Отворете папката с вашите шейдъри; те се появяват в SOURCE
+BOUNCE	НАПРЕД-НАЗАД
+FORWARD	НАПРЕД
+{1} ready	{1} е готово
+{1}: queued	{1}: на опашка
+{1}: not made	{1}: не е създадено
+{1}: making {2}%	{1}: създаване {2}%
+select a video file cue first	първо изберете cue с видеофайл
+could not make the reversed copy	неуспешно създаване на копието за обратно възпроизвеждане
+FORWARD, REVERSE, BOUNCE or STATUS	FORWARD, REVERSE, BOUNCE или STATUS
+A long clip: watch the Encoder tab.	Дълъг клип: следете раздела „Кодер“.
+{1}: making a copy first ({2} decodes only forwards). It plays forwards until the copy is ready.	{1}: първо се създава копие ({2} декодира само напред). Възпроизвежда се напред, докато копието стане готово.
+Forward, reverse, or bounce (there and back). Reverse and bounce play a copy Deckboy makes once; it plays forwards until the copy is ready	Напред, назад или напред-назад. За назад и напред-назад се възпроизвежда копие, което Deckboy създава еднократно; дотогава се възпроизвежда напред

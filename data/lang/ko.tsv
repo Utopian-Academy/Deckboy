@@ -4540,3 +4540,15 @@ Drag, click to type, or put it on an oscillator	드래그하거나 클릭하여 
 select a shader cue first (SHADER LOAD <path> makes one)	먼저 셰이더 큐를 선택하세요 (SHADER LOAD <path>로 생성)
 Open this file in your editor; save it and the picture follows	편집기에서 이 파일을 열고 저장하면 영상에 반영됩니다
 Open the folder where your own shaders live; they appear in SOURCE	사용자 셰이더 폴더를 엽니다. 셰이더는 SOURCE에 표시됩니다
+BOUNCE	왕복
+FORWARD	정방향
+{1} ready	{1} 준비됨
+{1}: queued	{1}: 대기 중
+{1}: not made	{1}: 생성되지 않음
+{1}: making {2}%	{1}: 생성 중 {2}%
+select a video file cue first	먼저 동영상 파일 큐를 선택하세요
+could not make the reversed copy	역재생용 복사본을 만들지 못했습니다
+A long clip: watch the Encoder tab.	긴 클립입니다: 인코더 탭을 확인하세요.
+{1}: making a copy first ({2} decodes only forwards). It plays forwards until the copy is ready.	{1}: 먼저 복사본을 만듭니다 ({2}은(는) 정방향 디코딩만 지원). 복사본이 준비될 때까지 정방향으로 재생합니다.
+Forward, reverse, or bounce (there and back). Reverse and bounce play a copy Deckboy makes once; it plays forwards until the copy is ready	정방향, 역방향 또는 왕복 재생. 역방향과 왕복 재생은 Deckboy가 한 번 만든 복사본을 사용합니다; 복사본이 준비될 때까지 정방향으로 재생합니다
+FORWARD, REVERSE, BOUNCE or STATUS	FORWARD, REVERSE, BOUNCE 또는 STATUS

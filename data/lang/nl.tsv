@@ -4483,3 +4483,15 @@ Drag, click to type, or put it on an oscillator	Sleep, klik om te typen of wijs 
 select a shader cue first (SHADER LOAD <path> makes one)	selecteer eerst een shadercue (SHADER LOAD <path> maakt er een)
 Open this file in your editor; save it and the picture follows	Open dit bestand in je editor; na opslaan wordt het beeld bijgewerkt
 Open the folder where your own shaders live; they appear in SOURCE	Open de map met je eigen shaders; ze verschijnen onder SOURCE
+BOUNCE	PENDELEN
+FORWARD	VOORUIT
+{1} ready	{1} gereed
+{1}: queued	{1}: in wachtrij
+{1}: not made	{1}: niet gemaakt
+{1}: making {2}%	{1}: aanmaken {2}%
+select a video file cue first	selecteer eerst een cue met een videobestand
+could not make the reversed copy	kon de omgekeerde kopie niet maken
+FORWARD, REVERSE, BOUNCE or STATUS	FORWARD, REVERSE, BOUNCE of STATUS
+A long clip: watch the Encoder tab.	Lange clip: houd het tabblad Encoder in de gaten.
+{1}: making a copy first ({2} decodes only forwards). It plays forwards until the copy is ready.	{1}: eerst wordt een kopie gemaakt ({2} decodeert alleen vooruit). De clip speelt vooruit totdat de kopie gereed is.
+Forward, reverse, or bounce (there and back). Reverse and bounce play a copy Deckboy makes once; it plays forwards until the copy is ready	Vooruit, achteruit of pendelen (heen en terug). Achteruit en pendelen spelen een kopie af die Deckboy eenmalig maakt; de clip speelt vooruit totdat de kopie gereed is

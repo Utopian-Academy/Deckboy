@@ -4530,3 +4530,15 @@ Open this file in your editor; save it and the picture follows	Vula leli fayela 
 Open the folder where your own shaders live; they appear in SOURCE	Vula ifolda enama-shader akho; avela ku-SOURCE
 STATUS | LOAD <path> | SET <input> <value...> | LFO <input> ON|OFF|SHAPE|RATE|DEPTH|PHASE|SYNC [value]	STATUS | LOAD <indlela> | SET <okufakwayo> <inani...> | LFO <okufakwayo> ON|OFF|SHAPE|RATE|DEPTH|PHASE|SYNC [inani]
 STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <control> <setting>	STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <isilawuli> <isilungiselelo>
+BOUNCE	IYA UBUYE
+FORWARD	PHAMBILI
+{1} ready	{1} isilungile
+{1}: queued	{1}: kulayini
+{1}: not made	{1}: ayikenziwa
+{1}: making {2}%	{1}: kwenziwa {2}%
+select a video file cue first	khetha kuqala i-cue yefayela levidiyo
+could not make the reversed copy	ayikwazanga ukwenza ikhophi ehlehlisiwe
+FORWARD, REVERSE, BOUNCE or STATUS	FORWARD, REVERSE, BOUNCE noma STATUS
+A long clip: watch the Encoder tab.	Isiqeshana eside: bheka ithebhu ethi Isibhali.
+{1}: making a copy first ({2} decodes only forwards). It plays forwards until the copy is ready.	{1}: kwenziwa ikhophi kuqala ({2} iqaqa ikhodi iya phambili kuphela). Idlala iya phambili kuze kube yilapho ikhophi isilungile.
+Forward, reverse, or bounce (there and back). Reverse and bounce play a copy Deckboy makes once; it plays forwards until the copy is ready	Phambili, uhlehle, noma uye ubuye (ukuya nokubuya). Ukuhlehla nokuya ubuye kudlala ikhophi eyenziwa yi-Deckboy kanye; idlala iya phambili kuze kube yilapho ikhophi isilungile

@@ -4542,3 +4542,15 @@ Drag, click to type, or put it on an oscillator	拖动、点击输入，或连�
 select a shader cue first (SHADER LOAD <path> makes one)	请先选择着色器 CUE（SHADER LOAD <path> 可创建）
 Open this file in your editor; save it and the picture follows	在编辑器中打开此文件；保存后画面随即更新
 Open the folder where your own shaders live; they appear in SOURCE	打开存放自定义着色器的文件夹；着色器会显示在 SOURCE 中
+BOUNCE	往返
+FORWARD	正向
+{1} ready	{1} 已就绪
+{1}: queued	{1}: 已排队
+{1}: not made	{1}: 尚未生成
+{1}: making {2}%	{1}: 正在生成 {2}%
+select a video file cue first	请先选择视频文件提示项
+could not make the reversed copy	无法生成倒放副本
+A long clip: watch the Encoder tab.	片段较长: 请查看编码器选项卡.
+{1}: making a copy first ({2} decodes only forwards). It plays forwards until the copy is ready.	{1}: 先生成副本 ({2} 仅支持正向解码). 副本就绪前仍正向播放.
+Forward, reverse, or bounce (there and back). Reverse and bounce play a copy Deckboy makes once; it plays forwards until the copy is ready	正向、倒放或往返播放. 倒放和往返播放使用 Deckboy 一次生成的副本; 副本就绪前仍正向播放
+FORWARD, REVERSE, BOUNCE or STATUS	FORWARD, REVERSE, BOUNCE 或 STATUS

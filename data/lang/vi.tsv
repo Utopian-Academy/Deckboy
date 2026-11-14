@@ -4529,3 +4529,15 @@ Open this file in your editor; save it and the picture follows	Mở tệp này t
 Open the folder where your own shaders live; they appear in SOURCE	Mở thư mục chứa các shader của bạn; chúng xuất hiện trong SOURCE
 STATUS | LOAD <path> | SET <input> <value...> | LFO <input> ON|OFF|SHAPE|RATE|DEPTH|PHASE|SYNC [value]	STATUS | LOAD <đường dẫn> | SET <đầu vào> <giá trị...> | LFO <đầu vào> ON|OFF|SHAPE|RATE|DEPTH|PHASE|SYNC [giá trị]
 STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <control> <setting>	STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <điều khiển> <thiết lập>
+BOUNCE	QUA LẠI
+FORWARD	TIẾN
+{1} ready	{1} sẵn sàng
+{1}: queued	{1}: đã xếp hàng
+{1}: not made	{1}: chưa tạo
+{1}: making {2}%	{1}: đang tạo {2}%
+select a video file cue first	hãy chọn cue tệp video trước
+could not make the reversed copy	không thể tạo bản sao đảo ngược
+FORWARD, REVERSE, BOUNCE or STATUS	FORWARD, REVERSE, BOUNCE hoặc STATUS
+A long clip: watch the Encoder tab.	Clip dài: hãy theo dõi thẻ Bộ mã hóa.
+{1}: making a copy first ({2} decodes only forwards). It plays forwards until the copy is ready.	{1}: đang tạo bản sao trước ({2} chỉ giải mã xuôi). Video phát xuôi cho đến khi bản sao sẵn sàng.
+Forward, reverse, or bounce (there and back). Reverse and bounce play a copy Deckboy makes once; it plays forwards until the copy is ready	Phát xuôi, ngược hoặc qua lại (đi rồi về). Chế độ ngược và qua lại phát bản sao mà Deckboy tạo một lần; video phát xuôi cho đến khi bản sao sẵn sàng

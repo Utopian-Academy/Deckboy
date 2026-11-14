@@ -4503,3 +4503,15 @@ select a shader cue first (SHADER LOAD <path> makes one)	selecione primeiro um c
 Open this file in your editor; save it and the picture follows	Abrir este arquivo no seu editor; ao salvar, a imagem ? atualizada
 Open the folder where your own shaders live; they appear in SOURCE	Abrir a pasta dos seus shaders; eles aparecem em SOURCE
 ASCII: use ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>	ASCII: use os comandos ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>
+BOUNCE	VAI E VOLTA
+FORWARD	FRENTE
+{1} ready	{1} pronto
+{1}: queued	{1}: na fila
+{1}: not made	{1}: n?o criada
+{1}: making {2}%	{1}: criando {2}%
+select a video file cue first	selecione primeiro um cue de arquivo de v?deo
+could not make the reversed copy	n?o foi poss?vel criar a c?pia invertida
+FORWARD, REVERSE, BOUNCE or STATUS	FORWARD, REVERSE, BOUNCE ou STATUS
+A long clip: watch the Encoder tab.	Clipe longo: acompanhe a aba Codificador.
+{1}: making a copy first ({2} decodes only forwards). It plays forwards until the copy is ready.	{1}: criando uma c?pia primeiro ({2} s? decodifica para a frente). A reprodu??o segue para a frente at? a c?pia ficar pronta.
+Forward, reverse, or bounce (there and back). Reverse and bounce play a copy Deckboy makes once; it plays forwards until the copy is ready	Para a frente, em reverso ou vai e volta. Reverso e vai e volta reproduzem uma c?pia que o Deckboy cria uma ?nica vez; a reprodu??o segue para a frente at? a c?pia ficar pronta

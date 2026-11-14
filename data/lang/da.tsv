@@ -4497,3 +4497,15 @@ Drag, click to type, or put it on an oscillator	Tr?k, klik for at skrive, eller 
 select a shader cue first (SHADER LOAD <path> makes one)	v?lg f?rst en shader-cue (SHADER LOAD <path> opretter en)
 Open this file in your editor; save it and the picture follows	?bn filen i din editor; n?r du gemmer, opdateres billedet
 Open the folder where your own shaders live; they appear in SOURCE	?bn mappen med dine egne shadere; de vises i SOURCE
+BOUNCE	PENDUL
+FORWARD	FREMAD
+{1} ready	{1} klar
+{1}: queued	{1}: i k?
+{1}: not made	{1}: ikke lavet
+{1}: making {2}%	{1}: opretter {2}%
+select a video file cue first	v?lg f?rst en cue med en videofil
+could not make the reversed copy	kunne ikke oprette den bagl?ns kopi
+FORWARD, REVERSE, BOUNCE or STATUS	FORWARD, REVERSE, BOUNCE eller STATUS
+A long clip: watch the Encoder tab.	Langt klip: hold ?je med fanen Koder.
+{1}: making a copy first ({2} decodes only forwards). It plays forwards until the copy is ready.	{1}: opretter f?rst en kopi ({2} afkoder kun fremad). Klippet afspilles fremad, indtil kopien er klar.
+Forward, reverse, or bounce (there and back). Reverse and bounce play a copy Deckboy makes once; it plays forwards until the copy is ready	Fremad, bagl?ns eller pendul (frem og tilbage). Bagl?ns og pendul afspiller en kopi, som Deckboy opretter ?n gang; klippet afspilles fremad, indtil kopien er klar

@@ -4512,3 +4512,15 @@ Drag, click to type, or put it on an oscillator	Przeci?gnij, kliknij, aby wpisa?
 select a shader cue first (SHADER LOAD <path> makes one)	najpierw wybierz cue shadera (SHADER LOAD <path> tworzy nowe)
 Open this file in your editor; save it and the picture follows	Otw?rz ten plik w edytorze; po zapisaniu obraz si? zaktualizuje
 Open the folder where your own shaders live; they appear in SOURCE	Otw?rz folder w?asnych shader?w; pojawi? si? w SOURCE
+BOUNCE	WAHAD?O
+FORWARD	W PRZ?D
+{1} ready	{1} gotowe
+{1}: queued	{1}: w kolejce
+{1}: not made	{1}: nie utworzono
+{1}: making {2}%	{1}: tworzenie {2}%
+select a video file cue first	najpierw wybierz cue z plikiem wideo
+could not make the reversed copy	nie uda?o si? utworzy? odwr?conej kopii
+FORWARD, REVERSE, BOUNCE or STATUS	FORWARD, REVERSE, BOUNCE lub STATUS
+A long clip: watch the Encoder tab.	D?ugi klip: obserwuj kart? Koder.
+{1}: making a copy first ({2} decodes only forwards). It plays forwards until the copy is ready.	{1}: najpierw powstaje kopia ({2} dekoduje tylko w prz?d). Odtwarzanie odbywa si? w prz?d, a? kopia b?dzie gotowa.
+Forward, reverse, or bounce (there and back). Reverse and bounce play a copy Deckboy makes once; it plays forwards until the copy is ready	W prz?d, wstecz lub wahad?owo (tam i z powrotem). Odtwarzanie wstecz i wahad?owe korzysta z kopii, kt?r? Deckboy tworzy jednorazowo; do jej uko?czenia klip jest odtwarzany w prz?d

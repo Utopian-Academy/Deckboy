@@ -4506,3 +4506,15 @@ Open this file in your editor; save it and the picture follows	Wehe i kēia waih
 Open the folder where your own shaders live; they appear in SOURCE	Wehe i ka waihona o kāu mau shader ponoʻī; ʻike ʻia lākou ma SOURCE
 STATUS | LOAD <path> | SET <input> <value...> | LFO <input> ON|OFF|SHAPE|RATE|DEPTH|PHASE|SYNC [value]	STATUS | LOAD <ala> | SET <hoʻokomo> <waiwai...> | LFO <hoʻokomo> ON|OFF|SHAPE|RATE|DEPTH|PHASE|SYNC [waiwai]
 STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <control> <setting>	STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <hoʻomalu> <hoʻonohonoho>
+BOUNCE	HOLO A HOʻI
+FORWARD	I MUA
+{1} ready	Mākaukau ʻo {1}
+{1}: queued	{1}: ma ka lālani
+{1}: not made	{1}: ʻaʻole i hana ʻia
+{1}: making {2}%	{1}: e hana ana {2}%
+select a video file cue first	e koho mua i cue faila wikiō
+could not make the reversed copy	ʻaʻole hiki ke hana i ke kope hoʻohuli
+FORWARD, REVERSE, BOUNCE or STATUS	FORWARD, REVERSE, BOUNCE a i ʻole STATUS
+A long clip: watch the Encoder tab.	He wikiō lōʻihi: e nānā i ka ʻaoʻao Mea hoʻopāʻālua.
+{1}: making a copy first ({2} decodes only forwards). It plays forwards until the copy is ready.	{1}: e hana mua ana i kope (wehe ʻo {2} i ka pāʻālua i mua wale nō). Holo i mua a mākaukau ke kope.
+Forward, reverse, or bounce (there and back). Reverse and bounce play a copy Deckboy makes once; it plays forwards until the copy is ready	Holo i mua, i hope, a i ʻole holo a hoʻi. Hoʻohana ka holo i hope a me ka holo a hoʻi i kope a Deckboy e hana ai hoʻokahi manawa; holo i mua a mākaukau ke kope

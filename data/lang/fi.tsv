@@ -4541,3 +4541,15 @@ Drag, click to type, or put it on an oscillator	Vedä, napsauta kirjoittaaksesi 
 select a shader cue first (SHADER LOAD <path> makes one)	valitse ensin varjostincue (SHADER LOAD <path> luo sellaisen)
 Open this file in your editor; save it and the picture follows	Avaa tiedosto editorissasi; tallenna se, niin kuva päivittyy
 Open the folder where your own shaders live; they appear in SOURCE	Avaa omien varjostintesi kansio; ne näkyvät SOURCE-valikossa
+BOUNCE	EDESTAK.
+FORWARD	ETEEN
+{1} ready	{1} valmis
+{1}: queued	{1}: jonossa
+{1}: not made	{1}: ei luotu
+{1}: making {2}%	{1}: luodaan {2}%
+select a video file cue first	valitse ensin videotiedoston cue
+could not make the reversed copy	käänteisen kopion luonti epäonnistui
+FORWARD, REVERSE, BOUNCE or STATUS	FORWARD, REVERSE, BOUNCE tai STATUS
+A long clip: watch the Encoder tab.	Pitkä klippi: seuraa Enkooderi-välilehteä.
+{1}: making a copy first ({2} decodes only forwards). It plays forwards until the copy is ready.	{1}: luodaan ensin kopio ({2} purkaa vain eteenpäin). Toisto jatkuu eteenpäin, kunnes kopio on valmis.
+Forward, reverse, or bounce (there and back). Reverse and bounce play a copy Deckboy makes once; it plays forwards until the copy is ready	Eteenpäin, taaksepäin tai edestakaisin. Taaksepäin ja edestakaisin toistetaan Deckboyn kerran luomasta kopiosta; toisto jatkuu eteenpäin, kunnes kopio on valmis

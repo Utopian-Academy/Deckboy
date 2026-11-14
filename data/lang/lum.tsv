@@ -4555,3 +4555,15 @@ Open this file in your editor; save it and the picture follows	Fesi nakae gra ka
 Open the folder where your own shaders live; they appear in SOURCE	Fesi kara go tu vekagrawiaku; vekisi kae SOURCE
 STATUS | LOAD <path> | SET <input> <value...> | LFO <input> ON|OFF|SHAPE|RATE|DEPTH|PHASE|SYNC [value]	STATUS | LOAD <dora> | SET <mungadora> <numa...> | LFO <mungadora> ON|OFF|SHAPE|RATE|DEPTH|PHASE|SYNC [numa]
 STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <control> <setting>	STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <setbata> <seta>
+BOUNCE	DORVADORI
+FORWARD	DORI
+{1} ready	{1} pono
+{1}: queued	{1}: peno
+{1}: not made	{1}: vagralo
+{1}: making {2}%	{1}: veli {2}%
+select a video file cue first	Muna piki vekadorakora
+could not make the reversed copy	Va pel grali vadorvela
+FORWARD, REVERSE, BOUNCE or STATUS	FORWARD, REVERSE, BOUNCE o STATUS
+A long clip: watch the Encoder tab.	Longo veka: miri Grawia bata.
+{1}: making a copy first ({2} decodes only forwards). It plays forwards until the copy is ready.	{1}: muna veli ({2} pel vekamiri dori solo). Veki dori til vela pono.
+Forward, reverse, or bounce (there and back). Reverse and bounce play a copy Deckboy makes once; it plays forwards until the copy is ready	Dori, vadori, o dorvadori (dori e vadori). Vadori e dorvadori veki vela Deckboy veli una; veki dori til vela pono

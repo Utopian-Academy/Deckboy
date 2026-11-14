@@ -4542,3 +4542,15 @@ Drag, click to type, or put it on an oscillator	ドラッグ、クリックし�
 select a shader cue first (SHADER LOAD <path> makes one)	先にシェーダーキューを選択してください（SHADER LOAD <path> で作成できます）
 Open this file in your editor; save it and the picture follows	このファイルをエディターで開き、保存すると映像に反映されます
 Open the folder where your own shaders live; they appear in SOURCE	自作シェーダーのフォルダーを開きます。シェーダーは SOURCE に表示されます
+BOUNCE	往復
+FORWARD	順再生
+{1} ready	{1} 準備完了
+{1}: queued	{1}: 待機中
+{1}: not made	{1}: 未作成
+{1}: making {2}%	{1}: 作成中 {2}%
+select a video file cue first	先に動画ファイルのキューを選択してください
+could not make the reversed copy	逆再生用コピーを作成できませんでした
+A long clip: watch the Encoder tab.	長いクリップです: エンコーダータブで進捗を確認してください.
+{1}: making a copy first ({2} decodes only forwards). It plays forwards until the copy is ready.	{1}: 先にコピーを作成します ({2} は順方向のデコードのみ対応). コピーの準備ができるまでは順再生します.
+Forward, reverse, or bounce (there and back). Reverse and bounce play a copy Deckboy makes once; it plays forwards until the copy is ready	順再生、逆再生、または往復再生. 逆再生と往復再生には Deckboy が一度作成したコピーを使います; コピーの準備ができるまでは順再生します
+FORWARD, REVERSE, BOUNCE or STATUS	FORWARD, REVERSE, BOUNCE または STATUS

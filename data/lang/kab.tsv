@@ -4529,3 +4529,15 @@ Open this file in your editor; save it and the picture follows	Ldi afaylu-a deg 
 Open the folder where your own shaders live; they appear in SOURCE	Ldi akaram n yimsiɣen-ik; ad d-banen deg SOURCE
 STATUS | LOAD <path> | SET <input> <value...> | LFO <input> ON|OFF|SHAPE|RATE|DEPTH|PHASE|SYNC [value]	STATUS | LOAD <abrid> | SET <anekcum> <azal...> | LFO <anekcum> ON|OFF|SHAPE|RATE|DEPTH|PHASE|SYNC [azal]
 STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <control> <setting>	STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <asenqed> <aɣewwar>
+BOUNCE	AṚUḤ-TUƔAL
+FORWARD	ƔER ZDAT
+{1} ready	{1} ihegga
+{1}: queued	{1}: deg udras
+{1}: not made	{1}: ur yettwaxdem ara
+{1}: making {2}%	{1}: axeddim {2}%
+select a video file cue first	fren di tazwara cue n ufaylu n uvidyu
+could not make the reversed copy	ur izmir ara ad yexdem anɣel yettin
+FORWARD, REVERSE, BOUNCE or STATUS	FORWARD, REVERSE, BOUNCE neɣ STATUS
+A long clip: watch the Encoder tab.	Aklip ɣezzifen: wali iccer Asettengal.
+{1}: making a copy first ({2} decodes only forwards). It plays forwards until the copy is ready.	{1}: axeddim n unɣel di tazwara ({2} yessuffuɣ tangalt ɣer zdat kan). Ad yetturar ɣer zdat alamma ihegga unɣel.
+Forward, reverse, or bounce (there and back). Reverse and bounce play a copy Deckboy makes once; it plays forwards until the copy is ready	Ɣer zdat, ɣer deffir, neɣ aṛuḥ-tuɣal (aṛuḥ syin tuɣalin). Ɣer deffir d uṛuḥ-tuɣal tturaren anɣel i yexdem Deckboy yiwet n tikkelt; ad yetturar ɣer zdat alamma ihegga unɣel

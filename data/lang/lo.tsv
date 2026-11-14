@@ -4527,3 +4527,15 @@ Open this file in your editor; save it and the picture follows	ເປີດໄ�
 Open the folder where your own shaders live; they appear in SOURCE	ເປີດໂຟນເດີທີ່ເກັບເຊດເດີຂອງທ່ານ; ມັນຈະປາກົດໃນ SOURCE
 STATUS | LOAD <path> | SET <input> <value...> | LFO <input> ON|OFF|SHAPE|RATE|DEPTH|PHASE|SYNC [value]	STATUS | LOAD <ເສັ້ນທາງ> | SET <ຂາເຂົ້າ> <ຄ່າ...> | LFO <ຂາເຂົ້າ> ON|OFF|SHAPE|RATE|DEPTH|PHASE|SYNC [ຄ່າ]
 STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <control> <setting>	STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <ຕົວຄວບຄຸມ> <ການຕັ້ງຄ່າ>
+BOUNCE	ໄປກັບ
+FORWARD	ໄປໜ້າ
+{1} ready	{1} ພ້ອມແລ້ວ
+{1}: queued	{1}: ຢູ່ໃນຄິວ
+{1}: not made	{1}: ຍັງບໍ່ໄດ້ສ້າງ
+{1}: making {2}%	{1}: ກຳລັງສ້າງ {2}%
+select a video file cue first	ເລືອກຄິວໄຟລ໌ວິດີໂອກ່ອນ
+could not make the reversed copy	ບໍ່ສາມາດສ້າງສຳເນົາປີ້ນກັບໄດ້
+FORWARD, REVERSE, BOUNCE or STATUS	FORWARD, REVERSE, BOUNCE ຫຼື STATUS
+A long clip: watch the Encoder tab.	ຄລິບຍາວ: ເບິ່ງແຖບ ຕົວເຂົ້າລະຫັດ.
+{1}: making a copy first ({2} decodes only forwards). It plays forwards until the copy is ready.	{1}: ກຳລັງສ້າງສຳເນົາກ່ອນ ({2} ຖອດລະຫັດໄດ້ພຽງແຕ່ໄປໜ້າ). ຈະຫຼິ້ນໄປໜ້າ ຈົນກວ່າສຳເນົາຈະພ້ອມ.
+Forward, reverse, or bounce (there and back). Reverse and bounce play a copy Deckboy makes once; it plays forwards until the copy is ready	ຫຼິ້ນໄປໜ້າ, ປີ້ນກັບ ຫຼືໄປກັບ (ໄປແລ້ວກັບຄືນ). ການຫຼິ້ນປີ້ນກັບ ແລະໄປກັບ ໃຊ້ສຳເນົາທີ່ Deckboy ສ້າງຄັ້ງດຽວ; ຈະຫຼິ້ນໄປໜ້າ ຈົນກວ່າສຳເນົາຈະພ້ອມ

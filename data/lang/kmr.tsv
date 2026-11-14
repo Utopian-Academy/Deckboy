@@ -4535,3 +4535,15 @@ Drag, click to type, or put it on an oscillator	Bikişîne, ji bo nivîsandinê 
 select a shader cue first (SHADER LOAD <path> makes one)	pêşî cueyek şeyderê hilbijêre (SHADER LOAD <path> yekê çêdike)
 Open this file in your editor; save it and the picture follows	Vê pelê di edîtorê xwe de veke; tomar bike û wêne nû dibe
 Open the folder where your own shaders live; they appear in SOURCE	Pêringa şeyderên xwe veke; ew di SOURCE de xuya dibin
+BOUNCE	ÇÛN Û HATIN
+FORWARD	BER BI PÊŞ
+{1} ready	{1} amade ye
+{1}: queued	{1}: di rêzê de ye
+{1}: not made	{1}: nehatiye çêkirin
+{1}: making {2}%	{1}: tê çêkirin {2}%
+select a video file cue first	pêşî cueyek pelê vîdyoyê hilbijêre
+could not make the reversed copy	kopiya berevajî nehat çêkirin
+A long clip: watch the Encoder tab.	Klîpek dirêj e: li tabloya Kodkerê binêre.
+{1}: making a copy first ({2} decodes only forwards). It plays forwards until the copy is ready.	{1}: pêşî kopiyek tê çêkirin ({2} tenê ber bi pêş de dekod dike). Heta kopî amade bibe, ber bi pêş de tê lîstin.
+Forward, reverse, or bounce (there and back). Reverse and bounce play a copy Deckboy makes once; it plays forwards until the copy is ready	Ber bi pêş, berevajî, an çûn û hatin. Lîstina berevajî û çûn û hatin kopiyekê bi kar tînin ku Deckboy carekê çêdike; heta kopî amade bibe, ber bi pêş de tê lîstin
+FORWARD, REVERSE, BOUNCE or STATUS	FORWARD, REVERSE, BOUNCE an STATUS

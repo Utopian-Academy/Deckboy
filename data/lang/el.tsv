@@ -4538,3 +4538,15 @@ Drag, click to type, or put it on an oscillator	Σύρετε, κάντε κλι�
 select a shader cue first (SHADER LOAD <path> makes one)	επιλέξτε πρώτα cue σκιαστή (το SHADER LOAD <path> δημιουργεί ένα)
 Open this file in your editor; save it and the picture follows	Ανοίξτε το αρχείο στον επεξεργαστή σας· αποθηκεύστε το και η εικόνα ενημερώνεται
 Open the folder where your own shaders live; they appear in SOURCE	Ανοίξτε τον φάκελο με τους δικούς σας σκιαστές· εμφανίζονται στο SOURCE
+BOUNCE	ΜΠΡΟΣ-ΠΙΣΩ
+FORWARD	ΕΜΠΡΟΣ
+{1} ready	{1}: έτοιμο
+{1}: queued	{1}: στην ουρά
+{1}: not made	{1}: δεν δημιουργήθηκε
+{1}: making {2}%	{1}: δημιουργία {2}%
+select a video file cue first	επιλέξτε πρώτα ένα cue αρχείου βίντεο
+could not make the reversed copy	δεν ήταν δυνατή η δημιουργία του αντιγράφου αντίστροφης αναπαραγωγής
+FORWARD, REVERSE, BOUNCE or STATUS	FORWARD, REVERSE, BOUNCE ή STATUS
+A long clip: watch the Encoder tab.	Μεγάλο κλιπ: παρακολουθήστε την καρτέλα Κωδικοποιητής.
+{1}: making a copy first ({2} decodes only forwards). It plays forwards until the copy is ready.	{1}: δημιουργείται πρώτα αντίγραφο ({2}: αποκωδικοποίηση μόνο προς τα εμπρός). Παίζει προς τα εμπρός μέχρι να ετοιμαστεί το αντίγραφο.
+Forward, reverse, or bounce (there and back). Reverse and bounce play a copy Deckboy makes once; it plays forwards until the copy is ready	Εμπρός, αντίστροφα ή μπρος-πίσω. Η αντίστροφη και η μπρος-πίσω αναπαραγωγή χρησιμοποιούν αντίγραφο που το Deckboy δημιουργεί μία φορά· μέχρι να ετοιμαστεί, παίζει προς τα εμπρός

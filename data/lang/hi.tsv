@@ -4544,3 +4544,15 @@ Drag, click to type, or put it on an oscillator	खींचें, टाइप
 select a shader cue first (SHADER LOAD <path> makes one)	पहले शेडर क्यू चुनें (SHADER LOAD <path> से एक बनता है)
 Open this file in your editor; save it and the picture follows	यह फ़ाइल अपने संपादक में खोलें; सहेजते ही चित्र अपडेट हो जाएगा
 Open the folder where your own shaders live; they appear in SOURCE	अपने शेडरों का फ़ोल्डर खोलें; वे SOURCE में दिखाई देंगे
+BOUNCE	आगे-पीछे
+FORWARD	आगे
+{1} ready	{1} तैयार है
+{1}: queued	{1}: कतार में
+{1}: not made	{1}: कॉपी नहीं बनी
+{1}: making {2}%	{1}: बन रही है {2}%
+select a video file cue first	पहले वीडियो फ़ाइल वाला क्यू चुनें
+could not make the reversed copy	उलटी कॉपी नहीं बन सकी
+A long clip: watch the Encoder tab.	क्लिप लंबी है: एनकोडर टैब देखें.
+{1}: making a copy first ({2} decodes only forwards). It plays forwards until the copy is ready.	{1}: पहले कॉपी बन रही है ({2} केवल आगे की दिशा में डिकोड करता है). कॉपी तैयार होने तक यह आगे चलता है.
+Forward, reverse, or bounce (there and back). Reverse and bounce play a copy Deckboy makes once; it plays forwards until the copy is ready	आगे, उलटा या आगे-पीछे. उलटे और आगे-पीछे प्लेबैक के लिए Deckboy एक बार कॉपी बनाता है; कॉपी तैयार होने तक यह आगे चलता है
+FORWARD, REVERSE, BOUNCE or STATUS	FORWARD, REVERSE, BOUNCE या STATUS
