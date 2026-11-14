@@ -171,7 +171,8 @@ def drawn_strings():
                             continue
                         rel = os.path.relpath(path, ROOT).replace("\\", "/")
                         found.setdefault(s, rel)
-    return found
+    # A prompt drawn with the editor's suffix glued on is looked up as the bare hint.
+    return {bare_hint(k): v for k, v in found.items()}
 
 
 # THE MENUS. A dropdown, a picker or a SOURCE menu is built as a list of
@@ -273,11 +274,21 @@ ERROR_ASSIGNMENT = re.compile(
     r"|\bconst\s+char\s*\*\s*(k[A-Z]\w+)\s*=\s*([^;]*);")
 SPEC_ROW = re.compile(
     r'NumericParamSpec\s+\w+\s*\{\s*"[^"]*"\s*,\s*"((?:[^"\\]|\\.)*)"\s*,\s*((?:"(?:[^"\\]|\\.)*"\s*)+)')
-# What openInlineNumericExpressionEditor appends to a spec's hint, so the
-# string translate() sees is the two together.
+# What openInlineNumericExpressionEditor appends to a spec's hint. The editor
+# translates the hint on its own and fills it into one template (app_ui_widgets
+# .ipp), so the catalogues need the bare hint and the template, never the two
+# glued together.
 HINT_SUFFIX = " (supports + - * / and ())"
+# Templates the app fills with a translated piece (i18n::format), and words it
+# translates on their own before building a line. Each is one catalogue line.
+TEMPLATES = ("{1} (supports + - * / and ())", "added {1}", "(bypassed)")
 # key as translate() sees it -> the literal in the source, for --staged.
 JOINED = {}
+
+
+def bare_hint(s):
+    """A prompt with the editor's suffix glued on, as the hint alone."""
+    return s[:-len(HINT_SUFFIX)] if s.endswith(HINT_SUFFIX) and len(s) > len(HINT_SUFFIX) else s
 
 
 def strip_comments(text):
@@ -360,7 +371,7 @@ def error_strings():
 
 
 def spec_strings():
-    """NumericParamSpec labels and hints, hints joined to the editor's suffix."""
+    """NumericParamSpec labels and hints, and the editor's prompt template."""
     found = {}
     for _name, rel, text in source_files():
         for m in SPEC_ROW.finditer(text):
@@ -368,10 +379,10 @@ def spec_strings():
             hint = "".join(LITERAL.findall(m.group(2)))
             if label_ok(label):
                 found.setdefault(label, rel + ":NumericParamSpec")
-            if hint:
-                joined = hint + HINT_SUFFIX
-                JOINED[joined] = hint
-                found.setdefault(joined, rel + ":NumericParamSpec")
+            if hint and label_ok(bare_hint(hint)):
+                found.setdefault(bare_hint(hint), rel + ":NumericParamSpec")
+    for t in TEMPLATES:
+        found.setdefault(t, "i18n::format template")
     return found
 
 
