@@ -771,3 +771,68 @@ kernel void meltShowMain(ARGS) {
   const int3 d = int3(o.rgb) + (((v - int3(o.rgb)) * a256) >> 8);
   put(dst, id, float4(float3(d), float(o.a)));
 }
+
+// ---- GENERATED SOURCES (gpu_effects.hlsl sourceMain, line for line) -------
+static float4 lumiaAt(SRC aux, int x, int y) { return aux.read(uint2(x, y)); }
+kernel void sourceMain(ARGS) {
+  if (id.x >= p.width || id.y >= p.height) return;
+  const int SW = int(p.srcW), SH = int(p.srcH);
+  const float cx = float(p.width) * 0.5f, cy = float(p.height) * 0.5f;
+  float nx = (float(id.x) + 0.5f - cx) / cx;
+  const float ny0 = (float(id.y) + 0.5f - cy) / cy;
+  const float nxx = nx * nx, nyy = ny0 * ny0;
+  const float r2 = min(2.0f, nxx * 0.5f + nyy * 1.05f);
+  const float rim = max(0.0f, 1.0f - pow(r2, p.f5 * 0.5f));
+  const float barrel = 1.0f + p.f3 * (nxx * 0.55f + nyy);
+  nx *= barrel;
+  float ny = ny0 * barrel;
+  const float rx = nx * p.f1 - ny * p.f2 / p.f0, ry = nx * p.f2 * p.f0 + ny * p.f1;
+  nx = rx;
+  ny = ry;
+  float sxx, syy;
+  float seam = 1.0f;
+  if (p.i0 == 1 && p.i1 > 0) {
+    const float wedge = 3.14159265358979f / float(p.i1 + 1);
+    float ang = atan2(ny, nx * p.f0);
+    const float r = sqrt(nx * nx * p.f0 * p.f0 + ny * ny) * 0.45f;
+    ang -= 2.0f * wedge * floor(ang / (2.0f * wedge));
+    if (ang > wedge) ang = 2.0f * wedge - ang;
+    sxx = ang / wedge;
+    syy = r;
+  } else {
+    float sy;
+    if (p.i2 != 0) {
+      sy = fabs(ny);
+      seam = clamp(sy * 6.0f - 0.15f, 0.0f, 1.0f);
+    } else {
+      sy = ny * 0.5f + 0.5f;
+    }
+    const float sx = fabs(nx);
+    syy = sy;
+    if (p.i0 == 0 && p.i1 > 0) {
+      const float t = sx * (float(p.i1) + 0.5f) / (1.15f - min(1.1f, sx * 0.35f));
+      const int tile = int(t);
+      float f = t - float(tile);
+      if ((tile & 1) != 0) f = 1.0f - f;
+      const int k = min(tile, 63);
+      const float ca = tabAt(p, uint(k * 2)), sa = tabAt(p, uint(k * 2 + 1));
+      const float qx = f - 0.5f, qy = sy - 0.5f;
+      sxx = qx * ca - qy * sa + 0.5f;
+      syy = qx * sa + qy * ca + 0.5f;
+    } else {
+      sxx = 0.5f + nx * 0.5f;
+    }
+  }
+  const float fold = sxx - 2.0f * floor(sxx * 0.5f);
+  const float su = min(0.9999f, fold > 1.0f ? 2.0f - fold : fold);
+  const float fxs = max(0.0f, su * float(SW) - 0.5f);
+  const float fys = max(0.0f, clamp(syy, 0.0f, 0.999f) * float(SH) - 0.5f);
+  const int x0 = min(int(fxs), SW - 1), y0 = min(int(fys), SH - 1);
+  const float tx = fxs - float(x0), ty = fys - float(y0);
+  const int x1 = min(x0 + 1, SW - 1), y1 = min(y0 + 1, SH - 1);
+  const float4 v = (lumiaAt(aux, x0, y0) * (1.0f - tx) + lumiaAt(aux, x1, y0) * tx) * (1.0f - ty) +
+                   (lumiaAt(aux, x0, y1) * (1.0f - tx) + lumiaAt(aux, x1, y1) * tx) * ty;
+  const float fade = rim * seam * p.f4;
+  const float3 light = min(float3(12.0f), (v.rgb + v.a * float3(0.55f, 0.75f, 1.0f)) * fade);
+  put(dst, id, float4(floor(255.0f * (1.0f - exp(-light * 0.9f)) + 0.5f), 255.0f));
+}

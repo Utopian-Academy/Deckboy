@@ -4138,6 +4138,33 @@
     return any;
   }
 
+  // Whether this playlist's generated sources can be MADE ON THE CARD
+  // (MediaEngine::setSourcesOnGpu): it has a cue whose source has a GPU
+  // version, and every live output runs GPU effects. The engine then hands
+  // the outputs a plan and the desk a small picture; DECKBOY_CPU_SOURCES=1
+  // keeps every source on the CPU. Asked every tick.
+  bool deckSourcesCanStayOnGpu(int deckIndex) {
+    static const bool cpuOnly = [] {
+      const char* v = std::getenv("DECKBOY_CPU_SOURCES");
+      return v && *v && *v != '0';
+    }();
+    if (cpuOnly || deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) return false;
+    const auto& cues = project_.decks[static_cast<std::size_t>(deckIndex)].cues;
+    if (std::none_of(cues.begin(), cues.end(), [](const Cue& c) {
+          return c.kind == CueKind::Pattern && MediaEngine::patternMadeOnGpu(c.path);
+        })) {
+      return false;
+    }
+    bool any = false;
+    for (int i = 0; i < static_cast<int>(project_.outputs.size()); ++i) {
+      OutputRuntime* runtime = runtimeForOutput(i);
+      if (!project_.outputs[static_cast<std::size_t>(i)].enabled || !runtime || !runtime->outputRenderer) continue;
+      if (!ensureGpuEffects(*runtime)) return false;
+      any = true;
+    }
+    return any;
+  }
+
   // A layer's effects from its NV12 picture on the GPU (`nv12`: the zero-copy
   // wrap or the NV12 upload). The result texture, or null when they cannot
   // run here -- the caller then takes the CPU path rather than show the
@@ -4707,6 +4734,23 @@
           drewOnGpu = runLayerEffectsFromNv12(*outputRuntime, sourceDeckIndex, *sourceCue, *sourceFrame,
                                               bridgeTexture, target, layerWarp) != nullptr;
         }
+      } else if (SDL_Texture* made =
+                   sourceFrame->gpuSource && ensureGpuEffects(*outputRuntime)
+                     ? deckboy::gpu::runGpuSource(outputRuntime->gpuEffects, sourceDeckIndex, *sourceFrame->gpuSource)
+                     : nullptr;
+                 made) {
+        // A SOURCE MADE ON THE CARD (MediaEngine::planGpuSource): drawn at
+        // full size from its plan, never filled or uploaded. The engine only
+        // makes a plan for a cue with no look of its own to run, so there is
+        // nothing to apply here. On failure the small picture below stands in.
+        outputRuntime->layerGpuFxTextures[sourceDeckIndex] = made;
+        drewOnGpu = true;
+        outputRuntime->layerLookFrames.erase(sourceDeckIndex);
+        auto& gpuLook = outputRuntime->layerGpuLooks[sourceDeckIndex];
+        gpuLook.key = cuePreviewCacheKey(*sourceCue);
+        gpuLook.index = sourceFrame->index;
+        gpuLook.logicalWidth = sourceFrame->placedWidth();
+        gpuLook.logicalHeight = sourceFrame->placedHeight();
       } else {
         const std::uint8_t* uploadPixels = sourceFrame->pixels.data();
         const bool wantsStack = deckboy::effects::cueEffectStackActive(sourceCue->effects);
@@ -4888,8 +4932,12 @@
     }
     SDL_SetTextureBlendMode(drawTexture, layerBlend);
     SDL_SetTextureAlphaMod(drawTexture, alpha);
+    // Placed by the picture it stands for: a source made on the card carries a
+    // small desk picture whose logical size is the full one.
+    const int placeW = sourceFrame->gpuSource ? sourceFrame->placedWidth() : sourceFrame->width;
+    const int placeH = sourceFrame->gpuSource ? sourceFrame->placedHeight() : sourceFrame->height;
     renderTextureWithCueGeometry(outputRuntime->outputRenderer, drawTexture, drawW, drawH, sourceCue,
-                                 target, layerBlend, layerWarp, 0, sourceFrame->width, sourceFrame->height);
+                                 target, layerBlend, layerWarp, 0, placeW, placeH);
     // Left as found: this texture is reused, and a mix must not leak into
     // whatever draws with it next.
     SDL_SetTextureBlendMode(drawTexture, SDL_BLENDMODE_BLEND);

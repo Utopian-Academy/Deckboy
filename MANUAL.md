@@ -2988,6 +2988,10 @@ inspector says "made by Deckboy" in place of a pattern picker.
   - **light** — **lens** (a round lens with a dark rim), **glow**,
     **brightness** and **trail** (light lingers on the screen).
 
+  Lumia is drawn on the graphics card when every output can draw it there;
+  the desk's preview then shows a smaller copy of the same picture. A grade,
+  a key or an effect on the cue keeps it on the CPU.
+
   **Listens** makes the flow surge with the programme sound. Every number has a
   **~**, the same oscillator as an effect parameter. Over the wire:
   `LUMIA [STATUS]`, `LUMIA PALETTE <0-5 or name>`, `LUMIA MODE <0-2 or name>`,

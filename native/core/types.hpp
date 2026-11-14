@@ -3263,6 +3263,8 @@ enum class FramePixelFormat {
 // CPU pattern builders), pushed into frameQueue_, then uploaded to an
 // SDL_Texture. Pixel layout is described by `format`; see FramePixelFormat.
 // ---------------------------------------------------------------------------
+namespace deckboy::gpu { struct SourcePlan; }
+
 struct DecodedFrame {
   int width = 0;                       // frame width in pixels
   int height = 0;                      // frame height in pixels
@@ -3312,6 +3314,13 @@ struct DecodedFrame {
   void* gpuDevice = nullptr;           // D3D11 only: the owning ID3D11Device*
   GpuKind gpuKind = GpuKind::None;
   bool isGpu() const { return gpuTexture != nullptr; }
+
+  // A GENERATED SOURCE MADE ON THE CARD (MediaEngine::planGpuSource). When
+  // set, `pixels` is a SMALL picture of the same moment -- for the desk's
+  // preview, the scopes and the Web Monitor -- and logicalWidth/Height the
+  // full size. An output that runs GPU effects draws the plan at full size
+  // (runGpuSource); any other consumer uses the small picture.
+  std::shared_ptr<const deckboy::gpu::SourcePlan> gpuSource;
 };
 
 inline SDL_Colorspace frameColorspace(const DecodedFrame& frame) {

@@ -866,3 +866,86 @@ void meltShowMain(uint3 id : SV_DispatchThreadID) {
   const int3 d = int3(o.rgb) + (((v - int3(o.rgb)) * a256) >> 8);
   put(id.xy, float4(float3(d), float(o.a)));
 }
+
+// ---- GENERATED SOURCES: the picture made on the card ---------------------
+// (gpu_effects.cpp runGpuSource). The CPU works out each frame's small inputs
+// -- MediaEngine::planGpuSource, from the same code the CPU builder runs --
+// and this does the per-pixel part. width/height: the picture. kind 1, LUMIA
+// (media_engine.cpp lumiaDraw, line for line): aux is the traced source,
+// srcW x srcH texels, the prism's light in rgb and the water's in a. i0 mode
+// (0 tube, 1 mandala, 2 none), i1 mirrors, i2 top/bottom; f0 aspect, f1/f2
+// the spin's cos and sin, f3 lens * 0.55, f4 gain, f5 the rim's power; tab:
+// each mirror panel's tilt, cos and sin. The CPU reads the rim and the
+// screen's response from tables; here they are worked out, within a level.
+float4 lumiaAt(int x, int y) { return aux.Load(int3(x, y, 0)); }
+[numthreads(8, 8, 1)]
+void sourceMain(uint3 id : SV_DispatchThreadID) {
+  if (id.x >= width || id.y >= height) return;
+  const int SW = int(srcW), SH = int(srcH);
+  const float cx = float(width) * 0.5, cy = float(height) * 0.5;
+  float nx = (float(id.x) + 0.5 - cx) / cx;
+  const float ny0 = (float(id.y) + 0.5 - cy) / cy;
+  const float nxx = nx * nx, nyy = ny0 * ny0;
+  // The round lens: a barrel, dark outside it.
+  const float r2 = min(2.0, nxx * 0.5 + nyy * 1.05);
+  const float rim = max(0.0, 1.0 - pow(r2, f5 * 0.5));
+  const float barrel = 1.0 + f3 * (nxx * 0.55 + nyy);
+  nx *= barrel;
+  float ny = ny0 * barrel;
+  // Spin the whole picture, in true proportions.
+  const float rx = nx * f1 - ny * f2 / f0, ry = nx * f2 * f0 + ny * f1;
+  nx = rx;
+  ny = ry;
+  float sxx, syy;
+  float seam = 1.0;
+  if (i0 == 1 && i1 > 0) {
+    // Mandala: a ring of wedges round the centre, each the mirror of the next.
+    const float wedge = 3.14159265358979 / float(i1 + 1);
+    float ang = atan2(ny, nx * f0);
+    const float r = sqrt(nx * nx * f0 * f0 + ny * ny) * 0.45;
+    ang -= 2.0 * wedge * floor(ang / (2.0 * wedge));
+    if (ang > wedge) ang = 2.0 * wedge - ang;
+    sxx = ang / wedge;
+    syy = r;
+  } else {
+    float sy;
+    if (i2 != 0) {
+      // Top mirrors bottom, round a dark seam.
+      sy = abs(ny);
+      seam = clamp(sy * 6.0 - 0.15, 0.0, 1.0);
+    } else {
+      sy = ny * 0.5 + 0.5;
+    }
+    const float sx = abs(nx);
+    syy = sy;
+    if (i0 == 0 && i1 > 0) {
+      // A tube of mirrors: panels shrink towards the edge, each reflected and
+      // tilted a little from the one before.
+      const float t = sx * (float(i1) + 0.5) / (1.15 - min(1.1, sx * 0.35));
+      const int tile = int(t);
+      float f = t - float(tile);
+      if ((tile & 1) != 0) f = 1.0 - f;
+      const int k = min(tile, 63);
+      const float ca = tabAt(uint(k * 2)), sa = tabAt(uint(k * 2 + 1));
+      const float qx = f - 0.5, qy = sy - 0.5;
+      sxx = qx * ca - qy * sa + 0.5;
+      syy = qx * sa + qy * ca + 0.5;
+    } else {
+      sxx = 0.5 + nx * 0.5;
+    }
+  }
+  // Bilinear; across, past the source's edge the picture folds back.
+  const float fold = sxx - 2.0 * floor(sxx * 0.5);
+  const float su = min(0.9999, fold > 1.0 ? 2.0 - fold : fold);
+  const float fxs = max(0.0, su * float(SW) - 0.5);
+  const float fys = max(0.0, clamp(syy, 0.0, 0.999) * float(SH) - 0.5);
+  const int x0 = min(int(fxs), SW - 1), y0 = min(int(fys), SH - 1);
+  const float tx = fxs - float(x0), ty = fys - float(y0);
+  const int x1 = min(x0 + 1, SW - 1), y1 = min(y0 + 1, SH - 1);
+  const float4 v = (lumiaAt(x0, y0) * (1.0 - tx) + lumiaAt(x1, y0) * tx) * (1.0 - ty) +
+                   (lumiaAt(x0, y1) * (1.0 - tx) + lumiaAt(x1, y1) * tx) * ty;
+  const float fade = rim * seam * f4;
+  // Each colour saturates on its own: overlaps mix, they do not wash white.
+  const float3 light = min(float3(12.0, 12.0, 12.0), (v.rgb + v.a * float3(0.55, 0.75, 1.0)) * fade);
+  put(id.xy, float4(floor(255.0 * (1.0 - exp(-light * 0.9)) + 0.5), 255.0));
+}

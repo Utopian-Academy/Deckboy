@@ -13446,6 +13446,8 @@ constexpr CliFlagHelp kCliModeHelp[] = {
   {"--pattern-bench <pattern> [WxH] [frames]", "time pattern generation, no window or IO"},
   {"--lower-third-bench [WxH] [frames] [arabic]", "time every lower-third look with a GPU completion fence"},
   {"--pattern-dump <pattern[:variant]> <out.ppm> [WxH] [seconds]", "render one pattern frame to a PPM file"},
+  {"--gpu-source-dump <pattern[:variant]> <out.ppm> [WxH] [seconds]",
+     "the same frame made on the graphics card (a source with a GPU version)"},
   {"--code-dump <expression|@file> <out.ppm> [WxH] [seconds]", "render one expression source to a PPM file"},
   {"--code-check", "assert the expression language against expected values"},
   {"--image-check", "can this machine decode the interface's icons and splash art"},
@@ -13485,7 +13487,7 @@ constexpr CliFlagHelp kCliOptionHelp[] = {
 constexpr const char* kCliModeFlags[] = {
   "--version", "--self-check", "--smoke", "--autosave-check", "--sync-pop-test",
   "--pattern-bench", "--pattern-dump", "--code-dump", "--code-check",
-  "--effect-dump", "--gpu-effect-dump", "--effect-bench", "--image-check", "--transition-dump", "--gpu-transition-dump",
+  "--effect-dump", "--gpu-effect-dump", "--effect-bench", "--image-check", "--transition-dump", "--gpu-transition-dump", "--gpu-source-dump",
   "--lower-third-bench",
   "--decode-bench", "--ltc-generate", "--audio-fx-check", "--mtc-check", "--colour-check",
   "--hap-probe", "--asio-probe", "--asio-tone", "--sheet-probe", "--timer-dump",
@@ -13818,6 +13820,17 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
       if (parsed >= 0.0) dumpT = parsed;
     }
     return App::runPatternDump(ops[0], ops[1], dumpW, dumpH, dumpT);
+  }
+  if (mode == "--gpu-source-dump") {
+    if (ops.size() < 2) return missing("<pattern> <out.ppm> [WxH] [seconds]");
+    int dumpW = 1280, dumpH = 720;
+    double dumpT = 30.0;
+    for (size_t i = 2; i < ops.size(); ++i) {
+      if (parseCliRaster(ops[i], dumpW, dumpH)) continue;
+      const double parsed = std::atof(ops[i].c_str());
+      if (parsed >= 0.0) dumpT = parsed;
+    }
+    return App::runPatternDump(ops[0], ops[1], dumpW, dumpH, dumpT, true);
   }
   if (mode == "--code-check") {
     // Arithmetic: no window, no GPU, no media. Runs in CI and over ssh.

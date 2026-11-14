@@ -862,6 +862,14 @@
                   << (effectsOnGpu ? "on" : "off") << std::endl;
       }
       engine->setEffectsOnGpu(effectsOnGpu);
+      // A source with a GPU version (Lumia) is made on the card when every
+      // live output can draw it there (deckSourcesCanStayOnGpu).
+      const bool sourcesOnGpu = deckSourcesCanStayOnGpu(deckIndex);
+      if (sourcesOnGpu != engine->sourcesOnGpu()) {
+        std::cerr << "gpu-sources: playlist " << (deckIndex + 1) << " sources made on the card "
+                  << (sourcesOnGpu ? "on" : "off") << std::endl;
+      }
+      engine->setSourcesOnGpu(sourcesOnGpu);
       const Uint64 engineT0 = uiProfileEnabled_ ? SDL_GetTicksNS() : 0;
       engine->update();
       // A playlist's engine that held the frame up, named, under DECKBOY_UI_PROFILE.

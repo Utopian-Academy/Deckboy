@@ -108,6 +108,28 @@ struct TransitionSource {
 // builds it on the CPU.
 SDL_Texture* runGpuTransition(GpuEffects* g, int slot, const TransitionSource& source, const TransitionPlan& plan);
 
+// ---------------------------------------------------------------------------
+// GENERATED SOURCES MADE ON THE CARD (sourceMain). A source like Lumia traces
+// a small picture of light on the CPU each frame -- MediaEngine::planGpuSource,
+// the same code its CPU builder runs -- and the kernel does the full-size
+// per-pixel part, so the output never fills, or uploads, a full-size frame.
+// The CPU builder stays the reference: --gpu-source-dump against --pattern-dump
+// (tools/check_gpu_sources.py).
+struct SourcePlan {
+  enum Kind : int { None = 0, Lumia = 1 };
+  int kind = None;
+  int width = 0, height = 0;     // the picture to make
+  int auxW = 0, auxH = 0;        // the small inputs, auxW x auxH texels of four floats
+  std::int32_t i[4] = {};
+  float f[8] = {};
+  float tab[256] = {};
+  std::vector<float> aux;
+};
+
+// The picture, in a texture owned by `g` and valid until the next run for the
+// same slot. Null on any failure: the caller then draws the CPU picture.
+SDL_Texture* runGpuSource(GpuEffects* g, int slot, const SourcePlan& plan);
+
 // Compile the Direct3D 11 shaders now, on any thread, so the first effect does
 // not. The app calls it on a background thread at launch.
 void warmGpuEffectsShaders();

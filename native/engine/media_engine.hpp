@@ -65,7 +65,7 @@
 #include "core/code_source.hpp"
 #include "core/types.hpp"
 
-namespace deckboy::gpu { struct TransitionPlan; }
+namespace deckboy::gpu { struct TransitionPlan; struct SourcePlan; }
 #if DECKBOY_INPROC_DECODE
 #include "engine/libav_decoder.hpp"
 #endif
@@ -112,6 +112,18 @@ class MediaEngine {
   // CUE, from its own stack, so a cue is opened right at its TAKE.
   void setEffectsOnGpu(bool on);
   bool effectsOnGpu() const { return effectsOnGpu_; }
+  // Generated sources that can be made on the card (patternMadeOnGpu) are,
+  // when every live output can draw them (the app asks each tick, as for the
+  // effects): rebuildPatternFrame then makes a small picture for the desk and
+  // a plan the outputs draw at full size (DecodedFrame::gpuSource).
+  void setSourcesOnGpu(bool on) { sourcesOnGpu_ = on; }
+  bool sourcesOnGpu() const { return sourcesOnGpu_; }
+  static bool patternMadeOnGpu(const std::string& patternPath);
+  // One frame's small inputs for runGpuSource, from the code the CPU builder
+  // runs, for a picture `width` x `height`. False for a source with no GPU
+  // version.
+  static bool planGpuSource(const Cue& cue, double animTime, int width, int height,
+                            deckboy::gpu::SourcePlan& plan);
   // Callback to tap decoded audio samples (for waveform display / VU meter).
   using AudioTapCallback = std::function<void(const std::vector<std::int16_t>&)>;
   // Optional resolver to transform cue paths before decode (e.g. relative→absolute).
@@ -1959,6 +1971,7 @@ class MediaEngine {
   // build A and B previews from them. Takes effect on the next take.
   bool forcePixelFrames_ = false;
   bool effectsOnGpu_ = false;
+  bool sourcesOnGpu_ = false;
 
   // -- State: browser capture --------------------------------------------------
   bool isBrowserCapturing_ = false;          // browser backend is sending frames

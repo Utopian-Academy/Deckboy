@@ -47,10 +47,10 @@ enum GpuKind : std::uint32_t {
   K_MIRROR, K_LUMA_KEY, K_EDGES, K_WARP, K_MOSAIC, K_MIX
 };
 enum Entry { E_POINT = 0, E_DOWN, E_BOX, E_STREAK, E_TILE, E_NV12, E_TRANS, E_STEREO, E_TAPE,
-             E_MELT_INIT, E_MELT_STEP, E_MELT_SHOW, E_COUNT };
+             E_MELT_INIT, E_MELT_STEP, E_MELT_SHOW, E_SOURCE, E_COUNT };
 const char* const kEntryNames[E_COUNT] = {"pointMain", "downMain", "boxMain", "streakMain", "tileMain", "nv12Main",
                                           "transMain", "stereoMain", "tapeMain", "meltInitMain", "meltStepMain",
-                                          "meltShowMain"};
+                                          "meltShowMain", "sourceMain"};
 // Threads per group: 8 x 8 for every kernel but the stereogram's, which is
 // one row of 64 (stereoMain in gpu_effects.hlsl).
 constexpr int kStereoThreads = 64;
@@ -1113,9 +1113,17 @@ bool d3d11Read(GpuEffects* g, int slotIndex, std::vector<std::uint8_t>& rgba, in
   D3DSlot& slot = it->second;
   w = slot.w;
   h = slot.h;
+  // Shaped like the buffer it reads (a generated source has no CUR), and made
+  // again when that changes size -- a staging texture kept from an earlier
+  // size made the copy below fail silently.
+  D3D11_TEXTURE2D_DESC desc {};
+  slot.buf[slot.result].tex->GetDesc(&desc);
+  if (slot.staging) {
+    D3D11_TEXTURE2D_DESC have {};
+    slot.staging->GetDesc(&have);
+    if (have.Width != desc.Width || have.Height != desc.Height) releaseCom(slot.staging);
+  }
   if (!slot.staging) {
-    D3D11_TEXTURE2D_DESC desc {};
-    slot.buf[CUR].tex->GetDesc(&desc);
     desc.Usage = D3D11_USAGE_STAGING;
     desc.BindFlags = 0;
     desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
@@ -1155,23 +1163,25 @@ bool sdlCreate(GpuEffects* g) {
   const unsigned char* dxil[E_COUNT] = {kEffectsPointDxil, kEffectsDownDxil, kEffectsBoxDxil, kEffectsStreakDxil,
                                         kEffectsTileDxil, kEffectsNv12Dxil, kEffectsTransDxil, kEffectsStereoDxil,
                                         kEffectsTapeDxil, kEffectsMeltInitDxil, kEffectsMeltStepDxil,
-                                        kEffectsMeltShowDxil};
+                                        kEffectsMeltShowDxil, kEffectsSourceDxil};
   const std::size_t dxilSize[E_COUNT] = {sizeof(kEffectsPointDxil), sizeof(kEffectsDownDxil), sizeof(kEffectsBoxDxil),
                                          sizeof(kEffectsStreakDxil), sizeof(kEffectsTileDxil),
                                          sizeof(kEffectsNv12Dxil), sizeof(kEffectsTransDxil),
                                          sizeof(kEffectsStereoDxil), sizeof(kEffectsTapeDxil),
                                          sizeof(kEffectsMeltInitDxil), sizeof(kEffectsMeltStepDxil),
-                                         sizeof(kEffectsMeltShowDxil)};
+                                         sizeof(kEffectsMeltShowDxil), sizeof(kEffectsSourceDxil)};
   const unsigned char* spirv[E_COUNT] = {kEffectsPointSpirv, kEffectsDownSpirv, kEffectsBoxSpirv,
                                          kEffectsStreakSpirv, kEffectsTileSpirv, kEffectsNv12Spirv,
                                          kEffectsTransSpirv, kEffectsStereoSpirv, kEffectsTapeSpirv,
-                                         kEffectsMeltInitSpirv, kEffectsMeltStepSpirv, kEffectsMeltShowSpirv};
+                                         kEffectsMeltInitSpirv, kEffectsMeltStepSpirv, kEffectsMeltShowSpirv,
+                                         kEffectsSourceSpirv};
   const std::size_t spirvSize[E_COUNT] = {sizeof(kEffectsPointSpirv), sizeof(kEffectsDownSpirv),
                                           sizeof(kEffectsBoxSpirv), sizeof(kEffectsStreakSpirv),
                                           sizeof(kEffectsTileSpirv), sizeof(kEffectsNv12Spirv),
                                           sizeof(kEffectsTransSpirv), sizeof(kEffectsStereoSpirv),
                                           sizeof(kEffectsTapeSpirv), sizeof(kEffectsMeltInitSpirv),
-                                          sizeof(kEffectsMeltStepSpirv), sizeof(kEffectsMeltShowSpirv)};
+                                          sizeof(kEffectsMeltStepSpirv), sizeof(kEffectsMeltShowSpirv),
+                                          sizeof(kEffectsSourceSpirv)};
   for (int e = 0; e < E_COUNT; ++e) {
     SDL_GPUComputePipelineCreateInfo info {};
     info.entrypoint = kEntryNames[e];
@@ -1939,6 +1949,207 @@ SDL_Texture* sdlTransition(GpuEffects* g, int slotIndex, const TransitionSource&
 }
 #endif
 }  // namespace
+
+// ---------------------------------------------------------------------------
+// GENERATED SOURCES (runGpuSource): the frame's small inputs into the aux
+// texture (a real 2D one here, auxW x auxH, which the kernel samples by
+// position), one sourceMain pass into ALT, and ALT into the display texture.
+namespace {
+Params sourceParams(const SourcePlan& plan) {
+  Params p;
+  p.kind = static_cast<std::uint32_t>(plan.kind);
+  p.width = static_cast<std::uint32_t>(plan.width);
+  p.height = static_cast<std::uint32_t>(plan.height);
+  p.srcW = static_cast<std::uint32_t>(plan.auxW);
+  p.srcH = static_cast<std::uint32_t>(plan.auxH);
+  p.auxW = p.srcW;
+  p.auxH = p.srcH;
+  p.i0 = plan.i[0];
+  p.i1 = plan.i[1];
+  p.i2 = plan.i[2];
+  p.i3 = plan.i[3];
+  p.f0 = plan.f[0];
+  p.f1 = plan.f[1];
+  p.f2 = plan.f[2];
+  p.f3 = plan.f[3];
+  p.f4 = plan.f[4];
+  p.f5 = plan.f[5];
+  p.f6 = plan.f[6];
+  p.f7 = plan.f[7];
+  std::copy(std::begin(plan.tab), std::end(plan.tab), std::begin(p.tab));
+  return p;
+}
+
+#ifdef _WIN32
+SDL_Texture* d3d11Source(GpuEffects* g, int slotIndex, const SourcePlan& plan) {
+  const int w = plan.width;
+  const int h = plan.height;
+  D3DSlot& slot = g->d3dSlots[slotIndex];
+  if (!makeBuf(g->device, slot.buf[ALT], w, h)) return nullptr;
+  SDL_Texture* display = ensureDisplay(g, slot, w, h);
+  if (!display) return nullptr;
+  slot.displayTex = static_cast<ID3D11Texture2D*>(
+    SDL_GetPointerProperty(SDL_GetTextureProperties(display), SDL_PROP_TEXTURE_D3D11_TEXTURE_POINTER, nullptr));
+  if (!slot.displayTex) return nullptr;
+  SDL_FlushRenderer(g->renderer);   // SDL's queued draws first, in order
+
+  const int tw = plan.auxW, th = plan.auxH;
+  if (!slot.auxTex || slot.auxW != tw || slot.auxH != th) {
+    releaseCom(slot.auxSrv);
+    releaseCom(slot.auxTex);
+    slot.auxW = slot.auxH = 0;
+    D3D11_TEXTURE2D_DESC desc {};
+    desc.Width = static_cast<UINT>(tw);
+    desc.Height = static_cast<UINT>(th);
+    desc.MipLevels = 1;
+    desc.ArraySize = 1;
+    desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    desc.SampleDesc.Count = 1;
+    desc.Usage = D3D11_USAGE_DEFAULT;
+    desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+    if (FAILED(g->device->CreateTexture2D(&desc, nullptr, &slot.auxTex)) ||
+        FAILED(g->device->CreateShaderResourceView(slot.auxTex, nullptr, &slot.auxSrv))) {
+      releaseCom(slot.auxSrv);
+      releaseCom(slot.auxTex);
+      return nullptr;
+    }
+    slot.auxW = tw;
+    slot.auxH = th;
+  }
+  g->context->UpdateSubresource(slot.auxTex, 0, nullptr, plan.aux.data(), static_cast<UINT>(tw * 16), 0);
+
+  const Params params = sourceParams(plan);
+  D3D11_MAPPED_SUBRESOURCE mapped {};
+  if (FAILED(g->context->Map(g->constants, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped))) return nullptr;
+  std::memcpy(mapped.pData, &params, sizeof(Params));
+  g->context->Unmap(g->constants, 0);
+  g->context->CSSetConstantBuffers(0, 1, &g->constants);
+  // The picture slot is unused; the aux texture fills it too, so nothing
+  // stale is bound there.
+  ID3D11ShaderResourceView* views[2] = {slot.auxSrv, slot.auxSrv};
+  ID3D11UnorderedAccessView* out = slot.buf[ALT].uav;
+  g->context->CSSetShader(g->shaders[E_SOURCE], nullptr, 0);
+  g->context->CSSetShaderResources(0, 2, views);
+  g->context->CSSetUnorderedAccessViews(0, 1, &out, nullptr);
+  g->context->Dispatch(static_cast<UINT>((w + 7) / 8), static_cast<UINT>((h + 7) / 8), 1);
+  ID3D11ShaderResourceView* noViews[2] = {nullptr, nullptr};
+  ID3D11UnorderedAccessView* noOut = nullptr;
+  g->context->CSSetUnorderedAccessViews(0, 1, &noOut, nullptr);
+  g->context->CSSetShaderResources(0, 2, noViews);
+  g->context->CSSetShader(nullptr, nullptr, 0);
+  slot.result = ALT;
+  g->context->CopyResource(slot.displayTex, slot.buf[ALT].tex);
+  return display;
+}
+#endif
+
+#if SDL_VERSION_ATLEAST(3, 4, 0)
+SDL_Texture* sdlSource(GpuEffects* g, int slotIndex, const SourcePlan& plan) {
+  const int w = plan.width;
+  const int h = plan.height;
+  GpuEffects::SdlSlot& slot = g->sdlSlots[slotIndex];
+  if (!slot.buf[ALT] || slot.bw[ALT] != w || slot.bh[ALT] != h) {
+    if (slot.buf[ALT]) SDL_ReleaseGPUTexture(g->gpu, slot.buf[ALT]);
+    SDL_GPUTextureCreateInfo info {};
+    info.type = SDL_GPU_TEXTURETYPE_2D;
+    info.format = SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM;
+    info.usage = SDL_GPU_TEXTUREUSAGE_SAMPLER | SDL_GPU_TEXTUREUSAGE_COMPUTE_STORAGE_WRITE;
+    info.width = static_cast<Uint32>(w);
+    info.height = static_cast<Uint32>(h);
+    info.layer_count_or_depth = 1;
+    info.num_levels = 1;
+    slot.buf[ALT] = SDL_CreateGPUTexture(g->gpu, &info);
+    if (!slot.buf[ALT]) return nullptr;
+    slot.bw[ALT] = w;
+    slot.bh[ALT] = h;
+  }
+  SDL_Texture* display = ensureDisplay(g, slot, w, h);
+  if (!display) return nullptr;
+  auto* displayTex = static_cast<SDL_GPUTexture*>(
+    SDL_GetPointerProperty(SDL_GetTextureProperties(display), SDL_PROP_TEXTURE_GPU_TEXTURE_POINTER, nullptr));
+  if (!displayTex) return nullptr;
+
+  const int tw = plan.auxW, th = plan.auxH;
+  if (!slot.auxTex || slot.auxW != tw || slot.auxH != th) {
+    if (slot.auxTex) SDL_ReleaseGPUTexture(g->gpu, slot.auxTex);
+    SDL_GPUTextureCreateInfo info {};
+    info.type = SDL_GPU_TEXTURETYPE_2D;
+    info.format = SDL_GPU_TEXTUREFORMAT_R32G32B32A32_FLOAT;
+    info.usage = SDL_GPU_TEXTUREUSAGE_SAMPLER;
+    info.width = static_cast<Uint32>(tw);
+    info.height = static_cast<Uint32>(th);
+    info.layer_count_or_depth = 1;
+    info.num_levels = 1;
+    slot.auxTex = SDL_CreateGPUTexture(g->gpu, &info);
+    slot.auxW = slot.auxTex ? tw : 0;
+    slot.auxH = slot.auxTex ? th : 0;
+    if (!slot.auxTex) return nullptr;
+  }
+  const std::size_t auxBytes = static_cast<std::size_t>(tw) * th * 16;
+  if (!slot.auxUpload || slot.auxUploadBytes != auxBytes) {
+    if (slot.auxUpload) SDL_ReleaseGPUTransferBuffer(g->gpu, slot.auxUpload);
+    SDL_GPUTransferBufferCreateInfo info {};
+    info.usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD;
+    info.size = static_cast<Uint32>(auxBytes);
+    slot.auxUpload = SDL_CreateGPUTransferBuffer(g->gpu, &info);
+    slot.auxUploadBytes = slot.auxUpload ? auxBytes : 0;
+    if (!slot.auxUpload) return nullptr;
+  }
+  void* auxMapped = SDL_MapGPUTransferBuffer(g->gpu, slot.auxUpload, true);
+  if (!auxMapped) return nullptr;
+  std::memcpy(auxMapped, plan.aux.data(), auxBytes);
+  SDL_UnmapGPUTransferBuffer(g->gpu, slot.auxUpload);
+
+  SDL_GPUCommandBuffer* cmd = SDL_AcquireGPUCommandBuffer(g->gpu);
+  if (!cmd) return nullptr;
+  SDL_GPUCopyPass* copy = SDL_BeginGPUCopyPass(cmd);
+  {
+    SDL_GPUTextureTransferInfo from {slot.auxUpload, 0, static_cast<Uint32>(tw), static_cast<Uint32>(th)};
+    SDL_GPUTextureRegion to {};
+    to.texture = slot.auxTex;
+    to.w = static_cast<Uint32>(tw);
+    to.h = static_cast<Uint32>(th);
+    to.d = 1;
+    SDL_UploadToGPUTexture(copy, &from, &to, false);
+  }
+  SDL_EndGPUCopyPass(copy);
+  SDL_GPUStorageTextureReadWriteBinding out {};
+  out.texture = slot.buf[ALT];
+  out.cycle = false;
+  SDL_GPUComputePass* cp = SDL_BeginGPUComputePass(cmd, &out, 1, nullptr, 0);
+  SDL_BindGPUComputePipeline(cp, g->pipelines[E_SOURCE]);
+  const SDL_GPUTextureSamplerBinding views[2] = {{slot.auxTex, g->sampler}, {slot.auxTex, g->sampler}};
+  SDL_BindGPUComputeSamplers(cp, 0, views, 2);
+  const Params params = sourceParams(plan);
+  SDL_PushGPUComputeUniformData(cmd, 0, &params, sizeof(Params));
+  SDL_DispatchGPUCompute(cp, static_cast<Uint32>((w + 7) / 8), static_cast<Uint32>((h + 7) / 8), 1);
+  SDL_EndGPUComputePass(cp);
+  copy = SDL_BeginGPUCopyPass(cmd);
+  SDL_GPUTextureLocation from {};
+  from.texture = slot.buf[ALT];
+  SDL_GPUTextureLocation to {};
+  to.texture = displayTex;
+  SDL_CopyGPUTextureToTexture(copy, &from, &to, static_cast<Uint32>(w), static_cast<Uint32>(h), 1, false);
+  SDL_EndGPUCopyPass(copy);
+  if (!SDL_SubmitGPUCommandBuffer(cmd)) return nullptr;
+  return display;
+}
+#endif
+}  // namespace
+
+SDL_Texture* runGpuSource(GpuEffects* g, int slot, const SourcePlan& plan) {
+  if (!g || plan.kind == SourcePlan::None || plan.width < 2 || plan.height < 2 || plan.auxW < 2 ||
+      plan.auxH < 2 || plan.aux.size() != static_cast<std::size_t>(plan.auxW) * plan.auxH * 4) {
+    return nullptr;
+  }
+#ifdef _WIN32
+  if (g->device) return d3d11Source(g, slot, plan);
+#endif
+#if SDL_VERSION_ATLEAST(3, 4, 0)
+  if (g->gpu) return sdlSource(g, slot, plan);
+#endif
+  return nullptr;
+}
 
 SDL_Texture* runGpuTransition(GpuEffects* g, int slot, const TransitionSource& source, const TransitionPlan& plan) {
   if (!g || plan.style == TransitionPlan::None || plan.width < 2 || plan.height < 2 || plan.aux.empty()) {

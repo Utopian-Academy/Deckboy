@@ -4781,6 +4781,10 @@ void MediaEngine::rebuildVideoSynthFrame(const Cue& cue, double wallSeconds,
   uploadFrame(frame);
 }
 
+// Lumia at a given quality (defined with the other generators, below).
+void buildLumiaAt(DecodedFrame& frame, double animTime, const LumiaSettings& base, const std::string& cueId,
+                  int q);
+
 void MediaEngine::rebuildPatternFrame(const Cue& cue, double wallSeconds) {
   // Animated patterns rebuild at the SELECTED DISPLAY's refresh rate (or
   // the project's explicit refresh override — the app's mode provider
@@ -4830,6 +4834,35 @@ void MediaEngine::rebuildPatternFrame(const Cue& cue, double wallSeconds) {
   if (!displayFrame_) {
     displayFrame_.emplace();
   }
+  // MADE ON THE CARD (setSourcesOnGpu): a plan for the outputs at full size,
+  // and a small picture of the same moment, from the same trace, for the
+  // desk. A look the GPU source cannot carry (a grade, a key, effects, a
+  // sound that reads the picture) keeps the whole CPU frame, as before.
+  const bool lookOnCpu = cue.chromaKeyEnabled ||
+                         colorControlsActive(cue.brightness, cue.contrast, cue.saturation, cue.hueShift) ||
+                         deckboy::effects::cueEffectStackActive(cue.effects) ||
+                         deckboy::audiofx::audioChainNeedsPicture(cue.audioEffects) || forcePixelFrames_;
+  if (sourcesOnGpu_ && !lookOnCpu && patternMadeOnGpu(cue.path) && fallbackW >= 2 && fallbackH >= 2) {
+    auto plan = std::make_shared<deckboy::gpu::SourcePlan>();
+    if (planGpuSource(cue, animTime, fallbackW, fallbackH, *plan)) {
+      const int sw = std::min(fallbackW, 640);
+      const int sh = std::max(1, static_cast<int>(std::lround(static_cast<double>(fallbackH) * sw / fallbackW)));
+      displayFrame_->width = sw;
+      displayFrame_->height = sh;
+      buildLumiaAt(*displayFrame_, animTime, cue.lumia, cue.id, fallbackH >= 600 ? 2 : 1);
+      displayFrame_->format = FramePixelFormat::RGBA32;
+      displayFrame_->colorspace = SDL_COLORSPACE_SRGB;
+      displayFrame_->logicalWidth = fallbackW;
+      displayFrame_->logicalHeight = fallbackH;
+      displayFrame_->gpuSource = std::move(plan);
+      displayFrame_->index = ++displayFrameSerial_;
+      uploadFrame(*displayFrame_);
+      return;
+    }
+  }
+  displayFrame_->gpuSource.reset();
+  displayFrame_->logicalWidth = 0;
+  displayFrame_->logicalHeight = 0;
   buildPatternFrameInto(*displayFrame_, cue, animTime, fallbackW, fallbackH);
   if (!displayFrame_->pixels.empty()) {
     displayFrame_->index = ++displayFrameSerial_;
@@ -13168,50 +13201,22 @@ void lumiaBlur(std::vector<float>& buf, std::vector<float>& tmp, int sw, int sh,
 
 }  // namespace
 
-void buildLumia(DecodedFrame& frame, double animTime, const LumiaSettings& base, const std::string& cueId) {
-  const int W = frame.width, H = frame.height;
-  if (W <= 0 || H <= 0) return;
-  frame.format = FramePixelFormat::RGBA32;
-  frame.pixels.resize(static_cast<std::size_t>(W) * static_cast<std::size_t>(H) * 4u);
-
-  // ABOVE 1200 LINES, DRAWN SMALLER AND SCALED UP. The light is traced into a
-  // 480x320 source, so a 4K output holds no detail a 1080p one does not; only
-  // the lens rim and the panel edges would be a pixel sharper. Drawn at full
-  // size it cost 50 ms a frame at 4K; this way it costs what 1080p does.
-  if (H > 1200) {
-    const int f = (H + 1079) / 1080;
-    DecodedFrame small;
-    small.width = std::max(1, W / f);
-    small.height = std::max(1, H / f);
-    buildLumia(small, animTime, base, cueId);
-    const int sw = small.width, sh = small.height;
-    const std::uint8_t* in = small.pixels.data();
-    std::uint8_t* out = frame.pixels.data();
-    const float kx = static_cast<float>(sw) / W, ky = static_cast<float>(sh) / H;
-    deckboy::effects::detail::parallelRows(H, W, [&](int y0, int y1) {
-      for (int y = y0; y < y1; ++y) {
-        const float fy = std::max(0.0f, (y + 0.5f) * ky - 0.5f);
-        const int iy = std::min(static_cast<int>(fy), sh - 1), iy1 = std::min(iy + 1, sh - 1);
-        const int ty = static_cast<int>((fy - iy) * 256.0f);
-        const std::uint8_t* r0 = in + static_cast<std::size_t>(iy) * sw * 4;
-        const std::uint8_t* r1 = in + static_cast<std::size_t>(iy1) * sw * 4;
-        std::uint8_t* o = out + static_cast<std::size_t>(y) * W * 4;
-        for (int x = 0; x < W; ++x) {
-          const float fx = std::max(0.0f, (x + 0.5f) * kx - 0.5f);
-          const int ix = std::min(static_cast<int>(fx), sw - 1), ix1 = std::min(ix + 1, sw - 1);
-          const int tx = static_cast<int>((fx - ix) * 256.0f);
-          for (int c = 0; c < 3; ++c) {
-            const int top = r0[ix * 4 + c] * (256 - tx) + r0[ix1 * 4 + c] * tx;
-            const int bot = r1[ix * 4 + c] * (256 - tx) + r1[ix1 * 4 + c] * tx;
-            o[x * 4 + c] = static_cast<std::uint8_t>((top * (256 - ty) + bot * ty + 32768) >> 16);
-          }
-          o[x * 4 + 3] = 255;
-        }
-      }
-    });
-    return;
-  }
-
+// The light of this moment for one cue at quality q (1: a 240x160 source,
+// 2: 480x320), traced once and kept per cue -- a second call at the same
+// moment (the preview, a second output, the GPU plan) reuses it -- and
+// handed to `use` with the lock held. The CPU draw (lumiaDraw) and the GPU
+// plan (MediaEngine::planGpuSource) both read it from here, so the two cannot
+// drift apart.
+struct LumiaView {
+  const float* acc = nullptr;   // the prism's light, RGB, SW x SH
+  const float* wat = nullptr;   // the water's light, SW x SH
+  int SW = 0, SH = 0;
+  double spinAt = 0, gain = 0, lens = 0, rimPow = 0, angle = 0;
+  int mode = 0, mirrors = 0;
+  bool topBottom = true;
+};
+template <typename Fn>
+void lumiaWithFrame(double animTime, const LumiaSettings& base, const std::string& cueId, int q, Fn&& use) {
   const auto clock = deckboy::effects::readLfoClock();
   auto mod = [&](int slot, double value) {
     const auto& lfo = base.lfo[static_cast<std::size_t>(slot)];
@@ -13236,7 +13241,6 @@ void buildLumia(DecodedFrame& frame, double animTime, const LumiaSettings& base,
   const int mode = std::clamp(base.mode, 0, kLumiaModeCount - 1);
   const LumiaPalette& pal = kLumiaPalettes[std::clamp(base.palette, 0, kLumiaPaletteCount - 1)];
 
-  const int q = H >= 600 ? 2 : 1;
   const int SW = 240 * q, SH = 160 * q;
 
   static std::mutex mutex;
@@ -13386,14 +13390,36 @@ void buildLumia(DecodedFrame& frame, double animTime, const LumiaSettings& base,
     for (std::size_t i = 0; i < n; ++i) st.watShown[i] = settle(st.watShown[i] * keep + st.wat[i] * add);
   }
 
+
+  LumiaView view;
+  view.acc = st.accShown.data();
+  view.wat = st.watShown.data();
+  view.SW = SW;
+  view.SH = SH;
+  view.spinAt = st.spinAt;
+  view.gain = 0.3 + bright * 1.4;
+  view.lens = lens;
+  view.rimPow = 6 - lens * 3;
+  view.angle = angle;
+  view.mode = mode;
+  view.mirrors = mirrors;
+  view.topBottom = base.topBottom;
+  use(view);
+}
+
+// The mirrors and the lens over a traced frame, into `frame` (already sized).
+void lumiaDraw(DecodedFrame& frame, const LumiaView& v) {
   // ---- The mirrors and the lens: each output pixel finds its source point ----
-  const float* acc = st.accShown.data();
-  const float* wat = st.watShown.data();
+  const int W = frame.width, H = frame.height;
+  const int SW = v.SW, SH = v.SH, mode = v.mode, mirrors = v.mirrors;
+  const double lens = v.lens, angle = v.angle;
+  const float* acc = v.acc;
+  const float* wat = v.wat;
   const double asp = static_cast<double>(W) / H;
   const double cx = W * 0.5, cy = H * 0.5;
-  const double ca0 = std::cos(st.spinAt), sa0 = std::sin(st.spinAt);
-  const double gain = 0.3 + bright * 1.4;
-  const double rimPow = 6 - lens * 3;
+  const double ca0 = std::cos(v.spinAt), sa0 = std::sin(v.spinAt);
+  const double gain = v.gain;
+  const double rimPow = v.rimPow;
   // Tables, built once a frame, for what would otherwise be a pow, three exps
   // and a cos/sin per output pixel. The rim by the squared radius (it reaches
   // 0 well before r^2 = 2); the screen's response by the light; each mirror
@@ -13415,7 +13441,7 @@ void buildLumia(DecodedFrame& frame, double animTime, const LumiaSettings& base,
     tiltLut[k * 2] = static_cast<float>(std::cos(tilt));
     tiltLut[k * 2 + 1] = static_cast<float>(std::sin(tilt));
   }
-  const bool topBottom = base.topBottom;
+  const bool topBottom = v.topBottom;
   // The per-pixel work in float: two million pixels a frame, and nothing here
   // needs more than float's precision (the source is 480 pixels across).
   const float fAsp = static_cast<float>(asp), fInvAsp = static_cast<float>(1.0 / asp);
@@ -13511,6 +13537,106 @@ void buildLumia(DecodedFrame& frame, double animTime, const LumiaSettings& base,
       }
     }
   });
+}
+
+// At quality q (see lumiaWithFrame). buildLumia picks q from the frame's
+// height; the GPU path's desk picture asks for the output's.
+void buildLumiaAt(DecodedFrame& frame, double animTime, const LumiaSettings& base, const std::string& cueId,
+                  int q) {
+  const int W = frame.width, H = frame.height;
+  if (W <= 0 || H <= 0) return;
+  frame.format = FramePixelFormat::RGBA32;
+  frame.pixels.resize(static_cast<std::size_t>(W) * static_cast<std::size_t>(H) * 4u);
+
+  // ABOVE 1200 LINES, DRAWN SMALLER AND SCALED UP. The light is traced into a
+  // 480x320 source, so a 4K output holds no detail a 1080p one does not; only
+  // the lens rim and the panel edges would be a pixel sharper. Drawn at full
+  // size it cost 50 ms a frame at 4K; this way it costs what 1080p does.
+  if (H > 1200) {
+    const int f = (H + 1079) / 1080;
+    DecodedFrame small;
+    small.width = std::max(1, W / f);
+    small.height = std::max(1, H / f);
+    buildLumiaAt(small, animTime, base, cueId, q);
+    const int sw = small.width, sh = small.height;
+    const std::uint8_t* in = small.pixels.data();
+    std::uint8_t* out = frame.pixels.data();
+    const float kx = static_cast<float>(sw) / W, ky = static_cast<float>(sh) / H;
+    deckboy::effects::detail::parallelRows(H, W, [&](int y0, int y1) {
+      for (int y = y0; y < y1; ++y) {
+        const float fy = std::max(0.0f, (y + 0.5f) * ky - 0.5f);
+        const int iy = std::min(static_cast<int>(fy), sh - 1), iy1 = std::min(iy + 1, sh - 1);
+        const int ty = static_cast<int>((fy - iy) * 256.0f);
+        const std::uint8_t* r0 = in + static_cast<std::size_t>(iy) * sw * 4;
+        const std::uint8_t* r1 = in + static_cast<std::size_t>(iy1) * sw * 4;
+        std::uint8_t* o = out + static_cast<std::size_t>(y) * W * 4;
+        for (int x = 0; x < W; ++x) {
+          const float fx = std::max(0.0f, (x + 0.5f) * kx - 0.5f);
+          const int ix = std::min(static_cast<int>(fx), sw - 1), ix1 = std::min(ix + 1, sw - 1);
+          const int tx = static_cast<int>((fx - ix) * 256.0f);
+          for (int c = 0; c < 3; ++c) {
+            const int top = r0[ix * 4 + c] * (256 - tx) + r0[ix1 * 4 + c] * tx;
+            const int bot = r1[ix * 4 + c] * (256 - tx) + r1[ix1 * 4 + c] * tx;
+            o[x * 4 + c] = static_cast<std::uint8_t>((top * (256 - ty) + bot * ty + 32768) >> 16);
+          }
+          o[x * 4 + 3] = 255;
+        }
+      }
+    });
+    return;
+  }
+
+  lumiaWithFrame(animTime, base, cueId, q, [&](const LumiaView& v) { lumiaDraw(frame, v); });
+}
+
+void buildLumia(DecodedFrame& frame, double animTime, const LumiaSettings& base, const std::string& cueId) {
+  buildLumiaAt(frame, animTime, base, cueId, frame.height >= 600 ? 2 : 1);
+}
+
+bool MediaEngine::patternMadeOnGpu(const std::string& patternPath) {
+  return stripPatternMotionSuffix(normalizePatternTypeId(patternPath)) == "lumia";
+}
+
+// planGpuSource - the frame's small inputs for sourceMain (gpu_effects.hlsl).
+// The traced light comes from lumiaWithFrame, the same call the CPU draw
+// makes, at the quality the CPU would pick for this height; the kernel then
+// does lumiaDraw's per-pixel part. The two cannot drift: one trace.
+bool MediaEngine::planGpuSource(const Cue& cue, double animTime, int width, int height,
+                                deckboy::gpu::SourcePlan& plan) {
+  if (!patternMadeOnGpu(cue.path) || width < 2 || height < 2) return false;
+  const int q = height >= 600 ? 2 : 1;
+  lumiaWithFrame(animTime, cue.lumia, cue.id, q, [&](const LumiaView& v) {
+    plan.kind = deckboy::gpu::SourcePlan::Lumia;
+    plan.width = width;
+    plan.height = height;
+    plan.auxW = v.SW;
+    plan.auxH = v.SH;
+    const std::size_t n = static_cast<std::size_t>(v.SW) * v.SH;
+    plan.aux.resize(n * 4);
+    float* a = plan.aux.data();
+    for (std::size_t i = 0; i < n; ++i) {
+      a[i * 4] = v.acc[i * 3];
+      a[i * 4 + 1] = v.acc[i * 3 + 1];
+      a[i * 4 + 2] = v.acc[i * 3 + 2];
+      a[i * 4 + 3] = v.wat[i];
+    }
+    plan.i[0] = v.mode;
+    plan.i[1] = v.mirrors;
+    plan.i[2] = v.topBottom ? 1 : 0;
+    plan.i[3] = 0;
+    plan.f[0] = static_cast<float>(static_cast<double>(width) / height);
+    plan.f[1] = static_cast<float>(std::cos(v.spinAt));
+    plan.f[2] = static_cast<float>(std::sin(v.spinAt));
+    plan.f[3] = static_cast<float>(v.lens * 0.55);
+    plan.f[4] = static_cast<float>(v.gain);
+    plan.f[5] = static_cast<float>(v.rimPow);
+    for (int k = 0; k < 64; ++k) {
+      const double tilt = k * v.angle * 0.35 * ((k & 1) ? -1 : 1);
+      plan.tab[k * 2] = static_cast<float>(std::cos(tilt));
+      plan.tab[k * 2 + 1] = static_cast<float>(std::sin(tilt));
+    }
+  });
+  return plan.kind != deckboy::gpu::SourcePlan::None;
 }
 
 // ---------------------------------------------------------------------------

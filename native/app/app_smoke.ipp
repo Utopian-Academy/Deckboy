@@ -5683,8 +5683,10 @@
     return 0;
   }
 
+  // gpu: --gpu-source-dump, the same frame made on the card (runGpuSource
+  // from MediaEngine::planGpuSource) and read back, for check_gpu_sources.py.
   static int runPatternDump(const std::string& patternId, const std::string& outPath,
-                            int w, int h, double t) {
+                            int w, int h, double t, bool gpu = false) {
     Cue cue;
     cue.kind = CueKind::Pattern;
     cue.name = "pattern-dump";
@@ -5768,7 +5770,67 @@
     cue.path = id;
     cue.width = w;
     cue.height = h;
-    auto frame = MediaEngine::buildPatternFrame(cue, t, w, h);
+    std::optional<DecodedFrame> frame;
+    if (gpu) {
+      if (!MediaEngine::patternMadeOnGpu(id)) {
+        std::cerr << "gpu-source-dump: " << id << " has no GPU version\n";
+        return 2;
+      }
+      if (!SDL_Init(SDL_INIT_VIDEO)) {
+        std::cerr << "gpu-source-dump: no video: " << SDL_GetError() << '\n';
+        return 1;
+      }
+      SDL_Window* window = SDL_CreateWindow("gpu-source-dump", 64, 64, SDL_WINDOW_HIDDEN);
+      SDL_Renderer* renderer = nullptr;
+      if (window) {
+        const char* forced = std::getenv("DECKBOY_OUTPUT_RENDERER");
+        renderer = (forced && *forced) ? SDL_CreateRenderer(window, forced) : deckboyCreateRenderer(window);
+      }
+      deckboy::gpu::GpuEffects* g = renderer ? deckboy::gpu::createGpuEffects(renderer) : nullptr;
+      if (!g) {
+        std::cerr << "gpu-source-dump: no GPU effects on this renderer\n";
+        return 3;
+      }
+      std::cout << "gpu-source-dump: on " << deckboy::gpu::gpuEffectsBackend(g) << '\n';
+      deckboy::gpu::SourcePlan plan;
+      DecodedFrame made;
+      made.width = w;
+      made.height = h;
+      int rw = 0, rh = 0;
+      double at = t;
+      const auto run = [&]() {
+        return MediaEngine::planGpuSource(cue, at, w, h, plan) && deckboy::gpu::runGpuSource(g, 0, plan) &&
+               deckboy::gpu::readGpuEffectsResult(g, 0, made.pixels, rw, rh) && rw == w && rh == h;
+      };
+      const bool ok = run();
+      // DECKBOY_SOURCE_BENCH=<n>: n more frames, a 60th of a second apart (so
+      // each traces afresh, as on air), planned, drawn and read back; the
+      // median. The read-back waits for the card, so this is an upper bound:
+      // an output never reads back.
+      if (const char* benchEnv = std::getenv("DECKBOY_SOURCE_BENCH"); ok && benchEnv) {
+        const int runs = std::clamp(std::atoi(benchEnv), 1, 500);
+        std::vector<double> ms;
+        for (int i = 0; i < runs; ++i) {
+          at += 1.0 / 60.0;
+          const auto t0 = std::chrono::steady_clock::now();
+          run();
+          ms.push_back(std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - t0).count());
+        }
+        std::sort(ms.begin(), ms.end());
+        std::printf("source-bench: %s %dx%d median %.2f ms, min %.2f, max %.2f (%d runs)\n", id.c_str(), w, h,
+                    ms[ms.size() / 2], ms.front(), ms.back(), runs);
+      }
+      deckboy::gpu::destroyGpuEffects(g);
+      SDL_DestroyRenderer(renderer);
+      SDL_DestroyWindow(window);
+      if (!ok) {
+        std::cerr << "gpu-source-dump: the GPU run failed\n";
+        return 5;
+      }
+      frame = std::move(made);
+    } else {
+      frame = MediaEngine::buildPatternFrame(cue, t, w, h);
+    }
     if (!frame || frame->pixels.empty()) {
       std::cout << "pattern-dump: build failed for " << patternId << '\n';
       return 1;
