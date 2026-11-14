@@ -671,3 +671,95 @@ void stereoMain(uint3 group : SV_GroupID, uint3 local : SV_GroupThreadID) {
     put(uint2(x, y), float4(float3(d), float(px.a)));
   }
 }
+
+// ---- TAPE: VHS from its causes (cue_effects.hpp, CueEffectKind::Tape) ------
+// The CPU effect's own arithmetic, a pixel at a time. Each line's timing
+// error, its luma box (and the two either side, for the ring), its colour box
+// late and drifted, then noise, dropouts, interference, hum. The numbers it
+// cannot work out per pixel come from the plan: i0 blurY, i1 ringOff,
+// i2 blurC, i3 lag; f0 ring, f1 noiseY, f2/f3 hue cos/sin, f4 bandY,
+// f5 bandH, f6 hum, f7 t, f8 scale, f9 deck, f10 wear, f11 speedK, f12 age,
+// f13 gen, f14 track; tab[0] = gens, interference, noiseCell, noiseCell2.
+float tapeHash(uint n) {
+  n = (n ^ 61u) ^ (n >> 16); n = n + (n << 3); n = n ^ (n >> 4); n *= 0x27d4eb2du; n = n ^ (n >> 15);
+  return float(n) / 4294967296.0;
+}
+float tapeLuma(int x, int y) {
+  const uint4 q = texel(x, y);
+  return (0.299 * q.r + 0.587 * q.g + 0.114 * q.b) / 255.0;
+}
+float tapeBoxY(int xc, int y, float sh, int blur) {
+  const int W = int(width);
+  const int x0 = clamp(xc - blur, 0, W - 1), x1 = clamp(xc + blur, 0, W - 1);
+  float a = 0.0;
+  for (int x = x0; x <= x1; ++x) a += tapeLuma(clamp(int(round(float(x) - sh)), 0, W - 1), y);
+  return a / float(x1 - x0 + 1);
+}
+[numthreads(8, 8, 1)]
+void tapeMain(uint3 id : SV_DispatchThreadID) {
+  if (id.x >= width || id.y >= height) return;
+  const int x = int(id.x), y = int(id.y);
+  const int W = int(width), H = int(height);
+  const float s = f8, t = f7;
+  const int gens = int(tab[0].x), interference = int(tab[0].y);
+  const int noiseCell = int(tab[0].z), noiseCell2 = int(tab[0].w);
+  // Timebase: this line lands early or late.
+  const float wobble = sin(t * 2.1 + float(y) * 0.03 / s) * 0.6 + sin(t * 0.7 + float(y) * 0.011 / s) * 0.8;
+  float sh = wobble * (0.3 + f9 * 2.5) * f11;
+  const float top = max(0.0, 1.0 - float(y) / (float(H) * 0.12));
+  sh += top * top * (2.0 + f9 * 14.0) * sin(t * 0.9);
+  if (float(y) > float(H) - 7.0 * s) sh += (6.0 + f10 * 18.0) * (0.5 + 0.5 * tapeHash(frame * 31u + uint(y)));
+  sh *= s;
+  // Brightness on its carrier: soft, rung at the edges.
+  const float yb = tapeBoxY(x, y, sh, i0);
+  const float yl = tapeBoxY(max(0, x - i1), y, sh, i0);
+  const float yr = tapeBoxY(min(W - 1, x + i1), y, sh, i0);
+  float yy = yb + (yb - (yl + yr) * 0.5) * f0 * 2.0;
+  // Colour under: a wide box, late, its hue turned.
+  const int cx = int(round(float(x) - sh - float(i3)));
+  const int c0 = clamp(cx - i2, 0, W - 1), c1 = clamp(cx + i2, 0, W - 1);
+  float ia = 0.0, qa = 0.0;
+  for (int k = c0; k <= c1; ++k) {
+    const float3 c = float3(texel(k, y).rgb) / 255.0;
+    ia += 0.596 * c.r - 0.274 * c.g - 0.322 * c.b;
+    qa += 0.211 * c.r - 0.523 * c.g + 0.312 * c.b;
+  }
+  ia /= float(c1 - c0 + 1);
+  qa /= float(c1 - c0 + 1);
+  const float inBand = max(0.0, 1.0 - abs(float(y) - f4) / f5) * f14;
+  const float keep = (1.0 - inBand * 0.8) * (1.0 - float(gens) * 0.08);
+  float ii = (ia * f2 - qa * f3) * keep, qq = (ia * f3 + qa * f2) * keep;
+  const float humK = 1.0 - f6 * (0.5 + 0.5 * sin(float(y) / float(H) * 6.2831853 * 1.5 - t * 1.2));
+  const uint p = uint(y) * uint(W) + uint(x);
+  // Tape noise streaks along the line, with a little fine snow.
+  const float n1 = (tapeHash(frame * 7919u + uint(y) * 1009u + uint(x / noiseCell)) - 0.5) * 0.55 +
+                   (tapeHash(frame * 7919u + uint(y) * 1009u + uint(x / noiseCell2) + 50000u) - 0.5) * 0.3 +
+                   (tapeHash(frame * 131u + p * 3u) - 0.5) * 0.15;
+  yy += n1 * f1 * 2.0 + n1 * inBand * 0.9;
+  const float cn = (tapeHash(frame * 104729u + (p >> 2)) - 0.5) * (0.02 + f12 * 0.06) * f11 * f13;
+  ii += cn; qq -= cn * 0.7;
+  // Dropouts: the line above, with a bright flick at the start.
+  const bool drop = tapeHash(frame * 977u + uint(y) * 131u) < f12 * f12 * 0.25 * f11;
+  const int dStart = int(tapeHash(frame * 13u + uint(y) * 7u) * float(W));
+  const int dLen = int((6.0 + tapeHash(frame * 3u + uint(y)) * 60.0 * (0.3 + f12)) * s);
+  if (drop && x >= dStart && x < dStart + dLen) {
+    yy = tapeLuma(x, max(0, y - 1));
+    if (float(x) < float(dStart) + 3.0 * s) yy = 1.0;
+  }
+  if (interference == 1) {
+    const float burst = sin(t * 3.0) > 0.6 ? 1.0 : 0.0;
+    yy += burst * 0.12 * sin(float(x) * 0.9 / s + float(y) * 2.3 / s + t * 90.0) *
+          (tapeHash(uint(float(y) / max(1.0, 2.0 * s)) + frame) > 0.4 ? 1.0 : 0.0);
+  } else if (interference == 2) {
+    yy += 0.05 * sin((float(x) + float(y) * 1.7) * 0.55 / s + t * 40.0) * sin(float(y) * 0.2 / s);
+  } else if (interference == 3) {
+    yy += 0.07 * sin(float(x) * 0.3 / s + t * 8.0 + sin(float(y) * 0.05 / s + t) * 4.0);
+  }
+  yy *= humK;
+  const float3 rgb = float3(yy + 0.956 * ii + 0.621 * qq, yy - 0.272 * ii - 0.647 * qq, yy - 1.106 * ii + 1.703 * qq);
+  const int3 v = int3(clamp(rgb * 255.0, 0.0, 255.0));   // truncated, as clamp8 does
+  const uint4 o = texel(x, y);
+  const int a256 = int(round(amt * 256.0));
+  const int3 d = int3(o.rgb) + (((v - int3(o.rgb)) * a256) >> 8);
+  put(id.xy, float4(float3(d), float(o.a)));
+}

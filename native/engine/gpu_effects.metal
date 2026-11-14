@@ -601,3 +601,83 @@ kernel void stereoMain(SRC src [[texture(0)]], sampler srcSampler [[sampler(0)]]
     put(dst, uint2(x, y), float4(float3(d), float(px.a)));
   }
 }
+
+// ---- TAPE: VHS from its causes (gpu_effects.hlsl tapeMain, line for line) --
+static float tapeHash(uint n) {
+  n = (n ^ 61u) ^ (n >> 16); n = n + (n << 3); n = n ^ (n >> 4); n *= 0x27d4eb2du; n = n ^ (n >> 15);
+  return float(n) / 4294967296.0f;
+}
+static float tapeLuma(SRC src, int x, int y) {
+  const uint4 q = texel(src, x, y);
+  return (0.299f * q.r + 0.587f * q.g + 0.114f * q.b) / 255.0f;
+}
+static float tapeBoxY(SRC src, constant Params& p, int xc, int y, float sh, int blur) {
+  const int W = int(p.width);
+  const int x0 = clamp(xc - blur, 0, W - 1), x1 = clamp(xc + blur, 0, W - 1);
+  float a = 0.0f;
+  for (int x = x0; x <= x1; ++x) a += tapeLuma(src, clamp(int(round(float(x) - sh)), 0, W - 1), y);
+  return a / float(x1 - x0 + 1);
+}
+kernel void tapeMain(ARGS) {
+  if (id.x >= p.width || id.y >= p.height) return;
+  const int x = int(id.x), y = int(id.y);
+  const int W = int(p.width), H = int(p.height);
+  const float s = p.f8, t = p.f7;
+  const uint frame = p.frame;
+  const int gens = int(tabAt(p, 0)), interference = int(tabAt(p, 1));
+  const int noiseCell = int(tabAt(p, 2)), noiseCell2 = int(tabAt(p, 3));
+  const float wobble = sin(t * 2.1f + float(y) * 0.03f / s) * 0.6f + sin(t * 0.7f + float(y) * 0.011f / s) * 0.8f;
+  float sh = wobble * (0.3f + p.f9 * 2.5f) * p.f11;
+  const float top = max(0.0f, 1.0f - float(y) / (float(H) * 0.12f));
+  sh += top * top * (2.0f + p.f9 * 14.0f) * sin(t * 0.9f);
+  if (float(y) > float(H) - 7.0f * s) sh += (6.0f + p.f10 * 18.0f) * (0.5f + 0.5f * tapeHash(frame * 31u + uint(y)));
+  sh *= s;
+  const float yb = tapeBoxY(src, p, x, y, sh, p.i0);
+  const float yl = tapeBoxY(src, p, max(0, x - p.i1), y, sh, p.i0);
+  const float yr = tapeBoxY(src, p, min(W - 1, x + p.i1), y, sh, p.i0);
+  float yy = yb + (yb - (yl + yr) * 0.5f) * p.f0 * 2.0f;
+  const int cx = int(round(float(x) - sh - float(p.i3)));
+  const int c0 = clamp(cx - p.i2, 0, W - 1), c1 = clamp(cx + p.i2, 0, W - 1);
+  float ia = 0.0f, qa = 0.0f;
+  for (int k = c0; k <= c1; ++k) {
+    const float3 c = float3(texel(src, k, y).rgb) / 255.0f;
+    ia += 0.596f * c.r - 0.274f * c.g - 0.322f * c.b;
+    qa += 0.211f * c.r - 0.523f * c.g + 0.312f * c.b;
+  }
+  ia /= float(c1 - c0 + 1);
+  qa /= float(c1 - c0 + 1);
+  const float inBand = max(0.0f, 1.0f - abs(float(y) - p.f4) / p.f5) * p.f14;
+  const float keep = (1.0f - inBand * 0.8f) * (1.0f - float(gens) * 0.08f);
+  float ii = (ia * p.f2 - qa * p.f3) * keep, qq = (ia * p.f3 + qa * p.f2) * keep;
+  const float humK = 1.0f - p.f6 * (0.5f + 0.5f * sin(float(y) / float(H) * 6.2831853f * 1.5f - t * 1.2f));
+  const uint pix = uint(y) * uint(W) + uint(x);
+  const float n1 = (tapeHash(frame * 7919u + uint(y) * 1009u + uint(x / noiseCell)) - 0.5f) * 0.55f +
+                   (tapeHash(frame * 7919u + uint(y) * 1009u + uint(x / noiseCell2) + 50000u) - 0.5f) * 0.3f +
+                   (tapeHash(frame * 131u + pix * 3u) - 0.5f) * 0.15f;
+  yy += n1 * p.f1 * 2.0f + n1 * inBand * 0.9f;
+  const float cn = (tapeHash(frame * 104729u + (pix >> 2)) - 0.5f) * (0.02f + p.f12 * 0.06f) * p.f11 * p.f13;
+  ii += cn; qq -= cn * 0.7f;
+  const bool drop = tapeHash(frame * 977u + uint(y) * 131u) < p.f12 * p.f12 * 0.25f * p.f11;
+  const int dStart = int(tapeHash(frame * 13u + uint(y) * 7u) * float(W));
+  const int dLen = int((6.0f + tapeHash(frame * 3u + uint(y)) * 60.0f * (0.3f + p.f12)) * s);
+  if (drop && x >= dStart && x < dStart + dLen) {
+    yy = tapeLuma(src, x, max(0, y - 1));
+    if (float(x) < float(dStart) + 3.0f * s) yy = 1.0f;
+  }
+  if (interference == 1) {
+    const float burst = sin(t * 3.0f) > 0.6f ? 1.0f : 0.0f;
+    yy += burst * 0.12f * sin(float(x) * 0.9f / s + float(y) * 2.3f / s + t * 90.0f) *
+          (tapeHash(uint(float(y) / max(1.0f, 2.0f * s)) + frame) > 0.4f ? 1.0f : 0.0f);
+  } else if (interference == 2) {
+    yy += 0.05f * sin((float(x) + float(y) * 1.7f) * 0.55f / s + t * 40.0f) * sin(float(y) * 0.2f / s);
+  } else if (interference == 3) {
+    yy += 0.07f * sin(float(x) * 0.3f / s + t * 8.0f + sin(float(y) * 0.05f / s + t) * 4.0f);
+  }
+  yy *= humK;
+  const float3 rgb = float3(yy + 0.956f * ii + 0.621f * qq, yy - 0.272f * ii - 0.647f * qq, yy - 1.106f * ii + 1.703f * qq);
+  const int3 v = int3(clamp(rgb * 255.0f, 0.0f, 255.0f));   // truncated, as clamp8 does
+  const uint4 o = texel(src, x, y);
+  const int a256 = int(round(p.amt * 256.0f));
+  const int3 d = int3(o.rgb) + (((v - int3(o.rgb)) * a256) >> 8);
+  put(dst, id, float4(float3(d), float(o.a)));
+}

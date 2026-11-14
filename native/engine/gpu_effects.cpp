@@ -46,9 +46,9 @@ enum GpuKind : std::uint32_t {
   K_LUT = 1, K_THRESHOLD, K_COLOUR, K_COLOUR_REPLACE, K_VIGNETTE, K_GRAIN, K_CHANNEL_OFFSET,
   K_MIRROR, K_LUMA_KEY, K_EDGES, K_WARP, K_MOSAIC, K_MIX
 };
-enum Entry { E_POINT = 0, E_DOWN, E_BOX, E_STREAK, E_TILE, E_NV12, E_TRANS, E_STEREO, E_COUNT };
+enum Entry { E_POINT = 0, E_DOWN, E_BOX, E_STREAK, E_TILE, E_NV12, E_TRANS, E_STEREO, E_TAPE, E_COUNT };
 const char* const kEntryNames[E_COUNT] = {"pointMain", "downMain", "boxMain", "streakMain", "tileMain", "nv12Main",
-                                          "transMain", "stereoMain"};
+                                          "transMain", "stereoMain", "tapeMain"};
 // Threads per group: 8 x 8 for every kernel but the stereogram's, which is
 // one row of 64 (stereoMain in gpu_effects.hlsl).
 constexpr int kStereoThreads = 64;
@@ -384,6 +384,54 @@ bool planEffect(std::vector<Pass>& plan, const fx::CueEffect& e, int w, int h, c
       plan.push_back(s);
       return true;
     }
+    case CueEffectKind::Tape: {
+      // The CPU effect's own per-frame numbers (core/cue_effects.hpp), then
+      // one pass: tapeMain does the per-pixel part line for line.
+      const double s = w / 480.0;
+      const double t = static_cast<double>(ctx.frameIndex) / 60.0;
+      const double pE = std::clamp(static_cast<double>(e.paramE), 0.0, 1.0);
+      const double pF = std::clamp(static_cast<double>(e.paramF), 0.0, 1.0);
+      const double age = pA, wear = pB, track = pC, deck = pD, colour = pE;
+      const int gens = static_cast<int>(std::lround(pF * 4.0));
+      const int speedMode = std::clamp(e.choiceA, 0, 2);
+      const int interference = std::clamp(e.choiceB, 0, 3);
+      const double speedK = speedMode == 0 ? 1.0 : speedMode == 1 ? 1.35 : 1.75;
+      const double gen = 1.0 + gens * 0.45;
+      const double hue = colour * 0.25 * std::sin(t * 0.37) + gens * 0.05;
+      p.i0 = static_cast<std::int32_t>(std::lround((1 + (wear * 2 + (speedK - 1) * 2) * gen * 0.8) * s));
+      p.i1 = std::max(1, static_cast<int>(std::lround(3 * s)));
+      p.i2 = static_cast<std::int32_t>(std::lround((4 + (speedK * 3 + gens * 3) * (0.6 + colour)) * s));
+      p.i3 = static_cast<std::int32_t>(std::lround((2 + colour * 4 + gens) * s));
+      p.f0 = static_cast<float>(0.35 + wear * 0.2);
+      p.f1 = static_cast<float>((0.008 + wear * 0.05 + age * 0.03) * speedK * gen);
+      p.f2 = static_cast<float>(std::cos(hue));
+      p.f3 = static_cast<float>(std::sin(hue));
+      p.f4 = static_cast<float>((std::fmod(t * 0.08 + 0.45, 1.3) - 0.15) * h);
+      p.f5 = static_cast<float>(h * (0.03 + track * 0.05));
+      p.f6 = static_cast<float>(deck * 0.08);
+      p.f7 = static_cast<float>(t);
+      p.f8 = static_cast<float>(s);
+      p.f9 = static_cast<float>(deck);
+      p.f10 = static_cast<float>(wear);
+      p.f11 = static_cast<float>(speedK);
+      p.f12 = static_cast<float>(age);
+      p.f13 = static_cast<float>(gen);
+      p.f14 = static_cast<float>(track);
+      p.tab[0] = static_cast<float>(gens);
+      p.tab[1] = static_cast<float>(interference);
+      p.tab[2] = static_cast<float>(std::max(1, static_cast<int>(std::lround(8 * s))));
+      p.tab[3] = static_cast<float>(std::max(1, static_cast<int>(std::lround(2 * s))));
+      Pass tp;
+      tp.entry = E_TAPE;
+      tp.params = p;
+      tp.src = CUR;
+      tp.aux = CUR;
+      tp.dst = ALT;
+      tp.w = w;
+      tp.h = h;
+      plan.push_back(tp);
+      return true;
+    }
     case CueEffectKind::Mirror:
       p.kind = K_MIRROR;
       p.i0 = std::min(7, static_cast<int>(pA * 8));
@@ -552,7 +600,7 @@ bool supportedKind(CueEffectKind k) {
     case CueEffectKind::Edges: case CueEffectKind::PolarWarp: case CueEffectKind::LumaDisplace:
     case CueEffectKind::Relativistic: case CueEffectKind::Ripple: case CueEffectKind::Kaleidoscope:
     case CueEffectKind::Mosaic: case CueEffectKind::Blur: case CueEffectKind::Glow:
-    case CueEffectKind::Sharpen: case CueEffectKind::Stereogram:
+    case CueEffectKind::Sharpen: case CueEffectKind::Stereogram: case CueEffectKind::Tape:
       return true;
     default:
       return false;
@@ -1005,18 +1053,20 @@ bool sdlCreate(GpuEffects* g) {
   }
   const SDL_GPUShaderFormat formats = SDL_GetGPUShaderFormats(g->gpu);
   const unsigned char* dxil[E_COUNT] = {kEffectsPointDxil, kEffectsDownDxil, kEffectsBoxDxil, kEffectsStreakDxil,
-                                        kEffectsTileDxil, kEffectsNv12Dxil, kEffectsTransDxil, kEffectsStereoDxil};
+                                        kEffectsTileDxil, kEffectsNv12Dxil, kEffectsTransDxil, kEffectsStereoDxil,
+                                        kEffectsTapeDxil};
   const std::size_t dxilSize[E_COUNT] = {sizeof(kEffectsPointDxil), sizeof(kEffectsDownDxil), sizeof(kEffectsBoxDxil),
                                          sizeof(kEffectsStreakDxil), sizeof(kEffectsTileDxil),
                                          sizeof(kEffectsNv12Dxil), sizeof(kEffectsTransDxil),
-                                         sizeof(kEffectsStereoDxil)};
+                                         sizeof(kEffectsStereoDxil), sizeof(kEffectsTapeDxil)};
   const unsigned char* spirv[E_COUNT] = {kEffectsPointSpirv, kEffectsDownSpirv, kEffectsBoxSpirv,
                                          kEffectsStreakSpirv, kEffectsTileSpirv, kEffectsNv12Spirv,
-                                         kEffectsTransSpirv, kEffectsStereoSpirv};
+                                         kEffectsTransSpirv, kEffectsStereoSpirv, kEffectsTapeSpirv};
   const std::size_t spirvSize[E_COUNT] = {sizeof(kEffectsPointSpirv), sizeof(kEffectsDownSpirv),
                                           sizeof(kEffectsBoxSpirv), sizeof(kEffectsStreakSpirv),
                                           sizeof(kEffectsTileSpirv), sizeof(kEffectsNv12Spirv),
-                                          sizeof(kEffectsTransSpirv), sizeof(kEffectsStereoSpirv)};
+                                          sizeof(kEffectsTransSpirv), sizeof(kEffectsStereoSpirv),
+                                          sizeof(kEffectsTapeSpirv)};
   for (int e = 0; e < E_COUNT; ++e) {
     SDL_GPUComputePipelineCreateInfo info {};
     info.entrypoint = kEntryNames[e];

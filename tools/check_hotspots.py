@@ -44,6 +44,8 @@ SCENARIOS = [
     ("+ feedback on the base", ["DECK 1", "SELECT 1", "FX ADD feedback"], {}, None),
     ("+ caustics on the base", ["DECK 1", "SELECT 1", "FX ADD caustics"], {}, None),
     ("+ stereogram on the base", ["DECK 1", "SELECT 1", "FX ADD stereogram"], {}, None),
+    ("+ tape on the base", ["DECK 1", "SELECT 1", "FX ADD tape"], {}, None),
+    ("+ melt on the base", ["DECK 1", "SELECT 1", "FX ADD melt"], {}, None),
     ("transitions: crossfade", [], {}, "crossfade"),
     ("transitions: portal", [], {}, "portal"),
     ("transitions: shatter", [], {}, "shatter"),

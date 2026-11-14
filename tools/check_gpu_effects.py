@@ -29,9 +29,14 @@ ROOT = Path(__file__).resolve().parents[1]
 EFFECTS = ["invert", "posterise", "solarise", "levels", "curves", "strobe", "scanlines",
            "threshold", "colour", "colour_replace", "vignette", "grain", "channel_offset",
            "mirror", "luma_key", "edges", "polar_warp", "luma_displace", "relativistic",
-           "ripple", "kaleidoscope", "mosaic", "blur", "glow", "sharpen", "stereogram"]
+           "ripple", "kaleidoscope", "mosaic", "blur", "glow", "sharpen", "stereogram", "tape"]
 # amount:a:b:c:d
 SETTINGS = ["1", "0.7:0.2:0.6:0.4:0.3", "1:0.9:0.3:0.8:0.1", "0.4:0.05:1:0.2:0.9"]
+# An effect with a fifth and sixth slider or choices (amount:a:b:c:d:colour:e:f:choiceA:choiceB).
+SETTINGS_FOR = {
+    "tape": ["1:0.3:0.3:0.2:0.3::0.4:0:0:0", "1:0.8:0.7:0.6:0.7::0.8:0.75:2:3",
+             "0.7:0.5:0.2:0.9:0.1::0.2:0.25:1:1", "1:0.6:0.6:0.5:0.5::0.6:0.5:0:2"],
+}
 
 
 def read_ppm(path):
@@ -77,7 +82,7 @@ def main():
     for token in EFFECTS:
         if args.only and token not in args.only:
             continue
-        for i, setting in enumerate(SETTINGS):
+        for i, setting in enumerate(SETTINGS_FOR.get(token, SETTINGS)):
             spec = token + ":" + setting
             cpu, gpu = work / ("%s-%d-cpu.ppm" % (token, i)), work / ("%s-%d-gpu.ppm" % (token, i))
             subprocess.run([args.exe, "--effect-dump", spec, str(src), str(cpu), "12"], capture_output=True)
