@@ -75,11 +75,14 @@ def main():
     ap.add_argument("--mean", type=float, default=0.6, help="largest mean difference allowed")
     ap.add_argument("--off", type=float, default=1.0, help="largest share of pixels >2 out, percent")
     ap.add_argument("--only", action="append", default=[])
+    ap.add_argument("--src", help="the picture to run them on (a PPM); default: ffmpeg's testsrc2. For a "
+                                  "machine with no ffmpeg (the M4 test Mac)")
     args = ap.parse_args()
     work = Path(tempfile.mkdtemp(prefix="gpu-fx-"))
-    src = work / "in.ppm"
-    subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i",
-                    "testsrc2=s=%s:d=1" % args.size, "-frames:v", "1", str(src)], check=True)
+    src = Path(args.src) if args.src else work / "in.ppm"
+    if not args.src:
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i",
+                        "testsrc2=s=%s:d=1" % args.size, "-frames:v", "1", str(src)], check=True)
     fails = []
     backend = ""
     for token in EFFECTS:
