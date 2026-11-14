@@ -4048,8 +4048,8 @@ port number (default 6454)	αριθμός θύρας (προεπιλογή 6454)
 port number (default 8090)	αριθμός θύρας (προεπιλογή 8090)
 port number (vMix uses 8088)	αριθμός θύρας (το vMix χρησιμοποιεί 8088)
 port number (vMix uses 8099)	αριθμός θύρας (το vMix χρησιμοποιεί 8099)
-WIDTHxHEIGHT (e.g. 2560x1080)	ΠΛΑΤΟΣxΥΨΟΣ (π.χ. 2560x1080)
-WIDTHxHEIGHT (e.g. 5760x2160)	ΠΛΑΤΟΣxΥΨΟΣ (π.χ. 5760x2160)
+WIDTHxHEIGHT (e.g. 2560x1080)	ΠΛΑΤΟΣ x ΥΨΟΣ (π.χ. 2560x1080)
+WIDTHxHEIGHT (e.g. 5760x2160)	ΠΛΑΤΟΣ x ΥΨΟΣ (π.χ. 5760x2160)
 pulse 25%	παλμός 25%
 edge ignite	ανάφλεξη ακμών
 pythagorean	πυθαγόρειο

@@ -50,9 +50,17 @@ ALLOW = {
 }
 
 
+# Other people's code, carried as they ship it. Asio (inside Link) has stubs
+# that do nothing on purpose: null_socket_service is the socket for a platform
+# with no sockets. Our own code under extras (tabletop, terrarium_vendor) is
+# still read.
+THIRD_PARTY = [os.path.join(NATIVE, "extras", d)
+               for d in ("upstream", "link", "decklink-sdk", "ndi-sdk", "vst3-sdk")]
+
+
 def sources():
     for base, _dirs, files in os.walk(NATIVE):
-        if "upstream" in base:
+        if any(base == d or base.startswith(d + os.sep) for d in THIRD_PARTY):
             continue
         for name in files:
             if name.endswith((".cpp", ".hpp", ".ipp")):

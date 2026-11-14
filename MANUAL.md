@@ -1599,8 +1599,7 @@ decoded frames and the bytes.
 
 **Not frame-exact yet.** The dialog refuses these, and says which cue and why:
 live inputs (camera, window, NDI, stream, capture card), browser pages, timers,
-the Terrarium (its simulation keeps its own clock), rotation and the size and
-position oscillators, Text mode, the motion puppet, Audioprint, masks, slices, a
+rotation and the size and position oscillators, Text mode, the motion puppet, Audioprint, masks, slices, a
 layer's corner pin, and an output's crossfader.
 
 **Transitions.** Each cue arrives by its own transition style and length, or its
