@@ -94,3 +94,20 @@ button[aria-pressed="true"], button.on { background: var(--active, #306230); col
 .small-now { margin-bottom: 6px; }
 .outs { margin-top: 6px; }
 .outs button { min-height: 40px; }
+
+/* X/Y PAD (2026-11-14). Square, whatever the width; a finger never scrolls the page. */
+.pad { position: relative; width: 100%; aspect-ratio: 1 / 1; touch-action: none; user-select: none; cursor: crosshair;
+  background: var(--surface, #9bbc0f); border: 4px solid var(--deep, #0f380f); box-shadow: inset 0 0 0 3px var(--button, #8bac0f); }
+.pad.off { opacity: .5; }
+.pad-line { position: absolute; background: var(--mid, #306230); opacity: .6; }
+.pad-v { left: 50%; top: 0; bottom: 0; width: 2px; margin-left: -1px; }
+.pad-h { top: 50%; left: 0; right: 0; height: 2px; margin-top: -1px; }
+.pad-dot { position: absolute; width: 44px; height: 44px; margin: -22px 0 0 -22px; border-radius: 50%; pointer-events: none;
+  background: var(--active, #306230); border: 4px solid var(--deep, #0f380f); }
+.pad-axes { display: flex; justify-content: space-between; font-family: var(--px); font-size: .55rem; margin: 0 0 .4rem; gap: .5rem; }
+.pad-axes span { overflow-wrap: anywhere; }
+#pad-chips { margin: .6rem 0; flex-wrap: wrap; }
+#pad-chips button { min-height: 44px; }
+#pad-chips button.gone { opacity: .35; }
+#pad-block .row3 { margin-bottom: .4rem; }
+#pad-edit { margin-top: 6px; }

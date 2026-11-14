@@ -210,6 +210,26 @@ def main():
         send("DASH 2", 409)
         send("DASH 3", 409)
         expect("remote-test" not in json.dumps(state()), "state contains no PIN")
+        # THE X/Y PAD, through the phone's own door: pair, assign, drag, let go.
+        control("DECK 1 SELECT 2")
+        control("FX ADD glow")
+        control("FX PARAM 1 A 0.25")
+        control("FX PARAM 1 B 0.75")
+        send("PAD 1 ASSIGN 1 FX1.A FX1.B")
+        wait_for(lambda: state()["decks"][0]["pad"]["chips"])
+        pad = state()["decks"][0]["pad"]
+        expect(pad["chips"][0]["xl"] and pad["chips"][0]["yl"] and pad["chips"][0]["here"], "the pad's chip is in phone state")
+        expect(any(c["t"] == "OPACITY" for c in pad["controls"]) and any(c["t"] == "FX1.AMOUNT" for c in pad["controls"]),
+               "phone state lists the controls that can go on the pad")
+        send("PAD 1 SET 0.200 0.900")
+        expect(" a=20 b=90 " in control("FX GET 1"), "a pad point moves the effect from the phone")
+        send("PAD 1 SET 1.5 0.5", 409)
+        send("PAD 1 SET 0.5", 400)
+        send("PAD 1 ASSIGN 1 FX1.A;STOP FX1.B", 400)
+        http(web, "/remote/command", "PAD 1 RELEASE")
+        expect(" a=25 b=75 " in control("FX GET 1"), "letting go springs the effect back")
+        expect(http(web, "/remote/command", "PAD 1 SET 0.5 0.5", pin="wrong")[0] == 401, "the pad needs the passphrase too")
+        send("PAD 1 REMOVE 1")
         # A desk macro's text never reaches the phone (audit 2026-10-19, F3);
         # the phone's own menu actions still come through so its editor can
         # preselect them.

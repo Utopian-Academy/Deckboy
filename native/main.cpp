@@ -5717,6 +5717,8 @@ class App {
 #include "app/app_cue_transport.ipp"
   // Quick-action command palette (Ctrl+K search)
 #include "app/app_numeric_params.ipp"
+  // X/Y pad: one finger, two controls (phone remote)
+#include "app/app_pad.ipp"
 #include "app/app_quick_action.ipp"
   // Cue list management: add/remove/reorder/duplicate cues
 #include "app/app_cue_mgmt.ipp"

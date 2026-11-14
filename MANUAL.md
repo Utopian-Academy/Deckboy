@@ -3595,6 +3595,20 @@ The screen, top to bottom:
   do anything else on this screen, so editing one cannot reach further.
 - **TRACKER**, when the show has tracker steps: the step, the next one,
   **BACK**, **GO** and **PLAY** / **STOP**.
+- **PAD**: one finger moves two controls. Drag on the square: the dot follows
+  your finger, and the two controls on its axes move together (the labels
+  above the square say which, such as `X glow`, `Y blur`). The chips under it
+  are the controls on the pad; a filled chip is on. Tap a chip to turn it on
+  or off, hold it to change it, and press **+ EFFECT** to add one. Each chip is
+  a pair: any two controls of the live cue (or the selected cue when nothing is
+  live), picked from a list: an effect's sliders and its amount, the deck's
+  opacity, and the numbers of a generated source such as Lumia (flow, prism),
+  Moire (density), Swirl or Portal. Stack up to eight chips and they all follow
+  the same finger. **HOLD** (the default): when you let go, every control
+  springs back to where it was when you touched down. **LATCH**: they stay
+  where you left them. A phone that goes quiet with a finger down is let go
+  after four seconds. Pad assignments last for the session; they are not saved
+  in the show.
 - **SHOW**: **BLACKOUT** and **REC** fire after a half-second hold, so a pocket
   cannot press them; **TEST CARD** and each output toggle with a tap.
 - The page wears the desk's theme and Deckboy's pixel face, and shows each
