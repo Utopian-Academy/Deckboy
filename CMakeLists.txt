@@ -1050,9 +1050,18 @@ if(ENABLE_LINK)
     list(APPEND _link_defs LINK_PLATFORM_UNIX=1 LINK_PLATFORM_LINUX=1)
   endif()
   # Per source file, so Link's platform macros and Asio never reach main.cpp.
-  set_source_files_properties(native/platform/link_session.cpp PROPERTIES
-    COMPILE_DEFINITIONS "${_link_defs}"
-    INCLUDE_DIRECTORIES "${_link_root}/include;${_link_root}/asio/include")
+  # GCC and Clang read the vendored headers as SYSTEM headers: their own
+  # warnings (Asio's shadowed 'promise', Link's 'four-char' tags) are
+  # upstream's, and editing them would break the next clean sync.
+  if(MSVC)
+    set_source_files_properties(native/platform/link_session.cpp PROPERTIES
+      COMPILE_DEFINITIONS "${_link_defs}"
+      INCLUDE_DIRECTORIES "${_link_root}/include;${_link_root}/asio/include")
+  else()
+    set_source_files_properties(native/platform/link_session.cpp PROPERTIES
+      COMPILE_DEFINITIONS "${_link_defs}"
+      COMPILE_OPTIONS "-isystem;${_link_root}/include;-isystem;${_link_root}/asio/include")
+  endif()
   target_compile_definitions(deckboy-native PRIVATE DECKBOY_HAS_LINK=1)
   if(WIN32)
     target_link_libraries(deckboy-native PRIVATE ws2_32 iphlpapi)
