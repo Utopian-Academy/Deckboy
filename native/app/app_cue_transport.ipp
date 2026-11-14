@@ -10052,6 +10052,17 @@
     playUiSound(UiSoundEffect::Toggle);
     ensureDirectionCopy(project_.focusedDeckIndex, focusedDeck().selectedIndex);
     refreshFocusedLiveCueRuntimeIfSelected();
+    // THE HEADS-UP: say that a copy is being made, and why, before the
+    // operator wonders why the cue still plays forwards.
+    if (direction != kCueForward && !directionCopyReady(*cue)) {
+      const std::string codec = cue->videoCodec.empty() ? std::string("this file") : toUpper(cue->videoCodec);
+      const double seconds = cueDirectionOut(*cue) - cueDirectionIn(*cue);
+      triggerToast(deckboy::core::i18n::format(
+                     "{1}: making a copy first ({2} decodes only forwards). It plays forwards until the copy is ready.",
+                     {deckboy::core::i18n::translate(direction == kCueBounce ? "bounce" : "reverse"), codec}) +
+                     (seconds > 120.0 ? " " + deckboy::core::i18n::translate("A long clip: watch the Encoder tab.") : std::string()),
+                   ToastKind::Warning, kToastReadableMs);
+    }
   }
 
   // Queue the copy a cue needs now, if it has none that fits. Called when the
