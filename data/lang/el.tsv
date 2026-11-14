@@ -3274,3 +3274,4 @@ DECKBOY  POCKET	DECKBOY  POCKET
 whole picture	όλη η εικόνα
 FX CHOICE: choice must be A or B	FX CHOICE: η επιλογή πρέπει να είναι A ή B
 FX CHOICE: no effect at that index	FX CHOICE: κανένα εφέ σε αυτό το ευρετήριο
+FX LFO: slot is A-D for the parameters, E for the amount, F and G for the fifth and sixth (or 0-6)	FX LFO: η θέση είναι A-D για τις παραμέτρους, E για την ποσότητα, F και G για την πέμπτη και την έκτη (ή 0-6)

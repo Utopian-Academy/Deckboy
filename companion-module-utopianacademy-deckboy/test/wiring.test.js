@@ -309,6 +309,18 @@ test('effect actions emit the expected commands', async () => {
 	self.sent.length = 0
 	await built.fx_lfo.callback({ options: { index: 1, slot: 'E', what: 'beats', value: '4' } })
 	assert.deepEqual(self.sent, ['FX LFO 1 E beats 4'])
+	self.sent.length = 0
+	await built.fx_lfo.callback({ options: { index: 2, slot: 'G', what: 'on', value: '' } })
+	assert.deepEqual(self.sent, ['FX LFO 2 G on'], 'the sixth parameter has an LFO too')
+	self.sent.length = 0
+	await built.fx_param.callback({ options: { index: 1, slot: 'F', value: 0.25 } })
+	assert.deepEqual(self.sent, ['FX PARAM 1 F 0.25'], 'parameters run A to F')
+	self.sent.length = 0
+	await built.fx_choice.callback({ options: { index: 3, slot: 'B', value: ' whole picture ' } })
+	assert.deepEqual(self.sent, ['FX CHOICE 3 B whole picture'], 'a choice by name, trimmed')
+	self.sent.length = 0
+	await built.fx_choice.callback({ options: { index: 3, slot: 'A', value: '' } })
+	assert.deepEqual(self.sent, [], 'an empty choice sends nothing')
 
 	self.sent.length = 0
 	await built.fx_clear.callback({ options: {} })

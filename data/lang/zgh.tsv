@@ -3269,3 +3269,4 @@ DECKBOY  POCKET	DECKBOY  POCKET
 FX CHOICE: choice must be A or B	FX CHOICE: ⴰⵙⵜⴰⵢ ⵉⵇⵇⴰⵏ ⴰⴷ ⵉⴳ A ⵏⵖ B
 FX CHOICE: no effect at that index	FX CHOICE: ⵓⵔ ⵉⵍⵍⵉ ⵓⵙⵎⴷⵓ ⴳ ⵓⵎⴰⵜⴰⵔ ⴰⵏⵏ
 whole picture	ⵜⴰⵡⵍⴰⴼⵜ ⴽⵓⵍⵍⵓ
+FX LFO: slot is A-D for the parameters, E for the amount, F and G for the fifth and sixth (or 0-6)	FX LFO: ⴰⵙⵍⵓⵜ ⴷ A-D ⵉ ⵉⵙⵡⵉⵔⵏ, E ⵉ ⴰⵏⵛⵜ, F ⴷ G ⵉ ⵙⵎⵎⵓⵙ ⴷ ⵙⴹⵉⵙ (ⵏⵖ 0-6)

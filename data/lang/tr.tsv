@@ -3241,3 +3241,4 @@ DECKBOY  POCKET	DECKBOY  POCKET
 whole picture	tüm görüntü
 FX CHOICE: choice must be A or B	FX CHOICE: seçim A veya B olmalı
 FX CHOICE: no effect at that index	FX CHOICE: bu dizinde efekt yok
+FX LFO: slot is A-D for the parameters, E for the amount, F and G for the fifth and sixth (or 0-6)	FX LFO: slot parametreler için A-D, miktar için E, beşinci ve altıncı için F ve G (veya 0-6)

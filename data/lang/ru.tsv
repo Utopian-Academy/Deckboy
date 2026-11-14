@@ -3248,3 +3248,4 @@ DECKBOY  POCKET	DECKBOY  POCKET
 whole picture	вся картинка
 FX CHOICE: choice must be A or B	FX CHOICE: выбор должен быть A или B
 FX CHOICE: no effect at that index	FX CHOICE: нет эффекта с таким указателем
+FX LFO: slot is A-D for the parameters, E for the amount, F and G for the fifth and sixth (or 0-6)	FX LFO: слот — A-D для параметров, E для силы, F и G для пятого и шестого (или 0-6)

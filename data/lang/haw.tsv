@@ -3212,3 +3212,4 @@ DECKBOY  POCKET	DECKBOY  POCKET
 FX CHOICE: choice must be A or B	FX CHOICE: pono ke koho he A a i ʻole B
 FX CHOICE: no effect at that index	FX CHOICE: ʻaʻohe hopena ma kēlā helu
 whole picture	ke kiʻi holoʻokoʻa
+FX LFO: slot is A-D for the parameters, E for the amount, F and G for the fifth and sixth (or 0-6)	FX LFO: ʻo ka slot ʻo A-D no nā ʻāpana, ʻo E no ka nui, ʻo F a me G no ka ʻelima a me ke ono (a i ʻole 0-6)

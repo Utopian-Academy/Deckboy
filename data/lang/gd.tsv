@@ -3278,3 +3278,4 @@ Windows, the ... menu, NEXT, the clock, a layout, tally. Mystery solved.	Uinneag
 whole picture	an dealbh slàn
 FX CHOICE: choice must be A or B	FX CHOICE: feumaidh an roghainn a bhith A no B
 FX CHOICE: no effect at that index	FX CHOICE: chan eil èifeachd sam bith aig a' chlàr-amais sin
+FX LFO: slot is A-D for the parameters, E for the amount, F and G for the fifth and sixth (or 0-6)	FX LFO: 's e A-D an slot airson na paramadairean, E airson an uiread, F agus G airson a' chòigeamh is an siathamh (no 0-6)

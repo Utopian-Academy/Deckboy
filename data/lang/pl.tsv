@@ -3241,3 +3241,4 @@ DECKBOY  POCKET	DECKBOY  POCKET
 whole picture	cały obraz
 FX CHOICE: choice must be A or B	FX CHOICE: wybór musi być A lub B
 FX CHOICE: no effect at that index	FX CHOICE: brak efektu pod tym indeksem
+FX LFO: slot is A-D for the parameters, E for the amount, F and G for the fifth and sixth (or 0-6)	FX LFO: slot to A-D dla parametrów, E dla ilości, F i G dla piątego i szóstego (lub 0-6)

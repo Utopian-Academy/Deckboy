@@ -3249,3 +3249,4 @@ DECKBOY  POCKET	DECKBOY  POCKET
 whole picture	पूरा चित्र
 FX CHOICE: choice must be A or B	FX CHOICE: विकल्प A या B होना चाहिए
 FX CHOICE: no effect at that index	FX CHOICE: उस सूचकांक पर कोई इफ़ेक्ट नहीं
+FX LFO: slot is A-D for the parameters, E for the amount, F and G for the fifth and sixth (or 0-6)	FX LFO: स्लॉट A-D पैरामीटर के लिए, E मात्रा के लिए, F और G पाँचवें और छठे के लिए (या 0-6)

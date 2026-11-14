@@ -5864,9 +5864,13 @@
         int slot = -1;
         {
           const std::string slotText = toUpper(parts[3]);
-          if (slotText.size() == 1 && slotText[0] >= 'A' && slotText[0] <= 'E') {
+          // F and G are the fifth and sixth parameters' oscillators (lfo[5],
+          // lfo[6]). CHANGES said FX LFO took A-G from the six-slot commit,
+          // and it did not: found by the Companion module's own command,
+          // 2026-11-13.
+          if (slotText.size() == 1 && slotText[0] >= 'A' && slotText[0] <= 'G') {
             slot = slotText[0] - 'A';
-          } else if (slotText.size() == 1 && slotText[0] >= '0' && slotText[0] <= '4') {
+          } else if (slotText.size() == 1 && slotText[0] >= '0' && slotText[0] <= '6') {
             slot = slotText[0] - '0';
           }
         }
@@ -5875,7 +5879,12 @@
           return;
         }
         if (slot < 0) {
-          failRemoteCommand("FX LFO: slot is A-D for the parameters or E for the amount (or 0-4)");
+          failRemoteCommand("FX LFO: slot is A-D for the parameters, E for the amount, F and G for the fifth and sixth (or 0-6)");
+          return;
+        }
+        if (slot >= 5 && !deckboy::effects::cueEffectParamLabelFor(cue->effects[static_cast<std::size_t>(index)], slot - 1)) {
+          failRemoteCommand(std::string("FX LFO: ") + deckboy::effects::cueEffectToken(cue->effects[static_cast<std::size_t>(index)].kind) +
+                            " has no " + (slot == 5 ? "fifth" : "sixth") + " parameter");
           return;
         }
         auto& lfo = cue->effects[static_cast<std::size_t>(index)].lfo[slot];
@@ -6157,7 +6166,7 @@
         return;
       }
       failRemoteCommand("FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | "
-                        "PARAM <n> <A-F> <0-1> | LFO <n> <A-G> ... | "
+                        "PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | "
                         "COPY | PASTE | CLEAR");
       return;
     }

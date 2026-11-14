@@ -3242,3 +3242,4 @@ DECKBOY  POCKET	DECKBOY  POCKET
 whole picture	toàn ảnh
 FX CHOICE: choice must be A or B	FX CHOICE: lựa chọn phải là A hoặc B
 FX CHOICE: no effect at that index	FX CHOICE: không có hiệu ứng ở mục lục đó
+FX LFO: slot is A-D for the parameters, E for the amount, F and G for the fifth and sixth (or 0-6)	FX LFO: slot là A-D cho các tham số, E cho mức, F và G cho thứ năm và thứ sáu (hoặc 0-6)

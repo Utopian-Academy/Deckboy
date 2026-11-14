@@ -29,11 +29,12 @@ computer under **Settings → Network → Trusted controllers**.
 - **Show:** Take all playlists, run a dashboard tile (and the sequence on it), run or stop a sequence
 - **Find:** set token, next, previous, take match
 - **VJ:** VJ mode, crossfader, blend mode, tap tempo, tempo, quantised takes, deck assignment
-- **Effects:** add, amount, parameter, parameter LFO, colour (with Companion's colour picker: a
+- **Effects:** add, amount, parameter (A to F), parameter LFO, choice (Melt's direction and
+  material, Tape's speed and interference, by name), colour (with Companion's colour picker: a
   strobe's flash, the edges line, or the hue Colour and Colour Replace use; Deckboy 0.99.423 or later),
   clear the chain; copy or paste a chain.
   An effect is added by its name: `levels`, `curves`, `colour`, `colour_replace`, `blur`,
-  `sharpen`, `glow`, `mirror`, `mosaic`, `edges`, `luma_key`, `strobe`, and the rest listed in the
+  `sharpen`, `glow`, `mirror`, `mosaic`, `edges`, `luma_key`, `strobe`, `melt`, `tape`, and the rest listed in the
   manual under Per-Cue Effects
 - **Audio effects:** add, amount, bypass, remove, clear the chain
 - **Sources:** code source expression; video synth text mode, glyphs and phrases

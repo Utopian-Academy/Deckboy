@@ -3245,3 +3245,4 @@ DECKBOY  POCKET	DECKBOY  POCKET
 whole picture	整幅画面
 FX CHOICE: choice must be A or B	FX CHOICE：选项必须为 A 或 B
 FX CHOICE: no effect at that index	FX CHOICE：该索引处没有特效
+FX LFO: slot is A-D for the parameters, E for the amount, F and G for the fifth and sixth (or 0-6)	FX LFO：槽位 A-D 对应参数，E 对应强度，F 和 G 对应第五和第六个（或 0-6）

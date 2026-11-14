@@ -3293,3 +3293,4 @@ DECKBOY  POCKET	DECKBOY  POCKET
 FX CHOICE: choice must be A or B	FX CHOICE: يجب أن يكون الخيار A أو B
 FX CHOICE: no effect at that index	FX CHOICE: لا يوجد مؤثر عند ذلك الفهرس
 whole picture	الصورة كاملة
+FX LFO: slot is A-D for the parameters, E for the amount, F and G for the fifth and sixth (or 0-6)	FX LFO: الخانة A-D للمعاملات، وE للمقدار، وF وG للخامسة والسادسة (أو 0-6)

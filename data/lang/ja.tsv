@@ -3247,3 +3247,4 @@ DECKBOY  POCKET	DECKBOY  POCKET
 whole picture	映像全体
 FX CHOICE: choice must be A or B	FX CHOICE: 選択は A か B のいずれか
 FX CHOICE: no effect at that index	FX CHOICE: その索引にエフェクトはありません
+FX LFO: slot is A-D for the parameters, E for the amount, F and G for the fifth and sixth (or 0-6)	FX LFO: スロットはA-Dがパラメーター、Eが量、FとGが5番目と6番目（または0-6）

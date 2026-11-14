@@ -3243,3 +3243,4 @@ Windows, the ... menu, NEXT, the clock, a layout, tally. Mystery solved.	ປ່�
 whole picture	ຮູບທັງໝົດ
 FX CHOICE: choice must be A or B	FX CHOICE: ຕ້ອງເລືອກ A ຫຼື B
 FX CHOICE: no effect at that index	FX CHOICE: ບໍ່ມີ effect ຢູ່ດັດຊະນີນັ້ນ
+FX LFO: slot is A-D for the parameters, E for the amount, F and G for the fifth and sixth (or 0-6)	FX LFO: slot ແມ່ນ A-D ສຳລັບພາຣາມິເຕີ, E ສຳລັບປະລິມານ, F ແລະ G ສຳລັບອັນທີຫ້າ ແລະ ທີຫົກ (ຫຼື 0-6)

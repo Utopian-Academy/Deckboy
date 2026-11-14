@@ -3269,3 +3269,4 @@ FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | 
 whole picture	toute l'image
 FX CHOICE: choice must be A or B	FX CHOICE : le choix doit être A ou B
 FX CHOICE: no effect at that index	FX CHOICE : aucun effet à cet index
+FX LFO: slot is A-D for the parameters, E for the amount, F and G for the fifth and sixth (or 0-6)	FX LFO : l'emplacement est A-D pour les paramètres, E pour la quantité, F et G pour le cinquième et le sixième (ou 0-6)

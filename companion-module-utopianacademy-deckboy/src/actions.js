@@ -526,7 +526,7 @@ export function buildActions(self) {
 		},
 		fx_param: {
 			name: 'Effect parameter',
-			description: "The effect's own shaping controls, A to D.",
+			description: "The effect's own shaping controls, A to F. E and F are on the effects that have a fifth and sixth (Chladni, Melt, Tape).",
 			options: [
 				{ type: 'number', label: 'Effect number', id: 'index', default: 1, min: 1, max: 32, asInteger: true },
 				{
@@ -535,7 +535,7 @@ export function buildActions(self) {
 					label: 'Parameter',
 					id: 'slot',
 					default: 'A',
-					choices: ['A', 'B', 'C', 'D'].map((id) => ({ id, label: id })),
+					choices: ['A', 'B', 'C', 'D', 'E', 'F'].map((id) => ({ id, label: id })),
 				},
 				{ type: 'number', label: 'Value', id: 'value', default: 0.5, min: 0, max: 1, step: 0.01 },
 			],
@@ -585,9 +585,36 @@ export function buildActions(self) {
 				send(slot === 'own' ? `FX COLOUR ${index} ${hex}` : `FX COLOUR ${index} ${slot.toUpperCase()} ${hex}`)
 			},
 		},
+		// An effect's CHOICES: a setting from a list (Melt's direction and
+		// material, Tape's speed and interference). By name or by number.
+		fx_choice: {
+			name: 'Effect choice',
+			description:
+				"An effect's setting from a list, by name: Melt direction (down, up, sideways) and material (bright, whole picture); Tape speed (SP, LP, EP) and interference (none, phone, dimmer, radio). Needs the Deckboy release with Melt and Tape.",
+			options: [
+				{ type: 'number', label: 'Effect number', id: 'index', default: 1, min: 1, max: 32, asInteger: true },
+				{
+					type: 'dropdown',
+					disableAutoExpression: true,
+					label: 'Choice',
+					id: 'slot',
+					default: 'A',
+					choices: [
+						{ id: 'A', label: 'A (Melt direction, Tape speed)' },
+						{ id: 'B', label: 'B (Melt material, Tape interference)' },
+					],
+				},
+				{ type: 'textinput', label: 'Value (name or number)', id: 'value', default: 'down', useVariables: true },
+			],
+			callback: async ({ options }) => {
+				const index = number(options.index, 'Effect number', { integer: true })
+				const value = String(options.value ?? '').trim()
+				if (index !== null && value.length > 0) send(`FX CHOICE ${index} ${choice(options.slot, 'A')} ${value}`)
+			},
+		},
 		fx_lfo: {
 			name: 'Effect parameter LFO',
-			description: 'Hand a parameter to an oscillator. E is the effect amount.',
+			description: 'Hand a parameter to an oscillator. A to D are the first four parameters, E is the effect amount, F and G the fifth and sixth parameters.',
 			options: [
 				{ type: 'number', label: 'Effect number', id: 'index', default: 1, min: 1, max: 32, asInteger: true },
 				{
@@ -596,7 +623,15 @@ export function buildActions(self) {
 					label: 'Parameter',
 					id: 'slot',
 					default: 'A',
-					choices: ['A', 'B', 'C', 'D', 'E'].map((id) => ({ id, label: id })),
+					choices: [
+						{ id: 'A', label: 'A' },
+						{ id: 'B', label: 'B' },
+						{ id: 'C', label: 'C' },
+						{ id: 'D', label: 'D' },
+						{ id: 'E', label: 'E (amount)' },
+						{ id: 'F', label: 'F (fifth parameter)' },
+						{ id: 'G', label: 'G (sixth parameter)' },
+					],
 				},
 				{
 					type: 'dropdown',

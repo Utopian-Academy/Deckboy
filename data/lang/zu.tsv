@@ -3245,3 +3245,4 @@ Windows, the ... menu, NEXT, the clock, a layout, tally. Mystery solved.	Amafasi
 FX CHOICE: choice must be A or B	FX CHOICE: ukukhetha kufanele kube A noma B
 FX CHOICE: no effect at that index	FX CHOICE: awukho umphumela kuleyo nkomba
 whole picture	isithombe sonke
+FX LFO: slot is A-D for the parameters, E for the amount, F and G for the fifth and sixth (or 0-6)	FX LFO: isilothi ngu-A-D kumapharamitha, u-E kunani, u-F no-G kwesihlanu nesithupha (noma 0-6)

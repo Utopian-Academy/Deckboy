@@ -3269,3 +3269,4 @@ Windows, the ... menu, NEXT, the clock, a layout, tally. Mystery solved.	Fenaku,
 FX CHOICE: choice must be A or B	FX CHOICE: pika hup A va B
 FX CHOICE: no effect at that index	FX CHOICE: vaeffect kae nakae numa
 whole picture	tam veka
+FX LFO: slot is A-D for the parameters, E for the amount, F and G for the fifth and sixth (or 0-6)	FX LFO: kae A-D go parametaku, E go numa, F so G go pentaka so sistaka (ama 0-6)
