@@ -13075,14 +13075,15 @@ const LumiaPalette kLumiaPalettes[kLumiaPaletteCount] = {
 };
 
 // The jet's surface, rippled, and the prism's beam, smooth and slow with a few
-// big curves. Only their slopes are needed (a ray bends by the slope), so each
-// returns its gradient directly, worked out by hand from the surface:
+// big curves. Only their slopes are needed (a ray bends by the slope), worked
+// out by hand from the surfaces:
 //   ripples = .25 sin(9x + 2.2t + 1.5 sin(3y + t)) + .2 sin(11y - 1.7t + 2x)
 //           + .18 sin(7(x - y) + 1.3t) + .08 sin(17x + 5y - 2.9t)
 //   lensy   = .6 sin(2.3x + .6t) + .5 sin(2.9y - .45t + .8x) + .3 sin(1.7(x + y) + .3t)
-// In float, with every time term handed in as a phase already wrapped into
-// [0, 2 pi) (lumiaPhase): a quarter of a million rays a frame, and a float
-// keeps a wrapped phase exact however long the show has run.
+// Every time term is handed in as a phase already wrapped into [0, 2 pi)
+// (lumiaPhase): a float keeps a wrapped phase exact however long the show has
+// run. The slopes themselves are built from row and column tables in
+// lumiaWithFrame.
 struct LumiaRipplePhases { float t1, t22, t17, t13, t29; };   // t * 1, 2.2, 1.7, 1.3, 2.9
 struct LumiaLensyPhases { float t06, t045, t03; };           // t * 0.6, 0.45, 0.3
 float lumiaPhase(double t, double rate) {
@@ -13095,23 +13096,11 @@ LumiaRipplePhases lumiaRipplePhases(double t) {
 LumiaLensyPhases lumiaLensyPhases(double t) {
   return {lumiaPhase(t, 0.6), lumiaPhase(t, 0.45), lumiaPhase(t, 0.3)};
 }
-void lumiaRipplesGrad(float x, float y, const LumiaRipplePhases& p, float& gx, float& gy) {
-  const float inner = 3 * y + p.t1;
-  const float ca = std::cos(9 * x + p.t22 + std::sin(inner) * 1.5f);
-  const float cb = std::cos(11 * y - p.t17 + 2 * x);
-  const float cc = std::cos((x - y) * 7 + p.t13);
-  const float cd = std::cos(17 * x + 5 * y - p.t29);
-  gx = 0.25f * 9 * ca + 0.2f * 2 * cb + 0.18f * 7 * cc + 0.08f * 17 * cd;
-  gy = 0.25f * 4.5f * std::cos(inner) * ca + 0.2f * 11 * cb - 0.18f * 7 * cc + 0.08f * 5 * cd;
-}
-void lumiaLensyGrad(float x, float y, const LumiaLensyPhases& p, float& gx, float& gy) {
-  const float ca = std::cos(x * 2.3f + p.t06);
-  const float cb = std::cos(y * 2.9f - p.t045 + x * 0.8f);
-  const float cc = std::cos((x + y) * 1.7f + p.t03);
-  gx = 0.6f * 2.3f * ca + 0.5f * 0.8f * cb + 0.3f * 1.7f * cc;
-  gy = 0.5f * 2.9f * cb + 0.3f * 1.7f * cc;
-}
 
+struct LumiaSplatScratch {
+  std::vector<std::uint32_t> order;
+  std::vector<std::uint32_t> counts;
+};
 struct LumiaState {
   int sw = 0, sh = 0;
   double last = 0.0;     // the cue time of the last traced frame
@@ -13119,84 +13108,155 @@ struct LumiaState {
   double spinAt = 0.0;   // the picture's turn (integrated: spin may be on an LFO)
   std::uint32_t seed = 1;
   std::vector<float> acc, wat, tmp, core;   // this frame's light
+  std::vector<float> colTab, rowTab;        // the slopes' column and row tables
   std::vector<float> land;                  // where each ray lands, x y
+  LumiaSplatScratch splat;
   std::vector<float> accShown, watShown;    // with the trail
 };
 
 // Pile the light of `count` rays (x y pairs in `land`) into `buf`, each spread
-// over the four pixels round where it lands. Split over the cores by STRIPS OF
-// THE SOURCE: every worker reads all the rays and adds only the light that
-// falls in its own rows, so no two write the same pixel and the sum is the
-// same, in the same order, however many cores there are.
+// over the four pixels round where it lands, split over the cores BY STRIPS OF
+// THE SOURCE. The rays are first sorted by the strip they land in (a counting
+// sort that keeps their order, so the result never depends on how many cores
+// there are); then every strip piles its own rays. A ray writes its row and
+// the one below, which can be the next strip's first row, so the even strips
+// run first and the odd ones after: no two workers ever share a row.
+// `e` is the light each ray carries, n values; with groupSize, ray r carries
+// e + (r / groupSize) * n instead (the prism: one group per beam colour).
 void lumiaSplat(std::vector<float>& buf, int sw, int sh, int n, const float* land, std::size_t count,
-                const float* e) {
-  float* b = buf.data();
-  deckboy::effects::detail::parallelRows(sh, sw, [&](int y0, int y1) {
-    for (std::size_t r = 0; r < count; ++r) {
-      const float x = land[r * 2], y = land[r * 2 + 1];
-      if (!(x >= 0.0f && y >= 0.0f)) continue;
-      const int ix = static_cast<int>(x), iy = static_cast<int>(y);
-      if (ix >= sw - 1 || iy >= sh - 1 || iy + 1 < y0 || iy >= y1) continue;
-      const float fx = x - ix, fy = y - iy;
-      if (iy >= y0) {
-        float* a = b + (static_cast<std::size_t>(iy) * sw + ix) * n;
-        for (int c = 0; c < n; ++c) {
-          a[c] += (1 - fx) * (1 - fy) * e[c];
-          a[n + c] += fx * (1 - fy) * e[c];
-        }
-      }
-      if (iy + 1 < y1) {
-        float* a = b + (static_cast<std::size_t>(iy + 1) * sw + ix) * n;
-        for (int c = 0; c < n; ++c) {
-          a[c] += (1 - fx) * fy * e[c];
-          a[n + c] += fx * fy * e[c];
-        }
+                const float* e, LumiaSplatScratch& scratch, std::size_t groupSize = 0) {
+  auto& pool = deckboy::effects::detail::RowPool::instance();
+  constexpr int kChunks = 64;
+  const int strips = std::clamp(sh / 8, 1, 64);
+  const int stripRows = (sh + strips - 1) / strips;
+  const std::size_t chunkSize = (count + kChunks - 1) / kChunks;
+  const int buckets = strips + 1;   // the last: rays that land off the source
+  scratch.counts.assign(static_cast<std::size_t>(kChunks) * buckets, 0);
+  scratch.order.resize(count);
+  auto stripOf = [&](std::size_t r) {
+    const float x = land[r * 2], y = land[r * 2 + 1];
+    if (!(x >= 0.0f && y >= 0.0f)) return strips;
+    const int ix = static_cast<int>(x), iy = static_cast<int>(y);
+    if (ix >= sw - 1 || iy >= sh - 1) return strips;
+    return iy / stripRows;
+  };
+  pool.run(kChunks, [&](int c) {
+    std::uint32_t* counts = scratch.counts.data() + static_cast<std::size_t>(c) * buckets;
+    const std::size_t r1 = std::min(count, (c + 1) * chunkSize);
+    for (std::size_t r = c * chunkSize; r < r1; ++r) ++counts[stripOf(r)];
+  });
+  // Where each chunk's rays for each strip go: strip by strip, chunks in order.
+  std::vector<std::uint32_t> stripStart(static_cast<std::size_t>(buckets) + 1, 0);
+  {
+    std::uint32_t at = 0;
+    for (int b = 0; b < buckets; ++b) {
+      stripStart[b] = at;
+      for (int c = 0; c < kChunks; ++c) {
+        std::uint32_t& k = scratch.counts[static_cast<std::size_t>(c) * buckets + b];
+        const std::uint32_t here = k;
+        k = at;
+        at += here;
       }
     }
+    stripStart[buckets] = at;
+  }
+  pool.run(kChunks, [&](int c) {
+    std::uint32_t* next = scratch.counts.data() + static_cast<std::size_t>(c) * buckets;
+    const std::size_t r1 = std::min(count, (c + 1) * chunkSize);
+    for (std::size_t r = c * chunkSize; r < r1; ++r) scratch.order[next[stripOf(r)]++] = static_cast<std::uint32_t>(r);
   });
+  float* b = buf.data();
+  for (int wave = 0; wave < 2; ++wave) {
+    pool.run((strips + 1 - wave) / 2, [&](int k) {
+      const int strip = k * 2 + wave;
+      for (std::uint32_t o = stripStart[strip]; o < stripStart[strip + 1]; ++o) {
+        const std::uint32_t r = scratch.order[o];
+        const float x = land[r * 2], y = land[r * 2 + 1];
+        const int ix = static_cast<int>(x), iy = static_cast<int>(y);
+        const float fx = x - ix, fy = y - iy;
+        const float* er = groupSize ? e + (r / groupSize) * n : e;
+        float* a = b + (static_cast<std::size_t>(iy) * sw + ix) * n;
+        float* d = a + static_cast<std::size_t>(sw) * n;
+        for (int ch = 0; ch < n; ++ch) {
+          a[ch] += (1 - fx) * (1 - fy) * er[ch];
+          a[n + ch] += fx * (1 - fy) * er[ch];
+          d[ch] += (1 - fx) * fy * er[ch];
+          d[n + ch] += fx * fy * er[ch];
+        }
+      }
+    });
+  }
 }
 
-// A soft blur: three box blurs in a row, across then down, rows and columns
-// split over the cores. A running sum makes each box cost the same whatever
-// its width. `spread` is the variance in source pixels squared; three boxes of
-// radius r give r(r + 1), so r is picked to match it.
+// A soft blur: three box blurs in a row, across and down. A running sum makes
+// each box cost the same whatever its width. `spread` is the variance in
+// source pixels squared; three boxes of radius r give r(r + 1), so r is
+// picked to match it.
+//
+// Across and down are independent, so the three passes across run in ONE job
+// per row (the row stays in the cache between them) and the three down in one
+// job per band of columns -- two trips through the cores, not six.
 void lumiaBlur(std::vector<float>& buf, std::vector<float>& tmp, int sw, int sh, int n, double spread) {
   const int r = std::max(1, static_cast<int>(std::lround((std::sqrt(1 + 4 * spread) - 1) * 0.5)));
   const float inv = 1.0f / (2 * r + 1);
   tmp.resize(buf.size());
   float* b = buf.data();
   float* t = tmp.data();
-  for (int pass = 0; pass < 3; ++pass) {
-    deckboy::effects::detail::parallelRows(sh, sw, [&](int y0, int y1) {
-      for (int y = y0; y < y1; ++y) {
-        const float* in = b + static_cast<std::size_t>(y) * sw * n;
-        float* out = t + static_cast<std::size_t>(y) * sw * n;
+  const int rowFloats = sw * n;
+  deckboy::effects::detail::parallelRows(sh, sw, [&](int y0, int y1) {
+    std::vector<float> line(static_cast<std::size_t>(rowFloats));
+    float sum[4];
+    for (int y = y0; y < y1; ++y) {
+      float* row = b + static_cast<std::size_t>(y) * rowFloats;
+      for (int pass = 0; pass < 3; ++pass) {
+        // row -> line, then line -> row: in place over two buffers.
+        float* from = pass == 1 ? line.data() : row;
+        float* into = pass == 1 ? row : line.data();
         for (int c = 0; c < n; ++c) {
-          float sum = 0;
-          for (int k = -r; k <= r; ++k) sum += in[std::clamp(k, 0, sw - 1) * n + c];
-          for (int x = 0; x < sw; ++x) {
-            out[x * n + c] = sum * inv;
-            sum += in[std::min(sw - 1, x + r + 1) * n + c] - in[std::max(0, x - r) * n + c];
+          sum[c] = 0;
+          for (int k = -r; k <= r; ++k) sum[c] += from[std::clamp(k, 0, sw - 1) * n + c];
+        }
+        for (int x = 0; x < sw; ++x) {
+          const float* add = from + std::min(sw - 1, x + r + 1) * n;
+          const float* sub = from + std::max(0, x - r) * n;
+          for (int c = 0; c < n; ++c) {
+            into[x * n + c] = sum[c] * inv;
+            sum[c] += add[c] - sub[c];
           }
         }
       }
-    });
-    deckboy::effects::detail::parallelRows(sw, sh, [&](int x0, int x1) {
-      const std::size_t stride = static_cast<std::size_t>(sw) * n;
-      for (int x = x0; x < x1; ++x) {
-        for (int c = 0; c < n; ++c) {
-          const float* in = t + static_cast<std::size_t>(x) * n + c;
-          float* out = b + static_cast<std::size_t>(x) * n + c;
-          float sum = 0;
-          for (int k = -r; k <= r; ++k) sum += in[std::clamp(k, 0, sh - 1) * stride];
-          for (int y = 0; y < sh; ++y) {
-            out[y * stride] = sum * inv;
-            sum += in[std::min(sh - 1, y + r + 1) * stride] - in[std::max(0, y - r) * stride];
-          }
+      std::copy(line.begin(), line.end(), row);
+    }
+  });
+  // Down: a band of each row at a time, so the running sums and the rows
+  // they read sit side by side in memory (walking down a column at a time
+  // missed the cache on every step).
+  deckboy::effects::detail::parallelRows(rowFloats, sh, [&](int i0, int i1) {
+    const std::size_t stride = static_cast<std::size_t>(rowFloats);
+    std::vector<float> sum(static_cast<std::size_t>(i1 - i0));
+    for (int pass = 0; pass < 3; ++pass) {
+      const float* from = pass == 1 ? t : b;
+      float* into = pass == 1 ? b : t;
+      std::fill(sum.begin(), sum.end(), 0.0f);
+      for (int k = -r; k <= r; ++k) {
+        const float* row = from + static_cast<std::size_t>(std::clamp(k, 0, sh - 1)) * stride;
+        for (int i = i0; i < i1; ++i) sum[i - i0] += row[i];
+      }
+      for (int y = 0; y < sh; ++y) {
+        float* out = into + static_cast<std::size_t>(y) * stride;
+        const float* add = from + static_cast<std::size_t>(std::min(sh - 1, y + r + 1)) * stride;
+        const float* sub = from + static_cast<std::size_t>(std::max(0, y - r)) * stride;
+        for (int i = i0; i < i1; ++i) {
+          out[i] = sum[i - i0] * inv;
+          sum[i - i0] += add[i] - sub[i];
         }
       }
-    });
-  }
+    }
+    for (int y = 0; y < sh; ++y) {
+      const std::size_t at = static_cast<std::size_t>(y) * stride;
+      std::copy(t + at + i0, t + at + i1, b + at + i0);
+    }
+  });
 }
 
 }  // namespace
@@ -13295,22 +13355,59 @@ void lumiaWithFrame(double animTime, const LumiaSettings& base, const std::strin
     const int NW = 300 * q, NH = 210 * q;
     st.land.resize(static_cast<std::size_t>(NW) * NH * 2);
     float* land = st.land.data();
+    // Every angle in the surface's slope is a part that depends only on
+    // the ray's column plus a part that depends only on its row
+    // (the surface above), so cos(a + b) comes from two small tables and a
+    // ray costs a few multiplies, not five cosines.
     const LumiaRipplePhases rp = lumiaRipplePhases(lt);
-    const float frs = static_cast<float>(rs);
+    std::vector<float>& wcol = st.colTab;
+    std::vector<float>& wrow = st.rowTab;
+    wcol.resize(static_cast<std::size_t>(NW) * 8);
+    wrow.resize(static_cast<std::size_t>(NH) * 9);
+    for (int i = 0; i < NW; ++i) {
+      const double x = (i + 0.5) / NW * 2 * rs;
+      float* c = wcol.data() + static_cast<std::size_t>(i) * 8;
+      c[0] = static_cast<float>(std::cos(9 * x));  c[1] = static_cast<float>(std::sin(9 * x));
+      c[2] = static_cast<float>(std::cos(2 * x));  c[3] = static_cast<float>(std::sin(2 * x));
+      c[4] = static_cast<float>(std::cos(7 * x));  c[5] = static_cast<float>(std::sin(7 * x));
+      c[6] = static_cast<float>(std::cos(17 * x)); c[7] = static_cast<float>(std::sin(17 * x));
+    }
+    for (int j = 0; j < NH; ++j) {
+      const double y = (j + 0.5) / NH * 2 * rs;
+      const double inner = 3 * y + rp.t1;
+      const double cy = rp.t22 + std::sin(inner) * 1.5;   // ca: 9x + this
+      const double ay = 11 * y - rp.t17;                   // cb: 2x + this
+      const double by = -7 * y + rp.t13;                   // cc: 7x + this
+      const double dy = 5 * y - rp.t29;                    // cd: 17x + this
+      float* r = wrow.data() + static_cast<std::size_t>(j) * 9;
+      r[0] = static_cast<float>(std::cos(inner));
+      r[1] = static_cast<float>(std::cos(cy)); r[2] = static_cast<float>(std::sin(cy));
+      r[3] = static_cast<float>(std::cos(ay)); r[4] = static_cast<float>(std::sin(ay));
+      r[5] = static_cast<float>(std::cos(by)); r[6] = static_cast<float>(std::sin(by));
+      r[7] = static_cast<float>(std::cos(dy)); r[8] = static_cast<float>(std::sin(dy));
+    }
+    const float fk1 = static_cast<float>(k1), fSW = static_cast<float>(SW), fSH = static_cast<float>(SH);
     deckboy::effects::detail::parallelRows(NH, NW, [&](int j0, int j1) {
       for (int j = j0; j < j1; ++j) {
+        const float* r = wrow.data() + static_cast<std::size_t>(j) * 9;
+        const float v = (static_cast<float>(j) + 0.5f) / static_cast<float>(NH);
+        float* o = land + static_cast<std::size_t>(j) * NW * 2;
         for (int i = 0; i < NW; ++i) {
-          const double u = (i + 0.5) / NW, v = (j + 0.5) / NH;
-          float gx, gy;
-          lumiaRipplesGrad(static_cast<float>(u) * 2 * frs, static_cast<float>(v) * 2 * frs, rp, gx, gy);
-          float* o = land + (static_cast<std::size_t>(j) * NW + i) * 2;
-          o[0] = static_cast<float>((u + gx * k1) * SW);
-          o[1] = static_cast<float>((v + gy * k1) * SH);
+          const float* c = wcol.data() + static_cast<std::size_t>(i) * 8;
+          const float ca = c[0] * r[1] - c[1] * r[2];
+          const float cb = c[2] * r[3] - c[3] * r[4];
+          const float cc = c[4] * r[5] - c[5] * r[6];
+          const float cd = c[6] * r[7] - c[7] * r[8];
+          const float gx = 2.25f * ca + 0.4f * cb + 1.26f * cc + 1.36f * cd;
+          const float gy = 1.125f * r[0] * ca + 2.2f * cb - 1.26f * cc + 0.4f * cd;
+          const float u = (static_cast<float>(i) + 0.5f) / static_cast<float>(NW);
+          o[i * 2] = (u + gx * fk1) * fSW;
+          o[i * 2 + 1] = (v + gy * fk1) * fSH;
         }
       }
     });
     const float one = 1.0f;
-    lumiaSplat(st.wat, SW, SH, 1, land, static_cast<std::size_t>(NW) * NH, &one);
+    lumiaSplat(st.wat, SW, SH, 1, land, static_cast<std::size_t>(NW) * NH, &one, st.splat);
     // The prism: each laser colour bent by its own amount (split), so each
     // sharp line comes out as a fringe of colour. A second jet crossing the
     // first adds its own curves, turned a quarter.
@@ -13329,54 +13426,100 @@ void lumiaWithFrame(double animTime, const LumiaSettings& base, const std::strin
     const std::size_t perBeam = static_cast<std::size_t>(cols) * rows;
     st.land.resize(perBeam * nb * 2);
     land = st.land.data();
-    std::array<LumiaLensyPhases, 6> beamPhase, jetPhase;
-    for (int bi = 0; bi < nb; ++bi) {
-      beamPhase[bi] = lumiaLensyPhases(lt + bi * 0.02);
-      jetPhase[bi] = lumiaLensyPhases(lt * 1.3 + bi * 0.02);
+    // The beam's slope from tables, as the water's: with
+    // x = 3u (the column) and y = 2v (the row) for the beam, and x = 3v + 7,
+    // y = 2u + 3 for the crossing jet, every angle is a column part plus a
+    // row part. Per column (shared by every beam): cos/sin of 0.8x and 1.7x
+    // for the beam, 2.9y and 1.7y for the jet. Per beam and column: the
+    // beam's first term. Per beam and row: the rest.
+    std::vector<float>& pc = st.colTab;
+    std::vector<float>& pr = st.rowTab;
+    constexpr int kPC = 8, kPCB = 1, kPR = 9;
+    pc.resize(static_cast<std::size_t>(cols) * (kPC + kPCB * nb));
+    pr.resize(static_cast<std::size_t>(rows) * kPR * nb);
+    for (int i = 0; i < cols; ++i) {
+      const double u = (i + 0.5) / cols, x = u * 3, yj = u * 2 + 3;
+      float* c = pc.data() + static_cast<std::size_t>(i) * (kPC + kPCB * nb);
+      c[0] = static_cast<float>(std::cos(0.8 * x)); c[1] = static_cast<float>(std::sin(0.8 * x));
+      c[2] = static_cast<float>(std::cos(1.7 * x)); c[3] = static_cast<float>(std::sin(1.7 * x));
+      c[4] = static_cast<float>(std::cos(2.9 * yj)); c[5] = static_cast<float>(std::sin(2.9 * yj));
+      c[6] = static_cast<float>(std::cos(1.7 * yj)); c[7] = static_cast<float>(std::sin(1.7 * yj));
+      for (int bi = 0; bi < nb; ++bi) {
+        const LumiaLensyPhases bp = lumiaLensyPhases(lt + bi * 0.02);
+        c[kPC + bi] = static_cast<float>(std::cos(x * 2.3 + bp.t06));
+      }
     }
+    for (int bi = 0; bi < nb; ++bi) {
+      const LumiaLensyPhases bp = lumiaLensyPhases(lt + bi * 0.02);
+      const LumiaLensyPhases jp = lumiaLensyPhases(lt * 1.3 + bi * 0.02);
+      for (int j = 0; j < rows; ++j) {
+        const double v = (j + 0.5) / rows, y = v * 2, xj = v * 3 + 7;
+        float* r = pr.data() + (static_cast<std::size_t>(bi) * rows + j) * kPR;
+        const double b1 = 2.9 * y - bp.t045, b2 = 1.7 * y + bp.t03;          // beam: cb, cc
+        const double j1 = 0.8 * xj - jp.t045, j2 = 1.7 * xj + jp.t03;        // jet: cb, cc
+        r[0] = static_cast<float>(std::cos(b1)); r[1] = static_cast<float>(std::sin(b1));
+        r[2] = static_cast<float>(std::cos(b2)); r[3] = static_cast<float>(std::sin(b2));
+        r[4] = static_cast<float>(std::cos(xj * 2.3 + jp.t06));             // jet: ca
+        r[5] = static_cast<float>(std::cos(j1)); r[6] = static_cast<float>(std::sin(j1));
+        r[7] = static_cast<float>(std::cos(j2)); r[8] = static_cast<float>(std::sin(j2));
+      }
+    }
+    const float fjet = static_cast<float>(jet);
+    const bool withJet = jet > 0.01;
+    const float pSW = static_cast<float>(SW), pSH = static_cast<float>(SH);
     deckboy::effects::detail::parallelRows(rows * nb, cols, [&](int j0, int j1) {
       for (int jb = j0; jb < j1; ++jb) {
         const int bi = jb / rows, j = jb % rows;
-        const double disp = 1 + (bi - (nb - 1) / 2.0) / std::max(1, nb - 1) * split * 0.8;
+        const float kd = static_cast<float>(k2 * (1 + (bi - (nb - 1) / 2.0) / std::max(1, nb - 1) * split * 0.8));
+        const float* r = pr.data() + (static_cast<std::size_t>(bi) * rows + j) * kPR;
+        const float v = (static_cast<float>(j) + 0.5f) / static_cast<float>(rows);
+        float* o = land + static_cast<std::size_t>(jb) * cols * 2;
         for (int i = 0; i < cols; ++i) {
-          const double u = (i + 0.5) / cols, v = (j + 0.5) / rows;
-          const float fu = static_cast<float>(u), fv = static_cast<float>(v);
-          float gx, gy;
-          lumiaLensyGrad(fu * 3, fv * 2, beamPhase[bi], gx, gy);
-          if (jet > 0.01) {
-            float hx, hy;
-            lumiaLensyGrad(fv * 3 + 7, fu * 2 + 3, jetPhase[bi], hx, hy);
-            gx += hy * static_cast<float>(jet);
-            gy += hx * static_cast<float>(jet);
+          const float* c = pc.data() + static_cast<std::size_t>(i) * (kPC + kPCB * nb);
+          const float ca = c[kPC + bi];
+          const float cb = c[0] * r[0] - c[1] * r[1];
+          const float cc = c[2] * r[2] - c[3] * r[3];
+          float gx = 1.38f * ca + 0.4f * cb + 0.51f * cc;
+          float gy = 1.45f * cb + 0.51f * cc;
+          if (withJet) {
+            const float jcb = c[4] * r[5] - c[5] * r[6];
+            const float jcc = c[6] * r[7] - c[7] * r[8];
+            const float hx = 1.38f * r[4] + 0.4f * jcb + 0.51f * jcc;
+            const float hy = 1.45f * jcb + 0.51f * jcc;
+            gx += hy * fjet;
+            gy += hx * fjet;
           }
-          float* o = land + (static_cast<std::size_t>(jb) * cols + i) * 2;
-          o[0] = static_cast<float>((u + gx * k2 * disp) * SW);
-          o[1] = static_cast<float>((v + gy * k2 * disp) * SH);
+          const float u = (static_cast<float>(i) + 0.5f) / static_cast<float>(cols);
+          o[i * 2] = (u + gx * kd) * pSW;
+          o[i * 2 + 1] = (v + gy * kd) * pSH;
         }
       }
     });
+    float beamLight[6 * 3];
     for (int bi = 0; bi < nb; ++bi) {
-      const float* col = pal.c[bi];
-      const float e[3] = {col[0] * 3.0f / nb * rayShare, col[1] * 3.0f / nb * rayShare,
-                          col[2] * 3.0f / nb * rayShare};
-      lumiaSplat(st.acc, SW, SH, 3, land + perBeam * bi * 2, perBeam, e);
+      for (int c = 0; c < 3; ++c) beamLight[bi * 3 + c] = pal.c[bi][c] * 3.0f / nb * rayShare;
     }
+    lumiaSplat(st.acc, SW, SH, 3, land, perBeam * nb, beamLight, st.splat, perBeam);
     // Only the light above the average shows: dark between the lines.
     const std::size_t n = static_cast<std::size_t>(SW) * SH;
     const float raysW = static_cast<float>(static_cast<double>(NW) * NH / n);
     const float raysP = static_cast<float>(static_cast<double>(cols) * rows * nb * rayShare / n / 3.0);
-    for (std::size_t i = 0; i < n; ++i) {
-      st.wat[i] = std::max(0.0f, st.wat[i] / raysW - 0.9f) * static_cast<float>(0.643 * water * 0.6);
-      for (int c = 0; c < 3; ++c) {
-        float& a = st.acc[i * 3 + c];
-        a = std::max(0.0f, a - raysP * 1.25f) * static_cast<float>(prism * 1.4);
+    const float waterGain = static_cast<float>(0.643 * water * 0.6), prismGain = static_cast<float>(prism * 1.4);
+    st.core.resize(st.acc.size());
+    deckboy::effects::detail::parallelRows(SH, SW, [&](int y0, int y1) {
+      for (std::size_t i = static_cast<std::size_t>(y0) * SW; i < static_cast<std::size_t>(y1) * SW; ++i) {
+        st.wat[i] = std::max(0.0f, st.wat[i] / raysW - 0.9f) * waterGain;
+        for (int c = 0; c < 3; ++c) {
+          float& a = st.acc[i * 3 + c];
+          a = std::max(0.0f, a - raysP * 1.25f) * prismGain;
+          st.core[i * 3 + c] = a;   // the sharp lines, before the glow spreads them
+        }
       }
-    }
+    });
     // Soften the water into patches; glow round the prism's sharp cores. The
     // spreads are the board's (a [1 2 1] pass adds 0.5), times q*q so the
     // bigger source looks the same.
     lumiaBlur(st.wat, st.tmp, SW, SH, 1, 1.5 * q * q);
-    st.core = st.acc;
     lumiaBlur(st.acc, st.tmp, SW, SH, 3, 0.5 * (1 + glow * 3) * q * q);
     const float halo = static_cast<float>(0.4 + glow * 2.2);
     // Light below 1/4096 of a step is gone: it is snapped to zero. Left to
@@ -13384,10 +13527,15 @@ void lumiaWithFrame(double animTime, const LumiaSettings& base, const std::strin
     // many times slower than ordinary ones (measured: the whole frame slowed).
     const float keep = static_cast<float>(trail), add = static_cast<float>(1 - trail * 0.6);
     auto settle = [](float v) { return v < 1.0f / 4096.0f ? 0.0f : v; };
-    for (std::size_t i = 0; i < st.acc.size(); ++i) {
-      st.accShown[i] = settle(st.accShown[i] * keep + (st.acc[i] * halo + st.core[i] * 0.5f) * add);
-    }
-    for (std::size_t i = 0; i < n; ++i) st.watShown[i] = settle(st.watShown[i] * keep + st.wat[i] * add);
+    deckboy::effects::detail::parallelRows(SH, SW, [&](int y0, int y1) {
+      for (std::size_t i = static_cast<std::size_t>(y0) * SW; i < static_cast<std::size_t>(y1) * SW; ++i) {
+        for (int c = 0; c < 3; ++c) {
+          float& shown = st.accShown[i * 3 + c];
+          shown = settle(shown * keep + (st.acc[i * 3 + c] * halo + st.core[i * 3 + c] * 0.5f) * add);
+        }
+        st.watShown[i] = settle(st.watShown[i] * keep + st.wat[i] * add);
+      }
+    });
   }
 
 
@@ -13614,12 +13762,14 @@ bool MediaEngine::planGpuSource(const Cue& cue, double animTime, int width, int 
     const std::size_t n = static_cast<std::size_t>(v.SW) * v.SH;
     plan.aux.resize(n * 4);
     float* a = plan.aux.data();
-    for (std::size_t i = 0; i < n; ++i) {
-      a[i * 4] = v.acc[i * 3];
-      a[i * 4 + 1] = v.acc[i * 3 + 1];
-      a[i * 4 + 2] = v.acc[i * 3 + 2];
-      a[i * 4 + 3] = v.wat[i];
-    }
+    deckboy::effects::detail::parallelRows(v.SH, v.SW, [&](int y0, int y1) {
+      for (std::size_t i = static_cast<std::size_t>(y0) * v.SW; i < static_cast<std::size_t>(y1) * v.SW; ++i) {
+        a[i * 4] = v.acc[i * 3];
+        a[i * 4 + 1] = v.acc[i * 3 + 1];
+        a[i * 4 + 2] = v.acc[i * 3 + 2];
+        a[i * 4 + 3] = v.wat[i];
+      }
+    });
     plan.i[0] = v.mode;
     plan.i[1] = v.mirrors;
     plan.i[2] = v.topBottom ? 1 : 0;
