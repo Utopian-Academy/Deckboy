@@ -180,10 +180,14 @@ def main():
 
     # Extract actual captured terminal frames for review, preserving text.
     raw = (work / "escape.log").read_text(encoding="utf-8", errors="replace")
-    frames = re.split(r"\x1b\[\d+F", raw)
+    # Every frame starts at the top-left corner of the panel's own screen.
+    frames = re.split(r"\x1b\[H", raw)
     selected = []
     for marker in ["nominal", "BREACHED", "[o_o]", "re-contained by"]:
-        match = next((f for f in frames if marker in f and "DECKBOY MINI " in ANSI.sub("", f)), None)
+        # A panel frame, not the boot lines before the first one (which say
+        # "DECKBOY MINI ... booting" and "gremlin containment ... nominal").
+        match = next((f for f in frames if marker in f and any(
+            "DECKBOY MINI " in line and "booting" not in line for line in ANSI.sub("", f).splitlines())), None)
         if match:
             lines = ANSI.sub("", match).splitlines()
             start = next(i for i, line in enumerate(lines) if "DECKBOY MINI " in line and "booting" not in line)

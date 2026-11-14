@@ -20,6 +20,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <cstdarg>
 #include <charconv>
 #include <cmath>
 #include <cstdint>
@@ -325,6 +326,15 @@ class Hud {
   }
 
   void end() {
+    if (onScreen_) {
+      // Back to the terminal's own screen, with wrapping on again, and the
+      // last of the log printed there so the session leaves a record.
+      std::fputs("\x1b[?7h\x1b[?1049l", stdout);
+      onScreen_ = false;
+      for (const auto& entry : log_) {
+        std::printf("  %s%s%s %s%s\n", ink::kDim, glyph::kLog, ink::kMid, entry.c_str(), ink::kReset);
+      }
+    }
     if (fancy_) std::printf("%s\x1b[?25h\n", ink::kReset);  // give the cursor back
     std::fflush(stdout);
   }
@@ -368,6 +378,20 @@ class Hud {
 #else
     winsize ws {};
     return ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == 0 ? ws.ws_col : 0;
+#endif
+  }
+
+  // 0 when there is no terminal to ask (DECKBOY_MINI_PANEL=1 into a file).
+  static int terminalRows() {
+#ifdef _WIN32
+    CONSOLE_SCREEN_BUFFER_INFO info;
+    if (GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &info)) {
+      return info.srWindow.Bottom - info.srWindow.Top + 1;
+    }
+    return 0;
+#else
+    winsize ws {};
+    return ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == 0 ? ws.ws_row : 0;
 #endif
   }
 
@@ -430,31 +454,27 @@ class Hud {
 
   // One row of the box: the coloured content is passed with its visible width
   // so the right edge stays put however many escape codes it carries.
-  static void row(const std::string& content, int visible) {
-    std::printf("\x1b[2K  %s%s%s %s%s %s%s%s\n", ink::kDim, glyph::kVertical, ink::kReset, content.c_str(),
+  void row(const std::string& content, int visible) {
+    emit("\x1b[2K  %s%s%s %s%s %s%s%s\n", ink::kDim, glyph::kVertical, ink::kReset, content.c_str(),
                 std::string(static_cast<std::size_t>(std::max(0, kInner - 2 - visible)), ' ').c_str(),
                 ink::kDim, glyph::kVertical, ink::kReset);
   }
 
   void draw(const HudState& s, double t) {
-    // Back to the top of the panel, then repaint it in place.
-    if (drawnLines_ > 0) std::printf("\x1b[%dF", drawnLines_);
-    int lines = 0;
+    frame_.clear();
 
     // Header
     std::string title = std::string("DECKBOY MINI ");
     std::string tail = " " + (s.listName.empty() ? std::string("(unsaved list)") : fit(s.listName, 24)) +
                        (s.listDirty ? "*" : "") + "  v" + s.version;
     int dots = kInner + 2 - columns(title) - columns(tail) - 4;
-    std::printf("\x1b[2K  %s%s%s %s%s%s%s%s%s%s%s\n", ink::kBright, glyph::kLogo, ink::kReset, kTitleInk,
+    emit("\x1b[2K  %s%s%s %s%s%s%s%s%s%s%s\n", ink::kBright, glyph::kLogo, ink::kReset, kTitleInk,
                 title.c_str(), ink::kReset, ink::kDeep, repeat(glyph::kDot, std::max(3, dots)).c_str(), ink::kReset,
                 ink::kDim, tail.c_str());
-    std::printf("%s", ink::kReset);
-    ++lines;
+    emit("%s", ink::kReset);
 
-    std::printf("\x1b[2K  %s%s%s%s%s\n", ink::kDim, glyph::kTopLeft, repeat(glyph::kHorizontal, kInner).c_str(),
+    emit("\x1b[2K  %s%s%s%s%s\n", ink::kDim, glyph::kTopLeft, repeat(glyph::kHorizontal, kInner).c_str(),
                 glyph::kTopRight, ink::kReset);
-    ++lines;
 
     // Transport
     const char* icon = s.status == "Playing" ? glyph::kPlay : s.status == "Paused" ? glyph::kPause : glyph::kStop;
@@ -465,7 +485,6 @@ class Hud {
     std::string a = std::string(s.blackout ? ink::kWarn : tone) + icon + " " + fit(state, 9) + ink::kReset + " " +
                     fit(cue, 11) + " " + kTitleInk + name + ink::kReset;
     row(a, 2 + 9 + 1 + 11 + 1 + columns(name));
-    ++lines;
 
     // Progress
     const int barWidth = 26;
@@ -479,7 +498,6 @@ class Hud {
     std::string b = std::string(ink::kMid) + repeat(glyph::kFull, filled) + ink::kDeep + repeat(glyph::kEmpty, barWidth - filled) +
                     ink::kReset + "  " + times;
     row(b, barWidth + 2 + columns(times));
-    ++lines;
 
     // WHAT PLAYS NEXT, always on its own line: the queue, the shuffle and E
     // all change it, and an operator has to see that before the cue ends, not
@@ -489,7 +507,6 @@ class Hud {
                                : !s.nextName.empty() ? s.nextName : std::string("end of the list");
       const std::string shown = fit(what, kInner - 2 - 5);
       row(std::string(ink::kDim) + "NEXT " + ink::kReset + shown, 5 + columns(shown));
-      ++lines;
     }
 
     // The cue list around the selection, or the key reference. Always six
@@ -548,7 +565,6 @@ class Hud {
       } else {
         row("", 0);
       }
-      ++lines;
     }
 
     // Volume, loop, output
@@ -565,7 +581,6 @@ class Hud {
                     ink::kReset + fit(volText, 5) + ink::kDim + "LOOP " + ink::kReset + (s.loop ? "on " : "off") +
                     kTitleInk + flags + ink::kReset + "  " + ink::kDim + out + ink::kReset;
     row(d, 4 + 10 + 5 + 5 + 3 + columns(flags) + 2 + columns(out));
-    ++lines;
 
     // Link
     std::string link = s.listening
@@ -577,32 +592,27 @@ class Hud {
     const std::string sound = fit(s.soundName.empty() ? std::string("none") : s.soundName, soundRoom);
     std::string e = std::string(ink::kDim) + "LINK " + ink::kReset + link + "  " + ink::kDim + "SND " + ink::kReset + sound;
     row(e, 5 + columns(link) + 2 + 4 + columns(sound));
-    ++lines;
 
-    std::printf("\x1b[2K  %s%s%s%s%s\n", ink::kDim, glyph::kBottomLeft, repeat(glyph::kHorizontal, kInner).c_str(),
+    emit("\x1b[2K  %s%s%s%s%s\n", ink::kDim, glyph::kBottomLeft, repeat(glyph::kHorizontal, kInner).c_str(),
                 glyph::kBottomRight, ink::kReset);
-    ++lines;
 
     // Under the panel: whatever is being typed, or the keys. They work in this
     // terminal and in the output window alike.
     if (!s.prompt.empty()) {
-      std::printf("\x1b[2K   %s%s%s%s\n", kTitleInk, fit(s.prompt, kInner).c_str(),
+      emit("\x1b[2K   %s%s%s%s\n", kTitleInk, fit(s.prompt, kInner).c_str(),
                   (static_cast<int>(t * 2) % 2) ? "_" : " ", ink::kReset);
     } else {
-      std::printf("\x1b[2K   %sSPC%s go  %s^v%s pick  %sENT%s take  %s<>%s skip  %s:%s cmd  %s?%s keys  %sQQ%s quit%s\n",
+      emit("\x1b[2K   %sSPC%s go  %s^v%s pick  %sENT%s take  %s<>%s skip  %s:%s cmd  %s?%s keys  %sQQ%s quit%s\n",
                   ink::kMid, ink::kDim, ink::kMid, ink::kDim, ink::kMid, ink::kDim, ink::kMid, ink::kDim,
                   ink::kMid, ink::kDim, ink::kMid, ink::kDim, ink::kMid, ink::kDim, ink::kReset);
     }
-    ++lines;
 
     const std::string containmentStatus = containment_.status();
-    std::printf("\x1b[2K   %s%s%s\n", containment_.active() ? ink::kWarn : ink::kDim,
+    emit("\x1b[2K   %s%s%s\n", containment_.active() ? ink::kWarn : ink::kDim,
                 containmentStatus.c_str(), ink::kReset);
-    ++lines;
     // Reserve this row even before the first escape: no jump in panel height,
     // no covering commands/logs, and the audio ribbon keeps working below it.
-    std::printf("\x1b[2K   %s%s%s\n", ink::kMid, containment_.ribbon(t, kInner - 2).c_str(), ink::kReset);
-    ++lines;
+    emit("\x1b[2K   %s%s%s\n", ink::kMid, containment_.ribbon(t, kInner - 2).c_str(), ink::kReset);
 
     // The shimmer: a ribbon of symbols whose height follows the sound, with a
     // slow idle drift so a silent picture still looks alive.
@@ -618,28 +628,84 @@ class Hud {
       ribbon += kRamp[static_cast<int>(v * 10)];
     }
     const bool twinkle = std::fmod(t, 1.4) < 0.7;
-    std::printf("\x1b[2K   %s%s %s  %s%s%s%s  %s %s%s\n", ink::kDim, twinkle ? glyph::kRing : glyph::kDot,
+    emit("\x1b[2K   %s%s %s  %s%s%s%s  %s %s%s\n", ink::kDim, twinkle ? glyph::kRing : glyph::kDot,
                 twinkle ? glyph::kDot : glyph::kSpark, ink::kMid, ribbon.c_str(), ink::kReset, ink::kDim,
                 twinkle ? glyph::kSpark : glyph::kDot, twinkle ? glyph::kDot : glyph::kRing, ink::kReset);
-    ++lines;
 
     // The log feed, newest last, padded so the panel never changes height.
     for (std::size_t i = 0; i < kLogLines; ++i) {
       const std::size_t pad = kLogLines - log_.size();
-      if (i < pad) { std::printf("\x1b[2K\n"); ++lines; continue; }
+      if (i < pad) { emit("\x1b[2K\n"); continue; }
       const std::string& entry = log_[i - pad];
       const bool latest = i == kLogLines - 1;
-      std::printf("\x1b[2K  %s%s%s %s%s\n", ink::kDim, glyph::kLog, latest ? ink::kBright : ink::kMid,
+      emit("\x1b[2K  %s%s%s %s%s\n", ink::kDim, glyph::kLog, latest ? ink::kBright : ink::kMid,
                   fit(entry, kInner).c_str(), ink::kReset);
-      ++lines;
     }
-    std::fflush(stdout);
-    drawnLines_ = lines;
+    present();
   }
+
+  // Append to the frame being built.
+  void emit(const char* format, ...) {
+    va_list args;
+    va_start(args, format);
+    va_list again;
+    va_copy(again, args);
+    const int n = std::vsnprintf(nullptr, 0, format, args);
+    va_end(args);
+    if (n > 0) {
+      const std::size_t at = frame_.size();
+      frame_.resize(at + static_cast<std::size_t>(n) + 1);
+      std::vsnprintf(&frame_[at], static_cast<std::size_t>(n) + 1, format, again);
+      frame_.resize(at + static_cast<std::size_t>(n));
+    }
+    va_end(again);
+  }
+
+  // Paint the frame from the top-left corner of a screen of its own, the way
+  // a full-screen terminal program does. Moving the cursor back up over the
+  // last frame went wrong the moment the window was resized: the terminal
+  // re-wraps what is already there, the panel no longer spans the rows it
+  // did, and every repaint left a copy behind. Here wrapping is off (a narrow
+  // window cuts a line short), the frame stops at the last row (a short
+  // window never scrolls), and a new size clears the screen once.
+  void present() {
+    std::string out;
+    if (!onScreen_) {
+      out += "\x1b[?1049h\x1b[?7l\x1b[2J";
+      onScreen_ = true;
+    }
+    const int cols = terminalColumns();
+    const int rowsHere = terminalRows();
+    if (cols != shownCols_ || rowsHere != shownRows_) {
+      out += "\x1b[2J";
+      shownCols_ = cols;
+      shownRows_ = rowsHere;
+    }
+    out += "\x1b[H";
+    int drawn = 0;
+    std::size_t from = 0;
+    while (from < frame_.size() && (rowsHere <= 0 || drawn < rowsHere)) {
+      std::size_t to = frame_.find('\n', from);
+      if (to == std::string::npos) to = frame_.size();
+      if (drawn > 0) out += '\n';  // as everywhere else here: the C runtime adds the \r on Windows
+      out.append(frame_, from, to - from);
+      ++drawn;
+      from = to + 1;
+    }
+    out += ink::kReset;
+    out += "\x1b[J";
+    std::fwrite(out.data(), 1, out.size(), stdout);
+    std::fflush(stdout);
+  }
+
+
 
   bool fancy_ = false;
   bool dirty_ = true;
-  int drawnLines_ = 0;
+  bool onScreen_ = false;  // on the panel's own screen (the terminal's alternate one)
+  int shownCols_ = -1;
+  int shownRows_ = -1;
+  std::string frame_;
   std::deque<std::string> log_;
   std::string lastPrompt_;
   std::chrono::steady_clock::time_point start_;
