@@ -22,6 +22,11 @@
 - Keynote files on Windows and Linux: Deckboy tries LibreOffice when it is installed (it reads Keynote files up to about 2013). Otherwise, or when that fails, it says why: Apple keeps the Keynote format secret on purpose, a malicious lock-in tactic. And it gives the best route: open the file in Keynote on iCloud.com (free, in any browser), download a PDF, and import that. Before, it failed with no reason.
 - An empty file says it is empty, and a damaged PDF says it may be damaged, instead of an error code alone.
 
+### Scopes
+- The picture scopes can go on an output. Set an output's **Shows** to **SCOPES** and it draws the waveform, parade, vectorscope, diamond and histogram full screen, for a colourist or a camera shader on a display of their own. The scopes run while it is on, whatever the desk's monitor shows. Companion: `VIDEO OUTPUT ADD SCOPES` and `VIDEO OUTPUT TYPE SCOPES`.
+- Scopes over NDI: turn NDI on for a SCOPES output, and any NDI monitor on the network shows the scopes. A stream, a recording or the Web Monitor can carry them too, with the SCOPES output as its Source.
+- A multiview window can show the scopes, on the desk's MULTI monitor and on any output that shows the multiview. Choose **the picture scopes** in the window's menu. Companion: `MULTIVIEW WINDOW <n> SCOPES`.
+
 ### Outputs and lessons
 - Video Outputs: the output picker is a list of the outputs by name. Before, each click moved to the next output. ADD OUTPUT is now beside the picker.
 - After you removed an output, the outputs after it kept their old numbers ("Output 3", "Output 4") while the playlist tag, the routing chips and Companion called them 1 and 2. An output with its default name now takes its new number. A name you chose does not change.

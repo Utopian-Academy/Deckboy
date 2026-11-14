@@ -565,6 +565,7 @@
     }
     feed("next", "the next cue (what GO plays)");
     feed("clock", "the time of day");
+    feed("scopes", "the picture scopes");
     feed("", "nothing - leave it empty");
 
     // The windows, laid out as the desk and the outputs lay them out.

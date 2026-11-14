@@ -956,6 +956,40 @@
     }
 
     {
+      // Scopes on an output, and in a multiview window: the type exists, is
+      // reachable from the command line, and arms the analyser by itself.
+      App app;
+      app.showSplashOverlay_ = false;
+      app.showStartupDialog_ = false;
+      app.project_.decks = {Deck {}};
+      expect(normalizeOutputType("SCOPES") == "scopes" && normalizeOutputType("scope") == "scopes",
+             "an output can show the scopes");
+      expect(outputTypeIsWindowed("scopes"), "a scopes output is a window");
+      app.handleRemoteCommand("VIDEO OUTPUT ADD SCOPES");
+      expect(!app.project_.outputs.empty() &&
+             normalizeOutputType(app.project_.outputs.back().outputType) == "scopes",
+             "VIDEO OUTPUT ADD SCOPES adds a scopes output");
+      const int scopesOut = static_cast<int>(app.project_.outputs.size()) - 1;
+      expect(!app.scopesShownOnOutput(), "a scopes output that is off does not arm the analyser");
+      app.project_.outputs[static_cast<std::size_t>(scopesOut)].enabled = true;
+      expect(app.scopesShownOnOutput() && app.monitorView_ == App::MonitorView::Program,
+             "a scopes output that is on arms the analyser while the desk shows the programme");
+      app.project_.outputs[static_cast<std::size_t>(scopesOut)].enabled = false;
+      app.project_.focusedOutputIndex = 0;
+      app.handleRemoteCommand("VIDEO OUTPUT TYPE SCOPES");
+      expect(normalizeOutputType(app.project_.outputs[0].outputType) == "scopes",
+             "VIDEO OUTPUT TYPE SCOPES sets the focused output");
+      app.handleRemoteCommand("MULTIVIEW WINDOW ADD");
+      app.handleRemoteCommand("MULTIVIEW WINDOW " + std::to_string(app.project_.multiviewTiles.size()) + " SCOPES");
+      expect(!app.project_.multiviewTiles.empty() && app.project_.multiviewTiles.back().source == "scopes" &&
+             app.multiviewHasScopesWindow() &&
+             app.multiviewTileFeed(app.project_.multiviewTiles.back()) == App::MultiviewFeed::Scopes,
+             "a multiview window can show the scopes");
+      app.handleRemoteCommand("MULTIVIEW WINDOW 1 NOSUCH");
+      expect(!app.remoteCommandError_.empty(), "a multiview window refuses an unknown feed");
+    }
+
+    {
       // Headless integration of the same core exercised by scopes_check.cpp.
       namespace scopes = deckboy::core::scopes;
       const std::array<std::uint8_t, 16> rgba{

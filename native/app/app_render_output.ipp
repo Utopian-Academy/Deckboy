@@ -3907,7 +3907,9 @@
       // AUDITION AND PRELOAD STILL HOLD A DECK OFF, the same rule the
       // compositor follows -- a deck being looked at privately must not
       // appear on a wall in the room.
-      if (d >= 0) {
+      if (multiviewTileIsScopes(spec)) {
+        renderScopesIntoOutput(outputIndex, tile);
+      } else if (d >= 0) {
         if (!deckIsHeldOffOutput(d)) {
           renderDeckLayerIntoOutput(outputIndex, d, tile);
         }
@@ -6523,6 +6525,10 @@
       // compositor uses for layers, so a GPU-decoded frame stays on the GPU
       // and a tile costs what a layer costs.
       renderMultiviewIntoOutput(outputIndex, bounds);
+    } else if (viewType == "scopes") {
+      // The picture scopes, full screen (app_scopes.ipp). Black first: the
+      // scopes keep their own black, and a hole must not show the last frame.
+      renderScopesIntoOutput(outputIndex, bounds);
     } else if (viewType == "presenter") {
       // Not the programme: what the OPERATOR needs to see. Same window, same
       // display picker, same arming -- a different picture.

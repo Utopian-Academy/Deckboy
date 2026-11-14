@@ -1206,7 +1206,7 @@ A step can also start a named **section**.
 
 **The multiview on a screen.** **MULTI** on the programme monitor shows every
 window you have arranged: the programme, each playlist, labels and level
-meters. An output whose **Shows** is **MULTIVIEW** puts that same arrangement
+meters. A window can also show the picture scopes (see below). An output whose **Shows** is **MULTIVIEW** puts that same arrangement
 on a display, sized for the display, and a stream or the Web Monitor can carry
 it by choosing that output as its **Source**.
 
@@ -1215,8 +1215,8 @@ corner, and an empty window says **+ CHOOSE WHAT IT SHOWS**; clicking either
 opens the window's menu (a right-click does too). A window can show the
 programme, a playlist, what one output carries (by that output, so it stays
 right when another output is removed), the **next cue** (what GO plays on the
-focused playlist, with its still when the playlist has one), or the **time of
-day**. The same menu turns on safe areas, a level meter and the name, adds and
+focused playlist, with its still when the playlist has one), the **time of
+day**, or the **picture scopes**. The same menu turns on safe areas, a level meter and the name, adds and
 removes windows, and picks the **layout**: an even grid, one big window with
 the rest beside it, one big on top, or two big on top. The big ones are the
 first one or two windows.
@@ -1225,7 +1225,7 @@ A window that is on air has a red border: the programme, a playlist that is
 playing on a running output, or a running output. The next cue's window has a
 green one.
 
-Over the wire: `MULTIVIEW WINDOW <n> PROGRAMME|DECK<n>|OUTPUT<n>|NEXT|CLOCK|EMPTY`
+Over the wire: `MULTIVIEW WINDOW <n> PROGRAMME|DECK<n>|OUTPUT<n>|NEXT|CLOCK|SCOPES|EMPTY`
 and `MULTIVIEW LAYOUT GRID|BIG|BIGTOP|TWOTOP`.
 
 ---
@@ -1249,6 +1249,8 @@ the show. Each output is one of:
 - **Presenter** — the speaker's screen: live slide, previous, next, notes and
   clock ([Presenter view](#presenter-view)).
 - **Prompter** — the talent's scrolling script ([Prompter](#prompter)).
+- **Scopes** — the picture scopes on a screen of their own
+  ([Picture Scopes](#18a-picture-scopes)).
 - **DeckLink** — SDI/HDMI out via a Blackmagic card.
 - **Spout** (Windows) — share the output as a GPU texture to another app. Syphon
   on macOS is not built yet.
@@ -3126,6 +3128,33 @@ of gamut and legal once filtered.
 | `SCOPES MATRIX 709\|2020` | The matrix for luma and chroma |
 | `SCOPES SOURCE PROGRAMME\|<n>` | Measures the programme (the default) or output n |
 | `SCOPES STATS` | The numbers behind the scopes, as text |
+
+**Scopes on a screen of their own.** Set an output's **Shows** to **SCOPES**
+(Settings, Video Outputs). The output draws the scopes full screen, the same
+panels as the desk without the buttons: a colourist or a camera shader gets
+waveform, parade, vectorscope, diamond and histogram on their own display.
+The scopes read the same signal as the desk (the programme, or what **SOURCE**
+picks), and `SCOPES BIG`, `FREEZE` and `MATRIX` change the screen too. It does
+not matter what the desk's monitor shows: the scopes run while a SCOPES output
+is on. The footer says what is measured, as on the desk. The picture is drawn
+up to 1600 pixels wide and up to about 25 times a second, then scaled to the
+screen.
+
+**Scopes over NDI.** An output set to SCOPES is a picture like any other, so
+its **NDI** switch sends it: turn NDI on for that output, and any NDI monitor
+on the network shows the scopes. A stream, a recording or the Web Monitor can
+carry them too, by choosing the SCOPES output as its **Source**.
+
+**Scopes in a multiview window.** A multiview window can show the scopes
+(its **...** menu, **the picture scopes**, or `MULTIVIEW WINDOW <n> SCOPES`),
+on the desk's MULTI monitor and on any output that shows the multiview. It
+shows every panel, small. A window that points at an output set to SCOPES
+shows the scopes as well.
+
+| Command | Does |
+|---------|------|
+| `VIDEO OUTPUT ADD SCOPES` | Adds an output that shows the scopes |
+| `VIDEO OUTPUT TYPE SCOPES` | Sets the focused output to show the scopes |
 
 ## 18b. Sound Scopes
 

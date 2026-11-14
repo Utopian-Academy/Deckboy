@@ -198,8 +198,38 @@
 
   // The output render loop asks this before the independent scopes capture.
   bool scopesWatching(int outputIndex) const {
-    return monitorView_ != MonitorView::Program && scopesBig_ != kScopeSound && !scopesFrozen_ &&
-           outputIndex == scopesOutputIndex();
+    return (monitorView_ != MonitorView::Program || scopesShownOnOutput() ||
+            (project_.multiviewMode == 1 && multiviewHasScopesWindow())) && scopesBig_ != kScopeSound &&
+           !scopesFrozen_ && outputIndex == scopesOutputIndex();
+  }
+
+  // A multiview window set to the scopes, on the desk's MULTI monitor or in
+  // the arrangement an output carries.
+  bool multiviewHasScopesWindow() const {
+    for (const MultiviewTile& tile : project_.multiviewTiles) {
+      if (multiviewTileIsScopes(tile)) return true;
+    }
+    return false;
+  }
+
+  // An output set to show SCOPES, or a stream that carries one, is armed. Its
+  // picture is the scopes, so the analyser has to run for it even when the
+  // desk's monitor shows the programme.
+  bool scopesShownOnOutput() const {
+    const auto draws = [&](const OutputTarget& out) {
+      const std::string type = normalizeOutputType(out.outputType);
+      return type == "scopes" || (type == "multiview" && multiviewHasScopesWindow());
+    };
+    for (const OutputTarget& out : project_.outputs) {
+      if (!out.enabled) continue;
+      if (draws(out)) return true;
+      if (normalizeOutputType(out.outputType) == "stream" && out.mirrorSourceOutputIndex >= 0 &&
+          out.mirrorSourceOutputIndex < static_cast<int>(project_.outputs.size()) &&
+          draws(project_.outputs[static_cast<std::size_t>(out.mirrorSourceOutputIndex)])) {
+        return true;
+      }
+    }
+    return false;
   }
 
   static deckboy::core::scopes::Options scopesOptions(int width, bool bt2020) {
@@ -1042,7 +1072,9 @@
     return text;
   }
 
-  void drawScopesArea(const SDL_Rect& area) {
+  // `display` is a scopes screen on an output: the same panels and footer,
+  // without the buttons, because a projected picture has nothing to click.
+  void drawScopesArea(const SDL_Rect& area, bool display = false) {
     for (auto& rect : scopesPanelRects_) rect = {};
     scopesFreezeBtnRect_ = {};
     scopesSourceBtnRect_ = {};
@@ -1097,33 +1129,37 @@
     }
     // Footer: what is measured, how fresh, the gamut verdict, FREEZE.
     Primitives::fillRect(controlRenderer_, footer, SDL_Color {20, 24, 20, 255});
-    const int freezeW = uiScaled(84);
-    scopesFreezeBtnRect_ = SDL_Rect {footer.x + footer.w - freezeW - uiScaled(4), footer.y + uiScaled(2),
-                                     freezeW, footer.h - uiScaled(4)};
-    drawUIPanel(scopesFreezeBtnRect_, paletteToggleFill(scopesFrozen_), pal.deep, pal.light);
-    drawCenteredTextSafe(controlRenderer_, fontSmall_, scopesFreezeBtnRect_,
-                         scopesFrozen_ ? "FROZEN" : "FREEZE", paletteToggleInk(scopesFrozen_));
-    // SOURCE: the programme, or one output, cycled.
-    const int sourceW = uiScaled(110);
-    scopesSourceBtnRect_ = SDL_Rect {scopesFreezeBtnRect_.x - sourceW - uiScaled(4), scopesFreezeBtnRect_.y,
-                                     sourceW, scopesFreezeBtnRect_.h};
-    drawUIPanel(scopesSourceBtnRect_, paletteToggleFill(scopesSource_ >= 0), pal.deep, pal.light);
-    drawCenteredTextSafe(controlRenderer_, fontSmall_, scopesSourceBtnRect_, scopesSourceLabel(),
-                         paletteToggleInk(scopesSource_ >= 0));
-    // FALSE COLOUR: the picture shown alone, painted by level (drawFalseColourPanel).
-    const int falseW = std::max(uiScaled(110), measuredTextWidth(fontSmall_, "FALSE COLOUR") + uiScaled(16));
-    scopesFalseBtnRect_ = SDL_Rect {scopesSourceBtnRect_.x - falseW - uiScaled(4), scopesSourceBtnRect_.y,
-                                    falseW, scopesSourceBtnRect_.h};
-    const bool falseOn = scopesBig_ == kScopeFalseColour;
-    drawUIPanel(scopesFalseBtnRect_, paletteToggleFill(falseOn), pal.deep, pal.light);
-    drawCenteredTextSafe(controlRenderer_, fontSmall_, scopesFalseBtnRect_, "FALSE COLOUR",
-                         paletteToggleInk(falseOn));
-    // SOUND: phase, spectrum and loudness of the playlist's sound (drawSoundPanel).
-    const int soundW = std::max(uiScaled(70), measuredTextWidth(fontSmall_, "SOUND") + uiScaled(16));
-    scopesSoundBtnRect_ = SDL_Rect {scopesFalseBtnRect_.x - soundW - uiScaled(4), scopesFalseBtnRect_.y,
-                                    soundW, scopesFalseBtnRect_.h};
-    drawUIPanel(scopesSoundBtnRect_, paletteToggleFill(sound), pal.deep, pal.light);
-    drawCenteredTextSafe(controlRenderer_, fontSmall_, scopesSoundBtnRect_, "SOUND", paletteToggleInk(sound));
+    int buttonsX = footer.x + footer.w;   // where the buttons start, from the right
+    if (!display) {
+      const int freezeW = uiScaled(84);
+      scopesFreezeBtnRect_ = SDL_Rect {footer.x + footer.w - freezeW - uiScaled(4), footer.y + uiScaled(2),
+                                       freezeW, footer.h - uiScaled(4)};
+      drawUIPanel(scopesFreezeBtnRect_, paletteToggleFill(scopesFrozen_), pal.deep, pal.light);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, scopesFreezeBtnRect_,
+                           scopesFrozen_ ? "FROZEN" : "FREEZE", paletteToggleInk(scopesFrozen_));
+      // SOURCE: the programme, or one output, cycled.
+      const int sourceW = uiScaled(110);
+      scopesSourceBtnRect_ = SDL_Rect {scopesFreezeBtnRect_.x - sourceW - uiScaled(4), scopesFreezeBtnRect_.y,
+                                       sourceW, scopesFreezeBtnRect_.h};
+      drawUIPanel(scopesSourceBtnRect_, paletteToggleFill(scopesSource_ >= 0), pal.deep, pal.light);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, scopesSourceBtnRect_, scopesSourceLabel(),
+                           paletteToggleInk(scopesSource_ >= 0));
+      // FALSE COLOUR: the picture shown alone, painted by level (drawFalseColourPanel).
+      const int falseW = std::max(uiScaled(110), measuredTextWidth(fontSmall_, "FALSE COLOUR") + uiScaled(16));
+      scopesFalseBtnRect_ = SDL_Rect {scopesSourceBtnRect_.x - falseW - uiScaled(4), scopesSourceBtnRect_.y,
+                                      falseW, scopesSourceBtnRect_.h};
+      const bool falseOn = scopesBig_ == kScopeFalseColour;
+      drawUIPanel(scopesFalseBtnRect_, paletteToggleFill(falseOn), pal.deep, pal.light);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, scopesFalseBtnRect_, "FALSE COLOUR",
+                           paletteToggleInk(falseOn));
+      // SOUND: phase, spectrum and loudness of the playlist's sound (drawSoundPanel).
+      const int soundW = std::max(uiScaled(70), measuredTextWidth(fontSmall_, "SOUND") + uiScaled(16));
+      scopesSoundBtnRect_ = SDL_Rect {scopesFalseBtnRect_.x - soundW - uiScaled(4), scopesFalseBtnRect_.y,
+                                      soundW, scopesFalseBtnRect_.h};
+      drawUIPanel(scopesSoundBtnRect_, paletteToggleFill(sound), pal.deep, pal.light);
+      drawCenteredTextSafe(controlRenderer_, fontSmall_, scopesSoundBtnRect_, "SOUND", paletteToggleInk(sound));
+      buttonsX = scopesSoundBtnRect_.x;
+    }
     if (sound) {
       // What the sound scopes read, said where the picture's numbers go.
       const std::string deckName = soundScopeDeck_ >= 0 && soundScopeDeck_ < static_cast<int>(project_.decks.size())
@@ -1131,9 +1167,7 @@
       const std::string info = std::string(soundScopeSounding() ? "LIVE" : "NO SOUND") + "  " + deckName +
         " (the focused playlist, as the VU meter)  48 kHz stereo";
       drawTextSafe(controlRenderer_, fontSmall_,
-                   SDL_Rect {footer.x + uiScaled(6), footer.y,
-                             footer.w - freezeW - (scopesFreezeBtnRect_.x - scopesSoundBtnRect_.x) - uiScaled(12),
-                             footer.h},
+                   SDL_Rect {footer.x + uiScaled(6), footer.y, buttonsX - footer.x - uiScaled(12), footer.h},
                    info, kScopeLabel);
     } else {
       bool alarm = false;
@@ -1179,12 +1213,101 @@
                     sourceText, outText, outputLabel(source).c_str(),
                     outcome.width, outcome.height, scopesSignalLabel(outcome).c_str(),
                     outcome.matrix == deckboy::core::scopes::Matrix::Bt2020Ncl ? "BT.2020" : "BT.709");
-      SDL_Rect infoRect {footer.x + uiScaled(6), footer.y,
-                         footer.w - freezeW - sourceW - falseW - soundW - uiScaled(28), footer.h};
+      SDL_Rect infoRect {footer.x + uiScaled(6), footer.y, buttonsX - footer.x - uiScaled(12), footer.h};
       drawTextSafe(controlRenderer_, fontSmall_, infoRect,
                    matches ? std::string(info) + (live ? gamut : "last reading") : state,
                    alarm && live ? kScopeAlarm : kScopeLabel);
     }
+  }
+
+  // ── SCOPES ON AN OUTPUT ──────────────────────────────────────────────────
+  //
+  // An output whose Shows is SCOPES draws the same panels as the desk, full
+  // screen. The panels are made of textures on the desk's renderer and an output
+  // has a renderer of its own, so the desk draws the scopes into an off-screen
+  // target, and the picture is read back and put on the output's own
+  // texture (the way the prompter and the overlays cross renderers). A stream or
+  // NDI send that mirrors the output draws it the same way on its own renderer.
+  // At most about 25 times a second, and at most 1600 pixels wide: the scopes
+  // themselves update more slowly than that on a 4K frame.
+  // The scopes as a picture, not as the desk's monitor: every panel, no
+  // buttons, whatever the monitor is set to. The desk may be drawing its own
+  // scopes this frame, so its hit rectangles and its view are put back.
+  void drawScopesDisplay(const SDL_Rect& area) {
+    SDL_Rect panels[kScopePanelCount];
+    std::copy(std::begin(scopesPanelRects_), std::end(scopesPanelRects_), std::begin(panels));
+    const SDL_Rect buttons[5] {scopesFreezeBtnRect_, scopesSourceBtnRect_, scopesFalseBtnRect_,
+                               scopesSoundBtnRect_, scopesSoundResetBtnRect_};
+    const MonitorView savedView = monitorView_;
+    const bool savedHdr = scopesDrawHdr_;
+    monitorView_ = MonitorView::Scopes;
+    drawScopesArea(area, true);
+    monitorView_ = savedView;
+    scopesDrawHdr_ = savedHdr;
+    std::copy(std::begin(panels), std::end(panels), std::begin(scopesPanelRects_));
+    scopesFreezeBtnRect_ = buttons[0];
+    scopesSourceBtnRect_ = buttons[1];
+    scopesFalseBtnRect_ = buttons[2];
+    scopesSoundBtnRect_ = buttons[3];
+    scopesSoundResetBtnRect_ = buttons[4];
+  }
+
+  struct ScopesBridge { SDL_Texture* shown = nullptr; Uint64 atMs = 0; int w = 0; int h = 0; };
+  std::map<std::string, ScopesBridge> scopesBridges_;
+  SDL_Texture* scopesBridgeTarget_ = nullptr;
+  int scopesBridgeTargetW_ = 0, scopesBridgeTargetH_ = 0;
+
+  void renderScopesIntoOutput(int outputIndex, const SDL_Rect& bounds) {
+    OutputRuntime* runtime = runtimeForOutput(outputIndex);
+    if (!runtime || !runtime->outputRenderer || !controlRenderer_ || bounds.w <= 0 || bounds.h <= 0) return;
+    const int cw = std::min(bounds.w, 1600);
+    const int ch = std::max(1, static_cast<int>(std::lround(static_cast<double>(bounds.h) * cw / bounds.w)));
+    // One texture per size, so a screen and a smaller window on it do not
+    // redraw each other every frame.
+    const std::string key = "scopes " + std::to_string(cw) + "x" + std::to_string(ch);
+    SDL_Texture* shown = ensureOverlayBridgeTexture(*runtime, key, cw, ch, SDL_PIXELFORMAT_RGBA32);
+    if (!shown) return;
+    ScopesBridge& bridge = scopesBridges_[std::to_string(outputIndex) + " " + key];
+    const Uint64 now = SDL_GetTicks();
+    const bool same = bridge.shown == shown && bridge.w == cw && bridge.h == ch;
+    if (!same || now - bridge.atMs >= 40) {
+      bridge.shown = shown;
+      bridge.w = cw;
+      bridge.h = ch;
+      bridge.atMs = now;
+      if (!scopesBridgeTarget_ || scopesBridgeTargetW_ != cw || scopesBridgeTargetH_ != ch) {
+        if (scopesBridgeTarget_) SDL_DestroyTexture(scopesBridgeTarget_);
+        scopesBridgeTarget_ = deckboyCreateTexture(controlRenderer_, SDL_PIXELFORMAT_RGBA32,
+                                                   SDL_TEXTUREACCESS_TARGET, cw, ch);
+        scopesBridgeTargetW_ = cw;
+        scopesBridgeTargetH_ = ch;
+      }
+      if (scopesBridgeTarget_) {
+        SDL_Texture* savedTarget = SDL_GetRenderTarget(controlRenderer_);
+        SDL_Rect savedClip {};
+        const bool hadClip = SDL_RenderClipEnabled(controlRenderer_);
+        if (hadClip) SDL_GetRenderClipRect(controlRenderer_, &savedClip);
+        SDL_SetRenderTarget(controlRenderer_, scopesBridgeTarget_);
+        SDL_SetRenderClipRect(controlRenderer_, nullptr);
+        drawScopesDisplay(SDL_Rect {0, 0, cw, ch});
+        SDL_Surface* got = SDL_RenderReadPixels(controlRenderer_, nullptr);
+        SDL_SetRenderTarget(controlRenderer_, savedTarget);
+        SDL_SetRenderClipRect(controlRenderer_, hadClip ? &savedClip : nullptr);
+        if (got) {
+          SDL_Surface* rgba = got->format == SDL_PIXELFORMAT_RGBA32 ? got
+                              : SDL_ConvertSurface(got, SDL_PIXELFORMAT_RGBA32);
+          if (rgba && rgba->w == cw && rgba->h == ch) {
+            SDL_UpdateTexture(shown, nullptr, rgba->pixels, rgba->pitch);
+          }
+          if (rgba && rgba != got) SDL_DestroySurface(rgba);
+          SDL_DestroySurface(got);
+        }
+      }
+    }
+    SDL_SetTextureBlendMode(shown, SDL_BLENDMODE_NONE);
+    const SDL_FRect dst {static_cast<float>(bounds.x), static_cast<float>(bounds.y),
+                         static_cast<float>(bounds.w), static_cast<float>(bounds.h)};
+    SDL_RenderTexture(runtime->outputRenderer, shown, nullptr, &dst);
   }
 
   // What the footer says was measured: the wire signal, and which wire.

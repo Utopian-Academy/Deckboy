@@ -1851,6 +1851,8 @@
           source = "next";
         } else if (upper == "CLOCK") {
           source = "clock";
+        } else if (upper == "SCOPES" || upper == "SCOPE") {
+          source = "scopes";
         } else if (upper.rfind("OUTPUT", 0) == 0) {
           const char* digits = source.c_str() + 6;
           while (*digits == ':' || *digits == ' ') ++digits;
@@ -1872,7 +1874,7 @@
           }
           source = "deck:" + std::to_string(d);
         } else {
-          failRemoteCommand("MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK or EMPTY");
+          failRemoteCommand("MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK, SCOPES or EMPTY");
           return;
         }
         tile.source = source;
@@ -8650,8 +8652,9 @@
             else if (typeArg == "MULTIVIEW" || typeArg == "MULTI") newType = "multiview";
             else if (typeArg == "PRESENTER" || typeArg == "NOTES") newType = "presenter";
             else if (typeArg == "PROMPTER" || typeArg == "TELEPROMPTER") newType = "prompter";
+            else if (typeArg == "SCOPES" || typeArg == "SCOPE") newType = "scopes";
             else if (typeArg != "WINDOW" && typeArg != "DISPLAY") {
-              failRemoteCommand("VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER");
+              failRemoteCommand("VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER | SCOPES");
               return;
             }
           }
@@ -8909,9 +8912,13 @@
             setFocusedOutputType("presenter");
             return;
           }
+          if (typeArg == "SCOPES" || typeArg == "SCOPE") {
+            setFocusedOutputType("scopes");
+            return;
+          }
           // Said, not swallowed: an unrecognised type used to return quietly
           // and leave the output exactly as it was.
-          failRemoteCommand("output type: expected window|stream|presenter, got "
+          failRemoteCommand("output type: expected window|stream|multiview|presenter|prompter|scopes, got "
                             + parts[3]);
           return;
         }
