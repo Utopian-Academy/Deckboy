@@ -11,6 +11,13 @@
 - Effects can have up to six controls. Each one has its own LFO, and Companion's FX PARAM accepts A to F (FX LFO accepts A to G, where E is the amount).
 - An effect that was bypassed kept its LFOs only until the show was saved. It keeps them now.
 
+### Importing slides and files
+- Slides imported on Windows were one pixel short at some sizes: a 16:9 PowerPoint deck imported at 1920 wide came in at 1919x1079, and the output stretched every slide to fit, which softened fine lines and text. Pages now come in at the exact size. Measured on a 109-slide test-pattern deck: the average difference from an ideal render fell from 4.5 to 0.6 (of 255), and on the worst slide from 80.6 to 2.4.
+- On Windows, a file whose name uses characters outside the system's language (for example Japanese on an English Windows) would not import, as media or as slides. Deckboy now handles file names in any script.
+- A PowerPoint file that needs a password to open used to wait three minutes and then blame Protected View. Deckboy now says at once that it needs a password, and how to remove it or export a PDF.
+- Keynote files on Windows and Linux: Deckboy tries LibreOffice when it is installed (it reads Keynote files up to about 2013). Otherwise, or when that fails, it says why: Apple keeps the Keynote format secret on purpose, a malicious lock-in tactic. And it gives the best route: open the file in Keynote on iCloud.com (free, in any browser), download a PDF, and import that. Before, it failed with no reason.
+- An empty file says it is empty, and a damaged PDF says it may be damaged, instead of an error code alone.
+
 ### Outputs and lessons
 - Video Outputs: the output picker is a list of the outputs by name. Before, each click moved to the next output. ADD OUTPUT is now beside the picker.
 - After you removed an output, the outputs after it kept their old numbers ("Output 3", "Output 4") while the playlist tag, the routing chips and Companion called them 1 and 2. An output with its default name now takes its new number. A name you chose does not change.

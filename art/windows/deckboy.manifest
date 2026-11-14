@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+  UTF-8 AS THE PROCESS CODE PAGE (Windows 10 1903 and later).
+  Deckboy carries paths as UTF-8 strings (SDL hands it UTF-8 from the file
+  dialog and drag and drop), and std::filesystem::path(std::string) on Windows
+  reads a string in the process code page. Without this, that was the old
+  ANSI page: a file named in Japanese, Chinese, Cyrillic or Arabic on an
+  English Windows did not import at all, media or slides (measured
+  2026-11-13: plain names imported, the same files named in Japanese did not).
+-->
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+  <application xmlns="urn:schemas-microsoft-com:asm.v3">
+    <windowsSettings>
+      <activeCodePage xmlns="http://schemas.microsoft.com/SMI/2019/WindowsSettings">UTF-8</activeCodePage>
+    </windowsSettings>
+  </application>
+</assembly>

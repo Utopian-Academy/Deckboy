@@ -3517,6 +3517,37 @@
     }
 
     {
+      // A DECK THAT CANNOT CONVERT SAYS WHY AT ONCE (import stress test,
+      // 2026-11-13). A password-protected .pptx made PowerPoint wait at an
+      // invisible prompt for three minutes; an empty file and a .key on
+      // Windows came back with a converter's error code or no reason at all.
+      // These are decided from the file before any converter runs.
+      std::error_code ec;
+      const fs::path dir = fs::temp_directory_path(ec) / "deckboy-smoke-decks";
+      fs::create_directories(dir, ec);
+      const fs::path locked = dir / "locked.pptx", empty = dir / "empty.pptx";
+      {
+        std::ofstream out(locked, std::ios::binary);
+        const unsigned char compound[8] = {0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1};
+        out.write(reinterpret_cast<const char*>(compound), 8);
+        out << std::string(512, 'x');
+      }
+      { std::ofstream out(empty, std::ios::binary); }
+      const auto lockedResult = deckboy::platform::convertPresentationToPdf(locked, dir / "out", nullptr);
+      const auto emptyResult = deckboy::platform::convertPresentationToPdf(empty, dir / "out", nullptr);
+      expect(lockedResult.error.find("password") != std::string::npos,
+             "a password-protected deck is refused at once, by name");
+      expect(emptyResult.error.find("empty") != std::string::npos, "an empty deck says it is empty");
+#ifndef __APPLE__
+      const fs::path keynote = dir / "show.key";
+      { std::ofstream out(keynote, std::ios::binary); out << "PK not really keynote"; }
+      const auto keyResult = deckboy::platform::convertPresentationToPdf(keynote, dir / "out", nullptr);
+      expect(keyResult.error.find("iCloud") != std::string::npos, "a Keynote file off the Mac points at Keynote on iCloud.com");
+#endif
+      fs::remove_all(dir, ec);
+    }
+
+    {
       // AN OUTPUT CALLED BY ITS NUMBER KEEPS THE NUMBER EVERYTHING ELSE SAYS.
       // Remove outputs 1 and 2 of four: the two left are outputs 1 and 2 to
       // the playlist tag, the routing chips and Companion, so their names

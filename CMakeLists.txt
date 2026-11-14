@@ -849,6 +849,9 @@ if(WIN32)
   # Embed the application icon as resource IDI_DECKBOY_APP_ICON. This drives the
   # Explorer/Alt-Tab/taskbar-pin icon AND is loaded at runtime by
   # applyDeckboyWindowIcon() (WM_SETICON) for the live window/taskbar icon.
+  # UTF-8 as the process code page, so a path named in any script imports
+  # (art/windows/deckboy.manifest says why). MSVC merges it with its own.
+  target_sources(deckboy-native PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/art/windows/deckboy.manifest")
   set(DECKBOY_APP_ICON "${CMAKE_CURRENT_SOURCE_DIR}/art/windows/icons/deckboy_app.ico")
   if(EXISTS "${DECKBOY_APP_ICON}")
     file(TO_NATIVE_PATH "${DECKBOY_APP_ICON}" _deckboy_icon_native)
@@ -1184,6 +1187,9 @@ if(DECKBOY_BUILD_MINI)
   add_executable(deckboy-mini ${_mini_sources})
   if(WIN32 AND EXISTS "${CMAKE_CURRENT_BINARY_DIR}/deckboy.rc")
     target_sources(deckboy-mini PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/deckboy.rc")
+  endif()
+  if(WIN32)
+    target_sources(deckboy-mini PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/art/windows/deckboy.manifest")
   endif()
   foreach(_prop COMPILE_DEFINITIONS COMPILE_OPTIONS COMPILE_FEATURES INCLUDE_DIRECTORIES
                 LINK_LIBRARIES LINK_OPTIONS LINK_DIRECTORIES CXX_STANDARD CXX_STANDARD_REQUIRED

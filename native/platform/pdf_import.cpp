@@ -25,6 +25,7 @@
 #include <winrt/Windows.Storage.h>
 #include <winrt/Windows.Storage.Streams.h>
 #include <winrt/Windows.Data.Pdf.h>
+#include <winrt/Windows.Graphics.Imaging.h>
 #ifndef ERROR_CLOUD_FILE_PROVIDER_NOT_RUNNING
 #define ERROR_CLOUD_FILE_PROVIDER_NOT_RUNNING 362L
 #endif
@@ -56,18 +57,22 @@ std::string lowerExtension(const fs::path& path) {
 #ifdef _WIN32
 // The width of a PNG, straight out of its header. Big-endian at a fixed offset;
 // no decoder needed and none of the pixels are read.
-int pngWidth(const fs::path& path) {
+// A PNG's width and height, from its header.
+bool pngSize(const fs::path& path, int& width, int& height) {
+  width = height = 0;
   std::FILE* file = nullptr;
   if (_wfopen_s(&file, path.wstring().c_str(), L"rb") != 0 || !file) {
-    return 0;
+    return false;
   }
   unsigned char header[24] = {};
   const std::size_t got = std::fread(header, 1, sizeof(header), file);
   std::fclose(file);
   if (got < sizeof(header)) {
-    return 0;
+    return false;
   }
-  return (header[16] << 24) | (header[17] << 16) | (header[18] << 8) | header[19];
+  width = (header[16] << 24) | (header[17] << 16) | (header[18] << 8) | header[19];
+  height = (header[20] << 24) | (header[21] << 16) | (header[22] << 8) | header[23];
+  return width > 0 && height > 0;
 }
 #endif
 
@@ -615,6 +620,36 @@ bool presentationConvertAvailable(std::string& whyNot) {
   return false;
 }
 
+namespace {
+
+// A presentation that needs a password to OPEN. PowerPoint, asked to open one
+// without a window, waits at a prompt nobody can see until the time limit
+// (measured 2026-11-13: three minutes, then advice about Protected View). So
+// it is recognised here, from the file itself, before any converter runs.
+//
+// A .pptx is a zip; an encrypted one is a different container altogether (an
+// OLE compound file holding an "EncryptedPackage" stream). A .ppt is always a
+// compound file, and an encrypted one carries an "EncryptedSummary" stream.
+bool presentationHasPassword(const fs::path& path) {
+  std::ifstream in(path, std::ios::binary);
+  if (!in) return false;
+  std::string head(8, '\0');
+  in.read(&head[0], 8);
+  static const unsigned char kCompound[8] = {0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1};
+  if (in.gcount() < 8 || std::memcmp(head.data(), kCompound, 8) != 0) return false;
+  const std::string ext = lowerExtension(path);
+  if (ext == ".pptx" || ext == ".ppsx" || ext == ".pptm" || ext == ".potx") return true;
+  // A .ppt: look for the encryption stream's name (UTF-16) in the file.
+  in.seekg(0);
+  const std::string all((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+  const char name[] = "EncryptedSummary";
+  std::string wide;
+  for (const char* c = name; *c; ++c) { wide += *c; wide += '\0'; }
+  return all.find(wide) != std::string::npos;
+}
+
+}  // namespace
+
 PresentationConversion convertPresentationToPdf(const fs::path& source,
                                                 const fs::path& outputDir,
                                                 const std::atomic<bool>* cancel) {
@@ -629,6 +664,16 @@ PresentationConversion convertPresentationToPdf(const fs::path& source,
                    "open it once so it downloads, then import it";
     return result;
   }
+  // Said plainly, before a converter turns them into its own error codes.
+  if (fs::file_size(source, ec) == 0 && !ec) {
+    result.error = "the file is empty (0 bytes): it may not have finished copying or saving";
+    return result;
+  }
+  if (presentationHasPassword(source)) {
+    result.error = "this presentation needs a password to open. Remove the password in PowerPoint "
+                   "(File > Info > Protect Presentation) or export it as a PDF, then import that";
+    return result;
+  }
   fs::create_directories(outputDir, ec);
   if (ec) {
     result.error = "could not create " + outputDir.string();
@@ -636,6 +681,23 @@ PresentationConversion convertPresentationToPdf(const fs::path& source,
   }
   const std::string ext = lowerExtension(source);
   std::string error;
+#ifndef __APPLE__
+  // KEYNOTE OFF THE MAC. Apple publishes nothing about the format, so only
+  // Apple's own software reads it properly. LibreOffice reads old files
+  // (Keynote 2-6, to about 2013) and is tried below when it is installed;
+  // otherwise, and when it fails, the operator is pointed at the route that
+  // keeps every slide as built: Keynote on iCloud.com, free, in any browser.
+  // Said plainly whose decision this is (James, 2026-11-13: Deckboy calls
+  // out corporate lock-in). This failed with an EMPTY reason before.
+  static const char* kKeynoteLockIn =
+    "Apple keeps the Keynote format secret on purpose, a malicious lock-in tactic, so only Apple's "
+    "own software can read it properly. Best route: open it in Keynote on iCloud.com (free, in any "
+    "browser), choose Download a Copy > PDF, and import that PDF";
+  if (ext == ".key" && findLibreOffice().empty()) {
+    result.error = kKeynoteLockIn;
+    return result;
+  }
+#endif
 
 #ifdef __APPLE__
   // The format's owner first: PowerPoint for a PowerPoint file, Keynote for a
@@ -683,6 +745,14 @@ PresentationConversion convertPresentationToPdf(const fs::path& source,
   if (error.empty()) {
     presentationConvertAvailable(error);
   }
+#ifndef __APPLE__
+  if (ext == ".key") {
+    // LibreOffice was tried and could not read it: most likely a Keynote
+    // newer than its reader.
+    result.error = std::string(kKeynoteLockIn) + (error.empty() ? "" : " (LibreOffice: " + error + ")");
+    return result;
+  }
+#endif
   result.error = error;
   return result;
 }
@@ -785,7 +855,7 @@ PdfRasterResult rasterisePdfInProcess(const fs::path& pdfPath, const fs::path& o
     // It matters because otherwise a deck imports at a different resolution
     // depending on the scaling of the monitor the operator happened to be
     // sitting at, which is invisible until it is a show.
-    double widthCorrection = 1.0;
+    double widthCorrection = 1.0, heightCorrection = 1.0;
     for (int attempt = 0; attempt < 2; ++attempt) {
       for (uint32_t i = 0; i < pageCount; ++i) {
       if (onProgress) {
@@ -796,9 +866,25 @@ PdfRasterResult rasterisePdfInProcess(const fs::path& pdfPath, const fs::path& o
       winrt::Windows::Data::Pdf::PdfPageRenderOptions options;
       // Rounded, not truncated: the correction is fractional, and truncating
       // the request landed the output a pixel short of the other platforms.
+      // On the corrected pass, one pixel OVER on each axis, then cropped to
+      // the exact size as the file is written (below). Windows rounds the
+      // page down: a 720x405-point page (what PowerPoint writes for 16:9)
+      // asked for at 1920 is 720 x 2.666.. = 1919.9999 -> 1919, and no
+      // request lands on 1920 -- 1921 gives 1921. Over-and-crop never
+      // resamples the slide. Measured on James's 109-slide test-pattern deck
+      // against a 3840 render halved: mean error 0.6/255 (worst slide 2.4),
+      // where the old 1919-stretched-to-1920 was 4.5 (worst 80.6). Keeping
+      // the exact scale and asking for an area past the page (SourceRect)
+      // measured WORSE, 3.4 / 50.9: the renderer mishandles the area beyond
+      // the page.
+      const bool corrected = attempt == 1;
       const double askWidth = std::max(
-        1.0, static_cast<double>(std::lround(targetWidthPixels * widthCorrection)));
-      const double pageScale = size.Width > 0.0f ? askWidth / size.Width : 1.0;
+        1.0, static_cast<double>(std::lround(targetWidthPixels * widthCorrection)) + (corrected ? 1.0 : 0.0));
+      // The height the page SHOULD have at the target width, then asked for
+      // with its own correction: the renderer misses each axis on its own.
+      const double wantHeight = size.Width > 0.0f
+        ? static_cast<double>(std::llround(size.Height * (static_cast<double>(targetWidthPixels) / size.Width)))
+        : static_cast<double>(targetWidthPixels);
       options.DestinationWidth(static_cast<uint32_t>(askWidth));
       // ROUNDED, like the width above it, and for the same reason.
       //
@@ -809,7 +895,7 @@ PdfRasterResult rasterisePdfInProcess(const fs::path& pdfPath, const fs::path& o
       // and rescaling by a 2159/2160 ratio softens every glyph on it. The
       // width was fixed for this once; the height was missed.
       options.DestinationHeight(static_cast<uint32_t>(
-        std::max(1.0, static_cast<double>(std::llround(size.Height * pageScale)))));
+        std::max(1.0, static_cast<double>(std::llround(wantHeight * heightCorrection)) + (corrected ? 1.0 : 0.0))));
 
       const std::string name = pageFileName(static_cast<int>(i));
       auto target = folder.CreateFileAsync(
@@ -817,22 +903,42 @@ PdfRasterResult rasterisePdfInProcess(const fs::path& pdfPath, const fs::path& o
         winrt::Windows::Storage::CreationCollisionOption::ReplaceExisting).get();
       auto stream = target.OpenAsync(
         winrt::Windows::Storage::FileAccessMode::ReadWrite).get();
-      page.RenderToStreamAsync(stream, options).get();
+      if (corrected) {
+        // Render to memory, then write it cropped to exactly the size asked.
+        winrt::Windows::Storage::Streams::InMemoryRandomAccessStream memory;
+        page.RenderToStreamAsync(memory, options).get();
+        memory.Seek(0);
+        auto decoder = winrt::Windows::Graphics::Imaging::BitmapDecoder::CreateAsync(memory).get();
+        auto encoder = winrt::Windows::Graphics::Imaging::BitmapEncoder::CreateForTranscodingAsync(stream, decoder).get();
+        const uint32_t cropW = std::min<uint32_t>(decoder.PixelWidth(), static_cast<uint32_t>(targetWidthPixels));
+        const uint32_t cropH = std::min<uint32_t>(decoder.PixelHeight(), static_cast<uint32_t>(wantHeight));
+        encoder.BitmapTransform().Bounds(winrt::Windows::Graphics::Imaging::BitmapBounds {0, 0, cropW, cropH});
+        encoder.FlushAsync().get();
+      } else {
+        page.RenderToStreamAsync(stream, options).get();
+      }
       stream.Close();
       result.pagePaths.push_back((outputDir / name).string());
 
       // First page of the first pass: find out what the machine actually did.
+      //
+      // ANY DIFFERENCE, on BOTH axes. This allowed a pixel either way, and
+      // Windows does land a pixel short: a 16:9 deck asked for at 1920 came
+      // out 1919x1079 (James's test-pattern deck, 2026-11-13), and the output
+      // then stretched every slide by 1/1919 -- softening exactly the grid
+      // lines and steps a test pattern exists to show.
       if (attempt == 0 && i == 0) {
-        const int actual = pngWidth(outputDir / name);
-        if (actual > 0 && std::abs(actual - targetWidthPixels) > 1) {
-          widthCorrection =
-            static_cast<double>(targetWidthPixels) / static_cast<double>(actual);
+        int actualW = 0, actualH = 0;
+        if (pngSize(outputDir / name, actualW, actualH) &&
+            (actualW != targetWidthPixels || actualH != static_cast<int>(wantHeight))) {
+          widthCorrection = static_cast<double>(targetWidthPixels) / static_cast<double>(actualW);
+          heightCorrection = wantHeight / static_cast<double>(actualH);
           result.pagePaths.clear();
-          break;            // start again, now that the factor is known
+          break;            // start again, now that the factors are known
         }
       }
       }
-      if (widthCorrection == 1.0 || attempt == 1) {
+      if ((widthCorrection == 1.0 && heightCorrection == 1.0) || attempt == 1) {
         break;              // nothing to correct, or already corrected
       }
     }
@@ -840,7 +946,9 @@ PdfRasterResult rasterisePdfInProcess(const fs::path& pdfPath, const fs::path& o
     char message[256];
     std::snprintf(message, sizeof(message), "0x%08X",
                   static_cast<unsigned>(e.code()));
-    result.error = std::string("Windows could not read the PDF (") + message + ")";
+    // In words first: the code alone told the operator nothing.
+    result.error = std::string("Windows could not read the PDF: it may be damaged, have no pages, "
+                               "or not really be a PDF (") + message + ")";
     result.pagePaths.clear();
   } catch (const std::exception& e) {
     // Anything else at all. This is called from a worker thread, so an escape
