@@ -6226,6 +6226,7 @@
     }
     TestCardExportJob* raw = job.get();
     job->writer = std::thread([raw] {
+      deckboyReleaseSdlStateAtThreadExit();
       std::vector<std::uint8_t> crop;
       for (;;) {
         std::vector<std::uint8_t> frame;

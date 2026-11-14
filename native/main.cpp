@@ -4042,7 +4042,7 @@ class App {
 #endif
     // Opt out of background throttling. Windows 11 applies EcoQoS (reduced
     // CPU scheduling) and timer-resolution coalescing to processes whose
-    // windows aren't focused — SDL_Delay(4) in the decode/audio loops
+    // windows aren't focused — deckboyDelay(4) in the decode/audio loops
     // degrades to ~15ms, so playback stutters the moment the operator
     // focuses anything else. A playout engine must run full speed in the
     // background, always.
@@ -4640,7 +4640,7 @@ class App {
         auto remaining = std::chrono::duration_cast<std::chrono::microseconds>(kMinFrameTime - frameElapsed);
         Uint32 delayMs = static_cast<Uint32>(std::max<long long>(
           1, (remaining.count() + 999) / 1000));
-        SDL_Delay(delayMs);
+        deckboyDelay(delayMs);
       }
     }
   }
@@ -13730,12 +13730,12 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
         while (done < frames) {
           const std::size_t n = out.write(source, chunk.data() + done * chans, frames - done);
           done += n;
-          if (n == 0) SDL_Delay(1);   // ring full: let the driver drain
+          if (n == 0) deckboyDelay(1);   // ring full: let the driver drain
         }
         written += frames;
       }
       // Let the tail play out before tearing the driver down.
-      while (out.queuedFrames(source) > 0) SDL_Delay(1);
+      while (out.queuedFrames(source) > 0) deckboyDelay(1);
     };
     auto first = out.openSource();
     auto second = two ? out.openSource() : nullptr;
@@ -13747,7 +13747,7 @@ int runDeckboyCliMode(const std::string& mode, const std::vector<std::string>& o
     if (second) other = std::thread([&] { play(*second, 660.0); });
     play(*first, 440.0);
     if (other.joinable()) other.join();
-    SDL_Delay(50);
+    deckboyDelay(50);
     const std::uint64_t under = out.underruns();
     out.close();
     std::cout << "asio-tone: done, underruns=" << under << "\n";

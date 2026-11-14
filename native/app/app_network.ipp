@@ -4103,7 +4103,7 @@ html,body{width:100%;height:100%;overflow:hidden}
       if (ndiTriggerApi_.findWaitForSourcesFn) {
         ndiTriggerApi_.findWaitForSourcesFn(finder, 150);
       } else {
-        SDL_Delay(120);
+        deckboyDelay(120);
       }
     }
 

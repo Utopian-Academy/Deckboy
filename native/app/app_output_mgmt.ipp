@@ -1466,6 +1466,7 @@
     ltcRestartBlockedUntilMs_ = 0;
     ltcStop_.store(false);
     ltcThread_ = std::thread([this, decoder, captureStream, sampleRate, channelCount, fpsHint]() {
+      deckboyReleaseSdlStateAtThreadExit();
       ltcLoop(decoder, captureStream, sampleRate, channelCount, fpsHint);
     });
     SDL_ResumeAudioStreamDevice(captureStream);
@@ -1850,6 +1851,7 @@
       return;
     }
     std::thread([path]() {
+      deckboyReleaseSdlStateAtThreadExit();
       std::error_code ec;
       if (!fs::exists(path, ec) || fs::file_size(path, ec) == 0) {
         return;
@@ -3027,7 +3029,7 @@
         continue;
       }
       if (written < 0 && (errno == EAGAIN || errno == EWOULDBLOCK)) {
-        SDL_Delay(1);
+        deckboyDelay(1);
         continue;
       }
 #endif
@@ -3153,6 +3155,7 @@
     writer->videoPipeFd = videoPipeFd;
     writer->audioPipeFd.store(audioPipeFd, std::memory_order_release);
     writer->thread = std::thread([writer]() {
+      deckboyReleaseSdlStateAtThreadExit();
       // An HDR packet's half floats, encoded here into P010, once per distinct
       // picture (the pacer's repeats share the same buffer, so they share this
       // too) -- and WHILE the previous picture is still going down the pipe.
@@ -3260,6 +3263,7 @@
       writer->audioCv.notify_all();
     });
     writer->audioThread = std::thread([writer]() {
+      deckboyReleaseSdlStateAtThreadExit();
       std::vector<std::int16_t> chunk;
       for (;;) {
         {
@@ -3337,6 +3341,7 @@
   void launchStreamFinalizer(std::function<void()> work) {
     auto done = std::make_shared<std::atomic<bool>>(false);
     std::thread thread([work = std::move(work), done]() {
+      deckboyReleaseSdlStateAtThreadExit();
       work();
       done->store(true);
     });
@@ -3503,7 +3508,7 @@
         // and SIGKILLing the muxer mid-finalize is what leaves an unopenable take.
         Uint64 deadline = SDL_GetTicks() + (encoderToFile ? 8000 : 500);
         while (waitpid(streamPid, &status, WNOHANG) == 0 && SDL_GetTicks() < deadline) {
-          SDL_Delay(10);
+          deckboyDelay(10);
         }
         if (waitpid(streamPid, &status, WNOHANG) == 0) {
           kill(streamPid, SIGKILL);
@@ -3641,6 +3646,7 @@
     if (h == nullptr || h == INVALID_HANDLE_VALUE) return;
     auto writer = runtime.streamWriter;
     std::thread([h, writer]() {
+      deckboyReleaseSdlStateAtThreadExit();
       const BOOL ok = ConnectNamedPipe(h, nullptr);
       if (!ok && GetLastError() != ERROR_PIPE_CONNECTED) {
         CloseHandle(h);
@@ -3689,6 +3695,7 @@
     auto writer = runtime.streamWriter;
     if (path.empty() || !writer) return;
     std::thread([path, writer]() {
+      deckboyReleaseSdlStateAtThreadExit();
       const Uint64 deadline = SDL_GetTicks() + 15000;
       int fd = -1;
       while (fd < 0 && SDL_GetTicks() < deadline) {
@@ -3699,7 +3706,7 @@
         fd = open(path.c_str(), O_WRONLY | O_NONBLOCK);
         if (fd >= 0) break;
         if (errno != ENXIO && errno != EINTR && errno != ENOENT) return;
-        SDL_Delay(10);
+        deckboyDelay(10);
       }
       if (fd < 0) return;
       setCloseOnExec(fd);
@@ -3764,7 +3771,7 @@
       if (errno != ENXIO && errno != ENOENT && errno != EINTR) {
         break;
       }
-      SDL_Delay(10);
+      deckboyDelay(10);
     }
     if (videoFd < 0) {
       kill(pid, SIGTERM);
