@@ -4356,3 +4356,165 @@ Words to surface in the field, separated by | . One shows at a time, moving on t
 Zero is one noise value across all three channels, which reads as film. Higher gives each channel its own, which reads as video.	Στο μηδέν κοινός θόρυβος και στα τρία κανάλια, σαν φιλμ. Ψηλότερα κάθε κανάλι έχει δικό του, σαν βίντεο.
 OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <sender name>	OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <????? ?????????>
 STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <control> <setting>	STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <??????????> <???????>
+Lens	Φακός
+Prism	Πρίσμα
+Water	Νερό
+Lasers	Λέιζερ
+Pixels	Πίξελ
+Listens	Ακούει
+Mirrors	Κάτοπτρα
+Shimmer	Τρεμόφως
+FDS synth	Συνθετητής FDS
+Terrarium	Τεράριουμ
+(bypassed)	(παράκαμψη)
+Second jet	Δεύτερη δέσμη
+%, 1 to 100	%, 1 έως 100
+Panel angle	Γωνία πάνελ
+Ripple size	Μέγεθος κυματισμού
+Panels, 0-12	Πάνελ, 0-12
+Seconds, 0-4	Δευτερόλεπτα, 0-4
+Seconds, 0-8	Δευτερόλεπτα, 0-8
+Top / bottom	Πάνω / κάτω
+Amount 0-100%	Ένταση 0-100%
+ALSA MIDI Port	Θύρα ALSA MIDI
+Degrees, 0-360	Μοίρες, 0-360
+Terrarium Pico	Τεράριουμ Pico
+ASIOInit failed	Αποτυχία ASIOInit
+Hertz, 20-20000	Χερτζ, 20-20000
+Pixels, 64-2160	Εικονοστοιχεία, 64-2160
+Pixels, 64-3840	Εικονοστοιχεία, 64-3840
+Colour steps, 2-8	Βήματα χρώματος, 2-8
+Degrees -180..180	Μοίρες -180..180
+Palette turn, 0-1	Περιστροφή παλέτας, 0-1
+Size, %, 5 to 400	Μέγεθος, %, 5 έως 400
+Feature size, 0.1-8	Μέγεθος στοιχείων, 0.1-8
+Spiral size, 0.25-4	Μέγεθος σπείρας, 0.25-4
+Degrees, -360 to 360	Μοίρες, -360 έως 360
+Spiral strength, 0-4	Ένταση σπείρας, 0-4
+0-100%, left to right	0-100%, αριστερά προς δεξιά
+0-100%, top to bottom	0-100%, πάνω προς κάτω
+0-100%: laser speckle	0-100%: κόκκωση λέιζερ
+Pixel sort amount, 0-1	Ένταση ταξινόμησης πίξελ, 0-1
+Pitch in hertz, 20-8000	Ύψος τόνου σε χερτζ, 20-8000
+Frames a second, 1 to 60	Καρέ ανά δευτερόλεπτο, 1 έως 60
+Horizontal cells, 64-960	Οριζόντια κελιά, 64-960
+select a lumia cue first	επιλέξτε πρώτα ένα cue Lumia
+0 tube, 1 mandala, 2 none	0 σωλήνας, 1 μάνταλα, 2 κανένα
+How big a blob grows, 0-1	Πόσο μεγαλώνει η κηλίδα, 0-1
+0-100%: overall brightness	0-100%: συνολική φωτεινότητα
+FDS hardware gain range, 0-63	Εύρος ενίσχυσης υλικού FDS, 0-63
+How hard it cuts, %, 0 to 100	Σκληρότητα αποκοπής, %, 0 έως 100
+{1} (supports + - * / and ())	{1} (υποστηρίζει + - * / και ())
+Master oscillator rate, 0.01-8	Ρυθμός κύριου ταλαντωτή, 0.01-8
+Seconds the in move takes, 0-5	Διάρκεια εισόδου σε δευτερόλεπτα, 0-5
+0-100%: 0 holds the field still	0-100%: το 0 κρατά το πεδίο ακίνητο
+0-100%: how bright the water is	0-100%: φωτεινότητα νερού
+0-100%: how far the field bends	0-100%: κάμψη του πεδίου
+0-100%: the whole picture turns	0-100%: περιστροφή όλης της εικόνας
+Degrees per second, -720 to 720	Μοίρες ανά δευτερόλεπτο, -720 έως 720
+Lumia (laser light and mirrors)	Lumia (φως λέιζερ και κάτοπτρα)
+Seconds between retriggers, 0-8	Δευτερόλεπτα μεταξύ επανενεργοποιήσεων, 0-8
+Seconds the out move takes, 0-5	Διάρκεια εξόδου σε δευτερόλεπτα, 0-5
+0-100%: how fast the water moves	0-100%: ταχύτητα κίνησης νερού
+0-100%: the halo round the lines	0-100%: άλως γύρω από τις γραμμές
+How many are alive at once, 3-48	Πόσα είναι ζωντανά ταυτόχρονα, 3-48
+Turbulence, 0 still to 3 boiling	Τύρβη, 0 ακίνητο έως 3 βρασμός
+Birth, drift and fade rate, 0.1-3	Ρυθμός γέννησης, ολίσθησης και σβησίματος, 0.1-3
+How hard the audio drives it, 0-1	Πόσο έντονα το οδηγεί ο ήχος, 0-1
+Scale of the whole graphic, 0.5-2	Κλίμακα όλου του γραφικού, 0.5-2
+0-100%: 0 broad, 100 fine and busy	0-100%: 0 αδρό, 100 λεπτό και πυκνό
+Down, % of the height, -100 to 100	Κάτω, % του ύψους, -100 έως 100
+Thickness of the glowing edge, 0-1	Πάχος φωτεινής ακμής, 0-1
+0-100%: how hard the lines are bent	0-100%: ένταση κάμψης των γραμμών
+0-100%: light lingers on the screen	0-100%: παραμονή φωτός στην οθόνη
+Across, % of the width, -100 to 100	Οριζόντια, % του πλάτους, -100 έως 100
+% of the picture's height, 0.1 to 20	% του ύψους εικόνας, 0.1 έως 20
+0-100%: how far the colours fan apart	0-100%: άνοιγμα των χρωμάτων σε βεντάλια
+Degrees round the colour wheel, 0-360	Μοίρες στον χρωματικό κύκλο, 0-360
+Where the eye sits, 0 left to 1 right	Θέση ματιού, 0 αριστερά έως 1 δεξιά
+Where the eye sits, 0 top to 1 bottom	Θέση ματιού, 0 πάνω έως 1 κάτω
+dBFS, -60 to 0 (-18 is EBU alignment)	dBFS, -60 έως 0 (-18 η στάθμη αναφοράς EBU)
+0-100%: how bright the laser lines are	0-100%: φωτεινότητα γραμμών λέιζερ
+One LED tile's width in pixels, 8-8192	Πλάτος ενός πλακιδίου LED σε πίξελ, 8-8192
+0-100%: a second jet crossing the first	0-100%: δεύτερη δέσμη τέμνει την πρώτη
+Edge softness, % of the height, 0 to 25	Απαλότητα ακμής, % του ύψους, 0 έως 25
+One LED tile's height in pixels, 8-8192	Ύψος ενός πλακιδίου LED σε πίξελ, 8-8192
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono	0 κλασικό, 1 φωτιά, 2 πάγος, 3 νέον, 4 μονόχρωμο
+Modulator as a ratio of the note, 0.05-16	Διαμορφωτής ως λόγος της νότας, 0.05-16
+Scanlines, bloom and gun misalignment, 0-1	Γραμμές σάρωσης, λάμψη και απόκλιση δεσμών, 0-1
+0-100%: the round lens, barrel and dark rim	0-100%: στρογγυλός φακός, βαρελοειδής παραμόρφωση και σκοτεινό χείλος
+Block displacement and channel tearing, 0-1	Μετατόπιση μπλοκ και σχίσιμο καναλιών, 0-1
+Internal resolution, 1 (chunky) to 5 (fine)	Εσωτερική ανάλυση, 1 (αδρή) έως 5 (λεπτή)
+Seconds the finished drawing stays, 0 to 60	Παραμονή έτοιμου σχεδίου σε δευτερόλεπτα, 0 έως 60
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono	0 ουράνιο τόξο + γκρι, 1 ουράνιο τόξο, 2 θέμα, 3 μονόχρωμο
+How readily neighbours merge, 0 (never) to 1	Ευκολία συγχώνευσης γειτόνων, 0 (ποτέ) έως 1
+Turns the rim's colours round the wheel, 0-1	Περιστροφή χρωμάτων χείλους στον κύκλο, 0-1
+drag to turn round it · wheel to come closer	σύρετε για περιστροφή γύρω του · τροχός για προσέγγιση
+0-100%: 50 is 1x, 0 a quarter, 100 four times	0-100%: 50 είναι 1x, 0 ένα τέταρτο, 100 τέσσερις φορές
+How much of each frame feeds the next, 0-0.95	Ποσοστό κάθε καρέ που τροφοδοτεί το επόμενο, 0-0.95
+Per-frame zoom of the feedback path, 0.90-1.15	Ζουμ ανά καρέ στη διαδρομή ανάδρασης, 0.90-1.15
+Space under it, as a fraction of the frame, 0-0.8	Κενό από κάτω ως κλάσμα του καρέ, 0-0.8
+0 rgb, 1 rainbow, 2 floyd, 3 warm, 4 cool, 5 green	0 rgb, 1 ουράνιο τόξο, 2 floyd, 3 θερμό, 4 ψυχρό, 5 πράσινο
+Edge out (+) or in (-), % of the height, -25 to 25	Ακμή έξω (+) ή μέσα (-), % του ύψους, -25 έως 25
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear	0 ζώνη, 1 διπλό, 2 ροή, 3 σέλα, 4 κυματισμός, 5 διάτμηση
+Seconds before it leaves by itself; 0 waits for OUT	Δευτερόλεπτα πριν την αυτόματη έξοδο· 0 περιμένει OUT
+0-100%: how far each panel tilts from the one before	0-100%: κλίση κάθε πάνελ ως προς το προηγούμενο
+0-100%: the share of each band drawn as grey stripes	0-100%: ποσοστό κάθε ζώνης με γκρι λωρίδες
+0 off, 1 on: the flow surges with the programme sound	0 ανενεργό, 1 ενεργό: η ροή πάλλεται με τον ήχο του PROGRAM
+0 off, 1 on: the top mirrors the bottom round a dark seam	0 ανενεργό, 1 ενεργό: το πάνω καθρεφτίζει το κάτω γύρω από σκοτεινή ραφή
+' (cues, position, look, effects, levels, routing, master)	' (cue, θέση, εμφάνιση, εφέ, στάθμες, δρομολόγηση, κύριο)
+' -- try ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR or an output number	' -- δοκιμάστε ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR ή αριθμό εξόδου
+BLEND ROW: expected <first output> <how many, 2 or more> <overlap in pixels>, with that many outputs	BLEND ROW: αναμένεται <πρώτη έξοδος> <πλήθος, 2 ή περισσότερες> <επικάλυψη σε πίξελ>, με τόσες εξόδους
+SCREENS STAGE: STATUS, SET <what> <value> or APPLY	SCREENS STAGE: STATUS, SET <παράμετρος> <τιμή> ή APPLY
+SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> or UNITS METRES|FEET	SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> ή UNITS METRES|FEET
+LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright or trail	LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright ή trail
+STATUS | PALETTE <0-5 or name> | MODE <0-2 or name> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <control> <setting>	STATUS | PALETTE <0-5 ή όνομα> | MODE <0-2 ή όνομα> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <χειριστήριο> <ρύθμιση>
+Opacity	Αδιαφάνεια
+opacity	αδιαφάνεια
+PAD MODE: HOLD or LATCH	PAD MODE: HOLD ή LATCH
+PAD ASSIGN: this cue does not have that control	PAD ASSIGN: αυτό το cue δεν διαθέτει αυτό το χειριστήριο
+PAD SET: x and y are numbers from 0 to 1 (y = 1 is the top)	PAD SET: x και y είναι αριθμοί από 0 έως 1 (y = 1 είναι η κορυφή)
+PAD ASSIGN: a control is OPACITY, FX<n>.AMOUNT, FX<n>.A to F, or NUM.<name> such as NUM.lumia.flow	PAD ASSIGN: χειριστήριο είναι OPACITY, FX<n>.AMOUNT, FX<n>.A έως F ή NUM.<name> όπως NUM.lumia.flow
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST	PAD: αναμένεται PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST	PAD: αναμένεται PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST
+QUANTISE: beat	ΚΒΑΝΤΙΣΜΟΣ: χτύπος
+QUANTISE: 1 bar	ΚΒΑΝΤΙΣΜΟΣ: 1 μέτρο
+QUANTISE: 2 bars	ΚΒΑΝΤΙΣΜΟΣ: 2 μέτρα
+QUANTISE: 4 bars	ΚΒΑΝΤΙΣΜΟΣ: 4 μέτρα
+LINK: {1} peers	LINK: {1} ομότιμοι
+left the Link session	έξοδος από τη συνεδρία Link
+joined the Link session	σύνδεση στη συνεδρία Link
+TAKE waits for the bar: {1} s	Το TAKE περιμένει το μέτρο: {1} s
+TAKE waits for the beat: {1} s	Το TAKE περιμένει τον χτύπο: {1} s
+this build has no Ableton Link	αυτή η έκδοση δεν διαθέτει Ableton Link
+VJ LINK: this build has no Ableton Link	VJ LINK: αυτή η έκδοση δεν διαθέτει Ableton Link
+VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 are bars)	VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 είναι μέτρα)
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS	VJ: αναμένεται ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS
+Render	Απόδοση
+PNG frames	Καρέ PNG
+START RENDER	ΕΝΑΡΞΗ ΑΠΟΔΟΣΗΣ
+CANCEL RENDER	ΑΚΥΡΩΣΗ ΑΠΟΔΟΣΗΣ
+RENDER TO FILE	ΑΠΟΔΟΣΗ ΣΕ ΑΡΧΕΙΟ
+RENDER TO FILE...	ΑΠΟΔΟΣΗ ΣΕ ΑΡΧΕΙΟ...
+about {1} left	απομένουν περίπου {1}
+render cancelled	η απόδοση ακυρώθηκε
+{1} frames in {2}	{1} καρέ σε {2}
+the output's ({1})	της εξόδου ({1})
+From cue and to cue	Από cue έως cue
+ProRes 4444 (alpha)	ProRes 4444 (άλφα)
+the playlist has no cues	η λίστα δεν έχει cue
+{1} frames, {2}, {3}x{4}	{1} καρέ, {2}, {3}x{4}
+the source made no picture	η πηγή δεν παρήγαγε εικόνα
+a render is already running	εκτελείται ήδη απόδοση
+there is no playlist to render	δεν υπάρχει λίστα για απόδοση
+there is no picture in that range	δεν υπάρχει εικόνα σε αυτό το εύρος
+RENDER CANCEL: nothing is rendering	RENDER CANCEL: δεν εκτελείται απόδοση
+RENDER START: CUE, CUES a-b or OUTPUT	RENDER START: CUE, CUES a-b ή OUTPUT
+RENDER START CUES: first-last, numbered from 1	RENDER START CUES: πρώτη-τελευταία, αρίθμηση από 1
+the output's mask is not drawn by a render yet	η απόδοση δεν σχεδιάζει ακόμη τη μάσκα εξόδου
+the output's slices are not drawn by a render yet	η απόδοση δεν σχεδιάζει ακόμη τις φέτες εξόδου
+the output's crossfader is not drawn by a render yet	η απόδοση δεν σχεδιάζει ακόμη το crossfader εξόδου
+RENDER START: needs a size, a rate, a codec and a file	RENDER START: απαιτούνται μέγεθος, ρυθμός, κωδικοποιητής και αρχείο
+RENDER START: size is 1080P, 4K or OUTPUT; codec is PRORES, H264 or PNG	RENDER START: μέγεθος 1080P, 4K ή OUTPUT· κωδικοποιητής PRORES, H264 ή PNG
+frame {1} of {2} \xC2\xB7 {3} frames/s	καρέ {1} από {2} \xC2\xB7 {3} καρέ/δ
+out:--	έξ.:--

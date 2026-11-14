@@ -4344,3 +4344,165 @@ this presentation needs a password to open. Remove the password in PowerPoint (F
 warp grid: expected <n>, <cols> <rows>, off, smooth or straight	warp grid: kudingeka <n>, <cols> <rows>, off, smooth noma straight
 warp point: that is a corner -- move it with WARP <corner> dx dy	warp point: lelo yikhoneni -- lihambise ngo-WARP <corner> dx dy
 window capture fell back to screen grab — update ffmpeg for exact window capture	Ukuthwebula iwindi kushintshele ekuthwebuleni isikrini -- buyekeza FFmpeg ukuze uthwebule iwindi ngqo
+Lens	Ilensi
+Prism	Iphrizimu
+Water	Amanzi
+Lasers	Amalaser
+Pixels	Amaphikiseli
+Listens	Iyalalela
+Mirrors	Izibuko
+Shimmer	Ukucwazimula
+Terrarium	Ingadi yengilazi
+(bypassed)	(kudluliwe)
+Second jet	Ijethi 2
+%, 1 to 100	%, 1 kuya ku-100
+Panel angle	I-engeli yephaneli
+Ripple size	Usayizi wegagasi
+Panels, 0-12	Amaphaneli, 0-12
+Seconds, 0-4	Imizuzwana, 0-4
+Seconds, 0-8	Imizuzwana, 0-8
+Top / bottom	Phezulu / phansi
+Amount 0-100%	Izinga 0-100%
+ALSA MIDI Port	Imbobo ye-ALSA MIDI
+Degrees, 0-360	Amadigri, 0-360
+Terrarium Pico	Ingadi yengilazi Pico
+ASIOInit failed	I-ASIOInit yehlulekile
+Hertz, 20-20000	Ama-hertz, 20-20000
+Pixels, 64-2160	Amaphikiseli, 64-2160
+Pixels, 64-3840	Amaphikiseli, 64-3840
+Colour steps, 2-8	Izinyathelo zombala, 2-8
+Degrees -180..180	Amadigri -180..180
+Palette turn, 0-1	Ukuzungeza imibala, 0-1
+Size, %, 5 to 400	Usayizi, %, 5 kuya ku-400
+Feature size, 0.1-8	Usayizi wemininingwane, 0.1-8
+Spiral size, 0.25-4	Usayizi wokuvunguza, 0.25-4
+Degrees, -360 to 360	Amadigri, -360 kuya ku-360
+Spiral strength, 0-4	Amandla okuvunguza, 0-4
+0-100%, left to right	0-100%, kwesokunxele kuya kwesokudla
+0-100%, top to bottom	0-100%, phezulu kuya phansi
+0-100%: laser speckle	0-100%: amachashaza e-laser
+Pixel sort amount, 0-1	Izinga lokuhlela amaphikiseli, 0-1
+Pitch in hertz, 20-8000	Ukuphakama komsindo ngama-hertz, 20-8000
+Frames a second, 1 to 60	Ozimele ngomzuzwana, 1 kuya ku-60
+Horizontal cells, 64-960	Amaseli avundlile, 64-960
+select a lumia cue first	khetha i-cue ye-lumia kuqala
+0 tube, 1 mandala, 2 none	0 ishubhu, 1 mandala, 2 akukho
+How big a blob grows, 0-1	Usayizi okhula ngawo ichashaza, 0-1
+0-100%: overall brightness	0-100%: ukukhanya kukonke
+FDS hardware gain range, 0-63	Ibanga lenzuzo yehadiwe FDS, 0-63
+How hard it cuts, %, 0 to 100	Amandla okusika, %, 0 kuya ku-100
+{1} (supports + - * / and ())	{1} (kusekela + - * / no-())
+Master oscillator rate, 0.01-8	Ijubane lesizulisi esikhulu, 0.01-8
+Seconds the in move takes, 0-5	Imizuzwana yokunyakaza kokungena, 0-5
+0-100%: 0 holds the field still	0-100%: u-0 ugcina inkundla inganyakazi
+0-100%: how bright the water is	0-100%: ukukhanya kwamanzi
+0-100%: how far the field bends	0-100%: ukugobeka kwenkundla
+0-100%: the whole picture turns	0-100%: isithombe sonke siyazungeza
+Degrees per second, -720 to 720	Amadigri ngomzuzwana, -720 kuya ku-720
+Lumia (laser light and mirrors)	Lumia (ukukhanya kwe-laser nezibuko)
+Seconds between retriggers, 0-8	Imizuzwana phakathi kokuvusa kabusha, 0-8
+Seconds the out move takes, 0-5	Imizuzwana yokunyakaza kokuphuma, 0-5
+0-100%: how fast the water moves	0-100%: ijubane lokunyakaza kwamanzi
+0-100%: the halo round the lines	0-100%: umqhele wokukhanya emigqeni
+How many are alive at once, 3-48	Inani eliphila kanye kanye, 3-48
+Turbulence, 0 still to 3 boiling	Ukuxokozela, 0 kuthule kuya ku-3 kuyabila
+Birth, drift and fade rate, 0.1-3	Ijubane lokuzalwa, ukuntanta nokufiphala, 0.1-3
+How hard the audio drives it, 0-1	Amandla omsindo okuyiqhuba, 0-1
+Scale of the whole graphic, 0.5-2	Isikali somfanekiso wonke, 0.5-2
+0-100%: 0 broad, 100 fine and busy	0-100%: 0 kubanzi, 100 kuncane futhi kuminyene
+Down, % of the height, -100 to 100	Phansi, % wobude, -100 kuya ku-100
+Thickness of the glowing edge, 0-1	Ukujiya konqenqema olukhanyayo, 0-1
+0-100%: how hard the lines are bent	0-100%: amandla okugoba imigqa
+0-100%: light lingers on the screen	0-100%: ukukhanya kusala esikrinini
+Across, % of the width, -100 to 100	Ngokuvundlile, % wobubanzi, -100 kuya ku-100
+% of the picture's height, 0.1 to 20	% wobude besithombe, 0.1 kuya ku-20
+0-100%: how far the colours fan apart	0-100%: ukuhlukana kwemibala
+Degrees round the colour wheel, 0-360	Amadigri esondweni lemibala, 0-360
+Where the eye sits, 0 left to 1 right	Indawo yeso, 0 kwesokunxele kuya ku-1 kwesokudla
+Where the eye sits, 0 top to 1 bottom	Indawo yeso, 0 phezulu kuya ku-1 phansi
+dBFS, -60 to 0 (-18 is EBU alignment)	dBFS, -60 kuya ku-0 (-18 izinga lokuqondanisa le-EBU)
+0-100%: how bright the laser lines are	0-100%: ukukhanya kwemigqa ye-laser
+One LED tile's width in pixels, 8-8192	Ububanzi bethayela le-LED ngamaphikiseli, 8-8192
+0-100%: a second jet crossing the first	0-100%: umfudlana wesibili unqamula owokuqala
+Edge softness, % of the height, 0 to 25	Ukuthamba konqenqema, % wobude, 0 kuya ku-25
+One LED tile's height in pixels, 8-8192	Ubude bethayela le-LED ngamaphikiseli, 8-8192
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono	0 okujwayelekile, 1 umlilo, 2 iqhwa, 3 neon, 4 umbala owodwa
+Modulator as a ratio of the note, 0.05-16	Isiguquli njengesilinganiso senothi, 0.05-16
+Scanlines, bloom and gun misalignment, 0-1	Imigqa yokuskena, ukukhanya nokungaqondani kwezibhamu, 0-1
+0-100%: the round lens, barrel and dark rim	0-100%: ilensi eyindilinga, ukugobeka nomphetho omnyama
+Block displacement and channel tearing, 0-1	Ukususwa kwamabhulokhi nokuklebhuka kweziteshi, 0-1
+Internal resolution, 1 (chunky) to 5 (fine)	Ukucaca kwangaphakathi, 1 (amaholoholo) kuya ku-5 (kuhle)
+Seconds the finished drawing stays, 0 to 60	Imizuzwana umdwebo oqediwe ohlala ngayo, 0 kuya ku-60
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono	0 uthingo + mpunga, 1 uthingo, 2 itimu, 3 umbala owodwa
+How readily neighbours merge, 0 (never) to 1	Ukuhlangana komakhelwane, 0 (neze) kuya ku-1
+Turns the rim's colours round the wheel, 0-1	Izungezisa imibala yonqenqema esondweni, 0-1
+drag to turn round it · wheel to come closer	hudula ukuzungeza · sebenzisa isondo ukusondela
+0-100%: 50 is 1x, 0 a quarter, 100 four times	0-100%: 50 ngu-1x, 0 ikota, 100 ukuphinda kane
+How much of each frame feeds the next, 0-0.95	Ingxenye yozimele ngamunye engena kolandelayo, 0-0.95
+Per-frame zoom of the feedback path, 0.90-1.15	Ukusondeza indlela yokubuyisa ngozimele, 0.90-1.15
+Space under it, as a fraction of the frame, 0-0.8	Isikhala ngaphansi, njengengxenye yozimele, 0-0.8
+0 rgb, 1 rainbow, 2 floyd, 3 warm, 4 cool, 5 green	0 rgb, 1 uthingo, 2 floyd, 3 kufudumele, 4 kupholile, 5 luhlaza
+Edge out (+) or in (-), % of the height, -25 to 25	Unqenqema ngaphandle (+) noma ngaphakathi (-), % wobude, -25 kuya ku-25
+SCREENS STAGE: STATUS, SET <what> <value> or APPLY	SCREENS STAGE: STATUS, SET <what> <value> noma APPLY
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear	0 indawo, 1 iwele, 2 ukugeleza, 3 isihlalo, 4 igagasi, 5 ukushelela
+Seconds before it leaves by itself; 0 waits for OUT	Imizuzwana ngaphambi kokuziphumela; 0 ilinda i-OUT
+0-100%: how far each panel tilts from the one before	0-100%: ukutsheka kwephaneli ngalinye uma kuqhathaniswa nelangaphambili
+0-100%: the share of each band drawn as grey stripes	0-100%: ingxenye yomucu ngamunye edwetshwe njengemigqa empunga
+0 off, 1 on: the flow surges with the programme sound	0 kuvaliwe, 1 kuvuliwe: ukugeleza kukhuphuka ngomsindo wohlelo
+0 off, 1 on: the top mirrors the bottom round a dark seam	0 kuvaliwe, 1 kuvuliwe: phezulu kubonisa phansi eduze komthungo omnyama
+' (cues, position, look, effects, levels, routing, master)	' (ama-cue, indawo, ukubukeka, imiphumela, amazinga, imizila, okuyinhloko)
+' -- try ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR or an output number	' -- zama ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR noma inombolo yokuphumayo
+BLEND ROW: expected <first output> <how many, 2 or more> <overlap in pixels>, with that many outputs	BLEND ROW: kulindelwe <first output> <how many, 2 or more> <overlap in pixels>, nenani elingaka lokuphumayo
+LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright or trail	LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright noma trail
+SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> or UNITS METRES|FEET	SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> noma UNITS METRES|FEET
+Opacity	Ukufiphala
+opacity	ukufiphala
+FDS synth	Isihlanganisi FDS
+PROXY 720p	IKHOPHI ELULA 720p
+out:--	phuma:--
+PAD MODE: HOLD or LATCH	PAD MODE: HOLD noma LATCH
+PAD ASSIGN: this cue does not have that control	PAD ASSIGN: le cue ayinaso leso silawuli
+PAD SET: x and y are numbers from 0 to 1 (y = 1 is the top)	PAD SET: x no-y izinombolo kusuka ku-0 kuya ku-1 (y = 1 iphezulu)
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST	PAD: kulindelwe PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST
+PAD ASSIGN: a control is OPACITY, FX<n>.AMOUNT, FX<n>.A to F, or NUM.<name> such as NUM.lumia.flow	PAD ASSIGN: isilawuli ngu-OPACITY, FX<n>.AMOUNT, FX<n>.A kuya ku-F, noma NUM.<name> njenge-NUM.lumia.flow
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST	PAD: kulindelwe PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST
+STATUS | PALETTE <0-5 or name> | MODE <0-2 or name> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <control> <setting>	STATUS | PALETTE <0-5 noma igama> | MODE <0-2 noma igama> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <control> <setting>
+Render	Khipha
+PNG frames	Ozimele be-PNG
+START RENDER	QALA UKUKHIPHA
+CANCEL RENDER	KHANSELA UKUKHIPHA
+QUANTISE: beat	QONDANISA: isigqi
+RENDER TO FILE	KHIPHELA EFAYELENI
+about {1} left	kusele cishe {1}
+LINK: {1} peers	LINK: {1} ozakwabo
+QUANTISE: 1 bar	QONDANISA: 1 ibha
+QUANTISE: 2 bars	QONDANISA: 2 amabha
+QUANTISE: 4 bars	QONDANISA: 4 amabha
+render cancelled	ukukhipha kukhanseliwe
+RENDER TO FILE...	KHIPHELA EFAYELENI...
+{1} frames in {2}	Ozimele abangu-{1} ku-{2}
+the output's ({1})	okokuphumayo ({1})
+From cue and to cue	I-cue yokuqala neyokugcina
+left the Link session	iphumile esimisweni se-Link
+joined the Link session	ijoyine isimiso se-Link
+the playlist has no cues	uhlu lokudlala alunawo ama-cue
+the source made no picture	umthombo awenzanga sithombe
+a render is already running	ukukhipha sekuvele kuyaqhubeka
+TAKE waits for the bar: {1} s	TAKE ilinda ibha: {1} s
+TAKE waits for the beat: {1} s	TAKE ilinda isigqi: {1} s
+there is no playlist to render	alukho uhlu lokudlala oluzokhishwa
+this build has no Ableton Link	lolu hlobo alunayo i-Ableton Link
+there is no picture in that range	asikho isithombe kulelo banga
+RENDER CANCEL: nothing is rendering	RENDER CANCEL: akukho okukhishwayo
+{1} frames, {2}, {3}x{4}	Ozimele abangu-{1}, {2}, {3}x{4}
+RENDER START: CUE, CUES a-b or OUTPUT	RENDER START: CUE, CUES a-b noma OUTPUT
+frame {1} of {2} \xC2\xB7 {3} frames/s	uzimele {1} kwabangu-{2} \xC2\xB7 {3} ozimele/s
+RENDER START CUES: first-last, numbered from 1	RENDER START CUES: kuqala-kugcina, izinombolo ziqala ku-1
+the output's mask is not drawn by a render yet	ukukhipha akukadwebi imaski yokuphumayo
+the output's slices are not drawn by a render yet	ukukhipha akukadwebi izingcezu zokuphumayo
+the output's crossfader is not drawn by a render yet	ukukhipha akukadwebi i-crossfader yokuphumayo
+RENDER START: needs a size, a rate, a codec and a file	RENDER START: kudingeka usayizi, ijubane, ikhodekhi nefayela
+VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 are bars)	VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 ngamabha)
+RENDER START: size is 1080P, 4K or OUTPUT; codec is PRORES, H264 or PNG	RENDER START: usayizi ngu-1080P, 4K noma OUTPUT; ikhodekhi ngu-PRORES, H264 noma PNG
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS	VJ: kulindelwe ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS
+VJ LINK: this build has no Ableton Link	VJ LINK: lolu hlobo alunayo i-Ableton Link

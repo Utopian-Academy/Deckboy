@@ -4370,3 +4370,170 @@ Which way the streak runs: across at the left, upright in the middle, across aga
 Widens the decision into a ramp, so edges keep their shape instead of jagging.	مرز تصمیم را به یک شیب گسترش می‌دهد تا لبه‌ها به‌جای دندانه‌دار شدن، شکلشان را حفظ کنند.
 Words to surface in the field, separated by | . One shows at a time, moving on the hold clock.	واژه‌های ظاهرشونده در میدان، جداشده با | . هر بار یکی نمایش داده می‌شود و با ساعت نگه‌داری عوض می‌شود.
 Zero is one noise value across all three channels, which reads as film. Higher gives each channel its own, which reads as video.	صفر برای هر سه کانال یک مقدار نویز می‌دهد که شبیه فیلم است. مقدار بالاتر به هر کانال نویز جداگانه می‌دهد که شبیه ویدیو است.
+Lens	عدسی
+Lumia	لومیا
+Prism	منشور
+Water	آب
+Lasers	لیزرها
+Pixels	پیکسل‌ها
+out:--	خروجی:--
+Listens	پیروی از صدا
+Mirrors	آینه‌ها
+Shimmer	سوسو
+FDS synth	سینتی‌سایزر FDS
+Terrarium	تراریوم
+(bypassed)	(کنارگذر)
+Second jet	فوارهٔ دوم
+%, 1 to 100	%، از 1 تا 100
+Panel angle	زاویهٔ پنل
+Ripple size	اندازهٔ موجک
+Panels, 0-12	پنل‌ها، 0-12
+Seconds, 0-4	ثانیه، 0-4
+Seconds, 0-8	ثانیه، 0-8
+Top / bottom	بالا / پایین
+Amount 0-100%	مقدار 0-100%
+ALSA MIDI Port	درگاه ALSA MIDI
+Degrees, 0-360	درجه، 0-360
+Terrarium Pico	تراریوم پیکو
+ASIOInit failed	ASIOInit ناموفق بود
+Hertz, 20-20000	هرتز، 20-20000
+Pixels, 64-2160	پیکسل، 64-2160
+Pixels, 64-3840	پیکسل، 64-3840
+Colour steps, 2-8	پله‌های رنگ، 2-8
+Degrees -180..180	درجه -180..180
+Palette turn, 0-1	چرخش پالت، 0-1
+Size, %, 5 to 400	اندازه، %، از 5 تا 400
+Feature size, 0.1-8	اندازهٔ جزئیات، 0.1-8
+Spiral size, 0.25-4	اندازهٔ مارپیچ، 0.25-4
+Degrees, -360 to 360	درجه، از -360 تا 360
+Spiral strength, 0-4	شدت مارپیچ، 0-4
+0-100%, left to right	0-100%، از چپ به راست
+0-100%, top to bottom	0-100%، از بالا به پایین
+0-100%: laser speckle	0-100%: لکه‌های لیزر
+Pixel sort amount, 0-1	مقدار مرتب‌سازی پیکسل، 0-1
+Pitch in hertz, 20-8000	زیرایی بر حسب هرتز، 20-8000
+Frames a second, 1 to 60	فریم در ثانیه، از 1 تا 60
+Horizontal cells, 64-960	خانه‌های افقی، 64-960
+select a lumia cue first	ابتدا یک کیوی لومیا انتخاب کنید
+0 tube, 1 mandala, 2 none	0 لوله، 1 ماندالا، 2 هیچ‌کدام
+How big a blob grows, 0-1	اندازهٔ رشد لکه، 0-1
+0-100%: overall brightness	0-100%: روشنایی کلی
+FDS hardware gain range, 0-63	بازهٔ بهرهٔ سخت‌افزاری FDS، 0-63
+How hard it cuts, %, 0 to 100	شدت برش، %، از 0 تا 100
+{1} (supports + - * / and ())	{1} (از + - * / و () پشتیبانی می‌کند)
+Master oscillator rate, 0.01-8	سرعت نوسان‌ساز اصلی، 0.01-8
+Seconds the in move takes, 0-5	زمان حرکت ورود به ثانیه، 0-5
+0-100%: 0 holds the field still	0-100%: در 0 میدان ثابت می‌ماند
+0-100%: how bright the water is	0-100%: روشنایی آب
+0-100%: how far the field bends	0-100%: میزان خمیدگی میدان
+0-100%: the whole picture turns	0-100%: چرخش کل تصویر
+Degrees per second, -720 to 720	درجه در ثانیه، از -720 تا 720
+Lumia (laser light and mirrors)	لومیا (نور لیزر و آینه‌ها)
+Seconds between retriggers, 0-8	فاصلهٔ تحریک دوباره به ثانیه، 0-8
+Seconds the out move takes, 0-5	زمان حرکت خروج به ثانیه، 0-5
+0-100%: how fast the water moves	0-100%: سرعت حرکت آب
+0-100%: the halo round the lines	0-100%: هالهٔ دور خط‌ها
+How many are alive at once, 3-48	تعداد زنده‌ها در یک زمان، 3-48
+Turbulence, 0 still to 3 boiling	آشفتگی، از 0 آرام تا 3 جوشان
+Birth, drift and fade rate, 0.1-3	سرعت پیدایش، رانش و محوشدن، 0.1-3
+How hard the audio drives it, 0-1	شدت تأثیر صدا، 0-1
+Scale of the whole graphic, 0.5-2	مقیاس کل طرح، 0.5-2
+0-100%: 0 broad, 100 fine and busy	0-100%: 0 درشت، 100 ریز و شلوغ
+Down, % of the height, -100 to 100	پایین، % ارتفاع، از -100 تا 100
+Thickness of the glowing edge, 0-1	ضخامت لبهٔ درخشان، 0-1
+0-100%: how hard the lines are bent	0-100%: شدت خمیدگی خط‌ها
+0-100%: light lingers on the screen	0-100%: ماندگاری نور روی صفحه
+Across, % of the width, -100 to 100	افقی، % عرض، از -100 تا 100
+% of the picture's height, 0.1 to 20	% ارتفاع تصویر، از 0.1 تا 20
+0-100%: how far the colours fan apart	0-100%: میزان بازشدن رنگ‌ها
+Degrees round the colour wheel, 0-360	درجه روی چرخهٔ رنگ، 0-360
+Where the eye sits, 0 left to 1 right	جای چشم، از 0 چپ تا 1 راست
+Where the eye sits, 0 top to 1 bottom	جای چشم، از 0 بالا تا 1 پایین
+dBFS, -60 to 0 (-18 is EBU alignment)	dBFS، از -60 تا 0 (-18 تراز مرجع EBU است)
+0-100%: how bright the laser lines are	0-100%: روشنایی خط‌های لیزر
+One LED tile's width in pixels, 8-8192	عرض یک کاشی LED به پیکسل، 8-8192
+0-100%: a second jet crossing the first	0-100%: فوارهٔ دومی که اولی را قطع می‌کند
+Edge softness, % of the height, 0 to 25	نرمی لبه، % ارتفاع، از 0 تا 25
+One LED tile's height in pixels, 8-8192	ارتفاع یک کاشی LED به پیکسل، 8-8192
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono	0 کلاسیک، 1 آتش، 2 یخ، 3 نئون، 4 تک‌رنگ
+Modulator as a ratio of the note, 0.05-16	نسبت مدولاتور به نت، 0.05-16
+Scanlines, bloom and gun misalignment, 0-1	خطوط اسکن، درخشش و ناهم‌ترازی تفنگ‌ها، 0-1
+0-100%: the round lens, barrel and dark rim	0-100%: عدسی گرد، اعوجاج بشکه‌ای و حاشیهٔ تیره
+Block displacement and channel tearing, 0-1	جابه‌جایی بلوک و پارگی کانال، 0-1
+Internal resolution, 1 (chunky) to 5 (fine)	وضوح داخلی، از 1 (درشت) تا 5 (ریز)
+Seconds the finished drawing stays, 0 to 60	ماندگاری طرح کامل به ثانیه، از 0 تا 60
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono	0 رنگین‌کمان + خاکستری، 1 رنگین‌کمان، 2 پوسته، 3 تک‌رنگ
+How readily neighbours merge, 0 (never) to 1	آسانی ادغام همسایه‌ها، از 0 (هرگز) تا 1
+Turns the rim's colours round the wheel, 0-1	رنگ‌های حاشیه را روی چرخهٔ رنگ می‌چرخاند، 0-1
+drag to turn round it · wheel to come closer	برای چرخیدن دور آن بکشید · برای نزدیک‌شدن از چرخ ماوس استفاده کنید
+0-100%: 50 is 1x, 0 a quarter, 100 four times	0-100%: 50 برابر 1x، 0 یک‌چهارم، 100 چهار برابر
+How much of each frame feeds the next, 0-0.95	سهم هر فریم در فریم بعدی، 0-0.95
+Per-frame zoom of the feedback path, 0.90-1.15	بزرگ‌نمایی مسیر بازخورد در هر فریم، 0.90-1.15
+Space under it, as a fraction of the frame, 0-0.8	فضای زیر آن به نسبت فریم، 0-0.8
+0 rgb, 1 rainbow, 2 floyd, 3 warm, 4 cool, 5 green	0 rgb، 1 رنگین‌کمان، 2 فلوید، 3 گرم، 4 سرد، 5 سبز
+Edge out (+) or in (-), % of the height, -25 to 25	لبه به بیرون (+) یا داخل (-)، % ارتفاع، از -25 تا 25
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear	0 ناحیه، 1 دوقلو، 2 جریان، 3 زینی، 4 موجک، 5 برش
+Seconds before it leaves by itself; 0 waits for OUT	ثانیه تا خروج خودکار؛ 0 منتظر OUT می‌ماند
+0-100%: how far each panel tilts from the one before	0-100%: میزان کج‌شدن هر پنل نسبت به قبلی
+0-100%: the share of each band drawn as grey stripes	0-100%: سهم هر نوار که به صورت راه‌راه خاکستری رسم می‌شود
+0 off, 1 on: the flow surges with the programme sound	0 خاموش، 1 روشن: جریان با صدای برنامه اوج می‌گیرد
+0 off, 1 on: the top mirrors the bottom round a dark seam	0 خاموش، 1 روشن: بالا بازتاب پایین در دو سوی درزی تیره است
+' (cues, position, look, effects, levels, routing, master)	' (کیوها، موقعیت، ظاهر، افکت‌ها، سطح‌ها، مسیریابی، مستر)
+' -- try ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR or an output number	' -- ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR یا شمارهٔ خروجی را امتحان کنید
+BLEND ROW: expected <first output> <how many, 2 or more> <overlap in pixels>, with that many outputs	BLEND ROW: نیاز به <اولین خروجی> <تعداد، 2 یا بیشتر> <هم‌پوشانی به پیکسل>، با همین تعداد خروجی
+DASH: LIST | <n> | SET <n> <label> | <command> | CLEAR <n>	DASH: LIST | <n> | SET <n> <برچسب> | <فرمان> | CLEAR <n>
+OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <sender name>	OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <نام فرستنده>
+SCREENS STAGE: STATUS, SET <what> <value> or APPLY	SCREENS STAGE: STATUS, SET <پارامتر> <مقدار> یا APPLY
+LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright or trail	LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright یا trail
+SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> or UNITS METRES|FEET	SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> یا UNITS METRES|FEET
+STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <control> <setting>	STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <کنترل> <تنظیم>
+STATUS | PALETTE <0-5 or name> | MODE <0-2 or name> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <control> <setting>	STATUS | PALETTE <0-5 یا نام> | MODE <0-2 یا نام> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <کنترل> <تنظیم>
+Render	رندر
+Opacity	کدری
+opacity	کدری
+PNG frames	فریم‌های PNG
+START RENDER	شروع رندر
+CANCEL RENDER	لغو رندر
+RENDER TO FILE	رندر در فایل
+RENDER TO FILE...	رندر در فایل...
+QUANTISE: beat	کوانتایز: ضرب
+QUANTISE: 1 bar	کوانتایز: 1 میزان
+QUANTISE: 2 bars	کوانتایز: 2 میزان
+QUANTISE: 4 bars	کوانتایز: 4 میزان
+about {1} left	حدود {1} باقی مانده
+LINK: {1} peers	LINK: {1} همتا
+render cancelled	رندر لغو شد
+{1} frames in {2}	{1} فریم در {2}
+the output's ({1})	متعلق به خروجی ({1})
+From cue and to cue	کیوی آغاز و پایان
+left the Link session	از نشست Link خارج شد
+joined the Link session	به نشست Link پیوست
+the playlist has no cues	فهرست پخش کیویی ندارد
+{1} frames, {2}, {3}x{4}	{1} فریم، {2}، {3}x{4}
+the source made no picture	منبع تصویری تولید نکرد
+a render is already running	یک رندر در حال اجراست
+TAKE waits for the bar: {1} s	TAKE منتظر میزان است: {1} s
+TAKE waits for the beat: {1} s	TAKE منتظر ضرب است: {1} s
+there is no playlist to render	فهرست پخشی برای رندر وجود ندارد
+this build has no Ableton Link	این ساخت فاقد Ableton Link است
+there is no picture in that range	در آن بازه تصویری نیست
+RENDER CANCEL: nothing is rendering	RENDER CANCEL: رندری در حال اجرا نیست
+VJ LINK: this build has no Ableton Link	VJ LINK: این ساخت فاقد Ableton Link است
+PAD CHIP: <slot> ON|OFF	PAD CHIP: <جایگاه> ON|OFF
+PAD MODE: HOLD or LATCH	PAD MODE: HOLD یا LATCH
+RENDER START: CUE, CUES a-b or OUTPUT	RENDER START: CUE, CUES a-b یا OUTPUT
+frame {1} of {2} \xC2\xB7 {3} frames/s	فریم {1} از {2} \xC2\xB7 {3} فریم/ثانیه
+RENDER START CUES: first-last, numbered from 1	RENDER START CUES: اول-آخر، شماره‌گذاری از 1
+the output's mask is not drawn by a render yet	رندر هنوز ماسک خروجی را رسم نمی‌کند
+PAD ASSIGN: this cue does not have that control	PAD ASSIGN: این کیو آن کنترل را ندارد
+the output's slices are not drawn by a render yet	رندر هنوز برش‌های خروجی را رسم نمی‌کند
+the output's crossfader is not drawn by a render yet	رندر هنوز کراس‌فیدر خروجی را رسم نمی‌کند
+RENDER START: needs a size, a rate, a codec and a file	RENDER START: اندازه، نرخ، کدک و فایل لازم است
+VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 are bars)	VJ QUANTISE: beat | 1 | 2 | 4 | off  (1، 2، 4 تعداد میزان‌هاست)
+PAD SET: x and y are numbers from 0 to 1 (y = 1 is the top)	PAD SET: x و y اعدادی از 0 تا 1 هستند (y = 1 بالاست)
+RENDER START: size is 1080P, 4K or OUTPUT; codec is PRORES, H264 or PNG	RENDER START: اندازه 1080P، 4K یا OUTPUT؛ کدک PRORES، H264 یا PNG
+PAD ASSIGN: a control is OPACITY, FX<n>.AMOUNT, FX<n>.A to F, or NUM.<name> such as NUM.lumia.flow	PAD ASSIGN: کنترل OPACITY، FX<n>.AMOUNT، FX<n>.A تا F، یا NUM.<نام> مانند NUM.lumia.flow است
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST	PAD: قالب مورد انتظار PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST	PAD: قالب مورد انتظار PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS	VJ: قالب مورد انتظار ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS
+RENDER: START <CUE|CUES a-b|OUTPUT> <1080P|4K|OUTPUT> <25|30|50|60> <PRORES|H264|PNG> <file>, STATUS, CANCEL, DIALOG	RENDER: START <CUE|CUES a-b|OUTPUT> <1080P|4K|OUTPUT> <25|30|50|60> <PRORES|H264|PNG> <فایل>, STATUS, CANCEL, DIALOG

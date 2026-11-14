@@ -4355,3 +4355,171 @@ Widens the decision into a ramp, so edges keep their shape instead of jagging.	�
 Words to surface in the field, separated by | . One shows at a time, moving on the hold clock.	フィールドに浮かぶ言葉を | で区切って指定します。1つずつ表示し、ホールドの時計に合わせて切り替えます。
 Zero is one noise value across all three channels, which reads as film. Higher gives each channel its own, which reads as video.	0では3チャンネルに同じノイズ値を使い、フィルム風になります。上げると各チャンネルが独立したノイズになり、ビデオ風になります。
 zones cleared: Motion reads the whole picture	領域をクリアしました: モーションは画像全体を読み取ります
+Lens	レンズ
+Lumia	ルミア
+Prism	プリズム
+Water	水
+Lasers	レーザー
+Pixels	ピクセル
+out:--	出力:--
+Listens	音声追従
+Mirrors	ミラー
+Shimmer	きらめき
+FDS synth	FDS シンセ
+Terrarium	テラリウム
+(bypassed)	(バイパス中)
+Second jet	第2噴流
+%, 1 to 100	%、1～100
+Panel angle	パネル角度
+Ripple size	波紋サイズ
+Panels, 0-12	パネル数、0-12
+Seconds, 0-4	秒、0-4
+Seconds, 0-8	秒、0-8
+Top / bottom	上 / 下
+Amount 0-100%	量 0-100%
+ALSA MIDI Port	ALSA MIDI ポート
+Degrees, 0-360	度、0-360
+Terrarium Pico	テラリウム・ピコ
+ASIOInit failed	ASIOInit に失敗
+Hertz, 20-20000	ヘルツ、20-20000
+Pixels, 64-2160	ピクセル、64-2160
+Pixels, 64-3840	ピクセル、64-3840
+Colour steps, 2-8	色の階調数、2-8
+Degrees -180..180	度 -180..180
+Palette turn, 0-1	パレット回転、0-1
+Size, %, 5 to 400	サイズ、%、5～400
+Feature size, 0.1-8	模様サイズ、0.1-8
+Spiral size, 0.25-4	渦巻きサイズ、0.25-4
+Degrees, -360 to 360	度、-360～360
+Spiral strength, 0-4	渦巻きの強さ、0-4
+0-100%, left to right	0-100%、左から右
+0-100%, top to bottom	0-100%、上から下
+0-100%: laser speckle	0-100%: レーザースペックル
+Pixel sort amount, 0-1	ピクセルソート量、0-1
+Pitch in hertz, 20-8000	音高（ヘルツ）、20-8000
+Frames a second, 1 to 60	毎秒フレーム数、1～60
+Horizontal cells, 64-960	水平方向のセル数、64-960
+select a lumia cue first	先にルミアキューを選択してください
+0 tube, 1 mandala, 2 none	0 チューブ、1 マンダラ、2 なし
+How big a blob grows, 0-1	塊の成長サイズ、0-1
+0-100%: overall brightness	0-100%: 全体の明るさ
+FDS hardware gain range, 0-63	FDS ハードウェアゲイン範囲、0-63
+How hard it cuts, %, 0 to 100	カットの強さ、%、0～100
+{1} (supports + - * / and ())	{1} (+ - * / と () に対応)
+Master oscillator rate, 0.01-8	マスターオシレーター速度、0.01-8
+Seconds the in move takes, 0-5	入場動作の秒数、0-5
+0-100%: 0 holds the field still	0-100%: 0 でフィールドを静止
+0-100%: how bright the water is	0-100%: 水の明るさ
+0-100%: how far the field bends	0-100%: フィールドの曲がり量
+0-100%: the whole picture turns	0-100%: 画像全体の回転
+Degrees per second, -720 to 720	毎秒の度数、-720～720
+Lumia (laser light and mirrors)	ルミア（レーザー光とミラー）
+Seconds between retriggers, 0-8	再トリガー間隔（秒）、0-8
+Seconds the out move takes, 0-5	退場動作の秒数、0-5
+0-100%: how fast the water moves	0-100%: 水の動く速さ
+0-100%: the halo round the lines	0-100%: 線の周囲の光輪
+How many are alive at once, 3-48	同時に存在する数、3-48
+Turbulence, 0 still to 3 boiling	乱流、0 静止～3 沸騰
+Birth, drift and fade rate, 0.1-3	発生・漂流・フェードの速度、0.1-3
+How hard the audio drives it, 0-1	音声による駆動の強さ、0-1
+Scale of the whole graphic, 0.5-2	グラフィック全体の倍率、0.5-2
+0-100%: 0 broad, 100 fine and busy	0-100%: 0 大まか、100 細かく密集
+Down, % of the height, -100 to 100	下方向、高さの%、-100～100
+Thickness of the glowing edge, 0-1	発光する縁の太さ、0-1
+0-100%: how hard the lines are bent	0-100%: 線の曲がりの強さ
+0-100%: light lingers on the screen	0-100%: 画面に残る光
+Across, % of the width, -100 to 100	横方向、幅の%、-100～100
+% of the picture's height, 0.1 to 20	画像の高さの%、0.1～20
+0-100%: how far the colours fan apart	0-100%: 色の広がり量
+Degrees round the colour wheel, 0-360	色相環上の度数、0-360
+Where the eye sits, 0 left to 1 right	視点位置、0 左～1 右
+Where the eye sits, 0 top to 1 bottom	視点位置、0 上～1 下
+dBFS, -60 to 0 (-18 is EBU alignment)	dBFS、-60～0（-18 は EBU 基準レベル）
+0-100%: how bright the laser lines are	0-100%: レーザー線の明るさ
+One LED tile's width in pixels, 8-8192	LED タイル1枚の幅（ピクセル）、8-8192
+0-100%: a second jet crossing the first	0-100%: 第1噴流と交差する第2噴流
+Edge softness, % of the height, 0 to 25	縁の柔らかさ、高さの%、0～25
+One LED tile's height in pixels, 8-8192	LED タイル1枚の高さ（ピクセル）、8-8192
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono	0 クラシック、1 炎、2 氷、3 ネオン、4 単色
+Modulator as a ratio of the note, 0.05-16	音程に対するモジュレーター比率、0.05-16
+Scanlines, bloom and gun misalignment, 0-1	走査線・ブルーム・電子銃のずれ、0-1
+0-100%: the round lens, barrel and dark rim	0-100%: 丸いレンズ・樽型歪み・暗い縁
+Block displacement and channel tearing, 0-1	ブロック変位とチャンネルの裂け、0-1
+Internal resolution, 1 (chunky) to 5 (fine)	内部解像度、1（粗い）～5（細かい）
+Seconds the finished drawing stays, 0 to 60	完成した描画の保持秒数、0～60
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono	0 虹色 + グレー、1 虹色、2 テーマ、3 単色
+How readily neighbours merge, 0 (never) to 1	隣接する塊の融合しやすさ、0（融合なし）～1
+Turns the rim's colours round the wheel, 0-1	縁の色を色相環上で回転、0-1
+drag to turn round it · wheel to come closer	ドラッグで周囲を回転 · ホイールで接近
+0-100%: 50 is 1x, 0 a quarter, 100 four times	0-100%: 50 で 1x、0 で4分の1、100 で4倍
+How much of each frame feeds the next, 0-0.95	各フレームを次へ戻す割合、0-0.95
+Per-frame zoom of the feedback path, 0.90-1.15	フィードバック経路のフレームごとのズーム、0.90-1.15
+Space under it, as a fraction of the frame, 0-0.8	下の余白（フレームに対する割合）、0-0.8
+0 rgb, 1 rainbow, 2 floyd, 3 warm, 4 cool, 5 green	0 rgb、1 虹色、2 フロイド、3 暖色、4 寒色、5 緑
+Edge out (+) or in (-), % of the height, -25 to 25	縁を外 (+) または内 (-) へ、高さの%、-25～25
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear	0 ゾーン、1 ツイン、2 フロー、3 サドル、4 波紋、5 せん断
+Seconds before it leaves by itself; 0 waits for OUT	自動退場までの秒数。0 は OUT を待機
+0-100%: how far each panel tilts from the one before	0-100%: 前のパネルに対する各パネルの傾き
+0-100%: the share of each band drawn as grey stripes	0-100%: 各帯をグレーの縞で描く割合
+0 off, 1 on: the flow surges with the programme sound	0 オフ、1 オン: 番組音声に合わせて流れが高まる
+0 off, 1 on: the top mirrors the bottom round a dark seam	0 オフ、1 オン: 暗い継ぎ目を軸に下側を上側へ反射
+' (cues, position, look, effects, levels, routing, master)	'（キュー、位置、ルック、エフェクト、レベル、ルーティング、マスター）
+' -- try ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR or an output number	' -- ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR または出力番号を指定
+BLEND ROW: expected <first output> <how many, 2 or more> <overlap in pixels>, with that many outputs	BLEND ROW: <最初の出力> <個数、2以上> <重なり幅（ピクセル）> と、その個数の出力が必要
+DASH SET: <n> <label> | <command> [| <glyph>]	DASH SET: <n> <ラベル> | <コマンド> [| <記号>]
+DASH: LIST | <n> | SET <n> <label> | <command> | CLEAR <n>	DASH: LIST | <n> | SET <n> <ラベル> | <コマンド> | CLEAR <n>
+OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <sender name>	OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <送信者名>
+SCREENS STAGE: STATUS, SET <what> <value> or APPLY	SCREENS STAGE: STATUS, SET <項目> <値> または APPLY
+LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright or trail	LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright または trail
+SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> or UNITS METRES|FEET	SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> または UNITS METRES|FEET
+STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <control> <setting>	STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <コントロール> <設定>
+STATUS | PALETTE <0-5 or name> | MODE <0-2 or name> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <control> <setting>	STATUS | PALETTE <0-5 または名前> | MODE <0-2 または名前> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <コントロール> <設定>
+Render	レンダリング
+Opacity	不透明度
+opacity	不透明度
+PNG frames	PNG フレーム
+START RENDER	レンダリング開始
+CANCEL RENDER	レンダリング中止
+RENDER TO FILE	ファイルへレンダリング
+RENDER TO FILE...	ファイルへレンダリング...
+QUANTISE: beat	クオンタイズ: 拍
+QUANTISE: 1 bar	クオンタイズ: 1小節
+QUANTISE: 2 bars	クオンタイズ: 2小節
+QUANTISE: 4 bars	クオンタイズ: 4小節
+about {1} left	残り約 {1}
+LINK: {1} peers	LINK: {1} ピア
+render cancelled	レンダリングを中止しました
+{1} frames in {2}	{2} で {1} フレーム
+the output's ({1})	出力のもの ({1})
+From cue and to cue	開始キューと終了キュー
+left the Link session	Link セッションから退出しました
+joined the Link session	Link セッションに参加しました
+the playlist has no cues	プレイリストにキューがありません
+{1} frames, {2}, {3}x{4}	{1} フレーム、{2}、{3}x{4}
+the source made no picture	ソースから画像が生成されませんでした
+a render is already running	すでにレンダリング中です
+TAKE waits for the bar: {1} s	TAKE は小節待機中: {1} s
+TAKE waits for the beat: {1} s	TAKE は拍待機中: {1} s
+there is no playlist to render	レンダリングするプレイリストがありません
+this build has no Ableton Link	このビルドは Ableton Link 非対応です
+there is no picture in that range	その範囲に画像がありません
+RENDER CANCEL: nothing is rendering	RENDER CANCEL: レンダリング中の処理はありません
+VJ LINK: this build has no Ableton Link	VJ LINK: このビルドは Ableton Link 非対応です
+PAD CHIP: <slot> ON|OFF	PAD CHIP: <スロット> ON|OFF
+PAD MODE: HOLD or LATCH	PAD MODE: HOLD または LATCH
+RENDER START: CUE, CUES a-b or OUTPUT	RENDER START: CUE, CUES a-b または OUTPUT
+frame {1} of {2} \xC2\xB7 {3} frames/s	フレーム {1}/{2} \xC2\xB7 {3} フレーム/秒
+RENDER START CUES: first-last, numbered from 1	RENDER START CUES: 最初-最後、番号は1から
+the output's mask is not drawn by a render yet	出力のマスクはまだレンダリングに反映されません
+PAD ASSIGN: this cue does not have that control	PAD ASSIGN: このキューにはそのコントロールがありません
+the output's slices are not drawn by a render yet	出力のスライスはまだレンダリングに反映されません
+the output's crossfader is not drawn by a render yet	出力のクロスフェーダーはまだレンダリングに反映されません
+RENDER START: needs a size, a rate, a codec and a file	RENDER START: サイズ、レート、コーデック、ファイルが必要
+VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 are bars)	VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 は小節数)
+PAD SET: x and y are numbers from 0 to 1 (y = 1 is the top)	PAD SET: x と y は0～1の数値 (y = 1 が上端)
+RENDER START: size is 1080P, 4K or OUTPUT; codec is PRORES, H264 or PNG	RENDER START: サイズは 1080P, 4K または OUTPUT、コーデックは PRORES, H264 または PNG
+PAD ASSIGN: a control is OPACITY, FX<n>.AMOUNT, FX<n>.A to F, or NUM.<name> such as NUM.lumia.flow	PAD ASSIGN: コントロールは OPACITY, FX<n>.AMOUNT, FX<n>.A～F または NUM.<名前>（例: NUM.lumia.flow）
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST	PAD: 必要な形式: PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST	PAD: 必要な形式: PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS	VJ: 必要な形式: ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS
+RENDER: START <CUE|CUES a-b|OUTPUT> <1080P|4K|OUTPUT> <25|30|50|60> <PRORES|H264|PNG> <file>, STATUS, CANCEL, DIALOG	RENDER: START <CUE|CUES a-b|OUTPUT> <1080P|4K|OUTPUT> <25|30|50|60> <PRORES|H264|PNG> <ファイル>, STATUS, CANCEL, DIALOG

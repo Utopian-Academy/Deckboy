@@ -4348,3 +4348,171 @@ Widens the decision into a ramp, so edges keep their shape instead of jagging.	S
 Words to surface in the field, separated by | . One shows at a time, moving on the hold clock.	Peyvên ku di qadê de xuya bibin, bi | veqetandî. Her car yek xuya dibe û bi demjimêra ragirtinê diguhere.
 Zero is one noise value across all three channels, which reads as film. Higher gives each channel its own, which reads as video.	Sifir yek nirxê dengê bêwate ji bo her sê kanalan dide, wek fîlmê. Bilindtir ji bo her kanalê nirxekî cuda dide, wek vîdyoyê.
 zones cleared: Motion reads the whole picture	herêm hatin paqijkirin: Tevger hemû wêneyê dixwîne
+Lumia	Lûmya
+Prism	Prîzma
+Water	Av
+Lasers	Lazer
+Pixels	Pîksel
+out:--	der:--
+Listens	Guh dide
+Mirrors	Neynik
+Shimmer	Birûsk
+FDS synth	Senteza FDS
+Terrarium	Baxçeya camê
+(bypassed)	(derbasbûyî)
+Second jet	Avreşa duyem
+%, 1 to 100	%, ji 1 heta 100
+Panel angle	Goşeya panelê
+Ripple size	Mezinahiya pêlê
+Panels, 0-12	Panel, 0-12
+Seconds, 0-4	Çirke, 0-4
+Seconds, 0-8	Çirke, 0-8
+Top / bottom	Jor / jêr
+Amount 0-100%	Mîqdar 0-100%
+ALSA MIDI Port	Porta ALSA MIDI
+Degrees, 0-360	Pîle, 0-360
+Terrarium Pico	Baxçeya camê Pîko
+ASIOInit failed	ASIOInit bi ser neket
+Hertz, 20-20000	Hertz, 20 heta 20000
+Pixels, 64-2160	Pîksel, 64-2160
+Pixels, 64-3840	Pîksel, 64-3840
+Colour steps, 2-8	Gavên rengê, 2-8
+Degrees -180..180	Pîle -180..180
+Palette turn, 0-1	Zivirîna paletê, 0-1
+Size, %, 5 to 400	Mezinahî, %, ji 5 heta 400
+Feature size, 0.1-8	Mezinahiya hûrguliyan, 0.1-8
+Spiral size, 0.25-4	Mezinahiya spiralê, 0.25-4
+Degrees, -360 to 360	Pîle, ji -360 heta 360
+Spiral strength, 0-4	Hêza spiralê, 0-4
+0-100%, left to right	0-100%, ji çepê ber bi rastê
+0-100%, top to bottom	0-100%, ji jor ber bi jêr
+0-100%: laser speckle	0-100%: xalên lazerê
+Pixel sort amount, 0-1	Mîqdara rêzkirina pîkselan, 0-1
+Pitch in hertz, 20-8000	Bilindahiya dengê bi hertz, 20-8000
+Frames a second, 1 to 60	Çarçove di çirkeyê de, ji 1 heta 60
+Horizontal cells, 64-960	Şaneyên berwarî, 64-960
+select a lumia cue first	pêşî cueyek lûmya hilbijêre
+0 tube, 1 mandala, 2 none	0 lûle, 1 mandala, 2 tune
+How big a blob grows, 0-1	Leke çiqas mezin dibe, 0-1
+0-100%: overall brightness	0-100%: ronahiya giştî
+FDS hardware gain range, 0-63	Rêjeya gaina amûra FDS, 0-63
+How hard it cuts, %, 0 to 100	Tûjiya birînê, %, ji 0 heta 100
+{1} (supports + - * / and ())	{1} (+ - * / û () piştgirî dike)
+Master oscillator rate, 0.01-8	Leza osîlatora sereke, 0.01-8
+Seconds the in move takes, 0-5	Demê tevgera ketinê bi çirke, 0-5
+0-100%: 0 holds the field still	0-100%: 0 qadê bêliv digire
+0-100%: how bright the water is	0-100%: ronahiya avê
+0-100%: how far the field bends	0-100%: qasê xwarbûna qadê
+0-100%: the whole picture turns	0-100%: hemû wêne dizivire
+Degrees per second, -720 to 720	Pîle di çirkeyê de, ji -720 heta 720
+Lumia (laser light and mirrors)	Lûmya (ronahiya lazerê û neynik)
+Seconds between retriggers, 0-8	Çirke di navbera destpêkirinên nû de, 0-8
+Seconds the out move takes, 0-5	Demê tevgera derketinê bi çirke, 0-5
+0-100%: how fast the water moves	0-100%: leza livîna avê
+0-100%: the halo round the lines	0-100%: haleya li dora xetan
+How many are alive at once, 3-48	Çend bi hev re zindî ne, 3-48
+Turbulence, 0 still to 3 boiling	Tevlihevî, ji 0 aram heta 3 kelandin
+Birth, drift and fade rate, 0.1-3	Leza çêbûn, herikîn û wendabûnê, 0.1-3
+How hard the audio drives it, 0-1	Hêza bandora dengê, 0-1
+Scale of the whole graphic, 0.5-2	Pîvana hemû grafîkê, 0.5-2
+0-100%: 0 broad, 100 fine and busy	0-100%: 0 fireh, 100 hûr û qelebalix
+Down, % of the height, -100 to 100	Ber bi jêr, % ji bilindahiyê, ji -100 heta 100
+Thickness of the glowing edge, 0-1	Stûrahiya qeraxa ronak, 0-1
+0-100%: how hard the lines are bent	0-100%: hêza xwarbûna xetan
+0-100%: light lingers on the screen	0-100%: ronahî li ser ekranê dimîne
+Across, % of the width, -100 to 100	Berwarî, % ji firehiyê, ji -100 heta 100
+% of the picture's height, 0.1 to 20	% ji bilindahiya wêneyê, ji 0.1 heta 20
+0-100%: how far the colours fan apart	0-100%: qasê jihevvebûna rengan
+Degrees round the colour wheel, 0-360	Pîle li dora çerxa rengan, 0-360
+Where the eye sits, 0 left to 1 right	Cihê çavê, ji 0 çep heta 1 rast
+Where the eye sits, 0 top to 1 bottom	Cihê çavê, ji 0 jor heta 1 jêr
+dBFS, -60 to 0 (-18 is EBU alignment)	dBFS, ji -60 heta 0 (-18 asta referansa EBU ye)
+0-100%: how bright the laser lines are	0-100%: ronahiya xetên lazerê
+One LED tile's width in pixels, 8-8192	Firehiya panelekê LED bi pîksel, 8-8192
+0-100%: a second jet crossing the first	0-100%: avreşa duyem ya yekem dibire
+Edge softness, % of the height, 0 to 25	Nermiya qeraxê, % ji bilindahiyê, ji 0 heta 25
+One LED tile's height in pixels, 8-8192	Bilindahiya panelekê LED bi pîksel, 8-8192
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono	0 klasîk, 1 agir, 2 cemed, 3 neon, 4 yekreng
+Modulator as a ratio of the note, 0.05-16	Modulator wek rêjeya notê, 0.05-16
+Scanlines, bloom and gun misalignment, 0-1	Xetên skanê, şewq û nerêkiya tifingên elektronê, 0-1
+0-100%: the round lens, barrel and dark rim	0-100%: lensa girover, xwarbûna bermîlî û qeraxa tarî
+Block displacement and channel tearing, 0-1	Cihguhertina blokan û dirîna kanalan, 0-1
+Internal resolution, 1 (chunky) to 5 (fine)	Zelaliya hundirîn, ji 1 (qelew) heta 5 (hûr)
+Seconds the finished drawing stays, 0 to 60	Demê mayîna nexşeya qediyayî bi çirke, ji 0 heta 60
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono	0 keskesor + gewr, 1 keskesor, 2 rûkar, 3 yekreng
+How readily neighbours merge, 0 (never) to 1	Cîran çiqas hêsan yek dibin, ji 0 (qet) heta 1
+Turns the rim's colours round the wheel, 0-1	Rengên qeraxê li dora çerxa rengan dizivirîne, 0-1
+drag to turn round it · wheel to come closer	bikişîne da li dorê bizivirî · çerxa mişkê ji bo nêzîkbûnê
+0-100%: 50 is 1x, 0 a quarter, 100 four times	0-100%: 50 dibe 1x, 0 çaryek, 100 çar qat
+How much of each frame feeds the next, 0-0.95	Çiqas ji her çarçoveyê diçe ya paşîn, 0-0.95
+Per-frame zoom of the feedback path, 0.90-1.15	Zooma rêya vegerê di her çarçoveyê de, 0.90-1.15
+Space under it, as a fraction of the frame, 0-0.8	Valahiya binê wê wek beşek ji çarçoveyê, 0-0.8
+0 rgb, 1 rainbow, 2 floyd, 3 warm, 4 cool, 5 green	0 rgb, 1 keskesor, 2 floyd, 3 germ, 4 sar, 5 kesk
+Edge out (+) or in (-), % of the height, -25 to 25	Qerax ber bi derve (+) an hundir (-), % ji bilindahiyê, ji -25 heta 25
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear	0 herêm, 1 cot, 2 herikîn, 3 kurtan, 4 pêl, 5 birîn
+Seconds before it leaves by itself; 0 waits for OUT	Çirke berî derketina xweber; 0 li benda OUT dimîne
+0-100%: how far each panel tilts from the one before	0-100%: qasê xwarbûna her panelê li gor ya berî wê
+0-100%: the share of each band drawn as grey stripes	0-100%: para her bendê ku bi xetên gewr tê xêzkirin
+0 off, 1 on: the flow surges with the programme sound	0 girtî, 1 vekirî: herikîn bi dengê bernameyê xurt dibe
+0 off, 1 on: the top mirrors the bottom round a dark seam	0 girtî, 1 vekirî: jor jêr li dora dirzeke tarî neynik dike
+' (cues, position, look, effects, levels, routing, master)	' (cue, cih, dîmen, efekt, ast, rêkirin, master)
+' -- try ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR or an output number	' -- ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR an hejmareke derketinê biceribîne
+BLEND ROW: expected <first output> <how many, 2 or more> <overlap in pixels>, with that many outputs	BLEND ROW: pêwîst e <derketina yekem> <hejmar, 2 an zêdetir> <hevserketin bi pîksel>, bi ewqas derketinan
+DASH SET: <n> <label> | <command> [| <glyph>]	DASH SET: <n> <nav> | <ferman> [| <nîşan>]
+DASH: LIST | <n> | SET <n> <label> | <command> | CLEAR <n>	DASH: LIST | <n> | SET <n> <nav> | <ferman> | CLEAR <n>
+OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <sender name>	OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <navê şanderê>
+SCREENS STAGE: STATUS, SET <what> <value> or APPLY	SCREENS STAGE: STATUS, SET <parametre> <nirx> an APPLY
+LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright or trail	LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright an trail
+SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> or UNITS METRES|FEET	SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> an UNITS METRES|FEET
+STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <control> <setting>	STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <kontrol> <mîheng>
+STATUS | PALETTE <0-5 or name> | MODE <0-2 or name> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <control> <setting>	STATUS | PALETTE <0-5 an nav> | MODE <0-2 an nav> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <kontrol> <mîheng>
+Render	Renderkirin
+Opacity	Neşefafî
+opacity	neşefafî
+PNG frames	Çarçoveyên PNG
+QUANTISE: beat	KUANTÎZE: lêdan
+QUANTISE: 1 bar	KUANTÎZE: 1 mîzan
+QUANTISE: 2 bars	KUANTÎZE: 2 mîzan
+QUANTISE: 4 bars	KUANTÎZE: 4 mîzan
+about {1} left	nêzî {1} maye
+LINK: {1} peers	LINK: {1} heval
+render cancelled	renderkirin hate betalkirin
+{1} frames in {2}	{1} çarçove di {2} de
+the output's ({1})	ya derketinê ({1})
+From cue and to cue	Ji cueyê û heta cueyê
+left the Link session	ji danişîna Link derket
+joined the Link session	tevlî danişîna Link bû
+the playlist has no cues	di lîsteya lêxistinê de cue tune
+{1} frames, {2}, {3}x{4}	{1} çarçove, {2}, {3}x{4}
+the source made no picture	çavkaniyê wêne çênekir
+a render is already running	renderkirinek jixwe dimeşe
+TAKE waits for the bar: {1} s	TAKE li benda mîzanê ye: {1} s
+TAKE waits for the beat: {1} s	TAKE li benda lêdanê ye: {1} s
+there is no playlist to render	lîsteya lêxistinê ji bo renderkirinê tune
+this build has no Ableton Link	di vê avakirinê de Ableton Link tune
+there is no picture in that range	di wê navberê de wêne tune
+RENDER CANCEL: nothing is rendering	RENDER CANCEL: tu renderkirin nameşe
+VJ LINK: this build has no Ableton Link	VJ LINK: di vê avakirinê de Ableton Link tune
+PAD CHIP: <slot> ON|OFF	PAD CHIP: <cih> ON|OFF
+PAD MODE: HOLD or LATCH	PAD MODE: HOLD an LATCH
+RENDER START: CUE, CUES a-b or OUTPUT	RENDER START: CUE, CUES a-b an OUTPUT
+frame {1} of {2} \xC2\xB7 {3} frames/s	çarçove {1} ji {2} \xC2\xB7 {3} çarçove/çirke
+RENDER START CUES: first-last, numbered from 1	RENDER START CUES: yekem-dawîn, hejmar ji 1 dest pê dikin
+the output's mask is not drawn by a render yet	renderkirin hêj maskeya derketinê naxêzîne
+PAD ASSIGN: this cue does not have that control	PAD ASSIGN: di vê cueyê de ew kontrol tune
+the output's slices are not drawn by a render yet	renderkirin hêj birînên derketinê naxêzîne
+the output's crossfader is not drawn by a render yet	renderkirin hêj crossfadera derketinê naxêzîne
+RENDER START: needs a size, a rate, a codec and a file	RENDER START: mezinahî, lez, kodek û pel pêwîst in
+VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 are bars)	VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 mîzan in)
+PAD SET: x and y are numbers from 0 to 1 (y = 1 is the top)	PAD SET: x û y hejmarên ji 0 heta 1 in (y = 1 jor e)
+RENDER START: size is 1080P, 4K or OUTPUT; codec is PRORES, H264 or PNG	RENDER START: mezinahî 1080P, 4K an OUTPUT e; kodek PRORES, H264 an PNG ye
+PAD ASSIGN: a control is OPACITY, FX<n>.AMOUNT, FX<n>.A to F, or NUM.<name> such as NUM.lumia.flow	PAD ASSIGN: kontrol OPACITY, FX<n>.AMOUNT, FX<n>.A heta F, an NUM.<nav> wek NUM.lumia.flow ye
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST	PAD: pêwîst e PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST	PAD: pêwîst e PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS	VJ: pêwîst e ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS
+RENDER: START <CUE|CUES a-b|OUTPUT> <1080P|4K|OUTPUT> <25|30|50|60> <PRORES|H264|PNG> <file>, STATUS, CANCEL, DIALOG	RENDER: START <CUE|CUES a-b|OUTPUT> <1080P|4K|OUTPUT> <25|30|50|60> <PRORES|H264|PNG> <pel>, STATUS, CANCEL, DIALOG
+Lens	Mercek
+START RENDER	RENDER BIKE
+CANCEL RENDER	RENDER BETAL
+RENDER TO FILE	RENDER LI PELÊ
+RENDER TO FILE...	RENDER LI PELÊ...

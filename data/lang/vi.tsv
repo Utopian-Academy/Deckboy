@@ -4342,3 +4342,165 @@ window capture fell back to screen grab — update ffmpeg for exact window captu
 Words to surface in the field, separated by | . One shows at a time, moving on the hold clock.	Các từ xuất hiện trong trường, ngăn bằng | . Mỗi lần một từ, chuyển theo đồng hồ giữ.
 Zero is one noise value across all three channels, which reads as film. Higher gives each channel its own, which reads as video.	Mức 0 dùng cùng một giá trị nhiễu cho cả ba kênh, tạo cảm giác phim. Cao hơn cho mỗi kênh giá trị riêng, tạo cảm giác video.
 zones cleared: Motion reads the whole picture	đã xóa vùng: Chuyển động đọc toàn hình
+Lens	Thấu kính
+Prism	Lăng kính
+Water	Nước
+Lasers	Laser
+Pixels	Điểm ảnh
+Listens	Theo âm
+Mirrors	Gương
+Shimmer	Lấp lánh
+Terrarium	Bể sinh cảnh
+(bypassed)	(bỏ qua)
+Second jet	Tia thứ hai
+%, 1 to 100	%, 1 đến 100
+Panel angle	Góc tấm
+Ripple size	Cỡ gợn
+Panels, 0-12	Số tấm, 0-12
+Seconds, 0-4	Giây, 0-4
+Seconds, 0-8	Giây, 0-8
+Top / bottom	Trên / dưới
+Amount 0-100%	Mức 0-100%
+ALSA MIDI Port	Cổng ALSA MIDI
+Degrees, 0-360	Độ, 0-360
+Terrarium Pico	Bể sinh cảnh Pico
+ASIOInit failed	ASIOInit thất bại
+Hertz, 20-20000	Héc, 20-20000
+Pixels, 64-2160	Điểm ảnh, 64-2160
+Pixels, 64-3840	Điểm ảnh, 64-3840
+Colour steps, 2-8	Bậc màu, 2-8
+Degrees -180..180	Độ -180..180
+Palette turn, 0-1	Xoay bảng màu, 0-1
+Size, %, 5 to 400	Cỡ, %, 5 đến 400
+Feature size, 0.1-8	Cỡ chi tiết, 0.1-8
+Spiral size, 0.25-4	Cỡ xoắn ốc, 0.25-4
+Degrees, -360 to 360	Độ, -360 đến 360
+Spiral strength, 0-4	Độ xoắn, 0-4
+0-100%, left to right	0-100%, trái sang phải
+0-100%, top to bottom	0-100%, trên xuống dưới
+0-100%: laser speckle	0-100%: đốm laser
+Pixel sort amount, 0-1	Mức sắp điểm ảnh, 0-1
+Pitch in hertz, 20-8000	Cao độ theo héc, 20-8000
+Frames a second, 1 to 60	Khung/giây, 1 đến 60
+Horizontal cells, 64-960	Ô ngang, 64-960
+select a lumia cue first	chọn cue lumia trước
+0 tube, 1 mandala, 2 none	0 ống, 1 mandala, 2 không
+How big a blob grows, 0-1	Cỡ tối đa của đốm, 0-1
+0-100%: overall brightness	0-100%: độ sáng tổng
+FDS hardware gain range, 0-63	Dải gain phần cứng FDS, 0-63
+How hard it cuts, %, 0 to 100	Độ cắt gắt, %, 0 đến 100
+{1} (supports + - * / and ())	{1} (hỗ trợ + - * / và ())
+Master oscillator rate, 0.01-8	Tốc độ dao động chính, 0.01-8
+Seconds the in move takes, 0-5	Thời gian chuyển vào, giây, 0-5
+0-100%: 0 holds the field still	0-100%: 0 giữ trường đứng yên
+0-100%: how bright the water is	0-100%: độ sáng của nước
+0-100%: how far the field bends	0-100%: độ uốn của trường
+0-100%: the whole picture turns	0-100%: xoay toàn bộ hình
+Degrees per second, -720 to 720	Độ/giây, -720 đến 720
+Lumia (laser light and mirrors)	Lumia (ánh laser và gương)
+Seconds between retriggers, 0-8	Giây giữa các lần kích lại, 0-8
+Seconds the out move takes, 0-5	Thời gian chuyển ra, giây, 0-5
+0-100%: how fast the water moves	0-100%: tốc độ chuyển động của nước
+0-100%: the halo round the lines	0-100%: quầng sáng quanh nét
+How many are alive at once, 3-48	Số lượng cùng tồn tại, 3-48
+Turbulence, 0 still to 3 boiling	Độ rối, 0 yên đến 3 sôi
+Birth, drift and fade rate, 0.1-3	Tốc độ sinh, trôi và mờ, 0.1-3
+How hard the audio drives it, 0-1	Mức âm thanh tác động, 0-1
+Scale of the whole graphic, 0.5-2	Tỉ lệ toàn bộ đồ họa, 0.5-2
+0-100%: 0 broad, 100 fine and busy	0-100%: 0 rộng, 100 mảnh và dày
+Down, % of the height, -100 to 100	Dọc, % chiều cao, -100 đến 100
+Thickness of the glowing edge, 0-1	Độ dày viền sáng, 0-1
+0-100%: how hard the lines are bent	0-100%: độ uốn của nét
+0-100%: light lingers on the screen	0-100%: ánh sáng lưu trên màn hình
+Across, % of the width, -100 to 100	Ngang, % chiều rộng, -100 đến 100
+% of the picture's height, 0.1 to 20	% chiều cao hình, 0.1 đến 20
+0-100%: how far the colours fan apart	0-100%: độ tách xòe của màu
+Degrees round the colour wheel, 0-360	Độ trên vòng màu, 0-360
+Where the eye sits, 0 left to 1 right	Vị trí mắt, 0 trái đến 1 phải
+Where the eye sits, 0 top to 1 bottom	Vị trí mắt, 0 trên đến 1 dưới
+dBFS, -60 to 0 (-18 is EBU alignment)	dBFS, -60 đến 0 (-18 là mức căn EBU)
+0-100%: how bright the laser lines are	0-100%: độ sáng của nét laser
+One LED tile's width in pixels, 8-8192	Rộng một ô LED theo điểm ảnh, 8-8192
+0-100%: a second jet crossing the first	0-100%: tia thứ hai cắt tia đầu
+Edge softness, % of the height, 0 to 25	Độ mềm viền, % chiều cao, 0 đến 25
+One LED tile's height in pixels, 8-8192	Cao một ô LED theo điểm ảnh, 8-8192
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono	0 cổ điển, 1 lửa, 2 băng, 3 neon, 4 đơn sắc
+Modulator as a ratio of the note, 0.05-16	Tỉ số bộ điều biến với nốt, 0.05-16
+Scanlines, bloom and gun misalignment, 0-1	Dòng quét, quầng sáng và lệch súng điện tử, 0-1
+0-100%: the round lens, barrel and dark rim	0-100%: kính tròn, méo thùng và viền tối
+Block displacement and channel tearing, 0-1	Lệch khối và xé kênh, 0-1
+Internal resolution, 1 (chunky) to 5 (fine)	Độ phân giải nội bộ, 1 (thô) đến 5 (mịn)
+Seconds the finished drawing stays, 0 to 60	Giây giữ bản vẽ hoàn tất, 0 đến 60
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono	0 cầu vồng + xám, 1 cầu vồng, 2 giao diện, 3 đơn sắc
+How readily neighbours merge, 0 (never) to 1	Độ dễ hợp khối lân cận, 0 (không) đến 1
+Turns the rim's colours round the wheel, 0-1	Xoay màu viền trên vòng màu, 0-1
+drag to turn round it · wheel to come closer	kéo để xoay quanh · lăn để lại gần
+0-100%: 50 is 1x, 0 a quarter, 100 four times	0-100%: 50 là 1x, 0 một phần tư, 100 gấp bốn
+How much of each frame feeds the next, 0-0.95	Phần mỗi khung đưa sang khung sau, 0-0.95
+Per-frame zoom of the feedback path, 0.90-1.15	Thu phóng hồi tiếp mỗi khung, 0.90-1.15
+Space under it, as a fraction of the frame, 0-0.8	Khoảng dưới, theo phần khung hình, 0-0.8
+0 rgb, 1 rainbow, 2 floyd, 3 warm, 4 cool, 5 green	0 rgb, 1 cầu vồng, 2 floyd, 3 ấm, 4 lạnh, 5 lục
+Edge out (+) or in (-), % of the height, -25 to 25	Viền ra (+) hoặc vào (-), % chiều cao, -25 đến 25
+SCREENS STAGE: STATUS, SET <what> <value> or APPLY	SCREENS STAGE: STATUS, SET <what> <value> hoặc APPLY
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear	0 vùng, 1 đôi, 2 dòng chảy, 3 yên ngựa, 4 gợn, 5 trượt
+Seconds before it leaves by itself; 0 waits for OUT	Giây trước khi tự rời; 0 chờ OUT
+0-100%: how far each panel tilts from the one before	0-100%: độ nghiêng mỗi tấm so với tấm trước
+0-100%: the share of each band drawn as grey stripes	0-100%: phần mỗi dải vẽ thành sọc xám
+0 off, 1 on: the flow surges with the programme sound	0 tắt, 1 bật: dòng chảy dâng theo tiếng chương trình
+0 off, 1 on: the top mirrors the bottom round a dark seam	0 tắt, 1 bật: trên phản chiếu dưới qua đường nối tối
+' (cues, position, look, effects, levels, routing, master)	' (cue, vị trí, diện mạo, hiệu ứng, mức, định tuyến, tổng)
+' -- try ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR or an output number	' -- thử ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR hoặc số đầu ra
+BLEND ROW: expected <first output> <how many, 2 or more> <overlap in pixels>, with that many outputs	BLEND ROW: cần <first output> <how many, 2 or more> <overlap in pixels>, với số đầu ra tương ứng
+LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright or trail	LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright hoặc trail
+SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> or UNITS METRES|FEET	SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> hoặc UNITS METRES|FEET
+Opacity	Độ đục
+opacity	độ đục
+FDS synth	Bộ tổng hợp FDS
+PROXY 720p	BẢN NHẸ 720p
+out:--	ra:--
+PAD MODE: HOLD or LATCH	PAD MODE: HOLD hoặc LATCH
+PAD ASSIGN: this cue does not have that control	PAD ASSIGN: cue này không có điều khiển đó
+PAD SET: x and y are numbers from 0 to 1 (y = 1 is the top)	PAD SET: x và y là số từ 0 đến 1 (y = 1 là trên cùng)
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST	PAD: cần PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST
+PAD ASSIGN: a control is OPACITY, FX<n>.AMOUNT, FX<n>.A to F, or NUM.<name> such as NUM.lumia.flow	PAD ASSIGN: điều khiển là OPACITY, FX<n>.AMOUNT, FX<n>.A đến F, hoặc NUM.<name> như NUM.lumia.flow
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST	PAD: cần PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST
+STATUS | PALETTE <0-5 or name> | MODE <0-2 or name> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <control> <setting>	STATUS | PALETTE <0-5 hoặc tên> | MODE <0-2 hoặc tên> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <control> <setting>
+Render	Kết xuất
+PNG frames	Khung PNG
+START RENDER	BẮT ĐẦU KẾT XUẤT
+CANCEL RENDER	HỦY KẾT XUẤT
+QUANTISE: beat	LƯỢNG TỬ: phách
+RENDER TO FILE	KẾT XUẤT RA TỆP
+about {1} left	còn khoảng {1}
+LINK: {1} peers	LINK: {1} máy ngang hàng
+QUANTISE: 1 bar	LƯỢNG TỬ: 1 ô nhịp
+QUANTISE: 2 bars	LƯỢNG TỬ: 2 ô nhịp
+QUANTISE: 4 bars	LƯỢNG TỬ: 4 ô nhịp
+render cancelled	đã hủy kết xuất
+RENDER TO FILE...	KẾT XUẤT RA TỆP...
+{1} frames in {2}	{1} khung trong {2}
+the output's ({1})	của đầu ra ({1})
+From cue and to cue	Cue đầu và cue cuối
+left the Link session	đã rời phiên Link
+joined the Link session	đã tham gia phiên Link
+the playlist has no cues	danh sách phát không có cue
+the source made no picture	nguồn không tạo được hình
+a render is already running	đang có tác vụ kết xuất
+TAKE waits for the bar: {1} s	TAKE chờ ô nhịp: {1} s
+TAKE waits for the beat: {1} s	TAKE chờ phách: {1} s
+there is no playlist to render	không có danh sách phát để kết xuất
+this build has no Ableton Link	bản dựng này không có Ableton Link
+there is no picture in that range	không có hình trong khoảng đó
+RENDER CANCEL: nothing is rendering	RENDER CANCEL: không có tác vụ kết xuất
+{1} frames, {2}, {3}x{4}	{1} khung, {2}, {3}x{4}
+RENDER START: CUE, CUES a-b or OUTPUT	RENDER START: CUE, CUES a-b hoặc OUTPUT
+frame {1} of {2} \xC2\xB7 {3} frames/s	khung {1} trên {2} \xC2\xB7 {3} khung/s
+RENDER START CUES: first-last, numbered from 1	RENDER START CUES: đầu-cuối, đánh số từ 1
+the output's mask is not drawn by a render yet	kết xuất chưa vẽ mặt nạ của đầu ra
+the output's slices are not drawn by a render yet	kết xuất chưa vẽ các lát cắt của đầu ra
+the output's crossfader is not drawn by a render yet	kết xuất chưa vẽ bộ chuyển mờ của đầu ra
+RENDER START: needs a size, a rate, a codec and a file	RENDER START: cần kích thước, tốc độ, codec và tệp
+VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 are bars)	VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 là ô nhịp)
+RENDER START: size is 1080P, 4K or OUTPUT; codec is PRORES, H264 or PNG	RENDER START: kích thước là 1080P, 4K hoặc OUTPUT; codec là PRORES, H264 hoặc PNG
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS	VJ: cần ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS
+VJ LINK: this build has no Ableton Link	VJ LINK: bản dựng này không có Ableton Link

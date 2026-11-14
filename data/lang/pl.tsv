@@ -4328,3 +4328,168 @@ OUTPUT WARM	WYJŚCIE START
 STREAM WARM	TRANSM. START
 audioprint	odcisk dźwięku
 Ouroboros	Uroboros
+Lens	Soczewka
+Prism	Pryzmat
+Water	Woda
+Glitch	Zakłócenie
+Lasers	Lasery
+Pixels	Piksele
+out:--	wyj.:--
+parade	parada
+plasma	plazma
+Listens	Nasłuch
+Mirrors	Lustra
+Shimmer	Migotanie
+vibrato	wibrato
+purkinje	Purkinje
+FDS synth	Syntezator FDS
+lissajous	Lissajous
+schlieren	smugi
+(bypassed)	(pominięte)
+Second jet	Drugi strumień
+%, 1 to 100	%, od 1 do 100
+Panel angle	Kąt panelu
+Ripple size	Rozmiar fal
+Panels, 0-12	Panele, 0-12
+Seconds, 0-4	Sekundy, 0-4
+Seconds, 0-8	Sekundy, 0-8
+Top / bottom	Góra / dół
+Amount 0-100%	Siła 0-100%
+ALSA MIDI Port	Port ALSA MIDI
+Degrees, 0-360	Stopnie, 0-360
+ASIOInit failed	Błąd ASIOInit
+Hertz, 20-20000	Herce, 20-20000
+Pixels, 64-2160	Piksele, 64-2160
+Pixels, 64-3840	Piksele, 64-3840
+Colour steps, 2-8	Poziomy koloru, 2-8
+Degrees -180..180	Stopnie -180..180
+Palette turn, 0-1	Obrót palety, 0-1
+Size, %, 5 to 400	Rozmiar, %, od 5 do 400
+Feature size, 0.1-8	Rozmiar detali, 0.1-8
+Spiral size, 0.25-4	Rozmiar spirali, 0.25-4
+Degrees, -360 to 360	Stopnie, od -360 do 360
+Spiral strength, 0-4	Siła spirali, 0-4
+0-100%, left to right	0-100%, od lewej do prawej
+0-100%, top to bottom	0-100%, od góry do dołu
+0-100%: laser speckle	0-100%: ziarnistość lasera
+Pixel sort amount, 0-1	Siła sortowania pikseli, 0-1
+Pitch in hertz, 20-8000	Wysokość w hercach, 20-8000
+Frames a second, 1 to 60	Klatki na sekundę, od 1 do 60
+Horizontal cells, 64-960	Komórki w poziomie, 64-960
+select a lumia cue first	najpierw wybierz cue Lumia
+0 tube, 1 mandala, 2 none	0 rura, 1 mandala, 2 brak
+How big a blob grows, 0-1	Jak duża rośnie plama, 0-1
+0-100%: overall brightness	0-100%: ogólna jasność
+FDS hardware gain range, 0-63	Zakres wzmocnienia sprzętu FDS, 0-63
+How hard it cuts, %, 0 to 100	Ostrość cięcia, %, od 0 do 100
+{1} (supports + - * / and ())	{1} (obsługuje + - * / i ())
+Master oscillator rate, 0.01-8	Tempo oscylatora głównego, 0.01-8
+Seconds the in move takes, 0-5	Czas ruchu wejścia w sekundach, 0-5
+0-100%: 0 holds the field still	0-100%: 0 unieruchamia pole
+0-100%: how bright the water is	0-100%: jasność wody
+0-100%: how far the field bends	0-100%: stopień wygięcia pola
+0-100%: the whole picture turns	0-100%: obrót całego obrazu
+Degrees per second, -720 to 720	Stopnie na sekundę, od -720 do 720
+Lumia (laser light and mirrors)	Lumia (światło lasera i lustra)
+Seconds between retriggers, 0-8	Sekundy między wyzwoleniami, 0-8
+Seconds the out move takes, 0-5	Czas ruchu wyjścia w sekundach, 0-5
+0-100%: how fast the water moves	0-100%: prędkość ruchu wody
+0-100%: the halo round the lines	0-100%: poświata wokół linii
+How many are alive at once, 3-48	Ile żyje jednocześnie, 3-48
+Turbulence, 0 still to 3 boiling	Turbulencja, od 0 bezruch do 3 wrzenie
+Birth, drift and fade rate, 0.1-3	Tempo narodzin, dryfu i zanikania, 0.1-3
+How hard the audio drives it, 0-1	Siła wpływu dźwięku, 0-1
+Scale of the whole graphic, 0.5-2	Skala całej grafiki, 0.5-2
+0-100%: 0 broad, 100 fine and busy	0-100%: 0 szeroko, 100 drobno i gęsto
+Down, % of the height, -100 to 100	W dół, % wysokości, od -100 do 100
+Thickness of the glowing edge, 0-1	Grubość świecącej krawędzi, 0-1
+0-100%: how hard the lines are bent	0-100%: siła wygięcia linii
+0-100%: light lingers on the screen	0-100%: światło utrzymuje się na ekranie
+Across, % of the width, -100 to 100	W bok, % szerokości, od -100 do 100
+% of the picture's height, 0.1 to 20	% wysokości obrazu, od 0.1 do 20
+0-100%: how far the colours fan apart	0-100%: rozchylenie wachlarza kolorów
+Degrees round the colour wheel, 0-360	Stopnie na kole barw, 0-360
+Where the eye sits, 0 left to 1 right	Pozycja oka, od 0 lewo do 1 prawo
+Where the eye sits, 0 top to 1 bottom	Pozycja oka, od 0 góra do 1 dół
+dBFS, -60 to 0 (-18 is EBU alignment)	dBFS, od -60 do 0 (-18 to poziom odniesienia EBU)
+0-100%: how bright the laser lines are	0-100%: jasność linii lasera
+One LED tile's width in pixels, 8-8192	Szerokość modułu LED w pikselach, 8-8192
+0-100%: a second jet crossing the first	0-100%: drugi strumień przecina pierwszy
+Edge softness, % of the height, 0 to 25	Miękkość krawędzi, % wysokości, od 0 do 25
+One LED tile's height in pixels, 8-8192	Wysokość modułu LED w pikselach, 8-8192
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono	0 klasyczny, 1 ogień, 2 lód, 3 neon, 4 mono
+Modulator as a ratio of the note, 0.05-16	Modulator jako stosunek do nuty, 0.05-16
+Scanlines, bloom and gun misalignment, 0-1	Linie skanowania, poświata i rozbieżność dział, 0-1
+0-100%: the round lens, barrel and dark rim	0-100%: okrągła soczewka, dystorsja beczkowa i ciemny brzeg
+Block displacement and channel tearing, 0-1	Przesunięcie bloków i rozrywanie kanałów, 0-1
+Internal resolution, 1 (chunky) to 5 (fine)	Rozdzielczość wewnętrzna, od 1 (zgrubna) do 5 (dokładna)
+Seconds the finished drawing stays, 0 to 60	Czas wyświetlania gotowego rysunku w sekundach, od 0 do 60
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono	0 tęcza + szary, 1 tęcza, 2 motyw, 3 mono
+How readily neighbours merge, 0 (never) to 1	Łatwość łączenia sąsiadów, od 0 (nigdy) do 1
+Turns the rim's colours round the wheel, 0-1	Obraca kolory brzegu na kole barw, 0-1
+drag to turn round it · wheel to come closer	przeciągnij, aby obrócić widok · kółko, aby się zbliżyć
+0-100%: 50 is 1x, 0 a quarter, 100 four times	0-100%: 50 to 1x, 0 ćwierć, 100 czterokrotność
+How much of each frame feeds the next, 0-0.95	Ile każdej klatki trafia do następnej, 0-0.95
+Per-frame zoom of the feedback path, 0.90-1.15	Zoom na klatkę w pętli sprzężenia, 0.90-1.15
+Space under it, as a fraction of the frame, 0-0.8	Miejsce pod spodem jako ułamek klatki, 0-0.8
+0 rgb, 1 rainbow, 2 floyd, 3 warm, 4 cool, 5 green	0 rgb, 1 tęcza, 2 floyd, 3 ciepły, 4 chłodny, 5 zielony
+Edge out (+) or in (-), % of the height, -25 to 25	Krawędź na zewnątrz (+) lub do środka (-), % wysokości, od -25 do 25
+SCREENS STAGE: STATUS, SET <what> <value> or APPLY	SCREENS STAGE: STATUS, SET <what> <value> lub APPLY
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear	0 strefa, 1 bliźniak, 2 przepływ, 3 siodło, 4 fale, 5 ścinanie
+Seconds before it leaves by itself; 0 waits for OUT	Sekundy do samoczynnego wyjścia; 0 czeka na OUT
+0-100%: how far each panel tilts from the one before	0-100%: nachylenie każdego panelu względem poprzedniego
+0-100%: the share of each band drawn as grey stripes	0-100%: część każdego pasma rysowana jako szare paski
+0 off, 1 on: the flow surges with the programme sound	0 wył., 1 wł.: przepływ pulsuje z dźwiękiem programu
+0 off, 1 on: the top mirrors the bottom round a dark seam	0 wył., 1 wł.: góra odbija dół wokół ciemnego łączenia
+' (cues, position, look, effects, levels, routing, master)	' (cue, pozycja, wygląd, efekty, poziomy, routing, master)
+' -- try ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR or an output number	' -- spróbuj ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR lub numeru wyjścia
+BLEND ROW: expected <first output> <how many, 2 or more> <overlap in pixels>, with that many outputs	BLEND ROW: oczekiwano <first output> <how many, 2 or more> <overlap in pixels>, z taką liczbą wyjść
+SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> or UNITS METRES|FEET	SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> lub UNITS METRES|FEET
+opacity	krycie
+Opacity	Krycie
+this build has no Ableton Link	ta kompilacja nie zawiera Ableton Link
+joined the Link session	dołączono do sesji Link
+left the Link session	opuszczono sesję Link
+VJ LINK: this build has no Ableton Link	VJ LINK: ta kompilacja nie zawiera Ableton Link
+LINK: {1} peers	LINK: {1} uczestników
+TAKE waits for the beat: {1} s	TAKE czeka na uderzenie: {1} s
+TAKE waits for the bar: {1} s	TAKE czeka na takt: {1} s
+QUANTISE: 1 bar	QUANTISE: 1 takt
+QUANTISE: 2 bars	QUANTISE: 2 takty
+QUANTISE: 4 bars	QUANTISE: 4 takty
+QUANTISE: beat	QUANTISE: uderzenie
+PAD MODE: HOLD or LATCH	PAD MODE: HOLD lub LATCH
+PAD ASSIGN: this cue does not have that control	PAD ASSIGN: ten cue nie ma tego regulatora
+PAD SET: x and y are numbers from 0 to 1 (y = 1 is the top)	PAD SET: x i y to liczby od 0 do 1 (y = 1 to góra)
+PAD ASSIGN: a control is OPACITY, FX<n>.AMOUNT, FX<n>.A to F, or NUM.<name> such as NUM.lumia.flow	PAD ASSIGN: regulator to OPACITY, FX<n>.AMOUNT, FX<n>.A do F lub NUM.<name>, np. NUM.lumia.flow
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST	PAD: oczekiwano PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST	PAD: oczekiwano PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS	VJ: oczekiwano ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS
+VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 are bars)	VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 to takty)
+LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright or trail	LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright lub trail
+render cancelled	renderowanie anulowane
+RENDER TO FILE	RENDERUJ DO PLIKU
+From cue and to cue	Cue początkowy i końcowy
+the output's ({1})	wyjścia ({1})
+{1} frames, {2}, {3}x{4}	{1} klatek, {2}, {3}x{4}
+about {1} left	pozostało około {1}
+{1} frames in {2}	{1} klatek w {2}
+CANCEL RENDER	ANULUJ RENDER
+START RENDER	ROZPOCZNIJ RENDER
+RENDER CANCEL: nothing is rendering	RENDER CANCEL: nic nie jest renderowane
+RENDER START CUES: first-last, numbered from 1	RENDER START CUES: pierwszy-ostatni, numeracja od 1
+RENDER START: CUE, CUES a-b or OUTPUT	RENDER START: CUE, CUES a-b lub OUTPUT
+RENDER START: needs a size, a rate, a codec and a file	RENDER START: wymaga rozmiaru, klatkażu, kodeka i pliku
+RENDER START: size is 1080P, 4K or OUTPUT; codec is PRORES, H264 or PNG	RENDER START: rozmiar to 1080P, 4K lub OUTPUT; kodek to PRORES, H264 lub PNG
+Render	Renderowanie
+RENDER TO FILE...	RENDERUJ DO PLIKU...
+PNG frames	Klatki PNG
+there is no playlist to render	brak playlisty do renderowania
+the playlist has no cues	playlista nie zawiera cue
+the output's crossfader is not drawn by a render yet	crossfader wyjścia nie jest jeszcze uwzględniany w renderowaniu
+the output's mask is not drawn by a render yet	maska wyjścia nie jest jeszcze uwzględniana w renderowaniu
+the output's slices are not drawn by a render yet	wycinki wyjścia nie są jeszcze uwzględniane w renderowaniu
+there is no picture in that range	brak obrazu w tym zakresie
+the source made no picture	źródło nie wygenerowało obrazu
+a render is already running	renderowanie już trwa
+frame {1} of {2} \xC2\xB7 {3} frames/s	klatka {1} z {2} \xC2\xB7 {3} klatek/s

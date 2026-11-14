@@ -4355,3 +4355,164 @@ Words to surface in the field, separated by | . One shows at a time, moving on t
 Zero is one noise value across all three channels, which reads as film. Higher gives each channel its own, which reads as video.	Sıfırda üç kanalda tek gürültü değeri vardır; film gibi. Yükseldikçe her kanal kendi gürültüsünü alır; video gibi.
 OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <sender name>	OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <G?NDER?C? ADI>
 STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <control> <setting>	STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <KONTROL> <AYAR>
+Lens	Mercek
+Prism	Prizma
+Water	Su
+Lasers	Lazerler
+Pixels	Piksel
+Listens	Dinler
+Mirrors	Aynalar
+Shimmer	Işıltı
+FDS synth	FDS sentez
+Terrarium	Teraryum
+(bypassed)	(atlandı)
+Second jet	İkinci jet
+%, 1 to 100	%, 1 ile 100
+Panel angle	Panel açısı
+Ripple size	Dalga boyutu
+Panels, 0-12	Panel, 0-12
+Seconds, 0-4	Saniye, 0-4
+Seconds, 0-8	Saniye, 0-8
+Top / bottom	Üst / alt
+Amount 0-100%	Miktar 0-100%
+ALSA MIDI Port	ALSA MIDI Portu
+Degrees, 0-360	Derece, 0-360
+Terrarium Pico	Teraryum Pico
+ASIOInit failed	ASIOInit başarısız
+Pixels, 64-2160	Piksel, 64-2160
+Pixels, 64-3840	Piksel, 64-3840
+Colour steps, 2-8	Renk adımları, 2-8
+Degrees -180..180	Derece -180..180
+Palette turn, 0-1	Palet dönüşü, 0-1
+Size, %, 5 to 400	Boyut, %, 5 ile 400
+Feature size, 0.1-8	Ayrıntı boyutu, 0.1-8
+Spiral size, 0.25-4	Spiral boyutu, 0.25-4
+Degrees, -360 to 360	Derece, -360 ile 360
+Spiral strength, 0-4	Spiral gücü, 0-4
+0-100%, left to right	0-100%, soldan sağa
+0-100%, top to bottom	0-100%, yukarıdan aşağıya
+0-100%: laser speckle	0-100%: lazer beneği
+Pixel sort amount, 0-1	Piksel sıralama miktarı, 0-1
+Pitch in hertz, 20-8000	Hertz cinsinden perde, 20-8000
+Frames a second, 1 to 60	Saniyede kare, 1 ile 60
+Horizontal cells, 64-960	Yatay hücreler, 64-960
+select a lumia cue first	önce bir Lumia cue seçin
+0 tube, 1 mandala, 2 none	0 tüp, 1 mandala, 2 yok
+How big a blob grows, 0-1	Lekenin büyüme boyutu, 0-1
+0-100%: overall brightness	0-100%: genel parlaklık
+FDS hardware gain range, 0-63	FDS donanım kazanç aralığı, 0-63
+How hard it cuts, %, 0 to 100	Kesme sertliği, %, 0 ile 100
+{1} (supports + - * / and ())	{1} (+ - * / ve () desteklenir)
+Master oscillator rate, 0.01-8	Ana osilatör hızı, 0.01-8
+Seconds the in move takes, 0-5	Giriş hareketi süresi, saniye, 0-5
+0-100%: 0 holds the field still	0-100%: 0 alanı sabit tutar
+0-100%: how bright the water is	0-100%: suyun parlaklığı
+0-100%: how far the field bends	0-100%: alanın bükülme miktarı
+0-100%: the whole picture turns	0-100%: tüm görüntü döner
+Degrees per second, -720 to 720	Saniyede derece, -720 ile 720
+Lumia (laser light and mirrors)	Lumia (lazer ışığı ve aynalar)
+Seconds between retriggers, 0-8	Yeniden tetiklemeler arası saniye, 0-8
+Seconds the out move takes, 0-5	Çıkış hareketi süresi, saniye, 0-5
+0-100%: how fast the water moves	0-100%: suyun hareket hızı
+0-100%: the halo round the lines	0-100%: çizgilerin etrafındaki hale
+How many are alive at once, 3-48	Aynı anda yaşayan sayısı, 3-48
+Turbulence, 0 still to 3 boiling	Türbülans, 0 durgun ile 3 kaynar
+Birth, drift and fade rate, 0.1-3	Doğuş, sürüklenme ve sönme hızı, 0.1-3
+How hard the audio drives it, 0-1	Sesin etkileme gücü, 0-1
+Scale of the whole graphic, 0.5-2	Tüm grafiğin ölçeği, 0.5-2
+0-100%: 0 broad, 100 fine and busy	0-100%: 0 geniş, 100 ince ve yoğun
+Down, % of the height, -100 to 100	Aşağı, yüksekliğin %'si, -100 ile 100
+Thickness of the glowing edge, 0-1	Parlayan kenarın kalınlığı, 0-1
+0-100%: how hard the lines are bent	0-100%: çizgilerin bükülme gücü
+0-100%: light lingers on the screen	0-100%: ışığın ekranda kalması
+Across, % of the width, -100 to 100	Yatay, genişliğin %'si, -100 ile 100
+% of the picture's height, 0.1 to 20	Görüntü yüksekliğinin %'si, 0.1 ile 20
+0-100%: how far the colours fan apart	0-100%: renklerin yelpaze gibi açılması
+Degrees round the colour wheel, 0-360	Renk çarkında derece, 0-360
+Where the eye sits, 0 left to 1 right	Göz konumu, 0 sol ile 1 sağ
+Where the eye sits, 0 top to 1 bottom	Göz konumu, 0 üst ile 1 alt
+dBFS, -60 to 0 (-18 is EBU alignment)	dBFS, -60 ile 0 (-18 EBU referans seviyesidir)
+0-100%: how bright the laser lines are	0-100%: lazer çizgilerinin parlaklığı
+One LED tile's width in pixels, 8-8192	Bir LED karonun piksel genişliği, 8-8192
+0-100%: a second jet crossing the first	0-100%: ilkini kesen ikinci jet
+Edge softness, % of the height, 0 to 25	Kenar yumuşaklığı, yüksekliğin %'si, 0 ile 25
+One LED tile's height in pixels, 8-8192	Bir LED karonun piksel yüksekliği, 8-8192
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono	0 klasik, 1 ateş, 2 buz, 3 neon, 4 tek renk
+Modulator as a ratio of the note, 0.05-16	Notaya oranla modülatör, 0.05-16
+Scanlines, bloom and gun misalignment, 0-1	Tarama çizgileri, parlama ve ışın hizasızlığı, 0-1
+0-100%: the round lens, barrel and dark rim	0-100%: yuvarlak mercek, fıçı bozulması ve koyu kenar
+Block displacement and channel tearing, 0-1	Blok kayması ve kanal yırtılması, 0-1
+Internal resolution, 1 (chunky) to 5 (fine)	İç çözünürlük, 1 (kaba) ile 5 (ince)
+Seconds the finished drawing stays, 0 to 60	Biten çizimin kalacağı saniye, 0 ile 60
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono	0 gökkuşağı + gri, 1 gökkuşağı, 2 tema, 3 tek renk
+How readily neighbours merge, 0 (never) to 1	Komşuların birleşme kolaylığı, 0 (asla) ile 1
+Turns the rim's colours round the wheel, 0-1	Kenar renklerini çarkta döndürür, 0-1
+drag to turn round it · wheel to come closer	etrafında dönmek için sürükleyin · yaklaşmak için tekerlek
+0-100%: 50 is 1x, 0 a quarter, 100 four times	0-100%: 50 1x, 0 çeyrek, 100 dört kat
+How much of each frame feeds the next, 0-0.95	Her karenin sonrakine aktarım miktarı, 0-0.95
+Per-frame zoom of the feedback path, 0.90-1.15	Geri besleme yolunun kare başına yakınlaştırması, 0.90-1.15
+Space under it, as a fraction of the frame, 0-0.8	Altındaki boşluk, karenin kesri olarak, 0-0.8
+0 rgb, 1 rainbow, 2 floyd, 3 warm, 4 cool, 5 green	0 rgb, 1 gökkuşağı, 2 floyd, 3 sıcak, 4 soğuk, 5 yeşil
+Edge out (+) or in (-), % of the height, -25 to 25	Kenar dışa (+) veya içe (-), yüksekliğin %'si, -25 ile 25
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear	0 bölge, 1 ikiz, 2 akış, 3 eyer, 4 dalga, 5 kayma
+Seconds before it leaves by itself; 0 waits for OUT	Kendiliğinden çıkışa kadar saniye; 0 OUT bekler
+0-100%: how far each panel tilts from the one before	0-100%: her panelin öncekine göre eğimi
+0-100%: the share of each band drawn as grey stripes	0-100%: her bandın gri çizgilerle çizilen payı
+0 off, 1 on: the flow surges with the programme sound	0 kapalı, 1 açık: akış PROGRAM sesiyle kabarır
+0 off, 1 on: the top mirrors the bottom round a dark seam	0 kapalı, 1 açık: üst, koyu bir birleşim çizgisinde altı yansıtır
+' (cues, position, look, effects, levels, routing, master)	' (cue, konum, görünüm, efektler, seviyeler, yönlendirme, ana)
+' -- try ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR or an output number	' -- ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR veya çıkış numarası deneyin
+BLEND ROW: expected <first output> <how many, 2 or more> <overlap in pixels>, with that many outputs	BLEND ROW: <ilk çıkış> <sayı, 2 veya daha fazla> <piksel cinsinden örtüşme> ve o kadar çıkış bekleniyor
+SCREENS STAGE: STATUS, SET <what> <value> or APPLY	SCREENS STAGE: STATUS, SET <parametre> <değer> veya APPLY
+SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> or UNITS METRES|FEET	SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> veya UNITS METRES|FEET
+LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright or trail	LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright veya trail
+STATUS | PALETTE <0-5 or name> | MODE <0-2 or name> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <control> <setting>	STATUS | PALETTE <0-5 veya ad> | MODE <0-2 veya ad> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <kontrol> <ayar>
+Opacity	Opaklık
+opacity	opaklık
+PAD MODE: HOLD or LATCH	PAD MODE: HOLD veya LATCH
+PAD ASSIGN: this cue does not have that control	PAD ASSIGN: bu cue bu kontrole sahip değil
+PAD SET: x and y are numbers from 0 to 1 (y = 1 is the top)	PAD SET: x ve y 0 ile 1 arasında sayılardır (y = 1 üsttür)
+PAD ASSIGN: a control is OPACITY, FX<n>.AMOUNT, FX<n>.A to F, or NUM.<name> such as NUM.lumia.flow	PAD ASSIGN: kontrol OPACITY, FX<n>.AMOUNT, FX<n>.A ile F arası veya NUM.lumia.flow gibi NUM.<name> olur
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST	PAD: beklenen PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST	PAD: beklenen PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST
+QUANTISE: beat	KUANTİZE: vuruş
+QUANTISE: 1 bar	KUANTİZE: 1 ölçü
+QUANTISE: 2 bars	KUANTİZE: 2 ölçü
+QUANTISE: 4 bars	KUANTİZE: 4 ölçü
+LINK: {1} peers	LINK: {1} eş
+left the Link session	Link oturumundan ayrıldı
+joined the Link session	Link oturumuna katıldı
+TAKE waits for the bar: {1} s	TAKE ölçüyü bekliyor: {1} s
+TAKE waits for the beat: {1} s	TAKE vuruşu bekliyor: {1} s
+this build has no Ableton Link	bu derlemede Ableton Link yok
+VJ LINK: this build has no Ableton Link	VJ LINK: bu derlemede Ableton Link yok
+VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 are bars)	VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 ölçüdür)
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS	VJ: beklenen ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS
+Render	İşleme
+PNG frames	PNG kareleri
+START RENDER	İŞLEMEYİ BAŞLAT
+CANCEL RENDER	İŞLEMEYİ İPTAL ET
+RENDER TO FILE	DOSYAYA İŞLE
+RENDER TO FILE...	DOSYAYA İŞLE...
+about {1} left	yaklaşık {1} kaldı
+render cancelled	işleme iptal edildi
+{1} frames in {2}	{2} içinde {1} kare
+the output's ({1})	çıkışınki ({1})
+From cue and to cue	Başlangıç ve bitiş cue
+ProRes 4444 (alpha)	ProRes 4444 (alfa)
+the playlist has no cues	çalma listesinde cue yok
+{1} frames, {2}, {3}x{4}	{1} kare, {2}, {3}x{4}
+the source made no picture	kaynak görüntü üretmedi
+a render is already running	bir işleme zaten sürüyor
+there is no playlist to render	işlenecek çalma listesi yok
+there is no picture in that range	bu aralıkta görüntü yok
+RENDER CANCEL: nothing is rendering	RENDER CANCEL: işlenen bir şey yok
+RENDER START: CUE, CUES a-b or OUTPUT	RENDER START: CUE, CUES a-b veya OUTPUT
+RENDER START CUES: first-last, numbered from 1	RENDER START CUES: ilk-son, 1'den başlayarak
+the output's mask is not drawn by a render yet	işleme henüz çıkış maskesini çizmez
+the output's slices are not drawn by a render yet	işleme henüz çıkış dilimlerini çizmez
+the output's crossfader is not drawn by a render yet	işleme henüz çıkış çapraz geçişini çizmez
+RENDER START: needs a size, a rate, a codec and a file	RENDER START: boyut, hız, kodek ve dosya gerekli
+RENDER START: size is 1080P, 4K or OUTPUT; codec is PRORES, H264 or PNG	RENDER START: boyut 1080P, 4K veya OUTPUT; kodek PRORES, H264 veya PNG
+frame {1} of {2} \xC2\xB7 {3} frames/s	kare {1} / {2} \xC2\xB7 {3} kare/s
+out:--	çıkış:--

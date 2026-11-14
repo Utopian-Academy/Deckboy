@@ -4341,3 +4341,165 @@ this presentation needs a password to open. Remove the password in PowerPoint (F
 warp grid: expected <n>, <cols> <rows>, off, smooth or straight	warp grid: ຕ້ອງການ <n>, <cols> <rows>, off, smooth ຫຼື straight
 warp point: that is a corner -- move it with WARP <corner> dx dy	warp point: ນັ້ນເປັນມຸມ -- ຍ້າຍດ້ວຍ WARP <corner> dx dy
 window capture fell back to screen grab — update ffmpeg for exact window capture	ການຈັບປ່ອງຢ້ຽມປ່ຽນໄປຈັບໜ້າຈໍ -- ອັບເດດ FFmpeg ເພື່ອຈັບປ່ອງຢ້ຽມແມ່ນຍຳ
+Lens	ເລນ
+Prism	ປຣິຊຶມ
+Water	ນ້ຳ
+Lasers	ເລເຊີ
+Pixels	ພິກເຊວ
+Listens	ຟັງສຽງ
+Mirrors	ແວ່ນ
+Shimmer	ປະກາຍ
+Terrarium	ຕູ້ສວນ
+(bypassed)	(ຂ້າມ)
+Second jet	ສາຍທີສອງ
+%, 1 to 100	%, 1 ຫາ 100
+Panel angle	ມຸມແຜ່ນ
+Ripple size	ຂະໜາດຄື້ນ
+Panels, 0-12	ແຜ່ນ, 0-12
+Seconds, 0-4	ວິນາທີ, 0-4
+Seconds, 0-8	ວິນາທີ, 0-8
+Top / bottom	ເທິງ / ລຸ່ມ
+Amount 0-100%	ລະດັບ 0-100%
+ALSA MIDI Port	ພອດ ALSA MIDI
+Degrees, 0-360	ອົງສາ, 0-360
+Terrarium Pico	ຕູ້ສວນ Pico
+ASIOInit failed	ASIOInit ລົ້ມເຫຼວ
+Hertz, 20-20000	ເຮີດ, 20-20000
+Pixels, 64-2160	ພິກເຊວ, 64-2160
+Pixels, 64-3840	ພິກເຊວ, 64-3840
+Colour steps, 2-8	ຂັ້ນສີ, 2-8
+Degrees -180..180	ອົງສາ -180..180
+Palette turn, 0-1	ໝຸນຊຸດສີ, 0-1
+Size, %, 5 to 400	ຂະໜາດ, %, 5 ຫາ 400
+Feature size, 0.1-8	ຂະໜາດລາຍ, 0.1-8
+Spiral size, 0.25-4	ຂະໜາດກ້ຽວ, 0.25-4
+Degrees, -360 to 360	ອົງສາ, -360 ຫາ 360
+Spiral strength, 0-4	ຄວາມແຮງກ້ຽວ, 0-4
+0-100%, left to right	0-100%, ຊ້າຍຫາຂວາ
+0-100%, top to bottom	0-100%, ເທິງຫາລຸ່ມ
+0-100%: laser speckle	0-100%: ຈຸດກະຈາຍເລເຊີ
+Pixel sort amount, 0-1	ລະດັບຈັດພິກເຊວ, 0-1
+Pitch in hertz, 20-8000	ລະດັບສຽງເປັນເຮີດ, 20-8000
+Frames a second, 1 to 60	ເຟຣມຕໍ່ວິນາທີ, 1 ຫາ 60
+Horizontal cells, 64-960	ຫ້ອງແນວນອນ, 64-960
+select a lumia cue first	ເລືອກຄິວ lumia ກ່ອນ
+0 tube, 1 mandala, 2 none	0 ທໍ່, 1 ມັນດາລາ, 2 ບໍ່ມີ
+How big a blob grows, 0-1	ຂະໜາດກ້ອນທີ່ໃຫຍ່ຂຶ້ນ, 0-1
+0-100%: overall brightness	0-100%: ຄວາມສະຫວ່າງລວມ
+FDS hardware gain range, 0-63	ຊ່ວງຂະຫຍາຍຮາດແວ FDS, 0-63
+How hard it cuts, %, 0 to 100	ຄວາມແຮງຕັດ, %, 0 ຫາ 100
+{1} (supports + - * / and ())	{1} (ຮອງຮັບ + - * / ແລະ ())
+Master oscillator rate, 0.01-8	ອັດຕາອອສຊິເລເຕີຫຼັກ, 0.01-8
+Seconds the in move takes, 0-5	ເວລາເຄື່ອນເຂົ້າ, ວິນາທີ, 0-5
+0-100%: 0 holds the field still	0-100%: 0 ໃຫ້ສະໜາມຢຸດນິ້ງ
+0-100%: how bright the water is	0-100%: ຄວາມສະຫວ່າງຂອງນ້ຳ
+0-100%: how far the field bends	0-100%: ລະດັບບິດສະໜາມ
+0-100%: the whole picture turns	0-100%: ໝຸນຮູບທັງໝົດ
+Degrees per second, -720 to 720	ອົງສາຕໍ່ວິນາທີ, -720 ຫາ 720
+Lumia (laser light and mirrors)	Lumia (ແສງເລເຊີແລະແວ່ນ)
+Seconds between retriggers, 0-8	ວິນາທີລະຫວ່າງການກະຕຸ້ນຊ້ຳ, 0-8
+Seconds the out move takes, 0-5	ເວລາເຄື່ອນອອກ, ວິນາທີ, 0-5
+0-100%: how fast the water moves	0-100%: ຄວາມໄວເຄື່ອນຂອງນ້ຳ
+0-100%: the halo round the lines	0-100%: ລັດສະໝີອ້ອມເສັ້ນ
+How many are alive at once, 3-48	ຈຳນວນທີ່ມີຊີວິດພ້ອມກັນ, 3-48
+Turbulence, 0 still to 3 boiling	ຄວາມປັ່ນປ່ວນ, 0 ນິ້ງ ຫາ 3 ເດືອດ
+Birth, drift and fade rate, 0.1-3	ອັດຕາເກີດ, ເລື່ອນ ແລະ ຈາງ, 0.1-3
+How hard the audio drives it, 0-1	ຄວາມແຮງທີ່ສຽງຂັບ, 0-1
+Scale of the whole graphic, 0.5-2	ຂະໜາດກຣາຟິກທັງໝົດ, 0.5-2
+0-100%: 0 broad, 100 fine and busy	0-100%: 0 ກວ້າງ, 100 ລະອຽດແລະໜາແໜ້ນ
+Down, % of the height, -100 to 100	ລົງ, % ຂອງຄວາມສູງ, -100 ຫາ 100
+Thickness of the glowing edge, 0-1	ຄວາມໜາຂອງຂອບເຮືອງແສງ, 0-1
+0-100%: how hard the lines are bent	0-100%: ຄວາມແຮງບິດເສັ້ນ
+0-100%: light lingers on the screen	0-100%: ແສງຄ້າງເທິງຈໍ
+Across, % of the width, -100 to 100	ຂວາງ, % ຂອງຄວາມກວ້າງ, -100 ຫາ 100
+% of the picture's height, 0.1 to 20	% ຂອງຄວາມສູງຮູບ, 0.1 ຫາ 20
+0-100%: how far the colours fan apart	0-100%: ລະດັບແຍກສີອອກ
+Degrees round the colour wheel, 0-360	ອົງສາອ້ອມວົງສີ, 0-360
+Where the eye sits, 0 left to 1 right	ຕຳແໜ່ງຕາ, 0 ຊ້າຍ ຫາ 1 ຂວາ
+Where the eye sits, 0 top to 1 bottom	ຕຳແໜ່ງຕາ, 0 ເທິງ ຫາ 1 ລຸ່ມ
+dBFS, -60 to 0 (-18 is EBU alignment)	dBFS, -60 ຫາ 0 (-18 ແມ່ນລະດັບອ້າງອີງ EBU)
+0-100%: how bright the laser lines are	0-100%: ຄວາມສະຫວ່າງເສັ້ນເລເຊີ
+One LED tile's width in pixels, 8-8192	ຄວາມກວ້າງແຜ່ນ LED ເປັນພິກເຊວ, 8-8192
+0-100%: a second jet crossing the first	0-100%: ສາຍທີສອງຕັດສາຍທຳອິດ
+Edge softness, % of the height, 0 to 25	ຄວາມນຸ່ມຂອບ, % ຂອງຄວາມສູງ, 0 ຫາ 25
+One LED tile's height in pixels, 8-8192	ຄວາມສູງແຜ່ນ LED ເປັນພິກເຊວ, 8-8192
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono	0 ຄລາສສິກ, 1 ໄຟ, 2 ນ້ຳກ້ອນ, 3 ນີອອນ, 4 ສີດຽວ
+Modulator as a ratio of the note, 0.05-16	ຕົວມອດູເລດເປັນອັດຕາສ່ວນໂນ້ດ, 0.05-16
+Scanlines, bloom and gun misalignment, 0-1	ເສັ້ນສະແກນ, ແສງຟຸ້ງ ແລະ ປືນເອເລັກຕຣອນບໍ່ກົງ, 0-1
+0-100%: the round lens, barrel and dark rim	0-100%: ເລນມົນ, ບິດປ່ອງ ແລະ ຂອບມືດ
+Block displacement and channel tearing, 0-1	ເລື່ອນບລັອກ ແລະ ຈີກຊ່ອງສີ, 0-1
+Internal resolution, 1 (chunky) to 5 (fine)	ຄວາມລະອຽດພາຍໃນ, 1 (ຫຍາບ) ຫາ 5 (ລະອຽດ)
+Seconds the finished drawing stays, 0 to 60	ວິນາທີທີ່ຮູບແຕ້ມສຳເລັດຄ້າງຢູ່, 0 ຫາ 60
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono	0 ຮຸ້ງ + ເທົາ, 1 ຮຸ້ງ, 2 ທີມ, 3 ສີດຽວ
+How readily neighbours merge, 0 (never) to 1	ຄວາມງ່າຍລວມກ້ອນຂ້າງຄຽງ, 0 (ບໍ່ເຄີຍ) ຫາ 1
+Turns the rim's colours round the wheel, 0-1	ໝຸນສີຂອບຕາມວົງສີ, 0-1
+drag to turn round it · wheel to come closer	ລາກເພື່ອໝຸນອ້ອມ · ໝຸນລໍ້ເພື່ອເຂົ້າໃກ້
+0-100%: 50 is 1x, 0 a quarter, 100 four times	0-100%: 50 ແມ່ນ 1x, 0 ໜຶ່ງສ່ວນສີ່, 100 ສີ່ເທົ່າ
+How much of each frame feeds the next, 0-0.95	ສັດສ່ວນເຟຣມທີ່ປ້ອນເຟຣມຖັດໄປ, 0-0.95
+Per-frame zoom of the feedback path, 0.90-1.15	ຊູມທາງປ້ອນກັບຕໍ່ເຟຣມ, 0.90-1.15
+Space under it, as a fraction of the frame, 0-0.8	ຊ່ອງວ່າງລຸ່ມ, ເປັນສັດສ່ວນເຟຣມ, 0-0.8
+0 rgb, 1 rainbow, 2 floyd, 3 warm, 4 cool, 5 green	0 rgb, 1 ຮຸ້ງ, 2 floyd, 3 ອຸ່ນ, 4 ເຢັນ, 5 ຂຽວ
+Edge out (+) or in (-), % of the height, -25 to 25	ຂອບອອກ (+) ຫຼື ເຂົ້າ (-), % ຂອງຄວາມສູງ, -25 ຫາ 25
+SCREENS STAGE: STATUS, SET <what> <value> or APPLY	SCREENS STAGE: STATUS, SET <what> <value> ຫຼື APPLY
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear	0 ເຂດ, 1 ຄູ່, 2 ໄຫຼ, 3 ອານ, 4 ຄື້ນ, 5 ບິດສະຫຼຽງ
+Seconds before it leaves by itself; 0 waits for OUT	ວິນາທີກ່ອນອອກເອງ; 0 ລໍຖ້າ OUT
+0-100%: how far each panel tilts from the one before	0-100%: ມຸມອຽງແຕ່ລະແຜ່ນຈາກແຜ່ນກ່ອນ
+0-100%: the share of each band drawn as grey stripes	0-100%: ສ່ວນຂອງແຕ່ລະແຖບທີ່ແຕ້ມເປັນລາຍເທົາ
+0 off, 1 on: the flow surges with the programme sound	0 ປິດ, 1 ເປີດ: ການໄຫຼພຸ່ງຕາມສຽງລາຍການ
+0 off, 1 on: the top mirrors the bottom round a dark seam	0 ປິດ, 1 ເປີດ: ເທິງສະທ້ອນລຸ່ມຜ່ານຮອຍຕໍ່ມືດ
+' (cues, position, look, effects, levels, routing, master)	' (ຄິວ, ຕຳແໜ່ງ, ຮູບໂສມ, ເອັບເຟັກ, ລະດັບ, ເສັ້ນທາງ, ຫຼັກ)
+' -- try ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR or an output number	' -- ລອງ ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR ຫຼື ເລກທາງອອກ
+BLEND ROW: expected <first output> <how many, 2 or more> <overlap in pixels>, with that many outputs	BLEND ROW: ຕ້ອງການ <first output> <how many, 2 or more> <overlap in pixels>, ພ້ອມຈຳນວນທາງອອກເທົ່າກັນ
+LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright or trail	LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright ຫຼື trail
+SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> or UNITS METRES|FEET	SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> ຫຼື UNITS METRES|FEET
+Opacity	ຄວາມທຶບ
+opacity	ຄວາມທຶບ
+FDS synth	ຊິນ FDS
+PROXY 720p	ສຳເນົາເບົາ 720p
+out:--	ອອກ:--
+PAD MODE: HOLD or LATCH	PAD MODE: HOLD ຫຼື LATCH
+PAD ASSIGN: this cue does not have that control	PAD ASSIGN: ຄິວນີ້ບໍ່ມີຕົວຄວບຄຸມນັ້ນ
+PAD SET: x and y are numbers from 0 to 1 (y = 1 is the top)	PAD SET: x ແລະ y ເປັນເລກຈາກ 0 ຫາ 1 (y = 1 ແມ່ນເທິງສຸດ)
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST	PAD: ຕ້ອງການ PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST
+PAD ASSIGN: a control is OPACITY, FX<n>.AMOUNT, FX<n>.A to F, or NUM.<name> such as NUM.lumia.flow	PAD ASSIGN: ຕົວຄວບຄຸມແມ່ນ OPACITY, FX<n>.AMOUNT, FX<n>.A ຫາ F, ຫຼື NUM.<name> ເຊັ່ນ NUM.lumia.flow
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST	PAD: ຕ້ອງການ PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST
+STATUS | PALETTE <0-5 or name> | MODE <0-2 or name> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <control> <setting>	STATUS | PALETTE <0-5 ຫຼື ຊື່> | MODE <0-2 ຫຼື ຊື່> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <control> <setting>
+Render	ສົ່ງອອກ
+PNG frames	ເຟຣມ PNG
+START RENDER	ເລີ່ມສົ່ງອອກ
+CANCEL RENDER	ຍົກເລີກສົ່ງອອກ
+QUANTISE: beat	ຈັດເຂົ້າຈັງຫວະ: ຈັງຫວະ
+RENDER TO FILE	ສົ່ງອອກເປັນໄຟລ໌
+about {1} left	ເຫຼືອປະມານ {1}
+LINK: {1} peers	LINK: {1} ເຄື່ອງຮ່ວມ
+QUANTISE: 1 bar	ຈັດເຂົ້າຈັງຫວະ: 1 ຫ້ອງ
+QUANTISE: 2 bars	ຈັດເຂົ້າຈັງຫວະ: 2 ຫ້ອງ
+QUANTISE: 4 bars	ຈັດເຂົ້າຈັງຫວະ: 4 ຫ້ອງ
+render cancelled	ຍົກເລີກສົ່ງອອກແລ້ວ
+RENDER TO FILE...	ສົ່ງອອກເປັນໄຟລ໌...
+{1} frames in {2}	{1} ເຟຣມໃນ {2}
+the output's ({1})	ຂອງທາງອອກ ({1})
+From cue and to cue	ຄິວເລີ່ມແລະຄິວສຸດທ້າຍ
+left the Link session	ອອກຈາກວາລະ Link ແລ້ວ
+joined the Link session	ເຂົ້າຮ່ວມວາລະ Link ແລ້ວ
+the playlist has no cues	ລາຍການຫຼິ້ນບໍ່ມີຄິວ
+the source made no picture	ແຫຼ່ງບໍ່ສ້າງຮູບ
+a render is already running	ກຳລັງສົ່ງອອກຢູ່ແລ້ວ
+TAKE waits for the bar: {1} s	TAKE ລໍຖ້າຫ້ອງຈັງຫວະ: {1} s
+TAKE waits for the beat: {1} s	TAKE ລໍຖ້າຈັງຫວະ: {1} s
+there is no playlist to render	ບໍ່ມີລາຍການຫຼິ້ນໃຫ້ສົ່ງອອກ
+this build has no Ableton Link	ຮຸ່ນນີ້ບໍ່ມີ Ableton Link
+there is no picture in that range	ບໍ່ມີຮູບໃນຊ່ວງນັ້ນ
+RENDER CANCEL: nothing is rendering	RENDER CANCEL: ບໍ່ມີຫຍັງກຳລັງສົ່ງອອກ
+{1} frames, {2}, {3}x{4}	{1} ເຟຣມ, {2}, {3}x{4}
+RENDER START: CUE, CUES a-b or OUTPUT	RENDER START: CUE, CUES a-b ຫຼື OUTPUT
+frame {1} of {2} \xC2\xB7 {3} frames/s	ເຟຣມ {1} ຈາກ {2} \xC2\xB7 {3} ເຟຣມ/s
+RENDER START CUES: first-last, numbered from 1	RENDER START CUES: ທຳອິດ-ສຸດທ້າຍ, ເລີ່ມນັບຈາກ 1
+the output's mask is not drawn by a render yet	ການສົ່ງອອກຍັງບໍ່ແຕ້ມໜ້າກາກທາງອອກ
+the output's slices are not drawn by a render yet	ການສົ່ງອອກຍັງບໍ່ແຕ້ມສ່ວນຕັດທາງອອກ
+the output's crossfader is not drawn by a render yet	ການສົ່ງອອກຍັງບໍ່ແຕ້ມຄຣອສເຟດທາງອອກ
+RENDER START: needs a size, a rate, a codec and a file	RENDER START: ຕ້ອງມີຂະໜາດ, ອັດຕາ, ໂຄເດັກ ແລະ ໄຟລ໌
+VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 are bars)	VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 ແມ່ນຫ້ອງຈັງຫວະ)
+RENDER START: size is 1080P, 4K or OUTPUT; codec is PRORES, H264 or PNG	RENDER START: ຂະໜາດແມ່ນ 1080P, 4K ຫຼື OUTPUT; ໂຄເດັກແມ່ນ PRORES, H264 ຫຼື PNG
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS	VJ: ຕ້ອງການ ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS
+VJ LINK: this build has no Ableton Link	VJ LINK: ຮຸ່ນນີ້ບໍ່ມີ Ableton Link

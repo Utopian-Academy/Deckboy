@@ -4359,3 +4359,170 @@ Which way the streak runs: across at the left, upright in the middle, across aga
 Widens the decision into a ramp, so edges keep their shape instead of jagging.	سنووری بڕیار فراوان دەکاتە پلەڕەنگ، بۆ ئەوەی لێوارەکان شێوەیان بپارێزن نەک ددانەدار بن.
 Words to surface in the field, separated by | . One shows at a time, moving on the hold clock.	وشەکانی دەرکەوتن لە مەیدانەکە، بە | جیاکراوەتەوە. هەر جار یەکێک دەردەکەوێت و بە کاتژمێری ڕاگرتن دەگۆڕێت.
 Zero is one noise value across all three channels, which reads as film. Higher gives each channel its own, which reads as video.	سفر یەک بەهای ژاوەژاو بۆ هەر سێ کەناڵ دەدات و وەک فیلم دەردەکەوێت. بەرزتر ژاوەژاوی جیاواز بە هەر کەناڵێک دەدات و وەک ڤیدیۆ دەردەکەوێت.
+Lens	لێنز
+Lumia	لومیا
+Prism	منشوور
+Water	ئاو
+Lasers	لەیزەرەکان
+Pixels	پیکسڵەکان
+out:--	دەرچوو:--
+Listens	گوێدەگرێت
+Mirrors	ئاوێنەکان
+Shimmer	بریسکە
+FDS synth	سینتیسایزەری FDS
+Terrarium	باخچەی شووشەیی
+(bypassed)	(تێپەڕێنراو)
+Second jet	فووارەی دووەم
+%, 1 to 100	%، لە 1 بۆ 100
+Panel angle	گۆشەی پانێڵ
+Ripple size	قەبارەی شەپۆلۆکە
+Panels, 0-12	پانێڵەکان، 0-12
+Seconds, 0-4	چرکە، 0-4
+Seconds, 0-8	چرکە، 0-8
+Top / bottom	سەرەوە / خوارەوە
+Amount 0-100%	بڕ 0-100%
+ALSA MIDI Port	دەرچەی ALSA MIDI
+Degrees, 0-360	پلە، 0-360
+Terrarium Pico	باخچەی شووشەیی پیکۆ
+ASIOInit failed	ASIOInit سەرکەوتوو نەبوو
+Hertz, 20-20000	هێرتز، 20-20000
+Pixels, 64-2160	پیکسڵ، 64-2160
+Pixels, 64-3840	پیکسڵ، 64-3840
+Colour steps, 2-8	پلەکانی ڕەنگ، 2-8
+Degrees -180..180	پلە -180..180
+Palette turn, 0-1	سووڕانی پاڵێت، 0-1
+Size, %, 5 to 400	قەبارە، %، لە 5 بۆ 400
+Feature size, 0.1-8	قەبارەی وردەکاری، 0.1-8
+Spiral size, 0.25-4	قەبارەی لوول، 0.25-4
+Degrees, -360 to 360	پلە، لە -360 بۆ 360
+Spiral strength, 0-4	هێزی لوول، 0-4
+0-100%, left to right	0-100%، لە چەپ بۆ ڕاست
+0-100%, top to bottom	0-100%، لە سەرەوە بۆ خوارەوە
+0-100%: laser speckle	0-100%: خاڵەکانی لەیزەر
+Pixel sort amount, 0-1	بڕی ڕیزکردنی پیکسڵ، 0-1
+Pitch in hertz, 20-8000	بەرزی دەنگ بە هێرتز، 20-8000
+Frames a second, 1 to 60	چوارچێوە لە چرکەیەکدا، لە 1 بۆ 60
+Horizontal cells, 64-960	خانە ئاسۆییەکان، 64-960
+select a lumia cue first	سەرەتا کیوێکی لومیا هەڵبژێرە
+0 tube, 1 mandala, 2 none	0 بۆری، 1 ماندالا، 2 هیچ
+How big a blob grows, 0-1	پەڵەکە تا چەند گەورە دەبێت، 0-1
+0-100%: overall brightness	0-100%: ڕووناکیی گشتی
+FDS hardware gain range, 0-63	مەودای گەینی ڕەقەکاڵای FDS، 0-63
+How hard it cuts, %, 0 to 100	توندیی بڕین، %، لە 0 بۆ 100
+{1} (supports + - * / and ())	{1} (پشتگیری + - * / و () دەکات)
+Master oscillator rate, 0.01-8	خێرایی ئۆسیلاتۆری سەرەکی، 0.01-8
+Seconds the in move takes, 0-5	ماوەی جووڵەی هاتنەژوورەوە بە چرکە، 0-5
+0-100%: 0 holds the field still	0-100%: 0 مەیدانەکە بێجووڵە ڕادەگرێت
+0-100%: how bright the water is	0-100%: ڕووناکیی ئاو
+0-100%: how far the field bends	0-100%: بڕی چەمانەوەی مەیدان
+0-100%: the whole picture turns	0-100%: هەموو وێنەکە دەسووڕێتەوە
+Degrees per second, -720 to 720	پلە لە چرکەیەکدا، لە -720 بۆ 720
+Lumia (laser light and mirrors)	لومیا (ڕووناکیی لەیزەر و ئاوێنەکان)
+Seconds between retriggers, 0-8	چرکە لەنێوان دووبارە دەستپێکردنەکان، 0-8
+Seconds the out move takes, 0-5	ماوەی جووڵەی دەرچوون بە چرکە، 0-5
+0-100%: how fast the water moves	0-100%: خێرایی جووڵەی ئاو
+0-100%: the halo round the lines	0-100%: هالەی دەوری هێڵەکان
+How many are alive at once, 3-48	چەند دانە پێکەوە زیندوون، 3-48
+Turbulence, 0 still to 3 boiling	ئاڵۆزی، لە 0 بێجووڵە بۆ 3 کوڵاو
+Birth, drift and fade rate, 0.1-3	خێرایی پەیدابوون، ڕەوتن و کاڵبوونەوە، 0.1-3
+How hard the audio drives it, 0-1	توندیی کاریگەریی دەنگ، 0-1
+Scale of the whole graphic, 0.5-2	پێوانەی هەموو شێوەکە، 0.5-2
+0-100%: 0 broad, 100 fine and busy	0-100%: 0 پان، 100 ورد و چڕ
+Down, % of the height, -100 to 100	بۆ خوارەوە، % بەرزی، لە -100 بۆ 100
+Thickness of the glowing edge, 0-1	ئەستووریی لێواری درەوشاوە، 0-1
+0-100%: how hard the lines are bent	0-100%: توندیی چەمانەوەی هێڵەکان
+0-100%: light lingers on the screen	0-100%: ڕووناکی لەسەر شاشە دەمێنێتەوە
+Across, % of the width, -100 to 100	بە پانی، % پانی، لە -100 بۆ 100
+% of the picture's height, 0.1 to 20	% بەرزیی وێنە، لە 0.1 بۆ 20
+0-100%: how far the colours fan apart	0-100%: بڕی لێکدوورکەوتنەوەی ڕەنگەکان
+Degrees round the colour wheel, 0-360	پلە بە دەوری بازنەی ڕەنگ، 0-360
+Where the eye sits, 0 left to 1 right	شوێنی چاو، لە 0 چەپ بۆ 1 ڕاست
+Where the eye sits, 0 top to 1 bottom	شوێنی چاو، لە 0 سەرەوە بۆ 1 خوارەوە
+dBFS, -60 to 0 (-18 is EBU alignment)	dBFS، لە -60 بۆ 0 (-18 ئاستی ڕێکخستنی EBU ـە)
+0-100%: how bright the laser lines are	0-100%: ڕووناکیی هێڵەکانی لەیزەر
+One LED tile's width in pixels, 8-8192	پانیی یەک پانێڵی LED بە پیکسڵ، 8-8192
+0-100%: a second jet crossing the first	0-100%: فووارەیەکی دووەم بە یەکەمدا تێدەپەڕێت
+Edge softness, % of the height, 0 to 25	نەرمیی لێوار، % بەرزی، لە 0 بۆ 25
+One LED tile's height in pixels, 8-8192	بەرزیی یەک پانێڵی LED بە پیکسڵ، 8-8192
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono	0 کلاسیک، 1 ئاگر، 2 سەهۆڵ، 3 نیۆن، 4 تاکڕەنگ
+Modulator as a ratio of the note, 0.05-16	مۆدیولەیتەر وەک ڕێژەی نۆتە، 0.05-16
+Scanlines, bloom and gun misalignment, 0-1	هێڵەکانی سکان، درەوشانەوە و ناهاوتایی تفەنگەکان، 0-1
+0-100%: the round lens, barrel and dark rim	0-100%: لێنزی خڕ، شێواندنی بەرمیلی و لێواری تاریک
+Block displacement and channel tearing, 0-1	گواستنەوەی بلۆک و دڕانی کەناڵ، 0-1
+Internal resolution, 1 (chunky) to 5 (fine)	وردیی ناوخۆیی، لە 1 (درشت) بۆ 5 (ورد)
+Seconds the finished drawing stays, 0 to 60	ماوەی مانەوەی وێنەی تەواو بە چرکە، لە 0 بۆ 60
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono	0 کەوانەی ڕەنگین + خۆڵەمێشی، 1 کەوانەی ڕەنگین، 2 ڕووکار، 3 تاکڕەنگ
+How readily neighbours merge, 0 (never) to 1	ئاسانیی تێکەڵبوونی دراوسێکان، لە 0 (هەرگیز) بۆ 1
+Turns the rim's colours round the wheel, 0-1	ڕەنگەکانی لێوار بە دەوری بازنەی ڕەنگ دەسووڕێنێتەوە، 0-1
+drag to turn round it · wheel to come closer	ڕایبکێشە بۆ سووڕانەوە بە دەوریدا · ویلی ماوس بۆ نزیکبوونەوە
+0-100%: 50 is 1x, 0 a quarter, 100 four times	0-100%: 50 بریتییە لە 1x، 0 چارەکێک، 100 چوار هێندە
+How much of each frame feeds the next, 0-0.95	بڕی هەر چوارچێوەیەک کە دەچێتە ناو دواتر، 0-0.95
+Per-frame zoom of the feedback path, 0.90-1.15	زوومی ڕێڕەوی فیدباک بۆ هەر چوارچێوە، 0.90-1.15
+Space under it, as a fraction of the frame, 0-0.8	بۆشایی ژێری وەک بەشێک لە چوارچێوە، 0-0.8
+0 rgb, 1 rainbow, 2 floyd, 3 warm, 4 cool, 5 green	0 rgb، 1 کەوانەی ڕەنگین، 2 فلۆید، 3 گەرم، 4 سارد، 5 سەوز
+Edge out (+) or in (-), % of the height, -25 to 25	لێوار بۆ دەرەوە (+) یان ناوەوە (-)، % بەرزی، لە -25 بۆ 25
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear	0 ناوچە، 1 جووت، 2 ڕەوت، 3 زین، 4 شەپۆلۆکە، 5 بڕین
+Seconds before it leaves by itself; 0 waits for OUT	چرکەکان پێش دەرچوونی خۆکار؛ 0 چاوەڕێی OUT دەکات
+0-100%: how far each panel tilts from the one before	0-100%: بڕی لاربوونی هەر پانێڵێک لە چاو پێشوو
+0-100%: the share of each band drawn as grey stripes	0-100%: بەشی هەر بەندێک کە بە هێڵی خۆڵەمێشی دەکێشرێت
+0 off, 1 on: the flow surges with the programme sound	0 ناچالاک، 1 چالاک: ڕەوتەکە لەگەڵ دەنگی بەرنامە بەهێز دەبێت
+0 off, 1 on: the top mirrors the bottom round a dark seam	0 ناچالاک، 1 چالاک: سەرەوە خوارەوە لە دەوری درزێکی تاریک ڕەنگ دەداتەوە
+' (cues, position, look, effects, levels, routing, master)	' (کیوەکان، شوێن، دیمەن، کاریگەرییەکان، ئاستەکان، ئاراستەکردن، ماستەر)
+' -- try ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR or an output number	' -- ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR یان ژمارەی دەرچوو تاقی بکەرەوە
+BLEND ROW: expected <first output> <how many, 2 or more> <overlap in pixels>, with that many outputs	BLEND ROW: پێویستە <یەکەم دەرچوو> <ژمارە، 2 یان زیاتر> <هاوپۆشانی بە پیکسڵ>، لەگەڵ ئەو ژمارەیە دەرچوو
+DASH: LIST | <n> | SET <n> <label> | <command> | CLEAR <n>	DASH: LIST | <n> | SET <n> <ناونیشان> | <فەرمان> | CLEAR <n>
+OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <sender name>	OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <ناوی نێرەر>
+SCREENS STAGE: STATUS, SET <what> <value> or APPLY	SCREENS STAGE: STATUS, SET <پارامەتەر> <بەها> یان APPLY
+LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright or trail	LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright یان trail
+SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> or UNITS METRES|FEET	SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> یان UNITS METRES|FEET
+STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <control> <setting>	STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <کۆنترۆڵ> <ڕێکخستن>
+STATUS | PALETTE <0-5 or name> | MODE <0-2 or name> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <control> <setting>	STATUS | PALETTE <0-5 یان ناو> | MODE <0-2 یان ناو> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <کۆنترۆڵ> <ڕێکخستن>
+Render	ڕێندەر
+Opacity	ناشەفافی
+opacity	ناشەفافی
+PNG frames	چوارچێوەکانی PNG
+START RENDER	دەستپێکردنی ڕێندەر
+CANCEL RENDER	هەڵوەشاندنەوەی ڕێندەر
+RENDER TO FILE	ڕێندەر بۆ پەڕگە
+RENDER TO FILE...	ڕێندەر بۆ پەڕگە...
+QUANTISE: beat	کوانتایز: لێدان
+QUANTISE: 1 bar	کوانتایز: 1 میزان
+QUANTISE: 2 bars	کوانتایز: 2 میزان
+QUANTISE: 4 bars	کوانتایز: 4 میزان
+about {1} left	نزیکەی {1} ماوە
+LINK: {1} peers	LINK: {1} هاوتا
+render cancelled	ڕێندەر هەڵوەشێنرایەوە
+{1} frames in {2}	{1} چوارچێوە لە {2}
+the output's ({1})	هی دەرچوو ({1})
+From cue and to cue	لە کیو و بۆ کیو
+left the Link session	لە دانیشتنی Link دەرچوو
+joined the Link session	چووە ناو دانیشتنی Link
+the playlist has no cues	لیستی لێدان هیچ کیوێکی نییە
+{1} frames, {2}, {3}x{4}	{1} چوارچێوە، {2}، {3}x{4}
+the source made no picture	سەرچاوەکە هیچ وێنەیەکی نەدروستکرد
+a render is already running	ڕێندەرێک ئێستا بەڕێوەیە
+TAKE waits for the bar: {1} s	TAKE چاوەڕێی میزان دەکات: {1} s
+TAKE waits for the beat: {1} s	TAKE چاوەڕێی لێدان دەکات: {1} s
+there is no playlist to render	هیچ لیستی لێدانێک نییە بۆ ڕێندەر
+this build has no Ableton Link	ئەم وەشانە Ableton Link ی نییە
+there is no picture in that range	لەو مەودایە هیچ وێنەیەک نییە
+RENDER CANCEL: nothing is rendering	RENDER CANCEL: هیچ ڕێندەرێک بەڕێوە نییە
+VJ LINK: this build has no Ableton Link	VJ LINK: ئەم وەشانە Ableton Link ی نییە
+PAD CHIP: <slot> ON|OFF	PAD CHIP: <خانە> ON|OFF
+PAD MODE: HOLD or LATCH	PAD MODE: HOLD یان LATCH
+RENDER START: CUE, CUES a-b or OUTPUT	RENDER START: CUE, CUES a-b یان OUTPUT
+frame {1} of {2} \xC2\xB7 {3} frames/s	چوارچێوەی {1} لە {2} \xC2\xB7 {3} چوارچێوە/چرکە
+RENDER START CUES: first-last, numbered from 1	RENDER START CUES: یەکەم-کۆتایی، ژمارەکان لە 1 دەست پێدەکەن
+the output's mask is not drawn by a render yet	ڕێندەر هێشتا ماسکی دەرچوو ناکێشێت
+PAD ASSIGN: this cue does not have that control	PAD ASSIGN: ئەم کیوە ئەو کۆنترۆڵەی نییە
+the output's slices are not drawn by a render yet	ڕێندەر هێشتا بڕەکانی دەرچوو ناکێشێت
+the output's crossfader is not drawn by a render yet	ڕێندەر هێشتا کراسفەیدەری دەرچوو ناکێشێت
+RENDER START: needs a size, a rate, a codec and a file	RENDER START: پێویستی بە قەبارە، خێرایی، کۆدێک و پەڕگەیە
+VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 are bars)	VJ QUANTISE: beat | 1 | 2 | 4 | off  (1، 2، 4 ژمارەی میزانن)
+PAD SET: x and y are numbers from 0 to 1 (y = 1 is the top)	PAD SET: x و y ژمارەن لە 0 بۆ 1 (y = 1 سەرەوەیە)
+RENDER START: size is 1080P, 4K or OUTPUT; codec is PRORES, H264 or PNG	RENDER START: قەبارە 1080P، 4K یان OUTPUT؛ کۆدێک PRORES، H264 یان PNG
+PAD ASSIGN: a control is OPACITY, FX<n>.AMOUNT, FX<n>.A to F, or NUM.<name> such as NUM.lumia.flow	PAD ASSIGN: کۆنترۆڵ OPACITY، FX<n>.AMOUNT، FX<n>.A بۆ F، یان NUM.<ناو> وەک NUM.lumia.flow ـە
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST	PAD: پێویستە PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST	PAD: پێویستە PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS	VJ: پێویستە ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS
+RENDER: START <CUE|CUES a-b|OUTPUT> <1080P|4K|OUTPUT> <25|30|50|60> <PRORES|H264|PNG> <file>, STATUS, CANCEL, DIALOG	RENDER: START <CUE|CUES a-b|OUTPUT> <1080P|4K|OUTPUT> <25|30|50|60> <PRORES|H264|PNG> <پەڕگە>, STATUS, CANCEL, DIALOG

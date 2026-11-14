@@ -4369,3 +4369,165 @@ this presentation needs a password to open. Remove the password in PowerPoint (F
 warp grid: expected <n>, <cols> <rows>, off, smooth or straight	warp grid: nedi <n>, <cols> <rows>, off, smooth alo straight
 warp point: that is a corner -- move it with WARP <corner> dx dy	warp point: se esa korna -- tiriseti via WARP <corner> dx dy
 window capture fell back to screen grab — update ffmpeg for exact window capture	Fenamira pati tamvekadekamira -- novseti FFmpeg por rektfenamira
+Lens	Mirluma
+Prism	Lumfena
+Water	Wata
+Lasers	Zarlumaku
+Pixels	Kisvekaku
+Listens	Lisi
+Mirrors	Vekvelaku
+Shimmer	Kisluma
+Terrarium	Gardakara
+(bypassed)	(vadoro)
+Second jet	Duatira
+%, 1 to 100	%, 1 dor 100
+Panel angle	Karagona
+Ripple size	Watranakara
+Panels, 0-12	Karaku, 0-12
+Seconds, 0-4	Kistokaku, 0-4
+Seconds, 0-8	Kistokaku, 0-8
+Top / bottom	Upla / duna
+Amount 0-100%	Tala 0-100%
+ALSA MIDI Port	ALSA MIDI pora
+Degrees, 0-360	Ranatalaku, 0-360
+Terrarium Pico	Gardakara Pico
+ASIOInit failed	ASIOInit vapeli
+Hertz, 20-20000	Sontalaku, 20-20000
+Pixels, 64-2160	Kisvekaku, 64-2160
+Pixels, 64-3840	Kisvekaku, 64-3840
+Colour steps, 2-8	Lumdoraku, 2-8
+Degrees -180..180	Ranatalaku -180..180
+Palette turn, 0-1	Lumretatiri, 0-1
+Size, %, 5 to 400	Kara, %, 5 dor 400
+Feature size, 0.1-8	Vekpatakara, 0.1-8
+Spiral size, 0.25-4	Turnakara, 0.25-4
+Degrees, -360 to 360	Ranatalaku, -360 dor 360
+Spiral strength, 0-4	Turnatama, 0-4
+0-100%, left to right	0-100%, leva dor rekta
+0-100%, top to bottom	0-100%, upla dor duna
+0-100%: laser speckle	0-100%: zarlumakisaku
+Pixel sort amount, 0-1	Kisvekreti tala, 0-1
+Pitch in hertz, 20-8000	Sontala, hertz, 20-8000
+Frames a second, 1 to 60	Vekaku por kistoka, 1 dor 60
+Horizontal cells, 64-960	Levrekaraku, 64-960
+select a lumia cue first	pik lumia vekakisa muna
+0 tube, 1 mandala, 2 none	0 dora, 1 mandala, 2 vana
+How big a blob grows, 0-1	Lumkara novi kara, 0-1
+0-100%: overall brightness	0-100%: tamluma
+FDS hardware gain range, 0-63	FDS janasonranaku, 0-63
+How hard it cuts, %, 0 to 100	Rantiri tama, %, 0 dor 100
+{1} (supports + - * / and ())	{1} (peli + - * / so ())
+Master oscillator rate, 0.01-8	Korsontira zara, 0.01-8
+Seconds the in move takes, 0-5	Kistokaku nitiriseta dori, 0-5
+0-100%: 0 holds the field still	0-100%: 0 hali vekakae
+0-100%: how bright the water is	0-100%: watluma
+0-100%: how far the field bends	0-100%: vekakae rantiri
+0-100%: the whole picture turns	0-100%: tamveka korotiri
+Degrees per second, -720 to 720	Ranatalaku por kistoka, -720 dor 720
+Lumia (laser light and mirrors)	Lumia (zarluma so vekvelaku)
+Seconds between retriggers, 0-8	Kistokaku niduo novfesmunaku, 0-8
+Seconds the out move takes, 0-5	Kistokaku avadotiriseta dori, 0-5
+0-100%: how fast the water moves	0-100%: wattiri zara
+0-100%: the halo round the lines	0-100%: ranaku kislumrana
+How many are alive at once, 3-48	Lumso talaku unatok, 3-48
+Turbulence, 0 still to 3 boiling	Wattira, 0 halo dor 3 zartiro
+Birth, drift and fade rate, 0.1-3	Novi, tiri so niri zara, 0.1-3
+How hard the audio drives it, 0-1	Sona tiri tama, 0-1
+Scale of the whole graphic, 0.5-2	Tamvekagra talaseta, 0.5-2
+0-100%: 0 broad, 100 fine and busy	0-100%: 0 tamo, 100 kiso so pleno
+Down, % of the height, -100 to 100	Duna, % upla, -100 dor 100
+Thickness of the glowing edge, 0-1	Lumrana patakara, 0-1
+0-100%: how hard the lines are bent	0-100%: ranaku rantiri tama
+0-100%: light lingers on the screen	0-100%: luma hali vekadeka
+Across, % of the width, -100 to 100	Levre, % levra, -100 dor 100
+% of the picture's height, 0.1 to 20	% veka upla, 0.1 dor 20
+0-100%: how far the colours fan apart	0-100%: lumaku fesrana
+Degrees round the colour wheel, 0-360	Ranatalaku kor lumareta, 0-360
+Where the eye sits, 0 left to 1 right	Mirjana kaea, 0 leva dor 1 rekta
+Where the eye sits, 0 top to 1 bottom	Mirjana kaea, 0 upla dor 1 duna
+dBFS, -60 to 0 (-18 is EBU alignment)	dBFS, -60 dor 0 (-18 EBU ponrana)
+0-100%: how bright the laser lines are	0-100%: zarlumranaku luma
+One LED tile's width in pixels, 8-8192	Una LED kara levra kisvekaku, 8-8192
+0-100%: a second jet crossing the first	0-100%: duatira dopi unatira
+Edge softness, % of the height, 0 to 25	Ranakiso, % upla, 0 dor 25
+One LED tile's height in pixels, 8-8192	Una LED kara upla kisvekaku, 8-8192
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono	0 muno, 1 fira, 2 iso, 3 neon, 4 unalumo
+Modulator as a ratio of the note, 0.05-16	Sonsetwia sontala ratio, 0.05-16
+Scanlines, bloom and gun misalignment, 0-1	Mirranaku, lumesi so sendjana varana, 0-1
+0-100%: the round lens, barrel and dark rim	0-100%: koro mirluma, karrana so nirorana
+Block displacement and channel tearing, 0-1	Kartiriseta so kanranti, 0-1
+Internal resolution, 1 (chunky) to 5 (fine)	Nivektala, 1 (tamo) dor 5 (kiso)
+Seconds the finished drawing stays, 0 to 60	Kistokaku kluto graka hali, 0 dor 60
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono	0 alaluma + greyo, 1 alaluma, 2 vekatema, 3 unalumo
+How readily neighbours merge, 0 (never) to 1	Nekaraku alaklui, 0 (vatok) dor 1
+Turns the rim's colours round the wheel, 0-1	Ranalumaku korotiri lumareta, 0-1
+drag to turn round it · wheel to come closer	tiri sov korotiri . turna sov nemiri
+0-100%: 50 is 1x, 0 a quarter, 100 four times	0-100%: 50 1x, 0 kwaralisa, 100 kwaratala
+How much of each frame feeds the next, 0-0.95	Una veka tala seni novveka, 0-0.95
+Per-frame zoom of the feedback path, 0.90-1.15	Novsena dora vekakara, 0.90-1.15
+Space under it, as a fraction of the frame, 0-0.8	Dunkaea, veka lisa, 0-0.8
+0 rgb, 1 rainbow, 2 floyd, 3 warm, 4 cool, 5 green	0 rgb, 1 alaluma, 2 floyd, 3 firo, 4 iso, 5 verdo
+Edge out (+) or in (-), % of the height, -25 to 25	Rana avado (+) o nido (-), % upla, -25 dor 25
+SCREENS STAGE: STATUS, SET <what> <value> or APPLY	SCREENS STAGE: STATUS, SET <what> <value> o APPLY
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear	0 kaea, 1 duaveka, 2 wattira, 3 dunupkara, 4 watrana, 5 rantira
+Seconds before it leaves by itself; 0 waits for OUT	Kistokaku muna avadori solo; 0 peni OUT
+0-100%: how far each panel tilts from the one before	0-100%: una kara ranakora munakara
+0-100%: the share of each band drawn as grey stripes	0-100%: una sonranalisa greyoranaku
+0 off, 1 on: the flow surges with the programme sound	0 vano, 1 lumo: wattira novi koravekasona
+0 off, 1 on: the top mirrors the bottom round a dark seam	0 vano, 1 lumo: upla veli duna kor nirorana
+' (cues, position, look, effects, levels, routing, master)	' (vekakisaku, kaea, veko, setaku, talaku, doraku, kora)
+' -- try ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR or an output number	' -- peli ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR o senadoranuma
+BLEND ROW: expected <first output> <how many, 2 or more> <overlap in pixels>, with that many outputs	BLEND ROW: peni <first output> <how many, 2 or more> <overlap in pixels>, so tam senadoraku
+LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright or trail	LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright o trail
+SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> or UNITS METRES|FEET	SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> o UNITS METRES|FEET
+Opacity	Vamirata
+opacity	vamirata
+FDS synth	FDS sonjana
+PROXY 720p	KISVEKA 720p
+out:--	sena:--
+PAD MODE: HOLD or LATCH	PAD MODE: HOLD o LATCH
+PAD ASSIGN: this cue does not have that control	PAD ASSIGN: vekakisa va hali ta setjana
+PAD SET: x and y are numbers from 0 to 1 (y = 1 is the top)	PAD SET: x so y numaku 0 dor 1 (y = 1 upla)
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST	PAD: peni PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST
+PAD ASSIGN: a control is OPACITY, FX<n>.AMOUNT, FX<n>.A to F, or NUM.<name> such as NUM.lumia.flow	PAD ASSIGN: setjana OPACITY, FX<n>.AMOUNT, FX<n>.A dor F, o NUM.<name> kae NUM.lumia.flow
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST	PAD: peni PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST
+STATUS | PALETTE <0-5 or name> | MODE <0-2 or name> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <control> <setting>	STATUS | PALETTE <0-5 o noma> | MODE <0-2 o noma> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <control> <setting>
+Render	Vekagra
+PNG frames	PNG vekaku
+START RENDER	FESI VEKAGRA
+CANCEL RENDER	VAI VEKAGRA
+QUANTISE: beat	TOKARETI: sona
+RENDER TO FILE	VEKAGRA DOR GRAKA
+about {1} left	kae {1} liva
+LINK: {1} peers	LINK: {1} retajanaku
+QUANTISE: 1 bar	TOKARETI: 1 sonkara
+QUANTISE: 2 bars	TOKARETI: 2 sonkaraku
+QUANTISE: 4 bars	TOKARETI: 4 sonkaraku
+render cancelled	vekagra vaito
+RENDER TO FILE...	VEKAGRA DOR GRAKA...
+{1} frames in {2}	{1} vekaku ni {2}
+the output's ({1})	senadora ({1})
+From cue and to cue	Munvekakisa so kluvekakisa
+left the Link session	avadori Link tokakae
+joined the Link session	nidori Link tokakae
+the playlist has no cues	vekaku va hali vekakisaku
+the source made no picture	munga va veki
+a render is already running	vekagra tiri yano
+TAKE waits for the bar: {1} s	TAKE peni sonkara: {1} s
+TAKE waits for the beat: {1} s	TAKE peni sona: {1} s
+there is no playlist to render	va vekaku sov vekagra
+this build has no Ableton Link	ta patagra va hali Ableton Link
+there is no picture in that range	va veka ni ta rana
+RENDER CANCEL: nothing is rendering	RENDER CANCEL: va vekagra tiri
+{1} frames, {2}, {3}x{4}	{1} vekaku, {2}, {3}x{4}
+RENDER START: CUE, CUES a-b or OUTPUT	RENDER START: CUE, CUES a-b o OUTPUT
+frame {1} of {2} \xC2\xB7 {3} frames/s	veka {1} de {2} \xC2\xB7 {3} vekaku/s
+RENDER START CUES: first-last, numbered from 1	RENDER START CUES: muna-klua, numi de 1
+the output's mask is not drawn by a render yet	vekagra va grai senadora vekakluma yano
+the output's slices are not drawn by a render yet	vekagra va grai senadora vekalisaku yano
+the output's crossfader is not drawn by a render yet	vekagra va grai senadora lumsetjana yano
+RENDER START: needs a size, a rate, a codec and a file	RENDER START: peni kara, zara, vekakoda so graka
+VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 are bars)	VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 sonkaraku)
+RENDER START: size is 1080P, 4K or OUTPUT; codec is PRORES, H264 or PNG	RENDER START: kara 1080P, 4K o OUTPUT; vekakoda PRORES, H264 o PNG
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS	VJ: peni ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS
+VJ LINK: this build has no Ableton Link	VJ LINK: ta patagra va hali Ableton Link

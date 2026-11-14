@@ -4307,3 +4307,160 @@ DECODE WARM	DECODE START
 OUTPUT WARM	UITGANG START
 STREAM WARM	STREAM START
 audioprint	geluidsafdruk
+AUTO	AUTOMATISCH
+Iris	Diafragma
+Prism	Prisma
+sweep	veeg
+out:--	uit:--
+Listens	Luistert
+Mirrors	Spiegels
+Shimmer	Glinstering
+purkinje	Purkinje
+FDS synth	FDS-synth
+lissajous	Lissajous
+ping-pong	pingpong
+(bypassed)	(omzeild)
+Second jet	Tweede straal
+%, 1 to 100	%, 1 tot 100
+Panel angle	Paneelhoek
+Ripple size	Rimpelgrootte
+Panels, 0-12	Panelen, 0-12
+Seconds, 0-4	Seconden, 0-4
+Seconds, 0-8	Seconden, 0-8
+Top / bottom	Boven / onder
+Amount 0-100%	Sterkte 0-100%
+ALSA MIDI Port	ALSA MIDI-poort
+Degrees, 0-360	Graden, 0-360
+ASIOInit failed	ASIOInit mislukt
+Colour steps, 2-8	Kleurstappen, 2-8
+Degrees -180..180	Graden -180..180
+Palette turn, 0-1	Paletdraaiing, 0-1
+Size, %, 5 to 400	Grootte, %, 5 tot 400
+Feature size, 0.1-8	Detailgrootte, 0.1-8
+Spiral size, 0.25-4	Spiraalgrootte, 0.25-4
+Degrees, -360 to 360	Graden, -360 tot 360
+Spiral strength, 0-4	Spiraalsterkte, 0-4
+0-100%, left to right	0-100%, links naar rechts
+0-100%, top to bottom	0-100%, boven naar onder
+0-100%: laser speckle	0-100%: laserspikkels
+Pixel sort amount, 0-1	Pixelsorteersterkte, 0-1
+Pitch in hertz, 20-8000	Toonhoogte in hertz, 20-8000
+Frames a second, 1 to 60	Beelden per seconde, 1 tot 60
+Horizontal cells, 64-960	Horizontale cellen, 64-960
+select a lumia cue first	selecteer eerst een Lumia-cue
+0 tube, 1 mandala, 2 none	0 buis, 1 mandala, 2 geen
+How big a blob grows, 0-1	Hoe groot een vlek wordt, 0-1
+0-100%: overall brightness	0-100%: totale helderheid
+FDS hardware gain range, 0-63	FDS-hardwareversterkingsbereik, 0-63
+How hard it cuts, %, 0 to 100	Hoe hard het snijdt, %, 0 tot 100
+{1} (supports + - * / and ())	{1} (ondersteunt + - * / en ())
+Master oscillator rate, 0.01-8	Hoofdoscillatorsnelheid, 0.01-8
+Seconds the in move takes, 0-5	Duur van de inkomende beweging in seconden, 0-5
+0-100%: 0 holds the field still	0-100%: 0 houdt het veld stil
+0-100%: how bright the water is	0-100%: helderheid van het water
+0-100%: how far the field bends	0-100%: hoe ver het veld buigt
+0-100%: the whole picture turns	0-100%: het hele beeld draait
+Degrees per second, -720 to 720	Graden per seconde, -720 tot 720
+Lumia (laser light and mirrors)	Lumia (laserlicht en spiegels)
+Seconds between retriggers, 0-8	Seconden tussen heractiveringen, 0-8
+Seconds the out move takes, 0-5	Duur van de uitgaande beweging in seconden, 0-5
+0-100%: how fast the water moves	0-100%: snelheid van het water
+0-100%: the halo round the lines	0-100%: halo rond de lijnen
+How many are alive at once, 3-48	Hoeveel er tegelijk leven, 3-48
+Turbulence, 0 still to 3 boiling	Turbulentie, 0 stil tot 3 kokend
+Birth, drift and fade rate, 0.1-3	Tempo van ontstaan, drift en vervaging, 0.1-3
+How hard the audio drives it, 0-1	Hoe sterk het geluid het aandrijft, 0-1
+Scale of the whole graphic, 0.5-2	Schaal van de hele afbeelding, 0.5-2
+0-100%: 0 broad, 100 fine and busy	0-100%: 0 breed, 100 fijn en druk
+Down, % of the height, -100 to 100	Omlaag, % van de hoogte, -100 tot 100
+Thickness of the glowing edge, 0-1	Dikte van de gloeiende rand, 0-1
+0-100%: how hard the lines are bent	0-100%: hoe sterk de lijnen buigen
+0-100%: light lingers on the screen	0-100%: licht blijft op het scherm nagloeien
+Across, % of the width, -100 to 100	Dwars, % van de breedte, -100 tot 100
+% of the picture's height, 0.1 to 20	% van de beeldhoogte, 0.1 tot 20
+0-100%: how far the colours fan apart	0-100%: hoe ver de kleuren uitwaaieren
+Degrees round the colour wheel, 0-360	Graden op de kleurencirkel, 0-360
+Where the eye sits, 0 left to 1 right	Oogpositie, 0 links tot 1 rechts
+Where the eye sits, 0 top to 1 bottom	Oogpositie, 0 boven tot 1 onder
+dBFS, -60 to 0 (-18 is EBU alignment)	dBFS, -60 tot 0 (-18 is het EBU-referentieniveau)
+0-100%: how bright the laser lines are	0-100%: helderheid van de laserlijnen
+One LED tile's width in pixels, 8-8192	Breedte van één LED-tegel in pixels, 8-8192
+0-100%: a second jet crossing the first	0-100%: een tweede straal kruist de eerste
+Edge softness, % of the height, 0 to 25	Randzachtheid, % van de hoogte, 0 tot 25
+One LED tile's height in pixels, 8-8192	Hoogte van één LED-tegel in pixels, 8-8192
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono	0 klassiek, 1 vuur, 2 ijs, 3 neon, 4 mono
+Modulator as a ratio of the note, 0.05-16	Modulator als verhouding tot de noot, 0.05-16
+Scanlines, bloom and gun misalignment, 0-1	Scanlijnen, lichtgloed en kanonafwijking, 0-1
+0-100%: the round lens, barrel and dark rim	0-100%: ronde lens, tonvervorming en donkere rand
+Block displacement and channel tearing, 0-1	Blokverschuiving en kanaalscheuring, 0-1
+Internal resolution, 1 (chunky) to 5 (fine)	Interne resolutie, 1 (grof) tot 5 (fijn)
+Seconds the finished drawing stays, 0 to 60	Seconden dat de voltooide tekening blijft, 0 tot 60
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono	0 regenboog + grijs, 1 regenboog, 2 thema, 3 mono
+How readily neighbours merge, 0 (never) to 1	Hoe makkelijk buren samensmelten, 0 (nooit) tot 1
+Turns the rim's colours round the wheel, 0-1	Draait de randkleuren over de kleurencirkel, 0-1
+drag to turn round it · wheel to come closer	sleep om eromheen te draaien · wiel om dichterbij te komen
+0-100%: 50 is 1x, 0 a quarter, 100 four times	0-100%: 50 is 1x, 0 een kwart, 100 viermaal
+How much of each frame feeds the next, 0-0.95	Hoeveel van elk beeld het volgende voedt, 0-0.95
+Per-frame zoom of the feedback path, 0.90-1.15	Zoom per beeld van het terugkoppelpad, 0.90-1.15
+Space under it, as a fraction of the frame, 0-0.8	Ruimte eronder als deel van het beeld, 0-0.8
+0 rgb, 1 rainbow, 2 floyd, 3 warm, 4 cool, 5 green	0 rgb, 1 regenboog, 2 floyd, 3 warm, 4 koel, 5 groen
+Edge out (+) or in (-), % of the height, -25 to 25	Rand naar buiten (+) of binnen (-), % van de hoogte, -25 tot 25
+SCREENS STAGE: STATUS, SET <what> <value> or APPLY	SCREENS STAGE: STATUS, SET <what> <value> of APPLY
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear	0 zone, 1 tweeling, 2 stroming, 3 zadel, 4 rimpel, 5 afschuiving
+Seconds before it leaves by itself; 0 waits for OUT	Seconden tot automatisch vertrek; 0 wacht op OUT
+0-100%: how far each panel tilts from the one before	0-100%: hoe ver elk paneel kantelt ten opzichte van het vorige
+0-100%: the share of each band drawn as grey stripes	0-100%: het deel van elke band dat als grijze strepen wordt getekend
+0 off, 1 on: the flow surges with the programme sound	0 uit, 1 aan: de stroming golft mee met het programmageluid
+0 off, 1 on: the top mirrors the bottom round a dark seam	0 uit, 1 aan: boven spiegelt onder langs een donkere naad
+' (cues, position, look, effects, levels, routing, master)	' (cues, positie, uiterlijk, effecten, niveaus, routering, master)
+' -- try ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR or an output number	' -- probeer ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR of een uitgangsnummer
+BLEND ROW: expected <first output> <how many, 2 or more> <overlap in pixels>, with that many outputs	BLEND ROW: verwacht <first output> <how many, 2 or more> <overlap in pixels>, met dat aantal uitgangen
+SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> or UNITS METRES|FEET	SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> of UNITS METRES|FEET
+opacity	dekking
+Opacity	Dekking
+this build has no Ableton Link	deze build bevat geen Ableton Link
+joined the Link session	deelgenomen aan de Link-sessie
+left the Link session	Link-sessie verlaten
+VJ LINK: this build has no Ableton Link	VJ LINK: deze build bevat geen Ableton Link
+LINK: {1} peers	LINK: {1} deelnemers
+TAKE waits for the beat: {1} s	TAKE wacht op de tel: {1} s
+TAKE waits for the bar: {1} s	TAKE wacht op de maat: {1} s
+QUANTISE: 1 bar	QUANTISE: 1 maat
+QUANTISE: 2 bars	QUANTISE: 2 maten
+QUANTISE: 4 bars	QUANTISE: 4 maten
+QUANTISE: beat	QUANTISE: tel
+PAD MODE: HOLD or LATCH	PAD MODE: HOLD of LATCH
+PAD ASSIGN: this cue does not have that control	PAD ASSIGN: deze cue heeft die regelaar niet
+PAD SET: x and y are numbers from 0 to 1 (y = 1 is the top)	PAD SET: x en y zijn getallen van 0 tot 1 (y = 1 is boven)
+PAD ASSIGN: a control is OPACITY, FX<n>.AMOUNT, FX<n>.A to F, or NUM.<name> such as NUM.lumia.flow	PAD ASSIGN: een regelaar is OPACITY, FX<n>.AMOUNT, FX<n>.A tot F, of NUM.<name> zoals NUM.lumia.flow
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST	PAD: verwacht PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST	PAD: verwacht PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS	VJ: verwacht ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS
+VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 are bars)	VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 zijn maten)
+LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright or trail	LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright of trail
+render cancelled	renderen geannuleerd
+RENDER TO FILE	NAAR BESTAND RENDEREN
+From cue and to cue	Van cue en tot cue
+the output's ({1})	van de uitgang ({1})
+{1} frames, {2}, {3}x{4}	{1} beelden, {2}, {3}x{4}
+about {1} left	nog ongeveer {1}
+{1} frames in {2}	{1} beelden in {2}
+CANCEL RENDER	RENDEREN ANNULEREN
+START RENDER	RENDEREN STARTEN
+RENDER CANCEL: nothing is rendering	RENDER CANCEL: er wordt niets gerenderd
+RENDER START CUES: first-last, numbered from 1	RENDER START CUES: eerste-laatste, genummerd vanaf 1
+RENDER START: CUE, CUES a-b or OUTPUT	RENDER START: CUE, CUES a-b of OUTPUT
+RENDER START: needs a size, a rate, a codec and a file	RENDER START: vereist grootte, beeldsnelheid, codec en bestand
+RENDER START: size is 1080P, 4K or OUTPUT; codec is PRORES, H264 or PNG	RENDER START: grootte is 1080P, 4K of OUTPUT; codec is PRORES, H264 of PNG
+Render	Renderen
+RENDER TO FILE...	NAAR BESTAND RENDEREN...
+PNG frames	PNG-beelden
+there is no playlist to render	er is geen afspeellijst om te renderen
+the playlist has no cues	de afspeellijst bevat geen cues
+the output's crossfader is not drawn by a render yet	de crossfader van de uitgang wordt nog niet gerenderd
+the output's mask is not drawn by a render yet	het masker van de uitgang wordt nog niet gerenderd
+the output's slices are not drawn by a render yet	de uitsneden van de uitgang worden nog niet gerenderd
+there is no picture in that range	er is geen beeld in dat bereik
+the source made no picture	de bron heeft geen beeld gemaakt
+a render is already running	er wordt al gerenderd
+frame {1} of {2} \xC2\xB7 {3} frames/s	beeld {1} van {2} \xC2\xB7 {3} beelden/s

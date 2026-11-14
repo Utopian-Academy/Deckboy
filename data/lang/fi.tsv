@@ -4359,3 +4359,165 @@ Zero is one noise value across all three channels, which reads as film. Higher g
 OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <sender name>	OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <L?HETT?J?N NIMI>
 STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <control> <setting>	STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <S??DIN> <ASETUS>
 AUTO	AUTOM.
+Lens	Linssi
+Prism	Prisma
+Water	Vesi
+Lasers	Laserit
+Pixels	Pikselit
+Listens	Kuuntelee
+Mirrors	Peilit
+Shimmer	Välke
+FDS synth	FDS-syntikka
+Terrarium	Terraario
+(bypassed)	(ohitettu)
+Second jet	Toinen suihku
+%, 1 to 100	%, 1–100
+Panel angle	Paneelikulma
+Ripple size	Väreilyn koko
+Panels, 0-12	Paneelit, 0-12
+Seconds, 0-4	Sekunnit, 0-4
+Seconds, 0-8	Sekunnit, 0-8
+Top / bottom	Ylä / ala
+Amount 0-100%	Määrä 0-100%
+ALSA MIDI Port	ALSA MIDI -portti
+Degrees, 0-360	Asteet, 0-360
+Terrarium Pico	Terraario Pico
+ASIOInit failed	ASIOInit epäonnistui
+Hertz, 20-20000	Hertsit, 20-20000
+Pixels, 64-2160	Pikselit, 64-2160
+Pixels, 64-3840	Pikselit, 64-3840
+Colour steps, 2-8	Väriportaat, 2-8
+Degrees -180..180	Asteet -180..180
+Palette turn, 0-1	Paletin kierto, 0-1
+Size, %, 5 to 400	Koko, %, 5–400
+Feature size, 0.1-8	Piirteiden koko, 0.1-8
+Spiral size, 0.25-4	Spiraalin koko, 0.25-4
+Degrees, -360 to 360	Asteet, -360–360
+Spiral strength, 0-4	Spiraalin voima, 0-4
+0-100%, left to right	0-100%, vasemmalta oikealle
+0-100%, top to bottom	0-100%, ylhäältä alas
+0-100%: laser speckle	0-100%: laserpilkut
+Pixel sort amount, 0-1	Pikselilajittelun määrä, 0-1
+Pitch in hertz, 20-8000	Sävelkorkeus hertseinä, 20-8000
+Frames a second, 1 to 60	Kuvaa sekunnissa, 1–60
+Horizontal cells, 64-960	Vaakasolut, 64-960
+select a lumia cue first	valitse ensin Lumia-vihje
+0 tube, 1 mandala, 2 none	0 putki, 1 mandala, 2 ei mitään
+How big a blob grows, 0-1	Läiskän kasvukoko, 0-1
+0-100%: overall brightness	0-100%: kokonaiskirkkaus
+FDS hardware gain range, 0-63	FDS-laitteiston vahvistusalue, 0-63
+How hard it cuts, %, 0 to 100	Leikkauksen jyrkkyys, %, 0–100
+{1} (supports + - * / and ())	{1} (tukee + - * / ja ())
+Master oscillator rate, 0.01-8	Pääoskillaattorin nopeus, 0.01-8
+Seconds the in move takes, 0-5	Sisääntulon kesto sekunteina, 0-5
+0-100%: 0 holds the field still	0-100%: 0 pitää kentän paikallaan
+0-100%: how bright the water is	0-100%: veden kirkkaus
+0-100%: how far the field bends	0-100%: kentän taipuma
+0-100%: the whole picture turns	0-100%: koko kuva kiertyy
+Degrees per second, -720 to 720	Astetta sekunnissa, -720–720
+Lumia (laser light and mirrors)	Lumia (laservalo ja peilit)
+Seconds between retriggers, 0-8	Sekuntia uudelleenlaukaisujen välillä, 0-8
+Seconds the out move takes, 0-5	Poistumisen kesto sekunteina, 0-5
+0-100%: how fast the water moves	0-100%: veden liikenopeus
+0-100%: the halo round the lines	0-100%: viivojen hohde
+How many are alive at once, 3-48	Samanaikaisesti elossa, 3-48
+Turbulence, 0 still to 3 boiling	Pyörteisyys, 0 tyyni – 3 kiehuva
+Birth, drift and fade rate, 0.1-3	Synnyn, ajelehtimisen ja hiipumisen nopeus, 0.1-3
+How hard the audio drives it, 0-1	Äänen ohjausvoima, 0-1
+Scale of the whole graphic, 0.5-2	Koko grafiikan mittakaava, 0.5-2
+0-100%: 0 broad, 100 fine and busy	0-100%: 0 laaja, 100 hieno ja tiheä
+Down, % of the height, -100 to 100	Alas, % korkeudesta, -100–100
+Thickness of the glowing edge, 0-1	Hohtavan reunan paksuus, 0-1
+0-100%: how hard the lines are bent	0-100%: viivojen taivutusvoima
+0-100%: light lingers on the screen	0-100%: valon jälki ruudulla
+Across, % of the width, -100 to 100	Sivulle, % leveydestä, -100–100
+% of the picture's height, 0.1 to 20	% kuvan korkeudesta, 0.1–20
+0-100%: how far the colours fan apart	0-100%: värien levitys viuhkaksi
+Degrees round the colour wheel, 0-360	Asteet väriympyrällä, 0-360
+Where the eye sits, 0 left to 1 right	Silmäpiste, 0 vasen – 1 oikea
+Where the eye sits, 0 top to 1 bottom	Silmäpiste, 0 ylä – 1 ala
+dBFS, -60 to 0 (-18 is EBU alignment)	dBFS, -60–0 (-18 on EBU:n kohdistustaso)
+0-100%: how bright the laser lines are	0-100%: laserviivojen kirkkaus
+One LED tile's width in pixels, 8-8192	LED-laatan leveys pikseleinä, 8-8192
+0-100%: a second jet crossing the first	0-100%: toinen suihku risteää ensimmäisen kanssa
+Edge softness, % of the height, 0 to 25	Reunan pehmeys, % korkeudesta, 0–25
+One LED tile's height in pixels, 8-8192	LED-laatan korkeus pikseleinä, 8-8192
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono	0 klassinen, 1 tuli, 2 jää, 3 neon, 4 yksivärinen
+Modulator as a ratio of the note, 0.05-16	Modulaattori suhteessa säveleen, 0.05-16
+Scanlines, bloom and gun misalignment, 0-1	Juovat, hohde ja säteiden kohdistusvirhe, 0-1
+0-100%: the round lens, barrel and dark rim	0-100%: pyöreä linssi, tynnyrivääristymä ja tumma reuna
+Block displacement and channel tearing, 0-1	Lohkosiirtymä ja kanavien repeily, 0-1
+Internal resolution, 1 (chunky) to 5 (fine)	Sisäinen tarkkuus, 1 (karkea) – 5 (hieno)
+Seconds the finished drawing stays, 0 to 60	Valmiin piirroksen näyttöaika sekunteina, 0–60
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono	0 sateenkaari + harmaa, 1 sateenkaari, 2 teema, 3 yksivärinen
+How readily neighbours merge, 0 (never) to 1	Naapurien yhdistymisherkkyys, 0 (ei koskaan) – 1
+Turns the rim's colours round the wheel, 0-1	Reunan värien kierto väriympyrällä, 0-1
+drag to turn round it · wheel to come closer	kierrä vetämällä · lähennä rullalla
+0-100%: 50 is 1x, 0 a quarter, 100 four times	0-100%: 50 on 1x, 0 neljäsosa, 100 nelinkertainen
+How much of each frame feeds the next, 0-0.95	Edelliseltä kuvalta seuraavalle siirtyvä osuus, 0-0.95
+Per-frame zoom of the feedback path, 0.90-1.15	Takaisinkytkennän zoomaus kuvaa kohti, 0.90-1.15
+Space under it, as a fraction of the frame, 0-0.8	Alapuolinen tila osuutena kuvasta, 0-0.8
+0 rgb, 1 rainbow, 2 floyd, 3 warm, 4 cool, 5 green	0 rgb, 1 sateenkaari, 2 floyd, 3 lämmin, 4 viileä, 5 vihreä
+Edge out (+) or in (-), % of the height, -25 to 25	Reuna ulos (+) tai sisään (-), % korkeudesta, -25–25
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear	0 vyöhyke, 1 kaksoinen, 2 virtaus, 3 satula, 4 väreily, 5 leikkaus
+Seconds before it leaves by itself; 0 waits for OUT	Sekuntia automaattiseen poistumiseen; 0 odottaa OUT
+0-100%: how far each panel tilts from the one before	0-100%: paneelin kallistus edelliseen nähden
+0-100%: the share of each band drawn as grey stripes	0-100%: harmaiksi raidoiksi piirretty osuus kustakin kaistasta
+0 off, 1 on: the flow surges with the programme sound	0 pois, 1 päällä: virtaus sykkii PROGRAM-äänen mukana
+0 off, 1 on: the top mirrors the bottom round a dark seam	0 pois, 1 päällä: yläosa peilaa alaosaa tumman sauman yli
+' (cues, position, look, effects, levels, routing, master)	' (vihjeet, sijainti, ilme, tehosteet, tasot, reititys, pää)
+' -- try ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR or an output number	' -- kokeile ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR tai ulostulon numeroa
+BLEND ROW: expected <first output> <how many, 2 or more> <overlap in pixels>, with that many outputs	BLEND ROW: odotetaan <ensimmäinen ulostulo> <määrä, vähintään 2> <limitys pikseleinä> ja vastaava määrä ulostuloja
+SCREENS STAGE: STATUS, SET <what> <value> or APPLY	SCREENS STAGE: STATUS, SET <kohde> <arvo> tai APPLY
+SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> or UNITS METRES|FEET	SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> tai UNITS METRES|FEET
+LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright or trail	LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright tai trail
+STATUS | PALETTE <0-5 or name> | MODE <0-2 or name> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <control> <setting>	STATUS | PALETTE <0-5 tai nimi> | MODE <0-2 tai nimi> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <säädin> <asetus>
+Opacity	Peittävyys
+opacity	peittävyys
+PAD MODE: HOLD or LATCH	PAD MODE: HOLD tai LATCH
+PAD ASSIGN: this cue does not have that control	PAD ASSIGN: tällä vihjeellä ei ole kyseistä säädintä
+PAD SET: x and y are numbers from 0 to 1 (y = 1 is the top)	PAD SET: x ja y ovat lukuja väliltä 0–1 (y = 1 on yläreuna)
+PAD ASSIGN: a control is OPACITY, FX<n>.AMOUNT, FX<n>.A to F, or NUM.<name> such as NUM.lumia.flow	PAD ASSIGN: säädin on OPACITY, FX<n>.AMOUNT, FX<n>.A–F tai NUM.<name>, kuten NUM.lumia.flow
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST	PAD: odotetaan PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST	PAD: odotetaan PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST
+QUANTISE: beat	KVANTISOINTI: isku
+QUANTISE: 1 bar	KVANTISOINTI: 1 tahti
+QUANTISE: 2 bars	KVANTISOINTI: 2 tahtia
+QUANTISE: 4 bars	KVANTISOINTI: 4 tahtia
+LINK: {1} peers	LINK: {1} vertaista
+left the Link session	poistuttiin Link-istunnosta
+joined the Link session	liityttiin Link-istuntoon
+TAKE waits for the bar: {1} s	TAKE odottaa tahtia: {1} s
+TAKE waits for the beat: {1} s	TAKE odottaa iskua: {1} s
+this build has no Ableton Link	tässä koosteessa ei ole Ableton Linkiä
+VJ LINK: this build has no Ableton Link	VJ LINK: tässä koosteessa ei ole Ableton Linkiä
+VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 are bars)	VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 ovat tahteja)
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS	VJ: odotetaan ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS
+Render	Renderöi
+PNG frames	PNG-kuvat
+START RENDER	ALOITA RENDERÖINTI
+CANCEL RENDER	PERU RENDERÖINTI
+RENDER TO FILE	RENDERÖI TIEDOSTOON
+RENDER TO FILE...	RENDERÖI TIEDOSTOON...
+about {1} left	noin {1} jäljellä
+render cancelled	renderöinti peruttu
+{1} frames in {2}	{1} kuvaa ajassa {2}
+the output's ({1})	ulostulon ({1})
+From cue and to cue	Alku- ja loppuvihje
+ProRes 4444 (alpha)	ProRes 4444 (alfa)
+the playlist has no cues	soittolistalla ei ole vihjeitä
+{1} frames, {2}, {3}x{4}	{1} kuvaa, {2}, {3}x{4}
+the source made no picture	lähde ei tuottanut kuvaa
+a render is already running	renderöinti on jo käynnissä
+there is no playlist to render	renderöitävää soittolistaa ei ole
+there is no picture in that range	tällä välillä ei ole kuvaa
+RENDER CANCEL: nothing is rendering	RENDER CANCEL: mitään ei renderöidä
+RENDER START: CUE, CUES a-b or OUTPUT	RENDER START: CUE, CUES a-b tai OUTPUT
+RENDER START CUES: first-last, numbered from 1	RENDER START CUES: ensimmäinen-viimeinen, numerointi alkaa 1:stä
+the output's mask is not drawn by a render yet	renderöinti ei vielä piirrä ulostulon maskia
+the output's slices are not drawn by a render yet	renderöinti ei vielä piirrä ulostulon viipaleita
+the output's crossfader is not drawn by a render yet	renderöinti ei vielä piirrä ulostulon ristihäivytystä
+RENDER START: needs a size, a rate, a codec and a file	RENDER START: tarvitaan koko, kuvataajuus, koodekki ja tiedosto
+RENDER START: size is 1080P, 4K or OUTPUT; codec is PRORES, H264 or PNG	RENDER START: koko on 1080P, 4K tai OUTPUT; koodekki on PRORES, H264 tai PNG
+frame {1} of {2} \xC2\xB7 {3} frames/s	kuva {1}/{2} \xC2\xB7 {3} kuvaa/s
+out:--	ulos:--

@@ -4315,3 +4315,166 @@ DECODE WARM	AFKOD. START
 OUTPUT WARM	UDGANG START
 STREAM WARM	STREAM START
 audioprint	lydaftryk
+AUTO	AUTOMATISK
+Iris	Blænde
+Lens	Linse
+fold	foldning
+Prism	Prisme
+Water	Vand
+Lasers	Lasere
+Pixels	Pixel
+out:--	ud:--
+Listens	Lytter
+Mirrors	Spejle
+Shimmer	Glimt
+purkinje	Purkinje
+FDS synth	FDS-synth
+lissajous	Lissajous
+ping-pong	pingpong
+(bypassed)	(forbigået)
+Second jet	Anden stråle
+%, 1 to 100	%, 1 til 100
+Panel angle	Panelvinkel
+Ripple size	Bølgestørrelse
+Panels, 0-12	Paneler, 0-12
+Seconds, 0-4	Sekunder, 0-4
+Seconds, 0-8	Sekunder, 0-8
+Top / bottom	Top / bund
+Amount 0-100%	Mængde 0-100%
+ALSA MIDI Port	ALSA MIDI-port
+Degrees, 0-360	Grader, 0-360
+ASIOInit failed	ASIOInit mislykkedes
+Pixels, 64-2160	Pixel, 64-2160
+Pixels, 64-3840	Pixel, 64-3840
+Colour steps, 2-8	Farvetrin, 2-8
+Degrees -180..180	Grader -180..180
+Palette turn, 0-1	Paletdrejning, 0-1
+Size, %, 5 to 400	Størrelse, %, 5 til 400
+Feature size, 0.1-8	Detaljestørrelse, 0.1-8
+Spiral size, 0.25-4	Spiralstørrelse, 0.25-4
+Degrees, -360 to 360	Grader, -360 til 360
+Spiral strength, 0-4	Spiralstyrke, 0-4
+0-100%, left to right	0-100%, venstre mod højre
+0-100%, top to bottom	0-100%, top mod bund
+0-100%: laser speckle	0-100%: laserpletter
+Pixel sort amount, 0-1	Pixelsorteringsmængde, 0-1
+Pitch in hertz, 20-8000	Tonehøjde i hertz, 20-8000
+Frames a second, 1 to 60	Billeder pr. sekund, 1 til 60
+Horizontal cells, 64-960	Vandrette celler, 64-960
+select a lumia cue first	vælg først et Lumia-cue
+0 tube, 1 mandala, 2 none	0 rør, 1 mandala, 2 ingen
+How big a blob grows, 0-1	Hvor stor en klat bliver, 0-1
+0-100%: overall brightness	0-100%: samlet lysstyrke
+FDS hardware gain range, 0-63	FDS-hardwareforstærkningsområde, 0-63
+How hard it cuts, %, 0 to 100	Hvor hårdt det skærer, %, 0 til 100
+{1} (supports + - * / and ())	{1} (understøtter + - * / og ())
+Master oscillator rate, 0.01-8	Hovedoscillatorens hastighed, 0.01-8
+Seconds the in move takes, 0-5	Indgående bevægelse i sekunder, 0-5
+0-100%: 0 holds the field still	0-100%: 0 holder feltet stille
+0-100%: how bright the water is	0-100%: vandets lysstyrke
+0-100%: how far the field bends	0-100%: hvor meget feltet bøjer
+0-100%: the whole picture turns	0-100%: hele billedet drejer
+Degrees per second, -720 to 720	Grader pr. sekund, -720 til 720
+Lumia (laser light and mirrors)	Lumia (laserlys og spejle)
+Seconds between retriggers, 0-8	Sekunder mellem genudløsninger, 0-8
+Seconds the out move takes, 0-5	Udgående bevægelse i sekunder, 0-5
+0-100%: how fast the water moves	0-100%: vandets hastighed
+0-100%: the halo round the lines	0-100%: glød omkring linjerne
+How many are alive at once, 3-48	Hvor mange der lever samtidig, 3-48
+Turbulence, 0 still to 3 boiling	Turbulens, 0 stille til 3 kogende
+Birth, drift and fade rate, 0.1-3	Hastighed for fødsel, drift og udtoning, 0.1-3
+How hard the audio drives it, 0-1	Hvor kraftigt lyden driver det, 0-1
+Scale of the whole graphic, 0.5-2	Skala for hele grafikken, 0.5-2
+0-100%: 0 broad, 100 fine and busy	0-100%: 0 bredt, 100 fint og tæt
+Down, % of the height, -100 to 100	Nedad, % af højden, -100 til 100
+Thickness of the glowing edge, 0-1	Tykkelse på den glødende kant, 0-1
+0-100%: how hard the lines are bent	0-100%: hvor meget linjerne bøjes
+0-100%: light lingers on the screen	0-100%: lyset bliver hængende på skærmen
+Across, % of the width, -100 to 100	På tværs, % af bredden, -100 til 100
+% of the picture's height, 0.1 to 20	% af billedets højde, 0.1 til 20
+0-100%: how far the colours fan apart	0-100%: hvor meget farverne spredes
+Degrees round the colour wheel, 0-360	Grader på farvehjulet, 0-360
+Where the eye sits, 0 left to 1 right	Øjets placering, 0 venstre til 1 højre
+Where the eye sits, 0 top to 1 bottom	Øjets placering, 0 top til 1 bund
+dBFS, -60 to 0 (-18 is EBU alignment)	dBFS, -60 til 0 (-18 er EBU-referenceniveau)
+0-100%: how bright the laser lines are	0-100%: laserlinjernes lysstyrke
+One LED tile's width in pixels, 8-8192	En LED-flises bredde i pixel, 8-8192
+0-100%: a second jet crossing the first	0-100%: en anden stråle krydser den første
+Edge softness, % of the height, 0 to 25	Kantblødhed, % af højden, 0 til 25
+One LED tile's height in pixels, 8-8192	En LED-flises højde i pixel, 8-8192
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono	0 klassisk, 1 ild, 2 is, 3 neon, 4 mono
+Modulator as a ratio of the note, 0.05-16	Modulator som forhold til noden, 0.05-16
+Scanlines, bloom and gun misalignment, 0-1	Scanlinjer, glød og fejljustering af kanoner, 0-1
+0-100%: the round lens, barrel and dark rim	0-100%: rund linse, tøndeforvrængning og mørk kant
+Block displacement and channel tearing, 0-1	Blokforskydning og kanalrivning, 0-1
+Internal resolution, 1 (chunky) to 5 (fine)	Intern opløsning, 1 (grov) til 5 (fin)
+Seconds the finished drawing stays, 0 to 60	Sekunder den færdige tegning bliver, 0 til 60
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono	0 regnbue + grå, 1 regnbue, 2 tema, 3 mono
+How readily neighbours merge, 0 (never) to 1	Hvor let naboer smelter sammen, 0 (aldrig) til 1
+Turns the rim's colours round the wheel, 0-1	Drejer kantens farver rundt på farvehjulet, 0-1
+drag to turn round it · wheel to come closer	træk for at dreje rundt · hjul for at komme tættere på
+0-100%: 50 is 1x, 0 a quarter, 100 four times	0-100%: 50 er 1x, 0 en fjerdedel, 100 fire gange
+How much of each frame feeds the next, 0-0.95	Hvor meget af hvert billede der føder det næste, 0-0.95
+Per-frame zoom of the feedback path, 0.90-1.15	Zoom pr. billede i tilbagekoblingen, 0.90-1.15
+Space under it, as a fraction of the frame, 0-0.8	Plads nedenunder som andel af billedet, 0-0.8
+0 rgb, 1 rainbow, 2 floyd, 3 warm, 4 cool, 5 green	0 rgb, 1 regnbue, 2 floyd, 3 varm, 4 kold, 5 grøn
+Edge out (+) or in (-), % of the height, -25 to 25	Kant ud (+) eller ind (-), % af højden, -25 til 25
+SCREENS STAGE: STATUS, SET <what> <value> or APPLY	SCREENS STAGE: STATUS, SET <what> <value> eller APPLY
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear	0 zone, 1 tvilling, 2 strøm, 3 saddel, 4 bølge, 5 forskydning
+Seconds before it leaves by itself; 0 waits for OUT	Sekunder før det forlader selv; 0 venter på OUT
+0-100%: how far each panel tilts from the one before	0-100%: hvert panels hældning i forhold til det forrige
+0-100%: the share of each band drawn as grey stripes	0-100%: andelen af hvert bånd tegnet som grå striber
+0 off, 1 on: the flow surges with the programme sound	0 fra, 1 til: strømmen pulserer med programmets lyd
+0 off, 1 on: the top mirrors the bottom round a dark seam	0 fra, 1 til: toppen spejler bunden omkring en mørk søm
+' (cues, position, look, effects, levels, routing, master)	' (cues, position, udseende, effekter, niveauer, routing, master)
+' -- try ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR or an output number	' -- prøv ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR eller et udgangsnummer
+BLEND ROW: expected <first output> <how many, 2 or more> <overlap in pixels>, with that many outputs	BLEND ROW: forventede <first output> <how many, 2 or more> <overlap in pixels>, med det antal udgange
+SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> or UNITS METRES|FEET	SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> eller UNITS METRES|FEET
+opacity	uigennemsigtighed
+Opacity	Uigennemsigtighed
+this build has no Ableton Link	denne version har ikke Ableton Link
+joined the Link session	tilsluttet Link-sessionen
+left the Link session	forlod Link-sessionen
+VJ LINK: this build has no Ableton Link	VJ LINK: denne version har ikke Ableton Link
+LINK: {1} peers	LINK: {1} deltagere
+TAKE waits for the beat: {1} s	TAKE venter på taktslaget: {1} s
+TAKE waits for the bar: {1} s	TAKE venter på takten: {1} s
+QUANTISE: 1 bar	QUANTISE: 1 takt
+QUANTISE: 2 bars	QUANTISE: 2 takter
+QUANTISE: 4 bars	QUANTISE: 4 takter
+QUANTISE: beat	QUANTISE: taktslag
+PAD MODE: HOLD or LATCH	PAD MODE: HOLD eller LATCH
+PAD ASSIGN: this cue does not have that control	PAD ASSIGN: dette cue har ikke den kontrol
+PAD SET: x and y are numbers from 0 to 1 (y = 1 is the top)	PAD SET: x og y er tal fra 0 til 1 (y = 1 er toppen)
+PAD ASSIGN: a control is OPACITY, FX<n>.AMOUNT, FX<n>.A to F, or NUM.<name> such as NUM.lumia.flow	PAD ASSIGN: en kontrol er OPACITY, FX<n>.AMOUNT, FX<n>.A til F eller NUM.<name> såsom NUM.lumia.flow
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST	PAD: forventede PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST	PAD: forventede PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS	VJ: forventede ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS
+VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 are bars)	VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 er takter)
+LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright or trail	LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright eller trail
+render cancelled	rendering annulleret
+RENDER TO FILE	RENDER TIL FIL
+From cue and to cue	Fra cue og til cue
+the output's ({1})	udgangens ({1})
+{1} frames, {2}, {3}x{4}	{1} billeder, {2}, {3}x{4}
+about {1} left	cirka {1} tilbage
+{1} frames in {2}	{1} billeder på {2}
+CANCEL RENDER	ANNULLER RENDER
+START RENDER	START RENDERING
+RENDER CANCEL: nothing is rendering	RENDER CANCEL: intet renderes
+RENDER START CUES: first-last, numbered from 1	RENDER START CUES: første-sidste, nummereret fra 1
+RENDER START: CUE, CUES a-b or OUTPUT	RENDER START: CUE, CUES a-b eller OUTPUT
+RENDER START: needs a size, a rate, a codec and a file	RENDER START: kræver størrelse, billedhastighed, codec og fil
+RENDER START: size is 1080P, 4K or OUTPUT; codec is PRORES, H264 or PNG	RENDER START: størrelse er 1080P, 4K eller OUTPUT; codec er PRORES, H264 eller PNG
+Render	Rendering
+RENDER TO FILE...	RENDER TIL FIL...
+PNG frames	PNG-billeder
+there is no playlist to render	der er ingen afspilningsliste at rendere
+the playlist has no cues	afspilningslisten har ingen cues
+the output's crossfader is not drawn by a render yet	udgangens crossfader medtages endnu ikke i en rendering
+the output's mask is not drawn by a render yet	udgangens maske medtages endnu ikke i en rendering
+the output's slices are not drawn by a render yet	udgangens udsnit medtages endnu ikke i en rendering
+there is no picture in that range	der er intet billede i det interval
+the source made no picture	kilden producerede intet billede
+a render is already running	en rendering kører allerede
+frame {1} of {2} \xC2\xB7 {3} frames/s	billede {1} af {2} \xC2\xB7 {3} billeder/s

@@ -4344,3 +4344,164 @@ this presentation needs a password to open. Remove the password in PowerPoint (F
 warp grid: expected <n>, <cols> <rows>, off, smooth or straight	warp grid: ilaq <n>, <cols> <rows>, off, smooth neɣ straight
 warp point: that is a corner -- move it with WARP <corner> dx dy	warp point: d tiɣmert -- smutti-tt s WARP <corner> dx dy
 window capture fell back to screen grab — update ffmpeg for exact window capture	Tuṭṭfa n usfaylu tuɣal ar tuṭṭfa n ugdil -- leqqem FFmpeg i tuṭṭfa tusridt n usfaylu
+Lens	Tamlalt
+Prism	Aprizm
+Water	Aman
+Lasers	Ilaziren
+Pixels	Ipiksilen
+Listens	Isell
+Mirrors	Tisitiwin
+Shimmer	Asfeǧǧeǧ
+Terrarium	Aqerrab n teẓgi
+(bypassed)	(yettwazgel)
+Second jet	Asuffeɣ wis sin
+%, 1 to 100	%, 1 ar 100
+Panel angle	Tiɣmert n tfelwit
+Ripple size	Teɣzi n temwaj
+Panels, 0-12	Tifelwin, 0-12
+Seconds, 0-4	Tasinin, 0-4
+Seconds, 0-8	Tasinin, 0-8
+Top / bottom	Afella / adda
+Amount 0-100%	Tasmekta 0-100%
+ALSA MIDI Port	Tawwurt ALSA MIDI
+Degrees, 0-360	Tifesniyin, 0-360
+Terrarium Pico	Aqerrab n teẓgi Pico
+ASIOInit failed	ASIOInit ur yeddi ara
+Pixels, 64-2160	Ipiksilen, 64-2160
+Pixels, 64-3840	Ipiksilen, 64-3840
+Colour steps, 2-8	Isurifen n yini, 2-8
+Degrees -180..180	Tifesniyin -180..180
+Palette turn, 0-1	Tuzzya n ugalis, 0-1
+Size, %, 5 to 400	Teɣzi, %, 5 ar 400
+Feature size, 0.1-8	Teɣzi n talɣa, 0.1-8
+Spiral size, 0.25-4	Teɣzi n tewriqt, 0.25-4
+Degrees, -360 to 360	Tifesniyin, -360 ar 360
+Spiral strength, 0-4	Tazmert n tewriqt, 0-4
+0-100%, left to right	0-100%, seg uzelmaḍ ɣer uyeffus
+0-100%, top to bottom	0-100%, seg ufella ɣer wadda
+0-100%: laser speckle	0-100%: tineqqiḍin n lazur
+Pixel sort amount, 0-1	Tasmekta n usmizzwer n ipiksilen, 0-1
+Pitch in hertz, 20-8000	Taɣect s hertz, 20-8000
+Frames a second, 1 to 60	Tugniwin di tasint, 1 ar 60
+Horizontal cells, 64-960	Tixxamin tiglawayin, 64-960
+select a lumia cue first	fren taneccabt lumia uqbel
+0 tube, 1 mandala, 2 none	0 ajɛub, 1 mandala, 2 ulac
+How big a blob grows, 0-1	Teɣzi ara yaweḍ uɛeqqa, 0-1
+0-100%: overall brightness	0-100%: tafat tamatut
+FDS hardware gain range, 0-63	Azilal n usnerni n wallal FDS, 0-63
+How hard it cuts, %, 0 to 100	Tazmert n ugzam, %, 0 ar 100
+{1} (supports + - * / and ())	{1} (yesɛa + - * / akked ())
+Master oscillator rate, 0.01-8	Arured n umseḍru agejdan, 0.01-8
+Seconds the in move takes, 0-5	Tasinin n unekcum, 0-5
+0-100%: 0 holds the field still	0-100%: 0 yeṭṭef urti ur yettḥerrik ara
+0-100%: how bright the water is	0-100%: tafat n waman
+0-100%: how far the field bends	0-100%: acḥal yettwennay wurti
+0-100%: the whole picture turns	0-100%: tugna merra tettuzzuy
+Degrees per second, -720 to 720	Tifesniyin di tasint, -720 ar 720
+Lumia (laser light and mirrors)	Lumia (tafat n lazur d tsitiwin)
+Seconds between retriggers, 0-8	Tasinin gar usekker, 0-8
+Seconds the out move takes, 0-5	Tasinin n tuffɣa, 0-5
+0-100%: how fast the water moves	0-100%: arured n waman
+0-100%: the halo round the lines	0-100%: tafat i d-yezzin i yizirigen
+How many are alive at once, 3-48	Acḥal i yettidiren ɣef yiwet, 3-48
+Turbulence, 0 still to 3 boiling	Axelxel, 0 d arsbiḍ ar 3 d aɣelli
+Birth, drift and fade rate, 0.1-3	Arured n tlalit, amussu d ufsay, 0.1-3
+How hard the audio drives it, 0-1	Tazmert n umeslaw fell-as, 0-1
+Scale of the whole graphic, 0.5-2	Taskala n wunuɣ merra, 0.5-2
+0-100%: 0 broad, 100 fine and busy	0-100%: 0 hraw, 100 rqiq yerna yeččur
+Down, % of the height, -100 to 100	D adda, % n teɣzi, -100 ar 100
+Thickness of the glowing edge, 0-1	Tuzert n yiri yettfeǧǧiǧen, 0-1
+0-100%: how hard the lines are bent	0-100%: tazmert n uwennay n yizirigen
+0-100%: light lingers on the screen	0-100%: tafat teqqim ɣef ugdil
+Across, % of the width, -100 to 100	S teɣzi, % n tehri, -100 ar 100
+% of the picture's height, 0.1 to 20	% n teɣzi n tugna, 0.1 ar 20
+0-100%: how far the colours fan apart	0-100%: acḥal i mfarrazen yiniten
+Degrees round the colour wheel, 0-360	Tifesniyin ɣef tewriqt n yini, 0-360
+Where the eye sits, 0 left to 1 right	Anida i tella tiṭ, 0 azelmaḍ ar 1 ayeffus
+Where the eye sits, 0 top to 1 bottom	Anida i tella tiṭ, 0 afella ar 1 adda
+dBFS, -60 to 0 (-18 is EBU alignment)	dBFS, -60 ar 0 (-18 d asgaddi EBU)
+0-100%: how bright the laser lines are	0-100%: tafat n yizirigen n lazur
+One LED tile's width in pixels, 8-8192	Tehri n yiwet n tfelwit LED s ipiksilen, 8-8192
+0-100%: a second jet crossing the first	0-100%: asuffeɣ wis sin yezger amezwaru
+Edge softness, % of the height, 0 to 25	Alewwaɣ n yiri, % n teɣzi, 0 ar 25
+One LED tile's height in pixels, 8-8192	Teɣzi n yiwet n tfelwit LED s ipiksilen, 8-8192
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono	0 amensay, 1 times, 2 agris, 3 neon, 4 yiwen yini
+Modulator as a ratio of the note, 0.05-16	Amseḍru s umḍan n tneqqiṭ n ṣṣut, 0.05-16
+Scanlines, bloom and gun misalignment, 0-1	Izirigen n uskan, tafat d uzlag n yimazzanen, 0-1
+0-100%: the round lens, barrel and dark rim	0-100%: tamlalt tawurant, abuqal d yiri aberkan
+Block displacement and channel tearing, 0-1	Amussu n yiḥedran d weččir n yibuda, 0-1
+Internal resolution, 1 (chunky) to 5 (fine)	Tabadut tagensant, 1 (hraw) ar 5 (rqiq)
+Seconds the finished drawing stays, 0 to 60	Tasinin ara yeqqim wunuɣ yemmden, 0 ar 60
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono	0 arc-en-ciel + aɣiɣi, 1 arc-en-ciel, 2 asentel, 3 yiwen yini
+How readily neighbours merge, 0 (never) to 1	Acḥal isehhel umyerni n yimjaṛen, 0 (werǧin) ar 1
+Turns the rim's colours round the wheel, 0-1	Isezzay initen n yiri ɣef tewriqt, 0-1
+drag to turn round it · wheel to come closer	zuɣer i tuzzya fell-as · tewriqt i uẓẓal
+0-100%: 50 is 1x, 0 a quarter, 100 four times	0-100%: 50 d 1x, 0 d aẓun wis ukkuẓ, 100 ukkuẓ n tikal
+How much of each frame feeds the next, 0-0.95	Amur n yal tugna i yettɛeddin ɣer tin i d-iteddun, 0-0.95
+Per-frame zoom of the feedback path, 0.90-1.15	Asimɣur n ubrid n tuɣalin i yal tugna, 0.90-1.15
+Space under it, as a fraction of the frame, 0-0.8	Tallunt ddaw-as, d amur n tugna, 0-0.8
+0 rgb, 1 rainbow, 2 floyd, 3 warm, 4 cool, 5 green	0 rgb, 1 arc-en-ciel, 2 floyd, 3 aḥmayan, 4 asemmaḍ, 5 azegzaw
+Edge out (+) or in (-), % of the height, -25 to 25	Iri ɣer berra (+) neɣ s daxel (-), % n teɣzi, -25 ar 25
+SCREENS STAGE: STATUS, SET <what> <value> or APPLY	SCREENS STAGE: STATUS, SET <what> <value> neɣ APPLY
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear	0 tamnaḍt, 1 akniw, 2 azzel, 3 tabarda, 4 tamwajt, 5 azlag
+Seconds before it leaves by itself; 0 waits for OUT	Tasinin uqbel ad yeffeɣ iman-is; 0 yettraǧu OUT
+0-100%: how far each panel tilts from the one before	0-100%: acḥal teẓẓel yal tafelwit ɣef tin yezrin
+0-100%: the share of each band drawn as grey stripes	0-100%: amur n yal tasfift s yizirigen iɣiɣanen
+0 off, 1 on: the flow surges with the programme sound	0 insa, 1 yermed: azzel yettali s ṣṣut n wahil
+0 off, 1 on: the top mirrors the bottom round a dark seam	0 insa, 1 yermed: afella yeskan adda ɣef teɣriq taberkant
+' (cues, position, look, effects, levels, routing, master)	' (tineccabin, adeg, udem, isemda, iswiren, abrid, agejdan)
+' -- try ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR or an output number	' -- ɛreḍ ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR neɣ amḍan n tuffɣa
+BLEND ROW: expected <first output> <how many, 2 or more> <overlap in pixels>, with that many outputs	BLEND ROW: yetturaǧu <first output> <how many, 2 or more> <overlap in pixels>, s umḍan-a n tuffɣiwin
+LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright or trail	LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright neɣ trail
+SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> or UNITS METRES|FEET	SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> neɣ UNITS METRES|FEET
+Opacity	Taduli
+opacity	taduli
+FDS synth	Asuddus FDS
+PROXY 720p	TANGALT 720p
+out:--	tuffɣa:--
+PAD MODE: HOLD or LATCH	PAD MODE: HOLD neɣ LATCH
+PAD ASSIGN: this cue does not have that control	PAD ASSIGN: taneccabt-a ur tesɛi ara asenqed-nni
+PAD SET: x and y are numbers from 0 to 1 (y = 1 is the top)	PAD SET: x d y d imḍanen seg 0 ar 1 (y = 1 d afella)
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST	PAD: yetturaǧu PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST
+PAD ASSIGN: a control is OPACITY, FX<n>.AMOUNT, FX<n>.A to F, or NUM.<name> such as NUM.lumia.flow	PAD ASSIGN: asenqed d OPACITY, FX<n>.AMOUNT, FX<n>.A ar F, neɣ NUM.<name> am NUM.lumia.flow
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST	PAD: yetturaǧu PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST
+STATUS | PALETTE <0-5 or name> | MODE <0-2 or name> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <control> <setting>	STATUS | PALETTE <0-5 neɣ isem> | MODE <0-2 neɣ isem> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <control> <setting>
+Render	Asuffeɣ
+PNG frames	Tugniwin PNG
+START RENDER	SEKKER ASUFFEƔ
+CANCEL RENDER	SEFSEX ASUFFEƔ
+QUANTISE: beat	ASEMẒI: aḍebsi
+RENDER TO FILE	SUFFEƔ ƔER UFAYLU
+about {1} left	yeqqim azal n {1}
+LINK: {1} peers	LINK: {1} n yimdukal
+QUANTISE: 1 bar	ASEMẒI: 1 n tmeẓri
+QUANTISE: 2 bars	ASEMẒI: 2 n tmeẓriwin
+QUANTISE: 4 bars	ASEMẒI: 4 n tmeẓriwin
+render cancelled	asuffeɣ yettwasefsex
+RENDER TO FILE...	SUFFEƔ ƔER UFAYLU...
+{1} frames in {2}	{1} n tugniwin di {2}
+the output's ({1})	n tuffɣa ({1})
+From cue and to cue	Taneccabt n tazwara d tin n taggara
+left the Link session	yeffeɣ seg tɣimit Link
+joined the Link session	yekcem ɣer tɣimit Link
+the playlist has no cues	tabdart n tɣuri ur tesɛi ara tineccabin
+the source made no picture	aɣbalu ur d-yesnulfa ara tugna
+a render is already running	asuffeɣ la iteddu yakan
+TAKE waits for the bar: {1} s	TAKE yettraǧu tameẓrit: {1} s
+TAKE waits for the beat: {1} s	TAKE yettraǧu aḍebsi: {1} s
+there is no playlist to render	ulac tabdart n tɣuri i usuffeɣ
+this build has no Ableton Link	lqem-a ur yesɛi ara Ableton Link
+there is no picture in that range	ulac tugna deg uzilal-nni
+RENDER CANCEL: nothing is rendering	RENDER CANCEL: ulac asuffeɣ iteddun
+{1} frames, {2}, {3}x{4}	{1} n tugniwin, {2}, {3}x{4}
+RENDER START: CUE, CUES a-b or OUTPUT	RENDER START: CUE, CUES a-b neɣ OUTPUT
+frame {1} of {2} \xC2\xB7 {3} frames/s	tugna {1} seg {2} \xC2\xB7 {3} tugniwin/s
+RENDER START CUES: first-last, numbered from 1	RENDER START CUES: amezwaru-aneggaru, uṭṭunen seg 1
+the output's mask is not drawn by a render yet	asuffeɣ ur yettunuɣ ara yakan tagelmust n tuffɣa
+the output's slices are not drawn by a render yet	asuffeɣ ur yettunuɣ ara yakan iḥricen n tuffɣa
+the output's crossfader is not drawn by a render yet	asuffeɣ ur yettunuɣ ara yakan amsefsay n tuffɣa
+RENDER START: needs a size, a rate, a codec and a file	RENDER START: yeḥwaǧ teɣzi, arured, akudik d ufaylu
+VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 are bars)	VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 d timeẓriwin)
+RENDER START: size is 1080P, 4K or OUTPUT; codec is PRORES, H264 or PNG	RENDER START: teɣzi d 1080P, 4K neɣ OUTPUT; akudik d PRORES, H264 neɣ PNG
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS	VJ: yetturaǧu ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS
+VJ LINK: this build has no Ableton Link	VJ LINK: lqem-a ur yesɛi ara Ableton Link

@@ -4353,3 +4353,171 @@ Widens the decision into a ramp, so edges keep their shape instead of jagging.	�
 Words to surface in the field, separated by | . One shows at a time, moving on the hold clock.	필드에 나타낼 단어를 | 로 구분합니다. 한 번에 하나씩 표시되며 유지 타이머에 따라 바뀝니다.
 Zero is one noise value across all three channels, which reads as film. Higher gives each channel its own, which reads as video.	0에서는 세 채널에 같은 노이즈 값을 써서 필름처럼 보입니다. 높이면 채널마다 별도 노이즈를 써서 비디오처럼 보입니다.
 zones cleared: Motion reads the whole picture	영역을 지웠습니다: 모션이 전체 화면을 읽습니다
+Lens	렌즈
+Lumia	루미아
+Prism	프리즘
+Water	물
+Lasers	레이저
+Pixels	픽셀
+out:--	출력:--
+Listens	오디오 반응
+Mirrors	거울
+Shimmer	반짝임
+FDS synth	FDS 신시사이저
+Terrarium	테라리움
+(bypassed)	(바이패스됨)
+Second jet	두 번째 분사
+%, 1 to 100	%, 1~100
+Panel angle	패널 각도
+Ripple size	물결 크기
+Panels, 0-12	패널 수, 0-12
+Seconds, 0-4	초, 0-4
+Seconds, 0-8	초, 0-8
+Top / bottom	위 / 아래
+Amount 0-100%	양 0-100%
+ALSA MIDI Port	ALSA MIDI 포트
+Degrees, 0-360	도, 0-360
+Terrarium Pico	테라리움 피코
+ASIOInit failed	ASIOInit 실패
+Hertz, 20-20000	헤르츠, 20-20000
+Pixels, 64-2160	픽셀, 64-2160
+Pixels, 64-3840	픽셀, 64-3840
+Colour steps, 2-8	색 단계, 2-8
+Degrees -180..180	도 -180..180
+Palette turn, 0-1	팔레트 회전, 0-1
+Size, %, 5 to 400	크기, %, 5~400
+Feature size, 0.1-8	무늬 크기, 0.1-8
+Spiral size, 0.25-4	나선 크기, 0.25-4
+Degrees, -360 to 360	도, -360~360
+Spiral strength, 0-4	나선 강도, 0-4
+0-100%, left to right	0-100%, 왼쪽에서 오른쪽
+0-100%, top to bottom	0-100%, 위에서 아래
+0-100%: laser speckle	0-100%: 레이저 스펙클
+Pixel sort amount, 0-1	픽셀 정렬 양, 0-1
+Pitch in hertz, 20-8000	음높이(헤르츠), 20-8000
+Frames a second, 1 to 60	초당 프레임, 1~60
+Horizontal cells, 64-960	가로 셀 수, 64-960
+select a lumia cue first	먼저 루미아 큐를 선택하세요
+0 tube, 1 mandala, 2 none	0 튜브, 1 만다라, 2 없음
+How big a blob grows, 0-1	덩어리 성장 크기, 0-1
+0-100%: overall brightness	0-100%: 전체 밝기
+FDS hardware gain range, 0-63	FDS 하드웨어 게인 범위, 0-63
+How hard it cuts, %, 0 to 100	절단 강도, %, 0~100
+{1} (supports + - * / and ())	{1} (+ - * / 및 () 지원)
+Master oscillator rate, 0.01-8	마스터 발진기 속도, 0.01-8
+Seconds the in move takes, 0-5	진입 동작 시간(초), 0-5
+0-100%: 0 holds the field still	0-100%: 0이면 필드 정지
+0-100%: how bright the water is	0-100%: 물 밝기
+0-100%: how far the field bends	0-100%: 필드 휘어짐 정도
+0-100%: the whole picture turns	0-100%: 전체 화면 회전
+Degrees per second, -720 to 720	초당 각도, -720~720
+Lumia (laser light and mirrors)	루미아(레이저 빛과 거울)
+Seconds between retriggers, 0-8	재트리거 간격(초), 0-8
+Seconds the out move takes, 0-5	퇴장 동작 시간(초), 0-5
+0-100%: how fast the water moves	0-100%: 물 이동 속도
+0-100%: the halo round the lines	0-100%: 선 주변 후광
+How many are alive at once, 3-48	동시 활성 개수, 3-48
+Turbulence, 0 still to 3 boiling	난류, 0 정지~3 끓음
+Birth, drift and fade rate, 0.1-3	생성·표류·페이드 속도, 0.1-3
+How hard the audio drives it, 0-1	오디오 반응 강도, 0-1
+Scale of the whole graphic, 0.5-2	전체 그래픽 배율, 0.5-2
+0-100%: 0 broad, 100 fine and busy	0-100%: 0 넓음, 100 정교하고 조밀함
+Down, % of the height, -100 to 100	아래로, 높이의 %, -100~100
+Thickness of the glowing edge, 0-1	빛나는 가장자리 두께, 0-1
+0-100%: how hard the lines are bent	0-100%: 선 휘어짐 강도
+0-100%: light lingers on the screen	0-100%: 화면에 남는 빛
+Across, % of the width, -100 to 100	가로로, 너비의 %, -100~100
+% of the picture's height, 0.1 to 20	화면 높이의 %, 0.1~20
+0-100%: how far the colours fan apart	0-100%: 색 퍼짐 정도
+Degrees round the colour wheel, 0-360	색상환 각도, 0-360
+Where the eye sits, 0 left to 1 right	시점 위치, 0 왼쪽~1 오른쪽
+Where the eye sits, 0 top to 1 bottom	시점 위치, 0 위~1 아래
+dBFS, -60 to 0 (-18 is EBU alignment)	dBFS, -60~0(-18은 EBU 정렬 레벨)
+0-100%: how bright the laser lines are	0-100%: 레이저 선 밝기
+One LED tile's width in pixels, 8-8192	LED 타일 하나의 너비(픽셀), 8-8192
+0-100%: a second jet crossing the first	0-100%: 첫 분사와 교차하는 두 번째 분사
+Edge softness, % of the height, 0 to 25	가장자리 부드러움, 높이의 %, 0~25
+One LED tile's height in pixels, 8-8192	LED 타일 하나의 높이(픽셀), 8-8192
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono	0 클래식, 1 불, 2 얼음, 3 네온, 4 단색
+Modulator as a ratio of the note, 0.05-16	음에 대한 변조기 비율, 0.05-16
+Scanlines, bloom and gun misalignment, 0-1	주사선, 블룸 및 전자총 정렬 오차, 0-1
+0-100%: the round lens, barrel and dark rim	0-100%: 둥근 렌즈, 배럴 왜곡 및 어두운 테두리
+Block displacement and channel tearing, 0-1	블록 변위 및 채널 찢김, 0-1
+Internal resolution, 1 (chunky) to 5 (fine)	내부 해상도, 1(거침)~5(정밀)
+Seconds the finished drawing stays, 0 to 60	완성된 그림 유지 시간(초), 0~60
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono	0 무지개 + 회색, 1 무지개, 2 테마, 3 단색
+How readily neighbours merge, 0 (never) to 1	인접 항목 병합 용이성, 0(안 함)~1
+Turns the rim's colours round the wheel, 0-1	가장자리 색을 색상환에서 회전, 0-1
+drag to turn round it · wheel to come closer	드래그하여 주위 회전 · 휠로 가까이 이동
+0-100%: 50 is 1x, 0 a quarter, 100 four times	0-100%: 50은 1x, 0은 1/4, 100은 4배
+How much of each frame feeds the next, 0-0.95	각 프레임이 다음에 반영되는 양, 0-0.95
+Per-frame zoom of the feedback path, 0.90-1.15	프레임별 피드백 경로 확대율, 0.90-1.15
+Space under it, as a fraction of the frame, 0-0.8	아래 공간의 프레임 대비 비율, 0-0.8
+0 rgb, 1 rainbow, 2 floyd, 3 warm, 4 cool, 5 green	0 rgb, 1 무지개, 2 플로이드, 3 따뜻함, 4 차가움, 5 녹색
+Edge out (+) or in (-), % of the height, -25 to 25	가장자리를 밖으로(+) 또는 안으로(-), 높이의 %, -25~25
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear	0 영역, 1 쌍, 2 흐름, 3 안장, 4 물결, 5 전단
+Seconds before it leaves by itself; 0 waits for OUT	자동 퇴장까지 초; 0은 OUT 대기
+0-100%: how far each panel tilts from the one before	0-100%: 이전 패널에 대한 각 패널 기울기
+0-100%: the share of each band drawn as grey stripes	0-100%: 각 띠에서 회색 줄무늬로 그릴 비율
+0 off, 1 on: the flow surges with the programme sound	0 끔, 1 켬: 프로그램 소리에 따라 흐름이 강해짐
+0 off, 1 on: the top mirrors the bottom round a dark seam	0 끔, 1 켬: 어두운 이음선을 중심으로 아래를 위에 반사
+' (cues, position, look, effects, levels, routing, master)	' (큐, 위치, 룩, 효과, 레벨, 라우팅, 마스터)
+' -- try ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR or an output number	' -- ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR 또는 출력 번호를 사용하세요
+BLEND ROW: expected <first output> <how many, 2 or more> <overlap in pixels>, with that many outputs	BLEND ROW: <첫 출력> <개수, 2 이상> <겹침 픽셀> 및 해당 개수의 출력 필요
+DASH SET: <n> <label> | <command> [| <glyph>]	DASH SET: <n> <라벨> | <명령> [| <기호>]
+DASH: LIST | <n> | SET <n> <label> | <command> | CLEAR <n>	DASH: LIST | <n> | SET <n> <라벨> | <명령> | CLEAR <n>
+OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <sender name>	OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <송신자 이름>
+SCREENS STAGE: STATUS, SET <what> <value> or APPLY	SCREENS STAGE: STATUS, SET <항목> <값> 또는 APPLY
+LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright or trail	LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright 또는 trail
+SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> or UNITS METRES|FEET	SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> 또는 UNITS METRES|FEET
+STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <control> <setting>	STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <컨트롤> <설정>
+STATUS | PALETTE <0-5 or name> | MODE <0-2 or name> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <control> <setting>	STATUS | PALETTE <0-5 또는 이름> | MODE <0-2 또는 이름> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <컨트롤> <설정>
+Render	렌더링
+Opacity	불투명도
+opacity	불투명도
+PNG frames	PNG 프레임
+START RENDER	렌더링 시작
+CANCEL RENDER	렌더링 취소
+RENDER TO FILE	파일로 렌더링
+RENDER TO FILE...	파일로 렌더링...
+QUANTISE: beat	퀀타이즈: 박
+QUANTISE: 1 bar	퀀타이즈: 1마디
+QUANTISE: 2 bars	퀀타이즈: 2마디
+QUANTISE: 4 bars	퀀타이즈: 4마디
+about {1} left	약 {1} 남음
+LINK: {1} peers	LINK: 피어 {1}개
+render cancelled	렌더링 취소됨
+{1} frames in {2}	{2}에 {1}프레임
+the output's ({1})	출력의 값({1})
+From cue and to cue	시작 큐와 끝 큐
+left the Link session	Link 세션에서 나감
+joined the Link session	Link 세션에 참여함
+the playlist has no cues	재생 목록에 큐가 없음
+{1} frames, {2}, {3}x{4}	{1}프레임, {2}, {3}x{4}
+the source made no picture	소스가 영상을 생성하지 않음
+a render is already running	이미 렌더링 중임
+TAKE waits for the bar: {1} s	TAKE 마디 대기: {1} s
+TAKE waits for the beat: {1} s	TAKE 박 대기: {1} s
+there is no playlist to render	렌더링할 재생 목록이 없음
+this build has no Ableton Link	이 빌드에는 Ableton Link가 없음
+there is no picture in that range	해당 범위에 영상이 없음
+RENDER CANCEL: nothing is rendering	RENDER CANCEL: 렌더링 중인 작업 없음
+VJ LINK: this build has no Ableton Link	VJ LINK: 이 빌드에는 Ableton Link가 없음
+PAD CHIP: <slot> ON|OFF	PAD CHIP: <슬롯> ON|OFF
+PAD MODE: HOLD or LATCH	PAD MODE: HOLD 또는 LATCH
+RENDER START: CUE, CUES a-b or OUTPUT	RENDER START: CUE, CUES a-b 또는 OUTPUT
+frame {1} of {2} \xC2\xB7 {3} frames/s	프레임 {1}/{2} \xC2\xB7 {3} 프레임/초
+RENDER START CUES: first-last, numbered from 1	RENDER START CUES: 처음-마지막, 번호는 1부터
+the output's mask is not drawn by a render yet	출력 마스크는 아직 렌더링에 반영되지 않음
+PAD ASSIGN: this cue does not have that control	PAD ASSIGN: 이 큐에 해당 컨트롤이 없음
+the output's slices are not drawn by a render yet	출력 슬라이스는 아직 렌더링에 반영되지 않음
+the output's crossfader is not drawn by a render yet	출력 크로스페이더는 아직 렌더링에 반영되지 않음
+RENDER START: needs a size, a rate, a codec and a file	RENDER START: 크기, 속도, 코덱 및 파일 필요
+VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 are bars)	VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4는 마디 수)
+PAD SET: x and y are numbers from 0 to 1 (y = 1 is the top)	PAD SET: x와 y는 0~1 사이 숫자(y = 1은 위쪽)
+RENDER START: size is 1080P, 4K or OUTPUT; codec is PRORES, H264 or PNG	RENDER START: 크기는 1080P, 4K 또는 OUTPUT; 코덱은 PRORES, H264 또는 PNG
+PAD ASSIGN: a control is OPACITY, FX<n>.AMOUNT, FX<n>.A to F, or NUM.<name> such as NUM.lumia.flow	PAD ASSIGN: 컨트롤은 OPACITY, FX<n>.AMOUNT, FX<n>.A~F 또는 NUM.<이름>(예: NUM.lumia.flow)
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST	PAD: 필요한 형식: PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST	PAD: 필요한 형식: PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS	VJ: 필요한 형식: ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS
+RENDER: START <CUE|CUES a-b|OUTPUT> <1080P|4K|OUTPUT> <25|30|50|60> <PRORES|H264|PNG> <file>, STATUS, CANCEL, DIALOG	RENDER: START <CUE|CUES a-b|OUTPUT> <1080P|4K|OUTPUT> <25|30|50|60> <PRORES|H264|PNG> <파일>, STATUS, CANCEL, DIALOG

@@ -4356,3 +4356,164 @@ Words to surface in the field, separated by | . One shows at a time, moving on t
 Zero is one noise value across all three channels, which reads as film. Higher gives each channel its own, which reads as video.	Núll gefur sama suð í öllum þremur rásum, líkt kvikmyndafilmu. Hærra gefur hverri rás sitt, líkt myndbandi.
 OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <sender name>	OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <HEITI SENDANDA>
 STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <control> <setting>	STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <ST?RING> <STILLING>
+Lens	Linsa
+Prism	Prisma
+Water	Vatn
+Lasers	Leysar
+Pixels	Mynddílar
+Listens	Hlýðir
+Mirrors	Speglar
+Shimmer	Tif
+FDS synth	FDS-hljóðgervill
+Terrarium	Terraríum
+(bypassed)	(sniðgengið)
+Second jet	Annar strókur
+%, 1 to 100	%, 1 til 100
+Panel angle	Horn spjalds
+Ripple size	Stærð gára
+Panels, 0-12	Spjöld, 0-12
+Seconds, 0-4	Sekúndur, 0-4
+Seconds, 0-8	Sekúndur, 0-8
+Top / bottom	Efst / neðst
+Amount 0-100%	Magn 0-100%
+ALSA MIDI Port	ALSA MIDI-tengi
+Degrees, 0-360	Gráður, 0-360
+Terrarium Pico	Terraríum Pico
+ASIOInit failed	ASIOInit mistókst
+Pixels, 64-2160	Mynddílar, 64-2160
+Pixels, 64-3840	Mynddílar, 64-3840
+Colour steps, 2-8	Litþrep, 2-8
+Degrees -180..180	Gráður -180..180
+Palette turn, 0-1	Snúningur litaspjalds, 0-1
+Size, %, 5 to 400	Stærð, %, 5 til 400
+Feature size, 0.1-8	Stærð smáatriða, 0.1-8
+Spiral size, 0.25-4	Stærð spírals, 0.25-4
+Degrees, -360 to 360	Gráður, -360 til 360
+Spiral strength, 0-4	Styrkur spírals, 0-4
+0-100%, left to right	0-100%, frá vinstri til hægri
+0-100%, top to bottom	0-100%, ofan frá og niður
+0-100%: laser speckle	0-100%: leysikorn
+Pixel sort amount, 0-1	Magn mynddílaröðunar, 0-1
+Pitch in hertz, 20-8000	Tónhæð í hertzum, 20-8000
+Frames a second, 1 to 60	Rammar á sekúndu, 1 til 60
+Horizontal cells, 64-960	Láréttir reitir, 64-960
+select a lumia cue first	veldu fyrst Lumia-atriði
+0 tube, 1 mandala, 2 none	0 rör, 1 mandala, 2 ekkert
+How big a blob grows, 0-1	Hversu stór blettur verður, 0-1
+0-100%: overall brightness	0-100%: heildarbirtustig
+FDS hardware gain range, 0-63	Mögnunarsvið FDS-vélbúnaðar, 0-63
+How hard it cuts, %, 0 to 100	Harka skurðar, %, 0 til 100
+{1} (supports + - * / and ())	{1} (styður + - * / og ())
+Master oscillator rate, 0.01-8	Hraði aðalsveifils, 0.01-8
+Seconds the in move takes, 0-5	Innkomutími í sekúndum, 0-5
+0-100%: 0 holds the field still	0-100%: 0 heldur sviðinu kyrru
+0-100%: how bright the water is	0-100%: birtustig vatnsins
+0-100%: how far the field bends	0-100%: sveigja sviðsins
+0-100%: the whole picture turns	0-100%: öll myndin snýst
+Degrees per second, -720 to 720	Gráður á sekúndu, -720 til 720
+Lumia (laser light and mirrors)	Lumia (leysiljós og speglar)
+Seconds between retriggers, 0-8	Sekúndur milli endurræsinga, 0-8
+Seconds the out move takes, 0-5	Útfarartími í sekúndum, 0-5
+0-100%: how fast the water moves	0-100%: hreyfihraði vatnsins
+0-100%: the halo round the lines	0-100%: baugur um línurnar
+How many are alive at once, 3-48	Fjöldi lifandi í einu, 3-48
+Turbulence, 0 still to 3 boiling	Ólga, 0 kyrrt til 3 sjóðandi
+Birth, drift and fade rate, 0.1-3	Hraði fæðingar, reks og dofnunar, 0.1-3
+How hard the audio drives it, 0-1	Hversu mikið hljóðið knýr það, 0-1
+Scale of the whole graphic, 0.5-2	Kvarði allrar myndarinnar, 0.5-2
+0-100%: 0 broad, 100 fine and busy	0-100%: 0 gróft, 100 fínt og þétt
+Down, % of the height, -100 to 100	Niður, % af hæð, -100 til 100
+Thickness of the glowing edge, 0-1	Þykkt glóandi jaðars, 0-1
+0-100%: how hard the lines are bent	0-100%: hversu mikið línurnar sveigjast
+0-100%: light lingers on the screen	0-100%: ljós situr eftir á skjánum
+Across, % of the width, -100 to 100	Þvert, % af breidd, -100 til 100
+% of the picture's height, 0.1 to 20	% af hæð myndar, 0.1 til 20
+0-100%: how far the colours fan apart	0-100%: hversu langt litirnir dreifast
+Degrees round the colour wheel, 0-360	Gráður á litahringnum, 0-360
+Where the eye sits, 0 left to 1 right	Staða augans, 0 vinstri til 1 hægri
+Where the eye sits, 0 top to 1 bottom	Staða augans, 0 efst til 1 neðst
+dBFS, -60 to 0 (-18 is EBU alignment)	dBFS, -60 til 0 (-18 er viðmið EBU)
+0-100%: how bright the laser lines are	0-100%: birtustig leysilínanna
+One LED tile's width in pixels, 8-8192	Breidd einnar LED-einingar í mynddílum, 8-8192
+0-100%: a second jet crossing the first	0-100%: annar strókur þverar þann fyrri
+Edge softness, % of the height, 0 to 25	Mýkt jaðars, % af hæð, 0 til 25
+One LED tile's height in pixels, 8-8192	Hæð einnar LED-einingar í mynddílum, 8-8192
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono	0 sígilt, 1 eldur, 2 ís, 3 neon, 4 einlitt
+Modulator as a ratio of the note, 0.05-16	Mótari sem hlutfall af nótu, 0.05-16
+Scanlines, bloom and gun misalignment, 0-1	Skannlínur, ljómi og skekkja geislabyssa, 0-1
+0-100%: the round lens, barrel and dark rim	0-100%: hringlinsa, tunnubjögun og dökkur jaðar
+Block displacement and channel tearing, 0-1	Tilfærsla kubba og rifnun rása, 0-1
+Internal resolution, 1 (chunky) to 5 (fine)	Innri upplausn, 1 (gróf) til 5 (fín)
+Seconds the finished drawing stays, 0 to 60	Sekúndur sem fullgerð teikning sést, 0 til 60
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono	0 regnbogi + grátt, 1 regnbogi, 2 þema, 3 einlitt
+How readily neighbours merge, 0 (never) to 1	Hversu auðveldlega nágrannar renna saman, 0 (aldrei) til 1
+Turns the rim's colours round the wheel, 0-1	Snýr litum jaðarsins um litahringinn, 0-1
+drag to turn round it · wheel to come closer	dragðu til að snúa um það · hjól til að nálgast
+0-100%: 50 is 1x, 0 a quarter, 100 four times	0-100%: 50 er 1x, 0 fjórðungur, 100 fjórfalt
+How much of each frame feeds the next, 0-0.95	Hluti hvers ramma sem fer í þann næsta, 0-0.95
+Per-frame zoom of the feedback path, 0.90-1.15	Aðdráttur endurgjafarleiðar á ramma, 0.90-1.15
+Space under it, as a fraction of the frame, 0-0.8	Bil undir því sem hlutfall rammans, 0-0.8
+0 rgb, 1 rainbow, 2 floyd, 3 warm, 4 cool, 5 green	0 rgb, 1 regnbogi, 2 floyd, 3 hlýtt, 4 kalt, 5 grænt
+Edge out (+) or in (-), % of the height, -25 to 25	Jaðar út (+) eða inn (-), % af hæð, -25 til 25
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear	0 svæði, 1 tvöfalt, 2 flæði, 3 söðull, 4 gárur, 5 skekking
+Seconds before it leaves by itself; 0 waits for OUT	Sekúndur þar til það fer sjálft; 0 bíður eftir OUT
+0-100%: how far each panel tilts from the one before	0-100%: halli hvers spjalds frá því fyrra
+0-100%: the share of each band drawn as grey stripes	0-100%: hluti hvers bands teiknaður sem gráar rendur
+0 off, 1 on: the flow surges with the programme sound	0 af, 1 á: flæðið bylgjast með PROGRAM-hljóðinu
+0 off, 1 on: the top mirrors the bottom round a dark seam	0 af, 1 á: efri hluti speglar þann neðri um dökka samskeytalínu
+' (cues, position, look, effects, levels, routing, master)	' (atriði, staðsetning, útlit, áhrif, styrkur, beining, aðal)
+' -- try ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR or an output number	' -- reyndu ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR eða úttaksnúmer
+BLEND ROW: expected <first output> <how many, 2 or more> <overlap in pixels>, with that many outputs	BLEND ROW: væntir <fyrsta úttak> <fjöldi, 2 eða fleiri> <skörun í mynddílum>, með þeim fjölda úttaka
+SCREENS STAGE: STATUS, SET <what> <value> or APPLY	SCREENS STAGE: STATUS, SET <atriði> <gildi> eða APPLY
+SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> or UNITS METRES|FEET	SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> eða UNITS METRES|FEET
+LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright or trail	LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright eða trail
+STATUS | PALETTE <0-5 or name> | MODE <0-2 or name> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <control> <setting>	STATUS | PALETTE <0-5 eða heiti> | MODE <0-2 eða heiti> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <stýring> <stilling>
+Opacity	Ógagnsæi
+opacity	ógagnsæi
+PAD MODE: HOLD or LATCH	PAD MODE: HOLD eða LATCH
+PAD ASSIGN: this cue does not have that control	PAD ASSIGN: þetta atriði hefur ekki þessa stýringu
+PAD SET: x and y are numbers from 0 to 1 (y = 1 is the top)	PAD SET: x og y eru tölur frá 0 til 1 (y = 1 er efst)
+PAD ASSIGN: a control is OPACITY, FX<n>.AMOUNT, FX<n>.A to F, or NUM.<name> such as NUM.lumia.flow	PAD ASSIGN: stýring er OPACITY, FX<n>.AMOUNT, FX<n>.A til F eða NUM.<name> svo sem NUM.lumia.flow
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST	PAD: væntir PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST	PAD: væntir PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST
+QUANTISE: beat	SKREFUN: slag
+QUANTISE: 1 bar	SKREFUN: 1 taktur
+QUANTISE: 2 bars	SKREFUN: 2 taktar
+QUANTISE: 4 bars	SKREFUN: 4 taktar
+LINK: {1} peers	LINK: {1} jafningjar
+left the Link session	fór úr Link-lotunni
+joined the Link session	tengdist Link-lotunni
+TAKE waits for the bar: {1} s	TAKE bíður eftir takti: {1} s
+TAKE waits for the beat: {1} s	TAKE bíður eftir slagi: {1} s
+this build has no Ableton Link	þessi smíð er án Ableton Link
+VJ LINK: this build has no Ableton Link	VJ LINK: þessi smíð er án Ableton Link
+VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 are bars)	VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 eru taktar)
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS	VJ: væntir ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS
+Render	Myndgerð
+PNG frames	PNG-rammar
+START RENDER	HEFJA MYNDGERÐ
+CANCEL RENDER	HÆTTA VIÐ MYNDGERÐ
+RENDER TO FILE	MYNDGERÐ Í SKRÁ
+RENDER TO FILE...	MYNDGERÐ Í SKRÁ...
+about {1} left	um {1} eftir
+render cancelled	hætt við myndgerð
+{1} frames in {2}	{1} rammar á {2}
+the output's ({1})	úttaksins ({1})
+From cue and to cue	Frá atriði og til atriðis
+ProRes 4444 (alpha)	ProRes 4444 (alfa)
+the playlist has no cues	spilunarlistinn hefur engin atriði
+{1} frames, {2}, {3}x{4}	{1} rammar, {2}, {3}x{4}
+the source made no picture	uppsprettan bjó ekki til mynd
+a render is already running	myndgerð er þegar í gangi
+there is no playlist to render	enginn spilunarlisti til myndgerðar
+there is no picture in that range	engin mynd á þessu bili
+RENDER CANCEL: nothing is rendering	RENDER CANCEL: engin myndgerð í gangi
+RENDER START: CUE, CUES a-b or OUTPUT	RENDER START: CUE, CUES a-b eða OUTPUT
+RENDER START CUES: first-last, numbered from 1	RENDER START CUES: fyrsta-síðasta, númerað frá 1
+the output's mask is not drawn by a render yet	myndgerð teiknar ekki grímu úttaksins enn
+the output's slices are not drawn by a render yet	myndgerð teiknar ekki sneiðar úttaksins enn
+the output's crossfader is not drawn by a render yet	myndgerð teiknar ekki krossdeyfi úttaksins enn
+RENDER START: needs a size, a rate, a codec and a file	RENDER START: þarf stærð, tíðni, kóðara og skrá
+RENDER START: size is 1080P, 4K or OUTPUT; codec is PRORES, H264 or PNG	RENDER START: stærð er 1080P, 4K eða OUTPUT; kóðari er PRORES, H264 eða PNG
+frame {1} of {2} \xC2\xB7 {3} frames/s	rammi {1} af {2} \xC2\xB7 {3} rammar/s
+out:--	út:--

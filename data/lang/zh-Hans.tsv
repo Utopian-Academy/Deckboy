@@ -4355,3 +4355,171 @@ Widens the decision into a ramp, so edges keep their shape instead of jagging.	�
 Words to surface in the field, separated by | . One shows at a time, moving on the hold clock.	在场中浮现的词语，用 | 分隔。每次显示一个，按保持计时器切换。
 Zero is one noise value across all three channels, which reads as film. Higher gives each channel its own, which reads as video.	设为零时，三个通道使用相同的噪声值，呈现胶片质感。调高后各通道有独立噪声，呈现视频质感。
 zones cleared: Motion reads the whole picture	区域已清除：运动检测读取整个画面
+Lens	镜头
+Lumia	光影
+Prism	棱镜
+Water	水面
+Lasers	激光
+Pixels	像素
+out:--	输出:--
+Listens	跟随声音
+Mirrors	镜面
+Shimmer	闪烁
+FDS synth	FDS 合成器
+Terrarium	生态缸
+(bypassed)	(已旁通)
+Second jet	第二道喷流
+%, 1 to 100	%，1 至 100
+Panel angle	面板角度
+Ripple size	涟漪大小
+Panels, 0-12	面板数，0-12
+Seconds, 0-4	秒，0-4
+Seconds, 0-8	秒，0-8
+Top / bottom	上 / 下
+Amount 0-100%	强度 0-100%
+ALSA MIDI Port	ALSA MIDI 端口
+Degrees, 0-360	度，0-360
+Terrarium Pico	微型生态缸
+ASIOInit failed	ASIOInit 失败
+Hertz, 20-20000	赫兹，20-20000
+Pixels, 64-2160	像素，64-2160
+Pixels, 64-3840	像素，64-3840
+Colour steps, 2-8	色阶数，2-8
+Degrees -180..180	度 -180..180
+Palette turn, 0-1	调色板旋转，0-1
+Size, %, 5 to 400	大小，%，5 至 400
+Feature size, 0.1-8	特征大小，0.1-8
+Spiral size, 0.25-4	螺旋大小，0.25-4
+Degrees, -360 to 360	度，-360 至 360
+Spiral strength, 0-4	螺旋强度，0-4
+0-100%, left to right	0-100%，从左到右
+0-100%, top to bottom	0-100%，从上到下
+0-100%: laser speckle	0-100%: 激光散斑
+Pixel sort amount, 0-1	像素排序强度，0-1
+Pitch in hertz, 20-8000	音高（赫兹），20-8000
+Frames a second, 1 to 60	每秒帧数，1 至 60
+Horizontal cells, 64-960	横向单元数，64-960
+select a lumia cue first	请先选择光影提示
+0 tube, 1 mandala, 2 none	0 管状，1 曼陀罗，2 无
+How big a blob grows, 0-1	斑块生长大小，0-1
+0-100%: overall brightness	0-100%: 整体亮度
+FDS hardware gain range, 0-63	FDS 硬件增益范围，0-63
+How hard it cuts, %, 0 to 100	切割强度，%，0 至 100
+{1} (supports + - * / and ())	{1}（支持 + - * / 和 ()）
+Master oscillator rate, 0.01-8	主振荡器速率，0.01-8
+Seconds the in move takes, 0-5	入场动作秒数，0-5
+0-100%: 0 holds the field still	0-100%: 0 时场保持静止
+0-100%: how bright the water is	0-100%: 水面亮度
+0-100%: how far the field bends	0-100%: 场弯曲程度
+0-100%: the whole picture turns	0-100%: 整幅画面旋转
+Degrees per second, -720 to 720	度/秒，-720 至 720
+Lumia (laser light and mirrors)	光影（激光与镜面）
+Seconds between retriggers, 0-8	再次触发间隔秒数，0-8
+Seconds the out move takes, 0-5	出场动作秒数，0-5
+0-100%: how fast the water moves	0-100%: 水流速度
+0-100%: the halo round the lines	0-100%: 线条周围的光晕
+How many are alive at once, 3-48	同时存活数量，3-48
+Turbulence, 0 still to 3 boiling	湍流，0 静止至 3 沸腾
+Birth, drift and fade rate, 0.1-3	生成、漂移与淡出速率，0.1-3
+How hard the audio drives it, 0-1	音频驱动强度，0-1
+Scale of the whole graphic, 0.5-2	整体图形缩放，0.5-2
+0-100%: 0 broad, 100 fine and busy	0-100%: 0 宽大，100 精细密集
+Down, % of the height, -100 to 100	向下，高度的 %，-100 至 100
+Thickness of the glowing edge, 0-1	发光边缘厚度，0-1
+0-100%: how hard the lines are bent	0-100%: 线条弯曲强度
+0-100%: light lingers on the screen	0-100%: 屏幕上的余光
+Across, % of the width, -100 to 100	横向，宽度的 %，-100 至 100
+% of the picture's height, 0.1 to 20	画面高度的 %，0.1 至 20
+0-100%: how far the colours fan apart	0-100%: 色彩散开程度
+Degrees round the colour wheel, 0-360	色环角度，0-360
+Where the eye sits, 0 left to 1 right	视点位置，0 左至 1 右
+Where the eye sits, 0 top to 1 bottom	视点位置，0 上至 1 下
+dBFS, -60 to 0 (-18 is EBU alignment)	dBFS，-60 至 0（-18 为 EBU 校准电平）
+0-100%: how bright the laser lines are	0-100%: 激光线条亮度
+One LED tile's width in pixels, 8-8192	单块 LED 模组宽度（像素），8-8192
+0-100%: a second jet crossing the first	0-100%: 与第一道交叉的第二道喷流
+Edge softness, % of the height, 0 to 25	边缘柔化，高度的 %，0 至 25
+One LED tile's height in pixels, 8-8192	单块 LED 模组高度（像素），8-8192
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono	0 经典，1 火焰，2 冰，3 霓虹，4 单色
+Modulator as a ratio of the note, 0.05-16	调制器相对音符的频率比，0.05-16
+Scanlines, bloom and gun misalignment, 0-1	扫描线、泛光与电子枪偏移，0-1
+0-100%: the round lens, barrel and dark rim	0-100%: 圆形镜头、桶形畸变与暗边
+Block displacement and channel tearing, 0-1	块位移与通道撕裂，0-1
+Internal resolution, 1 (chunky) to 5 (fine)	内部清晰度，1（粗）至 5（细）
+Seconds the finished drawing stays, 0 to 60	绘制完成后停留秒数，0 至 60
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono	0 彩虹 + 灰色，1 彩虹，2 主题，3 单色
+How readily neighbours merge, 0 (never) to 1	相邻斑块融合难易，0（从不）至 1
+Turns the rim's colours round the wheel, 0-1	沿色环旋转边缘颜色，0-1
+drag to turn round it · wheel to come closer	拖动以环绕旋转 · 滚轮以拉近
+0-100%: 50 is 1x, 0 a quarter, 100 four times	0-100%: 50 为 1x，0 为四分之一，100 为四倍
+How much of each frame feeds the next, 0-0.95	每帧反馈至下一帧的比例，0-0.95
+Per-frame zoom of the feedback path, 0.90-1.15	反馈路径的逐帧缩放，0.90-1.15
+Space under it, as a fraction of the frame, 0-0.8	下方空间占画面的比例，0-0.8
+0 rgb, 1 rainbow, 2 floyd, 3 warm, 4 cool, 5 green	0 rgb，1 彩虹，2 弗洛伊德，3 暖色，4 冷色，5 绿色
+Edge out (+) or in (-), % of the height, -25 to 25	边缘外扩 (+) 或内缩 (-)，高度的 %，-25 至 25
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear	0 区域，1 双重，2 流动，3 鞍形，4 涟漪，5 剪切
+Seconds before it leaves by itself; 0 waits for OUT	自动退场前的秒数；0 表示等待 OUT
+0-100%: how far each panel tilts from the one before	0-100%: 每块面板相对前一块的倾斜程度
+0-100%: the share of each band drawn as grey stripes	0-100%: 每个色带绘为灰色条纹的比例
+0 off, 1 on: the flow surges with the programme sound	0 关闭，1 开启：流动随节目声音增强
+0 off, 1 on: the top mirrors the bottom round a dark seam	0 关闭，1 开启：上方沿暗缝镜像下方
+' (cues, position, look, effects, levels, routing, master)	'（提示、位置、外观、效果、电平、路由、主控）
+' -- try ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR or an output number	' -- 请尝试 ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR 或输出编号
+BLEND ROW: expected <first output> <how many, 2 or more> <overlap in pixels>, with that many outputs	BLEND ROW: 需要 <首个输出> <数量，至少 2 个> <重叠像素数>，且须有相应数量的输出
+DASH SET: <n> <label> | <command> [| <glyph>]	DASH SET: <n> <标签> | <命令> [| <图符>]
+DASH: LIST | <n> | SET <n> <label> | <command> | CLEAR <n>	DASH: LIST | <n> | SET <n> <标签> | <命令> | CLEAR <n>
+OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <sender name>	OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <发送端名称>
+SCREENS STAGE: STATUS, SET <what> <value> or APPLY	SCREENS STAGE: STATUS, SET <项目> <值> 或 APPLY
+LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright or trail	LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright 或 trail
+SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> or UNITS METRES|FEET	SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> 或 UNITS METRES|FEET
+STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <control> <setting>	STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <控件> <设置>
+STATUS | PALETTE <0-5 or name> | MODE <0-2 or name> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <control> <setting>	STATUS | PALETTE <0-5 或名称> | MODE <0-2 或名称> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <控件> <设置>
+Render	渲染
+Opacity	不透明度
+opacity	不透明度
+PNG frames	PNG 帧
+START RENDER	开始渲染
+CANCEL RENDER	取消渲染
+RENDER TO FILE	渲染到文件
+RENDER TO FILE...	渲染到文件...
+QUANTISE: beat	量化：拍
+QUANTISE: 1 bar	量化：1 小节
+QUANTISE: 2 bars	量化：2 小节
+QUANTISE: 4 bars	量化：4 小节
+about {1} left	约剩 {1}
+LINK: {1} peers	LINK: {1} 个对等端
+render cancelled	渲染已取消
+{1} frames in {2}	{2} 内完成 {1} 帧
+the output's ({1})	输出的（{1}）
+From cue and to cue	起始提示与结束提示
+left the Link session	已离开 Link 会话
+joined the Link session	已加入 Link 会话
+the playlist has no cues	播放列表中没有提示
+{1} frames, {2}, {3}x{4}	{1} 帧，{2}，{3}x{4}
+the source made no picture	信号源未生成画面
+a render is already running	已有渲染任务在运行
+TAKE waits for the bar: {1} s	TAKE 等待小节：{1} s
+TAKE waits for the beat: {1} s	TAKE 等待节拍：{1} s
+there is no playlist to render	没有可渲染的播放列表
+this build has no Ableton Link	此构建不含 Ableton Link
+there is no picture in that range	该范围内没有画面
+RENDER CANCEL: nothing is rendering	RENDER CANCEL: 没有正在运行的渲染
+VJ LINK: this build has no Ableton Link	VJ LINK: 此构建不含 Ableton Link
+PAD CHIP: <slot> ON|OFF	PAD CHIP: <槽位> ON|OFF
+PAD MODE: HOLD or LATCH	PAD MODE: HOLD 或 LATCH
+RENDER START: CUE, CUES a-b or OUTPUT	RENDER START: CUE, CUES a-b 或 OUTPUT
+frame {1} of {2} \xC2\xB7 {3} frames/s	第 {1} 帧，共 {2} 帧 \xC2\xB7 {3} 帧/秒
+RENDER START CUES: first-last, numbered from 1	RENDER START CUES: 首个-末个，编号从 1 开始
+the output's mask is not drawn by a render yet	渲染尚不绘制输出蒙版
+PAD ASSIGN: this cue does not have that control	PAD ASSIGN: 此提示没有该控件
+the output's slices are not drawn by a render yet	渲染尚不绘制输出切片
+the output's crossfader is not drawn by a render yet	渲染尚不反映输出交叉淡变
+RENDER START: needs a size, a rate, a codec and a file	RENDER START: 需要尺寸、帧率、编码器和文件
+VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 are bars)	VJ QUANTISE: beat | 1 | 2 | 4 | off  （1、2、4 表示小节数）
+PAD SET: x and y are numbers from 0 to 1 (y = 1 is the top)	PAD SET: x 和 y 为 0 至 1 的数值（y = 1 为顶部）
+RENDER START: size is 1080P, 4K or OUTPUT; codec is PRORES, H264 or PNG	RENDER START: 尺寸为 1080P、4K 或 OUTPUT；编码器为 PRORES、H264 或 PNG
+PAD ASSIGN: a control is OPACITY, FX<n>.AMOUNT, FX<n>.A to F, or NUM.<name> such as NUM.lumia.flow	PAD ASSIGN: 控件为 OPACITY、FX<n>.AMOUNT、FX<n>.A 至 F，或 NUM.<名称>，如 NUM.lumia.flow
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST	PAD: 需要 PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST	PAD: 需要 PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS	VJ: 需要 ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS
+RENDER: START <CUE|CUES a-b|OUTPUT> <1080P|4K|OUTPUT> <25|30|50|60> <PRORES|H264|PNG> <file>, STATUS, CANCEL, DIALOG	RENDER: START <CUE|CUES a-b|OUTPUT> <1080P|4K|OUTPUT> <25|30|50|60> <PRORES|H264|PNG> <文件>, STATUS, CANCEL, DIALOG

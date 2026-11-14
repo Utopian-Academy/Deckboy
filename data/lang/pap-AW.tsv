@@ -4337,3 +4337,163 @@ this presentation needs a password to open. Remove the password in PowerPoint (F
 warp grid: expected <n>, <cols> <rows>, off, smooth or straight	warp grid: ta spera <n>, <cols> <rows>, off, smooth of straight
 warp point: that is a corner -- move it with WARP <corner> dx dy	warp point: esey ta un skina -- mov'e cu WARP <corner> dx dy
 window capture fell back to screen grab — update ffmpeg for exact window capture	Captura di bentana a cambia na captura di pantalla -- actualisa FFmpeg pa captura exacto di bentana
+Prism	Prisma
+Water	Awa
+Lasers	Lasernan
+Pixels	Pixelnan
+Listens	Ta scucha
+Mirrors	Spilnan
+Shimmer	Briyo
+Terrarium	Terario
+(bypassed)	(pasa banda)
+Second jet	Di dos chorro
+%, 1 to 100	%, 1 te 100
+Panel angle	Angulo di panel
+Ripple size	Tamaño di ola
+Panels, 0-12	Panelnan, 0-12
+Seconds, 0-4	Seconde, 0-4
+Seconds, 0-8	Seconde, 0-8
+Top / bottom	Ariba / abou
+Amount 0-100%	Cantidad 0-100%
+ALSA MIDI Port	Port di ALSA MIDI
+Degrees, 0-360	Grado, 0-360
+Terrarium Pico	Terario Pico
+ASIOInit failed	ASIOInit a faya
+Pixels, 64-2160	Pixelnan, 64-2160
+Pixels, 64-3840	Pixelnan, 64-3840
+Colour steps, 2-8	Paso di color, 2-8
+Degrees -180..180	Grado -180..180
+Palette turn, 0-1	Giro di paleta, 0-1
+Size, %, 5 to 400	Tamaño, %, 5 te 400
+Feature size, 0.1-8	Tamaño di detalle, 0.1-8
+Spiral size, 0.25-4	Tamaño di espiral, 0.25-4
+Degrees, -360 to 360	Grado, -360 te 360
+Spiral strength, 0-4	Forza di espiral, 0-4
+0-100%, left to right	0-100%, robes pa drechi
+0-100%, top to bottom	0-100%, ariba pa abou
+0-100%: laser speckle	0-100%: punta di laser
+Pixel sort amount, 0-1	Cantidad di ordena pixel, 0-1
+Pitch in hertz, 20-8000	Tono na hertz, 20-8000
+Frames a second, 1 to 60	Cuadro pa seconde, 1 te 60
+Horizontal cells, 64-960	Cel horizontal, 64-960
+select a lumia cue first	scoge un cue lumia prome
+0 tube, 1 mandala, 2 none	0 tubo, 1 mandala, 2 ningun
+How big a blob grows, 0-1	Con grandi un mancha ta crece, 0-1
+0-100%: overall brightness	0-100%: claridad general
+FDS hardware gain range, 0-63	Rango di ganancia di hardware FDS, 0-63
+How hard it cuts, %, 0 to 100	Con duro e ta corta, %, 0 te 100
+{1} (supports + - * / and ())	{1} (ta acepta + - * / y ())
+Master oscillator rate, 0.01-8	Velocidad di oscilador principal, 0.01-8
+Seconds the in move takes, 0-5	Seconde pa e entrada, 0-5
+0-100%: 0 holds the field still	0-100%: 0 ta tene e campo keto
+0-100%: how bright the water is	0-100%: claridad di e awa
+0-100%: how far the field bends	0-100%: con leu e campo ta dobla
+0-100%: the whole picture turns	0-100%: henter e imagen ta bira
+Degrees per second, -720 to 720	Grado pa seconde, -720 te 720
+Lumia (laser light and mirrors)	Lumia (luz di laser y spilnan)
+Seconds between retriggers, 0-8	Seconde entre reactivacionnan, 0-8
+Seconds the out move takes, 0-5	Seconde pa e salida, 0-5
+0-100%: how fast the water moves	0-100%: velocidad di e awa
+0-100%: the halo round the lines	0-100%: halo rond di e liñanan
+How many are alive at once, 3-48	Cuanto ta bibo pareu, 3-48
+Turbulence, 0 still to 3 boiling	Turbulencia, 0 keto te 3 herbe
+Birth, drift and fade rate, 0.1-3	Velocidad di nace, drif y desvaneci, 0.1-3
+How hard the audio drives it, 0-1	Con duro e audio ta impuls'e, 0-1
+Scale of the whole graphic, 0.5-2	Scala di henter e grafico, 0.5-2
+0-100%: 0 broad, 100 fine and busy	0-100%: 0 ancho, 100 fini y denso
+Down, % of the height, -100 to 100	Abou, % di haltura, -100 te 100
+Thickness of the glowing edge, 0-1	Dikura di e rand luminoso, 0-1
+0-100%: how hard the lines are bent	0-100%: con duro e liñanan ta dobla
+0-100%: light lingers on the screen	0-100%: luz ta keda riba pantalla
+Across, % of the width, -100 to 100	Transversal, % di hanchura, -100 te 100
+% of the picture's height, 0.1 to 20	% di haltura di e imagen, 0.1 te 20
+0-100%: how far the colours fan apart	0-100%: con leu e colornan ta separa
+Degrees round the colour wheel, 0-360	Grado rond di e wiel di color, 0-360
+Where the eye sits, 0 left to 1 right	Posicion di wowo, 0 robes te 1 drechi
+Where the eye sits, 0 top to 1 bottom	Posicion di wowo, 0 ariba te 1 abou
+dBFS, -60 to 0 (-18 is EBU alignment)	dBFS, -60 te 0 (-18 ta alineacion EBU)
+0-100%: how bright the laser lines are	0-100%: claridad di e liñanan di laser
+One LED tile's width in pixels, 8-8192	Hanchura di un panel LED na pixel, 8-8192
+0-100%: a second jet crossing the first	0-100%: un segundo chorro ta cruza e prome
+Edge softness, % of the height, 0 to 25	Suavidad di rand, % di haltura, 0 te 25
+One LED tile's height in pixels, 8-8192	Haltura di un panel LED na pixel, 8-8192
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono	0 clasico, 1 candela, 2 ijs, 3 neon, 4 un color
+Modulator as a ratio of the note, 0.05-16	Modulador como proporcion di e nota, 0.05-16
+Scanlines, bloom and gun misalignment, 0-1	Liña di scan, briyo y desalineacion di cañon, 0-1
+0-100%: the round lens, barrel and dark rim	0-100%: lens rondo, distorsion di baril y rand scuro
+Block displacement and channel tearing, 0-1	Desplazamento di blok y scheur di canal, 0-1
+Internal resolution, 1 (chunky) to 5 (fine)	Resolucion interno, 1 (grueso) te 5 (fini)
+Seconds the finished drawing stays, 0 to 60	Seconde cu e dibuho cla ta keda, 0 te 60
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono	0 arco iris + gris, 1 arco iris, 2 tema, 3 un color
+How readily neighbours merge, 0 (never) to 1	Con lihe bisiñanan ta uni, 0 (nunca) te 1
+Turns the rim's colours round the wheel, 0-1	Ta bira e colornan di rand rond di e wiel, 0-1
+drag to turn round it · wheel to come closer	hala pa draai rond dje · wiel pa bin mas cerca
+0-100%: 50 is 1x, 0 a quarter, 100 four times	0-100%: 50 ta 1x, 0 un cuarto, 100 cuater biaha
+How much of each frame feeds the next, 0-0.95	Cuanto di cada cuadro ta alimenta e siguiente, 0-0.95
+Per-frame zoom of the feedback path, 0.90-1.15	Zoom di e ruta di feedback pa cuadro, 0.90-1.15
+Space under it, as a fraction of the frame, 0-0.8	Espacio bou di dje, como fraccion di cuadro, 0-0.8
+0 rgb, 1 rainbow, 2 floyd, 3 warm, 4 cool, 5 green	0 rgb, 1 arco iris, 2 floyd, 3 cayente, 4 friu, 5 berde
+Edge out (+) or in (-), % of the height, -25 to 25	Rand pafo (+) of paden (-), % di haltura, -25 te 25
+SCREENS STAGE: STATUS, SET <what> <value> or APPLY	SCREENS STAGE: STATUS, SET <what> <value> of APPLY
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear	0 zona, 1 dobel, 2 flujo, 3 siya, 4 ola, 5 sesga
+Seconds before it leaves by itself; 0 waits for OUT	Seconde prome cu e sali su so; 0 ta warda OUT
+0-100%: how far each panel tilts from the one before	0-100%: con leu cada panel ta inclina di esun anterior
+0-100%: the share of each band drawn as grey stripes	0-100%: parti di cada banda dibuha como strepi gris
+0 off, 1 on: the flow surges with the programme sound	0 paga, 1 cendi: e flujo ta subi cu e zonido di programa
+0 off, 1 on: the top mirrors the bottom round a dark seam	0 paga, 1 cendi: ariba ta refleha abou rond di un costura scuro
+' (cues, position, look, effects, levels, routing, master)	' (cuenan, posicion, aspecto, efecto, nivel, ruta, principal)
+' -- try ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR or an output number	' -- purba ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR of un number di salida
+BLEND ROW: expected <first output> <how many, 2 or more> <overlap in pixels>, with that many outputs	BLEND ROW: ta spera <first output> <how many, 2 or more> <overlap in pixels>, cu e cantidad ey di salida
+LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright or trail	LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright of trail
+SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> or UNITS METRES|FEET	SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> of UNITS METRES|FEET
+Opacity	Opacidad
+opacity	opacidad
+FDS synth	Sintetisador FDS
+PROXY 720p	COPIA LIGERO 720p
+out:--	salida:--
+PAD MODE: HOLD or LATCH	PAD MODE: HOLD of LATCH
+PAD ASSIGN: this cue does not have that control	PAD ASSIGN: e cue aki no tin e control ey
+PAD SET: x and y are numbers from 0 to 1 (y = 1 is the top)	PAD SET: x y y ta number di 0 te 1 (y = 1 ta ariba)
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST	PAD: ta spera PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST
+PAD ASSIGN: a control is OPACITY, FX<n>.AMOUNT, FX<n>.A to F, or NUM.<name> such as NUM.lumia.flow	PAD ASSIGN: un control ta OPACITY, FX<n>.AMOUNT, FX<n>.A te F, of NUM.<name> manera NUM.lumia.flow
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST	PAD: ta spera PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST
+STATUS | PALETTE <0-5 or name> | MODE <0-2 or name> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <control> <setting>	STATUS | PALETTE <0-5 of nomber> | MODE <0-2 of nomber> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <control> <setting>
+Render	Renderisa
+PNG frames	Cuadronan PNG
+START RENDER	CUMINSA RENDERISA
+CANCEL RENDER	CANCELA RENDERISA
+QUANTISE: beat	CUANTISA: tempo
+RENDER TO FILE	RENDERISA NA FILE
+about {1} left	mas o menos {1} ta resta
+LINK: {1} peers	LINK: {1} pareha
+QUANTISE: 1 bar	CUANTISA: 1 compas
+QUANTISE: 2 bars	CUANTISA: 2 compas
+QUANTISE: 4 bars	CUANTISA: 4 compas
+render cancelled	renderisacion cancela
+RENDER TO FILE...	RENDERISA NA FILE...
+{1} frames in {2}	{1} cuadro den {2}
+the output's ({1})	di e salida ({1})
+From cue and to cue	Di cue y te cue
+left the Link session	a sali di e sesion Link
+joined the Link session	a drenta e sesion Link
+the playlist has no cues	e playlist no tin cue
+the source made no picture	e fuente no a produci imagen
+a render is already running	un renderisacion ta coriendo caba
+TAKE waits for the bar: {1} s	TAKE ta warda e compas: {1} s
+TAKE waits for the beat: {1} s	TAKE ta warda e tempo: {1} s
+there is no playlist to render	no tin playlist pa renderisa
+this build has no Ableton Link	e version aki no tin Ableton Link
+there is no picture in that range	no tin imagen den e rango ey
+RENDER CANCEL: nothing is rendering	RENDER CANCEL: no tin nada ta renderisa
+{1} frames, {2}, {3}x{4}	{1} cuadro, {2}, {3}x{4}
+RENDER START: CUE, CUES a-b or OUTPUT	RENDER START: CUE, CUES a-b of OUTPUT
+frame {1} of {2} \xC2\xB7 {3} frames/s	cuadro {1} di {2} \xC2\xB7 {3} cuadro/s
+RENDER START CUES: first-last, numbered from 1	RENDER START CUES: prome-ultimo, numbera for di 1
+the output's mask is not drawn by a render yet	e renderisacion no ta dibuha e mascara di salida ainda
+the output's slices are not drawn by a render yet	e renderisacion no ta dibuha e seccionnan di salida ainda
+the output's crossfader is not drawn by a render yet	e renderisacion no ta dibuha e crossfader di salida ainda
+RENDER START: needs a size, a rate, a codec and a file	RENDER START: mester tamaño, velocidad, codec y file
+VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 are bars)	VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 ta compas)
+RENDER START: size is 1080P, 4K or OUTPUT; codec is PRORES, H264 or PNG	RENDER START: tamaño ta 1080P, 4K of OUTPUT; codec ta PRORES, H264 of PNG
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS	VJ: ta spera ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS
+VJ LINK: this build has no Ableton Link	VJ LINK: e version aki no tin Ableton Link

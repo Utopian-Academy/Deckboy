@@ -4357,3 +4357,165 @@ Words to surface in the field, separated by | . One shows at a time, moving on t
 Zero is one noise value across all three channels, which reads as film. Higher gives each channel its own, which reads as video.	Aig neoni tha aon luach fuaim anns na trì seanailean, mar fhilm. Nas àirde tha a luach fhèin aig gach seanail, mar bhidio
 OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <sender name>	OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <AINM AN T-SE?LADAIR>
 STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <control> <setting>	STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <SMACHD> <ROGHAINN>
+Lens	Lionsa
+Prism	Prìosam
+Water	Uisge
+Lasers	Leusairean
+Pixels	Piogs.
+Listens	Èisteachd
+Mirrors	Sgàthanan
+Shimmer	Boillsgeadh
+FDS synth	Sint FDS
+Terrarium	Tearàrium
+(bypassed)	(seachnaichte)
+Second jet	Dàrna steall
+%, 1 to 100	%, 1 gu 100
+Panel angle	Ceàrn pannail
+Ripple size	Meud preabaidh
+Panels, 0-12	Pannalan, 0-12
+Seconds, 0-4	Diogan, 0-4
+Seconds, 0-8	Diogan, 0-8
+Top / bottom	Barr / bonn
+Amount 0-100%	Meud 0-100%
+ALSA MIDI Port	Port ALSA MIDI
+Degrees, 0-360	Ceuman, 0-360
+Terrarium Pico	Tearàrium Pico
+ASIOInit failed	Dh'fhàillig ASIOInit
+Hertz, 20-20000	Heirts, 20-20000
+Pixels, 64-2160	Piogsailean, 64-2160
+Pixels, 64-3840	Piogsailean, 64-3840
+Colour steps, 2-8	Ceuman datha, 2-8
+Degrees -180..180	Ceuman -180..180
+Palette turn, 0-1	Cuairt paileid, 0-1
+Size, %, 5 to 400	Meud, %, 5 gu 400
+Feature size, 0.1-8	Meud feart, 0.1-8
+Spiral size, 0.25-4	Meud snìomhain, 0.25-4
+Degrees, -360 to 360	Ceuman, -360 gu 360
+Spiral strength, 0-4	Neart snìomhain, 0-4
+0-100%, left to right	0-100%, clì gu deas
+0-100%, top to bottom	0-100%, barr gu bonn
+0-100%: laser speckle	0-100%: breacadh leusair
+Pixel sort amount, 0-1	Meud seòrsachaidh phiogsailean, 0-1
+Pitch in hertz, 20-8000	Àirde ann an heirts, 20-8000
+Frames a second, 1 to 60	Frèamaichean san diog, 1 gu 60
+Horizontal cells, 64-960	Ceallan còmhnard, 64-960
+select a lumia cue first	tagh cue Lumia an toiseach
+0 tube, 1 mandala, 2 none	0 tiùb, 1 mandala, 2 gin
+How big a blob grows, 0-1	Meud fàis bloib, 0-1
+0-100%: overall brightness	0-100%: soilleireachd iomlan
+FDS hardware gain range, 0-63	Raon buannachd bathair-chruaidh FDS, 0-63
+How hard it cuts, %, 0 to 100	Cruas gearraidh, %, 0 gu 100
+{1} (supports + - * / and ())	{1} (a' cur taic ri + - * / agus ())
+Master oscillator rate, 0.01-8	Luas a' phrìomh osgalair, 0.01-8
+Seconds the in move takes, 0-5	Diogan airson a' ghluasaid a-steach, 0-5
+0-100%: 0 holds the field still	0-100%: cumaidh 0 an raon na stad
+0-100%: how bright the water is	0-100%: soilleireachd an uisge
+0-100%: how far the field bends	0-100%: lùbadh an raoin
+0-100%: the whole picture turns	0-100%: tionndaidhidh an dealbh gu lèir
+Degrees per second, -720 to 720	Ceuman san diog, -720 gu 720
+Lumia (laser light and mirrors)	Lumia (solas leusair is sgàthanan)
+Seconds between retriggers, 0-8	Diogan eadar ath-phiobrachaidhean, 0-8
+Seconds the out move takes, 0-5	Diogan airson a' ghluasaid a-mach, 0-5
+0-100%: how fast the water moves	0-100%: luas gluasad an uisge
+0-100%: the halo round the lines	0-100%: an deàrrsadh timcheall nan loidhnichean
+How many are alive at once, 3-48	Cia mheud beò aig aon àm, 3-48
+Turbulence, 0 still to 3 boiling	Buaireas, 0 sàmhach gu 3 goil
+Birth, drift and fade rate, 0.1-3	Luas breith, fleòdraidh is seargaidh, 0.1-3
+How hard the audio drives it, 0-1	Neart buaidh an fhuaim, 0-1
+Scale of the whole graphic, 0.5-2	Sgèile a' ghrafaig gu lèir, 0.5-2
+0-100%: 0 broad, 100 fine and busy	0-100%: 0 leathann, 100 mìn is dùmhail
+Down, % of the height, -100 to 100	Sìos, % dhen àirde, -100 gu 100
+Thickness of the glowing edge, 0-1	Tiughad an oir dheàlraich, 0-1
+0-100%: how hard the lines are bent	0-100%: neart lùbadh nan loidhnichean
+0-100%: light lingers on the screen	0-100%: mairidh solas air an sgrìn
+Across, % of the width, -100 to 100	Tarsainn, % dhen leud, -100 gu 100
+% of the picture's height, 0.1 to 20	% de dh'àirde an deilbh, 0.1 gu 20
+0-100%: how far the colours fan apart	0-100%: sgaoileadh nan dathan
+Degrees round the colour wheel, 0-360	Ceuman air cuibhle nan dathan, 0-360
+Where the eye sits, 0 left to 1 right	Suidheachadh na sùla, 0 clì gu 1 deas
+Where the eye sits, 0 top to 1 bottom	Suidheachadh na sùla, 0 barr gu 1 bonn
+dBFS, -60 to 0 (-18 is EBU alignment)	dBFS, -60 gu 0 (-18 ìre iomraidh EBU)
+0-100%: how bright the laser lines are	0-100%: soilleireachd loidhnichean an leusair
+One LED tile's width in pixels, 8-8192	Leud aon leac LED ann am piogsailean, 8-8192
+0-100%: a second jet crossing the first	0-100%: dàrna steall a' dol tarsainn air a' chiad fhear
+Edge softness, % of the height, 0 to 25	Buige an oir, % dhen àirde, 0 gu 25
+One LED tile's height in pixels, 8-8192	Àirde aon leac LED ann am piogsailean, 8-8192
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono	0 clasaigeach, 1 teine, 2 deigh, 3 neon, 4 aon-dath
+Modulator as a ratio of the note, 0.05-16	Mion-atharraiche mar cho-mheas dhen nòta, 0.05-16
+Scanlines, bloom and gun misalignment, 0-1	Loidhnichean sganaidh, deàrrsadh is mì-cho-thaobhadh ghunnaichean, 0-1
+0-100%: the round lens, barrel and dark rim	0-100%: lionsa cruinn, saobhadh baraille is oir dhorcha
+Block displacement and channel tearing, 0-1	Gluasad bhlocaichean is reubadh sheanalan, 0-1
+Internal resolution, 1 (chunky) to 5 (fine)	Dùmhlachd a-staigh, 1 (garbh) gu 5 (mìn)
+Seconds the finished drawing stays, 0 to 60	Diogan a mhaireas an dealbh deiseil, 0 gu 60
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono	0 bogha-froise + liath, 1 bogha-froise, 2 coltas, 3 aon-dath
+How readily neighbours merge, 0 (never) to 1	Furasdachd co-aonadh nàbaidhean, 0 (gu bràth) gu 1
+Turns the rim's colours round the wheel, 0-1	Cuairt dathan an oir mun chuibhle, 0-1
+drag to turn round it · wheel to come closer	slaod gus tionndadh mun cuairt · cuibhle gus tighinn nas fhaisge
+0-100%: 50 is 1x, 0 a quarter, 100 four times	0-100%: 's e 50 1x, 0 cairteal, 100 ceithir uiread
+How much of each frame feeds the next, 0-0.95	Na thèid de gach frèam dhan ath fhear, 0-0.95
+Per-frame zoom of the feedback path, 0.90-1.15	Sùm slighe na h-ais-bhiadhaidh gach frèam, 0.90-1.15
+Space under it, as a fraction of the frame, 0-0.8	Beàrn fodha mar chuibhreann dhen fhrèam, 0-0.8
+0 rgb, 1 rainbow, 2 floyd, 3 warm, 4 cool, 5 green	0 rgb, 1 bogha-froise, 2 floyd, 3 blàth, 4 fionnar, 5 uaine
+Edge out (+) or in (-), % of the height, -25 to 25	Oir a-mach (+) no a-steach (-), % dhen àirde, -25 gu 25
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear	0 sòn, 1 càraid, 2 sruth, 3 dìollaid, 4 preabadh, 5 rùsgadh
+Seconds before it leaves by itself; 0 waits for OUT	Diogan mus fhalbh e leis fhèin; feithidh 0 ri OUT
+0-100%: how far each panel tilts from the one before	0-100%: claonadh gach pannail bhon fhear roimhe
+0-100%: the share of each band drawn as grey stripes	0-100%: cuibhreann gach bann air a tharraing mar stiallan liatha
+0 off, 1 on: the flow surges with the programme sound	0 dheth, 1 air: èiridh an sruth le fuaim PROGRAM
+0 off, 1 on: the top mirrors the bottom round a dark seam	0 dheth, 1 air: tha am barr a' sgàthanachadh a' bhuinn mu alt dorcha
+' (cues, position, look, effects, levels, routing, master)	' (cuean, ionad, coltas, èifeachdan, ìrean, slighe, maighstir)
+' -- try ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR or an output number	' -- feuch ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR no àireamh às-chuir
+BLEND ROW: expected <first output> <how many, 2 or more> <overlap in pixels>, with that many outputs	BLEND ROW: an dùil ri <a' chiad às-chur> <àireamh, 2 no barrachd> <tar-lùbadh ann am piogsailean>, leis an àireamh sin de dh'às-chuir
+SCREENS STAGE: STATUS, SET <what> <value> or APPLY	SCREENS STAGE: STATUS, SET <dè> <luach> no APPLY
+SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> or UNITS METRES|FEET	SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> no UNITS METRES|FEET
+LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright or trail	LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright no trail
+STATUS | PALETTE <0-5 or name> | MODE <0-2 or name> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <control> <setting>	STATUS | PALETTE <0-5 no ainm> | MODE <0-2 no ainm> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <smachd> <roghainn>
+Opacity	Teimhneachd
+opacity	teimhneachd
+PAD MODE: HOLD or LATCH	PAD MODE: HOLD no LATCH
+PAD ASSIGN: this cue does not have that control	PAD ASSIGN: chan eil an smachd sin aig a' chue seo
+PAD SET: x and y are numbers from 0 to 1 (y = 1 is the top)	PAD SET: 's e àireamhan eadar 0 is 1 a th' ann an x is y (tha y = 1 aig a' bharr)
+PAD ASSIGN: a control is OPACITY, FX<n>.AMOUNT, FX<n>.A to F, or NUM.<name> such as NUM.lumia.flow	PAD ASSIGN: 's e OPACITY, FX<n>.AMOUNT, FX<n>.A gu F, no NUM.<name> mar NUM.lumia.flow a th' ann an smachd
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST	PAD: an dùil ri PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST	PAD: an dùil ri PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST
+QUANTISE: beat	CUANTACHADH: buille
+QUANTISE: 1 bar	CUANTACHADH: 1 tomhas
+QUANTISE: 2 bars	CUANTACHADH: 2 thomhas
+QUANTISE: 4 bars	CUANTACHADH: 4 tomhasan
+LINK: {1} peers	LINK: {1} com-pàirtichean
+left the Link session	dh'fhàg thu an seisean Link
+joined the Link session	chaidh thu dhan t-seisean Link
+TAKE waits for the bar: {1} s	Tha TAKE a' feitheamh ris an tomhas: {1} s
+TAKE waits for the beat: {1} s	Tha TAKE a' feitheamh ris a' bhuille: {1} s
+this build has no Ableton Link	chan eil Ableton Link sa togail seo
+VJ LINK: this build has no Ableton Link	VJ LINK: chan eil Ableton Link sa togail seo
+VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 are bars)	VJ QUANTISE: beat | 1 | 2 | 4 | off  ('s e tomhasan a th' ann an 1, 2, 4)
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS	VJ: an dùil ri ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS
+Render	Reandaradh
+PNG frames	Frèamaichean PNG
+START RENDER	TÒISICH REANDARADH
+CANCEL RENDER	SGUIR DEN REANDARADH
+RENDER TO FILE	REANDARAICH GU FAIDHLE
+RENDER TO FILE...	REANDARAICH GU FAIDHLE...
+about {1} left	mu {1} air fhàgail
+render cancelled	sguireadh den reandaradh
+{1} frames in {2}	{1} frèamaichean ann an {2}
+the output's ({1})	an às-chuir ({1})
+From cue and to cue	Bhon chue is dhan chue
+ProRes 4444 (alpha)	ProRes 4444 (alfa)
+the playlist has no cues	chan eil cuean san liosta
+{1} frames, {2}, {3}x{4}	{1} frèamaichean, {2}, {3}x{4}
+the source made no picture	cha do chruthaich an tùs dealbh
+a render is already running	tha reandaradh a' dol mu thràth
+there is no playlist to render	chan eil liosta ann ri reandaradh
+there is no picture in that range	chan eil dealbh san raon sin
+RENDER CANCEL: nothing is rendering	RENDER CANCEL: chan eil dad ga reandaradh
+RENDER START: CUE, CUES a-b or OUTPUT	RENDER START: CUE, CUES a-b no OUTPUT
+RENDER START CUES: first-last, numbered from 1	RENDER START CUES: ciad-mu dheireadh, àireamhan bho 1
+the output's mask is not drawn by a render yet	chan eil reandaradh a' tarraing masg an às-chuir fhathast
+the output's slices are not drawn by a render yet	chan eil reandaradh a' tarraing sliseagan an às-chuir fhathast
+the output's crossfader is not drawn by a render yet	chan eil reandaradh a' tarraing crois-sheargadh an às-chuir fhathast
+RENDER START: needs a size, a rate, a codec and a file	RENDER START: feumar meud, reat, codec is faidhle
+RENDER START: size is 1080P, 4K or OUTPUT; codec is PRORES, H264 or PNG	RENDER START: 's e 1080P, 4K no OUTPUT am meud; 's e PRORES, H264 no PNG an codec
+frame {1} of {2} \xC2\xB7 {3} frames/s	frèam {1} de {2} \xC2\xB7 {3} frèamaichean/s
+out:--	a-mach:--

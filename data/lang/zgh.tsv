@@ -4370,3 +4370,165 @@ this presentation needs a password to open. Remove the password in PowerPoint (F
 warp grid: expected <n>, <cols> <rows>, off, smooth or straight	warp grid: ⵉⵍⴰⵇ <n>, <cols> <rows>, off, smooth ⵏⵖ straight
 warp point: that is a corner -- move it with WARP <corner> dx dy	warp point: ⴷ ⵜⵉⵖⵎⵔⵜ -- ⵙⵎⵓⵜⵜⵉ ⵜⵜ ⵙ WARP <corner> dx dy
 window capture fell back to screen grab — update ffmpeg for exact window capture	ⵜⵓⵟⵟⴼⴰ ⵏ ⵓⵙⴼⴰⵢⵍⵓ ⵜⴰⵖⵓⵍ ⴰⵔ ⵜⵓⵟⵟⴼⴰ ⵏ ⵓⴳⴷⵉⵍ -- ⵍⵇⵇⵎ FFmpeg ⵉ ⵜⵓⵟⵟⴼⴰ ⵜⵓⵙⵔⵉⴷⵜ ⵏ ⵓⵙⴼⴰⵢⵍⵓ
+Lens	ⵜⴰⵎⵍⴰⵍⵜ
+Prism	ⴰⴱⵔⵉⵣⵎ
+Water	ⴰⵎⴰⵏ
+Lasers	ⵉⵍⴰⵣⵉⵔⵏ
+Pixels	ⵉⴱⵉⴽⵙⵉⵍⵏ
+Listens	ⵉⵙⴼⵍⵉⴷ
+Mirrors	ⵜⵉⵙⵉⵜⵉⵡⵉⵏ
+Shimmer	ⴰⵙⴼⵊⵊⴰⵊ
+Terrarium	ⴰⵙⵏⴷⵓⵇ ⵏ ⵜⴰⴳⴰⵏⵜ
+(bypassed)	(ⵉⵜⵜⵓⵣⴳⵍ)
+Second jet	ⴰⵙⵙⵓⴼⵖ ⵡⵉⵙ ⵙⵉⵏ
+%, 1 to 100	%, 1 ⴰⵔ 100
+Panel angle	ⵜⵉⵖⵎⵔⵜ ⵏ ⵜⴼⵍⵡⵉⵜ
+Ripple size	ⵜⵉⴷⴷⵉ ⵏ ⵜⴰⵎⵡⴰⵊⵜ
+Panels, 0-12	ⵜⵉⴼⵍⵡⵉⵏ, 0-12
+Seconds, 0-4	ⵜⴰⵙⵉⵏⵉⵏ, 0-4
+Seconds, 0-8	ⵜⴰⵙⵉⵏⵉⵏ, 0-8
+Top / bottom	ⴰⴼⵍⵍⴰ / ⴰⴷⴷⴰ
+Amount 0-100%	ⵜⴰⵙⵎⴽⵜⴰ 0-100%
+ALSA MIDI Port	ⵜⴰⵡⵡⵓⵔⵜ ALSA MIDI
+Degrees, 0-360	ⵜⵉⴼⵙⵏⴰ, 0-360
+Terrarium Pico	ⴰⵙⵏⴷⵓⵇ ⵏ ⵜⴰⴳⴰⵏⵜ Pico
+ASIOInit failed	ASIOInit ⵓⵔ ⵉⴷⴷⵉ
+Hertz, 20-20000	ⵀⵉⵔⵜⵣ, 20-20000
+Pixels, 64-2160	ⵉⴱⵉⴽⵙⵉⵍⵏ, 64-2160
+Pixels, 64-3840	ⵉⴱⵉⴽⵙⵉⵍⵏ, 64-3840
+Colour steps, 2-8	ⵉⵙⵓⵔⵉⴼⵏ ⵏ ⵉⵏⵉ, 2-8
+Degrees -180..180	ⵜⵉⴼⵙⵏⴰ -180..180
+Palette turn, 0-1	ⴰⵙⵓⵜⵜⵍ ⵏ ⵓⴳⴰⵍⵉⵙ, 0-1
+Size, %, 5 to 400	ⵜⵉⴷⴷⵉ, %, 5 ⴰⵔ 400
+Feature size, 0.1-8	ⵜⵉⴷⴷⵉ ⵏ ⵜⴰⵍⵖⴰ, 0.1-8
+Spiral size, 0.25-4	ⵜⵉⴷⴷⵉ ⵏ ⵜⴰⵡⵔⵉⵇⵜ, 0.25-4
+Degrees, -360 to 360	ⵜⵉⴼⵙⵏⴰ, -360 ⴰⵔ 360
+Spiral strength, 0-4	ⵜⴰⵣⵎⵔⵜ ⵏ ⵜⴰⵡⵔⵉⵇⵜ, 0-4
+0-100%, left to right	0-100%, ⵙⴳ ⵓⵥⵍⵎⴰⴹ ⵙ ⵓⴼⴰⵙⵙⵉ
+0-100%, top to bottom	0-100%, ⵙⴳ ⵓⴼⵍⵍⴰ ⵙ ⵡⴰⴷⴷⴰ
+0-100%: laser speckle	0-100%: ⵜⵉⵏⵇⵇⵉⴹⵉⵏ ⵏ ⵍⴰⵣⵉⵔ
+Pixel sort amount, 0-1	ⵜⴰⵙⵎⴽⵜⴰ ⵏ ⵓⵙⵎⵉⵣⵡⵔ ⵏ ⵉⴱⵉⴽⵙⵉⵍⵏ, 0-1
+Pitch in hertz, 20-8000	ⵜⴰⵖⵓⵛⵜ ⵙ ⵀⵉⵔⵜⵣ, 20-8000
+Frames a second, 1 to 60	ⵜⵉⵡⵍⴰⴼⵉⵏ ⴳ ⵜⴰⵙⵉⵏⵜ, 1 ⴰⵔ 60
+Horizontal cells, 64-960	ⵜⵉⵅⵅⴰⵎⵉⵏ ⵜⵉⴳⵍⴰⵡⴰⵢⵉⵏ, 64-960
+select a lumia cue first	ⵙⵜⵉ cue lumia ⵣⴳ ⵜⵉⵣⵡⵓⵔⵉ
+0 tube, 1 mandala, 2 none	0 ⴰⵊⵄⴱⵓⴱ, 1 ⵎⴰⵏⴷⴰⵍⴰ, 2 ⵡⴰⵍⵓ
+How big a blob grows, 0-1	ⵜⵉⴷⴷⵉ ⵍⵍⵉ ⴰⴷ ⵉⵍⴽⵎ ⵓⵄⵇⵇⴰ, 0-1
+0-100%: overall brightness	0-100%: ⵜⴰⴼⴰⵜ ⵜⴰⵎⴰⵜⴰⵢⵜ
+FDS hardware gain range, 0-63	ⴰⵣⵉⵍⴰⵍ ⵏ ⵓⵙⵏⵔⵏⵉ ⵏ ⵡⴰⵍⵍⴰⵍ FDS, 0-63
+How hard it cuts, %, 0 to 100	ⵜⴰⵣⵎⵔⵜ ⵏ ⵓⴳⵣⴰⵎ, %, 0 ⴰⵔ 100
+{1} (supports + - * / and ())	{1} (ⵉⵙⵄⴰ + - * / ⴷ ())
+Master oscillator rate, 0.01-8	ⵜⴰⵣⵣⵍⴰ ⵏ ⵓⵎⵙⴹⵕⵓ ⴰⵎⵇⵇⵔⴰⵏ, 0.01-8
+Seconds the in move takes, 0-5	ⵜⴰⵙⵉⵏⵉⵏ ⵏ ⵓⵏⴽⵛⵎ, 0-5
+0-100%: 0 holds the field still	0-100%: 0 ⴰⵔ ⵉⵜⵜⴰⵟⵟⴰⴼ ⵉⴳⵔ ⴱⵍⴰ ⴰⵎⵓⵙⵙⵓ
+0-100%: how bright the water is	0-100%: ⵜⴰⴼⴰⵜ ⵏ ⵡⴰⵎⴰⵏ
+0-100%: how far the field bends	0-100%: ⴰⵎⵏⵏⴰⵢ ⵏ ⵢⵉⴳⵔ
+0-100%: the whole picture turns	0-100%: ⵜⴰⵡⵍⴰⴼⵜ ⴰⴽⴽ ⴰⵔ ⵜⵜⵙⵓⵜⵜⵍ
+Degrees per second, -720 to 720	ⵜⵉⴼⵙⵏⵉⵏ ⴳ ⵜⴰⵙⵉⵏⵜ, -720 ⴰⵔ 720
+Lumia (laser light and mirrors)	Lumia (ⵜⴰⴼⴰⵜ ⵏ ⵍⴰⵣⵉⵔ ⴷ ⵜⵙⵉⵜⵉⵡⵉⵏ)
+Seconds between retriggers, 0-8	ⵜⴰⵙⵉⵏⵉⵏ ⴳⵔ ⵉⵙⵙⵏⵇⵔⵏ, 0-8
+Seconds the out move takes, 0-5	ⵜⴰⵙⵉⵏⵉⵏ ⵏ ⵜⵓⴼⴼⵖⴰ, 0-5
+0-100%: how fast the water moves	0-100%: ⵜⴰⵣⵣⵍⴰ ⵏ ⵡⴰⵎⴰⵏ
+0-100%: the halo round the lines	0-100%: ⵜⴰⴼⴰⵜ ⵉⵥⵍⵉⵏ ⵉⵣⵔⵉⴳⵏ
+How many are alive at once, 3-48	ⵎⵏⵛⴽ ⵉⴷⴷⵔⵏ ⴳ ⵢⴰⵜ ⵜⵉⴽⴽⵍⵜ, 3-48
+Turbulence, 0 still to 3 boiling	ⴰⵅⵍⵅⵍ, 0 ⴱⵍⴰ ⴰⵎⵓⵙⵙⵓ ⴰⵔ 3 ⵉⵜⵜⴳⴳⴰⵍⵏ
+Birth, drift and fade rate, 0.1-3	ⵜⴰⵣⵣⵍⴰ ⵏ ⵜⵍⴰⵍⵉⵜ, ⴰⵎⵓⵙⵙⵓ ⴷ ⵓⴼⵙⴰⵢ, 0.1-3
+How hard the audio drives it, 0-1	ⵜⴰⵣⵎⵔⵜ ⵏ ⵉⵎⵙⵍⵉ ⴼⵍⵍⴰⵙ, 0-1
+Scale of the whole graphic, 0.5-2	ⵜⴰⵙⴽⴰⵍⴰ ⵏ ⵡⵓⵏⵓⵖ ⴰⴽⴽ, 0.5-2
+0-100%: 0 broad, 100 fine and busy	0-100%: 0 ⴰⵀⵔⴰⵡ, 100 ⴰⵔⵇⵇⴰⵇ ⴷ ⵉⵛⵛⵓⵔⵏ
+Down, % of the height, -100 to 100	ⵙ ⵡⴰⴷⴷⴰ, % ⵏ ⵜⵉⴷⴷⵉ, -100 ⴰⵔ 100
+Thickness of the glowing edge, 0-1	ⵜⵓⵣⵓⵔⵜ ⵏ ⵢⵉⵔⵉ ⵉⵜⵜⴼⵊⵊⴰⵊⵏ, 0-1
+0-100%: how hard the lines are bent	0-100%: ⵜⴰⵣⵎⵔⵜ ⵏ ⵓⵡⵏⵏⴰⵢ ⵏ ⵉⵣⵔⵉⴳⵏ
+0-100%: light lingers on the screen	0-100%: ⵜⴰⴼⴰⵜ ⴰⵔ ⵜⵜⵇⵇⵉⵎ ⴼ ⵓⴳⴷⵉⵍ
+Across, % of the width, -100 to 100	ⵙ ⵜⴰⴳⵍⴰⵢⵜ, % ⵏ ⵜⴰⵀⵔⵉ, -100 ⴰⵔ 100
+% of the picture's height, 0.1 to 20	% ⵏ ⵜⵉⴷⴷⵉ ⵏ ⵜⵡⵍⴰⴼⵜ, 0.1 ⴰⵔ 20
+0-100%: how far the colours fan apart	0-100%: ⴰⵎⴼⴰⵔⴰⵣ ⵏ ⵉⵏⵉⵜⵏ
+Degrees round the colour wheel, 0-360	ⵜⵉⴼⵙⵏⵉⵏ ⵖ ⵜⴰⵡⵔⵉⵇⵜ ⵏ ⵉⵏⵉ, 0-360
+Where the eye sits, 0 left to 1 right	ⴰⴷⵖⴰⵔ ⵏ ⵜⵉⵟⵟ, 0 ⴰⵥⵍⵎⴰⴹ ⴰⵔ 1 ⴰⴼⴰⵙⵙⵉ
+Where the eye sits, 0 top to 1 bottom	ⴰⴷⵖⴰⵔ ⵏ ⵜⵉⵟⵟ, 0 ⴰⴼⵍⵍⴰ ⴰⵔ 1 ⴰⴷⴷⴰ
+dBFS, -60 to 0 (-18 is EBU alignment)	dBFS, -60 ⴰⵔ 0 (-18 ⴷ ⴰⵙⴳⴰⴷⴷⵉ EBU)
+0-100%: how bright the laser lines are	0-100%: ⵜⴰⴼⴰⵜ ⵏ ⵉⵣⵔⵉⴳⵏ ⵏ ⵍⴰⵣⵉⵔ
+One LED tile's width in pixels, 8-8192	ⵜⴰⵀⵔⵉ ⵏ ⵢⴰⵜ ⵜⴼⵍⵡⵉⵜ LED ⵙ ⵉⴱⵉⴽⵙⵉⵍⵏ, 8-8192
+0-100%: a second jet crossing the first	0-100%: ⴰⵙⵙⵓⴼⵖ ⵡⵉⵙ ⵙⵉⵏ ⵉⵣⴳⵔ ⴰⵎⵣⵡⴰⵔⵓ
+Edge softness, % of the height, 0 to 25	ⴰⵍⵡⵡⴰⵖ ⵏ ⵢⵉⵔⵉ, % ⵏ ⵜⵉⴷⴷⵉ, 0 ⴰⵔ 25
+One LED tile's height in pixels, 8-8192	ⵜⵉⴷⴷⵉ ⵏ ⵢⴰⵜ ⵜⴼⵍⵡⵉⵜ LED ⵙ ⵉⴱⵉⴽⵙⵉⵍⵏ, 8-8192
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono	0 ⴰⵎⵏⵙⴰⵢ, 1 ⵜⵉⵎⵙⵙⵉ, 2 ⴰⴳⵔⵉⵙ, 3 ⵏⵉⵢⵓⵏ, 4 ⵢⴰⵏ ⵉⵏⵉ
+Modulator as a ratio of the note, 0.05-16	ⴰⵎⵙⴹⵕⵓ ⵙ ⵓⵙⵖⵍ ⵏ ⵜⴰⵏⵓⵟ, 0.05-16
+Scanlines, bloom and gun misalignment, 0-1	ⵉⵣⵔⵉⴳⵏ ⵏ ⵓⵙⴽⴰⵏ, ⵜⴰⴼⴰⵜ ⴷ ⵓⵣⵍⴰⴳ ⵏ ⵉⵎⴰⵣⴰⵏⵏ, 0-1
+0-100%: the round lens, barrel and dark rim	0-100%: ⵜⴰⵎⵍⴰⵍⵜ ⵜⴰⵡⵔⴰⵏⵜ, ⴰⴱⵓⵇⴰⵍ ⴷ ⵢⵉⵔⵉ ⴰⴱⵔⴽⴰⵏ
+Block displacement and channel tearing, 0-1	ⴰⵎⵓⵙⵙⵓ ⵏ ⵉⵃⴷⵔⴰⵏ ⴷ ⵓⵛⵛⵉⵔ ⵏ ⵉⴱⵓⴷⴰ, 0-1
+Internal resolution, 1 (chunky) to 5 (fine)	ⵜⴰⴱⴰⴷⵓⵜ ⵜⴰⴳⵏⵙⴰⵏⵜ, 1 (ⴰⵀⵔⴰⵡ) ⴰⵔ 5 (ⴰⵔⵇⵇⴰⵇ)
+Seconds the finished drawing stays, 0 to 60	ⵜⴰⵙⵉⵏⵉⵏ ⵍⵍⵉ ⴰⴷ ⵉⵇⵇⵉⵎ ⵡⵓⵏⵓⵖ ⵉⴽⵎⵎⵍⵏ, 0 ⴰⵔ 60
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono	0 ⴰⵏⵥⴰⵕ + ⴰⵥⵓⵍⴰⵍ, 1 ⴰⵏⵥⴰⵕ, 2 ⴰⵙⵏⵜⵍ, 3 ⵢⴰⵏ ⵉⵏⵉ
+How readily neighbours merge, 0 (never) to 1	ⴰⴼⵙⵙⴰⵙ ⵏ ⵓⵙⵎⵓⵏ ⵏ ⵉⵎⵊⴰⵔⵏ, 0 (ⵓⵔ ⵊⵊⵓ) ⴰⵔ 1
+Turns the rim's colours round the wheel, 0-1	ⴰⵔ ⵉⵙⵙⵓⵜⵜⵍ ⵉⵏⵉⵜⵏ ⵏ ⵢⵉⵔⵉ ⵖ ⵜⴰⵡⵔⵉⵇⵜ, 0-1
+drag to turn round it · wheel to come closer	ⵣⵓⵖⵔ ⵉ ⵓⵙⵓⵜⵜⵍ ⴼⵍⵍⴰⵙ · ⵜⴰⵡⵔⵉⵇⵜ ⵉ ⵓⵥⵥⴰⵍ
+0-100%: 50 is 1x, 0 a quarter, 100 four times	0-100%: 50 ⴷ 1x, 0 ⴷ ⵔⴱⵄ, 100 ⴽⴽⵓⵥ ⵏ ⵜⵉⴽⴽⴰⵍ
+How much of each frame feeds the next, 0-0.95	ⴰⵎⵓⵔ ⵏ ⴽⵔⴰⵢⴳⴰⵜⵜ ⵜⴰⵡⵍⴰⴼⵜ ⵉ ⵜⵉⵏ ⴷ ⵉⵜⵜⴰⵙⵏ, 0-0.95
+Per-frame zoom of the feedback path, 0.90-1.15	ⴰⵙⵎⵖⵓⵔ ⵏ ⵓⴱⵔⵉⴷ ⵏ ⵜⵓⵖⴰⵍⵉⵏ ⵉ ⴽⵔⴰⵢⴳⴰⵜⵜ ⵜⴰⵡⵍⴰⴼⵜ, 0.90-1.15
+Space under it, as a fraction of the frame, 0-0.8	ⵜⴰⵍⵍⵓⵏⵜ ⴷⴷⴰⵡⴰⵙ, ⴷ ⴰⵎⵓⵔ ⵏ ⵜⵡⵍⴰⴼⵜ, 0-0.8
+0 rgb, 1 rainbow, 2 floyd, 3 warm, 4 cool, 5 green	0 rgb, 1 ⴰⵏⵥⴰⵕ, 2 floyd, 3 ⴰⵃⵎⴰⵢⴰⵏ, 4 ⴰⵙⵎⵎⴰⴹ, 5 ⴰⵣⴳⵣⴰⵡ
+Edge out (+) or in (-), % of the height, -25 to 25	ⵉⵔⵉ ⵙ ⴱⵕⵕⴰ (+) ⵏⵖ ⵙ ⴷⴰⵅⵍ (-), % ⵏ ⵜⵉⴷⴷⵉ, -25 ⴰⵔ 25
+SCREENS STAGE: STATUS, SET <what> <value> or APPLY	SCREENS STAGE: STATUS, SET <what> <value> ⵏⵖ APPLY
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear	0 ⵜⴰⵎⵏⴰⴹⵜ, 1 ⴰⴽⵏⵉⵡ, 2 ⴰⵣⵣⵍ, 3 ⵜⴰⴱⴰⵔⴷⴰ, 4 ⵜⴰⵎⵡⴰⵊⵜ, 5 ⴰⵣⵍⴰⴳ
+Seconds before it leaves by itself; 0 waits for OUT	ⵜⴰⵙⵉⵏⵉⵏ ⴷⴰⵜ ⴰⴷ ⵉⴼⴼⵖ ⵉⵅⴼ ⵏⵏⵙ; 0 ⴰⵔ ⵉⵜⵜⵔⴰⵊⵓ OUT
+0-100%: how far each panel tilts from the one before	0-100%: ⴰⵎⵏⵏⴰⵢ ⵏ ⴽⵔⴰⵢⴳⴰⵜⵜ ⵜⴰⴼⵍⵡⵉⵜ ⵖⴼ ⵜⵉⵏ ⵉⵣⵔⵉⵏ
+0-100%: the share of each band drawn as grey stripes	0-100%: ⴰⵎⵓⵔ ⵏ ⴽⵔⴰⵢⴳⴰⵜⵜ ⵜⴰⵙⴼⵉⴼⵜ ⵙ ⵉⵣⵔⵉⴳⵏ ⵉⵥⵓⵍⴰⵍⵏ
+0 off, 1 on: the flow surges with the programme sound	0 ⵉⵏⵙⴰ, 1 ⵉⵔⵎⴷ: ⴰⵣⵣⵍ ⴰⵔ ⵉⵜⵜⴰⵍⵉ ⵙ ⵉⵎⵙⵍⵉ ⵏ ⵡⴰⵀⵉⵍ
+0 off, 1 on: the top mirrors the bottom round a dark seam	0 ⵉⵏⵙⴰ, 1 ⵉⵔⵎⴷ: ⴰⴼⵍⵍⴰ ⴰⵔ ⵉⵙⴽⴰⵏ ⴰⴷⴷⴰ ⵖ ⵜⴰⵖⵔⵉⵇⵜ ⵜⴰⴱⵔⴽⴰⵏⵜ
+' (cues, position, look, effects, levels, routing, master)	' (cue, ⴰⴷⵖⴰⵔ, ⵓⴷⵎ, ⵉⵙⵎⴷⴰ, ⵉⵙⵡⵉⵔⵏ, ⴰⴱⵔⵉⴷ, ⴰⵎⵇⵇⵔⴰⵏ)
+' -- try ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR or an output number	' -- ⵙⵉⵔⵎ ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR ⵏⵖ ⴰⵎⴹⴰⵏ ⵏ ⵜⵓⴼⴼⵖⴰ
+BLEND ROW: expected <first output> <how many, 2 or more> <overlap in pixels>, with that many outputs	BLEND ROW: ⴰⵔ ⵉⵜⵜⵔⴰⵊⵓ <first output> <how many, 2 or more> <overlap in pixels>, ⵙ ⵓⵎⴹⴰⵏ ⴰⴷ ⵏ ⵜⵓⴼⴼⵖⵉⵏ
+LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright or trail	LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright ⵏⵖ trail
+SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> or UNITS METRES|FEET	SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> ⵏⵖ UNITS METRES|FEET
+Opacity	ⵜⴰⴷⵓⵍⵉ
+opacity	ⵜⴰⴷⵓⵍⵉ
+FDS synth	ⴰⵙⵓⴷⴷⵓⵙ FDS
+PROXY 720p	ⵜⴰⵏⴳⴰⵍⵜ 720p
+out:--	ⵜⵓⴼⴼⵖⴰ:--
+PAD MODE: HOLD or LATCH	PAD MODE: HOLD ⵏⵖ LATCH
+PAD ASSIGN: this cue does not have that control	PAD ASSIGN: cue ⴰⴷ ⵓⵔ ⵖⵓⵔⵙ ⴰⵙⵏⵇⴷ ⴰⴷ
+PAD SET: x and y are numbers from 0 to 1 (y = 1 is the top)	PAD SET: x ⴷ y ⴷ ⵉⵎⴹⴰⵏⵏ ⵙⴳ 0 ⴰⵔ 1 (y = 1 ⴷ ⴰⴼⵍⵍⴰ)
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST	PAD: ⴰⵔ ⵉⵜⵜⵔⴰⵊⵓ PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST
+PAD ASSIGN: a control is OPACITY, FX<n>.AMOUNT, FX<n>.A to F, or NUM.<name> such as NUM.lumia.flow	PAD ASSIGN: ⴰⵙⵏⵇⴷ ⴷ OPACITY, FX<n>.AMOUNT, FX<n>.A ⴰⵔ F, ⵏⵖ NUM.<name> ⴰⵎ NUM.lumia.flow
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST	PAD: ⴰⵔ ⵉⵜⵜⵔⴰⵊⵓ PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST
+STATUS | PALETTE <0-5 or name> | MODE <0-2 or name> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <control> <setting>	STATUS | PALETTE <0-5 ⵏⵖ ⵉⵙⵎ> | MODE <0-2 ⵏⵖ ⵉⵙⵎ> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <control> <setting>
+Render	ⴰⵙⵙⵓⴼⵖ
+PNG frames	ⵜⵉⵡⵍⴰⴼⵉⵏ PNG
+START RENDER	ⴱⴷⵓ ⴰⵙⵙⵓⴼⵖ
+CANCEL RENDER	ⵙⴼⵙⵅ ⴰⵙⵙⵓⴼⵖ
+QUANTISE: beat	ⴰⵙⵎⵥⵉ: ⴰⴹⴱⵙⵉ
+RENDER TO FILE	ⵙⵙⵓⴼⵖ ⵙ ⵓⴼⴰⵢⵍⵓ
+about {1} left	ⵉⵇⵇⵉⵎ ⴰⵣⴰⵍ ⵏ {1}
+LINK: {1} peers	LINK: {1} ⵏ ⵉⵎⴷⵓⴽⴰⵍ
+QUANTISE: 1 bar	ⴰⵙⵎⵥⵉ: 1 ⵏ ⵜⵎⵥⵔⵉ
+QUANTISE: 2 bars	ⴰⵙⵎⵥⵉ: 2 ⵏ ⵜⵎⵥⵔⵉⵡⵉⵏ
+QUANTISE: 4 bars	ⴰⵙⵎⵥⵉ: 4 ⵏ ⵜⵎⵥⵔⵉⵡⵉⵏ
+render cancelled	ⴰⵙⵙⵓⴼⵖ ⵉⵜⵜⵓⵙⴼⵙⵅ
+RENDER TO FILE...	ⵙⵙⵓⴼⵖ ⵙ ⵓⴼⴰⵢⵍⵓ...
+{1} frames in {2}	{1} ⵏ ⵜⵡⵍⴰⴼⵉⵏ ⴳ {2}
+the output's ({1})	ⵏ ⵜⵓⴼⴼⵖⴰ ({1})
+From cue and to cue	cue ⵏ ⵜⵉⵣⵡⵓⵔⵉ ⴷ ⵜⵉⵏ ⵏ ⵜⴰⴳⴳⴰⵔⵜ
+left the Link session	ⵉⴼⴼⵖ ⵙⴳ ⵜⵖⵉⵎⵉⵜ Link
+joined the Link session	ⵉⴽⵛⵎ ⵙ ⵜⵖⵉⵎⵉⵜ Link
+the playlist has no cues	ⵜⴰⴱⴷⴰⵔⵜ ⵏ ⵜⵖⵓⵔⵉ ⵓⵔ ⵖⵓⵔⵙ cue
+the source made no picture	ⴰⵖⴱⴰⵍⵓ ⵓⵔ ⴷ ⵉⵙⵏⵓⵍⴼⴰ ⵜⴰⵡⵍⴰⴼⵜ
+a render is already running	ⴰⵙⵙⵓⴼⵖ ⴰⵔ ⵉⵜⵜⴷⴷⵓ ⵢⴰⴽⴰⵏ
+TAKE waits for the bar: {1} s	TAKE ⴰⵔ ⵉⵜⵜⵔⴰⵊⵓ ⵜⴰⵎⵥⵔⵉⵜ: {1} s
+TAKE waits for the beat: {1} s	TAKE ⴰⵔ ⵉⵜⵜⵔⴰⵊⵓ ⴰⴹⴱⵙⵉ: {1} s
+there is no playlist to render	ⵓⵔ ⵜⵍⵍⵉ ⵜⴰⴱⴷⴰⵔⵜ ⵏ ⵜⵖⵓⵔⵉ ⵉ ⵓⵙⵙⵓⴼⵖ
+this build has no Ableton Link	ⴰⵍⵇⵇⵎ ⴰⴷ ⵓⵔ ⵖⵓⵔⵙ Ableton Link
+there is no picture in that range	ⵓⵔ ⵜⵍⵍⵉ ⵜⴰⵡⵍⴰⴼⵜ ⴳ ⵓⵣⵉⵍⴰⵍ ⴰⴷ
+RENDER CANCEL: nothing is rendering	RENDER CANCEL: ⵓⵔ ⵉⵍⵍⵉ ⵓⵙⵙⵓⴼⵖ ⵉⵜⵜⴷⴷⵓⵏ
+{1} frames, {2}, {3}x{4}	{1} ⵏ ⵜⵡⵍⴰⴼⵉⵏ, {2}, {3}x{4}
+RENDER START: CUE, CUES a-b or OUTPUT	RENDER START: CUE, CUES a-b ⵏⵖ OUTPUT
+frame {1} of {2} \xC2\xB7 {3} frames/s	ⵜⴰⵡⵍⴰⴼⵜ {1} ⵙⴳ {2} \xC2\xB7 {3} ⵜⵉⵡⵍⴰⴼⵉⵏ/s
+RENDER START CUES: first-last, numbered from 1	RENDER START CUES: ⴰⵎⵣⵡⴰⵔⵓ-ⴰⵎⴳⴳⴰⵔⵓ, ⵉⵎⴹⴰⵏⵏ ⵙⴳ 1
+the output's mask is not drawn by a render yet	ⴰⵙⵙⵓⴼⵖ ⵓⵔ ⵉⵜⵜⵓⵏⵓⵖ ⵢⴰⴷ ⵜⴰⴳⵍⵎⵓⵙⵜ ⵏ ⵜⵓⴼⴼⵖⴰ
+the output's slices are not drawn by a render yet	ⴰⵙⵙⵓⴼⵖ ⵓⵔ ⵉⵜⵜⵓⵏⵓⵖ ⵢⴰⴷ ⵉⵃⵔⵉⵛⵏ ⵏ ⵜⵓⴼⴼⵖⴰ
+the output's crossfader is not drawn by a render yet	ⴰⵙⵙⵓⴼⵖ ⵓⵔ ⵉⵜⵜⵓⵏⵓⵖ ⵢⴰⴷ ⴰⵎⵙⴼⵙⴰⵢ ⵏ ⵜⵓⴼⴼⵖⴰ
+RENDER START: needs a size, a rate, a codec and a file	RENDER START: ⵉⵃⵡⴰⵊ ⵜⵉⴷⴷⵉ, ⵜⴰⵣⵣⵍⴰ, ⴰⴽⵓⴷⵉⴽ ⴷ ⵓⴼⴰⵢⵍⵓ
+VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 are bars)	VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 ⴷ ⵜⵉⵎⵥⵔⵉⵡⵉⵏ)
+RENDER START: size is 1080P, 4K or OUTPUT; codec is PRORES, H264 or PNG	RENDER START: ⵜⵉⴷⴷⵉ ⴷ 1080P, 4K ⵏⵖ OUTPUT; ⴰⴽⵓⴷⵉⴽ ⴷ PRORES, H264 ⵏⵖ PNG
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS	VJ: ⴰⵔ ⵉⵜⵜⵔⴰⵊⵓ ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS
+VJ LINK: this build has no Ableton Link	VJ LINK: ⴰⵍⵇⵇⵎ ⴰⴷ ⵓⵔ ⵖⵓⵔⵙ Ableton Link

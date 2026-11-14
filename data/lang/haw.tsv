@@ -4320,3 +4320,165 @@ window capture fell back to screen grab — update ffmpeg for exact window captu
 neon	nīona
 pop	pohā
 sine	nalu sine
+Lens	Aniani
+Prism	Aniani māhele
+Water	Wai
+Lasers	Nā kukuna
+Pixels	Nā kiko kiʻi
+Listens	Hoʻolohe
+Mirrors	Nā aniani
+Shimmer	ʻŌlinolino
+Terrarium	Māla aniani
+(bypassed)	(kāʻalo ʻia)
+Second jet	Kahawai lua
+%, 1 to 100	%, 1 a 100
+Panel angle	Kihi papa
+Ripple size	Nui o ka ʻale
+Panels, 0-12	Nā papa, 0-12
+Seconds, 0-4	Kekona, 0-4
+Seconds, 0-8	Kekona, 0-8
+Top / bottom	Luna / lalo
+Amount 0-100%	Ka nui 0-100%
+ALSA MIDI Port	Awa ALSA MIDI
+Degrees, 0-360	Kēkelē, 0-360
+Terrarium Pico	Māla aniani Pico
+ASIOInit failed	Hāʻule ʻo ASIOInit
+Hertz, 20-20000	Heki, 20-20000
+Pixels, 64-2160	Nā kiko kiʻi, 64-2160
+Pixels, 64-3840	Nā kiko kiʻi, 64-3840
+Colour steps, 2-8	Nā ʻanuʻu waihoʻoluʻu, 2-8
+Degrees -180..180	Kēkelē -180..180
+Palette turn, 0-1	Huli waihoʻoluʻu, 0-1
+Size, %, 5 to 400	Nui, %, 5 a 400
+Feature size, 0.1-8	Nui o ke ʻano, 0.1-8
+Spiral size, 0.25-4	Nui o ka wili, 0.25-4
+Degrees, -360 to 360	Kēkelē, -360 a 360
+Spiral strength, 0-4	Ikaika o ka wili, 0-4
+0-100%, left to right	0-100%, hema a ʻākau
+0-100%, top to bottom	0-100%, luna a lalo
+0-100%: laser speckle	0-100%: kiko kukuna
+Pixel sort amount, 0-1	Nui hoʻonohonoho kiko kiʻi, 0-1
+Pitch in hertz, 20-8000	Kiʻekiʻe leo ma ka heki, 20-8000
+Frames a second, 1 to 60	Kiʻi i ke kekona, 1 a 60
+Horizontal cells, 64-960	Nā keʻena papamoe, 64-960
+select a lumia cue first	e koho mua i cue lumia
+0 tube, 1 mandala, 2 none	0 paipu, 1 mandala, 2 ʻaʻohe
+How big a blob grows, 0-1	Nui o ka puʻupuʻu e ulu ai, 0-1
+0-100%: overall brightness	0-100%: mālamalama holoʻokoʻa
+FDS hardware gain range, 0-63	Laulā hoʻonui lako FDS, 0-63
+How hard it cuts, %, 0 to 100	Ikaika o ka ʻoki, %, 0 a 100
+{1} (supports + - * / and ())	{1} (kākoʻo i + - * / a me ())
+Master oscillator rate, 0.01-8	Māmā o ka hawewe kumu, 0.01-8
+Seconds the in move takes, 0-5	Kekona o ka neʻe komo, 0-5
+0-100%: 0 holds the field still	0-100%: paʻa ke kahua ma 0
+0-100%: how bright the water is	0-100%: mālamalama o ka wai
+0-100%: how far the field bends	0-100%: nui o ka pelu kahua
+0-100%: the whole picture turns	0-100%: huli ke kiʻi holoʻokoʻa
+Degrees per second, -720 to 720	Kēkelē i ke kekona, -720 a 720
+Lumia (laser light and mirrors)	Lumia (kukuna a me nā aniani)
+Seconds between retriggers, 0-8	Kekona ma waena o nā hoʻomaka hou, 0-8
+Seconds the out move takes, 0-5	Kekona o ka neʻe puka, 0-5
+0-100%: how fast the water moves	0-100%: māmā o ka holo wai
+0-100%: the halo round the lines	0-100%: pōʻai mālamalama o nā laina
+How many are alive at once, 3-48	Ka nui e ola pū ana, 3-48
+Turbulence, 0 still to 3 boiling	ʻAleʻale, 0 mālie a 3 paila
+Birth, drift and fade rate, 0.1-3	Māmā hānau, ʻau a mae, 0.1-3
+How hard the audio drives it, 0-1	Ikaika o ka hoʻokele leo, 0-1
+Scale of the whole graphic, 0.5-2	Pālākiō o ke kaha holoʻokoʻa, 0.5-2
+0-100%: 0 broad, 100 fine and busy	0-100%: 0 ākea, 100 liʻiliʻi a paʻapū
+Down, % of the height, -100 to 100	I lalo, % o ke kiʻekiʻe, -100 a 100
+Thickness of the glowing edge, 0-1	Mānoanoa o kaʻe ʻālohilohi, 0-1
+0-100%: how hard the lines are bent	0-100%: ikaika o ka pelu laina
+0-100%: light lingers on the screen	0-100%: mau ke kukui ma ka pale
+Across, % of the width, -100 to 100	Ma ʻō, % o ka laulā, -100 a 100
+% of the picture's height, 0.1 to 20	% o ke kiʻekiʻe kiʻi, 0.1 a 20
+0-100%: how far the colours fan apart	0-100%: ka mamao o ka hohola waihoʻoluʻu
+Degrees round the colour wheel, 0-360	Kēkelē a puni ka huila waihoʻoluʻu, 0-360
+Where the eye sits, 0 left to 1 right	Kahi o ka maka, 0 hema a 1 ʻākau
+Where the eye sits, 0 top to 1 bottom	Kahi o ka maka, 0 luna a 1 lalo
+dBFS, -60 to 0 (-18 is EBU alignment)	dBFS, -60 a 0 (-18 ke kaulike EBU)
+0-100%: how bright the laser lines are	0-100%: mālamalama o nā laina kukuna
+One LED tile's width in pixels, 8-8192	Laulā o hoʻokahi papa LED i nā kiko kiʻi, 8-8192
+0-100%: a second jet crossing the first	0-100%: kahawai lua e keʻa i ka mua
+Edge softness, % of the height, 0 to 25	Palupalu kaʻe, % o ke kiʻekiʻe, 0 a 25
+One LED tile's height in pixels, 8-8192	Kiʻekiʻe o hoʻokahi papa LED i nā kiko kiʻi, 8-8192
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono	0 kuʻuna, 1 ahi, 2 hau, 3 neon, 4 hoʻokahi waihoʻoluʻu
+Modulator as a ratio of the note, 0.05-16	Hoʻololi ma ke kaulike o ka leo, 0.05-16
+Scanlines, bloom and gun misalignment, 0-1	Nā laina nānā, mālamalama a me ka hewa kuhikuhi pū, 0-1
+0-100%: the round lens, barrel and dark rim	0-100%: aniani poepoe, pelu pahu a me kaʻe pouli
+Block displacement and channel tearing, 0-1	Neʻe poloka a naha kaha, 0-1
+Internal resolution, 1 (chunky) to 5 (fine)	Mōakāka o loko, 1 (nui nā kiko) a 5 (kiko liʻiliʻi)
+Seconds the finished drawing stays, 0 to 60	Kekona e paʻa ai ke kaha pau, 0 a 60
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono	0 ānuenue + hinahina, 1 ānuenue, 2 kumuhana, 3 hoʻokahi waihoʻoluʻu
+How readily neighbours merge, 0 (never) to 1	Māmā hui o nā hoalauna, 0 (ʻaʻole loa) a 1
+Turns the rim's colours round the wheel, 0-1	Huli i nā waihoʻoluʻu kaʻe ma ka huila, 0-1
+drag to turn round it · wheel to come closer	kauō e huli a puni · huila e hoʻokokoke
+0-100%: 50 is 1x, 0 a quarter, 100 four times	0-100%: 50 he 1x, 0 he hapahā, 100 he ʻehā pā
+How much of each frame feeds the next, 0-0.95	Ka māhele o kēlā kiʻi e hānai i ka aʻe, 0-0.95
+Per-frame zoom of the feedback path, 0.90-1.15	Hoʻonui ala hoʻi no kēlā kiʻi, 0.90-1.15
+Space under it, as a fraction of the frame, 0-0.8	Wā ma lalo, he māhele o ke kiʻi, 0-0.8
+0 rgb, 1 rainbow, 2 floyd, 3 warm, 4 cool, 5 green	0 rgb, 1 ānuenue, 2 floyd, 3 mehana, 4 anuanu, 5 ʻōmaʻomaʻo
+Edge out (+) or in (-), % of the height, -25 to 25	Kaʻe i waho (+) a i loko (-), % o ke kiʻekiʻe, -25 a 25
+SCREENS STAGE: STATUS, SET <what> <value> or APPLY	SCREENS STAGE: STATUS, SET <what> <value> a i ʻole APPLY
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear	0 ʻāpana, 1 māhoe, 2 kahe, 3 noho lio, 4 ʻale, 5 ʻālapa
+Seconds before it leaves by itself; 0 waits for OUT	Kekona ma mua o ka puka iho; kali ʻo 0 iā OUT
+0-100%: how far each panel tilts from the one before	0-100%: kihi o kēlā papa mai ka mua
+0-100%: the share of each band drawn as grey stripes	0-100%: māhele o kēlā kāʻei i kaha hinahina
+0 off, 1 on: the flow surges with the programme sound	0 pio, 1 ʻā: piʻi ke kahe me ke kani papahana
+0 off, 1 on: the top mirrors the bottom round a dark seam	0 pio, 1 ʻā: aniani ka luna i ka lalo ma kahi humu pouli
+' (cues, position, look, effects, levels, routing, master)	' (cue, wahi, ʻano, hopena, pae, ala, kumu)
+' -- try ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR or an output number	' -- hoʻāʻo iā ADD, ON, OFF, ASSIGN, UNASSIGN, LAYER, HOST, TYPE, MIRROR a i ʻole helu puka
+BLEND ROW: expected <first output> <how many, 2 or more> <overlap in pixels>, with that many outputs	BLEND ROW: pono <first output> <how many, 2 or more> <overlap in pixels>, me ia helu o nā puka
+LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright or trail	LFO: flow, water, ripple, jet, prism, split, focus, shimmer, mirrors, angle, spin, lens, glow, bright a i ʻole trail
+SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> or UNITS METRES|FEET	SCREENS STAGE SET: WIDTH|HEIGHT <m>, LUMENS, THROW, OVERLAP <%>, GAIN, COUNT, PIXELS <w> <h> a i ʻole UNITS METRES|FEET
+Opacity	Paʻa
+opacity	paʻa
+FDS synth	Mea haku leo FDS
+PROXY 720p	KOPE MĀMĀ 720p
+out:--	puka:--
+PAD MODE: HOLD or LATCH	PAD MODE: HOLD a i ʻole LATCH
+PAD ASSIGN: this cue does not have that control	PAD ASSIGN: ʻaʻohe ia mana ma kēia cue
+PAD SET: x and y are numbers from 0 to 1 (y = 1 is the top)	PAD SET: he helu ʻo x a me y mai 0 a 1 (y = 1 ka luna)
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST	PAD: pono PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP | LIST
+PAD ASSIGN: a control is OPACITY, FX<n>.AMOUNT, FX<n>.A to F, or NUM.<name> such as NUM.lumia.flow	PAD ASSIGN: he mana ʻo OPACITY, FX<n>.AMOUNT, FX<n>.A a F, a i ʻole NUM.<name> e like me NUM.lumia.flow
+PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST	PAD: pono PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST
+STATUS | PALETTE <0-5 or name> | MODE <0-2 or name> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <control> <setting>	STATUS | PALETTE <0-5 a i ʻole inoa> | MODE <0-2 a i ʻole inoa> | TOPBOTTOM|LISTENS ON|OFF | FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100> | MIRRORS <0-12> | LFO <control> <setting>
+Render	Hoʻopuka
+PNG frames	Nā kiʻi PNG
+START RENDER	HOʻOMAKA HOʻOPUKA
+CANCEL RENDER	HOʻŌKI HOʻOPUKA
+QUANTISE: beat	HOʻOKAULIKE: kuʻi
+RENDER TO FILE	HOʻOPUKA I WAIHONA
+about {1} left	ma kahi o {1} i koe
+LINK: {1} peers	LINK: {1} hoa
+QUANTISE: 1 bar	HOʻOKAULIKE: 1 ana
+QUANTISE: 2 bars	HOʻOKAULIKE: 2 ana
+QUANTISE: 4 bars	HOʻOKAULIKE: 4 ana
+render cancelled	ua hoʻōki ʻia ka hoʻopuka
+RENDER TO FILE...	HOʻOPUKA I WAIHONA...
+{1} frames in {2}	{1} kiʻi i {2}
+the output's ({1})	ko ka puka ({1})
+From cue and to cue	Cue hoʻomaka a cue hope
+left the Link session	ua haʻalele i ke kau Link
+joined the Link session	ua komo i ke kau Link
+the playlist has no cues	ʻaʻohe cue o ka papa hoʻokani
+the source made no picture	ʻaʻohe kiʻi i hana ʻia e ke kumu
+a render is already running	ke holo nei kekahi hoʻopuka
+TAKE waits for the bar: {1} s	Kali ʻo TAKE i ke ana: {1} s
+TAKE waits for the beat: {1} s	Kali ʻo TAKE i ke kuʻi: {1} s
+there is no playlist to render	ʻaʻohe papa hoʻokani e hoʻopuka
+this build has no Ableton Link	ʻaʻohe Ableton Link o kēia mana
+there is no picture in that range	ʻaʻohe kiʻi ma ia laulā
+RENDER CANCEL: nothing is rendering	RENDER CANCEL: ʻaʻohe mea e hoʻopuka nei
+{1} frames, {2}, {3}x{4}	{1} kiʻi, {2}, {3}x{4}
+RENDER START: CUE, CUES a-b or OUTPUT	RENDER START: CUE, CUES a-b a i ʻole OUTPUT
+frame {1} of {2} \xC2\xB7 {3} frames/s	kiʻi {1} o {2} \xC2\xB7 {3} kiʻi/s
+RENDER START CUES: first-last, numbered from 1	RENDER START CUES: mua-hope, helu ʻia mai 1
+the output's mask is not drawn by a render yet	ʻaʻole i kaha ʻia ka uhi puka e ka hoʻopuka
+the output's slices are not drawn by a render yet	ʻaʻole i kaha ʻia nā ʻāpana puka e ka hoʻopuka
+the output's crossfader is not drawn by a render yet	ʻaʻole i kaha ʻia ka hoʻololi mālie puka e ka hoʻopuka
+RENDER START: needs a size, a rate, a codec and a file	RENDER START: pono ka nui, ka māmā, ke codec a me ka waihona
+VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 are bars)	VJ QUANTISE: beat | 1 | 2 | 4 | off  (he mau ana ʻo 1, 2, 4)
+RENDER START: size is 1080P, 4K or OUTPUT; codec is PRORES, H264 or PNG	RENDER START: he 1080P, 4K a i ʻole OUTPUT ka nui; he PRORES, H264 a i ʻole PNG ke codec
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS	VJ: pono ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS
+VJ LINK: this build has no Ableton Link	VJ LINK: ʻaʻohe Ableton Link o kēia mana
