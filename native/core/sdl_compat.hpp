@@ -560,3 +560,32 @@ inline bool deckboyGetDesktopDisplayMode(int index, SDL_DisplayMode* out) {
   }
   return true;
 }
+
+// ---- SDL's per-thread state, on threads SDL did not create ------------------
+//
+// SDL keeps some state per thread: SDL_Delay's high-resolution timer on
+// Windows (one kernel timer handle each), and the text of SDL_GetError. SDL
+// frees it when one of ITS threads ends; a std::thread has to call
+// SDL_CleanupTLS itself, and none of ours did. The engine starts new decoder
+// threads on every take, so a show that looped one clip all day leaked a
+// timer handle and a little memory each time round -- about 2 handles a
+// second on a one-second loop (found by tools/check_mini_soak.py).
+//
+// Call this first in any thread body that may touch SDL. The cleanup runs when
+// the thread ends, never on the main thread (SDL_Quit owns that one), and is
+// harmless on a thread that never used SDL at all.
+inline void deckboyReleaseSdlStateAtThreadExit() {
+  struct Release {
+    ~Release() {
+      if (!SDL_IsMainThread()) SDL_CleanupTLS();
+    }
+  };
+  thread_local Release release;
+  (void)release;
+}
+
+// SDL_Delay, for any thread: it arranges the cleanup above as it goes.
+inline void deckboyDelay(Uint32 ms) {
+  deckboyReleaseSdlStateAtThreadExit();
+  SDL_Delay(ms);
+}

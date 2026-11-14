@@ -4958,6 +4958,7 @@ bool MediaEngine::startBrowserCapture(const std::string& displayId, int w, int h
   isBrowserCapturing_ = true;
 
   videoThread_ = std::thread([this, w, h, frameBytes, videoFd]() {
+    deckboyReleaseSdlStateAtThreadExit();
     std::uint64_t frameIdx = 0;
     while (!decoderStop_.load()) {
       // Back-pressure: wait for room in the frame queue
@@ -4965,7 +4966,7 @@ bool MediaEngine::startBrowserCapture(const std::string& displayId, int w, int h
         bool hasRoom = false;
         { std::lock_guard<std::mutex> lk(frameMutex_); hasRoom = frameQueue_.size() < kMaxVideoFrames; }
         if (hasRoom) break;
-        SDL_Delay(4);
+        deckboyDelay(4);
       }
       if (decoderStop_.load()) break;
       DecodedFrame frame;
@@ -5352,13 +5353,14 @@ bool MediaEngine::startSourceCapture(const Cue& cue) {
   isSourceCapturing_ = true;
 
   videoThread_ = std::thread([this, w, h, frameBytes, videoFd]() {
+    deckboyReleaseSdlStateAtThreadExit();
     std::uint64_t frameIdx = 0;
     while (!decoderStop_.load()) {
       while (!decoderStop_.load()) {
         bool hasRoom = false;
         { std::lock_guard<std::mutex> lk(frameMutex_); hasRoom = frameQueue_.size() < kMaxVideoFrames; }
         if (hasRoom) break;
-        SDL_Delay(4);
+        deckboyDelay(4);
       }
       if (decoderStop_.load()) break;
 
@@ -5432,13 +5434,14 @@ void MediaEngine::serviceWindowCaptureWatchdog() {
       sourceCaptureStartedAt_ = now;
       sourceFramesSeen_.store(0);
       videoThread_ = std::thread([this, w, h, frameBytes, videoFd]() {
+        deckboyReleaseSdlStateAtThreadExit();
         std::uint64_t frameIdx = 0;
         while (!decoderStop_.load()) {
           while (!decoderStop_.load()) {
             bool hasRoom = false;
             { std::lock_guard<std::mutex> lk(frameMutex_); hasRoom = frameQueue_.size() < kMaxVideoFrames; }
             if (hasRoom) break;
-            SDL_Delay(4);
+            deckboyDelay(4);
           }
           if (decoderStop_.load()) break;
           DecodedFrame frame;
@@ -6940,6 +6943,7 @@ void MediaEngine::loadStillFrame(const Cue& cue) {
   const size_t frameBytes = static_cast<size_t>(w) * static_cast<size_t>(h) * 4u;
   int imageFd = imageProcess_.readFd;
   imageThread_ = std::thread([this, w, h, frameBytes, imageFd]() {
+    deckboyReleaseSdlStateAtThreadExit();
     DecodedFrame frame;
     frame.width = w;
     frame.height = h;
@@ -7525,6 +7529,7 @@ void MediaEngine::startDecoderThreads(const Cue& cue, double mediaStartSeconds, 
   int videoFd = videoProcess_.readFd;
   decodersRunning_ = true;
   videoThread_ = std::thread([this, decodeW, decodeH, decodeFormat, frameBytes, cueStartSeconds, videoFd]() {
+    deckboyReleaseSdlStateAtThreadExit();
     std::uint64_t frameIndex = static_cast<std::uint64_t>(std::floor(cueStartSeconds * frameRate_));
     while (!decoderStop_.load()) {
       while (!decoderStop_.load()) {
@@ -7536,7 +7541,7 @@ void MediaEngine::startDecoderThreads(const Cue& cue, double mediaStartSeconds, 
         if (hasRoom) {
           break;
         }
-        SDL_Delay(4);
+        deckboyDelay(4);
       }
       if (decoderStop_.load()) {
         break;
@@ -7643,13 +7648,14 @@ void MediaEngine::startDecoderThreads(const Cue& cue, double mediaStartSeconds, 
     if (spawnPipeProcess(audioProcess_, audioArgs)) {
       int audioFd = audioProcess_.readFd;
       audioThread_ = std::thread([this, cueStartSeconds, audioFd]() {
+        deckboyReleaseSdlStateAtThreadExit();
         std::vector<std::uint8_t> buffer(8192);
         double audioTime = cueStartSeconds;
         while (!decoderStop_.load()) {
           // Backpressure: ~120 ms queued (5760 frames), whatever the stream's
           // channel count — byte thresholds must scale with the open spec.
           if (queuedAudioBytes() > 5760 * audioStreamBytesPerFrame()) {
-            SDL_Delay(4);
+            deckboyDelay(4);
             continue;
           }
 
@@ -8766,6 +8772,7 @@ bool MediaEngine::startSrtDecoder(const Cue& cue, const std::string& mediaPath, 
   const int fd = videoProcess_.readFd;
   decodersRunning_ = true;
   videoThread_ = std::thread([this, fd, decodeW, decodeH, frameFormat, frameBytes, hdrP010, toSdr]() {
+    deckboyReleaseSdlStateAtThreadExit();
     deckboy::libav::PipeDemuxer demux;
     if (!demux.open(fd)) {
       decoderEof_ = true;
@@ -8888,6 +8895,7 @@ bool MediaEngine::startInprocDecoders(const Cue& cue, const std::string& mediaPa
   }
   PendingInprocOpen* job = pending.get();
   job->thread = std::thread([job]() {
+    deckboyReleaseSdlStateAtThreadExit();
     job->videoOk = !job->video || job->video->open(job->videoParams);
     // No sound is opened for a picture that failed: the cue falls back to the
     // ffmpeg pipe, which opens both.
@@ -8984,6 +8992,7 @@ bool MediaEngine::finishInprocDecoders(const Cue& cue, const std::string& mediaP
 
   if (wantVideo) {
     videoThread_ = std::thread([this, cueStartSeconds]() {
+      deckboyReleaseSdlStateAtThreadExit();
       const std::uint64_t startIndex =
         static_cast<std::uint64_t>(std::floor(cueStartSeconds * frameRate_));
       std::uint64_t frameIndex = startIndex;
@@ -9003,7 +9012,7 @@ bool MediaEngine::finishInprocDecoders(const Cue& cue, const std::string& mediaP
           if (hasRoom) {
             break;
           }
-          SDL_Delay(4);
+          deckboyDelay(4);
         }
         if (decoderStop_.load()) {
           break;
@@ -9128,6 +9137,7 @@ bool MediaEngine::finishInprocDecoders(const Cue& cue, const std::string& mediaP
       audioClockValid_ = true;
       audioDecodeEnded_.store(false);
       audioThread_ = std::thread([this, cueStartSeconds, speed]() {
+        deckboyReleaseSdlStateAtThreadExit();
         std::vector<std::int16_t> samples(4096);
         double audioTime = cueStartSeconds;
         std::uint64_t produced = 0;
@@ -9151,7 +9161,7 @@ bool MediaEngine::finishInprocDecoders(const Cue& cue, const std::string& mediaP
         while (!decoderStop_.load()) {
           // ~120 ms queued (5760 frames) at the stream's channel count.
           if (queuedAudioBytes() > 5760 * audioStreamBytesPerFrame()) {
-            SDL_Delay(4);
+            deckboyDelay(4);
             continue;
           }
           if (silenceOwed > 0) {
@@ -16961,7 +16971,10 @@ void MediaEngine::startMicCapture(const Cue& cue) {
     micDeviceInUse_ = "test signal";
   }
   micRun_.store(true, std::memory_order_relaxed);
-  micThread_ = std::thread([this, wanted, testSignal]() { micThreadMain(wanted, testSignal); });
+  micThread_ = std::thread([this, wanted, testSignal]() {
+    deckboyReleaseSdlStateAtThreadExit();
+    micThreadMain(wanted, testSignal);
+  });
 }
 
 void MediaEngine::stopMicCapture() {

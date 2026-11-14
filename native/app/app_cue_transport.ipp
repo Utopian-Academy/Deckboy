@@ -4248,6 +4248,7 @@
       // OFF THE MAIN THREAD, always. Everything it needs is copied in: the cue
       // can be edited or deleted while this is in flight.
       std::thread([this, target, payload, where, name = cue.name]() {
+        deckboyReleaseSdlStateAtThreadExit();
         std::string result;
         deckboy::platform::SocketHandle fd =
           socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
