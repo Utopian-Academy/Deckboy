@@ -1339,6 +1339,18 @@ enum class ScaleMode {
 // Where the geometry oscillators sit in the packed LFO id the inspector hands
 // its controls (effectIndex * 8 + slot for an effect). Far above any effect.
 constexpr int kGeometryLfoPackBase = 1 << 20;
+// The Screens window's STAGE plan: a row of projectors on one flat screen.
+// Lengths in metres (shown in feet when asked).
+struct StagePlan {
+  double screenW = 8.0, screenH = 4.5;
+  bool feet = false;
+  int projW = 1920, projH = 1080;   // the projector's own pixels
+  double lumens = 10000.0;
+  double throwRatio = 1.4;          // lens to screen over picture width
+  double overlap = 0.15;            // of one projector's width
+  double gain = 1.0;                // the screen's
+  int count = 2;
+};
 // A DMX cue's fixture rows: base + row * 2 + (0 intensity, 1 colour).
 constexpr int kFixtureLfoPackBase = 1 << 21;
 // A Moire cue's oscillators: base + MoireLfoSlot.
@@ -3070,6 +3082,9 @@ struct Project {
   // not that anything moves by itself -- it is that what the operator does
   // lands ON the music instead of a moment after it.
   bool vjQuantiseTakes = false;
+  // The Screens window's STAGE: a row of projectors on one flat screen
+  // (app_stage.ipp), kept with the show. Lengths in metres.
+  StagePlan stagePlan;
   // Geometry aspect link: editing a cue's output width also scales its
   // height proportionally (and vice versa). Toggleable from the GEOMETRY
   // inspector section, like the chain-link in most media software.

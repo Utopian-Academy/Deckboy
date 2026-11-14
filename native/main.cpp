@@ -5768,6 +5768,7 @@ class App {
 #include "app/app_draw.ipp"
 #include "app/app_slices.ipp"
 #include "app/app_screens.ipp"
+#include "app/app_stage.ipp"
 #include "app/app_bugswat.ipp"
 #include "app/app_lessons.ipp"
 

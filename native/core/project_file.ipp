@@ -359,6 +359,12 @@ void writeProjectScalars(std::ostream& output, const Project& project) {
   output << "terrarium_unlocked\t" << (project.terrariumUnlocked ? 1 : 0) << '\n';
   output << "tabletop_unlocked\t" << (project.tabletopUnlocked ? 1 : 0) << '\n';
   output << "geometry_aspect_link\t" << (project.geometryAspectLinked ? 1 : 0) << '\n';
+  {
+    const StagePlan& sp = project.stagePlan;
+    output << "stage_plan\t" << sp.screenW << '\t' << sp.screenH << '\t' << (sp.feet ? 1 : 0) << '\t' << sp.projW
+           << '\t' << sp.projH << '\t' << sp.lumens << '\t' << sp.throwRatio << '\t' << sp.overlap << '\t' << sp.gain
+           << '\t' << sp.count << '\n';
+  }
   output << "ui_scale\t" << project.uiScale << '\n';
   output << "creatures\t" << (project.creaturesEnabled ? 1 : 0) << '\n';
   output << "creatures_while_live\t" << (project.creaturesWhileLive ? 1 : 0) << '\n';
@@ -1622,6 +1628,18 @@ bool applyProjectScalarLinePart2(Project& project, const std::vector<std::string
     project.tabletopUnlocked = safeBool(fields, 1, false);
   } else if (fields[0] == "geometry_aspect_link") {
     project.geometryAspectLinked = safeBool(fields, 1, true);
+  } else if (fields[0] == "stage_plan") {
+    StagePlan& sp = project.stagePlan;
+    sp.screenW = std::clamp(safeDouble(fields, 1, 8.0), 0.5, 100.0);
+    sp.screenH = std::clamp(safeDouble(fields, 2, 4.5), 0.3, 50.0);
+    sp.feet = safeBool(fields, 3, false);
+    sp.projW = std::clamp(safeInt(fields, 4, 1920), 320, 8192);
+    sp.projH = std::clamp(safeInt(fields, 5, 1080), 200, 8192);
+    sp.lumens = std::clamp(safeDouble(fields, 6, 10000.0), 500.0, 60000.0);
+    sp.throwRatio = std::clamp(safeDouble(fields, 7, 1.4), 0.2, 10.0);
+    sp.overlap = std::clamp(safeDouble(fields, 8, 0.15), 0.0, 0.45);
+    sp.gain = std::clamp(safeDouble(fields, 9, 1.0), 0.1, 5.0);
+    sp.count = std::clamp(safeInt(fields, 10, 2), 1, 8);
   } else if (fields[0] == "vj_mode") {
     project.vjModeEnabled = safeBool(fields, 1, false);
   } else if (fields[0] == "vj_deck_a") {

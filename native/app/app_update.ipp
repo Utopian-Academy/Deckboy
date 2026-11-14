@@ -164,6 +164,8 @@
         case SDL_EVENT_MOUSE_WHEEL:
           if (event.wheel.windowID == SDL_GetWindowID(controlWindow_)) {
             handleMouseWheel(static_cast<int>(event.wheel.y));
+          } else if (screensWindow_ && event.wheel.windowID == SDL_GetWindowID(screensWindow_) && screensTab_ == 3) {
+            stageWheel(static_cast<int>(event.wheel.y));
           }
           break;
         case SDL_EVENT_MOUSE_BUTTON_DOWN:

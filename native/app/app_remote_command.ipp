@@ -9572,6 +9572,52 @@
           triggerToast("blend pair: " + remoteCommandDetail_);
           return;
         }
+        // BLEND ROW <first output> <count> <overlap px>: PAIR for a row --
+        // outputs first..first+count-1, left to right, each overlapping the
+        // next by that many projector pixels. Each shows a = 1 / (n - (n-1)s)
+        // of the picture's width (s = overlap / projector width), starting
+        // a(1-s) further along than the one before; blended across exactly
+        // the strip it shares. (The Screens window's STAGE planner sends it.)
+        if (edge == "ROW") {
+          const auto firstN = parseNumber(3);
+          const auto countN = parseNumber(4);
+          const auto overlap = parseNumber(5);
+          const int first = firstN ? static_cast<int>(*firstN) - 1 : -1;
+          const int n = countN ? static_cast<int>(*countN) : 0;
+          if (first < 0 || n < 2 || !overlap || first + n > static_cast<int>(project_.outputs.size())) {
+            failRemoteCommand("BLEND ROW: expected <first output> <how many, 2 or more> <overlap in pixels>, "
+                              "with that many outputs");
+            return;
+          }
+          const int projectorW = std::max(16, outputRenderSizeForOutput(first).first);
+          const double share = *overlap / projectorW;
+          if (share <= 0.0 || share > 0.45) {
+            failRemoteCommand("BLEND ROW: the overlap must be 1 to " + std::to_string(projectorW * 45 / 100) + " pixels");
+            return;
+          }
+          const double a = 1.0 / (n - (n - 1) * share);
+          const OutputTarget& lead = project_.outputs[static_cast<std::size_t>(first)];
+          for (int i = 0; i < n; ++i) {
+            OutputTarget& o = project_.outputs[static_cast<std::size_t>(first + i)];
+            const double left = i * a * (1.0 - share);
+            o.aoiLeft = static_cast<float>(left);
+            o.aoiRight = static_cast<float>(std::max(0.0, 1.0 - (left + a)));
+            o.edgeBlendLeft = i > 0 ? static_cast<float>(share) : 0.0f;
+            o.edgeBlendRight = i < n - 1 ? static_cast<float>(share) : 0.0f;
+            if (i > 0) {
+              o.edgeBlendProjectorCurve = lead.edgeBlendProjectorCurve;
+              o.edgeBlendGamma = lead.edgeBlendGamma;
+              o.edgeBlendBlackLift = lead.edgeBlendBlackLift;
+            }
+          }
+          normalizeProject(project_);
+          markProjectDirty();
+          remoteCommandDetail_ = "outputs " + std::to_string(first + 1) + " to " + std::to_string(first + n) +
+                                 ", left to right, overlap " + std::to_string(static_cast<int>(std::lround(*overlap))) +
+                                 " px";
+          triggerToast("blend row: " + remoteCommandDetail_);
+          return;
+        }
         if (edge == "ALL" && parts.size() > 3) {
           if (auto amount = parseBlendValue(3); amount) {
             setFocusedDeckEdgeBlend("L", *amount);

@@ -2307,9 +2307,9 @@ When one picture is too big for one projector, or a lens cannot reach the
 corners of a table, two projectors share it and overlap in the middle. Each
 needs its own output: Output 1 is the left projector, Output 2 the right.
 
-Planning where they hang? The free [projector brightness and throw
-calculator](https://avtoolspro.com/projector-calculator) from AV Tools Pro
-works out the throw distance and how bright each projector needs to be.
+Planning where they hang? Open **Screens > STAGE** (below): it works out the
+throw distance, how bright the screen will be and how many pixels the row
+makes, and sets the outputs to match.
 
 1. Point both at the surface with their pictures overlapping, and line each
    up with its own warp (corner pin, and the grid for lens bend).
@@ -2343,6 +2343,40 @@ VIDEO BLEND CURVE PROJECTOR   (or LINEAR)
 ```
 PAIR sets both outputs' areas and blends from one number, so the two always
 agree. The overlap is in the output's own pixels.
+
+For a row of three or more, `VIDEO BLEND ROW <first output> <how many>
+<overlap px>` does the same for all of them, left to right.
+
+### Planning a row of projectors: the STAGE
+
+**Screens > STAGE** is a projection simulator and blend planner. On the
+left, a room: the screen with the programme on it, each projector's picture
+outlined in its own colour, the overlaps shaded, and each projector's cone of
+light from its lens. Drag to turn round it; the wheel comes closer. Light
+that misses the screen is drawn dim.
+
+On the right, the plan:
+
+- **Screen**: its width, height and gain, in metres or feet.
+- **Projectors**: their own pixels, their brightness in lumens, the lens's
+  throw ratio, how much each overlaps the next, and how many.
+- **The row**: all the pixels across the row, each overlap in pixels, each
+  projector's picture, the distance from lens to screen, and how bright the
+  screen is (lux, and nits; in feet, foot-lamberts too). If the pictures
+  cannot cover the screen exactly, the plan covers it and says how much
+  falls off the sides, or off the top and bottom.
+- **Or**: the same with one projector more and one less. Press one to use it.
+- **Set the outputs' areas and blends**: outputs 1 onwards show their parts
+  of the picture and blend across the overlaps (`VIDEO BLEND ROW`). Then
+  line each one up with its warp, as above.
+
+The plan is kept with the show. Over the control port:
+`SCREENS TAB STAGE`, `SCREENS STAGE STATUS`, `SCREENS STAGE SET WIDTH 16`
+(also HEIGHT, LUMENS, THROW, OVERLAP in percent, GAIN, COUNT, PIXELS 3840
+2160, UNITS FEET) and `SCREENS STAGE APPLY`.
+
+A venue model of your own (a GLB or PLY file) with projectors placed in it
+is the next step.
 
 ### Bending the picture: grid warp
 

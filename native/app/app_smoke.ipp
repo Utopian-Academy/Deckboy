@@ -787,6 +787,58 @@
     };
 
     {
+      // THE STAGE (Screens window, app_stage.ipp): the blend planner's sums,
+      // VIDEO BLEND ROW setting a row of outputs, and the plan kept with the show.
+      StagePlan plan;
+      plan.screenW = 16.0;
+      plan.screenH = 4.5;
+      plan.count = 3;
+      const StageFit f3 = stageFitFor(plan, 3);
+      expect(f3.canvasW == 5184 && f3.canvasH == 1080 && f3.overlapPx == 288 && std::fabs(f3.imageW - 8.0) < 1e-9 &&
+             std::fabs(f3.imageH - 4.5) < 1e-9 && std::fabs(f3.distance - 11.2) < 1e-9 &&
+             std::fabs(f3.lux - 10000.0 / 36.0) < 1e-6 && std::fabs(f3.spillW - 5.6 / 21.6) < 1e-9 && f3.spillH == 0.0,
+             "the stage planner: three projectors on a 16 m screen");
+      const StageFit f2 = stageFitFor(plan, 2);
+      expect(std::fabs(f2.imageW - 16.0 / 1.85) < 1e-9 && f2.spillW == 0.0 && f2.spillH > 0.07 && f2.spillH < 0.08,
+             "the stage planner: two cover the width and spill top and bottom");
+
+      App app;
+      app.showSplashOverlay_ = false;
+      app.showStartupDialog_ = false;
+      app.project_.outputs = {OutputTarget {}, OutputTarget {}, OutputTarget {}};
+      const int pw = std::max(16, app.outputRenderSizeForOutput(0).first);
+      const int overlap = static_cast<int>(std::lround(pw * 0.15));
+      app.handleRemoteCommand("VIDEO BLEND ROW 1 3 " + std::to_string(overlap));
+      const double share = static_cast<double>(overlap) / pw, wide = 1.0 / (3.0 - 2.0 * share);
+      const auto& o = app.project_.outputs;
+      expect(std::fabs(o[0].aoiLeft) < 1e-5 && std::fabs(o[0].aoiRight - (1.0 - wide)) < 1e-5 &&
+             std::fabs(o[1].aoiLeft - wide * (1.0 - share)) < 1e-5 &&
+             std::fabs(o[2].aoiLeft - 2.0 * wide * (1.0 - share)) < 1e-5 && std::fabs(o[2].aoiRight) < 1e-4 &&
+             o[0].edgeBlendLeft == 0.0f && std::fabs(o[0].edgeBlendRight - share) < 1e-5 &&
+             std::fabs(o[1].edgeBlendLeft - share) < 1e-5 && std::fabs(o[1].edgeBlendRight - share) < 1e-5 &&
+             std::fabs(o[2].edgeBlendLeft - share) < 1e-5 && o[2].edgeBlendRight == 0.0f,
+             "VIDEO BLEND ROW sets three outputs' areas and blends");
+      app.remoteCommandError_.clear();
+      app.handleRemoteCommand("VIDEO BLEND ROW 1 4 100");
+      expect(!app.remoteCommandError_.empty(), "VIDEO BLEND ROW refuses more outputs than there are");
+
+      Project show;
+      show.stagePlan = plan;
+      show.stagePlan.feet = true;
+      show.stagePlan.lumens = 23500.0;
+      show.stagePlan.projW = 3840;
+      show.stagePlan.projH = 2160;
+      const fs::path stagePath = fs::temp_directory_path() / "deckboy-smoke-stage.deckboy";
+      expect(saveProject(stagePath, show), "save a show with a stage plan");
+      const Project back = loadProject(stagePath);
+      expect(back.stagePlan.feet && back.stagePlan.count == 3 && back.stagePlan.projW == 3840 &&
+             back.stagePlan.projH == 2160 && std::fabs(back.stagePlan.lumens - 23500.0) < 1e-6 &&
+             std::fabs(back.stagePlan.screenW - 16.0) < 1e-9,
+             "the stage plan is kept with the show");
+      fs::remove(stagePath);
+    }
+
+    {
       // LUMIA: add the source, drive every control from the wire, and read
       // each back through the inspector's own numeric path.
       App app;

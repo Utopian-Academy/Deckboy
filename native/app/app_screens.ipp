@@ -41,8 +41,10 @@
     // The tabs (board: Slices | Multiview | LED map), and what is on the other two.
     kScrTab, kScrMvLayout, kScrMvSelect, kScrMvFeed, kScrMvLabel, kScrMvMeter, kScrMvSafe, kScrMvAdd,
     kScrMvRemove, kScrMvReset, kScrMvDesk, kScrLedTileW, kScrLedTileH, kScrLedRows, kScrLedCols, kScrLedTiles,
+    // The STAGE tab (app_stage.ipp).
+    kScrStageDec, kScrStageInc, kScrStageUnits, kScrStagePixels, kScrStagePick, kScrStageApply, kScrStageView,
   };
-  int screensTab_ = 0;        // 0 slices, 1 multiview, 2 LED map
+  int screensTab_ = 0;        // 0 slices, 1 multiview, 2 LED map, 3 stage
   std::vector<std::string> screensMvFeeds_;   // the feed list as drawn, for its buttons
   int screensMvSel_ = 0;      // the multiview window chosen
   int screensLedW_ = 0;       // the LED map's tile size; 0 until first drawn
@@ -241,15 +243,16 @@
                  "SCREENS", pal.fg);
     x += 130;
     {
-      const char* tabs[3] = {"SLICES", "MULTIVIEW", "LED MAP"};
-      for (int t = 0; t < 3; ++t) {
+      const char* tabs[4] = {"SLICES", "MULTIVIEW", "LED MAP", "STAGE"};
+      for (int t = 0; t < 4; ++t) {
         const int bw = std::max(90, measuredTextWidth(fontSmall_, tabs[t]) + 20);
         screensButton(SDL_Rect {x, hy, bw, rowH}, tabs[t], kScrTab, t, t == screensTab_);
         x += bw + 4;
       }
       x += 16;
     }
-    for (int o = 0; o < static_cast<int>(project_.outputs.size()) && o < 8 && screensTab_ != 1; ++o) {
+    for (int o = 0; o < static_cast<int>(project_.outputs.size()) && o < 8 && screensTab_ != 1 && screensTab_ != 3;
+         ++o) {
       const std::string label = outputLabel(o);
       const int bw = std::max(90, measuredTextWidth(fontSmall_, label) + 20);
       screensButton(SDL_Rect {x, hy, bw, rowH}, label, kScrOutputTab, o, o == screensOutput_);
@@ -274,6 +277,8 @@
       renderScreensMultiview(SDL_Rect {shell.x + pad, top, shell.w - 2 * pad, shell.y + shell.h - pad - top}, rowH);
     } else if (screensTab_ == 2) {
       renderScreensLedMap(SDL_Rect {shell.x + pad, top, shell.w - 2 * pad, shell.y + shell.h - pad - top}, rowH);
+    } else if (screensTab_ == 3) {
+      renderScreensStage(SDL_Rect {shell.x + pad, top, shell.w - 2 * pad, shell.y + shell.h - pad - top}, rowH);
     }
     if (screensTab_ == 0) {
     const int listW = 190, sideW = 300;
@@ -866,7 +871,11 @@
 
   void handleScreensButton(const ScreensButton& b) {
     if (b.action == kScrTab) {
-      screensTab_ = std::clamp(b.param, 0, 2);
+      screensTab_ = std::clamp(b.param, 0, 3);
+      return;
+    }
+    if (b.action >= kScrStageDec && b.action <= kScrStageView) {
+      handleScreensStageButton(b);
       return;
     }
     if (b.action >= kScrMvLayout && b.action <= kScrMvDesk) {
@@ -1004,6 +1013,10 @@
         return;
       }
     }
+    if (screensTab_ == 3) {
+      stageMouseDown(mx, my);
+      return;
+    }
     if (screensTab_ != 0) return;
     OutputTarget* out = screensOutputTarget();
     if (!out || out->slices.empty()) return;
@@ -1080,6 +1093,10 @@
   }
 
   void handleScreensMouseMotion(int mx, int my) {
+    if (screensTab_ == 3) {
+      stageMouseMotion(mx, my);
+      return;
+    }
     if (screensDrag_.kind == ScreensDragKind::None) return;
     deckboy::slices::Slice* sel = screensSelected();
     if (!sel) return;
@@ -1130,7 +1147,10 @@
     markProjectDirty();
   }
 
-  void endScreensDrag() { screensDrag_ = ScreensDrag {}; }
+  void endScreensDrag() {
+    screensDrag_ = ScreensDrag {};
+    stageDragging_ = false;
+  }
 
   // ── SCREENS over the wire (for tests: scripted input does not reach SDL) ──
   //
@@ -1167,6 +1187,16 @@
       remoteCommandDetail_ = "next frame to " + screensSnapPath_;
       return;
     }
+    if (sub == "TAB" && parts.size() >= 3) {
+      const std::string t = toUpper(parts[2]);
+      screensTab_ = t == "MULTIVIEW" ? 1 : t == "LED" || t == "LEDMAP" ? 2 : t == "STAGE" ? 3 : 0;
+      remoteCommandDetail_ = "tab " + std::to_string(screensTab_);
+      return;
+    }
+    if (sub == "STAGE") {
+      handleScreensStageCommand(parts);
+      return;
+    }
     if (sub == "BUTTONS") {
       std::ostringstream o;
       for (const auto& b : screensButtons_) {
@@ -1176,7 +1206,8 @@
       return;
     }
     if (!sub.empty()) {
-      failRemoteCommand("SCREENS: ON, OFF, CLICK x y [HOLD], HOVER x y, UP, BUTTONS or SNAP file.bmp");
+      failRemoteCommand("SCREENS: ON, OFF, TAB <SLICES|MULTIVIEW|LED|STAGE>, STAGE ..., CLICK x y [HOLD], HOVER x y, "
+                        "UP, BUTTONS or SNAP file.bmp");
       return;
     }
     std::ostringstream o;
