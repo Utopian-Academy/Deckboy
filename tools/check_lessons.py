@@ -29,7 +29,7 @@ sys.path.insert(0, str(ROOT / "tools"))
 from example_show_runtime import Runtime  # noqa: E402
 
 SEED = "update_check\t0\nui_sounds\t0\nui_scale\t1.0\n"
-LESSONS = ("effects", "draw", "masks", "warp", "multiview", "presets", "go", "words", "timers", "layers", "wrong", "transitions", "sound", "road", "scopes", "outside")
+LESSONS = ("effects", "datamosh", "draw", "masks", "warp", "multiview", "presets", "go", "words", "timers", "layers", "wrong", "transitions", "sound", "road", "scopes", "outside")
 fails = []
 
 
@@ -66,7 +66,8 @@ def walk(db, lesson, work, keep, stop_at=None):
             if path.exists():
                 shutil.copy(path, keep / path.name)
         db.send("TUTORIAL SHOWME")
-        deadline = time.monotonic() + 6
+        # Datamosh waits for its moshable copy to be encoded.
+        deadline = time.monotonic() + (90 if lesson == "datamosh" else 6)
         now = step
         while time.monotonic() < deadline and now == step:
             time.sleep(0.2)
@@ -126,7 +127,7 @@ def run(exe, work, keep):
             after = db.saved()
             motion = lambda t: next((l for l in t.splitlines() if l.startswith("motion\t")), "")
             note("the operator's show is handed back as it was", motion(after) == motion(before) and
-                 "Nebula ahead" not in after and "Look two" not in after and "Contestant" not in after and "Weather map" not in after and "The trunk" not in after and "souffle" not in after and "The planet" not in after and "The beat" not in after and "office PC" not in after and "evidence #2" not in after and "The replay" not in after and "The rocket" not in after and "capsule" not in after and "Saucer" not in after and "Student work" not in after and "ghost" not in after.lower(),
+                 "Nebula ahead" not in after and "Look two" not in after and "Contestant" not in after and "Weather map" not in after and "The trunk" not in after and "souffle" not in after and "The planet" not in after and "The beat" not in after and "office PC" not in after and "evidence #2" not in after and "The replay" not in after and "The rocket" not in after and "capsule" not in after and "Saucer" not in after and "Student work" not in after and "STAIRLIFT" not in after and "ghost" not in after.lower(),
                  (motion(before), motion(after)))
 
         # James, 2026-11-07: the lessons never said to select the new

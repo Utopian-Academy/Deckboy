@@ -1392,6 +1392,7 @@
       }
     }
     else if (name == "WALLIS")            { v.base = 349.23; v.vowelMs = 60; }
+    else if (name == "CAROLINE POLKADOT") { v.base = 659.25; v.vowelMs = 92; v.vowelDuty = 0.125; v.range = 10; }
     else if (name == "GROMMET")           { v.silent = true; }
     else if (name == "LT. HAILA")         { v.base = 466.16; v.vowelMs = 54; }
     else if (name == "ENSIGN JINKLEY")    { v.base = 415.30; v.vowelMs = 40; }

@@ -14,8 +14,8 @@
 // in a genre's spirit, never copies.
 //
 // Built so far: the four lessons for what was new (Patterns/synths/Draw,
-// Masks, Warp/blend/slices, Multiview), Effects (the art school crit), and
-// Bug Swat. The list shows only
+// Masks, Warp/blend/slices, Multiview), Effects (the art school crit),
+// Datamosh (STAIRLIFT's music video), and Bug Swat. The list shows only
 // lessons that exist.
 //
 // Part of class App -- included inside the class body in main.cpp.
@@ -1190,6 +1190,31 @@
          ".KKKKKKKKKKKKKK."},
         -1, {-1, -1, -1, -1, -1, -1}, 6, {4, 6, 8, 10}},
       // The three plain lessons' guests (James, 2026-11-13: "surprise me"):
+      // Caroline Polkadot of STAIRLIFT (the synth-pop duo Chairlift): a black
+      // bob, red lips, the polka-dot dress. The datamosh lesson's guest.
+      {"CAROLINE POLKADOT",
+        {
+         "................",
+         "....HHHHHHHH....",
+         "...HHHHHHHHHH...",
+         "..HHHHHHHHHHHH..",
+         "..HHHHHHHHHHHH..",
+         "..HHSSSSSSSSHH..",
+         "..HHSWESSWESHH..",
+         "..HHSSSSSSSSHH..",
+         "..HHSBSSSSBSHH..",
+         "..HHSSSRRSSSHH..",
+         "..HHHSSSSSSHHH..",
+         "..HHH.SSSS.HHH..",
+         "......SSSS......",
+         "...BABBBABBBAB..",
+         "..BBBABBBABBBAB.",
+         ".BABBBABBBABBBA.",
+         ".BBBABBBABBBABB.",
+         ".BABBBABBBABBBA.",
+         ".BBBABBBABBBABB.",
+         ".BBBBBBBBBBBBBB."},
+        6, {5, 6, 9, 10, -1, -1}, 9, {6, 7, 8, 9}},
       // Polly Carton (Dolly Parton) on the road, Edda Mod (Edna Mode) on
       // presets, and Major Tomasina (Major Tom) out of the building.
       {"POLLY CARTON",
@@ -1557,6 +1582,117 @@
           for (const auto& fx : cue->effects) n += fx.kind != deckboy::effects::CueEffectKind::None ? 1 : 0;
         }
         return n >= 3 ? "Three effects! It's a mess! It's ALIVE! Post it." : nullptr;
+      };
+      lessons_.push_back(std::move(l));
+    }
+
+    // ── Prof. Video: Datamosh (STAIRLIFT's music video) ──────────────────
+    // James, 2026-11-14: "a how to data mosh lesson ... with guest ... parody
+    // of chairlift ... the teachers should emphasize a good mosh starts with
+    // a well made source clip". The clip ships in data/lessons (mosh_reel.mp4,
+    // seven hard cuts from public-domain films; see data/lessons/CREDITS.md).
+    {
+      LessonDef l;
+      l.id = "datamosh";
+      l.videoTrack = true;
+      l.title = "Datamosh";
+      l.about = "Smear one shot into the next: the clip that moshes well, the effect, and the wait for it.";
+      l.show = "STAIRLIFT's music video, with Caroline Polkadot";
+      auto isReel = [](const Cue& c) {
+        return c.kind == CueKind::Video && c.path.find("mosh_reel") != std::string::npos;
+      };
+      l.setup = [this, isReel] {
+        importPaths({(Paths::dataDir() / "lessons" / "mosh_reel.mp4").string()});
+        int d = -1;
+        const int i = lessonFindCue(isReel, &d);
+        if (i >= 0) {
+          project_.decks[static_cast<std::size_t>(d)].cues[static_cast<std::size_t>(i)].name =
+            "STAIRLIFT - 'Escalator' (music video)";
+          selectCueInDeck(d, i, false, false);
+        }
+        markProjectDirty();
+      };
+      auto reel = [this, isReel]() -> Cue* {
+        int d = -1;
+        const int i = lessonFindCue(isReel, &d);
+        return i < 0 ? nullptr : &project_.decks[static_cast<std::size_t>(d)].cues[static_cast<std::size_t>(i)];
+      };
+      auto prepared = [reel] {
+        const Cue* cue = reel();
+        if (!cue || cue->moshPath.empty()) return false;
+        std::error_code ec;
+        return fs::exists(fs::u8path(cue->moshPath), ec);
+      };
+      auto openEffects = [this, isReel] {
+        int d = -1;
+        const int i = lessonFindCue(isReel, &d);
+        if (i < 0) return;
+        project_.focusedDeckIndex = d;
+        selectCueInDeck(d, i, false, false);
+        openInspectorSection(QuickAction::CueSectionEffectsToggle);
+      };
+      l.steps = {
+        {"THE VIDEO", nullptr,
+         "STAIRLIFT, skapi: a synth-pop duo with one music video, a budget of nine dollars and a dream. Press START.",
+         "Datamosh breaks a video on purpose: one shot smears into the next, and the colours drag along the motion.",
+         "CAROLINE POLKADOT", "We wanted it to look like a memory of a dream of a ride on an escalator.",
+         std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; }, nullptr},
+        {"THE SOURCE CLIP", nullptr,
+         "A good mosh starts with a well-made source clip. Moshing a dull clip only makes a smudge.",
+         "What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has seven.",
+         "CAROLINE POLKADOT", "We shot it ourselves. In 1895. With the Lumière brothers. Long story.",
+         std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; }, nullptr},
+        {"WATCH THE CUTS", "ENTER",
+         "TAKE the music video and watch it once. Count the cuts: train, samurai, dancer, the dive, the dive backwards, the kiss, the train.",
+         "Every cut starts with a KEYFRAME: a whole picture. Every frame after it is only the changes. Datamosh throws the keyframe away.",
+         "CAROLINE POLKADOT", "The train is the chorus. The samurai is the bridge. The kiss is the key change.",
+         [this, isReel] { return lessonCueLive(isReel); },
+         [this, isReel] { lessonTake(isReel); },
+         [this, isReel] { return lessonTakeTarget(isReel); }, nullptr},
+        {"THE EFFECT", nullptr,
+         "In EFFECTS, + adds one: choose DATAMOSH.",
+         "With no keyframe, the next shot's changes land on the LAST shot's picture. The train drags the samurai along the track.",
+         "CAROLINE POLKADOT", "Yes. Break it. Break it like you mean it.",
+         [reel] {
+           const Cue* cue = reel();
+           return cue && cue->datamoshEnabled;
+         },
+         [this, openEffects] {
+           openEffects();
+           handleRemoteCommand("FX ADD datamosh 1");
+         },
+         [this] { return lessonQuickRect(QuickAction::EffectAdd); }, openEffects},
+        {"THE WAIT", nullptr,
+         "Deckboy makes a moshable copy first: the same clip encoded without the extras that would repair the damage. A few seconds.",
+         "This is the other half of a good source: a copy made FOR moshing. The Encoder tab shows it working.",
+         "CAROLINE POLKADOT", "Like waiting for the tour bus. But the tour bus is a codec.",
+         prepared, nullptr, [] { return SDL_Rect {}; }, nullptr},
+        {"MOSH", "ENTER",
+         "It is ready. TAKE it from the top and watch each cut smear into the next.",
+         "The train slides through the samurai's moon, and the dancer's silks drag across the sea.",
+         "CAROLINE POLKADOT", "THAT is the video. That is literally what it looked like in my head.",
+         [this, isReel, prepared] {
+           if (!prepared() || !lessonCueLive(isReel)) {
+             lessonHeldSinceMs_ = 0;
+             return false;
+           }
+           const Uint64 now = SDL_GetTicks();
+           if (lessonHeldSinceMs_ == 0) lessonHeldSinceMs_ = now;
+           return now - lessonHeldSinceMs_ >= 3000;
+         },
+         [this, isReel] { lessonTake(isReel); },
+         [this, isReel] { return lessonTakeTarget(isReel); },
+         [this] { lessonHeldSinceMs_ = 0; }},
+        {"YOUR OWN CLIPS", nullptr,
+         "For your own: shoot or cut for it. Hard cuts, loud colour, then one big move: a pan, a zoom, someone running at the lens.",
+         "Avoid slow fades and still talking heads: no motion means nothing to drag, and a fade is already a gentle mosh.",
+         "CAROLINE POLKADOT", "Thank you, Deckboy. We are calling the album 'Keyframe Not Found'.",
+         std::function<bool()> {}, nullptr, [] { return SDL_Rect {}; }, nullptr},
+      };
+      // Caroline answers a mosh that is on but still preparing.
+      l.steps[5].react = [this, reel, prepared]() -> const char* {
+        const Cue* cue = reel();
+        return cue && cue->datamoshEnabled && !prepared() ? "Still making the copy. Hum something. Anything." : nullptr;
       };
       lessons_.push_back(std::move(l));
     }
