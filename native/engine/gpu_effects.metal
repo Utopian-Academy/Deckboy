@@ -681,3 +681,93 @@ kernel void tapeMain(ARGS) {
   const int3 d = int3(o.rgb) + (((v - int3(o.rgb)) * a256) >> 8);
   put(dst, id, float4(float3(d), float(o.a)));
 }
+
+// ---- MELT (gpu_effects.hlsl meltInit / meltStep / meltShow, line for line) --
+static float meltSpeed(constant Params& p, int b) {
+  const float fb = float(b);
+  const float n = 0.5f + 0.5f * (sin(fb * p.f3 + p.f1 * 0.03f) * 0.5f + sin(fb * p.f3 * 2.31f + 1.7f - p.f1 * 0.02f) * 0.3f +
+                                 sin(fb * p.f3 * 5.17f + 4.2f + p.f1 * 0.01f) * 0.2f);
+  const float ch = pow(max(0.0f, (n - p.f6) / (1.0f - p.f6)), 2.0f);
+  const float surge = 0.45f + 0.55f * max(0.0f, sin(p.f1 * 1.7f + fb * p.f7));
+  return p.pA * (0.03f + ch * 4.0f * surge);
+}
+static int2 meltXY(constant Params& p, int a, int b) {
+  if (p.i0 == 0) return int2(b, a);
+  if (p.i0 == 1) return int2(b, int(p.height) - 1 - a);
+  return int2(a, b);
+}
+static float3 meltShrunk(SRC src, constant Params& p, int kx, int ky) {
+  const int x = min(int(p.srcW) - 1, kx * 2), y = min(int(p.srcH) - 1, ky * 2);
+  const int x1 = min(int(p.srcW) - 1, x + 1), y1 = min(int(p.srcH) - 1, y + 1);
+  return (float3(texel(src, x, y).rgb) + float3(texel(src, x1, y).rgb) + float3(texel(src, x, y1).rgb) +
+          float3(texel(src, x1, y1).rgb)) * 0.25f;
+}
+static float3 meltKeptLoad(SRC aux, constant Params& p, int a, int b) {
+  const int2 at = meltXY(p, clamp(a, 0, p.i2 - 1), clamp(b, 0, p.i3 - 1));
+  return aux.read(uint2(at)).rgb * 255.0f;
+}
+static float3 meltKeptAt(SRC aux, constant Params& p, float a, float b) {
+  a = clamp(a, 0.0f, float(p.i2) - 1.001f);
+  b = clamp(b, 0.0f, float(p.i3) - 1.001f);
+  const int ia = int(a), ib = int(b);
+  const float fa = a - float(ia), fb = b - float(ib);
+  return (meltKeptLoad(aux, p, ia, ib) * (1.0f - fb) + meltKeptLoad(aux, p, ia, ib + 1) * fb) * (1.0f - fa) +
+         (meltKeptLoad(aux, p, ia + 1, ib) * (1.0f - fb) + meltKeptLoad(aux, p, ia + 1, ib + 1) * fb) * fa;
+}
+static float meltDither(uint2 at, uint frame, uint c) {
+  uint n = at.x * 0x9E3779B1u ^ at.y * 0x85EBCA77u ^ (frame + c * 7919u) * 0xC2B2AE3Du;
+  n ^= n >> 15; n *= 0x2C1B3C6Du; n ^= n >> 12; n *= 0x297A2D39u; n ^= n >> 15;
+  return float(n) / 4294967296.0f - 0.5f;
+}
+kernel void meltInitMain(ARGS) {
+  if (id.x >= p.width || id.y >= p.height) return;
+  put(dst, id, float4(meltShrunk(src, p, int(id.x), int(id.y)), 255.0f));
+}
+kernel void meltStepMain(ARGS) {
+  if (id.x >= p.width || id.y >= p.height) return;
+  const int kx = int(id.x), ky = int(id.y);
+  int a, b;
+  if (p.i0 == 0) { a = ky; b = kx; } else if (p.i0 == 1) { a = int(p.height) - 1 - ky; b = kx; } else { a = kx; b = ky; }
+  const float3 up = meltKeptLoad(aux, p, max(0, a - 1), b);
+  const float m = (up.r + up.g + up.b) / (3.0f * 255.0f);
+  const float v = meltSpeed(p, b) * (0.35f + 0.65f * min(1.0f, m * 2.0f));
+  const float slope = (meltSpeed(p, min(p.i3 - 1, b + 1)) - meltSpeed(p, max(0, b - 1))) * 0.5f;
+  const float3 moved = meltKeptAt(aux, p, float(a) - v * p.f2, float(b) - slope * p.f4);
+  const float3 now = meltShrunk(src, p, kx, ky);
+  float3 next;
+  if (p.i1 != 0) {
+    const float w = min(1.0f, v * 1.5f);
+    const float3 settled = moved + (now - moved) * (1.0f - p.f5);
+    next = now + (settled - now) * w;
+  } else {
+    next = max(now * (1.0f - min(1.0f, v * 0.25f)), moved * p.f5);
+  }
+  const float3 d = float3(meltDither(id, p.frame, 0u), meltDither(id, p.frame, 1u), meltDither(id, p.frame, 2u));
+  put(dst, id, float4(clamp(round(next + d), 0.0f, 255.0f), 255.0f));
+}
+kernel void meltShowMain(ARGS) {
+  if (id.x >= p.width || id.y >= p.height) return;
+  const int x = int(id.x), y = int(id.y);
+  const int KW = int(p.auxW), KH = int(p.auxH);
+  const float gxk = min(float(KW) - 1.001f, float(x) * 0.5f), gyk = min(float(KH) - 1.001f, float(y) * 0.5f);
+  const int kx = int(gxk), ky = int(gyk);
+  const float fx = gxk - float(kx), fy = gyk - float(ky);
+  const float3 k00 = aux.read(uint2(kx, ky)).rgb * 255.0f, k10 = aux.read(uint2(min(KW - 1, kx + 1), ky)).rgb * 255.0f;
+  const float3 k01 = aux.read(uint2(kx, min(KH - 1, ky + 1))).rgb * 255.0f;
+  const float3 k11 = aux.read(uint2(min(KW - 1, kx + 1), min(KH - 1, ky + 1))).rgb * 255.0f;
+  const float3 kv = (k00 * (1.0f - fx) + k10 * fx) * (1.0f - fy) + (k01 * (1.0f - fx) + k11 * fx) * fy;
+  const float3 w3 = float3(1.0f / (3.0f * 255.0f));
+  const float ld = dot(aux.read(uint2(kx, min(KH - 1, ky + 1))).rgb * 255.0f, w3);
+  const float lu = dot(aux.read(uint2(kx, max(0, ky - 1))).rgb * 255.0f, w3);
+  const float lr = dot(aux.read(uint2(min(KW - 1, kx + 1), ky)).rgb * 255.0f, w3);
+  const float ll = dot(aux.read(uint2(max(0, kx - 1), ky)).rgb * 255.0f, w3);
+  const float gy = (ld - lu) * 3.0f, gx = (lr - ll) * 3.0f;
+  const float face = max(0.0f, -gy * 0.8f - gx * 0.3f);
+  const float spec = pow(min(1.0f, face * 1.4f), 3.0f) * p.f0 * 255.0f;
+  const float shade = 1.0f - min(0.5f, abs(gx) * 0.35f * p.f0);
+  const int3 v = int3(clamp(kv * shade + spec * (0.55f + kv / 255.0f * 0.45f), 0.0f, 255.0f));
+  const uint4 o = texel(src, x, y);
+  const int a256 = int(round(p.amt * 256.0f));
+  const int3 d = int3(o.rgb) + (((v - int3(o.rgb)) * a256) >> 8);
+  put(dst, id, float4(float3(d), float(o.a)));
+}

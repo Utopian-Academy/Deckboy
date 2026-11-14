@@ -29,13 +29,16 @@ ROOT = Path(__file__).resolve().parents[1]
 EFFECTS = ["invert", "posterise", "solarise", "levels", "curves", "strobe", "scanlines",
            "threshold", "colour", "colour_replace", "vignette", "grain", "channel_offset",
            "mirror", "luma_key", "edges", "polar_warp", "luma_displace", "relativistic",
-           "ripple", "kaleidoscope", "mosaic", "blur", "glow", "sharpen", "stereogram", "tape"]
+           "ripple", "kaleidoscope", "mosaic", "blur", "glow", "sharpen", "stereogram", "tape", "melt"]
 # amount:a:b:c:d
 SETTINGS = ["1", "0.7:0.2:0.6:0.4:0.3", "1:0.9:0.3:0.8:0.1", "0.4:0.05:1:0.2:0.9"]
 # An effect with a fifth and sixth slider or choices (amount:a:b:c:d:colour:e:f:choiceA:choiceB).
 SETTINGS_FOR = {
     "tape": ["1:0.3:0.3:0.2:0.3::0.4:0:0:0", "1:0.8:0.7:0.6:0.7::0.8:0.75:2:3",
              "0.7:0.5:0.2:0.9:0.1::0.2:0.25:1:1", "1:0.6:0.6:0.5:0.5::0.6:0.5:0:2"],
+    # Melt from a fresh start: one frame (the kept picture seeded, then one step).
+    "melt": ["1:0.5:0.35:0.6:0.04::0.6:0:0:0", "1:0.9:0.7:0.9:0.2::0.9:0:1:0",
+             "0.8:0.7:0.4:0.3:0.0::0.3:0:2:1", "1:0.6:0.5:0.8:0.5::0.0:0:0:1"],
 }
 
 

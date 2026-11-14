@@ -763,3 +763,106 @@ void tapeMain(uint3 id : SV_DispatchThreadID) {
   const int3 d = int3(o.rgb) + (((v - int3(o.rgb)) * a256) >> 8);
   put(id.xy, float4(float3(d), float(o.a)));
 }
+
+// ---- MELT: the picture holds and drips run out of it ------------------------
+// (cue_effects.hpp, CueEffectKind::Melt). What has run is KEPT between frames
+// in a half-size buffer the run loop owns (Pass::kept): meltInit seeds it from
+// the picture, meltStep drips it one frame on (aux = last frame's, dst = this
+// frame's), meltShow lights it over the picture. The CPU keeps 16 bits; this
+// keeps 8 with a dithered rounding, so a slow fade still moves on average.
+// Step: width/height = the kept size, srcW/srcH = the picture's; i0 dir, i1
+// whole picture, i2 along, i3 across; f1 t, f2 unitAlong, f3 freq, f4 pinch,
+// f5 hold, f6 channel floor, f7 surge step. Show: auxW/auxH = the kept size,
+// f0 sheen.
+float meltSpeed(int b) {
+  const float fb = float(b);
+  const float n = 0.5 + 0.5 * (sin(fb * f3 + f1 * 0.03) * 0.5 + sin(fb * f3 * 2.31 + 1.7 - f1 * 0.02) * 0.3 +
+                               sin(fb * f3 * 5.17 + 4.2 + f1 * 0.01) * 0.2);
+  const float ch = pow(max(0.0, (n - f6) / (1.0 - f6)), 2.0);
+  const float surge = 0.45 + 0.55 * max(0.0, sin(f1 * 1.7 + fb * f7));
+  return pA * (0.03 + ch * 4.0 * surge);
+}
+int2 meltXY(int a, int b) {
+  if (i0 == 0) return int2(b, a);
+  if (i0 == 1) return int2(b, int(height) - 1 - a);
+  return int2(a, b);
+}
+float3 meltShrunk(int kx, int ky) {   // the picture now, at the kept size, in bytes
+  const int x = min(int(srcW) - 1, kx * 2), y = min(int(srcH) - 1, ky * 2);
+  const int x1 = min(int(srcW) - 1, x + 1), y1 = min(int(srcH) - 1, y + 1);
+  return (float3(texel(x, y).rgb) + float3(texel(x1, y).rgb) + float3(texel(x, y1).rgb) + float3(texel(x1, y1).rgb)) * 0.25;
+}
+float3 meltKeptLoad(int a, int b) {
+  const int2 at = meltXY(clamp(a, 0, i2 - 1), clamp(b, 0, i3 - 1));
+  return aux.Load(int3(at, 0)).rgb * 255.0;
+}
+float3 meltKeptAt(float a, float b) {
+  a = clamp(a, 0.0, float(i2) - 1.001);
+  b = clamp(b, 0.0, float(i3) - 1.001);
+  const int ia = int(a), ib = int(b);
+  const float fa = a - float(ia), fb = b - float(ib);
+  return (meltKeptLoad(ia, ib) * (1.0 - fb) + meltKeptLoad(ia, ib + 1) * fb) * (1.0 - fa) +
+         (meltKeptLoad(ia + 1, ib) * (1.0 - fb) + meltKeptLoad(ia + 1, ib + 1) * fb) * fa;
+}
+float meltDither(uint2 at, uint c) {
+  uint n = at.x * 0x9E3779B1u ^ at.y * 0x85EBCA77u ^ (frame + c * 7919u) * 0xC2B2AE3Du;
+  n ^= n >> 15; n *= 0x2C1B3C6Du; n ^= n >> 12; n *= 0x297A2D39u; n ^= n >> 15;
+  return float(n) / 4294967296.0 - 0.5;
+}
+[numthreads(8, 8, 1)]
+void meltInitMain(uint3 id : SV_DispatchThreadID) {
+  if (id.x >= width || id.y >= height) return;
+  put(id.xy, float4(meltShrunk(int(id.x), int(id.y)), 255.0));
+}
+[numthreads(8, 8, 1)]
+void meltStepMain(uint3 id : SV_DispatchThreadID) {
+  if (id.x >= width || id.y >= height) return;
+  const int kx = int(id.x), ky = int(id.y);
+  int a, b;
+  if (i0 == 0) { a = ky; b = kx; } else if (i0 == 1) { a = int(height) - 1 - ky; b = kx; } else { a = kx; b = ky; }
+  const float3 up = meltKeptLoad(max(0, a - 1), b);
+  const float m = (up.r + up.g + up.b) / (3.0 * 255.0);
+  const float v = meltSpeed(b) * (0.35 + 0.65 * min(1.0, m * 2.0));
+  const float slope = (meltSpeed(min(i3 - 1, b + 1)) - meltSpeed(max(0, b - 1))) * 0.5;
+  const float3 moved = meltKeptAt(float(a) - v * f2, float(b) - slope * f4);
+  const float3 now = meltShrunk(kx, ky);
+  float3 next;
+  if (i1 != 0) {
+    // Whole picture: in a channel the picture flows down in its own colours.
+    const float w = min(1.0, v * 1.5);
+    const float3 settled = moved + (now - moved) * (1.0 - f5);
+    next = now + (settled - now) * w;
+  } else {
+    // Bright: the brighter of what is here and what has run onto it.
+    next = max(now * (1.0 - min(1.0, v * 0.25)), moved * f5);
+  }
+  const float3 d = float3(meltDither(id.xy, 0u), meltDither(id.xy, 1u), meltDither(id.xy, 2u));
+  put(id.xy, float4(clamp(round(next + d), 0.0, 255.0), 255.0));
+}
+[numthreads(8, 8, 1)]
+void meltShowMain(uint3 id : SV_DispatchThreadID) {
+  if (id.x >= width || id.y >= height) return;
+  const int x = int(id.x), y = int(id.y);
+  const int KW = int(auxW), KH = int(auxH);
+  const float gxk = min(float(KW) - 1.001, float(x) * 0.5), gyk = min(float(KH) - 1.001, float(y) * 0.5);
+  const int kx = int(gxk), ky = int(gyk);
+  const float fx = gxk - float(kx), fy = gyk - float(ky);
+  const float3 k00 = aux.Load(int3(kx, ky, 0)).rgb * 255.0, k10 = aux.Load(int3(min(KW - 1, kx + 1), ky, 0)).rgb * 255.0;
+  const float3 k01 = aux.Load(int3(kx, min(KH - 1, ky + 1), 0)).rgb * 255.0;
+  const float3 k11 = aux.Load(int3(min(KW - 1, kx + 1), min(KH - 1, ky + 1), 0)).rgb * 255.0;
+  const float3 kv = (k00 * (1.0 - fx) + k10 * fx) * (1.0 - fy) + (k01 * (1.0 - fx) + k11 * fx) * fy;
+  const float3 w3 = float3(1.0, 1.0, 1.0) / (3.0 * 255.0);
+  const float ld = dot(aux.Load(int3(kx, min(KH - 1, ky + 1), 0)).rgb * 255.0, w3);
+  const float lu = dot(aux.Load(int3(kx, max(0, ky - 1), 0)).rgb * 255.0, w3);
+  const float lr = dot(aux.Load(int3(min(KW - 1, kx + 1), ky, 0)).rgb * 255.0, w3);
+  const float ll = dot(aux.Load(int3(max(0, kx - 1), ky, 0)).rgb * 255.0, w3);
+  const float gy = (ld - lu) * 3.0, gx = (lr - ll) * 3.0;
+  const float face = max(0.0, -gy * 0.8 - gx * 0.3);
+  const float spec = pow(min(1.0, face * 1.4), 3.0) * f0 * 255.0;
+  const float shade = 1.0 - min(0.5, abs(gx) * 0.35 * f0);
+  const int3 v = int3(clamp(kv * shade + spec * (0.55 + kv / 255.0 * 0.45), 0.0, 255.0));
+  const uint4 o = texel(x, y);
+  const int a256 = int(round(amt * 256.0));
+  const int3 d = int3(o.rgb) + (((v - int3(o.rgb)) * a256) >> 8);
+  put(id.xy, float4(float3(d), float(o.a)));
+}

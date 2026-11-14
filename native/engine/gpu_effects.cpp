@@ -46,9 +46,11 @@ enum GpuKind : std::uint32_t {
   K_LUT = 1, K_THRESHOLD, K_COLOUR, K_COLOUR_REPLACE, K_VIGNETTE, K_GRAIN, K_CHANNEL_OFFSET,
   K_MIRROR, K_LUMA_KEY, K_EDGES, K_WARP, K_MOSAIC, K_MIX
 };
-enum Entry { E_POINT = 0, E_DOWN, E_BOX, E_STREAK, E_TILE, E_NV12, E_TRANS, E_STEREO, E_TAPE, E_COUNT };
+enum Entry { E_POINT = 0, E_DOWN, E_BOX, E_STREAK, E_TILE, E_NV12, E_TRANS, E_STEREO, E_TAPE,
+             E_MELT_INIT, E_MELT_STEP, E_MELT_SHOW, E_COUNT };
 const char* const kEntryNames[E_COUNT] = {"pointMain", "downMain", "boxMain", "streakMain", "tileMain", "nv12Main",
-                                          "transMain", "stereoMain", "tapeMain"};
+                                          "transMain", "stereoMain", "tapeMain", "meltInitMain", "meltStepMain",
+                                          "meltShowMain"};
 // Threads per group: 8 x 8 for every kernel but the stereogram's, which is
 // one row of 64 (stereoMain in gpu_effects.hlsl).
 constexpr int kStereoThreads = 64;
@@ -112,7 +114,9 @@ void nv12Constants(unsigned colorspace, int width, Params& p, bool tenBit = fals
 // The buffers a plan reads and writes. CUR/ALT ping-pong at full size and
 // hold the picture; F1/F2 are full-size scratch; S1/S2 are scratch at up to
 // half size (every reduced copy is at least 2x smaller).
-enum Buf { CUR = 0, ALT, F1, F2, S1, S2, BUF_COUNT };
+// K0/K1: Melt's kept picture, half size, ALIVE ACROSS FRAMES (the only
+// buffers that are), made only while a stack has a Melt in it.
+enum Buf { CUR = 0, ALT, F1, F2, S1, S2, K0, K1, BUF_COUNT };
 
 struct Pass {
   Entry entry = E_POINT;
@@ -123,6 +127,11 @@ struct Pass {
   int w = 0, h = 0;
   // Groups to dispatch; 0 = one 8 x 8 group per 8 x 8 pixels.
   int groupsX = 0, groupsY = 0;
+  // Melt: 1 = a step of the kept picture, 2 = shown from it (src/aux/dst
+  // are then decided by the run loop), with what the kept picture was made
+  // for -- a different key starts it again.
+  int kept = 0;
+  std::uint32_t keptKey = 0;
 };
 
 // ---------------------------------------------------------------------------
@@ -432,6 +441,54 @@ bool planEffect(std::vector<Pass>& plan, const fx::CueEffect& e, int w, int h, c
       plan.push_back(tp);
       return true;
     }
+    case CueEffectKind::Melt: {
+      // The CPU effect's own per-frame numbers (core/cue_effects.hpp).
+      const int KW = std::max(2, w / 2), KH = std::max(2, h / 2);
+      const int dir = std::clamp(e.choiceA, 0, 2);
+      const int along = dir == 2 ? KW : KH, across = dir == 2 ? KH : KW;
+      const double t = static_cast<double>(ctx.frameIndex) / 60.0;
+      const double pE = std::clamp(static_cast<double>(e.paramE), 0.0, 1.0);
+      p.width = static_cast<std::uint32_t>(KW);
+      p.height = static_cast<std::uint32_t>(KH);
+      p.srcW = static_cast<std::uint32_t>(w);
+      p.srcH = static_cast<std::uint32_t>(h);
+      p.i0 = dir;
+      p.i1 = e.choiceB == 1 ? 1 : 0;
+      p.i2 = along;
+      p.i3 = across;
+      p.f1 = static_cast<float>(t);
+      p.f2 = static_cast<float>(along / (dir == 2 ? 480.0 : 270.0));
+      p.f3 = static_cast<float>((0.05 + pB * 0.22) * 480.0 / across);
+      p.f4 = static_cast<float>(pC * 6.0 * across / 480.0);
+      p.f5 = static_cast<float>(1.0 - pD * 0.08);
+      p.f6 = static_cast<float>(e.choiceB == 1 ? 0.35 : 0.5);
+      p.f7 = static_cast<float>(0.37 * 480.0 / across);
+      Pass step;
+      step.entry = E_MELT_STEP;
+      step.params = p;
+      step.w = KW;
+      step.h = KH;
+      step.kept = 1;
+      step.keptKey = static_cast<std::uint32_t>(dir) | (static_cast<std::uint32_t>(KW) << 2) |
+                     (static_cast<std::uint32_t>(KH) << 17);
+      plan.push_back(step);
+      Params q = p;
+      q.width = static_cast<std::uint32_t>(w);
+      q.height = static_cast<std::uint32_t>(h);
+      q.srcW = q.width;
+      q.srcH = q.height;
+      q.auxW = static_cast<std::uint32_t>(KW);
+      q.auxH = static_cast<std::uint32_t>(KH);
+      q.f0 = static_cast<float>(pE);
+      Pass show;
+      show.entry = E_MELT_SHOW;
+      show.params = q;
+      show.w = w;
+      show.h = h;
+      show.kept = 2;
+      plan.push_back(show);
+      return true;
+    }
     case CueEffectKind::Mirror:
       p.kind = K_MIRROR;
       p.i0 = std::min(7, static_cast<int>(pA * 8));
@@ -601,6 +658,7 @@ bool supportedKind(CueEffectKind k) {
     case CueEffectKind::Relativistic: case CueEffectKind::Ripple: case CueEffectKind::Kaleidoscope:
     case CueEffectKind::Mosaic: case CueEffectKind::Blur: case CueEffectKind::Glow:
     case CueEffectKind::Sharpen: case CueEffectKind::Stereogram: case CueEffectKind::Tape:
+    case CueEffectKind::Melt:
       return true;
     default:
       return false;
@@ -625,9 +683,12 @@ bool gpuEffectKindSupported(CueEffectKind kind) { return supportedKind(kind); }
 bool gpuEffectsSupportStack(const std::vector<fx::CueEffect>& stack) {
   if (cpuForced()) return false;
   bool any = false;
+  int melts = 0;
   for (const auto& e : stack) {
     if (e.kind == CueEffectKind::None || e.bypassed || e.amount <= 0.0005f) continue;
     if (!supportedKind(e.kind)) return false;
+    // One kept picture per slot: a stack with two Melts stays on the CPU.
+    if (e.kind == CueEffectKind::Melt && ++melts > 1) return false;
     any = true;
   }
   return any;
@@ -638,6 +699,12 @@ bool gpuEffectsSupportStack(const std::vector<fx::CueEffect>& stack) {
 struct SlotBase {
   int w = 0, h = 0;
   SDL_Texture* display = nullptr;
+  // Melt's kept picture: which of K0/K1 holds it, whether it holds anything,
+  // what it was made for, and the frame it was last stepped on.
+  int keptCur = K0;
+  bool keptValid = false;
+  std::uint32_t keptKey = 0;
+  std::uint32_t keptFrame = 0;
 };
 
 #ifdef _WIN32
@@ -795,7 +862,7 @@ SDL_Texture* ensureDisplay(GpuEffects* g, SlotBase& slot, int w, int h) {
 // Sizes: full size for CUR/ALT/F1/F2, half (rounded up) for S1/S2 -- every
 // reduced copy is at least 2x smaller, and a pass uses only its own corner.
 void bufSize(int buf, int w, int h, int& bw, int& bh) {
-  if (buf == S1 || buf == S2) {
+  if (buf == S1 || buf == S2 || buf == K0 || buf == K1) {
     bw = std::max(1, (w + 1) / 2);
     bh = std::max(1, (h + 1) / 2);
   } else {
@@ -896,10 +963,14 @@ SDL_Texture* d3d11Run(GpuEffects* g, int slotIndex, const std::uint8_t* rgba, in
                       const std::vector<Pass>& plan, ID3D11Texture2D* nv12 = nullptr,
                       const Params* nv12Params = nullptr, ID3D11Texture2D* rgbaOnCard = nullptr) {
   D3DSlot& slot = g->d3dSlots[slotIndex];
+  const bool wantKept = std::any_of(plan.begin(), plan.end(), [](const Pass& p) { return p.kept != 0; });
   for (int b = 0; b < BUF_COUNT; ++b) {
+    if ((b == K0 || b == K1) && !wantKept) continue;
     int bw = 0, bh = 0;
     bufSize(b, w, h, bw, bh);
+    const bool remade = !slot.buf[b].tex || slot.buf[b].w != bw || slot.buf[b].h != bh;
     if (!makeBuf(g->device, slot.buf[b], bw, bh)) return nullptr;
+    if (remade && (b == K0 || b == K1)) slot.keptValid = false;
   }
   SDL_Texture* display = ensureDisplay(g, slot, w, h);
   if (!display) return nullptr;
@@ -982,23 +1053,52 @@ SDL_Texture* d3d11Run(GpuEffects* g, int slotIndex, const std::uint8_t* rgba, in
     g->context->UpdateSubresource(slot.buf[CUR].tex, 0, nullptr, rgba, static_cast<UINT>(w * 4), 0);
   }
   bool swapped = false;
-  for (const Pass& pass : plan) {
+  auto dispatch = [&](Entry entry, const Params& params, int src, int aux, int dst, int gx, int gy) -> bool {
     D3D11_MAPPED_SUBRESOURCE mapped {};
-    if (FAILED(g->context->Map(g->constants, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped))) return nullptr;
-    std::memcpy(mapped.pData, &pass.params, sizeof(Params));
+    if (FAILED(g->context->Map(g->constants, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped))) return false;
+    std::memcpy(mapped.pData, &params, sizeof(Params));
     g->context->Unmap(g->constants, 0);
-    ID3D11ShaderResourceView* views[2] = {slot.buf[physical(pass.src, swapped)].srv,
-                                          slot.buf[physical(pass.aux, swapped)].srv};
-    ID3D11UnorderedAccessView* out = slot.buf[physical(pass.dst, swapped)].uav;
-    g->context->CSSetShader(g->shaders[pass.entry], nullptr, 0);
+    ID3D11ShaderResourceView* views[2] = {slot.buf[src].srv, slot.buf[aux].srv};
+    ID3D11UnorderedAccessView* out = slot.buf[dst].uav;
+    g->context->CSSetShader(g->shaders[entry], nullptr, 0);
     g->context->CSSetShaderResources(0, 2, views);
     g->context->CSSetUnorderedAccessViews(0, 1, &out, nullptr);
-    g->context->Dispatch(static_cast<UINT>(pass.groupsX > 0 ? pass.groupsX : (pass.w + 7) / 8),
-                         static_cast<UINT>(pass.groupsY > 0 ? pass.groupsY : (pass.h + 7) / 8), 1);
+    g->context->Dispatch(static_cast<UINT>(gx), static_cast<UINT>(gy), 1);
     ID3D11ShaderResourceView* noViews[2] = {nullptr, nullptr};
     ID3D11UnorderedAccessView* noOut = nullptr;
     g->context->CSSetUnorderedAccessViews(0, 1, &noOut, nullptr);
     g->context->CSSetShaderResources(0, 2, noViews);
+    return true;
+  };
+  for (const Pass& pass : plan) {
+    const int gx = pass.groupsX > 0 ? pass.groupsX : (pass.w + 7) / 8;
+    const int gy = pass.groupsY > 0 ? pass.groupsY : (pass.h + 7) / 8;
+    const int cur = physical(CUR, swapped);
+    // MELT'S KEPT PICTURE (Pass::kept). Seeded when it is new, or the cue
+    // changed (the frame went back, or jumped), or its size or direction did;
+    // held on the same frame (a paused cue, a second output); otherwise one
+    // step from one kept buffer into the other, which then becomes current.
+    if (pass.kept == 1) {
+      const std::uint32_t frame = pass.params.frame;
+      const bool fresh = !slot.keptValid || slot.keptKey != pass.keptKey || frame < slot.keptFrame ||
+                         frame > slot.keptFrame + 120;
+      if (fresh) {
+        if (!dispatch(E_MELT_INIT, pass.params, cur, cur, slot.keptCur, gx, gy)) return nullptr;
+        slot.keptValid = true;
+        slot.keptKey = pass.keptKey;
+      } else if (frame == slot.keptFrame) {
+        continue;
+      }
+      const int next = slot.keptCur == K0 ? K1 : K0;
+      if (!dispatch(E_MELT_STEP, pass.params, cur, slot.keptCur, next, gx, gy)) return nullptr;
+      slot.keptCur = next;
+      slot.keptFrame = frame;
+      continue;
+    }
+    const int aux = pass.kept == 2 ? slot.keptCur : physical(pass.aux, swapped);
+    if (!dispatch(pass.entry, pass.params, physical(pass.src, swapped), aux, physical(pass.dst, swapped), gx, gy)) {
+      return nullptr;
+    }
     if (pass.dst == ALT) swapped = !swapped;
   }
   g->context->CSSetShader(nullptr, nullptr, 0);
@@ -1054,19 +1154,24 @@ bool sdlCreate(GpuEffects* g) {
   const SDL_GPUShaderFormat formats = SDL_GetGPUShaderFormats(g->gpu);
   const unsigned char* dxil[E_COUNT] = {kEffectsPointDxil, kEffectsDownDxil, kEffectsBoxDxil, kEffectsStreakDxil,
                                         kEffectsTileDxil, kEffectsNv12Dxil, kEffectsTransDxil, kEffectsStereoDxil,
-                                        kEffectsTapeDxil};
+                                        kEffectsTapeDxil, kEffectsMeltInitDxil, kEffectsMeltStepDxil,
+                                        kEffectsMeltShowDxil};
   const std::size_t dxilSize[E_COUNT] = {sizeof(kEffectsPointDxil), sizeof(kEffectsDownDxil), sizeof(kEffectsBoxDxil),
                                          sizeof(kEffectsStreakDxil), sizeof(kEffectsTileDxil),
                                          sizeof(kEffectsNv12Dxil), sizeof(kEffectsTransDxil),
-                                         sizeof(kEffectsStereoDxil), sizeof(kEffectsTapeDxil)};
+                                         sizeof(kEffectsStereoDxil), sizeof(kEffectsTapeDxil),
+                                         sizeof(kEffectsMeltInitDxil), sizeof(kEffectsMeltStepDxil),
+                                         sizeof(kEffectsMeltShowDxil)};
   const unsigned char* spirv[E_COUNT] = {kEffectsPointSpirv, kEffectsDownSpirv, kEffectsBoxSpirv,
                                          kEffectsStreakSpirv, kEffectsTileSpirv, kEffectsNv12Spirv,
-                                         kEffectsTransSpirv, kEffectsStereoSpirv, kEffectsTapeSpirv};
+                                         kEffectsTransSpirv, kEffectsStereoSpirv, kEffectsTapeSpirv,
+                                         kEffectsMeltInitSpirv, kEffectsMeltStepSpirv, kEffectsMeltShowSpirv};
   const std::size_t spirvSize[E_COUNT] = {sizeof(kEffectsPointSpirv), sizeof(kEffectsDownSpirv),
                                           sizeof(kEffectsBoxSpirv), sizeof(kEffectsStreakSpirv),
                                           sizeof(kEffectsTileSpirv), sizeof(kEffectsNv12Spirv),
                                           sizeof(kEffectsTransSpirv), sizeof(kEffectsStereoSpirv),
-                                          sizeof(kEffectsTapeSpirv)};
+                                          sizeof(kEffectsTapeSpirv), sizeof(kEffectsMeltInitSpirv),
+                                          sizeof(kEffectsMeltStepSpirv), sizeof(kEffectsMeltShowSpirv)};
   for (int e = 0; e < E_COUNT; ++e) {
     SDL_GPUComputePipelineCreateInfo info {};
     info.entrypoint = kEntryNames[e];
@@ -1147,10 +1252,13 @@ void sdlDestroy(GpuEffects* g) {
 SDL_Texture* sdlRun(GpuEffects* g, int slotIndex, const std::uint8_t* rgba, int w, int h,
                     const std::vector<Pass>& plan) {
   GpuEffects::SdlSlot& slot = g->sdlSlots[slotIndex];
+  const bool wantKept = std::any_of(plan.begin(), plan.end(), [](const Pass& p) { return p.kept != 0; });
   for (int b = 0; b < BUF_COUNT; ++b) {
+    if ((b == K0 || b == K1) && !wantKept) continue;
     int bw = 0, bh = 0;
     bufSize(b, w, h, bw, bh);
     if (slot.buf[b] && slot.bw[b] == bw && slot.bh[b] == bh) continue;
+    if (b == K0 || b == K1) slot.keptValid = false;
     if (slot.buf[b]) SDL_ReleaseGPUTexture(g->gpu, slot.buf[b]);
     SDL_GPUTextureCreateInfo info {};
     info.type = SDL_GPU_TEXTURETYPE_2D;
@@ -1196,19 +1304,45 @@ SDL_Texture* sdlRun(GpuEffects* g, int slotIndex, const std::uint8_t* rgba, int 
   SDL_UploadToGPUTexture(copy, &from, &to, false);
   SDL_EndGPUCopyPass(copy);
   bool swapped = false;
-  for (const Pass& pass : plan) {
+  auto dispatch = [&](Entry entry, const Params& params, int src, int aux, int dst, int gx, int gy) {
     SDL_GPUStorageTextureReadWriteBinding out {};
-    out.texture = slot.buf[physical(pass.dst, swapped)];
+    out.texture = slot.buf[dst];
     out.cycle = false;
     SDL_GPUComputePass* cp = SDL_BeginGPUComputePass(cmd, &out, 1, nullptr, 0);
-    SDL_BindGPUComputePipeline(cp, g->pipelines[pass.entry]);
-    const SDL_GPUTextureSamplerBinding views[2] = {{slot.buf[physical(pass.src, swapped)], g->sampler},
-                                                   {slot.buf[physical(pass.aux, swapped)], g->sampler}};
+    SDL_BindGPUComputePipeline(cp, g->pipelines[entry]);
+    const SDL_GPUTextureSamplerBinding views[2] = {{slot.buf[src], g->sampler}, {slot.buf[aux], g->sampler}};
     SDL_BindGPUComputeSamplers(cp, 0, views, 2);
-    SDL_PushGPUComputeUniformData(cmd, 0, &pass.params, sizeof(Params));
-    SDL_DispatchGPUCompute(cp, static_cast<Uint32>(pass.groupsX > 0 ? pass.groupsX : (pass.w + 7) / 8),
-                           static_cast<Uint32>(pass.groupsY > 0 ? pass.groupsY : (pass.h + 7) / 8), 1);
+    SDL_PushGPUComputeUniformData(cmd, 0, &params, sizeof(Params));
+    SDL_DispatchGPUCompute(cp, static_cast<Uint32>(gx), static_cast<Uint32>(gy), 1);
     SDL_EndGPUComputePass(cp);
+  };
+  for (const Pass& pass : plan) {
+    const int gx = pass.groupsX > 0 ? pass.groupsX : (pass.w + 7) / 8;
+    const int gy = pass.groupsY > 0 ? pass.groupsY : (pass.h + 7) / 8;
+    const int cur = physical(CUR, swapped);
+    // MELT'S KEPT PICTURE (Pass::kept). Seeded when it is new, or the cue
+    // changed (the frame went back, or jumped), or its size or direction did;
+    // held on the same frame (a paused cue, a second output); otherwise one
+    // step from one kept buffer into the other, which then becomes current.
+    if (pass.kept == 1) {
+      const std::uint32_t frame = pass.params.frame;
+      const bool fresh = !slot.keptValid || slot.keptKey != pass.keptKey || frame < slot.keptFrame ||
+                         frame > slot.keptFrame + 120;
+      if (fresh) {
+        dispatch(E_MELT_INIT, pass.params, cur, cur, slot.keptCur, gx, gy);
+        slot.keptValid = true;
+        slot.keptKey = pass.keptKey;
+      } else if (frame == slot.keptFrame) {
+        continue;
+      }
+      const int next = slot.keptCur == K0 ? K1 : K0;
+      dispatch(E_MELT_STEP, pass.params, cur, slot.keptCur, next, gx, gy);
+      slot.keptCur = next;
+      slot.keptFrame = frame;
+      continue;
+    }
+    const int aux = pass.kept == 2 ? slot.keptCur : physical(pass.aux, swapped);
+    dispatch(pass.entry, pass.params, physical(pass.src, swapped), aux, physical(pass.dst, swapped), gx, gy);
     if (pass.dst == ALT) swapped = !swapped;
   }
   copy = SDL_BeginGPUCopyPass(cmd);
