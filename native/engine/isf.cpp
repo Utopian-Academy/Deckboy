@@ -8,7 +8,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <ctime>
-#include <filesystem>
+#include "core/fs.hpp"   // dbfs: the Intel Mac build runs on 10.13, before std::filesystem
 #include <fstream>
 #include <map>
 #include <mutex>
@@ -517,7 +517,7 @@ bool compileShader(Shader& sh) {
 }
 
 std::shared_ptr<const Shader> loadShader(const std::string& path) {
-  namespace fs = std::filesystem;
+  namespace fs = dbfs;
   std::error_code ec;
   const auto size = fs::file_size(fs::u8path(path), ec);
   const auto when = ec ? fs::file_time_type() : fs::last_write_time(fs::u8path(path), ec);
