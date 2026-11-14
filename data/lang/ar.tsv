@@ -3294,3 +3294,1081 @@ FX CHOICE: choice must be A or B	FX CHOICE: يجب أن يكون الخيار A 
 FX CHOICE: no effect at that index	FX CHOICE: لا يوجد مؤثر عند ذلك الفهرس
 whole picture	الصورة كاملة
 FX LFO: slot is A-D for the parameters, E for the amount, F and G for the fifth and sixth (or 0-6)	FX LFO: الخانة A-D للمعاملات، وE للمقدار، وF وG للخامسة والسادسة (أو 0-6)
+angle	زاوية
+attack	هجوم
+azimuth	سمت
+band curve	منحنى النطاق
+bands	نطاقات
+base layer	طبقة أساسية
+bits	بتات
+black point	نقطة الأسود
+bleed	نزف
+block glitch	تشويش كتلي
+block size	حجم الكتلة
+blocks	كتل
+blur	تمويه
+bright	ساطع
+buzzer	طنان
+by brightness	حسب السطوع
+catch	التقاط
+caustics	???????
+channel skew	انحراف القنوات
+channel spread	انتشار القنوات
+character	محرف
+chop	تقطيع
+coherence	تماسك
+colour bleed	نزف اللون
+colour drift	انجراف اللون
+colour lag	تأخر اللون
+colour replace	استبدال اللون
+columns	أعمدة
+convergence	تقارب
+copies	نسخ
+corrupt	إفساد
+corruption	تلف
+coupling	اقتران
+crystallise	تبلور
+curl detail	تفاصيل الدوامة
+curves	منحنيات
+cut bright	قص الساطع
+cut dark	قص الداكن
+cut reset	إعادة ضبط بالقطع
+cutoff	تردد القطع
+cuts	قطوع
+cyan	سماوي
+damage	تلف
+damping	تخميد
+dark	داكن
+darkness	عتمة
+deck age	عمر الجهاز
+depth	عمق
+depth split	فصل العمق
+diamond	معين
+distance	مسافة
+doppler	دوبلر
+dots move	حركة النقاط
+drift	انجراف
+drip	تقطير
+drips	قطرات
+drive	دفع
+dye advect	نقل الصبغة
+edge ignite	اشتعال الحافة
+edges	حواف
+empty	فارغ
+extended	موسع
+facet light	ضوء الأوجه
+falloff	تلاشي
+falsecolour	لون زائف
+feed rate	معدل التغذية
+feedback bloom	توهج الارتجاع
+ferrofluid	سائل مغناطيسي
+field of view	مجال الرؤية
+flash length	مدة الوميض
+flash to	وميض إلى
+flicker	رفرفة
+floor	حد أدنى
+flow	تدفق
+focus	تركيز
+fold	طي
+fold point	موضع الطي
+frames	إطارات
+frequency	تردد
+gap	فجوة
+gather	تجمع
+glow	توهج
+glyph set	مجموعة محارف
+gong	غونغ
+grain	حبيبات
+grain flow	تدفق الحبيبات
+grain size	حجم الحبيبات
+green split	فصل الأخضر
+grid	شبكة
+growl	هدير
+growth	نمو
+head wear	تآكل الرأس
+heat	حرارة
+highlight roll	تدرج الساطع
+histogram	مدرج تكراري
+horizontal	أفقي
+hue turn	دوران الصبغة
+ice	جليد
+ink	حبر
+interference	تداخل
+irregularity	عدم انتظام
+jump	قفزة
+kaleido	مشهد متلون
+kaleidoscope	????? ?????
+knee	ركبة الضغط
+knife angle	زاوية السكين
+leak	تسرب
+let go	إفلات
+lift	رفع
+light	ضوء
+light angle	زاوية الضوء
+lightspeed	سرعة الضوء
+line colour	لون الخط
+line glow	توهج الخط
+lissajous	ليساجو
+luma displace	إزاحة الإضاءة
+luma key	مفتاح الإضاءة
+material	مادة
+melt	ذوبان
+memory	ذاكرة
+midtones	درجات وسطى
+moire	تموج
+mono	أحادي
+mosaic	فسيفساء
+motion mosh	تشويش الحركة
+motion puppet	دمية حركة
+motion trails	ذيول الحركة
+night eyes	رؤية ليلية
+no colour	بلا لون
+noise	ضجيج
+not connected	غير متصل
+nothing drawn	لا رسم
+off-axis	خارج المحور
+offline	غير متصل
+orbit speed	سرعة المدار
+overflow	تجاوز
+parade	عرض القنوات
+parallax	اختلاف المنظر
+phone	هاتف
+pinch	قرص
+ping-pong	ذهاب وإياب
+pink noise	ضجيج وردي
+pitch	طبقة الصوت
+pivot	محور ارتكاز
+pixel sort	فرز البكسل
+plasma	بلازما
+polar warp	تشويه قطبي
+posterise	تقليل الدرجات
+radial zoom	تكبير شعاعي
+radio	راديو
+radius	نصف قطر
+ramp	تدرج
+range	نطاق
+ratio	نسبة
+reach	مدى
+reaction bloom	تفتح التفاعل
+recordings	تسجيلات
+recovering	استرداد
+refresh	تحديث
+release	تحرير
+relief	نقش بارز
+relight	إعادة إضاءة
+repeat width	عرض التكرار
+resonance	رنين
+reverse	عكس
+rgb split	فصل RGB
+rings	حلقات
+ripple	تموج
+rising	صاعد
+rod bias	انحياز العصي
+room	غرفة
+rot	تعفن
+rotation	دوران
+round	مستدير
+sag	ترهل
+saw	سن منشار
+scanlines	خطوط المسح
+schlieren	شليرن
+scope	منظار الإشارة
+second mode	النمط الثاني
+see through	شفافية
+seed density	كثافة البذور
+self	ذاتي
+settle	استقرار
+shadow lift	رفع الظلال
+shake	اهتزاز
+shard size	حجم الشظايا
+sharpen	زيادة الحدة
+sheen	لمعان
+sideways	جانبي
+slit scan	مسح الشق
+slit width	عرض الشق
+smear	لطخ
+softness	نعومة
+solarise	تشميس
+spike count	عدد النتوءات
+spike length	طول النتوءات
+spin	دوران
+spinning	دوار
+spring	نابض
+sprite sheet	ورقة رسوم
+square	مربع
+steps	خطوات
+stereogram	صورة مجسمة
+stiffness	صلابة
+sting	لسعة
+strength	قوة
+strobe	وماض
+stroke	ضربة فرشاة
+sway	تمايل
+sweep	مسح
+sweep speed	سرعة المسح
+swell speed	سرعة الموج
+symbols	رموز
+system default	افتراضي النظام
+system output	خرج النظام
+tape	شريط
+tape age	عمر الشريط
+tear width	عرض التمزق
+temporal dither	تنقيط زمني
+test signal	إشارة اختبار
+text to send	نص الإرسال
+threshold	عتبة
+throw	قذف
+tile size	حجم البلاطة
+tilt	ميل
+time	زمن
+time cube	مكعب الزمن
+tint	تلوين
+tint colour	لون التلوين
+tracking	تتبع
+trail	ذيل
+transparent	شفاف
+triangle	مثلث
+triple beep	ثلاث صفارات
+turn	دوران
+twist	التواء
+unavailable	غير متاح
+unbalanced )	قوس ) غير مطابق
+vapor	بخار
+vector	متجه
+vertical	عمودي
+vertical bias	انحياز عمودي
+vibrato	اهتزاز صوتي
+vignette	تعتيم الحواف
+wash out	بهتان
+wave height	ارتفاع الموج
+wavefront	جبهة الموج
+way	اتجاه
+wedges	أوتاد
+white	أبيض
+white noise	ضجيج أبيض
+white point	نقطة الأبيض
+window hidden	النافذة مخفية
+window minimized	النافذة مصغرة
+wire	سلك
+wrong display	شاشة غير صحيحة
+zoom	تكبير
+(choose cue)	(اختر إشارة)
+(missing)	(مفقود)
+(no slots)	(لا خانات)
+(set media file)	(حدد ملف الوسائط)
+(set url)	(حدد url)
+A number	رقم
+across the grain	عبر اتجاه الحبيبات
+additive	جمعي
+alternating	متناوب
+amber	كهرماني
+Audio bitrate	معدل بت الصوت
+Audio reactivity	استجابة الصوت
+Brush opacity	عتامة الفرشاة
+Brush size	حجم الفرشاة
+cancelled	ألغي
+Canvas Height	ارتفاع اللوحة
+Canvas View	عرض اللوحة
+Canvas Width	عرض اللوحة
+Centre X	المركز X
+Centre Y	المركز Y
+Control change	تغيير التحكم
+Cue Notes	ملاحظات الإشارة
+Custom Glyphs	محارف مخصصة
+Density	كثافة
+Detail	تفاصيل
+Draw colour	لون الرسم
+empty expression	تعبير فارغ
+export as .png or .svg	صدّر بصيغة .png أو .svg
+Fixture address	عنوان وحدة الإضاءة
+Fixture name	اسم وحدة الإضاءة
+Fixture universe	كون الإضاءة
+Height	ارتفاع
+Height (px)	الارتفاع (px)
+Key Color	لون المفتاح
+Keyframe interval	فاصل الإطار المفتاحي
+Live Browser	متصفح حي
+Live Source	مصدر حي
+Mask opacity	عتامة القناع
+Mask rotation	دوران القناع
+Mask scale	مقياس القناع
+Mask X	القناع X
+Mask Y	القناع Y
+Add Browser Cue	أضف إشارة متصفح
+Add NDI Source Cue	أضف إشارة مصدر NDI
+Add Stream Cue	أضف إشارة بث
+Art-Net Destination	وجهة Art-Net
+ASCII 95 (density)	ASCII 95 (كثافة)
+ASCII 95 (raw)	ASCII 95 (خام)
+ASIO is off	ASIO متوقف
+ATEM Input	دخل ATEM
+Attach Lower Third	أرفق Lower Third
+Attach PIP Overlay	أرفق طبقة PIP
+Attack	هجوم
+Bands	نطاقات
+Blobs	بقع
+BOTH	كلاهما
+Browser Ready	المتصفح جاهز
+CLASSIC	كلاسيكي
+CLOCK	ساعة
+Companion/OSC Port	منفذ Companion/OSC
+control 1	تحكم 1
+control 2	تحكم 2
+control 3	تحكم 3
+control 4	تحكم 4
+could not reach github	تعذر الوصول إلى github
+could not read the PDF	تعذرت قراءة PDF
+could not start ffmpeg	تعذر تشغيل ffmpeg
+Cue Goto	انتقال الإشارة
+Custom Output Raster	أبعاد خرج مخصصة
+Default Cue Fade	تلاشي الإشارة الافتراضي
+Destination Address	عنوان الوجهة
+Destination UDP port	منفذ UDP للوجهة
+display native	الدقة الأصلية للشاشة
+Display none	لا شاشة
+DMX Channels	قنوات DMX
+EXTREME	شديد
+Feedback zoom	تكبير الارتجاع
+Find Cue	ابحث عن إشارة
+Find+Take Cue	ابحث وTAKE الإشارة
+Fire at a time of day	شغّل في وقت محدد
+Fire on a MIDI note	شغّل بنغمة MIDI
+Fire on an OSC address	شغّل بعنوان OSC
+First channel (1-512)	القناة الأولى (1-512)
+Flipbook rate	معدل تقليب الصور
+Flow	تدفق
+Frequency	تردد
+Glitch	تشويش
+GOTO Cue	GOTO الإشارة
+Grey	رمادي
+In time	زمن الدخول
+Its name, number or id	اسمه أو رقمه أو معرفه
+Key sender source name	اسم مصدر مرسل المفتاح
+Legacy Cue Link	رابط إشارة قديم
+Lissajous (L/R phase)	ليساجو (طور L/R)
+Lower Third - subtitle	Lower Third - عنوان فرعي
+Lower Third - title	Lower Third - عنوان
+Lower Third Subtext	نص فرعي Lower Third
+Lower Third Title	عنوان Lower Third
+Media	وسائط
+Melt	ذوبان
+Milliseconds 0-5000	مللي ثانية 0-5000
+Mod depth	عمق التعديل
+Mod ratio	نسبة التعديل
+music & sparkle	موسيقى وبريق
+NDI Key Name	اسم مفتاح NDI
+NDI Name	اسم NDI
+NDI Source Name	اسم مصدر NDI
+NEXT	التالي
+NMC Port	منفذ NMC
+NMC Source	مصدر NMC
+NMC Target	هدف NMC
+NMOS Interface Name	اسم واجهة NMOS
+NMOS Node Port	منفذ عقدة NMOS
+NMOS Registry	سجل NMOS
+no ASIO in this build	لا ASIO في هذا الإصدار
+no driver named	لا برنامج تشغيل باسم
+no mask made	لم ينشأ قناع
+no release found	لا إصدار متاح
+no X display to read	لا شاشة X للقراءة
+not on this output	ليس على هذا الخرج
+Note	نغمة
+Note off	إيقاف النغمة
+Note on	بدء النغمة
+OSC Address	عنوان OSC
+OSC Query HTTP Port	منفذ HTTP لاستعلام OSC
+Out time	زمن الخروج
+Output Alpha	ألفا الخرج
+Output Canvas	لوحة الخرج
+Output Delay	تأخير الخرج
+output fault	عطل الخرج
+Output name	اسم الخرج
+Output Refresh	تحديث الخرج
+own playlist	قائمته الخاصة
+Payload	حمولة
+Percent 0-100	بالمئة 0-100
+Phrases	عبارات
+PIP Target Cue	إشارة هدف PIP
+Pixel density	كثافة البكسل
+Playlist Start TC	كود بدء القائمة
+Playlist Timebase	قاعدة زمن القائمة
+Plugin	إضافة
+Portal	بوابة
+Practice show	عرض تدريب
+PREVIOUS	السابق
+Program change	تغيير البرنامج
+Prompter script	نص الملقن
+pulse 25%	نبضة 25%
+QUALITY	جودة
+Raw bytes	بايتات خام
+Raw MIDI Bytes	بايتات MIDI خام
+Release	تحرير
+Rename cue	أعد تسمية الإشارة
+Rename fixture	أعد تسمية وحدة الإضاءة
+Renumber Cues	أعد ترقيم الإشارات
+Replay hold	تثبيت الإعادة
+Retrigger	إعادة تشغيل
+Rim	حافة
+Rotation	دوران
+runtime unavailable	بيئة التشغيل غير متاحة
+Save Warp Preset	احفظ إعداد التشويه
+SCOPES	مناظير الإشارة
+Seconds (0-30)	ثوان (0-30)
+Sender source name	اسم مصدر المرسل
+size out of range	الحجم خارج النطاق
+Smear	لطخ
+Source Ready	المصدر جاهز
+Spout Sender Name	اسم مرسل Spout
+Sprite spin	دوران الرسم
+SRT latency	تأخير SRT
+SRT passphrase	عبارة مرور SRT
+SRT stream ID	معرف بث SRT
+ST 2110 Destination	وجهة ST 2110
+ST 2110 Port	منفذ ST 2110
+Step length	مدة الخطوة
+stream restart needed	يلزم إعادة تشغيل البث
+Stream URL	رابط البث
+stream write failed	فشلت كتابة البث
+SUBTLE	خفيف
+Switcher IP address	عنوان IP للمبدل
+Timer Message	رسالة المؤقت
+TSL Tally	إشارة TSL
+Turn	دوران
+Twist	التواء
+Universe (0-63999)	كون (0-63999)
+URL or local page path	رابط أو مسار صفحة محلية
+Video bitrate	معدل بت الفيديو
+Video dip fade	تلاشي الفيديو عبر لون
+vMix HTTP Port	منفذ HTTP لـ vMix
+vMix TCP Port	منفذ TCP لـ vMix
+Web Monitor PIN	رمز مراقب الويب
+Web Monitor Port	منفذ مراقب الويب
+What it runs	ما يشغله
+Which cue	أي إشارة
+X,Y offset in pixels	إزاحة X,Y بالبكسل
+Zoom	تكبير
+a name for this step	اسم لهذه الخطوة
+A number, or blank for none	رقم، أو فارغ لعدم التعيين
+A command line, or blank for nothing	سطر أمر، أو فارغ بلا إجراء
+a playlist that is gone	قائمة تشغيل لم تعد موجودة
+a target cannot target another target	لا يمكن للهدف استهداف هدف آخر
+add an output to scope it	أضف خرجا لتحليل إشارته
+an ASIO stream is already open	بث ASIO مفتوح بالفعل
+another app is holding the pointer	تطبيق آخر يحتجز المؤشر
+built without ASIO support	بني دون دعم ASIO
+built without NDI SDK headers	بني دون ترويسات NDI SDK
+channel count must be at least 1	يجب ألا يقل عدد القنوات عن 1
+comma outside a function call	فاصلة خارج استدعاء دالة
+could not start the PDF renderer	تعذر تشغيل عارض PDF
+could not write the export script	تعذرت كتابة نص التصدير
+couldn't open explorer	تعذر فتح مستكشف الملفات
+couldn't open file manager	تعذر فتح مدير الملفات
+couldn't open finder	تعذر فتح فايندر
+driver refused to start	رفض برنامج التشغيل البدء
+driver reports no output channels	يفيد برنامج التشغيل بعدم وجود قنوات خرج
+driver would not create output buffers	لم ينشئ برنامج التشغيل مخازن الخرج
+driver would not load (in use by another application?)	لم يحمل برنامج التشغيل (يستخدمه تطبيق آخر؟)
+driver would not report a buffer size	لم يبلغ برنامج التشغيل عن حجم المخزن
+driver would not report channel info	لم يبلغ برنامج التشغيل عن معلومات القناة
+escaped to windowed	عاد إلى وضع النافذة
+ffmpeg made no file	لم ينشئ ffmpeg ملفا
+ffmpeg stopped taking frames	توقف ffmpeg عن تلقي الإطارات
+fullscreen dropped	انقطع وضع ملء الشاشة
+it could not be started	تعذر تشغيله
+LibreOffice could not be run	تعذر تشغيل LibreOffice
+LibreOffice produced no PDF	لم ينتج LibreOffice أي PDF
+libX11 is not installed	libX11 غير مثبت
+lost the session bus	فقد الاتصال بناقل الجلسة
+macOS could not read the PDF	تعذر على macOS قراءة PDF
+no pages could be rendered	تعذر تصيير أي صفحة
+not a MIDI file (no MThd header)	ليس ملف MIDI (لا ترويسة MThd)
+not while a cue is playing	ليس أثناء تشغيل إشارة
+only a background in it	لا يحتوي إلا خلفية
+opened in explorer	فتح في مستكشف الملفات
+opened in file manager	فتح في مدير الملفات
+pdftoppm produced no pages	لم ينتج pdftoppm أي صفحات
+PowerPoint could not export this file	تعذر على PowerPoint تصدير هذا الملف
+release has no build for this platform	لا يتضمن الإصدار بناء لهذه المنصة
+revealed in finder	عرض في فايندر
+target cue is gone	إشارة الهدف لم تعد موجودة
+targets nothing	لا يستهدف شيئا
+the document has no pages	المستند بلا صفحات
+the file has no playable events	لا أحداث قابلة للتشغيل في الملف
+the file is empty	الملف فارغ
+the header is truncated	الترويسة مبتورة
+the NDI runtime is not installed	بيئة تشغيل NDI غير مثبتة
+the PDF renderer produced no pages	لم ينتج عارض PDF أي صفحات
+the screen could not be read there	تعذرت قراءة الشاشة هناك
+the show plays through ASIO	العرض يعمل عبر ASIO
+the time division is not readable	تقسيم الزمن غير مقروء
+this build has no X11 support	هذا البناء لا يدعم X11
+update: could not start the installer	تحديث: تعذر تشغيل المثبت
+update: could not start the install helper	تحديث: تعذر تشغيل مساعد التثبيت
+update: could not write the install helper	تحديث: تعذرت كتابة مساعد التثبيت
+update: not running from an AppImage	تحديث: لا يعمل من AppImage
+web audio encoder cannot keep up	مرمز صوت الويب لا يواكب السرعة
+Web Monitor Connections	اتصالات مراقب الويب
+%, 1 to 100 (supports + - * / and ())	%، من 1 إلى 100 (يدعم + - * / و ())
+0-1 (supports + - * / and ())	0-1 (يدعم + - * / و ())
+0-100% (supports + - * / and ())	0-100% (يدعم + - * / و ())
+0-100%, left to right (supports + - * / and ())	0-100%، من اليسار إلى اليمين (يدعم + - * / و ())
+0-100%, top to bottom (supports + - * / and ())	0-100%، من الأعلى إلى الأسفل (يدعم + - * / و ())
+Amount 0-100% (supports + - * / and ())	المقدار 0-100% (يدعم + - * / و ())
+Colour steps, 2-8 (supports + - * / and ())	درجات اللون، 2-8 (يدعم + - * / و ())
+Degrees -180..180 (supports + - * / and ())	درجات -180..180 (يدعم + - * / و ())
+Degrees per second, -720 to 720 (supports + - * / and ())	درجات في الثانية، -720 إلى 720 (يدعم + - * / و ())
+Degrees round the colour wheel, 0-360 (supports + - * / and ())	درجات حول عجلة الألوان، 0-360 (يدعم + - * / و ())
+Degrees, -360 to 360 (supports + - * / and ())	درجات، -360 إلى 360 (يدعم + - * / و ())
+Degrees, 0-360 (supports + - * / and ())	درجات، 0-360 (يدعم + - * / و ())
+Feature size, 0.1-8 (supports + - * / and ())	حجم التفاصيل، 0.1-8 (يدعم + - * / و ())
+Frames a second, 1 to 60 (supports + - * / and ())	إطارات في الثانية، 1 إلى 60 (يدعم + - * / و ())
+Hertz, 20-20000 (supports + - * / and ())	هرتز، 20-20000 (يدعم + - * / و ())
+Horizontal cells, 64-960 (supports + - * / and ())	خلايا أفقية، 64-960 (يدعم + - * / و ())
+How big a blob grows, 0-1 (supports + - * / and ())	حجم نمو البقعة، 0-1 (يدعم + - * / و ())
+How hard it cuts, %, 0 to 100 (supports + - * / and ())	حدة القطع، %، 0 إلى 100 (يدعم + - * / و ())
+How hard the audio drives it, 0-1 (supports + - * / and ())	قوة دفع الصوت، 0-1 (يدعم + - * / و ())
+How many are alive at once, 3-48 (supports + - * / and ())	عدد الأحياء في آن واحد، 3-48 (يدعم + - * / و ())
+Palette turn, 0-1 (supports + - * / and ())	دوران لوحة الألوان، 0-1 (يدعم + - * / و ())
+Pitch in hertz, 20-8000 (supports + - * / and ())	طبقة الصوت بالهرتز، 20-8000 (يدعم + - * / و ())
+Pixel sort amount, 0-1 (supports + - * / and ())	مقدار فرز البكسل، 0-1 (يدعم + - * / و ())
+Pixels (supports + - * / and ())	بكسل (يدعم + - * / و ())
+Pixels, 64-2160 (supports + - * / and ())	بكسل، 64-2160 (يدعم + - * / و ())
+Pixels, 64-3840 (supports + - * / and ())	بكسل، 64-3840 (يدعم + - * / و ())
+Scale of the whole graphic, 0.5-2 (supports + - * / and ())	مقياس الرسم كله، 0.5-2 (يدعم + - * / و ())
+Seconds between retriggers, 0-8 (supports + - * / and ())	ثوان بين إعادة التشغيل، 0-8 (يدعم + - * / و ())
+Seconds the finished drawing stays, 0 to 60 (supports + - * / and ())	ثوان يبقى فيها الرسم المكتمل، 0 إلى 60 (يدعم + - * / و ())
+Seconds the in move takes, 0-5 (supports + - * / and ())	مدة حركة الدخول بالثواني، 0-5 (يدعم + - * / و ())
+Seconds the out move takes, 0-5 (supports + - * / and ())	مدة حركة الخروج بالثواني، 0-5 (يدعم + - * / و ())
+Seconds, 0-4 (supports + - * / and ())	ثوان، 0-4 (يدعم + - * / و ())
+Seconds, 0-8 (supports + - * / and ())	ثوان، 0-8 (يدعم + - * / و ())
+Size, %, 5 to 400 (supports + - * / and ())	حجم، %، 5 إلى 400 (يدعم + - * / و ())
+Spiral size, 0.25-4 (supports + - * / and ())	حجم اللولب، 0.25-4 (يدعم + - * / و ())
+Spiral strength, 0-4 (supports + - * / and ())	قوة اللولب، 0-4 (يدعم + - * / و ())
+Thickness of the glowing edge, 0-1 (supports + - * / and ())	سماكة الحافة المتوهجة، 0-1 (يدعم + - * / و ())
+Where the eye sits, 0 left to 1 right (supports + - * / and ())	موضع العين، 0 يسارا إلى 1 يمينا (يدعم + - * / و ())
+Where the eye sits, 0 top to 1 bottom (supports + - * / and ())	موضع العين، 0 أعلى إلى 1 أسفل (يدعم + - * / و ())
+% of the picture's height, 0.1 to 20 (supports + - * / and ())	% من ارتفاع الصورة، 0.1 إلى 20 (يدعم + - * / و ())
+-3 to 3: 0 holds, negative runs backwards (supports + - * / and ())	-3 إلى 3: 0 يثبت، والسالب يشغل عكسيا (يدعم + - * / و ())
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono (supports + - * / and ())	0 كلاسيكي، 1 نار، 2 جليد، 3 نيون، 4 أحادي (يدعم + - * / و ())
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono (supports + - * / and ())	0 قوس قزح + رمادي، 1 قوس قزح، 2 سمة، 3 أحادي (يدعم + - * / و ())
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear (supports + - * / and ())	0 منطقة، 1 توأم، 2 تدفق، 3 سرج، 4 تموج، 5 قص (يدعم + - * / و ())
+0-100%: 0 holds the field still (supports + - * / and ())	0-100%: 0 يثبت المجال (يدعم + - * / و ())
+0-100%: 50 is 1x, 0 a quarter, 100 four times (supports + - * / and ())	0-100%: 50 يساوي 1x، و0 ربعا، و100 أربعة أضعاف (يدعم + - * / و ())
+0-100%: how far the field bends (supports + - * / and ())	0-100%: مدى انحناء المجال (يدعم + - * / و ())
+0-100%: the share of each band drawn as grey stripes (supports + - * / and ())	0-100%: حصة كل نطاق المرسومة كخطوط رمادية (يدعم + - * / و ())
+Across, % of the width, -100 to 100 (supports + - * / and ())	أفقيا، % من العرض، -100 إلى 100 (يدعم + - * / و ())
+Birth, drift and fade rate, 0.1-3 (supports + - * / and ())	معدل النشوء والانجراف والتلاشي، 0.1-3 (يدعم + - * / و ())
+Block displacement and channel tearing, 0-1 (supports + - * / and ())	إزاحة الكتل وتمزق القنوات، 0-1 (يدعم + - * / و ())
+dBFS, -60 to 0 (-18 is EBU alignment) (supports + - * / and ())	dBFS، -60 إلى 0 (-18 مستوى محاذاة EBU) (يدعم + - * / و ())
+Down, % of the height, -100 to 100 (supports + - * / and ())	للأسفل، % من الارتفاع، -100 إلى 100 (يدعم + - * / و ())
+Edge out (+) or in (-), % of the height, -25 to 25 (supports + - * / and ())	الحافة للخارج (+) أو الداخل (-)، % من الارتفاع، -25 إلى 25 (يدعم + - * / و ())
+Edge softness, % of the height, 0 to 25 (supports + - * / and ())	نعومة الحافة، % من الارتفاع، 0 إلى 25 (يدعم + - * / و ())
+FDS hardware gain range, 0-63 (supports + - * / and ())	نطاق كسب عتاد FDS، 0-63 (يدعم + - * / و ())
+Fields per frame, 0-4 (1 = one field per rendered frame) (supports + - * / and ())	حقول لكل إطار، 0-4 (1 = حقل لكل إطار مصير) (يدعم + - * / و ())
+How much of each frame feeds the next, 0-0.95 (supports + - * / and ())	مقدار ما يغذي الإطار التالي من كل إطار، 0-0.95 (يدعم + - * / و ())
+How readily neighbours merge, 0 (never) to 1 (supports + - * / and ())	مدى سهولة اندماج الجيران، 0 (أبدا) إلى 1 (يدعم + - * / و ())
+Internal resolution, 1 (chunky) to 5 (fine) (supports + - * / and ())	الدقة الداخلية، 1 (خشنة) إلى 5 (دقيقة) (يدعم + - * / و ())
+Master oscillator rate, 0.01-8 (supports + - * / and ())	معدل المذبذب الرئيسي، 0.01-8 (يدعم + - * / و ())
+Modulator as a ratio of the note, 0.05-16 (supports + - * / and ())	المعدل كنسبة من النغمة، 0.05-16 (يدعم + - * / و ())
+One LED tile's height in pixels, 8-8192 (supports + - * / and ())	ارتفاع بلاطة LED بالبكسل، 8-8192 (يدعم + - * / و ())
+One LED tile's width in pixels, 8-8192 (supports + - * / and ())	عرض بلاطة LED بالبكسل، 8-8192 (يدعم + - * / و ())
+Per-frame zoom of the feedback path, 0.90-1.15 (supports + - * / and ())	تكبير مسار الارتجاع لكل إطار، 0.90-1.15 (يدعم + - * / و ())
+Scanlines, bloom and gun misalignment, 0-1 (supports + - * / and ())	خطوط المسح والتوهج واختلال محاذاة المدفع، 0-1 (يدعم + - * / و ())
+Seconds before it leaves by itself; 0 waits for OUT (supports + - * / and ())	ثوان قبل خروجه تلقائيا؛ 0 ينتظر OUT (يدعم + - * / و ())
+Space under it, as a fraction of the frame, 0-0.8 (supports + - * / and ())	المساحة تحته كنسبة من الإطار، 0-0.8 (يدعم + - * / و ())
+Turbulence, 0 still to 3 boiling (supports + - * / and ())	اضطراب، من 0 ساكن إلى 3 غليان (يدعم + - * / و ())
+Turns the rim's colours round the wheel, 0-1 (supports + - * / and ())	يدير ألوان الحافة حول عجلة الألوان، 0-1 (يدعم + - * / و ())
+AUTO	تلقائي
+auto (59.94 Hz)	تلقائي (59.94 Hz)
+BITRATE	معدل البت
+audioprint	طباعة الصوت
+bohlen-pierce	بولن-بيرس
+chladni	كلادني
+databend	ثني البيانات
+datamosh	تشويش البيانات
+Devamp	إنهاء التكرار
+Fireside	بجانب المدفأة
+just	طبيعي
+meantone	نغمة متوسطة
+pythagorean	فيثاغوري
+purkinje	بوركني
+Ouroboros	أوروبوروس
+MONO L	أحادي L
+MONO R	أحادي R
+LOAD NEXT	حمّل التالي
+MSC Cue Number	رقم إشارة MSC
+SYPHON TEXTURE SHARE	مشاركة النسيج عبر SYPHON
+SYPHON / SPOUT TEXTURE SHARE	مشاركة النسيج عبر SYPHON / SPOUT
+DECODE --.-	فك الترميز --.-
+DECODE OFF	فك الترميز OFF
+DECODE WARM	فك الترميز جاهز
+OUTPUT --.-	خرج --.-
+OUTPUT WARM	الخرج جاهز
+STREAM --.-	بث --.-
+STREAM ERR	خطأ بث
+STREAM OFF	بث OFF
+STREAM WARM	البث جاهز
+PROXY 720p	نسخة وسيطة 720p
+hh:mm:ss or seconds	hh:mm:ss أو ثوان
+e.g. /cue/1/start	مثال: /cue/1/start
+e.g. 12.5	مثال: 12.5
+e.g. 192.168.1.50	مثال: 192.168.1.50
+e.g. 1=255, 10-14=64	مثال: 1=255, 10-14=64
+e.g. 20:0 or client name	مثال: 20:0 أو اسم العميل
+e.g. 90 3C 7F	مثال: 90 3C 7F
+0-127; 127 is all-call	0-127؛ 127 نداء شامل
+0-127; the domain the facility's clock runs on	0-127؛ نطاق عمل ساعة المنشأة
+10-79 characters, or empty for none	10-79 محرفا، أو فارغ بلا تعيين
+8+ characters; letters and symbols are allowed	8 محارف فأكثر؛ يسمح بالحروف والرموز
+Apple keeps the Keynote format secret on purpose, a malicious lock-in tactic, so only Apple's own software can read it properly. Best route: open it in Keynote on iCloud.com (free, in any browser), choose Download a Copy > PDF, and import that PDF	تتعمد Apple إبقاء تنسيق Keynote سريا، في أسلوب خبيث لاحتجاز المستخدمين، لذا لا يقرأه بصورة صحيحة إلا برنامج Apple نفسه. أفضل طريقة: افتحه في Keynote على iCloud.com (مجانا، في أي متصفح)، واختر تنزيل نسخة > PDF، ثم استورد ملف PDF هذا
+8+ characters; other machines send AUTH <passphrase> first. Empty = off	8 محارف فأكثر؛ ترسل الأجهزة الأخرى AUTH <passphrase> أولا. فارغ = متوقف
+A command line, as a DASH button runs it. {value} is the knob's number, {note} the key.	سطر أمر ينفذه زر DASH. {value} قيمة المقبض، و{note} المفتاح.
+an IPv4 address, or 255.255.255.255 to broadcast	عنوان IPv4، أو 255.255.255.255 للبث العام
+browser connections at once, 1-64 (default 8)	اتصالات المتصفح المتزامنة، 1-64 (الافتراضي 8)
+Default Non-Movie Duration	المدة الافتراضية لغير الفيديو
+Fire at incoming timecode	شغّل عند الكود الزمني الوارد
+Hz or AUTO (e.g. 60 or 59.94)	Hz أو AUTO (مثلا 60 أو 59.94)
+kbps (32-512; 160 is a sane default)	kbps (32-512؛ 160 قيمة افتراضية معقولة)
+milliseconds (40..2000)	مللي ثانية (40..2000)
+milliseconds (20-8000; ~4x your RTT)	مللي ثانية (20-8000؛ نحو 4x من RTT)
+Name visible to receivers	الاسم الظاهر للمستقبلين
+NDI source name (e.g. LAPTOP (source 1))	اسم مصدر NDI (مثال: LAPTOP (source 1))
+OSC Feedback Mirror Rate	معدل عكس ارتجاع OSC
+Paste the key from your platform	الصق المفتاح من منصتك
+paste your stream key here	الصق مفتاح البث هنا
+pixels (of the output raster)	بكسل (في شبكة الخرج)
+position on the output raster, in pixels	الموضع على شبكة الخرج، بالبكسل
+Routing hint for the receiver	تلميح التوجيه للمستقبل
+seconds (1-10; most platforms want 2)	ثوان (1-10؛ معظم المنصات تطلب 2)
+Seconds for new-cue fade in/out defaults	ثوان للتلاشي الافتراضي دخولا وخروجا للإشارات الجديدة
+seconds this step holds before PLAY moves on	ثوان تثبيت هذه الخطوة قبل أن يتابع PLAY
+ST 2110 network interface	واجهة شبكة ST 2110
+Target IP (or 255.255.255.255 to broadcast)	عنوان IP للهدف (أو 255.255.255.255 للبث العام)
+UDP port for transport sync	منفذ UDP لمزامنة التشغيل
+Where to send transport (blank = broadcast)	وجهة إرسال التحكم بالتشغيل (فارغ = بث عام)
+Which switcher input Deckboy is (0 = not set)	دخل المبدل الذي يمثله Deckboy (0 = غير معين)
+AUDIOALSO: expected ADD <name>, REMOVE <name> or CLEAR	AUDIOALSO: المتوقع: ADD <name>, REMOVE <name> أو CLEAR
+BROWSER KEY: expected Enter|Tab|Backspace|Escape	BROWSER KEY: المتوقع: Enter|Tab|Backspace|Escape
+BUGSWAT: expected START, SHOWME, SKIP, PLAY, EXIT or STATUS	BUGSWAT: المتوقع: START, SHOWME, SKIP, PLAY, EXIT أو STATUS
+CAPTIONS LIVE: expected ON, OFF, STATUS or TEXT	CAPTIONS LIVE: المتوقع: ON, OFF, STATUS أو TEXT
+CAPTIONS SOURCE: expected INPUT, DECK <n> or OUTPUT <n>	CAPTIONS SOURCE: المتوقع: INPUT, DECK <n> أو OUTPUT <n>
+DMXCUE FIXTURE: expected <name> <level%>|LEAVE [<colour>]	DMXCUE FIXTURE: المتوقع: <name> <level%>|LEAVE [<colour>]
+DMXCUE LFO: expected <name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]	DMXCUE LFO: المتوقع: <name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]
+DMXCUE: expected NEW, SET, FADE, UNIVERSE, HOST, PORT, FIRE or BLACKOUT	DMXCUE: المتوقع: NEW, SET, FADE, UNIVERSE, HOST, PORT, FIRE أو BLACKOUT
+ENDACTION: expected INHERIT, STOP, LOOP, HOLD or NEXT	ENDACTION: المتوقع: INHERIT, STOP, LOOP, HOLD أو NEXT
+expected waveform|scope|lissajous|spectrum|level|cover	المتوقع: waveform|scope|lissajous|spectrum|level|cover
+FADE CURVE: expected linear, ease-in, ease-out or s-curve	FADE CURVE: المتوقع: linear, ease-in, ease-out أو s-curve
+FADE WHAT: expected opacity, volume, dimmer, brightness, contrast, saturation, hue, effect, audiofx or speed	FADE WHAT: المتوقع: opacity, volume, dimmer, brightness, contrast, saturation, hue, effect, audiofx أو speed
+FIXTURE ADD: expected <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]	FIXTURE ADD: المتوقع: <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]
+LOWERSTYLE: expected none, fade, rise, slide, wipe or NEXT	LOWERSTYLE: المتوقع: none, fade, rise, slide, wipe أو NEXT
+MASK ASSIGN: expected <id|NONE> CUE | LAYER <output> <playlist> | OUTPUT <n> | MATTE <n>	MASK ASSIGN: المتوقع: <id|NONE> CUE | LAYER <output> <playlist> | OUTPUT <n> | MATTE <n>
+MASK ASSIGN: expected CUE, LAYER, OUTPUT or MATTE	MASK ASSIGN: المتوقع: CUE, LAYER, OUTPUT أو MATTE
+MASK EXPORT: expected <id> <file.png|file.svg> [WxH]	MASK EXPORT: المتوقع: <id> <file.png|file.svg> [WxH]
+MASK LFO: expected <id> <param> ON|OFF [rate Hz] [depth %]	MASK LFO: المتوقع: <id> <param> ON|OFF [rate Hz] [depth %]
+MATRIX SET: expected <source 1-2> <dest> <0-100>	MATRIX SET: المتوقع: <source 1-2> <dest> <0-100>
+MATRIX: expected SET <src> <dest> <0-100>, SEED or CLEAR	MATRIX: المتوقع: SET <src> <dest> <0-100>, SEED أو CLEAR
+MESH: expected on|off|toggle|height|tilt|yaw|spin|grid	MESH: المتوقع: on|off|toggle|height|tilt|yaw|spin|grid
+MIC: expected ADD, LIST, INPUT, CHANNEL or GAIN	MIC: المتوقع: ADD, LIST, INPUT, CHANNEL أو GAIN
+MIDICUE KIND: expected note-on, note-off, cc, program, msc-go, msc-stop, msc-resume or raw	MIDICUE KIND: المتوقع: note-on, note-off, cc, program, msc-go, msc-stop, msc-resume أو raw
+MIDICUE: expected NEW, PORTS, PORT, KIND, CH, D1, D2, DEVICE, CUENUM, LIST, RAW or SEND	MIDICUE: المتوقع: NEW, PORTS, PORT, KIND, CH, D1, D2, DEVICE, CUENUM, LIST, RAW أو SEND
+MULTIVIEW LAYOUT: expected GRID, BIG, BIGTOP or TWOTOP	MULTIVIEW LAYOUT: المتوقع: GRID, BIG, BIGTOP أو TWOTOP
+MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK or EMPTY	MULTIVIEW WINDOW: المتوقع: PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK أو EMPTY
+NETCUE: expected NEW, PROTO, HOST, PORT, ADDRESS, PAYLOAD or SEND	NETCUE: المتوقع: NEW, PROTO, HOST, PORT, ADDRESS, PAYLOAD أو SEND
+OUTPUT HDR: expected ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> or STATUS	OUTPUT HDR: المتوقع: ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> أو STATUS
+OUTPUTFX ADD: expected hpf, lpf, tilt, comp or width	OUTPUTFX ADD: المتوقع: hpf, lpf, tilt, comp أو width
+OUTPUTFX: expected ADD, SET, REMOVE, BYPASS, CLEAR or DEVICE	OUTPUTFX: المتوقع: ADD, SET, REMOVE, BYPASS, CLEAR أو DEVICE
+OUTPUTS ADD: expected <name> CH <n> or CH <n>-<n+1>	OUTPUTS ADD: المتوقع: <name> CH <n> أو CH <n>-<n+1>
+PATCH: expected <deck> <output> <dB> or OFF	PATCH: المتوقع: <deck> <output> <dB> أو OFF
+presenter colour: expected BG|INK|ACCENT #rrggbb	presenter colour: المتوقع: BG|INK|ACCENT #rrggbb
+PRESET: expected LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME or DELETE	PRESET: المتوقع: LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME أو DELETE
+rectc: expected <hh:mm:ss:ff|timeofday> [df|ndf|auto]	rectc: المتوقع: <hh:mm:ss:ff|timeofday> [df|ndf|auto]
+SCOPES BIG: expected waveform, parade, vector, diamond, histogram, falsecolour, sound or off	SCOPES BIG: المتوقع: waveform, parade, vector, diamond, histogram, falsecolour, sound أو off
+SCOPES: expected PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS or SOUND	SCOPES: المتوقع: PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS أو SOUND
+SECTION: expected playback|metadata|geometry|key|audio|effects|timer|tone|synth	SECTION: المتوقع: playback|metadata|geometry|key|audio|effects|timer|tone|synth
+STING: expected ON, PITCH, LENGTH, SWEEP or BODY	STING: المتوقع: ON, PITCH, LENGTH, SWEEP أو BODY
+TARGET VERB: expected start|stop|pause|resume|load|arm|disarm	TARGET VERB: المتوقع: start|stop|pause|resume|load|arm|disarm
+TEXTCUE ANIM: expected none, fade, typewriter, scroll, crawl, pulse or wobble	TEXTCUE ANIM: المتوقع: none, fade, typewriter, scroll, crawl, pulse أو wobble
+TEXTCUE: expected NEW, BODY, ANIM, SIZE, SPEED, ALIGN, CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, WIGGLE, IN, OUTMOVE or OUT	TEXTCUE: المتوقع: NEW, BODY, ANIM, SIZE, SPEED, ALIGN, CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, WIGGLE, IN, OUTMOVE أو OUT
+TRACKER: expected GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP or CLICKER	TRACKER: المتوقع: GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP أو CLICKER
+TUTORIAL: expected START, SHOWME, SKIP, EXIT, STATUS or SCREENS	TUTORIAL: المتوقع: START, SHOWME, SKIP, EXIT, STATUS أو SCREENS
+UPDATE: expected check|download|install|status	UPDATE: المتوقع: check|download|install|status
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS	VJ: المتوقع: ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS
+AUDIOFX: expected OFF, BYPASS, or amount and parameters as percentages	AUDIOFX: المتوقع OFF أو BYPASS أو المقدار والمعلمات كنسب مئوية
+BLEND PAIR: expected <other output number> <overlap in pixels>	BLEND PAIR: المتوقع <other output number> <overlap in pixels>
+BROWSER SCROLL: expected pixels (negative is up)	BROWSER SCROLL: المتوقع بكسل (السالب للأعلى)
+CHIP ENV: expected <attack> <release> in seconds	CHIP ENV: المتوقع <attack> <release> بالثواني
+DMXCUE SET: expected channel=level pairs, e.g. 1=255,10-14=64	DMXCUE SET: المتوقع أزواج قناة=مستوى، مثل 1=255,10-14=64
+expected one expression, three for colour, or four with alpha	المتوقع تعبير واحد، أو ثلاثة للون، أو أربعة مع ألفا
+MASK SET: expected INVERT, X, Y, SCALE, ROTATION, FEATHER, GROW or OPACITY and a number	MASK SET: المتوقع INVERT أو X أو Y أو SCALE أو ROTATION أو FEATHER أو GROW أو OPACITY ثم رقم
+MASK SHAPE: expected a shape (MASK SHAPES lists them)	MASK SHAPE: المتوقع شكل (يعرض MASK SHAPES الأشكال)
+MASTER DECK: expected a deck number and a cue number	MASTER DECK: المتوقع رقم مشغل ورقم إشارة
+MIC INPUT: expected SETTINGS, TEST or a device name (MIC LIST)	MIC INPUT: المتوقع SETTINGS أو TEST أو اسم جهاز (MIC LIST)
+MIDIFILE: expected PORT, or no argument to report it	MIDIFILE: المتوقع PORT، أو بلا وسيطة لعرضه
+MONITOR DECK: expected a playlist number or FOLLOW	MONITOR DECK: المتوقع رقم قائمة تشغيل أو FOLLOW
+MONITOR ROOM: expected a playlist and ON or OFF	MONITOR ROOM: المتوقع قائمة تشغيل ثم ON أو OFF
+MULTIVIEW WINDOW <n>: expected a source, or SAFE/METER/LABEL ON|OFF	MULTIVIEW WINDOW <n>: المتوقع مصدر أو SAFE/METER/LABEL ON|OFF
+MULTIVIEW WINDOW REMOVE: expected a window number	MULTIVIEW WINDOW REMOVE: المتوقع رقم نافذة
+NETCUE ADDRESS: expected an OSC path starting with /	NETCUE ADDRESS: المتوقع مسار OSC يبدأ بـ /
+OUTPUT AOI: expected a size like 256x256, or FULL	OUTPUT AOI: المتوقع حجم مثل 256x256 أو FULL
+OUTPUT HDR WHITE: expected 80..500 nits (203 is BT.2408)	OUTPUT HDR WHITE: المتوقع 80..500 نت (203 معيار BT.2408)
+OUTPUTFX SET: expected an effect number and 0-100	OUTPUTFX SET: المتوقع رقم مؤثر و0-100
+PRELOAD: expected a position in seconds, OFF or STATUS	PRELOAD: المتوقع موضع بالثواني أو OFF أو STATUS
+presenter panel: expected <live|prev|next|notes> <x> <y> <w> <h> in percent	presenter panel: المتوقع <live|prev|next|notes> <x> <y> <w> <h> بالنسب المئوية
+SCOPES SOURCE: expected PROGRAMME or an output number, 1-	SCOPES SOURCE: المتوقع PROGRAMME أو رقم خرج، 1-
+STREAM ADD: expected a URL, e.g. srt://host:port	STREAM ADD: المتوقع رابط، مثل srt://host:port
+TARGET CUE: expected a deck number and a cue number	TARGET CUE: المتوقع رقم مشغل ورقم إشارة
+TEXTCUE SIZE: expected 1-100 (percent of the raster)	TEXTCUE SIZE: المتوقع 1-100 (نسبة مئوية من الشبكة)
+TUTORIAL SCREENS: expected a count, MIRRORED or REAL	TUTORIAL SCREENS: المتوقع عدد أو MIRRORED أو REAL
+VIDEO OUTPUT LAYER: expected a layer number (1 is the base)	VIDEO OUTPUT LAYER: المتوقع رقم طبقة (1 هي الأساسية)
+VIDEO OUTPUT LAYERWARP: expected OFF, MODE, or eight numbers clockwise from the top left	VIDEO OUTPUT LAYERWARP: المتوقع OFF أو MODE أو ثمانية أرقام باتجاه عقارب الساعة من أعلى اليسار
+warp grid: expected <n>, <cols> <rows>, off, smooth or straight	warp grid: المتوقع <n> أو <cols> <rows> أو off أو smooth أو straight
+WARP SELECT: expected TL, TR, BR, BL or a grid <col> <row>	WARP SELECT: المتوقع TL أو TR أو BR أو BL أو شبكة <col> <row>
+How big each tile is.	حجم كل بلاطة.
+How big the crystals grow before they meet.	حجم نمو البلورات قبل التلاقي.
+How closely spaced the rings are.	مدى تقارب الحلقات.
+How far a band can slide.	المسافة التي يمكن للنطاق الانزلاق بها.
+How far each shard slides from where it belongs.	مسافة انزلاق كل شظية من موضعها الأصلي.
+How far each stroke is dragged along the grain.	مسافة سحب كل ضربة بمحاذاة الحبيبات.
+How far it smears: up to a few percent of the picture.	مدى التلطخ: حتى بضع نسب مئوية من الصورة.
+How far out the darkening starts.	موضع بدء التعتيم باتجاه الخارج.
+How far the bright parts pull away from the surface.	مدى ابتعاد الأجزاء الساطعة عن السطح.
+How far the glow spreads.	مدى انتشار التوهج.
+How far the sound throws each line sideways.	المسافة التي يقذف بها الصوت كل سطر جانبيا.
+How fast the sand travels to the still lines.	سرعة انتقال الرمل إلى الخطوط الساكنة.
+How fast the surface moves.	سرعة حركة السطح.
+How fast they travel outward.	سرعة انتقالها إلى الخارج.
+How gradually the key cuts in. Hard at the left.	مدى تدريجية القص بالمفتاح. حاد عند اليسار.
+How hard it is driven into its own limits.	قوة دفعه إلى حدوده الذاتية.
+How hard the short hits.	شدة ضربة القصر الكهربائي.
+How many shades survive the quantise.	عدد الدرجات المتبقية بعد التكميم.
+How many spikes the field breaks into.	عدد النتوءات التي ينقسم إليها المجال.
+How many torn bands per frame.	عدد النطاقات الممزقة لكل إطار.
+How much each shard turns on its own centre.	مقدار دوران كل شظية حول مركزها.
+How much the edges are lifted.	مقدار رفع الحواف.
+How much the flame gutters frame to frame.	مدى خفوت اللهب بين الإطارات.
+How often it skips.	معدل القفزات.
+How quickly the loop relaxes when nothing feeds it.	سرعة اضمحلال الحلقة عندما لا يغذيها شيء.
+How strongly the outlines are drawn.	قوة رسم الحدود الخارجية.
+How strongly the water bends the picture.	قوة تشويه الماء للصورة.
+Darkens the boundaries where crystals meet.	يغمق الحدود حيث تلتقي البلورات.
+Lifts the dark tones without moving pure black.	يرفع الدرجات الداكنة دون تغيير الأسود الخالص.
+Pushes the rings in or out of the centre.	يدفع الحلقات نحو المركز أو بعيدا عنه.
+Rounds the tiles off, all the way to dots.	يدور زوايا البلاطات حتى تصبح نقاطا.
+Softens the fold so it ramps instead of creasing.	ينعم الطية لتتدرج بدلا من أن تنثني بحدة.
+Where the filter sits.	موضع المرشح.
+Which way it drips.	اتجاه التقطير.
+AUDIOALSO ADD: seven extra destinations is the limit	AUDIOALSO ADD: الحد الأقصى سبع وجهات إضافية
+AUDIOALSO ADD: that is already this deck's main device -- it would play twice	AUDIOALSO ADD: هذا جهاز المشغل الرئيسي بالفعل -- سيشغل الصوت مرتين
+BROWSER CLICK: this browser backend cannot drive the page	BROWSER CLICK: محرك المتصفح هذا لا يستطيع التحكم بالصفحة
+BROWSER SCROLL: this browser backend cannot drive the page	BROWSER SCROLL: محرك المتصفح هذا لا يستطيع التحكم بالصفحة
+BROWSER SCROLLBAR: this browser backend cannot drive the page	BROWSER SCROLLBAR: محرك المتصفح هذا لا يستطيع التحكم بالصفحة
+BROWSER INTERACT: this browser backend has no hands-on mode	BROWSER INTERACT: محرك المتصفح هذا بلا وضع تفاعل مباشر
+BROWSER TYPE: this browser backend cannot type	BROWSER TYPE: محرك المتصفح هذا لا يستطيع إدخال النص
+LOWERANIM: this cue is not a Lower Third	LOWERANIM: هذه الإشارة ليست Lower Third
+LOWERSTYLE: this cue is not a Lower Third	LOWERSTYLE: هذه الإشارة ليست Lower Third
+MIDIFILE: the selected cue is not a midi file cue	MIDIFILE: الإشارة المحددة ليست إشارة ملف MIDI
+SCRIPTCUE: the selected cue is not a script cue	SCRIPTCUE: الإشارة المحددة ليست إشارة نص برمجي
+VIDEO OUTPUT ASSIGN: already on this output, or no such deck or output	VIDEO OUTPUT ASSIGN: موجود بالفعل على هذا الخرج، أو لا يوجد هذا المشغل أو الخرج
+VIDEO OUTPUT LAYER: this deck is not on this output, or it is already at that layer	VIDEO OUTPUT LAYER: هذا المشغل ليس على هذا الخرج، أو هو بالفعل على تلك الطبقة
+VIDEO OUTPUT UNASSIGN: this deck is not on this output, or it is the only thing on it	VIDEO OUTPUT UNASSIGN: هذا المشغل ليس على هذا الخرج، أو هو الوحيد عليه
+port number (default 5510)	رقم المنفذ (الافتراضي 5510)
+port number (default 5511)	رقم المنفذ (الافتراضي 5511)
+port number (default 6454)	رقم المنفذ (الافتراضي 6454)
+port number (default 8090)	رقم المنفذ (الافتراضي 8090)
+port number (vMix uses 8088)	رقم المنفذ (يستخدم vMix المنفذ 8088)
+port number (vMix uses 8099)	رقم المنفذ (يستخدم vMix المنفذ 8099)
+Prefix (optional). Example: Q	بادئة (اختيارية). مثال: Q
+Prefix and optional start (example: Q 100)	بادئة وبداية اختيارية (مثال: Q 100)
+WIDTHxHEIGHT (e.g. 2560x1080)	العرضxالارتفاع (مثال: 2560x1080)
+WIDTHxHEIGHT (e.g. 5760x2160)	العرضxالارتفاع (مثال: 5760x2160)
+#rrggbb -- the colour of the presenter screen	#rrggbb -- لون شاشة المقدم
+#rrggbb, or a name (red, teal...)	#rrggbb، أو اسم (red, teal...)
+Cue name (blank restores the file name)	اسم الإشارة (الفارغ يستعيد اسم الملف)
+Leave empty to follow the live cue notes	اتركه فارغا لمتابعة ملاحظات الإشارة الحية
+Multicast group (e.g. 239.20.10.1)	مجموعة البث المتعدد (مثال: 239.20.10.1)
+Port the Node + Connection API serve on	منفذ خدمة Node + Connection API
+NIC address or name; empty = the default route	عنوان NIC أو اسمه؛ فارغ = المسار الافتراضي
+NIC name reported in interface_bindings (e.g. eth0)	اسم NIC المبلغ عنه في interface_bindings (مثل eth0)
+flow (follows the picture)	تدفق (يتبع الصورة)
+Above halfway, the repeated piece plays backwards.	فوق المنتصف، يشغل الجزء المكرر عكسيا.
+The brightness that decides black from white.	السطوع الذي يفصل الأسود عن الأبيض.
+The colour to change, round the wheel from red.	اللون المراد تغييره، حول العجلة بدءا من الأحمر.
+no picture on this cue - nothing to follow	لا صورة على هذه الإشارة - لا شيء لمتابعته
+this cue has no known end to resolve into	نهاية هذه الإشارة غير معروفة للاستقرار عندها
+only a MIDI note or an OSC address can take a cue	نغمة MIDI أو عنوان OSC فقط يمكنه تنفيذ TAKE لإشارة
+The bright net the waves focus onto the picture.	الشبكة الساطعة التي تركزها الأمواج على الصورة.
+can't move the active cue -- take another cue on this deck first	لا يمكن نقل الإشارة النشطة -- شغّل إشارة أخرى على هذا المشغّل أولاً
+cancelled: the waiting cue is no longer in the playlist	أُلغي: الإشارة المنتظرة لم تعد في قائمة التشغيل
+could not create an OpenGL context for Spout receive	تعذر إنشاء سياق OpenGL لاستقبال Spout
+could not create the offscreen window Spout receive needs	تعذر إنشاء النافذة غير المرئية اللازمة لاستقبال Spout
+could not get a device context for Spout receive	تعذر الحصول على سياق جهاز لاستقبال Spout
+couldn't decode still image — unsupported format or corrupt file	تعذر فك الصورة الثابتة — صيغة غير مدعومة أو ملف تالف
+couldn't open a browser -- please report at github.com/Utopian-Academy/Deckboy/issues	تعذر فتح المتصفح -- أبلغ عبر github.com/Utopian-Academy/Deckboy/issues
+downloading the caption model, then listening...	جارٍ تنزيل نموذج الترجمة النصية، ثم بدء الاستماع...
+drag the panels to arrange the presenter screen	اسحب اللوحات لترتيب شاشة المقدّم
+encoder destination: _converted beside the show	وجهة الترميز: _converted بجوار ملف العرض
+fetching the speech model - captions start when it arrives	جارٍ جلب نموذج الكلام - يبدأ النص عند اكتماله
+four effects at most on one device: remove one first	أربعة تأثيرات كحد أقصى لكل جهاز: أزل واحداً أولاً
+live captions are not installed here (deckboy-listen was not found)	الترجمة النصية الحية غير مثبتة هنا (لم يُعثر على deckboy-listen)
+Lower Third added - put its playlist on a layer	أُضيف Lower Third - ضع قائمة تشغيله على طبقة
+mic live on the default speakers - watch for feedback	الميكروفون حي على السماعات الافتراضية - احذر الصفير الراجع
+network sharing and phone control require an 8+ character passphrase	تتطلب مشاركة الشبكة والتحكم بالهاتف عبارة مرور من 8 أحرف أو أكثر
+no filled shapes in it (paths, rectangles, circles, ellipses or polygons)	لا توجد أشكال مملوءة فيه (مسارات أو مستطيلات أو دوائر أو أشكال بيضاوية أو مضلعات)
+no masks yet: make one in a cue's MASK section	لا أقنعة بعد: أنشئ واحداً في قسم MASK للإشارة
+no OpenGL pixel format available for Spout receive	لا تتوفر صيغة بكسل OpenGL لاستقبال Spout
+no picture - shorts run on a timer instead of on cuts	لا صورة - تعمل الانقطاعات بمؤقّت بدلاً من القطعات
+no picture on this cue - nothing decides where the playhead is	لا صورة في هذه الإشارة - لا شيء يحدد موضع رأس التشغيل
+no picture on this cue - nothing to close the loop through	لا صورة في هذه الإشارة - لا شيء لإغلاق الحلقة عبره
+no video clock on this cue - nothing to lock to	لا ساعة فيديو في هذه الإشارة - لا مرجع للمزامنة
+normalize all: no file-backed audio in this deck	تطبيع الكل: لا صوت مستند إلى ملف في هذا المشغّل
+nothing to mask here: select a cue, or change MASK ON	لا شيء لإخفائه هنا: اختر إشارة، أو غيّر MASK ON
+offset in percent of the picture	الإزاحة كنسبة مئوية من الصورة
+output effects bypassed: no effect and no limit on this device	تم تجاوز تأثيرات الخرج: لا تأثير ولا حد على هذا الجهاز
+over 16 MB: not a drawing to make a mask from	أكبر من 16 MB: ليس رسماً يصلح لإنشاء قناع
+pair with a picture effect whose LFO is set to Audio	اقرنه بتأثير صورة ضُبط LFO فيه على Audio
+paired phones removed: they need the QR code or the passphrase again	أُزيلت الهواتف المقترنة: تحتاج رمز QR أو عبارة المرور مجدداً
+phone control requires an 8+ character passphrase	يتطلب التحكم بالهاتف عبارة مرور من 8 أحرف أو أكثر
+save failed - retrying; still open, use SAVE AS if needed	فشل الحفظ - جارٍ إعادة المحاولة؛ ما زال مفتوحاً، استخدم SAVE AS عند الحاجة
+set an 8+ character Web Monitor passphrase first	عيّن أولاً عبارة مرور لمراقب الويب من 8 أحرف أو أكثر
+the caption model has not been downloaded yet	لم يُنزّل نموذج الترجمة النصية بعد
+the desktop portal did not answer	لم تستجب بوابة سطح المكتب
+the file is empty (0 bytes): it may not have finished copying or saving	الملف فارغ (0 بايت): ربما لم يكتمل نسخه أو حفظه
+the installed NDI runtime is missing entry points this needs	بيئة تشغيل NDI المثبتة تفتقر إلى نقاط الدخول المطلوبة
+the NDI runtime declined to start on this machine	رفضت بيئة تشغيل NDI البدء على هذا الجهاز
+the playing step was removed - sequence stopped	أُزيلت الخطوة الجارية - توقف التسلسل
+update: cannot find this app bundle to replace	تحديث: تعذر العثور على حزمة التطبيق لاستبدالها
+what the operator should be told when GO reaches here	ما يُقال للمشغّل عندما يصل GO إلى هنا
+what the patch and the cues call it (FOH, SUB, PRESS FEED)	اسمه في التوصيل والإشارات (FOH, SUB, PRESS FEED)
+window capture fell back to screen grab — update ffmpeg for exact window capture	تحول التقاط النافذة إلى التقاط الشاشة — حدّث ffmpeg لالتقاط النافذة بدقة
+A dark line between the tiles, like grout or an LED wall.	خط داكن بين البلاطات، كالفواصل أو جدار LED.
+a plugin overran the audio thread and was bypassed — take it out of the chain	تجاوز ملحق مهلة خيط الصوت فتم تخطيه — أزله من السلسلة
+A slow rocking of the viewpoint, which is what makes the depth read without glasses.	تأرجح بطيء لزاوية النظر، يُظهر العمق دون نظارات.
+A slow sag in the supply, pulling the filter up and down like a dying battery.	هبوط بطيء في التغذية يحرك المرشّح صعوداً وهبوطاً كبطارية تحتضر.
+A worn or dirty head: softer, with noise that streaks along the lines.	رأس مهترئ أو متسخ: صورة أنعم وضجيج يمتد على السطور.
+Above halfway, a hard cut in the picture resets the loop to clean.	فوق المنتصف، تعيد القطعة الحادة في الصورة الحلقة إلى حالة نظيفة.
+An old deck: the picture wobbles, bends at the top of the frame and carries hum bars.	مشغّل قديم: الصورة تتمايل وتنحني عند أعلى الإطار وتحمل أشرطة طنين.
+An old tape loses bits of its oxide: dropouts flick white and repeat the line above, and the colour fizzes.	يفقد الشريط القديم أجزاء من أكسيده: تومض مواضع الفقد بالأبيض وتكرر السطر الأعلى، وترتعش الألوان.
+brightness moves the playhead (needs CPU frames)	السطوع يحرك رأس التشغيل (يتطلب إطارات CPU)
+centred and full-frame - moves when the picture does	في الوسط وبملء الإطار - يتحرك مع الصورة
+Characters across. Fewer means bigger cells and less of the picture surviving, which is usually the point.	عدد المحارف أفقياً. الأقل يعني خلايا أكبر وتفاصيل أقل، وهو المطلوب عادةً.
+Characters to build the picture from, darkest first. Empty uses the chosen glyph set.	محارف بناء الصورة، الأغمق أولاً. اتركه فارغاً لاستخدام مجموعة الرموز المختارة.
+Chladni listens: the figure follows the pitch of the sound	كلادني يستمع: الشكل يتبع طبقة الصوت
+click anywhere on any screen to take its colour. Esc cancels	انقر أي موضع على أي شاشة لالتقاط لونه. Esc للإلغاء
+click program or preview monitor to sample key color	انقر شاشة البث أو المعاينة لالتقاط لون التفريغ
+Colour is recorded at a fraction of the detail: it smears sideways, lands late and its hue wanders.	يُسجّل اللون بتفاصيل أقل: يمتد جانبياً ويتأخر ويتغير تدرجه.
+Copies of copies: none at the left, four at the right. Each one loses more.	نسخ عن نسخ: لا شيء يساراً، وأربع يميناً. كل نسخة تفقد المزيد.
+Fine sensor noise at the bottom, chunky film at the top.	ضجيج مستشعر ناعم في الأسفل، وحبيبات فيلم خشنة في الأعلى.
+follows this cue's own brightness (needs CPU frames)	يتبع سطوع هذه الإشارة نفسها (يتطلب إطارات CPU)
+format 2 files are a set of independent patterns, not a performance	ملفات الصيغة 2 مجموعة أنماط مستقلة، وليست أداءً واحداً
+From an even blur to a streak along the angle, like movement.	من تمويه متجانس إلى لطخة باتجاه الزاوية، كالحركة.
+full-frame and no picture - bends when the picture shrinks	بملء الإطار دون صورة - ينحني عند تصغير الصورة
+Grain size: one pixel at the left, big blocky grains at the right.	حجم الحبيبات: بكسل واحد يساراً، وحبيبات كتلية كبيرة يميناً.
+Grows or shrinks the echo each pass. Centre holds still.	يكبّر الصدى أو يصغّره كل دورة. المنتصف يثبّت الحجم.
+How abruptly it arrives. Low is a soft cloud, high is a hard porthole.	مدى حدة ظهوره. المنخفض سحابة ناعمة، والمرتفع فتحة حادة.
+How big the room is. Small is a booth, large is a hall.	حجم الغرفة. الصغير مقصورة، والكبير قاعة.
+How big the shards are. Small is frosted glass, large is a dropped plate.	حجم الشظايا. الصغير زجاج مصنفر، والكبير طبق مكسور.
+How dark the dark lines go. All the way up is black between lines.	مدى عتمة الخطوط الداكنة. الحد الأقصى يجعل ما بين الخطوط أسود.
+How far away. Distance dulls the top and softens the difference between the ears.	مدى البعد. المسافة تخفت الترددات العالية وتقلل الفرق بين الأذنين.
+How far back each skip jumps, from a stutter to half a second.	مقدار القفز للخلف كل مرة، من تلعثم إلى نصف ثانية.
+How fast it closes. Slow enough not to chop the ends off words.	سرعة إغلاقه. أبطئه بما يكفي لئلا يقطع أواخر الكلمات.
+How fast the drips run. At the left the picture only sags.	سرعة سيلان القطرات. يساراً تتراخى الصورة فقط.
+How fast the light walks around it. Zero holds it still.	سرعة دوران الضوء حوله. الصفر يثبته.
+How fast the wave travels. Faster spreads further in the same time and interferes more.	سرعة انتقال الموجة. الأسرع ينتشر أبعد في الوقت نفسه ويتداخل أكثر.
+How gently the change fades out at the edges of the band.	مدى تلاشي التغيير برفق عند حواف النطاق.
+How hard it holds once it is working. Gentle at the bottom, a limiter at the top.	شدة الكبح بعد بدء العمل. لطيف في الأسفل، ومحدّد في الأعلى.
+How irregular the growth is. Low gives an even honeycomb, high gives long shards.	مدى عدم انتظام النمو. المنخفض خلايا نحل منتظمة، والمرتفع شظايا طويلة.
+How long a short stays closed, in VIDEO FRAMES.	مدة بقاء القصر موصلاً، بإطارات الفيديو.
+How long the reaction runs each frame. Short is a stain, long is an organism.	مدة التفاعل في كل إطار. القصير بقعة، والطويل كائن حي.
+How many places drip: a few big drips at the left, many thin ones at the right.	عدد مواضع التنقيط: قطرات كبيرة قليلة يساراً، وكثيرة رفيعة يميناً.
+How many times a skip repeats before the sound catches up again.	عدد تكرارات القفزة قبل أن يلحق الصوت مجدداً.
+How much of the picture glows: only the brightest at the left, nearly everything at the right.	مقدار الصورة المتوهج: أشد الأجزاء سطوعاً فقط يساراً، وتقريباً كلها يميناً.
+How much of the picture shows behind the lines. None at the left: lines on black.	مقدار الصورة الظاهر خلف الخطوط. لا شيء يساراً: خطوط على أسود.
+How much of the push goes downward rather than sideways.	مقدار الدفع المتجه للأسفل بدلاً من الجوانب.
+How quickly the room eats the top end. More damping is a softer, more furnished space.	سرعة امتصاص الغرفة للترددات العالية. التخميد الأكبر يعطي حيزاً أنعم وأكثر تأثيثاً.
+How readily an edge catches. Low sets the whole picture alight, high only the hardest lines.	سهولة اشتعال الحافة. المنخفض يشعل الصورة كلها، والمرتفع أشد الخطوط فقط.
+How wide a band of colours either side of it changes too.	عرض نطاق الألوان المتغيرة على جانبيه أيضاً.
+ASCII HOLD: seconds, 0-60 (0 mutes the phrases)	ASCII HOLD: ثوانٍ، 0-60 (0 يكتم العبارات)
+ASCII WOBBLEMODE: drift | flow (follows luma) | hue (follows colour); no argument cycles	ASCII WOBBLEMODE: drift | flow (يتبع الإضاءة) | hue (يتبع اللون)؛ دون وسيطة للتنقل
+ASCII: the selected cue has no text mode (add the TEXT MODE effect, or select a video synth cue)	ASCII: الإشارة المحددة بلا وضع نص (أضف تأثير TEXT MODE، أو اختر إشارة توليف فيديو)
+CHIP DUTY: this cue is an FDS synth, which has no duty	CHIP DUTY: هذه الإشارة مولّد FDS، وليس له نسبة تشغيل
+CHIP NOISE: this cue is an FDS synth, which has no noise	CHIP NOISE: هذه الإشارة مولّد FDS، وليس له ضجيج
+CHIP VOICE: this cue is an FDS synth, which has no voice	CHIP VOICE: هذه الإشارة مولّد FDS، وليس له اختيار صوت
+DASH SET: needs a command -- DASH SET <n> <label> | <command> [| <glyph>]	DASH SET: يتطلب أمراً -- DASH SET <n> <label> | <command> [| <glyph>]
+DATAMOSH on - preparing (long clip, watch Encoder tab)	DATAMOSH مفعّل - جارٍ التحضير (مقطع طويل، راقب تبويب الترميز)
+DECKLINK: no DeckLink driver on this computer (Blackmagic Desktop Video)	DECKLINK: لا يوجد برنامج تشغيل DeckLink على هذا الحاسوب (Blackmagic Desktop Video)
+DMXCUE LEVELS: nothing has been sent on that universe	DMXCUE LEVELS: لم يُرسل شيء على ذلك النطاق
+DRAW COLOUR: #rrggbb, #rrggbbaa, a name, or 1-8 for the palette	DRAW COLOUR: #rrggbb أو #rrggbbaa أو اسم، أو 1-8 للوحة الألوان
+DRAW STROKE: each point is x,y or x,y,pressure, in percent	DRAW STROKE: كل نقطة x,y أو x,y,pressure، بالنسبة المئوية
+DRAW TOOL: brush, erase, line, box, oval or fill	DRAW TOOL: اختر brush أو erase أو line أو box أو oval أو fill
+EDIT is off - press EDIT to type into the tracker	EDIT معطّل - اضغط EDIT للكتابة في المتتبّع
+ENDACTION: only video and audio cues have an end action	ENDACTION: إشارات الفيديو والصوت فقط لها إجراء نهاية
+Enter playlist SMPTE FPS: 24 / 25 / 29.97 / 30	أدخل معدل إطارات SMPTE لقائمة التشغيل: 24 / 25 / 29.97 / 30
+FADE TO: a speed from 0.25 to 4 (0.5 is half speed, an octave down)	FADE TO: سرعة من 0.25 إلى 4 (0.5 نصف السرعة، أوكتاف أخفض)
+FX ADD: datamosh needs a file-backed video cue	FX ADD: يتطلب datamosh إشارة فيديو من ملف
+FX LFO wants <index> <slot> <on|off|shape> [value]	FX LFO يتطلب <index> <slot> <on|off|shape> [value]
+FX LFO: on, off, shape, rate, depth, zone, channel or cc	FX LFO: اختر on أو off أو shape أو rate أو depth أو zone أو channel أو cc
+GEOLFO: x, y, width, height, rotation, cropleft, cropright, croptop or cropbottom	GEOLFO: اختر x أو y أو width أو height أو rotation أو cropleft أو cropright أو croptop أو cropbottom
+HH:MM or HH:MM:SS on this computer's clock; empty for none	HH:MM أو HH:MM:SS حسب ساعة هذا الحاسوب؛ فارغ للتعطيل
+HH:MM:SS:FF of the timecode Deckboy is chasing; empty for none	HH:MM:SS:FF للتوقيت الذي يتبعه Deckboy؛ فارغ للتعطيل
+INPUTMONITOR: a row count, OPEN, CLOSE, CLEAR, PAUSE or RESUME	INPUTMONITOR: عدد صفوف، أو OPEN أو CLOSE أو CLEAR أو PAUSE أو RESUME
+IPv4 addresses or a.b.c.d/bits, comma separated; empty = only this computer	عناوين IPv4 أو a.b.c.d/bits، مفصولة بفواصل؛ فارغ = هذا الحاسوب فقط
+key+fill ON, but no key device set (DECKLINK KEYFILL ON <device>)	key+fill ON، لكن جهاز المفتاح غير محدد (DECKLINK KEYFILL ON <device>)
+label | command | glyph      (empty label|command removes it)	تسمية | أمر | رمز      (label|command فارغ يزيله)
+LFO: density, speed, warp, turn, centrex, centrey, grey or hue	LFO: اختر density أو speed أو warp أو turn أو centrex أو centrey أو grey أو hue
+MIC: select a mic cue first (MIC ADD makes one)	MIC: اختر إشارة ميكروفون أولاً (MIC ADD ينشئ واحدة)
+MIDIIN OSC: an address, and optionally a number	MIDIIN OSC: عنوان، ورقم اختياري
+MIDIMAP: that command is only accepted from this computer	MIDIMAP: هذا الأمر مقبول من هذا الحاسوب فقط
+MOTION ZONE ADD: the zone must fit inside the picture	MOTION ZONE ADD: يجب أن تكون المنطقة داخل الصورة
+NETCUE ADDRESS: an OSC address must start with /	NETCUE ADDRESS: يجب أن يبدأ عنوان OSC بـ /
+NEWSHOW: something is live or unsaved -- send NEWSHOW again within 2.5 s	NEWSHOW: يوجد بث حي أو تغييرات غير محفوظة -- أرسل NEWSHOW مجدداً خلال 2.5 ثانية
+NMOS: discovery needs the remote network allowed	NMOS: يتطلب الاكتشاف السماح بالشبكة البعيدة
+NMOS: NOT registering - network is LOCAL ONLY (turn REMOTE ON to publish)	NMOS: لن يُسجّل - الشبكة LOCAL ONLY (فعّل REMOTE ON للنشر)
+NMOS: searching for a registry (mDNS)	NMOS: جارٍ البحث عن سجل (mDNS)
+OUTPROBE: that output has no compositor (is it on?)	OUTPROBE: لا مركّب صور لهذا الخرج (هل هو مفعّل؟)
+OUTPUTFX ADD: four effects at most on one device	OUTPUTFX ADD: أربعة تأثيرات كحد أقصى لكل جهاز
+PATCH: a level is dB from -48 to +6, or OFF	PATCH: المستوى بوحدة dB من -48 إلى +6، أو OFF
+PIP: retired -- scale a second deck over this one instead	PIP: أُلغي -- ضع مشغّلاً ثانياً فوق هذا وعدّل حجمه
+pip: retired -- scale a second deck over this one instead	pip: أُلغي -- ضع مشغّلاً ثانياً فوق هذا وعدّل حجمه
+presenter panel: the panel must fit on the screen (x+w and y+h no more than 100)	لوحة المقدّم: يجب أن تقع داخل الشاشة (x+w وy+h لا يتجاوزان 100)
+preset: delivery | proxy | match | datamosh	إعداد مسبق: delivery | proxy | match | datamosh
+programme sound is always included; use WEBMONITOR OFF to stop the monitor	صوت البث مضمن دائماً؛ استخدم WEBMONITOR OFF لإيقاف المراقب
+Registry URL (e.g. http://192.168.1.50:8010) - blank for mDNS	عنوان URL للسجل (مثل http://192.168.1.50:8010) - فارغ لاستخدام mDNS
+SLICE CORNER: TL, TR, BR or BL, then dx dy in percent of the output	SLICE CORNER: ‏TL أو TR أو BR أو BL، ثم dx dy كنسبة مئوية من الخرج
+SLICE EDGE: L, R, T or B, then 0-50 (% of the slice)	SLICE EDGE: ‏L أو R أو T أو B، ثم 0-50 (% من الشريحة)
+SLICE GRID POINT: col row (from 1, on a grid that is on) then dx dy in percent	SLICE GRID POINT: ‏col row (من 1، على شبكة مفعّلة) ثم dx dy بالنسبة المئوية
+SLICE LFO: X, Y, ROTATION or OPACITY, then ON, OFF, SHAPE, RATE, DEPTH...	SLICE LFO: ‏X أو Y أو ROTATION أو OPACITY، ثم ON أو OFF أو SHAPE أو RATE أو DEPTH...
+SLICE ROTATE: IN (the crop) or OUT (the placed picture), then degrees	SLICE ROTATE: ‏IN (القص) أو OUT (الصورة الموضوعة)، ثم درجات
+SMPTE hh:mm:ss:ff or seconds (blank = 00:00:00:00)	SMPTE hh:mm:ss:ff أو ثوانٍ (فارغ = 00:00:00:00)
+SOURCE CAMERA: name the device	SOURCE CAMERA: حدّد اسم الجهاز
+SOURCE WINDOW: name the window, e.g. title:Firefox (or "desktop")	SOURCE WINDOW: حدّد اسم النافذة، مثل title:Firefox (أو "desktop")
+STING: select a tone cue first (TONECUE makes one)	STING: اختر إشارة نغمة أولاً (TONECUE ينشئ واحدة)
+Stream URL (srt://, rtmp://, rtsp://, udp://, or an http HLS .m3u8)	عنوان البث (srt:// أو rtmp:// أو rtsp:// أو udp:// أو http HLS .m3u8)
+SUBTITLE CONVERT: destination must be .srt or .vtt	SUBTITLE CONVERT: يجب أن تكون الوجهة .srt أو .vtt
+TRACKER SET: a step cannot act on its own playlist	TRACKER SET: لا يمكن لخطوة التأثير على قائمة تشغيلها نفسها
+TRACKER: there are no steps (TRACKER ADD makes one)	TRACKER: لا توجد خطوات (TRACKER ADD ينشئ واحدة)
+VIDEO OUTPUT LAYERWARP MODE: linear or perspective	VIDEO OUTPUT LAYERWARP MODE: اختر linear أو perspective
+WARP AT: open the editor (WARP EDIT) and select a point first	WARP AT: افتح المحرر (WARP EDIT) واختر نقطة أولاً
+warp point: that is a corner -- move it with WARP <corner> dx dy	نقطة الالتواء: هذه زاوية -- حرّكها باستخدام WARP <corner> dx dy
+WEBMONITOR PIN: network sharing and phone control require 8 or more characters	WEBMONITOR PIN: تتطلب مشاركة الشبكة والتحكم بالهاتف 8 أحرف أو أكثر
+WEBMONITOR QR: needs the monitor on and shared on the network	WEBMONITOR QR: يتطلب تشغيل المراقب ومشاركته على الشبكة
+WEBMONITOR SOURCE: could not create the web output	WEBMONITOR SOURCE: تعذر إنشاء خرج الويب
+WEBMONITOR SOURCE: PROGRAMME or the number of an output that shows a picture	WEBMONITOR SOURCE: ‏PROGRAMME أو رقم خرج يعرض صورة
+0 flows ALONG the edges, so colour orbits the shapes. 1 flows across them, which bleeds the picture into itself.	0 يتدفق بمحاذاة الحواف فيدور اللون حول الأشكال. 1 يعبرها فتنزف الصورة في نفسها.
+a note number 0-127, LEARN to take the next note played, or empty for none	رقم نغمة 0-127، أو LEARN لالتقاط النغمة التالية، أو فارغ للتعطيل
+a video cue's duration comes from its file; still duration applies to stills, patterns and browsers	مدة إشارة الفيديو من ملفها؛ مدة الثابتة للصور والأنماط والمتصفحات
+Below the middle narrows toward mono -- which is what a single PA cluster is. Above it widens.	تحت المنتصف يضيق نحو الأحادي، كما في مجموعة PA واحدة. فوقه يتسع.
+Blueshift toward the direction of travel and redshift at the rim. Zero leaves the colour alone and it reads as a lens instead.	انزياح أزرق باتجاه الحركة وأحمر عند الحافة. الصفر يبقي اللون فيبدو كعدسة.
+Bright: bright things drip over the dark, as text and logos do. Whole picture: everything is wax, and the picture itself runs down in its own colours.	ساطع: تسيل العناصر الساطعة فوق الداكنة كالنص والشعارات. الصورة كلها: كل شيء شمع، وتسـيل الصورة بألوانها.
+Centre is a straight line. Up bends it into an S -- darker shadows, brighter highlights, more contrast. Down flattens it.	المنتصف خط مستقيم. الأعلى يجعله S: ظلال أغمق وإضاءات أسطع وتباين أعلى. الأسفل يسطّحه.
+e.g. /stage/doors -- sent to Deckboy's OSC port; empty for none	مثلاً /stage/doors -- يُرسل إلى منفذ OSC في Deckboy؛ فارغ للتعطيل
+How bright a pixel has to be before it lifts at all, so only the highlights spike.	عتبة سطوع البكسل ليرتفع، فترتفع الإضاءات فقط.
+How bright a pixel has to be to join a run. Lower catches more of the picture and the runs grow longer.	سطوع البكسل اللازم للانضمام إلى سلسلة. الأقل يشمل صورة أكثر ويطيل السلاسل.
+How deep the picture is treated as being. The brightness becomes height and is lit from the side.	العمق المفترض للصورة. يتحول السطوع إلى ارتفاع وتأتي الإضاءة من الجانب.
+How faint a gradient still registers. High turns the quietest shading into visible structure.	أضعف تدرج يُلتقط. المرتفع يحوّل أدق التظليل إلى بنية مرئية.
+How far back the chain listens. The picture is played through a delay, so this is the distance the damage is dragged across.	مدى رجوع السلسلة. تمر الصورة عبر تأخير، فيحدد ذلك مسافة سحب التشوه.
+How far the burn spreads off the edge, and how hot its colour runs.	مدى امتداد الحرق عن الحافة وحرارة لونه.
+How far the colour turns on each trip round the loop. This is the oil-slick: the trail walks through the spectrum instead of fading.	مقدار دوران اللون كل دورة. هذا بريق الزيت: يمر الأثر بالطيف بدلاً من التلاشي.
+How far the picture stands out. Bright parts come forward, dark parts stay back. At the left it is flat.	مدى بروز الصورة. الساطع يتقدم والداكن يبقى خلفاً. يساراً تكون مسطحة.
+How far the picture swings the filter. The cue's own brightness opens and closes it, so a cut to black takes the top off the sound.	مدى تحريك الصورة للمرشّح. سطوع الإشارة يفتحه ويغلقه، فالقطع للأسود يزيل الترددات العالية.
+How far the top comes down as the end approaches. This is not a fade: the level is left alone.	مقدار خفض الترددات العالية قرب النهاية. ليس تلاشي صوت: المستوى لا يتغير.
+How far the two eyes disagree. Brightness is read as nearness.	مقدار الاختلاف بين العينين. السطوع يُفسر كقرب.
+How fast it settles away while held. At zero it holds indefinitely, which is what room tone under a held title wants.	سرعة انحساره أثناء التثبيت. الصفر يبقيه بلا نهاية، كما يلزم لصوت الغرفة تحت عنوان ثابت.
+How fast the open slit crosses the picture. Slow smears a long moment across the frame.	سرعة عبور الشق المفتوح للصورة. البطء يمد لحظة طويلة عبر الإطار.
+How fast what has dripped hardens away. At the left the drips stay until the cue changes.	سرعة تصلّب القطرات وزوالها. يساراً تبقى حتى تتغير الإشارة.
+How fine the water is. Long ocean swell at one end, rain on a puddle at the other.	دقة تموج الماء. أمواج بحر طويلة في طرف، ومطر على بركة في الآخر.
+How hard the light gathers where the rays converge. This is the part that makes it read as water rather than as a wobble.	شدة تجمع الضوء عند تقارب الأشعة. هذا ما يجعله يبدو ماءً لا مجرد تمايل.
+How hard the moving parts throw sand. More shake clears the plate faster and makes the lines thinner.	قوة قذف الرمل من الأجزاء المتحركة. الاهتزاز الأكبر يفرغ اللوح أسرع ويجعل الخطوط أرفع.
+How long a grain is, in VIDEO FRAMES. On a 23.976 clip one frame is 41.7ms, which is not a musical value and is exactly the point.	طول الحبيبة بإطارات الفيديو. عند 23.976 يستغرق الإطار 41.7ms؛ ليست قيمة موسيقية، وهذا هو المقصود.
+How long before the end it starts. The cue has to have a known length -- an open-ended one has no end to resolve into.	كم يسبق النهاية عند البدء. يجب أن تكون مدة الإشارة معروفة؛ المفتوحة بلا نهاية يستقر عندها.
+How long it is allowed to run. More steps means the ripples have crossed and reflected more times.	مدة التشغيل المسموحة. الخطوات الأكثر تعني عبور التموجات وانعكاسها مرات أكثر.
+How long the old waves linger when the note changes. Left: they die at once. Right: they slosh for a while.	مدة بقاء الموجات القديمة عند تغير النغمة. يساراً تموت فوراً، ويميناً تتلاطم قليلاً.
+How much each facet catches the light, which is what makes them read as faceted rather than as flat blobs.	مقدار التقاط كل وجه للضوء، ليبدو متعدد الأوجه لا كتلًا مسطحة.
+How much its SIZE becomes distance. Shrink the picture and the sound goes away from you: the top comes off, the image narrows, the level drops.	مقدار تحويل الحجم إلى مسافة. صغّر الصورة فيبتعد الصوت: تخفت الترددات العالية ويضيق المجال وينخفض المستوى.
+How much of the bent picture goes round again. High is where it stops being an echo and starts eating itself.	مقدار الصورة المشوهة المعاد تدويره. المرتفع يحوّلها من صدى إلى صورة تلتهم نفسها.
+How much of the driver's movement the picture KEEPS. At zero it follows the driver frame by frame, which is a twitch. Wind it up and the motion accumulates, so the driver sculpts the picture over time and it holds the pose -- which is what puppetry means.	مقدار حركة المتحكم التي تحتفظ بها الصورة. الصفر يتبعه إطاراً بإطار كارتعاش. ارفعه فتتراكم الحركة وينحت الصورة مع الوقت وتحتفظ بوضعيتها، كتحريك الدمى.
+How much of the picture's position on the output is used. A PIP on the left sounds on the left -- and it is a placement, not a pan: the far ear gets the delay and the head shadow too.	مقدار استخدام موضع الصورة في الخرج. PIP اليساري يُسمع يساراً؛ موضع مكاني لا موازنة: الأذن الأبعد تتلقى التأخير وظل الرأس أيضاً.
+How much of the tail is kept going while the cue is held. Long enough to hide the splice in room tone, short enough not to smear a rhythm in it.	مقدار الذيل المستمر أثناء تثبيت الإشارة. يكفي لإخفاء الوصلة في صوت الغرفة دون طمس إيقاعه.
+How much room comes up under it, so the sound settles into the cut instead of being severed.	مقدار صدى الغرفة تحته، ليندمج الصوت في القطع بدلاً من بتره.
+How much the echo is distorted each pass. It compounds, so a little ripples and a lot melts the picture into itself.	مقدار تشويه الصدى كل دورة. يتراكم؛ القليل يموّج والكثير يذيب الصورة في نفسها.
+How much the material draws in towards each drip, so it runs as a thin neck with a heavier head.	مقدار انجذاب المادة لكل قطرة، فتسيل بعنق رفيع ورأس أثقل.
+How often its settings are corrupted. Corrupted far enough it oscillates on its own -- loud, but it cannot run away.	وتيرة إفساد إعداداته. إذا اشتد الفساد يتذبذب ذاتياً؛ بصوت عالٍ لكن لا ينفلت.
+How quickly the picture springs back to rest once the driver stops pushing it. Only does anything when memory is up.	سرعة عودة الصورة للسكون عند توقف المتحكم. لا يعمل إلا عند رفع الذاكرة.
+How small a cut sets it off. With no picture it runs on a timer instead, and this is how often.	أصغر قطع يفعّله. دون صورة يعمل بمؤقّت، وهذا يحدد وتيرته.
+How strongly the finished picture pushes the bend. Pair it with a picture effect whose LFO is set to Audio and the two drive each other.	قوة دفع الصورة النهائية للتشويه. اقرنه بتأثير صورة LFO فيه على Audio ليتحكما ببعضهما.
+How wide a view is being compressed. Narrow is a punch down the middle, wide folds the whole frame into the centre.	عرض المشهد المضغوط. الضيق اندفاع في المنتصف، والواسع يطوي الإطار كله إلى المركز.
+Lift or cut, 12dB either way. The centre is flat, so a band that has just been added does nothing until this is moved.	رفع أو خفض بمقدار 12dB. المنتصف محايد، فلا يؤثر النطاق الجديد حتى تحريك هذا.
+Light on the drips, as on something wet: a gloss where it faces the light, darker where it curls away.	ضوء على القطرات كسطح مبتل: لمعان حيث يواجه الضوء، وعتمة حيث يلتف بعيداً.
+Line pitch in pixels, so this reads at 4K as well as at 720.	تباعد الخطوط بالبكسل ليظهر بوضوح عند 4K و720.
+cannot read the file: if it lives in OneDrive or iCloud, open it once so it downloads, then import it	تعذرت قراءة الملف: إن كان في OneDrive أو iCloud، افتحه مرة لتنزيله ثم استورده
+did not finish in 3 minutes. It may be waiting on a prompt it cannot show (Protected View, sign-in, a repair). Open the deck there once, or export it as a PDF and import that	لم يكتمل خلال 3 دقائق. قد ينتظر تنبيهاً لا يستطيع عرضه (العرض المحمي، تسجيل الدخول، الإصلاح). افتح العرض هناك مرة، أو صدّره PDF واستورده
+forget my defaults? only NEW changes, this show keeps its settings: press again	نسيان إعداداتي الافتراضية؟ يتغير NEW فقط، ويبقى هذا العرض بإعداداته: اضغط مجدداً
+Keynote could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)	تعذر على Keynote تصدير الملف (قد يحتاج إذن الأتمتة: إعدادات النظام > الخصوصية والأمان > الأتمتة)
+my defaults forgotten: NEW starts from factory settings, this show is unchanged	نُسيت إعداداتي: يبدأ NEW بإعدادات المصنع، وهذا العرض لم يتغير
+N=new  Enter/P=previous  O=open saved  E=examples  L=learn  1-	N=جديد  Enter/P=السابق  O=فتح محفوظ  E=أمثلة  L=تعلّم  1-
+ndi tally trigger on -- program tally takes the cue	تفعيل تشغيل الإشارة عبر tally في ndi -- حالة البث تُطلق الإشارة
+notestep: this cue's notes have no builds (separate them with a line of ---)	notestep: ملاحظات الإشارة بلا مراحل (افصلها بسطر ---)
+Only accept transport from this sender (blank = anyone)	اقبل تحكم التشغيل من هذا المرسل فقط (فارغ = أي مرسل)
+opened github.com in your browser -- nothing is sent until you submit the report there	فُتح github.com في متصفحك -- لن يُرسل شيء حتى ترسل البلاغ هناك
+Output height in px - math ok: 1080x2, 2160/2, 540+30	ارتفاع الخرج بالبكسل - يقبل الحساب: 1080x2, 2160/2, 540+30
+Output width in px - math ok: 1920x2, 3840/2, 960+64	عرض الخرج بالبكسل - يقبل الحساب: 1920x2, 3840/2, 960+64
+PHONE LEVEL: removed -- a paired phone or the passphrase can do everything; BLACKOUT and RECORD are hold-to-fire on the phone	PHONE LEVEL: أُزيل -- الهاتف المقترن أو عبارة المرور يتيحان كل شيء؛ اضغط مطولاً لتفعيل BLACKOUT وRECORD على الهاتف
+phones need THE NETWORK: set 'Who can see it' first	الهواتف تحتاج الشبكة: اضبط «من يمكنه رؤيته» أولاً
+PowerPoint could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)	تعذر على PowerPoint تصدير الملف (قد يحتاج إذن الأتمتة: إعدادات النظام > الخصوصية والأمان > الأتمتة)
+PowerPoint could not open the file (it gave up waiting for it). If it is in OneDrive, right-click it and choose Always keep on this device, then import it again	تعذر على PowerPoint فتح الملف (انتهى انتظاره). إن كان في OneDrive، انقره بالزر الأيمن واختر الاحتفاظ دائماً على هذا الجهاز ثم أعد استيراده
+saved as my defaults: NEW starts like this show, without the cues	حُفظت كإعداداتي الافتراضية: يبدأ NEW كهذا العرض، دون الإشارات
+Seconds for new image/pattern/browser/Lower Third cues (0 = hold)	ثوانٍ لإشارات الصور/الأنماط/المتصفح/Lower Third الجديدة (0 = تثبيت)
+select a Draw cue first (SOURCE > MADE BY DECKBOY > Draw)	اختر إشارة رسم أولاً (SOURCE > MADE BY DECKBOY > Draw)
+something mellow appeared in SOURCE > MADE BY DECKBOY	ظهر شيء هادئ في SOURCE > MADE BY DECKBOY
+sound scopes: integrated loudness and true peak start again	مقاييس الصوت: أُعيد بدء الجهارة المتكاملة والذروة الحقيقية
+splitnotes: that cue's notes have no parts (separate them with a line of ---)	splitnotes: ملاحظات الإشارة بلا أجزاء (افصلها بسطر ---)
+still reading the last folder -- one at a time	ما زالت قراءة المجلد السابق جارية -- واحد في كل مرة
+that key drives the desk - use F1-F10, F12 or the number pad	ذلك المفتاح يتحكم بالمكتب - استخدم F1-F10 أو F12 أو لوحة الأرقام
+the background alpha belongs to a Lower Third	ألفا الخلفية تخص Lower Third
+the clicker now spends note builds before advancing	جهاز التقديم يمر الآن بمراحل الملاحظات قبل الانتقال
+this file is only in OneDrive, and OneDrive is not running. Start OneDrive, or copy the file to this computer, then import it again	هذا الملف في OneDrive فقط، وOneDrive لا يعمل. شغّله أو انسخ الملف إلى هذا الحاسوب ثم أعد استيراده
+this presentation needs a password to open. Remove the password in PowerPoint (File > Info > Protect Presentation) or export it as a PDF, then import that	يتطلب العرض كلمة مرور. أزلها في PowerPoint (ملف > معلومات > حماية العرض التقديمي) أو صدّره PDF ثم استورده
+ASCII: use ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>	ASCII: استخدم ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>
+Flip across, upside down or both, or fold one half onto the other: right onto left, left onto right, bottom onto top, top onto bottom, or one corner into all four.	اقلب الصورة أفقياً أو رأسياً أو كليهما، أو اطوِ نصفاً فوق الآخر: اليمين فوق اليسار أو العكس، والأسفل فوق الأعلى أو العكس، أو زاوية واحدة إلى الزوايا الأربع.
+FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR	FX: استخدم LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR
+MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> or OSC <address> [<n>], then CH <1-16> if not channel 1	MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> أو OSC <address> [<n>]، ثم CH <1-16> إن لم تكن القناة 1
+MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET or FEEDBACK	MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET أو FEEDBACK
+Moves the direction of travel off the centre of frame, so the picture rushes past rather than straight at you.	يزيح اتجاه الحركة عن مركز الإطار، فتمر الصورة بجانبك بدلاً من الاندفاع نحوك مباشرة.
+One knob for the whole balance: below the middle is darker, above it is brighter.	مقبض واحد للتوازن كله: تحت المنتصف أغمق وفوقه أسطع.
+Original: the picture pulled onto the figure. Sand: the picture as grains that are thrown off the moving parts and pour into each new figure. Fluid: the picture under water on the plate, bent and lit by its standing waves.	الأصل: تُسحب الصورة على الشكل. الرمل: تتحول الصورة إلى حبيبات تتطاير من الأجزاء المتحركة وتنسكب في كل شكل جديد. السائل: الصورة تحت الماء على اللوح، تثنيها الموجات الواقفة وتضيئها.
+Pulls the bright tones down without moving pure white, so a hot highlight rolls off instead of clipping.	يخفض الدرجات الساطعة دون تغيير الأبيض الخالص، فتتدرج الإضاءات الشديدة بدلاً من قصها.
+Rotates the reading, so straight lines wind into spirals rather than rings.	يدير اتجاه القراءة، فتلتف الخطوط المستقيمة إلى لوالب بدلاً من حلقات.
+Rows lose sync and repeat one character, the way a real text screen breaks up. At 0 the grid is clean.	تفقد الصفوف تزامنها وتكرر حرفاً واحداً، كما تتشوش شاشة نص حقيقية. عند 0 تكون الشبكة نظيفة.
+SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, LINEAR, PERSPECTIVE or NAME	SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, LINEAR, PERSPECTIVE أو NAME
+SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF, or POINT col row dx dy	SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF، أو POINT col row dx dy
+Something near the deck: a phone's buzz, a light dimmer's herringbone, a radio's slow bars.	تداخل قرب جهاز التشغيل: أزيز هاتف، أو نقش متعرج من مخفت إضاءة، أو أشرطة بطيئة من جهاز راديو.
+Sorts the runs the other way, so they pour from light to dark.	يرتب المقاطع بالاتجاه المعاكس، فتنساب من الفاتح إلى الداكن.
+Takes out everything brighter than this as well. Left takes out nothing.	يزيل أيضاً كل ما هو أسطع من هذا. عند أقصى اليسار لا يزيل شيئاً.
+Takes out everything darker than this, so what lies beneath shows through. Left takes out nothing.	يزيل كل ما هو أغمق من هذا، فيظهر ما تحته. عند أقصى اليسار لا يزيل شيئاً.
+Tape speed: SP is the best picture, LP and EP fit more on a tape and lose detail and colour.	سرعة الشريط: تعطي SP أفضل صورة؛ تتسع LP وEP لمدة أطول على الشريط مع فقد التفاصيل واللون.
+The brightness that stays put. Everything above it reaches one way and everything below it the other.	السطوع الذي يبقى ثابتاً. كل ما فوقه يمتد في اتجاه وكل ما تحته في الاتجاه الآخر.
+The character of the growth: low is waves, then labyrinth, coral, worms, and holes at the top.	طابع النمو: في القيم المنخفضة موجات، ثم متاهات ومرجان وديدان، وفي الأعلى ثقوب.
+The colour it becomes. Shading and brightness stay as they were, so a red shirt turns blue and keeps its folds.	اللون الذي تتحول إليه. تبقى الظلال والسطوع كما هي، فيصبح القميص الأحمر أزرق مع الاحتفاظ بثنياته.
+The distance that sits ON the screen. Either side of it comes forward or falls behind.	المسافة الواقعة على الشاشة. ما على جانبيها يتقدم إلى الأمام أو يتراجع إلى الخلف.
+The frequency it pivots around -- what counts as 'low' and 'high' for the tilt.	التردد الذي يدور حوله الميل، أي الحد الفاصل بين «المنخفض» و«المرتفع».
+The head drifting off the track: a band of noise rolls through the picture.	انحراف الرأس عن المسار: يمر شريط من التشويش عبر الصورة.
+The level below which the source is closed. Set it under the quietest thing you want to hear.	المستوى الذي يُغلق المصدر دونه. اضبطه دون أخفت صوت تريد سماعه.
+The level it starts working at. Lower catches more of the performance.	المستوى الذي يبدأ عنده العمل. خفضه يشمل جزءاً أكبر من الأداء.
+The plugin's first four automatable controls, in its own order. Everything else it has keeps whatever the plugin was left set to.	أول أربعة عناصر تحكم قابلة للأتمتة في الإضافة، بترتيبها الخاص. تبقى سائر إعداداتها على آخر ضبط لها.
+Tints the two directions apart, so light bending one way and the other are different colours instead of both being grey.	يلون الاتجاهين بشكل مختلف، فيصبح الضوء المنحني في كل اتجاه بلون مختلف بدلاً من الرمادي لكليهما.
+Turns the echo each pass, which winds the melt into a spiral.	يدير الصدى في كل مرور، فيلتف الذوبان إلى لولب.
+Turns the strokes across the grain instead of along it, which combs the picture apart rather than smoothing it.	يدير الضربات عبر اتجاه النسيج بدلاً من امتداده، فيمشط الصورة ويفككها بدلاً من تنعيمها.
+Turns the whole arrangement, so the fold lines do not sit on the same part of the picture all night.	يدير الترتيب كله، فلا تبقى خطوط الطي على الجزء نفسه من الصورة طوال الليل.
+Two is a mirror, twelve is a snowflake, and they are completely different pictures.	اثنان يعطيان مرآة واثنا عشر تعطي ندفة ثلج، وهما صورتان مختلفتان تماماً.
+WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (sound is included)	WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (يشمل الصوت)
+Where highlights fold back through black. Low folds most of the picture, high folds only the brightest.	حيث تنثني الإضاءات العالية عائدة عبر الأسود. القيم المنخفضة تثني معظم الصورة، والعالية تثني أشد أجزائها سطوعاً فقط.
+Where the band sits, 30Hz to 16kHz across the travel.	موضع النطاق، من 30Hz إلى 16kHz عبر مدى الحركة.
+Where the fold sits: the middle at the left, toward the far edge to the right. Flips have no fold.	موضع الطية: في المنتصف عند اليسار، ونحو الحافة البعيدة عند اليمين. القلب لا يصنع طية.
+Where the light stands, in degrees around the frame.	موضع الضوء بالدرجات حول الإطار.
+Where the source sits around the listener, all the way round. For headphones -- it is a timing and shading trick, not a pan.	موضع المصدر حول المستمع في دائرة كاملة. لسماعات الرأس؛ حيلة في التوقيت والتلوين الصوتي، وليست تحريكاً بين القنوات.
+Where the top ends, 200Hz to 20kHz. Pull it down to take the harshness off a bright source.	نهاية الترددات العالية، من 200Hz إلى 20kHz. اخفضها لتخفيف حدة المصدر الساطع.
+Which channel the curve acts on: all three, then red, green or blue on its own -- the way a colourist warms or cools one end of the picture.	القناة التي يؤثر فيها المنحنى: الثلاث معاً، ثم الأحمر أو الأخضر أو الأزرق منفرداً، كما يدفئ مصحح الألوان أحد طرفي الصورة أو يبرده.
+Which way the knife edge lies. Only gradients ACROSS the edge show, so turning it swaps which features appear and which vanish.	اتجاه حافة السكين. تظهر فقط التدرجات العابرة للحافة، لذا يغير تدويرها التفاصيل الظاهرة والمختفية.
+Which way the streak runs: across at the left, upright in the middle, across again at the right.	اتجاه الخط: أفقي عند اليسار، وعمودي في المنتصف، وأفقي مجدداً عند اليمين.
+Widens the decision into a ramp, so edges keep their shape instead of jagging.	يوسع الحد الفاصل إلى تدرج، فتحافظ الحواف على شكلها بدلاً من التعرج.
+Words to surface in the field, separated by | . One shows at a time, moving on the hold clock.	كلمات تظهر في المجال، مفصولة بـ | . تظهر كلمة واحدة كل مرة، وتتبدل وفق مؤقت التثبيت.
+Zero is one noise value across all three channels, which reads as film. Higher gives each channel its own, which reads as video.	الصفر يعطي قيمة تشويش واحدة للقنوات الثلاث، بمظهر الفيلم. القيم الأعلى تعطي كل قناة تشويشها الخاص، بمظهر الفيديو.

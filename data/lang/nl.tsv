@@ -3231,3 +3231,1079 @@ whole picture	het hele beeld
 FX CHOICE: choice must be A or B	FX CHOICE: keuze moet A of B zijn
 FX CHOICE: no effect at that index	FX CHOICE: geen effect op die index
 FX LFO: slot is A-D for the parameters, E for the amount, F and G for the fifth and sixth (or 0-6)	FX LFO: slot is A-D voor de parameters, E voor de sterkte, F en G voor de vijfde en zesde (of 0-6)
+(choose cue)	(cue kiezen)
+(missing)	(ontbreekt)
+(no slots)	(geen plaatsen)
+(set media file)	(mediabestand kiezen)
+(set url)	(URL instellen)
+A number	Een getal
+A number, or blank for none	Een getal, of leeg voor geen
+across the grain	dwars op de korrel
+additive	additief
+alternating	afwisselend
+amber	amberkleurig
+angle	hoek
+Art-Net Destination	Art-Net-bestemming
+ASIO is off	ASIO staat uit
+ATEM Input	ATEM-ingang
+Attach Lower Third	Lower Third koppelen
+Attach PIP Overlay	PIP-overlay koppelen
+Attack	Aanzet
+attack	aanzet
+Audio bitrate	Audiobitrate
+Audio reactivity	Audioreactiviteit
+band curve	bandcurve
+Bands	Banden
+bands	banden
+base layer	basislaag
+black point	zwartpunt
+bleed	uitvloeiing
+Blobs	Vlekken
+block glitch	blokstoring
+block size	blokgrootte
+blocks	blokken
+blur	vervaging
+BOTH	BEIDE
+bright	helder
+Browser Ready	Browser gereed
+Brush opacity	Penseeldekking
+Brush size	Penseelgrootte
+buzzer	zoemer
+by brightness	op helderheid
+cancelled	geannuleerd
+Canvas Height	Canvashoogte
+Canvas View	Canvasweergave
+Canvas Width	Canvasbreedte
+catch	vangst
+caustics	caustieken
+Centre X	Midden X
+Centre Y	Midden Y
+channel skew	kanaalverschuiving
+channel spread	kanaalspreiding
+character	teken
+chop	hakken
+CLASSIC	KLASSIEK
+CLOCK	KLOK
+coherence	coherentie
+colour bleed	kleuruitvloeiing
+colour drift	kleurdrift
+colour lag	kleurvertraging
+colour replace	kleurvervanging
+columns	kolommen
+Control change	Besturingswijziging
+convergence	convergentie
+copies	kopieën
+corrupt	beschadigen
+corruption	beschadiging
+coupling	koppeling
+crystallise	kristalliseren
+Cue Notes	Cuenotities
+curl detail	werveldetail
+curves	curven
+Custom Glyphs	Eigen tekens
+Custom Output Raster	Eigen uitvoerraster
+cut bright	helder wegsnijden
+cut dark	donker wegsnijden
+cut reset	reset bij knip
+cutoff	afsnijfrequentie
+cuts	sneden
+cyan	cyaan
+damage	schade
+damping	demping
+dark	donker
+darkness	duisternis
+deck age	leeftijd speler
+Density	Dichtheid
+depth	diepte
+depth split	dieptesplitsing
+Destination Address	Doeladres
+Destination UDP port	UDP-doelpoort
+diamond	ruit
+display native	schermnative
+Display none	Geen scherm
+distance	afstand
+DMX Channels	DMX-kanalen
+dots move	punten bewegen
+Draw colour	Tekenkleur
+drip	druppel
+drips	druppels
+drive	aansturing
+dye advect	kleurtransport
+edge ignite	randvuur
+edges	randen
+empty	leeg
+empty expression	lege expressie
+extended	uitgebreid
+EXTREME	EXTREEM
+facet light	facetlicht
+falloff	afname
+falsecolour	valse kleuren
+feed rate	toevoersnelheid
+feedback bloom	feedbackbloei
+Feedback zoom	Feedbackzoom
+ferrofluid	ferrovloeistof
+field of view	gezichtsveld
+flash length	flitsduur
+flash to	flitskleur
+flicker	flikkering
+Flipbook rate	Bladeranimatietempo
+floor	ondergrens
+Flow	Stroming
+flow	stroming
+focus	scherpstelling
+fold	vouw
+fold point	vouwpunt
+frames	beelden
+Frequency	Frequentie
+frequency	frequentie
+gap	tussenruimte
+gather	verzamelen
+glow	gloed
+glyph set	tekenset
+grain	korrel
+grain flow	korrelstroming
+grain size	korrelgrootte
+green split	groensplitsing
+Grey	Grijs
+grid	raster
+growl	gegrom
+growth	groei
+head wear	kopslijtage
+heat	hitte
+Height	Hoogte
+Height (px)	Hoogte (px)
+highlight roll	hooglichtafrol
+horizontal	horizontaal
+hue turn	tintdraai
+ice	ijs
+ink	inkt
+interference	interferentie
+irregularity	onregelmatigheid
+jump	sprong
+kaleidoscope	caleidoscoop
+Key Color	Sleutelkleur
+knee	knik
+knife angle	meshoek
+leak	lek
+let go	loslaten
+lift	verhoging
+light	licht
+light angle	lichthoek
+lightspeed	lichtsnelheid
+line colour	lijnkleur
+line glow	lijngloed
+Lower Third - subtitle	Lower Third - ondertitel
+Lower Third - title	Lower Third - titel
+Lower Third Subtext	Lower Third subtekst
+Lower Third Title	Lower Third titel
+luma displace	lumaverschuiving
+luma key	lumasleutel
+Mask opacity	Maskerdekking
+Mask rotation	Maskerrotatie
+Mask scale	Maskerschaal
+Mask X	Masker X
+Mask Y	Masker Y
+material	materiaal
+Melt	Smelten
+melt	smelten
+memory	geheugen
+midtones	middentonen
+mosaic	mozaïek
+motion mosh	bewegingsmosh
+motion puppet	bewegingspop
+motion trails	bewegingssporen
+music & sparkle	muziek & glinstering
+night eyes	nachtogen
+no colour	geen kleur
+noise	ruis
+not connected	niet verbonden
+not on this output	niet op deze uitgang
+nothing drawn	niets getekend
+off-axis	buiten de as
+offline	niet verbonden
+orbit speed	omloopsnelheid
+Out time	Uitlooptijd
+Output Alpha	Uitvoeralfa
+Output Canvas	Uitvoercanvas
+Output Delay	Uitvoervertraging
+output fault	uitvoerfout
+Output name	Uitvoernaam
+Output Refresh	Uitvoerverversing
+overflow	overloop
+own playlist	eigen afspeellijst
+Payload	Lading
+Percent 0-100	Procent 0-100
+phone	telefoon
+Phrases	Zinnen
+pinch	knijpen
+pink noise	roze ruis
+pitch	toonhoogte
+pivot	draaipunt
+Pixel density	Pixeldichtheid
+pixel sort	pixelsortering
+polar warp	polaire vervorming
+posterise	posteriseren
+Practice show	Oefenshow
+PREVIOUS	VORIGE
+Program change	Programmawissel
+Prompter script	Promptertekst
+pythagorean	pythagoreïsch
+QUALITY	KWALITEIT
+radial zoom	radiale zoom
+radius	straal
+ramp	helling
+range	bereik
+ratio	verhouding
+Raw bytes	Ruwe bytes
+Raw MIDI Bytes	Ruwe MIDI-bytes
+reach	bereik
+reaction bloom	reactiebloei
+recordings	opnamen
+recovering	herstellen
+refresh	verversen
+Release	Loslaattijd
+release	loslaattijd
+relief	reliëf
+relight	herbelichten
+Rename cue	Cue hernoemen
+Rename fixture	Armatuur hernoemen
+Renumber Cues	Cues hernummeren
+repeat width	herhaalbreedte
+Replay hold	Herhaalwachttijd
+resonance	resonantie
+Retrigger	Hertriggeren
+reverse	omgekeerd
+rgb split	RGB-splitsing
+Rim	Rand
+rings	ringen
+ripple	rimpeling
+rising	stijgend
+rod bias	staafjesweging
+room	ruimte
+Rotation	Rotatie
+rotation	rotatie
+round	rond
+sag	spanningsval
+saw	zaagtand
+scanlines	scanlijnen
+scope	signaalmeter
+SCOPES	SIGNAALMETERS
+second mode	tweede modus
+see through	doorkijk
+seed density	zaaddichtheid
+self	zelf
+settle	uitdempen
+shadow lift	schaduwverhoging
+shake	schudden
+shard size	scherfgrootte
+sharpen	verscherpen
+sheen	glans
+sideways	zijwaarts
+slit scan	spleetscan
+slit width	spleetbreedte
+Smear	Uitsmeren
+smear	uitsmeren
+softness	zachtheid
+solarise	solariseren
+Source Ready	Bron gereed
+spike count	aantal pieken
+spike length	pieklengte
+spin	draai
+spinning	draaiend
+spring	veer
+sprite sheet	spriteblad
+Sprite spin	Spritedraai
+square	blokgolf
+SRT latency	SRT-latentie
+SRT passphrase	SRT-wachtzin
+SRT stream ID	SRT-stream-ID
+ST 2110 Destination	ST 2110-bestemming
+ST 2110 network interface	ST 2110-netwerkinterface
+ST 2110 Port	ST 2110-poort
+Step length	Staplengte
+steps	stappen
+stiffness	stijfheid
+sting	accent
+stream restart needed	streamherstart nodig
+Stream URL	Stream-URL
+stream write failed	schrijven stream mislukt
+strength	sterkte
+strobe	stroboscoop
+stroke	streek
+SUBTLE	SUBTIEL
+sway	wiebelen
+sweep speed	sweepsnelheid
+swell speed	zwellingssnelheid
+Switcher IP address	IP-adres schakelmenger
+symbols	symbolen
+system default	systeemstandaard
+system output	systeemuitgang
+tape	band
+tape age	bandleeftijd
+target cue is gone	doelcue verdwenen
+targets nothing	geen doel
+tear width	scheurbreedte
+temporal dither	tijdsdithering
+test signal	testsignaal
+text to send	te verzenden tekst
+threshold	drempel
+throw	worp
+tile size	tegelgrootte
+tilt	kanteling
+time	tijd
+time cube	tijdkubus
+Timer Message	Timerbericht
+tint colour	tintkleur
+tracking	spoorvolging
+trail	spoor
+transparent	doorzichtig
+triangle	driehoek
+triple beep	drievoudige piep
+Turn	Draai
+turn	draai
+Twist	Verdraaiing
+twist	verdraaiing
+unavailable	niet beschikbaar
+unbalanced )	ongepaarde )
+Universe (0-63999)	Universum (0-63999)
+URL or local page path	URL of lokaal paginapad
+vapor	damp
+vertical	verticaal
+vertical bias	verticale weging
+Video bitrate	Videobitrate
+Video dip fade	Videodipovergang
+vignette	vignet
+wash out	uitwassen
+wave height	golfhoogte
+wavefront	golffront
+way	richting
+wedges	wiggen
+What it runs	Wat het uitvoert
+Which cue	Welke cue
+white	wit
+white noise	witte ruis
+white point	witpunt
+window hidden	venster verborgen
+window minimized	venster geminimaliseerd
+wire	draad
+wrong display	verkeerd scherm
+X,Y offset in pixels	X,Y-verschuiving in pixels
+Zoom	Vergroting
+zoom	vergroting
+% of the picture's height, 0.1 to 20 (supports + - * / and ())	% van de beeldhoogte, 0.1 tot 20 (ondersteunt + - * / en ())
+%, 1 to 100 (supports + - * / and ())	%, 1 tot 100 (ondersteunt + - * / en ())
+-3 to 3: 0 holds, negative runs backwards (supports + - * / and ())	-3 tot 3: 0 houdt vast, negatief speelt achteruit (ondersteunt + - * / en ())
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono (supports + - * / and ())	0 klassiek, 1 vuur, 2 ijs, 3 neon, 4 mono (ondersteunt + - * / en ())
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono (supports + - * / and ())	0 regenboog + grijs, 1 regenboog, 2 thema, 3 mono (ondersteunt + - * / en ())
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear (supports + - * / and ())	0 zone, 1 tweeling, 2 stroming, 3 zadel, 4 rimpel, 5 afschuiving (ondersteunt + - * / en ())
+0-1 (supports + - * / and ())	0-1 (ondersteunt + - * / en ())
+0-100% (supports + - * / and ())	0-100% (ondersteunt + - * / en ())
+0-100%, left to right (supports + - * / and ())	0-100%, links naar rechts (ondersteunt + - * / en ())
+0-100%, top to bottom (supports + - * / and ())	0-100%, boven naar beneden (ondersteunt + - * / en ())
+0-100%: 0 holds the field still (supports + - * / and ())	0-100%: 0 houdt het veld stil (ondersteunt + - * / en ())
+0-100%: 50 is 1x, 0 a quarter, 100 four times (supports + - * / and ())	0-100%: 50 is 1x, 0 een kwart, 100 viermaal (ondersteunt + - * / en ())
+0-100%: how far the field bends (supports + - * / and ())	0-100%: hoe ver het veld buigt (ondersteunt + - * / en ())
+0-100%: the share of each band drawn as grey stripes (supports + - * / and ())	0-100%: deel van elke band als grijze strepen (ondersteunt + - * / en ())
+Across, % of the width, -100 to 100 (supports + - * / and ())	Horizontaal, % van de breedte, -100 tot 100 (ondersteunt + - * / en ())
+Amount 0-100% (supports + - * / and ())	Hoeveelheid 0-100% (ondersteunt + - * / en ())
+Birth, drift and fade rate, 0.1-3 (supports + - * / and ())	Geboorte-, drift- en vervaagsnelheid, 0.1-3 (ondersteunt + - * / en ())
+Block displacement and channel tearing, 0-1 (supports + - * / and ())	Blokverschuiving en kanaalscheuring, 0-1 (ondersteunt + - * / en ())
+Colour steps, 2-8 (supports + - * / and ())	Kleurstappen, 2-8 (ondersteunt + - * / en ())
+dBFS, -60 to 0 (-18 is EBU alignment) (supports + - * / and ())	dBFS, -60 tot 0 (-18 is EBU-uitlijning) (ondersteunt + - * / en ())
+Degrees -180..180 (supports + - * / and ())	Graden -180..180 (ondersteunt + - * / en ())
+Degrees per second, -720 to 720 (supports + - * / and ())	Graden per seconde, -720 tot 720 (ondersteunt + - * / en ())
+Degrees round the colour wheel, 0-360 (supports + - * / and ())	Graden op het kleurenwiel, 0-360 (ondersteunt + - * / en ())
+Degrees, -360 to 360 (supports + - * / and ())	Graden, -360 tot 360 (ondersteunt + - * / en ())
+Degrees, 0-360 (supports + - * / and ())	Graden, 0-360 (ondersteunt + - * / en ())
+Down, % of the height, -100 to 100 (supports + - * / and ())	Omlaag, % van de hoogte, -100 tot 100 (ondersteunt + - * / en ())
+Edge out (+) or in (-), % of the height, -25 to 25 (supports + - * / and ())	Rand naar buiten (+) of binnen (-), % van de hoogte, -25 tot 25 (ondersteunt + - * / en ())
+Edge softness, % of the height, 0 to 25 (supports + - * / and ())	Randzachtheid, % van de hoogte, 0 tot 25 (ondersteunt + - * / en ())
+FDS hardware gain range, 0-63 (supports + - * / and ())	FDS-hardwareversterking, 0-63 (ondersteunt + - * / en ())
+Feature size, 0.1-8 (supports + - * / and ())	Structuurgrootte, 0.1-8 (ondersteunt + - * / en ())
+Frames a second, 1 to 60 (supports + - * / and ())	Beelden per seconde, 1 tot 60 (ondersteunt + - * / en ())
+Hertz, 20-20000 (supports + - * / and ())	Hertz, 20-20000 (ondersteunt + - * / en ())
+Horizontal cells, 64-960 (supports + - * / and ())	Horizontale cellen, 64-960 (ondersteunt + - * / en ())
+Fields per frame, 0-4 (1 = one field per rendered frame) (supports + - * / and ())	Velden per beeld, 0-4 (1 = één veld per gerenderd beeld) (ondersteunt + - * / en ())
+How big a blob grows, 0-1 (supports + - * / and ())	Hoe groot een vlek wordt, 0-1 (ondersteunt + - * / en ())
+How hard it cuts, %, 0 to 100 (supports + - * / and ())	Hoe hard het snijdt, %, 0 tot 100 (ondersteunt + - * / en ())
+How hard the audio drives it, 0-1 (supports + - * / and ())	Hoe sterk het geluid het aanstuurt, 0-1 (ondersteunt + - * / en ())
+How many are alive at once, 3-48 (supports + - * / and ())	Hoeveel er tegelijk leven, 3-48 (ondersteunt + - * / en ())
+How much of each frame feeds the next, 0-0.95 (supports + - * / and ())	Hoeveel van elk beeld in het volgende komt, 0-0.95 (ondersteunt + - * / en ())
+How readily neighbours merge, 0 (never) to 1 (supports + - * / and ())	Hoe snel buren samensmelten, 0 (nooit) tot 1 (ondersteunt + - * / en ())
+Internal resolution, 1 (chunky) to 5 (fine) (supports + - * / and ())	Interne resolutie, 1 (grof) tot 5 (fijn) (ondersteunt + - * / en ())
+Master oscillator rate, 0.01-8 (supports + - * / and ())	Hoofdoscillatorsnelheid, 0.01-8 (ondersteunt + - * / en ())
+Modulator as a ratio of the note, 0.05-16 (supports + - * / and ())	Modulator als verhouding tot de noot, 0.05-16 (ondersteunt + - * / en ())
+One LED tile's height in pixels, 8-8192 (supports + - * / and ())	Hoogte van één LED-tegel in pixels, 8-8192 (ondersteunt + - * / en ())
+One LED tile's width in pixels, 8-8192 (supports + - * / and ())	Breedte van één LED-tegel in pixels, 8-8192 (ondersteunt + - * / en ())
+Palette turn, 0-1 (supports + - * / and ())	Paletdraai, 0-1 (ondersteunt + - * / en ())
+Per-frame zoom of the feedback path, 0.90-1.15 (supports + - * / and ())	Feedbackzoom per beeld, 0.90-1.15 (ondersteunt + - * / en ())
+Pitch in hertz, 20-8000 (supports + - * / and ())	Toonhoogte in hertz, 20-8000 (ondersteunt + - * / en ())
+Pixel sort amount, 0-1 (supports + - * / and ())	Sterkte pixelsortering, 0-1 (ondersteunt + - * / en ())
+Pixels (supports + - * / and ())	Pixels (ondersteunt + - * / en ())
+Pixels, 64-2160 (supports + - * / and ())	Pixels, 64-2160 (ondersteunt + - * / en ())
+Pixels, 64-3840 (supports + - * / and ())	Pixels, 64-3840 (ondersteunt + - * / en ())
+Scale of the whole graphic, 0.5-2 (supports + - * / and ())	Schaal van de hele afbeelding, 0.5-2 (ondersteunt + - * / en ())
+Scanlines, bloom and gun misalignment, 0-1 (supports + - * / and ())	Scanlijnen, gloed en uitlijning elektronenkanonnen, 0-1 (ondersteunt + - * / en ())
+Seconds before it leaves by itself; 0 waits for OUT (supports + - * / and ())	Seconden tot automatisch vertrek; 0 wacht op OUT (ondersteunt + - * / en ())
+Seconds between retriggers, 0-8 (supports + - * / and ())	Seconden tussen hertriggers, 0-8 (ondersteunt + - * / en ())
+Seconds the finished drawing stays, 0 to 60 (supports + - * / and ())	Seconden dat de voltooide tekening blijft, 0 tot 60 (ondersteunt + - * / en ())
+Seconds the in move takes, 0-5 (supports + - * / and ())	Seconden voor de inbeweging, 0-5 (ondersteunt + - * / en ())
+Seconds the out move takes, 0-5 (supports + - * / and ())	Seconden voor de uitbeweging, 0-5 (ondersteunt + - * / en ())
+Seconds, 0-4 (supports + - * / and ())	Seconden, 0-4 (ondersteunt + - * / en ())
+Seconds, 0-8 (supports + - * / and ())	Seconden, 0-8 (ondersteunt + - * / en ())
+Size, %, 5 to 400 (supports + - * / and ())	Grootte, %, 5 tot 400 (ondersteunt + - * / en ())
+Space under it, as a fraction of the frame, 0-0.8 (supports + - * / and ())	Ruimte eronder als deel van het beeld, 0-0.8 (ondersteunt + - * / en ())
+Spiral size, 0.25-4 (supports + - * / and ())	Spiraalgrootte, 0.25-4 (ondersteunt + - * / en ())
+Spiral strength, 0-4 (supports + - * / and ())	Spiraalsterkte, 0-4 (ondersteunt + - * / en ())
+Thickness of the glowing edge, 0-1 (supports + - * / and ())	Dikte van de gloeiende rand, 0-1 (ondersteunt + - * / en ())
+Turbulence, 0 still to 3 boiling (supports + - * / and ())	Turbulentie, 0 stil tot 3 kokend (ondersteunt + - * / en ())
+Turns the rim's colours round the wheel, 0-1 (supports + - * / and ())	Draait de randkleuren langs het kleurenwiel, 0-1 (ondersteunt + - * / en ())
+Where the eye sits, 0 left to 1 right (supports + - * / and ())	Oogpositie, 0 links tot 1 rechts (ondersteunt + - * / en ())
+Where the eye sits, 0 top to 1 bottom (supports + - * / and ())	Oogpositie, 0 boven tot 1 onder (ondersteunt + - * / en ())
+Add Browser Cue	Browsercue toevoegen
+Add NDI Source Cue	NDI-broncue toevoegen
+Add Stream Cue	Streamcue toevoegen
+ASCII 95 (density)	ASCII 95 (dichtheid)
+ASCII 95 (raw)	ASCII 95 (ruw)
+auto (59.94 Hz)	automatisch (59.94 Hz)
+azimuth	azimut
+bohlen-pierce	Bohlen-Pierce
+chladni	Chladni
+Companion/OSC Port	Companion/OSC-poort
+control 1	regelaar 1
+control 2	regelaar 2
+control 3	regelaar 3
+control 4	regelaar 4
+Cue Goto	Ga naar cue
+Cue name (blank restores the file name)	Cuenaam (leeg herstelt de bestandsnaam)
+Default Cue Fade	Standaard cuefade
+Default Non-Movie Duration	Standaardduur zonder video
+Devamp	Lus verlaten
+doppler	Doppler
+e.g. /cue/1/start	bijv. /cue/1/start
+e.g. 12.5	bijv. 12.5
+e.g. 192.168.1.50	bijv. 192.168.1.50
+e.g. 1=255, 10-14=64	bijv. 1=255, 10-14=64
+e.g. 20:0 or client name	bijv. 20:0 of clientnaam
+e.g. 90 3C 7F	bijv. 90 3C 7F
+export as .png or .svg	exporteer als .png of .svg
+Find Cue	Cue zoeken
+Find+Take Cue	Cue zoeken+TAKE
+Fire at a time of day	Op tijdstip starten
+Fire at incoming timecode	Op inkomende tijdcode starten
+Fire on a MIDI note	Op MIDI-noot starten
+Fire on an OSC address	Op OSC-adres starten
+Fireside	Haardvuur
+First channel (1-512)	Eerste kanaal (1-512)
+Fixture address	Armatuuradres
+Fixture name	Armatuurnaam
+Fixture universe	Armatuuruniversum
+flow (follows the picture)	stroming (volgt het beeld)
+GOTO Cue	Ga naar cue
+hh:mm:ss or seconds	hh:mm:ss of seconden
+In time	Inlooptijd
+Its name, number or id	Naam, nummer of id
+Key sender source name	Bronnaam sleutelsender
+Keyframe interval	Sleutelbeeldinterval
+Legacy Cue Link	Oude cuekoppeling
+Lissajous (L/R phase)	Lissajous (L/R-fase)
+Live Browser	Livebrowser
+Live Source	Livebron
+milliseconds (40..2000)	milliseconden (40..2000)
+Milliseconds 0-5000	Milliseconden 0-5000
+Mod depth	Modulatiediepte
+Mod ratio	Modulatieverhouding
+moire	moiré
+MSC Cue Number	MSC-cuenummer
+Name visible to receivers	Naam zichtbaar voor ontvangers
+NDI Key Name	NDI-sleutelnaam
+NDI Name	NDI-naam
+NDI Source Name	NDI-bronnaam
+NMC Port	NMC-poort
+NMC Source	NMC-bron
+NMC Target	NMC-doel
+NMOS Interface Name	NMOS-interfacenaam
+NMOS Node Port	NMOS-knooppuntpoort
+NMOS Registry	NMOS-register
+Note	Noot
+Note off	Noot uit
+Note on	Noot aan
+OSC Address	OSC-adres
+OSC Feedback Mirror Rate	OSC-feedbackspiegelfrequentie
+OSC Query HTTP Port	OSC-Query-HTTP-poort
+PIP Target Cue	PIP-doelcue
+Playlist Start TC	Start-TC afspeellijst
+Playlist Timebase	Tijdbasis afspeellijst
+pulse 25%	puls 25%
+Save Warp Preset	Vervormingspreset opslaan
+Seconds (0-30)	Seconden (0-30)
+Sender source name	Bronnaam zender
+Spout Sender Name	Spout-zendernaam
+TSL Tally	TSL-tally
+UDP port for transport sync	UDP-poort voor transportsync
+vMix HTTP Port	vMix-HTTP-poort
+vMix TCP Port	vMix-TCP-poort
+Web Monitor Connections	Webmonitorverbindingen
+Web Monitor PIN	Webmonitor-PIN
+Web Monitor Port	Webmonitorpoort
+could not reach github	GitHub niet bereikbaar
+could not read the PDF	PDF kon niet worden gelezen
+could not start ffmpeg	ffmpeg kon niet starten
+could not start the PDF renderer	PDF-renderer kon niet starten
+could not write the export script	exportscript kon niet worden geschreven
+couldn't open explorer	Verkenner kon niet worden geopend
+couldn't open file manager	bestandsbeheer kon niet worden geopend
+couldn't open finder	Finder kon niet worden geopend
+driver refused to start	stuurprogramma weigerde te starten
+driver reports no output channels	stuurprogramma meldt geen uitvoerkanalen
+driver would not create output buffers	stuurprogramma kon geen uitvoerbuffers maken
+driver would not report a buffer size	stuurprogramma meldt geen buffergrootte
+driver would not report channel info	stuurprogramma meldt geen kanaalinformatie
+ffmpeg made no file	ffmpeg heeft geen bestand gemaakt
+ffmpeg stopped taking frames	ffmpeg accepteert geen beelden meer
+it could not be started	kon niet worden gestart
+LibreOffice could not be run	LibreOffice kon niet worden uitgevoerd
+LibreOffice produced no PDF	LibreOffice heeft geen PDF gemaakt
+libX11 is not installed	libX11 is niet geïnstalleerd
+lost the session bus	verbinding met sessiebus verbroken
+macOS could not read the PDF	macOS kon de PDF niet lezen
+no ASIO in this build	geen ASIO in deze build
+no driver named	geen stuurprogramma met naam
+no mask made	geen masker gemaakt
+no pages could be rendered	geen pagina’s konden worden gerenderd
+no release found	geen versie gevonden
+no X display to read	geen X-scherm om te lezen
+not while a cue is playing	niet tijdens het afspelen van een cue
+only a background in it	bevat alleen een achtergrond
+opened in explorer	geopend in Verkenner
+opened in file manager	geopend in bestandsbeheer
+pdftoppm produced no pages	pdftoppm heeft geen pagina’s gemaakt
+PowerPoint could not export this file	PowerPoint kon dit bestand niet exporteren
+release has no build for this platform	versie heeft geen build voor dit platform
+revealed in finder	getoond in Finder
+runtime unavailable	runtime niet beschikbaar
+size out of range	grootte buiten bereik
+still reading the last folder -- one at a time	vorige map wordt nog gelezen -- één tegelijk
+the document has no pages	het document heeft geen pagina’s
+the file is empty	het bestand is leeg
+the header is truncated	de kop is afgebroken
+the show plays through ASIO	de show speelt via ASIO
+the time division is not readable	de tijdverdeling is niet leesbaar
+this build has no X11 support	deze build ondersteunt X11 niet
+the NDI runtime is not installed	de NDI-runtime is niet geïnstalleerd
+the PDF renderer produced no pages	de PDF-renderer heeft geen pagina’s gemaakt
+the screen could not be read there	het scherm kon daar niet worden gelezen
+the desktop portal did not answer	het desktopportaal antwoordde niet
+the file has no playable events	het bestand heeft geen afspeelbare gebeurtenissen
+Apple keeps the Keynote format secret on purpose, a malicious lock-in tactic, so only Apple's own software can read it properly. Best route: open it in Keynote on iCloud.com (free, in any browser), choose Download a Copy > PDF, and import that PDF	Apple houdt het Keynote-formaat bewust geheim, een kwaadaardige tactiek om gebruikers vast te houden, zodat alleen Apples eigen software het goed kan lezen. Beste route: open het in Keynote op iCloud.com (gratis, in elke browser), kies Download een kopie > PDF en importeer die PDF
+cannot read the file: if it lives in OneDrive or iCloud, open it once so it downloads, then import it	bestand niet leesbaar: staat het in OneDrive of iCloud, open het dan eenmaal zodat het wordt gedownload en importeer het daarna
+this file is only in OneDrive, and OneDrive is not running. Start OneDrive, or copy the file to this computer, then import it again	dit bestand staat alleen in OneDrive en OneDrive draait niet. Start OneDrive of kopieer het bestand naar deze computer en importeer het opnieuw
+this presentation needs a password to open. Remove the password in PowerPoint (File > Info > Protect Presentation) or export it as a PDF, then import that	deze presentatie vereist een wachtwoord. Verwijder het in PowerPoint (Bestand > Info > Presentatie beveiligen) of exporteer als PDF en importeer die
+couldn't decode still image — unsupported format or corrupt file	stilstaand beeld kon niet worden gedecodeerd — niet-ondersteund formaat of beschadigd bestand
+the file is empty (0 bytes): it may not have finished copying or saving	het bestand is leeg (0 bytes): kopiëren of opslaan is mogelijk nog niet klaar
+couldn't open a browser -- please report at github.com/Utopian-Academy/Deckboy/issues	browser kon niet worden geopend -- meld dit op github.com/Utopian-Academy/Deckboy/issues
+a name for this step	een naam voor deze stap
+a playlist that is gone	een verdwenen afspeellijst
+a target cannot target another target	een doel kan niet naar een ander doel verwijzen
+an ASIO stream is already open	er is al een ASIO-stream open
+another app is holding the pointer	een andere app houdt de aanwijzer vast
+channel count must be at least 1	kanaalaantal moet minstens 1 zijn
+built without ASIO support	gebouwd zonder ASIO-ondersteuning
+built without NDI SDK headers	gebouwd zonder NDI-SDK-headers
+comma outside a function call	komma buiten een functieaanroep
+escaped to windowed	overgeschakeld naar venstermodus
+fullscreen dropped	volledig scherm verlaten
+web audio encoder cannot keep up	webaudio-encoder kan niet bijhouden
+the caption model has not been downloaded yet	het ondertitelmodel is nog niet gedownload
+AUDIOALSO: expected ADD <name>, REMOVE <name> or CLEAR	AUDIOALSO: verwacht ADD <name>, REMOVE <name> of CLEAR
+BROWSER KEY: expected Enter|Tab|Backspace|Escape	BROWSER KEY: verwacht Enter|Tab|Backspace|Escape
+BUGSWAT: expected START, SHOWME, SKIP, PLAY, EXIT or STATUS	BUGSWAT: verwacht START, SHOWME, SKIP, PLAY, EXIT of STATUS
+CAPTIONS LIVE: expected ON, OFF, STATUS or TEXT	CAPTIONS LIVE: verwacht ON, OFF, STATUS of TEXT
+CAPTIONS SOURCE: expected INPUT, DECK <n> or OUTPUT <n>	CAPTIONS SOURCE: verwacht INPUT, DECK <n> of OUTPUT <n>
+DMXCUE FIXTURE: expected <name> <level%>|LEAVE [<colour>]	DMXCUE FIXTURE: verwacht <name> <level%>|LEAVE [<colour>]
+DMXCUE LFO: expected <name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]	DMXCUE LFO: verwacht <name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]
+DMXCUE: expected NEW, SET, FADE, UNIVERSE, HOST, PORT, FIRE or BLACKOUT	DMXCUE: verwacht NEW, SET, FADE, UNIVERSE, HOST, PORT, FIRE of BLACKOUT
+ENDACTION: expected INHERIT, STOP, LOOP, HOLD or NEXT	ENDACTION: verwacht INHERIT, STOP, LOOP, HOLD of NEXT
+FADE CURVE: expected linear, ease-in, ease-out or s-curve	FADE CURVE: verwacht linear, ease-in, ease-out of s-curve
+FADE WHAT: expected opacity, volume, dimmer, brightness, contrast, saturation, hue, effect, audiofx or speed	FADE WHAT: verwacht opacity, volume, dimmer, brightness, contrast, saturation, hue, effect, audiofx of speed
+FIXTURE ADD: expected <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]	FIXTURE ADD: verwacht <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]
+LOWERSTYLE: expected none, fade, rise, slide, wipe or NEXT	LOWERSTYLE: verwacht none, fade, rise, slide, wipe of NEXT
+MASK ASSIGN: expected <id|NONE> CUE | LAYER <output> <playlist> | OUTPUT <n> | MATTE <n>	MASK ASSIGN: verwacht <id|NONE> CUE | LAYER <output> <playlist> | OUTPUT <n> | MATTE <n>
+MASK ASSIGN: expected CUE, LAYER, OUTPUT or MATTE	MASK ASSIGN: verwacht CUE, LAYER, OUTPUT of MATTE
+MASK EXPORT: expected <id> <file.png|file.svg> [WxH]	MASK EXPORT: verwacht <id> <file.png|file.svg> [WxH]
+MASK LFO: expected <id> <param> ON|OFF [rate Hz] [depth %]	MASK LFO: verwacht <id> <param> ON|OFF [rate Hz] [depth %]
+MATRIX SET: expected <source 1-2> <dest> <0-100>	MATRIX SET: verwacht <source 1-2> <dest> <0-100>
+MATRIX: expected SET <src> <dest> <0-100>, SEED or CLEAR	MATRIX: verwacht SET <src> <dest> <0-100>, SEED of CLEAR
+MESH: expected on|off|toggle|height|tilt|yaw|spin|grid	MESH: verwacht on|off|toggle|height|tilt|yaw|spin|grid
+MIC: expected ADD, LIST, INPUT, CHANNEL or GAIN	MIC: verwacht ADD, LIST, INPUT, CHANNEL of GAIN
+MIDICUE KIND: expected note-on, note-off, cc, program, msc-go, msc-stop, msc-resume or raw	MIDICUE KIND: verwacht note-on, note-off, cc, program, msc-go, msc-stop, msc-resume of raw
+MIDICUE: expected NEW, PORTS, PORT, KIND, CH, D1, D2, DEVICE, CUENUM, LIST, RAW or SEND	MIDICUE: verwacht NEW, PORTS, PORT, KIND, CH, D1, D2, DEVICE, CUENUM, LIST, RAW of SEND
+MULTIVIEW LAYOUT: expected GRID, BIG, BIGTOP or TWOTOP	MULTIVIEW LAYOUT: verwacht GRID, BIG, BIGTOP of TWOTOP
+MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK or EMPTY	MULTIVIEW WINDOW: verwacht PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK of EMPTY
+NETCUE: expected NEW, PROTO, HOST, PORT, ADDRESS, PAYLOAD or SEND	NETCUE: verwacht NEW, PROTO, HOST, PORT, ADDRESS, PAYLOAD of SEND
+OUTPROBE: expected <output> <x 0-1> <y 0-1>	OUTPROBE: verwacht <output> <x 0-1> <y 0-1>
+OUTPUT HDR: expected ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> or STATUS	OUTPUT HDR: verwacht ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> of STATUS
+OUTPUTFX ADD: expected hpf, lpf, tilt, comp or width	OUTPUTFX ADD: verwacht hpf, lpf, tilt, comp of width
+OUTPUTFX: expected ADD, SET, REMOVE, BYPASS, CLEAR or DEVICE	OUTPUTFX: verwacht ADD, SET, REMOVE, BYPASS, CLEAR of DEVICE
+OUTPUTS ADD: expected <name> CH <n> or CH <n>-<n+1>	OUTPUTS ADD: verwacht <name> CH <n> of CH <n>-<n+1>
+PATCH: expected <deck> <output> <dB> or OFF	PATCH: verwacht <deck> <output> <dB> of OFF
+presenter colour: expected BG|INK|ACCENT #rrggbb	presenter colour: verwacht BG|INK|ACCENT #rrggbb
+PRESET: expected LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME or DELETE	PRESET: verwacht LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME of DELETE
+rectc: expected <hh:mm:ss:ff|timeofday> [df|ndf|auto]	rectc: verwacht <hh:mm:ss:ff|timeofday> [df|ndf|auto]
+SCALEMODE: expected fit|fill|stretch|unscaled	SCALEMODE: verwacht fit|fill|stretch|unscaled
+SCOPES BIG: expected waveform, parade, vector, diamond, histogram, falsecolour, sound or off	SCOPES BIG: verwacht waveform, parade, vector, diamond, histogram, falsecolour, sound of off
+SCOPES: expected PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS or SOUND	SCOPES: verwacht PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS of SOUND
+SECTION: expected playback|metadata|geometry|key|audio|effects|timer|tone|synth	SECTION: verwacht playback|metadata|geometry|key|audio|effects|timer|tone|synth
+STING: expected ON, PITCH, LENGTH, SWEEP or BODY	STING: verwacht ON, PITCH, LENGTH, SWEEP of BODY
+TARGET VERB: expected start|stop|pause|resume|load|arm|disarm	TARGET VERB: verwacht start|stop|pause|resume|load|arm|disarm
+TEXTCUE ALIGN: expected left, centre or right	TEXTCUE ALIGN: verwacht left, centre of right
+TEXTCUE ANIM: expected none, fade, typewriter, scroll, crawl, pulse or wobble	TEXTCUE ANIM: verwacht none, fade, typewriter, scroll, crawl, pulse of wobble
+TEXTCUE: expected NEW, BODY, ANIM, SIZE, SPEED, ALIGN, CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, WIGGLE, IN, OUTMOVE or OUT	TEXTCUE: verwacht NEW, BODY, ANIM, SIZE, SPEED, ALIGN, CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, WIGGLE, IN, OUTMOVE of OUT
+TRACKER: expected GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP or CLICKER	TRACKER: verwacht GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP of CLICKER
+TUTORIAL: expected START, SHOWME, SKIP, EXIT, STATUS or SCREENS	TUTORIAL: verwacht START, SHOWME, SKIP, EXIT, STATUS of SCREENS
+UPDATE: expected check|download|install|status	UPDATE: verwacht check|download|install|status
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS	VJ: verwacht ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS
+0-127; 127 is all-call	0-127; 127 roept iedereen op
+0-127; the domain the facility's clock runs on	0-127; domein van de locatieklok
+10-79 characters, or empty for none	10-79 tekens, of leeg voor geen
+8+ characters; letters and symbols are allowed	8+ tekens; letters en symbolen toegestaan
+8+ characters; other machines send AUTH <passphrase> first. Empty = off	8+ tekens; andere computers sturen eerst AUTH <passphrase>. Leeg = uit
+A command line, or blank for nothing	Een opdrachtregel, of leeg voor niets
+an IPv4 address, or 255.255.255.255 to broadcast	een IPv4-adres, of 255.255.255.255 voor broadcast
+add an output to scope it	voeg een uitgang toe om die te meten
+cancelled: the waiting cue is no longer in the playlist	geannuleerd: wachtende cue staat niet meer in de afspeellijst
+downloading the caption model, then listening...	ondertitelmodel downloaden, daarna luisteren...
+drag the panels to arrange the presenter screen	sleep de panelen om het presentatorscherm in te delen
+encoder destination: _converted beside the show	encoderbestemming: _converted naast de show
+fetching the speech model - captions start when it arrives	spraakmodel ophalen - ondertitels starten zodra het binnen is
+four effects at most on one device: remove one first	maximaal vier effecten per apparaat: verwijder er eerst één
+Leave empty to follow the live cue notes	Laat leeg om de notities van de livecue te volgen
+Lower Third added - put its playlist on a layer	Lower Third toegevoegd - zet de afspeellijst op een laag
+no masks yet: make one in a cue's MASK section	nog geen maskers: maak er één in het MASK-gedeelte van een cue
+the playing step was removed - sequence stopped	afspelende stap verwijderd - reeks gestopt
+this cue has no known end to resolve into	deze cue heeft geen bekend einde voor de berekening
+the background alpha belongs to a Lower Third	de achtergrondalfa hoort bij een Lower Third
+Where the filter sits.	Waar het filter zit.
+Which way it drips.	Welke kant het druppelt.
+A dark line between the tiles, like grout or an LED wall.	Een donkere lijn tussen de tegels, zoals voegen of een LED-wand.
+A slow rocking of the viewpoint, which is what makes the depth read without glasses.	Langzaam wiegen van het gezichtspunt, waardoor diepte zonder bril zichtbaar wordt.
+A slow sag in the supply, pulling the filter up and down like a dying battery.	Een langzame spanningsval die het filter op en neer trekt als een lege batterij.
+A worn or dirty head: softer, with noise that streaks along the lines.	Een versleten of vuile kop: zachter, met ruisstrepen langs de lijnen.
+Above halfway, a hard cut in the picture resets the loop to clean.	Boven de helft maakt een harde beeldknip de lus weer schoon.
+Above halfway, the repeated piece plays backwards.	Boven de helft speelt het herhaalde stuk achteruit.
+Darkens the boundaries where crystals meet.	Maakt de grenzen waar kristallen samenkomen donkerder.
+Fine sensor noise at the bottom, chunky film at the top.	Onderaan fijne sensorruis, bovenaan grove filmkorrel.
+From an even blur to a streak along the angle, like movement.	Van gelijkmatige vervaging tot een veeg langs de hoek, als beweging.
+Grain size: one pixel at the left, big blocky grains at the right.	Korrelgrootte: één pixel links, grote blokvormige korrels rechts.
+Grows or shrinks the echo each pass. Centre holds still.	Vergroot of verkleint de echo bij elke doorgang. Het midden houdt hem stil.
+How big each tile is.	Hoe groot elke tegel is.
+How big the crystals grow before they meet.	Hoe groot kristallen groeien voordat ze elkaar raken.
+How big the room is. Small is a booth, large is a hall.	Hoe groot de ruimte is. Klein is een cabine, groot een zaal.
+How closely spaced the rings are.	Hoe dicht de ringen op elkaar staan.
+How far a band can slide.	Hoe ver een band kan schuiven.
+How far each shard slides from where it belongs.	Hoe ver elke scherf van zijn plek schuift.
+How far each stroke is dragged along the grain.	Hoe ver elke streek langs de korrel wordt getrokken.
+How far the glow spreads.	Hoe ver de gloed zich verspreidt.
+How fast the surface moves.	Hoe snel het oppervlak beweegt.
+How fast they travel outward.	Hoe snel ze naar buiten bewegen.
+How hard the short hits.	Hoe hard de kortsluiting inslaat.
+How often it skips.	Hoe vaak het overslaat.
+How many shades survive the quantise.	Hoeveel tinten de kwantisering overleven.
+How many spikes the field breaks into.	In hoeveel pieken het veld uiteenvalt.
+How many torn bands per frame.	Hoeveel gescheurde banden per beeld.
+How much each shard turns on its own centre.	Hoe ver elke scherf rond zijn eigen midden draait.
+How much the edges are lifted.	Hoe sterk de randen worden opgetild.
+How strongly the outlines are drawn.	Hoe sterk de omtrekken worden getekend.
+How strongly the water bends the picture.	Hoe sterk het water het beeld vervormt.
+BROWSER CLICK: this browser backend cannot drive the page	BROWSER CLICK: deze browserbackend kan de pagina niet bedienen
+BROWSER SCROLL: this browser backend cannot drive the page	BROWSER SCROLL: deze browserbackend kan de pagina niet bedienen
+BROWSER SCROLLBAR: this browser backend cannot drive the page	BROWSER SCROLLBAR: deze browserbackend kan de pagina niet bedienen
+BROWSER INTERACT: this browser backend has no hands-on mode	BROWSER INTERACT: deze browserbackend heeft geen interactieve modus
+BROWSER TYPE: this browser backend cannot type	BROWSER TYPE: deze browserbackend kan niet typen
+browser connections at once, 1-64 (default 8)	gelijktijdige browserverbindingen, 1-64 (standaard 8)
+could not create an OpenGL context for Spout receive	OpenGL-context voor Spout-ontvangst kon niet worden gemaakt
+could not create the offscreen window Spout receive needs	het voor Spout-ontvangst vereiste offscreenvenster kon niet worden gemaakt
+could not get a device context for Spout receive	apparaatcontext voor Spout-ontvangst kon niet worden verkregen
+no OpenGL pixel format available for Spout receive	geen OpenGL-pixelformaat beschikbaar voor Spout-ontvangst
+the installed NDI runtime is missing entry points this needs	de geïnstalleerde NDI-runtime mist vereiste toegangspunten
+the NDI runtime declined to start on this machine	de NDI-runtime weigerde te starten op deze computer
+driver would not load (in use by another application?)	stuurprogramma kon niet laden (in gebruik door een andere toepassing?)
+DECKLINK: no DeckLink driver on this computer (Blackmagic Desktop Video)	DECKLINK: geen DeckLink-stuurprogramma op deze computer (Blackmagic Desktop Video)
+this output's renderer could not cut the mask	de renderer van deze uitgang kon het masker niet uitsnijden
+update: could not start the install helper	update: installatiehulp kon niet starten
+update: could not start the installer	update: installatieprogramma kon niet starten
+update: could not write the install helper	update: installatiehulp kon niet worden geschreven
+update: not running from an AppImage	update: draait niet vanuit een AppImage
+update: cannot find this app bundle to replace	update: te vervangen appbundel niet gevonden
+Takes out everything brighter than this as well. Left takes out nothing.	Verwijdert ook alles wat helderder is. Links wordt niets verwijderd.
+Takes out everything darker than this, so what lies beneath shows through. Left takes out nothing.	Verwijdert alles wat donkerder is, zodat de onderlaag zichtbaar wordt. Links wordt niets verwijderd.
+The bright net the waves focus onto the picture.	Het heldere net dat de golven op het beeld bundelen.
+The brightness that decides black from white.	De helderheid die zwart van wit scheidt.
+The colour to change, round the wheel from red.	De te wijzigen kleur, langs het kleurenwiel vanaf rood.
+The head drifting off the track: a band of noise rolls through the picture.	De kop loopt uit het spoor: een ruisband rolt door het beeld.
+The level it starts working at. Lower catches more of the performance.	Het niveau waarop het begint te werken. Lager pakt meer van de uitvoering mee.
+Turns the echo each pass, which winds the melt into a spiral.	Draait de echo bij elke doorgang en windt het smelten tot een spiraal.
+Softens the fold so it ramps instead of creasing.	Verzacht de vouw tot een helling in plaats van een scherpe knik.
+Sorts the runs the other way, so they pour from light to dark.	Sorteert de reeksen andersom, zodat ze van licht naar donker stromen.
+Rounds the tiles off, all the way to dots.	Rondt de tegels af, helemaal tot stippen.
+Pushes the rings in or out of the centre.	Duwt de ringen naar het midden of naar buiten.
+Lifts the dark tones without moving pure black.	Verhoogt donkere tonen zonder puur zwart te verplaatsen.
+How far it smears: up to a few percent of the picture.	Hoe ver het uitsmeert: tot enkele procenten van het beeld.
+How far out the darkening starts.	Hoe ver naar buiten de verdonkering begint.
+How fast the light walks around it. Zero holds it still.	Hoe snel het licht eromheen loopt. Nul houdt het stil.
+How quickly the loop relaxes when nothing feeds it.	Hoe snel de lus uitdempt als niets hem voedt.
+How gently the change fades out at the edges of the band.	Hoe zacht de wijziging aan de bandranden uitvloeit.
+How gradually the key cuts in. Hard at the left.	Hoe geleidelijk de sleutel inzet. Hard aan de linkerkant.
+How hard it is driven into its own limits.	Hoe hard het tegen zijn eigen grenzen wordt gestuurd.
+just	rein
+LOAD NEXT	VOLGENDE LADEN
+meantone	middentoon
+NEXT	VOLGENDE
+pixels (of the output raster)	pixels (van het uitgangsraster)
+Plugin	Plug-in
+Portal	Portaal
+rot	rot.
+BITRATE	BITSNELHEID
+ASCII HOLD: seconds, 0-60 (0 mutes the phrases)	ASCII HOLD: seconden, 0-60 (0 dempt de frasen)
+AUDIOALSO ADD: seven extra destinations is the limit	AUDIOALSO ADD: maximaal zeven extra bestemmingen
+AUDIOALSO ADD: that is already this deck's main device -- it would play twice	AUDIOALSO ADD: dit is al het hoofdapparaat van dit deck -- het zou dubbel spelen
+AUDIOFX: expected OFF, BYPASS, or amount and parameters as percentages	AUDIOFX: verwacht OFF, BYPASS of sterkte en parameters in procenten
+BROWSER SCROLL: expected pixels (negative is up)	BROWSER SCROLL: pixels verwacht (negatief is omhoog)
+CHIP ENV: expected <attack> <release> in seconds	CHIP ENV: <attack> <release> in seconden verwacht
+DMXCUE LEVELS: nothing has been sent on that universe	DMXCUE LEVELS: er is niets op dat universum verzonden
+DMXCUE SET: expected channel=level pairs, e.g. 1=255,10-14=64	DMXCUE SET: paren kanaal=niveau verwacht, bijv. 1=255,10-14=64
+LOWERSTYLE: this cue is not a Lower Third	LOWERSTYLE: deze cue is geen Lower Third
+MASTER DECK: expected a deck number and a cue number	MASTER DECK: decknummer en cuenummer verwacht
+MIC INPUT: expected SETTINGS, TEST or a device name (MIC LIST)	MIC INPUT: SETTINGS, TEST of een apparaatnaam verwacht (MIC LIST)
+MIC: select a mic cue first (MIC ADD makes one)	MIC: selecteer eerst een microfooncue (MIC ADD maakt er een)
+MIDIFILE: expected PORT, or no argument to report it	MIDIFILE: PORT verwacht, of geen argument om deze op te vragen
+MIDIFILE: the selected cue is not a midi file cue	MIDIFILE: de geselecteerde cue is geen MIDI-bestandcue
+MIDIIN OSC: an address, and optionally a number	MIDIIN OSC: een adres en eventueel een getal
+MIDIMAP: that command is only accepted from this computer	MIDIMAP: die opdracht wordt alleen vanaf deze computer geaccepteerd
+MONITOR DECK: expected a playlist number or FOLLOW	MONITOR DECK: afspeellijstnummer of FOLLOW verwacht
+MONITOR ROOM: expected a playlist and ON or OFF	MONITOR ROOM: afspeellijst en ON of OFF verwacht
+MOTION ZONE ADD: the zone must fit inside the picture	MOTION ZONE ADD: de zone moet binnen het beeld passen
+MULTIVIEW WINDOW REMOVE: expected a window number	MULTIVIEW WINDOW REMOVE: vensternummer verwacht
+NETCUE ADDRESS: an OSC address must start with /	NETCUE ADDRESS: een OSC-adres moet met / beginnen
+NETCUE ADDRESS: expected an OSC path starting with /	NETCUE ADDRESS: OSC-pad beginnend met / verwacht
+NMOS: discovery needs the remote network allowed	NMOS: voor detectie moet het externe netwerk toegestaan zijn
+NMOS: searching for a registry (mDNS)	NMOS: zoeken naar een register (mDNS)
+OUTPROBE: that output has no compositor (is it on?)	OUTPROBE: die uitgang heeft geen compositor (staat hij aan?)
+OUTPUT AOI: expected a size like 256x256, or FULL	OUTPUT AOI: afmeting zoals 256x256 of FULL verwacht
+OUTPUT HDR WHITE: expected 80..500 nits (203 is BT.2408)	OUTPUT HDR WHITE: 80..500 nits verwacht (203 is BT.2408)
+OUTPUTFX ADD: four effects at most on one device	OUTPUTFX ADD: maximaal vier effecten op één apparaat
+OUTPUTFX SET: expected an effect number and 0-100	OUTPUTFX SET: effectnummer en 0-100 verwacht
+PATCH: a level is dB from -48 to +6, or OFF	PATCH: een niveau is dB van -48 tot +6, of OFF
+PRELOAD: expected a position in seconds, OFF or STATUS	PRELOAD: positie in seconden, OFF of STATUS verwacht
+SCRIPTCUE: the selected cue is not a script cue	SCRIPTCUE: de geselecteerde cue is geen scriptcue
+SOURCE CAMERA: name the device	SOURCE CAMERA: geef de apparaatnaam op
+STREAM ADD: expected a URL, e.g. srt://host:port	STREAM ADD: URL verwacht, bijv. srt://host:port
+SUBTITLE CONVERT: destination must be .srt or .vtt	SUBTITLE CONVERT: het doel moet .srt of .vtt zijn
+TARGET CUE: expected a deck number and a cue number	TARGET CUE: decknummer en cuenummer verwacht
+TEXTCUE SIZE: expected 1-100 (percent of the raster)	TEXTCUE SIZE: 1-100 verwacht (percentage van het raster)
+TRACKER SET: a step cannot act on its own playlist	TRACKER SET: een stap kan zijn eigen afspeellijst niet bedienen
+TRACKER: there are no steps (TRACKER ADD makes one)	TRACKER: er zijn geen stappen (TRACKER ADD maakt er een)
+TUTORIAL SCREENS: expected a count, MIRRORED or REAL	TUTORIAL SCREENS: aantal, MIRRORED of REAL verwacht
+VIDEO OUTPUT LAYER: expected a layer number (1 is the base)	VIDEO OUTPUT LAYER: laagnummer verwacht (1 is de basis)
+WARP AT: open the editor (WARP EDIT) and select a point first	WARP AT: open de editor (WARP EDIT) en selecteer eerst een punt
+WEBMONITOR QR: needs the monitor on and shared on the network	WEBMONITOR QR: de monitor moet aanstaan en op het netwerk gedeeld zijn
+WEBMONITOR SOURCE: could not create the web output	WEBMONITOR SOURCE: kon de webuitgang niet maken
+Hz or AUTO (e.g. 60 or 59.94)	Hz of AUTO (bijv. 60 of 59.94)
+IPv4 addresses or a.b.c.d/bits, comma separated; empty = only this computer	IPv4-adressen of a.b.c.d/bits, met komma's gescheiden; leeg = alleen deze computer
+kbps (32-512; 160 is a sane default)	kbps (32-512; 160 is een redelijke standaard)
+milliseconds (20-8000; ~4x your RTT)	milliseconden (20-8000; ~4x je RTT)
+Multicast group (e.g. 239.20.10.1)	Multicastgroep (bijv. 239.20.10.1)
+NDI source name (e.g. LAPTOP (source 1))	NDI-bronnaam (bijv. LAPTOP (bron 1))
+NIC address or name; empty = the default route	NIC-adres of -naam; leeg = standaardroute
+NIC name reported in interface_bindings (e.g. eth0)	NIC-naam uit interface_bindings (bijv. eth0)
+offset in percent of the picture	verschuiving in procenten van het beeld
+Only accept transport from this sender (blank = anyone)	Transport alleen van deze zender accepteren (leeg = iedereen)
+Output height in px - math ok: 1080x2, 2160/2, 540+30	Uitgangshoogte in px - rekenen mag: 1080x2, 2160/2, 540+30
+Output width in px - math ok: 1920x2, 3840/2, 960+64	Uitgangsbreedte in px - rekenen mag: 1920x2, 3840/2, 960+64
+Paste the key from your platform	Plak de sleutel van je platform
+paste your stream key here	plak hier je streamsleutel
+Port the Node + Connection API serve on	Poort voor de Node + Connection API
+position on the output raster, in pixels	positie op het uitgangsraster, in pixels
+Prefix (optional). Example: Q	Voorvoegsel (optioneel). Voorbeeld: Q
+Prefix and optional start (example: Q 100)	Voorvoegsel en optionele start (voorbeeld: Q 100)
+Registry URL (e.g. http://192.168.1.50:8010) - blank for mDNS	Register-URL (bijv. http://192.168.1.50:8010) - leeg voor mDNS
+Routing hint for the receiver	Routeringshint voor de ontvanger
+seconds (1-10; most platforms want 2)	seconden (1-10; de meeste platforms willen 2)
+Seconds for new image/pattern/browser/Lower Third cues (0 = hold)	Seconden voor nieuwe beeld-/testbeeld-/browser-/Lower Third-cues (0 = vasthouden)
+Seconds for new-cue fade in/out defaults	Standaardseconden voor in-/uitfaden van nieuwe cues
+seconds this step holds before PLAY moves on	seconden dat deze stap wacht voordat PLAY doorgaat
+SMPTE hh:mm:ss:ff or seconds (blank = 00:00:00:00)	SMPTE hh:mm:ss:ff of seconden (leeg = 00:00:00:00)
+Stream URL (srt://, rtmp://, rtsp://, udp://, or an http HLS .m3u8)	Stream-URL (srt://, rtmp://, rtsp://, udp:// of http HLS .m3u8)
+Target IP (or 255.255.255.255 to broadcast)	Doel-IP (of 255.255.255.255 voor broadcast)
+Where to send transport (blank = broadcast)	Bestemming voor transport (leeg = broadcast)
+Which switcher input Deckboy is (0 = not set)	Switcher-ingang voor Deckboy (0 = niet ingesteld)
+WIDTHxHEIGHT (e.g. 2560x1080)	BREEDTExHOOGTE (bijv. 2560x1080)
+WIDTHxHEIGHT (e.g. 5760x2160)	BREEDTExHOOGTE (bijv. 5760x2160)
+port number (default 5510)	poortnummer (standaard 5510)
+port number (default 5511)	poortnummer (standaard 5511)
+port number (default 6454)	poortnummer (standaard 6454)
+port number (default 8090)	poortnummer (standaard 8090)
+port number (vMix uses 8088)	poortnummer (vMix gebruikt 8088)
+port number (vMix uses 8099)	poortnummer (vMix gebruikt 8099)
+8 zones already: click one to remove it first	Al 8 zones: klik er eerst een weg
+a step cannot fire the playlist it lives on	een stap kan zijn eigen afspeellijst niet starten
+atem tally on -- set which input Deckboy is	ATEM-tally aan -- stel de ingang voor Deckboy in
+AUDIOFX PLUGIN: this build has no plugin host	AUDIOFX PLUGIN: deze build heeft geen plug-inhost
+brightness moves the playhead (needs CPU frames)	helderheid verplaatst de afspeelkop (vereist CPU-frames)
+can't move the active cue -- take another cue on this deck first	kan actieve cue niet verplaatsen -- start eerst een andere cue op dit deck
+centred and full-frame - moves when the picture does	gecentreerd en beeldvullend - beweegt met het beeld
+CHIP DUTY: this cue is an FDS synth, which has no duty	CHIP DUTY: deze cue is een FDS-synth zonder pulsbreedte
+CHIP NOISE: this cue is an FDS synth, which has no noise	CHIP NOISE: deze cue is een FDS-synth zonder ruis
+CHIP VOICE: this cue is an FDS synth, which has no voice	CHIP VOICE: deze cue is een FDS-synth zonder stemkeuze
+Chladni listens: the figure follows the pitch of the sound	Chladni luistert: de figuur volgt de toonhoogte
+click anywhere on any screen to take its colour. Esc cancels	klik ergens op een scherm om de kleur over te nemen. Esc annuleert
+click program or preview monitor to sample key color	klik op de PROGRAM- of previewmonitor om de sleutelkleur te kiezen
+DATAMOSH on - preparing (long clip, watch Encoder tab)	DATAMOSH aan - voorbereiden (lange clip, bekijk tab Encoder)
+EDIT is off - press EDIT to type into the tracker	EDIT staat uit - druk op EDIT om in de tracker te typen
+ENDACTION: only video and audio cues have an end action	ENDACTION: alleen video- en audiocues hebben een eindactie
+Enter playlist SMPTE FPS: 24 / 25 / 29.97 / 30	Voer SMPTE-FPS voor de afspeellijst in: 24 / 25 / 29.97 / 30
+expected one expression, three for colour, or four with alpha	één expressie verwacht, drie voor kleur of vier met alfa
+FADE TO: a speed from 0.25 to 4 (0.5 is half speed, an octave down)	FADE TO: snelheid van 0.25 tot 4 (0.5 is halve snelheid, een octaaf lager)
+follows this cue's own brightness (needs CPU frames)	volgt de helderheid van deze cue (vereist CPU-frames)
+format 2 files are a set of independent patterns, not a performance	formaat 2-bestanden bevatten onafhankelijke patronen, geen uitvoering
+full-frame and no picture - bends when the picture shrinks	beeldvullend en zonder beeld - buigt als het beeld krimpt
+FX ADD: datamosh needs a file-backed video cue	FX ADD: datamosh vereist een videocue met bestand
+group presets became master cues: use MASTER	groepspresets zijn nu mastercues: gebruik MASTER
+live captions are not installed here (deckboy-listen was not found)	liveondertiteling is niet geïnstalleerd (deckboy-listen niet gevonden)
+make a step first: a section starts at a step	maak eerst een stap: een sectie begint bij een stap
+MASK PATH: a path needs at least three points	MASK PATH: een pad vereist minstens drie punten
+MATRIX SET: level is a percent from 0 to 100	MATRIX SET: niveau is een percentage van 0 tot 100
+mic live on the default speakers - watch for feedback	microfoon live op de standaardluidsprekers - pas op voor rondzingen
+motion on: the camera is read, never recorded	beweging aan: de camera wordt gelezen, nooit opgenomen
+NETCUE: the selected cue is not a network cue	NETCUE: de geselecteerde cue is geen netwerkcue
+no filled shapes in it (paths, rectangles, circles, ellipses or polygons)	bevat geen gevulde vormen (paden, rechthoeken, cirkels, ellipsen of polygonen)
+no picture - shorts run on a timer instead of on cuts	geen beeld - kortsluitingen volgen een timer in plaats van cuts
+no picture on this cue - nothing decides where the playhead is	geen beeld in deze cue - niets bepaalt de afspeelpositie
+no picture on this cue - nothing to close the loop through	geen beeld in deze cue - niets om de lus mee te sluiten
+no picture on this cue - nothing to follow	geen beeld in deze cue - niets om te volgen
+no video clock on this cue - nothing to lock to	geen videoklok in deze cue - niets om op te synchroniseren
+normalize all: no file-backed audio in this deck	alles normaliseren: geen bestandsaudio in dit deck
+normalize: selection has no file-backed audio	normaliseren: selectie bevat geen bestandsaudio
+not a MIDI file (no MThd header)	geen MIDI-bestand (geen MThd-header)
+nothing to mask here: select a cue, or change MASK ON	niets te maskeren: selecteer een cue of wijzig MASK ON
+only a MIDI note or an OSC address can take a cue	alleen een MIDI-noot of OSC-adres kan een cue starten
+over 16 MB: not a drawing to make a mask from	meer dan 16 MB: geen tekening om een masker van te maken
+Page Down / Page Up step the focused playlist	Page Down / Page Up doorlopen de actieve afspeellijst
+paired phones removed: they need the QR code or the passphrase again	gekoppelde telefoons verwijderd: QR-code of wachtzin opnieuw nodig
+PORTS: expected an http port and a tcp port	PORTS: HTTP-poort en TCP-poort verwacht
+SLICE ADD: already 16 slices on this output	SLICE ADD: al 16 uitsneden op deze uitgang
+SUBTITLE CONVERT: the cue has no caption file	SUBTITLE CONVERT: de cue heeft geen ondertitelbestand
+SYNTH: the selected cue is not a video synth	SYNTH: de geselecteerde cue is geen videosynth
+TCCUE: the selected cue is not a timecode cue	TCCUE: de geselecteerde cue is geen tijdcodecue
+TEXTCUE: the selected cue is not a text cue	TEXTCUE: de geselecteerde cue is geen tekstcue
+that key drives the desk - use F1-F10, F12 or the number pad	die toets bedient de tafel - gebruik F1-F10, F12 of het numerieke toetsenblok
+zones cleared: Motion reads the whole picture	zones gewist: Beweging leest het hele beeld
+How abruptly it arrives. Low is a soft cloud, high is a hard porthole.	Hoe abrupt het verschijnt. Laag geeft een zachte wolk, hoog een scherp patrijspoortje.
+How big the shards are. Small is frosted glass, large is a dropped plate.	Grootte van de scherven. Klein geeft matglas, groot een gevallen bord.
+How bright a pixel has to be before it lifts at all, so only the highlights spike.	Hoe helder een pixel moet zijn om op te komen, zodat alleen hooglichten pieken.
+How dark the dark lines go. All the way up is black between lines.	Hoe donker de donkere lijnen zijn. Op maximaal is het zwart tussen de lijnen.
+How deep the picture is treated as being. The brightness becomes height and is lit from the side.	Hoe diep het beeld wordt opgevat. Helderheid wordt hoogte, van opzij belicht.
+How faint a gradient still registers. High turns the quietest shading into visible structure.	Hoe zwak een verloop nog wordt herkend. Hoog maakt de subtielste schaduwen zichtbaar.
+How far away. Distance dulls the top and softens the difference between the ears.	Hoe ver weg. Afstand dempt hoge tonen en verkleint het verschil tussen de oren.
+How far back each skip jumps, from a stutter to half a second.	Hoe ver elke sprong teruggaat, van een hapering tot een halve seconde.
+How far the bright parts pull away from the surface.	Hoe ver de heldere delen van het oppervlak loskomen.
+How far the burn spreads off the edge, and how hot its colour runs.	Hoe ver het vuur vanaf de rand uitloopt en hoe heet de kleur is.
+How far the sound throws each line sideways.	Hoe ver het geluid elke lijn zijwaarts werpt.
+How far the top comes down as the end approaches. This is not a fade: the level is left alone.	Hoe ver de hoge tonen dalen tegen het einde. Geen fade: het niveau blijft gelijk.
+How far the two eyes disagree. Brightness is read as nearness.	Hoe ver de twee ogen verschillen. Helderheid wordt als nabijheid gelezen.
+How fast it closes. Slow enough not to chop the ends off words.	Hoe snel het sluit. Langzaam genoeg om woordeinden niet af te hakken.
+How fast the drips run. At the left the picture only sags.	Hoe snel de druppels lopen. Links zakt het beeld alleen door.
+How fast the sand travels to the still lines.	Hoe snel het zand naar de stilstaande lijnen gaat.
+How fast the wave travels. Faster spreads further in the same time and interferes more.	Hoe snel de golf reist. Sneller reikt verder in dezelfde tijd en geeft meer interferentie.
+How fast what has dripped hardens away. At the left the drips stay until the cue changes.	Hoe snel het gedruppelde verhardt en verdwijnt. Links blijven druppels tot de cue wisselt.
+How fine the water is. Long ocean swell at one end, rain on a puddle at the other.	Hoe fijn het water is. Lange oceaandeining aan de ene kant, regen op een plas aan de andere.
+How hard it holds once it is working. Gentle at the bottom, a limiter at the top.	Hoe sterk het vasthoudt zodra het werkt. Onderaan zacht, bovenaan een limiter.
+How irregular the growth is. Low gives an even honeycomb, high gives long shards.	Hoe onregelmatig de groei is. Laag geeft een gelijkmatige honingraat, hoog lange scherven.
+How long a short stays closed, in VIDEO FRAMES.	Hoe lang een kortsluiting gesloten blijft, in VIDEOFRAMES.
+How long the reaction runs each frame. Short is a stain, long is an organism.	Hoe lang de reactie per frame loopt. Kort geeft een vlek, lang een organisme.
+How many places drip: a few big drips at the left, many thin ones at the right.	Aantal druppelplekken: links enkele dikke, rechts veel dunne druppels.
+How many times a skip repeats before the sound catches up again.	Hoe vaak een sprong herhaalt voordat het geluid weer bijhaalt.
+How much of the picture glows: only the brightest at the left, nearly everything at the right.	Hoeveel van het beeld gloeit: links alleen het helderste, rechts bijna alles.
+How much of the picture shows behind the lines. None at the left: lines on black.	Hoeveel beeld achter de lijnen zichtbaar is. Links niets: lijnen op zwart.
+How much of the push goes downward rather than sideways.	Hoeveel van de duw omlaag gaat in plaats van opzij.
+How much the flame gutters frame to frame.	Hoe sterk de vlam van frame tot frame flakkert.
+How wide a band of colours either side of it changes too.	Hoe breed de kleurenband aan weerszijden is die ook verandert.
+How bright a pixel has to be to join a run. Lower catches more of the picture and the runs grow longer.	Hoe helder een pixel moet zijn om in een reeks te komen. Lager neemt meer beeld mee en verlengt de reeksen.
+How far back the chain listens. The picture is played through a delay, so this is the distance the damage is dragged across.	Hoe ver de keten terugluistert. Het beeld gaat door een vertraging; dit is de afstand waarover de schade wordt uitgesmeerd.
+How far the colour turns on each trip round the loop. This is the oil-slick: the trail walks through the spectrum instead of fading.	Hoe ver de kleur per lus draait. Dit geeft de olievlek: het spoor doorloopt het spectrum in plaats van te vervagen.
+How far the picture stands out. Bright parts come forward, dark parts stay back. At the left it is flat.	Hoe ver het beeld uitsteekt. Heldere delen komen naar voren, donkere blijven achter. Links is het vlak.
+How far the picture swings the filter. The cue's own brightness opens and closes it, so a cut to black takes the top off the sound.	Hoe ver het beeld het filter beweegt. De helderheid van de cue opent en sluit het, dus een cut naar zwart haalt de hoge tonen weg.
+How fast it settles away while held. At zero it holds indefinitely, which is what room tone under a held title wants.	Hoe snel het tijdens vasthouden wegzakt. Bij nul houdt het eindeloos aan, passend voor ruimtetoon onder een vastgehouden titel.
+How fast the open slit crosses the picture. Slow smears a long moment across the frame.	Hoe snel de open spleet het beeld kruist. Langzaam smeert een lang moment over het frame.
+How hard the light gathers where the rays converge. This is the part that makes it read as water rather than as a wobble.	Hoe sterk het licht bundelt waar stralen samenkomen. Dit laat het op water lijken in plaats van gewiebel.
+How hard the moving parts throw sand. More shake clears the plate faster and makes the lines thinner.	Hoe hard bewegende delen zand werpen. Meer schudden maakt de plaat sneller vrij en de lijnen dunner.
+How long a grain is, in VIDEO FRAMES. On a 23.976 clip one frame is 41.7ms, which is not a musical value and is exactly the point.	Lengte van een korrel in VIDEOFRAMES. Bij 23.976 duurt één frame 41.7ms: geen muzikale waarde, en dat is precies de bedoeling.
+How long before the end it starts. The cue has to have a known length -- an open-ended one has no end to resolve into.	Hoe lang voor het einde het begint. De cue moet een bekende duur hebben -- zonder vast einde is er niets om naartoe af te ronden.
+How long it is allowed to run. More steps means the ripples have crossed and reflected more times.	Hoe lang het mag lopen. Meer stappen laten de golven vaker kruisen en weerkaatsen.
+How long the old waves linger when the note changes. Left: they die at once. Right: they slosh for a while.	Hoe lang oude golven blijven na een nootwisseling. Links sterven ze direct, rechts klotsen ze nog even.
+How much each facet catches the light, which is what makes them read as faceted rather than as flat blobs.	Hoeveel licht elke facet vangt, zodat ze gefacetteerd lijken in plaats van platte vlekken.
+How much of the bent picture goes round again. High is where it stops being an echo and starts eating itself.	Hoeveel vervormd beeld weer rondgaat. Hoog houdt het op een echo te zijn en eet het zichzelf op.
+How much room comes up under it, so the sound settles into the cut instead of being severed.	Hoeveel ruimteklank eronder opkomt, zodat het geluid in de cut landt in plaats van af te breken.
+How much the echo is distorted each pass. It compounds, so a little ripples and a lot melts the picture into itself.	Hoeveel de echo per ronde vervormt. Het stapelt op: weinig rimpelt, veel laat het beeld in zichzelf smelten.
+How much the material draws in towards each drip, so it runs as a thin neck with a heavier head.	Hoe sterk het materiaal naar elke druppel trekt, zodat een dunne hals met een zwaardere kop ontstaat.
+How often its settings are corrupted. Corrupted far enough it oscillates on its own -- loud, but it cannot run away.	Hoe vaak instellingen beschadigen. Voldoende beschadigd oscilleert het vanzelf -- luid, maar het kan niet ontsporen.
+How quickly the picture springs back to rest once the driver stops pushing it. Only does anything when memory is up.	Hoe snel het beeld terugveert zodra de aandrijving stopt. Werkt alleen als geheugen is opgedraaid.
+How quickly the room eats the top end. More damping is a softer, more furnished space.	Hoe snel de ruimte hoge tonen absorbeert. Meer demping geeft een zachtere, meer gemeubileerde ruimte.
+How readily an edge catches. Low sets the whole picture alight, high only the hardest lines.	Hoe gemakkelijk een rand vlamvat. Laag ontsteekt het hele beeld, hoog alleen de scherpste lijnen.
+How small a cut sets it off. With no picture it runs on a timer instead, and this is how often.	Hoe klein een cut mag zijn om het te activeren. Zonder beeld volgt het een timer; dit bepaalt hoe vaak.
+How strongly the finished picture pushes the bend. Pair it with a picture effect whose LFO is set to Audio and the two drive each other.	Hoe sterk het eindbeeld de vervorming aandrijft. Koppel aan een beeldeffect met LFO op Audio en ze sturen elkaar.
+How wide a view is being compressed. Narrow is a punch down the middle, wide folds the whole frame into the centre.	Hoe breed het samengedrukte zicht is. Smal schiet door het midden, breed vouwt het hele frame naar het centrum.
+0 flows ALONG the edges, so colour orbits the shapes. 1 flows across them, which bleeds the picture into itself.	0 stroomt LANGS de randen, zodat kleur om de vormen draait. 1 stroomt eroverheen en laat het beeld in zichzelf uitvloeien.
+A command line, as a DASH button runs it. {value} is the knob's number, {note} the key.	Een opdrachtregel zoals een DASH-knop die uitvoert. {value} is de knopwaarde, {note} de toets.
+a note number 0-127, LEARN to take the next note played, or empty for none	nootnummer 0-127, LEARN voor de volgende gespeelde noot, of leeg voor geen
+a video cue's duration comes from its file; still duration applies to stills, patterns and browsers	de duur van een videocue komt uit het bestand; stilbeeldduur geldt voor beelden, testbeelden en browsers
+An old deck: the picture wobbles, bends at the top of the frame and carries hum bars.	Een oud deck: het beeld wiebelt, buigt bovenaan en vertoont bromstrepen.
+An old tape loses bits of its oxide: dropouts flick white and repeat the line above, and the colour fizzes.	Een oude band verliest oxide: uitval flitst wit en herhaalt de lijn erboven, terwijl de kleur bruist.
+Below the middle narrows toward mono -- which is what a single PA cluster is. Above it widens.	Onder het midden versmalt het richting mono -- zoals één PA-cluster. Erboven verbreedt het.
+Blueshift toward the direction of travel and redshift at the rim. Zero leaves the colour alone and it reads as a lens instead.	Blauwverschuiving in de reisrichting en roodverschuiving aan de rand. Nul laat de kleur intact en oogt als een lens.
+Bright: bright things drip over the dark, as text and logos do. Whole picture: everything is wax, and the picture itself runs down in its own colours.	Helder: heldere delen druipen over donkere, zoals tekst en logo's. Heel beeld: alles is was en het beeld druipt in zijn eigen kleuren.
+Centre is a straight line. Up bends it into an S -- darker shadows, brighter highlights, more contrast. Down flattens it.	In het midden een rechte lijn. Omhoog buigt naar een S -- donkerdere schaduwen, helderdere hooglichten, meer contrast. Omlaag vlakt af.
+Characters across. Fewer means bigger cells and less of the picture surviving, which is usually the point.	Tekens over de breedte. Minder geeft grotere cellen en minder overgebleven beeld, meestal precies de bedoeling.
+Characters to build the picture from, darkest first. Empty uses the chosen glyph set.	Tekens om het beeld mee op te bouwen, donkerste eerst. Leeg gebruikt de gekozen tekenset.
+Colour is recorded at a fraction of the detail: it smears sideways, lands late and its hue wanders.	Kleur wordt met minder detail opgenomen: ze smeert zijwaarts, komt te laat en verschuift van tint.
+Copies of copies: none at the left, four at the right. Each one loses more.	Kopieën van kopieën: links geen, rechts vier. Elke kopie verliest meer.
+How much its SIZE becomes distance. Shrink the picture and the sound goes away from you: the top comes off, the image narrows, the level drops.	Hoeveel de GROOTTE afstand wordt. Verklein het beeld en het geluid gaat weg: hoge tonen verdwijnen, het stereobeeld versmalt, het niveau daalt.
+How much of the driver's movement the picture KEEPS. At zero it follows the driver frame by frame, which is a twitch. Wind it up and the motion accumulates, so the driver sculpts the picture over time and it holds the pose -- which is what puppetry means.	Hoeveel aandrijfbeweging het beeld BEHOUDT. Bij nul volgt het frame voor frame en schokt het. Hoger stapelt beweging zich op: de aandrijving boetseert het beeld en het houdt zijn houding -- zoals poppenspel.
+How much of the picture's position on the output is used. A PIP on the left sounds on the left -- and it is a placement, not a pan: the far ear gets the delay and the head shadow too.	Hoeveel de beeldpositie op de uitgang meetelt. Een PIP links klinkt links -- een plaatsing, geen pan: het verre oor krijgt ook vertraging en hoofdschaduw.
+How much of the tail is kept going while the cue is held. Long enough to hide the splice in room tone, short enough not to smear a rhythm in it.	Hoeveel staart doorloopt tijdens vasthouden. Lang genoeg om de las in ruimtetoon te verbergen, kort genoeg om het ritme niet uit te smeren.
+Lift or cut, 12dB either way. The centre is flat, so a band that has just been added does nothing until this is moved.	Versterken of verzwakken, 12dB per kant. Het midden is vlak; een nieuwe band doet niets totdat dit beweegt.
+Light on the drips, as on something wet: a gloss where it faces the light, darker where it curls away.	Licht op de druppels, zoals op iets nats: glans naar het licht toe, donker waar het wegkrult.
+Line pitch in pixels, so this reads at 4K as well as at 720.	Lijnafstand in pixels, zodat het bij 4K net zo leesbaar is als bij 720.
+One knob for the whole balance: below the middle is darker, above it is brighter.	Eén knop voor de hele balans: onder het midden donkerder, erboven helderder.
+Pulls the bright tones down without moving pure white, so a hot highlight rolls off instead of clipping.	Trekt heldere tonen omlaag zonder zuiver wit te verschuiven, zodat hooglichten zacht afrollen in plaats van clippen.
+Rotates the reading, so straight lines wind into spirals rather than rings.	Draait de uitlezing, zodat rechte lijnen spiralen worden in plaats van ringen.
+Rows lose sync and repeat one character, the way a real text screen breaks up. At 0 the grid is clean.	Rijen verliezen sync en herhalen één teken, zoals een echt tekstscherm dat stoort. Bij 0 is het raster schoon.
+The brightness that stays put. Everything above it reaches one way and everything below it the other.	De helderheid die blijft staan. Alles erboven reikt de ene kant op, alles eronder de andere.
+The character of the growth: low is waves, then labyrinth, coral, worms, and holes at the top.	Aard van de groei: laag golven, dan labyrint, koraal, wormen en bovenaan gaten.
+The colour it becomes. Shading and brightness stay as they were, so a red shirt turns blue and keeps its folds.	De nieuwe kleur. Schaduw en helderheid blijven gelijk, dus een rood shirt wordt blauw met behoud van de plooien.
+The distance that sits ON the screen. Either side of it comes forward or falls behind.	De afstand OP het scherm. Aan weerszijden komt het naar voren of valt het naar achteren.
+The frequency it pivots around -- what counts as 'low' and 'high' for the tilt.	De kantelfrequentie -- wat voor de kanteling als 'laag' en 'hoog' telt.
+The level below which the source is closed. Set it under the quietest thing you want to hear.	Het niveau waaronder de bron sluit. Zet het onder het zachtste geluid dat je wilt horen.
+The plugin's first four automatable controls, in its own order. Everything else it has keeps whatever the plugin was left set to.	De eerste vier automatiseerbare regelaars van de plug-in, in zijn eigen volgorde. De rest behoudt de laatst ingestelde waarden.
+Tints the two directions apart, so light bending one way and the other are different colours instead of both being grey.	Geeft de richtingen verschillende tinten, zodat licht dat beide kanten op buigt verschillende kleuren krijgt in plaats van grijs.
+Turns the strokes across the grain instead of along it, which combs the picture apart rather than smoothing it.	Draait de streken dwars op de korrel in plaats van erlangs, zodat het beeld uiteen wordt gekamd in plaats van gladgestreken.
+Turns the whole arrangement, so the fold lines do not sit on the same part of the picture all night.	Draait de hele opstelling, zodat vouwlijnen niet de hele avond op dezelfde plek liggen.
+Two is a mirror, twelve is a snowflake, and they are completely different pictures.	Twee is een spiegel, twaalf een sneeuwvlok: totaal verschillende beelden.
+Where highlights fold back through black. Low folds most of the picture, high folds only the brightest.	Waar hooglichten via zwart terugvouwen. Laag vouwt het grootste deel van het beeld, hoog alleen het helderste.
+Where the band sits, 30Hz to 16kHz across the travel.	Waar de band ligt, van 30Hz tot 16kHz over het regelbereik.
+Where the fold sits: the middle at the left, toward the far edge to the right. Flips have no fold.	Waar de vouw ligt: links in het midden, naar rechts richting de verre rand. Spiegelen heeft geen vouw.
+Where the light stands, in degrees around the frame.	Waar het licht staat, in graden rond het frame.
+Where the source sits around the listener, all the way round. For headphones -- it is a timing and shading trick, not a pan.	Waar de bron rondom de luisteraar staat, helemaal rond. Voor hoofdtelefoons -- een timing- en schaduwtruc, geen pan.
+Where the top ends, 200Hz to 20kHz. Pull it down to take the harshness off a bright source.	Waar het hoog eindigt, 200Hz tot 20kHz. Omlaag haalt de scherpte uit een heldere bron.
+Which channel the curve acts on: all three, then red, green or blue on its own -- the way a colourist warms or cools one end of the picture.	Kanaal voor de curve: alle drie, dan rood, groen of blauw apart -- zoals een colorist één tonaaluiteinde warmer of koeler maakt.
+Which way the knife edge lies. Only gradients ACROSS the edge show, so turning it swaps which features appear and which vanish.	Richting van de mesrand. Alleen verlopen DWARS erop verschijnen; draaien wisselt zichtbare en onzichtbare kenmerken.
+Which way the streak runs: across at the left, upright in the middle, across again at the right.	Richting van de streep: links dwars, midden rechtop, rechts weer dwars.
+Widens the decision into a ramp, so edges keep their shape instead of jagging.	Verbreedt de drempel tot een helling, zodat randen hun vorm behouden zonder kartels.
+Zero is one noise value across all three channels, which reads as film. Higher gives each channel its own, which reads as video.	Nul geeft dezelfde ruiswaarde in alle drie kanalen en oogt als film. Hoger krijgt elk kanaal eigen ruis en oogt het als video.
+BLEND PAIR: expected <other output number> <overlap in pixels>	BLEND PAIR: <other output number> <overlap in pixels> verwacht
+ASCII WOBBLEMODE: drift | flow (follows luma) | hue (follows colour); no argument cycles	ASCII WOBBLEMODE: drift | flow (volgt luma) | hue (volgt kleur); zonder argument doorlopen
+ASCII: the selected cue has no text mode (add the TEXT MODE effect, or select a video synth cue)	ASCII: de geselecteerde cue heeft geen tekstmodus (voeg het TEXT MODE-effect toe of selecteer een videosynthcue)
+DASH SET: needs a command -- DASH SET <n> <label> | <command> [| <glyph>]	DASH SET: opdracht vereist -- DASH SET <n> <label> | <command> [| <glyph>]
+DRAW COLOUR: #rrggbb, #rrggbbaa, a name, or 1-8 for the palette	DRAW COLOUR: #rrggbb, #rrggbbaa, een naam of 1-8 voor het palet
+DRAW SIZE: 0.1-20 (% of the picture's height)	DRAW SIZE: 0.1-20 (% van de beeldhoogte)
+DRAW STROKE: each point is x,y or x,y,pressure, in percent	DRAW STROKE: elk punt is x,y of x,y,pressure, in procenten
+DRAW TOOL: brush, erase, line, box, oval or fill	DRAW TOOL: brush, erase, line, box, oval of fill
+MASK SET: expected INVERT, X, Y, SCALE, ROTATION, FEATHER, GROW or OPACITY and a number	MASK SET: INVERT, X, Y, SCALE, ROTATION, FEATHER, GROW of OPACITY en een getal verwacht
+MASK SHAPE: expected a shape (MASK SHAPES lists them)	MASK SHAPE: vorm verwacht (MASK SHAPES toont ze)
+MULTIVIEW WINDOW <n>: expected a source, or SAFE/METER/LABEL ON|OFF	MULTIVIEW WINDOW <n>: bron of SAFE/METER/LABEL ON|OFF verwacht
+NEWSHOW: something is live or unsaved -- send NEWSHOW again within 2.5 s	NEWSHOW: er is iets live of niet opgeslagen -- stuur NEWSHOW opnieuw binnen 2.5 s
+NMOS: NOT registering - network is LOCAL ONLY (turn REMOTE ON to publish)	NMOS: GEEN registratie - netwerk ALLEEN LOKAAL (REMOTE ON om te publiceren)
+SCOPES SOURCE: expected PROGRAMME or an output number, 1-	SCOPES SOURCE: PROGRAMME of uitgangsnummer verwacht, 1-
+SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, LINEAR, PERSPECTIVE or NAME	SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, LINEAR, PERSPECTIVE of NAME
+SLICE CORNER: TL, TR, BR or BL, then dx dy in percent of the output	SLICE CORNER: TL, TR, BR of BL, daarna dx dy in procenten van de uitgang
+SLICE EDGE: L, R, T or B, then 0-50 (% of the slice)	SLICE EDGE: L, R, T of B, daarna 0-50 (% van de uitsnede)
+SLICE GRID POINT: col row (from 1, on a grid that is on) then dx dy in percent	SLICE GRID POINT: col row (vanaf 1, op een actief raster), daarna dx dy in procenten
+SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF, or POINT col row dx dy	SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF of POINT col row dx dy
+SLICE LFO: X, Y, ROTATION or OPACITY, then ON, OFF, SHAPE, RATE, DEPTH...	SLICE LFO: X, Y, ROTATION of OPACITY, daarna ON, OFF, SHAPE, RATE, DEPTH...
+SLICE ROTATE: IN (the crop) or OUT (the placed picture), then degrees	SLICE ROTATE: IN (de uitsnede) of OUT (het geplaatste beeld), daarna graden
+STING: select a tone cue first (TONECUE makes one)	STING: selecteer eerst een tooncue (TONECUE maakt er een)
+VIDEO OUTPUT ASSIGN: already on this output, or no such deck or output	VIDEO OUTPUT ASSIGN: al op deze uitgang, of deck of uitgang bestaat niet
+VIDEO OUTPUT LAYER: this deck is not on this output, or it is already at that layer	VIDEO OUTPUT LAYER: dit deck zit niet op deze uitgang of al op die laag
+VIDEO OUTPUT LAYERWARP MODE: linear or perspective	VIDEO OUTPUT LAYERWARP MODE: linear of perspective
+VIDEO OUTPUT LAYERWARP: expected OFF, MODE, or eight numbers clockwise from the top left	VIDEO OUTPUT LAYERWARP: OFF, MODE of acht getallen met de klok mee vanaf linksboven verwacht
+VIDEO OUTPUT UNASSIGN: this deck is not on this output, or it is the only thing on it	VIDEO OUTPUT UNASSIGN: dit deck zit niet op deze uitgang of is het enige erop
+WARP SELECT: expected TL, TR, BR, BL or a grid <col> <row>	WARP SELECT: TL, TR, BR, BL of rasterpunt <col> <row> verwacht
+WEBMONITOR PIN: network sharing and phone control require 8 or more characters	WEBMONITOR PIN: netwerkdelen en telefoonbediening vereisen minstens 8 tekens
+WEBMONITOR SOURCE: PROGRAMME or the number of an output that shows a picture	WEBMONITOR SOURCE: PROGRAMME of het nummer van een uitgang met beeld
+e.g. /stage/doors -- sent to Deckboy's OSC port; empty for none	bijv. /stage/doors -- naar de OSC-poort van Deckboy; leeg voor geen
+forget my defaults? only NEW changes, this show keeps its settings: press again	Mijn standaardwaarden vergeten? Alleen NEW verandert, deze show houdt zijn instellingen: druk opnieuw
+HH:MM or HH:MM:SS on this computer's clock; empty for none	HH:MM of HH:MM:SS op de klok van deze computer; leeg voor geen
+HH:MM:SS:FF of the timecode Deckboy is chasing; empty for none	HH:MM:SS:FF van de tijdcode die Deckboy volgt; leeg voor geen
+key+fill ON, but no key device set (DECKLINK KEYFILL ON <device>)	key+fill ON, maar geen keyapparaat ingesteld (DECKLINK KEYFILL ON <device>)
+my defaults forgotten: NEW starts from factory settings, this show is unchanged	eigen standaardwaarden vergeten: NEW begint met fabrieksinstellingen, deze show blijft gelijk
+N=new  Enter/P=previous  O=open saved  E=examples  L=learn  1-	N=nieuw  Enter/P=vorige  O=opgeslagen openen  E=voorbeelden  L=leren  1-
+ndi tally trigger on -- program tally takes the cue	NDI-tallytrigger aan -- PROGRAM-tally start de cue
+network sharing and phone control require an 8+ character passphrase	netwerkdelen en telefoonbediening vereisen een wachtzin van minstens 8 tekens
+new show disarms all outputs: press new again	nieuwe show ontwapent alle uitgangen: druk opnieuw op nieuw
+nmos: network is LOCAL ONLY - not registering	nmos: netwerk ALLEEN LOKAAL - geen registratie
+notestep: this cue's notes have no builds (separate them with a line of ---)	notestep: de notities van deze cue hebben geen stappen (scheid ze met een regel ---)
+on the dashboard - Ctrl+D or the DASH button	op het dashboard - Ctrl+D of de DASH-knop
+opened github.com in your browser -- nothing is sent until you submit the report there	github.com geopend in je browser -- er wordt niets verstuurd totdat je daar het rapport indient
+output effects bypassed: no effect and no limit on this device	uitgangseffecten omzeild: geen effect en geen limiet op dit apparaat
+output recover failed: fullscreen unavailable	herstel van uitgang mislukt: volledig scherm niet beschikbaar
+pair with a picture effect whose LFO is set to Audio	koppel aan een beeldeffect met LFO op Audio
+phone control requires an 8+ character passphrase	telefoonbediening vereist een wachtzin van minstens 8 tekens
+phones need THE NETWORK: set 'Who can see it' first	telefoons hebben HET NETWERK nodig: stel eerst 'Wie kan het zien' in
+programme sound is always included; use WEBMONITOR OFF to stop the monitor	PROGRAM-geluid zit er altijd bij; gebruik WEBMONITOR OFF om de monitor te stoppen
+recordings remux to MP4 when the take stops	opnamen worden bij stoppen van de opname naar MP4 geremuxt
+save failed - retrying; still open, use SAVE AS if needed	opslaan mislukt - opnieuw proberen; nog open, gebruik zo nodig SAVE AS
+saved as my defaults: NEW starts like this show, without the cues	opgeslagen als mijn standaardwaarden: NEW begint zoals deze show, zonder cues
+set an 8+ character Web Monitor passphrase first	stel eerst een webmonitorwachtzin van minstens 8 tekens in
+sound scopes: integrated loudness and true peak start again	audioscopes: geïntegreerde luidheid en true peak beginnen opnieuw
+splitnotes: that cue's notes have no parts (separate them with a line of ---)	splitnotes: de notities van die cue hebben geen delen (scheid ze met een regel ---)
+the clicker now spends note builds before advancing	de klikker doorloopt nu eerst notitiestappen voordat hij verdergaat
+unsaved changes will be lost: press new again	niet-opgeslagen wijzigingen gaan verloren: druk opnieuw op nieuw
+what the operator should be told when GO reaches here	wat de operator moet horen als GO hier aankomt
+what the patch and the cues call it (FOH, SUB, PRESS FEED)	naam in de patch en cues (FOH, SUB, PRESS FEED)
+Flip across, upside down or both, or fold one half onto the other: right onto left, left onto right, bottom onto top, top onto bottom, or one corner into all four.	Spiegel horizontaal, verticaal of beide, of vouw één helft over de andere: rechts op links, links op rechts, onder op boven, boven op onder of één hoek in alle vier.
+Moves the direction of travel off the centre of frame, so the picture rushes past rather than straight at you.	Verplaatst de reisrichting uit het midden, zodat het beeld langs je suist in plaats van recht op je af.
+Original: the picture pulled onto the figure. Sand: the picture as grains that are thrown off the moving parts and pour into each new figure. Fluid: the picture under water on the plate, bent and lit by its standing waves.	Origineel: het beeld op de figuur getrokken. Zand: beeldkorrels worden van bewegende delen geworpen en vallen in elke nieuwe figuur. Vloeistof: het beeld onder water op de plaat, vervormd en belicht door staande golven.
+PHONE LEVEL: removed -- a paired phone or the passphrase can do everything; BLACKOUT and RECORD are hold-to-fire on the phone	PHONE LEVEL: verwijderd -- een gekoppelde telefoon of wachtzin geeft alle bediening; houd BLACKOUT en RECORD ingedrukt op de telefoon
+presenter panel: expected <live|prev|next|notes> <x> <y> <w> <h> in percent	presentatorpaneel: <live|prev|next|notes> <x> <y> <w> <h> in procenten verwacht
+presenter panel: the panel must fit on the screen (x+w and y+h no more than 100)	presentatorpaneel: het paneel moet op het scherm passen (x+w en y+h maximaal 100)
+select a Draw cue first (SOURCE > MADE BY DECKBOY > Draw)	selecteer eerst een tekencue (SOURCE > MADE BY DECKBOY > Draw)
+something mellow appeared in SOURCE > MADE BY DECKBOY	er verscheen iets rustigs in SOURCE > MADE BY DECKBOY
+Something near the deck: a phone's buzz, a light dimmer's herringbone, a radio's slow bars.	Iets bij het deck: telefoongebrom, visgraat van een lichtdimmer, trage radiobalken.
+SOURCE WINDOW: name the window, e.g. title:Firefox (or "desktop")	SOURCE WINDOW: geef het venster op, bijv. title:Firefox (of "desktop")
+Tape speed: SP is the best picture, LP and EP fit more on a tape and lose detail and colour.	Bandsnelheid: SP geeft het beste beeld; LP en EP passen meer op een band maar verliezen detail en kleur.
+Words to surface in the field, separated by | . One shows at a time, moving on the hold clock.	Woorden die in het veld opduiken, gescheiden door | . Eén tegelijk, wisselend op de vasthoudklok.
+SYPHON / SPOUT TEXTURE SHARE	SYPHON / SPOUT TEXTUREN DELEN
+SYPHON TEXTURE SHARE	SYPHON TEXTUREN DELEN
+Keynote could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)	Keynote kon dit bestand niet exporteren (mogelijk is automatiseringstoestemming nodig: Systeeminstellingen > Privacy en beveiliging > Automatisering)
+PowerPoint could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)	PowerPoint kon dit bestand niet exporteren (mogelijk is automatiseringstoestemming nodig: Systeeminstellingen > Privacy en beveiliging > Automatisering)
+ASCII: use ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>	ASCII: gebruik ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>
+FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR	FX: gebruik LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR
+FX LFO wants <index> <slot> <on|off|shape> [value]	FX LFO verwacht <index> <slot> <on|off|shape> [value]
+FX LFO: on, off, shape, rate, depth, zone, channel or cc	FX LFO: on, off, shape, rate, depth, zone, channel of cc
+GEOLFO: x, y, width, height, rotation, cropleft, cropright, croptop or cropbottom	GEOLFO: x, y, width, height, rotation, cropleft, cropright, croptop of cropbottom
+LFO: density, speed, warp, turn, centrex, centrey, grey or hue	LFO: density, speed, warp, turn, centrex, centrey, grey of hue
+MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET or FEEDBACK	MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET of FEEDBACK
+INPUTMONITOR: a row count, OPEN, CLOSE, CLEAR, PAUSE or RESUME	INPUTMONITOR: aantal rijen, OPEN, CLOSE, CLEAR, PAUSE of RESUME
+OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <sender name>	OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <sender name> (zendernaam)
+WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (sound is included)	WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (geluid inbegrepen)
+expected waveform|scope|lissajous|spectrum|level|cover	verwacht waveform|scope|lissajous|spectrum|level|cover
+MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> or OSC <address> [<n>], then CH <1-16> if not channel 1	MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> of OSC <address> [<n>], daarna CH <1-16> indien niet kanaal 1
+warp grid: expected <n>, <cols> <rows>, off, smooth or straight	warp grid: <n>, <cols> <rows>, off, smooth of straight verwacht
+warp point: that is a corner -- move it with WARP <corner> dx dy	warp point: dat is een hoek -- verplaats met WARP <corner> dx dy
+label | command | glyph      (empty label|command removes it)	label | opdracht | teken      (lege label|command verwijdert het)
+PIP: retired -- scale a second deck over this one instead	PIP: vervallen -- schaal een tweede deck over dit deck
+pip: retired -- scale a second deck over this one instead	pip: vervallen -- schaal een tweede deck over dit deck
+did not finish in 3 minutes. It may be waiting on a prompt it cannot show (Protected View, sign-in, a repair). Open the deck there once, or export it as a PDF and import that	niet klaar binnen 3 minuten. Wacht mogelijk op een onzichtbare melding (Beveiligde weergave, aanmelden, herstel). Open de presentatie daar eenmaal, of exporteer als PDF en importeer die
+PowerPoint could not open the file (it gave up waiting for it). If it is in OneDrive, right-click it and choose Always keep on this device, then import it again	PowerPoint kon het bestand niet openen (wachttijd verstreken). Staat het in OneDrive, klik er rechts op en kies Altijd behouden op dit apparaat, en importeer opnieuw
+esc: control window - again to clear output	Esc: bedieningsvenster - nogmaals om de uitgang te wissen
+a plugin overran the audio thread and was bypassed — take it out of the chain	een plug-in overschreed de audiothreadtijd en is omzeild — haal hem uit de keten
+window capture fell back to screen grab — update ffmpeg for exact window capture	vensteropname viel terug op schermopname — werk FFmpeg bij voor exacte vensteropname
+DECODE --.-	DECODEREN --.-
+DECODE OFF	DECODEREN UIT
+OUTPUT --.-	UITGANG --.-
+STREAM ERR	STREAM FOUT
+STREAM OFF	STREAM UIT
+DECODE WARM	DECODE START
+OUTPUT WARM	UITGANG START
+STREAM WARM	STREAM START
+audioprint	geluidsafdruk

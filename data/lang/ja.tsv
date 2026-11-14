@@ -3248,3 +3248,1110 @@ whole picture	映像全体
 FX CHOICE: choice must be A or B	FX CHOICE: 選択は A か B のいずれか
 FX CHOICE: no effect at that index	FX CHOICE: その索引にエフェクトはありません
 FX LFO: slot is A-D for the parameters, E for the amount, F and G for the fifth and sixth (or 0-6)	FX LFO: スロットはA-Dがパラメーター、Eが量、FとGが5番目と6番目（または0-6）
+angle	角度
+attack	アタック
+azimuth	方位角
+band curve	バンドカーブ
+bands	バンド数
+base layer	ベースレイヤー
+bits	ビット数
+black point	黒レベル
+bleed	にじみ
+block glitch	ブロックグリッチ
+block size	ブロックサイズ
+blocks	ブロック数
+blur	ぼかし
+bright	明部
+buzzer	ブザー
+by brightness	明るさ順
+catch	捕捉
+caustics	集光模様
+channel skew	チャンネルずれ
+channel spread	チャンネル拡散
+character	文字
+chop	チョップ
+coherence	コヒーレンス
+colour bleed	色にじみ
+colour drift	色ドリフト
+colour lag	色遅延
+colour replace	色置換
+columns	列数
+convergence	収束
+copies	コピー数
+corrupt	破損
+corruption	破損度
+coupling	結合
+crystallise	結晶化
+curl detail	渦の細かさ
+curves	カーブ
+cut bright	明部カット
+cut dark	暗部カット
+cut reset	カット時リセット
+cutoff	カットオフ
+cuts	カット数
+cyan	シアン
+damage	ダメージ
+damping	減衰
+dark	暗部
+darkness	暗さ
+deck age	デッキの劣化
+depth	深さ
+depth split	奥行き分離
+diamond	ひし形
+distance	距離
+doppler	ドップラー
+dots move	点の移動
+drift	ドリフト
+drip	滴下
+drips	しずく
+drive	ドライブ
+dye advect	染料移流
+edge ignite	エッジ発火
+edges	エッジ
+empty	空
+extended	拡張
+facet light	面の光
+falloff	減衰幅
+falsecolour	フォルスカラー
+feed rate	供給率
+feedback bloom	フィードバック光彩
+ferrofluid	磁性流体
+field of view	画角
+flash length	フラッシュ長
+flash to	フラッシュ先
+flicker	フリッカー
+floor	下限
+flow	流れ
+focus	フォーカス
+fold	折り返し
+fold point	折り返し位置
+frames	フレーム数
+frequency	周波数
+gap	間隔
+gather	集積
+glow	グロー
+glyph set	文字セット
+gong	銅鑼
+grain	グレイン
+grain flow	粒子の流れ
+grain size	粒子サイズ
+green split	緑分離
+grid	グリッド
+growl	うなり
+growth	成長
+head wear	ヘッド摩耗
+heat	熱量
+highlight roll	ハイライト圧縮
+histogram	ヒストグラム
+horizontal	水平
+hue turn	色相回転
+ice	氷
+ink	インク
+interference	干渉
+irregularity	不規則性
+jump	ジャンプ
+kaleido	万華
+kaleidoscope	万華鏡
+knee	ニー
+knife angle	ナイフ角度
+leak	漏れ
+let go	解放
+lift	リフト
+light	光
+light angle	光の角度
+lightspeed	光速
+line colour	線の色
+line glow	線の光彩
+lissajous	リサージュ
+luma displace	輝度変位
+luma key	ルミナンスキー
+material	材質
+melt	メルト
+memory	メモリー
+midtones	中間調
+moire	モアレ
+mono	モノラル
+mosaic	モザイク
+motion mosh	モーションモッシュ
+motion puppet	モーションパペット
+motion trails	モーショントレイル
+night eyes	夜の目
+no colour	色なし
+noise	ノイズ
+not connected	未接続
+nothing drawn	描画なし
+off-axis	軸外
+offline	オフライン
+orbit speed	周回速度
+overflow	オーバーフロー
+parade	パレード
+parallax	視差
+phone	電話
+pinch	つまむ
+ping-pong	ピンポン
+pink noise	ピンクノイズ
+pitch	ピッチ
+pivot	ピボット
+pixel sort	ピクセルソート
+plasma	プラズマ
+polar warp	極座標ワープ
+posterise	ポスタリゼーション
+radial zoom	放射ズーム
+radio	ラジオ
+radius	半径
+ramp	ランプ
+range	範囲
+ratio	比率
+reach	到達範囲
+reaction bloom	反応ブルーム
+recordings	録画ファイル
+recovering	復旧中
+refresh	リフレッシュ
+release	リリース
+relief	レリーフ
+relight	再照明
+repeat width	反復幅
+resonance	レゾナンス
+reverse	逆方向
+rgb split	RGB分離
+rings	リング数
+ripple	波紋
+rising	上昇
+rod bias	桿体バイアス
+room	ルーム
+rot	腐食
+rotation	回転
+round	丸形
+sag	たわみ
+saw	のこぎり波
+scanlines	走査線
+schlieren	シュリーレン
+scope	スコープ
+second mode	第2モード
+see through	透過
+seed density	シード密度
+self	自己
+settle	静定
+shadow lift	シャドウリフト
+shake	揺れ
+shard size	破片サイズ
+sharpen	シャープ
+sheen	光沢
+sideways	横方向
+slit scan	スリットスキャン
+slit width	スリット幅
+smear	にじませ
+softness	柔らかさ
+solarise	ソラリゼーション
+spike count	スパイク数
+spike length	スパイク長
+spin	スピン
+spinning	回転中
+spring	ばね
+sprite sheet	スプライトシート
+square	矩形波
+steps	ステップ数
+stereogram	ステレオグラム
+stiffness	剛性
+sting	スティング
+strength	強度
+strobe	ストロボ
+stroke	ストローク
+sway	揺動
+sweep	スイープ
+sweep speed	スイープ速度
+swell speed	うねり速度
+symbols	記号
+system default	システム既定
+system output	システム出力
+tape	テープ
+tape age	テープの劣化
+tear width	裂け幅
+temporal dither	時間ディザ
+test signal	テスト信号
+text to send	送信テキスト
+threshold	しきい値
+throw	投射量
+tile size	タイルサイズ
+tilt	チルト
+time	時間
+time cube	タイムキューブ
+tint	色付け
+tint colour	色付け色
+tracking	トラッキング
+trail	軌跡
+transparent	透明
+triangle	三角波
+triple beep	3回ビープ
+turn	回す
+twist	ねじれ
+unavailable	利用不可
+unbalanced )	対応しない )
+vapor	蒸気
+vector	ベクトル
+vertical	垂直
+vertical bias	垂直バイアス
+vibrato	ビブラート
+vignette	ビネット
+wash out	白飛び
+wave height	波の高さ
+wavefront	波面
+way	方向
+wedges	くさび
+white	白
+white noise	ホワイトノイズ
+white point	白レベル
+window hidden	ウィンドウ非表示
+window minimized	ウィンドウ最小化
+wire	ワイヤー
+wrong display	ディスプレイ違い
+zoom	ズーム
+(choose cue)	(キューを選択)
+(missing)	(不明)
+(no slots)	(スロットなし)
+(set media file)	(メディアファイルを設定)
+(set url)	(urlを設定)
+A number	数値
+across the grain	粒子を横切る
+additive	加算
+alternating	交互
+amber	琥珀色
+Audio bitrate	音声ビットレート
+Audio reactivity	音声反応
+Brush opacity	ブラシ不透明度
+Brush size	ブラシサイズ
+cancelled	キャンセル済み
+Canvas Height	キャンバス高さ
+Canvas View	キャンバス表示
+Canvas Width	キャンバス幅
+Centre X	中心 X
+Centre Y	中心 Y
+Control change	コントロールチェンジ
+Cue Notes	キューノート
+Custom Glyphs	カスタム文字
+Density	密度
+Detail	細部
+Draw colour	描画色
+empty expression	式が空です
+export as .png or .svg	.png または .svg で書き出し
+Fixture address	灯体アドレス
+Fixture name	灯体名
+Fixture universe	灯体ユニバース
+Height	高さ
+Height (px)	高さ (px)
+Key Color	キー色
+Keyframe interval	キーフレーム間隔
+Live Browser	ライブブラウザー
+Live Source	ライブソース
+Mask opacity	マスク不透明度
+Mask rotation	マスク回転
+Mask scale	マスク倍率
+Mask X	マスク X
+Mask Y	マスク Y
+Add Browser Cue	ブラウザーキュー追加
+Add NDI Source Cue	NDIソースキュー追加
+Add Stream Cue	ストリームキュー追加
+Art-Net Destination	Art-Net送信先
+ASCII 95 (density)	ASCII 95 (密度)
+ASCII 95 (raw)	ASCII 95 (生)
+ASIO is off	ASIOはオフです
+ATEM Input	ATEM入力
+Attach Lower Third	Lower Thirdを追加
+Attach PIP Overlay	PIPオーバーレイ追加
+Attack	アタック
+Bands	バンド数
+Blobs	ブロブ数
+BOTH	両方
+Browser Ready	ブラウザー準備完了
+CLASSIC	クラシック
+CLOCK	クロック
+Companion/OSC Port	Companion/OSCポート
+control 1	コントロール1
+control 2	コントロール2
+control 3	コントロール3
+control 4	コントロール4
+could not reach github	githubに接続できません
+could not read the PDF	PDFを読み取れません
+could not start ffmpeg	ffmpegを起動できません
+Cue Goto	キューへ移動
+Custom Output Raster	カスタム出力ラスター
+Default Cue Fade	既定キューフェード
+Destination Address	送信先アドレス
+Destination UDP port	送信先UDPポート
+display native	ディスプレイ標準
+Display none	ディスプレイなし
+DMX Channels	DMXチャンネル
+EXTREME	極端
+Feedback zoom	フィードバックズーム
+Find Cue	キュー検索
+Find+Take Cue	キュー検索+TAKE
+Fire at a time of day	時刻で実行
+Fire on a MIDI note	MIDIノートで実行
+Fire on an OSC address	OSCアドレスで実行
+First channel (1-512)	開始チャンネル (1-512)
+Flipbook rate	パラパラ速度
+Flow	流れ
+Frequency	周波数
+Glitch	グリッチ
+GOTO Cue	GOTO キューへ移動
+Grey	グレー
+In time	イン時間
+Its name, number or id	名前、番号またはID
+Key sender source name	キー送信元ソース名
+Legacy Cue Link	旧式キューリンク
+Lissajous (L/R phase)	リサージュ (L/R位相)
+Lower Third - subtitle	Lower Third - サブタイトル
+Lower Third - title	Lower Third - タイトル
+Lower Third Subtext	Lower Third補足テキスト
+Lower Third Title	Lower Thirdタイトル
+Media	メディア
+Melt	メルト
+Milliseconds 0-5000	ミリ秒 0-5000
+Mod depth	変調深度
+Mod ratio	変調比率
+music & sparkle	音楽ときらめき
+NDI Key Name	NDIキー名
+NDI Name	NDI名
+NDI Source Name	NDIソース名
+NEXT	次へ
+NMC Port	NMCポート
+NMC Source	NMCソース
+NMC Target	NMC送信先
+NMOS Interface Name	NMOSインターフェース名
+NMOS Node Port	NMOSノードポート
+NMOS Registry	NMOSレジストリー
+no ASIO in this build	このビルドはASIO非対応
+no driver named	該当名のドライバーなし
+no mask made	マスク未作成
+no release found	リリースが見つかりません
+no X display to read	読み取り可能なXディスプレイなし
+not on this output	この出力にはありません
+Note	ノート
+Note off	ノートオフ
+Note on	ノートオン
+OSC Address	OSCアドレス
+OSC Query HTTP Port	OSC Query HTTPポート
+Out time	アウト時間
+Output Alpha	出力アルファ
+Output Canvas	出力キャンバス
+Output Delay	出力遅延
+output fault	出力障害
+Output name	出力名
+Output Refresh	出力リフレッシュ
+own playlist	自身のプレイリスト
+Payload	ペイロード
+Percent 0-100	パーセント 0-100
+Phrases	フレーズ
+PIP Target Cue	PIP対象キュー
+Pixel density	ピクセル密度
+Playlist Start TC	プレイリスト開始TC
+Playlist Timebase	プレイリストタイムベース
+Plugin	プラグイン
+Portal	ポータル
+Practice show	練習用ショー
+PREVIOUS	前へ
+Program change	プログラムチェンジ
+Prompter script	プロンプター原稿
+pulse 25%	パルス25%
+QUALITY	品質
+Raw bytes	生バイト
+Raw MIDI Bytes	生MIDIバイト
+Release	リリース
+Rename cue	キュー名変更
+Rename fixture	灯体名変更
+Renumber Cues	キュー番号振り直し
+Replay hold	リプレイ保持
+Retrigger	再トリガー
+Rim	縁
+Rotation	回転
+runtime unavailable	ランタイム利用不可
+Save Warp Preset	ワーププリセット保存
+SCOPES	スコープ
+Seconds (0-30)	秒 (0-30)
+Sender source name	送信元ソース名
+size out of range	サイズが範囲外
+Smear	にじませ
+Source Ready	ソース準備完了
+Spout Sender Name	Spout送信名
+Sprite spin	スプライト回転
+SRT latency	SRT遅延
+SRT passphrase	SRTパスフレーズ
+SRT stream ID	SRTストリームID
+ST 2110 Destination	ST 2110送信先
+ST 2110 Port	ST 2110ポート
+Step length	ステップ長
+stream restart needed	ストリーム再起動が必要
+Stream URL	ストリームURL
+stream write failed	ストリーム書き込み失敗
+SUBTLE	控えめ
+Switcher IP address	スイッチャーIPアドレス
+Timer Message	タイマーメッセージ
+TSL Tally	TSLタリー
+Turn	回す
+Twist	ねじれ
+Universe (0-63999)	ユニバース (0-63999)
+URL or local page path	URLまたはローカルページのパス
+Video bitrate	映像ビットレート
+Video dip fade	映像ディップフェード
+vMix HTTP Port	vMix HTTPポート
+vMix TCP Port	vMix TCPポート
+Web Monitor PIN	WebモニターPIN
+Web Monitor Port	Webモニターポート
+What it runs	実行内容
+Which cue	対象キュー
+X,Y offset in pixels	X,Yオフセット (ピクセル)
+Zoom	ズーム
+a name for this step	このステップの名前
+A number, or blank for none	数値、指定なしは空欄
+A command line, or blank for nothing	コマンド行、何もしない場合は空欄
+a playlist that is gone	削除されたプレイリスト
+a target cannot target another target	ターゲットから別のターゲットは指定できません
+add an output to scope it	スコープ表示する出力を追加してください
+an ASIO stream is already open	ASIOストリームは既に開いています
+another app is holding the pointer	別のアプリがポインターを取得中です
+built without ASIO support	ASIO対応なしでビルドされています
+built without NDI SDK headers	NDI SDKヘッダーなしでビルドされています
+channel count must be at least 1	チャンネル数は1以上にしてください
+comma outside a function call	関数呼び出しの外にカンマがあります
+could not start the PDF renderer	PDFレンダラーを起動できません
+could not write the export script	書き出しスクリプトを作成できません
+couldn't open explorer	エクスプローラーを開けません
+couldn't open file manager	ファイルマネージャーを開けません
+couldn't open finder	Finderを開けません
+driver refused to start	ドライバーが起動を拒否しました
+driver reports no output channels	ドライバーに出力チャンネルがありません
+driver would not create output buffers	ドライバーが出力バッファーを作成できません
+driver would not load (in use by another application?)	ドライバーを読み込めません (別のアプリで使用中？)
+driver would not report a buffer size	ドライバーがバッファーサイズを返しません
+driver would not report channel info	ドライバーがチャンネル情報を返しません
+escaped to windowed	ウィンドウモードに戻りました
+ffmpeg made no file	ffmpegがファイルを作成しませんでした
+ffmpeg stopped taking frames	ffmpegがフレームの受信を停止しました
+fullscreen dropped	全画面表示が解除されました
+it could not be started	起動できませんでした
+LibreOffice could not be run	LibreOfficeを実行できません
+LibreOffice produced no PDF	LibreOfficeがPDFを生成しませんでした
+libX11 is not installed	libX11がインストールされていません
+lost the session bus	セッションバスとの接続が切れました
+macOS could not read the PDF	macOSがPDFを読み取れません
+no pages could be rendered	ページを描画できませんでした
+not a MIDI file (no MThd header)	MIDIファイルではありません (MThdヘッダーなし)
+not while a cue is playing	キュー再生中は実行できません
+only a background in it	背景しかありません
+opened in explorer	エクスプローラーで開きました
+opened in file manager	ファイルマネージャーで開きました
+pdftoppm produced no pages	pdftoppmがページを生成しませんでした
+PowerPoint could not export this file	PowerPointがこのファイルを書き出せません
+release has no build for this platform	このリリースに対応プラットフォームのビルドはありません
+revealed in finder	Finderで表示しました
+target cue is gone	対象キューは削除されています
+targets nothing	対象がありません
+the document has no pages	文書にページがありません
+the file has no playable events	ファイルに再生可能なイベントがありません
+the file is empty	ファイルが空です
+the header is truncated	ヘッダーが途中で切れています
+the NDI runtime is not installed	NDIランタイムがインストールされていません
+the PDF renderer produced no pages	PDFレンダラーがページを生成しませんでした
+the screen could not be read there	その位置の画面を読み取れません
+the show plays through ASIO	ショーはASIO経由で再生中です
+the time division is not readable	時間分解能を読み取れません
+this build has no X11 support	このビルドはX11非対応です
+update: could not start the installer	更新: インストーラーを起動できません
+update: could not start the install helper	更新: インストール補助を起動できません
+update: could not write the install helper	更新: インストール補助を書き込めません
+update: not running from an AppImage	更新: AppImageから実行していません
+web audio encoder cannot keep up	Web音声エンコーダーが処理に追いつきません
+Web Monitor Connections	Webモニター接続数
+%, 1 to 100 (supports + - * / and ())	%、1～100 (+ - * / と () が使用可能)
+0-1 (supports + - * / and ())	0-1 (+ - * / と () が使用可能)
+0-100% (supports + - * / and ())	0-100% (+ - * / と () が使用可能)
+0-100%, left to right (supports + - * / and ())	0-100%、左から右 (+ - * / と () が使用可能)
+0-100%, top to bottom (supports + - * / and ())	0-100%、上から下 (+ - * / と () が使用可能)
+Amount 0-100% (supports + - * / and ())	量 0-100% (+ - * / と () が使用可能)
+Colour steps, 2-8 (supports + - * / and ())	色の段階、2-8 (+ - * / と () が使用可能)
+Degrees -180..180 (supports + - * / and ())	度 -180..180 (+ - * / と () が使用可能)
+Degrees per second, -720 to 720 (supports + - * / and ())	度/秒、-720～720 (+ - * / と () が使用可能)
+Degrees round the colour wheel, 0-360 (supports + - * / and ())	色相環の角度、0-360 (+ - * / と () が使用可能)
+Degrees, -360 to 360 (supports + - * / and ())	度、-360～360 (+ - * / と () が使用可能)
+Degrees, 0-360 (supports + - * / and ())	度、0-360 (+ - * / と () が使用可能)
+Feature size, 0.1-8 (supports + - * / and ())	模様サイズ、0.1-8 (+ - * / と () が使用可能)
+Frames a second, 1 to 60 (supports + - * / and ())	毎秒フレーム数、1～60 (+ - * / と () が使用可能)
+Hertz, 20-20000 (supports + - * / and ())	ヘルツ、20-20000 (+ - * / と () が使用可能)
+Horizontal cells, 64-960 (supports + - * / and ())	横セル数、64-960 (+ - * / と () が使用可能)
+How big a blob grows, 0-1 (supports + - * / and ())	ブロブの成長サイズ、0-1 (+ - * / と () が使用可能)
+How hard it cuts, %, 0 to 100 (supports + - * / and ())	カットの強さ、%、0～100 (+ - * / と () が使用可能)
+How hard the audio drives it, 0-1 (supports + - * / and ())	音声による駆動の強さ、0-1 (+ - * / と () が使用可能)
+How many are alive at once, 3-48 (supports + - * / and ())	同時に存在する数、3-48 (+ - * / と () が使用可能)
+Palette turn, 0-1 (supports + - * / and ())	パレット回転、0-1 (+ - * / と () が使用可能)
+Pitch in hertz, 20-8000 (supports + - * / and ())	音程 (ヘルツ)、20-8000 (+ - * / と () が使用可能)
+Pixel sort amount, 0-1 (supports + - * / and ())	ピクセルソート量、0-1 (+ - * / と () が使用可能)
+Pixels (supports + - * / and ())	ピクセル (+ - * / と () が使用可能)
+Pixels, 64-2160 (supports + - * / and ())	ピクセル、64-2160 (+ - * / と () が使用可能)
+Pixels, 64-3840 (supports + - * / and ())	ピクセル、64-3840 (+ - * / と () が使用可能)
+Scale of the whole graphic, 0.5-2 (supports + - * / and ())	グラフィック全体の倍率、0.5-2 (+ - * / と () が使用可能)
+Seconds between retriggers, 0-8 (supports + - * / and ())	再トリガー間隔 (秒)、0-8 (+ - * / と () が使用可能)
+Seconds the finished drawing stays, 0 to 60 (supports + - * / and ())	描画完了後の保持秒数、0～60 (+ - * / と () が使用可能)
+Seconds the in move takes, 0-5 (supports + - * / and ())	イン動作の秒数、0-5 (+ - * / と () が使用可能)
+Seconds the out move takes, 0-5 (supports + - * / and ())	アウト動作の秒数、0-5 (+ - * / と () が使用可能)
+Seconds, 0-4 (supports + - * / and ())	秒、0-4 (+ - * / と () が使用可能)
+Seconds, 0-8 (supports + - * / and ())	秒、0-8 (+ - * / と () が使用可能)
+Size, %, 5 to 400 (supports + - * / and ())	サイズ、%、5～400 (+ - * / と () が使用可能)
+Spiral size, 0.25-4 (supports + - * / and ())	らせんサイズ、0.25-4 (+ - * / と () が使用可能)
+Spiral strength, 0-4 (supports + - * / and ())	らせんの強さ、0-4 (+ - * / と () が使用可能)
+Thickness of the glowing edge, 0-1 (supports + - * / and ())	発光する縁の太さ、0-1 (+ - * / と () が使用可能)
+Where the eye sits, 0 left to 1 right (supports + - * / and ())	目の位置、0が左、1が右 (+ - * / と () が使用可能)
+Where the eye sits, 0 top to 1 bottom (supports + - * / and ())	目の位置、0が上、1が下 (+ - * / と () が使用可能)
+% of the picture's height, 0.1 to 20 (supports + - * / and ())	映像の高さに対する%、0.1～20 (+ - * / と () が使用可能)
+-3 to 3: 0 holds, negative runs backwards (supports + - * / and ())	-3～3: 0で保持、負値で逆再生 (+ - * / と () が使用可能)
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono (supports + - * / and ())	0クラシック、1炎、2氷、3ネオン、4単色 (+ - * / と () が使用可能)
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono (supports + - * / and ())	0虹+グレー、1虹、2テーマ、3単色 (+ - * / と () が使用可能)
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear (supports + - * / and ())	0ゾーン、1ツイン、2フロー、3サドル、4波紋、5シアー (+ - * / と () が使用可能)
+0-100%: 0 holds the field still (supports + - * / and ())	0-100%: 0で場を静止 (+ - * / と () が使用可能)
+0-100%: 50 is 1x, 0 a quarter, 100 four times (supports + - * / and ())	0-100%: 50で1x、0で1/4、100で4倍 (+ - * / と () が使用可能)
+0-100%: how far the field bends (supports + - * / and ())	0-100%: 場の曲がり量 (+ - * / と () が使用可能)
+0-100%: the share of each band drawn as grey stripes (supports + - * / and ())	0-100%: 各帯を灰色の縞で描く割合 (+ - * / と () が使用可能)
+Across, % of the width, -100 to 100 (supports + - * / and ())	横方向、幅に対する%、-100～100 (+ - * / と () が使用可能)
+Birth, drift and fade rate, 0.1-3 (supports + - * / and ())	生成・漂流・消滅の速度、0.1-3 (+ - * / と () が使用可能)
+Block displacement and channel tearing, 0-1 (supports + - * / and ())	ブロック変位とチャンネル裂け、0-1 (+ - * / と () が使用可能)
+dBFS, -60 to 0 (-18 is EBU alignment) (supports + - * / and ())	dBFS、-60～0 (-18はEBU基準レベル) (+ - * / と () が使用可能)
+Down, % of the height, -100 to 100 (supports + - * / and ())	下方向、高さに対する%、-100～100 (+ - * / と () が使用可能)
+Edge out (+) or in (-), % of the height, -25 to 25 (supports + - * / and ())	縁を外側(+)または内側(-)へ、高さの%、-25～25 (+ - * / と () が使用可能)
+Edge softness, % of the height, 0 to 25 (supports + - * / and ())	エッジの柔らかさ、高さの%、0～25 (+ - * / と () が使用可能)
+FDS hardware gain range, 0-63 (supports + - * / and ())	FDSハードウェアゲイン範囲、0-63 (+ - * / と () が使用可能)
+Fields per frame, 0-4 (1 = one field per rendered frame) (supports + - * / and ())	フレームあたりの場、0-4 (1=描画1フレームにつき1場) (+ - * / と () が使用可能)
+How much of each frame feeds the next, 0-0.95 (supports + - * / and ())	次のフレームへ戻す割合、0-0.95 (+ - * / と () が使用可能)
+How readily neighbours merge, 0 (never) to 1 (supports + - * / and ())	隣同士の融合しやすさ、0 (融合なし)～1 (+ - * / と () が使用可能)
+Internal resolution, 1 (chunky) to 5 (fine) (supports + - * / and ())	内部解像度、1 (粗い)～5 (細かい) (+ - * / と () が使用可能)
+Master oscillator rate, 0.01-8 (supports + - * / and ())	マスター発振器の速度、0.01-8 (+ - * / と () が使用可能)
+Modulator as a ratio of the note, 0.05-16 (supports + - * / and ())	音程に対する変調器の比率、0.05-16 (+ - * / と () が使用可能)
+One LED tile's height in pixels, 8-8192 (supports + - * / and ())	LEDタイル1枚の高さ (ピクセル)、8-8192 (+ - * / と () が使用可能)
+One LED tile's width in pixels, 8-8192 (supports + - * / and ())	LEDタイル1枚の幅 (ピクセル)、8-8192 (+ - * / と () が使用可能)
+Per-frame zoom of the feedback path, 0.90-1.15 (supports + - * / and ())	フィードバック経路の毎フレーム倍率、0.90-1.15 (+ - * / と () が使用可能)
+Scanlines, bloom and gun misalignment, 0-1 (supports + - * / and ())	走査線、光彩、電子銃のずれ、0-1 (+ - * / と () が使用可能)
+Seconds before it leaves by itself; 0 waits for OUT (supports + - * / and ())	自動退出までの秒数、0でOUTを待機 (+ - * / と () が使用可能)
+Space under it, as a fraction of the frame, 0-0.8 (supports + - * / and ())	下側の余白 (フレーム比)、0-0.8 (+ - * / と () が使用可能)
+Turbulence, 0 still to 3 boiling (supports + - * / and ())	乱流、0静止～3沸騰 (+ - * / と () が使用可能)
+Turns the rim's colours round the wheel, 0-1 (supports + - * / and ())	縁の色を色相環に沿って回転、0-1 (+ - * / と () が使用可能)
+AUTO	自動
+auto (59.94 Hz)	自動 (59.94 Hz)
+BITRATE	ビットレート
+audioprint	オーディオプリント
+bohlen-pierce	ボーレン＝ピアース
+chladni	クラドニ
+databend	データベンド
+datamosh	データモッシュ
+Devamp	ループ解除
+Fireside	炉辺
+just	純正律
+meantone	中全音律
+pythagorean	ピタゴラス音律
+purkinje	プルキンエ
+Ouroboros	ウロボロス
+MONO L	モノラル L
+MONO R	モノラル R
+LOAD NEXT	次を読み込み
+MSC Cue Number	MSCキュー番号
+SYPHON TEXTURE SHARE	SYPHONテクスチャ共有
+SYPHON / SPOUT TEXTURE SHARE	SYPHON / SPOUTテクスチャ共有
+DECODE --.-	デコード --.-
+DECODE OFF	デコード OFF
+DECODE WARM	デコード待機
+OUTPUT --.-	出力 --.-
+OUTPUT WARM	出力待機
+STREAM --.-	ストリーム --.-
+STREAM ERR	ストリームエラー
+STREAM OFF	ストリーム OFF
+STREAM WARM	ストリーム待機
+PROXY 720p	プロキシ720p
+hh:mm:ss or seconds	hh:mm:ss または秒
+e.g. /cue/1/start	例: /cue/1/start
+e.g. 12.5	例: 12.5
+e.g. 192.168.1.50	例: 192.168.1.50
+e.g. 1=255, 10-14=64	例: 1=255, 10-14=64
+e.g. 20:0 or client name	例: 20:0 またはクライアント名
+e.g. 90 3C 7F	例: 90 3C 7F
+0-127; 127 is all-call	0-127、127は全呼び出し
+0-127; the domain the facility's clock runs on	0-127、施設のクロックが動作するドメイン
+10-79 characters, or empty for none	10-79文字、指定なしは空欄
+8+ characters; letters and symbols are allowed	8文字以上、文字と記号が使用可能
+Apple keeps the Keynote format secret on purpose, a malicious lock-in tactic, so only Apple's own software can read it properly. Best route: open it in Keynote on iCloud.com (free, in any browser), choose Download a Copy > PDF, and import that PDF	AppleはKeynote形式を意図的に非公開にしています。これは利用者を囲い込む悪意ある手口で、Apple自身のソフトウェアでしか正しく読み取れません。最善の方法: iCloud.comのKeynoteで開き (無料、どのブラウザーでも可)、コピーをダウンロード > PDFを選び、そのPDFを読み込んでください
+8+ characters; other machines send AUTH <passphrase> first. Empty = off	8文字以上、他のマシンは先にAUTH <passphrase>を送信。空欄=オフ
+A command line, as a DASH button runs it. {value} is the knob's number, {note} the key.	DASHボタンと同様に実行するコマンド行。{value}はノブの値、{note}は鍵盤です。
+an IPv4 address, or 255.255.255.255 to broadcast	IPv4アドレス、ブロードキャストは255.255.255.255
+browser connections at once, 1-64 (default 8)	ブラウザー同時接続数、1-64 (既定8)
+Default Non-Movie Duration	動画以外の既定再生時間
+Fire at incoming timecode	受信タイムコードで実行
+Hz or AUTO (e.g. 60 or 59.94)	HzまたはAUTO (例: 60、59.94)
+kbps (32-512; 160 is a sane default)	kbps (32-512、既定値160が妥当)
+milliseconds (40..2000)	ミリ秒 (40..2000)
+milliseconds (20-8000; ~4x your RTT)	ミリ秒 (20-8000、RTTの約4x)
+Name visible to receivers	受信側に表示する名前
+NDI source name (e.g. LAPTOP (source 1))	NDIソース名 (例: LAPTOP (source 1))
+OSC Feedback Mirror Rate	OSCフィードバックミラー頻度
+Paste the key from your platform	配信プラットフォームのキーを貼り付け
+paste your stream key here	ここにストリームキーを貼り付け
+pixels (of the output raster)	ピクセル (出力ラスター基準)
+position on the output raster, in pixels	出力ラスター上の位置 (ピクセル)
+Routing hint for the receiver	受信側のルーティングヒント
+seconds (1-10; most platforms want 2)	秒 (1-10、一般的な配信先は2)
+Seconds for new-cue fade in/out defaults	新規キューの既定フェードイン/アウト秒数
+seconds this step holds before PLAY moves on	PLAYで次へ進むまでこのステップを保持する秒数
+ST 2110 network interface	ST 2110ネットワークインターフェース
+Target IP (or 255.255.255.255 to broadcast)	送信先IP (ブロードキャストは255.255.255.255)
+UDP port for transport sync	トランスポート同期用UDPポート
+Where to send transport (blank = broadcast)	トランスポート送信先 (空欄=ブロードキャスト)
+Which switcher input Deckboy is (0 = not set)	Deckboyに対応するスイッチャー入力 (0=未設定)
+AUDIOALSO: expected ADD <name>, REMOVE <name> or CLEAR	AUDIOALSO: 必要な形式: ADD <name>, REMOVE <name> または CLEAR
+BROWSER KEY: expected Enter|Tab|Backspace|Escape	BROWSER KEY: 必要な形式: Enter|Tab|Backspace|Escape
+BUGSWAT: expected START, SHOWME, SKIP, PLAY, EXIT or STATUS	BUGSWAT: 必要な形式: START, SHOWME, SKIP, PLAY, EXIT または STATUS
+CAPTIONS LIVE: expected ON, OFF, STATUS or TEXT	CAPTIONS LIVE: 必要な形式: ON, OFF, STATUS または TEXT
+CAPTIONS SOURCE: expected INPUT, DECK <n> or OUTPUT <n>	CAPTIONS SOURCE: 必要な形式: INPUT, DECK <n> または OUTPUT <n>
+DMXCUE FIXTURE: expected <name> <level%>|LEAVE [<colour>]	DMXCUE FIXTURE: 必要な形式: <name> <level%>|LEAVE [<colour>]
+DMXCUE LFO: expected <name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]	DMXCUE LFO: 必要な形式: <name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]
+DMXCUE: expected NEW, SET, FADE, UNIVERSE, HOST, PORT, FIRE or BLACKOUT	DMXCUE: 必要な形式: NEW, SET, FADE, UNIVERSE, HOST, PORT, FIRE または BLACKOUT
+ENDACTION: expected INHERIT, STOP, LOOP, HOLD or NEXT	ENDACTION: 必要な形式: INHERIT, STOP, LOOP, HOLD または NEXT
+expected waveform|scope|lissajous|spectrum|level|cover	必要な形式: waveform|scope|lissajous|spectrum|level|cover
+FADE CURVE: expected linear, ease-in, ease-out or s-curve	FADE CURVE: 必要な形式: linear, ease-in, ease-out または s-curve
+FADE WHAT: expected opacity, volume, dimmer, brightness, contrast, saturation, hue, effect, audiofx or speed	FADE WHAT: 必要な形式: opacity, volume, dimmer, brightness, contrast, saturation, hue, effect, audiofx または speed
+FIXTURE ADD: expected <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]	FIXTURE ADD: 必要な形式: <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]
+LOWERSTYLE: expected none, fade, rise, slide, wipe or NEXT	LOWERSTYLE: 必要な形式: none, fade, rise, slide, wipe または NEXT
+MASK ASSIGN: expected <id|NONE> CUE | LAYER <output> <playlist> | OUTPUT <n> | MATTE <n>	MASK ASSIGN: 必要な形式: <id|NONE> CUE | LAYER <output> <playlist> | OUTPUT <n> | MATTE <n>
+MASK ASSIGN: expected CUE, LAYER, OUTPUT or MATTE	MASK ASSIGN: 必要な形式: CUE, LAYER, OUTPUT または MATTE
+MASK EXPORT: expected <id> <file.png|file.svg> [WxH]	MASK EXPORT: 必要な形式: <id> <file.png|file.svg> [WxH]
+MASK LFO: expected <id> <param> ON|OFF [rate Hz] [depth %]	MASK LFO: 必要な形式: <id> <param> ON|OFF [rate Hz] [depth %]
+MATRIX SET: expected <source 1-2> <dest> <0-100>	MATRIX SET: 必要な形式: <source 1-2> <dest> <0-100>
+MATRIX: expected SET <src> <dest> <0-100>, SEED or CLEAR	MATRIX: 必要な形式: SET <src> <dest> <0-100>, SEED または CLEAR
+MESH: expected on|off|toggle|height|tilt|yaw|spin|grid	MESH: 必要な形式: on|off|toggle|height|tilt|yaw|spin|grid
+MIC: expected ADD, LIST, INPUT, CHANNEL or GAIN	MIC: 必要な形式: ADD, LIST, INPUT, CHANNEL または GAIN
+MIDICUE KIND: expected note-on, note-off, cc, program, msc-go, msc-stop, msc-resume or raw	MIDICUE KIND: 必要な形式: note-on, note-off, cc, program, msc-go, msc-stop, msc-resume または raw
+MIDICUE: expected NEW, PORTS, PORT, KIND, CH, D1, D2, DEVICE, CUENUM, LIST, RAW or SEND	MIDICUE: 必要な形式: NEW, PORTS, PORT, KIND, CH, D1, D2, DEVICE, CUENUM, LIST, RAW または SEND
+MULTIVIEW LAYOUT: expected GRID, BIG, BIGTOP or TWOTOP	MULTIVIEW LAYOUT: 必要な形式: GRID, BIG, BIGTOP または TWOTOP
+MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK or EMPTY	MULTIVIEW WINDOW: 必要な形式: PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK または EMPTY
+NETCUE: expected NEW, PROTO, HOST, PORT, ADDRESS, PAYLOAD or SEND	NETCUE: 必要な形式: NEW, PROTO, HOST, PORT, ADDRESS, PAYLOAD または SEND
+OUTPROBE: expected <output> <x 0-1> <y 0-1>	OUTPROBE: 必要な形式: <output> <x 0-1> <y 0-1>
+OUTPUT HDR: expected ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> or STATUS	OUTPUT HDR: 必要な形式: ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> または STATUS
+OUTPUTFX ADD: expected hpf, lpf, tilt, comp or width	OUTPUTFX ADD: 必要な形式: hpf, lpf, tilt, comp または width
+OUTPUTFX: expected ADD, SET, REMOVE, BYPASS, CLEAR or DEVICE	OUTPUTFX: 必要な形式: ADD, SET, REMOVE, BYPASS, CLEAR または DEVICE
+OUTPUTS ADD: expected <name> CH <n> or CH <n>-<n+1>	OUTPUTS ADD: 必要な形式: <name> CH <n> または CH <n>-<n+1>
+PATCH: expected <deck> <output> <dB> or OFF	PATCH: 必要な形式: <deck> <output> <dB> または OFF
+presenter colour: expected BG|INK|ACCENT #rrggbb	presenter colour: 必要な形式: BG|INK|ACCENT #rrggbb
+PRESET: expected LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME or DELETE	PRESET: 必要な形式: LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME または DELETE
+rectc: expected <hh:mm:ss:ff|timeofday> [df|ndf|auto]	rectc: 必要な形式: <hh:mm:ss:ff|timeofday> [df|ndf|auto]
+SCALEMODE: expected fit|fill|stretch|unscaled	SCALEMODE: 必要な形式: fit|fill|stretch|unscaled
+SCOPES BIG: expected waveform, parade, vector, diamond, histogram, falsecolour, sound or off	SCOPES BIG: 必要な形式: waveform, parade, vector, diamond, histogram, falsecolour, sound または off
+SCOPES: expected PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS or SOUND	SCOPES: 必要な形式: PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS または SOUND
+SECTION: expected playback|metadata|geometry|key|audio|effects|timer|tone|synth	SECTION: 必要な形式: playback|metadata|geometry|key|audio|effects|timer|tone|synth
+STING: expected ON, PITCH, LENGTH, SWEEP or BODY	STING: 必要な形式: ON, PITCH, LENGTH, SWEEP または BODY
+TARGET VERB: expected start|stop|pause|resume|load|arm|disarm	TARGET VERB: 必要な形式: start|stop|pause|resume|load|arm|disarm
+TEXTCUE ALIGN: expected left, centre or right	TEXTCUE ALIGN: 必要な形式: left, centre または right
+TEXTCUE ANIM: expected none, fade, typewriter, scroll, crawl, pulse or wobble	TEXTCUE ANIM: 必要な形式: none, fade, typewriter, scroll, crawl, pulse または wobble
+TEXTCUE: expected NEW, BODY, ANIM, SIZE, SPEED, ALIGN, CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, WIGGLE, IN, OUTMOVE or OUT	TEXTCUE: 必要な形式: NEW, BODY, ANIM, SIZE, SPEED, ALIGN, CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, WIGGLE, IN, OUTMOVE または OUT
+TRACKER: expected GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP or CLICKER	TRACKER: 必要な形式: GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP または CLICKER
+TUTORIAL: expected START, SHOWME, SKIP, EXIT, STATUS or SCREENS	TUTORIAL: 必要な形式: START, SHOWME, SKIP, EXIT, STATUS または SCREENS
+UPDATE: expected check|download|install|status	UPDATE: 必要な形式: check|download|install|status
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS	VJ: 必要な形式: ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS
+AUDIOFX: expected OFF, BYPASS, or amount and parameters as percentages	AUDIOFX: OFF、BYPASS、または量とパラメーターをパーセントで指定
+BLEND PAIR: expected <other output number> <overlap in pixels>	BLEND PAIR: <other output number> <overlap in pixels> を指定
+BROWSER SCROLL: expected pixels (negative is up)	BROWSER SCROLL: ピクセル数を指定 (負値で上へ)
+CHIP ENV: expected <attack> <release> in seconds	CHIP ENV: <attack> <release> を秒で指定
+DMXCUE SET: expected channel=level pairs, e.g. 1=255,10-14=64	DMXCUE SET: チャンネル=レベルの組を指定、例: 1=255,10-14=64
+expected one expression, three for colour, or four with alpha	式を1個、色は3個、アルファ付きは4個指定
+MASK SET: expected INVERT, X, Y, SCALE, ROTATION, FEATHER, GROW or OPACITY and a number	MASK SET: INVERT、X、Y、SCALE、ROTATION、FEATHER、GROW、OPACITYのいずれかと数値を指定
+MASK SHAPE: expected a shape (MASK SHAPES lists them)	MASK SHAPE: 図形を指定 (MASK SHAPESで一覧表示)
+MASTER DECK: expected a deck number and a cue number	MASTER DECK: デッキ番号とキュー番号を指定
+MIC INPUT: expected SETTINGS, TEST or a device name (MIC LIST)	MIC INPUT: SETTINGS、TEST、またはデバイス名を指定 (MIC LIST)
+MIDIFILE: expected PORT, or no argument to report it	MIDIFILE: PORTを指定、引数なしで現在値を表示
+MONITOR DECK: expected a playlist number or FOLLOW	MONITOR DECK: プレイリスト番号またはFOLLOWを指定
+MONITOR ROOM: expected a playlist and ON or OFF	MONITOR ROOM: プレイリストとONまたはOFFを指定
+MULTIVIEW WINDOW <n>: expected a source, or SAFE/METER/LABEL ON|OFF	MULTIVIEW WINDOW <n>: ソースまたはSAFE/METER/LABEL ON|OFFを指定
+MULTIVIEW WINDOW REMOVE: expected a window number	MULTIVIEW WINDOW REMOVE: ウィンドウ番号を指定
+NETCUE ADDRESS: expected an OSC path starting with /	NETCUE ADDRESS: /で始まるOSCパスを指定
+OUTPUT AOI: expected a size like 256x256, or FULL	OUTPUT AOI: 256x256のようなサイズ、またはFULLを指定
+OUTPUT HDR WHITE: expected 80..500 nits (203 is BT.2408)	OUTPUT HDR WHITE: 80..500ニトを指定 (203はBT.2408)
+OUTPUTFX SET: expected an effect number and 0-100	OUTPUTFX SET: エフェクト番号と0-100を指定
+PORTS: expected an http port and a tcp port	PORTS: httpポートとtcpポートを指定
+PRELOAD: expected a position in seconds, OFF or STATUS	PRELOAD: 秒単位の位置、OFF、STATUSのいずれかを指定
+presenter panel: expected <live|prev|next|notes> <x> <y> <w> <h> in percent	presenter panel: <live|prev|next|notes> <x> <y> <w> <h> をパーセントで指定
+SCOPES SOURCE: expected PROGRAMME or an output number, 1-	SCOPES SOURCE: PROGRAMMEまたは出力番号を指定、1-
+STREAM ADD: expected a URL, e.g. srt://host:port	STREAM ADD: URLを指定、例: srt://host:port
+TARGET CUE: expected a deck number and a cue number	TARGET CUE: デッキ番号とキュー番号を指定
+TEXTCUE SIZE: expected 1-100 (percent of the raster)	TEXTCUE SIZE: 1-100を指定 (ラスターに対する%)
+TUTORIAL SCREENS: expected a count, MIRRORED or REAL	TUTORIAL SCREENS: 数、MIRRORED、REALのいずれかを指定
+VIDEO OUTPUT LAYER: expected a layer number (1 is the base)	VIDEO OUTPUT LAYER: レイヤー番号を指定 (1がベース)
+VIDEO OUTPUT LAYERWARP: expected OFF, MODE, or eight numbers clockwise from the top left	VIDEO OUTPUT LAYERWARP: OFF、MODE、または左上から時計回りに8個の数値を指定
+warp grid: expected <n>, <cols> <rows>, off, smooth or straight	warp grid: <n>、<cols> <rows>、off、smooth、straightのいずれかを指定
+WARP SELECT: expected TL, TR, BR, BL or a grid <col> <row>	WARP SELECT: TL、TR、BR、BL、またはグリッドの<col> <row>を指定
+How big each tile is.	各タイルの大きさ。
+How big the crystals grow before they meet.	結晶が接するまでに成長する大きさ。
+How closely spaced the rings are.	リング同士の間隔。
+How far a band can slide.	帯がスライドできる距離。
+How far each shard slides from where it belongs.	各破片が元の位置から滑る距離。
+How far each stroke is dragged along the grain.	各ストロークを粒子の方向へ引く距離。
+How far it smears: up to a few percent of the picture.	にじむ距離。映像の数パーセントまで。
+How far out the darkening starts.	暗くなり始める位置。
+How far the bright parts pull away from the surface.	明部が表面から離れる距離。
+How far the glow spreads.	光彩の広がる距離。
+How far the sound throws each line sideways.	音声で各行を横へ飛ばす距離。
+How fast the sand travels to the still lines.	砂が静止線へ移動する速さ。
+How fast the surface moves.	表面の動く速さ。
+How fast they travel outward.	外側へ移動する速さ。
+How gradually the key cuts in. Hard at the left.	キーの境界のなだらかさ。左端で硬くなります。
+How hard it is driven into its own limits.	自身の限界へどれだけ強く押し込むか。
+How hard the short hits.	ショートが起きる強さ。
+How many shades survive the quantise.	量子化後に残る階調数。
+How many spikes the field breaks into.	場が分かれるスパイクの数。
+How many torn bands per frame.	1フレームあたりの裂けた帯の数。
+How much each shard turns on its own centre.	各破片が自身の中心で回る量。
+How much the edges are lifted.	エッジを持ち上げる量。
+How much the flame gutters frame to frame.	フレームごとの炎の揺らぎ量。
+How often it skips.	スキップする頻度。
+How quickly the loop relaxes when nothing feeds it.	入力がないときループが減衰する速さ。
+How strongly the outlines are drawn.	輪郭線の強さ。
+How strongly the water bends the picture.	水が映像を曲げる強さ。
+Darkens the boundaries where crystals meet.	結晶が接する境界を暗くします。
+Lifts the dark tones without moving pure black.	純黒を変えずに暗い階調を持ち上げます。
+Pushes the rings in or out of the centre.	リングを中心の内側または外側へ押します。
+Rounds the tiles off, all the way to dots.	タイルを丸め、最大で点にします。
+Softens the fold so it ramps instead of creasing.	折り目を柔らかくし、鋭い折れをなだらかな傾斜にします。
+Where the filter sits.	フィルターの位置。
+Which way it drips.	しずくが流れる方向。
+8 zones already: click one to remove it first	既に8ゾーンあります。先に1つクリックして削除してください
+AUDIOALSO ADD: seven extra destinations is the limit	AUDIOALSO ADD: 追加送信先は最大7個です
+AUDIOALSO ADD: that is already this deck's main device -- it would play twice	AUDIOALSO ADD: 既にこのデッキのメインデバイスです。音声が二重再生されます
+AUDIOFX PLUGIN: this build has no plugin host	AUDIOFX PLUGIN: このビルドにプラグインホストはありません
+BROWSER CLICK: this browser backend cannot drive the page	BROWSER CLICK: このブラウザーバックエンドはページ操作に非対応です
+BROWSER SCROLL: this browser backend cannot drive the page	BROWSER SCROLL: このブラウザーバックエンドはページ操作に非対応です
+BROWSER SCROLLBAR: this browser backend cannot drive the page	BROWSER SCROLLBAR: このブラウザーバックエンドはページ操作に非対応です
+BROWSER INTERACT: this browser backend has no hands-on mode	BROWSER INTERACT: このブラウザーバックエンドに直接操作モードはありません
+BROWSER TYPE: this browser backend cannot type	BROWSER TYPE: このブラウザーバックエンドは文字入力に非対応です
+MIDIFILE: the selected cue is not a midi file cue	MIDIFILE: 選択したキューはMIDIファイルキューではありません
+NETCUE: the selected cue is not a network cue	NETCUE: 選択したキューはネットワークキューではありません
+SCRIPTCUE: the selected cue is not a script cue	SCRIPTCUE: 選択したキューはスクリプトキューではありません
+SYNTH: the selected cue is not a video synth	SYNTH: 選択したキューは映像シンセではありません
+TCCUE: the selected cue is not a timecode cue	TCCUE: 選択したキューはタイムコードキューではありません
+TEXTCUE: the selected cue is not a text cue	TEXTCUE: 選択したキューはテキストキューではありません
+SLICE ADD: already 16 slices on this output	SLICE ADD: この出力には既に16スライスあります
+VIDEO OUTPUT ASSIGN: already on this output, or no such deck or output	VIDEO OUTPUT ASSIGN: 既に割り当て済みか、該当デッキまたは出力がありません
+VIDEO OUTPUT LAYER: this deck is not on this output, or it is already at that layer	VIDEO OUTPUT LAYER: このデッキはこの出力にないか、既にそのレイヤーにあります
+VIDEO OUTPUT UNASSIGN: this deck is not on this output, or it is the only thing on it	VIDEO OUTPUT UNASSIGN: このデッキはこの出力にないか、唯一の割り当てです
+port number (default 5510)	ポート番号 (既定5510)
+port number (default 5511)	ポート番号 (既定5511)
+port number (default 6454)	ポート番号 (既定6454)
+port number (default 8090)	ポート番号 (既定8090)
+port number (vMix uses 8088)	ポート番号 (vMixは8088)
+port number (vMix uses 8099)	ポート番号 (vMixは8099)
+Prefix (optional). Example: Q	接頭辞 (省略可)。例: Q
+Prefix and optional start (example: Q 100)	接頭辞と任意の開始番号 (例: Q 100)
+WIDTHxHEIGHT (e.g. 2560x1080)	幅x高さ (例: 2560x1080)
+WIDTHxHEIGHT (e.g. 5760x2160)	幅x高さ (例: 5760x2160)
+#rrggbb -- the colour of the presenter screen	#rrggbb -- 発表者画面の色
+#rrggbb, or a name (red, teal...)	#rrggbb、または色名 (red、teal...)
+Cue name (blank restores the file name)	キュー名 (空欄でファイル名に戻す)
+Leave empty to follow the live cue notes	空欄でライブキューのノートに追従
+Multicast group (e.g. 239.20.10.1)	マルチキャストグループ (例: 239.20.10.1)
+Port the Node + Connection API serve on	Node + Connection APIの提供ポート
+NIC address or name; empty = the default route	NICアドレスまたは名前、空欄=既定の経路
+NIC name reported in interface_bindings (e.g. eth0)	interface_bindingsに表示されるNIC名 (例: eth0)
+flow (follows the picture)	フロー (映像に追従)
+Above halfway, the repeated piece plays backwards.	半分より上で、反復部分を逆再生します。
+The brightness that decides black from white.	白と黒を分ける明るさ。
+The colour to change, round the wheel from red.	変更する色。赤から色相環に沿って指定します。
+no picture on this cue - nothing to follow	このキューに映像がないため、追従対象がありません
+this cue has no known end to resolve into	このキューには収束先となる既知の終了位置がありません
+only a MIDI note or an OSC address can take a cue	MIDIノートまたはOSCアドレスだけがキューをTAKEできます
+The bright net the waves focus onto the picture.	波が映像上に集光させる明るい網目。
+can't move the active cue -- take another cue on this deck first	実行中のキューは移動できません -- 先にこのデッキで別のキューを送出してください
+cancelled: the waiting cue is no longer in the playlist	キャンセル：待機中のキューはプレイリストにありません
+could not create an OpenGL context for Spout receive	Spout受信用のOpenGLコンテキストを作成できませんでした
+could not create the offscreen window Spout receive needs	Spout受信に必要なオフスクリーンウィンドウを作成できませんでした
+could not get a device context for Spout receive	Spout受信用のデバイスコンテキストを取得できませんでした
+couldn't decode still image — unsupported format or corrupt file	静止画をデコードできませんでした — 非対応形式またはファイル破損
+couldn't open a browser -- please report at github.com/Utopian-Academy/Deckboy/issues	ブラウザーを開けませんでした -- github.com/Utopian-Academy/Deckboy/issues で報告してください
+downloading the caption model, then listening...	字幕モデルをダウンロード後、音声を聞き取ります...
+drag the panels to arrange the presenter screen	パネルをドラッグして発表者画面を配置します
+encoder destination: _converted beside the show	エンコーダーの出力先：ショーと同じ場所の_converted
+fetching the speech model - captions start when it arrives	音声モデルを取得中 - 完了すると字幕を開始します
+four effects at most on one device: remove one first	1台につきエフェクトは4つまでです：先に1つ削除してください
+live captions are not installed here (deckboy-listen was not found)	ライブ字幕がインストールされていません（deckboy-listenが見つかりません）
+Lower Third added - put its playlist on a layer	Lower Thirdを追加しました - プレイリストをレイヤーに配置してください
+mic live on the default speakers - watch for feedback	既定のスピーカーでマイクが有効です - ハウリングに注意してください
+network sharing and phone control require an 8+ character passphrase	ネットワーク共有とスマートフォン操作には8文字以上のパスフレーズが必要です
+no filled shapes in it (paths, rectangles, circles, ellipses or polygons)	塗りつぶした図形がありません（パス、長方形、円、楕円、多角形）
+no masks yet: make one in a cue's MASK section	マスクがありません：キューのMASK欄で作成してください
+no OpenGL pixel format available for Spout receive	Spout受信用のOpenGLピクセル形式がありません
+no picture - shorts run on a timer instead of on cuts	映像なし - ショートはカットではなくタイマーで動作します
+no picture on this cue - nothing decides where the playhead is	このキューには映像がありません - 再生ヘッド位置を決める入力がありません
+no picture on this cue - nothing to close the loop through	このキューには映像がありません - ループを閉じる入力がありません
+no video clock on this cue - nothing to lock to	このキューには映像クロックがありません - 同期先がありません
+normalize all: no file-backed audio in this deck	すべて正規化：このデッキにファイル音声がありません
+nothing to mask here: select a cue, or change MASK ON	マスク対象がありません：キューを選ぶかMASK ONを変更してください
+offset in percent of the picture	映像に対するオフセット（%）
+output effects bypassed: no effect and no limit on this device	出力エフェクトをバイパスしました：このデバイスの効果と制限が無効です
+over 16 MB: not a drawing to make a mask from	16 MB超：マスクを作成できる描画ではありません
+pair with a picture effect whose LFO is set to Audio	LFOをAudioに設定した映像エフェクトと組み合わせます
+paired phones removed: they need the QR code or the passphrase again	ペア設定した端末を削除しました：QRコードかパスフレーズが再度必要です
+phone control requires an 8+ character passphrase	スマートフォン操作には8文字以上のパスフレーズが必要です
+save failed - retrying; still open, use SAVE AS if needed	保存失敗 - 再試行中です。開いたままなので必要ならSAVE ASを使ってください
+set an 8+ character Web Monitor passphrase first	先にWebモニターのパスフレーズを8文字以上で設定してください
+the caption model has not been downloaded yet	字幕モデルはまだダウンロードされていません
+the desktop portal did not answer	デスクトップポータルが応答しませんでした
+the file is empty (0 bytes): it may not have finished copying or saving	ファイルが空です（0バイト）：コピーや保存が未完了の可能性があります
+the installed NDI runtime is missing entry points this needs	インストール済みのNDIランタイムに必要なエントリーポイントがありません
+the NDI runtime declined to start on this machine	このマシンでNDIランタイムを起動できませんでした
+the playing step was removed - sequence stopped	再生中のステップが削除されました - シーケンスを停止しました
+update: cannot find this app bundle to replace	更新：置換するアプリバンドルが見つかりません
+what the operator should be told when GO reaches here	GOがここに到達したときオペレーターに伝える内容
+what the patch and the cues call it (FOH, SUB, PRESS FEED)	パッチとキューで使う名前（FOH, SUB, PRESS FEED）
+window capture fell back to screen grab — update ffmpeg for exact window capture	ウィンドウ取得が画面取得に切り替わりました — 正確な取得にはffmpegを更新してください
+A dark line between the tiles, like grout or an LED wall.	タイル間の暗い線。目地やLEDウォールのようになります。
+a plugin overran the audio thread and was bypassed — take it out of the chain	プラグインが音声スレッドの処理時間を超えたためバイパスしました — チェーンから外してください
+A slow rocking of the viewpoint, which is what makes the depth read without glasses.	視点をゆっくり揺らし、眼鏡なしで奥行きを感じさせます。
+A slow sag in the supply, pulling the filter up and down like a dying battery.	電源がゆっくり低下し、消耗した電池のようにフィルターを上下させます。
+A worn or dirty head: softer, with noise that streaks along the lines.	摩耗や汚れのあるヘッド。像が甘くなり、走査線に沿ってノイズが伸びます。
+Above halfway, a hard cut in the picture resets the loop to clean.	半分を超えると、映像のハードカットでループを初期化します。
+An old deck: the picture wobbles, bends at the top of the frame and carries hum bars.	古いデッキ。映像が揺れ、画面上部が曲がり、ハムバーが現れます。
+An old tape loses bits of its oxide: dropouts flick white and repeat the line above, and the colour fizzes.	古いテープの酸化膜が剥がれ、ドロップアウトが白く光って上の走査線を繰り返し、色にノイズが出ます。
+brightness moves the playhead (needs CPU frames)	明るさで再生ヘッドを動かします（CPUフレームが必要）
+centred and full-frame - moves when the picture does	中央・全画面 - 映像と連動して動きます
+Characters across. Fewer means bigger cells and less of the picture surviving, which is usually the point.	横方向の文字数。少ないほどセルが大きくなり、映像の情報が失われます。通常はそれが狙いです。
+Characters to build the picture from, darkest first. Empty uses the chosen glyph set.	映像を構成する文字を暗い順に指定します。空欄なら選択した字形セットを使います。
+Chladni listens: the figure follows the pitch of the sound	クラドニが音を聞き取り、音高に応じて模様が変わります
+click anywhere on any screen to take its colour. Esc cancels	画面上の任意の場所をクリックして色を取得します。Escでキャンセル
+click program or preview monitor to sample key color	送出またはプレビューモニターをクリックしてキー色を取得します
+Colour is recorded at a fraction of the detail: it smears sideways, lands late and its hue wanders.	色を低い解像度で記録し、横ににじませ、遅延と色相の揺れを加えます。
+Copies of copies: none at the left, four at the right. Each one loses more.	コピーのコピー。左端はなし、右端は4世代。重ねるほど劣化します。
+Fine sensor noise at the bottom, chunky film at the top.	下端は細かなセンサーノイズ、上端は粗いフィルム粒子です。
+follows this cue's own brightness (needs CPU frames)	このキュー自体の明るさに追従します（CPUフレームが必要）
+format 2 files are a set of independent patterns, not a performance	フォーマット2は独立したパターンの集合で、1つの演奏ではありません
+From an even blur to a streak along the angle, like movement.	均一なぼかしから、動きのように指定角度へ伸びるぼかしに変えます。
+full-frame and no picture - bends when the picture shrinks	全画面・映像なし - 映像を縮小すると曲がります
+Grain size: one pixel at the left, big blocky grains at the right.	粒子サイズ。左端は1ピクセル、右端は大きなブロック状です。
+Grows or shrinks the echo each pass. Centre holds still.	反復ごとに残像を拡大・縮小します。中央は変化なし。
+How abruptly it arrives. Low is a soft cloud, high is a hard porthole.	現れる境界の鋭さ。低値は柔らかな雲、高値は硬い丸窓です。
+How big the room is. Small is a booth, large is a hall.	部屋の広さ。小値はブース、大値はホールです。
+How big the shards are. Small is frosted glass, large is a dropped plate.	破片の大きさ。小値はすりガラス、大値は落として割れた皿です。
+How dark the dark lines go. All the way up is black between lines.	暗い線の濃さ。最大では線の間が黒くなります。
+How far away. Distance dulls the top and softens the difference between the ears.	距離。遠いほど高域が鈍り、左右の耳の差が小さくなります。
+How far back each skip jumps, from a stutter to half a second.	スキップで戻る長さ。細かなスタッターから0.5秒まで。
+How fast it closes. Slow enough not to chop the ends off words.	閉じる速さ。語尾を切らない程度に遅く設定します。
+How fast the drips run. At the left the picture only sags.	しずくが流れる速さ。左端では映像がたわむだけです。
+How fast the light walks around it. Zero holds it still.	光が周囲を回る速さ。0で静止します。
+How fast the wave travels. Faster spreads further in the same time and interferes more.	波の進む速さ。速いほど同じ時間で遠くへ広がり、干渉も増えます。
+How gently the change fades out at the edges of the band.	帯域の端で変化が消える滑らかさ。
+How hard it holds once it is working. Gentle at the bottom, a limiter at the top.	動作中の抑え方。低値は穏やか、高値はリミッターになります。
+How irregular the growth is. Low gives an even honeycomb, high gives long shards.	成長の不規則さ。低値は均一な蜂の巣、高値は長い破片です。
+How long a short stays closed, in VIDEO FRAMES.	ショートが閉じている長さ。単位は映像フレーム。
+How long the reaction runs each frame. Short is a stain, long is an organism.	各フレームで反応を進める時間。短いと染み、長いと生物のようになります。
+How many places drip: a few big drips at the left, many thin ones at the right.	しずくの発生箇所。左端は少数の大きなしずく、右端は多数の細いしずく。
+How many times a skip repeats before the sound catches up again.	音が追いつくまでスキップを繰り返す回数。
+How much of the picture glows: only the brightest at the left, nearly everything at the right.	発光する範囲。左端は最も明るい部分のみ、右端はほぼ全体。
+How much of the picture shows behind the lines. None at the left: lines on black.	線の背後に見せる映像の量。左端はなしで、黒地に線だけ。
+How much of the push goes downward rather than sideways.	横ではなく下へ押す割合。
+How quickly the room eats the top end. More damping is a softer, more furnished space.	部屋が高域を吸収する速さ。減衰を増やすと、柔らかく家具の多い空間になります。
+How readily an edge catches. Low sets the whole picture alight, high only the hardest lines.	エッジの燃えやすさ。低値は全体、高値は鋭い線だけが燃えます。
+How wide a band of colours either side of it changes too.	両側で一緒に変化させる色の範囲。
+ASCII HOLD: seconds, 0-60 (0 mutes the phrases)	ASCII HOLD: 秒、0-60（0でフレーズを非表示）
+ASCII WOBBLEMODE: drift | flow (follows luma) | hue (follows colour); no argument cycles	ASCII WOBBLEMODE: drift | flow（輝度に追従）| hue（色に追従）；引数なしで切替
+ASCII: the selected cue has no text mode (add the TEXT MODE effect, or select a video synth cue)	ASCII: 選択したキューにテキストモードがありません（TEXT MODEエフェクトを追加するか、映像シンセのキューを選択）
+CHIP DUTY: this cue is an FDS synth, which has no duty	CHIP DUTY: このキューはFDSシンセなのでデューティ比はありません
+CHIP NOISE: this cue is an FDS synth, which has no noise	CHIP NOISE: このキューはFDSシンセなのでノイズはありません
+CHIP VOICE: this cue is an FDS synth, which has no voice	CHIP VOICE: このキューはFDSシンセなので音色選択はありません
+DASH SET: needs a command -- DASH SET <n> <label> | <command> [| <glyph>]	DASH SET: コマンドが必要です -- DASH SET <n> <label> | <command> [| <glyph>]
+DATAMOSH on - preparing (long clip, watch Encoder tab)	DATAMOSH有効 - 準備中（長いクリップです。エンコーダータブを確認）
+DECKLINK: no DeckLink driver on this computer (Blackmagic Desktop Video)	DECKLINK: このコンピューターにDeckLinkドライバーがありません（Blackmagic Desktop Video）
+DMXCUE LEVELS: nothing has been sent on that universe	DMXCUE LEVELS: そのユニバースにはまだ送信していません
+DRAW COLOUR: #rrggbb, #rrggbbaa, a name, or 1-8 for the palette	DRAW COLOUR: #rrggbb、#rrggbbaa、色名、またはパレット番号1-8
+DRAW STROKE: each point is x,y or x,y,pressure, in percent	DRAW STROKE: 各点はx,yまたはx,y,pressure。単位はパーセント
+DRAW TOOL: brush, erase, line, box, oval or fill	DRAW TOOL: brush、erase、line、box、oval、fillのいずれか
+EDIT is off - press EDIT to type into the tracker	EDITが無効です - トラッカーに入力するにはEDITを押してください
+ENDACTION: only video and audio cues have an end action	ENDACTION: 終了アクションは映像と音声のキューのみです
+Enter playlist SMPTE FPS: 24 / 25 / 29.97 / 30	プレイリストのSMPTE FPSを入力：24 / 25 / 29.97 / 30
+FADE TO: a speed from 0.25 to 4 (0.5 is half speed, an octave down)	FADE TO: 速度0.25～4（0.5は半速、1オクターブ下）
+FX ADD: datamosh needs a file-backed video cue	FX ADD: datamoshにはファイルを使う映像キューが必要です
+FX LFO wants <index> <slot> <on|off|shape> [value]	FX LFOには <index> <slot> <on|off|shape> [value] が必要です
+FX LFO: on, off, shape, rate, depth, zone, channel or cc	FX LFO: on、off、shape、rate、depth、zone、channel、ccのいずれか
+GEOLFO: x, y, width, height, rotation, cropleft, cropright, croptop or cropbottom	GEOLFO: x、y、width、height、rotation、cropleft、cropright、croptop、cropbottomのいずれか
+HH:MM or HH:MM:SS on this computer's clock; empty for none	このコンピューターの時刻でHH:MMまたはHH:MM:SS。空欄はなし
+HH:MM:SS:FF of the timecode Deckboy is chasing; empty for none	Deckboyが追従するタイムコードのHH:MM:SS:FF。空欄はなし
+INPUTMONITOR: a row count, OPEN, CLOSE, CLEAR, PAUSE or RESUME	INPUTMONITOR: 行数、OPEN、CLOSE、CLEAR、PAUSE、RESUMEのいずれか
+IPv4 addresses or a.b.c.d/bits, comma separated; empty = only this computer	IPv4アドレスまたはa.b.c.d/bitsをカンマ区切りで指定。空欄＝このコンピューターのみ
+key+fill ON, but no key device set (DECKLINK KEYFILL ON <device>)	key+fillはONですがキーデバイスが未設定です（DECKLINK KEYFILL ON <device>）
+label | command | glyph      (empty label|command removes it)	ラベル | コマンド | 字形      （label|commandが空なら削除）
+LFO: density, speed, warp, turn, centrex, centrey, grey or hue	LFO: density、speed、warp、turn、centrex、centrey、grey、hueのいずれか
+MIC: select a mic cue first (MIC ADD makes one)	MIC: 先にマイクキューを選択してください（MIC ADDで作成）
+MIDIIN OSC: an address, and optionally a number	MIDIIN OSC: アドレスと任意の数値
+MIDIMAP: that command is only accepted from this computer	MIDIMAP: このコマンドはこのコンピューターからのみ受け付けます
+MOTION ZONE ADD: the zone must fit inside the picture	MOTION ZONE ADD: ゾーンは映像内に収めてください
+NETCUE ADDRESS: an OSC address must start with /	NETCUE ADDRESS: OSCアドレスは/で始めてください
+NEWSHOW: something is live or unsaved -- send NEWSHOW again within 2.5 s	NEWSHOW: 送出中または未保存です -- 2.5秒以内にNEWSHOWを再送してください
+NMOS: discovery needs the remote network allowed	NMOS: 検出にはリモートネットワークの許可が必要です
+NMOS: NOT registering - network is LOCAL ONLY (turn REMOTE ON to publish)	NMOS: 登録しません - ネットワークがLOCAL ONLYです（公開にはREMOTE ON）
+NMOS: searching for a registry (mDNS)	NMOS: レジストリーを検索中（mDNS）
+OUTPROBE: that output has no compositor (is it on?)	OUTPROBE: その出力にコンポジターがありません（有効ですか？）
+OUTPUTFX ADD: four effects at most on one device	OUTPUTFX ADD: 1台につきエフェクトは4つまで
+PATCH: a level is dB from -48 to +6, or OFF	PATCH: レベルは-48～+6 dB、またはOFF
+PIP: retired -- scale a second deck over this one instead	PIP: 廃止済み -- 代わりに2台目のデッキを縮小して重ねてください
+pip: retired -- scale a second deck over this one instead	pip: 廃止済み -- 代わりに2台目のデッキを縮小して重ねてください
+presenter panel: the panel must fit on the screen (x+w and y+h no more than 100)	発表者パネル：画面内に収めてください（x+wとy+hは100以下）
+preset: delivery | proxy | match | datamosh	プリセット：delivery | proxy | match | datamosh
+programme sound is always included; use WEBMONITOR OFF to stop the monitor	送出音声は常に含まれます。モニターの停止にはWEBMONITOR OFFを使ってください
+Registry URL (e.g. http://192.168.1.50:8010) - blank for mDNS	レジストリーURL（例：http://192.168.1.50:8010）- 空欄はmDNS
+SLICE CORNER: TL, TR, BR or BL, then dx dy in percent of the output	SLICE CORNER: TL、TR、BR、BLの後に、出力に対する百分率でdx dy
+SLICE EDGE: L, R, T or B, then 0-50 (% of the slice)	SLICE EDGE: L、R、T、Bの後に0-50（スライスの%）
+SLICE GRID POINT: col row (from 1, on a grid that is on) then dx dy in percent	SLICE GRID POINT: col row（1から。有効なグリッド上）の後に百分率でdx dy
+SLICE LFO: X, Y, ROTATION or OPACITY, then ON, OFF, SHAPE, RATE, DEPTH...	SLICE LFO: X、Y、ROTATION、OPACITYの後にON、OFF、SHAPE、RATE、DEPTH...
+SLICE ROTATE: IN (the crop) or OUT (the placed picture), then degrees	SLICE ROTATE: IN（切り抜き）かOUT（配置した映像）の後に角度
+SMPTE hh:mm:ss:ff or seconds (blank = 00:00:00:00)	SMPTE hh:mm:ss:ffまたは秒（空欄＝00:00:00:00）
+SOURCE CAMERA: name the device	SOURCE CAMERA: デバイス名を指定してください
+SOURCE WINDOW: name the window, e.g. title:Firefox (or "desktop")	SOURCE WINDOW: ウィンドウ名を指定。例：title:Firefox（または"desktop"）
+STING: select a tone cue first (TONECUE makes one)	STING: 先にトーンキューを選択してください（TONECUEで作成）
+Stream URL (srt://, rtmp://, rtsp://, udp://, or an http HLS .m3u8)	ストリームURL（srt://、rtmp://、rtsp://、udp://、またはhttpのHLS .m3u8）
+SUBTITLE CONVERT: destination must be .srt or .vtt	SUBTITLE CONVERT: 保存先は.srtか.vttにしてください
+TRACKER SET: a step cannot act on its own playlist	TRACKER SET: ステップは自身のプレイリストを操作できません
+TRACKER: there are no steps (TRACKER ADD makes one)	TRACKER: ステップがありません（TRACKER ADDで作成）
+VIDEO OUTPUT LAYERWARP MODE: linear or perspective	VIDEO OUTPUT LAYERWARP MODE: linearまたはperspectiveを指定
+WARP AT: open the editor (WARP EDIT) and select a point first	WARP AT: 先にエディターを開き（WARP EDIT）、点を選択してください
+warp point: that is a corner -- move it with WARP <corner> dx dy	ワープ点：それは角です -- WARP <corner> dx dyで動かしてください
+WEBMONITOR PIN: network sharing and phone control require 8 or more characters	WEBMONITOR PIN: ネットワーク共有とスマートフォン操作には8文字以上必要です
+WEBMONITOR QR: needs the monitor on and shared on the network	WEBMONITOR QR: モニターを有効にしてネットワーク共有してください
+WEBMONITOR SOURCE: could not create the web output	WEBMONITOR SOURCE: Web出力を作成できませんでした
+WEBMONITOR SOURCE: PROGRAMME or the number of an output that shows a picture	WEBMONITOR SOURCE: PROGRAMMEまたは映像のある出力の番号
+0 flows ALONG the edges, so colour orbits the shapes. 1 flows across them, which bleeds the picture into itself.	0は輪郭に沿って流れ、色が形の周囲を回ります。1は輪郭を横切り、映像が自身ににじみます。
+a note number 0-127, LEARN to take the next note played, or empty for none	ノート番号0-127。LEARNで次の演奏音を取得、空欄はなし
+a video cue's duration comes from its file; still duration applies to stills, patterns and browsers	映像キューの長さはファイルから取得。静止画の長さは画像・パターン・ブラウザーに適用
+Below the middle narrows toward mono -- which is what a single PA cluster is. Above it widens.	中央より下でモノラルへ狭め、単一のPAクラスターのようにします。上で広がります。
+Blueshift toward the direction of travel and redshift at the rim. Zero leaves the colour alone and it reads as a lens instead.	進行方向を青方偏移、縁を赤方偏移させます。0は色を変えずレンズ状になります。
+Bright: bright things drip over the dark, as text and logos do. Whole picture: everything is wax, and the picture itself runs down in its own colours.	明部：文字やロゴのように明るい部分が暗部へ垂れます。全体：すべてが蝋となり、映像が自身の色で流れ落ちます。
+Centre is a straight line. Up bends it into an S -- darker shadows, brighter highlights, more contrast. Down flattens it.	中央は直線。上げるとS字になり、暗部は暗く明部は明るく、コントラストが増します。下げると平坦になります。
+e.g. /stage/doors -- sent to Deckboy's OSC port; empty for none	例：/stage/doors -- DeckboyのOSCポートに送信。空欄はなし
+How bright a pixel has to be before it lifts at all, so only the highlights spike.	ピクセルを持ち上げる明るさのしきい値。明部だけを突出させます。
+How bright a pixel has to be to join a run. Lower catches more of the picture and the runs grow longer.	並びに加えるピクセルの明るさ。低いほど多く拾い、並びが長くなります。
+How deep the picture is treated as being. The brightness becomes height and is lit from the side.	映像の深さ。明るさを高さに変え、横から照らします。
+How faint a gradient still registers. High turns the quietest shading into visible structure.	検出する勾配の弱さ。高値ではごく微かな陰影も構造として現れます。
+How far back the chain listens. The picture is played through a delay, so this is the distance the damage is dragged across.	チェーンが過去を参照する長さ。映像をディレイに通すため、損傷を引き延ばす距離になります。
+How far the burn spreads off the edge, and how hot its colour runs.	燃焼が輪郭から広がる距離と、色の熱さ。
+How far the colour turns on each trip round the loop. This is the oil-slick: the trail walks through the spectrum instead of fading.	ループごとの色相回転。油膜のように、軌跡が消えずにスペクトルを巡ります。
+How far the picture stands out. Bright parts come forward, dark parts stay back. At the left it is flat.	映像の突出量。明部は前へ、暗部は奥へ。左端は平面です。
+How far the picture swings the filter. The cue's own brightness opens and closes it, so a cut to black takes the top off the sound.	映像によるフィルター変化量。キューの明るさで開閉し、黒へのカットで音の高域が落ちます。
+How far the top comes down as the end approaches. This is not a fade: the level is left alone.	終わりに近づくにつれて高域を下げる量。フェードではなく、音量は変えません。
+How far the two eyes disagree. Brightness is read as nearness.	両眼の視差。明るさを近さとして扱います。
+How fast it settles away while held. At zero it holds indefinitely, which is what room tone under a held title wants.	ホールド中の減衰速度。0は無期限に保持し、固定タイトルの下のルームトーンに適します。
+How fast the open slit crosses the picture. Slow smears a long moment across the frame.	開いたスリットが映像を横切る速さ。遅いほど長い時間を画面に引き延ばします。
+How fast what has dripped hardens away. At the left the drips stay until the cue changes.	垂れたものが固まって消える速さ。左端ではキューが変わるまで残ります。
+How fine the water is. Long ocean swell at one end, rain on a puddle at the other.	水面の細かさ。一端は長い海のうねり、もう一端は水たまりの雨です。
+How hard the light gathers where the rays converge. This is the part that makes it read as water rather than as a wobble.	光線の収束点に光を集める強さ。単なる揺れでなく水に見せる要素です。
+How hard the moving parts throw sand. More shake clears the plate faster and makes the lines thinner.	動く部分が砂を飛ばす強さ。振動が強いほど板が早く空き、線が細くなります。
+How long a grain is, in VIDEO FRAMES. On a 23.976 clip one frame is 41.7ms, which is not a musical value and is exactly the point.	粒の長さは映像フレーム単位。23.976では1フレーム41.7ms。音楽的な値でないことが狙いです。
+How long before the end it starts. The cue has to have a known length -- an open-ended one has no end to resolve into.	終了の何秒前に始めるか。長さが既知のキューが必要です。無期限のキューには到達する終点がありません。
+How long it is allowed to run. More steps means the ripples have crossed and reflected more times.	実行を続ける長さ。ステップが多いほど波紋の通過と反射が増えます。
+How long the old waves linger when the note changes. Left: they die at once. Right: they slosh for a while.	音高が変わった後の旧波の残り方。左は即消失、右はしばらく揺れ続けます。
+How much each facet catches the light, which is what makes them read as faceted rather than as flat blobs.	各面が光を受ける量。平らな塊でなく、多面体らしく見せます。
+How much its SIZE becomes distance. Shrink the picture and the sound goes away from you: the top comes off, the image narrows, the level drops.	大きさを距離に変換する量。映像を縮めると音が遠ざかり、高域が落ち、音像が狭まり、音量が下がります。
+How much of the bent picture goes round again. High is where it stops being an echo and starts eating itself.	歪んだ映像を再循環させる量。高値では残像を超えて自分自身を侵食します。
+How much of the driver's movement the picture KEEPS. At zero it follows the driver frame by frame, which is a twitch. Wind it up and the motion accumulates, so the driver sculpts the picture over time and it holds the pose -- which is what puppetry means.	駆動元の動きを映像に残す量。0では毎フレーム追従して震えます。上げると動きが蓄積し、時間をかけて形を作って姿勢を保ちます。人形操作のような動きです。
+How much of the picture's position on the output is used. A PIP on the left sounds on the left -- and it is a placement, not a pan: the far ear gets the delay and the head shadow too.	出力上の映像位置を使う量。左のPIPは左から聞こえます。パンではなく空間配置なので、遠い耳には遅延と頭部の遮蔽も加わります。
+How much of the tail is kept going while the cue is held. Long enough to hide the splice in room tone, short enough not to smear a rhythm in it.	ホールド中に続ける余韻の長さ。ルームトーンの継ぎ目を隠しつつ、リズムをにじませない長さにします。
+How much room comes up under it, so the sound settles into the cut instead of being severed.	下に加える部屋の響き。音を断ち切らず、カットに馴染ませます。
+How much the echo is distorted each pass. It compounds, so a little ripples and a lot melts the picture into itself.	反復ごとの残像の歪み。蓄積するため、少量では波打ち、多量では映像が自身に溶け込みます。
+How much the material draws in towards each drip, so it runs as a thin neck with a heavier head.	各しずくへ素材を引き寄せる量。細い首と重い先端で流れます。
+How often its settings are corrupted. Corrupted far enough it oscillates on its own -- loud, but it cannot run away.	設定を壊す頻度。大きく壊すと自己発振します。大音量でも暴走はしません。
+How quickly the picture springs back to rest once the driver stops pushing it. Only does anything when memory is up.	駆動元が止まった後、映像が静止状態に戻る速さ。メモリーを上げた場合のみ有効です。
+How small a cut sets it off. With no picture it runs on a timer instead, and this is how often.	反応するカットの小ささ。映像なしではタイマー動作となり、その頻度を設定します。
+How strongly the finished picture pushes the bend. Pair it with a picture effect whose LFO is set to Audio and the two drive each other.	完成映像がベンドを駆動する強さ。LFOをAudioにした映像エフェクトと組み合わせると相互に駆動します。
+How wide a view is being compressed. Narrow is a punch down the middle, wide folds the whole frame into the centre.	圧縮する視野の広さ。狭いと中央に集中し、広いと画面全体を中央へ折り込みます。
+Lift or cut, 12dB either way. The centre is flat, so a band that has just been added does nothing until this is moved.	±12dBの増減。中央はフラットなので、新しい帯域はここを動かすまで変化しません。
+Light on the drips, as on something wet: a gloss where it faces the light, darker where it curls away.	濡れたもののようにしずくを照らします。光に向く面は艶やかに、反る面は暗くなります。
+Line pitch in pixels, so this reads at 4K as well as at 720.	線の間隔はピクセル単位。4Kでも720でも見えるようにします。
+cannot read the file: if it lives in OneDrive or iCloud, open it once so it downloads, then import it	ファイルを読めません。OneDriveやiCloud上なら一度開いてダウンロードしてから読み込んでください
+did not finish in 3 minutes. It may be waiting on a prompt it cannot show (Protected View, sign-in, a repair). Open the deck there once, or export it as a PDF and import that	3分で完了しませんでした。表示できない確認（保護ビュー、サインイン、修復）を待っている可能性があります。元のアプリで一度開くか、PDFに書き出して読み込んでください
+forget my defaults? only NEW changes, this show keeps its settings: press again	マイ既定値を消去しますか？NEWのみ変わり、このショーの設定は保持します。もう一度押してください
+Keynote could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)	Keynoteで書き出せませんでした（自動操作の許可が必要な場合があります：システム設定 > プライバシーとセキュリティ > オートメーション）
+my defaults forgotten: NEW starts from factory settings, this show is unchanged	マイ既定値を消去しました。NEWは工場出荷設定で開始し、このショーは変わりません
+N=new  Enter/P=previous  O=open saved  E=examples  L=learn  1-	N=新規  Enter/P=前回  O=保存済みを開く  E=例  L=学ぶ  1-
+ndi tally trigger on -- program tally takes the cue	ndiタリートリガー有効 -- 送出タリーでキューを送出します
+notestep: this cue's notes have no builds (separate them with a line of ---)	notestep: このキューのノートに段階がありません（---の行で区切ってください）
+Only accept transport from this sender (blank = anyone)	この送信元からの再生制御のみ受信（空欄＝すべて）
+opened github.com in your browser -- nothing is sent until you submit the report there	ブラウザーでgithub.comを開きました -- そこで報告を送信するまで何も送られません
+Output height in px - math ok: 1080x2, 2160/2, 540+30	出力の高さ（px）- 計算可：1080x2, 2160/2, 540+30
+Output width in px - math ok: 1920x2, 3840/2, 960+64	出力の幅（px）- 計算可：1920x2, 3840/2, 960+64
+PHONE LEVEL: removed -- a paired phone or the passphrase can do everything; BLACKOUT and RECORD are hold-to-fire on the phone	PHONE LEVEL: 廃止済み -- ペア設定した端末かパスフレーズで全操作が可能です。端末ではBLACKOUTとRECORDは長押しです
+phones need THE NETWORK: set 'Who can see it' first	端末にはネットワークが必要です：先に「閲覧できる相手」を設定してください
+PowerPoint could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)	PowerPointで書き出せませんでした（自動操作の許可が必要な場合があります：システム設定 > プライバシーとセキュリティ > オートメーション）
+PowerPoint could not open the file (it gave up waiting for it). If it is in OneDrive, right-click it and choose Always keep on this device, then import it again	PowerPointで開けませんでした（待機が終了しました）。OneDrive上なら右クリックで「このデバイス上で常に保持する」を選び、再度読み込んでください
+saved as my defaults: NEW starts like this show, without the cues	マイ既定値として保存しました：NEWはこのショーの設定で、キューなしで始まります
+Seconds for new image/pattern/browser/Lower Third cues (0 = hold)	新規の画像／パターン／ブラウザー／Lower Thirdキューの秒数（0＝ホールド）
+select a Draw cue first (SOURCE > MADE BY DECKBOY > Draw)	先に描画キューを選択してください（SOURCE > MADE BY DECKBOY > Draw）
+something mellow appeared in SOURCE > MADE BY DECKBOY	SOURCE > MADE BY DECKBOYに穏やかなものが現れました
+sound scopes: integrated loudness and true peak start again	音声スコープ：統合ラウドネスとトゥルーピークの計測を再開しました
+splitnotes: that cue's notes have no parts (separate them with a line of ---)	splitnotes: そのキューのノートに区切りがありません（---の行で区切ってください）
+still reading the last folder -- one at a time	前のフォルダーを読み込み中です -- 1つずつお待ちください
+that key drives the desk - use F1-F10, F12 or the number pad	そのキーは操作卓で使用中です - F1-F10、F12、テンキーを使ってください
+the background alpha belongs to a Lower Third	背景アルファはLower Third専用です
+the clicker now spends note builds before advancing	クリッカーは次へ進む前にノートの段階を順に表示します
+this file is only in OneDrive, and OneDrive is not running. Start OneDrive, or copy the file to this computer, then import it again	このファイルはOneDrive上のみで、OneDriveが起動していません。起動するかファイルをこのコンピューターへコピーし、再度読み込んでください
+this presentation needs a password to open. Remove the password in PowerPoint (File > Info > Protect Presentation) or export it as a PDF, then import that	このプレゼンテーションにはパスワードが必要です。PowerPointで解除（ファイル > 情報 > プレゼンテーションの保護）するか、PDFに書き出して読み込んでください
+a step cannot fire the playlist it lives on	ステップから自身が属するプレイリストは起動できません
+ASCII: use ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>	ASCII: ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds> を使用
+atem tally on -- set which input Deckboy is	ATEMタリー有効 -- Deckboyの入力番号を設定してください
+DRAW SIZE: 0.1-20 (% of the picture's height)	DRAW SIZE: 0.1-20 (画像の高さに対する%)
+esc: control window - again to clear output	esc: 操作ウィンドウへ - もう一度押すと出力をクリア
+Flip across, upside down or both, or fold one half onto the other: right onto left, left onto right, bottom onto top, top onto bottom, or one corner into all four.	左右、上下、または両方を反転するか、片側をもう片側に折り重ねます。右を左へ、左を右へ、下を上へ、上を下へ、または1つの隅を4つすべての隅に展開します。
+FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR	FX: LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR を使用
+group presets became master cues: use MASTER	グループプリセットはマスターキューになりました: MASTERを使用
+make a step first: a section starts at a step	まずステップを作成してください: セクションはステップから始まります
+MASK PATH: a path needs at least three points	MASK PATH: パスには3点以上が必要です
+MATRIX SET: level is a percent from 0 to 100	MATRIX SET: レベルは0～100のパーセント値です
+MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> or OSC <address> [<n>], then CH <1-16> if not channel 1	MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> または OSC <address> [<n>]、チャンネル1以外なら続けて CH <1-16>
+MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET or FEEDBACK	MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET または FEEDBACK
+motion on: the camera is read, never recorded	モーション有効: カメラ映像を読み取りますが、録画はしません
+Moves the direction of travel off the centre of frame, so the picture rushes past rather than straight at you.	移動方向をフレームの中心からずらし、画像が正面から迫るのではなく脇を通り過ぎるようにします。
+new show disarms all outputs: press new again	新規ショーは全出力の待機を解除します: もう一度「新規」を押してください
+nmos: network is LOCAL ONLY - not registering	NMOS: ネットワークはLOCAL ONLYです - 登録しません
+normalize: selection has no file-backed audio	ノーマライズ: 選択項目にファイル由来の音声がありません
+on the dashboard - Ctrl+D or the DASH button	ダッシュボードにあります - Ctrl+DまたはDASHボタン
+One knob for the whole balance: below the middle is darker, above it is brighter.	1つのつまみで全体のバランスを調整します。中央より下は暗く、上は明るくなります。
+Original: the picture pulled onto the figure. Sand: the picture as grains that are thrown off the moving parts and pour into each new figure. Fluid: the picture under water on the plate, bent and lit by its standing waves.	オリジナル: 画像を形状に沿わせます。砂: 画像が粒になり、動く部分から飛び散って新しい形状へ流れ込みます。流体: 板の上の水中にある画像を、定在波が曲げて照らします。
+output recover failed: fullscreen unavailable	出力の復旧に失敗: 全画面表示が使用できません
+Page Down / Page Up step the focused playlist	Page Down / Page Upでフォーカス中のプレイリストを順送りできます
+Pulls the bright tones down without moving pure white, so a hot highlight rolls off instead of clipping.	純白を変えずに明るい階調を抑え、強いハイライトをクリップさせず滑らかに収めます。
+recordings remux to MP4 when the take stops	テイク停止時に録画を再エンコードせずMP4へ再多重化します
+Rotates the reading, so straight lines wind into spirals rather than rings.	読み取り方向を回転させ、直線を輪ではなくらせんに巻き込みます。
+Rows lose sync and repeat one character, the way a real text screen breaks up. At 0 the grid is clean.	実際の文字画面が乱れるように、行の同期が外れて同じ文字を繰り返します。0ではグリッドは乱れません。
+SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, LINEAR, PERSPECTIVE or NAME	SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, LINEAR, PERSPECTIVE または NAME
+SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF, or POINT col row dx dy	SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF、または POINT col row dx dy
+Something near the deck: a phone's buzz, a light dimmer's herringbone, a radio's slow bars.	デッキ付近の干渉源を再現します。携帯電話のブーンという音、調光器の斜め格子模様、無線機によるゆっくり動く帯などです。
+Sorts the runs the other way, so they pour from light to dark.	連なりを逆順に並べ、明部から暗部へ流れるようにします。
+SUBTITLE CONVERT: the cue has no caption file	SUBTITLE CONVERT: キューに字幕ファイルがありません
+Takes out everything brighter than this as well. Left takes out nothing.	これより明るい部分もすべて抜きます。左端では何も抜きません。
+Takes out everything darker than this, so what lies beneath shows through. Left takes out nothing.	これより暗い部分をすべて抜き、下の映像を見せます。左端では何も抜きません。
+Tape speed: SP is the best picture, LP and EP fit more on a tape and lose detail and colour.	テープ速度: SPは最高画質です。LPとEPは長時間収録できますが、ディテールと色が失われます。
+The brightness that stays put. Everything above it reaches one way and everything below it the other.	固定される明るさです。それより明るい部分は一方へ、暗い部分は反対方向へ伸びます。
+The character of the growth: low is waves, then labyrinth, coral, worms, and holes at the top.	成長の模様です。低い値では波、続いて迷路、サンゴ、虫状となり、最大付近では穴になります。
+The colour it becomes. Shading and brightness stay as they were, so a red shirt turns blue and keeps its folds.	変換後の色です。陰影と明るさは維持されるので、赤いシャツを青にしてもしわは残ります。
+The distance that sits ON the screen. Either side of it comes forward or falls behind.	画面上に位置する距離です。その両側は手前に出るか奥に下がります。
+The frequency it pivots around -- what counts as 'low' and 'high' for the tilt.	傾きの支点となる周波数です。ここを境に「低域」と「高域」が分かれます。
+The head drifting off the track: a band of noise rolls through the picture.	ヘッドがトラックからずれ、ノイズの帯が画面を流れます。
+The level below which the source is closed. Set it under the quietest thing you want to hear.	ソースを閉じるしきい値です。聞き取りたい最も小さな音より低く設定してください。
+The level it starts working at. Lower catches more of the performance.	処理を開始するレベルです。低くするほど演奏のより広い範囲に作用します。
+The plugin's first four automatable controls, in its own order. Everything else it has keeps whatever the plugin was left set to.	プラグイン独自の順序で並ぶ、オートメーション可能な最初の4つのコントロールです。その他はプラグインの最後の設定を維持します。
+this output's renderer could not cut the mask	この出力のレンダラーではマスクを切り抜けませんでした
+Tints the two directions apart, so light bending one way and the other are different colours instead of both being grey.	2つの方向に別々の色を付け、どちらもグレーにするのではなく、曲がる方向によって光の色を変えます。
+Turns the echo each pass, which winds the melt into a spiral.	各パスで残像を回転させ、溶解をらせん状に巻き込みます。
+Turns the strokes across the grain instead of along it, which combs the picture apart rather than smoothing it.	筆致を流れに沿わせず横切る方向へ回し、画像を滑らかにする代わりに、くしでほぐすように分解します。
+Turns the whole arrangement, so the fold lines do not sit on the same part of the picture all night.	配置全体を回転させ、折り目が一晩中画像の同じ位置に留まらないようにします。
+Two is a mirror, twelve is a snowflake, and they are completely different pictures.	2なら鏡、12なら雪の結晶となり、まったく異なる画像になります。
+unsaved changes will be lost: press new again	未保存の変更は失われます: もう一度「新規」を押してください
+WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (sound is included)	WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (音声を含む)
+Where highlights fold back through black. Low folds most of the picture, high folds only the brightest.	ハイライトが黒を通って折り返す位置です。低い値では画像の大部分、高い値では最も明るい部分だけが折り返します。
+Where the band sits, 30Hz to 16kHz across the travel.	帯域の位置です。操作範囲は30Hzから16kHzです。
+Where the fold sits: the middle at the left, toward the far edge to the right. Flips have no fold.	折り目の位置です。左端では中央、右へ動かすと遠い側の端へ寄ります。反転には折り目がありません。
+Where the light stands, in degrees around the frame.	フレームの周囲における光の位置を角度で指定します。
+Where the source sits around the listener, all the way round. For headphones -- it is a timing and shading trick, not a pan.	リスナーを取り囲む全周におけるソースの位置です。ヘッドホン向けで、パンではなく時間差と音色による効果です。
+Where the top ends, 200Hz to 20kHz. Pull it down to take the harshness off a bright source.	高域の上限です。200Hzから20kHz。下げると明るい音源の耳障りな鋭さを抑えます。
+Which channel the curve acts on: all three, then red, green or blue on its own -- the way a colourist warms or cools one end of the picture.	カーブが作用するチャンネルです。3色すべて、または赤、緑、青を個別に選び、カラーリストが映像の暗部や明部を暖色や寒色にするように調整します。
+Which way the knife edge lies. Only gradients ACROSS the edge show, so turning it swaps which features appear and which vanish.	ナイフエッジの向きです。エッジを横切る勾配だけが見えるため、回転すると現れる特徴と消える特徴が入れ替わります。
+Which way the streak runs: across at the left, upright in the middle, across again at the right.	筋の方向です。左では横、中央では縦、右では再び横になります。
+Widens the decision into a ramp, so edges keep their shape instead of jagging.	判定の境界を滑らかな勾配に広げ、輪郭をギザギザにせず形を保ちます。
+Words to surface in the field, separated by | . One shows at a time, moving on the hold clock.	フィールドに浮かぶ言葉を | で区切って指定します。1つずつ表示し、ホールドの時計に合わせて切り替えます。
+Zero is one noise value across all three channels, which reads as film. Higher gives each channel its own, which reads as video.	0では3チャンネルに同じノイズ値を使い、フィルム風になります。上げると各チャンネルが独立したノイズになり、ビデオ風になります。
+zones cleared: Motion reads the whole picture	領域をクリアしました: モーションは画像全体を読み取ります

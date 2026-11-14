@@ -3284,3 +3284,1078 @@ FX CHOICE: choice must be A or B	FX CHOICE: هەڵبژاردە دەبێت A یا
 FX CHOICE: no effect at that index	FX CHOICE: لەو پێڕستە هیچ کاریگەرییەک نییە
 whole picture	تەواوی وێنە
 FX LFO: slot is A-D for the parameters, E for the amount, F and G for the fifth and sixth (or 0-6)	FX LFO: شوێن A-D ـە بۆ پارامیتەرەکان، E بۆ بڕ، F و G بۆ پێنجەم و شەشەم (یان 0-6)
+angle	گۆشە
+attack	هێرش
+azimuth	ئاراستە
+band curve	چەماوەی باند
+bands	باندەکان
+base layer	چینی بنەڕەتی
+bits	بیتەکان
+black point	خاڵی ڕەش
+bleed	دزەکردن
+block glitch	تێکچوونی بلۆک
+block size	قەبارەی بلۆک
+blocks	بلۆکەکان
+blur	تەمومژی
+bright	ڕووناک
+buzzer	بیزەر
+by brightness	بەپێی ڕووناکی
+catch	گرتن
+caustics	کاوستیک
+channel skew	لادانی کەناڵ
+channel spread	بڵاوبوونەوەی کەناڵ
+character	نووسە
+chop	پارچەکردن
+coherence	هاوئاهەنگی
+colour bleed	دزەی ڕەنگ
+colour drift	خلیسکانی ڕەنگ
+colour lag	دواکەوتنی ڕەنگ
+colour replace	گۆڕینی ڕەنگ
+columns	ستوونەکان
+convergence	نزیکبوونەوە
+copies	کۆپیەکان
+corrupt	تێکدان
+corruption	تێکچوون
+coupling	پێکەوەبەستن
+crystallise	کریستاڵکردن
+curl detail	وردەکاری لوول
+curves	چەماوەکان
+cut bright	بڕینی ڕووناک
+cut dark	بڕینی تاریک
+cut reset	ڕێکخستنەوە بە بڕین
+cutoff	فرێکوێنسی بڕین
+cuts	بڕینەکان
+cyan	شین‌سەوز
+damage	زیان
+damping	کەمکردنەوە
+dark	تاریک
+darkness	تاریکی
+deck age	تەمەنی ئامێر
+depth	قووڵایی
+depth split	جیاکردنەوەی قووڵایی
+diamond	لۆزی
+distance	دووری
+doppler	دۆپلەر
+dots move	جووڵەی خاڵەکان
+drift	خلیسکان
+drip	دڵۆپاندن
+drips	دڵۆپەکان
+drive	پاڵنان
+dye advect	گواستنەوەی ڕەنگ
+edge ignite	داگیرسانی لێوار
+edges	لێوارەکان
+empty	بەتاڵ
+extended	فراوانکراو
+facet light	ڕووناکی ڕووەکان
+falloff	کەمبوونەوە
+falsecolour	ڕەنگی ساختە
+feed rate	ڕێژەی خۆراک
+feedback bloom	گەشەی فیدباک
+ferrofluid	شلەی مەگناتیسی
+field of view	مەودای بینین
+flash length	ماوەی بریسکە
+flash to	بریسکە بۆ
+flicker	لەرزینی ڕووناکی
+floor	سنووری خوارەوە
+flow	ڕەوت
+focus	فۆکەس
+fold	چەمانەوە
+fold point	خاڵی چەمانەوە
+frames	چوارچێوەکان
+frequency	فرێکوێنس
+gap	بۆشایی
+gather	کۆبوونەوە
+glow	درەوشانەوە
+glyph set	کۆمەڵە نووسە
+gong	گۆنگ
+grain	دانە
+grain flow	ڕەوتی دانە
+grain size	قەبارەی دانە
+green split	جیاکردنەوەی سەوز
+grid	تۆڕ
+growl	گڕە
+growth	گەشە
+head wear	کۆنبوونی سەر
+heat	گەرمی
+highlight roll	نەرمکردنی ڕووناک
+histogram	هیستۆگرام
+horizontal	ئاسۆیی
+hue turn	سووڕانی ڕەنگ
+ice	سەهۆڵ
+ink	مرەکەب
+interference	تێکەڵبوون
+irregularity	ناڕێکی
+jump	بازدان
+kaleido	کالەیدۆ
+kaleidoscope	کالەیدۆسکۆپ
+knee	چۆکی پەستان
+knife angle	گۆشەی تیغ
+leak	دزە
+let go	بەردان
+lift	بەرزکردنەوە
+light	ڕووناکی
+light angle	گۆشەی ڕووناکی
+lightspeed	خێرایی ڕووناکی
+line colour	ڕەنگی هێڵ
+line glow	درەوشانەوەی هێڵ
+lissajous	لیساژۆ
+luma displace	گواستنەوەی لووما
+luma key	کلیلەی لووما
+material	ماددە
+melt	توانەوە
+memory	بیرگە
+midtones	تۆنە ناوەندەکان
+moire	مۆئارە
+mono	مۆنۆ
+mosaic	مۆزایک
+motion mosh	تێکچوونی جووڵە
+motion puppet	بووکەڵەی جووڵە
+motion trails	شوێنەواری جووڵە
+night eyes	چاوی شەو
+no colour	بێ ڕەنگ
+noise	ژاوەژاو
+not connected	پەیوەست نییە
+nothing drawn	هیچ نەکێشراوە
+off-axis	دەرەوەی تەوەر
+offline	ئۆفلاین
+orbit speed	خێرایی سووڕانەوە
+overflow	سەرڕێژبوون
+parade	پارەید
+parallax	جیاوازی دیمەن
+phone	تەلەفۆن
+pinch	گوشین
+ping-pong	هاتوچۆ
+pink noise	ژاوەژاوی پەمەیی
+pitch	بەرزی دەنگ
+pivot	خاڵی سووڕان
+pixel sort	ڕیزکردنی پیکسڵ
+plasma	پلازما
+polar warp	شێواندنی جەمسەری
+posterise	پۆستەرکردن
+radial zoom	زوومی تیشکی
+radio	ڕادیۆ
+radius	نیوەتیرە
+ramp	پلەبەندی
+range	مەودا
+ratio	ڕێژە
+reach	گەیشتن
+reaction bloom	گەشەی کاردانەوە
+recordings	تۆمارەکان
+recovering	گەڕاندنەوە
+refresh	نوێکردنەوە
+release	بەردان
+relief	هەڵکەندراو
+relight	ڕووناککردنەوە
+repeat width	پانی دووبارە
+resonance	دەنگدانەوە
+reverse	پێچەوانە
+rgb split	جیاکردنەوەی RGB
+rings	بازنەکان
+ripple	شەپۆلۆکە
+rising	بەرەو سەرەوە
+rod bias	لایەنگری خانە دارەکی
+room	ژوور
+rot	ڕزین
+rotation	سووڕان
+round	خڕ
+sag	شۆڕبوونەوە
+saw	ددانی منشار
+scanlines	هێڵەکانی سکان
+schlieren	شلیرن
+scope	سکۆپ
+second mode	دۆخی دووەم
+see through	ڕوونی
+seed density	چڕی تۆو
+self	خۆ
+settle	نیشتنەوە
+shadow lift	بەرزکردنەوەی سێبەر
+shake	لەرزین
+shard size	قەبارەی پارچە
+sharpen	تیژکردن
+sheen	بریسکە
+sideways	بۆ لاوەکی
+slit scan	سکانی کەلێن
+slit width	پانی کەلێن
+smear	لکەکردن
+softness	نەرمی
+solarise	سۆلاریزە
+spike count	ژمارەی تیژەکان
+spike length	درێژی تیژەکان
+spin	سووڕان
+spinning	سووڕاو
+spring	فنەر
+sprite sheet	پەڕەی سپرایت
+square	چوارگۆشە
+steps	هەنگاوەکان
+stereogram	ستیریۆگرام
+stiffness	ڕەقی
+sting	نیش
+strength	هێز
+strobe	سترۆب
+stroke	هێڵی فڵچە
+sway	لاربوون
+sweep	ڕاماڵین
+sweep speed	خێرایی ڕاماڵین
+swell speed	خێرایی شەپۆل
+symbols	هێماکان
+system default	بنەڕەتی سیستەم
+system output	دەرچووی سیستەم
+tape	شریت
+tape age	تەمەنی شریت
+tear width	پانی دڕان
+temporal dither	دیتەری کاتی
+test signal	ئاماژەی تاقیکردنەوە
+text to send	دەقی ناردن
+threshold	سنوور
+throw	فڕێدان
+tile size	قەبارەی کاشی
+tilt	لاربوون
+time	کات
+time cube	سێجای کات
+tint	ڕەنگدان
+tint colour	ڕەنگی ڕەنگدان
+tracking	بەدواداچوون
+trail	شوێنەوار
+transparent	ڕوون
+triangle	سێگۆشە
+triple beep	سێ بیپ
+turn	سووڕان
+twist	پێچان
+unavailable	بەردەست نییە
+unbalanced )	کەوانەی ) ناتەبا
+vapor	هەڵم
+vector	ڤێکتەر
+vertical	ستوونی
+vertical bias	لایەنگری ستوونی
+vibrato	ڤیبراتۆ
+vignette	تاریککردنی لێوار
+wash out	کاڵبوونەوە
+wave height	بەرزی شەپۆل
+wavefront	بەرەی شەپۆل
+way	ئاراستە
+wedges	کەرتەکان
+white	سپی
+white noise	ژاوەژاوی سپی
+white point	خاڵی سپی
+window hidden	پەنجەرە شاراوەیە
+window minimized	پەنجەرە بچووککراوەتەوە
+wire	تەل
+wrong display	شاشەی هەڵە
+zoom	زووم
+(choose cue)	(کیو هەڵبژێرە)
+(missing)	(ونبوو)
+(no slots)	(هیچ خانەیەک نییە)
+(set media file)	(فایلی میدیا دیاری بکە)
+(set url)	(url دیاری بکە)
+A number	ژمارە
+across the grain	بە پانی دانەکان
+additive	زیادکەر
+alternating	نۆرەیی
+amber	کەهرەبایی
+Audio bitrate	ڕێژەی بیتی دەنگ
+Audio reactivity	کاردانەوەی دەنگ
+Brush opacity	نەشفافی فڵچە
+Brush size	قەبارەی فڵچە
+cancelled	هەڵوەشایەوە
+Canvas Height	بەرزی کانڤاس
+Canvas View	دیمەنی کانڤاس
+Canvas Width	پانی کانڤاس
+Centre X	ناوەند X
+Centre Y	ناوەند Y
+Control change	گۆڕینی کۆنترۆڵ
+Cue Notes	تێبینیەکانی کیو
+Custom Glyphs	نووسەی تایبەت
+Density	چڕی
+Detail	وردەکاری
+Draw colour	ڕەنگی کێشان
+empty expression	دەربڕینی بەتاڵ
+export as .png or .svg	بە .png یان .svg هەناردە بکە
+Fixture address	ناونیشانی چراغ
+Fixture name	ناوی چراغ
+Fixture universe	یونیڤێرسی چراغ
+Height	بەرزی
+Height (px)	بەرزی (px)
+Key Color	ڕەنگی کلیلە
+Keyframe interval	ماوەی چوارچێوەی کلیلە
+Live Browser	وێبگەڕی ڕاستەوخۆ
+Live Source	سەرچاوەی ڕاستەوخۆ
+Mask opacity	نەشفافی ماسک
+Mask rotation	سووڕانی ماسک
+Mask scale	پێوەری ماسک
+Mask X	ماسک X
+Mask Y	ماسک Y
+Add Browser Cue	زیادکردنی کیوی وێبگەڕ
+Add NDI Source Cue	زیادکردنی کیوی سەرچاوەی NDI
+Add Stream Cue	زیادکردنی کیوی ستریم
+Art-Net Destination	مەبەستی Art-Net
+ASCII 95 (density)	ASCII 95 (چڕی)
+ASCII 95 (raw)	ASCII 95 (خاو)
+ASIO is off	ASIO کوژاوەتەوە
+ATEM Input	هاتنی ATEM
+Attach Lower Third	لکاندنی Lower Third
+Attach PIP Overlay	لکاندنی چینی PIP
+Attack	هێرش
+Bands	باندەکان
+Blobs	لکەکان
+BOTH	هەردوو
+Browser Ready	وێبگەڕ ئامادەیە
+CLASSIC	کلاسیک
+CLOCK	کاتژمێر
+Companion/OSC Port	پۆرتی Companion/OSC
+control 1	کۆنترۆڵ 1
+control 2	کۆنترۆڵ 2
+control 3	کۆنترۆڵ 3
+control 4	کۆنترۆڵ 4
+could not reach github	نەتوانرا پەیوەندی بە github بکرێت
+could not read the PDF	PDF نەخوێندرایەوە
+could not start ffmpeg	ffmpeg دەستی پێ نەکرد
+Cue Goto	چوون بۆ کیو
+Custom Output Raster	ڕاستەری دەرچووی تایبەت
+Default Cue Fade	فەیدی بنەڕەتی کیو
+Destination Address	ناونیشانی مەبەست
+Destination UDP port	پۆرتی UDPی مەبەست
+display native	بنەڕەتی شاشە
+Display none	بێ شاشە
+DMX Channels	کەناڵەکانی DMX
+EXTREME	توند
+Feedback zoom	زوومی فیدباک
+Find Cue	دۆزینەوەی کیو
+Find+Take Cue	دۆزینەوە و TAKEی کیو
+Fire at a time of day	دەستپێکردن لە کاتێکی دیاریکراو
+Fire on a MIDI note	دەستپێکردن بە نۆتی MIDI
+Fire on an OSC address	دەستپێکردن بە ناونیشانی OSC
+First channel (1-512)	کەناڵی یەکەم (1-512)
+Flipbook rate	خێرایی وەرگێڕانی وێنە
+Flow	ڕەوت
+Frequency	فرێکوێنس
+Glitch	تێکچوون
+GOTO Cue	GOTO چوون بۆ کیو
+Grey	خۆڵەمێشی
+In time	کاتی هاتن
+Its name, number or id	ناو، ژمارە یان ناسنامەی
+Key sender source name	ناوی سەرچاوەی نێرەری کلیلە
+Legacy Cue Link	بەستەری کۆنی کیو
+Lissajous (L/R phase)	لیساژۆ (فازی L/R)
+Lower Third - subtitle	Lower Third - ژێرناونیشان
+Lower Third - title	Lower Third - ناونیشان
+Lower Third Subtext	ژێردەقی Lower Third
+Lower Third Title	ناونیشانی Lower Third
+Media	میدیا
+Melt	توانەوە
+Milliseconds 0-5000	میلیچرکە 0-5000
+Mod depth	قووڵایی مۆدولە
+Mod ratio	ڕێژەی مۆدولە
+music & sparkle	مۆسیقا و بریسکە
+NDI Key Name	ناوی کلیلەی NDI
+NDI Name	ناوی NDI
+NDI Source Name	ناوی سەرچاوەی NDI
+NEXT	دواتر
+NMC Port	پۆرتی NMC
+NMC Source	سەرچاوەی NMC
+NMC Target	ئامانجی NMC
+NMOS Interface Name	ناوی ڕووکاری NMOS
+NMOS Node Port	پۆرتی گرێی NMOS
+NMOS Registry	تۆماری NMOS
+no ASIO in this build	ئەم وەشانە ASIOی نییە
+no driver named	درایڤەر بەو ناوە نییە
+no mask made	ماسک دروست نەکراوە
+no release found	وەشان نەدۆزرایەوە
+no X display to read	شاشەی X نییە بۆ خوێندنەوە
+not on this output	لەسەر ئەم دەرچووە نییە
+Note	نۆت
+Note off	کوژاندنەوەی نۆت
+Note on	دەستپێکردنی نۆت
+OSC Address	ناونیشانی OSC
+OSC Query HTTP Port	پۆرتی HTTPی پرسیاری OSC
+Out time	کاتی دەرچوون
+Output Alpha	ئەلفای دەرچوو
+Output Canvas	کانڤاسی دەرچوو
+Output Delay	دواکەوتنی دەرچوو
+output fault	هەڵەی دەرچوو
+Output name	ناوی دەرچوو
+Output Refresh	نوێکردنەوەی دەرچوو
+own playlist	لیستی لێدانی خۆی
+Payload	ناوەڕۆکی پەیام
+Percent 0-100	لەسەد 0-100
+Phrases	دەستەواژەکان
+PIP Target Cue	کیوی ئامانجی PIP
+Pixel density	چڕی پیکسڵ
+Playlist Start TC	کۆدی کاتی دەستپێکی لیست
+Playlist Timebase	بنەمای کاتی لیست
+Plugin	پێوەکراو
+Portal	دەروازە
+Practice show	نمایشی ڕاهێنان
+PREVIOUS	پێشوو
+Program change	گۆڕینی پڕۆگرام
+Prompter script	دەقی تەلەپڕۆمپتەر
+pulse 25%	پەڵس 25%
+QUALITY	کوالێتی
+Raw bytes	بایتە خاوەکان
+Raw MIDI Bytes	بایتە خاوەکانی MIDI
+Release	بەردان
+Rename cue	گۆڕینی ناوی کیو
+Rename fixture	گۆڕینی ناوی چراغ
+Renumber Cues	ژمارەکردنەوەی کیوەکان
+Replay hold	ڕاگرتنی دووبارە
+Retrigger	دەستپێکردنەوە
+Rim	لێوار
+Rotation	سووڕان
+runtime unavailable	ژینگەی جێبەجێکردن بەردەست نییە
+Save Warp Preset	پاشەکەوتکردنی پێش‌ڕێکخستنی شێواندن
+SCOPES	سکۆپەکان
+Seconds (0-30)	چرکە (0-30)
+Sender source name	ناوی سەرچاوەی نێرەر
+size out of range	قەبارە لە دەرەوەی مەودایە
+Smear	لکەکردن
+Source Ready	سەرچاوە ئامادەیە
+Spout Sender Name	ناوی نێرەری Spout
+Sprite spin	سووڕانی سپرایت
+SRT latency	دواکەوتنی SRT
+SRT passphrase	وشەی نهێنی SRT
+SRT stream ID	ناسنامەی ستریمی SRT
+ST 2110 Destination	مەبەستی ST 2110
+ST 2110 Port	پۆرتی ST 2110
+Step length	ماوەی هەنگاو
+stream restart needed	ستریم پێویستی بە دەستپێکردنەوەیە
+Stream URL	بەستەری ستریم
+stream write failed	نووسینی ستریم سەرکەوتوو نەبوو
+SUBTLE	نەرم
+Switcher IP address	ناونیشانی IPی سویچەر
+Timer Message	پەیامی کاتژمێر
+TSL Tally	تالی TSL
+Turn	سووڕان
+Twist	پێچان
+Universe (0-63999)	یونیڤێرس (0-63999)
+URL or local page path	بەستەر یان ڕێڕەوی پەڕەی ناوخۆ
+Video bitrate	ڕێژەی بیتی ڤیدیۆ
+Video dip fade	فەیدی ڤیدیۆ بەناو ڕەنگدا
+vMix HTTP Port	پۆرتی HTTPی vMix
+vMix TCP Port	پۆرتی TCPی vMix
+Web Monitor PIN	PINی چاودێری وێب
+Web Monitor Port	پۆرتی چاودێری وێب
+What it runs	ئەوەی جێبەجێی دەکات
+Which cue	کام کیو
+X,Y offset in pixels	لادانی X,Y بە پیکسڵ
+Zoom	زووم
+a name for this step	ناوێک بۆ ئەم هەنگاوە
+A number, or blank for none	ژمارە، یان بەتاڵ بۆ هیچ
+A command line, or blank for nothing	هێڵی فەرمان، یان بەتاڵ بۆ هیچ
+a playlist that is gone	لیستی لێدانێک کە نەماوە
+a target cannot target another target	ئامانج ناتوانێت ئامانجێکی تر بکاتە ئامانج
+add an output to scope it	دەرچوویەک زیاد بکە بۆ پشکنینی
+an ASIO stream is already open	ستریمێکی ASIO پێشتر کراوەتەوە
+another app is holding the pointer	بەرنامەیەکی تر نیشاندەرەکەی گرتووە
+built without ASIO support	بەبێ پشتگیری ASIO دروستکراوە
+built without NDI SDK headers	بەبێ سەرپەڕەکانی NDI SDK دروستکراوە
+channel count must be at least 1	ژمارەی کەناڵەکان دەبێت لانیکەم 1 بێت
+comma outside a function call	کۆما لە دەرەوەی بانگکردنی فانکشن
+could not start the PDF renderer	ڕەندەرکەری PDF دەستی پێ نەکرد
+could not write the export script	سکریپتی هەناردە نەنووسرا
+couldn't open explorer	ئێکسپلۆرەر نەکرایەوە
+couldn't open file manager	بەڕێوەبەری فایل نەکرایەوە
+couldn't open finder	فایندەر نەکرایەوە
+driver refused to start	درایڤەر دەستی پێ نەکرد
+driver reports no output channels	درایڤەر هیچ کەناڵی دەرچوو ڕاناگەیەنێت
+driver would not create output buffers	درایڤەر بافەرەکانی دەرچووی دروست نەکرد
+driver would not load (in use by another application?)	درایڤەر بار نەکرا (بەرنامەیەکی تر بەکاری دەهێنێت؟)
+driver would not report a buffer size	درایڤەر قەبارەی بافەری ڕانەگەیاند
+driver would not report channel info	درایڤەر زانیاری کەناڵی ڕانەگەیاند
+escaped to windowed	گەڕایەوە بۆ دۆخی پەنجەرە
+ffmpeg made no file	ffmpeg هیچ فایلێکی دروست نەکرد
+ffmpeg stopped taking frames	ffmpeg چیتر چوارچێوە وەرناگرێت
+fullscreen dropped	دۆخی پڕشاشە کۆتایی هات
+it could not be started	نەتوانرا دەستی پێ بکرێت
+LibreOffice could not be run	LibreOffice جێبەجێ نەکرا
+LibreOffice produced no PDF	LibreOffice هیچ PDFێکی دروست نەکرد
+libX11 is not installed	libX11 دانەمەزراوە
+lost the session bus	پەیوەندی بە باسی دانیشتن پچڕا
+macOS could not read the PDF	macOS نەیتوانی PDF بخوێنێتەوە
+no pages could be rendered	هیچ پەڕەیەک ڕەندەر نەکرا
+not a MIDI file (no MThd header)	فایلی MIDI نییە (سەرپەڕەی MThd نییە)
+not while a cue is playing	لەکاتی لێدانی کیودا ناکرێت
+only a background in it	تەنها پاشبنەمای تێدایە
+opened in explorer	لە ئێکسپلۆرەر کرایەوە
+opened in file manager	لە بەڕێوەبەری فایل کرایەوە
+pdftoppm produced no pages	pdftoppm هیچ پەڕەیەکی دروست نەکرد
+PowerPoint could not export this file	PowerPoint نەیتوانی ئەم فایلە هەناردە بکات
+release has no build for this platform	وەشانەکە بۆ ئەم پلاتفۆرمە دروست نەکراوە
+revealed in finder	لە فایندەر پیشان درا
+target cue is gone	کیوی ئامانج نەماوە
+targets nothing	هیچ ئامانجێکی نییە
+the document has no pages	بەڵگەنامەکە هیچ پەڕەیەکی نییە
+the file has no playable events	فایلەکە ڕووداوی شیاوی لێدانی نییە
+the file is empty	فایلەکە بەتاڵە
+the header is truncated	سەرپەڕەکە ناتەواوە
+the NDI runtime is not installed	ژینگەی جێبەجێکردنی NDI دانەمەزراوە
+the PDF renderer produced no pages	ڕەندەرکەری PDF هیچ پەڕەیەکی دروست نەکرد
+the screen could not be read there	شاشەکە لەوێ نەخوێندرایەوە
+the show plays through ASIO	نمایشەکە بە ASIO لێ دەدرێت
+the time division is not readable	دابەشکردنی کات ناخوێندرێتەوە
+this build has no X11 support	ئەم وەشانە پشتگیری X11 ناکات
+update: could not start the installer	نوێکردنەوە: دامەزرێنەر دەستی پێ نەکرد
+update: could not start the install helper	نوێکردنەوە: یاریدەدەری دامەزراندن دەستی پێ نەکرد
+update: could not write the install helper	نوێکردنەوە: یاریدەدەری دامەزراندن نەنووسرا
+update: not running from an AppImage	نوێکردنەوە: لە AppImage جێبەجێ نەکراوە
+web audio encoder cannot keep up	ئینکۆدەری دەنگی وێب ناتوانێت هاوکات بێت
+Web Monitor Connections	پەیوەندیەکانی چاودێری وێب
+%, 1 to 100 (supports + - * / and ())	%، 1 بۆ 100 (پشتگیری + - * / و () دەکات)
+0-1 (supports + - * / and ())	0-1 (پشتگیری + - * / و () دەکات)
+0-100% (supports + - * / and ())	0-100% (پشتگیری + - * / و () دەکات)
+0-100%, left to right (supports + - * / and ())	0-100%، لە چەپ بۆ ڕاست (پشتگیری + - * / و () دەکات)
+0-100%, top to bottom (supports + - * / and ())	0-100%، لە سەرەوە بۆ خوارەوە (پشتگیری + - * / و () دەکات)
+Amount 0-100% (supports + - * / and ())	بڕ 0-100% (پشتگیری + - * / و () دەکات)
+Colour steps, 2-8 (supports + - * / and ())	پلەکانی ڕەنگ، 2-8 (پشتگیری + - * / و () دەکات)
+Degrees -180..180 (supports + - * / and ())	پلە -180..180 (پشتگیری + - * / و () دەکات)
+Degrees per second, -720 to 720 (supports + - * / and ())	پلە لە چرکەیەکدا، -720 بۆ 720 (پشتگیری + - * / و () دەکات)
+Degrees round the colour wheel, 0-360 (supports + - * / and ())	پلە بەدەوری بازنەی ڕەنگ، 0-360 (پشتگیری + - * / و () دەکات)
+Degrees, -360 to 360 (supports + - * / and ())	پلە، -360 بۆ 360 (پشتگیری + - * / و () دەکات)
+Degrees, 0-360 (supports + - * / and ())	پلە، 0-360 (پشتگیری + - * / و () دەکات)
+Feature size, 0.1-8 (supports + - * / and ())	قەبارەی وردەکاری، 0.1-8 (پشتگیری + - * / و () دەکات)
+Frames a second, 1 to 60 (supports + - * / and ())	چوارچێوە لە چرکەیەکدا، 1 بۆ 60 (پشتگیری + - * / و () دەکات)
+Hertz, 20-20000 (supports + - * / and ())	هێرتز، 20-20000 (پشتگیری + - * / و () دەکات)
+Horizontal cells, 64-960 (supports + - * / and ())	خانە ئاسۆییەکان، 64-960 (پشتگیری + - * / و () دەکات)
+How big a blob grows, 0-1 (supports + - * / and ())	قەبارەی گەشەی لکە، 0-1 (پشتگیری + - * / و () دەکات)
+How hard it cuts, %, 0 to 100 (supports + - * / and ())	توندی بڕین، %، 0 بۆ 100 (پشتگیری + - * / و () دەکات)
+How hard the audio drives it, 0-1 (supports + - * / and ())	هێزی پاڵنانی دەنگ، 0-1 (پشتگیری + - * / و () دەکات)
+How many are alive at once, 3-48 (supports + - * / and ())	ژمارەی زیندووەکان لەیەککاتدا، 3-48 (پشتگیری + - * / و () دەکات)
+Palette turn, 0-1 (supports + - * / and ())	سووڕانی پالێت، 0-1 (پشتگیری + - * / و () دەکات)
+Pitch in hertz, 20-8000 (supports + - * / and ())	بەرزی دەنگ بە هێرتز، 20-8000 (پشتگیری + - * / و () دەکات)
+Pixel sort amount, 0-1 (supports + - * / and ())	بڕی ڕیزکردنی پیکسڵ، 0-1 (پشتگیری + - * / و () دەکات)
+Pixels (supports + - * / and ())	پیکسڵ (پشتگیری + - * / و () دەکات)
+Pixels, 64-2160 (supports + - * / and ())	پیکسڵ، 64-2160 (پشتگیری + - * / و () دەکات)
+Pixels, 64-3840 (supports + - * / and ())	پیکسڵ، 64-3840 (پشتگیری + - * / و () دەکات)
+Scale of the whole graphic, 0.5-2 (supports + - * / and ())	پێوەری هەموو گرافیکەکە، 0.5-2 (پشتگیری + - * / و () دەکات)
+Seconds between retriggers, 0-8 (supports + - * / and ())	چرکە لەنێوان دەستپێکردنەوەکان، 0-8 (پشتگیری + - * / و () دەکات)
+Seconds the finished drawing stays, 0 to 60 (supports + - * / and ())	چرکەی مانەوەی وێنەی تەواوکراو، 0 بۆ 60 (پشتگیری + - * / و () دەکات)
+Seconds the in move takes, 0-5 (supports + - * / and ())	چرکەی جووڵەی هاتن، 0-5 (پشتگیری + - * / و () دەکات)
+Seconds the out move takes, 0-5 (supports + - * / and ())	چرکەی جووڵەی دەرچوون، 0-5 (پشتگیری + - * / و () دەکات)
+Seconds, 0-4 (supports + - * / and ())	چرکە، 0-4 (پشتگیری + - * / و () دەکات)
+Seconds, 0-8 (supports + - * / and ())	چرکە، 0-8 (پشتگیری + - * / و () دەکات)
+Size, %, 5 to 400 (supports + - * / and ())	قەبارە، %، 5 بۆ 400 (پشتگیری + - * / و () دەکات)
+Spiral size, 0.25-4 (supports + - * / and ())	قەبارەی لوول، 0.25-4 (پشتگیری + - * / و () دەکات)
+Spiral strength, 0-4 (supports + - * / and ())	هێزی لوول، 0-4 (پشتگیری + - * / و () دەکات)
+Thickness of the glowing edge, 0-1 (supports + - * / and ())	ئەستووری لێواری درەوشاوە، 0-1 (پشتگیری + - * / و () دەکات)
+Where the eye sits, 0 left to 1 right (supports + - * / and ())	شوێنی چاو، 0 چەپ بۆ 1 ڕاست (پشتگیری + - * / و () دەکات)
+Where the eye sits, 0 top to 1 bottom (supports + - * / and ())	شوێنی چاو، 0 سەرەوە بۆ 1 خوارەوە (پشتگیری + - * / و () دەکات)
+% of the picture's height, 0.1 to 20 (supports + - * / and ())	% لە بەرزی وێنە، 0.1 بۆ 20 (پشتگیری + - * / و () دەکات)
+-3 to 3: 0 holds, negative runs backwards (supports + - * / and ())	-3 بۆ 3: 0 ڕایدەگرێت، نەرێنی پێچەوانە لێ دەدات (پشتگیری + - * / و () دەکات)
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono (supports + - * / and ())	0 کلاسیک، 1 ئاگر، 2 سەهۆڵ، 3 نیۆن، 4 یەکڕەنگ (پشتگیری + - * / و () دەکات)
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono (supports + - * / and ())	0 پەلکەزێڕینە + خۆڵەمێشی، 1 پەلکەزێڕینە، 2 ڕووکار، 3 یەکڕەنگ (پشتگیری + - * / و () دەکات)
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear (supports + - * / and ())	0 ناوچە، 1 جووت، 2 ڕەوت، 3 زین، 4 شەپۆلۆکە، 5 بڕین (پشتگیری + - * / و () دەکات)
+0-100%: 0 holds the field still (supports + - * / and ())	0-100%: 0 مەیدانەکە ڕادەگرێت (پشتگیری + - * / و () دەکات)
+0-100%: 50 is 1x, 0 a quarter, 100 four times (supports + - * / and ())	0-100%: 50 بریتییە لە 1x، 0 چارەک، 100 چوار هێندە (پشتگیری + - * / و () دەکات)
+0-100%: how far the field bends (supports + - * / and ())	0-100%: بڕی چەمانەوەی مەیدان (پشتگیری + - * / و () دەکات)
+0-100%: the share of each band drawn as grey stripes (supports + - * / and ())	0-100%: بەشی هەر باندێک کە بە هێڵی خۆڵەمێشی دەکێشرێت (پشتگیری + - * / و () دەکات)
+Across, % of the width, -100 to 100 (supports + - * / and ())	بە ئاسۆیی، % لە پانی، -100 بۆ 100 (پشتگیری + - * / و () دەکات)
+Birth, drift and fade rate, 0.1-3 (supports + - * / and ())	خێرایی لەدایکبوون و خلیسکان و کاڵبوونەوە، 0.1-3 (پشتگیری + - * / و () دەکات)
+Block displacement and channel tearing, 0-1 (supports + - * / and ())	گواستنەوەی بلۆک و دڕانی کەناڵ، 0-1 (پشتگیری + - * / و () دەکات)
+dBFS, -60 to 0 (-18 is EBU alignment) (supports + - * / and ())	dBFS، -60 بۆ 0 (-18 ئاستی هاوتاکردنی EBUیە) (پشتگیری + - * / و () دەکات)
+Down, % of the height, -100 to 100 (supports + - * / and ())	بۆ خوارەوە، % لە بەرزی، -100 بۆ 100 (پشتگیری + - * / و () دەکات)
+Edge out (+) or in (-), % of the height, -25 to 25 (supports + - * / and ())	لێوار بۆ دەرەوە (+) یان ناوەوە (-)، % لە بەرزی، -25 بۆ 25 (پشتگیری + - * / و () دەکات)
+Edge softness, % of the height, 0 to 25 (supports + - * / and ())	نەرمی لێوار، % لە بەرزی، 0 بۆ 25 (پشتگیری + - * / و () دەکات)
+FDS hardware gain range, 0-63 (supports + - * / and ())	مەودای گەینی ڕەقەواڵەی FDS، 0-63 (پشتگیری + - * / و () دەکات)
+Fields per frame, 0-4 (1 = one field per rendered frame) (supports + - * / and ())	مەیدان لە هەر چوارچێوە، 0-4 (1 = مەیدانێک لە هەر چوارچێوەی ڕەندەرکراو) (پشتگیری + - * / و () دەکات)
+How much of each frame feeds the next, 0-0.95 (supports + - * / and ())	بڕی هەر چوارچێوەیەک بۆ خۆراکدانی دواتر، 0-0.95 (پشتگیری + - * / و () دەکات)
+How readily neighbours merge, 0 (never) to 1 (supports + - * / and ())	ئاسانی تێکەڵبوونی دراوسێکان، 0 (هەرگیز) بۆ 1 (پشتگیری + - * / و () دەکات)
+Internal resolution, 1 (chunky) to 5 (fine) (supports + - * / and ())	وردی ناوخۆ، 1 (درشت) بۆ 5 (ورد) (پشتگیری + - * / و () دەکات)
+Master oscillator rate, 0.01-8 (supports + - * / and ())	خێرایی شەپۆلسازی سەرەکی، 0.01-8 (پشتگیری + - * / و () دەکات)
+Modulator as a ratio of the note, 0.05-16 (supports + - * / and ())	مۆدولەکەر وەک ڕێژەی نۆت، 0.05-16 (پشتگیری + - * / و () دەکات)
+One LED tile's height in pixels, 8-8192 (supports + - * / and ())	بەرزی یەک کاشی LED بە پیکسڵ، 8-8192 (پشتگیری + - * / و () دەکات)
+One LED tile's width in pixels, 8-8192 (supports + - * / and ())	پانی یەک کاشی LED بە پیکسڵ، 8-8192 (پشتگیری + - * / و () دەکات)
+Per-frame zoom of the feedback path, 0.90-1.15 (supports + - * / and ())	زوومی ڕێڕەوی فیدباک لە هەر چوارچێوە، 0.90-1.15 (پشتگیری + - * / و () دەکات)
+Scanlines, bloom and gun misalignment, 0-1 (supports + - * / and ())	هێڵی سکان و درەوشانەوە و لادانی تفەنگی ئەلیکترۆنی، 0-1 (پشتگیری + - * / و () دەکات)
+Seconds before it leaves by itself; 0 waits for OUT (supports + - * / and ())	چرکە پێش دەرچوونی خۆکار؛ 0 چاوەڕێی OUT دەکات (پشتگیری + - * / و () دەکات)
+Space under it, as a fraction of the frame, 0-0.8 (supports + - * / and ())	بۆشایی لە ژێری وەک بەشێک لە چوارچێوە، 0-0.8 (پشتگیری + - * / و () دەکات)
+Turbulence, 0 still to 3 boiling (supports + - * / and ())	شڵەژان، 0 ئارام بۆ 3 کوڵاو (پشتگیری + - * / و () دەکات)
+Turns the rim's colours round the wheel, 0-1 (supports + - * / and ())	ڕەنگەکانی لێوار بە بازنەی ڕەنگدا دەسووڕێنێت، 0-1 (پشتگیری + - * / و () دەکات)
+AUTO	خۆکار
+auto (59.94 Hz)	خۆکار (59.94 Hz)
+BITRATE	ڕێژەی بیت
+audioprint	چاپی دەنگ
+bohlen-pierce	بۆهلەن-پیرس
+chladni	کلادنی
+databend	چەماندنی داتا
+datamosh	داتامۆش
+Devamp	کۆتایی دووبارە
+Fireside	تەنیشت ئاگر
+just	پاک
+meantone	ناوەندە تۆن
+pythagorean	فیساغۆرسی
+purkinje	پورکینیە
+Ouroboros	ئۆرۆبۆرۆس
+MONO L	مۆنۆ L
+MONO R	مۆنۆ R
+LOAD NEXT	بارکردنی دواتر
+MSC Cue Number	ژمارەی کیوی MSC
+SYPHON TEXTURE SHARE	هاوبەشکردنی تێکسچەر بە SYPHON
+SYPHON / SPOUT TEXTURE SHARE	هاوبەشکردنی تێکسچەر بە SYPHON / SPOUT
+DECODE --.-	دیکۆد --.-
+DECODE OFF	دیکۆد OFF
+DECODE WARM	دیکۆد گەرم
+OUTPUT --.-	دەرچوو --.-
+OUTPUT WARM	دەرچوو گەرم
+STREAM --.-	ستریم --.-
+STREAM ERR	هەڵەی ستریم
+STREAM OFF	ستریم OFF
+STREAM WARM	ستریم گەرم
+PROXY 720p	پرۆکسی 720p
+hh:mm:ss or seconds	hh:mm:ss یان چرکە
+e.g. /cue/1/start	بۆ نموونە /cue/1/start
+e.g. 12.5	بۆ نموونە 12.5
+e.g. 192.168.1.50	بۆ نموونە 192.168.1.50
+e.g. 1=255, 10-14=64	بۆ نموونە 1=255, 10-14=64
+e.g. 20:0 or client name	بۆ نموونە 20:0 یان ناوی کڕیار
+e.g. 90 3C 7F	بۆ نموونە 90 3C 7F
+0-127; 127 is all-call	0-127؛ 127 بانگکردنی هەمووانە
+0-127; the domain the facility's clock runs on	0-127؛ دۆمەینی کاتژمێری دامەزراوە
+10-79 characters, or empty for none	10-79 نووسە، یان بەتاڵ بۆ هیچ
+8+ characters; letters and symbols are allowed	8 نووسە یان زیاتر؛ پیت و هێما ڕێگەپێدراون
+Apple keeps the Keynote format secret on purpose, a malicious lock-in tactic, so only Apple's own software can read it properly. Best route: open it in Keynote on iCloud.com (free, in any browser), choose Download a Copy > PDF, and import that PDF	Apple بە ئەنقەست فۆرماتی Keynote بە نهێنی دەهێڵێتەوە؛ فێڵێکی بەدخوازانە بۆ بەندکردنی بەکارهێنەر، بۆ ئەوەی تەنها نەرمەواڵەی خۆی بتوانێت بە دروستی بیخوێنێتەوە. باشترین ڕێگا: لە Keynote لە iCloud.com بیکەرەوە (بەخۆڕایی، لە هەر وێبگەڕێک)، داگرتنی کۆپی > PDF هەڵبژێرە و ئەو PDFە هاوردە بکە
+8+ characters; other machines send AUTH <passphrase> first. Empty = off	8 نووسە یان زیاتر؛ ئامێرەکانی تر سەرەتا AUTH <passphrase> دەنێرن. بەتاڵ = کوژاوە
+A command line, as a DASH button runs it. {value} is the knob's number, {note} the key.	هێڵی فەرمان، وەک دوگمەی DASH جێبەجێی دەکات. {value} ژمارەی دەسکەکەیە، {note} کلیلەکەیە.
+an IPv4 address, or 255.255.255.255 to broadcast	ناونیشانی IPv4، یان 255.255.255.255 بۆ بڵاوکردنەوەی گشتی
+browser connections at once, 1-64 (default 8)	پەیوەندیە هاوکاتەکانی وێبگەڕ، 1-64 (بنەڕەتی 8)
+Default Non-Movie Duration	ماوەی بنەڕەتی جگە لە ڤیدیۆ
+Fire at incoming timecode	دەستپێکردن لە کۆدی کاتی هاتوو
+Hz or AUTO (e.g. 60 or 59.94)	Hz یان AUTO (بۆ نموونە 60 یان 59.94)
+kbps (32-512; 160 is a sane default)	kbps (32-512؛ 160 بنەڕەتێکی گونجاوە)
+milliseconds (40..2000)	میلیچرکە (40..2000)
+milliseconds (20-8000; ~4x your RTT)	میلیچرکە (20-8000؛ نزیکەی 4xی RTT)
+Name visible to receivers	ناوی دیار بۆ وەرگرەکان
+NDI source name (e.g. LAPTOP (source 1))	ناوی سەرچاوەی NDI (بۆ نموونە LAPTOP (source 1))
+OSC Feedback Mirror Rate	خێرایی ئاوێنەی فیدباکی OSC
+Paste the key from your platform	کلیلەی پلاتفۆرمەکەت بلکێنە
+paste your stream key here	کلیلەی ستریمەکەت لێرە بلکێنە
+pixels (of the output raster)	پیکسڵ (لە ڕاستەری دەرچوو)
+position on the output raster, in pixels	شوێن لە ڕاستەری دەرچوو، بە پیکسڵ
+Routing hint for the receiver	ئاماژەی ئاراستەکردن بۆ وەرگر
+seconds (1-10; most platforms want 2)	چرکە (1-10؛ زۆربەی پلاتفۆرمەکان 2 دەوێت)
+Seconds for new-cue fade in/out defaults	چرکە بۆ فەیدی هاتن/دەرچوونی بنەڕەتی کیوی نوێ
+seconds this step holds before PLAY moves on	چرکەی ڕاگرتنی ئەم هەنگاوە پێش بەردەوامبوونی PLAY
+ST 2110 network interface	ڕووکاری تۆڕی ST 2110
+Target IP (or 255.255.255.255 to broadcast)	IPی ئامانج (یان 255.255.255.255 بۆ بڵاوکردنەوەی گشتی)
+UDP port for transport sync	پۆرتی UDP بۆ هاوکاتکردنی لێدان
+Where to send transport (blank = broadcast)	شوێنی ناردنی کۆنترۆڵی لێدان (بەتاڵ = بڵاوکردنەوەی گشتی)
+Which switcher input Deckboy is (0 = not set)	هاتنی سویچەر بۆ Deckboy (0 = دیاری نەکراوە)
+AUDIOALSO: expected ADD <name>, REMOVE <name> or CLEAR	AUDIOALSO: چاوەڕوانکراو: ADD <name>, REMOVE <name> یان CLEAR
+BROWSER KEY: expected Enter|Tab|Backspace|Escape	BROWSER KEY: چاوەڕوانکراو: Enter|Tab|Backspace|Escape
+BUGSWAT: expected START, SHOWME, SKIP, PLAY, EXIT or STATUS	BUGSWAT: چاوەڕوانکراو: START, SHOWME, SKIP, PLAY, EXIT یان STATUS
+CAPTIONS LIVE: expected ON, OFF, STATUS or TEXT	CAPTIONS LIVE: چاوەڕوانکراو: ON, OFF, STATUS یان TEXT
+CAPTIONS SOURCE: expected INPUT, DECK <n> or OUTPUT <n>	CAPTIONS SOURCE: چاوەڕوانکراو: INPUT, DECK <n> یان OUTPUT <n>
+DMXCUE FIXTURE: expected <name> <level%>|LEAVE [<colour>]	DMXCUE FIXTURE: چاوەڕوانکراو: <name> <level%>|LEAVE [<colour>]
+DMXCUE LFO: expected <name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]	DMXCUE LFO: چاوەڕوانکراو: <name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]
+DMXCUE: expected NEW, SET, FADE, UNIVERSE, HOST, PORT, FIRE or BLACKOUT	DMXCUE: چاوەڕوانکراو: NEW, SET, FADE, UNIVERSE, HOST, PORT, FIRE یان BLACKOUT
+ENDACTION: expected INHERIT, STOP, LOOP, HOLD or NEXT	ENDACTION: چاوەڕوانکراو: INHERIT, STOP, LOOP, HOLD یان NEXT
+expected waveform|scope|lissajous|spectrum|level|cover	چاوەڕوانکراو: waveform|scope|lissajous|spectrum|level|cover
+FADE CURVE: expected linear, ease-in, ease-out or s-curve	FADE CURVE: چاوەڕوانکراو: linear, ease-in, ease-out یان s-curve
+FADE WHAT: expected opacity, volume, dimmer, brightness, contrast, saturation, hue, effect, audiofx or speed	FADE WHAT: چاوەڕوانکراو: opacity, volume, dimmer, brightness, contrast, saturation, hue, effect, audiofx یان speed
+FIXTURE ADD: expected <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]	FIXTURE ADD: چاوەڕوانکراو: <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]
+LOWERSTYLE: expected none, fade, rise, slide, wipe or NEXT	LOWERSTYLE: چاوەڕوانکراو: none, fade, rise, slide, wipe یان NEXT
+MASK ASSIGN: expected <id|NONE> CUE | LAYER <output> <playlist> | OUTPUT <n> | MATTE <n>	MASK ASSIGN: چاوەڕوانکراو: <id|NONE> CUE | LAYER <output> <playlist> | OUTPUT <n> | MATTE <n>
+MASK ASSIGN: expected CUE, LAYER, OUTPUT or MATTE	MASK ASSIGN: چاوەڕوانکراو: CUE, LAYER, OUTPUT یان MATTE
+MASK EXPORT: expected <id> <file.png|file.svg> [WxH]	MASK EXPORT: چاوەڕوانکراو: <id> <file.png|file.svg> [WxH]
+MASK LFO: expected <id> <param> ON|OFF [rate Hz] [depth %]	MASK LFO: چاوەڕوانکراو: <id> <param> ON|OFF [rate Hz] [depth %]
+MATRIX SET: expected <source 1-2> <dest> <0-100>	MATRIX SET: چاوەڕوانکراو: <source 1-2> <dest> <0-100>
+MATRIX: expected SET <src> <dest> <0-100>, SEED or CLEAR	MATRIX: چاوەڕوانکراو: SET <src> <dest> <0-100>, SEED یان CLEAR
+MESH: expected on|off|toggle|height|tilt|yaw|spin|grid	MESH: چاوەڕوانکراو: on|off|toggle|height|tilt|yaw|spin|grid
+MIC: expected ADD, LIST, INPUT, CHANNEL or GAIN	MIC: چاوەڕوانکراو: ADD, LIST, INPUT, CHANNEL یان GAIN
+MIDICUE KIND: expected note-on, note-off, cc, program, msc-go, msc-stop, msc-resume or raw	MIDICUE KIND: چاوەڕوانکراو: note-on, note-off, cc, program, msc-go, msc-stop, msc-resume یان raw
+MIDICUE: expected NEW, PORTS, PORT, KIND, CH, D1, D2, DEVICE, CUENUM, LIST, RAW or SEND	MIDICUE: چاوەڕوانکراو: NEW, PORTS, PORT, KIND, CH, D1, D2, DEVICE, CUENUM, LIST, RAW یان SEND
+MULTIVIEW LAYOUT: expected GRID, BIG, BIGTOP or TWOTOP	MULTIVIEW LAYOUT: چاوەڕوانکراو: GRID, BIG, BIGTOP یان TWOTOP
+MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK or EMPTY	MULTIVIEW WINDOW: چاوەڕوانکراو: PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK یان EMPTY
+NETCUE: expected NEW, PROTO, HOST, PORT, ADDRESS, PAYLOAD or SEND	NETCUE: چاوەڕوانکراو: NEW, PROTO, HOST, PORT, ADDRESS, PAYLOAD یان SEND
+OUTPUT HDR: expected ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> or STATUS	OUTPUT HDR: چاوەڕوانکراو: ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> یان STATUS
+OUTPUTFX ADD: expected hpf, lpf, tilt, comp or width	OUTPUTFX ADD: چاوەڕوانکراو: hpf, lpf, tilt, comp یان width
+OUTPUTFX: expected ADD, SET, REMOVE, BYPASS, CLEAR or DEVICE	OUTPUTFX: چاوەڕوانکراو: ADD, SET, REMOVE, BYPASS, CLEAR یان DEVICE
+OUTPUTS ADD: expected <name> CH <n> or CH <n>-<n+1>	OUTPUTS ADD: چاوەڕوانکراو: <name> CH <n> یان CH <n>-<n+1>
+PATCH: expected <deck> <output> <dB> or OFF	PATCH: چاوەڕوانکراو: <deck> <output> <dB> یان OFF
+presenter colour: expected BG|INK|ACCENT #rrggbb	presenter colour: چاوەڕوانکراو: BG|INK|ACCENT #rrggbb
+PRESET: expected LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME or DELETE	PRESET: چاوەڕوانکراو: LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME یان DELETE
+rectc: expected <hh:mm:ss:ff|timeofday> [df|ndf|auto]	rectc: چاوەڕوانکراو: <hh:mm:ss:ff|timeofday> [df|ndf|auto]
+SCOPES BIG: expected waveform, parade, vector, diamond, histogram, falsecolour, sound or off	SCOPES BIG: چاوەڕوانکراو: waveform, parade, vector, diamond, histogram, falsecolour, sound یان off
+SCOPES: expected PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS or SOUND	SCOPES: چاوەڕوانکراو: PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS یان SOUND
+SECTION: expected playback|metadata|geometry|key|audio|effects|timer|tone|synth	SECTION: چاوەڕوانکراو: playback|metadata|geometry|key|audio|effects|timer|tone|synth
+STING: expected ON, PITCH, LENGTH, SWEEP or BODY	STING: چاوەڕوانکراو: ON, PITCH, LENGTH, SWEEP یان BODY
+TARGET VERB: expected start|stop|pause|resume|load|arm|disarm	TARGET VERB: چاوەڕوانکراو: start|stop|pause|resume|load|arm|disarm
+TEXTCUE ANIM: expected none, fade, typewriter, scroll, crawl, pulse or wobble	TEXTCUE ANIM: چاوەڕوانکراو: none, fade, typewriter, scroll, crawl, pulse یان wobble
+TEXTCUE: expected NEW, BODY, ANIM, SIZE, SPEED, ALIGN, CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, WIGGLE, IN, OUTMOVE or OUT	TEXTCUE: چاوەڕوانکراو: NEW, BODY, ANIM, SIZE, SPEED, ALIGN, CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, WIGGLE, IN, OUTMOVE یان OUT
+TRACKER: expected GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP or CLICKER	TRACKER: چاوەڕوانکراو: GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP یان CLICKER
+TUTORIAL: expected START, SHOWME, SKIP, EXIT, STATUS or SCREENS	TUTORIAL: چاوەڕوانکراو: START, SHOWME, SKIP, EXIT, STATUS یان SCREENS
+UPDATE: expected check|download|install|status	UPDATE: چاوەڕوانکراو: check|download|install|status
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS	VJ: چاوەڕوانکراو: ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS
+AUDIOFX: expected OFF, BYPASS, or amount and parameters as percentages	AUDIOFX: پێویستە OFF، BYPASS یان بڕ و پارامەتەرەکان بە لەسەد بن
+BLEND PAIR: expected <other output number> <overlap in pixels>	BLEND PAIR: پێویستە <other output number> <overlap in pixels> بێت
+BROWSER SCROLL: expected pixels (negative is up)	BROWSER SCROLL: پیکسڵ پێویستە (نەرێنی بۆ سەرەوەیە)
+CHIP ENV: expected <attack> <release> in seconds	CHIP ENV: پێویستە <attack> <release> بە چرکە بێت
+DMXCUE SET: expected channel=level pairs, e.g. 1=255,10-14=64	DMXCUE SET: جووتی کەناڵ=ئاست پێویستە، وەک 1=255,10-14=64
+expected one expression, three for colour, or four with alpha	یەک دەربڕین، سێ بۆ ڕەنگ یان چوار لەگەڵ ئەلفا پێویستە
+MASK SET: expected INVERT, X, Y, SCALE, ROTATION, FEATHER, GROW or OPACITY and a number	MASK SET: پێویستە INVERT، X، Y، SCALE، ROTATION، FEATHER، GROW یان OPACITY و ژمارەیەک بێت
+MASK SHAPE: expected a shape (MASK SHAPES lists them)	MASK SHAPE: شێوەیەک پێویستە (MASK SHAPES لیستیان دەکات)
+MASTER DECK: expected a deck number and a cue number	MASTER DECK: ژمارەی دێک و ژمارەی کیو پێویستە
+MIC INPUT: expected SETTINGS, TEST or a device name (MIC LIST)	MIC INPUT: پێویستە SETTINGS، TEST یان ناوی ئامێر (MIC LIST) بێت
+MIDIFILE: expected PORT, or no argument to report it	MIDIFILE: PORT پێویستە، یان بەبێ ئارگومێنت بۆ پیشاندانی
+MONITOR DECK: expected a playlist number or FOLLOW	MONITOR DECK: ژمارەی لیستی لێدان یان FOLLOW پێویستە
+MONITOR ROOM: expected a playlist and ON or OFF	MONITOR ROOM: لیستی لێدان و ON یان OFF پێویستە
+MULTIVIEW WINDOW <n>: expected a source, or SAFE/METER/LABEL ON|OFF	MULTIVIEW WINDOW <n>: سەرچاوە یان SAFE/METER/LABEL ON|OFF پێویستە
+MULTIVIEW WINDOW REMOVE: expected a window number	MULTIVIEW WINDOW REMOVE: ژمارەی پەنجەرە پێویستە
+NETCUE ADDRESS: expected an OSC path starting with /	NETCUE ADDRESS: ڕێڕەوی OSC کە بە / دەست پێ بکات پێویستە
+OUTPUT AOI: expected a size like 256x256, or FULL	OUTPUT AOI: قەبارەیەک وەک 256x256 یان FULL پێویستە
+OUTPUT HDR WHITE: expected 80..500 nits (203 is BT.2408)	OUTPUT HDR WHITE: پێویستە 80..500 نیت بێت (203 بریتییە لە BT.2408)
+OUTPUTFX SET: expected an effect number and 0-100	OUTPUTFX SET: ژمارەی کاریگەر و 0-100 پێویستە
+PRELOAD: expected a position in seconds, OFF or STATUS	PRELOAD: شوێن بە چرکە، OFF یان STATUS پێویستە
+presenter panel: expected <live|prev|next|notes> <x> <y> <w> <h> in percent	presenter panel: پێویستە <live|prev|next|notes> <x> <y> <w> <h> بە لەسەد بێت
+SCOPES SOURCE: expected PROGRAMME or an output number, 1-	SCOPES SOURCE: پێویستە PROGRAMME یان ژمارەی دەرچوو، 1- بێت
+STREAM ADD: expected a URL, e.g. srt://host:port	STREAM ADD: بەستەر پێویستە، وەک srt://host:port
+TARGET CUE: expected a deck number and a cue number	TARGET CUE: ژمارەی دێک و ژمارەی کیو پێویستە
+TEXTCUE SIZE: expected 1-100 (percent of the raster)	TEXTCUE SIZE: پێویستە 1-100 بێت (لەسەدی ڕاستەر)
+TUTORIAL SCREENS: expected a count, MIRRORED or REAL	TUTORIAL SCREENS: ژمارە، MIRRORED یان REAL پێویستە
+VIDEO OUTPUT LAYER: expected a layer number (1 is the base)	VIDEO OUTPUT LAYER: ژمارەی چین پێویستە (1 بنەڕەتە)
+VIDEO OUTPUT LAYERWARP: expected OFF, MODE, or eight numbers clockwise from the top left	VIDEO OUTPUT LAYERWARP: پێویستە OFF، MODE یان هەشت ژمارە بە ئاراستەی کاتژمێر لە سەرەوەی چەپەوە بێت
+warp grid: expected <n>, <cols> <rows>, off, smooth or straight	warp grid: پێویستە <n>، <cols> <rows>، off، smooth یان straight بێت
+WARP SELECT: expected TL, TR, BR, BL or a grid <col> <row>	WARP SELECT: پێویستە TL، TR، BR، BL یان تۆڕی <col> <row> بێت
+How big each tile is.	قەبارەی هەر کاشییەک.
+How big the crystals grow before they meet.	کریستاڵەکان پێش یەکگرتن چەند گەورە دەبن.
+How closely spaced the rings are.	بازنەکان چەند لە یەک نزیکن.
+How far a band can slide.	هەر باندێک چەند دەتوانێت بخلیسکێت.
+How far each shard slides from where it belongs.	هەر پارچەیەک چەند لە شوێنی خۆیەوە دەخلیسکێت.
+How far each stroke is dragged along the grain.	هەر هێڵێک چەند بە درێژایی دانەکاندا ڕادەکێشرێت.
+How far it smears: up to a few percent of the picture.	بڕی لکەکردن: تا چەند لەسەدی وێنەکە.
+How far out the darkening starts.	تاریکبوونەکە لە چەند دوورەوە دەست پێ دەکات.
+How far the bright parts pull away from the surface.	بەشە ڕووناکەکان چەند لە ڕووەکە دوور دەکەونەوە.
+How far the glow spreads.	درەوشانەوەکە چەند بڵاو دەبێتەوە.
+How far the sound throws each line sideways.	دەنگ هەر هێڵێک چەند بۆ لاوەکی فڕێ دەدات.
+How fast the sand travels to the still lines.	خێرایی گواستنەوەی لم بۆ هێڵە نەجووڵاوەکان.
+How fast the surface moves.	خێرایی جووڵەی ڕووەکە.
+How fast they travel outward.	خێرایی جووڵەیان بۆ دەرەوە.
+How gradually the key cuts in. Hard at the left.	بڕینی کلیلە چەند هێواش دەست پێ دەکات. لە چەپ توندە.
+How hard it is driven into its own limits.	چەند بەهێز پاڵ پێوە دەنرێت بۆ سنوورەکانی خۆی.
+How hard the short hits.	توندی لێدانی کورتەبازنە.
+How many shades survive the quantise.	چەند پلەی ڕەنگ دوای کوانتایز دەمێننەوە.
+How many spikes the field breaks into.	مەیدانەکە بۆ چەند تیژە دابەش دەبێت.
+How many torn bands per frame.	ژمارەی باندە دڕاوەکان لە هەر چوارچێوە.
+How much each shard turns on its own centre.	هەر پارچەیەک چەند بە دەوری ناوەندی خۆی دەسووڕێت.
+How much the edges are lifted.	بڕی بەرزکردنەوەی لێوارەکان.
+How much the flame gutters frame to frame.	بڕی کاڵبوونەوەی بڵێسە لە چوارچێوەیەک بۆ یەکێکی تر.
+How often it skips.	چەند جار باز دەدات.
+How quickly the loop relaxes when nothing feeds it.	بازنەکە چەند زوو ئارام دەبێتەوە کاتێک هیچ خۆراکێکی نییە.
+How strongly the outlines are drawn.	هێزی کێشانی دەوری شێوەکان.
+How strongly the water bends the picture.	ئاوەکە چەند بەهێز وێنەکە دەچەمێنێتەوە.
+Darkens the boundaries where crystals meet.	سنووری یەکگرتنی کریستاڵەکان تاریک دەکات.
+Lifts the dark tones without moving pure black.	تۆنە تاریکەکان بەرز دەکاتەوە بەبێ گۆڕینی ڕەشی پاک.
+Pushes the rings in or out of the centre.	بازنەکان بۆ ناوەند یان دەرەوەی پاڵ پێوە دەنێت.
+Rounds the tiles off, all the way to dots.	کاشییەکان خڕ دەکات تا دەبنە خاڵ.
+Softens the fold so it ramps instead of creasing.	چەمانەوەکە نەرم دەکات بۆ ئەوەی پلەیی بێت لەبری چین.
+Where the filter sits.	شوێنی فلتەرەکە.
+Which way it drips.	ئاراستەی دڵۆپاندن.
+AUDIOALSO ADD: seven extra destinations is the limit	AUDIOALSO ADD: سنوورەکە حەوت مەبەستی زیادەیە
+AUDIOALSO ADD: that is already this deck's main device -- it would play twice	AUDIOALSO ADD: ئەمە پێشتر ئامێری سەرەکی دێکەکەیە -- دوو جار لێ دەدرێت
+BROWSER CLICK: this browser backend cannot drive the page	BROWSER CLICK: ئەم بزوێنەری وێبگەڕە ناتوانێت پەڕەکە کۆنترۆڵ بکات
+BROWSER SCROLL: this browser backend cannot drive the page	BROWSER SCROLL: ئەم بزوێنەری وێبگەڕە ناتوانێت پەڕەکە کۆنترۆڵ بکات
+BROWSER SCROLLBAR: this browser backend cannot drive the page	BROWSER SCROLLBAR: ئەم بزوێنەری وێبگەڕە ناتوانێت پەڕەکە کۆنترۆڵ بکات
+BROWSER INTERACT: this browser backend has no hands-on mode	BROWSER INTERACT: ئەم بزوێنەری وێبگەڕە دۆخی کارکردنی ڕاستەوخۆی نییە
+BROWSER TYPE: this browser backend cannot type	BROWSER TYPE: ئەم بزوێنەری وێبگەڕە ناتوانێت دەق بنووسێت
+MIDIFILE: the selected cue is not a midi file cue	MIDIFILE: کیوی هەڵبژێردراو کیوی فایلی MIDI نییە
+SCRIPTCUE: the selected cue is not a script cue	SCRIPTCUE: کیوی هەڵبژێردراو کیوی سکریپت نییە
+VIDEO OUTPUT ASSIGN: already on this output, or no such deck or output	VIDEO OUTPUT ASSIGN: پێشتر لەسەر ئەم دەرچووەیە، یان دێک یان دەرچوو بوونی نییە
+VIDEO OUTPUT LAYER: this deck is not on this output, or it is already at that layer	VIDEO OUTPUT LAYER: ئەم دێکە لەسەر ئەم دەرچووە نییە، یان پێشتر لەو چینەیە
+VIDEO OUTPUT UNASSIGN: this deck is not on this output, or it is the only thing on it	VIDEO OUTPUT UNASSIGN: ئەم دێکە لەسەر ئەم دەرچووە نییە، یان تەنها شتی سەر ئەوەیە
+port number (default 5510)	ژمارەی پۆرت (بنەڕەتی 5510)
+port number (default 5511)	ژمارەی پۆرت (بنەڕەتی 5511)
+port number (default 6454)	ژمارەی پۆرت (بنەڕەتی 6454)
+port number (default 8090)	ژمارەی پۆرت (بنەڕەتی 8090)
+port number (vMix uses 8088)	ژمارەی پۆرت (vMix پۆرتی 8088 بەکار دەهێنێت)
+port number (vMix uses 8099)	ژمارەی پۆرت (vMix پۆرتی 8099 بەکار دەهێنێت)
+Prefix (optional). Example: Q	پێشگر (ئارەزوومەندانە). نموونە: Q
+Prefix and optional start (example: Q 100)	پێشگر و دەستپێکی ئارەزوومەندانە (نموونە: Q 100)
+WIDTHxHEIGHT (e.g. 2560x1080)	پانیxبەرزی (بۆ نموونە 2560x1080)
+WIDTHxHEIGHT (e.g. 5760x2160)	پانیxبەرزی (بۆ نموونە 5760x2160)
+#rrggbb -- the colour of the presenter screen	#rrggbb -- ڕەنگی شاشەی پێشکەشکار
+#rrggbb, or a name (red, teal...)	#rrggbb، یان ناوێک (red, teal...)
+Cue name (blank restores the file name)	ناوی کیو (بەتاڵ ناوی فایل دەگەڕێنێتەوە)
+Leave empty to follow the live cue notes	بەتاڵی بهێڵەوە بۆ شوێنکەوتنی تێبینیەکانی کیوی ڕاستەوخۆ
+Multicast group (e.g. 239.20.10.1)	گرووپی مالتیکاست (بۆ نموونە 239.20.10.1)
+Port the Node + Connection API serve on	پۆرتی خزمەتگوزاری Node + Connection API
+NIC address or name; empty = the default route	ناونیشان یان ناوی NIC؛ بەتاڵ = ڕێڕەوی بنەڕەتی
+NIC name reported in interface_bindings (e.g. eth0)	ناوی NIC لە interface_bindings ڕاگەیەندراو (وەک eth0)
+flow (follows the picture)	ڕەوت (شوێنی وێنەکە دەکەوێت)
+Above halfway, the repeated piece plays backwards.	سەرووی نیوە، پارچەی دووبارەکراو پێچەوانە لێ دەدرێت.
+The brightness that decides black from white.	ڕووناکییەکە کە ڕەش لە سپی جیا دەکاتەوە.
+The colour to change, round the wheel from red.	ڕەنگی گۆڕین، بە بازنەکەدا لە سوورەوە.
+no picture on this cue - nothing to follow	ئەم کیوە وێنەی نییە - هیچ نییە بۆ شوێنکەوتن
+this cue has no known end to resolve into	ئەم کیوە کۆتایی دیاریکراوی نییە بۆ ئارامبوونەوە
+only a MIDI note or an OSC address can take a cue	تەنها نۆتی MIDI یان ناونیشانی OSC دەتوانێت کیو TAKE بکات
+The bright net the waves focus onto the picture.	تۆڕی ڕووناکی کە شەپۆلەکان لەسەر وێنەکە چڕی دەکەنەوە.
+can't move the active cue -- take another cue on this deck first	کیوی چالاک ناگوازرێتەوە -- سەرەتا کیوێکی تر لەم دەکە لێ بدە
+cancelled: the waiting cue is no longer in the playlist	هەڵوەشایەوە: کیوی چاوەڕوان لە لیستی لێدان نەماوە
+could not create an OpenGL context for Spout receive	دروستکردنی چوارچێوەی OpenGL بۆ وەرگرتنی Spout سەرکەوتوو نەبوو
+could not create the offscreen window Spout receive needs	پەنجەرەی دەرەوەی شاشە بۆ وەرگرتنی Spout دروست نەکرا
+could not get a device context for Spout receive	چوارچێوەی ئامێر بۆ وەرگرتنی Spout بەدەست نەهات
+couldn't decode still image — unsupported format or corrupt file	وێنەی جێگیر نەکرایەوە — فۆرماتی پشتگیرینەکراو یان پەڕگەی تێکچوو
+couldn't open a browser -- please report at github.com/Utopian-Academy/Deckboy/issues	وێبگەڕ نەکرایەوە -- لە github.com/Utopian-Academy/Deckboy/issues ڕاپۆرت بکە
+downloading the caption model, then listening...	مۆدێلی ژێرنووس دادەگیرێت، پاشان گوێ دەگیرێت...
+drag the panels to arrange the presenter screen	پانێڵەکان ڕابکێشە بۆ ڕێکخستنی شاشەی پێشکەشکار
+encoder destination: _converted beside the show	شوێنی ئەنکۆدەر: _converted لە تەنیشت پەڕگەی نمایش
+fetching the speech model - captions start when it arrives	مۆدێلی قسە دادەگیرێت - ژێرنووس دوای تەواوبوون دەست پێ دەکات
+four effects at most on one device: remove one first	زۆرترین چوار کاریگەری لە ئامێرێک: سەرەتا یەکێک بسڕەوە
+live captions are not installed here (deckboy-listen was not found)	ژێرنووسی ڕاستەوخۆ دانەمەزراوە (deckboy-listen نەدۆزرایەوە)
+Lower Third added - put its playlist on a layer	Lower Third زیادکرا - لیستی لێدانی لەسەر چینێک دابنێ
+mic live on the default speakers - watch for feedback	مایک لە بڵندگۆی بنەڕەت ڕاستەوخۆیە - ئاگاداری فیدباک بە
+network sharing and phone control require an 8+ character passphrase	هاوبەشکردنی تۆڕ و کۆنترۆڵی مۆبایل وشەی نهێنی 8 پیت یان زیاتر دەوێت
+no filled shapes in it (paths, rectangles, circles, ellipses or polygons)	هیچ شێوەیەکی پڕکراوەی تێدا نییە (ڕێڕەو، لاکێشە، بازنە، هێلکە یان فرەگۆشە)
+no masks yet: make one in a cue's MASK section	هێشتا ماسک نییە: لە بەشی MASKی کیوێک دروستی بکە
+no OpenGL pixel format available for Spout receive	فۆرماتی پیکسڵی OpenGL بۆ وەرگرتنی Spout بەردەست نییە
+no picture - shorts run on a timer instead of on cuts	وێنە نییە - کورتەبازنەکان بە کاتژمێر کار دەکەن نە بە بڕین
+no picture on this cue - nothing decides where the playhead is	ئەم کیوە وێنەی نییە - هیچ شتێک شوێنی سەری لێدان دیاری ناکات
+no picture on this cue - nothing to close the loop through	ئەم کیوە وێنەی نییە - هیچ نییە بازنەکەی پێ دابخرێت
+no video clock on this cue - nothing to lock to	ئەم کیوە کاتژمێری ڤیدیۆی نییە - هیچ سەرچاوەیەک بۆ هاوکاتکردن نییە
+normalize all: no file-backed audio in this deck	ئاساییکردنی هەموو: لەم دەکە دەنگی پشتبەستوو بە پەڕگە نییە
+nothing to mask here: select a cue, or change MASK ON	لێرە هیچ نییە ماسکی بۆ بکرێت: کیوێک هەڵبژێرە یان MASK ON بگۆڕە
+offset in percent of the picture	لادان بە ڕێژەی سەدی وێنە
+output effects bypassed: no effect and no limit on this device	کاریگەرییەکانی دەرچوون تێپەڕێنران: لەم ئامێرە نە کاریگەری هەیە نە سنوور
+over 16 MB: not a drawing to make a mask from	لە 16 MB زیاترە: وێنەکێشانێک نییە بۆ دروستکردنی ماسک
+pair with a picture effect whose LFO is set to Audio	لەگەڵ کاریگەرییەکی وێنە هاوتای بکە کە LFOی لەسەر Audioە
+paired phones removed: they need the QR code or the passphrase again	مۆبایلە هاوتاکراوەکان سڕانەوە: دیسان کۆدی QR یان وشەی نهێنییان پێویستە
+phone control requires an 8+ character passphrase	کۆنترۆڵی مۆبایل وشەی نهێنی 8 پیت یان زیاتر دەوێت
+save failed - retrying; still open, use SAVE AS if needed	پاشەکەوت نەکرا - هەوڵ دەدرێتەوە؛ هێشتا کراوەیە، پێویست بوو SAVE AS بەکاربهێنە
+set an 8+ character Web Monitor passphrase first	سەرەتا وشەی نهێنی 8 پیت یان زیاتر بۆ چاودێری وێب دابنێ
+the caption model has not been downloaded yet	مۆدێلی ژێرنووس هێشتا دانەگیراوە
+the desktop portal did not answer	پۆرتاڵی ڕوومێز وەڵامی نەدایەوە
+the file is empty (0 bytes): it may not have finished copying or saving	پەڕگەکە بەتاڵە (0 بایت): ڕەنگە کۆپیکردن یان پاشەکەوتکردن تەواو نەبووبێت
+the installed NDI runtime is missing entry points this needs	ژینگەی NDIی دامەزراو خاڵە پێویستەکانی چوونەژوورەوەی نییە
+the NDI runtime declined to start on this machine	ژینگەی NDI لەم ئامێرە دەستی بە کار نەکرد
+the playing step was removed - sequence stopped	هەنگاوی لێدراو سڕایەوە - زنجیرە وەستا
+update: cannot find this app bundle to replace	نوێکردنەوە: گورزەی ئەم بەرنامەیە بۆ جێگرتنەوە نەدۆزرایەوە
+what the operator should be told when GO reaches here	ئەوەی پێویستە بە کارپێکەر بگوترێت کاتێک GO دەگاتە ئێرە
+what the patch and the cues call it (FOH, SUB, PRESS FEED)	ناوی لە پاتچ و کیوەکان (FOH, SUB, PRESS FEED)
+window capture fell back to screen grab — update ffmpeg for exact window capture	گرتنی پەنجەرە گەڕایەوە بۆ گرتنی شاشە — بۆ گرتنی وردی پەنجەرە ffmpeg نوێ بکەرەوە
+A dark line between the tiles, like grout or an LED wall.	هێڵێکی تاریک لەنێوان کاشییەکان، وەک کەلێن یان دیواری LED.
+a plugin overran the audio thread and was bypassed — take it out of the chain	پڵەگینێک کاتی ڕشتەی دەنگی تێپەڕاند و تێپەڕێنرا — لە زنجیرەکە دەریبهێنە
+A slow rocking of the viewpoint, which is what makes the depth read without glasses.	جوڵەی هێواشی ڕوانگە کە قووڵایی بەبێ چاویلکە پیشان دەدات.
+A slow sag in the supply, pulling the filter up and down like a dying battery.	دابەزینی هێواشی وزە، فلتەر وەک باترییەکی بەرەو تەواوبوون بەرز و نزم دەکات.
+A worn or dirty head: softer, with noise that streaks along the lines.	سەرێکی کۆن یان پیس: نەرمتر، لەگەڵ ژاوەژاو بە درێژایی هێڵەکان.
+Above halfway, a hard cut in the picture resets the loop to clean.	لە سەرووی نیوە، بڕینێکی توندی وێنە بازنەکە پاک دەکاتەوە.
+An old deck: the picture wobbles, bends at the top of the frame and carries hum bars.	دەکێکی کۆن: وێنە دەلەرزێت، سەری چوارچێوە دەچەمێتەوە و هێڵی هۆمی تێدایە.
+An old tape loses bits of its oxide: dropouts flick white and repeat the line above, and the colour fizzes.	شریتی کۆن بەشێک لە ئۆکسایدەکەی لەدەست دەدات: دابڕانەکان سپی دەدرەوشێنەوە و هێڵی سەرەوە دووبارە دەکەنەوە و ڕەنگەکان دەلەرزن.
+brightness moves the playhead (needs CPU frames)	ڕووناکی سەری لێدان دەجوڵێنێت (فریمی CPU پێویستە)
+centred and full-frame - moves when the picture does	ناوەڕاست و پڕچوارچێوە - لەگەڵ وێنە دەجوڵێت
+Characters across. Fewer means bigger cells and less of the picture surviving, which is usually the point.	ژمارەی پیت بە پانی. کەمتر واتە خانەی گەورەتر و وردەکاریی کەمتر، کە زۆرجار مەبەستەکەیە.
+Characters to build the picture from, darkest first. Empty uses the chosen glyph set.	پیتەکانی دروستکردنی وێنە، تاریکترین سەرەتا. بەتاڵ واتە کۆمەڵە هێمای هەڵبژێردراو.
+Chladni listens: the figure follows the pitch of the sound	کلادنی گوێ دەگرێت: شێوەکە شوێن بەرزی دەنگ دەکەوێت
+click anywhere on any screen to take its colour. Esc cancels	لە هەر شوێنێکی هەر شاشەیەک کرتە بکە بۆ وەرگرتنی ڕەنگ. Esc هەڵیدەوەشێنێتەوە
+click program or preview monitor to sample key color	بۆ وەرگرتنی ڕەنگی کی لە چاودێری پەخش یان پێشبینین کرتە بکە
+Colour is recorded at a fraction of the detail: it smears sideways, lands late and its hue wanders.	ڕەنگ بە وردەکاریی کەمتر تۆمار دەکرێت: بۆ لا دەکشێت، دوا دەکەوێت و تۆنەکەی دەگۆڕێت.
+Copies of copies: none at the left, four at the right. Each one loses more.	کۆپیی کۆپییەکان: لە چەپ هیچ، لە ڕاست چوار. هەر دانە زیاتر لەدەست دەدات.
+Fine sensor noise at the bottom, chunky film at the top.	لە خوارەوە ژاوەژاوی وردی هەستەوەر، لە سەرەوە دانەی گەورەی فیلم.
+follows this cue's own brightness (needs CPU frames)	شوێن ڕووناکیی خودی ئەم کیوە دەکەوێت (فریمی CPU پێویستە)
+format 2 files are a set of independent patterns, not a performance	پەڕگەکانی فۆرماتی 2 کۆمەڵێک نەخشەی سەربەخۆن، نە پێشکەشکردنێک
+From an even blur to a streak along the angle, like movement.	لە تەمومژی یەکسانەوە بۆ کشان بە ئاراستەی گۆشە، وەک جوڵە.
+full-frame and no picture - bends when the picture shrinks	پڕچوارچێوە و بێ وێنە - کاتێک وێنە بچووک دەبێتەوە دەچەمێتەوە
+Grain size: one pixel at the left, big blocky grains at the right.	قەبارەی دانە: لە چەپ یەک پیکسڵ، لە ڕاست دانەی گەورەی بلۆکی.
+Grows or shrinks the echo each pass. Centre holds still.	لە هەر خولێکدا ئەکۆ گەورە یان بچووک دەکات. ناوەڕاست جێگیرە.
+How abruptly it arrives. Low is a soft cloud, high is a hard porthole.	توندی دەرکەوتنی. نزم هەورێکی نەرمە، بەرز کونێکی تیژە.
+How big the room is. Small is a booth, large is a hall.	قەبارەی ژوور. بچووک کابینە، گەورە هۆڵە.
+How big the shards are. Small is frosted glass, large is a dropped plate.	قەبارەی پارچەکان. بچووک شووشەی بەستووە، گەورە قاپێکی کەوتووە.
+How dark the dark lines go. All the way up is black between lines.	تاریکیی هێڵە تاریکەکان. لە زۆرترین ئاستدا نێوان هێڵەکان ڕەشە.
+How far away. Distance dulls the top and softens the difference between the ears.	دووری. دووری دەنگە بەرزەکان لاواز و جیاوازیی نێوان گوێکان کەم دەکات.
+How far back each skip jumps, from a stutter to half a second.	دووری بازدانەوەی هەر پەڕینێک، لە لکەوە تا نیو چرکە.
+How fast it closes. Slow enough not to chop the ends off words.	خێرایی داخستن. هێواش بێت هەتا کۆتایی وشەکان نەبڕێت.
+How fast the drips run. At the left the picture only sags.	خێرایی ڕژانی دڵۆپەکان. لە چەپ وێنە تەنها شۆڕ دەبێتەوە.
+How fast the light walks around it. Zero holds it still.	خێرایی سووڕانی ڕووناکی بە دەوری. سفر جێگیری دەکات.
+How fast the wave travels. Faster spreads further in the same time and interferes more.	خێرایی شەپۆل. خێراتر لە هەمان کاتدا دوورتر دەڕوات و زیاتر تێکەڵ دەبێت.
+How gently the change fades out at the edges of the band.	نەرمی کاڵبوونەوەی گۆڕان لە لێوارەکانی باند.
+How hard it holds once it is working. Gentle at the bottom, a limiter at the top.	توندی گرتن دوای کارکردن. لە خوارەوە نەرم، لە سەرەوە سنووردەر.
+How irregular the growth is. Low gives an even honeycomb, high gives long shards.	ناڕێکیی گەشە. نزم شانەی یەکسان، بەرز پارچەی درێژ.
+How long a short stays closed, in VIDEO FRAMES.	ماوەی داخراوی کورتەبازنە، بە فریمی ڤیدیۆ.
+How long the reaction runs each frame. Short is a stain, long is an organism.	ماوەی کارکردنی کاردانەوە لە هەر فریمێک. کورت لکەیە، درێژ بوونەوەرە.
+How many places drip: a few big drips at the left, many thin ones at the right.	ژمارەی شوێنی دڵۆپ: لە چەپ چەند دڵۆپی گەورە، لە ڕاست زۆر باریک.
+How many times a skip repeats before the sound catches up again.	ژمارەی دووبارەبوونەوەی پەڕین پێش ئەوەی دەنگ بگاتەوە.
+How much of the picture glows: only the brightest at the left, nearly everything at the right.	بڕی درەوشانی وێنە: لە چەپ تەنها ڕووناکترین، لە ڕاست نزیکەی هەموو.
+How much of the picture shows behind the lines. None at the left: lines on black.	بڕی وێنە لە پشت هێڵەکان. لە چەپ هیچ: هێڵ لەسەر ڕەش.
+How much of the push goes downward rather than sideways.	بڕی پاڵنان بەرەو خوارەوە نەک بۆ لا.
+How quickly the room eats the top end. More damping is a softer, more furnished space.	خێرایی هەڵمژینی دەنگە بەرزەکان لەلایەن ژوورەوە. کەمکردنەوەی زیاتر شوێنی نەرمتر و پڕکەلوپەلترە.
+How readily an edge catches. Low sets the whole picture alight, high only the hardest lines.	ئاسانیی گرتنی لێوار. نزم هەموو وێنەکە دادەگیرسێنێت، بەرز تەنها تیژترین هێڵەکان.
+How wide a band of colours either side of it changes too.	پانیی مەودای ڕەنگەکان کە لە هەردوو لای دەگۆڕێن.
+ASCII HOLD: seconds, 0-60 (0 mutes the phrases)	ASCII HOLD: چرکە، 0-60 (0 دەستەواژەکان بێدەنگ دەکات)
+ASCII WOBBLEMODE: drift | flow (follows luma) | hue (follows colour); no argument cycles	ASCII WOBBLEMODE: drift | flow (شوێن ڕووناکی) | hue (شوێن ڕەنگ)؛ بەبێ ئارگومێنت دەسووڕێت
+ASCII: the selected cue has no text mode (add the TEXT MODE effect, or select a video synth cue)	ASCII: کیوی هەڵبژێردراو دۆخی دەقی نییە (کاریگەری TEXT MODE زیاد بکە یان کیوی سینتی ڤیدیۆ هەڵبژێرە)
+CHIP DUTY: this cue is an FDS synth, which has no duty	CHIP DUTY: ئەم کیوە سینتی FDSە و دیوتی نییە
+CHIP NOISE: this cue is an FDS synth, which has no noise	CHIP NOISE: ئەم کیوە سینتی FDSە و ژاوەژاوی نییە
+CHIP VOICE: this cue is an FDS synth, which has no voice	CHIP VOICE: ئەم کیوە سینتی FDSە و هەڵبژاردنی دەنگی نییە
+DASH SET: needs a command -- DASH SET <n> <label> | <command> [| <glyph>]	DASH SET: فەرمانێک پێویستە -- DASH SET <n> <label> | <command> [| <glyph>]
+DATAMOSH on - preparing (long clip, watch Encoder tab)	DATAMOSH چالاکە - ئامادە دەکرێت (کلیپی درێژ، سەیری تابی ئەنکۆدەر بکە)
+DECKLINK: no DeckLink driver on this computer (Blackmagic Desktop Video)	DECKLINK: درایڤەری DeckLink لەم کۆمپیوتەرە نییە (Blackmagic Desktop Video)
+DMXCUE LEVELS: nothing has been sent on that universe	DMXCUE LEVELS: هیچ لەو یونیڤەرسە نەنێردراوە
+DRAW COLOUR: #rrggbb, #rrggbbaa, a name, or 1-8 for the palette	DRAW COLOUR: #rrggbb، #rrggbbaa، ناوێک، یان 1-8 بۆ پەلەت
+DRAW STROKE: each point is x,y or x,y,pressure, in percent	DRAW STROKE: هەر خاڵێک x,y یان x,y,pressureە، بە سەدی
+DRAW TOOL: brush, erase, line, box, oval or fill	DRAW TOOL: brush، erase، line، box، oval یان fill هەڵبژێرە
+EDIT is off - press EDIT to type into the tracker	EDIT ناچالاکە - بۆ نووسین لە تراکەر EDIT دابگرە
+ENDACTION: only video and audio cues have an end action	ENDACTION: تەنها کیوی ڤیدیۆ و دەنگ کرداری کۆتاییان هەیە
+Enter playlist SMPTE FPS: 24 / 25 / 29.97 / 30	FPSی SMPTEی لیستی لێدان بنووسە: 24 / 25 / 29.97 / 30
+FADE TO: a speed from 0.25 to 4 (0.5 is half speed, an octave down)	FADE TO: خێرایی 0.25 تا 4 (0.5 نیو خێراییە، ئۆکتاوێک نزمتر)
+FX ADD: datamosh needs a file-backed video cue	FX ADD: datamosh کیوی ڤیدیۆی پشتبەستوو بە پەڕگە دەوێت
+FX LFO wants <index> <slot> <on|off|shape> [value]	FX LFO پێویستی بە <index> <slot> <on|off|shape> [value]ە
+FX LFO: on, off, shape, rate, depth, zone, channel or cc	FX LFO: on، off، shape، rate، depth، zone، channel یان cc هەڵبژێرە
+GEOLFO: x, y, width, height, rotation, cropleft, cropright, croptop or cropbottom	GEOLFO: x، y، width، height، rotation، cropleft، cropright، croptop یان cropbottom هەڵبژێرە
+HH:MM or HH:MM:SS on this computer's clock; empty for none	HH:MM یان HH:MM:SS بە کاتژمێری ئەم کۆمپیوتەرە؛ بەتاڵ بۆ هیچ
+HH:MM:SS:FF of the timecode Deckboy is chasing; empty for none	HH:MM:SS:FFی تایمکۆدی کە Deckboy شوێنی دەکەوێت؛ بەتاڵ بۆ هیچ
+INPUTMONITOR: a row count, OPEN, CLOSE, CLEAR, PAUSE or RESUME	INPUTMONITOR: ژمارەی ڕیز، OPEN، CLOSE، CLEAR، PAUSE یان RESUME
+IPv4 addresses or a.b.c.d/bits, comma separated; empty = only this computer	ناونیشانی IPv4 یان a.b.c.d/bits، بە کۆما جیاکراوە؛ بەتاڵ = تەنها ئەم کۆمپیوتەرە
+key+fill ON, but no key device set (DECKLINK KEYFILL ON <device>)	key+fill ONە، بەڵام ئامێری کی دیاری نەکراوە (DECKLINK KEYFILL ON <device>)
+label | command | glyph      (empty label|command removes it)	ناونیشان | فەرمان | هێما      (label|command بەتاڵ بیسڕێتەوە)
+LFO: density, speed, warp, turn, centrex, centrey, grey or hue	LFO: density، speed، warp، turn، centrex، centrey، grey یان hue هەڵبژێرە
+MIC: select a mic cue first (MIC ADD makes one)	MIC: سەرەتا کیوی مایک هەڵبژێرە (MIC ADD یەکێک دروست دەکات)
+MIDIIN OSC: an address, and optionally a number	MIDIIN OSC: ناونیشانێک و ژمارەیەکی ئارەزوومەندانە
+MIDIMAP: that command is only accepted from this computer	MIDIMAP: ئەو فەرمانە تەنها لەم کۆمپیوتەرە وەردەگیرێت
+MOTION ZONE ADD: the zone must fit inside the picture	MOTION ZONE ADD: ناوچەکە دەبێت لەناو وێنە بگونجێت
+NETCUE ADDRESS: an OSC address must start with /	NETCUE ADDRESS: ناونیشانی OSC دەبێت بە / دەست پێ بکات
+NEWSHOW: something is live or unsaved -- send NEWSHOW again within 2.5 s	NEWSHOW: شتێک ڕاستەوخۆیە یان پاشەکەوت نەکراوە -- لە 2.5 چرکەدا NEWSHOW بنێرەوە
+NMOS: discovery needs the remote network allowed	NMOS: دۆزینەوە ڕێگەپێدانی تۆڕی دوور دەوێت
+NMOS: NOT registering - network is LOCAL ONLY (turn REMOTE ON to publish)	NMOS: تۆمار ناکرێت - تۆڕ LOCAL ONLYە (بۆ بڵاوکردنەوە REMOTE ON بکە)
+NMOS: searching for a registry (mDNS)	NMOS: بەدوای تۆمارگەدا دەگەڕێت (mDNS)
+OUTPROBE: that output has no compositor (is it on?)	OUTPROBE: ئەو دەرچوونە تێکەڵکەری وێنەی نییە (چالاکە؟)
+OUTPUTFX ADD: four effects at most on one device	OUTPUTFX ADD: زۆرترین چوار کاریگەری لە ئامێرێک
+PATCH: a level is dB from -48 to +6, or OFF	PATCH: ئاست بە dB لە -48 تا +6، یان OFF
+PIP: retired -- scale a second deck over this one instead	PIP: وازهێنراوە -- دەکێکی دووەم لەسەر ئەمە بچووک بکەرەوە
+pip: retired -- scale a second deck over this one instead	pip: وازهێنراوە -- دەکێکی دووەم لەسەر ئەمە بچووک بکەرەوە
+presenter panel: the panel must fit on the screen (x+w and y+h no more than 100)	پانێڵی پێشکەشکار: دەبێت لە شاشە بگونجێت (x+w و y+h لە 100 زیاتر نەبن)
+preset: delivery | proxy | match | datamosh	پێشڕێکخستن: delivery | proxy | match | datamosh
+programme sound is always included; use WEBMONITOR OFF to stop the monitor	دەنگی پەخش هەمیشە لەگەڵیدایە؛ بۆ وەستاندنی چاودێر WEBMONITOR OFF بەکاربهێنە
+Registry URL (e.g. http://192.168.1.50:8010) - blank for mDNS	URLی تۆمارگە (وەک http://192.168.1.50:8010) - بەتاڵ بۆ mDNS
+SLICE CORNER: TL, TR, BR or BL, then dx dy in percent of the output	SLICE CORNER: TL، TR، BR یان BL، پاشان dx dy بە سەدی دەرچوون
+SLICE EDGE: L, R, T or B, then 0-50 (% of the slice)	SLICE EDGE: L، R، T یان B، پاشان 0-50 (%ی پارچە)
+SLICE GRID POINT: col row (from 1, on a grid that is on) then dx dy in percent	SLICE GRID POINT: col row (لە 1، لە تۆڕێکی چالاک) پاشان dx dy بە سەدی
+SLICE LFO: X, Y, ROTATION or OPACITY, then ON, OFF, SHAPE, RATE, DEPTH...	SLICE LFO: X، Y، ROTATION یان OPACITY، پاشان ON، OFF، SHAPE، RATE، DEPTH...
+SLICE ROTATE: IN (the crop) or OUT (the placed picture), then degrees	SLICE ROTATE: IN (بڕین) یان OUT (وێنەی دانراو)، پاشان پلە
+SMPTE hh:mm:ss:ff or seconds (blank = 00:00:00:00)	SMPTE hh:mm:ss:ff یان چرکە (بەتاڵ = 00:00:00:00)
+SOURCE CAMERA: name the device	SOURCE CAMERA: ناوی ئامێرەکە بنووسە
+SOURCE WINDOW: name the window, e.g. title:Firefox (or "desktop")	SOURCE WINDOW: ناوی پەنجەرە، وەک title:Firefox (یان "desktop")
+STING: select a tone cue first (TONECUE makes one)	STING: سەرەتا کیوی تۆن هەڵبژێرە (TONECUE یەکێک دروست دەکات)
+Stream URL (srt://, rtmp://, rtsp://, udp://, or an http HLS .m3u8)	URLی پەخش (srt://، rtmp://، rtsp://، udp:// یان http HLS .m3u8)
+SUBTITLE CONVERT: destination must be .srt or .vtt	SUBTITLE CONVERT: شوێنی مەبەست دەبێت .srt یان .vtt بێت
+TRACKER SET: a step cannot act on its own playlist	TRACKER SET: هەنگاو ناتوانێت کار لە لیستی لێدانی خۆی بکات
+TRACKER: there are no steps (TRACKER ADD makes one)	TRACKER: هیچ هەنگاوێک نییە (TRACKER ADD یەکێک دروست دەکات)
+VIDEO OUTPUT LAYERWARP MODE: linear or perspective	VIDEO OUTPUT LAYERWARP MODE: linear یان perspective هەڵبژێرە
+WARP AT: open the editor (WARP EDIT) and select a point first	WARP AT: سەرەتا دەستکاریکەر بکەرەوە (WARP EDIT) و خاڵێک هەڵبژێرە
+warp point: that is a corner -- move it with WARP <corner> dx dy	خاڵی چەمانەوە: ئەوە گۆشەیە -- بە WARP <corner> dx dy بیجوڵێنە
+WEBMONITOR PIN: network sharing and phone control require 8 or more characters	WEBMONITOR PIN: هاوبەشی تۆڕ و کۆنترۆڵی مۆبایل 8 پیت یان زیاتر دەوێت
+WEBMONITOR QR: needs the monitor on and shared on the network	WEBMONITOR QR: چاودێر دەبێت چالاک و لە تۆڕ هاوبەش بێت
+WEBMONITOR SOURCE: could not create the web output	WEBMONITOR SOURCE: دەرچوونی وێب دروست نەکرا
+WEBMONITOR SOURCE: PROGRAMME or the number of an output that shows a picture	WEBMONITOR SOURCE: PROGRAMME یان ژمارەی دەرچوونێک کە وێنە پیشان دەدات
+0 flows ALONG the edges, so colour orbits the shapes. 1 flows across them, which bleeds the picture into itself.	0 بە درێژایی لێوارەکانە و ڕەنگ بە دەوری شێوەکان دەسووڕێت. 1 پەڕیان دەکاتەوە و وێنە لە خۆیدا دەڕژێت.
+a note number 0-127, LEARN to take the next note played, or empty for none	ژمارەی نۆتە 0-127، LEARN بۆ نۆتەی داهاتوو، یان بەتاڵ بۆ هیچ
+a video cue's duration comes from its file; still duration applies to stills, patterns and browsers	ماوەی کیوی ڤیدیۆ لە پەڕگەکەیە؛ ماوەی جێگیر بۆ وێنە و نەخشە و وێبگەڕە
+Below the middle narrows toward mono -- which is what a single PA cluster is. Above it widens.	لە خوار ناوەڕاست بەرەو مۆنۆ تەسک دەبێت، وەک یەک کۆمەڵەی PA. لە سەرەوە پان دەبێت.
+Blueshift toward the direction of travel and redshift at the rim. Zero leaves the colour alone and it reads as a lens instead.	بەرەو جوڵە شین و لە لێوار سوور دەبێت. سفر ڕەنگ دەپارێزێت و وەک لێنزە.
+Bright: bright things drip over the dark, as text and logos do. Whole picture: everything is wax, and the picture itself runs down in its own colours.	ڕووناک: شتە ڕووناکەکان وەک دەق و لۆگۆ لەسەر تاریک دەڕژێن. هەموو وێنە: هەمووی مۆمە و بە ڕەنگی خۆی دەڕواتە خوارەوە.
+Centre is a straight line. Up bends it into an S -- darker shadows, brighter highlights, more contrast. Down flattens it.	ناوەڕاست هێڵی ڕاستە. سەرەوە S دروست دەکات: سێبەری تاریکتر، ڕووناکیی بەرزتر و کۆنتراستی زیاتر. خوارەوە تەختی دەکات.
+e.g. /stage/doors -- sent to Deckboy's OSC port; empty for none	وەک /stage/doors -- بۆ پۆرتی OSCی Deckboy دەنێردرێت؛ بەتاڵ بۆ هیچ
+How bright a pixel has to be before it lifts at all, so only the highlights spike.	ئاستی ڕووناکی پیکسڵ بۆ بەرزبوونەوە؛ تەنها ڕووناکترینەکان دەچنە سەرەوە.
+How bright a pixel has to be to join a run. Lower catches more of the picture and the runs grow longer.	ڕووناکیی پێویستی پیکسڵ بۆ ڕیز. نزمتر بەشی زیاتر و ڕیزی درێژتر دەگرێت.
+How deep the picture is treated as being. The brightness becomes height and is lit from the side.	قووڵاییی دانراوی وێنە. ڕووناکی دەبێتە بەرزی و لە لاوە ڕووناک دەکرێت.
+How faint a gradient still registers. High turns the quietest shading into visible structure.	لاوازترین پلەڕەنگی هەستپێکراو. بەرز ناسکترین سێبەر دەکاتە شێوەی دیار.
+How far back the chain listens. The picture is played through a delay, so this is the distance the damage is dragged across.	زنجیرە چەند بۆ دواوە دەبیستێت. وێنە بە دواخستن تێدەپەڕێت؛ ئەمە دووری کشانی تێکچوونە.
+How far the burn spreads off the edge, and how hot its colour runs.	دووری بڵاوبوونەوەی سووتان لە لێوار و گەرمیی ڕەنگەکەی.
+How far the colour turns on each trip round the loop. This is the oil-slick: the trail walks through the spectrum instead of fading.	گۆڕانی ڕەنگ لە هەر خولێک. وەک ڕۆن: شوێنەکە لەبری کاڵبوونەوە بە سپێکترەمدا دەڕوات.
+How far the picture stands out. Bright parts come forward, dark parts stay back. At the left it is flat.	بەرزبوونەوەی وێنە. ڕووناک پێشەوە و تاریک دواوەیە. لە چەپ تەختە.
+How far the picture swings the filter. The cue's own brightness opens and closes it, so a cut to black takes the top off the sound.	بڕی جوڵاندنی فلتەر بە وێنە. ڕووناکیی کیو دەیکاتەوە و دایدەخات؛ بڕین بۆ ڕەش دەنگی بەرز دەبڕێت.
+How far the top comes down as the end approaches. This is not a fade: the level is left alone.	دابەزینی دەنگە بەرزەکان لە نزیک کۆتایی. کاڵبوونەوە نییە: ئاست ناگۆڕێت.
+How far the two eyes disagree. Brightness is read as nearness.	جیاوازیی نێوان دوو چاو. ڕووناکی وەک نزیکی دەخوێندرێت.
+How fast it settles away while held. At zero it holds indefinitely, which is what room tone under a held title wants.	خێرایی کاڵبوونەوە لە ڕاگرتن. سفر بێکۆتایی دەپارێزێت، گونجاو بۆ دەنگی ژوور لەژێر ناونیشانی جێگیر.
+How fast the open slit crosses the picture. Slow smears a long moment across the frame.	خێرایی پەڕینی کەلێنە کراوەکە بە وێنەدا. هێواش ساتێکی درێژ بە چوارچێوەدا دەکشێت.
+How fast what has dripped hardens away. At the left the drips stay until the cue changes.	خێرایی ڕەقبوون و نەمانی دڵۆپەکان. لە چەپ تا گۆڕینی کیو دەمێنن.
+How fine the water is. Long ocean swell at one end, rain on a puddle at the other.	وردی شەپۆلی ئاو. لایەک شەپۆلی درێژی دەریا، لایەکی تر باران لەسەر گۆماو.
+How hard the light gathers where the rays converge. This is the part that makes it read as water rather than as a wobble.	چڕی ڕووناکی لە یەکگرتنی تیشکەکان. ئەمە وای دەکات وەک ئاو بێت نە لەرزین.
+How hard the moving parts throw sand. More shake clears the plate faster and makes the lines thinner.	هێزی فڕێدانی لم لە بەشە جوڵاوەکان. لەرزینی زیاتر تەختە زووتر پاک و هێڵ باریکتر دەکات.
+How long a grain is, in VIDEO FRAMES. On a 23.976 clip one frame is 41.7ms, which is not a musical value and is exactly the point.	درێژی دانە بە فریمی ڤیدیۆ. لە 23.976 فریمێک 41.7msە؛ نرخی میوزیکی نییە و مەبەست هەر ئەوەیە.
+How long before the end it starts. The cue has to have a known length -- an open-ended one has no end to resolve into.	چەند پێش کۆتایی دەست پێ بکات. کیو دەبێت ماوەی دیار بێت؛ کراوە کۆتایی نییە بۆ گەیشتن.
+How long it is allowed to run. More steps means the ripples have crossed and reflected more times.	ماوەی ڕێگەپێدراوی کارکردن. هەنگاوی زیاتر واتە پەڕین و ڕەنگدانەوەی زیاتر بۆ شەپۆلەکان.
+How long the old waves linger when the note changes. Left: they die at once. Right: they slosh for a while.	ماوەی مانەوەی شەپۆلی کۆن لە گۆڕینی نۆتە. چەپ دەستبەجێ نامێنێت؛ ڕاست ماوەیەک دەشەپۆلێت.
+How much each facet catches the light, which is what makes them read as faceted rather than as flat blobs.	بڕی وەرگرتنی ڕووناکیی هەر ڕوو، بۆ ئەوەی ڕوودار بێت نە لکەی تەخت.
+How much its SIZE becomes distance. Shrink the picture and the sound goes away from you: the top comes off, the image narrows, the level drops.	بڕی گۆڕینی قەبارە بۆ دووری. وێنە بچووک بکە و دەنگ دوور دەبێت: بەرزەکان کەم، مەودا تەسک و ئاست نزم دەبێت.
+How much of the bent picture goes round again. High is where it stops being an echo and starts eating itself.	بڕی وێنەی چەماوە کە دەگەڕێتەوە. بەرز لە ئەکۆوە دەگۆڕێت بۆ خواردنی خۆی.
+How much of the driver's movement the picture KEEPS. At zero it follows the driver frame by frame, which is a twitch. Wind it up and the motion accumulates, so the driver sculpts the picture over time and it holds the pose -- which is what puppetry means.	بڕی جوڵەی هاندەر کە وێنە دەپارێزێت. سفر فریم بە فریم شوێنی دەکەوێت و دەلەرزێت. زیاد بکە جوڵە کۆ دەبێتەوە و وێنە دادەتاشێت و دۆخەکە دەپارێزێت، وەک بووکەجوڵێنەر.
+How much of the picture's position on the output is used. A PIP on the left sounds on the left -- and it is a placement, not a pan: the far ear gets the delay and the head shadow too.	بڕی بەکارهێنانی شوێنی وێنە لە دەرچوون. PIPی چەپ لە چەپ دەبیسترێت؛ شوێندانانە نە پان: گوێی دوور دواخستن و سێبەری سەریش وەردەگرێت.
+How much of the tail is kept going while the cue is held. Long enough to hide the splice in room tone, short enough not to smear a rhythm in it.	بڕی کلک لە ڕاگرتنی کیو. درێژ بۆ شاردنەوەی پێکەوەبەستن لە دەنگی ژوور، کورت بۆ نەشێواندنی ڕیتم.
+How much room comes up under it, so the sound settles into the cut instead of being severed.	بڕی دەنگی ژوور لەژێری، تا دەنگ لە بڕین نیشتەجێ بێت نە ببڕدرێت.
+How much the echo is distorted each pass. It compounds, so a little ripples and a lot melts the picture into itself.	تێکدانی ئەکۆ لە هەر خولێک. کۆ دەبێتەوە؛ کەم شەپۆل و زۆر تواندنەوەی وێنە لە خۆیدا.
+How much the material draws in towards each drip, so it runs as a thin neck with a heavier head.	بڕی کێشانی ماددە بۆ هەر دڵۆپ، تا بە ملێکی باریک و سەرێکی قورستر بڕژێت.
+How often its settings are corrupted. Corrupted far enough it oscillates on its own -- loud, but it cannot run away.	چەند جار ڕێکخستنەکان تێک دەچن. زۆر تێکچوون خۆلەرزین دەدات؛ بەرزە بەڵام لە کۆنترۆڵ دەرناچێت.
+How quickly the picture springs back to rest once the driver stops pushing it. Only does anything when memory is up.	خێرایی گەڕانەوەی وێنە بۆ ئارامی دوای وەستانی هاندەر. تەنها بە زیادکردنی یادگە کار دەکات.
+How small a cut sets it off. With no picture it runs on a timer instead, and this is how often.	بچووکترین بڕین بۆ چالاککردن. بێ وێنە بە کاتژمێر کار دەکات و ئەمە دووبارەبوونەوەکەیە.
+How strongly the finished picture pushes the bend. Pair it with a picture effect whose LFO is set to Audio and the two drive each other.	هێزی پاڵنانی وێنەی تەواو بۆ چەمانەوە. لەگەڵ کاریگەریی وێنە بە LFOی Audio هاوتای بکە تا یەکتر بزوێنن.
+How wide a view is being compressed. Narrow is a punch down the middle, wide folds the whole frame into the centre.	پانیی دیمەنی پەستێنراو. تەسک لە ناوەڕاست پاڵ دەنێت، پان هەموو چوارچێوە بۆ ناوەڕاست دەچەمێنێت.
+Lift or cut, 12dB either way. The centre is flat, so a band that has just been added does nothing until this is moved.	بەرزکردن یان بڕین تا 12dB. ناوەڕاست تەختە؛ باندی نوێ تا جوڵاندنی ئەمە کاریگەری نییە.
+Light on the drips, as on something wet: a gloss where it faces the light, darker where it curls away.	ڕووناکی لەسەر دڵۆپەکان وەک شتی تەڕ: بەرامبەر ڕووناکی بریقەدار، لە چەمانەوە تاریک.
+Line pitch in pixels, so this reads at 4K as well as at 720.	مەودای هێڵ بە پیکسڵ، تا لە 4K و 720 هەردوو دیار بێت.
+cannot read the file: if it lives in OneDrive or iCloud, open it once so it downloads, then import it	پەڕگە ناخوێندرێتەوە: ئەگەر لە OneDrive یان iCloudە، جارێک بیکەرەوە تا دابگیرێت، پاشان هاوردەی بکە
+did not finish in 3 minutes. It may be waiting on a prompt it cannot show (Protected View, sign-in, a repair). Open the deck there once, or export it as a PDF and import that	لە 3 خولەک تەواو نەبوو. ڕەنگە چاوەڕێی پەیامێکی نەپیشاندراو بێت (دیمەنی پارێزراو، چوونەژوورەوە، چاککردن). جارێک لەوێ پێشکەشکردنەکە بکەرەوە یان PDF هەناردە و هاوردە بکە
+forget my defaults? only NEW changes, this show keeps its settings: press again	بنەڕەتەکانم لەبیر ببرێن؟ تەنها NEW دەگۆڕێت، ئەم نمایشە ڕێکخستنەکانی دەپارێزێت: دیسان دابگرە
+Keynote could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)	Keynote نەیتوانی پەڕگە هەناردە بکات (ڕەنگە مۆڵەتی ئۆتۆماتیککردن بخوازێت: ڕێکخستنی سیستەم > تایبەتی و ئاسایش > ئۆتۆماتیککردن)
+my defaults forgotten: NEW starts from factory settings, this show is unchanged	بنەڕەتەکانم لەبیر بران: NEW بە ڕێکخستنی کارگە دەست پێ دەکات، ئەم نمایشە نەگۆڕاوە
+N=new  Enter/P=previous  O=open saved  E=examples  L=learn  1-	N=نوێ  Enter/P=پێشوو  O=کردنەوەی پاشەکەوتکراو  E=نموونە  L=فێربوون  1-
+ndi tally trigger on -- program tally takes the cue	هاندەری تالی ndi چالاکە -- تالی پەخش کیو لێ دەدات
+notestep: this cue's notes have no builds (separate them with a line of ---)	notestep: تێبینییەکانی ئەم کیوە هەنگاویان نییە (بە هێڵێکی --- جیایان بکەرەوە)
+Only accept transport from this sender (blank = anyone)	تەنها کۆنترۆڵی لێدان لەم نێرەرە وەربگرە (بەتاڵ = هەموو کەس)
+opened github.com in your browser -- nothing is sent until you submit the report there	github.com لە وێبگەڕ کرایەوە -- تا لەوێ ڕاپۆرتەکە نەنێریت هیچ نانێردرێت
+Output height in px - math ok: 1080x2, 2160/2, 540+30	بەرزی دەرچوون بە px - ژمێریاری دەکرێت: 1080x2, 2160/2, 540+30
+Output width in px - math ok: 1920x2, 3840/2, 960+64	پانی دەرچوون بە px - ژمێریاری دەکرێت: 1920x2, 3840/2, 960+64
+PHONE LEVEL: removed -- a paired phone or the passphrase can do everything; BLACKOUT and RECORD are hold-to-fire on the phone	PHONE LEVEL: سڕایەوە -- مۆبایلی هاوتاکراو یان وشەی نهێنی هەموو کارێک دەکات؛ BLACKOUT و RECORD لە مۆبایل بە ڕاگرتن چالاک دەبن
+phones need THE NETWORK: set 'Who can see it' first	مۆبایل تۆڕ دەوێت: سەرەتا «کێ دەتوانێت بیبینێت» دابنێ
+PowerPoint could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)	PowerPoint نەیتوانی پەڕگە هەناردە بکات (ڕەنگە مۆڵەتی ئۆتۆماتیککردن بخوازێت: ڕێکخستنی سیستەم > تایبەتی و ئاسایش > ئۆتۆماتیککردن)
+PowerPoint could not open the file (it gave up waiting for it). If it is in OneDrive, right-click it and choose Always keep on this device, then import it again	PowerPoint پەڕگەکەی نەکردەوە (واز لە چاوەڕوانی هێنا). ئەگەر لە OneDriveە، کرتەی ڕاستی بکە و «هەمیشە لەم ئامێرە بیپارێزە» هەڵبژێرە، پاشان هاوردەی بکەرەوە
+saved as my defaults: NEW starts like this show, without the cues	وەک بنەڕەتەکانم پاشەکەوتکرا: NEW وەک ئەم نمایشە بەبێ کیو دەست پێ دەکات
+Seconds for new image/pattern/browser/Lower Third cues (0 = hold)	چرکە بۆ کیوی نوێی وێنە/نەخشە/وێبگەڕ/Lower Third (0 = ڕاگرتن)
+select a Draw cue first (SOURCE > MADE BY DECKBOY > Draw)	سەرەتا کیوی کێشان هەڵبژێرە (SOURCE > MADE BY DECKBOY > Draw)
+something mellow appeared in SOURCE > MADE BY DECKBOY	شتێکی ئارام لە SOURCE > MADE BY DECKBOY دەرکەوت
+sound scopes: integrated loudness and true peak start again	پێوەرەکانی دەنگ: بەرزیی کۆکراوە و لووتکەی ڕاستەقینە دەست پێ دەکەنەوە
+splitnotes: that cue's notes have no parts (separate them with a line of ---)	splitnotes: تێبینییەکانی کیو بەشیان نییە (بە هێڵێکی --- جیایان بکەرەوە)
+still reading the last folder -- one at a time	هێشتا بوخچەی پێشوو دەخوێنرێتەوە -- یەک بە یەک
+that key drives the desk - use F1-F10, F12 or the number pad	ئەو دوگمەیە مێز کۆنترۆڵ دەکات - F1-F10، F12 یان تەختەکلیلی ژمارە بەکاربهێنە
+the clicker now spends note builds before advancing	ئێستا کلیکەر پێش پێشکەوتن هەنگاوەکانی تێبینی تەواو دەکات
+this file is only in OneDrive, and OneDrive is not running. Start OneDrive, or copy the file to this computer, then import it again	پەڕگە تەنها لە OneDriveە و OneDrive کار ناکات. دەستی پێ بکە یان پەڕگە بۆ کۆمپیوتەر کۆپی بکە، پاشان هاوردە بکەرەوە
+this presentation needs a password to open. Remove the password in PowerPoint (File > Info > Protect Presentation) or export it as a PDF, then import that	ئەم پێشکەشکردنە وشەی نهێنی دەوێت. لە PowerPoint بیسڕەوە (پەڕگە > زانیاری > پاراستنی پێشکەشکردن) یان PDF هەناردە و هاوردە بکە
+ASCII: use ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>	ASCII: بەکاربهێنە ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>
+Flip across, upside down or both, or fold one half onto the other: right onto left, left onto right, bottom onto top, top onto bottom, or one corner into all four.	وێنەکە ئاسۆیی، ستوونی یان هەردووکیان هەڵبگێڕەوە، یان نیوەیەک لەسەر ئەوی تر قات بکە: ڕاست بۆ چەپ، چەپ بۆ ڕاست، خوارەوە بۆ سەرەوە، سەرەوە بۆ خوارەوە، یان گۆشەیەک بۆ هەر چوار گۆشە.
+FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR	FX: بەکاربهێنە LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR
+MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> or OSC <address> [<n>], then CH <1-16> if not channel 1	MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> یان OSC <address> [<n>]، پاشان CH <1-16> ئەگەر کەناڵەکە 1 نییە
+MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET or FEEDBACK	MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET یان FEEDBACK
+Moves the direction of travel off the centre of frame, so the picture rushes past rather than straight at you.	ئاڕاستەی جووڵە لە ناوەڕاستی چوارچێوە دوور دەخاتەوە، بۆ ئەوەی وێنەکە بە تەنیشتتدا تێپەڕێت نەک ڕاستەوخۆ بەرەو تۆ.
+One knob for the whole balance: below the middle is darker, above it is brighter.	یەک دەستگێڕ بۆ هەموو هاوسەنگییەکە: لە خوار ناوەڕاست تاریکترە و لە سەرووی ڕووناکترە.
+Original: the picture pulled onto the figure. Sand: the picture as grains that are thrown off the moving parts and pour into each new figure. Fluid: the picture under water on the plate, bent and lit by its standing waves.	ڕەسەن: وێنەکە بەسەر شێوەکەدا ڕادەکێشرێت. لم: وێنەکە دەبێتە دانەی لم کە لە بەشە جووڵاوەکان هەڵدەوەرێت و دەڕژێتە هەر شێوەیەکی نوێ. شل: وێنەکە لەژێر ئاوە لەسەر تەختەکە، شەپۆلە وەستاوەکان دەیچەمێننەوە و ڕووناکی دەکەنەوە.
+Pulls the bright tones down without moving pure white, so a hot highlight rolls off instead of clipping.	تۆنە ڕووناکەکان دادەبەزێنێت بەبێ گۆڕینی سپیی تەواو، بۆ ئەوەی ڕووناکیی توند بە نەرمی کەم بێتەوە نەک ببڕدرێت.
+Rotates the reading, so straight lines wind into spirals rather than rings.	ئاڕاستەی خوێندنەوە دەسووڕێنێت، بۆ ئەوەی هێڵە ڕاستەکان ببنە لوول نەک بازنە.
+Rows lose sync and repeat one character, the way a real text screen breaks up. At 0 the grid is clean.	ڕیزەکان هاوکاتی لەدەست دەدەن و یەک پیت دووبارە دەکەنەوە، وەک تێکچوونی شاشەی دەقی ڕاستەقینە. لە 0 تۆڕەکە پاکە.
+SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, LINEAR, PERSPECTIVE or NAME	SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, LINEAR, PERSPECTIVE یان NAME
+SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF, or POINT col row dx dy	SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF، یان POINT col row dx dy
+Something near the deck: a phone's buzz, a light dimmer's herringbone, a radio's slow bars.	شتێک نزیک ئامێری لێدان: وزەی تەلەفۆن، نەخشی زیگزاگی کەمکەرەوەی ڕووناکی، یان شریتە هێواشەکانی ڕادیۆ.
+Sorts the runs the other way, so they pour from light to dark.	ڕیزەکان بە پێچەوانە ڕیز دەکات، بۆ ئەوەی لە ڕووناکەوە بەرەو تاریک بڕژێن.
+Takes out everything brighter than this as well. Left takes out nothing.	هەروەها هەرچی لەمە ڕووناکترە لادەبات. لە کۆتایی چەپ هیچ لانا‌بات.
+Takes out everything darker than this, so what lies beneath shows through. Left takes out nothing.	هەرچی لەمە تاریکترە لادەبات، بۆ ئەوەی ئەوەی لەژێرەوەیە دەربکەوێت. لە کۆتایی چەپ هیچ لانا‌بات.
+Tape speed: SP is the best picture, LP and EP fit more on a tape and lose detail and colour.	خێرایی شریت: SP باشترین وێنە دەدات؛ LP و EP کاتی زیاتر لە شریتدا جێ دەکەنەوە بەڵام وردەکاری و ڕەنگ کەم دەکەنەوە.
+The brightness that stays put. Everything above it reaches one way and everything below it the other.	ئەو ڕووناکییەی لە شوێنی خۆی دەمێنێتەوە. هەرچی لە سەروویەتی بۆ لایەک و هەرچی لە خوارەوەیەتی بۆ لایەکی تر درێژ دەبێتەوە.
+The character of the growth: low is waves, then labyrinth, coral, worms, and holes at the top.	جۆری گەشە: لە نزمدا شەپۆل، پاشان مەزە، مەرجان، کرم، و لە بەرزدا کون.
+The colour it becomes. Shading and brightness stay as they were, so a red shirt turns blue and keeps its folds.	ئەو ڕەنگەی دەبێتە ئەو. سێبەر و ڕووناکی وەک خۆیان دەمێننەوە؛ کراسی سوور دەبێتە شین و قاتەکانی دەپارێزێت.
+The distance that sits ON the screen. Either side of it comes forward or falls behind.	ئەو دوورییەی لەسەر شاشەکەیە. هەردوو لای دێنە پێشەوە یان دەچنە دواوە.
+The frequency it pivots around -- what counts as 'low' and 'high' for the tilt.	ئەو فرێکوێنسییەی دەوری دەسووڕێتەوە؛ سنووری «نزم» و «بەرز» بۆ لارییەکە.
+The head drifting off the track: a band of noise rolls through the picture.	لادانی سەری خوێنەر لە ڕێڕەو: شریتێکی ژاوەژاو بە وێنەکەدا تێدەپەڕێت.
+The level below which the source is closed. Set it under the quietest thing you want to hear.	ئەو ئاستەی لە خوارەوەی سەرچاوە دادەخرێت. لە خوار نزمترین دەنگی دڵخوازت دایبنێ.
+The level it starts working at. Lower catches more of the performance.	ئەو ئاستەی کارکردن لێوە دەست پێدەکات. نزمتر بەشی زیاتر لە پێشکەشکردنەکە دەگرێتەوە.
+The plugin's first four automatable controls, in its own order. Everything else it has keeps whatever the plugin was left set to.	یەکەم چوار کۆنترۆڵی خۆکارکراوی پێوەکراو، بە ڕیزبەندی خۆی. هەموو ڕێکخستنەکانی تر لەسەر دوا دۆخی خۆیان دەمێننەوە.
+Tints the two directions apart, so light bending one way and the other are different colours instead of both being grey.	هەر ئاڕاستەیەک بە ڕەنگێکی جیاواز دەڕازێنێتەوە، بۆ ئەوەی ڕووناکیی چەماوە بۆ هەر لا ڕەنگی جیاواز بێت نەک هەردووکیان خۆڵەمێشی.
+Turns the echo each pass, which winds the melt into a spiral.	دەنگدانەوەکە لە هەر تێپەڕینێکدا دەسووڕێنێت و توانەوەکە دەکاتە لوول.
+Turns the strokes across the grain instead of along it, which combs the picture apart rather than smoothing it.	هێڵەکان بە پانیی ڕیشاڵدا دەسووڕێنێت نەک بە درێژایی، وێنەکە شەنە دەکات و لێکی جیادەکاتەوە نەک نەرمکردنەوەی.
+Turns the whole arrangement, so the fold lines do not sit on the same part of the picture all night.	هەموو ڕێکخستنەکە دەسووڕێنێت، بۆ ئەوەی هێڵەکانی قات هەموو شەوێک لە هەمان بەشی وێنەکە نەبن.
+Two is a mirror, twelve is a snowflake, and they are completely different pictures.	دوو دەبێتە ئاوێنە و دوازدە دەبێتە بەفرینە؛ دوو وێنەی تەواو جیاوازن.
+WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (sound is included)	WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (دەنگیش لەگەڵیدایە)
+Where highlights fold back through black. Low folds most of the picture, high folds only the brightest.	ئەو شوێنەی ڕووناکییەکان بە ڕەشدا دەگەڕێنەوە. نزم زۆربەی وێنەکە قات دەکات و بەرز تەنها ڕووناکترین بەشەکان.
+Where the band sits, 30Hz to 16kHz across the travel.	شوێنی باندەکە، لە 30Hz تا 16kHz بە درێژایی مەودای کۆنترۆڵ.
+Where the fold sits: the middle at the left, toward the far edge to the right. Flips have no fold.	شوێنی قات: لە چەپدا ناوەڕاست، بەرەو ڕاست نزیک لێواری دوور. هەڵگەڕاندنەوە قات نییە.
+Where the light stands, in degrees around the frame.	شوێنی ڕووناکی، بە پلە دەوری چوارچێوە.
+Where the source sits around the listener, all the way round. For headphones -- it is a timing and shading trick, not a pan.	شوێنی سەرچاوە دەوری گوێگر، بە تەواوی بازنەکە. بۆ گوێبیست؛ فێڵی کات و ڕەنگی دەنگە، نەک گواستنەوەی دەنگ لەنێوان کەناڵەکان.
+Where the top ends, 200Hz to 20kHz. Pull it down to take the harshness off a bright source.	کۆتایی فرێکوێنسییە بەرزەکان، لە 200Hz تا 20kHz. دایبەزێنە بۆ کەمکردنەوەی تیژیی سەرچاوەیەکی ڕوون.
+Which channel the curve acts on: all three, then red, green or blue on its own -- the way a colourist warms or cools one end of the picture.	ئەو کەناڵەی کەوانەکە کاری تێدەکات: هەر سێکیان، پاشان سوور، سەوز یان شین بە تەنها؛ وەک ڕەنگسازێک کە لایەکی وێنەکە گەرم یان سارد دەکات.
+Which way the knife edge lies. Only gradients ACROSS the edge show, so turning it swaps which features appear and which vanish.	ئاڕاستەی لێواری تیغ. تەنها پلەڕەنگەکان بە پانیی لێوارەکە دەردەکەون، بۆیە سووڕاندنی دیاری دەکات کام وردەکاری دەردەکەوێت یان ون دەبێت.
+Which way the streak runs: across at the left, upright in the middle, across again at the right.	ئاڕاستەی هێڵەکە: لە چەپدا ئاسۆیی، لە ناوەڕاست ستوونی، لە ڕاستدا دیسان ئاسۆیی.
+Widens the decision into a ramp, so edges keep their shape instead of jagging.	سنووری بڕیار فراوان دەکاتە پلەڕەنگ، بۆ ئەوەی لێوارەکان شێوەیان بپارێزن نەک ددانەدار بن.
+Words to surface in the field, separated by | . One shows at a time, moving on the hold clock.	وشەکانی دەرکەوتن لە مەیدانەکە، بە | جیاکراوەتەوە. هەر جار یەکێک دەردەکەوێت و بە کاتژمێری ڕاگرتن دەگۆڕێت.
+Zero is one noise value across all three channels, which reads as film. Higher gives each channel its own, which reads as video.	سفر یەک بەهای ژاوەژاو بۆ هەر سێ کەناڵ دەدات و وەک فیلم دەردەکەوێت. بەرزتر ژاوەژاوی جیاواز بە هەر کەناڵێک دەدات و وەک ڤیدیۆ دەردەکەوێت.

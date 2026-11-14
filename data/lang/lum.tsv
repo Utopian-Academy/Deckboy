@@ -3270,3 +3270,1102 @@ FX CHOICE: choice must be A or B	FX CHOICE: pika hup A va B
 FX CHOICE: no effect at that index	FX CHOICE: vaeffect kae nakae numa
 whole picture	tam veka
 FX LFO: slot is A-D for the parameters, E for the amount, F and G for the fifth and sixth (or 0-6)	FX LFO: kae A-D go parametaku, E go numa, F so G go pentaka so sistaka (ama 0-6)
+angle	Ranakora
+Attack	Sonavena
+attack	sonavena
+Audio bitrate	Sonabitoka
+Audio reactivity	Sonaseta
+azimuth	Doprana
+Bands	Ranaku
+bands	ranaku
+base layer	Muntisa
+BITRATE	BITOKA
+bits	bitaku
+black point	Nirakae
+bleed	Kolatira
+Blobs	Karaku
+block glitch	Karavara
+block size	Karasa
+blocks	karaku
+blur	Vamiro
+BOTH	DUA
+bright	lumo
+Brush opacity	Gravamira
+Brush size	Grasa
+buzzer	Zarsona
+by brightness	sov luma
+cancelled	Vapataki
+Canvas Height	Grapatasa
+Canvas View	Grapatamira
+Canvas Width	Grapatarana
+catch	Hali
+caustics	Lumagura
+Centre X	Kora X
+Centre Y	Kora Y
+channel skew	Kanarana
+channel spread	Kanafesa
+character	Hola
+chop	Kisklui
+CLASSIC	MUNO
+CLOCK	TOKAJANA
+coherence	Tamkora
+colour bleed	Kolatira
+colour drift	Kolatiri
+colour lag	Kolapena
+colour replace	Kolaseti
+columns	holranaku
+control 1	seta 1
+control 2	seta 2
+control 3	seta 3
+control 4	seta 4
+Control change	Setaseti
+convergence	Korgura
+copies	velaku
+corrupt	Vari
+corruption	Vara
+coupling	Duakora
+crystallise	Karaguri
+Cue Notes	Vekaholaku
+curl detail	Ranavelara
+curves	ranavelaku
+Custom Glyphs	Tuholaku
+cut bright	Lumaklu
+cut dark	Niraklu
+cut reset	Klunovi
+cutoff	Klurana
+cuts	kluraku
+cyan	Senkolo
+damage	vara
+damping	Vazarseta
+dark	niro
+darkness	nira
+deck age	Dekamuntoka
+Density	Gurasa
+depth	Dora
+depth split	Doradua
+Destination Address	Senakae
+Destination UDP port	Senapora UDP
+Detail	Kismira
+diamond	Kwararana
+distance	Dorsa
+DMX Channels	Kanaku DMX
+dots move	Kiskaeku tiri
+Draw colour	Grakola
+drift	Tiritoka
+drip	Kistiri
+drips	Kistiraku
+drive	Tirasa
+edges	ranaku
+empty	vano
+extended	Feso
+EXTREME	TAMZARO
+facet light	Ranaluma
+falloff	Vakisara
+falsecolour	Vakorkola
+feed rate	Munzara
+Feedback zoom	Novvekasa
+field of view	Mirarana
+Fixture address	Lumajanakae
+Fixture name	Lumajanahola
+Fixture universe	Lumajanapata
+flash length	Zarlumatoka
+flash to	Zarlumi kae
+flicker	Zarluma
+Flipbook rate	Vekazara
+floor	Kisrana
+Flow	Tiradora
+flow	tiradora
+focus	Kormira
+fold	Ranadui
+fold point	Ranaduakae
+frames	vekaku
+Frequency	Tokatala
+frequency	tokatala
+gap	Vanarana
+gather	Guri
+Glitch	Vaveka
+glow	Lumafesa
+glyph set	Holapata
+gong	Tamsona
+grain	Kisveka
+grain flow	Kisvekatira
+grain size	Kisvekasa
+green split	Garkoladua
+Grey	Nirlumo
+grid	Reta
+growl	Nirsona
+growth	Novasa
+head wear	Mirajanavara
+heat	Zarluma
+Height	Vekasa
+Height (px)	Vekasa (px)
+highlight roll	Lumavelara
+histogram	Talaveka
+horizontal	Rano
+ice	Nirkara
+ink	Grakola
+interference	Duavelara
+irregularity	Vareto
+jump	Zartiri
+just	Korsono
+kaleido	Velamira
+kaleidoscope	Velamira
+Key Color	Klukola
+Keyframe interval	Koravekatoka
+knee	Ranavelakae
+knife angle	Klurana
+leak	Vagura
+let go	Vahali
+lift	Sati
+light	luma
+light angle	Lumarana
+lightspeed	Lumazara
+line colour	Ranakola
+line glow	Ranaluma
+Live Browser	Lumo retamira
+Live Source	Lumo munga
+LOAD NEXT	TIRI NOVTOKA
+Lower Third - subtitle	Lower Third - kishola
+Lower Third - title	Lower Third - korahola
+Lower Third Subtext	Kishola Lower Third
+Lower Third Title	Korahola Lower Third
+luma displace	Lumatiri
+luma key	Lumaklu
+Mask opacity	Klumira
+Mask rotation	Klurana
+Mask scale	Klusa
+Mask X	Kluka X
+Mask Y	Kluka Y
+material	Kara
+meantone	Korsona
+Media	Vekadora
+Melt	Karavari
+melt	karavari
+memory	Gura
+midtones	Korlumaku
+Mod depth	Setadora
+Mod ratio	Setadua
+moire	Duareta
+mono	Unasono
+MONO L	UNASONO L
+MONO R	UNASONO R
+mosaic	Karaveka
+motion mosh	Tiravara
+motion puppet	Tirabatana
+motion trails	Tiraranaku
+MSC Cue Number	Vekanuma MSC
+music & sparkle	sona & kisluma
+NDI Key Name	Kluhola NDI
+NDI Name	Hola NDI
+NDI Source Name	Munhola NDI
+NEXT	NOVTOKA
+night eyes	Nirmiraku
+NMC Port	Pora NMC
+NMC Source	Munga NMC
+NMC Target	Dopkae NMC
+NMOS Interface Name	Retajanhola NMOS
+NMOS Node Port	Retakorapora NMOS
+NMOS Registry	Retagura NMOS
+noise	Vasonara
+not connected	Vakoro
+Note	Sonakae
+Note off	Sonakae klui
+Note on	Sonakae fesi
+off-axis	Vakororano
+offline	Vareto
+orbit speed	Korotirazara
+OSC Address	Kae OSC
+Output Alpha	Senavamira
+Output Canvas	Senagrapata
+Output Delay	Senapena
+output fault	Senavara
+Output name	Senahola
+Output Refresh	Senanovtoka
+overflow	Tamvagura
+own playlist	Tudekavekaku
+parade	Kanatalaveka
+parallax	Duamira
+Payload	Senakara
+Percent 0-100	Santala 0-100
+phone	Sonajana
+Phrases	Holapataku
+pinch	Kistiri
+pink noise	Rozavasona
+PIP Target Cue	Dopveka PIP
+pitch	Sonasa
+pivot	Koroka
+Pixel density	Kisvekagurasa
+pixel sort	Kisvekareti
+plasma	Lumakara
+Playlist Start TC	Vekakumuntoka TC
+Playlist Timebase	Vekakutokamunga
+Plugin	Lanjana
+polar warp	Kororanaseta
+Portal	Dora
+posterise	Kolasetali
+Practice show	Vekapatamiri
+PREVIOUS	MUNA
+Program change	Pataseti
+Prompter script	Holamiragra
+pulse 25%	Zarsona 25%
+QUALITY	KOROMIRA
+radial zoom	Korranasa
+radio	Retasona
+radius	Korrana
+ramp	Satirana
+range	Rana
+ratio	Duatala
+Raw bytes	Muno bitakaraku
+Raw MIDI Bytes	Muno bitakaraku MIDI
+reach	Dorsa
+recordings	Graku
+recovering	Novguri
+refresh	Novi
+Release	Vahala
+release	vahala
+relief	Doraveka
+relight	Novlumi
+Rename cue	Seti vekahola
+Rename fixture	Seti lumajanahola
+Renumber Cues	Novtali vekaku
+repeat width	Novranasa
+Replay hold	Novvekahala
+resonance	Novsona
+Retrigger	Novpataki
+reverse	Vadori
+rgb split	rgb dua
+Rim	Rana
+rings	Kororanaku
+ripple	Kisvelara
+rising	Sati
+rod bias	Nirmiraseta
+room	Karpata
+rot	Karavara
+Rotation	Korotira
+rotation	korotira
+round	Kororano
+sag	Vasata
+saw	Klurana
+scanlines	Miraranaku
+scope	Talamira
+SCOPES	TALAMIRAKU
+second mode	Duawaya
+see through	Vakaromiro
+seed density	Munkisgurasa
+self	Kora
+settle	Halseti
+shadow lift	Nirasati
+shake	Zartiri
+shard size	Kiskarasa
+sharpen	Kormiri
+sheen	Kisluma
+sideways	Ranadoro
+slit scan	Kisranamiri
+slit width	Kisranasa
+Smear	Tiraveka
+smear	tiraveka
+softness	Vakuro
+solarise	Lumavadori
+spike count	Satratala
+spike length	Satrasa
+spin	Korotiri
+spinning	Korotiro
+spring	Novtirajana
+sprite sheet	Kisvekapata
+Sprite spin	Kisvekakorotira
+square	Kwararano
+SRT latency	Tokapena SRT
+SRT passphrase	Kluhola SRT
+SRT stream ID	Retasenahola SRT
+Step length	Patakitoka
+steps	Patakaku
+stereogram	Duamiraveka
+stiffness	Kuro
+sting	Kissona
+strength	Zarsa
+strobe	Zarluma
+stroke	Grarana
+SUBTLE	KISO
+sway	Duatiri
+sweep	Ranatiri
+sweep speed	Ranatirazara
+swell speed	Velarazara
+symbols	Holaku
+system default	Korapatamuno
+system output	Korapatasenadora
+tape	Sonarana
+tape age	Sonaranamuntoka
+tear width	Vakaranasa
+temporal dither	Tokakisveka
+test signal	Mirasona
+text to send	Senahola
+threshold	Ranka
+throw	Zartirasa
+tile size	Karkisasa
+tilt	Ranaseti
+time	toka
+time cube	Tokakara
+Timer Message	Tokajanahola
+tint	Kiskola
+tint colour	Setakola
+tracking	Tirmiri
+trail	Tirarana
+transparent	Vakaromiro
+triangle	Triarano
+triple beep	Triakissona
+Turn	Korotiri
+turn	korotiri
+Twist	Ranaveli
+twist	ranaveli
+unavailable	Vapono
+vapor	Karafesa
+vector	Doprana
+vertical	Satrano
+vertical bias	Satranaseta
+vibrato	Sonatiri
+Video bitrate	Vekabitoka
+Video dip fade	Vekanirtiri
+vignette	Rananira
+wash out	Kiskolaseti
+wave height	Velarasa
+wavefront	Velaradora
+way	Dora
+wedges	Triakaraku
+white	Tamlumo
+white noise	Tamvasonara
+white point	Tamlumakae
+wire	Reta
+Zoom	Vekaseta
+zoom	vekaseta
+(choose cue)	(piki veka)
+(missing)	(vano)
+(no slots)	(va kaeku)
+(set media file)	(seti vekakara)
+(set url)	(seti url)
+A number	Numa
+A number, or blank for none	Numa, vano sov va kara
+additive	Lanaro
+alternating	Duaseto
+amber	Rozlumo
+Add Browser Cue	Lani retamiraveka
+Add NDI Source Cue	Lani munveka NDI
+Add Stream Cue	Lani retasenaveka
+Art-Net Destination	Senakae Art-Net
+ASCII 95 (density)	ASCII 95 (gurasa)
+ASCII 95 (raw)	ASCII 95 (muno)
+ASIO is off	ASIO kluo
+ATEM Input	Tiradora ATEM
+Attach Lower Third	Lani Lower Third
+Attach PIP Overlay	Lani PIP tisa
+AUTO	KOROPATAKI
+auto (59.94 Hz)	koropataki (59.94 Hz)
+band curve	Ranavelara
+Browser Ready	Retamira pono
+built without ASIO support	Pata va ASIO hupa
+built without NDI SDK headers	Pata va NDI SDK koraholaku
+Companion/OSC Port	Pora Companion/OSC
+could not reach github	Va pel kori github
+could not read the PDF	Va pel miri PDF
+could not start ffmpeg	Va pel novpati ffmpeg
+could not start the PDF renderer	Va pel novpati PDF vekiwia
+could not write the export script	Va pel grai senaholapata
+couldn't open explorer	Va pel fesi explorer
+couldn't open file manager	Va pel fesi karasetawia
+couldn't open finder	Va pel fesi finder
+Cue Goto	Tiri kae veka
+GOTO Cue	TIRI KAE veka
+Custom Output Raster	Tuseto senareta
+DECODE --.-	VEKAMIRI --.-
+DECODE OFF	VEKAMIRI KLUO
+DECODE WARM	VEKAMIRI PONO
+Default Cue Fade	Muno vekanira
+Default Non-Movie Duration	Muno vanovvekatoka
+display native	Munovekadeka
+Display none	Va vekadeka
+driver refused to start	Jansetawia va novpati
+empty expression	Vano talahola
+export as .png or .svg	Seni kae .png va .svg
+ffmpeg made no file	ffmpeg va kari kara
+ffmpeg stopped taking frames	ffmpeg hali tiri vekaku
+Find Cue	Miri veka
+Find+Take Cue	Miri+TAKE veka
+Fire at a time of day	Pataki sov lumtoka
+Fire at incoming timecode	Pataki sov tiratokahola
+Fire on a MIDI note	Pataki sov MIDI sonakae
+Fire on an OSC address	Pataki sov OSC kae
+First channel (1-512)	Munkana (1-512)
+flow (follows the picture)	tiradora (tiri sov veka)
+hh:mm:ss or seconds	hh:mm:ss va kistoka
+Its name, number or id	Tu hola, numa va id
+LibreOffice could not be run	Va pel pati LibreOffice
+LibreOffice produced no PDF	LibreOffice va kari PDF
+macOS could not read the PDF	macOS va pel miri PDF
+Name visible to receivers	Hola miro kae tirawiaku
+no colour	Va kola
+no driver named	Va jansetawia holo
+no mask made	Va kluka karo
+no pages could be rendered	Va pel veki holapataku
+no release found	Va novpata miro
+not on this output	Va kae tu senadora
+not while a cue is playing	Va sov veka veki
+nothing drawn	Va kara grao
+opened in explorer	Feso kae explorer
+opened in file manager	Feso kae karasetawia
+paste your stream key here	Lani tu retasenakluhola kae tu
+pdftoppm produced no pages	pdftoppm va kari holapataku
+PowerPoint could not export this file	PowerPoint va pel seni tu kara
+revealed in finder	Miro kae finder
+runtime unavailable	Patakidora vapono
+size out of range	Sa va kae rana
+Source Ready	Munga pono
+Spout Sender Name	Senawiahola Spout
+Stream URL	Retasena URL
+stream restart needed	Retasena novpata pono
+stream write failed	Retasenagrai varo
+target cue is gone	Dopveka vano
+targets nothing	Va dopkae
+the document has no pages	Holakara va holapataku
+the file is empty	Kara vano
+the header is truncated	Korahola kluo
+the NDI runtime is not installed	NDI patakidora va lano
+the PDF renderer produced no pages	PDF vekiwia va kari holapataku
+the show plays through ASIO	Vekapata veki sov ASIO
+URL or local page path	URL va korakae holapatadora
+What it runs	Pati kara
+Which cue	Pikveka
+window hidden	Fena vamiro
+window minimized	Fena kiso
+wrong display	Vekadeka vakoro
+0-1 (supports + - * / and ())	0-1 (pel + - * / vel ())
+0-100% (supports + - * / and ())	0-100% (pel + - * / vel ())
+%, 1 to 100 (supports + - * / and ())	%, 1 kae 100 (pel + - * / vel ())
+Amount 0-100% (supports + - * / and ())	Karsa 0-100% (pel + - * / vel ())
+Degrees -180..180 (supports + - * / and ())	Ranatalaku -180..180 (pel + - * / vel ())
+Degrees, -360 to 360 (supports + - * / and ())	Ranatalaku, -360 kae 360 (pel + - * / vel ())
+Degrees, 0-360 (supports + - * / and ())	Ranatalaku, 0-360 (pel + - * / vel ())
+Pixels (supports + - * / and ())	Kisvekaku (pel + - * / vel ())
+Hertz, 20-20000 (supports + - * / and ())	Hertz, 20-20000 (pel + - * / vel ())
+Colour steps, 2-8 (supports + - * / and ())	Kolapatakaku, 2-8 (pel + - * / vel ())
+Frames a second, 1 to 60 (supports + - * / and ())	Vekaku sov kistoka, 1 kae 60 (pel + - * / vel ())
+Seconds (0-30)	Kistokaku (0-30)
+Milliseconds 0-5000	Kiskistokaku 0-5000
+milliseconds (40..2000)	kiskistokaku (40..2000)
+Universe (0-63999)	Lumapata (0-63999)
+X,Y offset in pixels	X,Y tirasa sov kisvekaku
+a name for this step	nama sov tokpataka
+a playlist that is gone	vekaka vaesa
+across the grain	ranadopo
+add an output to scope it	novi senadora sov talmiri
+an ASIO stream is already open	ASIO retasena feso muna
+another app is holding the pointer	alo patakora hali mirrana
+channel count must be at least 1	kantala 1 o taro
+comma outside a function call	holrana avado patakorasiwa
+driver reports no output channels	janadore g holi va senakanku
+escaped to windowed	novtok feno
+fullscreen dropped	tamfena halto
+How big each tile is.	Tal taro vekakisa.
+How closely spaced the rings are.	Tal kisdoro ranakaraku.
+How far a band can slide.	Tal dora kana pel tiriseti.
+How far out the darkening starts.	Tal dora niri fesmuni.
+How far the glow spreads.	Tal dora luma fesi.
+How fast the surface moves.	Tal zaro rana tiriseti.
+How fast they travel outward.	Tal zaro avadori.
+How hard the short hits.	Tal koro kisdorapata.
+How many torn bands per frame.	Tal kanaku ranakluo sov veka.
+How much the edges are lifted.	Tal rana tari.
+How often it skips.	Tal novtok kistokdori.
+it could not be started	va pel fesmuni
+libX11 is not installed	libX11 va lanto
+lost the session bus	tokpatadorkana varetato
+no ASIO in this build	va ASIO ni patanova
+no X display to read	va X fena sov miri
+not a MIDI file (no MThd header)	va MIDI graka (va MThd kora)
+offset in percent of the picture	kaeseta sov vekatal 100
+only a background in it	munveka solo ni
+Paste the key from your platform	veli janakora avamun tu retapata
+pixels (of the output raster)	kisvekaku (sov senavekareta)
+Routing hint for the receiver	dorahola sov tirwia
+Save Warp Preset	Guri ranasetamuna
+Sender source name	Senwia munnama
+SOURCE CAMERA: name the device	SOURCE CAMERA: holi jananama
+Switcher IP address	Vekasetwia IP kaehola
+SYPHON / SPOUT TEXTURE SHARE	SYPHON / SPOUT VEKAPATA SENI
+SYPHON TEXTURE SHARE	SYPHON VEKAPATA SENI
+the desktop portal did not answer	patakora dorapora va novholi
+the file has no playable events	graka va hali pelvekato patakaku
+the screen could not be read there	fena va pel miri ni kaea
+the time division is not readable	tokakisa va pelmiri
+this build has no X11 support	ni patanova va X11 hupa
+UDP port for transport sync	UDP pora sov tiradoratoktami
+unbalanced )	va duo )
+web audio encoder cannot keep up	retasonagrawia va pel zartami
+Where the filter sits.	Kaea sonapikwa hali.
+Which way it drips.	Ma dora pelkisi.
+AUDIOALSO: expected ADD <name>, REMOVE <name> or CLEAR	AUDIOALSO: peni ADD <name>, REMOVE <name> o CLEAR
+BROWSER KEY: expected Enter|Tab|Backspace|Escape	BROWSER KEY: peni Enter|Tab|Backspace|Escape
+BUGSWAT: expected START, SHOWME, SKIP, PLAY, EXIT or STATUS	BUGSWAT: peni START, SHOWME, SKIP, PLAY, EXIT o STATUS
+CAPTIONS LIVE: expected ON, OFF, STATUS or TEXT	CAPTIONS LIVE: peni ON, OFF, STATUS o TEXT
+CAPTIONS SOURCE: expected INPUT, DECK <n> or OUTPUT <n>	CAPTIONS SOURCE: peni INPUT, DECK <n> o OUTPUT <n>
+DMXCUE: expected NEW, SET, FADE, UNIVERSE, HOST, PORT, FIRE or BLACKOUT	DMXCUE: peni NEW, SET, FADE, UNIVERSE, HOST, PORT, FIRE o BLACKOUT
+ENDACTION: expected INHERIT, STOP, LOOP, HOLD or NEXT	ENDACTION: peni INHERIT, STOP, LOOP, HOLD o NEXT
+FADE CURVE: expected linear, ease-in, ease-out or s-curve	FADE CURVE: peni linear, ease-in, ease-out o s-curve
+LOWERSTYLE: expected none, fade, rise, slide, wipe or NEXT	LOWERSTYLE: peni none, fade, rise, slide, wipe o NEXT
+MASK ASSIGN: expected CUE, LAYER, OUTPUT or MATTE	MASK ASSIGN: peni CUE, LAYER, OUTPUT o MATTE
+MASK EXPORT: expected <id> <file.png|file.svg> [WxH]	MASK EXPORT: peni <id> <file.png|file.svg> [WxH]
+MATRIX SET: expected <source 1-2> <dest> <0-100>	MATRIX SET: peni <source 1-2> <dest> <0-100>
+MATRIX: expected SET <src> <dest> <0-100>, SEED or CLEAR	MATRIX: peni SET <src> <dest> <0-100>, SEED o CLEAR
+MESH: expected on|off|toggle|height|tilt|yaw|spin|grid	MESH: peni on|off|toggle|height|tilt|yaw|spin|grid
+MIC: expected ADD, LIST, INPUT, CHANNEL or GAIN	MIC: peni ADD, LIST, INPUT, CHANNEL o GAIN
+MIDICUE KIND: expected note-on, note-off, cc, program, msc-go, msc-stop, msc-resume or raw	MIDICUE KIND: peni note-on, note-off, cc, program, msc-go, msc-stop, msc-resume o raw
+MIDICUE: expected NEW, PORTS, PORT, KIND, CH, D1, D2, DEVICE, CUENUM, LIST, RAW or SEND	MIDICUE: peni NEW, PORTS, PORT, KIND, CH, D1, D2, DEVICE, CUENUM, LIST, RAW o SEND
+MULTIVIEW LAYOUT: expected GRID, BIG, BIGTOP or TWOTOP	MULTIVIEW LAYOUT: peni GRID, BIG, BIGTOP o TWOTOP
+MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK or EMPTY	MULTIVIEW WINDOW: peni PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK o EMPTY
+NETCUE: expected NEW, PROTO, HOST, PORT, ADDRESS, PAYLOAD or SEND	NETCUE: peni NEW, PROTO, HOST, PORT, ADDRESS, PAYLOAD o SEND
+OUTPROBE: expected <output> <x 0-1> <y 0-1>	OUTPROBE: peni <output> <x 0-1> <y 0-1>
+OUTPUT HDR: expected ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> or STATUS	OUTPUT HDR: peni ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> o STATUS
+OUTPUTFX ADD: expected hpf, lpf, tilt, comp or width	OUTPUTFX ADD: peni hpf, lpf, tilt, comp o width
+OUTPUTFX: expected ADD, SET, REMOVE, BYPASS, CLEAR or DEVICE	OUTPUTFX: peni ADD, SET, REMOVE, BYPASS, CLEAR o DEVICE
+OUTPUTS ADD: expected <name> CH <n> or CH <n>-<n+1>	OUTPUTS ADD: peni <name> CH <n> o CH <n>-<n+1>
+PATCH: expected <deck> <output> <dB> or OFF	PATCH: peni <deck> <output> <dB> o OFF
+PRESET: expected LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME or DELETE	PRESET: peni LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME o DELETE
+SCALEMODE: expected fit|fill|stretch|unscaled	SCALEMODE: peni fit|fill|stretch|unscaled
+SCOPES BIG: expected waveform, parade, vector, diamond, histogram, falsecolour, sound or off	SCOPES BIG: peni waveform, parade, vector, diamond, histogram, falsecolour, sound o off
+SCOPES: expected PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS or SOUND	SCOPES: peni PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS o SOUND
+SECTION: expected playback|metadata|geometry|key|audio|effects|timer|tone|synth	SECTION: peni playback|metadata|geometry|key|audio|effects|timer|tone|synth
+STING: expected ON, PITCH, LENGTH, SWEEP or BODY	STING: peni ON, PITCH, LENGTH, SWEEP o BODY
+TARGET VERB: expected start|stop|pause|resume|load|arm|disarm	TARGET VERB: peni start|stop|pause|resume|load|arm|disarm
+TEXTCUE ALIGN: expected left, centre or right	TEXTCUE ALIGN: peni left, centre o right
+TEXTCUE ANIM: expected none, fade, typewriter, scroll, crawl, pulse or wobble	TEXTCUE ANIM: peni none, fade, typewriter, scroll, crawl, pulse o wobble
+TEXTCUE: expected NEW, BODY, ANIM, SIZE, SPEED, ALIGN, CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, WIGGLE, IN, OUTMOVE or OUT	TEXTCUE: peni NEW, BODY, ANIM, SIZE, SPEED, ALIGN, CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, WIGGLE, IN, OUTMOVE o OUT
+TUTORIAL: expected START, SHOWME, SKIP, EXIT, STATUS or SCREENS	TUTORIAL: peni START, SHOWME, SKIP, EXIT, STATUS o SCREENS
+UPDATE: expected check|download|install|status	UPDATE: peni check|download|install|status
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS	VJ: peni ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS
+% of the picture's height, 0.1 to 20 (supports + - * / and ())	% sov vekatara, 0.1 a 20 (peli + - * / o ())
+-3 to 3: 0 holds, negative runs backwards (supports + - * / and ())	-3 a 3: 0 hali, va talo munatoki (peli + - * / o ())
+0-100%, left to right (supports + - * / and ())	0-100%, lev a ravo (peli + - * / o ())
+0-100%, top to bottom (supports + - * / and ())	0-100%, tara a nara (peli + - * / o ())
+0-100%: 0 holds the field still (supports + - * / and ())	0-100%: 0 hali kaepata (peli + - * / o ())
+0-100%: 50 is 1x, 0 a quarter, 100 four times (supports + - * / and ())	0-100%: 50 esa 1x, 0 una sov kwara, 100 kwara tala (peli + - * / o ())
+0-100%: how far the field bends (supports + - * / and ())	0-100%: tal kaepata raniseti (peli + - * / o ())
+Across, % of the width, -100 to 100 (supports + - * / and ())	Dopdora, % sov vekalara, -100 a 100 (peli + - * / o ())
+Birth, drift and fade rate, 0.1-3 (supports + - * / and ())	Novmuni, tiriseti o niri zara, 0.1-3 (peli + - * / o ())
+Block displacement and channel tearing, 0-1 (supports + - * / and ())	Karakaeseta o kanaranaklui, 0-1 (peli + - * / o ())
+dBFS, -60 to 0 (-18 is EBU alignment) (supports + - * / and ())	dBFS, -60 a 0 (-18 esa EBU tamkaea) (peli + - * / o ())
+Down, % of the height, -100 to 100 (supports + - * / and ())	Nardora, % sov vekatara, -100 a 100 (peli + - * / o ())
+Edge out (+) or in (-), % of the height, -25 to 25 (supports + - * / and ())	Rana avado (+) o nido (-), % sov vekatara, -25 a 25 (peli + - * / o ())
+Edge softness, % of the height, 0 to 25 (supports + - * / and ())	Ranasomo, % sov vekatara, 0 a 25 (peli + - * / o ())
+FDS hardware gain range, 0-63 (supports + - * / and ())	FDS janasonatara, 0-63 (peli + - * / o ())
+Feature size, 0.1-8 (supports + - * / and ())	Patakisa tala, 0.1-8 (peli + - * / o ())
+Horizontal cells, 64-960 (supports + - * / and ())	Dopkaraku, 64-960 (peli + - * / o ())
+How big a blob grows, 0-1 (supports + - * / and ())	Tal karakisa tari, 0-1 (peli + - * / o ())
+How hard it cuts, %, 0 to 100 (supports + - * / and ())	Tal koro ranaklui, %, 0 a 100 (peli + - * / o ())
+How hard the audio drives it, 0-1 (supports + - * / and ())	Tal koro sona tiriseti, 0-1 (peli + - * / o ())
+How many are alive at once, 3-48 (supports + - * / and ())	Tal novoku ni unatok, 3-48 (peli + - * / o ())
+How much of each frame feeds the next, 0-0.95 (supports + - * / and ())	Tal vekakisa seni novtokveka, 0-0.95 (peli + - * / o ())
+How readily neighbours merge, 0 (never) to 1 (supports + - * / and ())	Tal peldui kis doraku, 0 (vatok) a 1 (peli + - * / o ())
+Internal resolution, 1 (chunky) to 5 (fine) (supports + - * / and ())	Nipata kisvekatala, 1 (taro) a 5 (kiso) (peli + - * / o ())
+Master oscillator rate, 0.01-8 (supports + - * / and ())	Koraranawia zara, 0.01-8 (peli + - * / o ())
+Modulator as a ratio of the note, 0.05-16 (supports + - * / and ())	Setwia sov sonakisa taladua, 0.05-16 (peli + - * / o ())
+One LED tile's height in pixels, 8-8192 (supports + - * / and ())	Una LED vekakisa tara ni kisvekaku, 8-8192 (peli + - * / o ())
+One LED tile's width in pixels, 8-8192 (supports + - * / and ())	Una LED vekakisa lara ni kisvekaku, 8-8192 (peli + - * / o ())
+Palette turn, 0-1 (supports + - * / and ())	Lumakararani, 0-1 (peli + - * / o ())
+Per-frame zoom of the feedback path, 0.90-1.15 (supports + - * / and ())	Novsensena talaseti sov veka, 0.90-1.15 (peli + - * / o ())
+Pitch in hertz, 20-8000 (supports + - * / and ())	Sonatara ni hertz, 20-8000 (peli + - * / o ())
+Pixel sort amount, 0-1 (supports + - * / and ())	Kisvekarani tala, 0-1 (peli + - * / o ())
+Scale of the whole graphic, 0.5-2 (supports + - * / and ())	Tamvekagra talaseta, 0.5-2 (peli + - * / o ())
+Size, %, 5 to 400 (supports + - * / and ())	Tala, %, 5 a 400 (peli + - * / o ())
+Spiral size, 0.25-4 (supports + - * / and ())	Ranakara tala, 0.25-4 (peli + - * / o ())
+Spiral strength, 0-4 (supports + - * / and ())	Ranakara kora, 0-4 (peli + - * / o ())
+Thickness of the glowing edge, 0-1 (supports + - * / and ())	Lumorana patatala, 0-1 (peli + - * / o ())
+0-127; 127 is all-call	0-127; 127 esa alasiwa
+0-127; the domain the facility's clock runs on	0-127; tokjana kaepata sov janapata
+10-79 characters, or empty for none	10-79 holkisaku, o vapatako sov vaala
+8 zones already: click one to remove it first	8 kaepataku muna: bati una sov niri muna
+8+ characters; letters and symbols are allowed	8+ holkisaku; holkisaku o graranaku pelo
+A command line, or blank for nothing	Patakorahola, o vapatako sov vaala
+a step cannot fire the playlist it lives on	tokpataka va pel fesmuni munvekaka
+a target cannot target another target	senkaea va pel seni alo senkaea
+an IPv4 address, or 255.255.255.255 to broadcast	IPv4 kaehola, o 255.255.255.255 sov alaseni
+AUDIOALSO ADD: seven extra destinations is the limit	AUDIOALSO ADD: 7 novsenkaeku esa rantala
+AUDIOFX PLUGIN: this build has no plugin host	AUDIOFX PLUGIN: ni patanova va novpatakora halwia
+BROWSER CLICK: this browser backend cannot drive the page	BROWSER CLICK: ni retamirwia kora va pel dori graranka
+BROWSER INTERACT: this browser backend has no hands-on mode	BROWSER INTERACT: ni retamirwia kora va batadora
+BROWSER SCROLL: expected pixels (negative is up)	BROWSER SCROLL: peni kisvekaku (vatalo esa taro)
+BROWSER TYPE: this browser backend cannot type	BROWSER TYPE: ni retamirwia kora va pel holgrai
+cancelled: the waiting cue is no longer in the playlist	vahali: penvekakisa va ni vekaka novtok
+could not create an OpenGL context for Spout receive	va pel novi OpenGL kaepata sov Spout tiri
+could not create the offscreen window Spout receive needs	va pel novi avafenafena Spout tiri peni
+could not get a device context for Spout receive	va pel tiri janakaepata sov Spout tiri
+driver would not create output buffers	janadore va novi senabufaku
+driver would not load (in use by another application?)	janadore va tiri (alo patakora hali?)
+driver would not report a buffer size	janadore va holi bufatala
+driver would not report channel info	janadore va holi kanaholaku
+fetching the speech model - captions start when it arrives	tiri holsonapata - nargraholaku fesmuni novtok tiri
+four effects at most on one device: remove one first	kwara setpataku rantala sov una jana: niri una muna
+FX ADD: datamosh needs a file-backed video cue	FX ADD: datamosh peni grakamuno vekakisa
+group presets became master cues: use MASTER	patamunasetaku esa koravekakisaku: dori MASTER
+live captions are not installed here (deckboy-listen was not found)	lumtoknargra va lanto ni (deckboy-listen va mirto)
+Lower Third added - put its playlist on a layer	Lower Third novto - lani munvekaka ni vekapata
+make a step first: a section starts at a step	novi tokpataka muna: patakisa fesmuni ni tokpataka
+MASK PATH: a path needs at least three points	MASK PATH: dora peni tria kaekisaku o taro
+MATRIX SET: level is a percent from 0 to 100	MATRIX SET: tala esa 100 talakisa avamun 0 a 100
+MIDIMAP: that command is only accepted from this computer	MIDIMAP: ni patakorahola tirto solo avamun ni korajana
+MOTION ZONE ADD: the zone must fit inside the picture	MOTION ZONE ADD: kaepata peni ni veka
+NETCUE ADDRESS: an OSC address must start with /	NETCUE ADDRESS: OSC kaehola peni fesmuni ni /
+release has no build for this platform	novsena va patanova sov ni janapata
+SLICE ADD: already 16 slices on this output	SLICE ADD: 16 vekakisaku muna ni ni senadora
+still reading the last folder -- one at a time	miri munakaraka pen -- una ni unatok
+SUBTITLE CONVERT: destination must be .srt or .vtt	SUBTITLE CONVERT: senkaea peni .srt o .vtt
+SUBTITLE CONVERT: the cue has no caption file	SUBTITLE CONVERT: vekakisa va hali nargraholagraka
+the caption model has not been downloaded yet	nargraholapata va tirto pen
+the playing step was removed - sequence stopped	vekito tokpataka nirto - tokpatakara halto
+this cue has no known end to resolve into	ni vekakisa va hali mirto klutoka sov klui
+this output's renderer could not cut the mask	ni senadora vekagrawia va pel ranaklui vekaklua
+TRACKER: there are no steps (TRACKER ADD makes one)	TRACKER: va tokpatakaku (TRACKER ADD novi una)
+unsaved changes will be lost: press new again	vagurto setaku vaesi: bati nova novtok
+update: could not start the install helper	novseti: va pel fesmuni lanhupwia
+update: could not start the installer	novseti: va pel fesmuni lanwia
+update: could not write the install helper	novseti: va pel grai lanhupwia
+update: not running from an AppImage	novseti: va dori avamun AppImage
+WEBMONITOR SOURCE: could not create the web output	WEBMONITOR SOURCE: va pel novi retasenadora
+zones cleared: Motion reads the whole picture	kaepataku nirto: Tiriseta miri tamveka
+BROWSER SCROLL: this browser backend cannot drive the page	BROWSER SCROLL: ni retamirwia kora va pel dori graranka
+BROWSER SCROLLBAR: this browser backend cannot drive the page	BROWSER SCROLLBAR: ni retamirwia kora va pel dori graranka
+Seconds, 0-4 (supports + - * / and ())	Kistokaku, 0-4 (peli + - * / o ())
+Seconds, 0-8 (supports + - * / and ())	Kistokaku, 0-8 (peli + - * / o ())
+Seconds between retriggers, 0-8 (supports + - * / and ())	Kistokaku niduo novfesmunaku, 0-8 (peli + - * / o ())
+Seconds the finished drawing stays, 0 to 60 (supports + - * / and ())	Kistokaku kluto graka hali, 0 a 60 (peli + - * / o ())
+Seconds the in move takes, 0-5 (supports + - * / and ())	Kistokaku nitiriseta dori, 0-5 (peli + - * / o ())
+Seconds the out move takes, 0-5 (supports + - * / and ())	Kistokaku avadotiriseta dori, 0-5 (peli + - * / o ())
+Seconds before it leaves by itself; 0 waits for OUT (supports + - * / and ())	Kistokaku muna avadori solo; 0 peni OUT (peli + - * / o ())
+Pixels, 64-2160 (supports + - * / and ())	Kisvekaku, 64-2160 (peli + - * / o ())
+Pixels, 64-3840 (supports + - * / and ())	Kisvekaku, 64-3840 (peli + - * / o ())
+Space under it, as a fraction of the frame, 0-0.8 (supports + - * / and ())	Kaevapata nardo sov vekakisa, 0-0.8 (peli + - * / o ())
+Where the eye sits, 0 left to 1 right (supports + - * / and ())	Mirkaea, 0 levo a 1 ravo (peli + - * / o ())
+Where the eye sits, 0 top to 1 bottom (supports + - * / and ())	Mirkaea, 0 taro a 1 naro (peli + - * / o ())
+Turbulence, 0 still to 3 boiling (supports + - * / and ())	Ranazara, 0 halto a 3 koro (peli + - * / o ())
+Turns the rim's colours round the wheel, 0-1 (supports + - * / and ())	Rani ranalumaku sov ranakara, 0-1 (peli + - * / o ())
+port number (default 5510)	poranuma (muno 5510)
+port number (default 5511)	poranuma (muno 5511)
+port number (default 6454)	poranuma (muno 6454)
+port number (default 8090)	poranuma (muno 8090)
+port number (vMix uses 8088)	poranuma (vMix dori 8088)
+port number (vMix uses 8099)	poranuma (vMix dori 8099)
+e.g. /cue/1/start	vekahupa /cue/1/start
+e.g. 12.5	vekahupa 12.5
+e.g. 192.168.1.50	vekahupa 192.168.1.50
+e.g. 1=255, 10-14=64	vekahupa 1=255, 10-14=64
+e.g. 90 3C 7F	vekahupa 90 3C 7F
+A dark line between the tiles, like grout or an LED wall.	Niro rana niduo vekakisaku, vel kara o LED vekapata.
+Above halfway, a hard cut in the picture resets the loop to clean.	Tardo dua talakisa, koro vekaklui novi ranakara fesmuno.
+Above halfway, the repeated piece plays backwards.	Tardo dua talakisa, novtokpatakisa munatoki.
+Darkens the boundaries where crystals meet.	Niri ranaku kaea kisranakaraku dui.
+Fine sensor noise at the bottom, chunky film at the top.	Nardo kiso mirjanavasona, tardo taro grakakisaku.
+From an even blur to a streak along the angle, like movement.	Avamun tamo vasaro a doro rana, vel tiriseta.
+Grain size: one pixel at the left, big blocky grains at the right.	Grakakisa tala: una kisveka levo, taro karakisaku ravo.
+Grows or shrinks the echo each pass. Centre holds still.	Tari o kisi novsena sov ranakara. Kora hali.
+How big the crystals grow before they meet.	Tal kisranakaraku tari muna dui.
+How big the room is. Small is a booth, large is a hall.	Tal sonakara tara. Kiso esa kiskara, taro esa tamkara.
+How big the shards are. Small is frosted glass, large is a dropped plate.	Tal ranaklukisaku. Kiso vel niro mirkara, taro vel kluto patakara.
+How dark the dark lines go. All the way up is black between lines.	Tal niro niroranaku. Tamtaro esa niro niduo ranaku.
+How far each shard slides from where it belongs.	Tal ranaklukisa tiriseti avamun munkaea.
+How far each stroke is dragged along the grain.	Tal grarana tirto sov ranadora.
+How far it smears: up to a few percent of the picture.	Tal dora vasari: a kis talakisa sov 100 vekatala.
+How far the bright parts pull away from the surface.	Tal lumokisaku tiriseti avamun rana.
+How far the sound throws each line sideways.	Tal sona tiriseti rana dopdoro.
+How far the two eyes disagree. Brightness is read as nearness.	Tal duomiraku vasama. Lumotala esa kisdora.
+How fast it closes. Slow enough not to chop the ends off words.	Tal zaro klui. Vazaro sov va ranaklui holakluranaku.
+How fast the drips run. At the left the picture only sags.	Tal zaro kisranaku nardori. Levo veka solo nartiri.
+How fast the light walks around it. Zero holds it still.	Tal zaro luma rani. 0 hali.
+How fast the sand travels to the still lines.	Tal zaro kispataku dori a halto ranaku.
+How gradually the key cuts in. Hard at the left.	Tal somo vekapora klui. Levo koro.
+How hard it is driven into its own limits.	Tal koro tiriseti a munranaku.
+How long a short stays closed, in VIDEO FRAMES.	Tal toka kisdorapata kluto, ni VEKAKU.
+How many shades survive the quantise.	Tal lumatalaku hali novtok talakisi.
+How many spikes the field breaks into.	Tal tarkisaku kaepata kisi.
+How many times a skip repeats before the sound catches up again.	Tal novtokaku kistokdora muna sona toktami novtok.
+How much each shard turns on its own centre.	Tal ranaklukisa rani sov munkora.
+How much of the push goes downward rather than sideways.	Tal tiriseta nardori va dopdori.
+How much the flame gutters frame to frame.	Tal lumnara vazari veka a veka.
+How quickly the loop relaxes when nothing feeds it.	Tal zaro ranakara somi ni va munsena.
+How strongly the outlines are drawn.	Tal koro ranaku grato.
+How strongly the water bends the picture.	Tal koro pelranapata raniseti veka.
+How wide a band of colours either side of it changes too.	Tal laro lumakana sov duodora seti an.
+Lifts the dark tones without moving pure black.	Tari nirolumatalaku va seti tamniro.
+Pushes the rings in or out of the centre.	Tiriseti ranakaraku nido o avado kora.
+Rounds the tiles off, all the way to dots.	Ranakaraseti vekakisaku a kaekisaku.
+Softens the fold so it ramps instead of creasing.	Somi duorana sov somi va kororanaklui.
+Sorts the runs the other way, so they pour from light to dark.	Rani kanaku alo doro, sov dori avamun lumo a niro.
+The bright net the waves focus onto the picture.	Lumo reta ranasonaku korguri sov veka.
+The brightness that decides black from white.	Lumotala piki niro o tamlumo.
+The colour to change, round the wheel from red.	Lumaseta piki, ranakara avamun rudo.
+Turns the echo each pass, which winds the melt into a spiral.	Rani novsena sov ranakara, novi somveka ranakara.
+OUTPUT --.-	SENADORA --.-
+OUTPUT WARM	SENADORA PONI
+STREAM --.-	RETASENA --.-
+STREAM ERR	RETASENA VAPATO
+STREAM OFF	RETASENA VAPONO
+STREAM WARM	RETASENA PONI
+In time	Nitoka
+Out time	Avadotoka
+OSC Feedback Mirror Rate	OSC Novsena Velzara
+OSC Query HTTP Port	OSC Query HTTP Pora
+Key sender source name	Vekaporasenwia munnama
+ST 2110 Destination	ST 2110 Senkaea
+ST 2110 network interface	ST 2110 retajana
+ST 2110 Port	ST 2110 Pora
+vMix HTTP Port	vMix HTTP Pora
+vMix TCP Port	vMix TCP Pora
+Web Monitor Connections	Retavekamira Retaku
+Web Monitor PIN	Retavekamira Numakora
+Web Monitor Port	Retavekamira Pora
+Legacy Cue Link	Munovekakisareta
+Fireside	Lumnarakaea
+hue turn	lumarani
+ferrofluid	tirpatapelrana
+dye advect	lumadori
+edge ignite	ranalumi
+feedback bloom	novsenaluma
+reaction bloom	novpatakaluma
+pythagorean	Pythagorasovo
+purkinje	Purkinjesovo
+schlieren	lumaranamiri
+audioprint	sonagra
+e.g. 20:0 or client name	vekahupa 20:0 o tirjananama
+Hz or AUTO (e.g. 60 or 59.94)	Hz o AUTO (vekahupa 60 o 59.94)
+kbps (32-512; 160 is a sane default)	kbps (32-512; 160 esa pono muno)
+Multicast group (e.g. 239.20.10.1)	Tamsenapata (vekahupa 239.20.10.1)
+Prefix (optional). Example: Q	Munhola (pelpiko). Vekahupa: Q
+Prefix and optional start (example: Q 100)	Munhola o pelpiko fesmunuma (vekahupa: Q 100)
+WIDTHxHEIGHT (e.g. 2560x1080)	LARA x TARA (vekahupa 2560x1080)
+WIDTHxHEIGHT (e.g. 5760x2160)	LARA x TARA (vekahupa 5760x2160)
+position on the output raster, in pixels	kaea sov senavekareta, ni kisvekaku
+seconds (1-10; most platforms want 2)	kistokaku (1-10; taro retapataku peni 2)
+seconds this step holds before PLAY moves on	kistokaku ni tokpataka hali muna PLAY novdori
+Leave empty to follow the live cue notes	Hali vapatako sov munkemi lumovekakisa holgraku
+Target IP (or 255.255.255.255 to broadcast)	Senkaea IP (o 255.255.255.255 sov alaseni)
+MIDIFILE: the selected cue is not a midi file cue	MIDIFILE: pikto vekakisa va esa MIDI graka vekakisa
+NETCUE: the selected cue is not a network cue	NETCUE: pikto vekakisa va esa reta vekakisa
+SCRIPTCUE: the selected cue is not a script cue	SCRIPTCUE: pikto vekakisa va esa patakoragra vekakisa
+SYNTH: the selected cue is not a video synth	SYNTH: pikto vekakisa va esa vekanovwia vekakisa
+TCCUE: the selected cue is not a timecode cue	TCCUE: pikto vekakisa va esa tokagra vekakisa
+TEXTCUE: the selected cue is not a text cue	TEXTCUE: pikto vekakisa va esa hola vekakisa
+Cue name (blank restores the file name)	Vekakisa nama (vapatako novseti grakanama)
+ASCII HOLD: seconds, 0-60 (0 mutes the phrases)	ASCII HOLD: kistokaku, 0-60 (0 vaholi holapataku)
+AUDIOFX: expected OFF, BYPASS, or amount and parameters as percentages	AUDIOFX: peni OFF, BYPASS, o tala o setaku ni 100 talakisaku
+CHIP ENV: expected <attack> <release> in seconds	CHIP ENV: peni <attack> <release> ni kistokaku
+DECKLINK: no DeckLink driver on this computer (Blackmagic Desktop Video)	DECKLINK: va DeckLink janadorwia ni ni korajana (Blackmagic Desktop Video)
+DMXCUE LEVELS: nothing has been sent on that universe	DMXCUE LEVELS: vaala sento ni ni tamkaea
+downloading the caption model, then listening...	tiri nargraholapata, novtok lisi...
+drag the panels to arrange the presenter screen	tiri karaku sov rani holwia fena
+DRAW SIZE: 0.1-20 (% of the picture's height)	DRAW SIZE: 0.1-20 (% sov vekatara)
+DRAW STROKE: each point is x,y or x,y,pressure, in percent	DRAW STROKE: una kaekisa esa x,y o x,y,pressure, ni 100 talakisaku
+encoder destination: _converted beside the show	grawia senkaea: _converted dopdo vekapata
+ENDACTION: only video and audio cues have an end action	ENDACTION: solo veka o sona vekakisaku hali klutokpataka
+Enter playlist SMPTE FPS: 24 / 25 / 29.97 / 30	Grai vekaka SMPTE FPS: 24 / 25 / 29.97 / 30
+expected one expression, three for colour, or four with alpha	peni una talahola, tria sov luma, o kwara kun alpha
+format 2 files are a set of independent patterns, not a performance	2 patagrakaku esa solo vekaretaku pataka, va vekapata
+INPUTMONITOR: a row count, OPEN, CLOSE, CLEAR, PAUSE or RESUME	INPUTMONITOR: ranatala, OPEN, CLOSE, CLEAR, PAUSE o RESUME
+MASTER DECK: expected a deck number and a cue number	MASTER DECK: peni dekanuma o vekakisanuma
+MIDIIN OSC: an address, and optionally a number	MIDIIN OSC: kaehola, o pelpiko numa
+MONITOR DECK: expected a playlist number or FOLLOW	MONITOR DECK: peni vekakanuma o FOLLOW
+MONITOR ROOM: expected a playlist and ON or OFF	MONITOR ROOM: peni vekaka o ON o OFF
+MULTIVIEW WINDOW REMOVE: expected a window number	MULTIVIEW WINDOW REMOVE: peni fenanuma
+NETCUE ADDRESS: expected an OSC path starting with /	NETCUE ADDRESS: peni OSC dora fesmuno ni /
+new show disarms all outputs: press new again	nova vekapata vaponi ala senadoraku: bati nova novtok
+NMOS: discovery needs the remote network allowed	NMOS: miri peni avareta pelo
+NMOS: searching for a registry (mDNS)	NMOS: miri namagraka (mDNS)
+no picture on this cue - nothing to follow	va veka ni ni vekakisa - vaala sov munkemi
+no picture on this cue - nothing to close the loop through	va veka ni ni vekakisa - vaala sov ranakara klui
+no video clock on this cue - nothing to lock to	va vekatokjana ni ni vekakisa - vaala sov toktami
+normalize: selection has no file-backed audio	sonatami: pikata va hali grakamuno sona
+normalize all: no file-backed audio in this deck	alasonatami: va grakamuno sona ni ni deka
+only a MIDI note or an OSC address can take a cue	solo MIDI sonakisa o OSC kaehola pel fesmuni vekakisa
+Only accept transport from this sender (blank = anyone)	Tiri tiradoraholaku solo avamun ni senwia (vapatako = alawia)
+OUTPROBE: that output has no compositor (is it on?)	OUTPROBE: ni senadora va hali vekatamwia (pono?)
+OUTPUTFX ADD: four effects at most on one device	OUTPUTFX ADD: kwara setpataku rantala sov una jana
+OUTPUTFX SET: expected an effect number and 0-100	OUTPUTFX SET: peni setpatanuma o 0-100
+PATCH: a level is dB from -48 to +6, or OFF	PATCH: tala esa dB avamun -48 a +6, o OFF
+PORTS: expected an http port and a tcp port	PORTS: peni http pora o tcp pora
+PRELOAD: expected a position in seconds, OFF or STATUS	PRELOAD: peni kaea ni kistokaku, OFF o STATUS
+STING: select a tone cue first (TONECUE makes one)	STING: piki sonataravekakisa muna (TONECUE novi una)
+STREAM ADD: expected a URL, e.g. srt://host:port	STREAM ADD: peni URL, vekahupa srt://host:port
+TARGET CUE: expected a deck number and a cue number	TARGET CUE: peni dekanuma o vekakisanuma
+TEXTCUE SIZE: expected 1-100 (percent of the raster)	TEXTCUE SIZE: peni 1-100 (100 talakisa sov vekareta)
+Apple keeps the Keynote format secret on purpose, a malicious lock-in tactic, so only Apple's own software can read it properly. Best route: open it in Keynote on iCloud.com (free, in any browser), choose Download a Copy > PDF, and import that PDF	Apple guri Keynote grapatakora tamniro sov munpikata, esa malokoro kluhalapataka, sov solo Apple munpatakoraku pel miri pono. Ponotam dora: fesi ni Keynote sov iCloud.com (vatalo, ni ala retamirwia), piki Download a Copy > PDF, o tiri ni PDF
+Keynote could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)	Keynote va pel seni ni graka (pel peni munpataka dorasira: System Settings > Privacy & Security > Automation)
+cannot read the file: if it lives in OneDrive or iCloud, open it once so it downloads, then import it	va pel miri graka: si ni OneDrive o iCloud, fesi unatok sov tiri, novtok tiri ni
+the file is empty (0 bytes): it may not have finished copying or saving	graka vapatako (0 bytes): pel veli o guri va kluto
+the installed NDI runtime is missing entry points this needs	lanto NDI patakora va hali niporaku ni peni
+the NDI runtime declined to start on this machine	NDI patakora va fesmuni ni ni jana
+programme sound is always included; use WEBMONITOR OFF to stop the monitor	PROGRAM sona tamtok nido; dori WEBMONITOR OFF sov hali vekamira
+phone control requires an 8+ character passphrase	kisjanadori peni kluhola kun 8+ holkisaku
+set an 8+ character Web Monitor passphrase first	seti Retavekamira kluhola kun 8+ holkisaku muna
+network sharing and phone control require an 8+ character passphrase	retaseni o kisjanadori peni kluhola kun 8+ holkisaku
+paired phones removed: they need the QR code or the passphrase again	retato kisjanaku nirto: peni QR grakora o kluhola novtok
+WEBMONITOR QR: needs the monitor on and shared on the network	WEBMONITOR QR: peni vekamira pono o sento ni reta
+WEBMONITOR SOURCE: PROGRAMME or the number of an output that shows a picture	WEBMONITOR SOURCE: PROGRAMME o numa sov senadora veki veka
+brightness moves the playhead (needs CPU frames)	lumotala tiriseti vektokmira (peni CPU vekaku)
+centred and full-frame - moves when the picture does	korkaeo o tamveko - tiriseti ni veka tiriseti
+follows this cue's own brightness (needs CPU frames)	munkemi ni vekakisa munlumotala (peni CPU vekaku)
+full-frame and no picture - bends when the picture shrinks	tamveko o va veka - raniseti ni veka kisi
+mic live on the default speakers - watch for feedback	sonatirjana lumo sov muno sonasenjanaku - miri novsonsena
+motion on: the camera is read, never recorded	tiriseta pono: vekatirjana mirto, vatok grato
+no picture - shorts run on a timer instead of on cuts	va veka - kisdorapataku dori sov tokjana va ranakluaku
+no picture on this cue - nothing decides where the playhead is	va veka ni ni vekakisa - vaala piki vektokmira kaea
+on the dashboard - Ctrl+D or the DASH button	ni batapata - Ctrl+D o DASH bata
+output effects bypassed: no effect and no limit on this device	senasetpataku vadorto: va setpataka o va rantala ni ni jana
+output recover failed: fullscreen unavailable	senadora novguri vapato: tamfena vapelo
+over 16 MB: not a drawing to make a mask from	taro sov 16 MB: va graka sov novi vekaklua
+Page Down / Page Up step the focused playlist	Page Down / Page Up tokpataki korkaeto vekaka
+pair with a picture effect whose LFO is set to Audio	dui kun vekasetpataka kun LFO setto a Sona
+Port the Node + Connection API serve on	Node + Connection API doripora
+recordings remux to MP4 when the take stops	grakaku novkarato a MP4 ni grai hali
+Seconds for new image/pattern/browser/Lower Third cues (0 = hold)	Kistokaku sov nova veka/vekareta/retamirwia/Lower Third vekakisaku (0 = hali)
+Seconds for new-cue fade in/out defaults	Kistokaku sov novavekakisa nilumi/avaniri munsetaku
+the background alpha belongs to a Lower Third	munveka alpha sov Lower Third
+TRACKER SET: a step cannot act on its own playlist	TRACKER SET: tokpataka va pel dori sov munvekaka
+VIDEO OUTPUT LAYER: expected a layer number (1 is the base)	VIDEO OUTPUT LAYER: peni vekapatanuma (1 esa munkora)
+WARP AT: open the editor (WARP EDIT) and select a point first	WARP AT: fesi setgrawia (WARP EDIT) o piki kaekisa muna
+what the operator should be told when GO reaches here	hola sov dorwia ni GO dori ni
+what the patch and the cues call it (FOH, SUB, PRESS FEED)	nama dorareta o vekakisaku dori (FOH, SUB, PRESS FEED)
+Where to send transport (blank = broadcast)	Kaea sov seni tiradoraholaku (vapatako = alaseni)
+Which switcher input Deckboy is (0 = not set)	Vekasetwia nipora sov Deckboy (0 = vasetto)
+DMXCUE FIXTURE: expected <name> <level%>|LEAVE [<colour>]	DMXCUE FIXTURE: peni <name> <level%>|LEAVE [<colour>]
+DMXCUE LFO: expected <name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]	DMXCUE LFO: peni <name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]
+FIXTURE ADD: expected <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]	FIXTURE ADD: peni <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]
+MASK ASSIGN: expected <id|NONE> CUE | LAYER <output> <playlist> | OUTPUT <n> | MATTE <n>	MASK ASSIGN: peni <id|NONE> CUE | LAYER <output> <playlist> | OUTPUT <n> | MATTE <n>
+MASK LFO: expected <id> <param> ON|OFF [rate Hz] [depth %]	MASK LFO: peni <id> <param> ON|OFF [rate Hz] [depth %]
+rectc: expected <hh:mm:ss:ff|timeofday> [df|ndf|auto]	rectc: peni <hh:mm:ss:ff|timeofday> [df|ndf|auto]
+presenter colour: expected BG|INK|ACCENT #rrggbb	presenter colour: peni BG|INK|ACCENT #rrggbb
+expected waveform|scope|lissajous|spectrum|level|cover	peni waveform|scope|lissajous|spectrum|level|cover
+TRACKER: expected GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP or CLICKER	TRACKER: peni GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP o CLICKER
+A worn or dirty head: softer, with noise that streaks along the lines.	Muno o niro mirkora: somo veka, kun vasona ranadori.
+A slow rocking of the viewpoint, which is what makes the depth read without glasses.	Vazaro mirkaerani, sov dorkaetala mirto va mirkaraku.
+A slow sag in the supply, pulling the filter up and down like a dying battery.	Vazaro munsonaniri, tiri sonapikwa tardo o nardo vel klutok lumakara.
+An old deck: the picture wobbles, bends at the top of the frame and carries hum bars.	Muno deka: veka rani, raniseti tardo o hali munsonakanaku.
+An old tape loses bits of its oxide: dropouts flick white and repeat the line above, and the colour fizzes.	Muno sonagrarana vaguri kispataku: vavekakisaku tamlumi o novveki tarrana, o lumaku vazari.
+Copies of copies: none at the left, four at the right. Each one loses more.	Velaku sov velaku: va levo, kwara ravo. Una vela vaguri taro.
+How abruptly it arrives. Low is a soft cloud, high is a hard porthole.	Tal koro fesi. Naro somo lumakara, taro koro ranakarafena.
+How bright a pixel has to be before it lifts at all, so only the highlights spike.	Tal lumo kisveka peni muna tari, sov solo tamlumokisaku tarkisi.
+How deep the picture is treated as being. The brightness becomes height and is lit from the side.	Tal dorkaeo veka. Lumotala seti tara o lumi avamun dopdora.
+How far away. Distance dulls the top and softens the difference between the ears.	Tal dora. Dora niri tarsona o somi duolismira seta.
+How far back each skip jumps, from a stutter to half a second.	Tal munatoka kistokdora, avamun kistokpataka a dua kistokakisa.
+How gently the change fades out at the edges of the band.	Tal somo seta niri sov kanaranaku.
+How hard it holds once it is working. Gentle at the bottom, a limiter at the top.	Tal koro hali ni dori. Somo nardo, ranawia tardo.
+How irregular the growth is. Low gives an even honeycomb, high gives long shards.	Tal vasamo tari. Naro samo kisranakaraku, taro doro ranaklukisaku.
+How long it is allowed to run. More steps means the ripples have crossed and reflected more times.	Tal toka pel dori. Taro tokpatakaku esa ranasonaku duodori o novdori taro tokaku.
+How long the reaction runs each frame. Short is a stain, long is an organism.	Tal toka novpataka dori sov veka. Kiso esa lumakisa, doro esa novpataka.
+How many places drip: a few big drips at the left, many thin ones at the right.	Tal kaeku nardori: kis talo taro ranaku levo, taro talo kisranaku ravo.
+How much of the picture glows: only the brightest at the left, nearly everything at the right.	Tal veka lumi: solo tamlumo levo, kistam ala ravo.
+How much of the picture shows behind the lines. None at the left: lines on black.	Tal veka veki mundo ranaku. Va levo: ranaku sov niro.
+How quickly the room eats the top end. More damping is a softer, more furnished space.	Tal zaro sonakara niri tarsona. Taro somi esa somo kara kun taro pataku.
+How readily an edge catches. Low sets the whole picture alight, high only the hardest lines.	Tal pel rana lumi. Naro lumi tamveka, taro solo tamkoro ranaku.
+How wide a view is being compressed. Narrow is a punch down the middle, wide folds the whole frame into the centre.	Tal laro mirpata klutirto. Kiso korkaei, laro duorani tamveka a kora.
+Line pitch in pixels, so this reads at 4K as well as at 720.	Ranadora ni kisvekaku, sov mirto ni 4K vel 720.
+The head drifting off the track: a band of noise rolls through the picture.	Mirkora tiriseti avado graradora: vasonakana rani sov veka.
+Two is a mirror, twelve is a snowflake, and they are completely different pictures.	Dua esa velmira, 12 esa nirokisranakara, o tamvasamo vekaku.
+8+ characters; other machines send AUTH <passphrase> first. Empty = off	8+ holaku; alo janaku seni AUTH <passphrase> muna. Vahola = valo
+A command line, as a DASH button runs it. {value} is the knob's number, {note} the key.	Patakorarana, batjana DASH pati se. {value} esa turnumera, {note} esa batjana.
+AUDIOALSO ADD: that is already this deck's main device -- it would play twice	AUDIOALSO ADD: se esa dekakora jana muna -- soni dua
+CHIP DUTY: this cue is an FDS synth, which has no duty	CHIP DUTY: se esa FDS sonamuna, va duty
+CHIP NOISE: this cue is an FDS synth, which has no noise	CHIP NOISE: se esa FDS sonamuna, va zasona
+CHIP VOICE: this cue is an FDS synth, which has no voice	CHIP VOICE: se esa FDS sonamuna, va sonakana
+Chladni listens: the figure follows the pitch of the sound	Chladni lisi: veka seti sonazara dop
+DATAMOSH on - preparing (long clip, watch Encoder tab)	DATAMOSH lumo - poni (longo veka, miri Grawia)
+Degrees per second, -720 to 720 (supports + - * / and ())	Turnumaku por tokis, -720 to 720 (peli + - * / so ())
+Degrees round the colour wheel, 0-360 (supports + - * / and ())	Turnumaku kor lumaseta, 0-360 (peli + - * / so ())
+EDIT is off - press EDIT to type into the tracker	EDIT valo - bati EDIT, grai tokapata
+HH:MM or HH:MM:SS on this computer's clock; empty for none	HH:MM alo HH:MM:SS en se janatoka; vahola por vana
+HH:MM:SS:FF of the timecode Deckboy is chasing; empty for none	HH:MM:SS:FF en toka Deckboy miri; vahola por vana
+IPv4 addresses or a.b.c.d/bits, comma separated; empty = only this computer	IPv4 retakaeku alo a.b.c.d/bits, komase paro; vahola = se jana sola
+Iris	Miradora
+Lissajous (L/R phase)	Lissajous (L/R tokaseta)
+MASK SHAPE: expected a shape (MASK SHAPES lists them)	MASK SHAPE: nedi vekapata (MASK SHAPES veki alaku)
+MIC INPUT: expected SETTINGS, TEST or a device name (MIC LIST)	MIC INPUT: nedi SETTINGS, TEST alo janahola (MIC LIST)
+MIC: select a mic cue first (MIC ADD makes one)	MIC: piki lissonamuna muna (MIC ADD novi una)
+MIDIFILE: expected PORT, or no argument to report it	MIDIFILE: nedi PORT, alo vahola por vekihola
+NDI source name (e.g. LAPTOP (source 1))	NDI munahola (kae LAPTOP (muna 1))
+NEWSHOW: something is live or unsaved -- send NEWSHOW again within 2.5 s	NEWSHOW: lumo alo vaguro pataku -- seni NEWSHOW novtok en 2.5 s
+NIC address or name; empty = the default route	NIC retakae alo hola; vahola = munador
+NIC name reported in interface_bindings (e.g. eth0)	NIC hola en interface_bindings (kae eth0)
+OUTPUT AOI: expected a size like 256x256, or FULL	OUTPUT AOI: nedi numapata kae 256x256, alo FULL
+OUTPUT HDR WHITE: expected 80..500 nits (203 is BT.2408)	OUTPUT HDR WHITE: nedi 80..500 nits (203 esa BT.2408)
+Output height in px - math ok: 1080x2, 2160/2, 540+30	Senaveka alta en px - numi pel: 1080x2, 2160/2, 540+30
+Output width in px - math ok: 1920x2, 3840/2, 960+64	Senaveka lata en px - numi pel: 1920x2, 3840/2, 960+64
+PIP: retired -- scale a second deck over this one instead	PIP: vapatiko -- seti duadeka vekapata sur se
+Registry URL (e.g. http://192.168.1.50:8010) - blank for mDNS	Gurareta URL (kae http://192.168.1.50:8010) - vahola por mDNS
+SCOPES SOURCE: expected PROGRAMME or an output number, 1-	SCOPES SOURCE: nedi PROGRAMME alo senadornumera, 1-
+SMPTE hh:mm:ss:ff or seconds (blank = 00:00:00:00)	SMPTE hh:mm:ss:ff alo tokisku (vahola = 00:00:00:00)
+SOURCE WINDOW: name the window, e.g. title:Firefox (or "desktop")	SOURCE WINDOW: grai fenahola, kae title:Firefox (alo "desktop")
+Stream URL (srt://, rtmp://, rtsp://, udp://, or an http HLS .m3u8)	Retasena URL (srt://, rtmp://, rtsp://, udp://, alo http HLS .m3u8)
+TSL Tally	TSL lumamira
+TUTORIAL SCREENS: expected a count, MIRRORED or REAL	TUTORIAL SCREENS: nedi numera, MIRRORED alo REAL
+Timecode	Tokahola
+a note number 0-127, LEARN to take the next note played, or empty for none	Sonanumera 0-127, LEARN por novsonapiki, alo vahola por vana
+atem tally on -- set which input Deckboy is	ATEM lumamira lumo -- seti Deckboy munadora
+browser connections at once, 1-64 (default 8)	Retamira janaku entok, 1-64 (muno 8)
+can't move the active cue -- take another cue on this deck first	Vapel tiriseti lumo vekamuna -- seni alo vekamuna se deka muna
+click anywhere on any screen to take its colour. Esc cancels	Bati ala kae ala vekadeka, piki lumaseta. Esc vani
+click program or preview monitor to sample key color	Bati PROGRAM alo munamirafena, piki kluluma
+couldn't open a browser -- please report at github.com/Utopian-Academy/Deckboy/issues	Vapel fesi retamira -- grai en github.com/Utopian-Academy/Deckboy/issues
+e.g. /stage/doors -- sent to Deckboy's OSC port; empty for none	Kae /stage/doors -- seni Deckboy OSC pora; vahola por vana
+esc: control window - again to clear output	esc: setafena - novtok bati por senaniri
+milliseconds (20-8000; ~4x your RTT)	Kistokisku (20-8000; ~4x tu RTT)
+ndi tally trigger on -- program tally takes the cue	NDI lumabati lumo -- PROGRAM luma seni vekamuna
+nmos: network is LOCAL ONLY - not registering	nmos: reta SEJANA SOLA - vagurireta
+no OpenGL pixel format available for Spout receive	Vana OpenGL kisvekapatra por Spout tiri
+no masks yet: make one in a cue's MASK section	Vana vekakluku: novi una en vekamuna MASK
+nothing to mask here: select a cue, or change MASK ON	Vana vekaklupata kae: piki vekamuna, alo seti MASK ON
+phones need THE NETWORK: set 'Who can see it' first	Sonajanaku nedi RETA: seti 'Wia pel miri' muna
+pip: retired -- scale a second deck over this one instead	pip: vapatiko -- seti duadeka vekapata sur se
+save failed - retrying; still open, use SAVE AS if needed	Vaguri - novtok peli; fena feso, pati SAVE AS se nedi
+select a Draw cue first (SOURCE > MADE BY DECKBOY > Draw)	Piki gravekamuna muna (SOURCE > MADE BY DECKBOY > Draw)
+something mellow appeared in SOURCE > MADE BY DECKBOY	Melo pata novi en SOURCE > MADE BY DECKBOY
+sound scopes: integrated loudness and true peak start again	Sonamiraku: tamsonatala so korapika novtok talini
+that key drives the desk - use F1-F10, F12 or the number pad	Se batjana seti dekapatra - pati F1-F10, F12 alo numabataku
+update: cannot find this app bundle to replace	Novseta: vapel miri se janapatra por veliseti
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono (supports + - * / and ())	0 muno, 1 firo, 2 izo, 3 neono, 4 unakano (peli + - * / so ())
+0 flows ALONG the edges, so colour orbits the shapes. 1 flows across them, which bleeds the picture into itself.	0 flui RANADOP, lumaseta koriri vekapataku. 1 flui ranakros, veka flui en se.
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono (supports + - * / and ())	0 alaluma + greya, 1 alaluma, 2 mirapata, 3 unakano (peli + - * / so ())
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear (supports + - * / and ())	0 kaera, 1 duaveka, 2 flua, 3 sadla, 4 ripa, 5 krosa (peli + - * / so ())
+0-100%: the share of each band drawn as grey stripes (supports + - * / and ())	0-100%: greyranaku en ala kanapata (peli + - * / so ())
+ASCII WOBBLEMODE: drift | flow (follows luma) | hue (follows colour); no argument cycles	ASCII WOBBLEMODE: drift | flow (luma dop) | hue (lumaseta dop); vahola novpiki
+ASCII: the selected cue has no text mode (add the TEXT MODE effect, or select a video synth cue)	ASCII: pikomuna va holaveka (lani TEXT MODE setapata, alo piki vekasonamuna)
+ASCII: use ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>	ASCII: pati ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>
+BLEND PAIR: expected <other output number> <overlap in pixels>	BLEND PAIR: nedi <alo senadornumera> <unakaera en kisveka>
+Below the middle narrows toward mono -- which is what a single PA cluster is. Above it widens.	Korkisa kiskani to unasona, una PA sonajana dop. Koralta latakani.
+Blueshift toward the direction of travel and redshift at the rim. Zero leaves the colour alone and it reads as a lens instead.	Zulseti tiradora so firseti rana. 0 vaguri lumaseta, miradora dop veki.
+Bright: bright things drip over the dark, as text and logos do. Whole picture: everything is wax, and the picture itself runs down in its own colours.	Lumo: lumopataku dripi sur niropata, holaveka so holamarka dop. Tamveka: ala esa vaksa, veka flui nira en se lumasetaku.
+Centre is a straight line. Up bends it into an S -- darker shadows, brighter highlights, more contrast. Down flattens it.	Kora esa rekto rana. Alta S seti: niro nirana, lumo lumarana, alta paraseka. Nira plani.
+Characters across. Fewer means bigger cells and less of the picture surviving, which is usually the point.	Holaku en lata. Kiso numera novi lato karaku, kiso vekagura, se esa pataneda.
+Characters to build the picture from, darkest first. Empty uses the chosen glyph set.	Holaku por vekanovi, niro muna. Vahola pati piko holapata.
+Colour is recorded at a fraction of the detail: it smears sideways, lands late and its hue wanders.	Lumaseta grai kiso vekakisa: flui latador, penari so lumaseta tiriseti.
+DASH SET: needs a command -- DASH SET <n> <label> | <command> [| <glyph>]	DASH SET: nedi patakorahola -- DASH SET <n> <label> | <command> [| <glyph>]
+DMXCUE SET: expected channel=level pairs, e.g. 1=255,10-14=64	DMXCUE SET: nedi channel=level paraku, kae 1=255,10-14=64
+DRAW COLOUR: #rrggbb, #rrggbbaa, a name, or 1-8 for the palette	DRAW COLOUR: #rrggbb, #rrggbbaa, hola, alo 1-8 por lumapata
+DRAW TOOL: brush, erase, line, box, oval or fill	DRAW TOOL: brush, erase, line, box, oval alo fill
+Devamp	Vakori
+FADE TO: a speed from 0.25 to 4 (0.5 is half speed, an octave down)	FADE TO: zara 0.25 to 4 (0.5 esa duakis zara, una sonaduaka nira)
+FADE WHAT: expected opacity, volume, dimmer, brightness, contrast, saturation, hue, effect, audiofx or speed	FADE WHAT: nedi opacity, volume, dimmer, brightness, contrast, saturation, hue, effect, audiofx alo speed
+FX LFO wants <index> <slot> <on|off|shape> [value]	FX LFO nedi <index> <slot> <on|off|shape> [value]
+FX LFO: on, off, shape, rate, depth, zone, channel or cc	FX LFO: on, off, shape, rate, depth, zone, channel alo cc
+FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR	FX: pati LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR
+Fields per frame, 0-4 (1 = one field per rendered frame) (supports + - * / and ())	Duakisvekaku por veka, 0-4 (1 = una duakisveka por graiveka) (peli + - * / so ())
+Flip across, upside down or both, or fold one half onto the other: right onto left, left onto right, bottom onto top, top onto bottom, or one corner into all four.	Veliseti latador, altanira alo dua, alo halvekalan sur alo: destra sur leva, leva sur destra, nira sur alta, alta sur nira, alo una korna en kwara.
+GEOLFO: x, y, width, height, rotation, cropleft, cropright, croptop or cropbottom	GEOLFO: x, y, width, height, rotation, cropleft, cropright, croptop alo cropbottom
+How bright a pixel has to be to join a run. Lower catches more of the picture and the runs grow longer.	Kisveka lumaneda por ranajani. Kiso piki alta vekapata, ranaku longi.
+How faint a gradient still registers. High turns the quietest shading into visible structure.	Kiso lumaseta pel miri. Alto veki kiso niraseka vekapatra.
+How far back the chain listens. The picture is played through a delay, so this is the distance the damage is dragged across.	Retrotoka sonakata lisi. Veka soni en pentoka, se esa ranadora setavaksa tiri.
+How far the burn spreads off the edge, and how hot its colour runs.	Firarana lata so fira lumaseta.
+How far the colour turns on each trip round the loop. This is the oil-slick: the trail walks through the spectrum instead of fading.	Lumaseta turna por ala koritoka. Olamela dop: gurrana tiri en alalumaku, va niri.
+How far the picture stands out. Bright parts come forward, dark parts stay back. At the left it is flat.	Veka dorakora. Lumopataku tiri muna, niropataku hali retrodor. Leva plani.
+How far the picture swings the filter. The cue's own brightness opens and closes it, so a cut to black takes the top off the sound.	Veka filterseta tala. Munaluma fesi so klui filtera, niroveka kiti altasona.
+How far the top comes down as the end approaches. This is not a fade: the level is left alone.	Altasona nira en fintoka. Va sonaniri: sonatala vaguri.
+How fast it settles away while held. At zero it holds indefinitely, which is what room tone under a held title wants.	Halpensona nirazara. 0 hali tamtoka, karasona sur halholaveka dop.
+How fast the open slit crosses the picture. Slow smears a long moment across the frame.	Fesripa krosveka zara. Kiszaro smiri longtoka en tamveka.
+How fast the wave travels. Faster spreads further in the same time and interferes more.	Ripazara. Zaro ripa lati en unitoka so krosi alto.
+How fast what has dripped hardens away. At the left the drips stay until the cue changes.	Dripapataku solidi so niri zara. Leva dripaku hali to munaseta.
+How fine the water is. Long ocean swell at one end, rain on a puddle at the other.	Akaripa vekakisa. Longa mararipa leva, renaripa en kismara destra.
+How hard the light gathers where the rays converge. This is the part that makes it read as water rather than as a wobble.	Luma guri en unara radoraku. Se novi akaveka, va turnaripa sola.
+How hard the moving parts throw sand. More shake clears the plate faster and makes the lines thinner.	Tirisepataku tiri sandra tala. Alto tiriseta niri plata zaro so ranaku kisi.
+How long a grain is, in VIDEO FRAMES. On a 23.976 clip one frame is 41.7ms, which is not a musical value and is exactly the point.	Grana toka en VEKA FRAMAKU. 23.976 veka una frama esa 41.7ms, va sonatalana, se esa neda.
+How long before the end it starts. The cue has to have a known length -- an open-ended one has no end to resolve into.	Patatoka muna fina. Muna nedi kono longa, vafino muna va finadora.
+How long the old waves linger when the note changes. Left: they die at once. Right: they slosh for a while.	Gurripaku toka pos sonaseta. Leva niri entok. Destra flui kistoka.
+How much each facet catches the light, which is what makes them read as faceted rather than as flat blobs.	Planapataku lumagura tala, se veki planapataku, va plano blobaku.
+How much its SIZE becomes distance. Shrink the picture and the sound goes away from you: the top comes off, the image narrows, the level drops.	Vekapata doraseta tala. Kisi veka, sona tiri retrodor: altasona kiti, sonaveka kisi, sonatala niri.
+How much of the bent picture goes round again. High is where it stops being an echo and starts eating itself.	Kurvo veka koriri novtok tala. Alto vakori sonaecho, veka eni se.
+How much of the driver's movement the picture KEEPS. At zero it follows the driver frame by frame, which is a twitch. Wind it up and the motion accumulates, so the driver sculpts the picture over time and it holds the pose -- which is what puppetry means.	Veka GURI drivarana tala. 0 dopi framaporframa, esa kistira. Alti so tiriseta guri, drivara skulpi veka entoka so veka guri pata -- pupapata dop.
+How much of the picture's position on the output is used. A PIP on the left sounds on the left -- and it is a placement, not a pan: the far ear gets the delay and the head shadow too.	Veka senakaera patitala. PIP leva soni leva -- esa kaera, va pan: retrolisa tiri pentoka so kornira.
+How much of the tail is kept going while the cue is held. Long enough to hide the splice in room tone, short enough not to smear a rhythm in it.	Sonafina guri en halpena tala. Longo por klui karasona junara, kiso por vagasi sonabatara.
+How much room comes up under it, so the sound settles into the cut instead of being severed.	Karasona alta tala, sona hali en kita, va klukiti.
+How much the echo is distorted each pass. It compounds, so a little ripples and a lot melts the picture into itself.	Echo kurviseta tala por koritoka. Guri entoka, kiso ripa so alto flui veka en se.
+How much the material draws in towards each drip, so it runs as a thin neck with a heavier head.	Patamuna tiri en dripa tala, novi kisokola so alto kora.
+How often its settings are corrupted. Corrupted far enough it oscillates on its own -- loud, but it cannot run away.	Setaku vaksi tikatala. Alto vaksa novi autoseta -- alto soni, ma vapel ekkori.
+How quickly the picture springs back to rest once the driver stops pushing it. Only does anything when memory is up.	Veka novhalpeni zara pos drivara haliti tiri. Pati sola se guratala alto.
+How small a cut sets it off. With no picture it runs on a timer instead, and this is how often.	Kisokita neda por bati. Vaveka pati tokajana, se esa tikatala.
+How strongly the finished picture pushes the bend. Pair it with a picture effect whose LFO is set to Audio and the two drive each other.	Finveka kurvitira tala. Juni vekasetapata LFO Audio, dua seti unalo.
+LFO: density, speed, warp, turn, centrex, centrey, grey or hue	LFO: density, speed, warp, turn, centrex, centrey, grey alo hue
+Lift or cut, 12dB either way. The centre is flat, so a band that has just been added does nothing until this is moved.	Alti alo niri, 12dB dua doraku. Kora plani, novokana vapati to se seti.
+Light on the drips, as on something wet: a gloss where it faces the light, darker where it curls away.	Luma sur dripaku, aka dop: glosa lumadop, nira retroside.
+MASK SET: expected INVERT, X, Y, SCALE, ROTATION, FEATHER, GROW or OPACITY and a number	MASK SET: nedi INVERT, X, Y, SCALE, ROTATION, FEATHER, GROW alo OPACITY so numera
+MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> or OSC <address> [<n>], then CH <1-16> if not channel 1	MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> alo OSC <address> [<n>], pos CH <1-16> se va kana 1
+MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET or FEEDBACK	MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET alo FEEDBACK
+MULTIVIEW WINDOW <n>: expected a source, or SAFE/METER/LABEL ON|OFF	MULTIVIEW WINDOW <n>: nedi muna, alo SAFE/METER/LABEL ON|OFF
+Moves the direction of travel off the centre of frame, so the picture rushes past rather than straight at you.	Tiriseti tiradora ek vekakora, veka pasi tu latador, va rekti tu dop.
+N=new  Enter/P=previous  O=open saved  E=examples  L=learn  1-	N=nova  Enter/P=muna  O=fesi gura  E=miraku  L=lerni  1-
+NMOS: NOT registering - network is LOCAL ONLY (turn REMOTE ON to publish)	NMOS: VAGURIRETA - reta SEJANA SOLA (pati REMOTE ON por alaseni)
+OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <sender name>	OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <senawia hola>
+One knob for the whole balance: below the middle is darker, above it is brighter.	Una turnajana por tamseka: korkisa niro, koralta lumo.
+Original: the picture pulled onto the figure. Sand: the picture as grains that are thrown off the moving parts and pour into each new figure. Fluid: the picture under water on the plate, bent and lit by its standing waves.	Muno: veka tiri sur pata. Sandra: veka granaku tiri ek tirisepataku so flui en novpataku. Aka: veka en plata aka, kurvi so lumi en halripaku.
+PHONE LEVEL: removed -- a paired phone or the passphrase can do everything; BLACKOUT and RECORD are hold-to-fire on the phone	PHONE LEVEL: kito -- juno sonajana alo kluhola pel alapati; BLACKOUT so RECORD nedi halbati en sonajana
+PowerPoint could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)	PowerPoint vapel ekseni se gurapata (pel nedi autopati ponahola: Janasetaku > Guraklu so Sefaponi > Autopati)
+PowerPoint could not open the file (it gave up waiting for it). If it is in OneDrive, right-click it and choose Always keep on this device, then import it again	PowerPoint vapel fesi gurapata (haliti peni). Se en OneDrive, destra bati so piki Tamguri en se jana, novtok tiri
+Pulls the bright tones down without moving pure white, so a hot highlight rolls off instead of clipping.	Niri lumosonaku, guri tamvaila, alto lumara plani va kiti.
+Rotates the reading, so straight lines wind into spirals rather than rings.	Turni miradora, rektorana koriri spiraku, va ringaku.
+Rows lose sync and repeat one character, the way a real text screen breaks up. At 0 the grid is clean.	Ranaku vatokajuni so velihola una, holavekafena vaksadop. 0 vekareta klino.
+SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, LINEAR, PERSPECTIVE or NAME	SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, LINEAR, PERSPECTIVE alo NAME
+SLICE CORNER: TL, TR, BR or BL, then dx dy in percent of the output	SLICE CORNER: TL, TR, BR alo BL, pos dx dy en senadora %
+SLICE EDGE: L, R, T or B, then 0-50 (% of the slice)	SLICE EDGE: L, R, T alo B, pos 0-50 (% en kispata)
+SLICE GRID POINT: col row (from 1, on a grid that is on) then dx dy in percent	SLICE GRID POINT: col row (muna 1, en lumo vekareta) pos dx dy en %
+SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF, or POINT col row dx dy	SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF, alo POINT col row dx dy
+SLICE LFO: X, Y, ROTATION or OPACITY, then ON, OFF, SHAPE, RATE, DEPTH...	SLICE LFO: X, Y, ROTATION alo OPACITY, pos ON, OFF, SHAPE, RATE, DEPTH...
+SLICE ROTATE: IN (the crop) or OUT (the placed picture), then degrees	SLICE ROTATE: IN (kitveka) alo OUT (lanveka), pos turnumaku
+Scanlines, bloom and gun misalignment, 0-1 (supports + - * / and ())	Scanranaku, lumalata so lumasenavajuni, 0-1 (peli + - * / so ())
+Something near the deck: a phone's buzz, a light dimmer's herringbone, a radio's slow bars.	Pata peri deka: sonajana buza, lumajana ranaku, radiosona zarakisku.
+Takes out everything brighter than this as well. Left takes out nothing.	Kiti ala lumo sur se. Leva kiti vana.
+Takes out everything darker than this, so what lies beneath shows through. Left takes out nothing.	Kiti ala niro sub se, subveka miri. Leva kiti vana.
+Tape speed: SP is the best picture, LP and EP fit more on a tape and lose detail and colour.	Vekatapa zara: SP esa bono veka, LP so EP guri alto en tapa so kiti vekakisa so lumaseta.
+The brightness that stays put. Everything above it reaches one way and everything below it the other.	Luma hali se. Surpata tiri una dor, subpata tiri alo dor.
+The character of the growth: low is waves, then labyrinth, coral, worms, and holes at the top.	Novpatara: kiso ripaku, pos labraku, koralaku, wormaku so alta hulaku.
+The colour it becomes. Shading and brightness stay as they were, so a red shirt turns blue and keeps its folds.	Novlumaseta. Nirana so luma guri se, firo vestara zulseti so gurifalda.
+The distance that sits ON the screen. Either side of it comes forward or falls behind.	Dora EN vekadeka. Duasida tiri muna alo retrodor.
+The frequency it pivots around -- what counts as 'low' and 'high' for the tilt.	Sonazara kor se turni -- nira so alta por tilta.
+The level below which the source is closed. Set it under the quietest thing you want to hear.	Subtala klui muna. Seti sub kiso sonapata tu nedi lisi.
+The level it starts working at. Lower catches more of the performance.	Patamunatala. Kiso piki alto sonaveka.
+The plugin's first four automatable controls, in its own order. Everything else it has keeps whatever the plugin was left set to.	Plugin muna kwara autosetabataku en se rana. Alopata guri plugin finsetaku.
+Tints the two directions apart, so light bending one way and the other are different colours instead of both being grey.	Duadoraku lumaseti paro, radoraku kurvi alalumaku, va duagreyo.
+Turns the strokes across the grain instead of along it, which combs the picture apart rather than smoothing it.	Turni granaranaku kros, va granadop, veka parakami, va plani.
+Turns the whole arrangement, so the fold lines do not sit on the same part of the picture all night.	Turni tamvekapatra, faldranaku vatamhali una vekakae en tamnirotoka.
+VIDEO OUTPUT ASSIGN: already on this output, or no such deck or output	VIDEO OUTPUT ASSIGN: se senadora muna, alo vana se deka alo senadora
+VIDEO OUTPUT LAYER: this deck is not on this output, or it is already at that layer	VIDEO OUTPUT LAYER: se deka va en se senadora, alo una lanakae muna
+VIDEO OUTPUT LAYERWARP MODE: linear or perspective	VIDEO OUTPUT LAYERWARP MODE: linear alo perspective
+VIDEO OUTPUT LAYERWARP: expected OFF, MODE, or eight numbers clockwise from the top left	VIDEO OUTPUT LAYERWARP: nedi OFF, MODE, alo 8 numeraku tokaturnador ek altalevakorna
+VIDEO OUTPUT UNASSIGN: this deck is not on this output, or it is the only thing on it	VIDEO OUTPUT UNASSIGN: se deka va en se senadora, alo se esa sola pata
+WARP SELECT: expected TL, TR, BR, BL or a grid <col> <row>	WARP SELECT: nedi TL, TR, BR, BL alo vekareta <col> <row>
+WEBMONITOR PIN: network sharing and phone control require 8 or more characters	WEBMONITOR PIN: retajuni so sonajanaseta nedi 8 alo alto holaku
+WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (sound is included)	WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (sona juno)
+Where highlights fold back through black. Low folds most of the picture, high folds only the brightest.	Lumapataku foldi en nira kae. Kiso foldi alta veka, alto sola lumopata.
+Where the band sits, 30Hz to 16kHz across the travel.	Kanakae, 30Hz to 16kHz en tamtiradora.
+Where the fold sits: the middle at the left, toward the far edge to the right. Flips have no fold.	Faldakae: kora leva, fararana destra. Veliturnaku va falda.
+Where the light stands, in degrees around the frame.	Lumakae, turnumaku kor veka.
+Where the source sits around the listener, all the way round. For headphones -- it is a timing and shading trick, not a pan.	Munakae kor lisawia, tamkora. Por lisajanaku -- tokaseta so niraseta, va pan.
+Where the top ends, 200Hz to 20kHz. Pull it down to take the harshness off a bright source.	Altasonafina, 200Hz to 20kHz. Niri por kiti hardsona.
+Which channel the curve acts on: all three, then red, green or blue on its own -- the way a colourist warms or cools one end of the picture.	Kurvarana kana: tria, pos fira, vera alo zula sola -- lumasetawia firi alo izri vekarana dop.
+Which way the knife edge lies. Only gradients ACROSS the edge show, so turning it swaps which features appear and which vanish.	Knirana dora. Sola KROS lumasetaku miri, turni so piki alovekapataku.
+Which way the streak runs: across at the left, upright in the middle, across again at the right.	Ranadora: lato leva, alto kora, novlato destra.
+Widens the decision into a ramp, so edges keep their shape instead of jagging.	Lati pikaseka en rampra, vekaranaku guri pata, va jagra.
+Words to surface in the field, separated by | . One shows at a time, moving on the hold clock.	Holaku en vekakae, pari via | . Una miri entok, seti en haltoka.
+Zero is one noise value across all three channels, which reads as film. Higher gives each channel its own, which reads as video.	0 esa una zasonanumera en tria kanaku, filmveka dop. Alto novi alo zasona por ala kana, retaveka dop.
+a plugin overran the audio thread and was bypassed — take it out of the chain	Plugin vakisitoki sonapata so vakori -- kiti ek kanarata
+a video cue's duration comes from its file; still duration applies to stills, patterns and browsers	Vekamuna longa ek gurapata; halvekata por halvekaku, pataku so retamiraku
+couldn't decode still image — unsupported format or corrupt file	Vapel miri halveka -- vaponopatra alo vakso gurapata
+did not finish in 3 minutes. It may be waiting on a prompt it cannot show (Protected View, sign-in, a repair). Open the deck there once, or export it as a PDF and import that	Vafini en 3 kistokaku. Pel peni kluhola vapel veki (guramiro, janaklufesi, patanovi). Fesi veka en se una, alo ekseni PDF so tiri se
+forget my defaults? only NEW changes, this show keeps its settings: press again	Vaguri mi munasetaku? Sola NEW seti, se veka guri setaku: novbati
+key+fill ON, but no key device set (DECKLINK KEYFILL ON <device>)	key+fill ON, ma vana key jana (DECKLINK KEYFILL ON <device>)
+label | command | glyph      (empty label|command removes it)	hola | patakora | marka      (vahola hola|patakora kiti se)
+my defaults forgotten: NEW starts from factory settings, this show is unchanged	Mi munasetaku vaguro: NEW pati janamunasetaku, se veka vaguriseti
+no filled shapes in it (paths, rectangles, circles, ellipses or polygons)	Vana fulopataku en se (doraku, rektaku, ringaku, ovalaku alo multiranaku)
+notestep: this cue's notes have no builds (separate them with a line of ---)	notestep: se munaholaku va novpataku (pari via rana ---)
+opened github.com in your browser -- nothing is sent until you submit the report there	Fesi github.com en tu retamira -- vana seni to tu graiseni en se
+presenter panel: expected <live|prev|next|notes> <x> <y> <w> <h> in percent	presenter panel: nedi <live|prev|next|notes> <x> <y> <w> <h> en %
+presenter panel: the panel must fit on the screen (x+w and y+h no more than 100)	presenter panel: patra nedi hali en vekadeka (x+w so y+h 100 alo kiso)
+preset: delivery | proxy | match | datamosh	preset: piki delivery | proxy | match | datamosh
+saved as my defaults: NEW starts like this show, without the cues	Guri mi munasetaku: NEW muni se vekadop, va vekamunaku
+splitnotes: that cue's notes have no parts (separate them with a line of ---)	splitnotes: se munaholaku va parapataku (pari via rana ---)
+the clicker now spends note builds before advancing	Batjana pati novholapataku muna vekanovi
+this file is only in OneDrive, and OneDrive is not running. Start OneDrive, or copy the file to this computer, then import it again	Se gurapata en OneDrive sola, OneDrive vapati. Muni OneDrive, alo veliti gurapata se jana, pos novtiri
+this presentation needs a password to open. Remove the password in PowerPoint (File > Info > Protect Presentation) or export it as a PDF, then import that	Se vekapatra nedi kluhola por fesi. Kiti kluhola en PowerPoint (Gurapata > Korahola > Guraklui vekapatra) alo ekseni PDF, pos tiri se
+warp grid: expected <n>, <cols> <rows>, off, smooth or straight	warp grid: nedi <n>, <cols> <rows>, off, smooth alo straight
+warp point: that is a corner -- move it with WARP <corner> dx dy	warp point: se esa korna -- tiriseti via WARP <corner> dx dy
+window capture fell back to screen grab — update ffmpeg for exact window capture	Fenamira pati tamvekadekamira -- novseti FFmpeg por rektfenamira

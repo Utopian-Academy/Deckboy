@@ -3243,3 +3243,1102 @@ whole picture	toàn ảnh
 FX CHOICE: choice must be A or B	FX CHOICE: lựa chọn phải là A hoặc B
 FX CHOICE: no effect at that index	FX CHOICE: không có hiệu ứng ở mục lục đó
 FX LFO: slot is A-D for the parameters, E for the amount, F and G for the fifth and sixth (or 0-6)	FX LFO: slot là A-D cho các tham số, E cho mức, F và G cho thứ năm và thứ sáu (hoặc 0-6)
+angle	góc
+Attack	Khởi âm
+attack	khởi âm
+Audio bitrate	Tốc độ bit âm thanh
+Audio reactivity	Phản ứng âm thanh
+azimuth	phương vị
+Bands	Dải
+bands	dải
+base layer	lớp nền
+BITRATE	TỐC ĐỘ BIT
+bits	bit
+black point	điểm đen
+bleed	lem
+Blobs	Mảng
+block glitch	lỗi khối
+block size	cỡ khối
+blocks	khối
+blur	làm mờ
+BOTH	CẢ HAI
+bright	sáng
+Brush opacity	Độ đục cọ
+Brush size	Cỡ cọ
+buzzer	còi
+by brightness	theo độ sáng
+cancelled	đã hủy
+Canvas Height	Cao khung vẽ
+Canvas View	Xem khung vẽ
+Canvas Width	Rộng khung vẽ
+catch	bắt
+caustics	tụ quang
+Centre X	Tâm X
+Centre Y	Tâm Y
+channel skew	lệch kênh
+channel spread	giãn kênh
+character	ký tự
+chop	chặt
+CLASSIC	CỔ ĐIỂN
+CLOCK	ĐỒNG HỒ
+coherence	đồng pha
+colour bleed	lem màu
+colour drift	trôi màu
+colour lag	trễ màu
+colour replace	thay màu
+columns	cột
+control 1	điều khiển 1
+control 2	điều khiển 2
+control 3	điều khiển 3
+control 4	điều khiển 4
+Control change	Đổi điều khiển
+convergence	hội tụ
+copies	bản sao
+corrupt	hỏng
+corruption	hư hỏng
+coupling	ghép
+crystallise	kết tinh
+Cue Notes	Ghi chú cue
+curl detail	chi tiết xoáy
+curves	đường cong
+Custom Glyphs	Ký tự riêng
+cut bright	ngưỡng sáng
+cut dark	ngưỡng tối
+cut reset	đặt lại khi cắt
+cutoff	ngưỡng cắt
+cuts	nhát cắt
+cyan	lam lục
+damage	hư hại
+damping	giảm chấn
+dark	tối
+darkness	độ tối
+deck age	tuổi máy băng
+Density	Mật độ
+depth	độ sâu
+depth split	tách độ sâu
+Destination Address	Địa chỉ đích
+Destination UDP port	Cổng UDP đích
+Detail	Chi tiết
+diamond	hình thoi
+distance	khoảng cách
+DMX Channels	Kênh DMX
+dots move	chấm di chuyển
+Draw colour	Màu vẽ
+drift	trôi
+drip	nhỏ giọt
+drips	giọt chảy
+drive	độ kích
+edges	cạnh
+empty	trống
+extended	mở rộng
+EXTREME	CỰC ĐỘ
+facet light	ánh mặt tinh thể
+falloff	suy giảm
+falsecolour	màu giả
+feed rate	tốc độ cấp
+Feedback zoom	Thu phóng hồi tiếp
+field of view	góc nhìn
+Fixture address	Địa chỉ đèn
+Fixture name	Tên đèn
+Fixture universe	Universe đèn
+flash length	độ dài chớp
+flash to	chớp sang
+flicker	nhấp nháy
+Flipbook rate	Tốc độ lật hình
+floor	mức sàn
+Flow	Dòng chảy
+flow	dòng chảy
+focus	tiêu điểm
+fold	gập
+fold point	điểm gập
+frames	khung hình
+Frequency	Tần số
+frequency	tần số
+gap	khe hở
+gather	tụ lại
+Glitch	Nhiễu lỗi
+glow	tỏa sáng
+glyph set	bộ ký tự
+gong	cồng
+grain	hạt
+grain flow	dòng hạt
+grain size	cỡ hạt
+green split	tách lục
+Grey	Xám
+grid	lưới
+growl	gầm
+growth	tăng trưởng
+head wear	mòn đầu từ
+heat	nhiệt
+Height	Chiều cao
+Height (px)	Chiều cao (px)
+highlight roll	cuộn vùng sáng
+histogram	biểu đồ mức
+horizontal	ngang
+ice	băng
+ink	mực
+interference	giao thoa
+irregularity	bất quy tắc
+jump	nhảy
+just	thuần luật
+kaleido	kính vạn hoa
+kaleidoscope	kính vạn hoa
+Key Color	Màu khóa
+Keyframe interval	Chu kỳ khung chính
+knee	đầu gối
+knife angle	góc dao
+leak	rò
+let go	nhả
+lift	nâng
+light	ánh sáng
+light angle	góc sáng
+lightspeed	tốc độ ánh sáng
+line colour	màu đường
+line glow	hào quang đường
+Live Browser	Trình duyệt trực tiếp
+Live Source	Nguồn trực tiếp
+LOAD NEXT	NẠP TIẾP
+Lower Third - subtitle	Lower Third - phụ đề
+Lower Third - title	Lower Third - tiêu đề
+Lower Third Subtext	Chữ phụ Lower Third
+Lower Third Title	Tiêu đề Lower Third
+luma displace	dịch theo độ chói
+luma key	khóa độ chói
+Mask opacity	Độ đục mặt nạ
+Mask rotation	Xoay mặt nạ
+Mask scale	Tỷ lệ mặt nạ
+Mask X	Mặt nạ X
+Mask Y	Mặt nạ Y
+material	vật liệu
+meantone	trung bình âm
+Media	Nội dung
+Melt	Tan chảy
+melt	tan chảy
+memory	bộ nhớ
+midtones	tông trung
+Mod depth	Độ sâu điều chế
+Mod ratio	Tỷ số điều chế
+moire	vân giao thoa
+mono	đơn âm
+MONO L	ĐƠN ÂM T
+MONO R	ĐƠN ÂM P
+mosaic	khảm
+motion mosh	lỗi chuyển động
+motion puppet	rối chuyển động
+motion trails	vệt chuyển động
+MSC Cue Number	Số cue MSC
+music & sparkle	nhạc & lấp lánh
+NDI Key Name	Tên khóa NDI
+NDI Name	Tên NDI
+NDI Source Name	Tên nguồn NDI
+NEXT	TIẾP
+night eyes	mắt đêm
+NMC Port	Cổng NMC
+NMC Source	Nguồn NMC
+NMC Target	Đích NMC
+NMOS Interface Name	Tên giao diện NMOS
+NMOS Node Port	Cổng nút NMOS
+NMOS Registry	Sổ đăng ký NMOS
+noise	nhiễu
+not connected	chưa kết nối
+Note	Nốt
+Note off	Tắt nốt
+Note on	Bật nốt
+off-axis	lệch trục
+offline	ngoại tuyến
+orbit speed	tốc độ quỹ đạo
+OSC Address	Địa chỉ OSC
+Output Alpha	Alpha đầu ra
+Output Canvas	Khung đầu ra
+Output Delay	Trễ đầu ra
+output fault	lỗi đầu ra
+Output name	Tên đầu ra
+Output Refresh	Tần số quét đầu ra
+overflow	tràn
+own playlist	playlist của mình
+parade	biểu đồ kênh
+parallax	thị sai
+Payload	Dữ liệu gửi
+Percent 0-100	Phần trăm 0-100
+phone	điện thoại
+Phrases	Cụm từ
+pinch	bóp
+pink noise	nhiễu hồng
+PIP Target Cue	Cue đích PIP
+pitch	cao độ
+pivot	tâm xoay
+Pixel density	Mật độ điểm ảnh
+pixel sort	xếp điểm ảnh
+plasma	plát-ma
+Playlist Start TC	TC đầu playlist
+Playlist Timebase	Cơ sở giờ playlist
+Plugin	Trình cắm
+polar warp	biến dạng cực
+Portal	Cổng không gian
+posterise	phân bậc màu
+Practice show	Show tập luyện
+PREVIOUS	TRƯỚC
+Program change	Đổi chương trình
+Prompter script	Kịch bản nhắc chữ
+pulse 25%	xung 25%
+QUALITY	CHẤT LƯỢNG
+radial zoom	phóng xuyên tâm
+radio	ra-đi-ô
+radius	bán kính
+ramp	dốc
+range	phạm vi
+ratio	tỷ số
+Raw bytes	Byte thô
+Raw MIDI Bytes	Byte MIDI thô
+reach	tầm
+recordings	bản ghi
+recovering	đang phục hồi
+refresh	làm mới
+Release	Nhả âm
+release	nhả âm
+relief	phù điêu
+relight	chiếu sáng lại
+Rename cue	Đổi tên cue
+Rename fixture	Đổi tên đèn
+Renumber Cues	Đánh lại số cue
+repeat width	độ rộng lặp
+Replay hold	Giữ phát lại
+resonance	cộng hưởng
+Retrigger	Kích lại
+reverse	đảo ngược
+rgb split	tách rgb
+Rim	Viền
+rings	vòng
+ripple	gợn
+rising	tăng
+rod bias	thiên tế bào que
+room	phòng
+rot	mục
+Rotation	Xoay
+rotation	xoay
+round	tròn
+sag	võng
+saw	răng cưa
+scanlines	dòng quét
+scope	máy đo
+SCOPES	MÁY ĐO
+second mode	chế độ thứ hai
+see through	nhìn xuyên
+seed density	mật độ hạt giống
+self	bản thân
+settle	lắng
+shadow lift	nâng vùng tối
+shake	rung
+shard size	cỡ mảnh
+sharpen	làm nét
+sheen	óng
+sideways	sang bên
+slit scan	quét khe
+slit width	rộng khe
+Smear	Nhòe
+smear	nhòe
+softness	độ mềm
+solarise	đảo sáng
+spike count	số gai
+spike length	độ dài gai
+spin	quay
+spinning	đang quay
+spring	lò xo
+sprite sheet	bảng sprite
+Sprite spin	Xoay sprite
+square	vuông
+SRT latency	Độ trễ SRT
+SRT passphrase	Mật khẩu SRT
+SRT stream ID	ID luồng SRT
+Step length	Độ dài bước
+steps	bước
+stereogram	ảnh nổi
+stiffness	độ cứng
+sting	nhạc điểm
+strength	cường độ
+strobe	chớp
+stroke	nét vẽ
+SUBTLE	NHẸ
+sway	lắc lư
+sweep	quét
+sweep speed	tốc độ quét
+swell speed	tốc độ sóng
+symbols	ký hiệu
+system default	mặc định hệ thống
+system output	đầu ra hệ thống
+tape	băng
+tape age	tuổi băng
+tear width	rộng vệt xé
+temporal dither	nhiễu theo thời gian
+test signal	tín hiệu thử
+text to send	văn bản gửi
+threshold	ngưỡng
+throw	độ văng
+tile size	cỡ ô
+tilt	nghiêng
+time	thời gian
+time cube	khối thời gian
+Timer Message	Thông báo hẹn giờ
+tint	sắc phủ
+tint colour	màu phủ
+tracking	bám vệt
+trail	vệt
+transparent	trong suốt
+triangle	tam giác
+triple beep	ba tiếng bíp
+Turn	Xoay
+turn	xoay
+Twist	Vặn
+twist	vặn
+unavailable	không khả dụng
+vapor	hơi
+vector	véc-tơ
+vertical	dọc
+vertical bias	thiên dọc
+vibrato	rung âm
+Video bitrate	Tốc độ bit video
+Video dip fade	Mờ video qua đen
+vignette	tối góc
+wash out	bạc màu
+wave height	độ cao sóng
+wavefront	mặt sóng
+way	hướng
+wedges	hình nêm
+white	trắng
+white noise	nhiễu trắng
+white point	điểm trắng
+wire	dây
+Zoom	Thu phóng
+zoom	thu phóng
+(choose cue)	(chọn cue)
+(missing)	(thiếu)
+(no slots)	(không có ô)
+(set media file)	(đặt tệp nội dung)
+(set url)	(đặt url)
+A number	Một số
+A number, or blank for none	Một số, hoặc để trống nếu không có
+additive	cộng
+alternating	luân phiên
+amber	hổ phách
+Add Browser Cue	Thêm cue trình duyệt
+Add NDI Source Cue	Thêm cue nguồn NDI
+Add Stream Cue	Thêm cue luồng
+Art-Net Destination	Đích Art-Net
+ASCII 95 (density)	ASCII 95 (mật độ)
+ASCII 95 (raw)	ASCII 95 (thô)
+ASIO is off	ASIO đang tắt
+ATEM Input	Đầu vào ATEM
+Attach Lower Third	Gắn Lower Third
+Attach PIP Overlay	Gắn lớp phủ PIP
+AUTO	TỰ ĐỘNG
+auto (59.94 Hz)	tự động (59.94 Hz)
+band curve	độ cong dải
+Browser Ready	Trình duyệt sẵn sàng
+built without ASIO support	bản dựng không hỗ trợ ASIO
+built without NDI SDK headers	bản dựng không có header NDI SDK
+Companion/OSC Port	Cổng Companion/OSC
+could not reach github	không thể kết nối github
+could not read the PDF	không thể đọc PDF
+could not start ffmpeg	không thể khởi động ffmpeg
+could not start the PDF renderer	không thể khởi động bộ kết xuất PDF
+could not write the export script	không thể ghi kịch bản xuất
+couldn't open explorer	không mở được explorer
+couldn't open file manager	không mở được trình quản lý tệp
+couldn't open finder	không mở được finder
+Cue Goto	Đến cue
+GOTO Cue	ĐẾN cue
+Custom Output Raster	Raster đầu ra riêng
+DECODE --.-	GIẢI MÃ --.-
+DECODE OFF	GIẢI MÃ TẮT
+DECODE WARM	GIẢI MÃ CHỜ
+Default Cue Fade	Mờ cue mặc định
+Default Non-Movie Duration	Thời lượng mặc định ngoài phim
+display native	gốc màn hình
+Display none	Không màn hình
+driver refused to start	trình điều khiển từ chối khởi động
+empty expression	biểu thức trống
+export as .png or .svg	xuất thành .png hoặc .svg
+ffmpeg made no file	ffmpeg không tạo tệp
+ffmpeg stopped taking frames	ffmpeg ngừng nhận khung hình
+Find Cue	Tìm cue
+Find+Take Cue	Tìm+TAKE cue
+Fire at a time of day	Kích theo giờ trong ngày
+Fire at incoming timecode	Kích theo timecode đến
+Fire on a MIDI note	Kích bằng nốt MIDI
+Fire on an OSC address	Kích bằng địa chỉ OSC
+First channel (1-512)	Kênh đầu (1-512)
+flow (follows the picture)	dòng chảy (theo hình)
+hh:mm:ss or seconds	hh:mm:ss hoặc giây
+Its name, number or id	Tên, số hoặc id của nó
+LibreOffice could not be run	Không chạy được LibreOffice
+LibreOffice produced no PDF	LibreOffice không tạo PDF
+macOS could not read the PDF	macOS không đọc được PDF
+Name visible to receivers	Tên hiển thị với bộ nhận
+no colour	không màu
+no driver named	không có trình điều khiển tên
+no mask made	chưa tạo mặt nạ
+no pages could be rendered	không kết xuất được trang nào
+no release found	không tìm thấy bản phát hành
+not on this output	không ở đầu ra này
+not while a cue is playing	không thể khi cue đang phát
+nothing drawn	chưa vẽ gì
+opened in explorer	đã mở trong explorer
+opened in file manager	đã mở trong trình quản lý tệp
+paste your stream key here	dán khóa luồng vào đây
+pdftoppm produced no pages	pdftoppm không tạo trang nào
+PowerPoint could not export this file	PowerPoint không xuất được tệp này
+revealed in finder	đã hiện trong finder
+runtime unavailable	không có bộ thực thi
+size out of range	kích thước ngoài phạm vi
+Source Ready	Nguồn sẵn sàng
+Spout Sender Name	Tên bộ gửi Spout
+Stream URL	URL luồng
+stream restart needed	cần khởi động lại luồng
+stream write failed	ghi luồng thất bại
+target cue is gone	cue đích không còn
+targets nothing	không có đích
+the document has no pages	tài liệu không có trang
+the file is empty	tệp trống
+the header is truncated	header bị cắt cụt
+the NDI runtime is not installed	chưa cài bộ thực thi NDI
+the PDF renderer produced no pages	bộ kết xuất PDF không tạo trang nào
+the show plays through ASIO	show phát qua ASIO
+URL or local page path	URL hoặc đường dẫn trang cục bộ
+What it runs	Lệnh chạy
+Which cue	Cue nào
+window hidden	cửa sổ bị ẩn
+window minimized	cửa sổ thu nhỏ
+wrong display	sai màn hình
+0-1 (supports + - * / and ())	0-1 (hỗ trợ + - * / và ())
+0-100% (supports + - * / and ())	0-100% (hỗ trợ + - * / và ())
+%, 1 to 100 (supports + - * / and ())	%, 1 đến 100 (hỗ trợ + - * / và ())
+Amount 0-100% (supports + - * / and ())	Mức 0-100% (hỗ trợ + - * / và ())
+Degrees -180..180 (supports + - * / and ())	Độ -180..180 (hỗ trợ + - * / và ())
+Degrees, -360 to 360 (supports + - * / and ())	Độ, -360 đến 360 (hỗ trợ + - * / và ())
+Degrees, 0-360 (supports + - * / and ())	Độ, 0-360 (hỗ trợ + - * / và ())
+Pixels (supports + - * / and ())	Điểm ảnh (hỗ trợ + - * / và ())
+Hertz, 20-20000 (supports + - * / and ())	Hertz, 20-20000 (hỗ trợ + - * / và ())
+Colour steps, 2-8 (supports + - * / and ())	Bậc màu, 2-8 (hỗ trợ + - * / và ())
+Frames a second, 1 to 60 (supports + - * / and ())	Khung hình mỗi giây, 1 đến 60 (hỗ trợ + - * / và ())
+Seconds (0-30)	Giây (0-30)
+Milliseconds 0-5000	Mili giây 0-5000
+milliseconds (40..2000)	mili giây (40..2000)
+Universe (0-63999)	Vũ trụ (0-63999)
+X,Y offset in pixels	Độ lệch X,Y theo điểm ảnh
+#rrggbb -- the colour of the presenter screen	#rrggbb -- màu của màn hình thuyết trình
+#rrggbb, or a name (red, teal...)	#rrggbb, hoặc tên màu (đỏ, xanh ngọc...)
+% of the picture's height, 0.1 to 20 (supports + - * / and ())	% chiều cao hình, 0.1 đến 20 (hỗ trợ + - * / và ())
+-3 to 3: 0 holds, negative runs backwards (supports + - * / and ())	-3 đến 3: 0 giữ nguyên, số âm chạy ngược (hỗ trợ + - * / và ())
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono (supports + - * / and ())	0 cổ điển, 1 lửa, 2 băng, 3 neon, 4 đơn sắc (hỗ trợ + - * / và ())
+0 flows ALONG the edges, so colour orbits the shapes. 1 flows across them, which bleeds the picture into itself.	0 chảy DỌC các cạnh, màu quay quanh các hình. 1 chảy ngang qua cạnh, làm hình tự lem vào chính nó.
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono (supports + - * / and ())	0 cầu vồng + xám, 1 cầu vồng, 2 giao diện, 3 đơn sắc (hỗ trợ + - * / và ())
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear (supports + - * / and ())	0 vùng, 1 đôi, 2 dòng chảy, 3 yên ngựa, 4 gợn, 5 trượt (hỗ trợ + - * / và ())
+0-100%, left to right (supports + - * / and ())	0-100%, trái sang phải (hỗ trợ + - * / và ())
+0-100%, top to bottom (supports + - * / and ())	0-100%, trên xuống dưới (hỗ trợ + - * / và ())
+0-100%: 0 holds the field still (supports + - * / and ())	0-100%: 0 giữ trường đứng yên (hỗ trợ + - * / và ())
+0-100%: 50 is 1x, 0 a quarter, 100 four times (supports + - * / and ())	0-100%: 50 là 1x, 0 là một phần tư, 100 là bốn lần (hỗ trợ + - * / và ())
+0-100%: how far the field bends (supports + - * / and ())	0-100%: mức uốn của trường (hỗ trợ + - * / và ())
+0-100%: the share of each band drawn as grey stripes (supports + - * / and ())	0-100%: phần của mỗi dải vẽ thành sọc xám (hỗ trợ + - * / và ())
+0-127; 127 is all-call	0-127; 127 gọi tất cả
+0-127; the domain the facility's clock runs on	0-127; miền hoạt động của đồng hồ tại cơ sở
+10-79 characters, or empty for none	10-79 ký tự, hoặc để trống nếu không dùng
+8 zones already: click one to remove it first	đã có 8 vùng: nhấp một vùng để xóa trước
+8+ characters; letters and symbols are allowed	8+ ký tự; cho phép chữ cái và ký hiệu
+8+ characters; other machines send AUTH <passphrase> first. Empty = off	8+ ký tự; máy khác gửi AUTH <passphrase> trước. Trống = tắt
+A command line, as a DASH button runs it. {value} is the knob's number, {note} the key.	Một dòng lệnh, như lệnh nút DASH chạy. {value} là số của núm, {note} là phím.
+A command line, or blank for nothing	Một dòng lệnh, hoặc để trống để không làm gì
+A dark line between the tiles, like grout or an LED wall.	Đường tối giữa các ô, như mạch vữa hoặc tường LED.
+a name for this step	tên cho bước này
+a note number 0-127, LEARN to take the next note played, or empty for none	số nốt 0-127, LEARN để nhận nốt được chơi tiếp theo, hoặc để trống nếu không dùng
+a playlist that is gone	playlist không còn tồn tại
+a plugin overran the audio thread and was bypassed — take it out of the chain	một trình cắm vượt thời gian luồng âm thanh nên đã bị bỏ qua — hãy gỡ nó khỏi chuỗi
+A slow rocking of the viewpoint, which is what makes the depth read without glasses.	Góc nhìn đung đưa chậm, giúp thấy chiều sâu mà không cần kính.
+A slow sag in the supply, pulling the filter up and down like a dying battery.	Nguồn điện sụt chậm, kéo bộ lọc lên xuống như pin sắp cạn.
+a step cannot fire the playlist it lives on	một bước không thể kích playlist chứa nó
+a target cannot target another target	một đích không thể nhắm vào đích khác
+a video cue's duration comes from its file; still duration applies to stills, patterns and browsers	thời lượng cue video lấy từ tệp; thời lượng ảnh tĩnh áp dụng cho ảnh, mẫu và trình duyệt
+A worn or dirty head: softer, with noise that streaks along the lines.	Đầu từ mòn hoặc bẩn: hình mềm hơn, nhiễu kéo thành vệt dọc dòng quét.
+Above halfway, a hard cut in the picture resets the loop to clean.	Trên nửa mức, một lần cắt hình đột ngột sẽ đặt lại vòng lặp về trạng thái sạch.
+Above halfway, the repeated piece plays backwards.	Trên nửa mức, đoạn lặp phát ngược.
+across the grain	ngang thớ hạt
+Across, % of the width, -100 to 100 (supports + - * / and ())	Ngang, % chiều rộng, -100 đến 100 (hỗ trợ + - * / và ())
+add an output to scope it	thêm đầu ra để đo tín hiệu
+an ASIO stream is already open	đã có luồng ASIO đang mở
+an IPv4 address, or 255.255.255.255 to broadcast	địa chỉ IPv4, hoặc 255.255.255.255 để quảng bá
+An old deck: the picture wobbles, bends at the top of the frame and carries hum bars.	Máy băng cũ: hình lắc, cong ở đầu khung và có các dải nhiễu ù.
+An old tape loses bits of its oxide: dropouts flick white and repeat the line above, and the colour fizzes.	Băng cũ mất dần lớp ôxit: mất tín hiệu nháy trắng và lặp dòng phía trên, màu bị nhiễu lốm đốm.
+another app is holding the pointer	ứng dụng khác đang giữ con trỏ
+Apple keeps the Keynote format secret on purpose, a malicious lock-in tactic, so only Apple's own software can read it properly. Best route: open it in Keynote on iCloud.com (free, in any browser), choose Download a Copy > PDF, and import that PDF	Apple cố tình giữ bí mật định dạng Keynote, một thủ đoạn khóa chặt người dùng độc ác, nên chỉ phần mềm của Apple mới đọc đúng được. Cách tốt nhất: mở bằng Keynote trên iCloud.com (miễn phí, trong mọi trình duyệt), chọn Download a Copy > PDF, rồi nhập PDF đó
+ASCII HOLD: seconds, 0-60 (0 mutes the phrases)	ASCII HOLD: giây, 0-60 (0 tắt các cụm từ)
+ASCII WOBBLEMODE: drift | flow (follows luma) | hue (follows colour); no argument cycles	ASCII WOBBLEMODE: drift | flow (theo độ chói) | hue (theo màu); không có đối số thì chuyển lần lượt
+ASCII: the selected cue has no text mode (add the TEXT MODE effect, or select a video synth cue)	ASCII: cue đã chọn không có chế độ chữ (thêm hiệu ứng TEXT MODE, hoặc chọn cue tổng hợp video)
+ASCII: use ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>	ASCII: dùng ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>
+atem tally on -- set which input Deckboy is	atem tally bật -- đặt đầu vào tương ứng với Deckboy
+AUDIOALSO ADD: seven extra destinations is the limit	AUDIOALSO ADD: giới hạn bảy đích bổ sung
+AUDIOALSO ADD: that is already this deck's main device -- it would play twice	AUDIOALSO ADD: đó đã là thiết bị chính của deck này -- âm thanh sẽ phát hai lần
+AUDIOALSO: expected ADD <name>, REMOVE <name> or CLEAR	AUDIOALSO: cần ADD <name>, REMOVE <name> hoặc CLEAR
+AUDIOFX PLUGIN: this build has no plugin host	AUDIOFX PLUGIN: bản dựng này không có bộ chạy trình cắm
+AUDIOFX: expected OFF, BYPASS, or amount and parameters as percentages	AUDIOFX: cần OFF, BYPASS, hoặc mức hiệu ứng và các tham số theo phần trăm
+audioprint	in âm thanh
+Below the middle narrows toward mono -- which is what a single PA cluster is. Above it widens.	Dưới giữa thu hẹp về đơn âm -- như một cụm loa PA đơn. Trên giữa mở rộng âm trường.
+Birth, drift and fade rate, 0.1-3 (supports + - * / and ())	Tốc độ sinh, trôi và tan, 0.1-3 (hỗ trợ + - * / và ())
+BLEND PAIR: expected <other output number> <overlap in pixels>	BLEND PAIR: cần <other output number> <overlap in pixels>
+Block displacement and channel tearing, 0-1 (supports + - * / and ())	Dịch khối và xé kênh, 0-1 (hỗ trợ + - * / và ())
+Blueshift toward the direction of travel and redshift at the rim. Zero leaves the colour alone and it reads as a lens instead.	Dịch xanh về hướng di chuyển và dịch đỏ ở viền. Mức không giữ nguyên màu, tạo cảm giác thấu kính.
+Bright: bright things drip over the dark, as text and logos do. Whole picture: everything is wax, and the picture itself runs down in its own colours.	Sáng: vùng sáng chảy trên vùng tối, như chữ và logo. Toàn hình: mọi thứ là sáp, hình tự chảy xuống với màu riêng.
+brightness moves the playhead (needs CPU frames)	độ sáng điều khiển đầu phát (cần khung hình CPU)
+BROWSER CLICK: this browser backend cannot drive the page	BROWSER CLICK: bộ trình duyệt này không điều khiển được trang
+browser connections at once, 1-64 (default 8)	kết nối trình duyệt đồng thời, 1-64 (mặc định 8)
+BROWSER INTERACT: this browser backend has no hands-on mode	BROWSER INTERACT: bộ trình duyệt này không có chế độ tương tác trực tiếp
+BROWSER KEY: expected Enter|Tab|Backspace|Escape	BROWSER KEY: cần Enter|Tab|Backspace|Escape
+BROWSER SCROLL: expected pixels (negative is up)	BROWSER SCROLL: cần số điểm ảnh (âm là lên)
+BROWSER SCROLL: this browser backend cannot drive the page	BROWSER SCROLL: bộ trình duyệt này không điều khiển được trang
+BROWSER SCROLLBAR: this browser backend cannot drive the page	BROWSER SCROLLBAR: bộ trình duyệt này không điều khiển được trang
+BROWSER TYPE: this browser backend cannot type	BROWSER TYPE: bộ trình duyệt này không nhập chữ được
+BUGSWAT: expected START, SHOWME, SKIP, PLAY, EXIT or STATUS	BUGSWAT: cần START, SHOWME, SKIP, PLAY, EXIT hoặc STATUS
+can't move the active cue -- take another cue on this deck first	không di chuyển được cue đang chạy -- TAKE cue khác trên deck này trước
+cancelled: the waiting cue is no longer in the playlist	đã hủy: cue chờ không còn trong playlist
+cannot read the file: if it lives in OneDrive or iCloud, open it once so it downloads, then import it	không đọc được tệp: nếu nằm trên OneDrive hoặc iCloud, hãy mở một lần để tải xuống, rồi nhập lại
+CAPTIONS LIVE: expected ON, OFF, STATUS or TEXT	CAPTIONS LIVE: cần ON, OFF, STATUS hoặc TEXT
+CAPTIONS SOURCE: expected INPUT, DECK <n> or OUTPUT <n>	CAPTIONS SOURCE: cần INPUT, DECK <n> hoặc OUTPUT <n>
+Centre is a straight line. Up bends it into an S -- darker shadows, brighter highlights, more contrast. Down flattens it.	Giữa là đường thẳng. Tăng uốn thành chữ S -- bóng tối đậm hơn, vùng sáng sáng hơn, tương phản cao hơn. Giảm làm phẳng đường cong.
+centred and full-frame - moves when the picture does	căn giữa và toàn khung - di chuyển theo hình
+channel count must be at least 1	số kênh phải ít nhất là 1
+Characters across. Fewer means bigger cells and less of the picture surviving, which is usually the point.	Số ký tự ngang. Ít hơn tạo ô lớn hơn và giữ lại ít hình hơn, thường chính là điều mong muốn.
+Characters to build the picture from, darkest first. Empty uses the chosen glyph set.	Các ký tự để dựng hình, tối nhất trước. Để trống dùng bộ ký tự đã chọn.
+CHIP DUTY: this cue is an FDS synth, which has no duty	CHIP DUTY: cue này là bộ tổng hợp FDS, không có độ rộng xung
+CHIP ENV: expected <attack> <release> in seconds	CHIP ENV: cần <attack> <release> tính bằng giây
+CHIP NOISE: this cue is an FDS synth, which has no noise	CHIP NOISE: cue này là bộ tổng hợp FDS, không có nhiễu
+CHIP VOICE: this cue is an FDS synth, which has no voice	CHIP VOICE: cue này là bộ tổng hợp FDS, không có giọng
+Chladni listens: the figure follows the pitch of the sound	Chladni lắng nghe: hình thay đổi theo cao độ âm thanh
+click anywhere on any screen to take its colour. Esc cancels	nhấp bất kỳ đâu trên màn hình bất kỳ để lấy màu. Esc hủy
+click program or preview monitor to sample key color	nhấp màn hình PROGRAM hoặc xem trước để lấy màu khóa
+Colour is recorded at a fraction of the detail: it smears sideways, lands late and its hue wanders.	Màu được ghi với độ chi tiết thấp hơn: lem ngang, đến trễ và sắc độ trôi.
+comma outside a function call	dấu phẩy ngoài lời gọi hàm
+Copies of copies: none at the left, four at the right. Each one loses more.	Bản sao của bản sao: trái không có, phải có bốn. Mỗi bản mất thêm chi tiết.
+could not create an OpenGL context for Spout receive	không tạo được ngữ cảnh OpenGL để nhận Spout
+could not create the offscreen window Spout receive needs	không tạo được cửa sổ ngoài màn hình cần cho nhận Spout
+could not get a device context for Spout receive	không lấy được ngữ cảnh thiết bị để nhận Spout
+couldn't decode still image — unsupported format or corrupt file	không giải mã được ảnh tĩnh — định dạng không hỗ trợ hoặc tệp hỏng
+couldn't open a browser -- please report at github.com/Utopian-Academy/Deckboy/issues	không mở được trình duyệt -- vui lòng báo tại github.com/Utopian-Academy/Deckboy/issues
+Cue name (blank restores the file name)	Tên cue (để trống khôi phục tên tệp)
+Darkens the boundaries where crystals meet.	Làm tối ranh giới nơi các tinh thể gặp nhau.
+DASH SET: needs a command -- DASH SET <n> <label> | <command> [| <glyph>]	DASH SET: cần một lệnh -- DASH SET <n> <label> | <command> [| <glyph>]
+DATAMOSH on - preparing (long clip, watch Encoder tab)	DATAMOSH bật - đang chuẩn bị (clip dài, xem thẻ Bộ mã hóa)
+dBFS, -60 to 0 (-18 is EBU alignment) (supports + - * / and ())	dBFS, -60 đến 0 (-18 là mức chuẩn EBU) (hỗ trợ + - * / và ())
+DECKLINK: no DeckLink driver on this computer (Blackmagic Desktop Video)	DECKLINK: máy này không có trình điều khiển DeckLink (Blackmagic Desktop Video)
+Degrees per second, -720 to 720 (supports + - * / and ())	Độ mỗi giây, -720 đến 720 (hỗ trợ + - * / và ())
+Degrees round the colour wheel, 0-360 (supports + - * / and ())	Độ quanh vòng màu, 0-360 (hỗ trợ + - * / và ())
+Devamp	Thoát lặp
+did not finish in 3 minutes. It may be waiting on a prompt it cannot show (Protected View, sign-in, a repair). Open the deck there once, or export it as a PDF and import that	không hoàn tất trong 3 phút. Có thể đang chờ hộp thoại không hiển thị được (Protected View, đăng nhập, sửa chữa). Mở bộ slide ở đó một lần, hoặc xuất thành PDF rồi nhập PDF
+DMXCUE FIXTURE: expected <name> <level%>|LEAVE [<colour>]	DMXCUE FIXTURE: cần <name> <level%>|LEAVE [<colour>]
+DMXCUE LEVELS: nothing has been sent on that universe	DMXCUE LEVELS: chưa gửi gì trên universe đó
+DMXCUE LFO: expected <name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]	DMXCUE LFO: cần <name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]
+DMXCUE SET: expected channel=level pairs, e.g. 1=255,10-14=64	DMXCUE SET: cần cặp channel=level, ví dụ 1=255,10-14=64
+DMXCUE: expected NEW, SET, FADE, UNIVERSE, HOST, PORT, FIRE or BLACKOUT	DMXCUE: cần NEW, SET, FADE, UNIVERSE, HOST, PORT, FIRE hoặc BLACKOUT
+Down, % of the height, -100 to 100 (supports + - * / and ())	Dọc, % chiều cao, -100 đến 100 (hỗ trợ + - * / và ())
+downloading the caption model, then listening...	đang tải mô hình phụ đề, rồi bắt đầu nghe...
+drag the panels to arrange the presenter screen	kéo các bảng để bố trí màn hình thuyết trình
+DRAW COLOUR: #rrggbb, #rrggbbaa, a name, or 1-8 for the palette	DRAW COLOUR: #rrggbb, #rrggbbaa, tên màu, hoặc 1-8 cho bảng màu
+DRAW SIZE: 0.1-20 (% of the picture's height)	DRAW SIZE: 0.1-20 (% chiều cao hình)
+DRAW STROKE: each point is x,y or x,y,pressure, in percent	DRAW STROKE: mỗi điểm là x,y hoặc x,y,pressure, theo phần trăm
+DRAW TOOL: brush, erase, line, box, oval or fill	DRAW TOOL: brush, erase, line, box, oval hoặc fill
+driver reports no output channels	trình điều khiển báo không có kênh đầu ra
+driver would not create output buffers	trình điều khiển không tạo được bộ đệm đầu ra
+driver would not load (in use by another application?)	không nạp được trình điều khiển (ứng dụng khác đang dùng?)
+driver would not report a buffer size	trình điều khiển không báo kích thước bộ đệm
+driver would not report channel info	trình điều khiển không báo thông tin kênh
+dye advect	đối lưu thuốc nhuộm
+e.g. /cue/1/start	ví dụ /cue/1/start
+e.g. /stage/doors -- sent to Deckboy's OSC port; empty for none	ví dụ /stage/doors -- gửi đến cổng OSC của Deckboy; để trống nếu không dùng
+e.g. 12.5	ví dụ 12.5
+e.g. 192.168.1.50	ví dụ 192.168.1.50
+e.g. 1=255, 10-14=64	ví dụ 1=255, 10-14=64
+e.g. 20:0 or client name	ví dụ 20:0 hoặc tên máy khách
+e.g. 90 3C 7F	ví dụ 90 3C 7F
+edge ignite	cháy cạnh
+Edge out (+) or in (-), % of the height, -25 to 25 (supports + - * / and ())	Cạnh ra (+) hoặc vào (-), % chiều cao, -25 đến 25 (hỗ trợ + - * / và ())
+Edge softness, % of the height, 0 to 25 (supports + - * / and ())	Độ mềm cạnh, % chiều cao, 0 đến 25 (hỗ trợ + - * / và ())
+EDIT is off - press EDIT to type into the tracker	EDIT đang tắt - nhấn EDIT để nhập vào tracker
+encoder destination: _converted beside the show	đích mã hóa: _converted cạnh tệp show
+ENDACTION: expected INHERIT, STOP, LOOP, HOLD or NEXT	ENDACTION: cần INHERIT, STOP, LOOP, HOLD hoặc NEXT
+ENDACTION: only video and audio cues have an end action	ENDACTION: chỉ cue video và âm thanh có hành động kết thúc
+Enter playlist SMPTE FPS: 24 / 25 / 29.97 / 30	Nhập SMPTE FPS của playlist: 24 / 25 / 29.97 / 30
+esc: control window - again to clear output	esc: về cửa sổ điều khiển - lần nữa để xóa đầu ra
+escaped to windowed	đã thoát về chế độ cửa sổ
+expected one expression, three for colour, or four with alpha	cần một biểu thức, ba cho màu, hoặc bốn nếu có alpha
+expected waveform|scope|lissajous|spectrum|level|cover	cần waveform|scope|lissajous|spectrum|level|cover
+FADE CURVE: expected linear, ease-in, ease-out or s-curve	FADE CURVE: cần linear, ease-in, ease-out hoặc s-curve
+FADE TO: a speed from 0.25 to 4 (0.5 is half speed, an octave down)	FADE TO: tốc độ từ 0.25 đến 4 (0.5 là nửa tốc độ, thấp hơn một quãng tám)
+FADE WHAT: expected opacity, volume, dimmer, brightness, contrast, saturation, hue, effect, audiofx or speed	FADE WHAT: cần opacity, volume, dimmer, brightness, contrast, saturation, hue, effect, audiofx hoặc speed
+FDS hardware gain range, 0-63 (supports + - * / and ())	Khoảng gain phần cứng FDS, 0-63 (hỗ trợ + - * / và ())
+Feature size, 0.1-8 (supports + - * / and ())	Cỡ chi tiết, 0.1-8 (hỗ trợ + - * / và ())
+feedback bloom	nở hồi tiếp
+ferrofluid	chất lỏng từ
+fetching the speech model - captions start when it arrives	đang tải mô hình giọng nói - phụ đề bắt đầu khi tải xong
+Fields per frame, 0-4 (1 = one field per rendered frame) (supports + - * / and ())	Trường mỗi khung, 0-4 (1 = một trường mỗi khung kết xuất) (hỗ trợ + - * / và ())
+Fine sensor noise at the bottom, chunky film at the top.	Dưới là nhiễu cảm biến mịn, trên là hạt phim thô.
+Fireside	Bên lò sưởi
+FIXTURE ADD: expected <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]	FIXTURE ADD: cần <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]
+Flip across, upside down or both, or fold one half onto the other: right onto left, left onto right, bottom onto top, top onto bottom, or one corner into all four.	Lật ngang, dọc hoặc cả hai, hoặc gập nửa này lên nửa kia: phải sang trái, trái sang phải, dưới lên trên, trên xuống dưới, hoặc một góc thành cả bốn.
+follows this cue's own brightness (needs CPU frames)	theo độ sáng riêng của cue này (cần khung hình CPU)
+forget my defaults? only NEW changes, this show keeps its settings: press again	quên mặc định của tôi? chỉ NEW thay đổi, show này giữ cài đặt: nhấn lần nữa
+format 2 files are a set of independent patterns, not a performance	tệp định dạng 2 là tập các mẫu độc lập, không phải một bản diễn
+four effects at most on one device: remove one first	tối đa bốn hiệu ứng trên một thiết bị: hãy gỡ một hiệu ứng trước
+From an even blur to a streak along the angle, like movement.	Từ mờ đều đến vệt theo góc, như chuyển động.
+full-frame and no picture - bends when the picture shrinks	toàn khung và không có hình - uốn khi hình thu nhỏ
+fullscreen dropped	đã rời toàn màn hình
+FX ADD: datamosh needs a file-backed video cue	FX ADD: datamosh cần cue video có tệp nguồn
+FX LFO wants <index> <slot> <on|off|shape> [value]	FX LFO cần <index> <slot> <on|off|shape> [value]
+FX LFO: on, off, shape, rate, depth, zone, channel or cc	FX LFO: on, off, shape, rate, depth, zone, channel hoặc cc
+FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR	FX: dùng LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR
+GEOLFO: x, y, width, height, rotation, cropleft, cropright, croptop or cropbottom	GEOLFO: x, y, width, height, rotation, cropleft, cropright, croptop hoặc cropbottom
+Grain size: one pixel at the left, big blocky grains at the right.	Cỡ hạt: trái là một điểm ảnh, phải là hạt khối lớn.
+group presets became master cues: use MASTER	preset nhóm đã thành cue tổng: dùng MASTER
+Grows or shrinks the echo each pass. Centre holds still.	Phóng to hoặc thu nhỏ tiếng vọng mỗi lượt. Giữa giữ nguyên.
+HH:MM or HH:MM:SS on this computer's clock; empty for none	HH:MM hoặc HH:MM:SS theo đồng hồ máy này; để trống nếu không dùng
+HH:MM:SS:FF of the timecode Deckboy is chasing; empty for none	HH:MM:SS:FF của timecode Deckboy đang bám; để trống nếu không dùng
+Horizontal cells, 64-960 (supports + - * / and ())	Ô ngang, 64-960 (hỗ trợ + - * / và ())
+How abruptly it arrives. Low is a soft cloud, high is a hard porthole.	Mức xuất hiện đột ngột. Thấp là mây mềm, cao là cửa sổ tròn viền cứng.
+How big a blob grows, 0-1 (supports + - * / and ())	Kích thước tối đa của mảng, 0-1 (hỗ trợ + - * / và ())
+How big each tile is.	Kích thước mỗi ô.
+How big the crystals grow before they meet.	Kích thước tinh thể trước khi chạm nhau.
+How big the room is. Small is a booth, large is a hall.	Kích thước phòng. Nhỏ là buồng, lớn là hội trường.
+How big the shards are. Small is frosted glass, large is a dropped plate.	Kích thước mảnh vỡ. Nhỏ như kính mờ, lớn như đĩa rơi vỡ.
+How bright a pixel has to be before it lifts at all, so only the highlights spike.	Độ sáng điểm ảnh cần có để nhô lên, nên chỉ vùng sáng tạo gai.
+How bright a pixel has to be to join a run. Lower catches more of the picture and the runs grow longer.	Độ sáng điểm ảnh cần có để nhập dải. Giảm để lấy thêm hình và kéo dài các dải.
+How closely spaced the rings are.	Độ sát nhau của các vòng.
+How dark the dark lines go. All the way up is black between lines.	Độ tối của các đường tối. Tối đa là đen giữa các đường.
+How deep the picture is treated as being. The brightness becomes height and is lit from the side.	Chiều sâu giả định của hình. Độ sáng thành độ cao và được chiếu sáng từ bên.
+How faint a gradient still registers. High turns the quietest shading into visible structure.	Độ chuyển sắc mờ nhất còn nhận được. Cao biến vùng chuyển sắc nhẹ nhất thành cấu trúc thấy rõ.
+How far a band can slide.	Khoảng trượt tối đa của một dải.
+How far away. Distance dulls the top and softens the difference between the ears.	Khoảng cách. Xa làm giảm âm cao và giảm khác biệt giữa hai tai.
+How far back each skip jumps, from a stutter to half a second.	Khoảng nhảy lùi mỗi lần, từ lắp bắp đến nửa giây.
+How far back the chain listens. The picture is played through a delay, so this is the distance the damage is dragged across.	Chuỗi nghe ngược về trước bao xa. Hình chạy qua bộ trễ, nên đây là quãng kéo dài vệt hỏng.
+How far each shard slides from where it belongs.	Khoảng mỗi mảnh trượt khỏi vị trí gốc.
+How far each stroke is dragged along the grain.	Khoảng kéo mỗi nét dọc theo thớ hạt.
+How far it smears: up to a few percent of the picture.	Độ nhòe: tối đa vài phần trăm của hình.
+How far out the darkening starts.	Vị trí bắt đầu tối dần tính từ ngoài vào.
+How far the bright parts pull away from the surface.	Khoảng vùng sáng nhô khỏi bề mặt.
+How far the burn spreads off the edge, and how hot its colour runs.	Khoảng cháy lan ra khỏi cạnh và độ nóng của màu.
+How far the colour turns on each trip round the loop. This is the oil-slick: the trail walks through the spectrum instead of fading.	Độ xoay màu mỗi vòng lặp. Đây là váng dầu: vệt đi qua quang phổ thay vì mờ dần.
+How far the glow spreads.	Độ lan của hào quang.
+How far the picture stands out. Bright parts come forward, dark parts stay back. At the left it is flat.	Độ nổi của hình. Vùng sáng tiến ra, vùng tối lùi lại. Trái là phẳng.
+How far the picture swings the filter. The cue's own brightness opens and closes it, so a cut to black takes the top off the sound.	Mức hình điều khiển bộ lọc. Độ sáng của cue mở đóng nó, nên cắt sang đen sẽ cắt âm cao.
+How far the sound throws each line sideways.	Mức âm thanh đẩy từng dòng sang ngang.
+How far the top comes down as the end approaches. This is not a fade: the level is left alone.	Mức hạ âm cao khi gần kết thúc. Không phải mờ dần: âm lượng giữ nguyên.
+How far the two eyes disagree. Brightness is read as nearness.	Độ khác nhau giữa hai mắt. Sáng hơn được hiểu là gần hơn.
+How fast it closes. Slow enough not to chop the ends off words.	Tốc độ đóng. Đủ chậm để không cắt mất đuôi từ.
+How fast it settles away while held. At zero it holds indefinitely, which is what room tone under a held title wants.	Tốc độ tan khi giữ. Mức không giữ vô hạn, phù hợp với âm nền phòng dưới tiêu đề đang giữ.
+How fast the drips run. At the left the picture only sags.	Tốc độ giọt chảy. Trái chỉ làm hình võng xuống.
+How fast the light walks around it. Zero holds it still.	Tốc độ ánh sáng đi vòng quanh. Không giữ đứng yên.
+How fast the open slit crosses the picture. Slow smears a long moment across the frame.	Tốc độ khe mở đi qua hình. Chậm kéo nhòe một khoảng thời gian dài trên khung.
+How fast the sand travels to the still lines.	Tốc độ cát đi đến các đường tĩnh.
+How fast the surface moves.	Tốc độ bề mặt di chuyển.
+How fast the wave travels. Faster spreads further in the same time and interferes more.	Tốc độ sóng lan. Nhanh lan xa hơn trong cùng thời gian và giao thoa nhiều hơn.
+How fast they travel outward.	Tốc độ lan ra ngoài.
+How fast what has dripped hardens away. At the left the drips stay until the cue changes.	Tốc độ giọt đã chảy đông cứng rồi biến mất. Trái giữ giọt đến khi đổi cue.
+How fine the water is. Long ocean swell at one end, rain on a puddle at the other.	Độ mịn của nước. Một đầu là sóng biển dài, đầu kia là mưa trên vũng nước.
+How gently the change fades out at the edges of the band.	Mức dịu của thay đổi khi tan ở mép dải.
+How gradually the key cuts in. Hard at the left.	Độ chuyển tiếp khi khóa bắt đầu cắt. Trái là cứng.
+How hard it cuts, %, 0 to 100 (supports + - * / and ())	Độ cắt gắt, %, 0 đến 100 (hỗ trợ + - * / và ())
+How hard it holds once it is working. Gentle at the bottom, a limiter at the top.	Mức giữ chặt khi hoạt động. Dưới nhẹ, trên là bộ giới hạn.
+How hard it is driven into its own limits.	Mức ép tín hiệu vào giới hạn của chính nó.
+How hard the audio drives it, 0-1 (supports + - * / and ())	Mức âm thanh kích hiệu ứng, 0-1 (hỗ trợ + - * / và ())
+How hard the light gathers where the rays converge. This is the part that makes it read as water rather than as a wobble.	Mức ánh sáng tập trung nơi các tia hội tụ. Phần này tạo cảm giác nước thay vì hình lắc.
+How hard the moving parts throw sand. More shake clears the plate faster and makes the lines thinner.	Mức phần đang động hất cát. Rung mạnh làm sạch tấm nhanh hơn và đường mảnh hơn.
+How hard the short hits.	Cường độ xung chập mạch.
+How irregular the growth is. Low gives an even honeycomb, high gives long shards.	Độ bất quy tắc khi phát triển. Thấp tạo tổ ong đều, cao tạo mảnh dài.
+How long a grain is, in VIDEO FRAMES. On a 23.976 clip one frame is 41.7ms, which is not a musical value and is exactly the point.	Độ dài một hạt, theo KHUNG HÌNH VIDEO. Với clip 23.976, một khung là 41.7ms, không phải giá trị nhịp nhạc và đó chính là chủ đích.
+How long a short stays closed, in VIDEO FRAMES.	Thời gian chập mạch giữ đóng, theo KHUNG HÌNH VIDEO.
+How long before the end it starts. The cue has to have a known length -- an open-ended one has no end to resolve into.	Thời điểm bắt đầu trước khi kết thúc. Cue phải có độ dài xác định -- cue vô hạn không có điểm cuối để tiến về.
+How long it is allowed to run. More steps means the ripples have crossed and reflected more times.	Thời gian cho phép chạy. Nhiều bước hơn nghĩa là gợn đã giao nhau và phản xạ nhiều lần hơn.
+How long the old waves linger when the note changes. Left: they die at once. Right: they slosh for a while.	Thời gian sóng cũ lưu lại khi đổi nốt. Trái: tắt ngay. Phải: dập dềnh thêm một lúc.
+How long the reaction runs each frame. Short is a stain, long is an organism.	Thời gian phản ứng chạy mỗi khung. Ngắn là vết loang, dài là sinh vật.
+How many are alive at once, 3-48 (supports + - * / and ())	Số lượng tồn tại cùng lúc, 3-48 (hỗ trợ + - * / và ())
+How many places drip: a few big drips at the left, many thin ones at the right.	Số điểm chảy: trái ít giọt lớn, phải nhiều giọt mảnh.
+How many shades survive the quantise.	Số sắc độ còn lại sau lượng tử hóa.
+How many spikes the field breaks into.	Số gai mà trường tách thành.
+How many times a skip repeats before the sound catches up again.	Số lần lặp đoạn nhảy trước khi âm thanh bắt kịp trở lại.
+How many torn bands per frame.	Số dải xé mỗi khung.
+How much each facet catches the light, which is what makes them read as faceted rather than as flat blobs.	Mức mỗi mặt bắt sáng, giúp thấy mặt tinh thể thay vì mảng phẳng.
+How much each shard turns on its own centre.	Mức mỗi mảnh xoay quanh tâm riêng.
+How much its SIZE becomes distance. Shrink the picture and the sound goes away from you: the top comes off, the image narrows, the level drops.	Mức KÍCH THƯỚC thành khoảng cách. Thu nhỏ hình làm âm thanh xa dần: mất âm cao, âm trường hẹp lại, mức âm giảm.
+How much of each frame feeds the next, 0-0.95 (supports + - * / and ())	Phần mỗi khung cấp cho khung tiếp theo, 0-0.95 (hỗ trợ + - * / và ())
+How much of the bent picture goes round again. High is where it stops being an echo and starts eating itself.	Phần hình bị uốn quay lại vòng tiếp. Cao khiến nó hết là tiếng vọng và bắt đầu tự ăn chính nó.
+How much of the driver's movement the picture KEEPS. At zero it follows the driver frame by frame, which is a twitch. Wind it up and the motion accumulates, so the driver sculpts the picture over time and it holds the pose -- which is what puppetry means.	Phần chuyển động của nguồn điều khiển mà hình GIỮ LẠI. Không thì bám từng khung, tạo giật. Tăng để tích lũy chuyển động, giúp nguồn nắn hình theo thời gian và giữ tư thế -- đúng như điều khiển rối.
+How much of the picture glows: only the brightest at the left, nearly everything at the right.	Phần hình phát sáng: trái chỉ vùng sáng nhất, phải gần như toàn bộ.
+How much of the picture shows behind the lines. None at the left: lines on black.	Phần hình hiện sau các đường. Trái không có: đường trên nền đen.
+How much of the picture's position on the output is used. A PIP on the left sounds on the left -- and it is a placement, not a pan: the far ear gets the delay and the head shadow too.	Mức dùng vị trí hình trên đầu ra. PIP bên trái nghe từ trái -- đây là vị trí, không chỉ cân trái phải: tai xa còn nhận độ trễ và bóng âm của đầu.
+How much of the push goes downward rather than sideways.	Phần lực đẩy xuống thay vì sang ngang.
+How much of the tail is kept going while the cue is held. Long enough to hide the splice in room tone, short enough not to smear a rhythm in it.	Phần đuôi giữ chạy khi cue được giữ. Đủ dài để che mối nối âm nền phòng, đủ ngắn để không nhòe nhịp.
+How much room comes up under it, so the sound settles into the cut instead of being severed.	Mức âm phòng nổi lên bên dưới để âm thanh êm vào điểm cắt thay vì bị chặt đứt.
+How much the echo is distorted each pass. It compounds, so a little ripples and a lot melts the picture into itself.	Mức tiếng vọng bị méo mỗi lượt. Tích lũy qua vòng, ít tạo gợn, nhiều làm hình tan vào chính nó.
+How much the edges are lifted.	Mức nâng các cạnh.
+How much the flame gutters frame to frame.	Mức ngọn lửa chập chờn giữa các khung.
+How much the material draws in towards each drip, so it runs as a thin neck with a heavier head.	Mức vật liệu co về mỗi giọt, tạo cổ mảnh với đầu nặng hơn.
+How often it skips.	Tần suất nhảy.
+How often its settings are corrupted. Corrupted far enough it oscillates on its own -- loud, but it cannot run away.	Tần suất cài đặt bị làm hỏng. Hỏng đủ nhiều sẽ tự dao động -- lớn tiếng nhưng không thể tăng mất kiểm soát.
+How quickly the loop relaxes when nothing feeds it.	Tốc độ vòng lặp dịu xuống khi không còn tín hiệu cấp.
+How quickly the picture springs back to rest once the driver stops pushing it. Only does anything when memory is up.	Tốc độ hình bật về nghỉ khi nguồn điều khiển ngừng đẩy. Chỉ có tác dụng khi tăng bộ nhớ.
+How quickly the room eats the top end. More damping is a softer, more furnished space.	Tốc độ phòng hấp thụ âm cao. Giảm chấn nhiều tạo không gian mềm hơn, nhiều đồ đạc hơn.
+How readily an edge catches. Low sets the whole picture alight, high only the hardest lines.	Mức dễ bắt lửa của cạnh. Thấp đốt cả hình, cao chỉ các đường rõ nhất.
+How readily neighbours merge, 0 (never) to 1 (supports + - * / and ())	Mức dễ nhập các ô lân cận, 0 (không bao giờ) đến 1 (hỗ trợ + - * / và ())
+How small a cut sets it off. With no picture it runs on a timer instead, and this is how often.	Độ nhỏ của điểm cắt để kích hoạt. Không có hình thì dùng hẹn giờ, đây là tần suất.
+How strongly the finished picture pushes the bend. Pair it with a picture effect whose LFO is set to Audio and the two drive each other.	Mức hình hoàn chỉnh đẩy hiệu ứng uốn. Ghép với hiệu ứng hình có LFO đặt thành Audio để hai bên điều khiển lẫn nhau.
+How strongly the outlines are drawn.	Cường độ vẽ đường viền.
+How strongly the water bends the picture.	Mức nước uốn hình.
+How wide a band of colours either side of it changes too.	Độ rộng dải màu hai bên cũng bị đổi.
+How wide a view is being compressed. Narrow is a punch down the middle, wide folds the whole frame into the centre.	Độ rộng góc nhìn bị nén. Hẹp nhấn vào giữa, rộng gập cả khung vào tâm.
+hue turn	xoay sắc độ
+Hz or AUTO (e.g. 60 or 59.94)	Hz hoặc AUTO (ví dụ 60 hoặc 59.94)
+In time	Giờ vào
+INPUTMONITOR: a row count, OPEN, CLOSE, CLEAR, PAUSE or RESUME	INPUTMONITOR: số hàng, OPEN, CLOSE, CLEAR, PAUSE hoặc RESUME
+Internal resolution, 1 (chunky) to 5 (fine) (supports + - * / and ())	Độ phân giải nội bộ, 1 (thô) đến 5 (mịn) (hỗ trợ + - * / và ())
+IPv4 addresses or a.b.c.d/bits, comma separated; empty = only this computer	Địa chỉ IPv4 hoặc a.b.c.d/bits, phân cách bằng dấu phẩy; trống = chỉ máy này
+it could not be started	không thể khởi động
+kbps (32-512; 160 is a sane default)	kbps (32-512; 160 là mặc định hợp lý)
+Key sender source name	Tên nguồn gửi khóa
+key+fill ON, but no key device set (DECKLINK KEYFILL ON <device>)	key+fill ON, nhưng chưa đặt thiết bị khóa (DECKLINK KEYFILL ON <device>)
+Keynote could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)	Keynote không xuất được tệp này (có thể cần quyền tự động hóa: System Settings > Privacy & Security > Automation)
+label | command | glyph      (empty label|command removes it)	nhãn | lệnh | ký hiệu      (nhãn|lệnh trống sẽ xóa mục)
+Leave empty to follow the live cue notes	Để trống để theo ghi chú cue đang chạy
+Legacy Cue Link	Liên kết cue cũ
+LFO: density, speed, warp, turn, centrex, centrey, grey or hue	LFO: density, speed, warp, turn, centrex, centrey, grey hoặc hue
+libX11 is not installed	chưa cài libX11
+Lift or cut, 12dB either way. The centre is flat, so a band that has just been added does nothing until this is moved.	Nâng hoặc cắt, mỗi phía 12dB. Giữa là phẳng, nên dải vừa thêm không có tác dụng đến khi chỉnh mức này.
+Lifts the dark tones without moving pure black.	Nâng vùng tối mà không đổi đen tuyệt đối.
+Light on the drips, as on something wet: a gloss where it faces the light, darker where it curls away.	Ánh sáng trên giọt như trên vật ướt: bóng nơi hướng sáng, tối nơi cong ra xa.
+Line pitch in pixels, so this reads at 4K as well as at 720.	Bước dòng theo điểm ảnh, để rõ ở cả 4K lẫn 720.
+Lissajous (L/R phase)	Lissajous (pha L/R)
+live captions are not installed here (deckboy-listen was not found)	chưa cài phụ đề trực tiếp ở đây (không tìm thấy deckboy-listen)
+lost the session bus	mất bus phiên
+Lower Third added - put its playlist on a layer	Đã thêm Lower Third - đặt playlist của nó lên một lớp
+LOWERANIM: this cue is not a Lower Third	LOWERANIM: cue này không phải Lower Third
+LOWERSTYLE: expected none, fade, rise, slide, wipe or NEXT	LOWERSTYLE: cần none, fade, rise, slide, wipe hoặc NEXT
+LOWERSTYLE: this cue is not a Lower Third	LOWERSTYLE: cue này không phải Lower Third
+make a step first: a section starts at a step	tạo bước trước: một phân đoạn bắt đầu tại một bước
+MASK ASSIGN: expected <id|NONE> CUE | LAYER <output> <playlist> | OUTPUT <n> | MATTE <n>	MASK ASSIGN: cần <id|NONE> CUE | LAYER <output> <playlist> | OUTPUT <n> | MATTE <n>
+MASK ASSIGN: expected CUE, LAYER, OUTPUT or MATTE	MASK ASSIGN: cần CUE, LAYER, OUTPUT hoặc MATTE
+MASK EXPORT: expected <id> <file.png|file.svg> [WxH]	MASK EXPORT: cần <id> <file.png|file.svg> [WxH]
+MASK LFO: expected <id> <param> ON|OFF [rate Hz] [depth %]	MASK LFO: cần <id> <param> ON|OFF [rate Hz] [depth %]
+MASK PATH: a path needs at least three points	MASK PATH: đường dẫn cần ít nhất ba điểm
+MASK SET: expected INVERT, X, Y, SCALE, ROTATION, FEATHER, GROW or OPACITY and a number	MASK SET: cần INVERT, X, Y, SCALE, ROTATION, FEATHER, GROW hoặc OPACITY và một số
+MASK SHAPE: expected a shape (MASK SHAPES lists them)	MASK SHAPE: cần hình dạng (MASK SHAPES liệt kê các dạng)
+MASTER DECK: expected a deck number and a cue number	MASTER DECK: cần số deck và số cue
+Master oscillator rate, 0.01-8 (supports + - * / and ())	Tốc độ bộ dao động chính, 0.01-8 (hỗ trợ + - * / và ())
+MATRIX SET: expected <source 1-2> <dest> <0-100>	MATRIX SET: cần <source 1-2> <dest> <0-100>
+MATRIX SET: level is a percent from 0 to 100	MATRIX SET: mức là phần trăm từ 0 đến 100
+MATRIX: expected SET <src> <dest> <0-100>, SEED or CLEAR	MATRIX: cần SET <src> <dest> <0-100>, SEED hoặc CLEAR
+MESH: expected on|off|toggle|height|tilt|yaw|spin|grid	MESH: cần on|off|toggle|height|tilt|yaw|spin|grid
+MIC INPUT: expected SETTINGS, TEST or a device name (MIC LIST)	MIC INPUT: cần SETTINGS, TEST hoặc tên thiết bị (MIC LIST)
+mic live on the default speakers - watch for feedback	mic đang phát qua loa mặc định - chú ý hú hồi tiếp
+MIC: expected ADD, LIST, INPUT, CHANNEL or GAIN	MIC: cần ADD, LIST, INPUT, CHANNEL hoặc GAIN
+MIC: select a mic cue first (MIC ADD makes one)	MIC: chọn cue mic trước (MIC ADD tạo mới)
+MIDICUE KIND: expected note-on, note-off, cc, program, msc-go, msc-stop, msc-resume or raw	MIDICUE KIND: cần note-on, note-off, cc, program, msc-go, msc-stop, msc-resume hoặc raw
+MIDICUE: expected NEW, PORTS, PORT, KIND, CH, D1, D2, DEVICE, CUENUM, LIST, RAW or SEND	MIDICUE: cần NEW, PORTS, PORT, KIND, CH, D1, D2, DEVICE, CUENUM, LIST, RAW hoặc SEND
+MIDIFILE: expected PORT, or no argument to report it	MIDIFILE: cần PORT, hoặc không có đối số để xem cổng
+MIDIFILE: the selected cue is not a midi file cue	MIDIFILE: cue đã chọn không phải cue tệp MIDI
+MIDIIN OSC: an address, and optionally a number	MIDIIN OSC: địa chỉ, và tùy chọn một số
+MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> or OSC <address> [<n>], then CH <1-16> if not channel 1	MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> hoặc OSC <address> [<n>], rồi CH <1-16> nếu không phải kênh 1
+MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET or FEEDBACK	MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET hoặc FEEDBACK
+MIDIMAP: that command is only accepted from this computer	MIDIMAP: lệnh đó chỉ được chấp nhận từ máy này
+milliseconds (20-8000; ~4x your RTT)	mili giây (20-8000; ~4x RTT của bạn)
+Modulator as a ratio of the note, 0.05-16 (supports + - * / and ())	Bộ điều chế theo tỷ số với nốt, 0.05-16 (hỗ trợ + - * / và ())
+MONITOR DECK: expected a playlist number or FOLLOW	MONITOR DECK: cần số playlist hoặc FOLLOW
+MONITOR ROOM: expected a playlist and ON or OFF	MONITOR ROOM: cần playlist và ON hoặc OFF
+motion on: the camera is read, never recorded	chuyển động bật: camera được đọc, không ghi hình
+MOTION ZONE ADD: the zone must fit inside the picture	MOTION ZONE ADD: vùng phải nằm trong hình
+Moves the direction of travel off the centre of frame, so the picture rushes past rather than straight at you.	Dịch hướng chuyển động khỏi tâm khung, để hình lao ngang qua thay vì thẳng vào bạn.
+Multicast group (e.g. 239.20.10.1)	Nhóm multicast (ví dụ 239.20.10.1)
+MULTIVIEW LAYOUT: expected GRID, BIG, BIGTOP or TWOTOP	MULTIVIEW LAYOUT: cần GRID, BIG, BIGTOP hoặc TWOTOP
+MULTIVIEW WINDOW <n>: expected a source, or SAFE/METER/LABEL ON|OFF	MULTIVIEW WINDOW <n>: cần nguồn, hoặc SAFE/METER/LABEL ON|OFF
+MULTIVIEW WINDOW REMOVE: expected a window number	MULTIVIEW WINDOW REMOVE: cần số cửa sổ
+MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK or EMPTY	MULTIVIEW WINDOW: cần PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK hoặc EMPTY
+my defaults forgotten: NEW starts from factory settings, this show is unchanged	đã quên mặc định của tôi: NEW bắt đầu với cài đặt gốc, show này không đổi
+N=new  Enter/P=previous  O=open saved  E=examples  L=learn  1-	N=mới  Enter/P=trước  O=mở đã lưu  E=ví dụ  L=học  1-
+NDI source name (e.g. LAPTOP (source 1))	Tên nguồn NDI (ví dụ LAPTOP (source 1))
+ndi tally trigger on -- program tally takes the cue	kích bằng tally ndi bật -- tally PROGRAM sẽ TAKE cue
+NETCUE ADDRESS: an OSC address must start with /	NETCUE ADDRESS: địa chỉ OSC phải bắt đầu bằng /
+NETCUE ADDRESS: expected an OSC path starting with /	NETCUE ADDRESS: cần đường dẫn OSC bắt đầu bằng /
+NETCUE: expected NEW, PROTO, HOST, PORT, ADDRESS, PAYLOAD or SEND	NETCUE: cần NEW, PROTO, HOST, PORT, ADDRESS, PAYLOAD hoặc SEND
+NETCUE: the selected cue is not a network cue	NETCUE: cue đã chọn không phải cue mạng
+network sharing and phone control require an 8+ character passphrase	chia sẻ mạng và điều khiển điện thoại cần mật khẩu ít nhất 8 ký tự
+new show disarms all outputs: press new again	show mới bỏ kích hoạt mọi đầu ra: nhấn mới lần nữa
+NEWSHOW: something is live or unsaved -- send NEWSHOW again within 2.5 s	NEWSHOW: có nội dung đang chạy hoặc chưa lưu -- gửi NEWSHOW lần nữa trong 2.5 s
+NIC address or name; empty = the default route	Địa chỉ hoặc tên NIC; trống = tuyến mặc định
+NIC name reported in interface_bindings (e.g. eth0)	Tên NIC được báo trong interface_bindings (ví dụ eth0)
+NMOS: discovery needs the remote network allowed	NMOS: tìm thiết bị cần cho phép mạng từ xa
+nmos: network is LOCAL ONLY - not registering	nmos: mạng CHỈ NỘI BỘ - không đăng ký
+NMOS: NOT registering - network is LOCAL ONLY (turn REMOTE ON to publish)	NMOS: KHÔNG đăng ký - mạng CHỈ NỘI BỘ (bật REMOTE ON để công bố)
+NMOS: searching for a registry (mDNS)	NMOS: đang tìm sổ đăng ký (mDNS)
+no ASIO in this build	bản dựng này không có ASIO
+no filled shapes in it (paths, rectangles, circles, ellipses or polygons)	không có hình tô kín (đường dẫn, chữ nhật, tròn, elip hoặc đa giác)
+no masks yet: make one in a cue's MASK section	chưa có mặt nạ: tạo trong mục MASK của cue
+no OpenGL pixel format available for Spout receive	không có định dạng điểm ảnh OpenGL để nhận Spout
+no picture - shorts run on a timer instead of on cuts	không có hình - chập mạch chạy theo hẹn giờ thay vì điểm cắt
+no picture on this cue - nothing decides where the playhead is	cue này không có hình - không có gì xác định vị trí đầu phát
+no picture on this cue - nothing to close the loop through	cue này không có hình - không có gì để khép vòng lặp
+no picture on this cue - nothing to follow	cue này không có hình - không có gì để bám theo
+no video clock on this cue - nothing to lock to	cue này không có đồng hồ video - không có gì để đồng bộ
+no X display to read	không có màn hình X để đọc
+normalize all: no file-backed audio in this deck	chuẩn hóa tất cả: deck này không có âm thanh từ tệp
+normalize: selection has no file-backed audio	chuẩn hóa: vùng chọn không có âm thanh từ tệp
+not a MIDI file (no MThd header)	không phải tệp MIDI (không có header MThd)
+notestep: this cue's notes have no builds (separate them with a line of ---)	notestep: ghi chú cue này không có bước dựng (ngăn bằng dòng ---)
+nothing to mask here: select a cue, or change MASK ON	không có gì để tạo mặt nạ: chọn cue, hoặc đổi MASK ON
+offset in percent of the picture	độ lệch theo phần trăm của hình
+on the dashboard - Ctrl+D or the DASH button	trên bảng điều khiển - Ctrl+D hoặc nút DASH
+One knob for the whole balance: below the middle is darker, above it is brighter.	Một núm cho toàn cân bằng: dưới giữa tối hơn, trên giữa sáng hơn.
+One LED tile's height in pixels, 8-8192 (supports + - * / and ())	Chiều cao một ô LED theo điểm ảnh, 8-8192 (hỗ trợ + - * / và ())
+One LED tile's width in pixels, 8-8192 (supports + - * / and ())	Chiều rộng một ô LED theo điểm ảnh, 8-8192 (hỗ trợ + - * / và ())
+only a background in it	chỉ có nền trong đó
+only a MIDI note or an OSC address can take a cue	chỉ nốt MIDI hoặc địa chỉ OSC mới có thể TAKE cue
+Only accept transport from this sender (blank = anyone)	Chỉ nhận điều khiển phát từ bộ gửi này (trống = bất kỳ ai)
+opened github.com in your browser -- nothing is sent until you submit the report there	đã mở github.com trong trình duyệt -- chưa gửi gì cho đến khi bạn nộp báo cáo ở đó
+Original: the picture pulled onto the figure. Sand: the picture as grains that are thrown off the moving parts and pour into each new figure. Fluid: the picture under water on the plate, bent and lit by its standing waves.	Gốc: hình được kéo lên họa tiết. Cát: hình thành hạt bị hất khỏi phần đang động và đổ vào mỗi họa tiết mới. Chất lỏng: hình dưới nước trên tấm, bị uốn và chiếu sáng bởi sóng dừng.
+OSC Feedback Mirror Rate	Tần suất phản chiếu phản hồi OSC
+OSC Query HTTP Port	Cổng HTTP OSC Query
+Out time	Giờ ra
+OUTPROBE: expected <output> <x 0-1> <y 0-1>	OUTPROBE: cần <output> <x 0-1> <y 0-1>
+OUTPROBE: that output has no compositor (is it on?)	OUTPROBE: đầu ra đó không có bộ phối hình (đã bật chưa?)
+OUTPUT --.-	ĐẦU RA --.-
+OUTPUT AOI: expected a size like 256x256, or FULL	OUTPUT AOI: cần cỡ như 256x256, hoặc FULL
+output effects bypassed: no effect and no limit on this device	đã bỏ qua hiệu ứng đầu ra: thiết bị này không có hiệu ứng hay giới hạn
+OUTPUT HDR WHITE: expected 80..500 nits (203 is BT.2408)	OUTPUT HDR WHITE: cần 80..500 nit (203 theo BT.2408)
+OUTPUT HDR: expected ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> or STATUS	OUTPUT HDR: cần ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> hoặc STATUS
+Output height in px - math ok: 1080x2, 2160/2, 540+30	Chiều cao đầu ra theo px - cho phép phép tính: 1080x2, 2160/2, 540+30
+output recover failed: fullscreen unavailable	khôi phục đầu ra thất bại: không dùng được toàn màn hình
+OUTPUT WARM	ĐẦU RA CHỜ
+Output width in px - math ok: 1920x2, 3840/2, 960+64	Chiều rộng đầu ra theo px - cho phép phép tính: 1920x2, 3840/2, 960+64
+OUTPUTFX ADD: expected hpf, lpf, tilt, comp or width	OUTPUTFX ADD: cần hpf, lpf, tilt, comp hoặc width
+OUTPUTFX ADD: four effects at most on one device	OUTPUTFX ADD: tối đa bốn hiệu ứng trên một thiết bị
+OUTPUTFX SET: expected an effect number and 0-100	OUTPUTFX SET: cần số hiệu ứng và 0-100
+OUTPUTFX: expected ADD, SET, REMOVE, BYPASS, CLEAR or DEVICE	OUTPUTFX: cần ADD, SET, REMOVE, BYPASS, CLEAR hoặc DEVICE
+OUTPUTS ADD: expected <name> CH <n> or CH <n>-<n+1>	OUTPUTS ADD: cần <name> CH <n> hoặc CH <n>-<n+1>
+over 16 MB: not a drawing to make a mask from	quá 16 MB: không phải bản vẽ để tạo mặt nạ
+Page Down / Page Up step the focused playlist	Page Down / Page Up chuyển từng cue trong playlist đang chọn
+pair with a picture effect whose LFO is set to Audio	ghép với hiệu ứng hình có LFO đặt thành Audio
+paired phones removed: they need the QR code or the passphrase again	đã xóa điện thoại ghép đôi: cần mã QR hoặc mật khẩu lần nữa
+Palette turn, 0-1 (supports + - * / and ())	Xoay bảng màu, 0-1 (hỗ trợ + - * / và ())
+Paste the key from your platform	Dán khóa từ nền tảng của bạn
+PATCH: a level is dB from -48 to +6, or OFF	PATCH: mức tính bằng dB từ -48 đến +6, hoặc OFF
+PATCH: expected <deck> <output> <dB> or OFF	PATCH: cần <deck> <output> <dB> hoặc OFF
+Per-frame zoom of the feedback path, 0.90-1.15 (supports + - * / and ())	Thu phóng mỗi khung của nhánh hồi tiếp, 0.90-1.15 (hỗ trợ + - * / và ())
+phone control requires an 8+ character passphrase	điều khiển điện thoại cần mật khẩu ít nhất 8 ký tự
+PHONE LEVEL: removed -- a paired phone or the passphrase can do everything; BLACKOUT and RECORD are hold-to-fire on the phone	PHONE LEVEL: đã bỏ -- điện thoại ghép đôi hoặc mật khẩu có thể làm mọi thứ; BLACKOUT và RECORD cần nhấn giữ trên điện thoại
+phones need THE NETWORK: set 'Who can see it' first	điện thoại cần MẠNG: đặt 'Ai có thể thấy' trước
+ping-pong	qua lại
+PIP: retired -- scale a second deck over this one instead	PIP: đã bỏ -- thay bằng thu phóng deck thứ hai chồng lên deck này
+pip: retired -- scale a second deck over this one instead	pip: đã bỏ -- thay bằng thu phóng deck thứ hai chồng lên deck này
+Pitch in hertz, 20-8000 (supports + - * / and ())	Cao độ theo hertz, 20-8000 (hỗ trợ + - * / và ())
+Pixel sort amount, 0-1 (supports + - * / and ())	Mức xếp điểm ảnh, 0-1 (hỗ trợ + - * / và ())
+pixels (of the output raster)	điểm ảnh (của raster đầu ra)
+Pixels, 64-2160 (supports + - * / and ())	Điểm ảnh, 64-2160 (hỗ trợ + - * / và ())
+Pixels, 64-3840 (supports + - * / and ())	Điểm ảnh, 64-3840 (hỗ trợ + - * / và ())
+port number (default 5510)	số cổng (mặc định 5510)
+port number (default 5511)	số cổng (mặc định 5511)
+port number (default 6454)	số cổng (mặc định 6454)
+port number (default 8090)	số cổng (mặc định 8090)
+port number (vMix uses 8088)	số cổng (vMix dùng 8088)
+port number (vMix uses 8099)	số cổng (vMix dùng 8099)
+Port the Node + Connection API serve on	Cổng phục vụ Node + Connection API
+PORTS: expected an http port and a tcp port	PORTS: cần một cổng http và một cổng tcp
+position on the output raster, in pixels	vị trí trên raster đầu ra, theo điểm ảnh
+PowerPoint could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)	PowerPoint không xuất được tệp này (có thể cần quyền tự động hóa: System Settings > Privacy & Security > Automation)
+PowerPoint could not open the file (it gave up waiting for it). If it is in OneDrive, right-click it and choose Always keep on this device, then import it again	PowerPoint không mở được tệp (đã hết chờ). Nếu ở OneDrive, nhấp phải chọn Always keep on this device, rồi nhập lại
+Prefix (optional). Example: Q	Tiền tố (tùy chọn). Ví dụ: Q
+Prefix and optional start (example: Q 100)	Tiền tố và số bắt đầu tùy chọn (ví dụ: Q 100)
+PRELOAD: expected a position in seconds, OFF or STATUS	PRELOAD: cần vị trí theo giây, OFF hoặc STATUS
+presenter colour: expected BG|INK|ACCENT #rrggbb	màu màn thuyết trình: cần BG|INK|ACCENT #rrggbb
+presenter panel: expected <live|prev|next|notes> <x> <y> <w> <h> in percent	bảng thuyết trình: cần <live|prev|next|notes> <x> <y> <w> <h> theo phần trăm
+presenter panel: the panel must fit on the screen (x+w and y+h no more than 100)	bảng thuyết trình: bảng phải nằm trong màn hình (x+w và y+h không quá 100)
+PRESET: expected LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME or DELETE	PRESET: cần LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME hoặc DELETE
+programme sound is always included; use WEBMONITOR OFF to stop the monitor	luôn bao gồm âm thanh PROGRAM; dùng WEBMONITOR OFF để dừng giám sát
+Pulls the bright tones down without moving pure white, so a hot highlight rolls off instead of clipping.	Hạ vùng sáng mà không đổi trắng tuyệt đối, để vùng quá sáng chuyển mềm thay vì bị cắt ngọn.
+Pushes the rings in or out of the centre.	Đẩy các vòng vào hoặc ra khỏi tâm.
+pythagorean	hệ Pythagoras
+reaction bloom	nở phản ứng
+recordings remux to MP4 when the take stops	bản ghi được đóng gói lại thành MP4 khi dừng ghi
+rectc: expected <hh:mm:ss:ff|timeofday> [df|ndf|auto]	rectc: cần <hh:mm:ss:ff|timeofday> [df|ndf|auto]
+Registry URL (e.g. http://192.168.1.50:8010) - blank for mDNS	URL sổ đăng ký (ví dụ http://192.168.1.50:8010) - trống để dùng mDNS
+release has no build for this platform	bản phát hành không có bản dựng cho nền tảng này
+Rotates the reading, so straight lines wind into spirals rather than rings.	Xoay cách đọc để đường thẳng cuộn thành xoắn ốc thay vì vòng.
+Rounds the tiles off, all the way to dots.	Bo tròn các ô, đến mức thành chấm.
+Routing hint for the receiver	Gợi ý định tuyến cho bộ nhận
+Rows lose sync and repeat one character, the way a real text screen breaks up. At 0 the grid is clean.	Hàng mất đồng bộ và lặp một ký tự, như màn hình chữ thật bị hỏng. Mức 0 giữ lưới sạch.
+save failed - retrying; still open, use SAVE AS if needed	lưu thất bại - đang thử lại; vẫn mở, dùng SAVE AS nếu cần
+Save Warp Preset	Lưu preset biến dạng
+saved as my defaults: NEW starts like this show, without the cues	đã lưu làm mặc định của tôi: NEW bắt đầu như show này nhưng không có cue
+Scale of the whole graphic, 0.5-2 (supports + - * / and ())	Tỷ lệ toàn đồ họa, 0.5-2 (hỗ trợ + - * / và ())
+SCALEMODE: expected fit|fill|stretch|unscaled	SCALEMODE: cần fit|fill|stretch|unscaled
+Scanlines, bloom and gun misalignment, 0-1 (supports + - * / and ())	Dòng quét, tỏa sáng và lệch súng điện tử, 0-1 (hỗ trợ + - * / và ())
+schlieren	ảnh vân bóng
+SCOPES BIG: expected waveform, parade, vector, diamond, histogram, falsecolour, sound or off	SCOPES BIG: cần waveform, parade, vector, diamond, histogram, falsecolour, sound hoặc off
+SCOPES SOURCE: expected PROGRAMME or an output number, 1-	SCOPES SOURCE: cần PROGRAMME hoặc số đầu ra, 1-
+SCOPES: expected PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS or SOUND	SCOPES: cần PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS hoặc SOUND
+SCRIPTCUE: the selected cue is not a script cue	SCRIPTCUE: cue đã chọn không phải cue kịch bản
+seconds (1-10; most platforms want 2)	giây (1-10; hầu hết nền tảng cần 2)
+Seconds before it leaves by itself; 0 waits for OUT (supports + - * / and ())	Giây trước khi tự rời; 0 chờ OUT (hỗ trợ + - * / và ())
+Seconds between retriggers, 0-8 (supports + - * / and ())	Giây giữa các lần kích lại, 0-8 (hỗ trợ + - * / và ())
+Seconds for new image/pattern/browser/Lower Third cues (0 = hold)	Giây cho cue ảnh/mẫu/trình duyệt/Lower Third mới (0 = giữ)
+Seconds for new-cue fade in/out defaults	Giây mặc định mờ vào/ra cho cue mới
+Seconds the finished drawing stays, 0 to 60 (supports + - * / and ())	Giây bản vẽ hoàn chỉnh lưu lại, 0 đến 60 (hỗ trợ + - * / và ())
+Seconds the in move takes, 0-5 (supports + - * / and ())	Giây cho chuyển động vào, 0-5 (hỗ trợ + - * / và ())
+Seconds the out move takes, 0-5 (supports + - * / and ())	Giây cho chuyển động ra, 0-5 (hỗ trợ + - * / và ())
+seconds this step holds before PLAY moves on	số giây bước này giữ trước khi PLAY tiếp tục
+Seconds, 0-4 (supports + - * / and ())	Giây, 0-4 (hỗ trợ + - * / và ())
+Seconds, 0-8 (supports + - * / and ())	Giây, 0-8 (hỗ trợ + - * / và ())
+SECTION: expected playback|metadata|geometry|key|audio|effects|timer|tone|synth	SECTION: cần playback|metadata|geometry|key|audio|effects|timer|tone|synth
+select a Draw cue first (SOURCE > MADE BY DECKBOY > Draw)	chọn cue Vẽ trước (SOURCE > MADE BY DECKBOY > Draw)
+Sender source name	Tên nguồn gửi
+set an 8+ character Web Monitor passphrase first	đặt mật khẩu Giám sát Web ít nhất 8 ký tự trước
+Size, %, 5 to 400 (supports + - * / and ())	Kích thước, %, 5 đến 400 (hỗ trợ + - * / và ())
+SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, LINEAR, PERSPECTIVE or NAME	SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, LINEAR, PERSPECTIVE hoặc NAME
+SLICE ADD: already 16 slices on this output	SLICE ADD: đầu ra này đã có 16 lát
+SLICE CORNER: TL, TR, BR or BL, then dx dy in percent of the output	SLICE CORNER: TL, TR, BR hoặc BL, rồi dx dy theo phần trăm đầu ra
+SLICE EDGE: L, R, T or B, then 0-50 (% of the slice)	SLICE EDGE: L, R, T hoặc B, rồi 0-50 (% của lát)
+SLICE GRID POINT: col row (from 1, on a grid that is on) then dx dy in percent	SLICE GRID POINT: col row (từ 1, trên lưới đang bật) rồi dx dy theo phần trăm
+SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF, or POINT col row dx dy	SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF, hoặc POINT col row dx dy
+SLICE LFO: X, Y, ROTATION or OPACITY, then ON, OFF, SHAPE, RATE, DEPTH...	SLICE LFO: X, Y, ROTATION hoặc OPACITY, rồi ON, OFF, SHAPE, RATE, DEPTH...
+SLICE ROTATE: IN (the crop) or OUT (the placed picture), then degrees	SLICE ROTATE: IN (vùng cắt) hoặc OUT (hình đã đặt), rồi số độ
+SMPTE hh:mm:ss:ff or seconds (blank = 00:00:00:00)	SMPTE hh:mm:ss:ff hoặc giây (trống = 00:00:00:00)
+Softens the fold so it ramps instead of creasing.	Làm mềm nếp gập thành dốc thay vì gãy sắc.
+something mellow appeared in SOURCE > MADE BY DECKBOY	có thứ dịu nhẹ vừa xuất hiện trong SOURCE > MADE BY DECKBOY
+Something near the deck: a phone's buzz, a light dimmer's herringbone, a radio's slow bars.	Vật gần máy băng: tiếng rè điện thoại, vân xương cá từ dimmer đèn, dải chậm từ radio.
+Sorts the runs the other way, so they pour from light to dark.	Xếp dải theo chiều ngược để chảy từ sáng sang tối.
+sound scopes: integrated loudness and true peak start again	máy đo âm thanh: đo lại độ lớn tích hợp và đỉnh thực từ đầu
+SOURCE CAMERA: name the device	SOURCE CAMERA: nhập tên thiết bị
+SOURCE WINDOW: name the window, e.g. title:Firefox (or "desktop")	SOURCE WINDOW: nhập tên cửa sổ, ví dụ title:Firefox (hoặc "desktop")
+Space under it, as a fraction of the frame, 0-0.8 (supports + - * / and ())	Khoảng trống bên dưới theo phần khung, 0-0.8 (hỗ trợ + - * / và ())
+Spiral size, 0.25-4 (supports + - * / and ())	Cỡ xoắn ốc, 0.25-4 (hỗ trợ + - * / và ())
+Spiral strength, 0-4 (supports + - * / and ())	Cường độ xoắn ốc, 0-4 (hỗ trợ + - * / và ())
+splitnotes: that cue's notes have no parts (separate them with a line of ---)	splitnotes: ghi chú cue đó không có phần (ngăn bằng dòng ---)
+ST 2110 Destination	Đích ST 2110
+ST 2110 network interface	giao diện mạng ST 2110
+ST 2110 Port	Cổng ST 2110
+still reading the last folder -- one at a time	vẫn đang đọc thư mục trước -- từng thư mục một
+STING: expected ON, PITCH, LENGTH, SWEEP or BODY	STING: cần ON, PITCH, LENGTH, SWEEP hoặc BODY
+STING: select a tone cue first (TONECUE makes one)	STING: chọn cue âm trước (TONECUE tạo mới)
+STREAM --.-	LUỒNG --.-
+STREAM ADD: expected a URL, e.g. srt://host:port	STREAM ADD: cần URL, ví dụ srt://host:port
+STREAM ERR	LUỒNG LỖI
+STREAM OFF	LUỒNG TẮT
+Stream URL (srt://, rtmp://, rtsp://, udp://, or an http HLS .m3u8)	URL luồng (srt://, rtmp://, rtsp://, udp://, hoặc HLS http .m3u8)
+STREAM WARM	LUỒNG CHỜ
+SUBTITLE CONVERT: destination must be .srt or .vtt	SUBTITLE CONVERT: đích phải là .srt hoặc .vtt
+SUBTITLE CONVERT: the cue has no caption file	SUBTITLE CONVERT: cue không có tệp phụ đề
+Switcher IP address	Địa chỉ IP bộ chuyển hình
+SYNTH: the selected cue is not a video synth	SYNTH: cue đã chọn không phải bộ tổng hợp video
+SYPHON / SPOUT TEXTURE SHARE	CHIA SẺ TEXTURE SYPHON / SPOUT
+SYPHON TEXTURE SHARE	CHIA SẺ TEXTURE SYPHON
+Takes out everything brighter than this as well. Left takes out nothing.	Cũng loại mọi thứ sáng hơn mức này. Trái không loại gì.
+Takes out everything darker than this, so what lies beneath shows through. Left takes out nothing.	Loại mọi thứ tối hơn mức này để lớp dưới hiện qua. Trái không loại gì.
+Tape speed: SP is the best picture, LP and EP fit more on a tape and lose detail and colour.	Tốc độ băng: SP cho hình tốt nhất, LP và EP chứa nhiều hơn nhưng mất chi tiết và màu.
+TARGET CUE: expected a deck number and a cue number	TARGET CUE: cần số deck và số cue
+Target IP (or 255.255.255.255 to broadcast)	IP đích (hoặc 255.255.255.255 để quảng bá)
+TARGET VERB: expected start|stop|pause|resume|load|arm|disarm	TARGET VERB: cần start|stop|pause|resume|load|arm|disarm
+TCCUE: the selected cue is not a timecode cue	TCCUE: cue đã chọn không phải cue timecode
+TEXTCUE ALIGN: expected left, centre or right	TEXTCUE ALIGN: cần left, centre hoặc right
+TEXTCUE ANIM: expected none, fade, typewriter, scroll, crawl, pulse or wobble	TEXTCUE ANIM: cần none, fade, typewriter, scroll, crawl, pulse hoặc wobble
+TEXTCUE SIZE: expected 1-100 (percent of the raster)	TEXTCUE SIZE: cần 1-100 (phần trăm raster)
+TEXTCUE: expected NEW, BODY, ANIM, SIZE, SPEED, ALIGN, CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, WIGGLE, IN, OUTMOVE or OUT	TEXTCUE: cần NEW, BODY, ANIM, SIZE, SPEED, ALIGN, CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, WIGGLE, IN, OUTMOVE hoặc OUT
+TEXTCUE: the selected cue is not a text cue	TEXTCUE: cue đã chọn không phải cue chữ
+that key drives the desk - use F1-F10, F12 or the number pad	phím đó điều khiển bàn - dùng F1-F10, F12 hoặc bàn phím số
+the background alpha belongs to a Lower Third	alpha nền thuộc về Lower Third
+The bright net the waves focus onto the picture.	Lưới sáng mà sóng hội tụ lên hình.
+The brightness that decides black from white.	Độ sáng phân định đen và trắng.
+The brightness that stays put. Everything above it reaches one way and everything below it the other.	Độ sáng giữ nguyên. Mọi thứ phía trên vươn một hướng, phía dưới vươn hướng kia.
+the caption model has not been downloaded yet	chưa tải mô hình phụ đề
+The character of the growth: low is waves, then labyrinth, coral, worms, and holes at the top.	Đặc tính phát triển: thấp là sóng, rồi mê cung, san hô, giun và lỗ ở trên cùng.
+the clicker now spends note builds before advancing	bộ bấm nay đi qua các bước dựng ghi chú trước khi chuyển cue
+The colour it becomes. Shading and brightness stay as they were, so a red shirt turns blue and keeps its folds.	Màu đích. Bóng và độ sáng giữ nguyên, nên áo đỏ thành xanh mà vẫn giữ nếp gấp.
+The colour to change, round the wheel from red.	Màu cần đổi, tính quanh vòng màu từ đỏ.
+the desktop portal did not answer	cổng màn hình nền không trả lời
+The distance that sits ON the screen. Either side of it comes forward or falls behind.	Khoảng cách nằm TRÊN màn hình. Hai phía tiến ra hoặc lùi lại.
+the file has no playable events	tệp không có sự kiện phát được
+the file is empty (0 bytes): it may not have finished copying or saving	tệp trống (0 byte): có thể chưa sao chép hoặc lưu xong
+The frequency it pivots around -- what counts as 'low' and 'high' for the tilt.	Tần số làm trục xoay -- định nghĩa 'thấp' và 'cao' cho bộ nghiêng phổ.
+The head drifting off the track: a band of noise rolls through the picture.	Đầu từ lệch khỏi rãnh: một dải nhiễu cuộn qua hình.
+the installed NDI runtime is missing entry points this needs	bộ thực thi NDI đã cài thiếu các điểm vào cần thiết
+The level below which the source is closed. Set it under the quietest thing you want to hear.	Mức dưới đó nguồn bị đóng. Đặt thấp hơn âm nhỏ nhất bạn muốn nghe.
+The level it starts working at. Lower catches more of the performance.	Mức bắt đầu hoạt động. Thấp lấy được nhiều phần của bản diễn hơn.
+the NDI runtime declined to start on this machine	bộ thực thi NDI từ chối khởi động trên máy này
+the playing step was removed - sequence stopped	bước đang chạy đã bị xóa - đã dừng chuỗi
+The plugin's first four automatable controls, in its own order. Everything else it has keeps whatever the plugin was left set to.	Bốn điều khiển tự động hóa đầu tiên của trình cắm, theo thứ tự riêng. Mọi mục khác giữ cài đặt đã để lại trong trình cắm.
+the screen could not be read there	không đọc được màn hình tại đó
+the time division is not readable	không đọc được phân chia thời gian
+Thickness of the glowing edge, 0-1 (supports + - * / and ())	Độ dày cạnh phát sáng, 0-1 (hỗ trợ + - * / và ())
+this build has no X11 support	bản dựng này không hỗ trợ X11
+this cue has no known end to resolve into	cue này không có điểm cuối xác định để tiến về
+this file is only in OneDrive, and OneDrive is not running. Start OneDrive, or copy the file to this computer, then import it again	tệp này chỉ ở OneDrive và OneDrive chưa chạy. Khởi động OneDrive, hoặc chép tệp về máy này, rồi nhập lại
+this output's renderer could not cut the mask	bộ kết xuất đầu ra này không cắt được mặt nạ
+this presentation needs a password to open. Remove the password in PowerPoint (File > Info > Protect Presentation) or export it as a PDF, then import that	bản trình chiếu này cần mật khẩu để mở. Gỡ mật khẩu trong PowerPoint (File > Info > Protect Presentation) hoặc xuất thành PDF rồi nhập PDF
+Tints the two directions apart, so light bending one way and the other are different colours instead of both being grey.	Tô hai hướng khác màu, để ánh sáng uốn về hai phía có màu khác nhau thay vì đều xám.
+TRACKER SET: a step cannot act on its own playlist	TRACKER SET: một bước không thể tác động lên playlist chứa nó
+TRACKER: expected GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP or CLICKER	TRACKER: cần GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP hoặc CLICKER
+TRACKER: there are no steps (TRACKER ADD makes one)	TRACKER: chưa có bước (TRACKER ADD tạo mới)
+TSL Tally	Tally TSL
+Turbulence, 0 still to 3 boiling (supports + - * / and ())	Độ xoáy, 0 đứng yên đến 3 sôi (hỗ trợ + - * / và ())
+Turns the echo each pass, which winds the melt into a spiral.	Xoay tiếng vọng mỗi lượt, cuộn phần tan chảy thành xoắn ốc.
+Turns the rim's colours round the wheel, 0-1 (supports + - * / and ())	Xoay màu viền quanh vòng màu, 0-1 (hỗ trợ + - * / và ())
+Turns the strokes across the grain instead of along it, which combs the picture apart rather than smoothing it.	Xoay nét ngang thớ hạt thay vì dọc, chải tách hình thay vì làm mịn.
+Turns the whole arrangement, so the fold lines do not sit on the same part of the picture all night.	Xoay toàn bố cục để nếp gập không nằm trên cùng một phần hình suốt buổi tối.
+TUTORIAL SCREENS: expected a count, MIRRORED or REAL	TUTORIAL SCREENS: cần số lượng, MIRRORED hoặc REAL
+TUTORIAL: expected START, SHOWME, SKIP, EXIT, STATUS or SCREENS	TUTORIAL: cần START, SHOWME, SKIP, EXIT, STATUS hoặc SCREENS
+Two is a mirror, twelve is a snowflake, and they are completely different pictures.	Hai là gương, mười hai là bông tuyết, tạo hai hình hoàn toàn khác nhau.
+UDP port for transport sync	Cổng UDP để đồng bộ phát
+unbalanced )	dấu ) không cân bằng
+unsaved changes will be lost: press new again	sẽ mất thay đổi chưa lưu: nhấn mới lần nữa
+update: cannot find this app bundle to replace	cập nhật: không tìm thấy gói ứng dụng này để thay thế
+update: could not start the install helper	cập nhật: không khởi động được bộ hỗ trợ cài đặt
+update: could not start the installer	cập nhật: không khởi động được trình cài đặt
+update: could not write the install helper	cập nhật: không ghi được bộ hỗ trợ cài đặt
+UPDATE: expected check|download|install|status	UPDATE: cần check|download|install|status
+update: not running from an AppImage	cập nhật: không chạy từ AppImage
+VIDEO OUTPUT ASSIGN: already on this output, or no such deck or output	VIDEO OUTPUT ASSIGN: đã ở đầu ra này, hoặc không có deck hay đầu ra đó
+VIDEO OUTPUT LAYER: expected a layer number (1 is the base)	VIDEO OUTPUT LAYER: cần số lớp (1 là nền)
+VIDEO OUTPUT LAYER: this deck is not on this output, or it is already at that layer	VIDEO OUTPUT LAYER: deck này không ở đầu ra này, hoặc đã ở lớp đó
+VIDEO OUTPUT LAYERWARP MODE: linear or perspective	VIDEO OUTPUT LAYERWARP MODE: linear hoặc perspective
+VIDEO OUTPUT LAYERWARP: expected OFF, MODE, or eight numbers clockwise from the top left	VIDEO OUTPUT LAYERWARP: cần OFF, MODE, hoặc tám số theo chiều kim đồng hồ từ góc trên trái
+VIDEO OUTPUT UNASSIGN: this deck is not on this output, or it is the only thing on it	VIDEO OUTPUT UNASSIGN: deck này không ở đầu ra này, hoặc là nội dung duy nhất trên đó
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS	VJ: cần ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS
+vMix HTTP Port	Cổng HTTP vMix
+vMix TCP Port	Cổng TCP vMix
+WARP AT: open the editor (WARP EDIT) and select a point first	WARP AT: mở trình sửa (WARP EDIT) và chọn một điểm trước
+warp grid: expected <n>, <cols> <rows>, off, smooth or straight	lưới biến dạng: cần <n>, <cols> <rows>, off, smooth hoặc straight
+warp point: that is a corner -- move it with WARP <corner> dx dy	điểm biến dạng: đó là góc -- di chuyển bằng WARP <corner> dx dy
+WARP SELECT: expected TL, TR, BR, BL or a grid <col> <row>	WARP SELECT: cần TL, TR, BR, BL hoặc ô lưới <col> <row>
+web audio encoder cannot keep up	bộ mã hóa âm thanh web không theo kịp
+Web Monitor Connections	Kết nối Giám sát Web
+Web Monitor PIN	PIN Giám sát Web
+Web Monitor Port	Cổng Giám sát Web
+WEBMONITOR PIN: network sharing and phone control require 8 or more characters	WEBMONITOR PIN: chia sẻ mạng và điều khiển điện thoại cần ít nhất 8 ký tự
+WEBMONITOR QR: needs the monitor on and shared on the network	WEBMONITOR QR: cần bật giám sát và chia sẻ trên mạng
+WEBMONITOR SOURCE: could not create the web output	WEBMONITOR SOURCE: không tạo được đầu ra web
+WEBMONITOR SOURCE: PROGRAMME or the number of an output that shows a picture	WEBMONITOR SOURCE: PROGRAMME hoặc số đầu ra có hình
+WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (sound is included)	WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (có âm thanh)
+what the operator should be told when GO reaches here	thông báo cho người vận hành khi GO đến đây
+what the patch and the cues call it (FOH, SUB, PRESS FEED)	tên trong patch và cue (FOH, SUB, PRESS FEED)
+Where highlights fold back through black. Low folds most of the picture, high folds only the brightest.	Vị trí vùng sáng gập ngược qua đen. Thấp gập phần lớn hình, cao chỉ vùng sáng nhất.
+Where the band sits, 30Hz to 16kHz across the travel.	Vị trí dải, từ 30Hz đến 16kHz dọc hành trình.
+Where the eye sits, 0 left to 1 right (supports + - * / and ())	Vị trí mắt, 0 trái đến 1 phải (hỗ trợ + - * / và ())
+Where the eye sits, 0 top to 1 bottom (supports + - * / and ())	Vị trí mắt, 0 trên đến 1 dưới (hỗ trợ + - * / và ())
+Where the filter sits.	Vị trí bộ lọc.
+Where the fold sits: the middle at the left, toward the far edge to the right. Flips have no fold.	Vị trí nếp gập: giữa khi ở trái, gần mép xa khi ở phải. Lật không có nếp gập.
+Where the light stands, in degrees around the frame.	Vị trí đèn theo độ quanh khung.
+Where the source sits around the listener, all the way round. For headphones -- it is a timing and shading trick, not a pan.	Vị trí nguồn quanh người nghe, đủ cả vòng. Dành cho tai nghe -- dùng thời gian và bóng âm, không chỉ cân trái phải.
+Where the top ends, 200Hz to 20kHz. Pull it down to take the harshness off a bright source.	Giới hạn âm cao, 200Hz đến 20kHz. Kéo xuống để bớt chói với nguồn nhiều âm cao.
+Where to send transport (blank = broadcast)	Đích gửi điều khiển phát (trống = quảng bá)
+Which channel the curve acts on: all three, then red, green or blue on its own -- the way a colourist warms or cools one end of the picture.	Kênh mà đường cong tác động: cả ba, rồi riêng đỏ, lục hoặc lam -- như người chỉnh màu làm ấm hoặc lạnh một đầu dải sáng tối.
+Which switcher input Deckboy is (0 = not set)	Đầu vào bộ chuyển hình ứng với Deckboy (0 = chưa đặt)
+Which way it drips.	Hướng giọt chảy.
+Which way the knife edge lies. Only gradients ACROSS the edge show, so turning it swaps which features appear and which vanish.	Hướng lưỡi dao. Chỉ chuyển sắc NGANG cạnh mới hiện, nên xoay sẽ đổi chi tiết nào hiện hoặc biến mất.
+Which way the streak runs: across at the left, upright in the middle, across again at the right.	Hướng vệt: ngang ở trái, đứng ở giữa, lại ngang ở phải.
+Widens the decision into a ramp, so edges keep their shape instead of jagging.	Mở rộng ngưỡng thành dốc để cạnh giữ hình thay vì răng cưa.
+WIDTHxHEIGHT (e.g. 2560x1080)	RỘNGxCAO (ví dụ 2560x1080)
+WIDTHxHEIGHT (e.g. 5760x2160)	RỘNGxCAO (ví dụ 5760x2160)
+window capture fell back to screen grab — update ffmpeg for exact window capture	bắt cửa sổ đã chuyển sang chụp màn hình — cập nhật ffmpeg để bắt chính xác cửa sổ
+Words to surface in the field, separated by | . One shows at a time, moving on the hold clock.	Các từ xuất hiện trong trường, ngăn bằng | . Mỗi lần một từ, chuyển theo đồng hồ giữ.
+Zero is one noise value across all three channels, which reads as film. Higher gives each channel its own, which reads as video.	Mức 0 dùng cùng một giá trị nhiễu cho cả ba kênh, tạo cảm giác phim. Cao hơn cho mỗi kênh giá trị riêng, tạo cảm giác video.
+zones cleared: Motion reads the whole picture	đã xóa vùng: Chuyển động đọc toàn hình

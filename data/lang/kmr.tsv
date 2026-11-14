@@ -3241,3 +3241,1110 @@ FX CHOICE: choice must be A or B	FX CHOICE: hilbijartin divê A an B be
 FX CHOICE: no effect at that index	FX CHOICE: li wê rêzê efekt tune
 whole picture	wêneya tevahî
 FX LFO: slot is A-D for the parameters, E for the amount, F and G for the fifth and sixth (or 0-6)	FX LFO: slot ji bo parametreyan A-D ye, ji bo mîqdarê E ye, ji bo pêncemîn û şeşemîn F û G ne (an 0-6)
+angle	goşe
+attack	êriş
+azimuth	azîmut
+band curve	keviya bandê
+bands	band
+base layer	tebeqeya bingehîn
+bits	bît
+black point	xala reş
+bleed	belavbûn
+block glitch	glîça blokan
+block size	mezinahiya blokê
+blocks	blok
+blur	mij
+bright	geş
+buzzer	bîzer
+by brightness	li gor ronahiyê
+catch	girtin
+caustics	kaustîk
+channel skew	xwariya kanalê
+channel spread	belaviya kanalê
+character	tîp
+chop	parçekirin
+coherence	hevahengî
+colour bleed	belaviya rengê
+colour drift	şemitîna rengê
+colour lag	derengiya rengê
+colour replace	guhertina rengê
+columns	stûn
+convergence	nêzîkbûn
+copies	kopî
+corrupt	xerabkirin
+corruption	xerabî
+coupling	girêdan
+crystallise	krîstalkirin
+curl detail	hûrgiliya pêçê
+curves	kevî
+cut bright	birîna geş
+cut dark	birîna tarî
+cut reset	vegerîna bi birînê
+cutoff	frekansa birînê
+cuts	birîn
+cyan	şînkesk
+damage	zirar
+damping	vemirandin
+dark	tarî
+darkness	tarîtî
+deck age	temenê amûrê
+depth	kûrahî
+depth split	veqetîna kûrahiyê
+diamond	lozî
+distance	dûrahî
+doppler	dopler
+dots move	tevgera xalan
+drift	şemitîn
+drip	dilopandin
+drips	dilop
+drive	palnandin
+dye advect	veguhestina rengê
+edge ignite	pêketina keviyê
+edges	kevî
+empty	vala
+extended	firehkirî
+facet light	ronahiya rûyan
+falloff	kêmbûn
+falsecolour	rengê sexte
+feed rate	leza xwarinê
+feedback bloom	geşbûna vegerê
+ferrofluid	şileya magnetîk
+field of view	qada dîtinê
+flash length	dirêjiya birûskê
+flash to	birûsk bo
+flicker	lerizîna ronahiyê
+floor	bin
+flow	herikîn
+focus	fokus
+fold	qatkirin
+fold point	xala qatê
+frames	çarçove
+frequency	frekans
+gap	valahî
+gather	kombûn
+glow	birqîn
+glyph set	koma tîpan
+grain	danik
+grain flow	herikîna danikan
+grain size	mezinahiya danikê
+green split	veqetîna kesk
+grid	tor
+growl	girîn
+growth	mezinbûn
+head wear	kevnbûna serî
+heat	germî
+highlight roll	nermahiya geş
+histogram	hîstogram
+horizontal	berwarî
+hue turn	zivirîna rengê
+ice	cemed
+ink	mîrekkeb
+interference	têkdan
+irregularity	bêrêkî
+jump	bazdan
+kaleido	kaleîdo
+kaleidoscope	kaleîdoskop
+knee	çokê kompresorê
+knife angle	goşeya tîxê
+leak	derçûn
+let go	berdan
+lift	bilindkirin
+light	ronahî
+light angle	goşeya ronahiyê
+lightspeed	leza ronahiyê
+line colour	rengê xêzê
+line glow	birqîna xêzê
+lissajous	lîsajo
+luma displace	veguhestina lûmayê
+luma key	kilîta lûmayê
+material	madde
+melt	heliyan
+memory	bîr
+midtones	tonên navîn
+moire	moare
+mono	mono deng
+mosaic	mozaîk
+motion mosh	têkçûna tevgerê
+motion puppet	bûkika tevgerê
+motion trails	şopên tevgerê
+night eyes	çavên şevê
+no colour	bê reng
+noise	şawiş
+not connected	ne girêdayî
+nothing drawn	tiştek nehatiye xêzkirin
+off-axis	derveyî aksê
+offline	negirêdayî
+orbit speed	leza gerê
+overflow	serrijandin
+parade	parad
+parallax	cudahiya dîtinê
+phone	telefon
+pinch	çikandin
+ping-pong	çûnûhatin
+pink noise	şawişa pembe
+pitch	bilindahiya dengê
+pivot	xala zivirînê
+pixel sort	rêzkirina pîkselan
+plasma	plazma
+polar warp	xwarina cemserî
+posterise	posterkirin
+radial zoom	zûma tîşkî
+radio	radyo
+radius	nîvtîr
+ramp	pêlgeh
+range	navber
+ratio	rêje
+reach	gihîştin
+reaction bloom	geşbûna reaksiyonê
+recordings	qeyd
+recovering	di vegerandinê de
+refresh	nûkirin
+release	berdan
+relief	nexşa bilind
+relight	ji nû ve ronîkirin
+repeat width	firehiya dubareyê
+resonance	rezonans
+reverse	berevajî
+rgb split	veqetîna RGB
+rings	bazin
+ripple	pêloke
+rising	ber bi jor
+rod bias	alîgiriya şivikê
+room	ode
+rot	genîbûn
+rotation	zivirîn
+round	girover
+sag	şilbûn
+saw	diran? me?ar?
+scanlines	xêzên skanê
+schlieren	şlîren
+scope	skop
+second mode	moda duyem
+see through	şefafî
+seed density	çiriya tovê
+self	xwe
+settle	niştin
+shadow lift	bilindkirina siyê
+shake	lerizîn
+shard size	mezinahiya perçeyê
+sharpen	tûjkirin
+sheen	birq
+sideways	ber bi kêlekê
+slit scan	skana şikê
+slit width	firehiya şikê
+smear	lekekirin
+softness	nermî
+solarise	solarîze
+spike count	hejmara tîkan
+spike length	dirêjiya tîkan
+spin	zivirîn
+spinning	dizivire
+spring	faner
+sprite sheet	pelê spraîtan
+square	çargoşe
+steps	gav
+stereogram	steryogram
+stiffness	reqî
+sting	pêvek
+strength	hêz
+strobe	strob
+stroke	xêza firçeyê
+sway	lelîn
+sweep	şûştin
+sweep speed	leza şûştinê
+swell speed	leza pêlê
+symbols	nîşan
+system default	ya standard a pergalê
+system output	derketina pergalê
+tape	şerît
+tape age	temenê şerîtê
+tear width	firehiya çirandinê
+temporal dither	dîtera demî
+test signal	sînyala testê
+text to send	teksta şandinê
+threshold	sînor
+throw	avêtin
+tile size	mezinahiya kaşiyê
+tilt	larbûn
+time	dem
+time cube	kuba demê
+tint	rengdan
+tint colour	rengê rengdanê
+tracking	şopandin
+trail	şop
+transparent	şefaf
+triangle	sêgoşe
+triple beep	sê bîp
+turn	zivirîn
+twist	pêçan
+unavailable	ne berdest
+unbalanced )	kevaniya ) nehevseng
+vapor	helm
+vector	vektor
+vertical	stûnî
+vertical bias	alîgiriya stûnî
+vibrato	vîbrato
+vignette	tarîkirina keviyan
+wash out	çilkebûn
+wave height	bilindahiya pêlê
+wavefront	eniya pêlê
+way	alî
+wedges	qert
+white	spî
+white noise	şawişa spî
+white point	xala spî
+window hidden	pace veşartî ye
+window minimized	pace biçûkkirî ye
+wire	tel
+wrong display	ekrana şaş
+zoom	zûm
+(choose cue)	(kyû hilbijêre)
+(missing)	(winda)
+(no slots)	(cî tune)
+(set media file)	(pelê medyayê diyar bike)
+(set url)	(url diyar bike)
+A number	Hejmar
+across the grain	li firehiya danikan
+additive	zêdeker
+alternating	bi dor
+amber	kehrebayî
+Audio bitrate	rêjeya bîta dengê
+Audio reactivity	reagirîna dengê
+Brush opacity	tariya firçeyê
+Brush size	mezinahiya firçeyê
+cancelled	betal bû
+Canvas Height	bilindahiya kanvasê
+Canvas View	dîtina kanvasê
+Canvas Width	firehiya kanvasê
+Centre X	navend X
+Centre Y	navend Y
+Control change	guhertina kontrolê
+Cue Notes	notên kyûyê
+Custom Glyphs	tîpên taybet
+Density	Çirî
+Detail	Hûrgilî
+Draw colour	rengê xêzkirinê
+empty expression	îfadeya vala
+export as .png or .svg	wek .png an .svg derxe
+Fixture address	adresa ronahiyê
+Fixture name	navê ronahiyê
+Fixture universe	yûnîversa ronahiyê
+Height	Bilindahî
+Height (px)	Bilindahî (px)
+Key Color	rengê kilîtê
+Keyframe interval	navbera çarçoveya kilîtê
+Live Browser	geroka zindî
+Live Source	çavkaniya zindî
+Mask opacity	tariya maskê
+Mask rotation	zivirîna maskê
+Mask scale	pîvana maskê
+Mask X	maske X
+Mask Y	maske Y
+Add Browser Cue	Kyûya gerokê zêde bike
+Add NDI Source Cue	Kyûya çavkaniya NDI zêde bike
+Add Stream Cue	Kyûya strîmê zêde bike
+Art-Net Destination	Armanca Art-Net
+ASCII 95 (density)	ASCII 95 (çirî)
+ASCII 95 (raw)	ASCII 95 (xam)
+ASIO is off	ASIO girtî ye
+ATEM Input	Têketina ATEM
+Attach Lower Third	Lower Third pêve bike
+Attach PIP Overlay	Tebeqa PIP pêve bike
+Attack	Êriş
+Bands	Band
+Blobs	Leke
+BOTH	HERDU
+Browser Ready	Gerok amade ye
+CLASSIC	KLASÎK
+CLOCK	DEMJIMÊR
+Companion/OSC Port	Porta Companion/OSC
+control 1	kontrol 1
+control 2	kontrol 2
+control 3	kontrol 3
+control 4	kontrol 4
+could not reach github	negihîşt github
+could not read the PDF	PDF nehat xwendin
+could not start ffmpeg	ffmpeg dest pê nekir
+Cue Goto	Biçe kyûyê
+Custom Output Raster	Rastera derketinê ya taybet
+Default Cue Fade	Feyda standard a kyûyê
+Destination Address	Adresa armancê
+Destination UDP port	Porta UDP ya armancê
+display native	resena ekranê
+Display none	Ekran tune
+DMX Channels	Kanalên DMX
+EXTREME	TUND
+Feedback zoom	Zûma vegerê
+Find Cue	Kyû bibîne
+Find+Take Cue	Kyû bibîne û TAKE bike
+Fire at a time of day	Di saeteke diyarkirî de bide destpêkirin
+Fire on a MIDI note	Bi noteya MIDI bide destpêkirin
+Fire on an OSC address	Bi adresa OSC bide destpêkirin
+First channel (1-512)	Kanala yekem (1-512)
+Flipbook rate	Leza wergerandina wêneyan
+Flow	Herikîn
+Frequency	Frekans
+Glitch	Glîç
+GOTO Cue	GOTO Biçe kyûyê
+Grey	Gewr
+In time	Dema têketinê
+Its name, number or id	Nav, hejmar an idya wê
+Key sender source name	Navê çavkaniya şandera kilîtê
+Legacy Cue Link	Girêdana kevn a kyûyê
+Lissajous (L/R phase)	Lîsajo (faza L/R)
+Lower Third - subtitle	Lower Third - binnivîs
+Lower Third - title	Lower Third - sernav
+Lower Third Subtext	Binnivîsa Lower Third
+Lower Third Title	Sernavê Lower Third
+Media	Medya
+Melt	Heliyan
+Milliseconds 0-5000	Mîlîçirke 0-5000
+Mod depth	Kûrahiya modûlasyonê
+Mod ratio	Rêjeya modûlasyonê
+music & sparkle	muzîk û birqîn
+NDI Key Name	Navê kilîta NDI
+NDI Name	Navê NDI
+NDI Source Name	Navê çavkaniya NDI
+NEXT	PAŞTIR
+NMC Port	Porta NMC
+NMC Source	Çavkaniya NMC
+NMC Target	Armanca NMC
+NMOS Interface Name	Navê navrûya NMOS
+NMOS Node Port	Porta girêka NMOS
+NMOS Registry	Tomara NMOS
+no ASIO in this build	di vê avakirinê de ASIO tune
+no driver named	driver bi vî navî tune
+no mask made	maske nehatiye çêkirin
+no release found	weşan nehat dîtin
+no X display to read	ekrana X ji bo xwendinê tune
+not on this output	ne li ser vê derketinê ye
+Note off	Note rawestîne
+Note on	Note bide destpêkirin
+OSC Address	Adresa OSC
+OSC Query HTTP Port	Porta HTTP ya pirsa OSC
+Out time	Dema derketinê
+Output Alpha	Alfaya derketinê
+Output Canvas	Kanvasa derketinê
+Output Delay	Derengiya derketinê
+output fault	çewtiya derketinê
+Output name	Navê derketinê
+Output Refresh	Nûkirina derketinê
+own playlist	lîsteya xwe
+Payload	Naveroka peyamê
+Percent 0-100	Ji sedî 0-100
+Phrases	Hevok
+PIP Target Cue	Kyûya armanca PIP
+Pixel density	Çiriya pîkselan
+Playlist Start TC	TCya destpêka lîsteyê
+Playlist Timebase	Bingehê dema lîsteyê
+Plugin	Pêvek
+Portal	Dergeh
+Practice show	Pêşandana pratîkê
+PREVIOUS	BERÊ
+Program change	Guhertina programê
+Prompter script	Teksta prompterê
+pulse 25%	pels 25%
+QUALITY	KALÎTE
+Raw bytes	Baytên xam
+Raw MIDI Bytes	Baytên xam ên MIDI
+Release	Berdan
+Rename cue	Navê kyûyê biguherîne
+Rename fixture	Navê ronahiyê biguherîne
+Renumber Cues	Kyûyan ji nû ve hejmar bike
+Replay hold	Ragirtina dubareyê
+Retrigger	Dîsa destpê bike
+Rim	Kevî
+Rotation	Zivirîn
+runtime unavailable	jîngeha xebitandinê ne berdest e
+Save Warp Preset	Pêşmîhenga xwarinê tomar bike
+SCOPES	SKOP
+Seconds (0-30)	Çirke (0-30)
+Sender source name	Navê çavkaniya şanderê
+size out of range	mezinahî derveyî navberê ye
+Smear	Lekekirin
+Source Ready	Çavkanî amade ye
+Spout Sender Name	Navê şandera Spout
+Sprite spin	Zivirîna spraîtê
+SRT latency	Derengiya SRT
+SRT passphrase	Şîfreya SRT
+SRT stream ID	IDya strîma SRT
+ST 2110 Destination	Armanca ST 2110
+ST 2110 Port	Porta ST 2110
+Step length	Dirêjiya gavê
+stream restart needed	strîm divê ji nû ve dest pê bike
+Stream URL	URLya strîmê
+stream write failed	nivîsandina strîmê têk çû
+SUBTLE	NERM
+Switcher IP address	Adresa IP ya switcherê
+Timer Message	Peyama demjimêrê
+TSL Tally	Talîya TSL
+Turn	Zivirîn
+Twist	Pêçan
+Universe (0-63999)	Yûnîvers (0-63999)
+URL or local page path	URL an rêya rûpela herêmî
+Video bitrate	Rêjeya bîta vîdyoyê
+Video dip fade	Feyda vîdyoyê di rengê de
+vMix HTTP Port	Porta HTTP ya vMix
+vMix TCP Port	Porta TCP ya vMix
+Web Monitor PIN	PINa şopandera webê
+Web Monitor Port	Porta şopandera webê
+What it runs	Çi dimeşîne
+Which cue	Kîjan kyû
+X,Y offset in pixels	Veguhestina X,Y bi pîkselan
+Zoom	Zûm
+a name for this step	navek ji bo vê gavê
+A number, or blank for none	Hejmarek, an vala ji bo tune
+A command line, or blank for nothing	Rêzeke fermanê, an vala ji bo tiştek tune
+a playlist that is gone	lîsteyeke lêxistinê ya ku nemaye
+a target cannot target another target	armancek nikare armanceke din bike armanc
+add an output to scope it	derketinek zêde bike da bi skopê bipîvî
+an ASIO stream is already open	strîmeke ASIO jixwe vekirî ye
+another app is holding the pointer	bernameyeke din nîşankerê girtiye
+built without ASIO support	bê piştgiriya ASIO hatiye avakirin
+built without NDI SDK headers	bê sernavên NDI SDK hatiye avakirin
+channel count must be at least 1	hejmara kanalan divê herî kêm 1 be
+comma outside a function call	virgûl li derveyî banga fonksiyonê
+could not start the PDF renderer	lêxistina renderkera PDF dest pê nekir
+could not write the export script	skrîpta derxistinê nehat nivîsandin
+couldn't open explorer	explorer nehat vekirin
+couldn't open file manager	rêvebera pelan nehat vekirin
+couldn't open finder	finder nehat vekirin
+driver refused to start	driver dest pê nekir
+driver reports no output channels	driver dibêje kanalên derketinê tune ne
+driver would not create output buffers	driver bufferên derketinê çênekirin
+driver would not load (in use by another application?)	driver bar nebû (bernameyeke din bi kar tîne?)
+driver would not report a buffer size	driver mezinahiya bufferê ragihand ne kir
+driver would not report channel info	driver agahiya kanalê ragihand ne kir
+escaped to windowed	vegeriya moda paceyê
+ffmpeg made no file	ffmpeg pelek çênekir
+ffmpeg stopped taking frames	ffmpeg dev ji wergirtina çarçoveyan berda
+fullscreen dropped	moda tijî ekranê qut bû
+it could not be started	dest pê nekir
+LibreOffice could not be run	LibreOffice nehat xebitandin
+LibreOffice produced no PDF	LibreOffice PDF çênekir
+libX11 is not installed	libX11 ne sazkirî ye
+lost the session bus	girêdana bi basa danişînê qut bû
+macOS could not read the PDF	macOS nikaribû PDF bixwîne
+no pages could be rendered	ji tu rûpelê render nehat girtin
+not a MIDI file (no MThd header)	ne pelê MIDI ye (sernavê MThd tune)
+not while a cue is playing	ne dema kyû tê lêxistin
+only a background in it	tenê paşxaneyek tê de ye
+opened in explorer	di explorer de vebû
+opened in file manager	di rêvebera pelan de vebû
+pdftoppm produced no pages	pdftoppm tu rûpel çênekir
+PowerPoint could not export this file	PowerPoint nikaribû vî pelî derxe
+release has no build for this platform	weşan ji bo vê platformê avakirin tune
+revealed in finder	di finder de hat nîşandan
+target cue is gone	kyûya armancê nemaye
+targets nothing	tu armanc tune
+the document has no pages	belgename tu rûpel nade
+the file has no playable events	pel bûyerên lêxistinê nade
+the file is empty	pel vala ye
+the header is truncated	sernav birrî ye
+the NDI runtime is not installed	jîngeha NDI ne sazkirî ye
+the PDF renderer produced no pages	renderkera PDF tu rûpel çênekir
+the screen could not be read there	ekran li wir nehat xwendin
+the show plays through ASIO	pêşandan bi ASIO tê lêxistin
+the time division is not readable	dabeşkirina demê nayê xwendin
+this build has no X11 support	vê avakirinê piştgiriya X11 tune
+update: could not start the installer	nûkirin: sazker dest pê nekir
+update: could not start the install helper	nûkirin: alîkara sazkirinê dest pê nekir
+update: could not write the install helper	nûkirin: alîkara sazkirinê nehat nivîsandin
+update: not running from an AppImage	nûkirin: ji AppImage nayê xebitandin
+web audio encoder cannot keep up	enkodera dengê webê nikare bigihîje lezê
+Web Monitor Connections	Girêdanên şopandera webê
+%, 1 to 100 (supports + - * / and ())	%, 1 heta 100 (piştgiriya + - * / û () dike)
+0-1 (supports + - * / and ())	0-1 (piştgiriya + - * / û () dike)
+0-100% (supports + - * / and ())	0-100% (piştgiriya + - * / û () dike)
+0-100%, left to right (supports + - * / and ())	0-100%, ji çepê ber bi rastê (piştgiriya + - * / û () dike)
+0-100%, top to bottom (supports + - * / and ())	0-100%, ji jor ber bi jêr (piştgiriya + - * / û () dike)
+Amount 0-100% (supports + - * / and ())	Mîqdar 0-100% (piştgiriya + - * / û () dike)
+Colour steps, 2-8 (supports + - * / and ())	Gavên rengê, 2-8 (piştgiriya + - * / û () dike)
+Degrees -180..180 (supports + - * / and ())	Derece -180..180 (piştgiriya + - * / û () dike)
+Degrees per second, -720 to 720 (supports + - * / and ())	Derece di çirkeyê de, -720 heta 720 (piştgiriya + - * / û () dike)
+Degrees round the colour wheel, 0-360 (supports + - * / and ())	Derece li dora çerxa rengê, 0-360 (piştgiriya + - * / û () dike)
+Degrees, -360 to 360 (supports + - * / and ())	Derece, -360 heta 360 (piştgiriya + - * / û () dike)
+Degrees, 0-360 (supports + - * / and ())	Derece, 0-360 (piştgiriya + - * / û () dike)
+Feature size, 0.1-8 (supports + - * / and ())	Mezinahiya taybetmendiyê, 0.1-8 (piştgiriya + - * / û () dike)
+Frames a second, 1 to 60 (supports + - * / and ())	Çarçove di çirkeyê de, 1 heta 60 (piştgiriya + - * / û () dike)
+Hertz, 20-20000 (supports + - * / and ())	Hertz, 20-20000 (piştgiriya + - * / û () dike)
+Horizontal cells, 64-960 (supports + - * / and ())	Şaneyên berwarî, 64-960 (piştgiriya + - * / û () dike)
+How big a blob grows, 0-1 (supports + - * / and ())	Mezinahiya mezinbûna lekeyê, 0-1 (piştgiriya + - * / û () dike)
+How hard it cuts, %, 0 to 100 (supports + - * / and ())	Hişkiya birînê, %, 0 heta 100 (piştgiriya + - * / û () dike)
+How hard the audio drives it, 0-1 (supports + - * / and ())	Hêza ajotina dengê, 0-1 (piştgiriya + - * / û () dike)
+How many are alive at once, 3-48 (supports + - * / and ())	Çend bi hev re zindî ne, 3-48 (piştgiriya + - * / û () dike)
+Palette turn, 0-1 (supports + - * / and ())	Zivirîna paletê, 0-1 (piştgiriya + - * / û () dike)
+Pitch in hertz, 20-8000 (supports + - * / and ())	Bilindahiya dengê bi hertz, 20-8000 (piştgiriya + - * / û () dike)
+Pixel sort amount, 0-1 (supports + - * / and ())	Mîqdara rêzkirina pîkselan, 0-1 (piştgiriya + - * / û () dike)
+Pixels (supports + - * / and ())	Pîksel (piştgiriya + - * / û () dike)
+Pixels, 64-2160 (supports + - * / and ())	Pîksel, 64-2160 (piştgiriya + - * / û () dike)
+Pixels, 64-3840 (supports + - * / and ())	Pîksel, 64-3840 (piştgiriya + - * / û () dike)
+Scale of the whole graphic, 0.5-2 (supports + - * / and ())	Pîvana hemû grafîkê, 0.5-2 (piştgiriya + - * / û () dike)
+Seconds between retriggers, 0-8 (supports + - * / and ())	Çirke di navbera destpêkirinên nû de, 0-8 (piştgiriya + - * / û () dike)
+Seconds the finished drawing stays, 0 to 60 (supports + - * / and ())	Çirkeyên mayîna xêza temamkirî, 0 heta 60 (piştgiriya + - * / û () dike)
+Seconds the in move takes, 0-5 (supports + - * / and ())	Çirkeyên tevgera têketinê, 0-5 (piştgiriya + - * / û () dike)
+Seconds the out move takes, 0-5 (supports + - * / and ())	Çirkeyên tevgera derketinê, 0-5 (piştgiriya + - * / û () dike)
+Seconds, 0-4 (supports + - * / and ())	Çirke, 0-4 (piştgiriya + - * / û () dike)
+Seconds, 0-8 (supports + - * / and ())	Çirke, 0-8 (piştgiriya + - * / û () dike)
+Size, %, 5 to 400 (supports + - * / and ())	Mezinahî, %, 5 heta 400 (piştgiriya + - * / û () dike)
+Spiral size, 0.25-4 (supports + - * / and ())	Mezinahiya spiralê, 0.25-4 (piştgiriya + - * / û () dike)
+Spiral strength, 0-4 (supports + - * / and ())	Hêza spiralê, 0-4 (piştgiriya + - * / û () dike)
+Thickness of the glowing edge, 0-1 (supports + - * / and ())	Stûrahiya keviya birqok, 0-1 (piştgiriya + - * / û () dike)
+Where the eye sits, 0 left to 1 right (supports + - * / and ())	Cihê çavê, 0 çep heta 1 rast (piştgiriya + - * / û () dike)
+Where the eye sits, 0 top to 1 bottom (supports + - * / and ())	Cihê çavê, 0 jor heta 1 jêr (piştgiriya + - * / û () dike)
+% of the picture's height, 0.1 to 20 (supports + - * / and ())	% ji bilindahiya wêneyê, 0.1 heta 20 (piştgiriya + - * / û () dike)
+-3 to 3: 0 holds, negative runs backwards (supports + - * / and ())	-3 heta 3: 0 radigire, neyînî berevajî dimeşîne (piştgiriya + - * / û () dike)
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono (supports + - * / and ())	0 klasîk, 1 agir, 2 cemed, 3 neyon, 4 yekreng (piştgiriya + - * / û () dike)
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono (supports + - * / and ())	0 keskesor + gewr, 1 keskesor, 2 rûkar, 3 yekreng (piştgiriya + - * / û () dike)
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear (supports + - * / and ())	0 herêm, 1 cot, 2 herikîn, 3 zîn, 4 pêloke, 5 birîn (piştgiriya + - * / û () dike)
+0-100%: 0 holds the field still (supports + - * / and ())	0-100%: 0 qadê bê tevger dihêle (piştgiriya + - * / û () dike)
+0-100%: 50 is 1x, 0 a quarter, 100 four times (supports + - * / and ())	0-100%: 50 ew 1x e, 0 çaryek, 100 çar qat (piştgiriya + - * / û () dike)
+0-100%: how far the field bends (supports + - * / and ())	0-100%: qad çiqas diçeve (piştgiriya + - * / û () dike)
+0-100%: the share of each band drawn as grey stripes (supports + - * / and ())	0-100%: para her bandê ku wek xêzên gewr tê xêzkirin (piştgiriya + - * / û () dike)
+Across, % of the width, -100 to 100 (supports + - * / and ())	Berwarî, % ji firehiyê, -100 heta 100 (piştgiriya + - * / û () dike)
+Birth, drift and fade rate, 0.1-3 (supports + - * / and ())	Leza çêbûn, şemitîn û wendabûnê, 0.1-3 (piştgiriya + - * / û () dike)
+Block displacement and channel tearing, 0-1 (supports + - * / and ())	Veguhestina blokan û çirandina kanalan, 0-1 (piştgiriya + - * / û () dike)
+dBFS, -60 to 0 (-18 is EBU alignment) (supports + - * / and ())	dBFS, -60 heta 0 (-18 lihevhatina EBU ye) (piştgiriya + - * / û () dike)
+Down, % of the height, -100 to 100 (supports + - * / and ())	Ber bi jêr, % ji bilindahiyê, -100 heta 100 (piştgiriya + - * / û () dike)
+Edge out (+) or in (-), % of the height, -25 to 25 (supports + - * / and ())	Kevî ber bi derve (+) an hundir (-), % ji bilindahiyê, -25 heta 25 (piştgiriya + - * / û () dike)
+Edge softness, % of the height, 0 to 25 (supports + - * / and ())	Nermiya keviyê, % ji bilindahiyê, 0 heta 25 (piştgiriya + - * / û () dike)
+FDS hardware gain range, 0-63 (supports + - * / and ())	Navbera gaina reqalava FDS, 0-63 (piştgiriya + - * / û () dike)
+Fields per frame, 0-4 (1 = one field per rendered frame) (supports + - * / and ())	Qad di her çarçoveyê de, 0-4 (1 = qadek di her çarçoveya renderkirî de) (piştgiriya + - * / û () dike)
+How much of each frame feeds the next, 0-0.95 (supports + - * / and ())	Çiqas ji her çarçoveyê ya din xwedî dike, 0-0.95 (piştgiriya + - * / û () dike)
+How readily neighbours merge, 0 (never) to 1 (supports + - * / and ())	Cîran çiqas bi hêsanî dibin yek, 0 (qet) heta 1 (piştgiriya + - * / û () dike)
+Internal resolution, 1 (chunky) to 5 (fine) (supports + - * / and ())	Zelaliya hundirîn, 1 (hûr ne) heta 5 (hûr) (piştgiriya + - * / û () dike)
+Master oscillator rate, 0.01-8 (supports + - * / and ())	Leza osîlatora sereke, 0.01-8 (piştgiriya + - * / û () dike)
+Modulator as a ratio of the note, 0.05-16 (supports + - * / and ())	Modûlator wek rêjeya noteyê, 0.05-16 (piştgiriya + - * / û () dike)
+One LED tile's height in pixels, 8-8192 (supports + - * / and ())	Bilindahiya kaşiyeke LED bi pîkselan, 8-8192 (piştgiriya + - * / û () dike)
+One LED tile's width in pixels, 8-8192 (supports + - * / and ())	Firehiya kaşiyeke LED bi pîkselan, 8-8192 (piştgiriya + - * / û () dike)
+Per-frame zoom of the feedback path, 0.90-1.15 (supports + - * / and ())	Zûma rêya vegerê di her çarçoveyê de, 0.90-1.15 (piştgiriya + - * / û () dike)
+Scanlines, bloom and gun misalignment, 0-1 (supports + - * / and ())	Xêzên skanê, birqîn û nexwesaziya tivingê, 0-1 (piştgiriya + - * / û () dike)
+Seconds before it leaves by itself; 0 waits for OUT (supports + - * / and ())	Çirke berî derketina xweber; 0 li benda OUT dimîne (piştgiriya + - * / û () dike)
+Space under it, as a fraction of the frame, 0-0.8 (supports + - * / and ())	Valahiya binê wê wek para çarçoveyê, 0-0.8 (piştgiriya + - * / û () dike)
+Turbulence, 0 still to 3 boiling (supports + - * / and ())	Tevlihevî, 0 aram heta 3 kelîn (piştgiriya + - * / û () dike)
+Turns the rim's colours round the wheel, 0-1 (supports + - * / and ())	Rengên keviyê li dora çerxê dizivirîne, 0-1 (piştgiriya + - * / û () dike)
+AUTO	XWEBER
+auto (59.94 Hz)	xweber (59.94 Hz)
+BITRATE	RÊJEYA BÎTÊ
+audioprint	çapa dengê
+bohlen-pierce	bohlen-pîrs
+chladni	kladnî
+databend	çemandina daneyan
+datamosh	datamoş
+Devamp	Dawiya dubareyê
+Fireside	Li ber agir
+just	xwerû
+meantone	tona navîn
+pythagorean	fîsagorsî
+purkinje	pûrkînî
+Ouroboros	Ûroboros
+MONO L	MONO DENG L
+MONO R	MONO DENG R
+LOAD NEXT	YA PAŞTIR BAR BIKE
+MSC Cue Number	Hejmara kyûya MSC
+SYPHON TEXTURE SHARE	PARVEKIRINA TEKSTÛRÊ BI SYPHON
+SYPHON / SPOUT TEXTURE SHARE	PARVEKIRINA TEKSTÛRÊ BI SYPHON / SPOUT
+DECODE --.-	DEKOD --.-
+DECODE OFF	DEKOD OFF
+DECODE WARM	DEKOD GERM
+OUTPUT --.-	DERKETIN --.-
+OUTPUT WARM	DERKETIN GERM
+STREAM --.-	STRÎM --.-
+STREAM ERR	ÇEWTIYA STRÎMÊ
+STREAM OFF	STRÎM OFF
+STREAM WARM	STRÎM GERM
+PROXY 720p	PROKSÎ 720p
+hh:mm:ss or seconds	hh:mm:ss an çirke
+e.g. /cue/1/start	mînak /cue/1/start
+e.g. 12.5	mînak 12.5
+e.g. 192.168.1.50	mînak 192.168.1.50
+e.g. 1=255, 10-14=64	mînak 1=255, 10-14=64
+e.g. 20:0 or client name	mînak 20:0 an navê xerîdarê
+e.g. 90 3C 7F	mînak 90 3C 7F
+0-127; 127 is all-call	0-127; 127 banga hemûyan e
+0-127; the domain the facility's clock runs on	0-127; domena demjimêra sazgehê
+10-79 characters, or empty for none	10-79 tîp, an vala ji bo tune
+8+ characters; letters and symbols are allowed	8+ tîp; tîp û nîşan destûr in
+Apple keeps the Keynote format secret on purpose, a malicious lock-in tactic, so only Apple's own software can read it properly. Best route: open it in Keynote on iCloud.com (free, in any browser), choose Download a Copy > PDF, and import that PDF	Apple bi mebest formata Keynote veşartî dihêle; ev taktîkeke xerabkar a girêdana bikarhêneran e, da ku tenê nermalava Apple wê rast bixwîne. Rêya herî baş: wê di Keynote li iCloud.com veke (belaş, di her gerokê de), Download a Copy > PDF hilbijêre û wê PDF bîne hundir
+8+ characters; other machines send AUTH <passphrase> first. Empty = off	8+ tîp; makîneyên din pêşî AUTH <passphrase> dişînin. Vala = girtî
+A command line, as a DASH button runs it. {value} is the knob's number, {note} the key.	Rêzeke fermanê, wek bişkojka DASH dimeşîne. {value} hejmara kontrolê ye, {note} bişkojk e.
+an IPv4 address, or 255.255.255.255 to broadcast	Adreseke IPv4, an 255.255.255.255 ji bo broadcast
+browser connections at once, 1-64 (default 8)	girêdanên gerokê bi hev re, 1-64 (standard 8)
+Default Non-Movie Duration	Dema standard ji bilî vîdyoyê
+Fire at incoming timecode	Li koda dema hatî bide destpêkirin
+Hz or AUTO (e.g. 60 or 59.94)	Hz an AUTO (mînak 60 an 59.94)
+kbps (32-512; 160 is a sane default)	kbps (32-512; 160 standardeke baş e)
+milliseconds (40..2000)	mîlîçirke (40..2000)
+milliseconds (20-8000; ~4x your RTT)	mîlîçirke (20-8000; nêzîkî 4x RTT)
+Name visible to receivers	Navê ku wergir dibînin
+NDI source name (e.g. LAPTOP (source 1))	Navê çavkaniya NDI (mînak LAPTOP (source 1))
+OSC Feedback Mirror Rate	Leza neynika vegera OSC
+Paste the key from your platform	Kilîta platforma xwe pêve bike
+paste your stream key here	kilîta strîma xwe li vir pêve bike
+pixels (of the output raster)	pîksel (ên rastera derketinê)
+position on the output raster, in pixels	cih li ser rastera derketinê, bi pîkselan
+Routing hint for the receiver	Nîşana rêkirinê ji bo wergirê
+seconds (1-10; most platforms want 2)	çirke (1-10; piraniya platforman 2 dixwazin)
+Seconds for new-cue fade in/out defaults	Çirke ji bo feyda têketin/derketina standard a kyûya nû
+seconds this step holds before PLAY moves on	çirkeyên ragirtina vê gavê berî ku PLAY pêş de biçe
+ST 2110 network interface	Navrûya tora ST 2110
+Target IP (or 255.255.255.255 to broadcast)	IPya armancê (an 255.255.255.255 ji bo broadcast)
+UDP port for transport sync	Porta UDP ji bo hevdemkirina lêxistinê
+Where to send transport (blank = broadcast)	Cihê şandina kontrola lêxistinê (vala = broadcast)
+Which switcher input Deckboy is (0 = not set)	Kîjan têketina switcherê Deckboy e (0 = ne diyar)
+AUDIOALSO: expected ADD <name>, REMOVE <name> or CLEAR	AUDIOALSO: Forma bendewar: ADD <name>, REMOVE <name> an CLEAR
+BROWSER KEY: expected Enter|Tab|Backspace|Escape	BROWSER KEY: Forma bendewar: Enter|Tab|Backspace|Escape
+BUGSWAT: expected START, SHOWME, SKIP, PLAY, EXIT or STATUS	BUGSWAT: Forma bendewar: START, SHOWME, SKIP, PLAY, EXIT an STATUS
+CAPTIONS LIVE: expected ON, OFF, STATUS or TEXT	CAPTIONS LIVE: Forma bendewar: ON, OFF, STATUS an TEXT
+CAPTIONS SOURCE: expected INPUT, DECK <n> or OUTPUT <n>	CAPTIONS SOURCE: Forma bendewar: INPUT, DECK <n> an OUTPUT <n>
+DMXCUE FIXTURE: expected <name> <level%>|LEAVE [<colour>]	DMXCUE FIXTURE: Forma bendewar: <name> <level%>|LEAVE [<colour>]
+DMXCUE LFO: expected <name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]	DMXCUE LFO: Forma bendewar: <name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]
+DMXCUE: expected NEW, SET, FADE, UNIVERSE, HOST, PORT, FIRE or BLACKOUT	DMXCUE: Forma bendewar: NEW, SET, FADE, UNIVERSE, HOST, PORT, FIRE an BLACKOUT
+ENDACTION: expected INHERIT, STOP, LOOP, HOLD or NEXT	ENDACTION: Forma bendewar: INHERIT, STOP, LOOP, HOLD an NEXT
+expected waveform|scope|lissajous|spectrum|level|cover	Forma bendewar: waveform|scope|lissajous|spectrum|level|cover
+FADE CURVE: expected linear, ease-in, ease-out or s-curve	FADE CURVE: Forma bendewar: linear, ease-in, ease-out an s-curve
+FADE WHAT: expected opacity, volume, dimmer, brightness, contrast, saturation, hue, effect, audiofx or speed	FADE WHAT: Forma bendewar: opacity, volume, dimmer, brightness, contrast, saturation, hue, effect, audiofx an speed
+FIXTURE ADD: expected <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]	FIXTURE ADD: Forma bendewar: <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]
+LOWERSTYLE: expected none, fade, rise, slide, wipe or NEXT	LOWERSTYLE: Forma bendewar: none, fade, rise, slide, wipe an NEXT
+MASK ASSIGN: expected <id|NONE> CUE | LAYER <output> <playlist> | OUTPUT <n> | MATTE <n>	MASK ASSIGN: Forma bendewar: <id|NONE> CUE | LAYER <output> <playlist> | OUTPUT <n> | MATTE <n>
+MASK ASSIGN: expected CUE, LAYER, OUTPUT or MATTE	MASK ASSIGN: Forma bendewar: CUE, LAYER, OUTPUT an MATTE
+MASK EXPORT: expected <id> <file.png|file.svg> [WxH]	MASK EXPORT: Forma bendewar: <id> <file.png|file.svg> [WxH]
+MASK LFO: expected <id> <param> ON|OFF [rate Hz] [depth %]	MASK LFO: Forma bendewar: <id> <param> ON|OFF [rate Hz] [depth %]
+MATRIX SET: expected <source 1-2> <dest> <0-100>	MATRIX SET: Forma bendewar: <source 1-2> <dest> <0-100>
+MATRIX: expected SET <src> <dest> <0-100>, SEED or CLEAR	MATRIX: Forma bendewar: SET <src> <dest> <0-100>, SEED an CLEAR
+MESH: expected on|off|toggle|height|tilt|yaw|spin|grid	MESH: Forma bendewar: on|off|toggle|height|tilt|yaw|spin|grid
+MIC: expected ADD, LIST, INPUT, CHANNEL or GAIN	MIC: Forma bendewar: ADD, LIST, INPUT, CHANNEL an GAIN
+MIDICUE KIND: expected note-on, note-off, cc, program, msc-go, msc-stop, msc-resume or raw	MIDICUE KIND: Forma bendewar: note-on, note-off, cc, program, msc-go, msc-stop, msc-resume an raw
+MIDICUE: expected NEW, PORTS, PORT, KIND, CH, D1, D2, DEVICE, CUENUM, LIST, RAW or SEND	MIDICUE: Forma bendewar: NEW, PORTS, PORT, KIND, CH, D1, D2, DEVICE, CUENUM, LIST, RAW an SEND
+MULTIVIEW LAYOUT: expected GRID, BIG, BIGTOP or TWOTOP	MULTIVIEW LAYOUT: Forma bendewar: GRID, BIG, BIGTOP an TWOTOP
+MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK or EMPTY	MULTIVIEW WINDOW: Forma bendewar: PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK an EMPTY
+NETCUE: expected NEW, PROTO, HOST, PORT, ADDRESS, PAYLOAD or SEND	NETCUE: Forma bendewar: NEW, PROTO, HOST, PORT, ADDRESS, PAYLOAD an SEND
+OUTPROBE: expected <output> <x 0-1> <y 0-1>	OUTPROBE: Forma bendewar: <output> <x 0-1> <y 0-1>
+OUTPUT HDR: expected ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> or STATUS	OUTPUT HDR: Forma bendewar: ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> an STATUS
+OUTPUTFX ADD: expected hpf, lpf, tilt, comp or width	OUTPUTFX ADD: Forma bendewar: hpf, lpf, tilt, comp an width
+OUTPUTFX: expected ADD, SET, REMOVE, BYPASS, CLEAR or DEVICE	OUTPUTFX: Forma bendewar: ADD, SET, REMOVE, BYPASS, CLEAR an DEVICE
+OUTPUTS ADD: expected <name> CH <n> or CH <n>-<n+1>	OUTPUTS ADD: Forma bendewar: <name> CH <n> an CH <n>-<n+1>
+PATCH: expected <deck> <output> <dB> or OFF	PATCH: Forma bendewar: <deck> <output> <dB> an OFF
+presenter colour: expected BG|INK|ACCENT #rrggbb	presenter colour: Forma bendewar: BG|INK|ACCENT #rrggbb
+PRESET: expected LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME or DELETE	PRESET: Forma bendewar: LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME an DELETE
+rectc: expected <hh:mm:ss:ff|timeofday> [df|ndf|auto]	rectc: Forma bendewar: <hh:mm:ss:ff|timeofday> [df|ndf|auto]
+SCALEMODE: expected fit|fill|stretch|unscaled	SCALEMODE: Forma bendewar: fit|fill|stretch|unscaled
+SCOPES BIG: expected waveform, parade, vector, diamond, histogram, falsecolour, sound or off	SCOPES BIG: Forma bendewar: waveform, parade, vector, diamond, histogram, falsecolour, sound an off
+SCOPES: expected PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS or SOUND	SCOPES: Forma bendewar: PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS an SOUND
+SECTION: expected playback|metadata|geometry|key|audio|effects|timer|tone|synth	SECTION: Forma bendewar: playback|metadata|geometry|key|audio|effects|timer|tone|synth
+STING: expected ON, PITCH, LENGTH, SWEEP or BODY	STING: Forma bendewar: ON, PITCH, LENGTH, SWEEP an BODY
+TARGET VERB: expected start|stop|pause|resume|load|arm|disarm	TARGET VERB: Forma bendewar: start|stop|pause|resume|load|arm|disarm
+TEXTCUE ALIGN: expected left, centre or right	TEXTCUE ALIGN: Forma bendewar: left, centre an right
+TEXTCUE ANIM: expected none, fade, typewriter, scroll, crawl, pulse or wobble	TEXTCUE ANIM: Forma bendewar: none, fade, typewriter, scroll, crawl, pulse an wobble
+TEXTCUE: expected NEW, BODY, ANIM, SIZE, SPEED, ALIGN, CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, WIGGLE, IN, OUTMOVE or OUT	TEXTCUE: Forma bendewar: NEW, BODY, ANIM, SIZE, SPEED, ALIGN, CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, WIGGLE, IN, OUTMOVE an OUT
+TRACKER: expected GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP or CLICKER	TRACKER: Forma bendewar: GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP an CLICKER
+TUTORIAL: expected START, SHOWME, SKIP, EXIT, STATUS or SCREENS	TUTORIAL: Forma bendewar: START, SHOWME, SKIP, EXIT, STATUS an SCREENS
+UPDATE: expected check|download|install|status	UPDATE: Forma bendewar: check|download|install|status
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS	VJ: Forma bendewar: ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS
+AUDIOFX: expected OFF, BYPASS, or amount and parameters as percentages	AUDIOFX: OFF, BYPASS, an mîqdar û parametre bi sedî lazim in
+BLEND PAIR: expected <other output number> <overlap in pixels>	BLEND PAIR: <other output number> <overlap in pixels> lazim e
+BROWSER SCROLL: expected pixels (negative is up)	BROWSER SCROLL: pîksel lazim e (neyînî ber bi jor e)
+CHIP ENV: expected <attack> <release> in seconds	CHIP ENV: <attack> <release> bi çirkeyan lazim e
+DMXCUE SET: expected channel=level pairs, e.g. 1=255,10-14=64	DMXCUE SET: cotên kanal=ast lazim in, mînak 1=255,10-14=64
+expected one expression, three for colour, or four with alpha	yek îfade, sê ji bo rengê, an çar bi alfa lazim in
+MASK SET: expected INVERT, X, Y, SCALE, ROTATION, FEATHER, GROW or OPACITY and a number	MASK SET: INVERT, X, Y, SCALE, ROTATION, FEATHER, GROW an OPACITY û hejmarek lazim e
+MASK SHAPE: expected a shape (MASK SHAPES lists them)	MASK SHAPE: şiklek lazim e (MASK SHAPES wan lîste dike)
+MASTER DECK: expected a deck number and a cue number	MASTER DECK: hejmara dekê û hejmara kyûyê lazim e
+MIC INPUT: expected SETTINGS, TEST or a device name (MIC LIST)	MIC INPUT: SETTINGS, TEST an navê amûrê (MIC LIST) lazim e
+MIDIFILE: expected PORT, or no argument to report it	MIDIFILE: PORT lazim e, an bê argûman ji bo raporê
+MONITOR DECK: expected a playlist number or FOLLOW	MONITOR DECK: hejmara lîsteya lêxistinê an FOLLOW lazim e
+MONITOR ROOM: expected a playlist and ON or OFF	MONITOR ROOM: lîsteya lêxistinê û ON an OFF lazim e
+MULTIVIEW WINDOW <n>: expected a source, or SAFE/METER/LABEL ON|OFF	MULTIVIEW WINDOW <n>: çavkanî an SAFE/METER/LABEL ON|OFF lazim e
+MULTIVIEW WINDOW REMOVE: expected a window number	MULTIVIEW WINDOW REMOVE: hejmara paceyê lazim e
+NETCUE ADDRESS: expected an OSC path starting with /	NETCUE ADDRESS: rêya OSC ku bi / dest pê dike lazim e
+OUTPUT AOI: expected a size like 256x256, or FULL	OUTPUT AOI: mezinahiyek wek 256x256 an FULL lazim e
+OUTPUT HDR WHITE: expected 80..500 nits (203 is BT.2408)	OUTPUT HDR WHITE: 80..500 nît lazim e (203 ew BT.2408 e)
+OUTPUTFX SET: expected an effect number and 0-100	OUTPUTFX SET: hejmara efektê û 0-100 lazim e
+PORTS: expected an http port and a tcp port	PORTS: porta http û porta tcp lazim in
+PRELOAD: expected a position in seconds, OFF or STATUS	PRELOAD: cih bi çirkeyan, OFF an STATUS lazim e
+presenter panel: expected <live|prev|next|notes> <x> <y> <w> <h> in percent	presenter panel: <live|prev|next|notes> <x> <y> <w> <h> bi sedî lazim e
+SCOPES SOURCE: expected PROGRAMME or an output number, 1-	SCOPES SOURCE: PROGRAMME an hejmara derketinê, 1- lazim e
+STREAM ADD: expected a URL, e.g. srt://host:port	STREAM ADD: URL lazim e, mînak srt://host:port
+TARGET CUE: expected a deck number and a cue number	TARGET CUE: hejmara dekê û hejmara kyûyê lazim e
+TEXTCUE SIZE: expected 1-100 (percent of the raster)	TEXTCUE SIZE: 1-100 lazim e (ji sedî rasterê)
+TUTORIAL SCREENS: expected a count, MIRRORED or REAL	TUTORIAL SCREENS: hejmar, MIRRORED an REAL lazim e
+VIDEO OUTPUT LAYER: expected a layer number (1 is the base)	VIDEO OUTPUT LAYER: hejmara tebeqeyê lazim e (1 bingeh e)
+VIDEO OUTPUT LAYERWARP: expected OFF, MODE, or eight numbers clockwise from the top left	VIDEO OUTPUT LAYERWARP: OFF, MODE, an heşt hejmar li gor saetê ji çepa jor lazim in
+warp grid: expected <n>, <cols> <rows>, off, smooth or straight	warp grid: <n>, <cols> <rows>, off, smooth an straight lazim e
+WARP SELECT: expected TL, TR, BR, BL or a grid <col> <row>	WARP SELECT: TL, TR, BR, BL an tora <col> <row> lazim e
+How big each tile is.	Mezinahiya her kaşiyê.
+How big the crystals grow before they meet.	Krîstal berî gihîştina hev çiqas mezin dibin.
+How closely spaced the rings are.	Bazin çiqas nêzîkî hev in.
+How far a band can slide.	Bandek dikare çiqas bişemite.
+How far each shard slides from where it belongs.	Her perçe ji cihê xwe çiqas dişemite.
+How far each stroke is dragged along the grain.	Her xêz bi dirêjiya danikan çiqas tê kişandin.
+How far it smears: up to a few percent of the picture.	Çiqas tê letekirin: heta çend ji sedên wêneyê.
+How far out the darkening starts.	Tarîbûn li çiqas dûrî navendê dest pê dike.
+How far the bright parts pull away from the surface.	Beşên geş çiqas ji rûyê dûr dikevin.
+How far the glow spreads.	Birqîn çiqas belav dibe.
+How far the sound throws each line sideways.	Deng her xêz çiqas ber bi kêlekê diavêje.
+How fast the sand travels to the still lines.	Leza çûna qûmê ber bi xêzên bêtevger.
+How fast the surface moves.	Leza tevgera rûyê.
+How fast they travel outward.	Leza çûna wan ber bi derve.
+How gradually the key cuts in. Hard at the left.	Kilît çiqas gav bi gav dibire. Li çepê hişk e.
+How hard it is driven into its own limits.	Çiqas bi hêz ber bi sînorên xwe tê ajotin.
+How hard the short hits.	Hêza lêdana kurtebazneyê.
+How many shades survive the quantise.	Piştî quantîzeyê çend ton dimînin.
+How many spikes the field breaks into.	Qad dibe çend tîk.
+How many torn bands per frame.	Hejmara bandên çirî di her çarçoveyê de.
+How much each shard turns on its own centre.	Her perçe li dora navenda xwe çiqas dizivire.
+How much the edges are lifted.	Kevî çiqas tên bilindkirin.
+How much the flame gutters frame to frame.	Pêt di navbera çarçoveyan de çiqas diqefile.
+How often it skips.	Çiqas caran baz dide.
+How quickly the loop relaxes when nothing feeds it.	Dema tiştek tê de nayê, xelek çiqas zû aram dibe.
+How strongly the outlines are drawn.	Hêza xêzkirina xêzên derdorê.
+How strongly the water bends the picture.	Av wêneyê çiqas bi hêz diçemîne.
+Darkens the boundaries where crystals meet.	Sînorên ku krîstal lê digihîjin hev tarî dike.
+Lifts the dark tones without moving pure black.	Tonên tarî bilind dike bê guhertina reşa xwerû.
+Pushes the rings in or out of the centre.	Bazin ber bi navendê an derveyî wê dipalîne.
+Rounds the tiles off, all the way to dots.	Kaşiyan girover dike, heta dibin xal.
+Softens the fold so it ramps instead of creasing.	Qatê nerm dike da ku gav bi gav be, ne çîneke tûj.
+Where the filter sits.	Cihê fîlterê.
+Which way it drips.	Alîyê dilopandinê.
+8 zones already: click one to remove it first	jixwe 8 herêm hene: pêşî yekê bitikîne da jê bibe
+AUDIOALSO ADD: seven extra destinations is the limit	AUDIOALSO ADD: sînor heft armancên zêde ne
+AUDIOALSO ADD: that is already this deck's main device -- it would play twice	AUDIOALSO ADD: ev jixwe amûra sereke ya dekê ye -- dê du caran lê bide
+AUDIOFX PLUGIN: this build has no plugin host	AUDIOFX PLUGIN: di vê avakirinê de hosta pêvekan tune
+BROWSER CLICK: this browser backend cannot drive the page	BROWSER CLICK: ev motora gerokê nikare rûpelê kontrol bike
+BROWSER SCROLL: this browser backend cannot drive the page	BROWSER SCROLL: ev motora gerokê nikare rûpelê kontrol bike
+BROWSER SCROLLBAR: this browser backend cannot drive the page	BROWSER SCROLLBAR: ev motora gerokê nikare rûpelê kontrol bike
+BROWSER INTERACT: this browser backend has no hands-on mode	BROWSER INTERACT: ev motora gerokê moda destkarîkirina rasterast nade
+BROWSER TYPE: this browser backend cannot type	BROWSER TYPE: ev motora gerokê nikare binivîse
+MIDIFILE: the selected cue is not a midi file cue	MIDIFILE: kyûya hilbijartî ne kyûya pelê MIDI ye
+NETCUE: the selected cue is not a network cue	NETCUE: kyûya hilbijartî ne kyûya torê ye
+SCRIPTCUE: the selected cue is not a script cue	SCRIPTCUE: kyûya hilbijartî ne kyûya skrîptê ye
+SYNTH: the selected cue is not a video synth	SYNTH: kyûya hilbijartî ne sînta vîdyoyê ye
+TCCUE: the selected cue is not a timecode cue	TCCUE: kyûya hilbijartî ne kyûya koda demê ye
+TEXTCUE: the selected cue is not a text cue	TEXTCUE: kyûya hilbijartî ne kyûya tekstê ye
+SLICE ADD: already 16 slices on this output	SLICE ADD: jixwe 16 perçe li ser vê derketinê hene
+VIDEO OUTPUT ASSIGN: already on this output, or no such deck or output	VIDEO OUTPUT ASSIGN: jixwe li ser vê derketinê ye, an dek an derketin tune
+VIDEO OUTPUT LAYER: this deck is not on this output, or it is already at that layer	VIDEO OUTPUT LAYER: ev dek ne li ser vê derketinê ye, an jixwe li wê tebeqeyê ye
+VIDEO OUTPUT UNASSIGN: this deck is not on this output, or it is the only thing on it	VIDEO OUTPUT UNASSIGN: ev dek ne li ser vê derketinê ye, an tenê ew li ser e
+port number (default 5510)	hejmara portê (standard 5510)
+port number (default 5511)	hejmara portê (standard 5511)
+port number (default 6454)	hejmara portê (standard 6454)
+port number (default 8090)	hejmara portê (standard 8090)
+port number (vMix uses 8088)	hejmara portê (vMix 8088 bi kar tîne)
+port number (vMix uses 8099)	hejmara portê (vMix 8099 bi kar tîne)
+Prefix (optional). Example: Q	Pêşgir (vebijarkî). Mînak: Q
+Prefix and optional start (example: Q 100)	Pêşgir û destpêka vebijarkî (mînak: Q 100)
+WIDTHxHEIGHT (e.g. 2560x1080)	FIREHÎxBILINDAHÎ (mînak 2560x1080)
+WIDTHxHEIGHT (e.g. 5760x2160)	FIREHÎxBILINDAHÎ (mînak 5760x2160)
+#rrggbb -- the colour of the presenter screen	#rrggbb -- rengê ekrana pêşkêşkarê
+#rrggbb, or a name (red, teal...)	#rrggbb, an navek (red, teal...)
+Cue name (blank restores the file name)	Navê kyûyê (vala navê pelî vedigerîne)
+Leave empty to follow the live cue notes	Vala bihêle da notên kyûya zindî bişopîne
+Multicast group (e.g. 239.20.10.1)	Koma multicast (mînak 239.20.10.1)
+Port the Node + Connection API serve on	Porta ku Node + Connection API lê dixebitin
+NIC address or name; empty = the default route	Adresa an navê NIC; vala = rêya standard
+NIC name reported in interface_bindings (e.g. eth0)	Navê NIC di interface_bindings de (mînak eth0)
+flow (follows the picture)	herikîn (wêneyê dişopîne)
+Above halfway, the repeated piece plays backwards.	Li jora nîvê, perçeya dubarekirî berevajî tê lêxistin.
+The brightness that decides black from white.	Ronahiya ku reş ji spî cuda dike.
+The colour to change, round the wheel from red.	Rengê guhertinê, li dora çerxê ji sor dest pê dike.
+no picture on this cue - nothing to follow	li vê kyûyê wêne tune - tiştek ji bo şopandinê tune
+this cue has no known end to resolve into	dawiya vê kyûyê ne diyar e ku lê biqede
+only a MIDI note or an OSC address can take a cue	tenê noteya MIDI an adresa OSC dikare kyûyê TAKE bike
+The bright net the waves focus onto the picture.	Tora geş ku pêl li ser wêneyê kom dikin.
+can't move the active cue -- take another cue on this deck first	Kûya çalak nayê veguhastin -- pêşî kûyeke din li vê dekê bide lêxistin
+cancelled: the waiting cue is no longer in the playlist	Betal bû: kûya li bendê êdî di lîsteya lêxistinê de nîne
+could not create an OpenGL context for Spout receive	Çarçoveya OpenGL ji bo wergirtina Spout nehat çêkirin
+could not create the offscreen window Spout receive needs	Paceya derveyî ekranê ya ji bo wergirtina Spout nehat çêkirin
+could not get a device context for Spout receive	Çarçoveya amûrê ji bo wergirtina Spout nehat bidestxistin
+couldn't decode still image — unsupported format or corrupt file	Wêneya sabît nehat vekodkirin — format nayê piştgirîkirin an pel xerab e
+couldn't open a browser -- please report at github.com/Utopian-Academy/Deckboy/issues	Gerok nehat vekirin -- li github.com/Utopian-Academy/Deckboy/issues rapor bike
+downloading the caption model, then listening...	Modela binnivîsê tê daxistin, paşê guhdarî dest pê dike...
+drag the panels to arrange the presenter screen	Panelan bikişîne da ekrana pêşkêşkar rêk bixî
+encoder destination: _converted beside the show	Cihê encoderê: _converted li kêleka pelê şanoyê
+fetching the speech model - captions start when it arrives	Modela axaftinê tê anîn - binnivîs piştî hatina wê dest pê dike
+four effects at most on one device: remove one first	Herî zêde çar efekt li ser amûrekê: pêşî yekê rake
+live captions are not installed here (deckboy-listen was not found)	Binnivîsa zindî nehat sazkirin (deckboy-listen nehat dîtin)
+Lower Third added - put its playlist on a layer	Lower Third hat zêdekirin - lîsteya wê li ser qatekê deyne
+mic live on the default speakers - watch for feedback	Mîkrofon li ser dengderên standard zindî ye - hay ji feedbackê hebe
+network sharing and phone control require an 8+ character passphrase	Parvekirina torê û kontrola telefonê şîfreyeke bi 8 tîpan an zêdetir dixwazin
+no filled shapes in it (paths, rectangles, circles, ellipses or polygons)	Tu şêweyên tijî tê de nînin (rê, çargoşe, bazne, hêlik an pirgoşe)
+no masks yet: make one in a cue's MASK section	Hêj maske tune: di beşa MASK ya kûyekê de yekê çêke
+no OpenGL pixel format available for Spout receive	Formata pîkselê ya OpenGL ji bo wergirtina Spout tune
+no picture - shorts run on a timer instead of on cuts	Wêne tune - kurtkirin bi demjimêrê dixebitin li şûna qutkirinan
+no picture on this cue - nothing decides where the playhead is	Ev kû wêne nîne - tiştek cihê serê lêxistinê diyar nake
+no picture on this cue - nothing to close the loop through	Ev kû wêne nîne - tiştek ji bo girtina xelekê tune
+no video clock on this cue - nothing to lock to	Ev kû saeta vîdyoyê nîne - çavkaniya kilîtkirinê tune
+normalize all: no file-backed audio in this deck	Hemû normal bike: di vê dekê de dengê ji pelê tune
+nothing to mask here: select a cue, or change MASK ON	Li vir tiştek ji bo maskekirinê tune: kûyekê hilbijêre an MASK ON biguherîne
+offset in percent of the picture	Cihguhertin bi sedeya wêneyê
+output effects bypassed: no effect and no limit on this device	Efektên derketinê hatin derbaskirin: li vê amûrê ne efekt heye ne sînor
+over 16 MB: not a drawing to make a mask from	Ji 16 MB mezintir e: ne xêzek e ku maskeyek jê çêbibe
+pair with a picture effect whose LFO is set to Audio	Bi efekteke wêneyê re cot bike ku LFO ya wê li Audio ye
+paired phones removed: they need the QR code or the passphrase again	Telefonên cotkirî hatin rakirin: dîsa koda QR an şîfre pêwîst e
+phone control requires an 8+ character passphrase	Kontrola telefonê şîfreyeke bi 8 tîpan an zêdetir dixwaze
+save failed - retrying; still open, use SAVE AS if needed	Tomar nekir - dîsa tê ceribandin; hêj vekirî ye, hewce be SAVE AS bi kar bîne
+set an 8+ character Web Monitor passphrase first	Pêşî ji bo Monîtora Webê şîfreyeke bi 8 tîpan an zêdetir deyne
+the caption model has not been downloaded yet	Modela binnivîsê hêj nehat daxistin
+the desktop portal did not answer	Portala sermaseyê bersiv neda
+the file is empty (0 bytes): it may not have finished copying or saving	Pel vala ye (0 bayt): dibe ku kopîkirin an tomarkirin neqediyabe
+the installed NDI runtime is missing entry points this needs	Runtime ya NDI ya sazkirî xalên têketinê yên pêwîst nîne
+the NDI runtime declined to start on this machine	Runtime ya NDI li vê makîneyê dest pê nekir
+the playing step was removed - sequence stopped	Gava ku dihat lêxistin hat rakirin - rêz rawestiya
+update: cannot find this app bundle to replace	Nûkirin: pakêta vê sepanê ji bo guherandinê nehat dîtin
+what the operator should be told when GO reaches here	Dema GO digihîje vir divê ji operator re çi bê gotin
+what the patch and the cues call it (FOH, SUB, PRESS FEED)	Navê wê di patch û kûyan de (FOH, SUB, PRESS FEED)
+window capture fell back to screen grab — update ffmpeg for exact window capture	Girtina paceyê vegeriya girtina ekranê — ji bo girtina rast a paceyê ffmpeg nû bike
+A dark line between the tiles, like grout or an LED wall.	Xeteke tarî di navbera kaşiyan de, wek derz an dîwarê LED.
+a plugin overran the audio thread and was bypassed — take it out of the chain	Plugin ji dema threadê dengê derbas bû û hat derbaskirin — ji zincîrê rake
+A slow rocking of the viewpoint, which is what makes the depth read without glasses.	Hejîna hêdî ya dîtinê ku kûrahiyê bê berçavkan nîşan dide.
+A slow sag in the supply, pulling the filter up and down like a dying battery.	Daketina hêdî ya hêzê, fîlter wek bataryayeke mirî ber bi jor û jêr dikişîne.
+A worn or dirty head: softer, with noise that streaks along the lines.	Serekî kevn an qirêj: nermtir, bi dengê ku li dirêjahiya xetan dirêj dibe.
+Above halfway, a hard cut in the picture resets the loop to clean.	Li jorî nîvê, qutkirineke tund a wêneyê xelekê paqij dike.
+An old deck: the picture wobbles, bends at the top of the frame and carries hum bars.	Deka kevn: wêne diheje, li serê çarçoveyê ditewe û bendên humê hene.
+An old tape loses bits of its oxide: dropouts flick white and repeat the line above, and the colour fizzes.	Şerîta kevn perçeyên oksîdê winda dike: qutbûn bi spî dibiriqin û xeta jor dubare dikin, reng diheje.
+brightness moves the playhead (needs CPU frames)	Ronahî serê lêxistinê diguhezîne (çarçoveyên CPU pêwîst in)
+centred and full-frame - moves when the picture does	Li navendê û tijî çarçove - bi wêneyê re dibe
+Characters across. Fewer means bigger cells and less of the picture surviving, which is usually the point.	Hejmara tîpan li panahiyê. Kêmtir xaneyên mezintir û hûrgiliyên kêmtir dide, ku pir caran armanc e.
+Characters to build the picture from, darkest first. Empty uses the chosen glyph set.	Tîpên çêkirina wêneyê, yên herî tarî pêşî. Vala koma nîşaneyên hilbijartî bi kar tîne.
+Chladni listens: the figure follows the pitch of the sound	Chladni guhdarî dike: şêwe li dû bilindahiya dengê diçe
+click anywhere on any screen to take its colour. Esc cancels	Li her devera her ekranê bitikîne da rengê wê bigirî. Esc betal dike
+click program or preview monitor to sample key color	Ji bo nimûneya rengê key li monîtora weşanê an pêşdîtinê bitikîne
+Colour is recorded at a fraction of the detail: it smears sideways, lands late and its hue wanders.	Reng bi hûrgiliya kêmtir tê tomarkirin: ber bi kêlekê belav dibe, dereng tê û tîna wê digere.
+Copies of copies: none at the left, four at the right. Each one loses more.	Kopiyên kopiyan: li çepê tune, li rastê çar. Her yek zêdetir winda dike.
+Fine sensor noise at the bottom, chunky film at the top.	Li jêrê dengê hûr ê sensorê, li jorê danikên mezin ên fîlmê.
+follows this cue's own brightness (needs CPU frames)	Li dû ronahiya vê kûyê diçe (çarçoveyên CPU pêwîst in)
+format 2 files are a set of independent patterns, not a performance	Pelên formata 2 komeke şêweyên serbixwe ne, ne performansek in
+From an even blur to a streak along the angle, like movement.	Ji mijeke yekreng heta şopê li dirêjahiya goşeyê, wek tevger.
+full-frame and no picture - bends when the picture shrinks	Tijî çarçove û bê wêne - dema wêne biçûk dibe ditewe
+Grain size: one pixel at the left, big blocky grains at the right.	Mezinahiya danikan: li çepê pîkselek, li rastê danikên mezin ên blokî.
+Grows or shrinks the echo each pass. Centre holds still.	Di her derbasbûnê de echo mezin an biçûk dike. Navend sabît dimîne.
+How abruptly it arrives. Low is a soft cloud, high is a hard porthole.	Tundiya hatinê. Nizm ewreke nerm e, bilind pencereyeke tûj e.
+How big the room is. Small is a booth, large is a hall.	Mezinahiya odeyê. Biçûk kabîn e, mezin salon e.
+How big the shards are. Small is frosted glass, large is a dropped plate.	Mezinahiya perçeyan. Biçûk şûşeya tarî ye, mezin tepsiyeke ketî ye.
+How dark the dark lines go. All the way up is black between lines.	Tarîtiya xetên tarî. Li herî jor navbera xetan reş e.
+How far away. Distance dulls the top and softens the difference between the ears.	Dûrahî. Dûrahî frekansên jor tarî û cudahiya navbera guhan nerm dike.
+How far back each skip jumps, from a stutter to half a second.	Her bazdan çiqas paş de diçe, ji stuterekê heta nîv çirkeyekê.
+How fast it closes. Slow enough not to chop the ends off words.	Leza girtinê. Têra xwe hêdî be da dawiya peyvan nequt bike.
+How fast the drips run. At the left the picture only sags.	Leza dilopan. Li çepê wêne tenê şil dibe.
+How fast the light walks around it. Zero holds it still.	Leza gerîna ronahiyê li dora wê. Sifir wê sabît digire.
+How fast the wave travels. Faster spreads further in the same time and interferes more.	Leza pêlê. Leztir di heman demê de dûrtir diçe û zêdetir têkel dibe.
+How gently the change fades out at the edges of the band.	Nermiya windabûna guherînê li keviyên bandê.
+How hard it holds once it is working. Gentle at the bottom, a limiter at the top.	Hêza girtinê piştî destpêkê. Li jêrê nerm, li jorê limiter.
+How irregular the growth is. Low gives an even honeycomb, high gives long shards.	Nerêkûpêkiya mezinbûnê. Nizm hêlîna hingivê ya rêk, bilind perçeyên dirêj dide.
+How long a short stays closed, in VIDEO FRAMES.	Demê girtina kurtkirinê, bi ÇARÇOVEYÊN VÎDYOYÊ.
+How long the reaction runs each frame. Short is a stain, long is an organism.	Dema reaksiyonê di her çarçoveyê de. Kurt leke ye, dirêj zindî ye.
+How many places drip: a few big drips at the left, many thin ones at the right.	Hejmara cihên dilopan: li çepê çend dilopên mezin, li rastê gelek tenik.
+How many times a skip repeats before the sound catches up again.	Hejmara dubarekirina bazdanê berî deng dîsa bigihîje.
+How much of the picture glows: only the brightest at the left, nearly everything at the right.	Beşa wêneyê ku dibiriqe: li çepê tenê herî ronahî, li rastê hema hemû.
+How much of the picture shows behind the lines. None at the left: lines on black.	Beşa wêneyê li paş xetan. Li çepê tune: xet li ser reş.
+How much of the push goes downward rather than sideways.	Beşa hêzê ber bi jêr li şûna kêlekê.
+How quickly the room eats the top end. More damping is a softer, more furnished space.	Leza xwarina frekansên jor ji aliyê odeyê ve. Damping zêdetir cihê nermtir û tijîtir e.
+How readily an edge catches. Low sets the whole picture alight, high only the hardest lines.	Hêsaniya agir girtina keviyê. Nizm hemû wêneyê vêdixe, bilind tenê xetên herî tûj.
+How wide a band of colours either side of it changes too.	Panahiya banda rengan ku li her du aliyan jî diguhere.
+ASCII HOLD: seconds, 0-60 (0 mutes the phrases)	ASCII HOLD: çirke, 0-60 (0 hevokan bêdeng dike)
+ASCII WOBBLEMODE: drift | flow (follows luma) | hue (follows colour); no argument cycles	ASCII WOBBLEMODE: drift | flow (li dû ronahiyê) | hue (li dû rengê); bê arguman digere
+ASCII: the selected cue has no text mode (add the TEXT MODE effect, or select a video synth cue)	ASCII: kûya hilbijartî moda nivîsê nîne (efekta TEXT MODE zêde bike an kûya sînteza vîdyoyê hilbijêre)
+CHIP DUTY: this cue is an FDS synth, which has no duty	CHIP DUTY: ev kû sînteza FDS ye û duty nîne
+CHIP NOISE: this cue is an FDS synth, which has no noise	CHIP NOISE: ev kû sînteza FDS ye û noise nîne
+CHIP VOICE: this cue is an FDS synth, which has no voice	CHIP VOICE: ev kû sînteza FDS ye û hilbijartina dengê nîne
+DASH SET: needs a command -- DASH SET <n> <label> | <command> [| <glyph>]	DASH SET: fermanek pêwîst e -- DASH SET <n> <label> | <command> [| <glyph>]
+DATAMOSH on - preparing (long clip, watch Encoder tab)	DATAMOSH vekirî ye - tê amadekirin (klîpa dirêj, taba Encoder bişopîne)
+DECKLINK: no DeckLink driver on this computer (Blackmagic Desktop Video)	DECKLINK: li vê komputerê ajokera DeckLink tune (Blackmagic Desktop Video)
+DMXCUE LEVELS: nothing has been sent on that universe	DMXCUE LEVELS: li wê universeyê tiştek nehat şandin
+DRAW COLOUR: #rrggbb, #rrggbbaa, a name, or 1-8 for the palette	DRAW COLOUR: #rrggbb, #rrggbbaa, navek, an 1-8 ji bo paletê
+DRAW STROKE: each point is x,y or x,y,pressure, in percent	DRAW STROKE: her xal x,y an x,y,pressure ye, bi sedeyan
+DRAW TOOL: brush, erase, line, box, oval or fill	DRAW TOOL: brush, erase, line, box, oval an fill hilbijêre
+EDIT is off - press EDIT to type into the tracker	EDIT girtî ye - ji bo nivîsandina trackerê EDIT bitikîne
+ENDACTION: only video and audio cues have an end action	ENDACTION: tenê kûyên vîdyo û dengê çalakiya dawiyê hene
+Enter playlist SMPTE FPS: 24 / 25 / 29.97 / 30	FPS ya SMPTE ya lîsteya lêxistinê binivîse: 24 / 25 / 29.97 / 30
+FADE TO: a speed from 0.25 to 4 (0.5 is half speed, an octave down)	FADE TO: lezek ji 0.25 heta 4 (0.5 nîv lez e, oktavek nizmtir)
+FX ADD: datamosh needs a file-backed video cue	FX ADD: datamosh kûya vîdyoyê ya ji pelê dixwaze
+FX LFO wants <index> <slot> <on|off|shape> [value]	FX LFO ev dixwaze: <index> <slot> <on|off|shape> [value]
+FX LFO: on, off, shape, rate, depth, zone, channel or cc	FX LFO: on, off, shape, rate, depth, zone, channel an cc hilbijêre
+GEOLFO: x, y, width, height, rotation, cropleft, cropright, croptop or cropbottom	GEOLFO: x, y, width, height, rotation, cropleft, cropright, croptop an cropbottom hilbijêre
+HH:MM or HH:MM:SS on this computer's clock; empty for none	HH:MM an HH:MM:SS li gor saeta vê komputerê; vala ji bo tune
+HH:MM:SS:FF of the timecode Deckboy is chasing; empty for none	HH:MM:SS:FF ya timecode ku Deckboy dişopîne; vala ji bo tune
+INPUTMONITOR: a row count, OPEN, CLOSE, CLEAR, PAUSE or RESUME	INPUTMONITOR: hejmara rêzan, OPEN, CLOSE, CLEAR, PAUSE an RESUME
+IPv4 addresses or a.b.c.d/bits, comma separated; empty = only this computer	Navnîşanên IPv4 an a.b.c.d/bits, bi virgulê veqetandî; vala = tenê ev komputer
+key+fill ON, but no key device set (DECKLINK KEYFILL ON <device>)	key+fill ON e, lê amûra key nehat diyar kirin (DECKLINK KEYFILL ON <device>)
+label | command | glyph      (empty label|command removes it)	nav | ferman | nîşane      (label|command vala wê radike)
+LFO: density, speed, warp, turn, centrex, centrey, grey or hue	LFO: density, speed, warp, turn, centrex, centrey, grey an hue hilbijêre
+MIC: select a mic cue first (MIC ADD makes one)	MIC: pêşî kûya mîkrofonê hilbijêre (MIC ADD yekê çêdike)
+MIDIIN OSC: an address, and optionally a number	MIDIIN OSC: navnîşanek û bi vebijarkî hejmarek
+MIDIMAP: that command is only accepted from this computer	MIDIMAP: ew ferman tenê ji vê komputerê tê pejirandin
+MOTION ZONE ADD: the zone must fit inside the picture	MOTION ZONE ADD: divê herêm di hundirê wêneyê de cih bigire
+NETCUE ADDRESS: an OSC address must start with /	NETCUE ADDRESS: divê navnîşana OSC bi / dest pê bike
+NEWSHOW: something is live or unsaved -- send NEWSHOW again within 2.5 s	NEWSHOW: tiştek zindî ye an netomarkirî ye -- di 2.5 çirkeyan de NEWSHOW dîsa bişîne
+NMOS: discovery needs the remote network allowed	NMOS: vedîtin destûra tora dûr dixwaze
+NMOS: NOT registering - network is LOCAL ONLY (turn REMOTE ON to publish)	NMOS: QEYD nake - tor LOCAL ONLY ye (ji bo weşandinê REMOTE ON bike)
+NMOS: searching for a registry (mDNS)	NMOS: li registryekê digere (mDNS)
+OUTPROBE: that output has no compositor (is it on?)	OUTPROBE: ew derketin compositor nîne (vekirî ye?)
+OUTPUTFX ADD: four effects at most on one device	OUTPUTFX ADD: herî zêde çar efekt li ser amûrekê
+PATCH: a level is dB from -48 to +6, or OFF	PATCH: ast bi dB ji -48 heta +6, an OFF
+PIP: retired -- scale a second deck over this one instead	PIP: hat rakirin -- li şûna wê deka duyem li ser vê mezin an biçûk bike
+pip: retired -- scale a second deck over this one instead	pip: hat rakirin -- li şûna wê deka duyem li ser vê mezin an biçûk bike
+presenter panel: the panel must fit on the screen (x+w and y+h no more than 100)	Panela pêşkêşkar: divê di ekranê de cih bigire (x+w û y+h ne zêdetirî 100)
+preset: delivery | proxy | match | datamosh	Pêşmîheng: delivery | proxy | match | datamosh
+programme sound is always included; use WEBMONITOR OFF to stop the monitor	Dengê weşanê her dem tê de ye; ji bo rawestandina monîtorê WEBMONITOR OFF bi kar bîne
+Registry URL (e.g. http://192.168.1.50:8010) - blank for mDNS	URL ya registryê (mînak http://192.168.1.50:8010) - vala ji bo mDNS
+SLICE CORNER: TL, TR, BR or BL, then dx dy in percent of the output	SLICE CORNER: TL, TR, BR an BL, paşê dx dy bi sedeya derketinê
+SLICE EDGE: L, R, T or B, then 0-50 (% of the slice)	SLICE EDGE: L, R, T an B, paşê 0-50 (% ji perçeyê)
+SLICE GRID POINT: col row (from 1, on a grid that is on) then dx dy in percent	SLICE GRID POINT: col row (ji 1, li ser tora vekirî) paşê dx dy bi sedeyan
+SLICE LFO: X, Y, ROTATION or OPACITY, then ON, OFF, SHAPE, RATE, DEPTH...	SLICE LFO: X, Y, ROTATION an OPACITY, paşê ON, OFF, SHAPE, RATE, DEPTH...
+SLICE ROTATE: IN (the crop) or OUT (the placed picture), then degrees	SLICE ROTATE: IN (birîn) an OUT (wêneya danîn), paşê derece
+SMPTE hh:mm:ss:ff or seconds (blank = 00:00:00:00)	SMPTE hh:mm:ss:ff an çirke (vala = 00:00:00:00)
+SOURCE CAMERA: name the device	SOURCE CAMERA: navê amûrê binivîse
+SOURCE WINDOW: name the window, e.g. title:Firefox (or "desktop")	SOURCE WINDOW: navê paceyê, mînak title:Firefox (an "desktop")
+STING: select a tone cue first (TONECUE makes one)	STING: pêşî kûya tonê hilbijêre (TONECUE yekê çêdike)
+Stream URL (srt://, rtmp://, rtsp://, udp://, or an http HLS .m3u8)	URL ya streamê (srt://, rtmp://, rtsp://, udp:// an http HLS .m3u8)
+SUBTITLE CONVERT: destination must be .srt or .vtt	SUBTITLE CONVERT: divê armanc .srt an .vtt be
+TRACKER SET: a step cannot act on its own playlist	TRACKER SET: gav nikare li ser lîsteya xwe kar bike
+TRACKER: there are no steps (TRACKER ADD makes one)	TRACKER: tu gav tune (TRACKER ADD yekê çêdike)
+VIDEO OUTPUT LAYERWARP MODE: linear or perspective	VIDEO OUTPUT LAYERWARP MODE: linear an perspective hilbijêre
+WARP AT: open the editor (WARP EDIT) and select a point first	WARP AT: pêşî edîtorê veke (WARP EDIT) û xalekê hilbijêre
+warp point: that is a corner -- move it with WARP <corner> dx dy	Xala warpê: ew qunc e -- bi WARP <corner> dx dy biguhezîne
+WEBMONITOR PIN: network sharing and phone control require 8 or more characters	WEBMONITOR PIN: parvekirina torê û kontrola telefonê 8 tîpan an zêdetir dixwazin
+WEBMONITOR QR: needs the monitor on and shared on the network	WEBMONITOR QR: divê monîtor vekirî û li torê parvekirî be
+WEBMONITOR SOURCE: could not create the web output	WEBMONITOR SOURCE: derketina webê nehat çêkirin
+WEBMONITOR SOURCE: PROGRAMME or the number of an output that shows a picture	WEBMONITOR SOURCE: PROGRAMME an hejmara derketineke bi wêne
+0 flows ALONG the edges, so colour orbits the shapes. 1 flows across them, which bleeds the picture into itself.	0 li dirêjahiya keviyan diherike û reng li dora şêweyan digere. 1 derbasî wan dibe û wêne di xwe de belav dike.
+a note number 0-127, LEARN to take the next note played, or empty for none	Hejmara notê 0-127, LEARN ji bo nota paş, an vala ji bo tune
+a video cue's duration comes from its file; still duration applies to stills, patterns and browsers	Dirêjahiya kûya vîdyoyê ji pelê ye; dema sabît ji bo wêne, şêwe û gerokan e
+Below the middle narrows toward mono -- which is what a single PA cluster is. Above it widens.	Li jêr navendê ber bi mono teng dibe, wek komeke PA. Li jorê fireh dibe.
+Blueshift toward the direction of travel and redshift at the rim. Zero leaves the colour alone and it reads as a lens instead.	Ber bi tevgerê şîn û li keviyê sor dibe. Sifir rengê naguherîne û wek lensê xuya dike.
+Bright: bright things drip over the dark, as text and logos do. Whole picture: everything is wax, and the picture itself runs down in its own colours.	Ronahî: tiştên ronahî wek nivîs û logo li ser tarîtiyê dilopin. Hemû wêne: her tişt mûm e û bi rengên xwe dadikeve.
+Centre is a straight line. Up bends it into an S -- darker shadows, brighter highlights, more contrast. Down flattens it.	Navend xeteke rast e. Jor wê S dike: siya tarîtir, ronahiya zêdetir, kontrasta zêdetir. Jêr wê datîne.
+e.g. /stage/doors -- sent to Deckboy's OSC port; empty for none	Mînak /stage/doors -- ji porta OSC ya Deckboy re tê şandin; vala ji bo tune
+How bright a pixel has to be before it lifts at all, so only the highlights spike.	Asta ronahiya pîkselê ji bo bilindbûnê, da tenê ronahî derkevin.
+How bright a pixel has to be to join a run. Lower catches more of the picture and the runs grow longer.	Ronahiya pîkselê ji bo tevlîbûna rêzê. Nizmtir wêneyê zêdetir digire û rêzan dirêj dike.
+How deep the picture is treated as being. The brightness becomes height and is lit from the side.	Kûrahiya wêneyê. Ronahî dibe bilindahî û ji kêlekê tê ronîkirin.
+How faint a gradient still registers. High turns the quietest shading into visible structure.	Qelsiya gradienta ku tê dîtin. Bilind siya herî hûr jî dike avahiyeke xuya.
+How far back the chain listens. The picture is played through a delay, so this is the distance the damage is dragged across.	Zincîr çiqas paş de dibihîze. Wêne di derengiyê re derbas dibe, ev dûrahiya kişandina xerabiyê ye.
+How far the burn spreads off the edge, and how hot its colour runs.	Dûrahiya belavbûna şewatê ji keviyê û germiya rengê wê.
+How far the colour turns on each trip round the loop. This is the oil-slick: the trail walks through the spectrum instead of fading.	Gerîna rengê di her xelekê de. Wek rûnê: şop li şûna windabûnê di spektrumê de digere.
+How far the picture stands out. Bright parts come forward, dark parts stay back. At the left it is flat.	Derketina wêneyê. Ronahî pêş de tên, tarî paş de dimînin. Li çepê datî ye.
+How far the picture swings the filter. The cue's own brightness opens and closes it, so a cut to black takes the top off the sound.	Wêne fîlter çiqas diguhezîne. Ronahiya kûyê wê vedike û digire; qutkirin ber bi reş frekansên jor dibire.
+How far the top comes down as the end approaches. This is not a fade: the level is left alone.	Daketina frekansên jor nêzî dawiyê. Ne fade e: ast naguherîne.
+How far the two eyes disagree. Brightness is read as nearness.	Cudahiya her du çavan. Ronahî wek nêzîkbûn tê xwendin.
+How fast it settles away while held. At zero it holds indefinitely, which is what room tone under a held title wants.	Leza vemirînê dema girtî ye. Sifir bêdawî digire, ji bo dengê odeyê di bin sernavekî girtî de.
+How fast the open slit crosses the picture. Slow smears a long moment across the frame.	Leza derbasbûna şeqê vekirî li wêneyê. Hêdî demeke dirêj li çarçoveyê belav dike.
+How fast what has dripped hardens away. At the left the drips stay until the cue changes.	Leza hişkbûn û windabûna dilopan. Li çepê heta guherîna kûyê dimînin.
+How fine the water is. Long ocean swell at one end, rain on a puddle at the other.	Hûrbûna avê. Li aliyekê pêlên dirêj ên deryayê, li yê din baran li ser golikê.
+How hard the light gathers where the rays converge. This is the part that makes it read as water rather than as a wobble.	Hêza komkirina ronahiyê li cihê hevgirtina tîrêjan. Ev wê wek av nîşan dide, ne tenê hejîn.
+How hard the moving parts throw sand. More shake clears the plate faster and makes the lines thinner.	Hêza avêtina qûmê ji beşên tevgerê. Hejîna zêdetir lewheyê zûtir paqij û xetan teniktir dike.
+How long a grain is, in VIDEO FRAMES. On a 23.976 clip one frame is 41.7ms, which is not a musical value and is exactly the point.	Dirêjahiya danikê bi ÇARÇOVEYÊN VÎDYOYÊ. Di 23.976 de çarçoveyek 41.7ms e; ne nirxeke muzîkê ye, û armanc ev e.
+How long before the end it starts. The cue has to have a known length -- an open-ended one has no end to resolve into.	Çiqas berî dawiyê dest pê dike. Divê dirêjahiya kûyê diyar be; ya vekirî dawî nîne ku bigihîje.
+How long it is allowed to run. More steps means the ripples have crossed and reflected more times.	Dema destûrdayî ya xebatê. Gavên zêdetir derbasbûn û vegerandina pêlan zêdetir dike.
+How long the old waves linger when the note changes. Left: they die at once. Right: they slosh for a while.	Mayîna pêlên kevn dema not diguhere. Çep: yekser dimirin. Rast: demekê diherikin.
+How much each facet catches the light, which is what makes them read as faceted rather than as flat blobs.	Girtina ronahiyê ya her rûyê, da wek rûyan xuya bikin ne lekên datî.
+How much its SIZE becomes distance. Shrink the picture and the sound goes away from you: the top comes off, the image narrows, the level drops.	Qasê guherîna MEZINAHIYÊ bo dûrahiyê. Wêne biçûk bike û deng dûr dibe: frekansên jor kêm, qada dengê teng û ast nizm dibe.
+How much of the bent picture goes round again. High is where it stops being an echo and starts eating itself.	Beşa wêneya tewandî ku dîsa digere. Bilind êdî ne echo ye, xwe dixwe.
+How much of the driver's movement the picture KEEPS. At zero it follows the driver frame by frame, which is a twitch. Wind it up and the motion accumulates, so the driver sculpts the picture over time and it holds the pose -- which is what puppetry means.	Beşa tevgera ajokerê ku wêne DIPARÊZE. Sifir çarçove bi çarçove dişopîne û diheje. Bilind bike tevger kom dibe, ajoker wêneyê di demê de çêdike û poz dimîne, wek bûkekê.
+How much of the picture's position on the output is used. A PIP on the left sounds on the left -- and it is a placement, not a pan: the far ear gets the delay and the head shadow too.	Qasê bikaranîna cihê wêneyê li derketinê. PIP li çepê ji çepê tê bihîstin; cihdanîn e ne pan: guhê dûr derengî û siya serî jî digire.
+How much of the tail is kept going while the cue is held. Long enough to hide the splice in room tone, short enough not to smear a rhythm in it.	Beşa dûvikê dema kû girtî ye. Dirêj da girêdana dengê odeyê veşêre, kurt da rîtmê belav neke.
+How much room comes up under it, so the sound settles into the cut instead of being severed.	Qasê dengê odeyê di bin wê de, da deng di qutkirinê de rûne û neyê birîn.
+How much the echo is distorted each pass. It compounds, so a little ripples and a lot melts the picture into itself.	Xerabkirina echo di her gerê de. Kom dibe; hindik pêlan dide, pir wêneyê di xwe de dihelîne.
+How much the material draws in towards each drip, so it runs as a thin neck with a heavier head.	Qasê kişandina madeyê ber bi her dilopê, bi stûyê tenik û serê girantir.
+How often its settings are corrupted. Corrupted far enough it oscillates on its own -- loud, but it cannot run away.	Çiqas caran mîheng xerab dibin. Pir xerab be bi xwe diheje; deng bilind e lê ji kontrolê dernakeve.
+How quickly the picture springs back to rest once the driver stops pushing it. Only does anything when memory is up.	Leza vegera wêneyê bo bêtevgeriyê piştî rawestandina ajokerê. Tenê bi bîra bilind kar dike.
+How small a cut sets it off. With no picture it runs on a timer instead, and this is how often.	Qutkirina biçûk çiqas wê dest pê dike. Bê wêne bi demjimêrê kar dike û ev frekansa wê ye.
+How strongly the finished picture pushes the bend. Pair it with a picture effect whose LFO is set to Audio and the two drive each other.	Hêza wêneya dawî li tewandinê. Bi efekteke wêneyê ku LFO li Audio ye cot bike da hevdu bimeşînin.
+How wide a view is being compressed. Narrow is a punch down the middle, wide folds the whole frame into the centre.	Panahiya dîtina pêçandî. Teng li navendê dixe, fireh hemû çarçoveyê bo navendê ditewîne.
+Lift or cut, 12dB either way. The centre is flat, so a band that has just been added does nothing until this is moved.	Bilind an kêm bike, her alî 12dB. Navend datî ye; banda nû heta ev neguhere tiştek nake.
+Light on the drips, as on something wet: a gloss where it faces the light, darker where it curls away.	Ronahî li ser dilopan wek tiştekî şil: ber bi ronahiyê biriq, li dû tewandinê tarî.
+Line pitch in pixels, so this reads at 4K as well as at 720.	Navbera xetan bi pîkselan, da li 4K û 720 jî xuya be.
+cannot read the file: if it lives in OneDrive or iCloud, open it once so it downloads, then import it	Pel nayê xwendin: heke li OneDrive an iCloud e, carekê veke da were daxistin, paşê bîne hundir
+did not finish in 3 minutes. It may be waiting on a prompt it cannot show (Protected View, sign-in, a repair). Open the deck there once, or export it as a PDF and import that	Di 3 deqeyan de neqediya. Dibe ku li benda daxwazeke veşartî be (dîtina parastî, têketin, tamîr). Pêşkêşkirinê carekê li wir veke an wek PDF derxe û bîne hundir
+forget my defaults? only NEW changes, this show keeps its settings: press again	Pêşmîhengên min werin jibîrkirin? Tenê NEW diguhere, ev şano mîhengên xwe digire: dîsa bitikîne
+Keynote could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)	Keynote nikarî pel derxe (dibe ku destûra otomasyonê bixwaze: Mîhengên pergalê > Nepenî û ewlehî > Otomasyon)
+my defaults forgotten: NEW starts from factory settings, this show is unchanged	Pêşmîhengên min hatin jibîrkirin: NEW bi mîhengên kargehê dest pê dike, ev şano neguherî
+N=new  Enter/P=previous  O=open saved  E=examples  L=learn  1-	N=nû  Enter/P=berê  O=vekirina tomarkirî  E=mînak  L=fêrbûn  1-
+ndi tally trigger on -- program tally takes the cue	Triggera tally ya ndi vekirî ye -- tally ya weşanê kûyê dide lêxistin
+notestep: this cue's notes have no builds (separate them with a line of ---)	notestep: notên vê kûyê gav nînin (bi xeteke --- veqetîne)
+Only accept transport from this sender (blank = anyone)	Tenê kontrola lêxistinê ji vê şanderê bipejirîne (vala = her kes)
+opened github.com in your browser -- nothing is sent until you submit the report there	github.com di gerokê de hat vekirin -- heta raporê li wir neşînî tiştek nayê şandin
+Output height in px - math ok: 1080x2, 2160/2, 540+30	Bilindahiya derketinê bi px - hesab dibe: 1080x2, 2160/2, 540+30
+Output width in px - math ok: 1920x2, 3840/2, 960+64	Panahiya derketinê bi px - hesab dibe: 1920x2, 3840/2, 960+64
+PHONE LEVEL: removed -- a paired phone or the passphrase can do everything; BLACKOUT and RECORD are hold-to-fire on the phone	PHONE LEVEL: hat rakirin -- telefona cotkirî an şîfre her tişt dike; BLACKOUT û RECORD li telefonê bi girtina dirêj dixebitin
+phones need THE NETWORK: set 'Who can see it' first	Telefon TOR dixwazin: pêşî 'Kî dikare bibîne' mîheng bike
+PowerPoint could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)	PowerPoint nikarî pel derxe (dibe ku destûra otomasyonê bixwaze: Mîhengên pergalê > Nepenî û ewlehî > Otomasyon)
+PowerPoint could not open the file (it gave up waiting for it). If it is in OneDrive, right-click it and choose Always keep on this device, then import it again	PowerPoint pel venekir (ji bendê vaz da). Heke li OneDrive e, rast bitikîne û 'Her dem li vê amûrê bihêle' hilbijêre, paşê dîsa bîne hundir
+saved as my defaults: NEW starts like this show, without the cues	Wek pêşmîhengên min hat tomarkirin: NEW wek vê şanoyê bê kû dest pê dike
+Seconds for new image/pattern/browser/Lower Third cues (0 = hold)	Çirke ji bo kûyên nû yên wêne/şêwe/gerok/Lower Third (0 = girtin)
+select a Draw cue first (SOURCE > MADE BY DECKBOY > Draw)	Pêşî kûya xêzkirinê hilbijêre (SOURCE > MADE BY DECKBOY > Draw)
+something mellow appeared in SOURCE > MADE BY DECKBOY	Tiştekî nerm li SOURCE > MADE BY DECKBOY xuya bû
+sound scopes: integrated loudness and true peak start again	Pîverên dengê: bilindahiya tevahî û lûtkeya rast dîsa dest pê dikin
+splitnotes: that cue's notes have no parts (separate them with a line of ---)	splitnotes: notên wê kûyê beş nînin (bi xeteke --- veqetîne)
+still reading the last folder -- one at a time	Hêj peldanka berê tê xwendin -- yek bi yek
+that key drives the desk - use F1-F10, F12 or the number pad	Ew bişkojk masê dimeşîne - F1-F10, F12 an klavyeya hejmaran bi kar bîne
+the background alpha belongs to a Lower Third	Alfaya paşzemînê ya Lower Third e
+the clicker now spends note builds before advancing	Clicker niha berî pêşveçûnê gavên notan xelas dike
+this file is only in OneDrive, and OneDrive is not running. Start OneDrive, or copy the file to this computer, then import it again	Pel tenê li OneDrive ye û OneDrive naxebite. OneDrive bide destpêkirin an pel li komputerê kopî bike, paşê dîsa bîne hundir
+this presentation needs a password to open. Remove the password in PowerPoint (File > Info > Protect Presentation) or export it as a PDF, then import that	Ev pêşkêşkirin şîfre dixwaze. Di PowerPoint de şîfreyê rake (Pel > Agahî > Parastina pêşkêşkirinê) an wek PDF derxe û bîne hundir
+a step cannot fire the playlist it lives on	gavek nikare lîsteya lêxistinê ya ku tê de ye bide destpêkirin
+ASCII: use ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>	ASCII: bi kar bîne ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>
+atem tally on -- set which input Deckboy is	tally ya ATEM çalak e -- têketina Deckboy diyar bike
+DRAW SIZE: 0.1-20 (% of the picture's height)	DRAW SIZE: 0.1-20 (% ji bilindahiya wêneyê)
+esc: control window - again to clear output	esc: pencereya kontrolê - dîsa ji bo paqijkirina derketinê
+Flip across, upside down or both, or fold one half onto the other: right onto left, left onto right, bottom onto top, top onto bottom, or one corner into all four.	Wêneyê berwarî, serûbin an herduyan bizivirîne, an nîvekê li ser ya din qat bike: rast li ser çep, çep li ser rast, jêr li ser jor, jor li ser jêr, an goşeyek li her çar goşeyan.
+FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR	FX: bi kar bîne LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR
+gong	gongê
+group presets became master cues: use MASTER	pêşmîhengên koman bûn cueyên sereke: MASTER bi kar bîne
+make a step first: a section starts at a step	pêşî gavekê çêke: beşek bi gavekê dest pê dike
+MASK PATH: a path needs at least three points	MASK PATH: rêyek herî kêm sê xalan dixwaze
+MATRIX SET: level is a percent from 0 to 100	MATRIX SET: ast rêjeyek ji 0 heta 100 e
+MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> or OSC <address> [<n>], then CH <1-16> if not channel 1	MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> an OSC <address> [<n>], paşê CH <1-16> heke ne kanala 1 be
+MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET or FEEDBACK	MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET an FEEDBACK
+motion on: the camera is read, never recorded	tevger çalak e: kamera tê xwendin, qet nayê tomarkirin
+Moves the direction of travel off the centre of frame, so the picture rushes past rather than straight at you.	Arasteya tevgerê ji navenda çarçoveyê dûr dixe, da wêne li kêleka te derbas bibe li şûna ku rasterast ber bi te were.
+new show disarms all outputs: press new again	şanoya nû hemû derketinan bêçek dike: dîsa nû bitikîne
+nmos: network is LOCAL ONLY - not registering	NMOS: tor LOCAL ONLY e - qeyd nabe
+normalize: selection has no file-backed audio	asayîkirin: di hilbijartinê de dengê girêdayî pelê tune ye
+Note	Nota
+on the dashboard - Ctrl+D or the DASH button	li panela kontrolê - Ctrl+D an bişkojka DASH
+One knob for the whole balance: below the middle is darker, above it is brighter.	Yek girik ji bo tevahiya hevsengiyê: li jêr navînê tarîtir, li jor ronîtir.
+Original: the picture pulled onto the figure. Sand: the picture as grains that are thrown off the moving parts and pour into each new figure. Fluid: the picture under water on the plate, bent and lit by its standing waves.	Resen: wêne li ser şiklê tê kişandin. Qûm: wêne dibe danikên ku ji beşên tevgerê tên avêtin û di her şiklê nû de diherikin. Şil: wêne di bin avê de li ser lewheyê ye, pêlên rawestayî wê ditewînin û ronî dikin.
+output recover failed: fullscreen unavailable	vegerandina derketinê têk çû: dîmendera tijî tune ye
+Page Down / Page Up step the focused playlist	Page Down / Page Up di lîsteya lêxistinê ya fokusê de gav bi gav diçin
+Pulls the bright tones down without moving pure white, so a hot highlight rolls off instead of clipping.	Tonên ronî dadixe bêyî guhartina spiya saf, da ronîtiya tund bi nermî kêm bibe li şûna birînê.
+recordings remux to MP4 when the take stops	dema girtin disekine tomar bêyî nûkodkirinê dibe MP4
+Rotates the reading, so straight lines wind into spirals rather than rings.	Arasteya xwendinê dizivirîne, da xetên rast bibin spiral li şûna bazneyan.
+Rows lose sync and repeat one character, the way a real text screen breaks up. At 0 the grid is clean.	Rêz hevdemiyê winda dikin û yek tîpê dubare dikin, wek xerabûna dîmendereke nivîsê ya rastîn. Li 0 tor paqij e.
+SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, LINEAR, PERSPECTIVE or NAME	SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, LINEAR, PERSPECTIVE an NAME
+SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF, or POINT col row dx dy	SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF, an POINT col row dx dy
+Something near the deck: a phone's buzz, a light dimmer's herringbone, a radio's slow bars.	Tiştek li nêzî amûra lêxistinê: vizîniya telefonê, nexşa hestiyê masî ya kêmkera roniyê, xetên hêdî yên radyoyê.
+Sorts the runs the other way, so they pour from light to dark.	Rêzan berevajî rêz dike, da ji ronî ber bi tarî ve biherikin.
+SUBTITLE CONVERT: the cue has no caption file	SUBTITLE CONVERT: cue pela binnivîsê nîne
+Takes out everything brighter than this as well. Left takes out nothing.	Her tiştê ji vê ronîtir jî radike. Li çepa dawî tiştek ranake.
+Takes out everything darker than this, so what lies beneath shows through. Left takes out nothing.	Her tiştê ji vê tarîtir radike, da tiştê li binê xuya bibe. Li çepa dawî tiştek ranake.
+Tape speed: SP is the best picture, LP and EP fit more on a tape and lose detail and colour.	Leza bandê: SP wêneya herî baş e; LP û EP demeke dirêjtir di bandê de cih dikin lê hûrgilî û reng winda dikin.
+The brightness that stays put. Everything above it reaches one way and everything below it the other.	Roniya ku li cihê xwe dimîne. Her tiştê li jorê wê ber bi aliyekî û yê li jêrê ber bi yê din dirêj dibe.
+The character of the growth: low is waves, then labyrinth, coral, worms, and holes at the top.	Cureya mezinbûnê: li jêr pêl, paşê labîrent, mercan, kurm û li jor kun.
+The colour it becomes. Shading and brightness stay as they were, so a red shirt turns blue and keeps its folds.	Rengê ku dibe. Siya û ronî wek xwe dimînin, da kirasê sor bibe şîn û qatên xwe biparêze.
+The distance that sits ON the screen. Either side of it comes forward or falls behind.	Dûrahiya ku li ser ekranê ye. Herdu aliyên wê tên pêş an diçin paş.
+The frequency it pivots around -- what counts as 'low' and 'high' for the tilt.	Frekansek ku li dora wê dizivire -- sînorê 'nizm' û 'bilind' ji bo xwarbûnê.
+The head drifting off the track: a band of noise rolls through the picture.	Serê xwîner ji rê derdikeve: bandeke dengê bêwate di wêneyê de derbas dibe.
+The level below which the source is closed. Set it under the quietest thing you want to hear.	Asta ku li jêr wê çavkanî tê girtin. Li jêr dengê herî hêdî yê ku dixwazî bibihîzî mîheng bike.
+The level it starts working at. Lower catches more of the performance.	Asta ku kar lê dest pê dike. Nizmtir beşeke zêdetir ji performansê digire.
+The plugin's first four automatable controls, in its own order. Everything else it has keeps whatever the plugin was left set to.	Çar kontrolên pêşîn ên pêvekê yên otomatîkbûnê, bi rêza wê. Hemû mîhengên din li ser nirxên dawî yên pêvekê dimînin.
+this output's renderer could not cut the mask	renderkera vê derketinê nekarî maskê bibire
+Tints the two directions apart, so light bending one way and the other are different colours instead of both being grey.	Herdu arasteyan bi rengên cuda reng dike, da ronîtiya ku ber bi her aliyekî ditewe rengê cuda hebe, ne ku herdu gewr bin.
+Turns the echo each pass, which winds the melt into a spiral.	Di her derbasbûnê de dengvedanê dizivirîne û helandinê dike spiral.
+Turns the strokes across the grain instead of along it, which combs the picture apart rather than smoothing it.	Xetikan li şûna dirêjahiya tevnê li paniya wê dizivirîne, da wêneyê şeh bike û ji hev veke li şûna nermkirinê.
+Turns the whole arrangement, so the fold lines do not sit on the same part of the picture all night.	Hemû rêkxistinê dizivirîne, da xetên qatan tevahiya şevê li heman beşa wêneyê nemînin.
+Two is a mirror, twelve is a snowflake, and they are completely different pictures.	Du neynik e, diwanzdeh berfok e; ew wêneyên bi tevahî cuda ne.
+unsaved changes will be lost: press new again	guhartinên netomarkirî winda dibin: dîsa nû bitikîne
+WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (sound is included)	WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (deng jî tê de ye)
+Where highlights fold back through black. Low folds most of the picture, high folds only the brightest.	Cihê ku roniyên bilind di reşiyê re vedigerin. Nizm piraniya wêneyê qat dike, bilind tenê beşên herî ronî.
+Where the band sits, 30Hz to 16kHz across the travel.	Cihê bandê, ji 30Hz heta 16kHz li dirêjahiya rêya kontrolê.
+Where the fold sits: the middle at the left, toward the far edge to the right. Flips have no fold.	Cihê qatê: li çepê navîn, ber bi rastê nêzî qeraxa dûr. Bizivirandin qat nîne.
+Where the light stands, in degrees around the frame.	Cihê roniyê, bi dereceyan li dora çarçoveyê.
+Where the source sits around the listener, all the way round. For headphones -- it is a timing and shading trick, not a pan.	Cihê çavkaniyê li dora guhdar, bi tevahiya bazneyê. Ji bo guhdarkan -- fêlbaziyeke dem û rengê deng e, ne pan.
+Where the top ends, 200Hz to 20kHz. Pull it down to take the harshness off a bright source.	Dawiya frekansên bilind, ji 200Hz heta 20kHz. Daxe da tûjiya çavkaniyeke ronî kêm bike.
+Which channel the curve acts on: all three, then red, green or blue on its own -- the way a colourist warms or cools one end of the picture.	Kanala ku kevane bandorê lê dike: her sê, paşê sor, kesk an şîn bi tena xwe -- wek rengsazek aliyekî wêneyê germ an sar dike.
+Which way the knife edge lies. Only gradients ACROSS the edge show, so turning it swaps which features appear and which vanish.	Arasteya qeraxa kêrê. Tenê derbasbûnên rengê li paniya qeraxê xuya dibin, lewma zivirandin taybetiyên xuya û windabûyî diguherîne.
+Which way the streak runs: across at the left, upright in the middle, across again at the right.	Arasteya xetê: li çepê berwarî, li navînê tîk, li rastê dîsa berwarî.
+Widens the decision into a ramp, so edges keep their shape instead of jagging.	Sînorê biryarê dike derbasbûneke hêdî, da qerax şiklê xwe biparêzin li şûna diranan.
+Words to surface in the field, separated by | . One shows at a time, moving on the hold clock.	Peyvên ku di qadê de xuya bibin, bi | veqetandî. Her car yek xuya dibe û bi demjimêra ragirtinê diguhere.
+Zero is one noise value across all three channels, which reads as film. Higher gives each channel its own, which reads as video.	Sifir yek nirxê dengê bêwate ji bo her sê kanalan dide, wek fîlmê. Bilindtir ji bo her kanalê nirxekî cuda dide, wek vîdyoyê.
+zones cleared: Motion reads the whole picture	herêm hatin paqijkirin: Tevger hemû wêneyê dixwîne

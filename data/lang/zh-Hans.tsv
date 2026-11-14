@@ -3246,3 +3246,1112 @@ whole picture	整幅画面
 FX CHOICE: choice must be A or B	FX CHOICE：选项必须为 A 或 B
 FX CHOICE: no effect at that index	FX CHOICE：该索引处没有特效
 FX LFO: slot is A-D for the parameters, E for the amount, F and G for the fifth and sixth (or 0-6)	FX LFO：槽位 A-D 对应参数，E 对应强度，F 和 G 对应第五和第六个（或 0-6）
+angle	角度
+attack	起音
+azimuth	方位角
+band curve	频带曲线
+bands	频带
+base layer	底层
+bits	位数
+black point	黑场
+bleed	渗色
+block glitch	块状故障
+block size	块大小
+blocks	块数
+blur	模糊
+bright	亮部
+buzzer	蜂鸣器
+by brightness	按亮度
+catch	捕捉
+caustics	焦散
+channel skew	通道偏斜
+channel spread	通道扩散
+character	字符
+chop	切碎
+coherence	相干性
+colour bleed	串色
+colour drift	色彩漂移
+colour lag	色彩延迟
+colour replace	颜色替换
+columns	列数
+convergence	会聚
+copies	副本数
+corrupt	破坏
+corruption	损坏程度
+coupling	耦合
+crystallise	结晶
+curl detail	旋涡细节
+curves	曲线
+cut bright	亮部裁切
+cut dark	暗部裁切
+cut reset	切镜重置
+cutoff	截止频率
+cuts	切割数
+cyan	青色
+damage	损伤
+damping	阻尼
+dark	暗部
+darkness	暗度
+deck age	机器老化
+depth	深度
+depth split	深度分离
+diamond	菱形
+distance	距离
+doppler	多普勒
+dots move	点移动
+drift	漂移
+drip	滴落
+drips	滴数
+drive	驱动
+dye advect	染料平流
+edge ignite	边缘点燃
+edges	边缘
+empty	空
+extended	扩展
+facet light	晶面光照
+falloff	衰减
+falsecolour	伪色
+feed rate	供给速率
+feedback bloom	反馈辉光
+ferrofluid	磁流体
+field of view	视场角
+flash length	闪光时长
+flash to	闪至
+flicker	闪烁
+floor	下限
+flow	流动
+focus	聚焦
+fold	折叠
+fold point	折叠点
+frames	帧数
+frequency	频率
+gap	间隙
+gather	汇聚
+glow	辉光
+glyph set	字形集
+gong	锣
+grain	颗粒
+grain flow	颗粒流动
+grain size	颗粒大小
+green split	绿色分离
+grid	网格
+growl	低吼
+growth	生长
+head wear	磁头磨损
+heat	热量
+highlight roll	高光滚降
+histogram	直方图
+horizontal	水平
+hue turn	色相旋转
+ice	冰
+ink	墨色
+interference	干扰
+irregularity	不规则度
+jump	跳跃
+kaleido	万花
+kaleidoscope	万花筒
+knee	拐点
+knife angle	刀口角度
+leak	泄漏
+let go	释放
+lift	提升
+light	光照
+light angle	光照角度
+lightspeed	光速
+line colour	线条颜色
+line glow	线条辉光
+lissajous	李萨如
+luma displace	亮度置换
+luma key	亮度键
+material	材质
+melt	融化
+memory	记忆
+midtones	中间调
+moire	摩尔纹
+mono	单声道
+mosaic	马赛克
+motion mosh	运动错码
+motion puppet	运动木偶
+motion trails	运动拖影
+night eyes	夜视眼
+no colour	无色
+noise	噪声
+not connected	未连接
+nothing drawn	尚未绘制
+off-axis	离轴
+offline	离线
+orbit speed	环绕速度
+overflow	溢出
+parade	分量波形
+parallax	视差
+phone	电话
+pinch	捏合
+ping-pong	往返
+pink noise	粉红噪声
+pitch	音高
+pivot	支点
+pixel sort	像素排序
+plasma	等离子
+polar warp	极坐标扭曲
+posterise	色调分离
+radial zoom	径向缩放
+radio	收音机
+radius	半径
+ramp	斜坡
+range	范围
+ratio	比率
+reach	延伸
+reaction bloom	反应绽放
+recordings	录制文件
+recovering	恢复中
+refresh	刷新
+release	释音
+relief	浮雕
+relight	重打光
+repeat width	重复宽度
+resonance	谐振
+reverse	反向
+rgb split	RGB分离
+rings	环数
+ripple	涟漪
+rising	上升
+rod bias	视杆偏置
+room	房间
+rot	腐化
+rotation	旋转
+round	圆形
+sag	下垂
+saw	锯齿波
+scanlines	扫描线
+schlieren	纹影
+scope	示波器
+second mode	第二模式
+see through	透视
+seed density	种子密度
+self	自身
+settle	沉降
+shadow lift	阴影提升
+shake	抖动
+shard size	碎片大小
+sharpen	锐化
+sheen	光泽
+sideways	横向
+slit scan	狭缝扫描
+slit width	狭缝宽度
+smear	拖抹
+softness	柔和度
+solarise	曝光反转
+spike count	尖峰数量
+spike length	尖峰长度
+spin	自转
+spinning	旋转中
+spring	弹簧
+sprite sheet	精灵图集
+square	方波
+steps	步数
+stereogram	立体图
+stiffness	刚度
+sting	短促音
+strength	强度
+strobe	频闪
+stroke	笔触
+sway	摇摆
+sweep	扫频
+sweep speed	扫频速度
+swell speed	涌浪速度
+symbols	符号
+system default	系统默认
+system output	系统输出
+tape	磁带
+tape age	磁带老化
+tear width	撕裂宽度
+temporal dither	时间抖色
+test signal	测试信号
+text to send	发送文本
+threshold	阈值
+throw	抛掷
+tile size	平铺大小
+tilt	倾斜
+time	时间
+time cube	时间立方
+tint	染色
+tint colour	染色颜色
+tracking	跟踪
+trail	拖尾
+transparent	透明
+triangle	三角波
+triple beep	三连哔声
+turn	转动
+twist	扭转
+unavailable	不可用
+unbalanced )	不配对的 )
+vapor	蒸汽
+vector	矢量
+vertical	垂直
+vertical bias	垂直偏置
+vibrato	颤音
+vignette	暗角
+wash out	褪色
+wave height	波高
+wavefront	波前
+way	方向
+wedges	楔形
+white	白色
+white noise	白噪声
+white point	白场
+window hidden	窗口已隐藏
+window minimized	窗口已最小化
+wire	线框
+wrong display	显示器错误
+zoom	缩放
+(choose cue)	(选择提示)
+(missing)	(缺失)
+(no slots)	(无插槽)
+(set media file)	(设置媒体文件)
+(set url)	(设置url)
+A number	数值
+across the grain	横跨纹理
+additive	叠加
+alternating	交替
+amber	琥珀色
+Audio bitrate	音频码率
+Audio reactivity	音频响应
+Brush opacity	画笔不透明度
+Brush size	画笔大小
+cancelled	已取消
+Canvas Height	画布高度
+Canvas View	画布视图
+Canvas Width	画布宽度
+Centre X	中心X
+Centre Y	中心Y
+Control change	控制变更
+Cue Notes	提示备注
+Custom Glyphs	自定义字形
+Density	密度
+Detail	细节
+Draw colour	绘制颜色
+empty expression	表达式为空
+export as .png or .svg	导出为 .png 或 .svg
+Fixture address	灯具地址
+Fixture name	灯具名称
+Fixture universe	灯具域
+Height	高度
+Height (px)	高度 (px)
+Key Color	键控颜色
+Keyframe interval	关键帧间隔
+Live Browser	实时浏览器
+Live Source	实时源
+Mask opacity	蒙版不透明度
+Mask rotation	蒙版旋转
+Mask scale	蒙版缩放
+Mask X	蒙版X
+Mask Y	蒙版Y
+Add Browser Cue	添加浏览器提示
+Add NDI Source Cue	添加NDI源提示
+Add Stream Cue	添加流提示
+Art-Net Destination	Art-Net目标
+ASCII 95 (density)	ASCII 95 (密度)
+ASCII 95 (raw)	ASCII 95 (原始)
+ASIO is off	ASIO已关闭
+ATEM Input	ATEM输入
+Attach Lower Third	附加Lower Third
+Attach PIP Overlay	附加画中画叠层
+Attack	起音
+Bands	频带
+Blobs	团块
+BOTH	两者
+Browser Ready	浏览器就绪
+CLASSIC	经典
+CLOCK	时钟
+Companion/OSC Port	Companion/OSC端口
+control 1	控制1
+control 2	控制2
+control 3	控制3
+control 4	控制4
+could not reach github	无法访问github
+could not read the PDF	无法读取PDF
+could not start ffmpeg	无法启动ffmpeg
+Cue Goto	跳转提示
+Custom Output Raster	自定义输出栅格
+Default Cue Fade	默认提示淡变
+Destination Address	目标地址
+Destination UDP port	目标UDP端口
+display native	显示器原生
+Display none	无显示器
+DMX Channels	DMX通道
+EXTREME	极强
+Feedback zoom	反馈缩放
+Find Cue	查找提示
+Find+Take Cue	查找并TAKE提示
+Fire at a time of day	按时刻触发
+Fire on a MIDI note	由MIDI音符触发
+Fire on an OSC address	由OSC地址触发
+First channel (1-512)	起始通道 (1-512)
+Flipbook rate	翻页速率
+Flow	流动
+Frequency	频率
+Glitch	故障
+GOTO Cue	GOTO 跳转提示
+Grey	灰色
+In time	入场时间
+Its name, number or id	其名称、编号或id
+Key sender source name	键控发送源名称
+Legacy Cue Link	旧式提示链接
+Lissajous (L/R phase)	李萨如 (L/R相位)
+Lower Third - subtitle	Lower Third - 副标题
+Lower Third - title	Lower Third - 标题
+Lower Third Subtext	Lower Third副文本
+Lower Third Title	Lower Third标题
+Media	媒体
+Melt	融化
+Milliseconds 0-5000	毫秒 0-5000
+Mod depth	调制深度
+Mod ratio	调制比率
+music & sparkle	音乐与闪光
+NDI Key Name	NDI键控名称
+NDI Name	NDI名称
+NDI Source Name	NDI源名称
+NEXT	下一个
+NMC Port	NMC端口
+NMC Source	NMC源
+NMC Target	NMC目标
+NMOS Interface Name	NMOS接口名称
+NMOS Node Port	NMOS节点端口
+NMOS Registry	NMOS注册中心
+no ASIO in this build	此构建不含ASIO
+no driver named	无此名称的驱动
+no mask made	未创建蒙版
+no release found	未找到发布版本
+no X display to read	无可读取的X显示器
+not on this output	不在此输出上
+Note	音符
+Note off	音符关
+Note on	音符开
+OSC Address	OSC地址
+OSC Query HTTP Port	OSC查询HTTP端口
+Out time	出场时间
+Output Alpha	输出透明度
+Output Canvas	输出画布
+Output Delay	输出延迟
+output fault	输出故障
+Output name	输出名称
+Output Refresh	输出刷新
+own playlist	自身播放列表
+Payload	消息内容
+Percent 0-100	百分比 0-100
+Phrases	短语
+PIP Target Cue	画中画目标提示
+Pixel density	像素密度
+Playlist Start TC	播放列表起始时码
+Playlist Timebase	播放列表时基
+Plugin	插件
+Portal	传送门
+Practice show	练习演出
+PREVIOUS	上一个
+Program change	音色变更
+Prompter script	提词器文稿
+pulse 25%	脉冲25%
+QUALITY	质量
+Raw bytes	原始字节
+Raw MIDI Bytes	原始MIDI字节
+Release	释音
+Rename cue	重命名提示
+Rename fixture	重命名灯具
+Renumber Cues	重新编号提示
+Replay hold	重放保持
+Retrigger	重新触发
+Rim	边缘
+Rotation	旋转
+runtime unavailable	运行库不可用
+Save Warp Preset	保存变形预设
+SCOPES	示波器
+Seconds (0-30)	秒 (0-30)
+Sender source name	发送源名称
+size out of range	大小超出范围
+Smear	拖抹
+Source Ready	信号源就绪
+Spout Sender Name	Spout发送名称
+Sprite spin	精灵旋转
+SRT latency	SRT延迟
+SRT passphrase	SRT口令
+SRT stream ID	SRT流ID
+ST 2110 Destination	ST 2110目标
+ST 2110 Port	ST 2110端口
+Step length	步骤长度
+stream restart needed	需要重启流
+Stream URL	流URL
+stream write failed	流写入失败
+SUBTLE	轻微
+Switcher IP address	切换台IP地址
+Timer Message	计时器消息
+TSL Tally	TSL指示灯
+Turn	转动
+Twist	扭转
+Universe (0-63999)	域 (0-63999)
+URL or local page path	URL或本地页面路径
+Video bitrate	视频码率
+Video dip fade	视频浸色淡变
+vMix HTTP Port	vMix HTTP端口
+vMix TCP Port	vMix TCP端口
+Web Monitor PIN	网页监看PIN
+Web Monitor Port	网页监看端口
+What it runs	运行内容
+Which cue	哪个提示
+X,Y offset in pixels	X,Y偏移像素值
+Zoom	缩放
+a name for this step	此步骤的名称
+A number, or blank for none	输入数字，留空表示无
+A command line, or blank for nothing	输入命令行，留空不执行
+a playlist that is gone	播放列表已不存在
+a target cannot target another target	目标不能指向另一个目标
+add an output to scope it	添加输出以查看示波器
+an ASIO stream is already open	ASIO流已打开
+another app is holding the pointer	其他应用正在占用指针
+built without ASIO support	构建时未启用ASIO支持
+built without NDI SDK headers	构建时未包含NDI SDK头文件
+channel count must be at least 1	通道数必须至少为1
+comma outside a function call	函数调用外存在逗号
+could not start the PDF renderer	无法启动PDF渲染器
+could not write the export script	无法写入导出脚本
+couldn't open explorer	无法打开资源管理器
+couldn't open file manager	无法打开文件管理器
+couldn't open finder	无法打开访达
+driver refused to start	驱动拒绝启动
+driver reports no output channels	驱动报告无输出通道
+driver would not create output buffers	驱动无法创建输出缓冲区
+driver would not load (in use by another application?)	驱动无法加载（是否正被其他应用使用？）
+driver would not report a buffer size	驱动未报告缓冲区大小
+driver would not report channel info	驱动未报告通道信息
+escaped to windowed	已返回窗口模式
+ffmpeg made no file	ffmpeg未生成文件
+ffmpeg stopped taking frames	ffmpeg已停止接收帧
+fullscreen dropped	全屏已退出
+it could not be started	无法启动
+LibreOffice could not be run	无法运行LibreOffice
+LibreOffice produced no PDF	LibreOffice未生成PDF
+libX11 is not installed	未安装libX11
+lost the session bus	会话总线连接丢失
+macOS could not read the PDF	macOS无法读取PDF
+no pages could be rendered	无法渲染任何页面
+not a MIDI file (no MThd header)	不是MIDI文件（无MThd头）
+not while a cue is playing	提示播放时不可操作
+only a background in it	仅含背景
+opened in explorer	已在资源管理器中打开
+opened in file manager	已在文件管理器中打开
+pdftoppm produced no pages	pdftoppm未生成页面
+PowerPoint could not export this file	PowerPoint无法导出此文件
+release has no build for this platform	此版本没有适用于该平台的构建
+revealed in finder	已在访达中显示
+target cue is gone	目标提示已不存在
+targets nothing	未指向任何目标
+the document has no pages	文档没有页面
+the file has no playable events	文件没有可播放的事件
+the file is empty	文件为空
+the header is truncated	文件头被截断
+the NDI runtime is not installed	未安装NDI运行库
+the PDF renderer produced no pages	PDF渲染器未生成页面
+the screen could not be read there	无法读取该处屏幕
+the show plays through ASIO	演出通过ASIO播放
+the time division is not readable	无法读取时间分割
+this build has no X11 support	此构建不支持X11
+update: could not start the installer	更新：无法启动安装程序
+update: could not start the install helper	更新：无法启动安装助手
+update: could not write the install helper	更新：无法写入安装助手
+update: not running from an AppImage	更新：并非从AppImage运行
+web audio encoder cannot keep up	网页音频编码器处理速度不足
+Web Monitor Connections	网页监看连接数
+%, 1 to 100 (supports + - * / and ())	%，1至100 (支持 + - * / 和 ())
+0-1 (supports + - * / and ())	0-1 (支持 + - * / 和 ())
+0-100% (supports + - * / and ())	0-100% (支持 + - * / 和 ())
+0-100%, left to right (supports + - * / and ())	0-100%，从左到右 (支持 + - * / 和 ())
+0-100%, top to bottom (supports + - * / and ())	0-100%，从上到下 (支持 + - * / 和 ())
+Amount 0-100% (supports + - * / and ())	强度0-100% (支持 + - * / 和 ())
+Colour steps, 2-8 (supports + - * / and ())	色阶数，2-8 (支持 + - * / 和 ())
+Degrees -180..180 (supports + - * / and ())	度 -180..180 (支持 + - * / 和 ())
+Degrees per second, -720 to 720 (supports + - * / and ())	度/秒，-720至720 (支持 + - * / 和 ())
+Degrees round the colour wheel, 0-360 (supports + - * / and ())	色环角度，0-360 (支持 + - * / 和 ())
+Degrees, -360 to 360 (supports + - * / and ())	度，-360至360 (支持 + - * / 和 ())
+Degrees, 0-360 (supports + - * / and ())	度，0-360 (支持 + - * / 和 ())
+Feature size, 0.1-8 (supports + - * / and ())	特征大小，0.1-8 (支持 + - * / 和 ())
+Frames a second, 1 to 60 (supports + - * / and ())	每秒帧数，1至60 (支持 + - * / 和 ())
+Hertz, 20-20000 (supports + - * / and ())	赫兹，20-20000 (支持 + - * / 和 ())
+Horizontal cells, 64-960 (supports + - * / and ())	横向单元数，64-960 (支持 + - * / 和 ())
+How big a blob grows, 0-1 (supports + - * / and ())	团块生长大小，0-1 (支持 + - * / 和 ())
+How hard it cuts, %, 0 to 100 (supports + - * / and ())	切割硬度，%，0至100 (支持 + - * / 和 ())
+How hard the audio drives it, 0-1 (supports + - * / and ())	音频驱动强度，0-1 (支持 + - * / 和 ())
+How many are alive at once, 3-48 (supports + - * / and ())	同时存活数量，3-48 (支持 + - * / 和 ())
+Palette turn, 0-1 (supports + - * / and ())	调色板旋转，0-1 (支持 + - * / 和 ())
+Pitch in hertz, 20-8000 (supports + - * / and ())	音高（赫兹），20-8000 (支持 + - * / 和 ())
+Pixel sort amount, 0-1 (supports + - * / and ())	像素排序强度，0-1 (支持 + - * / 和 ())
+Pixels (supports + - * / and ())	像素 (支持 + - * / 和 ())
+Pixels, 64-2160 (supports + - * / and ())	像素，64-2160 (支持 + - * / 和 ())
+Pixels, 64-3840 (supports + - * / and ())	像素，64-3840 (支持 + - * / 和 ())
+Scale of the whole graphic, 0.5-2 (supports + - * / and ())	整体图形缩放，0.5-2 (支持 + - * / 和 ())
+Seconds between retriggers, 0-8 (supports + - * / and ())	重新触发间隔秒数，0-8 (支持 + - * / 和 ())
+Seconds the finished drawing stays, 0 to 60 (supports + - * / and ())	完成绘图的停留秒数，0至60 (支持 + - * / 和 ())
+Seconds the in move takes, 0-5 (supports + - * / and ())	入场动作秒数，0-5 (支持 + - * / 和 ())
+Seconds the out move takes, 0-5 (supports + - * / and ())	出场动作秒数，0-5 (支持 + - * / 和 ())
+Seconds, 0-4 (supports + - * / and ())	秒，0-4 (支持 + - * / 和 ())
+Seconds, 0-8 (supports + - * / and ())	秒，0-8 (支持 + - * / 和 ())
+Size, %, 5 to 400 (supports + - * / and ())	大小，%，5至400 (支持 + - * / 和 ())
+Spiral size, 0.25-4 (supports + - * / and ())	螺旋大小，0.25-4 (支持 + - * / 和 ())
+Spiral strength, 0-4 (supports + - * / and ())	螺旋强度，0-4 (支持 + - * / 和 ())
+Thickness of the glowing edge, 0-1 (supports + - * / and ())	发光边缘厚度，0-1 (支持 + - * / 和 ())
+Where the eye sits, 0 left to 1 right (supports + - * / and ())	视点位置，0左至1右 (支持 + - * / 和 ())
+Where the eye sits, 0 top to 1 bottom (supports + - * / and ())	视点位置，0上至1下 (支持 + - * / 和 ())
+% of the picture's height, 0.1 to 20 (supports + - * / and ())	画面高度的%，0.1至20 (支持 + - * / 和 ())
+-3 to 3: 0 holds, negative runs backwards (supports + - * / and ())	-3至3：0保持，负值倒放 (支持 + - * / 和 ())
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono (supports + - * / and ())	0经典，1火，2冰，3霓虹，4单色 (支持 + - * / 和 ())
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono (supports + - * / and ())	0彩虹+灰，1彩虹，2主题，3单色 (支持 + - * / 和 ())
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear (supports + - * / and ())	0区域，1双生，2流动，3鞍形，4涟漪，5剪切 (支持 + - * / 和 ())
+0-100%: 0 holds the field still (supports + - * / and ())	0-100%：0使场静止 (支持 + - * / 和 ())
+0-100%: 50 is 1x, 0 a quarter, 100 four times (supports + - * / and ())	0-100%：50为1x，0为四分之一，100为四倍 (支持 + - * / 和 ())
+0-100%: how far the field bends (supports + - * / and ())	0-100%：场的弯曲程度 (支持 + - * / 和 ())
+0-100%: the share of each band drawn as grey stripes (supports + - * / and ())	0-100%：各频带绘为灰条纹的比例 (支持 + - * / 和 ())
+Across, % of the width, -100 to 100 (supports + - * / and ())	横向，宽度的%，-100至100 (支持 + - * / 和 ())
+Birth, drift and fade rate, 0.1-3 (supports + - * / and ())	生成、漂移和淡出速率，0.1-3 (支持 + - * / 和 ())
+Block displacement and channel tearing, 0-1 (supports + - * / and ())	块位移与通道撕裂，0-1 (支持 + - * / 和 ())
+dBFS, -60 to 0 (-18 is EBU alignment) (supports + - * / and ())	dBFS，-60至0（-18为EBU校准电平） (支持 + - * / 和 ())
+Down, % of the height, -100 to 100 (supports + - * / and ())	向下，高度的%，-100至100 (支持 + - * / 和 ())
+Edge out (+) or in (-), % of the height, -25 to 25 (supports + - * / and ())	边缘外扩(+)或内缩(-)，高度的%，-25至25 (支持 + - * / 和 ())
+Edge softness, % of the height, 0 to 25 (supports + - * / and ())	边缘柔和度，高度的%，0至25 (支持 + - * / 和 ())
+FDS hardware gain range, 0-63 (supports + - * / and ())	FDS硬件增益范围，0-63 (支持 + - * / 和 ())
+Fields per frame, 0-4 (1 = one field per rendered frame) (supports + - * / and ())	每帧场数，0-4（1=每渲染帧一个场） (支持 + - * / 和 ())
+How much of each frame feeds the next, 0-0.95 (supports + - * / and ())	每帧反馈到下一帧的比例，0-0.95 (支持 + - * / 和 ())
+How readily neighbours merge, 0 (never) to 1 (supports + - * / and ())	相邻对象融合程度，0（从不）至1 (支持 + - * / 和 ())
+Internal resolution, 1 (chunky) to 5 (fine) (supports + - * / and ())	内部精度，1（粗）至5（细） (支持 + - * / 和 ())
+Master oscillator rate, 0.01-8 (supports + - * / and ())	主振荡器速率，0.01-8 (支持 + - * / 和 ())
+Modulator as a ratio of the note, 0.05-16 (supports + - * / and ())	调制器与音符的比率，0.05-16 (支持 + - * / 和 ())
+One LED tile's height in pixels, 8-8192 (supports + - * / and ())	单块LED屏高度（像素），8-8192 (支持 + - * / 和 ())
+One LED tile's width in pixels, 8-8192 (supports + - * / and ())	单块LED屏宽度（像素），8-8192 (支持 + - * / 和 ())
+Per-frame zoom of the feedback path, 0.90-1.15 (supports + - * / and ())	反馈路径每帧缩放，0.90-1.15 (支持 + - * / 和 ())
+Scanlines, bloom and gun misalignment, 0-1 (supports + - * / and ())	扫描线、辉光与电子枪失准，0-1 (支持 + - * / 和 ())
+Seconds before it leaves by itself; 0 waits for OUT (supports + - * / and ())	自动退场前秒数；0等待OUT (支持 + - * / 和 ())
+Space under it, as a fraction of the frame, 0-0.8 (supports + - * / and ())	下方留白占画面的比例，0-0.8 (支持 + - * / 和 ())
+Turbulence, 0 still to 3 boiling (supports + - * / and ())	湍流，0静止至3沸腾 (支持 + - * / 和 ())
+Turns the rim's colours round the wheel, 0-1 (supports + - * / and ())	沿色环旋转边缘颜色，0-1 (支持 + - * / 和 ())
+AUTO	自动
+auto (59.94 Hz)	自动 (59.94 Hz)
+BITRATE	码率
+audioprint	音频印迹
+bohlen-pierce	博伦-皮尔斯
+chladni	克拉尼
+databend	数据弯折
+datamosh	数据错码
+Devamp	结束循环
+Fireside	炉边
+just	纯律
+meantone	中全音律
+pythagorean	毕达哥拉斯律
+purkinje	浦肯野
+Ouroboros	衔尾蛇
+MONO L	单声道 L
+MONO R	单声道 R
+LOAD NEXT	加载下一个
+MSC Cue Number	MSC提示编号
+SYPHON TEXTURE SHARE	SYPHON纹理共享
+SYPHON / SPOUT TEXTURE SHARE	SYPHON / SPOUT纹理共享
+DECODE --.-	解码 --.-
+DECODE OFF	解码 OFF
+DECODE WARM	解码预热
+OUTPUT --.-	输出 --.-
+OUTPUT WARM	输出预热
+STREAM --.-	串流 --.-
+STREAM ERR	串流错误
+STREAM OFF	串流 OFF
+STREAM WARM	串流预热
+PROXY 720p	代理720p
+hh:mm:ss or seconds	hh:mm:ss或秒
+e.g. /cue/1/start	例如 /cue/1/start
+e.g. 12.5	例如 12.5
+e.g. 192.168.1.50	例如 192.168.1.50
+e.g. 1=255, 10-14=64	例如 1=255, 10-14=64
+e.g. 20:0 or client name	例如20:0或客户端名称
+e.g. 90 3C 7F	例如 90 3C 7F
+0-127; 127 is all-call	0-127；127为全呼
+0-127; the domain the facility's clock runs on	0-127；场馆时钟运行的域
+10-79 characters, or empty for none	10-79个字符，留空表示无
+8+ characters; letters and symbols are allowed	至少8个字符；允许字母和符号
+Apple keeps the Keynote format secret on purpose, a malicious lock-in tactic, so only Apple's own software can read it properly. Best route: open it in Keynote on iCloud.com (free, in any browser), choose Download a Copy > PDF, and import that PDF	Apple故意对Keynote格式保密，这是一种恶意锁定用户的手段，使得只有Apple自家的软件才能正确读取。最佳办法：在iCloud.com的Keynote中打开（免费，任何浏览器均可），选择“下载副本 > PDF”，再导入该PDF
+8+ characters; other machines send AUTH <passphrase> first. Empty = off	至少8个字符；其他机器须先发送AUTH <passphrase>。留空=关闭
+A command line, as a DASH button runs it. {value} is the knob's number, {note} the key.	如DASH按钮所执行的命令行。{value}为旋钮数值，{note}为琴键。
+an IPv4 address, or 255.255.255.255 to broadcast	IPv4地址，或用255.255.255.255广播
+browser connections at once, 1-64 (default 8)	浏览器同时连接数，1-64（默认8）
+Default Non-Movie Duration	非视频默认时长
+Fire at incoming timecode	按输入时码触发
+Hz or AUTO (e.g. 60 or 59.94)	Hz或AUTO（例如60或59.94）
+kbps (32-512; 160 is a sane default)	kbps（32-512；160是合理默认值）
+milliseconds (40..2000)	毫秒 (40..2000)
+milliseconds (20-8000; ~4x your RTT)	毫秒（20-8000；约为RTT的4x）
+Name visible to receivers	接收端可见名称
+NDI source name (e.g. LAPTOP (source 1))	NDI源名称（例如LAPTOP (source 1)）
+OSC Feedback Mirror Rate	OSC反馈镜像速率
+Paste the key from your platform	粘贴平台提供的密钥
+paste your stream key here	在此粘贴串流密钥
+pixels (of the output raster)	像素（输出栅格）
+position on the output raster, in pixels	在输出栅格上的位置，单位为像素
+Routing hint for the receiver	接收端路由提示
+seconds (1-10; most platforms want 2)	秒（1-10；多数平台要求2）
+Seconds for new-cue fade in/out defaults	新提示默认淡入/淡出秒数
+seconds this step holds before PLAY moves on	PLAY继续前此步骤保持的秒数
+ST 2110 network interface	ST 2110网络接口
+Target IP (or 255.255.255.255 to broadcast)	目标IP（广播用255.255.255.255）
+UDP port for transport sync	播放同步UDP端口
+Where to send transport (blank = broadcast)	播放控制发送位置（留空=广播）
+Which switcher input Deckboy is (0 = not set)	Deckboy对应的切换台输入（0=未设置）
+AUDIOALSO: expected ADD <name>, REMOVE <name> or CLEAR	AUDIOALSO: 所需格式：ADD <name>, REMOVE <name> 或 CLEAR
+BROWSER KEY: expected Enter|Tab|Backspace|Escape	BROWSER KEY: 所需格式：Enter|Tab|Backspace|Escape
+BUGSWAT: expected START, SHOWME, SKIP, PLAY, EXIT or STATUS	BUGSWAT: 所需格式：START, SHOWME, SKIP, PLAY, EXIT 或 STATUS
+CAPTIONS LIVE: expected ON, OFF, STATUS or TEXT	CAPTIONS LIVE: 所需格式：ON, OFF, STATUS 或 TEXT
+CAPTIONS SOURCE: expected INPUT, DECK <n> or OUTPUT <n>	CAPTIONS SOURCE: 所需格式：INPUT, DECK <n> 或 OUTPUT <n>
+DMXCUE FIXTURE: expected <name> <level%>|LEAVE [<colour>]	DMXCUE FIXTURE: 所需格式：<name> <level%>|LEAVE [<colour>]
+DMXCUE LFO: expected <name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]	DMXCUE LFO: 所需格式：<name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]
+DMXCUE: expected NEW, SET, FADE, UNIVERSE, HOST, PORT, FIRE or BLACKOUT	DMXCUE: 所需格式：NEW, SET, FADE, UNIVERSE, HOST, PORT, FIRE 或 BLACKOUT
+ENDACTION: expected INHERIT, STOP, LOOP, HOLD or NEXT	ENDACTION: 所需格式：INHERIT, STOP, LOOP, HOLD 或 NEXT
+expected waveform|scope|lissajous|spectrum|level|cover	所需格式：waveform|scope|lissajous|spectrum|level|cover
+FADE CURVE: expected linear, ease-in, ease-out or s-curve	FADE CURVE: 所需格式：linear, ease-in, ease-out 或 s-curve
+FADE WHAT: expected opacity, volume, dimmer, brightness, contrast, saturation, hue, effect, audiofx or speed	FADE WHAT: 所需格式：opacity, volume, dimmer, brightness, contrast, saturation, hue, effect, audiofx 或 speed
+FIXTURE ADD: expected <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]	FIXTURE ADD: 所需格式：<name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]
+LOWERSTYLE: expected none, fade, rise, slide, wipe or NEXT	LOWERSTYLE: 所需格式：none, fade, rise, slide, wipe 或 NEXT
+MASK ASSIGN: expected <id|NONE> CUE | LAYER <output> <playlist> | OUTPUT <n> | MATTE <n>	MASK ASSIGN: 所需格式：<id|NONE> CUE | LAYER <output> <playlist> | OUTPUT <n> | MATTE <n>
+MASK ASSIGN: expected CUE, LAYER, OUTPUT or MATTE	MASK ASSIGN: 所需格式：CUE, LAYER, OUTPUT 或 MATTE
+MASK EXPORT: expected <id> <file.png|file.svg> [WxH]	MASK EXPORT: 所需格式：<id> <file.png|file.svg> [WxH]
+MASK LFO: expected <id> <param> ON|OFF [rate Hz] [depth %]	MASK LFO: 所需格式：<id> <param> ON|OFF [rate Hz] [depth %]
+MATRIX SET: expected <source 1-2> <dest> <0-100>	MATRIX SET: 所需格式：<source 1-2> <dest> <0-100>
+MATRIX: expected SET <src> <dest> <0-100>, SEED or CLEAR	MATRIX: 所需格式：SET <src> <dest> <0-100>, SEED 或 CLEAR
+MESH: expected on|off|toggle|height|tilt|yaw|spin|grid	MESH: 所需格式：on|off|toggle|height|tilt|yaw|spin|grid
+MIC: expected ADD, LIST, INPUT, CHANNEL or GAIN	MIC: 所需格式：ADD, LIST, INPUT, CHANNEL 或 GAIN
+MIDICUE KIND: expected note-on, note-off, cc, program, msc-go, msc-stop, msc-resume or raw	MIDICUE KIND: 所需格式：note-on, note-off, cc, program, msc-go, msc-stop, msc-resume 或 raw
+MIDICUE: expected NEW, PORTS, PORT, KIND, CH, D1, D2, DEVICE, CUENUM, LIST, RAW or SEND	MIDICUE: 所需格式：NEW, PORTS, PORT, KIND, CH, D1, D2, DEVICE, CUENUM, LIST, RAW 或 SEND
+MULTIVIEW LAYOUT: expected GRID, BIG, BIGTOP or TWOTOP	MULTIVIEW LAYOUT: 所需格式：GRID, BIG, BIGTOP 或 TWOTOP
+MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK or EMPTY	MULTIVIEW WINDOW: 所需格式：PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK 或 EMPTY
+NETCUE: expected NEW, PROTO, HOST, PORT, ADDRESS, PAYLOAD or SEND	NETCUE: 所需格式：NEW, PROTO, HOST, PORT, ADDRESS, PAYLOAD 或 SEND
+OUTPROBE: expected <output> <x 0-1> <y 0-1>	OUTPROBE: 所需格式：<output> <x 0-1> <y 0-1>
+OUTPUT HDR: expected ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> or STATUS	OUTPUT HDR: 所需格式：ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> 或 STATUS
+OUTPUTFX ADD: expected hpf, lpf, tilt, comp or width	OUTPUTFX ADD: 所需格式：hpf, lpf, tilt, comp 或 width
+OUTPUTFX: expected ADD, SET, REMOVE, BYPASS, CLEAR or DEVICE	OUTPUTFX: 所需格式：ADD, SET, REMOVE, BYPASS, CLEAR 或 DEVICE
+OUTPUTS ADD: expected <name> CH <n> or CH <n>-<n+1>	OUTPUTS ADD: 所需格式：<name> CH <n> 或 CH <n>-<n+1>
+PATCH: expected <deck> <output> <dB> or OFF	PATCH: 所需格式：<deck> <output> <dB> 或 OFF
+presenter colour: expected BG|INK|ACCENT #rrggbb	presenter colour: 所需格式：BG|INK|ACCENT #rrggbb
+PRESET: expected LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME or DELETE	PRESET: 所需格式：LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME 或 DELETE
+rectc: expected <hh:mm:ss:ff|timeofday> [df|ndf|auto]	rectc: 所需格式：<hh:mm:ss:ff|timeofday> [df|ndf|auto]
+SCALEMODE: expected fit|fill|stretch|unscaled	SCALEMODE: 所需格式：fit|fill|stretch|unscaled
+SCOPES BIG: expected waveform, parade, vector, diamond, histogram, falsecolour, sound or off	SCOPES BIG: 所需格式：waveform, parade, vector, diamond, histogram, falsecolour, sound 或 off
+SCOPES: expected PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS or SOUND	SCOPES: 所需格式：PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS 或 SOUND
+SECTION: expected playback|metadata|geometry|key|audio|effects|timer|tone|synth	SECTION: 所需格式：playback|metadata|geometry|key|audio|effects|timer|tone|synth
+STING: expected ON, PITCH, LENGTH, SWEEP or BODY	STING: 所需格式：ON, PITCH, LENGTH, SWEEP 或 BODY
+TARGET VERB: expected start|stop|pause|resume|load|arm|disarm	TARGET VERB: 所需格式：start|stop|pause|resume|load|arm|disarm
+TEXTCUE ALIGN: expected left, centre or right	TEXTCUE ALIGN: 所需格式：left, centre 或 right
+TEXTCUE ANIM: expected none, fade, typewriter, scroll, crawl, pulse or wobble	TEXTCUE ANIM: 所需格式：none, fade, typewriter, scroll, crawl, pulse 或 wobble
+TEXTCUE: expected NEW, BODY, ANIM, SIZE, SPEED, ALIGN, CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, WIGGLE, IN, OUTMOVE or OUT	TEXTCUE: 所需格式：NEW, BODY, ANIM, SIZE, SPEED, ALIGN, CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, WIGGLE, IN, OUTMOVE 或 OUT
+TRACKER: expected GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP or CLICKER	TRACKER: 所需格式：GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP 或 CLICKER
+TUTORIAL: expected START, SHOWME, SKIP, EXIT, STATUS or SCREENS	TUTORIAL: 所需格式：START, SHOWME, SKIP, EXIT, STATUS 或 SCREENS
+UPDATE: expected check|download|install|status	UPDATE: 所需格式：check|download|install|status
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS	VJ: 所需格式：ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS
+AUDIOFX: expected OFF, BYPASS, or amount and parameters as percentages	AUDIOFX：应为OFF、BYPASS，或以百分比指定强度与参数
+BLEND PAIR: expected <other output number> <overlap in pixels>	BLEND PAIR：应为<other output number> <overlap in pixels>
+BROWSER SCROLL: expected pixels (negative is up)	BROWSER SCROLL：应为像素数（负数向上）
+CHIP ENV: expected <attack> <release> in seconds	CHIP ENV：应为<attack> <release>，单位为秒
+DMXCUE SET: expected channel=level pairs, e.g. 1=255,10-14=64	DMXCUE SET：应为通道=电平对，例如1=255,10-14=64
+expected one expression, three for colour, or four with alpha	应为一个表达式，颜色用三个，含透明度用四个
+MASK SET: expected INVERT, X, Y, SCALE, ROTATION, FEATHER, GROW or OPACITY and a number	MASK SET：应为INVERT、X、Y、SCALE、ROTATION、FEATHER、GROW或OPACITY及一个数字
+MASK SHAPE: expected a shape (MASK SHAPES lists them)	MASK SHAPE：应为形状（用MASK SHAPES列出）
+MASTER DECK: expected a deck number and a cue number	MASTER DECK：应为卡座编号和提示编号
+MIC INPUT: expected SETTINGS, TEST or a device name (MIC LIST)	MIC INPUT：应为SETTINGS、TEST或设备名称（MIC LIST）
+MIDIFILE: expected PORT, or no argument to report it	MIDIFILE：应为PORT，无参数则报告当前值
+MONITOR DECK: expected a playlist number or FOLLOW	MONITOR DECK：应为播放列表编号或FOLLOW
+MONITOR ROOM: expected a playlist and ON or OFF	MONITOR ROOM：应为播放列表及ON或OFF
+MULTIVIEW WINDOW <n>: expected a source, or SAFE/METER/LABEL ON|OFF	MULTIVIEW WINDOW <n>：应为来源或SAFE/METER/LABEL ON|OFF
+MULTIVIEW WINDOW REMOVE: expected a window number	MULTIVIEW WINDOW REMOVE：应为窗口编号
+NETCUE ADDRESS: expected an OSC path starting with /	NETCUE ADDRESS：应为以/开头的OSC路径
+OUTPUT AOI: expected a size like 256x256, or FULL	OUTPUT AOI：应为256x256等尺寸或FULL
+OUTPUT HDR WHITE: expected 80..500 nits (203 is BT.2408)	OUTPUT HDR WHITE：应为80..500尼特（203对应BT.2408）
+OUTPUTFX SET: expected an effect number and 0-100	OUTPUTFX SET：应为效果编号及0-100
+PORTS: expected an http port and a tcp port	PORTS：应为http端口和tcp端口
+PRELOAD: expected a position in seconds, OFF or STATUS	PRELOAD：应为秒数位置、OFF或STATUS
+presenter panel: expected <live|prev|next|notes> <x> <y> <w> <h> in percent	presenter panel：应为<live|prev|next|notes> <x> <y> <w> <h>，单位为百分比
+SCOPES SOURCE: expected PROGRAMME or an output number, 1-	SCOPES SOURCE：应为PROGRAMME或输出编号，1-
+STREAM ADD: expected a URL, e.g. srt://host:port	STREAM ADD：应为URL，例如srt://host:port
+TARGET CUE: expected a deck number and a cue number	TARGET CUE：应为卡座编号和提示编号
+TEXTCUE SIZE: expected 1-100 (percent of the raster)	TEXTCUE SIZE：应为1-100（栅格的百分比）
+TUTORIAL SCREENS: expected a count, MIRRORED or REAL	TUTORIAL SCREENS：应为数量、MIRRORED或REAL
+VIDEO OUTPUT LAYER: expected a layer number (1 is the base)	VIDEO OUTPUT LAYER：应为图层编号（1为底层）
+VIDEO OUTPUT LAYERWARP: expected OFF, MODE, or eight numbers clockwise from the top left	VIDEO OUTPUT LAYERWARP：应为OFF、MODE，或从左上起顺时针排列的八个数字
+warp grid: expected <n>, <cols> <rows>, off, smooth or straight	warp grid：应为<n>、<cols> <rows>、off、smooth或straight
+WARP SELECT: expected TL, TR, BR, BL or a grid <col> <row>	WARP SELECT：应为TL、TR、BR、BL或网格<col> <row>
+How big each tile is.	每块平铺单元的大小。
+How big the crystals grow before they meet.	晶体相遇前生长的大小。
+How closely spaced the rings are.	环与环的间距。
+How far a band can slide.	每条带可滑动的距离。
+How far each shard slides from where it belongs.	各碎片偏离原位的滑动距离。
+How far each stroke is dragged along the grain.	每条笔触沿纹理拖动的距离。
+How far it smears: up to a few percent of the picture.	拖抹距离，最多为画面的百分之几。
+How far out the darkening starts.	从距中心多远处开始变暗。
+How far the bright parts pull away from the surface.	亮部离开表面的距离。
+How far the glow spreads.	辉光扩散的距离。
+How far the sound throws each line sideways.	声音将每行横向推移的距离。
+How fast the sand travels to the still lines.	沙粒移向静止线条的速度。
+How fast the surface moves.	表面的移动速度。
+How fast they travel outward.	向外移动的速度。
+How gradually the key cuts in. Hard at the left.	键控切入的渐变程度。左端为硬边。
+How hard it is driven into its own limits.	将其推向自身极限的力度。
+How hard the short hits.	短路冲击的强度。
+How many shades survive the quantise.	量化后保留的色阶数量。
+How many spikes the field breaks into.	场分裂成的尖峰数量。
+How many torn bands per frame.	每帧撕裂条带的数量。
+How much each shard turns on its own centre.	各碎片绕自身中心旋转的程度。
+How much the edges are lifted.	边缘抬升的程度。
+How much the flame gutters frame to frame.	火焰逐帧明灭的程度。
+How often it skips.	跳读的频率。
+How quickly the loop relaxes when nothing feeds it.	无输入时循环消退的速度。
+How strongly the outlines are drawn.	轮廓绘制的强度。
+How strongly the water bends the picture.	水对画面的扭曲强度。
+Darkens the boundaries where crystals meet.	使晶体相接处的边界变暗。
+Lifts the dark tones without moving pure black.	提升暗调，同时保持纯黑不变。
+Pushes the rings in or out of the centre.	将环推向中心或向外推开。
+Rounds the tiles off, all the way to dots.	将平铺单元逐渐变圆，直至成为圆点。
+Softens the fold so it ramps instead of creasing.	柔化折叠，使其渐变而非出现硬折痕。
+Where the filter sits.	滤波器所在的位置。
+Which way it drips.	滴落的方向。
+8 zones already: click one to remove it first	已有8个区域：请先点击一个将其删除
+AUDIOALSO ADD: seven extra destinations is the limit	AUDIOALSO ADD：最多七个额外目标
+AUDIOALSO ADD: that is already this deck's main device -- it would play twice	AUDIOALSO ADD：这已是该卡座的主设备，会重复播放
+AUDIOFX PLUGIN: this build has no plugin host	AUDIOFX PLUGIN：此构建没有插件宿主
+BROWSER CLICK: this browser backend cannot drive the page	BROWSER CLICK：此浏览器后端无法操作页面
+BROWSER SCROLL: this browser backend cannot drive the page	BROWSER SCROLL：此浏览器后端无法操作页面
+BROWSER SCROLLBAR: this browser backend cannot drive the page	BROWSER SCROLLBAR：此浏览器后端无法操作页面
+BROWSER INTERACT: this browser backend has no hands-on mode	BROWSER INTERACT：此浏览器后端没有直接交互模式
+BROWSER TYPE: this browser backend cannot type	BROWSER TYPE：此浏览器后端无法输入文字
+LOWERANIM: this cue is not a Lower Third	LOWERANIM：此提示不是Lower Third
+LOWERSTYLE: this cue is not a Lower Third	LOWERSTYLE：此提示不是Lower Third
+MIDIFILE: the selected cue is not a midi file cue	MIDIFILE：所选提示不是MIDI文件提示
+NETCUE: the selected cue is not a network cue	NETCUE：所选提示不是网络提示
+SCRIPTCUE: the selected cue is not a script cue	SCRIPTCUE：所选提示不是脚本提示
+SYNTH: the selected cue is not a video synth	SYNTH：所选提示不是视频合成器
+TCCUE: the selected cue is not a timecode cue	TCCUE：所选提示不是时码提示
+TEXTCUE: the selected cue is not a text cue	TEXTCUE：所选提示不是文本提示
+SLICE ADD: already 16 slices on this output	SLICE ADD：此输出已有16个切片
+VIDEO OUTPUT ASSIGN: already on this output, or no such deck or output	VIDEO OUTPUT ASSIGN：已在此输出上，或没有该卡座或输出
+VIDEO OUTPUT LAYER: this deck is not on this output, or it is already at that layer	VIDEO OUTPUT LAYER：该卡座不在此输出上，或已位于该图层
+VIDEO OUTPUT UNASSIGN: this deck is not on this output, or it is the only thing on it	VIDEO OUTPUT UNASSIGN：该卡座不在此输出上，或它是唯一内容
+port number (default 5510)	端口号（默认5510）
+port number (default 5511)	端口号（默认5511）
+port number (default 6454)	端口号（默认6454）
+port number (default 8090)	端口号（默认8090）
+port number (vMix uses 8088)	端口号（vMix使用8088）
+port number (vMix uses 8099)	端口号（vMix使用8099）
+Prefix (optional). Example: Q	前缀（可选）。例如：Q
+Prefix and optional start (example: Q 100)	前缀及可选起始编号（例如：Q 100）
+WIDTHxHEIGHT (e.g. 2560x1080)	宽x高（例如2560x1080）
+WIDTHxHEIGHT (e.g. 5760x2160)	宽x高（例如5760x2160）
+#rrggbb -- the colour of the presenter screen	#rrggbb -- 演讲者屏幕颜色
+#rrggbb, or a name (red, teal...)	#rrggbb或颜色名（red, teal...）
+Cue name (blank restores the file name)	提示名称（留空恢复文件名）
+Leave empty to follow the live cue notes	留空以跟随直播提示的备注
+Multicast group (e.g. 239.20.10.1)	组播组（例如239.20.10.1）
+Port the Node + Connection API serve on	Node + Connection API服务端口
+NIC address or name; empty = the default route	网卡地址或名称；留空=默认路由
+NIC name reported in interface_bindings (e.g. eth0)	interface_bindings中报告的网卡名称（例如eth0）
+flow (follows the picture)	流动（跟随画面）
+Above halfway, the repeated piece plays backwards.	超过中点时，重复片段倒放。
+The brightness that decides black from white.	决定黑白分界的亮度。
+The colour to change, round the wheel from red.	要替换的颜色，从红色起沿色环选择。
+no picture on this cue - nothing to follow	此提示没有画面，无法跟随
+this cue has no known end to resolve into	此提示没有可供收束的已知终点
+only a MIDI note or an OSC address can take a cue	只有MIDI音符或OSC地址可TAKE提示
+The bright net the waves focus onto the picture.	波浪聚焦在画面上的明亮网纹。
+can't move the active cue -- take another cue on this deck first	无法移动当前提示项 -- 请先在此播放机送出另一个提示项
+cancelled: the waiting cue is no longer in the playlist	已取消：等待的提示项已不在播放列表中
+could not create an OpenGL context for Spout receive	无法创建 Spout 接收所需的 OpenGL 上下文
+could not create the offscreen window Spout receive needs	无法创建 Spout 接收所需的离屏窗口
+could not get a device context for Spout receive	无法获取 Spout 接收所需的设备上下文
+couldn't decode still image — unsupported format or corrupt file	无法解码静态图像 — 格式不受支持或文件已损坏
+couldn't open a browser -- please report at github.com/Utopian-Academy/Deckboy/issues	无法打开浏览器 -- 请前往 github.com/Utopian-Academy/Deckboy/issues 报告
+downloading the caption model, then listening...	正在下载字幕模型，随后开始收听...
+drag the panels to arrange the presenter screen	拖动面板以布置演示者屏幕
+encoder destination: _converted beside the show	编码输出位置：演出文件旁的 _converted
+fetching the speech model - captions start when it arrives	正在获取语音模型 - 下载完成后开始字幕
+four effects at most on one device: remove one first	每台设备最多四个效果：请先移除一个
+live captions are not installed here (deckboy-listen was not found)	未安装实时字幕功能（未找到 deckboy-listen）
+Lower Third added - put its playlist on a layer	已添加 Lower Third - 请将其播放列表放到图层上
+mic live on the default speakers - watch for feedback	麦克风正通过默认扬声器输出 - 注意声反馈
+network sharing and phone control require an 8+ character passphrase	网络共享和手机控制需要至少 8 个字符的口令
+no filled shapes in it (paths, rectangles, circles, ellipses or polygons)	其中没有填充形状（路径、矩形、圆、椭圆或多边形）
+no masks yet: make one in a cue's MASK section	尚无遮罩：请在提示项的 MASK 区域创建
+no OpenGL pixel format available for Spout receive	没有可用于 Spout 接收的 OpenGL 像素格式
+no picture - shorts run on a timer instead of on cuts	无画面 - 短路由定时器而非切镜触发
+no picture on this cue - nothing decides where the playhead is	此提示项无画面 - 无法确定播放头位置
+no picture on this cue - nothing to close the loop through	此提示项无画面 - 无法闭合回路
+no video clock on this cue - nothing to lock to	此提示项无视频时钟 - 没有锁定参考
+normalize all: no file-backed audio in this deck	全部归一化：此播放机没有文件音频
+nothing to mask here: select a cue, or change MASK ON	此处没有遮罩对象：请选择提示项或更改 MASK ON
+offset in percent of the picture	偏移量，占画面的百分比
+output effects bypassed: no effect and no limit on this device	已旁通输出效果：此设备无效果也无限制
+over 16 MB: not a drawing to make a mask from	超过 16 MB：不能作为遮罩绘图
+pair with a picture effect whose LFO is set to Audio	与 LFO 设为 Audio 的画面效果配对
+paired phones removed: they need the QR code or the passphrase again	已移除配对手机：需重新使用二维码或口令
+phone control requires an 8+ character passphrase	手机控制需要至少 8 个字符的口令
+save failed - retrying; still open, use SAVE AS if needed	保存失败 - 正在重试；文件仍打开，必要时请用 SAVE AS
+set an 8+ character Web Monitor passphrase first	请先为网页监看设置至少 8 个字符的口令
+the caption model has not been downloaded yet	尚未下载字幕模型
+the desktop portal did not answer	桌面门户未响应
+the file is empty (0 bytes): it may not have finished copying or saving	文件为空（0 字节）：可能尚未完成复制或保存
+the installed NDI runtime is missing entry points this needs	已安装的 NDI 运行库缺少所需入口点
+the NDI runtime declined to start on this machine	NDI 运行库拒绝在此计算机上启动
+the playing step was removed - sequence stopped	正在播放的步骤已移除 - 序列已停止
+update: cannot find this app bundle to replace	更新：找不到要替换的应用包
+what the operator should be told when GO reaches here	GO 到达此处时应告知操作员的内容
+what the patch and the cues call it (FOH, SUB, PRESS FEED)	配线和提示项使用的名称（FOH, SUB, PRESS FEED）
+window capture fell back to screen grab — update ffmpeg for exact window capture	窗口捕获已回退为屏幕抓取 — 请更新 ffmpeg 以精确捕获窗口
+A dark line between the tiles, like grout or an LED wall.	方块间的暗线，如填缝或 LED 墙。
+a plugin overran the audio thread and was bypassed — take it out of the chain	插件超出音频线程处理时限，已旁通 — 请将其移出效果链
+A slow rocking of the viewpoint, which is what makes the depth read without glasses.	缓慢摇动视点，让人无需眼镜也能感受到纵深。
+A slow sag in the supply, pulling the filter up and down like a dying battery.	供电缓慢下垂，像快耗尽的电池一样拉动滤波器上下变化。
+A worn or dirty head: softer, with noise that streaks along the lines.	磁头磨损或脏污：画面变软，噪声沿扫描线拖曳。
+Above halfway, a hard cut in the picture resets the loop to clean.	超过一半时，画面的硬切会清空并重置回路。
+An old deck: the picture wobbles, bends at the top of the frame and carries hum bars.	老旧放像机：画面抖动、顶部弯曲，并出现交流干扰条纹。
+An old tape loses bits of its oxide: dropouts flick white and repeat the line above, and the colour fizzes.	旧磁带氧化层脱落：掉磁处闪白、重复上一行，色彩出现噪点。
+brightness moves the playhead (needs CPU frames)	亮度驱动播放头（需要 CPU 帧）
+centred and full-frame - moves when the picture does	居中且充满画面 - 随画面移动
+Characters across. Fewer means bigger cells and less of the picture surviving, which is usually the point.	横向字符数。越少则单元越大，保留的画面越少，通常这正是目的。
+Characters to build the picture from, darkest first. Empty uses the chosen glyph set.	用于组成画面的字符，从最暗开始。留空则使用所选字形集。
+Chladni listens: the figure follows the pitch of the sound	克拉尼图形聆听声音：图案跟随音高变化
+click anywhere on any screen to take its colour. Esc cancels	点击任意屏幕上的任意位置取色。Esc 取消
+click program or preview monitor to sample key color	点击播出或预览监视器以采样键控颜色
+Colour is recorded at a fraction of the detail: it smears sideways, lands late and its hue wanders.	色彩以较低细节记录：横向拖色、延迟，并伴有色相漂移。
+Copies of copies: none at the left, four at the right. Each one loses more.	反复复制：最左为零次，最右为四次。每次都会进一步损失。
+Fine sensor noise at the bottom, chunky film at the top.	低端为细密传感器噪点，高端为粗大胶片颗粒。
+follows this cue's own brightness (needs CPU frames)	跟随此提示项自身的亮度（需要 CPU 帧）
+format 2 files are a set of independent patterns, not a performance	格式 2 文件是一组独立乐段，而非完整演奏
+From an even blur to a streak along the angle, like movement.	从均匀模糊变为沿角度拖曳的条纹，如运动模糊。
+full-frame and no picture - bends when the picture shrinks	全画面且无图像 - 画面缩小时弯曲
+Grain size: one pixel at the left, big blocky grains at the right.	颗粒大小：最左为一个像素，最右为粗大块状颗粒。
+Grows or shrinks the echo each pass. Centre holds still.	每次循环放大或缩小回声。中间保持不变。
+How abruptly it arrives. Low is a soft cloud, high is a hard porthole.	出现时的锐利程度。低值像柔软云团，高值像边缘清晰的舷窗。
+How big the room is. Small is a booth, large is a hall.	房间大小。小值如隔间，大值如大厅。
+How big the shards are. Small is frosted glass, large is a dropped plate.	碎片大小。小值像磨砂玻璃，大值像摔碎的盘子。
+How dark the dark lines go. All the way up is black between lines.	暗线的深度。最大时线间全黑。
+How far away. Distance dulls the top and softens the difference between the ears.	距离。越远，高频越暗，两耳差异越小。
+How far back each skip jumps, from a stutter to half a second.	每次跳回的距离，从短促卡顿到半秒。
+How fast it closes. Slow enough not to chop the ends off words.	关闭速度。应足够慢，避免切掉字尾。
+How fast the drips run. At the left the picture only sags.	液滴流动速度。最左仅使画面下垂。
+How fast the light walks around it. Zero holds it still.	光线环绕的速度。零为静止。
+How fast the wave travels. Faster spreads further in the same time and interferes more.	波的传播速度。越快则同时间传播越远，干涉越多。
+How gently the change fades out at the edges of the band.	变化在频段边缘淡出的柔和程度。
+How hard it holds once it is working. Gentle at the bottom, a limiter at the top.	生效后的压制力度。低端柔和，高端成为限幅器。
+How irregular the growth is. Low gives an even honeycomb, high gives long shards.	生长的不规则程度。低值为均匀蜂窝，高值为长条碎片。
+How long a short stays closed, in VIDEO FRAMES.	短路闭合的时长，以视频帧计。
+How long the reaction runs each frame. Short is a stain, long is an organism.	每帧的反应时长。短则像污迹，长则像生物。
+How many places drip: a few big drips at the left, many thin ones at the right.	滴落点数量：最左为少数大液滴，最右为大量细液滴。
+How many times a skip repeats before the sound catches up again.	声音重新跟上之前的跳跃重复次数。
+How much of the picture glows: only the brightest at the left, nearly everything at the right.	发光的画面范围：最左仅最亮处，最右几乎全部。
+How much of the picture shows behind the lines. None at the left: lines on black.	线条后方显示的画面量。最左为零：黑底线条。
+How much of the push goes downward rather than sideways.	推力向下而非向侧面的比例。
+How quickly the room eats the top end. More damping is a softer, more furnished space.	房间吸收高频的速度。阻尼越大，空间越柔和、陈设越多。
+How readily an edge catches. Low sets the whole picture alight, high only the hardest lines.	边缘着火的容易程度。低值点燃整幅画面，高值仅点燃最锐利线条。
+How wide a band of colours either side of it changes too.	两侧一同变化的颜色范围宽度。
+ASCII HOLD: seconds, 0-60 (0 mutes the phrases)	ASCII HOLD: 秒，0-60（0 隐藏短语）
+ASCII WOBBLEMODE: drift | flow (follows luma) | hue (follows colour); no argument cycles	ASCII WOBBLEMODE: drift | flow（跟随亮度）| hue（跟随颜色）；无参数则循环切换
+ASCII: the selected cue has no text mode (add the TEXT MODE effect, or select a video synth cue)	ASCII: 所选提示项没有文本模式（请添加 TEXT MODE 效果或选择视频合成器提示项）
+CHIP DUTY: this cue is an FDS synth, which has no duty	CHIP DUTY: 此提示项为 FDS 合成器，没有占空比
+CHIP NOISE: this cue is an FDS synth, which has no noise	CHIP NOISE: 此提示项为 FDS 合成器，没有噪声
+CHIP VOICE: this cue is an FDS synth, which has no voice	CHIP VOICE: 此提示项为 FDS 合成器，没有音色选择
+DASH SET: needs a command -- DASH SET <n> <label> | <command> [| <glyph>]	DASH SET: 需要命令 -- DASH SET <n> <label> | <command> [| <glyph>]
+DATAMOSH on - preparing (long clip, watch Encoder tab)	DATAMOSH 已开启 - 正在准备（长片段，请留意编码器选项卡）
+DECKLINK: no DeckLink driver on this computer (Blackmagic Desktop Video)	DECKLINK: 此计算机未安装 DeckLink 驱动程序（Blackmagic Desktop Video）
+DMXCUE LEVELS: nothing has been sent on that universe	DMXCUE LEVELS: 尚未向该域发送任何数据
+DRAW COLOUR: #rrggbb, #rrggbbaa, a name, or 1-8 for the palette	DRAW COLOUR: #rrggbb、#rrggbbaa、颜色名，或调色板编号 1-8
+DRAW STROKE: each point is x,y or x,y,pressure, in percent	DRAW STROKE: 每个点为 x,y 或 x,y,pressure，单位为百分比
+DRAW TOOL: brush, erase, line, box, oval or fill	DRAW TOOL: 请选择 brush、erase、line、box、oval 或 fill
+EDIT is off - press EDIT to type into the tracker	EDIT 已关闭 - 请按 EDIT 在跟踪器中输入
+ENDACTION: only video and audio cues have an end action	ENDACTION: 仅视频和音频提示项具有结束动作
+Enter playlist SMPTE FPS: 24 / 25 / 29.97 / 30	输入播放列表 SMPTE 帧率：24 / 25 / 29.97 / 30
+FADE TO: a speed from 0.25 to 4 (0.5 is half speed, an octave down)	FADE TO: 速度 0.25 至 4（0.5 为半速，低一个八度）
+FX ADD: datamosh needs a file-backed video cue	FX ADD: datamosh 需要基于文件的视频提示项
+FX LFO wants <index> <slot> <on|off|shape> [value]	FX LFO 需要 <index> <slot> <on|off|shape> [value]
+FX LFO: on, off, shape, rate, depth, zone, channel or cc	FX LFO: 请选择 on、off、shape、rate、depth、zone、channel 或 cc
+GEOLFO: x, y, width, height, rotation, cropleft, cropright, croptop or cropbottom	GEOLFO: 请选择 x、y、width、height、rotation、cropleft、cropright、croptop 或 cropbottom
+HH:MM or HH:MM:SS on this computer's clock; empty for none	按此计算机时钟填写 HH:MM 或 HH:MM:SS；留空表示无
+HH:MM:SS:FF of the timecode Deckboy is chasing; empty for none	Deckboy 所追踪时间码的 HH:MM:SS:FF；留空表示无
+INPUTMONITOR: a row count, OPEN, CLOSE, CLEAR, PAUSE or RESUME	INPUTMONITOR: 行数，或 OPEN、CLOSE、CLEAR、PAUSE、RESUME
+IPv4 addresses or a.b.c.d/bits, comma separated; empty = only this computer	IPv4 地址或 a.b.c.d/bits，以逗号分隔；留空＝仅此计算机
+key+fill ON, but no key device set (DECKLINK KEYFILL ON <device>)	key+fill 已 ON，但尚未设置键设备（DECKLINK KEYFILL ON <device>）
+label | command | glyph      (empty label|command removes it)	标签 | 命令 | 字形      （label|command 留空则移除）
+LFO: density, speed, warp, turn, centrex, centrey, grey or hue	LFO: 请选择 density、speed、warp、turn、centrex、centrey、grey 或 hue
+MIC: select a mic cue first (MIC ADD makes one)	MIC: 请先选择麦克风提示项（MIC ADD 可创建）
+MIDIIN OSC: an address, and optionally a number	MIDIIN OSC: 地址，以及可选的数值
+MIDIMAP: that command is only accepted from this computer	MIDIMAP: 该命令仅接受来自此计算机的请求
+MOTION ZONE ADD: the zone must fit inside the picture	MOTION ZONE ADD: 区域必须位于画面内部
+NETCUE ADDRESS: an OSC address must start with /	NETCUE ADDRESS: OSC 地址必须以 / 开头
+NEWSHOW: something is live or unsaved -- send NEWSHOW again within 2.5 s	NEWSHOW: 有内容正在播出或尚未保存 -- 请在 2.5 秒内再次发送 NEWSHOW
+NMOS: discovery needs the remote network allowed	NMOS: 发现功能需要允许远程网络访问
+NMOS: NOT registering - network is LOCAL ONLY (turn REMOTE ON to publish)	NMOS: 未注册 - 网络为 LOCAL ONLY（使用 REMOTE ON 发布）
+NMOS: searching for a registry (mDNS)	NMOS: 正在查找注册服务（mDNS）
+OUTPROBE: that output has no compositor (is it on?)	OUTPROBE: 该输出没有合成器（已开启吗？）
+OUTPUTFX ADD: four effects at most on one device	OUTPUTFX ADD: 每台设备最多四个效果
+PATCH: a level is dB from -48 to +6, or OFF	PATCH: 电平为 -48 至 +6 dB，或 OFF
+PIP: retired -- scale a second deck over this one instead	PIP: 已停用 -- 请改为将第二个播放机缩放后叠在此播放机上
+pip: retired -- scale a second deck over this one instead	pip: 已停用 -- 请改为将第二个播放机缩放后叠在此播放机上
+presenter panel: the panel must fit on the screen (x+w and y+h no more than 100)	演示者面板：必须位于屏幕内（x+w 和 y+h 不得超过 100）
+preset: delivery | proxy | match | datamosh	预设：delivery | proxy | match | datamosh
+programme sound is always included; use WEBMONITOR OFF to stop the monitor	始终包含播出声音；使用 WEBMONITOR OFF 停止监看
+Registry URL (e.g. http://192.168.1.50:8010) - blank for mDNS	注册服务 URL（如 http://192.168.1.50:8010）- 留空使用 mDNS
+SLICE CORNER: TL, TR, BR or BL, then dx dy in percent of the output	SLICE CORNER: TL、TR、BR 或 BL，随后为占输出百分比的 dx dy
+SLICE EDGE: L, R, T or B, then 0-50 (% of the slice)	SLICE EDGE: L、R、T 或 B，随后为 0-50（切片的 %）
+SLICE GRID POINT: col row (from 1, on a grid that is on) then dx dy in percent	SLICE GRID POINT: col row（从 1 开始，网格须开启），随后为百分比 dx dy
+SLICE LFO: X, Y, ROTATION or OPACITY, then ON, OFF, SHAPE, RATE, DEPTH...	SLICE LFO: X、Y、ROTATION 或 OPACITY，随后为 ON、OFF、SHAPE、RATE、DEPTH...
+SLICE ROTATE: IN (the crop) or OUT (the placed picture), then degrees	SLICE ROTATE: IN（裁剪）或 OUT（已放置画面），随后为角度
+SMPTE hh:mm:ss:ff or seconds (blank = 00:00:00:00)	SMPTE hh:mm:ss:ff 或秒（留空＝00:00:00:00）
+SOURCE CAMERA: name the device	SOURCE CAMERA: 请指定设备名称
+SOURCE WINDOW: name the window, e.g. title:Firefox (or "desktop")	SOURCE WINDOW: 请指定窗口名，如 title:Firefox（或 "desktop"）
+STING: select a tone cue first (TONECUE makes one)	STING: 请先选择音调提示项（TONECUE 可创建）
+Stream URL (srt://, rtmp://, rtsp://, udp://, or an http HLS .m3u8)	流媒体 URL（srt://、rtmp://、rtsp://、udp:// 或 http HLS .m3u8）
+SUBTITLE CONVERT: destination must be .srt or .vtt	SUBTITLE CONVERT: 目标文件必须为 .srt 或 .vtt
+TRACKER SET: a step cannot act on its own playlist	TRACKER SET: 步骤不能操作其自身所在的播放列表
+TRACKER: there are no steps (TRACKER ADD makes one)	TRACKER: 没有步骤（TRACKER ADD 可创建）
+VIDEO OUTPUT LAYERWARP MODE: linear or perspective	VIDEO OUTPUT LAYERWARP MODE: 请选择 linear 或 perspective
+WARP AT: open the editor (WARP EDIT) and select a point first	WARP AT: 请先打开编辑器（WARP EDIT）并选择一个点
+warp point: that is a corner -- move it with WARP <corner> dx dy	变形点：这是角点 -- 请用 WARP <corner> dx dy 移动
+WEBMONITOR PIN: network sharing and phone control require 8 or more characters	WEBMONITOR PIN: 网络共享和手机控制需要至少 8 个字符
+WEBMONITOR QR: needs the monitor on and shared on the network	WEBMONITOR QR: 需要开启监看并在网络上共享
+WEBMONITOR SOURCE: could not create the web output	WEBMONITOR SOURCE: 无法创建网页输出
+WEBMONITOR SOURCE: PROGRAMME or the number of an output that shows a picture	WEBMONITOR SOURCE: PROGRAMME 或显示画面的输出编号
+0 flows ALONG the edges, so colour orbits the shapes. 1 flows across them, which bleeds the picture into itself.	0 沿边缘流动，使颜色环绕形状。1 横穿边缘，使画面渗入自身。
+a note number 0-127, LEARN to take the next note played, or empty for none	音符编号 0-127，LEARN 学习下一个弹奏音符，留空表示无
+a video cue's duration comes from its file; still duration applies to stills, patterns and browsers	视频提示项时长取自文件；静态时长适用于静态图、图案和浏览器
+Below the middle narrows toward mono -- which is what a single PA cluster is. Above it widens.	中点以下收窄至单声道，如单组 PA 音箱；以上则加宽。
+Blueshift toward the direction of travel and redshift at the rim. Zero leaves the colour alone and it reads as a lens instead.	运动方向蓝移，边缘红移。零不改颜色，呈现透镜效果。
+Bright: bright things drip over the dark, as text and logos do. Whole picture: everything is wax, and the picture itself runs down in its own colours.	亮部：文字、标志等亮处滴落到暗处。整幅画面：一切变成蜡，画面以自身颜色流下。
+Centre is a straight line. Up bends it into an S -- darker shadows, brighter highlights, more contrast. Down flattens it.	中间为直线。向上弯成 S：暗部更暗、亮部更亮、对比更强。向下使其变平。
+e.g. /stage/doors -- sent to Deckboy's OSC port; empty for none	如 /stage/doors -- 发送至 Deckboy 的 OSC 端口；留空表示无
+How bright a pixel has to be before it lifts at all, so only the highlights spike.	像素开始抬升的亮度阈值，使仅高光突出。
+How bright a pixel has to be to join a run. Lower catches more of the picture and the runs grow longer.	像素加入连续段所需的亮度。越低则包含画面越多，连续段越长。
+How deep the picture is treated as being. The brightness becomes height and is lit from the side.	画面被视为多深。亮度转换为高度，并从侧面照明。
+How faint a gradient still registers. High turns the quietest shading into visible structure.	可检测的最弱渐变。高值将最细微明暗也显成结构。
+How far back the chain listens. The picture is played through a delay, so this is the distance the damage is dragged across.	效果链回听多久。画面经过延迟，因此决定损伤拖曳的距离。
+How far the burn spreads off the edge, and how hot its colour runs.	燃烧从边缘扩散的距离，以及颜色的灼热程度。
+How far the colour turns on each trip round the loop. This is the oil-slick: the trail walks through the spectrum instead of fading.	每圈色相旋转量。如油膜：拖尾不淡出，而是遍历光谱。
+How far the picture stands out. Bright parts come forward, dark parts stay back. At the left it is flat.	画面突出距离。亮处向前，暗处留后。最左为平面。
+How far the picture swings the filter. The cue's own brightness opens and closes it, so a cut to black takes the top off the sound.	画面驱动滤波器的幅度。自身亮度使其开合，切黑便削去声音高频。
+How far the top comes down as the end approaches. This is not a fade: the level is left alone.	接近结尾时高频降低多少。这不是淡出：电平不变。
+How far the two eyes disagree. Brightness is read as nearness.	双眼视差量。亮度被解读为距离近。
+How fast it settles away while held. At zero it holds indefinitely, which is what room tone under a held title wants.	保持期间的衰减速度。零则无限保持，适合固定标题下的环境底声。
+How fast the open slit crosses the picture. Slow smears a long moment across the frame.	开口狭缝扫过画面的速度。慢速将更长时刻涂抹在画面中。
+How fast what has dripped hardens away. At the left the drips stay until the cue changes.	已滴落部分固化消失的速度。最左持续到切换提示项。
+How fine the water is. Long ocean swell at one end, rain on a puddle at the other.	水纹细密程度。一端为长海涌，另一端为雨落水洼。
+How hard the light gathers where the rays converge. This is the part that makes it read as water rather than as a wobble.	光线汇聚处的聚光强度。这使其看起来像水，而非单纯晃动。
+How hard the moving parts throw sand. More shake clears the plate faster and makes the lines thinner.	运动部分抛沙的力度。振动越大，清空盘面越快，线条越细。
+How long a grain is, in VIDEO FRAMES. On a 23.976 clip one frame is 41.7ms, which is not a musical value and is exactly the point.	颗粒长度以视频帧计。23.976 片段每帧为 41.7ms，并非音乐时值，这正是目的。
+How long before the end it starts. The cue has to have a known length -- an open-ended one has no end to resolve into.	结束前多久开始。提示项长度必须已知；无限时长没有可收束的终点。
+How long it is allowed to run. More steps means the ripples have crossed and reflected more times.	允许运行多久。步数越多，波纹穿越、反射的次数越多。
+How long the old waves linger when the note changes. Left: they die at once. Right: they slosh for a while.	音符改变后旧波持续多久。左：立即消失；右：继续晃动一阵。
+How much each facet catches the light, which is what makes them read as faceted rather than as flat blobs.	各切面受光量，使其呈现切面而非扁平色块。
+How much its SIZE becomes distance. Shrink the picture and the sound goes away from you: the top comes off, the image narrows, the level drops.	将大小转为距离的程度。缩小画面，声音便远离：高频减少、声像变窄、电平降低。
+How much of the bent picture goes round again. High is where it stops being an echo and starts eating itself.	弯曲画面再次循环的量。高值使其从回声变为自我吞噬。
+How much of the driver's movement the picture KEEPS. At zero it follows the driver frame by frame, which is a twitch. Wind it up and the motion accumulates, so the driver sculpts the picture over time and it holds the pose -- which is what puppetry means.	画面保留驱动运动的程度。零时逐帧跟随而抽动；调高则运动累积，逐渐塑形并保持姿态，如操纵木偶。
+How much of the picture's position on the output is used. A PIP on the left sounds on the left -- and it is a placement, not a pan: the far ear gets the delay and the head shadow too.	使用画面输出位置的程度。左侧 PIP 听起来在左侧；这是空间定位而非声像平移，远耳也会收到延迟和头部遮蔽。
+How much of the tail is kept going while the cue is held. Long enough to hide the splice in room tone, short enough not to smear a rhythm in it.	提示项保持时延续多少尾音。长到能掩盖环境声接缝，又短到不会模糊节奏。
+How much room comes up under it, so the sound settles into the cut instead of being severed.	下方加入多少房间声，使声音融入切点而非被截断。
+How much the echo is distorted each pass. It compounds, so a little ripples and a lot melts the picture into itself.	每次循环的回声畸变量。会累积，少量起波纹，大量使画面自融。
+How much the material draws in towards each drip, so it runs as a thin neck with a heavier head.	材料向液滴聚拢的量，使其形成细颈和较重滴头。
+How often its settings are corrupted. Corrupted far enough it oscillates on its own -- loud, but it cannot run away.	设置损坏的频率。严重时会自激振荡：响亮，但不会失控。
+How quickly the picture springs back to rest once the driver stops pushing it. Only does anything when memory is up.	驱动停止后画面恢复静止的速度。仅提高记忆量后有效。
+How small a cut sets it off. With no picture it runs on a timer instead, and this is how often.	多小的切镜即可触发。无画面时改用定时器，此值决定频率。
+How strongly the finished picture pushes the bend. Pair it with a picture effect whose LFO is set to Audio and the two drive each other.	最终画面驱动弯折的强度。与 LFO 设为 Audio 的画面效果配对，即可相互驱动。
+How wide a view is being compressed. Narrow is a punch down the middle, wide folds the whole frame into the centre.	压缩的视野宽度。窄时冲向中央，宽时将整幅画面折入中心。
+Lift or cut, 12dB either way. The centre is flat, so a band that has just been added does nothing until this is moved.	提升或削减，各 12dB。中央平直，新加入的频段须调此值才生效。
+Light on the drips, as on something wet: a gloss where it faces the light, darker where it curls away.	如湿物般照亮液滴：朝光处有光泽，卷离处较暗。
+Line pitch in pixels, so this reads at 4K as well as at 720.	线距以像素计，确保 4K 和 720 下均清晰可见。
+cannot read the file: if it lives in OneDrive or iCloud, open it once so it downloads, then import it	无法读取文件：若在 OneDrive 或 iCloud 中，请先打开一次以下载，再导入
+did not finish in 3 minutes. It may be waiting on a prompt it cannot show (Protected View, sign-in, a repair). Open the deck there once, or export it as a PDF and import that	3 分钟内未完成。可能在等待无法显示的提示（受保护视图、登录或修复）。请在原应用中打开一次，或导出 PDF 后导入
+forget my defaults? only NEW changes, this show keeps its settings: press again	忘记我的默认值？仅影响 NEW，此演出保留设置：请再按一次
+Keynote could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)	Keynote 无法导出此文件（可能需要自动化权限：系统设置 > 隐私与安全性 > 自动化）
+my defaults forgotten: NEW starts from factory settings, this show is unchanged	已忘记我的默认值：NEW 从出厂设置开始，此演出不变
+N=new  Enter/P=previous  O=open saved  E=examples  L=learn  1-	N=新建  Enter/P=上次  O=打开已保存  E=示例  L=学习  1-
+ndi tally trigger on -- program tally takes the cue	ndi tally 触发已开启 -- 播出 tally 将送出提示项
+notestep: this cue's notes have no builds (separate them with a line of ---)	notestep: 此提示项备注没有分步（用单独一行 --- 分隔）
+Only accept transport from this sender (blank = anyone)	仅接受此发送方的播放控制（留空＝任何人）
+opened github.com in your browser -- nothing is sent until you submit the report there	已在浏览器中打开 github.com -- 在那里提交报告之前不会发送任何内容
+Output height in px - math ok: 1080x2, 2160/2, 540+30	输出高度（px）- 支持计算：1080x2, 2160/2, 540+30
+Output width in px - math ok: 1920x2, 3840/2, 960+64	输出宽度（px）- 支持计算：1920x2, 3840/2, 960+64
+PHONE LEVEL: removed -- a paired phone or the passphrase can do everything; BLACKOUT and RECORD are hold-to-fire on the phone	PHONE LEVEL: 已移除 -- 配对手机或口令可执行所有操作；手机上的 BLACKOUT 和 RECORD 需长按触发
+phones need THE NETWORK: set 'Who can see it' first	手机需要网络访问：请先设置“谁可以看到”
+PowerPoint could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)	PowerPoint 无法导出此文件（可能需要自动化权限：系统设置 > 隐私与安全性 > 自动化）
+PowerPoint could not open the file (it gave up waiting for it). If it is in OneDrive, right-click it and choose Always keep on this device, then import it again	PowerPoint 无法打开文件（已放弃等待）。若在 OneDrive 中，请右键选择“始终保留在此设备上”，然后重新导入
+saved as my defaults: NEW starts like this show, without the cues	已保存为我的默认值：NEW 以此演出设置开始，但不含提示项
+Seconds for new image/pattern/browser/Lower Third cues (0 = hold)	新建图像/图案/浏览器/Lower Third 提示项的秒数（0＝保持）
+select a Draw cue first (SOURCE > MADE BY DECKBOY > Draw)	请先选择绘图提示项（SOURCE > MADE BY DECKBOY > Draw）
+something mellow appeared in SOURCE > MADE BY DECKBOY	SOURCE > MADE BY DECKBOY 中出现了柔和的东西
+sound scopes: integrated loudness and true peak start again	声音示波器：综合响度和真峰值重新计量
+splitnotes: that cue's notes have no parts (separate them with a line of ---)	splitnotes: 该提示项备注没有分段（用单独一行 --- 分隔）
+still reading the last folder -- one at a time	仍在读取上一个文件夹 -- 每次一个
+that key drives the desk - use F1-F10, F12 or the number pad	该键用于控制操作台 - 请用 F1-F10、F12 或数字小键盘
+the background alpha belongs to a Lower Third	背景透明度属于 Lower Third
+the clicker now spends note builds before advancing	翻页器现在会先完成备注分步再前进
+this file is only in OneDrive, and OneDrive is not running. Start OneDrive, or copy the file to this computer, then import it again	文件仅在 OneDrive 中，而 OneDrive 未运行。请启动 OneDrive 或将文件复制到此计算机，然后重新导入
+this presentation needs a password to open. Remove the password in PowerPoint (File > Info > Protect Presentation) or export it as a PDF, then import that	此演示文稿需要密码。请在 PowerPoint 中移除密码（文件 > 信息 > 保护演示文稿），或导出 PDF 后导入
+a step cannot fire the playlist it lives on	步骤不能触发它所在的播放列表
+ASCII: use ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>	ASCII: 使用 ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>
+atem tally on -- set which input Deckboy is	ATEM tally 已开启 -- 请设置 Deckboy 对应的输入
+DRAW SIZE: 0.1-20 (% of the picture's height)	DRAW SIZE: 0.1-20（占画面高度的 %）
+esc: control window - again to clear output	esc: 返回控制窗口 - 再按一次清空输出
+Flip across, upside down or both, or fold one half onto the other: right onto left, left onto right, bottom onto top, top onto bottom, or one corner into all four.	水平、垂直或同时翻转，或将一半折叠到另一半：右到左、左到右、下到上、上到下，或将一个角映射到全部四个角。
+FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR	FX: 使用 LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR
+group presets became master cues: use MASTER	组预设已改为主控提示：请使用 MASTER
+make a step first: a section starts at a step	请先创建步骤：分段从步骤开始
+MASK PATH: a path needs at least three points	MASK PATH: 路径至少需要三个点
+MATRIX SET: level is a percent from 0 to 100	MATRIX SET: 电平为 0 到 100 的百分比
+MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> or OSC <address> [<n>], then CH <1-16> if not channel 1	MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> 或 OSC <address> [<n>]，若不是通道 1，再加 CH <1-16>
+MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET or FEEDBACK	MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET 或 FEEDBACK
+motion on: the camera is read, never recorded	运动检测已开启：读取摄像头，但绝不录像
+Moves the direction of travel off the centre of frame, so the picture rushes past rather than straight at you.	将运动方向偏离画面中心，使画面从身旁掠过，而非迎面冲来。
+new show disarms all outputs: press new again	新建演出会解除所有输出待命：请再次按新建
+nmos: network is LOCAL ONLY - not registering	NMOS: 网络为 LOCAL ONLY - 不进行注册
+normalize: selection has no file-backed audio	响度归一化：所选项中没有基于文件的音频
+on the dashboard - Ctrl+D or the DASH button	位于仪表板中 - Ctrl+D 或 DASH 按钮
+One knob for the whole balance: below the middle is darker, above it is brighter.	一个旋钮调节整体平衡：低于中点变暗，高于中点变亮。
+Original: the picture pulled onto the figure. Sand: the picture as grains that are thrown off the moving parts and pour into each new figure. Fluid: the picture under water on the plate, bent and lit by its standing waves.	原图：将画面拉伸到图形上。沙粒：画面化为颗粒，从运动部分飞散，流入每个新图形。流体：画面位于板上的水下，由驻波折射并照亮。
+output recover failed: fullscreen unavailable	恢复输出失败：无法使用全屏
+Page Down / Page Up step the focused playlist	Page Down / Page Up 逐步切换当前聚焦的播放列表
+Pulls the bright tones down without moving pure white, so a hot highlight rolls off instead of clipping.	降低明亮色调而不改变纯白，使强烈高光平滑衰减，而非发生削波。
+recordings remux to MP4 when the take stops	录制停止时将录制文件重新封装为 MP4
+Rotates the reading, so straight lines wind into spirals rather than rings.	旋转读取方向，使直线卷成螺旋，而非圆环。
+Rows lose sync and repeat one character, the way a real text screen breaks up. At 0 the grid is clean.	各行失去同步并重复同一字符，模拟真实文字屏幕的故障。设为 0 时网格清晰无干扰。
+SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, LINEAR, PERSPECTIVE or NAME	SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, LINEAR, PERSPECTIVE 或 NAME
+SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF, or POINT col row dx dy	SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF，或 POINT col row dx dy
+Something near the deck: a phone's buzz, a light dimmer's herringbone, a radio's slow bars.	模拟播放机附近的干扰：手机的嗡鸣、灯光调光器的人字纹、无线电设备的缓慢条带。
+Sorts the runs the other way, so they pour from light to dark.	将连续区段反向排序，使其从明亮处流向暗处。
+SUBTITLE CONVERT: the cue has no caption file	SUBTITLE CONVERT: 提示没有字幕文件
+Takes out everything brighter than this as well. Left takes out nothing.	同时去除比此值更亮的部分。最左端不去除任何内容。
+Takes out everything darker than this, so what lies beneath shows through. Left takes out nothing.	去除比此值更暗的部分，让下层透出。最左端不去除任何内容。
+Tape speed: SP is the best picture, LP and EP fit more on a tape and lose detail and colour.	磁带速度：SP 画质最佳；LP 和 EP 可在磁带上容纳更长时间，但会损失细节和色彩。
+The brightness that stays put. Everything above it reaches one way and everything below it the other.	保持不动的亮度。高于此值的部分向一侧延伸，低于此值的部分向另一侧延伸。
+The character of the growth: low is waves, then labyrinth, coral, worms, and holes at the top.	生长形态：低值为波纹，随后是迷宫、珊瑚、蠕虫，最高端为孔洞。
+The colour it becomes. Shading and brightness stay as they were, so a red shirt turns blue and keeps its folds.	替换后的颜色。明暗层次与亮度保持不变，因此红衬衫变蓝后仍保留褶皱。
+The distance that sits ON the screen. Either side of it comes forward or falls behind.	位于屏幕平面的距离。两侧的内容分别向前突出或向后退去。
+The frequency it pivots around -- what counts as 'low' and 'high' for the tilt.	倾斜围绕的支点频率，即划分“低频”与“高频”的基准。
+The head drifting off the track: a band of noise rolls through the picture.	磁头偏离磁道：一条噪声带滚过画面。
+The level below which the source is closed. Set it under the quietest thing you want to hear.	低于此电平时关闭信号源。请设在想听到的最轻声音以下。
+The level it starts working at. Lower catches more of the performance.	开始处理的电平。设得越低，演出中受处理的部分越多。
+The plugin's first four automatable controls, in its own order. Everything else it has keeps whatever the plugin was left set to.	插件按自身顺序排列的前四个可自动化控件。其余设置均保持插件上次的状态。
+this output's renderer could not cut the mask	此输出的渲染器无法裁切遮罩
+Tints the two directions apart, so light bending one way and the other are different colours instead of both being grey.	为两个方向分别着色，使向两侧弯折的光呈现不同颜色，而非都是灰色。
+Turns the echo each pass, which winds the melt into a spiral.	每次回传都旋转残影，使熔化效果卷成螺旋。
+Turns the strokes across the grain instead of along it, which combs the picture apart rather than smoothing it.	将笔触转为横跨纹理，而非顺着纹理，使画面如被梳开般分离，而非平滑。
+Turns the whole arrangement, so the fold lines do not sit on the same part of the picture all night.	旋转整个布局，使折线不会整晚停留在画面的同一位置。
+Two is a mirror, twelve is a snowflake, and they are completely different pictures.	两个分区是镜像，十二个分区是雪花，两者会形成完全不同的画面。
+unsaved changes will be lost: press new again	未保存的更改将丢失：请再次按新建
+WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (sound is included)	WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF（包含声音）
+Where highlights fold back through black. Low folds most of the picture, high folds only the brightest.	高光经过黑色后折返的位置。低值使大部分画面折返，高值只使最亮部分折返。
+Where the band sits, 30Hz to 16kHz across the travel.	频段的位置，整个行程从 30Hz 到 16kHz。
+Where the fold sits: the middle at the left, toward the far edge to the right. Flips have no fold.	折叠的位置：最左端在中央，向右则移向远端边缘。翻转没有折线。
+Where the light stands, in degrees around the frame.	光源的位置，以绕画面的角度表示。
+Where the source sits around the listener, all the way round. For headphones -- it is a timing and shading trick, not a pan.	信号源在听者周围一整圈的位置。适用于耳机——利用时间差与音色塑形，并非声像平移。
+Where the top ends, 200Hz to 20kHz. Pull it down to take the harshness off a bright source.	高频截止位置，200Hz 到 20kHz。调低可减轻明亮音源的刺耳感。
+Which channel the curve acts on: all three, then red, green or blue on its own -- the way a colourist warms or cools one end of the picture.	曲线作用的通道：全部三个，或单独的红、绿、蓝，类似调色师将画面暗部或亮部调暖或调冷。
+Which way the knife edge lies. Only gradients ACROSS the edge show, so turning it swaps which features appear and which vanish.	刀口边缘的方向。只有横跨边缘的梯度可见，因此旋转会改变哪些特征显现或消失。
+Which way the streak runs: across at the left, upright in the middle, across again at the right.	条纹方向：左端为水平，中间为垂直，右端再次为水平。
+Widens the decision into a ramp, so edges keep their shape instead of jagging.	将判定边界扩展为渐变，让边缘保持形状而不产生锯齿。
+Words to surface in the field, separated by | . One shows at a time, moving on the hold clock.	在场中浮现的词语，用 | 分隔。每次显示一个，按保持计时器切换。
+Zero is one noise value across all three channels, which reads as film. Higher gives each channel its own, which reads as video.	设为零时，三个通道使用相同的噪声值，呈现胶片质感。调高后各通道有独立噪声，呈现视频质感。
+zones cleared: Motion reads the whole picture	区域已清除：运动检测读取整个画面
