@@ -3054,6 +3054,15 @@
     toast_.durationMs = durationMs;
     toast_.message = std::move(message);
     toast_.kind = kind;
+    toast_.translated = false;
+  }
+
+  // For a toast built from translated pieces (i18n::format with translated
+  // arguments): the draw path must not look the finished line up a second time.
+  void triggerToastTranslated(std::string message, ToastKind kind = ToastKind::Help,
+                              Uint32 durationMs = 1200) {
+    triggerToast(std::move(message), kind, durationMs);
+    toast_.translated = true;
   }
 
   void queueUiPattern(const std::vector<std::pair<double, int>>& notes, float level = 0.13f) {

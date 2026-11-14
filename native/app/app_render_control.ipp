@@ -3451,7 +3451,12 @@
     int textW = 0;
     int textH = 0;
     if (fontBase_) {
-      textSizeShown(fontBase_, toast_.message.c_str(), 0, &textW, &textH);
+      if (toast_.translated) {
+        deckboy::render::shaping::textSize(fontBase_, toast_.message.c_str(),
+                                           toast_.message.size(), &textW, &textH);
+      } else {
+        textSizeShown(fontBase_, toast_.message.c_str(), 0, &textW, &textH);
+      }
     }
     // The badge column: a solid bar for help, a "!" plate for a warning --
     // the shape says which kind it is before the colour or the words do.
@@ -3495,7 +3500,8 @@
     }
     const SDL_Rect textRect {badge.x + badge.w, panel.y,
                              std::max(0, panel.x + panel.w - badge.x - badge.w), panel.h};
-    drawTextSafe(controlRenderer_, fontBase_, textRect, toast_.message, look.ink);
+    drawTextSafe(controlRenderer_, fontBase_, textRect, toast_.message, look.ink,
+                 !toast_.translated);
   }
 
   // Draws a tiny 4-pointed pixel star centered at (cx, cy), arm half-length S.

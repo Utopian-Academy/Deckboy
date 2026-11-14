@@ -2041,9 +2041,26 @@
     drawText(controlRenderer_, cueDocked ? fontSmall_ : fontBase_,
              ellipsizeToPixelWidth(cueDocked ? fontSmall_ : fontBase_, inlineEditor_.title, panel.w - 28),
              pal.deep, panel.x + 14, titleY);
-    drawText(controlRenderer_, fontSmall_,
-             ellipsizeToPixelWidth(fontSmall_, inlineEditor_.prompt, panel.w - 28),
-             pal.dark, panel.x + 14, promptY);
+    // The numeric editors glue " (supports + - * / and ())" onto a hint; looked
+    // up whole, neither half would ever match a catalogue line. Split it, so the
+    // bare hint and the template each translate, then draw the result as it is
+    // (drawText would translate the finished string a second time).
+    std::string promptShown;
+    {
+      static const std::string kSupports = " (supports + - * / and ())";
+      const std::string& pr = inlineEditor_.prompt;
+      if (pr.size() > kSupports.size() &&
+          pr.compare(pr.size() - kSupports.size(), kSupports.size(), kSupports) == 0) {
+        promptShown = deckboy::core::i18n::format(
+          "{1} (supports + - * / and ())",
+          {deckboy::core::i18n::translate(pr.substr(0, pr.size() - kSupports.size()))});
+      } else {
+        promptShown = deckboy::core::i18n::translate(pr);
+      }
+    }
+    drawTextRaw(controlRenderer_, fontSmall_,
+                ellipsizeToPixelWidth(fontSmall_, promptShown, panel.w - 28),
+                pal.dark, panel.x + 14, promptY);
 
     SDL_Rect inputRect {panel.x + 14, inputY, panel.w - 28, 34};
     inlineEditor_.inputRect = inputRect;

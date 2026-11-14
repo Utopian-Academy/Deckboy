@@ -1093,7 +1093,7 @@ void effectStackAdd() {
     Cue* liveCue = selectedCueMutable();
     const bool wasNeeded = liveCue ? cueNeedsCpuPixelPath(*liveCue) : false;
     live->push_back(fx);
-    triggerToast(std::string("added ") + deckboy::effects::cueEffectLabel(fx.kind));
+    triggerToastTranslated(deckboy::core::i18n::format("added {1}", {deckboy::core::i18n::translate(deckboy::effects::cueEffectLabel(fx.kind))}));
     markProjectDirty();
     syncDatamoshFromStack();
     refreshLiveCueIfPixelPathChanged(wasNeeded);
@@ -1611,7 +1611,7 @@ void audioEffectStackAdd() {
     // this was reported.
     refreshLiveCueIfPixelPathChanged(wasNeeded);
     if (any) {
-      triggerToast(deckboy::core::i18n::format(
+      triggerToastTranslated(deckboy::core::i18n::format(
                      "added {1}",
                      {deckboy::core::i18n::translate(deckboy::audiofx::audioEffectLabel(kind))}) +
                    deckboy::core::i18n::translate(audioEditScopeSuffix()));

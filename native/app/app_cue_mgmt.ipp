@@ -4281,14 +4281,14 @@
         const int next = std::clamp(shown.asciiCols + delta, lo, hi);
         fx->paramA = textModeParamForCols(next);
         markProjectDirty();
-        triggerToast(std::string(label) + " " + std::to_string(next));
+        triggerToastTranslated(deckboy::core::i18n::translate(label) + " " + std::to_string(next));
         return;
       }
     }
     int& v = cue->videoSynth.*field;
     v = std::clamp(v + delta, lo, hi);
     markProjectDirty();
-    triggerToast(std::string(label) + " " + std::to_string(v));
+    triggerToastTranslated(deckboy::core::i18n::translate(label) + " " + std::to_string(v));
   }
 
   void adjustVs(double VideoSynthSettings::*field, double delta,
@@ -4299,7 +4299,7 @@
     double& v = cue->videoSynth.*field;
     v = std::clamp(v + delta, lo, hi);
     markProjectDirty();
-    triggerToast(std::string(label) + " " + fmtFloat(v, 2));
+    triggerToastTranslated(deckboy::core::i18n::translate(label) + " " + fmtFloat(v, 2));
   }
 
   // A master cue and a target cue are both "a cue that does something to other

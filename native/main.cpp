@@ -7469,15 +7469,19 @@ class App {
         SDL_Rect nameRect {ix.ctrl.x + ix.inset, rowY,
                            ix.ctrlW - ix.inset * 2, ix.rowH};
         drawUIPanel(nameRect, fx.bypassed ? pal.mid : pal.tile, pal.deep, pal.mid);
+        // Translate the pieces, then build the row: "{n}. invert" as one line
+        // can never match a catalogue entry. Drawn with localise=false so the
+        // finished row is not translated a second time.
         std::string name = std::to_string(i + 1);
         name += ". ";
-        name += deckboy::effects::cueEffectLabel(fx.kind);
+        name += deckboy::core::i18n::translate(deckboy::effects::cueEffectLabel(fx.kind));
         if (fx.bypassed) {
-          name += "  (bypassed)";
+          name += "  ";
+          name += deckboy::core::i18n::translate("(bypassed)");
         }
         drawTextSafe(controlRenderer_, fontSmall_,
                      SDL_Rect {nameRect.x + 6, nameRect.y, nameRect.w - 20, nameRect.h},
-                     name, fx.bypassed ? pal.inkSoft : pal.fg);
+                     name, fx.bypassed ? pal.inkSoft : pal.fg, false);
         drawCenteredTextSafe(controlRenderer_, fontSmall_,
                              SDL_Rect {nameRect.x + nameRect.w - 16, nameRect.y, 14, nameRect.h},
                              "v", pal.inkSoft);

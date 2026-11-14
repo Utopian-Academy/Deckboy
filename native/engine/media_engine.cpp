@@ -13087,29 +13087,43 @@ void lumiaSplat(std::vector<float>& buf, int sw, int sh, int n, double x, double
   buf[i + down + n] += fx * fy * e;
 }
 
-// A [1 2 1] blur across then down, `passes` times, rows split over the cores.
-void lumiaBlur(std::vector<float>& buf, std::vector<float>& tmp, int sw, int sh, int n, int passes) {
+// A soft blur: three box blurs in a row, across then down, rows and columns
+// split over the cores. A running sum makes each box cost the same whatever
+// its width. `spread` is the variance in source pixels squared; three boxes of
+// radius r give r(r + 1), so r is picked to match it.
+void lumiaBlur(std::vector<float>& buf, std::vector<float>& tmp, int sw, int sh, int n, double spread) {
+  const int r = std::max(1, static_cast<int>(std::lround((std::sqrt(1 + 4 * spread) - 1) * 0.5)));
+  const float inv = 1.0f / (2 * r + 1);
   tmp.resize(buf.size());
   float* b = buf.data();
   float* t = tmp.data();
-  for (int p = 0; p < passes; ++p) {
+  for (int pass = 0; pass < 3; ++pass) {
     deckboy::effects::detail::parallelRows(sh, sw, [&](int y0, int y1) {
       for (int y = y0; y < y1; ++y) {
-        const std::size_t row = static_cast<std::size_t>(y) * sw;
-        for (int x = 0; x < sw; ++x) {
-          const std::size_t l = (row + std::max(0, x - 1)) * n, m = (row + x) * n,
-                            r = (row + std::min(sw - 1, x + 1)) * n;
-          for (int c = 0; c < n; ++c) t[m + c] = (b[l + c] + b[m + c] * 2 + b[r + c]) * 0.25f;
+        const float* in = b + static_cast<std::size_t>(y) * sw * n;
+        float* out = t + static_cast<std::size_t>(y) * sw * n;
+        for (int c = 0; c < n; ++c) {
+          float sum = 0;
+          for (int k = -r; k <= r; ++k) sum += in[std::clamp(k, 0, sw - 1) * n + c];
+          for (int x = 0; x < sw; ++x) {
+            out[x * n + c] = sum * inv;
+            sum += in[std::min(sw - 1, x + r + 1) * n + c] - in[std::max(0, x - r) * n + c];
+          }
         }
       }
     });
-    deckboy::effects::detail::parallelRows(sh, sw, [&](int y0, int y1) {
-      for (int y = y0; y < y1; ++y) {
-        const std::size_t u = static_cast<std::size_t>(std::max(0, y - 1)) * sw * n,
-                          row = static_cast<std::size_t>(y) * sw * n,
-                          d = static_cast<std::size_t>(std::min(sh - 1, y + 1)) * sw * n;
-        for (std::size_t i = 0; i < static_cast<std::size_t>(sw) * n; ++i) {
-          b[row + i] = (t[u + i] + t[row + i] * 2 + t[d + i]) * 0.25f;
+    deckboy::effects::detail::parallelRows(sw, sh, [&](int x0, int x1) {
+      const std::size_t stride = static_cast<std::size_t>(sw) * n;
+      for (int x = x0; x < x1; ++x) {
+        for (int c = 0; c < n; ++c) {
+          const float* in = t + static_cast<std::size_t>(x) * n + c;
+          float* out = b + static_cast<std::size_t>(x) * n + c;
+          float sum = 0;
+          for (int k = -r; k <= r; ++k) sum += in[std::clamp(k, 0, sh - 1) * stride];
+          for (int y = 0; y < sh; ++y) {
+            out[y * stride] = sum * inv;
+            sum += in[std::min(sh - 1, y + r + 1) * stride] - in[std::max(0, y - r) * stride];
+          }
         }
       }
     });
@@ -13249,10 +13263,19 @@ void buildLumia(DecodedFrame& frame, double animTime, const LumiaSettings& base,
           }
         }
       });
-      for (int c = 0; c < 3; ++c) {
-        if (col[c] <= 0.01f) continue;
-        for (std::size_t r = 0; r < static_cast<std::size_t>(cols) * rows; ++r) {
-          lumiaSplat(st.acc, SW, SH, 3, land[r * 2], land[r * 2 + 1], c, col[c] * 3.0f / nb);
+      const float e[3] = {col[0] * 3.0f / nb, col[1] * 3.0f / nb, col[2] * 3.0f / nb};
+      for (std::size_t r = 0; r < static_cast<std::size_t>(cols) * rows; ++r) {
+        const float x = land[r * 2], y = land[r * 2 + 1];
+        const int ix = static_cast<int>(std::floor(x)), iy = static_cast<int>(std::floor(y));
+        if (ix < 0 || iy < 0 || ix >= SW - 1 || iy >= SH - 1) continue;
+        const float fx = x - ix, fy = y - iy;
+        const float w[4] = {(1 - fx) * (1 - fy), fx * (1 - fy), (1 - fx) * fy, fx * fy};
+        float* a = st.acc.data() + (static_cast<std::size_t>(iy) * SW + ix) * 3;
+        float* corner[4] = {a, a + 3, a + SW * 3, a + SW * 3 + 3};
+        for (int k = 0; k < 4; ++k) {
+          corner[k][0] += w[k] * e[0];
+          corner[k][1] += w[k] * e[1];
+          corner[k][2] += w[k] * e[2];
         }
       }
     }
@@ -13267,12 +13290,12 @@ void buildLumia(DecodedFrame& frame, double animTime, const LumiaSettings& base,
         a = std::max(0.0f, a - raysP * 1.25f) * static_cast<float>(prism * 1.4);
       }
     }
-    // Soften the water into patches; glow round the prism's sharp cores. A
-    // [1 2 1] pass spreads by a source pixel, so the bigger source takes q*q
-    // as many passes for the same look.
-    lumiaBlur(st.wat, st.tmp, SW, SH, 1, 3 * q * q);
+    // Soften the water into patches; glow round the prism's sharp cores. The
+    // spreads are the board's (a [1 2 1] pass adds 0.5), times q*q so the
+    // bigger source looks the same.
+    lumiaBlur(st.wat, st.tmp, SW, SH, 1, 1.5 * q * q);
     st.core = st.acc;
-    lumiaBlur(st.acc, st.tmp, SW, SH, 3, (1 + static_cast<int>(std::lround(glow * 3))) * q * q);
+    lumiaBlur(st.acc, st.tmp, SW, SH, 3, 0.5 * (1 + glow * 3) * q * q);
     const float halo = static_cast<float>(0.4 + glow * 2.2);
     const float keep = static_cast<float>(trail), add = static_cast<float>(1 - trail * 0.6);
     for (std::size_t i = 0; i < st.acc.size(); ++i) {

@@ -5965,7 +5965,7 @@
         markProjectDirty();
         syncDatamoshFromStack();
         refreshLiveCueIfPixelPathChanged(wasNeeded);
-        triggerToast(std::string("added ") + deckboy::effects::cueEffectLabel(kind));
+        triggerToastTranslated(deckboy::core::i18n::format("added {1}", {deckboy::core::i18n::translate(deckboy::effects::cueEffectLabel(kind))}));
         return;
       }
       // The same clipboard the inspector's buttons use, so a chain can be

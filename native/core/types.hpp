@@ -3931,6 +3931,7 @@ struct ToastState {
   Uint32 durationMs = 1200;                   // how long to show (milliseconds)
   std::string message;                         // text content
   ToastKind kind = ToastKind::Help;
+  bool translated = false;                     // message already went through i18n; do not again
 };
 
 // ---------------------------------------------------------------------------
