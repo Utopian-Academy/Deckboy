@@ -623,15 +623,15 @@
       }
       bool built = false;
       if (build) {
-        DecodedFrame held;
-        held.width = prevW;
-        held.height = prevH;
-        held.format = FramePixelFormat::RGBA32;
-        held.colorspace = SDL_COLORSPACE_SRGB;
-        held.pixels = prevSrc;
-        held.index = prevIndex;
+        DecodedFrame outgoing;
+        outgoing.width = prevW;
+        outgoing.height = prevH;
+        outgoing.format = FramePixelFormat::RGBA32;
+        outgoing.colorspace = SDL_COLORSPACE_SRGB;
+        outgoing.pixels = prevSrc;
+        outgoing.index = prevIndex;
         std::vector<std::uint8_t> pixels;
-        build(held, pixels, p, p * segment.transSeconds, prevIndex);
+        build(outgoing, pixels, p, p * segment.transSeconds, prevIndex);
         if (!pixels.empty()) {
           renderPlaceInCanvas(prevCue, pixels, prevW, prevH, outCanvas, W, H, target);
           built = true;
