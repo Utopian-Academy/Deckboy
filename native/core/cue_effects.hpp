@@ -3158,11 +3158,21 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         const double maxR = std::sqrt(cx * cx + cy * cy);
         const double vignetteSize = std::max(0.05, pA * 2.0);
         const double vignetteFalloff = 2.0 + pB * 6.0;
-        detail::parallelRows(ctx.height, ctx.width, [&](int firstRow, int lastRow) {
-          for (int y = firstRow; y < lastRow; ++y) {
-            std::uint8_t* row = pixels.data() + static_cast<std::size_t>(y) * ctx.width * 4;
+        // The gain depends only on the distance from the centre, and rows y
+        // and H - y, columns x and W - x, are the same distance from it to the
+        // last bit (dx and -dx square alike). So each pair of rows shares one
+        // row of gains, and each row's right half mirrors its left: a quarter
+        // of the square roots and powers, the same bytes.
+        const int W = ctx.width, H = ctx.height;
+        const int pairs = H / 2 + 1;   // row p and its mirror H - p
+        detail::parallelRows(pairs, W, [&](int firstPair, int lastPair) {
+          std::vector<double> gains(static_cast<std::size_t>(W));
+          for (int pr = firstPair; pr < lastPair; ++pr) {
+            const int y = pr;
+            const int mirror = H - pr;   // a row only when 0 < mirror < H and not y itself
+            if (y >= H) continue;
             const double dy = y - cy;
-            for (int x = 0; x < ctx.width; ++x) {
+            auto gainAt = [&](int x) {
               const double dx = x - cx;
               // size: how far out the darkening starts. At 0.5 the divisor is
               // 1 and it begins at the centre, as it always did.
@@ -3171,10 +3181,23 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
               const double r = std::sqrt(dx * dx + dy * dy) / maxR / vignetteSize;
               const double shaped = vignetteFalloff == 2.0
                 ? r * r : std::pow(std::clamp(r, 0.0, 4.0), vignetteFalloff);
-              const double gain = 1.0 - amt * std::clamp(shaped, 0.0, 1.0);
-              std::uint8_t* p = row + static_cast<std::size_t>(x) * 4;
-              for (int c = 0; c < 3; ++c) {
-                p[c] = detail::clamp8(p[c] * gain);
+              return 1.0 - amt * std::clamp(shaped, 0.0, 1.0);
+            };
+            for (int x = 0; x < W; ++x) {
+              const int mx = W - x;   // the column the same distance the other side
+              gains[x] = (mx < W && mx < x) ? gains[mx] : gainAt(x);
+            }
+            // Row y, then its mirror -- unless that is y itself (the middle
+            // row) or off the picture.
+            const int rowsHere = (mirror > y && mirror < H) ? 2 : 1;
+            for (int k = 0; k < rowsHere; ++k) {
+              const int row = k == 0 ? y : mirror;
+              std::uint8_t* p = pixels.data() + static_cast<std::size_t>(row) * W * 4;
+              for (int x = 0; x < W; ++x, p += 4) {
+                const double gain = gains[x];
+                p[0] = detail::clamp8(p[0] * gain);
+                p[1] = detail::clamp8(p[1] * gain);
+                p[2] = detail::clamp8(p[2] * gain);
               }
             }
           }
@@ -3281,6 +3304,10 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         } else {
           const double ox = std::cos(angle) * shift;
           const double oy = std::sin(angle) * shift;
+          // The offsets are the same for every pixel: rounded once, not four
+          // to six times a pixel.
+          const int rox = static_cast<int>(std::lround(ox)), roy = static_cast<int>(std::lround(oy));
+          const int gox = static_cast<int>(std::lround(oy * pB)), goy = static_cast<int>(std::lround(ox * pB));
           std::vector<std::uint8_t> source(pixels.begin(),
                                            pixels.begin() + static_cast<std::ptrdiff_t>(count * 4));
           detail::parallelRows(ctx.height, ctx.width, [&](int firstRow, int lastRow) {
@@ -3292,16 +3319,10 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
             for (int y = firstRow; y < lastRow; ++y) {
               std::uint8_t* dst = pixels.data() + static_cast<std::size_t>(y) * ctx.width * 4;
               for (int x = 0; x < ctx.width; ++x) {
-                const int rx = x + static_cast<int>(std::lround(ox));
-                const int ry = y + static_cast<int>(std::lround(oy));
-                const int bx = x - static_cast<int>(std::lround(ox));
-                const int by = y - static_cast<int>(std::lround(oy));
-                dst[static_cast<std::size_t>(x) * 4 + 2] = tap(rx, ry, 2);
-                dst[static_cast<std::size_t>(x) * 4 + 0] = tap(bx, by, 0);
+                dst[static_cast<std::size_t>(x) * 4 + 2] = tap(x + rox, y + roy, 2);
+                dst[static_cast<std::size_t>(x) * 4 + 0] = tap(x - rox, y - roy, 0);
                 if (greenShift != 0) {
-                  dst[static_cast<std::size_t>(x) * 4 + 1] =
-                    tap(x + static_cast<int>(std::lround(oy * pB)),
-                        y - static_cast<int>(std::lround(ox * pB)), 1);
+                  dst[static_cast<std::size_t>(x) * 4 + 1] = tap(x + gox, y - goy, 1);
                 }
               }
             }
