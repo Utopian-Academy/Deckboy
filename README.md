@@ -14,6 +14,7 @@
 [![Mentioned in Awesome NDI](https://img.shields.io/badge/mentioned%20in-awesome%20NDI-fc60a8?logo=awesomelists&logoColor=white)](https://github.com/florisporro/awesome-ndi)
 [![Mentioned in Awesome SDL](https://img.shields.io/badge/mentioned%20in-awesome%20SDL-fc60a8?logo=awesomelists&logoColor=white)](https://github.com/RobLoach/awesome-sdl)
 [![Mentioned in Awesome Streaming Tools](https://img.shields.io/badge/mentioned%20in-awesome%20streaming%20tools-fc60a8?logo=awesomelists&logoColor=white)](https://github.com/juancarlospaco/awesome-streaming-tools)
+[![Mentioned in Awesome Video](https://img.shields.io/badge/mentioned%20in-awesome%20video-fc60a8?logo=awesomelists&logoColor=white)](https://awesome.video/resource/190336)
 
 </div>
 
