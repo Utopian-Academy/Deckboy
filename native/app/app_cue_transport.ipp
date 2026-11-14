@@ -5559,8 +5559,12 @@
     // the beat a human already hit it, and delaying would push the cue a whole
     // beat late, which is the opposite of the intent.
     if (project_.vjModeEnabled && project_.vjQuantiseTakes && !vjTakeFiring_) {
-      const double wait = vjSecondsToNextBeat();
+      // Waits for the next boundary of the chosen length: a beat, or 1, 2 or
+      // 4 bars. With Link on, the bars are the session's, so the take lands
+      // on the bar line every other app in the room is also counting.
+      const double wait = vjSecondsToBoundary(project_.vjQuantiseBeats);
       const double beatSeconds = 60.0 / std::clamp(project_.vjTempoBpm, 20.0, 300.0);
+      // A boundary within a tenth of a beat is the one the operator just hit.
       if (wait > beatSeconds * 0.1) {
         vjTakePending_ = true;
         vjTakeDueAt_ = static_cast<double>(SDL_GetTicks()) / 1000.0 + wait;
@@ -6590,6 +6594,7 @@
         // The downbeat is the tap that set the tempo, so the beat grid lines up
         // with the hand that tapped it rather than with when the app started.
         vjBeatOrigin_ = vjTapTimes_.back();
+        link_.proposeTempo(project_.vjTempoBpm);
         markProjectDirty();
       }
     }
@@ -6599,7 +6604,78 @@
   void setVjTempo(double bpm) {
     project_.vjTempoBpm = std::clamp(bpm, 20.0, 300.0);
     vjBeatOrigin_ = static_cast<double>(SDL_GetTicks()) / 1000.0;
+    // In a Link session the tempo is the session's: ask for it, and every
+    // other app follows. The bar phase stays the session's too.
+    link_.proposeTempo(project_.vjTempoBpm);
     markProjectDirty();
+  }
+
+  // Join or leave the Link session. The tempo we hold is the first offer, so
+  // a lone Deckboy keeps its BPM; if peers are already playing, their tempo
+  // takes over within a frame or two.
+  void setVjLink(bool on) {
+    if (on && !deckboy::LinkSession::available()) {
+      triggerToast("this build has no Ableton Link");
+      return;
+    }
+    project_.vjLinkEnabled = on;
+    link_.setEnabled(on, project_.vjTempoBpm);
+    markProjectDirty();
+  }
+
+  // Each update: keep Link in step with the show's setting, and take the
+  // session's tempo as ours.
+  void serviceVjLink() {
+    if (link_.enabled() != project_.vjLinkEnabled &&
+        deckboy::LinkSession::available()) {
+      link_.setEnabled(project_.vjLinkEnabled, project_.vjTempoBpm);
+    }
+    if (!link_.enabled()) {
+      return;
+    }
+    const double tempo = link_.tempo();
+    if (tempo >= 20.0 && std::fabs(tempo - project_.vjTempoBpm) > 0.001) {
+      project_.vjTempoBpm = std::clamp(tempo, 20.0, 300.0);
+    }
+  }
+
+  // Beats on the Link session's timeline, when we are in one.
+  bool vjLinkBeats(double& beats) const {
+    return project_.vjLinkEnabled && link_.beatsNow(deckboy::vjclock::kBeatsPerBar, beats);
+  }
+
+  // The four-beat light: which beat of the bar this is, 0..3.
+  int vjBeatInBar() const { return deckboy::vjclock::beatInBar(vjBeatCount()); }
+
+  // Seconds until the next boundary `lengthBeats` long.
+  double vjSecondsToBoundary(int lengthBeats) const {
+    return deckboy::vjclock::secondsToBoundary(vjBeatCount(), project_.vjTempoBpm, lengthBeats);
+  }
+
+  // The words STATUS answers with: "off", "beat", "1", "2" or "4" (bars).
+  std::string vjQuantiseStatus() const {
+    if (!project_.vjQuantiseTakes) return "off";
+    switch (deckboy::vjclock::sanitiseQuantiseBeats(project_.vjQuantiseBeats)) {
+      case 4: return "1";
+      case 8: return "2";
+      case 16: return "4";
+      default: return "beat";
+    }
+  }
+
+  // "off", "unavailable" (a build without Link), or "on, 3 peers".
+  std::string vjLinkStatus() const {
+    if (!deckboy::LinkSession::available()) return "unavailable";
+    if (!project_.vjLinkEnabled) return "off";
+    return "on, " + std::to_string(link_.peers()) + (link_.peers() == 1 ? " peer" : " peers");
+  }
+
+  // A held take's remaining wait, in seconds; 0 when none is held.
+  double vjTakeWaitSeconds() const {
+    if (!vjTakePending_) {
+      return 0.0;
+    }
+    return std::max(0.0, vjTakeDueAt_ - static_cast<double>(SDL_GetTicks()) / 1000.0);
   }
 
   // Where we are between beats, 0 at the beat and approaching 1 just before the
@@ -6613,6 +6689,10 @@
   double vjBeatCount() const {
     const double bpm = std::clamp(project_.vjTempoBpm, 20.0, 300.0);
     const double beatSeconds = 60.0 / bpm;
+    double linkBeats = 0.0;
+    if (vjLinkBeats(linkBeats)) {
+      return linkBeats;
+    }
     const double now = static_cast<double>(SDL_GetTicks()) / 1000.0;
     return (now - vjBeatOrigin_) / beatSeconds;
   }
@@ -6632,21 +6712,15 @@
   }
 
   double vjBeatPhase() const {
-    const double bpm = std::clamp(project_.vjTempoBpm, 20.0, 300.0);
-    const double beatSeconds = 60.0 / bpm;
-    const double now = static_cast<double>(SDL_GetTicks()) / 1000.0;
-    const double since = now - vjBeatOrigin_;
-    const double phase = std::fmod(since, beatSeconds) / beatSeconds;
-    return phase < 0.0 ? phase + 1.0 : phase;
+    const double beats = vjBeatCount();
+    const double phase = beats - std::floor(beats);
+    return phase;
   }
 
-  double vjSecondsToNextBeat() const {
-    const double bpm = std::clamp(project_.vjTempoBpm, 20.0, 300.0);
-    const double beatSeconds = 60.0 / bpm;
-    return beatSeconds * (1.0 - vjBeatPhase());
-  }
+  double vjSecondsToNextBeat() const { return vjSecondsToBoundary(1); }
 
   std::vector<double> vjTapTimes_;
+  deckboy::LinkSession link_;
   double vjBeatOrigin_ = 0.0;
   // A take waiting for the downbeat. Quantising is the whole point of tempo in
   // a video mixer: not that anything moves by itself, but that what the

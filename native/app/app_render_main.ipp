@@ -1728,8 +1728,17 @@
     // decides what the audience sees. A mode you can enter without noticing is
     // a mode that ruins a show, so this is impossible to miss and it carries
     // the controls rather than just announcing itself.
+    // The VJ bar pushes its buttons BEFORE the clear below, which used to wipe
+    // them: TAP, the blend, the tempo and the new LINK and QUANTISE would have
+    // drawn and done nothing. So the list is cleared here, the bar's buttons
+    // are counted, and the later clear keeps exactly those.
+    quickButtons_.clear();
+    size_t vjBarButtonCount = 0;
     if (project_.vjModeEnabled) {
-      const int barH = std::min(76, std::max(56, innerH / 9));
+      // A second row under the controls: the four-beat light, LINK, QUANTISE
+      // and the wait for the bar. Sized from the font, so it scales with the UI.
+      const int vjRow2H = fontSmall_ ? textLineHeight(fontSmall_) + uiScaled(8) : uiScaled(22);
+      const int barH = std::min(76, std::max(56, innerH / 9)) + vjRow2H + uiScaled(4);
       // The bar DROPS IN rather than appearing. A third of a second of eased
       // travel is enough for the eye to register that the room changed, which
       // a hard cut does not give you -- and the layout below settles into its
@@ -1780,7 +1789,9 @@
 
       int cx = vjBar.x + 8;
       const int rowY = vjBar.y + 6;
-      const int rowH = vjBar.h - 12;
+      const int row2H = vjRow2H;
+      const int row2Y = vjBar.y + vjBar.h - 6 - row2H;
+      const int rowH = std::max(8, row2Y - uiScaled(4) - rowY);
 
       // EVERY CONTROL FITS, whatever the column is worth.
       //
@@ -2004,6 +2015,96 @@
                                  "Hold takes until the next beat, so what you do "
                                  "lands ON the music"});
       }
+
+      // ROW TWO: the bar's phase and how takes meet it.
+      {
+        int x2 = vjBar.x + 8;
+        const int gap2 = uiScaled(6);
+        const int rowRight = vjBar.x + vjBar.w - 8;
+
+        // The four-beat light. The current beat of the bar is lit, and the
+        // first is the downbeat, so it is the one that stays the accent
+        // colour when it is not lit.
+        const int lit = vjBeatInBar();
+        const int lampW = std::max(uiScaled(14), row2H);
+        for (int i = 0; i < 4; ++i) {
+          SDL_Rect lamp {x2, row2Y, lampW, row2H};
+          const bool on = (i == lit);
+          drawUIPanel(lamp, on ? vjEdge : pal.tile, pal.deep, pal.mid);
+          drawCenteredTextSafe(controlRenderer_, fontSmall_, lamp, std::to_string(i + 1),
+                               on ? pal.deep : (i == 0 ? vjEdge : vjInk));
+          x2 += lampW + uiScaled(3);
+        }
+        x2 += gap2 - uiScaled(3);
+
+        // LINK. A lamp for the session, then the words: nobody else yet, or
+        // how many are in it.
+        const bool linkBuilt = deckboy::LinkSession::available();
+        const std::size_t peers = link_.peers();
+        std::string linkText = "LINK";
+        if (project_.vjLinkEnabled) {
+          linkText = peers == 0 ? "LINK: no peers"
+            : peers == 1 ? "LINK: 1 peer"
+            : deckboy::core::i18n::format("LINK: {1} peers", {std::to_string(peers)});
+        }
+        int linkNeed = 0;
+        if (fontSmall_) {
+          textSizeShown(fontSmall_, linkText.c_str(), 0, &linkNeed, nullptr);
+        }
+        const int linkW = std::max(uiScaled(70), linkNeed + row2H + uiScaled(16));
+        if (x2 + linkW <= rowRight) {
+          SDL_Rect linkBtn {x2, row2Y, linkW, row2H};
+          const bool joined = project_.vjLinkEnabled && peers > 0;
+          drawUIPanel(linkBtn, project_.vjLinkEnabled ? pal.tile : pal.deep, pal.deep, pal.mid);
+          const int dot = std::max(uiScaled(6), row2H / 3);
+          SDL_Rect lamp {linkBtn.x + uiScaled(6), linkBtn.y + (row2H - dot) / 2, dot, dot};
+          Primitives::fillRect(controlRenderer_, lamp,
+                               joined ? vjEdge : (project_.vjLinkEnabled ? pal.mid : pal.deep));
+          SDL_Rect words {lamp.x + dot + uiScaled(4), linkBtn.y,
+                          linkBtn.w - dot - uiScaled(14), row2H};
+          drawCenteredTextSafe(controlRenderer_, fontSmall_, words, linkText,
+                               linkBuilt ? vjInk : pal.mid);
+          quickButtons_.push_back({linkBtn, QuickAction::VjToggleLink,
+                                   linkBuilt
+                                     ? "Join the Ableton Link session: the tempo and the bars "
+                                       "of Live, Traktor, Rekordbox and any other Link app on the network"
+                                     : "This build has no Ableton Link"});
+          x2 += linkW + gap2;
+        }
+
+        // QUANTISE: click to step through beat, 1 bar, 2 bars, 4 bars, off.
+        const deckboy::vjclock::Quantise quant {project_.vjQuantiseTakes, project_.vjQuantiseBeats};
+        const char* quantText = deckboy::vjclock::quantiseLabel(quant);
+        int quantNeed = 0;
+        if (fontSmall_) {
+          textSizeShown(fontSmall_, "QUANTISE: 4 bars", 0, &quantNeed, nullptr);
+        }
+        const int quantW = std::max(uiScaled(90), quantNeed + uiScaled(16));
+        if (x2 + quantW <= rowRight) {
+          SDL_Rect quantBtn {x2, row2Y, quantW, row2H};
+          drawUIPanel(quantBtn, pal.tile, pal.deep, pal.mid);
+          drawCenteredTextSafe(controlRenderer_, fontSmall_, quantBtn, quantText,
+                               quant.on ? vjEdge : vjInk);
+          quickButtons_.push_back({quantBtn, QuickAction::VjCycleQuantise,
+                                   "How long a take waits: for the next beat, or for 1, 2 "
+                                   "or 4 bars. With Link on, the bars are the session's"});
+          x2 += quantW + gap2;
+        }
+
+        // While a take is held: how long until it goes.
+        const double waitLeft = vjTakeWaitSeconds();
+        if (vjTakePending_ && x2 + uiScaled(60) <= rowRight) {
+          std::ostringstream secs;
+          secs << std::fixed << std::setprecision(1) << waitLeft;
+          const std::string text = deckboy::core::i18n::format(
+            project_.vjQuantiseBeats == 1 ? "TAKE waits for the beat: {1} s"
+                                          : "TAKE waits for the bar: {1} s",
+            {secs.str()});
+          SDL_Rect waitRect {x2, row2Y, rowRight - x2, row2H};
+          drawCenteredTextSafe(controlRenderer_, fontSmall_, waitRect, text, vjEdge);
+        }
+      }
+      vjBarButtonCount = quickButtons_.size();
       if (reveal < 1.0) {
         SDL_SetRenderClipRect(controlRenderer_, hadBarClip ? &prevBarClip : nullptr);
       }
@@ -2012,7 +2113,8 @@
     }
 
     int x = innerX;
-    quickButtons_.clear();
+    quickButtons_.erase(quickButtons_.begin() + static_cast<std::ptrdiff_t>(vjBarButtonCount),
+                        quickButtons_.end());
     valueScrubZones_.clear();
     cueSettingsQuickButtonStartIndex_ = 0;
     cueSettingsScrubZoneStartIndex_ = 0;

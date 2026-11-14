@@ -1039,16 +1039,36 @@ column carries the controls.
   the fader.
 - **Tap tempo**, averaged over recent taps rather than the last interval —
   nobody taps evenly. Taps more than two seconds apart start again.
-- **Quantised takes** hold until the next beat. The point of tempo in a video
+- **Quantised takes** hold until the next boundary. The point of tempo in a video
   mixer is not that anything moves by itself, it is that **what you do lands on
-  the music**.
+  the music**. The QUANTISE button under the bar steps through **beat**,
+  **1 bar**, **2 bars**, **4 bars** and **off**. A bar is four beats. While a
+  take is held, the bar says how long is left: "TAKE waits for the bar: 0.9 s".
+  A boundary less than a tenth of a beat away counts as the one you just hit, so
+  the take goes at once.
+- The **four-beat light** is four lamps under the badge. The current beat of the
+  bar is lit. Beat 1 is the bar line.
+- **Ableton Link.** The LINK button joins the Link session on your network, so
+  Deckboy follows the tempo and the bar phase of Live, Traktor, Rekordbox or any
+  other app that speaks Link. It reads "LINK: 3 peers" with a lit lamp when
+  others are in the session. In a session, the tempo is the session's: a peer
+  changes it and the BPM here follows; TAP or a typed BPM here is offered to
+  the session and the peers follow. Bars line up with the session, so a take
+  quantised to a bar lands on the bar line every other app is counting. The
+  LFOs run on the same beats. While Link is on, MIDI clock does not set the
+  tempo. The Link setting is saved with the show. Link needs UDP on your local
+  network (multicast to 224.76.78.75, port 20808). A build made with
+  `-DENABLE_LINK=OFF` has no Link and says so on the button.
 - Both playlists are on screen side by side, each headed with which side of the
   crossfader it is, and A, the mix, and B each get their own monitor — a
   crossfader you cannot see both sides of is a blind control.
 
 `VJ ON|OFF | MIX <0-1> | BLEND [mode] | TAP | BPM <n> | CLOCK <on|off> |
-QUANTISE <on|off> | DECKS <a> <b> | STATUS` over the wire, because a fader is
-the one control nobody wants to reach for with a mouse.
+QUANTISE <beat|1|2|4|off|on> | LINK <on|off|status> | DECKS <a> <b> | STATUS`
+over the wire, because a fader is the one control nobody wants to reach for
+with a mouse. QUANTISE 1, 2 and 4 are bars; ON keeps the length you had.
+LINK STATUS answers `off`, `on, 3 peers`, or `unavailable` in a build without
+Link.
 
 ### Layer blend modes
 

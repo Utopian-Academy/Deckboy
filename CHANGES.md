@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### VJ mode
+- **Ableton Link.** A LINK button in the VJ bar joins the Link session on the network. Deckboy follows the tempo and the bar of Live, Traktor, Rekordbox and any other Link app. It shows "LINK: 3 peers". A tempo set by a peer updates the BPM here; TAP and a typed BPM are offered to the session. The LFOs and the quantised takes use the session's beats. Saved with the show. Not tested yet against a real second app on a network. The build option is `ENABLE_LINK` (on by default); Link is vendored in `native/extras/link`.
+- **Quantise length.** A take can wait for the next beat, 1 bar, 2 bars or 4 bars (four beats a bar), or not wait. The QUANTISE button steps through them. Before, a take could only wait for the next beat. With Link, bars follow the session.
+- A four-beat light shows the beat of the bar, and while a take is held the bar says "TAKE waits for the bar: 0.9 s".
+- Companion: `VJ LINK <on|off|status>` and `VJ QUANTISE <beat|1|2|4|off>` (`on` and `off` work as before).
+- Fixed: the blend, TAP and tempo buttons in the VJ bar drew but could not be clicked. The desk cleared its list of clickable buttons right after the bar added to it.
+
 ### Sources
 - New source: **Lumia**. Laser light through moving water, a prism and a tube of mirrors, like the light-art machines of the 1960s and 70s. Controls in four groups: water (flow, water, ripple size, second jet), prism (lasers, prism, split, focus, shimmer), mirrors (tube, mandala or none; 0 to 12 mirrors, panel angle, top / bottom, spin) and light (lens, glow, brightness, trail). Every number has an LFO, and it can listen to the programme sound. Add it from SOURCE > MADE BY DECKBOY. Companion: `LUMIA`.
 - Lumia is made on the graphics card when every output can draw it there. Tested on Direct3D 11, Direct3D 12 and Vulkan; the Metal (macOS) version is written but not yet run. Only the small trace of light is worked out on the CPU, so a 4K output costs about what a 1080p one does: 1080p 12 ms and 4K 18 ms a frame at most, from 16 ms and 31 ms. A grade, a key or effects on the cue keep it on the CPU, as before. `DECKBOY_CPU_SOURCES=1` keeps every source on the CPU.

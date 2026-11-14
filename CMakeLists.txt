@@ -232,6 +232,14 @@ option(ENABLE_CEF "Build with Chromium Embedded Framework browser cues" OFF)
 
 option(ENABLE_VST3 "Host third-party VST3 audio plugins" ON)
 
+# Ableton Link: join the tempo and bar phase of any other Link app on the LAN
+# (Live, Traktor, Rekordbox, ...). Vendored in native/extras/link (GPLv2+,
+# which a GPL-3 project may carry; Asio rides along, Boost licence). Header
+# only, so there is nothing to find and nothing to fetch. Only
+# native/platform/link_session.cpp includes it. With ENABLE_LINK=OFF that file
+# compiles to a stub and the LINK toggle in the VJ bar says it is not built in.
+option(ENABLE_LINK "Build with Ableton Link tempo sync" ON)
+
 # -- VST3, for the operator's own plugins in a cue's audio chain -------------
 #
 # HEADERS ONLY, and vendored in native/extras/vst3-sdk. They are MIT, so a
@@ -630,6 +638,9 @@ add_executable(deckboy-native
   native/engine/motion_field.cpp
   # PTPv2 slave for ST 2059 media-clock alignment. Plain sockets, no SDK.
   native/platform/ptp_client.cpp
+  # Ableton Link (header-only, vendored). Always compiled: a build with
+  # ENABLE_LINK=OFF gets a stub, so the app code needs no #ifdef of its own.
+  native/platform/link_session.cpp
   # NMOS IS-04/IS-05 node: HTTP server + registration client for the 2110
   # senders. Plain sockets and a hand-rolled JSON reader, no SDK, so this also
   # compiles unconditionally.
@@ -1010,6 +1021,45 @@ if(ENABLE_SPOUT AND WIN32)
     target_include_directories(deckboy-native PRIVATE ${SPOUT_INCLUDE_DIR})
   endif()
   target_compile_definitions(deckboy-native PRIVATE DECKBOY_HAS_SPOUT=1)
+endif()
+
+if(ENABLE_LINK)
+  set(_link_root "${CMAKE_CURRENT_SOURCE_DIR}/native/extras/link")
+  if(NOT EXISTS "${_link_root}/include/ableton/Link.hpp" OR
+     NOT EXISTS "${_link_root}/asio/include/asio.hpp")
+    message(FATAL_ERROR
+      "Ableton Link is not vendored where native/extras/link says. "
+      "Configure with -DENABLE_LINK=OFF to build without it.")
+  endif()
+  # Asio's version becomes the inline namespace Link wants, as Link's own
+  # cmake does, so a second Asio in the process can never collide with it.
+  file(STRINGS "${_link_root}/asio/include/asio/version.hpp" _asio_line
+       REGEX "^#define ASIO_VERSION ")
+  string(REGEX MATCH "[0-9]+" _asio_ver "${_asio_line}")
+  math(EXPR _asio_major "${_asio_ver} / 100000")
+  math(EXPR _asio_minor "${_asio_ver} / 100 % 1000")
+  math(EXPR _asio_sub "${_asio_ver} % 100")
+  set(_link_defs ASIO_NO_TYPEID=1 ASIO_STANDALONE=1
+      ASIO_VERSION_NAMESPACE=link_asio_${_asio_major}_${_asio_minor}_${_asio_sub})
+  if(WIN32)
+    list(APPEND _link_defs LINK_PLATFORM_WINDOWS=1 INCL_EXTRA_HTON_FUNCTIONS=1
+         _WIN32_WINNT=0x0601)
+  elseif(APPLE)
+    list(APPEND _link_defs LINK_PLATFORM_UNIX=1 LINK_PLATFORM_MACOSX=1)
+  else()
+    list(APPEND _link_defs LINK_PLATFORM_UNIX=1 LINK_PLATFORM_LINUX=1)
+  endif()
+  # Per source file, so Link's platform macros and Asio never reach main.cpp.
+  set_source_files_properties(native/platform/link_session.cpp PROPERTIES
+    COMPILE_DEFINITIONS "${_link_defs}"
+    INCLUDE_DIRECTORIES "${_link_root}/include;${_link_root}/asio/include")
+  target_compile_definitions(deckboy-native PRIVATE DECKBOY_HAS_LINK=1)
+  if(WIN32)
+    target_link_libraries(deckboy-native PRIVATE ws2_32 iphlpapi)
+  elseif(NOT APPLE)
+    target_link_libraries(deckboy-native PRIVATE atomic pthread)
+  endif()
+  message(STATUS "Ableton Link: vendored (native/extras/link)")
 endif()
 
 if(VST3_INCLUDE_DIR)

@@ -28,6 +28,7 @@
 #include "cue_effects.hpp"
 #include "fixtures.hpp"
 #include "audio_effects.hpp"
+#include "vj_clock.hpp"
 #include "masks.hpp"
 #include "multiview_layout.hpp"
 #include "motion.hpp"
@@ -3070,6 +3071,13 @@ struct Project {
   // not that anything moves by itself -- it is that what the operator does
   // lands ON the music instead of a moment after it.
   bool vjQuantiseTakes = false;
+  // How long a held take waits, in beats: 1 (a beat), 4 (1 bar), 8, 16. Only
+  // read while vjQuantiseTakes is on; off is vjQuantiseTakes itself. Bars are
+  // four beats, which is also Ableton Link's quantum.
+  int vjQuantiseBeats = 1;
+  // Join the Ableton Link session on the LAN: the tempo and the bar phase come
+  // from it, and TAP or a typed BPM are proposed to it.
+  bool vjLinkEnabled = false;
   // Geometry aspect link: editing a cue's output width also scales its
   // height proportionally (and vice versa). Toggleable from the GEOMETRY
   // inspector section, like the chain-link in most media software.
@@ -3549,6 +3557,8 @@ enum class QuickAction {
   VjCycleBlend,
   VjTapTempo,
   VjToggleQuantise,
+  VjToggleLink,
+  VjCycleQuantise,
   EffectChainCopy,
   EffectChainPaste,
   // -- Geometry: crop ------

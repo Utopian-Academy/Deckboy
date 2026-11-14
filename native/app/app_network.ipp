@@ -3422,7 +3422,9 @@ html,body{width:100%;height:100%;overflow:hidden}
         "    blends: dissolve add screen multiply lighten darken subtract\n"
         "            undercut infiltrate ember   (no argument cycles)\n"
         "    VJ TAP | VJ BPM <n> | VJ CLOCK <on|off>  (follow an external MIDI clock)\n"
-        "    VJ QUANTISE <on|off> | VJ DECKS <a> <b> | VJ STATUS\n"
+        "    VJ QUANTISE <beat|1|2|4|off|on>  (a take waits for the next beat, or 1, 2 or 4 bars)\n"
+        "    VJ LINK <on|off|status>  (join the Ableton Link session: its tempo and its bars)\n"
+        "    VJ DECKS <a> <b> | VJ STATUS\n"
         "effects: FX LIST | FX ADD <effect> [amount] | FX AMOUNT <n> <0-1> | FX GET <n> | FX CLEAR\n"
         "         FX PARAM <n> <A-F> <0-1>   (each effect's own shaping controls)\n"
         "         FX CHOICE <n> <A|B> <name>   (a setting from a list: Melt direction, Tape speed...)\n"
@@ -5356,7 +5358,8 @@ html,body{width:100%;height:100%;overflow:hidden}
         } else {
           midiClockBpm_ = midiClockBpm_ * 0.7 + bpm * 0.3;
         }
-        if (project_.midiClockSlave) {
+        // Link wins when both are on: two clocks proposing tempos would argue.
+        if (project_.midiClockSlave && !project_.vjLinkEnabled) {
           setVjTempo(midiClockBpm_);
         }
         break;
