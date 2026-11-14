@@ -4053,8 +4053,8 @@ port number (default 6454)	номер на порт (по подразбиран
 port number (default 8090)	номер на порт (по подразбиране 8090)
 port number (vMix uses 8088)	номер на порт (vMix ползва 8088)
 port number (vMix uses 8099)	номер на порт (vMix ползва 8099)
-WIDTHxHEIGHT (e.g. 2560x1080)	ШИРИНАxВИСОЧИНА (напр. 2560x1080)
-WIDTHxHEIGHT (e.g. 5760x2160)	ШИРИНАxВИСОЧИНА (напр. 5760x2160)
+WIDTHxHEIGHT (e.g. 2560x1080)	ШИРИНА x ВИСОЧИНА (напр. 2560x1080)
+WIDTHxHEIGHT (e.g. 5760x2160)	ШИРИНА x ВИСОЧИНА (напр. 5760x2160)
 pulse 25%	импулс 25%
 edge ignite	запалване на ръбове
 pythagorean	питагорейски

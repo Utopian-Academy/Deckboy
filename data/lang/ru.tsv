@@ -4034,8 +4034,8 @@ port number (default 6454)	номер порта (по умолчанию 6454)
 port number (default 8090)	номер порта (по умолчанию 8090)
 port number (vMix uses 8088)	номер порта (vMix использует 8088)
 port number (vMix uses 8099)	номер порта (vMix использует 8099)
-WIDTHxHEIGHT (e.g. 2560x1080)	ШИРИНАxВЫСОТА (напр. 2560x1080)
-WIDTHxHEIGHT (e.g. 5760x2160)	ШИРИНАxВЫСОТА (напр. 5760x2160)
+WIDTHxHEIGHT (e.g. 2560x1080)	ШИРИНА x ВЫСОТА (напр. 2560x1080)
+WIDTHxHEIGHT (e.g. 5760x2160)	ШИРИНА x ВЫСОТА (напр. 5760x2160)
 pulse 25%	импульс 25%
 edge ignite	воспламенение краёв
 pythagorean	пифагорейский
