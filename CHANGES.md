@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Screens
+- New: **Screens > STAGE**, a projection simulator and blend planner. A room with the screen, the programme on it, each projector's picture, overlaps and cone of light; turn round it with the mouse. The planner takes the screen's size and the projectors' pixels, lumens, throw ratio, overlap and number, and gives the row's pixels, each picture's size, the throw distance and the screen's brightness (lux, nits, foot-lamberts), with the best fit when the pictures cannot cover the screen exactly, and the same with one projector more or less. One button sets the outputs' areas and edge blends to match. The plan is kept with the show.
+- New: `VIDEO BLEND ROW <first output> <how many> <overlap px>` blends a row of three or more projectors, as `VIDEO BLEND PAIR` does two.
+
 ### Sources
 - New source: **Lumia**. Laser light through moving water, a prism and a tube of mirrors, like the light-art machines of the 1960s and 70s. Controls in four groups: water (flow, water, ripple size, second jet), prism (lasers, prism, split, focus, shimmer), mirrors (tube, mandala or none; 0 to 12 mirrors, panel angle, top / bottom, spin) and light (lens, glow, brightness, trail). Every number has an LFO, and it can listen to the programme sound. Add it from SOURCE > MADE BY DECKBOY. Companion: `LUMIA`.
 - Lumia is made on the graphics card when every output can draw it there. Tested on Direct3D 11, Direct3D 12 and Vulkan; the Metal (macOS) version is written but not yet run. Only the small trace of light is worked out on the CPU, so a 4K output costs about what a 1080p one does: 1080p 12 ms and 4K 18 ms a frame at most, from 16 ms and 31 ms. A grade, a key or effects on the cue keep it on the CPU, as before. `DECKBOY_CPU_SOURCES=1` keeps every source on the CPU.
