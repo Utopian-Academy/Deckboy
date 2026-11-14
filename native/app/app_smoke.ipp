@@ -1008,6 +1008,93 @@
     }
 
     {
+      // VJ: how long a take waits, the four-beat light, and Ableton Link.
+      namespace vjc = deckboy::vjclock;
+      // At 120 bpm a beat is 0.5 s. A take at beat 2.25 waits 0.375 s for the
+      // next beat, 0.875 s for the bar, 2.875 s for two bars, 6.875 s for four.
+      auto closeTo = [](double a, double b) { return std::fabs(a - b) < 1e-9; };
+      expect(closeTo(vjc::secondsToBoundary(2.25, 120.0, 1), 0.375), "quantise: a beat waits for the next beat");
+      expect(closeTo(vjc::secondsToBoundary(2.25, 120.0, 4), 0.875), "quantise: 1 bar waits for the bar line");
+      expect(closeTo(vjc::secondsToBoundary(2.25, 120.0, 8), 2.875), "quantise: 2 bars wait for the second bar line");
+      expect(closeTo(vjc::secondsToBoundary(2.25, 120.0, 16), 6.875), "quantise: 4 bars wait for the fourth bar line");
+      expect(closeTo(vjc::secondsToBoundary(8.0, 120.0, 4), 0.0), "quantise: standing on a bar line is not a bar of waiting");
+      expect(closeTo(vjc::secondsToBoundary(-1.5, 60.0, 4), 1.5), "quantise: a negative beat position still finds the bar");
+      expect(closeTo(vjc::secondsToBoundary(2.25, 1.0, 1), vjc::secondsToBoundary(2.25, 20.0, 1)),
+             "quantise: the tempo is held to 20 bpm and up");
+      expect(vjc::sanitiseQuantiseBeats(3) == 1 && vjc::sanitiseQuantiseBeats(16) == 16,
+             "quantise: an odd length from a file falls back to a beat");
+      expect(vjc::beatInBar(0.0) == 0 && vjc::beatInBar(3.99) == 3 && vjc::beatInBar(4.0) == 0 &&
+             vjc::beatInBar(-0.5) == 3, "four-beat light: the lit beat follows the bar, forwards and back");
+      vjc::Quantise q {false, 1};
+      std::string steps;
+      for (int i = 0; i < 5; ++i) {
+        q = vjc::nextQuantise(q);
+        steps += vjc::quantiseLabel(q);
+        steps += '|';
+      }
+      expect(steps == "QUANTISE: beat|QUANTISE: 1 bar|QUANTISE: 2 bars|QUANTISE: 4 bars|QUANTISE: off|",
+             "quantise: the button steps beat, 1, 2, 4 bars, off");
+      vjc::Quantise parsed {true, 4};
+      expect(vjc::parseQuantise("off", parsed) && !parsed.on && parsed.beats == 4 &&
+             vjc::parseQuantise("ON", parsed) && parsed.on && parsed.beats == 4 &&
+             vjc::parseQuantise("2", parsed) && parsed.on && parsed.beats == 8 &&
+             vjc::parseQuantise("beat", parsed) && parsed.beats == 1 && !vjc::parseQuantise("3", parsed),
+             "quantise: the remote words, ON keeps the length, a typo is refused");
+
+      Project vj;
+      vj.vjQuantiseTakes = true;
+      vj.vjQuantiseBeats = 16;
+      vj.vjLinkEnabled = true;
+      vj.vjTempoBpm = 133.5;
+      const fs::path vjFile = fs::temp_directory_path() / "deckboy-vj-check.deckboy";
+      expect(saveProject(vjFile, vj), "a show with quantise and link saves");
+      const Project vjBack = loadProject(vjFile);
+      expect(vjBack.vjQuantiseTakes && vjBack.vjQuantiseBeats == 16 && vjBack.vjLinkEnabled &&
+             std::fabs(vjBack.vjTempoBpm - 133.5) < 1e-9, "quantise length and link survive a save/load round trip");
+      // A show saved before Link has neither line: it must load as it always did.
+      {
+        std::ifstream in(vjFile, std::ios::binary);
+        std::string text((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+        std::string kept;
+        std::istringstream lines(text);
+        for (std::string line; std::getline(lines, line);) {
+          if (line.rfind("vj_quantise_beats", 0) != 0 && line.rfind("vj_link", 0) != 0) {
+            kept += line + "\n";
+          }
+        }
+        in.close();
+        std::ofstream out(vjFile, std::ios::binary | std::ios::trunc);
+        out << kept;
+      }
+      const Project vjOld = loadProject(vjFile);
+      expect(vjOld.vjQuantiseTakes && vjOld.vjQuantiseBeats == 1 && !vjOld.vjLinkEnabled,
+             "an older show loads with beat-long takes and Link off");
+      std::error_code vjIgnored;
+      fs::remove(vjFile, vjIgnored);
+
+      // Link: off by default, joinable when built in. No peer is needed for
+      // this part: alone, the session is ours and holds the tempo we offered.
+      deckboy::LinkSession link;
+      double linkBeats = 0.0;
+      expect(!link.enabled() && link.peers() == 0 && !link.beatsNow(4.0, linkBeats), "link: starts off, with no clock");
+      if (deckboy::LinkSession::available()) {
+        link.setEnabled(true, 128.0);
+        expect(link.enabled(), "link: joins when asked");
+        double a = 0.0, b = 0.0;
+        expect(link.beatsNow(4.0, a), "link: gives a beat clock once joined");
+        SDL_Delay(120);
+        expect(link.beatsNow(4.0, b) && b > a, "link: the beat clock runs forward");
+        link.proposeTempo(90.0);
+        expect(std::fabs(link.tempo() - 90.0) < 0.01, "link: a proposed tempo is the session's tempo");
+        link.setEnabled(false, 90.0);
+        expect(!link.enabled() && !link.beatsNow(4.0, a), "link: leaves when asked");
+      } else {
+        link.setEnabled(true, 128.0);
+        expect(!link.enabled(), "link: a build without Link never claims to be joined");
+      }
+    }
+
+    {
       // Headless integration of the same core exercised by scopes_check.cpp.
       namespace scopes = deckboy::core::scopes;
       const std::array<std::uint8_t, 16> rgba{

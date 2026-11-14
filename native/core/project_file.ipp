@@ -378,6 +378,10 @@ void writeProjectScalars(std::ostream& output, const Project& project) {
   output << "vj_blend\t" << project.vjBlendMode << '\n';
   output << "vj_bpm\t" << project.vjTempoBpm << '\n';
   output << "vj_quantise\t" << (project.vjQuantiseTakes ? 1 : 0) << '\n';
+  // Appended after vj_quantise: a show from before Link has neither line and
+  // loads as beat-long takes with Link off; an older build skips both.
+  output << "vj_quantise_beats\t" << project.vjQuantiseBeats << '\n';
+  output << "vj_link\t" << (project.vjLinkEnabled ? 1 : 0) << '\n';
   output << "interaction_mode\t" << escapeField(project.interactionMode) << '\n';
   output << "allow_remote_network\t" << (project.allowRemoteNetwork ? 1 : 0) << '\n';
   output << "trusted_controllers\t" << project.trustedControllers << '\n';
@@ -1655,6 +1659,10 @@ bool applyProjectScalarLinePart2(Project& project, const std::vector<std::string
     project.vjTempoBpm = std::clamp(safeDouble(fields, 1, 120.0), 20.0, 300.0);
   } else if (fields[0] == "vj_quantise") {
     project.vjQuantiseTakes = safeBool(fields, 1, false);
+  } else if (fields[0] == "vj_quantise_beats") {
+    project.vjQuantiseBeats = deckboy::vjclock::sanitiseQuantiseBeats(safeInt(fields, 1, 1));
+  } else if (fields[0] == "vj_link") {
+    project.vjLinkEnabled = safeBool(fields, 1, false);
   } else if (fields[0] == "creatures") {
     project.creaturesEnabled = safeBool(fields, 1, true);
   } else if (fields[0] == "creatures_while_live") {

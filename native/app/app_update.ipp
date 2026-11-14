@@ -1199,6 +1199,7 @@
       }
     }
     ++motionDriverFrameCounter_;
+    serviceVjLink();
     serviceVjQuantisedTake();
     // A and B preview textures, from each deck's own decoded frame.
     //

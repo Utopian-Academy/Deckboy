@@ -5113,8 +5113,32 @@
         return;
       }
       if (sub == "QUANTISE" && parts.size() >= 3) {
-        project_.vjQuantiseTakes = (toLower(parts[2]) == "on");
+        // BEAT, 1, 2 or 4 (bars), OFF -- and ON, which keeps the length.
+        deckboy::vjclock::Quantise q {project_.vjQuantiseTakes, project_.vjQuantiseBeats};
+        if (!deckboy::vjclock::parseQuantise(parts[2], q)) {
+          failRemoteCommand("VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 are bars)");
+          return;
+        }
+        project_.vjQuantiseTakes = q.on;
+        project_.vjQuantiseBeats = q.beats;
         markProjectDirty();
+        remoteCommandDetail_ = vjQuantiseStatus();
+        return;
+      }
+      if (sub == "LINK") {
+        // VJ LINK on|off|status -- join the Ableton Link session.
+        const std::string arg = parts.size() >= 3 ? toUpper(parts[2]) : std::string("STATUS");
+        if (arg == "ON" || arg == "OFF" || arg == "TOGGLE") {
+          if (!deckboy::LinkSession::available()) {
+            failRemoteCommand("VJ LINK: this build has no Ableton Link");
+            return;
+          }
+          setVjLink(arg == "TOGGLE" ? !project_.vjLinkEnabled : arg == "ON");
+        } else if (arg != "STATUS") {
+          failRemoteCommand("VJ LINK: on | off | status");
+          return;
+        }
+        remoteCommandDetail_ = vjLinkStatus();
         return;
       }
       if (sub == "DECKS" && parts.size() >= 4) {
@@ -5131,12 +5155,14 @@
               << " mix=" << std::fixed << std::setprecision(2) << project_.vjMixPosition
               << " " << project_.vjBlendMode
               << " " << std::setprecision(1) << project_.vjTempoBpm << "bpm"
-              << (project_.vjQuantiseTakes ? " quantised" : "");
+              << " quantise " << vjQuantiseStatus()
+              << " link " << vjLinkStatus();
         remoteCommandDetail_ = state.str();
         return;
       }
       failRemoteCommand("VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|"
-                        "BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS");
+                        "BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|"
+                        "DECKS <a> <b>|STATUS");
       return;
     }
 

@@ -71,6 +71,7 @@
 #include "platform/mac_output_level.hpp"
 #include "platform/mac_vblank.hpp"
 #include "platform/window_icon.hpp"
+#include "platform/link_session.hpp"
 #include "core/deck_audio_ring.hpp"
 #include "core/mtc_decode.hpp"
 #include "core/utils.hpp"
