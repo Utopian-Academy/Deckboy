@@ -1,0 +1,1129 @@
+#rrggbb -- the colour of the presenter screen
+#rrggbb, or a name (red, teal...)
+% of the picture's height, 0.1 to 20 (supports + - * / and ())
+%, 1 to 100 (supports + - * / and ())
+(choose cue)
+(missing)
+(no slots)
+(set media file)
+(set url)
+-3 to 3: 0 holds, negative runs backwards (supports + - * / and ())
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono (supports + - * / and ())
+0 flows ALONG the edges, so colour orbits the shapes. 1 flows across them, which bleeds the picture into itself.
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono (supports + - * / and ())
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear (supports + - * / and ())
+0-1 (supports + - * / and ())
+0-100% (supports + - * / and ())
+0-100%, left to right (supports + - * / and ())
+0-100%, top to bottom (supports + - * / and ())
+0-100%: 0 holds the field still (supports + - * / and ())
+0-100%: 50 is 1x, 0 a quarter, 100 four times (supports + - * / and ())
+0-100%: how far the field bends (supports + - * / and ())
+0-100%: the share of each band drawn as grey stripes (supports + - * / and ())
+0-127; 127 is all-call
+0-127; the domain the facility's clock runs on
+10-79 characters, or empty for none
+8 zones already: click one to remove it first
+8+ characters; letters and symbols are allowed
+8+ characters; other machines send AUTH <passphrase> first. Empty = off
+A command line, as a DASH button runs it. {value} is the knob's number, {note} the key.
+A command line, or blank for nothing
+A dark line between the tiles, like grout or an LED wall.
+a name for this step
+a note number 0-127, LEARN to take the next note played, or empty for none
+A number
+A number, or blank for none
+a playlist that is gone
+a plugin overran the audio thread and was bypassed — take it out of the chain
+A slow rocking of the viewpoint, which is what makes the depth read without glasses.
+A slow sag in the supply, pulling the filter up and down like a dying battery.
+a step cannot fire the playlist it lives on
+a target cannot target another target
+a video cue's duration comes from its file; still duration applies to stills, patterns and browsers
+A worn or dirty head: softer, with noise that streaks along the lines.
+Above halfway, a hard cut in the picture resets the loop to clean.
+Above halfway, the repeated piece plays backwards.
+across the grain
+Across, % of the width, -100 to 100 (supports + - * / and ())
+add an output to scope it
+Add Browser Cue
+Add NDI Source Cue
+Add Stream Cue
+additive
+alternating
+amber
+Amount 0-100% (supports + - * / and ())
+an ASIO stream is already open
+an IPv4 address, or 255.255.255.255 to broadcast
+An old deck: the picture wobbles, bends at the top of the frame and carries hum bars.
+An old tape loses bits of its oxide: dropouts flick white and repeat the line above, and the colour fizzes.
+angle
+another app is holding the pointer
+Apple keeps the Keynote format secret on purpose, a malicious lock-in tactic, so only Apple's own software can read it properly. Best route: open it in Keynote on iCloud.com (free, in any browser), choose Download a Copy > PDF, and import that PDF
+Art-Net Destination
+ASCII 95 (density)
+ASCII 95 (raw)
+ASCII HOLD: seconds, 0-60 (0 mutes the phrases)
+ASCII WOBBLEMODE: drift | flow (follows luma) | hue (follows colour); no argument cycles
+ASCII: the selected cue has no text mode (add the TEXT MODE effect, or select a video synth cue)
+ASCII: use ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>
+ASIO is off
+ATEM Input
+atem tally on -- set which input Deckboy is
+Attach Lower Third
+Attach PIP Overlay
+Attack
+attack
+Audio bitrate
+Audio reactivity
+AUDIOALSO ADD: seven extra destinations is the limit
+AUDIOALSO ADD: that is already this deck's main device -- it would play twice
+AUDIOALSO: expected ADD <name>, REMOVE <name> or CLEAR
+AUDIOFX PLUGIN: this build has no plugin host
+AUDIOFX: expected OFF, BYPASS, or amount and parameters as percentages
+audioprint
+AUTO
+auto (59.94 Hz)
+azimuth
+band curve
+Bands
+bands
+base layer
+Below the middle narrows toward mono -- which is what a single PA cluster is. Above it widens.
+Binaural
+Birth, drift and fade rate, 0.1-3 (supports + - * / and ())
+BITRATE
+bits
+black point
+bleed
+BLEND PAIR: expected <other output number> <overlap in pixels>
+Blobs
+Block displacement and channel tearing, 0-1 (supports + - * / and ())
+block glitch
+block size
+blocks
+Blueshift toward the direction of travel and redshift at the rim. Zero leaves the colour alone and it reads as a lens instead.
+blur
+bohlen-pierce
+BOTH
+bright
+Bright: bright things drip over the dark, as text and logos do. Whole picture: everything is wax, and the picture itself runs down in its own colours.
+brightness moves the playhead (needs CPU frames)
+BROWSER CLICK: this browser backend cannot drive the page
+browser connections at once, 1-64 (default 8)
+BROWSER INTERACT: this browser backend has no hands-on mode
+BROWSER KEY: expected Enter|Tab|Backspace|Escape
+Browser Ready
+BROWSER SCROLL: expected pixels (negative is up)
+BROWSER SCROLL: this browser backend cannot drive the page
+BROWSER SCROLLBAR: this browser backend cannot drive the page
+BROWSER TYPE: this browser backend cannot type
+Brush opacity
+Brush size
+BUGSWAT: expected START, SHOWME, SKIP, PLAY, EXIT or STATUS
+built without ASIO support
+built without NDI SDK headers
+buzzer
+by brightness
+can't move the active cue -- take another cue on this deck first
+cancelled
+cancelled: the waiting cue is no longer in the playlist
+cannot read the file: if it lives in OneDrive or iCloud, open it once so it downloads, then import it
+Canvas Height
+Canvas View
+Canvas Width
+CAPTIONS LIVE: expected ON, OFF, STATUS or TEXT
+CAPTIONS SOURCE: expected INPUT, DECK <n> or OUTPUT <n>
+catch
+caustics
+Centre is a straight line. Up bends it into an S -- darker shadows, brighter highlights, more contrast. Down flattens it.
+Centre X
+Centre Y
+centred and full-frame - moves when the picture does
+channel count must be at least 1
+channel skew
+channel spread
+character
+Characters across. Fewer means bigger cells and less of the picture surviving, which is usually the point.
+Characters to build the picture from, darkest first. Empty uses the chosen glyph set.
+CHIP DUTY: this cue is an FDS synth, which has no duty
+CHIP ENV: expected <attack> <release> in seconds
+CHIP NOISE: this cue is an FDS synth, which has no noise
+CHIP VOICE: this cue is an FDS synth, which has no voice
+chladni
+Chladni listens: the figure follows the pitch of the sound
+chop
+CLASSIC
+click anywhere on any screen to take its colour. Esc cancels
+click program or preview monitor to sample key color
+CLOCK
+coherence
+colour bleed
+colour drift
+Colour is recorded at a fraction of the detail: it smears sideways, lands late and its hue wanders.
+colour lag
+colour replace
+Colour steps, 2-8 (supports + - * / and ())
+columns
+comma outside a function call
+Companion/OSC Port
+control 1
+control 2
+control 3
+control 4
+Control change
+convergence
+copies
+Copies of copies: none at the left, four at the right. Each one loses more.
+corrupt
+corruption
+could not create an OpenGL context for Spout receive
+could not create the offscreen window Spout receive needs
+could not get a device context for Spout receive
+could not reach github
+could not read the PDF
+could not start ffmpeg
+could not start the PDF renderer
+could not write the export script
+couldn't decode still image — unsupported format or corrupt file
+couldn't open a browser -- please report at github.com/Utopian-Academy/Deckboy/issues
+couldn't open explorer
+couldn't open file manager
+couldn't open finder
+coupling
+CRT
+crystallise
+Cue Goto
+Cue name (blank restores the file name)
+Cue Notes
+curl detail
+curves
+Custom Glyphs
+Custom Output Raster
+cut bright
+cut dark
+cut reset
+cutoff
+cuts
+cyan
+damage
+damping
+dark
+Darkens the boundaries where crystals meet.
+darkness
+DASH SET: <n> <label> | <command> [| <glyph>]
+DASH SET: needs a command -- DASH SET <n> <label> | <command> [| <glyph>]
+DASH: LIST | <n> | SET <n> <label> | <command> | CLEAR <n>
+databend
+datamosh
+DATAMOSH on - preparing (long clip, watch Encoder tab)
+dBFS, -60 to 0 (-18 is EBU alignment) (supports + - * / and ())
+deck age
+DECKLINK: no DeckLink driver on this computer (Blackmagic Desktop Video)
+DECODE --.-
+DECODE OFF
+DECODE WARM
+Default Cue Fade
+Default Non-Movie Duration
+Degrees -180..180 (supports + - * / and ())
+Degrees per second, -720 to 720 (supports + - * / and ())
+Degrees round the colour wheel, 0-360 (supports + - * / and ())
+Degrees, -360 to 360 (supports + - * / and ())
+Degrees, 0-360 (supports + - * / and ())
+Density
+depth
+depth split
+Destination Address
+Destination UDP port
+Detail
+Devamp
+diamond
+did not finish in 3 minutes. It may be waiting on a prompt it cannot show (Protected View, sign-in, a repair). Open the deck there once, or export it as a PDF and import that
+display native
+Display none
+distance
+DMX Channels
+DMXCUE FIXTURE: expected <name> <level%>|LEAVE [<colour>]
+DMXCUE LEVELS: nothing has been sent on that universe
+DMXCUE LFO: expected <name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]
+DMXCUE SET: expected channel=level pairs, e.g. 1=255,10-14=64
+DMXCUE: expected NEW, SET, FADE, UNIVERSE, HOST, PORT, FIRE or BLACKOUT
+doppler
+dots move
+Down, % of the height, -100 to 100 (supports + - * / and ())
+downloading the caption model, then listening...
+drag the panels to arrange the presenter screen
+Draw colour
+DRAW COLOUR: #rrggbb, #rrggbbaa, a name, or 1-8 for the palette
+DRAW SIZE: 0.1-20 (% of the picture's height)
+DRAW STROKE: each point is x,y or x,y,pressure, in percent
+DRAW TOOL: brush, erase, line, box, oval or fill
+drift
+drip
+drips
+drive
+driver refused to start
+driver reports no output channels
+driver would not create output buffers
+driver would not load (in use by another application?)
+driver would not report a buffer size
+driver would not report channel info
+dye advect
+e.g. /cue/1/start
+e.g. /stage/doors -- sent to Deckboy's OSC port; empty for none
+e.g. 12.5
+e.g. 192.168.1.50
+e.g. 1=255, 10-14=64
+e.g. 20:0 or client name
+e.g. 90 3C 7F
+edge ignite
+Edge out (+) or in (-), % of the height, -25 to 25 (supports + - * / and ())
+Edge softness, % of the height, 0 to 25 (supports + - * / and ())
+edges
+EDIT is off - press EDIT to type into the tracker
+empty
+empty expression
+encoder destination: _converted beside the show
+ENDACTION: expected INHERIT, STOP, LOOP, HOLD or NEXT
+ENDACTION: only video and audio cues have an end action
+Enter playlist SMPTE FPS: 24 / 25 / 29.97 / 30
+esc: control window - again to clear output
+escaped to windowed
+expected one expression, three for colour, or four with alpha
+expected waveform|scope|lissajous|spectrum|level|cover
+export as .png or .svg
+extended
+EXTREME
+facet light
+FADE CURVE: expected linear, ease-in, ease-out or s-curve
+FADE TO: a speed from 0.25 to 4 (0.5 is half speed, an octave down)
+FADE WHAT: expected opacity, volume, dimmer, brightness, contrast, saturation, hue, effect, audiofx or speed
+falloff
+falsecolour
+FDS hardware gain range, 0-63 (supports + - * / and ())
+Feature size, 0.1-8 (supports + - * / and ())
+feed rate
+feedback bloom
+Feedback zoom
+ferrofluid
+fetching the speech model - captions start when it arrives
+ffmpeg made no file
+ffmpeg stopped taking frames
+field of view
+Fields per frame, 0-4 (1 = one field per rendered frame) (supports + - * / and ())
+Find Cue
+Find+Take Cue
+Fine sensor noise at the bottom, chunky film at the top.
+Fire at a time of day
+Fire at incoming timecode
+Fire on a MIDI note
+Fire on an OSC address
+Fireside
+First channel (1-512)
+FIXTURE ADD: expected <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]
+Fixture address
+Fixture name
+Fixture universe
+flash length
+flash to
+flicker
+Flip across, upside down or both, or fold one half onto the other: right onto left, left onto right, bottom onto top, top onto bottom, or one corner into all four.
+Flipbook rate
+floor
+Flow
+flow
+flow (follows the picture)
+focus
+fold
+fold point
+follows this cue's own brightness (needs CPU frames)
+forget my defaults? only NEW changes, this show keeps its settings: press again
+format 2 files are a set of independent patterns, not a performance
+four effects at most on one device: remove one first
+frames
+Frames a second, 1 to 60 (supports + - * / and ())
+Frequency
+frequency
+From an even blur to a streak along the angle, like movement.
+full-frame and no picture - bends when the picture shrinks
+fullscreen dropped
+FX ADD: datamosh needs a file-backed video cue
+FX LFO wants <index> <slot> <on|off|shape> [value]
+FX LFO: on, off, shape, rate, depth, zone, channel or cc
+FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR
+gap
+gather
+GEOLFO: x, y, width, height, rotation, cropleft, cropright, croptop or cropbottom
+Glitch
+glow
+glyph set
+gong
+GOTO Cue
+grain
+grain flow
+grain size
+Grain size: one pixel at the left, big blocky grains at the right.
+green split
+Grey
+grid
+group presets became master cues: use MASTER
+growl
+Grows or shrinks the echo each pass. Centre holds still.
+growth
+head wear
+heat
+Height
+Height (px)
+Hertz, 20-20000 (supports + - * / and ())
+HH:MM or HH:MM:SS on this computer's clock; empty for none
+hh:mm:ss or seconds
+HH:MM:SS:FF of the timecode Deckboy is chasing; empty for none
+highlight roll
+histogram
+horizontal
+Horizontal cells, 64-960 (supports + - * / and ())
+How abruptly it arrives. Low is a soft cloud, high is a hard porthole.
+How big a blob grows, 0-1 (supports + - * / and ())
+How big each tile is.
+How big the crystals grow before they meet.
+How big the room is. Small is a booth, large is a hall.
+How big the shards are. Small is frosted glass, large is a dropped plate.
+How bright a pixel has to be before it lifts at all, so only the highlights spike.
+How bright a pixel has to be to join a run. Lower catches more of the picture and the runs grow longer.
+How closely spaced the rings are.
+How dark the dark lines go. All the way up is black between lines.
+How deep the picture is treated as being. The brightness becomes height and is lit from the side.
+How faint a gradient still registers. High turns the quietest shading into visible structure.
+How far a band can slide.
+How far away. Distance dulls the top and softens the difference between the ears.
+How far back each skip jumps, from a stutter to half a second.
+How far back the chain listens. The picture is played through a delay, so this is the distance the damage is dragged across.
+How far each shard slides from where it belongs.
+How far each stroke is dragged along the grain.
+How far it smears: up to a few percent of the picture.
+How far out the darkening starts.
+How far the bright parts pull away from the surface.
+How far the burn spreads off the edge, and how hot its colour runs.
+How far the colour turns on each trip round the loop. This is the oil-slick: the trail walks through the spectrum instead of fading.
+How far the glow spreads.
+How far the picture stands out. Bright parts come forward, dark parts stay back. At the left it is flat.
+How far the picture swings the filter. The cue's own brightness opens and closes it, so a cut to black takes the top off the sound.
+How far the sound throws each line sideways.
+How far the top comes down as the end approaches. This is not a fade: the level is left alone.
+How far the two eyes disagree. Brightness is read as nearness.
+How fast it closes. Slow enough not to chop the ends off words.
+How fast it settles away while held. At zero it holds indefinitely, which is what room tone under a held title wants.
+How fast the drips run. At the left the picture only sags.
+How fast the light walks around it. Zero holds it still.
+How fast the open slit crosses the picture. Slow smears a long moment across the frame.
+How fast the sand travels to the still lines.
+How fast the surface moves.
+How fast the wave travels. Faster spreads further in the same time and interferes more.
+How fast they travel outward.
+How fast what has dripped hardens away. At the left the drips stay until the cue changes.
+How fine the water is. Long ocean swell at one end, rain on a puddle at the other.
+How gently the change fades out at the edges of the band.
+How gradually the key cuts in. Hard at the left.
+How hard it cuts, %, 0 to 100 (supports + - * / and ())
+How hard it holds once it is working. Gentle at the bottom, a limiter at the top.
+How hard it is driven into its own limits.
+How hard the audio drives it, 0-1 (supports + - * / and ())
+How hard the light gathers where the rays converge. This is the part that makes it read as water rather than as a wobble.
+How hard the moving parts throw sand. More shake clears the plate faster and makes the lines thinner.
+How hard the short hits.
+How irregular the growth is. Low gives an even honeycomb, high gives long shards.
+How long a grain is, in VIDEO FRAMES. On a 23.976 clip one frame is 41.7ms, which is not a musical value and is exactly the point.
+How long a short stays closed, in VIDEO FRAMES.
+How long before the end it starts. The cue has to have a known length -- an open-ended one has no end to resolve into.
+How long it is allowed to run. More steps means the ripples have crossed and reflected more times.
+How long the old waves linger when the note changes. Left: they die at once. Right: they slosh for a while.
+How long the reaction runs each frame. Short is a stain, long is an organism.
+How many are alive at once, 3-48 (supports + - * / and ())
+How many places drip: a few big drips at the left, many thin ones at the right.
+How many shades survive the quantise.
+How many spikes the field breaks into.
+How many times a skip repeats before the sound catches up again.
+How many torn bands per frame.
+How much each facet catches the light, which is what makes them read as faceted rather than as flat blobs.
+How much each shard turns on its own centre.
+How much its SIZE becomes distance. Shrink the picture and the sound goes away from you: the top comes off, the image narrows, the level drops.
+How much of each frame feeds the next, 0-0.95 (supports + - * / and ())
+How much of the bent picture goes round again. High is where it stops being an echo and starts eating itself.
+How much of the driver's movement the picture KEEPS. At zero it follows the driver frame by frame, which is a twitch. Wind it up and the motion accumulates, so the driver sculpts the picture over time and it holds the pose -- which is what puppetry means.
+How much of the picture glows: only the brightest at the left, nearly everything at the right.
+How much of the picture shows behind the lines. None at the left: lines on black.
+How much of the picture's position on the output is used. A PIP on the left sounds on the left -- and it is a placement, not a pan: the far ear gets the delay and the head shadow too.
+How much of the push goes downward rather than sideways.
+How much of the tail is kept going while the cue is held. Long enough to hide the splice in room tone, short enough not to smear a rhythm in it.
+How much room comes up under it, so the sound settles into the cut instead of being severed.
+How much the echo is distorted each pass. It compounds, so a little ripples and a lot melts the picture into itself.
+How much the edges are lifted.
+How much the flame gutters frame to frame.
+How much the material draws in towards each drip, so it runs as a thin neck with a heavier head.
+How often it skips.
+How often its settings are corrupted. Corrupted far enough it oscillates on its own -- loud, but it cannot run away.
+How quickly the loop relaxes when nothing feeds it.
+How quickly the picture springs back to rest once the driver stops pushing it. Only does anything when memory is up.
+How quickly the room eats the top end. More damping is a softer, more furnished space.
+How readily an edge catches. Low sets the whole picture alight, high only the hardest lines.
+How readily neighbours merge, 0 (never) to 1 (supports + - * / and ())
+How small a cut sets it off. With no picture it runs on a timer instead, and this is how often.
+How strongly the finished picture pushes the bend. Pair it with a picture effect whose LFO is set to Audio and the two drive each other.
+How strongly the outlines are drawn.
+How strongly the water bends the picture.
+How wide a band of colours either side of it changes too.
+How wide a view is being compressed. Narrow is a punch down the middle, wide folds the whole frame into the centre.
+hue turn
+Hz or AUTO (e.g. 60 or 59.94)
+ice
+In time
+ink
+INPUTMONITOR: a row count, OPEN, CLOSE, CLEAR, PAUSE or RESUME
+interference
+Internal resolution, 1 (chunky) to 5 (fine) (supports + - * / and ())
+IPv4 addresses or a.b.c.d/bits, comma separated; empty = only this computer
+Iris
+irregularity
+it could not be started
+Its name, number or id
+jump
+just
+kaleido
+kaleidoscope
+kbps (32-512; 160 is a sane default)
+kbps (500-50000)
+Key Color
+Key sender source name
+key+fill ON, but no key device set (DECKLINK KEYFILL ON <device>)
+Keyframe interval
+Keynote could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)
+knee
+knife angle
+label | command | glyph      (empty label|command removes it)
+leak
+Leave empty to follow the live cue notes
+Legacy Cue Link
+let go
+LFO: density, speed, warp, turn, centrex, centrey, grey or hue
+LibreOffice could not be run
+LibreOffice produced no PDF
+libX11 is not installed
+lift
+Lift or cut, 12dB either way. The centre is flat, so a band that has just been added does nothing until this is moved.
+Lifts the dark tones without moving pure black.
+light
+light angle
+Light on the drips, as on something wet: a gloss where it faces the light, darker where it curls away.
+lightspeed
+line colour
+line glow
+Line pitch in pixels, so this reads at 4K as well as at 720.
+lissajous
+Lissajous (L/R phase)
+Live Browser
+live captions are not installed here (deckboy-listen was not found)
+Live Source
+LOAD NEXT
+lost the session bus
+Lower Third - subtitle
+Lower Third - title
+Lower Third added - put its playlist on a layer
+Lower Third Subtext
+Lower Third Title
+LOWERANIM: this cue is not a Lower Third
+LOWERSTYLE: expected none, fade, rise, slide, wipe or NEXT
+LOWERSTYLE: this cue is not a Lower Third
+luma displace
+luma key
+macOS could not read the PDF
+make a step first: a section starts at a step
+MASK ASSIGN: expected <id|NONE> CUE | LAYER <output> <playlist> | OUTPUT <n> | MATTE <n>
+MASK ASSIGN: expected CUE, LAYER, OUTPUT or MATTE
+MASK EXPORT: expected <id> <file.png|file.svg> [WxH]
+MASK LFO: expected <id> <param> ON|OFF [rate Hz] [depth %]
+Mask opacity
+MASK PATH: a path needs at least three points
+Mask rotation
+Mask scale
+MASK SET: expected INVERT, X, Y, SCALE, ROTATION, FEATHER, GROW or OPACITY and a number
+MASK SHAPE: expected a shape (MASK SHAPES lists them)
+Mask X
+Mask Y
+MASTER DECK: expected a deck number and a cue number
+Master oscillator rate, 0.01-8 (supports + - * / and ())
+material
+MATRIX SET: expected <source 1-2> <dest> <0-100>
+MATRIX SET: level is a percent from 0 to 100
+MATRIX: expected SET <src> <dest> <0-100>, SEED or CLEAR
+meantone
+Media
+Melt
+melt
+Memo
+memory
+MESH: expected on|off|toggle|height|tilt|yaw|spin|grid
+Mic
+MIC INPUT: expected SETTINGS, TEST or a device name (MIC LIST)
+mic live on the default speakers - watch for feedback
+MIC: expected ADD, LIST, INPUT, CHANNEL or GAIN
+MIC: select a mic cue first (MIC ADD makes one)
+MIDICUE KIND: expected note-on, note-off, cc, program, msc-go, msc-stop, msc-resume or raw
+MIDICUE: expected NEW, PORTS, PORT, KIND, CH, D1, D2, DEVICE, CUENUM, LIST, RAW or SEND
+MIDIFILE: expected PORT, or no argument to report it
+MIDIFILE: the selected cue is not a midi file cue
+MIDIIN OSC: an address, and optionally a number
+MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> or OSC <address> [<n>], then CH <1-16> if not channel 1
+MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET or FEEDBACK
+MIDIMAP: that command is only accepted from this computer
+midtones
+milliseconds (20-8000; ~4x your RTT)
+milliseconds (40..2000)
+Milliseconds 0-5000
+Mod depth
+Mod ratio
+Modulator as a ratio of the note, 0.05-16 (supports + - * / and ())
+Moire
+moire
+MONITOR DECK: expected a playlist number or FOLLOW
+MONITOR ROOM: expected a playlist and ON or OFF
+mono
+MONO L
+MONO R
+mosaic
+motion mosh
+motion on: the camera is read, never recorded
+motion puppet
+motion trails
+MOTION ZONE ADD: the zone must fit inside the picture
+Moves the direction of travel off the centre of frame, so the picture rushes past rather than straight at you.
+MSC Cue Number
+Multicast group (e.g. 239.20.10.1)
+MULTIVIEW LAYOUT: expected GRID, BIG, BIGTOP or TWOTOP
+MULTIVIEW WINDOW <n>: expected a source, or SAFE/METER/LABEL ON|OFF
+MULTIVIEW WINDOW REMOVE: expected a window number
+MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK or EMPTY
+music & sparkle
+my defaults forgotten: NEW starts from factory settings, this show is unchanged
+N=new  Enter/P=previous  O=open saved  E=examples  L=learn  1-
+Name visible to receivers
+NDI Key Name
+NDI Name
+NDI Source Name
+NDI source name (e.g. LAPTOP (source 1))
+ndi tally trigger on -- program tally takes the cue
+neon
+NETCUE ADDRESS: an OSC address must start with /
+NETCUE ADDRESS: expected an OSC path starting with /
+NETCUE: expected NEW, PROTO, HOST, PORT, ADDRESS, PAYLOAD or SEND
+NETCUE: the selected cue is not a network cue
+network sharing and phone control require an 8+ character passphrase
+new show disarms all outputs: press new again
+NEWSHOW: something is live or unsaved -- send NEWSHOW again within 2.5 s
+NEXT
+NIC address or name; empty = the default route
+NIC name reported in interface_bindings (e.g. eth0)
+night eyes
+NMC Port
+NMC Source
+NMC Target
+NMOS Interface Name
+NMOS Node Port
+NMOS Registry
+NMOS: discovery needs the remote network allowed
+nmos: network is LOCAL ONLY - not registering
+NMOS: NOT registering - network is LOCAL ONLY (turn REMOTE ON to publish)
+NMOS: searching for a registry (mDNS)
+no ASIO in this build
+no colour
+no driver named
+no filled shapes in it (paths, rectangles, circles, ellipses or polygons)
+no mask made
+no masks yet: make one in a cue's MASK section
+no OpenGL pixel format available for Spout receive
+no pages could be rendered
+no picture - shorts run on a timer instead of on cuts
+no picture on this cue - nothing decides where the playhead is
+no picture on this cue - nothing to close the loop through
+no picture on this cue - nothing to follow
+no release found
+no video clock on this cue - nothing to lock to
+no X display to read
+noise
+normalize all: no file-backed audio in this deck
+normalize: selection has no file-backed audio
+not a MIDI file (no MThd header)
+not connected
+not on this output
+not while a cue is playing
+Note
+Note off
+Note on
+notestep: this cue's notes have no builds (separate them with a line of ---)
+nothing drawn
+nothing to mask here: select a cue, or change MASK ON
+off-axis
+offline
+offset in percent of the picture
+on the dashboard - Ctrl+D or the DASH button
+One knob for the whole balance: below the middle is darker, above it is brighter.
+One LED tile's height in pixels, 8-8192 (supports + - * / and ())
+One LED tile's width in pixels, 8-8192 (supports + - * / and ())
+only a background in it
+only a MIDI note or an OSC address can take a cue
+Only accept transport from this sender (blank = anyone)
+opened github.com in your browser -- nothing is sent until you submit the report there
+opened in explorer
+opened in file manager
+orbit speed
+Original: the picture pulled onto the figure. Sand: the picture as grains that are thrown off the moving parts and pour into each new figure. Fluid: the picture under water on the plate, bent and lit by its standing waves.
+OSC Address
+OSC Feedback Mirror Rate
+OSC Query HTTP Port
+Ouroboros
+Out time
+OUTPROBE: expected <output> <x 0-1> <y 0-1>
+OUTPROBE: that output has no compositor (is it on?)
+OUTPUT --.-
+Output Alpha
+OUTPUT AOI: expected a size like 256x256, or FULL
+Output Canvas
+Output Delay
+output effects bypassed: no effect and no limit on this device
+output fault
+OUTPUT HDR WHITE: expected 80..500 nits (203 is BT.2408)
+OUTPUT HDR: expected ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> or STATUS
+Output height in px - math ok: 1080x2, 2160/2, 540+30
+Output name
+output recover failed: fullscreen unavailable
+Output Refresh
+OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <sender name>
+OUTPUT TESTCARD: ON | OFF | TOGGLE | ALL [ON|OFF]
+OUTPUT WARM
+Output width in px - math ok: 1920x2, 3840/2, 960+64
+OUTPUTFX ADD: expected hpf, lpf, tilt, comp or width
+OUTPUTFX ADD: four effects at most on one device
+OUTPUTFX SET: expected an effect number and 0-100
+OUTPUTFX: expected ADD, SET, REMOVE, BYPASS, CLEAR or DEVICE
+OUTPUTS ADD: expected <name> CH <n> or CH <n>-<n+1>
+over 16 MB: not a drawing to make a mask from
+overflow
+own playlist
+Page Down / Page Up step the focused playlist
+pair with a picture effect whose LFO is set to Audio
+paired phones removed: they need the QR code or the passphrase again
+Palette turn, 0-1 (supports + - * / and ())
+parade
+parallax
+Paste the key from your platform
+paste your stream key here
+PATCH: a level is dB from -48 to +6, or OFF
+PATCH: expected <deck> <output> <dB> or OFF
+Payload
+pdftoppm produced no pages
+Per-frame zoom of the feedback path, 0.90-1.15 (supports + - * / and ())
+Percent 0-100
+phone
+phone control requires an 8+ character passphrase
+PHONE LEVEL: removed -- a paired phone or the passphrase can do everything; BLACKOUT and RECORD are hold-to-fire on the phone
+PHONE: ON | OFF | STATUS | HAPTICS ON|OFF | PAIR [ANYWHERE] | FORGET
+phones need THE NETWORK: set 'Who can see it' first
+Phrases
+pinch
+ping-pong
+pink noise
+PIP Target Cue
+PIP: retired -- scale a second deck over this one instead
+pip: retired -- scale a second deck over this one instead
+pitch
+Pitch in hertz, 20-8000 (supports + - * / and ())
+pivot
+Pixel density
+pixel sort
+Pixel sort amount, 0-1 (supports + - * / and ())
+pixels (of the output raster)
+Pixels (supports + - * / and ())
+Pixels, 64-2160 (supports + - * / and ())
+Pixels, 64-3840 (supports + - * / and ())
+plasma
+Playlist Start TC
+Playlist Timebase
+Plugin
+polar warp
+pop
+port number (default 5510)
+port number (default 5511)
+port number (default 6454)
+port number (default 8090)
+port number (vMix uses 8088)
+port number (vMix uses 8099)
+Port the Node + Connection API serve on
+Portal
+PORTS: expected an http port and a tcp port
+position on the output raster, in pixels
+posterise
+PowerPoint could not export this file
+PowerPoint could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)
+PowerPoint could not open the file (it gave up waiting for it). If it is in OneDrive, right-click it and choose Always keep on this device, then import it again
+Practice show
+Prefix (optional). Example: Q
+Prefix and optional start (example: Q 100)
+PRELOAD: expected a position in seconds, OFF or STATUS
+presenter colour: expected BG|INK|ACCENT #rrggbb
+presenter panel: expected <live|prev|next|notes> <x> <y> <w> <h> in percent
+presenter panel: the panel must fit on the screen (x+w and y+h no more than 100)
+preset: delivery | proxy | match | datamosh
+PRESET: expected LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME or DELETE
+PREVIOUS
+Program change
+programme sound is always included; use WEBMONITOR OFF to stop the monitor
+Prompter script
+PROXY 720p
+Pulls the bright tones down without moving pure white, so a hot highlight rolls off instead of clipping.
+pulse 25%
+purkinje
+Pushes the rings in or out of the centre.
+pythagorean
+QUALITY
+radial zoom
+radio
+radius
+ramp
+range
+ratio
+Raw bytes
+Raw MIDI Bytes
+reach
+reaction bloom
+recordings
+recordings remux to MP4 when the take stops
+recovering
+rectc: expected <hh:mm:ss:ff|timeofday> [df|ndf|auto]
+refresh
+Registry URL (e.g. http://192.168.1.50:8010) - blank for mDNS
+Release
+release
+release has no build for this platform
+relief
+relight
+Rename cue
+Rename fixture
+Renumber Cues
+repeat width
+Replay hold
+resonance
+Retrigger
+revealed in finder
+reverse
+rgb split
+Rim
+rings
+ripple
+rising
+rod bias
+room
+rot
+Rotates the reading, so straight lines wind into spirals rather than rings.
+Rotation
+rotation
+round
+Rounds the tiles off, all the way to dots.
+Routing hint for the receiver
+Rows lose sync and repeat one character, the way a real text screen breaks up. At 0 the grid is clean.
+runtime unavailable
+sag
+save failed - retrying; still open, use SAVE AS if needed
+Save Warp Preset
+saved as my defaults: NEW starts like this show, without the cues
+saw
+Scale of the whole graphic, 0.5-2 (supports + - * / and ())
+SCALEMODE: expected fit|fill|stretch|unscaled
+scanlines
+Scanlines, bloom and gun misalignment, 0-1 (supports + - * / and ())
+schlieren
+scope
+SCOPES
+SCOPES BIG: expected waveform, parade, vector, diamond, histogram, falsecolour, sound or off
+SCOPES SOURCE: expected PROGRAMME or an output number, 1-
+SCOPES: expected PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS or SOUND
+SCRIPTCUE: the selected cue is not a script cue
+Scrub
+second mode
+Seconds (0-30)
+seconds (1-10; most platforms want 2)
+Seconds before it leaves by itself; 0 waits for OUT (supports + - * / and ())
+Seconds between retriggers, 0-8 (supports + - * / and ())
+Seconds for new image/pattern/browser/Lower Third cues (0 = hold)
+Seconds for new-cue fade in/out defaults
+Seconds the finished drawing stays, 0 to 60 (supports + - * / and ())
+Seconds the in move takes, 0-5 (supports + - * / and ())
+Seconds the out move takes, 0-5 (supports + - * / and ())
+seconds this step holds before PLAY moves on
+Seconds, 0-4 (supports + - * / and ())
+Seconds, 0-8 (supports + - * / and ())
+SECTION: expected playback|metadata|geometry|key|audio|effects|timer|tone|synth
+see through
+seed density
+select a Draw cue first (SOURCE > MADE BY DECKBOY > Draw)
+self
+Sender source name
+set an 8+ character Web Monitor passphrase first
+settle
+shadow lift
+shake
+shard size
+sharpen
+sheen
+sideways
+sine
+size out of range
+Size, %, 5 to 400 (supports + - * / and ())
+SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, LINEAR, PERSPECTIVE or NAME
+SLICE ADD: already 16 slices on this output
+SLICE CORNER: TL, TR, BR or BL, then dx dy in percent of the output
+SLICE EDGE: L, R, T or B, then 0-50 (% of the slice)
+SLICE GRID POINT: col row (from 1, on a grid that is on) then dx dy in percent
+SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF, or POINT col row dx dy
+SLICE LFO: X, Y, ROTATION or OPACITY, then ON, OFF, SHAPE, RATE, DEPTH...
+SLICE ROTATE: IN (the crop) or OUT (the placed picture), then degrees
+slit scan
+slit width
+Smear
+smear
+SMPTE hh:mm:ss:ff or seconds (blank = 00:00:00:00)
+Softens the fold so it ramps instead of creasing.
+softness
+solarise
+something mellow appeared in SOURCE > MADE BY DECKBOY
+Something near the deck: a phone's buzz, a light dimmer's herringbone, a radio's slow bars.
+Sorts the runs the other way, so they pour from light to dark.
+sound scopes: integrated loudness and true peak start again
+SOURCE CAMERA: name the device
+Source Ready
+SOURCE WINDOW: name the window, e.g. title:Firefox (or "desktop")
+Space under it, as a fraction of the frame, 0-0.8 (supports + - * / and ())
+spike count
+spike length
+spin
+spinning
+Spiral size, 0.25-4 (supports + - * / and ())
+Spiral strength, 0-4 (supports + - * / and ())
+splitnotes: that cue's notes have no parts (separate them with a line of ---)
+Spout Sender Name
+spring
+sprite sheet
+Sprite spin
+square
+SRT latency
+SRT passphrase
+SRT stream ID
+srt://127.0.0.1:9000?mode=listener
+ST 2110 Destination
+ST 2110 network interface
+ST 2110 Port
+STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <control> <setting>
+Step length
+steps
+stereogram
+stiffness
+still reading the last folder -- one at a time
+sting
+STING: expected ON, PITCH, LENGTH, SWEEP or BODY
+STING: select a tone cue first (TONECUE makes one)
+STREAM --.-
+STREAM ADD: expected a URL, e.g. srt://host:port
+STREAM ERR
+STREAM OFF
+stream restart needed
+Stream URL
+Stream URL (srt://, rtmp://, rtsp://, udp://, or an http HLS .m3u8)
+STREAM WARM
+stream write failed
+strength
+strobe
+stroke
+SUBTITLE CONVERT: destination must be .srt or .vtt
+SUBTITLE CONVERT: the cue has no caption file
+SUBTLE
+sway
+sweep
+sweep speed
+swell speed
+Switcher IP address
+symbols
+SYNTH: the selected cue is not a video synth
+SYPHON / SPOUT TEXTURE SHARE
+SYPHON TEXTURE SHARE
+system default
+system output
+Takes out everything brighter than this as well. Left takes out nothing.
+Takes out everything darker than this, so what lies beneath shows through. Left takes out nothing.
+tape
+tape age
+Tape speed: SP is the best picture, LP and EP fit more on a tape and lose detail and colour.
+target cue is gone
+TARGET CUE: expected a deck number and a cue number
+Target IP (or 255.255.255.255 to broadcast)
+TARGET VERB: expected start|stop|pause|resume|load|arm|disarm
+targets nothing
+TCCUE: the selected cue is not a timecode cue
+tear width
+temporal dither
+test signal
+text to send
+TEXTCUE ALIGN: expected left, centre or right
+TEXTCUE ANIM: expected none, fade, typewriter, scroll, crawl, pulse or wobble
+TEXTCUE SIZE: expected 1-100 (percent of the raster)
+TEXTCUE: expected NEW, BODY, ANIM, SIZE, SPEED, ALIGN, CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, WIGGLE, IN, OUTMOVE or OUT
+TEXTCUE: the selected cue is not a text cue
+that key drives the desk - use F1-F10, F12 or the number pad
+the background alpha belongs to a Lower Third
+The bright net the waves focus onto the picture.
+The brightness that decides black from white.
+The brightness that stays put. Everything above it reaches one way and everything below it the other.
+the caption model has not been downloaded yet
+The character of the growth: low is waves, then labyrinth, coral, worms, and holes at the top.
+the clicker now spends note builds before advancing
+The colour it becomes. Shading and brightness stay as they were, so a red shirt turns blue and keeps its folds.
+The colour to change, round the wheel from red.
+the desktop portal did not answer
+The distance that sits ON the screen. Either side of it comes forward or falls behind.
+the document has no pages
+the file has no playable events
+the file is empty
+the file is empty (0 bytes): it may not have finished copying or saving
+The frequency it pivots around -- what counts as 'low' and 'high' for the tilt.
+The head drifting off the track: a band of noise rolls through the picture.
+the header is truncated
+the installed NDI runtime is missing entry points this needs
+The level below which the source is closed. Set it under the quietest thing you want to hear.
+The level it starts working at. Lower catches more of the performance.
+the NDI runtime declined to start on this machine
+the NDI runtime is not installed
+the PDF renderer produced no pages
+the playing step was removed - sequence stopped
+The plugin's first four automatable controls, in its own order. Everything else it has keeps whatever the plugin was left set to.
+the screen could not be read there
+the show plays through ASIO
+the time division is not readable
+Thickness of the glowing edge, 0-1 (supports + - * / and ())
+this build has no X11 support
+this cue has no known end to resolve into
+this file is only in OneDrive, and OneDrive is not running. Start OneDrive, or copy the file to this computer, then import it again
+this output's renderer could not cut the mask
+this presentation needs a password to open. Remove the password in PowerPoint (File > Info > Protect Presentation) or export it as a PDF, then import that
+threshold
+throw
+tile size
+tilt
+time
+time cube
+Timecode
+Timer Message
+tint
+tint colour
+Tints the two directions apart, so light bending one way and the other are different colours instead of both being grey.
+TRACKER SET: a step cannot act on its own playlist
+TRACKER: expected GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP or CLICKER
+TRACKER: there are no steps (TRACKER ADD makes one)
+tracking
+trail
+transparent
+triangle
+triple beep
+TSL Tally
+Turbulence, 0 still to 3 boiling (supports + - * / and ())
+Turn
+turn
+Turns the echo each pass, which winds the melt into a spiral.
+Turns the rim's colours round the wheel, 0-1 (supports + - * / and ())
+Turns the strokes across the grain instead of along it, which combs the picture apart rather than smoothing it.
+Turns the whole arrangement, so the fold lines do not sit on the same part of the picture all night.
+TUTORIAL SCREENS: expected a count, MIRRORED or REAL
+TUTORIAL: expected START, SHOWME, SKIP, EXIT, STATUS or SCREENS
+Twist
+twist
+Two is a mirror, twelve is a snowflake, and they are completely different pictures.
+UDP port for transport sync
+unavailable
+unbalanced )
+Universe (0-63999)
+unsaved changes will be lost: press new again
+update: cannot find this app bundle to replace
+update: could not start the install helper
+update: could not start the installer
+update: could not write the install helper
+UPDATE: expected check|download|install|status
+update: not running from an AppImage
+URL or local page path
+vapor
+vector
+vertical
+vertical bias
+vibrato
+Video bitrate
+Video dip fade
+VIDEO OUTPUT ADD: WINDOW | STREAM | MULTIVIEW | PRESENTER | PROMPTER
+VIDEO OUTPUT ASSIGN: already on this output, or no such deck or output
+VIDEO OUTPUT LAYER: expected a layer number (1 is the base)
+VIDEO OUTPUT LAYER: this deck is not on this output, or it is already at that layer
+VIDEO OUTPUT LAYERWARP MODE: linear or perspective
+VIDEO OUTPUT LAYERWARP: expected OFF, MODE, or eight numbers clockwise from the top left
+VIDEO OUTPUT UNASSIGN: this deck is not on this output, or it is the only thing on it
+vignette
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS
+vMix HTTP Port
+vMix TCP Port
+WARP AT: open the editor (WARP EDIT) and select a point first
+warp grid: expected <n>, <cols> <rows>, off, smooth or straight
+warp point: that is a corner -- move it with WARP <corner> dx dy
+WARP SELECT: expected TL, TR, BR, BL or a grid <col> <row>
+wash out
+wave height
+wavefront
+way
+web audio encoder cannot keep up
+Web Monitor Connections
+Web Monitor PIN
+Web Monitor Port
+WEBMONITOR PIN: network sharing and phone control require 8 or more characters
+WEBMONITOR QR: needs the monitor on and shared on the network
+WEBMONITOR SOURCE: could not create the web output
+WEBMONITOR SOURCE: PROGRAMME or the number of an output that shows a picture
+WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (sound is included)
+wedges
+What it runs
+what the operator should be told when GO reaches here
+what the patch and the cues call it (FOH, SUB, PRESS FEED)
+Where highlights fold back through black. Low folds most of the picture, high folds only the brightest.
+Where the band sits, 30Hz to 16kHz across the travel.
+Where the eye sits, 0 left to 1 right (supports + - * / and ())
+Where the eye sits, 0 top to 1 bottom (supports + - * / and ())
+Where the filter sits.
+Where the fold sits: the middle at the left, toward the far edge to the right. Flips have no fold.
+Where the light stands, in degrees around the frame.
+Where the source sits around the listener, all the way round. For headphones -- it is a timing and shading trick, not a pan.
+Where the top ends, 200Hz to 20kHz. Pull it down to take the harshness off a bright source.
+Where to send transport (blank = broadcast)
+Which channel the curve acts on: all three, then red, green or blue on its own -- the way a colourist warms or cools one end of the picture.
+Which cue
+Which switcher input Deckboy is (0 = not set)
+Which way it drips.
+Which way the knife edge lies. Only gradients ACROSS the edge show, so turning it swaps which features appear and which vanish.
+Which way the streak runs: across at the left, upright in the middle, across again at the right.
+white
+white noise
+white point
+Widens the decision into a ramp, so edges keep their shape instead of jagging.
+WIDTHxHEIGHT (e.g. 2560x1080)
+WIDTHxHEIGHT (e.g. 5760x2160)
+window capture fell back to screen grab — update ffmpeg for exact window capture
+window hidden
+window minimized
+wire
+Words to surface in the field, separated by | . One shows at a time, moving on the hold clock.
+wrong display
+X,Y offset in pixels
+Zero is one noise value across all three channels, which reads as film. Higher gives each channel its own, which reads as video.
+zones cleared: Motion reads the whole picture
+Zoom
+zoom

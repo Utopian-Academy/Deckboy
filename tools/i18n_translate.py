@@ -140,6 +140,10 @@ def candidate_keys(args):
         keys.update(audit_i18n.drawn_strings())
         for s, where in audit_i18n.option_labels().items():
             keys.setdefault(s, where)
+        # Text that reaches the screen through a variable: label tables, error
+        # messages, numeric-parameter specs.
+        for s, where in audit_i18n.variable_strings().items():
+            keys.setdefault(s, where)
     if args.misses:
         cat, _ = catalogue("bg")
         have = {k.lower() for k in cat}
@@ -161,7 +165,11 @@ def staged_filter(keys):
                           capture_output=True, text=True, encoding="utf-8", errors="replace").stdout
     added = "\n".join(l[1:] for l in diff.splitlines() if l.startswith("+") and not l.startswith("+++"))
     added = re.sub(r'"\s+"', "", added)
-    return {k: v for k, v in keys.items() if '"' + k.replace("\\", "\\\\").replace('"', '\\"') + '"' in added}
+    def written(k):
+        # A joined string (a hint and the suffix the editor adds) is staged by the literal in the source.
+        k = audit_i18n.JOINED.get(k, k)
+        return '"' + k.replace("\\", "\\\\").replace('"', '\\"') + '"' in added
+    return {k: v for k, v in keys.items() if written(k)}
 
 
 def missing_for(code, keys, keep):
