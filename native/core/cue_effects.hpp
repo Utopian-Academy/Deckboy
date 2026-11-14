@@ -38,6 +38,7 @@
 #include <condition_variable>
 #include <mutex>
 #include <thread>
+#include <memory>
 #include <vector>
 
 #include "../engine/motion_field.hpp"
@@ -1856,6 +1857,42 @@ class RowPool {
 // The bands run on RowPool's kept threads. The size gate keeps the hand-off
 // from dominating tiny frames; with no threads to start it is far cheaper
 // than it was, so the gate is lower than the 120000 pixels it used to be.
+// A COPY OF THE PICTURE an effect reads while it writes over it, in a buffer
+// this thread keeps and lends out: a fresh 8 MB (33 MB at 4K) allocation a
+// frame paid its page faults every time, in fourteen effects. Borrowed from a
+// small per-thread pool and given back when it goes out of scope, so two
+// copies alive at once (an effect inside another) never share a buffer. Read
+// it through data() or [] -- including from the effect workers, which see the
+// lending thread's buffer through the pointer.
+class FrameCopy {
+ public:
+  FrameCopy(const std::vector<std::uint8_t>& from, std::size_t bytes) : buf_(take()) {
+    buf_->assign(from.begin(), from.begin() + static_cast<std::ptrdiff_t>(std::min(bytes, from.size())));
+  }
+  explicit FrameCopy(const std::vector<std::uint8_t>& from) : FrameCopy(from, from.size()) {}
+  FrameCopy(const FrameCopy&) = delete;
+  FrameCopy& operator=(const FrameCopy&) = delete;
+  ~FrameCopy() { pool().push_back(std::move(buf_)); }
+  const std::uint8_t* data() const { return buf_->data(); }
+  std::size_t size() const { return buf_->size(); }
+  const std::uint8_t& operator[](std::size_t i) const { return (*buf_)[i]; }
+
+ private:
+  using Buf = std::unique_ptr<std::vector<std::uint8_t>>;
+  static std::vector<Buf>& pool() {
+    static thread_local std::vector<Buf> free;
+    return free;
+  }
+  static Buf take() {
+    auto& free = pool();
+    if (free.empty()) return std::make_unique<std::vector<std::uint8_t>>();
+    Buf b = std::move(free.back());
+    free.pop_back();
+    return b;
+  }
+  Buf buf_;
+};
+
 // std::lround, exactly (half away from zero), without the library call MSVC
 // makes for it -- two a pixel in the warps. Truncate, then step by the part
 // left over: v - trunc(v) is exact for any |v| an int can hold, which the
@@ -2854,7 +2891,14 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
             foldOntoEnd(rowFrom, h);
             break;
         }
-        const std::vector<std::uint8_t> source(pixels);
+        const detail::FrameCopy source(pixels);
+        // The blend of a byte with its reflection depends on the two bytes
+        // alone: a table of every pair, built once a frame, the same sums.
+        static thread_local std::vector<std::uint8_t> blendTable;
+        blendTable.resize(65536);
+        for (int a = 0; a < 256; ++a)
+          for (int b = 0; b < 256; ++b) blendTable[(static_cast<std::size_t>(a) << 8) | b] = detail::clamp8(a + (b - a) * amt + 0.5);
+        const std::uint8_t* blend = blendTable.data();
         detail::parallelRows(h, w, [&](int firstRow, int lastRow) {
           for (int y = firstRow; y < lastRow; ++y) {
             std::uint8_t* p = pixels.data() + static_cast<std::size_t>(y) * w * 4;
@@ -2862,7 +2906,7 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
             for (int x = 0; x < w; ++x, p += 4) {
               const std::uint8_t* q = row + static_cast<std::size_t>(colFrom[x]) * 4;
               for (int k = 0; k < 4; ++k) {
-                p[k] = detail::clamp8(p[k] + (q[k] - p[k]) * amt + 0.5);
+                p[k] = blend[(static_cast<std::size_t>(p[k]) << 8) | q[k]];
               }
             }
           }
@@ -3320,8 +3364,7 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
           // to six times a pixel.
           const int rox = static_cast<int>(std::lround(ox)), roy = static_cast<int>(std::lround(oy));
           const int gox = static_cast<int>(std::lround(oy * pB)), goy = static_cast<int>(std::lround(ox * pB));
-          std::vector<std::uint8_t> source(pixels.begin(),
-                                           pixels.begin() + static_cast<std::ptrdiff_t>(count * 4));
+          const detail::FrameCopy source(pixels, count * 4);
           detail::parallelRows(ctx.height, ctx.width, [&](int firstRow, int lastRow) {
             auto tap = [&](int x, int y, int channel) {
               const int sx = std::clamp(x, 0, ctx.width - 1);
@@ -3407,8 +3450,7 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
           ? static_cast<double>(ctx.height) / mf.sourceHeight : 1.0;
         const double gain = amt * 4.0;   // 1.0 reads as a shove, not a nudge
 
-        std::vector<std::uint8_t> source(pixels.begin(),
-                                         pixels.begin() + static_cast<std::ptrdiff_t>(count * 4));
+        const detail::FrameCopy source(pixels, count * 4);
         // Split across cores: every pixel reads the untouched source copy.
         detail::parallelRows(ctx.height, ctx.width, [&](int firstRow, int lastRow) {
           for (int y = firstRow; y < lastRow; ++y) {
@@ -3794,8 +3836,7 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
           vx[i] = static_cast<float>(vx[i] * stepLen);
           vy[i] = static_cast<float>(vy[i] * stepLen);
         }
-        std::vector<std::uint8_t> source(pixels.begin(),
-                                         pixels.begin() + static_cast<std::ptrdiff_t>(count * 4));
+        const detail::FrameCopy source(pixels, count * 4);
         // Scale factors, not divisions. The inner loop runs once per step per
         // pixel -- eleven million times on a 4K frame at the default detail --
         // and two integer divides in there were most of the cost.
@@ -4427,8 +4468,7 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         // position. This is that knob.
         const double gain = 0.6 + pB * 14.0;
         const double tint = pC;
-        std::vector<std::uint8_t> source(pixels.begin(),
-                                         pixels.begin() + static_cast<std::ptrdiff_t>(count * 4));
+        const detail::FrameCopy source(pixels, count * 4);
         detail::parallelRows(ctx.height, ctx.width, [&](int firstRow, int lastRow) {
           for (int y = firstRow; y < lastRow; ++y) {
             const int ym = std::max(0, y - 1), yp = std::min(ctx.height - 1, y + 1);
@@ -4765,8 +4805,7 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
           sinMu[static_cast<std::size_t>(x)] = std::sin(m * kPi * u);
           sinNu[static_cast<std::size_t>(x)] = std::sin(n * kPi * u);
         }
-        std::vector<std::uint8_t> source(pixels.begin(),
-                                         pixels.begin() + static_cast<std::ptrdiff_t>(count * 4));
+        const detail::FrameCopy source(pixels, count * 4);
         detail::parallelRows(ctx.height, ctx.width, [&](int firstRow, int lastRow) {
           for (int y = firstRow; y < lastRow; ++y) {
             const int yUp = std::max(0, y - 1);
@@ -4917,8 +4956,7 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         const double relief = pD;
         const double gxScale = static_cast<double>(gw) / ctx.width;
         const double gyScale = static_cast<double>(gh) / ctx.height;
-        std::vector<std::uint8_t> source(pixels.begin(),
-                                         pixels.begin() + static_cast<std::ptrdiff_t>(count * 4));
+        const detail::FrameCopy source(pixels, count * 4);
         // The field is read BILINEARLY, not per grid cell.
         //
         // Taking the nearest cell put visible square blocks across the picture
@@ -5009,8 +5047,7 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
             s.speed = static_cast<float>(1.0 - js * wobble * 0.75);
           }
         }
-        std::vector<std::uint8_t> source(pixels.begin(),
-                                         pixels.begin() + static_cast<std::ptrdiff_t>(count * 4));
+        const detail::FrameCopy source(pixels, count * 4);
         detail::parallelRows(ctx.height, ctx.width, [&](int firstRow, int lastRow) {
           for (int y = firstRow; y < lastRow; ++y) {
             std::uint8_t* dst = pixels.data() + static_cast<std::size_t>(y) * ctx.width * 4;
@@ -5191,8 +5228,7 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         const int workW = std::max(64, ctx.width / 3);
         const int workH = std::max(64, ctx.height / 3);
         const std::size_t workCount = static_cast<std::size_t>(workW) * workH;
-        std::vector<std::uint8_t> source(pixels.begin(),
-                                         pixels.begin() + static_cast<std::ptrdiff_t>(count * 4));
+        const detail::FrameCopy source(pixels, count * 4);
         // The working picture, box-averaged down. Averaged rather than
         // point-sampled so the gradients below are of the picture and not of
         // its aliasing.
@@ -5465,7 +5501,7 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         const int spikes = 3 + static_cast<int>(std::lround(pB * 21.0));
         const double floorLuma = pC * 0.9;
         const double turn = ctx.frameIndex * 0.004;
-        const std::vector<std::uint8_t> src(pixels);
+        const detail::FrameCopy src(pixels);
         const double cx = ctx.width * 0.5, cy = ctx.height * 0.5;
         detail::parallelRows(ctx.height, ctx.width, [&](int y0, int y1) {
           for (int y = y0; y < y1; ++y) {
@@ -5522,7 +5558,7 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         const double drift = amt * (0.18 + pB * 0.82) * shard * 1.2;
         const double spin = amt * (0.06 + pC * 0.94) * 0.9;
         const double t = ctx.frameIndex * 0.02;
-        const std::vector<std::uint8_t> src(pixels);
+        const detail::FrameCopy src(pixels);
         detail::parallelRows(ctx.height, ctx.width, [&](int y0, int y1) {
           for (int y = y0; y < y1; ++y) {
             for (int x = 0; x < ctx.width; ++x) {
@@ -5562,7 +5598,7 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         // orange, to white where the edge is hardest. The picture underneath
         // survives, so it reads as the drawing burning rather than as an edge
         // detector with a colour map on it.
-        const std::vector<std::uint8_t> src(pixels);
+        const detail::FrameCopy src(pixels);
         // MEASURED, not guessed. A Sobel over 0-1 luma scaled by 0.25 put an
         // ordinary edge around 0.1-0.3, so a threshold that started at 0.04 and
         // ran to 0.59 never caught anything on real material -- the sweep
@@ -5617,7 +5653,7 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         // normal, and the normal is lit by a lamp that can walk around the
         // frame. Flat areas go mid-grey and detail springs into relief, so a
         // picture becomes an object with a light on it.
-        const std::vector<std::uint8_t> src(pixels);
+        const detail::FrameCopy src(pixels);
         const double relief = 0.5 + pA * 8.0;
         // The lamp always drifts a little; pC is how fast it walks. A zero
         // there used to freeze the effect outright while the header claimed it
@@ -5661,7 +5697,7 @@ inline void applyCueEffectStack(std::vector<std::uint8_t>& pixels,
         // distance sits ON the screen; nearer things come forward and further
         // things fall behind. The slow sway is what sells it without glasses --
         // parallax is a stronger depth cue than the colour split is.
-        const std::vector<std::uint8_t> src(pixels);
+        const detail::FrameCopy src(pixels);
         const double par = amt * (1.0 + pA * 40.0);
         const double conv = pB;
         // Parallax is the depth cue that actually works without glasses, so
