@@ -1546,6 +1546,52 @@ Over the wire: `RECORD [on|off|toggle]`, `RECFORMAT <WxH|program> [fps|program]`
 
 ---
 
+### Render to a file
+
+`MENU > RECORDING > RENDER TO FILE...` makes a file frame by frame. It is not a
+recording. RECORD films the programme as it plays, so a laptop that cannot play
+4K60 live records a 4K60 file that stutters. A render draws each frame when the
+one before it is written. A slow machine takes longer, and the file is still
+perfect.
+
+The dialog asks for five things:
+
+- **What.** This cue; from cue N to M (the playlist in focus); or an output's
+  whole show (every cue of the playlist that output plays).
+- **Size.** 1080p, 4K, or the output's own size.
+- **Frames a second.** 25, 30, 50 or 60.
+- **File.** ProRes 4444 (keeps alpha), H.264 (over black), or PNG frames (a
+  folder of numbered pictures, with alpha).
+- **Where.** CHOOSE... picks the file. Without a choice the name is made from
+  the cue, in the recording folder.
+
+While it runs, the dialog shows `frame 1,368 of 3,600`, the frames a second it
+makes, and the time left. CANCEL RENDER stops it and removes the partial file.
+The show keeps working during a render.
+
+**Why it is exact.** The render owns the show's clock. Frame *n* is *n* divided
+by the rate, whatever the wall clock says. A generated source is built at that
+moment, every LFO reads it, an effect gets that frame's number, and a video
+file is read at exactly the render's rate: ffmpeg waits for the render, so no
+frame is dropped. Nothing touches the live decks. The same render gives the same
+file twice; `tools/check_render_to_file.py` renders twice and compares the
+decoded frames and the bytes.
+
+**Not frame-exact yet.** The dialog refuses these, and says which cue and why:
+live inputs (camera, window, NDI, stream, capture card), browser pages, timers,
+the Terrarium (its simulation keeps its own clock), rotation and the size and
+position oscillators, Text mode, the motion puppet, and Audioprint.
+
+**Not drawn at all.** Sound (the file has no audio track), transitions (cues
+join with a cut), layers, masks and slices. Audio-only cues are skipped.
+A still or a generated cue lasts its still duration; with none set it lasts the
+playlist's default still time.
+
+**Companion and scripts.** `RENDER START <CUE|CUES a-b|OUTPUT> <1080P|4K|OUTPUT>
+<25|30|50|60> <PRORES|H264|PNG> <file>`, `RENDER STATUS`, `RENDER CANCEL` and
+`RENDER DIALOG`. START writes to a path the caller names, so it answers only
+on the local machine.
+
 ## 14. Per-Cue Effects
 
 Each cue carries an ordered **effect stack**, built in the inspector's EFFECTS

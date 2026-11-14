@@ -171,6 +171,10 @@
       }
       return;
     }
+    if (renderDlg_.open) {
+      handleRenderDialogClick(x, y, button);
+      return;
+    }
     if (depPrompt_.active) {
       // Recovery changes which copy the next autosave may replace. Require a
       // button (or Enter/Escape), not an incidental click on the backdrop.

@@ -5766,6 +5766,7 @@ class App {
 #include "app/app_mask_editor.ipp"
 #include "app/app_motion.ipp"
 #include "app/app_draw.ipp"
+#include "app/app_render_file.ipp"
 #include "app/app_slices.ipp"
 #include "app/app_screens.ipp"
 #include "app/app_bugswat.ipp"
@@ -10456,6 +10457,7 @@ class App {
   static constexpr int kSettingsActionTallySwitchOffPick = 752;
   static constexpr int kSettingsActionReportProblem = 753;  // next free: 754
   static constexpr int kSettingsActionAboutVersion = 799;   // the About version line
+  static constexpr int kSettingsActionRenderFile = 60100;   // RECORDING card: RENDER TO FILE...
   // 730/731 are the encoder's -- the audit caught that collision.
   static constexpr int kSettingsActionOutputDisplayFocusBase = 32000;
   static constexpr int kSettingsActionOutputAdvancedToggle = 270;

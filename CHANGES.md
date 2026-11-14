@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Render to a file
+- New: **RENDER TO FILE** (MENU > RECORDING). It makes a file frame by frame: each frame is drawn when the last is written, so a 4K60 file comes out perfect on a laptop that cannot play it live. It is not a screen recording. Choose this cue, cues N to M, or an output's whole show; 1080p, 4K or the output's size; 25, 30, 50 or 60 frames a second; ProRes 4444 with alpha, H.264 or PNG frames. A bar shows `frame 1,368 of 3,600`, the frames a second and the time left.
+- The show's clock steps by exact frames while it renders: generated sources, LFOs, effects and video files all use it, and a video file is read at the render's rate with no dropped frames. The same render gives the same file twice. Not frame-exact yet, so the dialog refuses them and says why: live inputs, browser pages, timers, the Terrarium, rotation and the size and position oscillators, Text mode, the motion puppet and Audioprint. Not drawn: sound, transitions (cuts), layers, masks and slices.
+- Companion: `RENDER START <CUE|CUES a-b|OUTPUT> <1080P|4K|OUTPUT> <25|30|50|60> <PRORES|H264|PNG> <file>`, `RENDER STATUS`, `RENDER CANCEL`, `RENDER DIALOG`.
+
 ### Sources
 - New source: **Lumia**. Laser light through moving water, a prism and a tube of mirrors, like the light-art machines of the 1960s and 70s. Controls in four groups: water (flow, water, ripple size, second jet), prism (lasers, prism, split, focus, shimmer), mirrors (tube, mandala or none; 0 to 12 mirrors, panel angle, top / bottom, spin) and light (lens, glow, brightness, trail). Every number has an LFO, and it can listen to the programme sound. Add it from SOURCE > MADE BY DECKBOY. Companion: `LUMIA`.
 - Lumia is made on the graphics card when every output can draw it there. Tested on Direct3D 11, Direct3D 12 and Vulkan; the Metal (macOS) version is written but not yet run. Only the small trace of light is worked out on the CPU, so a 4K output costs about what a 1080p one does: 1080p 12 ms and 4K 18 ms a frame at most, from 16 ms and 31 ms. A grade, a key or effects on the cue keep it on the CPU, as before. `DECKBOY_CPU_SOURCES=1` keeps every source on the CPU.
