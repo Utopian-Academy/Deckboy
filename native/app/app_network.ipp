@@ -1534,6 +1534,7 @@
     // Reads a file at a path the caller names.
     if (verb == "MASK" && parts.size() > 1 && toUpper(parts[1]) == "IMPORT") return true;
     if (verb == "DRAW" && parts.size() > 1 && toUpper(parts[1]) == "SAVE") return true;
+    if (verb == "RENDER" && parts.size() > 1 && toUpper(parts[1]) == "START") return true;
     // Test input into the Screens window, like CLICK into the desk.
     if (verb == "SCREENS" && parts.size() > 1 &&
         (toUpper(parts[1]) == "CLICK" || toUpper(parts[1]) == "HOVER" || toUpper(parts[1]) == "UP" ||
@@ -3256,7 +3257,7 @@ html,body{width:100%;height:100%;overflow:hidden}
         "ARTNET ARTNETEVENT ARTNETPORT ART_NET_PORT ASCII ATEM ATEMEVENT\n"
         "ATEMTRIGGER AUDIO AUDIOCUE AUDIOENABLED AUDIOFX AUDIOGAIN AUDIOMONO\n"
         "AUDIONORM AUDIOOUTS AUDIOPAN AUDIOVIS AUDIOVISUAL AUTOADVANCE\n"
-        "MASK MOTION BUGSWAT LESSONS DRAW SLICE SLICES SCREENS CLICK HOVER PRESS KEY TYPE TESTTHROW TRUST COMPANIONPASS SCOPES MIDICLOCK OUTSNAP OUTPROBE UISNAP UIASSETS QUICK QUICKLIST DROPTEST\n"
+        "MASK MOTION BUGSWAT LESSONS RENDER DRAW SLICE SLICES SCREENS CLICK HOVER PRESS KEY TYPE TESTTHROW TRUST COMPANIONPASS SCOPES MIDICLOCK OUTSNAP OUTPROBE UISNAP UIASSETS QUICK QUICKLIST DROPTEST\n"
         "MESH MESH3D SEQ\n"
         "OFFSET OFFSETX OFFSETY ROTATION CROP CROPLEFT CROPRIGHT CROPTOP CROPBOTTOM\n"
         "AUTOID AUTONEXT AVJUMP BLACKOUT DEFAULTS NEWSHOW LIMITER OUTPUTFX OUTPUTS PATCH\n"
@@ -3329,6 +3330,8 @@ html,body{width:100%;height:100%;overflow:hidden}
         "draw:      DRAW [EDITOR ON|OFF] | TOOL brush|erase|line|box|oval|fill | COLOUR #rrggbb|name|1-8 | SIZE % | OPACITY %\n"
         "           DRAW STROKE x,y[,p] ... (%) | UNDO | CLEAR | FRAME ADD|DELETE|NEXT|PREV|n | ONION ON|OFF\n"
         "           DRAW PLAYBACK still|flipbook|replay | FPS n | HOLD s | SAVE STILL|ANIMATION [file] (local)\n"
+        "render:    RENDER START CUE|CUES a-b|OUTPUT 1080P|4K|OUTPUT 25|30|50|60 PRORES|H264|PNG <file> (local) | STATUS | CANCEL | DIALOG\n"
+        "           a file made frame by frame, not a recording: a slow machine takes longer, the file is still exact\n"
         "slices:    SLICE [ADD [name] | REMOVE n | CLEAR] on the focused output; SLICE n CROP x y w h | PLACE x y w h (%)\n"
         "           SLICE n CORNER TL|TR|BR|BL dx dy | EDGE L|R|T|B % | MASK id|NONE | ON|OFF | LINEAR|PERSPECTIVE | NAME text\n"
         "           SLICE n SOURCE PROGRAMME|DECK n | ROTATE IN|OUT deg | FLIP H|V ON|OFF | OPACITY % | LFO X|Y|ROTATION|OPACITY ...\n"

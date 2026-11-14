@@ -6722,6 +6722,10 @@
       handleDrawCommand(parts);
       return;
     }
+    if (command == "RENDER") {
+      handleRenderCommand(parts);
+      return;
+    }
     if (command == "MOTION") {
       handleMotionCommand(parts);
       return;
