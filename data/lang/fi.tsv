@@ -1061,6 +1061,38 @@ Nazdrave, skapi. Now go and fix real bugs.	Nazdrave, skapi. Mene nyt korjaamaan 
 Every one of those is a real Motion control. Put them on any ~ knob you like.	Jokainen niistä on oikea Motion-säädin. Laita ne mihin tahansa ~-nuppiin.
 START: AGAIN	START: UUDELLEEN
 START: PLAY	START: PELAA
+Datamosh	Datamoshaus
+Smear one shot into the next: the clip that moshes well, the effect, and the wait for it.	Sotke otos seuraavaan: sopiva klippi, tehoste ja sen odottelu.
+STAIRLIFT's music video, with Caroline Polkadot	STAIRLIFTin musiikkivideo, mukana CAROLINE POLKADOT
+STAIRLIFT - 'Escalator' (music video)	STAIRLIFT - 'Escalator' (musiikkivideo)
+THE VIDEO	VIDEO
+STAIRLIFT, skapi: a synth-pop duo with one music video, a budget of nine dollars and a dream. Press START.	STAIRLIFT, skapi: syntikkapopduo, jolla on yksi musiikkivideo, yhdeks?n dollarin budjetti ja unelma. Paina START.
+Datamosh breaks a video on purpose: one shot smears into the next, and the colours drag along the motion.	Datamoshaus rikkoo videon tarkoituksella: otos sotkeutuu seuraavaan ja v?rit raahautuvat liikkeen mukana.
+We wanted it to look like a memory of a dream of a ride on an escalator.	Halusimme sen n?ytt?v?n muistolta unesta, jossa matkustetaan liukuportailla.
+THE SOURCE CLIP	L?HDEKLIPPI
+A good mosh starts with a well-made source clip. Moshing a dull clip only makes a smudge.	Hyv? datamoshaus alkaa hyvin tehdyst? l?hdeklipist?. Tyls?n klipin moshaaminen tuottaa vain tahran.
+What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has seven.	Tarvitaan jyrkki? LEIKKAUKSIA, kirkas ja vilkas kuva ennen jokaista leikkausta ja laaja tasainen LIIKE sen j?lkeen. T?ss? klipiss? on seitsem?n leikkausta.
+We shot it ourselves. In 1895. With the Lumière brothers. Long story.	Kuvasimme sen itse. Vuonna 1895. Lumi?ren veljesten kanssa. Pitk? tarina.
+WATCH THE CUTS	KATSO LEIKKAUKSET
+TAKE the music video and watch it once. Count the cuts: train, samurai, dancer, the dive, the dive backwards, the kiss, the train.	Paina musiikkivideolle TAKE ja katso se kerran. Laske leikkaukset: juna, samurai, tanssija, sukellus, sukellus takaperin, suudelma, juna.
+Every cut starts with a KEYFRAME: a whole picture. Every frame after it is only the changes. Datamosh throws the keyframe away.	Jokainen leikkaus alkaa AVAINRUUDUSTA: kokonaisesta kuvasta. Sen j?lkeiset ruudut sis?lt?v?t vain muutokset. Datamoshaus heitt?? avainruudun pois.
+The train is the chorus. The samurai is the bridge. The kiss is the key change.	Juna on kertos?e. Samurai on v?liosa. Suudelma on s?vellajin vaihdos.
+THE EFFECT	TEHOSTE
+In EFFECTS, + adds one: choose DATAMOSH.	Kohdassa TEHOSTEET + lis?? tehosteen: valitse DATAMOSHAUS.
+With no keyframe, the next shot's changes land on the LAST shot's picture. The train drags the samurai along the track.	Ilman avainruutua seuraavan otoksen muutokset p??tyv?t EDELLISEN otoksen kuvaan. Juna raahaa samuraita pitkin rataa.
+Yes. Break it. Break it like you mean it.	Kyll?. Riko se. Riko se tosissasi.
+THE WAIT	ODOTUS
+Deckboy makes a moshable copy first: the same clip encoded without the extras that would repair the damage. A few seconds.	Deckboy tekee ensin moshattavan kopion: sama klippi koodattuna ilman vaurion korjaavia lis?tietoja. Muutama sekunti.
+This is the other half of a good source: a copy made FOR moshing. The Encoder tab shows it working.	T?m? on hyv?n l?hteen toinen puoli: moshausta VARTEN tehty kopio. Enkooderi-v?lilehti n?ytt?? ty?n edistymisen.
+Like waiting for the tour bus. But the tour bus is a codec.	Kuin odottaisi kiertuebussia. Mutta kiertuebussi on koodekki.
+It is ready. TAKE it from the top and watch each cut smear into the next.	Valmista. Paina TAKE alusta ja katso, miten kukin otos sotkeutuu seuraavaan.
+The train slides through the samurai's moon, and the dancer's silks drag across the sea.	Juna liukuu samurain kuun l?pi ja tanssijan silkit raahautuvat meren yli.
+THAT is the video. That is literally what it looked like in my head.	TUO on se video. Juuri tuolta se n?ytti p??ss?ni.
+YOUR OWN CLIPS	OMAT KLIPIT
+For your own: shoot or cut for it. Hard cuts, loud colour, then one big move: a pan, a zoom, someone running at the lens.	Omia varten: kuvaa tai leikkaa t?t? silm?ll? pit?en. Jyrk?t leikkaukset, r?ike?t v?rit, sitten yksi suuri liike: panorointi, zoomaus, joku juoksemassa kohti objektiivia.
+Avoid slow fades and still talking heads: no motion means nothing to drag, and a fade is already a gentle mosh.	V?lt? hitaita h?ivytyksi? ja paikallaan puhuvia p?it?: ilman liikett? ei ole mit??n raahattavaa, ja h?ivytys on jo itsess??n lempe? moshaus.
+Thank you, Deckboy. We are calling the album 'Keyframe Not Found'.	Kiitos, Deckboy. Albumin nimeksi tulee 'Keyframe Not Found'.
+Still making the copy. Hum something. Anything.	Kopiota tehd??n viel?. Hyr?ile jotain. Mit? tahansa.
 # --- end of tutorials ---
 Splash	Aloituskuva
 Beast mode	Petotila
@@ -4553,3 +4585,4 @@ FORWARD, REVERSE, BOUNCE or STATUS	FORWARD, REVERSE, BOUNCE tai STATUS
 A long clip: watch the Encoder tab.	Pitkä klippi: seuraa Enkooderi-välilehteä.
 {1}: making a copy first ({2} decodes only forwards). It plays forwards until the copy is ready.	{1}: luodaan ensin kopio ({2} purkaa vain eteenpäin). Toisto jatkuu eteenpäin, kunnes kopio on valmis.
 Forward, reverse, or bounce (there and back). Reverse and bounce play a copy Deckboy makes once; it plays forwards until the copy is ready	Eteenpäin, taaksepäin tai edestakaisin. Taaksepäin ja edestakaisin toistetaan Deckboyn kerran luomasta kopiosta; toisto jatkuu eteenpäin, kunnes kopio on valmis
+{1}: making a lossless copy ({2} frames stand alone), ready in seconds.	{1}: tehd??n h?vi?t?nt? kopiota ({2}-ruudut ovat itsen?isi?), valmista sekunneissa.

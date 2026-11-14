@@ -1056,6 +1056,38 @@ Nazdrave, skapi. Now go and fix real bugs.	Nazdrave, skapi. Gå så ud og ret ri
 Every one of those is a real Motion control. Put them on any ~ knob you like.	Hver af dem er en ægte Motion-kontrol. Sæt dem på en hvilken som helst ~-knap.
 START: AGAIN	START: IGEN
 START: PLAY	START: SPIL
+Datamosh	Datamosh-effekt
+Smear one shot into the next: the clip that moshes well, the effect, and the wait for it.	Sm?r ?t klip ind i det n?ste: det egnede klip, effekten og ventetiden.
+STAIRLIFT's music video, with Caroline Polkadot	STAIRLIFTs musikvideo med CAROLINE POLKADOT
+STAIRLIFT - 'Escalator' (music video)	STAIRLIFT - 'Escalator' (musikvideo)
+THE VIDEO	VIDEOEN
+STAIRLIFT, skapi: a synth-pop duo with one music video, a budget of nine dollars and a dream. Press START.	STAIRLIFT, skapi: en synthpopduo med ?n musikvideo, et budget p? ni dollars og en dr?m. Tryk p? START.
+Datamosh breaks a video on purpose: one shot smears into the next, and the colours drag along the motion.	Datamosh ?del?gger en video med vilje: ?t klip sm?res ind i det n?ste, og farverne tr?kkes med bev?gelsen.
+We wanted it to look like a memory of a dream of a ride on an escalator.	Vi ville have det til at ligne et minde om en dr?m om en tur p? en rulletrappe.
+THE SOURCE CLIP	KILDEKLIPPET
+A good mosh starts with a well-made source clip. Moshing a dull clip only makes a smudge.	En god mosh begynder med et godt lavet kildeklip. At moshe et kedeligt klip giver kun en plamage.
+What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has seven.	Det kr?ver: h?rde KLIP, et lyst og livligt billede f?r hvert klip og stor, j?vn BEV?GELSE efter det. Dette klip har syv klippunkter.
+We shot it ourselves. In 1895. With the Lumière brothers. Long story.	Vi optog den selv. I 1895. Med br?drene Lumi?re. Lang historie.
+WATCH THE CUTS	HOLD ?JE MED KLIPPENE
+TAKE the music video and watch it once. Count the cuts: train, samurai, dancer, the dive, the dive backwards, the kiss, the train.	Start musikvideoen med TAKE, og se den ?n gang. T?l klippene: tog, samurai, danser, dykket, dykket bagl?ns, kysset, toget.
+Every cut starts with a KEYFRAME: a whole picture. Every frame after it is only the changes. Datamosh throws the keyframe away.	Hvert klip begynder med et N?GLEBILLEDE: et helt billede. Hvert billede derefter indeholder kun ?ndringerne. Datamosh smider n?glebilledet v?k.
+The train is the chorus. The samurai is the bridge. The kiss is the key change.	Toget er omkv?det. Samuraien er mellemstykket. Kysset er toneartsskiftet.
+THE EFFECT	EFFEKTEN
+In EFFECTS, + adds one: choose DATAMOSH.	I EFFEKTER tilf?jer + en effekt: v?lg DATAMOSH.
+With no keyframe, the next shot's changes land on the LAST shot's picture. The train drags the samurai along the track.	Uden et n?glebillede lander det n?ste klips ?ndringer p? det SIDSTE klips billede. Toget tr?kker samuraien med langs sporet.
+Yes. Break it. Break it like you mean it.	Ja. ?del?g den. ?del?g den, som om du mener det.
+THE WAIT	VENTETIDEN
+Deckboy makes a moshable copy first: the same clip encoded without the extras that would repair the damage. A few seconds.	Deckboy laver f?rst en kopi, der kan moshes: samme klip kodet uden de ekstra ting, der ville reparere skaden. Et par sekunder.
+This is the other half of a good source: a copy made FOR moshing. The Encoder tab shows it working.	Det er den anden halvdel af en god kilde: en kopi lavet TIL moshing. Fanen Koder viser arbejdet.
+Like waiting for the tour bus. But the tour bus is a codec.	Som at vente p? turn?bussen. Men turn?bussen er et codec.
+It is ready. TAKE it from the top and watch each cut smear into the next.	Den er klar. Start forfra med TAKE, og se hvert klip sm?re sig ind i det n?ste.
+The train slides through the samurai's moon, and the dancer's silks drag across the sea.	Toget glider gennem samuraiens m?ne, og danserens silkestoffer tr?kkes hen over havet.
+THAT is the video. That is literally what it looked like in my head.	D?T er videoen. Det var bogstaveligt talt s?dan, den s? ud i mit hoved.
+YOUR OWN CLIPS	DINE EGNE KLIP
+For your own: shoot or cut for it. Hard cuts, loud colour, then one big move: a pan, a zoom, someone running at the lens.	Til dine egne: optag eller klip efter det. H?rde klip, st?rke farver, s? ?n stor bev?gelse: en panorering, en zoom, nogen der l?ber mod linsen.
+Avoid slow fades and still talking heads: no motion means nothing to drag, and a fade is already a gentle mosh.	Undg? langsomme overtoninger og stillest?ende talende hoveder: uden bev?gelse er der intet at tr?kke med, og en overtoning er allerede en blid mosh.
+Thank you, Deckboy. We are calling the album 'Keyframe Not Found'.	Tak, Deckboy. Vi kalder albummet 'Keyframe Not Found'.
+Still making the copy. Hum something. Anything.	Kopien bliver stadig lavet. Nyn noget. Hvad som helst.
 # --- end of tutorials ---
 Splash	Startskærm
 Beast mode	Bæstetilstand
@@ -4509,3 +4541,4 @@ FORWARD, REVERSE, BOUNCE or STATUS	FORWARD, REVERSE, BOUNCE eller STATUS
 A long clip: watch the Encoder tab.	Langt klip: hold ?je med fanen Koder.
 {1}: making a copy first ({2} decodes only forwards). It plays forwards until the copy is ready.	{1}: opretter f?rst en kopi ({2} afkoder kun fremad). Klippet afspilles fremad, indtil kopien er klar.
 Forward, reverse, or bounce (there and back). Reverse and bounce play a copy Deckboy makes once; it plays forwards until the copy is ready	Fremad, bagl?ns eller pendul (frem og tilbage). Bagl?ns og pendul afspiller en kopi, som Deckboy opretter ?n gang; klippet afspilles fremad, indtil kopien er klar
+{1}: making a lossless copy ({2} frames stand alone), ready in seconds.	{1}: laver en tabsfri kopi ({2}-billeder er selvst?ndige), klar om f? sekunder.

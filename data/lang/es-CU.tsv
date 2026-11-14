@@ -1061,6 +1061,38 @@ Nazdrave, skapi. Now go and fix real bugs.	Nazdrave, skapi. Ahora ve a arreglar 
 Every one of those is a real Motion control. Put them on any ~ knob you like.	Cada uno de esos es un control real de Motion. Ponlos en el mando ~ que quieras.
 START: AGAIN	START: OTRA VEZ
 START: PLAY	START: JUGAR
+Datamosh	Efecto datamosh
+Smear one shot into the next: the clip that moshes well, the effect, and the wait for it.	Embarrar un plano en el siguiente: el clip que sirve, el efecto y la espera.
+STAIRLIFT's music video, with Caroline Polkadot	El video musical de STAIRLIFT, con CAROLINE POLKADOT
+STAIRLIFT - 'Escalator' (music video)	STAIRLIFT - 'Escalator' (video musical)
+THE VIDEO	EL VIDEO
+STAIRLIFT, skapi: a synth-pop duo with one music video, a budget of nine dollars and a dream. Press START.	STAIRLIFT, skapi: un d?o de synth-pop con un video musical, nueve d?lares de presupuesto y un sue?o. Dale a START.
+Datamosh breaks a video on purpose: one shot smears into the next, and the colours drag along the motion.	El datamosh rompe un video a prop?sito: un plano se embarra en el siguiente y los colores se arrastran con el movimiento.
+We wanted it to look like a memory of a dream of a ride on an escalator.	Quer?amos que pareciera el recuerdo de un sue?o de un paseo en escalera el?ctrica.
+THE SOURCE CLIP	EL CLIP ORIGINAL
+A good mosh starts with a well-made source clip. Moshing a dull clip only makes a smudge.	Un buen datamosh empieza con un clip original bien hecho. Hac?rselo a un clip aburrido solo deja un borr?n.
+What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has seven.	Hace falta: CORTES secos, una imagen luminosa y movida antes de cada corte y un MOVIMIENTO grande y parejo despu?s. Este clip tiene siete cortes.
+We shot it ourselves. In 1895. With the Lumière brothers. Long story.	Lo filmamos nosotros mismos. En 1895. Con los hermanos Lumi?re. Es un cuento largo.
+WATCH THE CUTS	F?JATE EN LOS CORTES
+TAKE the music video and watch it once. Count the cuts: train, samurai, dancer, the dive, the dive backwards, the kiss, the train.	Lanza el video musical con TAKE y m?ralo una vez. Cuenta los cortes: tren, samur?i, bailarina, el clavado, el clavado al rev?s, el beso, el tren.
+Every cut starts with a KEYFRAME: a whole picture. Every frame after it is only the changes. Datamosh throws the keyframe away.	Cada corte empieza con un FOTOGRAMA CLAVE: una imagen completa. Cada fotograma que viene despu?s solo trae los cambios. El datamosh bota el fotograma clave.
+The train is the chorus. The samurai is the bridge. The kiss is the key change.	El tren es el estribillo. El samur?i es el puente. El beso es el cambio de tono.
+THE EFFECT	EL EFECTO
+In EFFECTS, + adds one: choose DATAMOSH.	En EFECTOS, + a?ade uno: escoge DATAMOSH.
+With no keyframe, the next shot's changes land on the LAST shot's picture. The train drags the samurai along the track.	Sin fotograma clave, los cambios del plano siguiente caen sobre la imagen del ?LTIMO plano. El tren arrastra al samur?i por la v?a.
+Yes. Break it. Break it like you mean it.	S?. R?mpelo. R?mpelo de verdad.
+THE WAIT	LA ESPERA
+Deckboy makes a moshable copy first: the same clip encoded without the extras that would repair the damage. A few seconds.	Deckboy hace primero una copia lista para datamosh: el mismo clip codificado sin los extras que arreglar?an el da?o. Unos segundos.
+This is the other half of a good source: a copy made FOR moshing. The Encoder tab shows it working.	Esta es la otra mitad de un buen original: una copia hecha PARA el datamosh. La pesta?a Codificador te ense?a c?mo va.
+Like waiting for the tour bus. But the tour bus is a codec.	Como esperar la guagua de la gira. Pero la guagua es un c?dec.
+It is ready. TAKE it from the top and watch each cut smear into the next.	Ya est?. Dale TAKE desde el principio y mira c?mo cada corte se embarra en el siguiente.
+The train slides through the samurai's moon, and the dancer's silks drag across the sea.	El tren se desliza por la luna del samur?i y las sedas de la bailarina se arrastran por el mar.
+THAT is the video. That is literally what it looked like in my head.	ESE es el video. As? mismo se ve?a en mi cabeza.
+YOUR OWN CLIPS	TUS PROPIOS CLIPS
+For your own: shoot or cut for it. Hard cuts, loud colour, then one big move: a pan, a zoom, someone running at the lens.	Para los tuyos: filma o edita pensando en eso. Cortes secos, colores fuertes y despu?s un movimiento grande: una panor?mica, un zoom, alguien corriendo hacia el lente.
+Avoid slow fades and still talking heads: no motion means nothing to drag, and a fade is already a gentle mosh.	Evita los fundidos lentos y la gente hablando sin moverse: sin movimiento no hay nada que arrastrar, y un fundido ya es un datamosh suave.
+Thank you, Deckboy. We are calling the album 'Keyframe Not Found'.	Gracias, Deckboy. Le vamos a poner al disco 'Keyframe Not Found'.
+Still making the copy. Hum something. Anything.	Todav?a se est? haciendo la copia. Tararea algo. Lo que sea.
 # --- end of tutorials ---
 Splash	Pantalla de inicio
 Beast mode	Modo bestia
@@ -4523,3 +4555,4 @@ FORWARD, REVERSE, BOUNCE or STATUS	FORWARD, REVERSE, BOUNCE o STATUS
 A long clip: watch the Encoder tab.	Clip largo: mira la pesta?a Codificador.
 {1}: making a copy first ({2} decodes only forwards). It plays forwards until the copy is ready.	{1}: primero se hace una copia ({2} solo decodifica hacia delante). Se reproduce hacia delante hasta que la copia est? lista.
 Forward, reverse, or bounce (there and back). Reverse and bounce play a copy Deckboy makes once; it plays forwards until the copy is ready	Hacia delante, en reversa o en vaiv?n (ida y vuelta). Reversa y vaiv?n reproducen una copia que Deckboy hace una sola vez; se reproduce hacia delante hasta que la copia est? lista
+{1}: making a lossless copy ({2} frames stand alone), ready in seconds.	{1}: haciendo una copia sin p?rdidas (los fotogramas de {2} son independientes), lista en segundos.

@@ -1060,6 +1060,38 @@ Nazdrave, skapi. Now go and fix real bugs.	Nazdrave, skapi. Ora vai a risolvere 
 Every one of those is a real Motion control. Put them on any ~ knob you like.	Ognuno di questi è un vero controllo di Motion. Mettili su qualsiasi manopola ~ ti piaccia.
 START: AGAIN	START: ANCORA
 START: PLAY	START: GIOCA
+Datamosh	Effetto datamosh
+Smear one shot into the next: the clip that moshes well, the effect, and the wait for it.	Spalmare un'inquadratura nella successiva: il clip adatto, l'effetto e l'attesa.
+STAIRLIFT's music video, with Caroline Polkadot	Il video musicale degli STAIRLIFT, con CAROLINE POLKADOT
+STAIRLIFT - 'Escalator' (music video)	STAIRLIFT - 'Escalator' (video musicale)
+THE VIDEO	IL VIDEO
+STAIRLIFT, skapi: a synth-pop duo with one music video, a budget of nine dollars and a dream. Press START.	STAIRLIFT, skapi: un duo synth-pop con un video musicale, nove dollari di budget e un sogno. Premi START.
+Datamosh breaks a video on purpose: one shot smears into the next, and the colours drag along the motion.	Il datamosh rompe un video di proposito: un'inquadratura si spalma nella successiva e i colori vengono trascinati dal movimento.
+We wanted it to look like a memory of a dream of a ride on an escalator.	Volevamo che sembrasse il ricordo di un sogno di un viaggio su una scala mobile.
+THE SOURCE CLIP	IL CLIP SORGENTE
+A good mosh starts with a well-made source clip. Moshing a dull clip only makes a smudge.	Un buon datamosh parte da un clip sorgente ben fatto. Applicarlo a un clip noioso produce solo una macchia.
+What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has seven.	Servono: TAGLI netti, un'immagine luminosa e vivace prima di ogni taglio e un MOVIMENTO ampio e costante dopo. Questo clip ha sette tagli.
+We shot it ourselves. In 1895. With the Lumière brothers. Long story.	L'abbiamo girato noi. Nel 1895. Con i fratelli Lumi?re. ? una lunga storia.
+WATCH THE CUTS	OSSERVA I TAGLI
+TAKE the music video and watch it once. Count the cuts: train, samurai, dancer, the dive, the dive backwards, the kiss, the train.	Lancia il video musicale con TAKE e guardalo una volta. Conta i tagli: treno, samurai, ballerina, il tuffo, il tuffo al contrario, il bacio, il treno.
+Every cut starts with a KEYFRAME: a whole picture. Every frame after it is only the changes. Datamosh throws the keyframe away.	Ogni taglio inizia con un FOTOGRAMMA CHIAVE: un'immagine intera. Ogni fotogramma successivo contiene solo le modifiche. Il datamosh elimina il fotogramma chiave.
+The train is the chorus. The samurai is the bridge. The kiss is the key change.	Il treno ? il ritornello. Il samurai ? il bridge. Il bacio ? il cambio di tonalit?.
+THE EFFECT	L'EFFETTO
+In EFFECTS, + adds one: choose DATAMOSH.	In EFFETTI, + ne aggiunge uno: scegli DATAMOSH.
+With no keyframe, the next shot's changes land on the LAST shot's picture. The train drags the samurai along the track.	Senza fotogramma chiave, le modifiche dell'inquadratura successiva finiscono sull'immagine dell'ULTIMA inquadratura. Il treno trascina il samurai lungo il binario.
+Yes. Break it. Break it like you mean it.	S?. Rompilo. Rompilo con convinzione.
+THE WAIT	L'ATTESA
+Deckboy makes a moshable copy first: the same clip encoded without the extras that would repair the damage. A few seconds.	Deckboy prepara prima una copia adatta al datamosh: lo stesso clip codificato senza gli extra che riparerebbero il danno. Qualche secondo.
+This is the other half of a good source: a copy made FOR moshing. The Encoder tab shows it working.	Questa ? l'altra met? di una buona sorgente: una copia fatta APPOSTA per il datamosh. La scheda Codificatore mostra il lavoro in corso.
+Like waiting for the tour bus. But the tour bus is a codec.	Come aspettare il pullman del tour. Ma il pullman ? un codec.
+It is ready. TAKE it from the top and watch each cut smear into the next.	? pronto. Riparti dall'inizio con TAKE e guarda ogni taglio spalmarsi nel successivo.
+The train slides through the samurai's moon, and the dancer's silks drag across the sea.	Il treno scivola attraverso la luna del samurai e le sete della ballerina si trascinano sul mare.
+THAT is the video. That is literally what it looked like in my head.	QUELLO ? il video. Era proprio cos? nella mia testa.
+YOUR OWN CLIPS	I TUOI CLIP
+For your own: shoot or cut for it. Hard cuts, loud colour, then one big move: a pan, a zoom, someone running at the lens.	Per i tuoi: gira o monta pensando all'effetto. Tagli netti, colori accesi, poi un grande movimento: una panoramica, uno zoom, qualcuno che corre verso l'obiettivo.
+Avoid slow fades and still talking heads: no motion means nothing to drag, and a fade is already a gentle mosh.	Evita le dissolvenze lente e i volti che parlano immobili: senza movimento non c'? nulla da trascinare e una dissolvenza ? gi? un datamosh delicato.
+Thank you, Deckboy. We are calling the album 'Keyframe Not Found'.	Grazie, Deckboy. Chiameremo l'album 'Keyframe Not Found'.
+Still making the copy. Hum something. Anything.	La copia ? ancora in preparazione. Canticchia qualcosa. Qualsiasi cosa.
 # --- end of tutorials ---
 Splash	Schermata iniziale
 Beast mode	Modalità bestia
@@ -4520,3 +4552,4 @@ FORWARD, REVERSE, BOUNCE or STATUS	FORWARD, REVERSE, BOUNCE o STATUS
 A long clip: watch the Encoder tab.	Clip lunga: controlla la scheda Codificatore.
 {1}: making a copy first ({2} decodes only forwards). It plays forwards until the copy is ready.	{1}: prima viene creata una copia ({2} decodifica solo in avanti). La riproduzione prosegue in avanti finch? la copia non ? pronta.
 Forward, reverse, or bounce (there and back). Reverse and bounce play a copy Deckboy makes once; it plays forwards until the copy is ready	Avanti, indietro o ping-pong (andata e ritorno). Indietro e ping-pong riproducono una copia che Deckboy crea una sola volta; la riproduzione prosegue in avanti finch? la copia non ? pronta
+{1}: making a lossless copy ({2} frames stand alone), ready in seconds.	{1}: creazione di una copia senza perdita (i fotogrammi {2} sono indipendenti), pronta in pochi secondi.

@@ -1059,6 +1059,38 @@ Nazdrave, skapi. Now go and fix real bugs.	Nazdrave, skapi. Ga nu echte bugs fik
 Every one of those is a real Motion control. Put them on any ~ knob you like.	Elk daarvan is een echte Motion-regelaar. Zet ze op elke ~-knop die je wilt.
 START: AGAIN	START: OPNIEUW
 START: PLAY	START: SPELEN
+Datamosh	Datamosh-effect
+Smear one shot into the next: the clip that moshes well, the effect, and the wait for it.	Laat het ene shot in het volgende uitsmeren: de juiste clip, het effect en het wachten.
+STAIRLIFT's music video, with Caroline Polkadot	De videoclip van STAIRLIFT, met CAROLINE POLKADOT
+STAIRLIFT - 'Escalator' (music video)	STAIRLIFT - 'Escalator' (videoclip)
+THE VIDEO	DE VIDEO
+STAIRLIFT, skapi: a synth-pop duo with one music video, a budget of nine dollars and a dream. Press START.	STAIRLIFT, skapi: een synthpopduo met ??n videoclip, een budget van negen dollar en een droom. Druk op START.
+Datamosh breaks a video on purpose: one shot smears into the next, and the colours drag along the motion.	Datamosh maakt een video expres kapot: het ene shot smeert uit in het volgende en de kleuren worden met de beweging meegesleept.
+We wanted it to look like a memory of a dream of a ride on an escalator.	We wilden dat het leek op een herinnering aan een droom over een ritje op een roltrap.
+THE SOURCE CLIP	DE BRONCLIP
+A good mosh starts with a well-made source clip. Moshing a dull clip only makes a smudge.	Een goede mosh begint met een goed gemaakte bronclip. Een saaie clip moshen levert alleen een vlek op.
+What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has seven.	Wat je nodig hebt: harde KNIPPEN, een helder, druk beeld voor elke knip en een grote, gelijkmatige BEWEGING erna. Deze clip heeft zeven knippen.
+We shot it ourselves. In 1895. With the Lumière brothers. Long story.	We hebben hem zelf gefilmd. In 1895. Met de gebroeders Lumi?re. Lang verhaal.
+WATCH THE CUTS	LET OP DE KNIPPEN
+TAKE the music video and watch it once. Count the cuts: train, samurai, dancer, the dive, the dive backwards, the kiss, the train.	Start de videoclip met TAKE en bekijk hem ??n keer. Tel de knippen: trein, samoerai, danseres, de duik, de duik achteruit, de kus, de trein.
+Every cut starts with a KEYFRAME: a whole picture. Every frame after it is only the changes. Datamosh throws the keyframe away.	Elke knip begint met een SLEUTELBEELD: een volledig beeld. Elk volgend beeld bevat alleen de veranderingen. Datamosh gooit het sleutelbeeld weg.
+The train is the chorus. The samurai is the bridge. The kiss is the key change.	De trein is het refrein. De samoerai is de bridge. De kus is de toonsoortwisseling.
+THE EFFECT	HET EFFECT
+In EFFECTS, + adds one: choose DATAMOSH.	In EFFECTEN voeg je er met + ??n toe: kies DATAMOSH.
+With no keyframe, the next shot's changes land on the LAST shot's picture. The train drags the samurai along the track.	Zonder sleutelbeeld komen de veranderingen van het volgende shot op het beeld van het LAATSTE shot terecht. De trein sleept de samoerai over het spoor.
+Yes. Break it. Break it like you mean it.	Ja. Maak het kapot. Maak het kapot met overtuiging.
+THE WAIT	HET WACHTEN
+Deckboy makes a moshable copy first: the same clip encoded without the extras that would repair the damage. A few seconds.	Deckboy maakt eerst een kopie die je kunt moshen: dezelfde clip, gecodeerd zonder de extra's die de schade zouden herstellen. Een paar seconden.
+This is the other half of a good source: a copy made FOR moshing. The Encoder tab shows it working.	Dit is de andere helft van een goede bron: een kopie SPECIAAL voor moshing. Het tabblad Encoder toont de voortgang.
+Like waiting for the tour bus. But the tour bus is a codec.	Zoals wachten op de tourbus. Maar de tourbus is een codec.
+It is ready. TAKE it from the top and watch each cut smear into the next.	Hij is klaar. Begin met TAKE weer vooraan en zie hoe elke knip in de volgende uitsmeert.
+The train slides through the samurai's moon, and the dancer's silks drag across the sea.	De trein glijdt door de maan van de samoerai en de zijden stoffen van de danseres slepen over de zee.
+THAT is the video. That is literally what it looked like in my head.	DAT is de video. Zo zag hij er letterlijk uit in mijn hoofd.
+YOUR OWN CLIPS	JE EIGEN CLIPS
+For your own: shoot or cut for it. Hard cuts, loud colour, then one big move: a pan, a zoom, someone running at the lens.	Voor je eigen clips: film of monteer ervoor. Harde knippen, felle kleuren, dan ??n grote beweging: een pan, een zoom, iemand die op de lens af rent.
+Avoid slow fades and still talking heads: no motion means nothing to drag, and a fade is already a gentle mosh.	Vermijd trage overvloeiers en stilstaande pratende hoofden: zonder beweging valt er niets mee te slepen en een overvloeier is al een zachte mosh.
+Thank you, Deckboy. We are calling the album 'Keyframe Not Found'.	Bedankt, Deckboy. We noemen het album 'Keyframe Not Found'.
+Still making the copy. Hum something. Anything.	De kopie wordt nog gemaakt. Neurie iets. Wat dan ook.
 # --- end of tutorials ---
 Splash	Startscherm
 Beast mode	Beestmodus
@@ -4495,3 +4527,4 @@ FORWARD, REVERSE, BOUNCE or STATUS	FORWARD, REVERSE, BOUNCE of STATUS
 A long clip: watch the Encoder tab.	Lange clip: houd het tabblad Encoder in de gaten.
 {1}: making a copy first ({2} decodes only forwards). It plays forwards until the copy is ready.	{1}: eerst wordt een kopie gemaakt ({2} decodeert alleen vooruit). De clip speelt vooruit totdat de kopie gereed is.
 Forward, reverse, or bounce (there and back). Reverse and bounce play a copy Deckboy makes once; it plays forwards until the copy is ready	Vooruit, achteruit of pendelen (heen en terug). Achteruit en pendelen spelen een kopie af die Deckboy eenmalig maakt; de clip speelt vooruit totdat de kopie gereed is
+{1}: making a lossless copy ({2} frames stand alone), ready in seconds.	{1}: maakt een kopie zonder kwaliteitsverlies ({2}-beelden staan op zichzelf), klaar in seconden.

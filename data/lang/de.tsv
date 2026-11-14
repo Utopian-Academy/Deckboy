@@ -1070,6 +1070,38 @@ Nazdrave, skapi. Now go and fix real bugs.	Nazdrave, skapi. Jetzt geh und behebe
 Every one of those is a real Motion control. Put them on any ~ knob you like.	Jeder davon ist ein echter Motion-Regler. Leg sie auf jeden ~ Regler, den du magst.
 START: AGAIN	START: NOCHMAL
 START: PLAY	START: SPIELEN
+Datamosh	Datamosh-Effekt
+Smear one shot into the next: the clip that moshes well, the effect, and the wait for it.	Eine Einstellung in die n?chste schmieren: der passende Clip, der Effekt und das Warten darauf.
+STAIRLIFT's music video, with Caroline Polkadot	Das Musikvideo von STAIRLIFT, mit CAROLINE POLKADOT
+STAIRLIFT - 'Escalator' (music video)	STAIRLIFT - 'Escalator' (Musikvideo)
+THE VIDEO	DAS VIDEO
+STAIRLIFT, skapi: a synth-pop duo with one music video, a budget of nine dollars and a dream. Press START.	STAIRLIFT, skapi: ein Synth-Pop-Duo mit einem Musikvideo, neun Dollar Budget und einem Traum. Dr?cke START.
+Datamosh breaks a video on purpose: one shot smears into the next, and the colours drag along the motion.	Datamosh macht ein Video absichtlich kaputt: Eine Einstellung verschmiert in die n?chste, und die Farben ziehen mit der Bewegung mit.
+We wanted it to look like a memory of a dream of a ride on an escalator.	Es sollte aussehen wie die Erinnerung an einen Traum von einer Rolltreppenfahrt.
+THE SOURCE CLIP	DER QUELLCLIP
+A good mosh starts with a well-made source clip. Moshing a dull clip only makes a smudge.	Ein guter Mosh beginnt mit einem gut gemachten Quellclip. Ein langweiliger Clip wird durch Moshing nur zum Schmierfleck.
+What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has seven.	Was er braucht: harte SCHNITTE, ein helles, lebhaftes Bild vor jedem Schnitt und gro?e, gleichm??ige BEWEGUNG danach. Dieser Clip hat sieben Schnitte.
+We shot it ourselves. In 1895. With the Lumière brothers. Long story.	Wir haben es selbst gedreht. 1895. Mit den Br?dern Lumi?re. Lange Geschichte.
+WATCH THE CUTS	ACHTE AUF DIE SCHNITTE
+TAKE the music video and watch it once. Count the cuts: train, samurai, dancer, the dive, the dive backwards, the kiss, the train.	Starte das Musikvideo mit TAKE und sieh es dir einmal an. Z?hle die Schnitte: Zug, Samurai, T?nzerin, der Sprung ins Wasser, der Sprung r?ckw?rts, der Kuss, der Zug.
+Every cut starts with a KEYFRAME: a whole picture. Every frame after it is only the changes. Datamosh throws the keyframe away.	Jeder Schnitt beginnt mit einem SCHL?SSELBILD: einem vollst?ndigen Bild. Alle folgenden Bilder enthalten nur die ?nderungen. Datamosh wirft das Schl?sselbild weg.
+The train is the chorus. The samurai is the bridge. The kiss is the key change.	Der Zug ist der Refrain. Der Samurai ist die Bridge. Der Kuss ist der Tonartwechsel.
+THE EFFECT	DER EFFEKT
+In EFFECTS, + adds one: choose DATAMOSH.	Unter EFFEKTE f?gt + einen hinzu: W?hle DATAMOSH.
+With no keyframe, the next shot's changes land on the LAST shot's picture. The train drags the samurai along the track.	Ohne Schl?sselbild landen die ?nderungen der n?chsten Einstellung auf dem Bild der LETZTEN Einstellung. Der Zug zieht den Samurai ?ber die Gleise.
+Yes. Break it. Break it like you mean it.	Ja. Mach es kaputt. Mach es mit voller ?berzeugung kaputt.
+THE WAIT	DAS WARTEN
+Deckboy makes a moshable copy first: the same clip encoded without the extras that would repair the damage. A few seconds.	Deckboy erstellt zuerst eine Kopie f?rs Moshing: derselbe Clip, ohne die Extras kodiert, die den Schaden reparieren w?rden. Ein paar Sekunden.
+This is the other half of a good source: a copy made FOR moshing. The Encoder tab shows it working.	Das ist die andere H?lfte einer guten Quelle: eine Kopie EIGENS f?rs Moshing. Im Reiter Encoder siehst du den Fortschritt.
+Like waiting for the tour bus. But the tour bus is a codec.	Wie auf den Tourbus warten. Nur ist der Tourbus ein Codec.
+It is ready. TAKE it from the top and watch each cut smear into the next.	Fertig. Starte mit TAKE von vorn und sieh zu, wie jeder Schnitt in den n?chsten verschmiert.
+The train slides through the samurai's moon, and the dancer's silks drag across the sea.	Der Zug gleitet durch den Mond des Samurai, und die Seidenstoffe der T?nzerin ziehen ?ber das Meer.
+THAT is the video. That is literally what it looked like in my head.	DAS ist das Video. Genau so sah es in meinem Kopf aus.
+YOUR OWN CLIPS	DEINE EIGENEN CLIPS
+For your own: shoot or cut for it. Hard cuts, loud colour, then one big move: a pan, a zoom, someone running at the lens.	F?r deine eigenen Clips: Plane Dreh oder Schnitt daf?r. Harte Schnitte, kr?ftige Farben, dann eine gro?e Bewegung: ein Schwenk, ein Zoom, jemand rennt auf die Linse zu.
+Avoid slow fades and still talking heads: no motion means nothing to drag, and a fade is already a gentle mosh.	Vermeide langsame ?berblendungen und unbewegte sprechende K?pfe: Ohne Bewegung gibt es nichts mitzuziehen, und eine ?berblendung ist schon ein sanfter Mosh.
+Thank you, Deckboy. We are calling the album 'Keyframe Not Found'.	Danke, Deckboy. Wir nennen das Album 'Keyframe Not Found'.
+Still making the copy. Hum something. Anything.	Die Kopie wird noch erstellt. Summe etwas. Irgendetwas.
 # --- end of tutorials ---
 Splash	Startbild
 Beast mode	Biestmodus
@@ -4524,3 +4556,4 @@ FORWARD, REVERSE, BOUNCE or STATUS	FORWARD, REVERSE, BOUNCE oder STATUS
 A long clip: watch the Encoder tab.	Ein langer Clip: den Tab Encoder beobachten.
 {1}: making a copy first ({2} decodes only forwards). It plays forwards until the copy is ready.	{1}: zuerst wird eine Kopie erstellt ({2} decodiert nur vorw?rts). Bis die Kopie bereit ist, l?uft der Clip vorw?rts.
 Forward, reverse, or bounce (there and back). Reverse and bounce play a copy Deckboy makes once; it plays forwards until the copy is ready	Vorw?rts, r?ckw?rts oder pendelnd (hin und zur?ck). R?ckw?rts und Pendeln nutzen eine Kopie, die Deckboy einmal erstellt; bis sie bereit ist, l?uft der Clip vorw?rts
+{1}: making a lossless copy ({2} frames stand alone), ready in seconds.	{1}: Verlustfreie Kopie wird erstellt ({2}-Bilder sind eigenst?ndig), in Sekunden fertig.

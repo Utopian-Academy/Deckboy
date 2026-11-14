@@ -1060,6 +1060,38 @@ Nazdrave, skapi. Now go and fix real bugs.	Nazdrave, skapi. Şimdi git gerçek b
 Every one of those is a real Motion control. Put them on any ~ knob you like.	Bunların her biri gerçek bir Motion kontrolü. İstediğin herhangi bir ~ düğmesine koy.
 START: AGAIN	START: TEKRAR
 START: PLAY	START: OYNA
+Datamosh	Veri bozma
+Smear one shot into the next: the clip that moshes well, the effect, and the wait for it.	Bir plan? sonrakine bula?t?r: uygun klip, efekt ve bekleme s?resi.
+STAIRLIFT's music video, with Caroline Polkadot	CAROLINE POLKADOT ile STAIRLIFT'in m?zik videosu
+STAIRLIFT - 'Escalator' (music video)	STAIRLIFT - 'Escalator' (m?zik videosu)
+THE VIDEO	V?DEO
+STAIRLIFT, skapi: a synth-pop duo with one music video, a budget of nine dollars and a dream. Press START.	STAIRLIFT, skapi: bir m?zik videosu, dokuz dolarl?k b?t?esi ve bir hayali olan synth-pop ikilisi. START'a bas.
+Datamosh breaks a video on purpose: one shot smears into the next, and the colours drag along the motion.	Veri bozma videoyu bilerek bozar: bir plan sonrakine bula??r, renkler hareketle birlikte s?r?klenir.
+We wanted it to look like a memory of a dream of a ride on an escalator.	Y?r?yen merdivene binilen bir r?yan?n an?s? gibi g?r?nmesini istedik.
+THE SOURCE CLIP	KAYNAK KL?P
+A good mosh starts with a well-made source clip. Moshing a dull clip only makes a smudge.	?yi bir veri bozma, iyi haz?rlanm?? bir kaynak kliple ba?lar. S?k?c? bir klibi bozarsan yaln?zca bir leke elde edersin.
+What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has seven.	Gerekenler: sert KESMELER, her kesmeden ?nce parlak ve dolu bir g?r?nt?, ard?ndan b?y?k ve sabit bir HAREKET. Bu klipte yedi kesme var.
+We shot it ourselves. In 1895. With the Lumière brothers. Long story.	Kendimiz ?ektik. 1895'te. Lumi?re karde?lerle. Uzun hik?ye.
+WATCH THE CUTS	KESMELER? ?ZLE
+TAKE the music video and watch it once. Count the cuts: train, samurai, dancer, the dive, the dive backwards, the kiss, the train.	M?zik videosuna TAKE yap ve bir kez izle. Kesmeleri say: tren, samuray, dans??, dal??, tersten dal??, ?p?c?k, tren.
+Every cut starts with a KEYFRAME: a whole picture. Every frame after it is only the changes. Datamosh throws the keyframe away.	Her kesme bir ANAHTAR KARE ile ba?lar: tam bir g?r?nt?. Sonraki her kare yaln?zca de?i?ikliklerdir. Veri bozma, anahtar kareyi atar.
+The train is the chorus. The samurai is the bridge. The kiss is the key change.	Tren nakarat. Samuray k?pr?. ?p?c?k ton de?i?imi.
+THE EFFECT	EFEKT
+In EFFECTS, + adds one: choose DATAMOSH.	EFEKTLER'de + bir efekt ekler: VER? BOZMA'y? se?.
+With no keyframe, the next shot's changes land on the LAST shot's picture. The train drags the samurai along the track.	Anahtar kare olmay?nca sonraki plan?n de?i?iklikleri ?NCEK? plan?n g?r?nt?s?ne biner. Tren, samuray? raylar boyunca s?r?kler.
+Yes. Break it. Break it like you mean it.	Evet. Boz onu. Ger?ekten istiyormu? gibi boz.
+THE WAIT	BEKLEME
+Deckboy makes a moshable copy first: the same clip encoded without the extras that would repair the damage. A few seconds.	Deckboy ?nce bozmaya uygun bir kopya yapar: hasar? onaracak ekler olmadan kodlanm?? ayn? klip. Birka? saniye.
+This is the other half of a good source: a copy made FOR moshing. The Encoder tab shows it working.	?yi bir kayna??n di?er yar?s? budur: bozma ???N haz?rlanm?? bir kopya. Kodlay?c? sekmesi i?lemi g?sterir.
+Like waiting for the tour bus. But the tour bus is a codec.	Turne otob?s?n? beklemek gibi. Ama turne otob?s? bir kodek.
+It is ready. TAKE it from the top and watch each cut smear into the next.	Haz?r. Ba?tan TAKE yap ve her plan?n sonrakine bula?mas?n? izle.
+The train slides through the samurai's moon, and the dancer's silks drag across the sea.	Tren samuray?n ay?n?n i?inden kay?p ge?er, dans??n?n ipekleri denizin ?st?nde s?r?klenir.
+THAT is the video. That is literally what it looked like in my head.	??TE video bu. Kafamda tam olarak b?yle g?r?n?yordu.
+YOUR OWN CLIPS	KEND? KL?PLER?N
+For your own: shoot or cut for it. Hard cuts, loud colour, then one big move: a pan, a zoom, someone running at the lens.	Kendi kliplerin i?in: buna g?re ?ek veya kurgula. Sert kesmeler, ?arp?c? renkler, ard?ndan tek bir b?y?k hareket: pan, yak?nla?ma, objektife do?ru ko?an biri.
+Avoid slow fades and still talking heads: no motion means nothing to drag, and a fade is already a gentle mosh.	Yava? ge?i?lerden ve hareketsiz konu?an y?zlerden ka??n: hareket yoksa s?r?klenecek bir ?ey de yoktur; yumu?ak ge?i? zaten hafif bir veri bozmad?r.
+Thank you, Deckboy. We are calling the album 'Keyframe Not Found'.	Te?ekk?rler, Deckboy. Alb?me 'Keyframe Not Found' ad?n? veriyoruz.
+Still making the copy. Hum something. Anything.	Kopya h?l? haz?rlan?yor. Bir ?eyler m?r?ldan. Herhangi bir ?ey.
 # --- end of tutorials ---
 Splash	Açılış ekranı
 Beast mode	Canavar modu
@@ -4548,3 +4580,4 @@ FORWARD, REVERSE, BOUNCE or STATUS	FORWARD, REVERSE, BOUNCE veya STATUS
 A long clip: watch the Encoder tab.	Uzun bir klip: Kodlayıcı sekmesini izle.
 {1}: making a copy first ({2} decodes only forwards). It plays forwards until the copy is ready.	{1}: önce bir kopya oluşturuluyor ({2} yalnızca ileri yönde çözer). Kopya hazır olana kadar ileri oynatılır.
 Forward, reverse, or bounce (there and back). Reverse and bounce play a copy Deckboy makes once; it plays forwards until the copy is ready	İleri, geri veya git-gel. Geri ve git-gel, Deckboy'un bir kez oluşturduğu kopyayı oynatır; kopya hazır olana kadar ileri oynatılır
+{1}: making a lossless copy ({2} frames stand alone), ready in seconds.	{1}: kay?ps?z kopya haz?rlan?yor ({2} kareleri ba??ms?zd?r), saniyeler i?inde haz?r.

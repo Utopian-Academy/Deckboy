@@ -1043,6 +1043,38 @@ Nazdrave, skapi. Now go and fix real bugs.	Nazdrave, skapi. Novtok: niri bug ist
 Every one of those is a real Motion control. Put them on any ~ knob you like.	Ala: bata Motion. Ala bata ~.
 START: AGAIN	START: NOVTOK
 START: PLAY	START: TIRI
+Datamosh	Vekasetatira
+Smear one shot into the next: the clip that moshes well, the effect, and the wait for it.	Tiri una veka go novveka: veka pono, setapata, so pentoka.
+STAIRLIFT's music video, with Caroline Polkadot	STAIRLIFT sonveka, so Caroline Polkadot
+STAIRLIFT - 'Escalator' (music video)	STAIRLIFT - 'Escalator' (sonveka)
+THE VIDEO	SONVEKA
+STAIRLIFT, skapi: a synth-pop duo with one music video, a budget of nine dollars and a dream. Press START.	STAIRLIFT, skapi: dua synth-pop sonwia so una sonveka, nummuna 9 so halmirveka. Tiri START.
+Datamosh breaks a video on purpose: one shot smears into the next, and the colours drag along the motion.	Datamosh seti veka go vaponata: una veka tiri go novveka, so lumaku tiri so tiriseta.
+We wanted it to look like a memory of a dream of a ride on an escalator.	Mi peli veka sui halmirveka muna halmirveka sov tiriseta kae tirisetdorapata.
+THE SOURCE CLIP	MUNVEKA
+A good mosh starts with a well-made source clip. Moshing a dull clip only makes a smudge.	Pono vekasetatira muni so pono munveka. Vekasetatira so vasono veka veli una vaponveka.
+What it needs: hard CUTS, a bright busy picture before each cut, and big steady MOTION after it. This clip has seven.	Veka hup: kor SETRANAKU, lumo so tamo veka muna ala setrana, so TAMO PONO TIRISETA novtok. Veka ni hali 7.
+We shot it ourselves. In 1895. With the Lumière brothers. Long story.	Mi gravi veka. Kae 1895. So Lumi?re munaku. Longo holapata.
+WATCH THE CUTS	MIRI SETRANAKU
+TAKE the music video and watch it once. Count the cuts: train, samurai, dancer, the dive, the dive backwards, the kiss, the train.	TAKE sonveka so miri una toka. Tali setranaku: retatirajana, samurai, tirisetwia, natira, natira dopmuna, pelkora, retatirajana.
+Every cut starts with a KEYFRAME: a whole picture. Every frame after it is only the changes. Datamosh throws the keyframe away.	Ala setrana muni so KORAVEKA: tamo veka. Ala novveka hali setaku solo. Datamosh vatiri koraveka.
+The train is the chorus. The samurai is the bridge. The kiss is the key change.	Retatirajana sonkora. Samurai sondora. Pelkora sonkorsetata.
+THE EFFECT	SETAPATA
+In EFFECTS, + adds one: choose DATAMOSH.	Kae SETAPATAKU, + veli una: piki DATAMOSH.
+With no keyframe, the next shot's changes land on the LAST shot's picture. The train drags the samurai along the track.	So vakoraveka, novveka setaku lani kae MUNA veka. Retatirajana tiri samurai kae retarana.
+Yes. Break it. Break it like you mean it.	Ni. Vaponati. Vaponati so tamo kora.
+THE WAIT	PENTOKA
+Deckboy makes a moshable copy first: the same clip encoded without the extras that would repair the damage. A few seconds.	Deckboy veli vekasetatira vela muna: rapo veka gravi so vapata sov vaponasetaku. Kistok kis.
+This is the other half of a good source: a copy made FOR moshing. The Encoder tab shows it working.	Ni novpatakisa sov pono munga: vela muni SOV vekasetatira. Grawia fena veki patakora.
+Like waiting for the tour bus. But the tour bus is a codec.	Sui peni sondortirajana. So sondortirajana korvekamira.
+It is ready. TAKE it from the top and watch each cut smear into the next.	Pono. TAKE muna so miri ala setrana tiri go novveka.
+The train slides through the samurai's moon, and the dancer's silks drag across the sea.	Retatirajana tiri kae samurai niroluma, so tirisetwia silavekaku tiri kae tamnata.
+THAT is the video. That is literally what it looked like in my head.	NI sonveka. Rapo so veka kae mi kora.
+YOUR OWN CLIPS	TU VEKAKU
+For your own: shoot or cut for it. Hard cuts, loud colour, then one big move: a pan, a zoom, someone running at the lens.	Sov tu: gravi va setrani sov ni. Koro setranaku, tamo luma, novtok una tamo tiriseta: mirajana tiri, mirajana tirikis, una wia tiri go miradora.
+Avoid slow fades and still talking heads: no motion means nothing to drag, and a fade is already a gentle mosh.	Vapiki lento nirosetaku so holwia vatu: vatiriseta veli vatirapa, so lento niroseta vekasetatira kiso muna.
+Thank you, Deckboy. We are calling the album 'Keyframe Not Found'.	Hupholaku, Deckboy. Mi nami sonpatakora 'Keyframe Not Found'.
+Still making the copy. Hum something. Anything.	Veli vela. Kissoni una sona. Ala sona.
 # --- end of tutorials ---
 + ADD AN OUTPUT	+ LANI SENADORA
 >LIVE	>LUMO
@@ -4567,3 +4599,4 @@ FORWARD, REVERSE, BOUNCE or STATUS	FORWARD, REVERSE, BOUNCE o STATUS
 A long clip: watch the Encoder tab.	Longo veka: miri Grawia bata.
 {1}: making a copy first ({2} decodes only forwards). It plays forwards until the copy is ready.	{1}: muna veli ({2} pel vekamiri dori solo). Veki dori til vela pono.
 Forward, reverse, or bounce (there and back). Reverse and bounce play a copy Deckboy makes once; it plays forwards until the copy is ready	Dori, vadori, o dorvadori (dori e vadori). Vadori e dorvadori veki vela Deckboy veli una; veki dori til vela pono
+{1}: making a lossless copy ({2} frames stand alone), ready in seconds.	{1}: veli tamo vela ({2} vekaku hali solo), pono kae kistok kis.

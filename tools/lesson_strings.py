@@ -79,8 +79,17 @@ def collect():
     lines = []
     seen = set()
 
+    # The guests' names stay English wherever they appear: the faces table in
+    # the lessons, and the voices cast for them in the tour's file.
+    lessons_src = strip_comments((ROOT / "native/app/app_lessons.ipp").read_text(encoding="utf-8"))
+    faces_at = lessons_src.index("static const GuestFace kFaces[] = {")
+    faces_end = lessons_src.index("if (!name) return nullptr;", faces_at)
+    guest_names = set(re.findall(r'\{"([^"]+)",\s*\{', lessons_src[faces_at:faces_end]))
+
     def add(text):
         text = unescape(text)
+        if text in guest_names:
+            return
         if text and said(text) and text not in seen:
             seen.add(text)
             lines.append(text)
