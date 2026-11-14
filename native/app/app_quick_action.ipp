@@ -611,6 +611,8 @@
       case QuickAction::LoopCountInc:    adjustSelectedLoopCount( 1); break;
       case QuickAction::SpeedDec:        adjustSelectedSpeed(-0.25); break;
       case QuickAction::SpeedInc:        adjustSelectedSpeed( 0.25); break;
+      case QuickAction::DirectionPrev:   stepSelectedDirection(-1); break;
+      case QuickAction::DirectionNext:   stepSelectedDirection(1); break;
       case QuickAction::AudioGainDec:    adjustSelectedAudioGain(-1.0); break;
       case QuickAction::AudioGainInc:    adjustSelectedAudioGain( 1.0); break;
       case QuickAction::AudioPanDec:     adjustSelectedAudioPan(-0.05); break;

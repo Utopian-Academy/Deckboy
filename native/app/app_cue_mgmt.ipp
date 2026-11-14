@@ -7040,6 +7040,64 @@
     encoderFormatId_ = savedFormat;
   }
 
+  // DIRECTION: queue the reversed or bounced copy this cue needs, for the
+  // direction and trim it has now. The copy goes beside converted media and
+  // the cue keeps its own file; the engine plays the copy once it fits.
+  void queueDirectionCopyForCue(int deckIndex, int cueIndex) {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) return;
+    Deck& deck = project_.decks[deckIndex];
+    if (cueIndex < 0 || cueIndex >= static_cast<int>(deck.cues.size())) return;
+    const Cue& cue = deck.cues[cueIndex];
+    if (cue.playDirection == kCueForward || !cueDirectionApplies(cue)) return;
+    const std::string key = cueDirectionKey(cue);
+    for (const auto& job : conversionJobs_) {
+      if (job.direction != 0 && job.sourcePath == cue.path && job.directionKey == key) return;   // already coming
+    }
+    std::error_code ec;
+    const fs::path src(resolvedCueFilesystemPathString(cue, currentProjectFile_));
+    const fs::path outDir = convertedMediaDir();
+    fs::create_directories(outDir, ec);
+    // The name says what it is and what it was made for, so two trims of one
+    // file never overwrite each other.
+    std::string tag = key;
+    std::replace(tag.begin(), tag.end(), '|', '_');
+    const fs::path dst = outDir / (src.stem().string() + (cue.playDirection == kCueBounce ? "_bounce_" : "_reverse_") +
+                                   tag + ".mov");
+    ConversionJob job;
+    job.deckIndex = deckIndex;
+    job.sourcePath = cue.path;
+    job.destPath = dst.string();
+    job.label = (cue.name.empty() ? src.filename().string() : cue.name) + " (" +
+                deckboy::core::i18n::translate(cue.playDirection == kCueBounce ? "bounce" : "reverse") + ")";
+    job.progress = std::make_shared<std::atomic<double>>(-1.0);
+    job.cancel = std::make_shared<std::atomic<bool>>(false);
+    job.sourceSeconds = cueDirectionOut(cue) - cueDirectionIn(cue);
+    job.state = ConversionState::Queued;
+    job.keepsOriginal = false;
+    job.direction = cue.playDirection;
+    job.directionKey = key;
+    deckboy::core::DirectionBakeInput& in = job.directionInput;
+    in.source = src.string();
+    in.dest = dst.string();
+    in.workDir = (outDir / (dst.stem().string() + ".pieces")).string();
+    in.bounce = cue.playDirection == kCueBounce;
+    in.in = cueDirectionIn(cue);
+    in.out = cueDirectionOut(cue);
+    in.fps = cue.fps;
+    in.alpha = cue.sourceHasAlpha;
+    in.audio = cue.hasAudio;
+    conversionJobs_.push_back(std::move(job));
+    pumpConversionQueue();
+  }
+
+  bool directionCopyInFlight(const Cue& cue) const {
+    const std::string key = cueDirectionKey(cue);
+    for (const auto& job : conversionJobs_) {
+      if (job.direction != 0 && job.sourcePath == cue.path && job.directionKey == key) return true;
+    }
+    return false;
+  }
+
   // Is a prep already running or queued for this cue?
   bool datamoshPrepInFlight(const std::string& sourcePath) const {
     for (const auto& job : conversionJobs_) {
@@ -7134,6 +7192,13 @@
     auto progress = job.progress;
     auto cancel = job.cancel;
     const double totalSeconds = job.sourceSeconds;
+    if (job.direction != 0) {
+      job.state = ConversionState::Running;
+      job.future = std::async(std::launch::async, [input = job.directionInput, progress, cancel]() -> bool {
+        return runDirectionBake(input, progress, cancel);
+      });
+      return;
+    }
     const auto attempts = attemptsForJob(job.formatId, srcStr, dstStr);
     job.state = ConversionState::Running;
     job.future = std::async(std::launch::async, [dstStr, progress, cancel, totalSeconds, attempts]() -> bool {
@@ -7200,6 +7265,53 @@
       }
       return false;
     });
+  }
+
+  // The steps of core/direction_bake.hpp, one ffmpeg at a time, on the
+  // encoder's worker. Progress is the share of the source's seconds done; a
+  // cancel stops the running step. The pieces are deleted either way.
+  static bool runDirectionBake(const deckboy::core::DirectionBakeInput& input,
+                               const std::shared_ptr<std::atomic<double>>& progress,
+                               const std::shared_ptr<std::atomic<bool>>& cancel) {
+    const deckboy::core::DirectionBakePlan plan = deckboy::core::planDirectionBake(input);
+    if (!plan.problem.empty()) return false;
+    std::error_code ec;
+    fs::create_directories(fs::u8path(input.workDir), ec);
+    {
+      std::ofstream list(fs::u8path(plan.listFile), std::ios::binary);
+      list << plan.listText;
+      if (!list) return false;
+    }
+    double total = 0.0;
+    for (double s : plan.stepSeconds) total += s;
+    double done = 0.0;
+    bool ok = true;
+    for (std::size_t i = 0; i < plan.steps.size() && ok; ++i) {
+      std::vector<std::string> args = plan.steps[i];
+      args.insert(args.begin() + 1, "-nostdin");
+      args.insert(args.begin() + 2, "-loglevel");
+      args.insert(args.begin() + 3, "error");
+      ChildProcess proc;
+      if (!spawnPipeProcess(proc, args)) { ok = false; break; }
+      std::array<char, 4096> chunk {};
+      while (true) {
+        if (cancel->load()) { proc.stop(); ok = false; break; }
+        if (readSome(proc.readFd, chunk.data(), chunk.size()) <= 0) break;
+      }
+      // A failed piece shows as a missing copy after the join.
+      if (ok && !proc.finish(15000)) ok = false;
+      done += plan.stepSeconds[i];
+      if (total > 0.0) progress->store(std::clamp(done / total, 0.0, 0.99));
+    }
+    for (const auto& p : plan.pieces) fs::remove(fs::u8path(p), ec);
+    fs::remove(fs::u8path(plan.listFile), ec);
+    fs::remove(fs::u8path(input.workDir), ec);
+    if (!ok || !fs::exists(fs::u8path(input.dest), ec) || fs::file_size(fs::u8path(input.dest), ec) < 1024) {
+      fs::remove(fs::u8path(input.dest), ec);
+      return false;
+    }
+    progress->store(1.0);
+    return true;
   }
 
   // Convert every flagged cue across all decks (used by the Encoder tab).

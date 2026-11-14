@@ -10030,6 +10030,64 @@
                    : "DATAMOSH on - preparing...");
     playUiSound(UiSoundEffect::Toggle);
   }
+  // DIRECTION. The arrows step forward -> reverse -> bounce. A copy that
+  // fits the new direction and trim is used at once; otherwise one is queued
+  // and the cue plays forwards until it lands (the row says so).
+  void stepSelectedDirection(int delta) {
+    Cue* cue = selectedCueMutable();
+    if (!cue || !cueDirectionApplies(*cue)) {
+      failRemoteCommand("direction: video file cues only");
+      return;
+    }
+    setSelectedDirection(((cue->playDirection + delta) % 3 + 3) % 3);
+  }
+
+  void setSelectedDirection(int direction) {
+    Cue* cue = selectedCueMutable();
+    if (!cue || !cueDirectionApplies(*cue)) return;
+    if (cue->playDirection == direction) return;
+    cue->playDirection = direction;
+    markProjectDirty();
+    playUiSound(UiSoundEffect::Toggle);
+    ensureDirectionCopy(project_.focusedDeckIndex, focusedDeck().selectedIndex);
+    refreshFocusedLiveCueRuntimeIfSelected();
+  }
+
+  // Queue the copy a cue needs now, if it has none that fits. Called when the
+  // direction changes and when the trim moves (a copy is of the trimmed range).
+  void ensureDirectionCopy(int deckIndex, int cueIndex) {
+    if (deckIndex < 0 || deckIndex >= static_cast<int>(project_.decks.size())) return;
+    const Deck& deck = project_.decks[deckIndex];
+    if (cueIndex < 0 || cueIndex >= static_cast<int>(deck.cues.size())) return;
+    const Cue& cue = deck.cues[cueIndex];
+    if (cue.playDirection == kCueForward || !cueDirectionApplies(cue)) return;
+    if (directionCopyReady(cue) || directionCopyInFlight(cue)) return;
+    queueDirectionCopyForCue(deckIndex, cueIndex);
+  }
+
+  bool directionCopyReady(const Cue& cue) const {
+    if (!cueDirectionCopyFits(cue)) return false;
+    std::error_code ec;
+    return fs::exists(fs::u8path(cue.directionPath), ec);
+  }
+
+  // The row's value: the direction, and while its copy is not ready, what is
+  // happening instead.
+  std::string cueDirectionStateText(const Cue& cue) const {
+    const std::string name = deckboy::core::i18n::translate(cue.playDirection == kCueReverse ? "reverse"
+                                             : cue.playDirection == kCueBounce ? "bounce" : "forward");
+    if (cue.playDirection == kCueForward || directionCopyReady(cue)) return name;
+    for (const auto& job : conversionJobs_) {
+      if (job.direction == 0 || job.sourcePath != cue.path || job.directionKey != cueDirectionKey(cue)) continue;
+      const double p = job.progress ? job.progress->load() : -1.0;
+      if (job.state == ConversionState::Running && p >= 0.0) {
+        return deckboy::core::i18n::format("{1}: making {2}%", {name, std::to_string(static_cast<int>(p * 100.0))});
+      }
+      return deckboy::core::i18n::format("{1}: queued", {name});
+    }
+    return deckboy::core::i18n::format("{1}: not made", {name});
+  }
+
   // Change which mosh recipe this cue uses. The prepared file was encoded with
   // the OLD recipe, so it is stale the moment the look changes: drop it and
   // re-prepare, otherwise the label would claim EXTREME while the cue kept

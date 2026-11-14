@@ -479,8 +479,8 @@ or fold it; it then stays that way for the rest of the session, on every cue
 you select. The MASK and DRAW buttons on the monitor open their sections.
 
 - **PLAYBACK** — loop & loop count, hold last frame, pause at start, playback
-  speed (0.25–4×, pitch-corrected audio), lock to screen (below), fade
-  in/out, in/out trim, pause points, end action, goto target,
+  speed (0.25–4×, pitch-corrected audio), direction (below), lock to screen
+  (below), fade in/out, in/out trim, pause points, end action, goto target,
   next-transition toggle.
 - **AUDIO** — per-cue gain, pan, mono, independent audio fades, loudness
   normalize, and output-pair routing (see §17).
@@ -491,6 +491,29 @@ you select. The MASK and DRAW buttons on the monitor open their sections.
 
 Values apply live where possible (fades, audio trim, geometry) without
 reloading the decode.
+
+### Direction: forward, reverse, bounce
+
+A video cue's **direction** row plays the clip **forward**, in **reverse**,
+or as a **bounce**: forwards, then backwards, then forwards again, with no
+frame shown twice at the turns. Put **loop** on with it for a bounce that goes
+round and round.
+
+A compressed video file can only be decoded forwards, so Deckboy makes a
+reversed (or bounced) **copy** of the cue once, in the background, and plays
+that. Until the copy is ready the cue plays forwards and the row says
+`reverse: making 40%`. The copy is of the cue's in-to-out trim: change the
+trim and a new copy is made a moment after you let go. Copies sit in
+`_converted/` beside the show, like converted media, and are made again if a
+show is opened somewhere they are missing. The sound is reversed with the
+picture.
+
+The copy is H.264 (ProRes 4444 for a clip with alpha), at a quality that does
+not show the second generation. A ten-bit or HDR clip comes back eight-bit.
+
+Companion: `DIRECTION [FORWARD|REVERSE|BOUNCE|STATUS]` on the selected cue.
+STATUS answers with the direction, whether the copy is `ready`, `making` or
+`missing`, its length, the trim and the copy's file.
 
 ### Lock to screen
 

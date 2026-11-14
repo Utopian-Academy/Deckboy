@@ -4151,6 +4151,33 @@
       toggleSelectedDatamosh();
       return;
     }
+    // DIRECTION [FORWARD|REVERSE|BOUNCE|STATUS] on the selected cue.
+    if (command == "DIRECTION") {
+      Cue* cue = selectedCueMutable();
+      if (!cue || !cueDirectionApplies(*cue)) {
+        failRemoteCommand("select a video file cue first");
+        return;
+      }
+      const std::string v = parts.size() > 1 ? toUpper(parts[1]) : std::string("STATUS");
+      if (v != "STATUS") {
+        const int want = v == "FORWARD" ? kCueForward : v == "REVERSE" ? kCueReverse : v == "BOUNCE" ? kCueBounce : -1;
+        if (want < 0) {
+          failRemoteCommand("FORWARD, REVERSE, BOUNCE or STATUS");
+          return;
+        }
+        setSelectedDirection(want);
+      }
+      remoteCommandDetail_ = std::string("direction=") + cueDirectionLabel(cue->playDirection) +
+                             " copy=" + (cue->playDirection == kCueForward ? "none"
+                                         : directionCopyReady(*cue) ? "ready"
+                                         : directionCopyInFlight(*cue) ? "making" : "missing") +
+                             " seconds=" + std::to_string(cue->playDirection != kCueForward && directionCopyReady(*cue)
+                                                            ? cue->directionSeconds : 0.0) +
+                             " in=" + std::to_string(cueDirectionIn(*cue)) + " out=" + std::to_string(cueDirectionOut(*cue)) +
+                             " fps=" + std::to_string(cue->fps) +
+                             (directionCopyReady(*cue) ? " path=" + cue->directionPath : std::string());
+      return;
+    }
     if (command == "ENCODEPRESET") {
       if (parts.size() < 2) {
         failRemoteCommand("preset: delivery | proxy | match | datamosh");

@@ -1096,6 +1096,12 @@ class MediaEngine {
   // True only for a file-backed video cue that has a prepared mosh copy on
   // disk. Everything else reports false so the toggle can say why.
   bool datamoshActiveForCue(const Cue& cue) const;
+  // The reversed or bounced copy this cue plays, or empty to play the file
+  // forwards (see Cue::playDirection).
+  std::string directionCopyFor(const Cue& cue) const;
+  // The range that plays, in the file that plays: the cue's own trim, or
+  // the whole of its direction copy (which already IS the trimmed range).
+  void playedRangeFor(const Cue& cue, double& in, double& out) const;
   void loadStillFrame(const Cue& cue);                     // async-decode a single frame for still cues
   void loadPatternFrame(const Cue& cue);                   // generate a pattern frame and upload
   void loadSourceFrame(const Cue& cue);                    // start source capture for camera/window cues
@@ -1947,6 +1953,7 @@ class MediaEngine {
   // because a live look edit needs CPU pixels the decode was not opened for.
   // Both are reset at every decode start.
   bool activeDecodeDatamosh_ = false;
+  std::string activeDecodeDirection_;   // the copy the decoder opened, empty = the file
   bool liveSourceNoEnd_ = false;             // SRT/NDI: the cue never reaches an end
   std::atomic<bool> liveRgbaBridge_ {false};
   static void bridgeFrameToRgba(DecodedFrame& frame);

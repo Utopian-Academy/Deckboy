@@ -1095,6 +1095,11 @@ void writeProjectRecords(std::ostream& output, const Project& project) {
         << '\t' << escapeField(serializeGeometryLfos(cue.lumia.lfo))
         // vs + 191: a SHADER cue's input values (absent in older shows).
         << '\t' << escapeField(serializeIsfSettings(cue.isf))
+        // vs + 192..195: DIRECTION and the copy made for it.
+        << '\t' << cue.playDirection
+        << '\t' << escapeField(cue.directionPath)
+        << '\t' << escapeField(cue.directionKey)
+        << '\t' << cue.directionSeconds
         << '\n';
   };
   for (size_t deckIndex = 0; deckIndex < project.decks.size(); ++deckIndex) {
@@ -2941,6 +2946,12 @@ Project loadProject(const fs::path& projectFile,
         }
         if (fields.size() >= static_cast<std::size_t>(vs + 192)) {
           cue.isf = parseIsfSettings(safeString(fields, vs + 191));
+        }
+        if (fields.size() >= static_cast<std::size_t>(vs + 196)) {
+          cue.playDirection = std::clamp(safeInt(fields, vs + 192, 0), 0, 2);
+          cue.directionPath = safeString(fields, vs + 193);
+          cue.directionKey = safeString(fields, vs + 194);
+          cue.directionSeconds = std::max(0.0, safeDouble(fields, vs + 195, 0.0));
         }
       }
       // A MASTER CUE HAS NO PATH, and this gate would have dropped it on load

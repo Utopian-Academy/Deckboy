@@ -84,6 +84,7 @@
 #include "core/expression_parser.hpp"
 #include "core/single_instance_guard.hpp"
 #include "core/cue_helpers.hpp"
+#include "core/direction_bake.hpp"
 #include "core/pixel_effects.hpp"
 #include "core/pattern_helpers.hpp"
 #include "core/lava_lamp.hpp"
@@ -12785,6 +12786,12 @@ class App {
     // between pipe reads and kills ffmpeg.
     std::shared_ptr<std::atomic<bool>> cancel;
     double sourceSeconds = 0.0;   // probed duration, the divisor for progress
+    // DIRECTION COPY (Cue::playDirection): a reversed or bounced copy made in
+    // pieces (core/direction_bake.hpp), kept beside the original like a mosh
+    // prep. 0 = an ordinary conversion. directionKey is what the copy is FOR.
+    int direction = 0;
+    std::string directionKey;
+    deckboy::core::DirectionBakeInput directionInput;
     // 0..1 while encoding, <0 until ffmpeg reports anything. Shared rather than
     // held by value because the job is moved into the vector while the worker
     // thread writes it from the other side.
@@ -12792,6 +12799,9 @@ class App {
     std::future<bool> future;
   };
   std::vector<ConversionJob> conversionJobs_;
+  // The update loop's watch on the selected and live cues' direction copies.
+  std::string directionWatchSelected_, directionWatchActive_;
+  Uint64 directionWatchSelectedSince_ = 0, directionWatchActiveSince_ = 0;
   // One at a time by default: encoding must never outbid playback for CPU
   // or for the drive the media is streaming off during a show.
   int encoderConcurrency_ = 1;

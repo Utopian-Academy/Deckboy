@@ -571,6 +571,30 @@
           ++it;
           continue;
         }
+        if (it->direction != 0) {
+          // A DIRECTION COPY: every cue on that file whose direction and trim
+          // it was made for takes it; a cue that moved on meanwhile does not.
+          bool used = false;
+          if (ok && it->deckIndex >= 0 && it->deckIndex < static_cast<int>(project_.decks.size())) {
+            const double seconds = deckboy::core::planDirectionBake(it->directionInput).seconds;
+            for (auto& cue : project_.decks[it->deckIndex].cues) {
+              if (cue.path != it->sourcePath || cueDirectionKey(cue) != it->directionKey) continue;
+              cue.directionPath = it->destPath;
+              cue.directionKey = it->directionKey;
+              cue.directionSeconds = seconds;
+              used = true;
+            }
+          }
+          if (used) {
+            triggerToast(deckboy::core::i18n::format("{1} ready", {deckboy::core::i18n::translate(it->direction == kCueBounce ? "bounce" : "reverse")}));
+            markProjectDirty();
+            refreshFocusedLiveCueRuntimeIfSelected();
+          } else if (!ok) {
+            triggerToast(deckboy::core::i18n::translate("could not make the reversed copy"), ToastKind::Warning, kToastReadableMs);
+          }
+          it = conversionJobs_.erase(it);
+          continue;
+        }
         if (ok && it->deckIndex >= 0 && it->deckIndex < static_cast<int>(project_.decks.size())) {
           Deck& deck = project_.decks[it->deckIndex];
           for (auto& cue : deck.cues) {
@@ -610,6 +634,20 @@
     }
     // A slot may have just freed up - pull the next queued job in.
     pumpConversionQueue();
+    // DIRECTION COPIES for the cue being looked at and the one on air: once
+    // a cue's direction and trim have held still for 1.5 s with no copy that
+    // fits, queue one. A trim being dragged makes one copy where it stops, and
+    // a show opened where its copies are missing makes them again.
+    {
+      auto watch = [&](const Cue* cue, int deckIndex, int cueIndex, std::string& lastKey, Uint64& since) {
+        if (!cue || cue->playDirection == kCueForward || !cueDirectionApplies(*cue)) { lastKey.clear(); return; }
+        const std::string key = cue->path + "|" + cueDirectionKey(*cue);
+        if (key != lastKey) { lastKey = key; since = now; return; }
+        if (now - since >= 1500) ensureDirectionCopy(deckIndex, cueIndex);
+      };
+      watch(selectedCuePtr(), project_.focusedDeckIndex, focusedDeck().selectedIndex, directionWatchSelected_, directionWatchSelectedSince_);
+      watch(activeCuePtr(), project_.focusedDeckIndex, focusedDeck().activeIndex, directionWatchActive_, directionWatchActiveSince_);
+    }
     // Poll waveform analysis futures
     {
       std::lock_guard<std::mutex> lk(waveformMutex_);

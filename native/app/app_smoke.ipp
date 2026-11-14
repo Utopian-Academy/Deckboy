@@ -2742,7 +2742,7 @@
           // Moire fields went in, only two of five checks were bumped, and the
           // other three trimmed nothing but Moire -- passing without testing
           // the show they were named for.
-          constexpr int kAfterTrackerFields = 42;
+          constexpr int kAfterTrackerFields = 46;   // + direction, its copy, key, length
           // A show from immediately before the fixture patch (one tail field
           // fewer) keeps its mic channel and has no fixture levels.
           {
@@ -2893,7 +2893,7 @@
         // the spine and trimming 3 stopped reaching preWaitSeconds -- the test
         // failed loudly, which is the only reason this comment exists rather
         // than a silent hole in the backward-compatibility check.
-        constexpr int kSpineTailFields = 135;  // preWait, postWait, continue, masters,
+        constexpr int kSpineTailFields = 139;  // preWait, postWait, continue, masters,
                                               // target id/deck/verb, armed, panel w/h,
                                               // fade secs/to/what/curve/stop,
                                               // fireside view, overlay lower-third
@@ -2907,7 +2907,8 @@
                                               // a fade cue's effect, knob and restore at end,
                                               // the backdrop, lock to screen, the mask,
                                               // a tone's oscillators, a drawing, alpha,
-                                              // the twenty Lumia fields
+                                              // the twenty Lumia fields, a shader's values,
+                                              // the direction and its copy (four)
         {
           std::ifstream in(smokePath);
           std::ostringstream older;

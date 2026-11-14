@@ -2097,6 +2097,17 @@ struct Cue {
   // quietly did less than the operator expected. Changing it clears moshPath so
   // the cue re-prepares with the new recipe. See DatamoshLook.
   int datamoshLook = kDatamoshLookClassic;
+  // DIRECTION: forward, reverse, or bounce (there and back, round and round).
+  // A compressed file decodes only forwards, so reverse and bounce play a
+  // copy made once -- the cue's in-to-out range reversed, or there and back
+  // -- sitting beside the original, the way datamosh does. directionKey says
+  // what the copy was made FOR (cueDirectionKey: direction, in, out); a cue
+  // whose trim or direction has moved on plays forwards until the new copy
+  // lands. directionSeconds is the copy's own length.
+  int playDirection = 0;  // 0 forward, 1 reverse, 2 bounce
+  std::string directionPath;
+  std::string directionKey;
+  double directionSeconds = 0.0;
   bool chromaKeyEnabled = false;  // enable chroma key removal in the compositor
   bool subtitleEnabled = true;    // render subtitles (if subtitle track available)
   bool refreshOnTake = false;     // Browser cue: reload page each time cue is taken
@@ -3460,6 +3471,7 @@ enum class QuickAction {
   LoopCountDec, LoopCountInc,
   // -- Playback speed ------
   SpeedDec, SpeedInc,
+  DirectionPrev, DirectionNext,   // forward / reverse / bounce (Cue::playDirection)
   // -- Per-cue audio -------
   AudioGainDec, AudioGainInc,
   AudioPanDec, AudioPanInc,

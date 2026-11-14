@@ -581,9 +581,9 @@ void MediaEngine::loadCue(const Cue* cue, bool autoplay, double transitionSecond
     return;
   }
 
-  cueInPointSeconds_ = std::clamp(cue->inPointSeconds, 0.0, std::max(0.0, cue->duration));
-  cueOutPointSeconds_ = cue->outPointSeconds > 0.0 ? cue->outPointSeconds : cue->duration;
-  cueOutPointSeconds_ = std::clamp(cueOutPointSeconds_, cueInPointSeconds_, std::max(cueInPointSeconds_, cue->duration));
+  // A REVERSED OR BOUNCED COPY is already the cue's in-to-out range, made
+  // backwards (or there and back): it plays whole, at its own length.
+  playedRangeFor(*cue, cueInPointSeconds_, cueOutPointSeconds_);
   duration_ = std::max(0.01, cueOutPointSeconds_ - cueInPointSeconds_);
   // A LIVE STREAM HAS NO END. It carries duration 0, which the floor above
   // turns into 0.01s -- so an SRT cue finished a hundredth of a second after
@@ -735,6 +735,9 @@ bool MediaEngine::adoptLookWithoutRestart(const Cue& cue) {
   if (datamoshActiveForCue(cue) != activeDecodeDatamosh_) {
     return false;
   }
+  if (directionCopyFor(cue) != activeDecodeDirection_) {
+    return false;   // another file: reopen
+  }
   syncActiveCueSnapshot(cue);
   return true;
 }
@@ -801,10 +804,7 @@ void MediaEngine::refreshActiveCueRuntime(const Cue* updatedCue) {
   }
 
   double absoluteSeconds = cueInPointSeconds_ + position();
-  cueInPointSeconds_ = std::clamp(activeCue_->inPointSeconds, 0.0, std::max(0.0, activeCue_->duration));
-  cueOutPointSeconds_ = activeCue_->outPointSeconds > 0.0 ? activeCue_->outPointSeconds : activeCue_->duration;
-  cueOutPointSeconds_ = std::clamp(cueOutPointSeconds_, cueInPointSeconds_,
-                                   std::max(cueInPointSeconds_, activeCue_->duration));
+  playedRangeFor(*activeCue_, cueInPointSeconds_, cueOutPointSeconds_);
   duration_ = std::max(0.01, cueOutPointSeconds_ - cueInPointSeconds_);
   frameRate_ = activeCue_->kind == CueKind::Video && activeCue_->fps > 1.0 ? activeCue_->fps : frameRate_;
 
@@ -882,9 +882,9 @@ void MediaEngine::applyActiveCueTrimEdit(const Cue& cue) {
     return;
   }
 
-  const double newIn = std::clamp(cue.inPointSeconds, 0.0, std::max(0.0, cue.duration));
-  double newOut = cue.outPointSeconds > 0.0 ? cue.outPointSeconds : cue.duration;
-  newOut = std::clamp(newOut, newIn, std::max(newIn, cue.duration));
+  double newIn = 0.0;
+  double newOut = 0.0;
+  playedRangeFor(cue, newIn, newOut);
 
   // A tenth of a frame at 240fps: far below anything an operator can set, and
   // far above the rounding in a double that has been through a frame snap.
@@ -6844,8 +6844,29 @@ std::pair<int, int> MediaEngine::currentOutputSizeHint() const {
 bool MediaEngine::datamoshActiveForCue(const Cue& cue) const {
   if (!cue.datamoshEnabled || cue.kind != CueKind::Video) return false;
   if (cue.moshPath.empty()) return false;
+  // A reversed or bounced copy wins: the mosh copy runs forwards, and
+  // withholding keyframes from the direction copy would smear a file that was
+  // never encoded for it.
+  if (!directionCopyFor(cue).empty()) return false;
   std::error_code ec;
   return dbfs::exists(cue.moshPath, ec);
+}
+
+void MediaEngine::playedRangeFor(const Cue& cue, double& in, double& out) const {
+  if (!directionCopyFor(cue).empty()) {
+    in = 0.0;
+    out = cue.directionSeconds;
+    return;
+  }
+  in = std::clamp(cue.inPointSeconds, 0.0, std::max(0.0, cue.duration));
+  out = cue.outPointSeconds > 0.0 ? cue.outPointSeconds : cue.duration;
+  out = std::clamp(out, in, std::max(in, cue.duration));
+}
+
+std::string MediaEngine::directionCopyFor(const Cue& cue) const {
+  if (!cueDirectionCopyFits(cue)) return {};
+  std::error_code ec;
+  return dbfs::exists(dbfs::u8path(cue.directionPath), ec) ? cue.directionPath : std::string();
 }
 
 std::string MediaEngine::mediaPathForCue(const Cue& cue) const {
@@ -7337,7 +7358,8 @@ void MediaEngine::startDecoderThreads(const Cue& cue, double mediaStartSeconds, 
   // thumbnails, the timeline filmstrip, the missing-media scan and loudness
   // normalize. Swapping there would quietly point all of them at the mosh file.
   const bool moshing = datamoshActiveForCue(cue);
-  std::string mediaPath = moshing ? cue.moshPath : mediaPathForCue(cue);
+  const std::string directionCopy = directionCopyFor(cue);
+  std::string mediaPath = !directionCopy.empty() ? directionCopy : moshing ? cue.moshPath : mediaPathForCue(cue);
   if (mediaPath.empty()) {
     return;
   }
@@ -7440,6 +7462,7 @@ void MediaEngine::startDecoderThreads(const Cue& cue, double mediaStartSeconds, 
   const char* ffmpegPixFmt = needsRgbaForEffects ? "rgba" : "nv12";
   // A fresh decode is opened in the right format, so no bridge is needed.
   activeDecodeDatamosh_ = datamoshActiveForCue(cue);
+  activeDecodeDirection_ = directionCopy;
   liveRgbaBridge_.store(false);
 
 #if DECKBOY_INPROC_DECODE

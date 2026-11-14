@@ -5334,6 +5334,15 @@
                      QuickAction::ToggleLoop, false, false, "Playback speed: 0.25–4.0×");
         rowCursor += 1;
 
+        if (cueDirectionApplies(*selectedCue)) {
+          drawQuickRow(ry + kRowStep * rowCursor, "direction", QuickAction::DirectionPrev,
+                       cueDirectionStateText(*selectedCue), QuickAction::DirectionNext,
+                       QuickAction::DirectionNext, false, false,
+                       "Forward, reverse, or bounce (there and back). Reverse and bounce play a copy "
+                       "Deckboy makes once; it plays forwards until the copy is ready");
+          rowCursor += 1;
+        }
+
         drawQuickRow(ry + kRowStep * rowCursor, "lock to screen", QuickAction::ToggleLockToScreen,
                      selectedCue->lockToScreen ? "on" : "off",
                      QuickAction::ToggleLockToScreen, QuickAction::ToggleLockToScreen, true,

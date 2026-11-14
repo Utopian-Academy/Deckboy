@@ -489,3 +489,39 @@ inline bool isVjBlendMode(const std::string& name) {
   const auto& modes = vjBlendModes();
   return std::find(modes.begin(), modes.end(), name) != modes.end();
 }
+
+// ---- Direction (Cue::playDirection) -----------------------------------------
+enum CueDirection { kCueForward = 0, kCueReverse = 1, kCueBounce = 2 };
+
+inline const char* cueDirectionLabel(int direction) {
+  return direction == kCueReverse ? "REVERSE" : direction == kCueBounce ? "BOUNCE" : "FORWARD";
+}
+
+inline bool cueDirectionApplies(const Cue& cue) {
+  return cue.kind == CueKind::Video && !cue.path.empty();
+}
+
+// The trimmed range a copy is made from, in seconds. An out point of 0 means
+// the end of the file.
+inline double cueDirectionIn(const Cue& cue) {
+  return std::clamp(cue.inPointSeconds, 0.0, std::max(0.0, cue.duration));
+}
+inline double cueDirectionOut(const Cue& cue) {
+  const double out = cue.outPointSeconds > 0.0 ? cue.outPointSeconds : cue.duration;
+  return std::clamp(out, cueDirectionIn(cue), std::max(cueDirectionIn(cue), cue.duration));
+}
+
+// What a copy for this cue, as it stands, would be made for. Milliseconds, so
+// a trim nudged by less than a frame does not throw a copy away.
+inline std::string cueDirectionKey(const Cue& cue) {
+  const long long in = std::llround(cueDirectionIn(cue) * 1000.0);
+  const long long out = std::llround(cueDirectionOut(cue) * 1000.0);
+  return std::to_string(cue.playDirection) + "|" + std::to_string(in) + "|" + std::to_string(out);
+}
+
+// The made copy still fits the cue: same direction, same trim. Whether the
+// file is still on disk is the caller's to check (core does no I/O).
+inline bool cueDirectionCopyFits(const Cue& cue) {
+  return cue.playDirection != kCueForward && cueDirectionApplies(cue) && !cue.directionPath.empty() &&
+         cue.directionSeconds > 0.0 && cue.directionKey == cueDirectionKey(cue);
+}
