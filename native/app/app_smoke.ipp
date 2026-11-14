@@ -5809,16 +5809,34 @@
       // an output never reads back.
       if (const char* benchEnv = std::getenv("DECKBOY_SOURCE_BENCH"); ok && benchEnv) {
         const int runs = std::clamp(std::atoi(benchEnv), 1, 500);
-        std::vector<double> ms;
+        std::vector<double> ms, planMs, deskMs;
         for (int i = 0; i < runs; ++i) {
           at += 1.0 / 60.0;
           const auto t0 = std::chrono::steady_clock::now();
           run();
           ms.push_back(std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - t0).count());
         }
+        // What the app's main thread pays each frame: the plan, and the
+        // desk's small picture (rebuildPatternFrame makes it at 640 wide).
+        DecodedFrame desk;
+        desk.width = std::min(w, 640);
+        desk.height = std::max(1, static_cast<int>(std::lround(static_cast<double>(h) * desk.width / w)));
+        for (int i = 0; i < runs; ++i) {
+          at += 1.0 / 60.0;
+          auto t0 = std::chrono::steady_clock::now();
+          MediaEngine::planGpuSource(cue, at, w, h, plan);
+          planMs.push_back(std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - t0).count());
+          t0 = std::chrono::steady_clock::now();
+          MediaEngine::buildGpuSourceDeskPicture(desk, cue, at);
+          deskMs.push_back(std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - t0).count());
+        }
         std::sort(ms.begin(), ms.end());
-        std::printf("source-bench: %s %dx%d median %.2f ms, min %.2f, max %.2f (%d runs)\n", id.c_str(), w, h,
-                    ms[ms.size() / 2], ms.front(), ms.back(), runs);
+        std::sort(planMs.begin(), planMs.end());
+        std::sort(deskMs.begin(), deskMs.end());
+        std::printf("source-bench: %s %dx%d median %.2f ms, min %.2f, max %.2f (%d runs); main thread: the plan "
+                    "%.3f ms, the desk picture %.2f ms\n",
+                    id.c_str(), w, h, ms[ms.size() / 2], ms.front(), ms.back(), runs, planMs[planMs.size() / 2],
+                    deskMs[deskMs.size() / 2]);
       }
       deckboy::gpu::destroyGpuEffects(g);
       SDL_DestroyRenderer(renderer);

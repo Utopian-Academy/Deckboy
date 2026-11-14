@@ -124,6 +124,9 @@ class MediaEngine {
   // version.
   static bool planGpuSource(const Cue& cue, double animTime, int width, int height,
                             deckboy::gpu::SourcePlan& plan);
+  // The desk's small picture of a source made on the card, at frame's size
+  // (set by the caller), traced on the CPU at a quarter of the rays.
+  static void buildGpuSourceDeskPicture(DecodedFrame& frame, const Cue& cue, double animTime);
   // Callback to tap decoded audio samples (for waveform display / VU meter).
   using AudioTapCallback = std::function<void(const std::vector<std::int16_t>&)>;
   // Optional resolver to transform cue paths before decode (e.g. relative→absolute).

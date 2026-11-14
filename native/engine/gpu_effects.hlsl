@@ -867,17 +867,153 @@ void meltShowMain(uint3 id : SV_DispatchThreadID) {
   put(id.xy, float4(float3(d), float(o.a)));
 }
 
+// ---- LUMIA TRACED ON THE CARD ----------------------------------------------
+// media_engine.cpp lumiaWithFrame, pass for pass; every number comes from
+// lumiaStep through MediaEngine::planGpuSource, so the two differ only in
+// arithmetic. srcW x srcH is the traced source. The light piles up in
+// lumiaAccum as fixed point (LUMIA_FIXED a unit, four to a pixel: the
+// prism's RGB and the water), added atomically, so the sum does not depend on
+// the order the rays land in. lumiaResolveMain turns it into floats and
+// empties it for the next frame; the blur ping-pongs A and B; lumiaShown is
+// the trail, kept from frame to frame; sourceMain draws from it.
+BINDING(1, 1) RWStructuredBuffer<uint> lumiaAccum : register(u1 SPACE(1));
+BINDING(2, 1) RWStructuredBuffer<float4> lumiaA : register(u2 SPACE(1));
+BINDING(3, 1) RWStructuredBuffer<float4> lumiaB : register(u3 SPACE(1));
+BINDING(4, 1) RWStructuredBuffer<float4> lumiaCore : register(u4 SPACE(1));
+BINDING(5, 1) RWStructuredBuffer<float4> lumiaShown : register(u5 SPACE(1));
+#define LUMIA_FIXED 4096.0
+
+void lumiaAdd(int at, float v) { InterlockedAdd(lumiaAccum[at], uint(v * LUMIA_FIXED + 0.5)); }
+// One ray's light, spread over the four pixels round where it lands.
+void lumiaSplat(float x, float y, int c0, int nc, float3 e) {
+  if (!(x >= 0.0 && y >= 0.0)) return;
+  const int SW = int(srcW), SH = int(srcH);
+  const int ix = int(x), iy = int(y);
+  if (ix >= SW - 1 || iy >= SH - 1) return;
+  const float fx = x - float(ix), fy = y - float(iy);
+  const int at = (iy * SW + ix) * 4 + c0;
+  const int down = SW * 4;
+  for (int c = 0; c < nc; ++c) {
+    lumiaAdd(at + c, (1.0 - fx) * (1.0 - fy) * e[c]);
+    lumiaAdd(at + 4 + c, fx * (1.0 - fy) * e[c]);
+    lumiaAdd(at + down + c, (1.0 - fx) * fy * e[c]);
+    lumiaAdd(at + down + 4 + c, fx * fy * e[c]);
+  }
+}
+
+// A slot's buffers when they are new: nothing piled up, no trail.
+[numthreads(8, 8, 1)]
+void lumiaClearMain(uint3 id : SV_DispatchThreadID) {
+  if (id.x >= srcW || id.y >= srcH) return;
+  const int i = int(id.y * srcW + id.x);
+  for (int c = 0; c < 4; ++c) lumiaAccum[i * 4 + c] = 0;
+  lumiaShown[i] = float4(0.0, 0.0, 0.0, 0.0);
+}
+
+// The water: i0 x i1 rays; f0 ripple size, f1 bend, f2..f6 the wrapped phases
+// t*1, t*2.2, t*1.7, t*1.3, t*2.9 (lumiaRipplePhases).
+[numthreads(8, 8, 1)]
+void lumiaWaterMain(uint3 id : SV_DispatchThreadID) {
+  if (int(id.x) >= i0 || int(id.y) >= i1) return;
+  const float u = (float(id.x) + 0.5) / float(i0), v = (float(id.y) + 0.5) / float(i1);
+  const float x = u * 2.0 * f0, y = v * 2.0 * f0;
+  const float inner = 3.0 * y + f2;
+  const float ca = cos(9.0 * x + f3 + sin(inner) * 1.5);
+  const float cb = cos(11.0 * y - f4 + 2.0 * x);
+  const float cc = cos((x - y) * 7.0 + f5);
+  const float cd = cos(17.0 * x + 5.0 * y - f6);
+  const float gx = 2.25 * ca + 0.4 * cb + 1.26 * cc + 1.36 * cd;
+  const float gy = 1.125 * cos(inner) * ca + 2.2 * cb - 1.26 * cc + 0.4 * cd;
+  lumiaSplat((u + gx * f1) * float(srcW), (v + gy * f1) * float(srcH), 3, 1, float3(1.0, 0.0, 0.0));
+}
+
+// The prism: i0 x i1 rays for each of i2 beams; f0 the crossing jet (0: none).
+// tab, ten to a beam: its light (rgb), its bend, the beam's wrapped phases
+// (t*0.6, t*0.45, t*0.3) and the jet's.
+[numthreads(8, 8, 1)]
+void lumiaPrismMain(uint3 id : SV_DispatchThreadID) {
+  if (int(id.x) >= i0 || int(id.y) >= i1 * i2) return;
+  const int bi = int(id.y) / i1, j = int(id.y) % i1;
+  const float u = (float(id.x) + 0.5) / float(i0), v = (float(j) + 0.5) / float(i1);
+  const float x = u * 3.0, y = v * 2.0;
+  const uint b = uint(bi * 10);
+  const float ca = cos(x * 2.3 + tabAt(b + 4));
+  const float cb = cos(y * 2.9 - tabAt(b + 5) + x * 0.8);
+  const float cc = cos((x + y) * 1.7 + tabAt(b + 6));
+  float gx = 1.38 * ca + 0.4 * cb + 0.51 * cc;
+  float gy = 1.45 * cb + 0.51 * cc;
+  if (f0 > 0.0) {
+    const float xj = v * 3.0 + 7.0, yj = u * 2.0 + 3.0;
+    const float ja = cos(xj * 2.3 + tabAt(b + 7));
+    const float jb = cos(yj * 2.9 - tabAt(b + 8) + xj * 0.8);
+    const float jc = cos((xj + yj) * 1.7 + tabAt(b + 9));
+    gx += (1.45 * jb + 0.51 * jc) * f0;
+    gy += (1.38 * ja + 0.4 * jb + 0.51 * jc) * f0;
+  }
+  const float kd = tabAt(b + 3);
+  lumiaSplat((u + gx * kd) * float(srcW), (v + gy * kd) * float(srcH), 0, 3,
+             float3(tabAt(b), tabAt(b + 1), tabAt(b + 2)));
+}
+
+// Only the light above the average shows: f0 raysW, f1 raysP, f2 the water's
+// gain, f3 the prism's. Into A (prism rgb, water a) and the sharp cores; the
+// pile is emptied for the next frame.
+[numthreads(8, 8, 1)]
+void lumiaResolveMain(uint3 id : SV_DispatchThreadID) {
+  if (id.x >= srcW || id.y >= srcH) return;
+  const int i = int(id.y * srcW + id.x);
+  const float3 prism = float3(float(lumiaAccum[i * 4]), float(lumiaAccum[i * 4 + 1]),
+                              float(lumiaAccum[i * 4 + 2])) / LUMIA_FIXED;
+  const float water = float(lumiaAccum[i * 4 + 3]) / LUMIA_FIXED;
+  for (int c = 0; c < 4; ++c) lumiaAccum[i * 4 + c] = 0;
+  const float3 p = max(float3(0.0, 0.0, 0.0), prism - f1 * 1.25) * f3;
+  lumiaA[i] = float4(p, max(0.0, water / f0 - 0.9) * f2);
+  lumiaCore[i] = float4(p, 0.0);
+}
+
+// One box blur: i0 the prism's radius, i1 the water's, i2 0 across / 1 down,
+// i3 0 from A into B / 1 from B into A. Edges clamp, as the CPU's do.
+[numthreads(8, 8, 1)]
+void lumiaBlurMain(uint3 id : SV_DispatchThreadID) {
+  if (id.x >= srcW || id.y >= srcH) return;
+  const int W = int(srcW), H = int(srcH), x = int(id.x), y = int(id.y);
+  const int r = max(i0, i1);
+  float3 rgb = float3(0.0, 0.0, 0.0);
+  float a = 0.0;
+  for (int k = -r; k <= r; ++k) {
+    const int xx = i2 == 0 ? clamp(x + k, 0, W - 1) : x;
+    const int yy = i2 == 0 ? y : clamp(y + k, 0, H - 1);
+    const float4 s = i3 == 0 ? lumiaA[yy * W + xx] : lumiaB[yy * W + xx];
+    if (abs(k) <= i0) rgb += s.rgb;
+    if (abs(k) <= i1) a += s.a;
+  }
+  const float4 o = float4(rgb / float(2 * i0 + 1), a / float(2 * i1 + 1));
+  if (i3 == 0) lumiaB[y * W + x] = o; else lumiaA[y * W + x] = o;
+}
+
+// The trail: f0 the glow's halo, f1 keep, f2 add; i0 1 to start afresh.
+// Light below 1/4096 snaps to zero, as on the CPU.
+[numthreads(8, 8, 1)]
+void lumiaTrailMain(uint3 id : SV_DispatchThreadID) {
+  if (id.x >= srcW || id.y >= srcH) return;
+  const int i = int(id.y * srcW + id.x);
+  const float4 prev = i0 != 0 ? float4(0.0, 0.0, 0.0, 0.0) : lumiaShown[i];
+  const float4 blurred = lumiaA[i];
+  float4 o = float4(prev.rgb * f1 + (blurred.rgb * f0 + lumiaCore[i].rgb * 0.5) * f2, prev.a * f1 + blurred.a * f2);
+  o *= step(1.0 / 4096.0, o);
+  lumiaShown[i] = o;
+}
+
 // ---- GENERATED SOURCES: the picture made on the card ---------------------
-// (gpu_effects.cpp runGpuSource). The CPU works out each frame's small inputs
-// -- MediaEngine::planGpuSource, from the same code the CPU builder runs --
-// and this does the per-pixel part. width/height: the picture. kind 1, LUMIA
-// (media_engine.cpp lumiaDraw, line for line): aux is the traced source,
-// srcW x srcH texels, the prism's light in rgb and the water's in a. i0 mode
+// (gpu_effects.cpp runGpuSource): the full-size draw. kind 1, LUMIA
+// (media_engine.cpp lumiaDraw, line for line): width/height the picture;
+// lumiaShown the traced source with its trail (lumia*Main above), srcW x
+// srcH, the prism's light in rgb and the water's in a. i0 mode
 // (0 tube, 1 mandala, 2 none), i1 mirrors, i2 top/bottom; f0 aspect, f1/f2
 // the spin's cos and sin, f3 lens * 0.55, f4 gain, f5 the rim's power; tab:
 // each mirror panel's tilt, cos and sin. The CPU reads the rim and the
 // screen's response from tables; here they are worked out, within a level.
-float4 lumiaAt(int x, int y) { return aux.Load(int3(x, y, 0)); }
+float4 lumiaAt(int x, int y) { return lumiaShown[y * int(srcW) + x]; }
 [numthreads(8, 8, 1)]
 void sourceMain(uint3 id : SV_DispatchThreadID) {
   if (id.x >= width || id.y >= height) return;

@@ -4834,9 +4834,9 @@ void MediaEngine::rebuildPatternFrame(const Cue& cue, double wallSeconds) {
   if (!displayFrame_) {
     displayFrame_.emplace();
   }
-  // MADE ON THE CARD (setSourcesOnGpu): a plan for the outputs at full size,
-  // and a small picture of the same moment, from the same trace, for the
-  // desk. A look the GPU source cannot carry (a grade, a key, effects, a
+  // MADE ON THE CARD (setSourcesOnGpu): a plan the outputs trace and draw at
+  // full size, and a small picture of the same moment for the desk, traced
+  // here at a quarter of the rays. A look the GPU source cannot carry (a grade, a key, effects, a
   // sound that reads the picture) keeps the whole CPU frame, as before.
   const bool lookOnCpu = cue.chromaKeyEnabled ||
                          colorControlsActive(cue.brightness, cue.contrast, cue.saturation, cue.hueShift) ||
@@ -4849,7 +4849,7 @@ void MediaEngine::rebuildPatternFrame(const Cue& cue, double wallSeconds) {
       const int sh = std::max(1, static_cast<int>(std::lround(static_cast<double>(fallbackH) * sw / fallbackW)));
       displayFrame_->width = sw;
       displayFrame_->height = sh;
-      buildLumiaAt(*displayFrame_, animTime, cue.lumia, cue.id, fallbackH >= 600 ? 2 : 1);
+      buildGpuSourceDeskPicture(*displayFrame_, cue, animTime);
       displayFrame_->format = FramePixelFormat::RGBA32;
       displayFrame_->colorspace = SDL_COLORSPACE_SRGB;
       displayFrame_->logicalWidth = fallbackW;
@@ -13107,6 +13107,7 @@ struct LumiaState {
   double lt = 0.0;       // the water's own time (integrated: flow may be on an LFO)
   double spinAt = 0.0;   // the picture's turn (integrated: spin may be on an LFO)
   std::uint32_t seed = 1;
+  std::uint64_t moment = 0;  // the card's: the number of the last moment traced
   std::vector<float> acc, wat, tmp, core;   // this frame's light
   std::vector<float> colTab, rowTab;        // the slopes' column and row tables
   std::vector<float> land;                  // where each ray lands, x y
@@ -13125,6 +13126,29 @@ struct LumiaState {
 // e + (r / groupSize) * n instead (the prism: one group per beam colour).
 void lumiaSplat(std::vector<float>& buf, int sw, int sh, int n, const float* land, std::size_t count,
                 const float* e, LumiaSplatScratch& scratch, std::size_t groupSize = 0) {
+  float* b = buf.data();
+  // A small pile in one straight pass: below this the sort and the trips
+  // through the cores cost more than they save (the desk's quarter-density
+  // picture spent 2.5 ms of a 3.5 ms frame on them).
+  if (count * static_cast<std::size_t>(n) < 400000) {
+    for (std::size_t r = 0; r < count; ++r) {
+      const float x = land[r * 2], y = land[r * 2 + 1];
+      if (!(x >= 0.0f && y >= 0.0f)) continue;
+      const int ix = static_cast<int>(x), iy = static_cast<int>(y);
+      if (ix >= sw - 1 || iy >= sh - 1) continue;
+      const float fx = x - ix, fy = y - iy;
+      const float* er = groupSize ? e + (r / groupSize) * n : e;
+      float* a = b + (static_cast<std::size_t>(iy) * sw + ix) * n;
+      float* d = a + static_cast<std::size_t>(sw) * n;
+      for (int ch = 0; ch < n; ++ch) {
+        a[ch] += (1 - fx) * (1 - fy) * er[ch];
+        a[n + ch] += fx * (1 - fy) * er[ch];
+        d[ch] += (1 - fx) * fy * er[ch];
+        d[n + ch] += fx * fy * er[ch];
+      }
+    }
+    return;
+  }
   auto& pool = deckboy::effects::detail::RowPool::instance();
   constexpr int kChunks = 64;
   const int strips = std::clamp(sh / 8, 1, 64);
@@ -13149,10 +13173,10 @@ void lumiaSplat(std::vector<float>& buf, int sw, int sh, int n, const float* lan
   std::vector<std::uint32_t> stripStart(static_cast<std::size_t>(buckets) + 1, 0);
   {
     std::uint32_t at = 0;
-    for (int b = 0; b < buckets; ++b) {
-      stripStart[b] = at;
+    for (int bk = 0; bk < buckets; ++bk) {
+      stripStart[bk] = at;
       for (int c = 0; c < kChunks; ++c) {
-        std::uint32_t& k = scratch.counts[static_cast<std::size_t>(c) * buckets + b];
+        std::uint32_t& k = scratch.counts[static_cast<std::size_t>(c) * buckets + bk];
         const std::uint32_t here = k;
         k = at;
         at += here;
@@ -13165,7 +13189,6 @@ void lumiaSplat(std::vector<float>& buf, int sw, int sh, int n, const float* lan
     const std::size_t r1 = std::min(count, (c + 1) * chunkSize);
     for (std::size_t r = c * chunkSize; r < r1; ++r) scratch.order[next[stripOf(r)]++] = static_cast<std::uint32_t>(r);
   });
-  float* b = buf.data();
   for (int wave = 0; wave < 2; ++wave) {
     pool.run((strips + 1 - wave) / 2, [&](int k) {
       const int strip = k * 2 + wave;
@@ -13261,12 +13284,7 @@ void lumiaBlur(std::vector<float>& buf, std::vector<float>& tmp, int sw, int sh,
 
 }  // namespace
 
-// The light of this moment for one cue at quality q (1: a 240x160 source,
-// 2: 480x320), traced once and kept per cue -- a second call at the same
-// moment (the preview, a second output, the GPU plan) reuses it -- and
-// handed to `use` with the lock held. The CPU draw (lumiaDraw) and the GPU
-// plan (MediaEngine::planGpuSource) both read it from here, so the two cannot
-// drift apart.
+// What lumiaDraw needs from a traced frame.
 struct LumiaView {
   const float* acc = nullptr;   // the prism's light, RGB, SW x SH
   const float* wat = nullptr;   // the water's light, SW x SH
@@ -13275,8 +13293,31 @@ struct LumiaView {
   int mode = 0, mirrors = 0;
   bool topBottom = true;
 };
-template <typename Fn>
-void lumiaWithFrame(double animTime, const LumiaSettings& base, const std::string& cueId, int q, Fn&& use) {
+
+// ONE MOMENT'S NUMBERS: the settings through their oscillators, the clocks
+// stepped on, whether to trace and whether the trail starts again, and every
+// number the trace and the draw work from. The CPU trace (lumiaWithFrame) and
+// the card's (MediaEngine::planGpuSource, gpu_effects.hlsl lumia*Main) both
+// take them from here, so the two can differ only in arithmetic, never in a
+// setting. Costs microseconds.
+struct LumiaStep {
+  bool trace = false;   // a new moment: trace it (false: show the kept light)
+  bool reset = false;   // a new cue, a restart or a scrub: no trail from before
+  int q = 1, SW = 0, SH = 0;
+  int NW = 0, NH = 0;                    // the water's rays
+  int nb = 3, cols = 1, rows = 1;        // the prism's beams and each one's rays
+  const LumiaPalette* pal = nullptr;
+  double lt = 0, spinAt = 0;
+  double rs = 1, k1 = 0, k2 = 0, split = 0, jet = 0;
+  float rayShare = 1, raysW = 1, raysP = 1, waterGain = 0, prismGain = 0;
+  double waterSpread = 1, accSpread = 1;  // the blurs' variance, source pixels squared
+  float halo = 1, keep = 0, add = 1;      // the glow and the trail
+  double gain = 0, lens = 0, angle = 0;   // the draw
+  int mode = 0, mirrors = 0;
+  bool topBottom = true;
+};
+
+LumiaStep lumiaStep(LumiaState& st, double animTime, const LumiaSettings& base, int q) {
   const auto clock = deckboy::effects::readLfoClock();
   auto mod = [&](int slot, double value) {
     const auto& lfo = base.lfo[static_cast<std::size_t>(slot)];
@@ -13291,68 +13332,126 @@ void lumiaWithFrame(double animTime, const LumiaSettings& base, const std::strin
   const double split = mod(kLumiaLfoSplit, base.split);
   const double focus = mod(kLumiaLfoFocus, base.focus);
   const double shimmer = mod(kLumiaLfoShimmer, base.shimmer);
-  const int mirrors = static_cast<int>(std::lround(mod(kLumiaLfoMirrors, base.mirrors) * 12.0));
-  const double angle = mod(kLumiaLfoAngle, base.angle);
   const double spin = mod(kLumiaLfoSpin, base.spin);
-  const double lens = mod(kLumiaLfoLens, base.lens);
   const double glow = mod(kLumiaLfoGlow, base.glow);
-  const double bright = mod(kLumiaLfoBright, base.bright);
   const double trail = mod(kLumiaLfoTrail, base.trail) * 0.92;   // 1 would never let go
-  const int mode = std::clamp(base.mode, 0, kLumiaModeCount - 1);
-  const LumiaPalette& pal = kLumiaPalettes[std::clamp(base.palette, 0, kLumiaPaletteCount - 1)];
 
-  const int SW = 240 * q, SH = 160 * q;
+  LumiaStep s;
+  s.q = q;
+  s.SW = 240 * q;
+  s.SH = 160 * q;
+  s.mirrors = static_cast<int>(std::lround(mod(kLumiaLfoMirrors, base.mirrors) * 12.0));
+  s.angle = mod(kLumiaLfoAngle, base.angle);
+  s.lens = mod(kLumiaLfoLens, base.lens);
+  s.gain = 0.3 + mod(kLumiaLfoBright, base.bright) * 1.4;
+  s.mode = std::clamp(base.mode, 0, kLumiaModeCount - 1);
+  s.topBottom = base.topBottom;
+  s.pal = &kLumiaPalettes[std::clamp(base.palette, 0, kLumiaPaletteCount - 1)];
 
+  double dt = animTime - st.last;
+  if (st.sw != s.SW || st.sh != s.SH) {
+    st = LumiaState{};
+    st.sw = s.SW;
+    st.sh = s.SH;
+    s.trace = s.reset = true;
+    dt = 1.0 / 60.0;
+  } else if (dt < -0.25 || dt > 2.0) {
+    // A restart or a scrub: no trail from another moment.
+    s.trace = s.reset = true;
+    dt = 1.0 / 60.0;
+  } else if (dt > 0.0) {
+    s.trace = true;
+    dt = std::min(dt, 0.1);
+  }
+  st.last = animTime;
+
+  // Listening: the jet surges with the programme sound.
+  const double beat = base.listens ? 0.6 + 1.2 * std::clamp(static_cast<double>(clock.audio01), 0.0, 1.0) : 1.0;
+  double tremble = 1.0;
+  if (s.trace) {
+    st.lt += dt * (0.15 + flow * 1.4) * beat;
+    st.spinAt += dt * spin * 0.6;
+    st.seed = st.seed * 1664525u + 1013904223u;
+    // Laser speckle: the whole beam's focus trembles a little every frame.
+    tremble = 1 + (st.seed / 4294967296.0 - 0.5) * shimmer * 0.5;
+  }
+  s.lt = st.lt;
+  s.spinAt = st.spinAt;
+
+  // The water: rippled; a small ripple size is fine and busy. 1.6 rays per
+  // source pixel: fewer leaves the ray grid showing as a fine lattice.
+  s.rs = 0.6 + (1 - ripple) * 2.2;
+  s.k1 = (0.01 + focus * 0.05) * beat * tremble / std::sqrt(s.rs);
+  s.NW = 300 * q;
+  s.NH = 210 * q;
+  // The prism: each laser colour bent by its own amount (split). The board
+  // traced 160x110 rays per frame; the ray grid showed through as a fine
+  // dot pattern against the dark. kPrismDensity times as many rays, each
+  // carrying that much less light, keep its brightness.
+  s.k2 = (0.04 + focus * 0.16) * beat * tremble;
+  s.split = split;
+  s.jet = jet;
+  s.nb = s.pal->n;
+  constexpr double kPrismDensity = 3.0;
+  const double per = 160.0 * 110.0 * q * q / s.nb * kPrismDensity;
+  s.cols = std::max(1, static_cast<int>(std::lround(std::sqrt(per * 1.45))));
+  s.rows = std::max(1, static_cast<int>(std::lround(per / s.cols)));
+  s.rayShare = static_cast<float>(160.0 * 110.0 * q * q / s.nb / (static_cast<double>(s.cols) * s.rows));
+  // Only the light above the average shows: dark between the lines.
+  const double n = static_cast<double>(s.SW) * s.SH;
+  s.raysW = static_cast<float>(static_cast<double>(s.NW) * s.NH / n);
+  s.raysP = static_cast<float>(static_cast<double>(s.cols) * s.rows * s.nb * s.rayShare / n / 3.0);
+  s.waterGain = static_cast<float>(0.643 * water * 0.6);
+  s.prismGain = static_cast<float>(prism * 1.4);
+  // Soften the water into patches; glow round the prism's sharp cores. The
+  // spreads are the board's (a [1 2 1] pass adds 0.5), times q*q so the
+  // bigger source looks the same.
+  s.waterSpread = 1.5 * q * q;
+  s.accSpread = 0.5 * (1 + glow * 3) * q * q;
+  s.halo = static_cast<float>(0.4 + glow * 2.2);
+  s.keep = static_cast<float>(trail);
+  s.add = static_cast<float>(1 - trail * 0.6);
+  return s;
+}
+
+// The box radius lumiaBlur uses for a spread (the card's blur takes the same).
+int lumiaBoxRadius(double spread) {
+  return std::max(1, static_cast<int>(std::lround((std::sqrt(1 + 4 * spread) - 1) * 0.5)));
+}
+
+// The light of this moment for one cue at quality q (1: a 240x160 source,
+// 2: 480x320), traced once on the CPU and kept per cue -- a second call at
+// the same moment (the preview, a second output) reuses it -- and handed to
+// `use` with the lock held. lumiaDraw reads it.
+template <typename Fn>
+void lumiaWithFrame(double animTime, const LumiaSettings& base, const std::string& cueId, int q, Fn&& use) {
   static std::mutex mutex;
   static std::map<std::string, LumiaState> states;
   std::lock_guard<std::mutex> lock(mutex);
   const std::string key = cueId + (q == 2 ? "#hi" : "#lo");
   if (states.size() > 16 && states.find(key) == states.end()) states.clear();
   LumiaState& st = states[key];
-
-  bool trace = false;
-  double dt = animTime - st.last;
-  if (st.sw != SW || st.sh != SH) {
-    st = LumiaState{};
-    st.sw = SW;
-    st.sh = SH;
+  const LumiaStep s = lumiaStep(st, animTime, base, q);
+  const int SW = s.SW, SH = s.SH;
+  if (s.reset || st.accShown.size() != static_cast<std::size_t>(SW) * SH * 3) {
     const std::size_t n = static_cast<std::size_t>(SW) * SH;
     st.acc.assign(n * 3, 0.0f);
     st.wat.assign(n, 0.0f);
     st.accShown.assign(n * 3, 0.0f);
     st.watShown.assign(n, 0.0f);
-    trace = true;
-    dt = 1.0 / 60.0;
-  } else if (dt < -0.25 || dt > 2.0) {
-    // A restart or a scrub: no trail from another moment.
-    std::fill(st.accShown.begin(), st.accShown.end(), 0.0f);
-    std::fill(st.watShown.begin(), st.watShown.end(), 0.0f);
-    trace = true;
-    dt = 1.0 / 60.0;
-  } else if (dt > 0.0) {
-    trace = true;
-    dt = std::min(dt, 0.1);
   }
-  st.last = animTime;
 
-  if (trace) {
-    // Listening: the jet surges with the programme sound.
-    const double beat = base.listens ? 0.6 + 1.2 * std::clamp(static_cast<double>(clock.audio01), 0.0, 1.0) : 1.0;
-    st.lt += dt * (0.15 + flow * 1.4) * beat;
-    st.spinAt += dt * spin * 0.6;
-    const double lt = st.lt;
+  if (s.trace) {
+    const double lt = s.lt, rs = s.rs, k1 = s.k1, k2 = s.k2, split = s.split, jet = s.jet;
+    const int NW = s.NW, NH = s.NH, nb = s.nb, cols = s.cols, rows = s.rows;
+    const LumiaPalette& pal = *s.pal;
+    const float rayShare = s.rayShare, raysW = s.raysW, raysP = s.raysP;
+    const float waterGain = s.waterGain, prismGain = s.prismGain, halo = s.halo, keep = s.keep, add = s.add;
     std::fill(st.acc.begin(), st.acc.end(), 0.0f);
     std::fill(st.wat.begin(), st.wat.end(), 0.0f);
-    st.seed = st.seed * 1664525u + 1013904223u;
-    // Laser speckle: the whole beam's focus trembles a little every frame.
-    const double tremble = 1 + (st.seed / 4294967296.0 - 0.5) * shimmer * 0.5;
-
     // The water: rippled; a small ripple size is fine and busy.
-    const double rs = 0.6 + (1 - ripple) * 2.2;
-    const double k1 = (0.01 + focus * 0.05) * beat * tremble / std::sqrt(rs);
     // Rays land in parallel, then pile up in one pass. 1.6 rays per source
     // pixel: fewer leaves the ray grid showing as a fine lattice.
-    const int NW = 300 * q, NH = 210 * q;
     st.land.resize(static_cast<std::size_t>(NW) * NH * 2);
     float* land = st.land.data();
     // Every angle in the surface's slope is a part that depends only on
@@ -13411,16 +13510,6 @@ void lumiaWithFrame(double animTime, const LumiaSettings& base, const std::strin
     // The prism: each laser colour bent by its own amount (split), so each
     // sharp line comes out as a fringe of colour. A second jet crossing the
     // first adds its own curves, turned a quarter.
-    const double k2 = (0.04 + focus * 0.16) * beat * tremble;
-    const int nb = pal.n;
-    // The board traced 160x110 rays per frame; the ray grid showed through
-    // as a fine dot pattern against the dark. kPrismDensity times as many
-    // rays, each carrying that much less light, keep its brightness.
-    constexpr double kPrismDensity = 3.0;
-    const double per = 160.0 * 110.0 * q * q / nb * kPrismDensity;
-    const int cols = std::max(1, static_cast<int>(std::lround(std::sqrt(per * 1.45))));
-    const int rows = std::max(1, static_cast<int>(std::lround(per / cols)));
-    const float rayShare = static_cast<float>(160.0 * 110.0 * q * q / nb / (static_cast<double>(cols) * rows));
     // Every beam's rays land in one parallel pass (one beam alone is under
     // the size at which parallelRows bothers to split), then pile up.
     const std::size_t perBeam = static_cast<std::size_t>(cols) * rows;
@@ -13501,10 +13590,6 @@ void lumiaWithFrame(double animTime, const LumiaSettings& base, const std::strin
     }
     lumiaSplat(st.acc, SW, SH, 3, land, perBeam * nb, beamLight, st.splat, perBeam);
     // Only the light above the average shows: dark between the lines.
-    const std::size_t n = static_cast<std::size_t>(SW) * SH;
-    const float raysW = static_cast<float>(static_cast<double>(NW) * NH / n);
-    const float raysP = static_cast<float>(static_cast<double>(cols) * rows * nb * rayShare / n / 3.0);
-    const float waterGain = static_cast<float>(0.643 * water * 0.6), prismGain = static_cast<float>(prism * 1.4);
     st.core.resize(st.acc.size());
     deckboy::effects::detail::parallelRows(SH, SW, [&](int y0, int y1) {
       for (std::size_t i = static_cast<std::size_t>(y0) * SW; i < static_cast<std::size_t>(y1) * SW; ++i) {
@@ -13519,13 +13604,11 @@ void lumiaWithFrame(double animTime, const LumiaSettings& base, const std::strin
     // Soften the water into patches; glow round the prism's sharp cores. The
     // spreads are the board's (a [1 2 1] pass adds 0.5), times q*q so the
     // bigger source looks the same.
-    lumiaBlur(st.wat, st.tmp, SW, SH, 1, 1.5 * q * q);
-    lumiaBlur(st.acc, st.tmp, SW, SH, 3, 0.5 * (1 + glow * 3) * q * q);
-    const float halo = static_cast<float>(0.4 + glow * 2.2);
+    lumiaBlur(st.wat, st.tmp, SW, SH, 1, s.waterSpread);
+    lumiaBlur(st.acc, st.tmp, SW, SH, 3, s.accSpread);
     // Light below 1/4096 of a step is gone: it is snapped to zero. Left to
     // fade by the trail, it sinks into denormal floats, which the CPU handles
     // many times slower than ordinary ones (measured: the whole frame slowed).
-    const float keep = static_cast<float>(trail), add = static_cast<float>(1 - trail * 0.6);
     auto settle = [](float v) { return v < 1.0f / 4096.0f ? 0.0f : v; };
     deckboy::effects::detail::parallelRows(SH, SW, [&](int y0, int y1) {
       for (std::size_t i = static_cast<std::size_t>(y0) * SW; i < static_cast<std::size_t>(y1) * SW; ++i) {
@@ -13538,20 +13621,19 @@ void lumiaWithFrame(double animTime, const LumiaSettings& base, const std::strin
     });
   }
 
-
   LumiaView view;
   view.acc = st.accShown.data();
   view.wat = st.watShown.data();
   view.SW = SW;
   view.SH = SH;
-  view.spinAt = st.spinAt;
-  view.gain = 0.3 + bright * 1.4;
-  view.lens = lens;
-  view.rimPow = 6 - lens * 3;
-  view.angle = angle;
-  view.mode = mode;
-  view.mirrors = mirrors;
-  view.topBottom = base.topBottom;
+  view.spinAt = s.spinAt;
+  view.gain = s.gain;
+  view.lens = s.lens;
+  view.rimPow = 6 - s.lens * 3;
+  view.angle = s.angle;
+  view.mode = s.mode;
+  view.mirrors = s.mirrors;
+  view.topBottom = s.topBottom;
   use(view);
 }
 
@@ -13678,8 +13760,8 @@ void lumiaDraw(DecodedFrame& frame, const LumiaView& v) {
           const float a = acc[i00 * 3 + c] * w00 + acc[i10 * 3 + c] * w10 + acc[i01 * 3 + c] * w01 +
                           acc[i11 * 3 + c] * w11;
           // Each colour saturates on its own: overlaps mix, they do not wash white.
-          const float v = std::min(fGlowMax, (a + wv * kTint[c]) * fade);
-          px[c] = glowLut[static_cast<int>(v * glowScale)];
+          const float light = std::min(fGlowMax, (a + wv * kTint[c]) * fade);
+          px[c] = glowLut[static_cast<int>(light * glowScale)];
         }
         px[3] = 255;
       }
@@ -13741,52 +13823,86 @@ void buildLumia(DecodedFrame& frame, double animTime, const LumiaSettings& base,
   buildLumiaAt(frame, animTime, base, cueId, frame.height >= 600 ? 2 : 1);
 }
 
+void MediaEngine::buildGpuSourceDeskPicture(DecodedFrame& frame, const Cue& cue, double animTime) {
+  buildLumiaAt(frame, animTime, cue.lumia, cue.id, 1);
+}
+
 bool MediaEngine::patternMadeOnGpu(const std::string& patternPath) {
   return stripPatternMotionSuffix(normalizePatternTypeId(patternPath)) == "lumia";
 }
 
-// planGpuSource - the frame's small inputs for sourceMain (gpu_effects.hlsl).
-// The traced light comes from lumiaWithFrame, the same call the CPU draw
-// makes, at the quality the CPU would pick for this height; the kernel then
-// does lumiaDraw's per-pixel part. The two cannot drift: one trace.
+// planGpuSource - one moment of Lumia for the card (gpu_effects.hlsl
+// lumia*Main and sourceMain). The CPU steps the clocks and works out every
+// number (lumiaStep, the code the CPU trace runs); the card traces and draws.
+// Its own clocks, per cue: the CPU trace of the same cue (the desk's picture)
+// keeps its own, stepped by the same moments.
 bool MediaEngine::planGpuSource(const Cue& cue, double animTime, int width, int height,
                                 deckboy::gpu::SourcePlan& plan) {
   if (!patternMadeOnGpu(cue.path) || width < 2 || height < 2) return false;
   const int q = height >= 600 ? 2 : 1;
-  lumiaWithFrame(animTime, cue.lumia, cue.id, q, [&](const LumiaView& v) {
-    plan.kind = deckboy::gpu::SourcePlan::Lumia;
-    plan.width = width;
-    plan.height = height;
-    plan.auxW = v.SW;
-    plan.auxH = v.SH;
-    const std::size_t n = static_cast<std::size_t>(v.SW) * v.SH;
-    plan.aux.resize(n * 4);
-    float* a = plan.aux.data();
-    deckboy::effects::detail::parallelRows(v.SH, v.SW, [&](int y0, int y1) {
-      for (std::size_t i = static_cast<std::size_t>(y0) * v.SW; i < static_cast<std::size_t>(y1) * v.SW; ++i) {
-        a[i * 4] = v.acc[i * 3];
-        a[i * 4 + 1] = v.acc[i * 3 + 1];
-        a[i * 4 + 2] = v.acc[i * 3 + 2];
-        a[i * 4 + 3] = v.wat[i];
-      }
-    });
-    plan.i[0] = v.mode;
-    plan.i[1] = v.mirrors;
-    plan.i[2] = v.topBottom ? 1 : 0;
-    plan.i[3] = 0;
-    plan.f[0] = static_cast<float>(static_cast<double>(width) / height);
-    plan.f[1] = static_cast<float>(std::cos(v.spinAt));
-    plan.f[2] = static_cast<float>(std::sin(v.spinAt));
-    plan.f[3] = static_cast<float>(v.lens * 0.55);
-    plan.f[4] = static_cast<float>(v.gain);
-    plan.f[5] = static_cast<float>(v.rimPow);
-    for (int k = 0; k < 64; ++k) {
-      const double tilt = k * v.angle * 0.35 * ((k & 1) ? -1 : 1);
-      plan.tab[k * 2] = static_cast<float>(std::cos(tilt));
-      plan.tab[k * 2 + 1] = static_cast<float>(std::sin(tilt));
-    }
-  });
-  return plan.kind != deckboy::gpu::SourcePlan::None;
+  static std::mutex mutex;
+  static std::map<std::string, LumiaState> states;
+  static std::uint64_t moments = 0;
+  std::lock_guard<std::mutex> lock(mutex);
+  const std::string key = cue.id + (q == 2 ? "#hi" : "#lo");
+  if (states.size() > 16 && states.find(key) == states.end()) states.clear();
+  LumiaState& st = states[key];
+  const LumiaStep s = lumiaStep(st, animTime, cue.lumia, q);
+  if (s.trace) st.moment = ++moments;
+
+  plan.kind = deckboy::gpu::SourcePlan::Lumia;
+  plan.width = width;
+  plan.height = height;
+  plan.srcW = s.SW;
+  plan.srcH = s.SH;
+  plan.moment = st.moment;
+  plan.reset = s.reset;
+  // ti: water rays across, down; prism rays across, down, beams; blur radii.
+  plan.ti[0] = s.NW;
+  plan.ti[1] = s.NH;
+  plan.ti[2] = s.cols;
+  plan.ti[3] = s.rows;
+  plan.ti[4] = s.nb;
+  plan.ti[5] = lumiaBoxRadius(s.accSpread);
+  plan.ti[6] = lumiaBoxRadius(s.waterSpread);
+  // tf: ripple size, the water's bend, its five phases; the jet (0: none);
+  // the thresholds and gains; the halo, keep and add of the trail.
+  const LumiaRipplePhases rp = lumiaRipplePhases(s.lt);
+  const float tf[15] = {static_cast<float>(s.rs), static_cast<float>(s.k1), rp.t1, rp.t22, rp.t17, rp.t13, rp.t29,
+                        s.jet > 0.01 ? static_cast<float>(s.jet) : 0.0f, s.raysW, s.raysP, s.waterGain,
+                        s.prismGain, s.halo, s.keep, s.add};
+  std::copy(std::begin(tf), std::end(tf), plan.tf);
+  // beams, ten to a beam: its light, its bend, its phases and its jet's.
+  for (int bi = 0; bi < s.nb; ++bi) {
+    float* b = plan.beams + bi * 10;
+    for (int c = 0; c < 3; ++c) b[c] = s.pal->c[bi][c] * 3.0f / s.nb * s.rayShare;
+    b[3] = static_cast<float>(s.k2 * (1 + (bi - (s.nb - 1) / 2.0) / std::max(1, s.nb - 1) * s.split * 0.8));
+    const LumiaLensyPhases bp = lumiaLensyPhases(s.lt + bi * 0.02);
+    const LumiaLensyPhases jp = lumiaLensyPhases(s.lt * 1.3 + bi * 0.02);
+    b[4] = bp.t06;
+    b[5] = bp.t045;
+    b[6] = bp.t03;
+    b[7] = jp.t06;
+    b[8] = jp.t045;
+    b[9] = jp.t03;
+  }
+  // The draw: lumiaDraw's numbers.
+  plan.i[0] = s.mode;
+  plan.i[1] = s.mirrors;
+  plan.i[2] = s.topBottom ? 1 : 0;
+  plan.i[3] = 0;
+  plan.f[0] = static_cast<float>(static_cast<double>(width) / height);
+  plan.f[1] = static_cast<float>(std::cos(s.spinAt));
+  plan.f[2] = static_cast<float>(std::sin(s.spinAt));
+  plan.f[3] = static_cast<float>(s.lens * 0.55);
+  plan.f[4] = static_cast<float>(s.gain);
+  plan.f[5] = static_cast<float>(6 - s.lens * 3);
+  for (int k = 0; k < 64; ++k) {
+    const double tilt = k * s.angle * 0.35 * ((k & 1) ? -1 : 1);
+    plan.tab[k * 2] = static_cast<float>(std::cos(tilt));
+    plan.tab[k * 2 + 1] = static_cast<float>(std::sin(tilt));
+  }
+  return true;
 }
 
 // ---------------------------------------------------------------------------

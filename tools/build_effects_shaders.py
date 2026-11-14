@@ -27,7 +27,8 @@ ENGINE = ROOT / "native" / "engine"
 HLSL = ENGINE / "gpu_effects.hlsl"
 MSL = ENGINE / "gpu_effects.metal"
 OUT = ENGINE / "gpu_effects_shaders.inc"
-ENTRIES = ("pointMain", "downMain", "boxMain", "streakMain", "tileMain", "nv12Main", "transMain", "stereoMain", "tapeMain", "meltInitMain", "meltStepMain", "meltShowMain", "sourceMain")
+ENTRIES = ("pointMain", "downMain", "boxMain", "streakMain", "tileMain", "nv12Main", "transMain", "stereoMain", "tapeMain", "meltInitMain", "meltStepMain", "meltShowMain", "sourceMain", "lumiaClearMain", "lumiaWaterMain",
+           "lumiaPrismMain", "lumiaResolveMain", "lumiaBlurMain", "lumiaTrailMain")
 
 
 def source_hash():

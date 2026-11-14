@@ -772,9 +772,117 @@ kernel void meltShowMain(ARGS) {
   put(dst, id, float4(float3(d), float(o.a)));
 }
 
+// ---- LUMIA TRACED ON THE CARD (gpu_effects.hlsl lumia*Main, line for line) -
+#define LUMIA_FIXED 4096.0f
+#define LARGS ARGS, device atomic_uint* lumiaAccum [[buffer(1)]], device float4* lumiaA [[buffer(2)]], \
+              device float4* lumiaB [[buffer(3)]], device float4* lumiaCore [[buffer(4)]], \
+              device float4* lumiaShown [[buffer(5)]]
+static void lumiaAdd(device atomic_uint* acc, int at, float v) {
+  atomic_fetch_add_explicit(&acc[at], uint(v * LUMIA_FIXED + 0.5f), memory_order_relaxed);
+}
+static void lumiaSplat(device atomic_uint* acc, constant Params& p, float x, float y, int c0, int nc, float3 e) {
+  if (!(x >= 0.0f && y >= 0.0f)) return;
+  const int SW = int(p.srcW), SH = int(p.srcH);
+  const int ix = int(x), iy = int(y);
+  if (ix >= SW - 1 || iy >= SH - 1) return;
+  const float fx = x - float(ix), fy = y - float(iy);
+  const int at = (iy * SW + ix) * 4 + c0;
+  const int down = SW * 4;
+  for (int c = 0; c < nc; ++c) {
+    lumiaAdd(acc, at + c, (1.0f - fx) * (1.0f - fy) * e[c]);
+    lumiaAdd(acc, at + 4 + c, fx * (1.0f - fy) * e[c]);
+    lumiaAdd(acc, at + down + c, (1.0f - fx) * fy * e[c]);
+    lumiaAdd(acc, at + down + 4 + c, fx * fy * e[c]);
+  }
+}
+kernel void lumiaClearMain(LARGS) {
+  if (id.x >= p.srcW || id.y >= p.srcH) return;
+  const int i = int(id.y * p.srcW + id.x);
+  for (int c = 0; c < 4; ++c) atomic_store_explicit(&lumiaAccum[i * 4 + c], 0u, memory_order_relaxed);
+  lumiaShown[i] = float4(0.0f);
+}
+kernel void lumiaWaterMain(LARGS) {
+  if (int(id.x) >= p.i0 || int(id.y) >= p.i1) return;
+  const float u = (float(id.x) + 0.5f) / float(p.i0), v = (float(id.y) + 0.5f) / float(p.i1);
+  const float x = u * 2.0f * p.f0, y = v * 2.0f * p.f0;
+  const float inner = 3.0f * y + p.f2;
+  const float ca = cos(9.0f * x + p.f3 + sin(inner) * 1.5f);
+  const float cb = cos(11.0f * y - p.f4 + 2.0f * x);
+  const float cc = cos((x - y) * 7.0f + p.f5);
+  const float cd = cos(17.0f * x + 5.0f * y - p.f6);
+  const float gx = 2.25f * ca + 0.4f * cb + 1.26f * cc + 1.36f * cd;
+  const float gy = 1.125f * cos(inner) * ca + 2.2f * cb - 1.26f * cc + 0.4f * cd;
+  lumiaSplat(lumiaAccum, p, (u + gx * p.f1) * float(p.srcW), (v + gy * p.f1) * float(p.srcH), 3, 1,
+             float3(1.0f, 0.0f, 0.0f));
+}
+kernel void lumiaPrismMain(LARGS) {
+  if (int(id.x) >= p.i0 || int(id.y) >= p.i1 * p.i2) return;
+  const int bi = int(id.y) / p.i1, j = int(id.y) % p.i1;
+  const float u = (float(id.x) + 0.5f) / float(p.i0), v = (float(j) + 0.5f) / float(p.i1);
+  const float x = u * 3.0f, y = v * 2.0f;
+  const uint b = uint(bi * 10);
+  const float ca = cos(x * 2.3f + tabAt(p, b + 4));
+  const float cb = cos(y * 2.9f - tabAt(p, b + 5) + x * 0.8f);
+  const float cc = cos((x + y) * 1.7f + tabAt(p, b + 6));
+  float gx = 1.38f * ca + 0.4f * cb + 0.51f * cc;
+  float gy = 1.45f * cb + 0.51f * cc;
+  if (p.f0 > 0.0f) {
+    const float xj = v * 3.0f + 7.0f, yj = u * 2.0f + 3.0f;
+    const float ja = cos(xj * 2.3f + tabAt(p, b + 7));
+    const float jb = cos(yj * 2.9f - tabAt(p, b + 8) + xj * 0.8f);
+    const float jc = cos((xj + yj) * 1.7f + tabAt(p, b + 9));
+    gx += (1.45f * jb + 0.51f * jc) * p.f0;
+    gy += (1.38f * ja + 0.4f * jb + 0.51f * jc) * p.f0;
+  }
+  const float kd = tabAt(p, b + 3);
+  lumiaSplat(lumiaAccum, p, (u + gx * kd) * float(p.srcW), (v + gy * kd) * float(p.srcH), 0, 3,
+             float3(tabAt(p, b), tabAt(p, b + 1), tabAt(p, b + 2)));
+}
+kernel void lumiaResolveMain(LARGS) {
+  if (id.x >= p.srcW || id.y >= p.srcH) return;
+  const int i = int(id.y * p.srcW + id.x);
+  const float3 prism = float3(float(atomic_load_explicit(&lumiaAccum[i * 4], memory_order_relaxed)),
+                              float(atomic_load_explicit(&lumiaAccum[i * 4 + 1], memory_order_relaxed)),
+                              float(atomic_load_explicit(&lumiaAccum[i * 4 + 2], memory_order_relaxed))) /
+                       LUMIA_FIXED;
+  const float water = float(atomic_load_explicit(&lumiaAccum[i * 4 + 3], memory_order_relaxed)) / LUMIA_FIXED;
+  for (int c = 0; c < 4; ++c) atomic_store_explicit(&lumiaAccum[i * 4 + c], 0u, memory_order_relaxed);
+  const float3 pr = max(float3(0.0f), prism - p.f1 * 1.25f) * p.f3;
+  lumiaA[i] = float4(pr, max(0.0f, water / p.f0 - 0.9f) * p.f2);
+  lumiaCore[i] = float4(pr, 0.0f);
+}
+kernel void lumiaBlurMain(LARGS) {
+  if (id.x >= p.srcW || id.y >= p.srcH) return;
+  const int W = int(p.srcW), H = int(p.srcH), x = int(id.x), y = int(id.y);
+  const int r = max(p.i0, p.i1);
+  float3 rgb = float3(0.0f);
+  float a = 0.0f;
+  for (int k = -r; k <= r; ++k) {
+    const int xx = p.i2 == 0 ? clamp(x + k, 0, W - 1) : x;
+    const int yy = p.i2 == 0 ? y : clamp(y + k, 0, H - 1);
+    const float4 s = p.i3 == 0 ? lumiaA[yy * W + xx] : lumiaB[yy * W + xx];
+    if (abs(k) <= p.i0) rgb += s.rgb;
+    if (abs(k) <= p.i1) a += s.a;
+  }
+  const float4 o = float4(rgb / float(2 * p.i0 + 1), a / float(2 * p.i1 + 1));
+  if (p.i3 == 0) lumiaB[y * W + x] = o; else lumiaA[y * W + x] = o;
+}
+kernel void lumiaTrailMain(LARGS) {
+  if (id.x >= p.srcW || id.y >= p.srcH) return;
+  const int i = int(id.y * p.srcW + id.x);
+  const float4 prev = p.i0 != 0 ? float4(0.0f) : lumiaShown[i];
+  const float4 blurred = lumiaA[i];
+  float4 o = float4(prev.rgb * p.f1 + (blurred.rgb * p.f0 + lumiaCore[i].rgb * 0.5f) * p.f2,
+                    prev.a * p.f1 + blurred.a * p.f2);
+  o *= step(float4(1.0f / 4096.0f), o);
+  lumiaShown[i] = o;
+}
+
 // ---- GENERATED SOURCES (gpu_effects.hlsl sourceMain, line for line) -------
-static float4 lumiaAt(SRC aux, int x, int y) { return aux.read(uint2(x, y)); }
-kernel void sourceMain(ARGS) {
+static float4 lumiaAt(device float4* shown, constant Params& p, int x, int y) {
+  return shown[y * int(p.srcW) + x];
+}
+kernel void sourceMain(LARGS) {
   if (id.x >= p.width || id.y >= p.height) return;
   const int SW = int(p.srcW), SH = int(p.srcH);
   const float cx = float(p.width) * 0.5f, cy = float(p.height) * 0.5f;
@@ -830,8 +938,9 @@ kernel void sourceMain(ARGS) {
   const int x0 = min(int(fxs), SW - 1), y0 = min(int(fys), SH - 1);
   const float tx = fxs - float(x0), ty = fys - float(y0);
   const int x1 = min(x0 + 1, SW - 1), y1 = min(y0 + 1, SH - 1);
-  const float4 v = (lumiaAt(aux, x0, y0) * (1.0f - tx) + lumiaAt(aux, x1, y0) * tx) * (1.0f - ty) +
-                   (lumiaAt(aux, x0, y1) * (1.0f - tx) + lumiaAt(aux, x1, y1) * tx) * ty;
+  const float4 v = (lumiaAt(lumiaShown, p, x0, y0) * (1.0f - tx) + lumiaAt(lumiaShown, p, x1, y0) * tx) *
+                       (1.0f - ty) +
+                   (lumiaAt(lumiaShown, p, x0, y1) * (1.0f - tx) + lumiaAt(lumiaShown, p, x1, y1) * tx) * ty;
   const float fade = rim * seam * p.f4;
   const float3 light = min(float3(12.0f), (v.rgb + v.a * float3(0.55f, 0.75f, 1.0f)) * fade);
   put(dst, id, float4(floor(255.0f * (1.0f - exp(-light * 0.9f)) + 0.5f), 255.0f));

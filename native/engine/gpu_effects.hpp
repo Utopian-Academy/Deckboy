@@ -109,21 +109,30 @@ struct TransitionSource {
 SDL_Texture* runGpuTransition(GpuEffects* g, int slot, const TransitionSource& source, const TransitionPlan& plan);
 
 // ---------------------------------------------------------------------------
-// GENERATED SOURCES MADE ON THE CARD (sourceMain). A source like Lumia traces
-// a small picture of light on the CPU each frame -- MediaEngine::planGpuSource,
-// the same code its CPU builder runs -- and the kernel does the full-size
-// per-pixel part, so the output never fills, or uploads, a full-size frame.
-// The CPU builder stays the reference: --gpu-source-dump against --pattern-dump
-// (tools/check_gpu_sources.py).
+// GENERATED SOURCES MADE ON THE CARD. Lumia is traced and drawn here
+// (gpu_effects.hlsl lumia*Main, sourceMain); the CPU only works out each
+// moment's numbers -- MediaEngine::planGpuSource, from lumiaStep, the code its
+// CPU builder runs -- so the output never fills, uploads or traces a frame.
+// The CPU builder stays the reference: --gpu-source-dump against
+// --pattern-dump (tools/check_gpu_sources.py).
 struct SourcePlan {
   enum Kind : int { None = 0, Lumia = 1 };
   int kind = None;
   int width = 0, height = 0;     // the picture to make
-  int auxW = 0, auxH = 0;        // the small inputs, auxW x auxH texels of four floats
+  int srcW = 0, srcH = 0;        // the traced source
+  std::uint64_t moment = 0;      // a new number for each moment to trace
+  bool reset = false;            // the trail starts afresh (a new cue, a scrub)
+  // The trace (planGpuSource has the layout): ti water rays across, down;
+  // prism rays across, down, beams; blur radii prism, water. tf the ripple
+  // size, the water's bend and five phases, the jet, the thresholds and
+  // gains, the halo and the trail. beams: ten to a beam.
+  std::int32_t ti[8] = {};
+  float tf[16] = {};
+  float beams[60] = {};
+  // The draw (sourceMain).
   std::int32_t i[4] = {};
   float f[8] = {};
   float tab[256] = {};
-  std::vector<float> aux;
 };
 
 // The picture, in a texture owned by `g` and valid until the next run for the

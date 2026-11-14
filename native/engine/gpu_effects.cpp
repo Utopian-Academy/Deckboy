@@ -47,10 +47,14 @@ enum GpuKind : std::uint32_t {
   K_MIRROR, K_LUMA_KEY, K_EDGES, K_WARP, K_MOSAIC, K_MIX
 };
 enum Entry { E_POINT = 0, E_DOWN, E_BOX, E_STREAK, E_TILE, E_NV12, E_TRANS, E_STEREO, E_TAPE,
-             E_MELT_INIT, E_MELT_STEP, E_MELT_SHOW, E_SOURCE, E_COUNT };
+             E_MELT_INIT, E_MELT_STEP, E_MELT_SHOW, E_SOURCE,
+             E_LUMIA_CLEAR, E_LUMIA_WATER, E_LUMIA_PRISM, E_LUMIA_RESOLVE, E_LUMIA_BLUR, E_LUMIA_TRAIL,
+             E_COUNT };
 const char* const kEntryNames[E_COUNT] = {"pointMain", "downMain", "boxMain", "streakMain", "tileMain", "nv12Main",
                                           "transMain", "stereoMain", "tapeMain", "meltInitMain", "meltStepMain",
-                                          "meltShowMain", "sourceMain"};
+                                          "meltShowMain", "sourceMain", "lumiaClearMain", "lumiaWaterMain",
+                                          "lumiaPrismMain", "lumiaResolveMain", "lumiaBlurMain",
+                                          "lumiaTrailMain"};
 // Threads per group: 8 x 8 for every kernel but the stereogram's, which is
 // one row of 64 (stereoMain in gpu_effects.hlsl).
 constexpr int kStereoThreads = 64;
@@ -783,6 +787,12 @@ struct D3DSlot : SlotBase {
   int auxW = 0, auxH = 0;
   std::vector<float> auxPad;
   std::uint64_t srcStamp = 0;
+  // A generated source traced here (runGpuSource): its buffers, alive across
+  // frames, and the moment they hold.
+  ID3D11Buffer* lumiaBuf[5] = {};
+  ID3D11UnorderedAccessView* lumiaUav[5] = {};
+  int lumiaW = 0, lumiaH = 0;
+  std::uint64_t lumiaMoment = 0;
 };
 
 void releaseBuf(D3DBuf& b) {
@@ -843,6 +853,10 @@ struct GpuEffects {
     std::size_t auxUploadBytes = 0;
     std::vector<float> auxPad;
     std::uint64_t srcStamp = 0;
+    // A generated source traced here (runGpuSource).
+    SDL_GPUBuffer* lumiaBuf[5] = {};
+    int lumiaW = 0, lumiaH = 0;
+    std::uint64_t lumiaMoment = 0;
   };
   std::map<int, SdlSlot> sdlSlots;
 #endif
@@ -949,6 +963,10 @@ void d3d11Destroy(GpuEffects* g) {
     releaseCom(s.staging);
     releaseCom(s.auxSrv);
     releaseCom(s.auxTex);
+    for (int b = 0; b < 5; ++b) {
+      releaseCom(s.lumiaUav[b]);
+      releaseCom(s.lumiaBuf[b]);
+    }
     if (s.display) SDL_DestroyTexture(s.display);
   }
   g->d3dSlots.clear();
@@ -1163,25 +1181,27 @@ bool sdlCreate(GpuEffects* g) {
   const unsigned char* dxil[E_COUNT] = {kEffectsPointDxil, kEffectsDownDxil, kEffectsBoxDxil, kEffectsStreakDxil,
                                         kEffectsTileDxil, kEffectsNv12Dxil, kEffectsTransDxil, kEffectsStereoDxil,
                                         kEffectsTapeDxil, kEffectsMeltInitDxil, kEffectsMeltStepDxil,
-                                        kEffectsMeltShowDxil, kEffectsSourceDxil};
+                                        kEffectsMeltShowDxil, kEffectsSourceDxil,
+                                        kEffectsLumiaClearDxil, kEffectsLumiaWaterDxil, kEffectsLumiaPrismDxil, kEffectsLumiaResolveDxil, kEffectsLumiaBlurDxil, kEffectsLumiaTrailDxil};
   const std::size_t dxilSize[E_COUNT] = {sizeof(kEffectsPointDxil), sizeof(kEffectsDownDxil), sizeof(kEffectsBoxDxil),
                                          sizeof(kEffectsStreakDxil), sizeof(kEffectsTileDxil),
                                          sizeof(kEffectsNv12Dxil), sizeof(kEffectsTransDxil),
                                          sizeof(kEffectsStereoDxil), sizeof(kEffectsTapeDxil),
                                          sizeof(kEffectsMeltInitDxil), sizeof(kEffectsMeltStepDxil),
-                                         sizeof(kEffectsMeltShowDxil), sizeof(kEffectsSourceDxil)};
+                                         sizeof(kEffectsMeltShowDxil), sizeof(kEffectsSourceDxil),
+                                         sizeof(kEffectsLumiaClearDxil), sizeof(kEffectsLumiaWaterDxil), sizeof(kEffectsLumiaPrismDxil), sizeof(kEffectsLumiaResolveDxil), sizeof(kEffectsLumiaBlurDxil), sizeof(kEffectsLumiaTrailDxil)};
   const unsigned char* spirv[E_COUNT] = {kEffectsPointSpirv, kEffectsDownSpirv, kEffectsBoxSpirv,
                                          kEffectsStreakSpirv, kEffectsTileSpirv, kEffectsNv12Spirv,
                                          kEffectsTransSpirv, kEffectsStereoSpirv, kEffectsTapeSpirv,
                                          kEffectsMeltInitSpirv, kEffectsMeltStepSpirv, kEffectsMeltShowSpirv,
-                                         kEffectsSourceSpirv};
+                                         kEffectsSourceSpirv, kEffectsLumiaClearSpirv, kEffectsLumiaWaterSpirv, kEffectsLumiaPrismSpirv, kEffectsLumiaResolveSpirv, kEffectsLumiaBlurSpirv, kEffectsLumiaTrailSpirv};
   const std::size_t spirvSize[E_COUNT] = {sizeof(kEffectsPointSpirv), sizeof(kEffectsDownSpirv),
                                           sizeof(kEffectsBoxSpirv), sizeof(kEffectsStreakSpirv),
                                           sizeof(kEffectsTileSpirv), sizeof(kEffectsNv12Spirv),
                                           sizeof(kEffectsTransSpirv), sizeof(kEffectsStereoSpirv),
                                           sizeof(kEffectsTapeSpirv), sizeof(kEffectsMeltInitSpirv),
                                           sizeof(kEffectsMeltStepSpirv), sizeof(kEffectsMeltShowSpirv),
-                                          sizeof(kEffectsSourceSpirv)};
+                                          sizeof(kEffectsSourceSpirv), sizeof(kEffectsLumiaClearSpirv), sizeof(kEffectsLumiaWaterSpirv), sizeof(kEffectsLumiaPrismSpirv), sizeof(kEffectsLumiaResolveSpirv), sizeof(kEffectsLumiaBlurSpirv), sizeof(kEffectsLumiaTrailSpirv)};
   for (int e = 0; e < E_COUNT; ++e) {
     SDL_GPUComputePipelineCreateInfo info {};
     info.entrypoint = kEntryNames[e];
@@ -1203,6 +1223,8 @@ bool sdlCreate(GpuEffects* g) {
     }
     info.num_samplers = 2;
     info.num_readwrite_storage_textures = 1;
+    // The generated sources' kernels also take Lumia's five buffers.
+    info.num_readwrite_storage_buffers = e >= E_SOURCE ? 5 : 0;
     info.num_uniform_buffers = 1;
     info.threadcount_x = e == E_STEREO ? kStereoThreads : 8;
     info.threadcount_y = e == E_STEREO ? 1 : 8;
@@ -1242,6 +1264,12 @@ void sdlReleaseSlot(GpuEffects* g, GpuEffects::SdlSlot& s) {
   s.auxUpload = nullptr;
   s.auxUploadBytes = 0;
   s.srcStamp = 0;
+  for (auto*& b : s.lumiaBuf) {
+    if (b) SDL_ReleaseGPUBuffer(g->gpu, b);
+    b = nullptr;
+  }
+  s.lumiaW = s.lumiaH = 0;
+  s.lumiaMoment = 0;
   if (s.display) SDL_DestroyTexture(s.display);
   s.display = nullptr;
 }
@@ -1951,36 +1979,135 @@ SDL_Texture* sdlTransition(GpuEffects* g, int slotIndex, const TransitionSource&
 }  // namespace
 
 // ---------------------------------------------------------------------------
-// GENERATED SOURCES (runGpuSource): the frame's small inputs into the aux
-// texture (a real 2D one here, auxW x auxH, which the kernel samples by
-// position), one sourceMain pass into ALT, and ALT into the display texture.
+// GENERATED SOURCES (runGpuSource). Lumia is traced here as well as drawn:
+// a new moment runs the trace -- the rays piled up, the threshold, three box
+// blurs across and three down, the trail -- into the slot's buffers, which
+// live across frames (the trail is the light kept from before); then
+// sourceMain draws the full size from the trail into ALT, and ALT goes to the
+// display texture. The same moment drawn again (paused, a second draw) only
+// draws.
 namespace {
-Params sourceParams(const SourcePlan& plan) {
+enum LumiaBuf { LB_ACCUM = 0, LB_A, LB_B, LB_CORE, LB_SHOWN, LB_COUNT };
+
+Params lumiaBase(const SourcePlan& plan) {
   Params p;
   p.kind = static_cast<std::uint32_t>(plan.kind);
   p.width = static_cast<std::uint32_t>(plan.width);
   p.height = static_cast<std::uint32_t>(plan.height);
-  p.srcW = static_cast<std::uint32_t>(plan.auxW);
-  p.srcH = static_cast<std::uint32_t>(plan.auxH);
-  p.auxW = p.srcW;
-  p.auxH = p.srcH;
-  p.i0 = plan.i[0];
-  p.i1 = plan.i[1];
-  p.i2 = plan.i[2];
-  p.i3 = plan.i[3];
-  p.f0 = plan.f[0];
-  p.f1 = plan.f[1];
-  p.f2 = plan.f[2];
-  p.f3 = plan.f[3];
-  p.f4 = plan.f[4];
-  p.f5 = plan.f[5];
-  p.f6 = plan.f[6];
-  p.f7 = plan.f[7];
-  std::copy(std::begin(plan.tab), std::end(plan.tab), std::begin(p.tab));
+  p.srcW = static_cast<std::uint32_t>(plan.srcW);
+  p.srcH = static_cast<std::uint32_t>(plan.srcH);
   return p;
 }
 
+// One dispatch of the trace or the draw: its kernel, its numbers, its groups.
+struct LumiaPass {
+  Entry entry;
+  Params params;
+  int groupsX, groupsY;
+};
+
+// The passes for one plan. trace: a new moment; clear: the buffers are new.
+std::vector<LumiaPass> lumiaPasses(const SourcePlan& plan, bool trace, bool clear) {
+  std::vector<LumiaPass> out;
+  const int gx = (plan.srcW + 7) / 8, gy = (plan.srcH + 7) / 8;
+  if (clear) out.push_back({E_LUMIA_CLEAR, lumiaBase(plan), gx, gy});
+  if (trace) {
+    Params water = lumiaBase(plan);
+    water.i0 = plan.ti[0];
+    water.i1 = plan.ti[1];
+    water.f0 = plan.tf[0];
+    water.f1 = plan.tf[1];
+    water.f2 = plan.tf[2];
+    water.f3 = plan.tf[3];
+    water.f4 = plan.tf[4];
+    water.f5 = plan.tf[5];
+    water.f6 = plan.tf[6];
+    out.push_back({E_LUMIA_WATER, water, (plan.ti[0] + 7) / 8, (plan.ti[1] + 7) / 8});
+    Params prism = lumiaBase(plan);
+    prism.i0 = plan.ti[2];
+    prism.i1 = plan.ti[3];
+    prism.i2 = plan.ti[4];
+    prism.f0 = plan.tf[7];
+    std::copy(std::begin(plan.beams), std::end(plan.beams), std::begin(prism.tab));
+    out.push_back({E_LUMIA_PRISM, prism, (plan.ti[2] + 7) / 8, (plan.ti[3] * plan.ti[4] + 7) / 8});
+    Params resolve = lumiaBase(plan);
+    resolve.f0 = plan.tf[8];
+    resolve.f1 = plan.tf[9];
+    resolve.f2 = plan.tf[10];
+    resolve.f3 = plan.tf[11];
+    out.push_back({E_LUMIA_RESOLVE, resolve, gx, gy});
+    // Three across, three down, ping-ponging A and B: the result ends in A.
+    const int order[6][2] = {{0, 0}, {0, 1}, {0, 0}, {1, 1}, {1, 0}, {1, 1}};
+    for (const auto& step : order) {
+      Params blur = lumiaBase(plan);
+      blur.i0 = plan.ti[5];
+      blur.i1 = plan.ti[6];
+      blur.i2 = step[0];
+      blur.i3 = step[1];
+      out.push_back({E_LUMIA_BLUR, blur, gx, gy});
+    }
+    Params trail = lumiaBase(plan);
+    trail.f0 = plan.tf[12];
+    trail.f1 = plan.tf[13];
+    trail.f2 = plan.tf[14];
+    trail.i0 = plan.reset || clear ? 1 : 0;
+    out.push_back({E_LUMIA_TRAIL, trail, gx, gy});
+  }
+  Params draw = lumiaBase(plan);
+  draw.i0 = plan.i[0];
+  draw.i1 = plan.i[1];
+  draw.i2 = plan.i[2];
+  draw.i3 = plan.i[3];
+  draw.f0 = plan.f[0];
+  draw.f1 = plan.f[1];
+  draw.f2 = plan.f[2];
+  draw.f3 = plan.f[3];
+  draw.f4 = plan.f[4];
+  draw.f5 = plan.f[5];
+  draw.f6 = plan.f[6];
+  draw.f7 = plan.f[7];
+  std::copy(std::begin(plan.tab), std::end(plan.tab), std::begin(draw.tab));
+  out.push_back({E_SOURCE, draw, (plan.width + 7) / 8, (plan.height + 7) / 8});
+  return out;
+}
+
 #ifdef _WIN32
+void releaseLumia(D3DSlot& slot) {
+  for (int b = 0; b < LB_COUNT; ++b) {
+    releaseCom(slot.lumiaUav[b]);
+    releaseCom(slot.lumiaBuf[b]);
+  }
+  slot.lumiaW = slot.lumiaH = 0;
+  slot.lumiaMoment = 0;
+}
+
+bool makeLumia(ID3D11Device* device, D3DSlot& slot, int w, int h) {
+  releaseLumia(slot);
+  const UINT n = static_cast<UINT>(w) * static_cast<UINT>(h);
+  for (int b = 0; b < LB_COUNT; ++b) {
+    const UINT stride = b == LB_ACCUM ? 4 : 16;
+    const UINT count = b == LB_ACCUM ? n * 4 : n;
+    D3D11_BUFFER_DESC desc {};
+    desc.ByteWidth = stride * count;
+    desc.Usage = D3D11_USAGE_DEFAULT;
+    desc.BindFlags = D3D11_BIND_UNORDERED_ACCESS;
+    desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+    desc.StructureByteStride = stride;
+    D3D11_UNORDERED_ACCESS_VIEW_DESC view {};
+    view.Format = DXGI_FORMAT_UNKNOWN;
+    view.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
+    view.Buffer.NumElements = count;
+    if (FAILED(device->CreateBuffer(&desc, nullptr, &slot.lumiaBuf[b])) ||
+        FAILED(device->CreateUnorderedAccessView(slot.lumiaBuf[b], &view, &slot.lumiaUav[b]))) {
+      releaseLumia(slot);
+      return false;
+    }
+  }
+  slot.lumiaW = w;
+  slot.lumiaH = h;
+  return true;
+}
+
 SDL_Texture* d3d11Source(GpuEffects* g, int slotIndex, const SourcePlan& plan) {
   const int w = plan.width;
   const int h = plan.height;
@@ -1991,52 +2118,27 @@ SDL_Texture* d3d11Source(GpuEffects* g, int slotIndex, const SourcePlan& plan) {
   slot.displayTex = static_cast<ID3D11Texture2D*>(
     SDL_GetPointerProperty(SDL_GetTextureProperties(display), SDL_PROP_TEXTURE_D3D11_TEXTURE_POINTER, nullptr));
   if (!slot.displayTex) return nullptr;
+  const bool fresh = slot.lumiaW != plan.srcW || slot.lumiaH != plan.srcH;
+  if (fresh && !makeLumia(g->device, slot, plan.srcW, plan.srcH)) return nullptr;
+  const bool trace = fresh || plan.moment != slot.lumiaMoment;
   SDL_FlushRenderer(g->renderer);   // SDL's queued draws first, in order
 
-  const int tw = plan.auxW, th = plan.auxH;
-  if (!slot.auxTex || slot.auxW != tw || slot.auxH != th) {
-    releaseCom(slot.auxSrv);
-    releaseCom(slot.auxTex);
-    slot.auxW = slot.auxH = 0;
-    D3D11_TEXTURE2D_DESC desc {};
-    desc.Width = static_cast<UINT>(tw);
-    desc.Height = static_cast<UINT>(th);
-    desc.MipLevels = 1;
-    desc.ArraySize = 1;
-    desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-    desc.SampleDesc.Count = 1;
-    desc.Usage = D3D11_USAGE_DEFAULT;
-    desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-    if (FAILED(g->device->CreateTexture2D(&desc, nullptr, &slot.auxTex)) ||
-        FAILED(g->device->CreateShaderResourceView(slot.auxTex, nullptr, &slot.auxSrv))) {
-      releaseCom(slot.auxSrv);
-      releaseCom(slot.auxTex);
-      return nullptr;
-    }
-    slot.auxW = tw;
-    slot.auxH = th;
-  }
-  g->context->UpdateSubresource(slot.auxTex, 0, nullptr, plan.aux.data(), static_cast<UINT>(tw * 16), 0);
-
-  const Params params = sourceParams(plan);
-  D3D11_MAPPED_SUBRESOURCE mapped {};
-  if (FAILED(g->context->Map(g->constants, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped))) return nullptr;
-  std::memcpy(mapped.pData, &params, sizeof(Params));
-  g->context->Unmap(g->constants, 0);
+  ID3D11UnorderedAccessView* uavs[1 + LB_COUNT] = {slot.buf[ALT].uav};
+  for (int b = 0; b < LB_COUNT; ++b) uavs[1 + b] = slot.lumiaUav[b];
+  g->context->CSSetUnorderedAccessViews(0, 1 + LB_COUNT, uavs, nullptr);
   g->context->CSSetConstantBuffers(0, 1, &g->constants);
-  // The picture slot is unused; the aux texture fills it too, so nothing
-  // stale is bound there.
-  ID3D11ShaderResourceView* views[2] = {slot.auxSrv, slot.auxSrv};
-  ID3D11UnorderedAccessView* out = slot.buf[ALT].uav;
-  g->context->CSSetShader(g->shaders[E_SOURCE], nullptr, 0);
-  g->context->CSSetShaderResources(0, 2, views);
-  g->context->CSSetUnorderedAccessViews(0, 1, &out, nullptr);
-  g->context->Dispatch(static_cast<UINT>((w + 7) / 8), static_cast<UINT>((h + 7) / 8), 1);
-  ID3D11ShaderResourceView* noViews[2] = {nullptr, nullptr};
-  ID3D11UnorderedAccessView* noOut = nullptr;
-  g->context->CSSetUnorderedAccessViews(0, 1, &noOut, nullptr);
-  g->context->CSSetShaderResources(0, 2, noViews);
+  for (const LumiaPass& pass : lumiaPasses(plan, trace, fresh)) {
+    D3D11_MAPPED_SUBRESOURCE mapped {};
+    if (FAILED(g->context->Map(g->constants, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped))) return nullptr;
+    std::memcpy(mapped.pData, &pass.params, sizeof(Params));
+    g->context->Unmap(g->constants, 0);
+    g->context->CSSetShader(g->shaders[pass.entry], nullptr, 0);
+    g->context->Dispatch(static_cast<UINT>(pass.groupsX), static_cast<UINT>(pass.groupsY), 1);
+  }
+  ID3D11UnorderedAccessView* none[1 + LB_COUNT] = {};
+  g->context->CSSetUnorderedAccessViews(0, 1 + LB_COUNT, none, nullptr);
   g->context->CSSetShader(nullptr, nullptr, 0);
+  if (trace) slot.lumiaMoment = plan.moment;
   slot.result = ALT;
   g->context->CopyResource(slot.displayTex, slot.buf[ALT].tex);
   return display;
@@ -2044,6 +2146,15 @@ SDL_Texture* d3d11Source(GpuEffects* g, int slotIndex, const SourcePlan& plan) {
 #endif
 
 #if SDL_VERSION_ATLEAST(3, 4, 0)
+void releaseSdlLumia(GpuEffects* g, GpuEffects::SdlSlot& slot) {
+  for (auto*& b : slot.lumiaBuf) {
+    if (b) SDL_ReleaseGPUBuffer(g->gpu, b);
+    b = nullptr;
+  }
+  slot.lumiaW = slot.lumiaH = 0;
+  slot.lumiaMoment = 0;
+}
+
 SDL_Texture* sdlSource(GpuEffects* g, int slotIndex, const SourcePlan& plan) {
   const int w = plan.width;
   const int h = plan.height;
@@ -2068,63 +2179,62 @@ SDL_Texture* sdlSource(GpuEffects* g, int slotIndex, const SourcePlan& plan) {
   auto* displayTex = static_cast<SDL_GPUTexture*>(
     SDL_GetPointerProperty(SDL_GetTextureProperties(display), SDL_PROP_TEXTURE_GPU_TEXTURE_POINTER, nullptr));
   if (!displayTex) return nullptr;
-
-  const int tw = plan.auxW, th = plan.auxH;
-  if (!slot.auxTex || slot.auxW != tw || slot.auxH != th) {
-    if (slot.auxTex) SDL_ReleaseGPUTexture(g->gpu, slot.auxTex);
+  // The kernels declare the two sampled textures every kernel here does;
+  // these passes read none, so a small texture of the slot's own fills them.
+  if (!slot.auxTex) {
     SDL_GPUTextureCreateInfo info {};
     info.type = SDL_GPU_TEXTURETYPE_2D;
     info.format = SDL_GPU_TEXTUREFORMAT_R32G32B32A32_FLOAT;
     info.usage = SDL_GPU_TEXTUREUSAGE_SAMPLER;
-    info.width = static_cast<Uint32>(tw);
-    info.height = static_cast<Uint32>(th);
+    info.width = 2;
+    info.height = 2;
     info.layer_count_or_depth = 1;
     info.num_levels = 1;
     slot.auxTex = SDL_CreateGPUTexture(g->gpu, &info);
-    slot.auxW = slot.auxTex ? tw : 0;
-    slot.auxH = slot.auxTex ? th : 0;
+    slot.auxW = slot.auxH = slot.auxTex ? 2 : 0;
     if (!slot.auxTex) return nullptr;
   }
-  const std::size_t auxBytes = static_cast<std::size_t>(tw) * th * 16;
-  if (!slot.auxUpload || slot.auxUploadBytes != auxBytes) {
-    if (slot.auxUpload) SDL_ReleaseGPUTransferBuffer(g->gpu, slot.auxUpload);
-    SDL_GPUTransferBufferCreateInfo info {};
-    info.usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD;
-    info.size = static_cast<Uint32>(auxBytes);
-    slot.auxUpload = SDL_CreateGPUTransferBuffer(g->gpu, &info);
-    slot.auxUploadBytes = slot.auxUpload ? auxBytes : 0;
-    if (!slot.auxUpload) return nullptr;
+  const bool fresh = slot.lumiaW != plan.srcW || slot.lumiaH != plan.srcH;
+  if (fresh) {
+    releaseSdlLumia(g, slot);
+    const Uint32 n = static_cast<Uint32>(plan.srcW) * static_cast<Uint32>(plan.srcH);
+    for (int b = 0; b < LB_COUNT; ++b) {
+      SDL_GPUBufferCreateInfo info {};
+      info.usage = SDL_GPU_BUFFERUSAGE_COMPUTE_STORAGE_READ | SDL_GPU_BUFFERUSAGE_COMPUTE_STORAGE_WRITE;
+      info.size = n * 16;   // four uints, or one float4, a pixel
+      slot.lumiaBuf[b] = SDL_CreateGPUBuffer(g->gpu, &info);
+      if (!slot.lumiaBuf[b]) {
+        releaseSdlLumia(g, slot);
+        return nullptr;
+      }
+    }
+    slot.lumiaW = plan.srcW;
+    slot.lumiaH = plan.srcH;
   }
-  void* auxMapped = SDL_MapGPUTransferBuffer(g->gpu, slot.auxUpload, true);
-  if (!auxMapped) return nullptr;
-  std::memcpy(auxMapped, plan.aux.data(), auxBytes);
-  SDL_UnmapGPUTransferBuffer(g->gpu, slot.auxUpload);
+  const bool trace = fresh || plan.moment != slot.lumiaMoment;
 
   SDL_GPUCommandBuffer* cmd = SDL_AcquireGPUCommandBuffer(g->gpu);
   if (!cmd) return nullptr;
-  SDL_GPUCopyPass* copy = SDL_BeginGPUCopyPass(cmd);
-  {
-    SDL_GPUTextureTransferInfo from {slot.auxUpload, 0, static_cast<Uint32>(tw), static_cast<Uint32>(th)};
-    SDL_GPUTextureRegion to {};
-    to.texture = slot.auxTex;
-    to.w = static_cast<Uint32>(tw);
-    to.h = static_cast<Uint32>(th);
-    to.d = 1;
-    SDL_UploadToGPUTexture(copy, &from, &to, false);
-  }
-  SDL_EndGPUCopyPass(copy);
   SDL_GPUStorageTextureReadWriteBinding out {};
   out.texture = slot.buf[ALT];
   out.cycle = false;
-  SDL_GPUComputePass* cp = SDL_BeginGPUComputePass(cmd, &out, 1, nullptr, 0);
-  SDL_BindGPUComputePipeline(cp, g->pipelines[E_SOURCE]);
+  SDL_GPUStorageBufferReadWriteBinding bufs[LB_COUNT] = {};
+  for (int b = 0; b < LB_COUNT; ++b) {
+    bufs[b].buffer = slot.lumiaBuf[b];
+    bufs[b].cycle = false;   // the trail is kept: never a fresh buffer
+  }
   const SDL_GPUTextureSamplerBinding views[2] = {{slot.auxTex, g->sampler}, {slot.auxTex, g->sampler}};
-  SDL_BindGPUComputeSamplers(cp, 0, views, 2);
-  const Params params = sourceParams(plan);
-  SDL_PushGPUComputeUniformData(cmd, 0, &params, sizeof(Params));
-  SDL_DispatchGPUCompute(cp, static_cast<Uint32>((w + 7) / 8), static_cast<Uint32>((h + 7) / 8), 1);
-  SDL_EndGPUComputePass(cp);
-  copy = SDL_BeginGPUCopyPass(cmd);
+  // A pass each: SDL orders what one compute pass writes before the next
+  // reads it, not one dispatch before the next inside a pass.
+  for (const LumiaPass& pass : lumiaPasses(plan, trace, fresh)) {
+    SDL_GPUComputePass* cp = SDL_BeginGPUComputePass(cmd, &out, 1, bufs, LB_COUNT);
+    SDL_BindGPUComputePipeline(cp, g->pipelines[pass.entry]);
+    SDL_BindGPUComputeSamplers(cp, 0, views, 2);
+    SDL_PushGPUComputeUniformData(cmd, 0, &pass.params, sizeof(Params));
+    SDL_DispatchGPUCompute(cp, static_cast<Uint32>(pass.groupsX), static_cast<Uint32>(pass.groupsY), 1);
+    SDL_EndGPUComputePass(cp);
+  }
+  SDL_GPUCopyPass* copy = SDL_BeginGPUCopyPass(cmd);
   SDL_GPUTextureLocation from {};
   from.texture = slot.buf[ALT];
   SDL_GPUTextureLocation to {};
@@ -2132,14 +2242,15 @@ SDL_Texture* sdlSource(GpuEffects* g, int slotIndex, const SourcePlan& plan) {
   SDL_CopyGPUTextureToTexture(copy, &from, &to, static_cast<Uint32>(w), static_cast<Uint32>(h), 1, false);
   SDL_EndGPUCopyPass(copy);
   if (!SDL_SubmitGPUCommandBuffer(cmd)) return nullptr;
+  if (trace) slot.lumiaMoment = plan.moment;
   return display;
 }
 #endif
 }  // namespace
 
 SDL_Texture* runGpuSource(GpuEffects* g, int slot, const SourcePlan& plan) {
-  if (!g || plan.kind == SourcePlan::None || plan.width < 2 || plan.height < 2 || plan.auxW < 2 ||
-      plan.auxH < 2 || plan.aux.size() != static_cast<std::size_t>(plan.auxW) * plan.auxH * 4) {
+  if (!g || plan.kind == SourcePlan::None || plan.width < 2 || plan.height < 2 || plan.srcW < 2 ||
+      plan.srcH < 2) {
     return nullptr;
   }
 #ifdef _WIN32
@@ -2325,6 +2436,10 @@ void releaseGpuEffectsSlot(GpuEffects* g, int slot) {
     releaseCom(it->second.staging);
     releaseCom(it->second.auxSrv);
     releaseCom(it->second.auxTex);
+    for (int b = 0; b < 5; ++b) {
+      releaseCom(it->second.lumiaUav[b]);
+      releaseCom(it->second.lumiaBuf[b]);
+    }
     if (it->second.display) SDL_DestroyTexture(it->second.display);
     g->d3dSlots.erase(it);
   }
