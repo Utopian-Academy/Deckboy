@@ -4504,3 +4504,28 @@ VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 are bars)	VJ QUANTISE: beat | 1 | 
 RENDER START: size is 1080P, 4K or OUTPUT; codec is PRORES, H264 or PNG	RENDER START: kích thước là 1080P, 4K hoặc OUTPUT; codec là PRORES, H264 hoặc PNG
 VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS	VJ: cần ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS
 VJ LINK: this build has no Ableton Link	VJ LINK: bản dựng này không có Ableton Link
+Shader	Trình tô bóng
+LOAD .FS	NẠP .FS
+not loaded	chưa nạp
+SHADER FOLDER	THƯ MỤC SHADER
+Pick the colour	Chọn màu
+Switch it on or off	Bật hoặc tắt
+Drag or click to type	Kéo hoặc nhấp để nhập
+not one of its choices	không thuộc các lựa chọn
+Shader (an ISF .fs file)	Trình tô bóng (tệp ISF .fs)
+Step through the choices	Lần lượt qua các lựa chọn
+shader: cannot read that file	shader: không đọc được tệp đó
+colour channels run from 0 to 1	các kênh màu có giá trị từ 0 đến 1
+SHADER LOAD <path to a .fs file>	SHADER LOAD <đường dẫn đến tệp .fs>
+the value does not fit this input	giá trị không phù hợp với đầu vào này
+LFO: only a float input has an oscillator	LFO: chỉ đầu vào số thực mới có bộ dao động
+Pick an ISF shader file (.fs) for this cue	Chọn tệp shader ISF (.fs) cho cue này
+DASH SET: <n> <label> | <command> [| <glyph>]	DASH SET: <n> <nhãn> | <lệnh> [| <ký hiệu>]
+Drag, click to type, or put it on an oscillator	Kéo, nhấp để nhập, hoặc gán cho bộ dao động
+OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <sender name>	OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <tên bộ gửi>
+select a shader cue first (SHADER LOAD <path> makes one)	chọn cue shader trước (SHADER LOAD <đường dẫn> tạo một cue)
+DASH: LIST | <n> | SET <n> <label> | <command> | CLEAR <n>	DASH: LIST | <n> | SET <n> <nhãn> | <lệnh> | CLEAR <n>
+Open this file in your editor; save it and the picture follows	Mở tệp này trong trình soạn thảo; lưu tệp để hình ảnh cập nhật theo
+Open the folder where your own shaders live; they appear in SOURCE	Mở thư mục chứa các shader của bạn; chúng xuất hiện trong SOURCE
+STATUS | LOAD <path> | SET <input> <value...> | LFO <input> ON|OFF|SHAPE|RATE|DEPTH|PHASE|SYNC [value]	STATUS | LOAD <đường dẫn> | SET <đầu vào> <giá trị...> | LFO <đầu vào> ON|OFF|SHAPE|RATE|DEPTH|PHASE|SYNC [giá trị]
+STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <control> <setting>	STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <điều khiển> <thiết lập>

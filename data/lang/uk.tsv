@@ -4525,3 +4525,23 @@ RENDER START: needs a size, a rate, a codec and a file	RENDER START: потрі�
 RENDER START: size is 1080P, 4K or OUTPUT; codec is PRORES, H264 or PNG	RENDER START: розмір — 1080P, 4K або OUTPUT; кодек — PRORES, H264 або PNG
 frame {1} of {2} \xC2\xB7 {3} frames/s	кадр {1} із {2} \xC2\xB7 {3} кадрів/с
 out:--	вих.:--
+Shader	Шейдер
+LOAD .FS	ЗАВАНТ. .FS
+not loaded	не завантажено
+SHADER FOLDER	ТЕКА ШЕЙДЕРІВ
+Pick the colour	Виберіть колір
+Switch it on or off	Увімкнути або вимкнути
+Drag or click to type	Перетягніть або натисніть для введення
+not one of its choices	такого варіанта немає
+Shader (an ISF .fs file)	Шейдер (файл ISF .fs)
+Step through the choices	Перебрати варіанти
+shader: cannot read that file	шейдер: не вдається прочитати файл
+colour channels run from 0 to 1	значення колірних каналів — від 0 до 1
+SHADER LOAD <path to a .fs file>	SHADER LOAD <шлях до файлу .fs>
+the value does not fit this input	значення не підходить для цього входу
+LFO: only a float input has an oscillator	LFO: осцилятор доступний лише для входу з рухомою комою
+Pick an ISF shader file (.fs) for this cue	Виберіть файл шейдера ISF (.fs) для цього кью
+Drag, click to type, or put it on an oscillator	Перетягніть, натисніть для введення або підключіть осцилятор
+select a shader cue first (SHADER LOAD <path> makes one)	спочатку виберіть кью шейдера (SHADER LOAD <path> створить його)
+Open this file in your editor; save it and the picture follows	Відкрийте файл у редакторі; збережіть його, й зображення оновиться
+Open the folder where your own shaders live; they appear in SOURCE	Відкрийте теку власних шейдерів; вони з’являться в SOURCE

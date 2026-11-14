@@ -4478,3 +4478,22 @@ there is no picture in that range	der er intet billede i det interval
 the source made no picture	kilden producerede intet billede
 a render is already running	en rendering kører allerede
 frame {1} of {2} \xC2\xB7 {3} frames/s	billede {1} af {2} \xC2\xB7 {3} billeder/s
+LOAD .FS	INDL?S .FS
+not loaded	ikke indl?st
+SHADER FOLDER	SHADERMAPPE
+Pick the colour	V?lg farven
+Switch it on or off	Sl? til eller fra
+Drag or click to type	Tr?k eller klik for at skrive
+not one of its choices	ikke en af valgmulighederne
+Shader (an ISF .fs file)	Shader (en ISF .fs-fil)
+Step through the choices	G? gennem valgmulighederne
+shader: cannot read that file	shader: kan ikke l?se filen
+colour channels run from 0 to 1	farvekanaler g?r fra 0 til 1
+SHADER LOAD <path to a .fs file>	SHADER LOAD <sti til en .fs-fil>
+the value does not fit this input	v?rdien passer ikke til denne indgang
+LFO: only a float input has an oscillator	LFO: kun en float-indgang har en oscillator
+Pick an ISF shader file (.fs) for this cue	V?lg en ISF-shaderfil (.fs) til denne cue
+Drag, click to type, or put it on an oscillator	Tr?k, klik for at skrive, eller tilknyt en oscillator
+select a shader cue first (SHADER LOAD <path> makes one)	v?lg f?rst en shader-cue (SHADER LOAD <path> opretter en)
+Open this file in your editor; save it and the picture follows	?bn filen i din editor; n?r du gemmer, opdateres billedet
+Open the folder where your own shaders live; they appear in SOURCE	?bn mappen med dine egne shadere; de vises i SOURCE

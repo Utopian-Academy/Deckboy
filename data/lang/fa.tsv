@@ -4537,3 +4537,22 @@ PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP |
 PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST	PAD: قالب مورد انتظار PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST
 VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS	VJ: قالب مورد انتظار ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS
 RENDER: START <CUE|CUES a-b|OUTPUT> <1080P|4K|OUTPUT> <25|30|50|60> <PRORES|H264|PNG> <file>, STATUS, CANCEL, DIALOG	RENDER: START <CUE|CUES a-b|OUTPUT> <1080P|4K|OUTPUT> <25|30|50|60> <PRORES|H264|PNG> <فایل>, STATUS, CANCEL, DIALOG
+Shader	شیدر
+LOAD .FS	بارگذاری .FS
+not loaded	بارگذاری نشده
+SHADER FOLDER	پوشهٔ شیدرها
+Pick the colour	رنگ را انتخاب کنید
+Switch it on or off	روشن یا خاموش کنید
+Drag or click to type	بکشید یا برای تایپ کلیک کنید
+not one of its choices	جزو گزینه‌های آن نیست
+Shader (an ISF .fs file)	شیدر (فایل ISF با پسوند .fs)
+Step through the choices	گزینه‌ها را یکی‌یکی مرور کنید
+shader: cannot read that file	شیدر: خواندن این فایل ممکن نیست
+colour channels run from 0 to 1	کانال‌های رنگ از 0 تا 1 هستند
+the value does not fit this input	مقدار با این ورودی سازگار نیست
+LFO: only a float input has an oscillator	LFO: فقط ورودی اعشاری نوسان‌ساز دارد
+Pick an ISF shader file (.fs) for this cue	برای این کیو یک فایل شیدر ISF (.fs) انتخاب کنید
+Drag, click to type, or put it on an oscillator	بکشید، برای تایپ کلیک کنید یا به نوسان‌ساز وصل کنید
+select a shader cue first (SHADER LOAD <path> makes one)	ابتدا یک کیوی شیدر انتخاب کنید (SHADER LOAD <path> یکی می‌سازد)
+Open this file in your editor; save it and the picture follows	این فایل را در ویرایشگر خود باز کنید؛ با ذخیره‌کردن، تصویر به‌روز می‌شود
+Open the folder where your own shaders live; they appear in SOURCE	پوشهٔ شیدرهای خود را باز کنید؛ در SOURCE ظاهر می‌شوند

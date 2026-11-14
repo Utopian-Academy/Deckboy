@@ -4518,3 +4518,23 @@ RENDER START: needs a size, a rate, a codec and a file	RENDER START: απαιτ�
 RENDER START: size is 1080P, 4K or OUTPUT; codec is PRORES, H264 or PNG	RENDER START: μέγεθος 1080P, 4K ή OUTPUT· κωδικοποιητής PRORES, H264 ή PNG
 frame {1} of {2} \xC2\xB7 {3} frames/s	καρέ {1} από {2} \xC2\xB7 {3} καρέ/δ
 out:--	έξ.:--
+Shader	Σκιαστής
+LOAD .FS	ΦΟΡΤΩΣΗ .FS
+not loaded	δεν φορτώθηκε
+SHADER FOLDER	ΦΑΚΕΛΟΣ ΣΚΙΑΣΤΩΝ
+Pick the colour	Επιλέξτε χρώμα
+Switch it on or off	Ενεργοποίηση ή απενεργοποίηση
+Drag or click to type	Σύρετε ή κάντε κλικ για πληκτρολόγηση
+not one of its choices	δεν είναι διαθέσιμη επιλογή
+Shader (an ISF .fs file)	Σκιαστής (αρχείο ISF .fs)
+Step through the choices	Περιηγηθείτε στις επιλογές
+shader: cannot read that file	σκιαστής: αδυναμία ανάγνωσης του αρχείου
+colour channels run from 0 to 1	τα κανάλια χρώματος παίρνουν τιμές από 0 έως 1
+SHADER LOAD <path to a .fs file>	SHADER LOAD <διαδρομή αρχείου .fs>
+the value does not fit this input	η τιμή δεν είναι κατάλληλη για αυτή την είσοδο
+LFO: only a float input has an oscillator	LFO: μόνο είσοδος κινητής υποδιαστολής διαθέτει ταλαντωτή
+Pick an ISF shader file (.fs) for this cue	Επιλέξτε αρχείο σκιαστή ISF (.fs) για αυτό το cue
+Drag, click to type, or put it on an oscillator	Σύρετε, κάντε κλικ για πληκτρολόγηση ή συνδέστε έναν ταλαντωτή
+select a shader cue first (SHADER LOAD <path> makes one)	επιλέξτε πρώτα cue σκιαστή (το SHADER LOAD <path> δημιουργεί ένα)
+Open this file in your editor; save it and the picture follows	Ανοίξτε το αρχείο στον επεξεργαστή σας· αποθηκεύστε το και η εικόνα ενημερώνεται
+Open the folder where your own shaders live; they appear in SOURCE	Ανοίξτε τον φάκελο με τους δικούς σας σκιαστές· εμφανίζονται στο SOURCE

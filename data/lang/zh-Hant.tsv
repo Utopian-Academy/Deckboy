@@ -4523,3 +4523,22 @@ PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP |
 PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST	PAD: 需要 PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST
 VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS	VJ: 需要 ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS
 RENDER: START <CUE|CUES a-b|OUTPUT> <1080P|4K|OUTPUT> <25|30|50|60> <PRORES|H264|PNG> <file>, STATUS, CANCEL, DIALOG	RENDER: START <CUE|CUES a-b|OUTPUT> <1080P|4K|OUTPUT> <25|30|50|60> <PRORES|H264|PNG> <檔案>, STATUS, CANCEL, DIALOG
+Shader	著色器
+LOAD .FS	載入 .FS
+not loaded	未載入
+SHADER FOLDER	著色器資料夾
+Pick the colour	選擇顏色
+Switch it on or off	開啟或關閉
+Drag or click to type	拖曳或點擊輸入
+not one of its choices	不在可選項目中
+Shader (an ISF .fs file)	著色器（ISF .fs 檔案）
+Step through the choices	依序切換選項
+shader: cannot read that file	著色器：無法讀取該檔案
+colour channels run from 0 to 1	色彩通道範圍為 0 到 1
+the value does not fit this input	此值不適用於該輸入
+LFO: only a float input has an oscillator	LFO：僅浮點輸入可用振盪器
+Pick an ISF shader file (.fs) for this cue	為此 CUE 選擇 ISF 著色器檔案 (.fs)
+Drag, click to type, or put it on an oscillator	拖曳、點擊輸入，或連接振盪器
+select a shader cue first (SHADER LOAD <path> makes one)	請先選擇著色器 CUE（SHADER LOAD <path> 可建立）
+Open this file in your editor; save it and the picture follows	在編輯器中開啟此檔案；儲存後畫面隨即更新
+Open the folder where your own shaders live; they appear in SOURCE	開啟存放自訂著色器的資料夾；著色器會顯示在 SOURCE 中

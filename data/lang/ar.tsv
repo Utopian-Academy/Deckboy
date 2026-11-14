@@ -4539,3 +4539,22 @@ PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot>
 VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS	VJ: المطلوب ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS
 RENDER: START <CUE|CUES a-b|OUTPUT> <1080P|4K|OUTPUT> <25|30|50|60> <PRORES|H264|PNG> <file>, STATUS, CANCEL, DIALOG	RENDER: START <CUE|CUES a-b|OUTPUT> <1080P|4K|OUTPUT> <25|30|50|60> <PRORES|H264|PNG> <ملف>, STATUS, CANCEL, DIALOG
 (bypassed)	(متخطّى)
+Shader	مظلّل
+LOAD .FS	تحميل .FS
+not loaded	غير محمّل
+SHADER FOLDER	مجلد المظلّلات
+Pick the colour	اختر اللون
+Switch it on or off	شغّله أو أوقفه
+Drag or click to type	اسحب أو انقر للكتابة
+not one of its choices	ليس من خياراته
+Shader (an ISF .fs file)	مظلّل (ملف ISF بصيغة .fs)
+Step through the choices	تنقّل بين الخيارات
+shader: cannot read that file	المظلّل: تعذّرت قراءة هذا الملف
+colour channels run from 0 to 1	تتراوح قنوات اللون من 0 إلى 1
+the value does not fit this input	القيمة لا تناسب هذا المُدخل
+LFO: only a float input has an oscillator	LFO: المُدخل العشري وحده له مذبذب
+Pick an ISF shader file (.fs) for this cue	اختر ملف مظلّل ISF (.fs) لهذا الكيو
+Drag, click to type, or put it on an oscillator	اسحب، أو انقر للكتابة، أو اربطه بمذبذب
+select a shader cue first (SHADER LOAD <path> makes one)	اختر كيو مظلّل أولاً (ينشئ SHADER LOAD <path> واحداً)
+Open this file in your editor; save it and the picture follows	افتح هذا الملف في محرّرك؛ احفظه فتتحدّث الصورة
+Open the folder where your own shaders live; they appear in SOURCE	افتح مجلد مظلّلاتك؛ ستظهر في SOURCE

@@ -4523,3 +4523,22 @@ PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP |
 PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST	PAD: 必要な形式: PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST
 VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS	VJ: 必要な形式: ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS
 RENDER: START <CUE|CUES a-b|OUTPUT> <1080P|4K|OUTPUT> <25|30|50|60> <PRORES|H264|PNG> <file>, STATUS, CANCEL, DIALOG	RENDER: START <CUE|CUES a-b|OUTPUT> <1080P|4K|OUTPUT> <25|30|50|60> <PRORES|H264|PNG> <ファイル>, STATUS, CANCEL, DIALOG
+Shader	シェーダー
+LOAD .FS	.FS 読み込み
+not loaded	未読み込み
+SHADER FOLDER	シェーダーフォルダー
+Pick the colour	色を選択
+Switch it on or off	オン／オフを切り替え
+Drag or click to type	ドラッグ、またはクリックして入力
+not one of its choices	選択肢にない値です
+Shader (an ISF .fs file)	シェーダー（ISF .fs ファイル）
+Step through the choices	選択肢を順に切り替え
+shader: cannot read that file	シェーダー: ファイルを読み込めません
+colour channels run from 0 to 1	色チャンネルの範囲は 0～1 です
+the value does not fit this input	この入力に適さない値です
+LFO: only a float input has an oscillator	LFO: オシレーターは浮動小数点入力のみ対応です
+Pick an ISF shader file (.fs) for this cue	このキュー用の ISF シェーダーファイル (.fs) を選択
+Drag, click to type, or put it on an oscillator	ドラッグ、クリックして入力、またはオシレーターに割り当て
+select a shader cue first (SHADER LOAD <path> makes one)	先にシェーダーキューを選択してください（SHADER LOAD <path> で作成できます）
+Open this file in your editor; save it and the picture follows	このファイルをエディターで開き、保存すると映像に反映されます
+Open the folder where your own shaders live; they appear in SOURCE	自作シェーダーのフォルダーを開きます。シェーダーは SOURCE に表示されます

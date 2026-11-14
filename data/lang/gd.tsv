@@ -4519,3 +4519,23 @@ RENDER START: needs a size, a rate, a codec and a file	RENDER START: feumar meud
 RENDER START: size is 1080P, 4K or OUTPUT; codec is PRORES, H264 or PNG	RENDER START: 's e 1080P, 4K no OUTPUT am meud; 's e PRORES, H264 no PNG an codec
 frame {1} of {2} \xC2\xB7 {3} frames/s	frèam {1} de {2} \xC2\xB7 {3} frèamaichean/s
 out:--	a-mach:--
+Shader	Sgàileadair
+LOAD .FS	LUCHDAICH .FS
+not loaded	gun luchdadh
+SHADER FOLDER	PASGAN SGÀILEADAIR
+Pick the colour	Tagh an dath
+Switch it on or off	Cuir air no dheth e
+Drag or click to type	Slaod no briog airson sgrìobhadh
+not one of its choices	chan eil e am measg nan roghainnean
+Shader (an ISF .fs file)	Sgàileadair (faidhle ISF .fs)
+Step through the choices	Gabh tro na roghainnean
+shader: cannot read that file	sgàileadair: cha ghabh am faidhle sin a leughadh
+colour channels run from 0 to 1	tha luachan nan seanalan datha eadar 0 is 1
+SHADER LOAD <path to a .fs file>	SHADER LOAD <slighe gu faidhle .fs>
+the value does not fit this input	chan eil an luach freagarrach dhan ion-chur seo
+LFO: only a float input has an oscillator	LFO: chan eil osgaladair ach aig ion-chur puing-fleòdraidh
+Pick an ISF shader file (.fs) for this cue	Tagh faidhle sgàileadair ISF (.fs) airson a’ cue seo
+Drag, click to type, or put it on an oscillator	Slaod, briog airson sgrìobhadh no ceangail ri osgaladair e
+select a shader cue first (SHADER LOAD <path> makes one)	tagh cue sgàileadair an toiseach (cruthaichidh SHADER LOAD <path> fear)
+Open this file in your editor; save it and the picture follows	Fosgail am faidhle san deasaiche agad; sàbhail e agus ùraichidh an dealbh
+Open the folder where your own shaders live; they appear in SOURCE	Fosgail pasgan nan sgàileadairean agad fhèin; nochdaidh iad ann an SOURCE

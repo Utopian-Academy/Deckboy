@@ -4506,3 +4506,27 @@ VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 are bars)	VJ QUANTISE: beat | 1 | 
 RENDER START: size is 1080P, 4K or OUTPUT; codec is PRORES, H264 or PNG	RENDER START: usayizi ngu-1080P, 4K noma OUTPUT; ikhodekhi ngu-PRORES, H264 noma PNG
 VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS	VJ: kulindelwe ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS
 VJ LINK: this build has no Ableton Link	VJ LINK: lolu hlobo alunayo i-Ableton Link
+Shader	Isithunzi
+LOAD .FS	LAYISHA .FS
+not loaded	akulayishiwe
+SHADER FOLDER	IFOLDA YE-SHADER
+Pick the colour	Khetha umbala
+Switch it on or off	Kuvule noma ukuvale
+Drag or click to type	Hudula noma uchofoze uthayiphe
+not one of its choices	akukho phakathi kwezinketho zayo
+Shader (an ISF .fs file)	Isithunzi (ifayela le-ISF .fs)
+Step through the choices	Dlula ezinkethweni ngasinye
+shader: cannot read that file	isithunzi: alikwazi ukufunda lelo fayela
+colour channels run from 0 to 1	amashaneli ombala asuka ku-0 aye ku-1
+SHADER LOAD <path to a .fs file>	SHADER LOAD <indlela yefayela le-.fs>
+the value does not fit this input	inani alihambisani nalokhu okufakwayo
+LFO: only a float input has an oscillator	LFO: okufakwayo okuyinombolo yedesimali kuphela okunesidlidlizi
+Pick an ISF shader file (.fs) for this cue	Khetha ifayela le-shader ye-ISF (.fs) lale cue
+DASH SET: <n> <label> | <command> [| <glyph>]	DASH SET: <n> <ilebula> | <umyalo> [| <uphawu>]
+Drag, click to type, or put it on an oscillator	Hudula, chofoza uthayiphe, noma unikeze isidlidlizi
+select a shader cue first (SHADER LOAD <path> makes one)	khetha i-cue ye-shader kuqala (SHADER LOAD <indlela> iyayakha)
+DASH: LIST | <n> | SET <n> <label> | <command> | CLEAR <n>	DASH: LIST | <n> | SET <n> <ilebula> | <umyalo> | CLEAR <n>
+Open this file in your editor; save it and the picture follows	Vula leli fayela kusihleli sakho; lilondoloze bese isithombe siyashintsha sililandele
+Open the folder where your own shaders live; they appear in SOURCE	Vula ifolda enama-shader akho; avela ku-SOURCE
+STATUS | LOAD <path> | SET <input> <value...> | LFO <input> ON|OFF|SHAPE|RATE|DEPTH|PHASE|SYNC [value]	STATUS | LOAD <indlela> | SET <okufakwayo> <inani...> | LFO <okufakwayo> ON|OFF|SHAPE|RATE|DEPTH|PHASE|SYNC [inani]
+STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <control> <setting>	STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <isilawuli> <isilungiselelo>

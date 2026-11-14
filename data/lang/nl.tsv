@@ -4464,3 +4464,22 @@ there is no picture in that range	er is geen beeld in dat bereik
 the source made no picture	de bron heeft geen beeld gemaakt
 a render is already running	er wordt al gerenderd
 frame {1} of {2} \xC2\xB7 {3} frames/s	beeld {1} van {2} \xC2\xB7 {3} beelden/s
+LOAD .FS	LAAD .FS
+not loaded	niet geladen
+SHADER FOLDER	SHADERMAP
+Pick the colour	Kies de kleur
+Switch it on or off	In- of uitschakelen
+Drag or click to type	Sleep of klik om te typen
+not one of its choices	geen van de beschikbare opties
+Shader (an ISF .fs file)	Shader (een ISF .fs-bestand)
+Step through the choices	Doorloop de opties
+shader: cannot read that file	shader: kan dat bestand niet lezen
+colour channels run from 0 to 1	kleurkanalen lopen van 0 tot 1
+SHADER LOAD <path to a .fs file>	SHADER LOAD <pad naar een .fs-bestand>
+the value does not fit this input	de waarde past niet bij deze ingang
+LFO: only a float input has an oscillator	LFO: alleen een float-ingang heeft een oscillator
+Pick an ISF shader file (.fs) for this cue	Kies een ISF-shaderbestand (.fs) voor deze cue
+Drag, click to type, or put it on an oscillator	Sleep, klik om te typen of wijs een oscillator toe
+select a shader cue first (SHADER LOAD <path> makes one)	selecteer eerst een shadercue (SHADER LOAD <path> maakt er een)
+Open this file in your editor; save it and the picture follows	Open dit bestand in je editor; na opslaan wordt het beeld bijgewerkt
+Open the folder where your own shaders live; they appear in SOURCE	Open de map met je eigen shaders; ze verschijnen onder SOURCE

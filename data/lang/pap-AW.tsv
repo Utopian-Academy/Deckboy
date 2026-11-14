@@ -4497,3 +4497,27 @@ VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 are bars)	VJ QUANTISE: beat | 1 | 
 RENDER START: size is 1080P, 4K or OUTPUT; codec is PRORES, H264 or PNG	RENDER START: tamaño ta 1080P, 4K of OUTPUT; codec ta PRORES, H264 of PNG
 VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS	VJ: ta spera ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS
 VJ LINK: this build has no Ableton Link	VJ LINK: e version aki no tin Ableton Link
+Shader	Sombreador
+LOAD .FS	CARGA .FS
+not loaded	no ta carga
+SHADER FOLDER	CAHA DI SHADER
+Pick the colour	Cohe e color
+Switch it on or off	Cende of paga esaki
+Drag or click to type	Hala of clic pa tip
+not one of its choices	no ta un di su opcionnan
+Shader (an ISF .fs file)	Sombreador (un archivo ISF .fs)
+Step through the choices	Pasa door di e opcionnan un pa un
+shader: cannot read that file	shader: no por lesa e archivo ey
+colour channels run from 0 to 1	canalnan di color ta bay di 0 te 1
+SHADER LOAD <path to a .fs file>	SHADER LOAD <ruta pa un archivo .fs>
+the value does not fit this input	e valor no ta cuadra cu e entrada aki
+LFO: only a float input has an oscillator	LFO: solamente un entrada di punto flotante tin un oscilador
+Pick an ISF shader file (.fs) for this cue	Cohe un archivo shader ISF (.fs) pa e cue aki
+DASH SET: <n> <label> | <command> [| <glyph>]	DASH SET: <n> <etiqueta> | <comando> [| <simbolo>]
+Drag, click to type, or put it on an oscillator	Hala, clic pa tip, of pone esaki riba un oscilador
+select a shader cue first (SHADER LOAD <path> makes one)	cohe un cue di shader prome (SHADER LOAD <ruta> ta crea un)
+DASH: LIST | <n> | SET <n> <label> | <command> | CLEAR <n>	DASH: LIST | <n> | SET <n> <etiqueta> | <comando> | CLEAR <n>
+Open this file in your editor; save it and the picture follows	Habri e archivo aki den bo editor; warda esaki y e imagen ta cambia cu ne
+Open the folder where your own shaders live; they appear in SOURCE	Habri e caha cu bo mes shaders; nan ta aparece den SOURCE
+STATUS | LOAD <path> | SET <input> <value...> | LFO <input> ON|OFF|SHAPE|RATE|DEPTH|PHASE|SYNC [value]	STATUS | LOAD <ruta> | SET <entrada> <valor...> | LFO <entrada> ON|OFF|SHAPE|RATE|DEPTH|PHASE|SYNC [valor]
+STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <control> <setting>	STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <control> <configuracion>

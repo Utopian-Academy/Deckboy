@@ -4526,3 +4526,22 @@ PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP |
 PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST	PAD: پێویستە PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST
 VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS	VJ: پێویستە ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS
 RENDER: START <CUE|CUES a-b|OUTPUT> <1080P|4K|OUTPUT> <25|30|50|60> <PRORES|H264|PNG> <file>, STATUS, CANCEL, DIALOG	RENDER: START <CUE|CUES a-b|OUTPUT> <1080P|4K|OUTPUT> <25|30|50|60> <PRORES|H264|PNG> <پەڕگە>, STATUS, CANCEL, DIALOG
+Shader	شەیدەر
+LOAD .FS	بارکردنی .FS
+not loaded	بار نەکراوە
+SHADER FOLDER	بوخچەی شەیدەر
+Pick the colour	ڕەنگەکە هەڵبژێرە
+Switch it on or off	چالاک یان ناچالاکی بکە
+Drag or click to type	ڕایبکێشە یان بۆ نووسین کلیک بکە
+not one of its choices	یەکێک نییە لە هەڵبژاردەکانی
+Shader (an ISF .fs file)	شەیدەر (پەڕگەی ISF .fs)
+Step through the choices	یەک بە یەک بە هەڵبژاردەکاندا بڕۆ
+shader: cannot read that file	شەیدەر: ناتوانرێت ئەو پەڕگەیە بخوێنرێتەوە
+colour channels run from 0 to 1	کەناڵەکانی ڕەنگ لە 0 تا 1 دەبن
+the value does not fit this input	بەهاکە لەگەڵ ئەم تێدانە ناگونجێت
+LFO: only a float input has an oscillator	LFO: تەنها تێدانی ژمارەی دەیی شەپۆلسازێکی هەیە
+Pick an ISF shader file (.fs) for this cue	پەڕگەی شەیدەری ISF (.fs) بۆ ئەم کیوە هەڵبژێرە
+Drag, click to type, or put it on an oscillator	ڕایبکێشە، بۆ نووسین کلیک بکە، یان بە شەپۆلسازێکەوە بیبەستە
+select a shader cue first (SHADER LOAD <path> makes one)	سەرەتا کیوی شەیدەر هەڵبژێرە (SHADER LOAD <path> یەکێک دروست دەکات)
+Open this file in your editor; save it and the picture follows	ئەم پەڕگەیە لە دەستکاریکەرەکەت بکەرەوە؛ پاشەکەوتی بکە و وێنەکە نوێ دەبێتەوە
+Open the folder where your own shaders live; they appear in SOURCE	بوخچەی شەیدەرەکانی خۆت بکەرەوە؛ لە SOURCE دەردەکەون

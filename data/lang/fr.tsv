@@ -4461,3 +4461,22 @@ there is no picture in that range	aucune image dans cette plage
 the source made no picture	la source n'a produit aucune image
 a render is already running	un rendu est déjà en cours
 frame {1} of {2} \xC2\xB7 {3} frames/s	image {1} sur {2} \xC2\xB7 {3} images/s
+LOAD .FS	CHARGER .FS
+not loaded	non charg?
+SHADER FOLDER	DOSSIER SHADERS
+Pick the colour	Choisir la couleur
+Switch it on or off	Activer ou d?sactiver
+Drag or click to type	Glisser ou cliquer pour saisir
+not one of its choices	ne fait pas partie des choix
+Shader (an ISF .fs file)	Shader (un fichier ISF .fs)
+Step through the choices	Parcourir les choix
+shader: cannot read that file	shader : impossible de lire ce fichier
+colour channels run from 0 to 1	les canaux de couleur vont de 0 ? 1
+SHADER LOAD <path to a .fs file>	SHADER LOAD <chemin vers un fichier .fs>
+the value does not fit this input	la valeur ne convient pas ? cette entr?e
+LFO: only a float input has an oscillator	LFO : seule une entr?e flottante poss?de un oscillateur
+Pick an ISF shader file (.fs) for this cue	Choisir un fichier shader ISF (.fs) pour ce cue
+Drag, click to type, or put it on an oscillator	Glisser, cliquer pour saisir ou affecter un oscillateur
+select a shader cue first (SHADER LOAD <path> makes one)	s?lectionnez d'abord un cue shader (SHADER LOAD <path> en cr?e un)
+Open this file in your editor; save it and the picture follows	Ouvrir ce fichier dans votre ?diteur ; une fois enregistr?, l'image se met ? jour
+Open the folder where your own shaders live; they appear in SOURCE	Ouvrir le dossier de vos shaders ; ils apparaissent dans SOURCE

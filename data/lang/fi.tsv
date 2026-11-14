@@ -4521,3 +4521,23 @@ RENDER START: needs a size, a rate, a codec and a file	RENDER START: tarvitaan k
 RENDER START: size is 1080P, 4K or OUTPUT; codec is PRORES, H264 or PNG	RENDER START: koko on 1080P, 4K tai OUTPUT; koodekki on PRORES, H264 tai PNG
 frame {1} of {2} \xC2\xB7 {3} frames/s	kuva {1}/{2} \xC2\xB7 {3} kuvaa/s
 out:--	ulos:--
+Shader	Varjostin
+LOAD .FS	LATAA .FS
+not loaded	ei ladattu
+SHADER FOLDER	VARJOSTINKANSIO
+Pick the colour	Valitse väri
+Switch it on or off	Kytke päälle tai pois
+Drag or click to type	Vedä tai napsauta kirjoittaaksesi
+not one of its choices	ei kuulu vaihtoehtoihin
+Shader (an ISF .fs file)	Varjostin (ISF-tiedosto .fs)
+Step through the choices	Selaa vaihtoehtoja
+shader: cannot read that file	varjostin: tiedostoa ei voi lukea
+colour channels run from 0 to 1	värikanavien arvot ovat välillä 0–1
+SHADER LOAD <path to a .fs file>	SHADER LOAD <.fs-tiedoston polku>
+the value does not fit this input	arvo ei sovi tähän tuloon
+LFO: only a float input has an oscillator	LFO: vain liukulukutulolla on oskillaattori
+Pick an ISF shader file (.fs) for this cue	Valitse tälle cuelle ISF-varjostintiedosto (.fs)
+Drag, click to type, or put it on an oscillator	Vedä, napsauta kirjoittaaksesi tai kytke oskillaattoriin
+select a shader cue first (SHADER LOAD <path> makes one)	valitse ensin varjostincue (SHADER LOAD <path> luo sellaisen)
+Open this file in your editor; save it and the picture follows	Avaa tiedosto editorissasi; tallenna se, niin kuva päivittyy
+Open the folder where your own shaders live; they appear in SOURCE	Avaa omien varjostintesi kansio; ne näkyvät SOURCE-valikossa

@@ -4516,3 +4516,23 @@ RENDER START: needs a size, a rate, a codec and a file	RENDER START: boyut, hız
 RENDER START: size is 1080P, 4K or OUTPUT; codec is PRORES, H264 or PNG	RENDER START: boyut 1080P, 4K veya OUTPUT; kodek PRORES, H264 veya PNG
 frame {1} of {2} \xC2\xB7 {3} frames/s	kare {1} / {2} \xC2\xB7 {3} kare/s
 out:--	çıkış:--
+Shader	Gölgelendirici
+LOAD .FS	.FS YÜKLE
+not loaded	yüklenmedi
+SHADER FOLDER	GÖLGELENDİRİCİ KLASÖRÜ
+Pick the colour	Rengi seçin
+Switch it on or off	Açın veya kapatın
+Drag or click to type	Sürükleyin veya yazmak için tıklayın
+not one of its choices	seçenekleri arasında yok
+Shader (an ISF .fs file)	Gölgelendirici (ISF .fs dosyası)
+Step through the choices	Seçenekler arasında ilerleyin
+shader: cannot read that file	gölgelendirici: dosya okunamıyor
+colour channels run from 0 to 1	renk kanalları 0 ile 1 arasında değer alır
+SHADER LOAD <path to a .fs file>	SHADER LOAD <.fs dosyasının yolu>
+the value does not fit this input	değer bu girişe uygun değil
+LFO: only a float input has an oscillator	LFO: yalnızca kayan noktalı girişin osilatörü vardır
+Pick an ISF shader file (.fs) for this cue	Bu cue için bir ISF gölgelendirici dosyası (.fs) seçin
+Drag, click to type, or put it on an oscillator	Sürükleyin, yazmak için tıklayın veya bir osilatöre bağlayın
+select a shader cue first (SHADER LOAD <path> makes one)	önce bir gölgelendirici cue seçin (SHADER LOAD <path> bir tane oluşturur)
+Open this file in your editor; save it and the picture follows	Bu dosyayı düzenleyicinizde açın; kaydedince görüntü güncellenir
+Open the folder where your own shaders live; they appear in SOURCE	Kendi gölgelendiricilerinizin klasörünü açın; SOURCE içinde görünürler

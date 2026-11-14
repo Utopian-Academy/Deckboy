@@ -4525,3 +4525,22 @@ PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP |
 PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST	PAD: अपेक्षित PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST
 VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS	VJ: अपेक्षित ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS
 RENDER: START <CUE|CUES a-b|OUTPUT> <1080P|4K|OUTPUT> <25|30|50|60> <PRORES|H264|PNG> <file>, STATUS, CANCEL, DIALOG	RENDER: START <CUE|CUES a-b|OUTPUT> <1080P|4K|OUTPUT> <25|30|50|60> <PRORES|H264|PNG> <फ़ाइल>, STATUS, CANCEL, DIALOG
+Shader	शेडर
+LOAD .FS	.FS लोड करें
+not loaded	लोड नहीं हुआ
+SHADER FOLDER	शेडर फ़ोल्डर
+Pick the colour	रंग चुनें
+Switch it on or off	इसे चालू या बंद करें
+Drag or click to type	खींचें या टाइप करने के लिए क्लिक करें
+not one of its choices	इसके विकल्पों में नहीं है
+Shader (an ISF .fs file)	शेडर (ISF .fs फ़ाइल)
+Step through the choices	विकल्पों पर बारी-बारी जाएँ
+shader: cannot read that file	शेडर: वह फ़ाइल पढ़ी नहीं जा सकी
+colour channels run from 0 to 1	रंग चैनलों की सीमा 0 से 1 है
+the value does not fit this input	यह मान इस इनपुट के लिए उपयुक्त नहीं है
+LFO: only a float input has an oscillator	LFO: केवल दशमलव इनपुट में ऑसिलेटर होता है
+Pick an ISF shader file (.fs) for this cue	इस क्यू के लिए ISF शेडर फ़ाइल (.fs) चुनें
+Drag, click to type, or put it on an oscillator	खींचें, टाइप करने के लिए क्लिक करें या ऑसिलेटर से जोड़ें
+select a shader cue first (SHADER LOAD <path> makes one)	पहले शेडर क्यू चुनें (SHADER LOAD <path> से एक बनता है)
+Open this file in your editor; save it and the picture follows	यह फ़ाइल अपने संपादक में खोलें; सहेजते ही चित्र अपडेट हो जाएगा
+Open the folder where your own shaders live; they appear in SOURCE	अपने शेडरों का फ़ोल्डर खोलें; वे SOURCE में दिखाई देंगे

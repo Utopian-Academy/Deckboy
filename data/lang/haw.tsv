@@ -4482,3 +4482,27 @@ VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 are bars)	VJ QUANTISE: beat | 1 | 
 RENDER START: size is 1080P, 4K or OUTPUT; codec is PRORES, H264 or PNG	RENDER START: he 1080P, 4K a i ʻole OUTPUT ka nui; he PRORES, H264 a i ʻole PNG ke codec
 VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS	VJ: pono ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS
 VJ LINK: this build has no Ableton Link	VJ LINK: ʻaʻohe Ableton Link o kēia mana
+Shader	Mea hoʻomalumalu
+LOAD .FS	HOʻOUKA .FS
+not loaded	ʻaʻole i hoʻouka ʻia
+SHADER FOLDER	WAIHONA SHADER
+Pick the colour	Koho i ke waihoʻoluʻu
+Switch it on or off	Hoʻā a hoʻopio paha
+Drag or click to type	Kauō a kaomi paha e kikokiko
+not one of its choices	ʻaʻole ia kekahi o nā koho
+Shader (an ISF .fs file)	Mea hoʻomalumalu (he waihona ISF .fs)
+Step through the choices	Hele ma nā koho pākahi
+shader: cannot read that file	mea hoʻomalumalu: ʻaʻole hiki ke heluhelu i kēlā waihona
+colour channels run from 0 to 1	mai 0 a 1 nā kaha waihoʻoluʻu
+SHADER LOAD <path to a .fs file>	SHADER LOAD <ala i ka waihona .fs>
+the value does not fit this input	ʻaʻole kūpono ka waiwai i kēia hoʻokomo
+LFO: only a float input has an oscillator	LFO: ʻo ka hoʻokomo helu lana wale nō ka mea loaʻa ka mea haʻalulu
+Pick an ISF shader file (.fs) for this cue	Koho i ka waihona shader ISF (.fs) no kēia hōʻailona
+DASH SET: <n> <label> | <command> [| <glyph>]	DASH SET: <n> <lepili> | <kauoha> [| <hōʻailona>]
+Drag, click to type, or put it on an oscillator	Kauō, kaomi e kikokiko, a hāʻawi paha i ka mea haʻalulu
+select a shader cue first (SHADER LOAD <path> makes one)	koho mua i ka hōʻailona shader (hana ʻo SHADER LOAD <ala> i hoʻokahi)
+DASH: LIST | <n> | SET <n> <label> | <command> | CLEAR <n>	DASH: LIST | <n> | SET <n> <lepili> | <kauoha> | CLEAR <n>
+Open this file in your editor; save it and the picture follows	Wehe i kēia waihona ma kāu polokalamu hoʻoponopono; mālama a hahai ke kiʻi
+Open the folder where your own shaders live; they appear in SOURCE	Wehe i ka waihona o kāu mau shader ponoʻī; ʻike ʻia lākou ma SOURCE
+STATUS | LOAD <path> | SET <input> <value...> | LFO <input> ON|OFF|SHAPE|RATE|DEPTH|PHASE|SYNC [value]	STATUS | LOAD <ala> | SET <hoʻokomo> <waiwai...> | LFO <hoʻokomo> ON|OFF|SHAPE|RATE|DEPTH|PHASE|SYNC [waiwai]
+STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <control> <setting>	STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <hoʻomalu> <hoʻonohonoho>

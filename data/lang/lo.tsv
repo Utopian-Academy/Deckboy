@@ -4503,3 +4503,27 @@ VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 are bars)	VJ QUANTISE: beat | 1 | 
 RENDER START: size is 1080P, 4K or OUTPUT; codec is PRORES, H264 or PNG	RENDER START: ຂະໜາດແມ່ນ 1080P, 4K ຫຼື OUTPUT; ໂຄເດັກແມ່ນ PRORES, H264 ຫຼື PNG
 VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS	VJ: ຕ້ອງການ ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS
 VJ LINK: this build has no Ableton Link	VJ LINK: ຮຸ່ນນີ້ບໍ່ມີ Ableton Link
+Shader	ໂປຣແກຣມສ້າງພາບ
+LOAD .FS	ໂຫຼດ .FS
+not loaded	ຍັງບໍ່ໄດ້ໂຫຼດ
+SHADER FOLDER	ໂຟນເດີເຊດເດີ
+Pick the colour	ເລືອກສີ
+Switch it on or off	ເປີດ ຫຼື ປິດ
+Drag or click to type	ລາກ ຫຼື ຄລິກເພື່ອພິມ
+not one of its choices	ບໍ່ແມ່ນຕົວເລືອກທີ່ມີ
+Shader (an ISF .fs file)	ເຊດເດີ (ໄຟລ໌ ISF .fs)
+Step through the choices	ປ່ຽນຕົວເລືອກເທື່ອລະອັນ
+shader: cannot read that file	ເຊດເດີ: ອ່ານໄຟລ໌ນັ້ນບໍ່ໄດ້
+colour channels run from 0 to 1	ຊ່ອງສີມີຄ່າແຕ່ 0 ຫາ 1
+SHADER LOAD <path to a .fs file>	SHADER LOAD <ເສັ້ນທາງໄປຫາໄຟລ໌ .fs>
+the value does not fit this input	ຄ່າບໍ່ເໝາະກັບຂາເຂົ້ານີ້
+LFO: only a float input has an oscillator	LFO: ມີແຕ່ຂາເຂົ້າເລກທົດສະນິຍົມທີ່ໃຊ້ຕົວກຳເນີດການແກວ່ງໄດ້
+Pick an ISF shader file (.fs) for this cue	ເລືອກໄຟລ໌ເຊດເດີ ISF (.fs) ສຳລັບຄິວນີ້
+DASH SET: <n> <label> | <command> [| <glyph>]	DASH SET: <n> <ປ້າຍ> | <ຄຳສັ່ງ> [| <ສັນຍາລັກ>]
+Drag, click to type, or put it on an oscillator	ລາກ, ຄລິກເພື່ອພິມ, ຫຼື ໃຫ້ຕົວກຳເນີດການແກວ່ງຄວບຄຸມ
+select a shader cue first (SHADER LOAD <path> makes one)	ເລືອກຄິວເຊດເດີກ່ອນ (SHADER LOAD <ເສັ້ນທາງ> ສ້າງຄິວໃໝ່)
+DASH: LIST | <n> | SET <n> <label> | <command> | CLEAR <n>	DASH: LIST | <n> | SET <n> <ປ້າຍ> | <ຄຳສັ່ງ> | CLEAR <n>
+Open this file in your editor; save it and the picture follows	ເປີດໄຟລ໌ນີ້ໃນຕົວແກ້ໄຂ; ບັນທຶກແລ້ວພາບຈະປ່ຽນຕາມ
+Open the folder where your own shaders live; they appear in SOURCE	ເປີດໂຟນເດີທີ່ເກັບເຊດເດີຂອງທ່ານ; ມັນຈະປາກົດໃນ SOURCE
+STATUS | LOAD <path> | SET <input> <value...> | LFO <input> ON|OFF|SHAPE|RATE|DEPTH|PHASE|SYNC [value]	STATUS | LOAD <ເສັ້ນທາງ> | SET <ຂາເຂົ້າ> <ຄ່າ...> | LFO <ຂາເຂົ້າ> ON|OFF|SHAPE|RATE|DEPTH|PHASE|SYNC [ຄ່າ]
+STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <control> <setting>	STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <ຕົວຄວບຄຸມ> <ການຕັ້ງຄ່າ>

@@ -4531,3 +4531,27 @@ VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 are bars)	VJ QUANTISE: beat | 1 | 
 RENDER START: size is 1080P, 4K or OUTPUT; codec is PRORES, H264 or PNG	RENDER START: kara 1080P, 4K o OUTPUT; vekakoda PRORES, H264 o PNG
 VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS	VJ: peni ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS
 VJ LINK: this build has no Ableton Link	VJ LINK: ta patagra va hali Ableton Link
+Shader	Vekagrawia
+LOAD .FS	TIRI .FS
+not loaded	vatirido
+SHADER FOLDER	VEKAGRAWIA KARA
+Pick the colour	Piki luma
+Switch it on or off	Lumi o niri
+Drag or click to type	Tiri o bati go holagri
+not one of its choices	va una pikaku sova
+Shader (an ISF .fs file)	Vekagrawia (ISF .fs gra)
+Step through the choices	Piki pikaku una una
+shader: cannot read that file	vekagrawia: vapel miri gra nakae
+colour channels run from 0 to 1	lumakanaku 0 go 1
+SHADER LOAD <path to a .fs file>	SHADER LOAD <dora go .fs gra>
+the value does not fit this input	numa vafito nakae mungadora
+LFO: only a float input has an oscillator	LFO: fraknuma mungadora solo guri mirkora
+Pick an ISF shader file (.fs) for this cue	Piki ISF vekagrawia gra (.fs) go nakae veka
+DASH SET: <n> <label> | <command> [| <glyph>]	DASH SET: <n> <namhola> | <korhola> [| <mirhola>]
+Drag, click to type, or put it on an oscillator	Tiri, bati go holagri, o lani nakae kae mirkora
+select a shader cue first (SHADER LOAD <path> makes one)	piki vekagrawia veka muna (SHADER LOAD <dora> novi una)
+DASH: LIST | <n> | SET <n> <label> | <command> | CLEAR <n>	DASH: LIST | <n> | SET <n> <namhola> | <korhola> | CLEAR <n>
+Open this file in your editor; save it and the picture follows	Fesi nakae gra kae tu setgrawia; guri gra o veka seti dop
+Open the folder where your own shaders live; they appear in SOURCE	Fesi kara go tu vekagrawiaku; vekisi kae SOURCE
+STATUS | LOAD <path> | SET <input> <value...> | LFO <input> ON|OFF|SHAPE|RATE|DEPTH|PHASE|SYNC [value]	STATUS | LOAD <dora> | SET <mungadora> <numa...> | LFO <mungadora> ON|OFF|SHAPE|RATE|DEPTH|PHASE|SYNC [numa]
+STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <control> <setting>	STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <setbata> <seta>

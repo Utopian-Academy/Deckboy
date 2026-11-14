@@ -4521,3 +4521,22 @@ PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE | ASSIGN | REMOVE | CHIP |
 PAD: expected PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST	PAD: 필요한 형식: PAD <deck> SET <x> <y> | RELEASE | MODE HOLD|LATCH | ASSIGN <slot> <x> <y> | REMOVE <slot> | CHIP <slot> ON|OFF | LIST
 VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS	VJ: 필요한 형식: ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS
 RENDER: START <CUE|CUES a-b|OUTPUT> <1080P|4K|OUTPUT> <25|30|50|60> <PRORES|H264|PNG> <file>, STATUS, CANCEL, DIALOG	RENDER: START <CUE|CUES a-b|OUTPUT> <1080P|4K|OUTPUT> <25|30|50|60> <PRORES|H264|PNG> <파일>, STATUS, CANCEL, DIALOG
+Shader	셰이더
+LOAD .FS	.FS 불러오기
+not loaded	불러오지 않음
+SHADER FOLDER	셰이더 폴더
+Pick the colour	색상 선택
+Switch it on or off	켜거나 끄기
+Drag or click to type	드래그하거나 클릭하여 입력
+not one of its choices	선택 항목에 없는 값입니다
+Shader (an ISF .fs file)	셰이더 (ISF .fs 파일)
+Step through the choices	선택 항목을 차례로 전환
+shader: cannot read that file	셰이더: 해당 파일을 읽을 수 없습니다
+colour channels run from 0 to 1	색상 채널의 범위는 0~1입니다
+the value does not fit this input	이 입력에 맞지 않는 값입니다
+LFO: only a float input has an oscillator	LFO: 실수 입력만 오실레이터를 사용할 수 있습니다
+Pick an ISF shader file (.fs) for this cue	이 큐에 사용할 ISF 셰이더 파일 (.fs)을 선택하세요
+Drag, click to type, or put it on an oscillator	드래그하거나 클릭하여 입력하거나 오실레이터에 연결하세요
+select a shader cue first (SHADER LOAD <path> makes one)	먼저 셰이더 큐를 선택하세요 (SHADER LOAD <path>로 생성)
+Open this file in your editor; save it and the picture follows	편집기에서 이 파일을 열고 저장하면 영상에 반영됩니다
+Open the folder where your own shaders live; they appear in SOURCE	사용자 셰이더 폴더를 엽니다. 셰이더는 SOURCE에 표시됩니다

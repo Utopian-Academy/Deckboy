@@ -4505,3 +4505,27 @@ VJ QUANTISE: beat | 1 | 2 | 4 | off  (1, 2, 4 are bars)	VJ QUANTISE: beat | 1 | 
 RENDER START: size is 1080P, 4K or OUTPUT; codec is PRORES, H264 or PNG	RENDER START: teɣzi d 1080P, 4K neɣ OUTPUT; akudik d PRORES, H264 neɣ PNG
 VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS	VJ: yetturaǧu ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <beat|1|2|4|off>|LINK <on|off|status>|DECKS <a> <b>|STATUS
 VJ LINK: this build has no Ableton Link	VJ LINK: lqem-a ur yesɛi ara Ableton Link
+Shader	Amsiɣ
+LOAD .FS	SALI .FS
+not loaded	ur yuli ara
+SHADER FOLDER	AKARAM N UMSIƔ
+Pick the colour	Fren ini
+Switch it on or off	Rmed-it neɣ sens-it
+Drag or click to type	Zuɣer neɣ sit i tira
+not one of its choices	mačči d yiwen seg yifran-is
+Shader (an ISF .fs file)	Amsiɣ (afaylu ISF .fs)
+Step through the choices	Ddu seg ufran ɣer wayeḍ
+shader: cannot read that file	amsiɣ: ur izmir ara ad yeɣṛ afaylu-nni
+colour channels run from 0 to 1	ibuda n yini seg 0 ɣer 1
+SHADER LOAD <path to a .fs file>	SHADER LOAD <abrid ɣer ufaylu .fs>
+the value does not fit this input	azal ur iwulem ara anekcum-a
+LFO: only a float input has an oscillator	LFO: anekcum n umḍan azuran kan i yesɛan amseddid
+Pick an ISF shader file (.fs) for this cue	Fren afaylu n umsiɣ ISF (.fs) i tneɣrufet-a
+DASH SET: <n> <label> | <command> [| <glyph>]	DASH SET: <n> <tabzimt> | <anaḍ> [| <azamul>]
+Drag, click to type, or put it on an oscillator	Zuɣer, sit i tira, neɣ err-it ɣef umseddid
+select a shader cue first (SHADER LOAD <path> makes one)	fren taneɣrufet n umsiɣ d tamezwarut (SHADER LOAD <abrid> ad d-yesnulfu yiwet)
+DASH: LIST | <n> | SET <n> <label> | <command> | CLEAR <n>	DASH: LIST | <n> | SET <n> <tabzimt> | <anaḍ> | CLEAR <n>
+Open this file in your editor; save it and the picture follows	Ldi afaylu-a deg umaẓrag-ik; sekles-it, tugna ad tbeddel yid-s
+Open the folder where your own shaders live; they appear in SOURCE	Ldi akaram n yimsiɣen-ik; ad d-banen deg SOURCE
+STATUS | LOAD <path> | SET <input> <value...> | LFO <input> ON|OFF|SHAPE|RATE|DEPTH|PHASE|SYNC [value]	STATUS | LOAD <abrid> | SET <anekcum> <azal...> | LFO <anekcum> ON|OFF|SHAPE|RATE|DEPTH|PHASE|SYNC [azal]
+STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <control> <setting>	STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <asenqed> <aɣewwar>

@@ -4483,3 +4483,23 @@ there is no picture in that range	não há imagem nesse intervalo
 the source made no picture	a fonte não gerou imagem
 a render is already running	já há uma renderização em andamento
 frame {1} of {2} \xC2\xB7 {3} frames/s	quadro {1} de {2} \xC2\xB7 {3} quadros/s
+LOAD .FS	CARREGAR .FS
+not loaded	n?o carregado
+SHADER FOLDER	PASTA DE SHADERS
+Pick the colour	Escolher a cor
+Switch it on or off	Ativar ou desativar
+Drag or click to type	Arrastar ou clicar para digitar
+not one of its choices	n?o ? uma das op??es
+Shader (an ISF .fs file)	Shader (um arquivo ISF .fs)
+Step through the choices	Percorrer as op??es
+shader: cannot read that file	shader: n?o foi poss?vel ler esse arquivo
+colour channels run from 0 to 1	os canais de cor v?o de 0 a 1
+SHADER LOAD <path to a .fs file>	SHADER LOAD <caminho de um arquivo .fs>
+the value does not fit this input	o valor n?o ? v?lido para esta entrada
+LFO: only a float input has an oscillator	LFO: s? uma entrada de ponto flutuante tem oscilador
+Pick an ISF shader file (.fs) for this cue	Escolher um arquivo de shader ISF (.fs) para este cue
+Drag, click to type, or put it on an oscillator	Arrastar, clicar para digitar ou atribuir um oscilador
+select a shader cue first (SHADER LOAD <path> makes one)	selecione primeiro um cue de shader (SHADER LOAD <path> cria um)
+Open this file in your editor; save it and the picture follows	Abrir este arquivo no seu editor; ao salvar, a imagem ? atualizada
+Open the folder where your own shaders live; they appear in SOURCE	Abrir a pasta dos seus shaders; eles aparecem em SOURCE
+ASCII: use ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>	ASCII: use os comandos ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>

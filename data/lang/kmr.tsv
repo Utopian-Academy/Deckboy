@@ -4516,3 +4516,22 @@ START RENDER	RENDER BIKE
 CANCEL RENDER	RENDER BETAL
 RENDER TO FILE	RENDER LI PELÊ
 RENDER TO FILE...	RENDER LI PELÊ...
+Shader	Şeyder
+LOAD .FS	BAR BIKE .FS
+not loaded	nehatiye barkirin
+SHADER FOLDER	PÊRINGA ŞEYDERAN
+Pick the colour	Rengê hilbijêre
+Switch it on or off	Çalak an neçalak bike
+Drag or click to type	Bikişîne an ji bo nivîsandinê bitikîne
+not one of its choices	ne yek ji vebijarkên wê ye
+Shader (an ISF .fs file)	Şeyder (pelek ISF .fs)
+Step through the choices	Vebijarkan yek bi yek bigere
+shader: cannot read that file	şeyder: ew pel nayê xwendin
+colour channels run from 0 to 1	kanalên rengê ji 0 heta 1 in
+the value does not fit this input	nirx li vê têketinê nayê
+LFO: only a float input has an oscillator	LFO: tenê têketina dehanî osîlatorek heye
+Pick an ISF shader file (.fs) for this cue	Ji bo vê cueyê pelek şeydera ISF (.fs) hilbijêre
+Drag, click to type, or put it on an oscillator	Bikişîne, ji bo nivîsandinê bitikîne, an bi osîlatorekê ve girê bide
+select a shader cue first (SHADER LOAD <path> makes one)	pêşî cueyek şeyderê hilbijêre (SHADER LOAD <path> yekê çêdike)
+Open this file in your editor; save it and the picture follows	Vê pelê di edîtorê xwe de veke; tomar bike û wêne nû dibe
+Open the folder where your own shaders live; they appear in SOURCE	Pêringa şeyderên xwe veke; ew di SOURCE de xuya dibin

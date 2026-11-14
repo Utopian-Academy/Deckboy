@@ -4517,3 +4517,23 @@ RENDER START: needs a size, a rate, a codec and a file	RENDER START: þarf stær
 RENDER START: size is 1080P, 4K or OUTPUT; codec is PRORES, H264 or PNG	RENDER START: stærð er 1080P, 4K eða OUTPUT; kóðari er PRORES, H264 eða PNG
 frame {1} of {2} \xC2\xB7 {3} frames/s	rammi {1} af {2} \xC2\xB7 {3} rammar/s
 out:--	út:--
+Shader	Skyggir
+LOAD .FS	HLAÐA .FS
+not loaded	ekki hlaðið
+SHADER FOLDER	SKYGGJAMAPPA
+Pick the colour	Veldu litinn
+Switch it on or off	Kveiktu eða slökktu
+Drag or click to type	Dragðu eða smelltu til að slá inn
+not one of its choices	er ekki meðal valkostanna
+Shader (an ISF .fs file)	Skyggir (ISF .fs-skrá)
+Step through the choices	Flettu í gegnum valkostina
+shader: cannot read that file	skyggir: ekki er hægt að lesa skrána
+colour channels run from 0 to 1	litarásir taka gildi frá 0 til 1
+SHADER LOAD <path to a .fs file>	SHADER LOAD <slóð að .fs-skrá>
+the value does not fit this input	gildið passar ekki við þetta inntak
+LFO: only a float input has an oscillator	LFO: aðeins fleytitalnainntak hefur sveiflugjafa
+Pick an ISF shader file (.fs) for this cue	Veldu ISF-skyggjaskrá (.fs) fyrir þetta cue
+Drag, click to type, or put it on an oscillator	Dragðu, smelltu til að slá inn eða tengdu við sveiflugjafa
+select a shader cue first (SHADER LOAD <path> makes one)	veldu fyrst cue með skyggi (SHADER LOAD <path> býr það til)
+Open this file in your editor; save it and the picture follows	Opnaðu skrána í ritlinum þínum; vistaðu hana og myndin uppfærist
+Open the folder where your own shaders live; they appear in SOURCE	Opnaðu möppuna með þínum eigin skyggjum; þeir birtast í SOURCE
