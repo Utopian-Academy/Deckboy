@@ -3245,3 +3245,1114 @@ whole picture	öll myndin
 FX CHOICE: choice must be A or B	FX CHOICE: valið verður að vera A eða B
 FX CHOICE: no effect at that index	FX CHOICE: engin áhrif á þeirri skrá
 FX LFO: slot is A-D for the parameters, E for the amount, F and G for the fifth and sixth (or 0-6)	FX LFO: rauf er A-D fyrir færibreyturnar, E fyrir magn, F og G fyrir fimmta og sjötta (eða 0-6)
+(choose cue)	(veldu cue)
+(missing)	(vantar)
+(no slots)	(engin hólf)
+(set media file)	(veldu miðlaskrá)
+(set url)	(stilltu url)
+a name for this step	heiti þessa skrefs
+A number	Tala
+across the grain	þvert á áferð
+Add Browser Cue	Bæta við vafracue
+Add NDI Source Cue	Bæta við NDI-cue
+Add Stream Cue	Bæta við streymiscue
+additive	samleggjandi
+alternating	til skiptis
+amber	rafgult
+angle	horn
+Art-Net Destination	Art-Net-áfangastaður
+ASCII 95 (density)	ASCII 95 (þéttleiki)
+ASCII 95 (raw)	ASCII 95 (hrátt)
+ASIO is off	Slökkt er á ASIO
+ATEM Input	ATEM-inntak
+Attach Lower Third	Tengja Lower Third
+Attach PIP Overlay	Tengja PIP-yfirlag
+Attack	Ristími
+attack	ristími
+Audio bitrate	Bitahraði hljóðs
+Audio reactivity	Hljóðsvörun
+audioprint	hljóðprent
+AUTO	SJÁLFVIRKT
+auto (59.94 Hz)	sjálfvirkt (59.94 Hz)
+azimuth	stefnuhorn
+band curve	bandferill
+Bands	Bönd
+bands	bönd
+base layer	grunnlag
+BITRATE	BITAHRAÐI
+bits	bitar
+black point	svartpunktur
+bleed	blæðing
+Blobs	Klessur
+block glitch	kubbagalli
+block size	kubbstærð
+blocks	kubbar
+blur	móða
+BOTH	BÆÐI
+bright	bjart
+Browser Ready	Vafri tilbúinn
+Brush opacity	Ógegnsæi pensils
+Brush size	Pensilstærð
+buzzer	suðari
+by brightness	eftir birtu
+cancelled	hætt við
+Canvas Height	Hæð myndflatar
+Canvas View	Sýn myndflatar
+Canvas Width	Breidd myndflatar
+catch	grip
+caustics	ljósbrot
+Centre X	Miðja X
+Centre Y	Miðja Y
+channel skew	rásaskekkja
+channel spread	rásadreifing
+character	eðli
+chladni	Chladni-mynstur
+chop	bútun
+CLASSIC	SÍGILT
+CLOCK	KLUKKA
+coherence	samhengi
+colour bleed	litablæðing
+colour drift	litarek
+colour lag	litatöf
+colour replace	litaskipti
+columns	dálkar
+Companion/OSC Port	Companion/OSC-gátt
+control 1	stýring 1
+control 2	stýring 2
+control 3	stýring 3
+control 4	stýring 4
+Control change	Stýribreyting
+convergence	samleitni
+copies	eintök
+corrupt	skemma
+corruption	skemmd
+could not reach github	náðist ekki í github
+could not read the PDF	tókst ekki að lesa PDF
+could not start ffmpeg	tókst ekki að ræsa ffmpeg
+couldn't open explorer	tókst ekki að opna explorer
+couldn't open finder	tókst ekki að opna finder
+coupling	tenging
+crystallise	kristalla
+Cue Goto	Fara í cue
+Cue Notes	Cue-glósur
+curl detail	iðusmáatriði
+curves	ferlar
+Custom Glyphs	Sérstafir
+Custom Output Raster	Sérsniðinn útflötur
+cut bright	skera bjart
+cut dark	skera dökkt
+cut reset	núllstilla við klipp
+cutoff	skurðtíðni
+cuts	skurðir
+cyan	blágrænt
+damage	skemmdir
+damping	deyfing
+dark	dökkt
+darkness	myrkur
+databend	gagnabeygja
+datamosh	þjöppunargalli
+deck age	aldur spilara
+Default Cue Fade	Sjálfgefin cue-deyfing
+Density	Þéttleiki
+depth	dýpt
+depth split	dýptarskipting
+Destination Address	Áfangastaðarfang
+Destination UDP port	UDP-gátt áfangastaðar
+Detail	Smáatriði
+diamond	tígull
+display native	upprunalegt skjás
+Display none	Enginn skjár
+distance	fjarlægð
+DMX Channels	DMX-rásir
+doppler	dopplerhrif
+dots move	punktahreyfing
+Draw colour	Teiknilitur
+drift	rek
+drip	leki
+drips	dropar
+drive	yfirstýring
+driver refused to start	rekill neitaði að ræsast
+dye advect	litaflutningur
+edges	brúnir
+empty	tómt
+empty expression	tóm segð
+escaped to windowed	farið í gluggaham
+export as .png or .svg	flyttu út sem .png eða .svg
+extended	útvíkkað
+EXTREME	ÖFGAKENNT
+facet light	flataljós
+falloff	dvínun
+falsecolour	gervilitir
+feed rate	fæðingarhraði
+feedback bloom	endurgjafarljómi
+Feedback zoom	Aðdráttur endurgjafar
+ferrofluid	járnvökvi
+ffmpeg made no file	ffmpeg bjó ekki til skrá
+field of view	sjónsvið
+Find Cue	Finna cue
+Find+Take Cue	Finna+TAKE cue
+Fire at a time of day	Ræsa á tíma dags
+Fire on a MIDI note	Ræsa við MIDI-nótu
+Fire on an OSC address	Ræsa við OSC-vistfang
+Fireside	Við arininn
+First channel (1-512)	Fyrsta rás (1-512)
+Fixture address	Vistfang ljóss
+Fixture name	Heiti ljóss
+Fixture universe	Ljósheimur
+flash length	leifturlengd
+flash to	leifturlitur
+flicker	flökt
+Flipbook rate	Flettihraði
+floor	lágmark
+Flow	Flæði
+flow	flæði
+focus	fókus
+fold	brot
+fold point	brotpunktur
+frames	rammar
+Frequency	Tíðni
+frequency	tíðni
+fullscreen dropped	heilskjár féll út
+gap	bil
+gather	söfnun
+Glitch	Galli
+glow	ljómi
+glyph set	stafasett
+gong	gonghljómur
+GOTO Cue	GOTO-cue
+grain	korn
+grain flow	kornaflæði
+grain size	kornastærð
+green split	grænskipting
+Grey	Grátt
+grid	hnitanet
+growl	urr
+growth	vöxtur
+head wear	slit á haus
+heat	hiti
+Height	Hæð
+Height (px)	Hæð (px)
+hh:mm:ss or seconds	hh:mm:ss eða sekúndur
+highlight roll	háljósamýking
+histogram	stuðlarit
+horizontal	lárétt
+How big each tile is.	Stærð hverrar flísar.
+How often it skips.	Hversu oft það sleppir.
+hue turn	litblæssnúningur
+ice	ís
+In time	Inntími
+ink	blek
+interference	truflun
+irregularity	óregla
+it could not be started	ekki tókst að ræsa það
+Its name, number or id	Heiti, númer eða id
+jump	stökk
+just	hrein stilling
+kaleido	kaleidó
+kaleidoscope	kaleidóskóp
+Key Color	Lyklalitur
+Key sender source name	Upprunaheiti lykilsendis
+Keyframe interval	Lykilrammabil
+knee	hné
+knife angle	hnífshorn
+leak	leki
+Legacy Cue Link	Eldri cue-tenging
+let go	slepping
+libX11 is not installed	libX11 er ekki uppsett
+lift	lyfting
+light	ljós
+light angle	ljóshorn
+lightspeed	ljóshraði
+line colour	línulitur
+line glow	línuljómi
+lissajous	Lissajous-ferill
+Lissajous (L/R phase)	Lissajous (L/R-fasi)
+Live Browser	Vafri í beinni
+Live Source	Uppspretta í beinni
+LOAD NEXT	HLAÐA NÆSTA
+lost the session bus	tenging við seturás rofnaði
+Lower Third - subtitle	Lower Third - undirtitill
+Lower Third - title	Lower Third - titill
+Lower Third Subtext	Undirtexti Lower Third
+Lower Third Title	Titill Lower Third
+luma displace	birtuhliðrun
+luma key	birtulykill
+Mask opacity	Ógegnsæi maska
+Mask rotation	Snúningur maska
+Mask scale	Kvarði maska
+Mask X	Maski X
+Mask Y	Maski Y
+material	efni
+meantone	miðtónastilling
+Media	Miðlar
+Melt	Bráðnun
+melt	bráðnun
+memory	minni
+midtones	miðtónar
+milliseconds (40..2000)	millisekúndur (40..2000)
+Milliseconds 0-5000	Millisekúndur 0-5000
+Mod depth	Mótunardýpt
+Mod ratio	Mótunarhlutfall
+moire	móramynstur
+mono	einrása
+MONO L	EINRÁSA L
+MONO R	EINRÁSA R
+mosaic	mósaík
+motion mosh	hreyfisull
+motion puppet	hreyfibrúða
+motion trails	hreyfislóðir
+MSC Cue Number	MSC-cue-númer
+music & sparkle	tónlist og glitr
+NDI Key Name	Heiti NDI-lykils
+NDI Name	NDI-heiti
+NDI Source Name	NDI-upprunaheiti
+NEXT	NÆSTA
+night eyes	nætursjón
+NMC Port	NMC-gátt
+NMC Source	NMC-uppspretta
+NMC Target	NMC-mark
+NMOS Interface Name	Heiti NMOS-tengis
+NMOS Node Port	Gátt NMOS-hnúts
+NMOS Registry	NMOS-skrá
+no ASIO in this build	ekkert ASIO í þessari smíð
+no colour	enginn litur
+no driver named	enginn rekill með heitinu
+no mask made	enginn maski búinn til
+no release found	engin útgáfa fannst
+no X display to read	enginn X-skjár til að lesa
+noise	suð
+not connected	ótengt
+not on this output	ekki á þessu úttaki
+Note	Nóta
+Note off	Nóta af
+Note on	Nóta á
+nothing drawn	ekkert teiknað
+off-axis	utan áss
+offline	ótengt neti
+only a background in it	inniheldur aðeins bakgrunn
+opened in explorer	opnað í explorer
+opened in file manager	opnað í skráastjóra
+orbit speed	sporbrautarhraði
+OSC Address	OSC-vistfang
+OSC Query HTTP Port	HTTP-gátt OSC Query
+Out time	Úttími
+Output Alpha	Alfa úttaks
+Output Canvas	Myndflötur úttaks
+Output Delay	Úttakstöf
+output fault	úttaksbilun
+Output name	Heiti úttaks
+Output Refresh	Endurnýjun úttaks
+overflow	yfirflæði
+own playlist	eigin spilunarlisti
+parade	rásaröð
+parallax	hliðrun
+Payload	Gagnainnihald
+Percent 0-100	Prósent 0-100
+phone	sími
+Phrases	Setningar
+pinch	klípa
+ping-pong	fram og aftur
+pink noise	bleikt suð
+PIP Target Cue	PIP-markcue
+pitch	tónhæð
+pivot	snúningspunktur
+Pixel density	Dílþéttleiki
+pixel sort	dílaröðun
+plasma	rafvaki
+Playlist Start TC	Upphafs-TC spilunarlista
+Playlist Timebase	Tímagrunnur spilunarlista
+Plugin	Viðbót
+polar warp	pólbeygja
+Portal	Gátt
+posterise	litafækkun
+Practice show	Æfingarsýning
+PREVIOUS	FYRRA
+Program change	Forritsskipti
+Prompter script	Texti lesvélar
+QUALITY	GÆÐI
+radial zoom	geislaaðdráttur
+radio	útvarp
+radius	radíus
+ramp	stigull
+range	svið
+ratio	hlutfall
+Raw bytes	Hrá bæti
+Raw MIDI Bytes	Hrá MIDI-bæti
+reach	seiling
+reaction bloom	efnahvarfsljómi
+recordings	upptökur
+recovering	endurheimtir
+refresh	endurnýjun
+Release	Slökun
+release	slökun
+relief	upphleypt
+relight	endurlýsing
+Rename cue	Endurnefna cue
+Rename fixture	Endurnefna ljós
+Renumber Cues	Endurnúmera cue
+repeat width	endurtekningarbreidd
+Replay hold	Endurspilunarhald
+resonance	ómun
+Retrigger	Endurræsing
+revealed in finder	sýnt í finder
+reverse	öfugt
+rgb split	rgb-skipting
+Rim	Rönd
+rings	hringir
+ripple	gárur
+rising	hækkandi
+rod bias	stafvægi
+room	rými
+rot	rotnun
+Rotation	Snúningur
+rotation	snúningur
+round	kringlótt
+runtime unavailable	keyrsluumhverfi ótiltækt
+sag	spennufall
+Save Warp Preset	Vista bjögunarsnið
+saw	sagtönn
+scanlines	skannlínur
+schlieren	schlieren-mynd
+scope	mælir
+SCOPES	MÆLAR
+second mode	annar hamur
+Seconds (0-30)	Sekúndur (0-30)
+see through	gegnsæi
+seed density	fræþéttleiki
+self	sjálft
+Sender source name	Upprunaheiti sendis
+settle	stöðgun
+shadow lift	skuggalyfting
+shake	hristingur
+shard size	brotastærð
+sharpen	skerping
+sheen	gljái
+sideways	til hliðar
+size out of range	stærð utan marka
+slit scan	raufskönnun
+slit width	raufarbreidd
+Smear	Smurning
+smear	smurning
+softness	mýkt
+solarise	sólarvæðing
+Source Ready	Uppspretta tilbúin
+spike count	gaddafjöldi
+spike length	gaddalengd
+spin	snúningur
+spinning	snýst
+Spout Sender Name	Heiti Spout-sendis
+spring	gormur
+sprite sheet	myndflísablað
+Sprite spin	Snúningur myndflísar
+square	ferningur
+SRT latency	SRT-biðtími
+SRT passphrase	SRT-aðgangssetning
+SRT stream ID	SRT-streymis-ID
+ST 2110 Destination	ST 2110 áfangastaður
+ST 2110 Port	ST 2110 gátt
+Step length	Skreflengd
+steps	skref
+stereogram	stereómynd
+stiffness	stífleiki
+sting	stuttur hljómur
+stream restart needed	endurræsa þarf streymi
+Stream URL	Vefslóð streymis
+stream write failed	ritun streymis mistókst
+strength	styrkur
+strobe	leiftur
+stroke	strok
+SUBTLE	FÍNGERT
+sway	sveifla
+sweep	sópun
+sweep speed	sóphraði
+swell speed	þensluhraði
+Switcher IP address	IP-tala myndblandara
+symbols	tákn
+SYPHON TEXTURE SHARE	SYPHON ÁFERÐARDEILING
+system default	sjálfgefið kerfis
+system output	kerfisúttak
+tape	segulband
+tape age	aldur bands
+target cue is gone	markcue er horfið
+targets nothing	ekkert mark
+tear width	rifubreidd
+temporal dither	tímadreifing
+test signal	prófunarmerki
+text to send	texti til sendingar
+the file is empty	skráin er tóm
+the header is truncated	hausinn er styttur
+threshold	þröskuldur
+throw	kast
+tile size	flísastærð
+tilt	halli
+time	tími
+time cube	tímateningur
+Timer Message	Skilaboð tímamælis
+tint	litun
+tint colour	litunarlitur
+tracking	rakning
+trail	slóð
+transparent	gegnsætt
+triangle	þríhyrningur
+triple beep	þrefalt píp
+TSL Tally	TSL-stöðuljós
+Turn	Snúa
+turn	snúa
+Twist	Vindun
+twist	vindun
+unavailable	ótiltækt
+unbalanced )	óparað )
+Universe (0-63999)	Heimur (0-63999)
+URL or local page path	Vefslóð eða slóð staðarsíðu
+vapor	gufa
+vector	vigur
+vertical	lóðrétt
+vertical bias	lóðrétt vægi
+vibrato	tónsveifla
+Video bitrate	Bitahraði myndar
+Video dip fade	Mynddeyfing um svart
+vignette	jaðarskygging
+vMix HTTP Port	vMix HTTP-gátt
+vMix TCP Port	vMix TCP-gátt
+wash out	upplitun
+wave height	ölduhæð
+wavefront	bylgjufrontur
+way	átt
+Web Monitor Connections	Tengingar vefskjás
+Web Monitor PIN	PIN vefskjás
+Web Monitor Port	Gátt vefskjás
+wedges	fleygar
+What it runs	Hvað það keyrir
+Where the filter sits.	Hvar sían situr.
+Which cue	Hvaða cue
+Which way it drips.	Í hvaða átt það lekur.
+white	hvítt
+white noise	hvítt suð
+white point	hvítpunktur
+window hidden	gluggi falinn
+window minimized	gluggi lágmarkaður
+wire	vír
+wrong display	rangur skjár
+X,Y offset in pixels	X,Y-hliðrun í dílum
+Zoom	Aðdráttur
+zoom	aðdráttur
+% of the picture's height, 0.1 to 20 (supports + - * / and ())	% af myndhæð, 0.1 til 20 (styður + - * / og ())
+%, 1 to 100 (supports + - * / and ())	%, 1 til 100 (styður + - * / og ())
+-3 to 3: 0 holds, negative runs backwards (supports + - * / and ())	-3 til 3: 0 heldur, neikvætt keyrir afturábak (styður + - * / og ())
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono (supports + - * / and ())	0 sígilt, 1 eldur, 2 ís, 3 neon, 4 einlitt (styður + - * / og ())
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono (supports + - * / and ())	0 regnbogi + grátt, 1 regnbogi, 2 þema, 3 einlitt (styður + - * / og ())
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear (supports + - * / and ())	0 svæði, 1 tvíburar, 2 flæði, 3 söðull, 4 gárur, 5 skekking (styður + - * / og ())
+0-1 (supports + - * / and ())	0-1 (styður + - * / og ())
+0-100% (supports + - * / and ())	0-100% (styður + - * / og ())
+0-100%, left to right (supports + - * / and ())	0-100%, frá vinstri til hægri (styður + - * / og ())
+0-100%, top to bottom (supports + - * / and ())	0-100%, ofan frá og niður (styður + - * / og ())
+0-100%: 0 holds the field still (supports + - * / and ())	0-100%: 0 heldur sviðinu kyrru (styður + - * / og ())
+0-100%: 50 is 1x, 0 a quarter, 100 four times (supports + - * / and ())	0-100%: 50 er 1x, 0 fjórðungur, 100 fjórfalt (styður + - * / og ())
+0-100%: how far the field bends (supports + - * / and ())	0-100%: hve mikið sviðið bognar (styður + - * / og ())
+0-100%: the share of each band drawn as grey stripes (supports + - * / and ())	0-100%: hluti hvers bands með gráum röndum (styður + - * / og ())
+Across, % of the width, -100 to 100 (supports + - * / and ())	Þvert, % af breidd, -100 til 100 (styður + - * / og ())
+Amount 0-100% (supports + - * / and ())	Magn 0-100% (styður + - * / og ())
+Birth, drift and fade rate, 0.1-3 (supports + - * / and ())	Fæðingar-, rek- og dofnunarhraði, 0.1-3 (styður + - * / og ())
+Block displacement and channel tearing, 0-1 (supports + - * / and ())	Kubbatilfærsla og rásarif, 0-1 (styður + - * / og ())
+Colour steps, 2-8 (supports + - * / and ())	Litaþrep, 2-8 (styður + - * / og ())
+dBFS, -60 to 0 (-18 is EBU alignment) (supports + - * / and ())	dBFS, -60 til 0 (-18 er EBU-viðmið) (styður + - * / og ())
+Degrees -180..180 (supports + - * / and ())	Gráður -180..180 (styður + - * / og ())
+Degrees per second, -720 to 720 (supports + - * / and ())	Gráður á sekúndu, -720 til 720 (styður + - * / og ())
+Degrees round the colour wheel, 0-360 (supports + - * / and ())	Gráður um litahringinn, 0-360 (styður + - * / og ())
+Degrees, -360 to 360 (supports + - * / and ())	Gráður, -360 til 360 (styður + - * / og ())
+Degrees, 0-360 (supports + - * / and ())	Gráður, 0-360 (styður + - * / og ())
+Down, % of the height, -100 to 100 (supports + - * / and ())	Niður, % af hæð, -100 til 100 (styður + - * / og ())
+Edge out (+) or in (-), % of the height, -25 to 25 (supports + - * / and ())	Brún út (+) eða inn (-), % af hæð, -25 til 25 (styður + - * / og ())
+Edge softness, % of the height, 0 to 25 (supports + - * / and ())	Mýkt brúna, % af hæð, 0 til 25 (styður + - * / og ())
+FDS hardware gain range, 0-63 (supports + - * / and ())	Mögnun FDS-búnaðar, 0-63 (styður + - * / og ())
+Feature size, 0.1-8 (supports + - * / and ())	Stærð einkenna, 0.1-8 (styður + - * / og ())
+Fields per frame, 0-4 (1 = one field per rendered frame) (supports + - * / and ())	Svið á ramma, 0-4 (1 = eitt svið á teiknaðan ramma) (styður + - * / og ())
+Frames a second, 1 to 60 (supports + - * / and ())	Rammar á sekúndu, 1 til 60 (styður + - * / og ())
+Hertz, 20-20000 (supports + - * / and ())	Hertz, 20-20000 (styður + - * / og ())
+Horizontal cells, 64-960 (supports + - * / and ())	Láréttir reitir, 64-960 (styður + - * / og ())
+How big a blob grows, 0-1 (supports + - * / and ())	Hve stór klessa verður, 0-1 (styður + - * / og ())
+How hard it cuts, %, 0 to 100 (supports + - * / and ())	Hörku skurðar, %, 0 til 100 (styður + - * / og ())
+How hard the audio drives it, 0-1 (supports + - * / and ())	Hve sterkt hljóðið knýr það, 0-1 (styður + - * / og ())
+How many are alive at once, 3-48 (supports + - * / and ())	Hve mörg lifa í einu, 3-48 (styður + - * / og ())
+How much of each frame feeds the next, 0-0.95 (supports + - * / and ())	Hluti hvers ramma í þann næsta, 0-0.95 (styður + - * / og ())
+How readily neighbours merge, 0 (never) to 1 (supports + - * / and ())	Hve auðveldlega nágrannar sameinast, 0 (aldrei) til 1 (styður + - * / og ())
+Internal resolution, 1 (chunky) to 5 (fine) (supports + - * / and ())	Innri upplausn, 1 (gróf) til 5 (fín) (styður + - * / og ())
+Master oscillator rate, 0.01-8 (supports + - * / and ())	Hraði aðalsveiflugjafa, 0.01-8 (styður + - * / og ())
+Modulator as a ratio of the note, 0.05-16 (supports + - * / and ())	Mótari sem hlutfall nótu, 0.05-16 (styður + - * / og ())
+One LED tile's height in pixels, 8-8192 (supports + - * / and ())	Hæð einnar LED-flísar í dílum, 8-8192 (styður + - * / og ())
+One LED tile's width in pixels, 8-8192 (supports + - * / and ())	Breidd einnar LED-flísar í dílum, 8-8192 (styður + - * / og ())
+Palette turn, 0-1 (supports + - * / and ())	Snúningur litaspjalds, 0-1 (styður + - * / og ())
+Per-frame zoom of the feedback path, 0.90-1.15 (supports + - * / and ())	Aðdráttur endurgjafarleiðar á ramma, 0.90-1.15 (styður + - * / og ())
+Pitch in hertz, 20-8000 (supports + - * / and ())	Tónhæð í hertzum, 20-8000 (styður + - * / og ())
+Pixel sort amount, 0-1 (supports + - * / and ())	Magn dílaröðunar, 0-1 (styður + - * / og ())
+Pixels (supports + - * / and ())	Dílar (styður + - * / og ())
+Pixels, 64-2160 (supports + - * / and ())	Dílar, 64-2160 (styður + - * / og ())
+Pixels, 64-3840 (supports + - * / and ())	Dílar, 64-3840 (styður + - * / og ())
+Scale of the whole graphic, 0.5-2 (supports + - * / and ())	Kvarði allrar myndarinnar, 0.5-2 (styður + - * / og ())
+Scanlines, bloom and gun misalignment, 0-1 (supports + - * / and ())	Skannlínur, ljómi og skekkja geislabyssna, 0-1 (styður + - * / og ())
+Seconds before it leaves by itself; 0 waits for OUT (supports + - * / and ())	Sekúndur þar til það fer sjálft; 0 bíður eftir OUT (styður + - * / og ())
+Seconds between retriggers, 0-8 (supports + - * / and ())	Sekúndur milli endurræsinga, 0-8 (styður + - * / og ())
+Seconds the finished drawing stays, 0 to 60 (supports + - * / and ())	Sekúndur sem lokið teikning helst, 0 til 60 (styður + - * / og ())
+Seconds the in move takes, 0-5 (supports + - * / and ())	Sekúndur sem innhreyfing tekur, 0-5 (styður + - * / og ())
+Seconds the out move takes, 0-5 (supports + - * / and ())	Sekúndur sem úthreyfing tekur, 0-5 (styður + - * / og ())
+Seconds, 0-4 (supports + - * / and ())	Sekúndur, 0-4 (styður + - * / og ())
+Seconds, 0-8 (supports + - * / and ())	Sekúndur, 0-8 (styður + - * / og ())
+Size, %, 5 to 400 (supports + - * / and ())	Stærð, %, 5 til 400 (styður + - * / og ())
+Space under it, as a fraction of the frame, 0-0.8 (supports + - * / and ())	Bil undir sem hluti ramma, 0-0.8 (styður + - * / og ())
+Spiral size, 0.25-4 (supports + - * / and ())	Spíralstærð, 0.25-4 (styður + - * / og ())
+Spiral strength, 0-4 (supports + - * / and ())	Spíralstyrkur, 0-4 (styður + - * / og ())
+Thickness of the glowing edge, 0-1 (supports + - * / and ())	Þykkt glóandi jaðars, 0-1 (styður + - * / og ())
+Turbulence, 0 still to 3 boiling (supports + - * / and ())	Ólga, 0 kyrrt til 3 sjóðandi (styður + - * / og ())
+Turns the rim's colours round the wheel, 0-1 (supports + - * / and ())	Snýr jaðarlitum um litahringinn, 0-1 (styður + - * / og ())
+Where the eye sits, 0 left to 1 right (supports + - * / and ())	Staða augans, 0 vinstri til 1 hægri (styður + - * / og ())
+Where the eye sits, 0 top to 1 bottom (supports + - * / and ())	Staða augans, 0 efst til 1 neðst (styður + - * / og ())
+0-127; 127 is all-call	0-127; 127 kallar alla
+0-127; the domain the facility's clock runs on	0-127; lén klukku staðarins
+10-79 characters, or empty for none	10-79 stafir, eða tómt fyrir ekkert
+8 zones already: click one to remove it first	Þegar 8 svæði: smelltu fyrst á eitt til að fjarlægja
+8+ characters; letters and symbols are allowed	8+ stafir; bókstafir og tákn leyfð
+A command line, or blank for nothing	Skipanalína, eða tómt fyrir ekkert
+A number, or blank for none	Tala, eða tómt fyrir ekkert
+a playlist that is gone	spilunarlisti sem er horfinn
+a step cannot fire the playlist it lives on	skref getur ekki ræst eigin spilunarlista
+a target cannot target another target	mark getur ekki miðað á annað mark
+add an output to scope it	bættu við úttaki til að mæla
+an ASIO stream is already open	ASIO-streymi er þegar opið
+an IPv4 address, or 255.255.255.255 to broadcast	IPv4-tala, eða 255.255.255.255 fyrir útvarp á neti
+another app is holding the pointer	annað forrit heldur bendlinum
+AUDIOALSO ADD: seven extra destinations is the limit	AUDIOALSO ADD: hámark sjö viðbótaráfangastaðir
+AUDIOFX PLUGIN: this build has no plugin host	AUDIOFX PLUGIN: þessi smíð hýsir ekki viðbætur
+brightness moves the playhead (needs CPU frames)	birta færir spilunarhausinn (þarf CPU-ramma)
+browser connections at once, 1-64 (default 8)	samtímatengingar vafra, 1-64 (sjálfgefið 8)
+built without ASIO support	smíðað án ASIO-stuðnings
+built without NDI SDK headers	smíðað án NDI SDK-hausa
+cancelled: the waiting cue is no longer in the playlist	hætt við: cue í bið er ekki lengur á listanum
+channel count must be at least 1	rásafjöldi verður að vera að minnsta kosti 1
+comma outside a function call	komma utan fallkalls
+could not start the PDF renderer	tókst ekki að ræsa PDF-teiknara
+could not write the export script	tókst ekki að skrifa útflutningsskriftu
+couldn't open file manager	tókst ekki að opna skráastjóra
+Cue name (blank restores the file name)	Heiti cue (tómt endurheimtir skráarheiti)
+Default Non-Movie Duration	Sjálfgefin lengd án myndskeiðs
+downloading the caption model, then listening...	sæki skjátextalíkan, hlusta svo...
+driver reports no output channels	rekill tilkynnir engar úttaksrásir
+driver would not create output buffers	rekill bjó ekki til úttaksbiðminni
+driver would not load (in use by another application?)	rekill hlóðst ekki (í notkun í öðru forriti?)
+driver would not report a buffer size	rekill gaf ekki upp biðminnisstærð
+driver would not report channel info	rekill gaf ekki upp rásaupplýsingar
+ffmpeg stopped taking frames	ffmpeg hætti að taka við römmum
+Fire at incoming timecode	Ræsa við innkominn tímakóða
+flow (follows the picture)	flæði (fylgir myndinni)
+follows this cue's own brightness (needs CPU frames)	fylgir birtu þessa cue (þarf CPU-ramma)
+four effects at most on one device: remove one first	mest fjögur áhrif á tæki: fjarlægðu fyrst eitt
+Hz or AUTO (e.g. 60 or 59.94)	Hz eða AUTO (t.d. 60 eða 59.94)
+kbps (32-512; 160 is a sane default)	kbps (32-512; 160 er skynsamlegt sjálfgefið)
+Leave empty to follow the live cue notes	Hafðu tómt til að fylgja glósum cue í beinni
+LibreOffice could not be run	Ekki tókst að keyra LibreOffice
+LibreOffice produced no PDF	LibreOffice bjó ekki til PDF
+milliseconds (20-8000; ~4x your RTT)	millisekúndur (20-8000; ~4x RTT)
+Multicast group (e.g. 239.20.10.1)	Fjölvarpshópur (t.d. 239.20.10.1)
+Name visible to receivers	Heiti sýnilegt móttökurum
+NDI source name (e.g. LAPTOP (source 1))	NDI-upprunaheiti (t.d. LAPTOP (source 1))
+NIC address or name; empty = the default route	NIC-vistfang eða heiti; tómt = sjálfgefin leið
+NIC name reported in interface_bindings (e.g. eth0)	NIC-heiti í interface_bindings (t.d. eth0)
+no pages could be rendered	ekki tókst að teikna síður
+not a MIDI file (no MThd header)	ekki MIDI-skrá (MThd-haus vantar)
+not while a cue is playing	ekki meðan cue spilar
+offset in percent of the picture	hliðrun í prósentum myndar
+OSC Feedback Mirror Rate	Tíðni speglunar OSC-endurgjafar
+paste your stream key here	límdu streymislykilinn hér
+Paste the key from your platform	Límdu lykilinn frá veitunni
+pdftoppm produced no pages	pdftoppm bjó ekki til síður
+pixels (of the output raster)	dílar (í úttaksfleti)
+position on the output raster, in pixels	staða á úttaksfleti í dílum
+PowerPoint could not export this file	PowerPoint gat ekki flutt þessa skrá út
+Prefix (optional). Example: Q	Forskeyti (valfrjálst). Dæmi: Q
+Prefix and optional start (example: Q 100)	Forskeyti og valfrjáls byrjun (dæmi: Q 100)
+release has no build for this platform	útgáfan hefur enga smíð fyrir þennan vettvang
+Routing hint for the receiver	Leiðarvísbending fyrir móttakara
+seconds (1-10; most platforms want 2)	sekúndur (1-10; flestar veitur vilja 2)
+Seconds for new-cue fade in/out defaults	Sjálfgefnar sekúndur inn-/útdeyfingar nýrra cue
+seconds this step holds before PLAY moves on	sekúndur sem skref bíður áður en PLAY heldur áfram
+ST 2110 network interface	ST 2110 nettengi
+still reading the last folder -- one at a time	les enn síðustu möppu -- eina í einu
+the background alpha belongs to a Lower Third	bakgrunnsalfa tilheyrir Lower Third
+the caption model has not been downloaded yet	skjátextalíkanið hefur ekki verið sótt enn
+the desktop portal did not answer	skjáborðsgáttin svaraði ekki
+the document has no pages	skjalið hefur engar síður
+the file has no playable events	skráin hefur enga spilanlega atburði
+the NDI runtime is not installed	NDI-keyrsluumhverfi er ekki uppsett
+the PDF renderer produced no pages	PDF-teiknarinn bjó ekki til síður
+the screen could not be read there	ekki var hægt að lesa skjáinn þar
+the show plays through ASIO	sýningin spilar gegnum ASIO
+the time division is not readable	tímaskipting er ólæsileg
+this build has no X11 support	þessi smíð styður ekki X11
+UDP port for transport sync	UDP-gátt fyrir flutningssamstillingu
+web audio encoder cannot keep up	vefhljóðkóðari hefur ekki undan
+zones cleared: Motion reads the whole picture	svæði hreinsuð: hreyfing les alla myndina
+AUDIOALSO: expected ADD <name>, REMOVE <name> or CLEAR	AUDIOALSO: vænst er ADD <name>, REMOVE <name> eða CLEAR
+BROWSER KEY: expected Enter|Tab|Backspace|Escape	BROWSER KEY: vænst er Enter|Tab|Backspace|Escape
+BUGSWAT: expected START, SHOWME, SKIP, PLAY, EXIT or STATUS	BUGSWAT: vænst er START, SHOWME, SKIP, PLAY, EXIT eða STATUS
+CAPTIONS LIVE: expected ON, OFF, STATUS or TEXT	CAPTIONS LIVE: vænst er ON, OFF, STATUS eða TEXT
+CAPTIONS SOURCE: expected INPUT, DECK <n> or OUTPUT <n>	CAPTIONS SOURCE: vænst er INPUT, DECK <n> eða OUTPUT <n>
+DMXCUE FIXTURE: expected <name> <level%>|LEAVE [<colour>]	DMXCUE FIXTURE: vænst er <name> <level%>|LEAVE [<colour>]
+DMXCUE LFO: expected <name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]	DMXCUE LFO: vænst er <name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]
+DMXCUE: expected NEW, SET, FADE, UNIVERSE, HOST, PORT, FIRE or BLACKOUT	DMXCUE: vænst er NEW, SET, FADE, UNIVERSE, HOST, PORT, FIRE eða BLACKOUT
+ENDACTION: expected INHERIT, STOP, LOOP, HOLD or NEXT	ENDACTION: vænst er INHERIT, STOP, LOOP, HOLD eða NEXT
+expected waveform|scope|lissajous|spectrum|level|cover	vænst er waveform|scope|lissajous|spectrum|level|cover
+FADE CURVE: expected linear, ease-in, ease-out or s-curve	FADE CURVE: vænst er linear, ease-in, ease-out eða s-curve
+FADE WHAT: expected opacity, volume, dimmer, brightness, contrast, saturation, hue, effect, audiofx or speed	FADE WHAT: vænst er opacity, volume, dimmer, brightness, contrast, saturation, hue, effect, audiofx eða speed
+FIXTURE ADD: expected <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]	FIXTURE ADD: vænst er <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]
+LOWERSTYLE: expected none, fade, rise, slide, wipe or NEXT	LOWERSTYLE: vænst er none, fade, rise, slide, wipe eða NEXT
+MASK ASSIGN: expected <id|NONE> CUE | LAYER <output> <playlist> | OUTPUT <n> | MATTE <n>	MASK ASSIGN: vænst er <id|NONE> CUE | LAYER <output> <playlist> | OUTPUT <n> | MATTE <n>
+MASK ASSIGN: expected CUE, LAYER, OUTPUT or MATTE	MASK ASSIGN: vænst er CUE, LAYER, OUTPUT eða MATTE
+MASK EXPORT: expected <id> <file.png|file.svg> [WxH]	MASK EXPORT: vænst er <id> <file.png|file.svg> [WxH]
+MASK LFO: expected <id> <param> ON|OFF [rate Hz] [depth %]	MASK LFO: vænst er <id> <param> ON|OFF [rate Hz] [depth %]
+MATRIX SET: expected <source 1-2> <dest> <0-100>	MATRIX SET: vænst er <source 1-2> <dest> <0-100>
+MATRIX: expected SET <src> <dest> <0-100>, SEED or CLEAR	MATRIX: vænst er SET <src> <dest> <0-100>, SEED eða CLEAR
+MESH: expected on|off|toggle|height|tilt|yaw|spin|grid	MESH: vænst er on|off|toggle|height|tilt|yaw|spin|grid
+MIC: expected ADD, LIST, INPUT, CHANNEL or GAIN	MIC: vænst er ADD, LIST, INPUT, CHANNEL eða GAIN
+MIDICUE KIND: expected note-on, note-off, cc, program, msc-go, msc-stop, msc-resume or raw	MIDICUE KIND: vænst er note-on, note-off, cc, program, msc-go, msc-stop, msc-resume eða raw
+MIDICUE: expected NEW, PORTS, PORT, KIND, CH, D1, D2, DEVICE, CUENUM, LIST, RAW or SEND	MIDICUE: vænst er NEW, PORTS, PORT, KIND, CH, D1, D2, DEVICE, CUENUM, LIST, RAW eða SEND
+MULTIVIEW LAYOUT: expected GRID, BIG, BIGTOP or TWOTOP	MULTIVIEW LAYOUT: vænst er GRID, BIG, BIGTOP eða TWOTOP
+MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK or EMPTY	MULTIVIEW WINDOW: vænst er PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK eða EMPTY
+NETCUE: expected NEW, PROTO, HOST, PORT, ADDRESS, PAYLOAD or SEND	NETCUE: vænst er NEW, PROTO, HOST, PORT, ADDRESS, PAYLOAD eða SEND
+OUTPROBE: expected <output> <x 0-1> <y 0-1>	OUTPROBE: vænst er <output> <x 0-1> <y 0-1>
+OUTPUT HDR: expected ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> or STATUS	OUTPUT HDR: vænst er ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> eða STATUS
+OUTPUTFX ADD: expected hpf, lpf, tilt, comp or width	OUTPUTFX ADD: vænst er hpf, lpf, tilt, comp eða width
+OUTPUTFX: expected ADD, SET, REMOVE, BYPASS, CLEAR or DEVICE	OUTPUTFX: vænst er ADD, SET, REMOVE, BYPASS, CLEAR eða DEVICE
+OUTPUTS ADD: expected <name> CH <n> or CH <n>-<n+1>	OUTPUTS ADD: vænst er <name> CH <n> eða CH <n>-<n+1>
+PATCH: expected <deck> <output> <dB> or OFF	PATCH: vænst er <deck> <output> <dB> eða OFF
+presenter colour: expected BG|INK|ACCENT #rrggbb	presenter colour: vænst er BG|INK|ACCENT #rrggbb
+PRESET: expected LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME or DELETE	PRESET: vænst er LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME eða DELETE
+rectc: expected <hh:mm:ss:ff|timeofday> [df|ndf|auto]	rectc: vænst er <hh:mm:ss:ff|timeofday> [df|ndf|auto]
+SCALEMODE: expected fit|fill|stretch|unscaled	SCALEMODE: vænst er fit|fill|stretch|unscaled
+SCOPES BIG: expected waveform, parade, vector, diamond, histogram, falsecolour, sound or off	SCOPES BIG: vænst er waveform, parade, vector, diamond, histogram, falsecolour, sound eða off
+SCOPES: expected PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS or SOUND	SCOPES: vænst er PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS eða SOUND
+SECTION: expected playback|metadata|geometry|key|audio|effects|timer|tone|synth	SECTION: vænst er playback|metadata|geometry|key|audio|effects|timer|tone|synth
+STING: expected ON, PITCH, LENGTH, SWEEP or BODY	STING: vænst er ON, PITCH, LENGTH, SWEEP eða BODY
+TARGET VERB: expected start|stop|pause|resume|load|arm|disarm	TARGET VERB: vænst er start|stop|pause|resume|load|arm|disarm
+TEXTCUE ALIGN: expected left, centre or right	TEXTCUE ALIGN: vænst er left, centre eða right
+TEXTCUE ANIM: expected none, fade, typewriter, scroll, crawl, pulse or wobble	TEXTCUE ANIM: vænst er none, fade, typewriter, scroll, crawl, pulse eða wobble
+TEXTCUE: expected NEW, BODY, ANIM, SIZE, SPEED, ALIGN, CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, WIGGLE, IN, OUTMOVE or OUT	TEXTCUE: vænst er NEW, BODY, ANIM, SIZE, SPEED, ALIGN, CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, WIGGLE, IN, OUTMOVE eða OUT
+TRACKER: expected GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP or CLICKER	TRACKER: vænst er GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP eða CLICKER
+TUTORIAL: expected START, SHOWME, SKIP, EXIT, STATUS or SCREENS	TUTORIAL: vænst er START, SHOWME, SKIP, EXIT, STATUS eða SCREENS
+UPDATE: expected check|download|install|status	UPDATE: vænst er check|download|install|status
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS	VJ: vænst er ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS
+How hard the short hits.	Hve hart skammhlaupið slær.
+How far a band can slide.	Hve langt band getur runnið.
+How far the glow spreads.	Hve langt ljóminn dreifist.
+How fast the surface moves.	Hve hratt yfirborðið hreyfist.
+How fast they travel outward.	Hve hratt þau fara út á við.
+How many torn bands per frame.	Hve mörg rifin bönd á ramma.
+How much the edges are lifted.	Hve mikið brúnirnar lyftast.
+How closely spaced the rings are.	Hve þétt hringirnir liggja.
+How far out the darkening starts.	Hve langt út myrkvunin byrjar.
+How strongly the outlines are drawn.	Hve sterkt útlínurnar eru teiknaðar.
+How many shades survive the quantise.	Hve margir tónar lifa skömmtunina af.
+How many spikes the field breaks into.	Í hve marga gadda sviðið brotnar.
+How strongly the water bends the picture.	Hve sterkt vatnið beygir myndina.
+Pushes the rings in or out of the centre.	Ýtir hringjunum inn að eða út frá miðju.
+How hard it is driven into its own limits.	Hve hart því er keyrt að eigin mörkum.
+Softens the fold so it ramps instead of creasing.	Mýkir brotið svo það verði halli í stað fellingar.
+Above halfway, the repeated piece plays backwards.	Ofan við miðju spilar endurtekni búturinn afturábak.
+How quickly the loop relaxes when nothing feeds it.	Hve fljótt lykkjan slaknar án inntaks.
+How far the bright parts pull away from the surface.	Hve langt björtu hlutarnir lyftast frá yfirborðinu.
+How big the room is. Small is a booth, large is a hall.	Stærð rýmis. Lítið er klefi, stórt er salur.
+Apple keeps the Keynote format secret on purpose, a malicious lock-in tactic, so only Apple's own software can read it properly. Best route: open it in Keynote on iCloud.com (free, in any browser), choose Download a Copy > PDF, and import that PDF	Apple heldur Keynote-sniðinu vísvitandi leyndu, illgjörn aðferð til að læsa notendur inni, svo aðeins eigin hugbúnaður Apple geti lesið það rétt. Best er að opna það í Keynote á iCloud.com (ókeypis í öllum vöfrum), velja Sækja afrit > PDF og flytja það PDF inn
+BROWSER CLICK: this browser backend cannot drive the page	BROWSER CLICK: þessi vafrabakendi getur ekki stýrt síðunni
+BROWSER SCROLL: this browser backend cannot drive the page	BROWSER SCROLL: þessi vafrabakendi getur ekki stýrt síðunni
+BROWSER SCROLLBAR: this browser backend cannot drive the page	BROWSER SCROLLBAR: þessi vafrabakendi getur ekki stýrt síðunni
+BROWSER TYPE: this browser backend cannot type	BROWSER TYPE: þessi vafrabakendi getur ekki slegið inn texta
+BROWSER INTERACT: this browser backend has no hands-on mode	BROWSER INTERACT: þessi vafrabakendi hefur engan gagnvirkan ham
+BROWSER SCROLL: expected pixels (negative is up)	BROWSER SCROLL: vænst er díla (neikvætt er upp)
+CHIP DUTY: this cue is an FDS synth, which has no duty	CHIP DUTY: þetta cue er FDS-hljóðgervill án vinnuhlutfalls
+CHIP NOISE: this cue is an FDS synth, which has no noise	CHIP NOISE: þetta cue er FDS-hljóðgervill án suðs
+CHIP VOICE: this cue is an FDS synth, which has no voice	CHIP VOICE: þetta cue er FDS-hljóðgervill án raddvals
+CHIP ENV: expected <attack> <release> in seconds	CHIP ENV: vænst er <attack> <release> í sekúndum
+SYNTH: the selected cue is not a video synth	SYNTH: valið cue er ekki myndgervill
+TEXTCUE: the selected cue is not a text cue	TEXTCUE: valið cue er ekki textacue
+NETCUE: the selected cue is not a network cue	NETCUE: valið cue er ekki netcue
+TCCUE: the selected cue is not a timecode cue	TCCUE: valið cue er ekki tímakóðacue
+SCRIPTCUE: the selected cue is not a script cue	SCRIPTCUE: valið cue er ekki skriftucue
+MIDIFILE: the selected cue is not a midi file cue	MIDIFILE: valið cue er ekki midi-skráarcue
+MIC: select a mic cue first (MIC ADD makes one)	MIC: veldu fyrst hljóðnemacue (MIC ADD býr það til)
+STING: select a tone cue first (TONECUE makes one)	STING: veldu fyrst tóncue (TONECUE býr það til)
+SUBTITLE CONVERT: the cue has no caption file	SUBTITLE CONVERT: cue hefur enga skjátextaskrá
+SUBTITLE CONVERT: destination must be .srt or .vtt	SUBTITLE CONVERT: áfangastaður verður að vera .srt eða .vtt
+How much the flame gutters frame to frame.	Hve mikið loginn flöktir milli ramma.
+Rounds the tiles off, all the way to dots.	Rúnnar flísarnar allt að punktum.
+Darkens the boundaries where crystals meet.	Dekkir mörkin þar sem kristallar mætast.
+How big the crystals grow before they meet.	Hve stórir kristallarnir verða áður en þeir mætast.
+How far the sound throws each line sideways.	Hve langt hljóðið kastar hverri línu til hliðar.
+How much each shard turns on its own centre.	Hve mikið hvert brot snýst um eigin miðju.
+The brightness that decides black from white.	Birtan sem skilur svart frá hvítu.
+How far each stroke is dragged along the grain.	Hve langt hvert strok dregst eftir áferðinni.
+How long a short stays closed, in VIDEO FRAMES.	Hve lengi skammhlaup helst lokað, í MYNDRÖMMUM.
+The colour to change, round the wheel from red.	Liturinn sem breyta á, um hringinn frá rauðu.
+How far each shard slides from where it belongs.	Hve langt hvert brot rennur frá sínum stað.
+How gradually the key cuts in. Hard at the left.	Hve mjúklega lykillinn kemur inn. Hart vinstra megin.
+The bright net the waves focus onto the picture.	Bjarta netið sem bylgjurnar beina á myndina.
+How fast the sand travels to the still lines.	Hve hratt sandurinn fer að kyrru línunum.
+AUDIOFX: expected OFF, BYPASS, or amount and parameters as percentages	AUDIOFX: vænst er OFF, BYPASS eða magns og stika í prósentum
+BLEND PAIR: expected <other output number> <overlap in pixels>	BLEND PAIR: vænst er <other output number> <overlap in pixels>
+expected one expression, three for colour, or four with alpha	vænst er einnar segðar, þriggja fyrir lit eða fjögurra með alfa
+MASK SET: expected INVERT, X, Y, SCALE, ROTATION, FEATHER, GROW or OPACITY and a number	MASK SET: vænst er INVERT, X, Y, SCALE, ROTATION, FEATHER, GROW eða OPACITY og tölu
+MASK SHAPE: expected a shape (MASK SHAPES lists them)	MASK SHAPE: vænst er forms (MASK SHAPES telur þau upp)
+MASTER DECK: expected a deck number and a cue number	MASTER DECK: vænst er spilara- og cue-númers
+TARGET CUE: expected a deck number and a cue number	TARGET CUE: vænst er spilara- og cue-númers
+MONITOR DECK: expected a playlist number or FOLLOW	MONITOR DECK: vænst er spilunarlistanúmers eða FOLLOW
+MONITOR ROOM: expected a playlist and ON or OFF	MONITOR ROOM: vænst er spilunarlista og ON eða OFF
+MULTIVIEW WINDOW REMOVE: expected a window number	MULTIVIEW WINDOW REMOVE: vænst er glugganúmers
+MULTIVIEW WINDOW <n>: expected a source, or SAFE/METER/LABEL ON|OFF	MULTIVIEW WINDOW <n>: vænst er uppsprettu eða SAFE/METER/LABEL ON|OFF
+NETCUE ADDRESS: expected an OSC path starting with /	NETCUE ADDRESS: vænst er OSC-slóðar sem byrjar á /
+OUTPUT AOI: expected a size like 256x256, or FULL	OUTPUT AOI: vænst er stærðar eins og 256x256 eða FULL
+OUTPUTFX SET: expected an effect number and 0-100	OUTPUTFX SET: vænst er áhrifanúmers og 0-100
+OUTPUT HDR WHITE: expected 80..500 nits (203 is BT.2408)	OUTPUT HDR WHITE: vænst er 80..500 nit (203 er BT.2408)
+PORTS: expected an http port and a tcp port	PORTS: vænst er http-gáttar og tcp-gáttar
+PRELOAD: expected a position in seconds, OFF or STATUS	PRELOAD: vænst er stöðu í sekúndum, OFF eða STATUS
+SCOPES SOURCE: expected PROGRAMME or an output number, 1-	SCOPES SOURCE: vænst er PROGRAMME eða úttaksnúmers, 1-
+STREAM ADD: expected a URL, e.g. srt://host:port	STREAM ADD: vænst er vefslóðar, t.d. srt://host:port
+TEXTCUE SIZE: expected 1-100 (percent of the raster)	TEXTCUE SIZE: vænst er 1-100 (prósent af myndfleti)
+TUTORIAL SCREENS: expected a count, MIRRORED or REAL	TUTORIAL SCREENS: vænst er fjölda, MIRRORED eða REAL
+VIDEO OUTPUT LAYER: expected a layer number (1 is the base)	VIDEO OUTPUT LAYER: vænst er lagsnúmers (1 er grunnurinn)
+VIDEO OUTPUT LAYERWARP: expected OFF, MODE, or eight numbers clockwise from the top left	VIDEO OUTPUT LAYERWARP: vænst er OFF, MODE eða átta talna réttsælis frá efra vinstra horni
+e.g. /cue/1/start	t.d. /cue/1/start
+e.g. 12.5	t.d. 12.5
+e.g. 192.168.1.50	t.d. 192.168.1.50
+e.g. 1=255, 10-14=64	t.d. 1=255, 10-14=64
+e.g. 90 3C 7F	t.d. 90 3C 7F
+port number (default 5510)	gáttarnúmer (sjálfgefið 5510)
+port number (default 5511)	gáttarnúmer (sjálfgefið 5511)
+port number (default 6454)	gáttarnúmer (sjálfgefið 6454)
+port number (default 8090)	gáttarnúmer (sjálfgefið 8090)
+port number (vMix uses 8088)	gáttarnúmer (vMix notar 8088)
+port number (vMix uses 8099)	gáttarnúmer (vMix notar 8099)
+WIDTHxHEIGHT (e.g. 2560x1080)	BREIDDxHÆÐ (t.d. 2560x1080)
+WIDTHxHEIGHT (e.g. 5760x2160)	BREIDDxHÆÐ (t.d. 5760x2160)
+pulse 25%	púls 25%
+edge ignite	brúnakveikja
+pythagorean	pýþagórískt
+purkinje	Purkinje-hrif
+Ouroboros	Úróboros
+Devamp	Hætta endurtekningu
+EDIT is off - press EDIT to type into the tracker	EDIT er óvirkt - ýttu á EDIT til að skrifa í tracker
+encoder destination: _converted beside the show	áfangastaður kóðara: _converted við sýninguna
+fetching the speech model - captions start when it arrives	sæki tallíkan - skjátextar hefjast þegar það kemur
+format 2 files are a set of independent patterns, not a performance	snið 2 er safn sjálfstæðra mynstra, ekki flutningur
+Target IP (or 255.255.255.255 to broadcast)	IP-tala marks (eða 255.255.255.255 fyrir útvarp á neti)
+the NDI runtime declined to start on this machine	NDI-keyrsluumhverfi neitaði að ræsast á þessari vél
+this cue has no known end to resolve into	þetta cue hefur engan þekktan endi til að leysa í
+this output's renderer could not cut the mask	teiknari þessa úttaks gat ekki skorið maskann
+update: cannot find this app bundle to replace	uppfærsla: finn ekki forritspakkann til að skipta út
+update: could not start the install helper	uppfærsla: gat ekki ræst uppsetningarhjálp
+update: could not start the installer	uppfærsla: gat ekki ræst uppsetningarforrit
+update: could not write the install helper	uppfærsla: gat ekki skrifað uppsetningarhjálp
+update: not running from an AppImage	uppfærsla: keyrir ekki úr AppImage
+what the operator should be told when GO reaches here	hvað segja skal stjórnanda þegar GO kemur hingað
+Where to send transport (blank = broadcast)	Hvert senda skal flutning (tómt = útvarp á neti)
+Which switcher input Deckboy is (0 = not set)	Hvaða inntak blandara Deckboy er (0 = óstillt)
+drag the panels to arrange the presenter screen	dragðu spjöld til að raða kynningarskjánum
+SOURCE CAMERA: name the device	SOURCE CAMERA: nefndu tækið
+NETCUE ADDRESS: an OSC address must start with /	NETCUE ADDRESS: OSC-vistfang verður að byrja á /
+MATRIX SET: level is a percent from 0 to 100	MATRIX SET: styrkur er prósent frá 0 til 100
+SLICE ADD: already 16 slices on this output	SLICE ADD: þegar 16 sneiðar á þessu úttaki
+TRACKER SET: a step cannot act on its own playlist	TRACKER SET: skref getur ekki virkað á eigin spilunarlista
+TRACKER: there are no steps (TRACKER ADD makes one)	TRACKER: engin skref (TRACKER ADD býr eitt til)
+#rrggbb -- the colour of the presenter screen	#rrggbb -- litur kynningarskjás
+#rrggbb, or a name (red, teal...)	#rrggbb, eða heiti (red, teal...)
+8+ characters; other machines send AUTH <passphrase> first. Empty = off	8+ stafir; aðrar vélar senda fyrst AUTH <passphrase>. Tómt = slökkt
+A command line, as a DASH button runs it. {value} is the knob's number, {note} the key.	Skipanalína eins og DASH-hnappur keyrir. {value} er tala hnappsins, {note} lykillinn.
+A dark line between the tiles, like grout or an LED wall.	Dökk lína milli flísa, eins og fúga eða LED-veggur.
+a note number 0-127, LEARN to take the next note played, or empty for none	nótunúmer 0-127, LEARN tekur næstu spiluðu nótu, eða tómt fyrir ekkert
+a plugin overran the audio thread and was bypassed — take it out of the chain	viðbót fór yfir tíma hljóðþráðar og var sniðgengin — taktu hana úr keðjunni
+a video cue's duration comes from its file; still duration applies to stills, patterns and browsers	lengd myndskeiðscue kemur úr skránni; kyrrmyndalengd gildir fyrir myndir, mynstur og vafra
+Above halfway, a hard cut in the picture resets the loop to clean.	Ofan við miðju hreinsar snöggt klipp í mynd lykkjuna.
+can't move the active cue -- take another cue on this deck first	ekki hægt að færa virkt cue -- keyrðu fyrst annað cue á þessum spilara
+centred and full-frame - moves when the picture does	miðjað og fullur rammi - hreyfist með myndinni
+Chladni listens: the figure follows the pitch of the sound	Chladni hlustar: myndin fylgir tónhæð hljóðsins
+click anywhere on any screen to take its colour. Esc cancels	smelltu hvar sem er á hvaða skjá sem er til að taka litinn. Esc hættir við
+click program or preview monitor to sample key color	smelltu á dagskrár- eða forskoðunarskjá til að velja lyklalit
+Copies of copies: none at the left, four at the right. Each one loses more.	Afrit af afritum: ekkert vinstra megin, fjögur hægra megin. Hvert tapar meiru.
+could not create an OpenGL context for Spout receive	gat ekki búið til OpenGL-samhengi fyrir Spout-móttöku
+could not create the offscreen window Spout receive needs	gat ekki búið til falinn glugga sem Spout-móttaka þarf
+could not get a device context for Spout receive	gat ekki fengið tækjasamhengi fyrir Spout-móttöku
+couldn't decode still image — unsupported format or corrupt file	gat ekki afkóðað kyrrmynd — óstutt snið eða skemmd skrá
+DECKLINK: no DeckLink driver on this computer (Blackmagic Desktop Video)	DECKLINK: enginn DeckLink-rekill á þessari vél (Blackmagic Desktop Video)
+DMXCUE LEVELS: nothing has been sent on that universe	DMXCUE LEVELS: ekkert hefur verið sent í þann heim
+ENDACTION: only video and audio cues have an end action	ENDACTION: aðeins mynd- og hljóðcue hafa lokaaðgerð
+FX ADD: datamosh needs a file-backed video cue	FX ADD: datamosh þarf myndskeiðscue úr skrá
+no video clock on this cue - nothing to lock to	engin myndklukka á þessu cue - ekkert til að læsa við
+no picture on this cue - nothing to follow	engin mynd á þessu cue - ekkert til að fylgja
+no picture on this cue - nothing to close the loop through	engin mynd á þessu cue - ekkert til að loka lykkjunni gegnum
+no picture on this cue - nothing decides where the playhead is	engin mynd á þessu cue - ekkert stýrir stöðu spilunarhauss
+no picture - shorts run on a timer instead of on cuts	engin mynd - skammhlaup fylgja tímamæli í stað klippa
+normalize all: no file-backed audio in this deck	staðla allt: ekkert skráarhljóð á þessum spilara
+normalize: selection has no file-backed audio	staðla: val hefur ekkert skráarhljóð
+no masks yet: make one in a cue's MASK section	engir maskar enn: búðu til einn í MASK-hluta cue
+no filled shapes in it (paths, rectangles, circles, ellipses or polygons)	engin fyllt form (ferlar, rétthyrningar, hringir, sporbaugar eða marghyrningar)
+no OpenGL pixel format available for Spout receive	ekkert OpenGL-dílasnið fyrir Spout-móttöku
+only a MIDI note or an OSC address can take a cue	aðeins MIDI-nóta eða OSC-vistfang getur ræst cue
+phone control requires an 8+ character passphrase	símastýring þarf aðgangssetningu með 8+ stöfum
+network sharing and phone control require an 8+ character passphrase	netdeiling og símastýring þurfa aðgangssetningu með 8+ stöfum
+WEBMONITOR PIN: network sharing and phone control require 8 or more characters	WEBMONITOR PIN: netdeiling og símastýring þurfa 8 eða fleiri stafi
+set an 8+ character Web Monitor passphrase first	stilltu fyrst aðgangssetningu vefskjás með 8+ stöfum
+WEBMONITOR QR: needs the monitor on and shared on the network	WEBMONITOR QR: skjár þarf að vera á og deildur á netinu
+WEBMONITOR SOURCE: could not create the web output	WEBMONITOR SOURCE: gat ekki búið til vefúttak
+WEBMONITOR SOURCE: PROGRAMME or the number of an output that shows a picture	WEBMONITOR SOURCE: PROGRAMME eða númer úttaks sem sýnir mynd
+OUTPROBE: that output has no compositor (is it on?)	OUTPROBE: úttakið hefur engan samsetjara (er kveikt á því?)
+output recover failed: fullscreen unavailable	endurheimt úttaks mistókst: heilskjár ótiltækur
+OUTPUTFX ADD: four effects at most on one device	OUTPUTFX ADD: mest fjögur áhrif á tæki
+over 16 MB: not a drawing to make a mask from	yfir 16 MB: ekki teikning til að gera maska úr
+unsaved changes will be lost: press new again	óvistaðar breytingar tapast: ýttu aftur á nýtt
+A worn or dirty head: softer, with noise that streaks along the lines.	Slitinn eða óhreinn haus: mýkra, með suði sem strýkst eftir línum.
+A slow rocking of the viewpoint, which is what makes the depth read without glasses.	Hæg sveifla sjónarhorns gerir dýpt sýnilega án gleraugna.
+A slow sag in the supply, pulling the filter up and down like a dying battery.	Hægt spennufall dregur síuna upp og niður eins og deyjandi rafhlaða.
+An old deck: the picture wobbles, bends at the top of the frame and carries hum bars.	Gamall spilari: myndin vaggar, bognar efst og ber suðrendur.
+An old tape loses bits of its oxide: dropouts flick white and repeat the line above, and the colour fizzes.	Gamalt band tapar oxíði: brottföll blikka hvít, endurtaka línuna fyrir ofan og liturinn freyðir.
+Below the middle narrows toward mono -- which is what a single PA cluster is. Above it widens.	Neðan við miðju þrengist í einrása, eins og einn PA-klasi. Ofan við hana víkkar.
+Centre is a straight line. Up bends it into an S -- darker shadows, brighter highlights, more contrast. Down flattens it.	Miðja er bein lína. Upp beygir í S: dekkri skuggar, bjartari háljós, meiri birtuskil. Niður fletur hana.
+Characters across. Fewer means bigger cells and less of the picture surviving, which is usually the point.	Stafir þvert yfir. Færri þýða stærri reiti og minna af myndinni, sem er yfirleitt markmiðið.
+Characters to build the picture from, darkest first. Empty uses the chosen glyph set.	Stafir sem byggja myndina, dökkustu fyrst. Tómt notar valið stafasett.
+Fine sensor noise at the bottom, chunky film at the top.	Fínt skynjarasuð neðst, gróft filmukorn efst.
+From an even blur to a streak along the angle, like movement.	Frá jafnri móðu að rák eftir horninu, eins og hreyfing.
+Grain size: one pixel at the left, big blocky grains at the right.	Kornastærð: einn díll vinstra megin, stór kubbakorn hægra megin.
+Grows or shrinks the echo each pass. Centre holds still.	Stækkar eða minnkar bergmálið í hverri umferð. Miðja heldur kyrru.
+How abruptly it arrives. Low is a soft cloud, high is a hard porthole.	Hve snöggt það kemur. Lágt er mjúkt ský, hátt er skarpt kýrauga.
+How big the shards are. Small is frosted glass, large is a dropped plate.	Stærð brotanna. Lítil eru matt gler, stór eru brotinn diskur.
+ASCII: use ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>	ASCII: notaðu ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>
+FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR	FX: notaðu LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR
+FX LFO: on, off, shape, rate, depth, zone, channel or cc	FX LFO: on, off, shape, rate, depth, zone, channel eða cc
+GEOLFO: x, y, width, height, rotation, cropleft, cropright, croptop or cropbottom	GEOLFO: x, y, width, height, rotation, cropleft, cropright, croptop eða cropbottom
+LFO: density, speed, warp, turn, centrex, centrey, grey or hue	LFO: density, speed, warp, turn, centrex, centrey, grey eða hue
+MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET or FEEDBACK	MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET eða FEEDBACK
+SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, LINEAR, PERSPECTIVE or NAME	SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, LINEAR, PERSPECTIVE eða NAME
+VIDEO OUTPUT LAYERWARP MODE: linear or perspective	VIDEO OUTPUT LAYERWARP MODE: linear eða perspective
+DASH SET: needs a command -- DASH SET <n> <label> | <command> [| <glyph>]	DASH SET: þarf skipun -- DASH SET <n> <label> | <command> [| <glyph>]
+ASCII HOLD: seconds, 0-60 (0 mutes the phrases)	ASCII HOLD: sekúndur, 0-60 (0 þaggar setningar)
+atem tally on -- set which input Deckboy is	atem-stöðuljós á -- stilltu hvaða inntak Deckboy er
+AUDIOALSO ADD: that is already this deck's main device -- it would play twice	AUDIOALSO ADD: þetta er þegar aðaltæki spilarans -- það myndi spila tvisvar
+DMXCUE SET: expected channel=level pairs, e.g. 1=255,10-14=64	DMXCUE SET: vænst er rás=styrkur-pöra, t.d. 1=255,10-14=64
+DRAW COLOUR: #rrggbb, #rrggbbaa, a name, or 1-8 for the palette	DRAW COLOUR: #rrggbb, #rrggbbaa, heiti eða 1-8 úr litaspjaldi
+DRAW SIZE: 0.1-20 (% of the picture's height)	DRAW SIZE: 0.1-20 (% af myndhæð)
+DRAW STROKE: each point is x,y or x,y,pressure, in percent	DRAW STROKE: hver punktur er x,y eða x,y,þrýstingur, í prósentum
+DRAW TOOL: brush, erase, line, box, oval or fill	DRAW TOOL: brush, erase, line, box, oval eða fill
+Enter playlist SMPTE FPS: 24 / 25 / 29.97 / 30	Sláðu inn SMPTE FPS spilunarlista: 24 / 25 / 29.97 / 30
+FX LFO wants <index> <slot> <on|off|shape> [value]	FX LFO þarf <index> <slot> <on|off|shape> [value]
+group presets became master cues: use MASTER	hópsnið urðu að aðalcue: notaðu MASTER
+HH:MM or HH:MM:SS on this computer's clock; empty for none	HH:MM eða HH:MM:SS á klukku þessarar vélar; tómt fyrir ekkert
+HH:MM:SS:FF of the timecode Deckboy is chasing; empty for none	HH:MM:SS:FF tímakóðans sem Deckboy eltir; tómt fyrir ekkert
+live captions are not installed here (deckboy-listen was not found)	skjátextar í beinni eru ekki uppsettir (deckboy-listen fannst ekki)
+Lower Third added - put its playlist on a layer	Lower Third bætt við - settu spilunarlista þess á lag
+macOS could not read the PDF	macOS gat ekki lesið PDF
+make a step first: a section starts at a step	búðu fyrst til skref: kafli byrjar á skrefi
+MASK PATH: a path needs at least three points	MASK PATH: ferill þarf að minnsta kosti þrjá punkta
+MIC INPUT: expected SETTINGS, TEST or a device name (MIC LIST)	MIC INPUT: vænst er SETTINGS, TEST eða tækjaheitis (MIC LIST)
+MIDIFILE: expected PORT, or no argument to report it	MIDIFILE: vænst er PORT, eða engra viðfanga til að sýna það
+MIDIIN OSC: an address, and optionally a number	MIDIIN OSC: vistfang og valfrjáls tala
+MIDIMAP: that command is only accepted from this computer	MIDIMAP: sú skipun er aðeins samþykkt frá þessari vél
+MOTION ZONE ADD: the zone must fit inside the picture	MOTION ZONE ADD: svæðið verður að rúmast innan myndar
+motion on: the camera is read, never recorded	hreyfing á: myndavélin er lesin, aldrei tekin upp
+How far it smears: up to a few percent of the picture.	Hve langt það smyrst: allt að nokkrum prósentum myndar.
+How fast the light walks around it. Zero holds it still.	Hve hratt ljósið gengur í kring. Núll heldur því kyrru.
+How much of the push goes downward rather than sideways.	Hve mikið af þrýstingnum fer niður frekar en til hliðar.
+How gently the change fades out at the edges of the band.	Hve mjúklega breytingin dofnar við jaðra bandsins.
+How wide a band of colours either side of it changes too.	Hve breitt litaband sitt hvorum megin breytist líka.
+How fast the drips run. At the left the picture only sags.	Hve hratt droparnir renna. Vinstra megin sígur myndin aðeins.
+Line pitch in pixels, so this reads at 4K as well as at 720.	Línubil í dílum svo þetta sést jafnt í 4K og 720.
+How far back each skip jumps, from a stutter to half a second.	Hve langt hvert hopp fer aftur, frá stami að hálfri sekúndu.
+How far the two eyes disagree. Brightness is read as nearness.	Hve mikið augun tvö greinir á. Birta er lesin sem nálægð.
+How fast it closes. Slow enough not to chop the ends off words.	Hve hratt það lokast. Nógu hægt til að klippa ekki enda orða.
+How many times a skip repeats before the sound catches up again.	Hve oft hopp endurtekur sig áður en hljóðið nær aftur í skottið.
+How dark the dark lines go. All the way up is black between lines.	Hve dökkar línurnar verða. Í hámarki er svart milli lína.
+How fast the open slit crosses the picture. Slow smears a long moment across the frame.	Hve hratt opin rauf fer yfir mynd. Hægt smyr löngu augnabliki yfir rammann.
+How fast the wave travels. Faster spreads further in the same time and interferes more.	Hve hratt bylgjan fer. Hraðari nær lengra á sama tíma og víxlverkar meira.
+How fine the water is. Long ocean swell at one end, rain on a puddle at the other.	Hve fíngert vatnið er. Löng úthafsaldan öðrum megin, regn í polli hinum megin.
+How irregular the growth is. Low gives an even honeycomb, high gives long shards.	Hve óreglulegur vöxturinn er. Lágt gefur jafnt býkúpsmynstur, hátt löng brot.
+How long the reaction runs each frame. Short is a stain, long is an organism.	Hve lengi hvarfið keyrir í hverjum ramma. Stutt er blettur, langt er lífvera.
+How much of the picture shows behind the lines. None at the left: lines on black.	Hve mikið af myndinni sést bak við línurnar. Ekkert vinstra megin: línur á svörtu.
+How much of the picture glows: only the brightest at the left, nearly everything at the right.	Hve mikið af myndinni glóir: aðeins bjartast vinstra megin, næstum allt hægra megin.
+How many places drip: a few big drips at the left, many thin ones at the right.	Hve margir staðir leka: fáir stórir dropar vinstra megin, margir mjóir hægra megin.
+0 flows ALONG the edges, so colour orbits the shapes. 1 flows across them, which bleeds the picture into itself.	0 flæðir EFTIR brúnum svo litur hringsólar um formin. 1 flæðir þvert og myndin rennur inn í sjálfa sig.
+ASCII WOBBLEMODE: drift | flow (follows luma) | hue (follows colour); no argument cycles	ASCII WOBBLEMODE: drift | flow (fylgir birtu) | hue (fylgir lit); án viðfangs er skipt milli stillinga
+ASCII: the selected cue has no text mode (add the TEXT MODE effect, or select a video synth cue)	ASCII: valin kveikja hefur engan textaham (bættu við TEXT MODE eða veldu myndgervilskveikju)
+Blueshift toward the direction of travel and redshift at the rim. Zero leaves the colour alone and it reads as a lens instead.	Blávik í hreyfistefnu og rauðvik við jaðarinn. Núll breytir ekki lit og lítur út eins og linsa.
+Bright: bright things drip over the dark, as text and logos do. Whole picture: everything is wax, and the picture itself runs down in its own colours.	Bjart: bjartir hlutir leka yfir dökka, svo sem texti og merki. Öll myndin: allt er vax og myndin rennur niður í eigin litum.
+cannot read the file: if it lives in OneDrive or iCloud, open it once so it downloads, then import it	Ekki er hægt að lesa skrána: sé hún í OneDrive eða iCloud, opnaðu hana einu sinni til að sækja hana og flyttu svo inn
+Colour is recorded at a fraction of the detail: it smears sideways, lands late and its hue wanders.	Litur er tekinn upp með minni smáatriðum: hann smyrst til hliðar, seinkar og litblærinn reikar.
+couldn't open a browser -- please report at github.com/Utopian-Academy/Deckboy/issues	Ekki tókst að opna vafra — tilkynntu á github.com/Utopian-Academy/Deckboy/issues
+DASH SET: <n> <label> | <command> [| <glyph>]	DASH SET: <n> <heiti> | <skipun> [| <tákn>]
+DASH: LIST | <n> | SET <n> <label> | <command> | CLEAR <n>	DASH: LIST | <n> | SET <n> <heiti> | <skipun> | CLEAR <n>
+DATAMOSH on - preparing (long clip, watch Encoder tab)	DATAMOSH virkt — undirbúningur (langt myndskeið, sjá kóðaraflipa)
+DECODE --.-	AFKÓÐUN --.-
+DECODE OFF	AFKÓÐUN ÓVIRK
+DECODE WARM	AFKÓÐUN UPPHITUN
+did not finish in 3 minutes. It may be waiting on a prompt it cannot show (Protected View, sign-in, a repair). Open the deck there once, or export it as a PDF and import that	Lauk ekki innan 3 mínútna. Gæti beðið eftir ósýnilegri kvaðningu (varinn hamur, innskráning, viðgerð). Opnaðu kynninguna þar eða flyttu út sem PDF og inn aftur
+e.g. /stage/doors -- sent to Deckboy's OSC port; empty for none	t.d. /stage/doors — sent á OSC-tengi Deckboy; autt fyrir ekkert
+e.g. 20:0 or client name	t.d. 20:0 eða heiti biðlara
+esc: control window - again to clear output	esc: stjórngluggi — aftur til að hreinsa úttak
+FADE TO: a speed from 0.25 to 4 (0.5 is half speed, an octave down)	FADE TO: hraði frá 0.25 til 4 (0.5 er hálfur hraði, áttund niður)
+Flip across, upside down or both, or fold one half onto the other: right onto left, left onto right, bottom onto top, top onto bottom, or one corner into all four.	Speglaðu lárétt, lóðrétt eða bæði, eða brjóttu hægri yfir vinstri, vinstri yfir hægri, neðri yfir efri, efri yfir neðri eða eitt horn í öll fjögur.
+forget my defaults? only NEW changes, this show keeps its settings: press again	Gleyma mínum sjálfgefnu stillingum? Aðeins NEW breytist, þessi sýning heldur sínum: ýttu aftur
+full-frame and no picture - bends when the picture shrinks	heill rammi og engin mynd — beygist þegar myndin minnkar
+How bright a pixel has to be before it lifts at all, so only the highlights spike.	Birtumörk sem þarf til að pixill lyftist, svo aðeins hábirtur rísa.
+How bright a pixel has to be to join a run. Lower catches more of the picture and the runs grow longer.	Birtumörk til að teljast með í röð. Lægra nær meiri mynd og raðir lengjast.
+How deep the picture is treated as being. The brightness becomes height and is lit from the side.	Dýpt myndarinnar. Birta verður hæð og er lýst frá hlið.
+How faint a gradient still registers. High turns the quietest shading into visible structure.	Næmi fyrir daufum stiglum. Hátt gildi gerir fíngerðustu skyggingu að sýnilegri byggingu.
+How far away. Distance dulls the top and softens the difference between the ears.	Fjarlægð. Hún deyfir hátíðni og minnkar muninn milli eyrna.
+How far back the chain listens. The picture is played through a delay, so this is the distance the damage is dragged across.	Hversu langt aftur keðjan hlustar. Myndin fer gegnum töf, svo þetta er vegalengdin sem skemmdin dregst yfir.
+How far the burn spreads off the edge, and how hot its colour runs.	Hversu langt bruninn breiðist frá brún og hversu heitur liturinn er.
+How far the colour turns on each trip round the loop. This is the oil-slick: the trail walks through the spectrum instead of fading.	Litabreyting í hverri umferð. Eins og olíubrák: slóðin fer gegnum litrófið í stað þess að dofna.
+How far the picture stands out. Bright parts come forward, dark parts stay back. At the left it is flat.	Hversu langt myndin stendur út. Bjart kemur fram, dökkt er aftar. Vinstra megin er hún flöt.
+How far the picture swings the filter. The cue's own brightness opens and closes it, so a cut to black takes the top off the sound.	Hversu mikið myndin hreyfir síuna. Birta kveikjunnar opnar hana og lokar; klipping í svart tekur hátíðnina af hljóðinu.
+How far the top comes down as the end approaches. This is not a fade: the level is left alone.	Hversu mikið hátíðni lækkar undir lokin. Þetta er ekki útdeyfing: styrkurinn helst.
+How fast it settles away while held. At zero it holds indefinitely, which is what room tone under a held title wants.	Hversu hratt það dofnar í bið. Núll heldur endalaust, eins og bakgrunnshljóð undir kyrrum titli þarf.
+How fast what has dripped hardens away. At the left the drips stay until the cue changes.	Hversu hratt dropar storkna og hverfa. Vinstra megin haldast þeir þar til kveikja breytist.
+How hard it holds once it is working. Gentle at the bottom, a limiter at the top.	Hversu fast það heldur þegar það vinnur. Mjúkt neðst, takmarkari efst.
+How hard the light gathers where the rays converge. This is the part that makes it read as water rather than as a wobble.	Hversu sterkt ljós safnast þar sem geislar mætast. Það gefur vatnsáferð fremur en sveiflu.
+How hard the moving parts throw sand. More shake clears the plate faster and makes the lines thinner.	Hversu fast hreyfanlegir hlutar kasta sandi. Meiri hristingur hreinsar plötuna hraðar og þynnir línur.
+How long a grain is, in VIDEO FRAMES. On a 23.976 clip one frame is 41.7ms, which is not a musical value and is exactly the point.	Lengd korns í MYNDRÖMMUM. Við 23.976 er einn rammi 41.7ms; ekki tónlistarlegt gildi, viljandi.
+How long before the end it starts. The cue has to have a known length -- an open-ended one has no end to resolve into.	Hve löngu fyrir lok það byrjar. Lengd kveikju þarf að vera þekkt; opin kveikja hefur engan endi til að leita að.
+How long it is allowed to run. More steps means the ripples have crossed and reflected more times.	Hve lengi það fær að ganga. Fleiri skref þýða fleiri víxlanir og endurköst bylgna.
+How long the old waves linger when the note changes. Left: they die at once. Right: they slosh for a while.	Hve lengi eldri bylgjur lifa þegar tónn breytist. Til vinstri deyja þær strax, til hægri skvampa þær áfram.
+How much each facet catches the light, which is what makes them read as faceted rather than as flat blobs.	Hversu mikið hver flötur grípur ljósið, svo þeir líkjast flötungum en ekki flötum klessum.
+How much its SIZE becomes distance. Shrink the picture and the sound goes away from you: the top comes off, the image narrows, the level drops.	Hversu mikið STÆRÐ verður fjarlægð. Minnkaðu myndina og hljóðið fjarlægist: hátíðni minnkar, vídd þrengist, styrkur lækkar.
+How much of the bent picture goes round again. High is where it stops being an echo and starts eating itself.	Hve mikið af beygðri mynd fer annan hring. Hátt gildi hættir að vera bergmál og byrjar að éta sjálft sig.
+How much of the driver's movement the picture KEEPS. At zero it follows the driver frame by frame, which is a twitch. Wind it up and the motion accumulates, so the driver sculpts the picture over time and it holds the pose -- which is what puppetry means.	Hve mikilli hreyfingu stýrisins myndin HELDUR. Við núll fylgir hún ramma fyrir ramma og kippist. Hækkaðu og hreyfing safnast: stýrið mótar myndina með tímanum og hún heldur stellingu, eins og brúða.
+How much of the picture's position on the output is used. A PIP on the left sounds on the left -- and it is a placement, not a pan: the far ear gets the delay and the head shadow too.	Áhrif staðsetningar myndar á úttaki. PIP til vinstri hljómar til vinstri: þetta er staðsetning, fjær eyrað fær líka töf og höfuðskugga.
+How much of the tail is kept going while the cue is held. Long enough to hide the splice in room tone, short enough not to smear a rhythm in it.	Hve mikill hali heldur áfram meðan kveikja bíður. Nógu lengi til að fela samskeyti bakgrunnshljóðs, nógu stutt til að smyrja ekki taktinn.
+How much room comes up under it, so the sound settles into the cut instead of being severed.	Hve mikið rými bætist undir, svo hljóðið fellur inn í klippingu í stað þess að slitna.
+How much the echo is distorted each pass. It compounds, so a little ripples and a lot melts the picture into itself.	Bjögun bergmáls í hverri umferð. Hún safnast: lítið gárar, mikið bræðir myndina inn í sjálfa sig.
+How much the material draws in towards each drip, so it runs as a thin neck with a heavier head.	Hve mikið efnið dregst að hverjum dropa, með mjóum hálsi og þyngri höfði.
+How often its settings are corrupted. Corrupted far enough it oscillates on its own -- loud, but it cannot run away.	Hve oft stillingar spillast. Nóg skemmd sveiflar sjálf — hátt, en getur ekki farið úr böndum.
+How quickly the picture springs back to rest once the driver stops pushing it. Only does anything when memory is up.	Hve hratt myndin fjaðrar í hvíld þegar stýrið hættir að ýta. Virkar aðeins með auknu minni.
+How quickly the room eats the top end. More damping is a softer, more furnished space.	Hve hratt rýmið gleypir hátíðni. Meiri dempun er mýkra, meira innréttað rými.
+How readily an edge catches. Low sets the whole picture alight, high only the hardest lines.	Hve auðveldlega kviknar í brún. Lágt kveikir í allri myndinni, hátt aðeins í skörpustu línum.
+How small a cut sets it off. With no picture it runs on a timer instead, and this is how often.	Hve lítil klipping ræsir það. Án myndar notar það tímastilli og þetta er tíðnin.
+How strongly the finished picture pushes the bend. Pair it with a picture effect whose LFO is set to Audio and the two drive each other.	Hversu sterkt lokamyndin ýtir á beygingu. Paraðu við myndáhrif með LFO á Audio og þau stýra hvort öðru.
+How wide a view is being compressed. Narrow is a punch down the middle, wide folds the whole frame into the centre.	Breidd sjónsviðs sem er þjappað. Mjótt slær í miðju, breitt fellir allan rammann inn að miðju.
+INPUTMONITOR: a row count, OPEN, CLOSE, CLEAR, PAUSE or RESUME	INPUTMONITOR: línufjöldi, OPEN, CLOSE, CLEAR, PAUSE eða RESUME
+IPv4 addresses or a.b.c.d/bits, comma separated; empty = only this computer	IPv4-vistföng eða a.b.c.d/bits, aðskilin með kommum; autt = aðeins þessi tölva
+kbps (500-50000)	kbit/s (500-50000)
+key+fill ON, but no key device set (DECKLINK KEYFILL ON <device>)	key+fill ON, en ekkert key-tæki valið (DECKLINK KEYFILL ON <device>)
+Keynote could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)	Keynote gat ekki flutt skrána út (gæti þurft leyfi fyrir sjálfvirkni: Kerfisstillingar > Persónuvernd og öryggi > Sjálfvirkni)
+label | command | glyph      (empty label|command removes it)	heiti | skipun | tákn      (autt heiti|skipun fjarlægir það)
+Lift or cut, 12dB either way. The centre is flat, so a band that has just been added does nothing until this is moved.	Hækkun eða lækkun, 12dB í hvora átt. Miðjan er flöt: nýtt band gerir ekkert fyrr en þessu er hreyft.
+Lifts the dark tones without moving pure black.	Lyftir dökkum tónum án þess að breyta hreinu svörtu.
+Light on the drips, as on something wet: a gloss where it faces the light, darker where it curls away.	Ljós á dropum eins og á blautu: gljái mót ljósi, dekkra þar sem sveigist frá því.
+mic live on the default speakers - watch for feedback	hljóðnemi virkur á sjálfgefnum hátölurum — varist endurgjöf
+MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> or OSC <address> [<n>], then CH <1-16> if not channel 1	MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> eða OSC <address> [<n>], svo CH <1-16> ef ekki rás 1
+Moves the direction of travel off the centre of frame, so the picture rushes past rather than straight at you.	Færir hreyfistefnu frá miðju svo myndin þýtur fram hjá en ekki beint að þér.
+my defaults forgotten: NEW starts from factory settings, this show is unchanged	Mínum sjálfgefnu stillingum gleymt: NEW byrjar á verksmiðjustillingum, sýningin er óbreytt
+N=new  Enter/P=previous  O=open saved  E=examples  L=learn  1-	N=nýtt  Enter/P=fyrra  O=opna vistað  E=dæmi  L=læra  1-
+ndi tally trigger on -- program tally takes the cue	NDI tally-kveikja virk — PROGRAM tally ræsir kveikjuna
+new show disarms all outputs: press new again	Ný sýning afvirkjar öll úttök: ýttu aftur á nýtt
+NEWSHOW: something is live or unsaved -- send NEWSHOW again within 2.5 s	NEWSHOW: eitthvað er í beinni eða óvistað — sendu NEWSHOW aftur innan 2.5 s
+NMOS: discovery needs the remote network allowed	NMOS: leit krefst leyfis fyrir fjarnet
+nmos: network is LOCAL ONLY - not registering	nmos: net er AÐEINS STAÐVÆRT — skráist ekki
+NMOS: NOT registering - network is LOCAL ONLY (turn REMOTE ON to publish)	NMOS: skráist EKKI — net er AÐEINS STAÐVÆRT (REMOTE ON til að birta)
+NMOS: searching for a registry (mDNS)	NMOS: leita að skrásetjara (mDNS)
+notestep: this cue's notes have no builds (separate them with a line of ---)	notestep: glósur kveikjunnar hafa engin skref (aðskildu með línu ---)
+nothing to mask here: select a cue, or change MASK ON	Ekkert til að maska: veldu kveikju eða breyttu MASK ON
+on the dashboard - Ctrl+D or the DASH button	Á stjórnborði — Ctrl+D eða DASH-hnappur
+One knob for the whole balance: below the middle is darker, above it is brighter.	Einn hnappur fyrir allt jafnvægið: neðan miðju dekkra, ofan bjartara.
+Only accept transport from this sender (blank = anyone)	Taka aðeins við spilunarstýringu frá þessum sendanda (autt = hver sem er)
+opened github.com in your browser -- nothing is sent until you submit the report there	github.com opnað í vafra — ekkert er sent fyrr en þú sendir skýrsluna þar
+Original: the picture pulled onto the figure. Sand: the picture as grains that are thrown off the moving parts and pour into each new figure. Fluid: the picture under water on the plate, bent and lit by its standing waves.	Upprunalegt: myndin teygð á formið. Sandur: myndkorn kastast af hreyfanlegum hlutum og falla í ný form. Vökvi: myndin undir vatni á plötu, beygð og lýst af standandi bylgjum.
+OUTPUT --.-	ÚTTAK --.-
+output effects bypassed: no effect and no limit on this device	Úttaksáhrif sniðgengin: engin áhrif og engin takmörkun á þessu tæki
+Output height in px - math ok: 1080x2, 2160/2, 540+30	Hæð úttaks í px — reikningur leyfður: 1080x2, 2160/2, 540+30
+OUTPUT WARM	ÚTTAK UPPHITUN
+Output width in px - math ok: 1920x2, 3840/2, 960+64	Breidd úttaks í px — reikningur leyfður: 1920x2, 3840/2, 960+64
+Page Down / Page Up step the focused playlist	Page Down / Page Up færa skref í völdum spilunarlista
+pair with a picture effect whose LFO is set to Audio	Paraðu við myndáhrif með LFO á Audio
+paired phones removed: they need the QR code or the passphrase again	Pöruð símtæki fjarlægð: þurfa QR-kóða eða aðgangsorð aftur
+PATCH: a level is dB from -48 to +6, or OFF	PATCH: styrkur í dB frá -48 til +6 eða OFF
+PHONE LEVEL: removed -- a paired phone or the passphrase can do everything; BLACKOUT and RECORD are hold-to-fire on the phone	PHONE LEVEL: fjarlægt — paraður sími eða aðgangsorð leyfir allt; halda þarf BLACKOUT og RECORD inni í símanum
+phones need THE NETWORK: set 'Who can see it' first	Símar þurfa NETIÐ: stilltu fyrst „Hverjir sjá það“
+PIP: retired -- scale a second deck over this one instead	PIP: aflagt — skalaðu annan spilara yfir þennan
+pip: retired -- scale a second deck over this one instead	pip: aflagt — skalaðu annan spilara yfir þennan
+Port the Node + Connection API serve on	Tengi fyrir Node + Connection API
+PowerPoint could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)	PowerPoint gat ekki flutt skrána út (gæti þurft leyfi fyrir sjálfvirkni: Kerfisstillingar > Persónuvernd og öryggi > Sjálfvirkni)
+PowerPoint could not open the file (it gave up waiting for it). If it is in OneDrive, right-click it and choose Always keep on this device, then import it again	PowerPoint gat ekki opnað skrána (bið rann út). Sé hún í OneDrive, hægrismelltu, veldu „Geyma alltaf á þessu tæki“ og flyttu inn aftur
+presenter panel: expected <live|prev|next|notes> <x> <y> <w> <h> in percent	kynningarspjald: vænti <live|prev|next|notes> <x> <y> <w> <h> í prósentum
+presenter panel: the panel must fit on the screen (x+w and y+h no more than 100)	kynningarspjald: verður að rúmast á skjánum (x+w og y+h ekki yfir 100)
+preset: delivery | proxy | match | datamosh	forstilling: delivery | proxy | match | datamosh
+programme sound is always included; use WEBMONITOR OFF to stop the monitor	Dagskrárhljóð fylgir alltaf; notaðu WEBMONITOR OFF til að stöðva skjáinn
+PROXY 720p	STAÐGENGILL 720p
+Pulls the bright tones down without moving pure white, so a hot highlight rolls off instead of clipping.	Lækkar bjarta tóna án þess að breyta hreinu hvítu, svo hábirtur mýkjast í stað þess að klippast.
+recordings remux to MP4 when the take stops	Upptökur eru endurpakkaðar í MP4 þegar töku lýkur
+Registry URL (e.g. http://192.168.1.50:8010) - blank for mDNS	URL skrásetjara (t.d. http://192.168.1.50:8010) — autt fyrir mDNS
+Rotates the reading, so straight lines wind into spirals rather than rings.	Snýr lestrinum svo beinar línur vindast í spírala í stað hringa.
+Rows lose sync and repeat one character, the way a real text screen breaks up. At 0 the grid is clean.	Raðir missa samstillingu og endurtaka einn staf, eins og bilaður textaskjár. Við 0 er grindin hrein.
+save failed - retrying; still open, use SAVE AS if needed	Vistun mistókst — reyni aftur; enn opið, notaðu SAVE AS ef þarf
+saved as my defaults: NEW starts like this show, without the cues	Vistað sem mínar sjálfgefnu stillingar: NEW byrjar eins og þessi sýning, án kveikja
+Seconds for new image/pattern/browser/Lower Third cues (0 = hold)	Sekúndur fyrir nýjar mynda-/mynstur-/vafra-/Lower Third-kveikjur (0 = bið)
+select a Draw cue first (SOURCE > MADE BY DECKBOY > Draw)	Veldu fyrst Draw-kveikju (SOURCE > MADE BY DECKBOY > Draw)
+SLICE CORNER: TL, TR, BR or BL, then dx dy in percent of the output	SLICE CORNER: TL, TR, BR eða BL, svo dx dy í prósentum úttaks
+SLICE EDGE: L, R, T or B, then 0-50 (% of the slice)	SLICE EDGE: L, R, T eða B, svo 0-50 (% sneiðar)
+SLICE GRID POINT: col row (from 1, on a grid that is on) then dx dy in percent	SLICE GRID POINT: col row (frá 1, á virkri grind), svo dx dy í prósentum
+SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF, or POINT col row dx dy	SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF eða POINT col row dx dy
+SLICE LFO: X, Y, ROTATION or OPACITY, then ON, OFF, SHAPE, RATE, DEPTH...	SLICE LFO: X, Y, ROTATION eða OPACITY, svo ON, OFF, SHAPE, RATE, DEPTH...
+SLICE ROTATE: IN (the crop) or OUT (the placed picture), then degrees	SLICE ROTATE: IN (skurður) eða OUT (staðsett mynd), svo gráður
+SMPTE hh:mm:ss:ff or seconds (blank = 00:00:00:00)	SMPTE hh:mm:ss:ff eða sekúndur (autt = 00:00:00:00)
+something mellow appeared in SOURCE > MADE BY DECKBOY	Eitthvað notalegt birtist í SOURCE > MADE BY DECKBOY
+Something near the deck: a phone's buzz, a light dimmer's herringbone, a radio's slow bars.	Eitthvað nálægt spilaranum: suð síma, síldarbeinamynstur dimmis, hægar rendur útvarps.
+Sorts the runs the other way, so they pour from light to dark.	Raðar runum öfugt, svo þær streyma frá ljósu í dökkt.
+sound scopes: integrated loudness and true peak start again	Hljóðmælar: heildarhljóðstyrkur og raunverulegur toppur byrja aftur
+SOURCE WINDOW: name the window, e.g. title:Firefox (or "desktop")	SOURCE WINDOW: nefndu gluggann, t.d. title:Firefox (eða "desktop")
+splitnotes: that cue's notes have no parts (separate them with a line of ---)	splitnotes: glósur kveikjunnar hafa enga hluta (aðskildu með línu ---)
+STREAM --.-	STRAUMUR --.-
+STREAM ERR	STRAUMUR VILLA
+STREAM OFF	STRAUMUR ÓVIRKUR
+Stream URL (srt://, rtmp://, rtsp://, udp://, or an http HLS .m3u8)	URL straums (srt://, rtmp://, rtsp://, udp:// eða http HLS .m3u8)
+STREAM WARM	STRAUMUR UPPHITUN
+SYPHON / SPOUT TEXTURE SHARE	SYPHON / SPOUT ÁFERÐARDEILING
+Takes out everything brighter than this as well. Left takes out nothing.	Fjarlægir líka allt bjartara en þetta. Vinstra megin fjarlægir það ekkert.
+Takes out everything darker than this, so what lies beneath shows through. Left takes out nothing.	Fjarlægir allt dekkra svo það sem er undir sjáist. Vinstra megin fjarlægir það ekkert.
+Tape speed: SP is the best picture, LP and EP fit more on a tape and lose detail and colour.	Bandhraði: SP gefur bestu mynd; LP og EP rúma meira en tapa smáatriðum og lit.
+that key drives the desk - use F1-F10, F12 or the number pad	Þessi lykill stýrir borðinu — notaðu F1-F10, F12 eða talnaborðið
+The brightness that stays put. Everything above it reaches one way and everything below it the other.	Birtan sem situr kyrr. Allt yfir henni teygist í eina átt, allt undir í hina.
+The character of the growth: low is waves, then labyrinth, coral, worms, and holes at the top.	Eðli vaxtar: neðst bylgjur, svo völundarhús, kórall, ormar og efst holur.
+the clicker now spends note builds before advancing	Smellir fer nú gegnum glósuskref áður en haldið er áfram
+The colour it becomes. Shading and brightness stay as they were, so a red shirt turns blue and keeps its folds.	Liturinn sem það verður. Skygging og birta haldast: rauð skyrta verður blá og heldur fellingum.
+The distance that sits ON the screen. Either side of it comes forward or falls behind.	Fjarlægðin Á skjánum. Hvor hlið hennar kemur fram eða fellur aftur.
+the file is empty (0 bytes): it may not have finished copying or saving	Skráin er tóm (0 bæti): afritun eða vistun er kannski ekki lokið
+The frequency it pivots around -- what counts as 'low' and 'high' for the tilt.	Tíðnin sem hallinn snýst um — hvað telst lágt og hátt.
+The head drifting off the track: a band of noise rolls through the picture.	Hausinn reikar af sporinu: suðband rúllar gegnum myndina.
+the installed NDI runtime is missing entry points this needs	Uppsett NDI-keyrsluumhverfi vantar nauðsynlega inngangspunkta
+The level below which the source is closed. Set it under the quietest thing you want to hear.	Styrkur sem lokar fyrir uppsprettuna. Stilltu undir hljóðlátasta hljóð sem þú vilt heyra.
+The level it starts working at. Lower catches more of the performance.	Styrkur þar sem það byrjar að vinna. Lægra nær meira af flutningnum.
+the playing step was removed - sequence stopped	Spilandi skref fjarlægt — runa stöðvuð
+The plugin's first four automatable controls, in its own order. Everything else it has keeps whatever the plugin was left set to.	Fyrstu fjórar sjálfvirknistýringar viðbótarinnar í hennar röð. Allt annað heldur þeim stillingum sem viðbótin var skilin eftir með.
+this file is only in OneDrive, and OneDrive is not running. Start OneDrive, or copy the file to this computer, then import it again	Skráin er aðeins í OneDrive, sem er ekki í gangi. Ræstu OneDrive eða afritaðu skrána á þessa tölvu og flyttu inn aftur
+this presentation needs a password to open. Remove the password in PowerPoint (File > Info > Protect Presentation) or export it as a PDF, then import that	Kynningin þarf lykilorð. Fjarlægðu það í PowerPoint (Skrá > Upplýsingar > Vernda kynningu) eða flyttu út sem PDF og inn aftur
+Tints the two directions apart, so light bending one way and the other are different colours instead of both being grey.	Litar stefnurnar tvær ólíkt, svo ljós sem beygist í hvora átt er í ólíkum litum en ekki grátt.
+Turns the echo each pass, which winds the melt into a spiral.	Snýr bergmálinu hverja umferð og vindur bráðnun í spíral.
+Turns the strokes across the grain instead of along it, which combs the picture apart rather than smoothing it.	Snýr strokum þvert á kornið, svo myndin greiðist í sundur í stað þess að sléttast.
+Turns the whole arrangement, so the fold lines do not sit on the same part of the picture all night.	Snýr öllu fyrirkomulaginu svo brotlínur sitji ekki á sama stað allt kvöldið.
+Two is a mirror, twelve is a snowflake, and they are completely different pictures.	Tveir er spegill, tólf snjókorn — alveg ólíkar myndir.
+VIDEO OUTPUT ASSIGN: already on this output, or no such deck or output	VIDEO OUTPUT ASSIGN: þegar á þessu úttaki, eða enginn slíkur spilari eða úttak
+VIDEO OUTPUT LAYER: this deck is not on this output, or it is already at that layer	VIDEO OUTPUT LAYER: spilari er ekki á þessu úttaki eða er þegar á þessu lagi
+VIDEO OUTPUT UNASSIGN: this deck is not on this output, or it is the only thing on it	VIDEO OUTPUT UNASSIGN: spilari er ekki á þessu úttaki eða er sá eini þar
+WARP AT: open the editor (WARP EDIT) and select a point first	WARP AT: opnaðu fyrst ritil (WARP EDIT) og veldu punkt
+warp grid: expected <n>, <cols> <rows>, off, smooth or straight	warp grid: vænti <n>, <cols> <rows>, off, smooth eða straight
+warp point: that is a corner -- move it with WARP <corner> dx dy	warp point: þetta er horn — færðu með WARP <corner> dx dy
+WARP SELECT: expected TL, TR, BR, BL or a grid <col> <row>	WARP SELECT: vænti TL, TR, BR, BL eða grindar <col> <row>
+WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (sound is included)	WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (hljóð fylgir)
+what the patch and the cues call it (FOH, SUB, PRESS FEED)	Heiti í tengingum og kveikjum (FOH, SUB, PRESS FEED)
+Where highlights fold back through black. Low folds most of the picture, high folds only the brightest.	Hvar hábirtur falla aftur gegnum svart. Lágt fellir mest af myndinni, hátt aðeins það bjartasta.
+Where the band sits, 30Hz to 16kHz across the travel.	Staða bandsins, 30Hz til 16kHz eftir ferðinni.
+Where the fold sits: the middle at the left, toward the far edge to the right. Flips have no fold.	Staða brots: miðja vinstra megin, fjærbrún hægra megin. Speglanir hafa ekkert brot.
+Where the light stands, in degrees around the frame.	Staða ljóss í gráðum umhverfis rammann.
+Where the source sits around the listener, all the way round. For headphones -- it is a timing and shading trick, not a pan.	Staða uppsprettu allt í kringum hlustanda. Fyrir heyrnartól: tíma- og skyggingarbrella, ekki víðfærsla.
+Where the top ends, 200Hz to 20kHz. Pull it down to take the harshness off a bright source.	Efri mörk, 200Hz til 20kHz. Lækkaðu til að mýkja skæra uppsprettu.
+Which channel the curve acts on: all three, then red, green or blue on its own -- the way a colourist warms or cools one end of the picture.	Rás ferils: allar þrjár, svo rauð, græn eða blá ein og sér — eins og litameistari hitar eða kælir annan enda tónsviðs.
+Which way the knife edge lies. Only gradients ACROSS the edge show, so turning it swaps which features appear and which vanish.	Stefna hnífseggjar. Aðeins stiglar ÞVERT á brún sjást, svo snúningur skiptir um hvað birtist og hverfur.
+Which way the streak runs: across at the left, upright in the middle, across again at the right.	Stefna rákar: þvert vinstra megin, upprétt í miðju, aftur þvert hægra megin.
+Widens the decision into a ramp, so edges keep their shape instead of jagging.	Breikkar þröskuld í mjúka breytingu svo brúnir halda lögun án þess að verða tenntar.
+window capture fell back to screen grab — update ffmpeg for exact window capture	Gluggaupptaka féll aftur á skjáupptöku — uppfærðu FFmpeg fyrir nákvæma gluggaupptöku
+Words to surface in the field, separated by | . One shows at a time, moving on the hold clock.	Orð sem birtast í sviðinu, aðskilin með | . Eitt í einu, skipt eftir biðklukku.
+Zero is one noise value across all three channels, which reads as film. Higher gives each channel its own, which reads as video.	Núll gefur sama suð í öllum þremur rásum, líkt kvikmyndafilmu. Hærra gefur hverri rás sitt, líkt myndbandi.
+OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <sender name>	OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <HEITI SENDANDA>
+STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <control> <setting>	STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <ST?RING> <STILLING>

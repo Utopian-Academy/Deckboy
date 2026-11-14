@@ -3246,3 +3246,1101 @@ FX CHOICE: choice must be A or B	FX CHOICE: ukukhetha kufanele kube A noma B
 FX CHOICE: no effect at that index	FX CHOICE: awukho umphumela kuleyo nkomba
 whole picture	isithombe sonke
 FX LFO: slot is A-D for the parameters, E for the amount, F and G for the fifth and sixth (or 0-6)	FX LFO: isilothi ngu-A-D kumapharamitha, u-E kunani, u-F no-G kwesihlanu nesithupha (noma 0-6)
+angle	i-engeli
+Attack	Ukuhlasela
+attack	ukuhlasela
+Audio bitrate	Izinga lamabhithi omsindo
+Audio reactivity	Ukusabela kumsindo
+azimuth	i-azimuth
+Bands	Amabhande
+bands	amabhande
+base layer	ungqimba lwesisekelo
+BITRATE	IZINGA LAMABHITHI
+bits	amabhithi
+black point	iphuzu elimnyama
+bleed	ukuvuza kombala
+Blobs	Amagaxa
+block glitch	ukuphazamiseka kwamabhulokhi
+block size	usayizi webhulokhi
+blocks	amabhulokhi
+blur	ukufiphala
+BOTH	KOKUBILI
+bright	okukhanyayo
+Brush opacity	Ukungabonisi kwebhulashi
+Brush size	Usayizi webhulashi
+buzzer	isibhazabhaza
+by brightness	ngokukhanya
+cancelled	kukhanseliwe
+Canvas Height	Ukuphakama kwekhanvasi
+Canvas View	Ukubuka ikhanvasi
+Canvas Width	Ububanzi bekhanvasi
+catch	bamba
+caustics	ukuhlangana kokukhanya
+Centre X	Maphakathi X
+Centre Y	Maphakathi Y
+channel skew	ukutsheka kweshaneli
+channel spread	ukusabalala kwamashaneli
+character	uhlamvu
+chop	nquma
+CLASSIC	OKWAKUDALA
+CLOCK	IWASHI
+coherence	ukuvumelana
+colour bleed	ukuvuza kombala
+colour drift	ukuntanta kombala
+colour lag	ukubambezeleka kombala
+colour replace	ukushintsha umbala
+columns	amakholomu
+control 1	ukulawula 1
+control 2	ukulawula 2
+control 3	ukulawula 3
+control 4	ukulawula 4
+Control change	Ukushintsha ukulawula
+convergence	ukuhlangana
+copies	amakhophi
+corrupt	onakalisa
+corruption	ukonakala
+coupling	ukuxhumanisa
+crystallise	yenza amakristalu
+Cue Notes	Amanothi e-cue
+curl detail	imininingwane yokugoqa
+curves	amajika
+Custom Glyphs	Izinhlamvu zakho
+cut bright	nquma ukukhanya
+cut dark	nquma ubumnyama
+cut reset	setha uma kunqunywa
+cutoff	umkhawulo wokusika
+cuts	ukunquma
+cyan	okusasibhakabhaka
+damage	umonakalo
+damping	ukudambisa
+dark	mnyama
+darkness	ubumnyama
+deck age	ubudala besidlali
+Density	Ukuminyana
+depth	ukujula
+depth split	ukwehlukanisa ukujula
+Destination Address	Ikheli lendawo okuyiwa kuyo
+Destination UDP port	Imbobo UDP okuyiwa kuyo
+Detail	Imininingwane
+diamond	idayimane
+distance	ibanga
+DMX Channels	Amashaneli DMX
+dots move	amachashazi ayanyakaza
+Draw colour	Umbala wokudweba
+drift	ukuntanta
+drip	consa
+drips	amaconsi
+drive	amandla okushayela
+edges	imiphetho
+empty	akunalutho
+extended	okunwetshiwe
+EXTREME	OKUDLULELE
+facet light	ukukhanya kobuso
+falloff	ukuncipha
+falsecolour	umbala mbumbulu
+feed rate	izinga lokuphakela
+Feedback zoom	Ukusondeza impendulo
+field of view	indawo yokubona
+Fixture address	Ikheli lesibani
+Fixture name	Igama lesibani
+Fixture universe	Iyunivesi yesibani
+flash length	ubude bokubaneka
+flash to	banekela ku
+flicker	ukucwayiza
+Flipbook rate	Izinga lokuphenya izithombe
+floor	isisekelo
+Flow	Ukugeleza
+flow	ukugeleza
+focus	ukugxila
+fold	goqa
+fold point	iphuzu lokugoqa
+frames	ozimele
+Frequency	Imvamisa
+frequency	imvamisa
+gap	igebe
+gather	buthelela
+Glitch	Ukuphazamiseka
+glow	ukubengezela
+glyph set	isethi yezinhlamvu
+gong	insimbi enkulu
+grain	uhlamvu
+grain flow	ukugeleza kwezinhlamvu
+grain size	usayizi wohlamvu
+green split	ukwehlukanisa okuluhlaza
+Grey	Okumpunga
+grid	igridi
+growl	ukubhonga
+growth	ukukhula
+head wear	ukuguga kwekhanda
+heat	ukushisa
+Height	Ukuphakama
+Height (px)	Ukuphakama (px)
+highlight roll	ukugoqa okukhanyayo
+histogram	ihistogramu
+horizontal	ngokuvundlile
+ice	iqhwa
+ink	uyinki
+interference	ukuphazamisana
+irregularity	ukungalingani
+jump	gxuma
+just	okuhambisana ngqo
+kaleido	isibuko semibala
+kaleidoscope	isibuko semibala
+Key Color	Umbala wokhiye
+Keyframe interval	Isikhawu sozimele abakhulu
+knee	idolo
+knife angle	i-engeli yommese
+leak	ukuvuza
+let go	dedela
+lift	phakamisa
+light	ukukhanya
+light angle	i-engeli yokukhanya
+lightspeed	isivinini sokukhanya
+line colour	umbala womugqa
+line glow	ukubengezela komugqa
+Live Browser	Isiphequluli esibukhoma
+Live Source	Umthombo obukhoma
+LOAD NEXT	LAYISHA OKULANDELAYO
+Lower Third - subtitle	Lower Third - umbhalo ongezansi
+Lower Third - title	Lower Third - isihloko
+Lower Third Subtext	Umbhalo omncane Lower Third
+Lower Third Title	Isihloko Lower Third
+luma displace	ukususa ngokukhanya
+luma key	ukhiye wokukhanya
+Mask opacity	Ukungabonisi kwesifihli
+Mask rotation	Ukujikeleza kwesifihli
+Mask scale	Isikali sesifihli
+Mask X	Isifihli X
+Mask Y	Isifihli Y
+material	impahla
+meantone	ithoni emaphakathi
+Media	Imidiya
+Melt	Ncibilika
+melt	ncibilika
+memory	inkumbulo
+midtones	amathoni amaphakathi
+Mod depth	Ukujula kokuguqula
+Mod ratio	Isilinganiso sokuguqula
+moire	iphethini ephazamisayo
+mono	ishaneli eyodwa
+MONO L	ISHANELI EYODWA L
+MONO R	ISHANELI EYODWA R
+mosaic	umdwebo wezingcezu
+motion mosh	ukuphazamiseka kokunyakaza
+motion puppet	unodoli wokunyakaza
+motion trails	imikhondo yokunyakaza
+MSC Cue Number	Inombolo ye-cue MSC
+music & sparkle	umculo & ukucwebezela
+NDI Key Name	Igama lokhiye NDI
+NDI Name	Igama NDI
+NDI Source Name	Igama lomthombo NDI
+NEXT	OKULANDELAYO
+night eyes	amehlo asebusuku
+NMC Port	Imbobo NMC
+NMC Source	Umthombo NMC
+NMC Target	Okuqondiwe NMC
+NMOS Interface Name	Igama lesixhumi NMOS
+NMOS Node Port	Imbobo yenodi NMOS
+NMOS Registry	Irejista NMOS
+noise	umsindo ongahlelekile
+not connected	akuxhunyiwe
+Note	Inothi
+Note off	Nothi valiwe
+Note on	Nothi ivuliwe
+off-axis	ngaphandle kwe-eksisi
+offline	ngaphandle kwenethiwekhi
+orbit speed	isivinini sokuzungeza
+OSC Address	Ikheli OSC
+Output Alpha	I-alpha yokuphumayo
+Output Canvas	Ikhanvasi yokuphumayo
+Output Delay	Ukubambezeleka kokuphumayo
+output fault	iphutha lokuphumayo
+Output name	Igama lokuphumayo
+Output Refresh	Ukuvuselela okuphumayo
+overflow	ukuchichima
+own playlist	uhlu lwayo
+parade	igrafu yamashaneli
+parallax	umehluko wokubuka
+Payload	Okuqukethwe
+Percent 0-100	Amaphesenti 0-100
+phone	ucingo
+Phrases	Imishwana
+pinch	cindezela
+pink noise	umsindo ophinki
+PIP Target Cue	I-cue eqondiwe PIP
+pitch	ukuphakama kwephimbo
+pivot	iphoyinti lokujika
+Pixel density	Ukuminyana kwamaphikseli
+pixel sort	ukuhlela amaphikseli
+plasma	iplazma
+Playlist Start TC	I-TC yokuqala yohlu
+Playlist Timebase	Isisekelo sesikhathi sohlu
+Plugin	Isengezo
+polar warp	ukugoba okuyindilinga
+Portal	Isango
+posterise	nciphisa amathoni
+Practice show	Umbukiso wokuzilolonga
+PREVIOUS	OKWANGAPHAMBILI
+Program change	Ukushintsha uhlelo
+Prompter script	Umbhalo wesikhumbuzi
+pulse 25%	ukushaya 25%
+QUALITY	IKHWALITHI
+radial zoom	ukusondeza okuyindilinga
+radio	umsakazo
+radius	irediyasi
+ramp	umqansa
+range	ububanzi
+ratio	isilinganiso
+Raw bytes	Amabhayithi aluhlaza
+Raw MIDI Bytes	Amabhayithi MIDI aluhlaza
+reach	ibanga
+recordings	okuqoshiwe
+recovering	kuyalulama
+refresh	vuselela
+Release	Ukudedela
+release	ukudedela
+relief	umdwebo ophakeme
+relight	khanyisa kabusha
+Rename cue	Qamba kabusha i-cue
+Rename fixture	Qamba kabusha isibani
+Renumber Cues	Bala kabusha ama-cue
+repeat width	ububanzi bokuphinda
+Replay hold	Ukubamba ukuphinda
+resonance	ukunanela
+Retrigger	Qalisa kabusha
+reverse	hlehla
+rgb split	ukwehlukanisa rgb
+Rim	Unqenqema
+rings	izindandatho
+ripple	igagasi elincane
+rising	okukhuphukayo
+rod bias	ukuthambekela kwezinduku
+room	igumbi
+rot	ukubola
+Rotation	Ukujikeleza
+rotation	ukujikeleza
+round	okuyindilinga
+sag	ukuxega
+saw	isaha
+scanlines	imigqa yokuskena
+scope	isilinganisi
+SCOPES	IZILINGANISI
+second mode	imodi yesibili
+see through	bona ngale
+seed density	ukuminyana kwembewu
+self	uqobo
+settle	hlala
+shadow lift	phakamisa ithunzi
+shake	nyakazisa
+shard size	usayizi wocezu
+sharpen	lola
+sheen	ukucwebezela
+sideways	eceleni
+slit scan	ukuskena ngembobo
+slit width	ububanzi bembobo
+Smear	Gcoba
+smear	gcoba
+softness	ubuthambile
+solarise	guqula amathoni
+spike count	inani lezipikili
+spike length	ubude bezipikili
+spin	jika
+spinning	okujikelezayo
+spring	isiphethu
+sprite sheet	ishidi lezithombe
+Sprite spin	Ukujika kwesithombe
+square	isikwele
+SRT latency	Ukubambezeleka SRT
+SRT passphrase	Umushwana wemfihlo SRT
+SRT stream ID	I-ID yokusakaza SRT
+Step length	Ubude besinyathelo
+steps	izinyathelo
+stereogram	isithombe esinokujula
+stiffness	ukuqina
+sting	umsindo omfushane
+strength	amandla
+strobe	isibani esibanekayo
+stroke	umdwebo
+SUBTLE	OKUTHAMBILE
+sway	ukuzamazama
+sweep	ukushanela
+sweep speed	isivinini sokushanela
+swell speed	isivinini samagagasi
+symbols	izimpawu
+system default	okuzenzakalelayo kohlelo
+system output	okuphumayo kohlelo
+tape	iteyipu
+tape age	ubudala beteyipu
+tear width	ububanzi bokudabuka
+temporal dither	ukusabalalisa kwesikhathi
+test signal	isiginali yokuhlola
+text to send	umbhalo ozothunyelwa
+threshold	umkhawulo
+throw	ibanga lokuphonsa
+tile size	usayizi wethayela
+tilt	ukutsheka
+time	isikhathi
+time cube	ikhiyubhu yesikhathi
+Timer Message	Umlayezo wesibali
+tint	umbala ogcotshiwe
+tint colour	umbala wokugcoba
+tracking	ukulandelela
+trail	umkhondo
+transparent	okubonisa ngale
+triangle	unxantathu
+triple beep	izikhala ezintathu
+Turn	Jika
+turn	jika
+Twist	Sonta
+twist	sonta
+unavailable	akutholakali
+vapor	umhwamuko
+vector	ivektha
+vertical	ngokuma mpo
+vertical bias	ukuthambekela mpo
+vibrato	ukudlidliza kwephimbo
+Video bitrate	Izinga lamabhithi evidiyo
+Video dip fade	Ukufiphala kwevidiyo ngobumnyama
+vignette	imiphetho emnyama
+wash out	phaphathekisa
+wave height	ukuphakama kwegagasi
+wavefront	ingaphambili legagasi
+way	indlela
+wedges	amacala anxantathu
+white	mhlophe
+white noise	umsindo omhlophe
+white point	iphuzu elimhlophe
+wire	ucingo
+Zoom	Ukusondeza
+zoom	ukusondeza
+(choose cue)	(khetha i-cue)
+(missing)	(ayikho)
+(no slots)	(azikho izikhala)
+(set media file)	(setha ifayela lemidiya)
+(set url)	(setha url)
+A number	Inombolo
+A number, or blank for none	Inombolo, noma shiya kungenalutho
+additive	okwengezayo
+alternating	okushintshanayo
+amber	okusaphuzi
+Add Browser Cue	Engeza i-cue yesiphequluli
+Add NDI Source Cue	Engeza i-cue yomthombo NDI
+Add Stream Cue	Engeza i-cue yokusakaza
+Art-Net Destination	Indawo ye-Art-Net
+ASCII 95 (density)	ASCII 95 (ukuminyana)
+ASCII 95 (raw)	ASCII 95 (okuluhlaza)
+ASIO is off	I-ASIO ivaliwe
+ATEM Input	Okungenayo ATEM
+Attach Lower Third	Namathisela Lower Third
+Attach PIP Overlay	Namathisela ungqimba PIP
+AUTO	OKUZENZAKALELAYO
+auto (59.94 Hz)	okuzenzakalelayo (59.94 Hz)
+band curve	ijika lebhande
+Browser Ready	Isiphequluli silungile
+built without ASIO support	yakhiwe ngaphandle kosekelo lwe-ASIO
+built without NDI SDK headers	yakhiwe ngaphandle kwamaheader NDI SDK
+Companion/OSC Port	Imbobo Companion/OSC
+could not reach github	ayikwazanga ukufinyelela ku-github
+could not read the PDF	ayikwazanga ukufunda i-PDF
+could not start ffmpeg	ayikwazanga ukuqala i-ffmpeg
+could not start the PDF renderer	ayikwazanga ukuqala isinikezi se-PDF
+could not write the export script	ayikwazanga ukubhala iskripthi sokuthekelisa
+couldn't open explorer	ayikwazanga ukuvula i-explorer
+couldn't open file manager	ayikwazanga ukuvula umphathi wamafayela
+couldn't open finder	ayikwazanga ukuvula i-finder
+Cue Goto	Iya ku-cue
+GOTO Cue	IYA KU-cue
+Custom Output Raster	Irasta yokuphumayo yakho
+DECODE --.-	CHAZA --.-
+DECODE OFF	CHAZA KUVALIWE
+DECODE WARM	CHAZA KUFUDUMELE
+Default Cue Fade	Ukufiphala kwe-cue okuzenzakalelayo
+Default Non-Movie Duration	Ubude obuzenzakalelayo kokungeyona ifilimu
+display native	okwendalo kwesikrini
+Display none	Asikho isikrini
+driver refused to start	umshayeli wenqabile ukuqala
+empty expression	isisho esingenalutho
+export as .png or .svg	thekelisa njenge-.png noma .svg
+ffmpeg made no file	i-ffmpeg ayenzanga ifayela
+ffmpeg stopped taking frames	i-ffmpeg iyekile ukuthatha ozimele
+Find Cue	Thola i-cue
+Find+Take Cue	Thola+TAKE i-cue
+Fire at a time of day	Qalisa ngesikhathi sosuku
+Fire at incoming timecode	Qalisa nge-timecode engenayo
+Fire on a MIDI note	Qalisa ngenothi MIDI
+Fire on an OSC address	Qalisa ngekheli OSC
+First channel (1-512)	Ishaneli yokuqala (1-512)
+flow (follows the picture)	ukugeleza (kulandela isithombe)
+hh:mm:ss or seconds	hh:mm:ss noma imizuzwana
+Its name, number or id	Igama layo, inombolo noma i-id
+LibreOffice could not be run	i-LibreOffice ayikwazanga ukusebenza
+LibreOffice produced no PDF	i-LibreOffice ayenzanga i-PDF
+macOS could not read the PDF	i-macOS ayikwazanga ukufunda i-PDF
+Name visible to receivers	Igama elibonwa abamukeli
+no colour	awukho umbala
+no driver named	akekho umshayeli onegama
+no mask made	asikho isifihli esenziwe
+no pages could be rendered	awekho amakhasi akwazi ukunikezwa
+no release found	akukho ukukhishwa okutholakele
+not on this output	akukho kulokhu okuphumayo
+not while a cue is playing	akuvumelekile uma i-cue idlala
+nothing drawn	akukho okudwetshiwe
+opened in explorer	kuvulwe ku-explorer
+opened in file manager	kuvulwe kumphathi wamafayela
+paste your stream key here	namathisela ukhiye wakho wokusakaza lapha
+pdftoppm produced no pages	i-pdftoppm ayenzanga amakhasi
+PowerPoint could not export this file	i-PowerPoint ayikwazanga ukuthekelisa leli fayela
+revealed in finder	kuboniswe ku-finder
+runtime unavailable	indawo yokusebenza ayitholakali
+size out of range	usayizi ungaphandle kobubanzi
+Source Ready	Umthombo ulungile
+Spout Sender Name	Igama lomthumeli Spout
+Stream URL	I-URL yokusakaza
+stream restart needed	ukusakaza kudinga ukuqaliswa kabusha
+stream write failed	ukubhala ukusakaza kuhlulekile
+target cue is gone	i-cue eqondiwe ayisekho
+targets nothing	akuqondile lutho
+the document has no pages	idokhumenti ayinawo amakhasi
+the file is empty	ifayela alinalutho
+the header is truncated	iheader inqunyiwe
+the NDI runtime is not installed	i-runtime NDI ayifakiwe
+the PDF renderer produced no pages	isinikezi se-PDF asenzanga amakhasi
+the show plays through ASIO	umbukiso udlala nge-ASIO
+URL or local page path	I-URL noma indlela yekhasi lendawo
+What it runs	Lokho ekusebenzisayo
+Which cue	Iyiphi i-cue
+window hidden	iwindi lifihliwe
+window minimized	iwindi lincishisiwe
+wrong display	isikrini esingafanele
+0-1 (supports + - * / and ())	0-1 (kusekela + - * / kanye no ())
+0-100% (supports + - * / and ())	0-100% (kusekela + - * / kanye no ())
+%, 1 to 100 (supports + - * / and ())	%, 1 kuya ku-100 (kusekela + - * / kanye no ())
+Amount 0-100% (supports + - * / and ())	Inani 0-100% (kusekela + - * / kanye no ())
+Degrees -180..180 (supports + - * / and ())	Amadigri -180..180 (kusekela + - * / kanye no ())
+Degrees, -360 to 360 (supports + - * / and ())	Amadigri, -360 kuya ku-360 (kusekela + - * / kanye no ())
+Degrees, 0-360 (supports + - * / and ())	Amadigri, 0-360 (kusekela + - * / kanye no ())
+Pixels (supports + - * / and ())	Amaphikseli (kusekela + - * / kanye no ())
+Hertz, 20-20000 (supports + - * / and ())	Hertz, 20-20000 (kusekela + - * / kanye no ())
+Colour steps, 2-8 (supports + - * / and ())	Izinyathelo zombala, 2-8 (kusekela + - * / kanye no ())
+Frames a second, 1 to 60 (supports + - * / and ())	Ozimele ngomzuzwana, 1 kuya ku-60 (kusekela + - * / kanye no ())
+Seconds (0-30)	Imizuzwana (0-30)
+Milliseconds 0-5000	Amamilisekhondi 0-5000
+milliseconds (40..2000)	amamilisekhondi (40..2000)
+Universe (0-63999)	Iyunivesi (0-63999)
+X,Y offset in pixels	Ukususa X,Y ngamaphikseli
+a name for this step	igama lalesi sinyathelo
+a playlist that is gone	uhlu lokudlala olususiwe
+across the grain	ngokuphambana nemicu
+add an output to scope it	engeza okuphumayo ukuze ukale isignali
+an ASIO stream is already open	ukusakaza kwe-ASIO sekuvuliwe
+another app is holding the pointer	olunye uhlelo lubambe isikhombi
+channel count must be at least 1	inani lamashaneli kufanele libe okungenani u-1
+comma outside a function call	ukhefana ungaphandle kokubizwa komsebenzi
+driver reports no output channels	umshayeli ubika ukuthi awekho amashaneli okukhipha
+escaped to windowed	kubuyelwe kumodi yewindi
+fullscreen dropped	imodi yesikrini esigcwele ivaliwe
+How big each tile is.	Ubukhulu bethayela ngalinye.
+How closely spaced the rings are.	Ukusondelana kwezindandatho.
+How far a band can slide.	Ibanga ibhande elingashelela ngalo.
+How far out the darkening starts.	Ibanga ukusuka phakathi lapho ubumnyama buqala khona.
+How far the glow spreads.	Ibanga okusabalala ngalo ukukhanya.
+How fast the surface moves.	Ijubane lokunyakaza kobuso.
+How fast they travel outward.	Ijubane lokunyakaza kwazo kuya ngaphandle.
+How hard the short hits.	Amandla okushaya kwesekethe emfushane.
+How many torn bands per frame.	Inani lamabhande aklebhukile kufreyimu ngayinye.
+How much the edges are lifted.	Izinga lokugqanyiswa kwemiphetho.
+How often it skips.	Imvamisa yokweqa.
+it could not be started	akukwazanga ukuqaliswa
+libX11 is not installed	i-libX11 ayifakiwe
+lost the session bus	kulahleke ukuxhumeka kwebhasi leseshini
+no ASIO in this build	ayikho i-ASIO kule nguqulo
+no X display to read	asikho isibonisi se-X esingafundwa
+not a MIDI file (no MThd header)	akulona ifayela le-MIDI (asikho isihloko se-MThd)
+offset in percent of the picture	ukususwa ngamaphesenti esithombe
+only a background in it	kunesizinda kuphela kuyo
+Paste the key from your platform	namathisela ukhiye ovela kwiplathifomu yakho
+pixels (of the output raster)	amaphikseli (erasta yokukhipha)
+Routing hint for the receiver	isiphakamiso somzila somamukeli
+Save Warp Preset	Londoloza isethingi yokugoba
+Sender source name	Igama lomthombo womthumeli
+SOURCE CAMERA: name the device	SOURCE CAMERA: sho igama ledivayisi
+Switcher IP address	Ikheli le-IP lesishintshi
+SYPHON / SPOUT TEXTURE SHARE	UKWABELANA NGOKWAKHEKA SYPHON / SPOUT
+SYPHON TEXTURE SHARE	UKWABELANA NGOKWAKHEKA SYPHON
+the desktop portal did not answer	isango ledeskithophu aliphendulanga
+the file has no playable events	ifayela alinazo izehlakalo ezingadlalwa
+the screen could not be read there	isikrini asikwazanga ukufundwa lapho
+the time division is not readable	ukuhlukaniswa kwesikhathi akufundeki
+this build has no X11 support	le nguqulo ayisekeli i-X11
+UDP port for transport sync	Imbobo ye-UDP yokuvumelanisa ezokudlala
+unbalanced )	u-) ongenaye umlingani
+web audio encoder cannot keep up	isifakikhodi somsindo wewebhu asikwazi ukuhambisana nejubane
+Where the filter sits.	Indawo lapho isihlungi sisebenza khona.
+Which way it drips.	Uhlangothi econsa ngalo.
+AUDIOALSO: expected ADD <name>, REMOVE <name> or CLEAR	AUDIOALSO: kulindelwe ADD <name>, REMOVE <name> noma CLEAR
+BROWSER KEY: expected Enter|Tab|Backspace|Escape	BROWSER KEY: kulindelwe Enter|Tab|Backspace|Escape
+BUGSWAT: expected START, SHOWME, SKIP, PLAY, EXIT or STATUS	BUGSWAT: kulindelwe START, SHOWME, SKIP, PLAY, EXIT noma STATUS
+CAPTIONS LIVE: expected ON, OFF, STATUS or TEXT	CAPTIONS LIVE: kulindelwe ON, OFF, STATUS noma TEXT
+CAPTIONS SOURCE: expected INPUT, DECK <n> or OUTPUT <n>	CAPTIONS SOURCE: kulindelwe INPUT, DECK <n> noma OUTPUT <n>
+DMXCUE: expected NEW, SET, FADE, UNIVERSE, HOST, PORT, FIRE or BLACKOUT	DMXCUE: kulindelwe NEW, SET, FADE, UNIVERSE, HOST, PORT, FIRE noma BLACKOUT
+ENDACTION: expected INHERIT, STOP, LOOP, HOLD or NEXT	ENDACTION: kulindelwe INHERIT, STOP, LOOP, HOLD noma NEXT
+FADE CURVE: expected linear, ease-in, ease-out or s-curve	FADE CURVE: kulindelwe linear, ease-in, ease-out noma s-curve
+LOWERSTYLE: expected none, fade, rise, slide, wipe or NEXT	LOWERSTYLE: kulindelwe none, fade, rise, slide, wipe noma NEXT
+MASK ASSIGN: expected CUE, LAYER, OUTPUT or MATTE	MASK ASSIGN: kulindelwe CUE, LAYER, OUTPUT noma MATTE
+MASK EXPORT: expected <id> <file.png|file.svg> [WxH]	MASK EXPORT: kulindelwe <id> <file.png|file.svg> [WxH]
+MATRIX SET: expected <source 1-2> <dest> <0-100>	MATRIX SET: kulindelwe <source 1-2> <dest> <0-100>
+MATRIX: expected SET <src> <dest> <0-100>, SEED or CLEAR	MATRIX: kulindelwe SET <src> <dest> <0-100>, SEED noma CLEAR
+MESH: expected on|off|toggle|height|tilt|yaw|spin|grid	MESH: kulindelwe on|off|toggle|height|tilt|yaw|spin|grid
+MIC: expected ADD, LIST, INPUT, CHANNEL or GAIN	MIC: kulindelwe ADD, LIST, INPUT, CHANNEL noma GAIN
+MIDICUE KIND: expected note-on, note-off, cc, program, msc-go, msc-stop, msc-resume or raw	MIDICUE KIND: kulindelwe note-on, note-off, cc, program, msc-go, msc-stop, msc-resume noma raw
+MIDICUE: expected NEW, PORTS, PORT, KIND, CH, D1, D2, DEVICE, CUENUM, LIST, RAW or SEND	MIDICUE: kulindelwe NEW, PORTS, PORT, KIND, CH, D1, D2, DEVICE, CUENUM, LIST, RAW noma SEND
+MULTIVIEW LAYOUT: expected GRID, BIG, BIGTOP or TWOTOP	MULTIVIEW LAYOUT: kulindelwe GRID, BIG, BIGTOP noma TWOTOP
+MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK or EMPTY	MULTIVIEW WINDOW: kulindelwe PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK noma EMPTY
+NETCUE: expected NEW, PROTO, HOST, PORT, ADDRESS, PAYLOAD or SEND	NETCUE: kulindelwe NEW, PROTO, HOST, PORT, ADDRESS, PAYLOAD noma SEND
+OUTPROBE: expected <output> <x 0-1> <y 0-1>	OUTPROBE: kulindelwe <output> <x 0-1> <y 0-1>
+OUTPUT HDR: expected ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> or STATUS	OUTPUT HDR: kulindelwe ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> noma STATUS
+OUTPUTFX ADD: expected hpf, lpf, tilt, comp or width	OUTPUTFX ADD: kulindelwe hpf, lpf, tilt, comp noma width
+OUTPUTFX: expected ADD, SET, REMOVE, BYPASS, CLEAR or DEVICE	OUTPUTFX: kulindelwe ADD, SET, REMOVE, BYPASS, CLEAR noma DEVICE
+OUTPUTS ADD: expected <name> CH <n> or CH <n>-<n+1>	OUTPUTS ADD: kulindelwe <name> CH <n> noma CH <n>-<n+1>
+PATCH: expected <deck> <output> <dB> or OFF	PATCH: kulindelwe <deck> <output> <dB> noma OFF
+PRESET: expected LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME or DELETE	PRESET: kulindelwe LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME noma DELETE
+SCALEMODE: expected fit|fill|stretch|unscaled	SCALEMODE: kulindelwe fit|fill|stretch|unscaled
+SCOPES BIG: expected waveform, parade, vector, diamond, histogram, falsecolour, sound or off	SCOPES BIG: kulindelwe waveform, parade, vector, diamond, histogram, falsecolour, sound noma off
+SCOPES: expected PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS or SOUND	SCOPES: kulindelwe PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS noma SOUND
+SECTION: expected playback|metadata|geometry|key|audio|effects|timer|tone|synth	SECTION: kulindelwe playback|metadata|geometry|key|audio|effects|timer|tone|synth
+STING: expected ON, PITCH, LENGTH, SWEEP or BODY	STING: kulindelwe ON, PITCH, LENGTH, SWEEP noma BODY
+TARGET VERB: expected start|stop|pause|resume|load|arm|disarm	TARGET VERB: kulindelwe start|stop|pause|resume|load|arm|disarm
+TEXTCUE ALIGN: expected left, centre or right	TEXTCUE ALIGN: kulindelwe left, centre noma right
+TEXTCUE ANIM: expected none, fade, typewriter, scroll, crawl, pulse or wobble	TEXTCUE ANIM: kulindelwe none, fade, typewriter, scroll, crawl, pulse noma wobble
+TEXTCUE: expected NEW, BODY, ANIM, SIZE, SPEED, ALIGN, CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, WIGGLE, IN, OUTMOVE or OUT	TEXTCUE: kulindelwe NEW, BODY, ANIM, SIZE, SPEED, ALIGN, CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, WIGGLE, IN, OUTMOVE noma OUT
+TUTORIAL: expected START, SHOWME, SKIP, EXIT, STATUS or SCREENS	TUTORIAL: kulindelwe START, SHOWME, SKIP, EXIT, STATUS noma SCREENS
+UPDATE: expected check|download|install|status	UPDATE: kulindelwe check|download|install|status
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS	VJ: kulindelwe ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS
+% of the picture's height, 0.1 to 20 (supports + - * / and ())	% wobude besithombe, 0.1 kuya ku-20 (kusekela + - * / kanye no-())
+-3 to 3: 0 holds, negative runs backwards (supports + - * / and ())	-3 kuya ku-3: u-0 uyabamba, okunegethivu kudlala emuva (kusekela + - * / kanye no-())
+0-100%, left to right (supports + - * / and ())	0-100%, kwesobunxele kuya kwesokudla (kusekela + - * / kanye no-())
+0-100%, top to bottom (supports + - * / and ())	0-100%, phezulu kuya phansi (kusekela + - * / kanye no-())
+0-100%: 0 holds the field still (supports + - * / and ())	0-100%: u-0 ugcina inkambu inganyakazi (kusekela + - * / kanye no-())
+0-100%: 50 is 1x, 0 a quarter, 100 four times (supports + - * / and ())	0-100%: u-50 ngu-1x, u-0 yikota, u-100 uphindwe kane (kusekela + - * / kanye no-())
+0-100%: how far the field bends (supports + - * / and ())	0-100%: izinga lokugoba kwenkambu (kusekela + - * / kanye no-())
+Across, % of the width, -100 to 100 (supports + - * / and ())	Ngokuvundlile, % wobubanzi, -100 kuya ku-100 (kusekela + - * / kanye no-())
+Birth, drift and fade rate, 0.1-3 (supports + - * / and ())	Izinga lokuzalwa, ukuntanta nokufiphala, 0.1-3 (kusekela + - * / kanye no-())
+Block displacement and channel tearing, 0-1 (supports + - * / and ())	Ukususwa kwamabhulokhi nokuklebhuka kwamashaneli, 0-1 (kusekela + - * / kanye no-())
+dBFS, -60 to 0 (-18 is EBU alignment) (supports + - * / and ())	dBFS, -60 kuya ku-0 (-18 ukuqondanisa kwe-EBU) (kusekela + - * / kanye no-())
+Down, % of the height, -100 to 100 (supports + - * / and ())	Phansi, % wobude, -100 kuya ku-100 (kusekela + - * / kanye no-())
+Edge out (+) or in (-), % of the height, -25 to 25 (supports + - * / and ())	Umphetho ngaphandle (+) noma ngaphakathi (-), % wobude, -25 kuya ku-25 (kusekela + - * / kanye no-())
+Edge softness, % of the height, 0 to 25 (supports + - * / and ())	Ukuthamba komphetho, % wobude, 0 kuya ku-25 (kusekela + - * / kanye no-())
+FDS hardware gain range, 0-63 (supports + - * / and ())	Ibanga lokukhulisa lezingxenyekazi ze-FDS, 0-63 (kusekela + - * / kanye no-())
+Feature size, 0.1-8 (supports + - * / and ())	Ubukhulu bephethini, 0.1-8 (kusekela + - * / kanye no-())
+Horizontal cells, 64-960 (supports + - * / and ())	Amaseli avundlile, 64-960 (kusekela + - * / kanye no-())
+How big a blob grows, 0-1 (supports + - * / and ())	Ubukhulu obukhula bufike kubo iqhubu, 0-1 (kusekela + - * / kanye no-())
+How hard it cuts, %, 0 to 100 (supports + - * / and ())	Amandla okusika, %, 0 kuya ku-100 (kusekela + - * / kanye no-())
+How hard the audio drives it, 0-1 (supports + - * / and ())	Amandla umsindo oyinyakazisa ngawo, 0-1 (kusekela + - * / kanye no-())
+How many are alive at once, 3-48 (supports + - * / and ())	Inani eliphilayo ngesikhathi esisodwa, 3-48 (kusekela + - * / kanye no-())
+How much of each frame feeds the next, 0-0.95 (supports + - * / and ())	Ingxenye yefreyimu ngayinye ephakela elandelayo, 0-0.95 (kusekela + - * / kanye no-())
+How readily neighbours merge, 0 (never) to 1 (supports + - * / and ())	Ukulula kokuhlangana komakhelwane, 0 (neze) kuya ku-1 (kusekela + - * / kanye no-())
+Internal resolution, 1 (chunky) to 5 (fine) (supports + - * / and ())	Ukucaca kwangaphakathi, 1 (okumahhadla) kuya ku-5 (okucolekile) (kusekela + - * / kanye no-())
+Master oscillator rate, 0.01-8 (supports + - * / and ())	Izinga lesinyakazisi esikhulu, 0.01-8 (kusekela + - * / kanye no-())
+Modulator as a ratio of the note, 0.05-16 (supports + - * / and ())	Isiguquli njengesilinganiso senothi, 0.05-16 (kusekela + - * / kanye no-())
+One LED tile's height in pixels, 8-8192 (supports + - * / and ())	Ubude bethayela elilodwa le-LED ngamaphikseli, 8-8192 (kusekela + - * / kanye no-())
+One LED tile's width in pixels, 8-8192 (supports + - * / and ())	Ububanzi bethayela elilodwa le-LED ngamaphikseli, 8-8192 (kusekela + - * / kanye no-())
+Palette turn, 0-1 (supports + - * / and ())	Ukuzungezisa iphalethi, 0-1 (kusekela + - * / kanye no-())
+Per-frame zoom of the feedback path, 0.90-1.15 (supports + - * / and ())	Ukusondeza komzila wempinda kufreyimu ngayinye, 0.90-1.15 (kusekela + - * / kanye no-())
+Pitch in hertz, 20-8000 (supports + - * / and ())	Ukuphakama kwezwi ngama-hertz, 20-8000 (kusekela + - * / kanye no-())
+Pixel sort amount, 0-1 (supports + - * / and ())	Izinga lokuhlela amaphikseli, 0-1 (kusekela + - * / kanye no-())
+Scale of the whole graphic, 0.5-2 (supports + - * / and ())	Isikali somdwebo wonke, 0.5-2 (kusekela + - * / kanye no-())
+Size, %, 5 to 400 (supports + - * / and ())	Usayizi, %, 5 kuya ku-400 (kusekela + - * / kanye no-())
+Spiral size, 0.25-4 (supports + - * / and ())	Ubukhulu bokuzungeza, 0.25-4 (kusekela + - * / kanye no-())
+Spiral strength, 0-4 (supports + - * / and ())	Amandla okuzungeza, 0-4 (kusekela + - * / kanye no-())
+Thickness of the glowing edge, 0-1 (supports + - * / and ())	Ukujiya komphetho okhazimulayo, 0-1 (kusekela + - * / kanye no-())
+0-127; 127 is all-call	0-127; u-127 ubiza bonke
+0-127; the domain the facility's clock runs on	0-127; isizinda sewashi lesikhungo
+10-79 characters, or empty for none	izinhlamvu ezingu-10-79, noma shiya kungenalutho ukuze kungabi khona
+8 zones already: click one to remove it first	sekunezindawo ezingu-8: chofoza eyodwa ukuze uyisuse kuqala
+8+ characters; letters and symbols are allowed	izinhlamvu ezingu-8+; kuvunyelwe izinhlamvu nezimpawu
+A command line, or blank for nothing	Umugqa womyalo, noma shiya kungenalutho ukuze ungenzi lutho
+a step cannot fire the playlist it lives on	isinyathelo asikwazi ukuqala uhlu olukulo
+a target cannot target another target	ithagethi ayikwazi ukukhomba enye ithagethi
+an IPv4 address, or 255.255.255.255 to broadcast	ikheli le-IPv4, noma 255.255.255.255 ukuze usakaze
+AUDIOALSO ADD: seven extra destinations is the limit	AUDIOALSO ADD: umkhawulo yizindawo ezengeziwe eziyisikhombisa
+AUDIOFX PLUGIN: this build has no plugin host	AUDIOFX PLUGIN: le nguqulo ayinaso isisingathi sama-plugin
+BROWSER CLICK: this browser backend cannot drive the page	BROWSER CLICK: le njini yesiphequluli ayikwazi ukulawula ikhasi
+BROWSER INTERACT: this browser backend has no hands-on mode	BROWSER INTERACT: le njini yesiphequluli ayinayo imodi yokusebenzisana
+BROWSER SCROLL: expected pixels (negative is up)	BROWSER SCROLL: kulindelwe amaphikseli (okunegethivu kuya phezulu)
+BROWSER TYPE: this browser backend cannot type	BROWSER TYPE: le njini yesiphequluli ayikwazi ukuthayipha
+cancelled: the waiting cue is no longer in the playlist	kukhanseliwe: i-cue elindile ayisekho ohlwini lokudlala
+could not create an OpenGL context for Spout receive	akukwazanga ukwakha isimo se-OpenGL sokwamukela i-Spout
+could not create the offscreen window Spout receive needs	akukwazanga ukwakha iwindi elingaphandle kwesikrini elidingwa ukwamukela i-Spout
+could not get a device context for Spout receive	akukwazanga ukuthola isimo sedivayisi sokwamukela i-Spout
+driver would not create output buffers	umshayeli wehlulekile ukwakha amabhafa okukhipha
+driver would not load (in use by another application?)	umshayeli wehlulekile ukulayisha (usetshenziswa olunye uhlelo?)
+driver would not report a buffer size	umshayeli wehlulekile ukubika ubukhulu bebhafa
+driver would not report channel info	umshayeli wehlulekile ukubika ulwazi lweshaneli
+fetching the speech model - captions start when it arrives	kulandwa imodeli yenkulumo - imibhalo iqala uma isifikile
+four effects at most on one device: remove one first	imiphumela emine kuphela kudivayisi eyodwa: susa owodwa kuqala
+FX ADD: datamosh needs a file-backed video cue	FX ADD: i-datamosh idinga i-cue yevidiyo esuka efayeleni
+group presets became master cues: use MASTER	amasethingi eqembu abe ama-master cue: sebenzisa MASTER
+live captions are not installed here (deckboy-listen was not found)	imibhalo ebukhoma ayifakiwe lapha (i-deckboy-listen ayitholakalanga)
+Lower Third added - put its playlist on a layer	i-Lower Third ingeziwe - beka uhlu lwayo kungqimba
+make a step first: a section starts at a step	qala ngokwenza isinyathelo: isigaba siqala esinyathelweni
+MASK PATH: a path needs at least three points	MASK PATH: umzila udinga okungenani amaphoyinti amathathu
+MATRIX SET: level is a percent from 0 to 100	MATRIX SET: izinga liyiphesenti ukusuka ku-0 kuya ku-100
+MIDIMAP: that command is only accepted from this computer	MIDIMAP: lowo myalo wamukelwa kuphela kule khompyutha
+MOTION ZONE ADD: the zone must fit inside the picture	MOTION ZONE ADD: indawo kufanele ingene ngaphakathi kwesithombe
+NETCUE ADDRESS: an OSC address must start with /	NETCUE ADDRESS: ikheli le-OSC kufanele liqale ngo-/
+release has no build for this platform	lokhu kukhishwa akunanguqulo yale plathifomu
+SLICE ADD: already 16 slices on this output	SLICE ADD: sekuvele kunezingcezu ezingu-16 kulokhu okukhiphayo
+still reading the last folder -- one at a time	kusafundwa ifolda yokugcina -- ngayinye ngesikhathi
+SUBTITLE CONVERT: destination must be .srt or .vtt	SUBTITLE CONVERT: indawo yokugcina kufanele ibe .srt noma .vtt
+SUBTITLE CONVERT: the cue has no caption file	SUBTITLE CONVERT: i-cue ayinalo ifayela lemibhalo
+the caption model has not been downloaded yet	imodeli yemibhalo ayikalandwa okwamanje
+the playing step was removed - sequence stopped	isinyathelo ebesidlala sisusiwe - ukulandelana kumisiwe
+this cue has no known end to resolve into	le cue ayinasiphetho esaziwayo sokuphetha
+this output's renderer could not cut the mask	isidwebi salokhu okukhiphayo asikwazanga ukusika imaski
+TRACKER: there are no steps (TRACKER ADD makes one)	TRACKER: azikho izinyathelo (TRACKER ADD yenza esisodwa)
+unsaved changes will be lost: press new again	izinguquko ezingalondoloziwe zizolahleka: cindezela okusha futhi
+update: could not start the install helper	buyekeza: akukwazanga ukuqalisa umsizi wokufaka
+update: could not start the installer	buyekeza: akukwazanga ukuqalisa isifaki
+update: could not write the install helper	buyekeza: akukwazanga ukubhala umsizi wokufaka
+update: not running from an AppImage	buyekeza: akusebenzi kusuka ku-AppImage
+WEBMONITOR SOURCE: could not create the web output	WEBMONITOR SOURCE: akukwazanga ukwakha okukhipha kwewebhu
+zones cleared: Motion reads the whole picture	izindawo zisuliwe: Ukunyakaza kufunda isithombe sonke
+BROWSER SCROLL: this browser backend cannot drive the page	BROWSER SCROLL: le njini yesiphequluli ayikwazi ukulawula ikhasi
+BROWSER SCROLLBAR: this browser backend cannot drive the page	BROWSER SCROLLBAR: le njini yesiphequluli ayikwazi ukulawula ikhasi
+Seconds, 0-4 (supports + - * / and ())	Imizuzwana, 0-4 (kusekela + - * / kanye no-())
+Seconds, 0-8 (supports + - * / and ())	Imizuzwana, 0-8 (kusekela + - * / kanye no-())
+Seconds between retriggers, 0-8 (supports + - * / and ())	Imizuzwana phakathi kokuqalisa kabusha, 0-8 (kusekela + - * / kanye no-())
+Seconds the finished drawing stays, 0 to 60 (supports + - * / and ())	Imizuzwana umdwebo ophelile ohlala ngayo, 0 kuya ku-60 (kusekela + - * / kanye no-())
+Seconds the in move takes, 0-5 (supports + - * / and ())	Imizuzwana yokunyakaza kokungena, 0-5 (kusekela + - * / kanye no-())
+Seconds the out move takes, 0-5 (supports + - * / and ())	Imizuzwana yokunyakaza kokuphuma, 0-5 (kusekela + - * / kanye no-())
+Seconds before it leaves by itself; 0 waits for OUT (supports + - * / and ())	Imizuzwana ngaphambi kokuphuma ngokuzenzakalela; u-0 ulinda OUT (kusekela + - * / kanye no-())
+Pixels, 64-2160 (supports + - * / and ())	Amaphikseli, 64-2160 (kusekela + - * / kanye no-())
+Pixels, 64-3840 (supports + - * / and ())	Amaphikseli, 64-3840 (kusekela + - * / kanye no-())
+Space under it, as a fraction of the frame, 0-0.8 (supports + - * / and ())	Isikhala ngaphansi njengengxenye yefreyimu, 0-0.8 (kusekela + - * / kanye no-())
+Where the eye sits, 0 left to 1 right (supports + - * / and ())	Indawo yeso, 0 kwesobunxele kuya ku-1 kwesokudla (kusekela + - * / kanye no-())
+Where the eye sits, 0 top to 1 bottom (supports + - * / and ())	Indawo yeso, 0 phezulu kuya ku-1 phansi (kusekela + - * / kanye no-())
+Turbulence, 0 still to 3 boiling (supports + - * / and ())	Ukuyaluzela, 0 kuthule kuya ku-3 kubila (kusekela + - * / kanye no-())
+Turns the rim's colours round the wheel, 0-1 (supports + - * / and ())	Kuzungezisa imibala yomphetho esondweni, 0-1 (kusekela + - * / kanye no-())
+port number (default 5510)	inombolo yembobo (okuzenzakalelayo 5510)
+port number (default 5511)	inombolo yembobo (okuzenzakalelayo 5511)
+port number (default 6454)	inombolo yembobo (okuzenzakalelayo 6454)
+port number (default 8090)	inombolo yembobo (okuzenzakalelayo 8090)
+port number (vMix uses 8088)	inombolo yembobo (vMix isebenzisa 8088)
+port number (vMix uses 8099)	inombolo yembobo (vMix isebenzisa 8099)
+e.g. /cue/1/start	isb. /cue/1/start
+e.g. 12.5	isb. 12.5
+e.g. 192.168.1.50	isb. 192.168.1.50
+e.g. 1=255, 10-14=64	isb. 1=255, 10-14=64
+e.g. 90 3C 7F	isb. 90 3C 7F
+A dark line between the tiles, like grout or an LED wall.	Umugqa omnyama phakathi kwamathayela, njengodaka lokuhlanganisa noma udonga lwe-LED.
+Above halfway, a hard cut in the picture resets the loop to clean.	Ngaphezu kwesigamu, ukusika kwesithombe okuqinile kuhlanza umjikelezo.
+Above halfway, the repeated piece plays backwards.	Ngaphezu kwesigamu, ingxenye ephindwayo idlala emuva.
+Darkens the boundaries where crystals meet.	Kwenza mnyama imingcele lapho amakristalu ehlangana khona.
+Fine sensor noise at the bottom, chunky film at the top.	Ngezansi umsindo omncane wenzwa, phezulu izinhlamvu zefilimu ezinkulu.
+From an even blur to a streak along the angle, like movement.	Kusukela ekufiphaleni okulinganayo kuya emugqeni olandela i-engeli, njengokunyakaza.
+Grain size: one pixel at the left, big blocky grains at the right.	Ubukhulu bezinhlamvu: iphikseli elilodwa kwesobunxele, izinhlamvu ezinkulu ezingamabhulokhi kwesokudla.
+Grows or shrinks the echo each pass. Centre holds still.	Kukhulisa noma kunciphise impinda emjikelezweni ngamunye. Phakathi kuyayibamba.
+How big the crystals grow before they meet.	Ubukhulu amakristalu akhula afike kubo ngaphambi kokuhlangana.
+How big the room is. Small is a booth, large is a hall.	Ubukhulu begumbi. Elincane yindlwana, elikhulu yihholo.
+How big the shards are. Small is frosted glass, large is a dropped plate.	Ubukhulu bezicucu. Ezincane zinjengengilazi efiphele, ezinkulu zinjengepuleti eliwile.
+How dark the dark lines go. All the way up is black between lines.	Ubumnyama bemigqa emnyama. Ekugcineni phezulu kuba mnyama phakathi kwemigqa.
+How far each shard slides from where it belongs.	Ibanga ucezu ngalunye olushelela ngalo lusuka endaweni yalo.
+How far each stroke is dragged along the grain.	Ibanga umdwebo ngamunye ohudulwa ngalo ulandela imicu.
+How far it smears: up to a few percent of the picture.	Ibanga lokuhlikihla: kuze kube amaphesenti ambalwa esithombe.
+How far the bright parts pull away from the surface.	Ibanga izingxenye ezikhanyayo eziphakama ngalo ebusweni.
+How far the sound throws each line sideways.	Ibanga umsindo ophonsa ngalo umugqa ngamunye eceleni.
+How far the two eyes disagree. Brightness is read as nearness.	Umehluko phakathi kwamehlo amabili. Ukukhanya kufundwa njengokusondela.
+How fast it closes. Slow enough not to chop the ends off words.	Ijubane lokuvala. Kuthambe ngokwanele ukuze kungasiki iziphetho zamagama.
+How fast the drips run. At the left the picture only sags.	Ijubane lokugeleza kwamaconsi. Kwesobunxele isithombe siyaxega kuphela.
+How fast the light walks around it. Zero holds it still.	Ijubane ukukhanya okuzungeza ngalo. Uziro ukukugcina kunganyakazi.
+How fast the sand travels to the still lines.	Ijubane isihlabathi esiya ngalo emigqeni enganyakazi.
+How gradually the key cuts in. Hard at the left.	Ukuthamba kokuqala kokusika kwe-key. Kuqinile kwesobunxele.
+How hard it is driven into its own limits.	Amandla okuphoqelelwa kwayo emikhawulweni yayo.
+How long a short stays closed, in VIDEO FRAMES.	Ubude besikhathi isekethe emfushane ehlala ivaliwe, ngamaFREYIMU EVIDIYO.
+How many shades survive the quantise.	Inani lamazinga ombala asele ngemuva kokuhlukanisa ngamazinga.
+How many spikes the field breaks into.	Inani leziqongo inkambu ehlukana ngalo.
+How many times a skip repeats before the sound catches up again.	Izikhathi ukweqa okuphindwa ngazo ngaphambi kokuba umsindo ubambe futhi.
+How much each shard turns on its own centre.	Izinga ucezu ngalunye oluzungeza ngalo esikhungweni salo.
+How much of the push goes downward rather than sideways.	Ingxenye yamandla aya phansi esikhundleni sokuya eceleni.
+How much the flame gutters frame to frame.	Izinga lokucwayiza kwelangabi ukusuka kufreyimu kuya kwenye.
+How quickly the loop relaxes when nothing feeds it.	Ijubane umjikelezo othamba ngalo uma ungasaphakelwa.
+How strongly the outlines are drawn.	Amandla okudwetshwa kwemingcele.
+How strongly the water bends the picture.	Amandla amanzi agoba ngawo isithombe.
+How wide a band of colours either side of it changes too.	Ububanzi bebhande lemibala ezinhlangothini zombili elishintshayo nalo.
+Lifts the dark tones without moving pure black.	Kuphakamisa amathoni amnyama ngaphandle kokushintsha okumnyama qwa.
+Pushes the rings in or out of the centre.	Kucindezela izindandatho ziye ngaphakathi noma ngaphandle kwesikhungo.
+Rounds the tiles off, all the way to dots.	Kwenza amathayela abe yindilinga aze abe amachashazi.
+Softens the fold so it ramps instead of creasing.	Kuthambisa ukugoqa ukuze kube nokwehla okuthambile esikhundleni somphetho oqinile.
+Sorts the runs the other way, so they pour from light to dark.	Kuhlela amabhande ngendlela ephambene ukuze ageleze kusuka ekukhanyeni kuya ebumnyameni.
+The bright net the waves focus onto the picture.	Inetha elikhanyayo amagagasi aligxilisa esithombeni.
+The brightness that decides black from white.	Izinga lokukhanya elihlukanisa okumnyama nokumhlophe.
+The colour to change, round the wheel from red.	Umbala ozoshintshwa, uzungeza isondo kusukela kokubomvu.
+Turns the echo each pass, which winds the melt into a spiral.	Kuzungezisa impinda emjikelezweni ngamunye, kuphendule ukuncibilika kube ukuzungeza.
+OUTPUT --.-	OKUPHUMAYO --.-
+OUTPUT WARM	OKUPHUMAYO KUYALUNGISELELWA
+STREAM --.-	UKUSAKAZA --.-
+STREAM ERR	UKUSAKAZA IPHUTHA
+STREAM OFF	UKUSAKAZA KUVALIWE
+STREAM WARM	UKUSAKAZA KUYALUNGISELELWA
+In time	Isikhathi sokungena
+Out time	Isikhathi sokuphuma
+OSC Feedback Mirror Rate	Izinga lokulingisa impendulo ye-OSC
+OSC Query HTTP Port	Imbobo ye-HTTP ye-OSC Query
+Key sender source name	Igama lomthombo womthumeli we-key
+ST 2110 Destination	Indawo okuyiwa kuyo ye-ST 2110
+ST 2110 network interface	Isixhumi senethiwekhi se-ST 2110
+ST 2110 Port	Imbobo ye-ST 2110
+vMix HTTP Port	Imbobo ye-HTTP ye-vMix
+vMix TCP Port	Imbobo ye-TCP ye-vMix
+Web Monitor Connections	Ukuxhumeka kwesibonisi sewebhu
+Web Monitor PIN	I-PIN yesibonisi sewebhu
+Web Monitor Port	Imbobo yesibonisi sewebhu
+Legacy Cue Link	Isixhumanisi se-cue esidala
+Fireside	Eceleni komlilo
+hue turn	ukujika kombala
+ferrofluid	uketshezi lukazibuthe
+dye advect	ukugeleza kukadayi
+edge ignite	ukuvutha komphetho
+feedback bloom	ukukhanya kwempinda
+reaction bloom	ukuqhakaza kokusabela
+pythagorean	okukaPythagoras
+purkinje	okukaPurkinje
+schlieren	imigqa yokuphambuka kokukhanya
+audioprint	ukuphrinta umsindo
+e.g. 20:0 or client name	isb. 20:0 noma igama leklayenti
+Hz or AUTO (e.g. 60 or 59.94)	Hz noma AUTO (isb. 60 noma 59.94)
+kbps (32-512; 160 is a sane default)	kbps (32-512; u-160 uyisilinganiso sokuqala esifanele)
+Multicast group (e.g. 239.20.10.1)	Iqembu le-Multicast (isb. 239.20.10.1)
+Prefix (optional). Example: Q	Isiqalo (ongasikhetha). Isibonelo: Q
+Prefix and optional start (example: Q 100)	Isiqalo nenombolo yokuqala ongayikhetha (isibonelo: Q 100)
+WIDTHxHEIGHT (e.g. 2560x1080)	UBUBANZIxUBUDE (isb. 2560x1080)
+WIDTHxHEIGHT (e.g. 5760x2160)	UBUBANZIxUBUDE (isb. 5760x2160)
+position on the output raster, in pixels	indawo erasteni yokukhipha, ngamaphikseli
+seconds (1-10; most platforms want 2)	imizuzwana (1-10; amapulatifomu amaningi adinga u-2)
+seconds this step holds before PLAY moves on	imizuzwana lesi sinyathelo esiyibambayo ngaphambi kokuthi PLAY iqhubeke
+Leave empty to follow the live cue notes	Shiya kungenalutho ukuze ulandele amanothi e-cue ebukhoma
+Target IP (or 255.255.255.255 to broadcast)	I-IP yendawo okuyiwa kuyo (noma 255.255.255.255 ukuze usakaze)
+MIDIFILE: the selected cue is not a midi file cue	MIDIFILE: i-cue ekhethiwe ayilona i-cue lefayela le-MIDI
+NETCUE: the selected cue is not a network cue	NETCUE: i-cue ekhethiwe ayilona i-cue lenethiwekhi
+SCRIPTCUE: the selected cue is not a script cue	SCRIPTCUE: i-cue ekhethiwe ayilona i-cue leskripthi
+SYNTH: the selected cue is not a video synth	SYNTH: i-cue ekhethiwe ayilona i-cue lesinthezayiza yevidiyo
+TCCUE: the selected cue is not a timecode cue	TCCUE: i-cue ekhethiwe ayilona i-cue lekhodi yesikhathi
+TEXTCUE: the selected cue is not a text cue	TEXTCUE: i-cue ekhethiwe ayilona i-cue lombhalo
+Cue name (blank restores the file name)	Igama le-cue (okungenalutho kubuyisela igama lefayela)
+ASCII HOLD: seconds, 0-60 (0 mutes the phrases)	ASCII HOLD: imizuzwana, 0-60 (u-0 uthulisa imisho)
+AUDIOFX: expected OFF, BYPASS, or amount and parameters as percentages	AUDIOFX: kulindelwe OFF, BYPASS, noma inani namapharamitha ngamaphesenti
+CHIP ENV: expected <attack> <release> in seconds	CHIP ENV: kulindelwe <attack> <release> ngemizuzwana
+DECKLINK: no DeckLink driver on this computer (Blackmagic Desktop Video)	DECKLINK: awukho umshayeli we-DeckLink kule khompyutha (Blackmagic Desktop Video)
+DMXCUE LEVELS: nothing has been sent on that universe	DMXCUE LEVELS: akukathunyelwa lutho kuleyo yunivesi
+downloading the caption model, then listening...	kulandwa imodeli yemibhalo, bese kuyalalelwa...
+drag the panels to arrange the presenter screen	hudula amaphaneli ukuze uhlele isikrini somethuli
+DRAW SIZE: 0.1-20 (% of the picture's height)	DRAW SIZE: 0.1-20 (% wobude besithombe)
+DRAW STROKE: each point is x,y or x,y,pressure, in percent	DRAW STROKE: iphoyinti ngalinye ngu-x,y noma x,y,pressure, ngamaphesenti
+encoder destination: _converted beside the show	indawo yesifakikhodi: _converted eceleni kombukiso
+ENDACTION: only video and audio cues have an end action	ENDACTION: ama-cue evidiyo nomsindo kuphela anesenzo sesiphetho
+Enter playlist SMPTE FPS: 24 / 25 / 29.97 / 30	Faka i-SMPTE FPS yohlu lokudlala: 24 / 25 / 29.97 / 30
+expected one expression, three for colour, or four with alpha	kulindelwe isibalo esisodwa, ezintathu zombala, noma ezine ne-alpha
+format 2 files are a set of independent patterns, not a performance	amafayela efomethi 2 ayiqoqo lamaphethini azimele, akuwona umdlalo owodwa
+INPUTMONITOR: a row count, OPEN, CLOSE, CLEAR, PAUSE or RESUME	INPUTMONITOR: inani lemigqa, OPEN, CLOSE, CLEAR, PAUSE noma RESUME
+MASTER DECK: expected a deck number and a cue number	MASTER DECK: kulindelwe inombolo yedekhi nenombolo ye-cue
+MIDIIN OSC: an address, and optionally a number	MIDIIN OSC: ikheli, nenombolo ongayikhetha
+MONITOR DECK: expected a playlist number or FOLLOW	MONITOR DECK: kulindelwe inombolo yohlu lokudlala noma FOLLOW
+MONITOR ROOM: expected a playlist and ON or OFF	MONITOR ROOM: kulindelwe uhlu lokudlala kanye no-ON noma OFF
+MULTIVIEW WINDOW REMOVE: expected a window number	MULTIVIEW WINDOW REMOVE: kulindelwe inombolo yewindi
+NETCUE ADDRESS: expected an OSC path starting with /	NETCUE ADDRESS: kulindelwe umzila we-OSC oqala ngo-/
+new show disarms all outputs: press new again	umbukiso omusha ukhipha konke okukhiphayo esimweni sokulungela: cindezela okusha futhi
+NMOS: discovery needs the remote network allowed	NMOS: ukuthola kudinga ukuvunyelwa kwenethiwekhi ekude
+NMOS: searching for a registry (mDNS)	NMOS: kuseshwa irejista (mDNS)
+no picture on this cue - nothing to follow	ayikho isithombe kule cue - akukho okungalandelelwa
+no picture on this cue - nothing to close the loop through	ayikho isithombe kule cue - akukho okungavala umjikelezo ngakho
+no video clock on this cue - nothing to lock to	ayikho iwashi levidiyo kule cue - akukho okungavunyelaniswa nakho
+normalize: selection has no file-backed audio	linganisa: okukhethiwe akunamsindo osuka efayeleni
+normalize all: no file-backed audio in this deck	linganisa konke: awukho umsindo osuka efayeleni kule dekhi
+only a MIDI note or an OSC address can take a cue	inothi le-MIDI noma ikheli le-OSC kuphela elingaqalisa i-cue
+Only accept transport from this sender (blank = anyone)	Yamukela imiyalo yokudlala kulo mthumeli kuphela (okungenalutho = noma ubani)
+OUTPROBE: that output has no compositor (is it on?)	OUTPROBE: lokho okukhiphayo akunamhlanganisi wezithombe (kuvuliwe?)
+OUTPUTFX ADD: four effects at most on one device	OUTPUTFX ADD: imiphumela emine kuphela kudivayisi eyodwa
+OUTPUTFX SET: expected an effect number and 0-100	OUTPUTFX SET: kulindelwe inombolo yomphumela kanye no-0-100
+PATCH: a level is dB from -48 to +6, or OFF	PATCH: izinga lingu-dB ukusuka ku--48 kuya ku-+6, noma OFF
+PORTS: expected an http port and a tcp port	PORTS: kulindelwe imbobo ye-http nembobo ye-tcp
+PRELOAD: expected a position in seconds, OFF or STATUS	PRELOAD: kulindelwe indawo ngemizuzwana, OFF noma STATUS
+STING: select a tone cue first (TONECUE makes one)	STING: qala ngokukhetha i-cue yethoni (TONECUE yenza eyodwa)
+STREAM ADD: expected a URL, e.g. srt://host:port	STREAM ADD: kulindelwe i-URL, isb. srt://host:port
+TARGET CUE: expected a deck number and a cue number	TARGET CUE: kulindelwe inombolo yedekhi nenombolo ye-cue
+TEXTCUE SIZE: expected 1-100 (percent of the raster)	TEXTCUE SIZE: kulindelwe 1-100 (iphesenti lerasta)
+Apple keeps the Keynote format secret on purpose, a malicious lock-in tactic, so only Apple's own software can read it properly. Best route: open it in Keynote on iCloud.com (free, in any browser), choose Download a Copy > PDF, and import that PDF	Apple igcina ifomethi ye-Keynote iyimfihlo ngamabomu, iqhinga elinonya lokubophela abasebenzisi, ngakho yisoftware ye-Apple kuphela ekwazi ukuyifunda kahle. Indlela engcono: yivule ku-Keynote ku-iCloud.com (mahhala, kunoma yisiphi isiphequluli), khetha Download a Copy > PDF, bese ungenisa leyo PDF
+Keynote could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)	Keynote yehlulekile ukukhipha leli fayela (ingase idinge imvume yokulawulwa ngokuzenzakalela: System Settings > Privacy & Security > Automation)
+cannot read the file: if it lives in OneDrive or iCloud, open it once so it downloads, then import it	ifayela alifundeki: uma liku-OneDrive noma iCloud, livule kanye ukuze lilandwe, bese ulingenisa
+the file is empty (0 bytes): it may not have finished copying or saving	ifayela alinalutho (0 bytes): ukukopisha noma ukulondoloza kungenzeka akukapheli
+the installed NDI runtime is missing entry points this needs	i-runtime ye-NDI efakiwe ayinazo izindawo zokungena ezidingekayo
+the NDI runtime declined to start on this machine	i-runtime ye-NDI yenqabile ukuqala kulo mshini
+programme sound is always included; use WEBMONITOR OFF to stop the monitor	umsindo we-PROGRAM uhlale ufakiwe; sebenzisa WEBMONITOR OFF ukumisa isibonisi
+phone control requires an 8+ character passphrase	ukulawula ngefoni kudinga umushwana oyimfihlo onezinhlamvu ezingu-8+
+set an 8+ character Web Monitor passphrase first	qala ngokusetha umushwana oyimfihlo wesibonisi sewebhu onezinhlamvu ezingu-8+
+network sharing and phone control require an 8+ character passphrase	ukwabelana kunethiwekhi nokulawula ngefoni kudinga umushwana oyimfihlo onezinhlamvu ezingu-8+
+paired phones removed: they need the QR code or the passphrase again	amafoni abhanqiwe asusiwe: adinga ikhodi ye-QR noma umushwana oyimfihlo futhi
+WEBMONITOR QR: needs the monitor on and shared on the network	WEBMONITOR QR: kudinga isibonisi sivulwe futhi kwabelwane ngaso kunethiwekhi
+WEBMONITOR SOURCE: PROGRAMME or the number of an output that shows a picture	WEBMONITOR SOURCE: PROGRAMME noma inombolo yokukhiphayo okubonisa isithombe
+brightness moves the playhead (needs CPU frames)	ukukhanya kunyakazisa ikhanda lokudlala (kudinga amafreyimu e-CPU)
+centred and full-frame - moves when the picture does	kuphakathi futhi kugcwele ifreyimu - kunyakaza lapho isithombe sinyakaza
+follows this cue's own brightness (needs CPU frames)	kulandela ukukhanya kwale cue uqobo (kudinga amafreyimu e-CPU)
+full-frame and no picture - bends when the picture shrinks	kugcwele ifreyimu futhi akukho sithombe - kugoba lapho isithombe sincipha
+mic live on the default speakers - watch for feedback	imakrofoni ibukhoma kuzipikha ezizenzakalelayo - qaphela impinda yomsindo
+motion on: the camera is read, never recorded	ukunyakaza kuvuliwe: ikhamera iyafundwa, ayiqoshwa
+no picture - shorts run on a timer instead of on cuts	akukho sithombe - amasekethe amafushane asebenza ngesibali sikhathi esikhundleni sokusika
+no picture on this cue - nothing decides where the playhead is	ayikho isithombe kule cue - akukho okunquma indawo yekhanda lokudlala
+on the dashboard - Ctrl+D or the DASH button	kudeshibhodi - Ctrl+D noma inkinobho ye-DASH
+output effects bypassed: no effect and no limit on this device	imiphumela yokukhipha yeqiwe: akukho mphumela futhi akukho mkhawulo kule divayisi
+output recover failed: fullscreen unavailable	ukubuyiselwa kokukhiphayo kuhlulekile: isikrini esigcwele asitholakali
+over 16 MB: not a drawing to make a mask from	ngaphezu kuka-16 MB: akuwona umdwebo wokwakha imaski
+Page Down / Page Up step the focused playlist	Page Down / Page Up kuqhubekisa uhlu lokudlala olukhethiwe
+pair with a picture effect whose LFO is set to Audio	bhangqa nomphumela wesithombe one-LFO esethelwe kuMsindo
+Port the Node + Connection API serve on	Imbobo okusebenza kuyo i-Node + Connection API
+recordings remux to MP4 when the take stops	okuqoshiwe kuphinde kufakwe ku-MP4 uma ukuqopha kuma
+Seconds for new image/pattern/browser/Lower Third cues (0 = hold)	Imizuzwana yama-cue amasha esithombe/iphethini/isiphequluli/Lower Third (0 = bamba)
+Seconds for new-cue fade in/out defaults	Imizuzwana yokuqala yokufiphala kokungena/ukuphuma kwama-cue amasha
+the background alpha belongs to a Lower Third	i-alpha yesizinda ingeye-Lower Third
+TRACKER SET: a step cannot act on its own playlist	TRACKER SET: isinyathelo asikwazi ukusebenza ohlwini lwaso lokudlala
+VIDEO OUTPUT LAYER: expected a layer number (1 is the base)	VIDEO OUTPUT LAYER: kulindelwe inombolo yongqimba (u-1 uyisisekelo)
+WARP AT: open the editor (WARP EDIT) and select a point first	WARP AT: vula umhleli (WARP EDIT) bese ukhetha iphoyinti kuqala
+what the operator should be told when GO reaches here	okufanele kutshelwe umqhubi lapho GO ifika lapha
+what the patch and the cues call it (FOH, SUB, PRESS FEED)	igama elisetshenziswa yi-patch nama-cue (FOH, SUB, PRESS FEED)
+Where to send transport (blank = broadcast)	Indawo yokuthumela imiyalo yokudlala (okungenalutho = sakaza)
+Which switcher input Deckboy is (0 = not set)	Ukufaka kwesishintshi okusetshenziswa yi-Deckboy (0 = akusethiwe)
+DMXCUE FIXTURE: expected <name> <level%>|LEAVE [<colour>]	DMXCUE FIXTURE: kulindelwe <name> <level%>|LEAVE [<colour>]
+DMXCUE LFO: expected <name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]	DMXCUE LFO: kulindelwe <name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]
+FIXTURE ADD: expected <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]	FIXTURE ADD: kulindelwe <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]
+MASK ASSIGN: expected <id|NONE> CUE | LAYER <output> <playlist> | OUTPUT <n> | MATTE <n>	MASK ASSIGN: kulindelwe <id|NONE> CUE | LAYER <output> <playlist> | OUTPUT <n> | MATTE <n>
+MASK LFO: expected <id> <param> ON|OFF [rate Hz] [depth %]	MASK LFO: kulindelwe <id> <param> ON|OFF [rate Hz] [depth %]
+rectc: expected <hh:mm:ss:ff|timeofday> [df|ndf|auto]	rectc: kulindelwe <hh:mm:ss:ff|timeofday> [df|ndf|auto]
+presenter colour: expected BG|INK|ACCENT #rrggbb	presenter colour: kulindelwe BG|INK|ACCENT #rrggbb
+expected waveform|scope|lissajous|spectrum|level|cover	kulindelwe waveform|scope|lissajous|spectrum|level|cover
+TRACKER: expected GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP or CLICKER	TRACKER: kulindelwe GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP noma CLICKER
+A worn or dirty head: softer, with noise that streaks along the lines.	Ikhanda eligugile noma elingcolile: ukuthamba nomsindo onemigqa elandela imigqa yesithombe.
+A slow rocking of the viewpoint, which is what makes the depth read without glasses.	Ukunyakaza kombono kancane okwenza ukujula kubonakale ngaphandle kwezibuko.
+A slow sag in the supply, pulling the filter up and down like a dying battery.	Ukwehla kwamandla kancane okudonsa isihlungi phezulu naphansi njengebhethri eliphelayo.
+An old deck: the picture wobbles, bends at the top of the frame and carries hum bars.	Idekhi endala: isithombe siyanyakaza, sigobe phezulu kwefreyimu sibe namabhande okuphazamiseka kukagesi.
+An old tape loses bits of its oxide: dropouts flick white and repeat the line above, and the colour fizzes.	Ithephu endala ilahlekelwa izingcezu ze-oxide: ukulahleka kwesignali kucwayiza kumhlophe kuphinde umugqa ongenhla, nombala uyaphazamiseka.
+Copies of copies: none at the left, four at the right. Each one loses more.	Amakhophi amakhophi: awekho kwesobunxele, amane kwesokudla. Ngamunye ulahlekelwa okwengeziwe.
+How abruptly it arrives. Low is a soft cloud, high is a hard porthole.	Ukuvela ngokuzumayo. Okuphansi yifu elithambile, okuphezulu yimbobo eyindilinga enomphetho oqinile.
+How bright a pixel has to be before it lifts at all, so only the highlights spike.	Ukukhanya iphikseli elikudingayo ukuze liphakame, kube yizingxenye ezikhanya kakhulu kuphela eziba yiziqongo.
+How deep the picture is treated as being. The brightness becomes height and is lit from the side.	Ukujula okunikwa isithombe. Ukukhanya kuba ukuphakama bese kukhanyiswa eceleni.
+How far away. Distance dulls the top and softens the difference between the ears.	Ibanga. Ibanga lithulisa umsindo ophakeme lithambise umehluko phakathi kwezindlebe.
+How far back each skip jumps, from a stutter to half a second.	Ibanga ukweqa ngakunye okubuyela ngalo emuva, kusukela ekungingizeni kuya engxenyeni yomzuzwana.
+How gently the change fades out at the edges of the band.	Ukuthamba kokufiphala koshintsho emaphethelweni ebhande.
+How hard it holds once it is working. Gentle at the bottom, a limiter at the top.	Amandla okubamba lapho kusebenza. Kuthambile phansi, kuyisikhawuli phezulu.
+How irregular the growth is. Low gives an even honeycomb, high gives long shards.	Ukungalingani kokukhula. Okuphansi kwakha ikhekheba lezinyosi elilinganayo, okuphezulu kwakha izicucu ezinde.
+How long it is allowed to run. More steps means the ripples have crossed and reflected more times.	Ubude besikhathi esivunyelwe ukusebenza. Izinyathelo eziningi zisho ukuthi amagagasi awele aphinde abonakale izikhathi eziningi.
+How long the reaction runs each frame. Short is a stain, long is an organism.	Ubude bokusabela kufreyimu ngayinye. Okufushane kuyibala, okude kuyinto ephilayo.
+How many places drip: a few big drips at the left, many thin ones at the right.	Inani lezindawo eziconsayo: amaconsi amakhulu ambalwa kwesobunxele, amaningi amancane kwesokudla.
+How much of the picture glows: only the brightest at the left, nearly everything at the right.	Ingxenye yesithombe ekhanyayo: ekhanya kakhulu kuphela kwesobunxele, cishe konke kwesokudla.
+How much of the picture shows behind the lines. None at the left: lines on black.	Ingxenye yesithombe ebonakala ngemuva kwemigqa. Ayikho kwesobunxele: imigqa kokumnyama.
+How quickly the room eats the top end. More damping is a softer, more furnished space.	Ijubane igumbi elimunca ngalo umsindo ophakeme. Ukumuncwa okuningi kusho indawo ethambile enefenisha eningi.
+How readily an edge catches. Low sets the whole picture alight, high only the hardest lines.	Ukulula kokuvutha komphetho. Okuphansi kuvuthisa isithombe sonke, okuphezulu imigqa eqinile kakhulu kuphela.
+How wide a view is being compressed. Narrow is a punch down the middle, wide folds the whole frame into the centre.	Ububanzi bombono ocindezelwayo. Omncane ushaya phakathi, obanzi ugoqa ifreyimu yonke iye phakathi.
+Line pitch in pixels, so this reads at 4K as well as at 720.	Isikhala semigqa ngamaphikseli ukuze kubonakale ku-4K naku-720.
+The head drifting off the track: a band of noise rolls through the picture.	Ikhanda liphambuka emzileni: ibhande lomsindo ligingqika esithombeni.
+Two is a mirror, twelve is a snowflake, and they are completely different pictures.	Okubili kuyisibuko, ishumi nambili liyikhekheba leqhwa, futhi kuyizithombe ezihluke ngokuphelele.
+8+ characters; other machines send AUTH <passphrase> first. Empty = off	Izinhlamvu ezingu-8+; eminye imishini ithumela AUTH <passphrase> kuqala. Akunalutho = kuvaliwe
+A command line, as a DASH button runs it. {value} is the knob's number, {note} the key.	Umugqa womyalo, njengoba inkinobho DASH iwusebenzisa. {value} yinombolo yeknobhu, {note} ukhiye.
+AUDIOALSO ADD: that is already this deck's main device -- it would play twice	AUDIOALSO ADD: leyo sekuvele iyidivayisi eyinhloko yale dekhi -- izodlala kabili
+CHIP DUTY: this cue is an FDS synth, which has no duty	CHIP DUTY: le cue iyi-synth FDS, engenayo i-duty
+CHIP NOISE: this cue is an FDS synth, which has no noise	CHIP NOISE: le cue iyi-synth FDS, engenawo umsindo ongahlelekile
+CHIP VOICE: this cue is an FDS synth, which has no voice	CHIP VOICE: le cue iyi-synth FDS, engenalo izwi
+Chladni listens: the figure follows the pitch of the sound	I-Chladni iyalalela: isimo silandela ukuphakama komsindo
+DATAMOSH on - preparing (long clip, watch Encoder tab)	DATAMOSH ivuliwe - iyalungisa (isiqeshana eside, bheka ithebhu Yesifaki khodi)
+Degrees per second, -720 to 720 (supports + - * / and ())	Amadigri ngomzuzwana, -720 kuya ku-720 (isekela + - * / kanye no-())
+Degrees round the colour wheel, 0-360 (supports + - * / and ())	Amadigri esondweni lombala, 0-360 (isekela + - * / kanye no-())
+EDIT is off - press EDIT to type into the tracker	EDIT ivaliwe - cindezela EDIT ukuze uthayiphe ku-tracker
+HH:MM or HH:MM:SS on this computer's clock; empty for none	HH:MM noma HH:MM:SS ewashini lale khompyutha; shiya kungenalutho uma kungekho
+HH:MM:SS:FF of the timecode Deckboy is chasing; empty for none	HH:MM:SS:FF yekhodi yesikhathi elandelwa yi-Deckboy; shiya kungenalutho uma kungekho
+IPv4 addresses or a.b.c.d/bits, comma separated; empty = only this computer	Amakheli IPv4 noma a.b.c.d/bits, ahlukaniswe ngokhefana; akunalutho = le khompyutha kuphela
+Iris	Imbobo yelensi
+Lissajous (L/R phase)	Lissajous (isigaba L/R)
+MASK SHAPE: expected a shape (MASK SHAPES lists them)	MASK SHAPE: kudingeka isimo (MASK SHAPES izibhala zonke)
+MIC INPUT: expected SETTINGS, TEST or a device name (MIC LIST)	MIC INPUT: kudingeka SETTINGS, TEST noma igama ledivayisi (MIC LIST)
+MIC: select a mic cue first (MIC ADD makes one)	MIC: khetha i-cue yemakrofoni kuqala (MIC ADD iyayakha)
+MIDIFILE: expected PORT, or no argument to report it	MIDIFILE: kudingeka PORT, noma kungabi napharamitha ukuze ibikwe
+NDI source name (e.g. LAPTOP (source 1))	Igama lomthombo NDI (isib. LAPTOP (umthombo 1))
+NEWSHOW: something is live or unsaved -- send NEWSHOW again within 2.5 s	NEWSHOW: kukhona okudlalayo noma okungalondoloziwe -- thumela NEWSHOW futhi phakathi kuka-2.5 s
+NIC address or name; empty = the default route	Ikheli noma igama NIC; akunalutho = umzila ozenzakalelayo
+NIC name reported in interface_bindings (e.g. eth0)	Igama NIC elibikwe ku-interface_bindings (isib. eth0)
+OUTPUT AOI: expected a size like 256x256, or FULL	OUTPUT AOI: kudingeka usayizi ofana no-256x256, noma FULL
+OUTPUT HDR WHITE: expected 80..500 nits (203 is BT.2408)	OUTPUT HDR WHITE: kudingeka 80..500 nits (203 ngu-BT.2408)
+Output height in px - math ok: 1080x2, 2160/2, 540+30	Ukuphakama kokuphumayo ngama-px - ukubala kuvunyelwe: 1080x2, 2160/2, 540+30
+Output width in px - math ok: 1920x2, 3840/2, 960+64	Ububanzi bokuphumayo ngama-px - ukubala kuvunyelwe: 1920x2, 3840/2, 960+64
+PIP: retired -- scale a second deck over this one instead	PIP: isusiwe -- shintsha usayizi wedekhi yesibili phezu kwalena
+Registry URL (e.g. http://192.168.1.50:8010) - blank for mDNS	URL yokubhalisa (isib. http://192.168.1.50:8010) - shiya kungenalutho nge-mDNS
+SCOPES SOURCE: expected PROGRAMME or an output number, 1-	SCOPES SOURCE: kudingeka PROGRAMME noma inombolo yokuphumayo, 1-
+SMPTE hh:mm:ss:ff or seconds (blank = 00:00:00:00)	SMPTE hh:mm:ss:ff noma imizuzwana (akunalutho = 00:00:00:00)
+SOURCE WINDOW: name the window, e.g. title:Firefox (or "desktop")	SOURCE WINDOW: qamba iwindi, isib. title:Firefox (noma "desktop")
+Stream URL (srt://, rtmp://, rtsp://, udp://, or an http HLS .m3u8)	URL yokusakaza (srt://, rtmp://, rtsp://, udp://, noma i-http HLS .m3u8)
+TSL Tally	Isibani TSL
+TUTORIAL SCREENS: expected a count, MIRRORED or REAL	TUTORIAL SCREENS: kudingeka inani, MIRRORED noma REAL
+a note number 0-127, LEARN to take the next note played, or empty for none	Inombolo yenothi 0-127, LEARN ukuthatha inothi elilandelayo elidlalwayo, noma shiya kungenalutho uma kungekho
+atem tally on -- set which input Deckboy is	Isibani ATEM sivuliwe -- setha ukuthi i-Deckboy ingukuphi okokufaka
+browser connections at once, 1-64 (default 8)	Ukuxhumana kweziphequluli ngesikhathi esisodwa, 1-64 (okuzenzakalelayo 8)
+can't move the active cue -- take another cue on this deck first	Awukwazi ukususa i-cue edlalayo -- dlalisa enye i-cue kule dekhi kuqala
+click anywhere on any screen to take its colour. Esc cancels	Chofoza noma kuphi kunoma yisiphi isikrini ukuthatha umbala waso. Esc iyakhansela
+click program or preview monitor to sample key color	Chofoza imonitha PROGRAM noma yokubuka kuqala ukukhetha umbala we-key
+couldn't open a browser -- please report at github.com/Utopian-Academy/Deckboy/issues	Akukwazanga ukuvula isiphequluli -- bika ku-github.com/Utopian-Academy/Deckboy/issues
+e.g. /stage/doors -- sent to Deckboy's OSC port; empty for none	Isib. /stage/doors -- ithunyelwa embobeni OSC ye-Deckboy; shiya kungenalutho uma kungekho
+esc: control window - again to clear output	esc: iwindi lokulawula - futhi ukuze usule okuphumayo
+milliseconds (20-8000; ~4x your RTT)	Ama-millisecond (20-8000; ~4x i-RTT yakho)
+ndi tally trigger on -- program tally takes the cue	Isicuphi sesibani NDI sivuliwe -- isibani PROGRAM sidlalisa i-cue
+nmos: network is LOCAL ONLY - not registering	nmos: inethiwekhi EYASEKHAYA KUPHELA - ayibhalisi
+no OpenGL pixel format available for Spout receive	Ayikho ifomethi yephikseli OpenGL yokwamukela i-Spout
+no masks yet: make one in a cue's MASK section	Awekho amamaski okwamanje: yakha eyodwa esigabeni MASK se-cue
+nothing to mask here: select a cue, or change MASK ON	Akukho okokufihla lapha: khetha i-cue, noma shintsha MASK ON
+phones need THE NETWORK: set 'Who can see it' first	Amafoni adinga INETHIWEKHI: setha 'Ubani ongayibona' kuqala
+pip: retired -- scale a second deck over this one instead	pip: isusiwe -- shintsha usayizi wedekhi yesibili phezu kwalena
+save failed - retrying; still open, use SAVE AS if needed	Ukulondoloza kwehlulekile - izama futhi; isavuliwe, sebenzisa SAVE AS uma kudingeka
+select a Draw cue first (SOURCE > MADE BY DECKBOY > Draw)	Khetha i-cue yokudweba kuqala (SOURCE > MADE BY DECKBOY > Draw)
+something mellow appeared in SOURCE > MADE BY DECKBOY	Kuvele okuthile okuthambile ku-SOURCE > MADE BY DECKBOY
+sound scopes: integrated loudness and true peak start again	Izilinganiso zomsindo: ubukhulu obuhlanganisiwe nenani eliphakeme langempela kuqala phansi
+that key drives the desk - use F1-F10, F12 or the number pad	Lowo khiye ulawula ideski - sebenzisa F1-F10, F12 noma iphedi yezinombolo
+update: cannot find this app bundle to replace	Isibuyekezo: ayikwazi ukuthola iphakheji yalolu hlelo ukuze ilishintshe
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono (supports + - * / and ())	0 okuvamile, 1 umlilo, 2 iqhwa, 3 i-neon, 4 mono (isekela + - * / kanye no-())
+0 flows ALONG the edges, so colour orbits the shapes. 1 flows across them, which bleeds the picture into itself.	0 igeleza ILANDELA imiphetho, umbala ujikeleze izimo. 1 igeleza inqamule kuzo, isabalalise isithombe phakathi kwaso.
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono (supports + - * / and ())	0 uthingo + mpunga, 1 uthingo, 2 itimu, 3 mono (isekela + - * / kanye no-())
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear (supports + - * / and ())	0 indawo, 1 okubili, 2 ukugeleza, 3 isihlalo, 4 amagagasi, 5 ukushelela (isekela + - * / kanye no-())
+0-100%: the share of each band drawn as grey stripes (supports + - * / and ())	0-100%: ingxenye yebhande ngalinye edwetshwa njengemigqa empunga (isekela + - * / kanye no-())
+ASCII WOBBLEMODE: drift | flow (follows luma) | hue (follows colour); no argument cycles	ASCII WOBBLEMODE: drift | flow (ilandela ukukhanya) | hue (ilandela umbala); ngaphandle kwepharamitha kushintsha ngokulandelana
+ASCII: the selected cue has no text mode (add the TEXT MODE effect, or select a video synth cue)	ASCII: i-cue ekhethiwe ayinayo imodi yombhalo (engeza umphumela TEXT MODE, noma khetha i-cue ye-synth yevidiyo)
+ASCII: use ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>	ASCII: sebenzisa ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>
+BLEND PAIR: expected <other output number> <overlap in pixels>	BLEND PAIR: kudingeka <inombolo yokunye okuphumayo> <ukudlulela ngamaphikseli>
+Below the middle narrows toward mono -- which is what a single PA cluster is. Above it widens.	Ngaphansi kwaphakathi kunciphisa kuye ku-mono -- okuyindlela yeqoqo elilodwa lezipikha PA. Ngaphezulu kwakhona kuyanwebeka.
+Blueshift toward the direction of travel and redshift at the rim. Zero leaves the colour alone and it reads as a lens instead.	Kushintshela koluhlaza okwesibhakabhaka lapho kuya khona nokubomvu onqenqemeni. Uziro ugcina umbala ufana futhi kubukeka njengelensi.
+Bright: bright things drip over the dark, as text and logos do. Whole picture: everything is wax, and the picture itself runs down in its own colours.	Okukhanyayo: izinto ezikhanyayo ziconsela ebumnyameni, njengombhalo namalogo. Isithombe sonke: konke kuyi-wax, isithombe sigelezela phansi ngemibala yaso.
+Centre is a straight line. Up bends it into an S -- darker shadows, brighter highlights, more contrast. Down flattens it.	Phakathi kungumugqa oqondile. Phezulu kugoba kube u-S -- izithunzi ezimnyama, izindawo ezikhanyayo, ukugqama okuningi. Phansi kuyasithelelisa.
+Characters across. Fewer means bigger cells and less of the picture surviving, which is usually the point.	Izinhlamvu ngobubanzi. Ezimbalwa zenza amaseli amakhulu nesithombe esincane esisele, okuvame ukuba yinhloso.
+Characters to build the picture from, darkest first. Empty uses the chosen glyph set.	Izinhlamvu zokwakha isithombe, ezimnyama kuqala. Akunalutho kusebenzisa iqoqo lezimpawu elikhethiwe.
+Colour is recorded at a fraction of the detail: it smears sideways, lands late and its hue wanders.	Umbala uqoshwa ngemininingwane embalwa: ugcwala emaceleni, ufika sekwephuzile futhi ithoni yawo iyazulazula.
+DASH SET: needs a command -- DASH SET <n> <label> | <command> [| <glyph>]	DASH SET: kudingeka umyalo -- DASH SET <n> <label> | <command> [| <glyph>]
+DMXCUE SET: expected channel=level pairs, e.g. 1=255,10-14=64	DMXCUE SET: kudingeka amapheya channel=level, isib. 1=255,10-14=64
+DRAW COLOUR: #rrggbb, #rrggbbaa, a name, or 1-8 for the palette	DRAW COLOUR: #rrggbb, #rrggbbaa, igama, noma 1-8 yepalethi
+DRAW TOOL: brush, erase, line, box, oval or fill	DRAW TOOL: brush, erase, line, box, oval noma fill
+Devamp	Phuma ku-loop
+FADE TO: a speed from 0.25 to 4 (0.5 is half speed, an octave down)	FADE TO: isivinini esisuka ku-0.25 kuya ku-4 (0.5 uhhafu wesivinini, i-octave eyodwa phansi)
+FADE WHAT: expected opacity, volume, dimmer, brightness, contrast, saturation, hue, effect, audiofx or speed	FADE WHAT: kudingeka opacity, volume, dimmer, brightness, contrast, saturation, hue, effect, audiofx noma speed
+FX LFO wants <index> <slot> <on|off|shape> [value]	FX LFO idinga <index> <slot> <on|off|shape> [value]
+FX LFO: on, off, shape, rate, depth, zone, channel or cc	FX LFO: on, off, shape, rate, depth, zone, channel noma cc
+FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR	FX: sebenzisa LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR
+Fields per frame, 0-4 (1 = one field per rendered frame) (supports + - * / and ())	Izinkambu ngefremu, 0-4 (1 = inkambu eyodwa ngefremu enikeziwe) (isekela + - * / kanye no-())
+Flip across, upside down or both, or fold one half onto the other: right onto left, left onto right, bottom onto top, top onto bottom, or one corner into all four.	Phendula ngokuvundla, ubhekise phansi noma kokubili, noma ugoqe uhhafu phezu komunye: kwesokudla phezu kwesobunxele, kwesobunxele phezu kwesokudla, phansi phezu phezulu, phezulu phezu phansi, noma ikhoneni elilodwa kuwo omane.
+GEOLFO: x, y, width, height, rotation, cropleft, cropright, croptop or cropbottom	GEOLFO: x, y, width, height, rotation, cropleft, cropright, croptop noma cropbottom
+How bright a pixel has to be to join a run. Lower catches more of the picture and the runs grow longer.	Ukukhanya iphikseli elikudingayo ukuze lijoyine umugqa. Okuphansi kuthatha isithombe esiningi nemigqa ibe mide.
+How faint a gradient still registers. High turns the quietest shading into visible structure.	Ubuthakathaka begradiyenti esakwazi ukubonakala. Okuphezulu kwenza nokufiphala okuncane kubonakale njengesakhiwo.
+How far back the chain listens. The picture is played through a delay, so this is the distance the damage is dragged across.	Ubude bokubuyela emuva iketango elilalelayo. Isithombe sidlalwa ngokubambezeleka, ngakho leli yibanga umonakalo ohudulwa kulo.
+How far the burn spreads off the edge, and how hot its colour runs.	Ukude ukusha okusabalala kusuka onqenqemeni, nokushisa kombala wako.
+How far the colour turns on each trip round the loop. This is the oil-slick: the trail walks through the spectrum instead of fading.	Ukuthi umbala ujika kangakanani ngomjikelezo ngamunye. Lokhu kufana namafutha: umkhondo udlula kuyo yonke imibala esikhundleni sokufiphala.
+How far the picture stands out. Bright parts come forward, dark parts stay back. At the left it is flat.	Ukuthi isithombe siphuma kangakanani. Okukhanyayo kuza phambili, okumnyama kusale emuva. Ngakwesobunxele siyisicaba.
+How far the picture swings the filter. The cue's own brightness opens and closes it, so a cut to black takes the top off the sound.	Ukuthi isithombe sisinyakazisa kangakanani isihlungi. Ukukhanya kwe-cue kuyasivula kusivale, ngakho ukusika kube mnyama kususa amafrikhwensi aphezulu emsindweni.
+How far the top comes down as the end approaches. This is not a fade: the level is left alone.	Ukuthi amafrikhwensi aphezulu ehla kangakanani lapho kusondela isiphetho. Lokhu akuyona i-fade: izinga lomsindo ligcinwa.
+How fast it settles away while held. At zero it holds indefinitely, which is what room tone under a held title wants.	Ukushesha kokunyamalala lapho kubanjiwe. Kuziro kuhlala njalo, njengomsindo wegumbi ngaphansi kwesihloko esimile.
+How fast the open slit crosses the picture. Slow smears a long moment across the frame.	Ukushesha kwesikhala esivulekile lapho siwela isithombe. Kancane kusabalalisa umzuzu omude kuyo yonke ifremu.
+How fast the wave travels. Faster spreads further in the same time and interferes more.	Ukushesha kokuhamba kwegagasi. Okusheshayo kusabalala kude ngesikhathi esifanayo bese kuphazamisana kakhulu.
+How fast what has dripped hardens away. At the left the drips stay until the cue changes.	Ukushesha kokuqina nokunyamalala kokuconsile. Ngakwesobunxele amaconsi ahlala kuze kushintshe i-cue.
+How fine the water is. Long ocean swell at one end, rain on a puddle at the other.	Ubuncane bamagagasi amanzi. Amagagasi olwandle amade ngakolunye uhlangothi, imvula echibini ngakolunye.
+How hard the light gathers where the rays converge. This is the part that makes it read as water rather than as a wobble.	Ukuqoqana kokukhanya lapho imisebe ihlangana khona. Lokhu kwenza kubonakale njengamanzi kunokunyakaza nje.
+How hard the moving parts throw sand. More shake clears the plate faster and makes the lines thinner.	Amandla izingxenye ezinyakazayo eziphonsa ngawo isihlabathi. Ukunyakaza okuningi kusula ipuleti ngokushesha futhi kwenze imigqa ibe mincane.
+How long a grain is, in VIDEO FRAMES. On a 23.976 clip one frame is 41.7ms, which is not a musical value and is exactly the point.	Ubude bohlamvu, ngamafremu EVIDIYO. Esiqeshaneni esingu-23.976 ifremu eyodwa ingu-41.7ms, okungelona inani lomculo futhi kuyiyona nhloso.
+How long before the end it starts. The cue has to have a known length -- an open-ended one has no end to resolve into.	Isikhathi ngaphambi kwesiphetho okuqala ngaso. I-cue idinga ubude obaziwayo -- evulekile ayinaso isiphetho sokuxazululela kuso.
+How long the old waves linger when the note changes. Left: they die at once. Right: they slosh for a while.	Ukuthi amagagasi amadala ahlala isikhathi esingakanani lapho inothi lishintsha. Kwesobunxele: afa ngokushesha. Kwesokudla: anyakaza isikhashana.
+How much each facet catches the light, which is what makes them read as faceted rather than as flat blobs.	Ukuthi uhlangothi ngalunye lubamba ukukhanya kangakanani, ukuze lubonakale lunezicaba ezihlukene kunamabala ayisicaba.
+How much its SIZE becomes distance. Shrink the picture and the sound goes away from you: the top comes off, the image narrows, the level drops.	Ukuthi USAYIZI uba ibanga kangakanani. Nciphisa isithombe nomsindo uyasuka kuwe: okuphezulu kuyancipha, ububanzi bomsindo buyancipha, nezinga liyehla.
+How much of the bent picture goes round again. High is where it stops being an echo and starts eating itself.	Ubungako besithombe esigobile obujikeleza futhi. Okuphezulu kuyeka ukuba yi-echo bese kuqala ukuzidla.
+How much of the driver's movement the picture KEEPS. At zero it follows the driver frame by frame, which is a twitch. Wind it up and the motion accumulates, so the driver sculpts the picture over time and it holds the pose -- which is what puppetry means.	Ukuthi isithombe SIGCINA ukunyakaza komshayeli kangakanani. Kuziro silandela ifremu ngayinye, kube ukuqhaqhazela. Kukhuphule ukunyakaza kuqoqeke, umshayeli abumbe isithombe ngokuhamba kwesikhathi sigcine isimo -- njengopopayi odonswa ngezintambo.
+How much of the picture's position on the output is used. A PIP on the left sounds on the left -- and it is a placement, not a pan: the far ear gets the delay and the head shadow too.	Ukuthi kusetshenziswa kangakanani indawo yesithombe kokuphumayo. I-PIP kwesobunxele izwakala kwesobunxele -- yindawo, akuyona i-pan: indlebe ekude ithola ukubambezeleka nesithunzi sekhanda.
+How much of the tail is kept going while the cue is held. Long enough to hide the splice in room tone, short enough not to smear a rhythm in it.	Ubungako bomsila oqhubekayo lapho i-cue ibanjiwe. Ube mude ukufihla ukuhlanganisa emsindweni wegumbi, ube mfushane ukuze ungafiphazi isigqi.
+How much room comes up under it, so the sound settles into the cut instead of being severed.	Ubungako bomsindo wegumbi obuvela ngaphansi kwawo, ukuze umsindo uphumule ekusikeni esikhundleni sokunqunywa.
+How much the echo is distorted each pass. It compounds, so a little ripples and a lot melts the picture into itself.	Ukuthi i-echo ihlanekezelwa kangakanani ngomjikelezo ngamunye. Kuyaqoqeka: okuncane kudala amagagasi, okuningi kuncibilikise isithombe phakathi kwaso.
+How much the material draws in towards each drip, so it runs as a thin neck with a heavier head.	Ukuthi into ihlangana kangakanani ngaseconsini ngalinye, yenze intamo encane nekhanda elisindayo.
+How often its settings are corrupted. Corrupted far enough it oscillates on its own -- loud, but it cannot run away.	Ukuvama kokonakala kwezilungiselelo. Uma konakele ngokwanele kuyazishwiba -- kukhulu umsindo, kodwa akukwazi ukuphunyuka emkhawulweni.
+How quickly the picture springs back to rest once the driver stops pushing it. Only does anything when memory is up.	Ukushesha kokubuyela kwesithombe ekuphumuleni lapho umshayeli eyeka ukusisunduza. Kusebenza kuphela lapho inkumbulo ikhuphukile.
+How small a cut sets it off. With no picture it runs on a timer instead, and this is how often.	Ukuncane kokusika okusiqalisa. Ngaphandle kwesithombe sisebenzisa isibali sikhathi, lokhu kusetha ukuvama.
+How strongly the finished picture pushes the bend. Pair it with a picture effect whose LFO is set to Audio and the two drive each other.	Amandla isithombe esiqediwe esisunduza ngawo ukugoba. Sibhanqe nomphumela wesithombe one-LFO esethwe ku-Audio ukuze kushayelane.
+LFO: density, speed, warp, turn, centrex, centrey, grey or hue	LFO: density, speed, warp, turn, centrex, centrey, grey noma hue
+Lift or cut, 12dB either way. The centre is flat, so a band that has just been added does nothing until this is moved.	Nyusa noma wehlise, 12dB nhlangothi zombili. Phakathi kuyisicaba, ibhande elisha alenzi lutho kuze kunyikinywe lokhu.
+Light on the drips, as on something wet: a gloss where it faces the light, darker where it curls away.	Ukukhanya emaconsini, njengento emanzi: ukucwebezela lapho kubheke ekukhanyeni, ubumnyama lapho kugobela kude.
+MASK SET: expected INVERT, X, Y, SCALE, ROTATION, FEATHER, GROW or OPACITY and a number	MASK SET: kudingeka INVERT, X, Y, SCALE, ROTATION, FEATHER, GROW noma OPACITY nenombolo
+MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> or OSC <address> [<n>], then CH <1-16> if not channel 1	MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> noma OSC <address> [<n>], bese CH <1-16> uma kungesona isiteshi 1
+MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET or FEEDBACK	MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET noma FEEDBACK
+MULTIVIEW WINDOW <n>: expected a source, or SAFE/METER/LABEL ON|OFF	MULTIVIEW WINDOW <n>: kudingeka umthombo, noma SAFE/METER/LABEL ON|OFF
+Moves the direction of travel off the centre of frame, so the picture rushes past rather than straight at you.	Isusa indlela yokuhamba maphakathi nefremu, ukuze isithombe sidlule eceleni kwakho kunokuza ngqo kuwe.
+N=new  Enter/P=previous  O=open saved  E=examples  L=learn  1-	N=okusha  Enter/P=okwedlule  O=vula okulondoloziwe  E=izibonelo  L=funda  1-
+NMOS: NOT registering - network is LOCAL ONLY (turn REMOTE ON to publish)	NMOS: AYIBHALISI - inethiwekhi EYASEKHAYA KUPHELA (vula REMOTE ON ukuze ushicilele)
+OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <sender name>	OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <igama lomthumeli>
+One knob for the whole balance: below the middle is darker, above it is brighter.	Iknobhu eyodwa yokulinganisa konke: ngaphansi kwaphakathi kumnyama, ngaphezulu kuyakhanya.
+Original: the picture pulled onto the figure. Sand: the picture as grains that are thrown off the moving parts and pour into each new figure. Fluid: the picture under water on the plate, bent and lit by its standing waves.	Okwasekuqaleni: isithombe sidonselwa esimweni. Isihlabathi: isithombe siyizinhlamvu eziphonswa yizingxenye ezinyakazayo bese zigelezela esimweni esisha ngasinye. Uketshezi: isithombe singaphansi kwamanzi epuletini, sigotshwa sikhanyiswe amagagasi aso amile.
+PHONE LEVEL: removed -- a paired phone or the passphrase can do everything; BLACKOUT and RECORD are hold-to-fire on the phone	PHONE LEVEL: isusiwe -- ifoni ebhanqiwe noma umushwana wokungena ungenza konke; BLACKOUT no-RECORD kudinga ukubamba ukuze kusebenze ocingweni
+PowerPoint could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)	I-PowerPoint ayikwazanga ukuthumela leli fayela (ingadinga imvume yokulawulwa ngokuzenzakalela: Izilungiselelo Zesistimu > Ubumfihlo Nokuphepha > Ukuzenzakalela)
+PowerPoint could not open the file (it gave up waiting for it). If it is in OneDrive, right-click it and choose Always keep on this device, then import it again	I-PowerPoint ayikwazanga ukuvula ifayela (iyekile ukulilinda). Uma liku-OneDrive, chofoza kwesokudla ukhethe Gcina njalo kule divayisi, bese ulingenisa futhi
+Pulls the bright tones down without moving pure white, so a hot highlight rolls off instead of clipping.	Yehlisa amathoni akhanyayo ngaphandle kokunyakazisa okumhlophe qwa, ukuze ukukhanya okukhulu kwehle ngokushelela kunokunqamuka.
+Rotates the reading, so straight lines wind into spirals rather than rings.	Ijika ukufunda, imigqa eqondile ibe yizivunguvungu kunezindilinga.
+Rows lose sync and repeat one character, the way a real text screen breaks up. At 0 the grid is clean.	Imigqa ilahlekelwa ukuvumelanisa iphindaphinde uhlamvu, njengokuphazamiseka kwesikrini sangempela sombhalo. Ku-0 igridi ihlanzekile.
+SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, LINEAR, PERSPECTIVE or NAME	SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, LINEAR, PERSPECTIVE noma NAME
+SLICE CORNER: TL, TR, BR or BL, then dx dy in percent of the output	SLICE CORNER: TL, TR, BR noma BL, bese dx dy ngephesenti lokuphumayo
+SLICE EDGE: L, R, T or B, then 0-50 (% of the slice)	SLICE EDGE: L, R, T noma B, bese 0-50 (% wocezu)
+SLICE GRID POINT: col row (from 1, on a grid that is on) then dx dy in percent	SLICE GRID POINT: col row (kusuka ku-1, kugridi evuliwe) bese dx dy ngephesenti
+SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF, or POINT col row dx dy	SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF, noma POINT col row dx dy
+SLICE LFO: X, Y, ROTATION or OPACITY, then ON, OFF, SHAPE, RATE, DEPTH...	SLICE LFO: X, Y, ROTATION noma OPACITY, bese ON, OFF, SHAPE, RATE, DEPTH...
+SLICE ROTATE: IN (the crop) or OUT (the placed picture), then degrees	SLICE ROTATE: IN (okusikiwe) noma OUT (isithombe esibekiwe), bese amadigri
+Scanlines, bloom and gun misalignment, 0-1 (supports + - * / and ())	Imigqa yokuskena, ukukhazimula nokungahlangani kwezibhamu, 0-1 (isekela + - * / kanye no-())
+Something near the deck: a phone's buzz, a light dimmer's herringbone, a radio's slow bars.	Okuthile eduze kwedekhi: ukuduma kwefoni, iphethini ye-dimmer yesibani, amabha ahamba kancane omsakazo.
+Takes out everything brighter than this as well. Left takes out nothing.	Isusa nakho konke okukhanya ngaphezu kwalokhu. Kwesobunxele ayisusi lutho.
+Takes out everything darker than this, so what lies beneath shows through. Left takes out nothing.	Isusa konke okumnyama kunalokhu ukuze kubonakale okungaphansi. Kwesobunxele ayisusi lutho.
+Tape speed: SP is the best picture, LP and EP fit more on a tape and lose detail and colour.	Isivinini setheyiphu: SP inesithombe esihle kakhulu, LP no-EP kufaka okuningi kutheyiphu kodwa kulahlekelwa imininingwane nombala.
+The brightness that stays put. Everything above it reaches one way and everything below it the other.	Ukukhanya okunganyakazi. Konke okungaphezulu kunwebeka ngenye indlela, konke okungezansi ngenye.
+The character of the growth: low is waves, then labyrinth, coral, worms, and holes at the top.	Uhlobo lokukhula: phansi amagagasi, kulandele izindlela ezididayo, amakhorali, izibungu, nezimbobo phezulu.
+The colour it becomes. Shading and brightness stay as they were, so a red shirt turns blue and keeps its folds.	Umbala okuba yiwo. Ukufiphala nokukhanya kugcinwa, ihembe elibomvu libe luhlaza okwesibhakabhaka ligcine imigoqo yalo.
+The distance that sits ON the screen. Either side of it comes forward or falls behind.	Ibanga elihlezi ESIKRININI. Kuzo zombili izinhlangothi kuza phambili noma kuhlehle.
+The frequency it pivots around -- what counts as 'low' and 'high' for the tilt.	Ifrikhwensi ejikeleza kuyo -- okubalwa njengokuthi 'phansi' nokuthi 'phezulu' ekutshekeni.
+The level below which the source is closed. Set it under the quietest thing you want to hear.	Izinga umthombo ovalwa ngaphansi kwalo. Libeke ngaphansi kwento ethule kakhulu ofuna ukuyizwa.
+The level it starts working at. Lower catches more of the performance.	Izinga okuqala ukusebenza kulo. Eliphansi lithatha okuningi kokudlalwayo.
+The plugin's first four automatable controls, in its own order. Everything else it has keeps whatever the plugin was left set to.	Izilawuli ezine zokuqala ze-plugin ezikwazi ukuzenzakalela, ngokulandelana kwayo. Konke okunye kugcina izilungiselelo zokugcina ze-plugin.
+Tints the two directions apart, so light bending one way and the other are different colours instead of both being grey.	Ifaka imibala ehlukene ezinhlangothini zombili, ukukhanya okugobela ngapha nangapha kube nemibala ehlukene kunokuba mpunga kokubili.
+Turns the strokes across the grain instead of along it, which combs the picture apart rather than smoothing it.	Ijika imivimbo inqamule izinhlamvu kunokuzilandela, ihlukanise isithombe njengokukama kunokusithambisa.
+Turns the whole arrangement, so the fold lines do not sit on the same part of the picture all night.	Ijika ukuhleleka konke, imigqa yokugoqa ingahlali engxenyeni efanayo yesithombe ubusuku bonke.
+VIDEO OUTPUT ASSIGN: already on this output, or no such deck or output	VIDEO OUTPUT ASSIGN: isivele ikulokhu okuphumayo, noma ayikho leyo dekhi noma okuphumayo
+VIDEO OUTPUT LAYER: this deck is not on this output, or it is already at that layer	VIDEO OUTPUT LAYER: le dekhi ayikho kulokhu okuphumayo, noma isivele ikulolo ungqimba
+VIDEO OUTPUT LAYERWARP MODE: linear or perspective	VIDEO OUTPUT LAYERWARP MODE: linear noma perspective
+VIDEO OUTPUT LAYERWARP: expected OFF, MODE, or eight numbers clockwise from the top left	VIDEO OUTPUT LAYERWARP: kudingeka OFF, MODE, noma izinombolo eziyisishiyagalombili ngokwewashi kusuka phezulu kwesobunxele
+VIDEO OUTPUT UNASSIGN: this deck is not on this output, or it is the only thing on it	VIDEO OUTPUT UNASSIGN: le dekhi ayikho kulokhu okuphumayo, noma iyona yodwa ekukho
+WARP SELECT: expected TL, TR, BR, BL or a grid <col> <row>	WARP SELECT: kudingeka TL, TR, BR, BL noma igridi <col> <row>
+WEBMONITOR PIN: network sharing and phone control require 8 or more characters	WEBMONITOR PIN: ukwabelana ngenethiwekhi nokulawula ngefoni kudinga izinhlamvu ezingu-8 noma ngaphezulu
+WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (sound is included)	WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (umsindo ufakiwe)
+Where highlights fold back through black. Low folds most of the picture, high folds only the brightest.	Lapho ukukhanya kugoqeka kudlule ebumnyameni. Phansi kugoqa okuningi kwesithombe, phezulu okukhanya kakhulu kuphela.
+Where the band sits, 30Hz to 16kHz across the travel.	Lapho ibhande likhona, 30Hz kuya ku-16kHz ekuhambeni konke.
+Where the fold sits: the middle at the left, toward the far edge to the right. Flips have no fold.	Lapho ukugoqa kukhona: phakathi kwesobunxele, ngasonqenqemeni olukude kwesokudla. Ukuphendula akunakho ukugoqa.
+Where the light stands, in degrees around the frame.	Lapho ukukhanya kumi khona, ngamadigri azungeze ifremu.
+Where the source sits around the listener, all the way round. For headphones -- it is a timing and shading trick, not a pan.	Lapho umthombo ukhona nxazonke zomlaleli. Okwamahedfoni -- iqhinga lesikhathi nokufiphala, akuyona i-pan.
+Where the top ends, 200Hz to 20kHz. Pull it down to take the harshness off a bright source.	Lapho okuphezulu kuphelela khona, 200Hz kuya ku-20kHz. Kwehlise ukususa ubukhali emthonjeni okhanyayo.
+Which channel the curve acts on: all three, then red, green or blue on its own -- the way a colourist warms or cools one end of the picture.	Isiteshi ijika elisebenza kuso: zontathu, bese esibomvu, esiluhlaza noma esiluhlaza okwesibhakabhaka ngasinye -- njengomlungisi wombala oshisisa noma opholisa uhlangothi lwesithombe.
+Which way the knife edge lies. Only gradients ACROSS the edge show, so turning it swaps which features appear and which vanish.	Indlela unqenqema lommese olumi ngayo. Kubonakala kuphela amagradiyenti ANQAMULAYO kulo, ukulujika kushintsha imininingwane evelayo nenyamalalayo.
+Which way the streak runs: across at the left, upright in the middle, across again at the right.	Indlela umkhondo ogijima ngayo: uvundlile kwesobunxele, umile phakathi, uvundlile futhi kwesokudla.
+Widens the decision into a ramp, so edges keep their shape instead of jagging.	Inweba umkhawulo ube ukushintsha okushelelayo, imiphetho igcine izimo zayo kunokuba namazinyo.
+Words to surface in the field, separated by | . One shows at a time, moving on the hold clock.	Amagama azovela endaweni, ahlukaniswe ngo-| . Kuvela elilodwa ngesikhathi, kushintsha ngewashi lokubamba.
+Zero is one noise value across all three channels, which reads as film. Higher gives each channel its own, which reads as video.	Uziro uyinani elilodwa lomsindo ongahlelekile kuzo zontathu iziteshi, kubukeke njengefilimu. Okuphezulu kunika ngasinye owako, kubukeke njengevidiyo.
+a plugin overran the audio thread and was bypassed — take it out of the chain	I-plugin yeqe isikhathi sochungechunge lomsindo yabe isidluliswa -- yisuse eketangweni
+a video cue's duration comes from its file; still duration applies to stills, patterns and browsers	Ubude be-cue yevidiyo buvela efayeleni layo; ubude bezithombe ezimile busebenza ezithombeni, emaphethinini nasezipheqululini
+couldn't decode still image — unsupported format or corrupt file	Akukwazanga ukuhlukanisa isithombe esimile -- ifomethi ayisekelwe noma ifayela lonakele
+did not finish in 3 minutes. It may be waiting on a prompt it cannot show (Protected View, sign-in, a repair). Open the deck there once, or export it as a PDF and import that	Ayiphelanga ngemizuzu emi-3. Kungenzeka ilinde umbuzo engakwazi ukuwubonisa (Ukubuka Okuvikelwe, ukungena, ukulungisa). Vula isethulo khona kanye, noma usithumele njenge-PDF bese uyingenisa
+forget my defaults? only NEW changes, this show keeps its settings: press again	Kukhohlwe okuzenzakalelayo kwami? Kushintsha NEW kuphela, lo mbukiso ugcina izilungiselelo zawo: cindezela futhi
+key+fill ON, but no key device set (DECKLINK KEYFILL ON <device>)	key+fill ON, kodwa ayikho idivayisi ye-key esethiwe (DECKLINK KEYFILL ON <device>)
+label | command | glyph      (empty label|command removes it)	ilebula | umyalo | uphawu      (ilebula|umyalo okungenalutho kuyakususa)
+my defaults forgotten: NEW starts from factory settings, this show is unchanged	Okokuzenzakalelayo kwami sekukhohliwe: NEW iqala ngezilungiselelo zasefekthri, lo mbukiso awushintshi
+no filled shapes in it (paths, rectangles, circles, ellipses or polygons)	Awekho amajamo agcwalisiwe kuyo (izindlela, onxande, izindilinga, ama-ellipse noma amapholigoni)
+notestep: this cue's notes have no builds (separate them with a line of ---)	notestep: amanothi ale cue awanazo izinyathelo (wahlukanise ngomugqa ---)
+opened github.com in your browser -- nothing is sent until you submit the report there	Kuvulwe github.com esipheqululini sakho -- akukho okuthunyelwa uze uhambise umbiko khona
+presenter panel: expected <live|prev|next|notes> <x> <y> <w> <h> in percent	iphaneli yomethuli: kudingeka <live|prev|next|notes> <x> <y> <w> <h> ngephesenti
+presenter panel: the panel must fit on the screen (x+w and y+h no more than 100)	iphaneli yomethuli: kufanele ilingane esikrinini (x+w no-y+h kungabi ngaphezu kuka-100)
+preset: delivery | proxy | match | datamosh	preset: khetha delivery | proxy | match | datamosh
+saved as my defaults: NEW starts like this show, without the cues	Kulondolozwe njengokuzenzakalelayo kwami: NEW iqala njengalo mbukiso, ngaphandle kwama-cue
+splitnotes: that cue's notes have no parts (separate them with a line of ---)	splitnotes: amanothi aleyo cue awanazo izingxenye (wahlukanise ngomugqa ---)
+the clicker now spends note builds before advancing	Isicindezeli manje sisebenzisa izinyathelo zamanothi ngaphambi kokuqhubekela phambili
+this file is only in OneDrive, and OneDrive is not running. Start OneDrive, or copy the file to this computer, then import it again	Leli fayela liku-OneDrive kuphela futhi i-OneDrive ayisebenzi. Qala i-OneDrive, noma ulikopishele kule khompyutha, bese ulingenisa futhi
+this presentation needs a password to open. Remove the password in PowerPoint (File > Info > Protect Presentation) or export it as a PDF, then import that	Lesi sethulo sidinga iphasiwedi ukuze sivuleke. Susa iphasiwedi ku-PowerPoint (Ifayela > Ulwazi > Vikela Isethulo) noma usithumele njenge-PDF, bese uyingenisa
+warp grid: expected <n>, <cols> <rows>, off, smooth or straight	warp grid: kudingeka <n>, <cols> <rows>, off, smooth noma straight
+warp point: that is a corner -- move it with WARP <corner> dx dy	warp point: lelo yikhoneni -- lihambise ngo-WARP <corner> dx dy
+window capture fell back to screen grab — update ffmpeg for exact window capture	Ukuthwebula iwindi kushintshele ekuthwebuleni isikrini -- buyekeza FFmpeg ukuze uthwebule iwindi ngqo

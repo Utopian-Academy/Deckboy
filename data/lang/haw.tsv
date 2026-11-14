@@ -3213,3 +3213,1110 @@ FX CHOICE: choice must be A or B	FX CHOICE: pono ke koho he A a i ʻole B
 FX CHOICE: no effect at that index	FX CHOICE: ʻaʻohe hopena ma kēlā helu
 whole picture	ke kiʻi holoʻokoʻa
 FX LFO: slot is A-D for the parameters, E for the amount, F and G for the fifth and sixth (or 0-6)	FX LFO: ʻo ka slot ʻo A-D no nā ʻāpana, ʻo E no ka nui, ʻo F a me G no ka ʻelima a me ke ono (a i ʻole 0-6)
+angle	huina
+Attack	Hoʻomaka
+attack	hoʻomaka
+Audio bitrate	Ana iki leo
+Audio reactivity	Pane leo
+azimuth	huina kuhikuhi
+Bands	Nā kaha
+bands	nā kaha
+base layer	papa kumu
+Binaural	Pepeiao ʻelua
+BITRATE	ANA IKI
+bits	nā iki
+black point	kiko ʻeleʻele
+bleed	kahe kala
+Blobs	Nā puʻupuʻu
+block glitch	hewa āpana
+block size	nui āpana
+blocks	nā āpana
+blur	hoʻopōwehiwehi
+BOTH	ʻELUA PŪ
+bright	mālamalama
+Brush opacity	Pohihihi palaki
+Brush size	Nui palaki
+buzzer	mea kani
+by brightness	ma ka mālamalama
+cancelled	ua kāpae ʻia
+Canvas Height	Kiʻekiʻe kāwele
+Canvas View	Nānā kāwele
+Canvas Width	Ākea kāwele
+catch	hopu
+caustics	hui kukuna
+Centre X	Waena X
+Centre Y	Waena Y
+channel skew	hiō kaha
+channel spread	hoʻākea kaha
+character	huapalapala
+chop	ʻokiʻoki
+CLASSIC	KAHIKO
+CLOCK	UAKI
+coherence	kūlike
+colour bleed	kahe kala
+colour drift	ʻeʻe kala
+colour lag	lohi kala
+colour replace	pani kala
+columns	nā kolamu
+control 1	kaohi 1
+control 2	kaohi 2
+control 3	kaohi 3
+control 4	kaohi 4
+Control change	Hoʻololi kaohi
+convergence	hui
+copies	nā kope
+corrupt	hoʻopōʻino
+corruption	pōʻino
+coupling	hoʻohui
+crystallise	hoʻokāʻaka
+Cue Notes	Memo cue
+curl detail	kikoʻī wili
+curves	nā piʻo
+Custom Glyphs	Huapalapala ponoʻī
+cut bright	ʻoki mālamalama
+cut dark	ʻoki pouli
+cut reset	hoʻomaka ke ʻoki
+cutoff	palena ʻoki
+cuts	nā ʻoki
+cyan	polū ʻōmaʻomaʻo
+damage	pōʻino
+damping	hoʻēmi haʻalulu
+dark	pouli
+darkness	pouli
+deck age	makahiki mīkini
+Density	Paʻapū
+depth	hohonu
+depth split	māhele hohonu
+Destination Address	Helu wahi e hoʻouna ai
+Destination UDP port	Puka UDP e hoʻouna ai
+Detail	Kikoʻī
+diamond	daimana
+distance	mamao
+DMX Channels	Nā kaha DMX
+dots move	neʻe nā kiko
+Draw colour	Kala kaha
+drift	ʻeʻe
+drip	kulu
+drips	nā kulu
+drive	ikaika hoʻokomo
+edges	nā lihi
+empty	hakahaka
+extended	hoʻolōʻihi ʻia
+EXTREME	IKAIKA LOA
+facet light	kukui ʻili
+falloff	emi
+falsecolour	kala hoʻopunipuni
+feed rate	ana hānai
+Feedback zoom	Hoʻokokoke hoʻi
+field of view	kahua ʻike
+Fixture address	Helu kukui
+Fixture name	Inoa kukui
+Fixture universe	Ao kukui
+flash length	lōʻihi ʻanapu
+flash to	ʻanapu i
+flicker	ʻōlapa
+Flipbook rate	Ana huli kiʻi
+floor	papa lalo
+Flow	Kahe
+flow	kahe
+focus	kālele
+fold	pelu
+fold point	kiko pelu
+frames	nā mōlina
+Frequency	Alapine
+frequency	alapine
+gap	wāwae
+gather	hōʻuluʻulu
+Glitch	Hewa kiʻi
+glow	ʻālohilohi
+glyph set	pūʻulu huapalapala
+gong	kēleawe kani
+grain	huna
+grain flow	kahe huna
+grain size	nui huna
+green split	māhele ʻōmaʻomaʻo
+Grey	ʻĀhinahina
+grid	makaʻaha
+growl	halulu
+growth	ulu
+head wear	ʻānai poʻo
+heat	wela
+Height	Kiʻekiʻe
+Height (px)	Kiʻekiʻe (px)
+highlight roll	pelu mālamalama
+histogram	pakuhi pae
+horizontal	papamoe
+ice	hau
+ink	ʻīnika
+interference	hālāwai nalu
+irregularity	kaulike ʻole
+jump	lele
+just	kūlike maʻemaʻe
+kaleido	aniani waihoʻoluʻu
+kaleidoscope	aniani waihoʻoluʻu
+Key Color	Kala kī
+Keyframe interval	Wā mōlina kī
+knee	kuli
+knife angle	huina pahi
+leak	kulu
+let go	hoʻokuʻu
+lift	hāpai
+light	kukui
+light angle	huina kukui
+lightspeed	māmā kukui
+line colour	kala kaha
+line glow	ʻālohilohi kaha
+Live Browser	Polokalamu kele ola
+Live Source	Kumu ola
+LOAD NEXT	HOʻOUKA AʻE
+Lower Third - subtitle	Lower Third - poʻo ʻōlelo liʻiliʻi
+Lower Third - title	Lower Third - poʻo ʻōlelo
+Lower Third Subtext	ʻŌlelo lalo Lower Third
+Lower Third Title	Poʻo ʻōlelo Lower Third
+luma displace	neʻe mālamalama
+luma key	kī mālamalama
+Mask opacity	Pohihihi pale
+Mask rotation	Huli pale
+Mask scale	Nui pale
+Mask X	Pale X
+Mask Y	Pale Y
+material	mea hana
+meantone	leo waena
+Media	Pāpaho
+Melt	Hoʻoheheʻe
+melt	hoʻoheheʻe
+memory	hoʻomanaʻo
+midtones	nā kala waena
+Mod depth	Hohonu hoʻololi
+Mod ratio	Lākiō hoʻololi
+moire	kaha nalu kuʻi
+mono	leo hoʻokahi
+MONO L	LEO HOʻOKAHI L
+MONO R	LEO HOʻOKAHI R
+mosaic	kiʻi ʻāpana
+motion mosh	pōʻino neʻe
+motion puppet	pēpē neʻe
+motion trails	nā meheu neʻe
+MSC Cue Number	Helu cue MSC
+music & sparkle	mele & ʻōlinolino
+NDI Key Name	Inoa kī NDI
+NDI Name	Inoa NDI
+NDI Source Name	Inoa kumu NDI
+NEXT	AʻE
+night eyes	maka pō
+NMC Port	Puka NMC
+NMC Source	Kumu NMC
+NMC Target	Pahu hopu NMC
+NMOS Interface Name	Inoa ʻaoʻao NMOS
+NMOS Node Port	Puka piko NMOS
+NMOS Registry	Papa inoa NMOS
+noise	halulu
+not connected	ʻaʻole i hoʻopili ʻia
+Note	Noka
+Note off	Hoʻopau noka
+Note on	Hoʻomaka noka
+off-axis	ma waho o ke koʻi
+offline	pahemo
+orbit speed	māmā kaʻapuni
+OSC Address	Helu wahi OSC
+Output Alpha	Alpha puka
+Output Canvas	Kāwele puka
+Output Delay	Lohi puka
+output fault	hewa puka
+Output name	Inoa puka
+Output Refresh	Hoʻouka hou puka
+overflow	hū
+own playlist	papa hoʻokani ponoʻī
+parade	pakuhi kaha
+parallax	ʻokoʻa nānā
+Payload	ʻIkepili hoʻouna
+Percent 0-100	Pākēneka 0-100
+phone	kelepona
+Phrases	Nā māmala ʻōlelo
+pinch	ʻūmiʻi
+pink noise	halulu ʻākala
+PIP Target Cue	Cue pahu hopu PIP
+pitch	kiʻekiʻe leo
+pivot	piko huli
+Pixel density	Paʻapū kiko kiʻi
+pixel sort	hoʻonohonoho kiko kiʻi
+plasma	pelemaka
+Playlist Start TC	TC hoʻomaka papa
+Playlist Timebase	Kumu manawa papa
+Plugin	Polokalamu hoʻohui
+polar warp	wāwahi pōʻai
+Portal	ʻĪpuka
+posterise	hoʻēmi pae kala
+Practice show	Hōʻike hoʻomaʻamaʻa
+PREVIOUS	MUA
+Program change	Hoʻololi polokalamu
+Prompter script	Palapala hoʻomanaʻo
+pulse 25%	pana 25%
+QUALITY	MAIKAʻI
+radial zoom	hoʻokokoke pōʻai
+radio	lekiō
+radius	kahahānai
+ramp	piʻi
+range	laulā
+ratio	lākiō
+Raw bytes	Nā paita maka
+Raw MIDI Bytes	Nā paita MIDI maka
+reach	hiki
+recordings	nā hoʻopaʻa
+recovering	ke hoʻihoʻi nei
+refresh	hoʻouka hou
+Release	Hoʻokuʻu
+release	hoʻokuʻu
+relief	kiʻi hāpai
+relight	hoʻomālamalama hou
+Rename cue	Hoʻololi inoa cue
+Rename fixture	Hoʻololi inoa kukui
+Renumber Cues	Helu hou i nā cue
+repeat width	ākea hana hou
+Replay hold	Paʻa hoʻokani hou
+resonance	hoʻokani pū
+Retrigger	Hoʻā hou
+reverse	hoʻohuli
+rgb split	māhele rgb
+Rim	Lihi
+rings	nā apo
+ripple	nalu liʻiliʻi
+rising	piʻi
+rod bias	kaumaha koʻokoʻo
+room	lumi
+rot	popopo
+Rotation	Huli
+rotation	huli
+round	pōʻai
+sag	hāʻule
+saw	pahi olo
+scanlines	nā kaha nānā
+scope	ana kiʻi
+SCOPES	NĀ ANA KIʻI
+second mode	ʻano ʻelua
+see through	ʻike ma loko
+seed density	paʻapū hua
+self	iho
+settle	hoʻomālie
+shadow lift	hāpai aka
+shake	haʻalulu
+shard size	nui ʻāpana haki
+sharpen	hoʻomōakāka
+sheen	hinuhinu
+sideways	i ka ʻaoʻao
+slit scan	nānā moku
+slit width	ākea moku
+Smear	Hamo
+smear	hamo
+softness	palupalu
+solarise	hoʻohuli mālamalama
+spike count	helu wēlau
+spike length	lōʻihi wēlau
+spin	wili
+spinning	ke wili nei
+spring	pūnāwai hao
+sprite sheet	pepa kiʻi liʻiliʻi
+Sprite spin	Wili kiʻi liʻiliʻi
+square	huinahā
+SRT latency	Lohi SRT
+SRT passphrase	Huaʻōlelo huna SRT
+SRT stream ID	ID kahawai SRT
+Step length	Lōʻihi ʻanuʻu
+steps	nā ʻanuʻu
+stereogram	kiʻi hohonu
+stiffness	ʻoʻoleʻa
+sting	leo pōkole
+strength	ikaika
+strobe	kukui ʻanapu
+stroke	kaha
+SUBTLE	MĀLIE
+sway	luli
+sweep	kāhili
+sweep speed	māmā kāhili
+swell speed	māmā nalu
+symbols	nā hōʻailona
+system default	paʻamau ʻōnaehana
+system output	puka ʻōnaehana
+tape	leki
+tape age	makahiki leki
+tear width	ākea hae
+temporal dither	halulu manawa
+test signal	hōʻailona hoʻāʻo
+text to send	ʻōlelo e hoʻouna ai
+threshold	paepae
+throw	kiola
+tile size	nui pā
+tilt	hiō
+time	manawa
+time cube	pahu manawa
+Timer Message	Leka uaki
+tint	waihoʻoluʻu
+tint colour	kala uhi
+tracking	hahai
+trail	meheu
+transparent	mōakāka
+triangle	huinakolu
+triple beep	kani ʻekolu
+Turn	Huli
+turn	huli
+Twist	Wili
+twist	wili
+unavailable	ʻaʻole loaʻa
+vapor	mahu
+vector	wekeka
+vertical	kū pololei
+vertical bias	kaumaha kū
+vibrato	haʻalulu leo
+Video bitrate	Ana iki wikiō
+Video dip fade	Mae wikiō i ka pouli
+vignette	pouli lihi
+wash out	hoʻākea kala
+wave height	kiʻekiʻe nalu
+wavefront	alo nalu
+way	ala
+wedges	nā māhele huinakolu
+white	keʻokeʻo
+white noise	halulu keʻokeʻo
+white point	kiko keʻokeʻo
+wire	uea
+Zoom	Hoʻokokoke
+zoom	hoʻokokoke
+(choose cue)	(koho cue)
+(missing)	(nalowale)
+(no slots)	(ʻaʻohe hakahaka)
+(set media file)	(koho waihona pāpaho)
+(set url)	(hoʻonohonoho url)
+A number	He helu
+A number, or blank for none	He helu, a hakahaka no ka nele
+additive	hoʻohui
+alternating	kuapo
+amber	ʻalani melemele
+Add Browser Cue	Hoʻohui cue kele
+Add NDI Source Cue	Hoʻohui cue kumu NDI
+Add Stream Cue	Hoʻohui cue kahawai
+Art-Net Destination	Pahu hopu Art-Net
+ASCII 95 (density)	ASCII 95 (paʻapū)
+ASCII 95 (raw)	ASCII 95 (maka)
+ASIO is off	Ua pio ʻo ASIO
+ATEM Input	Hoʻokomo ATEM
+Attach Lower Third	Hoʻopili Lower Third
+Attach PIP Overlay	Hoʻopili papa PIP
+AUTO	ʻAKOMI
+auto (59.94 Hz)	ʻakomi (59.94 Hz)
+band curve	piʻo kaha
+Browser Ready	Mākaukau ke kele
+built without ASIO support	kūkulu ʻia me ke kākoʻo ʻole ASIO
+built without NDI SDK headers	kūkulu ʻia me nā poʻo NDI SDK ʻole
+Companion/OSC Port	Puka Companion/OSC
+could not reach github	ʻaʻole hiki ke hoʻopili iā github
+could not read the PDF	ʻaʻole hiki ke heluhelu i ka PDF
+could not start ffmpeg	ʻaʻole hiki ke hoʻomaka i ffmpeg
+could not start the PDF renderer	ʻaʻole hiki ke hoʻomaka i ka mea kaha PDF
+could not write the export script	ʻaʻole hiki ke kākau i ka palapala hoʻokuʻu
+couldn't open explorer	ʻaʻole hiki ke wehe iā explorer
+couldn't open file manager	ʻaʻole hiki ke wehe i ka luna waihona
+couldn't open finder	ʻaʻole hiki ke wehe iā finder
+Cue Goto	Hele i ka cue
+GOTO Cue	HELE I KA cue
+Custom Output Raster	Makaʻaha puka ponoʻī
+DECODE --.-	WEHE HŌʻAILONA --.-
+DECODE OFF	UA PIO KA WEHE
+DECODE WARM	MAHANA KA WEHE
+Default Cue Fade	Mae cue paʻamau
+Default Non-Movie Duration	Lōʻihi paʻamau no nā mea kiʻiʻoniʻoni ʻole
+display native	kumu pale
+Display none	ʻAʻohe pale
+driver refused to start	hōʻole ka mea hoʻokele e hoʻomaka
+empty expression	haʻina hakahaka
+export as .png or .svg	hoʻokuʻu ma .png a i ʻole .svg
+ffmpeg made no file	ʻaʻohe waihona i hana ʻia e ffmpeg
+ffmpeg stopped taking frames	ua hoʻōki ʻo ffmpeg i ka lawe mōlina
+Find Cue	ʻImi cue
+Find+Take Cue	ʻImi+TAKE cue
+Fire at a time of day	Hoʻā i ka hola o ka lā
+Fire at incoming timecode	Hoʻā ma ke kuhi manawa komo
+Fire on a MIDI note	Hoʻā ma ka noka MIDI
+Fire on an OSC address	Hoʻā ma ka helu wahi OSC
+First channel (1-512)	Kaha mua (1-512)
+flow (follows the picture)	kahe (hahai i ke kiʻi)
+hh:mm:ss or seconds	hh:mm:ss a i ʻole kekona
+Its name, number or id	Kona inoa, helu a i ʻole id
+LibreOffice could not be run	ʻaʻole hiki ke holo ʻo LibreOffice
+LibreOffice produced no PDF	ʻaʻohe PDF i hana ʻia e LibreOffice
+macOS could not read the PDF	ʻaʻole hiki iā macOS ke heluhelu i ka PDF
+Name visible to receivers	Inoa i ʻike ʻia e nā mea loaʻa
+no colour	ʻaʻohe kala
+no driver named	ʻaʻohe mea hoʻokele i kapa ʻia
+no mask made	ʻaʻohe pale i hana ʻia
+no pages could be rendered	ʻaʻole hiki ke kaha i kekahi ʻaoʻao
+no release found	ʻaʻohe mana hoʻokuʻu i loaʻa
+not on this output	ʻaʻole ma kēia puka
+not while a cue is playing	ʻaʻole i ka wā e hoʻokani ai ke cue
+nothing drawn	ʻaʻohe mea i kaha ʻia
+opened in explorer	ua wehe ʻia ma explorer
+opened in file manager	ua wehe ʻia ma ka luna waihona
+paste your stream key here	kāpili i kāu kī kahawai ma ʻaneʻi
+pdftoppm produced no pages	ʻaʻohe ʻaoʻao i hana ʻia e pdftoppm
+PowerPoint could not export this file	ʻaʻole hiki iā PowerPoint ke hoʻokuʻu i kēia waihona
+revealed in finder	ua hōʻike ʻia ma finder
+runtime unavailable	ʻaʻole loaʻa ka ʻōnaehana holo
+size out of range	nui ma waho o ka laulā
+Source Ready	Mākaukau ke kumu
+Spout Sender Name	Inoa mea hoʻouna Spout
+Stream URL	URL kahawai
+stream restart needed	pono e hoʻomaka hou i ke kahawai
+stream write failed	ua hāʻule ke kākau kahawai
+target cue is gone	ua nalowale ke cue pahu hopu
+targets nothing	ʻaʻohe pahu hopu
+the document has no pages	ʻaʻohe ʻaoʻao o ka palapala
+the file is empty	hakahaka ka waihona
+the header is truncated	ua ʻoki ʻia ke poʻo
+the NDI runtime is not installed	ʻaʻole i hoʻouka ʻia ka ʻōnaehana holo NDI
+the PDF renderer produced no pages	ʻaʻohe ʻaoʻao i hana ʻia e ka mea kaha PDF
+the show plays through ASIO	hoʻokani ka hōʻike ma ASIO
+URL or local page path	URL a i ʻole ala ʻaoʻao kūloko
+What it runs	Ka mea e holo ai
+Which cue	ʻO wai ke cue
+window hidden	ua hūnā ʻia ka puka aniani
+window minimized	ua hoʻēmi ʻia ka puka aniani
+wrong display	pale hewa
+0-1 (supports + - * / and ())	0-1 (hiki ke hoʻohana i + - * / a me ())
+0-100% (supports + - * / and ())	0-100% (hiki ke hoʻohana i + - * / a me ())
+%, 1 to 100 (supports + - * / and ())	%, 1 a 100 (hiki ke hoʻohana i + - * / a me ())
+Amount 0-100% (supports + - * / and ())	Nui 0-100% (hiki ke hoʻohana i + - * / a me ())
+Degrees -180..180 (supports + - * / and ())	Degere -180..180 (hiki ke hoʻohana i + - * / a me ())
+Degrees, -360 to 360 (supports + - * / and ())	Degere, -360 a 360 (hiki ke hoʻohana i + - * / a me ())
+Degrees, 0-360 (supports + - * / and ())	Degere, 0-360 (hiki ke hoʻohana i + - * / a me ())
+Pixels (supports + - * / and ())	Nā kiko kiʻi (hiki ke hoʻohana i + - * / a me ())
+Hertz, 20-20000 (supports + - * / and ())	Hertz, 20-20000 (hiki ke hoʻohana i + - * / a me ())
+Colour steps, 2-8 (supports + - * / and ())	Nā pae kala, 2-8 (hiki ke hoʻohana i + - * / a me ())
+Frames a second, 1 to 60 (supports + - * / and ())	Nā mōlina i ke kekona, 1 a 60 (hiki ke hoʻohana i + - * / a me ())
+Seconds (0-30)	Kekona (0-30)
+Milliseconds 0-5000	Milikekona 0-5000
+milliseconds (40..2000)	milikekona (40..2000)
+Universe (0-63999)	Ao (0-63999)
+X,Y offset in pixels	Neʻe X,Y ma nā kiko kiʻi
+a name for this step	he inoa no k?ia ka?ina
+a playlist that is gone	he papa p??ani i holoi ?ia
+across the grain	k??? i ke kaha
+add an output to scope it	ho?ohui i puka e ana ai
+an ASIO stream is already open	ua wehe ?ia kekahi kahawai ASIO
+another app is holding the pointer	pa?a ke kuhikuhi i kekahi polokalamu ?? a?e
+channel count must be at least 1	he 1 a ?oi ka nui o n? kaha
+comma outside a function call	he koma ma waho o ke k?hea hana
+driver reports no output channels	h??ike ke kalaiwa ?a?ohe kaha puka
+escaped to windowed	ua ho?i i ke ?ano puka aniani
+fullscreen dropped	ua pau ke ?ano pale piha
+How big each tile is.	Ka nui o k?l? me k?ia ??pana.
+How closely spaced the rings are.	Ka pili o n? apo kekahi i kekahi.
+How far a band can slide.	Ka mamao e hiki ai i ke k??ei ke pahe?e.
+How far out the darkening starts.	Ka mamao mai ke kikowaena e ho?omaka ai ka pouli.
+How far the glow spreads.	Ka mamao o ka p?lahalaha ?ana o ka ??lohilohi.
+How fast the surface moves.	Ka wikiwiki o ka ?ili e ne?e ai.
+How fast they travel outward.	Ka wikiwiki o ko l?kou ne?e ?ana i waho.
+How hard the short hits.	Ka ikaika o ke kaapuni p?kole.
+How many torn bands per frame.	Ka nui o n? k??ei haehae i k?l? me k?ia m?lina.
+How much the edges are lifted.	Ka nui o ka ho?oki?eki?e ?ana i n? lihi.
+How often it skips.	Ka pinepine o ka lele ?ana.
+it could not be started	?a?ole i hiki ke ho?omaka
+libX11 is not installed	?a?ole i ho?ouka ?ia ?o libX11
+lost the session bus	ua nalowale ka pilina bus o ke kau
+no ASIO in this build	?a?ohe ASIO ma k?ia mana
+no X display to read	?a?ohe pale X e heluhelu ai
+not a MIDI file (no MThd header)	?a?ole he waihona MIDI (?a?ohe po?omana?o MThd)
+offset in percent of the picture	ka ho?one?e ma ka p?k?neka o ke ki?i
+only a background in it	he k??ei kua wale n? i loko
+Paste the key from your platform	ho?opili i ke k? mai k?u paepae
+pixels (of the output raster)	n? kiko ki?i (o ke kaha puka)
+Routing hint for the receiver	he kuhikuhi ala no ka mea loa?a
+Save Warp Preset	M?lama i ka ho?onohonoho ho?opi?o
+Sender source name	Inoa kumu o ka mea ho?ouna
+SOURCE CAMERA: name the device	SOURCE CAMERA: e inoa i ka h?me?a
+Switcher IP address	Helu IP o ke kuapo ki?i
+SYPHON / SPOUT TEXTURE SHARE	KA?ANA KINO KI?I SYPHON / SPOUT
+SYPHON TEXTURE SHARE	KA?ANA KINO KI?I SYPHON
+the desktop portal did not answer	?a?ole i pane ka puka o ka ?oneki
+the file has no playable events	?a?ohe hanana hiki ke p??ani ma ka waihona
+the screen could not be read there	?a?ole i hiki ke heluhelu i ka pale ma laila
+the time division is not readable	?a?ole hiki ke heluhelu i ka m?hele manawa
+this build has no X11 support	?a?ole k?ko?o k?ia mana i? X11
+UDP port for transport sync	Puka UDP no ka ho?olikelike kaohi p??ani
+unbalanced )	?a?ohe hoa o )
+web audio encoder cannot keep up	?a?ole hiki i ka mea ho?op??? leo p?naewele ke hahai i ka wikiwiki
+Where the filter sits.	Kahi e noho ai ke k?nana.
+Which way it drips.	Ke ala e kulu ai.
+AUDIOALSO: expected ADD <name>, REMOVE <name> or CLEAR	AUDIOALSO: e ho?okomo i ADD <name>, REMOVE <name> a i ?ole CLEAR
+BROWSER KEY: expected Enter|Tab|Backspace|Escape	BROWSER KEY: e ho?okomo i Enter|Tab|Backspace|Escape
+BUGSWAT: expected START, SHOWME, SKIP, PLAY, EXIT or STATUS	BUGSWAT: e ho?okomo i START, SHOWME, SKIP, PLAY, EXIT a i ?ole STATUS
+CAPTIONS LIVE: expected ON, OFF, STATUS or TEXT	CAPTIONS LIVE: e ho?okomo i ON, OFF, STATUS a i ?ole TEXT
+CAPTIONS SOURCE: expected INPUT, DECK <n> or OUTPUT <n>	CAPTIONS SOURCE: e ho?okomo i INPUT, DECK <n> a i ?ole OUTPUT <n>
+DMXCUE: expected NEW, SET, FADE, UNIVERSE, HOST, PORT, FIRE or BLACKOUT	DMXCUE: e ho?okomo i NEW, SET, FADE, UNIVERSE, HOST, PORT, FIRE a i ?ole BLACKOUT
+ENDACTION: expected INHERIT, STOP, LOOP, HOLD or NEXT	ENDACTION: e ho?okomo i INHERIT, STOP, LOOP, HOLD a i ?ole NEXT
+FADE CURVE: expected linear, ease-in, ease-out or s-curve	FADE CURVE: e ho?okomo i linear, ease-in, ease-out a i ?ole s-curve
+LOWERSTYLE: expected none, fade, rise, slide, wipe or NEXT	LOWERSTYLE: e ho?okomo i none, fade, rise, slide, wipe a i ?ole NEXT
+MASK ASSIGN: expected CUE, LAYER, OUTPUT or MATTE	MASK ASSIGN: e ho?okomo i CUE, LAYER, OUTPUT a i ?ole MATTE
+MASK EXPORT: expected <id> <file.png|file.svg> [WxH]	MASK EXPORT: e ho?okomo i <id> <file.png|file.svg> [WxH]
+MATRIX SET: expected <source 1-2> <dest> <0-100>	MATRIX SET: e ho?okomo i <source 1-2> <dest> <0-100>
+MATRIX: expected SET <src> <dest> <0-100>, SEED or CLEAR	MATRIX: e ho?okomo i SET <src> <dest> <0-100>, SEED a i ?ole CLEAR
+MESH: expected on|off|toggle|height|tilt|yaw|spin|grid	MESH: e ho?okomo i on|off|toggle|height|tilt|yaw|spin|grid
+MIC: expected ADD, LIST, INPUT, CHANNEL or GAIN	MIC: e ho?okomo i ADD, LIST, INPUT, CHANNEL a i ?ole GAIN
+MIDICUE KIND: expected note-on, note-off, cc, program, msc-go, msc-stop, msc-resume or raw	MIDICUE KIND: e ho?okomo i note-on, note-off, cc, program, msc-go, msc-stop, msc-resume a i ?ole raw
+MIDICUE: expected NEW, PORTS, PORT, KIND, CH, D1, D2, DEVICE, CUENUM, LIST, RAW or SEND	MIDICUE: e ho?okomo i NEW, PORTS, PORT, KIND, CH, D1, D2, DEVICE, CUENUM, LIST, RAW a i ?ole SEND
+MULTIVIEW LAYOUT: expected GRID, BIG, BIGTOP or TWOTOP	MULTIVIEW LAYOUT: e ho?okomo i GRID, BIG, BIGTOP a i ?ole TWOTOP
+MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK or EMPTY	MULTIVIEW WINDOW: e ho?okomo i PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK a i ?ole EMPTY
+NETCUE: expected NEW, PROTO, HOST, PORT, ADDRESS, PAYLOAD or SEND	NETCUE: e ho?okomo i NEW, PROTO, HOST, PORT, ADDRESS, PAYLOAD a i ?ole SEND
+OUTPROBE: expected <output> <x 0-1> <y 0-1>	OUTPROBE: e ho?okomo i <output> <x 0-1> <y 0-1>
+OUTPUT HDR: expected ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> or STATUS	OUTPUT HDR: e ho?okomo i ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> a i ?ole STATUS
+OUTPUTFX ADD: expected hpf, lpf, tilt, comp or width	OUTPUTFX ADD: e ho?okomo i hpf, lpf, tilt, comp a i ?ole width
+OUTPUTFX: expected ADD, SET, REMOVE, BYPASS, CLEAR or DEVICE	OUTPUTFX: e ho?okomo i ADD, SET, REMOVE, BYPASS, CLEAR a i ?ole DEVICE
+OUTPUTS ADD: expected <name> CH <n> or CH <n>-<n+1>	OUTPUTS ADD: e ho?okomo i <name> CH <n> a i ?ole CH <n>-<n+1>
+PATCH: expected <deck> <output> <dB> or OFF	PATCH: e ho?okomo i <deck> <output> <dB> a i ?ole OFF
+PRESET: expected LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME or DELETE	PRESET: e ho?okomo i LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME a i ?ole DELETE
+SCALEMODE: expected fit|fill|stretch|unscaled	SCALEMODE: e ho?okomo i fit|fill|stretch|unscaled
+SCOPES BIG: expected waveform, parade, vector, diamond, histogram, falsecolour, sound or off	SCOPES BIG: e ho?okomo i waveform, parade, vector, diamond, histogram, falsecolour, sound a i ?ole off
+SCOPES: expected PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS or SOUND	SCOPES: e ho?okomo i PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS a i ?ole SOUND
+SECTION: expected playback|metadata|geometry|key|audio|effects|timer|tone|synth	SECTION: e ho?okomo i playback|metadata|geometry|key|audio|effects|timer|tone|synth
+STING: expected ON, PITCH, LENGTH, SWEEP or BODY	STING: e ho?okomo i ON, PITCH, LENGTH, SWEEP a i ?ole BODY
+TARGET VERB: expected start|stop|pause|resume|load|arm|disarm	TARGET VERB: e ho?okomo i start|stop|pause|resume|load|arm|disarm
+TEXTCUE ALIGN: expected left, centre or right	TEXTCUE ALIGN: e ho?okomo i left, centre a i ?ole right
+TEXTCUE ANIM: expected none, fade, typewriter, scroll, crawl, pulse or wobble	TEXTCUE ANIM: e ho?okomo i none, fade, typewriter, scroll, crawl, pulse a i ?ole wobble
+TEXTCUE: expected NEW, BODY, ANIM, SIZE, SPEED, ALIGN, CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, WIGGLE, IN, OUTMOVE or OUT	TEXTCUE: e ho?okomo i NEW, BODY, ANIM, SIZE, SPEED, ALIGN, CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, WIGGLE, IN, OUTMOVE a i ?ole OUT
+TUTORIAL: expected START, SHOWME, SKIP, EXIT, STATUS or SCREENS	TUTORIAL: e ho?okomo i START, SHOWME, SKIP, EXIT, STATUS a i ?ole SCREENS
+UPDATE: expected check|download|install|status	UPDATE: e ho?okomo i check|download|install|status
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS	VJ: e ho?okomo i ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS
+% of the picture's height, 0.1 to 20 (supports + - * / and ())	% o ke ki?eki?e ki?i, 0.1 a 20 (hiki ke ho?ohana i + - * / a me ())
+-3 to 3: 0 holds, negative runs backwards (supports + - * / and ())	-3 a 3: pa?a ma 0, ho?i hope n? helu ?emi (hiki ke ho?ohana i + - * / a me ())
+0-100%, left to right (supports + - * / and ())	0-100%, hema a ??kau (hiki ke ho?ohana i + - * / a me ())
+0-100%, top to bottom (supports + - * / and ())	0-100%, luna a lalo (hiki ke ho?ohana i + - * / a me ())
+0-100%: 0 holds the field still (supports + - * / and ())	0-100%: pa?a ke kahua ma 0 (hiki ke ho?ohana i + - * / a me ())
+0-100%: 50 is 1x, 0 a quarter, 100 four times (supports + - * / and ())	0-100%: 50 he 1x, 0 he hapah?, 100 he p?h? (hiki ke ho?ohana i + - * / a me ())
+0-100%: how far the field bends (supports + - * / and ())	0-100%: ka nui o ka pi?o ?ana o ke kahua (hiki ke ho?ohana i + - * / a me ())
+Across, % of the width, -100 to 100 (supports + - * / and ())	Ke ?kea, % o ka laul?, -100 a 100 (hiki ke ho?ohana i + - * / a me ())
+Birth, drift and fade rate, 0.1-3 (supports + - * / and ())	Wikiwiki h?nau, lana a mae, 0.1-3 (hiki ke ho?ohana i + - * / a me ())
+Block displacement and channel tearing, 0-1 (supports + - * / and ())	Ka ne?e ??pana a me ka haehae kaha, 0-1 (hiki ke ho?ohana i + - * / a me ())
+dBFS, -60 to 0 (-18 is EBU alignment) (supports + - * / and ())	dBFS, -60 a 0 (-18 ke ana EBU) (hiki ke ho?ohana i + - * / a me ())
+Down, % of the height, -100 to 100 (supports + - * / and ())	I lalo, % o ke ki?eki?e, -100 a 100 (hiki ke ho?ohana i + - * / a me ())
+Edge out (+) or in (-), % of the height, -25 to 25 (supports + - * / and ())	Lihi i waho (+) a i loko (-), % o ke ki?eki?e, -25 a 25 (hiki ke ho?ohana i + - * / a me ())
+Edge softness, % of the height, 0 to 25 (supports + - * / and ())	Palupalu lihi, % o ke ki?eki?e, 0 a 25 (hiki ke ho?ohana i + - * / a me ())
+FDS hardware gain range, 0-63 (supports + - * / and ())	Laul? ho?onui leo lako FDS, 0-63 (hiki ke ho?ohana i + - * / a me ())
+Feature size, 0.1-8 (supports + - * / and ())	Nui o ke ?ano, 0.1-8 (hiki ke ho?ohana i + - * / a me ())
+Horizontal cells, 64-960 (supports + - * / and ())	N? ke?ena papamoe, 64-960 (hiki ke ho?ohana i + - * / a me ())
+How big a blob grows, 0-1 (supports + - * / and ())	Ka nui e ulu ai ka pu?upu?u, 0-1 (hiki ke ho?ohana i + - * / a me ())
+How hard it cuts, %, 0 to 100 (supports + - * / and ())	Ka ikaika o ka ?oki, %, 0 a 100 (hiki ke ho?ohana i + - * / a me ())
+How hard the audio drives it, 0-1 (supports + - * / and ())	Ka ikaika o ke kani e ho?okele ai, 0-1 (hiki ke ho?ohana i + - * / a me ())
+How many are alive at once, 3-48 (supports + - * / and ())	Ka nui e ola p? ana, 3-48 (hiki ke ho?ohana i + - * / a me ())
+How much of each frame feeds the next, 0-0.95 (supports + - * / and ())	Ka m?hele o k?l? m?lina e h?nai i ka mea a?e, 0-0.95 (hiki ke ho?ohana i + - * / a me ())
+How readily neighbours merge, 0 (never) to 1 (supports + - * / and ())	Ka ma?alahi e hui ai n? hoalauna, 0 (?a?ole loa) a 1 (hiki ke ho?ohana i + - * / a me ())
+Internal resolution, 1 (chunky) to 5 (fine) (supports + - * / and ())	M?ak?ka k?loko, 1 (??pana nui) a 5 (li?ili?i) (hiki ke ho?ohana i + - * / a me ())
+Master oscillator rate, 0.01-8 (supports + - * / and ())	Wikiwiki o ka mea ha?alulu nui, 0.01-8 (hiki ke ho?ohana i + - * / a me ())
+Modulator as a ratio of the note, 0.05-16 (supports + - * / and ())	Mea ho?ololi ma ka l?ki? o ka leo, 0.05-16 (hiki ke ho?ohana i + - * / a me ())
+One LED tile's height in pixels, 8-8192 (supports + - * / and ())	Ki?eki?e o ho?okahi ??pana LED ma n? kiko ki?i, 8-8192 (hiki ke ho?ohana i + - * / a me ())
+One LED tile's width in pixels, 8-8192 (supports + - * / and ())	Laul? o ho?okahi ??pana LED ma n? kiko ki?i, 8-8192 (hiki ke ho?ohana i + - * / a me ())
+Palette turn, 0-1 (supports + - * / and ())	Ka huli o ka papa waiho?olu?u, 0-1 (hiki ke ho?ohana i + - * / a me ())
+Per-frame zoom of the feedback path, 0.90-1.15 (supports + - * / and ())	Ho?okokoke ala ho?i i k?l? m?lina, 0.90-1.15 (hiki ke ho?ohana i + - * / a me ())
+Pitch in hertz, 20-8000 (supports + - * / and ())	Ki?eki?e leo ma ka hertz, 20-8000 (hiki ke ho?ohana i + - * / a me ())
+Pixel sort amount, 0-1 (supports + - * / and ())	Nui o ka ho?oka?ina kiko ki?i, 0-1 (hiki ke ho?ohana i + - * / a me ())
+Scale of the whole graphic, 0.5-2 (supports + - * / and ())	P?l?ki? o ke ki?i holo?oko?a, 0.5-2 (hiki ke ho?ohana i + - * / a me ())
+Size, %, 5 to 400 (supports + - * / and ())	Nui, %, 5 a 400 (hiki ke ho?ohana i + - * / a me ())
+Spiral size, 0.25-4 (supports + - * / and ())	Nui o ka wili, 0.25-4 (hiki ke ho?ohana i + - * / a me ())
+Spiral strength, 0-4 (supports + - * / and ())	Ikaika o ka wili, 0-4 (hiki ke ho?ohana i + - * / a me ())
+Thickness of the glowing edge, 0-1 (supports + - * / and ())	M?noanoa o ka lihi ??lohilohi, 0-1 (hiki ke ho?ohana i + - * / a me ())
+0-127; 127 is all-call	0-127; k?hea ?o 127 i n? mea a pau
+0-127; the domain the facility's clock runs on	0-127; ke kahua o ka uaki o ka hale
+10-79 characters, or empty for none	10-79 huapalapala, a waiho hakahaka no ka ?ole
+8 zones already: click one to remove it first	he 8 ??pana i k?ia manawa: kaomi i ho?okahi e holoi mua
+8+ characters; letters and symbols are allowed	8+ huapalapala; hiki n? leka a me n? h??ailona
+A command line, or blank for nothing	He l?lani kauoha, a waiho hakahaka no ka ?ole
+a step cannot fire the playlist it lives on	?a?ole hiki i ke ka?ina ke ho?? i kona papa p??ani pono??
+a target cannot target another target	?a?ole hiki i ka pahuhopu ke kuhikuhi i pahuhopu ?? a?e
+an IPv4 address, or 255.255.255.255 to broadcast	he helu IPv4, a i ?ole 255.255.255.255 no ka ho?olele
+AUDIOALSO ADD: seven extra destinations is the limit	AUDIOALSO ADD: ?ehiku puka hou ka palena
+AUDIOFX PLUGIN: this build has no plugin host	AUDIOFX PLUGIN: ?a?ohe mea ho?okipa ku?ina ma k?ia mana
+BROWSER CLICK: this browser backend cannot drive the page	BROWSER CLICK: ?a?ole hiki i k?ia ??naehana kele ke kaohi i ka ?ao?ao
+BROWSER INTERACT: this browser backend has no hands-on mode	BROWSER INTERACT: ?a?ohe ?ano kaohi lima ma k?ia ??naehana kele
+BROWSER SCROLL: expected pixels (negative is up)	BROWSER SCROLL: e ho?okomo i n? kiko ki?i (helu ?emi no luna)
+BROWSER TYPE: this browser backend cannot type	BROWSER TYPE: ?a?ole hiki i k?ia ??naehana kele ke kikokiko
+cancelled: the waiting cue is no longer in the playlist	ua k?pae ?ia: ?a?ole ka cue kali ma ka papa p??ani hou
+could not create an OpenGL context for Spout receive	?a?ole i hiki ke hana i p??aiapili OpenGL no ka loa?a Spout
+could not create the offscreen window Spout receive needs	?a?ole i hiki ke hana i puka waho pale e pono ai no ka loa?a Spout
+could not get a device context for Spout receive	?a?ole i hiki ke loa?a i p??aiapili h?me?a no ka loa?a Spout
+driver would not create output buffers	?a?ole i hana ke kalaiwa i n? pale ho?omana?o puka
+driver would not load (in use by another application?)	?a?ole i ho?ouka ke kalaiwa (ke ho?ohana ?ia nei e kekahi polokalamu ?? a?e?)
+driver would not report a buffer size	?a?ole i h??ike ke kalaiwa i ka nui o ka pale ho?omana?o
+driver would not report channel info	?a?ole i h??ike ke kalaiwa i ka ?ike kaha
+fetching the speech model - captions start when it arrives	ke ki?i nei i ke kumu ??lelo - ho?omaka n? lepe ke hiki mai
+four effects at most on one device: remove one first	?eh? hopena ka palena no ka h?me?a: holoi mua i ho?okahi
+FX ADD: datamosh needs a file-backed video cue	FX ADD: pono ka cue wiki? mai ka waihona no datamosh
+group presets became master cues: use MASTER	ua lilo n? ho?onohonoho p??ulu i mau cue nui: e ho?ohana i? MASTER
+live captions are not installed here (deckboy-listen was not found)	?a?ole i ho?ouka ?ia n? lepe ola ma ?ane?i (?a?ole i loa?a ?o deckboy-listen)
+Lower Third added - put its playlist on a layer	ua ho?ohui ?ia ?o Lower Third - kau i kona papa p??ani ma kahi papa
+make a step first: a section starts at a step	e hana mua i ka?ina: ho?omaka ka m?hele ma ke ka?ina
+MASK PATH: a path needs at least three points	MASK PATH: pono he ?ekolu kiko a ?oi no ke ala
+MATRIX SET: level is a percent from 0 to 100	MATRIX SET: he p?k?neka ka pae mai 0 a 100
+MIDIMAP: that command is only accepted from this computer	MIDIMAP: ?ae wale ?ia k?l? kauoha mai k?ia kamepiula
+MOTION ZONE ADD: the zone must fit inside the picture	MOTION ZONE ADD: pono ke ??pana e noho ma loko o ke ki?i
+NETCUE ADDRESS: an OSC address must start with /	NETCUE ADDRESS: pono ka helu OSC e ho?omaka me /
+release has no build for this platform	?a?ohe mana o k?ia ho?oku?u no k?ia paepae
+SLICE ADD: already 16 slices on this output	SLICE ADD: he 16 ??pana ma k?ia puka i k?ia manawa
+still reading the last folder -- one at a time	ke heluhelu nei i ka waihona hope -- ho?okahi i ka manawa
+SUBTITLE CONVERT: destination must be .srt or .vtt	SUBTITLE CONVERT: pono ka puka he .srt a i ?ole .vtt
+SUBTITLE CONVERT: the cue has no caption file	SUBTITLE CONVERT: ?a?ohe waihona lepe ma ka cue
+the caption model has not been downloaded yet	?a?ole i ki?i ?ia ke kumu lepe i k?ia manawa
+the playing step was removed - sequence stopped	ua holoi ?ia ke ka?ina e p??ani ana - ua k? ka mo?o
+this cue has no known end to resolve into	?a?ohe hopena ?ike ?ia o k?ia cue e ho?opau ai
+this output's renderer could not cut the mask	?a?ole i hiki i ka mea kaha o k?ia puka ke ?oki i ka uhi
+TRACKER: there are no steps (TRACKER ADD makes one)	TRACKER: ?a?ohe ka?ina (hana ?o TRACKER ADD i ho?okahi)
+unsaved changes will be lost: press new again	e nalowale n? loli i m?lama ?ole ?ia: kaomi hou i ka hou
+update: could not start the install helper	h??ano hou: ?a?ole i hiki ke ho?omaka i ke k?kua ho?ouka
+update: could not start the installer	h??ano hou: ?a?ole i hiki ke ho?omaka i ka mea ho?ouka
+update: could not write the install helper	h??ano hou: ?a?ole i hiki ke k?kau i ke k?kua ho?ouka
+update: not running from an AppImage	h??ano hou: ?a?ole e holo nei mai AppImage
+WEBMONITOR SOURCE: could not create the web output	WEBMONITOR SOURCE: ?a?ole i hiki ke hana i ka puka p?naewele
+zones cleared: Motion reads the whole picture	ua holoi ?ia n? ??pana: heluhelu ka Ne?e i ke ki?i holo?oko?a
+BROWSER SCROLL: this browser backend cannot drive the page	BROWSER SCROLL: ?a?ole hiki i k?ia ??naehana kele ke kaohi i ka ?ao?ao
+BROWSER SCROLLBAR: this browser backend cannot drive the page	BROWSER SCROLLBAR: ?a?ole hiki i k?ia ??naehana kele ke kaohi i ka ?ao?ao
+Seconds, 0-4 (supports + - * / and ())	Kekona, 0-4 (hiki ke ho?ohana i + - * / a me ())
+Seconds, 0-8 (supports + - * / and ())	Kekona, 0-8 (hiki ke ho?ohana i + - * / a me ())
+Seconds between retriggers, 0-8 (supports + - * / and ())	Kekona ma waena o n? ho?? hou, 0-8 (hiki ke ho?ohana i + - * / a me ())
+Seconds the finished drawing stays, 0 to 60 (supports + - * / and ())	Kekona e pa?a ai ke kaha i pau, 0 a 60 (hiki ke ho?ohana i + - * / a me ())
+Seconds the in move takes, 0-5 (supports + - * / and ())	Kekona no ka ne?e komo, 0-5 (hiki ke ho?ohana i + - * / a me ())
+Seconds the out move takes, 0-5 (supports + - * / and ())	Kekona no ka ne?e puka, 0-5 (hiki ke ho?ohana i + - * / a me ())
+Seconds before it leaves by itself; 0 waits for OUT (supports + - * / and ())	Kekona ma mua o ka puka ?akomi; kali ?o 0 no OUT (hiki ke ho?ohana i + - * / a me ())
+Pixels, 64-2160 (supports + - * / and ())	N? kiko ki?i, 64-2160 (hiki ke ho?ohana i + - * / a me ())
+Pixels, 64-3840 (supports + - * / and ())	N? kiko ki?i, 64-3840 (hiki ke ho?ohana i + - * / a me ())
+Space under it, as a fraction of the frame, 0-0.8 (supports + - * / and ())	W?hi ma lalo ma ka m?hele o ka m?lina, 0-0.8 (hiki ke ho?ohana i + - * / a me ())
+Where the eye sits, 0 left to 1 right (supports + - * / and ())	Kahi o ka maka, 0 hema a 1 ??kau (hiki ke ho?ohana i + - * / a me ())
+Where the eye sits, 0 top to 1 bottom (supports + - * / and ())	Kahi o ka maka, 0 luna a 1 lalo (hiki ke ho?ohana i + - * / a me ())
+Turbulence, 0 still to 3 boiling (supports + - * / and ())	?Ino, 0 pa?a a 3 paila (hiki ke ho?ohana i + - * / a me ())
+Turns the rim's colours round the wheel, 0-1 (supports + - * / and ())	Ho?ohuli i n? waiho?olu?u lihi a puni ka huila, 0-1 (hiki ke ho?ohana i + - * / a me ())
+port number (default 5510)	helu puka (pa?amau 5510)
+port number (default 5511)	helu puka (pa?amau 5511)
+port number (default 6454)	helu puka (pa?amau 6454)
+port number (default 8090)	helu puka (pa?amau 8090)
+port number (vMix uses 8088)	helu puka (vMix ho?ohana 8088)
+port number (vMix uses 8099)	helu puka (vMix ho?ohana 8099)
+e.g. /cue/1/start	la?ana /cue/1/start
+e.g. 12.5	la?ana 12.5
+e.g. 192.168.1.50	la?ana 192.168.1.50
+e.g. 1=255, 10-14=64	la?ana 1=255, 10-14=64
+e.g. 90 3C 7F	la?ana 90 3C 7F
+A dark line between the tiles, like grout or an LED wall.	He kaha pouli ma waena o n? ??pana, e like me ke puna a i ?ole ka p? LED.
+Above halfway, a hard cut in the picture resets the loop to clean.	Ma luna o ka hapalua, ho?oma?ema?e ke ?oki koke o ke ki?i i ka p??ai.
+Above halfway, the repeated piece plays backwards.	Ma luna o ka hapalua, p??ani hope ka ??pana i hana hou ?ia.
+Darkens the boundaries where crystals meet.	Ho?opouli i n? palena kahi e hui ai n? aniani.
+Fine sensor noise at the bottom, chunky film at the top.	He wala?au m?kini li?ili?i ma lalo, he hua ki?i?oni?oni nui ma luna.
+From an even blur to a streak along the angle, like movement.	Mai ka p?wehiwehi like a i ke kaha ma ke kihi, e like me ka ne?e.
+Grain size: one pixel at the left, big blocky grains at the right.	Nui o ka hua: ho?okahi kiko ki?i ma ka hema, hua huinah? nui ma ka ??kau.
+Grows or shrinks the echo each pass. Centre holds still.	Ho?onui a h??emi i ke aka i k?l? p??ai. Pa?a ma ke kikowaena.
+How big the crystals grow before they meet.	Ka nui e ulu ai n? aniani ma mua o ka hui ?ana.
+How big the room is. Small is a booth, large is a hall.	Ka nui o ka lumi. He pahu ka li?ili?i, he hale nui ka nui.
+How big the shards are. Small is frosted glass, large is a dropped plate.	Ka nui o n? ??pana naha. He aniani hau ka li?ili?i, he p? h??ule ka nui.
+How dark the dark lines go. All the way up is black between lines.	Ka pouli o n? kaha pouli. ?Ele?ele ma waena o n? kaha ma ke ki?eki?e loa.
+How far each shard slides from where it belongs.	Ka mamao e pahe?e ai k?l? ??pana mai kona wahi pono.
+How far each stroke is dragged along the grain.	Ka mamao e huki ?ia ai k?l? kaha ma ke kumu kaha.
+How far it smears: up to a few percent of the picture.	Ka mamao o ka hamo: a hiki i kekahi mau p?k?neka o ke ki?i.
+How far the bright parts pull away from the surface.	Ka mamao e huki ai n? ??pana m?lamalama mai ka ?ili.
+How far the sound throws each line sideways.	Ka mamao e ho?olei ai ke kani i k?l? kaha i ka ?ao?ao.
+How far the two eyes disagree. Brightness is read as nearness.	Ka ?oko?a ma waena o n? maka ?elua. He kokoke ka m?lamalama.
+How fast it closes. Slow enough not to chop the ends off words.	Ka wikiwiki e pani ai. Lohi k?pono e ?oki ?ole ai i n? hope hua??lelo.
+How fast the drips run. At the left the picture only sags.	Ka wikiwiki o ke kulu. Ma ka hema, h??ule wale ke ki?i i lalo.
+How fast the light walks around it. Zero holds it still.	Ka wikiwiki o ka m?lamalama e hele puni ai. Pa?a ma ka ?ole.
+How fast the sand travels to the still lines.	Ka wikiwiki o ke one e ne?e ai i n? kaha pa?a.
+How gradually the key cuts in. Hard at the left.	Ka m?lie o ke ?oki k?. ?O?ole?a ma ka hema.
+How hard it is driven into its own limits.	Ka ikaika e kipaku ?ia ai i kona mau palena pono??.
+How long a short stays closed, in VIDEO FRAMES.	Ka l??ihi e pa?a ai ke kaapuni p?kole, ma n? M?LINA WIKI?.
+How many shades survive the quantise.	Ka nui o n? aka waiho?olu?u e koe ma hope o ka ho?oka?ina pae.
+How many spikes the field breaks into.	Ka nui o n? w?lau e m?hele ai ke kahua.
+How many times a skip repeats before the sound catches up again.	Ka nui o n? hana hou o ka lele ma mua o ka hahai hou ?ana o ke kani.
+How much each shard turns on its own centre.	Ka nui e huli ai k?l? ??pana ma kona kikowaena pono??.
+How much of the push goes downward rather than sideways.	Ka m?hele o ka pahu e hele i lalo ma kahi o ka ?ao?ao.
+How much the flame gutters frame to frame.	Ka nui e ?alohi pio ai ka lapalapa mai kekahi m?lina a i kekahi.
+How quickly the loop relaxes when nothing feeds it.	Ka wikiwiki e m?lie ai ka p??ai ke h?nai ?ole ?ia.
+How strongly the outlines are drawn.	Ka ikaika o n? kaha palena.
+How strongly the water bends the picture.	Ka ikaika o ka wai e ho?opi?o ai i ke ki?i.
+How wide a band of colours either side of it changes too.	Ka laul? o ke k??ei waiho?olu?u ma n? ?ao?ao ?elua e loli p? ai.
+Lifts the dark tones without moving pure black.	Ho?oki?eki?e i n? aka pouli me ka ho?ololi ?ole i ka ?ele?ele loa.
+Pushes the rings in or out of the centre.	Pahu i n? apo i loko a i waho o ke kikowaena.
+Rounds the tiles off, all the way to dots.	Ho?opoepoe i n? ??pana a lilo i mau kiko.
+Softens the fold so it ramps instead of creasing.	Ho?opalupalu i ka pelu i pi?i m?lie ai me ke kihi ?oi ?ole.
+Sorts the runs the other way, so they pour from light to dark.	Ho?oka?ina i n? k??ei i ke ala ?? a?e, e kahe mai ka m?lamalama i ka pouli.
+The bright net the waves focus onto the picture.	Ka ?upena m?lamalama e ho??koakoa ?ia e n? nalu ma ke ki?i.
+The brightness that decides black from white.	Ka m?lamalama e ho?oka?awale ai i ka ?ele?ele a me ke ke?oke?o.
+The colour to change, round the wheel from red.	Ka waiho?olu?u e ho?ololi, a puni ka huila mai ka ?ula?ula.
+Turns the echo each pass, which winds the melt into a spiral.	Ho?ohuli i ke aka i k?l? p??ai, e wili ai ka hehe?e i ka p??ai wili.
+OUTPUT --.-	PUKA --.-
+OUTPUT WARM	PUKA HO?OM?KAUKAU
+STREAM --.-	KAHAWAI --.-
+STREAM ERR	KAHAWAI HEWA
+STREAM OFF	KAHAWAI PIO
+STREAM WARM	KAHAWAI HO?OM?KAUKAU
+In time	Manawa komo
+Out time	Manawa puka
+OSC Feedback Mirror Rate	Wikiwiki aniani pane OSC
+OSC Query HTTP Port	Puka HTTP OSC Query
+Key sender source name	Inoa kumu o ka mea ho?ouna k?
+ST 2110 Destination	Pahuhopu ST 2110
+ST 2110 network interface	Pilina p?naewele ST 2110
+ST 2110 Port	Puka ST 2110
+vMix HTTP Port	Puka HTTP vMix
+vMix TCP Port	Puka TCP vMix
+Web Monitor Connections	N? pilina pale p?naewele
+Web Monitor PIN	PIN pale p?naewele
+Web Monitor Port	Puka pale p?naewele
+Legacy Cue Link	Loulou cue kahiko
+Fireside	?Ao?ao kapuahi
+hue turn	huli waiho?olu?u
+ferrofluid	wai m?k?neki
+dye advect	kahe waiho?olu?u
+edge ignite	ho?? lihi
+feedback bloom	??lohilohi ho?i
+reaction bloom	pua p?na?i
+pythagorean	no Pitagora
+purkinje	no Purkinje
+schlieren	kaha haki m?lamalama
+audioprint	pa?i leo
+e.g. 20:0 or client name	la?ana 20:0 a i ?ole inoa mea k??ai
+Hz or AUTO (e.g. 60 or 59.94)	Hz a i ?ole AUTO (la?ana 60 a i ?ole 59.94)
+kbps (32-512; 160 is a sane default)	kbps (32-512; he pa?amau k?pono ka 160)
+Multicast group (e.g. 239.20.10.1)	P??ulu Multicast (la?ana 239.20.10.1)
+Prefix (optional). Example: Q	P?ku?i mua (koho). La?ana: Q
+Prefix and optional start (example: Q 100)	P?ku?i mua me ka helu ho?omaka koho (la?ana: Q 100)
+WIDTHxHEIGHT (e.g. 2560x1080)	LAUL?xKI?EKI?E (la?ana 2560x1080)
+WIDTHxHEIGHT (e.g. 5760x2160)	LAUL?xKI?EKI?E (la?ana 5760x2160)
+position on the output raster, in pixels	kahi ma ke kaha puka, ma n? kiko ki?i
+seconds (1-10; most platforms want 2)	kekona (1-10; makemake ka hapanui o n? paepae i 2)
+seconds this step holds before PLAY moves on	kekona e pa?a ai k?ia ka?ina ma mua o ka ne?e ?ana o PLAY
+Leave empty to follow the live cue notes	Waiho hakahaka e hahai i n? memo o ka cue e p??ani nei
+Target IP (or 255.255.255.255 to broadcast)	IP pahuhopu (a i ?ole 255.255.255.255 no ka ho?olele)
+MIDIFILE: the selected cue is not a midi file cue	MIDIFILE: ?a?ole he cue waihona MIDI ka cue i koho ?ia
+NETCUE: the selected cue is not a network cue	NETCUE: ?a?ole he cue p?naewele ka cue i koho ?ia
+SCRIPTCUE: the selected cue is not a script cue	SCRIPTCUE: ?a?ole he cue palapala kauoha ka cue i koho ?ia
+SYNTH: the selected cue is not a video synth	SYNTH: ?a?ole he cue hana wiki? ka cue i koho ?ia
+TCCUE: the selected cue is not a timecode cue	TCCUE: ?a?ole he cue helu manawa ka cue i koho ?ia
+TEXTCUE: the selected cue is not a text cue	TEXTCUE: ?a?ole he cue kikokikona ka cue i koho ?ia
+Cue name (blank restores the file name)	Inoa cue (hakahaka e ho?iho?i i ka inoa waihona)
+ASCII HOLD: seconds, 0-60 (0 mutes the phrases)	ASCII HOLD: kekona, 0-60 (ho?opau ?o 0 i n? m?mala)
+AUDIOFX: expected OFF, BYPASS, or amount and parameters as percentages	AUDIOFX: e ho?okomo i OFF, BYPASS, a i ?ole ka nui a me n? ana ma ka p?k?neka
+CHIP ENV: expected <attack> <release> in seconds	CHIP ENV: e ho?okomo i <attack> <release> ma ke kekona
+DECKLINK: no DeckLink driver on this computer (Blackmagic Desktop Video)	DECKLINK: ?a?ohe kalaiwa DeckLink ma k?ia kamepiula (Blackmagic Desktop Video)
+DMXCUE LEVELS: nothing has been sent on that universe	DMXCUE LEVELS: ?a?ohe mea i ho?ouna ?ia ma k?l? universe
+downloading the caption model, then listening...	ke ki?i nei i ke kumu lepe, a laila e ho?olohe...
+drag the panels to arrange the presenter screen	kau? i n? papa e ho?onohonoho ai i ka pale mea h??ike
+DRAW SIZE: 0.1-20 (% of the picture's height)	DRAW SIZE: 0.1-20 (% o ke ki?eki?e ki?i)
+DRAW STROKE: each point is x,y or x,y,pressure, in percent	DRAW STROKE: he x,y a i ?ole x,y,pressure k?l? kiko, ma ka p?k?neka
+encoder destination: _converted beside the show	pahuhopu ho?op???: _converted ma ka ?ao?ao o ka h??ike
+ENDACTION: only video and audio cues have an end action	ENDACTION: he hana hopena no n? cue wiki? a me leo wale n?
+Enter playlist SMPTE FPS: 24 / 25 / 29.97 / 30	Ho?okomo i ka SMPTE FPS o ka papa p??ani: 24 / 25 / 29.97 / 30
+expected one expression, three for colour, or four with alpha	e ho?okomo i ho?okahi ha?i helu, ?ekolu no ke kala, a i ?ole ?eh? me ka alpha
+format 2 files are a set of independent patterns, not a performance	he p??ulu lauana k??oko?a n? waihona ?ano 2, ?a?ole he p??ani ho?okahi
+INPUTMONITOR: a row count, OPEN, CLOSE, CLEAR, PAUSE or RESUME	INPUTMONITOR: he nui l?lani, OPEN, CLOSE, CLEAR, PAUSE a i ?ole RESUME
+MASTER DECK: expected a deck number and a cue number	MASTER DECK: e ho?okomo i ka helu deck a me ka helu cue
+MIDIIN OSC: an address, and optionally a number	MIDIIN OSC: he helu wahi, a he helu koho
+MONITOR DECK: expected a playlist number or FOLLOW	MONITOR DECK: e ho?okomo i ka helu papa p??ani a i ?ole FOLLOW
+MONITOR ROOM: expected a playlist and ON or OFF	MONITOR ROOM: e ho?okomo i ka papa p??ani a me ON a i ?ole OFF
+MULTIVIEW WINDOW REMOVE: expected a window number	MULTIVIEW WINDOW REMOVE: e ho?okomo i ka helu puka aniani
+NETCUE ADDRESS: expected an OSC path starting with /	NETCUE ADDRESS: e ho?okomo i ke ala OSC e ho?omaka me /
+new show disarms all outputs: press new again	ho?opau ka h??ike hou i ka m?kaukau o n? puka a pau: kaomi hou i ka hou
+NMOS: discovery needs the remote network allowed	NMOS: pono e ?ae i ka p?naewele mamao no ka ?imi
+NMOS: searching for a registry (mDNS)	NMOS: ke ?imi nei i papa inoa (mDNS)
+no picture on this cue - nothing to follow	?a?ohe ki?i ma k?ia cue - ?a?ohe mea e hahai ai
+no picture on this cue - nothing to close the loop through	?a?ohe ki?i ma k?ia cue - ?a?ohe mea e pani ai ka p??ai ma loko
+no video clock on this cue - nothing to lock to	?a?ohe uaki wiki? ma k?ia cue - ?a?ohe mea e laka ai
+normalize: selection has no file-backed audio	ho?olikelike: ?a?ohe leo mai ka waihona ma ke koho
+normalize all: no file-backed audio in this deck	ho?olikelike i n? mea a pau: ?a?ohe leo mai ka waihona ma k?ia deck
+only a MIDI note or an OSC address can take a cue	he leo MIDI a i ?ole helu OSC wale n? e ho?? i ka cue
+Only accept transport from this sender (blank = anyone)	?Ae i n? kaohi p??ani mai k?ia mea ho?ouna wale n? (hakahaka = n? mea a pau)
+OUTPROBE: that output has no compositor (is it on?)	OUTPROBE: ?a?ohe mea ho?ohui ki?i ma k?l? puka (ua ho?? ?ia?)
+OUTPUTFX ADD: four effects at most on one device	OUTPUTFX ADD: ?eh? hopena ka palena no ka h?me?a
+OUTPUTFX SET: expected an effect number and 0-100	OUTPUTFX SET: e ho?okomo i ka helu hopena a me 0-100
+PATCH: a level is dB from -48 to +6, or OFF	PATCH: he dB ka pae mai -48 a +6, a i ?ole OFF
+PORTS: expected an http port and a tcp port	PORTS: e ho?okomo i puka http a me puka tcp
+PRELOAD: expected a position in seconds, OFF or STATUS	PRELOAD: e ho?okomo i kahi ma ke kekona, OFF a i ?ole STATUS
+STING: select a tone cue first (TONECUE makes one)	STING: e koho mua i cue leo (hana ?o TONECUE i ho?okahi)
+STREAM ADD: expected a URL, e.g. srt://host:port	STREAM ADD: e ho?okomo i URL, la?ana srt://host:port
+TARGET CUE: expected a deck number and a cue number	TARGET CUE: e ho?okomo i ka helu deck a me ka helu cue
+TEXTCUE SIZE: expected 1-100 (percent of the raster)	TEXTCUE SIZE: e ho?okomo i 1-100 (p?k?neka o ke kaha)
+Apple keeps the Keynote format secret on purpose, a malicious lock-in tactic, so only Apple's own software can read it properly. Best route: open it in Keynote on iCloud.com (free, in any browser), choose Download a Copy > PDF, and import that PDF	M?lama h?n? ?o Apple i ke ?ano Keynote me ka mana?o, he hana ho?opa?a mea ho?ohana me ka mana?o ?ino, no laila ?o n? polokalamu a Apple wale n? ke heluhelu pololei. Ke ala maika?i loa: wehe ma Keynote ma iCloud.com (manuahi, ma kekahi polokalamu kele), koho i? Download a Copy > PDF, a ho?okomo i k?l? PDF
+Keynote could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)	?A?ole i hiki i? Keynote ke ho?ouna aku i k?ia waihona (pono paha ka ?ae no ka hana ?akomi: System Settings > Privacy & Security > Automation)
+cannot read the file: if it lives in OneDrive or iCloud, open it once so it downloads, then import it	?a?ole hiki ke heluhelu i ka waihona: in? ma OneDrive a i ?ole iCloud, wehe ho?okahi e ki?i ai, a laila ho?okomo
+the file is empty (0 bytes): it may not have finished copying or saving	hakahaka ka waihona (0 bytes): ?a?ole paha i pau ke kope a i ?ole ka m?lama
+the installed NDI runtime is missing entry points this needs	nele ka ??naehana NDI i ho?ouka ?ia i n? wahi komo e pono ai
+the NDI runtime declined to start on this machine	h??ole ka ??naehana NDI e ho?omaka ma k?ia m?kini
+programme sound is always included; use WEBMONITOR OFF to stop the monitor	ho?okomo mau ?ia ke kani PROGRAM; e ho?ohana i? WEBMONITOR OFF e ho?opau i ka pale
+phone control requires an 8+ character passphrase	pono he ??lelo huna 8+ huapalapala no ka kaohi kelepona
+set an 8+ character Web Monitor passphrase first	e ho?onoho mua i ??lelo huna pale p?naewele 8+ huapalapala
+network sharing and phone control require an 8+ character passphrase	pono he ??lelo huna 8+ huapalapala no ke ka?analike p?naewele a me ka kaohi kelepona
+paired phones removed: they need the QR code or the passphrase again	ua wehe ?ia n? kelepona i ho?opili ?ia: pono hou ke code QR a i ?ole ka ??lelo huna
+WEBMONITOR QR: needs the monitor on and shared on the network	WEBMONITOR QR: pono ka pale e ho?? a ka?analike ?ia ma ka p?naewele
+WEBMONITOR SOURCE: PROGRAMME or the number of an output that shows a picture	WEBMONITOR SOURCE: PROGRAMME a i ?ole ka helu o ka puka e h??ike ana i ki?i
+brightness moves the playhead (needs CPU frames)	ho?one?e ka m?lamalama i ke po?o p??ani (pono n? m?lina CPU)
+centred and full-frame - moves when the picture does	ma ke kikowaena a piha ka m?lina - ne?e p? me ke ki?i
+follows this cue's own brightness (needs CPU frames)	hahai i ka m?lamalama pono?? o k?ia cue (pono n? m?lina CPU)
+full-frame and no picture - bends when the picture shrinks	piha ka m?lina me ke ki?i ?ole - pi?o ke li?ili?i ke ki?i
+mic live on the default speakers - watch for feedback	ola ka leo ho?olele ma n? pahu leo pa?amau - e maka?ala i ka leo ho?i
+motion on: the camera is read, never recorded	ua ho?? ka ne?e: heluhelu ?ia ka pahupa?iki?i, ?a?ole ho?opa?a ?ia
+no picture - shorts run on a timer instead of on cuts	?a?ohe ki?i - holo n? kaapuni p?kole ma ka uaki ma kahi o n? ?oki
+no picture on this cue - nothing decides where the playhead is	?a?ohe ki?i ma k?ia cue - ?a?ohe mea e ho?oholo i kahi o ke po?o p??ani
+on the dashboard - Ctrl+D or the DASH button	ma ka papa kaohi - Ctrl+D a i ?ole ke pihi DASH
+output effects bypassed: no effect and no limit on this device	ua k??alo i n? hopena puka: ?a?ohe hopena a ?a?ohe palena ma k?ia h?me?a
+output recover failed: fullscreen unavailable	ua h??ule ka ho?iho?i puka: ?a?ole loa?a ke ?ano pale piha
+over 16 MB: not a drawing to make a mask from	?oi aku i ka 16 MB: ?a?ole he kaha e hana ai i uhi
+Page Down / Page Up step the focused playlist	ho?one?e ?o Page Down / Page Up i ka papa p??ani i koho ?ia
+pair with a picture effect whose LFO is set to Audio	ho?opili me ka hopena ki?i nona ka LFO i ho?onohonoho ?ia i Leo
+Port the Node + Connection API serve on	Puka e lawelawe ai ?o Node + Connection API
+recordings remux to MP4 when the take stops	ho?op??olo hou ?ia n? ho?opa?a i MP4 ke pau ka ho?opa?a
+Seconds for new image/pattern/browser/Lower Third cues (0 = hold)	Kekona no n? cue ki?i/lauana/kele/Lower Third hou (0 = pa?a)
+Seconds for new-cue fade in/out defaults	Kekona pa?amau no ka m?lamalama komo/mae puka o n? cue hou
+the background alpha belongs to a Lower Third	no Lower Third ka alpha k??ei kua
+TRACKER SET: a step cannot act on its own playlist	TRACKER SET: ?a?ole hiki i ke ka?ina ke hana ma kona papa p??ani pono??
+VIDEO OUTPUT LAYER: expected a layer number (1 is the base)	VIDEO OUTPUT LAYER: e ho?okomo i ka helu papa (?o 1 ke kumu)
+WARP AT: open the editor (WARP EDIT) and select a point first	WARP AT: e wehe i ka mea ho?oponopono (WARP EDIT) a koho mua i kiko
+what the operator should be told when GO reaches here	ka ??lelo no ka mea kaohi ke hiki mai ?o GO ma ?ane?i
+what the patch and the cues call it (FOH, SUB, PRESS FEED)	ka inoa ma ka patch a me n? cue (FOH, SUB, PRESS FEED)
+Where to send transport (blank = broadcast)	Kahi e ho?ouna ai i n? kaohi p??ani (hakahaka = ho?olele)
+Which switcher input Deckboy is (0 = not set)	Ka ho?okomo kuapo ki?i no Deckboy (0 = ?a?ole i ho?onohonoho ?ia)
+DMXCUE FIXTURE: expected <name> <level%>|LEAVE [<colour>]	DMXCUE FIXTURE: e ho?okomo i <name> <level%>|LEAVE [<colour>]
+DMXCUE LFO: expected <name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]	DMXCUE LFO: e ho?okomo i <name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]
+FIXTURE ADD: expected <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]	FIXTURE ADD: e ho?okomo i <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]
+MASK ASSIGN: expected <id|NONE> CUE | LAYER <output> <playlist> | OUTPUT <n> | MATTE <n>	MASK ASSIGN: e ho?okomo i <id|NONE> CUE | LAYER <output> <playlist> | OUTPUT <n> | MATTE <n>
+MASK LFO: expected <id> <param> ON|OFF [rate Hz] [depth %]	MASK LFO: e ho?okomo i <id> <param> ON|OFF [rate Hz] [depth %]
+rectc: expected <hh:mm:ss:ff|timeofday> [df|ndf|auto]	rectc: e ho?okomo i <hh:mm:ss:ff|timeofday> [df|ndf|auto]
+presenter colour: expected BG|INK|ACCENT #rrggbb	presenter colour: e ho?okomo i BG|INK|ACCENT #rrggbb
+expected waveform|scope|lissajous|spectrum|level|cover	e ho?okomo i waveform|scope|lissajous|spectrum|level|cover
+TRACKER: expected GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP or CLICKER	TRACKER: e ho?okomo i GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP a i ?ole CLICKER
+A worn or dirty head: softer, with noise that streaks along the lines.	He po?o heluhelu ?elemakule a lepo: palupalu a?e, me ka wala?au e kaha ana ma n? l?lani.
+A slow rocking of the viewpoint, which is what makes the depth read without glasses.	He luliluli m?lie o kahi n?n?, e ?ike ?ia ai ka hohonu me n? makaaniani ?ole.
+A slow sag in the supply, pulling the filter up and down like a dying battery.	He h??ule m?lie o ka mana, e huki ana i ke k?nana i luna a i lalo e like me ka pila e pau ana.
+An old deck: the picture wobbles, bends at the top of the frame and carries hum bars.	He m?kini p??ani kahiko: luliluli ke ki?i, pi?o ma luna o ka m?lina, a loa?a n? k??ei ha?alulu uila.
+An old tape loses bits of its oxide: dropouts flick white and repeat the line above, and the colour fizzes.	Pau n? ??pana ?okikene o ka lipine kahiko: ?? ke?oke?o n? h??ule h??ailona a hana hou i ka l?lani ma luna, a wala?au n? waiho?olu?u.
+Copies of copies: none at the left, four at the right. Each one loses more.	N? kope o n? kope: ?a?ohe ma ka hema, ?eh? ma ka ??kau. Emi hou ka maika?i o k?l? me k?ia.
+How abruptly it arrives. Low is a soft cloud, high is a hard porthole.	Ka hiki koke ?ana. He ao palupalu ka ha?aha?a, he puka poepoe ?oi ka ki?eki?e.
+How bright a pixel has to be before it lifts at all, so only the highlights spike.	Ka m?lamalama e pono ai ke kiko ki?i e h?pai, i ku?i wale n? ??pana m?lamalama loa.
+How deep the picture is treated as being. The brightness becomes height and is lit from the side.	Ka hohonu i mana?o ?ia no ke ki?i. Lilo ka m?lamalama i ki?eki?e a ho?om?lamalama ?ia mai ka ?ao?ao.
+How far away. Distance dulls the top and softens the difference between the ears.	Ka mamao. Ho??mi ka mamao i n? leo ki?eki?e a me ka ?oko?a ma waena o n? pepeiao.
+How far back each skip jumps, from a stutter to half a second.	Ka mamao ho?i o k?l? lele, mai ka ??kupe a i ka hapalua kekona.
+How gently the change fades out at the edges of the band.	Ka m?lie o ka mae ?ana o ka loli ma n? lihi k??ei.
+How hard it holds once it is working. Gentle at the bottom, a limiter at the top.	Ka ikaika o ka pa?a ke hana nei. M?lie ma lalo, he mea kaupalena ma luna.
+How irregular the growth is. Low gives an even honeycomb, high gives long shards.	Ka like ?ole o ka ulu. He waihona meli kaulike ka ha?aha?a, he ??pana l??ihi ka ki?eki?e.
+How long it is allowed to run. More steps means the ripples have crossed and reflected more times.	Ka l??ihi e ?ae ?ia e holo. ?Oi n? ka?ina, ?oi n? hala a me n? aniani ?ana o n? nalu.
+How long the reaction runs each frame. Short is a stain, long is an organism.	Ka l??ihi o ka p?na?i i k?l? m?lina. He kiko ka p?kole, he mea ola ka l??ihi.
+How many places drip: a few big drips at the left, many thin ones at the right.	Ka nui o n? wahi kulu: he mau kulu nui ma ka hema, he nui n? kulu lahilahi ma ka ??kau.
+How much of the picture glows: only the brightest at the left, nearly everything at the right.	Ka m?hele o ke ki?i e ??lohilohi: n? mea ?oi loa ma ka hema, kokoke i n? mea a pau ma ka ??kau.
+How much of the picture shows behind the lines. None at the left: lines on black.	Ka m?hele o ke ki?i ma hope o n? kaha. ?A?ohe ma ka hema: n? kaha ma ka ?ele?ele.
+How quickly the room eats the top end. More damping is a softer, more furnished space.	Ka wikiwiki e moni ai ka lumi i n? leo ki?eki?e. He lumi palupalu me n? lako nui ka ho?om?lie nui.
+How readily an edge catches. Low sets the whole picture alight, high only the hardest lines.	Ka ma?alahi e ?? ai ka lihi. Ho?? ka ha?aha?a i ke ki?i holo?oko?a, ke ki?eki?e i n? kaha ?oi loa wale n?.
+How wide a view is being compressed. Narrow is a punch down the middle, wide folds the whole frame into the centre.	Ka laul? o ka ?ike e kaomi ?ia ana. He ho?oku?i kikowaena ka h?iki, pelu ka laul? i ka m?lina holo?oko?a i ke kikowaena.
+Line pitch in pixels, so this reads at 4K as well as at 720.	Ka hakahaka o n? kaha ma n? kiko ki?i, i ?ike ?ia ma 4K a me 720.
+The head drifting off the track: a band of noise rolls through the picture.	Ka he?e ?ana o ke po?o mai ke ala lipine: he k??ei wala?au e ?oloka?a ana ma ke ki?i.
+Two is a mirror, twelve is a snowflake, and they are completely different pictures.	He aniani ka ?elua, he pua hau ka ?umikumam?lua, a ?oko?a loa n? ki?i.
+8+ characters; other machines send AUTH <passphrase> first. Empty = off	8+ huapalapala; hoʻouna mua nā mīkini ʻē aʻe iā AUTH <passphrase>. Hakahaka = pio
+A command line, as a DASH button runs it. {value} is the knob's number, {note} the key.	He lālani kauoha, e like me kā ke pihi DASH e holo ai. ʻO {value} ka helu o ka pihi wili, ʻo {note} ke kī.
+AUDIOALSO ADD: that is already this deck's main device -- it would play twice	AUDIOALSO ADD: ʻo ia nō ka hāmeʻa nui o kēia pā -- e hoʻokani pālua ana
+CHIP DUTY: this cue is an FDS synth, which has no duty	CHIP DUTY: he mea hoʻohua kani FDS kēia māka, ʻaʻohe duty
+CHIP NOISE: this cue is an FDS synth, which has no noise	CHIP NOISE: he mea hoʻohua kani FDS kēia māka, ʻaʻohe halulu
+CHIP VOICE: this cue is an FDS synth, which has no voice	CHIP VOICE: he mea hoʻohua kani FDS kēia māka, ʻaʻohe leo
+Chladni listens: the figure follows the pitch of the sound	Hoʻolohe ʻo Chladni: hahai ke kiʻi i ke kiʻekiʻe o ke kani
+DATAMOSH on - preparing (long clip, watch Encoder tab)	DATAMOSH ʻā - e hoʻomākaukau ana (ʻāpana lōʻihi, e nānā i ka ʻaoʻao Mea hoʻopāʻālua)
+Degrees per second, -720 to 720 (supports + - * / and ())	Degere i kēlā kekona, -720 a 720 (kākoʻo iā + - * / a me ())
+Degrees round the colour wheel, 0-360 (supports + - * / and ())	Degere a puni ka pōʻai waihoʻoluʻu, 0-360 (kākoʻo iā + - * / a me ())
+EDIT is off - press EDIT to type into the tracker	Ua pio ʻo EDIT - kaomi iā EDIT e kikokiko ma ka papa hahai
+HH:MM or HH:MM:SS on this computer's clock; empty for none	HH:MM a i ʻole HH:MM:SS ma ka uaki o kēia kamepiula; hakahaka no ka ʻole
+HH:MM:SS:FF of the timecode Deckboy is chasing; empty for none	HH:MM:SS:FF o ke code manawa a Deckboy e hahai nei; hakahaka no ka ʻole
+IPv4 addresses or a.b.c.d/bits, comma separated; empty = only this computer	Nā helu wahi IPv4 a i ʻole a.b.c.d/bits, hoʻokaʻawale me ke koma; hakahaka = kēia kamepiula wale nō
+Iris	Puka maka
+Lissajous (L/R phase)	Lissajous (pae L/R)
+MASK SHAPE: expected a shape (MASK SHAPES lists them)	MASK SHAPE: pono ke kinona (hōʻike ʻo MASK SHAPES i ka papa inoa)
+MIC INPUT: expected SETTINGS, TEST or a device name (MIC LIST)	MIC INPUT: pono ʻo SETTINGS, TEST a i ʻole ka inoa hāmeʻa (MIC LIST)
+MIC: select a mic cue first (MIC ADD makes one)	MIC: koho mua i māka hoʻolele leo (hana ʻo MIC ADD i kekahi)
+MIDIFILE: expected PORT, or no argument to report it	MIDIFILE: pono ʻo PORT, a i ʻole ʻaʻohe kumu e hōʻike ai i kona awa
+Memo	Memo hoʻomanaʻo
+Mic	Mīkini leo
+Moire	Kumu moiré
+NDI source name (e.g. LAPTOP (source 1))	Inoa kumu NDI (e laʻa LAPTOP (kumu 1))
+NEWSHOW: something is live or unsaved -- send NEWSHOW again within 2.5 s	NEWSHOW: he mea ola a mālama ʻole ʻia paha -- hoʻouna hou iā NEWSHOW i loko o 2.5 s
+NIC address or name; empty = the default route	Helu wahi a inoa NIC paha; hakahaka = ke ala paʻamau
+NIC name reported in interface_bindings (e.g. eth0)	Inoa NIC i hōʻike ʻia ma interface_bindings (e laʻa eth0)
+OUTPUT AOI: expected a size like 256x256, or FULL	OUTPUT AOI: pono ka nui e like me 256x256, a i ʻole FULL
+OUTPUT HDR WHITE: expected 80..500 nits (203 is BT.2408)	OUTPUT HDR WHITE: pono 80..500 nits (ʻo 203 ka BT.2408)
+Output height in px - math ok: 1080x2, 2160/2, 540+30	Kiʻekiʻe hoʻopuka ma px - hiki ke helu: 1080x2, 2160/2, 540+30
+Output width in px - math ok: 1920x2, 3840/2, 960+64	Ākea hoʻopuka ma px - hiki ke helu: 1920x2, 3840/2, 960+64
+PIP: retired -- scale a second deck over this one instead	PIP: ua hoʻōki ʻia -- e hoʻololi i ka nui o ka pā lua ma luna o kēia
+Registry URL (e.g. http://192.168.1.50:8010) - blank for mDNS	URL kākau inoa (e laʻa http://192.168.1.50:8010) - hakahaka no mDNS
+SCOPES SOURCE: expected PROGRAMME or an output number, 1-	SCOPES SOURCE: pono ʻo PROGRAMME a i ʻole ka helu hoʻopuka, 1-
+SMPTE hh:mm:ss:ff or seconds (blank = 00:00:00:00)	SMPTE hh:mm:ss:ff a i ʻole kekona (hakahaka = 00:00:00:00)
+SOURCE WINDOW: name the window, e.g. title:Firefox (or "desktop")	SOURCE WINDOW: e inoa i ka puka aniani, e laʻa title:Firefox (a i ʻole "desktop")
+Scrub	Huli lima
+Stream URL (srt://, rtmp://, rtsp://, udp://, or an http HLS .m3u8)	URL kahawai (srt://, rtmp://, rtsp://, udp://, a i ʻole he http HLS .m3u8)
+TSL Tally	Kukui hōʻailona TSL
+TUTORIAL SCREENS: expected a count, MIRRORED or REAL	TUTORIAL SCREENS: pono he helu, MIRRORED a i ʻole REAL
+Timecode	Code manawa
+a note number 0-127, LEARN to take the next note played, or empty for none	He helu nota 0-127, LEARN e lawe i ka nota aʻe i hoʻokani ʻia, a i ʻole hakahaka no ka ʻole
+atem tally on -- set which input Deckboy is	Ua ʻā ka hōʻailona ATEM -- e hoʻonohonoho i ka hoʻokomo o Deckboy
+browser connections at once, 1-64 (default 8)	Nā pilina polokalamu kele pūnaewele i ka manawa hoʻokahi, 1-64 (paʻamau 8)
+can't move the active cue -- take another cue on this deck first	ʻAʻole hiki ke hoʻoneʻe i ka māka e holo nei -- e hoʻā mua i māka ʻē aʻe ma kēia pā
+click anywhere on any screen to take its colour. Esc cancels	Kaomi i kekahi wahi ma kekahi pale e lawe i kona waihoʻoluʻu. Hoʻopau ʻo Esc
+click program or preview monitor to sample key color	Kaomi i ka pale PROGRAM a i ʻole ka pale nānā mua e koho i ka waihoʻoluʻu kī
+couldn't open a browser -- please report at github.com/Utopian-Academy/Deckboy/issues	ʻAʻole hiki ke wehe i ka polokalamu kele pūnaewele -- e hōʻike ma github.com/Utopian-Academy/Deckboy/issues
+e.g. /stage/doors -- sent to Deckboy's OSC port; empty for none	E laʻa /stage/doors -- hoʻouna ʻia i ke awa OSC o Deckboy; hakahaka no ka ʻole
+esc: control window - again to clear output	esc: puka hoʻomalu - hou e hoʻomaʻemaʻe i ka hoʻopuka
+milliseconds (20-8000; ~4x your RTT)	Milikekona (20-8000; ~4x kāu RTT)
+ndi tally trigger on -- program tally takes the cue	Ua ʻā ke kumu hōʻailona NDI -- hoʻā ka hōʻailona PROGRAM i ka māka
+nmos: network is LOCAL ONLY - not registering	nmos: he KŪLOKO WALE ka pūnaewele - ʻaʻole e kākau inoa
+no OpenGL pixel format available for Spout receive	ʻAʻohe ʻano pika OpenGL no ka loaʻa ʻana o Spout
+no masks yet: make one in a cue's MASK section	ʻAʻohe uhi i kēia manawa: e hana i kekahi ma ka māhele MASK o ka māka
+nothing to mask here: select a cue, or change MASK ON	ʻAʻohe mea e uhi ai ma ʻaneʻi: koho i māka, a i ʻole hoʻololi iā MASK ON
+phones need THE NETWORK: set 'Who can see it' first	Pono nā kelepona i KA PŪNAEWELE: hoʻonohonoho mua iā 'ʻO wai ke ʻike'
+pip: retired -- scale a second deck over this one instead	pip: ua hoʻōki ʻia -- e hoʻololi i ka nui o ka pā lua ma luna o kēia
+save failed - retrying; still open, use SAVE AS if needed	ʻAʻole i mālama ʻia - e hoʻāʻo hou ana; ua hāmama nō, e hoʻohana iā SAVE AS inā pono
+select a Draw cue first (SOURCE > MADE BY DECKBOY > Draw)	Koho mua i māka kaha (SOURCE > MADE BY DECKBOY > Draw)
+something mellow appeared in SOURCE > MADE BY DECKBOY	Ua puka mai kekahi mea mālie ma SOURCE > MADE BY DECKBOY
+sound scopes: integrated loudness and true peak start again	Nā ana kani: hoʻomaka hou ka leo nui hoʻohui a me ka piko ʻoiaʻiʻo
+that key drives the desk - use F1-F10, F12 or the number pad	Hoʻomalu kēlā kī i ka pākaukau - e hoʻohana iā F1-F10, F12 a i ʻole ka papa helu
+update: cannot find this app bundle to replace	Hōʻano hou: ʻaʻole hiki ke loaʻa kēia pūʻolo polokalamu e pani ai
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono (supports + - * / and ())	0 kuʻuna, 1 ahi, 2 hau, 3 neon, 4 mono (kākoʻo iā + - * / a me ())
+0 flows ALONG the edges, so colour orbits the shapes. 1 flows across them, which bleeds the picture into itself.	Kahe ʻo 0 MA NĀ kihi, e kaʻa ai ke kala a puni nā kinona. Kahe ʻo 1 ma ʻō aku o lākou, e kahe ai ke kiʻi i loko ona iho.
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono (supports + - * / and ())	0 ānuenue + hinahina, 1 ānuenue, 2 kumuhana, 3 mono (kākoʻo iā + - * / a me ())
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear (supports + - * / and ())	0 ʻāpana, 1 māhoe, 2 kahe, 3 noho lio, 4 nalu, 5 ʻoki (kākoʻo iā + - * / a me ())
+0-100%: the share of each band drawn as grey stripes (supports + - * / and ())	0-100%: ka māhele o kēlā kaha kēia kaha i kaha ʻia he mau kaha hinahina (kākoʻo iā + - * / a me ())
+ASCII WOBBLEMODE: drift | flow (follows luma) | hue (follows colour); no argument cycles	ASCII WOBBLEMODE: drift | flow (hahai i ka mālamalama) | hue (hahai i ke kala); me ka ʻole o ke kumu, hoʻololi pōʻai
+ASCII: the selected cue has no text mode (add the TEXT MODE effect, or select a video synth cue)	ASCII: ʻaʻohe ʻano kikokikona o ka māka i koho ʻia (hoʻohui i ka hopena TEXT MODE, a i ʻole koho i māka mea hoʻohua wikiō)
+ASCII: use ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>	ASCII: e hoʻohana iā ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>
+BLEND PAIR: expected <other output number> <overlap in pixels>	BLEND PAIR: pono <helu hoʻopuka ʻē aʻe> <uhi like ma nā pika>
+Below the middle narrows toward mono -- which is what a single PA cluster is. Above it widens.	Ma lalo o ka waena, emi i ke kani mono -- e like me ka pūʻulu leo PA hoʻokahi. Ma luna, ākea aʻe.
+Blueshift toward the direction of travel and redshift at the rim. Zero leaves the colour alone and it reads as a lens instead.	Neʻe i ka polū ma ke ala o ka holo a i ka ʻulaʻula ma ke kihi. ʻAʻole hoʻololi ka ʻole i ke kala, a ʻano like ia me ke aniani nānā.
+Bright: bright things drip over the dark, as text and logos do. Whole picture: everything is wax, and the picture itself runs down in its own colours.	Mālamalama: kulu nā mea mālamalama ma luna o ka pouli, e like me ke kikokikona a me nā hōʻailona. Kiʻi holoʻokoʻa: he piula nā mea a pau, a kahe ke kiʻi i lalo me kona mau kala.
+Centre is a straight line. Up bends it into an S -- darker shadows, brighter highlights, more contrast. Down flattens it.	He kaha pololei ka waena. Hoʻopiʻo ka luna i ke ʻano S -- pouli aʻe nā aka, mālamalama aʻe nā mea ʻōlinolino, ʻokoʻa aʻe. Hoʻopālahalaha ka lalo.
+Characters across. Fewer means bigger cells and less of the picture surviving, which is usually the point.	Nā huapalapala ma ka ʻākea. Ke emi, nui aʻe nā keʻena a emi ke kiʻi i koe, ʻo ia nō ke kumu maʻamau.
+Characters to build the picture from, darkest first. Empty uses the chosen glyph set.	Nā huapalapala e kūkulu ai i ke kiʻi, ka pouli mua. Ke hakahaka, hoʻohana ʻia ka pūʻulu hōʻailona i koho ʻia.
+Colour is recorded at a fraction of the detail: it smears sideways, lands late and its hue wanders.	Hoʻopaʻa ʻia ke kala me kekahi hapa o ke kikoʻī: pālahalaha i ka ʻaoʻao, hiki lohi mai, a auwana kona kala.
+DASH SET: needs a command -- DASH SET <n> <label> | <command> [| <glyph>]	DASH SET: pono he kauoha -- DASH SET <n> <label> | <command> [| <glyph>]
+DMXCUE SET: expected channel=level pairs, e.g. 1=255,10-14=64	DMXCUE SET: pono nā pālua channel=level, e laʻa 1=255,10-14=64
+DRAW COLOUR: #rrggbb, #rrggbbaa, a name, or 1-8 for the palette	DRAW COLOUR: #rrggbb, #rrggbbaa, he inoa, a i ʻole 1-8 no ka papa kala
+DRAW TOOL: brush, erase, line, box, oval or fill	DRAW TOOL: brush, erase, line, box, oval a i ʻole fill
+Devamp	Haʻalele pōʻai
+FADE TO: a speed from 0.25 to 4 (0.5 is half speed, an octave down)	FADE TO: he māmā mai 0.25 a 4 (ʻo 0.5 ka hapalua māmā, hoʻokahi ʻoketa i lalo)
+FADE WHAT: expected opacity, volume, dimmer, brightness, contrast, saturation, hue, effect, audiofx or speed	FADE WHAT: pono opacity, volume, dimmer, brightness, contrast, saturation, hue, effect, audiofx a i ʻole speed
+FX LFO wants <index> <slot> <on|off|shape> [value]	Pono ʻo FX LFO iā <index> <slot> <on|off|shape> [value]
+FX LFO: on, off, shape, rate, depth, zone, channel or cc	FX LFO: on, off, shape, rate, depth, zone, channel a i ʻole cc
+FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR	FX: e hoʻohana iā LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR
+Fields per frame, 0-4 (1 = one field per rendered frame) (supports + - * / and ())	Nā kahua i kēlā pā kiʻi, 0-4 (1 = hoʻokahi kahua i kēlā pā kiʻi i hana ʻia) (kākoʻo iā + - * / a me ())
+Flip across, upside down or both, or fold one half onto the other: right onto left, left onto right, bottom onto top, top onto bottom, or one corner into all four.	Huli ma ka ʻaoʻao, i lalo a i ʻole lāua ʻelua, a i ʻole pelu i kekahi hapalua ma luna o kekahi: ʻākau ma luna o hema, hema ma luna o ʻākau, lalo ma luna o luna, luna ma luna o lalo, a i ʻole hoʻokahi kihi i nā kihi ʻehā.
+GEOLFO: x, y, width, height, rotation, cropleft, cropright, croptop or cropbottom	GEOLFO: x, y, width, height, rotation, cropleft, cropright, croptop a i ʻole cropbottom
+How bright a pixel has to be to join a run. Lower catches more of the picture and the runs grow longer.	Ka mālamalama e pono ai ka pika e komo i ke kaha. Hoʻokomo ka haʻahaʻa i nā mea hou aʻe o ke kiʻi a lōʻihi aʻe nā kaha.
+How faint a gradient still registers. High turns the quietest shading into visible structure.	Ka nāwaliwali o ka loli kala e ʻike ʻia ai. Hoʻolilo ka kiʻekiʻe i nā aka palupalu loa i ʻano i ʻike ʻia.
+How far back the chain listens. The picture is played through a delay, so this is the distance the damage is dragged across.	Ka mamao i hope e hoʻolohe ai ke kaulahao. Hoʻokani ʻia ke kiʻi ma o ka hoʻopaneʻe, no laila ʻo kēia ka mamao e kauō ʻia ai ka pōʻino.
+How far the burn spreads off the edge, and how hot its colour runs.	Ka mamao e laha ai ke ahi mai ke kihi, a me ka wela o kona kala.
+How far the colour turns on each trip round the loop. This is the oil-slick: the trail walks through the spectrum instead of fading.	Ka nui o ke kaʻapuni kala i kēlā pōʻai kēia pōʻai. ʻO ia ka ʻaila lana: hele ka meheu ma ke ānuenue ma mua o ka nalo ʻana.
+How far the picture stands out. Bright parts come forward, dark parts stay back. At the left it is flat.	Ka nui e puka ai ke kiʻi. Hele mai nā māhele mālamalama i mua, noho nā māhele pouli i hope. Ma ka hema he pālahalaha.
+How far the picture swings the filter. The cue's own brightness opens and closes it, so a cut to black takes the top off the sound.	Ka nui e hoʻoneʻe ai ke kiʻi i ke kānana. Na ka mālamalama o ka māka e wehe a pani, no laila wehe ka ʻoki i ka pouli i nā alapine kiʻekiʻe o ke kani.
+How far the top comes down as the end approaches. This is not a fade: the level is left alone.	Ka nui e emi ai nā alapine kiʻekiʻe i ka hoʻokokoke ʻana i ka hopena. ʻAʻole kēia he hoʻopio mālie: noho ka nui leo.
+How fast it settles away while held. At zero it holds indefinitely, which is what room tone under a held title wants.	Ka māmā o ka nalo ʻana i ka paʻa ʻana. Ma ka ʻole, paʻa mau, e like me ke kani lumi ma lalo o ke poʻo inoa paʻa.
+How fast the open slit crosses the picture. Slow smears a long moment across the frame.	Ka māmā e hele ai ka māwae hāmama ma ke kiʻi. Hoʻopālahalaha ka lohi i kekahi manawa lōʻihi ma ka pā kiʻi.
+How fast the wave travels. Faster spreads further in the same time and interferes more.	Ka māmā e holo ai ka nalu. Laha ka māmā aʻe i kahi mamao aʻe i ka manawa like a hui hou aʻe nā nalu.
+How fast what has dripped hardens away. At the left the drips stay until the cue changes.	Ka māmā e paʻa a nalo ai nā kulu. Ma ka hema, noho nā kulu a hoʻololi ka māka.
+How fine the water is. Long ocean swell at one end, rain on a puddle at the other.	Ka liʻiliʻi o nā nalu wai. He ʻōhū kai lōʻihi ma kekahi ʻaoʻao, he ua ma kekahi pūnāwai liʻiliʻi ma kekahi.
+How hard the light gathers where the rays converge. This is the part that makes it read as water rather than as a wobble.	Ka ikaika e ʻākoakoa ai ka mālamalama i ka hui ʻana o nā kukuna. Na kēia e like ai me ka wai ma mua o ka luliluli wale.
+How hard the moving parts throw sand. More shake clears the plate faster and makes the lines thinner.	Ka ikaika e kiola ai nā māhele neʻe i ke one. Hoʻomaʻemaʻe ka haʻalulu nui i ka papa me ka māmā aʻe a lahilahi aʻe nā kaha.
+How long a grain is, in VIDEO FRAMES. On a 23.976 clip one frame is 41.7ms, which is not a musical value and is exactly the point.	Ka lōʻihi o hoʻokahi huna ma nā PĀ KIʻI WIKIŌ. Ma kahi ʻāpana 23.976 he 41.7ms ka pā hoʻokahi, ʻaʻole he ana mele, ʻo ia nō ke kumu.
+How long before the end it starts. The cue has to have a known length -- an open-ended one has no end to resolve into.	Ka manawa ma mua o ka hopena e hoʻomaka ai. Pono e ʻike ʻia ka lōʻihi o ka māka -- ʻaʻohe hopena o ka māka wehe e hoʻi ai.
+How long the old waves linger when the note changes. Left: they die at once. Right: they slosh for a while.	Ka lōʻihi e noho ai nā nalu kahiko ke hoʻololi ka nota. Hema: make koke. ʻĀkau: holoholo iki.
+How much each facet catches the light, which is what makes them read as faceted rather than as flat blobs.	Ka nui e hopu ai kēlā alo kēia alo i ka mālamalama, i ʻike ʻia nā alo ma mua o nā ʻāpana pālahalaha.
+How much its SIZE becomes distance. Shrink the picture and the sound goes away from you: the top comes off, the image narrows, the level drops.	Ka nui e lilo ai kona NUI i mamao. Hoʻēmi i ke kiʻi a mamao ke kani: emi nā alapine kiʻekiʻe, haiki ke kiʻi kani, emi ka nui leo.
+How much of the bent picture goes round again. High is where it stops being an echo and starts eating itself.	Ka nui o ke kiʻi piʻo e hele hou ai i ka pōʻai. Ma ke kiʻekiʻe, pau ka leo kuʻi a hoʻomaka e ʻai iā ia iho.
+How much of the driver's movement the picture KEEPS. At zero it follows the driver frame by frame, which is a twitch. Wind it up and the motion accumulates, so the driver sculpts the picture over time and it holds the pose -- which is what puppetry means.	Ka nui o ka neʻe o ka mea alakaʻi a ke kiʻi e MĀLAMA ai. Ma ka ʻole hahai i kēlā pā kiʻi kēia pā, he ʻōniʻoniʻo. Hoʻonui a ʻākoakoa ka neʻe, e kālai ai ka mea alakaʻi i ke kiʻi i ka hala ʻana o ka manawa a paʻa kona kūlana -- e like me ka papeti.
+How much of the picture's position on the output is used. A PIP on the left sounds on the left -- and it is a placement, not a pan: the far ear gets the delay and the head shadow too.	Ka nui e hoʻohana ʻia ai ke kūlana o ke kiʻi ma ka hoʻopuka. Kani he PIP ma ka hema ma ka hema -- he hoʻonoho ia, ʻaʻole he pan: loaʻa i ka pepeiao mamao ka lohi a me ke aka o ke poʻo.
+How much of the tail is kept going while the cue is held. Long enough to hide the splice in room tone, short enough not to smear a rhythm in it.	Ka nui o ka huelo kani e hoʻomau ai i ka paʻa ʻana o ka māka. Lōʻihi e hūnā i ka humuhumu kani lumi, pōkole e hoʻopālahalaha ʻole i ke kuʻi.
+How much room comes up under it, so the sound settles into the cut instead of being severed.	Ka nui o ke kani lumi e ala mai ma lalo, i noho ke kani i loko o ka ʻoki ma mua o ke ʻoki koke ʻia.
+How much the echo is distorted each pass. It compounds, so a little ripples and a lot melts the picture into itself.	Ka nui e hoʻopio ʻia ai ka leo kuʻi i kēlā hala kēia hala. Hoʻonuihui ia, no laila nalu ka liʻiliʻi a hoʻoheheʻe ka nui i ke kiʻi i loko ona iho.
+How much the material draws in towards each drip, so it runs as a thin neck with a heavier head.	Ka nui e huki ʻia ai ka mea i kēlā kulu, i kahe me ka ʻāʻī lahilahi a me ke poʻo kaumaha.
+How often its settings are corrupted. Corrupted far enough it oscillates on its own -- loud, but it cannot run away.	Ka pinepine e hōʻino ʻia ai kona hoʻonohonoho. Ke nui ka hōʻino, haʻalulu nona iho -- nui ke kani akā ʻaʻole hiki ke holo wale aku.
+How quickly the picture springs back to rest once the driver stops pushing it. Only does anything when memory is up.	Ka māmā e hoʻi ai ke kiʻi i ka hoʻomaha ke pau ka pahu ʻana a ka mea alakaʻi. Hana wale inā hoʻonui ʻia ka hoʻomanaʻo.
+How small a cut sets it off. With no picture it runs on a timer instead, and this is how often.	Ka liʻiliʻi o ka ʻoki e hoʻā ai. Me ka ʻole o ke kiʻi, holo ma ka uaki, ʻo kēia kona pinepine.
+How strongly the finished picture pushes the bend. Pair it with a picture effect whose LFO is set to Audio and the two drive each other.	Ka ikaika e pahu ai ke kiʻi hope i ka piʻo. Hoʻohui me ka hopena kiʻi nona ka LFO i koho ʻia iā Audio a hoʻokele lāua kekahi i kekahi.
+LFO: density, speed, warp, turn, centrex, centrey, grey or hue	LFO: density, speed, warp, turn, centrex, centrey, grey a i ʻole hue
+Lift or cut, 12dB either way. The centre is flat, so a band that has just been added does nothing until this is moved.	Hoʻonui a ʻoki, 12dB ma nā ʻaoʻao ʻelua. Pālahalaha ka waena, no laila ʻaʻole hana ke kaha hou a hoʻoneʻe ʻia kēia.
+Light on the drips, as on something wet: a gloss where it faces the light, darker where it curls away.	Ka mālamalama ma nā kulu, e like me ka mea pulu: ʻōlinolino ma ke alo i ka mālamalama, pouli ma ke piʻo ʻana aku.
+MASK SET: expected INVERT, X, Y, SCALE, ROTATION, FEATHER, GROW or OPACITY and a number	MASK SET: pono INVERT, X, Y, SCALE, ROTATION, FEATHER, GROW a i ʻole OPACITY a me ka helu
+MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> or OSC <address> [<n>], then CH <1-16> if not channel 1	MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> a i ʻole OSC <address> [<n>], a laila CH <1-16> inā ʻaʻole ke ala 1
+MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET or FEEDBACK	MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET a i ʻole FEEDBACK
+MULTIVIEW WINDOW <n>: expected a source, or SAFE/METER/LABEL ON|OFF	MULTIVIEW WINDOW <n>: pono he kumu, a i ʻole SAFE/METER/LABEL ON|OFF
+Moves the direction of travel off the centre of frame, so the picture rushes past rather than straight at you.	Hoʻoneʻe i ke ala holo mai ka waena o ka pā kiʻi, i holo ke kiʻi ma kou ʻaoʻao ma mua o ke alo pololei iā ʻoe.
+N=new  Enter/P=previous  O=open saved  E=examples  L=learn  1-	N=hou  Enter/P=mua  O=wehe i mālama ʻia  E=laʻana  L=aʻo  1-
+NMOS: NOT registering - network is LOCAL ONLY (turn REMOTE ON to publish)	NMOS: ʻAʻOLE e kākau inoa - he KŪLOKO WALE ka pūnaewele (hoʻā iā REMOTE ON e hoʻolaha)
+OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <sender name>	OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <inoa mea hoʻouna>
+One knob for the whole balance: below the middle is darker, above it is brighter.	Hoʻokahi pihi wili no ke kaulike holoʻokoʻa: pouli aʻe ma lalo o ka waena, mālamalama aʻe ma luna.
+Original: the picture pulled onto the figure. Sand: the picture as grains that are thrown off the moving parts and pour into each new figure. Fluid: the picture under water on the plate, bent and lit by its standing waves.	Kumu: ke kiʻi i huki ʻia ma luna o ke kinona. One: ke kiʻi he mau huna e kiola ʻia mai nā māhele neʻe a kahe i kēlā kinona hou kēia kinona. Wai: ke kiʻi ma lalo o ka wai ma ka papa, i hoʻopiʻo a hoʻomālamalama ʻia e kona mau nalu kū.
+PHONE LEVEL: removed -- a paired phone or the passphrase can do everything; BLACKOUT and RECORD are hold-to-fire on the phone	PHONE LEVEL: ua wehe ʻia -- hiki i ke kelepona i hoʻopili ʻia a i ʻole ka ʻōlelo huna ke hana i nā mea a pau; paʻa kaomi iā BLACKOUT a me RECORD ma ke kelepona e hoʻā
+PowerPoint could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)	ʻAʻole hiki iā PowerPoint ke hoʻokuʻu i kēia waihona (pono paha ka ʻae no ka hana ʻakomi: Nā Koho ʻŌnaehana > Pilikino a me Palekana > Hana ʻakomi)
+PowerPoint could not open the file (it gave up waiting for it). If it is in OneDrive, right-click it and choose Always keep on this device, then import it again	ʻAʻole hiki iā PowerPoint ke wehe i ka waihona (ua pau ke kali ʻana). Inā ma OneDrive, kaomi ʻākau a koho iā Mālama mau ma kēia hāmeʻa, a hoʻokomo hou
+Pulls the bright tones down without moving pure white, so a hot highlight rolls off instead of clipping.	Hoʻohaʻahaʻa i nā leo kala mālamalama me ka hoʻoneʻe ʻole i ke keʻokeʻo maʻemaʻe, i emi mālie ai ka mālamalama nui ma mua o ke ʻoki ʻia.
+Rotates the reading, so straight lines wind into spirals rather than rings.	Kaʻapuni i ka heluhelu ʻana, i lilo nā kaha pololei i wili ma mua o nā apo.
+Rows lose sync and repeat one character, the way a real text screen breaks up. At 0 the grid is clean.	Nalo ka lōkahi o nā lālani a hana hou i hoʻokahi huapalapala, e like me ka haki ʻana o ka pale kikokikona maoli. Ma 0 maʻemaʻe ka māhele kaha.
+SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, LINEAR, PERSPECTIVE or NAME	SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, LINEAR, PERSPECTIVE a i ʻole NAME
+SLICE CORNER: TL, TR, BR or BL, then dx dy in percent of the output	SLICE CORNER: TL, TR, BR a i ʻole BL, a laila dx dy ma ka pākēneka o ka hoʻopuka
+SLICE EDGE: L, R, T or B, then 0-50 (% of the slice)	SLICE EDGE: L, R, T a i ʻole B, a laila 0-50 (% o ka ʻāpana)
+SLICE GRID POINT: col row (from 1, on a grid that is on) then dx dy in percent	SLICE GRID POINT: col row (mai 1, ma ka māhele kaha i hoʻā ʻia) a laila dx dy ma ka pākēneka
+SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF, or POINT col row dx dy	SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF, a i ʻole POINT col row dx dy
+SLICE LFO: X, Y, ROTATION or OPACITY, then ON, OFF, SHAPE, RATE, DEPTH...	SLICE LFO: X, Y, ROTATION a i ʻole OPACITY, a laila ON, OFF, SHAPE, RATE, DEPTH...
+SLICE ROTATE: IN (the crop) or OUT (the placed picture), then degrees	SLICE ROTATE: IN (ka ʻoki) a i ʻole OUT (ke kiʻi i hoʻonoho ʻia), a laila degere
+Scanlines, bloom and gun misalignment, 0-1 (supports + - * / and ())	Nā kaha kilohi, ʻōlinolino a me ka pololei ʻole o nā pū kukuna, 0-1 (kākoʻo iā + - * / a me ())
+Something near the deck: a phone's buzz, a light dimmer's herringbone, a radio's slow bars.	Kekahi mea kokoke i ka pā: ka haʻalulu kelepona, ke kaha o ka mea hoʻomalu kukui, nā kaha lohi o ka lēkiō.
+Takes out everything brighter than this as well. Left takes out nothing.	Wehe pū i nā mea a pau i mālamalama aʻe. Ma ka hema, ʻaʻohe mea i wehe ʻia.
+Takes out everything darker than this, so what lies beneath shows through. Left takes out nothing.	Wehe i nā mea a pau i pouli aʻe, i ʻike ʻia ka mea ma lalo. Ma ka hema, ʻaʻohe mea i wehe ʻia.
+Tape speed: SP is the best picture, LP and EP fit more on a tape and lose detail and colour.	Māmā lipine: ʻo SP ke kiʻi maikaʻi loa, hoʻokomo ʻo LP a me EP i nā mea hou aʻe ma ka lipine akā emi ke kikoʻī a me ke kala.
+The brightness that stays put. Everything above it reaches one way and everything below it the other.	Ka mālamalama e kū mau ai. Kikoʻo nā mea ma luna i kekahi ala a nā mea ma lalo i kekahi.
+The character of the growth: low is waves, then labyrinth, coral, worms, and holes at the top.	Ke ʻano o ka ulu: he nalu ma lalo, a laila he ala huikau, he ʻākoʻakoʻa, he ilo a he lua ma luna loa.
+The colour it becomes. Shading and brightness stay as they were, so a red shirt turns blue and keeps its folds.	Ke kala e lilo ai. Noho ka malu a me ka mālamalama, no laila lilo ka pālule ʻulaʻula i polū a mālama i kona mau pelu.
+The distance that sits ON the screen. Either side of it comes forward or falls behind.	Ka mamao e kū ana MA ka pale. Ma nā ʻaoʻao ʻelua, hele mai i mua a hoʻi i hope.
+The frequency it pivots around -- what counts as 'low' and 'high' for the tilt.	Ke alapine e kaʻa ai a puni -- ka mea i kapa ʻia he 'haʻahaʻa' a he 'kiʻekiʻe' no ka hoʻoluli.
+The level below which the source is closed. Set it under the quietest thing you want to hear.	Ka pae ma lalo ona e pani ʻia ai ke kumu. E hoʻonoho ma lalo o ka mea mālie loa āu e makemake ai e lohe.
+The level it starts working at. Lower catches more of the performance.	Ka pae e hoʻomaka ai ka hana. Hopu ka haʻahaʻa i nā mea hou aʻe o ka hoʻokani.
+The plugin's first four automatable controls, in its own order. Everything else it has keeps whatever the plugin was left set to.	Nā hoʻomalu ʻakomi mua ʻehā o ka mea hoʻohui, ma kona kaʻina ponoʻī. Mālama nā mea ʻē aʻe i ka hoʻonohonoho hope o ia mea.
+Tints the two directions apart, so light bending one way and the other are different colours instead of both being grey.	Hoʻokaʻawale i nā ala ʻelua me ke kala, i ʻokoʻa ai nā kala o ka mālamalama e piʻo ana i kēlā ʻaoʻao kēia ʻaoʻao ma mua o ka hinahina ʻelua.
+Turns the strokes across the grain instead of along it, which combs the picture apart rather than smoothing it.	Kaʻapuni i nā kaha ma ʻō aku o nā huna ma mua o ka hahai ʻana, e kahi kaʻawale ai ke kiʻi ma mua o ka hoʻopalupalu.
+Turns the whole arrangement, so the fold lines do not sit on the same part of the picture all night.	Kaʻapuni i ka hoʻonohonoho holoʻokoʻa, i noho ʻole nā pelu ma ka ʻāpana like o ke kiʻi i ka pō holoʻokoʻa.
+VIDEO OUTPUT ASSIGN: already on this output, or no such deck or output	VIDEO OUTPUT ASSIGN: ma kēia hoʻopuka nō, a i ʻole ʻaʻohe pā a hoʻopuka paha pēlā
+VIDEO OUTPUT LAYER: this deck is not on this output, or it is already at that layer	VIDEO OUTPUT LAYER: ʻaʻole kēia pā ma kēia hoʻopuka, a i ʻole aia nō ma kēlā papa
+VIDEO OUTPUT LAYERWARP MODE: linear or perspective	VIDEO OUTPUT LAYERWARP MODE: linear a i ʻole perspective
+VIDEO OUTPUT LAYERWARP: expected OFF, MODE, or eight numbers clockwise from the top left	VIDEO OUTPUT LAYERWARP: pono OFF, MODE, a i ʻole ʻewalu helu ma ke ala uaki mai ka luna hema
+VIDEO OUTPUT UNASSIGN: this deck is not on this output, or it is the only thing on it	VIDEO OUTPUT UNASSIGN: ʻaʻole kēia pā ma kēia hoʻopuka, a i ʻole ʻo ia wale nō ka mea ma laila
+WARP SELECT: expected TL, TR, BR, BL or a grid <col> <row>	WARP SELECT: pono TL, TR, BR, BL a i ʻole he māhele kaha <col> <row>
+WEBMONITOR PIN: network sharing and phone control require 8 or more characters	WEBMONITOR PIN: pono he 8 huapalapala a ʻoi no ke kaʻana pūnaewele a me ke kaohi kelepona
+WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (sound is included)	WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (ua hui ke kani)
+Where highlights fold back through black. Low folds most of the picture, high folds only the brightest.	Kahi e pelu hou ai nā mea mālamalama ma ka pouli. Pelu ka haʻahaʻa i ka hapa nui o ke kiʻi, ka kiʻekiʻe i nā mea mālamalama loa wale nō.
+Where the band sits, 30Hz to 16kHz across the travel.	Kahi e noho ai ke kaha, 30Hz a 16kHz ma ke ala holo.
+Where the fold sits: the middle at the left, toward the far edge to the right. Flips have no fold.	Kahi e noho ai ka pelu: ka waena ma ka hema, a kokoke i ke kihi mamao ma ka ʻākau. ʻAʻohe pelu o ka huli ʻana.
+Where the light stands, in degrees around the frame.	Kahi e kū ai ka mālamalama, ma nā degere a puni ka pā kiʻi.
+Where the source sits around the listener, all the way round. For headphones -- it is a timing and shading trick, not a pan.	Kahi e noho ai ke kumu a puni ka mea hoʻolohe, a puni loa. No nā pepeiao lohe -- he hana manawa a me ke aka kani, ʻaʻole he pan.
+Where the top ends, 200Hz to 20kHz. Pull it down to take the harshness off a bright source.	Kahi e pau ai nā alapine kiʻekiʻe, 200Hz a 20kHz. Hoʻoiho e wehe i ke kani ʻoʻoleʻa o ke kumu mālamalama.
+Which channel the curve acts on: all three, then red, green or blue on its own -- the way a colourist warms or cools one end of the picture.	Ke ala e hana ai ke kaha piʻo: nā ala ʻekolu, a laila ka ʻulaʻula, ʻōmaʻomaʻo a polū hoʻokahi -- e like me ka mea hoʻoponopono kala e hoʻomehana a hoʻomaʻalili i kekahi ʻaoʻao o ke kiʻi.
+Which way the knife edge lies. Only gradients ACROSS the edge show, so turning it swaps which features appear and which vanish.	Ke ala e kū ai ke kihi pahi. ʻIke ʻia nā loli kala MA ʻŌ AKU o ke kihi wale nō, no laila hoʻololi ka hoʻohuli i nā hiʻona e ʻike a nalo ai.
+Which way the streak runs: across at the left, upright in the middle, across again at the right.	Ke ala e holo ai ke kaha: moe ma ka hema, kū ma ka waena, moe hou ma ka ʻākau.
+Widens the decision into a ramp, so edges keep their shape instead of jagging.	Hoʻonui i ka palena i loli mālie ai, i mālama nā kihi i ko lākou ʻano ma mua o ka niho ʻana.
+Words to surface in the field, separated by | . One shows at a time, moving on the hold clock.	Nā huaʻōlelo e puka ai ma ke kahua, hoʻokaʻawale ʻia me | . Hōʻike hoʻokahi i kēlā manawa, hoʻololi ma ka uaki paʻa.
+Zero is one noise value across all three channels, which reads as film. Higher gives each channel its own, which reads as video.	ʻO ka ʻole hoʻokahi helu halulu ma nā ala ʻekolu, e like me ke kiʻi ʻoniʻoni. Hāʻawi ka kiʻekiʻe i kēlā ala kēia ala i kona iho, e like me ka wikiō.
+a plugin overran the audio thread and was bypassed — take it out of the chain	Ua ʻoi ka manawa o kekahi mea hoʻohui ma ke kaula kani a ua kāpae ʻia -- e wehe mai ke kaulahao
+a video cue's duration comes from its file; still duration applies to stills, patterns and browsers	No kona waihona ka lōʻihi o ka māka wikiō; pili ka lōʻihi kiʻi paʻa i nā kiʻi, nā kumu a me nā polokalamu kele
+couldn't decode still image — unsupported format or corrupt file	ʻAʻole hiki ke wehe i ke kiʻi paʻa -- ʻano i kākoʻo ʻole ʻia a i ʻole waihona ʻino
+did not finish in 3 minutes. It may be waiting on a prompt it cannot show (Protected View, sign-in, a repair). Open the deck there once, or export it as a PDF and import that	ʻAʻole i pau i loko o 3 minuke. E kali ana paha i nīnau hiki ʻole ke hōʻike (Nānā Pale, komo inoa, hoʻoponopono). Wehe i ka hōʻike ma laila hoʻokahi manawa, a i ʻole hoʻokuʻu i PDF a hoʻokomo
+forget my defaults? only NEW changes, this show keeps its settings: press again	Poina i kaʻu mau koho paʻamau? Hoʻololi ʻo NEW wale nō, mālama kēia hōʻike i kona mau koho: kaomi hou
+key+fill ON, but no key device set (DECKLINK KEYFILL ON <device>)	key+fill ON, akā ʻaʻohe hāmeʻa key i koho ʻia (DECKLINK KEYFILL ON <device>)
+label | command | glyph      (empty label|command removes it)	lepili | kauoha | hōʻailona      (wehe ka lepili|kauoha hakahaka iā ia)
+my defaults forgotten: NEW starts from factory settings, this show is unchanged	Ua poina kaʻu mau koho paʻamau: hoʻomaka ʻo NEW me nā koho hale hana, ʻaʻole loli kēia hōʻike
+no filled shapes in it (paths, rectangles, circles, ellipses or polygons)	ʻAʻohe kinona i hoʻopiha ʻia ma loko (ala, huinahā, pōʻai, pōʻai lōʻihi a i ʻole huina lehulehu)
+notestep: this cue's notes have no builds (separate them with a line of ---)	notestep: ʻaʻohe ʻanuʻu o nā memo o kēia māka (hoʻokaʻawale me ka lālani ---)
+opened github.com in your browser -- nothing is sent until you submit the report there	Ua wehe ʻia ʻo github.com ma kāu polokalamu kele -- ʻaʻohe mea e hoʻouna ʻia a hoʻouna ʻoe i ka hōʻike ma laila
+presenter panel: expected <live|prev|next|notes> <x> <y> <w> <h> in percent	papa mea hōʻike: pono <live|prev|next|notes> <x> <y> <w> <h> ma ka pākēneka
+presenter panel: the panel must fit on the screen (x+w and y+h no more than 100)	papa mea hōʻike: pono e komo ma ka pale (ʻaʻole ʻoi aku ka x+w a me y+h ma mua o 100)
+preset: delivery | proxy | match | datamosh	preset: koho delivery | proxy | match | datamosh
+saved as my defaults: NEW starts like this show, without the cues	Ua mālama ʻia he mau koho paʻamau naʻu: hoʻomaka ʻo NEW e like me kēia hōʻike, me ka ʻole o nā māka
+splitnotes: that cue's notes have no parts (separate them with a line of ---)	splitnotes: ʻaʻohe māhele o nā memo o kēlā māka (hoʻokaʻawale me ka lālani ---)
+the clicker now spends note builds before advancing	Hoʻopau ka pihi hōʻike i nā ʻanuʻu memo ma mua o ka neʻe i mua
+this file is only in OneDrive, and OneDrive is not running. Start OneDrive, or copy the file to this computer, then import it again	Ma OneDrive wale nō kēia waihona, a ʻaʻole e holo ana ʻo OneDrive. Hoʻomaka iā OneDrive, a i ʻole kope i ka waihona i kēia kamepiula, a hoʻokomo hou
+this presentation needs a password to open. Remove the password in PowerPoint (File > Info > Protect Presentation) or export it as a PDF, then import that	Pono he ʻōlelo huna e wehe ai kēia hōʻike. Wehe i ka ʻōlelo huna ma PowerPoint (Waihona > ʻIke > Pale Hōʻike) a i ʻole hoʻokuʻu he PDF, a hoʻokomo i kēlā
+warp grid: expected <n>, <cols> <rows>, off, smooth or straight	warp grid: pono <n>, <cols> <rows>, off, smooth a i ʻole straight
+warp point: that is a corner -- move it with WARP <corner> dx dy	warp point: he kihi kēlā -- hoʻoneʻe me WARP <corner> dx dy
+window capture fell back to screen grab — update ffmpeg for exact window capture	Ua hoʻi ka hopu puka aniani i ka hopu pale -- hōʻano hou iā FFmpeg no ka hopu puka aniani pololei
+neon	nīona
+pop	pohā
+sine	nalu sine

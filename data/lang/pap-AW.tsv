@@ -3239,3 +3239,1101 @@ FX CHOICE: choice must be A or B	FX CHOICE: e opcion mester ta A of B
 FX CHOICE: no effect at that index	FX CHOICE: no tin efecto na e indice ey
 whole picture	henter e portret
 FX LFO: slot is A-D for the parameters, E for the amount, F and G for the fifth and sixth (or 0-6)	FX LFO: slot ta A-D pa e parameternan, E pa e cantidad, F i G pa e di cinco i di seis (of 0-6)
+angle	angulo
+Attack	Ataque
+attack	ataque
+Audio bitrate	Bitrate di audio
+Audio reactivity	Reaccion na audio
+azimuth	azimut
+Bands	Banda
+bands	banda
+base layer	capa di base
+BITRATE	TASA DI BIT
+bits	bitnan
+black point	punto preto
+bleed	color ta core
+Blobs	Mancha
+block glitch	fayo di bloki
+block size	tamaño di bloki
+blocks	bloki
+blur	borroso
+BOTH	TUR DOS
+bright	cla
+Brush opacity	Opacidad di kwashi
+Brush size	Tamaño di kwashi
+buzzer	zumbador
+by brightness	segun claridad
+cancelled	cancela
+Canvas Height	Haltura di lienzo
+Canvas View	Bista di lienzo
+Canvas Width	Hanchura di lienzo
+catch	cohe
+caustics	concentracion di luz
+Centre X	Centro X
+Centre Y	Centro Y
+channel skew	sesgo di canal
+channel spread	separacion di canal
+character	caracter
+chop	corta
+CLASSIC	CLASICO
+CLOCK	OLOSHI
+coherence	coherencia
+colour bleed	color ta core
+colour drift	cambio di color
+colour lag	retraso di color
+colour replace	cambia color
+columns	columna
+control 1	controla 1
+control 2	controla 2
+control 3	controla 3
+control 4	controla 4
+Control change	Cambio di control
+convergence	convergencia
+copies	copia
+corrupt	daña
+corruption	daño
+coupling	acoplamento
+crystallise	cristalisa
+Cue Notes	Nota di cue
+curl detail	detaye di curvatura
+curves	curva
+Custom Glyphs	Glifo personal
+cut bright	corta cla
+cut dark	corta scuro
+cut reset	reset na corte
+cutoff	limite di corte
+cuts	corte
+cyan	ciano
+damage	daño
+damping	amortiguacion
+dark	scuro
+darkness	scuridad
+deck age	edad di tocador
+Density	Densidad
+depth	profundidad
+depth split	separacion di profundidad
+Destination Address	Adres di destino
+Destination UDP port	Puerto UDP di destino
+Detail	Detaye
+diamond	diamante
+distance	distancia
+DMX Channels	Canal DMX
+dots move	punto ta move
+Draw colour	Color pa pinta
+drift	flota
+drip	gota
+drips	gotanan
+drive	impulso
+edges	rand
+empty	bashi
+extended	extendi
+EXTREME	EXTREMO
+facet light	luz di faceta
+falloff	disminucion
+falsecolour	color falso
+feed rate	velocidad di alimentacion
+Feedback zoom	Zoom di retorno
+field of view	campo di bista
+Fixture address	Adres di aparato
+Fixture name	Nomber di aparato
+Fixture universe	Universo di aparato
+flash length	duracion di flash
+flash to	flash pa
+flicker	titila
+Flipbook rate	Velocidad di folioscopio
+floor	piso
+Flow	Fluho
+flow	fluho
+focus	enfoke
+fold	dobla
+fold point	punto di dobla
+frames	frame-nan
+Frequency	Frecuencia
+frequency	frecuencia
+gap	espacio
+gather	reuni
+Glitch	Fayo
+glow	resplandor
+glyph set	set di glifo
+gong	gòng
+grain	grano
+grain flow	fluho di grano
+grain size	tamaño di grano
+green split	separacion berde
+Grey	Grijs
+grid	reda
+growl	gruñido
+growth	crecemento
+head wear	gastamento di cabezal
+heat	calor
+Height	Haltura
+Height (px)	Haltura (px)
+highlight roll	curva di luz
+histogram	histograma
+horizontal	horizontalmente
+ice	ijs
+ink	tinta
+interference	interferencia
+irregularity	irregularidad
+jump	bula
+just	afinacion puro
+kaleido	caleido
+kaleidoscope	caleidoscopio
+Key Color	Color di clave
+Keyframe interval	Intervalo di frame clave
+knee	curva di compresion
+knife angle	angulo di cuchiu
+leak	lek
+let go	laga
+lift	hisa
+light	luz
+light angle	angulo di luz
+lightspeed	velocidad di luz
+line colour	color di liña
+line glow	resplandor di liña
+Live Browser	Navegador bibo
+Live Source	Fuente bibo
+LOAD NEXT	CARGA SIGUIENTE
+Lower Third - subtitle	Lower Third - subtitulo
+Lower Third - title	Lower Third - titulo
+Lower Third Subtext	Subtexto Lower Third
+Lower Third Title	Titulo Lower Third
+luma displace	desplazamento di luma
+luma key	clave di luma
+Mask opacity	Opacidad di mascara
+Mask rotation	Rotacion di mascara
+Mask scale	Escala di mascara
+Mask X	Mascara X
+Mask Y	Mascara Y
+material	material di base
+meantone	tono medio
+Media	Medio
+Melt	Dirti
+melt	dirti
+memory	memoria
+midtones	tono medio
+Mod depth	Profundidad di modulacion
+Mod ratio	Relacion di modulacion
+moire	efecto moire
+mono	un canal
+MONO L	UN CANAL L
+MONO R	UN CANAL R
+mosaic	mosaico
+motion mosh	fayo di movimento
+motion puppet	marioneta di movimento
+motion trails	rastro di movimento
+MSC Cue Number	Number di cue MSC
+music & sparkle	musica & brillo
+NDI Key Name	Nomber di clave NDI
+NDI Name	Nomber NDI
+NDI Source Name	Nomber di fuente NDI
+NEXT	SIGUIENTE
+night eyes	wowo di anochi
+NMC Port	Puerto NMC
+NMC Source	Fuente NMC
+NMC Target	Destino NMC
+NMOS Interface Name	Nomber di interfaz NMOS
+NMOS Node Port	Puerto di nodo NMOS
+NMOS Registry	Registro NMOS
+noise	ruido
+not connected	no conecta
+Note	Nota
+Note off	Nota apaga
+Note on	Nota cendi
+off-axis	foi di eje
+offline	desconecta
+orbit speed	velocidad orbital
+OSC Address	Adres OSC
+Output Alpha	Alpha di salida
+Output Canvas	Lienzo di salida
+Output Delay	Retraso di salida
+output fault	fayo di salida
+Output name	Nomber di salida
+Output Refresh	Refresco di salida
+overflow	desborde
+own playlist	su propio playlist
+parade	grafico separa
+parallax	paralaje
+Payload	Contenido
+Percent 0-100	Porciento 0-100
+phone	telefon
+Phrases	Frase
+pinch	primi
+pink noise	ruido ros
+PIP Target Cue	Cue destino PIP
+pitch	tono
+pivot	punto di giro
+Pixel density	Densidad di pixel
+pixel sort	ordena pixel
+plasma	efecto plasma
+Playlist Start TC	TC di inicio di playlist
+Playlist Timebase	Base di tempo di playlist
+Plugin	Complemento
+polar warp	deformacion polar
+Portal	Portaal
+posterise	reduci tono
+Practice show	Show di practica
+PREVIOUS	ANTERIOR
+Program change	Cambio di programa
+Prompter script	Guion di apuntador
+pulse 25%	pulso 25%
+QUALITY	CALIDAD
+radial zoom	zoom radialmente
+radio	radiofonia
+radius	radio di circulo
+ramp	rampa
+range	rango
+ratio	proporcion
+Raw bytes	Byte crudo
+Raw MIDI Bytes	Byte MIDI crudo
+reach	alcance
+recordings	grabacion
+recovering	recuperando
+refresh	renoba
+Release	Solta
+release	solta
+relief	relieve
+relight	luz di nobo
+Rename cue	Cambia nomber di cue
+Rename fixture	Cambia nomber di aparato
+Renumber Cues	Renumera cue
+repeat width	hanchura di repeticion
+Replay hold	Retencion di repeticion
+resonance	resonancia
+Retrigger	Activa di nobo
+reverse	reversa
+rgb split	separacion rgb
+Rim	Rand
+rings	rinchi
+ripple	ondulacion
+rising	subiendo
+rod bias	sesgo di baston
+room	sala
+rot	pudrimento
+Rotation	Rotacion
+rotation	rotacion
+round	rondo
+sag	caimento
+saw	diente di zaag
+scanlines	liña di scan
+scope	medidor
+SCOPES	MEDIDOR
+second mode	segundo modo
+see through	mira door
+seed density	densidad di simia
+self	su mes
+settle	asenta
+shadow lift	hisa sombra
+shake	sacudi
+shard size	tamaño di fragmento
+sharpen	haci skerpi
+sheen	lustro
+sideways	di banda
+slit scan	scan di rendija
+slit width	hanchura di rendija
+Smear	Mancha
+smear	mancha
+softness	suavidad
+solarise	solarisa
+spike count	cantidad di punta
+spike length	largura di punta
+spin	gira
+spinning	girando
+spring	veer
+sprite sheet	blad di sprite
+Sprite spin	Giro di sprite
+square	cuadra
+SRT latency	Latencia SRT
+SRT passphrase	Frase secreto SRT
+SRT stream ID	ID di stream SRT
+Step length	Duracion di paso
+steps	paso
+stereogram	estereograma
+stiffness	rigidez
+sting	sonido cortico
+strength	fuerza
+strobe	luz intermitente
+stroke	trazo
+SUBTLE	SUTIL
+sway	balanceo
+sweep	barido
+sweep speed	velocidad di barido
+swell speed	velocidad di oleahe
+symbols	simbolo
+system default	predetermina di sistema
+system output	salida di sistema
+tape	cinta
+tape age	edad di cinta
+tear width	hanchura di rasgadura
+temporal dither	ruido temporal
+test signal	señal di prueba
+text to send	texto pa manda
+threshold	umbral
+throw	alcance di tiro
+tile size	tamaño di mosaico
+tilt	inclinacion
+time	tempo
+time cube	cubo di tempo
+Timer Message	Mensahe di temporisador
+tint	tiña
+tint colour	color di tiña
+tracking	seguimento
+trail	rastro
+transparent	transparente
+triangle	triangulo
+triple beep	tres bip
+Turn	Gira
+turn	gira
+Twist	Torci
+twist	torci
+unavailable	no disponibel
+vapor	stoom
+vector	vector di direccion
+vertical	verticalmente
+vertical bias	sesgo vertical
+vibrato	vibracion di tono
+Video bitrate	Bitrate di video
+Video dip fade	Transicion video via preto
+vignette	borde scuro
+wash out	descolora
+wave height	haltura di oleahe
+wavefront	frente di onda
+way	direccion
+wedges	cuña
+white	blanco
+white noise	ruido blanco
+white point	punto blanco
+wire	waya
+Zoom	Acercamento
+zoom	acercamento
+(choose cue)	(scohe cue)
+(missing)	(falta)
+(no slots)	(no tin vak)
+(set media file)	(pone file di media)
+(set url)	(pone url)
+A number	Un number
+A number, or blank for none	Un number, of bashi pa ningun
+additive	aditivo
+alternating	alternando
+amber	ambar
+Add Browser Cue	Agrega cue di navegador
+Add NDI Source Cue	Agrega cue di fuente NDI
+Add Stream Cue	Agrega cue di stream
+Art-Net Destination	Destino Art-Net
+ASCII 95 (density)	ASCII 95 (densidad)
+ASCII 95 (raw)	ASCII 95 (crudo)
+ASIO is off	ASIO ta paga
+ATEM Input	Entrada ATEM
+Attach Lower Third	Pega Lower Third
+Attach PIP Overlay	Pega capa PIP
+AUTO	AUTOMATICO
+auto (59.94 Hz)	automatico (59.94 Hz)
+band curve	curva di banda
+Browser Ready	Navegador cla
+built without ASIO support	construi sin sosten pa ASIO
+built without NDI SDK headers	construi sin header NDI SDK
+Companion/OSC Port	Puerto Companion/OSC
+could not reach github	no por conecta cu github
+could not read the PDF	no por lesa e PDF
+could not start ffmpeg	no por inicia ffmpeg
+could not start the PDF renderer	no por inicia e renderisador PDF
+could not write the export script	no por skirbi e script di exportacion
+couldn't open explorer	no por habri explorer
+couldn't open file manager	no por habri gestor di file
+couldn't open finder	no por habri finder
+Cue Goto	Bai na cue
+GOTO Cue	BAI NA cue
+Custom Output Raster	Raster di salida personal
+DECODE --.-	DESCODIFICA --.-
+DECODE OFF	DESCODIFICA PAGA
+DECODE WARM	DESCODIFICA PREPARA
+Default Cue Fade	Transicion di cue predetermina
+Default Non-Movie Duration	Duracion predetermina sin pelicula
+display native	nativo di pantalla
+Display none	Ningun pantalla
+driver refused to start	driver a nenga inicia
+empty expression	expresion bashi
+export as .png or .svg	exporta como .png of .svg
+ffmpeg made no file	ffmpeg no a crea file
+ffmpeg stopped taking frames	ffmpeg a stop di ricibi frame
+Find Cue	Busca cue
+Find+Take Cue	Busca+TAKE cue
+Fire at a time of day	Activa na un ora di dia
+Fire at incoming timecode	Activa na timecode entrante
+Fire on a MIDI note	Activa cu un nota MIDI
+Fire on an OSC address	Activa cu un adres OSC
+First channel (1-512)	Prome canal (1-512)
+flow (follows the picture)	fluho (ta sigui e imagen)
+hh:mm:ss or seconds	hh:mm:ss of seconde
+Its name, number or id	Su nomber, number of id
+LibreOffice could not be run	no por ehecuta LibreOffice
+LibreOffice produced no PDF	LibreOffice no a produci PDF
+macOS could not read the PDF	macOS no por lesa e PDF
+Name visible to receivers	Nomber visibel pa receptor
+no colour	sin color
+no driver named	no tin driver yama
+no mask made	no tin mascara crea
+no pages could be rendered	no por renderisa ningun pagina
+no release found	no a haya version
+not on this output	no ta riba e salida aki
+not while a cue is playing	no mientras un cue ta hunga
+nothing drawn	no tin nada pinta
+opened in explorer	habri den explorer
+opened in file manager	habri den gestor di file
+paste your stream key here	pega bo stream key aki
+pdftoppm produced no pages	pdftoppm no a produci pagina
+PowerPoint could not export this file	PowerPoint no por exporta e file aki
+revealed in finder	mustra den finder
+runtime unavailable	runtime no disponibel
+size out of range	tamaño fuera di rango
+Source Ready	Fuente cla
+Spout Sender Name	Nomber di emisor Spout
+Stream URL	URL di stream
+stream restart needed	mester reinicia stream
+stream write failed	skirbimento di stream a faya
+target cue is gone	cue destino no ta existi mas
+targets nothing	no tin destino
+the document has no pages	e documento no tin pagina
+the file is empty	e file ta bashi
+the header is truncated	e header ta corta
+the NDI runtime is not installed	e runtime NDI no ta instala
+the PDF renderer produced no pages	e renderisador PDF no a produci pagina
+the show plays through ASIO	e show ta hunga via ASIO
+URL or local page path	URL of ruta di pagina local
+What it runs	Loke e ta ehecuta
+Which cue	Cua cue
+window hidden	bentana scondi
+window minimized	bentana minimisa
+wrong display	pantalla incorecto
+0-1 (supports + - * / and ())	0-1 (ta acepta + - * / y ())
+0-100% (supports + - * / and ())	0-100% (ta acepta + - * / y ())
+%, 1 to 100 (supports + - * / and ())	%, 1 te 100 (ta acepta + - * / y ())
+Amount 0-100% (supports + - * / and ())	Cantidad 0-100% (ta acepta + - * / y ())
+Degrees -180..180 (supports + - * / and ())	Grado -180..180 (ta acepta + - * / y ())
+Degrees, -360 to 360 (supports + - * / and ())	Grado, -360 te 360 (ta acepta + - * / y ())
+Degrees, 0-360 (supports + - * / and ())	Grado, 0-360 (ta acepta + - * / y ())
+Pixels (supports + - * / and ())	Pixel (ta acepta + - * / y ())
+Hertz, 20-20000 (supports + - * / and ())	Hertz, 20-20000 (ta acepta + - * / y ())
+Colour steps, 2-8 (supports + - * / and ())	Paso di color, 2-8 (ta acepta + - * / y ())
+Frames a second, 1 to 60 (supports + - * / and ())	Frame pa seconde, 1 te 60 (ta acepta + - * / y ())
+Seconds (0-30)	Seconde (0-30)
+Milliseconds 0-5000	Miliseconde 0-5000
+milliseconds (40..2000)	miliseconde (40..2000)
+Universe (0-63999)	Universo (0-63999)
+X,Y offset in pixels	Desplazamento X,Y den pixel
+a name for this step	un nomber pa e paso aki
+a playlist that is gone	un playlist cu a wordo kita
+across the grain	cruza e grano
+add an output to scope it	agrega un salida pa midi su se?al
+an ASIO stream is already open	ya tin un stream ASIO habri
+another app is holding the pointer	un otro aplicacion ta tene e cursor
+channel count must be at least 1	e cantidad di canal mester ta por lo menos 1
+comma outside a function call	coma pafor di un yamada di funcion
+driver reports no output channels	e driver ta indica cu no tin canal di salida
+escaped to windowed	a bolbe na modo di bentana
+fullscreen dropped	a sali di pantalla completo
+How big each tile is.	Con grandi cada mosaico ta.
+How closely spaced the rings are.	Con cerca e renchinan ta di otro.
+How far a band can slide.	Con leu un banda por schuif.
+How far out the darkening starts.	Con leu for di centro e scurecimento ta cuminsa.
+How far the glow spreads.	Con leu e brillo ta plama.
+How fast the surface moves.	Con lihe e superficie ta move.
+How fast they travel outward.	Con lihe nan ta move pafo.
+How hard the short hits.	Con duro e cortocircuito ta dal.
+How many torn bands per frame.	Cuanto banda kibra pa cada cuadro.
+How much the edges are lifted.	Con tanto e randnan ta wordo realza.
+How often it skips.	Con frecuente e ta salta.
+it could not be started	no por a cuminsa esaki
+libX11 is not installed	libX11 no ta instala
+lost the session bus	a perde conexion cu e bus di sesion
+no ASIO in this build	e version aki no tin ASIO
+no X display to read	no tin pantalla X pa lesa
+not a MIDI file (no MThd header)	no ta un archivo MIDI (sin cabezal MThd)
+offset in percent of the picture	desplazamento den procent di e imagen
+only a background in it	solamente tin un fondo aden
+Paste the key from your platform	plak e yabi di bo plataforma
+pixels (of the output raster)	pixel (di e raster di salida)
+Routing hint for the receiver	indicacion di ruta pa e receptor
+Save Warp Preset	Warda preset di deformacion
+Sender source name	Nomber di fuente di emisor
+SOURCE CAMERA: name the device	SOURCE CAMERA: indica nomber di e aparato
+Switcher IP address	Adres IP di e switcher
+SYPHON / SPOUT TEXTURE SHARE	COMPARTI TEXTURA SYPHON / SPOUT
+SYPHON TEXTURE SHARE	COMPARTI TEXTURA SYPHON
+the desktop portal did not answer	e portal di escritorio no a contesta
+the file has no playable events	e archivo no tin evento cu por toca
+the screen could not be read there	no por a lesa e pantalla ey
+the time division is not readable	e division di tempo no ta lesabel
+this build has no X11 support	e version aki no ta suporta X11
+UDP port for transport sync	Port UDP pa sincronisa transporte
+unbalanced )	) sin pareja
+web audio encoder cannot keep up	e codificador di audio web no por sigui e ritmo
+Where the filter sits.	Unda e filtro ta situa.
+Which way it drips.	Den cua direccion e ta gotia.
+AUDIOALSO: expected ADD <name>, REMOVE <name> or CLEAR	AUDIOALSO: ta spera ADD <name>, REMOVE <name> of CLEAR
+BROWSER KEY: expected Enter|Tab|Backspace|Escape	BROWSER KEY: ta spera Enter|Tab|Backspace|Escape
+BUGSWAT: expected START, SHOWME, SKIP, PLAY, EXIT or STATUS	BUGSWAT: ta spera START, SHOWME, SKIP, PLAY, EXIT of STATUS
+CAPTIONS LIVE: expected ON, OFF, STATUS or TEXT	CAPTIONS LIVE: ta spera ON, OFF, STATUS of TEXT
+CAPTIONS SOURCE: expected INPUT, DECK <n> or OUTPUT <n>	CAPTIONS SOURCE: ta spera INPUT, DECK <n> of OUTPUT <n>
+DMXCUE: expected NEW, SET, FADE, UNIVERSE, HOST, PORT, FIRE or BLACKOUT	DMXCUE: ta spera NEW, SET, FADE, UNIVERSE, HOST, PORT, FIRE of BLACKOUT
+ENDACTION: expected INHERIT, STOP, LOOP, HOLD or NEXT	ENDACTION: ta spera INHERIT, STOP, LOOP, HOLD of NEXT
+FADE CURVE: expected linear, ease-in, ease-out or s-curve	FADE CURVE: ta spera linear, ease-in, ease-out of s-curve
+LOWERSTYLE: expected none, fade, rise, slide, wipe or NEXT	LOWERSTYLE: ta spera none, fade, rise, slide, wipe of NEXT
+MASK ASSIGN: expected CUE, LAYER, OUTPUT or MATTE	MASK ASSIGN: ta spera CUE, LAYER, OUTPUT of MATTE
+MASK EXPORT: expected <id> <file.png|file.svg> [WxH]	MASK EXPORT: ta spera <id> <file.png|file.svg> [WxH]
+MATRIX SET: expected <source 1-2> <dest> <0-100>	MATRIX SET: ta spera <source 1-2> <dest> <0-100>
+MATRIX: expected SET <src> <dest> <0-100>, SEED or CLEAR	MATRIX: ta spera SET <src> <dest> <0-100>, SEED of CLEAR
+MESH: expected on|off|toggle|height|tilt|yaw|spin|grid	MESH: ta spera on|off|toggle|height|tilt|yaw|spin|grid
+MIC: expected ADD, LIST, INPUT, CHANNEL or GAIN	MIC: ta spera ADD, LIST, INPUT, CHANNEL of GAIN
+MIDICUE KIND: expected note-on, note-off, cc, program, msc-go, msc-stop, msc-resume or raw	MIDICUE KIND: ta spera note-on, note-off, cc, program, msc-go, msc-stop, msc-resume of raw
+MIDICUE: expected NEW, PORTS, PORT, KIND, CH, D1, D2, DEVICE, CUENUM, LIST, RAW or SEND	MIDICUE: ta spera NEW, PORTS, PORT, KIND, CH, D1, D2, DEVICE, CUENUM, LIST, RAW of SEND
+MULTIVIEW LAYOUT: expected GRID, BIG, BIGTOP or TWOTOP	MULTIVIEW LAYOUT: ta spera GRID, BIG, BIGTOP of TWOTOP
+MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK or EMPTY	MULTIVIEW WINDOW: ta spera PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK of EMPTY
+NETCUE: expected NEW, PROTO, HOST, PORT, ADDRESS, PAYLOAD or SEND	NETCUE: ta spera NEW, PROTO, HOST, PORT, ADDRESS, PAYLOAD of SEND
+OUTPROBE: expected <output> <x 0-1> <y 0-1>	OUTPROBE: ta spera <output> <x 0-1> <y 0-1>
+OUTPUT HDR: expected ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> or STATUS	OUTPUT HDR: ta spera ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> of STATUS
+OUTPUTFX ADD: expected hpf, lpf, tilt, comp or width	OUTPUTFX ADD: ta spera hpf, lpf, tilt, comp of width
+OUTPUTFX: expected ADD, SET, REMOVE, BYPASS, CLEAR or DEVICE	OUTPUTFX: ta spera ADD, SET, REMOVE, BYPASS, CLEAR of DEVICE
+OUTPUTS ADD: expected <name> CH <n> or CH <n>-<n+1>	OUTPUTS ADD: ta spera <name> CH <n> of CH <n>-<n+1>
+PATCH: expected <deck> <output> <dB> or OFF	PATCH: ta spera <deck> <output> <dB> of OFF
+PRESET: expected LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME or DELETE	PRESET: ta spera LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME of DELETE
+SCALEMODE: expected fit|fill|stretch|unscaled	SCALEMODE: ta spera fit|fill|stretch|unscaled
+SCOPES BIG: expected waveform, parade, vector, diamond, histogram, falsecolour, sound or off	SCOPES BIG: ta spera waveform, parade, vector, diamond, histogram, falsecolour, sound of off
+SCOPES: expected PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS or SOUND	SCOPES: ta spera PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS of SOUND
+SECTION: expected playback|metadata|geometry|key|audio|effects|timer|tone|synth	SECTION: ta spera playback|metadata|geometry|key|audio|effects|timer|tone|synth
+STING: expected ON, PITCH, LENGTH, SWEEP or BODY	STING: ta spera ON, PITCH, LENGTH, SWEEP of BODY
+TARGET VERB: expected start|stop|pause|resume|load|arm|disarm	TARGET VERB: ta spera start|stop|pause|resume|load|arm|disarm
+TEXTCUE ALIGN: expected left, centre or right	TEXTCUE ALIGN: ta spera left, centre of right
+TEXTCUE ANIM: expected none, fade, typewriter, scroll, crawl, pulse or wobble	TEXTCUE ANIM: ta spera none, fade, typewriter, scroll, crawl, pulse of wobble
+TEXTCUE: expected NEW, BODY, ANIM, SIZE, SPEED, ALIGN, CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, WIGGLE, IN, OUTMOVE or OUT	TEXTCUE: ta spera NEW, BODY, ANIM, SIZE, SPEED, ALIGN, CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, WIGGLE, IN, OUTMOVE of OUT
+TUTORIAL: expected START, SHOWME, SKIP, EXIT, STATUS or SCREENS	TUTORIAL: ta spera START, SHOWME, SKIP, EXIT, STATUS of SCREENS
+UPDATE: expected check|download|install|status	UPDATE: ta spera check|download|install|status
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS	VJ: ta spera ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS
+% of the picture's height, 0.1 to 20 (supports + - * / and ())	% di haltura di e imagen, 0.1 te 20 (ta suporta + - * / y ())
+-3 to 3: 0 holds, negative runs backwards (supports + - * / and ())	-3 te 3: 0 ta para, negativo ta core patras (ta suporta + - * / y ())
+0-100%, left to right (supports + - * / and ())	0-100%, robes pa drechi (ta suporta + - * / y ())
+0-100%, top to bottom (supports + - * / and ())	0-100%, ariba pa abou (ta suporta + - * / y ())
+0-100%: 0 holds the field still (supports + - * / and ())	0-100%: 0 ta tene e campo keto (ta suporta + - * / y ())
+0-100%: 50 is 1x, 0 a quarter, 100 four times (supports + - * / and ())	0-100%: 50 ta 1x, 0 un cuarto, 100 cuatro biaha (ta suporta + - * / y ())
+0-100%: how far the field bends (supports + - * / and ())	0-100%: con leu e campo ta dobla (ta suporta + - * / y ())
+Across, % of the width, -100 to 100 (supports + - * / and ())	Horizontal, % di hanchura, -100 te 100 (ta suporta + - * / y ())
+Birth, drift and fade rate, 0.1-3 (supports + - * / and ())	Velocidad di nace, drif y desvanese, 0.1-3 (ta suporta + - * / y ())
+Block displacement and channel tearing, 0-1 (supports + - * / and ())	Desplazamento di blok y scheur di canal, 0-1 (ta suporta + - * / y ())
+dBFS, -60 to 0 (-18 is EBU alignment) (supports + - * / and ())	dBFS, -60 te 0 (-18 ta e referencia EBU) (ta suporta + - * / y ())
+Down, % of the height, -100 to 100 (supports + - * / and ())	Abou, % di haltura, -100 te 100 (ta suporta + - * / y ())
+Edge out (+) or in (-), % of the height, -25 to 25 (supports + - * / and ())	Rand pafo (+) of paden (-), % di haltura, -25 te 25 (ta suporta + - * / y ())
+Edge softness, % of the height, 0 to 25 (supports + - * / and ())	Suavidad di rand, % di haltura, 0 te 25 (ta suporta + - * / y ())
+FDS hardware gain range, 0-63 (supports + - * / and ())	Rango di ganashi di hardware FDS, 0-63 (ta suporta + - * / y ())
+Feature size, 0.1-8 (supports + - * / and ())	Tama?o di detalle, 0.1-8 (ta suporta + - * / y ())
+Horizontal cells, 64-960 (supports + - * / and ())	Cel horizontal, 64-960 (ta suporta + - * / y ())
+How big a blob grows, 0-1 (supports + - * / and ())	Con grandi e mancha ta crece, 0-1 (ta suporta + - * / y ())
+How hard it cuts, %, 0 to 100 (supports + - * / and ())	Con duro e ta corta, %, 0 te 100 (ta suporta + - * / y ())
+How hard the audio drives it, 0-1 (supports + - * / and ())	Con duro e audio ta dirigi esaki, 0-1 (ta suporta + - * / y ())
+How many are alive at once, 3-48 (supports + - * / and ())	Cuanto ta bibu na mes momento, 3-48 (ta suporta + - * / y ())
+How much of each frame feeds the next, 0-0.95 (supports + - * / and ())	Cuanto di cada cuadro ta alimenta e siguiente, 0-0.95 (ta suporta + - * / y ())
+How readily neighbours merge, 0 (never) to 1 (supports + - * / and ())	Con facil bisi?anan ta uni, 0 (nunca) te 1 (ta suporta + - * / y ())
+Internal resolution, 1 (chunky) to 5 (fine) (supports + - * / and ())	Resolucion interno, 1 (grandi) te 5 (fini) (ta suporta + - * / y ())
+Master oscillator rate, 0.01-8 (supports + - * / and ())	Velocidad di oscilador principal, 0.01-8 (ta suporta + - * / y ())
+Modulator as a ratio of the note, 0.05-16 (supports + - * / and ())	Modulador como proporcion di e nota, 0.05-16 (ta suporta + - * / y ())
+One LED tile's height in pixels, 8-8192 (supports + - * / and ())	Haltura di un mosaico LED den pixel, 8-8192 (ta suporta + - * / y ())
+One LED tile's width in pixels, 8-8192 (supports + - * / and ())	Hanchura di un mosaico LED den pixel, 8-8192 (ta suporta + - * / y ())
+Palette turn, 0-1 (supports + - * / and ())	Giro di palet, 0-1 (ta suporta + - * / y ())
+Per-frame zoom of the feedback path, 0.90-1.15 (supports + - * / and ())	Zoom di ruta di feedback pa cuadro, 0.90-1.15 (ta suporta + - * / y ())
+Pitch in hertz, 20-8000 (supports + - * / and ())	Tono den hertz, 20-8000 (ta suporta + - * / y ())
+Pixel sort amount, 0-1 (supports + - * / and ())	Cantidad di ordenacion di pixel, 0-1 (ta suporta + - * / y ())
+Scale of the whole graphic, 0.5-2 (supports + - * / and ())	Escala di e grafico completo, 0.5-2 (ta suporta + - * / y ())
+Size, %, 5 to 400 (supports + - * / and ())	Tama?o, %, 5 te 400 (ta suporta + - * / y ())
+Spiral size, 0.25-4 (supports + - * / and ())	Tama?o di espiral, 0.25-4 (ta suporta + - * / y ())
+Spiral strength, 0-4 (supports + - * / and ())	Fuerza di espiral, 0-4 (ta suporta + - * / y ())
+Thickness of the glowing edge, 0-1 (supports + - * / and ())	Dikura di e rand briyante, 0-1 (ta suporta + - * / y ())
+0-127; 127 is all-call	0-127; 127 ta yama tur
+0-127; the domain the facility's clock runs on	0-127; e dominio di e oloshi di e instalacion
+10-79 characters, or empty for none	10-79 caracter, of laga bashi pa ningun
+8 zones already: click one to remove it first	ya tin 8 zona: clic riba un pa kita prome
+8+ characters; letters and symbols are allowed	8+ caracter; letter y simbolo ta permiti
+A command line, or blank for nothing	Un li?a di comando, of bashi pa nada
+a step cannot fire the playlist it lives on	un paso no por activa e playlist caminda e ta
+a target cannot target another target	un destino no por apunta na otro destino
+an IPv4 address, or 255.255.255.255 to broadcast	un adres IPv4, of 255.255.255.255 pa broadcast
+AUDIOALSO ADD: seven extra destinations is the limit	AUDIOALSO ADD: e limite ta shete destino extra
+AUDIOFX PLUGIN: this build has no plugin host	AUDIOFX PLUGIN: e version aki no tin host di plugin
+BROWSER CLICK: this browser backend cannot drive the page	BROWSER CLICK: e motor di browser aki no por controla e pagina
+BROWSER INTERACT: this browser backend has no hands-on mode	BROWSER INTERACT: e motor di browser aki no tin modo interactivo
+BROWSER SCROLL: expected pixels (negative is up)	BROWSER SCROLL: ta spera pixel (negativo ta ariba)
+BROWSER TYPE: this browser backend cannot type	BROWSER TYPE: e motor di browser aki no por tip
+cancelled: the waiting cue is no longer in the playlist	cancela: e cue cu ta warda no ta den e playlist mas
+could not create an OpenGL context for Spout receive	no por a crea un contexto OpenGL pa ricibi Spout
+could not create the offscreen window Spout receive needs	no por a crea e bentana pafor di pantalla cu Spout mester pa ricibi
+could not get a device context for Spout receive	no por a haya un contexto di aparato pa ricibi Spout
+driver would not create output buffers	e driver no a crea buffer di salida
+driver would not load (in use by another application?)	e driver no a carga (un otro aplicacion ta us'e?)
+driver would not report a buffer size	e driver no a indica tama?o di buffer
+driver would not report channel info	e driver no a indica informacion di canal
+fetching the speech model - captions start when it arrives	ta busca e modelo di bos - subtitulo ta cuminsa ora e yega
+four effects at most on one device: remove one first	maximo cuatro efecto riba un aparato: kita un prome
+FX ADD: datamosh needs a file-backed video cue	FX ADD: datamosh mester un cue di video basa riba archivo
+group presets became master cues: use MASTER	preset di grupo a bira master cue: usa MASTER
+live captions are not installed here (deckboy-listen was not found)	subtitulo en bibo no ta instala aki (deckboy-listen no a wordo haya)
+Lower Third added - put its playlist on a layer	Lower Third agrega - pone su playlist riba un capa
+make a step first: a section starts at a step	crea un paso prome: un seccion ta cuminsa na un paso
+MASK PATH: a path needs at least three points	MASK PATH: un ruta mester por lo menos tres punto
+MATRIX SET: level is a percent from 0 to 100	MATRIX SET: e nivel ta un procent di 0 te 100
+MIDIMAP: that command is only accepted from this computer	MIDIMAP: e comando ey ta acepta solamente di e computer aki
+MOTION ZONE ADD: the zone must fit inside the picture	MOTION ZONE ADD: e zona mester pas paden di e imagen
+NETCUE ADDRESS: an OSC address must start with /	NETCUE ADDRESS: un adres OSC mester cuminsa cu /
+release has no build for this platform	e release no tin version pa e plataforma aki
+SLICE ADD: already 16 slices on this output	SLICE ADD: ya tin 16 slice riba e salida aki
+still reading the last folder -- one at a time	ainda ta lesa e ultimo carpeta -- un pa un
+SUBTITLE CONVERT: destination must be .srt or .vtt	SUBTITLE CONVERT: destino mester ta .srt of .vtt
+SUBTITLE CONVERT: the cue has no caption file	SUBTITLE CONVERT: e cue no tin archivo di subtitulo
+the caption model has not been downloaded yet	e modelo di subtitulo no a wordo descarga ainda
+the playing step was removed - sequence stopped	e paso cu tabata tocando a wordo kita - secuencia para
+this cue has no known end to resolve into	e cue aki no tin fin conoci pa resolve aden
+this output's renderer could not cut the mask	e renderizador di e salida aki no por a corta e mascara
+TRACKER: there are no steps (TRACKER ADD makes one)	TRACKER: no tin paso (TRACKER ADD ta crea un)
+unsaved changes will be lost: press new again	cambionan sin warda lo perde: primi nobo atrobe
+update: could not start the install helper	actualisa: no por a start e asistente di instalacion
+update: could not start the installer	actualisa: no por a start e instalador
+update: could not write the install helper	actualisa: no por a skirbi e asistente di instalacion
+update: not running from an AppImage	actualisa: no ta core for di un AppImage
+WEBMONITOR SOURCE: could not create the web output	WEBMONITOR SOURCE: no por a crea e salida web
+zones cleared: Motion reads the whole picture	zonanan limpia: Movecion ta lesa e imagen completo
+BROWSER SCROLL: this browser backend cannot drive the page	BROWSER SCROLL: e motor di browser aki no por controla e pagina
+BROWSER SCROLLBAR: this browser backend cannot drive the page	BROWSER SCROLLBAR: e motor di browser aki no por controla e pagina
+Seconds, 0-4 (supports + - * / and ())	Seconde, 0-4 (ta suporta + - * / y ())
+Seconds, 0-8 (supports + - * / and ())	Seconde, 0-8 (ta suporta + - * / y ())
+Seconds between retriggers, 0-8 (supports + - * / and ())	Seconde entre activacionnan, 0-8 (ta suporta + - * / y ())
+Seconds the finished drawing stays, 0 to 60 (supports + - * / and ())	Seconde cu e dibuho cla ta keda, 0 te 60 (ta suporta + - * / y ())
+Seconds the in move takes, 0-5 (supports + - * / and ())	Seconde pa e movecion di entrada, 0-5 (ta suporta + - * / y ())
+Seconds the out move takes, 0-5 (supports + - * / and ())	Seconde pa e movecion di salida, 0-5 (ta suporta + - * / y ())
+Seconds before it leaves by itself; 0 waits for OUT (supports + - * / and ())	Seconde prome cu e sali so; 0 ta warda OUT (ta suporta + - * / y ())
+Pixels, 64-2160 (supports + - * / and ())	Pixel, 64-2160 (ta suporta + - * / y ())
+Pixels, 64-3840 (supports + - * / and ())	Pixel, 64-3840 (ta suporta + - * / y ())
+Space under it, as a fraction of the frame, 0-0.8 (supports + - * / and ())	Espacio bou di dje como fraccion di cuadro, 0-0.8 (ta suporta + - * / y ())
+Where the eye sits, 0 left to 1 right (supports + - * / and ())	Posicion di e wowo, 0 robes te 1 drechi (ta suporta + - * / y ())
+Where the eye sits, 0 top to 1 bottom (supports + - * / and ())	Posicion di e wowo, 0 ariba te 1 abou (ta suporta + - * / y ())
+Turbulence, 0 still to 3 boiling (supports + - * / and ())	Turbulencia, 0 keto te 3 herebendo (ta suporta + - * / y ())
+Turns the rim's colours round the wheel, 0-1 (supports + - * / and ())	Ta gira e colornan di rand rond di e wiel, 0-1 (ta suporta + - * / y ())
+port number (default 5510)	number di port (predetermina 5510)
+port number (default 5511)	number di port (predetermina 5511)
+port number (default 6454)	number di port (predetermina 6454)
+port number (default 8090)	number di port (predetermina 8090)
+port number (vMix uses 8088)	number di port (vMix ta usa 8088)
+port number (vMix uses 8099)	number di port (vMix ta usa 8099)
+e.g. /cue/1/start	p.e. /cue/1/start
+e.g. 12.5	p.e. 12.5
+e.g. 192.168.1.50	p.e. 192.168.1.50
+e.g. 1=255, 10-14=64	p.e. 1=255, 10-14=64
+e.g. 90 3C 7F	p.e. 90 3C 7F
+A dark line between the tiles, like grout or an LED wall.	Un li?a scur entre mosaiconan, manera voeg of un muraya LED.
+Above halfway, a hard cut in the picture resets the loop to clean.	Ariba di mitar, un corte duro den e imagen ta limpia e loop.
+Above halfway, the repeated piece plays backwards.	Ariba di mitar, e pida repiti ta toca patras.
+Darkens the boundaries where crystals meet.	Ta scurece e randnan caminda cristalnan ta topa.
+Fine sensor noise at the bottom, chunky film at the top.	Abou ruis fini di sensor, ariba grano grueso di film.
+From an even blur to a streak along the angle, like movement.	Di blur pareu pa un strepi segun e angulo, manera movecion.
+Grain size: one pixel at the left, big blocky grains at the right.	Tama?o di grano: un pixel na robes, granonan grandi cu forma di blok na drechi.
+Grows or shrinks the echo each pass. Centre holds still.	Ta haci e eco mas grandi of chikito cada biaha. Centro ta keda keto.
+How big the crystals grow before they meet.	Con grandi e cristalnan ta crece prome cu nan topa.
+How big the room is. Small is a booth, large is a hall.	Con grandi e cuarto ta. Chikito ta un cabina, grandi ta un sala.
+How big the shards are. Small is frosted glass, large is a dropped plate.	Con grandi e schernan ta. Chikito ta glas mate, grandi ta un tayor cay.
+How dark the dark lines go. All the way up is black between lines.	Con scur e li?anan scur ta bira. Na maximo ta preto entre e li?anan.
+How far each shard slides from where it belongs.	Con leu cada scherf ta schuif for di su luga.
+How far each stroke is dragged along the grain.	Con leu cada strepi ta wordo hala segun e grano.
+How far it smears: up to a few percent of the picture.	Con leu e ta smeer: te algun procent di e imagen.
+How far the bright parts pull away from the surface.	Con leu e pidanan cla ta sali for di e superficie.
+How far the sound throws each line sideways.	Con leu e zonido ta tira cada li?a na banda.
+How far the two eyes disagree. Brightness is read as nearness.	Con diferente e dos wowonan ta mira. Claridad ta interpreta como cercania.
+How fast it closes. Slow enough not to chop the ends off words.	Con lihe e ta cera. Suficiente poco poco pa no corta fin di e palabranan.
+How fast the drips run. At the left the picture only sags.	Con lihe e gotanan ta core. Na robes e imagen ta sak solamente.
+How fast the light walks around it. Zero holds it still.	Con lihe e luz ta move rond di dje. Cero ta tene keto.
+How fast the sand travels to the still lines.	Con lihe e santo ta move pa e li?anan keto.
+How gradually the key cuts in. Hard at the left.	Con gradual e key ta corta. Duro na robes.
+How hard it is driven into its own limits.	Con duro e ta wordo pusha te na su propio limitenan.
+How long a short stays closed, in VIDEO FRAMES.	Con largo e cortocircuito ta keda cera, den CUADRO DI VIDEO.
+How many shades survive the quantise.	Cuanto tono ta keda despues di cuantisa.
+How many spikes the field breaks into.	Den cuanto punta e campo ta parti.
+How many times a skip repeats before the sound catches up again.	Cuanto biaha un salto ta repiti prome cu e zonido ta alcanza atrobe.
+How much each shard turns on its own centre.	Con tanto cada scherf ta gira riba su propio centro.
+How much of the push goes downward rather than sideways.	Cuanto di e pusha ta bai abou en bes di na banda.
+How much the flame gutters frame to frame.	Con tanto e vlam ta vacila di cuadro pa cuadro.
+How quickly the loop relaxes when nothing feeds it.	Con lihe e loop ta relaha ora nada ta aliment'e.
+How strongly the outlines are drawn.	Con fuerte e contornonan ta wordo dibuha.
+How strongly the water bends the picture.	Con fuerte e awa ta dobla e imagen.
+How wide a band of colours either side of it changes too.	Con hancho e banda di color na cada banda cu tambe ta cambia.
+Lifts the dark tones without moving pure black.	Ta lanta e tononan scur sin move preto puro.
+Pushes the rings in or out of the centre.	Ta pusha e renchinan pa centro of pafo di centro.
+Rounds the tiles off, all the way to dots.	Ta rond e mosaiconan te bira punto.
+Softens the fold so it ramps instead of creasing.	Ta sua e dobla pa e bira gradual en bes di un vou duro.
+Sorts the runs the other way, so they pour from light to dark.	Ta ordena e bandanan e otro banda, di cla pa scur.
+The bright net the waves focus onto the picture.	E red cla cu e olanan ta concentra riba e imagen.
+The brightness that decides black from white.	E claridad cu ta distingui preto for di blanco.
+The colour to change, round the wheel from red.	E color pa cambia, rond di e wiel cuminsando cu cora.
+Turns the echo each pass, which winds the melt into a spiral.	Ta gira e eco cada biaha, cu ta hila e smelt den un espiral.
+OUTPUT --.-	SALIDA --.-
+OUTPUT WARM	SALIDA PREPARANDO
+STREAM --.-	TRANSMISION --.-
+STREAM ERR	TRANSMISION ERROR
+STREAM OFF	TRANSMISION PAGA
+STREAM WARM	TRANSMISION PREPARANDO
+In time	Tempo di entrada
+Out time	Tempo di salida
+OSC Feedback Mirror Rate	Velocidad di espejo di feedback OSC
+OSC Query HTTP Port	Port HTTP di OSC Query
+Key sender source name	Nomber di fuente di emisor di key
+ST 2110 Destination	Destino ST 2110
+ST 2110 network interface	Interface di red ST 2110
+ST 2110 Port	Port di ST 2110
+vMix HTTP Port	Port HTTP di vMix
+vMix TCP Port	Port TCP di vMix
+Web Monitor Connections	Conexionnan di monitor web
+Web Monitor PIN	PIN di monitor web
+Web Monitor Port	Port di monitor web
+Legacy Cue Link	Enlace di cue bieuw
+Fireside	Canto di candela
+hue turn	giro di tono
+ferrofluid	liquido magnetico
+dye advect	fluho di color
+edge ignite	rand na candela
+feedback bloom	brillo di feedback
+reaction bloom	florece di reaccion
+pythagorean	di Pitagoras
+purkinje	di Purkinje
+schlieren	strepi di refraccion
+audioprint	imprenta di audio
+e.g. 20:0 or client name	p.e. 20:0 of nomber di cliente
+Hz or AUTO (e.g. 60 or 59.94)	Hz of AUTO (p.e. 60 of 59.94)
+kbps (32-512; 160 is a sane default)	kbps (32-512; 160 ta un bon balor predetermina)
+Multicast group (e.g. 239.20.10.1)	Grupo multicast (p.e. 239.20.10.1)
+Prefix (optional). Example: Q	Prefiho (opcional). Ehempel: Q
+Prefix and optional start (example: Q 100)	Prefiho y cuminsamento opcional (ehempel: Q 100)
+WIDTHxHEIGHT (e.g. 2560x1080)	HANCHURAxHALTURA (p.e. 2560x1080)
+WIDTHxHEIGHT (e.g. 5760x2160)	HANCHURAxHALTURA (p.e. 5760x2160)
+position on the output raster, in pixels	posicion riba e raster di salida, den pixel
+seconds (1-10; most platforms want 2)	seconde (1-10; mayoria di plataforma mester 2)
+seconds this step holds before PLAY moves on	seconde cu e paso aki ta warda prome cu PLAY ta sigui
+Leave empty to follow the live cue notes	Laga bashi pa sigui e notanan di e cue en bibo
+Target IP (or 255.255.255.255 to broadcast)	IP di destino (of 255.255.255.255 pa broadcast)
+MIDIFILE: the selected cue is not a midi file cue	MIDIFILE: e cue selecta no ta un cue di archivo MIDI
+NETCUE: the selected cue is not a network cue	NETCUE: e cue selecta no ta un cue di red
+SCRIPTCUE: the selected cue is not a script cue	SCRIPTCUE: e cue selecta no ta un cue di script
+SYNTH: the selected cue is not a video synth	SYNTH: e cue selecta no ta un cue di sintetisador di video
+TCCUE: the selected cue is not a timecode cue	TCCUE: e cue selecta no ta un cue di timecode
+TEXTCUE: the selected cue is not a text cue	TEXTCUE: e cue selecta no ta un cue di texto
+Cue name (blank restores the file name)	Nomber di cue (bashi ta restaura nomber di archivo)
+ASCII HOLD: seconds, 0-60 (0 mutes the phrases)	ASCII HOLD: seconde, 0-60 (0 ta silencia e frasenan)
+AUDIOFX: expected OFF, BYPASS, or amount and parameters as percentages	AUDIOFX: ta spera OFF, BYPASS, of cantidad y parametro den procent
+CHIP ENV: expected <attack> <release> in seconds	CHIP ENV: ta spera <attack> <release> den seconde
+DECKLINK: no DeckLink driver on this computer (Blackmagic Desktop Video)	DECKLINK: no tin driver DeckLink riba e computer aki (Blackmagic Desktop Video)
+DMXCUE LEVELS: nothing has been sent on that universe	DMXCUE LEVELS: nada a wordo manda riba e universo ey
+downloading the caption model, then listening...	ta descarga e modelo di subtitulo, despues scucha...
+drag the panels to arrange the presenter screen	hala e panelnan pa organisa e pantalla di presentador
+DRAW SIZE: 0.1-20 (% of the picture's height)	DRAW SIZE: 0.1-20 (% di haltura di e imagen)
+DRAW STROKE: each point is x,y or x,y,pressure, in percent	DRAW STROKE: cada punto ta x,y of x,y,pressure, den procent
+encoder destination: _converted beside the show	destino di codificador: _converted banda di e show
+ENDACTION: only video and audio cues have an end action	ENDACTION: solamente cue di video y audio tin un accion final
+Enter playlist SMPTE FPS: 24 / 25 / 29.97 / 30	Yena SMPTE FPS di e playlist: 24 / 25 / 29.97 / 30
+expected one expression, three for colour, or four with alpha	ta spera un expresion, tres pa color, of cuatro cu alpha
+format 2 files are a set of independent patterns, not a performance	archivo di formato 2 ta un set di patron independiente, no un presentacion
+INPUTMONITOR: a row count, OPEN, CLOSE, CLEAR, PAUSE or RESUME	INPUTMONITOR: cantidad di rij, OPEN, CLOSE, CLEAR, PAUSE of RESUME
+MASTER DECK: expected a deck number and a cue number	MASTER DECK: ta spera un number di deck y un number di cue
+MIDIIN OSC: an address, and optionally a number	MIDIIN OSC: un adres, y opcionalmente un number
+MONITOR DECK: expected a playlist number or FOLLOW	MONITOR DECK: ta spera un number di playlist of FOLLOW
+MONITOR ROOM: expected a playlist and ON or OFF	MONITOR ROOM: ta spera un playlist y ON of OFF
+MULTIVIEW WINDOW REMOVE: expected a window number	MULTIVIEW WINDOW REMOVE: ta spera un number di bentana
+NETCUE ADDRESS: expected an OSC path starting with /	NETCUE ADDRESS: ta spera un ruta OSC cu ta cuminsa cu /
+new show disarms all outputs: press new again	un show nobo ta desarma tur salida: primi nobo atrobe
+NMOS: discovery needs the remote network allowed	NMOS: descubrimento mester e red remoto permiti
+NMOS: searching for a registry (mDNS)	NMOS: ta busca un registro (mDNS)
+no picture on this cue - nothing to follow	no tin imagen den e cue aki - nada pa sigui
+no picture on this cue - nothing to close the loop through	no tin imagen den e cue aki - nada pa cera e loop door di dje
+no video clock on this cue - nothing to lock to	no tin oloshi di video den e cue aki - nada pa sincronisa cu ne
+normalize: selection has no file-backed audio	normalisa: seleccion no tin audio basa riba archivo
+normalize all: no file-backed audio in this deck	normalisa tur: no tin audio basa riba archivo den e deck aki
+only a MIDI note or an OSC address can take a cue	solamente un nota MIDI of un adres OSC por activa un cue
+Only accept transport from this sender (blank = anyone)	Acepta transporte solamente di e emisor aki (bashi = tur hende)
+OUTPROBE: that output has no compositor (is it on?)	OUTPROBE: e salida ey no tin compositor (e ta cendi?)
+OUTPUTFX ADD: four effects at most on one device	OUTPUTFX ADD: maximo cuatro efecto riba un aparato
+OUTPUTFX SET: expected an effect number and 0-100	OUTPUTFX SET: ta spera un number di efecto y 0-100
+PATCH: a level is dB from -48 to +6, or OFF	PATCH: un nivel ta dB di -48 te +6, of OFF
+PORTS: expected an http port and a tcp port	PORTS: ta spera un port http y un port tcp
+PRELOAD: expected a position in seconds, OFF or STATUS	PRELOAD: ta spera un posicion den seconde, OFF of STATUS
+STING: select a tone cue first (TONECUE makes one)	STING: selecta un cue di tono prome (TONECUE ta crea un)
+STREAM ADD: expected a URL, e.g. srt://host:port	STREAM ADD: ta spera un URL, p.e. srt://host:port
+TARGET CUE: expected a deck number and a cue number	TARGET CUE: ta spera un number di deck y un number di cue
+TEXTCUE SIZE: expected 1-100 (percent of the raster)	TEXTCUE SIZE: ta spera 1-100 (procent di e raster)
+Apple keeps the Keynote format secret on purpose, a malicious lock-in tactic, so only Apple's own software can read it properly. Best route: open it in Keynote on iCloud.com (free, in any browser), choose Download a Copy > PDF, and import that PDF	Apple ta tene e formato Keynote secreto a proposito, un tactica malicioso pa tene usuario presa, asina cu solamente software di Apple mes por les e corectamente. E miho ruta: habrie den Keynote riba iCloud.com (gratis, den cualkier browser), scoge Download a Copy > PDF, y importa e PDF ey
+Keynote could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)	Keynote no por a exporta e archivo aki (lo mester permiso pa automatisa: System Settings > Privacy & Security > Automation)
+cannot read the file: if it lives in OneDrive or iCloud, open it once so it downloads, then import it	no por lesa e archivo: si e ta den OneDrive of iCloud, habrie un biaha pa e descarga, despues importe
+the file is empty (0 bytes): it may not have finished copying or saving	e archivo ta bashi (0 byte): e copia of wardamento kisas no a caba
+the installed NDI runtime is missing entry points this needs	e runtime NDI instala ta falta punto di entrada cu esaki mester
+the NDI runtime declined to start on this machine	e runtime NDI a nenga di start riba e mashin aki
+programme sound is always included; use WEBMONITOR OFF to stop the monitor	zonido di PROGRAM ta inclui semper; usa WEBMONITOR OFF pa stop e monitor
+phone control requires an 8+ character passphrase	control di telefon mester un frase secreto di 8+ caracter
+set an 8+ character Web Monitor passphrase first	pone un frase secreto di 8+ caracter pa monitor web prome
+network sharing and phone control require an 8+ character passphrase	comparti via red y control di telefon mester un frase secreto di 8+ caracter
+paired phones removed: they need the QR code or the passphrase again	telefonnan conecta kita: nan mester e codigo QR of e frase secreto atrobe
+WEBMONITOR QR: needs the monitor on and shared on the network	WEBMONITOR QR: mester e monitor cendi y comparti riba e red
+WEBMONITOR SOURCE: PROGRAMME or the number of an output that shows a picture	WEBMONITOR SOURCE: PROGRAMME of e number di un salida cu ta mustra un imagen
+brightness moves the playhead (needs CPU frames)	claridad ta move e cursor di reproduccion (mester cuadro CPU)
+centred and full-frame - moves when the picture does	centra y cuadro completo - ta move hunto cu e imagen
+follows this cue's own brightness (needs CPU frames)	ta sigui e claridad propio di e cue aki (mester cuadro CPU)
+full-frame and no picture - bends when the picture shrinks	cuadro completo y sin imagen - ta dobla ora e imagen bira mas chikito
+mic live on the default speakers - watch for feedback	microfon en bibo riba e speakernan predetermina - cuida pa feedback
+motion on: the camera is read, never recorded	movecion cendi: camera ta wordo lesa, nunca graba
+no picture - shorts run on a timer instead of on cuts	sin imagen - cortocircuitonan ta core riba un timer en bes di corte
+no picture on this cue - nothing decides where the playhead is	no tin imagen den e cue aki - nada ta determina posicion di e cursor di reproduccion
+on the dashboard - Ctrl+D or the DASH button	riba dashboard - Ctrl+D of e boton DASH
+output effects bypassed: no effect and no limit on this device	efectonan di salida bypass: sin efecto y sin limite riba e aparato aki
+output recover failed: fullscreen unavailable	recuperacion di salida a faya: pantalla completo no ta disponibel
+over 16 MB: not a drawing to make a mask from	mas cu 16 MB: no ta un dibuho pa haci un mascara cu ne
+Page Down / Page Up step the focused playlist	Page Down / Page Up ta avansa e playlist cu tin foco
+pair with a picture effect whose LFO is set to Audio	combina cu un efecto di imagen cu su LFO pone na Audio
+Port the Node + Connection API serve on	Port caminda Node + Connection API ta sirbi
+recordings remux to MP4 when the take stops	grabacionnan ta remux pa MP4 ora e grabacion stop
+Seconds for new image/pattern/browser/Lower Third cues (0 = hold)	Seconde pa cue nobo di imagen/patron/browser/Lower Third (0 = warda)
+Seconds for new-cue fade in/out defaults	Seconde predetermina pa fade in/out di cue nobo
+the background alpha belongs to a Lower Third	alpha di fondo ta pertenece na un Lower Third
+TRACKER SET: a step cannot act on its own playlist	TRACKER SET: un paso no por actua riba su propio playlist
+VIDEO OUTPUT LAYER: expected a layer number (1 is the base)	VIDEO OUTPUT LAYER: ta spera un number di capa (1 ta e base)
+WARP AT: open the editor (WARP EDIT) and select a point first	WARP AT: habri e editor (WARP EDIT) y selecta un punto prome
+what the operator should be told when GO reaches here	loke e operador mester wordo bisa ora GO yega aki
+what the patch and the cues call it (FOH, SUB, PRESS FEED)	con e patch y e cuenan ta yame (FOH, SUB, PRESS FEED)
+Where to send transport (blank = broadcast)	Unda pa manda transporte (bashi = broadcast)
+Which switcher input Deckboy is (0 = not set)	Cua entrada di switcher ta Deckboy (0 = no configura)
+DMXCUE FIXTURE: expected <name> <level%>|LEAVE [<colour>]	DMXCUE FIXTURE: ta spera <name> <level%>|LEAVE [<colour>]
+DMXCUE LFO: expected <name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]	DMXCUE LFO: ta spera <name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]
+FIXTURE ADD: expected <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]	FIXTURE ADD: ta spera <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]
+MASK ASSIGN: expected <id|NONE> CUE | LAYER <output> <playlist> | OUTPUT <n> | MATTE <n>	MASK ASSIGN: ta spera <id|NONE> CUE | LAYER <output> <playlist> | OUTPUT <n> | MATTE <n>
+MASK LFO: expected <id> <param> ON|OFF [rate Hz] [depth %]	MASK LFO: ta spera <id> <param> ON|OFF [rate Hz] [depth %]
+rectc: expected <hh:mm:ss:ff|timeofday> [df|ndf|auto]	rectc: ta spera <hh:mm:ss:ff|timeofday> [df|ndf|auto]
+presenter colour: expected BG|INK|ACCENT #rrggbb	presenter colour: ta spera BG|INK|ACCENT #rrggbb
+expected waveform|scope|lissajous|spectrum|level|cover	ta spera waveform|scope|lissajous|spectrum|level|cover
+TRACKER: expected GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP or CLICKER	TRACKER: ta spera GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP of CLICKER
+A worn or dirty head: softer, with noise that streaks along the lines.	Un cabezal gasta of sushi: mas sua, cu ruis cu ta strepi segun e li?anan.
+A slow rocking of the viewpoint, which is what makes the depth read without glasses.	Un zwaai poco poco di e punto di bista, cu ta laga mira profundidad sin bril.
+A slow sag in the supply, pulling the filter up and down like a dying battery.	Un caida poco poco di corriente, cu ta hala e filtro ariba y abou manera un bateria muriendo.
+An old deck: the picture wobbles, bends at the top of the frame and carries hum bars.	Un deck bieuw: e imagen ta tembla, dobla ariba di cuadro y tin banda di interferencia electrico.
+An old tape loses bits of its oxide: dropouts flick white and repeat the line above, and the colour fizzes.	Un tape bieuw ta perde pida di su oxido: se?al ta cay cu flash blanco y repiti e li?a ariba, y e color ta chispa.
+Copies of copies: none at the left, four at the right. Each one loses more.	Copia di copia: ningun na robes, cuatro na drechi. Cada un ta perde mas.
+How abruptly it arrives. Low is a soft cloud, high is a hard porthole.	Con bruskamente e ta aparece. Bao ta un nubia sua, halto ta un bentana rond cu rand duro.
+How bright a pixel has to be before it lifts at all, so only the highlights spike.	Con cla un pixel mester ta prome cu e lanta, pa solamente e parti mas cla forma punta.
+How deep the picture is treated as being. The brightness becomes height and is lit from the side.	Con profundo e imagen ta trata. Claridad ta bira haltura y ta ilumina di banda.
+How far away. Distance dulls the top and softens the difference between the ears.	Con leu. Distancia ta sua e tononan halto y e diferencia entre e horeanan.
+How far back each skip jumps, from a stutter to half a second.	Con leu cada salto ta bolbe, di un tartamudeo te mitar seconde.
+How gently the change fades out at the edges of the band.	Con suave e cambio ta desvanese na e randnan di e banda.
+How hard it holds once it is working. Gentle at the bottom, a limiter at the top.	Con duro e ta tene ora e ta traha. Sua abou, un limitador ariba.
+How irregular the growth is. Low gives an even honeycomb, high gives long shards.	Con irregular e crecimento ta. Bao ta un panal pareu, halto ta scherf largo.
+How long it is allowed to run. More steps means the ripples have crossed and reflected more times.	Con largo e por core. Mas paso ta nifica cu e olanan a cruza y refleha mas biaha.
+How long the reaction runs each frame. Short is a stain, long is an organism.	Con largo e reaccion ta core cada cuadro. Corto ta un mancha, largo ta un organismo.
+How many places drip: a few big drips at the left, many thin ones at the right.	Cuanto luga ta gotia: algun gota grandi na robes, hopi fini na drechi.
+How much of the picture glows: only the brightest at the left, nearly everything at the right.	Cuanto di e imagen ta bria: solamente e parti mas cla na robes, casi tur na drechi.
+How much of the picture shows behind the lines. None at the left: lines on black.	Cuanto di e imagen ta mustra tras di e li?anan. Ningun na robes: li?a riba preto.
+How quickly the room eats the top end. More damping is a softer, more furnished space.	Con lihe e cuarto ta absorbe e tononan halto. Mas amortiguacion ta un espacio mas sua y mas muebla.
+How readily an edge catches. Low sets the whole picture alight, high only the hardest lines.	Con facil un rand ta pega candela. Bao ta cende e imagen completo, halto solamente e li?anan mas duro.
+How wide a view is being compressed. Narrow is a punch down the middle, wide folds the whole frame into the centre.	Con hancho e bista cu ta comprimi ta. Smal ta un golpe den centro, hancho ta dobla e cuadro completo pa centro.
+Line pitch in pixels, so this reads at 4K as well as at 720.	Distancia entre li?a den pixel, pa esaki ta visibel na 4K mescos cu na 720.
+The head drifting off the track: a band of noise rolls through the picture.	E cabezal ta drif for di e track: un banda di ruis ta core door di e imagen.
+Two is a mirror, twelve is a snowflake, and they are completely different pictures.	Dos ta un spiel, diesdos ta un copo di sneeuw, y nan ta imagen completamente diferente.
+8+ characters; other machines send AUTH <passphrase> first. Empty = off	8+ caracter; otro computador mester manda AUTH <passphrase> prome. Bashi = paga
+A command line, as a DASH button runs it. {value} is the knob's number, {note} the key.	Un liña di comando, manera un boton DASH ta ehecute. {value} ta e number di e knop, {note} ta e tecla.
+AUDIOALSO ADD: that is already this deck's main device -- it would play twice	AUDIOALSO ADD: esey ta caba e aparato principal di e deck aki -- e lo toca dos biaha
+CHIP DUTY: this cue is an FDS synth, which has no duty	CHIP DUTY: e cue aki ta un sintetisador FDS, cu no tin duty
+CHIP NOISE: this cue is an FDS synth, which has no noise	CHIP NOISE: e cue aki ta un sintetisador FDS, cu no tin ruido
+CHIP VOICE: this cue is an FDS synth, which has no voice	CHIP VOICE: e cue aki ta un sintetisador FDS, cu no tin voz
+Chladni listens: the figure follows the pitch of the sound	Chladni ta scucha: e figura ta sigui e tono di e sonido
+DATAMOSH on - preparing (long clip, watch Encoder tab)	DATAMOSH cendi - preparando (clip largo, wak e tab Codificador)
+Degrees per second, -720 to 720 (supports + - * / and ())	Grado pa seconde, -720 te 720 (ta acepta + - * / y ())
+Degrees round the colour wheel, 0-360 (supports + - * / and ())	Grado rond di e cirkel di color, 0-360 (ta acepta + - * / y ())
+EDIT is off - press EDIT to type into the tracker	EDIT ta paga - primi EDIT pa type den e tracker
+HH:MM or HH:MM:SS on this computer's clock; empty for none	HH:MM of HH:MM:SS riba e oloshi di e computador aki; bashi pa ningun
+HH:MM:SS:FF of the timecode Deckboy is chasing; empty for none	HH:MM:SS:FF di e codigo di tempo cu Deckboy ta sigui; bashi pa ningun
+IPv4 addresses or a.b.c.d/bits, comma separated; empty = only this computer	Adres IPv4 of a.b.c.d/bits, separa cu coma; bashi = solamente e computador aki
+Iris	Iris di lens
+Lissajous (L/R phase)	Lissajous (fase L/R)
+MASK SHAPE: expected a shape (MASK SHAPES lists them)	MASK SHAPE: ta spera un forma (MASK SHAPES ta mustra e lista)
+MIC INPUT: expected SETTINGS, TEST or a device name (MIC LIST)	MIC INPUT: ta spera SETTINGS, TEST of un nomber di aparato (MIC LIST)
+MIC: select a mic cue first (MIC ADD makes one)	MIC: scoge un cue di microfoon prome (MIC ADD ta crea un)
+MIDIFILE: expected PORT, or no argument to report it	MIDIFILE: ta spera PORT, of sin argumento pa mustra e port
+NDI source name (e.g. LAPTOP (source 1))	Nomber di fuente NDI (p.e. LAPTOP (fuente 1))
+NEWSHOW: something is live or unsaved -- send NEWSHOW again within 2.5 s	NEWSHOW: tin algo bibu of sin warda -- manda NEWSHOW atrobe den 2.5 s
+NIC address or name; empty = the default route	Adres of nomber di NIC; bashi = e ruta standard
+NIC name reported in interface_bindings (e.g. eth0)	Nomber di NIC reporta den interface_bindings (p.e. eth0)
+OUTPUT AOI: expected a size like 256x256, or FULL	OUTPUT AOI: ta spera un tamaño manera 256x256, of FULL
+OUTPUT HDR WHITE: expected 80..500 nits (203 is BT.2408)	OUTPUT HDR WHITE: ta spera 80..500 nits (203 ta BT.2408)
+Output height in px - math ok: 1080x2, 2160/2, 540+30	Haltura di salida den px - calculo ta permiti: 1080x2, 2160/2, 540+30
+Output width in px - math ok: 1920x2, 3840/2, 960+64	Hanchura di salida den px - calculo ta permiti: 1920x2, 3840/2, 960+64
+PIP: retired -- scale a second deck over this one instead	PIP: retira -- cambia tamaño di un segundo deck riba esaki
+Registry URL (e.g. http://192.168.1.50:8010) - blank for mDNS	URL di registro (p.e. http://192.168.1.50:8010) - bashi pa mDNS
+SCOPES SOURCE: expected PROGRAMME or an output number, 1-	SCOPES SOURCE: ta spera PROGRAMME of un number di salida, 1-
+SMPTE hh:mm:ss:ff or seconds (blank = 00:00:00:00)	SMPTE hh:mm:ss:ff of seconde (bashi = 00:00:00:00)
+SOURCE WINDOW: name the window, e.g. title:Firefox (or "desktop")	SOURCE WINDOW: indica nomber di e bentana, p.e. title:Firefox (of "desktop")
+Stream URL (srt://, rtmp://, rtsp://, udp://, or an http HLS .m3u8)	URL di stream (srt://, rtmp://, rtsp://, udp://, of un http HLS .m3u8)
+TSL Tally	Indicador TSL
+TUTORIAL SCREENS: expected a count, MIRRORED or REAL	TUTORIAL SCREENS: ta spera un cantidad, MIRRORED of REAL
+a note number 0-127, LEARN to take the next note played, or empty for none	Un number di nota 0-127, LEARN pa tuma e siguiente nota toca, of bashi pa ningun
+atem tally on -- set which input Deckboy is	Tally ATEM cendi -- configura cua entrada ta Deckboy
+browser connections at once, 1-64 (default 8)	Conexion di browser na mes momento, 1-64 (standard 8)
+can't move the active cue -- take another cue on this deck first	No por move e cue activo -- activa un otro cue riba e deck aki prome
+click anywhere on any screen to take its colour. Esc cancels	Clic riba cualkier luga di cualkier pantalla pa tuma su color. Esc ta cancela
+click program or preview monitor to sample key color	Clic riba monitor PROGRAM of preview pa tuma e color di key
+couldn't open a browser -- please report at github.com/Utopian-Academy/Deckboy/issues	No por habri un browser -- reporta na github.com/Utopian-Academy/Deckboy/issues
+e.g. /stage/doors -- sent to Deckboy's OSC port; empty for none	P.e. /stage/doors -- manda pa e port OSC di Deckboy; bashi pa ningun
+esc: control window - again to clear output	esc: bentana di control - atrobe pa limpia salida
+milliseconds (20-8000; ~4x your RTT)	Miliseconde (20-8000; ~4x bo RTT)
+ndi tally trigger on -- program tally takes the cue	Trigger di tally NDI cendi -- tally PROGRAM ta activa e cue
+nmos: network is LOCAL ONLY - not registering	nmos: e red ta SOLAMENTE LOCAL - no ta registra
+no OpenGL pixel format available for Spout receive	No tin formato di pixel OpenGL disponibel pa ricibi Spout
+no masks yet: make one in a cue's MASK section	No tin mascara ainda: crea un den e seccion MASK di un cue
+nothing to mask here: select a cue, or change MASK ON	No tin nada pa mascara aki: scoge un cue, of cambia MASK ON
+phones need THE NETWORK: set 'Who can see it' first	Telefon mester E RED: configura 'Ken por mire' prome
+pip: retired -- scale a second deck over this one instead	pip: retira -- cambia tamaño di un segundo deck riba esaki
+save failed - retrying; still open, use SAVE AS if needed	No por warda - ta purba atrobe; ainda habri, usa SAVE AS si ta necesario
+select a Draw cue first (SOURCE > MADE BY DECKBOY > Draw)	Scoge un cue di dibuho prome (SOURCE > MADE BY DECKBOY > Draw)
+something mellow appeared in SOURCE > MADE BY DECKBOY	Algo suave a aparece den SOURCE > MADE BY DECKBOY
+sound scopes: integrated loudness and true peak start again	Medidor di sonido: volumen integra y pico real ta cuminsa atrobe
+that key drives the desk - use F1-F10, F12 or the number pad	E tecla ey ta controla e mesa - usa F1-F10, F12 of e teclado numerico
+update: cannot find this app bundle to replace	Actualisacion: no por haya e pakete di e app aki pa reemplasa
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono (supports + - * / and ())	0 clasico, 1 candela, 2 ijs, 3 neon, 4 mono (ta acepta + - * / y ())
+0 flows ALONG the edges, so colour orbits the shapes. 1 flows across them, which bleeds the picture into itself.	0 ta fluye SIGUIENDO e randnan, pa color circula rond di e formanan. 1 ta cruza nan, pa e imagen corre den su mes.
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono (supports + - * / and ())	0 arco iris + gris, 1 arco iris, 2 tema, 3 mono (ta acepta + - * / y ())
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear (supports + - * / and ())	0 zona, 1 dobel, 2 fluho, 3 montura, 4 ola, 5 corte (ta acepta + - * / y ())
+0-100%: the share of each band drawn as grey stripes (supports + - * / and ())	0-100%: e parti di cada banda dibuha como strepi gris (ta acepta + - * / y ())
+ASCII WOBBLEMODE: drift | flow (follows luma) | hue (follows colour); no argument cycles	ASCII WOBBLEMODE: drift | flow (ta sigui luminancia) | hue (ta sigui color); sin argumento ta cambia na e siguiente
+ASCII: the selected cue has no text mode (add the TEXT MODE effect, or select a video synth cue)	ASCII: e cue scogi no tin modo di texto (añadi e efecto TEXT MODE, of scoge un cue di sintetisador di video)
+ASCII: use ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>	ASCII: usa ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>
+BLEND PAIR: expected <other output number> <overlap in pixels>	BLEND PAIR: ta spera <number di otro salida> <solapamento den pixel>
+Below the middle narrows toward mono -- which is what a single PA cluster is. Above it widens.	Bou di e centro ta estrecha te mono -- manera un solo grupo di bocina PA. Ariba di e centro ta hanch'e.
+Blueshift toward the direction of travel and redshift at the rim. Zero leaves the colour alone and it reads as a lens instead.	Cambio pa blauw den direccion di movemento y pa cora na e rand. Zero ta laga e color mescos y e ta parce un lens.
+Bright: bright things drip over the dark, as text and logos do. Whole picture: everything is wax, and the picture itself runs down in its own colours.	Cla: cosnan cla ta gota riba e scuro, manera texto y logo. Henter imagen: tur cos ta was, y e imagen mes ta corre abou den su propio colornan.
+Centre is a straight line. Up bends it into an S -- darker shadows, brighter highlights, more contrast. Down flattens it.	Centro ta un liña stret. Ariba ta dobl'e den un S -- sombra mas scuro, luz mas cla, mas contraste. Abou ta plat'e.
+Characters across. Fewer means bigger cells and less of the picture surviving, which is usually the point.	Caracter di banda pa banda. Menos ta duna cel mas grandi y ta conserva menos di e imagen, cu generalmente ta e intencion.
+Characters to build the picture from, darkest first. Empty uses the chosen glyph set.	Caracter pa construi e imagen, esun mas scuro prome. Bashi ta usa e grupo di simbolo scogi.
+Colour is recorded at a fraction of the detail: it smears sideways, lands late and its hue wanders.	Color ta graba cu solamente un parti di e detalle: e ta smere di banda, yega laat y su tono ta varia.
+DASH SET: needs a command -- DASH SET <n> <label> | <command> [| <glyph>]	DASH SET: mester un comando -- DASH SET <n> <label> | <command> [| <glyph>]
+DMXCUE SET: expected channel=level pairs, e.g. 1=255,10-14=64	DMXCUE SET: ta spera par canal=nivel, p.e. 1=255,10-14=64
+DRAW COLOUR: #rrggbb, #rrggbbaa, a name, or 1-8 for the palette	DRAW COLOUR: #rrggbb, #rrggbbaa, un nomber, of 1-8 pa e paleta
+DRAW TOOL: brush, erase, line, box, oval or fill	DRAW TOOL: brush, erase, line, box, oval of fill
+Devamp	Sali di loop
+FADE TO: a speed from 0.25 to 4 (0.5 is half speed, an octave down)	FADE TO: un velocidad di 0.25 te 4 (0.5 ta mitar di velocidad, un octava abou)
+FADE WHAT: expected opacity, volume, dimmer, brightness, contrast, saturation, hue, effect, audiofx or speed	FADE WHAT: ta spera opacity, volume, dimmer, brightness, contrast, saturation, hue, effect, audiofx of speed
+FX LFO wants <index> <slot> <on|off|shape> [value]	FX LFO mester <index> <slot> <on|off|shape> [value]
+FX LFO: on, off, shape, rate, depth, zone, channel or cc	FX LFO: on, off, shape, rate, depth, zone, channel of cc
+FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR	FX: usa LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR
+Fields per frame, 0-4 (1 = one field per rendered frame) (supports + - * / and ())	Campo pa frame, 0-4 (1 = un campo pa frame renderisa) (ta acepta + - * / y ())
+Flip across, upside down or both, or fold one half onto the other: right onto left, left onto right, bottom onto top, top onto bottom, or one corner into all four.	Bira horizontal, vertical of tur dos, of dobla un mitar riba e otro: drechi riba robes, robes riba drechi, abou riba ariba, ariba riba abou, of un skina den tur cuater.
+GEOLFO: x, y, width, height, rotation, cropleft, cropright, croptop or cropbottom	GEOLFO: x, y, width, height, rotation, cropleft, cropright, croptop of cropbottom
+How bright a pixel has to be to join a run. Lower catches more of the picture and the runs grow longer.	Cuanto cla un pixel mester ta pa drenta un serie. Mas abou ta captura mas di e imagen y e serienan ta bira mas largo.
+How faint a gradient still registers. High turns the quietest shading into visible structure.	Cuanto suave un gradiente por ta y ainda registra. Haltu ta converti asta e sombra mas suave den structura visibel.
+How far back the chain listens. The picture is played through a delay, so this is the distance the damage is dragged across.	Cuanto leu atras e cadena ta scucha. E imagen ta pasa door di un retardo, pues esaki ta e distancia cu e daño ta hala.
+How far the burn spreads off the edge, and how hot its colour runs.	Cuanto leu e quemadura ta plama for di e rand, y cuanto cayente su color ta bira.
+How far the colour turns on each trip round the loop. This is the oil-slick: the trail walks through the spectrum instead of fading.	Cuanto e color ta bira cada biaha rond di e loop. Esaki ta e mancha di azeta: e rastro ta pasa door di e spectro en bes di desaparece.
+How far the picture stands out. Bright parts come forward, dark parts stay back. At the left it is flat.	Cuanto e imagen ta sali dilanti. Partinan cla ta bini dilanti, partinan scuro ta keda atras. Na robes e ta plat.
+How far the picture swings the filter. The cue's own brightness opens and closes it, so a cut to black takes the top off the sound.	Cuanto e imagen ta move e filtro. E claridad di e cue mes ta habri y cera e filtro, pues un corte pa preto ta kita e frecuencianan halto di e sonido.
+How far the top comes down as the end approaches. This is not a fade: the level is left alone.	Cuanto e frecuencianan halto ta baha ora e final ta acerca. Esaki no ta un fade: e nivel ta keda igual.
+How fast it settles away while held. At zero it holds indefinitely, which is what room tone under a held title wants.	Cuanto lihe e ta calma mientras ta reteni. Na zero e ta dura indefinidamente, manera sonido di sala bou di un titulo reteni.
+How fast the open slit crosses the picture. Slow smears a long moment across the frame.	Cuanto lihe e apertura ta cruza e imagen. Poco poco ta smere un momento largo riba henter e frame.
+How fast the wave travels. Faster spreads further in the same time and interferes more.	Cuanto lihe e ola ta viaha. Mas lihe ta plama mas leu den e mes tempo y ta causa mas interferencia.
+How fast what has dripped hardens away. At the left the drips stay until the cue changes.	Cuanto lihe loke a gota ta endurece y desaparece. Na robes e gotanan ta keda te ora e cue cambia.
+How fine the water is. Long ocean swell at one end, rain on a puddle at the other.	Cuanto fini e awa ta. Ola largo di oceano na un banda, awasero riba un plas na e otro.
+How hard the light gathers where the rays converge. This is the part that makes it read as water rather than as a wobble.	Cuanto fuerte e luz ta concentra unda e rayonan ta topa. Esaki ta hacie parce awa en bes di solamente un temblor.
+How hard the moving parts throw sand. More shake clears the plate faster and makes the lines thinner.	Cuanto fuerte e partinan movil ta tira santo. Mas temblor ta limpia e plachi mas lihe y ta haci e liñanan mas fini.
+How long a grain is, in VIDEO FRAMES. On a 23.976 clip one frame is 41.7ms, which is not a musical value and is exactly the point.	Cuanto largo un grano ta, den FRAME DI VIDEO. Den un clip 23.976 un frame ta 41.7ms, cu no ta un balor musical y ta precisamente e intencion.
+How long before the end it starts. The cue has to have a known length -- an open-ended one has no end to resolve into.	Cuanto tempo prome cu e final e ta cuminsa. E cue mester tin un duracion conoci -- un cue sin final no tin unda resolve.
+How long the old waves linger when the note changes. Left: they die at once. Right: they slosh for a while.	Cuanto largo e olanan bieu ta keda ora e nota cambia. Robes: nan ta muri mesora. Drechi: nan ta sigui move un rato.
+How much each facet catches the light, which is what makes them read as faceted rather than as flat blobs.	Cuanto cada faceta ta captura luz, pa nan parce faceta en bes di mancha plat.
+How much its SIZE becomes distance. Shrink the picture and the sound goes away from you: the top comes off, the image narrows, the level drops.	Cuanto su TAMAÑO ta bira distancia. Reduci e imagen y e sonido ta aleha: e frecuencianan halto ta baha, e imagen sonoro ta estrecha, e nivel ta baha.
+How much of the bent picture goes round again. High is where it stops being an echo and starts eating itself.	Cuanto di e imagen dobla ta pasa atrobe. Haltu ta unda e ta stop di ta un eco y ta cuminsa come su mes.
+How much of the driver's movement the picture KEEPS. At zero it follows the driver frame by frame, which is a twitch. Wind it up and the motion accumulates, so the driver sculpts the picture over time and it holds the pose -- which is what puppetry means.	Cuanto di e movemento di e impulsor e imagen ta CONSERVA. Na zero e ta sigui e impulsor frame pa frame, un sacudida. Aument'e y e movemento ta acumula, pues e impulsor ta modela e imagen cu tempo y e ta tene e pose -- manera un marioneta.
+How much of the picture's position on the output is used. A PIP on the left sounds on the left -- and it is a placement, not a pan: the far ear gets the delay and the head shadow too.	Cuanto di e posicion di e imagen riba e salida ta usa. Un PIP na robes ta sona na robes -- y ta un colocacion, no un paneo: e orea leu tambe ta haya retardo y sombra di e cabes.
+How much of the tail is kept going while the cue is held. Long enough to hide the splice in room tone, short enough not to smear a rhythm in it.	Cuanto di e cola ta sigui mientras e cue ta reteni. Suficientemente largo pa tapa e union den sonido di sala, suficientemente cortico pa no smere un ritmo.
+How much room comes up under it, so the sound settles into the cut instead of being severed.	Cuanto ambiente di sala ta subi bou di dje, pa e sonido calma den e corte en bes di corta seco.
+How much the echo is distorted each pass. It compounds, so a little ripples and a lot melts the picture into itself.	Cuanto e eco ta distorsiona cada pasa. E ta acumula, pues un tiki ta crea ola y hopi ta derriti e imagen den su mes.
+How much the material draws in towards each drip, so it runs as a thin neck with a heavier head.	Cuanto e material ta hala paden pa cada gota, pa e forma un nek fini cu un cabes mas pisa.
+How often its settings are corrupted. Corrupted far enough it oscillates on its own -- loud, but it cannot run away.	Cuanto biaha su configuracion ta corrompi. Cu suficiente corrupcion e ta oscila su mes -- duro, pero e no por descontrola.
+How quickly the picture springs back to rest once the driver stops pushing it. Only does anything when memory is up.	Cuanto lihe e imagen ta bolbe na reposo ora e impulsor stop di pushe. Solamente ta haci algo ora memoria ta aumenta.
+How small a cut sets it off. With no picture it runs on a timer instead, and this is how often.	Cuanto chikito un corte por ta pa activ'e. Sin imagen e ta usa un timer, y esaki ta determina e frecuencia.
+How strongly the finished picture pushes the bend. Pair it with a picture effect whose LFO is set to Audio and the two drive each other.	Cuanto fuerte e imagen final ta impulsa e dobladimento. Combina cu un efecto di imagen cu su LFO poni na Audio y nan ta impulsa otro.
+LFO: density, speed, warp, turn, centrex, centrey, grey or hue	LFO: density, speed, warp, turn, centrex, centrey, grey of hue
+Lift or cut, 12dB either way. The centre is flat, so a band that has just been added does nothing until this is moved.	Aumenta of corta, 12dB na cada banda. E centro ta plat, pues un banda nobo no ta haci nada te ora move esaki.
+Light on the drips, as on something wet: a gloss where it faces the light, darker where it curls away.	Luz riba e gotanan, manera algo muha: brillo unda e ta mira e luz, mas scuro unda e ta curva afo.
+MASK SET: expected INVERT, X, Y, SCALE, ROTATION, FEATHER, GROW or OPACITY and a number	MASK SET: ta spera INVERT, X, Y, SCALE, ROTATION, FEATHER, GROW of OPACITY y un number
+MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> or OSC <address> [<n>], then CH <1-16> if not channel 1	MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> of OSC <address> [<n>], despues CH <1-16> si no ta canal 1
+MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET or FEEDBACK	MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET of FEEDBACK
+MULTIVIEW WINDOW <n>: expected a source, or SAFE/METER/LABEL ON|OFF	MULTIVIEW WINDOW <n>: ta spera un fuente, of SAFE/METER/LABEL ON|OFF
+Moves the direction of travel off the centre of frame, so the picture rushes past rather than straight at you.	Ta move e direccion di movemento afo di e centro di e frame, pa e imagen pasa banda di bo en bes di bin stret riba bo.
+N=new  Enter/P=previous  O=open saved  E=examples  L=learn  1-	N=nobo  Enter/P=anterior  O=habri warda  E=ehempel  L=siña  1-
+NMOS: NOT registering - network is LOCAL ONLY (turn REMOTE ON to publish)	NMOS: NO ta registra - e red ta SOLAMENTE LOCAL (cende REMOTE ON pa publica)
+OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <sender name>	OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <nomber di emisor>
+One knob for the whole balance: below the middle is darker, above it is brighter.	Un solo knop pa henter e balans: bou di e centro ta mas scuro, ariba ta mas cla.
+Original: the picture pulled onto the figure. Sand: the picture as grains that are thrown off the moving parts and pour into each new figure. Fluid: the picture under water on the plate, bent and lit by its standing waves.	Original: e imagen hala riba e figura. Santo: e imagen como grano cu ta tira for di e partinan movil y ta basha den cada figura nobo. Fluido: e imagen bou di awa riba e plachi, dobla y ilumina pa su olanan estacionario.
+PHONE LEVEL: removed -- a paired phone or the passphrase can do everything; BLACKOUT and RECORD are hold-to-fire on the phone	PHONE LEVEL: kita -- un telefon conecta of e frase di acceso por haci tur cos; riba telefon mester tene BLACKOUT y RECORD primi pa activa
+PowerPoint could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)	PowerPoint no por exporta e archivo aki (lo e mester permiso pa automatisa: Configuracion di sistema > Privacidad y seguridad > Automatisacion)
+PowerPoint could not open the file (it gave up waiting for it). If it is in OneDrive, right-click it and choose Always keep on this device, then import it again	PowerPoint no por habri e archivo (a stop di warda). Si e ta den OneDrive, clic drechi riba dje y scoge Semper warda riba e aparato aki, despues importa atrobe
+Pulls the bright tones down without moving pure white, so a hot highlight rolls off instead of clipping.	Ta baha e tononan cla sin move blanco puro, pa e partinan hopi cla baha suavemente en bes di corta.
+Rotates the reading, so straight lines wind into spirals rather than rings.	Ta bira e lectura, pa liña stret forma spiral en bes di renchi.
+Rows lose sync and repeat one character, the way a real text screen breaks up. At 0 the grid is clean.	Liñanan ta perde sincronisacion y ripiti un caracter, manera un pantalla di texto real ta kibra. Na 0 e reticula ta limpi.
+SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, LINEAR, PERSPECTIVE or NAME	SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, LINEAR, PERSPECTIVE of NAME
+SLICE CORNER: TL, TR, BR or BL, then dx dy in percent of the output	SLICE CORNER: TL, TR, BR of BL, despues dx dy den porciento di e salida
+SLICE EDGE: L, R, T or B, then 0-50 (% of the slice)	SLICE EDGE: L, R, T of B, despues 0-50 (% di e slice)
+SLICE GRID POINT: col row (from 1, on a grid that is on) then dx dy in percent	SLICE GRID POINT: col row (for di 1, riba un reticula cendi) despues dx dy den porciento
+SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF, or POINT col row dx dy	SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF, of POINT col row dx dy
+SLICE LFO: X, Y, ROTATION or OPACITY, then ON, OFF, SHAPE, RATE, DEPTH...	SLICE LFO: X, Y, ROTATION of OPACITY, despues ON, OFF, SHAPE, RATE, DEPTH...
+SLICE ROTATE: IN (the crop) or OUT (the placed picture), then degrees	SLICE ROTATE: IN (e recorte) of OUT (e imagen coloca), despues grado
+Scanlines, bloom and gun misalignment, 0-1 (supports + - * / and ())	Liña di escaneo, resplandor y desalineacion di cañon, 0-1 (ta acepta + - * / y ())
+Something near the deck: a phone's buzz, a light dimmer's herringbone, a radio's slow bars.	Algo banda di e deck: vibracion di telefon, patron di un dimmer di luz, bara lento di un radio.
+Takes out everything brighter than this as well. Left takes out nothing.	Ta kita tambe tur cos mas cla cu esaki. Na robes e no ta kita nada.
+Takes out everything darker than this, so what lies beneath shows through. Left takes out nothing.	Ta kita tur cos mas scuro cu esaki, pa loke tin bou di dje ta mustra. Na robes e no ta kita nada.
+Tape speed: SP is the best picture, LP and EP fit more on a tape and lose detail and colour.	Velocidad di tape: SP ta e miho imagen, LP y EP ta pone mas riba un tape y ta perde detalle y color.
+The brightness that stays put. Everything above it reaches one way and everything below it the other.	E claridad cu ta keda fiho. Tur cos ariba ta rek den un direccion y tur cos abou den e otro.
+The character of the growth: low is waves, then labyrinth, coral, worms, and holes at the top.	E caracter di e crecemento: abou ta ola, despues laberinto, coral, bichi y buraco na e parti mas halto.
+The colour it becomes. Shading and brightness stay as they were, so a red shirt turns blue and keeps its folds.	E color cu e ta bira. Sombra y claridad ta keda igual, pues un camisa cora ta bira blauw y ta conserva su ploinan.
+The distance that sits ON the screen. Either side of it comes forward or falls behind.	E distancia cu ta keda RIBA e pantalla. Na cada banda cos ta bin dilanti of keda atras.
+The frequency it pivots around -- what counts as 'low' and 'high' for the tilt.	E frecuencia cu e ta gira rond -- loke ta conta como 'abou' y 'halto' pa e inclinacion.
+The level below which the source is closed. Set it under the quietest thing you want to hear.	E nivel bou di cua e fuente ta cera. Pon'e bou di e cos mas suave cu bo kier scucha.
+The level it starts working at. Lower catches more of the performance.	E nivel unda e ta cuminsa traha. Mas abou ta captura mas di e actuacion.
+The plugin's first four automatable controls, in its own order. Everything else it has keeps whatever the plugin was left set to.	E prome cuater control automatisabel di e plugin, den su propio orden. Tur otro cos ta conserva e ultimo configuracion di e plugin.
+Tints the two directions apart, so light bending one way and the other are different colours instead of both being grey.	Ta duna e dos direccionnan color diferente, pa luz dobla un banda of e otro no ta tur dos gris.
+Turns the strokes across the grain instead of along it, which combs the picture apart rather than smoothing it.	Ta bira e pinceladanan cruzando e grano en bes di sigui'e, pa separa e imagen manera un peña en bes di suavisa.
+Turns the whole arrangement, so the fold lines do not sit on the same part of the picture all night.	Ta bira henter e arreglo, pa e liñanan di dobla no keda riba e mes parti di e imagen henter anochi.
+VIDEO OUTPUT ASSIGN: already on this output, or no such deck or output	VIDEO OUTPUT ASSIGN: ta caba riba e salida aki, of e deck of salida no ta existi
+VIDEO OUTPUT LAYER: this deck is not on this output, or it is already at that layer	VIDEO OUTPUT LAYER: e deck aki no ta riba e salida aki, of e ta caba na e capa ey
+VIDEO OUTPUT LAYERWARP MODE: linear or perspective	VIDEO OUTPUT LAYERWARP MODE: linear of perspective
+VIDEO OUTPUT LAYERWARP: expected OFF, MODE, or eight numbers clockwise from the top left	VIDEO OUTPUT LAYERWARP: ta spera OFF, MODE, of ocho number den direccion di oloshi for di e skina ariba na robes
+VIDEO OUTPUT UNASSIGN: this deck is not on this output, or it is the only thing on it	VIDEO OUTPUT UNASSIGN: e deck aki no ta riba e salida aki, of e ta e unico cos riba dje
+WARP SELECT: expected TL, TR, BR, BL or a grid <col> <row>	WARP SELECT: ta spera TL, TR, BR, BL of un reticula <col> <row>
+WEBMONITOR PIN: network sharing and phone control require 8 or more characters	WEBMONITOR PIN: comparti riba red y control di telefon mester 8 of mas caracter
+WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (sound is included)	WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (sonido ta inclui)
+Where highlights fold back through black. Low folds most of the picture, high folds only the brightest.	Unda e partinan cla ta dobla bolbe door di preto. Abou ta dobla mayoria di e imagen, halto solamente e mas clanan.
+Where the band sits, 30Hz to 16kHz across the travel.	Unda e banda ta, 30Hz te 16kHz riba henter e recorrido.
+Where the fold sits: the middle at the left, toward the far edge to the right. Flips have no fold.	Unda e plooi ta: e centro na robes, mas cerca di e rand leu na drechi. Bira no tin plooi.
+Where the light stands, in degrees around the frame.	Unda e luz ta para, den grado rond di e frame.
+Where the source sits around the listener, all the way round. For headphones -- it is a timing and shading trick, not a pan.	Unda e fuente ta rond di e scuchado, henter rond. Pa headphone -- ta un truco di tempo y sombreado, no un paneo.
+Where the top ends, 200Hz to 20kHz. Pull it down to take the harshness off a bright source.	Unda e frecuencianan halto ta termina, 200Hz te 20kHz. Bah'e pa kita e aspereza di un fuente brillante.
+Which channel the curve acts on: all three, then red, green or blue on its own -- the way a colourist warms or cools one end of the picture.	Riba cua canal e curva ta actua: tur tres, despues cora, berde of blauw so -- manera un colorista ta calenta of fria un banda di e imagen.
+Which way the knife edge lies. Only gradients ACROSS the edge show, so turning it swaps which features appear and which vanish.	Den cua direccion e rand di cuchiu ta. Solamente gradiente CRUZANDO e rand ta mustra, pues bir'e ta cambia cua detalle ta aparece of desaparece.
+Which way the streak runs: across at the left, upright in the middle, across again at the right.	Den cua direccion e strepi ta corre: horizontal na robes, vertical den centro, horizontal atrobe na drechi.
+Widens the decision into a ramp, so edges keep their shape instead of jagging.	Ta hancha e decision den un rampa, pa e randnan conserva nan forma en bes di bira denta.
+Words to surface in the field, separated by | . One shows at a time, moving on the hold clock.	Palabra pa aparece den e campo, separa cu | . Un ta mustra cada biaha, cambiando riba e oloshi di retencion.
+Zero is one noise value across all three channels, which reads as film. Higher gives each channel its own, which reads as video.	Zero ta un balor di ruido pa tur tres canal, cu ta parce pelicula. Mas halto ta duna cada canal su propio ruido, cu ta parce video.
+a plugin overran the audio thread and was bypassed — take it out of the chain	Un plugin a sobrecarga e thread di audio y a wordo pasa afo -- kit'e for di e cadena
+a video cue's duration comes from its file; still duration applies to stills, patterns and browsers	Duracion di un cue di video ta bini di su archivo; duracion di imagen fiho ta aplica na imagen, patron y browser
+couldn't decode still image — unsupported format or corrupt file	No por decodifica imagen fiho -- formato no soporta of archivo daña
+did not finish in 3 minutes. It may be waiting on a prompt it cannot show (Protected View, sign-in, a repair). Open the deck there once, or export it as a PDF and import that	No a termina den 3 minuut. Lo e ta warda un pregunta cu e no por mustra (Bista proteha, inicio di sesion, reparacion). Habri e presentacion aya un biaha, of exporta como PDF y importa esey
+forget my defaults? only NEW changes, this show keeps its settings: press again	Lubida mi standardnan? Solamente NEW ta cambia, e show aki ta conserva su configuracion: primi atrobe
+key+fill ON, but no key device set (DECKLINK KEYFILL ON <device>)	key+fill ON, pero no tin aparato di key configura (DECKLINK KEYFILL ON <device>)
+label | command | glyph      (empty label|command removes it)	etiket | comando | simbolo      (etiket|comando bashi ta kit'e)
+my defaults forgotten: NEW starts from factory settings, this show is unchanged	Mi standardnan lubida: NEW ta cuminsa cu configuracion di fabrica, e show aki no a cambia
+no filled shapes in it (paths, rectangles, circles, ellipses or polygons)	No tin forma yena aden (caminda, rechthoek, cirkel, elipse of poligono)
+notestep: this cue's notes have no builds (separate them with a line of ---)	notestep: e notanan di e cue aki no tin paso (separa nan cu un liña di ---)
+opened github.com in your browser -- nothing is sent until you submit the report there	A habri github.com den bo browser -- nada ta wordo manda te ora bo manda e informe aya
+presenter panel: expected <live|prev|next|notes> <x> <y> <w> <h> in percent	panel di presentador: ta spera <live|prev|next|notes> <x> <y> <w> <h> den porciento
+presenter panel: the panel must fit on the screen (x+w and y+h no more than 100)	panel di presentador: e panel mester cabe riba e pantalla (x+w y y+h no mas cu 100)
+preset: delivery | proxy | match | datamosh	preset: delivery | proxy | match | datamosh scogi
+saved as my defaults: NEW starts like this show, without the cues	Warda como mi standardnan: NEW ta cuminsa manera e show aki, sin e cuenan
+splitnotes: that cue's notes have no parts (separate them with a line of ---)	splitnotes: e notanan di e cue ey no tin parti (separa nan cu un liña di ---)
+the clicker now spends note builds before advancing	E clicker awor ta uza e pasonan di nota prome cu sigui
+this file is only in OneDrive, and OneDrive is not running. Start OneDrive, or copy the file to this computer, then import it again	E archivo aki ta solamente den OneDrive, y OneDrive no ta coriendo. Cuminsea OneDrive, of copia e archivo na e computador aki, despues importa atrobe
+this presentation needs a password to open. Remove the password in PowerPoint (File > Info > Protect Presentation) or export it as a PDF, then import that	E presentacion aki mester un password pa habri. Kita e password den PowerPoint (Archivo > Informacion > Proteha presentacion) of exporta como PDF, despues importa esey
+warp grid: expected <n>, <cols> <rows>, off, smooth or straight	warp grid: ta spera <n>, <cols> <rows>, off, smooth of straight
+warp point: that is a corner -- move it with WARP <corner> dx dy	warp point: esey ta un skina -- mov'e cu WARP <corner> dx dy
+window capture fell back to screen grab — update ffmpeg for exact window capture	Captura di bentana a cambia na captura di pantalla -- actualisa FFmpeg pa captura exacto di bentana

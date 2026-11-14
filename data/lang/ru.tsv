@@ -3249,3 +3249,1117 @@ whole picture	вся картинка
 FX CHOICE: choice must be A or B	FX CHOICE: выбор должен быть A или B
 FX CHOICE: no effect at that index	FX CHOICE: нет эффекта с таким указателем
 FX LFO: slot is A-D for the parameters, E for the amount, F and G for the fifth and sixth (or 0-6)	FX LFO: слот — A-D для параметров, E для силы, F и G для пятого и шестого (или 0-6)
+(choose cue)	(выберите кью)
+(missing)	(отсутствует)
+(no slots)	(нет слотов)
+(set media file)	(задайте медиафайл)
+(set url)	(задайте url)
+a name for this step	имя этого шага
+A number	Число
+across the grain	поперёк волокон
+Add Browser Cue	Добавить кью браузера
+Add NDI Source Cue	Добавить кью источника NDI
+Add Stream Cue	Добавить кью потока
+additive	аддитивное
+alternating	попеременно
+amber	янтарный
+angle	угол
+Art-Net Destination	Назначение Art-Net
+ASCII 95 (density)	ASCII 95 (плотность)
+ASCII 95 (raw)	ASCII 95 (как есть)
+ASIO is off	ASIO выключен
+ATEM Input	Вход ATEM
+Attach Lower Third	Прикрепить Lower Third
+Attach PIP Overlay	Прикрепить наложение PIP
+Attack	Атака
+attack	атака
+Audio bitrate	Битрейт аудио
+Audio reactivity	Реакция на звук
+audioprint	аудиоотпечаток
+AUTO	АВТО
+auto (59.94 Hz)	авто (59.94 Hz)
+azimuth	азимут
+band curve	кривая полосы
+Bands	Полосы
+bands	полосы
+base layer	базовый слой
+BITRATE	БИТРЕЙТ
+bits	биты
+black point	точка чёрного
+bleed	растекание
+Blobs	Сгустки
+block glitch	блочный сбой
+block size	размер блока
+blocks	блоки
+blur	размытие
+bohlen-pierce	Болен — Пирс
+BOTH	ОБА
+bright	яркое
+Browser Ready	Браузер готов
+Brush opacity	Непрозрачность кисти
+Brush size	Размер кисти
+buzzer	зуммер
+by brightness	по яркости
+cancelled	отменено
+Canvas Height	Высота холста
+Canvas View	Вид холста
+Canvas Width	Ширина холста
+catch	захват
+caustics	каустика
+Centre X	Центр X
+Centre Y	Центр Y
+channel skew	сдвиг каналов
+channel spread	разброс каналов
+character	характер
+chladni	Хладни
+chop	нарезка
+CLASSIC	КЛАССИКА
+CLOCK	ЧАСЫ
+coherence	связность
+colour bleed	растекание цвета
+colour drift	дрейф цвета
+colour lag	задержка цвета
+colour replace	замена цвета
+columns	столбцы
+Companion/OSC Port	Порт Companion/OSC
+control 1	параметр 1
+control 2	параметр 2
+control 3	параметр 3
+control 4	параметр 4
+Control change	Смена контроллера
+convergence	сведение
+copies	копии
+corrupt	исказить
+corruption	повреждение
+could not reach github	не удалось связаться с github
+could not read the PDF	не удалось прочитать PDF
+could not start ffmpeg	не удалось запустить ffmpeg
+couldn't open explorer	не удалось открыть проводник
+couldn't open finder	не удалось открыть finder
+coupling	связь
+crystallise	кристаллизация
+Cue Goto	Перейти к кью
+Cue Notes	Заметки кью
+curl detail	детали завитков
+curves	кривые
+Custom Glyphs	Свои символы
+Custom Output Raster	Свой растр выхода
+cut bright	отсечь светлое
+cut dark	отсечь тёмное
+cut reset	сброс при склейке
+cutoff	срез
+cuts	срезы
+cyan	голубой
+damage	повреждение
+damping	затухание
+dark	тёмное
+darkness	темнота
+databend	искажение данных
+datamosh	сбой сжатия
+deck age	износ деки
+Default Cue Fade	Затухание кью по умолчанию
+Density	Плотность
+depth	глубина
+depth split	разделение глубины
+Destination Address	Адрес назначения
+Destination UDP port	UDP-порт назначения
+Detail	Детали
+diamond	ромб
+display native	родное для экрана
+Display none	Нет дисплея
+distance	расстояние
+DMX Channels	Каналы DMX
+doppler	Доплер
+dots move	движение точек
+Draw colour	Цвет рисования
+drift	дрейф
+drip	стекание
+drips	потёки
+drive	перегруз
+driver refused to start	драйвер отказался запускаться
+dye advect	перенос красителя
+edges	края
+empty	пусто
+empty expression	пустое выражение
+escaped to windowed	выход в оконный режим
+export as .png or .svg	экспортируйте в .png или .svg
+extended	расширенный
+EXTREME	ЭКСТРЕМАЛЬНО
+facet light	свет граней
+falloff	спад
+falsecolour	ложные цвета
+feed rate	подача
+feedback bloom	свечение обратной связи
+Feedback zoom	Масштаб обратной связи
+ferrofluid	феррожидкость
+ffmpeg made no file	ffmpeg не создал файл
+field of view	поле зрения
+Find Cue	Найти кью
+Find+Take Cue	Найти+TAKE кью
+Fire at a time of day	Запуск по времени суток
+Fire on a MIDI note	Запуск по ноте MIDI
+Fire on an OSC address	Запуск по адресу OSC
+Fireside	У камина
+First channel (1-512)	Первый канал (1-512)
+Fixture address	Адрес прибора
+Fixture name	Имя прибора
+Fixture universe	Вселенная прибора
+flash length	длительность вспышки
+flash to	цвет вспышки
+flicker	мерцание
+Flipbook rate	Частота кадров блокнота
+floor	нижний предел
+Flow	Поток
+flow	поток
+focus	фокус
+fold	сгиб
+fold point	точка сгиба
+frames	кадры
+Frequency	Частота
+frequency	частота
+fullscreen dropped	полноэкранный режим потерян
+gap	зазор
+gather	сбор
+Glitch	Сбой
+glow	свечение
+glyph set	набор символов
+gong	гонг
+GOTO Cue	Кью GOTO
+grain	зерно
+grain flow	поток зерна
+grain size	размер зерна
+green split	разделение зелёного
+Grey	Серый
+grid	сетка
+growl	рычание
+growth	рост
+head wear	износ головки
+heat	тепло
+Height	Высота
+Height (px)	Высота (px)
+hh:mm:ss or seconds	hh:mm:ss или секунды
+highlight roll	сжатие светов
+histogram	гистограмма
+horizontal	горизонтально
+How big each tile is.	Размер каждой плитки.
+How often it skips.	Частота пропусков.
+hue turn	поворот тона
+ice	лёд
+In time	Время входа
+ink	чернила
+interference	помехи
+irregularity	нерегулярность
+it could not be started	не удалось запустить
+Its name, number or id	Имя, номер или id
+jump	скачок
+just	чистый строй
+kaleido	калейдо
+kaleidoscope	калейдоскоп
+Key sender source name	Имя источника отправителя маски
+Keyframe interval	Интервал ключевых кадров
+knee	колено
+knife angle	угол ножа
+leak	утечка
+Legacy Cue Link	Старая связь кью
+let go	отпускание
+libX11 is not installed	libX11 не установлен
+lift	подъём
+light	свет
+light angle	угол света
+lightspeed	скорость света
+line colour	цвет линии
+line glow	свечение линий
+lissajous	Лиссажу
+Lissajous (L/R phase)	Лиссажу (фаза L/R)
+Live Browser	Живой браузер
+Live Source	Живой источник
+LOAD NEXT	ЗАГРУЗИТЬ СЛЕД.
+lost the session bus	потеряна шина сеанса
+Lower Third - subtitle	Lower Third — подзаголовок
+Lower Third - title	Lower Third — заголовок
+Lower Third Subtext	Подтекст Lower Third
+Lower Third Title	Заголовок Lower Third
+luma displace	смещение по яркости
+luma key	яркостный ключ
+Mask opacity	Непрозрачность маски
+Mask rotation	Поворот маски
+Mask scale	Масштаб маски
+Mask X	Маска X
+Mask Y	Маска Y
+material	материал
+meantone	среднетоновый
+Media	Медиа
+Melt	Плавление
+melt	плавление
+memory	память
+midtones	средние тона
+milliseconds (40..2000)	миллисекунды (40..2000)
+Milliseconds 0-5000	Миллисекунды 0-5000
+Mod depth	Глубина модуляции
+Mod ratio	Отношение модуляции
+moire	муар
+mono	моно
+MONO L	МОНО L
+MONO R	МОНО R
+mosaic	мозаика
+motion mosh	сбой движения
+motion puppet	кукла движения
+motion trails	следы движения
+MSC Cue Number	Номер кью MSC
+music & sparkle	музыка и искры
+NDI Key Name	Имя ключа NDI
+NDI Name	Имя NDI
+NDI Source Name	Имя источника NDI
+NEXT	СЛЕДУЮЩИЙ
+night eyes	ночное зрение
+NMC Port	Порт NMC
+NMC Source	Источник NMC
+NMC Target	Цель NMC
+NMOS Interface Name	Имя интерфейса NMOS
+NMOS Node Port	Порт узла NMOS
+NMOS Registry	Реестр NMOS
+no ASIO in this build	в этой сборке нет ASIO
+no colour	без цвета
+no driver named	нет драйвера с именем
+no mask made	маска не создана
+no release found	выпуск не найден
+no X display to read	нет дисплея X для чтения
+noise	шум
+not connected	не подключено
+not on this output	не на этом выходе
+Note	Нота
+Note off	Нота выкл.
+Note on	Нота вкл.
+nothing drawn	ничего не нарисовано
+off-axis	вне оси
+offline	не в сети
+only a background in it	внутри только фон
+opened in explorer	открыто в проводнике
+opened in file manager	открыто в файловом менеджере
+orbit speed	скорость орбиты
+OSC Address	Адрес OSC
+OSC Query HTTP Port	HTTP-порт OSC Query
+Out time	Время выхода
+Output Alpha	Альфа выхода
+Output Canvas	Холст выхода
+Output Delay	Задержка выхода
+output fault	сбой выхода
+Output name	Имя выхода
+Output Refresh	Частота обновления выхода
+overflow	переполнение
+own playlist	свой плейлист
+parade	парад каналов
+parallax	параллакс
+Payload	Данные
+Percent 0-100	Проценты 0-100
+phone	телефон
+Phrases	Фразы
+pinch	сжатие
+ping-pong	пинг-понг
+pink noise	розовый шум
+PIP Target Cue	Целевой кью PIP
+pitch	высота тона
+pivot	опора
+Pixel density	Плотность пикселей
+pixel sort	сортировка пикселей
+plasma	плазма
+Playlist Start TC	Начальный TC плейлиста
+Playlist Timebase	Временная база плейлиста
+Plugin	Плагин
+polar warp	полярная деформация
+Portal	Портал
+posterise	постеризация
+Practice show	Учебное шоу
+PREVIOUS	ПРЕДЫДУЩИЙ
+Program change	Смена программы
+Prompter script	Текст суфлёра
+QUALITY	КАЧЕСТВО
+radial zoom	радиальный зум
+radio	радио
+radius	радиус
+ramp	плавный переход
+range	диапазон
+ratio	соотношение
+Raw bytes	Необработанные байты
+Raw MIDI Bytes	Необработанные байты MIDI
+reach	размах
+reaction bloom	реакционное свечение
+recordings	записи
+recovering	восстановление
+refresh	обновление
+Release	Отпускание
+release	отпускание
+relief	рельеф
+relight	пересветить
+Rename cue	Переименовать кью
+Rename fixture	Переименовать прибор
+Renumber Cues	Перенумеровать кью
+repeat width	ширина повтора
+Replay hold	Удержание повтора
+resonance	резонанс
+Retrigger	Повторный запуск
+revealed in finder	показано в finder
+reverse	обратно
+rgb split	разделение rgb
+Rim	Край
+rings	кольца
+ripple	рябь
+rising	нарастание
+rod bias	вес палочек
+room	помещение
+rot	гниение
+Rotation	Поворот
+rotation	поворот
+round	круглое
+runtime unavailable	среда выполнения недоступна
+sag	просадка
+Save Warp Preset	Сохранить деформацию
+saw	пила
+scanlines	строки растра
+schlieren	шлирен
+scope	осциллограф
+SCOPES	ИЗМЕРИТЕЛИ
+second mode	второй режим
+Seconds (0-30)	Секунды (0-30)
+see through	прозрачность
+seed density	плотность семян
+self	сам
+Sender source name	Имя источника отправителя
+settle	успокоение
+shadow lift	подъём теней
+shake	тряска
+shard size	размер осколков
+sharpen	резкость
+sheen	блеск
+sideways	вбок
+size out of range	размер вне диапазона
+slit scan	щелевое сканирование
+slit width	ширина щели
+Smear	Размазывание
+smear	размазывание
+softness	мягкость
+solarise	соляризация
+Source Ready	Источник готов
+spike count	число пиков
+spike length	длина пиков
+spin	вращение
+spinning	вращается
+Spout Sender Name	Имя отправителя Spout
+spring	пружина
+sprite sheet	лист спрайтов
+Sprite spin	Вращение спрайта
+square	квадрат
+SRT latency	Задержка SRT
+SRT passphrase	Парольная фраза SRT
+SRT stream ID	ID потока SRT
+ST 2110 Destination	Назначение ST 2110
+ST 2110 Port	Порт ST 2110
+Step length	Длина шага
+steps	шаги
+stereogram	стереограмма
+stiffness	жёсткость
+sting	отбивка
+stream restart needed	нужен перезапуск потока
+Stream URL	URL потока
+stream write failed	ошибка записи потока
+strength	сила
+strobe	стробоскоп
+stroke	штрих
+SUBTLE	ТОНКО
+sway	раскачивание
+sweep	развёртка
+sweep speed	скорость развёртки
+swell speed	скорость нарастания
+Switcher IP address	IP-адрес видеомикшера
+symbols	символы
+SYPHON TEXTURE SHARE	ОБМЕН ТЕКСТУРАМИ SYPHON
+system default	системное по умолчанию
+system output	системный выход
+tape	лента
+tape age	износ ленты
+target cue is gone	целевой кью удалён
+targets nothing	нет цели
+tear width	ширина разрыва
+temporal dither	временной дизеринг
+test signal	тестовый сигнал
+text to send	текст для отправки
+the file is empty	файл пуст
+the header is truncated	заголовок обрезан
+threshold	порог
+throw	дальность
+tile size	размер плитки
+tilt	наклон
+time	время
+time cube	куб времени
+Timer Message	Сообщение таймера
+tint	оттенок
+tint colour	цвет тонирования
+tracking	трекинг
+trail	след
+transparent	прозрачный
+triangle	треугольник
+triple beep	тройной сигнал
+TSL Tally	Индикация TSL
+Turn	Поворот
+turn	поворот
+Twist	Скручивание
+twist	скручивание
+unavailable	недоступно
+unbalanced )	лишняя )
+Universe (0-63999)	Вселенная (0-63999)
+URL or local page path	URL или путь к локальной странице
+vapor	пар
+vector	вектор
+vertical	вертикально
+vertical bias	вертикальный уклон
+vibrato	вибрато
+Video bitrate	Битрейт видео
+Video dip fade	Переход видео через чёрное
+vignette	виньетка
+vMix HTTP Port	HTTP-порт vMix
+vMix TCP Port	TCP-порт vMix
+wash out	вымывание
+wave height	высота волны
+wavefront	волновой фронт
+way	направление
+Web Monitor Connections	Подключения веб-монитора
+Web Monitor PIN	PIN веб-монитора
+Web Monitor Port	Порт веб-монитора
+wedges	клинья
+What it runs	Что запускает
+Where the filter sits.	Положение фильтра.
+Which cue	Какой кью
+Which way it drips.	Направление стекания.
+white	белый
+white noise	белый шум
+white point	точка белого
+window hidden	окно скрыто
+window minimized	окно свёрнуто
+wire	провод
+wrong display	не тот дисплей
+X,Y offset in pixels	Смещение X,Y в пикселях
+Zoom	Масштаб
+zoom	масштаб
+% of the picture's height, 0.1 to 20 (supports + - * / and ())	% высоты изображения, от 0.1 до 20 (поддерживаются + - * / и ())
+%, 1 to 100 (supports + - * / and ())	%, от 1 до 100 (поддерживаются + - * / и ())
+-3 to 3: 0 holds, negative runs backwards (supports + - * / and ())	от -3 до 3: 0 удерживает, минус — назад (поддерживаются + - * / и ())
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono (supports + - * / and ())	0 классика, 1 огонь, 2 лёд, 3 неон, 4 моно (поддерживаются + - * / и ())
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono (supports + - * / and ())	0 радуга + серый, 1 радуга, 2 тема, 3 моно (поддерживаются + - * / и ())
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear (supports + - * / and ())	0 зона, 1 двойной, 2 поток, 3 седло, 4 рябь, 5 сдвиг (поддерживаются + - * / и ())
+0-1 (supports + - * / and ())	0-1 (поддерживаются + - * / и ())
+0-100% (supports + - * / and ())	0-100% (поддерживаются + - * / и ())
+0-100%, left to right (supports + - * / and ())	0-100%, слева направо (поддерживаются + - * / и ())
+0-100%, top to bottom (supports + - * / and ())	0-100%, сверху вниз (поддерживаются + - * / и ())
+0-100%: 0 holds the field still (supports + - * / and ())	0-100%: 0 останавливает поле (поддерживаются + - * / и ())
+0-100%: 50 is 1x, 0 a quarter, 100 four times (supports + - * / and ())	0-100%: 50 — 1x, 0 — четверть, 100 — вчетверо (поддерживаются + - * / и ())
+0-100%: how far the field bends (supports + - * / and ())	0-100%: сила изгиба поля (поддерживаются + - * / и ())
+0-100%: the share of each band drawn as grey stripes (supports + - * / and ())	0-100%: доля каждой полосы с серыми штрихами (поддерживаются + - * / и ())
+Across, % of the width, -100 to 100 (supports + - * / and ())	По горизонтали, % ширины, от -100 до 100 (поддерживаются + - * / и ())
+Amount 0-100% (supports + - * / and ())	Сила 0-100% (поддерживаются + - * / и ())
+Birth, drift and fade rate, 0.1-3 (supports + - * / and ())	Скорость появления, дрейфа и затухания, 0.1-3 (поддерживаются + - * / и ())
+Block displacement and channel tearing, 0-1 (supports + - * / and ())	Сдвиг блоков и разрывы каналов, 0-1 (поддерживаются + - * / и ())
+Colour steps, 2-8 (supports + - * / and ())	Ступени цвета, 2-8 (поддерживаются + - * / и ())
+dBFS, -60 to 0 (-18 is EBU alignment) (supports + - * / and ())	dBFS, от -60 до 0 (-18 — опорный уровень EBU) (поддерживаются + - * / и ())
+Degrees -180..180 (supports + - * / and ())	Градусы -180..180 (поддерживаются + - * / и ())
+Degrees per second, -720 to 720 (supports + - * / and ())	Градусы в секунду, от -720 до 720 (поддерживаются + - * / и ())
+Degrees round the colour wheel, 0-360 (supports + - * / and ())	Градусы по цветовому кругу, 0-360 (поддерживаются + - * / и ())
+Degrees, -360 to 360 (supports + - * / and ())	Градусы, от -360 до 360 (поддерживаются + - * / и ())
+Degrees, 0-360 (supports + - * / and ())	Градусы, 0-360 (поддерживаются + - * / и ())
+Down, % of the height, -100 to 100 (supports + - * / and ())	По вертикали, % высоты, от -100 до 100 (поддерживаются + - * / и ())
+Edge out (+) or in (-), % of the height, -25 to 25 (supports + - * / and ())	Край наружу (+) или внутрь (-), % высоты, от -25 до 25 (поддерживаются + - * / и ())
+Edge softness, % of the height, 0 to 25 (supports + - * / and ())	Мягкость края, % высоты, от 0 до 25 (поддерживаются + - * / и ())
+FDS hardware gain range, 0-63 (supports + - * / and ())	Аппаратное усиление FDS, 0-63 (поддерживаются + - * / и ())
+Feature size, 0.1-8 (supports + - * / and ())	Размер деталей, 0.1-8 (поддерживаются + - * / и ())
+Fields per frame, 0-4 (1 = one field per rendered frame) (supports + - * / and ())	Полей на кадр, 0-4 (1 = одно поле на отрисованный кадр) (поддерживаются + - * / и ())
+Frames a second, 1 to 60 (supports + - * / and ())	Кадров в секунду, от 1 до 60 (поддерживаются + - * / и ())
+Hertz, 20-20000 (supports + - * / and ())	Герцы, 20-20000 (поддерживаются + - * / и ())
+Horizontal cells, 64-960 (supports + - * / and ())	Ячеек по горизонтали, 64-960 (поддерживаются + - * / и ())
+How big a blob grows, 0-1 (supports + - * / and ())	Размер роста сгустка, 0-1 (поддерживаются + - * / и ())
+How hard it cuts, %, 0 to 100 (supports + - * / and ())	Жёсткость среза, %, от 0 до 100 (поддерживаются + - * / и ())
+How hard the audio drives it, 0-1 (supports + - * / and ())	Сила воздействия звука, 0-1 (поддерживаются + - * / и ())
+How many are alive at once, 3-48 (supports + - * / and ())	Сколько живёт одновременно, 3-48 (поддерживаются + - * / и ())
+How much of each frame feeds the next, 0-0.95 (supports + - * / and ())	Доля кадра для следующего, 0-0.95 (поддерживаются + - * / и ())
+How readily neighbours merge, 0 (never) to 1 (supports + - * / and ())	Лёгкость слияния соседей, от 0 (никогда) до 1 (поддерживаются + - * / и ())
+Internal resolution, 1 (chunky) to 5 (fine) (supports + - * / and ())	Внутреннее разрешение, от 1 (грубо) до 5 (тонко) (поддерживаются + - * / и ())
+Master oscillator rate, 0.01-8 (supports + - * / and ())	Частота главного генератора, 0.01-8 (поддерживаются + - * / и ())
+Modulator as a ratio of the note, 0.05-16 (supports + - * / and ())	Модулятор относительно ноты, 0.05-16 (поддерживаются + - * / и ())
+One LED tile's height in pixels, 8-8192 (supports + - * / and ())	Высота одной LED-плитки в пикселях, 8-8192 (поддерживаются + - * / и ())
+One LED tile's width in pixels, 8-8192 (supports + - * / and ())	Ширина одной LED-плитки в пикселях, 8-8192 (поддерживаются + - * / и ())
+Palette turn, 0-1 (supports + - * / and ())	Поворот палитры, 0-1 (поддерживаются + - * / и ())
+Per-frame zoom of the feedback path, 0.90-1.15 (supports + - * / and ())	Покадровый масштаб обратной связи, 0.90-1.15 (поддерживаются + - * / и ())
+Pitch in hertz, 20-8000 (supports + - * / and ())	Высота тона в герцах, 20-8000 (поддерживаются + - * / и ())
+Pixel sort amount, 0-1 (supports + - * / and ())	Сила сортировки пикселей, 0-1 (поддерживаются + - * / и ())
+Pixels (supports + - * / and ())	Пиксели (поддерживаются + - * / и ())
+Pixels, 64-2160 (supports + - * / and ())	Пиксели, 64-2160 (поддерживаются + - * / и ())
+Pixels, 64-3840 (supports + - * / and ())	Пиксели, 64-3840 (поддерживаются + - * / и ())
+Scale of the whole graphic, 0.5-2 (supports + - * / and ())	Масштаб всей графики, 0.5-2 (поддерживаются + - * / и ())
+Scanlines, bloom and gun misalignment, 0-1 (supports + - * / and ())	Строки растра, свечение и несведение пушек, 0-1 (поддерживаются + - * / и ())
+Seconds before it leaves by itself; 0 waits for OUT (supports + - * / and ())	Секунды до автоматического ухода; 0 ждёт OUT (поддерживаются + - * / и ())
+Seconds between retriggers, 0-8 (supports + - * / and ())	Секунды между перезапусками, 0-8 (поддерживаются + - * / и ())
+Seconds the finished drawing stays, 0 to 60 (supports + - * / and ())	Секунды показа готового рисунка, от 0 до 60 (поддерживаются + - * / и ())
+Seconds the in move takes, 0-5 (supports + - * / and ())	Секунды движения входа, 0-5 (поддерживаются + - * / и ())
+Seconds the out move takes, 0-5 (supports + - * / and ())	Секунды движения выхода, 0-5 (поддерживаются + - * / и ())
+Seconds, 0-4 (supports + - * / and ())	Секунды, 0-4 (поддерживаются + - * / и ())
+Seconds, 0-8 (supports + - * / and ())	Секунды, 0-8 (поддерживаются + - * / и ())
+Size, %, 5 to 400 (supports + - * / and ())	Размер, %, от 5 до 400 (поддерживаются + - * / и ())
+Space under it, as a fraction of the frame, 0-0.8 (supports + - * / and ())	Место снизу, доля кадра, 0-0.8 (поддерживаются + - * / и ())
+Spiral size, 0.25-4 (supports + - * / and ())	Размер спирали, 0.25-4 (поддерживаются + - * / и ())
+Spiral strength, 0-4 (supports + - * / and ())	Сила спирали, 0-4 (поддерживаются + - * / и ())
+Thickness of the glowing edge, 0-1 (supports + - * / and ())	Толщина светящегося края, 0-1 (поддерживаются + - * / и ())
+Turbulence, 0 still to 3 boiling (supports + - * / and ())	Турбулентность, от 0 (покой) до 3 (кипение) (поддерживаются + - * / и ())
+Turns the rim's colours round the wheel, 0-1 (supports + - * / and ())	Поворачивает цвета края по кругу, 0-1 (поддерживаются + - * / и ())
+Where the eye sits, 0 left to 1 right (supports + - * / and ())	Положение глаза, от 0 слева до 1 справа (поддерживаются + - * / и ())
+Where the eye sits, 0 top to 1 bottom (supports + - * / and ())	Положение глаза, от 0 сверху до 1 снизу (поддерживаются + - * / и ())
+0-127; 127 is all-call	0-127; 127 — вызов всех
+0-127; the domain the facility's clock runs on	0-127; домен часов площадки
+10-79 characters, or empty for none	10-79 символов; пусто — нет
+8 zones already: click one to remove it first	Уже 8 зон: сначала удалите одну щелчком
+8+ characters; letters and symbols are allowed	От 8 символов; допустимы буквы и знаки
+A command line, or blank for nothing	Командная строка; пусто — ничего
+A number, or blank for none	Число; пусто — нет
+a playlist that is gone	плейлист уже удалён
+a step cannot fire the playlist it lives on	шаг не может запускать свой плейлист
+a target cannot target another target	цель не может ссылаться на другую цель
+add an output to scope it	добавьте выход для измерения
+an ASIO stream is already open	поток ASIO уже открыт
+an IPv4 address, or 255.255.255.255 to broadcast	адрес IPv4 или 255.255.255.255 для широковещания
+another app is holding the pointer	другое приложение захватило указатель
+AUDIOALSO ADD: seven extra destinations is the limit	AUDIOALSO ADD: максимум семь дополнительных назначений
+AUDIOFX PLUGIN: this build has no plugin host	AUDIOFX PLUGIN: в этой сборке нет хоста плагинов
+brightness moves the playhead (needs CPU frames)	яркость двигает позицию воспроизведения (нужны кадры CPU)
+browser connections at once, 1-64 (default 8)	соединений браузера одновременно, 1-64 (по умолчанию 8)
+built without ASIO support	собрано без поддержки ASIO
+built without NDI SDK headers	собрано без заголовков NDI SDK
+cancelled: the waiting cue is no longer in the playlist	отменено: ожидающего кью больше нет в плейлисте
+channel count must be at least 1	число каналов должно быть не меньше 1
+comma outside a function call	запятая вне вызова функции
+could not start the PDF renderer	не удалось запустить рендерер PDF
+could not write the export script	не удалось записать сценарий экспорта
+couldn't open file manager	не удалось открыть файловый менеджер
+Cue name (blank restores the file name)	Имя кью (пусто — имя файла)
+Default Non-Movie Duration	Длительность статичных кью по умолчанию
+downloading the caption model, then listening...	загрузка модели субтитров, затем прослушивание...
+driver reports no output channels	драйвер не сообщает выходных каналов
+driver would not create output buffers	драйвер не создал выходные буферы
+driver would not load (in use by another application?)	драйвер не загрузился (занят другим приложением?)
+driver would not report a buffer size	драйвер не сообщил размер буфера
+driver would not report channel info	драйвер не сообщил сведения о каналах
+ffmpeg stopped taking frames	ffmpeg перестал принимать кадры
+Fire at incoming timecode	Запуск по входящему таймкоду
+flow (follows the picture)	поток (следует за изображением)
+follows this cue's own brightness (needs CPU frames)	следует за яркостью этого кью (нужны кадры CPU)
+four effects at most on one device: remove one first	не больше четырёх эффектов на устройство: сначала удалите один
+Hz or AUTO (e.g. 60 or 59.94)	Hz или AUTO (напр. 60 или 59.94)
+kbps (32-512; 160 is a sane default)	kbps (32-512; 160 — разумное значение)
+Leave empty to follow the live cue notes	Оставьте пустым для заметок текущего кью
+LibreOffice could not be run	Не удалось запустить LibreOffice
+LibreOffice produced no PDF	LibreOffice не создал PDF
+milliseconds (20-8000; ~4x your RTT)	миллисекунды (20-8000; ~4x RTT)
+Multicast group (e.g. 239.20.10.1)	Группа мультикаста (напр. 239.20.10.1)
+Name visible to receivers	Имя для получателей
+NDI source name (e.g. LAPTOP (source 1))	Имя источника NDI (напр. LAPTOP (source 1))
+NIC address or name; empty = the default route	Адрес или имя NIC; пусто = маршрут по умолчанию
+NIC name reported in interface_bindings (e.g. eth0)	Имя NIC из interface_bindings (напр. eth0)
+no pages could be rendered	не удалось отрисовать ни одной страницы
+not a MIDI file (no MThd header)	не файл MIDI (нет заголовка MThd)
+not while a cue is playing	нельзя во время воспроизведения кью
+offset in percent of the picture	смещение в процентах изображения
+OSC Feedback Mirror Rate	Частота зеркалирования обратной связи OSC
+paste your stream key here	вставьте сюда ключ трансляции
+Paste the key from your platform	Вставьте ключ вашей платформы
+pdftoppm produced no pages	pdftoppm не создал страниц
+pixels (of the output raster)	пиксели (выходного растра)
+position on the output raster, in pixels	позиция на выходном растре в пикселях
+PowerPoint could not export this file	PowerPoint не смог экспортировать этот файл
+Prefix (optional). Example: Q	Префикс (необязательно). Пример: Q
+Prefix and optional start (example: Q 100)	Префикс и необязательный начальный номер (пример: Q 100)
+release has no build for this platform	в выпуске нет сборки для этой платформы
+Routing hint for the receiver	Подсказка маршрутизации получателю
+seconds (1-10; most platforms want 2)	секунды (1-10; обычно требуется 2)
+Seconds for new-cue fade in/out defaults	Секунды входа/выхода новых кью по умолчанию
+seconds this step holds before PLAY moves on	секунды удержания шага до продолжения PLAY
+ST 2110 network interface	Сетевой интерфейс ST 2110
+still reading the last folder -- one at a time	предыдущая папка ещё читается — по одной за раз
+the background alpha belongs to a Lower Third	альфа фона относится к Lower Third
+the caption model has not been downloaded yet	модель субтитров ещё не загружена
+the desktop portal did not answer	портал рабочего стола не ответил
+the document has no pages	в документе нет страниц
+the file has no playable events	в файле нет воспроизводимых событий
+the NDI runtime is not installed	среда выполнения NDI не установлена
+the PDF renderer produced no pages	рендерер PDF не создал страниц
+the screen could not be read there	не удалось считать экран в этом месте
+the show plays through ASIO	шоу воспроизводится через ASIO
+the time division is not readable	не удалось прочитать временное деление
+this build has no X11 support	в этой сборке нет поддержки X11
+UDP port for transport sync	Порт UDP для синхронизации транспорта
+web audio encoder cannot keep up	веб-кодировщик аудио не успевает
+zones cleared: Motion reads the whole picture	зоны очищены: движение считывается со всего изображения
+AUDIOALSO: expected ADD <name>, REMOVE <name> or CLEAR	AUDIOALSO: ожидается ADD <name>, REMOVE <name> или CLEAR
+BROWSER KEY: expected Enter|Tab|Backspace|Escape	BROWSER KEY: ожидается Enter|Tab|Backspace|Escape
+BUGSWAT: expected START, SHOWME, SKIP, PLAY, EXIT or STATUS	BUGSWAT: ожидается START, SHOWME, SKIP, PLAY, EXIT или STATUS
+CAPTIONS LIVE: expected ON, OFF, STATUS or TEXT	CAPTIONS LIVE: ожидается ON, OFF, STATUS или TEXT
+CAPTIONS SOURCE: expected INPUT, DECK <n> or OUTPUT <n>	CAPTIONS SOURCE: ожидается INPUT, DECK <n> или OUTPUT <n>
+DMXCUE FIXTURE: expected <name> <level%>|LEAVE [<colour>]	DMXCUE FIXTURE: ожидается <name> <level%>|LEAVE [<colour>]
+DMXCUE LFO: expected <name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]	DMXCUE LFO: ожидается <name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]
+DMXCUE: expected NEW, SET, FADE, UNIVERSE, HOST, PORT, FIRE or BLACKOUT	DMXCUE: ожидается NEW, SET, FADE, UNIVERSE, HOST, PORT, FIRE или BLACKOUT
+ENDACTION: expected INHERIT, STOP, LOOP, HOLD or NEXT	ENDACTION: ожидается INHERIT, STOP, LOOP, HOLD или NEXT
+expected waveform|scope|lissajous|spectrum|level|cover	ожидается waveform|scope|lissajous|spectrum|level|cover
+FADE CURVE: expected linear, ease-in, ease-out or s-curve	FADE CURVE: ожидается linear, ease-in, ease-out или s-curve
+FADE WHAT: expected opacity, volume, dimmer, brightness, contrast, saturation, hue, effect, audiofx or speed	FADE WHAT: ожидается opacity, volume, dimmer, brightness, contrast, saturation, hue, effect, audiofx или speed
+FIXTURE ADD: expected <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]	FIXTURE ADD: ожидается <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]
+LOWERSTYLE: expected none, fade, rise, slide, wipe or NEXT	LOWERSTYLE: ожидается none, fade, rise, slide, wipe или NEXT
+MASK ASSIGN: expected <id|NONE> CUE | LAYER <output> <playlist> | OUTPUT <n> | MATTE <n>	MASK ASSIGN: ожидается <id|NONE> CUE | LAYER <output> <playlist> | OUTPUT <n> | MATTE <n>
+MASK ASSIGN: expected CUE, LAYER, OUTPUT or MATTE	MASK ASSIGN: ожидается CUE, LAYER, OUTPUT или MATTE
+MASK EXPORT: expected <id> <file.png|file.svg> [WxH]	MASK EXPORT: ожидается <id> <file.png|file.svg> [WxH]
+MASK LFO: expected <id> <param> ON|OFF [rate Hz] [depth %]	MASK LFO: ожидается <id> <param> ON|OFF [rate Hz] [depth %]
+MATRIX SET: expected <source 1-2> <dest> <0-100>	MATRIX SET: ожидается <source 1-2> <dest> <0-100>
+MATRIX: expected SET <src> <dest> <0-100>, SEED or CLEAR	MATRIX: ожидается SET <src> <dest> <0-100>, SEED или CLEAR
+MESH: expected on|off|toggle|height|tilt|yaw|spin|grid	MESH: ожидается on|off|toggle|height|tilt|yaw|spin|grid
+MIC: expected ADD, LIST, INPUT, CHANNEL or GAIN	MIC: ожидается ADD, LIST, INPUT, CHANNEL или GAIN
+MIDICUE KIND: expected note-on, note-off, cc, program, msc-go, msc-stop, msc-resume or raw	MIDICUE KIND: ожидается note-on, note-off, cc, program, msc-go, msc-stop, msc-resume или raw
+MIDICUE: expected NEW, PORTS, PORT, KIND, CH, D1, D2, DEVICE, CUENUM, LIST, RAW or SEND	MIDICUE: ожидается NEW, PORTS, PORT, KIND, CH, D1, D2, DEVICE, CUENUM, LIST, RAW или SEND
+MULTIVIEW LAYOUT: expected GRID, BIG, BIGTOP or TWOTOP	MULTIVIEW LAYOUT: ожидается GRID, BIG, BIGTOP или TWOTOP
+MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK or EMPTY	MULTIVIEW WINDOW: ожидается PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK или EMPTY
+NETCUE: expected NEW, PROTO, HOST, PORT, ADDRESS, PAYLOAD or SEND	NETCUE: ожидается NEW, PROTO, HOST, PORT, ADDRESS, PAYLOAD или SEND
+OUTPROBE: expected <output> <x 0-1> <y 0-1>	OUTPROBE: ожидается <output> <x 0-1> <y 0-1>
+OUTPUT HDR: expected ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> or STATUS	OUTPUT HDR: ожидается ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> или STATUS
+OUTPUTFX ADD: expected hpf, lpf, tilt, comp or width	OUTPUTFX ADD: ожидается hpf, lpf, tilt, comp или width
+OUTPUTFX: expected ADD, SET, REMOVE, BYPASS, CLEAR or DEVICE	OUTPUTFX: ожидается ADD, SET, REMOVE, BYPASS, CLEAR или DEVICE
+OUTPUTS ADD: expected <name> CH <n> or CH <n>-<n+1>	OUTPUTS ADD: ожидается <name> CH <n> или CH <n>-<n+1>
+PATCH: expected <deck> <output> <dB> or OFF	PATCH: ожидается <deck> <output> <dB> или OFF
+presenter colour: expected BG|INK|ACCENT #rrggbb	presenter colour: ожидается BG|INK|ACCENT #rrggbb
+PRESET: expected LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME or DELETE	PRESET: ожидается LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME или DELETE
+rectc: expected <hh:mm:ss:ff|timeofday> [df|ndf|auto]	rectc: ожидается <hh:mm:ss:ff|timeofday> [df|ndf|auto]
+SCALEMODE: expected fit|fill|stretch|unscaled	SCALEMODE: ожидается fit|fill|stretch|unscaled
+SCOPES BIG: expected waveform, parade, vector, diamond, histogram, falsecolour, sound or off	SCOPES BIG: ожидается waveform, parade, vector, diamond, histogram, falsecolour, sound или off
+SCOPES: expected PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS or SOUND	SCOPES: ожидается PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS или SOUND
+SECTION: expected playback|metadata|geometry|key|audio|effects|timer|tone|synth	SECTION: ожидается playback|metadata|geometry|key|audio|effects|timer|tone|synth
+STING: expected ON, PITCH, LENGTH, SWEEP or BODY	STING: ожидается ON, PITCH, LENGTH, SWEEP или BODY
+TARGET VERB: expected start|stop|pause|resume|load|arm|disarm	TARGET VERB: ожидается start|stop|pause|resume|load|arm|disarm
+TEXTCUE ALIGN: expected left, centre or right	TEXTCUE ALIGN: ожидается left, centre или right
+TEXTCUE ANIM: expected none, fade, typewriter, scroll, crawl, pulse or wobble	TEXTCUE ANIM: ожидается none, fade, typewriter, scroll, crawl, pulse или wobble
+TEXTCUE: expected NEW, BODY, ANIM, SIZE, SPEED, ALIGN, CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, WIGGLE, IN, OUTMOVE or OUT	TEXTCUE: ожидается NEW, BODY, ANIM, SIZE, SPEED, ALIGN, CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, WIGGLE, IN, OUTMOVE или OUT
+TRACKER: expected GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP or CLICKER	TRACKER: ожидается GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP или CLICKER
+TUTORIAL: expected START, SHOWME, SKIP, EXIT, STATUS or SCREENS	TUTORIAL: ожидается START, SHOWME, SKIP, EXIT, STATUS или SCREENS
+UPDATE: expected check|download|install|status	UPDATE: ожидается check|download|install|status
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS	VJ: ожидается ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS
+How hard the short hits.	Сила короткого замыкания.
+How far a band can slide.	Дальность сдвига полосы.
+How far the glow spreads.	Дальность распространения свечения.
+How fast the surface moves.	Скорость движения поверхности.
+How fast they travel outward.	Скорость движения наружу.
+How many torn bands per frame.	Число разорванных полос на кадр.
+How much the edges are lifted.	Степень усиления краёв.
+How closely spaced the rings are.	Расстояние между кольцами.
+How far out the darkening starts.	Где к краю начинается затемнение.
+How strongly the outlines are drawn.	Сила прорисовки контуров.
+How many shades survive the quantise.	Число оттенков после квантования.
+How many spikes the field breaks into.	На сколько пиков разбивается поле.
+How strongly the water bends the picture.	Сила искажения изображения водой.
+Pushes the rings in or out of the centre.	Сдвигает кольца к центру или наружу.
+How hard it is driven into its own limits.	Сила перегруза за собственные пределы.
+Softens the fold so it ramps instead of creasing.	Смягчает сгиб до плавного перехода вместо залома.
+Above halfway, the repeated piece plays backwards.	Выше середины повторяемый фрагмент играет назад.
+How quickly the loop relaxes when nothing feeds it.	Скорость затухания петли без подпитки.
+How far the bright parts pull away from the surface.	Насколько светлые участки отрываются от поверхности.
+How big the room is. Small is a booth, large is a hall.	Размер помещения. Мало — кабина, много — зал.
+Apple keeps the Keynote format secret on purpose, a malicious lock-in tactic, so only Apple's own software can read it properly. Best route: open it in Keynote on iCloud.com (free, in any browser), choose Download a Copy > PDF, and import that PDF	Apple намеренно держит формат Keynote в секрете — это злонамеренная привязка к своей экосистеме, из-за которой только ПО Apple может правильно его читать. Лучший путь: откройте файл в Keynote на iCloud.com (бесплатно, в любом браузере), выберите «Загрузить копию > PDF» и импортируйте этот PDF
+BROWSER CLICK: this browser backend cannot drive the page	BROWSER CLICK: этот модуль браузера не может управлять страницей
+BROWSER SCROLL: this browser backend cannot drive the page	BROWSER SCROLL: этот модуль браузера не может управлять страницей
+BROWSER SCROLLBAR: this browser backend cannot drive the page	BROWSER SCROLLBAR: этот модуль браузера не может управлять страницей
+BROWSER TYPE: this browser backend cannot type	BROWSER TYPE: этот модуль браузера не поддерживает ввод текста
+BROWSER INTERACT: this browser backend has no hands-on mode	BROWSER INTERACT: у этого модуля браузера нет интерактивного режима
+BROWSER SCROLL: expected pixels (negative is up)	BROWSER SCROLL: ожидаются пиксели (минус — вверх)
+CHIP DUTY: this cue is an FDS synth, which has no duty	CHIP DUTY: это синтезатор FDS, у него нет скважности
+CHIP NOISE: this cue is an FDS synth, which has no noise	CHIP NOISE: это синтезатор FDS, у него нет шума
+CHIP VOICE: this cue is an FDS synth, which has no voice	CHIP VOICE: это синтезатор FDS, у него нет выбора голоса
+CHIP ENV: expected <attack> <release> in seconds	CHIP ENV: ожидается <attack> <release> в секундах
+SYNTH: the selected cue is not a video synth	SYNTH: выбранный кью — не видеосинтезатор
+TEXTCUE: the selected cue is not a text cue	TEXTCUE: выбранный кью — не текстовый
+NETCUE: the selected cue is not a network cue	NETCUE: выбранный кью — не сетевой
+TCCUE: the selected cue is not a timecode cue	TCCUE: выбранный кью — не таймкод
+SCRIPTCUE: the selected cue is not a script cue	SCRIPTCUE: выбранный кью — не сценарий
+MIDIFILE: the selected cue is not a midi file cue	MIDIFILE: выбранный кью — не midi-файл
+LOWERANIM: this cue is not a Lower Third	LOWERANIM: этот кью — не Lower Third
+LOWERSTYLE: this cue is not a Lower Third	LOWERSTYLE: этот кью — не Lower Third
+MIC: select a mic cue first (MIC ADD makes one)	MIC: сначала выберите кью микрофона (MIC ADD создаёт его)
+STING: select a tone cue first (TONECUE makes one)	STING: сначала выберите тональный кью (TONECUE создаёт его)
+SUBTITLE CONVERT: the cue has no caption file	SUBTITLE CONVERT: у кью нет файла субтитров
+SUBTITLE CONVERT: destination must be .srt or .vtt	SUBTITLE CONVERT: назначение должно быть .srt или .vtt
+How much the flame gutters frame to frame.	Изменчивость пламени от кадра к кадру.
+Rounds the tiles off, all the way to dots.	Скругляет плитки вплоть до точек.
+Darkens the boundaries where crystals meet.	Затемняет границы между кристаллами.
+How big the crystals grow before they meet.	Размер кристаллов до столкновения.
+How far the sound throws each line sideways.	Насколько звук сдвигает каждую строку вбок.
+How much each shard turns on its own centre.	Насколько каждый осколок поворачивается вокруг своего центра.
+The brightness that decides black from white.	Яркость, отделяющая чёрное от белого.
+How far each stroke is dragged along the grain.	Дальность растягивания штриха вдоль волокон.
+How long a short stays closed, in VIDEO FRAMES.	Длительность замыкания в ВИДЕОКАДРАХ.
+The colour to change, round the wheel from red.	Заменяемый цвет по кругу от красного.
+How far each shard slides from where it belongs.	Насколько осколок сдвигается со своего места.
+How gradually the key cuts in. Hard at the left.	Плавность включения ключа. Слева — жёстко.
+The bright net the waves focus onto the picture.	Светлая сеть, которую волны фокусируют на изображении.
+How fast the sand travels to the still lines.	Скорость движения песка к неподвижным линиям.
+AUDIOFX: expected OFF, BYPASS, or amount and parameters as percentages	AUDIOFX: ожидается OFF, BYPASS или сила и параметры в процентах
+BLEND PAIR: expected <other output number> <overlap in pixels>	BLEND PAIR: ожидается <other output number> <overlap in pixels>
+expected one expression, three for colour, or four with alpha	ожидается одно выражение, три для цвета или четыре с альфа
+MASK SET: expected INVERT, X, Y, SCALE, ROTATION, FEATHER, GROW or OPACITY and a number	MASK SET: ожидается INVERT, X, Y, SCALE, ROTATION, FEATHER, GROW или OPACITY и число
+MASK SHAPE: expected a shape (MASK SHAPES lists them)	MASK SHAPE: ожидается фигура (список — MASK SHAPES)
+MASTER DECK: expected a deck number and a cue number	MASTER DECK: ожидается номер деки и номер кью
+TARGET CUE: expected a deck number and a cue number	TARGET CUE: ожидается номер деки и номер кью
+MONITOR DECK: expected a playlist number or FOLLOW	MONITOR DECK: ожидается номер плейлиста или FOLLOW
+MONITOR ROOM: expected a playlist and ON or OFF	MONITOR ROOM: ожидается плейлист и ON или OFF
+MULTIVIEW WINDOW REMOVE: expected a window number	MULTIVIEW WINDOW REMOVE: ожидается номер окна
+MULTIVIEW WINDOW <n>: expected a source, or SAFE/METER/LABEL ON|OFF	MULTIVIEW WINDOW <n>: ожидается источник или SAFE/METER/LABEL ON|OFF
+NETCUE ADDRESS: expected an OSC path starting with /	NETCUE ADDRESS: ожидается путь OSC, начинающийся с /
+OUTPUT AOI: expected a size like 256x256, or FULL	OUTPUT AOI: ожидается размер вроде 256x256 или FULL
+OUTPUTFX SET: expected an effect number and 0-100	OUTPUTFX SET: ожидается номер эффекта и 0-100
+OUTPUT HDR WHITE: expected 80..500 nits (203 is BT.2408)	OUTPUT HDR WHITE: ожидается 80..500 нит (203 — BT.2408)
+PORTS: expected an http port and a tcp port	PORTS: ожидается порт http и порт tcp
+PRELOAD: expected a position in seconds, OFF or STATUS	PRELOAD: ожидается позиция в секундах, OFF или STATUS
+SCOPES SOURCE: expected PROGRAMME or an output number, 1-	SCOPES SOURCE: ожидается PROGRAMME или номер выхода, 1-
+STREAM ADD: expected a URL, e.g. srt://host:port	STREAM ADD: ожидается URL, напр. srt://host:port
+TEXTCUE SIZE: expected 1-100 (percent of the raster)	TEXTCUE SIZE: ожидается 1-100 (процент растра)
+TUTORIAL SCREENS: expected a count, MIRRORED or REAL	TUTORIAL SCREENS: ожидается количество, MIRRORED или REAL
+VIDEO OUTPUT LAYER: expected a layer number (1 is the base)	VIDEO OUTPUT LAYER: ожидается номер слоя (1 — базовый)
+VIDEO OUTPUT LAYERWARP: expected OFF, MODE, or eight numbers clockwise from the top left	VIDEO OUTPUT LAYERWARP: ожидается OFF, MODE или восемь чисел по часовой стрелке от верхнего левого угла
+e.g. /cue/1/start	напр. /cue/1/start
+e.g. 12.5	напр. 12.5
+e.g. 192.168.1.50	напр. 192.168.1.50
+e.g. 1=255, 10-14=64	напр. 1=255, 10-14=64
+e.g. 90 3C 7F	напр. 90 3C 7F
+port number (default 5510)	номер порта (по умолчанию 5510)
+port number (default 5511)	номер порта (по умолчанию 5511)
+port number (default 6454)	номер порта (по умолчанию 6454)
+port number (default 8090)	номер порта (по умолчанию 8090)
+port number (vMix uses 8088)	номер порта (vMix использует 8088)
+port number (vMix uses 8099)	номер порта (vMix использует 8099)
+WIDTHxHEIGHT (e.g. 2560x1080)	ШИРИНАxВЫСОТА (напр. 2560x1080)
+WIDTHxHEIGHT (e.g. 5760x2160)	ШИРИНАxВЫСОТА (напр. 5760x2160)
+pulse 25%	импульс 25%
+edge ignite	воспламенение краёв
+pythagorean	пифагорейский
+purkinje	Пуркинье
+Ouroboros	Уроборос
+Devamp	Выход из повтора
+EDIT is off - press EDIT to type into the tracker	EDIT выключен — нажмите EDIT для ввода в трекер
+encoder destination: _converted beside the show	назначение кодировщика: _converted рядом с шоу
+fetching the speech model - captions start when it arrives	загрузка речевой модели — субтитры начнутся после неё
+format 2 files are a set of independent patterns, not a performance	файлы формата 2 — набор независимых паттернов, а не исполнение
+Target IP (or 255.255.255.255 to broadcast)	IP цели (или 255.255.255.255 для широковещания)
+the NDI runtime declined to start on this machine	среда NDI отказалась запускаться на этом компьютере
+this cue has no known end to resolve into	у этого кью нет известного конца для завершения
+this output's renderer could not cut the mask	рендерер этого выхода не смог вырезать маску
+update: cannot find this app bundle to replace	обновление: пакет приложения для замены не найден
+update: could not start the install helper	обновление: не удалось запустить помощник установки
+update: could not start the installer	обновление: не удалось запустить установщик
+update: could not write the install helper	обновление: не удалось записать помощник установки
+update: not running from an AppImage	обновление: запущено не из AppImage
+what the operator should be told when GO reaches here	что сообщить оператору, когда GO дойдёт сюда
+Where to send transport (blank = broadcast)	Куда отправлять транспорт (пусто = широковещание)
+Which switcher input Deckboy is (0 = not set)	Какой вход видеомикшера занимает Deckboy (0 = не задан)
+drag the panels to arrange the presenter screen	перетаскивайте панели для настройки экрана ведущего
+SOURCE CAMERA: name the device	SOURCE CAMERA: укажите имя устройства
+NETCUE ADDRESS: an OSC address must start with /	NETCUE ADDRESS: адрес OSC должен начинаться с /
+MATRIX SET: level is a percent from 0 to 100	MATRIX SET: уровень в процентах от 0 до 100
+SLICE ADD: already 16 slices on this output	SLICE ADD: на этом выходе уже 16 срезов
+TRACKER SET: a step cannot act on its own playlist	TRACKER SET: шаг не может воздействовать на свой плейлист
+TRACKER: there are no steps (TRACKER ADD makes one)	TRACKER: нет шагов (TRACKER ADD создаёт шаг)
+#rrggbb -- the colour of the presenter screen	#rrggbb — цвет экрана ведущего
+#rrggbb, or a name (red, teal...)	#rrggbb или название (red, teal...)
+8+ characters; other machines send AUTH <passphrase> first. Empty = off	От 8 символов; другие компьютеры сначала посылают AUTH <passphrase>. Пусто = выкл.
+A command line, as a DASH button runs it. {value} is the knob's number, {note} the key.	Командная строка, как у кнопки DASH. {value} — число регулятора, {note} — клавиша.
+A dark line between the tiles, like grout or an LED wall.	Тёмная линия между плитками, как затирка или стена LED.
+a note number 0-127, LEARN to take the next note played, or empty for none	номер ноты 0-127, LEARN для следующей сыгранной ноты; пусто — нет
+a plugin overran the audio thread and was bypassed — take it out of the chain	плагин превысил время аудиопотока и был обойдён — удалите его из цепочки
+a video cue's duration comes from its file; still duration applies to stills, patterns and browsers	длительность видеокью берётся из файла; длительность статики — для изображений, таблиц и браузеров
+Above halfway, a hard cut in the picture resets the loop to clean.	Выше середины резкая склейка сбрасывает петлю в чистое состояние.
+can't move the active cue -- take another cue on this deck first	нельзя переместить активный кью — сначала запустите другой кью на этой деке
+centred and full-frame - moves when the picture does	по центру, на весь кадр — движется вместе с изображением
+Chladni listens: the figure follows the pitch of the sound	Хладни слушает: фигура следует за высотой звука
+click anywhere on any screen to take its colour. Esc cancels	щёлкните в любом месте любого экрана для выбора цвета. Esc отменяет
+click program or preview monitor to sample key color	щёлкните по монитору программы или предпросмотра для выбора цвета ключа
+Copies of copies: none at the left, four at the right. Each one loses more.	Копии с копий: слева нет, справа четыре. Каждая теряет больше.
+could not create an OpenGL context for Spout receive	не удалось создать контекст OpenGL для приёма Spout
+could not create the offscreen window Spout receive needs	не удалось создать внеэкранное окно для приёма Spout
+could not get a device context for Spout receive	не удалось получить контекст устройства для приёма Spout
+couldn't decode still image — unsupported format or corrupt file	не удалось декодировать изображение — формат не поддерживается или файл повреждён
+DECKLINK: no DeckLink driver on this computer (Blackmagic Desktop Video)	DECKLINK: на этом компьютере нет драйвера DeckLink (Blackmagic Desktop Video)
+DMXCUE LEVELS: nothing has been sent on that universe	DMXCUE LEVELS: в эту вселенную ещё ничего не отправлено
+Key Color	Цвет ключа
+ENDACTION: only video and audio cues have an end action	ENDACTION: действие в конце есть только у видео- и аудиокью
+FX ADD: datamosh needs a file-backed video cue	FX ADD: для datamosh нужен видеокью из файла
+no video clock on this cue - nothing to lock to	у кью нет видеочасов — не к чему привязаться
+no picture on this cue - nothing to follow	у кью нет изображения — нечему следовать
+no picture on this cue - nothing to close the loop through	у кью нет изображения — не через что замкнуть петлю
+no picture on this cue - nothing decides where the playhead is	у кью нет изображения — ничто не задаёт позицию воспроизведения
+no picture - shorts run on a timer instead of on cuts	нет изображения — замыкания идут по таймеру, а не по склейкам
+normalize all: no file-backed audio in this deck	нормализация всех: в этой деке нет аудио из файлов
+normalize: selection has no file-backed audio	нормализация: в выбранном нет аудио из файлов
+no masks yet: make one in a cue's MASK section	масок пока нет: создайте в разделе MASK кью
+no filled shapes in it (paths, rectangles, circles, ellipses or polygons)	нет залитых фигур (контуры, прямоугольники, круги, эллипсы или многоугольники)
+no OpenGL pixel format available for Spout receive	нет формата пикселей OpenGL для приёма Spout
+only a MIDI note or an OSC address can take a cue	запустить кью может только нота MIDI или адрес OSC
+phone control requires an 8+ character passphrase	для управления с телефона нужна парольная фраза от 8 символов
+network sharing and phone control require an 8+ character passphrase	общий доступ по сети и управление с телефона требуют пароль от 8 символов
+WEBMONITOR PIN: network sharing and phone control require 8 or more characters	WEBMONITOR PIN: общий доступ по сети и управление с телефона требуют не менее 8 символов
+set an 8+ character Web Monitor passphrase first	сначала задайте пароль веб-монитора от 8 символов
+WEBMONITOR QR: needs the monitor on and shared on the network	WEBMONITOR QR: монитор должен быть включён и открыт для сети
+WEBMONITOR SOURCE: could not create the web output	WEBMONITOR SOURCE: не удалось создать веб-выход
+WEBMONITOR SOURCE: PROGRAMME or the number of an output that shows a picture	WEBMONITOR SOURCE: PROGRAMME или номер выхода с изображением
+OUTPROBE: that output has no compositor (is it on?)	OUTPROBE: у выхода нет композитора (он включён?)
+output recover failed: fullscreen unavailable	восстановление выхода не удалось: полноэкранный режим недоступен
+OUTPUTFX ADD: four effects at most on one device	OUTPUTFX ADD: максимум четыре эффекта на устройство
+over 16 MB: not a drawing to make a mask from	больше 16 MB: это не рисунок для маски
+unsaved changes will be lost: press new again	несохранённые изменения будут потеряны: нажмите создание ещё раз
+A worn or dirty head: softer, with noise that streaks along the lines.	Изношенная или грязная головка: мягче, с шумом вдоль строк.
+A slow rocking of the viewpoint, which is what makes the depth read without glasses.	Медленное покачивание точки обзора позволяет видеть глубину без очков.
+A slow sag in the supply, pulling the filter up and down like a dying battery.	Медленная просадка питания двигает фильтр вверх-вниз, как севшая батарея.
+An old deck: the picture wobbles, bends at the top of the frame and carries hum bars.	Старая дека: изображение дрожит, гнётся вверху кадра и несёт полосы фона.
+An old tape loses bits of its oxide: dropouts flick white and repeat the line above, and the colour fizzes.	Старая лента теряет частицы оксида: выпадения мигают белым и повторяют верхнюю строку, цвет шипит.
+Below the middle narrows toward mono -- which is what a single PA cluster is. Above it widens.	Ниже середины сужает к моно — как одиночный кластер PA. Выше — расширяет.
+Centre is a straight line. Up bends it into an S -- darker shadows, brighter highlights, more contrast. Down flattens it.	В центре прямая. Вверх — S-изгиб: темнее тени, ярче света, больше контраста. Вниз — выравнивает.
+Characters across. Fewer means bigger cells and less of the picture surviving, which is usually the point.	Символов по ширине. Меньше — крупнее ячейки и меньше деталей, что обычно и нужно.
+Characters to build the picture from, darkest first. Empty uses the chosen glyph set.	Символы для изображения, начиная с самых тёмных. Пусто — выбранный набор символов.
+Fine sensor noise at the bottom, chunky film at the top.	Внизу мелкий шум сенсора, вверху крупное плёночное зерно.
+From an even blur to a streak along the angle, like movement.	От ровного размытия до смаза под углом, как при движении.
+Grain size: one pixel at the left, big blocky grains at the right.	Размер зерна: слева один пиксель, справа крупные блочные зёрна.
+Grows or shrinks the echo each pass. Centre holds still.	Увеличивает или уменьшает эхо при каждом проходе. Центр — без изменений.
+How abruptly it arrives. Low is a soft cloud, high is a hard porthole.	Резкость появления. Мало — мягкое облако, много — жёсткий иллюминатор.
+How big the shards are. Small is frosted glass, large is a dropped plate.	Размер осколков. Мелкие — матовое стекло, крупные — разбитая тарелка.
+ASCII: use ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>	ASCII: используйте ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>
+FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR	FX: используйте LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR
+FX LFO: on, off, shape, rate, depth, zone, channel or cc	FX LFO: on, off, shape, rate, depth, zone, channel или cc
+GEOLFO: x, y, width, height, rotation, cropleft, cropright, croptop or cropbottom	GEOLFO: x, y, width, height, rotation, cropleft, cropright, croptop или cropbottom
+LFO: density, speed, warp, turn, centrex, centrey, grey or hue	LFO: density, speed, warp, turn, centrex, centrey, grey или hue
+MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET or FEEDBACK	MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET или FEEDBACK
+SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, LINEAR, PERSPECTIVE or NAME	SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, LINEAR, PERSPECTIVE или NAME
+VIDEO OUTPUT LAYERWARP MODE: linear or perspective	VIDEO OUTPUT LAYERWARP MODE: linear или perspective
+DASH SET: needs a command -- DASH SET <n> <label> | <command> [| <glyph>]	DASH SET: нужна команда -- DASH SET <n> <label> | <command> [| <glyph>]
+ASCII HOLD: seconds, 0-60 (0 mutes the phrases)	ASCII HOLD: секунды, 0-60 (0 скрывает фразы)
+atem tally on -- set which input Deckboy is	индикация atem включена — задайте вход Deckboy
+AUDIOALSO ADD: that is already this deck's main device -- it would play twice	AUDIOALSO ADD: это уже основное устройство деки — звук будет дублироваться
+DMXCUE SET: expected channel=level pairs, e.g. 1=255,10-14=64	DMXCUE SET: ожидаются пары канал=уровень, напр. 1=255,10-14=64
+DRAW COLOUR: #rrggbb, #rrggbbaa, a name, or 1-8 for the palette	DRAW COLOUR: #rrggbb, #rrggbbaa, название или 1-8 для палитры
+DRAW SIZE: 0.1-20 (% of the picture's height)	DRAW SIZE: 0.1-20 (% высоты изображения)
+DRAW STROKE: each point is x,y or x,y,pressure, in percent	DRAW STROKE: каждая точка — x,y или x,y,давление, в процентах
+DRAW TOOL: brush, erase, line, box, oval or fill	DRAW TOOL: brush, erase, line, box, oval или fill
+Enter playlist SMPTE FPS: 24 / 25 / 29.97 / 30	Введите SMPTE FPS плейлиста: 24 / 25 / 29.97 / 30
+FX LFO wants <index> <slot> <on|off|shape> [value]	FX LFO требует <index> <slot> <on|off|shape> [value]
+group presets became master cues: use MASTER	пресеты групп стали мастер-кью: используйте MASTER
+HH:MM or HH:MM:SS on this computer's clock; empty for none	HH:MM или HH:MM:SS по часам компьютера; пусто — нет
+HH:MM:SS:FF of the timecode Deckboy is chasing; empty for none	HH:MM:SS:FF таймкода, которому следует Deckboy; пусто — нет
+live captions are not installed here (deckboy-listen was not found)	живые субтитры не установлены (deckboy-listen не найден)
+Lower Third added - put its playlist on a layer	Lower Third добавлен — поместите его плейлист на слой
+macOS could not read the PDF	macOS не смог прочитать PDF
+make a step first: a section starts at a step	сначала создайте шаг: раздел начинается с шага
+MASK PATH: a path needs at least three points	MASK PATH: контуру нужны минимум три точки
+MIC INPUT: expected SETTINGS, TEST or a device name (MIC LIST)	MIC INPUT: ожидается SETTINGS, TEST или имя устройства (MIC LIST)
+MIDIFILE: expected PORT, or no argument to report it	MIDIFILE: ожидается PORT; без аргумента — показать порт
+MIDIIN OSC: an address, and optionally a number	MIDIIN OSC: адрес и необязательное число
+MIDIMAP: that command is only accepted from this computer	MIDIMAP: эта команда принимается только с этого компьютера
+MOTION ZONE ADD: the zone must fit inside the picture	MOTION ZONE ADD: зона должна помещаться внутри изображения
+motion on: the camera is read, never recorded	движение включено: камера считывается, но не записывается
+How far it smears: up to a few percent of the picture.	Дальность смаза: до нескольких процентов изображения.
+How fast the light walks around it. Zero holds it still.	Скорость движения света вокруг. Ноль останавливает его.
+How much of the push goes downward rather than sideways.	Какая доля толчка идёт вниз, а не вбок.
+How gently the change fades out at the edges of the band.	Плавность затухания изменения по краям полосы.
+How wide a band of colours either side of it changes too.	Ширина полосы соседних цветов, которые тоже меняются.
+How fast the drips run. At the left the picture only sags.	Скорость потёков. Слева изображение лишь провисает.
+Line pitch in pixels, so this reads at 4K as well as at 720.	Шаг строк в пикселях, чтобы эффект читался и в 4K, и в 720.
+How far back each skip jumps, from a stutter to half a second.	Насколько назад прыгает пропуск: от заикания до полсекунды.
+How far the two eyes disagree. Brightness is read as nearness.	Различие между двумя глазами. Яркость трактуется как близость.
+How fast it closes. Slow enough not to chop the ends off words.	Скорость закрытия. Достаточно медленно, чтобы не обрезать концы слов.
+How many times a skip repeats before the sound catches up again.	Число повторов пропуска, прежде чем звук догонит.
+How dark the dark lines go. All the way up is black between lines.	Темнота тёмных строк. На максимуме между строками чёрное.
+How fast the open slit crosses the picture. Slow smears a long moment across the frame.	Скорость прохода открытой щели. Медленно растягивает долгий момент по кадру.
+How fast the wave travels. Faster spreads further in the same time and interferes more.	Скорость волны. Быстрее — дальше за то же время и больше интерференции.
+How fine the water is. Long ocean swell at one end, rain on a puddle at the other.	Масштаб воды. На одном конце длинная океанская зыбь, на другом дождь в луже.
+How irregular the growth is. Low gives an even honeycomb, high gives long shards.	Нерегулярность роста. Мало — ровные соты, много — длинные осколки.
+How long the reaction runs each frame. Short is a stain, long is an organism.	Длительность реакции в каждом кадре. Коротко — пятно, долго — организм.
+How much of the picture shows behind the lines. None at the left: lines on black.	Доля изображения за линиями. Слева нет: линии на чёрном.
+How much of the picture glows: only the brightest at the left, nearly everything at the right.	Доля светящегося изображения: слева лишь самое яркое, справа почти всё.
+How many places drip: a few big drips at the left, many thin ones at the right.	Число мест стекания: слева несколько крупных потёков, справа много тонких.
+0 flows ALONG the edges, so colour orbits the shapes. 1 flows across them, which bleeds the picture into itself.	0 — вдоль краёв: цвет обходит формы. 1 — поперёк: изображение растекается в себя.
+ASCII WOBBLEMODE: drift | flow (follows luma) | hue (follows colour); no argument cycles	ASCII WOBBLEMODE: drift | flow (по яркости) | hue (по цвету); без аргумента — следующий режим
+ASCII: the selected cue has no text mode (add the TEXT MODE effect, or select a video synth cue)	ASCII: у выбранной команды нет текстового режима (добавьте эффект TEXT MODE или выберите видеосинтезатор)
+Blueshift toward the direction of travel and redshift at the rim. Zero leaves the colour alone and it reads as a lens instead.	Сдвиг к синему по ходу движения и к красному по краю. При нуле цвет не меняется: эффект выглядит как линза.
+Bright: bright things drip over the dark, as text and logos do. Whole picture: everything is wax, and the picture itself runs down in its own colours.	Яркое: светлые объекты стекают по тёмному, как текст и логотипы. Весь кадр: всё становится воском, изображение стекает в своих цветах.
+cannot read the file: if it lives in OneDrive or iCloud, open it once so it downloads, then import it	Не удаётся прочитать файл: если он в OneDrive или iCloud, откройте его для загрузки, затем импортируйте
+Colour is recorded at a fraction of the detail: it smears sideways, lands late and its hue wanders.	Цвет записан с меньшей детализацией: размазывается по горизонтали, запаздывает и меняет оттенок.
+couldn't open a browser -- please report at github.com/Utopian-Academy/Deckboy/issues	Не удалось открыть браузер — сообщите на github.com/Utopian-Academy/Deckboy/issues
+DASH SET: <n> <label> | <command> [| <glyph>]	DASH SET: <n> <метка> | <команда> [| <значок>]
+DASH: LIST | <n> | SET <n> <label> | <command> | CLEAR <n>	DASH: LIST | <n> | SET <n> <метка> | <команда> | CLEAR <n>
+DATAMOSH on - preparing (long clip, watch Encoder tab)	DATAMOSH вкл. — подготовка (длинный клип, смотрите вкладку кодера)
+DECODE --.-	ДЕКОД. --.-
+DECODE OFF	ДЕКОД. ВЫКЛ.
+DECODE WARM	ДЕКОД. ПРОГРЕВ
+did not finish in 3 minutes. It may be waiting on a prompt it cannot show (Protected View, sign-in, a repair). Open the deck there once, or export it as a PDF and import that	Не завершилось за 3 минуты. Возможно, ждёт скрытый запрос (защищённый просмотр, вход, восстановление). Откройте презентацию в приложении или экспортируйте в PDF и импортируйте его
+e.g. /stage/doors -- sent to Deckboy's OSC port; empty for none	напр. /stage/doors — на OSC-порт Deckboy; пусто — не отправлять
+e.g. 20:0 or client name	напр. 20:0 или имя клиента
+esc: control window - again to clear output	esc: окно управления — ещё раз для очистки выхода
+FADE TO: a speed from 0.25 to 4 (0.5 is half speed, an octave down)	FADE TO: скорость от 0.25 до 4 (0.5 — вдвое медленнее, на октаву ниже)
+Flip across, upside down or both, or fold one half onto the other: right onto left, left onto right, bottom onto top, top onto bottom, or one corner into all four.	Отразить по горизонтали, вертикали или обеим осям; либо сложить половины: правую налево, левую направо, нижнюю вверх, верхнюю вниз или один угол во все четыре.
+forget my defaults? only NEW changes, this show keeps its settings: press again	Забыть мои настройки? Изменится только NEW, настройки этого шоу сохранятся: нажмите снова
+full-frame and no picture - bends when the picture shrinks	полный кадр и нет изображения — искажение при уменьшении картинки
+How bright a pixel has to be before it lifts at all, so only the highlights spike.	Порог яркости пикселя: выступают только блики.
+How bright a pixel has to be to join a run. Lower catches more of the picture and the runs grow longer.	Порог яркости для включения в полосу. Ниже — захватывается больше кадра, полосы длиннее.
+How deep the picture is treated as being. The brightness becomes height and is lit from the side.	Глубина рельефа: яркость становится высотой с боковым освещением.
+How faint a gradient still registers. High turns the quietest shading into visible structure.	Чувствительность к слабым градиентам. Высокое значение выявляет структуру в едва заметных оттенках.
+How far away. Distance dulls the top and softens the difference between the ears.	Удалённость. Расстояние приглушает верха и уменьшает разницу между ушами.
+How far back the chain listens. The picture is played through a delay, so this is the distance the damage is dragged across.	Глубина прослушивания цепи. Картинка проходит через задержку: это расстояние, на которое тянется повреждение.
+How far the burn spreads off the edge, and how hot its colour runs.	Дальность растекания ожога от края и жар его цвета.
+How far the colour turns on each trip round the loop. This is the oil-slick: the trail walks through the spectrum instead of fading.	Поворот цвета за каждый цикл. Как масляная плёнка: след проходит спектр вместо затухания.
+How far the picture stands out. Bright parts come forward, dark parts stay back. At the left it is flat.	Глубина выступания: светлое вперёд, тёмное назад. Слева — плоско.
+How far the picture swings the filter. The cue's own brightness opens and closes it, so a cut to black takes the top off the sound.	Сила воздействия картинки на фильтр. Яркость команды открывает и закрывает его: чёрный кадр срезает верха звука.
+How far the top comes down as the end approaches. This is not a fade: the level is left alone.	Насколько срезаются верха к концу. Это не затухание: уровень не меняется.
+How fast it settles away while held. At zero it holds indefinitely, which is what room tone under a held title wants.	Скорость затухания на удержании. При нуле держится бесконечно — удобно для фонового шума под титром.
+How fast what has dripped hardens away. At the left the drips stay until the cue changes.	Скорость застывания капель. Слева капли остаются до смены команды.
+How hard it holds once it is working. Gentle at the bottom, a limiter at the top.	Сила сжатия после срабатывания. Внизу мягко, вверху — лимитер.
+How hard the light gathers where the rays converge. This is the part that makes it read as water rather than as a wobble.	Сила концентрации света в точках схождения лучей. Именно она создаёт впечатление воды, а не дрожания.
+How hard the moving parts throw sand. More shake clears the plate faster and makes the lines thinner.	Сила разбрасывания песка движущимися частями. Сильнее — пластина очищается быстрее, линии тоньше.
+How long a grain is, in VIDEO FRAMES. On a 23.976 clip one frame is 41.7ms, which is not a musical value and is exactly the point.	Длина зерна в ВИДЕОКАДРАХ. При 23.976 кадр длится 41.7ms — намеренно не музыкальная величина.
+How long before the end it starts. The cue has to have a known length -- an open-ended one has no end to resolve into.	За сколько до конца начинается. Длина команды должна быть известна: у бессрочной нет конца для разрешения.
+How long it is allowed to run. More steps means the ripples have crossed and reflected more times.	Время работы. Больше шагов — рябь успевает больше раз пересечься и отразиться.
+How long the old waves linger when the note changes. Left: they die at once. Right: they slosh for a while.	Сколько сохраняются старые волны при смене ноты. Слева гаснут сразу, справа ещё плещутся.
+How much each facet catches the light, which is what makes them read as faceted rather than as flat blobs.	Как сильно грани ловят свет: это делает их гранёными, а не плоскими пятнами.
+How much its SIZE becomes distance. Shrink the picture and the sound goes away from you: the top comes off, the image narrows, the level drops.	Насколько РАЗМЕР задаёт расстояние. Уменьшите картинку — звук удалится: меньше верхов, уже стерео, ниже уровень.
+How much of the bent picture goes round again. High is where it stops being an echo and starts eating itself.	Доля искажённой картинки, возвращаемая в цикл. На высоких значениях эхо начинает пожирать себя.
+How much of the driver's movement the picture KEEPS. At zero it follows the driver frame by frame, which is a twitch. Wind it up and the motion accumulates, so the driver sculpts the picture over time and it holds the pose -- which is what puppetry means.	Сколько движения источника картинка ЗАПОМИНАЕТ. При нуле следует покадрово и дёргается. Выше движение накапливается: источник постепенно лепит картинку, и она держит позу, как марионетка.
+How much of the picture's position on the output is used. A PIP on the left sounds on the left -- and it is a placement, not a pan: the far ear gets the delay and the head shadow too.	Влияние положения картинки на выходе. PIP слева звучит слева: это размещение, не панорама — дальнее ухо получает задержку и акустическую тень головы.
+How much of the tail is kept going while the cue is held. Long enough to hide the splice in room tone, short enough not to smear a rhythm in it.	Сколько хвоста звучит при удержании команды. Достаточно, чтобы скрыть стык фонового шума, но не размыть ритм.
+How much room comes up under it, so the sound settles into the cut instead of being severed.	Сколько подмешать помещения, чтобы звук вошёл в склейку, а не оборвался.
+How much the echo is distorted each pass. It compounds, so a little ripples and a lot melts the picture into itself.	Искажение эха за проход. Оно накапливается: немного — рябь, много — картинка плавится в себя.
+How much the material draws in towards each drip, so it runs as a thin neck with a heavier head.	Насколько материал стягивается к капле, образуя тонкую шейку и тяжёлую головку.
+How often its settings are corrupted. Corrupted far enough it oscillates on its own -- loud, but it cannot run away.	Частота порчи настроек. При сильной порче самовозбуждается — громко, но без разгона в бесконечность.
+How quickly the picture springs back to rest once the driver stops pushing it. Only does anything when memory is up.	Скорость возврата картинки в покой после остановки источника. Работает только при включённой памяти.
+How quickly the room eats the top end. More damping is a softer, more furnished space.	Скорость поглощения верхов помещением. Больше демпфирования — мягче, больше мебели.
+How readily an edge catches. Low sets the whole picture alight, high only the hardest lines.	Лёгкость воспламенения края. Низко — горит вся картинка, высоко — лишь резкие линии.
+How small a cut sets it off. With no picture it runs on a timer instead, and this is how often.	Насколько слабой склейки достаточно для запуска. Без картинки работает таймер: значение задаёт частоту.
+How strongly the finished picture pushes the bend. Pair it with a picture effect whose LFO is set to Audio and the two drive each other.	Сила воздействия готовой картинки на искажение. Добавьте видеоэффект с LFO в режиме Audio: они будут управлять друг другом.
+How wide a view is being compressed. Narrow is a punch down the middle, wide folds the whole frame into the centre.	Ширина сжимаемого поля. Узко — удар в центр, широко — весь кадр складывается к центру.
+INPUTMONITOR: a row count, OPEN, CLOSE, CLEAR, PAUSE or RESUME	INPUTMONITOR: число строк, OPEN, CLOSE, CLEAR, PAUSE или RESUME
+IPv4 addresses or a.b.c.d/bits, comma separated; empty = only this computer	Адреса IPv4 или a.b.c.d/bits через запятую; пусто = только этот компьютер
+kbps (500-50000)	кбит/с (500-50000)
+key+fill ON, but no key device set (DECKLINK KEYFILL ON <device>)	key+fill ON, но устройство key не задано (DECKLINK KEYFILL ON <device>)
+Keynote could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)	Keynote не удалось экспортировать файл (возможно, нужно разрешить автоматизацию: Системные настройки > Конфиденциальность и безопасность > Автоматизация)
+label | command | glyph      (empty label|command removes it)	метка | команда | значок      (пустая метка|команда удаляет запись)
+Lift or cut, 12dB either way. The centre is flat, so a band that has just been added does nothing until this is moved.	Подъём или срез на 12dB. Центр нейтрален: новая полоса не действует, пока не сдвинуть регулятор.
+Lifts the dark tones without moving pure black.	Поднимает тёмные тона, не меняя чистый чёрный.
+Light on the drips, as on something wet: a gloss where it faces the light, darker where it curls away.	Свет на каплях, как на мокрой поверхности: блеск к свету, темнота на загибах от него.
+mic live on the default speakers - watch for feedback	микрофон включён через обычные динамики — следите за обратной связью
+MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> or OSC <address> [<n>], then CH <1-16> if not channel 1	MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> или OSC <address> [<n>], затем CH <1-16>, если канал не 1
+Moves the direction of travel off the centre of frame, so the picture rushes past rather than straight at you.	Смещает направление движения от центра кадра: картинка проносится мимо, а не прямо на вас.
+my defaults forgotten: NEW starts from factory settings, this show is unchanged	Мои настройки забыты: NEW использует заводские, это шоу без изменений
+N=new  Enter/P=previous  O=open saved  E=examples  L=learn  1-	N=новый  Enter/P=предыдущий  O=открыть  E=примеры  L=обучение  1-
+ndi tally trigger on -- program tally takes the cue	триггер NDI tally включён — сигнал PROGRAM запускает команду
+new show disarms all outputs: press new again	Новое шоу отключит все выходы: нажмите «новый» снова
+NEWSHOW: something is live or unsaved -- send NEWSHOW again within 2.5 s	NEWSHOW: что-то в эфире или не сохранено — отправьте NEWSHOW снова в течение 2.5 s
+NMOS: discovery needs the remote network allowed	NMOS: для обнаружения разрешите удалённую сеть
+nmos: network is LOCAL ONLY - not registering	nmos: сеть ТОЛЬКО ЛОКАЛЬНАЯ — регистрация отключена
+NMOS: NOT registering - network is LOCAL ONLY (turn REMOTE ON to publish)	NMOS: НЕ регистрируется — сеть ТОЛЬКО ЛОКАЛЬНАЯ (REMOTE ON для публикации)
+NMOS: searching for a registry (mDNS)	NMOS: поиск реестра (mDNS)
+notestep: this cue's notes have no builds (separate them with a line of ---)	notestep: в заметках этой команды нет этапов (разделяйте их строкой ---)
+nothing to mask here: select a cue, or change MASK ON	Нечего маскировать: выберите команду или включите MASK ON
+on the dashboard - Ctrl+D or the DASH button	На панели — Ctrl+D или кнопка DASH
+One knob for the whole balance: below the middle is darker, above it is brighter.	Один регулятор всего баланса: ниже середины темнее, выше — светлее.
+Only accept transport from this sender (blank = anyone)	Принимать управление воспроизведением только от этого отправителя (пусто = любой)
+opened github.com in your browser -- nothing is sent until you submit the report there	github.com открыт в браузере — ничего не отправляется, пока вы не подадите отчёт там
+Original: the picture pulled onto the figure. Sand: the picture as grains that are thrown off the moving parts and pour into each new figure. Fluid: the picture under water on the plate, bent and lit by its standing waves.	Оригинал: картинка натянута на фигуру. Песок: зёрна картинки отлетают от движущихся частей и ссыпаются в новые фигуры. Жидкость: картинка под водой на пластине, искажённая и освещённая стоячими волнами.
+OUTPUT --.-	ВЫХОД --.-
+output effects bypassed: no effect and no limit on this device	Эффекты выхода обойдены: на этом устройстве нет эффектов и ограничения
+Output height in px - math ok: 1080x2, 2160/2, 540+30	Высота выхода в px — можно вычислять: 1080x2, 2160/2, 540+30
+OUTPUT WARM	ВЫХОД ПРОГРЕВ
+Output width in px - math ok: 1920x2, 3840/2, 960+64	Ширина выхода в px — можно вычислять: 1920x2, 3840/2, 960+64
+Page Down / Page Up step the focused playlist	Page Down / Page Up переключают элементы активного плейлиста
+pair with a picture effect whose LFO is set to Audio	Добавьте видеоэффект с LFO в режиме Audio
+paired phones removed: they need the QR code or the passphrase again	Привязки телефонов удалены: снова нужен QR-код или парольная фраза
+PATCH: a level is dB from -48 to +6, or OFF	PATCH: уровень в dB от -48 до +6 или OFF
+PHONE LEVEL: removed -- a paired phone or the passphrase can do everything; BLACKOUT and RECORD are hold-to-fire on the phone	PHONE LEVEL: удалён — привязанный телефон или парольная фраза дают все права; BLACKOUT и RECORD на телефоне запускаются удержанием
+phones need THE NETWORK: set 'Who can see it' first	Телефонам нужна СЕТЬ: сначала задайте «Кто видит»
+PIP: retired -- scale a second deck over this one instead	PIP: упразднён — наложите уменьшенную вторую деку поверх этой
+pip: retired -- scale a second deck over this one instead	pip: упразднён — наложите уменьшенную вторую деку поверх этой
+Port the Node + Connection API serve on	Порт для API Node + Connection
+PowerPoint could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)	PowerPoint не удалось экспортировать файл (возможно, нужно разрешить автоматизацию: Системные настройки > Конфиденциальность и безопасность > Автоматизация)
+PowerPoint could not open the file (it gave up waiting for it). If it is in OneDrive, right-click it and choose Always keep on this device, then import it again	PowerPoint не открыл файл (истекло время ожидания). Если файл в OneDrive, щёлкните правой кнопкой, выберите «Всегда сохранять на этом устройстве» и импортируйте снова
+presenter panel: expected <live|prev|next|notes> <x> <y> <w> <h> in percent	панель докладчика: ожидается <live|prev|next|notes> <x> <y> <w> <h> в процентах
+presenter panel: the panel must fit on the screen (x+w and y+h no more than 100)	панель докладчика: должна помещаться на экране (x+w и y+h не больше 100)
+preset: delivery | proxy | match | datamosh	профиль: delivery | proxy | match | datamosh
+programme sound is always included; use WEBMONITOR OFF to stop the monitor	Звук программы включён всегда; WEBMONITOR OFF останавливает монитор
+PROXY 720p	ПРОКСИ 720p
+Pulls the bright tones down without moving pure white, so a hot highlight rolls off instead of clipping.	Снижает светлые тона, не меняя чистый белый: блики плавно спадают, а не обрезаются.
+recordings remux to MP4 when the take stops	По остановке записи перепаковываются в MP4
+Registry URL (e.g. http://192.168.1.50:8010) - blank for mDNS	URL реестра (напр. http://192.168.1.50:8010) — пусто для mDNS
+Rotates the reading, so straight lines wind into spirals rather than rings.	Поворачивает считывание: прямые свиваются в спирали вместо колец.
+Rows lose sync and repeat one character, the way a real text screen breaks up. At 0 the grid is clean.	Строки теряют синхронизацию и повторяют один символ, как при сбое текстового экрана. При 0 сетка чистая.
+save failed - retrying; still open, use SAVE AS if needed	Не удалось сохранить — повторяю; шоу открыто, при необходимости используйте SAVE AS
+saved as my defaults: NEW starts like this show, without the cues	Сохранено как мои настройки: NEW начинает как это шоу, но без команд
+Seconds for new image/pattern/browser/Lower Third cues (0 = hold)	Секунды для новых команд изображения/таблицы/браузера/Lower Third (0 = удержание)
+select a Draw cue first (SOURCE > MADE BY DECKBOY > Draw)	Сначала выберите команду Draw (SOURCE > MADE BY DECKBOY > Draw)
+SLICE CORNER: TL, TR, BR or BL, then dx dy in percent of the output	SLICE CORNER: TL, TR, BR или BL, затем dx dy в процентах выхода
+SLICE EDGE: L, R, T or B, then 0-50 (% of the slice)	SLICE EDGE: L, R, T или B, затем 0-50 (% области)
+SLICE GRID POINT: col row (from 1, on a grid that is on) then dx dy in percent	SLICE GRID POINT: col row (от 1, на включённой сетке), затем dx dy в процентах
+SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF, or POINT col row dx dy	SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF или POINT col row dx dy
+SLICE LFO: X, Y, ROTATION or OPACITY, then ON, OFF, SHAPE, RATE, DEPTH...	SLICE LFO: X, Y, ROTATION или OPACITY, затем ON, OFF, SHAPE, RATE, DEPTH...
+SLICE ROTATE: IN (the crop) or OUT (the placed picture), then degrees	SLICE ROTATE: IN (кадрирование) или OUT (размещённая картинка), затем градусы
+SMPTE hh:mm:ss:ff or seconds (blank = 00:00:00:00)	SMPTE hh:mm:ss:ff или секунды (пусто = 00:00:00:00)
+something mellow appeared in SOURCE > MADE BY DECKBOY	Что-то мягкое появилось в SOURCE > MADE BY DECKBOY
+Something near the deck: a phone's buzz, a light dimmer's herringbone, a radio's slow bars.	Помехи рядом с декой: треск телефона, ёлочка диммера, медленные полосы радио.
+Sorts the runs the other way, so they pour from light to dark.	Сортирует полосы обратно: они текут от светлого к тёмному.
+sound scopes: integrated loudness and true peak start again	Звуковые измерители: интегральная громкость и истинный пик сброшены
+SOURCE WINDOW: name the window, e.g. title:Firefox (or "desktop")	SOURCE WINDOW: укажите окно, напр. title:Firefox (или "desktop")
+splitnotes: that cue's notes have no parts (separate them with a line of ---)	splitnotes: в заметках команды нет частей (разделяйте их строкой ---)
+STREAM --.-	ПОТОК --.-
+STREAM ERR	ПОТОК ОШИБКА
+STREAM OFF	ПОТОК ВЫКЛ.
+Stream URL (srt://, rtmp://, rtsp://, udp://, or an http HLS .m3u8)	URL потока (srt://, rtmp://, rtsp://, udp:// или http HLS .m3u8)
+STREAM WARM	ПОТОК ПРОГРЕВ
+SYPHON / SPOUT TEXTURE SHARE	ОБМЕН ТЕКСТУРАМИ SYPHON / SPOUT
+Takes out everything brighter than this as well. Left takes out nothing.	Также убирает всё ярче порога. Слева ничего не убирает.
+Takes out everything darker than this, so what lies beneath shows through. Left takes out nothing.	Убирает всё темнее порога, показывая нижний слой. Слева ничего не убирает.
+Tape speed: SP is the best picture, LP and EP fit more on a tape and lose detail and colour.	Скорость ленты: SP — лучшее изображение; LP и EP вмещают больше, теряя детали и цвет.
+that key drives the desk - use F1-F10, F12 or the number pad	Эта клавиша управляет пультом — используйте F1-F10, F12 или цифровой блок
+The brightness that stays put. Everything above it reaches one way and everything below it the other.	Неподвижная яркость. Всё выше неё тянется в одну сторону, ниже — в другую.
+The character of the growth: low is waves, then labyrinth, coral, worms, and holes at the top.	Характер роста: от волн через лабиринт, коралл и червей к отверстиям наверху.
+the clicker now spends note builds before advancing	Теперь кликер проходит этапы заметок перед переходом дальше
+The colour it becomes. Shading and brightness stay as they were, so a red shirt turns blue and keeps its folds.	Новый цвет. Тени и яркость сохраняются: красная рубашка синеет, сохраняя складки.
+The distance that sits ON the screen. Either side of it comes forward or falls behind.	Расстояние В ПЛОСКОСТИ экрана. По обе стороны объекты выходят вперёд или уходят назад.
+the file is empty (0 bytes): it may not have finished copying or saving	Файл пуст (0 байт): возможно, копирование или сохранение ещё не завершено
+The frequency it pivots around -- what counts as 'low' and 'high' for the tilt.	Опорная частота наклона — что считается «низом» и «верхом».
+The head drifting off the track: a band of noise rolls through the picture.	Головка сходит с дорожки: полоса шума прокатывается по картинке.
+the installed NDI runtime is missing entry points this needs	В установленной среде NDI нет необходимых точек входа
+The level below which the source is closed. Set it under the quietest thing you want to hear.	Порог закрытия источника. Установите ниже самого тихого звука, который нужно слышать.
+The level it starts working at. Lower catches more of the performance.	Порог срабатывания. Ниже — захватывается больше исполнения.
+the playing step was removed - sequence stopped	Воспроизводимый шаг удалён — секвенция остановлена
+The plugin's first four automatable controls, in its own order. Everything else it has keeps whatever the plugin was left set to.	Первые четыре автоматизируемых регулятора плагина в его порядке. Остальные сохраняют последние настройки плагина.
+this file is only in OneDrive, and OneDrive is not running. Start OneDrive, or copy the file to this computer, then import it again	Файл есть только в OneDrive, а OneDrive не запущен. Запустите OneDrive или скопируйте файл на этот компьютер и импортируйте снова
+this presentation needs a password to open. Remove the password in PowerPoint (File > Info > Protect Presentation) or export it as a PDF, then import that	Для презентации нужен пароль. Снимите его в PowerPoint (Файл > Сведения > Защитить презентацию) или экспортируйте в PDF и импортируйте его
+Tints the two directions apart, so light bending one way and the other are different colours instead of both being grey.	Разные цвета для двух направлений: свет, отклонённый в разные стороны, окрашивается по-разному, а не серым.
+Turns the echo each pass, which winds the melt into a spiral.	Поворачивает эхо за каждый проход, закручивая плавление в спираль.
+Turns the strokes across the grain instead of along it, which combs the picture apart rather than smoothing it.	Разворачивает мазки поперёк зерна: картинка расчёсывается на части, а не сглаживается.
+Turns the whole arrangement, so the fold lines do not sit on the same part of the picture all night.	Поворачивает всю схему, чтобы линии сгиба не оставались на одном месте весь вечер.
+Two is a mirror, twelve is a snowflake, and they are completely different pictures.	Два — зеркало, двенадцать — снежинка: совершенно разные картинки.
+VIDEO OUTPUT ASSIGN: already on this output, or no such deck or output	VIDEO OUTPUT ASSIGN: уже на этом выходе или нет такой деки либо выхода
+VIDEO OUTPUT LAYER: this deck is not on this output, or it is already at that layer	VIDEO OUTPUT LAYER: деки нет на этом выходе или она уже в этом слое
+VIDEO OUTPUT UNASSIGN: this deck is not on this output, or it is the only thing on it	VIDEO OUTPUT UNASSIGN: деки нет на этом выходе или она там единственная
+WARP AT: open the editor (WARP EDIT) and select a point first	WARP AT: сначала откройте редактор (WARP EDIT) и выберите точку
+warp grid: expected <n>, <cols> <rows>, off, smooth or straight	warp grid: ожидается <n>, <cols> <rows>, off, smooth или straight
+warp point: that is a corner -- move it with WARP <corner> dx dy	warp point: это угол — двигайте через WARP <corner> dx dy
+WARP SELECT: expected TL, TR, BR, BL or a grid <col> <row>	WARP SELECT: ожидается TL, TR, BR, BL или сетка <col> <row>
+WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (sound is included)	WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (со звуком)
+what the patch and the cues call it (FOH, SUB, PRESS FEED)	Имя в коммутации и командах (FOH, SUB, PRESS FEED)
+Where highlights fold back through black. Low folds most of the picture, high folds only the brightest.	Порог заворота бликов через чёрный. Низко — большая часть картинки, высоко — только самое яркое.
+Where the band sits, 30Hz to 16kHz across the travel.	Положение полосы: от 30Hz до 16kHz по ходу регулятора.
+Where the fold sits: the middle at the left, toward the far edge to the right. Flips have no fold.	Положение сгиба: слева в середине, справа у дальнего края. У отражений сгиба нет.
+Where the light stands, in degrees around the frame.	Положение света в градусах вокруг кадра.
+Where the source sits around the listener, all the way round. For headphones -- it is a timing and shading trick, not a pan.	Расположение источника вокруг слушателя. Для наушников: эффект задержки и затенения, не панорама.
+Where the top ends, 200Hz to 20kHz. Pull it down to take the harshness off a bright source.	Верхняя граница, от 200Hz до 20kHz. Снизьте, чтобы убрать резкость яркого источника.
+Which channel the curve acts on: all three, then red, green or blue on its own -- the way a colourist warms or cools one end of the picture.	Канал кривой: все три, затем отдельно красный, зелёный или синий — как колорист согревает или охлаждает часть тонального диапазона.
+Which way the knife edge lies. Only gradients ACROSS the edge show, so turning it swaps which features appear and which vanish.	Направление лезвия. Видны только градиенты ПОПЕРЁК края: поворот меняет видимые и скрытые детали.
+Which way the streak runs: across at the left, upright in the middle, across again at the right.	Направление полосы: слева поперёк, посередине вертикально, справа снова поперёк.
+Widens the decision into a ramp, so edges keep their shape instead of jagging.	Растягивает порог в плавный переход, сохраняя форму краёв без зубцов.
+window capture fell back to screen grab — update ffmpeg for exact window capture	Захват окна заменён захватом экрана — обновите FFmpeg для точного захвата окна
+Words to surface in the field, separated by | . One shows at a time, moving on the hold clock.	Слова для появления в поле, разделённые | . По одному за раз, смена по тактам удержания.
+Zero is one noise value across all three channels, which reads as film. Higher gives each channel its own, which reads as video.	При нуле все три канала имеют один шум — как плёнка. Выше у каждого свой — как видео.
+OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <sender name>	OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <??? ???????????>
+STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <control> <setting>	STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <????????> <?????????>

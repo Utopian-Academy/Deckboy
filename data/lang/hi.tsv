@@ -3250,3 +3250,1110 @@ whole picture	पूरा चित्र
 FX CHOICE: choice must be A or B	FX CHOICE: विकल्प A या B होना चाहिए
 FX CHOICE: no effect at that index	FX CHOICE: उस सूचकांक पर कोई इफ़ेक्ट नहीं
 FX LFO: slot is A-D for the parameters, E for the amount, F and G for the fifth and sixth (or 0-6)	FX LFO: स्लॉट A-D पैरामीटर के लिए, E मात्रा के लिए, F और G पाँचवें और छठे के लिए (या 0-6)
+angle	कोण
+attack	अटैक
+azimuth	दिगंश
+band curve	बैंड वक्र
+bands	बैंड
+base layer	आधार परत
+bits	बिट
+black point	काला बिंदु
+bleed	रिसाव
+block glitch	ब्लॉक ग्लिच
+block size	ब्लॉक आकार
+blocks	ब्लॉक
+blur	धुंधलापन
+bright	उज्ज्वल
+buzzer	बज़र
+by brightness	चमक के अनुसार
+catch	पकड़
+caustics	प्रकाश जाल
+channel skew	चैनल तिरछापन
+channel spread	चैनल फैलाव
+character	अक्षर
+chop	खंडन
+coherence	सुसंगति
+colour bleed	रंग रिसाव
+colour drift	रंग विचलन
+colour lag	रंग विलंब
+colour replace	रंग बदलें
+columns	स्तंभ
+convergence	अभिसरण
+copies	प्रतियाँ
+corrupt	बिगाड़
+corruption	विकृति
+coupling	युग्मन
+crystallise	क्रिस्टलीकरण
+curl detail	घुमाव विवरण
+curves	वक्र
+cut bright	उज्ज्वल कट
+cut dark	अंधेरा कट
+cut reset	कट रीसेट
+cutoff	कटऑफ़
+cuts	कट
+cyan	सियान
+damage	क्षति
+damping	अवमंदन
+dark	गहरा
+darkness	अंधकार
+deck age	डेक आयु
+depth	गहराई
+depth split	गहराई विभाजन
+diamond	हीरा
+distance	दूरी
+doppler	डॉप्लर
+dots move	बिंदु गति
+drift	बहाव
+drip	टपकाव
+drips	बूँदें
+drive	ड्राइव
+dye advect	रंग अभिवहन
+edge ignite	किनारा प्रज्वलन
+edges	किनारे
+empty	खाली
+extended	विस्तृत
+facet light	फलक प्रकाश
+falloff	क्षय
+falsecolour	छद्म रंग
+feed rate	आपूर्ति दर
+feedback bloom	फीडबैक ग्लो
+ferrofluid	चुंबकीय द्रव
+field of view	दृश्य क्षेत्र
+flash length	फ़्लैश अवधि
+flash to	फ़्लैश रंग
+flicker	झिलमिलाहट
+floor	न्यूनतम
+flow	प्रवाह
+focus	फ़ोकस
+fold	तह
+fold point	तह बिंदु
+frames	फ़्रेम
+frequency	आवृत्ति
+gap	अंतर
+gather	जमाव
+glow	दीप्ति
+glyph set	अक्षर समूह
+gong	घंटा
+grain	दाना
+grain flow	दाना प्रवाह
+grain size	दाना आकार
+green split	हरा विभाजन
+grid	ग्रिड
+growl	गुर्राहट
+growth	वृद्धि
+head wear	हेड घिसाव
+heat	ताप
+highlight roll	हाइलाइट ढलान
+histogram	हिस्टोग्राम
+horizontal	क्षैतिज
+hue turn	रंग घुमाव
+ice	बर्फ़
+ink	स्याही
+interference	व्यतिकरण
+irregularity	अनियमितता
+jump	छलाँग
+kaleido	बहुरूप
+kaleidoscope	बहुरूपदर्शक
+knee	नी
+knife angle	चाकू कोण
+leak	रिसाव
+let go	छोड़ें
+lift	उठान
+light	प्रकाश
+light angle	प्रकाश कोण
+lightspeed	प्रकाश गति
+line colour	रेखा रंग
+line glow	रेखा दीप्ति
+lissajous	लिसाजू
+luma displace	लूमा विस्थापन
+luma key	लूमा की
+material	सामग्री
+melt	पिघलाव
+memory	स्मृति
+midtones	मध्य स्वर
+moire	मोआरे
+mono	मोनो
+mosaic	मोज़ेक
+motion mosh	गति ग्लिच
+motion puppet	गति कठपुतली
+motion trails	गति लकीरें
+night eyes	रात्रि दृष्टि
+no colour	बिना रंग
+noise	नॉइज़
+not connected	कनेक्ट नहीं
+nothing drawn	कुछ नहीं बनाया
+off-axis	अक्ष से बाहर
+offline	ऑफ़लाइन
+orbit speed	कक्षीय गति
+overflow	अतिप्रवाह
+parade	परेड
+parallax	दृष्टिभेद
+phone	फ़ोन
+pinch	सिकोड़ें
+ping-pong	आगे-पीछे
+pink noise	गुलाबी नॉइज़
+pitch	स्वर ऊँचाई
+pivot	धुरी
+pixel sort	पिक्सेल क्रम
+plasma	प्लाज़्मा
+polar warp	ध्रुवीय विकृति
+posterise	रंग स्तर घटाएँ
+radial zoom	त्रिज्यीय ज़ूम
+radio	रेडियो
+radius	त्रिज्या
+ramp	ढलान
+range	सीमा
+ratio	अनुपात
+reach	पहुँच
+reaction bloom	प्रतिक्रिया प्रस्फुटन
+recordings	रिकॉर्डिंग
+recovering	पुनर्प्राप्ति
+refresh	ताज़ा करें
+release	रिलीज़
+relief	उभार
+relight	पुनः प्रकाश
+repeat width	दोहराव चौड़ाई
+resonance	अनुनाद
+reverse	उलटा
+rgb split	RGB विभाजन
+rings	वलय
+ripple	लहर
+rising	बढ़ता
+rod bias	रॉड झुकाव
+room	कमरा
+rot	सड़न
+rotation	घूर्णन
+round	गोल
+sag	झुकाव
+saw	आरी तरंग
+scanlines	स्कैन रेखाएँ
+schlieren	श्लीरेन
+scope	स्कोप
+second mode	दूसरा मोड
+see through	आर-पार
+seed density	बीज घनत्व
+self	स्वयं
+settle	स्थिरता
+shadow lift	छाया उठान
+shake	कंपन
+shard size	टुकड़ा आकार
+sharpen	तीक्ष्णता
+sheen	चमक
+sideways	बगल की ओर
+slit scan	स्लिट स्कैन
+slit width	स्लिट चौड़ाई
+smear	धब्बा
+softness	कोमलता
+solarise	सोलराइज़
+spike count	शिखर संख्या
+spike length	शिखर लंबाई
+spin	घुमाव
+spinning	घूमता
+spring	स्प्रिंग
+sprite sheet	स्प्राइट शीट
+square	वर्ग
+steps	चरण
+stereogram	स्टीरियोग्राम
+stiffness	कठोरता
+sting	स्टिंग
+strength	तीव्रता
+strobe	स्ट्रोब
+stroke	ब्रश स्ट्रोक
+sway	झूलना
+sweep	स्वीप
+sweep speed	स्वीप गति
+swell speed	लहर गति
+symbols	प्रतीक
+system default	सिस्टम डिफ़ॉल्ट
+system output	सिस्टम आउटपुट
+tape	टेप
+tape age	टेप आयु
+tear width	फटन चौड़ाई
+temporal dither	कालिक डिथर
+test signal	परीक्षण संकेत
+text to send	भेजने का पाठ
+threshold	सीमा स्तर
+throw	फेंकाव
+tile size	टाइल आकार
+tilt	झुकाव
+time	समय
+time cube	समय घन
+tint	रंगत
+tint colour	रंगत रंग
+tracking	ट्रैकिंग
+trail	लकीर
+transparent	पारदर्शी
+triangle	त्रिकोण
+triple beep	तीन बीप
+turn	घुमाएँ
+twist	ऐंठन
+unavailable	अनुपलब्ध
+unbalanced )	असंतुलित )
+vapor	वाष्प
+vector	सदिश
+vertical	ऊर्ध्वाधर
+vertical bias	ऊर्ध्व झुकाव
+vibrato	वाइब्रेटो
+vignette	किनारा छाया
+wash out	फीका करना
+wave height	लहर ऊँचाई
+wavefront	तरंगाग्र
+way	दिशा
+wedges	कील खंड
+white	सफ़ेद
+white noise	सफ़ेद नॉइज़
+white point	सफ़ेद बिंदु
+window hidden	विंडो छिपी है
+window minimized	विंडो छोटी की गई
+wire	तार
+wrong display	ग़लत डिस्प्ले
+zoom	ज़ूम
+(choose cue)	(क्यू चुनें)
+(missing)	(गायब)
+(no slots)	(स्लॉट नहीं)
+(set media file)	(मीडिया फ़ाइल सेट करें)
+(set url)	(url सेट करें)
+A number	संख्या
+across the grain	रेशे के आर-पार
+additive	योगात्मक
+alternating	बारी-बारी
+amber	अंबर
+Audio bitrate	ऑडियो बिटरेट
+Audio reactivity	ऑडियो प्रतिक्रिया
+Brush opacity	ब्रश अपारदर्शिता
+Brush size	ब्रश आकार
+cancelled	रद्द
+Canvas Height	कैनवास ऊँचाई
+Canvas View	कैनवास दृश्य
+Canvas Width	कैनवास चौड़ाई
+Centre X	केंद्र X
+Centre Y	केंद्र Y
+Control change	कंट्रोल चेंज
+Cue Notes	क्यू नोट्स
+Custom Glyphs	मनचाहे अक्षर
+Density	घनत्व
+Detail	विवरण
+Draw colour	चित्र रंग
+empty expression	खाली व्यंजक
+export as .png or .svg	.png या .svg में निर्यात करें
+Fixture address	फ़िक्स्चर पता
+Fixture name	फ़िक्स्चर नाम
+Fixture universe	फ़िक्स्चर यूनिवर्स
+Height	ऊँचाई
+Height (px)	ऊँचाई (px)
+Key Color	की रंग
+Keyframe interval	कीफ़्रेम अंतराल
+Live Browser	लाइव ब्राउज़र
+Live Source	लाइव स्रोत
+Mask opacity	मास्क अपारदर्शिता
+Mask rotation	मास्क घूर्णन
+Mask scale	मास्क पैमाना
+Mask X	मास्क X
+Mask Y	मास्क Y
+Add Browser Cue	ब्राउज़र क्यू जोड़ें
+Add NDI Source Cue	NDI स्रोत क्यू जोड़ें
+Add Stream Cue	स्ट्रीम क्यू जोड़ें
+Art-Net Destination	Art-Net गंतव्य
+ASCII 95 (density)	ASCII 95 (घनत्व)
+ASCII 95 (raw)	ASCII 95 (कच्चा)
+ASIO is off	ASIO बंद है
+ATEM Input	ATEM इनपुट
+Attach Lower Third	Lower Third जोड़ें
+Attach PIP Overlay	PIP ओवरले जोड़ें
+Attack	अटैक
+Bands	बैंड
+Blobs	धब्बे
+BOTH	दोनों
+Browser Ready	ब्राउज़र तैयार
+CLASSIC	क्लासिक
+CLOCK	घड़ी
+Companion/OSC Port	Companion/OSC पोर्ट
+control 1	नियंत्रण 1
+control 2	नियंत्रण 2
+control 3	नियंत्रण 3
+control 4	नियंत्रण 4
+could not reach github	github तक नहीं पहुँच सके
+could not read the PDF	PDF पढ़ नहीं सके
+could not start ffmpeg	ffmpeg शुरू नहीं हुआ
+Cue Goto	क्यू पर जाएँ
+Custom Output Raster	मनचाहा आउटपुट रास्टर
+Default Cue Fade	डिफ़ॉल्ट क्यू फ़ेड
+Destination Address	गंतव्य पता
+Destination UDP port	गंतव्य UDP पोर्ट
+display native	डिस्प्ले मूल
+Display none	डिस्प्ले नहीं
+DMX Channels	DMX चैनल
+EXTREME	अत्यधिक
+Feedback zoom	फीडबैक ज़ूम
+Find Cue	क्यू खोजें
+Find+Take Cue	क्यू खोजें और TAKE करें
+Fire at a time of day	तय समय पर चलाएँ
+Fire on a MIDI note	MIDI नोट पर चलाएँ
+Fire on an OSC address	OSC पते पर चलाएँ
+First channel (1-512)	पहला चैनल (1-512)
+Flipbook rate	फ़्लिपबुक दर
+Flow	प्रवाह
+Frequency	आवृत्ति
+Glitch	ग्लिच
+GOTO Cue	GOTO क्यू पर जाएँ
+Grey	धूसर
+In time	प्रवेश समय
+Its name, number or id	इसका नाम, संख्या या id
+Key sender source name	की प्रेषक स्रोत नाम
+Legacy Cue Link	पुराना क्यू लिंक
+Lissajous (L/R phase)	लिसाजू (L/R फ़ेज़)
+Lower Third - subtitle	Lower Third - उपशीर्षक
+Lower Third - title	Lower Third - शीर्षक
+Lower Third Subtext	Lower Third उपपाठ
+Lower Third Title	Lower Third शीर्षक
+Media	मीडिया
+Melt	पिघलाव
+Milliseconds 0-5000	मिलीसेकंड 0-5000
+Mod depth	मॉड गहराई
+Mod ratio	मॉड अनुपात
+music & sparkle	संगीत और चमक
+NDI Key Name	NDI की नाम
+NDI Name	NDI नाम
+NDI Source Name	NDI स्रोत नाम
+NEXT	अगला
+NMC Port	NMC पोर्ट
+NMC Source	NMC स्रोत
+NMC Target	NMC लक्ष्य
+NMOS Interface Name	NMOS इंटरफ़ेस नाम
+NMOS Node Port	NMOS नोड पोर्ट
+NMOS Registry	NMOS रजिस्ट्री
+no ASIO in this build	इस बिल्ड में ASIO नहीं
+no driver named	इस नाम का ड्राइवर नहीं
+no mask made	मास्क नहीं बना
+no release found	रिलीज़ नहीं मिली
+no X display to read	पढ़ने के लिए X डिस्प्ले नहीं
+not on this output	इस आउटपुट पर नहीं
+Note	नोट
+Note off	नोट बंद
+Note on	नोट चालू
+OSC Address	OSC पता
+OSC Query HTTP Port	OSC क्वेरी HTTP पोर्ट
+Out time	निकास समय
+Output Alpha	आउटपुट अल्फ़ा
+Output Canvas	आउटपुट कैनवास
+Output Delay	आउटपुट विलंब
+output fault	आउटपुट दोष
+Output name	आउटपुट नाम
+Output Refresh	आउटपुट रिफ़्रेश
+own playlist	अपनी प्लेलिस्ट
+Payload	पेलोड
+Percent 0-100	प्रतिशत 0-100
+Phrases	वाक्यांश
+PIP Target Cue	PIP लक्ष्य क्यू
+Pixel density	पिक्सेल घनत्व
+Playlist Start TC	प्लेलिस्ट आरंभ TC
+Playlist Timebase	प्लेलिस्ट समय आधार
+Plugin	प्लगइन
+Portal	द्वार
+Practice show	अभ्यास शो
+PREVIOUS	पिछला
+Program change	प्रोग्राम चेंज
+Prompter script	प्रॉम्प्टर स्क्रिप्ट
+pulse 25%	पल्स 25%
+QUALITY	गुणवत्ता
+Raw bytes	कच्चे बाइट
+Raw MIDI Bytes	कच्चे MIDI बाइट
+Release	रिलीज़
+Rename cue	क्यू का नाम बदलें
+Rename fixture	फ़िक्स्चर नाम बदलें
+Renumber Cues	क्यू पुनः क्रमांकित करें
+Replay hold	रिप्ले होल्ड
+Retrigger	फिर ट्रिगर करें
+Rim	किनारा
+Rotation	घूर्णन
+runtime unavailable	रनटाइम अनुपलब्ध
+Save Warp Preset	वार्प प्रीसेट सहेजें
+SCOPES	स्कोप
+Seconds (0-30)	सेकंड (0-30)
+Sender source name	प्रेषक स्रोत नाम
+size out of range	आकार सीमा से बाहर
+Smear	धब्बा
+Source Ready	स्रोत तैयार
+Spout Sender Name	Spout प्रेषक नाम
+Sprite spin	स्प्राइट घुमाव
+SRT latency	SRT विलंब
+SRT passphrase	SRT पासफ़्रेज़
+SRT stream ID	SRT स्ट्रीम ID
+ST 2110 Destination	ST 2110 गंतव्य
+ST 2110 Port	ST 2110 पोर्ट
+Step length	चरण अवधि
+stream restart needed	स्ट्रीम पुनः शुरू करें
+Stream URL	स्ट्रीम URL
+stream write failed	स्ट्रीम लिखना विफल
+SUBTLE	हल्का
+Switcher IP address	स्विचर IP पता
+Timer Message	टाइमर संदेश
+TSL Tally	TSL टैली
+Turn	घुमाएँ
+Twist	ऐंठन
+Universe (0-63999)	यूनिवर्स (0-63999)
+URL or local page path	URL या स्थानीय पृष्ठ पथ
+Video bitrate	वीडियो बिटरेट
+Video dip fade	रंग से वीडियो फ़ेड
+vMix HTTP Port	vMix HTTP पोर्ट
+vMix TCP Port	vMix TCP पोर्ट
+Web Monitor PIN	वेब मॉनिटर PIN
+Web Monitor Port	वेब मॉनिटर पोर्ट
+What it runs	क्या चलाता है
+Which cue	कौन-सा क्यू
+X,Y offset in pixels	X,Y ऑफ़सेट पिक्सेल में
+Zoom	ज़ूम
+a name for this step	इस चरण का नाम
+A number, or blank for none	संख्या, या नहीं के लिए खाली
+A command line, or blank for nothing	कमांड पंक्ति, या कुछ नहीं के लिए खाली
+a playlist that is gone	प्लेलिस्ट अब मौजूद नहीं
+a target cannot target another target	लक्ष्य दूसरे लक्ष्य को निशाना नहीं बना सकता
+add an output to scope it	स्कोप देखने के लिए आउटपुट जोड़ें
+an ASIO stream is already open	ASIO स्ट्रीम पहले से खुली है
+another app is holding the pointer	दूसरा ऐप पॉइंटर पकड़े हुए है
+built without ASIO support	ASIO समर्थन के बिना बना है
+built without NDI SDK headers	NDI SDK हेडर के बिना बना है
+channel count must be at least 1	चैनल संख्या कम से कम 1 होनी चाहिए
+comma outside a function call	फ़ंक्शन कॉल के बाहर अल्पविराम
+could not start the PDF renderer	PDF रेंडरर शुरू नहीं हो सका
+could not write the export script	निर्यात स्क्रिप्ट लिख नहीं सके
+couldn't open explorer	एक्सप्लोरर नहीं खोल सके
+couldn't open file manager	फ़ाइल प्रबंधक नहीं खोल सके
+couldn't open finder	फ़ाइंडर नहीं खोल सके
+driver refused to start	ड्राइवर शुरू नहीं हुआ
+driver reports no output channels	ड्राइवर में आउटपुट चैनल नहीं
+driver would not create output buffers	ड्राइवर आउटपुट बफ़र नहीं बना सका
+driver would not load (in use by another application?)	ड्राइवर लोड नहीं हुआ (दूसरे ऐप में उपयोग हो रहा है?)
+driver would not report a buffer size	ड्राइवर ने बफ़र आकार नहीं बताया
+driver would not report channel info	ड्राइवर ने चैनल जानकारी नहीं दी
+escaped to windowed	विंडो मोड में लौटे
+ffmpeg made no file	ffmpeg ने फ़ाइल नहीं बनाई
+ffmpeg stopped taking frames	ffmpeg ने फ़्रेम लेना बंद किया
+fullscreen dropped	पूर्ण स्क्रीन छूट गई
+it could not be started	इसे शुरू नहीं कर सके
+LibreOffice could not be run	LibreOffice नहीं चला सके
+LibreOffice produced no PDF	LibreOffice ने PDF नहीं बनाया
+libX11 is not installed	libX11 स्थापित नहीं है
+lost the session bus	सत्र बस से संपर्क टूटा
+macOS could not read the PDF	macOS PDF नहीं पढ़ सका
+no pages could be rendered	कोई पृष्ठ रेंडर नहीं हो सका
+not a MIDI file (no MThd header)	MIDI फ़ाइल नहीं (MThd हेडर नहीं)
+not while a cue is playing	क्यू चलने के दौरान नहीं
+only a background in it	इसमें केवल पृष्ठभूमि है
+opened in explorer	एक्सप्लोरर में खोला
+opened in file manager	फ़ाइल प्रबंधक में खोला
+pdftoppm produced no pages	pdftoppm ने पृष्ठ नहीं बनाए
+PowerPoint could not export this file	PowerPoint यह फ़ाइल निर्यात नहीं कर सका
+release has no build for this platform	इस प्लेटफ़ॉर्म का बिल्ड रिलीज़ में नहीं है
+revealed in finder	फ़ाइंडर में दिखाया
+target cue is gone	लक्ष्य क्यू मौजूद नहीं
+targets nothing	कोई लक्ष्य नहीं
+the document has no pages	दस्तावेज़ में पृष्ठ नहीं हैं
+the file has no playable events	फ़ाइल में चलने योग्य इवेंट नहीं
+the file is empty	फ़ाइल खाली है
+the header is truncated	हेडर अधूरा है
+the NDI runtime is not installed	NDI रनटाइम स्थापित नहीं है
+the PDF renderer produced no pages	PDF रेंडरर ने पृष्ठ नहीं बनाए
+the screen could not be read there	वहाँ स्क्रीन नहीं पढ़ सके
+the show plays through ASIO	शो ASIO से चलता है
+the time division is not readable	समय विभाजन पढ़ने योग्य नहीं
+this build has no X11 support	इस बिल्ड में X11 समर्थन नहीं
+update: could not start the installer	अपडेट: इंस्टॉलर शुरू नहीं हो सका
+update: could not start the install helper	अपडेट: इंस्टॉल सहायक शुरू नहीं हो सका
+update: could not write the install helper	अपडेट: इंस्टॉल सहायक लिख नहीं सके
+update: not running from an AppImage	अपडेट: AppImage से नहीं चल रहा
+web audio encoder cannot keep up	वेब ऑडियो एन्कोडर साथ नहीं दे पा रहा
+Web Monitor Connections	वेब मॉनिटर कनेक्शन
+%, 1 to 100 (supports + - * / and ())	%, 1 से 100 (+ - * / और () समर्थित)
+0-1 (supports + - * / and ())	0-1 (+ - * / और () समर्थित)
+0-100% (supports + - * / and ())	0-100% (+ - * / और () समर्थित)
+0-100%, left to right (supports + - * / and ())	0-100%, बाएँ से दाएँ (+ - * / और () समर्थित)
+0-100%, top to bottom (supports + - * / and ())	0-100%, ऊपर से नीचे (+ - * / और () समर्थित)
+Amount 0-100% (supports + - * / and ())	मात्रा 0-100% (+ - * / और () समर्थित)
+Colour steps, 2-8 (supports + - * / and ())	रंग स्तर, 2-8 (+ - * / और () समर्थित)
+Degrees -180..180 (supports + - * / and ())	डिग्री -180..180 (+ - * / और () समर्थित)
+Degrees per second, -720 to 720 (supports + - * / and ())	डिग्री प्रति सेकंड, -720 से 720 (+ - * / और () समर्थित)
+Degrees round the colour wheel, 0-360 (supports + - * / and ())	रंग चक्र पर डिग्री, 0-360 (+ - * / और () समर्थित)
+Degrees, -360 to 360 (supports + - * / and ())	डिग्री, -360 से 360 (+ - * / और () समर्थित)
+Degrees, 0-360 (supports + - * / and ())	डिग्री, 0-360 (+ - * / और () समर्थित)
+Feature size, 0.1-8 (supports + - * / and ())	आकृति आकार, 0.1-8 (+ - * / और () समर्थित)
+Frames a second, 1 to 60 (supports + - * / and ())	फ़्रेम प्रति सेकंड, 1 से 60 (+ - * / और () समर्थित)
+Hertz, 20-20000 (supports + - * / and ())	हर्ट्ज़, 20-20000 (+ - * / और () समर्थित)
+Horizontal cells, 64-960 (supports + - * / and ())	क्षैतिज खाने, 64-960 (+ - * / और () समर्थित)
+How big a blob grows, 0-1 (supports + - * / and ())	धब्बा कितना बड़ा हो, 0-1 (+ - * / और () समर्थित)
+How hard it cuts, %, 0 to 100 (supports + - * / and ())	कट की कठोरता, %, 0 से 100 (+ - * / और () समर्थित)
+How hard the audio drives it, 0-1 (supports + - * / and ())	ऑडियो की प्रेरक शक्ति, 0-1 (+ - * / और () समर्थित)
+How many are alive at once, 3-48 (supports + - * / and ())	एक साथ सक्रिय संख्या, 3-48 (+ - * / और () समर्थित)
+Palette turn, 0-1 (supports + - * / and ())	पैलेट घुमाव, 0-1 (+ - * / और () समर्थित)
+Pitch in hertz, 20-8000 (supports + - * / and ())	स्वर हर्ट्ज़ में, 20-8000 (+ - * / और () समर्थित)
+Pixel sort amount, 0-1 (supports + - * / and ())	पिक्सेल क्रम की मात्रा, 0-1 (+ - * / और () समर्थित)
+Pixels (supports + - * / and ())	पिक्सेल (+ - * / और () समर्थित)
+Pixels, 64-2160 (supports + - * / and ())	पिक्सेल, 64-2160 (+ - * / और () समर्थित)
+Pixels, 64-3840 (supports + - * / and ())	पिक्सेल, 64-3840 (+ - * / और () समर्थित)
+Scale of the whole graphic, 0.5-2 (supports + - * / and ())	पूरे ग्राफ़िक का पैमाना, 0.5-2 (+ - * / और () समर्थित)
+Seconds between retriggers, 0-8 (supports + - * / and ())	दो ट्रिगर के बीच सेकंड, 0-8 (+ - * / और () समर्थित)
+Seconds the finished drawing stays, 0 to 60 (supports + - * / and ())	पूरा चित्र रुकने के सेकंड, 0 से 60 (+ - * / और () समर्थित)
+Seconds the in move takes, 0-5 (supports + - * / and ())	प्रवेश गति के सेकंड, 0-5 (+ - * / और () समर्थित)
+Seconds the out move takes, 0-5 (supports + - * / and ())	निकास गति के सेकंड, 0-5 (+ - * / और () समर्थित)
+Seconds, 0-4 (supports + - * / and ())	सेकंड, 0-4 (+ - * / और () समर्थित)
+Seconds, 0-8 (supports + - * / and ())	सेकंड, 0-8 (+ - * / और () समर्थित)
+Size, %, 5 to 400 (supports + - * / and ())	आकार, %, 5 से 400 (+ - * / और () समर्थित)
+Spiral size, 0.25-4 (supports + - * / and ())	सर्पिल आकार, 0.25-4 (+ - * / और () समर्थित)
+Spiral strength, 0-4 (supports + - * / and ())	सर्पिल तीव्रता, 0-4 (+ - * / और () समर्थित)
+Thickness of the glowing edge, 0-1 (supports + - * / and ())	चमकते किनारे की मोटाई, 0-1 (+ - * / और () समर्थित)
+Where the eye sits, 0 left to 1 right (supports + - * / and ())	आँख की स्थिति, 0 बाएँ से 1 दाएँ (+ - * / और () समर्थित)
+Where the eye sits, 0 top to 1 bottom (supports + - * / and ())	आँख की स्थिति, 0 ऊपर से 1 नीचे (+ - * / और () समर्थित)
+% of the picture's height, 0.1 to 20 (supports + - * / and ())	चित्र की ऊँचाई का %, 0.1 से 20 (+ - * / और () समर्थित)
+-3 to 3: 0 holds, negative runs backwards (supports + - * / and ())	-3 से 3: 0 रोकता है, ऋणात्मक उलटा चलाता है (+ - * / और () समर्थित)
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono (supports + - * / and ())	0 क्लासिक, 1 आग, 2 बर्फ़, 3 नियॉन, 4 एकरंगी (+ - * / और () समर्थित)
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono (supports + - * / and ())	0 इंद्रधनुष + धूसर, 1 इंद्रधनुष, 2 थीम, 3 एकरंगी (+ - * / और () समर्थित)
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear (supports + - * / and ())	0 क्षेत्र, 1 युगल, 2 प्रवाह, 3 काठी, 4 लहर, 5 कतरन (+ - * / और () समर्थित)
+0-100%: 0 holds the field still (supports + - * / and ())	0-100%: 0 क्षेत्र को स्थिर रखता है (+ - * / और () समर्थित)
+0-100%: 50 is 1x, 0 a quarter, 100 four times (supports + - * / and ())	0-100%: 50 पर 1x, 0 पर चौथाई, 100 पर चार गुना (+ - * / और () समर्थित)
+0-100%: how far the field bends (supports + - * / and ())	0-100%: क्षेत्र कितना मुड़ता है (+ - * / और () समर्थित)
+0-100%: the share of each band drawn as grey stripes (supports + - * / and ())	0-100%: हर बैंड का धूसर पट्टियों वाला हिस्सा (+ - * / और () समर्थित)
+Across, % of the width, -100 to 100 (supports + - * / and ())	आर-पार, चौड़ाई का %, -100 से 100 (+ - * / और () समर्थित)
+Birth, drift and fade rate, 0.1-3 (supports + - * / and ())	जन्म, बहाव और फ़ेड दर, 0.1-3 (+ - * / और () समर्थित)
+Block displacement and channel tearing, 0-1 (supports + - * / and ())	ब्लॉक विस्थापन और चैनल फटन, 0-1 (+ - * / और () समर्थित)
+dBFS, -60 to 0 (-18 is EBU alignment) (supports + - * / and ())	dBFS, -60 से 0 (-18 EBU संरेखण है) (+ - * / और () समर्थित)
+Down, % of the height, -100 to 100 (supports + - * / and ())	नीचे, ऊँचाई का %, -100 से 100 (+ - * / और () समर्थित)
+Edge out (+) or in (-), % of the height, -25 to 25 (supports + - * / and ())	किनारा बाहर (+) या अंदर (-), ऊँचाई का %, -25 से 25 (+ - * / और () समर्थित)
+Edge softness, % of the height, 0 to 25 (supports + - * / and ())	किनारे की नरमी, ऊँचाई का %, 0 से 25 (+ - * / और () समर्थित)
+FDS hardware gain range, 0-63 (supports + - * / and ())	FDS हार्डवेयर गेन सीमा, 0-63 (+ - * / और () समर्थित)
+Fields per frame, 0-4 (1 = one field per rendered frame) (supports + - * / and ())	प्रति फ़्रेम क्षेत्र, 0-4 (1 = हर रेंडर फ़्रेम पर एक क्षेत्र) (+ - * / और () समर्थित)
+How much of each frame feeds the next, 0-0.95 (supports + - * / and ())	हर फ़्रेम का कितना भाग अगले में जाए, 0-0.95 (+ - * / और () समर्थित)
+How readily neighbours merge, 0 (never) to 1 (supports + - * / and ())	पड़ोसी कितनी आसानी से मिलें, 0 (कभी नहीं) से 1 (+ - * / और () समर्थित)
+Internal resolution, 1 (chunky) to 5 (fine) (supports + - * / and ())	आंतरिक रिज़ॉल्यूशन, 1 (मोटा) से 5 (बारीक) (+ - * / और () समर्थित)
+Master oscillator rate, 0.01-8 (supports + - * / and ())	मुख्य ऑसिलेटर दर, 0.01-8 (+ - * / और () समर्थित)
+Modulator as a ratio of the note, 0.05-16 (supports + - * / and ())	नोट के अनुपात में मॉडुलेटर, 0.05-16 (+ - * / और () समर्थित)
+One LED tile's height in pixels, 8-8192 (supports + - * / and ())	एक LED टाइल की ऊँचाई पिक्सेल में, 8-8192 (+ - * / और () समर्थित)
+One LED tile's width in pixels, 8-8192 (supports + - * / and ())	एक LED टाइल की चौड़ाई पिक्सेल में, 8-8192 (+ - * / और () समर्थित)
+Per-frame zoom of the feedback path, 0.90-1.15 (supports + - * / and ())	हर फ़्रेम पर फीडबैक पथ का ज़ूम, 0.90-1.15 (+ - * / और () समर्थित)
+Scanlines, bloom and gun misalignment, 0-1 (supports + - * / and ())	स्कैन रेखाएँ, ग्लो और इलेक्ट्रॉन गन असंरेखण, 0-1 (+ - * / और () समर्थित)
+Seconds before it leaves by itself; 0 waits for OUT (supports + - * / and ())	स्वतः हटने से पहले सेकंड; 0 पर OUT की प्रतीक्षा (+ - * / और () समर्थित)
+Space under it, as a fraction of the frame, 0-0.8 (supports + - * / and ())	नीचे की जगह फ़्रेम के अंश में, 0-0.8 (+ - * / और () समर्थित)
+Turbulence, 0 still to 3 boiling (supports + - * / and ())	अशांति, 0 स्थिर से 3 उबलता (+ - * / और () समर्थित)
+Turns the rim's colours round the wheel, 0-1 (supports + - * / and ())	किनारे के रंग रंग चक्र पर घुमाता है, 0-1 (+ - * / और () समर्थित)
+AUTO	स्वचालित
+auto (59.94 Hz)	स्वचालित (59.94 Hz)
+BITRATE	बिटरेट
+audioprint	ऑडियोप्रिंट
+bohlen-pierce	बोलेन-पियर्स
+chladni	क्लाडनी
+databend	डेटाबेंड
+datamosh	डेटामॉश
+Devamp	दोहराव छोड़ें
+Fireside	अलाव किनारे
+just	शुद्ध
+meantone	मीनटोन
+pythagorean	पायथागोरसी
+purkinje	पुर्किन्ये
+Ouroboros	ऑरोबोरोस
+MONO L	मोनो L
+MONO R	मोनो R
+LOAD NEXT	अगला लोड करें
+MSC Cue Number	MSC क्यू संख्या
+SYPHON TEXTURE SHARE	SYPHON टेक्सचर साझाकरण
+SYPHON / SPOUT TEXTURE SHARE	SYPHON / SPOUT टेक्सचर साझाकरण
+DECODE --.-	डिकोड --.-
+DECODE OFF	डिकोड OFF
+DECODE WARM	डिकोड तैयार
+OUTPUT --.-	आउटपुट --.-
+OUTPUT WARM	आउटपुट तैयार
+STREAM --.-	स्ट्रीम --.-
+STREAM ERR	स्ट्रीम त्रुटि
+STREAM OFF	स्ट्रीम OFF
+STREAM WARM	स्ट्रीम तैयार
+PROXY 720p	प्रॉक्सी 720p
+hh:mm:ss or seconds	hh:mm:ss या सेकंड
+e.g. /cue/1/start	जैसे /cue/1/start
+e.g. 12.5	जैसे 12.5
+e.g. 192.168.1.50	जैसे 192.168.1.50
+e.g. 1=255, 10-14=64	जैसे 1=255, 10-14=64
+e.g. 20:0 or client name	जैसे 20:0 या क्लाइंट नाम
+e.g. 90 3C 7F	जैसे 90 3C 7F
+0-127; 127 is all-call	0-127; 127 सबके लिए है
+0-127; the domain the facility's clock runs on	0-127; सुविधा की घड़ी का डोमेन
+10-79 characters, or empty for none	10-79 अक्षर, या नहीं के लिए खाली
+8+ characters; letters and symbols are allowed	8+ अक्षर; अक्षर और चिह्न मान्य हैं
+Apple keeps the Keynote format secret on purpose, a malicious lock-in tactic, so only Apple's own software can read it properly. Best route: open it in Keynote on iCloud.com (free, in any browser), choose Download a Copy > PDF, and import that PDF	Apple जानबूझकर Keynote फ़ॉर्मैट गुप्त रखता है। यह उपयोगकर्ताओं को बाँधकर रखने की दुर्भावनापूर्ण चाल है, ताकि केवल Apple का अपना सॉफ़्टवेयर इसे सही पढ़ सके। सबसे अच्छा रास्ता: इसे iCloud.com पर Keynote में खोलें (मुफ़्त, किसी भी ब्राउज़र में), Download a Copy > PDF चुनें और उस PDF को आयात करें
+8+ characters; other machines send AUTH <passphrase> first. Empty = off	8+ अक्षर; दूसरी मशीनें पहले AUTH <passphrase> भेजें। खाली = बंद
+A command line, as a DASH button runs it. {value} is the knob's number, {note} the key.	DASH बटन की तरह चलने वाली कमांड पंक्ति। {value} नॉब की संख्या है, {note} कुंजी है।
+an IPv4 address, or 255.255.255.255 to broadcast	IPv4 पता, या प्रसारण के लिए 255.255.255.255
+browser connections at once, 1-64 (default 8)	एक साथ ब्राउज़र कनेक्शन, 1-64 (डिफ़ॉल्ट 8)
+Default Non-Movie Duration	गैर-वीडियो डिफ़ॉल्ट अवधि
+Fire at incoming timecode	आने वाले टाइमकोड पर चलाएँ
+Hz or AUTO (e.g. 60 or 59.94)	Hz या AUTO (जैसे 60 या 59.94)
+kbps (32-512; 160 is a sane default)	kbps (32-512; 160 उचित डिफ़ॉल्ट है)
+milliseconds (40..2000)	मिलीसेकंड (40..2000)
+milliseconds (20-8000; ~4x your RTT)	मिलीसेकंड (20-8000; आपके RTT का ~4x)
+Name visible to receivers	प्राप्तकर्ताओं को दिखने वाला नाम
+NDI source name (e.g. LAPTOP (source 1))	NDI स्रोत नाम (जैसे LAPTOP (source 1))
+OSC Feedback Mirror Rate	OSC फीडबैक मिरर दर
+Paste the key from your platform	अपने प्लेटफ़ॉर्म की की पेस्ट करें
+paste your stream key here	अपनी स्ट्रीम की यहाँ पेस्ट करें
+pixels (of the output raster)	पिक्सेल (आउटपुट रास्टर के)
+position on the output raster, in pixels	आउटपुट रास्टर पर स्थान, पिक्सेल में
+Routing hint for the receiver	प्राप्तकर्ता के लिए रूटिंग संकेत
+seconds (1-10; most platforms want 2)	सेकंड (1-10; अधिकांश प्लेटफ़ॉर्म 2 चाहते हैं)
+Seconds for new-cue fade in/out defaults	नए क्यू के डिफ़ॉल्ट फ़ेड इन/आउट सेकंड
+seconds this step holds before PLAY moves on	PLAY के आगे बढ़ने से पहले इस चरण का ठहराव सेकंड
+ST 2110 network interface	ST 2110 नेटवर्क इंटरफ़ेस
+Target IP (or 255.255.255.255 to broadcast)	लक्ष्य IP (या प्रसारण के लिए 255.255.255.255)
+UDP port for transport sync	प्लेबैक सिंक का UDP पोर्ट
+Where to send transport (blank = broadcast)	प्लेबैक नियंत्रण कहाँ भेजें (खाली = प्रसारण)
+Which switcher input Deckboy is (0 = not set)	Deckboy का स्विचर इनपुट (0 = सेट नहीं)
+AUDIOALSO: expected ADD <name>, REMOVE <name> or CLEAR	AUDIOALSO: अपेक्षित: ADD <name>, REMOVE <name> या CLEAR
+BROWSER KEY: expected Enter|Tab|Backspace|Escape	BROWSER KEY: अपेक्षित: Enter|Tab|Backspace|Escape
+BUGSWAT: expected START, SHOWME, SKIP, PLAY, EXIT or STATUS	BUGSWAT: अपेक्षित: START, SHOWME, SKIP, PLAY, EXIT या STATUS
+CAPTIONS LIVE: expected ON, OFF, STATUS or TEXT	CAPTIONS LIVE: अपेक्षित: ON, OFF, STATUS या TEXT
+CAPTIONS SOURCE: expected INPUT, DECK <n> or OUTPUT <n>	CAPTIONS SOURCE: अपेक्षित: INPUT, DECK <n> या OUTPUT <n>
+DMXCUE FIXTURE: expected <name> <level%>|LEAVE [<colour>]	DMXCUE FIXTURE: अपेक्षित: <name> <level%>|LEAVE [<colour>]
+DMXCUE LFO: expected <name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]	DMXCUE LFO: अपेक्षित: <name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]
+DMXCUE: expected NEW, SET, FADE, UNIVERSE, HOST, PORT, FIRE or BLACKOUT	DMXCUE: अपेक्षित: NEW, SET, FADE, UNIVERSE, HOST, PORT, FIRE या BLACKOUT
+ENDACTION: expected INHERIT, STOP, LOOP, HOLD or NEXT	ENDACTION: अपेक्षित: INHERIT, STOP, LOOP, HOLD या NEXT
+expected waveform|scope|lissajous|spectrum|level|cover	अपेक्षित: waveform|scope|lissajous|spectrum|level|cover
+FADE CURVE: expected linear, ease-in, ease-out or s-curve	FADE CURVE: अपेक्षित: linear, ease-in, ease-out या s-curve
+FADE WHAT: expected opacity, volume, dimmer, brightness, contrast, saturation, hue, effect, audiofx or speed	FADE WHAT: अपेक्षित: opacity, volume, dimmer, brightness, contrast, saturation, hue, effect, audiofx या speed
+FIXTURE ADD: expected <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]	FIXTURE ADD: अपेक्षित: <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]
+LOWERSTYLE: expected none, fade, rise, slide, wipe or NEXT	LOWERSTYLE: अपेक्षित: none, fade, rise, slide, wipe या NEXT
+MASK ASSIGN: expected <id|NONE> CUE | LAYER <output> <playlist> | OUTPUT <n> | MATTE <n>	MASK ASSIGN: अपेक्षित: <id|NONE> CUE | LAYER <output> <playlist> | OUTPUT <n> | MATTE <n>
+MASK ASSIGN: expected CUE, LAYER, OUTPUT or MATTE	MASK ASSIGN: अपेक्षित: CUE, LAYER, OUTPUT या MATTE
+MASK EXPORT: expected <id> <file.png|file.svg> [WxH]	MASK EXPORT: अपेक्षित: <id> <file.png|file.svg> [WxH]
+MASK LFO: expected <id> <param> ON|OFF [rate Hz] [depth %]	MASK LFO: अपेक्षित: <id> <param> ON|OFF [rate Hz] [depth %]
+MATRIX SET: expected <source 1-2> <dest> <0-100>	MATRIX SET: अपेक्षित: <source 1-2> <dest> <0-100>
+MATRIX: expected SET <src> <dest> <0-100>, SEED or CLEAR	MATRIX: अपेक्षित: SET <src> <dest> <0-100>, SEED या CLEAR
+MESH: expected on|off|toggle|height|tilt|yaw|spin|grid	MESH: अपेक्षित: on|off|toggle|height|tilt|yaw|spin|grid
+MIC: expected ADD, LIST, INPUT, CHANNEL or GAIN	MIC: अपेक्षित: ADD, LIST, INPUT, CHANNEL या GAIN
+MIDICUE KIND: expected note-on, note-off, cc, program, msc-go, msc-stop, msc-resume or raw	MIDICUE KIND: अपेक्षित: note-on, note-off, cc, program, msc-go, msc-stop, msc-resume या raw
+MIDICUE: expected NEW, PORTS, PORT, KIND, CH, D1, D2, DEVICE, CUENUM, LIST, RAW or SEND	MIDICUE: अपेक्षित: NEW, PORTS, PORT, KIND, CH, D1, D2, DEVICE, CUENUM, LIST, RAW या SEND
+MULTIVIEW LAYOUT: expected GRID, BIG, BIGTOP or TWOTOP	MULTIVIEW LAYOUT: अपेक्षित: GRID, BIG, BIGTOP या TWOTOP
+MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK or EMPTY	MULTIVIEW WINDOW: अपेक्षित: PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK या EMPTY
+NETCUE: expected NEW, PROTO, HOST, PORT, ADDRESS, PAYLOAD or SEND	NETCUE: अपेक्षित: NEW, PROTO, HOST, PORT, ADDRESS, PAYLOAD या SEND
+OUTPROBE: expected <output> <x 0-1> <y 0-1>	OUTPROBE: अपेक्षित: <output> <x 0-1> <y 0-1>
+OUTPUT HDR: expected ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> or STATUS	OUTPUT HDR: अपेक्षित: ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> या STATUS
+OUTPUTFX ADD: expected hpf, lpf, tilt, comp or width	OUTPUTFX ADD: अपेक्षित: hpf, lpf, tilt, comp या width
+OUTPUTFX: expected ADD, SET, REMOVE, BYPASS, CLEAR or DEVICE	OUTPUTFX: अपेक्षित: ADD, SET, REMOVE, BYPASS, CLEAR या DEVICE
+OUTPUTS ADD: expected <name> CH <n> or CH <n>-<n+1>	OUTPUTS ADD: अपेक्षित: <name> CH <n> या CH <n>-<n+1>
+PATCH: expected <deck> <output> <dB> or OFF	PATCH: अपेक्षित: <deck> <output> <dB> या OFF
+presenter colour: expected BG|INK|ACCENT #rrggbb	presenter colour: अपेक्षित: BG|INK|ACCENT #rrggbb
+PRESET: expected LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME or DELETE	PRESET: अपेक्षित: LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME या DELETE
+rectc: expected <hh:mm:ss:ff|timeofday> [df|ndf|auto]	rectc: अपेक्षित: <hh:mm:ss:ff|timeofday> [df|ndf|auto]
+SCALEMODE: expected fit|fill|stretch|unscaled	SCALEMODE: अपेक्षित: fit|fill|stretch|unscaled
+SCOPES BIG: expected waveform, parade, vector, diamond, histogram, falsecolour, sound or off	SCOPES BIG: अपेक्षित: waveform, parade, vector, diamond, histogram, falsecolour, sound या off
+SCOPES: expected PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS or SOUND	SCOPES: अपेक्षित: PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS या SOUND
+SECTION: expected playback|metadata|geometry|key|audio|effects|timer|tone|synth	SECTION: अपेक्षित: playback|metadata|geometry|key|audio|effects|timer|tone|synth
+STING: expected ON, PITCH, LENGTH, SWEEP or BODY	STING: अपेक्षित: ON, PITCH, LENGTH, SWEEP या BODY
+TARGET VERB: expected start|stop|pause|resume|load|arm|disarm	TARGET VERB: अपेक्षित: start|stop|pause|resume|load|arm|disarm
+TEXTCUE ALIGN: expected left, centre or right	TEXTCUE ALIGN: अपेक्षित: left, centre या right
+TEXTCUE ANIM: expected none, fade, typewriter, scroll, crawl, pulse or wobble	TEXTCUE ANIM: अपेक्षित: none, fade, typewriter, scroll, crawl, pulse या wobble
+TEXTCUE: expected NEW, BODY, ANIM, SIZE, SPEED, ALIGN, CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, WIGGLE, IN, OUTMOVE or OUT	TEXTCUE: अपेक्षित: NEW, BODY, ANIM, SIZE, SPEED, ALIGN, CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, WIGGLE, IN, OUTMOVE या OUT
+TRACKER: expected GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP or CLICKER	TRACKER: अपेक्षित: GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP या CLICKER
+TUTORIAL: expected START, SHOWME, SKIP, EXIT, STATUS or SCREENS	TUTORIAL: अपेक्षित: START, SHOWME, SKIP, EXIT, STATUS या SCREENS
+UPDATE: expected check|download|install|status	UPDATE: अपेक्षित: check|download|install|status
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS	VJ: अपेक्षित: ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS
+AUDIOFX: expected OFF, BYPASS, or amount and parameters as percentages	AUDIOFX: OFF, BYPASS, या मात्रा और पैरामीटर प्रतिशत में अपेक्षित हैं
+BLEND PAIR: expected <other output number> <overlap in pixels>	BLEND PAIR: <other output number> <overlap in pixels> अपेक्षित है
+BROWSER SCROLL: expected pixels (negative is up)	BROWSER SCROLL: पिक्सेल अपेक्षित हैं (ऋणात्मक ऊपर)
+CHIP ENV: expected <attack> <release> in seconds	CHIP ENV: <attack> <release> सेकंड में अपेक्षित है
+DMXCUE SET: expected channel=level pairs, e.g. 1=255,10-14=64	DMXCUE SET: चैनल=स्तर जोड़े अपेक्षित हैं, जैसे 1=255,10-14=64
+expected one expression, three for colour, or four with alpha	एक व्यंजक, रंग के लिए तीन, या अल्फ़ा सहित चार अपेक्षित हैं
+MASK SET: expected INVERT, X, Y, SCALE, ROTATION, FEATHER, GROW or OPACITY and a number	MASK SET: INVERT, X, Y, SCALE, ROTATION, FEATHER, GROW या OPACITY और एक संख्या अपेक्षित है
+MASK SHAPE: expected a shape (MASK SHAPES lists them)	MASK SHAPE: आकृति अपेक्षित है (MASK SHAPES सूची दिखाता है)
+MASTER DECK: expected a deck number and a cue number	MASTER DECK: डेक संख्या और क्यू संख्या अपेक्षित हैं
+MIC INPUT: expected SETTINGS, TEST or a device name (MIC LIST)	MIC INPUT: SETTINGS, TEST या उपकरण नाम (MIC LIST) अपेक्षित है
+MIDIFILE: expected PORT, or no argument to report it	MIDIFILE: PORT अपेक्षित है, या जानकारी के लिए बिना तर्क
+MONITOR DECK: expected a playlist number or FOLLOW	MONITOR DECK: प्लेलिस्ट संख्या या FOLLOW अपेक्षित है
+MONITOR ROOM: expected a playlist and ON or OFF	MONITOR ROOM: प्लेलिस्ट और ON या OFF अपेक्षित है
+MULTIVIEW WINDOW <n>: expected a source, or SAFE/METER/LABEL ON|OFF	MULTIVIEW WINDOW <n>: स्रोत, या SAFE/METER/LABEL ON|OFF अपेक्षित है
+MULTIVIEW WINDOW REMOVE: expected a window number	MULTIVIEW WINDOW REMOVE: विंडो संख्या अपेक्षित है
+NETCUE ADDRESS: expected an OSC path starting with /	NETCUE ADDRESS: / से शुरू होने वाला OSC पथ अपेक्षित है
+OUTPUT AOI: expected a size like 256x256, or FULL	OUTPUT AOI: 256x256 जैसा आकार, या FULL अपेक्षित है
+OUTPUT HDR WHITE: expected 80..500 nits (203 is BT.2408)	OUTPUT HDR WHITE: 80..500 निट अपेक्षित हैं (203 BT.2408 है)
+OUTPUTFX SET: expected an effect number and 0-100	OUTPUTFX SET: इफ़ेक्ट संख्या और 0-100 अपेक्षित है
+PORTS: expected an http port and a tcp port	PORTS: http पोर्ट और tcp पोर्ट अपेक्षित हैं
+PRELOAD: expected a position in seconds, OFF or STATUS	PRELOAD: सेकंड में स्थान, OFF या STATUS अपेक्षित है
+presenter panel: expected <live|prev|next|notes> <x> <y> <w> <h> in percent	presenter panel: <live|prev|next|notes> <x> <y> <w> <h> प्रतिशत में अपेक्षित है
+SCOPES SOURCE: expected PROGRAMME or an output number, 1-	SCOPES SOURCE: PROGRAMME या आउटपुट संख्या, 1- अपेक्षित है
+STREAM ADD: expected a URL, e.g. srt://host:port	STREAM ADD: URL अपेक्षित है, जैसे srt://host:port
+TARGET CUE: expected a deck number and a cue number	TARGET CUE: डेक संख्या और क्यू संख्या अपेक्षित हैं
+TEXTCUE SIZE: expected 1-100 (percent of the raster)	TEXTCUE SIZE: 1-100 अपेक्षित है (रास्टर का प्रतिशत)
+TUTORIAL SCREENS: expected a count, MIRRORED or REAL	TUTORIAL SCREENS: संख्या, MIRRORED या REAL अपेक्षित है
+VIDEO OUTPUT LAYER: expected a layer number (1 is the base)	VIDEO OUTPUT LAYER: परत संख्या अपेक्षित है (1 आधार है)
+VIDEO OUTPUT LAYERWARP: expected OFF, MODE, or eight numbers clockwise from the top left	VIDEO OUTPUT LAYERWARP: OFF, MODE, या ऊपर बाएँ से घड़ी की दिशा में आठ संख्याएँ अपेक्षित हैं
+warp grid: expected <n>, <cols> <rows>, off, smooth or straight	warp grid: <n>, <cols> <rows>, off, smooth या straight अपेक्षित है
+WARP SELECT: expected TL, TR, BR, BL or a grid <col> <row>	WARP SELECT: TL, TR, BR, BL या ग्रिड <col> <row> अपेक्षित है
+How big each tile is.	हर टाइल का आकार।
+How big the crystals grow before they meet.	मिलने से पहले क्रिस्टल कितने बड़े हों।
+How closely spaced the rings are.	वलय कितने पास-पास हों।
+How far a band can slide.	बैंड कितनी दूर खिसक सके।
+How far each shard slides from where it belongs.	हर टुकड़ा अपनी जगह से कितना खिसके।
+How far each stroke is dragged along the grain.	हर स्ट्रोक रेशे के साथ कितना खिंचे।
+How far it smears: up to a few percent of the picture.	धब्बा कितनी दूर फैले: चित्र के कुछ प्रतिशत तक।
+How far out the darkening starts.	केंद्र से कितनी दूर अंधेरा शुरू हो।
+How far the bright parts pull away from the surface.	उज्ज्वल भाग सतह से कितना उठें।
+How far the glow spreads.	दीप्ति कितनी दूर फैले।
+How far the sound throws each line sideways.	ध्वनि हर रेखा को कितना बगल में फेंके।
+How fast the sand travels to the still lines.	रेत स्थिर रेखाओं तक कितनी तेज़ जाए।
+How fast the surface moves.	सतह कितनी तेज़ हिले।
+How fast they travel outward.	वे बाहर की ओर कितनी तेज़ जाएँ।
+How gradually the key cuts in. Hard at the left.	की का कट कितना क्रमिक हो। बाएँ कठोर है।
+How hard it is driven into its own limits.	इसे अपनी सीमा तक कितनी तीव्रता से धकेलें।
+How hard the short hits.	शॉर्ट का झटका कितना तेज़ हो।
+How many shades survive the quantise.	क्वांटाइज़ के बाद कितने स्तर बचें।
+How many spikes the field breaks into.	क्षेत्र कितने शिखरों में टूटे।
+How many torn bands per frame.	हर फ़्रेम में कितनी फटी पट्टियाँ हों।
+How much each shard turns on its own centre.	हर टुकड़ा अपने केंद्र पर कितना घूमे।
+How much the edges are lifted.	किनारे कितने उठें।
+How much the flame gutters frame to frame.	फ़्रेम-दर-फ़्रेम लौ कितनी डगमगाए।
+How often it skips.	कितनी बार छोड़े।
+How quickly the loop relaxes when nothing feeds it.	इनपुट न मिलने पर लूप कितनी जल्दी शांत हो।
+How strongly the outlines are drawn.	बाहरी रेखाएँ कितनी गहरी हों।
+How strongly the water bends the picture.	पानी चित्र को कितना मोड़े।
+Darkens the boundaries where crystals meet.	क्रिस्टलों के मिलने की सीमाएँ गहरी करता है।
+Lifts the dark tones without moving pure black.	शुद्ध काले को बदले बिना गहरे स्वर उठाता है।
+Pushes the rings in or out of the centre.	वलयों को केंद्र में या बाहर धकेलता है।
+Rounds the tiles off, all the way to dots.	टाइलों को गोल करके बिंदु तक बनाता है।
+Softens the fold so it ramps instead of creasing.	तह को नर्म ढलान बनाता है ताकि तेज़ सलवट न पड़े।
+Where the filter sits.	फ़िल्टर की स्थिति।
+Which way it drips.	किस दिशा में टपके।
+8 zones already: click one to remove it first	पहले से 8 क्षेत्र हैं: पहले किसी एक को क्लिक करके हटाएँ
+AUDIOALSO ADD: seven extra destinations is the limit	AUDIOALSO ADD: अधिकतम सात अतिरिक्त गंतव्य हैं
+AUDIOALSO ADD: that is already this deck's main device -- it would play twice	AUDIOALSO ADD: यह पहले से डेक का मुख्य उपकरण है -- आवाज़ दो बार चलेगी
+AUDIOFX PLUGIN: this build has no plugin host	AUDIOFX PLUGIN: इस बिल्ड में प्लगइन होस्ट नहीं
+BROWSER CLICK: this browser backend cannot drive the page	BROWSER CLICK: यह ब्राउज़र बैकएंड पृष्ठ नियंत्रित नहीं कर सकता
+BROWSER SCROLL: this browser backend cannot drive the page	BROWSER SCROLL: यह ब्राउज़र बैकएंड पृष्ठ नियंत्रित नहीं कर सकता
+BROWSER SCROLLBAR: this browser backend cannot drive the page	BROWSER SCROLLBAR: यह ब्राउज़र बैकएंड पृष्ठ नियंत्रित नहीं कर सकता
+BROWSER INTERACT: this browser backend has no hands-on mode	BROWSER INTERACT: इस ब्राउज़र बैकएंड में प्रत्यक्ष नियंत्रण मोड नहीं
+BROWSER TYPE: this browser backend cannot type	BROWSER TYPE: यह ब्राउज़र बैकएंड टाइप नहीं कर सकता
+MIDIFILE: the selected cue is not a midi file cue	MIDIFILE: चुना क्यू MIDI फ़ाइल क्यू नहीं है
+NETCUE: the selected cue is not a network cue	NETCUE: चुना क्यू नेटवर्क क्यू नहीं है
+SCRIPTCUE: the selected cue is not a script cue	SCRIPTCUE: चुना क्यू स्क्रिप्ट क्यू नहीं है
+SYNTH: the selected cue is not a video synth	SYNTH: चुना क्यू वीडियो सिंथ नहीं है
+TCCUE: the selected cue is not a timecode cue	TCCUE: चुना क्यू टाइमकोड क्यू नहीं है
+TEXTCUE: the selected cue is not a text cue	TEXTCUE: चुना क्यू टेक्स्ट क्यू नहीं है
+SLICE ADD: already 16 slices on this output	SLICE ADD: इस आउटपुट पर पहले से 16 स्लाइस हैं
+VIDEO OUTPUT ASSIGN: already on this output, or no such deck or output	VIDEO OUTPUT ASSIGN: पहले से इस आउटपुट पर है, या ऐसा डेक या आउटपुट नहीं है
+VIDEO OUTPUT LAYER: this deck is not on this output, or it is already at that layer	VIDEO OUTPUT LAYER: यह डेक इस आउटपुट पर नहीं है, या पहले से उस परत पर है
+VIDEO OUTPUT UNASSIGN: this deck is not on this output, or it is the only thing on it	VIDEO OUTPUT UNASSIGN: यह डेक इस आउटपुट पर नहीं है, या इस पर केवल यही है
+port number (default 5510)	पोर्ट संख्या (डिफ़ॉल्ट 5510)
+port number (default 5511)	पोर्ट संख्या (डिफ़ॉल्ट 5511)
+port number (default 6454)	पोर्ट संख्या (डिफ़ॉल्ट 6454)
+port number (default 8090)	पोर्ट संख्या (डिफ़ॉल्ट 8090)
+port number (vMix uses 8088)	पोर्ट संख्या (vMix में 8088)
+port number (vMix uses 8099)	पोर्ट संख्या (vMix में 8099)
+Prefix (optional). Example: Q	उपसर्ग (वैकल्पिक)। उदाहरण: Q
+Prefix and optional start (example: Q 100)	उपसर्ग और वैकल्पिक आरंभ (उदाहरण: Q 100)
+WIDTHxHEIGHT (e.g. 2560x1080)	चौड़ाईxऊँचाई (जैसे 2560x1080)
+WIDTHxHEIGHT (e.g. 5760x2160)	चौड़ाईxऊँचाई (जैसे 5760x2160)
+#rrggbb -- the colour of the presenter screen	#rrggbb -- प्रस्तुतकर्ता स्क्रीन का रंग
+#rrggbb, or a name (red, teal...)	#rrggbb, या नाम (red, teal...)
+Cue name (blank restores the file name)	क्यू नाम (खाली करने पर फ़ाइल नाम लौटेगा)
+Leave empty to follow the live cue notes	लाइव क्यू नोट्स का अनुसरण करने के लिए खाली छोड़ें
+Multicast group (e.g. 239.20.10.1)	मल्टीकास्ट समूह (जैसे 239.20.10.1)
+Port the Node + Connection API serve on	Node + Connection API का पोर्ट
+NIC address or name; empty = the default route	NIC पता या नाम; खाली = डिफ़ॉल्ट रूट
+NIC name reported in interface_bindings (e.g. eth0)	interface_bindings में दिखा NIC नाम (जैसे eth0)
+flow (follows the picture)	प्रवाह (चित्र के साथ चलता है)
+Above halfway, the repeated piece plays backwards.	आधे से ऊपर, दोहराया हिस्सा उलटा चलता है।
+The brightness that decides black from white.	काले और सफ़ेद का निर्णय करने वाली चमक।
+The colour to change, round the wheel from red.	बदलने वाला रंग, लाल से रंग चक्र पर।
+no picture on this cue - nothing to follow	इस क्यू में चित्र नहीं - अनुसरण करने को कुछ नहीं
+this cue has no known end to resolve into	इस क्यू का ज्ञात अंत नहीं जिसमें प्रभाव समा सके
+only a MIDI note or an OSC address can take a cue	केवल MIDI नोट या OSC पता क्यू को TAKE कर सकता है
+The bright net the waves focus onto the picture.	लहरों द्वारा चित्र पर केंद्रित उज्ज्वल जाल।
+can't move the active cue -- take another cue on this deck first	सक्रिय क्यू नहीं हटा सकते -- पहले इस डेक पर दूसरा क्यू चलाएँ
+cancelled: the waiting cue is no longer in the playlist	रद्द: प्रतीक्षारत क्यू अब प्लेलिस्ट में नहीं है
+could not create an OpenGL context for Spout receive	Spout प्राप्ति के लिए OpenGL कॉन्टेक्स्ट नहीं बन सका
+could not create the offscreen window Spout receive needs	Spout प्राप्ति के लिए आवश्यक ऑफ़स्क्रीन विंडो नहीं बन सकी
+could not get a device context for Spout receive	Spout प्राप्ति के लिए डिवाइस कॉन्टेक्स्ट नहीं मिला
+couldn't decode still image — unsupported format or corrupt file	स्थिर चित्र डिकोड नहीं हुआ — असमर्थित फ़ॉर्मैट या दूषित फ़ाइल
+couldn't open a browser -- please report at github.com/Utopian-Academy/Deckboy/issues	ब्राउज़र नहीं खुला -- github.com/Utopian-Academy/Deckboy/issues पर रिपोर्ट करें
+downloading the caption model, then listening...	कैप्शन मॉडल डाउनलोड हो रहा है, फिर सुनना शुरू होगा...
+drag the panels to arrange the presenter screen	प्रस्तुतकर्ता स्क्रीन सजाने के लिए पैनल खींचें
+encoder destination: _converted beside the show	एन्कोडर गंतव्य: शो के पास _converted
+fetching the speech model - captions start when it arrives	वाक् मॉडल आ रहा है - आते ही कैप्शन शुरू होंगे
+four effects at most on one device: remove one first	एक डिवाइस पर अधिकतम चार प्रभाव: पहले एक हटाएँ
+live captions are not installed here (deckboy-listen was not found)	लाइव कैप्शन स्थापित नहीं हैं (deckboy-listen नहीं मिला)
+Lower Third added - put its playlist on a layer	Lower Third जोड़ा गया - उसकी प्लेलिस्ट किसी लेयर पर रखें
+mic live on the default speakers - watch for feedback	माइक डिफ़ॉल्ट स्पीकर पर लाइव है - फ़ीडबैक से सावधान
+network sharing and phone control require an 8+ character passphrase	नेटवर्क साझाकरण और फ़ोन नियंत्रण के लिए 8+ अक्षरों का पासफ़्रेज़ चाहिए
+no filled shapes in it (paths, rectangles, circles, ellipses or polygons)	इसमें भरे आकार नहीं हैं (पाथ, आयत, वृत्त, दीर्घवृत्त या बहुभुज)
+no masks yet: make one in a cue's MASK section	अभी मास्क नहीं: क्यू के MASK भाग में बनाएँ
+no OpenGL pixel format available for Spout receive	Spout प्राप्ति के लिए OpenGL पिक्सेल फ़ॉर्मैट उपलब्ध नहीं
+no picture - shorts run on a timer instead of on cuts	चित्र नहीं - शॉर्ट कट के बजाय टाइमर से चलते हैं
+no picture on this cue - nothing decides where the playhead is	इस क्यू में चित्र नहीं - प्लेहेड का स्थान तय करने को कुछ नहीं
+no picture on this cue - nothing to close the loop through	इस क्यू में चित्र नहीं - लूप बंद करने के लिए कुछ नहीं
+no video clock on this cue - nothing to lock to	इस क्यू में वीडियो क्लॉक नहीं - लॉक करने का संदर्भ नहीं
+normalize all: no file-backed audio in this deck	सभी नॉर्मलाइज़ करें: इस डेक में फ़ाइल वाला ऑडियो नहीं
+nothing to mask here: select a cue, or change MASK ON	यहाँ मास्क करने को कुछ नहीं: क्यू चुनें या MASK ON बदलें
+offset in percent of the picture	चित्र के प्रतिशत में ऑफ़सेट
+output effects bypassed: no effect and no limit on this device	आउटपुट प्रभाव बायपास: इस डिवाइस पर कोई प्रभाव या सीमा नहीं
+over 16 MB: not a drawing to make a mask from	16 MB से बड़ा: मास्क बनाने योग्य ड्रॉइंग नहीं
+pair with a picture effect whose LFO is set to Audio	ऐसे चित्र प्रभाव से जोड़ें जिसका LFO Audio पर हो
+paired phones removed: they need the QR code or the passphrase again	पेयर किए फ़ोन हटाए गए: उन्हें फिर QR कोड या पासफ़्रेज़ चाहिए
+phone control requires an 8+ character passphrase	फ़ोन नियंत्रण के लिए 8+ अक्षरों का पासफ़्रेज़ चाहिए
+save failed - retrying; still open, use SAVE AS if needed	सहेजना विफल - फिर प्रयास; अभी खुला है, ज़रूरत हो तो SAVE AS करें
+set an 8+ character Web Monitor passphrase first	पहले वेब मॉनिटर का 8+ अक्षरों का पासफ़्रेज़ सेट करें
+the caption model has not been downloaded yet	कैप्शन मॉडल अभी डाउनलोड नहीं हुआ है
+the desktop portal did not answer	डेस्कटॉप पोर्टल ने उत्तर नहीं दिया
+the file is empty (0 bytes): it may not have finished copying or saving	फ़ाइल खाली है (0 बाइट): कॉपी या सहेजना शायद पूरा नहीं हुआ
+the installed NDI runtime is missing entry points this needs	स्थापित NDI रनटाइम में आवश्यक एंट्री पॉइंट नहीं हैं
+the NDI runtime declined to start on this machine	इस मशीन पर NDI रनटाइम शुरू नहीं हुआ
+the playing step was removed - sequence stopped	चलता चरण हटाया गया - अनुक्रम रुक गया
+update: cannot find this app bundle to replace	अपडेट: बदलने के लिए इस ऐप का बंडल नहीं मिला
+what the operator should be told when GO reaches here	GO के यहाँ पहुँचने पर ऑपरेटर को बताया जाने वाला संदेश
+what the patch and the cues call it (FOH, SUB, PRESS FEED)	पैच और क्यू में इसका नाम (FOH, SUB, PRESS FEED)
+window capture fell back to screen grab — update ffmpeg for exact window capture	विंडो कैप्चर की जगह स्क्रीन कैप्चर हुआ — सटीक विंडो कैप्चर के लिए ffmpeg अपडेट करें
+A dark line between the tiles, like grout or an LED wall.	टाइलों के बीच गहरी रेखा, जोड़ या LED वॉल जैसी।
+a plugin overran the audio thread and was bypassed — take it out of the chain	प्लगइन ने ऑडियो थ्रेड का समय पार किया और बायपास हुआ — उसे चेन से हटाएँ
+A slow rocking of the viewpoint, which is what makes the depth read without glasses.	दृष्टिकोण का धीमा झूलना, जिससे बिना चश्मे गहराई दिखती है।
+A slow sag in the supply, pulling the filter up and down like a dying battery.	बिजली आपूर्ति की धीमी गिरावट, जो मरती बैटरी की तरह फ़िल्टर ऊपर-नीचे करती है।
+A worn or dirty head: softer, with noise that streaks along the lines.	घिसा या गंदा हेड: नरम चित्र और पंक्तियों के साथ फैलता नॉइज़।
+Above halfway, a hard cut in the picture resets the loop to clean.	आधे से ऊपर, चित्र में हार्ड कट लूप को साफ़ कर रीसेट करता है।
+An old deck: the picture wobbles, bends at the top of the frame and carries hum bars.	पुराना डेक: चित्र डगमगाता है, फ़्रेम के ऊपर मुड़ता है और हम पट्टियाँ दिखती हैं।
+An old tape loses bits of its oxide: dropouts flick white and repeat the line above, and the colour fizzes.	पुरानी टेप का ऑक्साइड झड़ता है: ड्रॉपआउट सफ़ेद चमकते हैं, ऊपर की पंक्ति दोहराते हैं और रंगों में शोर आता है।
+brightness moves the playhead (needs CPU frames)	चमक प्लेहेड चलाती है (CPU फ़्रेम आवश्यक)
+centred and full-frame - moves when the picture does	बीच में और पूरे फ़्रेम में - चित्र के साथ चलता है
+Characters across. Fewer means bigger cells and less of the picture surviving, which is usually the point.	चौड़ाई में अक्षरों की संख्या। कम होने से सेल बड़े और चित्र के बचे विवरण कम होते हैं, जो अक्सर लक्ष्य होता है।
+Characters to build the picture from, darkest first. Empty uses the chosen glyph set.	चित्र बनाने वाले अक्षर, सबसे गहरे पहले। खाली रखने पर चुना ग्लिफ़ सेट लगेगा।
+Chladni listens: the figure follows the pitch of the sound	क्लाडनी सुनता है: आकृति ध्वनि की पिच का अनुसरण करती है
+click anywhere on any screen to take its colour. Esc cancels	रंग लेने के लिए किसी भी स्क्रीन पर कहीं भी क्लिक करें। Esc रद्द करता है
+click program or preview monitor to sample key color	की रंग लेने के लिए प्रोग्राम या प्रीव्यू मॉनिटर पर क्लिक करें
+Colour is recorded at a fraction of the detail: it smears sideways, lands late and its hue wanders.	रंग कम विवरण में रिकॉर्ड होता है: बग़ल में फैलता है, देर से आता है और रंगत भटकती है।
+Copies of copies: none at the left, four at the right. Each one loses more.	कॉपी की कॉपी: बाएँ कोई नहीं, दाएँ चार। हर कॉपी में और क्षय होता है।
+Fine sensor noise at the bottom, chunky film at the top.	नीचे महीन सेंसर नॉइज़, ऊपर मोटा फ़िल्म ग्रेन।
+follows this cue's own brightness (needs CPU frames)	इस क्यू की अपनी चमक का अनुसरण करता है (CPU फ़्रेम आवश्यक)
+format 2 files are a set of independent patterns, not a performance	फ़ॉर्मैट 2 फ़ाइलें स्वतंत्र पैटर्न का समूह हैं, एक प्रस्तुति नहीं
+From an even blur to a streak along the angle, like movement.	समान धुंधलेपन से कोण की दिशा में लकीर तक, गति जैसी।
+full-frame and no picture - bends when the picture shrinks	पूरा फ़्रेम और चित्र नहीं - चित्र सिकुड़ने पर मुड़ता है
+Grain size: one pixel at the left, big blocky grains at the right.	ग्रेन आकार: बाएँ एक पिक्सेल, दाएँ बड़े चौकोर दाने।
+Grows or shrinks the echo each pass. Centre holds still.	हर चक्कर में प्रतिध्वनि बढ़ाता या घटाता है। बीच में स्थिर रहती है।
+How abruptly it arrives. Low is a soft cloud, high is a hard porthole.	कितना अचानक उभरता है। कम पर नरम बादल, अधिक पर कड़ी खिड़की।
+How big the room is. Small is a booth, large is a hall.	कमरे का आकार। छोटा बूथ, बड़ा हॉल।
+How big the shards are. Small is frosted glass, large is a dropped plate.	टुकड़ों का आकार। छोटे पर धुँधला काँच, बड़े पर टूटी प्लेट।
+How dark the dark lines go. All the way up is black between lines.	गहरी रेखाएँ कितनी गहरी हों। अधिकतम पर रेखाओं के बीच काला।
+How far away. Distance dulls the top and softens the difference between the ears.	दूरी। दूरी ऊँची आवृत्तियाँ घटाती और कानों का अंतर नरम करती है।
+How far back each skip jumps, from a stutter to half a second.	हर स्किप कितना पीछे जाए, हकलाहट से आधे सेकंड तक।
+How fast it closes. Slow enough not to chop the ends off words.	कितनी जल्दी बंद हो। इतना धीमा रखें कि शब्दों के अंत न कटें।
+How fast the drips run. At the left the picture only sags.	बूँदों के बहने की गति। बाएँ चित्र केवल झुकता है।
+How fast the light walks around it. Zero holds it still.	उसके चारों ओर रोशनी घूमने की गति। शून्य पर स्थिर।
+How fast the wave travels. Faster spreads further in the same time and interferes more.	लहर की गति। तेज़ होने पर उतने ही समय में अधिक दूरी और हस्तक्षेप।
+How gently the change fades out at the edges of the band.	बैंड के किनारों पर बदलाव कितनी नरमी से मिटे।
+How hard it holds once it is working. Gentle at the bottom, a limiter at the top.	सक्रिय होने पर कितना कसकर रोके। नीचे नरम, ऊपर लिमिटर।
+How irregular the growth is. Low gives an even honeycomb, high gives long shards.	वृद्धि की अनियमितता। कम पर समान मधुमक्खी छत्ता, अधिक पर लंबे टुकड़े।
+How long a short stays closed, in VIDEO FRAMES.	शॉर्ट कितनी देर जुड़ा रहे, वीडियो फ़्रेम में।
+How long the reaction runs each frame. Short is a stain, long is an organism.	हर फ़्रेम में प्रतिक्रिया की अवधि। छोटी पर धब्बा, लंबी पर जीव।
+How many places drip: a few big drips at the left, many thin ones at the right.	टपकने की जगहों की संख्या: बाएँ कुछ बड़ी बूँदें, दाएँ कई पतली।
+How many times a skip repeats before the sound catches up again.	ध्वनि के फिर साथ आने से पहले स्किप कितनी बार दोहराए।
+How much of the picture glows: only the brightest at the left, nearly everything at the right.	चित्र का कितना भाग चमके: बाएँ केवल सबसे चमकीला, दाएँ लगभग सब।
+How much of the picture shows behind the lines. None at the left: lines on black.	रेखाओं के पीछे चित्र कितना दिखे। बाएँ कुछ नहीं: काले पर रेखाएँ।
+How much of the push goes downward rather than sideways.	धक्के का कितना भाग बग़ल के बजाय नीचे जाए।
+How quickly the room eats the top end. More damping is a softer, more furnished space.	कमरा ऊँची आवृत्तियाँ कितनी जल्दी सोखे। अधिक डैम्पिंग यानी नरम, अधिक सुसज्जित जगह।
+How readily an edge catches. Low sets the whole picture alight, high only the hardest lines.	किनारा कितनी आसानी से जले। कम पर पूरा चित्र, अधिक पर केवल सबसे तीखी रेखाएँ।
+How wide a band of colours either side of it changes too.	दोनों ओर रंगों की कितनी चौड़ी पट्टी भी बदले।
+ASCII HOLD: seconds, 0-60 (0 mutes the phrases)	ASCII HOLD: सेकंड, 0-60 (0 वाक्यांश बंद करता है)
+ASCII WOBBLEMODE: drift | flow (follows luma) | hue (follows colour); no argument cycles	ASCII WOBBLEMODE: drift | flow (ल्यूमा के अनुसार) | hue (रंग के अनुसार); बिना आर्ग्युमेंट अगला मोड
+ASCII: the selected cue has no text mode (add the TEXT MODE effect, or select a video synth cue)	ASCII: चुने क्यू में टेक्स्ट मोड नहीं (TEXT MODE प्रभाव जोड़ें या वीडियो सिंथ क्यू चुनें)
+CHIP DUTY: this cue is an FDS synth, which has no duty	CHIP DUTY: यह FDS सिंथ क्यू है, इसमें ड्यूटी नहीं
+CHIP NOISE: this cue is an FDS synth, which has no noise	CHIP NOISE: यह FDS सिंथ क्यू है, इसमें नॉइज़ नहीं
+CHIP VOICE: this cue is an FDS synth, which has no voice	CHIP VOICE: यह FDS सिंथ क्यू है, इसमें वॉइस नहीं
+DASH SET: needs a command -- DASH SET <n> <label> | <command> [| <glyph>]	DASH SET: कमांड चाहिए -- DASH SET <n> <label> | <command> [| <glyph>]
+DATAMOSH on - preparing (long clip, watch Encoder tab)	DATAMOSH चालू - तैयारी जारी (लंबी क्लिप, एन्कोडर टैब देखें)
+DECKLINK: no DeckLink driver on this computer (Blackmagic Desktop Video)	DECKLINK: इस कंप्यूटर पर DeckLink ड्राइवर नहीं (Blackmagic Desktop Video)
+DMXCUE LEVELS: nothing has been sent on that universe	DMXCUE LEVELS: उस यूनिवर्स पर कुछ नहीं भेजा गया
+DRAW COLOUR: #rrggbb, #rrggbbaa, a name, or 1-8 for the palette	DRAW COLOUR: #rrggbb, #rrggbbaa, नाम, या पैलेट के लिए 1-8
+DRAW STROKE: each point is x,y or x,y,pressure, in percent	DRAW STROKE: हर बिंदु x,y या x,y,pressure है, प्रतिशत में
+DRAW TOOL: brush, erase, line, box, oval or fill	DRAW TOOL: brush, erase, line, box, oval या fill चुनें
+EDIT is off - press EDIT to type into the tracker	EDIT बंद है - ट्रैकर में लिखने के लिए EDIT दबाएँ
+ENDACTION: only video and audio cues have an end action	ENDACTION: केवल वीडियो और ऑडियो क्यू में अंत क्रिया होती है
+Enter playlist SMPTE FPS: 24 / 25 / 29.97 / 30	प्लेलिस्ट SMPTE FPS दर्ज करें: 24 / 25 / 29.97 / 30
+FADE TO: a speed from 0.25 to 4 (0.5 is half speed, an octave down)	FADE TO: 0.25 से 4 गति (0.5 आधी गति, एक सप्तक नीचे)
+FX ADD: datamosh needs a file-backed video cue	FX ADD: datamosh के लिए फ़ाइल वाला वीडियो क्यू चाहिए
+FX LFO wants <index> <slot> <on|off|shape> [value]	FX LFO को <index> <slot> <on|off|shape> [value] चाहिए
+FX LFO: on, off, shape, rate, depth, zone, channel or cc	FX LFO: on, off, shape, rate, depth, zone, channel या cc चुनें
+GEOLFO: x, y, width, height, rotation, cropleft, cropright, croptop or cropbottom	GEOLFO: x, y, width, height, rotation, cropleft, cropright, croptop या cropbottom चुनें
+HH:MM or HH:MM:SS on this computer's clock; empty for none	इस कंप्यूटर की घड़ी पर HH:MM या HH:MM:SS; कोई नहीं के लिए खाली
+HH:MM:SS:FF of the timecode Deckboy is chasing; empty for none	Deckboy जिस टाइमकोड का अनुसरण करे उसका HH:MM:SS:FF; कोई नहीं के लिए खाली
+INPUTMONITOR: a row count, OPEN, CLOSE, CLEAR, PAUSE or RESUME	INPUTMONITOR: पंक्ति संख्या, OPEN, CLOSE, CLEAR, PAUSE या RESUME
+IPv4 addresses or a.b.c.d/bits, comma separated; empty = only this computer	IPv4 पते या a.b.c.d/bits, अल्पविराम से अलग; खाली = केवल यह कंप्यूटर
+key+fill ON, but no key device set (DECKLINK KEYFILL ON <device>)	key+fill ON, लेकिन की डिवाइस तय नहीं (DECKLINK KEYFILL ON <device>)
+label | command | glyph      (empty label|command removes it)	लेबल | कमांड | ग्लिफ़      (खाली label|command इसे हटाता है)
+LFO: density, speed, warp, turn, centrex, centrey, grey or hue	LFO: density, speed, warp, turn, centrex, centrey, grey या hue चुनें
+MIC: select a mic cue first (MIC ADD makes one)	MIC: पहले माइक क्यू चुनें (MIC ADD बनाता है)
+MIDIIN OSC: an address, and optionally a number	MIDIIN OSC: पता और वैकल्पिक संख्या
+MIDIMAP: that command is only accepted from this computer	MIDIMAP: यह कमांड केवल इस कंप्यूटर से स्वीकार है
+MOTION ZONE ADD: the zone must fit inside the picture	MOTION ZONE ADD: ज़ोन चित्र के अंदर होना चाहिए
+NETCUE ADDRESS: an OSC address must start with /	NETCUE ADDRESS: OSC पता / से शुरू होना चाहिए
+NEWSHOW: something is live or unsaved -- send NEWSHOW again within 2.5 s	NEWSHOW: कुछ लाइव या असहेजा है -- 2.5 सेकंड में फिर NEWSHOW भेजें
+NMOS: discovery needs the remote network allowed	NMOS: खोज के लिए रिमोट नेटवर्क की अनुमति चाहिए
+NMOS: NOT registering - network is LOCAL ONLY (turn REMOTE ON to publish)	NMOS: पंजीकरण नहीं - नेटवर्क LOCAL ONLY है (प्रकाशित करने के लिए REMOTE ON करें)
+NMOS: searching for a registry (mDNS)	NMOS: रजिस्ट्री खोज रहा है (mDNS)
+OUTPROBE: that output has no compositor (is it on?)	OUTPROBE: उस आउटपुट में कंपोज़िटर नहीं (क्या चालू है?)
+OUTPUTFX ADD: four effects at most on one device	OUTPUTFX ADD: एक डिवाइस पर अधिकतम चार प्रभाव
+PATCH: a level is dB from -48 to +6, or OFF	PATCH: स्तर dB में -48 से +6, या OFF
+PIP: retired -- scale a second deck over this one instead	PIP: हटाया गया -- इसके ऊपर दूसरे डेक का आकार बदलकर रखें
+pip: retired -- scale a second deck over this one instead	pip: हटाया गया -- इसके ऊपर दूसरे डेक का आकार बदलकर रखें
+presenter panel: the panel must fit on the screen (x+w and y+h no more than 100)	प्रस्तुतकर्ता पैनल: स्क्रीन में समाना चाहिए (x+w और y+h अधिकतम 100)
+preset: delivery | proxy | match | datamosh	प्रीसेट: delivery | proxy | match | datamosh
+programme sound is always included; use WEBMONITOR OFF to stop the monitor	प्रोग्राम ध्वनि हमेशा शामिल है; मॉनिटर रोकने के लिए WEBMONITOR OFF करें
+Registry URL (e.g. http://192.168.1.50:8010) - blank for mDNS	रजिस्ट्री URL (जैसे http://192.168.1.50:8010) - mDNS के लिए खाली
+SLICE CORNER: TL, TR, BR or BL, then dx dy in percent of the output	SLICE CORNER: TL, TR, BR या BL, फिर आउटपुट के प्रतिशत में dx dy
+SLICE EDGE: L, R, T or B, then 0-50 (% of the slice)	SLICE EDGE: L, R, T या B, फिर 0-50 (स्लाइस का %)
+SLICE GRID POINT: col row (from 1, on a grid that is on) then dx dy in percent	SLICE GRID POINT: col row (1 से, चालू ग्रिड पर) फिर प्रतिशत में dx dy
+SLICE LFO: X, Y, ROTATION or OPACITY, then ON, OFF, SHAPE, RATE, DEPTH...	SLICE LFO: X, Y, ROTATION या OPACITY, फिर ON, OFF, SHAPE, RATE, DEPTH...
+SLICE ROTATE: IN (the crop) or OUT (the placed picture), then degrees	SLICE ROTATE: IN (क्रॉप) या OUT (रखा चित्र), फिर डिग्री
+SMPTE hh:mm:ss:ff or seconds (blank = 00:00:00:00)	SMPTE hh:mm:ss:ff या सेकंड (खाली = 00:00:00:00)
+SOURCE CAMERA: name the device	SOURCE CAMERA: डिवाइस का नाम दें
+SOURCE WINDOW: name the window, e.g. title:Firefox (or "desktop")	SOURCE WINDOW: विंडो का नाम, जैसे title:Firefox (या "desktop")
+STING: select a tone cue first (TONECUE makes one)	STING: पहले टोन क्यू चुनें (TONECUE बनाता है)
+Stream URL (srt://, rtmp://, rtsp://, udp://, or an http HLS .m3u8)	स्ट्रीम URL (srt://, rtmp://, rtsp://, udp://, या http HLS .m3u8)
+SUBTITLE CONVERT: destination must be .srt or .vtt	SUBTITLE CONVERT: गंतव्य .srt या .vtt होना चाहिए
+TRACKER SET: a step cannot act on its own playlist	TRACKER SET: चरण अपनी ही प्लेलिस्ट पर कार्य नहीं कर सकता
+TRACKER: there are no steps (TRACKER ADD makes one)	TRACKER: कोई चरण नहीं (TRACKER ADD बनाता है)
+VIDEO OUTPUT LAYERWARP MODE: linear or perspective	VIDEO OUTPUT LAYERWARP MODE: linear या perspective चुनें
+WARP AT: open the editor (WARP EDIT) and select a point first	WARP AT: पहले संपादक खोलें (WARP EDIT) और बिंदु चुनें
+warp point: that is a corner -- move it with WARP <corner> dx dy	वार्प बिंदु: यह कोना है -- WARP <corner> dx dy से चलाएँ
+WEBMONITOR PIN: network sharing and phone control require 8 or more characters	WEBMONITOR PIN: नेटवर्क साझाकरण और फ़ोन नियंत्रण के लिए 8 या अधिक अक्षर चाहिए
+WEBMONITOR QR: needs the monitor on and shared on the network	WEBMONITOR QR: मॉनिटर चालू और नेटवर्क पर साझा होना चाहिए
+WEBMONITOR SOURCE: could not create the web output	WEBMONITOR SOURCE: वेब आउटपुट नहीं बन सका
+WEBMONITOR SOURCE: PROGRAMME or the number of an output that shows a picture	WEBMONITOR SOURCE: PROGRAMME या चित्र दिखाने वाले आउटपुट की संख्या
+0 flows ALONG the edges, so colour orbits the shapes. 1 flows across them, which bleeds the picture into itself.	0 किनारों के साथ बहता है, रंग आकृतियों के चारों ओर घूमता है। 1 उन्हें पार करता है, चित्र अपने में घुलता है।
+a note number 0-127, LEARN to take the next note played, or empty for none	नोट संख्या 0-127, अगला बजा नोट लेने के लिए LEARN, या कोई नहीं के लिए खाली
+a video cue's duration comes from its file; still duration applies to stills, patterns and browsers	वीडियो क्यू की अवधि फ़ाइल से आती है; स्थिर अवधि चित्र, पैटर्न और ब्राउज़र पर लागू है
+Below the middle narrows toward mono -- which is what a single PA cluster is. Above it widens.	बीच से नीचे मोनो की ओर संकरा होता है, जैसे एक PA क्लस्टर। ऊपर चौड़ा होता है।
+Blueshift toward the direction of travel and redshift at the rim. Zero leaves the colour alone and it reads as a lens instead.	गति की दिशा में नीला, किनारे पर लाल विस्थापन। शून्य रंग नहीं बदलता और लेंस जैसा दिखता है।
+Bright: bright things drip over the dark, as text and logos do. Whole picture: everything is wax, and the picture itself runs down in its own colours.	चमकीला: पाठ और लोगो जैसी चमकीली चीज़ें अँधेरे पर टपकती हैं। पूरा चित्र: सब मोम है और चित्र अपने रंगों में बहता है।
+Centre is a straight line. Up bends it into an S -- darker shadows, brighter highlights, more contrast. Down flattens it.	बीच में सीधी रेखा। ऊपर S बनता है: गहरी छाया, तेज़ हाइलाइट, अधिक कंट्रास्ट। नीचे समतल करता है।
+e.g. /stage/doors -- sent to Deckboy's OSC port; empty for none	जैसे /stage/doors -- Deckboy के OSC पोर्ट पर भेजा जाता है; कोई नहीं के लिए खाली
+How bright a pixel has to be before it lifts at all, so only the highlights spike.	पिक्सेल उठने की चमक सीमा, ताकि केवल हाइलाइट उभरें।
+How bright a pixel has to be to join a run. Lower catches more of the picture and the runs grow longer.	पिक्सेल के क्रम में जुड़ने की चमक। कम पर चित्र का अधिक भाग और लंबे क्रम मिलते हैं।
+How deep the picture is treated as being. The brightness becomes height and is lit from the side.	चित्र की मानी गई गहराई। चमक ऊँचाई बनती है और किनारे से प्रकाश पड़ता है।
+How faint a gradient still registers. High turns the quietest shading into visible structure.	कितना हल्का ग्रेडिएंट पकड़े। अधिक पर सूक्ष्मतम छाया भी संरचना बनती है।
+How far back the chain listens. The picture is played through a delay, so this is the distance the damage is dragged across.	चेन कितना पीछे सुने। चित्र डिले से गुजरता है, इसलिए यह क्षति खिंचने की दूरी है।
+How far the burn spreads off the edge, and how hot its colour runs.	जलन किनारे से कितनी फैले और रंग कितना गर्म हो।
+How far the colour turns on each trip round the loop. This is the oil-slick: the trail walks through the spectrum instead of fading.	हर लूप में रंग कितना घूमे। तेल की परत जैसा: निशान मिटने के बजाय वर्णक्रम में चलता है।
+How far the picture stands out. Bright parts come forward, dark parts stay back. At the left it is flat.	चित्र कितना उभरे। उजले भाग आगे, गहरे पीछे। बाएँ सपाट।
+How far the picture swings the filter. The cue's own brightness opens and closes it, so a cut to black takes the top off the sound.	चित्र फ़िल्टर कितना घुमाए। क्यू की चमक उसे खोलती-बंद करती है; काले पर कट ऊँची आवृत्तियाँ हटाता है।
+How far the top comes down as the end approaches. This is not a fade: the level is left alone.	अंत के पास ऊँची आवृत्तियाँ कितनी घटें। यह फ़ेड नहीं: स्तर जस का तस।
+How far the two eyes disagree. Brightness is read as nearness.	दो आँखों के चित्रों में अंतर। चमक को निकटता माना जाता है।
+How fast it settles away while held. At zero it holds indefinitely, which is what room tone under a held title wants.	होल्ड में घटने की गति। शून्य पर अनिश्चित होल्ड, स्थिर शीर्षक के नीचे कमरे की ध्वनि के लिए उपयोगी।
+How fast the open slit crosses the picture. Slow smears a long moment across the frame.	खुली दरार चित्र कितनी तेज़ पार करे। धीमा होने पर लंबा क्षण फ़्रेम में फैलता है।
+How fast what has dripped hardens away. At the left the drips stay until the cue changes.	टपका पदार्थ कितनी जल्दी जमकर मिटे। बाएँ क्यू बदलने तक बूँदें रहती हैं।
+How fine the water is. Long ocean swell at one end, rain on a puddle at the other.	पानी की बारीकी। एक छोर पर लंबी समुद्री लहरें, दूसरे पर पोखर में बारिश।
+How hard the light gathers where the rays converge. This is the part that makes it read as water rather than as a wobble.	किरणों के मिलने पर प्रकाश कितना जुटे। यही इसे डगमगाहट के बजाय पानी जैसा बनाता है।
+How hard the moving parts throw sand. More shake clears the plate faster and makes the lines thinner.	चलते भाग रेत कितनी ज़ोर से फेंकें। अधिक कंपन प्लेट जल्दी साफ़ और रेखाएँ पतली करता है।
+How long a grain is, in VIDEO FRAMES. On a 23.976 clip one frame is 41.7ms, which is not a musical value and is exactly the point.	ग्रेन की लंबाई वीडियो फ़्रेम में। 23.976 क्लिप पर एक फ़्रेम 41.7ms है; यह संगीत मान नहीं, और यही उद्देश्य है।
+How long before the end it starts. The cue has to have a known length -- an open-ended one has no end to resolve into.	अंत से कितनी देर पहले शुरू हो। क्यू की अवधि ज्ञात होनी चाहिए; खुले क्यू का कोई अंत नहीं।
+How long it is allowed to run. More steps means the ripples have crossed and reflected more times.	चलने की अनुमत अवधि। अधिक चरण यानी लहरों का अधिक पार होना और परावर्तन।
+How long the old waves linger when the note changes. Left: they die at once. Right: they slosh for a while.	नोट बदलने पर पुरानी लहरें कितनी रहें। बाएँ तुरंत मिटें, दाएँ कुछ देर डोलें।
+How much each facet catches the light, which is what makes them read as faceted rather than as flat blobs.	हर फलक कितना प्रकाश पकड़े, जिससे सपाट धब्बों के बजाय फलक दिखें।
+How much its SIZE becomes distance. Shrink the picture and the sound goes away from you: the top comes off, the image narrows, the level drops.	आकार कितना दूरी बने। चित्र छोटा करें तो ध्वनि दूर जाए: ऊँची आवृत्तियाँ कटें, स्टीरियो संकरा हो, स्तर घटे।
+How much of the bent picture goes round again. High is where it stops being an echo and starts eating itself.	मुड़े चित्र का कितना भाग फिर घूमे। अधिक पर प्रतिध्वनि के बजाय खुद को खाने लगता है।
+How much of the driver's movement the picture KEEPS. At zero it follows the driver frame by frame, which is a twitch. Wind it up and the motion accumulates, so the driver sculpts the picture over time and it holds the pose -- which is what puppetry means.	चित्र चालक की कितनी गति रखे। शून्य पर फ़्रेम-दर-फ़्रेम झटके। बढ़ाने पर गति जमा होकर चित्र गढ़ती और मुद्रा बनाए रखती है, कठपुतली की तरह।
+How much of the picture's position on the output is used. A PIP on the left sounds on the left -- and it is a placement, not a pan: the far ear gets the delay and the head shadow too.	आउटपुट पर चित्र की स्थिति कितनी इस्तेमाल हो। बायाँ PIP बाएँ सुनाई दे; केवल पैन नहीं, दूर वाले कान को विलंब और सिर की छाया भी मिले।
+How much of the tail is kept going while the cue is held. Long enough to hide the splice in room tone, short enough not to smear a rhythm in it.	होल्ड में कितना टेल चलता रहे। इतना लंबा कि कमरे की ध्वनि का जोड़ छुपे, इतना छोटा कि लय न धुँधले।
+How much room comes up under it, so the sound settles into the cut instead of being severed.	नीचे कितनी कमरे की ध्वनि आए, ताकि ध्वनि कटने के बजाय कट में समाए।
+How much the echo is distorted each pass. It compounds, so a little ripples and a lot melts the picture into itself.	हर बार प्रतिध्वनि की विकृति। जमा होती है: कम पर लहरें, अधिक पर चित्र अपने में पिघले।
+How much the material draws in towards each drip, so it runs as a thin neck with a heavier head.	पदार्थ हर बूँद की ओर कितना खिंचे, जिससे पतली गर्दन और भारी सिर बने।
+How often its settings are corrupted. Corrupted far enough it oscillates on its own -- loud, but it cannot run away.	सेटिंग कितनी बार बिगड़े। अधिक बिगड़ने पर स्वयं दोलन: तेज़, पर बेकाबू नहीं।
+How quickly the picture springs back to rest once the driver stops pushing it. Only does anything when memory is up.	चालक रुकने पर चित्र कितनी जल्दी आराम में लौटे। केवल मेमोरी बढ़ी होने पर काम करता है।
+How small a cut sets it off. With no picture it runs on a timer instead, and this is how often.	कितना छोटा कट इसे चलाए। चित्र न हो तो टाइमर चलता है; यह उसकी आवृत्ति है।
+How strongly the finished picture pushes the bend. Pair it with a picture effect whose LFO is set to Audio and the two drive each other.	अंतिम चित्र बेंड कितना चलाए। Audio पर LFO वाले चित्र प्रभाव से जोड़ें ताकि दोनों एक-दूसरे को चलाएँ।
+How wide a view is being compressed. Narrow is a punch down the middle, wide folds the whole frame into the centre.	कितना चौड़ा दृश्य दबे। संकरा बीच में धक्का, चौड़ा पूरा फ़्रेम केंद्र में मोड़े।
+Lift or cut, 12dB either way. The centre is flat, so a band that has just been added does nothing until this is moved.	बढ़ाएँ या घटाएँ, दोनों ओर 12dB। बीच सपाट है; नया बैंड इसे हिलाने तक कुछ नहीं करता।
+Light on the drips, as on something wet: a gloss where it faces the light, darker where it curls away.	गीली सतह जैसे बूँदों पर प्रकाश: सामने चमक, मुड़कर दूर होने पर अँधेरा।
+Line pitch in pixels, so this reads at 4K as well as at 720.	रेखा अंतर पिक्सेल में, ताकि 4K और 720 दोनों पर दिखे।
+cannot read the file: if it lives in OneDrive or iCloud, open it once so it downloads, then import it	फ़ाइल नहीं पढ़ी गई: OneDrive या iCloud में हो तो एक बार खोलकर डाउनलोड करें, फिर आयात करें
+did not finish in 3 minutes. It may be waiting on a prompt it cannot show (Protected View, sign-in, a repair). Open the deck there once, or export it as a PDF and import that	3 मिनट में पूरा नहीं हुआ। शायद छुपे संकेत (सुरक्षित दृश्य, साइन-इन, मरम्मत) की प्रतीक्षा है। प्रस्तुति वहाँ एक बार खोलें या PDF निर्यात कर आयात करें
+forget my defaults? only NEW changes, this show keeps its settings: press again	मेरे डिफ़ॉल्ट भूलें? केवल NEW बदलेगा, इस शो की सेटिंग रहेंगी: फिर दबाएँ
+Keynote could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)	Keynote फ़ाइल निर्यात नहीं कर सका (स्वचालन अनुमति चाहिए हो सकती है: सिस्टम सेटिंग्स > गोपनीयता और सुरक्षा > स्वचालन)
+my defaults forgotten: NEW starts from factory settings, this show is unchanged	मेरे डिफ़ॉल्ट भूले गए: NEW फ़ैक्टरी सेटिंग से शुरू, यह शो अपरिवर्तित
+N=new  Enter/P=previous  O=open saved  E=examples  L=learn  1-	N=नया  Enter/P=पिछला  O=सहेजा खोलें  E=उदाहरण  L=सीखें  1-
+ndi tally trigger on -- program tally takes the cue	ndi टैली ट्रिगर चालू -- प्रोग्राम टैली क्यू चलाती है
+notestep: this cue's notes have no builds (separate them with a line of ---)	notestep: इस क्यू के नोट में चरण नहीं (--- की पंक्ति से अलग करें)
+Only accept transport from this sender (blank = anyone)	केवल इस प्रेषक से प्लेबैक नियंत्रण स्वीकारें (खाली = कोई भी)
+opened github.com in your browser -- nothing is sent until you submit the report there	ब्राउज़र में github.com खुला -- वहाँ रिपोर्ट भेजने तक कुछ नहीं भेजा जाता
+Output height in px - math ok: 1080x2, 2160/2, 540+30	आउटपुट ऊँचाई px में - गणना मान्य: 1080x2, 2160/2, 540+30
+Output width in px - math ok: 1920x2, 3840/2, 960+64	आउटपुट चौड़ाई px में - गणना मान्य: 1920x2, 3840/2, 960+64
+PHONE LEVEL: removed -- a paired phone or the passphrase can do everything; BLACKOUT and RECORD are hold-to-fire on the phone	PHONE LEVEL: हटाया गया -- पेयर फ़ोन या पासफ़्रेज़ से सब कर सकते हैं; फ़ोन पर BLACKOUT और RECORD दबाकर रखने से चलते हैं
+phones need THE NETWORK: set 'Who can see it' first	फ़ोन को नेटवर्क चाहिए: पहले 'कौन देख सकता है' सेट करें
+PowerPoint could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)	PowerPoint फ़ाइल निर्यात नहीं कर सका (स्वचालन अनुमति चाहिए हो सकती है: सिस्टम सेटिंग्स > गोपनीयता और सुरक्षा > स्वचालन)
+PowerPoint could not open the file (it gave up waiting for it). If it is in OneDrive, right-click it and choose Always keep on this device, then import it again	PowerPoint फ़ाइल नहीं खोल सका (प्रतीक्षा छोड़ दी)। OneDrive में हो तो राइट-क्लिक कर 'हमेशा इस डिवाइस पर रखें' चुनें, फिर आयात करें
+saved as my defaults: NEW starts like this show, without the cues	मेरे डिफ़ॉल्ट सहेजे गए: NEW इस शो जैसा शुरू होगा, क्यू के बिना
+Seconds for new image/pattern/browser/Lower Third cues (0 = hold)	नए चित्र/पैटर्न/ब्राउज़र/Lower Third क्यू के सेकंड (0 = होल्ड)
+select a Draw cue first (SOURCE > MADE BY DECKBOY > Draw)	पहले ड्रॉ क्यू चुनें (SOURCE > MADE BY DECKBOY > Draw)
+something mellow appeared in SOURCE > MADE BY DECKBOY	SOURCE > MADE BY DECKBOY में कुछ मधुर आया
+sound scopes: integrated loudness and true peak start again	ध्वनि स्कोप: एकीकृत लाउडनेस और ट्रू पीक फिर शुरू
+splitnotes: that cue's notes have no parts (separate them with a line of ---)	splitnotes: उस क्यू के नोट में भाग नहीं (--- की पंक्ति से अलग करें)
+still reading the last folder -- one at a time	पिछला फ़ोल्डर अभी पढ़ रहे हैं -- एक बार में एक
+that key drives the desk - use F1-F10, F12 or the number pad	वह कुंजी डेस्क चलाती है - F1-F10, F12 या नंबर पैड लें
+the background alpha belongs to a Lower Third	पृष्ठभूमि अल्फ़ा Lower Third का है
+the clicker now spends note builds before advancing	क्लिकर अब आगे बढ़ने से पहले नोट के चरण पूरे करता है
+this file is only in OneDrive, and OneDrive is not running. Start OneDrive, or copy the file to this computer, then import it again	फ़ाइल केवल OneDrive में है और OneDrive नहीं चल रहा। उसे चलाएँ या फ़ाइल इस कंप्यूटर पर कॉपी करें, फिर आयात करें
+this presentation needs a password to open. Remove the password in PowerPoint (File > Info > Protect Presentation) or export it as a PDF, then import that	प्रस्तुति खोलने को पासवर्ड चाहिए। PowerPoint में हटाएँ (फ़ाइल > जानकारी > प्रस्तुति सुरक्षित करें) या PDF निर्यात कर आयात करें
+a step cannot fire the playlist it lives on	कोई चरण अपनी ही प्लेलिस्ट शुरू नहीं कर सकता
+ASCII: use ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>	ASCII: उपयोग करें ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>
+atem tally on -- set which input Deckboy is	ATEM टैली चालू -- बताएँ कि Deckboy कौन-सा इनपुट है
+DRAW SIZE: 0.1-20 (% of the picture's height)	DRAW SIZE: 0.1-20 (चित्र की ऊँचाई का %)
+esc: control window - again to clear output	esc: नियंत्रण विंडो - आउटपुट साफ़ करने के लिए दोबारा
+Flip across, upside down or both, or fold one half onto the other: right onto left, left onto right, bottom onto top, top onto bottom, or one corner into all four.	आड़ा, उल्टा या दोनों तरह पलटें, या एक आधा दूसरे पर मोड़ें: दायाँ बाएँ पर, बायाँ दाएँ पर, नीचे ऊपर पर, ऊपर नीचे पर, या एक कोना चारों कोनों में।
+FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR	FX: उपयोग करें LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR
+group presets became master cues: use MASTER	समूह प्रीसेट अब मास्टर क्यू हैं: MASTER उपयोग करें
+make a step first: a section starts at a step	पहले एक चरण बनाएँ: खंड किसी चरण से शुरू होता है
+MASK PATH: a path needs at least three points	MASK PATH: पथ में कम से कम तीन बिंदु चाहिए
+MATRIX SET: level is a percent from 0 to 100	MATRIX SET: स्तर 0 से 100 तक प्रतिशत है
+MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> or OSC <address> [<n>], then CH <1-16> if not channel 1	MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> या OSC <address> [<n>], फिर चैनल 1 न हो तो CH <1-16>
+MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET or FEEDBACK	MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET या FEEDBACK
+motion on: the camera is read, never recorded	मोशन चालू: कैमरा पढ़ा जाता है, कभी रिकॉर्ड नहीं होता
+Moves the direction of travel off the centre of frame, so the picture rushes past rather than straight at you.	गति की दिशा फ़्रेम के केंद्र से हटाता है, ताकि चित्र सीधे आपकी ओर आने के बजाय आपके पास से गुज़रे।
+new show disarms all outputs: press new again	नया शो सभी आउटपुट निष्क्रिय करता है: नया दोबारा दबाएँ
+nmos: network is LOCAL ONLY - not registering	NMOS: नेटवर्क LOCAL ONLY है - पंजीकरण नहीं हो रहा
+normalize: selection has no file-backed audio	नॉर्मलाइज़: चयन में फ़ाइल-आधारित ऑडियो नहीं है
+on the dashboard - Ctrl+D or the DASH button	डैशबोर्ड पर - Ctrl+D या DASH बटन
+One knob for the whole balance: below the middle is darker, above it is brighter.	पूरे संतुलन के लिए एक नॉब: बीच से नीचे गहरा, ऊपर उजला।
+Original: the picture pulled onto the figure. Sand: the picture as grains that are thrown off the moving parts and pour into each new figure. Fluid: the picture under water on the plate, bent and lit by its standing waves.	मूल: चित्र आकृति पर खिंचता है। रेत: चित्र के कण चल रहे हिस्सों से उछलते हैं और हर नई आकृति में बहते हैं। तरल: चित्र प्लेट पर पानी के नीचे है, जिसकी स्थिर तरंगें उसे मोड़ती और रोशन करती हैं।
+output recover failed: fullscreen unavailable	आउटपुट बहाल नहीं हुआ: पूर्ण स्क्रीन उपलब्ध नहीं
+Page Down / Page Up step the focused playlist	Page Down / Page Up फ़ोकस वाली प्लेलिस्ट में चरण बदलते हैं
+Pulls the bright tones down without moving pure white, so a hot highlight rolls off instead of clipping.	शुद्ध सफ़ेद बदले बिना उजले टोन घटाता है, ताकि तेज़ हाइलाइट कटने के बजाय धीरे ढले।
+recordings remux to MP4 when the take stops	टेक रुकने पर रिकॉर्डिंग बिना दोबारा एन्कोड किए MP4 में बदलती है
+Rotates the reading, so straight lines wind into spirals rather than rings.	पढ़ने की दिशा घुमाता है, ताकि सीधी रेखाएँ छल्लों के बजाय सर्पिल बनें।
+Rows lose sync and repeat one character, the way a real text screen breaks up. At 0 the grid is clean.	पंक्तियाँ सिंक खोकर एक अक्षर दोहराती हैं, जैसे असली टेक्स्ट स्क्रीन बिगड़ती है। 0 पर ग्रिड साफ़ है।
+SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, LINEAR, PERSPECTIVE or NAME	SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, LINEAR, PERSPECTIVE या NAME
+SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF, or POINT col row dx dy	SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF, या POINT col row dx dy
+Something near the deck: a phone's buzz, a light dimmer's herringbone, a radio's slow bars.	डेक के पास की कोई चीज़: फ़ोन की भनभनाहट, लाइट डिमर का तिरछा जालीदार हस्तक्षेप, रेडियो की धीमी पट्टियाँ।
+Sorts the runs the other way, so they pour from light to dark.	खंडों को उलटे क्रम में लगाता है, ताकि वे उजले से गहरे की ओर बहें।
+SUBTITLE CONVERT: the cue has no caption file	SUBTITLE CONVERT: क्यू में कैप्शन फ़ाइल नहीं है
+Takes out everything brighter than this as well. Left takes out nothing.	इससे उजली हर चीज़ भी हटाता है। बाएँ सिरे पर कुछ नहीं हटता।
+Takes out everything darker than this, so what lies beneath shows through. Left takes out nothing.	इससे गहरी हर चीज़ हटाता है, ताकि नीचे की परत दिखे। बाएँ सिरे पर कुछ नहीं हटता।
+Tape speed: SP is the best picture, LP and EP fit more on a tape and lose detail and colour.	टेप गति: SP में सबसे अच्छा चित्र है; LP और EP में टेप पर अधिक समय समाता है पर बारीकी और रंग घटते हैं।
+The brightness that stays put. Everything above it reaches one way and everything below it the other.	वह चमक जो स्थिर रहती है। उससे ऊपर सब एक दिशा में और नीचे सब दूसरी दिशा में फैलता है।
+The character of the growth: low is waves, then labyrinth, coral, worms, and holes at the top.	बढ़त का रूप: नीचे तरंगें, फिर भूलभुलैया, मूँगा, कीड़े और सबसे ऊपर छेद।
+The colour it becomes. Shading and brightness stay as they were, so a red shirt turns blue and keeps its folds.	नया रंग। छाया और चमक वैसी ही रहती हैं, इसलिए लाल कमीज़ नीली होकर भी अपनी सिलवटें रखती है।
+The distance that sits ON the screen. Either side of it comes forward or falls behind.	वह दूरी जो स्क्रीन पर है। उसके दोनों ओर की चीज़ें आगे आती हैं या पीछे जाती हैं।
+The frequency it pivots around -- what counts as 'low' and 'high' for the tilt.	वह आवृत्ति जिसके चारों ओर झुकाव घूमता है -- झुकाव के लिए 'नीची' और 'ऊँची' की सीमा।
+The head drifting off the track: a band of noise rolls through the picture.	हेड का ट्रैक से भटकना: नॉइज़ की पट्टी चित्र में गुज़रती है।
+The level below which the source is closed. Set it under the quietest thing you want to hear.	वह स्तर जिसके नीचे स्रोत बंद होता है। इसे उस सबसे धीमे स्वर से नीचे रखें जिसे सुनना है।
+The level it starts working at. Lower catches more of the performance.	वह स्तर जहाँ असर शुरू होता है। कम रखने से प्रदर्शन का अधिक हिस्सा प्रभावित होता है।
+The plugin's first four automatable controls, in its own order. Everything else it has keeps whatever the plugin was left set to.	प्लगइन के पहले चार ऑटोमेशन योग्य नियंत्रण, उसी के क्रम में। बाकी सभी सेटिंग्स प्लगइन की पिछली स्थिति पर रहती हैं।
+this output's renderer could not cut the mask	इस आउटपुट का रेंडरर मास्क नहीं काट सका
+Tints the two directions apart, so light bending one way and the other are different colours instead of both being grey.	दोनों दिशाओं को अलग रंग देता है, ताकि दोनों ओर मुड़ती रोशनी धूसर होने के बजाय अलग-अलग रंग की हो।
+Turns the echo each pass, which winds the melt into a spiral.	हर बार प्रतिध्वनि घुमाता है, जिससे पिघलाव सर्पिल बनता है।
+Turns the strokes across the grain instead of along it, which combs the picture apart rather than smoothing it.	स्ट्रोक को रेशों के साथ चलाने के बजाय उनके आर-पार घुमाता है, जिससे चित्र चिकना होने के बजाय कंघी से बिखरा लगता है।
+Turns the whole arrangement, so the fold lines do not sit on the same part of the picture all night.	पूरी व्यवस्था घुमाता है, ताकि मोड़ की रेखाएँ रात भर चित्र के एक ही हिस्से पर न रहें।
+Two is a mirror, twelve is a snowflake, and they are completely different pictures.	दो से दर्पण बनता है, बारह से हिमकण; दोनों बिल्कुल अलग चित्र हैं।
+unsaved changes will be lost: press new again	बिना सहेजे बदलाव खो जाएँगे: नया दोबारा दबाएँ
+WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (sound is included)	WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (ध्वनि शामिल है)
+Where highlights fold back through black. Low folds most of the picture, high folds only the brightest.	जहाँ हाइलाइट काले से होकर वापस मुड़ते हैं। कम मान अधिकतर चित्र को मोड़ता है, अधिक मान केवल सबसे उजले भागों को।
+Where the band sits, 30Hz to 16kHz across the travel.	बैंड की स्थिति, नियंत्रण की पूरी चाल में 30Hz से 16kHz तक।
+Where the fold sits: the middle at the left, toward the far edge to the right. Flips have no fold.	मोड़ की स्थिति: बाएँ सिरे पर बीच में, दाईं ओर ले जाने पर दूर के किनारे के पास। पलटने में मोड़ नहीं होता।
+Where the light stands, in degrees around the frame.	रोशनी की स्थिति, फ़्रेम के चारों ओर डिग्री में।
+Where the source sits around the listener, all the way round. For headphones -- it is a timing and shading trick, not a pan.	स्रोत की स्थिति, श्रोता के चारों ओर पूरे वृत्त में। हेडफ़ोन के लिए -- यह समय और स्वर-रंग की तरकीब है, पैन नहीं।
+Where the top ends, 200Hz to 20kHz. Pull it down to take the harshness off a bright source.	ऊपरी आवृत्तियों का अंत, 200Hz से 20kHz तक। चमकीले स्रोत की कर्कशता घटाने के लिए नीचे खींचें।
+Which channel the curve acts on: all three, then red, green or blue on its own -- the way a colourist warms or cools one end of the picture.	वक्र किस चैनल पर असर करे: तीनों, फिर लाल, हरा या नीला अकेले -- जैसे कलरिस्ट चित्र के एक सिरे को गरम या ठंडा करता है।
+Which way the knife edge lies. Only gradients ACROSS the edge show, so turning it swaps which features appear and which vanish.	चाकू की धार की दिशा। केवल धार के आर-पार के ग्रेडिएंट दिखते हैं, इसलिए घुमाने से दिखने और छिपने वाली बारीकियाँ बदलती हैं।
+Which way the streak runs: across at the left, upright in the middle, across again at the right.	लकीर की दिशा: बाएँ आड़ी, बीच में खड़ी, दाएँ फिर आड़ी।
+Widens the decision into a ramp, so edges keep their shape instead of jagging.	निर्णय की सीमा को क्रमिक ढलान में फैलाता है, ताकि किनारे दाँतेदार होने के बजाय आकार बनाए रखें।
+Words to surface in the field, separated by | . One shows at a time, moving on the hold clock.	क्षेत्र में उभरने वाले शब्द, | से अलग करें। एक समय में एक दिखता है और होल्ड घड़ी के अनुसार बदलता है।
+Zero is one noise value across all three channels, which reads as film. Higher gives each channel its own, which reads as video.	शून्य पर तीनों चैनलों में एक ही नॉइज़ मान होता है, जो फ़िल्म जैसा लगता है। अधिक मान हर चैनल को अलग नॉइज़ देता है, जो वीडियो जैसा लगता है।
+zones cleared: Motion reads the whole picture	क्षेत्र साफ़ किए गए: मोशन पूरा चित्र पढ़ता है

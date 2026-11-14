@@ -3275,3 +3275,1084 @@ whole picture	όλη η εικόνα
 FX CHOICE: choice must be A or B	FX CHOICE: η επιλογή πρέπει να είναι A ή B
 FX CHOICE: no effect at that index	FX CHOICE: κανένα εφέ σε αυτό το ευρετήριο
 FX LFO: slot is A-D for the parameters, E for the amount, F and G for the fifth and sixth (or 0-6)	FX LFO: η θέση είναι A-D για τις παραμέτρους, E για την ποσότητα, F και G για την πέμπτη και την έκτη (ή 0-6)
+(choose cue)	(επιλέξτε cue)
+(missing)	(λείπει)
+(no slots)	(χωρίς θέσεις)
+(set media file)	(ορίστε αρχείο μέσου)
+(set url)	(ορίστε url)
+a name for this step	όνομα αυτού του βήματος
+A number	Αριθμός
+across the grain	εγκάρσια στην υφή
+Add Browser Cue	Προσθήκη cue περιηγητή
+Add NDI Source Cue	Προσθήκη cue πηγής NDI
+Add Stream Cue	Προσθήκη cue ροής
+additive	προσθετικό
+alternating	εναλλασσόμενο
+amber	κεχριμπαρί
+angle	γωνία
+Art-Net Destination	Προορισμός Art-Net
+ASCII 95 (density)	ASCII 95 (πυκνότητα)
+ASCII 95 (raw)	ASCII 95 (ακατέργαστο)
+ASIO is off	Το ASIO είναι ανενεργό
+ATEM Input	Είσοδος ATEM
+Attach Lower Third	Επισύναψη Lower Third
+Attach PIP Overlay	Επισύναψη επικάλυψης PIP
+Attack	Επίθεση
+attack	επίθεση
+Audio bitrate	Ρυθμός bit ήχου
+Audio reactivity	Απόκριση στον ήχο
+audioprint	ηχητικό αποτύπωμα
+AUTO	ΑΥΤΟΜΑΤΟ
+auto (59.94 Hz)	αυτόματο (59.94 Hz)
+azimuth	αζιμούθιο
+band curve	καμπύλη ζώνης
+Bands	Ζώνες
+bands	ζώνες
+base layer	βασικό επίπεδο
+BITRATE	ΡΥΘΜΟΣ BIT
+bits	bit
+black point	σημείο μαύρου
+bleed	διάχυση
+Blobs	Κηλίδες
+block glitch	σφάλμα μπλοκ
+block size	μέγεθος μπλοκ
+blocks	μπλοκ
+blur	θόλωση
+bohlen-pierce	Μπόλεν–Πιρς
+BOTH	ΚΑΙ ΤΑ ΔΥΟ
+bright	φωτεινά
+Browser Ready	Περιηγητής έτοιμος
+Brush opacity	Αδιαφάνεια πινέλου
+Brush size	Μέγεθος πινέλου
+buzzer	βομβητής
+by brightness	κατά φωτεινότητα
+cancelled	ακυρώθηκε
+Canvas Height	Ύψος καμβά
+Canvas View	Προβολή καμβά
+Canvas Width	Πλάτος καμβά
+catch	σύλληψη
+caustics	καυστικά
+Centre X	Κέντρο X
+Centre Y	Κέντρο Y
+channel skew	στρέβλωση καναλιών
+channel spread	άπλωμα καναλιών
+character	χαρακτήρας
+chladni	Χλάντνι
+chop	τεμαχισμός
+CLASSIC	ΚΛΑΣΙΚΟ
+CLOCK	ΡΟΛΟΪ
+coherence	συνοχή
+colour bleed	διάχυση χρώματος
+colour drift	ολίσθηση χρώματος
+colour lag	υστέρηση χρώματος
+colour replace	αντικατάσταση χρώματος
+columns	στήλες
+Companion/OSC Port	Θύρα Companion/OSC
+control 1	έλεγχος 1
+control 2	έλεγχος 2
+control 3	έλεγχος 3
+control 4	έλεγχος 4
+Control change	Αλλαγή ελεγκτή
+convergence	σύγκλιση
+copies	αντίγραφα
+corrupt	αλλοίωση
+corruption	αλλοίωση
+could not reach github	αδυναμία σύνδεσης στο github
+could not read the PDF	αδυναμία ανάγνωσης PDF
+could not start ffmpeg	αδυναμία εκκίνησης ffmpeg
+couldn't open explorer	αδυναμία ανοίγματος explorer
+couldn't open finder	αδυναμία ανοίγματος finder
+coupling	σύζευξη
+crystallise	κρυστάλλωση
+Cue Goto	Μετάβαση σε cue
+Cue Notes	Σημειώσεις cue
+curl detail	λεπτομέρεια στροβίλων
+curves	καμπύλες
+Custom Glyphs	Προσαρμοσμένα σύμβολα
+Custom Output Raster	Προσαρμοσμένο ράστερ εξόδου
+cut bright	αποκοπή φωτεινών
+cut dark	αποκοπή σκοτεινών
+cut reset	επαναφορά στην τομή
+cutoff	αποκοπή
+cuts	τομές
+cyan	κυανό
+damage	φθορά
+damping	απόσβεση
+dark	σκοτεινό
+darkness	σκοτάδι
+databend	κάμψη δεδομένων
+datamosh	αλλοίωση συμπίεσης
+deck age	παλαίωση deck
+Default Cue Fade	Προεπιλεγμένο σβήσιμο cue
+Density	Πυκνότητα
+depth	βάθος
+depth split	διαχωρισμός βάθους
+Destination Address	Διεύθυνση προορισμού
+Destination UDP port	Θύρα UDP προορισμού
+Detail	Λεπτομέρεια
+diamond	ρόμβος
+display native	εγγενές οθόνης
+Display none	Καμία οθόνη
+distance	απόσταση
+DMX Channels	Κανάλια DMX
+doppler	Ντόπλερ
+dots move	κίνηση κουκκίδων
+Draw colour	Χρώμα σχεδίασης
+drift	ολίσθηση
+drip	στάξιμο
+drips	σταγόνες
+drive	οδήγηση
+driver refused to start	ο οδηγός αρνήθηκε να ξεκινήσει
+dye advect	μεταφορά χρωστικής
+edges	ακμές
+empty	κενό
+empty expression	κενή παράσταση
+escaped to windowed	μετάβαση σε παράθυρο
+export as .png or .svg	εξαγωγή ως .png ή .svg
+extended	εκτεταμένο
+EXTREME	ΑΚΡΑΙΟ
+facet light	φως εδρών
+falloff	εξασθένηση
+falsecolour	ψευδοχρώμα
+feed rate	ρυθμός τροφοδοσίας
+feedback bloom	λάμψη ανάδρασης
+Feedback zoom	Ζουμ ανάδρασης
+ferrofluid	σιδηρορευστό
+ffmpeg made no file	το ffmpeg δεν δημιούργησε αρχείο
+field of view	οπτικό πεδίο
+Find Cue	Εύρεση cue
+Find+Take Cue	Εύρεση+TAKE cue
+Fire at a time of day	Εκκίνηση σε ώρα ημέρας
+Fire on a MIDI note	Εκκίνηση με νότα MIDI
+Fire on an OSC address	Εκκίνηση με διεύθυνση OSC
+Fireside	Δίπλα στη φωτιά
+First channel (1-512)	Πρώτο κανάλι (1-512)
+Fixture address	Διεύθυνση φωτιστικού
+Fixture name	Όνομα φωτιστικού
+Fixture universe	Σύμπαν φωτιστικού
+flash length	διάρκεια λάμψης
+flash to	χρώμα λάμψης
+flicker	τρεμόπαιγμα
+Flipbook rate	Ρυθμός φυλλοσκοπίου
+floor	κάτω όριο
+Flow	Ροή
+flow	ροή
+focus	εστίαση
+fold	δίπλωση
+fold point	σημείο δίπλωσης
+frames	καρέ
+Frequency	Συχνότητα
+frequency	συχνότητα
+fullscreen dropped	χάθηκε η πλήρης οθόνη
+gap	διάκενο
+gather	συγκέντρωση
+Glitch	Σφάλμα
+glow	λάμψη
+glyph set	σύνολο συμβόλων
+gong	γκονγκ
+GOTO Cue	Cue GOTO
+grain	κόκκος
+grain flow	ροή κόκκου
+grain size	μέγεθος κόκκου
+green split	διαχωρισμός πράσινου
+Grey	Γκρι
+grid	πλέγμα
+growl	γρύλισμα
+growth	ανάπτυξη
+head wear	φθορά κεφαλής
+heat	θερμότητα
+Height	Ύψος
+Height (px)	Ύψος (px)
+hh:mm:ss or seconds	hh:mm:ss ή δευτερόλεπτα
+highlight roll	συμπίεση φωτεινών
+histogram	ιστόγραμμα
+horizontal	οριζόντια
+How big each tile is.	Το μέγεθος κάθε πλακιδίου.
+How often it skips.	Πόσο συχνά παραλείπει.
+hue turn	περιστροφή απόχρωσης
+ice	πάγος
+In time	Χρόνος εισόδου
+ink	μελάνι
+interference	παρεμβολή
+irregularity	ακανόνιστο
+it could not be started	δεν ήταν δυνατή η εκκίνηση
+Its name, number or id	Όνομα, αριθμός ή id
+jump	άλμα
+just	φυσικό κούρδισμα
+kaleido	καλειδό
+kaleidoscope	καλειδοσκόπιο
+Key Color	Χρώμα κλειδώματος
+Key sender source name	Όνομα πηγής αποστολέα κλειδιού
+Keyframe interval	Διάστημα καρέ-κλειδιών
+knee	γόνατο
+knife angle	γωνία λεπίδας
+leak	διαρροή
+Legacy Cue Link	Παλαιός σύνδεσμος cue
+let go	απελευθέρωση
+libX11 is not installed	το libX11 δεν είναι εγκατεστημένο
+lift	ανύψωση
+light	φως
+light angle	γωνία φωτός
+lightspeed	ταχύτητα φωτός
+line colour	χρώμα γραμμής
+line glow	λάμψη γραμμής
+lissajous	Λισαζού
+Lissajous (L/R phase)	Λισαζού (φάση L/R)
+Live Browser	Ζωντανός περιηγητής
+Live Source	Ζωντανή πηγή
+LOAD NEXT	ΦΟΡΤΩΣΗ ΕΠΟΜ.
+lost the session bus	χάθηκε ο δίαυλος συνεδρίας
+Lower Third - subtitle	Lower Third - υπότιτλος
+Lower Third - title	Lower Third - τίτλος
+Lower Third Subtext	Δευτερεύον κείμενο Lower Third
+Lower Third Title	Τίτλος Lower Third
+luma displace	μετατόπιση φωτεινότητας
+luma key	κλειδί φωτεινότητας
+Mask opacity	Αδιαφάνεια μάσκας
+Mask rotation	Περιστροφή μάσκας
+Mask scale	Κλίμακα μάσκας
+Mask X	Μάσκα X
+Mask Y	Μάσκα Y
+material	υλικό
+meantone	μεσοτονικό
+Media	Μέσα
+Melt	Λιώσιμο
+melt	λιώσιμο
+memory	μνήμη
+midtones	μεσαίοι τόνοι
+milliseconds (40..2000)	χιλιοστά δευτ. (40..2000)
+Milliseconds 0-5000	Χιλιοστά δευτ. 0-5000
+Mod depth	Βάθος διαμόρφωσης
+Mod ratio	Λόγος διαμόρφωσης
+moire	μουαρέ
+mono	μονοφωνικό
+MONO L	ΜΟΝΟΦΩΝΙΚΟ L
+MONO R	ΜΟΝΟΦΩΝΙΚΟ R
+mosaic	μωσαϊκό
+motion mosh	αλλοίωση κίνησης
+motion puppet	μαριονέτα κίνησης
+motion trails	ίχνη κίνησης
+MSC Cue Number	Αριθμός cue MSC
+music & sparkle	μουσική και λάμψεις
+NDI Key Name	Όνομα κλειδιού NDI
+NDI Name	Όνομα NDI
+NDI Source Name	Όνομα πηγής NDI
+NEXT	ΕΠΟΜΕΝΟ
+night eyes	νυχτερινή όραση
+NMC Port	Θύρα NMC
+NMC Source	Πηγή NMC
+NMC Target	Στόχος NMC
+NMOS Interface Name	Όνομα διεπαφής NMOS
+NMOS Node Port	Θύρα κόμβου NMOS
+NMOS Registry	Μητρώο NMOS
+no ASIO in this build	χωρίς ASIO σε αυτή την έκδοση
+no colour	χωρίς χρώμα
+no driver named	δεν υπάρχει οδηγός με όνομα
+no mask made	δεν δημιουργήθηκε μάσκα
+no release found	δεν βρέθηκε έκδοση
+no X display to read	δεν υπάρχει οθόνη X για ανάγνωση
+noise	θόρυβος
+not connected	δεν συνδέθηκε
+not on this output	δεν είναι σε αυτή την έξοδο
+Note	Νότα
+Note off	Λήξη νότας
+Note on	Έναρξη νότας
+nothing drawn	δεν σχεδιάστηκε τίποτα
+off-axis	εκτός άξονα
+offline	εκτός σύνδεσης
+only a background in it	περιέχει μόνο φόντο
+opened in explorer	άνοιξε στο explorer
+opened in file manager	άνοιξε στη διαχείριση αρχείων
+orbit speed	ταχύτητα τροχιάς
+OSC Address	Διεύθυνση OSC
+OSC Query HTTP Port	Θύρα HTTP OSC Query
+Out time	Χρόνος εξόδου
+Output Alpha	Άλφα εξόδου
+Output Canvas	Καμβάς εξόδου
+Output Delay	Καθυστέρηση εξόδου
+output fault	σφάλμα εξόδου
+Output name	Όνομα εξόδου
+Output Refresh	Ανανέωση εξόδου
+overflow	υπερχείλιση
+own playlist	ίδια λίστα
+parade	παράθεση καναλιών
+parallax	παράλλαξη
+Payload	Ωφέλιμα δεδομένα
+Percent 0-100	Ποσοστό 0-100
+phone	τηλέφωνο
+Phrases	Φράσεις
+pinch	σύσφιξη
+ping-pong	πινγκ-πονγκ
+pink noise	ροζ θόρυβος
+PIP Target Cue	Cue στόχου PIP
+pitch	τονικό ύψος
+pivot	σημείο περιστροφής
+Pixel density	Πυκνότητα εικονοστοιχείων
+pixel sort	ταξινόμηση εικονοστοιχείων
+plasma	πλάσμα
+Playlist Start TC	Αρχικό TC λίστας
+Playlist Timebase	Χρονική βάση λίστας
+Plugin	Πρόσθετο
+polar warp	πολική παραμόρφωση
+Portal	Πύλη
+posterise	ποστεροποίηση
+Practice show	Δοκιμαστική παράσταση
+PREVIOUS	ΠΡΟΗΓΟΥΜΕΝΟ
+Program change	Αλλαγή προγράμματος
+Prompter script	Κείμενο υποβολέα
+QUALITY	ΠΟΙΟΤΗΤΑ
+radial zoom	ακτινικό ζουμ
+radio	ραδιόφωνο
+radius	ακτίνα
+ramp	ράμπα
+range	εύρος
+ratio	αναλογία
+Raw bytes	Ακατέργαστα byte
+Raw MIDI Bytes	Ακατέργαστα byte MIDI
+reach	εμβέλεια
+reaction bloom	λάμψη αντίδρασης
+recordings	εγγραφές
+recovering	ανάκτηση
+refresh	ανανέωση
+Release	Αποδέσμευση
+release	αποδέσμευση
+relief	ανάγλυφο
+relight	νέος φωτισμός
+Rename cue	Μετονομασία cue
+Rename fixture	Μετονομασία φωτιστικού
+Renumber Cues	Νέα αρίθμηση cue
+repeat width	πλάτος επανάληψης
+Replay hold	Κράτημα επανάληψης
+resonance	συντονισμός
+Retrigger	Επανεκκίνηση
+revealed in finder	εμφανίστηκε στο finder
+reverse	αντίστροφα
+rgb split	διαχωρισμός rgb
+Rim	Χείλος
+rings	δακτύλιοι
+ripple	κυματισμός
+rising	ανοδικό
+rod bias	βάρος ραβδίων
+room	χώρος
+rot	σήψη
+Rotation	Περιστροφή
+rotation	περιστροφή
+round	στρογγυλό
+runtime unavailable	μη διαθέσιμο περιβάλλον εκτέλεσης
+sag	πτώση τάσης
+Save Warp Preset	Αποθήκευση παραμόρφωσης
+saw	πριονωτό
+scanlines	γραμμές σάρωσης
+schlieren	σλίρεν
+scope	όργανο μέτρησης
+SCOPES	ΟΡΓΑΝΑ ΜΕΤΡΗΣΗΣ
+second mode	δεύτερος τρόπος
+Seconds (0-30)	Δευτερόλεπτα (0-30)
+see through	διαφάνεια
+seed density	πυκνότητα σπόρων
+self	εαυτός
+Sender source name	Όνομα πηγής αποστολέα
+settle	σταθεροποίηση
+shadow lift	ανύψωση σκιών
+shake	τρέμουλο
+shard size	μέγεθος θραυσμάτων
+sharpen	όξυνση
+sheen	γυαλάδα
+sideways	πλάγια
+size out of range	μέγεθος εκτός ορίων
+slit scan	σάρωση σχισμής
+slit width	πλάτος σχισμής
+Smear	Μουτζούρωμα
+smear	μουτζούρωμα
+softness	απαλότητα
+solarise	ηλιοποίηση
+Source Ready	Πηγή έτοιμη
+spike count	πλήθος αιχμών
+spike length	μήκος αιχμών
+spin	στροφή
+spinning	περιστρεφόμενο
+Spout Sender Name	Όνομα αποστολέα Spout
+spring	ελατήριο
+sprite sheet	φύλλο sprite
+Sprite spin	Περιστροφή sprite
+square	τετράγωνο
+SRT latency	Λανθάνων χρόνος SRT
+SRT passphrase	Συνθηματικό SRT
+SRT stream ID	ID ροής SRT
+ST 2110 Destination	Προορισμός ST 2110
+ST 2110 Port	Θύρα ST 2110
+Step length	Διάρκεια βήματος
+steps	βήματα
+stereogram	στερεόγραμμα
+stiffness	ακαμψία
+sting	ηχητικό σήμα
+stream restart needed	απαιτείται επανεκκίνηση ροής
+Stream URL	URL ροής
+stream write failed	αποτυχία εγγραφής ροής
+strength	ένταση
+strobe	στροβοσκόπιο
+stroke	πινελιά
+SUBTLE	ΔΙΑΚΡΙΤΙΚΟ
+sway	ταλάντευση
+sweep	σάρωση
+sweep speed	ταχύτητα σάρωσης
+swell speed	ταχύτητα διόγκωσης
+Switcher IP address	Διεύθυνση IP μίκτη
+symbols	σύμβολα
+SYPHON TEXTURE SHARE	ΚΟΙΝΗ ΧΡΗΣΗ ΥΦΗΣ SYPHON
+system default	προεπιλογή συστήματος
+system output	έξοδος συστήματος
+tape	ταινία
+tape age	παλαίωση ταινίας
+target cue is gone	το cue στόχου δεν υπάρχει
+targets nothing	χωρίς στόχο
+tear width	πλάτος σχισίματος
+temporal dither	χρονική διάχυση
+test signal	σήμα δοκιμής
+text to send	κείμενο προς αποστολή
+the file is empty	το αρχείο είναι κενό
+the header is truncated	η κεφαλίδα είναι αποκομμένη
+threshold	κατώφλι
+throw	εμβέλεια
+tile size	μέγεθος πλακιδίου
+tilt	κλίση
+time	χρόνος
+time cube	κύβος χρόνου
+Timer Message	Μήνυμα χρονομέτρου
+tint	χρωματισμός
+tint colour	χρώμα χρωματισμού
+tracking	ευθυγράμμιση
+trail	ίχνος
+transparent	διαφανές
+triangle	τρίγωνο
+triple beep	τριπλός ήχος
+TSL Tally	Ένδειξη TSL
+Turn	Στροφή
+turn	στροφή
+Twist	Συστροφή
+twist	συστροφή
+unavailable	μη διαθέσιμο
+unbalanced )	ασύζευκτη )
+Universe (0-63999)	Σύμπαν (0-63999)
+URL or local page path	URL ή διαδρομή τοπικής σελίδας
+vapor	ατμός
+vector	διάνυσμα
+vertical	κάθετα
+vertical bias	κατακόρυφη βαρύτητα
+vibrato	βιμπράτο
+Video bitrate	Ρυθμός bit βίντεο
+Video dip fade	Σβήσιμο βίντεο μέσω μαύρου
+vignette	βινιέτα
+vMix HTTP Port	Θύρα HTTP vMix
+vMix TCP Port	Θύρα TCP vMix
+wash out	ξεθώριασμα
+wave height	ύψος κύματος
+wavefront	μέτωπο κύματος
+way	κατεύθυνση
+Web Monitor Connections	Συνδέσεις Web Monitor
+Web Monitor PIN	PIN Web Monitor
+Web Monitor Port	Θύρα Web Monitor
+wedges	σφήνες
+What it runs	Τι εκτελεί
+Where the filter sits.	Η θέση του φίλτρου.
+Which cue	Ποιο cue
+Which way it drips.	Η κατεύθυνση που στάζει.
+white	λευκό
+white noise	λευκός θόρυβος
+white point	σημείο λευκού
+window hidden	παράθυρο κρυφό
+window minimized	παράθυρο ελαχιστοποιημένο
+wire	σύρμα
+wrong display	λάθος οθόνη
+X,Y offset in pixels	Μετατόπιση X,Y σε pixel
+Zoom	Ζουμ
+zoom	ζουμ
+% of the picture's height, 0.1 to 20 (supports + - * / and ())	% του ύψους εικόνας, 0.1 έως 20 (υποστηρίζει + - * / και ())
+%, 1 to 100 (supports + - * / and ())	%, 1 έως 100 (υποστηρίζει + - * / και ())
+-3 to 3: 0 holds, negative runs backwards (supports + - * / and ())	-3 έως 3: 0 κρατά, αρνητικό παίζει ανάποδα (υποστηρίζει + - * / και ())
+0 classic, 1 fire, 2 ice, 3 neon, 4 mono (supports + - * / and ())	0 κλασικό, 1 φωτιά, 2 πάγος, 3 νέον, 4 μονοχρωμία (υποστηρίζει + - * / και ())
+0 rainbow + grey, 1 rainbow, 2 theme, 3 mono (supports + - * / and ())	0 ουράνιο τόξο + γκρι, 1 ουράνιο τόξο, 2 θέμα, 3 μονοχρωμία (υποστηρίζει + - * / και ())
+0 zone, 1 twin, 2 flow, 3 saddle, 4 ripple, 5 shear (supports + - * / and ())	0 ζώνη, 1 διπλό, 2 ροή, 3 σέλα, 4 κυματισμός, 5 διάτμηση (υποστηρίζει + - * / και ())
+0-1 (supports + - * / and ())	0-1 (υποστηρίζει + - * / και ())
+0-100% (supports + - * / and ())	0-100% (υποστηρίζει + - * / και ())
+0-100%, left to right (supports + - * / and ())	0-100%, αριστερά προς δεξιά (υποστηρίζει + - * / και ())
+0-100%, top to bottom (supports + - * / and ())	0-100%, πάνω προς τα κάτω (υποστηρίζει + - * / και ())
+0-100%: 0 holds the field still (supports + - * / and ())	0-100%: το 0 κρατά ακίνητο το πεδίο (υποστηρίζει + - * / και ())
+0-100%: 50 is 1x, 0 a quarter, 100 four times (supports + - * / and ())	0-100%: 50 είναι 1x, 0 το τέταρτο, 100 τετραπλάσιο (υποστηρίζει + - * / και ())
+0-100%: how far the field bends (supports + - * / and ())	0-100%: πόσο λυγίζει το πεδίο (υποστηρίζει + - * / και ())
+0-100%: the share of each band drawn as grey stripes (supports + - * / and ())	0-100%: ποσοστό κάθε ζώνης με γκρι ρίγες (υποστηρίζει + - * / και ())
+Across, % of the width, -100 to 100 (supports + - * / and ())	Οριζόντια, % του πλάτους, -100 έως 100 (υποστηρίζει + - * / και ())
+Amount 0-100% (supports + - * / and ())	Ποσότητα 0-100% (υποστηρίζει + - * / και ())
+Birth, drift and fade rate, 0.1-3 (supports + - * / and ())	Ρυθμός γέννησης, ολίσθησης και σβησίματος, 0.1-3 (υποστηρίζει + - * / και ())
+Block displacement and channel tearing, 0-1 (supports + - * / and ())	Μετατόπιση μπλοκ και σχίσιμο καναλιών, 0-1 (υποστηρίζει + - * / και ())
+Colour steps, 2-8 (supports + - * / and ())	Βήματα χρώματος, 2-8 (υποστηρίζει + - * / και ())
+dBFS, -60 to 0 (-18 is EBU alignment) (supports + - * / and ())	dBFS, -60 έως 0 (-18 είναι η στάθμη αναφοράς EBU) (υποστηρίζει + - * / και ())
+Degrees -180..180 (supports + - * / and ())	Μοίρες -180..180 (υποστηρίζει + - * / και ())
+Degrees per second, -720 to 720 (supports + - * / and ())	Μοίρες ανά δευτερόλεπτο, -720 έως 720 (υποστηρίζει + - * / και ())
+Degrees round the colour wheel, 0-360 (supports + - * / and ())	Μοίρες στον χρωματικό κύκλο, 0-360 (υποστηρίζει + - * / και ())
+Degrees, -360 to 360 (supports + - * / and ())	Μοίρες, -360 έως 360 (υποστηρίζει + - * / και ())
+Degrees, 0-360 (supports + - * / and ())	Μοίρες, 0-360 (υποστηρίζει + - * / και ())
+Down, % of the height, -100 to 100 (supports + - * / and ())	Κάθετα, % του ύψους, -100 έως 100 (υποστηρίζει + - * / και ())
+Edge out (+) or in (-), % of the height, -25 to 25 (supports + - * / and ())	Ακμή έξω (+) ή μέσα (-), % του ύψους, -25 έως 25 (υποστηρίζει + - * / και ())
+Edge softness, % of the height, 0 to 25 (supports + - * / and ())	Απαλότητα ακμής, % του ύψους, 0 έως 25 (υποστηρίζει + - * / και ())
+FDS hardware gain range, 0-63 (supports + - * / and ())	Εύρος ενίσχυσης υλικού FDS, 0-63 (υποστηρίζει + - * / και ())
+Feature size, 0.1-8 (supports + - * / and ())	Μέγεθος λεπτομερειών, 0.1-8 (υποστηρίζει + - * / και ())
+Fields per frame, 0-4 (1 = one field per rendered frame) (supports + - * / and ())	Πεδία ανά καρέ, 0-4 (1 = ένα πεδίο ανά αποδοσμένο καρέ) (υποστηρίζει + - * / και ())
+Frames a second, 1 to 60 (supports + - * / and ())	Καρέ ανά δευτερόλεπτο, 1 έως 60 (υποστηρίζει + - * / και ())
+Hertz, 20-20000 (supports + - * / and ())	Χερτζ, 20-20000 (υποστηρίζει + - * / και ())
+Horizontal cells, 64-960 (supports + - * / and ())	Οριζόντια κελιά, 64-960 (υποστηρίζει + - * / και ())
+How big a blob grows, 0-1 (supports + - * / and ())	Πόσο μεγαλώνει η κηλίδα, 0-1 (υποστηρίζει + - * / και ())
+How hard it cuts, %, 0 to 100 (supports + - * / and ())	Πόσο απότομα κόβει, %, 0 έως 100 (υποστηρίζει + - * / και ())
+How hard the audio drives it, 0-1 (supports + - * / and ())	Πόσο έντονα το οδηγεί ο ήχος, 0-1 (υποστηρίζει + - * / και ())
+How many are alive at once, 3-48 (supports + - * / and ())	Πόσα ζουν ταυτόχρονα, 3-48 (υποστηρίζει + - * / και ())
+How much of each frame feeds the next, 0-0.95 (supports + - * / and ())	Ποσοστό κάθε καρέ που τροφοδοτεί το επόμενο, 0-0.95 (υποστηρίζει + - * / και ())
+How readily neighbours merge, 0 (never) to 1 (supports + - * / and ())	Πόσο εύκολα ενώνονται γείτονες, 0 (ποτέ) έως 1 (υποστηρίζει + - * / και ())
+Internal resolution, 1 (chunky) to 5 (fine) (supports + - * / and ())	Εσωτερική ανάλυση, 1 (αδρή) έως 5 (λεπτή) (υποστηρίζει + - * / και ())
+Master oscillator rate, 0.01-8 (supports + - * / and ())	Ρυθμός κύριου ταλαντωτή, 0.01-8 (υποστηρίζει + - * / και ())
+Modulator as a ratio of the note, 0.05-16 (supports + - * / and ())	Διαμορφωτής ως λόγος της νότας, 0.05-16 (υποστηρίζει + - * / και ())
+One LED tile's height in pixels, 8-8192 (supports + - * / and ())	Ύψος πλακιδίου LED σε pixel, 8-8192 (υποστηρίζει + - * / και ())
+One LED tile's width in pixels, 8-8192 (supports + - * / and ())	Πλάτος πλακιδίου LED σε pixel, 8-8192 (υποστηρίζει + - * / και ())
+Palette turn, 0-1 (supports + - * / and ())	Περιστροφή παλέτας, 0-1 (υποστηρίζει + - * / και ())
+Per-frame zoom of the feedback path, 0.90-1.15 (supports + - * / and ())	Ζουμ ανάδρασης ανά καρέ, 0.90-1.15 (υποστηρίζει + - * / και ())
+Pitch in hertz, 20-8000 (supports + - * / and ())	Τονικό ύψος σε χερτζ, 20-8000 (υποστηρίζει + - * / και ())
+Pixel sort amount, 0-1 (supports + - * / and ())	Ποσότητα ταξινόμησης pixel, 0-1 (υποστηρίζει + - * / και ())
+Pixels (supports + - * / and ())	Pixel (υποστηρίζει + - * / και ())
+Pixels, 64-2160 (supports + - * / and ())	Pixel, 64-2160 (υποστηρίζει + - * / και ())
+Pixels, 64-3840 (supports + - * / and ())	Pixel, 64-3840 (υποστηρίζει + - * / και ())
+Scale of the whole graphic, 0.5-2 (supports + - * / and ())	Κλίμακα όλου του γραφικού, 0.5-2 (υποστηρίζει + - * / και ())
+Scanlines, bloom and gun misalignment, 0-1 (supports + - * / and ())	Γραμμές σάρωσης, λάμψη και απόκλιση δεσμών, 0-1 (υποστηρίζει + - * / και ())
+Seconds before it leaves by itself; 0 waits for OUT (supports + - * / and ())	Δευτερόλεπτα πριν φύγει μόνο του· 0 περιμένει OUT (υποστηρίζει + - * / και ())
+Seconds between retriggers, 0-8 (supports + - * / and ())	Δευτερόλεπτα μεταξύ επανεκκινήσεων, 0-8 (υποστηρίζει + - * / και ())
+Seconds the finished drawing stays, 0 to 60 (supports + - * / and ())	Δευτερόλεπτα παραμονής τελικού σχεδίου, 0 έως 60 (υποστηρίζει + - * / και ())
+Seconds the in move takes, 0-5 (supports + - * / and ())	Δευτερόλεπτα κίνησης εισόδου, 0-5 (υποστηρίζει + - * / και ())
+Seconds the out move takes, 0-5 (supports + - * / and ())	Δευτερόλεπτα κίνησης εξόδου, 0-5 (υποστηρίζει + - * / και ())
+Seconds, 0-4 (supports + - * / and ())	Δευτερόλεπτα, 0-4 (υποστηρίζει + - * / και ())
+Seconds, 0-8 (supports + - * / and ())	Δευτερόλεπτα, 0-8 (υποστηρίζει + - * / και ())
+Size, %, 5 to 400 (supports + - * / and ())	Μέγεθος, %, 5 έως 400 (υποστηρίζει + - * / και ())
+Space under it, as a fraction of the frame, 0-0.8 (supports + - * / and ())	Χώρος από κάτω ως κλάσμα καρέ, 0-0.8 (υποστηρίζει + - * / και ())
+Spiral size, 0.25-4 (supports + - * / and ())	Μέγεθος σπείρας, 0.25-4 (υποστηρίζει + - * / και ())
+Spiral strength, 0-4 (supports + - * / and ())	Ένταση σπείρας, 0-4 (υποστηρίζει + - * / και ())
+Thickness of the glowing edge, 0-1 (supports + - * / and ())	Πάχος φωτεινής ακμής, 0-1 (υποστηρίζει + - * / και ())
+Turbulence, 0 still to 3 boiling (supports + - * / and ())	Τύρβη, 0 ακίνητο έως 3 βρασμός (υποστηρίζει + - * / και ())
+Turns the rim's colours round the wheel, 0-1 (supports + - * / and ())	Περιστρέφει τα χρώματα χείλους στον κύκλο, 0-1 (υποστηρίζει + - * / και ())
+Where the eye sits, 0 left to 1 right (supports + - * / and ())	Θέση ματιού, 0 αριστερά έως 1 δεξιά (υποστηρίζει + - * / και ())
+Where the eye sits, 0 top to 1 bottom (supports + - * / and ())	Θέση ματιού, 0 πάνω έως 1 κάτω (υποστηρίζει + - * / και ())
+0-127; 127 is all-call	0-127· 127 καλεί όλους
+0-127; the domain the facility's clock runs on	0-127· τομέας ρολογιού εγκατάστασης
+10-79 characters, or empty for none	10-79 χαρακτήρες ή κενό για κανένα
+8+ characters; letters and symbols are allowed	8+ χαρακτήρες· επιτρέπονται γράμματα και σύμβολα
+A command line, or blank for nothing	Γραμμή εντολής ή κενό για τίποτα
+A number, or blank for none	Αριθμός ή κενό για κανένα
+a playlist that is gone	λίστα που δεν υπάρχει πια
+a target cannot target another target	ένας στόχος δεν μπορεί να στοχεύσει άλλον στόχο
+add an output to scope it	προσθέστε έξοδο για μέτρηση
+an ASIO stream is already open	υπάρχει ήδη ανοικτή ροή ASIO
+an IPv4 address, or 255.255.255.255 to broadcast	διεύθυνση IPv4 ή 255.255.255.255 για ευρυεκπομπή
+another app is holding the pointer	άλλη εφαρμογή κρατά τον δείκτη
+AUDIOALSO ADD: seven extra destinations is the limit	AUDIOALSO ADD: όριο επτά πρόσθετων προορισμών
+brightness moves the playhead (needs CPU frames)	η φωτεινότητα κινεί την κεφαλή (απαιτεί καρέ CPU)
+browser connections at once, 1-64 (default 8)	ταυτόχρονες συνδέσεις περιηγητή, 1-64 (προεπιλογή 8)
+built without ASIO support	μεταγλωττισμένο χωρίς υποστήριξη ASIO
+built without NDI SDK headers	μεταγλωττισμένο χωρίς κεφαλίδες NDI SDK
+cancelled: the waiting cue is no longer in the playlist	ακυρώθηκε: το cue αναμονής δεν είναι πλέον στη λίστα
+channel count must be at least 1	το πλήθος καναλιών πρέπει να είναι τουλάχιστον 1
+comma outside a function call	κόμμα εκτός κλήσης συνάρτησης
+could not start the PDF renderer	αδυναμία εκκίνησης αποδότη PDF
+could not write the export script	αδυναμία εγγραφής σεναρίου εξαγωγής
+couldn't open file manager	αδυναμία ανοίγματος διαχείρισης αρχείων
+Cue name (blank restores the file name)	Όνομα cue (κενό επαναφέρει όνομα αρχείου)
+Default Non-Movie Duration	Προεπιλεγμένη διάρκεια εκτός βίντεο
+downloading the caption model, then listening...	λήψη μοντέλου υποτίτλων, έπειτα ακρόαση...
+driver reports no output channels	ο οδηγός δεν αναφέρει κανάλια εξόδου
+driver would not create output buffers	ο οδηγός δεν δημιούργησε προσωρινές μνήμες εξόδου
+driver would not load (in use by another application?)	ο οδηγός δεν φορτώθηκε (χρήση από άλλη εφαρμογή;)
+driver would not report a buffer size	ο οδηγός δεν ανέφερε μέγεθος μνήμης
+driver would not report channel info	ο οδηγός δεν ανέφερε στοιχεία καναλιών
+ffmpeg stopped taking frames	το ffmpeg σταμάτησε να δέχεται καρέ
+Fire at incoming timecode	Εκκίνηση με εισερχόμενο χρονοκώδικα
+flow (follows the picture)	ροή (ακολουθεί την εικόνα)
+follows this cue's own brightness (needs CPU frames)	ακολουθεί τη φωτεινότητα του cue (απαιτεί καρέ CPU)
+four effects at most on one device: remove one first	έως τέσσερα εφέ ανά συσκευή: αφαιρέστε πρώτα ένα
+Hz or AUTO (e.g. 60 or 59.94)	Hz ή AUTO (π.χ. 60 ή 59.94)
+kbps (32-512; 160 is a sane default)	kbps (32-512· 160 λογική προεπιλογή)
+Leave empty to follow the live cue notes	Αφήστε κενό για σημειώσεις ζωντανού cue
+LibreOffice could not be run	Αδυναμία εκτέλεσης LibreOffice
+LibreOffice produced no PDF	Το LibreOffice δεν παρήγαγε PDF
+milliseconds (20-8000; ~4x your RTT)	χιλιοστά δευτ. (20-8000· ~4x RTT)
+Multicast group (e.g. 239.20.10.1)	Ομάδα πολυεκπομπής (π.χ. 239.20.10.1)
+Name visible to receivers	Όνομα ορατό στους δέκτες
+NDI source name (e.g. LAPTOP (source 1))	Όνομα πηγής NDI (π.χ. LAPTOP (source 1))
+NIC address or name; empty = the default route	Διεύθυνση ή όνομα NIC· κενό = προεπιλεγμένη διαδρομή
+NIC name reported in interface_bindings (e.g. eth0)	Όνομα NIC από interface_bindings (π.χ. eth0)
+no pages could be rendered	δεν ήταν δυνατή η απόδοση σελίδων
+not a MIDI file (no MThd header)	όχι αρχείο MIDI (χωρίς κεφαλίδα MThd)
+not while a cue is playing	όχι κατά την αναπαραγωγή cue
+offset in percent of the picture	μετατόπιση σε ποσοστό εικόνας
+OSC Feedback Mirror Rate	Ρυθμός κατοπτρισμού ανάδρασης OSC
+paste your stream key here	επικολλήστε εδώ το κλειδί ροής
+Paste the key from your platform	Επικολλήστε το κλειδί πλατφόρμας
+pdftoppm produced no pages	το pdftoppm δεν παρήγαγε σελίδες
+pixels (of the output raster)	pixel (του ράστερ εξόδου)
+position on the output raster, in pixels	θέση στο ράστερ εξόδου σε pixel
+PowerPoint could not export this file	Το PowerPoint δεν εξήγαγε αυτό το αρχείο
+Prefix (optional). Example: Q	Πρόθεμα (προαιρετικό). Παράδειγμα: Q
+Prefix and optional start (example: Q 100)	Πρόθεμα και προαιρετική αρχή (π.χ.: Q 100)
+release has no build for this platform	η έκδοση δεν έχει πακέτο για αυτή την πλατφόρμα
+Routing hint for the receiver	Υπόδειξη δρομολόγησης δέκτη
+seconds (1-10; most platforms want 2)	δευτερόλεπτα (1-10· συνήθως απαιτούνται 2)
+Seconds for new-cue fade in/out defaults	Προεπιλεγμένα δευτερόλεπτα εισόδου/εξόδου νέων cue
+seconds this step holds before PLAY moves on	δευτερόλεπτα παραμονής βήματος πριν προχωρήσει το PLAY
+ST 2110 network interface	Διεπαφή δικτύου ST 2110
+still reading the last folder -- one at a time	ακόμη διαβάζεται ο προηγούμενος φάκελος -- ένας κάθε φορά
+the background alpha belongs to a Lower Third	το άλφα φόντου ανήκει σε Lower Third
+the caption model has not been downloaded yet	το μοντέλο υποτίτλων δεν έχει ληφθεί ακόμη
+the desktop portal did not answer	η πύλη επιφάνειας εργασίας δεν απάντησε
+the document has no pages	το έγγραφο δεν έχει σελίδες
+the file has no playable events	το αρχείο δεν έχει αναπαραγώγιμα συμβάντα
+the NDI runtime is not installed	το περιβάλλον εκτέλεσης NDI δεν είναι εγκατεστημένο
+the PDF renderer produced no pages	ο αποδότης PDF δεν παρήγαγε σελίδες
+the screen could not be read there	η οθόνη δεν ήταν αναγνώσιμη εκεί
+the show plays through ASIO	η παράσταση παίζει μέσω ASIO
+the time division is not readable	η χρονική διαίρεση δεν είναι αναγνώσιμη
+this build has no X11 support	αυτή η έκδοση δεν υποστηρίζει X11
+UDP port for transport sync	Θύρα UDP για συγχρονισμό μεταφοράς
+web audio encoder cannot keep up	ο κωδικοποιητής ήχου ιστού δεν προλαβαίνει
+AUDIOALSO: expected ADD <name>, REMOVE <name> or CLEAR	AUDIOALSO: αναμένεται ADD <name>, REMOVE <name> ή CLEAR
+BROWSER KEY: expected Enter|Tab|Backspace|Escape	BROWSER KEY: αναμένεται Enter|Tab|Backspace|Escape
+BUGSWAT: expected START, SHOWME, SKIP, PLAY, EXIT or STATUS	BUGSWAT: αναμένεται START, SHOWME, SKIP, PLAY, EXIT ή STATUS
+CAPTIONS LIVE: expected ON, OFF, STATUS or TEXT	CAPTIONS LIVE: αναμένεται ON, OFF, STATUS ή TEXT
+CAPTIONS SOURCE: expected INPUT, DECK <n> or OUTPUT <n>	CAPTIONS SOURCE: αναμένεται INPUT, DECK <n> ή OUTPUT <n>
+DMXCUE FIXTURE: expected <name> <level%>|LEAVE [<colour>]	DMXCUE FIXTURE: αναμένεται <name> <level%>|LEAVE [<colour>]
+DMXCUE LFO: expected <name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]	DMXCUE LFO: αναμένεται <name> LEVEL|COLOUR ON|OFF [<rate Hz>] [<depth %>]
+DMXCUE: expected NEW, SET, FADE, UNIVERSE, HOST, PORT, FIRE or BLACKOUT	DMXCUE: αναμένεται NEW, SET, FADE, UNIVERSE, HOST, PORT, FIRE ή BLACKOUT
+ENDACTION: expected INHERIT, STOP, LOOP, HOLD or NEXT	ENDACTION: αναμένεται INHERIT, STOP, LOOP, HOLD ή NEXT
+expected waveform|scope|lissajous|spectrum|level|cover	αναμένεται waveform|scope|lissajous|spectrum|level|cover
+FADE CURVE: expected linear, ease-in, ease-out or s-curve	FADE CURVE: αναμένεται linear, ease-in, ease-out ή s-curve
+FADE WHAT: expected opacity, volume, dimmer, brightness, contrast, saturation, hue, effect, audiofx or speed	FADE WHAT: αναμένεται opacity, volume, dimmer, brightness, contrast, saturation, hue, effect, audiofx ή speed
+FIXTURE ADD: expected <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]	FIXTURE ADD: αναμένεται <name> dimmer|rgb|rgbw|rgba|drgb|dcct <universe> [<address>]
+LOWERSTYLE: expected none, fade, rise, slide, wipe or NEXT	LOWERSTYLE: αναμένεται none, fade, rise, slide, wipe ή NEXT
+MASK ASSIGN: expected <id|NONE> CUE | LAYER <output> <playlist> | OUTPUT <n> | MATTE <n>	MASK ASSIGN: αναμένεται <id|NONE> CUE | LAYER <output> <playlist> | OUTPUT <n> | MATTE <n>
+MASK ASSIGN: expected CUE, LAYER, OUTPUT or MATTE	MASK ASSIGN: αναμένεται CUE, LAYER, OUTPUT ή MATTE
+MASK EXPORT: expected <id> <file.png|file.svg> [WxH]	MASK EXPORT: αναμένεται <id> <file.png|file.svg> [WxH]
+MASK LFO: expected <id> <param> ON|OFF [rate Hz] [depth %]	MASK LFO: αναμένεται <id> <param> ON|OFF [rate Hz] [depth %]
+MATRIX SET: expected <source 1-2> <dest> <0-100>	MATRIX SET: αναμένεται <source 1-2> <dest> <0-100>
+MATRIX: expected SET <src> <dest> <0-100>, SEED or CLEAR	MATRIX: αναμένεται SET <src> <dest> <0-100>, SEED ή CLEAR
+MESH: expected on|off|toggle|height|tilt|yaw|spin|grid	MESH: αναμένεται on|off|toggle|height|tilt|yaw|spin|grid
+MIC: expected ADD, LIST, INPUT, CHANNEL or GAIN	MIC: αναμένεται ADD, LIST, INPUT, CHANNEL ή GAIN
+MIDICUE KIND: expected note-on, note-off, cc, program, msc-go, msc-stop, msc-resume or raw	MIDICUE KIND: αναμένεται note-on, note-off, cc, program, msc-go, msc-stop, msc-resume ή raw
+MIDICUE: expected NEW, PORTS, PORT, KIND, CH, D1, D2, DEVICE, CUENUM, LIST, RAW or SEND	MIDICUE: αναμένεται NEW, PORTS, PORT, KIND, CH, D1, D2, DEVICE, CUENUM, LIST, RAW ή SEND
+MULTIVIEW LAYOUT: expected GRID, BIG, BIGTOP or TWOTOP	MULTIVIEW LAYOUT: αναμένεται GRID, BIG, BIGTOP ή TWOTOP
+MULTIVIEW WINDOW: expected PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK or EMPTY	MULTIVIEW WINDOW: αναμένεται PROGRAMME, DECK<n>, OUTPUT<n>, NEXT, CLOCK ή EMPTY
+NETCUE: expected NEW, PROTO, HOST, PORT, ADDRESS, PAYLOAD or SEND	NETCUE: αναμένεται NEW, PROTO, HOST, PORT, ADDRESS, PAYLOAD ή SEND
+OUTPUT HDR: expected ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> or STATUS	OUTPUT HDR: αναμένεται ON, OFF, AUTO, SIGNAL PQ|HLG, WHITE <nits> ή STATUS
+OUTPUTFX ADD: expected hpf, lpf, tilt, comp or width	OUTPUTFX ADD: αναμένεται hpf, lpf, tilt, comp ή width
+OUTPUTFX: expected ADD, SET, REMOVE, BYPASS, CLEAR or DEVICE	OUTPUTFX: αναμένεται ADD, SET, REMOVE, BYPASS, CLEAR ή DEVICE
+OUTPUTS ADD: expected <name> CH <n> or CH <n>-<n+1>	OUTPUTS ADD: αναμένεται <name> CH <n> ή CH <n>-<n+1>
+PATCH: expected <deck> <output> <dB> or OFF	PATCH: αναμένεται <deck> <output> <dB> ή OFF
+presenter colour: expected BG|INK|ACCENT #rrggbb	presenter colour: αναμένεται BG|INK|ACCENT #rrggbb
+PRESET: expected LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME or DELETE	PRESET: αναμένεται LIST, SAVE, RECALL, UPDATE, SCOPE, RENAME ή DELETE
+rectc: expected <hh:mm:ss:ff|timeofday> [df|ndf|auto]	rectc: αναμένεται <hh:mm:ss:ff|timeofday> [df|ndf|auto]
+SCOPES BIG: expected waveform, parade, vector, diamond, histogram, falsecolour, sound or off	SCOPES BIG: αναμένεται waveform, parade, vector, diamond, histogram, falsecolour, sound ή off
+SCOPES: expected PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS or SOUND	SCOPES: αναμένεται PROGRAM, SCOPES, BOTH, TOGGLE, BIG, FREEZE, MATRIX, SOURCE, STATS ή SOUND
+SECTION: expected playback|metadata|geometry|key|audio|effects|timer|tone|synth	SECTION: αναμένεται playback|metadata|geometry|key|audio|effects|timer|tone|synth
+STING: expected ON, PITCH, LENGTH, SWEEP or BODY	STING: αναμένεται ON, PITCH, LENGTH, SWEEP ή BODY
+TARGET VERB: expected start|stop|pause|resume|load|arm|disarm	TARGET VERB: αναμένεται start|stop|pause|resume|load|arm|disarm
+TEXTCUE ANIM: expected none, fade, typewriter, scroll, crawl, pulse or wobble	TEXTCUE ANIM: αναμένεται none, fade, typewriter, scroll, crawl, pulse ή wobble
+TEXTCUE: expected NEW, BODY, ANIM, SIZE, SPEED, ALIGN, CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, WIGGLE, IN, OUTMOVE or OUT	TEXTCUE: αναμένεται NEW, BODY, ANIM, SIZE, SPEED, ALIGN, CARD, LOWERNEW, LOWER, TITLE, SUB, LOOK, BAR, ACCENT, SCALE, WIGGLE, IN, OUTMOVE ή OUT
+TRACKER: expected GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP or CLICKER	TRACKER: αναμένεται GO, BACK, PLAY, STOP, STEP <n>, ADD, SET <step> <deck> <cue|STOP|FADE|VOLUME|OPACITY>, MUTE|SOLO <deck>, JUMP <step> <row>, SECTION <step> <name>, VIEW, LOOP ή CLICKER
+TUTORIAL: expected START, SHOWME, SKIP, EXIT, STATUS or SCREENS	TUTORIAL: αναμένεται START, SHOWME, SKIP, EXIT, STATUS ή SCREENS
+UPDATE: expected check|download|install|status	UPDATE: αναμένεται check|download|install|status
+VJ: expected ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS	VJ: αναμένεται ON|OFF|TOGGLE|MIX <0-1>|BLEND <mode>|TAP|BPM <n>|CLOCK <on|off>|QUANTISE <on|off>|DECKS <a> <b>|STATUS
+How hard the short hits.	Πόσο έντονα χτυπά το βραχυκύκλωμα.
+How far a band can slide.	Πόσο μακριά ολισθαίνει μια ζώνη.
+How far the glow spreads.	Πόσο απλώνεται η λάμψη.
+How fast the surface moves.	Πόσο γρήγορα κινείται η επιφάνεια.
+How fast they travel outward.	Πόσο γρήγορα κινούνται προς τα έξω.
+How many torn bands per frame.	Πόσες σχισμένες ζώνες ανά καρέ.
+How much the edges are lifted.	Πόσο ενισχύονται οι ακμές.
+How closely spaced the rings are.	Πόσο κοντά βρίσκονται οι δακτύλιοι.
+How far out the darkening starts.	Πόσο έξω αρχίζει το σκοτείνιασμα.
+How strongly the outlines are drawn.	Πόσο έντονα σχεδιάζονται τα περιγράμματα.
+How many shades survive the quantise.	Πόσες αποχρώσεις επιβιώνουν της κβάντισης.
+How many spikes the field breaks into.	Σε πόσες αιχμές χωρίζεται το πεδίο.
+How strongly the water bends the picture.	Πόσο έντονα το νερό λυγίζει την εικόνα.
+Pushes the rings in or out of the centre.	Ωθεί τους δακτυλίους προς ή από το κέντρο.
+How hard it is driven into its own limits.	Πόσο έντονα ωθείται στα όριά του.
+Softens the fold so it ramps instead of creasing.	Μαλακώνει τη δίπλωση ώστε να γίνεται ομαλή κλίση αντί για τσάκιση.
+Above halfway, the repeated piece plays backwards.	Πάνω από τη μέση, το επαναλαμβανόμενο κομμάτι παίζει ανάποδα.
+How quickly the loop relaxes when nothing feeds it.	Πόσο γρήγορα χαλαρώνει ο βρόχος χωρίς τροφοδοσία.
+How far the bright parts pull away from the surface.	Πόσο απομακρύνονται τα φωτεινά μέρη από την επιφάνεια.
+How big the room is. Small is a booth, large is a hall.	Μέγεθος χώρου. Μικρό είναι καμπίνα, μεγάλο αίθουσα.
+Apple keeps the Keynote format secret on purpose, a malicious lock-in tactic, so only Apple's own software can read it properly. Best route: open it in Keynote on iCloud.com (free, in any browser), choose Download a Copy > PDF, and import that PDF	Η Apple κρατά σκόπιμα μυστική τη μορφή Keynote, μια κακόβουλη τακτική εγκλωβισμού, ώστε μόνο το λογισμικό της να τη διαβάζει σωστά. Καλύτερα: ανοίξτε το στο Keynote στο iCloud.com (δωρεάν σε κάθε περιηγητή), επιλέξτε Λήψη αντιγράφου > PDF και εισαγάγετε αυτό το PDF
+BROWSER CLICK: this browser backend cannot drive the page	BROWSER CLICK: αυτό το υποσύστημα περιηγητή δεν ελέγχει τη σελίδα
+BROWSER SCROLL: this browser backend cannot drive the page	BROWSER SCROLL: αυτό το υποσύστημα περιηγητή δεν ελέγχει τη σελίδα
+BROWSER SCROLLBAR: this browser backend cannot drive the page	BROWSER SCROLLBAR: αυτό το υποσύστημα περιηγητή δεν ελέγχει τη σελίδα
+BROWSER TYPE: this browser backend cannot type	BROWSER TYPE: αυτό το υποσύστημα περιηγητή δεν πληκτρολογεί
+BROWSER INTERACT: this browser backend has no hands-on mode	BROWSER INTERACT: αυτό το υποσύστημα περιηγητή δεν έχει διαδραστική λειτουργία
+BROWSER SCROLL: expected pixels (negative is up)	BROWSER SCROLL: αναμένονται pixel (αρνητικό προς τα πάνω)
+CHIP DUTY: this cue is an FDS synth, which has no duty	CHIP DUTY: το cue είναι συνθετητής FDS χωρίς κύκλο λειτουργίας
+CHIP NOISE: this cue is an FDS synth, which has no noise	CHIP NOISE: το cue είναι συνθετητής FDS χωρίς θόρυβο
+CHIP VOICE: this cue is an FDS synth, which has no voice	CHIP VOICE: το cue είναι συνθετητής FDS χωρίς επιλογή φωνής
+CHIP ENV: expected <attack> <release> in seconds	CHIP ENV: αναμένεται <attack> <release> σε δευτερόλεπτα
+SCRIPTCUE: the selected cue is not a script cue	SCRIPTCUE: το επιλεγμένο cue δεν είναι σεναρίου
+MIDIFILE: the selected cue is not a midi file cue	MIDIFILE: το επιλεγμένο cue δεν είναι αρχείου midi
+LOWERANIM: this cue is not a Lower Third	LOWERANIM: αυτό το cue δεν είναι Lower Third
+LOWERSTYLE: this cue is not a Lower Third	LOWERSTYLE: αυτό το cue δεν είναι Lower Third
+MIC: select a mic cue first (MIC ADD makes one)	MIC: επιλέξτε πρώτα cue μικροφώνου (το MIC ADD δημιουργεί ένα)
+STING: select a tone cue first (TONECUE makes one)	STING: επιλέξτε πρώτα cue τόνου (το TONECUE δημιουργεί ένα)
+SUBTITLE CONVERT: destination must be .srt or .vtt	SUBTITLE CONVERT: ο προορισμός πρέπει να είναι .srt ή .vtt
+How much the flame gutters frame to frame.	Πόσο τρεμοσβήνει η φλόγα ανά καρέ.
+Rounds the tiles off, all the way to dots.	Στρογγυλεύει τα πλακίδια μέχρι να γίνουν κουκκίδες.
+Darkens the boundaries where crystals meet.	Σκοτεινιάζει τα όρια όπου συναντώνται οι κρύσταλλοι.
+How big the crystals grow before they meet.	Πόσο μεγαλώνουν οι κρύσταλλοι πριν συναντηθούν.
+How far the sound throws each line sideways.	Πόσο ο ήχος πετά κάθε γραμμή στο πλάι.
+How much each shard turns on its own centre.	Πόσο γυρίζει κάθε θραύσμα γύρω από το κέντρο του.
+The brightness that decides black from white.	Η φωτεινότητα που ξεχωρίζει μαύρο από λευκό.
+How far each stroke is dragged along the grain.	Πόσο μακριά σύρεται κάθε πινελιά κατά την υφή.
+How long a short stays closed, in VIDEO FRAMES.	Διάρκεια βραχυκυκλώματος σε ΚΑΡΕ ΒΙΝΤΕΟ.
+The colour to change, round the wheel from red.	Το χρώμα προς αλλαγή στον κύκλο από το κόκκινο.
+How far each shard slides from where it belongs.	Πόσο ολισθαίνει κάθε θραύσμα από τη θέση του.
+How gradually the key cuts in. Hard at the left.	Πόσο σταδιακά εφαρμόζεται το κλειδί. Αριστερά απότομα.
+The bright net the waves focus onto the picture.	Το φωτεινό δίχτυ που εστιάζουν τα κύματα στην εικόνα.
+How fast the sand travels to the still lines.	Πόσο γρήγορα ταξιδεύει η άμμος στις ακίνητες γραμμές.
+AUDIOFX: expected OFF, BYPASS, or amount and parameters as percentages	AUDIOFX: αναμένεται OFF, BYPASS ή ποσότητα και παράμετροι σε ποσοστά
+BLEND PAIR: expected <other output number> <overlap in pixels>	BLEND PAIR: αναμένεται <other output number> <overlap in pixels>
+expected one expression, three for colour, or four with alpha	αναμένεται μία παράσταση, τρεις για χρώμα ή τέσσερις με άλφα
+MASK SET: expected INVERT, X, Y, SCALE, ROTATION, FEATHER, GROW or OPACITY and a number	MASK SET: αναμένεται INVERT, X, Y, SCALE, ROTATION, FEATHER, GROW ή OPACITY και αριθμός
+MASK SHAPE: expected a shape (MASK SHAPES lists them)	MASK SHAPE: αναμένεται σχήμα (λίστα με MASK SHAPES)
+MASTER DECK: expected a deck number and a cue number	MASTER DECK: αναμένεται αριθμός deck και αριθμός cue
+TARGET CUE: expected a deck number and a cue number	TARGET CUE: αναμένεται αριθμός deck και αριθμός cue
+MONITOR DECK: expected a playlist number or FOLLOW	MONITOR DECK: αναμένεται αριθμός λίστας ή FOLLOW
+MONITOR ROOM: expected a playlist and ON or OFF	MONITOR ROOM: αναμένεται λίστα και ON ή OFF
+MULTIVIEW WINDOW REMOVE: expected a window number	MULTIVIEW WINDOW REMOVE: αναμένεται αριθμός παραθύρου
+MULTIVIEW WINDOW <n>: expected a source, or SAFE/METER/LABEL ON|OFF	MULTIVIEW WINDOW <n>: αναμένεται πηγή ή SAFE/METER/LABEL ON|OFF
+NETCUE ADDRESS: expected an OSC path starting with /	NETCUE ADDRESS: αναμένεται διαδρομή OSC που αρχίζει με /
+OUTPUT AOI: expected a size like 256x256, or FULL	OUTPUT AOI: αναμένεται μέγεθος όπως 256x256 ή FULL
+OUTPUTFX SET: expected an effect number and 0-100	OUTPUTFX SET: αναμένεται αριθμός εφέ και 0-100
+OUTPUT HDR WHITE: expected 80..500 nits (203 is BT.2408)	OUTPUT HDR WHITE: αναμένονται 80..500 nit (203 κατά BT.2408)
+PRELOAD: expected a position in seconds, OFF or STATUS	PRELOAD: αναμένεται θέση σε δευτερόλεπτα, OFF ή STATUS
+SCOPES SOURCE: expected PROGRAMME or an output number, 1-	SCOPES SOURCE: αναμένεται PROGRAMME ή αριθμός εξόδου, 1-
+STREAM ADD: expected a URL, e.g. srt://host:port	STREAM ADD: αναμένεται URL, π.χ. srt://host:port
+TEXTCUE SIZE: expected 1-100 (percent of the raster)	TEXTCUE SIZE: αναμένεται 1-100 (ποσοστό του ράστερ)
+TUTORIAL SCREENS: expected a count, MIRRORED or REAL	TUTORIAL SCREENS: αναμένεται πλήθος, MIRRORED ή REAL
+VIDEO OUTPUT LAYER: expected a layer number (1 is the base)	VIDEO OUTPUT LAYER: αναμένεται αριθμός επιπέδου (1 η βάση)
+VIDEO OUTPUT LAYERWARP: expected OFF, MODE, or eight numbers clockwise from the top left	VIDEO OUTPUT LAYERWARP: αναμένεται OFF, MODE ή οκτώ αριθμοί δεξιόστροφα από πάνω αριστερά
+e.g. /cue/1/start	π.χ. /cue/1/start
+e.g. 12.5	π.χ. 12.5
+e.g. 192.168.1.50	π.χ. 192.168.1.50
+e.g. 1=255, 10-14=64	π.χ. 1=255, 10-14=64
+e.g. 90 3C 7F	π.χ. 90 3C 7F
+port number (default 5510)	αριθμός θύρας (προεπιλογή 5510)
+port number (default 5511)	αριθμός θύρας (προεπιλογή 5511)
+port number (default 6454)	αριθμός θύρας (προεπιλογή 6454)
+port number (default 8090)	αριθμός θύρας (προεπιλογή 8090)
+port number (vMix uses 8088)	αριθμός θύρας (το vMix χρησιμοποιεί 8088)
+port number (vMix uses 8099)	αριθμός θύρας (το vMix χρησιμοποιεί 8099)
+WIDTHxHEIGHT (e.g. 2560x1080)	ΠΛΑΤΟΣxΥΨΟΣ (π.χ. 2560x1080)
+WIDTHxHEIGHT (e.g. 5760x2160)	ΠΛΑΤΟΣxΥΨΟΣ (π.χ. 5760x2160)
+pulse 25%	παλμός 25%
+edge ignite	ανάφλεξη ακμών
+pythagorean	πυθαγόρειο
+purkinje	Πούρκινιε
+Ouroboros	Ουροβόρος
+Devamp	Έξοδος επανάληψης
+EDIT is off - press EDIT to type into the tracker	το EDIT είναι ανενεργό - πατήστε EDIT για πληκτρολόγηση στον tracker
+encoder destination: _converted beside the show	προορισμός κωδικοποιητή: _converted δίπλα στην παράσταση
+fetching the speech model - captions start when it arrives	λήψη μοντέλου ομιλίας - οι υπότιτλοι ξεκινούν μόλις φτάσει
+format 2 files are a set of independent patterns, not a performance	τα αρχεία μορφής 2 είναι ανεξάρτητα μοτίβα, όχι εκτέλεση
+Target IP (or 255.255.255.255 to broadcast)	IP στόχου (ή 255.255.255.255 για ευρυεκπομπή)
+the NDI runtime declined to start on this machine	το περιβάλλον NDI αρνήθηκε να ξεκινήσει σε αυτόν τον υπολογιστή
+this cue has no known end to resolve into	το cue δεν έχει γνωστό τέλος για κατάληξη
+update: cannot find this app bundle to replace	ενημέρωση: δεν βρέθηκε το πακέτο εφαρμογής προς αντικατάσταση
+update: could not start the install helper	ενημέρωση: αδυναμία εκκίνησης βοηθού εγκατάστασης
+update: could not start the installer	ενημέρωση: αδυναμία εκκίνησης εγκαταστάτη
+update: could not write the install helper	ενημέρωση: αδυναμία εγγραφής βοηθού εγκατάστασης
+update: not running from an AppImage	ενημέρωση: δεν εκτελείται από AppImage
+what the operator should be told when GO reaches here	τι να ειπωθεί στον χειριστή όταν το GO φτάσει εδώ
+Where to send transport (blank = broadcast)	Προορισμός μεταφοράς (κενό = ευρυεκπομπή)
+Which switcher input Deckboy is (0 = not set)	Ποια είσοδος μίκτη είναι το Deckboy (0 = δεν ορίστηκε)
+drag the panels to arrange the presenter screen	σύρετε τα πάνελ για διάταξη οθόνης παρουσιαστή
+SOURCE CAMERA: name the device	SOURCE CAMERA: ορίστε το όνομα συσκευής
+NETCUE ADDRESS: an OSC address must start with /	NETCUE ADDRESS: η διεύθυνση OSC πρέπει να αρχίζει με /
+TRACKER SET: a step cannot act on its own playlist	TRACKER SET: ένα βήμα δεν μπορεί να ενεργήσει στη δική του λίστα
+TRACKER: there are no steps (TRACKER ADD makes one)	TRACKER: δεν υπάρχουν βήματα (το TRACKER ADD δημιουργεί ένα)
+#rrggbb -- the colour of the presenter screen	#rrggbb -- το χρώμα οθόνης παρουσιαστή
+#rrggbb, or a name (red, teal...)	#rrggbb ή όνομα (red, teal...)
+8+ characters; other machines send AUTH <passphrase> first. Empty = off	8+ χαρακτήρες· οι άλλοι υπολογιστές στέλνουν πρώτα AUTH <passphrase>. Κενό = ανενεργό
+A command line, as a DASH button runs it. {value} is the knob's number, {note} the key.	Γραμμή εντολής όπως σε κουμπί DASH. {value} η τιμή ρυθμιστή, {note} το πλήκτρο.
+A dark line between the tiles, like grout or an LED wall.	Σκοτεινή γραμμή μεταξύ πλακιδίων, σαν αρμός ή τοίχος LED.
+a note number 0-127, LEARN to take the next note played, or empty for none	αριθμός νότας 0-127, LEARN για την επόμενη παιγμένη νότα ή κενό για καμία
+a plugin overran the audio thread and was bypassed — take it out of the chain	ένα πρόσθετο υπερέβη τον χρόνο του νήματος ήχου και παρακάμφθηκε — αφαιρέστε το από την αλυσίδα
+a video cue's duration comes from its file; still duration applies to stills, patterns and browsers	η διάρκεια cue βίντεο προκύπτει από το αρχείο· η διάρκεια στατικών ισχύει για εικόνες, μοτίβα και περιηγητές
+Above halfway, a hard cut in the picture resets the loop to clean.	Πάνω από τη μέση, μια απότομη τομή στην εικόνα καθαρίζει τον βρόχο.
+can't move the active cue -- take another cue on this deck first	δεν μετακινείται το ενεργό cue -- εκκινήστε πρώτα άλλο cue σε αυτό το deck
+centred and full-frame - moves when the picture does	κεντραρισμένο σε όλο το καρέ - κινείται μαζί με την εικόνα
+Chladni listens: the figure follows the pitch of the sound	Το Chladni ακούει: το σχήμα ακολουθεί το τονικό ύψος
+click anywhere on any screen to take its colour. Esc cancels	πατήστε οπουδήποτε σε οποιαδήποτε οθόνη για λήψη χρώματος. Esc ακυρώνει
+click program or preview monitor to sample key color	πατήστε στην οθόνη προγράμματος ή προεπισκόπησης για δειγματοληψία χρώματος κλειδιού
+Copies of copies: none at the left, four at the right. Each one loses more.	Αντίγραφα αντιγράφων: κανένα αριστερά, τέσσερα δεξιά. Κάθε ένα χάνει περισσότερα.
+could not create an OpenGL context for Spout receive	αδυναμία δημιουργίας πλαισίου OpenGL για λήψη Spout
+could not create the offscreen window Spout receive needs	αδυναμία δημιουργίας παραθύρου εκτός οθόνης για λήψη Spout
+could not get a device context for Spout receive	αδυναμία λήψης πλαισίου συσκευής για λήψη Spout
+couldn't decode still image — unsupported format or corrupt file	αδυναμία αποκωδικοποίησης εικόνας — μη υποστηριζόμενη μορφή ή κατεστραμμένο αρχείο
+DECKLINK: no DeckLink driver on this computer (Blackmagic Desktop Video)	DECKLINK: δεν υπάρχει οδηγός DeckLink σε αυτόν τον υπολογιστή (Blackmagic Desktop Video)
+DMXCUE LEVELS: nothing has been sent on that universe	DMXCUE LEVELS: δεν έχει σταλεί τίποτα σε αυτό το σύμπαν
+ENDACTION: only video and audio cues have an end action	ENDACTION: μόνο cue βίντεο και ήχου έχουν ενέργεια τέλους
+FX ADD: datamosh needs a file-backed video cue	FX ADD: το datamosh απαιτεί cue βίντεο από αρχείο
+no video clock on this cue - nothing to lock to	χωρίς ρολόι βίντεο στο cue - δεν υπάρχει αναφορά συγχρονισμού
+no picture on this cue - nothing to follow	χωρίς εικόνα στο cue - δεν υπάρχει τι να ακολουθήσει
+no picture on this cue - nothing to close the loop through	χωρίς εικόνα στο cue - δεν υπάρχει μέσω τι να κλείσει ο βρόχος
+no picture on this cue - nothing decides where the playhead is	χωρίς εικόνα στο cue - τίποτα δεν καθορίζει τη θέση αναπαραγωγής
+no picture - shorts run on a timer instead of on cuts	χωρίς εικόνα - τα βραχυκυκλώματα ακολουθούν χρονόμετρο αντί για τομές
+normalize all: no file-backed audio in this deck	κανονικοποίηση όλων: δεν υπάρχει ήχος αρχείου στο deck
+no masks yet: make one in a cue's MASK section	δεν υπάρχουν μάσκες: φτιάξτε μία στην ενότητα MASK του cue
+no filled shapes in it (paths, rectangles, circles, ellipses or polygons)	δεν έχει γεμάτα σχήματα (διαδρομές, ορθογώνια, κύκλους, ελλείψεις ή πολύγωνα)
+no OpenGL pixel format available for Spout receive	χωρίς διαθέσιμη μορφή pixel OpenGL για λήψη Spout
+only a MIDI note or an OSC address can take a cue	μόνο νότα MIDI ή διεύθυνση OSC μπορεί να εκκινήσει cue
+phone control requires an 8+ character passphrase	ο έλεγχος τηλεφώνου απαιτεί συνθηματικό 8+ χαρακτήρων
+network sharing and phone control require an 8+ character passphrase	κοινή χρήση δικτύου και έλεγχος τηλεφώνου απαιτούν συνθηματικό 8+ χαρακτήρων
+WEBMONITOR PIN: network sharing and phone control require 8 or more characters	WEBMONITOR PIN: κοινή χρήση δικτύου και έλεγχος τηλεφώνου απαιτούν τουλάχιστον 8 χαρακτήρες
+set an 8+ character Web Monitor passphrase first	ορίστε πρώτα συνθηματικό Web Monitor 8+ χαρακτήρων
+WEBMONITOR QR: needs the monitor on and shared on the network	WEBMONITOR QR: απαιτεί ενεργό monitor με κοινή χρήση δικτύου
+WEBMONITOR SOURCE: could not create the web output	WEBMONITOR SOURCE: αδυναμία δημιουργίας εξόδου ιστού
+WEBMONITOR SOURCE: PROGRAMME or the number of an output that shows a picture	WEBMONITOR SOURCE: PROGRAMME ή αριθμός εξόδου που δείχνει εικόνα
+OUTPROBE: that output has no compositor (is it on?)	OUTPROBE: η έξοδος δεν έχει συνθέτη (είναι ενεργή;)
+OUTPUTFX ADD: four effects at most on one device	OUTPUTFX ADD: έως τέσσερα εφέ ανά συσκευή
+over 16 MB: not a drawing to make a mask from	πάνω από 16 MB: δεν είναι σχέδιο για δημιουργία μάσκας
+A worn or dirty head: softer, with noise that streaks along the lines.	Φθαρμένη ή βρόμικη κεφαλή: πιο απαλή εικόνα με θόρυβο κατά τις γραμμές.
+A slow rocking of the viewpoint, which is what makes the depth read without glasses.	Αργή ταλάντευση της οπτικής γωνίας που αποκαλύπτει το βάθος χωρίς γυαλιά.
+A slow sag in the supply, pulling the filter up and down like a dying battery.	Αργή πτώση τροφοδοσίας ανεβοκατεβάζει το φίλτρο σαν μπαταρία που εξαντλείται.
+An old deck: the picture wobbles, bends at the top of the frame and carries hum bars.	Παλιό deck: η εικόνα τρέμει, λυγίζει στην κορυφή του καρέ και έχει ζώνες βόμβου.
+An old tape loses bits of its oxide: dropouts flick white and repeat the line above, and the colour fizzes.	Η παλιά ταινία χάνει οξείδιο: οι απώλειες ασπρίζουν, επαναλαμβάνουν την πάνω γραμμή και το χρώμα αφρίζει.
+Below the middle narrows toward mono -- which is what a single PA cluster is. Above it widens.	Κάτω από τη μέση στενεύει σε μονοφωνικό, όπως ένα μόνο σύμπλεγμα PA. Πάνω πλαταίνει.
+Centre is a straight line. Up bends it into an S -- darker shadows, brighter highlights, more contrast. Down flattens it.	Στο κέντρο ευθεία. Πάνω γίνεται S: πιο σκούρες σκιές, φωτεινότερα φωτεινά, περισσότερη αντίθεση. Κάτω ισιώνει.
+Characters across. Fewer means bigger cells and less of the picture surviving, which is usually the point.	Χαρακτήρες οριζόντια. Λιγότεροι σημαίνουν μεγαλύτερα κελιά και λιγότερη εικόνα, που συνήθως είναι ο στόχος.
+Characters to build the picture from, darkest first. Empty uses the chosen glyph set.	Χαρακτήρες σχηματισμού εικόνας, πρώτα οι σκοτεινότεροι. Κενό χρησιμοποιεί το επιλεγμένο σύνολο.
+Fine sensor noise at the bottom, chunky film at the top.	Κάτω λεπτός θόρυβος αισθητήρα, πάνω χοντρός κόκκος φιλμ.
+From an even blur to a streak along the angle, like movement.	Από ομοιόμορφη θόλωση σε γραμμή κατά τη γωνία, σαν κίνηση.
+Grain size: one pixel at the left, big blocky grains at the right.	Μέγεθος κόκκου: ένα pixel αριστερά, μεγάλοι τετραγωνισμένοι κόκκοι δεξιά.
+Grows or shrinks the echo each pass. Centre holds still.	Μεγαλώνει ή μικραίνει την ηχώ σε κάθε πέρασμα. Στο κέντρο μένει σταθερή.
+How abruptly it arrives. Low is a soft cloud, high is a hard porthole.	Πόσο απότομα εμφανίζεται. Χαμηλά μαλακό σύννεφο, ψηλά σκληρό φινιστρίνι.
+How big the shards are. Small is frosted glass, large is a dropped plate.	Μέγεθος θραυσμάτων. Μικρά σαν θαμπό γυαλί, μεγάλα σαν σπασμένο πιάτο.
+ASCII: use ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>	ASCII: χρησιμοποιήστε ON|OFF|TOGGLE | STATUS | INK | SET | SHUFFLE | PRESET [name|next|prev] | FONT | GLYPHS [chars] | CHAOS <0-1> | WOBBLE <0-1> | WOBBLEMODE [drift|flow|hue] | COLS <n> | GLITCH <a> <b> <c> [d] | PHRASES <a|b|c> | HOLD <seconds>
+FX: use LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR	FX: χρησιμοποιήστε LIST | ADD <effect> [amount] | AMOUNT <n> <v> | PARAM <n> <A-F> <0-1> | CHOICE <n> <A|B> <name> | LFO <n> <A-G> ... | COPY | PASTE | CLEAR
+FX LFO: on, off, shape, rate, depth, zone, channel or cc	FX LFO: on, off, shape, rate, depth, zone, channel ή cc
+GEOLFO: x, y, width, height, rotation, cropleft, cropright, croptop or cropbottom	GEOLFO: x, y, width, height, rotation, cropleft, cropright, croptop ή cropbottom
+LFO: density, speed, warp, turn, centrex, centrey, grey or hue	LFO: density, speed, warp, turn, centrex, centrey, grey ή hue
+MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET or FEEDBACK	MIDIMAP: LIST, ADD, SET, REMOVE, CLEAR, RESET, LEARN, LEARNED, PRESET ή FEEDBACK
+SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, LINEAR, PERSPECTIVE or NAME	SLICE <n>: CROP, PLACE, CORNER, EDGE, MASK, SOURCE, ROTATE, FLIP, OPACITY, LFO, ON, OFF, LINEAR, PERSPECTIVE ή NAME
+VIDEO OUTPUT LAYERWARP MODE: linear or perspective	VIDEO OUTPUT LAYERWARP MODE: linear ή perspective
+DASH SET: needs a command -- DASH SET <n> <label> | <command> [| <glyph>]	DASH SET: απαιτείται εντολή -- DASH SET <n> <label> | <command> [| <glyph>]
+ASCII HOLD: seconds, 0-60 (0 mutes the phrases)	ASCII HOLD: δευτερόλεπτα, 0-60 (0 αποκρύπτει τις φράσεις)
+AUDIOALSO ADD: that is already this deck's main device -- it would play twice	AUDIOALSO ADD: είναι ήδη η κύρια συσκευή του deck -- θα έπαιζε διπλά
+DMXCUE SET: expected channel=level pairs, e.g. 1=255,10-14=64	DMXCUE SET: αναμένονται ζεύγη κανάλι=στάθμη, π.χ. 1=255,10-14=64
+DRAW COLOUR: #rrggbb, #rrggbbaa, a name, or 1-8 for the palette	DRAW COLOUR: #rrggbb, #rrggbbaa, όνομα ή 1-8 για την παλέτα
+DRAW STROKE: each point is x,y or x,y,pressure, in percent	DRAW STROKE: κάθε σημείο είναι x,y ή x,y,πίεση, σε ποσοστά
+DRAW TOOL: brush, erase, line, box, oval or fill	DRAW TOOL: brush, erase, line, box, oval ή fill
+Enter playlist SMPTE FPS: 24 / 25 / 29.97 / 30	Εισαγάγετε SMPTE FPS λίστας: 24 / 25 / 29.97 / 30
+FX LFO wants <index> <slot> <on|off|shape> [value]	Το FX LFO απαιτεί <index> <slot> <on|off|shape> [value]
+HH:MM or HH:MM:SS on this computer's clock; empty for none	HH:MM ή HH:MM:SS στο ρολόι υπολογιστή· κενό για κανένα
+HH:MM:SS:FF of the timecode Deckboy is chasing; empty for none	HH:MM:SS:FF του χρονοκώδικα που ακολουθεί το Deckboy· κενό για κανένα
+live captions are not installed here (deckboy-listen was not found)	οι ζωντανοί υπότιτλοι δεν έχουν εγκατασταθεί (δεν βρέθηκε το deckboy-listen)
+Lower Third added - put its playlist on a layer	Προστέθηκε Lower Third - βάλτε τη λίστα του σε επίπεδο
+macOS could not read the PDF	Το macOS δεν μπόρεσε να διαβάσει το PDF
+MIC INPUT: expected SETTINGS, TEST or a device name (MIC LIST)	MIC INPUT: αναμένεται SETTINGS, TEST ή όνομα συσκευής (MIC LIST)
+MIDIFILE: expected PORT, or no argument to report it	MIDIFILE: αναμένεται PORT ή χωρίς όρισμα για εμφάνισή του
+MIDIIN OSC: an address, and optionally a number	MIDIIN OSC: διεύθυνση και προαιρετικά αριθμός
+MIDIMAP: that command is only accepted from this computer	MIDIMAP: η εντολή γίνεται δεκτή μόνο από αυτόν τον υπολογιστή
+MOTION ZONE ADD: the zone must fit inside the picture	MOTION ZONE ADD: η ζώνη πρέπει να χωρά στην εικόνα
+How far it smears: up to a few percent of the picture.	Πόσο απλώνεται: έως λίγα τοις εκατό της εικόνας.
+How fast the light walks around it. Zero holds it still.	Πόσο γρήγορα το φως περιφέρεται. Το μηδέν το σταματά.
+How much of the push goes downward rather than sideways.	Πόσο από την ώθηση πηγαίνει κάτω αντί στο πλάι.
+How gently the change fades out at the edges of the band.	Πόσο ομαλά σβήνει η αλλαγή στα άκρα της ζώνης.
+How wide a band of colours either side of it changes too.	Πόσο πλατιά ζώνη χρωμάτων εκατέρωθεν αλλάζει επίσης.
+How fast the drips run. At the left the picture only sags.	Πόσο γρήγορα τρέχουν οι σταγόνες. Αριστερά η εικόνα απλώς κρεμά.
+Line pitch in pixels, so this reads at 4K as well as at 720.	Βήμα γραμμών σε pixel, ώστε να διακρίνεται σε 4K όπως και σε 720.
+How far back each skip jumps, from a stutter to half a second.	Πόσο πίσω πηδά κάθε παράλειψη, από τραύλισμα έως μισό δευτερόλεπτο.
+How far the two eyes disagree. Brightness is read as nearness.	Πόσο διαφέρουν τα δύο μάτια. Η φωτεινότητα διαβάζεται ως εγγύτητα.
+How fast it closes. Slow enough not to chop the ends off words.	Πόσο γρήγορα κλείνει. Αρκετά αργά ώστε να μην κόβει τις καταλήξεις λέξεων.
+How many times a skip repeats before the sound catches up again.	Πόσες φορές επαναλαμβάνεται η παράλειψη πριν προλάβει ξανά ο ήχος.
+How dark the dark lines go. All the way up is black between lines.	Πόσο σκοτεινές γίνονται οι γραμμές. Στο μέγιστο είναι μαύρο ανάμεσά τους.
+How fast the open slit crosses the picture. Slow smears a long moment across the frame.	Ταχύτητα της ανοικτής σχισμής στην εικόνα. Αργά απλώνει μια μακριά στιγμή στο καρέ.
+How fast the wave travels. Faster spreads further in the same time and interferes more.	Ταχύτητα κύματος. Πιο γρήγορα φτάνει μακρύτερα στον ίδιο χρόνο και συμβάλλει περισσότερο.
+How fine the water is. Long ocean swell at one end, rain on a puddle at the other.	Πόσο λεπτό είναι το νερό. Από μακρύ κυματισμό ωκεανού έως βροχή σε λακκούβα.
+How irregular the growth is. Low gives an even honeycomb, high gives long shards.	Ακανόνιστη ανάπτυξη. Χαμηλά ομοιόμορφη κηρήθρα, ψηλά μακριά θραύσματα.
+How long the reaction runs each frame. Short is a stain, long is an organism.	Διάρκεια αντίδρασης ανά καρέ. Σύντομα λεκές, παρατεταμένα οργανισμός.
+How much of the picture shows behind the lines. None at the left: lines on black.	Πόση εικόνα φαίνεται πίσω από τις γραμμές. Αριστερά καμία: γραμμές σε μαύρο.
+How much of the picture glows: only the brightest at the left, nearly everything at the right.	Πόση εικόνα λάμπει: μόνο τα φωτεινότερα αριστερά, σχεδόν όλα δεξιά.
+How many places drip: a few big drips at the left, many thin ones at the right.	Πόσα σημεία στάζουν: λίγες μεγάλες σταγόνες αριστερά, πολλές λεπτές δεξιά.
+0 flows ALONG the edges, so colour orbits the shapes. 1 flows across them, which bleeds the picture into itself.	0: κατά μήκος των ακμών, το χρώμα περιβάλλει τα σχήματα. 1: εγκάρσια, η εικόνα διαχέεται στον εαυτό της.
+ASCII WOBBLEMODE: drift | flow (follows luma) | hue (follows colour); no argument cycles	ASCII WOBBLEMODE: drift | flow (ακολουθεί τη φωτεινότητα) | hue (ακολουθεί το χρώμα)· χωρίς όρισμα αλλάζει κυκλικά
+ASCII: the selected cue has no text mode (add the TEXT MODE effect, or select a video synth cue)	ASCII: το επιλεγμένο cue δεν έχει λειτουργία κειμένου (προσθέστε TEXT MODE ή επιλέξτε cue σύνθεσης βίντεο)
+Blueshift toward the direction of travel and redshift at the rim. Zero leaves the colour alone and it reads as a lens instead.	Μπλε μετατόπιση προς την κίνηση και κόκκινη στο χείλος. Στο μηδέν το χρώμα μένει ίδιο, σαν φακός.
+Bright: bright things drip over the dark, as text and logos do. Whole picture: everything is wax, and the picture itself runs down in its own colours.	Φωτεινά: τα φωτεινά στάζουν πάνω στα σκοτεινά, όπως κείμενο και λογότυπα. Όλη η εικόνα: όλα γίνονται κερί και κυλούν με τα χρώματά τους.
+cannot read the file: if it lives in OneDrive or iCloud, open it once so it downloads, then import it	Αδυναμία ανάγνωσης: αν το αρχείο είναι στο OneDrive ή iCloud, ανοίξτε το για λήψη και μετά εισαγάγετέ το
+Colour is recorded at a fraction of the detail: it smears sideways, lands late and its hue wanders.	Το χρώμα καταγράφεται με λιγότερη λεπτομέρεια: απλώνεται οριζόντια, καθυστερεί και αλλάζει απόχρωση.
+couldn't open a browser -- please report at github.com/Utopian-Academy/Deckboy/issues	Δεν άνοιξε ο περιηγητής — αναφέρετέ το στο github.com/Utopian-Academy/Deckboy/issues
+DASH: LIST | <n> | SET <n> <label> | <command> | CLEAR <n>	DASH: LIST | <n> | SET <n> <ετικέτα> | <εντολή> | CLEAR <n>
+DATAMOSH on - preparing (long clip, watch Encoder tab)	DATAMOSH ενεργό — προετοιμασία (μεγάλο κλιπ, δείτε την καρτέλα κωδικοποιητή)
+DECODE --.-	ΑΠΟΚΩΔ. --.-
+DECODE OFF	ΑΠΟΚΩΔ. ΑΝΕΝΕΡΓΗ
+DECODE WARM	ΑΠΟΚΩΔ. ΠΡΟΘΕΡΜ.
+did not finish in 3 minutes. It may be waiting on a prompt it cannot show (Protected View, sign-in, a repair). Open the deck there once, or export it as a PDF and import that	Δεν ολοκληρώθηκε σε 3 λεπτά. Ίσως περιμένει κρυφό διάλογο (προστατευμένη προβολή, σύνδεση, επιδιόρθωση). Ανοίξτε την παρουσίαση εκεί ή εξαγάγετέ τη ως PDF και εισαγάγετέ το
+e.g. /stage/doors -- sent to Deckboy's OSC port; empty for none	π.χ. /stage/doors — στη θύρα OSC του Deckboy· κενό για καμία
+e.g. 20:0 or client name	π.χ. 20:0 ή όνομα πελάτη
+FADE TO: a speed from 0.25 to 4 (0.5 is half speed, an octave down)	FADE TO: ταχύτητα από 0.25 έως 4 (0.5: μισή ταχύτητα, μία οκτάβα κάτω)
+Flip across, upside down or both, or fold one half onto the other: right onto left, left onto right, bottom onto top, top onto bottom, or one corner into all four.	Αναστροφή οριζόντια, κάθετα ή και τα δύο, ή δίπλωμα: δεξιά στα αριστερά, αριστερά στα δεξιά, κάτω επάνω, πάνω κάτω, ή μία γωνία και στις τέσσερις.
+forget my defaults? only NEW changes, this show keeps its settings: press again	Διαγραφή προσωπικών προεπιλογών; Αλλάζει μόνο το NEW, η παράσταση κρατά τις ρυθμίσεις: πατήστε ξανά
+full-frame and no picture - bends when the picture shrinks	πλήρες καρέ και χωρίς εικόνα — παραμορφώνει όταν η εικόνα μικραίνει
+How bright a pixel has to be before it lifts at all, so only the highlights spike.	Όριο φωτεινότητας εικονοστοιχείου ώστε να υψώνονται μόνο οι ανταύγειες.
+How bright a pixel has to be to join a run. Lower catches more of the picture and the runs grow longer.	Όριο φωτεινότητας για ένταξη σε ακολουθία. Χαμηλότερα περιλαμβάνεται περισσότερη εικόνα και οι ακολουθίες μακραίνουν.
+How deep the picture is treated as being. The brightness becomes height and is lit from the side.	Βάθος της εικόνας: η φωτεινότητα γίνεται ύψος με πλευρικό φωτισμό.
+How faint a gradient still registers. High turns the quietest shading into visible structure.	Ευαισθησία σε αμυδρές διαβαθμίσεις. Ψηλά, ακόμη και η πιο απαλή σκίαση γίνεται ορατή δομή.
+How far away. Distance dulls the top and softens the difference between the ears.	Απόσταση. Εξασθενεί τα πρίμα και τη διαφορά μεταξύ των αυτιών.
+How far back the chain listens. The picture is played through a delay, so this is the distance the damage is dragged across.	Πόσο πίσω ακούει η αλυσίδα. Η εικόνα περνά από καθυστέρηση: αυτή είναι η απόσταση που σύρεται η αλλοίωση.
+How far the burn spreads off the edge, and how hot its colour runs.	Πόσο απλώνεται το κάψιμο από την ακμή και πόσο θερμό είναι το χρώμα του.
+How far the colour turns on each trip round the loop. This is the oil-slick: the trail walks through the spectrum instead of fading.	Στροφή χρώματος ανά κύκλο. Σαν πετρελαιοκηλίδα: το ίχνος διατρέχει το φάσμα αντί να σβήνει.
+How far the picture stands out. Bright parts come forward, dark parts stay back. At the left it is flat.	Πόσο προβάλλει η εικόνα. Φωτεινά μπροστά, σκοτεινά πίσω. Αριστερά είναι επίπεδη.
+How far the picture swings the filter. The cue's own brightness opens and closes it, so a cut to black takes the top off the sound.	Πόσο κινεί η εικόνα το φίλτρο. Η φωτεινότητα του cue το ανοίγει και κλείνει: το μαύρο κόβει τα πρίμα.
+How far the top comes down as the end approaches. This is not a fade: the level is left alone.	Πόσο πέφτουν τα πρίμα προς το τέλος. Δεν είναι σβήσιμο: η στάθμη μένει ίδια.
+How fast it settles away while held. At zero it holds indefinitely, which is what room tone under a held title wants.	Ρυθμός εξασθένησης στην αναμονή. Στο μηδέν κρατά επ’ αόριστον, χρήσιμο για ατμόσφαιρα κάτω από ακίνητο τίτλο.
+How fast what has dripped hardens away. At the left the drips stay until the cue changes.	Πόσο γρήγορα στερεοποιούνται οι σταγόνες. Αριστερά μένουν ώσπου να αλλάξει το cue.
+How hard it holds once it is working. Gentle at the bottom, a limiter at the top.	Πόσο συγκρατεί όταν ενεργοποιείται. Ήπια χαμηλά, περιοριστής ψηλά.
+How hard the light gathers where the rays converge. This is the part that makes it read as water rather than as a wobble.	Πόσο συγκεντρώνεται το φως στη σύγκλιση των ακτίνων. Αυτό δίνει την αίσθηση νερού αντί ταλάντωσης.
+How hard the moving parts throw sand. More shake clears the plate faster and makes the lines thinner.	Πόσο πετούν άμμο τα κινούμενα μέρη. Περισσότερο τράνταγμα καθαρίζει γρηγορότερα την πλάκα και λεπταίνει τις γραμμές.
+How long a grain is, in VIDEO FRAMES. On a 23.976 clip one frame is 41.7ms, which is not a musical value and is exactly the point.	Διάρκεια κόκκου σε ΚΑΡΕ ΒΙΝΤΕΟ. Στα 23.976 ένα καρέ είναι 41.7ms — σκόπιμα μη μουσική τιμή.
+How long before the end it starts. The cue has to have a known length -- an open-ended one has no end to resolve into.	Πόσο πριν το τέλος αρχίζει. Το cue πρέπει να έχει γνωστή διάρκεια — χωρίς τέλος δεν υπάρχει κατάληξη.
+How long it is allowed to run. More steps means the ripples have crossed and reflected more times.	Πόσο διαρκεί. Περισσότερα βήματα σημαίνουν περισσότερες διασταυρώσεις και ανακλάσεις κυμάτων.
+How long the old waves linger when the note changes. Left: they die at once. Right: they slosh for a while.	Πόσο μένουν τα παλιά κύματα όταν αλλάζει η νότα. Αριστερά σβήνουν αμέσως, δεξιά κυματίζουν για λίγο.
+How much each facet catches the light, which is what makes them read as faceted rather than as flat blobs.	Πόσο φως πιάνει κάθε έδρα, ώστε να φαίνεται πολυεδρική αντί για επίπεδη κηλίδα.
+How much its SIZE becomes distance. Shrink the picture and the sound goes away from you: the top comes off, the image narrows, the level drops.	Πόσο το ΜΕΓΕΘΟΣ γίνεται απόσταση. Μικρύνετε την εικόνα: ο ήχος απομακρύνεται, χάνοντας πρίμα, πλάτος και στάθμη.
+How much of the bent picture goes round again. High is where it stops being an echo and starts eating itself.	Πόση παραμορφωμένη εικόνα ανακυκλώνεται. Ψηλά, η ηχώ αρχίζει να κατατρώει τον εαυτό της.
+How much of the driver's movement the picture KEEPS. At zero it follows the driver frame by frame, which is a twitch. Wind it up and the motion accumulates, so the driver sculpts the picture over time and it holds the pose -- which is what puppetry means.	Πόση κίνηση του οδηγού ΚΡΑΤΑ η εικόνα. Στο μηδέν ακολουθεί καρέ-καρέ και τινάζεται. Ψηλότερα η κίνηση συσσωρεύεται: ο οδηγός πλάθει την εικόνα που κρατά τη στάση της, σαν μαριονέτα.
+How much of the picture's position on the output is used. A PIP on the left sounds on the left -- and it is a placement, not a pan: the far ear gets the delay and the head shadow too.	Επίδραση της θέσης στην έξοδο. PIP αριστερά ακούγεται αριστερά: χωρική τοποθέτηση, με καθυστέρηση και σκίαση κεφαλής στο μακρινό αυτί.
+How much of the tail is kept going while the cue is held. Long enough to hide the splice in room tone, short enough not to smear a rhythm in it.	Πόση ουρά συνεχίζεται στην αναμονή του cue. Αρκετή για να κρύβει την ένωση στην ατμόσφαιρα, χωρίς να θολώνει τον ρυθμό.
+How much room comes up under it, so the sound settles into the cut instead of being severed.	Πόση αντήχηση χώρου προστίθεται ώστε ο ήχος να εντάσσεται στην τομή αντί να κόβεται απότομα.
+How much the echo is distorted each pass. It compounds, so a little ripples and a lot melts the picture into itself.	Παραμόρφωση ηχούς ανά πέρασμα. Συσσωρεύεται: λίγο κυματίζει, πολύ λιώνει την εικόνα στον εαυτό της.
+How much the material draws in towards each drip, so it runs as a thin neck with a heavier head.	Πόσο μαζεύεται το υλικό προς κάθε σταγόνα, με λεπτό λαιμό και βαρύτερη κεφαλή.
+How often its settings are corrupted. Corrupted far enough it oscillates on its own -- loud, but it cannot run away.	Συχνότητα αλλοίωσης ρυθμίσεων. Αρκετή αλλοίωση προκαλεί αυτοταλάντωση — δυνατή, αλλά περιορισμένη.
+How quickly the picture springs back to rest once the driver stops pushing it. Only does anything when memory is up.	Πόσο γρήγορα η εικόνα επανέρχεται όταν σταματήσει ο οδηγός. Λειτουργεί μόνο με αυξημένη μνήμη.
+How quickly the room eats the top end. More damping is a softer, more furnished space.	Πόσο γρήγορα ο χώρος απορροφά τα πρίμα. Περισσότερη απόσβεση σημαίνει πιο μαλακό, επιπλωμένο χώρο.
+How readily an edge catches. Low sets the whole picture alight, high only the hardest lines.	Πόσο εύκολα αναφλέγεται η ακμή. Χαμηλά καίγεται όλη η εικόνα, ψηλά μόνο οι πιο έντονες γραμμές.
+How small a cut sets it off. With no picture it runs on a timer instead, and this is how often.	Πόσο μικρή αλλαγή πλάνου το ενεργοποιεί. Χωρίς εικόνα λειτουργεί με χρονόμετρο και αυτή είναι η συχνότητα.
+How strongly the finished picture pushes the bend. Pair it with a picture effect whose LFO is set to Audio and the two drive each other.	Πόσο η τελική εικόνα οδηγεί την παραμόρφωση. Συνδυάστε με εφέ εικόνας με LFO σε Audio για αμοιβαία οδήγηση.
+How wide a view is being compressed. Narrow is a punch down the middle, wide folds the whole frame into the centre.	Πλάτος συμπιεζόμενου πεδίου. Στενό: ώθηση στο κέντρο. Πλατύ: όλο το καρέ διπλώνει προς το κέντρο.
+INPUTMONITOR: a row count, OPEN, CLOSE, CLEAR, PAUSE or RESUME	INPUTMONITOR: πλήθος γραμμών, OPEN, CLOSE, CLEAR, PAUSE ή RESUME
+IPv4 addresses or a.b.c.d/bits, comma separated; empty = only this computer	Διευθύνσεις IPv4 ή a.b.c.d/bits, με κόμματα· κενό = μόνο αυτός ο υπολογιστής
+key+fill ON, but no key device set (DECKLINK KEYFILL ON <device>)	key+fill ON, αλλά δεν ορίστηκε συσκευή key (DECKLINK KEYFILL ON <device>)
+Keynote could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)	Το Keynote δεν εξήγαγε το αρχείο (ίσως χρειάζεται άδεια αυτοματοποίησης: Ρυθμίσεις συστήματος > Απόρρητο και ασφάλεια > Αυτοματοποίηση)
+label | command | glyph      (empty label|command removes it)	ετικέτα | εντολή | σύμβολο      (κενό ετικέτα|εντολή το αφαιρεί)
+Lift or cut, 12dB either way. The centre is flat, so a band that has just been added does nothing until this is moved.	Ενίσχυση ή αποκοπή έως 12dB. Το κέντρο είναι ουδέτερο: μια νέα ζώνη δεν αλλάζει τίποτα πριν μετακινηθεί.
+Lifts the dark tones without moving pure black.	Ανεβάζει τους σκοτεινούς τόνους χωρίς να αλλάζει το απόλυτο μαύρο.
+Light on the drips, as on something wet: a gloss where it faces the light, darker where it curls away.	Φως στις σταγόνες, σαν υγρή επιφάνεια: γυαλάδα προς το φως, σκοτάδι όπου γυρίζουν μακριά.
+mic live on the default speakers - watch for feedback	μικρόφωνο ενεργό στα προεπιλεγμένα ηχεία — προσέξτε την ανάδραση
+MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> or OSC <address> [<n>], then CH <1-16> if not channel 1	MIDIIN: NOTE <n> <vel>, NOTEOFF <n>, CC <c> <v>, PITCH <0-16383>, PRESSURE <v>, KEYPRESSURE <n> <v>, PROGRAM <n> ή OSC <address> [<n>], μετά CH <1-16> αν δεν είναι κανάλι 1
+Moves the direction of travel off the centre of frame, so the picture rushes past rather than straight at you.	Μετακινεί την κατεύθυνση από το κέντρο, ώστε η εικόνα να περνά δίπλα σας αντί κατά πάνω σας.
+my defaults forgotten: NEW starts from factory settings, this show is unchanged	Οι προσωπικές προεπιλογές διαγράφηκαν: το NEW ξεκινά εργοστασιακά, η παράσταση δεν αλλάζει
+N=new  Enter/P=previous  O=open saved  E=examples  L=learn  1-	N=νέο  Enter/P=προηγούμενο  O=άνοιγμα  E=παραδείγματα  L=μάθηση  1-
+ndi tally trigger on -- program tally takes the cue	ενεργό έναυσμα NDI tally — το PROGRAM tally εκτελεί το cue
+NEWSHOW: something is live or unsaved -- send NEWSHOW again within 2.5 s	NEWSHOW: κάτι είναι ζωντανό ή μη αποθηκευμένο — στείλτε NEWSHOW ξανά εντός 2.5 s
+NMOS: discovery needs the remote network allowed	NMOS: η ανακάλυψη απαιτεί άδεια απομακρυσμένου δικτύου
+NMOS: NOT registering - network is LOCAL ONLY (turn REMOTE ON to publish)	NMOS: ΔΕΝ εγγράφεται — δίκτυο ΜΟΝΟ ΤΟΠΙΚΟ (REMOTE ON για δημοσίευση)
+NMOS: searching for a registry (mDNS)	NMOS: αναζήτηση μητρώου (mDNS)
+notestep: this cue's notes have no builds (separate them with a line of ---)	notestep: οι σημειώσεις του cue δεν έχουν βήματα (χωρίστε με γραμμή ---)
+nothing to mask here: select a cue, or change MASK ON	Δεν υπάρχει κάτι για μάσκα: επιλέξτε cue ή αλλάξτε MASK ON
+One knob for the whole balance: below the middle is darker, above it is brighter.	Ένα ρυθμιστικό για όλη την ισορροπία: κάτω από τη μέση πιο σκοτεινά, πάνω πιο φωτεινά.
+Only accept transport from this sender (blank = anyone)	Αποδοχή ελέγχου αναπαραγωγής μόνο από αυτόν τον αποστολέα (κενό = οποιοσδήποτε)
+opened github.com in your browser -- nothing is sent until you submit the report there	Το github.com άνοιξε στον περιηγητή — τίποτα δεν στέλνεται ώσπου να υποβάλετε εκεί την αναφορά
+Original: the picture pulled onto the figure. Sand: the picture as grains that are thrown off the moving parts and pour into each new figure. Fluid: the picture under water on the plate, bent and lit by its standing waves.	Αρχικό: η εικόνα τεντώνεται στο σχήμα. Άμμος: κόκκοι πετιούνται από τα κινούμενα μέρη και γεμίζουν κάθε νέο σχήμα. Υγρό: η εικόνα κάτω από νερό στην πλάκα, λυγισμένη και φωτισμένη από στάσιμα κύματα.
+OUTPUT --.-	ΕΞΟΔΟΣ --.-
+output effects bypassed: no effect and no limit on this device	Παράκαμψη εφέ εξόδου: χωρίς εφέ και όριο σε αυτή τη συσκευή
+Output height in px - math ok: 1080x2, 2160/2, 540+30	Ύψος εξόδου σε px — δέχεται πράξεις: 1080x2, 2160/2, 540+30
+OUTPUT WARM	ΕΞΟΔΟΣ ΠΡΟΘΕΡΜ.
+Output width in px - math ok: 1920x2, 3840/2, 960+64	Πλάτος εξόδου σε px — δέχεται πράξεις: 1920x2, 3840/2, 960+64
+pair with a picture effect whose LFO is set to Audio	Συνδυάστε με εφέ εικόνας με LFO σε Audio
+paired phones removed: they need the QR code or the passphrase again	Τα συζευγμένα τηλέφωνα αφαιρέθηκαν: χρειάζονται ξανά κωδικό QR ή συνθηματικό
+PATCH: a level is dB from -48 to +6, or OFF	PATCH: στάθμη σε dB από -48 έως +6 ή OFF
+PHONE LEVEL: removed -- a paired phone or the passphrase can do everything; BLACKOUT and RECORD are hold-to-fire on the phone	PHONE LEVEL: αφαιρέθηκε — συζευγμένο τηλέφωνο ή συνθηματικό επιτρέπει τα πάντα· BLACKOUT και RECORD στο τηλέφωνο θέλουν παρατεταμένο πάτημα
+phones need THE NETWORK: set 'Who can see it' first	Τα τηλέφωνα χρειάζονται ΔΙΚΤΥΟ: ορίστε πρώτα «Ποιος το βλέπει»
+PIP: retired -- scale a second deck over this one instead	PIP: αποσύρθηκε — τοποθετήστε δεύτερο deck με αλλαγή μεγέθους πάνω σε αυτό
+pip: retired -- scale a second deck over this one instead	pip: αποσύρθηκε — τοποθετήστε δεύτερο deck με αλλαγή μεγέθους πάνω σε αυτό
+Port the Node + Connection API serve on	Θύρα για τα API Node + Connection
+PowerPoint could not export this file (it may need permission to be automated: System Settings > Privacy & Security > Automation)	Το PowerPoint δεν εξήγαγε το αρχείο (ίσως χρειάζεται άδεια αυτοματοποίησης: Ρυθμίσεις συστήματος > Απόρρητο και ασφάλεια > Αυτοματοποίηση)
+PowerPoint could not open the file (it gave up waiting for it). If it is in OneDrive, right-click it and choose Always keep on this device, then import it again	Το PowerPoint δεν άνοιξε το αρχείο (έληξε η αναμονή). Αν είναι στο OneDrive, δεξί κλικ, επιλέξτε «Να διατηρείται πάντα σε αυτή τη συσκευή» και εισαγάγετε ξανά
+presenter panel: expected <live|prev|next|notes> <x> <y> <w> <h> in percent	πίνακας παρουσιαστή: αναμένεται <live|prev|next|notes> <x> <y> <w> <h> σε ποσοστά
+presenter panel: the panel must fit on the screen (x+w and y+h no more than 100)	πίνακας παρουσιαστή: πρέπει να χωρά στην οθόνη (x+w και y+h έως 100)
+preset: delivery | proxy | match | datamosh	προρύθμιση: delivery | proxy | match | datamosh
+programme sound is always included; use WEBMONITOR OFF to stop the monitor	Ο ήχος προγράμματος περιλαμβάνεται πάντα· WEBMONITOR OFF για διακοπή της προεπισκόπησης
+PROXY 720p	ΜΕΣΟΛΑΒΗΤΙΚΟ 720p
+Pulls the bright tones down without moving pure white, so a hot highlight rolls off instead of clipping.	Κατεβάζει φωτεινούς τόνους χωρίς να αλλάζει το απόλυτο λευκό, ώστε οι έντονες ανταύγειες να σβήνουν ομαλά αντί να κόβονται.
+Registry URL (e.g. http://192.168.1.50:8010) - blank for mDNS	URL μητρώου (π.χ. http://192.168.1.50:8010) — κενό για mDNS
+Rotates the reading, so straight lines wind into spirals rather than rings.	Περιστρέφει την ανάγνωση ώστε οι ευθείες να γίνονται σπείρες αντί για δακτυλίους.
+Rows lose sync and repeat one character, the way a real text screen breaks up. At 0 the grid is clean.	Οι γραμμές χάνουν συγχρονισμό και επαναλαμβάνουν έναν χαρακτήρα, σαν βλάβη οθόνης κειμένου. Στο 0 το πλέγμα είναι καθαρό.
+save failed - retrying; still open, use SAVE AS if needed	Η αποθήκευση απέτυχε — νέα προσπάθεια· παραμένει ανοιχτό, χρησιμοποιήστε SAVE AS αν χρειάζεται
+saved as my defaults: NEW starts like this show, without the cues	Αποθηκεύτηκε ως προσωπική προεπιλογή: το NEW ξεκινά όπως αυτή η παράσταση, χωρίς cue
+Seconds for new image/pattern/browser/Lower Third cues (0 = hold)	Δευτερόλεπτα για νέα cue εικόνας/μοτίβου/περιηγητή/Lower Third (0 = αναμονή)
+select a Draw cue first (SOURCE > MADE BY DECKBOY > Draw)	Επιλέξτε πρώτα cue Draw (SOURCE > MADE BY DECKBOY > Draw)
+SLICE CORNER: TL, TR, BR or BL, then dx dy in percent of the output	SLICE CORNER: TL, TR, BR ή BL, μετά dx dy σε ποσοστό της εξόδου
+SLICE EDGE: L, R, T or B, then 0-50 (% of the slice)	SLICE EDGE: L, R, T ή B, μετά 0-50 (% του τμήματος)
+SLICE GRID POINT: col row (from 1, on a grid that is on) then dx dy in percent	SLICE GRID POINT: col row (από 1, σε ενεργό πλέγμα), μετά dx dy σε ποσοστά
+SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF, or POINT col row dx dy	SLICE GRID: <cols> <rows> (2-9), OFF, SMOOTH ON|OFF ή POINT col row dx dy
+SLICE LFO: X, Y, ROTATION or OPACITY, then ON, OFF, SHAPE, RATE, DEPTH...	SLICE LFO: X, Y, ROTATION ή OPACITY, μετά ON, OFF, SHAPE, RATE, DEPTH...
+SLICE ROTATE: IN (the crop) or OUT (the placed picture), then degrees	SLICE ROTATE: IN (περικοπή) ή OUT (τοποθετημένη εικόνα), μετά μοίρες
+SMPTE hh:mm:ss:ff or seconds (blank = 00:00:00:00)	SMPTE hh:mm:ss:ff ή δευτερόλεπτα (κενό = 00:00:00:00)
+something mellow appeared in SOURCE > MADE BY DECKBOY	Κάτι ήρεμο εμφανίστηκε στο SOURCE > MADE BY DECKBOY
+Something near the deck: a phone's buzz, a light dimmer's herringbone, a radio's slow bars.	Παρεμβολές κοντά στο deck: βόμβος τηλεφώνου, ψαροκόκαλο ντίμερ, αργές λωρίδες ραδιοφώνου.
+Sorts the runs the other way, so they pour from light to dark.	Αντιστρέφει τη σειρά των ακολουθιών, από φωτεινά προς σκοτεινά.
+sound scopes: integrated loudness and true peak start again	Μετρητές ήχου: ολοκληρωμένη ακουστότητα και πραγματική κορυφή ξεκινούν ξανά
+SOURCE WINDOW: name the window, e.g. title:Firefox (or "desktop")	SOURCE WINDOW: ονομάστε το παράθυρο, π.χ. title:Firefox (ή "desktop")
+splitnotes: that cue's notes have no parts (separate them with a line of ---)	splitnotes: οι σημειώσεις του cue δεν έχουν τμήματα (χωρίστε με γραμμή ---)
+STREAM --.-	ΡΟΗ --.-
+STREAM ERR	ΡΟΗ ΣΦΑΛΜΑ
+STREAM OFF	ΡΟΗ ΑΝΕΝΕΡΓΗ
+Stream URL (srt://, rtmp://, rtsp://, udp://, or an http HLS .m3u8)	URL ροής (srt://, rtmp://, rtsp://, udp:// ή http HLS .m3u8)
+STREAM WARM	ΡΟΗ ΠΡΟΘΕΡΜ.
+SYPHON / SPOUT TEXTURE SHARE	ΚΟΙΝΗ ΧΡΗΣΗ ΥΦΩΝ SYPHON / SPOUT
+Takes out everything brighter than this as well. Left takes out nothing.	Αφαιρεί και ό,τι είναι φωτεινότερο από αυτό. Αριστερά δεν αφαιρεί τίποτα.
+Takes out everything darker than this, so what lies beneath shows through. Left takes out nothing.	Αφαιρεί ό,τι είναι σκοτεινότερο, εμφανίζοντας το υποκείμενο. Αριστερά δεν αφαιρεί τίποτα.
+Tape speed: SP is the best picture, LP and EP fit more on a tape and lose detail and colour.	Ταχύτητα ταινίας: SP για καλύτερη εικόνα· LP και EP χωρούν περισσότερα, χάνοντας λεπτομέρεια και χρώμα.
+that key drives the desk - use F1-F10, F12 or the number pad	Αυτό το πλήκτρο ελέγχει την κονσόλα — χρησιμοποιήστε F1-F10, F12 ή αριθμητικό πληκτρολόγιο
+The brightness that stays put. Everything above it reaches one way and everything below it the other.	Η φωτεινότητα που μένει ακίνητη. Ό,τι είναι πάνω τεντώνει προς τη μία πλευρά και κάτω προς την άλλη.
+The character of the growth: low is waves, then labyrinth, coral, worms, and holes at the top.	Χαρακτήρας ανάπτυξης: χαμηλά κύματα, μετά λαβύρινθος, κοράλλι, σκουλήκια, ψηλά οπές.
+the clicker now spends note builds before advancing	Το χειριστήριο προχωρά πρώτα τα βήματα σημειώσεων πριν αλλάξει διαφάνεια
+The colour it becomes. Shading and brightness stay as they were, so a red shirt turns blue and keeps its folds.	Το νέο χρώμα. Σκίαση και φωτεινότητα μένουν ίδιες: κόκκινο πουκάμισο γίνεται μπλε κρατώντας τις πτυχές.
+The distance that sits ON the screen. Either side of it comes forward or falls behind.	Η απόσταση ΠΑΝΩ στην οθόνη. Από κάθε πλευρά προβάλλει μπροστά ή βυθίζεται πίσω.
+the file is empty (0 bytes): it may not have finished copying or saving	Το αρχείο είναι κενό (0 byte): ίσως δεν ολοκληρώθηκε η αντιγραφή ή αποθήκευση
+The frequency it pivots around -- what counts as 'low' and 'high' for the tilt.	Συχνότητα περιστροφής της κλίσης — τι θεωρείται «χαμηλό» και «ψηλό».
+The head drifting off the track: a band of noise rolls through the picture.	Η κεφαλή φεύγει από την τροχιά: μια λωρίδα θορύβου κυλά στην εικόνα.
+the installed NDI runtime is missing entry points this needs	Το εγκατεστημένο περιβάλλον NDI δεν έχει τα απαραίτητα σημεία εισόδου
+The level below which the source is closed. Set it under the quietest thing you want to hear.	Στάθμη κάτω από την οποία κλείνει η πηγή. Ρυθμίστε κάτω από τον πιο ήσυχο επιθυμητό ήχο.
+The level it starts working at. Lower catches more of the performance.	Στάθμη ενεργοποίησης. Χαμηλότερα πιάνει περισσότερο από την εκτέλεση.
+the playing step was removed - sequence stopped	Το τρέχον βήμα αφαιρέθηκε — η ακολουθία σταμάτησε
+The plugin's first four automatable controls, in its own order. Everything else it has keeps whatever the plugin was left set to.	Τα τέσσερα πρώτα αυτοματοποιήσιμα ρυθμιστικά του πρόσθετου, στη δική του σειρά. Όλα τα άλλα κρατούν τις τελευταίες ρυθμίσεις του.
+this file is only in OneDrive, and OneDrive is not running. Start OneDrive, or copy the file to this computer, then import it again	Το αρχείο είναι μόνο στο OneDrive, που δεν εκτελείται. Ξεκινήστε το OneDrive ή αντιγράψτε το αρχείο εδώ και εισαγάγετε ξανά
+this presentation needs a password to open. Remove the password in PowerPoint (File > Info > Protect Presentation) or export it as a PDF, then import that	Η παρουσίαση απαιτεί κωδικό. Αφαιρέστε τον στο PowerPoint (Αρχείο > Πληροφορίες > Προστασία παρουσίασης) ή εξαγάγετε ως PDF και εισαγάγετέ το
+Tints the two directions apart, so light bending one way and the other are different colours instead of both being grey.	Χρωματίζει διαφορετικά τις δύο κατευθύνσεις, ώστε το φως που κάμπτεται αλλού να έχει άλλο χρώμα αντί για γκρι.
+Turns the echo each pass, which winds the melt into a spiral.	Στρέφει την ηχώ σε κάθε πέρασμα, τυλίγοντας το λιώσιμο σε σπείρα.
+Turns the strokes across the grain instead of along it, which combs the picture apart rather than smoothing it.	Στρέφει τις πινελιές εγκάρσια στον κόκκο, χτενίζοντας την εικόνα αντί να την εξομαλύνει.
+Turns the whole arrangement, so the fold lines do not sit on the same part of the picture all night.	Στρέφει όλη τη διάταξη, ώστε οι διπλώσεις να μη μένουν στο ίδιο σημείο όλη νύχτα.
+Two is a mirror, twelve is a snowflake, and they are completely different pictures.	Δύο είναι καθρέφτης, δώδεκα νιφάδα: εντελώς διαφορετικές εικόνες.
+VIDEO OUTPUT ASSIGN: already on this output, or no such deck or output	VIDEO OUTPUT ASSIGN: ήδη σε αυτή την έξοδο ή δεν υπάρχει τέτοιο deck ή έξοδος
+VIDEO OUTPUT LAYER: this deck is not on this output, or it is already at that layer	VIDEO OUTPUT LAYER: το deck δεν είναι σε αυτή την έξοδο ή είναι ήδη σε αυτό το επίπεδο
+VIDEO OUTPUT UNASSIGN: this deck is not on this output, or it is the only thing on it	VIDEO OUTPUT UNASSIGN: το deck δεν είναι σε αυτή την έξοδο ή είναι το μόνο εκεί
+WARP AT: open the editor (WARP EDIT) and select a point first	WARP AT: ανοίξτε πρώτα τον επεξεργαστή (WARP EDIT) και επιλέξτε σημείο
+warp grid: expected <n>, <cols> <rows>, off, smooth or straight	warp grid: αναμένεται <n>, <cols> <rows>, off, smooth ή straight
+warp point: that is a corner -- move it with WARP <corner> dx dy	warp point: είναι γωνία — μετακινήστε με WARP <corner> dx dy
+WARP SELECT: expected TL, TR, BR, BL or a grid <col> <row>	WARP SELECT: αναμένεται TL, TR, BR, BL ή πλέγμα <col> <row>
+WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (sound is included)	WEBMONITOR: STATUS | ON | OFF | CONTROL ON|OFF | SHARE ON|OFF | SOURCE PROGRAMME|<output> | QR [ON|OFF] | PORT <n> | PIN <pin>|OFF (με ήχο)
+what the patch and the cues call it (FOH, SUB, PRESS FEED)	Όνομα στη δρομολόγηση και τα cue (FOH, SUB, PRESS FEED)
+Where highlights fold back through black. Low folds most of the picture, high folds only the brightest.	Πού οι ανταύγειες διπλώνουν μέσα από το μαύρο. Χαμηλά διπλώνει η περισσότερη εικόνα, ψηλά μόνο τα φωτεινότερα.
+Where the band sits, 30Hz to 16kHz across the travel.	Θέση ζώνης, από 30Hz έως 16kHz κατά τη διαδρομή.
+Where the fold sits: the middle at the left, toward the far edge to the right. Flips have no fold.	Θέση δίπλωσης: αριστερά στο μέσο, δεξιά προς τη μακρινή ακμή. Οι αναστροφές δεν διπλώνουν.
+Where the light stands, in degrees around the frame.	Θέση φωτός σε μοίρες γύρω από το καρέ.
+Where the source sits around the listener, all the way round. For headphones -- it is a timing and shading trick, not a pan.	Θέση πηγής γύρω από τον ακροατή, σε όλο τον κύκλο. Για ακουστικά: τέχνασμα χρόνου και σκίασης, όχι πανοραμική ρύθμιση.
+Where the top ends, 200Hz to 20kHz. Pull it down to take the harshness off a bright source.	Άνω όριο, από 200Hz έως 20kHz. Χαμηλώστε για να μαλακώσετε μια οξεία πηγή.
+Which channel the curve acts on: all three, then red, green or blue on its own -- the way a colourist warms or cools one end of the picture.	Κανάλι καμπύλης: και τα τρία, μετά κόκκινο, πράσινο ή μπλε μόνο του — όπως ο χρωματιστής θερμαίνει ή ψυχραίνει το ένα άκρο της εικόνας.
+Which way the knife edge lies. Only gradients ACROSS the edge show, so turning it swaps which features appear and which vanish.	Κατεύθυνση της κόψης. Φαίνονται μόνο διαβαθμίσεις ΕΓΚΑΡΣΙΑ στην ακμή: η περιστροφή αλλάζει ποια στοιχεία εμφανίζονται.
+Which way the streak runs: across at the left, upright in the middle, across again at the right.	Κατεύθυνση λωρίδας: αριστερά οριζόντια, στη μέση κάθετα, δεξιά πάλι οριζόντια.
+Widens the decision into a ramp, so edges keep their shape instead of jagging.	Απλώνει το κατώφλι σε ομαλή κλίση, κρατώντας το σχήμα των ακμών χωρίς οδοντώσεις.
+window capture fell back to screen grab — update ffmpeg for exact window capture	Η λήψη παραθύρου άλλαξε σε λήψη οθόνης — ενημερώστε το FFmpeg για ακριβή λήψη παραθύρου
+Words to surface in the field, separated by | . One shows at a time, moving on the hold clock.	Λέξεις που αναδύονται στο πεδίο, χωρισμένες με | . Μία κάθε φορά, με αλλαγή στον χρόνο αναμονής.
+Zero is one noise value across all three channels, which reads as film. Higher gives each channel its own, which reads as video.	Στο μηδέν κοινός θόρυβος και στα τρία κανάλια, σαν φιλμ. Ψηλότερα κάθε κανάλι έχει δικό του, σαν βίντεο.
+OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <sender name>	OUTPUT SPOUT: ON | OFF | TOGGLE | NAME <????? ?????????>
+STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <control> <setting>	STATUS | SHAPE <0-5> | PALETTE <0-3> | DENSITY|SPEED|WARP|CENTREX|CENTREY|GREY <0-100> | TURN|HUE <0-360> | LFO <??????????> <???????>
