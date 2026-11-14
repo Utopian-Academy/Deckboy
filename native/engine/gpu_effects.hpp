@@ -14,7 +14,10 @@
 #include <string>
 #include <vector>
 
+#include <memory>
+
 #include "../core/cue_effects.hpp"
+#include "isf.hpp"
 
 struct SDL_Renderer;
 struct SDL_Texture;
@@ -116,7 +119,7 @@ SDL_Texture* runGpuTransition(GpuEffects* g, int slot, const TransitionSource& s
 // The CPU builder stays the reference: --gpu-source-dump against
 // --pattern-dump (tools/check_gpu_sources.py).
 struct SourcePlan {
-  enum Kind : int { None = 0, Lumia = 1 };
+  enum Kind : int { None = 0, Lumia = 1, Isf = 2 };
   int kind = None;
   int width = 0, height = 0;     // the picture to make
   int srcW = 0, srcH = 0;        // the traced source
@@ -137,7 +140,20 @@ struct SourcePlan {
   std::int32_t i[4] = {};
   float f[8] = {};
   float tab[256] = {};
+  // A SHADER (kind Isf): the compiled program and what goes in its block
+  // for this moment: four floats per input (already moved by any
+  // oscillator), the clock, and the frame number. The runner packs the block
+  // itself, once at the full size and once at the desk copy's.
+  std::shared_ptr<const deckboy::isf::Shader> shader;
+  std::vector<float> isfValues;
+  double isfTime = 0.0, isfDelta = 0.0;
+  std::int64_t isfFrame = 0;
 };
+
+// Whether this device can run a shader (ISF) and, when it cannot, why.
+bool gpuEffectsRunIsf(const GpuEffects* g, std::string* why);
+// The reason a shader's own pipeline failed on this device, or empty.
+std::string gpuIsfProblem(const GpuEffects* g, const deckboy::isf::Shader& shader);
 
 // The picture, in a texture owned by `g` and valid until the next run for the
 // same slot. Null on any failure: the caller then draws the CPU picture.

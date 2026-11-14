@@ -279,7 +279,7 @@ All of them are on the `SOURCE` menu.
   Metadata is probed asynchronously (`probing…` shows on the row until done).
 - **Add a source cue:** the SOURCE menu has four parts. LIVE PICTURE adds a
   window, camera, Syphon/Spout, browser, stream or NDI source. MADE BY DECKBOY
-  adds everything Deckboy makes itself: Fireside, Portal, Swirl, Moire, Lumia, Video Synth,
+  adds everything Deckboy makes itself: Fireside, Portal, Swirl, Moire, Lumia, Shaders (ISF .fs files), Video Synth,
   Code, Text, Lower Third, Stage Timer and the 2A03 and FDS synths. TEST
   SIGNALS adds a test pattern or a test tone, and CUES THAT DO THINGS adds the
   cues that act on the show rather than putting a picture up.
@@ -3032,6 +3032,57 @@ inspector says "made by Deckboy" in place of a pattern picker.
   `LUMIA TOPBOTTOM|LISTENS ON|OFF`,
   `LUMIA FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100>`,
   `LUMIA MIRRORS <0-12>`, and `LUMIA LFO <control> ON|OFF|SHAPE|RATE|DEPTH|PHASE|SYNC [value]`.
+- **Shader** — a picture made by a small program that runs on the graphics
+  card, in the ISF format (`.fs` files; see isf.video). SOURCE > MADE BY
+  DECKBOY lists **Shader (.fs)...**, which asks for a file, then **Shader:
+  <name>** for each shader Deckboy ships and each one in your own shader
+  folder. Deckboy ships five: **deckboy_plasma**, **deckboy_lava_lamp**,
+  **deckboy_starfield**, **deckboy_scanline_sunset** and **deckboy_pixel_rain**.
+
+  The cue's inspector has a **SHADER** section. It names the file, says what the
+  shader is, and has three buttons: **LOAD .FS** (pick another file),
+  **SHADER FOLDER** (opens the folder for your own shaders, `shaders` in the
+  folder where Deckboy keeps your data) and **EDIT** (opens the file in your
+  editor; save it and the picture follows). Below them is one row for each
+  **input** the shader's header names:
+  - a **float** is a number row with a **~**, the same oscillator as an effect
+    parameter. Drag it, click it to type, or press **~**;
+  - a **colour** opens the colour picker;
+  - a **bool** is an on/off switch;
+  - a **long** is a choice: step through its labels;
+  - a **point2D** is two number rows, x and y.
+
+  The values are saved with the cue, by name, so editing the file keeps what
+  you set. A shader that cannot run says why on the cue, with the line of the
+  error: a header that is not valid JSON, a compile error, or a feature that
+  is not supported yet.
+
+  **What runs.** Shaders with one pass and no image inputs (generators). Inputs
+  of type float, color, bool, long, point2D and event (an event is an on/off
+  switch here). The built-in names `TIME`, `TIMEDELTA`, `FRAMEINDEX`,
+  `RENDERSIZE`, `DATE`, `PASSINDEX`, `isf_FragNormCoord`, `gl_FragCoord` and
+  `gl_FragColor` work. A shader runs at the size of the output, on every
+  output that runs GPU effects: Direct3D 11 on Windows, and SDL_GPU with Metal
+  or Vulkan. The desk shows a smaller copy of the same picture.
+
+  **What does not run yet.** Shaders with image inputs (filters), with more than
+  one pass, or with a picture kept from frame to frame: Deckboy says so on the
+  cue. Direct3D 12 outputs cannot run shaders yet (they need a different
+  compiled form); use Direct3D 11 there. A shader needs an output on the
+  graphics card: with the software renderer, or with a grade, a key or an
+  effect on the cue, the cue shows a card that says so instead.
+
+  **Writing one.** Start from any `.fs` in the data folder's `shaders` folder:
+  a `/*{ ... }*/` header with `INPUTS`, then GLSL with a `main()` that sets
+  `gl_FragColor`. The shader is compiled when the file is first used (a
+  moment) and again when the file changes. A Deckboy build made without
+  `DECKBOY_ISF` cannot run shaders and says so.
+
+  Over the wire: `SHADER [STATUS]` (the file, and every input with its value),
+  `SHADER LOAD <path>` (the selected cue, or a new cue),
+  `SHADER SET <input> <value...>` (a number; `on` or `off`; a choice's label;
+  `x y`; a colour as `#rrggbb` or `r g b [a]` from 0 to 1), and
+  `SHADER LFO <input> ON|OFF|SHAPE|RATE|DEPTH|PHASE|SYNC [value]`.
 - **Pocket Test** — a PM5544-style test card with a bouncing scene-porthole
   ball, a sync beacon, and an audio sync pop at the top of each second (use it
   to dial the A/V delay offset).

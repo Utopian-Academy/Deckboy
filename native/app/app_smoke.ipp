@@ -2648,13 +2648,14 @@
           // twelve Moire fields, then the fade cue's effect, knob and
           // restore at end, then the backdrop, then lock to screen, then the
           // cue's mask, then a tone's oscillators, then a drawing, then
-          // whether its pixels carry alpha, then the twenty Lumia fields. The
+          // whether its pixels carry alpha, then the twenty Lumia fields, then a
+          // shader's input values. The
           // older-show checks below trim this many and then their own, so a
           // field appended to the record is counted here once. When the
           // Moire fields went in, only two of five checks were bumped, and the
           // other three trimmed nothing but Moire -- passing without testing
           // the show they were named for.
-          constexpr int kAfterTrackerFields = 41;
+          constexpr int kAfterTrackerFields = 42;
           // A show from immediately before the fixture patch (one tail field
           // fewer) keeps its mic channel and has no fixture levels.
           {
@@ -2805,7 +2806,7 @@
         // the spine and trimming 3 stopped reaching preWaitSeconds -- the test
         // failed loudly, which is the only reason this comment exists rather
         // than a silent hole in the backward-compatibility check.
-        constexpr int kSpineTailFields = 134;  // preWait, postWait, continue, masters,
+        constexpr int kSpineTailFields = 135;  // preWait, postWait, continue, masters,
                                               // target id/deck/verb, armed, panel w/h,
                                               // fade secs/to/what/curve/stop,
                                               // fireside view, overlay lower-third
@@ -4728,6 +4729,130 @@
       i18n::setLanguage("en", noData, err);
     }
 
+    // A shader cue's values go through a real save and load of a show.
+    {
+      Project project;
+      Deck deck;
+      deck.name = "Shader deck";
+      Cue cue;
+      cue.kind = CueKind::Pattern;
+      cue.path = "pattern://isf:C:/Shaders/My_Shader.fs";
+      cue.name = "Shader";
+      cue.id = "smoke-shader-1";
+      cue.formatName = "generated";
+      IsfSetting speed;
+      speed.name = "speed";
+      speed.v[0] = 1.25f;
+      speed.lfo.on = true;
+      speed.lfo.rateHz = 0.5f;
+      IsfSetting tint;
+      tint.name = "tint";
+      tint.v[0] = 0.5f;
+      tint.v[1] = 0.25f;
+      tint.v[2] = 0.125f;
+      cue.isf = {speed, tint};
+      deck.cues.push_back(cue);
+      Cue plain = cue;
+      plain.path = "pattern://swirl";
+      plain.id = "smoke-plain-1";
+      plain.isf.clear();
+      deck.cues.push_back(plain);
+      project.decks.clear();
+      project.decks.push_back(deck);
+      const fs::path file = fs::temp_directory_path() / "deckboy-smoke-isf.deckboy";
+      const bool saved = saveProject(file, project);
+      const Project back = saved ? loadProject(file) : Project {};
+      const bool two = !back.decks.empty() && back.decks[0].cues.size() == 2;
+      const Cue* shaderBack = two ? &back.decks[0].cues[0] : nullptr;
+      expect(saved && shaderBack && shaderBack->path == cue.path && shaderBack->isf.size() == 2 &&
+               shaderBack->isf[0].name == "speed" && shaderBack->isf[0].v[0] == 1.25f && shaderBack->isf[0].lfo.on &&
+               shaderBack->isf[0].lfo.rateHz == 0.5f && shaderBack->isf[1].v[2] == 0.125f,
+             "a saved show keeps a shader cue's file and input values");
+      expect(two && back.decks[0].cues[1].isf.empty(), "a cue that is not a shader keeps no shader values");
+      if (!shaderBack || shaderBack->isf.size() != 2) {
+        std::cout << "      saved " << saved << ", decks " << back.decks.size() << ", cues "
+                  << (back.decks.empty() ? 0 : back.decks[0].cues.size()) << ", path "
+                  << (shaderBack ? shaderBack->path : std::string("none")) << ", isf "
+                  << (shaderBack ? shaderBack->isf.size() : 0) << std::endl;
+      }
+      fs::remove(file);
+    }
+
+    // SHADERS AS A SOURCE (ISF), on the CPU: every shipped shader's header is
+    // read, its GLSL wrapped, compiled to SPIR-V and cross-compiled to HLSL
+    // (Direct3D 11) and MSL (Metal). The graphics-card half is
+    // tools/check_isf.py (--gpu-source-dump).
+    {
+      namespace isfns = deckboy::isf;
+      std::string why;
+      if (!isfns::compilerAvailable(&why)) {
+        std::cout << "[skip] shaders: " << why << std::endl;
+      } else {
+        int shipped = 0;
+        std::error_code isfEc;
+        for (fs::directory_iterator it(shippedShaderFolder(), isfEc), end; !isfEc && it != end; it.increment(isfEc)) {
+          if (it->path().extension() != ".fs") continue;
+          ++shipped;
+          const auto sh = isfns::loadShader(it->path().string());
+          const std::string name = it->path().filename().string();
+          expect(sh->ok(), "shader " + name + " parses and compiles" + (sh->ok() ? "" : ": " + sh->problem));
+          expect(sh->ok() && !sh->spirv.empty() && sh->hlsl.find("RWTexture2D") != std::string::npos &&
+                   sh->msl.find("kernel") != std::string::npos,
+                 "shader " + name + " cross-compiles to HLSL and MSL");
+          bool offsets = sh->ok();
+          for (const auto& in : sh->inputs) offsets = offsets && in.offset >= 48;
+          expect(offsets, "shader " + name + " has every input in the uniform block");
+          expect(sh->ok() && !sh->description.empty(), "shader " + name + " says what it is");
+        }
+        expect(shipped >= 4, "Deckboy ships at least four shaders");
+        const auto image = isfns::parseShader(
+          "/*{ \"INPUTS\": [ { \"NAME\": \"inputImage\", \"TYPE\": \"image\" } ] }*/\nvoid main() { gl_FragColor = IMG_THIS_PIXEL(inputImage); }\n",
+          "image.fs");
+        expect(!image->problem.empty() && image->problem.find("image") != std::string::npos,
+               "a shader with an image input is refused, with its reason");
+        const auto passes = isfns::parseShader(
+          "/*{ \"PASSES\": [ { \"TARGET\": \"a\" }, { } ] }*/\nvoid main() { gl_FragColor = vec4(1.0); }\n", "passes.fs");
+        expect(passes->problem.find("2 passes") != std::string::npos, "a shader with two passes is refused, with its reason");
+        auto broken = isfns::parseShader("/*{ }*/\nvoid main() {\n  gl_FragColor = vec4(1.0);\n  oops here\n}\n", "broken.fs");
+        const bool compiledBroken = isfns::compileShader(*broken);
+        expect(!compiledBroken && broken->problem.find("line ") != std::string::npos,
+               "a compile error names its line: " + broken->problem);
+        auto solid = isfns::parseShader(
+          "/*{ \"INPUTS\": [ { \"NAME\": \"on\", \"TYPE\": \"bool\", \"DEFAULT\": true }, { \"NAME\": \"k\", \"TYPE\": \"long\","
+          " \"VALUES\": [3, 5], \"LABELS\": [\"three\", \"five\"] }, { \"NAME\": \"c\", \"TYPE\": \"color\","
+          " \"DEFAULT\": [1, 0, 0, 1] }, { \"NAME\": \"p\", \"TYPE\": \"point2D\" } ] }*/\n"
+          "void main() { gl_FragColor = on ? c * float(k) : vec4(0.0); }\n", "solid.fs");
+        const bool solidOk = isfns::compileShader(*solid);
+        expect(solidOk, "bool, long, colour and point inputs compile" + (solidOk ? "" : ": " + solid->problem));
+        std::vector<float> values;
+        isfns::defaultsFor(*solid, values);
+        std::vector<std::uint8_t> block;
+        isfns::packUniforms(*solid, values, 1.5, 0.016, 7, 640, 360, block);
+        float timeBack = 0.0f;
+        std::memcpy(&timeBack, block.data(), 4);
+        std::int32_t onBack = 0;
+        if (solidOk && solid->inputs[0].offset >= 0) std::memcpy(&onBack, block.data() + solid->inputs[0].offset, 4);
+        expect(solidOk && timeBack == 1.5f && onBack == 1, "the uniform block carries TIME and a switch's value");
+        // What a cue keeps for the inputs survives a save.
+        std::vector<IsfSetting> kept(2);
+        kept[0].name = "speed";
+        kept[0].v[0] = 0.75f;
+        kept[0].lfo.on = true;
+        kept[0].lfo.rateHz = 2.0f;
+        kept[1].name = "tint";
+        kept[1].v[0] = 0.1f;
+        kept[1].v[1] = 0.2f;
+        kept[1].v[2] = 0.3f;
+        const auto back = parseIsfSettings(serializeIsfSettings(kept));
+        expect(back.size() == 2 && back[0].name == "speed" && back[0].v[0] == 0.75f && back[0].lfo.on &&
+                 back[0].lfo.rateHz == 2.0f && back[1].name == "tint" && back[1].v[2] == 0.3f,
+               "a shader cue's input values and oscillators survive a save");
+        expect(deckboy::isf::pathFromCuePath("pattern://isf:C:/Some Dir/My_Shader.fs") == "C:/Some Dir/My_Shader.fs" &&
+                 normalizePatternTypeId("pattern://isf:C:/Some Dir/My_Shader.fs") == "isf",
+               "a shader cue's path keeps its case and its underscores");
+      }
+    }
+
     std::cout << "smoke failures: " << failures << '\n';
     return failures == 0 ? 0 : 1;
   }
@@ -5747,7 +5872,13 @@
     // only be seen by clicking it in a running app, and a headless dump is the
     // only kind of check that runs in CI or over ssh.
     std::string id = patternId;
-    const std::size_t variantAt = id.find(':');
+    // `isf:<file.fs>` -- a shader: the colon belongs to the path, not a variant.
+    std::string isfFile;
+    if (id.size() > 4 && id.compare(0, 4, "isf:") == 0) {
+      isfFile = id.substr(4);
+      id = "isf";
+    }
+    const std::size_t variantAt = isfFile.empty() ? id.find(':') : std::string::npos;
     if (variantAt != std::string::npos) {
       const std::string variant = id.substr(variantAt + 1);
       id = id.substr(0, variantAt);
@@ -5819,10 +5950,18 @@
         cue.firesideView = firesideViewFromToken(variant);
       }
     }
-    cue.path = id;
+    cue.path = isfFile.empty() ? id : deckboy::isf::cuePathFor(isfFile);
     cue.width = w;
     cue.height = h;
     std::optional<DecodedFrame> frame;
+    if (gpu && !isfFile.empty()) {
+      const auto shader = deckboy::isf::loadShader(isfFile);
+      if (!shader->ok()) {
+        std::cerr << "gpu-source-dump: " << (shader->problem.empty() ? "the shader did not compile" : shader->problem)
+                  << std::endl;
+        return 6;
+      }
+    }
     if (gpu) {
       if (!MediaEngine::patternMadeOnGpu(id)) {
         std::cerr << "gpu-source-dump: " << id << " has no GPU version\n";
@@ -5889,6 +6028,14 @@
                     "%.3f ms, the desk picture %.2f ms\n",
                     id.c_str(), w, h, ms[ms.size() / 2], ms.front(), ms.back(), runs, planMs[planMs.size() / 2],
                     deskMs[deskMs.size() / 2]);
+      }
+      if (!ok && !isfFile.empty()) {
+        std::string why;
+        if (!deckboy::gpu::gpuEffectsRunIsf(g, &why)) std::cerr << "gpu-source-dump: " << why << std::endl;
+        else if (const auto sh = deckboy::isf::loadShader(isfFile)) {
+          const std::string device = deckboy::gpu::gpuIsfProblem(g, *sh);
+          if (!device.empty()) std::cerr << "gpu-source-dump: " << device << std::endl;
+        }
       }
       deckboy::gpu::destroyGpuEffects(g);
       SDL_DestroyRenderer(renderer);

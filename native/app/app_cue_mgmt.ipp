@@ -3123,6 +3123,20 @@
       {0, 0, 0, 0},
       [this]() { addLumiaCue(); }
     });
+    // Shaders (ISF, a .fs file): one to load, then the ones Deckboy ships and
+    // the operator's own from the shader folder.
+    contextItems_.push_back({
+      "  Shader (.fs)...",
+      {0, 0, 0, 0},
+      [this]() { chooseShaderFile(); }
+    });
+    for (const auto& shader : listShaders()) {
+      contextItems_.push_back({
+        "  Shader: " + shader.name,
+        {0, 0, 0, 0},
+        [this, path = shader.path]() { addShaderCue(path); }
+      });
+    }
     // The Konami secret, once this save has unlocked it.
     if (project_.terrariumUnlocked) {
       contextItems_.push_back({
@@ -3491,6 +3505,7 @@
       list.emplace_back("swirl",          "Swirl (melting pixel greens)");
       list.emplace_back("moire-field",    "Moire (interference bands)");
       list.emplace_back("lumia",          "Lumia (laser light and mirrors)");
+      list.emplace_back("isf",            "Shader (an ISF .fs file)");
       list.emplace_back("code",           "Code (live expression)");
       list.emplace_back("terrarium",      "Terrarium (living ecosystem)");
       list.emplace_back("terrarium-pico", "Terrarium Pico (1px per cell)");

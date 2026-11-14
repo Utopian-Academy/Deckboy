@@ -28,6 +28,9 @@
     if (handleDrawQuickAction(action, param)) {
       return;
     }
+    if (handleIsfQuickAction(action, param)) {
+      return;
+    }
     switch (action) {
       case QuickAction::EditNumericParam: editNumericParam(param); return;
       case QuickAction::RunExtraDeskCommand:   // a private extra's inspector button

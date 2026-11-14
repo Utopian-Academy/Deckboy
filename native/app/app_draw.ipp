@@ -994,6 +994,7 @@
         // Lumia shares the Moire section flag: a cue is only ever one of them,
         // and the toggle enum lives in types.hpp.
         if (t == "lumia") return QuickAction::CueSectionMoireToggle;
+        if (t == "isf") return QuickAction::CueSectionMoireToggle;   // a shader shares it too
         if (deckboy::extras::findGenerator(t)) return QuickAction::CueSectionExtraToggle;
         return QuickAction::CueSectionPlaybackToggle;
       }

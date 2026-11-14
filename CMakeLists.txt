@@ -625,6 +625,9 @@ add_executable(deckboy-native
   # Picture effects as compute shaders (D3D11 and SDL_GPU); the CPU effects
   # stay the reference and the fallback.
   native/engine/gpu_effects.cpp
+  # Shaders as a source (ISF): the header parser and the GLSL wrapper always
+  # compile; the compiler half (glslang + SPIRV-Cross) is behind DECKBOY_ISF.
+  native/engine/isf.cpp
   # Always compiled; the libav half is guarded inside, so a build without
   # in-process decode gets stubs rather than a link error.
   native/engine/motion_field.cpp
@@ -1098,6 +1101,74 @@ if(DECKBOY_SDL_TTF_TARGET)
   target_link_libraries(deckboy-native PRIVATE ${DECKBOY_SDL_TTF_TARGET})
 else()
   target_link_libraries(deckboy-native PRIVATE ${DECKBOY_SDL_TTF_LINK_LIBS})
+endif()
+
+# -- Shaders as a source (ISF) -------------------------------------------------
+#
+# A .fs file's GLSL is wrapped as a compute shader and compiled AT RUN TIME:
+# glslang makes SPIR-V (Vulkan takes that as it is), SPIRV-Cross turns it into
+# HLSL for Direct3D 11 and MSL for Metal. Both libraries are fetched at pinned
+# release tags with only their library targets (no tools, tests or optimiser).
+# glslang is BSD-3-Clause and Apache-2.0, SPIRV-Cross is Apache-2.0: both are
+# compatible with GPL-3.0. With DECKBOY_ISF=OFF everything still builds, and a
+# shader cue says why it cannot run.
+option(DECKBOY_ISF "Run ISF shaders as a source (glslang + SPIRV-Cross, fetched)" ON)
+if(DECKBOY_ISF)
+  include(FetchContent)
+  set(FETCHCONTENT_QUIET ON)
+  set(BUILD_SHARED_LIBS OFF)
+  set(ENABLE_OPT OFF CACHE BOOL "" FORCE)
+  set(ENABLE_SPVREMAPPER OFF CACHE BOOL "" FORCE)
+  set(ENABLE_GLSLANG_BINARIES OFF CACHE BOOL "" FORCE)
+  set(ENABLE_GLSLANG_JS OFF CACHE BOOL "" FORCE)
+  set(ENABLE_HLSL OFF CACHE BOOL "" FORCE)
+  set(ENABLE_CTEST OFF CACHE BOOL "" FORCE)
+  set(GLSLANG_TESTS OFF CACHE BOOL "" FORCE)
+  set(GLSLANG_ENABLE_INSTALL OFF CACHE BOOL "" FORCE)
+  set(BUILD_EXTERNAL OFF CACHE BOOL "" FORCE)
+  set(SPIRV_CROSS_CLI OFF CACHE BOOL "" FORCE)
+  set(SPIRV_CROSS_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
+  set(SPIRV_CROSS_ENABLE_GLSL ON CACHE BOOL "" FORCE)
+  set(SPIRV_CROSS_ENABLE_HLSL ON CACHE BOOL "" FORCE)
+  set(SPIRV_CROSS_ENABLE_MSL ON CACHE BOOL "" FORCE)
+  set(SPIRV_CROSS_ENABLE_CPP OFF CACHE BOOL "" FORCE)
+  set(SPIRV_CROSS_ENABLE_REFLECT OFF CACHE BOOL "" FORCE)
+  set(SPIRV_CROSS_ENABLE_C_API OFF CACHE BOOL "" FORCE)
+  set(SPIRV_CROSS_ENABLE_UTIL OFF CACHE BOOL "" FORCE)
+  set(SPIRV_CROSS_SKIP_INSTALL ON CACHE BOOL "" FORCE)
+  set(SPIRV_CROSS_SHARED OFF CACHE BOOL "" FORCE)
+  set(SPIRV_CROSS_STATIC ON CACHE BOOL "" FORCE)
+  set(SPIRV_CROSS_FORCE_PIC ON CACHE BOOL "" FORCE)
+  FetchContent_Declare(glslang
+    GIT_REPOSITORY https://github.com/KhronosGroup/glslang.git
+    GIT_TAG 16.2.0
+    GIT_SHALLOW ON)
+  FetchContent_Declare(spirv_cross
+    GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Cross.git
+    GIT_TAG vulkan-sdk-1.4.350.1
+    GIT_SHALLOW ON)
+  FetchContent_MakeAvailable(glslang spirv_cross)
+  # Their warnings are theirs: the build-log audit reads ours only.
+  foreach(_isf_target glslang SPIRV OSDependent GenericCodeGen MachineIndependent
+                      glslang-default-resource-limits spirv-cross-core spirv-cross-glsl
+                      spirv-cross-hlsl spirv-cross-msl)
+    if(TARGET ${_isf_target})
+      if(MSVC)
+        target_compile_options(${_isf_target} PRIVATE /w)
+      else()
+        target_compile_options(${_isf_target} PRIVATE -w)
+      endif()
+    endif()
+  endforeach()
+  target_link_libraries(deckboy-native PRIVATE glslang SPIRV spirv-cross-hlsl spirv-cross-msl spirv-cross-glsl
+                                               spirv-cross-core)
+  if(TARGET glslang-default-resource-limits)
+    target_link_libraries(deckboy-native PRIVATE glslang-default-resource-limits)
+    target_compile_definitions(deckboy-native PRIVATE DECKBOY_ISF_RESOURCE_LIMITS=1)
+  endif()
+  target_compile_definitions(deckboy-native PRIVATE DECKBOY_ISF=1)
+else()
+  message(STATUS "ISF shaders: off (DECKBOY_ISF=OFF)")
 endif()
 
 # The bundled `terrarium` companion exe was RETIRED in v0.81.5.

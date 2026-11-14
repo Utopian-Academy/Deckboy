@@ -4155,11 +4155,14 @@
         })) {
       return false;
     }
+    const bool hasShader = std::any_of(cues.begin(), cues.end(), [](const Cue& c) { return isShaderCue(c); });
     bool any = false;
     for (int i = 0; i < static_cast<int>(project_.outputs.size()); ++i) {
       OutputRuntime* runtime = runtimeForOutput(i);
       if (!project_.outputs[static_cast<std::size_t>(i)].enabled || !runtime || !runtime->outputRenderer) continue;
       if (!ensureGpuEffects(*runtime)) return false;
+      // A shader needs a device that takes SPIR-V, MSL or HLSL (not Direct3D 12).
+      if (hasShader && !deckboy::gpu::gpuEffectsRunIsf(runtime->gpuEffects, nullptr)) return false;
       any = true;
     }
     return any;

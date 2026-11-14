@@ -561,7 +561,7 @@ const NumericParamSpec* numericParamSpec(NumericParam id) {
       return &s;
     }
     default:
-      return nullptr;
+      return isfParamSpec(id);
   }
 }
 
@@ -732,7 +732,7 @@ bool readNumericParam(const Cue& cue, NumericParam id, double& out) {
           : l.holdSeconds;
       return true;
     }
-    default: return false;
+    default: return readIsfParam(cue, id, out);
   }
 }
 
@@ -828,7 +828,7 @@ void writeNumericParam(Cue& cue, NumericParam id, double value) {
     case NumericParam::L3HoldSeconds: cue.lowerThird.holdSeconds = value; break;
     case NumericParam::LedPanelWidth:  cue.ledPanelWidth = static_cast<int>(std::lround(value)); break;
     case NumericParam::LedPanelHeight: cue.ledPanelHeight = static_cast<int>(std::lround(value)); break;
-    default: break;
+    default: writeIsfParam(cue, id, value); break;
   }
 }
 
@@ -1215,6 +1215,8 @@ void effectStackNudge(int index, float delta) {
 // Every one of these takes the PACKED id described on the QuickAction enum:
 // effectIndex * 8 + slot, slot 0-3 for paramA-D and 4 for the amount.
 deckboy::effects::ParamLfo* effectLfoAt(int packed) {
+  // A shader cue's float inputs: the highest range of all.
+  if (packed >= kIsfLfoPackBase) return isfLfoAt(packed - kIsfLfoPackBase);
   // A Lumia cue's oscillators: the highest range, so it is tested first.
   if (packed >= kLumiaLfoPackBase) {
     const int slot = packed - kLumiaLfoPackBase;

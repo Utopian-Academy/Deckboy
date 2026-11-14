@@ -5850,6 +5850,118 @@
         finishInspectorSection(luSection, luY);
         ry = luY + kInspectorSectionGap;
       }
+      // A SHADER (ISF): the file's own inputs as rows. Shares the Moire
+      // section's open flag: a cue is only ever one of them.
+      if (selectedCue && isShaderCue(*selectedCue)) {
+        auto shSection = beginInspectorSection(ry, "SHADER", cueSectionMoireOpen_,
+          QuickAction::CueSectionMoireToggle, "Collapse/expand the shader's controls");
+        int shY = shSection.bodyStartY;
+        if (cueSectionMoireOpen_) {
+          const auto shader = shaderOfCue(*selectedCue);
+          const std::string file = deckboy::isf::pathFromCuePath(selectedCue->path);
+          const int textX = ix.ctrl.x + ix.inset;
+          const int textW = ix.ctrlW - ix.inset * 2;
+          drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {textX, shY, textW, ix.rowH},
+                       dbfs::path(file).filename().string(), pal.fg);
+          shY += kInspectorRowStep;
+          if (shader && !shader->description.empty()) {
+            for (const auto& line : wrapForWidth(fontSmall_, shader->description, textW)) {
+              drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {textX, shY, textW, ix.rowH}, line, pal.fgSoft);
+              shY += ix.rowH;
+            }
+            shY += uiScaled(6);
+          }
+          if (!shader || !shader->problem.empty()) {
+            const PaletteNotice look = paletteNotice(true);
+            const auto lines = wrapForWidth(fontSmall_, shader ? shader->problem : std::string("not loaded"), textW - uiScaled(12));
+            SDL_Rect box {textX, shY, textW, static_cast<int>(lines.size()) * ix.rowH + uiScaled(8)};
+            drawUIPanel(box, look.fill, look.border, look.border);
+            int ly = box.y + uiScaled(4);
+            for (const auto& line : lines) {
+              drawTextSafe(controlRenderer_, fontSmall_, SDL_Rect {textX + uiScaled(6), ly, textW - uiScaled(12), ix.rowH}, line, look.ink);
+              ly += ix.rowH;
+            }
+            shY += box.h + uiScaled(8);
+          }
+          // The three buttons.
+          inspDrawQuickRow(ix, shY, "shader", QuickAction::NumericParamDec, "LOAD .FS", QuickAction::NumericParamInc,
+            QuickAction::IsfLoad, true, false, "Pick an ISF shader file (.fs) for this cue");
+          shY += kInspectorRowStep;
+          inspDrawQuickRow(ix, shY, "folder", QuickAction::NumericParamDec, "SHADER FOLDER", QuickAction::NumericParamInc,
+            QuickAction::IsfFolder, true, false, "Open the folder where your own shaders live; they appear in SOURCE");
+          shY += kInspectorRowStep;
+          inspDrawQuickRow(ix, shY, "edit", QuickAction::NumericParamDec, "EDIT", QuickAction::NumericParamInc,
+            QuickAction::IsfEdit, true, false, "Open this file in your editor; save it and the picture follows");
+          shY += kInspectorRowStep;
+          if (shader && shader->ok()) {
+            for (std::size_t i = 0; i < shader->inputs.size(); ++i) {
+              const auto& in = shader->inputs[i];
+              const int idx = static_cast<int>(i);
+              const IsfSetting* set = deckboy::isf::findSetting(*selectedCue, in.name);
+              const std::string text = isfValueText(in, set);
+              switch (in.type) {
+                case deckboy::isf::InputType::Float: {
+                  const deckboy::effects::ParamLfo none;
+                  const deckboy::effects::ParamLfo& lfo = set ? set->lfo : none;
+                  inspDrawQuickRow(ix, shY, in.label, QuickAction::NumericParamDec, text, QuickAction::NumericParamInc,
+                    QuickAction::ToggleLoop, false, false, "Drag, click to type, or put it on an oscillator", true,
+                    QuickAction::EditNumericParam, isfParamId(idx, 0), QuickAction::EffectLfoToggle, lfo.on,
+                    kIsfLfoPackBase + idx, "~", "Put this control on an oscillator");
+                  shY += kInspectorRowStep;
+                  if (lfo.on) shY = inspDrawLfoRowFor(ix, shY, lfo, kIsfLfoPackBase + idx);
+                  break;
+                }
+                case deckboy::isf::InputType::Point2D:
+                  for (int c = 0; c < 2; ++c) {
+                    char one[32];
+                    std::snprintf(one, sizeof(one), "%.3g", static_cast<double>(set ? set->v[c] : in.def[c]));
+                    inspDrawQuickRow(ix, shY, in.label + (c == 0 ? " x" : " y"), QuickAction::NumericParamDec, one,
+                      QuickAction::NumericParamInc, QuickAction::ToggleLoop, false, false, "Drag or click to type",
+                      true, QuickAction::EditNumericParam, isfParamId(idx, c));
+                    shY += kInspectorRowStep;
+                  }
+                  break;
+                case deckboy::isf::InputType::Long:
+                  inspDrawQuickRow(ix, shY, in.label, QuickAction::IsfChoicePrev, text, QuickAction::IsfChoiceNext,
+                    QuickAction::ToggleLoop, false, false, "Step through the choices", true, QuickAction::IsfChoiceNext,
+                    idx);
+                  shY += kInspectorRowStep;
+                  break;
+                case deckboy::isf::InputType::Color: {
+                  inspDrawQuickRow(ix, shY, in.label, QuickAction::NumericParamDec, text, QuickAction::NumericParamInc,
+                    QuickAction::IsfColour, true, false, "Pick the colour");
+                  if (quickButtons_.size() >= 2) {
+                    quickButtons_[quickButtons_.size() - 1].param = idx;
+                    quickButtons_[quickButtons_.size() - 2].param = idx;
+                    const SDL_Rect pill = quickButtons_[quickButtons_.size() - 2].rect;
+                    const SDL_Rect chip {pill.x + pill.w - pill.h, pill.y, pill.h, pill.h};
+                    const float* v = set ? set->v : in.def;
+                    drawUIPanel(chip, SDL_Color {static_cast<Uint8>(std::lround(v[0] * 255.0f)),
+                                                 static_cast<Uint8>(std::lround(v[1] * 255.0f)),
+                                                 static_cast<Uint8>(std::lround(v[2] * 255.0f)), 255},
+                                pal.deep, pal.mid);
+                  }
+                  shY += kInspectorRowStep;
+                  break;
+                }
+                default: {
+                  const bool on = (set ? set->v[0] : in.def[0]) >= 0.5f;
+                  inspDrawQuickRow(ix, shY, in.label, QuickAction::NumericParamDec, text, QuickAction::NumericParamInc,
+                    QuickAction::IsfToggle, true, on, "Switch it on or off");
+                  if (quickButtons_.size() >= 2) {
+                    quickButtons_[quickButtons_.size() - 1].param = idx;
+                    quickButtons_[quickButtons_.size() - 2].param = idx;
+                  }
+                  shY += kInspectorRowStep;
+                  break;
+                }
+              }
+            }
+          }
+        }
+        finishInspectorSection(shSection, shY);
+        ry = shY + kInspectorSectionGap;
+      }
       // FIRESIDE: how hard it burns. Only on a fireside cue -- these controls
       // mean nothing on a colour-bars pattern and drawing them there would be
       // two more things that cannot do anything. FIRST, like Swirl's and Code's:

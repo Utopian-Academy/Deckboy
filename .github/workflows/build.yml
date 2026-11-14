@@ -437,6 +437,12 @@ jobs:
       - name: Smoke tests
         run: ./build/Deckboy --smoke
 
+      # Shaders (ISF): the CPU half (every shipped shader compiles and
+      # cross-compiles) is in --smoke above. This is the card's half; it
+      # reports a skip on a runner with no graphics device.
+      - name: Shaders on the graphics card
+        run: python3 tools/check_isf.py --exe ./build/Deckboy --skip-app
+
       # Typed colours, the hue maths, and an effect's colour through a save.
       - name: Effect colours
         run: ./build/Deckboy --colour-check
@@ -967,6 +973,12 @@ jobs:
 
       - name: Smoke tests
         run: ./build/Deckboy --smoke
+
+      # Shaders (ISF): the CPU half (every shipped shader compiles and
+      # cross-compiles) is in --smoke above. This is the card's half; it
+      # reports a skip on a runner with no graphics device.
+      - name: Shaders on the graphics card
+        run: python3 tools/check_isf.py --exe ./build/Deckboy --skip-app
 
       # Typed colours, the hue maths, and an effect's colour through a save.
       - name: Effect colours

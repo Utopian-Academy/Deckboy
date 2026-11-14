@@ -49,6 +49,17 @@ inline bool endsWith(const std::string& value, const std::string& suffix) {
 //   - Mapping aliases to canonical names (e.g. "colorbars" → "smpte-bars")
 //   - Normalizing "-animated" suffix to "-motion" (standardized naming)
 inline std::string normalizePatternTypeId(std::string value) {
+  // A SHADER cue's path is "pattern://isf:<file>": the file name keeps its
+  // case and its underscores, so the type is read before anything else is
+  // touched. The file itself comes from deckboy::isf::pathFromCuePath.
+  {
+    std::string head = deckboy::core::utils::trim(value);
+    if (head.rfind("pattern://", 0) == 0) head = head.substr(10);
+    if (head.size() >= 4 && (head[0] == 'i' || head[0] == 'I') && (head[1] == 's' || head[1] == 'S') &&
+        (head[2] == 'f' || head[2] == 'F') && head[3] == ':') {
+      return "isf";
+    }
+  }
   value = deckboy::core::utils::toLower(deckboy::core::utils::trim(std::move(value)));
   // Strip URL prefix if present (cue path stores "pattern://smpte-bars")
   if (value.rfind("pattern://", 0) == 0) {
@@ -126,7 +137,7 @@ inline bool patternTypeSupportsMotion(const std::string& typeId) {
 // which made the desk look like nobody had decided what either one was.
 inline bool patternTypeIsGenerator(const std::string& typeId) {
   const std::string t = normalizePatternTypeId(typeId);
-  return t == "fireside" || t == "portal" || t == "swirl" || t == "code" || t == "moire-field" || t == "lumia" || t == "draw" ||
+  return t == "fireside" || t == "portal" || t == "swirl" || t == "code" || t == "moire-field" || t == "lumia" || t == "isf" || t == "draw" ||
          t == "terrarium" || t == "terrarium-pico" || deckboy::extras::findGenerator(t) != nullptr;
 }
 
@@ -140,6 +151,7 @@ inline std::string generatorPatternName(const std::string& typeId) {
   if (t == "swirl") return "Swirl";
   if (t == "moire-field") return "Moire";
   if (t == "lumia") return "Lumia";
+  if (t == "isf") return "Shader";
   if (t == "code") return "Code";
   if (t == "terrarium") return "Terrarium";
   if (t == "terrarium-pico") return "Terrarium Pico";
@@ -173,6 +185,7 @@ inline bool patternTypeIsAnimated(const std::string& typeId) {
          normalized == "swirl" ||                      // turning, melting greens
          normalized == "moire-field" ||                // scrolling interference bands
          normalized == "lumia" ||                      // moving water, lasers and mirrors
+         normalized == "isf" ||                        // a shader: time is an input
          normalized == "portal" ||                     // born, drifting, melting
          // A DRAWING is rebuilt as it is drawn on and as it replays; the
          // engine skips the rebuild when nothing has changed (see

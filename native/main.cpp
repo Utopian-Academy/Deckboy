@@ -97,6 +97,7 @@
 #include "core/test_card.hpp"
 #include "core/system_browser.hpp"
 #include "engine/media_engine.hpp"
+#include "core/isf_cue.hpp"
 #include "engine/stage_timings.hpp"
 #include "engine/hap_decoder.hpp"
 #include "engine/gpu_readback.hpp"
@@ -2445,6 +2446,41 @@ std::array<deckboy::effects::ParamLfo, 9> parseGeometryLfos(const std::string& t
 // A Lumia cue's fifteen oscillators, in the same spelling.
 std::array<deckboy::effects::ParamLfo, kLumiaLfoCount> parseLumiaLfos(const std::string& text) {
   return parseLfoList<kLumiaLfoCount>(text);
+}
+
+// A SHADER cue's values: name|v0,v1,v2,v3|oscillator, entries split by ';'.
+std::string serializeIsfSettings(const std::vector<IsfSetting>& settings) {
+  std::ostringstream out;
+  bool first = true;
+  for (const auto& s : settings) {
+    if (s.name.empty()) continue;
+    if (!first) out << ';';
+    first = false;
+    out << s.name << '|' << s.v[0] << ',' << s.v[1] << ',' << s.v[2] << ',' << s.v[3] << '|';
+    writeParamLfo(out, s.lfo);
+  }
+  return out.str();
+}
+
+std::vector<IsfSetting> parseIsfSettings(const std::string& text) {
+  std::vector<IsfSetting> out;
+  std::size_t at = 0;
+  while (at < text.size() && out.size() < static_cast<std::size_t>(kIsfMaxInputs)) {
+    std::size_t semi = text.find(';', at);
+    const std::string entry = text.substr(at, semi == std::string::npos ? std::string::npos : semi - at);
+    at = semi == std::string::npos ? text.size() : semi + 1;
+    const std::size_t a = entry.find('|');
+    const std::size_t b = a == std::string::npos ? a : entry.find('|', a + 1);
+    if (b == std::string::npos) continue;
+    IsfSetting s;
+    s.name = entry.substr(0, a);
+    std::stringstream nums(entry.substr(a + 1, b - a - 1));
+    std::string num;
+    for (int i = 0; i < 4 && std::getline(nums, num, ','); ++i) s.v[i] = static_cast<float>(std::atof(num.c_str()));
+    readParamLfo(entry.substr(b + 1), s.lfo);
+    if (!s.name.empty()) out.push_back(std::move(s));
+  }
+  return out;
 }
 
 // A tone cue's two oscillators, in the geometry field's spelling (the first
@@ -5717,6 +5753,8 @@ class App {
 #include "app/app_cue_transport.ipp"
   // Quick-action command palette (Ctrl+K search)
 #include "app/app_numeric_params.ipp"
+  // Shaders as a source (ISF): the SHADER verb, inputs, file buttons
+#include "app/app_isf.ipp"
 #include "app/app_quick_action.ipp"
   // Cue list management: add/remove/reorder/duplicate cues
 #include "app/app_cue_mgmt.ipp"

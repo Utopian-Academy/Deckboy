@@ -62,6 +62,7 @@ void deckboy::engine::DrmPrimeImporterDeleter::operator()(DrmPrimeImporter* impo
 #include <string>
 
 #include "core/cue_effects.hpp"     // detail::parallelRows
+#include "core/isf_cue.hpp"
 #include "engine/gpu_effects.hpp"   // gpuEffectsSupportStack
 #include "core/cue_helpers.hpp"       // isSourceCueKind, resolvedCueEndAction
 #include "core/io_utils.hpp"          // readExact, readSome (pipe I/O)
@@ -13851,11 +13852,50 @@ void MediaEngine::offerGpuSourceDesk(const std::vector<std::uint8_t>& rgba, int 
 }
 
 void MediaEngine::buildGpuSourceDeskPicture(DecodedFrame& frame, const Cue& cue, double animTime) {
+  if (normalizePatternTypeId(cue.path) == "isf") {
+    // A shader has no CPU version: until the card's own copy comes back the
+    // desk shows black, not a card that says the shader cannot run.
+    frame.pixels.assign(static_cast<std::size_t>(frame.width) * static_cast<std::size_t>(frame.height) * 4u, 0);
+    for (std::size_t i = 3; i < frame.pixels.size(); i += 4) frame.pixels[i] = 255;
+    return;
+  }
   buildLumiaAt(frame, animTime, cue.lumia, cue.id, 1);
 }
 
 bool MediaEngine::patternMadeOnGpu(const std::string& patternPath) {
-  return stripPatternMotionSuffix(normalizePatternTypeId(patternPath)) == "lumia";
+  const std::string base = stripPatternMotionSuffix(normalizePatternTypeId(patternPath));
+  return base == "lumia" || base == "isf";
+}
+
+// A SHADER's plan (ISF): the compiled program, each input's value for this
+// moment (oscillators applied), the clock and the frame number. False when
+// the file cannot run, which leaves the cue its card (buildShaderCard).
+static bool planIsfSource(const Cue& cue, double animTime, int width, int height, deckboy::gpu::SourcePlan& plan) {
+  const std::string file = deckboy::isf::pathFromCuePath(cue.path);
+  if (file.empty()) return false;
+  const auto shader = deckboy::isf::loadShader(file);
+  if (!shader || !shader->ok()) return false;
+  static std::mutex mutex;
+  static std::map<std::string, std::pair<double, std::int64_t>> clocks;   // last time, frame number
+  static std::uint64_t moments = 0;
+  std::lock_guard<std::mutex> lock(mutex);
+  if (clocks.size() > 32 && clocks.find(cue.id) == clocks.end()) clocks.clear();
+  auto& clock = clocks[cue.id];
+  const double delta = clock.second == 0 ? 0.0 : std::max(0.0, animTime - clock.first);
+  clock.first = animTime;
+  ++clock.second;
+  plan.kind = deckboy::gpu::SourcePlan::Isf;
+  plan.width = width;
+  plan.height = height;
+  plan.srcW = width;
+  plan.srcH = height;
+  plan.moment = ++moments;
+  plan.shader = shader;
+  deckboy::isf::cueValues(cue, *shader, plan.isfValues);
+  plan.isfTime = animTime;
+  plan.isfDelta = delta;
+  plan.isfFrame = clock.second - 1;
+  return true;
 }
 
 // planGpuSource - one moment of Lumia for the card (gpu_effects.hlsl
@@ -13866,6 +13906,9 @@ bool MediaEngine::patternMadeOnGpu(const std::string& patternPath) {
 bool MediaEngine::planGpuSource(const Cue& cue, double animTime, int width, int height,
                                 deckboy::gpu::SourcePlan& plan) {
   if (!patternMadeOnGpu(cue.path) || width < 2 || height < 2) return false;
+  if (stripPatternMotionSuffix(normalizePatternTypeId(cue.path)) == "isf") {
+    return planIsfSource(cue, animTime, width, height, plan);
+  }
   const int q = height >= 600 ? 2 : 1;
   static std::mutex mutex;
   static std::map<std::string, LumiaState> states;
@@ -16780,6 +16823,31 @@ void MediaEngine::buildPatternFrameInto(DecodedFrame& frame, const Cue& cue, dou
   } else if (basePatternType == "lumia") {
     // Always animated: the water flows.
     buildLumia(frame, animTime, cue.lumia, cue.id);
+  } else if (basePatternType == "isf") {
+    // A shader runs on the graphics card only. This card says why it does not.
+    const auto shader = deckboy::isf::loadShader(deckboy::isf::pathFromCuePath(cue.path));
+    std::string why = shader && !shader->problem.empty()
+                        ? shader->problem
+                        : (shader && !shader->ok() ? std::string("this build cannot run shaders") : std::string());
+    if (why.empty()) why = "this shader runs on the graphics card only: it needs an output on Direct3D 11, Vulkan or Metal, and no grade, key or effect on the cue";
+    fillPixelRect(frame, 0, 0, frame.width, frame.height, {24, 8, 40, 255});
+    const int scale = std::max(2, frame.height / 120);
+    const int perLine = std::max(8, (frame.width - 8 * scale) / (4 * scale));
+    int y = 4 * scale;
+    drawPatternGlyphs(frame, 4 * scale, y, "SHADER", scale * 2, {255, 200, 80, 255});
+    y += 14 * scale;
+    std::size_t at = 0;
+    while (at < why.size() && y + 6 * scale < frame.height) {
+      std::size_t end = std::min(why.size(), at + static_cast<std::size_t>(perLine));
+      if (end < why.size()) {
+        const std::size_t space = why.rfind(' ', end);
+        if (space != std::string::npos && space > at) end = space;
+      }
+      drawPatternGlyphs(frame, 4 * scale, y, why.substr(at, end - at), scale, {235, 235, 245, 255});
+      y += 7 * scale;
+      at = end;
+      while (at < why.size() && why[at] == ' ') ++at;
+    }
   } else if (basePatternType == "draw") {
     // What was drawn (core/drawing.hpp), through a raster kept per cue so a
     // stroke being drawn costs only the pixels near its newest point.

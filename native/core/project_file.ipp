@@ -1089,6 +1089,8 @@ void writeProjectRecords(std::ostream& output, const Project& project) {
         << '\t' << cue.lumia.bright
         << '\t' << cue.lumia.trail
         << '\t' << escapeField(serializeGeometryLfos(cue.lumia.lfo))
+        // vs + 191: a SHADER cue's input values (absent in older shows).
+        << '\t' << escapeField(serializeIsfSettings(cue.isf))
         << '\n';
   };
   for (size_t deckIndex = 0; deckIndex < project.decks.size(); ++deckIndex) {
@@ -2928,6 +2930,9 @@ Project loadProject(const fs::path& projectFile,
           l.bright = std::clamp(safeDouble(fields, vs + 188, fresh.bright), 0.0, 1.0);
           l.trail = std::clamp(safeDouble(fields, vs + 189, fresh.trail), 0.0, 1.0);
           l.lfo = parseLumiaLfos(safeString(fields, vs + 190));
+        }
+        if (fields.size() >= static_cast<std::size_t>(vs + 192)) {
+          cue.isf = parseIsfSettings(safeString(fields, vs + 191));
         }
       }
       // A MASTER CUE HAS NO PATH, and this gate would have dropped it on load

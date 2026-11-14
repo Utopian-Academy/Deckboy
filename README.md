@@ -469,6 +469,8 @@ importantly, what each feature deliberately does not do.
 ## License
 
 Deckboy is free software under the **GNU General Public License v3.0 or later**.
+
+Shader support builds on two libraries fetched at build time, both compatible with the GPL-3.0: [glslang](https://github.com/KhronosGroup/glslang) (Khronos Group; BSD-3-Clause with Apache-2.0 and other permissive parts, see its LICENSE.txt) and [SPIRV-Cross](https://github.com/KhronosGroup/SPIRV-Cross) (Khronos Group; Apache-2.0). Their notices ship in their own source trees; Deckboy's builds link them statically.
 Copyright © 2026 Deckboy Contributors. The full text is in [LICENSE](LICENSE).
 
 Bundled components keep their own licences — ffmpeg ships with its LGPL/GPL

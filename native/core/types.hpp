@@ -792,6 +792,17 @@ struct LumiaSettings {
   std::array<deckboy::effects::ParamLfo, kLumiaLfoCount> lfo {};
 };
 
+// A SHADER cue's value for one of its shader's inputs (ISF). Kept by NAME, so
+// editing the .fs file keeps what was set. Four floats cover a colour; a
+// float, a switch or a choice uses the first, a point the first two.
+struct IsfSetting {
+  std::string name;
+  float v[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+  deckboy::effects::ParamLfo lfo;   // on a float input
+};
+// A shader cue's oscillators: base + input index (at most kIsfMaxInputs).
+inline constexpr int kIsfMaxInputs = 32;
+
 struct PortalSettings {
   int blobs = 18;        // how many are alive at once, 3-48
   double size = 0.5;     // how big a blob grows, 0-1
@@ -1363,6 +1374,8 @@ constexpr int kToneLfoPackBase = 1 << 24;
 constexpr int kDrawLfoPackBase = 1 << 25;
 // A Lumia cue's oscillators: base + LumiaLfoSlot.
 constexpr int kLumiaLfoPackBase = 1 << 26;
+// A shader cue's oscillators: base + input index.
+constexpr int kIsfLfoPackBase = 1 << 27;
 constexpr int kToneLfoFreq = 0;
 constexpr int kToneLfoLevel = 1;
 constexpr int kToneLfoCount = 2;
@@ -2051,6 +2064,8 @@ struct Cue {
   // A Moire source's controls. Only meaningful on a "moire-field" pattern cue.
   MoireSettings moire;
   LumiaSettings lumia;
+  // A SHADER cue's values (path "pattern://isf:<file>"), by input name.
+  std::vector<IsfSetting> isf;
   // A text cue laid out as a lower third. Off on every other cue.
   LowerThirdDesign lowerThird;
   // Clip whose MOTION drives the motion-puppet effect. Its pictures are never
@@ -3905,7 +3920,15 @@ enum class QuickAction {
   EffectParamFEdit,
   // An effect's choices (cueEffectChoiceLabel): open its list.
   EffectChoiceA,
-  EffectChoiceB
+  EffectChoiceB,
+  // A shader cue's rows (app_isf.ipp). param: the input's index in its shader.
+  IsfLoad,
+  IsfFolder,
+  IsfEdit,
+  IsfToggle,
+  IsfChoicePrev,
+  IsfChoiceNext,
+  IsfColour
 };
 
 // ---------------------------------------------------------------------------

@@ -34,6 +34,7 @@
     int slot = -1;              // the parameter row the chip sits on
     bool whole = false;         // CueEffect::colour, not a hue slot
     bool backdrop = false;      // the cue's own backdrop (cueBackdropField), not an effect
+    int isfInput = -1;          // a shader cue's colour input (app_isf.ipp), not an effect
     SDL_Rect anchor {};         // the chip that opened it
     SDL_Rect panel {};
     bool sampling = false;
@@ -125,6 +126,7 @@
   // The picker is still pointing at something that exists.
   bool colourPickerTargetValid() {
     if (!colourPicker_.open) return false;
+    if (colourPicker_.isfInput >= 0) return isfColourTarget() != nullptr;
     if (colourPicker_.backdrop) {
       Cue* cue = selectedCueMutable();
       return cue && cue == colourPicker_.cue && cueBackdropField(*cue);
@@ -133,6 +135,10 @@
   }
 
   std::string colourPickerLabel() {
+    if (colourPicker_.isfInput >= 0) {
+      const IsfSetting* set = isfColourTarget();
+      return set ? set->name : std::string("colour");
+    }
     if (colourPicker_.backdrop) return "backdrop";
     const deckboy::effects::CueEffect* fx = colourPickerEffect();
     const char* label = fx ? deckboy::effects::cueEffectParamLabel(fx->kind, colourPicker_.slot) : nullptr;
@@ -140,6 +146,7 @@
   }
 
   std::string colourPickerTitle() {
+    if (colourPicker_.isfInput >= 0) return "Shader - " + colourPickerLabel();
     if (colourPicker_.backdrop) {
       const Cue* cue = selectedCueMutable();
       return (cue ? cueKindLabel(cue->kind) : std::string("cue")) + " - backdrop";
@@ -229,6 +236,22 @@
     const std::string labelText = colourPickerLabel();
     const char* label = labelText.c_str();
     const std::string said = name.empty() ? hexOfColour(rgb) : name + " " + hexOfColour(rgb);
+    if (colourPicker_.isfInput >= 0) {
+      IsfSetting* set = isfColourTarget();
+      if (!set) {
+        closeColourPicker();
+        return false;
+      }
+      set->v[0] = static_cast<float>((rgb >> 16) & 0xFF) / 255.0f;
+      set->v[1] = static_cast<float>((rgb >> 8) & 0xFF) / 255.0f;
+      set->v[2] = static_cast<float>(rgb & 0xFF) / 255.0f;
+      recentColours_.erase(std::remove(recentColours_.begin(), recentColours_.end(), rgb), recentColours_.end());
+      recentColours_.insert(recentColours_.begin(), rgb);
+      if (recentColours_.size() > 10) recentColours_.resize(10);
+      triggerToast(set->name + " " + said);
+      markProjectDirty();
+      return true;
+    }
     deckboy::effects::CueEffect* fx = colourPicker_.backdrop ? nullptr : colourPickerEffect();
     if (colourPicker_.backdrop) {
       pushUndoSnapshot();
@@ -256,6 +279,13 @@
 
   // What the picker's swatch shows: the effect's colour now.
   std::uint32_t colourPickerCurrent() {
+    if (colourPicker_.isfInput >= 0) {
+      const IsfSetting* set = isfColourTarget();
+      if (!set) return 0xFFFFFF;
+      return (static_cast<std::uint32_t>(std::lround(set->v[0] * 255.0f)) << 16) |
+             (static_cast<std::uint32_t>(std::lround(set->v[1] * 255.0f)) << 8) |
+             static_cast<std::uint32_t>(std::lround(set->v[2] * 255.0f));
+    }
     if (colourPicker_.backdrop) {
       Cue* cue = selectedCueMutable();
       const int* field = cue ? cueBackdropField(*cue) : nullptr;

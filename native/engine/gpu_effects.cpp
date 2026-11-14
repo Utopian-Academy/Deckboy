@@ -754,6 +754,42 @@ const std::vector<char>& d3d11Bytecode(const char* entry) {
   return out;
 }
 
+// HLSL text (a shader cue's, from SPIRV-Cross) to cs_5_0 bytecode. Empty on
+// failure, with the compiler's words in `error`.
+std::vector<char> d3d11CompileText(const std::string& hlsl, const char* entry, std::string& error) {
+  std::vector<char> out;
+  static HMODULE compiler = LoadLibraryW(L"d3dcompiler_47.dll");
+  if (!compiler) {
+    error = "d3dcompiler_47.dll is missing";
+    return out;
+  }
+  auto compile = reinterpret_cast<D3DCompileFn>(GetProcAddress(compiler, "D3DCompile"));
+  if (!compile) return out;
+  ID3DBlob* code = nullptr;
+  ID3DBlob* errors = nullptr;
+  const HRESULT hr = compile(hlsl.data(), hlsl.size(), "isf", nullptr, nullptr, entry, "cs_5_0", 1u << 15, 0, &code,
+                             &errors);
+  if (FAILED(hr) || !code) {
+    if (errors) error = static_cast<const char*>(errors->GetBufferPointer());
+    releaseCom(errors);
+    releaseCom(code);
+    return out;
+  }
+  releaseCom(errors);
+  out.assign(static_cast<const char*>(code->GetBufferPointer()),
+             static_cast<const char*>(code->GetBufferPointer()) + code->GetBufferSize());
+  code->Release();
+  return out;
+}
+
+// One shader cue's program on this device.
+struct IsfD3D {
+  ID3D11ComputeShader* shader = nullptr;
+  ID3D11Buffer* constants = nullptr;
+  UINT bytes = 0;
+  std::string problem;
+};
+
 struct D3DBuf {
   ID3D11Texture2D* tex = nullptr;
   ID3D11ShaderResourceView* srv = nullptr;
@@ -843,10 +879,14 @@ struct GpuEffects {
   ID3D11ComputeShader* shaders[E_COUNT] = {};
   ID3D11Buffer* constants = nullptr;
   std::map<int, D3DSlot> d3dSlots;
+  std::map<std::uint64_t, IsfD3D> isfD3d;   // by shader id
 #endif
 #if SDL_VERSION_ATLEAST(3, 4, 0)
   SDL_GPUDevice* gpu = nullptr;
   SDL_GPUComputePipeline* pipelines[E_COUNT] = {};
+  // A shader cue's pipelines by shader id (null: it did not build; see isfProblems).
+  std::map<std::uint64_t, SDL_GPUComputePipeline*> isfPipes;
+  std::map<std::uint64_t, std::string> isfProblems;
   SDL_GPUSampler* sampler = nullptr;
   struct SdlSlot : SlotBase {
     SDL_GPUTexture* buf[BUF_COUNT] = {};
@@ -986,6 +1026,12 @@ void d3d11Destroy(GpuEffects* g) {
     if (s.display) SDL_DestroyTexture(s.display);
   }
   g->d3dSlots.clear();
+  for (auto& [id, p] : g->isfD3d) {
+    (void) id;
+    releaseCom(p.shader);
+    releaseCom(p.constants);
+  }
+  g->isfD3d.clear();
   releaseCom(g->constants);
   for (auto*& s : g->shaders) releaseCom(s);
   releaseCom(g->context);
@@ -1304,6 +1350,11 @@ void sdlDestroy(GpuEffects* g) {
   SDL_WaitForGPUIdle(g->gpu);
   for (auto& [slot, s] : g->sdlSlots) sdlReleaseSlot(g, s);
   g->sdlSlots.clear();
+  for (auto& [id, p] : g->isfPipes) {
+    (void) id;
+    if (p) SDL_ReleaseGPUComputePipeline(g->gpu, p);
+  }
+  g->isfPipes.clear();
   for (auto*& p : g->pipelines) {
     if (p) SDL_ReleaseGPUComputePipeline(g->gpu, p);
     p = nullptr;
@@ -2207,6 +2258,103 @@ SDL_Texture* d3d11Source(GpuEffects* g, int slotIndex, const SourcePlan& plan) {
 }
 #endif
 
+#ifdef _WIN32
+// A shader cue (ISF): its compute shader, from the HLSL SPIRV-Cross wrote,
+// built once per device and kept by the shader's id.
+IsfD3D& d3d11IsfProgram(GpuEffects* g, const isf::Shader& sh) {
+  IsfD3D& p = g->isfD3d[sh.id];
+  if (p.shader || !p.problem.empty()) return p;
+  std::string error;
+  const std::vector<char> code = d3d11CompileText(sh.hlsl, "main", error);
+  if (code.empty()) {
+    p.problem = "Direct3D 11 would not build it: " + error;
+    std::cerr << "gpu-isf: " << sh.path << ": " << p.problem << std::endl;
+    return p;
+  }
+  if (FAILED(g->device->CreateComputeShader(code.data(), code.size(), nullptr, &p.shader))) {
+    p.problem = "Direct3D 11 refused the compiled shader";
+    return p;
+  }
+  p.bytes = static_cast<UINT>((std::max(sh.uniformBytes, 48) + 15) / 16 * 16);
+  D3D11_BUFFER_DESC cb {};
+  cb.ByteWidth = p.bytes;
+  cb.Usage = D3D11_USAGE_DYNAMIC;
+  cb.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+  cb.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+  if (FAILED(g->device->CreateBuffer(&cb, nullptr, &p.constants))) {
+    releaseCom(p.shader);
+    p.problem = "no constant buffer";
+  }
+  return p;
+}
+
+SDL_Texture* d3d11Isf(GpuEffects* g, int slotIndex, const SourcePlan& plan) {
+  if (!plan.shader || !plan.shader->ok()) return nullptr;
+  IsfD3D& prog = d3d11IsfProgram(g, *plan.shader);
+  if (!prog.shader || !prog.constants) return nullptr;
+  const int w = plan.width;
+  const int h = plan.height;
+  std::vector<std::uint8_t> fullBytes, deskBytes;
+  isf::packUniforms(*plan.shader, plan.isfValues, plan.isfTime, plan.isfDelta, plan.isfFrame, w, h, fullBytes);
+  if (plan.deskW >= 2 && plan.deskH >= 2) {
+    isf::packUniforms(*plan.shader, plan.isfValues, plan.isfTime, plan.isfDelta, plan.isfFrame, plan.deskW,
+                      plan.deskH, deskBytes);
+  }
+  D3DSlot& slot = g->d3dSlots[slotIndex];
+  if (!makeBuf(g->device, slot.buf[ALT], w, h)) return nullptr;
+  SDL_Texture* display = ensureDisplay(g, slot, w, h);
+  if (!display) return nullptr;
+  slot.displayTex = static_cast<ID3D11Texture2D*>(
+    SDL_GetPointerProperty(SDL_GetTextureProperties(display), SDL_PROP_TEXTURE_D3D11_TEXTURE_POINTER, nullptr));
+  if (!slot.displayTex) return nullptr;
+  SDL_FlushRenderer(g->renderer);
+  const auto dispatch = [&](ID3D11UnorderedAccessView* uav, int dw, int dh, const std::vector<std::uint8_t>& bytes) {
+    D3D11_MAPPED_SUBRESOURCE mapped {};
+    if (FAILED(g->context->Map(prog.constants, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped))) return false;
+    std::memset(mapped.pData, 0, prog.bytes);
+    std::memcpy(mapped.pData, bytes.data(), std::min<std::size_t>(bytes.size(), prog.bytes));
+    g->context->Unmap(prog.constants, 0);
+    g->context->CSSetUnorderedAccessViews(0, 1, &uav, nullptr);
+    g->context->CSSetConstantBuffers(0, 1, &prog.constants);
+    g->context->CSSetShader(prog.shader, nullptr, 0);
+    g->context->Dispatch(static_cast<UINT>((dw + 7) / 8), static_cast<UINT>((dh + 7) / 8), 1);
+    return true;
+  };
+  if (!dispatch(slot.buf[ALT].uav, w, h, fullBytes)) return nullptr;
+  const bool desk = plan.deskW >= 2 && plan.deskH >= 2 && !deskBytes.empty() &&
+                    makeBuf(g->device, slot.desk, plan.deskW, plan.deskH) &&
+                    dispatch(slot.desk.uav, plan.deskW, plan.deskH, deskBytes);
+  if (desk) {
+    ID3D11Texture2D*& staging = slot.deskStaging[slot.deskNext];
+    if (staging) {
+      D3D11_TEXTURE2D_DESC have {};
+      staging->GetDesc(&have);
+      if (static_cast<int>(have.Width) != plan.deskW || static_cast<int>(have.Height) != plan.deskH) releaseCom(staging);
+    }
+    if (!staging) {
+      D3D11_TEXTURE2D_DESC sd {};
+      slot.desk.tex->GetDesc(&sd);
+      sd.Usage = D3D11_USAGE_STAGING;
+      sd.BindFlags = 0;
+      sd.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+      g->device->CreateTexture2D(&sd, nullptr, &staging);
+    }
+    if (staging) {
+      g->context->CopyResource(staging, slot.desk.tex);
+      slot.deskMoment[slot.deskNext] = plan.moment;
+      slot.deskBusy[slot.deskNext] = true;
+      slot.deskNext ^= 1;
+    }
+  }
+  ID3D11UnorderedAccessView* none[1] = {};
+  g->context->CSSetUnorderedAccessViews(0, 1, none, nullptr);
+  g->context->CSSetShader(nullptr, nullptr, 0);
+  slot.result = ALT;
+  g->context->CopyResource(slot.displayTex, slot.buf[ALT].tex);
+  return display;
+}
+#endif
+
 #if SDL_VERSION_ATLEAST(3, 4, 0)
 void releaseSdlLumia(GpuEffects* g, GpuEffects::SdlSlot& slot) {
   for (auto*& b : slot.lumiaBuf) {
@@ -2370,8 +2518,177 @@ SDL_Texture* sdlSource(GpuEffects* g, int slotIndex, const SourcePlan& plan) {
   if (trace) slot.lumiaMoment = plan.moment;
   return display;
 }
+// A shader cue's pipeline on SDL_GPU: MSL on Metal, SPIR-V on Vulkan. Direct3D
+// 12 would need DXIL, which is not made at run time (ISF v1 skips it).
+SDL_GPUComputePipeline* sdlIsfPipeline(GpuEffects* g, const isf::Shader& sh) {
+  auto found = g->isfPipes.find(sh.id);
+  if (found != g->isfPipes.end()) return found->second;
+  SDL_GPUComputePipeline*& slotPipe = g->isfPipes[sh.id];
+  const SDL_GPUShaderFormat formats = SDL_GetGPUShaderFormats(g->gpu);
+  SDL_GPUComputePipelineCreateInfo info {};
+  if ((formats & SDL_GPU_SHADERFORMAT_MSL) != 0) {
+    info.format = SDL_GPU_SHADERFORMAT_MSL;
+    info.code = reinterpret_cast<const Uint8*>(sh.msl.data());
+    info.code_size = sh.msl.size();
+    info.entrypoint = "main0";
+  } else if ((formats & SDL_GPU_SHADERFORMAT_SPIRV) != 0) {
+    info.format = SDL_GPU_SHADERFORMAT_SPIRV;
+    info.code = reinterpret_cast<const Uint8*>(sh.spirv.data());
+    info.code_size = sh.spirv.size() * sizeof(std::uint32_t);
+    info.entrypoint = "main";
+  } else {
+    g->isfProblems[sh.id] =
+      "this graphics device (Direct3D 12) needs DXIL, which shaders do not make yet: use a Direct3D 11 output";
+    return slotPipe;
+  }
+  info.num_samplers = 0;
+  info.num_readwrite_storage_textures = 1;
+  info.num_uniform_buffers = 1;
+  info.threadcount_x = 8;
+  info.threadcount_y = 8;
+  info.threadcount_z = 1;
+  slotPipe = SDL_CreateGPUComputePipeline(g->gpu, &info);
+  if (!slotPipe) {
+    g->isfProblems[sh.id] = std::string("the graphics device would not build it: ") + SDL_GetError();
+    std::cerr << "gpu-isf: " << sh.path << ": " << g->isfProblems[sh.id] << std::endl;
+  }
+  return slotPipe;
+}
+
+SDL_Texture* sdlIsf(GpuEffects* g, int slotIndex, const SourcePlan& plan) {
+  if (!plan.shader || !plan.shader->ok()) return nullptr;
+  SDL_GPUComputePipeline* pipe = sdlIsfPipeline(g, *plan.shader);
+  if (!pipe) return nullptr;
+  const int w = plan.width;
+  const int h = plan.height;
+  std::vector<std::uint8_t> fullBytes, deskBytes;
+  isf::packUniforms(*plan.shader, plan.isfValues, plan.isfTime, plan.isfDelta, plan.isfFrame, w, h, fullBytes);
+  if (plan.deskW >= 2 && plan.deskH >= 2) {
+    isf::packUniforms(*plan.shader, plan.isfValues, plan.isfTime, plan.isfDelta, plan.isfFrame, plan.deskW,
+                      plan.deskH, deskBytes);
+  }
+  GpuEffects::SdlSlot& slot = g->sdlSlots[slotIndex];
+  auto makeTex = [&](int tw, int th) {
+    SDL_GPUTextureCreateInfo info {};
+    info.type = SDL_GPU_TEXTURETYPE_2D;
+    info.format = SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM;
+    info.usage = SDL_GPU_TEXTUREUSAGE_SAMPLER | SDL_GPU_TEXTUREUSAGE_COMPUTE_STORAGE_WRITE;
+    info.width = static_cast<Uint32>(tw);
+    info.height = static_cast<Uint32>(th);
+    info.layer_count_or_depth = 1;
+    info.num_levels = 1;
+    return SDL_CreateGPUTexture(g->gpu, &info);
+  };
+  if (!slot.buf[ALT] || slot.bw[ALT] != w || slot.bh[ALT] != h) {
+    if (slot.buf[ALT]) SDL_ReleaseGPUTexture(g->gpu, slot.buf[ALT]);
+    slot.buf[ALT] = makeTex(w, h);
+    if (!slot.buf[ALT]) return nullptr;
+    slot.bw[ALT] = w;
+    slot.bh[ALT] = h;
+  }
+  SDL_Texture* display = ensureDisplay(g, slot, w, h);
+  if (!display) return nullptr;
+  auto* displayTex = static_cast<SDL_GPUTexture*>(
+    SDL_GetPointerProperty(SDL_GetTextureProperties(display), SDL_PROP_TEXTURE_GPU_TEXTURE_POINTER, nullptr));
+  if (!displayTex) return nullptr;
+  SDL_GPUCommandBuffer* cmd = SDL_AcquireGPUCommandBuffer(g->gpu);
+  if (!cmd) return nullptr;
+  const auto pass = [&](SDL_GPUTexture* target, int dw, int dh, const std::vector<std::uint8_t>& bytes) {
+    SDL_GPUStorageTextureReadWriteBinding out {};
+    out.texture = target;
+    out.cycle = false;
+    SDL_GPUComputePass* cp = SDL_BeginGPUComputePass(cmd, &out, 1, nullptr, 0);
+    SDL_BindGPUComputePipeline(cp, pipe);
+    SDL_PushGPUComputeUniformData(cmd, 0, bytes.data(), static_cast<Uint32>(bytes.size()));
+    SDL_DispatchGPUCompute(cp, static_cast<Uint32>((dw + 7) / 8), static_cast<Uint32>((dh + 7) / 8), 1);
+    SDL_EndGPUComputePass(cp);
+  };
+  pass(slot.buf[ALT], w, h, fullBytes);
+  bool desk = plan.deskW >= 2 && plan.deskH >= 2 && !deskBytes.empty();
+  const int k = slot.deskNext;
+  if (desk && (!slot.deskTex || slot.deskW != plan.deskW || slot.deskH != plan.deskH)) {
+    if (slot.deskTex) SDL_ReleaseGPUTexture(g->gpu, slot.deskTex);
+    for (auto*& d : slot.deskDown) {
+      if (d) SDL_ReleaseGPUTransferBuffer(g->gpu, d);
+      d = nullptr;
+    }
+    slot.deskTex = makeTex(plan.deskW, plan.deskH);
+    slot.deskW = slot.deskTex ? plan.deskW : 0;
+    slot.deskH = slot.deskTex ? plan.deskH : 0;
+  }
+  if (desk && slot.deskFence[k]) desk = false;   // a read-back still in flight here
+  if (desk && slot.deskTex && !slot.deskDown[k]) {
+    SDL_GPUTransferBufferCreateInfo info {};
+    info.usage = SDL_GPU_TRANSFERBUFFERUSAGE_DOWNLOAD;
+    info.size = static_cast<Uint32>(plan.deskW) * static_cast<Uint32>(plan.deskH) * 4;
+    slot.deskDown[k] = SDL_CreateGPUTransferBuffer(g->gpu, &info);
+  }
+  desk = desk && slot.deskTex && slot.deskDown[k];
+  if (desk) pass(slot.deskTex, plan.deskW, plan.deskH, deskBytes);
+  SDL_GPUCopyPass* copy = SDL_BeginGPUCopyPass(cmd);
+  SDL_GPUTextureLocation from {};
+  from.texture = slot.buf[ALT];
+  SDL_GPUTextureLocation to {};
+  to.texture = displayTex;
+  SDL_CopyGPUTextureToTexture(copy, &from, &to, static_cast<Uint32>(w), static_cast<Uint32>(h), 1, false);
+  if (desk) {
+    SDL_GPUTextureRegion region {};
+    region.texture = slot.deskTex;
+    region.w = static_cast<Uint32>(plan.deskW);
+    region.h = static_cast<Uint32>(plan.deskH);
+    region.d = 1;
+    SDL_GPUTextureTransferInfo into {};
+    into.transfer_buffer = slot.deskDown[k];
+    SDL_DownloadFromGPUTexture(copy, &region, &into);
+  }
+  SDL_EndGPUCopyPass(copy);
+  if (desk) {
+    SDL_GPUFence* fence = SDL_SubmitGPUCommandBufferAndAcquireFence(cmd);
+    if (!fence) return nullptr;
+    slot.deskFence[k] = fence;
+    slot.deskMoment[k] = plan.moment;
+    slot.deskNext ^= 1;
+  } else if (!SDL_SubmitGPUCommandBuffer(cmd)) {
+    return nullptr;
+  }
+  return display;
+}
 #endif
 }  // namespace
+
+bool gpuEffectsRunIsf(const GpuEffects* g, std::string* why) {
+  if (!g) return false;
+#ifdef _WIN32
+  if (g->device) return true;
+#endif
+#if SDL_VERSION_ATLEAST(3, 4, 0)
+  if (g->gpu) {
+    const SDL_GPUShaderFormat formats = SDL_GetGPUShaderFormats(g->gpu);
+    if ((formats & (SDL_GPU_SHADERFORMAT_MSL | SDL_GPU_SHADERFORMAT_SPIRV)) != 0) return true;
+    if (why) *why = "this graphics device (Direct3D 12) needs DXIL, which shaders do not make yet: use a Direct3D 11 output";
+    return false;
+  }
+#endif
+  if (why) *why = "this output has no graphics-card path";
+  return false;
+}
+
+std::string gpuIsfProblem(const GpuEffects* g, const isf::Shader& sh) {
+  if (!g) return {};
+#ifdef _WIN32
+  if (g->device) {
+    auto it = g->isfD3d.find(sh.id);
+    return it == g->isfD3d.end() ? std::string() : it->second.problem;
+  }
+#endif
+#if SDL_VERSION_ATLEAST(3, 4, 0)
+  if (g->gpu) {
+    auto it = g->isfProblems.find(sh.id);
+    return it == g->isfProblems.end() ? std::string() : it->second;
+  }
+#endif
+  return {};
+}
 
 bool readGpuSourceDesk(GpuEffects* g, int slotIndex, std::vector<std::uint8_t>& rgba, int& w, int& h,
                        std::uint64_t& moment) {
@@ -2435,6 +2752,15 @@ bool readGpuSourceDesk(GpuEffects* g, int slotIndex, std::vector<std::uint8_t>& 
 SDL_Texture* runGpuSource(GpuEffects* g, int slot, const SourcePlan& plan) {
   if (!g || plan.kind == SourcePlan::None || plan.width < 2 || plan.height < 2 || plan.srcW < 2 ||
       plan.srcH < 2) {
+    return nullptr;
+  }
+  if (plan.kind == SourcePlan::Isf) {
+#ifdef _WIN32
+    if (g->device) return d3d11Isf(g, slot, plan);
+#endif
+#if SDL_VERSION_ATLEAST(3, 4, 0)
+    if (g->gpu) return sdlIsf(g, slot, plan);
+#endif
     return nullptr;
   }
 #ifdef _WIN32

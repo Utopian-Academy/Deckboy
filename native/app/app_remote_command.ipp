@@ -7700,6 +7700,11 @@
       markProjectDirty();
       return;
     }
+    // SHADER: the selected shader cue's file and inputs (app_isf.ipp).
+    if (command == "SHADER") {
+      handleShaderCommand(parts);
+      return;
+    }
     // Bug Swat, the Motion lesson's game (app_bugswat.ipp).
     if (command == "BUGSWAT") {
       handleBugSwatCommand(parts);

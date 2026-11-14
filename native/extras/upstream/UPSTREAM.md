@@ -52,3 +52,14 @@ Source: https://github.com/nayuki/QR-Code-generator  (C++ edition, `cpp/`)
 
 Used by the Web Monitor's QR code (Settings). Same rule as above: byte-identical
 to upstream, so a re-sync is a plain copy and the hashes above can be checked.
+
+## Fetched at build time (not vendored)
+
+`DECKBOY_ISF` (CMakeLists.txt, default ON) fetches these with FetchContent at pinned release tags. Nothing of them is copied into this repository.
+
+| Library | Tag | Licence | Used for |
+|---|---|---|---|
+| glslang (KhronosGroup/glslang) | 16.2.0 | BSD-3-Clause, Apache-2.0 and other permissive parts | GLSL to SPIR-V for shader cues |
+| SPIRV-Cross (KhronosGroup/SPIRV-Cross) | vulkan-sdk-1.4.350.1 | Apache-2.0 | SPIR-V to HLSL (Direct3D 11) and MSL (Metal) |
+
+Both are compatible with GPL-3.0-or-later. Only their library targets are built (no tools, tests or optimiser).

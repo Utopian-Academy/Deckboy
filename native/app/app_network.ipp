@@ -3236,7 +3236,7 @@ html,body{width:100%;height:100%;overflow:hidden}
     // without something saying so.
     if (upper == "HELP ALL" || upper == "HELP FULL" || upper == "?? ") {
       sendSnapshot(
-        "DECKBOY_0.01 every verb (397)\n"
+        "DECKBOY_0.01 every verb (398)\n"
         "ADDTIMER ALLGO ALLPAUSE ALLPLAY ALLSTOP ALLTAKE ANIM ANIMATION ARM AUDITION\n"
         "ARTNET ARTNETEVENT ARTNETPORT ART_NET_PORT ASCII ATEM ATEMEVENT\n"
         "ATEMTRIGGER AUDIO AUDIOCUE AUDIOENABLED AUDIOFX AUDIOGAIN AUDIOMONO\n"
@@ -3275,7 +3275,7 @@ html,body{width:100%;height:100%;overflow:hidden}
         "SCHEDULE SECTION SEEK SEEKPOS SELECT SELECTALL SELECTID SFX SHORTID SHUFFLE\n"
         "SHORTCUTS SKIP SKIPBACK SKIPEND SOURCE SPEED SPOUTCUE SRC ST2110\n"
         "STANDBY STARTUP STILLDUR STOPALL STING STREAM SYNTH KEYS NOTESTEP PRESENTER SPLITNOTES PROMPTER\n"
-        "STOP SUB SUBTITLE SUBTITLES SWIRL MOIRE LUMIA SYNCGO SYNCTAKE SYNTHNOTEOFF\n"
+        "STOP SUB SUBTITLE SUBTITLES SWIRL MOIRE LUMIA SHADER SYNCGO SYNCTAKE SYNTHNOTEOFF\n"
         "SYNTHNOTEON SYPHONCUE TAKE TAKEID TALLYEVENT TC TCMARK TIMECODE TONECUE\n"
         "TIMECODEEXT\n"
         "TIMECODELTC TIMECODEMARK TIMEOVERLAY TIMER TIMERCUE TOGGLE\n"
@@ -3437,6 +3437,8 @@ html,body{width:100%;height:100%;overflow:hidden}
         "lumia: LUMIA [STATUS] | PALETTE <0-5|name> | MODE <0-2|name> | TOPBOTTOM|LISTENS ON|OFF\n"
         "       LUMIA FLOW|WATER|RIPPLE|JET|PRISM|SPLIT|FOCUS|SHIMMER|ANGLE|SPIN|LENS|GLOW|BRIGHT|TRAIL <0-100>\n"
         "       LUMIA MIRRORS <0-12> | LUMIA LFO <control> ON|OFF|SHAPE|RATE|DEPTH|PHASE|SYNC [value]\n"
+        "shader: SHADER [STATUS] | LOAD <path to a .fs file> | SET <input> <value...> | LFO <input> ON|OFF|SHAPE|RATE|DEPTH|PHASE|SYNC [value]\n"
+        "        (a colour is #rrggbb or r g b [a] from 0 to 1; a choice is its label; a point is x y)\n"
         "decklink: DECKLINK ON|OFF|TOGGLE | DEVICE <n> | MODE <mode> | 10BIT on|off\n"
         "          DECKLINK KEYFILL ON|OFF|TOGGLE [key device] | KEYDEVICE <n>\n"
         "          (key+fill sends the picture and its matte down two cards)\n"
